@@ -2104,22 +2104,22 @@ SpriteSetup(void)
                 case SECT_WALL_PAN_SPEED:
                 {
                     short i, found = FALSE;
-                    short hitsect, hitwall, hitsprite;
-                    int hitx, hity, hitz;
+                    vec3_t hit_pos = { sp->x, sp->y, sp->z - Z(8) };
+                    hitdata_t hitinfo;
 
-                    hitscan(sp->x, sp->y, sp->z - Z(8), sp->sectnum,    // Start position
+                    hitscan(&hit_pos, sp->sectnum,    // Start position
                             sintable[NORM_ANGLE(sp->ang + 512)],    // X vector of 3D ang
                             sintable[sp->ang],      // Y vector of 3D ang
                             0,      // Z vector of 3D ang
-                            &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                            &hitinfo, CLIPMASK_MISSILE);
 
-                    if (hitwall == -1)
+                    if (hitinfo.wall == -1)
                     {
                         KillSprite(SpriteNum);
                         break;
                     }
 
-                    sp->owner = hitwall;
+                    sp->owner = hitinfo.wall;
                     // if moves with SO
                     if (TEST_BOOL1(sp))
                         sp->xvel = 0;
@@ -2127,29 +2127,29 @@ SpriteSetup(void)
                         sp->xvel = sp->lotag;
                     sp->ang = SP_TAG6(sp);
                     // attach to the sector that contains the wall
-                    changespritesect(SpriteNum, hitsect);
+                    changespritesect(SpriteNum, hitinfo.sect);
                     change_sprite_stat(SpriteNum, STAT_WALL_PAN);
                     break;
                 }
 
                 case WALL_DONT_STICK:
                 {
-                    short hitsect, hitwall, hitsprite;
-                    int hitx, hity, hitz;
+                    vec3_t hit_pos = { sp->x, sp->y, sp->z - Z(8) };
+                    hitdata_t hitinfo;
 
-                    hitscan(sp->x, sp->y, sp->z - Z(8), sp->sectnum,    // Start position
+                    hitscan(&hit_pos, sp->sectnum,    // Start position
                             sintable[NORM_ANGLE(sp->ang + 512)],    // X vector of 3D ang
                             sintable[sp->ang],      // Y vector of 3D ang
                             0,      // Z vector of 3D ang
-                            &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                            &hitinfo, CLIPMASK_MISSILE);
 
-                    if (hitwall == -1)
+                    if (hitinfo.wall == -1)
                     {
                         KillSprite(SpriteNum);
                         break;
                     }
 
-                    SET(wall[hitwall].extra, WALLFX_DONT_STICK);
+                    SET(wall[hitinfo.wall].extra, WALLFX_DONT_STICK);
                     KillSprite(SpriteNum);
                     break;
                 }

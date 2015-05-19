@@ -415,10 +415,10 @@ char dashow2dsector[(MAXSECTORS+7)>>3];
 
 void computergetinput(int snum, SW_PACKET *syn)
 {
-    int i, j, k, l, x1, y1, z1, x2, y2, z2, x3, y3, z3, dx, dy, nextj;
+    int i, j, k, l, x1, y1, z1, x2, y2, z2, dx, dy, nextj;
     int dist, daang, zang, fightdist, damyang, damysect;
     int startsect, endsect, splc, send, startwall, endwall;
-    short dasect, dawall, daspr;
+    hitdata_t hitinfo;
     PLAYERp p;
     walltype *wal;
     int myx, myy, myz, myang, mycursectnum;
@@ -535,33 +535,33 @@ void computergetinput(int snum, SW_PACKET *syn)
         }
         if (k)
         {
-            x3 = sprite[j].x;
-            y3 = sprite[j].y;
-            z3 = sprite[j].z;
+            hitinfo.pos.x = sprite[j].x;
+            hitinfo.pos.y = sprite[j].y;
+            hitinfo.pos.z = sprite[j].z;
             for (l=0; l<=8; l++)
             {
-                if (tmulscale11(x3-x1,x3-x1,y3-y1,y3-y1,(z3-z1)>>4,(z3-z1)>>4) < 3072)
+                if (tmulscale11(hitinfo.pos.x-x1,hitinfo.pos.x-x1,hitinfo.pos.y-y1,hitinfo.pos.y-y1,(hitinfo.pos.z-z1)>>4,(hitinfo.pos.z-z1)>>4) < 3072)
                 {
                     dx = sintable[(sprite[j].ang+512)&2047];
                     dy = sintable[sprite[j].ang&2047];
-                    if ((x1-x3)*dy > (y1-y3)*dx) i = -k*512; else i = k*512;
+                    if ((x1-hitinfo.pos.x)*dy > (y1-hitinfo.pos.y)*dx) i = -k*512; else i = k*512;
                     syn->vel -= mulscale17(dy,i);
                     syn->svel += mulscale17(dx,i);
                 }
 
                 if (l < 7)
                 {
-                    x3 += (mulscale14(sprite[j].xvel,sintable[(sprite[j].ang+512)&2047])<<2);
-                    y3 += (mulscale14(sprite[j].xvel,sintable[sprite[j].ang&2047])<<2);
-                    z3 += (sprite[j].zvel<<2);
+                    hitinfo.pos.x += (mulscale14(sprite[j].xvel,sintable[(sprite[j].ang+512)&2047])<<2);
+                    hitinfo.pos.y += (mulscale14(sprite[j].xvel,sintable[sprite[j].ang&2047])<<2);
+                    hitinfo.pos.z += (sprite[j].zvel<<2);
                 }
                 else
                 {
-                    hitscan(sprite[j].x,sprite[j].y,sprite[j].z,sprite[j].sectnum,
+                    hitscan((vec3_t *)&sprite[j],sprite[j].sectnum,
                             mulscale14(sprite[j].xvel,sintable[(sprite[j].ang+512)&2047]),
                             mulscale14(sprite[j].xvel,sintable[sprite[j].ang&2047]),
                             (int)sprite[j].zvel,
-                            &dasect,&dawall,&daspr,&x3,&y3,&z3,CLIPMASK1);
+                            &hitinfo,CLIPMASK1);
                 }
             }
         }
@@ -596,10 +596,10 @@ void computergetinput(int snum, SW_PACKET *syn)
         // Only fire explosive type weaps if you are not too close to the target!
         if (u->WeaponNum == WPN_MICRO || u->WeaponNum == WPN_GRENADE || u->WeaponNum == WPN_RAIL)
         {
-            int x4,y4,z4;
-            hitscan(x1,y1,z1-PLAYER_HEIGHT,damysect,sintable[(damyang+512)&2047],sintable[damyang&2047],
-                    (100-p->horiz-p->horizoff)*32,&dasect,&dawall,&daspr,&x4,&y4,&z4,CLIPMASK1);
-            if ((x4-x1)*(x4-x1)+(y4-y1)*(y4-y1) < 2560*2560) syn->bits &= ~(1<<SK_SHOOT);
+            vec3_t hit_pos = { x1, y1, z1-PLAYER_HEIGHT };
+            hitscan(&hit_pos,damysect,sintable[(damyang+512)&2047],sintable[damyang&2047],
+                    (100-p->horiz-p->horizoff)*32,&hitinfo,CLIPMASK1);
+            if ((hitinfo.pos.x-x1)*(hitinfo.pos.x-x1)+(hitinfo.pos.y-y1)*(hitinfo.pos.y-y1) < 2560*2560) syn->bits &= ~(1<<SK_SHOOT);
         }
 
         // Get fighting distance based on you and your opponents current weapons
@@ -613,10 +613,10 @@ void computergetinput(int snum, SW_PACKET *syn)
         zang = 100-((z2-z1)*8)/dist;
         fightdist = max(fightdist,(klabs(z2-z1)>>4));
 
-        x3 = x2+((x1-x2)*fightdist/dist);
-        y3 = y2+((y1-y2)*fightdist/dist);
-        syn->vel += (x3-x1)*2047/dist;
-        syn->svel += (y3-y1)*2047/dist;
+        hitinfo.pos.x = x2+((x1-x2)*fightdist/dist);
+        hitinfo.pos.y = y2+((y1-y2)*fightdist/dist);
+        syn->vel += (hitinfo.pos.x-x1)*2047/dist;
+        syn->svel += (hitinfo.pos.y-y1)*2047/dist;
 
         //Strafe attack
         if (fightdist)
@@ -703,14 +703,14 @@ void computergetinput(int snum, SW_PACKET *syn)
                         goalsect[snum] = searchsect[k];
                         startwall = sector[goalsect[snum]].wallptr;
                         endwall = startwall+sector[goalsect[snum]].wallnum;
-                        x3 = y3 = 0;
+                        hitinfo.pos.x = hitinfo.pos.y = 0;
                         for (i=startwall; i<endwall; i++)
                         {
-                            x3 += wall[i].x;
-                            y3 += wall[i].y;
+                            hitinfo.pos.x += wall[i].x;
+                            hitinfo.pos.y += wall[i].y;
                         }
-                        x3 /= (endwall-startwall);
-                        y3 /= (endwall-startwall);
+                        hitinfo.pos.x /= (endwall-startwall);
+                        hitinfo.pos.y /= (endwall-startwall);
 
                         startwall = sector[startsect].wallptr;
                         endwall = startwall+sector[startsect].wallnum;
@@ -723,8 +723,8 @@ void computergetinput(int snum, SW_PACKET *syn)
 
                             //if (dx*(y1-wall[i].y) <= dy*(x1-wall[i].x))
                             //   if (dx*(y2-wall[i].y) >= dy*(x2-wall[i].x))
-                            if ((x3-x1)*(wall[i].y-y1) <= (y3-y1)*(wall[i].x-x1))
-                                if ((x3-x1)*(wall[wall[i].point2].y-y1) >= (y3-y1)*(wall[wall[i].point2].x-x1))
+                            if ((hitinfo.pos.x-x1)*(wall[i].y-y1) <= (hitinfo.pos.y-y1)*(wall[i].x-x1))
+                                if ((hitinfo.pos.x-x1)*(wall[wall[i].point2].y-y1) >= (hitinfo.pos.y-y1)*(wall[wall[i].point2].x-x1))
                                 { k = i; break; }
 
                             dist = ksqrt(dx*dx+dy*dy);
@@ -814,12 +814,12 @@ void computergetinput(int snum, SW_PACKET *syn)
         goalsprite[snum] = -1;
 #endif
 
-    x3 = p->posx; y3 = p->posy; z3 = p->posz; dasect = p->cursectnum;
-    i = clipmove_old(&x3,&y3,&z3,&dasect,p->xvect,p->yvect,164L,4L<<8,4L<<8,CLIPMASK0);
+    hitinfo.pos.x = p->posx; hitinfo.pos.y = p->posy; hitinfo.pos.z = p->posz; hitinfo.sect = p->cursectnum;
+    i = clipmove(&hitinfo.pos,&hitinfo.sect,p->xvect,p->yvect,164L,4L<<8,4L<<8,CLIPMASK0);
     if (!i)
     {
-        x3 = p->posx; y3 = p->posy; z3 = p->posz+(24<<8); dasect = p->cursectnum;
-        i = clipmove_old(&x3,&y3,&z3,&dasect,p->xvect,p->yvect,164L,4L<<8,4L<<8,CLIPMASK0);
+        hitinfo.pos.x = p->posx; hitinfo.pos.y = p->posy; hitinfo.pos.z = p->posz+(24<<8); hitinfo.sect = p->cursectnum;
+        i = clipmove(&hitinfo.pos,&hitinfo.sect,p->xvect,p->yvect,164L,4L<<8,4L<<8,CLIPMASK0);
     }
     if (i)
     {

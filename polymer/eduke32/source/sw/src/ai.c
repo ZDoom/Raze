@@ -316,8 +316,7 @@ CanHitPlayer(short SpriteNum)
 {
     USERp u = User[SpriteNum], hu;
     SPRITEp sp = User[SpriteNum]->SpriteP, hp;
-    int hitx, hity, hitz;
-    short hitsect, hitwall, hitsprite;
+    hitdata_t hitinfo;
     int xvect,yvect,zvect;
     short ang,ret=FALSE;
     // if actor can still see the player
@@ -357,12 +356,12 @@ CanHitPlayer(short SpriteNum)
                xvect,
                yvect,
                zvect,
-               &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+               &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitsect < 0)
+    if (hitinfo.sect < 0)
         return FALSE;
 
-    if (hitsprite == u->tgt_sp - sprite)
+    if (hitinfo.sprite == u->tgt_sp - sprite)
         return TRUE;
 
     ////DSPRINTF(ds,"CanHit %s",ret ? "TRUE" : "FALSE");

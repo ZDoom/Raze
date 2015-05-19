@@ -425,14 +425,9 @@ DoBloodSpray(int16_t Weapon)
         case HIT_SPRITE:
         {
             short wall_ang, dang;
-            short hitsprite = -2;
-            SPRITEp hsp;
-            USERp hu;
-
-
-            hitsprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hitsprite];
-            hu = User[hitsprite];
+            short hit_sprite = NORM_SPRITE(u->ret);
+            SPRITEp hsp = &sprite[hit_sprite];
+            USERp hu = User[hit_sprite];
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
             {
@@ -457,12 +452,12 @@ DoBloodSpray(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hitwall, nw, wall_ang, dang;
+            short hit_wall, nw, wall_ang, dang;
             WALLp wph;
             short wb;
 
-            hitwall = NORM_WALL(u->ret);
-            wph = &wall[hitwall];
+            hit_wall = NORM_WALL(u->ret);
+            wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -472,7 +467,7 @@ DoBloodSpray(int16_t Weapon)
             }
 
 
-            nw = wall[hitwall].point2;
+            nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
             SpawnMidSplash(Weapon);
@@ -497,7 +492,7 @@ DoBloodSpray(int16_t Weapon)
                 sp->y = sprite[wb].y;
 
                 // !FRANK! bit of a hack
-                // yvel is the hitwall
+                // yvel is the hit_wall
                 if (sprite[wb].yvel >= 0)
                 {
                     short wallnum = sprite[wb].yvel;
@@ -520,8 +515,6 @@ DoBloodSpray(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL hitwall;
-
             // hit floor
             if (sp->z > DIV2(u->hiz + u->loz))
             {
@@ -646,14 +639,14 @@ DoPhosphorus(int16_t Weapon)
         case HIT_SPRITE:
         {
             short wall_ang, dang;
-            short hitsprite = -2;
+            short hit_sprite = -2;
             SPRITEp hsp;
             USERp hu;
 
 
-            hitsprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hitsprite];
-            hu = User[hitsprite];
+            hit_sprite = NORM_SPRITE(u->ret);
+            hsp = &sprite[hit_sprite];
+            hu = User[hit_sprite];
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
             {
@@ -666,10 +659,10 @@ DoPhosphorus(int16_t Weapon)
                 if (TEST(hsp->extra, SPRX_BURNABLE))
                 {
                     if (!hu)
-                        hu = SpawnUser(hitsprite, hsp->picnum, NULL);
+                        hu = SpawnUser(hit_sprite, hsp->picnum, NULL);
                     SpawnFireballExp(Weapon);
                     if (hu)
-                        SpawnFireballFlames(Weapon, hitsprite);
+                        SpawnFireballFlames(Weapon, hit_sprite);
                     DoFlamesDamageTest(Weapon);
                 }
                 u->xchange = u->ychange = 0;
@@ -683,11 +676,11 @@ DoPhosphorus(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hitwall, nw, wall_ang, dang;
+            short hit_wall, nw, wall_ang, dang;
             WALLp wph;
 
-            hitwall = NORM_WALL(u->ret);
-            wph = &wall[hitwall];
+            hit_wall = NORM_WALL(u->ret);
+            wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -697,7 +690,7 @@ DoPhosphorus(int16_t Weapon)
             }
 
 
-            nw = wall[hitwall].point2;
+            nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
             WallBounce(Weapon, wall_ang);
@@ -707,11 +700,11 @@ DoPhosphorus(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL hitwall;
+            SWBOOL did_hit_wall;
 
-            if (SlopeBounce(Weapon, &hitwall))
+            if (SlopeBounce(Weapon, &did_hit_wall))
             {
-                if (hitwall)
+                if (did_hit_wall)
                 {
                     // hit a wall
                     ScaleSpriteVector(Weapon, 28000);
@@ -873,14 +866,14 @@ DoChemBomb(int16_t Weapon)
         case HIT_SPRITE:
         {
             short wall_ang, dang;
-            short hitsprite = -2;
+            short hit_sprite;
             SPRITEp hsp;
 
             if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
-            hitsprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hitsprite];
+            hit_sprite = NORM_SPRITE(u->ret);
+            hsp = &sprite[hit_sprite];
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
             {
@@ -910,11 +903,11 @@ DoChemBomb(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hitwall, nw, wall_ang, dang;
+            short hit_wall, nw, wall_ang, dang;
             WALLp wph;
 
-            hitwall = NORM_WALL(u->ret);
-            wph = &wall[hitwall];
+            hit_wall = NORM_WALL(u->ret);
+            wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -926,7 +919,7 @@ DoChemBomb(int16_t Weapon)
             if (!TEST(sp->cstat, CSTAT_SPRITE_INVISIBLE))
                 PlaySound(DIGI_CHEMBOUNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
-            nw = wall[hitwall].point2;
+            nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
             WallBounce(Weapon, wall_ang);
@@ -936,11 +929,11 @@ DoChemBomb(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL hitwall;
+            SWBOOL did_hit_wall;
 
-            if (SlopeBounce(Weapon, &hitwall))
+            if (SlopeBounce(Weapon, &did_hit_wall))
             {
-                if (hitwall)
+                if (did_hit_wall)
                 {
                     // hit a wall
                     ScaleSpriteVector(Weapon, 28000);
@@ -1132,13 +1125,13 @@ DoCaltrops(int16_t Weapon)
         case HIT_SPRITE:
         {
             short wall_ang, dang;
-            short hitsprite = -2;
+            short hit_sprite;
             SPRITEp hsp;
 
             PlaySound(DIGI_CALTROPS, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
-            hitsprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hitsprite];
+            hit_sprite = NORM_SPRITE(u->ret);
+            hsp = &sprite[hit_sprite];
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
             {
@@ -1158,11 +1151,11 @@ DoCaltrops(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hitwall, nw, wall_ang, dang;
+            short hit_wall, nw, wall_ang, dang;
             WALLp wph;
 
-            hitwall = NORM_WALL(u->ret);
-            wph = &wall[hitwall];
+            hit_wall = NORM_WALL(u->ret);
+            wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -1173,7 +1166,7 @@ DoCaltrops(int16_t Weapon)
 
             PlaySound(DIGI_CALTROPS, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
-            nw = wall[hitwall].point2;
+            nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y) + 512);
 
             WallBounce(Weapon, wall_ang);
@@ -1183,11 +1176,11 @@ DoCaltrops(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL hitwall;
+            SWBOOL did_hit_wall;
 
-            if (SlopeBounce(Weapon, &hitwall))
+            if (SlopeBounce(Weapon, &did_hit_wall))
             {
-                if (hitwall)
+                if (did_hit_wall)
                 {
                     // hit a wall
                     ScaleSpriteVector(Weapon, 1000);
@@ -1385,7 +1378,7 @@ PlayerInitChemBomb(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w, hit_sprite;
     short oclipdist;
     int dist;
 
@@ -1469,7 +1462,7 @@ InitSpriteChemBomb(int16_t SpriteNum)
     USERp wu;
     SPRITEp sp = &sprite[SpriteNum], wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w, hit_sprite;
     short oclipdist;
     int dist;
 
@@ -1525,7 +1518,7 @@ InitChemBomb(short SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w, hit_sprite;
     short oclipdist;
     int dist;
 
@@ -1830,7 +1823,7 @@ PlayerInitCaltrops(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w, hit_sprite;
     short oclipdist, i;
     int dist;
 
@@ -1912,7 +1905,7 @@ InitCaltrops(int16_t SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w, hit_sprite;
     short oclipdist, i;
     int dist;
 
@@ -1965,7 +1958,7 @@ InitPhosphorus(int16_t SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w, hit_sprite;
     short oclipdist, i, daang;
     int dist;
 
@@ -2025,7 +2018,7 @@ InitBloodSpray(int16_t SpriteNum, SWBOOL dogib, short velocity)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w, hit_sprite;
     short oclipdist, i, cnt, ang, vel, rnd;
     int dist;
 
@@ -2449,13 +2442,13 @@ DoFlag(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    int16_t hitsprite = -1;
+    int16_t hit_sprite = -1;
 
-    hitsprite = DoFlagRangeTest(Weapon, 1000);
+    hit_sprite = DoFlagRangeTest(Weapon, 1000);
 
-    if (hitsprite != -1)
+    if (hit_sprite != -1)
     {
-        SPRITEp hsp = &sprite[hitsprite];
+        SPRITEp hsp = &sprite[hit_sprite];
 
         SetCarryFlag(Weapon);
 
@@ -2464,7 +2457,7 @@ DoFlag(int16_t Weapon)
         {
             // attach weapon to sprite
             RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
-            SetAttach(hitsprite, Weapon);
+            SetAttach(hit_sprite, Weapon);
             u->sz = hsp->z - DIV2(SPRITEp_SIZE_Z(hsp));
             //u->sz = hsp->z - SPRITEp_MID(hsp);   // Set mid way up who it hit
         }
@@ -2481,7 +2474,7 @@ InitShell(int16_t SpriteNum, int16_t ShellNum)
     USERp wu;
     SPRITEp sp = &sprite[SpriteNum], wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist,id=0,velocity=0;
     int dist;
     STATEp p=NULL;

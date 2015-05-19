@@ -1110,11 +1110,11 @@ ViewOutsidePlayerRecurse(PLAYERp pp, int32_t* vx, int32_t* vy, int32_t* vz, int1
     {
     case HIT_SPRITE:
     {
-        short hitsprite;
+        short hit_sprite;
         SPRITEp sp;
 
-        hitsprite = NORM_SPRITE(ret);
-        sp = &sprite[hitsprite];
+        hit_sprite = NORM_SPRITE(ret);
+        sp = &sprite[hit_sprite];
 
         // if you hit a sprite that's not a wall sprite - try again
         if (!TEST(sp->cstat, CSTAT_SPRITE_WALL))
@@ -1149,9 +1149,11 @@ ViewOutsidePlayerRecurse(PLAYERp pp, int32_t* vx, int32_t* vy, int32_t* vz, int1
 void
 BackView(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
 {
+    vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
-    int i, vx, vy, vz, hx, hy, hz, hitx, hity, hitz;
-    short bakcstat, hitsect, hitwall, hitsprite, daang;
+    hitdata_t hitinfo;
+    int i, vx, vy, vz, hx, hy, hz;
+    short bakcstat, daang;
     PLAYERp pp = &Player[screenpeek];
     short ang;
 
@@ -1173,25 +1175,25 @@ BackView(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
     // Make sure sector passed to FAFhitscan is correct
     //COVERupdatesector(*nx, *ny, vsect);
 
-    hitscan(*nx, *ny, *nz, *vsect, vx, vy, vz,
-            &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_PLAYER);
+    hitscan(&n, *vsect, vx, vy, vz,
+            &hitinfo, CLIPMASK_PLAYER);
 
     ASSERT(*vsect >= 0 && *vsect < MAXSECTORS);
 
     sp->cstat = bakcstat;              // Restore cstat
 
-    hx = hitx - (*nx);
-    hy = hity - (*ny);
+    hx = hitinfo.pos.x - (*nx);
+    hy = hitinfo.pos.y - (*ny);
 
     // If something is in the way, make pp->camera_dist lower if necessary
     if (klabs(vx) + klabs(vy) > klabs(hx) + klabs(hy))
     {
-        if (hitwall >= 0)               // Push you a little bit off the wall
+        if (hitinfo.wall >= 0)               // Push you a little bit off the wall
         {
-            *vsect = hitsect;
+            *vsect = hitinfo.sect;
 
-            daang = getangle(wall[wall[hitwall].point2].x - wall[hitwall].x,
-                             wall[wall[hitwall].point2].y - wall[hitwall].y);
+            daang = getangle(wall[wall[hitinfo.wall].point2].x - wall[hitinfo.wall].x,
+                             wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
 
             i = vx * sintable[daang] + vy * sintable[NORM_ANGLE(daang + 1536)];
             if (klabs(vx) > klabs(vy))
@@ -1199,9 +1201,9 @@ BackView(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
             else
                 hy -= mulscale28(vy, i);
         }
-        else if (hitsprite < 0)        // Push you off the ceiling/floor
+        else if (hitinfo.sprite < 0)        // Push you off the ceiling/floor
         {
-            *vsect = hitsect;
+            *vsect = hitinfo.sect;
 
             if (klabs(vx) > klabs(vy))
                 hx -= (vx >> 5);
@@ -1210,7 +1212,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
         }
         else
         {
-            SPRITEp hsp = &sprite[hitsprite];
+            SPRITEp hsp = &sprite[hitinfo.sprite];
             int flag_backup;
 
             // if you hit a sprite that's not a wall sprite - try again
@@ -1266,9 +1268,11 @@ BackView(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
 void
 CircleCamera(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
 {
+    vec3_t n = { *nx, *ny, *nz };
     SPRITEp sp;
-    int i, vx, vy, vz, hx, hy, hz, hitx, hity, hitz;
-    short bakcstat, hitsect, hitwall, hitsprite, daang;
+    hitdata_t hitinfo;
+    int i, vx, vy, vz, hx, hy, hz;
+    short bakcstat, daang;
     PLAYERp pp = &Player[screenpeek];
     short ang;
 
@@ -1293,24 +1297,24 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
     // Make sure sector passed to hitscan is correct
     //COVERupdatesector(*nx, *ny, vsect);
 
-    hitscan(*nx, *ny, *nz, *vsect, vx, vy, vz,
-            &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+    hitscan(&n, *vsect, vx, vy, vz,
+            &hitinfo, CLIPMASK_MISSILE);
 
     sp->cstat = bakcstat;              // Restore cstat
-    //ASSERT(hitsect >= 0);
+    //ASSERT(hitinfo.sect >= 0);
 
-    hx = hitx - (*nx);
-    hy = hity - (*ny);
+    hx = hitinfo.pos.x - (*nx);
+    hy = hitinfo.pos.y - (*ny);
 
     // If something is in the way, make pp->circle_camera_dist lower if necessary
     if (klabs(vx) + klabs(vy) > klabs(hx) + klabs(hy))
     {
-        if (hitwall >= 0)               // Push you a little bit off the wall
+        if (hitinfo.wall >= 0)               // Push you a little bit off the wall
         {
-            *vsect = hitsect;
+            *vsect = hitinfo.sect;
 
-            daang = getangle(wall[wall[hitwall].point2].x - wall[hitwall].x,
-                             wall[wall[hitwall].point2].y - wall[hitwall].y);
+            daang = getangle(wall[wall[hitinfo.wall].point2].x - wall[hitinfo.wall].x,
+                             wall[wall[hitinfo.wall].point2].y - wall[hitinfo.wall].y);
 
             i = vx * sintable[daang] + vy * sintable[NORM_ANGLE(daang + 1536)];
             if (klabs(vx) > klabs(vy))
@@ -1318,9 +1322,9 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
             else
                 hy -= mulscale28(vy, i);
         }
-        else if (hitsprite < 0)        // Push you off the ceiling/floor
+        else if (hitinfo.sprite < 0)        // Push you off the ceiling/floor
         {
-            *vsect = hitsect;
+            *vsect = hitinfo.sect;
 
             if (klabs(vx) > klabs(vy))
                 hx -= (vx >> 5);
@@ -1329,7 +1333,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
         }
         else
         {
-            SPRITEp hsp = &sprite[hitsprite];
+            SPRITEp hsp = &sprite[hitinfo.sprite];
             int flag_backup;
 
             // if you hit a sprite that's not a wall sprite - try again
@@ -1444,27 +1448,26 @@ void PrintSpriteInfo(PLAYERp pp)
     int y = windowy1+2;
     SPRITEp sp;
     USERp u;
-    short hitsprite;
 
     if (SpriteInfo && !LocationInfo)
     {
-        hitsprite = DoPickTarget(pp->SpriteP, 32, 2);
+        short hit_sprite = DoPickTarget(pp->SpriteP, 32, 2);
 
-        sp = &sprite[hitsprite];
-        u = User[hitsprite];
+        sp = &sprite[hit_sprite];
+        u = User[hit_sprite];
 
         sp->hitag = 9997; // Special tag to make the actor glow red for one frame
 
         y += Y_STEP;
 
-        if (hitsprite == -1)
+        if (hit_sprite == -1)
         {
             sprintf(buffer, "SPRITENUM: NONE TARGETED");
             printext256(x, y, 1, -1, buffer, 1);
             return;
         }
         else
-            sprintf(buffer, "SPRITENUM:%d", hitsprite);
+            sprintf(buffer, "SPRITENUM:%d", hit_sprite);
 
         printext256(x, y, 1, -1, buffer, 1);
         y += Y_STEP;
@@ -1821,22 +1824,22 @@ void DrawCrosshair(PLAYERp pp)
     if (gs.AutoAim)
     {
         int daz;
-        short hitsprite, daang;
+        short hit_sprite, daang;
         static int handle=-1;
 
         daz = pp->posz + pp->bob_z;
         daang = 32;
-        if ((hitsprite = WeaponAutoAimHitscan(pp->SpriteP, &daz, &daang, FALSE)) != -1)
+        if ((hit_sprite = WeaponAutoAimHitscan(pp->SpriteP, &daz, &daang, FALSE)) != -1)
         {
-            SPRITEp hp = &sprite[hitsprite];
-            USERp hu = User[hitsprite];
+            SPRITEp hp = &sprite[hit_sprite];
+            USERp hu = User[hit_sprite];
             int dx,dy,dz;
 
 
             // Find the delta coordinates from player to monster that is targeted
             dx = hp->x - pp->posx;
             dy = hp->y - pp->posy;
-            dz = ((hp->z - (SPRITE_SIZE_Z(hitsprite)/2)) - pp->posz) >> 4;
+            dz = ((hp->z - (SPRITE_SIZE_Z(hit_sprite)/2)) - pp->posz) >> 4;
 
             rotatepoint(0,0,dx,dy,(-pp->pang)&2047,&dx,&dy);
 

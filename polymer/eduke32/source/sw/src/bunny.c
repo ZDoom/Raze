@@ -977,9 +977,9 @@ DoBunnyQuickJump(short SpriteNum)
     // Random Chance of like sexes fighting
     if (u->lo_sp)
     {
-        short hitsprite = u->lo_sp - sprite;
+        short hit_sprite = u->lo_sp - sprite;
         SPRITEp tsp = u->lo_sp;
-        USERp tu = User[hitsprite];
+        USERp tu = User[hit_sprite];
 
         if (!tu || tu->ID != BUNNY_RUN_R0) return FALSE;
 
@@ -999,14 +999,14 @@ DoBunnyQuickJump(short SpriteNum)
                 tu->Health = 0;
 
                 // Blood fountains
-                InitBloodSpray(hitsprite,TRUE,-1);
+                InitBloodSpray(hit_sprite,TRUE,-1);
 
-                if (SpawnShrap(hitsprite, SpriteNum))
+                if (SpawnShrap(hit_sprite, SpriteNum))
                 {
-                    SetSuicide(hitsprite);
+                    SetSuicide(hit_sprite);
                 }
                 else
-                    DoActorDie(hitsprite, SpriteNum);
+                    DoActorDie(hit_sprite, SpriteNum);
 
                 Bunny_Count--; // Bunny died
 
@@ -1019,9 +1019,9 @@ DoBunnyQuickJump(short SpriteNum)
     // Get layed!
     if (u->lo_sp && u->spal == PALETTE_PLAYER8) // Only males check this
     {
-        short hitsprite = u->lo_sp - sprite;
+        short hit_sprite = u->lo_sp - sprite;
         SPRITEp tsp = u->lo_sp;
-        USERp tu = User[hitsprite];
+        USERp tu = User[hit_sprite];
 
 
         if (!tu || tu->ID != BUNNY_RUN_R0) return FALSE;
@@ -1088,7 +1088,7 @@ DoBunnyQuickJump(short SpriteNum)
                 tu->Vis = tsp->ang;
 
                 NewStateGroup(SpriteNum, sg_BunnyScrew);
-                NewStateGroup(hitsprite, sg_BunnyScrew);
+                NewStateGroup(hit_sprite, sg_BunnyScrew);
                 if (gs.ParentalLock || Global_PLock)
                 {
                     SET(sp->cstat, CSTAT_SPRITE_INVISIBLE); // Turn em' invisible

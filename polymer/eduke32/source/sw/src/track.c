@@ -3142,7 +3142,7 @@ ScanToWall
     sintable[NORM_ANGLE(lsp->ang + 1024 + 512)],
     sintable[lsp->ang + 1024],
     0,
-    &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz);
+    &hitinfo);
 */
 
 
@@ -3271,8 +3271,8 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         {
             int DoActorMoveJump(short SpriteNum);
             int PickJumpSpeed(short SpriteNum, int pix_height);
-            short hitsect, hitwall, hitsprite;
-            int hitx, hity, hitz, zdiff;
+            int zdiff;
+            hitdata_t hitinfo;
 
             sp->ang = tpoint->ang;
 
@@ -3291,19 +3291,19 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
                            sintable[NORM_ANGLE(sp->ang + 512)],      // X vector of 3D ang
                            sintable[sp->ang],    // Y vector of 3D ang
                            0,                            // Z vector of 3D ang
-                           &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                           &hitinfo, CLIPMASK_MISSILE);
 
                 SET(sp->cstat, CSTAT_SPRITE_BLOCK);
 
-                ASSERT(hitsect >= 0);
+                ASSERT(hitinfo.sect >= 0);
 
-                if (hitsprite >= 0)
+                if (hitinfo.sprite >= 0)
                     return FALSE;
 
-                if (hitwall < 0)
+                if (hitinfo.wall < 0)
                     return FALSE;
 
-                zdiff = labs(sp->z - sector[wall[hitwall].nextsector].floorz) >> 8;
+                zdiff = labs(sp->z - sector[wall[hitinfo.wall].nextsector].floorz) >> 8;
 
                 u->jump_speed = PickJumpSpeed(SpriteNum, zdiff);
             }
@@ -3602,8 +3602,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
         if (u->ActorActionSet->Jump)
         {
-            int hitx, hity, hitz;
-            short hitsect, hitwall, hitsprite;
+            short hit_sect, hit_wall, hit_sprite;
             int bos_z,nx,ny;
             int dist;
             SPRITEp lsp;
@@ -3636,26 +3635,26 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
 
             neartag(sp->x, sp->y, SPRITEp_TOS(sp) - DIV2(SPRITEp_SIZE_Z(sp)), sp->sectnum,
                     sp->ang,
-                    &hitsect, &hitwall, &hitsprite,
+                    &hit_sect, &hit_wall, &hit_sprite,
                     &dist, 600L, NTAG_SEARCH_LO_HI, NULL);
 
-            if (hitwall < 0)
+            if (hit_wall < 0)
             {
                 ActorLeaveTrack(SpriteNum);
                 return FALSE;
             }
 
 #if DEBUG
-            if (wall[hitwall].nextsector < 0)
+            if (wall[hit_wall].nextsector < 0)
             {
                 TerminateGame();
-                printf("Take out white wall ladder x = %d, y = %d",wall[hitwall].x, wall[hitwall].y);
+                printf("Take out white wall ladder x = %d, y = %d",wall[hit_wall].x, wall[hit_wall].y);
                 exit(0);
             }
 #endif
 
             // destination z for climbing
-            u->sz = sector[wall[hitwall].nextsector].floorz;
+            u->sz = sector[wall[hit_wall].nextsector].floorz;
 
             DoActorZrange(SpriteNum);
 

@@ -3330,8 +3330,7 @@ DoPlayerMoveTank(PLAYERp pp)
     if (RectClip)
     {
         int nx,ny;
-        int hitx,hity,hitz;
-        short hitsect, hitwall, hitsprite;
+        hitdata_t hitinfo;
         int vel;
         int ret;
 
@@ -3349,23 +3348,22 @@ DoPlayerMoveTank(PLAYERp pp)
 
             if (vel > 13000)
             {
-                nx = DIV2(x[0] + x[1]);
-                ny = DIV2(y[0] + y[1]);
+                vec3_t hit_pos = { DIV2(x[0] + x[1]), DIV2(y[0] + y[1]), sector[pp->cursectnum].floorz - Z(10) };
 
-                hitscan(nx, ny, sector[pp->cursectnum].floorz - Z(10), pp->cursectnum,
+                hitscan(&hit_pos, pp->cursectnum,
                         //pp->xvect, pp->yvect, 0,
                         MOVEx(256, pp->pang), MOVEy(256, pp->pang), 0,
-                        &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_PLAYER);
+                        &hitinfo, CLIPMASK_PLAYER);
 
-                ////DSPRINTF(ds,"hitsect %d, hitwall %d, hitx %d, hity %d, hitz %d",hitsect, hitwall, hitx, hity, hitz);
+                ////DSPRINTF(ds,"hitinfo.sect %d, hitinfo.wall %d, hitinfo.pos.x %d, hitinfo.pos.y %d, hitinfo.pos.z %d",hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z);
                 //MONO_PRINT(ds);
 
-                if (FindDistance2D(hitx - nx, hity - ny) < 800)
+                if (FindDistance2D(hitinfo.pos.x - hit_pos.x, hitinfo.pos.y - hit_pos.y) < 800)
                 {
-                    if (hitwall >= 0)
-                        u->ret = hitwall|HIT_WALL;
-                    else if (hitsprite >= 0)
-                        u->ret = hitsprite|HIT_SPRITE;
+                    if (hitinfo.wall >= 0)
+                        u->ret = hitinfo.wall|HIT_WALL;
+                    else if (hitinfo.sprite >= 0)
+                        u->ret = hitinfo.sprite|HIT_SPRITE;
                     else
                         u->ret = 0;
 
@@ -4095,8 +4093,7 @@ DoPlayerClimb(PLAYERp pp)
 int
 DoPlayerWadeSuperJump(PLAYERp pp)
 {
-    int hitx, hity, hitz;
-    short hitsect, hitwall, hitsprite;
+    hitdata_t hitinfo;
     USERp u = User[pp->PlayerSprite];
     unsigned i;
     //short angs[3];
@@ -4111,15 +4108,15 @@ DoPlayerWadeSuperJump(PLAYERp pp)
                    sintable[NORM_ANGLE(pp->pang + angs[i] + 512)],       // X vector of 3D ang
                    sintable[NORM_ANGLE(pp->pang + angs[i])],         // Y vector of 3D ang
                    0,                          // Z vector of 3D ang
-                   &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                   &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitwall >= 0 && hitsect >= 0)
+        if (hitinfo.wall >= 0 && hitinfo.sect >= 0)
         {
-            hitsect = wall[hitwall].nextsector;
+            hitinfo.sect = wall[hitinfo.wall].nextsector;
 
-            if (labs(sector[hitsect].floorz - pp->posz) < Z(50))
+            if (labs(sector[hitinfo.sect].floorz - pp->posz) < Z(50))
             {
-                if (Distance(pp->posx, pp->posy, hitx, hity) < ((((int)pp->SpriteP->clipdist)<<2) + 256))
+                if (Distance(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y) < ((((int)pp->SpriteP->clipdist)<<2) + 256))
                     return TRUE;
             }
         }
@@ -4542,8 +4539,7 @@ PlayerOnLadder(PLAYERp pp)
     unsigned i;
     USERp u = User[pp->PlayerSprite];
     SPRITEp lsp;
-    int hitx,hity,hitz;
-    short hitsprite,hitsect,hitwall;
+    hitdata_t hitinfo;
     int dir;
 
     int neartaghitdist;
@@ -4582,16 +4578,16 @@ PlayerOnLadder(PLAYERp pp)
                    sintable[NORM_ANGLE(pp->pang  + angles[i] + 512)],
                    sintable[NORM_ANGLE(pp->pang + angles[i])],
                    0,
-                   &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                   &hitinfo, CLIPMASK_MISSILE);
 
-        dist = DIST(pp->posx, pp->posy, hitx, hity);
+        dist = DIST(pp->posx, pp->posy, hitinfo.pos.x, hitinfo.pos.y);
 
-        if (hitsprite >= 0)
+        if (hitinfo.sprite >= 0)
         {
             // if the sprite blocking you hit is not a wall sprite there is something between
             // you and the ladder
-            if (TEST(sprite[hitsprite].cstat, CSTAT_SPRITE_BLOCK) &&
-                !TEST(sprite[hitsprite].cstat, CSTAT_SPRITE_WALL))
+            if (TEST(sprite[hitinfo.sprite].cstat, CSTAT_SPRITE_BLOCK) &&
+                !TEST(sprite[hitinfo.sprite].cstat, CSTAT_SPRITE_WALL))
             {
                 return FALSE;
             }
@@ -4599,7 +4595,7 @@ PlayerOnLadder(PLAYERp pp)
         else
         {
             // if you hit a wall and it is not a climb wall - forget it
-            if (hitwall >= 0 && wall[hitwall].lotag != TAG_WALL_CLIMB)
+            if (hitinfo.wall >= 0 && wall[hitinfo.wall].lotag != TAG_WALL_CLIMB)
                 return FALSE;
         }
     }
@@ -7065,13 +7061,13 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
         case HIT_SPRITE:
         {
             short wall_ang, dang;
-            short hitsprite = -2;
+            short hit_sprite = -2;
             SPRITEp hsp;
 
             //PlaySound(DIGI_DHCLUNK, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
 
-            hitsprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hitsprite];
+            hit_sprite = NORM_SPRITE(u->ret);
+            hsp = &sprite[hit_sprite];
 
             if (!TEST(hsp->cstat, CSTAT_SPRITE_WALL))
                 break;
@@ -7086,13 +7082,12 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
         }
         case HIT_WALL:
         {
-            short hitwall,w,nw,wall_ang,dang;
+            short w,nw,wall_ang,dang;
 
             //PlaySound(DIGI_DHCLUNK, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan);
 
-            hitwall = NORM_WALL(u->ret);
+            w = NORM_WALL(u->ret);
 
-            w = hitwall;
             nw = wall[w].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y)-512);
 

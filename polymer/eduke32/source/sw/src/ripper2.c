@@ -942,9 +942,7 @@ InitRipper2Hang(short SpriteNum)
     int dist;
     short ang2;
 
-    short hitwall;
-    short hitsprite = -2, hitsect = -2;
-    int hitx, hity, hitz;
+    hitdata_t hitinfo = { { 0, 0, 0 }, -2, 0, -2 };
 
     SWBOOL Found = FALSE;
     short dang, tang;
@@ -957,14 +955,14 @@ InitRipper2Hang(short SpriteNum)
                    sintable[NORM_ANGLE(tang + 512)],   // X vector of 3D ang
                    sintable[tang],             // Y vector of 3D ang
                    0,                          // Z vector of 3D ang
-                   &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                   &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitsect < 0)
+        if (hitinfo.sect < 0)
             continue;
 
-        dist = Distance(sp->x, sp->y, hitx, hity);
+        dist = Distance(sp->x, sp->y, hitinfo.pos.x, hitinfo.pos.y);
 
-        if (hitwall < 0 || dist < 2000 || dist > 7000)
+        if (hitinfo.wall < 0 || dist < 2000 || dist > 7000)
         {
             continue;
         }
@@ -1032,14 +1030,14 @@ DoRipper2MoveHang(short SpriteNum)
         {
         case HIT_WALL:
         {
-            short hitwall;
+            short hit_wall;
             short w, nw;
 
             // Don't keep clinging and going ever higher!
             if (abs(sp->z - u->tgt_sp->z) > (4000<<4))
                 break;
 
-            hitwall = NORM_WALL(u->ret);
+            hit_wall = NORM_WALL(u->ret);
 
             NewStateGroup(SpriteNum, u->ActorActionSet->Special[1]);
             if (RANDOM_P2(1024<<8)>>8 > 500)
@@ -1048,7 +1046,7 @@ DoRipper2MoveHang(short SpriteNum)
                 u->WaitTics = 0; // Double jump
 
             // hang flush with the wall
-            w = hitwall;
+            w = hit_wall;
             nw = wall[w].point2;
             sp->ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y) - 512);
 

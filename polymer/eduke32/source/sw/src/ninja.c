@@ -1917,7 +1917,7 @@ DoNinjaHariKari(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    int SpawnBlood(short SpriteNum, short Weapon, short hitang, int hitx, int hity, int hitz);
+    int SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z);
     short cnt,i;
 
     UpdateSinglePlayKills(SpriteNum);
@@ -1948,7 +1948,7 @@ DoNinjaGrabThroat(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    int SpawnBlood(short SpriteNum, short Weapon, short hitang, int hitx, int hity, int hitz);
+    int SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z);
     short cnt,i;
 
     if ((u->WaitTics -= ACTORMOVETICS) <= 0)

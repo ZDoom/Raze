@@ -149,56 +149,50 @@ void ResetWallWarpHitscan(short sectnum)
 void
 FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
            int32_t xvect, int32_t yvect, int32_t zvect,
-           int16_t* hitsect, int16_t* hitwall, int16_t* hitsprite,
-           int32_t* hitx, int32_t* hity, int32_t* hitz, int32_t clipmask)
+           hitdata_t* hitinfo, int32_t clipmask)
 {
+    vec3_t firstpos = { x, y, z };
     int loz, hiz;
     short newsectnum = sectnum;
     int startclipmask = 0;
     SWBOOL plax_found = FALSE;
-    int sx,sy,sz;
 
     if (clipmask == CLIPMASK_MISSILE)
         startclipmask = CLIPMASK_WARP_HITSCAN;
 
-    hitscan(x, y, z, sectnum, xvect, yvect, zvect,
-            hitsect, hitwall, hitsprite,
-            hitx, hity, hitz, startclipmask);
+    hitscan(&firstpos, sectnum, xvect, yvect, zvect,
+            hitinfo, startclipmask);
 
-    if (*hitsect < 0)
+    if (hitinfo->sect < 0)
         return;
 
-    if (*hitwall >= 0)
+    if (hitinfo->wall >= 0)
     {
         // hitscan warping
-        if (TEST(wall[*hitwall].cstat, CSTAT_WALL_WARP_HITSCAN))
+        if (TEST(wall[hitinfo->wall].cstat, CSTAT_WALL_WARP_HITSCAN))
         {
-            short src_sect = *hitsect;
+            short src_sect = hitinfo->sect;
             short dest_sect;
 
-            sx = *hitx;
-            sy = *hity;
-            sz = *hitz;
-
-            //DSPRINTF(ds,"sx %d, sy %d, sz %d, xvect %d, yvect %d",sx, sy, sz,xvect,yvect);
             MONO_PRINT(ds);
 
             // back it up a bit to get a correct warp location
-            *hitx -= xvect>>9;
-            *hity -= yvect>>9;
+            hitinfo->pos.x -= xvect>>9;
+            hitinfo->pos.y -= yvect>>9;
 
             // warp to new x,y,z, sectnum
-            if (Warp(hitx, hity, hitz, hitsect))
+            if (Warp(&hitinfo->pos.x, &hitinfo->pos.y, &hitinfo->pos.z, &hitinfo->sect))
             {
-                dest_sect = *hitsect;
+                vec3_t pos = hitinfo->pos;
+
+                dest_sect = hitinfo->sect;
 
                 // hitscan needs to pass through dest sect
                 ResetWallWarpHitscan(dest_sect);
 
                 // NOTE: This could be recursive I think if need be
-                hitscan(*hitx, *hity, *hitz, *hitsect, xvect, yvect, zvect,
-                        hitsect, hitwall, hitsprite,
-                        hitx, hity, hitz, startclipmask);
+                hitscan(&pos, hitinfo->sect, xvect, yvect, zvect,
+                        hitinfo, startclipmask);
 
                 // reset hitscan block for dest sect
                 SetWallWarpHitscan(dest_sect);
@@ -207,7 +201,7 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
             }
             else
             {
-                //DSPRINTF(ds,"hitx %d, hity %d, hitz %d",*hitx, *hity, *hitz);
+                //DSPRINTF(ds,"hitinfo->pos.x %d, hitinfo->pos.y %d, hitinfo->pos.z %d",hitinfo->pos.x, hitinfo->pos.y, hitinfo->pos.z);
                 MONO_PRINT(ds);
                 ASSERT(TRUE == FALSE);
             }
@@ -215,49 +209,49 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     }
 
     // make sure it hit JUST a sector before doing a check
-    if (*hitwall < 0 && *hitsprite < 0)
+    if (hitinfo->wall < 0 && hitinfo->sprite < 0)
     {
-        if (TEST(sector[*hitsect].extra, SECTFX_WARP_SECTOR))
+        if (TEST(sector[hitinfo->sect].extra, SECTFX_WARP_SECTOR))
         {
-            if (TEST(wall[sector[*hitsect].wallptr].cstat, CSTAT_WALL_WARP_HITSCAN))
+            if (TEST(wall[sector[hitinfo->sect].wallptr].cstat, CSTAT_WALL_WARP_HITSCAN))
             {
                 // hit the floor of a sector that is a warping sector
-                if (Warp(hitx, hity, hitz, hitsect))
+                if (Warp(&hitinfo->pos.x, &hitinfo->pos.y, &hitinfo->pos.z, &hitinfo->sect))
                 {
-                    hitscan(*hitx, *hity, *hitz, *hitsect, xvect, yvect, zvect,
-                            hitsect, hitwall, hitsprite,
-                            hitx, hity, hitz, clipmask);
+                    vec3_t pos = hitinfo->pos;
+                    hitscan(&pos, hitinfo->sect, xvect, yvect, zvect,
+                            hitinfo, clipmask);
 
                     return;
                 }
             }
             else
             {
-                if (WarpPlane(hitx, hity, hitz, hitsect))
+                if (WarpPlane(&hitinfo->pos.x, &hitinfo->pos.y, &hitinfo->pos.z, &hitinfo->sect))
                 {
-                    hitscan(*hitx, *hity, *hitz, *hitsect, xvect, yvect, zvect,
-                            hitsect, hitwall, hitsprite,
-                            hitx, hity, hitz, clipmask);
+                    vec3_t pos = hitinfo->pos;
+                    hitscan(&pos, hitinfo->sect, xvect, yvect, zvect,
+                            hitinfo, clipmask);
 
                     return;
                 }
             }
         }
 
-        getzsofslope(*hitsect, *hitx, *hity, &hiz, &loz);
-        if (labs(*hitz - loz) < Z(4))
+        getzsofslope(hitinfo->sect, hitinfo->pos.x, hitinfo->pos.y, &hiz, &loz);
+        if (labs(hitinfo->pos.z - loz) < Z(4))
         {
-            if (FAF_ConnectFloor(*hitsect) && !TEST(sector[*hitsect].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
+            if (FAF_ConnectFloor(hitinfo->sect) && !TEST(sector[hitinfo->sect].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
             {
-                updatesectorz(*hitx, *hity, *hitz + Z(12), &newsectnum);
+                updatesectorz(hitinfo->pos.x, hitinfo->pos.y, hitinfo->pos.z + Z(12), &newsectnum);
                 plax_found = TRUE;
             }
         }
-        else if (labs(*hitz - hiz) < Z(4))
+        else if (labs(hitinfo->pos.z - hiz) < Z(4))
         {
-            if (FAF_ConnectCeiling(*hitsect) && !TEST(sector[*hitsect].floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
+            if (FAF_ConnectCeiling(hitinfo->sect) && !TEST(sector[hitinfo->sect].floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
             {
-                updatesectorz(*hitx, *hity, *hitz - Z(12), &newsectnum);
+                updatesectorz(hitinfo->pos.x, hitinfo->pos.y, hitinfo->pos.z - Z(12), &newsectnum);
                 plax_found = TRUE;
             }
         }
@@ -265,9 +259,9 @@ FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
 
     if (plax_found)
     {
-        hitscan(*hitx, *hity, *hitz, newsectnum, xvect, yvect, zvect,
-                hitsect, hitwall, hitsprite,
-                hitx, hity, hitz, clipmask);
+        vec3_t pos = hitinfo->pos;
+        hitscan(&pos, newsectnum, xvect, yvect, zvect,
+                hitinfo, clipmask);
     }
 }
 
@@ -279,10 +273,10 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     short newsectnum = sects;
     int xvect, yvect, zvect;
     short ang;
-    short hitsect, hitwall, hitsprite;
-    int hitx, hity, hitz;
+    hitdata_t hitinfo;
     int dist;
     SWBOOL plax_found = FALSE;
+    vec3_t s = { xs, ys, zs };
 
     ASSERT(sects >= 0 && secte >= 0);
 
@@ -290,9 +284,6 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     if (!FAF_Sector(sects) && !FAF_Sector(secte))
     {
         return cansee(xs,ys,zs,sects,xe,ye,ze,secte);
-    }
-    else
-    {
     }
 
     // get angle
@@ -317,30 +308,29 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     else
         zvect = 0;
 
-    hitscan(xs, ys, zs, sects, xvect, yvect, zvect,
-            &hitsect, &hitwall, &hitsprite,
-            &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+    hitscan(&s, sects, xvect, yvect, zvect,
+            &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitsect < 0)
+    if (hitinfo.sect < 0)
         return FALSE;
 
     // make sure it hit JUST a sector before doing a check
-    if (hitwall < 0 && hitsprite < 0)
+    if (hitinfo.wall < 0 && hitinfo.sprite < 0)
     {
-        getzsofslope(hitsect, hitx, hity, &hiz, &loz);
-        if (labs(hitz - loz) < Z(4))
+        getzsofslope(hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, &hiz, &loz);
+        if (labs(hitinfo.pos.z - loz) < Z(4))
         {
-            if (FAF_ConnectFloor(hitsect))
+            if (FAF_ConnectFloor(hitinfo.sect))
             {
-                updatesectorz(hitx, hity, hitz + Z(12), &newsectnum);
+                updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z + Z(12), &newsectnum);
                 plax_found = TRUE;
             }
         }
-        else if (labs(hitz - hiz) < Z(4))
+        else if (labs(hitinfo.pos.z - hiz) < Z(4))
         {
-            if (FAF_ConnectCeiling(hitsect))
+            if (FAF_ConnectCeiling(hitinfo.sect))
             {
-                updatesectorz(hitx, hity, hitz - Z(12), &newsectnum);
+                updatesectorz(hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z - Z(12), &newsectnum);
                 plax_found = TRUE;
             }
         }
@@ -351,7 +341,7 @@ FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects,
     }
 
     if (plax_found)
-        return cansee(hitx,hity,hitz,newsectnum,xe,ye,ze,secte);
+        return cansee(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,newsectnum,xe,ye,ze,secte);
 
     return FALSE;
 }
@@ -392,19 +382,19 @@ SWBOOL SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
         {
         case HIT_SECTOR:
         {
-            short hitsector = NORM_SECTOR(florhit);
+            short hit_sector = NORM_SECTOR(florhit);
 
             // don't jack with connect sectors
-            if (FAF_ConnectFloor(hitsector))
+            if (FAF_ConnectFloor(hit_sector))
             {
                 // rippers were dying through the floor in $rock
-                if (TEST(sector[hitsector].floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
+                if (TEST(sector[hit_sector].floorstat, CEILING_STAT_FAF_BLOCK_HITSCAN))
                     break;
 
-                if (TEST(sector[hitsector].extra, SECTFX_Z_ADJUST))
+                if (TEST(sector[hit_sector].extra, SECTFX_Z_ADJUST))
                 {
                     // see if a z adjust ST1 is around
-                    z_amt = GetZadjustment(hitsector, FLOOR_Z_ADJUST);
+                    z_amt = GetZadjustment(hit_sector, FLOOR_Z_ADJUST);
 
                     if (z_amt)
                     {
@@ -417,11 +407,11 @@ SWBOOL SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
                 break;
             }
 
-            if (!TEST(sector[hitsector].extra, SECTFX_Z_ADJUST))
+            if (!TEST(sector[hit_sector].extra, SECTFX_Z_ADJUST))
                 break;
 
             // see if a z adjust ST1 is around
-            z_amt = GetZadjustment(hitsector, FLOOR_Z_ADJUST);
+            z_amt = GetZadjustment(hit_sector, FLOOR_Z_ADJUST);
 
             if (z_amt)
             {
@@ -430,7 +420,7 @@ SWBOOL SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
             }
             else
             // default adjustment for plax
-            if (TEST(sector[hitsector].floorstat, FLOOR_STAT_PLAX))
+            if (TEST(sector[hit_sector].floorstat, FLOOR_STAT_PLAX))
             {
                 *loz += PlaxFloorGlobZadjust;
             }
@@ -446,15 +436,15 @@ SWBOOL SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
         {
         case HIT_SECTOR:
         {
-            short hitsector = NORM_SECTOR(ceilhit);
+            short hit_sector = NORM_SECTOR(ceilhit);
 
             // don't jack with connect sectors
-            if (FAF_ConnectCeiling(hitsector))
+            if (FAF_ConnectCeiling(hit_sector))
             {
-                if (TEST(sector[hitsector].extra, SECTFX_Z_ADJUST))
+                if (TEST(sector[hit_sector].extra, SECTFX_Z_ADJUST))
                 {
                     // see if a z adjust ST1 is around
-                    z_amt = GetZadjustment(hitsector, CEILING_Z_ADJUST);
+                    z_amt = GetZadjustment(hit_sector, CEILING_Z_ADJUST);
 
                     if (z_amt)
                     {
@@ -467,11 +457,11 @@ SWBOOL SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
                 break;
             }
 
-            if (!TEST(sector[hitsector].extra, SECTFX_Z_ADJUST))
+            if (!TEST(sector[hit_sector].extra, SECTFX_Z_ADJUST))
                 break;
 
             // see if a z adjust ST1 is around
-            z_amt = GetZadjustment(hitsector, CEILING_Z_ADJUST);
+            z_amt = GetZadjustment(hit_sector, CEILING_Z_ADJUST);
 
             if (z_amt)
             {
@@ -480,7 +470,7 @@ SWBOOL SectorZadjust(int ceilhit, int32_t* hiz, short florhit, int32_t* loz)
             }
             else
             // default adjustment for plax
-            if (TEST(sector[hitsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[hit_sector].ceilingstat, CEILING_STAT_PLAX))
             {
                 *hiz -= PlaxCeilGlobZadjust;
             }
@@ -566,7 +556,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         {
         case HIT_SECTOR:
         {
-            short hitsector = NORM_SECTOR(*florhit);
+            short hit_sector = NORM_SECTOR(*florhit);
             break;
         }
         case HIT_SPRITE:

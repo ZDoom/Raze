@@ -100,7 +100,7 @@ SWBOOL WarpToUnderwater(short *sectnum, int *x, int *y, int *z);
 SWBOOL WarpToSurface(short *sectnum, int *x, int *y, int *z);
 short ElectroFindClosestEnemy(short SpriteNum);
 int InitElectroJump(SPRITEp wp, SPRITEp sp);
-SWBOOL TestDontStickSector(short hitsect);
+SWBOOL TestDontStickSector(short hit_sect);
 int SpawnShrapX(short SpriteNum);
 SWBOOL WeaponMoveHit(short SpriteNum);
 int HelpMissileLateral(int16_t Weapon, int dist);
@@ -114,9 +114,9 @@ int SpawnDemonFist(short Weapon);
 int SpawnTankShellExp(int16_t Weapon);
 int SpawnMicroExp(int16_t Weapon);
 void SpawnExpZadjust(short Weapon, SPRITEp exp, int upper_zsize, int lower_zsize);
-int BulletHitSprite(SPRITEp sp,short hitsprite,short hitsect,short hitwall,int hitx,int hity,int hitz,short ID);
-int SpawnSplashXY(int hitx,int hity,int hitz,short);
-int SpawnBoatSparks(PLAYERp pp,short hitsect,short hitwall,int hitx,int hity,int hitz,short hitang);
+int BulletHitSprite(SPRITEp sp,short hit_sprite,short hit_sect,short hit_wall,int hit_x,int hit_y,int hit_z,short ID);
+int SpawnSplashXY(int hit_x,int hit_y,int hit_z,short);
+int SpawnBoatSparks(PLAYERp pp,short hit_sect,short hit_wall,int hit_x,int hit_y,int hit_z,short hit_ang);
 
 short StatDamageList[STAT_DAMAGE_LIST_SIZE] =
 {
@@ -2637,9 +2637,9 @@ STATE s_PaperShrapC[] =
 };
 
 #if 1
-SWBOOL MissileHitMatch(short Weapon, short WeaponNum, short hitsprite)
+SWBOOL MissileHitMatch(short Weapon, short WeaponNum, short hit_sprite)
 {
-    SPRITEp hsp = &sprite[hitsprite];
+    SPRITEp hsp = &sprite[hit_sprite];
     SPRITEp wp = &sprite[Weapon];
     USERp wu = User[Weapon];
 
@@ -3914,10 +3914,10 @@ DoVomit(short SpriteNum)
 
     if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
     {
-        short hitsprite = NORM_SPRITE(u->ret);
-        if (TEST(sprite[hitsprite].extra, SPRX_PLAYER_OR_ENEMY))
+        short hit_sprite = NORM_SPRITE(u->ret);
+        if (TEST(sprite[hit_sprite].extra, SPRX_PLAYER_OR_ENEMY))
         {
-            DoDamage(hitsprite, SpriteNum);
+            DoDamage(hit_sprite, SpriteNum);
             //KillSprite(SpriteNum);
             return 0;
         }
@@ -3961,10 +3961,10 @@ DoVomit(short SpriteNum)
 
     if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
     {
-        short hitsprite = NORM_SPRITE(u->ret);
-        if (TEST(sprite[hitsprite].extra, SPRX_PLAYER_OR_ENEMY))
+        short hit_sprite = NORM_SPRITE(u->ret);
+        if (TEST(sprite[hit_sprite].extra, SPRX_PLAYER_OR_ENEMY))
         {
-            DoDamage(hitsprite, SpriteNum);
+            DoDamage(hit_sprite, SpriteNum);
             //KillSprite(SpriteNum);
             return 0;
         }
@@ -4107,7 +4107,7 @@ DoShrapDamage(short SpriteNum)
 }
 
 int
-SpawnBlood(short SpriteNum, short Weapon, short hitang, int hitx, int hity, int hitz)
+SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, int hit_z)
 {
     SPRITEp sp = &sprite[SpriteNum];
     SPRITEp np;
@@ -4206,80 +4206,80 @@ SpawnBlood(short SpriteNum, short Weapon, short hitang, int hitx, int hity, int 
             if (sp == wp)
             {
                 p = HariKariBlood;
-                hitang = sp->ang;
-                hitx = sp->x;
-                hity = sp->y;
-                hitz = SPRITEp_TOS(wp) + DIV16(SPRITEp_SIZE_Z(wp));
+                hit_ang = sp->ang;
+                hit_x = sp->x;
+                hit_y = sp->y;
+                hit_z = SPRITEp_TOS(wp) + DIV16(SPRITEp_SIZE_Z(wp));
             }
             else
             {
                 p = ExtraBlood;
-                hitang = NORM_ANGLE(wp->ang + 1024);
-                hitx = sp->x;
-                hity = sp->y;
-                hitz = SPRITEp_TOS(wp) + DIV4(SPRITEp_SIZE_Z(wp));
+                hit_ang = NORM_ANGLE(wp->ang + 1024);
+                hit_x = sp->x;
+                hit_y = sp->y;
+                hit_z = SPRITEp_TOS(wp) + DIV4(SPRITEp_SIZE_Z(wp));
 
                 //ASSERT(wu->PlayerP);
             }
             break;
         case SERP_RUN_R0:
             p = ExtraBlood;
-            hitang = NORM_ANGLE(wp->ang + 1024);
-            hitx = sp->x;
-            hity = sp->y;
-            hitz = SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp));
+            hit_ang = NORM_ANGLE(wp->ang + 1024);
+            hit_x = sp->x;
+            hit_y = sp->y;
+            hit_z = SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp));
             break;
         case BLADE1:
         case BLADE2:
         case BLADE3:
         case 5011:
             p = SmallBlood;
-            hitang = NORM_ANGLE(ANG2SPRITE(sp, wp) + 1024);
-            hitx = sp->x;
-            hity = sp->y;
-            hitz = wp->z - DIV2(SPRITEp_SIZE_Z(wp));
+            hit_ang = NORM_ANGLE(ANG2SPRITE(sp, wp) + 1024);
+            hit_x = sp->x;
+            hit_y = sp->y;
+            hit_z = wp->z - DIV2(SPRITEp_SIZE_Z(wp));
             break;
         case STAR1:
         case CROSSBOLT:
             p = SomeBlood;
-            hitang = NORM_ANGLE(wp->ang + 1024);
-            hitx = sp->x;
-            hity = sp->y;
-            hitz = wp->z;
+            hit_ang = NORM_ANGLE(wp->ang + 1024);
+            hit_x = sp->x;
+            hit_y = sp->y;
+            hit_z = wp->z;
             break;
         case PLASMA_FOUNTAIN:
             p = PlasmaFountainBlood;
-            hitang = wp->ang;
-            hitx = sp->x;
-            hity = sp->y;
-            hitz = SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp));
+            hit_ang = wp->ang;
+            hit_x = sp->x;
+            hit_y = sp->y;
+            hit_z = SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp));
             break;
         default:
             p = SomeBlood;
-            hitang = NORM_ANGLE(wp->ang + 1024);
-            hitx = sp->x;
-            hity = sp->y;
-            hitz = SPRITEp_TOS(wp) + DIV4(SPRITEp_SIZE_Z(wp));
+            hit_ang = NORM_ANGLE(wp->ang + 1024);
+            hit_x = sp->x;
+            hit_y = sp->y;
+            hit_z = SPRITEp_TOS(wp) + DIV4(SPRITEp_SIZE_Z(wp));
             break;
         }
     }
     else
     {
-        hitang = NORM_ANGLE(hitang + 1024);
+        hit_ang = NORM_ANGLE(hit_ang + 1024);
     }
 
     for (; p->state; p++)
     {
         if (!p->random_disperse)
         {
-            start_ang = NORM_ANGLE(hitang - DIV2(p->ang_range)+1024);
+            start_ang = NORM_ANGLE(hit_ang - DIV2(p->ang_range)+1024);
             dang = (p->ang_range / p->num);
         }
 
         for (i = 0; i < p->num; i++)
         {
             new = SpawnSprite(STAT_SKIP4, p->id, p->state, sp->sectnum,
-                              hitx, hity, hitz, hitang, 0);
+                              hit_x, hit_y, hit_z, hit_ang, 0);
             np = &sprite[new];
             nu = User[new];
 
@@ -4307,7 +4307,7 @@ SpawnBlood(short SpriteNum, short Weapon, short hitang, int hitx, int hity, int 
 
             if (p->random_disperse)
             {
-                np->ang = hitang + (RANDOM_P2(p->ang_range<<5)>>5) - DIV2(p->ang_range);
+                np->ang = hit_ang + (RANDOM_P2(p->ang_range<<5)>>5) - DIV2(p->ang_range);
                 np->ang = NORM_ANGLE(np->ang);
             }
             else
@@ -4366,8 +4366,6 @@ VehicleMoveHit(short SpriteNum)
     SWBOOL TestKillSectorObject(SECTOR_OBJECTp);
     short controller;
 
-    short hitsect, hitwall;
-
     if (!u->ret)
         return FALSE;
 
@@ -4382,12 +4380,8 @@ VehicleMoveHit(short SpriteNum)
     {
     case HIT_SECTOR:
     {
-        short hitsect;
-        SECTORp sectp;
-
-        hitsect = NORM_SECTOR(u->ret);
-
-        sectp = &sector[hitsect];
+        short hit_sect = NORM_SECTOR(u->ret);
+        SECTORp sectp = &sector[hit_sect];
 
         if (TEST(sectp->extra, SECTFX_SECTOR_OBJECT))
         {
@@ -4399,23 +4393,20 @@ VehicleMoveHit(short SpriteNum)
 
     case HIT_SPRITE:
     {
-        SPRITEp hsp;
-        short hitsprite;
-
-        hitsprite = NORM_SPRITE(u->ret);
-        hsp = &sprite[hitsprite];
+        short hit_sprite = NORM_SPRITE(u->ret);
+        SPRITEp hsp = &sprite[hit_sprite];
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hitsprite, u->ID);
+            HitBreakSprite(hit_sprite, u->ID);
             return TRUE;
         }
 
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
-            if (hitsprite != cp->owner)
+            if (hit_sprite != cp->owner)
             {
-                DoDamage(hitsprite, controller);
+                DoDamage(hit_sprite, controller);
                 return TRUE;
             }
         }
@@ -4423,7 +4414,7 @@ VehicleMoveHit(short SpriteNum)
         {
             if (hsp->statnum == STAT_MINE_STUCK)
             {
-                DoDamage(hitsprite, SpriteNum);
+                DoDamage(hit_sprite, SpriteNum);
                 return TRUE;
             }
         }
@@ -4433,13 +4424,8 @@ VehicleMoveHit(short SpriteNum)
 
     case HIT_WALL:
     {
-        short hitwall;
-        short hitsprite = -2, hitsect = -2;
-        int hitx, hity, hitz;
-        WALLp wph;
-
-        hitwall = NORM_WALL(u->ret);
-        wph = &wall[hitwall];
+        short hit_wall = NORM_WALL(u->ret);
+        WALLp wph = &wall[hit_wall];
 
         if (TEST(wph->extra, WALLFX_SECTOR_OBJECT))
         {
@@ -4483,7 +4469,6 @@ WeaponMoveHit(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    //short hitsect, hitwall;
 
 
     if (!u->ret)
@@ -4497,12 +4482,12 @@ WeaponMoveHit(short SpriteNum)
 
     case HIT_SECTOR:
     {
-        short hitsect;
+        short hit_sect;
         SECTORp sectp;
         SECTOR_OBJECTp sop;
 
-        hitsect = NORM_SECTOR(u->ret);
-        sectp = &sector[hitsect];
+        hit_sect = NORM_SECTOR(u->ret);
+        sectp = &sector[hit_sect];
 
         ASSERT(sectp->extra != -1);
 
@@ -4524,7 +4509,7 @@ WeaponMoveHit(short SpriteNum)
                 return TRUE;
             }
 
-            if (SectUser[hitsect] && SectUser[hitsect]->depth > 0)
+            if (SectUser[hit_sect] && SectUser[hit_sect]->depth > 0)
             {
                 SpawnSplash(SpriteNum);
                 //SetSuicide(SpriteNum);
@@ -4575,11 +4560,11 @@ WeaponMoveHit(short SpriteNum)
     {
         SPRITEp hsp;
         USERp hu;
-        short hitsprite;
+        short hit_sprite;
 
-        hitsprite = NORM_SPRITE(u->ret);
-        hsp = &sprite[hitsprite];
-        hu = User[hitsprite];
+        hit_sprite = NORM_SPRITE(u->ret);
+        hsp = &sprite[hit_sprite];
+        hu = User[hit_sprite];
 
         if (hsp->statnum == STAT_ENEMY)
         {
@@ -4591,15 +4576,15 @@ WeaponMoveHit(short SpriteNum)
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hitsprite, u->ID);
+            HitBreakSprite(hit_sprite, u->ID);
             return TRUE;
         }
 
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
             // make sure you didn't hit the owner of the missile
-            //if (sp->owner != -1 && hitsprite != sp->owner)
-            if (hitsprite != sp->owner)
+            //if (sp->owner != -1 && hit_sprite != sp->owner)
+            if (hit_sprite != sp->owner)
             {
                 if (u->ID == STAR1)
                 {
@@ -4612,7 +4597,7 @@ WeaponMoveHit(short SpriteNum)
                         if (hu->WaitTics <= 0)
                         {
                             hu->WaitTics = SEC(2);
-                            ChangeState(hitsprite,s_TrashCanPain);
+                            ChangeState(hit_sprite,s_TrashCanPain);
                         }
                         break;
                     case PACHINKO1:
@@ -4627,7 +4612,7 @@ WeaponMoveHit(short SpriteNum)
                     break;
                     }
                 }
-                DoDamage(hitsprite, SpriteNum);
+                DoDamage(hit_sprite, SpriteNum);
                 return TRUE;
             }
         }
@@ -4635,14 +4620,14 @@ WeaponMoveHit(short SpriteNum)
         {
             if (hsp->statnum == STAT_MINE_STUCK)
             {
-                DoDamage(hitsprite, SpriteNum);
+                DoDamage(hit_sprite, SpriteNum);
                 return TRUE;
             }
         }
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(SpriteNum, -1, hitsprite))
+            if (MissileHitMatch(SpriteNum, -1, hit_sprite))
                 return TRUE;
             //DoMatchEverything(NULL, hsp->hitag, -1);
             //return(TRUE);
@@ -4652,7 +4637,7 @@ WeaponMoveHit(short SpriteNum)
         {
             if (hsp->lotag || hsp->hitag)
             {
-                ShootableSwitch(hitsprite, SpriteNum);
+                ShootableSwitch(hit_sprite, SpriteNum);
                 return TRUE;
             }
         }
@@ -4662,14 +4647,9 @@ WeaponMoveHit(short SpriteNum)
 
     case HIT_WALL:
     {
-        short hitwall;
-        short hitsprite = -2, hitsect = -2;
-        int hitx, hity, hitz;
-        WALLp wph;
+        hitdata_t hitinfo = { { 0, 0, 0 }, -2, NORM_WALL(u->ret), -2 };
+        WALLp wph = &wall[hitinfo.wall];
         SECTOR_OBJECTp sop;
-
-        hitwall = NORM_WALL(u->ret);
-        wph = &wall[hitwall];
 
         ASSERT(wph->extra != -1);
 
@@ -4685,7 +4665,7 @@ WeaponMoveHit(short SpriteNum)
 
         if (wph->lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(&wall[hitwall], sp->x, sp->y, sp->z, sp->ang, u->ID);
+            HitBreakWall(&wall[hitinfo.wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
             u->ret = 0;
             return TRUE;
         }
@@ -4693,24 +4673,24 @@ WeaponMoveHit(short SpriteNum)
         // clipmove does not correctly return the sprite for WALL sprites
         // on walls, so look with hitscan
 
-        hitscan(sp->x, sp->y, sp->z, sp->sectnum,   // Start position
+        hitscan((vec3_t *)sp, sp->sectnum,   // Start position
                 sintable[NORM_ANGLE(sp->ang + 512)],    // X vector of 3D ang
                 sintable[NORM_ANGLE(sp->ang)],  // Y vector of 3D ang
                 sp->zvel,               // Z vector of 3D ang
-                &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitsect < 0)
+        if (hitinfo.sect < 0)
         {
             return FALSE;
         }
 
-        if (hitsprite >= 0)
+        if (hitinfo.sprite >= 0)
         {
-            SPRITEp hsp = &sprite[hitsprite];
+            SPRITEp hsp = &sprite[hitinfo.sprite];
 
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
             {
-                if (MissileHitMatch(SpriteNum, -1, hitsprite))
+                if (MissileHitMatch(SpriteNum, -1, hitinfo.sprite))
                     return TRUE;
             }
 
@@ -4718,7 +4698,7 @@ WeaponMoveHit(short SpriteNum)
             {
                 if (hsp->lotag || hsp->hitag)
                 {
-                    ShootableSwitch(hitsprite,SpriteNum);
+                    ShootableSwitch(hitinfo.sprite,SpriteNum);
                     return TRUE;
                 }
             }
@@ -7616,7 +7596,7 @@ DoDamageTest(short Weapon)
 }
 
 int
-DoHitscanDamage(short Weapon, short hitsprite)
+DoHitscanDamage(short Weapon, short hit_sprite)
 {
     SPRITEp wp = &sprite[Weapon];
     USERp wu = User[Weapon];
@@ -7627,9 +7607,9 @@ DoHitscanDamage(short Weapon, short hitsprite)
 
     for (stat = 0; stat < SIZ(StatDamageList); stat++)
     {
-        if (sprite[hitsprite].statnum == StatDamageList[stat])
+        if (sprite[hit_sprite].statnum == StatDamageList[stat])
         {
-            DoDamage(hitsprite, Weapon);
+            DoDamage(hit_sprite, Weapon);
             break;
         }
     }
@@ -7730,7 +7710,7 @@ short StatBreakList[] =
 
 void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, int radius)
 {
-    int WallBreakPosition(short hitwall, short *sectnum, int *x, int *y, int *z, short *ang);
+    int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, short *ang);
     int i, j, k;
     short sectlist[MAXSECTORS]; // !JIM! Frank, 512 was not big enough for $dozer, was asserting out!
     short sectlistplc, sectlistend, sect, startwall, endwall, nextsector;
@@ -7739,7 +7719,7 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
     short break_count;
 
     short sectnum,wall_ang;
-    int hitx,hity,hitz;
+    int hit_x,hit_y,hit_z;
 
     sectlist[0] = start_sect;
     sectlistplc = 0; sectlistend = 1;
@@ -7773,9 +7753,9 @@ void TraverseBreakableWalls(short start_sect, int x, int y, int z, short ang, in
                 if (dist > radius)
                     continue;
 
-                if (WallBreakPosition(j, &sectnum, &hitx, &hity, &hitz, &wall_ang))
+                if (WallBreakPosition(j, &sectnum, &hit_x, &hit_y, &hit_z, &wall_ang))
                 {
-                    if (hitx != MAXLONG && sectnum >= 0 && FAFcansee(x, y, z, start_sect, hitx, hity, hitz, sectnum))
+                    if (hit_x != MAXLONG && sectnum >= 0 && FAFcansee(x, y, z, start_sect, hit_x, hit_y, hit_z, sectnum))
                     {
                         //HitBreakWall(&wall[j], x, y, z, ang, 0);
                         HitBreakWall(&wall[j], MAXLONG, MAXLONG, MAXLONG, ang, 0);
@@ -8072,18 +8052,18 @@ DoStar(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hitwall,nw,wall_ang,dang;
+            short hit_wall,nw,wall_ang,dang;
             WALLp wph;
 
-            hitwall = NORM_WALL(u->ret);
-            wph = &wall[hitwall];
+            hit_wall = NORM_WALL(u->ret);
+            wph = &wall[hit_wall];
 
 #define STAR_STICK_RNUM 400
 #define STAR_BOUNCE_RNUM 600
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(&wall[hitwall], sp->x, sp->y, sp->z, sp->ang, u->ID);
+                HitBreakWall(&wall[hit_wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
                 u->ret = 0;
                 break;
             }
@@ -8115,7 +8095,7 @@ DoStar(int16_t Weapon)
             if (RANDOM_P2(1024) < STAR_BOUNCE_RNUM)
                 break;
 
-            nw = wall[hitwall].point2;
+            nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
             WallBounce(Weapon, wall_ang);
@@ -8128,12 +8108,12 @@ DoStar(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL hitwall;
-            short hitsect = NORM_SECTOR(u->ret);
+            SWBOOL did_hit_wall;
+            short hit_sect = NORM_SECTOR(u->ret);
 
             if (sp->z > DIV2(u->hiz + u->loz))
             {
-                if (SectUser[hitsect] && SectUser[hitsect]->depth > 0)
+                if (SectUser[hit_sect] && SectUser[hit_sect]->depth > 0)
                 {
                     SpawnSplash(Weapon);
                     KillSprite(Weapon);
@@ -8166,9 +8146,9 @@ DoStar(int16_t Weapon)
             else
                 u->zchange = mulscale16(u->zchange, 40000); // ceiling
 
-            if (SlopeBounce(Weapon, &hitwall))
+            if (SlopeBounce(Weapon, &did_hit_wall))
             {
-                if (hitwall)
+                if (did_hit_wall)
                 {
                     // chance of sticking
                     if (RANDOM_P2(1024) < STAR_STICK_RNUM)
@@ -8215,10 +8195,10 @@ DoStar(int16_t Weapon)
 
     if (u->ret)
     {
-        short hitsprite = NORM_SPRITE(u->ret);
-        if (hitsprite != -1)
+        short hit_sprite = NORM_SPRITE(u->ret);
+        if (hit_sprite != -1)
         {
-            su = User[hitsprite];
+            su = User[hit_sprite];
             if (su && (su->ID == TRASHCAN || su->ID == ZILLA_RUN_R0))   // JBF: added null test
                 PlaySound(DIGI_STARCLINK, &sp->x, &sp->y, &sp->z, v3df_none);
         }
@@ -8340,26 +8320,26 @@ MissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range, int16_t dan
     {
         if (u->WaitTics > delay_tics)
         {
-            short hitsprite;
+            short hit_sprite;
 
             if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
             {
-                if ((hitsprite = PickEnemyTarget(sp, aware_range)) != -1)
+                if ((hit_sprite = PickEnemyTarget(sp, aware_range)) != -1)
                 {
-                    SPRITEp hp = &sprite[hitsprite];
-                    USERp hu = User[hitsprite];
+                    SPRITEp hp = &sprite[hit_sprite];
+                    USERp hu = User[hit_sprite];
 
-                    u->WpnGoal = hitsprite;
+                    u->WpnGoal = hit_sprite;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
             }
-            else if ((hitsprite = DoPickTarget(sp, aware_range, FALSE)) != -1)
+            else if ((hit_sprite = DoPickTarget(sp, aware_range, FALSE)) != -1)
             {
-                SPRITEp hp = &sprite[hitsprite];
-                USERp hu = User[hitsprite];
+                SPRITEp hp = &sprite[hit_sprite];
+                USERp hu = User[hit_sprite];
 
-                u->WpnGoal = hitsprite;
+                u->WpnGoal = hit_sprite;
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
@@ -8427,14 +8407,14 @@ ComboMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range, int16_
     {
         if (u->WaitTics > delay_tics)
         {
-            short hitsprite;
+            short hit_sprite;
 
-            if ((hitsprite = DoPickTarget(sp, aware_range, FALSE)) != -1)
+            if ((hit_sprite = DoPickTarget(sp, aware_range, FALSE)) != -1)
             {
-                SPRITEp hp = &sprite[hitsprite];
-                USERp hu = User[hitsprite];
+                SPRITEp hp = &sprite[hit_sprite];
+                USERp hu = User[hit_sprite];
 
-                u->WpnGoal = hitsprite;
+                u->WpnGoal = hit_sprite;
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
@@ -8498,46 +8478,46 @@ VectorMissileSeek(int16_t Weapon, int16_t delay_tics, int16_t turn_speed, int16_
     {
         if (u->WaitTics > delay_tics)
         {
-            short hitsprite;
+            short hit_sprite;
 
             if (TEST(u->Flags2, SPR2_DONT_TARGET_OWNER))
             {
-                if ((hitsprite = PickEnemyTarget(sp, aware_range1)) != -1)
+                if ((hit_sprite = PickEnemyTarget(sp, aware_range1)) != -1)
                 {
-                    SPRITEp hp = &sprite[hitsprite];
-                    USERp hu = User[hitsprite];
+                    SPRITEp hp = &sprite[hit_sprite];
+                    USERp hu = User[hit_sprite];
 
-                    u->WpnGoal = hitsprite;
+                    u->WpnGoal = hit_sprite;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
-                else if ((hitsprite = PickEnemyTarget(sp, aware_range2)) != -1)
+                else if ((hit_sprite = PickEnemyTarget(sp, aware_range2)) != -1)
                 {
-                    SPRITEp hp = &sprite[hitsprite];
-                    USERp hu = User[hitsprite];
+                    SPRITEp hp = &sprite[hit_sprite];
+                    USERp hu = User[hit_sprite];
 
-                    u->WpnGoal = hitsprite;
+                    u->WpnGoal = hit_sprite;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
             }
             else
             {
-                if ((hitsprite = DoPickTarget(sp, aware_range1, FALSE)) != -1)
+                if ((hit_sprite = DoPickTarget(sp, aware_range1, FALSE)) != -1)
                 {
-                    SPRITEp hp = &sprite[hitsprite];
-                    USERp hu = User[hitsprite];
+                    SPRITEp hp = &sprite[hit_sprite];
+                    USERp hu = User[hit_sprite];
 
-                    u->WpnGoal = hitsprite;
+                    u->WpnGoal = hit_sprite;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
-                else if ((hitsprite = DoPickTarget(sp, aware_range2, FALSE)) != -1)
+                else if ((hit_sprite = DoPickTarget(sp, aware_range2, FALSE)) != -1)
                 {
-                    SPRITEp hp = &sprite[hitsprite];
-                    USERp hu = User[hitsprite];
+                    SPRITEp hp = &sprite[hit_sprite];
+                    USERp hu = User[hit_sprite];
 
-                    u->WpnGoal = hitsprite;
+                    u->WpnGoal = hit_sprite;
                     SET(hu->Flags, SPR_TARGETED);
                     SET(hu->Flags, SPR_ATTACKED);
                 }
@@ -8598,23 +8578,23 @@ VectorWormSeek(int16_t Weapon, int16_t delay_tics, int16_t aware_range1, int16_t
     {
         if (u->WaitTics > delay_tics)
         {
-            short hitsprite;
+            short hit_sprite;
 
-            if ((hitsprite = DoPickTarget(sp, aware_range1, FALSE)) != -1)
+            if ((hit_sprite = DoPickTarget(sp, aware_range1, FALSE)) != -1)
             {
-                SPRITEp hp = &sprite[hitsprite];
-                USERp hu = User[hitsprite];
+                SPRITEp hp = &sprite[hit_sprite];
+                USERp hu = User[hit_sprite];
 
-                u->WpnGoal = hitsprite;
+                u->WpnGoal = hit_sprite;
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
-            else if ((hitsprite = DoPickTarget(sp, aware_range2, FALSE)) != -1)
+            else if ((hit_sprite = DoPickTarget(sp, aware_range2, FALSE)) != -1)
             {
-                SPRITEp hp = &sprite[hitsprite];
-                USERp hu = User[hitsprite];
+                SPRITEp hp = &sprite[hit_sprite];
+                USERp hu = User[hit_sprite];
 
-                u->WpnGoal = hitsprite;
+                u->WpnGoal = hit_sprite;
                 SET(hu->Flags, SPR_TARGETED);
                 SET(hu->Flags, SPR_ATTACKED);
             }
@@ -8775,15 +8755,15 @@ DoPlasma(int16_t Weapon)
         // if hit a player/enemy back up and do it again with blocking reset
         if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
         {
-            short hitsprite = NORM_SPRITE(u->ret);
-            SPRITEp hsp = &sprite[hitsprite];
-            USERp hu = User[hitsprite];
+            short hit_sprite = NORM_SPRITE(u->ret);
+            SPRITEp hsp = &sprite[hit_sprite];
+            USERp hu = User[hit_sprite];
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_WALL))
             {
                 short hcstat = hsp->cstat;
 
-                if (hu &&  hitsprite != u->WpnGoal)
+                if (hu && hit_sprite != u->WpnGoal)
                 {
                     sp->x = ox;
                     sp->y = oy;
@@ -8886,16 +8866,16 @@ void WallBounce(short SpriteNum, short ang)
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
     int old_ang;
-    //short hitwall;
+    //short hit_wall;
     //short nextwall;
     int k,l;
     //short ang;
     int dax, day;
 
-    //hitwall = NORM_WALL(u->ret);
+    //hit_wall = NORM_WALL(u->ret);
 
-    //nextwall = wall[hitwall].point2;
-    //ang = getangle(wall[nextwall].x - wall[hitwall].x, wall[nextwall].y - wall[hitwall].y)+512;
+    //nextwall = wall[hit_wall].point2;
+    //ang = getangle(wall[nextwall].x - wall[hit_wall].x, wall[nextwall].y - wall[hit_wall].y)+512;
 
     u->bounce++;
 
@@ -8924,7 +8904,7 @@ void WallBounce(short SpriteNum, short ang)
 }
 
 
-SWBOOL SlopeBounce(short SpriteNum, SWBOOL *hitwall)
+SWBOOL SlopeBounce(short SpriteNum, SWBOOL *hit_wall)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = u->SpriteP;
@@ -8932,27 +8912,27 @@ SWBOOL SlopeBounce(short SpriteNum, SWBOOL *hitwall)
     int hiz,loz;
     int slope;
     int dax,day,daz;
-    short hitsector;
+    short hit_sector;
     short daang;
 
-    hitsector = NORM_SECTOR(u->ret);
+    hit_sector = NORM_SECTOR(u->ret);
 
-    getzsofslope(hitsector, sp->x, sp->y, &hiz, &loz);
+    getzsofslope(hit_sector, sp->x, sp->y, &hiz, &loz);
 
-    // detect the ceiling and the hitwall
+    // detect the ceiling and the hit_wall
     if (sp->z < DIV2(hiz+loz))
     {
-        if (!TEST(sector[hitsector].ceilingstat, CEILING_STAT_SLOPE))
+        if (!TEST(sector[hit_sector].ceilingstat, CEILING_STAT_SLOPE))
             slope = 0;
         else
-            slope = sector[hitsector].ceilingheinum;
+            slope = sector[hit_sector].ceilingheinum;
     }
     else
     {
-        if (!TEST(sector[hitsector].floorstat, FLOOR_STAT_SLOPE))
+        if (!TEST(sector[hit_sector].floorstat, FLOOR_STAT_SLOPE))
             slope = 0;
         else
-            slope = sector[hitsector].floorheinum;
+            slope = sector[hit_sector].floorheinum;
     }
 
     if (!slope)
@@ -8960,12 +8940,12 @@ SWBOOL SlopeBounce(short SpriteNum, SWBOOL *hitwall)
 
     // if greater than a 45 degree angle
     if (labs(slope) > 4096)
-        *hitwall = TRUE;
+        *hit_wall = TRUE;
     else
-        *hitwall = FALSE;
+        *hit_wall = FALSE;
 
     // get angle of the first wall of the sector
-    k = sector[hitsector].wallptr;
+    k = sector[hit_sector].wallptr;
     l = wall[k].point2;
     daang = getangle(wall[l].x - wall[k].x, wall[l].y - wall[k].y);
 
@@ -9038,13 +9018,13 @@ DoGrenade(int16_t Weapon)
         case HIT_SPRITE:
         {
             short wall_ang, dang;
-            short hitsprite = -2;
+            short hit_sprite = -2;
             SPRITEp hsp;
 
             PlaySound(DIGI_40MMBNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
-            hitsprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hitsprite];
+            hit_sprite = NORM_SPRITE(u->ret);
+            hsp = &sprite[hit_sprite];
 
             // special case so grenade can ring gong
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
@@ -9080,11 +9060,11 @@ DoGrenade(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hitwall,nw,wall_ang,dang;
+            short hit_wall,nw,wall_ang,dang;
             WALLp wph;
 
-            hitwall = NORM_WALL(u->ret);
-            wph = &wall[hitwall];
+            hit_wall = NORM_WALL(u->ret);
+            wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -9095,7 +9075,7 @@ DoGrenade(int16_t Weapon)
 
             PlaySound(DIGI_40MMBNCE, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
-            nw = wall[hitwall].point2;
+            nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
             //sp->ang = NORM_ANGLE(sp->ang + 1);
@@ -9107,10 +9087,10 @@ DoGrenade(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL hitwall;
-            if (SlopeBounce(Weapon, &hitwall))
+            SWBOOL did_hit_wall;
+            if (SlopeBounce(Weapon, &did_hit_wall))
             {
-                if (hitwall)
+                if (did_hit_wall)
                 {
                     // hit a wall
                     ScaleSpriteVector(Weapon, 22000); // 28000
@@ -9278,13 +9258,13 @@ DoVulcanBoulder(int16_t Weapon)
         case HIT_SPRITE:
         {
             short wall_ang, dang;
-            short hitsprite = -2;
+            short hit_sprite = -2;
             SPRITEp hsp;
 
 //                PlaySound(DIGI_DHCLUNK, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
-            hitsprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hitsprite];
+            hit_sprite = NORM_SPRITE(u->ret);
+            hsp = &sprite[hit_sprite];
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
             {
@@ -9306,11 +9286,11 @@ DoVulcanBoulder(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hitwall,nw,wall_ang,dang;
+            short hit_wall,nw,wall_ang,dang;
             WALLp wph;
 
-            hitwall = NORM_WALL(u->ret);
-            wph = &wall[hitwall];
+            hit_wall = NORM_WALL(u->ret);
+            wph = &wall[hit_wall];
 
             if (wph->lotag == TAG_WALL_BREAK)
             {
@@ -9321,7 +9301,7 @@ DoVulcanBoulder(int16_t Weapon)
 
 //                PlaySound(DIGI_DHCLUNK, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
-            nw = wall[hitwall].point2;
+            nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
             WallBounce(Weapon, wall_ang);
@@ -9331,11 +9311,11 @@ DoVulcanBoulder(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            SWBOOL hitwall;
+            SWBOOL did_hit_wall;
 
-            if (SlopeBounce(Weapon, &hitwall))
+            if (SlopeBounce(Weapon, &did_hit_wall))
             {
-                if (hitwall)
+                if (did_hit_wall)
                 {
                     // hit a sloped sector - treated as a wall because of large slope
                     ScaleSpriteVector(Weapon, 30000);
@@ -9694,9 +9674,9 @@ DoMine(int16_t Weapon)
             return 0;
         case HIT_SPRITE:
         {
-            short hitsprite = NORM_SPRITE(u->ret);
-            SPRITEp hsp = &sprite[hitsprite];
-            USERp hu = User[hitsprite];
+            short hit_sprite = NORM_SPRITE(u->ret);
+            SPRITEp hsp = &sprite[hit_sprite];
+            USERp hu = User[hit_sprite];
 
             SetMineStuck(Weapon);
             // Set the Z position
@@ -9712,8 +9692,8 @@ DoMine(int16_t Weapon)
                 PLAYERp pp;
 
                 // attach weapon to sprite
-                SetAttach(hitsprite, Weapon);
-                u->sz = sprite[hitsprite].z - sp->z;
+                SetAttach(hit_sprite, Weapon);
+                u->sz = sprite[hit_sprite].z - sp->z;
 
                 if (sp->owner >= 0)
                 {
@@ -9761,11 +9741,11 @@ DoMine(int16_t Weapon)
 
         case HIT_WALL:
         {
-            short hitwall = NORM_WALL(u->ret);
+            short hit_wall = NORM_WALL(u->ret);
 
-            if (wall[hitwall].lotag == TAG_WALL_BREAK)
+            if (wall[hit_wall].lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(&wall[hitwall], sp->x, sp->y, sp->z, sp->ang, u->ID);
+                HitBreakWall(&wall[hit_wall], sp->x, sp->y, sp->z, sp->ang, u->ID);
                 u->ret = 0;
                 break;
             }
@@ -9774,11 +9754,11 @@ DoMine(int16_t Weapon)
 
             SET(u->Flags2, SPR2_ATTACH_WALL);
 
-            if (TEST(wall[hitwall].extra, WALLFX_SECTOR_OBJECT))
+            if (TEST(wall[hit_wall].extra, WALLFX_SECTOR_OBJECT))
             {
             }
 
-            if (TEST(wall[hitwall].extra, WALLFX_DONT_STICK))
+            if (TEST(wall[hit_wall].extra, WALLFX_DONT_STICK))
             {
                 SpawnMineExp(Weapon);
                 KillSprite(Weapon);
@@ -9790,7 +9770,7 @@ DoMine(int16_t Weapon)
 
         case HIT_SECTOR:
         {
-            short hitsect = NORM_SECTOR(u->ret);
+            short hit_sect = NORM_SECTOR(u->ret);
 
             SetMineStuck(Weapon);
 
@@ -9801,7 +9781,7 @@ DoMine(int16_t Weapon)
                 SET(u->Flags2, SPR2_ATTACH_CEILING);
 
 
-            if (TEST(sector[hitsect].extra, SECTFX_SECTOR_OBJECT))
+            if (TEST(sector[hit_sect].extra, SECTFX_SECTOR_OBJECT))
             {
                 SpawnMineExp(Weapon);
                 KillSprite(Weapon);
@@ -10174,16 +10154,16 @@ DoRail(int16_t Weapon)
             {
                 if (TEST(u->ret, HIT_MASK) == HIT_SPRITE)
                 {
-                    short hitsprite;
-                    hitsprite = NORM_SPRITE(u->ret);
+                    short hit_sprite;
+                    hit_sprite = NORM_SPRITE(u->ret);
 
-                    if (TEST(sprite[hitsprite].extra, SPRX_PLAYER_OR_ENEMY))
+                    if (TEST(sprite[hit_sprite].extra, SPRX_PLAYER_OR_ENEMY))
                     {
-                        short cstat_save = sprite[hitsprite].cstat;
+                        short cstat_save = sprite[hit_sprite].cstat;
 
-                        RESET(sprite[hitsprite].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);
+                        RESET(sprite[hit_sprite].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE);
                         DoRail(Weapon);
-                        sprite[hitsprite].cstat = cstat_save;
+                        sprite[hit_sprite].cstat = cstat_save;
                         return TRUE;
                     }
                     else
@@ -11837,8 +11817,8 @@ InitMineShrap(short SpriteNum)
     SPRITEp wp, hsp;
     USERp wu;
     short ang, w, i;
-    short hitsect, hitwall, hitsprite;
-    int hitx, hity, hitz, daz, nz;
+    hitdata_t hitinfo;
+    int daz, nz;
     int nx,ny;
 
     for (i = 0; i < 18; i++)
@@ -11851,28 +11831,28 @@ InitMineShrap(short SpriteNum)
                    sintable[NORM_ANGLE(ang + 512)],        // X vector of 3D ang
                    sintable[NORM_ANGLE(ang)],              // Y vector of 3D ang
                    daz,                                    // Z vector of 3D ang
-                   &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                   &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitsect < 0)
+        if (hitinfo.sect < 0)
             continue;
 
 
         // check to see what you hit
-        if (hitsprite < 0 && hitwall < 0)
+        if (hitinfo.sprite < 0 && hitinfo.wall < 0)
         {
         }
 
 #define MINE_SHRAP_DIST_MAX 20000
-        if (Distance(hitx, hity, sp->x, sp->y) > MINE_SHRAP_DIST_MAX)
+        if (Distance(hitinfo.pos.x, hitinfo.pos.y, sp->x, sp->y) > MINE_SHRAP_DIST_MAX)
             continue;
 
         // hit a sprite?
-        if (hitsprite >= 0)
+        if (hitinfo.sprite >= 0)
         {
-            hsp = &sprite[hitsprite];
+            hsp = &sprite[hitinfo.sprite];
         }
 
-        w = SpawnSprite(STAT_MISSILE, MINE_SHRAP, s_MineSpark, hitsect, hitx, hity, hitz, ang, 0);
+        w = SpawnSprite(STAT_MISSILE, MINE_SHRAP, s_MineSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
         wp = &sprite[w];
         wp->shade = -40;
         wp->hitag = LUMINOUS; //Always full brightness
@@ -11881,7 +11861,7 @@ InitMineShrap(short SpriteNum)
 
         wp->clipdist = 32 >> 2;
 
-        HitscanSpriteAdjust(w, hitwall);
+        HitscanSpriteAdjust(w, hitinfo.wall);
     }
 
     return 0;
@@ -13909,8 +13889,9 @@ InitSwordAttack(PLAYERp pp)
 
     // all this is to break glass
     {
-        short hitsect, hitwall, hitsprite, daang;
-        int hitx, hity, hitz, daz;
+        hitdata_t hitinfo;
+        short daang;
+        int daz;
 
         daang = pp->pang;
         daz = ((100 - pp->horiz) * 2000) + (RANDOM_RANGE(24000) - 12000);
@@ -13919,35 +13900,35 @@ InitSwordAttack(PLAYERp pp)
                    sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
                    sintable[NORM_ANGLE(daang)],    // Y vector of 3D ang
                    daz,                            // Z vector of 3D ang
-                   &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                   &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitsect < 0)
+        if (hitinfo.sect < 0)
             return 0;
 
-        if (FindDistance3D(pp->posx - hitx, pp->posy - hity, (pp->posz - hitz)>>4) < 700)
+        if (FindDistance3D(pp->posx - hitinfo.pos.x, pp->posy - hitinfo.pos.y, (pp->posz - hitinfo.pos.z)>>4) < 700)
         {
 
-            if (hitsprite >= 0)
+            if (hitinfo.sprite >= 0)
             {
                 extern STATE s_TrashCanPain[];
-                SPRITEp hsp = &sprite[hitsprite];
-                tu = User[hitsprite];
+                SPRITEp hsp = &sprite[hitinfo.sprite];
+                tu = User[hitinfo.sprite];
 
                 if (tu) // JBF: added null check
                     switch (tu->ID)
                     {
                     case ZILLA_RUN_R0:
-                        SpawnSwordSparks(pp, hitsect, -1, hitx, hity, hitz, daang);
-                        PlaySound(DIGI_SWORDCLANK, &hitx, &hity, &hitz, v3df_none);
+                        SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
                         break;
                     case TRASHCAN:
                         if (tu->WaitTics <= 0)
                         {
                             tu->WaitTics = SEC(2);
-                            ChangeState(hitsprite,s_TrashCanPain);
+                            ChangeState(hitinfo.sprite,s_TrashCanPain);
                         }
-                        SpawnSwordSparks(pp, hitsect, -1, hitx, hity, hitz, daang);
-                        PlaySound(DIGI_SWORDCLANK, &hitx, &hity, &hitz, v3df_none);
+                        SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
                         PlaySound(DIGI_TRASHLID, &sp->x, &sp->y, &sp->z, v3df_none);
                         break;
                     case PACHINKO1:
@@ -13955,52 +13936,52 @@ InitSwordAttack(PLAYERp pp)
                     case PACHINKO3:
                     case PACHINKO4:
                     case 623:
-                        SpawnSwordSparks(pp, hitsect, -1, hitx, hity, hitz, daang);
-                        PlaySound(DIGI_SWORDCLANK, &hitx, &hity, &hitz, v3df_none);
+                        SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+                        PlaySound(DIGI_SWORDCLANK, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
                         break;
                     }
 
-                if (sprite[hitsprite].lotag == TAG_SPRITE_HIT_MATCH)
+                if (sprite[hitinfo.sprite].lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(-1, WPN_STAR, hitsprite))
+                    if (MissileHitMatch(-1, WPN_STAR, hitinfo.sprite))
                         return 0;
                 }
 
                 if (TEST(hsp->extra, SPRX_BREAKABLE))
                 {
-                    HitBreakSprite(hitsprite,0);
+                    HitBreakSprite(hitinfo.sprite,0);
                 }
 
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(hitsprite,-1);
+                    ShootableSwitch(hitinfo.sprite,-1);
                 }
 
             }
 
-            if (hitwall >= 0)
+            if (hitinfo.wall >= 0)
             {
-                if (wall[hitwall].nextsector >= 0)
+                if (wall[hitinfo.wall].nextsector >= 0)
                 {
-                    if (TEST(sector[wall[hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(sector[wall[hitinfo.wall].nextsector].ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitz < sector[wall[hitwall].nextsector].ceilingz)
+                        if (hitinfo.pos.z < sector[wall[hitinfo.wall].nextsector].ceilingz)
                         {
                             return 0;
                         }
                     }
                 }
 
-                if (wall[hitwall].lotag == TAG_WALL_BREAK)
+                if (wall[hitinfo.wall].lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(&wall[hitwall], hitx, hity, hitz, daang, u->ID);
+                    HitBreakWall(&wall[hitinfo.wall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
                 }
                 // hit non breakable wall - do sound and puff
                 else
                 {
-                    SpawnSwordSparks(pp, hitsect, hitwall, hitx, hity, hitz, daang);
-                    PlaySound(DIGI_SWORDCLANK, &hitx, &hity, &hitz, v3df_none);
+                    SpawnSwordSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+                    PlaySound(DIGI_SWORDCLANK, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
                 }
             }
         }
@@ -14100,8 +14081,9 @@ InitFistAttack(PLAYERp pp)
 
     // all this is to break glass
     {
-        short hitsect, hitwall, hitsprite, daang;
-        int hitx, hity, hitz, daz;
+        hitdata_t hitinfo;
+        short daang;
+        int daz;
 
         daang = pp->pang;
         daz = ((100 - pp->horiz) * 2000) + (RANDOM_RANGE(24000) - 12000);
@@ -14110,35 +14092,35 @@ InitFistAttack(PLAYERp pp)
                    sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
                    sintable[NORM_ANGLE(daang)],    // Y vector of 3D ang
                    daz,                            // Z vector of 3D ang
-                   &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                   &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitsect < 0)
+        if (hitinfo.sect < 0)
             return 0;
 
-        if (FindDistance3D(pp->posx - hitx, pp->posy - hity, (pp->posz - hitz)>>4) < 700)
+        if (FindDistance3D(pp->posx - hitinfo.pos.x, pp->posy - hitinfo.pos.y, (pp->posz - hitinfo.pos.z)>>4) < 700)
         {
 
-            if (hitsprite >= 0)
+            if (hitinfo.sprite >= 0)
             {
                 extern STATE s_TrashCanPain[];
-                SPRITEp hsp = &sprite[hitsprite];
-                tu = User[hitsprite];
+                SPRITEp hsp = &sprite[hitinfo.sprite];
+                tu = User[hitinfo.sprite];
 
                 if (tu)     // JBF: added null check
                     switch (tu->ID)
                     {
                     case ZILLA_RUN_R0:
-                        SpawnSwordSparks(pp, hitsect, -1, hitx, hity, hitz, daang);
-                        PlaySound(DIGI_ARMORHIT, &hitx, &hity, &hitz, v3df_none);
+                        SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
                         break;
                     case TRASHCAN:
                         if (tu->WaitTics <= 0)
                         {
                             tu->WaitTics = SEC(2);
-                            ChangeState(hitsprite,s_TrashCanPain);
+                            ChangeState(hitinfo.sprite,s_TrashCanPain);
                         }
-                        SpawnSwordSparks(pp, hitsect, -1, hitx, hity, hitz, daang);
-                        PlaySound(DIGI_ARMORHIT, &hitx, &hity, &hitz, v3df_none);
+                        SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
                         PlaySound(DIGI_TRASHLID, &sp->x, &sp->y, &sp->z, v3df_none);
                         break;
                     case PACHINKO1:
@@ -14146,26 +14128,26 @@ InitFistAttack(PLAYERp pp)
                     case PACHINKO3:
                     case PACHINKO4:
                     case 623:
-                        SpawnSwordSparks(pp, hitsect, -1, hitx, hity, hitz, daang);
-                        PlaySound(DIGI_ARMORHIT, &hitx, &hity, &hitz, v3df_none);
+                        SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+                        PlaySound(DIGI_ARMORHIT, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
                         break;
                     }
 
-                if (sprite[hitsprite].lotag == TAG_SPRITE_HIT_MATCH)
+                if (sprite[hitinfo.sprite].lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(-1, WPN_STAR, hitsprite))
+                    if (MissileHitMatch(-1, WPN_STAR, hitinfo.sprite))
                         return 0;
                 }
 
                 if (TEST(hsp->extra, SPRX_BREAKABLE))
                 {
-                    HitBreakSprite(hitsprite,0);
+                    HitBreakSprite(hitinfo.sprite,0);
                 }
 
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(hitsprite,-1);
+                    ShootableSwitch(hitinfo.sprite,-1);
                 }
 
                 switch (hsp->picnum)
@@ -14173,8 +14155,8 @@ InitFistAttack(PLAYERp pp)
                 case 5062:
                 case 5063:
                 case 4947:
-                    SpawnSwordSparks(pp, hitsect, -1, hitx, hity, hitz, daang);
-                    PlaySound(DIGI_ARMORHIT, &hitx, &hity, &hitz, v3df_none);
+                    SpawnSwordSparks(pp, hitinfo.sect, -1, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+                    PlaySound(DIGI_ARMORHIT, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
                     if (RANDOM_RANGE(1000) > 700)
                         PlayerUpdateHealth(pp,1); // Give some health
                     SET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -14183,28 +14165,28 @@ InitFistAttack(PLAYERp pp)
             }
 
 
-            if (hitwall >= 0)
+            if (hitinfo.wall >= 0)
             {
-                if (wall[hitwall].nextsector >= 0)
+                if (wall[hitinfo.wall].nextsector >= 0)
                 {
-                    if (TEST(sector[wall[hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(sector[wall[hitinfo.wall].nextsector].ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitz < sector[wall[hitwall].nextsector].ceilingz)
+                        if (hitinfo.pos.z < sector[wall[hitinfo.wall].nextsector].ceilingz)
                         {
                             return 0;
                         }
                     }
                 }
 
-                if (wall[hitwall].lotag == TAG_WALL_BREAK)
+                if (wall[hitinfo.wall].lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(&wall[hitwall], hitx, hity, hitz, daang, u->ID);
+                    HitBreakWall(&wall[hitinfo.wall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
                 }
                 // hit non breakable wall - do sound and puff
                 else
                 {
-                    SpawnSwordSparks(pp, hitsect, hitwall, hitx, hity, hitz, daang);
-                    PlaySound(DIGI_ARMORHIT, &hitx, &hity, &hitz, v3df_none);
+                    SpawnSwordSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+                    PlaySound(DIGI_ARMORHIT, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z, v3df_none);
                     if (PlayerTakeDamage(pp, -1))
                     {
                         PlayerUpdateHealth(pp, -(RANDOM_RANGE(2<<8)>>8));
@@ -14408,7 +14390,7 @@ InitMiniSumoClap(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist;
-    short hitsprite, w;
+    short w;
     short reach;
 
 
@@ -14447,7 +14429,7 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, SWBOOL test)
     USERp wu = User[Missile];
     USERp u = User[sp - sprite];
     SPRITEp wp = &sprite[Missile];
-    short hitsprite = -1;
+    short hit_sprite = -1;
     int dist;
     int zh;
 
@@ -14468,12 +14450,12 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, SWBOOL test)
         }
     }
 
-    if ((hitsprite = DoPickTarget(sp, ang, test)) != -1)
+    if ((hit_sprite = DoPickTarget(sp, ang, test)) != -1)
     {
-        SPRITEp hp = &sprite[hitsprite];
-        USERp hu = User[hitsprite];
+        SPRITEp hp = &sprite[hit_sprite];
+        USERp hu = User[hit_sprite];
 
-        wu->WpnGoal = hitsprite;
+        wu->WpnGoal = hit_sprite;
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
@@ -14490,11 +14472,11 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, SWBOOL test)
             diff = wp->z - tos;
             siz = SPRITEp_SIZE_Z(hp);
 
-            // hitsprite is below
+            // hit_sprite is below
             if (diff < -Z(50))
                 zh = tos + DIV2(siz);
             else
-            // hitsprite is above
+            // hit_sprite is above
             if (diff > Z(50))
                 zh = tos + DIV8(siz);
             else
@@ -14508,7 +14490,7 @@ WeaponAutoAim(SPRITEp sp, short Missile, short ang, SWBOOL test)
         }
     }
 
-    return hitsprite;
+    return hit_sprite;
 }
 
 int
@@ -14517,7 +14499,7 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, SWBOOL test)
     USERp wu = User[Missile];
     USERp u = User[sp - sprite];
     SPRITEp wp = &sprite[Missile];
-    short hitsprite = -1;
+    short hit_sprite = -1;
     int dist;
     int zh;
 
@@ -14538,12 +14520,12 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, SWBOOL test)
         }
     }
 
-    if ((hitsprite = DoPickTarget(sp, ang, test)) != -1)
+    if ((hit_sprite = DoPickTarget(sp, ang, test)) != -1)
     {
-        SPRITEp hp = &sprite[hitsprite];
-        USERp hu = User[hitsprite];
+        SPRITEp hp = &sprite[hit_sprite];
+        USERp hu = User[hit_sprite];
 
-        wu->WpnGoal = hitsprite;
+        wu->WpnGoal = hit_sprite;
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
 
@@ -14560,11 +14542,11 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, SWBOOL test)
             diff = wp->z - tos;
             siz = SPRITEp_SIZE_Z(hp);
 
-            // hitsprite is below
+            // hit_sprite is below
             if (diff < -Z(50))
                 zh = tos + DIV2(siz);
             else
-            // hitsprite is above
+            // hit_sprite is above
             if (diff > Z(50))
                 zh = tos + DIV8(siz);
             else
@@ -14578,7 +14560,7 @@ WeaponAutoAimZvel(SPRITEp sp, short Missile, int *zvel, short ang, SWBOOL test)
         }
     }
 
-    return hitsprite;
+    return hit_sprite;
 }
 
 
@@ -14586,7 +14568,7 @@ int
 AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
 {
     USERp u = User[sp - sprite];
-    short hitsprite = -1;
+    short hit_sprite = -1;
     int dist;
     int zh;
     int xvect;
@@ -14597,9 +14579,9 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
     if (!u->tgt_sp)
         return -1;
 
-    hitsprite = u->tgt_sp - sprite;
-    hp = &sprite[hitsprite];
-    hu = User[hitsprite];
+    hit_sprite = u->tgt_sp - sprite;
+    hp = &sprite[hit_sprite];
+    hu = User[hit_sprite];
 
     SET(hu->Flags, SPR_TARGETED);
     SET(hu->Flags, SPR_ATTACKED);
@@ -14636,14 +14618,14 @@ AimHitscanToTarget(SPRITEp sp, int *z, short *ang, int z_ratio)
     }
 
 
-    return hitsprite;
+    return hit_sprite;
 }
 
 int
 WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, SWBOOL test)
 {
     USERp u = User[sp - sprite];
-    short hitsprite = -1;
+    short hit_sprite = -1;
     int dist;
     int zh;
     int xvect;
@@ -14657,10 +14639,10 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, SWBOOL test)
         }
     }
 
-    if ((hitsprite = DoPickTarget(sp, *ang, test)) != -1)
+    if ((hit_sprite = DoPickTarget(sp, *ang, test)) != -1)
     {
-        SPRITEp hp = &sprite[hitsprite];
-        USERp hu = User[hitsprite];
+        SPRITEp hp = &sprite[hit_sprite];
+        USERp hu = User[hit_sprite];
 
         SET(hu->Flags, SPR_TARGETED);
         SET(hu->Flags, SPR_ATTACKED);
@@ -14690,7 +14672,7 @@ WeaponAutoAimHitscan(SPRITEp sp, int *z, short *ang, SWBOOL test)
         }
     }
 
-    return hitsprite;
+    return hit_sprite;
 }
 
 void
@@ -14736,7 +14718,7 @@ InitStar(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz, oldx, oldy, oldspeed;
-    short hitsprite, Weapon, w;
+    short Weapon, w;
     int oclipdist;
     int zvel;
 
@@ -15000,81 +14982,80 @@ InitHeartAttack(PLAYERp pp)
 int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, int xvect, int yvect, int zvect)
 {
     short j;
-    short hitsect, hitwall, hitsprite;
-    int hitx, hity, hitz;
+    hitdata_t hitinfo;
     USERp u = User[pp->PlayerSprite];
 
     FAFhitscan(x, y, z, sectnum,
                xvect, yvect, zvect,
-               &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+               &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitsect < 0)
+    if (hitinfo.sect < 0)
         return 0;
 
-    if (hitsprite < 0 && hitwall < 0)
+    if (hitinfo.sprite < 0 && hitinfo.wall < 0)
     {
-        if (labs(hitz - sector[hitsect].ceilingz) <= Z(1))
+        if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
         {
-            hitz += Z(16);
-            if (TEST(sector[hitsect].ceilingstat, CEILING_STAT_PLAX))
+            hitinfo.pos.z += Z(16);
+            if (TEST(sector[hitinfo.sect].ceilingstat, CEILING_STAT_PLAX))
                 return 0;
         }
-        else if (labs(hitz - sector[hitsect].floorz) <= Z(1))
+        else if (labs(hitinfo.pos.z - sector[hitinfo.sect].floorz) <= Z(1))
         {
         }
     }
 
-    if (hitwall >= 0)
+    if (hitinfo.wall >= 0)
     {
-        if (wall[hitwall].nextsector >= 0)
+        if (wall[hitinfo.wall].nextsector >= 0)
         {
-            if (TEST(sector[wall[hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[wall[hitinfo.wall].nextsector].ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitz < sector[wall[hitwall].nextsector].ceilingz)
+                if (hitinfo.pos.z < sector[wall[hitinfo.wall].nextsector].ceilingz)
                 {
                     return 0;
                 }
             }
         }
 
-        if (wall[hitwall].lotag == TAG_WALL_BREAK)
+        if (wall[hitinfo.wall].lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(&wall[hitwall], hitx, hity, hitz, ang, u->ID);
+            HitBreakWall(&wall[hitinfo.wall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, u->ID);
             return 0;
         }
 
-        QueueHole(ang,hitsect,hitwall,hitx,hity,hitz);
+        QueueHole(ang,hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
     }
 
     // hit a sprite?
-    if (hitsprite >= 0)
+    if (hitinfo.sprite >= 0)
     {
-        SPRITEp hsp = &sprite[hitsprite];
+        SPRITEp hsp = &sprite[hitinfo.sprite];
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(-1, WPN_SHOTGUN, hitsprite))
+            if (MissileHitMatch(-1, WPN_SHOTGUN, hitinfo.sprite))
                 return 0;
         }
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hitsprite,0);
+            HitBreakSprite(hitinfo.sprite,0);
             return 0;
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitsprite, hitsect, hitwall, hitx, hity, hitz, 0))
+        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitsprite,-1);
+            ShootableSwitch(hitinfo.sprite,-1);
         }
     }
 
-    j = SpawnShotgunSparks(pp, hitsect, hitwall, hitx, hity, hitz, ang);
-    DoHitscanDamage(j, hitsprite);
+    j = SpawnShotgunSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang);
+    DoHitscanDamage(j, hitinfo.sprite);
 
     return 0;
 }
@@ -15086,8 +15067,9 @@ InitShotgun(PLAYERp pp)
     SPRITEp wp, hsp;
     USERp wu;
     short daang,ndaang, i, j, exp;
-    short hitsect, hitwall, hitsprite, nsect;
-    int hitx, hity, hitz, daz, ndaz;
+    hitdata_t hitinfo;
+    short nsect;
+    int daz, ndaz;
     int nx,ny,nz;
     int xvect,yvect,zvect;
     short cstat = 0;
@@ -15143,42 +15125,42 @@ InitShotgun(PLAYERp pp)
         zvect = ndaz;
         FAFhitscan(nx, ny, nz, nsect,               // Start position
                    xvect, yvect, zvect,
-                   &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                   &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitsect < 0)
+        if (hitinfo.sect < 0)
         {
-            ////DSPRINTF(ds,"PROBLEM! - FAFhitscan returned a bad hitsect");
+            ////DSPRINTF(ds,"PROBLEM! - FAFhitscan returned a bad hitinfo.sect");
             //MONO_PRINT(ds);
             continue;
         }
 
-        if (hitsprite < 0 && hitwall < 0)
+        if (hitinfo.sprite < 0 && hitinfo.wall < 0)
         {
-            if (labs(hitz - sector[hitsect].ceilingz) <= Z(1))
+            if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
             {
-                hitz += Z(16);
+                hitinfo.pos.z += Z(16);
                 SET(cstat, CSTAT_SPRITE_YFLIP);
 
-                if (TEST(sector[hitsect].ceilingstat, CEILING_STAT_PLAX))
+                if (TEST(sector[hitinfo.sect].ceilingstat, CEILING_STAT_PLAX))
                     continue;
 
-                if (SectorIsUnderwaterArea(hitsect))
+                if (SectorIsUnderwaterArea(hitinfo.sect))
                 {
-                    WarpToSurface(&hitsect, &hitx, &hity, &hitz);
-                    ContinueHitscan(pp, hitsect, hitx, hity, hitz, ndaang, xvect, yvect, zvect);
+                    WarpToSurface(&hitinfo.sect, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
+                    ContinueHitscan(pp, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, xvect, yvect, zvect);
                     continue;
                 }
             }
-            else if (labs(hitz - sector[hitsect].floorz) <= Z(1))
+            else if (labs(hitinfo.pos.z - sector[hitinfo.sect].floorz) <= Z(1))
             {
-                if (TEST(sector[hitsect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+                if (TEST(sector[hitinfo.sect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                 {
-                    SpawnSplashXY(hitx,hity,hitz,hitsect);
+                    SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sect);
 
-                    if (SectorIsDiveArea(hitsect))
+                    if (SectorIsDiveArea(hitinfo.sect))
                     {
-                        WarpToUnderwater(&hitsect, &hitx, &hity, &hitz);
-                        ContinueHitscan(pp, hitsect, hitx, hity, hitz, ndaang, xvect, yvect, zvect);
+                        WarpToUnderwater(&hitinfo.sect, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
+                        ContinueHitscan(pp, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, xvect, yvect, zvect);
                     }
 
                     continue;
@@ -15186,33 +15168,33 @@ InitShotgun(PLAYERp pp)
             }
         }
 
-        if (hitwall >= 0)
+        if (hitinfo.wall >= 0)
         {
-            if (wall[hitwall].nextsector >= 0)
+            if (wall[hitinfo.wall].nextsector >= 0)
             {
-                if (TEST(sector[wall[hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+                if (TEST(sector[wall[hitinfo.wall].nextsector].ceilingstat, CEILING_STAT_PLAX))
                 {
-                    if (hitz < sector[wall[hitwall].nextsector].ceilingz)
+                    if (hitinfo.pos.z < sector[wall[hitinfo.wall].nextsector].ceilingz)
                     {
                         continue;
                     }
                 }
             }
 
-            if (wall[hitwall].lotag == TAG_WALL_BREAK)
+            if (wall[hitinfo.wall].lotag == TAG_WALL_BREAK)
             {
-                HitBreakWall(&wall[hitwall], hitx, hity, hitz, ndaang, u->ID);
+                HitBreakWall(&wall[hitinfo.wall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang, u->ID);
                 continue;
             }
 
-            QueueHole(ndaang,hitsect,hitwall,hitx,hity,hitz);
+            QueueHole(ndaang,hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
         }
 
         // hit a sprite?
-        if (hitsprite >= 0)
+        if (hitinfo.sprite >= 0)
         {
-            SPRITEp hsp = &sprite[hitsprite];
-            USERp hu = User[hitsprite];
+            SPRITEp hsp = &sprite[hitinfo.sprite];
+            USERp hu = User[hitinfo.sprite];
 
             if (hu && hu->ID == TRASHCAN)   // JBF: added null check
             {
@@ -15222,34 +15204,34 @@ InitShotgun(PLAYERp pp)
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
-                    ChangeState(hitsprite,s_TrashCanPain);
+                    ChangeState(hitinfo.sprite,s_TrashCanPain);
                 }
             }
 
             if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
             {
-                if (MissileHitMatch(-1, WPN_SHOTGUN, hitsprite))
+                if (MissileHitMatch(-1, WPN_SHOTGUN, hitinfo.sprite))
                     continue;
             }
 
             if (TEST(hsp->extra, SPRX_BREAKABLE))
             {
-                HitBreakSprite(hitsprite,0);
+                HitBreakSprite(hitinfo.sprite,0);
                 continue;
             }
 
-            if (BulletHitSprite(pp->SpriteP, hitsprite, hitsect, hitwall, hitx, hity, hitz, SHOTGUN_SMOKE))
+            if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, SHOTGUN_SMOKE))
                 continue;
 
             // hit a switch?
             if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
             {
-                ShootableSwitch(hitsprite,-1);
+                ShootableSwitch(hitinfo.sprite,-1);
             }
         }
 
-        j = SpawnShotgunSparks(pp, hitsect, hitwall, hitx, hity, hitz, ndaang);
-        DoHitscanDamage(j, hitsprite);
+        j = SpawnShotgunSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ndaang);
+        DoHitscanDamage(j, hitinfo.sprite);
     }
 
     DoPlayerBeginRecoil(pp, SHOTGUN_RECOIL_AMT);
@@ -15263,7 +15245,7 @@ InitLaser(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
 
     DoPlayerBeginRecoil(pp, RAIL_RECOIL_AMT);
@@ -15366,7 +15348,7 @@ InitRail(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
     int zvel;
 
@@ -15456,7 +15438,7 @@ InitZillaRail(short SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
     int zvel;
 
@@ -15541,7 +15523,7 @@ InitRocket(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
     int zvel;
 
@@ -15662,7 +15644,7 @@ InitBunnyRocket(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
     int zvel;
 
@@ -15777,7 +15759,7 @@ InitNuke(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
     int zvel;
 
@@ -15880,7 +15862,7 @@ InitEnemyNuke(short SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
     int zvel;
 
@@ -15967,7 +15949,7 @@ InitMicro(PLAYERp pp)
     USERp wu,hu;
     SPRITEp wp,hp;
     int nx, ny, nz, dist;
-    short w, hitsprite;
+    short w;
     short oclipdist;
     short i,ang;
     TARGET_SORTp ts = TargetSort;
@@ -16661,7 +16643,7 @@ InitEnemyRocket(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist, nang;
-    short hitsprite, w;
+    short w;
 
 
     PlaySound(DIGI_NINJARIOTATTACK, &sp->x, &sp->y, &sp->z, v3df_none);
@@ -16729,7 +16711,7 @@ InitEnemyRail(short SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz, dist, nang;
-    short w, hitsprite;
+    short w;
     short oclipdist,pnum=0;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
@@ -16822,7 +16804,7 @@ InitZillaRocket(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist, nang;
-    short hitsprite, w, i;
+    short w, i;
 
     typedef struct
     {
@@ -16910,7 +16892,7 @@ InitEnemyStar(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist, nang;
-    short hitsprite, w;
+    short w;
 
     // get angle to player and also face player when attacking
     sp->ang = nang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y));
@@ -16999,7 +16981,7 @@ InitEnemyCrossbow(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist, nang;
-    short hitsprite, w;
+    short w;
 
     // get angle to player and also face player when attacking
     sp->ang = nang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y));
@@ -17094,7 +17076,7 @@ InitSkelSpell(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist, nang;
-    short hitsprite, w;
+    short w;
 
     PlaySound(DIGI_SPELEC, &sp->x, &sp->y, &sp->z, v3df_none);
 
@@ -17143,7 +17125,7 @@ InitCoolgFire(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist, nang;
-    short hitsprite, w;
+    short w;
 
     // get angle to player and also face player when attacking
     sp->ang = nang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y));
@@ -17227,7 +17209,7 @@ InitCoolgDrip(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist, nang;
-    short hitsprite, w;
+    short w;
 
     nx = sp->x;
     ny = sp->y;
@@ -17260,7 +17242,7 @@ GenerateDrips(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist, nang;
-    short hitsprite, w = 0;
+    short w = 0;
 
     if ((u->WaitTics-=ACTORMOVETICS) <= 0)
     {
@@ -17349,7 +17331,7 @@ InitFireballTrap(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist;
-    short hitsprite, w;
+    short w;
 
     PlaySound(DIGI_FIREBALL1, &sp->x, &sp->y, &sp->z, v3df_none);
 
@@ -17387,7 +17369,7 @@ InitBoltTrap(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist;
-    short hitsprite, w;
+    short w;
 
     PlaySound(DIGI_RIOTFIRE, &sp->x, &sp->y, &sp->z, v3df_none);
 
@@ -17427,7 +17409,7 @@ InitEnemyCrossbow(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist, nang;
-    short hitsprite, w;
+    short w;
 
     // get angle to player and also face player when attacking
     sp->ang = nang = NORM_ANGLE(getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y));
@@ -17480,7 +17462,7 @@ InitSpearTrap(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], wp;
     USERp u = User[SpriteNum], wu;
     int nx, ny, nz, dist;
-    short hitsprite, w;
+    short w;
     //short nang;
 
     nx = sp->x;
@@ -17546,7 +17528,7 @@ InitTracerUzi(PLAYERp pp)
     USERp wu;
 
     int nx, ny, nz, dist, nang;
-    short hitsprite, w;
+    short w;
     int oclipdist;
 
     short lat_dist[] = {800,-800};
@@ -17627,7 +17609,7 @@ InitTracerTurret(short SpriteNum, short Operator, int horiz)
     USERp wu;
 
     int nx, ny, nz, dist, nang;
-    short hitsprite, w;
+    short w;
     int oclipdist;
 
     nx = sp->x;
@@ -17686,7 +17668,7 @@ InitTracerAutoTurret(short SpriteNum, short Operator, int xchange, int ychange, 
     USERp wu;
 
     int nx, ny, nz, dist, nang;
-    short hitsprite, w;
+    short w;
     int oclipdist;
 
     nx = sp->x;
@@ -17730,10 +17712,11 @@ InitTracerAutoTurret(short SpriteNum, short Operator, int xchange, int ychange, 
 #endif
 
 int
-BulletHitSprite(SPRITEp sp, short hitsprite, short hitsect, short hitwall, int hitx, int hity, int hitz, short ID)
+BulletHitSprite(SPRITEp sp, short hit_sprite, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short ID)
 {
-    SPRITEp hsp = &sprite[hitsprite];
-    USERp hu = User[hitsprite];
+    vec3_t hit_pos = { hit_x, hit_y, hit_z };
+    SPRITEp hsp = &sprite[hit_sprite];
+    USERp hu = User[hit_sprite];
     SPRITEp wp;
     USERp wu;
     short new;
@@ -17754,7 +17737,7 @@ BulletHitSprite(SPRITEp sp, short hitsprite, short hitsect, short hitwall, int h
 
         if (ID>0) id = ID;
 
-        new = SpawnSprite(STAT_MISSILE, id, s_UziSmoke, 0, hitx, hity, hitz, sp->ang, 0);
+        new = SpawnSprite(STAT_MISSILE, id, s_UziSmoke, 0, hit_x, hit_y, hit_z, sp->ang, 0);
         wp = &sprite[new];
         wu = User[new];
         wp->shade = -40;
@@ -17774,7 +17757,7 @@ BulletHitSprite(SPRITEp sp, short hitsprite, short hitsect, short hitwall, int h
             wp->xrepeat = UZI_SMOKE_REPEAT;
             wp->yrepeat = UZI_SMOKE_REPEAT;
             if (RANDOM_P2(1024) > 800)
-                SpawnShrapX(hitsprite);
+                SpawnShrapX(hit_sprite);
             break;
         default:
             wp->xrepeat = UZI_SMOKE_REPEAT/3;
@@ -17787,28 +17770,28 @@ BulletHitSprite(SPRITEp sp, short hitsprite, short hitsect, short hitwall, int h
         SetOwner(sp - sprite, new);
         wp->ang = sp->ang;
 
-        setspritez(new, hitx, hity, hitz);
+        setspritez(new, &hit_pos);
         SET(wp->cstat, CSTAT_SPRITE_YCENTER);
         RESET(wp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
         if ((RANDOM_P2(1024<<5)>>5) < 512+128)
         {
             if (!hu->PlayerP)
-                SpawnBlood(hitsprite, -1, sp->ang, hitx, hity, hitz);
+                SpawnBlood(hit_sprite, -1, sp->ang, hit_x, hit_y, hit_z);
             else
-                SpawnBlood(hitsprite, -1, sp->ang, hitx, hity, hitz+Z(20));
+                SpawnBlood(hit_sprite, -1, sp->ang, hit_x, hit_y, hit_z+Z(20));
 
             // blood comes out the other side?
             if ((RANDOM_P2(1024<<5)>>5) < 256)
             {
                 if (!hu->PlayerP)
-                    SpawnBlood(hitsprite, -1, NORM_ANGLE(sp->ang+1024),hitx, hity, hitz);
+                    SpawnBlood(hit_sprite, -1, NORM_ANGLE(sp->ang+1024),hit_x, hit_y, hit_z);
                 if (hu->ID != TRASHCAN && hu->ID != ZILLA_RUN_R0)
-                    QueueWallBlood(hitsprite, sp->ang);  //QueueWallBlood needs bullet angle.
+                    QueueWallBlood(hit_sprite, sp->ang);  //QueueWallBlood needs bullet angle.
             }
         }
 
-        DoHitscanDamage(new, hitsprite);
+        DoHitscanDamage(new, hit_sprite);
 
         return TRUE;
     }
@@ -17816,28 +17799,28 @@ BulletHitSprite(SPRITEp sp, short hitsprite, short hitsect, short hitwall, int h
     return FALSE;
 }
 
-int SpawnWallHole(short hitsect, short hitwall, int hitx, int hity, int hitz)
+int SpawnWallHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
 {
     short w,nw,wall_ang,dang;
     short SpriteNum;
     int nx,ny;
     SPRITEp sp;
 
-    SpriteNum = COVERinsertsprite(hitsect, STAT_DEFAULT);
+    SpriteNum = COVERinsertsprite(hit_sect, STAT_DEFAULT);
     sp = &sprite[SpriteNum];
     sp->owner = -1;
     sp->xrepeat = sp->yrepeat = 16;
     sp->cstat = sp->pal = sp->shade = sp->extra = sp->clipdist = sp->xoffset = sp->yoffset = 0;
-    sp->x = hitx;
-    sp->y = hity;
-    sp->z = hitz;
+    sp->x = hit_x;
+    sp->y = hit_y;
+    sp->z = hit_z;
     sp->picnum = 2151;
 
     //SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_WALL);
     SET(sp->cstat, CSTAT_SPRITE_WALL);
     SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
 
-    w = hitwall;
+    w = hit_wall;
     nw = wall[w].point2;
     wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y)-512);
 
@@ -17852,7 +17835,7 @@ int SpawnWallHole(short hitsect, short hitwall, int hitx, int hity, int hitz)
 }
 
 SWBOOL
-HitscanSpriteAdjust(short SpriteNum, short hitwall)
+HitscanSpriteAdjust(short SpriteNum, short hit_wall)
 {
     SPRITEp sp = &sprite[SpriteNum];
     short w, nw, ang = sp->ang, wall_ang;
@@ -17860,11 +17843,11 @@ HitscanSpriteAdjust(short SpriteNum, short hitwall)
     short sectnum;
 
 #if 1
-    w = hitwall;
+    w = hit_wall;
     nw = wall[w].point2;
     wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y));
 
-    if (hitwall >= 0)
+    if (hit_wall >= 0)
         ang = sp->ang = NORM_ANGLE(wall_ang + 512);
     else
         ang = sp->ang;
@@ -17900,8 +17883,8 @@ InitUzi(PLAYERp pp)
     SPRITEp wp, hsp;
     USERp wu;
     short daang, j;
-    short hitsect, hitwall, hitsprite;
-    int hitx, hity, hitz, daz, nz;
+    hitdata_t hitinfo;
+    int daz, nz;
     int nx,ny;
     int xvect,yvect,zvect;
     short cstat = 0;
@@ -17961,9 +17944,9 @@ InitUzi(PLAYERp pp)
     zvect = daz;
     FAFhitscan(pp->posx, pp->posy, nz, pp->cursectnum,       // Start position
                xvect,yvect,zvect,
-               &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+               &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitsect < 0)
+    if (hitinfo.sect < 0)
     {
         return 0;
     }
@@ -17971,33 +17954,33 @@ InitUzi(PLAYERp pp)
     SetVisHigh();
 
     // check to see what you hit
-    if (hitsprite < 0 && hitwall < 0)
+    if (hitinfo.sprite < 0 && hitinfo.wall < 0)
     {
-        if (labs(hitz - sector[hitsect].ceilingz) <= Z(1))
+        if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
         {
-            hitz += Z(16);
+            hitinfo.pos.z += Z(16);
             SET(cstat, CSTAT_SPRITE_YFLIP);
 
-            if (TEST(sector[hitsect].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[hitinfo.sect].ceilingstat, CEILING_STAT_PLAX))
                 return 0;
 
-            if (SectorIsUnderwaterArea(hitsect))
+            if (SectorIsUnderwaterArea(hitinfo.sect))
             {
-                WarpToSurface(&hitsect, &hitx, &hity, &hitz);
-                ContinueHitscan(pp, hitsect, hitx, hity, hitz, daang, xvect, yvect, zvect);
+                WarpToSurface(&hitinfo.sect, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
+                ContinueHitscan(pp, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, xvect, yvect, zvect);
                 return 0;
             }
         }
-        else if (labs(hitz - sector[hitsect].floorz) <= Z(1))
+        else if (labs(hitinfo.pos.z - sector[hitinfo.sect].floorz) <= Z(1))
         {
-            if (TEST(sector[hitsect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+            if (TEST(sector[hitinfo.sect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
-                SpawnSplashXY(hitx,hity,hitz,hitsect);
+                SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sect);
 
-                if (SectorIsDiveArea(hitsect))
+                if (SectorIsDiveArea(hitinfo.sect))
                 {
-                    WarpToUnderwater(&hitsect, &hitx, &hity, &hitz);
-                    ContinueHitscan(pp, hitsect, hitx, hity, hitz, daang, xvect, yvect, zvect);
+                    WarpToUnderwater(&hitinfo.sect, &hitinfo.pos.x, &hitinfo.pos.y, &hitinfo.pos.z);
+                    ContinueHitscan(pp, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, xvect, yvect, zvect);
                     return 0;
                 }
 
@@ -18006,13 +17989,13 @@ InitUzi(PLAYERp pp)
         }
     }
 
-    if (hitwall >= 0)
+    if (hitinfo.wall >= 0)
     {
-        if (wall[hitwall].nextsector >= 0)
+        if (wall[hitinfo.wall].nextsector >= 0)
         {
-            if (TEST(sector[wall[hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[wall[hitinfo.wall].nextsector].ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitz < sector[wall[hitwall].nextsector].ceilingz)
+                if (hitinfo.pos.z < sector[wall[hitinfo.wall].nextsector].ceilingz)
                 {
                     return 0;
                 }
@@ -18020,20 +18003,20 @@ InitUzi(PLAYERp pp)
         }
 
 
-        if (wall[hitwall].lotag == TAG_WALL_BREAK)
+        if (wall[hitinfo.wall].lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(&wall[hitwall], hitx, hity, hitz, daang, u->ID);
+            HitBreakWall(&wall[hitinfo.wall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
             return 0;
         }
 
-        QueueHole(daang,hitsect,hitwall,hitx,hity,hitz);
+        QueueHole(daang,hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
     }
 
     // hit a sprite?
-    if (hitsprite >= 0)
+    if (hitinfo.sprite >= 0)
     {
-        USERp hu = User[hitsprite];
-        hsp = &sprite[hitsprite];
+        USERp hu = User[hitinfo.sprite];
+        hsp = &sprite[hitinfo.sprite];
 
         if (hu) // JBF: added null check
             if (hu->ID == TRASHCAN)
@@ -18044,33 +18027,33 @@ InitUzi(PLAYERp pp)
                 if (hu->WaitTics <= 0)
                 {
                     hu->WaitTics = SEC(2);
-                    ChangeState(hitsprite,s_TrashCanPain);
+                    ChangeState(hitinfo.sprite,s_TrashCanPain);
                 }
             }
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(-1, WPN_UZI, hitsprite))
+            if (MissileHitMatch(-1, WPN_UZI, hitinfo.sprite))
                 return 0;
         }
 
-        if (TEST(hsp->extra, SPRX_BREAKABLE) && HitBreakSprite(hitsprite,0))
+        if (TEST(hsp->extra, SPRX_BREAKABLE) && HitBreakSprite(hitinfo.sprite,0))
         {
             return 0;
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitsprite, hitsect, hitwall, hitx, hity, hitz, 0))
+        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitsprite,-1);
+            ShootableSwitch(hitinfo.sprite,-1);
         }
     }
 
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitsect, hitx, hity, hitz, daang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
     wp = &sprite[j];
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT;
@@ -18080,10 +18063,10 @@ InitUzi(PLAYERp pp)
     SET(wp->cstat, cstat | CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(j, hitwall);
-    DoHitscanDamage(j, hitsprite);
+    HitscanSpriteAdjust(j, hitinfo.wall);
+    DoHitscanDamage(j, hitinfo.sprite);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitsect, hitx, hity, hitz, daang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
     wp = &sprite[j];
     wu = User[j];
     wp->shade = -40;
@@ -18094,7 +18077,7 @@ InitUzi(PLAYERp pp)
     SET(wp->cstat, cstat | CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(j, hitwall);
+    HitscanSpriteAdjust(j, hitinfo.wall);
 
     if (RANDOM_P2(1024) < 100)
     {
@@ -18114,8 +18097,8 @@ InitEMP(PLAYERp pp)
     SPRITEp wp, hsp=NULL;
     USERp wu;
     short daang, j;
-    short hitsect, hitwall, hitsprite;
-    int hitx, hity, hitz, daz, nz;
+    hitdata_t hitinfo;
+    int daz, nz;
     int nx,ny;
     short cstat = 0;
     uint8_t pal = 0;
@@ -18147,9 +18130,9 @@ InitEMP(PLAYERp pp)
                sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
                sintable[NORM_ANGLE(daang)],    // Y vector of 3D ang
                daz,                            // Z vector of 3D ang
-               &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+               &hitinfo, CLIPMASK_MISSILE);
 
-    j = SpawnSprite(STAT_MISSILE, EMP, s_EMPBurst, hitsect, hitx, hity, hitz, daang, 0);
+    j = SpawnSprite(STAT_MISSILE, EMP, s_EMPBurst, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
 
     wp = &sprite[j];
     wu = User[j];
@@ -18160,16 +18143,16 @@ InitEMP(PLAYERp pp)
     SET(wp->cstat, cstat | CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    if (hitsect < 0)
+    if (hitinfo.sect < 0)
     {
-        ////DSPRINTF(ds,"PROBLEM! - FAFhitscan returned a bad hitsect");
+        ////DSPRINTF(ds,"PROBLEM! - FAFhitscan returned a bad hitinfo.sect");
         //MONO_PRINT(ds);
         return 0;
     }
 
 #if 0
     if (TEST(pp->Flags, PF_DIVING) ||
-        (hitwall < 0 && hitsprite < 0 && SectorIsDiveArea(hitsect))
+        (hitinfo.wall < 0 && hitinfo.sprite < 0 && SectorIsDiveArea(hitinfo.sect))
         )
     {
         InitUziBullet(pp);
@@ -18180,78 +18163,78 @@ InitEMP(PLAYERp pp)
     SetVisHigh();
 
     // check to see what you hit
-    if (hitsprite < 0 && hitwall < 0)
+    if (hitinfo.sprite < 0 && hitinfo.wall < 0)
     {
-        if (labs(hitz - sector[hitsect].ceilingz) <= Z(1))
+        if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
         {
-            hitz += Z(16);
+            hitinfo.pos.z += Z(16);
             SET(cstat, CSTAT_SPRITE_YFLIP);
 
-            if (TEST(sector[hitsect].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[hitinfo.sect].ceilingstat, CEILING_STAT_PLAX))
                 return 0;
         }
-        else if (labs(hitz - sector[hitsect].floorz) <= Z(1))
+        else if (labs(hitinfo.pos.z - sector[hitinfo.sect].floorz) <= Z(1))
         {
-            if (TEST(sector[hitsect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+            if (TEST(sector[hitinfo.sect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
-                SpawnSplashXY(hitx,hity,hitz,hitsect);
+                SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sect);
                 return 0;
             }
         }
     }
 
-    if (hitwall >= 0)
+    if (hitinfo.wall >= 0)
     {
-        if (wall[hitwall].nextsector >= 0)
+        if (wall[hitinfo.wall].nextsector >= 0)
         {
-            if (TEST(sector[wall[hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[wall[hitinfo.wall].nextsector].ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitz < sector[wall[hitwall].nextsector].ceilingz)
+                if (hitinfo.pos.z < sector[wall[hitinfo.wall].nextsector].ceilingz)
                 {
                     return 0;
                 }
             }
         }
 
-        HitscanSpriteAdjust(j, hitwall);
-        if (wall[hitwall].lotag == TAG_WALL_BREAK)
+        HitscanSpriteAdjust(j, hitinfo.wall);
+        if (wall[hitinfo.wall].lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(&wall[hitwall], hitx, hity, hitz, daang, u->ID);
+            HitBreakWall(&wall[hitinfo.wall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
             return 0;
         }
     }
 
     // hit a sprite?
-    if (hitsprite >= 0)
+    if (hitinfo.sprite >= 0)
     {
-        hsp = &sprite[hitsprite];
+        hsp = &sprite[hitinfo.sprite];
 
         if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
         {
-            if (MissileHitMatch(-1, WPN_UZI, hitsprite))
+            if (MissileHitMatch(-1, WPN_UZI, hitinfo.sprite))
                 return 0;
         }
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hitsprite,0);
+            HitBreakSprite(hitinfo.sprite,0);
             //return(0);
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitsprite, hitsect, hitwall, hitx, hity, hitz,0))
+        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z,0))
             //return(0);
 
             // hit a switch?
             if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
             {
-                ShootableSwitch(hitsprite,-1);
+                ShootableSwitch(hitinfo.sprite,-1);
             }
 
         if (TEST(hsp->extra, SPRX_PLAYER_OR_ENEMY))
         {
             // attach weapon to sprite
-            SetAttach(hitsprite, j);
-            wu->sz = sprite[hitsprite].z - wp->z;
+            SetAttach(hitinfo.sprite, j);
+            wu->sz = sprite[hitinfo.sprite].z - wp->z;
             if (RANDOM_RANGE(1000) > 500)
                 PlayerSound(DIGI_YOULOOKSTUPID,&pp->posx,&pp->posy,&pp->posz,v3df_follow|v3df_dontpan,pp);
         }
@@ -18288,7 +18271,7 @@ InitTankShell(short SpriteNum, PLAYERp pp)
     SPRITEp wp, hsp;
     USERp wu;
     int dist, nang;
-    short hitsprite, w;
+    short w;
 
     if (!SW_SHAREWARE)
         PlaySound(DIGI_CANNON, &pp->posx, &pp->posy, &pp->posz, v3df_dontpan|v3df_doppler);
@@ -18342,7 +18325,7 @@ InitTurretMicro(short SpriteNum, PLAYERp pp)
     USERp wu,hu;
     SPRITEp wp,hp;
     int nx, ny, nz, dist;
-    short w, hitsprite;
+    short w;
     short oclipdist;
     short i,ang;
     TARGET_SORTp ts = TargetSort;
@@ -18451,7 +18434,7 @@ InitTurretRocket(short SpriteNum, PLAYERp pp)
     SPRITEp wp, hsp;
     USERp wu;
     int dist, nang;
-    short hitsprite, w;
+    short w;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
@@ -18500,7 +18483,7 @@ InitTurretFireball(short SpriteNum, PLAYERp pp)
     SPRITEp wp, hsp;
     USERp wu;
     int dist, nang;
-    short hitsprite, w;
+    short w;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
@@ -18549,7 +18532,7 @@ InitTurretRail(short SpriteNum, PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
@@ -18605,7 +18588,7 @@ InitTurretLaser(short SpriteNum, PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
@@ -18661,8 +18644,9 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
     SPRITEp wp, hsp;
     USERp wu;
     short daang, i, j, exp;
-    short hitsect, hitwall, hitsprite, nsect;
-    int hitx, hity, hitz, daz;
+    hitdata_t hitinfo;
+    short nsect;
+    int daz;
     int nx,ny,nz;
     short cstat = 0;
     short spark;
@@ -18701,30 +18685,30 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
                sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
                sintable[NORM_ANGLE(daang)],    // Y vector of 3D ang
                daz,                            // Z vector of 3D ang
-               &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+               &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitsect < 0)
+    if (hitinfo.sect < 0)
     {
-        //DSPRINTF(ds,"PROBLEM! - FAFhitscan returned a bad hitsect");
+        //DSPRINTF(ds,"PROBLEM! - FAFhitscan returned a bad hitinfo.sect");
         MONO_PRINT(ds);
         return 0;
     }
 
-    if (hitsprite < 0 && hitwall < 0)
+    if (hitinfo.sprite < 0 && hitinfo.wall < 0)
     {
-        if (labs(hitz - sector[hitsect].ceilingz) <= Z(1))
+        if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
         {
-            hitz += Z(16);
+            hitinfo.pos.z += Z(16);
             SET(cstat, CSTAT_SPRITE_YFLIP);
 
-            if (TEST(sector[hitsect].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[hitinfo.sect].ceilingstat, CEILING_STAT_PLAX))
                 return 0;
         }
-        else if (labs(hitz - sector[hitsect].floorz) <= Z(1))
+        else if (labs(hitinfo.pos.z - sector[hitinfo.sect].floorz) <= Z(1))
         {
-            if (TEST(sector[hitsect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+            if (TEST(sector[hitinfo.sect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
             {
-                SpawnSplashXY(hitx,hity,hitz,hitsect);
+                SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sect);
                 return 0;
             }
         }
@@ -18732,38 +18716,38 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
     }
 
     // hit a sprite?
-    if (hitsprite >= 0)
+    if (hitinfo.sprite >= 0)
     {
-        SPRITEp hsp = &sprite[hitsprite];
+        SPRITEp hsp = &sprite[hitinfo.sprite];
 
-        if (sprite[hitsprite].lotag == TAG_SPRITE_HIT_MATCH)
+        if (sprite[hitinfo.sprite].lotag == TAG_SPRITE_HIT_MATCH)
         {
             // spawn sparks here and pass the sprite as SO_MISSILE
-            spark = SpawnBoatSparks(pp, hitsect, hitwall, hitx, hity, hitz, daang);
+            spark = SpawnBoatSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
             SET(User[spark]->Flags2, SPR2_SO_MISSILE);
-            if (MissileHitMatch(spark, -1, hitsprite))
+            if (MissileHitMatch(spark, -1, hitinfo.sprite))
                 return 0;
             return 0;
         }
 
         if (TEST(hsp->extra, SPRX_BREAKABLE))
         {
-            HitBreakSprite(hitsprite,0);
+            HitBreakSprite(hitinfo.sprite,0);
             return 0;
         }
 
-        if (BulletHitSprite(pp->SpriteP, hitsprite, hitsect, hitwall, hitx, hity, hitz, 0))
+        if (BulletHitSprite(pp->SpriteP, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
 
         // hit a switch?
         if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
         {
-            ShootableSwitch(hitsprite,-1);
+            ShootableSwitch(hitinfo.sprite,-1);
         }
     }
 
-    spark = SpawnBoatSparks(pp, hitsect, hitwall, hitx, hity, hitz, daang);
-    DoHitscanDamage(spark, hitsprite);
+    spark = SpawnBoatSparks(pp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+    DoHitscanDamage(spark, hitinfo.sprite);
 
     return 0;
 }
@@ -18878,7 +18862,7 @@ InitSobjGun(PLAYERp pp)
 }
 
 int
-SpawnBoatSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity, int hitz, short hitang)
+SpawnBoatSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
     USERp u = User[pp->PlayerSprite];
     short j;
@@ -18886,7 +18870,7 @@ SpawnBoatSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity, in
     SPRITEp wp;
     USERp wu;
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitsect, hitx, hity, hitz, hitang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT + 12;
@@ -18900,9 +18884,9 @@ SpawnBoatSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity, in
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(j, hitwall);
+    HitscanSpriteAdjust(j, hit_wall);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitsect, hitx, hity, hitz, hitang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
     wu = User[j];
     wp->shade = -40;
@@ -18914,7 +18898,7 @@ SpawnBoatSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity, in
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(j, hitwall);
+    HitscanSpriteAdjust(j, hit_wall);
 
     if (RANDOM_P2(1024) < 100)
         PlaySound(DIGI_RICHOCHET1,&wp->x, &wp->y, &wp->z, v3df_none);
@@ -18923,7 +18907,7 @@ SpawnBoatSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity, in
 }
 
 int
-SpawnSwordSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity, int hitz, short hitang)
+SpawnSwordSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
     USERp u = User[pp->PlayerSprite];
     short j;
@@ -18931,7 +18915,7 @@ SpawnSwordSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity, i
     SPRITEp wp;
     USERp wu;
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitsect, hitx, hity, hitz, hitang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
     wp->shade = -40;
     wp->xrepeat = wp->yrepeat = 20;
@@ -18944,10 +18928,10 @@ SpawnSwordSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity, i
 
     wp->clipdist = 32 >> 2;
 
-    if (hitwall != -1)
-        HitscanSpriteAdjust(j, hitwall);
+    if (hit_wall != -1)
+        HitscanSpriteAdjust(j, hit_wall);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitsect, hitx, hity, hitz, hitang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
     wu = User[j];
     wp->shade = -40;
@@ -18960,14 +18944,14 @@ SpawnSwordSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity, i
 
     wp->clipdist = 32 >> 2;
 
-    if (hitwall != -1)
-        HitscanSpriteAdjust(j, hitwall);
+    if (hit_wall != -1)
+        HitscanSpriteAdjust(j, hit_wall);
 
     return 0;
 }
 
 int
-SpawnTurretSparks(SPRITEp sp, short hitsect, short hitwall, int hitx, int hity, int hitz, short hitang)
+SpawnTurretSparks(SPRITEp sp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
     //USERp u = User[sp - sprite];
     short j;
@@ -18975,7 +18959,7 @@ SpawnTurretSparks(SPRITEp sp, short hitsect, short hitwall, int hitx, int hity, 
     SPRITEp wp;
     USERp wu;
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitsect, hitx, hity, hitz, hitang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT + 12;
@@ -18987,9 +18971,9 @@ SpawnTurretSparks(SPRITEp sp, short hitsect, short hitwall, int hitx, int hity, 
     // This moves it back enough to see it at all angles.
 
     wp->clipdist = 32 >> 2;
-    HitscanSpriteAdjust(j, hitwall);
+    HitscanSpriteAdjust(j, hit_wall);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitsect, hitx, hity, hitz, hitang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
     wu = User[j];
     wp->shade = -40;
@@ -18999,7 +18983,7 @@ SpawnTurretSparks(SPRITEp sp, short hitsect, short hitwall, int hitx, int hity, 
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
     wp->clipdist = 32 >> 2;
-    HitscanSpriteAdjust(j, hitwall);
+    HitscanSpriteAdjust(j, hit_wall);
 
     if (RANDOM_P2(1024) < 100)
         PlaySound(DIGI_RICHOCHET1, &wp->x, &wp->y, &wp->z, v3df_none);
@@ -19008,7 +18992,7 @@ SpawnTurretSparks(SPRITEp sp, short hitsect, short hitwall, int hitx, int hity, 
 }
 
 int
-SpawnShotgunSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity, int hitz, short hitang)
+SpawnShotgunSparks(PLAYERp pp, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z, short hit_ang)
 {
     USERp u = User[pp->PlayerSprite];
     short j;
@@ -19016,7 +19000,7 @@ SpawnShotgunSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity,
     SPRITEp wp;
     USERp wu;
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitsect, hitx, hity, hitz, hitang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
     wu = User[j];
     wp->shade = -40;
@@ -19028,9 +19012,9 @@ SpawnShotgunSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity,
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(j, hitwall);
+    HitscanSpriteAdjust(j, hit_wall);
 
-    j = SpawnSprite(STAT_MISSILE, SHOTGUN_SMOKE, s_ShotgunSmoke, hitsect, hitx, hity, hitz, hitang, 0);
+    j = SpawnSprite(STAT_MISSILE, SHOTGUN_SMOKE, s_ShotgunSmoke, hit_sect, hit_x, hit_y, hit_z, hit_ang, 0);
     wp = &sprite[j];
     wp->shade = -40;
     wp->xrepeat = SHOTGUN_SMOKE_REPEAT;
@@ -19044,7 +19028,7 @@ SpawnShotgunSparks(PLAYERp pp, short hitsect, short hitwall, int hitx, int hity,
 
     wp->clipdist = 32 >> 2;
 
-    HitscanSpriteAdjust(j, hitwall);
+    HitscanSpriteAdjust(j, hit_wall);
 
     return j;
 }
@@ -19055,8 +19039,9 @@ InitTurretMgun(SECTOR_OBJECTp sop)
     SPRITEp wp, hsp;
     USERp wu;
     short daang, i, j, exp;
-    short hitsect, hitwall, hitsprite, nsect;
-    int hitx, hity, hitz, daz;
+    hitdata_t hitinfo;
+    short nsect;
+    int daz;
     int nx,ny,nz;
     short cstat = 0;
     short delta;
@@ -19081,7 +19066,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
             {
                 // only auto aim for Z
                 daang = 512;
-                if ((hitsprite = WeaponAutoAimHitscan(sp, &daz, &daang, FALSE)) != -1)
+                if ((hitinfo.sprite = WeaponAutoAimHitscan(sp, &daz, &daang, FALSE)) != -1)
                 {
                     delta = labs(GetDeltaAngle(daang, sp->ang));
                     if (delta > 128)
@@ -19093,7 +19078,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
                     {
                         // always shoot the ground when tracking
                         // and not close
-                        WeaponHitscanShootFeet(sp, &sprite[hitsprite], &daz);
+                        WeaponHitscanShootFeet(sp, &sprite[hitinfo.sprite], &daz);
 
                         daang = sp->ang;
                         daang = NORM_ANGLE(daang + RANDOM_P2(32) - 16);
@@ -19123,7 +19108,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
 
             FAFhitscan(nx, ny, nz, nsect,       // Start position
                        xvect, yvect, zvect,
-                       &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                       &hitinfo, CLIPMASK_MISSILE);
 
             if (RANDOM_P2(1024) < 400)
             {
@@ -19131,82 +19116,82 @@ InitTurretMgun(SECTOR_OBJECTp sop)
                                      xvect>>4, yvect>>4, zvect>>4);
             }
 
-            if (hitsect < 0)
+            if (hitinfo.sect < 0)
                 continue;
 
-            if (hitsprite < 0 && hitwall < 0)
+            if (hitinfo.sprite < 0 && hitinfo.wall < 0)
             {
-                if (labs(hitz - sector[hitsect].ceilingz) <= Z(1))
+                if (labs(hitinfo.pos.z - sector[hitinfo.sect].ceilingz) <= Z(1))
                 {
-                    hitz += Z(16);
+                    hitinfo.pos.z += Z(16);
                     SET(cstat, CSTAT_SPRITE_YFLIP);
 
-                    if (TEST(sector[hitsect].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(sector[hitinfo.sect].ceilingstat, CEILING_STAT_PLAX))
                         continue;
                 }
-                else if (labs(hitz - sector[hitsect].floorz) <= Z(1))
+                else if (labs(hitinfo.pos.z - sector[hitinfo.sect].floorz) <= Z(1))
                 {
-                    if (TEST(sector[hitsect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
+                    if (TEST(sector[hitinfo.sect].extra, SECTFX_LIQUID_MASK) != SECTFX_LIQUID_NONE)
                     {
-                        SpawnSplashXY(hitx,hity,hitz,hitsect);
+                        SpawnSplashXY(hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z,hitinfo.sect);
                         continue;
                     }
                 }
 
             }
 
-            if (hitwall >= 0)
+            if (hitinfo.wall >= 0)
             {
-                if (wall[hitwall].nextsector >= 0)
+                if (wall[hitinfo.wall].nextsector >= 0)
                 {
-                    if (TEST(sector[wall[hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+                    if (TEST(sector[wall[hitinfo.wall].nextsector].ceilingstat, CEILING_STAT_PLAX))
                     {
-                        if (hitz < sector[wall[hitwall].nextsector].ceilingz)
+                        if (hitinfo.pos.z < sector[wall[hitinfo.wall].nextsector].ceilingz)
                         {
                             return 0;
                         }
                     }
                 }
 
-                if (wall[hitwall].lotag == TAG_WALL_BREAK)
+                if (wall[hitinfo.wall].lotag == TAG_WALL_BREAK)
                 {
-                    HitBreakWall(&wall[hitwall], hitx, hity, hitz, daang, 0);
+                    HitBreakWall(&wall[hitinfo.wall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
                     continue;
                 }
 
-                QueueHole(daang,hitsect,hitwall,hitx,hity,hitz);
+                QueueHole(daang,hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
             }
 
             // hit a sprite?
-            if (hitsprite >= 0)
+            if (hitinfo.sprite >= 0)
             {
-                hsp = &sprite[hitsprite];
+                hsp = &sprite[hitinfo.sprite];
 
                 if (hsp->lotag == TAG_SPRITE_HIT_MATCH)
                 {
-                    if (MissileHitMatch(-1, WPN_UZI, hitsprite))
+                    if (MissileHitMatch(-1, WPN_UZI, hitinfo.sprite))
                         continue;
                 }
 
                 if (TEST(hsp->extra, SPRX_BREAKABLE))
                 {
-                    HitBreakSprite(hitsprite,0);
+                    HitBreakSprite(hitinfo.sprite,0);
                     continue;
                 }
 
-                if (BulletHitSprite(sp, hitsprite, hitsect, hitwall, hitx, hity, hitz, 0))
+                if (BulletHitSprite(sp, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
                     continue;
 
                 // hit a switch?
                 if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
                 {
-                    ShootableSwitch(hitsprite,-1);
+                    ShootableSwitch(hitinfo.sprite,-1);
                 }
             }
 
 
-            j = SpawnTurretSparks(sp, hitsect, hitwall, hitx, hity, hitz, daang);
-            DoHitscanDamage(j, hitsprite);
+            j = SpawnTurretSparks(sp, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang);
+            DoHitscanDamage(j, hitinfo.sprite);
         }
     }
 
@@ -19221,9 +19206,9 @@ InitEnemyUzi(short SpriteNum)
     USERp u = User[SpriteNum];
     USERp wu;
     short daang, j, sectnum;
-    short hitsect = -2, hitwall = -2, hitsprite = -2;
+    hitdata_t hitinfo = { { -2, -2, -2 }, -2, -2, -2 };
     int ret = -2;
-    int hitx = -2, hity = -2, hitz = -2, daz;
+    int daz;
     int zh;
     void InitUziShell(PLAYERp);
     static short alternate;
@@ -19270,9 +19255,9 @@ InitEnemyUzi(short SpriteNum)
                sintable[NORM_ANGLE(daang + 512)],      // X vector of 3D ang
                sintable[NORM_ANGLE(daang)],    // Y vector of 3D ang
                daz,                            // Z vector of 3D ang
-               &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+               &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitsect < 0)
+    if (hitinfo.sect < 0)
         return 0;
 
     if (RANDOM_P2(1024<<4)>>4 > 700)
@@ -19293,35 +19278,35 @@ InitEnemyUzi(short SpriteNum)
             PlaySound(DIGI_NINJAUZIATTACK, &sp->x, &sp->y, &sp->z, v3df_none);
     }
 
-    if (hitwall >= 0)
+    if (hitinfo.wall >= 0)
     {
-        if (wall[hitwall].nextsector >= 0)
+        if (wall[hitinfo.wall].nextsector >= 0)
         {
-            if (TEST(sector[wall[hitwall].nextsector].ceilingstat, CEILING_STAT_PLAX))
+            if (TEST(sector[wall[hitinfo.wall].nextsector].ceilingstat, CEILING_STAT_PLAX))
             {
-                if (hitz < sector[wall[hitwall].nextsector].ceilingz)
+                if (hitinfo.pos.z < sector[wall[hitinfo.wall].nextsector].ceilingz)
                 {
                     return 0;
                 }
             }
         }
 
-        if (wall[hitwall].lotag == TAG_WALL_BREAK)
+        if (wall[hitinfo.wall].lotag == TAG_WALL_BREAK)
         {
-            HitBreakWall(&wall[hitwall], hitx, hity, hitz, daang, u->ID);
+            HitBreakWall(&wall[hitinfo.wall], hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, u->ID);
             return 0;
         }
 
-        QueueHole(daang,hitsect,hitwall,hitx,hity,hitz);
+        QueueHole(daang,hitinfo.sect,hitinfo.wall,hitinfo.pos.x,hitinfo.pos.y,hitinfo.pos.z);
     }
 
-    if (hitsprite >= 0)
+    if (hitinfo.sprite >= 0)
     {
-        if (BulletHitSprite(sp, hitsprite, hitsect, hitwall, hitx, hity, hitz, 0))
+        if (BulletHitSprite(sp, hitinfo.sprite, hitinfo.sect, hitinfo.wall, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, 0))
             return 0;
     }
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE+2, s_UziSmoke, hitsect, hitx, hity, hitz, daang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE+2, s_UziSmoke, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
     wp = &sprite[j];
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT;
@@ -19337,9 +19322,9 @@ InitEnemyUzi(short SpriteNum)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
 
     wp->clipdist = 32L >> 2;
-    //HitscanSpriteAdjust(j, hitwall);
+    //HitscanSpriteAdjust(j, hitinfo.wall);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitsect, hitx, hity, hitz, daang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SMOKE, s_UziSmoke, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
     wp = &sprite[j];
     wp->shade = -40;
     wp->xrepeat = UZI_SMOKE_REPEAT;
@@ -19348,10 +19333,10 @@ InitEnemyUzi(short SpriteNum)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(j, hitwall);
-    DoHitscanDamage(j, hitsprite);
+    HitscanSpriteAdjust(j, hitinfo.wall);
+    DoHitscanDamage(j, hitinfo.sprite);
 
-    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitsect, hitx, hity, hitz, daang, 0);
+    j = SpawnSprite(STAT_MISSILE, UZI_SPARK, s_UziSpark, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, daang, 0);
     wp = &sprite[j];
     wu = User[j];
     wp->shade = -40;
@@ -19362,7 +19347,7 @@ InitEnemyUzi(short SpriteNum)
     SET(wp->cstat, CSTAT_SPRITE_YCENTER);
     wp->clipdist = 8 >> 2;
 
-    HitscanSpriteAdjust(j, hitwall);
+    HitscanSpriteAdjust(j, hitinfo.wall);
 
     if (RANDOM_P2(1024) < 100)
     {
@@ -19382,7 +19367,7 @@ InitGrenade(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
     int dist;
     int zvel;
@@ -19489,7 +19474,7 @@ InitSpriteGrenade(short SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     short oclipdist;
     int dist;
 
@@ -19556,7 +19541,7 @@ InitMine(PLAYERp pp)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     int dist;
     int dot;
 
@@ -19623,7 +19608,7 @@ InitEnemyMine(short SpriteNum)
     USERp wu;
     SPRITEp wp;
     int nx, ny, nz;
-    short w, hitsprite;
+    short w;
     int dist;
     int dot;
     int dx,dy,dz;
@@ -19731,7 +19716,7 @@ InitFireball(PLAYERp pp)
     USERp u = User[pp->PlayerSprite];
     SPRITEp wp;
     int nx = 0, ny = 0, nz, oldx, oldy, oldspeed;
-    short new_angle, w, hitsprite;
+    short new_angle, w;
     USERp wu;
     short oclipdist;
     int zvel;
@@ -20245,7 +20230,7 @@ SpawnSplash(short SpriteNum)
 }
 
 int
-SpawnSplashXY(int hitx, int hity, int hitz, short sectnum)
+SpawnSplashXY(int hit_x, int hit_y, int hit_z, short sectnum)
 {
     USERp wu;
     SPRITEp wp;
@@ -20267,7 +20252,7 @@ SpawnSplashXY(int hitx, int hity, int hitz, short sectnum)
     if (sectu && TEST(sectp->floorstat, FLOOR_STAT_PLAX))
         return 0;
 
-    w = SpawnSprite(STAT_MISSILE, SPLASH, s_Splash, sectnum, hitx, hity, hitz, 0, 0);
+    w = SpawnSprite(STAT_MISSILE, SPLASH, s_Splash, sectnum, hit_x, hit_y, hit_z, 0, 0);
     wp = &sprite[w];
     wu = User[w];
 
@@ -20322,7 +20307,6 @@ MissileHitDiveArea(short SpriteNum)
 {
     USERp u = User[SpriteNum];
     SPRITEp sp = User[SpriteNum]->SpriteP;
-    short hitsect, hitwall;
     SECTORp sectp;
 
     // correctly set underwater bit for missiles
@@ -20342,9 +20326,7 @@ MissileHitDiveArea(short SpriteNum)
     {
     case HIT_SECTOR:
     {
-        short hitsect;
-
-        hitsect = NORM_SECTOR(u->ret);
+        short hit_sect = NORM_SECTOR(u->ret);
 
         if (SpriteInDiveArea(sp))
         {
@@ -20353,7 +20335,7 @@ MissileHitDiveArea(short SpriteNum)
                 return FALSE;
 
             // Check added by Jim because of sprite bridge over water
-            if (sp->z < (sector[hitsect].floorz-Z(20)))
+            if (sp->z < (sector[hit_sect].floorz-Z(20)))
                 return FALSE;
 
             SET(u->Flags, SPR_UNDERWATER);
@@ -20649,20 +20631,20 @@ void QueueReset(void)
         LoWangsQueue[i] = -1;
 }
 
-SWBOOL TestDontStick(short SpriteNum, short hitsect, short hitwall, int hitz)
+SWBOOL TestDontStick(short SpriteNum, short hit_sect, short hit_wall, int hit_z)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
     WALLp wp;
 
-    if (hitwall < 0)
+    if (hit_wall < 0)
     {
         ASSERT(SpriteNum>=0);
-        hitwall = NORM_WALL(u->ret);
-        hitsect = sp->sectnum;
+        hit_wall = NORM_WALL(u->ret);
+        hit_sect = sp->sectnum;
     }
 
-    wp = &wall[hitwall];
+    wp = &wall[hit_wall];
 
     if (TEST(wp->extra, WALLFX_DONT_STICK))
         return TRUE;
@@ -20674,9 +20656,9 @@ SWBOOL TestDontStick(short SpriteNum, short hitsect, short hitwall, int hitz)
     return FALSE;
 }
 
-SWBOOL TestDontStickSector(short hitsect)
+SWBOOL TestDontStickSector(short hit_sect)
 {
-    if (TEST(sector[hitsect].extra, SECTFX_DYNAMIC_AREA|SECTFX_SECTOR_OBJECT))
+    if (TEST(sector[hit_sect].extra, SECTFX_DYNAMIC_AREA|SECTFX_SECTOR_OBJECT))
         return TRUE;
 
     return FALSE;
@@ -20723,7 +20705,7 @@ int QueueStar(short SpriteNum)
     return SpriteNum;
 }
 
-int QueueHole(short ang, short hitsect, short hitwall, int hitx, int hity, int hitz)
+int QueueHole(short ang, short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_z)
 {
     short w,nw,wall_ang,dang;
     short SpriteNum;
@@ -20732,11 +20714,11 @@ int QueueHole(short ang, short hitsect, short hitwall, int hitx, int hity, int h
     short sectnum;
 
 
-    if (TestDontStick(-1,hitsect,hitwall,hitz))
+    if (TestDontStick(-1,hit_sect,hit_wall,hit_z))
         return -1;
 
     if (HoleQueue[HoleQueueHead] == -1)
-        HoleQueue[HoleQueueHead] = SpriteNum = COVERinsertsprite(hitsect, STAT_HOLE_QUEUE);
+        HoleQueue[HoleQueueHead] = SpriteNum = COVERinsertsprite(hit_sect, STAT_HOLE_QUEUE);
     else
         SpriteNum = HoleQueue[HoleQueueHead];
 
@@ -20746,11 +20728,11 @@ int QueueHole(short ang, short hitsect, short hitwall, int hitx, int hity, int h
     sp->owner = -1;
     sp->xrepeat = sp->yrepeat = 16;
     sp->cstat = sp->pal = sp->shade = sp->extra = sp->clipdist = sp->xoffset = sp->yoffset = 0;
-    sp->x = hitx;
-    sp->y = hity;
-    sp->z = hitz;
+    sp->x = hit_x;
+    sp->y = hit_y;
+    sp->z = hit_z;
     sp->picnum = 2151;
-    changespritesect(SpriteNum, hitsect);
+    changespritesect(SpriteNum, hit_sect);
 
     ASSERT(sp->statnum != MAXSTATUS);
 
@@ -20758,7 +20740,7 @@ int QueueHole(short ang, short hitsect, short hitwall, int hitx, int hity, int h
     SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    w = hitwall;
+    w = hit_wall;
     nw = wall[w].point2;
     wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y)+512);
     sp->ang = wall_ang;
@@ -20789,15 +20771,15 @@ STATE s_FloorBlood1[] =
     {FLOORBLOOD1, FLOORBLOOD_RATE, NullAnimator, &s_FloorBlood1[0]},
 };
 
-int QueueFloorBlood(short hitsprite)
+int QueueFloorBlood(short hit_sprite)
 {
-    SPRITEp hsp = &sprite[hitsprite];
+    SPRITEp hsp = &sprite[hit_sprite];
     short w,nw,wall_ang,dang;
     short SpriteNum;
     int nx,ny;
     SPRITEp sp;
     short sectnum;
-    USERp u = User[hitsprite];
+    USERp u = User[hit_sprite];
     SECTORp sectp = &sector[hsp->sectnum];
 
 
@@ -20866,15 +20848,15 @@ STATE s_FootPrint3[] =
     {FOOTPRINT3, FOOTPRINT_RATE, NullAnimator, &s_FootPrint3[0]},
 };
 
-int QueueFootPrint(short hitsprite)
+int QueueFootPrint(short hit_sprite)
 {
-    SPRITEp hsp = &sprite[hitsprite];
+    SPRITEp hsp = &sprite[hit_sprite];
     short w,nw,wall_ang,dang;
     short SpriteNum;
     int nx,ny;
     SPRITEp sp;
     short sectnum;
-    USERp u = User[hitsprite];
+    USERp u = User[hit_sprite];
     USERp nu;
     short rnd_num=0;
     SWBOOL Found=FALSE;
@@ -20996,9 +20978,9 @@ STATE s_WallBlood4[] =
 };
 
 
-int QueueWallBlood(short hitsprite, short ang)
+int QueueWallBlood(short hit_sprite, short ang)
 {
-    SPRITEp hsp = &sprite[hitsprite];
+    SPRITEp hsp = &sprite[hit_sprite];
     short w,nw,wall_ang,dang;
     short SpriteNum;
     int nx,ny;
@@ -21006,9 +20988,8 @@ int QueueWallBlood(short hitsprite, short ang)
     short sectnum;
     short rndnum;
     int daz;
-    short hitsect, hitwall;
-    int hitx, hity, hitz;
-    USERp u = User[hitsprite];
+    hitdata_t hitinfo;
+    USERp u = User[hit_sprite];
 
 
     if (TEST(u->Flags, SPR_UNDERWATER) || SpriteInUnderwaterArea(hsp) || SpriteInDiveArea(hsp))
@@ -21017,28 +20998,27 @@ int QueueWallBlood(short hitsprite, short ang)
     daz = Z(RANDOM_P2(128))<<3;
     daz -= DIV2(Z(128)<<3);
     dang = (ang+(RANDOM_P2(128<<5) >> 5)) - DIV2(128);
-    hitsprite=0; // Reset hitsprite
 
     FAFhitscan(hsp->x, hsp->y, hsp->z - Z(30), hsp->sectnum,    // Start position
                sintable[NORM_ANGLE(dang + 512)],  // X vector of 3D ang
                sintable[NORM_ANGLE(dang)],                             // Y vector of 3D ang
                daz,                                                    // Z vector of 3D ang
-               &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+               &hitinfo, CLIPMASK_MISSILE);
 
-    if (hitsect < 0)
+    if (hitinfo.sect < 0)
         return -1;
 
 #define WALLBLOOD_DIST_MAX 2500
-    if (Distance(hitx, hity, hsp->x, hsp->y) > WALLBLOOD_DIST_MAX)
+    if (Distance(hitinfo.pos.x, hitinfo.pos.y, hsp->x, hsp->y) > WALLBLOOD_DIST_MAX)
         return -1;
 
     // hit a sprite?
-    if (hitsprite >= 0)
+    if (hitinfo.sprite >= 0)
         return 0;   // Don't try to put blood on a sprite
 
-    if (hitwall >= 0)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
+    if (hitinfo.wall >= 0)   // Don't check if blood didn't hit a wall, otherwise the ASSERT fails!
     {
-        if (TestDontStick(-1, hitsect, hitwall, hitz))
+        if (TestDontStick(-1, hitinfo.sect, hitinfo.wall, hitinfo.pos.z))
             return -1;
     }
     else
@@ -21053,22 +21033,22 @@ int QueueWallBlood(short hitsprite, short ang)
     if (rndnum > 768)
     {
         WallBloodQueue[WallBloodQueueHead] = SpriteNum =
-                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD1, s_WallBlood1, hitsect, hitx, hity, hitz, ang, 0);
+                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD1, s_WallBlood1, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
     }
     else if (rndnum > 512)
     {
         WallBloodQueue[WallBloodQueueHead] = SpriteNum =
-                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD2, s_WallBlood2, hitsect, hitx, hity, hitz, ang, 0);
+                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD2, s_WallBlood2, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
     }
     else if (rndnum > 128)
     {
         WallBloodQueue[WallBloodQueueHead] = SpriteNum =
-                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD3, s_WallBlood3, hitsect, hitx, hity, hitz, ang, 0);
+                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD3, s_WallBlood3, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
     }
     else
     {
         WallBloodQueue[WallBloodQueueHead] = SpriteNum =
-                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD4, s_WallBlood4, hitsect, hitx, hity, hitz, ang, 0);
+                                                 SpawnSprite(STAT_WALLBLOOD_QUEUE, WALLBLOOD4, s_WallBlood4, hitinfo.sect, hitinfo.pos.x, hitinfo.pos.y, hitinfo.pos.z, ang, 0);
     }
 
     WallBloodQueueHead = (WallBloodQueueHead+1) & (MAX_WALLBLOOD_QUEUE-1);
@@ -21078,18 +21058,18 @@ int QueueWallBlood(short hitsprite, short ang)
     sp->xrepeat = 30;
     sp->yrepeat = 40;   // yrepeat will grow towards 64, it's default size
     sp->cstat = sp->pal = sp->shade = sp->extra = sp->clipdist = sp->xoffset = sp->yoffset = 0;
-    sp->x = hitx;
-    sp->y = hity;
-    sp->z = hitz;
+    sp->x = hitinfo.pos.x;
+    sp->y = hitinfo.pos.y;
+    sp->z = hitinfo.pos.z;
     sp->shade -= 5;  // Brighten it up just a bit
-    sp->yvel = hitwall; // pass hitwall in yvel
+    sp->yvel = hitinfo.wall; // pass hitinfo.wall in yvel
 
     SET(sp->cstat, CSTAT_SPRITE_WALL);
     SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
     SET(sp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    w = hitwall;
+    w = hitinfo.wall;
     nw = wall[w].point2;
     wall_ang = NORM_ANGLE(getangle(wall[nw].x - wall[w].x, wall[nw].y - wall[w].y)+512);
     sp->ang = wall_ang;
@@ -21366,12 +21346,12 @@ DoShrapVelocity(int16_t SpriteNum)
         case HIT_SPRITE:
         {
             short wall_ang, dang;
-            short hitsprite = -2;
+            short hit_sprite = -2;
             SPRITEp hsp;
 //                PlaySound(DIGI_DHCLUNK, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
-            hitsprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hitsprite];
+            hit_sprite = NORM_SPRITE(u->ret);
+            hsp = &sprite[hit_sprite];
 
             wall_ang = NORM_ANGLE(hsp->ang);
             WallBounce(SpriteNum, wall_ang);
@@ -21382,17 +21362,17 @@ DoShrapVelocity(int16_t SpriteNum)
 
         case HIT_WALL:
         {
-            short hitwall,nw,wall_ang,dang;
+            short hit_wall,nw,wall_ang,dang;
             WALLp wph;
 
 
-            hitwall = NORM_WALL(u->ret);
-            wph = &wall[hitwall];
+            hit_wall = NORM_WALL(u->ret);
+            wph = &wall[hit_wall];
 
 
 //                PlaySound(DIGI_DHCLUNK, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
-            nw = wall[hitwall].point2;
+            nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
             WallBounce(SpriteNum, wall_ang);
@@ -21402,11 +21382,11 @@ DoShrapVelocity(int16_t SpriteNum)
 
         case HIT_SECTOR:
         {
-            SWBOOL hitwall;
+            SWBOOL did_hit_wall;
 
-            if (SlopeBounce(SpriteNum, &hitwall))
+            if (SlopeBounce(SpriteNum, &did_hit_wall))
             {
-                if (hitwall)
+                if (did_hit_wall)
                 {
                     // hit a wall
                     ScaleSpriteVector(SpriteNum, 28000);
@@ -21703,11 +21683,11 @@ DoItemFly(int16_t SpriteNum)
         case HIT_SPRITE:
         {
             short wall_ang, dang;
-            short hitsprite = -2;
+            short hit_sprite = -2;
             SPRITEp hsp;
 
-            hitsprite = NORM_SPRITE(u->ret);
-            hsp = &sprite[hitsprite];
+            hit_sprite = NORM_SPRITE(u->ret);
+            hsp = &sprite[hit_sprite];
 
             if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
             {
@@ -21726,13 +21706,13 @@ DoItemFly(int16_t SpriteNum)
 
         case HIT_WALL:
         {
-            short hitwall,nw,wall_ang,dang;
+            short hit_wall,nw,wall_ang,dang;
             WALLp wph;
 
-            hitwall = NORM_WALL(u->ret);
-            wph = &wall[hitwall];
+            hit_wall = NORM_WALL(u->ret);
+            wph = &wall[hit_wall];
 
-            nw = wall[hitwall].point2;
+            nw = wall[hit_wall].point2;
             wall_ang = NORM_ANGLE(getangle(wall[nw].x - wph->x, wall[nw].y - wph->y)+512);
 
             WallBounce(SpriteNum, wall_ang);
@@ -21742,7 +21722,6 @@ DoItemFly(int16_t SpriteNum)
 
         case HIT_SECTOR:
         {
-            SWBOOL hitwall;
             // hit floor
             if (sp->z > DIV2(u->hiz + u->loz))
             {

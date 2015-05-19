@@ -830,12 +830,12 @@ typedef enum {WATER_FOOT, BLOOD_FOOT} FOOT_TYPE;
 extern FOOT_TYPE FootMode;
 extern SWBOOL InGame;                                  // Declared in game.c
 extern SWBOOL Global_PLock;                            // Game.c
-int QueueFloorBlood(short hitsprite);                // Weapon.c
-int QueueFootPrint(short hitsprite);                 // Weapon.c
+int QueueFloorBlood(short hit_sprite);                // Weapon.c
+int QueueFootPrint(short hit_sprite);                 // Weapon.c
 int QueueGeneric(short SpriteNum, short pic);        // Weapon.c
 int QueueLoWangs(short SpriteNum);                   // Weapon.c
 int SpawnShell(short SpriteNum, short ShellNum);     // Weapon.c
-void UnlockKeyLock(short key_num, short hitsprite);  // JSector.c
+void UnlockKeyLock(short key_num, short hit_sprite);  // JSector.c
 
 #define MAX_PAIN 5
 extern int PlayerPainVocs[MAX_PAIN];
@@ -2166,8 +2166,7 @@ SWBOOL PlayerFloorHit(PLAYERp pp, int zlimit);
 
 void FAFhitscan(int32_t x, int32_t y, int32_t z, int16_t sectnum,
                 int32_t xvect, int32_t yvect, int32_t zvect,
-                int16_t* hitsect, int16_t* hitwall, int16_t* hitsprite,
-                int32_t* hitx, int32_t* hity, int32_t* hitz, int32_t clipmask);
+                hitdata_t* hitinfo, int32_t clipmask);
 
 SWBOOL FAFcansee(int32_t xs, int32_t ys, int32_t zs, int16_t sects, int32_t xe, int32_t ye, int32_t ze, int16_t secte);
 

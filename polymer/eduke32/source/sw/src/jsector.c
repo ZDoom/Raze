@@ -1406,7 +1406,7 @@ JS_ToggleLockouts(void)
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
 void
-UnlockKeyLock(short key_num, short hitsprite)
+UnlockKeyLock(short key_num, short hit_sprite)
 {
     SPRITEp sp;
     int SpriteNum = 0, NextSprite = 0, color = 0;
@@ -1450,7 +1450,7 @@ UnlockKeyLock(short key_num, short hitsprite)
             if (sp->pal == color)
             {
                 PlaySound(DIGI_UNLOCK, &sp->x, &sp->y, &sp->z, v3df_doppler | v3df_dontpan);
-                if (SpriteNum == hitsprite)
+                if (SpriteNum == hit_sprite)
                     sp->picnum = SKEL_UNLOCKED;
             }
             break;
@@ -1465,7 +1465,7 @@ UnlockKeyLock(short key_num, short hitsprite)
             if (sp->pal == color)
             {
                 PlaySound(DIGI_RAMUNLOCK, &sp->x, &sp->y, &sp->z, v3df_doppler | v3df_dontpan);
-                if (SpriteNum == hitsprite)
+                if (SpriteNum == hit_sprite)
                     sp->picnum = CARD_UNLOCKED;
                 else
                     sp->picnum = CARD_UNLOCKED+1;

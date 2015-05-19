@@ -555,7 +555,7 @@ short FindBreakSpriteMatch(short match)
 // WALL
 //
 
-int AutoBreakWall(WALLp wallp, int hitx, int hity, int hitz, short ang, short type)
+int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short type)
 {
     BREAK_INFOp break_info;
     short BreakSprite;
@@ -597,8 +597,9 @@ int AutoBreakWall(WALLp wallp, int hitx, int hity, int hitz, short ang, short ty
     // Check to see if it should break with current weapon type
     if (!CheckBreakToughness(break_info, type)) return FALSE;
 
-    if (hitx != MAXLONG)
+    if (hit_x != MAXLONG)
     {
+        vec3_t hit_pos = { hit_x, hit_y, hit_z };
         // need correct location for spawning shrap
         BreakSprite = COVERinsertsprite(0, STAT_DEFAULT);
         ASSERT(BreakSprite >= 0);
@@ -608,7 +609,7 @@ int AutoBreakWall(WALLp wallp, int hitx, int hity, int hitz, short ang, short ty
         bsp->ang = ang;
         bsp->picnum = ST1;
         bsp->xrepeat = bsp->yrepeat = 64;
-        setspritez(BreakSprite, hitx, hity, hitz);
+        setspritez(BreakSprite, &hit_pos);
 
         // pass Break Info Globally
         GlobBreakInfo = break_info;
@@ -751,7 +752,7 @@ SWBOOL UserBreakWall(WALLp wp, short UNUSED(ang))
     return FALSE;
 }
 
-int WallBreakPosition(short hitwall, short *sectnum, int *x, int *y, int *z, short *ang)
+int WallBreakPosition(short hit_wall, short *sectnum, int *x, int *y, int *z, short *ang)
 {
     short w,nw;
     WALLp wp;
@@ -759,7 +760,7 @@ int WallBreakPosition(short hitwall, short *sectnum, int *x, int *y, int *z, sho
     short wall_ang;
     int ret=0;
 
-    w = hitwall;
+    w = hit_wall;
     wp = &wall[w];
 
     nw = wall[w].point2;
@@ -818,7 +819,7 @@ int WallBreakPosition(short hitwall, short *sectnum, int *x, int *y, int *z, sho
 }
 
 // If the tough parameter is not set, then it can't break tough walls and sprites
-SWBOOL HitBreakWall(WALLp wp, int hitx, int hity, int hitz, short ang, short type)
+SWBOOL HitBreakWall(WALLp wp, int hit_x, int hit_y, int hit_z, short ang, short type)
 {
     short SpriteNum;
     short match = wp->hitag;
@@ -829,13 +830,13 @@ SWBOOL HitBreakWall(WALLp wp, int hitx, int hity, int hitz, short ang, short typ
         return TRUE;
     }
 
-    //if (hitx == MAXLONG)
+    //if (hit_x == MAXLONG)
     {
         short sectnum;
-        WallBreakPosition(wp - wall, &sectnum, &hitx, &hity, &hitz, &ang);
+        WallBreakPosition(wp - wall, &sectnum, &hit_x, &hit_y, &hit_z, &ang);
     }
 
-    AutoBreakWall(wp, hitx, hity, hitz, ang, type);
+    AutoBreakWall(wp, hit_x, hit_y, hit_z, ang, type);
     return TRUE;
 }
 

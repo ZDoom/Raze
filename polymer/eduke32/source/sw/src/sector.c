@@ -2469,37 +2469,33 @@ SWBOOL NearThings(PLAYERp pp)
     }
     // This only gets called if nothing else worked, check for nearness to a wall
     {
-        short hitsect, hitwall, hitsprite, dang;
-        int hitx, hity, hitz;
-
-
-        hitsect = hitwall = hitsprite = 0;
-        dang = pp->pang;
+        hitdata_t hitinfo = { { 0, 0, 0 }, 0, 0, 0 };
+        short dang = pp->pang;
 
         FAFhitscan(pp->posx, pp->posy, pp->posz - Z(30), pp->cursectnum,    // Start position
                    sintable[NORM_ANGLE(dang + 512)],  // X vector of 3D ang
                    sintable[NORM_ANGLE(dang)],        // Y vector of 3D ang
                    0,                                 // Z vector of 3D ang
-                   &hitsect, &hitwall, &hitsprite, &hitx, &hity, &hitz, CLIPMASK_MISSILE);
+                   &hitinfo, CLIPMASK_MISSILE);
 
-        if (hitsect < 0)
+        if (hitinfo.sect < 0)
             return FALSE;
 
-        if (Distance(hitx, hity, pp->posx, pp->posy) > 1500)
+        if (Distance(hitinfo.pos.x, hitinfo.pos.y, pp->posx, pp->posy) > 1500)
             return FALSE;
 
         // hit a sprite?
-        if (hitsprite >= 0)
+        if (hitinfo.sprite >= 0)
             return FALSE;
 
         if (neartagsect >= 0)
             return TRUE;
 
-        if (hitwall >= 0)
+        if (hitinfo.wall >= 0)
         {
             WALLp wp;
 
-            wp =  &wall[hitwall];
+            wp =  &wall[hitinfo.wall];
 
             // Near a plain old vanilla wall.  Can't do anything but grunt.
             if (!TEST(wp->extra, WALLFX_DONT_STICK) && pp == Player+myconnectindex)
