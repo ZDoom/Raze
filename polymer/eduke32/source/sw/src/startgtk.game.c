@@ -21,8 +21,12 @@
 
 #include "types.h"
 #include "build.h"
+
 #include "baselayer.h"
 #include "grpscan.h"
+
+#include "common.h"
+#include "common_game.h"
 
 #define TAB_CONFIG 0
 #define TAB_GAME 1
@@ -715,7 +719,6 @@ int startwin_idle(void *s)
 }
 
 extern int32_t ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, ForceSetup, UseMouse, UseJoystick;
-extern char *grpfile;   // game.c
 
 int startwin_run(void)
 {
@@ -733,7 +736,7 @@ int startwin_run(void)
     settings.forcesetup = ForceSetup;
     settings.usemouse = UseMouse;
     settings.usejoy = UseJoystick;
-    strncpy(settings.selectedgrp, grpfile, BMAX_PATH);
+    Bstrncpyz(settings.selectedgrp, G_GrpFile(), BMAX_PATH);
     PopulateForm(-1);
 
     gtk_main();
@@ -748,7 +751,7 @@ int startwin_run(void)
         ForceSetup = settings.forcesetup;
         UseMouse = settings.usemouse;
         UseJoystick = settings.usejoy;
-        grpfile = settings.selectedgrp;
+        g_grpNamePtr = dup_filename(settings.selectedgrp);
     }
 
     return retval;

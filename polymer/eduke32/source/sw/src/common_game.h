@@ -132,6 +132,12 @@ extern "C" {
 #define MACRO10 "ITTAIIIUUU!!!"
 
 
+extern char *g_grpNamePtr;
+
+const char *G_DefaultGrpFile(void);
+const char *G_GrpFile(void);
+
+void clearGrpNamePtr(void);
 
 void SW_InitMultiPsky(void);
 

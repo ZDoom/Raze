@@ -36,6 +36,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "tags.h"
 #include "pal.h"
 
+#include "common.h"
 #include "common_game.h"
 
 #define M_RED 102
@@ -76,7 +77,6 @@ SWBOOL bSpinBobVoxels = TRUE;             // Do twizzly stuff to voxels
 SWBOOL bAutoSize = TRUE;                  // Autosizing on/off
 
 int nextvoxid = 0;
-char *defsfilename = "sw.def";
 
 // Globals used to hold current sprite type being searched for.
 short FindPicNum = 0;
@@ -607,7 +607,7 @@ ExtInit(void)
     void InitPalette(void);
     int i, fil;
 
-    initgroupfile("sw.grp");
+    initgroupfile(G_GrpFile());
     if ((fil = open("setup.dat", O_BINARY | O_RDWR, S_IREAD)) != -1)
     {
         read(fil, &option[0], NUMOPTIONS);
@@ -655,7 +655,6 @@ int
 ExtInit(void)
 {
     int rv = 0;
-    char *swgrp = "sw.grp";
 
 #ifndef BUILD_DEV_VER
     char ch;
@@ -729,12 +728,17 @@ ExtInit(void)
         }
     }
 
-    if (getenv("SWGRP"))
+    if (g_grpNamePtr == NULL)
     {
-        swgrp = getenv("SWGRP");
-        buildprintf("Using %s as main GRP file\n", swgrp);
+        const char *cp = getenv("SWGRP");
+        if (cp)
+        {
+            clearGrpNamePtr();
+            g_grpNamePtr = dup_filename(cp);
+            initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
+        }
     }
-    initgroupfile(swgrp);
+    initgroupfile(G_GrpFile());
     /*
         if ((fil = open("setup.dat", O_BINARY | O_RDWR, S_IREAD)) != -1)
             {

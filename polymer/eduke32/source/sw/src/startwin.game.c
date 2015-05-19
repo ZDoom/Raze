@@ -5,6 +5,9 @@
 #include "build.h"
 #include "renderlayer.h"
 
+#include "common.h"
+#include "common_game.h"
+
 #include "gamedefs.h"
 #include "config.h"
 
@@ -600,8 +603,6 @@ int startwin_idle(void *v)
     return 0;
 }
 
-extern char *grpfile;   // game.c
-
 int startwin_run(void)
 {
     MSG msg;
@@ -624,7 +625,7 @@ int startwin_run(void)
     settings.forcesetup = ForceSetup;
     settings.usemouse = UseMouse;
     settings.usejoy = UseJoystick;
-    strncpy(settings.selectedgrp, grpfile, BMAX_PATH);
+    Bstrncpyz(settings.selectedgrp, G_GrpFile(), BMAX_PATH);
     PopulateForm(-1);
 
     while (done < 0)
@@ -655,7 +656,8 @@ int startwin_run(void)
         ForceSetup = settings.forcesetup;
         UseMouse = settings.usemouse;
         UseJoystick = settings.usejoy;
-        grpfile = settings.selectedgrp;
+        clearGrpNamePtr();
+        g_grpNamePtr = dup_filename(settings.selectedgrp);
     }
 
     FreeGroups();

@@ -89,6 +89,7 @@ Things required to make savegames work:
 #include "text.h"
 #include "music.h"
 
+#include "common.h"
 #include "common_game.h"
 
 #include "crc32.h"
@@ -929,7 +930,6 @@ void COVERsetbrightness(int bright, unsigned char *pal)
 
 static int firstnet = 0;    // JBF
 int nextvoxid = 0;  // JBF
-static const char *deffile = "sw.def";
 
 extern int startwin_run(void);
 
@@ -951,7 +951,7 @@ InitGame(int32_t argc, const char **argv)
         exit(1);
     }
 
-    //initgroupfile("sw.grp");  // JBF: moving this close to start of program to detect shareware
+    //initgroupfile(G_GrpFile());  // JBF: moving this close to start of program to detect shareware
     InitSetup();
 
     InitAutoNet();
@@ -1063,7 +1063,12 @@ InitGame(int32_t argc, const char **argv)
     if (!SW_SHAREWARE)
         LoadCustomInfoFromScript("swcustom.txt");   // Load user customisation information
 
-    if (!loaddefinitionsfile(deffile)) buildputs("Definitions file loaded.\n");
+    if (!loaddefinitionsfile(G_DefFile())) buildputs("Definitions file loaded.\n");
+
+    for (i=0; i < g_defModulesNum; ++i)
+        Bfree(g_defModules[i]);
+    Bfree(g_defModules);
+    g_defModules = NULL;
 
     DemoModeMenuInit = TRUE;
     // precache as much stuff as you can
@@ -3446,7 +3451,6 @@ void CommandLineHelp(const char **argv)
 #endif
 }
 
-char *grpfile = "sw.grp";
 int32_t app_main(int32_t argc, const char **argv)
 {
     int i;
@@ -3567,13 +3571,15 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 
     OSD_SetLogFile("sw.log");
+
+    if (g_grpNamePtr == NULL)
     {
-        char *newgrp;
-        newgrp = getenv("SWGRP");
-        if (newgrp)
+        const char *cp = getenv("SWGRP");
+        if (cp)
         {
-            grpfile = newgrp;
-            buildprintf("Using alternative GRP file: %s\n", newgrp);
+            clearGrpNamePtr();
+            g_grpNamePtr = dup_filename(cp);
+            initprintf("Using \"%s\" as main GRP file\n", g_grpNamePtr);
         }
     }
 
@@ -3598,7 +3604,7 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 #endif
 
-    initgroupfile(grpfile);
+    initgroupfile(G_GrpFile());
     if (!DetectShareware())
     {
         if (SW_SHAREWARE) buildputs("Detected shareware GRP\n");
@@ -4088,10 +4094,12 @@ int32_t app_main(int32_t argc, const char **argv)
         else if (Bstrncasecmp(arg, "h", 1) == 0 && !SW_SHAREWARE)
         {
             if (strlen(arg) > 1)
-            {
-                deffile = (arg+1);
-                buildprintf("Using DEF file %s.\n", arg+1);
-            }
+                G_AddDef(arg+1);
+        }
+        else if (Bstrncasecmp(arg, "mh", 1) == 0 && !SW_SHAREWARE)
+        {
+            if (strlen(arg) > 1)
+                G_AddDefModule(arg+1);
         }
     }
 
