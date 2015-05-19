@@ -571,7 +571,7 @@ DoPlayerNightVisionPalette(PLAYERp pp)
         if (NightVision)
             return;                     // Already using night vision, don't
         // bother.
-        visibility = 0;
+        g_visibility = 0;
         for (i = 0; i < numsectors; i++)
         {
             sectorfloorpals[i] = sector[i].floorpal;
@@ -591,7 +591,7 @@ DoPlayerNightVisionPalette(PLAYERp pp)
     }
     else
     {
-        visibility = NormalVisibility;
+        g_visibility = NormalVisibility;
         for (i = 0; i < numsectors; i++)
         {
             sector[i].floorpal = sectorfloorpals[i];

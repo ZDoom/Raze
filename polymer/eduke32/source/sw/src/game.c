@@ -676,13 +676,7 @@ MapSetAll2D(uint8_t fill)
 void
 MapSetup(void)
 {
-#define NO_AUTO_MAPPING FALSE
-
-#if NO_AUTO_MAPPING
     MapSetAll2D(0xFF);
-#else
-    automapping = TRUE;
-#endif
 }
 
 void
@@ -1391,11 +1385,11 @@ InitLevel(void)
 
     if (sector[0].extra != -1)
     {
-        NormalVisibility = visibility = sector[0].extra;
+        NormalVisibility = g_visibility = sector[0].extra;
         sector[0].extra = 0;
     }
     else
-        NormalVisibility = visibility;
+        NormalVisibility = g_visibility;
 
     //
     // Do Player stuff first
@@ -4384,22 +4378,22 @@ DebugKeys(PLAYERp pp)
     {
         if (KEY_PRESSED(KEYSC_LSHIFT) | KEY_PRESSED(KEYSC_RSHIFT))      // SHIFT
         {
-            visibility = visibility - (visibility >> 3);
+            g_visibility = g_visibility - (g_visibility >> 3);
 
-            if (visibility < 128)
-                visibility = 16348;
+            if (g_visibility < 128)
+                g_visibility = 16348;
 
-            //if (visibility > 16384)
-            //    visibility = 128;
+            //if (g_visibility > 16384)
+            //    g_visibility = 128;
         }
         else
         {
             KEY_PRESSED(KEYSC_L) = 0;
 
-            visibility = visibility - (visibility >> 3);
+            g_visibility = g_visibility - (g_visibility >> 3);
 
-            if (visibility > 16384)
-                visibility = 128;
+            if (g_visibility > 16384)
+                g_visibility = 128;
         }
     }
 

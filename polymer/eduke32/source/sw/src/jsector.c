@@ -737,12 +737,12 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 
                     ASSERT(sp);
 
-                    // tvisibility = visibility;
-//                  visibility <<= 1;       // Make mirror darker
+                    // tvisibility = g_visibility;
+//                  g_visibility <<= 1;       // Make mirror darker
 
                     // Make TV cam style mirror seem to shimmer
 //                  if (mirror[cnt].ismagic && STD_RANDOM_P2(256) > 128)
-//                      visibility -= STD_RANDOM_P2(128);
+//                      g_visibility -= STD_RANDOM_P2(128);
 
                     // Calculate the angle of the mirror wall
                     w = mirror[cnt].mirrorwall;
@@ -903,8 +903,8 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                 }
 
 
-                // visibility = tvisibility;
-                // visibility = NormalVisibility;
+                // g_visibility = tvisibility;
+                // g_visibility = NormalVisibility;
 
                 // drawrooms(tx, ty, tz, tpang, tphoriz, pp->cursectnum);
                 // Clean up anything that the camera view might have done

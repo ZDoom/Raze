@@ -2386,7 +2386,7 @@ drawscreen(PLAYERp pp)
     }
 
     QuakeViewChange(camerapp, &quake_z, &quake_x, &quake_y, &quake_ang);
-    VisViewChange(camerapp, &visibility);
+    VisViewChange(camerapp, &g_visibility);
     tz = tz + quake_z;
     tx = tx + quake_x;
     ty = ty + quake_y;

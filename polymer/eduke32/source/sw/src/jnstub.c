@@ -1402,18 +1402,18 @@ MoreKeys(short searchstat, short searchwall, short searchsector, short pointhigh
         if (KEY_PRESSED(KEYSC_KPMINUS))
         {
             KEY_PRESSED(KEYSC_KPMINUS) = 0;
-            visibility = visibility - (visibility >> 3);
+            g_visibility = g_visibility - (g_visibility >> 3);
 
-            if (visibility < 0)
-                visibility = 16348;
+            if (g_visibility < 0)
+                g_visibility = 16348;
         }
         else if (KEY_PRESSED(KEYSC_KPPLUS))
         {
             KEY_PRESSED(KEYSC_KPPLUS) = 0;
-            visibility = visibility + (visibility >> 3);
+            g_visibility = g_visibility + (g_visibility >> 3);
 
-            if (visibility > 16348)
-                visibility = 0;
+            if (g_visibility > 16348)
+                g_visibility = 0;
         }
     }
 
@@ -2070,7 +2070,7 @@ ExtCheckKeys(void)
 
     // try it every time through the loop
     SetSpriteExtra();
-    sector[0].extra = visibility;
+    sector[0].extra = g_visibility;
 
 //  if(!BKeyPressed())
 //      ticdiff = totalclock-oldtotalclock;  // Difference in tics from last time
@@ -2189,11 +2189,11 @@ ExtLoadMap(const char *mapname)
 
     // if in valid range set visiblity for the map
     if (sector[0].extra != -1 && sector[0].extra > 0 && sector[0].extra < 16384)
-        visibility = sector[0].extra;
+        g_visibility = sector[0].extra;
 
     else
         // if NOT in valid range set a default
-        visibility = 2;
+        g_visibility = 2;
 
     // Load up voxel sprites from voxel script file
     //LoadKVXFromScript("swvoxfil.txt");

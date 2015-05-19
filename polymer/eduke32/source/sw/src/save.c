@@ -582,10 +582,10 @@ int SaveGame(short save_num)
     MWRITE(&totalclock,sizeof(totalclock),1,fil);
     MWRITE(&numframes,sizeof(numframes),1,fil);
     MWRITE(&randomseed,sizeof(randomseed),1,fil);
-    MWRITE(&numpalookups,sizeof(numpalookups),1,fil);
+    MWRITE(&numshades,sizeof(numshades),1,fil);
 
     MWRITE(&NormalVisibility,sizeof(NormalVisibility),1,fil);
-    MWRITE(&visibility,sizeof(visibility),1,fil);
+    MWRITE(&g_visibility,sizeof(g_visibility),1,fil);
     MWRITE(&parallaxtype,sizeof(parallaxtype),1,fil);
     MWRITE(&parallaxyoffs,sizeof(parallaxyoffs),1,fil);
     MWRITE(pskyoff,sizeof(pskyoff),1,fil);
@@ -1073,10 +1073,10 @@ int LoadGame(short save_num)
     MREAD(&totalclock,sizeof(totalclock),1,fil);
     MREAD(&numframes,sizeof(numframes),1,fil);
     MREAD(&randomseed,sizeof(randomseed),1,fil);
-    MREAD(&numpalookups,sizeof(numpalookups),1,fil);
+    MREAD(&numshades,sizeof(numshades),1,fil);
 
     MREAD(&NormalVisibility,sizeof(NormalVisibility),1,fil);
-    MREAD(&visibility,sizeof(visibility),1,fil);
+    MREAD(&g_visibility,sizeof(g_visibility),1,fil);
     MREAD(&parallaxtype,sizeof(parallaxtype),1,fil);
     MREAD(&parallaxyoffs,sizeof(parallaxyoffs),1,fil);
     MREAD(pskyoff,sizeof(pskyoff),1,fil);

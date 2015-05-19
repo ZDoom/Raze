@@ -1127,14 +1127,14 @@ DoPlayerSpriteReset(short SpriteNum)
 int
 SetVisHigh(void)
 {
-//    visibility = NormalVisibility>>1;
+//    g_visibility = NormalVisibility>>1;
     return 0;
 }
 
 int
 SetVisNorm(void)
 {
-//    visibility = NormalVisibility;
+//    g_visibility = NormalVisibility;
     return 0;
 }
 
