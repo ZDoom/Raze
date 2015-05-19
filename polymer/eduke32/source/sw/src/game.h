@@ -691,21 +691,6 @@ int StdRandomRange(int range);
 #define DEGREE_45 256
 #define DEGREE_90 512
 
-//
-// nextsectorneighborz defines - what a god-awful name!
-//
-
-#define SEARCH_DOWN 1
-#define SEARCH_UP   -1
-#define SEARCH_FLOOR 1
-#define SEARCH_CEILING -1
-
-#define UP_DIR -1
-#define DOWN_DIR 1
-
-#define OPEN 0
-#define CLOSE 1
-
 ////
 //
 // Directional enumerations

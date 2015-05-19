@@ -786,7 +786,7 @@ DoSpringBoardDown(void)
             {
                 int destz;
 
-                destz = sector[nextsectorneighborz(sbp->Sector, sector[sbp->Sector].floorz, SEARCH_FLOOR, SEARCH_DOWN)].floorz;
+                destz = sector[nextsectorneighborz(sbp->Sector, sector[sbp->Sector].floorz, 1, 1)].floorz;
 
                 AnimSet(&sector[sbp->Sector].floorz, destz, 256);
 
