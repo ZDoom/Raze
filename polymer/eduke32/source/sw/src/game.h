@@ -1532,6 +1532,8 @@ typedef struct
     short FlagOwner;        // The spritenum of the original flag
     short Vis;              // Shading upgrade, for shooting, etc...
     SWBOOL DidAlert;          // Has actor done his alert noise before?
+
+    uint8_t filler;
 } USER,*USERp;
 
 // sprite->extra flags

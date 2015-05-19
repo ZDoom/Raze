@@ -2259,10 +2259,10 @@ DoCarryFlag(int16_t Weapon)
                     DoFlagScore(ap->pal);
                     if (SP_TAG5(fp) > 0)
                     {
-                        fp->filler++;
-                        if (fp->filler >= SP_TAG5(fp))
+                        fu->filler++;
+                        if (fu->filler >= SP_TAG5(fp))
                         {
-                            fp->filler = 0;
+                            fu->filler = 0;
                             DoMatchEverything(NULL, SP_TAG6(fp), ON);
                         }
                     }
@@ -2400,10 +2400,10 @@ DoCarryFlagNoDet(int16_t Weapon)
             DoFlagScore(ap->pal);
             if (SP_TAG5(fp) > 0)
             {
-                fp->filler++;
-                if (fp->filler >= SP_TAG5(fp))
+                fu->filler++;
+                if (fu->filler >= SP_TAG5(fp))
                 {
-                    fp->filler = 0;
+                    fu->filler = 0;
                     DoMatchEverything(NULL, SP_TAG6(fp), ON);
                 }
             }
