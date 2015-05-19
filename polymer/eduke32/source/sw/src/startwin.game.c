@@ -1,10 +1,9 @@
-#ifndef RENDERTYPEWIN
+#ifndef _WIN32
 #error Only for Windows
 #endif
 
-#include "types.h"
 #include "build.h"
-#include "winlayer.h"
+#include "renderlayer.h"
 
 #include "gamedefs.h"
 #include "config.h"

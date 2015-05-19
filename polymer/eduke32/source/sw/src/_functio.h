@@ -338,6 +338,7 @@ static char *mousedigitaldefaults[] =
 };
 
 
+#if 0
 static char *gamepaddigitaldefaults[] =
 {
     "Turn_Left",
@@ -345,6 +346,7 @@ static char *gamepaddigitaldefaults[] =
     "Move_Forward",
     "Move_Backward",
 };
+#endif
 
 
 static char *joystickanalogdefaults[] =

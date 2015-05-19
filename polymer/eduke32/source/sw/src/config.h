@@ -31,6 +31,8 @@ extern "C" {
 #endif
 
 #include "function.h"
+#include "keyboard.h"
+#include "control.h"
 
 #define SETUPNAMEPARM "SETUPFILE"
 
