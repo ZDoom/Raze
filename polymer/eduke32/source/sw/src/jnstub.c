@@ -150,11 +150,11 @@ extern short highlightsectorcnt;
 
 // RIGHT SHIFT selection key
 #define SPRITE_FLAG 16384
-extern short highlight[MAXWALLS];       // sprite nums are + 16348
+extern short highlight[MAXWALLS+MAXSPRITES];       // sprite nums are + 16348
 extern short highlightcnt;
 
 // Variables copied with the tab key
-extern short temppicnum, tempcstat, templotag, temphitag, tempextra;
+extern int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
 
 void SectorMoveFloorZ(int);
 void SectorMoveCeilingZ(int);
@@ -458,11 +458,15 @@ DoAutoSize(spritetype *tspr)
 short rotang = 0;
 
 void
-ExtAnalyzeSprites(void)
+ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr)
 {
     int i, currsprite;
     spritetype *tspr;
 
+    UNREFERENCED_PARAMETER(ourx);
+    UNREFERENCED_PARAMETER(oury);
+    UNREFERENCED_PARAMETER(oura);
+    UNREFERENCED_PARAMETER(smoothr);
 
     rotang += 4;
     if (rotang > 2047)
@@ -3701,10 +3705,12 @@ void ExtPreLoadMap(void)
 }
 
 
-void ExtPreSaveMap(void)
+int32_t ExtPreSaveMap(void)
 {
     ResetBuildFAF();
     ResetSprites();
+
+    return 0;
 }
 
 void
