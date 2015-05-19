@@ -33,8 +33,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "mytypes.h"
 #include "fx_man.h"
 #include "music.h"
-#include "cd.h"
-#include "util_lib.h"
 #include "gamedefs.h"
 #include "config.h"
 
