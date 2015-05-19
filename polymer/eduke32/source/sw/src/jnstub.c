@@ -2743,7 +2743,7 @@ SectorMidPoint(short sectnum, int *xmid, int *ymid, int *zmid)
 void
 DrawClipBox(short spritenum)
 {
-    int x, y, z;
+    int x = 0, y = 0, z;
     int radius;
     extern int zoom;
 
