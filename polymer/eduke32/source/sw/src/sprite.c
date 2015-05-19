@@ -963,7 +963,7 @@ void
 PicAnimOff(short picnum)
 {
     int i;
-    short anim_type = TEST(picanm[picnum], TILE_ANIM_TYPE);
+    short anim_type = TEST(picanm[picnum].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT;
     short num;
 
     ASSERT(picnum >= 0 && picnum < MAXTILES);
@@ -972,16 +972,16 @@ PicAnimOff(short picnum)
         return;
 
     /*
-    num = TEST(picanm[picnum], TILE_ANIM_NUM);
+    num = picanm[picnum].num;
     ASSERT(num < 20);
 
     for (i = 0; i < num; i++)
     {
-    RESET(picanm[picnum + i], TILE_ANIM_TYPE);
+    RESET(picanm[picnum + i].sf, PICANM_ANIMTYPE_MASK);
     }
     */
 
-    RESET(picanm[picnum], TILE_ANIM_TYPE);
+    RESET(picanm[picnum].sf, PICANM_ANIMTYPE_MASK);
 }
 
 SWBOOL
@@ -3126,8 +3126,8 @@ KeyMain:
 
                 ChangeState(SpriteNum, s_Key[num]);
 
-                RESET(picanm[sp->picnum], TILE_ANIM_TYPE);
-                RESET(picanm[sp->picnum + 1], TILE_ANIM_TYPE);
+                RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
+                RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
                 change_sprite_stat(SpriteNum, STAT_ITEM);
                 RESET(sp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
                 u->Radius = 500;
@@ -3161,8 +3161,8 @@ KeyStatueMain:
             u->spal = sp->pal;
             ChangeState(SpriteNum, s_KeyStatue[num]);
 
-            RESET(picanm[sp->picnum], TILE_ANIM_TYPE);
-            RESET(picanm[sp->picnum + 1], TILE_ANIM_TYPE);
+            RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
+            RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
 
             change_sprite_stat(SpriteNum, STAT_ITEM);
 
@@ -4595,8 +4595,8 @@ int SpawnItemsMatch(short match)
 
             ChangeState(SpriteNum, s_Key[num]);
 
-            RESET(picanm[sp->picnum], TILE_ANIM_TYPE);
-            RESET(picanm[sp->picnum + 1], TILE_ANIM_TYPE);
+            RESET(picanm[sp->picnum].sf, PICANM_ANIMTYPE_MASK);
+            RESET(picanm[sp->picnum + 1].sf, PICANM_ANIMTYPE_MASK);
 
             SetupItemForJump(sip, SpriteNum);
 
@@ -4640,7 +4640,7 @@ NewStateGroup(short SpriteNum, STATEp StateGroup[])
 
     // turn anims off because people keep setting them in the
     // art file
-    RESET(picanm[sprite[SpriteNum].picnum], TILE_ANIM_TYPE);
+    RESET(picanm[sprite[SpriteNum].picnum].sf, PICANM_ANIMTYPE_MASK);
     return 0;
 }
 
@@ -4759,8 +4759,8 @@ getzrangepoint(int x, int y, int z, short sectnum,
 
         // Calculate and store centering offset information into xoff&yoff
         tilenum = spr->picnum;
-        xoff = (int)((signed char)((picanm[tilenum] >> 8) & 255)) + ((int) spr->xoffset);
-        yoff = (int)((signed char)((picanm[tilenum] >> 16) & 255)) + ((int) spr->yoffset);
+        xoff = (int)picanm[tilenum].xofs + (int)spr->xoffset;
+        yoff = (int)picanm[tilenum].yofs + (int)spr->yoffset;
         if (cstat & 4)
             xoff = -xoff;
         if (cstat & 8)

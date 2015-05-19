@@ -125,7 +125,7 @@ int krand1(void);
 // Map directions/degrees
 //
 
-#if FALSE
+#if 0
 y--
 ^ 1536
 |
@@ -453,12 +453,12 @@ int StdRandomRange(int range);
 
 
 // x & y offset of tile
-#define TILE_XOFF(picnum) ((int8_t)TEST(picanm[(picnum)] >> 8, 0xFF))
-#define TILE_YOFF(picnum) ((int8_t)TEST(picanm[(picnum)] >> 16, 0xFF))
+#define TILE_XOFF(picnum) (picanm[(picnum)].xofs)
+#define TILE_YOFF(picnum) (picanm[(picnum)].yofs)
 
 // x & y offset of current sprite tile
-#define SPRITEp_XOFF(sp) ((int8_t)TEST(picanm[(sp)->picnum] >> 8, 0xFF))
-#define SPRITEp_YOFF(sp) ((int8_t)TEST(picanm[(sp)->picnum] >> 16, 0xFF))
+#define SPRITEp_XOFF(sp) (picanm[(sp)->picnum].xofs)
+#define SPRITEp_YOFF(sp) (picanm[(sp)->picnum].yofs)
 
 // Z size of top (TOS) and bottom (BOS) part of sprite
 #define SPRITEp_SIZE_TOS(sp) (DIV2(SPRITEp_SIZE_Z(sp)) + Z(SPRITEp_YOFF(sp)))
@@ -680,12 +680,6 @@ int StdRandomRange(int range);
         CSTAT_WALL_WARP_HITSCAN              \
     )
 
-
-
-// break up of picanm[]
-#define TILE_ANIM_NUM (0xF|BIT(4)|BIT(5))
-#define TILE_ANIM_TYPE (BIT(6)|BIT(7))
-#define TILE_SPEED (0xF << 20)
 
 #define SIZ(array) (sizeof(array)/sizeof(array[0]))
 

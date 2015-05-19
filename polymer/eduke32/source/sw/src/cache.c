@@ -662,9 +662,9 @@ precache(void)
 
         SET(gotpic[j>>3], 1<<(j&7));
 
-        if (TEST(picanm[j],TILE_ANIM_TYPE))
+        if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
         {
-            for (i = 1; i <= TEST(picanm[j],TILE_ANIM_NUM); i++)
+            for (i = 1; i <= picanm[j].num; i++)
             {
                 SET(gotpic[(j+i)>>3], 1<<((j+i)&7));
             }
@@ -674,9 +674,9 @@ precache(void)
 
         SET(gotpic[j>>3], 1<<(j&7));
 
-        if (TEST(picanm[j],TILE_ANIM_TYPE))
+        if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
         {
-            for (i = 1; i <= TEST(picanm[j],TILE_ANIM_NUM); i++)
+            for (i = 1; i <= picanm[j].num; i++)
             {
                 SET(gotpic[(j+i)>>3], 1<<((j+i)&7));
             }
@@ -690,9 +690,9 @@ precache(void)
 
         SET(gotpic[j>>3], 1<<(j&7));
 
-        if (TEST(picanm[j],TILE_ANIM_TYPE))
+        if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
         {
-            for (i = 1; i <= TEST(picanm[j],TILE_ANIM_NUM); i++)
+            for (i = 1; i <= picanm[j].num; i++)
             {
                 SET(gotpic[(j+i)>>3], 1<<((j+i)&7));
             }
@@ -703,9 +703,9 @@ precache(void)
             j = wp->overpicnum;
             SET(gotpic[j>>3], 1<<(j&7));
 
-            if (TEST(picanm[j],TILE_ANIM_TYPE))
+            if (TEST(picanm[j].sf, PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT)
             {
-                for (i = 1; i <= TEST(picanm[j],TILE_ANIM_NUM); i++)
+                for (i = 1; i <= picanm[j].num; i++)
                 {
                     SET(gotpic[(j+i)>>3], 1<<((j+i)&7));
                 }
