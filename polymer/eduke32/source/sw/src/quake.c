@@ -87,7 +87,7 @@ void DoQuakeMatch(short match)
 
         if (QUAKE_Match(sp) == match)
         {
-            if (QUAKE_WaitTics(sp) > 0)
+            if ((int16_t)QUAKE_WaitTics(sp) > 0)
             {
                 // its not waiting any more
                 RESET_BOOL3(sp);
@@ -147,7 +147,7 @@ void ProcessQuakeSpot(void)
         // spawn a quake if time is up
         //QUAKE_WaitTics(sp) -= 4*synctics;
         SET_SP_TAG13(sp, (QUAKE_WaitTics(sp)-4*synctics));
-        if (QUAKE_WaitTics(sp) < 0)
+        if ((int16_t)QUAKE_WaitTics(sp) < 0)
         {
             // reset timer - add in Duration of quake
             //QUAKE_WaitTics(sp) = ((QUAKE_WaitSecs(sp)*10L) + QUAKE_Duration(sp)) * 120L;

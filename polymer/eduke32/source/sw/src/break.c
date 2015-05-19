@@ -652,7 +652,7 @@ int AutoBreakWall(WALLp wallp, int hit_x, int hit_y, int hit_z, short ang, short
         else
         {
             wallp->picnum = break_info->breaknum;
-            if (wallp->hitag < 0)
+            if ((int16_t)wallp->hitag < 0)
                 DoWallBreakSpriteMatch(wallp->hitag);
         }
     }
@@ -963,7 +963,7 @@ int AutoBreakSprite(short BreakSprite, short type)
     break_info = FindSpriteBreakInfo(bp->picnum);
 
 
-    if (bp->hitag < 0)
+    if ((int16_t)bp->hitag < 0)
         DoWallBreakMatch(bp->hitag);
 
     if (!break_info)

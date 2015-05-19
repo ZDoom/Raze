@@ -2291,7 +2291,7 @@ ExtGetSpriteCaption(short spritenum)
     // Non ST1 sprites that are tagged like them
     if (TEST_BOOL1(sp) && sp->picnum != ST1)
     {
-        if (SP_TAG1(sp) < 0 || SP_TAG1(sp) > 1006)
+        if ((uint16_t)SP_TAG1(sp) > 1006)
             sprintf(name, "Invalid Tag");
         else
             sprintf(name, "%s,", StagInfo[SP_TAG1(sp)].name);   // This page faults if
@@ -2303,7 +2303,7 @@ ExtGetSpriteCaption(short spritenum)
         switch (sp->picnum)
         {
         case ST1:
-            if (SP_TAG1(sp) < 0 || SP_TAG1(sp) > 1006)
+            if ((uint16_t)SP_TAG1(sp) > 1006)
                 sprintf(name, "Invalid Tag");
             else
                 sprintf(name, "*%s,", StagInfo[SP_TAG1(sp)].name);
