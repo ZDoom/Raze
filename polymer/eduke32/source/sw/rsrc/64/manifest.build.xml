@@ -8,10 +8,10 @@
   <assemblyIdentity
       version="1.0.0.0"
       processorArchitecture="amd64"
-      name="EDuke32.SW.Editor"
+      name="VoidSW.Mapster32"
       type="win32"
 />
-  <description>BUILD for Shadow Warrior</description>
+  <description>Mapster32 for VoidSW</description>
   <dependency>
     <dependentAssembly>
       <assemblyIdentity

@@ -41,7 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "baselayer.h"
 #include "file_lib.h"
 #include "keyboard.h"
-#include "mathutil.h"
 #include "fx_man.h"
 
 #define APPNAME             "EDuke32"

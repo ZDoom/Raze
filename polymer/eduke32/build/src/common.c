@@ -202,6 +202,16 @@ int32_t dist(const void *s1, const void *s2)
     return sepdist(sp1->x - sp2->x, sp1->y - sp2->y, sp1->z - sp2->z);
 }
 
+int32_t FindDistance2D(int32_t x, int32_t y)
+{
+    return sepldist(x, y);
+}
+
+int32_t FindDistance3D(int32_t x, int32_t y, int32_t z)
+{
+    return sepdist(x, y, z);
+}
+
 
 // Clear OSD background
 void COMMON_clearbackground(int32_t numcols, int32_t numrows)

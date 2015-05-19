@@ -42,8 +42,6 @@ $(ENGINE_OBJ)/buildres.$(res): $(ENGINE_SRC)/misc/buildres.rc $(ENGINE_INC)/star
 $(ENGINE_OBJ)/startwin.editor.$o: $(ENGINE_SRC)/startwin.editor.c $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/editor.h $(ENGINE_INC)/winlayer.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/startwin.editor.h
 $(ENGINE_OBJ)/startgtk.editor.$o: $(ENGINE_SRC)/startgtk.editor.c $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/editor.h $(ENGINE_INC)/compat.h
 
-$(ENGINE_OBJ)/build_icon.$o: $(DUKE3D_RSRC)/build_icon.c
-
 $(ENGINE_OBJ)/compat_tools.$o: $(ENGINE_SRC)/util/compat_tools.c
 $(ENGINE_OBJ)/kextract.$o: $(ENGINE_SRC)/util/kextract.c $(ENGINE_INC)/compat.h
 $(ENGINE_OBJ)/kgroup.$o: $(ENGINE_SRC)/util/kgroup.c $(ENGINE_INC)/compat.h

@@ -45,6 +45,7 @@ BUILD_SRC = \
 	build/src/baselayer.c \
 	build/src/cache1d.c \
 	build/src/compat.c \
+	build/src/common.c \
 	build/src/crc32.c \
 	build/src/defs.c \
 	build/src/engine.c \
@@ -57,6 +58,7 @@ BUILD_SRC = \
 	build/src/textfont.c \
 	build/src/smalltextfont.c \
 	build/src/kplib.c \
+	build/src/mmulti_null.c \
 	build/src/lz4.c \
 	build/src/osd.c \
 	build/src/md4.c \
@@ -74,7 +76,6 @@ JMACT_SRC=source/jmact/file_lib.c \
 	source/jmact//keyboard.c \
 	source/jmact//mouse.c \
 	source/jmact//joystick.c \
-	source/jmact//mathutil.c \
 	source/jmact//scriplib.c \
 	source/jmact//animlib.c
 

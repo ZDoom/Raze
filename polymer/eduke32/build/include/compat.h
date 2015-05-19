@@ -34,6 +34,14 @@
 #define UNREFERENCED_PARAMETER(x) x = x
 #endif
 
+#ifdef __GNUC__
+# define UNUSED(x) UNUSED_ ## x __attribute__((unused))
+# define PRINTF_FORMAT(stringindex, firstargindex) __attribute__((format (printf, stringindex, firstargindex)))
+#else
+# define UNUSED(x) x
+# define PRINTF_FORMAT(stringindex, firstargindex)
+#endif
+
 #if defined __GNUC__ || defined __clang__
 # define ATTRIBUTE(attrlist) __attribute__(attrlist)
 #else

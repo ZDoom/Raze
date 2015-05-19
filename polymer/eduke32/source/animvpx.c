@@ -17,12 +17,13 @@
 #include "build.h"
 #include "glbuild.h"
 
+#include "duke3d.h"
+#include "game.h"  // kopen4loadfrommod
+
+#undef UNUSED
 #define VPX_CODEC_DISABLE_COMPAT 1
 #include <vpx/vpx_decoder.h>
 #include <vpx/vp8dx.h>
-
-#include "duke3d.h"
-#include "game.h"  // kopen4loadfrommod
 #include "animvpx.h"
 
 const char *animvpx_read_ivf_header_errmsg[] = {

@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "editor.h"
 
 #include "macros.h"
-#include "mathutil.h"
+#include "common.h"
 
 #ifdef _WIN32
 #include "winlayer.h"

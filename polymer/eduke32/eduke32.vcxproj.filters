@@ -285,9 +285,6 @@
     <ClInclude Include="source\jmact\keyboard.h">
       <Filter>jmact\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jmact\mathutil.h">
-      <Filter>jmact\headers</Filter>
-    </ClInclude>
     <ClInclude Include="source\jmact\mouse.h">
       <Filter>jmact\headers</Filter>
     </ClInclude>
@@ -735,9 +732,6 @@
       <Filter>jmact\source</Filter>
     </ClCompile>
     <ClCompile Include="source\jmact\keyboard.c">
-      <Filter>jmact\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\jmact\mathutil.c">
       <Filter>jmact\source</Filter>
     </ClCompile>
     <ClCompile Include="source\jmact\mouse.c">

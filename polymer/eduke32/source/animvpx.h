@@ -7,6 +7,7 @@
 
 #define VPX_CODEC_DISABLE_COMPAT 1
 #ifndef ANIMVPX_STANDALONE
+# undef UNUSED
 # include <vpx/vpx_decoder.h>
 //#include <vpx/vp8dx.h>
 #endif

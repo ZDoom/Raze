@@ -372,7 +372,6 @@
     <ClInclude Include="source\jmact\control.h" />
     <ClInclude Include="source\jmact\file_lib.h" />
     <ClInclude Include="source\jmact\keyboard.h" />
-    <ClInclude Include="source\jmact\mathutil.h" />
     <ClInclude Include="source\jmact\mouse.h" />
     <ClInclude Include="source\jmact\scriplib.h" />
     <ClInclude Include="source\enet\include\enet\callbacks.h" />
@@ -501,7 +500,6 @@
     <ClCompile Include="source\jmact\control.c" />
     <ClCompile Include="source\jmact\file_lib.c" />
     <ClCompile Include="source\jmact\keyboard.c" />
-    <ClCompile Include="source\jmact\mathutil.c" />
     <ClCompile Include="source\jmact\mouse.c" />
     <ClCompile Include="source\jmact\scriplib.c" />
     <ClCompile Include="source\enet\src\callbacks.c" />

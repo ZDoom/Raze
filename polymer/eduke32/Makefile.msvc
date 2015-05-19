@@ -182,7 +182,6 @@ MACT_OBJS=$(DUKE3D_OBJ)\file_lib.$o \
 	$(DUKE3D_OBJ)\keyboard.$o \
 	$(DUKE3D_OBJ)\mouse.$o \
 	$(DUKE3D_OBJ)\joystick.$o \
-	$(DUKE3D_OBJ)\mathutil.$o \
 	$(DUKE3D_OBJ)\scriplib.$o
  
 DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
@@ -227,7 +226,6 @@ DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
 DUKE3D_EDITOR_OBJS=$(DUKE3D_OBJ)\astub.$o \
 	$(DUKE3D_OBJ)\common.$o \
 	$(DUKE3D_OBJ)\grpscan.$o \
-	$(DUKE3D_OBJ)\mathutil.$o \
 	$(DUKE3D_OBJ)\m32common.$o \
 	$(DUKE3D_OBJ)\m32def.$o \
 	$(DUKE3D_OBJ)\m32vars.$o \
@@ -244,8 +242,8 @@ ENGINE_OBJS=$(ENGINE_OBJS) $(ENGINE_OBJ)\winlayer.$o $(ENGINE_OBJ)\rawinput.$o
 !endif
 !if ("$(RENDERTYPE)"=="SDL")
 ENGINE_OBJS=$(ENGINE_OBJS) $(ENGINE_OBJ)\sdlayer.$o
-DUKE3D_OBJS=$(DUKE3D_OBJS) $(DUKE3D_OBJ)\game_icon.$o
-DUKE3D_EDITOR_OBJS=$(DUKE3D_EDITOR_OBJS) $(DUKE3D_OBJ)\build_icon.$o
+DUKE3D_OBJS=$(DUKE3D_OBJS) $(DUKE3D_OBJ)\eduke32_icon.$o
+DUKE3D_EDITOR_OBJS=$(DUKE3D_EDITOR_OBJS) $(DUKE3D_OBJ)\eduke32_icon.$o
 !endif
 
 !if ("$(MIXERTYPE)"=="WIN")

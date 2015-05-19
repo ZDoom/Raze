@@ -7,12 +7,11 @@ duke3d_h=\
     $(ENGINE_INC)/polymost.h \
     $(ENGINE_INC)/texcache.h \
     $(ENGINE_INC)/cache1d.h \
-    $(DUKE3D_SRC)/jmact/file_lib.h \
-    $(DUKE3D_SRC)/jmact/keyboard.h \
-    $(DUKE3D_SRC)/jmact/mouse.h \
-    $(DUKE3D_SRC)/jmact/joystick.h \
-    $(DUKE3D_SRC)/jmact/control.h \
-    $(DUKE3D_SRC)/jmact/mathutil.h \
+    $(MACT_ROOT)/file_lib.h \
+    $(MACT_ROOT)/keyboard.h \
+    $(MACT_ROOT)/mouse.h \
+    $(MACT_ROOT)/joystick.h \
+    $(MACT_ROOT)/control.h \
     $(DUKE3D_SRC)/macros.h \
     $(DUKE3D_INC)/gamedefs.h \
     $(DUKE3D_INC)/function.h \
@@ -23,22 +22,23 @@ duke3d_h=\
     $(DUKE3D_INC)/rts.h \
     $(DUKE3D_INC)/_rts.h \
     $(DUKE3D_INC)/soundefs.h \
-    $(AUDIOLIB_ROOT)/include/fx_man.h \
-    $(AUDIOLIB_ROOT)/include/music.h \
+    $(AUDIOLIB_INC)/fx_man.h \
+    $(AUDIOLIB_INC)/music.h \
     $(DUKE3D_INC)/namesdyn.h \
     $(DUKE3D_INC)/duke3d.h \
     $(DUKE3D_INC)/player.h \
     $(DUKE3D_INC)/sector.h \
     $(DUKE3D_INC)/game.h \
-    $(DUKE3D_INC)/actors.h
+    $(DUKE3D_INC)/actors.h \
+    $(DUKE3D_INC)/menus.h
 
 gamedef_h=$(DUKE3D_SRC)/gamedef.h $(DUKE3D_SRC)/gameexec.h $(DUKE3D_SRC)/gamevars.h
 
 game_defs_dep=$(DUKE3D_SRC)/lunatic/defs.ilua
 
-$(DUKE3D_OBJ)/game.$o: $(DUKE3D_SRC)/game.c $(game_defs_dep) $(DUKE3D_SRC)/jmact/scriplib.h $(duke3d_h) $(DUKE3D_SRC)/input.h $(DUKE3D_INC)/osdfuncs.h $(DUKE3D_INC)/osdcmds.h $(DUKE3D_INC)/grpscan.h $(DUKE3D_INC)/demo.h $(ENGINE_INC)/hightile.h
+$(DUKE3D_OBJ)/game.$o: $(DUKE3D_SRC)/game.c $(game_defs_dep) $(MACT_ROOT)/scriplib.h $(duke3d_h) $(DUKE3D_SRC)/input.h $(DUKE3D_INC)/osdfuncs.h $(DUKE3D_INC)/osdcmds.h $(DUKE3D_INC)/grpscan.h $(DUKE3D_INC)/demo.h $(ENGINE_INC)/hightile.h
 $(DUKE3D_OBJ)/actors.$o: $(DUKE3D_SRC)/actors.c $(duke3d_h)
-$(DUKE3D_OBJ)/anim.$o: $(DUKE3D_SRC)/anim.c $(duke3d_h) $(DUKE3D_SRC)/input.h $(DUKE3D_SRC)/jmact/animlib.h $(DUKE3D_SRC)/animvpx.h $(DUKE3D_SRC)/animsounds.h
+$(DUKE3D_OBJ)/anim.$o: $(DUKE3D_SRC)/anim.c $(duke3d_h) $(DUKE3D_SRC)/input.h $(MACT_ROOT)/animlib.h $(DUKE3D_SRC)/animvpx.h $(DUKE3D_SRC)/animsounds.h
 $(DUKE3D_OBJ)/animsounds.$o: $(DUKE3D_SRC)/animsounds.c $(DUKE3D_SRC)/animsounds.h
 $(DUKE3D_OBJ)/demo.$o: $(DUKE3D_SRC)/demo.c $(duke3d_h) $(DUKE3D_SRC)/input.h
 $(DUKE3D_OBJ)/gamedef.$o: $(DUKE3D_SRC)/gamedef.c $(duke3d_h) $(gamedef_h) $(DUKE3D_SRC)/savegame.h
@@ -48,7 +48,7 @@ $(DUKE3D_OBJ)/gamevars.$o: $(DUKE3D_SRC)/gamevars.c $(DUKE3D_SRC)/gamestructures
 $(DUKE3D_OBJ)/global.$o: $(DUKE3D_SRC)/*.c $(DUKE3D_SRC)/global.c $(duke3d_h)
 $(DUKE3D_OBJ)/input.$o: $(DUKE3D_SRC)/input.c $(duke3d_h) $(DUKE3D_SRC)/input.h
 $(DUKE3D_OBJ)/mdump.$o: $(DUKE3D_SRC)/mdump.cpp $(DUKE3D_SRC)/mdump.h
-$(DUKE3D_OBJ)/menus.$o: $(DUKE3D_SRC)/menus.c $(duke3d_h) $(DUKE3D_SRC)/input.h $(DUKE3D_SRC)/jmact/mouse.h $(DUKE3D_SRC)/menus.h
+$(DUKE3D_OBJ)/menus.$o: $(DUKE3D_SRC)/menus.c $(duke3d_h) $(DUKE3D_SRC)/input.h $(MACT_ROOT)/mouse.h $(DUKE3D_SRC)/menus.h
 $(DUKE3D_OBJ)/namesdyn.$o: $(DUKE3D_SRC)/namesdyn.c $(duke3d_h)
 $(DUKE3D_OBJ)/net.$o: $(DUKE3D_SRC)/net.c $(duke3d_h)
 $(DUKE3D_OBJ)/player.$o: $(DUKE3D_SRC)/player.c $(duke3d_h)
@@ -58,7 +58,7 @@ $(DUKE3D_OBJ)/sector.$o: $(DUKE3D_SRC)/sector.c $(duke3d_h) $(DUKE3D_SRC)/input.
 $(DUKE3D_OBJ)/sounds.$o: $(DUKE3D_SRC)/sounds.c $(duke3d_h)
 $(DUKE3D_OBJ)/soundsdyn.$o: $(DUKE3D_SRC)/soundsdyn.c $(duke3d_h)
 $(DUKE3D_OBJ)/rts.$o: $(DUKE3D_SRC)/rts.c $(duke3d_h)
-$(DUKE3D_OBJ)/config.$o: $(DUKE3D_SRC)/config.c $(duke3d_h) $(DUKE3D_SRC)/jmact/scriplib.h $(DUKE3D_INC)/_functio.h
+$(DUKE3D_OBJ)/config.$o: $(DUKE3D_SRC)/config.c $(duke3d_h) $(MACT_ROOT)/scriplib.h $(DUKE3D_INC)/_functio.h
 $(DUKE3D_OBJ)/winbits.$o: $(DUKE3D_SRC)/winbits.c
 $(DUKE3D_OBJ)/osdfuncs.$o: $(DUKE3D_SRC)/names.h $(ENGINE_INC)/build.h $(ENGINE_INC)/osd.h
 $(DUKE3D_OBJ)/osdcmds.$o: $(DUKE3D_SRC)/osdcmds.c $(DUKE3D_INC)/osdcmds.h $(ENGINE_INC)/osd.h $(duke3d_h)
@@ -96,38 +96,35 @@ $(DUKE3D_OBJ)/sounds_mapster32.$o: $(DUKE3D_SRC)/sounds_mapster32.c \
     $(ENGINE_INC)/editor.h \
     $(ENGINE_INC)/osd.h \
     $(DUKE3D_SRC)/macros.h \
-    $(AUDIOLIB_ROOT)/include/fx_man.h \
-    $(DUKE3D_SRC)/jmact/mathutil.h
+    $(AUDIOLIB_INC)/fx_man.h \
 
 $(DUKE3D_OBJ)/m32def.$o: $(DUKE3D_SRC)/m32def.c $(m32_script_hs) $(ENGINE_INC)/cache1d.h $(DUKE3D_SRC)/sounds_mapster32.h $(DUKE3D_SRC)/sounds_common.h $(DUKE3D_SRC)/keys.h
-$(DUKE3D_OBJ)/m32exec.$o: $(DUKE3D_SRC)/m32exec.c $(m32_script_hs) $(DUKE3D_SRC)/sounds_mapster32.h $(DUKE3D_SRC)/sounds_common.h $(ENGINE_INC)/osd.h $(DUKE3D_SRC)/keys.h $(AUDIOLIB_ROOT)/include/fx_man.h
+$(DUKE3D_OBJ)/m32exec.$o: $(DUKE3D_SRC)/m32exec.c $(m32_script_hs) $(DUKE3D_SRC)/sounds_mapster32.h $(DUKE3D_SRC)/sounds_common.h $(ENGINE_INC)/osd.h $(DUKE3D_SRC)/keys.h $(AUDIOLIB_INC)/fx_man.h
 $(DUKE3D_OBJ)/m32structures.$o: $(DUKE3D_SRC)/m32structures.c $(m32_script_hs) $(ENGINE_INC)/compat.h $(ENGINE_INC)/prlights.h
 $(DUKE3D_OBJ)/m32vars.$o: $(DUKE3D_SRC)/m32vars.c $(DUKE3D_SRC)/m32structures.c $(m32_script_hs) $(ENGINE_INC)/osd.h $(DUKE3D_SRC)/keys.h $(ENGINE_INC)/polymer.h
 # TODO: m32common.c
 
 # misc objects
-$(DUKE3D_OBJ)/game_icon.$o: $(DUKE3D_RSRC)/game_icon.c
-$(DUKE3D_OBJ)/build_icon.$o: $(DUKE3D_RSRC)/build_icon.c
+$(DUKE3D_OBJ)/eduke32_icon.$o: $(DUKE3D_RSRC)/eduke32_icon.c
 
 $(DUKE3D_OBJ)/grpscan.$o: $(DUKE3D_SRC)/grpscan.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/scriptfile.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/crc32.h $(DUKE3D_INC)/grpscan.h
 $(DUKE3D_OBJ)/gameres.$o: $(DUKE3D_SRC)/misc/gameres.rc $(DUKE3D_SRC)/startwin.game.h $(DUKE3D_RSRC)/game.bmp $(DUKE3D_RSRC)/game_icon.ico
-$(DUKE3D_OBJ)/buildres.$o: $(DUKE3D_SRC)/misc/buildres.rc $(ENGINE_INC)/startwin.editor.h $(DUKE3D_RSRC)/build.bmp $(DUKE3D_RSRC)/build_icon.ico
+$(DUKE3D_OBJ)/buildres.$o: $(DUKE3D_SRC)/misc/buildres.rc $(ENGINE_INC)/startwin.editor.h $(DUKE3D_RSRC)/build.bmp $(DUKE3D_RSRC)/game_icon.ico
 $(DUKE3D_OBJ)/startwin.game.$o: $(DUKE3D_SRC)/startwin.game.c $(duke3d_h) $(ENGINE_INC)/build.h $(ENGINE_INC)/winlayer.h $(ENGINE_INC)/compat.h $(DUKE3D_INC)/grpscan.h
 $(DUKE3D_OBJ)/startgtk.game.$o: $(DUKE3D_SRC)/startgtk.game.c $(duke3d_h) $(ENGINE_INC)/dynamicgtk.h $(ENGINE_INC)/build.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/compat.h
 
 
-# jMACT objects
-$(DUKE3D_OBJ)/animlib.$o: $(DUKE3D_SRC)/jmact/animlib.c $(DUKE3D_SRC)/jmact/animlib.h $(ENGINE_INC)/compat.h
-$(DUKE3D_OBJ)/file_lib.$o: $(DUKE3D_SRC)/jmact/file_lib.c $(DUKE3D_SRC)/jmact/file_lib.h
-$(DUKE3D_OBJ)/control.$o: $(DUKE3D_SRC)/jmact/control.c $(DUKE3D_SRC)/jmact/control.h $(DUKE3D_SRC)/jmact/keyboard.h $(DUKE3D_SRC)/jmact/mouse.h $(DUKE3D_SRC)/jmact/joystick.h $(ENGINE_INC)/baselayer.h
-$(DUKE3D_OBJ)/keyboard.$o: $(DUKE3D_SRC)/jmact/keyboard.c $(DUKE3D_SRC)/jmact/keyboard.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h
-$(DUKE3D_OBJ)/mouse.$o: $(DUKE3D_SRC)/jmact/mouse.c $(DUKE3D_SRC)/jmact/mouse.h $(ENGINE_INC)/baselayer.h
-$(DUKE3D_OBJ)/joystick.$o: $(DUKE3D_SRC)/jmact/joystick.c $(DUKE3D_SRC)/jmact/joystick.h $(ENGINE_INC)/baselayer.h
-$(DUKE3D_OBJ)/mathutil.$o: $(DUKE3D_SRC)/jmact/mathutil.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/pragmas.h
-$(DUKE3D_OBJ)/scriplib.$o: $(DUKE3D_SRC)/jmact/scriplib.c $(DUKE3D_SRC)/jmact/scriplib.h $(DUKE3D_SRC)/jmact/_scrplib.h $(ENGINE_INC)/compat.h
+# MACT objects
+$(DUKE3D_OBJ)/animlib.$o: $(MACT_ROOT)/animlib.c $(MACT_ROOT)/animlib.h $(ENGINE_INC)/compat.h
+$(DUKE3D_OBJ)/file_lib.$o: $(MACT_ROOT)/file_lib.c $(MACT_ROOT)/file_lib.h
+$(DUKE3D_OBJ)/control.$o: $(MACT_ROOT)/control.c $(MACT_ROOT)/control.h $(MACT_ROOT)/keyboard.h $(MACT_ROOT)/mouse.h $(MACT_ROOT)/joystick.h $(ENGINE_INC)/baselayer.h
+$(DUKE3D_OBJ)/keyboard.$o: $(MACT_ROOT)/keyboard.c $(MACT_ROOT)/keyboard.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h
+$(DUKE3D_OBJ)/mouse.$o: $(MACT_ROOT)/mouse.c $(MACT_ROOT)/mouse.h $(ENGINE_INC)/baselayer.h
+$(DUKE3D_OBJ)/joystick.$o: $(MACT_ROOT)/joystick.c $(MACT_ROOT)/joystick.h $(ENGINE_INC)/baselayer.h
+$(DUKE3D_OBJ)/scriplib.$o: $(MACT_ROOT)/scriplib.c $(MACT_ROOT)/scriplib.h $(MACT_ROOT)/_scrplib.h $(ENGINE_INC)/compat.h
 
-$(DUKE3D_OBJ)/midi.$o: $(DUKE3D_SRC)/midi.c $(DUKE3D_SRC)/_midi.h $(DUKE3D_SRC)/midi.h $(AUDIOLIB_ROOT)/include/music.h
-$(DUKE3D_OBJ)/mpu401.$o: $(DUKE3D_SRC)/mpu401.c $(DUKE3D_SRC)/mpu401.h $(AUDIOLIB_ROOT)/include/music.h
-$(DUKE3D_OBJ)/music.$o: $(DUKE3D_SRC)/music.c $(DUKE3D_SRC)/midi.h $(DUKE3D_SRC)/mpu401.h $(AUDIOLIB_ROOT)/include/music.h
+$(DUKE3D_OBJ)/midi.$o: $(DUKE3D_SRC)/midi.c $(DUKE3D_SRC)/_midi.h $(DUKE3D_SRC)/midi.h $(AUDIOLIB_INC)/music.h
+$(DUKE3D_OBJ)/mpu401.$o: $(DUKE3D_SRC)/mpu401.c $(DUKE3D_SRC)/mpu401.h $(AUDIOLIB_INC)/music.h
+$(DUKE3D_OBJ)/music.$o: $(DUKE3D_SRC)/music.c $(DUKE3D_SRC)/midi.h $(DUKE3D_SRC)/mpu401.h $(AUDIOLIB_INC)/music.h
 
 $(DUKE3D_OBJ)/ivfrate.$o: $(DUKE3D_SRC)/util/ivfrate.c $(DUKE3D_SRC)/animvpx.h

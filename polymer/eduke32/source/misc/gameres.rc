@@ -64,7 +64,7 @@ BEGIN
             VALUE "FileDescription", "EDuke32"
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "EDuke32"
-            VALUE "LegalCopyright", "Copyright © 2013 EDuke32 Developers, 1996, 2003 3D Realms Entertainment"
+            VALUE "LegalCopyright", "Copyright © 2014 Voidpoint, LLC, 1996, 2003 3D Realms Entertainment"
             VALUE "LegalTrademarks", "Duke Nukem® is a Registered Trademark of Gearbox Software, LLC."
             VALUE "OriginalFilename", "eduke32.exe"
             VALUE "ProductName", "EDuke32"
