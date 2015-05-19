@@ -2215,7 +2215,7 @@ DoCarryFlag(int16_t Weapon)
     {
         SPRITEp ap = &sprite[u->Attach];
 
-        setspritez(Weapon, ap->x, ap->y, SPRITEp_MID(ap));
+        setspritez_old(Weapon, ap->x, ap->y, SPRITEp_MID(ap));
         sp->ang = NORM_ANGLE(ap->ang + 1536);
     }
 
@@ -2374,7 +2374,7 @@ DoCarryFlagNoDet(int16_t Weapon)
     {
         SPRITEp ap = &sprite[u->Attach];
 
-        setspritez(Weapon, ap->x, ap->y, SPRITEp_MID(ap));
+        setspritez_old(Weapon, ap->x, ap->y, SPRITEp_MID(ap));
         sp->ang = NORM_ANGLE(ap->ang + 1536);
         sp->z = ap->z - DIV2(SPRITEp_SIZE_Z(ap));
     }

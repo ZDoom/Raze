@@ -734,7 +734,7 @@ LoadLevel(char *filename)
 {
     int pos;
 
-    if (loadboard(filename, SW_SHAREWARE ? 1 : 0, &Player[0].posx, &Player[0].posy, &Player[0].posz, &Player[0].pang, &Player[0].cursectnum) == -1)
+    if (loadboard(filename, SW_SHAREWARE ? 1 : 0, (vec3_t *)&Player[0], &Player[0].pang, &Player[0].cursectnum) == -1)
     {
         TerminateGame();
 #ifdef RENDERTYPEWIN

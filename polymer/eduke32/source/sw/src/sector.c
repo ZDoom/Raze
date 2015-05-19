@@ -1148,7 +1148,7 @@ SectorExp(short SpriteNum, short sectnum, short orig_ang, int zh)
 
     // setup vars needed by SectorExp
     changespritesect(SpriteNum, sectnum);
-    //setspritez(SpriteNum, sp->x, sp->y, sp->z);
+    //setspritez(SpriteNum, (vec3_t *)sp);
     getzsofslope(sp->sectnum, sp->x, sp->y, &u->hiz, &u->loz);
 
     // spawn explosion
@@ -1261,7 +1261,7 @@ DoSpawnSpotsForKill(short match)
             change_sprite_stat(sn, STAT_NO_STATE);
             u->ActorActionFunc = DoSpawnSpot;
             u->WaitTics = SP_TAG5(sp) * 15;
-            setspritez(sn, sp->x, sp->y, sp->z);
+            setspritez(sn, (vec3_t *)sp);
             // setting for Killed
             u->LastDamage = 1;
         }
@@ -2438,7 +2438,7 @@ SWBOOL NearThings(PLAYERp pp)
 
     neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, pp->pang,
             &neartagsect, &neartagwall, &neartagsprite,
-            &neartaghitdist, 1024L, NTAG_SEARCH_LO_HI);
+            &neartaghitdist, 1024L, NTAG_SEARCH_LO_HI, NULL);
 
 
     // hit a sprite? Check to see if it has sound info in it!
@@ -2540,7 +2540,7 @@ NearTagList(NEAR_TAG_INFOp ntip, PLAYERp pp, int z, int dist, int type, int coun
 
     neartag(pp->posx, pp->posy, z, pp->cursectnum, pp->pang,
             &neartagsector, &neartagwall, &neartagsprite,
-            &neartaghitdist, dist, type);
+            &neartaghitdist, dist, type, NULL);
 
     if (neartagsector >= 0)
     {
@@ -2953,13 +2953,13 @@ DoSineWaveWall(void)
             {
                 new = sw->orig_xy + ((sw->range * sintable[sw->sintable_ndx]) >> 14);
                 // wall[sw->wall].y = new;
-                dragpoint(sw->wall, wall[sw->wall].x, new);
+                dragpoint(sw->wall, wall[sw->wall].x, new, 0);
             }
             else
             {
                 new = sw->orig_xy + ((sw->range * sintable[sw->sintable_ndx]) >> 14);
                 // wall[sw->wall].x = new;
-                dragpoint(sw->wall, new, wall[sw->wall].y);
+                dragpoint(sw->wall, new, wall[sw->wall].y, 0);
             }
         }
     }

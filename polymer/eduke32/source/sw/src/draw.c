@@ -1104,7 +1104,7 @@ ViewOutsidePlayerRecurse(PLAYERp pp, int32_t* vx, int32_t* vy, int32_t* vz, int1
     nx = sintable[NORM_ANGLE(*ang + 512 + 1024)] << 11;
     ny = sintable[NORM_ANGLE(*ang + 1024)] << 11;
 
-    ret = clipmove(vx, vy, vz, vsectnum, nx, ny, 64L, 4 << 8, 4 << 8, CLIPMASK_PLAYER);
+    ret = clipmove_old(vx, vy, vz, vsectnum, nx, ny, 64L, 4 << 8, 4 << 8, CLIPMASK_PLAYER);
 
     switch (TEST(ret, HIT_MASK))
     {
@@ -1676,7 +1676,7 @@ void ScreenCaptureKeys(void)
     {
         KEY_PRESSED(KEYSC_F12) = 0;
         PauseAction();
-        screencapture("swcpxxxx.pcx", KEY_PRESSED(KEYSC_LSHIFT) | KEY_PRESSED(KEYSC_LSHIFT));
+        screencapture("swcpxxxx.pcx", KEY_PRESSED(KEYSC_LSHIFT) | KEY_PRESSED(KEYSC_LSHIFT), "EDuke32");
         ResumeAction();
         PutStringInfo(Player + myconnectindex, "Screen Captured");
     }

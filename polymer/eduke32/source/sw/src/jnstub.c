@@ -125,10 +125,6 @@ char keys[NUMBUILDKEYS] =
 
 extern short pointhighlight, linehighlight;
 extern short defaultspritecstat;
-extern int posx, posy, posz;
-extern short cursectnum;
-extern short ang;
-extern int horiz;
 extern short asksave;
 short ExtSectorTag[MAXSECTORS][4];
 static char tempbuf[256];
@@ -2726,14 +2722,14 @@ DrawClipBox(short spritenum)
 
     if (sprite[spritenum].hitag == SO_CLIP_BOX)
     {
-        x = mulscale14(sprite[spritenum].x - posx, zoom);
-        y = mulscale14(sprite[spritenum].y - posy, zoom);
+        x = mulscale14(sprite[spritenum].x - pos.x, zoom);
+        y = mulscale14(sprite[spritenum].y - pos.y, zoom);
     }
     else if (sprite[spritenum].hitag == SECT_SO_CLIP_DIST)
     {
         SectorMidPoint(sprite[spritenum].sectnum,&x, &y, &z);
-        x = mulscale14(x - posx, zoom);
-        y = mulscale14(y - posy, zoom);
+        x = mulscale14(x - pos.x, zoom);
+        y = mulscale14(y - pos.y, zoom);
     }
 
     x += 320;
@@ -3410,9 +3406,9 @@ FindSprite(short picnum, short findspritenum)
             {
                 SET(sp->extra, SPRX_FOUND);
                 cursectnum = sp->sectnum;
-                posx = sp->x;
-                posy = sp->y;
-                posz = sp->z - kensplayerheight;
+                pos.x = sp->x;
+                pos.y = sp->y;
+                pos.z = sp->z - kensplayerheight;
                 return;
             }
 
@@ -3470,9 +3466,9 @@ FindNextSprite(short picnum)
             {
                 SET(sp->extra, SPRX_FOUND);
                 cursectnum = sp->sectnum;
-                posx = sp->x;
-                posy = sp->y;
-                posz = sp->z - kensplayerheight;
+                pos.x = sp->x;
+                pos.y = sp->y;
+                pos.z = sp->z - kensplayerheight;
                 return;
             }
         }

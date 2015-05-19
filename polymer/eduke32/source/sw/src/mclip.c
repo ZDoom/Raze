@@ -59,7 +59,7 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
         oy[i] = y[i] = pp->posy + (sop->clipbox_vdist[i] * sintable[ang] >> 14);
 
         // move the box
-        ret[i] = clipmove(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        ret[i] = clipmove_old(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
 
         // save the dist moved
         dist = FindDistance2D(x[i] - ox[i], y[i] - oy[i]);
@@ -103,9 +103,9 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
         oy[i] = y[i] = pp->posy + (sop->clipbox_vdist[i] * sintable[ang] >> 14);
 
         // move the box
-        //pushmove(&x[i], &y[i], &z, &pp->cursectnum, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
-        ret[i] = clipmove(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
-        //pushmove(&x[i], &y[i], &z, &pp->cursectnum, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        //pushmove_old(&x[i], &y[i], &z, &pp->cursectnum, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        ret[i] = clipmove_old(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        //pushmove_old(&x[i], &y[i], &z, &pp->cursectnum, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
 
         // save the dist moved
         dist = FindDistance2D(x[i] - ox[i], y[i] - oy[i]);
@@ -156,14 +156,14 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
 
         xvect = (sop->clipbox_vdist[i] * sintable[NORM_ANGLE(ang + 512)]);
         yvect = (sop->clipbox_vdist[i] * sintable[ang]);
-        ret_start = clipmove(&xs, &ys, &z, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        ret_start = clipmove_old(&xs, &ys, &z, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
 
         // save off the start position
         ox[i] = x[i] = xs;
         oy[i] = y[i] = ys;
 
         // move the box
-        ret[i] = clipmove(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        ret[i] = clipmove_old(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
 
         // save the dist moved
         dist = ksqrt(SQ(x[i] - ox[i]) + SQ(y[i] - oy[i]));
@@ -222,7 +222,7 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
 
         xvect = (sop->clipbox_vdist[i] * sintable[NORM_ANGLE(ang + 512)]);
         yvect = (sop->clipbox_vdist[i] * sintable[ang]);
-        ret_start = clipmove(&xs, &ys, &z, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        ret_start = clipmove_old(&xs, &ys, &z, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
 
         if (ret_start)
         {
@@ -246,7 +246,7 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
             oy[i] = y[i] = ys;
 
             // move the box
-            ret[i] = clipmove(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+            ret[i] = clipmove_old(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
 
             // save the dist moved
             dist = ksqrt(SQ(x[i] - ox[i]) + SQ(y[i] - oy[i]));
@@ -306,7 +306,7 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
         xvect = (sop->clipbox_vdist[i] * sintable[NORM_ANGLE(ang + 512)]);
         yvect = (sop->clipbox_vdist[i] * sintable[ang]);
         clipmoveboxtracenum = 1;
-        ret_start = clipmove(&xs, &ys, &z, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        ret_start = clipmove_old(&xs, &ys, &z, &pp->cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
         clipmoveboxtracenum = 3;
 
         if (ret_start)
@@ -340,7 +340,7 @@ int MultiClipMove(PLAYERp pp, int z, int floor_dist)
             oy[i] = y[i] = ys;
 
             // move the box
-            ret = clipmove(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+            ret = clipmove_old(&x[i], &y[i], &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
 
             // save the dist moved
             dist = ksqrt(SQ(x[i] - ox[i]) + SQ(y[i] - oy[i]));
@@ -386,7 +386,7 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
         yvect = (sop->clipbox_vdist[i] * sintable[ang]);
 
         // move the box
-        ret = clipmove(&x, &y, &z, &cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
+        ret = clipmove_old(&x, &y, &z, &cursectnum, xvect, yvect, (int)sop->clipbox_dist[i], Z(4), floor_dist, CLIPMASK_PLAYER);
 
         ASSERT(cursectnum >= 0);
 

@@ -33,33 +33,6 @@ char setupfilename[BMAX_PATH] = SETUPFILENAME;
 #define TILE_TILT           (MAXTILES-2)
 
 
-static int32_t clipmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
-                   int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2,3,4)));
-
-static int32_t clipmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
-                   int32_t ceildist, int32_t flordist, uint32_t cliptype)
-{
-    vec3_t vector = { *x, *y, *z };
-
-    int32_t result = clipmove(&vector, sectnum, xvect, yvect, walldist, ceildist, flordist, cliptype);
-
-    *x = vector.x;
-    *y = vector.y;
-    *z = vector.z;
-
-    return result;
-}
-
-static void getzrange_old(int32_t x, int32_t y, int32_t z, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
-                 int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(5,6,7,8)));
-
-static void getzrange_old(int32_t x, int32_t y, int32_t z, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
-                 int32_t *florhit, int32_t walldist, uint32_t cliptype)
-{
-    const vec3_t vector = { x, y, z };
-    getzrange(&vector, sectnum, ceilz, ceilhit, florz, florhit, walldist, cliptype);
-}
-
 static int32_t setsprite_eyeheight(int16_t spritenum, const vec3_t *pos) ATTRIBUTE((nonnull(2)));
 static int32_t setsprite_eyeheight(int16_t spritenum, const vec3_t *pos)
 {

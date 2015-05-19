@@ -4338,7 +4338,7 @@ SpawnBlood(short SpriteNum, short Weapon, short hitang, int hitx, int hity, int 
             nu->jump_speed += RANDOM_RANGE(p->max_jspeed - p->min_jspeed);
             nu->jump_speed = -nu->jump_speed;
 
-            //setspritez(new, np->x, np->y, np->z);
+            //setspritez(new, (vec3_t *)np);
             nu->xchange = MOVEx(np->xvel, np->ang);
             nu->ychange = MOVEy(np->xvel, np->ang);
 
@@ -8717,7 +8717,7 @@ DoPlasmaFountain(int16_t Weapon)
         ap = &sprite[u->Attach];
 
         // move with sprite
-        setspritez(Weapon, ap->x, ap->y, ap->z);
+        setspritez(Weapon, (vec3_t *)ap);
         sp->ang = ap->ang;
 
         u->Counter++;
@@ -9495,7 +9495,7 @@ DoMineStuck(int16_t Weapon)
             u->WaitTics = SEC(1)/2;
         }
 
-        setspritez(Weapon, ap->x, ap->y, ap->z - u->sz);
+        setspritez_old(Weapon, ap->x, ap->y, ap->z - u->sz);
         sp->z = ap->z - DIV2(SPRITEp_SIZE_Z(ap));
     }
 
@@ -9971,7 +9971,7 @@ DoEMPBurst(int16_t Weapon)
 
         ASSERT(au);
 
-        setspritez(Weapon, ap->x, ap->y, ap->z - u->sz);
+        setspritez_old(Weapon, ap->x, ap->y, ap->z - u->sz);
         sp->ang = NORM_ANGLE(ap->ang+1024);
     }
 
@@ -10486,7 +10486,7 @@ DoMicro(int16_t Weapon)
         // last smoke
         if ((u->WaitTics -= MISSILEMOVETICS) <= 0)
         {
-            setspritez(new,np->x,np->y,np->z);
+            setspritez(new, (vec3_t *)np);
             NewStateGroup(Weapon, &sg_MicroMini[0]);
             sp->xrepeat = sp->yrepeat = 10;
             RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
@@ -12987,7 +12987,7 @@ DoRing(int16_t Weapon)
     //sp->ang = NORM_ANGLE(sp->ang + 512);
     //updatesector(sp->x, sp->y);
 
-    setsprite(Weapon, sp->x, sp->y, sp->z);
+    setsprite(Weapon, (vec3_t *)sp);
     sect = sp->sectnum;
 
     ASSERT(sp->sectnum >= 0);
@@ -13131,7 +13131,7 @@ DoSerpRing(int16_t Weapon)
     sp->x += ((int) u->Dist * (int) sintable[NORM_ANGLE(u->slide_ang + 512)]) >> 14;
     sp->y += ((int) u->Dist * (int) sintable[u->slide_ang]) >> 14;
 
-    setsprite(Weapon, sp->x, sp->y, sp->z);
+    setsprite(Weapon, (vec3_t *)sp);
     sect = sp->sectnum;
 
     ASSERT(sp->sectnum >= 0);
@@ -17882,7 +17882,7 @@ HitscanSpriteAdjust(short SpriteNum, short hitwall)
 
     // must have this
     sectnum = sp->sectnum;
-    clipmove(&sp->x, &sp->y, &sp->z, &sectnum, xvect, yvect,
+    clipmove((vec3_t *)sp, &sectnum, xvect, yvect,
              4L, 4L<<8, 4L<<8, CLIPMASK_MISSILE);
     clipmoveboxtracenum = 3;
 
@@ -19232,7 +19232,7 @@ InitEnemyUzi(short SpriteNum)
     // Make sprite shade brighter
     u->Vis = 128;
 
-    setspritez(SpriteNum, sp->x, sp->y, sp->z);
+    setspritez(SpriteNum, (vec3_t *)sp);
 
     if (u->ID == ZILLA_RUN_R0)
     {
@@ -20770,7 +20770,7 @@ int QueueHole(short ang, short hitsect, short hitwall, int hitx, int hity, int h
     sectnum = sp->sectnum;
 
     clipmoveboxtracenum = 1;
-    clipmove(&sp->x, &sp->y, &sp->z, &sectnum, nx, ny,
+    clipmove((vec3_t *)sp, &sectnum, nx, ny,
              0L, 0L, 0L, CLIPMASK_MISSILE);
     clipmoveboxtracenum = 3;
 
@@ -21101,7 +21101,7 @@ int QueueWallBlood(short hitsprite, short ang)
     sectnum = sp->sectnum;
 
     clipmoveboxtracenum = 1;
-    clipmove(&sp->x, &sp->y, &sp->z, &sectnum, nx, ny,
+    clipmove((vec3_t *)sp, &sectnum, nx, ny,
              0L, 0L, 0L, CLIPMASK_MISSILE);
     clipmoveboxtracenum = 3;
 
@@ -21242,7 +21242,7 @@ int QueueGeneric(short SpriteNum, short pic)
     {
         // move old sprite to new sprite's place
         osp = &sprite[GenericQueue[GenericQueueHead]];
-        //setspritez(GenericQueue[GenericQueueHead],sp->x,sp->y,sp->z);
+        //setspritez(GenericQueue[GenericQueueHead], (vec3_t *)sp);
         osp->x = sp->x;
         osp->y = sp->y;
         osp->z = sp->z;
@@ -21800,7 +21800,7 @@ int QueueLoWangs(short SpriteNum)
     {
         // move old sprite to new sprite's place
         osp = &sprite[LoWangsQueue[LoWangsQueueHead]];
-        setspritez(LoWangsQueue[LoWangsQueueHead],sp->x,sp->y,sp->z);
+        setspritez(LoWangsQueue[LoWangsQueueHead], (vec3_t *)sp);
         NewSprite = LoWangsQueue[LoWangsQueueHead];
         ASSERT(sprite[NewSprite].statnum != MAXSTATUS);
     }

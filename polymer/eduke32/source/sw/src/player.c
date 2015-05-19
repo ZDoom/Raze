@@ -1390,7 +1390,7 @@ DoSpawnTeleporterEffect(SPRITEp sp)
     ep = &sprite[effect];
     eu = User[effect];
 
-    setspritez(effect, ep->x, ep->y, ep->z);
+    setspritez(effect, (vec3_t *)ep);
 
     ep->shade = -40;
     ep->xrepeat = ep->yrepeat = 42;
@@ -1417,7 +1417,7 @@ DoSpawnTeleporterEffectPlace(SPRITEp sp)
     ep = &sprite[effect];
     eu = User[effect];
 
-    setspritez(effect, ep->x, ep->y, ep->z);
+    setspritez(effect, (vec3_t *)ep);
 
     ep->shade = -40;
     ep->xrepeat = ep->yrepeat = 42;
@@ -2316,7 +2316,7 @@ DoPlayerSlide(PLAYERp pp)
     if (labs(pp->slide_xvect) < 12800 && labs(pp->slide_yvect) < 12800)
         pp->slide_xvect = pp->slide_yvect = 0;
 
-    push_ret = pushmove(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -2329,9 +2329,9 @@ DoPlayerSlide(PLAYERp pp)
         }
         return;
     }
-    ret = clipmove(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum, pp->slide_xvect, pp->slide_yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    ret = clipmove((vec3_t *)pp, &pp->cursectnum, pp->slide_xvect, pp->slide_yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     PlayerCheckValidMove(pp);
-    push_ret = pushmove(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -2643,7 +2643,7 @@ DoPlayerMove(PLAYERp pp)
     }
     else
     {
-        push_ret = pushmove(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
 
         if (push_ret < 0)
         {
@@ -2660,11 +2660,11 @@ DoPlayerMove(PLAYERp pp)
         save_cstat = pp->SpriteP->cstat;
         RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
         COVERupdatesector(pp->posx, pp->posy, &pp->cursectnum);
-        ret = clipmove(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum, pp->xvect, pp->yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+        ret = clipmove((vec3_t *)pp, &pp->cursectnum, pp->xvect, pp->yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
         pp->SpriteP->cstat = save_cstat;
         PlayerCheckValidMove(pp);
 
-        push_ret = pushmove(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
+        push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist - Z(16), CLIPMASK_PLAYER);
         if (push_ret < 0)
         {
 
@@ -2894,7 +2894,7 @@ DoPlayerMoveBoat(PLAYERp pp)
     pp->cursectnum = pp->sop->op_main_sector; // for speed
 
     floor_dist = labs(z - pp->sop->floor_loz);
-    ret = clipmove(&pp->posx, &pp->posy, &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+    ret = clipmove_old(&pp->posx, &pp->posy, &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
 
     OperateSectorObject(pp->sop, pp->pang, pp->posx, pp->posy);
     pp->cursectnum = save_sectnum; // for speed
@@ -3391,7 +3391,7 @@ DoPlayerMoveTank(PLAYERp pp)
         save_cstat = pp->SpriteP->cstat;
         RESET(pp->SpriteP->cstat, CSTAT_SPRITE_BLOCK);
         if (pp->sop->clipdist)
-            u->ret = clipmove(&pp->posx, &pp->posy, &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
+            u->ret = clipmove_old(&pp->posx, &pp->posy, &z, &pp->cursectnum, pp->xvect, pp->yvect, (int)pp->sop->clipdist, Z(4), floor_dist, CLIPMASK_PLAYER);
         else
             u->ret = MultiClipMove(pp, z, floor_dist);
         pp->SpriteP->cstat = save_cstat;
@@ -4063,7 +4063,7 @@ DoPlayerClimb(PLAYERp pp)
         neartag(pp->posx, pp->posy, pp->posz,
                 pp->cursectnum, pp->pang,
                 &sec, &wal, &spr,
-                &dist, 800L, NTAG_SEARCH_LO_HI);
+                &dist, 800L, NTAG_SEARCH_LO_HI, NULL);
 
         if (wal >= 0)
         {
@@ -4559,7 +4559,7 @@ PlayerOnLadder(PLAYERp pp)
 
     neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, pp->pang,
             &neartagsector, &neartagwall, &neartagsprite,
-            &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI);
+            &neartaghitdist, 1024L+768L, NTAG_SEARCH_LO_HI, NULL);
 
     dir = DOT_PRODUCT_2D(pp->xvect, pp->yvect, sintable[NORM_ANGLE(pp->pang+512)], sintable[pp->pang]);
 
@@ -4573,7 +4573,7 @@ PlayerOnLadder(PLAYERp pp)
     {
         neartag(pp->posx, pp->posy, pp->posz, pp->cursectnum, NORM_ANGLE(pp->pang + angles[i]),
                 &sec, &wal, &spr,
-                &dist, 600L, NTAG_SEARCH_LO_HI);
+                &dist, 600L, NTAG_SEARCH_LO_HI, NULL);
 
         if (wal < 0 || dist < 100 || wall[wal].lotag != TAG_WALL_CLIMB)
             return FALSE;
@@ -5514,7 +5514,7 @@ DoPlayerCurrent(PLAYERp pp)
     xvect = sectu->speed * synctics * (int) sintable[NORM_ANGLE(sectu->ang + 512)] >> 4;
     yvect = sectu->speed * synctics * (int) sintable[sectu->ang] >> 4;
 
-    push_ret = pushmove(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    push_ret = pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))
@@ -5529,9 +5529,9 @@ DoPlayerCurrent(PLAYERp pp)
         }
         return;
     }
-    clipmove(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum, xvect, yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    clipmove((vec3_t *)pp, &pp->cursectnum, xvect, yvect, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     PlayerCheckValidMove(pp);
-    pushmove(&pp->posx, &pp->posy, &pp->posz, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
+    pushmove((vec3_t *)pp, &pp->cursectnum, ((int)pp->SpriteP->clipdist<<2), pp->ceiling_dist, pp->floor_dist, CLIPMASK_PLAYER);
     if (push_ret < 0)
     {
         if (!TEST(pp->Flags, PF_DEAD))

@@ -1439,6 +1439,56 @@ extern const int32_t engine_v8;
 int32_t Mulscale(int32_t a, int32_t b, int32_t sh);
 #endif
 
+static inline int32_t clipmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
+                   int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2,3,4)));
+
+static inline int32_t clipmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
+                   int32_t ceildist, int32_t flordist, uint32_t cliptype)
+{
+    vec3_t vector = { *x, *y, *z };
+
+    int32_t result = clipmove(&vector, sectnum, xvect, yvect, walldist, ceildist, flordist, cliptype);
+
+    *x = vector.x;
+    *y = vector.y;
+    *z = vector.z;
+
+    return result;
+}
+
+static inline int32_t pushmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t walldist,
+                   int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2,3,4)));
+
+static inline int32_t pushmove_old(int32_t *x, int32_t *y, int32_t *z, int16_t *sectnum, int32_t walldist,
+                   int32_t ceildist, int32_t flordist, uint32_t cliptype)
+{
+    vec3_t vector = { *x, *y, *z };
+
+    int32_t result = pushmove(&vector, sectnum, walldist, ceildist, flordist, cliptype);
+
+    *x = vector.x;
+    *y = vector.y;
+    *z = vector.z;
+
+    return result;
+}
+
+static inline void getzrange_old(int32_t x, int32_t y, int32_t z, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
+                 int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(5,6,7,8)));
+
+static inline void getzrange_old(int32_t x, int32_t y, int32_t z, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
+                 int32_t *florhit, int32_t walldist, uint32_t cliptype)
+{
+    const vec3_t vector = { x, y, z };
+    getzrange(&vector, sectnum, ceilz, ceilhit, florz, florhit, walldist, cliptype);
+}
+
+static inline int32_t setspritez_old(int16_t spritenum, int32_t x, int32_t y, int32_t z)
+{
+    const vec3_t vector = { x, y, z };
+    return setspritez(spritenum, &vector);
+}
+
 #ifdef __cplusplus
 }
 #endif

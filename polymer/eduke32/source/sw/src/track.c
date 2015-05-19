@@ -1722,7 +1722,7 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
             if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(k, wp->x += BOUND_4PIX(nx), wp->y += BOUND_4PIX(ny));
+                dragpoint(k, wp->x += BOUND_4PIX(nx), wp->y += BOUND_4PIX(ny), 0);
             }
             else
             {
@@ -1745,7 +1745,7 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 
             if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(k, rx, ry);
+                dragpoint(k, rx, ry, 0);
             }
             else
             {
@@ -1875,7 +1875,7 @@ PlayerPart:
             // Does not necessarily move with the sector so must accout for
             // moving across sectors
             if (sop->xmid < (int)MAXSO) // special case for operating SO's
-                setspritez(sop->sp_num[i], sp->x, sp->y, sp->z);
+                setspritez(sop->sp_num[i], (vec3_t *)sp);
         }
 
         if (TEST(sp->extra, SPRX_BLADE))
@@ -1982,7 +1982,7 @@ RefreshPoints(SECTOR_OBJECTp sop, int nx, int ny, SWBOOL dynamic)
 
                     if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
                     {
-                        dragpoint(k, dx, dy);
+                        dragpoint(k, dx, dy, 0);
                     }
                     else
                     {
@@ -2053,7 +2053,7 @@ void UpdateSectorObjectSprites(SECTOR_OBJECTp sop)
         sp = &sprite[sop->sp_num[i]];
         u = User[sop->sp_num[i]];
 
-        setspritez(sop->sp_num[i], sp->x, sp->y, sp->z);
+        setspritez(sop->sp_num[i], (vec3_t *)sp);
     }
 }
 
@@ -2148,7 +2148,7 @@ CollapseSectorObject(SECTOR_OBJECTp sop, int nx, int ny)
 
                 if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
                 {
-                    dragpoint(k, nx, ny);
+                    dragpoint(k, nx, ny, 0);
                 }
                 else
                 {
@@ -2937,7 +2937,7 @@ DoTornadoObject(SECTOR_OBJECTp sop)
     // this made them move together more or less - cool!
     //static short ang = 1024;
     int floor_dist;
-    int x,y,z;
+    vec3_t pos;
     int ret;
     short *ang = &sop->ang_moving;
 
@@ -2946,12 +2946,12 @@ DoTornadoObject(SECTOR_OBJECTp sop)
 
     cursect = sop->op_main_sector; // for sop->vel
     floor_dist = DIV4(labs(sector[cursect].ceilingz - sector[cursect].floorz));
-    x = sop->xmid;
-    y = sop->ymid;
-    z = floor_dist;
+    pos.x = sop->xmid;
+    pos.y = sop->ymid;
+    pos.z = floor_dist;
 
     PlaceSectorObject(sop, *ang, MAXSO, MAXSO);
-    ret = clipmove(&x, &y, &z, &cursect, xvect, yvect, (int)sop->clipdist, Z(0), floor_dist, CLIPMASK_ACTOR);
+    ret = clipmove(&pos, &cursect, xvect, yvect, (int)sop->clipdist, Z(0), floor_dist, CLIPMASK_ACTOR);
 
     if (ret)
     {
@@ -2959,7 +2959,7 @@ DoTornadoObject(SECTOR_OBJECTp sop)
     }
 
     TornadoSpin(sop);
-    RefreshPoints(sop, x - sop->xmid, y - sop->ymid, TRUE);
+    RefreshPoints(sop, pos.x - sop->xmid, pos.y - sop->ymid, TRUE);
 }
 
 void
@@ -3397,7 +3397,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
         {
             neartag(sp->x, sp->y, z[i], sp->sectnum, sp->ang,
                     &nearsector, &nearwall, &nearsprite,
-                    &nearhitdist, 1024L, NTAG_SEARCH_LO_HI);
+                    &nearhitdist, 1024L, NTAG_SEARCH_LO_HI, NULL);
 
 //              //DSPRINTF(ds,"nearsector = %d, nearwall = %d, nearsprite = %d hitdist == %ld\n",nearsector,nearwall,nearsprite,nearhitdist);
 //              MONO_PRINT(ds);
@@ -3637,7 +3637,7 @@ ActorTrackDecide(TRACK_POINTp tpoint, short SpriteNum)
             neartag(sp->x, sp->y, SPRITEp_TOS(sp) - DIV2(SPRITEp_SIZE_Z(sp)), sp->sectnum,
                     sp->ang,
                     &hitsect, &hitwall, &hitsprite,
-                    &dist, 600L, NTAG_SEARCH_LO_HI);
+                    &dist, 600L, NTAG_SEARCH_LO_HI, NULL);
 
             if (hitwall < 0)
             {

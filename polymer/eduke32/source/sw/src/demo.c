@@ -473,7 +473,7 @@ DemoPlayBack(void)
                 if (KEY_PRESSED(KEYSC_ALT) && KEY_PRESSED(KEYSC_CTRL) && KEY_PRESSED(KEYSC_S))
                 {
                     KEY_PRESSED(KEYSC_ALT) = KEY_PRESSED(KEYSC_CTRL) = KEY_PRESSED(KEYSC_S) = 0;
-                    saveboard("demosave.map", &Player->posx, &Player->posy, &Player->posz, &Player->pang, &Player->cursectnum);
+                    saveboard("demosave.map", (vec3_t *)Player, &Player->pang, &Player->cursectnum);
                 }
 #endif
 

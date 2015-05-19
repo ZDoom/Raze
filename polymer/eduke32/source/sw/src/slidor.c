@@ -405,8 +405,8 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             else
             {
                 // red wall - move 2 points
-                dragpoint(w, wall[w].x - amt, wall[w].y);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x - amt, wall[wall[w].point2].y);
+                dragpoint(w, wall[w].x - amt, wall[w].y, 0);
+                dragpoint(wall[w].point2, wall[wall[w].point2].x - amt, wall[wall[w].point2].y, 0);
             }
 
             break;
@@ -429,8 +429,8 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             else
             {
                 // red wall - move 2 points
-                dragpoint(w, wall[w].x + amt, wall[w].y);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x + amt, wall[wall[w].point2].y);
+                dragpoint(w, wall[w].x + amt, wall[w].y, 0);
+                dragpoint(wall[w].point2, wall[wall[w].point2].x + amt, wall[wall[w].point2].y, 0);
             }
 
             break;
@@ -451,8 +451,8 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             }
             else
             {
-                dragpoint(w, wall[w].x, wall[w].y - amt);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x, wall[wall[w].point2].y - amt);
+                dragpoint(w, wall[w].x, wall[w].y - amt, 0);
+                dragpoint(wall[w].point2, wall[wall[w].point2].x, wall[wall[w].point2].y - amt, 0);
             }
 
             break;
@@ -473,8 +473,8 @@ int DoSlidorMoveWalls(short SpriteNum, int amt)
             }
             else
             {
-                dragpoint(w, wall[w].x, wall[w].y + amt);
-                dragpoint(wall[w].point2, wall[wall[w].point2].x, wall[wall[w].point2].y + amt);
+                dragpoint(w, wall[w].x, wall[w].y + amt, 0);
+                dragpoint(wall[w].point2, wall[wall[w].point2].x, wall[wall[w].point2].y + amt, 0);
             }
 
 

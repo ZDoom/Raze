@@ -346,7 +346,7 @@ MorphTornado(SECTOR_OBJECTp sop)
         sop->morph_ang = RANDOM_P2(2048);
 
     // move it x,y
-    dragpoint(sop->morph_wall_point, mx, my);
+    dragpoint(sop->morph_wall_point, mx, my, 0);
 
     // bound the Z
     ceilingz = sector[sop->op_main_sector].ceilingz;
@@ -425,7 +425,7 @@ MorphFloor(SECTOR_OBJECTp sop)
         sop->morph_ang = RANDOM_P2(2048);
 
     // move x,y point "just like in build"
-    dragpoint(sop->morph_wall_point, mx, my);
+    dragpoint(sop->morph_wall_point, mx, my, 0);
 
     // bound the Z
     floorz = sector[sop->op_main_sector].floorz;

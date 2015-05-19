@@ -412,7 +412,7 @@ int DoRotatorMove(short SpriteNum)
                     r->origx[ndx], r->origy[ndx],
                     r->pos, &nx, &ny);
 
-        dragpoint(w, nx, ny);
+        dragpoint(w, nx, ny, 0);
         ndx++;
     }
 

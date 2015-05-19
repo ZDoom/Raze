@@ -560,7 +560,7 @@ int DoActorOperate(short SpriteNum)
     {
         neartag(sp->x, sp->y, z[i], sp->sectnum, sp->ang,
                 &nearsector, &nearwall, &nearsprite,
-                &nearhitdist, 1024L, NTAG_SEARCH_LO_HI);
+                &nearhitdist, 1024L, NTAG_SEARCH_LO_HI, NULL);
 
         //DSPRINTF(ds,"nearsector = %d, nearwall = %d, nearsprite = %d hitdist == %ld\n",nearsector,nearwall,nearsprite,nearhitdist);
         //MONO_PRINT(ds);

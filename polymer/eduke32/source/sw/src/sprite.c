@@ -5176,7 +5176,7 @@ DoGrating(short SpriteNum)
         }
     }
 
-    setspritez(SpriteNum, sp->x, sp->y, sp->z);
+    setspritez(SpriteNum, (vec3_t *)sp);
 
     return 0;
 }
@@ -7052,7 +7052,7 @@ move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist
 //    ASSERT(inside(spr->x,spr->y,dasectnum));
 
     clipmoveboxtracenum = 1;
-    retval = clipmove(&spr->x, &spr->y, &daz, &dasectnum,
+    retval = clipmove_old(&spr->x, &spr->y, &daz, &dasectnum,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) spr->clipdist) << 2), ceildist, flordist, cliptype);
     clipmoveboxtracenum = 3;
@@ -7118,7 +7118,7 @@ move_sprite(short spritenum, int xchange, int ychange, int zchange, int ceildist
 
     // extra processing for Stacks and warping
     if (FAF_ConnectArea(spr->sectnum))
-        setspritez(spritenum, spr->x, spr->y, spr->z);
+        setspritez(spritenum, (vec3_t *)spr);
 
     if (TEST(sector[spr->sectnum].extra, SECTFX_WARP_SECTOR))
     {
@@ -7153,7 +7153,7 @@ int pushmove_sprite(short SpriteNum)
 
     daz = sp->z - u->zclip;
     sectnum = sp->sectnum;
-    ret = pushmove(&sp->x, &sp->y, &daz, &sectnum,
+    ret = pushmove_old(&sp->x, &sp->y, &daz, &sectnum,
                    (((int)sp->clipdist)<<2)-GETZRANGE_CLIP_ADJ, u->ceiling_dist, u->floor_dist, CLIPMASK_ACTOR);
 
     if (sectnum != sp->sectnum && sectnum >= 0)
@@ -7301,7 +7301,7 @@ move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildis
 
 //    ASSERT(inside(sp->x,sp->y,dasectnum));
     clipmoveboxtracenum = 1;
-    retval = clipmove(&sp->x, &sp->y, &daz, &dasectnum,
+    retval = clipmove_old(&sp->x, &sp->y, &daz, &dasectnum,
                       ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                       (((int) sp->clipdist) << 2), ceildist, flordist, cliptype);
     clipmoveboxtracenum = 3;
@@ -7361,7 +7361,7 @@ move_missile(short spritenum, int xchange, int ychange, int zchange, int ceildis
     }
 
     if (FAF_ConnectArea(sp->sectnum))
-        setspritez(spritenum, sp->x, sp->y, sp->z);
+        setspritez(spritenum, (vec3_t *)sp);
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
     {
@@ -7461,7 +7461,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int 
         sp->x = ox;
         sp->y = oy;
         clipmoveboxtracenum = 1;
-        retval = clipmove(&sp->x, &sp->y, &daz, &dasectnum,
+        retval = clipmove_old(&sp->x, &sp->y, &daz, &dasectnum,
                           ((xchange * numtics) << 11), ((ychange * numtics) << 11),
                           (((int) sp->clipdist) << 2), ceildist, flordist, cliptype);
         clipmoveboxtracenum = 3;
@@ -7562,7 +7562,7 @@ move_ground_missile(short spritenum, int xchange, int ychange, int zchange, int 
     //MissileWaterAdjust(spritenum);
 
     //if (FAF_ConnectArea(sp->sectnum))
-    //    setspritez(spritenum, sp->x, sp->y, sp->z);
+    //    setspritez(spritenum, (vec3_t *)sp);
 
     if (TEST(sector[sp->sectnum].extra, SECTFX_WARP_SECTOR))
     {
@@ -7606,7 +7606,7 @@ int push_check(short SpriteNum)
                 sp = &sprite[i];
                 u = User[i];
 
-                sect = pushmove(&sp->x, &sp->y, &sp->z, &sp->sectnum, (((int)sp->clipdist)<<2)-8, u->ceiling_dist, u->floor_dist, CLIPMASK0);
+                sect = pushmove((vec3_t *)sp, &sp->sectnum, (((int)sp->clipdist)<<2)-8, u->ceiling_dist, u->floor_dist, CLIPMASK0);
                 if (sect == -1)
                     {
                     KillSprite(i);

@@ -526,13 +526,13 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
     // early out to regular routine
     if (!FAF_ConnectArea(sectnum))
     {
-        getzrange(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
+        getzrange_old(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, *florhit, loz);
         WaterAdjust(*florhit, loz);
         return;
     }
 
-    getzrange(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
+    getzrange_old(x, y, z, sectnum, hiz,  ceilhit, loz,  florhit, clipdist, clipmask);
     SkipFAFcheck = SectorZadjust(*ceilhit, hiz, *florhit, loz);
     WaterAdjust(*florhit, loz);
 
@@ -553,7 +553,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         updatesectorz(x, y, newz, &uppersect);
         if (uppersect < 0)
             _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
-        getzrange(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
+        getzrange_old(x, y, newz, uppersect, hiz,  ceilhit, &foo1,  &foo2, clipdist, clipmask);
         SectorZadjust(*ceilhit, hiz, -1, NULL);
     }
     else if (FAF_ConnectFloor(sectnum) && !TEST(sector[sectnum].floorstat, FLOOR_STAT_FAF_BLOCK_HITSCAN))
@@ -576,7 +576,7 @@ void FAFgetzrange(int32_t x, int32_t y, int32_t z, int16_t sectnum,
         updatesectorz(x, y, newz, &lowersect);
         if (lowersect < 0)
             _ErrMsg(ERR_STD_ARG, "Did not find a sector at %d, %d, %d", x, y, newz);
-        getzrange(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
+        getzrange_old(x, y, newz, lowersect, &foo1,  &foo2, loz,  florhit, clipdist, clipmask);
         SectorZadjust(-1, NULL, *florhit, loz);
         WaterAdjust(*florhit, loz);
     }

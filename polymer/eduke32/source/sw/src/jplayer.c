@@ -815,11 +815,11 @@ void computergetinput(int snum, SW_PACKET *syn)
 #endif
 
     x3 = p->posx; y3 = p->posy; z3 = p->posz; dasect = p->cursectnum;
-    i = clipmove(&x3,&y3,&z3,&dasect,p->xvect,p->yvect,164L,4L<<8,4L<<8,CLIPMASK0);
+    i = clipmove_old(&x3,&y3,&z3,&dasect,p->xvect,p->yvect,164L,4L<<8,4L<<8,CLIPMASK0);
     if (!i)
     {
         x3 = p->posx; y3 = p->posy; z3 = p->posz+(24<<8); dasect = p->cursectnum;
-        i = clipmove(&x3,&y3,&z3,&dasect,p->xvect,p->yvect,164L,4L<<8,4L<<8,CLIPMASK0);
+        i = clipmove_old(&x3,&y3,&z3,&dasect,p->xvect,p->yvect,164L,4L<<8,4L<<8,CLIPMASK0);
     }
     if (i)
     {

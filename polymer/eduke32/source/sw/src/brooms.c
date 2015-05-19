@@ -34,10 +34,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "game.h"
 
 
-extern int posx, posy, posz;
-extern short cursectnum;
-extern short ang;
-extern int horiz;
 extern int qsetmode;
 
 SWBOOL FindCeilingView(short match, int32_t* x, int32_t* y, int32_t z, int16_t* sectnum);
@@ -103,7 +99,7 @@ void ToggleFAF(void)
 
     if (FAFon && qsetmode == 200)
     {
-        DrawOverlapRoom(posx, posy, posz, ang, horiz, cursectnum);
+        DrawOverlapRoom(pos.x, pos.y, pos.z, ang, horiz, cursectnum);
 
         // make it so that you can edit both areas in 3D
         // back up vars after the first drawrooms
@@ -121,9 +117,9 @@ void ToggleFAF(void)
         short i;
         keystatus[KEYSC_4] = FALSE;
 
-        tx = posx;
-        ty = posy;
-        tz = posz;
+        tx = pos.x;
+        ty = pos.y;
+        tz = pos.z;
         tsectnum = cursectnum;
 
         save.zcount = 0;
@@ -136,10 +132,10 @@ void ToggleFAF(void)
             FindCeilingView(match, &tx, &ty, tz, &tsectnum);
             FAF_DontMoveSectors = FALSE;
 
-            posx = tx;
-            posy = ty;
+            pos.x = tx;
+            pos.y = ty;
             cursectnum = tsectnum;
-            posz = sector[cursectnum].floorz - Z(20);
+            pos.z = sector[cursectnum].floorz - Z(20);
         }
         else if (sector[cursectnum].floorpicnum == FAF_MIRROR_PIC)
         {
@@ -149,10 +145,10 @@ void ToggleFAF(void)
             FindFloorView(match, &tx, &ty, tz, &tsectnum);
             FAF_DontMoveSectors = FALSE;
 
-            posx = tx;
-            posy = ty;
+            pos.x = tx;
+            pos.y = ty;
             cursectnum = tsectnum;
-            posz = sector[cursectnum].ceilingz + Z(20);
+            pos.z = sector[cursectnum].ceilingz + Z(20);
         }
     }
 
@@ -692,7 +688,7 @@ DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
 
         if (tsectnum < 0)
         {
-            sprintf(ds,"COULD NOT FIND TAGGED LEVEL2 SECTOR FROM X %d, Y %d, SECTNUM %d.",posx,posy,cursectnum);
+            sprintf(ds,"COULD NOT FIND TAGGED LEVEL2 SECTOR FROM X %d, Y %d, SECTNUM %d.",pos.x,pos.y,cursectnum);
             Message(ds, 0);
             return;
         }
@@ -717,7 +713,7 @@ DrawOverlapRoom(int tx, int ty, int tz, short tang, int thoriz, short tsectnum)
 
             if (tsectnum < 0)
             {
-                sprintf(ds,"COULD NOT FIND TAGGED LEVEL1 SECTOR FROM X %d, Y %d, SECTNUM %d.",posx,posy,cursectnum);
+                sprintf(ds,"COULD NOT FIND TAGGED LEVEL1 SECTOR FROM X %d, Y %d, SECTNUM %d.",pos.x,pos.y,cursectnum);
                 Message(ds, 0);
                 return;
             }

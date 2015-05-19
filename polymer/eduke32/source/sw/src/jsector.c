@@ -80,7 +80,7 @@ void
 SpawnWallSound(short sndnum, short i)
 {
     short SpriteNum;
-    int midx, midy, midz;
+    vec3_t mid;
     SPRITEp sp;
     int handle;
 
@@ -92,10 +92,10 @@ SpawnWallSound(short sndnum, short i)
     sp->cstat = 0;
     sp->extra = 0;
     // Get wall midpoint for offset in mirror view
-    midx = (wall[i].x + wall[wall[i].point2].x) / 2;
-    midy = (wall[i].y + wall[wall[i].point2].y) / 2;
-    midz = (sector[wall[i].nextsector].ceilingz + sector[wall[i].nextsector].floorz) / 2;
-    setspritez(SpriteNum, midx, midy, midz);
+    mid.x = (wall[i].x + wall[wall[i].point2].x) / 2;
+    mid.y = (wall[i].y + wall[wall[i].point2].y) / 2;
+    mid.z = (sector[wall[i].nextsector].ceilingz + sector[wall[i].nextsector].floorz) / 2;
+    setspritez(SpriteNum, &mid);
     sp = &sprite[SpriteNum];
 
     handle = PlaySound(sndnum, &sp->x, &sp->y, &sp->z, v3df_dontpan | v3df_doppler);
@@ -890,8 +890,8 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
                     // Must call preparemirror before drawrooms and
                     // completemirror after drawrooms
 
-                    preparemirror(tx, ty, tz, tpang, tphoriz,
-                                  mirror[cnt].mirrorwall, mirror[cnt].mirrorsector, &tposx, &tposy, &tang);
+                    preparemirror(tx, ty, /*tz,*/ tpang, /*tphoriz,*/
+                                  mirror[cnt].mirrorwall, /*mirror[cnt].mirrorsector,*/ &tposx, &tposy, &tang);
 
                     drawrooms(tposx, tposy, tz, tang, tphoriz, mirror[cnt].mirrorsector + MAXSECTORS);
 
@@ -1082,7 +1082,7 @@ JAnalyzeSprites(SPRITEp tspr)
     // Take care of autosizing
     DoAutoSize(tspr);
 
-    if (getrendermode() == 3 && md_tilehasmodel(tspr->picnum) >= 0 && usemodels) return;
+    if (getrendermode() == 3 && md_tilehasmodel(tspr->picnum, 0) >= 0 && usemodels) return;
 
     // Check for voxels
     //if (bVoxelsOn)

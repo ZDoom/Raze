@@ -1066,7 +1066,7 @@ typedef struct
 struct PLAYERstruct
 {
     // variable that fit in the sprite or user structure
-    int posx, posy, posz;
+    int32_t posx, posy, posz;
     // interpolation
     int
         oposx, oposy, oposz;
