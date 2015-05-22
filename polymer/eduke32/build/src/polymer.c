@@ -3149,18 +3149,23 @@ static void         polymer_updatewall(int16_t wallnum)
 
             if ((wal->cstat & 16) || (wal->cstat & 32))
             {
-                // mask wall pass
-                if (wal->cstat & 4)
-                    yref = min(sec->floorz, nsec->floorz);
-                else
-                    yref = max(sec->ceilingz, nsec->ceilingz);
+                const int botSwap = (wal->cstat & 4);
 
                 if (wal->cstat & 32)
                 {
-                    if ((!(wal->cstat & 2) && (wal->cstat & 4)) || ((wal->cstat & 2) && (wall[nwallnum].cstat & 4)))
-                        yref = sec->ceilingz;
+                    // 1-sided wall
+                    if (nsec)
+                        yref = botSwap ? sec->ceilingz : nsec->ceilingz;
                     else
-                        yref = nsec->ceilingz;
+                        yref = botSwap ? sec->floorz : sec->ceilingz;
+                }
+                else
+                {
+                    // masked wall
+                    if (botSwap)
+                        yref = min(sec->floorz, nsec->floorz);
+                    else
+                        yref = max(sec->ceilingz, nsec->ceilingz);
                 }
 
                 curpicnum = walloverpicnum;
