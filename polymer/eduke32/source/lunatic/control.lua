@@ -2093,7 +2093,9 @@ local GAR_FOOTER = "\001\002EDuke32GameArray\003\004"
 local GAR_FOOTER_SIZE = #GAR_FOOTER
 
 local function gamearray_file_common(qnum, writep)
-    local fn = moddir_filename(bcheck.quote_idx(qnum))
+    -- NOTE: suffix with '.gar' so that we can have C-CON and LunaCON gamearray
+    -- files side-by-side.
+    local fn = moddir_filename(bcheck.quote_idx(qnum))..".gar"
     local f, errmsg
 
     if (writep) then
