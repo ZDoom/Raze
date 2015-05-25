@@ -2029,7 +2029,14 @@ int32_t G_EnterLevel(int32_t g)
     // variables are set by pointer...
 
     Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
-    VM_OnEvent(EVENT_ENTERLEVEL, -1, -1);
+
+    for (TRAVERSE_CONNECT(i))
+    {
+        const int32_t ret = VM_OnEventWithReturn(EVENT_ENTERLEVEL, g_player[i].ps->i, i, 0);
+        if (ret == 0)
+            break;
+    }
+
     OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
                MapInfo[mii].name);
 

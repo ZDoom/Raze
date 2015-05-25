@@ -2601,7 +2601,8 @@ Receives zero, checks for non-zero
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These events get passed a value of 0 for `RETURN`, and after finishing, check
-it for being non-zero, in which case some hard-coded behavior is suppressed:
+it for being non-zero, in which case some hard-coded behavior is suppressed or
+additional behavior is enabled:
 
 `AIMDOWN`, `AIMUP`, `CROUCH`, `DISPLAYSBAR`, `DISPLAYWEAPON`, `DOFIRE`,
 `DRAWWEAPON`, `FIRE`, `HOLODUKEOFF`, `HOLODUKEON`, `HOLSTER`, `INCURDAMAGE`,
@@ -2619,6 +2620,9 @@ it for being non-zero, in which case some hard-coded behavior is suppressed:
 `PRESSEDFIRE`, `USE`::
     If non-zero, the ``fire'' or ``use'' shared key bits are cleared
     (respectively).
+
+`ENTERLEVEL`::
+    If non-zero, run the event for the remaining players.
 
 [float]
 Game considers post-event `RETURN` an index
