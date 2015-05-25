@@ -18223,6 +18223,16 @@ void hash_init(hashtable_t *t)
     t->items=(hashitem_t **)Xcalloc(1, t->size * sizeof(hashitem_t));
 }
 
+void hash_loop(hashtable_t *t, void (*func)(const char *, intptr_t))
+{
+    if (t->items == NULL)
+        return;
+
+    for (int32_t i=0; i < t->size; i++)
+        for (hashitem_t *item=t->items[i]; item != NULL; item = item->next)
+            func(item->string, item->key);
+}
+
 void hash_free(hashtable_t *t)
 {
     if (t->items == NULL)

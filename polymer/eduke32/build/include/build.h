@@ -1407,6 +1407,7 @@ typedef struct
 } hashtable_t;
 
 void hash_init(hashtable_t *t);
+void hash_loop(hashtable_t *t, void (*func)(const char *, intptr_t));
 void hash_free(hashtable_t *t);
 intptr_t  hash_findcase(const hashtable_t *t, const char *s);
 intptr_t  hash_find(const hashtable_t *t, const char *s);

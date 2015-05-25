@@ -674,6 +674,7 @@ void OSD_Cleanup(void)
     MAYBE_FCLOSE_AND_NULL(osdlog);
     DO_FREE_AND_NULL(osd->cvars);
     DO_FREE_AND_NULL(osd->editor.buf);
+    DO_FREE_AND_NULL(osd->editor.tmp);
     for (i=0; i<OSDMAXHISTORYDEPTH; i++)
         DO_FREE_AND_NULL(osd->history.buf[i]);
     DO_FREE_AND_NULL(osd->text.buf);

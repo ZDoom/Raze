@@ -10827,6 +10827,11 @@ static void G_DisplayLogo(void)
     clearallviews(0L);
 }
 
+static void G_FreeHashAnim(const char *UNUSED(string), intptr_t key)
+{
+    Bfree((void *)key);
+}
+
 static void G_Cleanup(void)
 {
     int32_t i;
@@ -10870,7 +10875,8 @@ static void G_Cleanup(void)
     hash_free(&h_gamefuncs);
 #endif
 
-    hash_free(&h_dukeanim); // TODO: free the dukeanim_t structs the hash table entries point to
+    hash_loop(&h_dukeanim, G_FreeHashAnim);
+    hash_free(&h_dukeanim);
 }
 
 /*
