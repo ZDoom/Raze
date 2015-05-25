@@ -2319,14 +2319,14 @@ void C_DefineVolumeName(int32_t vol, const char *name)
 {
     Bassert((unsigned)vol < MAXVOLUMES);
     Bstrncpyz(EpisodeNames[vol], name, sizeof(EpisodeNames[vol]));
-    g_numVolumes = max(g_numVolumes, vol+1);
+    g_numVolumes = vol+1;
 }
 
 void C_DefineSkillName(int32_t skill, const char *name)
 {
     Bassert((unsigned)skill < MAXSKILLS);
     Bstrncpyz(SkillNames[skill], name, sizeof(SkillNames[skill]));
-    g_numSkills = max(g_numSkills, skill+1);
+    g_numSkills = max(g_numSkills, skill+1);  // TODO: bring in line with C-CON?
 }
 
 void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
