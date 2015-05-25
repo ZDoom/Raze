@@ -1,6 +1,4 @@
 // Test for gamearrays / their persistence.
-// Doesn't run in C-CON because redefinequote/qsprintf error out when passed a
-// non-allocated quote as destination.
 
 define QWESZ 10
 define ASDSZ 12
@@ -25,8 +23,15 @@ gamevar local 0 0
 gamevar i 0 0
 gamevar tmp 0 0
 
-definequote 400 LTEST_QWE_ARRAY.bin
-definequote 401 LTEST_ASD_ARRAY.bin
+define Q_qwe_fn 400
+define Q_asd_fn 401
+definequote Q_qwe_fn LTEST_QWE_ARRAY.bin
+definequote Q_asd_fn LTEST_ASD_ARRAY.bin
+
+// Wouldn't run in C-CON otherwise; redefinequote/qsprintf errors out when
+// passed a non-allocated quote as destination.
+definequote 500 TEMP
+definequote 501 TEMP
 
 definequote 505 tile y sizes: 0:%d 1:%d 2:%d 3:%d 4:%d 5:%d 6:%d 7:%d 8:%d
 definequote 506 1: 0x0a0a0d0d==168430861 ? %d
@@ -80,11 +85,14 @@ onevent EVENT_ENTERLEVEL
     resizearray qwe NEWQWESZ  // shrink
     resizearray asd NEWASDSZ  // grow
 
-    writearraytofile qwe 400
-    writearraytofile asd 401
+    ifvarn qwe[4] 4 state error
+    ifvarn asd[4] 0x0a0a0d0d state error
 
-    readarrayfromfile qwe1 400
-    readarrayfromfile asd1 401
+    writearraytofile qwe Q_qwe_fn
+    writearraytofile asd Q_asd_fn
+
+    readarrayfromfile qwe1 Q_qwe_fn
+    readarrayfromfile asd1 Q_asd_fn
 
     qsprintf 507 507 asd[4]
     userquote 507
