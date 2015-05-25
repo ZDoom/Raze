@@ -413,8 +413,10 @@ function _rotspr(x, y, zoom, ang, tilenum, shade, pal, orientation,
 
     local blendidx = 0
     if (alpha < 0) then
+        -- See NEG_ALPHA_TO_BLEND.
         blendidx = -alpha
         alpha = 0
+        orientation = bor(orientation, 1)  -- RS_TRANS1
     end
 
     ffiC.rotatesprite_(x, y, zoom, ang, tilenum, shade, pal, bor(2,orientation),
