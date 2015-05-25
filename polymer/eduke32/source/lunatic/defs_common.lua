@@ -445,6 +445,12 @@ const int16_t headspritesect[MAXSECTORS+1], headspritestat[MAXSTATUS+1];
 const int16_t prevspritesect[MAXSPRITES], prevspritestat[MAXSPRITES];
 const int16_t nextspritesect[MAXSPRITES], nextspritestat[MAXSPRITES];
 const vec2_t tilesiz[MAXTILES];
+typedef struct {
+    uint8_t num;  // animate number
+    int8_t xofs, yofs;
+    uint8_t sf;  // anim. speed and flags
+} picanm_t;
+const picanm_t picanm[MAXTILES];
 
 uint8_t show2dsector[(MAXSECTORS+7)>>3];
 

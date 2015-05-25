@@ -47,6 +47,7 @@ prevspritestat;
 nextspritesect;
 nextspritestat;
 tilesiz;
+picanm;
 
 show2dsector;
 

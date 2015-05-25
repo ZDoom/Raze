@@ -851,7 +851,7 @@ end
 local UD = function(memb) return "_gud(_pli)"..memb end
 local UDRO = function(memb) return { UD(memb) } end
 
--- NOTE: Only members that actually encountered in existing mods are added here.
+-- NOTE: Only members that are actually encountered in existing mods are added here.
 -- TODO: r5043, r5044
 local UserdefLabels = {
     althud = UD".althud",
@@ -913,6 +913,22 @@ local InputLabels = {
     extbits = INP".extbits",
 }
 
+local TileDataLabels = {
+    -- tilesiz[]
+    xsize = "g_tile.sizx[%s]",
+    ysize = "g_tile.sizy[%s]",
+
+    -- picanm[]
+--    "animframes",
+--    "xoffset",
+--    "yoffset",
+--    "animspeed",
+--    "animtype",
+
+    -- g_tile[]
+    gameflags = { "g_tile[%s]._flags" },
+}
+
 StructAccessCode =
 {
     sector = SectorLabels,
@@ -924,7 +940,8 @@ StructAccessCode =
     thisprojectile = SpriteProjectileLabels,
     userdef = UserdefLabels,
     input = InputLabels,
--- TODO: tiledata, paldata
+    tiledata = TileDataLabels,
+-- TODO: tiledata picanm[] members, paldata
 }
 
 -- NOTE: These MUST be in reverse lexicographical order!
