@@ -94,6 +94,12 @@ function bcheck.level_idx(level)
     end
 end
 
+function bcheck.linear_map_idx(idx)
+    if (not (idx >= 0 and idx <= con_lang.MAXLEVELS * con_lang.MAXVOLUMES)) then
+        error("invalid linear map index "..idx, 3)
+    end
+end
+
 function bcheck.quote_idx(qnum, onlyidx)
     if (not (qnum >= 0 and qnum < con_lang.MAXQUOTES)) then
         error("invalid quote number "..qnum, 3)

@@ -3,9 +3,10 @@
 // To warp to a particular map, press the steroids key.
 // Volume: player angle / 512, displayed on screen.
 // Level: current weapon.
+// Clear mapstate: press [QuickKick]
 
-define Q 400
-definequote Q ====== TEMP =======
+define Q_tmp 400
+definequote Q_tmp ====== TEMP =======
 
 definequote 401 WILL WARP TO VOLUME %d
 
@@ -23,6 +24,9 @@ definequote 411 <dest>
 definequote 412 <dest>
 definequote 413 <dest>
 definequote 414 <dest>
+
+define Q_cms 500
+definequote Q_cms Cleared mapstate for volume %d level %d
 
 // Test gamevar flags GAMEVAR_NODEFAULT and GAMEVAR_NORESET.
 // Global.
@@ -73,8 +77,8 @@ ends
 
 onevent EVENT_DISPLAYREST
     state calcvolume
-    qsprintf Q /*<-*/ 401 /**/ gs
-    gametext STARTALPHANUM 20 20  Q  0 0 0  0 0 xdim ydim
+    qsprintf Q_tmp /*<-*/ 401 /**/ gs
+    gametext STARTALPHANUM 20 20  Q_tmp  0 0 0  0 0 xdim ydim
 
     setvar y 40
     setvar dq 403
@@ -146,6 +150,19 @@ onevent EVENT_USESTEROIDS
 
     state calcvolume
     startlevel gs currentweapon
+endevent
+
+onevent EVENT_QUICKKICK
+    state calcvolume
+
+    qsprintf Q_tmp Q_cms gs currentweapon
+    userquote Q_tmp
+
+    // Calc linear map index.
+    mulvar gs 64  // MAXLEVELS (XXX: should be exposed via CON)
+    addvarvar gs currentweapon
+
+    clearmapstate gs
 endevent
 
 onevent EVENT_ENTERLEVEL

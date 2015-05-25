@@ -728,6 +728,7 @@ const char* G_PrintBestTime(void);
 void G_UpdateScreenArea(void);
 void G_SaveMapState(void);
 void G_RestoreMapState(void);
+void G_FreeMapState(int32_t mapnum);
 ]]
 
 decl[[

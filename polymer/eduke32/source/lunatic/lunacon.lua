@@ -2727,7 +2727,7 @@ local Cinner = {
         / ACS":reset_acount()",
     resetcount = cmd()
         / ACS":set_count(0)",
-    resetplayer = cmd()  -- NLCF
+    resetplayer = cmd() * #sp1  -- NLCF
         / "if (_con._VM_ResetPlayer2(_pli,0)) then _con.longjmp() end",
     resetplayerflags = cmd(R)  -- NLCF
         / "if (_con._VM_ResetPlayer2(_pli,%1)) then _con.longjmp() end",
@@ -2818,7 +2818,7 @@ local Cinner = {
 
     -- Persistence
     clearmapstate = cmd(R)
-        / handle.NYI,
+        / "_con._clearmapstate(%1)",
     loadmapstate = cmd()
         / "_con._loadmapstate()",
     savemapstate = cmd()

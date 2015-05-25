@@ -1946,6 +1946,11 @@ function _loadmapstate()
     ffiC.G_RestoreMapState()
 end
 
+function _clearmapstate(idx)
+    bcheck.linear_map_idx(idx)
+    ffiC.G_FreeMapState(idx)
+end
+
 -- Gamevar persistence in the configuration file
 
 function _savegamevar(name, val)

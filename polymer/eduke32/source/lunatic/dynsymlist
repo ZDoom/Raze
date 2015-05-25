@@ -249,4 +249,5 @@ G_PrintBestTime;
 G_UpdateScreenArea;
 G_SaveMapState;
 G_RestoreMapState;
+G_FreeMapState;
 };
