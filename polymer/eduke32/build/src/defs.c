@@ -1364,14 +1364,16 @@ static int32_t defsparser(scriptfile *script)
                     if (EDUKE32_PREDICT_FALSE(lastmodelid < 0))
                     {
 #ifdef USE_OPENGL
-                        initprintf("Warning: Ignoring frame definition.\n");
+                        initprintf("Warning: ignoring frame definition on line %s:%d.\n",
+                                   script->filename, scriptfile_getlinum(script,frametokptr));
 #endif
                         break;
                     }
 
                     if (smoothduration > 1.0)
                     {
-                        initprintf("Warning: smoothduration out of range.\n");
+                        initprintf("Warning: smoothduration out of range on line %s:%d.\n",
+                                   script->filename, scriptfile_getlinum(script,frametokptr));
                         smoothduration = 1.0;
                     }
 #ifdef USE_OPENGL
