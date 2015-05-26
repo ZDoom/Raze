@@ -507,22 +507,14 @@ void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t
 
 static float get_projhack_ratio(void)
 {
-    float rv = 1.f;
-
-    if (glprojectionhacks == 1)
+    if (glprojectionhacks)
     {
         float const mul = (gshang * gshang);
-        rv = 1.05f + mul * mul * mul * mul;
-    }
-    else if (glprojectionhacks == 2)
-    {
-        float const abs_shang = Bfabsf(gshang);
-        rv = (abs_shang > 0.7f) ?
-            1.05f + 4.f * (abs_shang - 0.7f) : 1.f;
+        return 1.05f + mul * mul * mul * mul;
     }
 
     // No projection hacks (legacy or new-aspect)
-    return rv;
+    return 1.f;
 }
 
 static void resizeglcheck(void)
@@ -570,7 +562,7 @@ static void resizeglcheck(void)
     {
         const int32_t ourxdimen = (windowx2-windowx1+1);
         float ratio = get_projhack_ratio();
-        const int32_t fovcorrect = (ratio==0) ? 0 : (int32_t)(ourxdimen*ratio - ourxdimen);
+        const int32_t fovcorrect = (int32_t)(ourxdimen*ratio - ourxdimen);
 
         ratio = 1.f/ratio;
 
@@ -2124,42 +2116,34 @@ skip: ;
 
 void polymost_editorfunc(void)
 {
-    vec3_t v;
-    vec3f_t o, o2;
-    int32_t cz, fz;
-    hitdata_t hit;
-    vec3_t vect;
-    const float ratio = get_projhack_ratio();
-
-    o2.x = (searchx-ghalfx)/ratio;
-    o2.y = (searchy-ghoriz)/ratio;  // ghoriz is (ydimen>>1) here
-    o2.z = ghalfx;
+    const float ratio = 1.f/get_projhack_ratio();
+    
+    vec3f_t tvect = { (searchx - ghalfx) * ratio, (searchy - ghoriz) * ratio, ghalfx };
 
     //Tilt rotation
-    o.x = o2.x*gctang + o2.y*gstang;
-    o.y = o2.y*gctang - o2.x*gstang;
-    o.z = o2.z;
+    vec3f_t o = { tvect.x * gctang + tvect.y * gstang, tvect.y * gctang - tvect.x * gstang, tvect.z };
 
     //Up/down rotation
-    o2.x = o.z*gchang - o.y*gshang;
-    o2.y = o.x;
-    o2.z = o.y*gchang + o.z*gshang;
+    tvect.x = o.z*gchang - o.y*gshang;
+    tvect.y = o.x;
+    tvect.z = o.y*gchang + o.z*gshang;
 
     //Standard Left/right rotation
-    v.x = Blrintf (o2.x*fcosglobalang - o2.y*fsinglobalang);
-    v.y = Blrintf (o2.x*fsinglobalang + o2.y*fcosglobalang);
-    v.z = Blrintf (o2.z*16384.f);
+    vec3_t v = { Blrintf(tvect.x * fcosglobalang - tvect.y * fsinglobalang),
+                 Blrintf(tvect.x * fsinglobalang + tvect.y * fcosglobalang), Blrintf(tvect.z * 16384.f) };
 
-    vect.x = globalposx;
-    vect.y = globalposy;
-    vect.z = globalposz;
+    vec3_t vect = { globalposx, globalposy, globalposz };
+
+    hitdata_t hit;
 
     hitallsprites = 1;
+
     hitscan((const vec3_t *) &vect, globalcursectnum, //Start position
         v.x>>10, v.y>>10, v.z>>6, &hit, 0xffff0030);
 
     if (hit.sect != -1) // if hitsect is -1, hitscan overflowed somewhere
     {
+        int32_t cz, fz;
         getzsofslope(hit.sect, hit.pos.x, hit.pos.y, &cz, &fz);
         hitallsprites = 0;
 
@@ -2171,7 +2155,6 @@ void polymost_editorfunc(void)
             searchbottomwall = searchwall = hit.wall; searchstat = 0;
             if (wall[hit.wall].nextwall >= 0)
             {
-                int32_t cz, fz;
                 getzsofslope(wall[hit.wall].nextsector, hit.pos.x, hit.pos.y, &cz, &fz);
                 if (hit.pos.z > fz)
                 {
@@ -2190,7 +2173,6 @@ void polymost_editorfunc(void)
         else if (hit.sprite >= 0) { searchwall = hit.sprite; searchstat = 3; }
         else
         {
-            int32_t cz, fz;
             getzsofslope(hit.sect, hit.pos.x, hit.pos.y, &cz, &fz);
             if ((hit.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
             //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
@@ -5627,7 +5609,7 @@ void polymost_initosdfuncs(void)
         { "r_vbocount","sets the number of Vertex Buffer Objects to use when drawing models",(void *) &r_vbocount, CVAR_INT, 1, 256 },
         { "r_vbos"," enable/disable using Vertex Buffer Objects when drawing models",(void *) &r_vbos, CVAR_BOOL, 0, 1 },
         { "r_vertexarrays","enable/disable using vertex arrays when drawing models",(void *) &r_vertexarrays, CVAR_BOOL, 0, 1 },
-        { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 2 },
+        { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 1 },
 
         { "r_wspr_offset", "anti-fighting offset for wall sprites", (void *) &r_wspr_offset, CVAR_FLOAT, 0, 1 },
         { "r_wspr_variance", "anti-fighting offset variance for wall sprites", (void *) &r_wspr_variance, CVAR_FLOAT, 0, 1 },
