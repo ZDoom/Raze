@@ -173,23 +173,6 @@ void gameSettingsButton(int state)
     }
 }
 
-// Because there is no Frame(), we need to check back to java each frame to see if the app hase paused
-
-/*
-static jclass NativeLibClass = 0;
-static jmethodID checkPauseMethod = 0;
-
-void swapBuffers()
-{
-    if (NativeLibClass == 0)
-    {
-        NativeLibClass = env_->FindClass("com/voidpoint/duke3d/engine/NativeLib");
-        checkPauseMethod = env_->GetStaticMethodID(NativeLibClass, "swapBuffers", "()V");
-    }
-    env_->CallStaticVoidMethod(NativeLibClass, checkPauseMethod);
-}
-*/
-
 // This is a bit of a hack, if the weapon wheel was selected, then an inv chosen instead, we need to cancel the weapon
 // selection
 // NOT needed actually, weapon wheel disabled before is get finger up anyway
@@ -356,13 +339,6 @@ void left_stick(float joy_x, float joy_y, float mouse_x, float mouse_y)
     PortableMove(joy_y * droidinput.forward_sens, -joy_x * droidinput.strafe_sens);
 }
 
-/*
-void right_stick(float joy_x, float joy_y, float mouse_x, float mouse_y)
-{
-    mouseMove(0, joy_x, joy_y, mouse_x, mouse_y);
-}
-*/
-
 void setHideSticks(bool v)
 {
     if (touchJoyLeft)
@@ -425,20 +401,6 @@ void initControls(int width, int height, const char *graphics_path)
 
 
         ///////////////////////// MAIN MENU SCREEN /////////////////////
-
-        /*
-        tcMenuMain->addControl(new touchcontrols::Button("down_arrow",  touchcontrols::RectF(22,14,24,16),
-        "arrow_down",   SDL_SCANCODE_DOWN,  true)); //Repeating buttons
-        tcMenuMain->addControl(new touchcontrols::Button("up_arrow",    touchcontrols::RectF(22,12,24,14),  "arrow_up",
-        SDL_SCANCODE_UP,    true));
-        tcMenuMain->addControl(new touchcontrols::Button("left_arrow",  touchcontrols::RectF(20,14,22,16),
-        "arrow_left",   SDL_SCANCODE_LEFT,  true));
-        tcMenuMain->addControl(new touchcontrols::Button("right_arrow", touchcontrols::RectF(24,14,26,16),
-        "arrow_right",  SDL_SCANCODE_RIGHT, true));
-        tcMenuMain->addControl(new touchcontrols::Button("enter",       touchcontrols::RectF(0,14,2,16),    "enter",
-        SDL_SCANCODE_RETURN));
-        tcMenuMain->setAlpha(1);
-         */
 
         tcMenuMain->addControl(new touchcontrols::Button("arrow_left", touchcontrols::RectF(0, 2, 2, 4), "arrow_left",
             SDL_SCANCODE_ESCAPE));
@@ -505,14 +467,6 @@ void initControls(int width, int height, const char *graphics_path)
         tcGameMain->addControl(touchJoyLeft);
         touchJoyLeft->signal_move.connect(sigc::ptr_fun(&left_stick));
         touchJoyLeft->signal_double_tap.connect(sigc::ptr_fun(&left_double_tap));
-
-        // Right stick (not used)
-        // touchJoyRight = new touchcontrols::TouchJoy("touch",touchcontrols::RectF(17,7,26,16),"look_arrow");
-        // tcGameMain->addControl(touchJoyRight);
-        // touchJoyRight->signal_move.connect(sigc::ptr_fun(&right_stick) );
-        // touchJoyRight->signal_double_tap.connect(sigc::ptr_fun(&right_double_tap) );
-        // touchJoyRight->setEnabled(false);
-
 
         // Mouse look for whole screen
         touchcontrols::Mouse *mouse = new touchcontrols::Mouse("mouse", touchcontrols::RectF(3, 0, 26, 16), "");
@@ -681,12 +635,9 @@ void updateTouchScreenMode(touchscreemode_t mode)
 #endif
 
 extern char videomodereset;
-extern int mobile_halted;
 
 void frameControls()
 {
-    if (mobile_halted) return;
-
     static int loadedGLImages = 0;
 
     if (videomodereset)
@@ -715,9 +666,12 @@ void frameControls()
     {
         tcGameMain->setAlpha(droidinput.gameControlsAlpha);
         controlsContainer.editButtonAlpha = droidinput.gameControlsAlpha;
-        tcGameWeapons->setAlpha(droidinput.gameControlsAlpha);
-        tcMenuMain->setAlpha(droidinput.gameControlsAlpha);
-        // tcInventory->setAlpha(droidinput.gameControlsAlpha);
+
+        if (tcGameWeapons)
+            tcGameWeapons->setAlpha(droidinput.gameControlsAlpha);
+
+        if (tcMenuMain)
+            tcMenuMain->setAlpha(droidinput.gameControlsAlpha);
     }
 
     controlsContainer.draw();
@@ -805,6 +759,7 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_init(JNIEnv *env, jobj
 }
 
 
+/*
 jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_frame(JNIEnv *env, jobject thiz)
 {
     LOGI("Java_com_voidpoint_duke3d_engine_NativeLib_frame");
@@ -812,6 +767,7 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_frame(JNIEnv *env, job
 //    frameControls();
     return 0;
 }
+*/
 
 __attribute__((visibility("default"))) jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
@@ -823,7 +779,7 @@ __attribute__((visibility("default"))) jint JNI_OnLoad(JavaVM *vm, void *reserve
 
 
 void EXPORT_ME
-Java_com_voidpoint_duke3d_engine_NativeLib_keypress(JNIEnv *env, jobject obj, jint down, jint keycode, jint unicode)
+Java_com_voidpoint_duke3d_engine_NativeLib_keyPress(JNIEnv *env, jobject obj, jint down, jint keycode, jint unicode)
 {
     LOGI("keypress %d", keycode);
     if (controlsContainer.isEditing())
@@ -855,7 +811,7 @@ void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_doAction(JNIEnv *env, 
         if (tcGameMain->isEnabled())
             tcGameMain->animateOut(30);
 
-        if (tcGameWeapons->isEnabled())
+        if (tcGameWeapons && tcGameWeapons->isEnabled())
             tcGameWeapons->animateOut(30);
     }
 
@@ -919,7 +875,7 @@ void EXPORT_ME Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv *env, jclass cl
 }
 
 jstring EXPORT_ME
-Java_com_voidpoint_duke3d_engine_NativeLib_getSavetext(JNIEnv *env, jobject obj, jstring jfile, jint type)
+Java_com_voidpoint_duke3d_engine_NativeLib_getSaveText(JNIEnv *env, jobject obj, jstring jfile, jint type)
 {
     const char *p = env->GetStringUTFChars(jfile, NULL);
 
