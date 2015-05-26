@@ -4474,6 +4474,12 @@ static void Keys3d(void)
         message("Visibility changed on all selected sectors");
     }
 
+    if (PRESSED_KEYSC(L))  // L (grid lock)
+    {
+        gridlock = !gridlock;
+        message("Grid locking %s", gridlock ? "on" : "off");
+    }
+
     if (PRESSED_KEYSC(V))  //V
     {
         if (ASSERT_AIMING)

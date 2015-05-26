@@ -105,6 +105,8 @@ extern const char *mapster32_fullpath;
 extern char *testplay_addparam;
 extern const char *g_namesFileName;
 
+extern int32_t gridlock;
+
 extern int32_t g_maxCacheSize;
 
 extern int32_t g_lazy_tileselector;
