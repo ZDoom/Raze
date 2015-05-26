@@ -4648,7 +4648,7 @@ finish_qsprintf:
                 {
 //                    OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
 //                               aGameArrays[j].szLabel, aGameArrays[j].size, newSize);
-                    intptr_t *const tmpar = Xmalloc(GAR_ELTSZ * oldSize);
+                    intptr_t *const tmpar = (intptr_t *)Xmalloc(GAR_ELTSZ * oldSize);
                     memcpy(tmpar, aGameArrays[tw].plValues, GAR_ELTSZ * oldSize);
 
                     Baligned_free(aGameArrays[tw].plValues);
