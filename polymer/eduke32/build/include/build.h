@@ -1157,8 +1157,7 @@ FORCE_INLINE int32_t logapproach(int32_t val, int32_t targetval)
     return (dif>>1) ? val + (dif>>1) : targetval;
 }
 
-void   rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y,
-                   int16_t daang, int32_t *x2, int32_t *y2) ATTRIBUTE((nonnull(6,7)));
+void      rotatepoint(vec2_t pivot, vec2_t p, int16_t daang, vec2_t *p2) ATTRIBUTE((nonnull(4)));
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
 
@@ -1439,6 +1438,8 @@ FORCE_INLINE void pop_nofog(void)
         bglEnable(GL_FOG);
 #endif
 }
+
+static vec2_t const zerovec = { 0, 0 };
 
 #ifdef LUNATIC
 extern const int32_t engine_main_arrays_are_static;

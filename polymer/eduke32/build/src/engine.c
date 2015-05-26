@@ -13846,7 +13846,7 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
             {
                 wal->x *= flipx;
                 wal->y *= flipy;
-                rotatepoint(0,0, wal->x,wal->y, rotang, &wal->x,&wal->y);
+                rotatepoint(zerovec, *(vec2_t *)&wal, rotang, (vec2_t *)&wal);
             }
 
             wal->x += curspr->x;
@@ -14705,16 +14705,14 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
 //
 // rotatepoint
 //
-void rotatepoint(int32_t xpivot, int32_t ypivot, int32_t x, int32_t y, int16_t daang, int32_t *x2, int32_t *y2)
+void rotatepoint(vec2_t const pivot, vec2_t p, int16_t daang, vec2_t *p2)
 {
-    int32_t dacos, dasin;
-
-    dacos = sintable[(daang+2560)&2047];
-    dasin = sintable[(daang+2048)&2047];
-    x -= xpivot;
-    y -= ypivot;
-    *x2 = dmulscale14(x,dacos,-y,dasin) + xpivot;
-    *y2 = dmulscale14(y,dacos,x,dasin) + ypivot;
+    int const dacos = sintable[(daang+2560)&2047];
+    int const dasin = sintable[(daang+2048)&2047];
+    p.x -= pivot.x;
+    p.y -= pivot.y;
+    p2->x = dmulscale14(p.x, dacos, -p.y, dasin) + pivot.x;
+    p2->y = dmulscale14(p.y, dacos, p.x, dasin) + pivot.y;
 }
 
 
@@ -16765,11 +16763,13 @@ int32_t scalescreeny(int32_t sy)
 // return screen coordinates for BUILD coords x and y (relative to current position)
 void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome)
 {
-    if (m32_sideview)
-        rotatepoint(0,0, x,y, m32_sideang, &x,&y);
+    vec2_t coord = { x, y };
 
-    *xres = mulscale14(x,zoome);
-    *yres = scalescreeny(mulscale14(y,zoome));
+    if (m32_sideview)
+        rotatepoint(zerovec, coord, m32_sideang, &coord);
+
+    *xres = mulscale14(coord.x, zoome);
+    *yres = scalescreeny(mulscale14(coord.y, zoome));
 }
 
 #if 0
@@ -16791,7 +16791,13 @@ int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz)
         return 1;
 
     dz = (((int64_t)dz * (int64_t)m32_sidecos)/(int64_t)m32_sidesin)>>4;
-    rotatepoint(0,0, 0,dz, -m32_sideang, dx,dy);
+
+    vec2_t v[2] = { { 0, dz }, { *dx, *dy } };
+
+    rotatepoint(zerovec, v[0], -m32_sideang, &v[1]);
+
+    *dx = v[1].x;
+    *dy = v[1].y;
 
     return 0;
 }
@@ -16812,7 +16818,7 @@ void setup_sideview_sincos(void)
         m32_sidesin = sintable[m32_sideelev&2047];
         m32_sidecos = sintable[(m32_sideelev+512)&2047];
 
-        rotatepoint(0,0, m32_viewplane.x,m32_viewplane.y, -m32_sideang, &m32_viewplane.x,&m32_viewplane.y);
+        rotatepoint(zerovec, *(vec2_t *)&m32_viewplane, -m32_sideang, (vec2_t *)&m32_viewplane);
         m32_viewplane.x = mulscale14(m32_viewplane.x, m32_sidecos);
         m32_viewplane.y = mulscale14(m32_viewplane.y, m32_sidecos);
         m32_viewplane.z = m32_sidesin>>5;
