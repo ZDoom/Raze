@@ -308,30 +308,33 @@ read_ivf_frame:
 
     if (glinfo.glsl) /*** 3 planes --> packed conversion ***/
     {
-        int32_t x, y;
-        const int32_t width = img->d_w, height = img->d_h;
+        const vec2_t dim = { img->d_w, img->d_h };
 
-        for (y = 0; y < height; y += 2)
+        for (int y = 0; y < dim.y; y += 2)
         {
-            for (x = 0; x < width; x += 2)
+            int const y1 = y + 1;
+            int const wy = dim.x * y;
+            int const wy1 = dim.x * y1;
+
+            for (int x = 0; x < dim.x; x += 2)
             {
                 uint8_t u = uplane[ustride * (y >> 1) + (x >> 1)];
                 uint8_t v = vplane[vstride * (y >> 1) + (x >> 1)];
 
-                dstpic[(width * y + x) << 2] = yplane[ystride * y + x];
-                dstpic[(width * y + x + 1) << 2] = yplane[ystride * y + x + 1];
-                dstpic[(width * (y + 1) + x) << 2] = yplane[ystride * (y + 1) + x];
-                dstpic[(width * (y + 1) + x + 1) << 2] = yplane[ystride * (y + 1) + x + 1];
+                dstpic[(wy + x) << 2] = yplane[ystride * y + x];
+                dstpic[(wy + x + 1) << 2] = yplane[ystride * y + x + 1];
+                dstpic[(wy1 + x) << 2] = yplane[ystride * y1 + x];
+                dstpic[(wy1 + x + 1) << 2] = yplane[ystride * y1 + x + 1];
 
-                dstpic[((width * y + x) << 2) + 1] = u;
-                dstpic[((width * y + x + 1) << 2) + 1] = u;
-                dstpic[((width * (y + 1) + x) << 2) + 1] = u;
-                dstpic[((width * (y + 1) + x + 1) << 2) + 1] = u;
+                dstpic[((wy + x) << 2) + 1] = u;
+                dstpic[((wy + x + 1) << 2) + 1] = u;
+                dstpic[((wy1 + x) << 2) + 1] = u;
+                dstpic[((wy1 + x + 1) << 2) + 1] = u;
 
-                dstpic[((width * y + x) << 2) + 2] = v;
-                dstpic[((width * y + x + 1) << 2) + 2] = v;
-                dstpic[((width * (y + 1) + x) << 2) + 2] = v;
-                dstpic[((width * (y + 1) + x + 1) << 2) + 2] = v;
+                dstpic[((wy + x) << 2) + 2] = v;
+                dstpic[((wy + x + 1) << 2) + 2] = v;
+                dstpic[((wy1 + x) << 2) + 2] = v;
+                dstpic[((wy1 + x + 1) << 2) + 2] = v;
             }
         }
     }
