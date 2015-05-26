@@ -630,16 +630,16 @@ int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer)
     int rv, f;
     f = aGameVars[id].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK);
 
-    if (!f) rv = aGameVars[id].val.lValue;
+    if (f == GAMEVAR_PERACTOR)
+    {
+        if (EDUKE32_PREDICT_FALSE((unsigned) iActor >= MAXSPRITES)) goto badsprite;
+        rv = aGameVars[id].val.plValues[iActor];
+    }
+    else if (!f) rv = aGameVars[id].val.lValue;
     else if (f == GAMEVAR_PERPLAYER)
     {
         if (EDUKE32_PREDICT_FALSE((unsigned) iPlayer >= MAXPLAYERS)) goto badplayer;
         rv = aGameVars[id].val.plValues[iPlayer];
-    }
-    else if (f == GAMEVAR_PERACTOR)
-    {
-        if (EDUKE32_PREDICT_FALSE((unsigned) iActor >= MAXSPRITES)) goto badsprite;
-        rv = aGameVars[id].val.plValues[iActor];
     }
     else switch (f)
     {

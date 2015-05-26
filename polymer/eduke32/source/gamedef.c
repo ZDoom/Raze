@@ -3582,7 +3582,7 @@ static int32_t C_ParseCommand(int32_t loop)
                 initprintf("%s:%d: warning: tried to set cstat 32767, using 32768 instead.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerWarnings++;
             }
-            else if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr-1) & 32) && (*(g_scriptPtr-1) & 16)))
+            else if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr-1) & 48) == 48))
             {
                 i = *(g_scriptPtr-1);
                 *(g_scriptPtr-1) ^= 48;
@@ -3643,32 +3643,31 @@ static int32_t C_ParseCommand(int32_t loop)
             continue;
 
         case CON_ELSE:
-            if (EDUKE32_PREDICT_FALSE(!g_checkingIfElse))
             {
-                g_scriptPtr--;
-                tempscrptr = g_scriptPtr;
-                g_numCompilerWarnings++;
-                C_ReportError(-1);
-
-                initprintf("%s:%d: warning: found `else' with no `if'.\n",g_szScriptFileName,g_lineNumber);
-
-                if (C_GetKeyword() == CON_LEFTBRACE)
+                if (EDUKE32_PREDICT_FALSE(!g_checkingIfElse))
                 {
-                    C_GetNextKeyword();
-                    g_numBraces++;
+                    g_scriptPtr--;
+                    tempscrptr = g_scriptPtr;
+                    g_numCompilerWarnings++;
+                    C_ReportError(-1);
 
-                    C_ParseCommand(1);
+                    initprintf("%s:%d: warning: found `else' with no `if'.\n", g_szScriptFileName, g_lineNumber);
+
+                    if (C_GetKeyword() == CON_LEFTBRACE)
+                    {
+                        C_GetNextKeyword();
+                        g_numBraces++;
+
+                        C_ParseCommand(1);
+                    }
+                    else C_ParseCommand(0);
+
+                    g_scriptPtr = tempscrptr;
+
+                    continue;
                 }
-                else C_ParseCommand(0);
 
-                g_scriptPtr = tempscrptr;
-
-                continue;
-            }
-
-            {
-                intptr_t offset;
-                intptr_t lastScriptPtr = g_scriptPtr - &script[0] - 1;
+                intptr_t const lastScriptPtr = g_scriptPtr - script - 1;
 
                 g_ifElseAborted = 0;
                 g_checkingIfElse--;
@@ -3676,20 +3675,21 @@ static int32_t C_ParseCommand(int32_t loop)
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                tempscrptr = g_scriptPtr;
-                offset = (unsigned)(tempscrptr-script);
+                intptr_t const offset = (unsigned) (g_scriptPtr-script);
+
                 g_scriptPtr++; //Leave a spot for the fail location
+
                 C_ParseCommand(0);
 
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                tempscrptr = (intptr_t *)script+offset;
+                tempscrptr = (intptr_t *) script+offset;
                 *tempscrptr = (intptr_t) g_scriptPtr;
                 bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
+
+                continue;
             }
-            
-            continue;
 
         case CON_SETSECTOR:
         case CON_GETSECTOR:

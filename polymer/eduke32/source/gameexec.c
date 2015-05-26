@@ -3247,24 +3247,12 @@ nullquote:
             }
 
         case CON_MOVESPRITE:
-        case CON_SETSPRITE:
             insptr++;
             {
                 int const spritenum = Gv_GetVarX(*insptr++);
                 vec3_t vect;
 
                 Gv_GetManyVars(3, (int32_t *)&vect);
-
-                if (tw == CON_SETSPRITE)
-                {
-                    if (EDUKE32_PREDICT_FALSE((unsigned)spritenum >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("invalid sprite ID %d\n", spritenum);
-                        continue;
-                    }
-                    setsprite(spritenum, &vect);
-                    continue;
-                }
 
                 int const cliptype = Gv_GetVarX(*insptr++);
 
@@ -3276,6 +3264,23 @@ nullquote:
                 }
 
                 Gv_SetVarX(*insptr++, A_MoveSprite(spritenum, &vect, cliptype));
+                continue;
+            }
+
+        case CON_SETSPRITE:
+            insptr++;
+            {
+                int const spritenum = Gv_GetVarX(*insptr++);
+                vec3_t vect;
+
+                Gv_GetManyVars(3, (int32_t *)&vect);
+
+                if (EDUKE32_PREDICT_FALSE((unsigned)spritenum >= MAXSPRITES))
+                {
+                    CON_ERRPRINTF("invalid sprite ID %d\n", spritenum);
+                    continue;
+                }
+                setsprite(spritenum, &vect);
                 continue;
             }
 
@@ -3294,29 +3299,35 @@ nullquote:
                     continue;
                 }
 
-                if (tw == CON_GETFLORZOFSLOPE)
-                {
-                    Gv_SetVarX(*insptr++, getflorzofslope(sectnum, vect.x, vect.y));
-                    continue;
-                }
+                Gv_SetVarX(*insptr++, (tw == CON_GETFLORZOFSLOPE) ? getflorzofslope(sectnum, vect.x, vect.y) :
+                                                                    getceilzofslope(sectnum, vect.x, vect.y));
 
-                Gv_SetVarX(*insptr++, getceilzofslope(sectnum, vect.x, vect.y));
                 continue;
             }
 
         case CON_UPDATESECTOR:
-        case CON_UPDATESECTORZ:
             insptr++;
             {
-                vec3_t vect = { 0, 0, 0 };
-                Gv_GetManyVars(tw == CON_UPDATESECTORZ ? 3 : 2, (int32_t *)&vect);
+                vec2_t vect = { 0, 0 };
+                Gv_GetManyVars(2, (int32_t *) &vect);
                 int const var=*insptr++;
                 int16_t w = sprite[vm.g_i].sectnum;
 
-                if (tw == CON_UPDATESECTOR)
-                    updatesector(vect.x, vect.y, &w);
-                else
-                    updatesectorz(vect.x, vect.y, vect.z, &w);
+                updatesector(vect.x, vect.y, &w);
+
+                Gv_SetVarX(var, w);
+                continue;
+            }
+
+        case CON_UPDATESECTORZ:
+            insptr++;
+            {
+                vec3_t vect ={ 0, 0, 0 };
+                Gv_GetManyVars(3, (int32_t *) &vect);
+                int const var=*insptr++;
+                int16_t w = sprite[vm.g_i].sectnum;
+
+                updatesectorz(vect.x, vect.y, vect.z, &w);
 
                 Gv_SetVarX(var, w);
                 continue;
@@ -3565,43 +3576,29 @@ nullquote:
         case CON_IFP:
         {
             int const l = *(++insptr);
-            int32_t j = 0;
+            int j = 0;
             int const s = sprite[ps->i].xvel;
+            int const bits = g_player[vm.g_p].sync->bits;
 
-            if ((l&8) && ps->on_ground && TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_CROUCH))
+            if (((l & pducking) && ps->on_ground && TEST_SYNC_KEY(bits, SK_CROUCH)) ||
+                ((l & pfalling) && ps->jumping_counter == 0 && !ps->on_ground && ps->vel.z > 2048) ||
+                ((l & pjumping) && ps->jumping_counter > 348) ||
+                ((l & pstanding) && s >= 0 && s < 8) ||
+                ((l & pwalking) && s >= 8 && !TEST_SYNC_KEY(bits, SK_RUN)) ||
+                ((l & prunning) && s >= 8 && TEST_SYNC_KEY(bits, SK_RUN)) ||
+                ((l & phigher) && ps->pos.z < (vm.g_sp->z - (48 << 8))) ||
+                ((l & pwalkingback) && s <= -8 && !TEST_SYNC_KEY(bits, SK_RUN)) ||
+                ((l & prunningback) && s <= -8 && TEST_SYNC_KEY(bits, SK_RUN)) ||
+                ((l & pkicking) && (ps->quick_kick > 0 || (PWEAPON(vm.g_p, ps->curr_weapon, WorksLike) == KNEE_WEAPON &&
+                                                           ps->kickback_pic > 0))) ||
+                ((l & pshrunk) && sprite[ps->i].xrepeat < 32) ||
+                ((l & pjetpack) && ps->jetpack_on) ||
+                ((l & ponsteroids) && ps->inv_amount[GET_STEROIDS] > 0 && ps->inv_amount[GET_STEROIDS] < 400) ||
+                ((l & ponground) && ps->on_ground) ||
+                ((l & palive) && sprite[ps->i].xrepeat > 32 && sprite[ps->i].extra > 0 && ps->timebeforeexit == 0) ||
+                ((l & pdead) && sprite[ps->i].extra <= 0))
                 j = 1;
-            else if ((l&16) && ps->jumping_counter == 0 && !ps->on_ground &&
-                     ps->vel.z > 2048)
-                j = 1;
-            else if ((l&32) && ps->jumping_counter > 348)
-                j = 1;
-            else if ((l&1) && s >= 0 && s < 8)
-                j = 1;
-            else if ((l&2) && s >= 8 && !TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_RUN))
-                j = 1;
-            else if ((l&4) && s >= 8 && TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_RUN))
-                j = 1;
-            else if ((l&64) && ps->pos.z < (vm.g_sp->z-(48<<8)))
-                j = 1;
-            else if ((l&128) && s <= -8 && !TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_RUN))
-                j = 1;
-            else if ((l&256) && s <= -8 && TEST_SYNC_KEY(g_player[vm.g_p].sync->bits, SK_RUN))
-                j = 1;
-            else if ((l&512) && (ps->quick_kick > 0 || (PWEAPON(vm.g_p, ps->curr_weapon, WorksLike) == KNEE_WEAPON && ps->kickback_pic > 0)))
-                j = 1;
-            else if ((l&1024) && sprite[ps->i].xrepeat < 32)
-                j = 1;
-            else if ((l&2048) && ps->jetpack_on)
-                j = 1;
-            else if ((l&4096) && ps->inv_amount[GET_STEROIDS] > 0 && ps->inv_amount[GET_STEROIDS] < 400)
-                j = 1;
-            else if ((l&8192) && ps->on_ground)
-                j = 1;
-            else if ((l&16384) && sprite[ps->i].xrepeat > 32 && sprite[ps->i].extra > 0 && ps->timebeforeexit == 0)
-                j = 1;
-            else if ((l&32768) && sprite[ps->i].extra <= 0)
-                j = 1;
-            else if ((l&65536L))
+            else if ((l & pfacing))
             {
                 if (vm.g_sp->picnum == APLAYER && (g_netServer || ud.multimode > 1))
                     j = G_GetAngleDelta(g_player[otherp].ps->ang, getangle(ps->pos.x - g_player[otherp].ps->pos.x,
@@ -3609,12 +3606,9 @@ nullquote:
                 else
                     j = G_GetAngleDelta(ps->ang, getangle(vm.g_sp->x - ps->pos.x, vm.g_sp->y - ps->pos.y));
 
-                if (j > -128 && j < 128)
-                    j = 1;
-                else
-                    j = 0;
+                j = (j > -128 && j < 128);
             }
-            VM_CONDITIONAL((intptr_t) j);
+            VM_CONDITIONAL(j);
         }
         continue;
 
