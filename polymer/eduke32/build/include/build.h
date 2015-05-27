@@ -80,8 +80,6 @@ enum rendmode_t {
 #define MAXBASEPALS 8
 #define MAXPALOOKUPS 256
 #define MAXBLENDTABS 256
-// Maximum number of defined multi-pskies:
-#define MAXPSKYMULTIS 8
 // Maximum number of component tiles in a multi-psky:
 #define MAXPSKYTILES 8
 #define MAXSPRITESONSCREEN 4096
@@ -714,6 +712,7 @@ EXTERN int16_t *startumost, *startdmost;
 
 // The maximum tile offset ever used in any tiled parallaxed multi-sky.
 #define PSKYOFF_MAX 4
+#define DEFAULTPSKY -1
 
 typedef struct {
     // The proportion at which looking up/down affects the apparent 'horiz' of
@@ -731,11 +730,11 @@ typedef struct {
 
 // Index of map-global (legacy) multi-sky:
 EXTERN int32_t g_pskyidx;
-// New multi-psky -- up to MAXPSKYMULTIS (effectively constant after initialization):
+// New multi-psky
 EXTERN int32_t pskynummultis;
-EXTERN psky_t multipsky[MAXPSKYMULTIS];
+EXTERN psky_t * multipsky;
 // Mapping of multi-sky index to base sky tile number:
-EXTERN int32_t multipskytile[MAXPSKYMULTIS];
+EXTERN int32_t * multipskytile;
 
 FORCE_INLINE int32_t getpskyidx(int32_t picnum)
 {
@@ -747,6 +746,8 @@ FORCE_INLINE int32_t getpskyidx(int32_t picnum)
 
     return j;
 }
+
+EXTERN psky_t * E_DefinePsky(int32_t tilenum);
 
 EXTERN char parallaxtype;
 EXTERN int32_t parallaxyoffs_override, parallaxyscale_override;

@@ -32,46 +32,20 @@ uint8_t *basepaltable[1] = {
 
 uint32_t PaletteIndexFullbrights[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
-#define NUMPSKYMULTIS 3
-EDUKE32_STATIC_ASSERT(NUMPSKYMULTIS <= MAXPSKYMULTIS);
-EDUKE32_STATIC_ASSERT(PSKYOFF_MAX <= MAXPSKYTILES);
-
-// Set up new-style multi-psky handling.
 void Ken_InitMultiPsky(void)
 {
-    int32_t i;
-
-    static int32_t inited;
-    if (inited)
-        return;
-    inited = 1;
-
-    multipskytile[0] = -1;
-    multipskytile[1] = DAYSKY;
-    multipskytile[2] = NIGHTSKY;
-
-    pskynummultis = NUMPSKYMULTIS;
-
-    // When adding other multi-skies, take care that the tileofs[] values are
-    // <= PSKYOFF_MAX. (It can be increased up to MAXPSKYTILES, but should be
-    // set as tight as possible.)
-
-    // The default sky properties (all others are implicitly zero):
-    multipsky[0].lognumtiles = 1;
-    multipsky[0].horizfrac = 65536;
+    // default
+    psky * const defaultsky = E_DefinePsky(DEFAULTPSKY);
+    defaultsky->lognumtiles = 1;
+    defaultsky->horizfrac = 65536;
 
     // DAYSKY
-    multipsky[1].lognumtiles = 1;
-    multipsky[1].horizfrac = 65536;
+    psky * const daysky = E_DefinePsky(DAYSKY);
+    daysky->lognumtiles = 1;
+    daysky->horizfrac = 65536;
 
     // NIGHTSKY
-    multipsky[2].lognumtiles = 3;
-    multipsky[2].horizfrac = 65536;
-
-    for (i=0; i<pskynummultis; ++i)
-    {
-        int32_t j;
-        for (j=0; j<(1<<multipsky[i].lognumtiles); ++j)
-            Bassert(multipsky[i].tileofs[j] <= PSKYOFF_MAX);
-    }
+    psky * const nightsky = E_DefinePsky(NIGHTSKY);
+    nightsky->lognumtiles = 3;
+    nightsky->horizfrac = 65536;
 }

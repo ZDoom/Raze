@@ -221,14 +221,14 @@ static inline void bricolor(palette_t *wpptr, int32_t dacol)
 // Returns: pointer to tile offset array. Sets-by-pointer the other two.
 static inline const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t *dapskybits)
 {
-    int32_t j = getpskyidx(picnum);
+    psky_t const * const psky = &multipsky[getpskyidx(picnum)];
 
     if (dapskybits)
-        *dapskybits = (pskybits_override == -1 ? multipsky[j].lognumtiles : pskybits_override);
+        *dapskybits = (pskybits_override == -1 ? psky->lognumtiles : pskybits_override);
     if (dapyscale)
-        *dapyscale = (parallaxyscale_override == 0 ? multipsky[j].horizfrac : parallaxyscale_override);
+        *dapyscale = (parallaxyscale_override == 0 ? psky->horizfrac : parallaxyscale_override);
 
-    return multipsky[j].tileofs;
+    return psky->tileofs;
 }
 
 FORCE_INLINE void set_globalpos(int32_t const x, int32_t const y, int32_t const z)

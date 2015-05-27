@@ -9016,7 +9016,26 @@ static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
     return hitwall;
 }
 
+//
+// multi-pskies
+//
 
+psky_t * E_DefinePsky(int32_t const tilenum)
+{
+    for (int i = 0; i < pskynummultis; i++)
+        if (multipskytile[i] == tilenum)
+            return &multipsky[i];
+
+    int32_t const newPskyID = pskynummultis++;
+    multipsky = (psky_t *)Xrealloc(multipsky, pskynummultis * sizeof(psky_t));
+    multipskytile = (int32_t *)Xrealloc(multipskytile, pskynummultis * sizeof(int32_t));
+
+    psky_t * const newPsky = &multipsky[newPskyID];
+    Bmemset(newPsky, 0, sizeof(psky_t));
+    multipskytile[newPskyID] = tilenum;
+
+    return newPsky;
+}
 
 //
 // Exported Engine Functions
@@ -9287,6 +9306,10 @@ void uninitengine(void)
             Bfree(usermaphacks[i].title);
     }
     Bfree(usermaphacks);
+
+    DO_FREE_AND_NULL(multipsky);
+    DO_FREE_AND_NULL(multipskytile);
+    pskynummultis = 0;
 }
 
 

@@ -151,49 +151,27 @@ const char *G_ConFile(void)
 
 //////////
 
-#define NUMPSKYMULTIS 5
-EDUKE32_STATIC_ASSERT(NUMPSKYMULTIS <= MAXPSKYMULTIS);
-EDUKE32_STATIC_ASSERT(PSKYOFF_MAX <= MAXPSKYTILES);
-
 // Set up new-style multi-psky handling.
-void G_InitMultiPsky(int32_t CLOUDYOCEAN__DYN, int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__DYN)
+void G_InitMultiPsky(int32_t const CLOUDYOCEAN__DYN, int32_t const MOONSKY1__DYN, int32_t const BIGORBIT1__DYN, int32_t const LA__DYN)
 {
-    int32_t i;
-
-    psky_t *defaultsky = &multipsky[0];
-    psky_t *oceansky = &multipsky[1];
-    psky_t *moonsky = &multipsky[2];
-    psky_t *spacesky = &multipsky[3];
-    psky_t *citysky = &multipsky[4];
-
-    static int32_t inited;
-    if (inited)
-        return;
-    inited = 1;
-
-    multipskytile[0] = -1;
-    multipskytile[1] = CLOUDYOCEAN__DYN;
-    multipskytile[2] = MOONSKY1__DYN;
-    multipskytile[3] = BIGORBIT1__DYN;
-    multipskytile[4] = LA__DYN;
-
-    pskynummultis = NUMPSKYMULTIS;
-
     // When adding other multi-skies, take care that the tileofs[] values are
     // <= PSKYOFF_MAX. (It can be increased up to MAXPSKYTILES, but should be
     // set as tight as possible.)
 
     // The default sky properties (all others are implicitly zero):
+    psky_t * const defaultsky = E_DefinePsky(DEFAULTPSKY);
     defaultsky->lognumtiles = 3;
     defaultsky->horizfrac = 32768;
 
     // CLOUDYOCEAN
     // Aligns with the drawn scene horizon because it has one itself.
+    psky_t * const oceansky = E_DefinePsky(CLOUDYOCEAN__DYN);
     oceansky->lognumtiles = 3;
     oceansky->horizfrac = 65536;
 
     // MOONSKY1
     //        earth          mountain   mountain         sun
+    psky_t * const moonsky = E_DefinePsky(MOONSKY1__DYN);
     moonsky->lognumtiles = 3;
     moonsky->horizfrac = 32768;
     moonsky->tileofs[6] = 1;
@@ -203,6 +181,7 @@ void G_InitMultiPsky(int32_t CLOUDYOCEAN__DYN, int32_t MOONSKY1__DYN, int32_t BI
 
     // BIGORBIT1   // orbit
     //       earth1         2           3           moon/sun
+    psky_t * const spacesky = E_DefinePsky(BIGORBIT1__DYN);
     spacesky->lognumtiles = 3;
     spacesky->horizfrac = 32768;
     spacesky->tileofs[5] = 1;
@@ -212,6 +191,7 @@ void G_InitMultiPsky(int32_t CLOUDYOCEAN__DYN, int32_t MOONSKY1__DYN, int32_t BI
 
     // LA // la city
     //       earth1         2           3           moon/sun
+    psky_t * const citysky = E_DefinePsky(LA__DYN);
     citysky->lognumtiles = 3;
     citysky->horizfrac = 16384+1024;
     citysky->tileofs[0] = 1;
@@ -223,12 +203,12 @@ void G_InitMultiPsky(int32_t CLOUDYOCEAN__DYN, int32_t MOONSKY1__DYN, int32_t BI
     citysky->tileofs[6] = 2;
     citysky->tileofs[7] = 3;
 
-    for (i=0; i<pskynummultis; ++i)
-    {
-        int32_t j;
-        for (j=0; j<(1<<multipsky[i].lognumtiles); ++j)
+#if 0
+    // This assertion should hold. See note above.
+    for (int i=0; i<pskynummultis; ++i)
+        for (int j=0; j<(1<<multipsky[i].lognumtiles); ++j)
             Bassert(multipsky[i].tileofs[j] <= PSKYOFF_MAX);
-    }
+#endif
 }
 
 void G_SetupGlobalPsky(void)
