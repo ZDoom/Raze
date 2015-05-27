@@ -104,6 +104,7 @@ enum scripttoken_t
     T_RENAMEFILE,
     T_COPYTILE,
     T_GLOBALGAMEFLAGS,
+    T_MULTIPSKY, T_HORIZFRAC, T_LOGNUMTILES,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -378,6 +379,7 @@ static int32_t defsparser(scriptfile *script)
         { "renamefile",      T_RENAMEFILE       },
         { "copytile",        T_COPYTILE         },
         { "globalgameflags", T_GLOBALGAMEFLAGS  },  // dummy
+        { "multipsky",       T_MULTIPSKY        },
     };
 
     while (1)
@@ -2583,6 +2585,79 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&filenum)) break;
             if (scriptfile_getstring(script,&newname)) break;
             krename(crcval, filenum, newname);
+        }
+        break;
+
+        case T_MULTIPSKY:
+        {
+            char *blockend;
+            int32_t tile;
+
+            static const tokenlist subtokens[] =
+            {
+                { "horizfrac",       T_HORIZFRAC },
+                // XXX: yoffs?
+                { "lognumtiles",     T_LOGNUMTILES },
+                { "tile",            T_TILE },
+                { "panel",           T_TILE },
+            };
+
+            if (scriptfile_getsymbol(script,&tile))
+                break;
+            if (scriptfile_getbraces(script,&blockend))
+                break;
+
+            if (tile != DEFAULTPSKY && (unsigned)tile >= MAXUSERTILES)
+            {
+                script->textptr = blockend;
+                break;
+            }
+
+            psky_t * const newpsky = E_DefinePsky(tile);
+
+            while (script->textptr < blockend)
+            {
+                int32_t token = getatoken(script,subtokens,ARRAY_SIZE(subtokens));
+                switch (token)
+                {
+                case T_HORIZFRAC:
+                {
+                    int32_t horizfrac;
+                    scriptfile_getsymbol(script,&horizfrac);
+
+                    newpsky->horizfrac = horizfrac;
+                    break;
+                }
+                case T_LOGNUMTILES:
+                {
+                    int32_t lognumtiles;
+                    scriptfile_getsymbol(script,&lognumtiles);
+
+                    if ((1<<lognumtiles) > MAXPSKYTILES)
+                        break;
+
+                    newpsky->lognumtiles = lognumtiles;
+                    break;
+                }
+                case T_TILE:
+                {
+                    int32_t panel, offset;
+                    scriptfile_getsymbol(script,&panel);
+                    scriptfile_getsymbol(script,&offset);
+
+                    if ((unsigned) panel >= MAXPSKYTILES)
+                        break;
+
+                    if ((unsigned) offset > PSKYOFF_MAX)
+                        break;
+
+                    newpsky->tileofs[panel] = offset;
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
         }
         break;
 
