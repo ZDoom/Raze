@@ -105,11 +105,12 @@ $(DUKE3D_OBJ)/m32vars.$o: $(DUKE3D_SRC)/m32vars.c $(DUKE3D_SRC)/m32structures.c 
 # TODO: m32common.c
 
 # misc objects
-$(DUKE3D_OBJ)/eduke32_icon.$o: $(DUKE3D_RSRC)/eduke32_icon.c
+$(DUKE3D_OBJ)/game_icon.$o: $(DUKE3D_RSRC)/game_icon.c
+$(DUKE3D_OBJ)/build_icon.$o: $(DUKE3D_RSRC)/build_icon.c
 
 $(DUKE3D_OBJ)/grpscan.$o: $(DUKE3D_SRC)/grpscan.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/scriptfile.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/crc32.h $(DUKE3D_INC)/grpscan.h
 $(DUKE3D_OBJ)/gameres.$o: $(DUKE3D_SRC)/misc/gameres.rc $(DUKE3D_SRC)/startwin.game.h $(DUKE3D_RSRC)/game.bmp $(DUKE3D_RSRC)/game_icon.ico
-$(DUKE3D_OBJ)/buildres.$o: $(DUKE3D_SRC)/misc/buildres.rc $(ENGINE_INC)/startwin.editor.h $(DUKE3D_RSRC)/build.bmp $(DUKE3D_RSRC)/game_icon.ico
+$(DUKE3D_OBJ)/buildres.$o: $(DUKE3D_SRC)/misc/buildres.rc $(ENGINE_INC)/startwin.editor.h $(DUKE3D_RSRC)/build.bmp $(DUKE3D_RSRC)/build_icon.ico
 $(DUKE3D_OBJ)/startwin.game.$o: $(DUKE3D_SRC)/startwin.game.c $(duke3d_h) $(ENGINE_INC)/build.h $(ENGINE_INC)/winlayer.h $(ENGINE_INC)/compat.h $(DUKE3D_INC)/grpscan.h
 $(DUKE3D_OBJ)/startgtk.game.$o: $(DUKE3D_SRC)/startgtk.game.c $(duke3d_h) $(ENGINE_INC)/dynamicgtk.h $(ENGINE_INC)/build.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/compat.h
 

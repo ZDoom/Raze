@@ -2,7 +2,7 @@
 #include <commctrl.h>
 #include "startwin.editor.h"
 
-RSRC_ICON ICON "game_icon.ico"
+RSRC_ICON ICON "build_icon.ico"
 RSRC_BMP BITMAP "build.bmp"
 
 WIN_STARTWIN DIALOGEX DISCARDABLE  20, 40, 260, 200
@@ -56,7 +56,7 @@ BEGIN
             VALUE "FileDescription", "Mapster32 for EDuke32"
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "Mapster32"
-            VALUE "LegalCopyright", "Copyright © 2014 Voidpoint, LLC, 1996, 2003 3D Realms Entertainment"
+            VALUE "LegalCopyright", "Copyright © 2015 EDuke32 Developers, 1996, 2003 3D Realms Entertainment"
             VALUE "LegalTrademarks", "Duke Nukem® is a Registered Trademark of Gearbox Software, LLC."
             VALUE "OriginalFilename", "mapster32.exe"
             VALUE "ProductName", "Mapster32"

@@ -339,8 +339,8 @@ ifeq ($(RENDERTYPE),SDL)
         DUKE3D_EDITOR_OBJS+= build_banner
     endif
 
-    DUKE3D_OBJS+= eduke32_icon
-    DUKE3D_EDITOR_OBJS+= eduke32_icon
+    DUKE3D_OBJS+= game_icon
+    DUKE3D_EDITOR_OBJS+= build_icon
 endif
 ifeq ($(MIXERTYPE),SDL)
     MIDI_OBJS=sdlmusic
