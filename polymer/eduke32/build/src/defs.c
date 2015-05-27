@@ -230,7 +230,7 @@ static void Defs_ApplyPaletteToTileBuffer(int32_t const tsiz, int32_t const pal)
         faketilebuffer[i] = palookup[pal][faketilebuffer[i]];
 }
 
-static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const tile, int32_t const alphacut)
+static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const tile, int32_t const alphacut, int32_t istexture)
 {
     if (check_file_exist(fn))
         return -1;
@@ -272,6 +272,11 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
 
         E_CreateFakeTile(tile, dasiz, &kpzbuf[ARTv1_UNITOFFSET]);
 
+#ifdef USE_OPENGL
+        if (istexture)
+            hicsetsubsttex(tile, 0, fn, alphacut, 1.0f, 1.0f, 1.0, 1.0, HICR_NOSAVE|HICR_NOCOMPRESS);
+#endif
+
         return 1;
     }
 
@@ -283,6 +288,13 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
     tile_from_truecolpic(tile, picptr, alphacut);
 
     Bfree(picptr);
+
+#ifdef USE_OPENGL
+    if (istexture)
+        hicsetsubsttex(tile, 0, fn, alphacut, 1.0f, 1.0f, 1.0, 1.0, HICR_NOSAVE|HICR_NOCOMPRESS);
+#else
+    UNREFERENCED_PARAMETER(istexture);
+#endif
 
     return 0;
 }
@@ -730,6 +742,7 @@ static int32_t defsparser(scriptfile *script)
             int32_t alphacut = 255, flags = 0;
             int32_t havexoffset = 0, haveyoffset = 0;
             int32_t xoffset = 0, yoffset = 0;
+            int32_t istexture = 0;
 
             static const tokenlist tilefromtexturetokens[] =
             {
@@ -742,6 +755,7 @@ static int32_t defsparser(scriptfile *script)
                 { "yoff",            T_YOFFSET },
                 { "texhitscan",      T_TEXHITSCAN },
                 { "nofullbright",    T_NOFULLBRIGHT },
+                { "texture",         T_TEXTURE },
             };
 
             if (scriptfile_getsymbol(script,&tile)) break;
@@ -774,6 +788,9 @@ static int32_t defsparser(scriptfile *script)
                 case T_NOFULLBRIGHT:
                     flags |= PICANM_NOFULLBRIGHT_BIT;
                     break;
+                case T_TEXTURE:
+                    istexture = 1;
+                    break;
                 default:
                     break;
                 }
@@ -801,7 +818,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            int32_t const texstatus = Defs_ImportTileFromTexture(fn, tile, alphacut);
+            int32_t const texstatus = Defs_ImportTileFromTexture(fn, tile, alphacut, istexture);
             if (texstatus == (-3)<<8)
                 initprintf("Error: \"%s\" has more than one tile, in tilefromtexture definition near line %s:%d\n",
                            fn, script->filename, scriptfile_getlinum(script,texturetokptr));
@@ -943,7 +960,7 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile("importtile", tile, script, cmdtokptr))
                 break;
 
-            int32_t const texstatus = Defs_ImportTileFromTexture(fn, tile, 255);
+            int32_t const texstatus = Defs_ImportTileFromTexture(fn, tile, 255, 0);
             if (texstatus == (-3)<<8)
                 initprintf("Error: \"%s\" has more than one tile, in importtile definition near line %s:%d\n",
                            fn, script->filename, scriptfile_getlinum(script,cmdtokptr));
