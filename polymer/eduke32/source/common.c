@@ -1078,10 +1078,14 @@ int32_t S_UpgradeFormat(const char *fn, char searchfirst)
     Bstrcpy(testfn, fn);
     extension = Bstrrchr(testfn, '.');
 
-    if (extension)
+    if (extension != NULL)
     {
+        char * const fn_end = Bstrrchr(testfn, '\0');
+        *extension = '_';
+
 #ifdef HAVE_FLAC
-        Bstrcpy(extension, ".flac");
+        char const * const extFLAC = ".flac";
+        Bstrcpy(fn_end, extFLAC);
         fp = kopen4loadfrommod(testfn, searchfirst);
         if (fp >= 0)
         {
@@ -1091,7 +1095,28 @@ int32_t S_UpgradeFormat(const char *fn, char searchfirst)
 #endif
 
 #ifdef HAVE_VORBIS
-        Bstrcpy(extension, ".ogg");
+        char const * const extOGG = ".ogg";
+        Bstrcpy(fn_end, extOGG);
+        fp = kopen4loadfrommod(testfn, searchfirst);
+        if (fp >= 0)
+        {
+            Bfree(testfn);
+            return fp;
+        }
+#endif
+
+#ifdef HAVE_FLAC
+        Bstrcpy(extension, extFLAC);
+        fp = kopen4loadfrommod(testfn, searchfirst);
+        if (fp >= 0)
+        {
+            Bfree(testfn);
+            return fp;
+        }
+#endif
+
+#ifdef HAVE_VORBIS
+        Bstrcpy(extension, extOGG);
         fp = kopen4loadfrommod(testfn, searchfirst);
         if (fp >= 0)
         {
