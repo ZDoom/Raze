@@ -308,15 +308,15 @@ read_ivf_frame:
 
     if (glinfo.glsl) /*** 3 planes --> packed conversion ***/
     {
-        const vec2_t dim = { img->d_w, img->d_h };
+        vec2u_t const dim = { img->d_w, img->d_h };
 
-        for (int y = 0; y < dim.y; y += 2)
+        for (unsigned int y = 0; y < dim.y; y += 2)
         {
-            int const y1 = y + 1;
-            int const wy = dim.x * y;
-            int const wy1 = dim.x * y1;
+            unsigned int const y1 = y + 1;
+            unsigned int const wy = dim.x * y;
+            unsigned int const wy1 = dim.x * y1;
 
-            for (int x = 0; x < dim.x; x += 2)
+            for (unsigned int x = 0; x < dim.x; x += 2)
             {
                 uint8_t u = uplane[ustride * (y >> 1) + (x >> 1)];
                 uint8_t v = vplane[vstride * (y >> 1) + (x >> 1)];
