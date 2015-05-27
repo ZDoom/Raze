@@ -7469,7 +7469,9 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
     {
         // dastat&2: Auto window size scaling
         const int32_t oxdim = xdim;
+        const int32_t oydim = ydim;
         int32_t xdim = oxdim;  // SHADOWS global
+        int32_t ydim = oydim;
 
         int32_t zoomsc, sx=*sxptr, sy=*syptr;
         int32_t ouryxaspect = yxaspect, ourxyaspect = xyaspect;
@@ -7479,7 +7481,10 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 
         if (!(dastat & RS_STRETCH) && 4*ydim <= 3*xdim)
         {
-            xdim = (4*ydim)/3;
+            if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
+                ydim = scale(xdim, 3, 4);
+            else
+                xdim = scale(ydim, 4, 3);
 
             ouryxaspect = (12<<16)/10;
             ourxyaspect = (10<<16)/12;
@@ -7495,7 +7500,7 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 
             int32_t xbord = 0;
 
-            if (dastat & RS_ALIGN_MASK)
+            if ((dastat & RS_ALIGN_MASK) && (dastat & RS_ALIGN_MASK) != RS_ALIGN_MASK)
             {
                 xbord = scale(oxdim-xdim, twice_midcx, oxdim);
 
@@ -7506,6 +7511,10 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
             sx = ((twice_midcx+xbord)<<15) + scaledxofs;
 
             zoomsc = xdimenscale;   //= scale(xdimen,yxaspect,320);
+
+            if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
+                zoomsc = scale(zoomsc, ydim, oydim);
+
             sy = ((cy1_plus_cy2+2)<<15) + mulscale16(normyofs, zoomsc);
         }
         else
@@ -7515,16 +7524,18 @@ void dorotspr_handle_bit2(int32_t *sxptr, int32_t *syptr, int32_t *z, int32_t da
 
             sx = (xdim<<15)+32768 + scale(normxofs,xdim,320);
 
-            if (dastat & RS_ALIGN_R)
+            zoomsc = scale(xdim, ouryxaspect, 320);
+            sy = (ydim<<15)+32768 + mulscale16(normyofs, zoomsc);
+
+            if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_MASK)
+                sy += (oydim-ydim)<<15;
+            else if ((dastat & RS_ALIGN_MASK) == RS_ALIGN_R)
                 sx += (oxdim-xdim)<<16;
-            else if ((dastat & RS_ALIGN_L) == 0)
+            else if ((dastat & RS_ALIGN_MASK) == 0)
                 sx += (oxdim-xdim)<<15;
 
             if (dastat & RS_CENTERORIGIN)
                 sx += oxdim<<15;
-
-            zoomsc = scale(xdim, ouryxaspect, 320);
-            sy = (ydim<<15)+32768 + mulscale16(normyofs, zoomsc);
         }
 
         *sxptr = sx;
