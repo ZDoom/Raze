@@ -1311,6 +1311,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
             sprite[j].pal = 2;
             sprite[j].cstat |= 130;
             sprite[j].xrepeat = sprite[j].yrepeat = 1;
+            A_SetHitData(j, &hit);
 
             if (hit.wall == -1 && hit.sprite == -1 && hit.sect >= 0)
             {
