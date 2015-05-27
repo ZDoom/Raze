@@ -255,6 +255,7 @@ enum sflags_t {
     SFLAG_DIDNOSE7WATER    = 0x00080000, // used temporarily
     SFLAG_NODAMAGEPUSH     = 0x00100000,
     SFLAG_NOWATERDIP       = 0x00200000,
+    SFLAG_HURTSPAWNBLOOD   = 0x00400000,
 };
 
 // Custom projectiles "workslike" flags.

@@ -2283,7 +2283,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
                 if ((PN != DRONE) && (PN != ROTATEGUN) && (PN != COMMANDER) && (PN < GREENSLIME || PN > GREENSLIME+7))
                     if (sprite[sn].picnum != FREEZEBLAST)
-                        if (!A_CheckSpriteTileFlags(PN, SFLAG_BADGUY))
+                        if (!A_CheckSpriteTileFlags(PN, SFLAG_BADGUY) || A_CheckSpriteTileFlags(PN, SFLAG_HURTSPAWNBLOOD))
                         {
                             j = A_Spawn(sn,JIBS6);
                             if (sprite[sn].pal == 6)
@@ -2298,12 +2298,13 @@ void A_DamageObject(int32_t i,int32_t sn)
 
                 if (j >= 0 && sprite[j].picnum == APLAYER && PN != ROTATEGUN && PN != DRONE)
                     if (g_player[P_Get(j)].ps->curr_weapon == SHOTGUN_WEAPON)
-                    {
-                        A_Shoot(i,BLOODSPLAT3);
-                        A_Shoot(i,BLOODSPLAT1);
-                        A_Shoot(i,BLOODSPLAT2);
-                        A_Shoot(i,BLOODSPLAT4);
-                    }
+                        if (!A_CheckSpriteTileFlags(PN, SFLAG_BADGUY) || A_CheckSpriteTileFlags(PN, SFLAG_HURTSPAWNBLOOD))
+                        {
+                            A_Shoot(i,BLOODSPLAT3);
+                            A_Shoot(i,BLOODSPLAT1);
+                            A_Shoot(i,BLOODSPLAT2);
+                            A_Shoot(i,BLOODSPLAT4);
+                        }
 
                 if (!A_CheckSpriteFlags(i, SFLAG_NODAMAGEPUSH))
                 {
