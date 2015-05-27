@@ -28,8 +28,10 @@
 /polymer/eduke32/source/obj
 /polymer/eduke32/build/obj
 /polymer/eduke32/source/jaudiolib/obj
+/polymer/eduke32/source/jmact/obj
 /polymer/eduke32/source/enet/obj
 /polymer/eduke32/source/testgame/obj
+/polymer/eduke32/source/sw/obj
 xcuserdata
 project.xcworkspace
 .DS_Store
