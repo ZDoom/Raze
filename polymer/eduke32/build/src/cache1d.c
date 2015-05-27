@@ -56,11 +56,10 @@ static intptr_t kzipopen(const char *filnam)
 #endif
 
 char *kpzbuf = NULL;
+int32_t kpzbufsiz;
 
 int32_t kpzbufloadfil(int32_t const handle)
 {
-    static int32_t kpzbufsiz = 0;
-
     int32_t const leng = kfilelength(handle);
     if (leng > kpzbufsiz)
     {

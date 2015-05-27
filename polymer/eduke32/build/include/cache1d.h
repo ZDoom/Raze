@@ -15,6 +15,7 @@ int32_t cache1d_file_fromzip(int32_t fil);
 #endif
 
 extern char *kpzbuf;
+extern int32_t kpzbufsiz;
 extern int32_t kpzbufloadfil(int32_t);
 extern int32_t kpzbufload(const char *);
 

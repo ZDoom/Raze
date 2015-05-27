@@ -9275,6 +9275,7 @@ void uninitengine(void)
     DO_FREE_AND_NULL(blockptr);
 #endif
     DO_FREE_AND_NULL(kpzbuf);
+    kpzbufsiz = 0;
 
     uninitsystem();
 
