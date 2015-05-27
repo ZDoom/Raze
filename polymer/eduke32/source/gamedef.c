@@ -1164,6 +1164,8 @@ const memberlabel_t UserdefsLabels[]=
     { "musictoggle", USERDEFS_MUSICTOGGLE, 0, 0 },
     { "gametypeflags", USERDEFS_GAMETYPEFLAGS, 0, 0 },
     { "m_gametypeflags", USERDEFS_M_GAMETYPEFLAGS, 0, 0 },
+    { "globalflags", USERDEFS_GLOBALFLAGS, 0, 0 },
+    { "globalgameflags", USERDEFS_GLOBALGAMEFLAGS, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
