@@ -12,6 +12,11 @@ DUKE3D_OBJ=$(DUKE3D_SRC)\$(obj)
 DUKE3D_INC=$(DUKE3D_SRC)
 DUKE3D_RSRC=rsrc
 
+MACT_ROOT=$(DUKE3D_SRC)\jmact
+MACT_SRC=$(MACT_ROOT)
+MACT_INC=$(MACT_ROOT)
+MACT_OBJ=$(MACT_ROOT)\$(obj)
+
 AUDIOLIB_ROOT=$(DUKE3D_SRC)\jaudiolib
 AUDIOLIB_OBJ=$(AUDIOLIB_ROOT)\$(obj)
 AUDIOLIB_INC=$(AUDIOLIB_ROOT)\include
@@ -85,7 +90,7 @@ AS=ml
 LINK=link /nologo /opt:ref 
 MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
-	/I$(DUKE3D_INC) /I$(ENGINE_INC)\msvc /I$(ENGINE_INC) /I$(DUKE3D_SRC)\jmact /I$(AUDIOLIB_ROOT)\include /I$(ENET_ROOT)\include \
+	/I$(DUKE3D_INC) /I$(ENGINE_INC)\msvc /I$(ENGINE_INC) /I$(MACT_ROOT) /I$(AUDIOLIB_ROOT)\include /I$(ENET_ROOT)\include \
  	/W2 $(ENGINEOPTS) \
  	/I$(PLATFORM)\include /I$(AUDIOINC)\include /DRENDERTYPE$(RENDERTYPE)=1 /DMIXERTYPE$(MIXERTYPE)=1 /DSDL_FRAMEWORK /DSDL_TARGET=2 
 
@@ -310,7 +315,7 @@ CHECKDIR_AUDIOLIB=@if not exist "$(AUDIOLIB_OBJ)" mkdir "$(AUDIOLIB_OBJ)"
 	$(CHECKDIR_DUKE3D)
 	$(AS) /c $(ASFLAGS) /Fo$@ $<
 
-{$(DUKE3D_SRC)\jmact}.c{$(DUKE3D_OBJ)\}.$o:
+{$(MACT_ROOT)\}.c{$(DUKE3D_OBJ)\}.$o:
 	$(CHECKDIR_DUKE3D)
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 

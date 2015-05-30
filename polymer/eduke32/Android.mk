@@ -66,9 +66,7 @@ BUILD_SRC = \
 	build/src/scriptfile.c \
 	build/src/mutex.c \
         build/src/xxhash.c \
-        build/src/mmulti_null.c \
         build/src/voxmodel.c \
-        build/src/common.c \
         build/src/sdlayer.c
 
 JMACT_SRC=source/jmact/file_lib.c \
