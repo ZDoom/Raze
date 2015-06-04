@@ -79,6 +79,9 @@ static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
         if (entry != NULL && entry[0] != '\0')
         {
             const char *value = strchr(entry,'=');
+
+            if (!value) continue;
+
             const size_t field = value-entry;
             value += 1;
 
