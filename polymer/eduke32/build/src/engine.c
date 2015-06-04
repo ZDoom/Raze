@@ -13881,7 +13881,7 @@ static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t 
             {
                 wal->x *= flipx;
                 wal->y *= flipy;
-                rotatepoint(zerovec, *(vec2_t *)&wal, rotang, (vec2_t *)&wal);
+                rotatepoint(zerovec, *(vec2_t *)wal, rotang, (vec2_t *)wal);
             }
 
             wal->x += curspr->x;
