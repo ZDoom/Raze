@@ -740,7 +740,7 @@ FORCE_INLINE int32_t getpskyidx(int32_t picnum)
 {
     int32_t j;
 
-    for (j=pskynummultis; j>0; j--)  // NOTE: j==0 on non-early loop end
+    for (j=pskynummultis-1; j>0; j--)  // NOTE: j==0 on non-early loop end
         if (picnum == multipskytile[j])
             break;  // Have a match.
 
