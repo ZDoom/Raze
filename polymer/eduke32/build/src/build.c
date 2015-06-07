@@ -10757,8 +10757,7 @@ void test_map(int32_t mode)
             {
                 slen = fullparam-mapster32_fullpath+1;
                 Bstrncpy(game_executable, mapster32_fullpath, slen);
-                // game_executable is now expected to not be NULL-terminated!
-                Bstrncpy(game_executable+slen, DefaultGameExec, sizeof(game_executable));
+                Bstrncpy(game_executable+slen, DefaultGameExec, sizeof(game_executable)-slen);
             }
             else
                 Bstrncpy(game_executable, DefaultGameLocalExec, sizeof(game_executable));
