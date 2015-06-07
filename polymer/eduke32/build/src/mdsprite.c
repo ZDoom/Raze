@@ -1071,7 +1071,7 @@ void updateanimation(md2model_t *m, const tspritetype *tspr, uint8_t lpal)
             if (m->cframe >= m->numframes)
                 OSD_Printf("2: c > n\n");
 #endif
-            return;
+            goto prep_return;
         }
 
         m->nframe = anim->startframe;
@@ -1081,7 +1081,7 @@ void updateanimation(md2model_t *m, const tspritetype *tspr, uint8_t lpal)
             OSD_Printf("3: c > n\n");
 #endif
         smooth->mdsmooth = 1;
-        return;
+        goto prep_return;
     }
 
     fps = smooth->mdsmooth ?
@@ -1127,7 +1127,7 @@ void updateanimation(md2model_t *m, const tspritetype *tspr, uint8_t lpal)
 #endif
             smooth->mdoldframe = m->cframe;
             //OSD_Printf("smooth stopped !\n");
-            return;
+            goto prep_return;
         }
     }
     else
@@ -1147,6 +1147,12 @@ void updateanimation(md2model_t *m, const tspritetype *tspr, uint8_t lpal)
 
     m->interpol = ((float)(i&65535))/65536.f;
     //OSD_Printf("interpol %f\n", m->interpol);
+
+prep_return:
+    if (m->cframe >= m->numframes)
+        m->cframe = 0;
+    if (m->nframe >= m->numframes)
+        m->nframe = 0;
 }
 
 // VBO generation and allocation
