@@ -56,6 +56,7 @@ extern int32_t      pr_ati_nodepthoffset;
 #ifdef __APPLE__
 extern int32_t      pr_ati_textureformat_one;
 #endif
+extern int32_t      pr_nullrender;
 
 extern int32_t      r_pr_maxlightpasses;
 

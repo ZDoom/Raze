@@ -5650,6 +5650,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_overridemodelscale", "overrides model scale if non-zero; use it to fine-tune DEF tokens", (void *) &pr_overridemodelscale, CVAR_FLOAT | CVAR_NOSAVE, 0, 500 },
         { "r_pr_ati_fboworkaround", "enable this to workaround an ATI driver bug that causes sprite shadows to be square - you need to restart the renderer for it to take effect", (void *) &pr_ati_fboworkaround, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
         { "r_pr_ati_nodepthoffset", "enable this to workaround an ATI driver bug that causes sprite drawing to freeze the game on Radeon X1x00 hardware - you need to restart the renderer for it to take effect", (void *) &pr_ati_nodepthoffset, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
+		{ "r_pr_nullrender", "disable all draws when enabled, 2: disables updates too", (void *)&pr_nullrender, CVAR_INT | CVAR_NOSAVE, 0, 3 },
 #endif
 
 #ifdef __ANDROID__

@@ -47,6 +47,7 @@ int32_t         pr_ati_nodepthoffset = 0;
 #ifdef __APPLE__
 int32_t         pr_ati_textureformat_one = 0;
 #endif
+int32_t         pr_nullrender = 0; // 1: no draw, 2: no draw or updates
 
 int32_t         r_pr_maxlightpasses = 5; // value of the cvar (not live value), used to detect changes
 
@@ -2067,6 +2068,8 @@ static void         polymer_drawplane(_prplane* plane)
 {
     int32_t         materialbits;
 
+	if (pr_nullrender >= 1) return;
+
     // debug code for drawing plane inverse TBN
 //     bglDisable(GL_TEXTURE_2D);
 //     bglBegin(GL_LINES);
@@ -2348,6 +2351,8 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     char            curxpanning, curypanning;
     GLfloat*        curbuffer;
 
+	if (pr_nullrender >= 3) return 0;
+
     s = prsectors[sectnum];
     sec = (tsectortype *)&sector[sectnum];
 
@@ -2520,11 +2525,14 @@ static int32_t      polymer_updatesector(int16_t sectnum)
 attributes:
     if ((pr_vbos > 0) && ((i == -1) || (wallinvalidate)))
     {
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->floor.vbo);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat) * 5, s->floor.buffer);
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->ceil.vbo);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat) * 5, s->ceil.buffer);
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		if (pr_nullrender < 2)
+		{
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->floor.vbo);
+			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat)* 5, s->floor.buffer);
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->ceil.vbo);
+			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat)* 5, s->ceil.buffer);
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		}
     }
 
     if ((!s->flags.empty) && (!s->flags.invalidtex) &&
@@ -2567,19 +2575,22 @@ finish:
         polymer_buildfloor(sectnum);
         if ((pr_vbos > 0))
         {
-            if (s->oldindicescount < s->indicescount)
-            {
-                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
-                bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), NULL, mapvbousage);
-                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
-                bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), NULL, mapvbousage);
-                s->oldindicescount = s->indicescount;
-            }
-            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
-            bglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, s->indicescount * sizeof(GLushort), s->floor.indices);
-            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
-            bglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, s->indicescount * sizeof(GLushort), s->ceil.indices);
-            bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+			if (pr_nullrender < 2)
+			{
+				if (s->oldindicescount < s->indicescount)
+				{
+					bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
+					bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), NULL, mapvbousage);
+					bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
+					bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), NULL, mapvbousage);
+					s->oldindicescount = s->indicescount;
+				}
+				bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
+				bglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, s->indicescount * sizeof(GLushort), s->floor.indices);
+				bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
+				bglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, s->indicescount * sizeof(GLushort), s->ceil.indices);
+				bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+			}
         }
     }
 
@@ -2860,6 +2871,8 @@ static void         polymer_updatewall(int16_t wallnum)
     int32_t         i;
     uint32_t        invalid;
     int32_t         sectofwall = sectorofwall(wallnum);
+
+	if (pr_nullrender >= 3) return;
 
     // yes, this function is messy and unefficient
     // it also works, bitches
@@ -3223,17 +3236,20 @@ static void         polymer_updatewall(int16_t wallnum)
 
     if ((pr_vbos > 0))
     {
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->wall.vbo);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->wall.buffer);
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->over.vbo);
-        if (w->over.buffer)
-            bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->over.buffer);
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->mask.vbo);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->mask.buffer);
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, w->bigportal);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, 4 * sizeof(GLfloat) * 3, w->cap);
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		if (pr_nullrender < 2)
+		{
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->wall.vbo);
+			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, w->wall.buffer);
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->over.vbo);
+			if (w->over.buffer)
+				bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, w->over.buffer);
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->mask.vbo);
+			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, w->mask.buffer);
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
+			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, w->bigportal);
+			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat)* 5, 4 * sizeof(GLfloat)* 3, w->cap);
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		}
     }
 
     w->flags.empty = 0;
@@ -3550,6 +3566,8 @@ void                polymer_updatesprite(int32_t snum)
     const uint32_t alignmask = (cs & SPR_ALIGN_MASK);
     const uint8_t flooraligned = (alignmask==SPR_FLOOR);
 
+	if (pr_nullrender >= 3) return;
+
     if (pr_verbosity >= 3) OSD_Printf("PR : Updating sprite %i...\n", snum);
 
     if (tspr->owner < 0 || tspr->picnum < 0) return;
@@ -3564,9 +3582,12 @@ void                polymer_updatesprite(int32_t snum)
 
     if ((tspr->cstat & 48) && (pr_vbos > 0) && !prsprites[tspr->owner]->plane.vbo)
     {
-        bglGenBuffersARB(1, &prsprites[tspr->owner]->plane.vbo);
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prsprites[tspr->owner]->plane.vbo);
-        bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat) * 5, NULL, mapvbousage);
+		if (pr_nullrender < 2)
+		{
+			bglGenBuffersARB(1, &prsprites[tspr->owner]->plane.vbo);
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prsprites[tspr->owner]->plane.vbo);
+			bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat)* 5, NULL, mapvbousage);
+		}
     }
 
     s = prsprites[tspr->owner];
@@ -3732,17 +3753,20 @@ void                polymer_updatesprite(int32_t snum)
 
     polymer_computeplane(&s->plane);
 
-    if (alignmask && (pr_vbos > 0))
-    {
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->plane.vbo);
-        bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat) * 5, s->plane.buffer);
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-    }
-    else if (s->plane.vbo) // clean up the vbo if a wall/floor sprite becomes a face sprite
-    {
-        bglDeleteBuffersARB(1, &s->plane.vbo);
-        s->plane.vbo = 0;
-    }
+	if (pr_nullrender < 2)
+	{
+		if (alignmask && (pr_vbos > 0))
+		{
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->plane.vbo);
+			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, s->plane.buffer);
+			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		}
+		else if (s->plane.vbo) // clean up the vbo if a wall/floor sprite becomes a face sprite
+		{
+			bglDeleteBuffersARB(1, &s->plane.vbo);
+			s->plane.vbo = 0;
+		}
+	}
 
     if (alignmask)
     {
