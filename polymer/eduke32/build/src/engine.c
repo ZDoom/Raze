@@ -16372,8 +16372,11 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         bglMatrixMode(GL_PROJECTION);
         bglLoadIdentity();
         bglOrtho(0, xres, yres, 0, -1, 1);
-//        bglMatrixMode(GL_MODELVIEW);
-//        bglLoadIdentity();
+		if (getrendermode() == REND_POLYMER)
+		{
+			bglMatrixMode(GL_MODELVIEW);
+			bglLoadIdentity();
+		}
 
         gloy1 = -1;
         bglDisable(GL_ALPHA_TEST);
