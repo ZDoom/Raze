@@ -478,7 +478,9 @@ void G_LoadGroups(int32_t autoload)
 
     struct strllist *s;
 
+    int const bakpathsearchmode = pathsearchmode;
     pathsearchmode = 1;
+
     while (CommandGrps)
     {
         int32_t j;
@@ -499,7 +501,7 @@ void G_LoadGroups(int32_t autoload)
         Bfree(CommandGrps);
         CommandGrps = s;
     }
-    pathsearchmode = 0;
+    pathsearchmode = bakpathsearchmode;
 }
 
 #ifdef _WIN32

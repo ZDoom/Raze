@@ -5,7 +5,7 @@
 #include "build.h"
 #include "editor.h"
 #include "osd.h"
-
+#include "cache1d.h"
 #include "baselayer.h"
 #include "renderlayer.h"
 
@@ -218,6 +218,9 @@ int32_t loadsetup(const char *fn)
         showheightindicators = clamp(atoi_safe(val), 0, 2);
     if (readconfig(fp, "showambiencesounds", val, VL) > 0)
         showambiencesounds = clamp(atoi_safe(val), 0, 2);
+
+    if (readconfig(fp, "pathsearchmode", val, VL) > 0)
+        pathsearchmode = clamp(atoi_safe(val), 0, 1);
 
     if (readconfig(fp, "autogray", val, VL) > 0)
         autogray = !!atoi_safe(val);
@@ -485,6 +488,9 @@ int32_t writesetup(const char *fn)
              "; Ambience sound circles (0:none, 1:only in current sector, 2:all)\n"
              "showambiencesounds = %d\n"
              "\n"
+             "; Default filesystem mode\n"
+             "pathsearchmode = %d\n"
+             "\n"
              "; TROR: Automatic grayout of plain (non-extended) sectors,\n"
              ";       toggled with Ctrl-A:\n"
              "autogray = %d\n"
@@ -597,7 +603,7 @@ int32_t writesetup(const char *fn)
              sideview_reversehrot,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,autocorruptcheck,
              corruptcheck_noalreadyrefd, fixmaponsave_sprites, keeptexturestretch,
-             showheightindicators,showambiencesounds,
+             showheightindicators,showambiencesounds,pathsearchmode,
              autogray, //showinnergray,
              graphicsmode,
              MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,
