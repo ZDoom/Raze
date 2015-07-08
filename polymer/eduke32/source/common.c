@@ -384,7 +384,7 @@ static int32_t G_LoadGrpDependencyChain(grpfile_t const * const grp)
     if (!grp)
         return -1;
 
-    if (grp->type->dependency)
+    if (grp->type->dependency && grp->type->dependency != grp->type->crcval)
         G_LoadGrpDependencyChain(FindGroup(grp->type->dependency));
 
     int32_t const i = G_TryLoadingGrp(grp->filename);
