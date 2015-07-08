@@ -830,6 +830,8 @@ EXTERN char faketile[(MAXTILES+7)>>3];
 EXTERN char *faketiledata[MAXTILES];
 
 EXTERN char spritecol2d[MAXTILES][2];
+EXTERN uint8_t tilecols[MAXTILES];
+
 extern char vgapal16[4*256];
 
 extern uint32_t drawlinepat;

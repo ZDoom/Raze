@@ -375,6 +375,7 @@ static inline int32_t m32_is2d3dmode(void)
         searchy > m32_2d3d.y && searchy < (m32_2d3d.y + YSIZE_2D3D);
 }
 
+extern int32_t getspritecol(int32_t spr);
 
 #define NEXTWALL(i) (wall[wall[i].nextwall])
 #define POINT2(i) (wall[wall[i].point2])

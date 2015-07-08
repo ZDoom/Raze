@@ -244,7 +244,7 @@ static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t 
 static void initcrc(void);
 
 static int32_t menuselect(void);
-static int32_t menuselect_auto(int32_t); //PK
+static int32_t menuselect_auto(int, int); //PK
 
 static int32_t insert_sprite_common(int32_t sucksect, int32_t dax, int32_t day);
 static void correct_ornamented_sprite(int32_t i, int32_t hitw);
@@ -1025,13 +1025,13 @@ static void mainloop_move(void)
 
             if (vel != 0)
             {
-                xvect += (vel*doubvel*(int32_t) sintable[(ang+2560)&2047])>>3;
-                yvect += (vel*doubvel*(int32_t) sintable[(ang+2048)&2047])>>3;
+                xvect += ((vel*doubvel)>>3)*(int32_t) sintable[(ang+2560)&2047];
+                yvect += ((vel*doubvel)>>3)*(int32_t) sintable[(ang+2048)&2047];
             }
             if (svel != 0)
             {
-                xvect += (svel*doubvel*(int32_t) sintable[(ang+2048)&2047])>>3;
-                yvect += (svel*doubvel*(int32_t) sintable[(ang+1536)&2047])>>3;
+                xvect += ((svel*doubvel)>>3)*(int32_t) sintable[(ang+2048)&2047];
+                yvect += ((svel*doubvel)>>3)*(int32_t) sintable[(ang+1536)&2047];
             }
 
             move_and_update(xvect, yvect, 0);
@@ -3301,13 +3301,25 @@ void overheadeditor(void)
     {
         int32_t mousx, mousy;
 
-        if (zoom < ztarget) zoom += (ztarget-zoom)>>3;
-        if (zoom > ztarget) zoom -= (zoom-ztarget)>>3;
+        if (zoom < ztarget)
+        {
+            if ((ztarget - zoom) >> 3)
+                zoom += (ztarget - zoom) >> 3;
+            else zoom++;
+            zoom = min(zoom, ztarget);
+        }
+        else if (zoom > ztarget)
+        {
+            if ((zoom - ztarget) >> 3)
+                zoom -= (zoom - ztarget) >> 3;
+            else zoom--;
+            zoom = max(zoom, ztarget);
+        }
 
         if (!((vel|angvel|svel) //DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
                 || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || keystatus[0x10] || keystatus[0x11]
                 || keystatus[0x48] || keystatus[0x4b] || keystatus[0x4d] || keystatus[0x50]  // keypad keys
-                || bstatus || OSD_IsMoving()))
+                || bstatus || OSD_IsMoving() || ztarget != zoom))
         {
             if (totalclock > waitdelay)
             {
@@ -3557,16 +3569,33 @@ void overheadeditor(void)
                         dabuffer = CallExtGetSpriteCaption(i);
                         if (dabuffer[0] != 0)
                         {
+/*
                             int32_t blocking = (sprite[i].cstat&1);
 
                             col = 3 + 2*blocking;
                             if (spritecol2d[sprite[i].picnum][blocking])
                                 col = spritecol2d[sprite[i].picnum][blocking];
+*/
+
+                            if (sprite[i].sectnum < 0)
+                                col = editorcolors[4];  // red
+                            else
+                            {
+                                if (spritecol2d[sprite[i].picnum][0])
+                                    col = editorcolors[spritecol2d[sprite[i].picnum][0]];
+                                else
+                                {
+                                    col = getspritecol(i);
+
+                                    if (col == -1)
+                                        col = editorcolors[3];
+                                }
+                            }
 
                             if ((i == pointhighlight-16384) && (totalclock & 32))
                                 col += (2<<2);
 
-                            drawsmallabel(dabuffer, editorcolors[0], editorcolors[col],
+                            drawsmallabel(dabuffer, editorcolors[0], col,
                                           sprite[i].x, sprite[i].y, sprite[i].z);
                         }
                     }
@@ -3848,13 +3877,10 @@ void overheadeditor(void)
                 }
 
                 drawline16base(searchx, searchy, +0, -8, +0, -1, col);
-                drawline16base(searchx, searchy, +1, -8, +1, -1, col);
-                drawline16base(searchx, searchy, +0, +2, +0, +9, col);
-                drawline16base(searchx, searchy, +1, +2, +1, +9, col);
-                drawline16base(searchx, searchy, -8, +0, -1, +0, col);
-                drawline16base(searchx, searchy, -8, +1, -1, +1, col);
-                drawline16base(searchx, searchy, +2, +0, +9, +0, col);
-                drawline16base(searchx, searchy, +2, +1, +9, +1, col);
+                drawline16base(searchx, searchy, +0, 1, +0, 8, col);
+
+                drawline16base(searchx, searchy, -8, 0, -1, 0, col);
+                drawline16base(searchx, searchy, 1, 0, 8, 0, col);
 
                 ////// Draw the white pixel closest to mouse cursor on linehighlight
                 if (linehighlight>=0)
@@ -4846,7 +4872,7 @@ end_yax: ;
 
         if (highlightsectorcnt < 0)
         {
-            if (keystatus[0x36])  //Right shift (point highlighting)
+            if ((bstatus & 1 && highlightcnt <= 0) || (bstatus & 1 && pointhighlight == -1) || keystatus[0x36])  //Right shift (point highlighting)
             {
                 if (highlightcnt == 0)
                 {
@@ -4857,9 +4883,9 @@ end_yax: ;
                     highlighty2 = searchy;
                     ydim16 = ydim-STATUS2DSIZ2;
 
-                    plotlines2d(xx, yy, 5, editorcolors[5]);
+                    plotlines2d(xx, yy, 5, editorcolors[14]);
                 }
-                else
+                else if (pointhighlight == -1 || keystatus[0x36])
                 {
                     highlightcnt = 0;
 
@@ -5881,7 +5907,7 @@ end_point_dragging:
             if ((DOWN_BK(MOVEUP) || (bstatus&16)) && zoom < 32768)
             {
                 if (DOWN_BK(MOVEUP))
-                    ztarget += synctics*(ztarget>>4);
+                    ztarget += (synctics*(ztarget>>4))>>(eitherSHIFT<<1);
                 if (bstatus&16)
                     ztarget += 4*(ztarget>>4);
 
@@ -5891,7 +5917,7 @@ end_point_dragging:
             if ((DOWN_BK(MOVEDOWN) || (bstatus&32)) && zoom > 32)
             {
                 if (DOWN_BK(MOVEDOWN))
-                    ztarget -= synctics*(ztarget>>4);
+                    ztarget -= (synctics*(ztarget>>4))>>(eitherSHIFT<<1);
                 if (bstatus&32)
                     ztarget -= 4*(ztarget>>4);
 
@@ -7778,11 +7804,13 @@ end_insert_points:
 
         if (quickmapcycling && keystatus[0x2d])   //X
         {
+
             if (eitherCTRL)  //Ctrl
             {
+                int skip = 0;
 nextmap:
 //				bad = 0;
-                i = menuselect_auto(keystatus[0x2a] ? 0:1); // LShift: prev map
+                i = menuselect_auto(keystatus[0x2a] ? 0:1, skip); // LShift: prev map
                 if (i < 0)
                 {
                     if (i == -1)
@@ -7793,7 +7821,10 @@ nextmap:
                 else
                 {
                     if (LoadBoard(NULL, 4))
+                    {
+                        skip = 2;
                         goto nextmap;
+                    }
 
                     RESET_EDITOR_VARS();
                     oposz = pos.z;
@@ -8965,15 +8996,15 @@ void clearmidstatbar16(void)
 
 static void clearministatbar16(void)
 {
-    int32_t i, col = whitecol - 21;
+    int32_t i, col = whitecol - 16;
 
     begindrawing();
 
-    for (i=ydim-STATUS2DSIZ2; i<ydim; i++)
+    for (i=ydim-STATUS2DSIZ2; i<ydim; i+=2)
     {
 //        drawline256(0, i<<12, xdim<<12, i<<12, col);
         CLEARLINES2D(i, 1, (col<<24)|(col<<16)|(col<<8)|col);
-
+        CLEARLINES2D(i+1, 1, (col<<24)|(col<<16)|(col<<8)|col);
         col--;
         if (col <= 0) break;
     }
@@ -9522,7 +9553,7 @@ static void menuselect_try_findlast(void)
 // vvv PK ------------------------------------
 // copied off menuselect
 
-static int32_t menuselect_auto(int32_t direction) // 20080104: jump to next (direction!=0) or prev (direction==0) file
+static int32_t menuselect_auto(int direction, int skip) // 20080104: jump to next (direction!=0) or prev (direction==0) file
 {
     Bstrcpy(selectedboardfilename, g_oldpath);
     tweak_sboardfilename();
@@ -9533,20 +9564,23 @@ static int32_t menuselect_auto(int32_t direction) // 20080104: jump to next (dir
 
     menuselect_try_findlast();
 
-    if (direction)
+    do
     {
-        if (findfileshigh->next)
-            findfileshigh=findfileshigh->next;
+        if (direction)
+        {
+            if (findfileshigh->next)
+                findfileshigh=findfileshigh->next;
+            else
+                return -1;
+        }
         else
-            return -1;
-    }
-    else
-    {
-        if (findfileshigh->prev)
-            findfileshigh=findfileshigh->prev;
-        else
-            return -1;
-    }
+        {
+            if (findfileshigh->prev)
+                findfileshigh=findfileshigh->prev;
+            else
+                return -1;
+        }
+    } while (skip--);
 
     Bstrcat(selectedboardfilename, findfileshigh->name);
 
@@ -10496,16 +10530,16 @@ static void keytimerstuff(void)
 
     if (DOWN_BK(STRAFE) == 0)
     {
-        if (DOWN_BK(TURNLEFT)) angvel = max(angvel-pk_turnaccel, -128);
+        if (DOWN_BK(TURNLEFT)) angvel = max(angvel-pk_turnaccel, -127);
         if (DOWN_BK(TURNRIGHT)) angvel = min(angvel+pk_turnaccel, 127);
     }
     else
     {
         if (DOWN_BK(TURNLEFT)) svel = min(svel+16, 255); // svel and vel aren't even chars...
-        if (DOWN_BK(TURNRIGHT)) svel = max(svel-16, -256);
+        if (DOWN_BK(TURNRIGHT)) svel = max(svel-16, -255);
     }
     if (DOWN_BK(MOVEFORWARD))  vel = min(vel+16, 255);
-    if (DOWN_BK(MOVEBACKWARD)) vel = max(vel-16, -256);
+    if (DOWN_BK(MOVEBACKWARD)) vel = max(vel-16, -255);
     /*  if (DOWN_BK(STRAFELEFT))  svel = min(svel+8, 127);
     	if (DOWN_BK(STRAFERIGHT)) svel = max(svel-8, -128); */
 

@@ -10626,6 +10626,7 @@ static int32_t finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int1
 
     guniqhudid = 0;
 
+    Bmemset(tilecols, 0, sizeof(tilecols));
     return numremoved;
 }
 
@@ -17235,27 +17236,73 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         }
 }
 
+int32_t getspritecol(int32_t spr)
+{
+    int picnum = sprite[spr].picnum;
+    int pal = sprite[spr].pal;
+
+    if (palookup[pal] == NULL) pal = 0;
+
+    if (tilecols[picnum]) return palookup[pal][tilecols[picnum]];
+
+    if (!waloff[picnum]) loadtile(picnum);
+    if (!waloff[picnum]) return -1;
+
+    uint32_t cols[256];
+
+    Bmemset(cols, 0, sizeof(cols));
+
+    for (int i = 0; i < tilesiz[picnum].x * tilesiz[picnum].y; i++)
+        cols[*((char *) waloff[picnum] + i)]++;
+
+    unsigned col = 0, cnt = 0;
+
+    for (int i = 0; i < 240; i++)
+        if (cols[i] > cnt)
+            col = i, cnt = cols[i];
+
+    float sum = (float)curpalette[col].r * GRAYSCALE_COEFF_RED + (float)curpalette[col].g * GRAYSCALE_COEFF_GREEN +
+                (float)curpalette[col].b * GRAYSCALE_COEFF_BLUE;
+
+    while (col < 240 &&
+           ((float)curpalette[col + 1].r * GRAYSCALE_COEFF_RED + (float)curpalette[col + 1].g * GRAYSCALE_COEFF_GREEN +
+            (float)curpalette[col + 1].b * GRAYSCALE_COEFF_BLUE) > sum)
+        col++;
+
+    tilecols[picnum] = col - 8;
+
+    return palookup[pal][tilecols[picnum]];
+}
+
 static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32_t posze, int32_t zoome)
 {
     int32_t x1, y1, x2, y2;
-    char col;
+    int col;
     int16_t hitblocking=(sprite[j].cstat&256), flooraligned=(sprite[j].cstat&32), wallaligned=(sprite[j].cstat&16);
 
     int16_t angofs = m32_sideview ? m32_sideang : 0;
 
     if (sprite[j].sectnum<0)
-        col = 4;  // red
+        col = editorcolors[4];  // red
     else
     {
-        col = 3;
         if (spritecol2d[sprite[j].picnum][0])
             col = spritecol2d[sprite[j].picnum][0];
+        else
+        {
+            col = getspritecol(j);
+
+            if (col == -1) col = editorcolors[3];
+        }
+
+/*
         else if ((sprite[j].cstat&1) > 0)
         {
             col = 5;
             if (spritecol2d[sprite[j].picnum][1])
                 col = spritecol2d[sprite[j].picnum][1];
         }
+*/
     }
 
     if (editstatus == 1)
@@ -17282,20 +17329,23 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
     if ((halfxdim16+x1 >= 0) && (halfxdim16+x1 < xdim) &&
             (midydim16+y1 >= 0) && (midydim16+y1 < ydim16))
     {
-        drawcircle16(halfxdim16+x1, midydim16+y1, 4, 16384, editorcolors[col]);
+        if (zoome > 512 && sprite[j].clipdist > 32)
+            drawcircle16(halfxdim16+x1, midydim16+y1, mulscale14(sprite[j].clipdist<<2, zoome), 16384, col);
+
+        drawcircle16(halfxdim16+x1, midydim16+y1, 4, 16384, col);
 
         x2 = mulscale11(sintable[(sprite[j].ang+angofs+2560)&2047],zoome) / 768;
         y2 = mulscale11(sintable[(sprite[j].ang+angofs+2048)&2047],zoome) / 768;
         y2 = scalescreeny(y2);
 
-        drawline16mid(x1,y1, x1+x2,y1+y2, editorcolors[col]);
+        drawline16mid(x1,y1, x1+x2,y1+y2, col);
 
         if (hitblocking)
         {
-            drawline16mid(x1,y1+1, x1+x2,y1+y2+1, editorcolors[col]);
-            drawline16mid(x1,y1-1, x1+x2,y1+y2-1, editorcolors[col]);
-            drawline16mid(x1-1,y1, x1+x2-1,y1+y2, editorcolors[col]);
-            drawline16mid(x1+1,y1, x1+x2+1,y1+y2, editorcolors[col]);
+            drawline16mid(x1,y1+1, x1+x2,y1+y2+1, col);
+            drawline16mid(x1,y1-1, x1+x2,y1+y2-1, col);
+            drawline16mid(x1-1,y1, x1+x2-1,y1+y2, col);
+            drawline16mid(x1+1,y1, x1+x2+1,y1+y2, col);
         }
 
         if (flooraligned)
@@ -17324,15 +17374,15 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
             for (ii=3; ii>=0; ii--)
             {
                 in = (ii+1)&3;
-                drawline16mid(x1+co[ii][0], y1-co[ii][1], x1+co[in][0], y1-co[in][1], editorcolors[col]);
+                drawline16mid(x1+co[ii][0], y1-co[ii][1], x1+co[in][0], y1-co[in][1], col);
                 if (hitblocking)
                 {
-                    drawline16mid(x1+co[ii][0], y1-co[ii][1]+1, x1+co[in][0], y1-co[in][1]+1, editorcolors[col]);
-                    drawline16mid(x1+co[ii][0], y1-co[ii][1]-1, x1+co[in][0], y1-co[in][1]-1, editorcolors[col]);
-                    drawline16mid(x1+co[ii][0]+1, y1-co[ii][1], x1+co[in][0]+1, y1-co[in][1], editorcolors[col]);
-                    drawline16mid(x1+co[ii][0]-1, y1-co[ii][1], x1+co[in][0]-1, y1-co[in][1], editorcolors[col]);
+                    drawline16mid(x1+co[ii][0], y1-co[ii][1]+1, x1+co[in][0], y1-co[in][1]+1, col);
+                    drawline16mid(x1+co[ii][0], y1-co[ii][1]-1, x1+co[in][0], y1-co[in][1]-1, col);
+                    drawline16mid(x1+co[ii][0]+1, y1-co[ii][1], x1+co[in][0]+1, y1-co[in][1], col);
+                    drawline16mid(x1+co[ii][0]-1, y1-co[ii][1], x1+co[in][0]-1, y1-co[in][1], col);
                 }
-                drawline16mid(x1, y1,  x1 + co[in][0], y1 - co[in][1],  editorcolors[col]);
+                drawline16mid(x1, y1,  x1 + co[in][0], y1 - co[in][1],  col);
             }
             drawlinepat = 0xffffffff;
         }
@@ -17345,21 +17395,21 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
             y2 = mulscale11(sintable[(sprite[j].ang+angofs+2048)&2047],zoome) / 6144;
             y2 = scalescreeny(y2);
 
-            drawline16mid(x1,y1, x1+x2,y1+y2, editorcolors[col]);
+            drawline16mid(x1,y1, x1+x2,y1+y2, col);
             if (!(sprite[j].cstat&64))  // not 1-sided
             {
-                drawline16mid(x1,y1, x1-x2,y1-y2, editorcolors[col]);
+                drawline16mid(x1,y1, x1-x2,y1-y2, col);
                 if (hitblocking)
                 {
-                    drawline16mid(x1-no,y1-one, x1-x2-no,y1-y2-one, editorcolors[col]);
-                    drawline16mid(x1+no,y1+one, x1-x2+no,y1-y2+one, editorcolors[col]);
+                    drawline16mid(x1-no,y1-one, x1-x2-no,y1-y2-one, col);
+                    drawline16mid(x1+no,y1+one, x1-x2+no,y1-y2+one, col);
                 }
             }
 
             if (hitblocking)
             {
-                drawline16mid(x1-no,y1-one, x1+x2-no,y1+y2-one, editorcolors[col]);
-                drawline16mid(x1+no,y1+one, x1+x2+no,y1+y2+one, editorcolors[col]);
+                drawline16mid(x1-no,y1-one, x1+x2-no,y1+y2-one, col);
+                drawline16mid(x1+no,y1+one, x1+x2+no,y1+y2+one, col);
             }
 
 
@@ -17367,20 +17417,20 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
             y2 = mulscale13(sintable[(sprite[j].ang+angofs+512)&2047],zoome) * fx / 4096;
             y2 = scalescreeny(y2);
 
-            drawline16mid(x1,y1, x1-x2,y1-y2, editorcolors[col]);
-            drawline16mid(x1,y1, x1+x2,y1+y2, editorcolors[col]);
+            drawline16mid(x1,y1, x1-x2,y1-y2, col);
+            drawline16mid(x1,y1, x1+x2,y1+y2, col);
 
             if (hitblocking)
             {
-                drawline16mid(x1+1,y1, x1+x2+1,y1+y2, editorcolors[col]);
-                drawline16mid(x1-1,y1, x1-x2-1,y1-y2, editorcolors[col]);
-                drawline16mid(x1-1,y1, x1+x2-1,y1+y2, editorcolors[col]);
-                drawline16mid(x1+1,y1, x1-x2+1,y1-y2, editorcolors[col]);
+                drawline16mid(x1+1,y1, x1+x2+1,y1+y2, col);
+                drawline16mid(x1-1,y1, x1-x2-1,y1-y2, col);
+                drawline16mid(x1-1,y1, x1+x2-1,y1+y2, col);
+                drawline16mid(x1+1,y1, x1-x2+1,y1-y2, col);
 
-                drawline16mid(x1,y1-1, x1+x2,y1+y2-1, editorcolors[col]);
-                drawline16mid(x1,y1+1, x1-x2,y1-y2+1, editorcolors[col]);
-                drawline16mid(x1,y1+1, x1+x2,y1+y2+1, editorcolors[col]);
-                drawline16mid(x1,y1-1, x1-x2,y1-y2-1, editorcolors[col]);
+                drawline16mid(x1,y1-1, x1+x2,y1+y2-1, col);
+                drawline16mid(x1,y1+1, x1-x2,y1-y2+1, col);
+                drawline16mid(x1,y1+1, x1+x2,y1+y2+1, col);
+                drawline16mid(x1,y1-1, x1-x2,y1-y2-1, col);
             }
         }
     }
