@@ -1092,28 +1092,26 @@ else
 endif
 BUILD_STARTED = printf "\033[K\033[1;36mBuild started using:\033[0m\n"; $(BUILD_SETTINGS)
 BUILD_ECHOFLAGS = printf "\033[K\033[1;36mEnded compilation in this directory using:\n$(BUILD_SETTINGS_COMPILER)\033[0m\n"
-BUILD_FINISHED = printf "\033[K\033[1;36mBuild successful:\033[0m\n"
 COMPILE_STATUS = printf "\033[K\033[0mBuilding object \033[1m$@\033[0m...\033[0m\r"
 COMPILE_OK = printf "\033[K\033[0;32mBuilt object \033[1;32m$@\033[0;32m \033[0m\n"
 COMPILE_FAILED = printf "\033[K\033[0;31mFailed building \033[1;31m$@\033[0;31m from\033[0m \033[1;31m$<\033[0;31m!\033[0m\n"; exit 1
 RECIPE_RESULT_COMPILE = ; then $(COMPILE_OK); else $(COMPILE_FAILED); fi
-ONESTEP_STATUS = printf "\033[K\033[0mBuilding executable \033[1m$@\033[0m...\033[0m\r"
-ONESTEP_OK = printf "\033[K\033[0;32mBuilt executable \033[1;32m$@\033[0;32m \033[0m\n"
-ONESTEP_FAILED = printf "\033[K\033[0;31mFailed building executable \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
+ONESTEP_STATUS = printf "\033[K\033[0mBuilding \033[1m$@\033[0m...\033[0m\r"
+ONESTEP_OK = printf "\033[K\033[0;32mBuilt \033[1;32m$@\033[0;32m \033[0m\n"
+ONESTEP_FAILED = printf "\033[K\033[0;31mFailed building \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
 RECIPE_RESULT_ONESTEP = ; then $(ONESTEP_OK); else $(ONESTEP_FAILED); fi
 ARCHIVE_STATUS = printf "\033[K\033[0mCreating library archive \033[1m$@\033[0m...\033[0m\r"
 ARCHIVE_OK = printf "\033[K\033[0;32mCreated library archive \033[1;32m$@\033[0;32m \033[0m\n"
 ARCHIVE_FAILED = printf "\033[K\033[0;31mFailed creating library archive \033[1;31m$@\033[0;31m from\033[0m \033[1;31m$<\033[0;31m!\033[0m\n"; exit 1
 RECIPE_RESULT_ARCHIVE = ; then $(ARCHIVE_OK); else $(ARCHIVE_FAILED); fi
-LINK_STATUS = printf "\033[K\033[0;0mLinking executable \033[1m$@\033[0;0m...\033[0m\r"
-LINK_OK = printf "\033[K\033[0;32mLinked executable \033[1;32m$@\033[0;32m \033[0m\n"
-LINK_FAILED = printf "\033[K\033[0;31mFailed linking executable \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
+LINK_STATUS = printf "\033[K\033[0;0mLinking \033[1m$@\033[0;0m...\033[0m\r"
+LINK_OK = printf "\033[K\033[0;32mLinked \033[1;32m$@\033[0;32m \033[0m\n"
+LINK_FAILED = printf "\033[K\033[0;31mFailed linking \033[1;31m$@\033[0;31m!\033[0m\n"; exit 1
 RECIPE_RESULT_LINK = ; then $(LINK_OK); else $(LINK_FAILED); fi
 else
 RECIPE_IF =
 BUILD_STARTED =
 BUILD_ECHOFLAGS =
-BUILD_FINISHED =
 COMPILE_STATUS =
 COMPILE_OK = true
 COMPILE_FAILED = false; exit 1

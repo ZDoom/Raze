@@ -403,7 +403,7 @@ endif
 
 all: duke3d
 
-duke3d: start $(EDUKE32_TARGET) $(MAPSTER32_TARGET) finish
+duke3d: start $(EDUKE32_TARGET) $(MAPSTER32_TARGET) 
 ifneq (,$(EDUKE32_TARGET))
 	@ls -l $(EDUKE32)$(EXESUFFIX)
 endif
@@ -411,7 +411,7 @@ ifneq (,$(MAPSTER32_TARGET))
 	@ls -l $(MAPSTER32)$(EXESUFFIX)
 endif
 
-test: start $(TESTGAME_TARGET) $(TESTEDITOR_TARGET) finish
+test: start $(TESTGAME_TARGET) $(TESTEDITOR_TARGET) 
 ifneq (,$(TESTGAME_TARGET))
 	@ls -l $(TESTGAME)$(EXESUFFIX)
 endif
@@ -419,7 +419,7 @@ ifneq (,$(TESTEDITOR_TARGET))
 	@ls -l $(TESTEDITOR)$(EXESUFFIX)
 endif
 
-sw: start $(SW_TARGET) $(SW_EDITOR_TARGET) finish
+sw: start $(SW_TARGET) $(SW_EDITOR_TARGET) 
 ifneq (,$(SW_TARGET))
 	@ls -l $(SW)$(EXESUFFIX)
 endif
@@ -427,16 +427,13 @@ ifneq (,$(SW_EDITOR_TARGET))
 	@ls -l $(SW_EDITOR)$(EXESUFFIX)
 endif
 
-ebacktrace: start $(EBACKTRACEDLL_TARGET) finish
+ebacktrace: start $(EBACKTRACEDLL_TARGET) 
 ifneq (,$(EBACKTRACEDLL_TARGET))
 	@ls -l $(EBACKTRACEDLL)
 endif
 
 start:
 	$(BUILD_STARTED)
-
-finish:
-	$(BUILD_FINISHED)
 
 utils: $(addsuffix $(EXESUFFIX),$(UTILS) $(GAMEUTILS))
 	@ls -l $^
