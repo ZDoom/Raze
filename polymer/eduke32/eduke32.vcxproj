@@ -456,6 +456,9 @@
     <ClCompile Include="source\global.c" />
     <ClCompile Include="source\grpscan.c" />
     <ClCompile Include="source\input.c" />
+    <ClCompile Include="source\jaudiolib\src\flac.c" />
+    <ClCompile Include="source\jaudiolib\src\formats.c" />
+    <ClCompile Include="source\jaudiolib\src\xa.c" />
     <ClCompile Include="source\lunatic\lunatic_game.c" />
     <ClCompile Include="source\lunatic\lunatic_m32.c" />
     <ClCompile Include="source\m32common.c" />

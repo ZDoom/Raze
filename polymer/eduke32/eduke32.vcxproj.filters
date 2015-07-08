@@ -893,6 +893,15 @@
     <ClCompile Include="build\src\jwzgles.c">
       <Filter>build\source</Filter>
     </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\flac.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\formats.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\jaudiolib\src\xa.c">
+      <Filter>jaudiolib\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile.msvc">
