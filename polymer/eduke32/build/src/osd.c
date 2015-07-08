@@ -285,12 +285,6 @@ void OSD_GetShadePal(const char *ch, int32_t *shadeptr, int32_t *palptr)
 //  http://blog.frama-c.com/index.php?post/2013/08/24/Function-pointers-in-C
 // Then again, my GCC just crashed (any kept on crashing until after a reboot!)
 // when I tried to rewrite this into something different.
-static inline void swapptr(void *a, void *b)
-{
-	intptr_t t = *(intptr_t*)a;
-	*(intptr_t*)a = *(intptr_t*)b;
-	*(intptr_t*)b = t;
-}
 
 static inline void swaposdptrs(void)
 {

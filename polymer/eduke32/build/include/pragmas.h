@@ -128,6 +128,13 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
     return dw(tabledivide64(numer, ecx));
 }
 
+static inline void swapptr(void *a, void *b)
+{
+    intptr_t t = *(intptr_t*) a;
+    *(intptr_t*) a = *(intptr_t*) b;
+    *(intptr_t*) b = t;
+}
+
 #if defined(__GNUC__) && defined(GEKKO)
 
 // GCC Inline Assembler version (PowerPC)
