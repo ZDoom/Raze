@@ -3368,7 +3368,7 @@ void overheadeditor(void)
 
             setup_sideview_sincos();
 
-            if (graphicsmode && !m32_sideview)
+            if (graphicsmode && (!m32_sideview || m32_sideelev == 512))
             {
                 Bmemset(show2dsector, 0, sizeof(show2dsector));
                 for (i=0; i<numsectors; i++)
@@ -3382,7 +3382,7 @@ void overheadeditor(void)
                 if (graphicsmode == 2)
                     totalclocklock = totalclock;
 
-                drawmapview(pos.x, pos.y, zoom, 1536);
+                drawmapview(pos.x, pos.y, zoom, m32_sideview ? -m32_sideang + 1536 : 1536);
             }
 
             draw2dgrid(pos.x,pos.y,pos.z,cursectnum,ang,zoom,grid);
@@ -6683,7 +6683,10 @@ end_join_sectors:
             keystatus[0x2e] = 0;
         }
 
-        bad = keystatus[0x39] && !m32_sideview;  //Gotta do this to save lots of 3 spaces!
+        bad = keystatus[0x39] && (!m32_sideview || m32_sideelev == 512);  //Gotta do this to save lots of 3 spaces!
+
+        if (keystatus[0x39] && !bad)
+            message("Unable to create sectors in angled sideview mode.");
 
         if (circlewall >= 0)
         {

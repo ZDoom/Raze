@@ -17454,14 +17454,13 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
                 m32_wallsprite[m32_swcnt++] = j;
                 sideview_getdist(j, i);
             }
-        /*
-                // j = sector[numsectors-1].wallptr + sector[numsectors-1].wallnum
-                for (; j<numwalls; j++)  // new walls ...
-                {
-                    m32_wallsprite[m32_swcnt++] = j;
-                    m32_sidedist[j] = sideview_getdist(j, 0);
-                }
-        */
+
+        // j = sector[numsectors-1].wallptr + sector[numsectors-1].wallnum
+        for (; j < numwalls; j++)  // new walls ...
+        {
+            m32_wallsprite[m32_swcnt++] = j;
+            sideview_getdist(j, 0);
+        }
     }
 
     faketimerhandler();

@@ -10114,7 +10114,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
     //    if (cursectornum >= 0)
     //        fillsector(cursectornum, 31);
 
-    if (graphicsmode && !m32_sideview && zoom >= 256)
+    if (graphicsmode && (!m32_sideview || m32_sideelev == 512) && zoom >= 256)
     {
         for (i=ii=0; i<MAXSPRITES && ii < Numsprites; i++)
         {
@@ -10218,10 +10218,18 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 if (shade < 6)
                     shade = 6;
             }
+            
+            if (m32_sideview)
+            {
+                screencoords(&xp1, &yp1, sprite[i].x-pos.x, sprite[i].y-pos.y, zoom);
+                yp1 += midydim16 + getscreenvdisp(sprite[i].z-pos.z, zoom);
+                yp1 -= mulscale14(tilesiz[picnum].y<<2, zoom);
+                xp1 += halfxdim16;
+            }
+            else 
+                ovhscrcoords(sprite[i].x, sprite[i].y-(tilesiz[picnum].y<<2), &xp1, &yp1);
 
-            ovhscrcoords(sprite[i].x, sprite[i].y-(tilesiz[picnum].y<<2), &xp1, &yp1);
-
-            ydim16 = ydim-STATUS2DSIZ2;  // XXX?
+            ydim16 = ydim - STATUS2DSIZ2;  // XXX?
 
             if (xp1 < 4 || xp1 > xdim-6 || yp1 < 4 || yp1 > ydim16-6)
                 continue;
