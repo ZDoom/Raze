@@ -275,7 +275,7 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
 
 #ifdef USE_OPENGL
         if (istexture)
-            hicsetsubsttex(tile, 0, fn, alphacut, 1.0f, 1.0f, 1.0, 1.0, HICR_NOSAVE|HICR_NOCOMPRESS);
+            hicsetsubsttex(tile, 0, fn, alphacut, 1.0f, 1.0f, 1.0f, 1.0f, HICR_NOSAVE|HICR_NOCOMPRESS);
 #endif
 
         return 1;
