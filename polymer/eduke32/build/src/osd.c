@@ -76,8 +76,6 @@ int32_t m32_osd_tryscript=0;  // whether to try executing m32script on unkown co
 
 int32_t OSD_RegisterCvar(const cvar_t *cvar)
 {
-    const char *cp;
-
     if (!osd)
         OSD_Init();
 
@@ -88,7 +86,7 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
     }
 
     // check for illegal characters in name
-    for (cp = cvar->name; *cp; cp++)
+    for (const char *cp = cvar->name; *cp; cp++)
     {
         if ((cp == cvar->name) && (*cp >= '0') && (*cp <= '9'))
         {
@@ -202,8 +200,7 @@ const char *OSD_StripColors(char *out, const char *in)
 int32_t OSD_Exec(const char *szScript)
 {
     int32_t i, len, err = 0;
-    char *buf = NULL, *cp;
-
+    char *buf = NULL;
 
     if ((i = kopen4load(szScript, 0)) == -1) err = 1;
     if (!err && (len = kfilelength(i)) <= 0) err = 2; // blank file
@@ -224,7 +221,7 @@ int32_t OSD_Exec(const char *szScript)
     osd->execdepth++;
 
     buf[len] = 0;
-    cp = strtok(buf, "\r\n");
+    char *cp = strtok(buf, "\r\n");
 
     while (cp != NULL)
     {
@@ -299,9 +296,8 @@ void OSD_SetTextMode(int32_t mode)
 {
     osd->draw.mode = (mode != 0);
 
-    if (osd->draw.mode && drawosdchar != _internal_drawosdchar)
-            swaposdptrs();
-    else if (!osd->draw.mode && drawosdchar == _internal_drawosdchar)
+    if ((osd->draw.mode && drawosdchar != _internal_drawosdchar) ||
+        (!osd->draw.mode && drawosdchar == _internal_drawosdchar))
         swaposdptrs();
 
     if (in3dmode())
@@ -310,16 +306,16 @@ void OSD_SetTextMode(int32_t mode)
 
 static int32_t _internal_osdfunc_exec(const osdfuncparm_t *parm)
 {
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
     char fn[BMAX_PATH];
 
-    if (parm->numparms != 1) return OSDCMD_SHOWHELP;
     Bstrcpy(fn,parm->parms[0]);
 
     if (OSD_Exec(fn))
-    {
         OSD_Printf(OSD_ERROR "exec: file \"%s\" not found.\n", fn);
-        return OSDCMD_OK;
-    }
+
     return OSDCMD_OK;
 }
 
@@ -332,12 +328,7 @@ static int32_t _internal_osdfunc_echo(const osdfuncparm_t *parm)
 
 static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
 {
-    uint32_t crc = 0, length;
     int32_t i,j;
-    char buf[256];
-    void *xxh;
-    uint32_t xxhash;
-    int32_t crctime, xxhtime;
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
@@ -347,9 +338,10 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
-    length = kfilelength(i);
-
-    crctime = getticks();
+    char buf[256];
+    uint32_t length = kfilelength(i);
+    int32_t crctime = getticks();
+    uint32_t crc = 0;
     do
     {
         j = kread(i,buf,256);
@@ -360,15 +352,15 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
 
     klseek(i, 0, BSEEK_SET);
 
-    xxhtime = getticks();
-    xxh = XXH32_init(0x1337);
+    int32_t xxhtime = getticks();
+    void *xxh = XXH32_init(0x1337);
     do
     {
         j = kread(i, buf, 256);
         XXH32_update(xxh, (uint8_t *) buf, j);
     }
     while (j == 256);
-    xxhash = XXH32_digest(xxh);
+    uint32_t xxhash = XXH32_digest(xxh);
     xxhtime = getticks() - xxhtime;
 
     kclose(i);
@@ -386,12 +378,10 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
 
 static void _internal_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
 {
-    char st[2] = { 0,0 };
-
     UNREFERENCED_PARAMETER(shade);
     UNREFERENCED_PARAMETER(pal);
 
-    st[0] = ch;
+    char st[2] = { ch, 0 };
 
     printext256(4+(x<<3),4+(y<<3), white, -1, st, 0);
 }
@@ -632,13 +622,13 @@ static int32_t _internal_osdfunc_clear(const osdfuncparm_t *parm)
 
 static int32_t _internal_osdfunc_history(const osdfuncparm_t *parm)
 {
-    int32_t i, j = 0;
+    int32_t j = 0;
     osdhist_t *h = &osd->history;
     UNREFERENCED_PARAMETER(parm);
 
     OSD_Printf(OSDTEXT_RED "Command history:\n");
 
-    for (i=osd->history.maxlines-1; i>=0; i--)
+    for (int32_t i=osd->history.maxlines-1; i>=0; i--)
         if (h->buf[i])
             OSD_Printf("%4d \"%s\"\n", h->total - h->lines + (++j), h->buf[i]);
 
@@ -653,13 +643,10 @@ static int32_t _internal_osdfunc_history(const osdfuncparm_t *parm)
 //
 void OSD_Cleanup(void)
 {
-    symbol_t *s;
-    int32_t i;
-
     hash_free(&h_osd);
     hash_free(&h_cvars);
 
-    for (; symbols; symbols=s)
+    for (symbol_t *s; symbols; symbols=s)
     {
         s=symbols->next;
         Bfree(symbols);
@@ -669,7 +656,7 @@ void OSD_Cleanup(void)
     DO_FREE_AND_NULL(osd->cvars);
     DO_FREE_AND_NULL(osd->editor.buf);
     DO_FREE_AND_NULL(osd->editor.tmp);
-    for (i=0; i<OSDMAXHISTORYDEPTH; i++)
+    for (int i=0; i<OSDMAXHISTORYDEPTH; i++)
         DO_FREE_AND_NULL(osd->history.buf[i]);
     DO_FREE_AND_NULL(osd->text.buf);
     DO_FREE_AND_NULL(osd->text.fmt);
@@ -681,39 +668,32 @@ static int32_t osdcmd_cvar_set_osd(const osdfuncparm_t *parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
 
-    if (r == OSDCMD_OK)
+    if (r != OSDCMD_OK)
+        return r;
+
+    if (!Bstrcasecmp(parm->name, "osdrows"))
     {
-        if (!Bstrcasecmp(parm->name, "osdrows"))
-        {
-            if (osd->draw.rows > osdmaxrows) osd->draw.rows = osdmaxrows;
-            if (osdrowscur!=-1) osdrowscur = osd->draw.rows;
-            return r;
-        }
-        else if (!Bstrcasecmp(parm->name, "osdtextmode"))
-        {
-            OSD_SetTextMode(osd->draw.mode);
-            return r;
-        }
-        else if (!Bstrcasecmp(parm->name, "osdhistorydepth"))
-        {
-            int32_t i;
-
-            for (i=OSDMAXHISTORYDEPTH-1; i>=osd->history.maxlines; i--)
-                DO_FREE_AND_NULL(osd->history.buf[i]);
-
-            return r;
-        }
+        if (osd->draw.rows > osdmaxrows)
+            osd->draw.rows = osdmaxrows;
+        if (osdrowscur != -1)
+            osdrowscur = osd->draw.rows;
     }
-    return r;
+    else if (!Bstrcasecmp(parm->name, "osdtextmode"))
+        OSD_SetTextMode(osd->draw.mode);
+    else if (!Bstrcasecmp(parm->name, "osdhistorydepth"))
+    {
+        for (int i = OSDMAXHISTORYDEPTH - 1; i >= osd->history.maxlines; i--)
+            DO_FREE_AND_NULL(osd->history.buf[i]);
+    }
+
+    return OSDCMD_OK;
 }
 
 static int32_t _internal_osdfunc_toggle(const osdfuncparm_t *parm)
 {
-    int32_t i;
-
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
-    i = hash_find(&h_cvars, parm->parms[0]);
+    intptr_t i = hash_find(&h_cvars, parm->parms[0]);
 
     if (i == -1)
         for (i = osd->numcvars-1; i >= 0; i--)
@@ -734,8 +714,6 @@ static int32_t _internal_osdfunc_toggle(const osdfuncparm_t *parm)
 //
 void OSD_Init(void)
 {
-    uint32_t i;
-
     osd = (osdmain_t *)Bcalloc(1, sizeof(osdmain_t));
 
     mutex_init(&osd->mutex);
@@ -762,29 +740,27 @@ void OSD_Init(void)
     hash_init(&h_osd);
     hash_init(&h_cvars);
 
+    cvar_t cvars_osd [] =
     {
-        cvar_t cvars_osd [] =
-        {
-            { "osdeditpal", "sets the palette of the OSD input text", (void *) &osd->draw.editpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-            { "osdpromptpal", "sets the palette of the OSD prompt", (void *) &osd->draw.promptpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-            { "osdtextpal", "sets the palette of the OSD text", (void *) &osd->draw.textpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
-            { "osdeditshade", "sets the shade of the OSD input text", (void *) &osd->draw.editshade, CVAR_INT, 0, 7 },
-            { "osdtextshade", "sets the shade of the OSD text", (void *) &osd->draw.textshade, CVAR_INT, 0, 7 },
-            { "osdpromptshade", "sets the shade of the OSD prompt", (void *) &osd->draw.promptshade, CVAR_INT, INT8_MIN, INT8_MAX },
-            { "osdrows", "sets the number of visible lines of the OSD", (void *) &osd->draw.rows, CVAR_INT|CVAR_FUNCPTR, 1, MAXPALOOKUPS-1 },
-            { "osdtextmode", "set OSD text mode (0:graphical, 1:fast)", (void *) &osd->draw.mode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-            { "osdlogcutoff", "sets the maximal line count of the log file", (void *) &osd->log.cutoff, CVAR_INT, 0, 262144 },
-            { "osdhistorydepth", "sets the history depth, in lines", (void *) &osd->history.maxlines, CVAR_INT|CVAR_FUNCPTR, OSDMINHISTORYDEPTH, OSDMAXHISTORYDEPTH },
-        };
+        { "osdeditpal", "sets the palette of the OSD input text", (void *) &osd->draw.editpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdpromptpal", "sets the palette of the OSD prompt", (void *) &osd->draw.promptpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdtextpal", "sets the palette of the OSD text", (void *) &osd->draw.textpal, CVAR_INT, 0, MAXPALOOKUPS-1 },
+        { "osdeditshade", "sets the shade of the OSD input text", (void *) &osd->draw.editshade, CVAR_INT, 0, 7 },
+        { "osdtextshade", "sets the shade of the OSD text", (void *) &osd->draw.textshade, CVAR_INT, 0, 7 },
+        { "osdpromptshade", "sets the shade of the OSD prompt", (void *) &osd->draw.promptshade, CVAR_INT, INT8_MIN, INT8_MAX },
+        { "osdrows", "sets the number of visible lines of the OSD", (void *) &osd->draw.rows, CVAR_INT|CVAR_FUNCPTR, 1, MAXPALOOKUPS-1 },
+        { "osdtextmode", "set OSD text mode (0:graphical, 1:fast)", (void *) &osd->draw.mode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "osdlogcutoff", "sets the maximal line count of the log file", (void *) &osd->log.cutoff, CVAR_INT, 0, 262144 },
+        { "osdhistorydepth", "sets the history depth, in lines", (void *) &osd->history.maxlines, CVAR_INT|CVAR_FUNCPTR, OSDMINHISTORYDEPTH, OSDMAXHISTORYDEPTH },
+    };
 
-        for (i=0; i<ARRAY_SIZE(cvars_osd); i++)
-        {
-            if (OSD_RegisterCvar(&cvars_osd[i]))
-                continue;
+    for (unsigned i=0; i<ARRAY_SIZE(cvars_osd); i++)
+    {
+        if (OSD_RegisterCvar(&cvars_osd[i]))
+            continue;
 
-            OSD_RegisterFunction(cvars_osd[i].name, cvars_osd[i].desc,
-                cvars_osd[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_osd : osdcmd_cvar_set);
-        }
+        OSD_RegisterFunction(cvars_osd[i].name, cvars_osd[i].desc,
+            cvars_osd[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_osd : osdcmd_cvar_set);
     }
 
     OSD_RegisterFunction("alias","alias: creates an alias for calling multiple commands",_internal_osdfunc_alias);
@@ -807,12 +783,6 @@ void OSD_Init(void)
 //
 void OSD_SetLogFile(const char *fn)
 {
-#ifdef DEBUGGINGAIDS
-    const int bufmode = _IONBF;
-#else
-    const int bufmode = _IOLBF;
-#endif
-
     MAYBE_FCLOSE_AND_NULL(osdlog);
     osdlogfn = NULL;
 
@@ -823,6 +793,11 @@ void OSD_SetLogFile(const char *fn)
 
     if (osdlog)
     {
+#ifdef DEBUGGINGAIDS
+        const int bufmode = _IONBF;
+#else
+        const int bufmode = _IOLBF;
+#endif
         setvbuf(osdlog, (char *)NULL, bufmode, BUFSIZ);
         osdlogfn = fn;
     }
@@ -2032,11 +2007,12 @@ static symbol_t *findsymbol(const char *name, symbol_t *startingat)
 //
 static symbol_t *findexactsymbol(const char *name)
 {
-    int32_t i;
-    char *lname = Xstrdup(name);
     if (!symbols) return NULL;
 
-    i = hash_find(&h_osd,lname);
+    char *lname = Xstrdup(name);
+
+    intptr_t i = hash_find(&h_osd,lname);
+
     if (i > -1)
     {
 //        if ((symbol_t *)osdsymbptrs[i]->func == OSD_UNALIASED)
@@ -2050,17 +2026,13 @@ static symbol_t *findexactsymbol(const char *name)
     i = hash_find(&h_osd,lname);
     Bfree(lname);
 
-    if (i > -1)
-        return osd->symbptrs[i];
-    return NULL;
+    return (i > -1) ? osd->symbptrs[i] : NULL;
 }
 
 int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
 {
     int32_t showval = (parm->numparms == 0);
-    int32_t i;
-
-    i = hash_find(&h_cvars, parm->name);
+    intptr_t i = hash_find(&h_cvars, parm->name);
 
     if (i < 0)
         for (i = osd->numcvars-1; i >= 0; i--)
@@ -2079,14 +2051,14 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         {
         case CVAR_FLOAT:
         {
-            float val;
             if (showval)
             {
                 OSD_Printf("\"%s\" is \"%f\"\n%s: %s\n",osd->cvars[i].c.name,*(float *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,(char *)osd->cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
-            sscanf(parm->parms[0], "%f", &val);
+            float val;
+            Bsscanf(parm->parms[0], "%f", &val);
 
             if (val < osd->cvars[i].c.min || val > osd->cvars[i].c.max)
             {
@@ -2100,14 +2072,14 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         break;
         case CVAR_DOUBLE:
         {
-            double val;
             if (showval)
             {
                 OSD_Printf("\"%s\" is \"%f\"\n%s: %s\n",osd->cvars[i].c.name,*(double *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,(char *)osd->cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
-            sscanf(parm->parms[0], "%lf", &val);
+            double val;
+            Bsscanf(parm->parms[0], "%lf", &val);
 
             if (val < osd->cvars[i].c.min || val > osd->cvars[i].c.max)
             {
@@ -2123,14 +2095,13 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         case CVAR_UINT:
         case CVAR_BOOL:
         {
-            int32_t val;
             if (showval)
             {
                 OSD_Printf((osd->cvars[i].c.type & CVAR_UINT) ? "\"%s\" is \"%u\"\n%s: %s\n" : "\"%s\" is \"%d\"\n%s: %s\n",osd->cvars[i].c.name,*(int32_t *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,(char *)osd->cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
-            val = Batoi(parm->parms[0]);
+            int32_t val = Batoi(parm->parms[0]);
             if (osd->cvars[i].c.type & CVAR_BOOL) val = val != 0;
 
             if (val < osd->cvars[i].c.min || ((osd->cvars[i].c.type & CVAR_UINT) ? ((unsigned) val > (unsigned) osd->cvars[i].c.max) : (val > osd->cvars[i].c.max)))
@@ -2191,20 +2162,17 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
 
 void OSD_WriteAliases(FILE *fp)
 {
-    symbol_t *symb;
-    for (symb=symbols; symb!=NULL; symb=symb->next)
+    for (symbol_t *symb=symbols; symb!=NULL; symb=symb->next)
         if (symb->func == (void *)OSD_ALIAS)
             Bfprintf(fp, "alias \"%s\" \"%s\"\n", symb->name, symb->help);
 }
 
 void OSD_WriteCvars(FILE *fp)
 {
-    uint32_t i;
-
     if (!fp)
         return;
 
-    for (i=0; i<osd->numcvars; i++)
+    for (unsigned i=0; i<osd->numcvars; i++)
     {
         if (!(osd->cvars[i].c.type & CVAR_NOSAVE) && OSD_CvarModified(&osd->cvars[i]))
             switch (osd->cvars[i].c.type&(CVAR_FLOAT|CVAR_DOUBLE|CVAR_INT|CVAR_UINT|CVAR_BOOL|CVAR_STRING))
