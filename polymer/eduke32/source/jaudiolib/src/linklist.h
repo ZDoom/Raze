@@ -27,7 +27,7 @@ extern "C" {
 #define NewNode(type) ((type *)Bmalloc(sizeof(type)))
 
 
-#define LL_CreateNewLinkedList(rootnode, type, next, prev)                                                             \
+#define LL_New(rootnode, type, next, prev)                                                                             \
     {                                                                                                                  \
         (rootnode) = NewNode(type);                                                                                    \
         (rootnode)->prev = (rootnode);                                                                                 \
@@ -35,7 +35,7 @@ extern "C" {
     }
 
 
-#define LL_AddNode(rootnode, newnode, next, prev)                                                                      \
+#define LL_Add(rootnode, newnode, next, prev)                                                                          \
     {                                                                                                                  \
         (newnode)->next = (rootnode);                                                                                  \
         (newnode)->prev = (rootnode)->prev;                                                                            \
@@ -58,18 +58,16 @@ extern "C" {
 
 #define LL_ReverseList(root, type, next, prev)                                                                         \
     {                                                                                                                  \
-        type *newend, *trav, *tprev;                                                                                   \
-                                                                                                                       \
-        newend = (root)->next;                                                                                         \
+        type *newend = (root)->next, *trav, *tprev;                                                                    \
         for (trav = (root)->prev; trav != newend; trav = tprev)                                                        \
         {                                                                                                              \
             tprev = trav->prev;                                                                                        \
-            LL_MoveNode(trav, newend, next, prev);                                                                     \
+            LL_Move(trav, newend, next, prev);                                                                         \
         }                                                                                                              \
     }
 
 
-#define LL_RemoveNode(node, next, prev)                                                                                \
+#define LL_Remove(node, next, prev)                                                                                    \
     {                                                                                                                  \
         (node)->prev->next = (node)->next;                                                                             \
         (node)->next->prev = (node)->prev;                                                                             \
@@ -80,31 +78,24 @@ extern "C" {
 
 #define LL_SortedInsertion(rootnode, insertnode, next, prev, type, sortparm)                                           \
     {                                                                                                                  \
-        type *hoya;                                                                                                    \
-                                                                                                                       \
-        hoya = (rootnode)->next;                                                                                       \
+        type *hoya = (rootnode)->next;                                                                                 \
         while ((hoya != (rootnode)) && ((insertnode)->sortparm > hoya->sortparm))                                      \
         {                                                                                                              \
             hoya = hoya->next;                                                                                         \
         }                                                                                                              \
-        LL_AddNode(hoya, (insertnode), next, prev);                                                                    \
+        LL_Add(hoya, (insertnode), next, prev);                                                                        \
     }
 
-#define LL_MoveNode(node, newroot, next, prev)                                                                         \
+#define LL_Move(node, newroot, next, prev)                                                                             \
     {                                                                                                                  \
-        LL_RemoveNode((node), next, prev);                                                                             \
-        LL_AddNode((newroot), (node), next, prev);                                                                     \
+        LL_Remove((node), next, prev);                                                                                 \
+        LL_Add((newroot), (node), next, prev);                                                                         \
     }
 
-#define LL_ListEmpty(list, next, prev) (((list)->next == (list)) && ((list)->prev == (list)))
+#define LL_Empty(list, next, prev) (((list)->next == (list)) && ((list)->prev == (list)))
 
 #define LL_Free(list) Bfree(list)
 #define LL_Reset(list, next, prev) (list)->next = (list)->prev = (list)
-#define LL_New LL_CreateNewLinkedList
-#define LL_Remove LL_RemoveNode
-#define LL_Add LL_AddNode
-#define LL_Empty LL_ListEmpty
-#define LL_Move LL_MoveNode
 
 
 #ifdef __cplusplus

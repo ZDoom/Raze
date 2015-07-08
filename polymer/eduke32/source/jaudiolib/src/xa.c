@@ -288,13 +288,13 @@ static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
 
 int32_t MV_GetXAPosition(VoiceNode *voice)
 {
-    xa_data * xad = (xa_data *) voice->extra;
+    xa_data * xad = (xa_data *) voice->rawdataptr;
     return xad->pos;
 }
 
 void MV_SetXAPosition(VoiceNode *voice, int32_t position)
 {
-    xa_data * xad = (xa_data *) voice->extra;
+    xa_data * xad = (xa_data *) voice->rawdataptr;
 
     if (position < XA_DATA_START || (size_t)position >= xad->length)
         position = XA_DATA_START;
@@ -314,7 +314,7 @@ static playbackstatus MV_GetNextXABlock
  )
 
 {
-    xa_data * xad = (xa_data *) voice->extra;
+    xa_data * xad = (xa_data *) voice->rawdataptr;
     XASector ssct;
     int coding;
 
@@ -483,11 +483,10 @@ int32_t MV_PlayXA
 
    xad->owner = voice;
 
-   voice->wavetype    = XA;
-   voice->extra       = (void*)xad;
+   voice->wavetype    = FMT_XA;
+   voice->rawdataptr       = (void*)xad;
    voice->GetSound    = MV_GetNextXABlock;
    voice->NextBlock   = xad->block;
-   voice->DemandFeed  = NULL;
    voice->LoopCount   = 0;
    voice->BlockLength = 0;
    voice->PitchScale  = PITCH_GetScale( pitchoffset );
@@ -516,9 +515,9 @@ int32_t MV_PlayXA
 
 void MV_ReleaseXAVoice( VoiceNode * voice )
 {
-    xa_data * xad = (xa_data *) voice->extra;
+    xa_data * xad = (xa_data *) voice->rawdataptr;
 
-    if (voice->wavetype != XA) {
+    if (voice->wavetype != FMT_XA) {
         return;
     }
 
@@ -526,5 +525,5 @@ void MV_ReleaseXAVoice( VoiceNode * voice )
         free(xad->block);
     free(xad);
 
-    voice->extra = 0;
+    voice->rawdataptr = 0;
 }

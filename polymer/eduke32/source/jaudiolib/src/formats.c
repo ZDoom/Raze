@@ -1,5 +1,7 @@
 /*
  Copyright (C) 2009 Jonathon Fowler <jf@jonof.id.au>
+ Copyright (C) 2015 EDuke32 developers
+ Copyright (C) 2015 Voidpoint, LLC
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
@@ -19,7 +21,7 @@
  */
 
 /**
- * Raw, DemandFeed, WAV, and VOC source support for MultiVoc
+ * Raw, WAV, and VOC source support for MultiVoc
  */
 
 #include <stdlib.h>
@@ -32,46 +34,6 @@
 #include "pitch.h"
 #include "multivoc.h"
 #include "_multivc.h"
-
-
-/*---------------------------------------------------------------------
-   Function: MV_GetNextRawBlock
-
-   Controls playback of demand fed data.
----------------------------------------------------------------------*/
-
-static playbackstatus MV_GetNextRawBlock(VoiceNode *voice)
-{
-    if (voice->BlockLength <= 0)
-    {
-        if (voice->LoopStart == NULL)
-        {
-            voice->Playing = FALSE;
-            return NoMoreData;
-        }
-
-        voice->BlockLength = voice->LoopSize;
-        voice->NextBlock   = voice->LoopStart;
-        voice->length = 0;
-        voice->position = 0;
-    }
-
-    voice->sound        = voice->NextBlock;
-    voice->position    -= voice->length;
-    voice->length       = min(voice->BlockLength, 0x8000);
-    voice->NextBlock   += voice->length * (voice->channels * voice->bits / 8);
-    voice->BlockLength -= voice->length;
-    voice->length     <<= 16;
-
-    return KeepPlaying;
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MV_GetNextWAVBlock
-
-   Controls playback of demand fed data.
----------------------------------------------------------------------*/
 
 static playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
 {
@@ -99,24 +61,11 @@ static playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
     return KeepPlaying;
 }
 
-
-/*---------------------------------------------------------------------
-   Function: MV_GetNextVOCBlock
-
-   Interpret the information of a VOC format sound file.
----------------------------------------------------------------------*/
-
 static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
 {
-    const uint8_t *ptr;
-    int32_t            blocktype;
-    int32_t            lastblocktype;
     size_t  blocklength = 0;
     uint32_t   samplespeed = 0;  // XXX: compiler-happy on synthesis
     uint32_t   tc = 0;
-    int32_t            packtype;
-    int32_t            voicemode;
-    int32_t            done;
     unsigned       BitsPerSample;
     unsigned       Channels;
     unsigned       Format;
@@ -131,16 +80,17 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
         return KeepPlaying;
     }
 
-    ptr = (uint8_t *)voice->NextBlock;
+    const uint8_t *ptr = (uint8_t *)voice->NextBlock;
 
     voice->Playing = TRUE;
     voice->Paused = FALSE;
 
-    voicemode = 0;
-    lastblocktype = 0;
-    packtype = 0;
+    int voicemode = 0;
+    int blocktype = 0;
+    int lastblocktype = 0;
+    int packtype = 0;
 
-    done = FALSE;
+    int done = FALSE;
 
     do
     {
@@ -155,7 +105,7 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
         // terminator is not mandatory according to
         // http://wiki.multimedia.cx/index.php?title=Creative_Voice
 
-        if (ptr - voice->rawdataptr >= voice->ptrlength)
+        if (ptr - (uint8_t *)voice->rawdataptr >= voice->ptrlength)
             blocktype = 0;  // fake a terminator
         else
             blocktype = *ptr;
@@ -206,14 +156,11 @@ end_of_data:
 
             // Skip packed or stereo data
             if ((packtype != 0) || (voicemode != 0 && voicemode != 1))
-            {
                 ptr += blocklength;
-            }
             else
-            {
                 done = TRUE;
-            }
-            if (ptr - voice->rawdataptr >= voice->ptrlength)
+
+            if (ptr - (uint8_t *)voice->rawdataptr >= voice->ptrlength)
                 goto end_of_data;
 
             voicemode = 0;
@@ -227,19 +174,11 @@ end_of_data:
 
         case 3 :
             // Silence
-            // Not implimented.
-            ptr += blocklength;
-            break;
-
         case 4 :
             // Marker
-            // Not implimented.
-            ptr += blocklength;
-            break;
-
         case 5 :
             // ASCII string
-            // Not implimented.
+            // All not implemented.
             ptr += blocklength;
             break;
 
@@ -257,21 +196,17 @@ end_of_data:
             // Repeat end
             ptr += blocklength;
             if (lastblocktype == 6)
-            {
                 voice->LoopCount = 0;
-            }
             else
             {
                 if ((voice->LoopCount > 0) && (voice->LoopStart != NULL))
                 {
                     ptr = (uint8_t *) voice->LoopStart;
+
                     if (voice->LoopCount < 0xffff)
                     {
-                        voice->LoopCount--;
-                        if (voice->LoopCount == 0)
-                        {
+                        if (--voice->LoopCount == 0)
                             voice->LoopStart = NULL;
-                        }
                     }
                 }
             }
@@ -294,8 +229,7 @@ end_of_data:
             Channels = (unsigned)*(ptr + 5);
             Format = (unsigned)LITTLE16(*(uint16_t *)(ptr + 6));
 
-            if ((BitsPerSample == 8) && (Channels == 1 || Channels == 2) &&
-                    (Format == VOC_8BIT))
+            if ((BitsPerSample == 8) && (Channels == 1 || Channels == 2) && (Format == VOC_8BIT))
             {
                 ptr         += 12;
                 blocklength -= 12;
@@ -303,8 +237,7 @@ end_of_data:
                 voice->channels = Channels;
                 done         = TRUE;
             }
-            else if ((BitsPerSample == 16) && (Channels == 1 || Channels == 2) &&
-                     (Format == VOC_16BIT))
+            else if ((BitsPerSample == 16) && (Channels == 1 || Channels == 2) && (Format == VOC_16BIT))
             {
                 ptr         += 12;
                 blocklength -= 12;
@@ -320,7 +253,7 @@ end_of_data:
             // CAUTION:
             //  SNAKRM.VOC is corrupt!  blocklength gets us beyond the
             //  end of the file.
-            if (ptr - voice->rawdataptr >= voice->ptrlength)
+            if (ptr - (uint8_t *)voice->rawdataptr >= voice->ptrlength)
                 goto end_of_data;
 
             break;
@@ -380,137 +313,11 @@ end_of_data:
     return NoMoreData;
 }
 
-
-/*---------------------------------------------------------------------
-   Function: MV_GetNextDemandFeedBlock
-
-   Controls playback of demand fed data.
----------------------------------------------------------------------*/
-
-static playbackstatus MV_GetNextDemandFeedBlock(VoiceNode *voice)
+int32_t MV_PlayWAV3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
+                     int32_t priority, uint32_t callbackval)
 {
-    if (voice->BlockLength > 0)
-    {
-        voice->position    -= voice->length;
-        voice->sound       += voice->length >> 16;
-        voice->length       = min(voice->BlockLength, 0x8000);
-        voice->BlockLength -= voice->length;
-        voice->length     <<= 16;
-
-        return KeepPlaying;
-    }
-
-    if (voice->DemandFeed == NULL)
-        return NoMoreData;
-
-    voice->position     = 0;
-    // TODO: learn how to properly attach the 'const' in pointer-pointers :O
-    (voice->DemandFeed)((char **)&voice->sound, &voice->BlockLength);
-    voice->length       = min(voice->BlockLength, 0x8000);
-    voice->BlockLength -= voice->length;
-    voice->length     <<= 16;
-
-    return ((voice->length > 0) && (voice->sound != NULL) ? KeepPlaying : NoMoreData);
-}
-
-
-
-/*---------------------------------------------------------------------
-   Function: MV_PlayRaw
-
-   Begin playback of sound data with the given sound levels and
-   priority.
----------------------------------------------------------------------*/
-
-int32_t MV_PlayRaw
-(
-    char *ptr,
-    uint32_t length,
-    char *loopstart,
-    char *loopend,
-    unsigned rate,
-    int32_t   pitchoffset,
-    int32_t   vol,
-    int32_t   left,
-    int32_t   right,
-    int32_t   priority,
-    uint32_t callbackval
-)
-
-{
-    VoiceNode *voice;
-
     if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
         return MV_Error;
-    }
-
-    // Request a voice from the voice pool
-    voice = MV_AllocVoice(priority);
-    if (voice == NULL)
-    {
-        MV_SetErrorCode(MV_NoVoices);
-        return MV_Error;
-    }
-
-    voice->wavetype    = Raw;
-    voice->bits        = 8;
-    voice->channels    = 1;
-    voice->GetSound    = MV_GetNextRawBlock;
-    voice->Playing     = TRUE;
-    voice->Paused     = FALSE;
-    voice->NextBlock   = ptr;
-    voice->position    = 0;
-    voice->BlockLength = length;
-    voice->length      = 0;
-    voice->next        = NULL;
-    voice->prev        = NULL;
-    voice->priority    = priority;
-    voice->callbackval = callbackval;
-    voice->LoopStart   = loopstart;
-    voice->LoopEnd     = loopend;
-    voice->LoopSize    = loopend > (char*) 0 ? (uintptr_t) loopend - (uintptr_t) loopstart + 1 : length;
-
-    MV_SetVoicePitch(voice, rate, pitchoffset);
-    MV_SetVoiceVolume(voice, vol, left, right);
-    MV_PlayVoice(voice);
-
-    return voice->handle;
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MV_PlayWAV3D
-
-   Begin playback of sound data at specified angle and distance
-   from listener.
----------------------------------------------------------------------*/
-
-int32_t MV_PlayWAV3D
-(
-    char *ptr,
-    uint32_t length,
-    int32_t loophow,
-    int32_t  pitchoffset,
-    int32_t  angle,
-    int32_t  distance,
-    int32_t  priority,
-    uint32_t callbackval
-)
-
-{
-    int32_t left;
-    int32_t right;
-    int32_t mid;
-    int32_t volume;
-    int32_t status;
-
-    if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
-        return MV_Error;
-    }
 
     if (distance < 0)
     {
@@ -518,67 +325,33 @@ int32_t MV_PlayWAV3D
         angle    += MV_NUMPANPOSITIONS / 2;
     }
 
-    volume = MIX_VOLUME(distance);
+    int const volume = MIX_VOLUME(distance);
 
     // Ensure angle is within 0 - 127
     angle &= MV_MAXPANPOSITION;
 
-    left  = MV_PanTable[ angle ][ volume ].left;
-    right = MV_PanTable[ angle ][ volume ].right;
-    mid   = max(0, 255 - distance);
-
-    status = MV_PlayWAV(ptr, length, loophow, -1, pitchoffset, mid, left, right, priority, callbackval);
-
-    return status;
+    return MV_PlayWAV(ptr, length, loophow, -1, pitchoffset, max(0, 255 - distance),
+        MV_PanTable[ angle ][ volume ].left, MV_PanTable[ angle ][ volume ].right, priority, callbackval);
 }
 
-
-/*---------------------------------------------------------------------
-   Function: MV_PlayWAV
-
-   Begin playback of sound data with the given sound levels and
-   priority.
----------------------------------------------------------------------*/
-
-int32_t MV_PlayWAV
-(
-    char *ptr,
-    uint32_t ptrlength,
-    int32_t   loopstart,
-    int32_t   loopend,
-    int32_t   pitchoffset,
-    int32_t   vol,
-    int32_t   left,
-    int32_t   right,
-    int32_t   priority,
-    uint32_t callbackval
-)
-
+int32_t MV_PlayWAV(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
+                   int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
-    riff_header   riff;
-    format_header format;
-    data_header   data;
-    VoiceNode     *voice;
-    int32_t length;
-
     if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
         return MV_Error;
-    }
 
+    riff_header   riff;
     memcpy(&riff, ptr, sizeof(riff_header));
     riff.file_size   = LITTLE32(riff.file_size);
     riff.format_size = LITTLE32(riff.format_size);
 
-    if ((memcmp(riff.RIFF, "RIFF", 4) != 0) ||
-            (memcmp(riff.WAVE, "WAVE", 4) != 0) ||
-            (memcmp(riff.fmt, "fmt ", 4) != 0))
+    if ((memcmp(riff.RIFF, "RIFF", 4) != 0) || (memcmp(riff.WAVE, "WAVE", 4) != 0) || (memcmp(riff.fmt, "fmt ", 4) != 0))
     {
         MV_SetErrorCode(MV_InvalidWAVFile);
         return MV_Error;
     }
 
+    format_header format;
     memcpy(&format, ptr + sizeof(riff_header), sizeof(format_header));
     format.wFormatTag      = LITTLE16(format.wFormatTag);
     format.nChannels       = LITTLE16(format.nChannels);
@@ -587,54 +360,41 @@ int32_t MV_PlayWAV
     format.nBlockAlign     = LITTLE16(format.nBlockAlign);
     format.nBitsPerSample  = LITTLE16(format.nBitsPerSample);
 
+    data_header   data;
     memcpy(&data, ptr + sizeof(riff_header) + riff.format_size, sizeof(data_header));
     data.size = LITTLE32(data.size);
 
     // Check if it's PCM data.
-    if (format.wFormatTag != 1)
-    {
-        MV_SetErrorCode(MV_InvalidWAVFile);
-        return MV_Error;
-    }
-
-    if (format.nChannels != 1 && format.nChannels != 2)
-    {
-        MV_SetErrorCode(MV_InvalidWAVFile);
-        return MV_Error;
-    }
-
-    if ((format.nBitsPerSample != 8) &&
-            (format.nBitsPerSample != 16))
-    {
-        MV_SetErrorCode(MV_InvalidWAVFile);
-        return MV_Error;
-    }
-
-    if (memcmp(data.DATA, "data", 4) != 0)
+    if (format.wFormatTag != 1 || (format.nChannels != 1 && format.nChannels != 2) ||
+        ((format.nBitsPerSample != 8) && (format.nBitsPerSample != 16)) || memcmp(data.DATA, "data", 4) != 0)
     {
         MV_SetErrorCode(MV_InvalidWAVFile);
         return MV_Error;
     }
 
     // Request a voice from the voice pool
-    voice = MV_AllocVoice(priority);
+
+    VoiceNode     *voice = MV_AllocVoice(priority);
+
     if (voice == NULL)
     {
         MV_SetErrorCode(MV_NoVoices);
         return MV_Error;
     }
 
-    voice->wavetype    = WAV;
+    voice->wavetype    = FMT_WAV;
     voice->bits        = format.nBitsPerSample;
     voice->channels    = format.nChannels;
     voice->GetSound    = MV_GetNextWAVBlock;
 
-    length = data.size;
+    int32_t length = data.size;
+
     if (voice->bits == 16)
     {
         data.size  &= ~1;
         length     /= 2;
     }
+
     if (voice->channels == 2)
     {
         data.size &= ~1;
@@ -645,7 +405,6 @@ int32_t MV_PlayWAV
     voice->ptrlength = ptrlength;
     voice->Playing     = TRUE;
     voice->Paused      = FALSE;
-    voice->DemandFeed  = NULL;
     voice->LoopCount   = 0;
     voice->position    = 0;
     voice->length      = 0;
@@ -666,38 +425,11 @@ int32_t MV_PlayWAV
     return voice->handle;
 }
 
-
-/*---------------------------------------------------------------------
-   Function: MV_PlayVOC3D
-
-   Begin playback of sound data at specified angle and distance
-   from listener.
----------------------------------------------------------------------*/
-
-int32_t MV_PlayVOC3D
-(
-    char *ptr,
-    uint32_t ptrlength,
-    int32_t loophow,
-    int32_t  pitchoffset,
-    int32_t  angle,
-    int32_t  distance,
-    int32_t  priority,
-    uint32_t callbackval
-)
-
+int32_t MV_PlayVOC3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
+                     int32_t distance, int32_t priority, uint32_t callbackval)
 {
-    int32_t left;
-    int32_t right;
-    int32_t mid;
-    int32_t volume;
-    int32_t status;
-
     if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
         return MV_Error;
-    }
 
     if (distance < 0)
     {
@@ -705,62 +437,31 @@ int32_t MV_PlayVOC3D
         angle    += MV_NUMPANPOSITIONS / 2;
     }
 
-    volume = MIX_VOLUME(distance);
+    int const volume = MIX_VOLUME(distance);
 
     // Ensure angle is within 0 - 127
     angle &= MV_MAXPANPOSITION;
 
-    left  = MV_PanTable[ angle ][ volume ].left;
-    right = MV_PanTable[ angle ][ volume ].right;
-    mid   = max(0, 255 - distance);
-
-    status = MV_PlayVOC(ptr, ptrlength, loophow, -1, pitchoffset, mid, left, right, priority, callbackval);
-
-    return status;
+    return MV_PlayVOC(ptr, ptrlength, loophow, -1, pitchoffset, max(0, 255 - distance), 
+        MV_PanTable[ angle ][ volume ].left, MV_PanTable[ angle ][ volume ].right, priority, callbackval);
 }
 
-
-/*---------------------------------------------------------------------
-   Function: MV_PlayVOC
-
-   Begin playback of sound data with the given sound levels and
-   priority.
----------------------------------------------------------------------*/
-
-int32_t MV_PlayVOC
-(
-    char *ptr,
-    uint32_t ptrlength,
-    int32_t   loopstart,
-    int32_t   loopend,
-    int32_t   pitchoffset,
-    int32_t   vol,
-    int32_t   left,
-    int32_t   right,
-    int32_t   priority,
-    uint32_t callbackval
-)
-
+int32_t MV_PlayVOC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
+                   int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
-    VoiceNode   *voice;
-    int32_t          status;
-
     if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
         return MV_Error;
-    }
 
     // Make sure it looks like a valid VOC file.
-    status = memcmp(ptr, "Creative Voice File", 19);
-    if (status != 0)
+    if (memcmp(ptr, "Creative Voice File", 19) != 0)
     {
         MV_SetErrorCode(MV_InvalidVOCFile);
         return MV_Error;
     }
 
     // Request a voice from the voice pool
-    voice = MV_AllocVoice(priority);
+    VoiceNode *voice = MV_AllocVoice(priority);
+
     if (voice == NULL)
     {
         MV_SetErrorCode(MV_NoVoices);
@@ -771,12 +472,11 @@ int32_t MV_PlayVOC
     voice->ptrlength = ptrlength;
     voice->Playing = TRUE;
     voice->Paused = FALSE;
-    voice->wavetype    = VOC;
+    voice->wavetype    = FMT_VOC;
     voice->bits        = 8;
     voice->channels    = 1;
     voice->GetSound    = MV_GetNextVOCBlock;
     voice->NextBlock   = ptr + LITTLE16(*(uint16_t *)(ptr + 0x14));
-    voice->DemandFeed  = NULL;
     voice->LoopCount   = 0;
     voice->BlockLength = 0;
     voice->PitchScale  = PITCH_GetScale(pitchoffset);
@@ -795,63 +495,3 @@ int32_t MV_PlayVOC
     return voice->handle;
 }
 
-
-/*---------------------------------------------------------------------
-   Function: MV_StartDemandFeedPlayback
-
-   Plays a digitized sound from a user controlled buffering system.
----------------------------------------------------------------------*/
-
-int32_t MV_StartDemandFeedPlayback
-(
-    void (*function)(char **ptr, uint32_t *length),
-    int32_t rate,
-    int32_t pitchoffset,
-    int32_t vol,
-    int32_t left,
-    int32_t right,
-    int32_t priority,
-    uint32_t callbackval
-)
-
-{
-    VoiceNode *voice;
-
-    if (!MV_Installed)
-    {
-        MV_SetErrorCode(MV_NotInstalled);
-        return MV_Error;
-    }
-
-    // Request a voice from the voice pool
-    voice = MV_AllocVoice(priority);
-    if (voice == NULL)
-    {
-        MV_SetErrorCode(MV_NoVoices);
-        return MV_Error;
-    }
-
-    voice->wavetype    = DemandFeed;
-    voice->bits        = 8;
-    voice->channels    = 1;
-    voice->GetSound    = MV_GetNextDemandFeedBlock;
-    voice->NextBlock   = NULL;
-    voice->DemandFeed  = function;
-    voice->LoopStart   = NULL;
-    voice->LoopCount   = 0;
-    voice->position    = 0;
-    voice->sound       = NULL;
-    voice->length      = 0;
-    voice->BlockLength = 0;
-    voice->Playing     = TRUE;
-    voice->next        = NULL;
-    voice->prev        = NULL;
-    voice->priority    = priority;
-    voice->callbackval = callbackval;
-
-    MV_SetVoicePitch(voice, rate, pitchoffset);
-    MV_SetVoiceVolume(voice, vol, left, right);
-    MV_PlayVoice(voice);
-
-    return voice->handle;
-}

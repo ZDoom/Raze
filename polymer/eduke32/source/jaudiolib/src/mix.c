@@ -20,15 +20,6 @@
 
 #include "_multivc.h"
 
-
-void ClearBuffer_DW( void *ptr, unsigned data, int32_t length )
-{
-    unsigned *ptrdw = (unsigned *)ptr;
-    while (length--) {
-        *(ptrdw++) = data;
-    }
-}
-
 /*
  JBF:
  
@@ -39,10 +30,9 @@ void ClearBuffer_DW( void *ptr, unsigned data, int32_t length )
  */
 
 // 8-bit mono source, 8-bit mono output
-void MV_Mix8BitMono( uint32_t position, uint32_t rate,
-                    const char *start, uint32_t length )
+void MV_Mix8BitMono(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint8_t *source = (uint8_t *) start;
+    uint8_t const * const source = (uint8_t *) start;
     uint8_t *dest = (uint8_t *) MV_MixDestination;
     int32_t sample0;
     
@@ -63,10 +53,9 @@ void MV_Mix8BitMono( uint32_t position, uint32_t rate,
 }
 
 // 8-bit mono source, 8-bit stereo output
-void MV_Mix8BitStereo( uint32_t position, uint32_t rate,
-                      const char *start, uint32_t length )
+void MV_Mix8BitStereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint8_t *source = (uint8_t *) start;
+    uint8_t const * const source = (uint8_t *) start;
     uint8_t *dest = (uint8_t *) MV_MixDestination;
     int32_t sample0, sample1;
     
@@ -91,10 +80,9 @@ void MV_Mix8BitStereo( uint32_t position, uint32_t rate,
 }
 
 // 8-bit mono source, 16-bit mono output
-void MV_Mix16BitMono( uint32_t position, uint32_t rate,
-                     const char *start, uint32_t length )
+void MV_Mix16BitMono(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint8_t *source = (uint8_t *) start;
+    uint8_t const * const source = (uint8_t *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0;
     
@@ -116,10 +104,9 @@ void MV_Mix16BitMono( uint32_t position, uint32_t rate,
 }
 
 // 8-bit mono source, 16-bit stereo output
-void MV_Mix16BitStereo( uint32_t position, uint32_t rate,
-                       const char *start, uint32_t length )
+void MV_Mix16BitStereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint8_t *source = (uint8_t *) start;
+    uint8_t const * const source = (uint8_t *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0, sample1;
     
@@ -146,10 +133,9 @@ void MV_Mix16BitStereo( uint32_t position, uint32_t rate,
 }
 
 // 16-bit mono source, 16-bit mono output
-void MV_Mix16BitMono16( uint32_t position, uint32_t rate,
-                       const char *start, uint32_t length )
+void MV_Mix16BitMono16(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint16_t *source = (uint16_t *) start;
+    uint16_t const * const source = (uint16_t *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0l, sample0h, sample0;
     
@@ -180,10 +166,9 @@ void MV_Mix16BitMono16( uint32_t position, uint32_t rate,
 }
 
 // 16-bit mono source, 8-bit mono output
-void MV_Mix8BitMono16( uint32_t position, uint32_t rate,
-                      const char *start, uint32_t length )
+void MV_Mix8BitMono16(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    int8_t *source = (int8_t *) start + 1;
+    int8_t const * const source = (int8_t *) start + 1;
     uint8_t *dest = (uint8_t *) MV_MixDestination;
     int32_t sample0;
     
@@ -204,10 +189,9 @@ void MV_Mix8BitMono16( uint32_t position, uint32_t rate,
 }
 
 // 16-bit mono source, 8-bit stereo output
-void MV_Mix8BitStereo16( uint32_t position, uint32_t rate,
-                        const char *start, uint32_t length )
+void MV_Mix8BitStereo16(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    int8_t *source = (int8_t *) start + 1;
+    int8_t const * const source = (int8_t *) start + 1;
     uint8_t *dest = (uint8_t *) MV_MixDestination;
     int32_t sample0, sample1;
     
@@ -232,10 +216,9 @@ void MV_Mix8BitStereo16( uint32_t position, uint32_t rate,
 }
 
 // 16-bit mono source, 16-bit stereo output
-void MV_Mix16BitStereo16( uint32_t position, uint32_t rate,
-                         const char *start, uint32_t length )
+void MV_Mix16BitStereo16(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint16_t *source = (uint16_t *) start;
+    uint16_t const * const source = (uint16_t *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0l, sample0h, sample0;
     int32_t sample1l, sample1h, sample1;
@@ -274,14 +257,14 @@ void MV_Mix16BitStereo16( uint32_t position, uint32_t rate,
     MV_MixDestination = (char *) dest;
 }
 
-void MV_16BitReverb( char *src, char *dest, VOLUME16 *volume, int32_t count )
+void MV_16BitReverb(char const *src, char *dest, int16_t *volume, int32_t count)
 {
-    uint16_t * input = (uint16_t *) src;
+    uint16_t const * input = (uint16_t *) src;
     int16_t * output = (int16_t *) dest;
     int16_t sample0l, sample0h, sample0;
     
     do {
-        sample0 = *input;
+        sample0 = *input++;
 #if 0 //def BIGENDIAN
         sample0l = sample0 >> 8;
         sample0h = (sample0 & 255) ^ 128;
@@ -292,51 +275,16 @@ void MV_16BitReverb( char *src, char *dest, VOLUME16 *volume, int32_t count )
         
         sample0l = ((int16_t *) volume)[sample0l] >> 8;
         sample0h = ((int16_t *) volume)[sample0h];
-        *output = (int16_t) (sample0l + sample0h + 128);
-        
-        input++;
-        output++;
+        *output++ = (int16_t) (sample0l + sample0h + 128);
     } while (--count > 0);
 }
 
-void MV_8BitReverb( int8_t *src, int8_t *dest, VOLUME16 *volume, int32_t count )
+void MV_8BitReverb(int8_t *src, int8_t *dest, int16_t *volume, int32_t count)
 {
-    uint8_t * input = (uint8_t *) src;
+    uint8_t const * input = (uint8_t *) src;
     uint8_t * output = (uint8_t *) dest;
     
     do {
-        *output = ((int16_t *) volume)[*input] + 128;
-        
-        input++;
-        output++;
+        *output++ = ((int16_t *) volume)[*input++] + 128;
     } while (--count > 0);
 }
-
-void MV_16BitReverbFast( char *src, char *dest, int32_t count, int32_t shift )
-{
-    int16_t * input = (int16_t *) src;
-    int16_t * output = (int16_t *) dest;
-    
-    do {
-        *output = *input >> shift;
-        
-        input++;
-        output++;
-    } while (--count > 0);
-}
-
-void MV_8BitReverbFast( int8_t *src, int8_t *dest, int32_t count, int32_t shift )
-{
-    uint8_t sample0, c;
-    
-    c = 128 - (128 >> shift);
-    
-    do {
-        sample0 = *((uint8_t *) src) >> shift;
-        *dest = sample0 + c + ((sample0 ^ 128) >> 7);
-        
-        src++;
-        dest++;
-    } while (--count > 0);
-}
-

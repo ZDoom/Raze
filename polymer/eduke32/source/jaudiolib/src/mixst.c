@@ -31,10 +31,9 @@
  */
 
 // 8-bit stereo source, 8-bit mono output
-void MV_Mix8BitMono8Stereo( uint32_t position, uint32_t rate,
-                    const char *start, uint32_t length )
+void MV_Mix8BitMono8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint8_t *source = (uint8_t *) start;
+    uint8_t const * const source = (uint8_t *) start;
     uint8_t *dest = (uint8_t *) MV_MixDestination;
     int32_t sample0, sample1;
     
@@ -56,10 +55,9 @@ void MV_Mix8BitMono8Stereo( uint32_t position, uint32_t rate,
 }
 
 // 8-bit stereo source, 8-bit stereo output
-void MV_Mix8BitStereo8Stereo( uint32_t position, uint32_t rate,
-                      const char *start, uint32_t length )
+void MV_Mix8BitStereo8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint8_t *source = (uint8_t *) start;
+    uint8_t const * const source = (uint8_t *) start;
     uint8_t *dest = (uint8_t *) MV_MixDestination;
     int32_t sample0, sample1;
     
@@ -84,10 +82,9 @@ void MV_Mix8BitStereo8Stereo( uint32_t position, uint32_t rate,
 }
 
 // 8-bit stereo source, 16-bit mono output
-void MV_Mix16BitMono8Stereo( uint32_t position, uint32_t rate,
-                     const char *start, uint32_t length )
+void MV_Mix16BitMono8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint8_t *source = (uint8_t *) start;
+    uint8_t const * const source = (uint8_t *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0, sample1;
     
@@ -110,10 +107,9 @@ void MV_Mix16BitMono8Stereo( uint32_t position, uint32_t rate,
 }
 
 // 8-bit stereo source, 16-bit stereo output
-void MV_Mix16BitStereo8Stereo( uint32_t position, uint32_t rate,
-                       const char *start, uint32_t length )
+void MV_Mix16BitStereo8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint8_t *source = (uint8_t *) start;
+    uint8_t const * const source = (uint8_t *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0, sample1;
     
@@ -140,10 +136,9 @@ void MV_Mix16BitStereo8Stereo( uint32_t position, uint32_t rate,
 }
 
 // 16-bit stereo source, 16-bit mono output
-void MV_Mix16BitMono16Stereo( uint32_t position, uint32_t rate,
-                       const char *start, uint32_t length )
+void MV_Mix16BitMono16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint16_t *source = (uint16_t *) start;
+    uint16_t const * const source = (uint16_t *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0l, sample0h, sample0;
     int32_t sample1l, sample1h, sample1;
@@ -185,10 +180,9 @@ void MV_Mix16BitMono16Stereo( uint32_t position, uint32_t rate,
 }
 
 // 16-bit stereo source, 8-bit mono output
-void MV_Mix8BitMono16Stereo( uint32_t position, uint32_t rate,
-                      const char *start, uint32_t length )
+void MV_Mix8BitMono16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    int8_t *source = (int8_t *) start + 1;
+    int8_t const * const source = (int8_t *) start + 1;
     uint8_t *dest = (uint8_t *) MV_MixDestination;
     int32_t sample0, sample1;
     
@@ -212,10 +206,9 @@ void MV_Mix8BitMono16Stereo( uint32_t position, uint32_t rate,
 }
 
 // 16-bit stereo source, 8-bit stereo output
-void MV_Mix8BitStereo16Stereo( uint32_t position, uint32_t rate,
-                        const char *start, uint32_t length )
+void MV_Mix8BitStereo16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    int8_t *source = (int8_t *) start + 1;
+    int8_t const * const source = (int8_t *) start + 1;
     uint8_t *dest = (uint8_t *) MV_MixDestination;
     int32_t sample0, sample1;
     
@@ -240,10 +233,9 @@ void MV_Mix8BitStereo16Stereo( uint32_t position, uint32_t rate,
 }
 
 // 16-bit stereo source, 16-bit stereo output
-void MV_Mix16BitStereo16Stereo( uint32_t position, uint32_t rate,
-                         const char *start, uint32_t length )
+void MV_Mix16BitStereo16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint16_t *source = (uint16_t *) start;
+    uint16_t const * const source = (uint16_t *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0l, sample0h, sample0;
     int32_t sample1l, sample1h, sample1;

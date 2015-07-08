@@ -263,17 +263,16 @@ void SDLDrv_PCM_StopPlayback(void)
 
 void SDLDrv_PCM_Lock(void)
 {
-        if (InterruptsDisabled++)
-            return;
-    
-        SDL_LockMutex(EffectFence);
+    if (InterruptsDisabled++)
+        return;
+
+    SDL_LockMutex(EffectFence);
 }
 
 void SDLDrv_PCM_Unlock(void)
 {
-        if (--InterruptsDisabled)
-            return;
-    
-        SDL_UnlockMutex(EffectFence);
-}
+    if (--InterruptsDisabled)
+        return;
 
+    SDL_UnlockMutex(EffectFence);
+}

@@ -31,6 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef MULTIVOC_H_
 #define MULTIVOC_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef UNREFERENCED_PARAMETER
 #define UNREFERENCED_PARAMETER(x) x = x
 #endif
@@ -76,15 +80,15 @@ static inline uint32_t SWAP32(uint32_t s)
 
 typedef enum
 {
-    Unknown,
-    Raw,
-    VOC,
-    DemandFeed,
-    WAV,
-    Vorbis,
-    FLAC,
-    XA,
-} wavedata;
+    FMT_UNKNOWN,
+    FMT_RAW,
+    FMT_VOC,
+    FMT_WAV,
+    FMT_VORBIS,
+    FMT_FLAC,
+    FMT_XA,
+    FMT_MAX
+} wavefmt_t;
 
 #define MV_MINVOICEHANDLE 1
 
@@ -95,7 +99,6 @@ enum MV_Errors
     MV_Warning = -2,
     MV_Error = -1,
     MV_Ok = 0,
-    MV_UnsupportedCard,
     MV_NotInstalled,
     MV_DriverError,
     MV_NoVoices,
@@ -106,8 +109,6 @@ enum MV_Errors
     MV_InvalidVorbisFile,
     MV_InvalidFLACFile,
     MV_InvalidXAFile,
-    MV_InvalidMixMode,
-    MV_NullRecordFunction
 };
 
 extern void (*MV_Printf)(const char *fmt, ...);
@@ -124,17 +125,12 @@ int32_t MV_EndLooping(int32_t handle);
 int32_t MV_SetPan(int32_t handle, int32_t vol, int32_t left, int32_t right);
 int32_t MV_Pan3D(int32_t handle, int32_t angle, int32_t distance);
 void MV_SetReverb(int32_t reverb);
-void MV_SetFastReverb(int32_t reverb);
 int32_t MV_GetMaxReverbDelay(void);
 int32_t MV_GetReverbDelay(void);
 void MV_SetReverbDelay(int32_t delay);
 // int32_t   MV_SetMixMode( int32_t numchannels, int32_t samplebits );
 // int32_t   MV_StartPlayback( void );
 // void  MV_StopPlayback( void );
-int32_t MV_StartDemandFeedPlayback(void (*function)(char **ptr, uint32_t *length), int32_t rate, int32_t pitchoffset,
-                                   int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
-int32_t MV_PlayRaw(char *ptr, uint32_t length, char *loopstart, char *loopend, unsigned rate, int32_t pitchoffset,
-                   int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
 int32_t MV_PlayWAV3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
                      int32_t priority, uint32_t callbackval);
 int32_t MV_PlayWAV(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
@@ -170,5 +166,9 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
 int32_t MV_Shutdown(void);
 int32_t MV_SetVoiceCallback(int32_t handle, uint32_t callbackval);
 void MV_SetPrintf(void (*function)(const char *fmt, ...));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
