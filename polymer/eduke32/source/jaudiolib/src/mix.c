@@ -29,56 +29,6 @@
  length = count of samples to mix
  */
 
-// 8-bit mono source, 8-bit mono output
-void MV_Mix8BitMono(uint32_t position, uint32_t rate, const char *start, uint32_t length)
-{
-    uint8_t const * const source = (uint8_t *) start;
-    uint8_t *dest = (uint8_t *) MV_MixDestination;
-    int32_t sample0;
-    
-    while (length--) {
-        sample0 = source[position >> 16];
-        position += rate;
-        
-        sample0 = MV_LeftVolume[sample0] + *dest;
-        sample0 = MV_HarshClipTable[sample0 + 128];
-        
-        *dest = sample0 & 255;
-        
-        dest += MV_SampleSize;
-    }
-    
-    MV_MixPosition = position;
-    MV_MixDestination = (char *) dest;
-}
-
-// 8-bit mono source, 8-bit stereo output
-void MV_Mix8BitStereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
-{
-    uint8_t const * const source = (uint8_t *) start;
-    uint8_t *dest = (uint8_t *) MV_MixDestination;
-    int32_t sample0, sample1;
-    
-    while (length--) {
-        sample0 = source[position >> 16];
-        sample1 = sample0;
-        position += rate;
-        
-        sample0 = MV_LeftVolume[sample0] + *dest;
-        sample1 = MV_RightVolume[sample1] + *(dest + MV_RightChannelOffset);
-        sample0 = MV_HarshClipTable[sample0 + 128];
-        sample1 = MV_HarshClipTable[sample1 + 128];
-        
-        *dest = sample0 & 255;
-        *(dest + MV_RightChannelOffset) = sample1 & 255;
-        
-        dest += MV_SampleSize;
-    }
-    
-    MV_MixPosition = position;
-    MV_MixDestination = (char *) dest;
-}
-
 // 8-bit mono source, 16-bit mono output
 void MV_Mix16BitMono(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
@@ -165,56 +115,6 @@ void MV_Mix16BitMono16(uint32_t position, uint32_t rate, const char *start, uint
     MV_MixDestination = (char *) dest;
 }
 
-// 16-bit mono source, 8-bit mono output
-void MV_Mix8BitMono16(uint32_t position, uint32_t rate, const char *start, uint32_t length)
-{
-    int8_t const * const source = (int8_t *) start + 1;
-    uint8_t *dest = (uint8_t *) MV_MixDestination;
-    int32_t sample0;
-    
-    while (length--) {
-        sample0 = source[(position >> 16) << 1];
-        position += rate;
-        
-        sample0 = MV_LeftVolume[sample0 + 128] + *dest;
-        sample0 = MV_HarshClipTable[sample0 + 128];
-        
-        *dest = sample0 & 255;
-        
-        dest += MV_SampleSize;
-    }
-    
-    MV_MixPosition = position;
-    MV_MixDestination = (char *) dest;
-}
-
-// 16-bit mono source, 8-bit stereo output
-void MV_Mix8BitStereo16(uint32_t position, uint32_t rate, const char *start, uint32_t length)
-{
-    int8_t const * const source = (int8_t *) start + 1;
-    uint8_t *dest = (uint8_t *) MV_MixDestination;
-    int32_t sample0, sample1;
-    
-    while (length--) {
-        sample0 = source[(position >> 16) << 1];
-        sample1 = sample0;
-        position += rate;
-        
-        sample0 = MV_LeftVolume[sample0 + 128] + *dest;
-        sample1 = MV_RightVolume[sample1 + 128] + *(dest + MV_RightChannelOffset);
-        sample0 = MV_HarshClipTable[sample0 + 128];
-        sample1 = MV_HarshClipTable[sample1 + 128];
-        
-        *dest = sample0 & 255;
-        *(dest + MV_RightChannelOffset) = sample1 & 255;
-        
-        dest += MV_SampleSize;
-    }
-    
-    MV_MixPosition = position;
-    MV_MixDestination = (char *) dest;
-}
-
 // 16-bit mono source, 16-bit stereo output
 void MV_Mix16BitStereo16(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
@@ -276,15 +176,5 @@ void MV_16BitReverb(char const *src, char *dest, int16_t *volume, int32_t count)
         sample0l = ((int16_t *) volume)[sample0l] >> 8;
         sample0h = ((int16_t *) volume)[sample0h];
         *output++ = (int16_t) (sample0l + sample0h + 128);
-    } while (--count > 0);
-}
-
-void MV_8BitReverb(int8_t *src, int8_t *dest, int16_t *volume, int32_t count)
-{
-    uint8_t const * input = (uint8_t *) src;
-    uint8_t * output = (uint8_t *) dest;
-    
-    do {
-        *output++ = ((int16_t *) volume)[*input++] + 128;
     } while (--count > 0);
 }

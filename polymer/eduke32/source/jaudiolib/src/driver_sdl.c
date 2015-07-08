@@ -143,7 +143,7 @@ const char *SDLDrv_ErrorString( int32_t ErrorNumber )
     return ErrorString;
 }
 
-int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *samplebits, void * initdata)
+int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata)
 {
     int32_t err = 0;
     int32_t chunksize;
@@ -164,17 +164,21 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *sampleb
     if (*mixrate >= 16000) chunksize *= 2;
     if (*mixrate >= 32000) chunksize *= 2;
 
-    err = Mix_OpenAudio(*mixrate, (*samplebits == 8) ? AUDIO_U8 : AUDIO_S16SYS, *numchannels, chunksize);
+    err = Mix_OpenAudio(*mixrate, AUDIO_S16SYS, *numchannels, chunksize);
 
     if (err < 0) {
         ErrorCode = SDLErr_OpenAudio;
         return SDLErr_Error;
     }
 
+
     if (Mix_QuerySpec(mixrate, &fmt, numchannels))
     {
-        if (fmt == AUDIO_U8 || fmt == AUDIO_S8) *samplebits = 8;
-        else *samplebits = 16;
+        if (fmt == AUDIO_U8 || fmt == AUDIO_S8)
+        {
+            ErrorCode = SDLErr_OpenAudio;
+            return SDLErr_Error;
+        }
     }
 
     //Mix_SetPostMix(fillData, NULL);

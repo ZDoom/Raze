@@ -30,57 +30,6 @@
  length = count of samples to mix
  */
 
-// 8-bit stereo source, 8-bit mono output
-void MV_Mix8BitMono8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
-{
-    uint8_t const * const source = (uint8_t *) start;
-    uint8_t *dest = (uint8_t *) MV_MixDestination;
-    int32_t sample0, sample1;
-    
-    while (length--) {
-        sample0 = source[(position >> 16) << 1];
-        sample1 = source[((position >> 16) << 1) + 1];
-        position += rate;
-        
-        sample0 = (MV_LeftVolume[sample0] + MV_LeftVolume[sample1]) / 2 + *dest;
-        sample0 = MV_HarshClipTable[sample0 + 128];
-        
-        *dest = sample0 & 255;
-        
-        dest += MV_SampleSize;
-    }
-    
-    MV_MixPosition = position;
-    MV_MixDestination = (char *) dest;
-}
-
-// 8-bit stereo source, 8-bit stereo output
-void MV_Mix8BitStereo8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
-{
-    uint8_t const * const source = (uint8_t *) start;
-    uint8_t *dest = (uint8_t *) MV_MixDestination;
-    int32_t sample0, sample1;
-    
-    while (length--) {
-        sample0 = source[(position >> 16) << 1];
-        sample1 = source[((position >> 16) << 1) + 1];
-        position += rate;
-        
-        sample0 = MV_LeftVolume[sample0] + *dest;
-        sample1 = MV_RightVolume[sample1] + *(dest + MV_RightChannelOffset);
-        sample0 = MV_HarshClipTable[sample0 + 128];
-        sample1 = MV_HarshClipTable[sample1 + 128];
-        
-        *dest = sample0 & 255;
-        *(dest + MV_RightChannelOffset) = sample1 & 255;
-        
-        dest += MV_SampleSize;
-    }
-    
-    MV_MixPosition = position;
-    MV_MixDestination = (char *) dest;
-}
-
 // 8-bit stereo source, 16-bit mono output
 void MV_Mix16BitMono8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
@@ -173,59 +122,6 @@ void MV_Mix16BitMono16Stereo(uint32_t position, uint32_t rate, const char *start
         *dest = (int16_t) sample0;
         
         dest += MV_SampleSize / 2;
-    }
-    
-    MV_MixPosition = position;
-    MV_MixDestination = (char *) dest;
-}
-
-// 16-bit stereo source, 8-bit mono output
-void MV_Mix8BitMono16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
-{
-    int8_t const * const source = (int8_t *) start + 1;
-    uint8_t *dest = (uint8_t *) MV_MixDestination;
-    int32_t sample0, sample1;
-    
-    while (length--) {
-        sample0 = source[(position >> 16) << 2];
-        sample1 = source[((position >> 16) << 2) + 2];
-        position += rate;
-        
-        sample0 = MV_LeftVolume[sample0 + 128];
-        sample1 = MV_LeftVolume[sample1 + 128];
-        sample0 = (sample0 + sample1) / 2 + *dest;
-        sample0 = MV_HarshClipTable[sample0 + 128];
-        
-        *dest = sample0 & 255;
-        
-        dest += MV_SampleSize;
-    }
-    
-    MV_MixPosition = position;
-    MV_MixDestination = (char *) dest;
-}
-
-// 16-bit stereo source, 8-bit stereo output
-void MV_Mix8BitStereo16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
-{
-    int8_t const * const source = (int8_t *) start + 1;
-    uint8_t *dest = (uint8_t *) MV_MixDestination;
-    int32_t sample0, sample1;
-    
-    while (length--) {
-        sample0 = source[(position >> 16) << 2];
-        sample1 = source[((position >> 16) << 2) + 2];
-        position += rate;
-        
-        sample0 = MV_LeftVolume[sample0 + 128] + *dest;
-        sample1 = MV_RightVolume[sample1 + 128] + *(dest + MV_RightChannelOffset);
-        sample0 = MV_HarshClipTable[sample0 + 128];
-        sample1 = MV_HarshClipTable[sample1 + 128];
-        
-        *dest = sample0 & 255;
-        *(dest + MV_RightChannelOffset) = sample1 & 255;
-        
-        dest += MV_SampleSize;
     }
     
     MV_MixPosition = position;

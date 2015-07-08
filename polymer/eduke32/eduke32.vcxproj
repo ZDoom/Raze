@@ -321,6 +321,7 @@
     <ClInclude Include="source\gamevars.h" />
     <ClInclude Include="source\global.h" />
     <ClInclude Include="source\input.h" />
+    <ClInclude Include="source\jaudiolib\include\drivers.h" />
     <ClInclude Include="source\lunatic\lunatic_game.h" />
     <ClInclude Include="source\lunatic\lunatic_m32.h" />
     <ClInclude Include="source\m32def.h" />
@@ -358,14 +359,11 @@
     <ClInclude Include="source\jaudiolib\src\driver_directsound.h" />
     <ClInclude Include="source\jaudiolib\src\driver_nosound.h" />
     <ClInclude Include="source\jaudiolib\src\driver_sdl.h" />
-    <ClInclude Include="source\jaudiolib\src\drivers.h" />
     <ClInclude Include="source\jaudiolib\include\fx_man.h" />
     <ClInclude Include="source\jaudiolib\src\linklist.h" />
-    <ClInclude Include="source\jaudiolib\src\ll_man.h" />
     <ClInclude Include="source\jaudiolib\src\multivoc.h" />
     <ClInclude Include="source\jaudiolib\include\music.h" />
     <ClInclude Include="source\jaudiolib\src\pitch.h" />
-    <ClInclude Include="source\jaudiolib\include\sndcards.h" />
     <ClInclude Include="source\jmact\_control.h" />
     <ClInclude Include="source\jmact\_scrplib.h" />
     <ClInclude Include="source\jmact\animlib.h" />

@@ -958,7 +958,7 @@ static MenuEntry_t ME_SAVE_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_MinifontRed, &ME
 static MenuEntry_t ME_SAVE[MAXSAVEGAMES];
 static MenuEntry_t *MEL_SAVE[MAXSAVEGAMES];
 
-static int32_t soundrate, soundbits, soundvoices;
+static int32_t soundrate, soundvoices;
 static MenuOption_t MEO_SOUND = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.config.SoundToggle );
 static MenuEntry_t ME_SOUND = MAKE_MENUENTRY( "Sound:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND, Option );
 
@@ -982,12 +982,6 @@ static int32_t MEOSV_SOUND_SAMPLINGRATE[] = { 22050, 44100, 48000, };
 static MenuOptionSet_t MEOS_SOUND_SAMPLINGRATE = MAKE_MENUOPTIONSET( MEOSN_SOUND_SAMPLINGRATE, MEOSV_SOUND_SAMPLINGRATE, 0x3 );
 static MenuOption_t MEO_SOUND_SAMPLINGRATE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_SOUND_SAMPLINGRATE, &soundrate );
 static MenuEntry_t ME_SOUND_SAMPLINGRATE = MAKE_MENUENTRY( "Sample rate:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_SAMPLINGRATE, Option );
-
-static char *MEOSN_SOUND_SAMPLESIZE[] = { "8-bit", "16-bit", };
-static int32_t MEOSV_SOUND_SAMPLESIZE[] = { 8, 16, };
-static MenuOptionSet_t MEOS_SOUND_SAMPLESIZE = MAKE_MENUOPTIONSET( MEOSN_SOUND_SAMPLESIZE, MEOSV_SOUND_SAMPLESIZE, 0x3 );
-static MenuOption_t MEO_SOUND_SAMPLESIZE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_SOUND_SAMPLESIZE, &soundbits );
-static MenuEntry_t ME_SOUND_SAMPLESIZE = MAKE_MENUENTRY( "Sample size:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_SAMPLESIZE, Option );
 
 static MenuRangeInt32_t MEO_SOUND_NUMVOICES = MAKE_MENURANGE( &soundvoices, &MF_Redfont, 16, 256, 0, 16, 1 );
 static MenuEntry_t ME_SOUND_NUMVOICES = MAKE_MENUENTRY( "Voices:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_NUMVOICES, RangeInt32 );
@@ -1015,7 +1009,6 @@ static MenuEntry_t *MEL_SOUND[] = {
 
 static MenuEntry_t *MEL_ADVSOUND[] = {
     &ME_SOUND_SAMPLINGRATE,
-    &ME_SOUND_SAMPLESIZE,
     &ME_Space2,
     &ME_SOUND_NUMVOICES,
     &ME_Space2,
@@ -1639,11 +1632,9 @@ static void M_PreMenu(MenuID_t cm)
         MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_MUSIC, !ud.config.MusicToggle);
         MenuEntry_DisableOnCondition(&ME_SOUND_DUKETALK, !ud.config.SoundToggle);
         MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLINGRATE, !ud.config.SoundToggle && !ud.config.MusicToggle);
-        MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLESIZE, !ud.config.SoundToggle && !ud.config.MusicToggle);
         MenuEntry_DisableOnCondition(&ME_SOUND_NUMVOICES, !ud.config.SoundToggle);
         MenuEntry_DisableOnCondition(&ME_SOUND_RESTART, soundrate == ud.config.MixRate &&
-                                                        soundvoices == ud.config.NumVoices &&
-                                                        soundbits == ud.config.NumBits);
+                                                        soundvoices == ud.config.NumVoices);
         break;
 
     case MENU_MOUSESETUP:
@@ -2588,7 +2579,6 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
     {
         ud.config.MixRate = soundrate;
         ud.config.NumVoices = soundvoices;
-        ud.config.NumBits = soundbits;
 
         S_SoundShutdown();
         S_MusicShutdown();
@@ -3398,7 +3388,6 @@ void M_ChangeMenu(MenuID_t cm)
     case MENU_ADVSOUND:
         soundrate = ud.config.MixRate;
         soundvoices = ud.config.NumVoices;
-        soundbits = ud.config.NumBits;
         break;
 
     default:

@@ -161,7 +161,7 @@ int32_t MV_GetVolume(void);
 void MV_SetCallBack(void (*function)(uint32_t));
 void MV_SetReverseStereo(int32_t setting);
 int32_t MV_GetReverseStereo(void);
-int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numchannels, int32_t samplebits,
+int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numchannels,
                 void *initdata);
 int32_t MV_Shutdown(void);
 int32_t MV_SetVoiceCallback(int32_t handle, uint32_t callbackval);

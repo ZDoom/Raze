@@ -1632,7 +1632,6 @@ int32_t registerosdcommands(void)
         { "snd_mastervolume", "master volume for sound system", (void *)&ud.config.MasterVolume, CVAR_INT, 0, 255 },
         { "snd_fxvolume", "volume of sound effects", (void *)&ud.config.FXVolume, CVAR_INT, 1, 255 },
         { "snd_mixrate", "sound mixing rate", (void *)&ud.config.MixRate, CVAR_INT, 0, 48000 },
-        { "snd_numbits", "sound bits", (void *)&ud.config.NumBits, CVAR_INT, 8, 16 },
         { "snd_numchannels", "the number of sound channels", (void *)&ud.config.NumChannels, CVAR_INT, 0, 2 },
         { "snd_numvoices", "the number of concurrent sounds", (void *)&ud.config.NumVoices, CVAR_INT, 0, 256 },
         { "snd_reversestereo", "reverses the stereo channels", (void *)&ud.config.ReverseStereo, CVAR_BOOL, 0, 16 },

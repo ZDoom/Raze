@@ -26,8 +26,11 @@
 typedef enum
 {
     ASS_NoSound,
-    ASS_SDL,
+#if defined HAVE_DS
     ASS_DirectSound,
+#elif defined HAVE_SDL
+    ASS_SDL,
+#endif
     ASS_NumSoundCards,
     ASS_AutoDetect = -2
 } soundcardnames;
@@ -38,7 +41,7 @@ int32_t SoundDriver_IsSupported(int32_t driver);
 
 int32_t SoundDriver_GetError(void);
 const char *SoundDriver_ErrorString(int32_t ErrorNumber);
-int32_t SoundDriver_Init(int32_t *mixrate, int32_t *numchannels, int32_t *samplebits, void *initdata);
+int32_t SoundDriver_Init(int32_t *mixrate, int32_t *numchannels, void *initdata);
 void SoundDriver_Shutdown(void);
 int32_t SoundDriver_BeginPlayback(char *BufferStart, int32_t BufferSize, int32_t NumDivisions, void(*CallBackFunc)(void));
 void SoundDriver_StopPlayback(void);

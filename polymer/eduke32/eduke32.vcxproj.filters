@@ -243,9 +243,6 @@
     <ClInclude Include="source\jaudiolib\src\driver_sdl.h">
       <Filter>jaudiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\src\drivers.h">
-      <Filter>jaudiolib\headers</Filter>
-    </ClInclude>
     <ClInclude Include="source\jaudiolib\include\fx_man.h">
       <Filter>jaudiolib\headers</Filter>
     </ClInclude>
@@ -262,9 +259,6 @@
       <Filter>jaudiolib\headers</Filter>
     </ClInclude>
     <ClInclude Include="source\jaudiolib\src\pitch.h">
-      <Filter>jaudiolib\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="source\jaudiolib\include\sndcards.h">
       <Filter>jaudiolib\headers</Filter>
     </ClInclude>
     <ClInclude Include="source\jmact\_control.h">
@@ -515,6 +509,9 @@
     </ClInclude>
     <ClInclude Include="build\include\jwzglesI.h">
       <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\jaudiolib\include\drivers.h">
+      <Filter>jaudiolib\headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -52,7 +52,6 @@ static VoiceNode *MV_GetVoice(int32_t handle);
 
 static const int16_t *MV_GetVolumeTable(int32_t vol);
 
-static void MV_CalcVolume(int32_t MaxLevel);
 static void MV_CalcPanTable(void);
 
 #define IS_QUIET(ptr) ((void *)(ptr) == (void *)&MV_VolumeTable[0])
@@ -74,14 +73,10 @@ static int32_t MV_BufferLength;
 static int32_t MV_NumberOfBuffers = MV_NUMBEROFBUFFERS;
 
 static int32_t MV_Channels = 1;
-static int32_t MV_Bits = 8;
 
-static int32_t MV_Silence = SILENCE_8BIT;
-static int32_t MV_SwapLeftRight = FALSE;
+static int32_t MV_ReverseStereo = FALSE;
 
 int32_t MV_MixRate;
-
-// static int32_t MV_BuffShift;
 
 static int32_t MV_BufferEmpty[MV_NUMBEROFBUFFERS];
 char *MV_MixBuffer[MV_NUMBEROFBUFFERS + 1];
@@ -95,9 +90,7 @@ static int32_t MV_MixPage = 0;
 
 void (*MV_Printf)(const char *fmt, ...) = NULL;
 static void (*MV_CallBackFunc)(uint32_t) = NULL;
-static void (*MV_MixFunction)(VoiceNode *voice, int32_t buffer);
 
-char *MV_HarshClipTable;
 char *MV_MixDestination;
 const int16_t *MV_LeftVolume;
 const int16_t *MV_RightVolume;
@@ -120,15 +113,6 @@ static inline void RestoreInterrupts(void)
 {
     if (--lockdepth <= 0)
         SoundDriver_Unlock();
-}
-
-static inline void ClearBuffer_DW(void *ptr, unsigned data, int32_t length)
-{
-    unsigned *ptrdw = (unsigned *)ptr;
-    while (length--)
-    {
-        *(ptrdw++) = data;
-    }
 }
 
 const char *MV_ErrorString(int32_t ErrorNumber)
@@ -168,7 +152,7 @@ static void MV_Mix(VoiceNode *voice, int32_t buffer)
 {
     /* cheap fix for a crash under 64-bit linux */
     /*                            v  v  v  v    */
-    if (voice->length == 0 && (!voice->GetSound || voice->GetSound(voice) != KeepPlaying))
+    if (voice->length == 0 && (voice->GetSound == NULL || voice->GetSound(voice) != KeepPlaying))
         return;
 
     int32_t length = MV_MIXBUFFERSIZE;
@@ -282,7 +266,7 @@ static void MV_ServiceVoc(void)
         //buffer even when no sounds are playing.
         if (!MV_BufferEmpty[MV_MixPage])
         {
-            ClearBuffer_DW(MV_MixBuffer[ MV_MixPage ], MV_Silence, MV_BufferSize >> 2);
+            Bmemset(MV_MixBuffer[MV_MixPage], 0, MV_BufferSize);
             MV_BufferEmpty[ MV_MixPage ] = TRUE;
         }
     }
@@ -301,10 +285,7 @@ static void MV_ServiceVoc(void)
         {
             int const count = (source + length > end) ? (end - source) : length;
 
-            if (MV_Bits == 16)
-                MV_16BitReverb(source, dest, MV_ReverbTable, count / 2);
-            else // if (MV_Bits == 8)
-                MV_8BitReverb((int8_t *) source, (int8_t *) dest, MV_ReverbTable, count);
+            MV_16BitReverb(source, dest, MV_ReverbTable, count / 2);
 
             // if we go through the loop again, it means that we've wrapped around the buffer
             source  = MV_MixBuffer[ 0 ];
@@ -337,7 +318,7 @@ static void MV_ServiceVoc(void)
 
         MV_BufferEmpty[ MV_MixPage ] = FALSE;
 
-        MV_MixFunction(voice, MV_MixPage);
+        MV_Mix(voice, MV_MixPage);
 
         // Is this voice done?
         if (!voice->Playing)
@@ -606,36 +587,24 @@ static const inline int16_t *MV_GetVolumeTable(int32_t vol) { return MV_VolumeTa
 
    Selects which method should be used to mix the voice.
 
- 8Bit  16Bit  8Bit  16Bit |  8Bit  16Bit  8Bit  16Bit |
- Mono  Mono   Ster  Ster  |  Mono  Mono   Ster  Ster  |  Mixer
- Out   Out    Out   Out   |  In    In     In    In    |
---------------------------+---------------------------+-------------
-  X                       |         X                 | Mix8BitMono16
-  X                       |   X                       | Mix8BitMono
-               X          |         X                 | Mix8BitStereo16
-               X          |   X                       | Mix8BitStereo
-        X                 |         X                 | Mix16BitMono16
-        X                 |   X                       | Mix16BitMono
-                     X    |         X                 | Mix16BitStereo16
-                     X    |   X                       | Mix16BitStereo
---------------------------+---------------------------+-------------
-                     X    |                      X    | Mix16BitStereo16Stereo
-                     X    |                X          | Mix16BitStereo8Stereo
-               X          |                      X    | Mix8BitStereo16Stereo
-               X          |                X          | Mix8BitStereo8Stereo
-        X                 |                      X    | Mix16BitMono16Stereo
-        X                 |                X          | Mix16BitMono8Stereo
-  X                       |                      X    | Mix8BitMono16Stereo
-  X                       |                X          | Mix8BitMono8Stereo
-
+   16Bit        16Bit |  8Bit  16Bit  8Bit  16Bit |
+   Mono         Ster  |  Mono  Mono   Ster  Ster  |  Mixer
+   Out          Out   |  In    In     In    In    |
+----------------------+---------------------------+-------------
+    X                 |         X                 | Mix16BitMono16
+    X                 |   X                       | Mix16BitMono
+                 X    |         X                 | Mix16BitStereo16
+                 X    |   X                       | Mix16BitStereo
+----------------------+---------------------------+-------------
+                 X    |                      X    | Mix16BitStereo16Stereo
+                 X    |                X          | Mix16BitStereo8Stereo
+    X                 |                      X    | Mix16BitMono16Stereo
+    X                 |                X          | Mix16BitMono8Stereo
 ---------------------------------------------------------------------*/
 
 void MV_SetVoiceMixMode(VoiceNode *voice)
 {
     int32_t type = T_DEFAULT;
-
-    if (MV_Bits == 8)
-        type |= T_8BITS;
 
     if (MV_Channels == 1)
         type |= T_MONO;
@@ -658,18 +627,6 @@ void MV_SetVoiceMixMode(VoiceNode *voice)
 
     switch (type)
     {
-        case T_8BITS | T_16BITSOURCE | T_LEFTQUIET: MV_LeftVolume = MV_RightVolume;
-        case T_8BITS | T_16BITSOURCE | T_MONO:
-        case T_8BITS | T_16BITSOURCE | T_RIGHTQUIET: voice->mix = MV_Mix8BitMono16; break;
-
-        case T_8BITS | T_LEFTQUIET: MV_LeftVolume = MV_RightVolume;
-        case T_8BITS | T_MONO:
-        case T_8BITS | T_RIGHTQUIET: voice->mix = MV_Mix8BitMono; break;
-
-        case T_8BITS | T_16BITSOURCE: voice->mix = MV_Mix8BitStereo16; break;
-
-        case T_8BITS: voice->mix = MV_Mix8BitStereo; break;
-
         case T_16BITSOURCE | T_LEFTQUIET: MV_LeftVolume = MV_RightVolume;
         case T_16BITSOURCE | T_MONO:
         case T_16BITSOURCE | T_RIGHTQUIET: voice->mix = MV_Mix16BitMono16; break;
@@ -684,19 +641,11 @@ void MV_SetVoiceMixMode(VoiceNode *voice)
 
         case T_16BITSOURCE | T_STEREOSOURCE: voice->mix = MV_Mix16BitStereo16Stereo; break;
 
-        case T_16BITSOURCE | T_STEREOSOURCE | T_8BITS: voice->mix = MV_Mix8BitStereo16Stereo; break;
-
         case T_16BITSOURCE | T_STEREOSOURCE | T_MONO: voice->mix = MV_Mix16BitMono16Stereo; break;
-
-        case T_16BITSOURCE | T_STEREOSOURCE | T_8BITS | T_MONO: voice->mix = MV_Mix8BitMono16Stereo; break;
 
         case T_STEREOSOURCE: voice->mix = MV_Mix16BitStereo8Stereo; break;
 
-        case T_STEREOSOURCE | T_8BITS: voice->mix = MV_Mix8BitStereo8Stereo; break;
-
         case T_STEREOSOURCE | T_MONO: voice->mix = MV_Mix16BitMono8Stereo; break;
-
-        case T_STEREOSOURCE | T_8BITS | T_MONO: voice->mix = MV_Mix8BitMono8Stereo; break;
 
         default: voice->mix = NULL; break;
     }
@@ -715,7 +664,7 @@ void MV_SetVoiceVolume(VoiceNode *voice, int32_t vol, int32_t left, int32_t righ
     {
         voice->RightVolume = MV_GetVolumeTable(right);
 
-        if (MV_SwapLeftRight)
+        if (MV_ReverseStereo)
             swapptr(&voice->LeftVolume, &voice->RightVolume);
     }
 
@@ -843,33 +792,13 @@ void MV_SetReverbDelay(int32_t delay)
     MV_ReverbDelay = max(MV_MIXBUFFERSIZE, min(delay, MV_GetMaxReverbDelay())) * MV_SampleSize;
 }
 
-static int32_t MV_SetMixMode(int32_t numchannels, int32_t samplebits)
+static int32_t MV_SetMixMode(int32_t numchannels)
 {
     if (!MV_Installed)
         return MV_Error;
 
-    int32_t mode = 0;
-
-    if (numchannels == 2)
-        mode |= STEREO;
-
-    if (samplebits == 16)
-        mode |= SIXTEEN_BIT;
-
-    MV_Channels = 1 + (mode & STEREO);
-    MV_SampleSize = sizeof(int8_t) * MV_Channels;
-
-    if (mode & SIXTEEN_BIT)
-    {
-        MV_Bits = 16;
-        MV_Silence = SILENCE_16BIT;
-        MV_SampleSize <<= 1;
-    }
-    else
-    {
-        MV_Bits = 8;
-        MV_Silence = SILENCE_8BIT;
-    }
+    MV_Channels = 1 + (numchannels == 2);
+    MV_SampleSize = sizeof(int8_t) * MV_Channels * 2;
 
     MV_BufferSize = MV_MIXBUFFERSIZE * MV_SampleSize;
     MV_NumberOfBuffers = MV_TOTALBUFFERSIZE / MV_BufferSize;
@@ -883,18 +812,14 @@ static int32_t MV_SetMixMode(int32_t numchannels, int32_t samplebits)
 static int32_t MV_StartPlayback(void)
 {
     // Initialize the buffers
-    ClearBuffer_DW(MV_MixBuffer[ 0 ], MV_Silence, MV_TOTALBUFFERSIZE >> 2);
+    Bmemset(MV_MixBuffer[0], 0, MV_TOTALBUFFERSIZE);
 
     for (int buffer = 0; buffer < MV_NumberOfBuffers; buffer++)
-        MV_BufferEmpty[ buffer ] = TRUE;
+        MV_BufferEmpty[buffer] = TRUE;
 
     MV_MixPage = 1;
 
-    MV_MixFunction = MV_Mix;
-
-    int status = SoundDriver_BeginPlayback(MV_MixBuffer[0], MV_BufferSize, MV_NumberOfBuffers, MV_ServiceVoc);
-
-    if (status != MV_Ok)
+    if (SoundDriver_BeginPlayback(MV_MixBuffer[0], MV_BufferSize, MV_NumberOfBuffers, MV_ServiceVoc) != MV_Ok)
     {
         MV_SetErrorCode(MV_DriverError);
         return MV_Error;
@@ -925,38 +850,18 @@ static void MV_StopPlayback(void)
     RestoreInterrupts();
 }
 
-static void MV_CreateVolumeTable(int32_t index, int32_t volume, int32_t MaxVolume)
-{
-    int const level = (volume * MaxVolume) / MV_MAXTOTALVOLUME;
-
-    if (MV_Bits == 16)
-    {
-        for (int i = 0; i < 65536; i += 256)
-            MV_VolumeTable[ index ][ i / 256 ] = ((i - 0x8000) * level) / MV_MAXVOLUME;
-    }
-    else
-    {
-        for (int i = 0; i < 256; i++)
-            MV_VolumeTable[ volume ][ i ] = ((i - 0x80) * level) / MV_MAXVOLUME;
-    }
-}
-
 static void MV_CalcVolume(int32_t MaxVolume)
 {
-    for (int volume = 0; volume < 128; volume++)
-    {
-        MV_HarshClipTable[volume] = 0;
-        MV_HarshClipTable[volume + 384] = 255;
-    }
-
-    for (int volume = 0; volume < 256; volume++)
-        MV_HarshClipTable[volume + 128] = volume;
-
     // For each volume level, create a translation table with the
     // appropriate volume calculated.
 
     for (int volume = 0; volume <= MV_MAXVOLUME; volume++)
-        MV_CreateVolumeTable(volume, volume, MaxVolume);
+    {
+        int const level = (volume * MaxVolume) / MV_MAXTOTALVOLUME;
+
+        for (int i = 0; i < 65536; i += 256)
+            MV_VolumeTable[volume][i / 256] = ((i - 0x8000) * level) / MV_MAXVOLUME;
+    }
 }
 
 static void MV_CalcPanTable(void)
@@ -997,11 +902,11 @@ int32_t MV_GetVolume(void) { return MV_TotalVolume; }
 
 void MV_SetCallBack(void (*function)(uint32_t)) { MV_CallBackFunc = function; }
 
-void MV_SetReverseStereo(int32_t setting) { MV_SwapLeftRight = setting; }
+void MV_SetReverseStereo(int32_t setting) { MV_ReverseStereo = setting; }
 
-int32_t MV_GetReverseStereo(void) { return MV_SwapLeftRight; }
+int32_t MV_GetReverseStereo(void) { return MV_ReverseStereo; }
 
-int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numchannels, int32_t samplebits, void *initdata)
+int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numchannels, void *initdata)
 {
     if (MV_Installed)
         MV_Shutdown();
@@ -1009,7 +914,7 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
     MV_SetErrorCode(MV_Ok);
 
     // MV_TotalMemory + 2: FIXME, see valgrind_errors.log
-    int const totalmem = Voices * sizeof(VoiceNode) + sizeof(HARSH_CLIP_TABLE_8) + MV_TOTALBUFFERSIZE + 2;
+    int const totalmem = Voices * sizeof(VoiceNode) + MV_TOTALBUFFERSIZE + 2;
     
     char *ptr = (char *) Xaligned_alloc(16, totalmem);
 
@@ -1023,9 +928,6 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
 
     MV_Voices = (VoiceNode *)ptr;
     ptr += Voices * sizeof(VoiceNode);
-
-    MV_HarshClipTable = ptr;
-    ptr += sizeof(HARSH_CLIP_TABLE_8);
 
     // Set number of voices before calculating volume table
     MV_MaxVoices = Voices;
@@ -1043,19 +945,14 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
     ASS_SoundDriver = soundcard;
 
     // Initialize the sound card
-    int32_t status = SoundDriver_Init(&MixRate, &numchannels, &samplebits, initdata);
 
-    if (status != MV_Ok)
+    if (SoundDriver_Init(&MixRate, &numchannels, initdata) != MV_Ok)
         MV_SetErrorCode(MV_DriverError);
 
     if (MV_ErrorCode != MV_Ok)
     {
-        status = MV_ErrorCode;
-
         ALIGNED_FREE_AND_NULL(MV_Voices);
-        MV_HarshClipTable = NULL;
 
-        MV_SetErrorCode(status);
         return MV_Error;
     }
 
@@ -1068,7 +965,7 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
     MV_MixRate = MixRate;
 
     // Set Mixer to play stereo digitized sound
-    MV_SetMixMode(numchannels, samplebits);
+    MV_SetMixMode(numchannels);
     MV_ReverbDelay = MV_BufferSize * 3;
 
     // Make sure we don't cross a physical page
@@ -1085,11 +982,10 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
     MV_SetVolume(MV_MAXTOTALVOLUME);
 
     // Start the playback engine
-    status = MV_StartPlayback();
-    if (status != MV_Ok)
+    if (MV_StartPlayback() != MV_Ok)
     {
         // Preserve error code while we shutdown.
-        status = MV_ErrorCode;
+        int status = MV_ErrorCode;
         MV_Shutdown();
         MV_SetErrorCode(status);
         return MV_Error;

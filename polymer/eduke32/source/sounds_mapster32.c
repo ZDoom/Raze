@@ -77,7 +77,7 @@ int32_t S_SoundStartup(void)
     void *initdata = 0;
 
     // TODO: read config
-    int32_t FXVolume=220, /*NumVoices=32,*/ NumChannels=2, NumBits=16, ReverseStereo=0;
+    int32_t FXVolume=220, /*NumVoices=32,*/ NumChannels=2, ReverseStereo=0;
 
     fxdevicetype = ASS_AutoDetect;
 
@@ -85,15 +85,14 @@ int32_t S_SoundStartup(void)
     initdata = (void *) win_gethwnd(); // used for DirectSound
 #endif
 
-    status = FX_Init(fxdevicetype, NumVoices, NumChannels, NumBits, MixRate, initdata);
+    status = FX_Init(fxdevicetype, NumVoices, NumChannels, MixRate, initdata);
     if (status == FX_Ok)
     {
         FX_SetVolume(FXVolume);
         FX_SetReverseStereo(ReverseStereo);
-        status = FX_SetCallBack(S_Callback);
+        FX_SetCallBack(S_Callback);
     }
-
-    if (status != FX_Ok)
+    else
     {
         initprintf("Sound startup error: %s\n", FX_ErrorString(FX_Error));
         return -2;

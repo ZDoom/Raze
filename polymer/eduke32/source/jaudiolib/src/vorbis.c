@@ -474,6 +474,10 @@ void MV_ReleaseVorbisVoice( VoiceNode * voice )
     voice->rawdataptr = 0;
 }
 #else
+#include <stdlib.h>
+#include <stdio.h>
+#include "_multivc.h"
+
 int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
     int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {

@@ -36,16 +36,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "multivoc.h"
 
 #define VOC_8BIT            0x0
-#define VOC_CT4_ADPCM       0x1
-#define VOC_CT3_ADPCM       0x2
-#define VOC_CT2_ADPCM       0x3
 #define VOC_16BIT           0x4
-#define VOC_ALAW            0x6
-#define VOC_MULAW           0x7
-#define VOC_CREATIVE_ADPCM  0x200
 
 #define T_SIXTEENBIT_STEREO 0
-#define T_8BITS        1
 #define T_MONO         2
 #define T_16BITSOURCE  4
 #define T_STEREOSOURCE 8
@@ -63,24 +56,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MV_MUSIC_PRIORITY INT_MAX
 
 #define MIX_VOLUME(volume) ((max(0, min((volume), 255)) * (MV_MAXVOLUME + 1)) >> 8)
-
-#define STEREO      1
-#define SIXTEEN_BIT 2
-
-#define MONO_8BIT    0
-#define STEREO_8BIT  ( STEREO )
-#define MONO_16BIT   ( SIXTEEN_BIT )
-#define STEREO_16BIT ( STEREO | SIXTEEN_BIT )
-
-#define MONO_8BIT_SAMPLE_SIZE    1
-#define MONO_16BIT_SAMPLE_SIZE   2
-#define STEREO_8BIT_SAMPLE_SIZE  ( 2 * MONO_8BIT_SAMPLE_SIZE )
-#define STEREO_16BIT_SAMPLE_SIZE ( 2 * MONO_16BIT_SAMPLE_SIZE )
-
-//#define SILENCE_16BIT     0x80008000
-#define SILENCE_16BIT     0
-#define SILENCE_8BIT      0x80808080
-//#define SILENCE_16BIT_PAS 0
 
 #define MV_MIXBUFFERSIZE     256
 #define MV_NUMBEROFBUFFERS   16
@@ -200,28 +175,18 @@ void MV_ReleaseFLACVoice(VoiceNode *voice);
 void MV_ReleaseXAVoice(VoiceNode *voice);
 
 // implemented in mix.c
-void MV_Mix8BitMono(uint32_t position, uint32_t rate, const char *start, uint32_t length);
-void MV_Mix8BitStereo(uint32_t position, uint32_t rate, const char *start, uint32_t length);
 void MV_Mix16BitMono(uint32_t position, uint32_t rate, const char *start, uint32_t length);
 void MV_Mix16BitStereo(uint32_t position, uint32_t rate, const char *start, uint32_t length);
 void MV_Mix16BitMono16(uint32_t position, uint32_t rate, const char *start, uint32_t length);
-void MV_Mix8BitMono16(uint32_t position, uint32_t rate, const char *start, uint32_t length);
-void MV_Mix8BitStereo16(uint32_t position, uint32_t rate, const char *start, uint32_t length);
 void MV_Mix16BitStereo16(uint32_t position, uint32_t rate, const char *start, uint32_t length);
 void MV_16BitReverb( char const *src, char *dest, int16_t *volume, int32_t count );
-void MV_8BitReverb( int8_t *src, int8_t *dest, int16_t *volume, int32_t count );
 
 // implemented in mixst.c
-void MV_Mix8BitMono8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length);
-void MV_Mix8BitStereo8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length);
 void MV_Mix16BitMono8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length);
 void MV_Mix16BitStereo8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length);
 void MV_Mix16BitMono16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length);
-void MV_Mix8BitMono16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length);
-void MV_Mix8BitStereo16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length);
 void MV_Mix16BitStereo16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length);
 
-extern char *MV_HarshClipTable;
 extern char *MV_MixDestination;  // pointer to the next output sample
 extern uint32_t MV_MixPosition;  // return value of where the source pointer got to
 extern const int16_t *MV_LeftVolume;

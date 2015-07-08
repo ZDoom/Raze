@@ -75,7 +75,7 @@ static inline int32_t FX_CheckMVErr(int32_t status)
     return status;
 }
 
-int32_t FX_Init(int32_t SoundCard, int32_t numvoices, int32_t numchannels, int32_t samplebits, unsigned mixrate, void *initdata)
+int32_t FX_Init(int32_t SoundCard, int32_t numvoices, int32_t numchannels, unsigned mixrate, void *initdata)
 {
     if (FX_Installed)
         FX_Shutdown();
@@ -106,7 +106,7 @@ int32_t FX_Init(int32_t SoundCard, int32_t numvoices, int32_t numchannels, int32
 
     int status = FX_Ok;
 
-    if (MV_Init(SoundCard, mixrate, numvoices, numchannels, samplebits, initdata) != MV_Ok)
+    if (MV_Init(SoundCard, mixrate, numvoices, numchannels, initdata) != MV_Ok)
     {
         FX_SetErrorCode(FX_MultiVocError);
         status = FX_Error;

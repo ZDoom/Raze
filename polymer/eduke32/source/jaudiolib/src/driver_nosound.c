@@ -40,11 +40,10 @@ const char *NoSoundDrv_ErrorString( int32_t ErrorNumber )
     return "No sound, Ok.";
 }
 
-int32_t NoSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, int32_t *samplebits, void * initdata)
+int32_t NoSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata)
 {
     UNREFERENCED_PARAMETER(mixrate);
     UNREFERENCED_PARAMETER(numchannels);
-    UNREFERENCED_PARAMETER(samplebits);
     UNREFERENCED_PARAMETER(initdata);
     return 0;
 }
