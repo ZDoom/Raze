@@ -5,6 +5,7 @@
 #ifndef editor_h_
 #define editor_h_
 
+#include "baselayer.h"
 #include <math.h>
 
 #ifdef __cplusplus
@@ -361,6 +362,18 @@ extern int32_t taglab_getnextfreetag(int32_t *duetoptr);
 extern int32_t showtags;
 
 int32_t select_sprite_tag(int32_t spritenum);
+
+extern int32_t m32_2d3dmode, m32_2d3dsize;
+extern vec2_t m32_2d3d;
+
+#define XSIZE_2D3D (xdim2d / m32_2d3dsize)
+#define YSIZE_2D3D (ydim2d / m32_2d3dsize)
+
+static inline int32_t m32_is2d3dmode(void)
+{
+    return !in3dmode() && m32_2d3dmode && searchx > m32_2d3d.x && searchx < (m32_2d3d.x + XSIZE_2D3D) &&
+        searchy > m32_2d3d.y && searchy < (m32_2d3d.y + YSIZE_2D3D);
+}
 
 
 #define NEXTWALL(i) (wall[wall[i].nextwall])

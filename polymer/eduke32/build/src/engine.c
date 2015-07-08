@@ -15751,7 +15751,9 @@ void clearview(int32_t dacol)
     intptr_t p;
     int32_t  y, dx;
 
-    if (!in3dmode()) return;
+    if (!in3dmode() && dacol != -1) return;
+
+    if (dacol == -1) dacol = 0;
 
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)

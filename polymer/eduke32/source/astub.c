@@ -3289,7 +3289,7 @@ static int32_t OnSelectTile(int32_t iTile)
 #ifdef USE_OPENGL
     bglEnable(GL_TEXTURE_2D);
 #endif
-    clearview(0);
+    clearview(-1);
 
     //
     //	Await appropriate selection keypress.
@@ -3519,7 +3519,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
             bglDrawBuffer(GL_FRONT_AND_BACK);
     }
 #endif
-    clearview(0);
+    clearview(-1);
 
     begindrawing();
 
@@ -4424,7 +4424,7 @@ static void Keys3d(void)
         y = (int32_t)(WIND1Y*(ydimgame/200.));
         y += (ydimgame>>6)*8;
 
-        if (getmessageleng)
+        if (getmessageleng && !m32_is2d3dmode())
         {
             while (num < 4)
                 lines[num++][0] = 0;
@@ -4507,7 +4507,7 @@ static void Keys3d(void)
         message("Floor-over-floor display %s",floor_over_floor?"enabled":"disabled");
     }
 
-    if (PRESSED_KEYSC(F3))
+    if (PRESSED_KEYSC(F3) && !m32_is2d3dmode())
     {
         mlook = !mlook;
         message("Mouselook: %s",mlook?"enabled":"disabled");
@@ -7704,9 +7704,13 @@ static void Keys2d(void)
 
     if (autogrid)
     {
-        grid = min(zoom+512, 65536);
-        grid = scale(grid, 6, 6144);
-        grid = clamp(grid, 0, 7);
+        grid = 0;
+
+        while (grid++ < 7)
+        {
+            if (mulscale14((2048>>grid), zoom) <= 16)
+                break;
+        }
     }
 
 
@@ -8647,6 +8651,20 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
+    if (!Bstrcasecmp(parm->name, "m32_2d3dmode"))
+    {
+        if (parm->numparms > 1)
+            return OSDCMD_SHOWHELP;
+
+        if (setval)
+            m32_2d3dmode = atoi_safe(parm->parms[0]);
+
+        OSD_Printf("Experimental 2d/3d hybrid mode: %s\n",
+            ONOFF(m32_2d3dmode));
+
+        return OSDCMD_OK;
+    }
+
     if (!Bstrcasecmp(parm->name, "corruptcheck"))
     {
         if (parm->numparms >= 1)
@@ -9050,6 +9068,7 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("sensitivity","sensitivity <value>: changes the mouse sensitivity", osdcmd_sensitivity);
 
     //PK
+    OSD_RegisterFunction("m32_2d3dmode", "2d3dmode: experimental 2d/3d hybrid mode", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_turnaccel", "pk_turnaccel <value>: sets turning acceleration+deceleration", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_turndecel", "pk_turndecel <value>: sets turning deceleration", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_uedaccel", "pk_uedaccel <value>: sets UnrealEd movement speed factor (0-5, exponentially)", osdcmd_vars_pk);
@@ -10181,7 +10200,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 {
                     if (frames==10) frames=0;
                     k = 1536;//getangle(tspr->x-pos.x,tspr->y-pos.y);
-                    k = (((sprite[i].ang+3072+128-k)&2047)>>8)&7;
+                    k = (((sprite[i].ang+3072+128-k+(m32_sideview ? (2048 - m32_sideang) : 0))&2047)>>8)&7;
                     //This guy has only 5 pictures for 8 angles (3 are x-flipped)
                     if (k <= 4)
                     {
@@ -10455,6 +10474,34 @@ static void Keys2d3d(void)
         //        mapstate = mapstate->prev;
     }
 #endif
+    if (keystatus[KEYSC_F10])
+    {
+        keystatus[KEYSC_F10]=0;
+
+        if (!in3dmode())
+        {
+            if (eitherSHIFT)
+            {
+                // shrinking the size while in a corner pulls the PIP into that corner
+                if (m32_2d3d.x + XSIZE_2D3D >= xdim2d - 5)
+                    m32_2d3d.x = 0xffff;
+
+                if (m32_2d3d.y + YSIZE_2D3D >= ydim2d - 5 - STATUS2DSIZ2)
+                    m32_2d3d.y = 0xffff;
+
+                if (++m32_2d3dsize > 5)
+                    m32_2d3dsize = 3;
+
+                printmessage16("2d3d size %d", m32_2d3dsize);
+            }
+            else
+            {
+                m32_2d3dmode = !m32_2d3dmode;
+                printmessage16("2d3d mode %s", m32_2d3dmode ? "enabled" : "disabled");
+            }
+        }
+    }
+
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(A)) // 'A
     {
         if (in3dmode())
@@ -10629,14 +10676,22 @@ void ExtCheckKeys(void)
 
     Keys2d3d();
 
-    if (in3dmode())
+    // 2d3d mode
+    if ((in3dmode() && !m32_is2d3dmode()) || m32_is2d3dmode())
     {
+        int bakrendmode = rendmode;
+
+        if (m32_is2d3dmode())
+            rendmode = REND_CLASSIC;
+
         Keys3d();
         editinput();
         if (infobox&2)
             m32_showmouse();
+
+        rendmode = bakrendmode;
     }
-    else
+    else if (!in3dmode())
     {
         Keys2d();
 

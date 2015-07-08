@@ -121,8 +121,8 @@ const char *g_namesFileName = "NAMES.H";
 int16_t asksave = 0;
 int32_t osearchx, osearchy;                               //old search input
 
-int32_t grid = 3, autogrid = 0, gridlock = 1, showtags = 2;
-int32_t zoom = 768, gettilezoom = 1;
+int32_t grid = 0, autogrid = 1, gridlock = 1, showtags = 2;
+int32_t zoom = 768, gettilezoom = 1, ztarget = 768;
 int32_t lastpm16time = 0;
 
 extern int32_t mapversion;
@@ -182,6 +182,10 @@ static int32_t minhlsectorfloorz, numhlsecwalls;
 //  - AlignWalls
 //  - trace_loop
 static uint8_t visited[MAXWALLS>>3];
+
+int32_t m32_2d3dmode = 0;
+int32_t m32_2d3dsize = 4;
+vec2_t m32_2d3d ={ 4, 4 };
 
 typedef struct
 {
@@ -969,40 +973,69 @@ static void mainloop_move(void)
 
     if (angvel != 0)  //ang += angvel * constant
     {
-        //ENGINE calculates angvel for you
-
-        //Lt. shift makes turn velocity 50% faster
-        doubvel = (synctics + DOWN_BK(RUN)*(synctics>>1));
-
-        ang += ((angvel*doubvel)>>4);
-        ang &= 2047;
-
-        if (in3dmode())
+        if (eitherCTRL && m32_2d3dmode)
         {
-            silentmessage("x:%d y:%d z:%d ang:%d horiz:%d", pos.x, pos.y, pos.z, ang, horiz);
-            getmessagetimeoff = totalclock+30;
+            int x = m32_2d3d.x + (angvel / 32);
+            int xx = m32_2d3d.x + XSIZE_2D3D + (angvel / 32);
+
+            if (x > 4 && xx < xdim2d - 4)
+            {
+                silentmessage("2d3d x:%d y:%d", m32_2d3d.x, m32_2d3d.y);
+                m32_2d3d.x += (angvel / 32);
+            }
+        }
+        else
+        {
+            //ENGINE calculates angvel for you
+
+            //Lt. shift makes turn velocity 50% faster
+            doubvel = (synctics + DOWN_BK(RUN)*(synctics>>1));
+
+            ang += ((angvel*doubvel)>>4);
+            ang &= 2047;
+
+            if (in3dmode())
+            {
+                silentmessage("x:%d y:%d z:%d ang:%d horiz:%d", pos.x, pos.y, pos.z, ang, horiz);
+                getmessagetimeoff = totalclock+30;
+            }
         }
     }
     if ((vel|svel) != 0)
     {
-        //Lt. shift doubles forward velocity
-        doubvel = (1+(DOWN_BK(RUN)))*synctics;
-
-        xvect = 0;
-        yvect = 0;
-
-        if (vel != 0)
+        if (eitherCTRL && m32_2d3dmode)
         {
-            xvect += (vel*doubvel*(int32_t)sintable[(ang+2560)&2047])>>3;
-            yvect += (vel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3;
-        }
-        if (svel != 0)
-        {
-            xvect += (svel*doubvel*(int32_t)sintable[(ang+2048)&2047])>>3;
-            yvect += (svel*doubvel*(int32_t)sintable[(ang+1536)&2047])>>3;
-        }
+            int y = m32_2d3d.y - (vel / 64);
+            int yy = m32_2d3d.y + YSIZE_2D3D - (vel / 64);
 
-        move_and_update(xvect, yvect, 0);
+            if (y > 4 && yy < ydim2d - STATUS2DSIZ2 - 4)
+            {
+                silentmessage("2d3d x:%d y:%d", m32_2d3d.x, m32_2d3d.y);
+                m32_2d3d.y -= (vel / 64);
+            }
+        }
+        else
+
+        {
+            //Lt. shift doubles forward velocity
+            doubvel = (1+(DOWN_BK(RUN)))*synctics;
+
+            xvect = 0;
+            yvect = 0;
+
+            if (vel != 0)
+            {
+                xvect += (vel*doubvel*(int32_t) sintable[(ang+2560)&2047])>>3;
+                yvect += (vel*doubvel*(int32_t) sintable[(ang+2048)&2047])>>3;
+            }
+            if (svel != 0)
+            {
+                xvect += (svel*doubvel*(int32_t) sintable[(ang+2048)&2047])>>3;
+                yvect += (svel*doubvel*(int32_t) sintable[(ang+1536)&2047])>>3;
+            }
+
+            move_and_update(xvect, yvect, 0);
+        }
     }
 }
 
@@ -1420,7 +1453,7 @@ void editinput(void)
 
     }
 
-    if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
+    if (keystatus[buildkeys[BK_MODE2D_3D]] && !m32_is2d3dmode())  // Enter
     {
 
         vid_gamma_3d = vid_gamma;
@@ -3268,6 +3301,9 @@ void overheadeditor(void)
     {
         int32_t mousx, mousy;
 
+        if (zoom < ztarget) zoom += (ztarget-zoom)>>3;
+        if (zoom > ztarget) zoom -= (zoom-ztarget)>>3;
+
         if (!((vel|angvel|svel) //DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
                 || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || keystatus[0x10] || keystatus[0x11]
                 || keystatus[0x48] || keystatus[0x4b] || keystatus[0x4d] || keystatus[0x50]  // keypad keys
@@ -3312,33 +3348,36 @@ void overheadeditor(void)
             //        printext16(8L,ydim-STATUS2DSIZ+32L,editorcolors[9],-1,kensig,0);
         }
 
-        oldmousebstatus = bstatus;
-        getmousevalues(&mousx,&mousy,&bstatus);
-
+        if (!m32_is2d3dmode())
         {
-            int32_t bs = bstatus;
-            bstatus &= ~mousewaitmask;
-            mousewaitmask &= bs;
+            oldmousebstatus = bstatus;
+            getmousevalues(&mousx, &mousy, &bstatus);
+
+            {
+                int32_t bs = bstatus;
+                bstatus &= ~mousewaitmask;
+                mousewaitmask &= bs;
+            }
+
+            mousx = (mousx<<16)+mousexsurp;
+            mousy = (mousy<<16)+mouseysurp;
+            {
+                ldiv_t ld;
+                ld = ldiv(mousx, 1<<16); mousx = ld.quot; mousexsurp = ld.rem;
+                ld = ldiv(mousy, 1<<16); mousy = ld.quot; mouseysurp = ld.rem;
+            }
+            searchx += mousx;
+            searchy += mousy;
+
+            inpclamp(&searchx, 8, xdim-8-1);
+            inpclamp(&searchy, 8, ydim-8-1);
+
+            mainloop_move();
+
+            getpoint(searchx, searchy, &mousxplc, &mousyplc);
+            linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight, 0);
+            linehighlight2 = getlinehighlight(mousxplc, mousyplc, linehighlight, 1);
         }
-
-        mousx = (mousx<<16)+mousexsurp;
-        mousy = (mousy<<16)+mouseysurp;
-        {
-            ldiv_t ld;
-            ld = ldiv(mousx, 1<<16); mousx = ld.quot; mousexsurp = ld.rem;
-            ld = ldiv(mousy, 1<<16); mousy = ld.quot; mouseysurp = ld.rem;
-        }
-        searchx += mousx;
-        searchy += mousy;
-
-        inpclamp(&searchx, 8, xdim-8-1);
-        inpclamp(&searchy, 8, ydim-8-1);
-
-        mainloop_move();
-
-        getpoint(searchx,searchy,&mousxplc,&mousyplc);
-        linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight, 0);
-        linehighlight2 = getlinehighlight(mousxplc, mousyplc, linehighlight, 1);
 
         if (newnumwalls >= numwalls)
         {
@@ -3382,11 +3421,10 @@ void overheadeditor(void)
                 if (graphicsmode == 2)
                     totalclocklock = totalclock;
 
-                drawmapview(pos.x, pos.y, zoom, m32_sideview ? -m32_sideang + 1536 : 1536);
+                drawmapview(pos.x, pos.y, zoom, m32_sideview ? (3584 - m32_sideang) & 2047: 1536);
             }
 
             draw2dgrid(pos.x,pos.y,pos.z,cursectnum,ang,zoom,grid);
-
             CallExtPreCheckKeys();
 
             {
@@ -3552,7 +3590,7 @@ void overheadeditor(void)
 
             if (keystatus[0x2a])  // LShift
             {
-                if (m32_sideview || highlightcnt <= 0)
+                if (!m32_is2d3dmode() && (m32_sideview || highlightcnt <= 0))
                 {
                     drawlinepat = 0x00ff00ff;
                     drawline16(searchx,0, searchx,ydim2d-1, editorcolors[15]);
@@ -3714,84 +3752,126 @@ void overheadeditor(void)
             drawline16(searchx,0, searchx,8, editorcolors[15]);
             drawline16(0,searchy, 8,searchy, editorcolors[15]);
 
-            ////// draw mouse pointer
-            col = editorcolors[15 - 3*gridlock];
-            if (joinsector[0] >= 0)
-                col = editorcolors[11];
-
-            if (numcorruptthings>0)
+            // 2d3d mode
+            if (m32_2d3dmode)
             {
-                static char cbuf[64];
+                int bakrendmode = rendmode;
+                vec2_t bdim ={ xdim, ydim };
 
-                if ((pointhighlight&16384)==0)
-                {
-                    // If aiming at wall, check whether it is corrupt, and print a
-                    // warning message near the mouse pointer if that is the case.
-                    for (i=0; i<numcorruptthings; i++)
-                        if ((corruptthings[i]&CORRUPT_MASK)==CORRUPT_WALL &&
-                            (corruptthings[i]&(MAXWALLS-1))==pointhighlight)
-                        {
-                            col = editorcolors[13];
-                            printext16(searchx+6,searchy-6-8,editorcolors[13],editorcolors[0],"corrupt wall",0);
-                            break;
-                        }
-                }
+                xdim = xdim2d;
+                ydim = ydim2d;
+                rendmode = REND_CLASSIC;
 
-                Bsprintf(cbuf, "Map corrupt (level %d): %s%d errors", corruptlevel,
-                         numcorruptthings>=MAXCORRUPTTHINGS ? ">=":"", numcorruptthings);
-                printext16(8,8, editorcolors[13],editorcolors[0],cbuf,0);
+                if (m32_2d3d.x + XSIZE_2D3D > xdim2d - 4)
+                    m32_2d3d.x = xdim2d - 4 - XSIZE_2D3D;
+
+                if (m32_2d3d.y + YSIZE_2D3D > ydim2d - 4 - STATUS2DSIZ2)
+                    m32_2d3d.y = ydim2d - 4 - YSIZE_2D3D - STATUS2DSIZ2;
+
+                setview(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D);
+                clearview(-1);
+
+                vec2_t osearch ={ searchx, searchy };
+
+                searchx -= m32_2d3d.x;
+                searchy -= m32_2d3d.y;
+
+                M32_DrawRoomsAndMasks();
+                setview(0, 0, xdim2d-1, ydim2d-1);
+
+                rendmode = bakrendmode;
+                xdim = bdim.x;
+                ydim = bdim.y;
+                searchx = osearch.x;
+                searchy = osearch.y;
+
+                drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, editorcolors[15]);
+                drawline16(m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y  + YSIZE_2D3D, editorcolors[15]);
+                drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
+                drawline16(m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
             }
 
-            if (highlightsectorcnt==0 || highlightcnt==0)
+            if (!m32_is2d3dmode())
             {
-                if (keystatus[0x27] || keystatus[0x28])  // ' and ;
-                {
-                    col = editorcolors[14];
+                ////// draw mouse pointer
+                col = editorcolors[15 - 3*gridlock];
+                if (joinsector[0] >= 0)
+                    col = editorcolors[11];
 
-                    drawline16base(searchx+16, searchy-16, -4,0, +4,0, col);
-                    if (keystatus[0x28])
-                        drawline16base(searchx+16, searchy-16, 0,-4, 0,+4, col);
+                if (numcorruptthings>0)
+                {
+                    static char cbuf[64];
+
+                    if ((pointhighlight&16384)==0)
+                    {
+                        // If aiming at wall, check whether it is corrupt, and print a
+                        // warning message near the mouse pointer if that is the case.
+                        for (i=0; i<numcorruptthings; i++)
+                            if ((corruptthings[i]&CORRUPT_MASK)==CORRUPT_WALL &&
+                                (corruptthings[i]&(MAXWALLS-1))==pointhighlight)
+                            {
+                                col = editorcolors[13];
+                                printext16(searchx+6, searchy-6-8, editorcolors[13], editorcolors[0], "corrupt wall", 0);
+                                break;
+                            }
+                    }
+
+                    Bsprintf(cbuf, "Map corrupt (level %d): %s%d errors", corruptlevel,
+                        numcorruptthings>=MAXCORRUPTTHINGS ? ">=" : "", numcorruptthings);
+                    printext16(8, 8, editorcolors[13], editorcolors[0], cbuf, 0);
                 }
 
-                if (highlightsectorcnt == 0)
-                    if (keystatus[0x36])
-                        printext16(searchx+6, searchy-2+8,editorcolors[12],-1,"ALL",0);
-
-                if (highlightcnt == 0)
+                if (highlightsectorcnt==0 || highlightcnt==0)
                 {
-                    if (eitherCTRL && (highlightx1!=highlightx2 || highlighty1!=highlighty2))
-                        printext16(searchx+6,searchy-6-8,editorcolors[12],-1,"SPR ONLY",0);
+                    if (keystatus[0x27] || keystatus[0x28])  // ' and ;
+                    {
+                        col = editorcolors[14];
+
+                        drawline16base(searchx+16, searchy-16, -4, 0, +4, 0, col);
+                        if (keystatus[0x28])
+                            drawline16base(searchx+16, searchy-16, 0, -4, 0, +4, col);
+                    }
+
+                    if (highlightsectorcnt == 0)
+                        if (keystatus[0x36])
+                            printext16(searchx+6, searchy-2+8, editorcolors[12], -1, "ALL", 0);
+
+                    if (highlightcnt == 0)
+                    {
+                        if (eitherCTRL && (highlightx1!=highlightx2 || highlighty1!=highlighty2))
+                            printext16(searchx+6, searchy-6-8, editorcolors[12], -1, "SPR ONLY", 0);
 #ifdef YAX_ENABLE
-                    if (keystatus[0xcf])  // End
-                        printext16(searchx+6,searchy-2+8,editorcolors[12],-1,"ALL",0);
+                        if (keystatus[0xcf])  // End
+                            printext16(searchx+6, searchy-2+8, editorcolors[12], -1, "ALL", 0);
 #endif
+                    }
                 }
-            }
 
-            drawline16base(searchx,searchy, +0,-8, +0,-1, col);
-            drawline16base(searchx,searchy, +1,-8, +1,-1, col);
-            drawline16base(searchx,searchy, +0,+2, +0,+9, col);
-            drawline16base(searchx,searchy, +1,+2, +1,+9, col);
-            drawline16base(searchx,searchy, -8,+0, -1,+0, col);
-            drawline16base(searchx,searchy, -8,+1, -1,+1, col);
-            drawline16base(searchx,searchy, +2,+0, +9,+0, col);
-            drawline16base(searchx,searchy, +2,+1, +9,+1, col);
+                drawline16base(searchx, searchy, +0, -8, +0, -1, col);
+                drawline16base(searchx, searchy, +1, -8, +1, -1, col);
+                drawline16base(searchx, searchy, +0, +2, +0, +9, col);
+                drawline16base(searchx, searchy, +1, +2, +1, +9, col);
+                drawline16base(searchx, searchy, -8, +0, -1, +0, col);
+                drawline16base(searchx, searchy, -8, +1, -1, +1, col);
+                drawline16base(searchx, searchy, +2, +0, +9, +0, col);
+                drawline16base(searchx, searchy, +2, +1, +9, +1, col);
 
-            ////// Draw the white pixel closest to mouse cursor on linehighlight
-            if (linehighlight>=0)
-            {
-                char col = wall[linehighlight].nextsector >= 0 ? editorcolors[15] : editorcolors[5];
-
-                if (m32_sideview)
+                ////// Draw the white pixel closest to mouse cursor on linehighlight
+                if (linehighlight>=0)
                 {
-                    getclosestpointonwall(searchx,searchy, linehighlight, &dax,&day, 1);
-                    drawline16base(dax,day, 0,0, 0,0, col);
-                }
-                else
-                {
-                    getclosestpointonwall(mousxplc,mousyplc, linehighlight, &dax,&day, 0);
-                    ovhscrcoords(dax, day, &x2, &y2);
-                    drawline16base(x2, y2, 0,0, 0,0, col);
+                    char col = wall[linehighlight].nextsector >= 0 ? editorcolors[15] : editorcolors[5];
+
+                    if (m32_sideview)
+                    {
+                        getclosestpointonwall(searchx, searchy, linehighlight, &dax, &day, 1);
+                        drawline16base(dax, day, 0, 0, 0, 0, col);
+                    }
+                    else
+                    {
+                        getclosestpointonwall(mousxplc, mousyplc, linehighlight, &dax, &day, 0);
+                        ovhscrcoords(dax, day, &x2, &y2);
+                        drawline16base(x2, y2, 0, 0, 0, 0, col);
+                    }
                 }
             }
 
@@ -3802,8 +3882,13 @@ void overheadeditor(void)
 
         inputchecked = 1;
 
+
         VM_OnEvent(EVENT_PREKEYS2D, -1);
         CallExtCheckKeys(); // TX 20050101, it makes more sense to have this here so keys can be overwritten with new functions in bstub.c
+
+        // 2d3d mode
+        if (m32_is2d3dmode())
+            goto nokeys;
 
         // Flip/mirror sector Ed Coolidge
         if (keystatus[0x2d] || keystatus[0x15])  // X or Y (2D)
@@ -5707,7 +5792,7 @@ end_point_dragging:
                 searchy = midydim16;
             }
         }
-        else if ((oldmousebstatus&6) > 0)
+//        else if ((oldmousebstatus&6) > 0)
             updatesectorz(pos.x,pos.y,pos.z,&cursectnum);
 
         if (circlewall != -1 && (keystatus[0x4a] || ((bstatus&32) && !eitherCTRL)))  // -, mousewheel down
@@ -5793,22 +5878,22 @@ end_point_dragging:
         {
             int32_t didzoom=0;
 
-            if ((DOWN_BK(MOVEUP) || (bstatus&16)) && zoom < 65536)
+            if ((DOWN_BK(MOVEUP) || (bstatus&16)) && zoom < 32768)
             {
                 if (DOWN_BK(MOVEUP))
-                    zoom += synctics*(zoom>>4);
+                    ztarget += synctics*(ztarget>>4);
                 if (bstatus&16)
-                    zoom += 4*(zoom>>4);
+                    ztarget += 4*(ztarget>>4);
 
                 if (zoom < 24) zoom += 2;
                 didzoom = 1;
             }
-            if ((DOWN_BK(MOVEDOWN) || (bstatus&32)) && zoom > 8)
+            if ((DOWN_BK(MOVEDOWN) || (bstatus&32)) && zoom > 32)
             {
                 if (DOWN_BK(MOVEDOWN))
-                    zoom -= synctics*(zoom>>4);
+                    ztarget -= synctics*(ztarget>>4);
                 if (bstatus&32)
-                    zoom -= 4*(zoom>>4);
+                    ztarget -= 4*(ztarget>>4);
 
                 didzoom = 1;
             }
@@ -5822,8 +5907,8 @@ end_point_dragging:
                     pos.x = mousxplc;
                     pos.y = mousyplc;
                 }
-                zoom = clamp(zoom, 8, 65536);
-                _printmessage16("Zoom: %d",zoom);
+                ztarget = clamp(ztarget, 32, 32768);
+                _printmessage16("Zoom: %d",ztarget);
             }
         }
 
@@ -7672,6 +7757,8 @@ end_insert_points:
         }*/
         //printext16(9L,336+9L,4,-1,kensig,0);
         //printext16(8L,336+8L,12,-1,kensig,0);
+
+    nokeys:
 
         showframe(1);
         synctics = totalclock-lockclock;

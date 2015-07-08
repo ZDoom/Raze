@@ -65,7 +65,7 @@ extern char game_executable[BMAX_PATH];
 extern int32_t fullscreen;
 extern char default_buildkeys[NUMBUILDKEYS];
 static char *const keys = default_buildkeys;
-static int32_t default_grid=3;
+static int32_t default_grid=9;
 extern int32_t AmbienceToggle, MixRate;
 extern int32_t ParentalLock;
 
@@ -221,6 +221,18 @@ int32_t loadsetup(const char *fn)
 
     if (readconfig(fp, "pathsearchmode", val, VL) > 0)
         pathsearchmode = clamp(atoi_safe(val), 0, 1);
+
+    if (readconfig(fp, "2d3dmode", val, VL) > 0)
+        m32_2d3dmode = clamp(atoi_safe(val), 0, 1);
+
+    if (readconfig(fp, "2d3dsize", val, VL) > 0)
+        m32_2d3dsize = clamp(atoi_safe(val), 3, 5);
+
+    if (readconfig(fp, "2d3d_x", val, VL) > 0)
+        m32_2d3d.x = clamp(atoi_safe(val), 0, 0xffff);
+
+    if (readconfig(fp, "2d3d_y", val, VL) > 0)
+        m32_2d3d.y = clamp(atoi_safe(val), 0, 0xffff);
 
     if (readconfig(fp, "autogray", val, VL) > 0)
         autogray = !!atoi_safe(val);
@@ -491,6 +503,12 @@ int32_t writesetup(const char *fn)
              "; Default filesystem mode\n"
              "pathsearchmode = %d\n"
              "\n"
+             "; Experimental 2d/3d hybrid mode\n"
+             "2d3dmode = %d\n"
+             "2d3dsize = %d\n"
+             "2d3d_x = %d\n"
+             "2d3d_y = %d\n"
+             "\n"
              "; TROR: Automatic grayout of plain (non-extended) sectors,\n"
              ";       toggled with Ctrl-A:\n"
              "autogray = %d\n"
@@ -604,6 +622,7 @@ int32_t writesetup(const char *fn)
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,autocorruptcheck,
              corruptcheck_noalreadyrefd, fixmaponsave_sprites, keeptexturestretch,
              showheightindicators,showambiencesounds,pathsearchmode,
+             m32_2d3dmode,m32_2d3dsize,m32_2d3d.x, m32_2d3d.y,
              autogray, //showinnergray,
              graphicsmode,
              MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,
