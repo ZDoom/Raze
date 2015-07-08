@@ -1,8 +1,25 @@
+//-------------------------------------------------------------------------
 /*
- *
- * Designed by Emile Belanger
- *
- */
+Copyright (C) 2015 EDuke32 developers and contributors
+Copyright (C) 2015 Voidpoint, LLC
+
+This file is part of EDuke32.
+
+EDuke32 is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+//-------------------------------------------------------------------------
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -231,9 +248,13 @@ void gameButton(int state, int code)
                 {
                     weaponWheel->setTapMode(true);
                     showWeaponsInventory(true);
+                    PortableTimer(30);
                 }
                 else
+                {
                     showWeaponsInventory(false);
+                    PortableTimer(120);
+                }
             }
             break;
 
@@ -260,6 +281,7 @@ void inventoryButton(int state, int code)
     {
         // Inventory chosen, hide them and wheel
         showWeaponsInventory(false);
+        PortableTimer(120);
     }
 }
 
@@ -288,7 +310,10 @@ void blankTapButton(int state, int code)
         PortableKeyEvent(state, SDL_SCANCODE_RETURN, 0);
 }
 
-void weaponWheelSelected(int enabled) { showWeaponsInventory(enabled ? true : false); }
+void weaponWheelSelected(int enabled) { 
+    showWeaponsInventory(enabled ? true : false); 
+    PortableTimer(enabled ? 30 : 120);
+}
 
 void weaponWheelChosen(int segment)
 {
@@ -365,188 +390,184 @@ void initControls(int width, int height, const char *graphics_path)
 
     LOGI("initControls %d x %d,x path = %s", width, height, graphics_path);
 
-    if (!controlsCreated)
-    {
-        LOGI("creating controls");
+    if (controlsCreated)
+        return;
 
-        touchcontrols::setGraphicsBasePath(graphics_path);
+    LOGI("creating controls");
 
-        controlsContainer.openGL_start.connect(sigc::ptr_fun(&openGLStart));
-        controlsContainer.openGL_end.connect(sigc::ptr_fun(&openGLEnd));
-        controlsContainer.signal_settings.connect(sigc::ptr_fun(&touchSettingsButton));
+    touchcontrols::setGraphicsBasePath(graphics_path);
 
-        tcBlankTap = new touchcontrols::TouchControls("blank_tap", false, false);
-        tcYesNo = new touchcontrols::TouchControls("yes_no", false, false);
-        tcMenuMain = new touchcontrols::TouchControls("menu", false, false);
-        tcGameMain = new touchcontrols::TouchControls("game", false, true, 1, true);
-        tcGameWeapons = new touchcontrols::TouchControls("weapons", false, true, 1, false);
-        tcAutomap = new touchcontrols::TouchControls("automap", false, false);
-        // tcInventory   = new touchcontrols::TouchControls("inventory", false,true,1,false);
+    controlsContainer.openGL_start.connect(sigc::ptr_fun(&openGLStart));
+    controlsContainer.openGL_end.connect(sigc::ptr_fun(&openGLEnd));
+    controlsContainer.signal_settings.connect(sigc::ptr_fun(&touchSettingsButton));
 
-        ///////////////////////// BLANK TAP SCREEN //////////////////////
+    tcBlankTap = new touchcontrols::TouchControls("blank_tap", false, false);
+    tcYesNo = new touchcontrols::TouchControls("yes_no", false, false);
+    tcMenuMain = new touchcontrols::TouchControls("menu", false, false);
+    tcGameMain = new touchcontrols::TouchControls("game", false, true, 1, true);
+    tcGameWeapons = new touchcontrols::TouchControls("weapons", false, true, 1, false);
+    tcAutomap = new touchcontrols::TouchControls("automap", false, false);
+    // tcInventory   = new touchcontrols::TouchControls("inventory", false,true,1,false);
 
-        // One button on whole screen with no graphic, send a return key
-        tcBlankTap->addControl(new touchcontrols::Button("whole_screen", touchcontrols::RectF(0, 0, 26, 16),
-                                                         "" /*std::string("test")*/, SDL_SCANCODE_RETURN));
-        tcBlankTap->signal_button.connect(sigc::ptr_fun(&blankTapButton));  // Just reuse the menuButton function
+    ///////////////////////// BLANK TAP SCREEN //////////////////////
 
-
-        ///////////////////////// YES NO SCREEN /////////////////////
-
-        tcYesNo->addControl(
-        new touchcontrols::Button("enter", touchcontrols::RectF(16, 9, 18, 11), "yes", SDL_SCANCODE_RETURN));
-        tcYesNo->addControl(
-        new touchcontrols::Button("esc", touchcontrols::RectF(8, 9, 10, 11), "no", SDL_SCANCODE_ESCAPE));
-        tcYesNo->signal_button.connect(sigc::ptr_fun(&menuButton));  // Just reuse the menuButton function
+    // One button on whole screen with no graphic, send a return key
+    tcBlankTap->addControl(new touchcontrols::Button("whole_screen", touchcontrols::RectF(0, 0, 26, 16),
+                                                     "" /*std::string("test")*/, SDL_SCANCODE_RETURN));
+    tcBlankTap->signal_button.connect(sigc::ptr_fun(&blankTapButton));  // Just reuse the menuButton function
 
 
-        ///////////////////////// MAIN MENU SCREEN /////////////////////
+    ///////////////////////// YES NO SCREEN /////////////////////
 
-        tcMenuMain->addControl(new touchcontrols::Button("arrow_left", touchcontrols::RectF(0, 2, 2, 4), "arrow_left",
-            SDL_SCANCODE_ESCAPE));
-        tcMenuMain->signal_button.connect(sigc::ptr_fun(&menuButton));
-
-        touchcontrols::MultitouchMouse *mouseMenu =
-        new touchcontrols::MultitouchMouse("mouse", touchcontrols::RectF(0, 0, 26, 16), "");
-        mouseMenu->setHideGraphics(true);
-        tcMenuMain->addControl(mouseMenu);
-        mouseMenu->signal_action.connect(sigc::ptr_fun(&menuMouse));
-
-        touchcontrols::Button *console_button = new touchcontrols::Button(
-            "keyboard", "Development console", touchcontrols::RectF(8, 0, 10, 2), "keyboard", KEY_SHOW_KBRD, false, true);
-
-        tcMenuMain->addControl(console_button);
-
-        //////////////////////////// GAME SCREEN /////////////////////
-        tcGameMain->setAlpha(droidinput.gameControlsAlpha);
-        controlsContainer.editButtonAlpha = droidinput.gameControlsAlpha;
-        
-        tcGameMain->addControl(
-        new touchcontrols::Button("game_menu", touchcontrols::RectF(0, 0, 2, 2), "settings_bars", MENU_BACK));
-
-        tcGameMain->addControl(
-        new touchcontrols::Button("use", touchcontrols::RectF(20, 4, 23, 7), "use", gamefunc_Open));
-        tcGameMain->addControl(
-        new touchcontrols::Button("attack", touchcontrols::RectF(20, 7, 23, 10), "fire2", gamefunc_Fire));
-        tcGameMain->addControl(
-        new touchcontrols::Button("jump", touchcontrols::RectF(23, 6, 26, 9), "jump", gamefunc_Jump));
-        tcGameMain->addControl(
-        new touchcontrols::Button("crouch", touchcontrols::RectF(24, 12, 26, 14), "crouch", gamefunc_Crouch));
-        tcGameMain->addControl(new touchcontrols::Button("kick", "Mighty Foot", touchcontrols::RectF(23, 3, 26, 6),
-                                                         "boot", gamefunc_Quick_Kick, false, true));
-
-        touchcontrols::Button *map_button = new touchcontrols::Button(
-        "map", "Overhead map", touchcontrols::RectF(6, 0, 8, 2), "map", gamefunc_Map, false, true);
-        tcGameMain->addControl(map_button);
-        tcGameMain->addControl(new touchcontrols::Button("show_inventory", "Inventory",
-                                                         touchcontrols::RectF(24, 0, 26, 2), "inv", KEY_SHOW_INVEN));
-        tcGameMain->addControl(new touchcontrols::Button("next_weapon", "Next weapon", touchcontrols::RectF(0, 3, 3, 5),
-                                                         "next_weap", gamefunc_Next_Weapon, false, true));
-        tcGameMain->addControl(new touchcontrols::Button("prev_weapon", "Previous weapon",
-                                                         touchcontrols::RectF(0, 5, 3, 7), "prev_weap",
-                                                         gamefunc_Previous_Weapon, false, true));
-        tcGameMain->addControl(new touchcontrols::Button("quick_save", "Save game", touchcontrols::RectF(22, 0, 24, 2),
-                                                         "save", KEY_QUICK_SAVE, false, true));
-        tcGameMain->addControl(new touchcontrols::Button("quick_load", "Load game", touchcontrols::RectF(20, 0, 22, 2),
-                                                         "load", KEY_QUICK_LOAD, false, true));
-
-        tcGameMain->addControl(console_button);
-        /*
-                //quick actions binds
-                tcGameMain->addControl(new
-           touchcontrols::Button("quick_key_1",touchcontrols::RectF(4,3,6,5),"quick_key_1",KEY_QUICK_KEY1,false,true));
-                tcGameMain->addControl(new
-           touchcontrols::Button("quick_key_2",touchcontrols::RectF(6,3,8,5),"quick_key_2",KEY_QUICK_KEY2,false,true));
-                tcGameMain->addControl(new
-           touchcontrols::Button("quick_key_3",touchcontrols::RectF(8,3,10,5),"quick_key_3",KEY_QUICK_KEY3,false,true));
-                tcGameMain->addControl(new
-           touchcontrols::Button("quick_key_4",touchcontrols::RectF(10,3,12,5),"quick_key_4",KEY_QUICK_KEY4,false,true));
-         */
-        // Left stick
-        touchJoyLeft = new touchcontrols::TouchJoy("stick", touchcontrols::RectF(0, 7, 8, 16), "strafe_arrow");
-        tcGameMain->addControl(touchJoyLeft);
-        touchJoyLeft->signal_move.connect(sigc::ptr_fun(&left_stick));
-        touchJoyLeft->signal_double_tap.connect(sigc::ptr_fun(&left_double_tap));
-
-        // Mouse look for whole screen
-        touchcontrols::Mouse *mouse = new touchcontrols::Mouse("mouse", touchcontrols::RectF(3, 0, 26, 16), "");
-        mouse->signal_action.connect(sigc::ptr_fun(&mouseMove));
-        mouse->signal_double_tap.connect(sigc::ptr_fun(&right_double_tap));
-
-        mouse->setHideGraphics(true);
-        tcGameMain->addControl(mouse);
-
-        tcGameMain->signal_button.connect(sigc::ptr_fun(&gameButton));
-        tcGameMain->signal_settingsButton.connect(sigc::ptr_fun(&gameSettingsButton));
-
-        ///////////////////////// AUTO MAP SCREEN ///////////////////////
+    tcYesNo->addControl(
+    new touchcontrols::Button("enter", touchcontrols::RectF(16, 9, 18, 11), "yes", SDL_SCANCODE_RETURN));
+    tcYesNo->addControl(
+    new touchcontrols::Button("esc", touchcontrols::RectF(8, 9, 10, 11), "no", SDL_SCANCODE_ESCAPE));
+    tcYesNo->signal_button.connect(sigc::ptr_fun(&menuButton));  // Just reuse the menuButton function
 
 
-        // Automap
-        touchcontrols::MultitouchMouse *multimouse =
-        new touchcontrols::MultitouchMouse("gamemouse", touchcontrols::RectF(0, 0, 26, 16), "");
-        multimouse->setHideGraphics(true);
-        tcAutomap->addControl(multimouse);
-        multimouse->signal_action.connect(sigc::ptr_fun(&automap_multitouch_mouse_move));
-        tcAutomap->addControl(map_button);
-        tcAutomap->signal_button.connect(sigc::ptr_fun(&gameButton));
-        tcAutomap->setAlpha(0.5);
+    ///////////////////////// MAIN MENU SCREEN /////////////////////
 
-        // Now inventory in the weapons control group!
+    tcMenuMain->addControl(
+    new touchcontrols::Button("arrow_left", touchcontrols::RectF(0, 2, 2, 4), "arrow_left", SDL_SCANCODE_ESCAPE));
+    tcMenuMain->signal_button.connect(sigc::ptr_fun(&menuButton));
 
-        inv_buttons[GET_JETPACK] = new touchcontrols::Button("jetpack", touchcontrols::RectF(0, 3, 2, 5), "jetpack",
-                                                             gamefunc_Jetpack, false, false, true);
-        inv_buttons[GET_FIRSTAID] = new touchcontrols::Button("medkit", touchcontrols::RectF(0, 5, 2, 7), "medkit",
-                                                              gamefunc_MedKit, false, false, true);
-        inv_buttons[GET_HEATS] = new touchcontrols::Button("nightv", touchcontrols::RectF(0, 7, 2, 9), "nightvision",
-                                                           gamefunc_NightVision, false, false, true);
-        inv_buttons[GET_HOLODUKE] = new touchcontrols::Button("holoduke", touchcontrols::RectF(0, 9, 2, 11), "holoduke",
-                                                              gamefunc_Holo_Duke, false, false, true);
-        inv_buttons[GET_STEROIDS] = new touchcontrols::Button("steroids", touchcontrols::RectF(0, 11, 2, 13),
-                                                              "steroids", gamefunc_Steroids, false, false, true);
+    touchcontrols::MultitouchMouse *mouseMenu =
+    new touchcontrols::MultitouchMouse("mouse", touchcontrols::RectF(0, 0, 26, 16), "");
+    mouseMenu->setHideGraphics(true);
+    tcMenuMain->addControl(mouseMenu);
+    mouseMenu->signal_action.connect(sigc::ptr_fun(&menuMouse));
 
-        tcGameWeapons->addControl(inv_buttons[GET_JETPACK]);
-        tcGameWeapons->addControl(inv_buttons[GET_FIRSTAID]);
-        tcGameWeapons->addControl(inv_buttons[GET_HEATS]);
-        tcGameWeapons->addControl(inv_buttons[GET_HOLODUKE]);
-        tcGameWeapons->addControl(inv_buttons[GET_STEROIDS]);
-        // Inventory are the only buttons so safe to do this
-        tcGameWeapons->signal_button.connect(sigc::ptr_fun(&inventoryButton));
+    touchcontrols::Button *console_button = new touchcontrols::Button(
+    "keyboard", "Development console", touchcontrols::RectF(8, 0, 10, 2), "keyboard", KEY_SHOW_KBRD, false, true);
 
-        // Weapons
-        weaponWheel = new touchcontrols::WheelSelect("weapon_wheel", touchcontrols::RectF(7, 2, 19, 14),
-                                                     "weapon_wheel_orange_blank", 10);
-        weaponWheel->signal_selected.connect(sigc::ptr_fun(&weaponWheelChosen));
-        weaponWheel->signal_enabled.connect(sigc::ptr_fun(&weaponWheelSelected));
-        tcGameWeapons->addControl(weaponWheel);
-        tcGameWeapons->setAlpha(0.9);
+    tcMenuMain->addControl(console_button);
 
-        /////////////////////////////////////////////////////////////
+    //////////////////////////// GAME SCREEN /////////////////////
+    tcGameMain->setAlpha(droidinput.gameControlsAlpha);
+    controlsContainer.editButtonAlpha = droidinput.gameControlsAlpha;
+
+    tcGameMain->addControl(
+    new touchcontrols::Button("game_menu", touchcontrols::RectF(0, 0, 2, 2), "settings_bars", MENU_BACK));
+
+    tcGameMain->addControl(new touchcontrols::Button("use", touchcontrols::RectF(20, 4, 23, 7), "use", gamefunc_Open));
+    tcGameMain->addControl(
+    new touchcontrols::Button("attack", touchcontrols::RectF(20, 7, 23, 10), "fire2", gamefunc_Fire));
+    tcGameMain->addControl(
+    new touchcontrols::Button("jump", touchcontrols::RectF(23, 6, 26, 9), "jump", gamefunc_Jump));
+    tcGameMain->addControl(
+    new touchcontrols::Button("crouch", touchcontrols::RectF(24, 12, 26, 14), "crouch", gamefunc_Crouch));
+    tcGameMain->addControl(new touchcontrols::Button("kick", "Mighty Foot", touchcontrols::RectF(23, 3, 26, 6), "boot",
+                                                     gamefunc_Quick_Kick, false, true));
+
+    touchcontrols::Button *map_button = new touchcontrols::Button(
+    "map", "Overhead map", touchcontrols::RectF(6, 0, 8, 2), "map", gamefunc_Map, false, true);
+    tcGameMain->addControl(map_button);
+    tcGameMain->addControl(new touchcontrols::Button("show_inventory", "Inventory", touchcontrols::RectF(24, 0, 26, 2),
+                                                     "inv", KEY_SHOW_INVEN));
+    tcGameMain->addControl(new touchcontrols::Button("next_weapon", "Next weapon", touchcontrols::RectF(0, 3, 3, 5),
+                                                     "next_weap", gamefunc_Next_Weapon, false, true));
+    tcGameMain->addControl(new touchcontrols::Button("prev_weapon", "Previous weapon", touchcontrols::RectF(0, 5, 3, 7),
+                                                     "prev_weap", gamefunc_Previous_Weapon, false, true));
+    tcGameMain->addControl(new touchcontrols::Button("quick_save", "Save game", touchcontrols::RectF(22, 0, 24, 2),
+                                                     "save", KEY_QUICK_SAVE, false, true));
+    tcGameMain->addControl(new touchcontrols::Button("quick_load", "Load game", touchcontrols::RectF(20, 0, 22, 2),
+                                                     "load", KEY_QUICK_LOAD, false, true));
+
+    tcGameMain->addControl(console_button);
+    /*
+            //quick actions binds
+            tcGameMain->addControl(new
+       touchcontrols::Button("quick_key_1",touchcontrols::RectF(4,3,6,5),"quick_key_1",KEY_QUICK_KEY1,false,true));
+            tcGameMain->addControl(new
+       touchcontrols::Button("quick_key_2",touchcontrols::RectF(6,3,8,5),"quick_key_2",KEY_QUICK_KEY2,false,true));
+            tcGameMain->addControl(new
+       touchcontrols::Button("quick_key_3",touchcontrols::RectF(8,3,10,5),"quick_key_3",KEY_QUICK_KEY3,false,true));
+            tcGameMain->addControl(new
+       touchcontrols::Button("quick_key_4",touchcontrols::RectF(10,3,12,5),"quick_key_4",KEY_QUICK_KEY4,false,true));
+     */
+    // Left stick
+    touchJoyLeft = new touchcontrols::TouchJoy("stick", touchcontrols::RectF(0, 7, 8, 16), "strafe_arrow");
+    tcGameMain->addControl(touchJoyLeft);
+    touchJoyLeft->signal_move.connect(sigc::ptr_fun(&left_stick));
+    touchJoyLeft->signal_double_tap.connect(sigc::ptr_fun(&left_double_tap));
+
+    // Mouse look for whole screen
+    touchcontrols::Mouse *mouse = new touchcontrols::Mouse("mouse", touchcontrols::RectF(3, 0, 26, 16), "");
+    mouse->signal_action.connect(sigc::ptr_fun(&mouseMove));
+    mouse->signal_double_tap.connect(sigc::ptr_fun(&right_double_tap));
+
+    mouse->setHideGraphics(true);
+    tcGameMain->addControl(mouse);
+
+    tcGameMain->signal_button.connect(sigc::ptr_fun(&gameButton));
+    tcGameMain->signal_settingsButton.connect(sigc::ptr_fun(&gameSettingsButton));
+
+    ///////////////////////// AUTO MAP SCREEN ///////////////////////
 
 
-        controlsContainer.addControlGroup(tcMenuMain);
-        controlsContainer.addControlGroup(tcGameMain);
-        //        controlsContainer.addControlGroup(tcInventory);//Need to be above tcGameMain incase buttons over stick
-        controlsContainer.addControlGroup(tcGameWeapons);
-        controlsContainer.addControlGroup(tcAutomap);
-        controlsContainer.addControlGroup(tcYesNo);
-        controlsContainer.addControlGroup(tcBlankTap);
-        controlsCreated = 1;
+    // Automap
+    touchcontrols::MultitouchMouse *multimouse =
+    new touchcontrols::MultitouchMouse("gamemouse", touchcontrols::RectF(0, 0, 26, 16), "");
+    multimouse->setHideGraphics(true);
+    tcAutomap->addControl(multimouse);
+    multimouse->signal_action.connect(sigc::ptr_fun(&automap_multitouch_mouse_move));
+    tcAutomap->addControl(map_button);
+    tcAutomap->signal_button.connect(sigc::ptr_fun(&gameButton));
+    tcAutomap->setAlpha(0.5);
 
-        tcGameMain->setAlpha(droidinput.gameControlsAlpha);
-        controlsContainer.editButtonAlpha = droidinput.gameControlsAlpha;
-        tcGameWeapons->setAlpha(droidinput.gameControlsAlpha);
-        tcMenuMain->setAlpha(droidinput.gameControlsAlpha);
+    // Now inventory in the weapons control group!
 
-        tcGameMain->setXMLFile(gamePath + "/control_layout_main.xml");
-        tcGameWeapons->setXMLFile(gamePath + "/control_layout_weapons.xml");
-        tcAutomap->setXMLFile(gamePath + "/control_layout_automap.xml");
-        // tcInventory->setXMLFile((std::string)graphics_path +  "/inventory.xml");
+    inv_buttons[GET_JETPACK] = new touchcontrols::Button("jetpack", touchcontrols::RectF(0, 3, 2, 5), "jetpack",
+                                                         gamefunc_Jetpack, false, false, true);
+    inv_buttons[GET_FIRSTAID] = new touchcontrols::Button("medkit", touchcontrols::RectF(0, 5, 2, 7), "medkit",
+                                                          gamefunc_MedKit, false, false, true);
+    inv_buttons[GET_HEATS] = new touchcontrols::Button("nightv", touchcontrols::RectF(0, 7, 2, 9), "nightvision",
+                                                       gamefunc_NightVision, false, false, true);
+    inv_buttons[GET_HOLODUKE] = new touchcontrols::Button("holoduke", touchcontrols::RectF(0, 9, 2, 11), "holoduke",
+                                                          gamefunc_Holo_Duke, false, false, true);
+    inv_buttons[GET_STEROIDS] = new touchcontrols::Button("steroids", touchcontrols::RectF(0, 11, 2, 13), "steroids",
+                                                          gamefunc_Steroids, false, false, true);
 
-        setControlsContainer(&controlsContainer);
-    }
-    else
-        LOGI("NOT creating controls");
+    tcGameWeapons->addControl(inv_buttons[GET_JETPACK]);
+    tcGameWeapons->addControl(inv_buttons[GET_FIRSTAID]);
+    tcGameWeapons->addControl(inv_buttons[GET_HEATS]);
+    tcGameWeapons->addControl(inv_buttons[GET_HOLODUKE]);
+    tcGameWeapons->addControl(inv_buttons[GET_STEROIDS]);
+    // Inventory are the only buttons so safe to do this
+    tcGameWeapons->signal_button.connect(sigc::ptr_fun(&inventoryButton));
+
+    // Weapons
+    weaponWheel =
+    new touchcontrols::WheelSelect("weapon_wheel", touchcontrols::RectF(7, 2, 19, 14), "weapon_wheel_orange_blank", 10);
+    weaponWheel->signal_selected.connect(sigc::ptr_fun(&weaponWheelChosen));
+    weaponWheel->signal_enabled.connect(sigc::ptr_fun(&weaponWheelSelected));
+    tcGameWeapons->addControl(weaponWheel);
+    tcGameWeapons->setAlpha(0.9);
+
+    /////////////////////////////////////////////////////////////
+
+
+    controlsContainer.addControlGroup(tcMenuMain);
+    controlsContainer.addControlGroup(tcGameMain);
+    //        controlsContainer.addControlGroup(tcInventory);//Need to be above tcGameMain incase buttons over stick
+    controlsContainer.addControlGroup(tcGameWeapons);
+    controlsContainer.addControlGroup(tcAutomap);
+    controlsContainer.addControlGroup(tcYesNo);
+    controlsContainer.addControlGroup(tcBlankTap);
+    controlsCreated = 1;
+
+    tcGameMain->setAlpha(droidinput.gameControlsAlpha);
+    controlsContainer.editButtonAlpha = droidinput.gameControlsAlpha;
+    tcGameWeapons->setAlpha(droidinput.gameControlsAlpha);
+    tcMenuMain->setAlpha(droidinput.gameControlsAlpha);
+
+    tcGameMain->setXMLFile(gamePath + "/control_layout_main.xml");
+    tcGameWeapons->setXMLFile(gamePath + "/control_layout_weapons.xml");
+    tcAutomap->setXMLFile(gamePath + "/control_layout_automap.xml");
+    // tcInventory->setXMLFile((std::string)graphics_path +  "/inventory.xml");
+
+    setControlsContainer(&controlsContainer);
 
     // controlsContainer.initGL();
 }

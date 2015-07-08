@@ -100,7 +100,7 @@ typedef struct
 extern droidinput_t droidinput;
 extern droidsysinfo_t droidinfo;
 
-
+int PortableTimer(int tics);
 int PortableKeyEvent(int state, int code, int unicode);
 int PortableRead(portableread_t r);
 
