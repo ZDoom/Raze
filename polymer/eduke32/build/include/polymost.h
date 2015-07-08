@@ -201,6 +201,8 @@ extern float fxdim, fydim, fydimen, fviewingrange;
 
 extern char ptempbuf[MAXWALLSB<<1];
 
+extern hitdata_t polymost_hitdata;
+
 #include "texcache.h"
 
 extern void polymost_setupglowtexture(int32_t texunits, int32_t tex);

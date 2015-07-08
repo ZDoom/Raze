@@ -955,6 +955,12 @@ static void move_and_update(int32_t xvect, int32_t yvect, int32_t addshr)
         clipmove(&pos,&cursectnum, xvect>>addshr,yvect>>addshr,
                  128,4<<8,4<<8, (m32_clipping==1) ? 0 : CLIPMASK0);
     }
+
+    if (in3dmode())
+    {
+        silentmessage("x:%d y:%d z:%d ang:%d horiz:%d", pos.x, pos.y, pos.z, ang, horiz);
+        getmessagetimeoff = totalclock+30;
+    }
 }
 
 static void mainloop_move(void)
@@ -970,6 +976,12 @@ static void mainloop_move(void)
 
         ang += ((angvel*doubvel)>>4);
         ang &= 2047;
+
+        if (in3dmode())
+        {
+            silentmessage("x:%d y:%d z:%d ang:%d horiz:%d", pos.x, pos.y, pos.z, ang, horiz);
+            getmessagetimeoff = totalclock+30;
+        }
     }
     if ((vel|svel) != 0)
     {
@@ -1141,6 +1153,9 @@ void editinput(void)
             }
             osearchx = searchx-mousx;
             osearchy = searchy-mousy;
+
+            silentmessage("x:%d y:%d z:%d ang:%d horiz:%d",pos.x,pos.y,pos.z,ang,horiz);
+            getmessagetimeoff = totalclock+30;
         }
         else if (unrealedlook==0 || (bstatus&(1|2|4))==0)
         {
@@ -1295,6 +1310,12 @@ void editinput(void)
         }
     }
 
+    if (pos.z != oposz && in3dmode())
+    {
+        silentmessage("x:%d y:%d z:%d ang:%d horiz:%d", pos.x, pos.y, pos.z, ang, horiz);
+        getmessagetimeoff = totalclock+30;
+    }
+
     searchit = 2;
     if (searchstat >= 0)
     {
@@ -1309,7 +1330,12 @@ void editinput(void)
 
             rotatepoint(zerovec, da, ang, &da);
 
-            hitscan((const vec3_t *)&pos,cursectnum,              //Start position
+#ifdef USE_OPENGL
+            if (getrendermode() == REND_POLYMOST)
+                hit = polymost_hitdata;
+            else
+#endif
+                hitscan((const vec3_t *)&pos,cursectnum,              //Start position
                     da.x,da.y,(scale(searchy,200,ydim)-horiz)*2000, //vector of 3D ang
                     &hit,CLIPMASK1);
 

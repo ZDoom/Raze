@@ -68,7 +68,7 @@ static vec3d_t xtex, ytex, otex;
 
 float fcosglobalang, fsinglobalang;
 float fxdim, fydim, fydimen, fviewingrange;
-static int32_t preview_mouseaim=0;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
+static int32_t preview_mouseaim=1;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
 
 static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 
@@ -152,6 +152,8 @@ int32_t hicprecaching = 0;
 float r_wspr_variance = 0.000001f;
 float r_wspr_offset = 0.005f;
 float r_fspr_offset = 1.0f;
+
+hitdata_t polymost_hitdata;
 
 #if 0
 static inline int32_t gltexmayhavealpha(int32_t dapicnum, int32_t dapalnum)
@@ -2124,10 +2126,12 @@ skip: ;
 #endif
 }
 
+#define POINT2(i) (wall[wall[i].point2])
+
 void polymost_editorfunc(void)
 {
-    const float ratio = 1.f/get_projhack_ratio();
-    
+    const float ratio = (r_usenewaspect ? (fxdim / fydim) / (320.f / 240.f) : 1.f)  * (1.f / get_projhack_ratio());
+
     vec3f_t tvect = { (searchx - ghalfx) * ratio, (searchy - ghoriz) * ratio, ghalfx };
 
     //Tilt rotation
@@ -2144,62 +2148,116 @@ void polymost_editorfunc(void)
 
     vec3_t vect = { globalposx, globalposy, globalposz };
 
-    hitdata_t hit;
+    hitdata_t *hit = &polymost_hitdata;
 
     hitallsprites = 1;
 
     hitscan((const vec3_t *) &vect, globalcursectnum, //Start position
-        v.x>>10, v.y>>10, v.z>>6, &hit, 0xffff0030);
+        v.x>>10, v.y>>10, v.z>>6, hit, 0xffff0030);
 
-    if (hit.sect != -1) // if hitsect is -1, hitscan overflowed somewhere
+    if (hit->sect != -1) // if hitsect is -1, hitscan overflowed somewhere
     {
         int32_t cz, fz;
-        getzsofslope(hit.sect, hit.pos.x, hit.pos.y, &cz, &fz);
+        getzsofslope(hit->sect, hit->pos.x, hit->pos.y, &cz, &fz);
         hitallsprites = 0;
 
-        searchsector = hit.sect;
-        if (hit.pos.z<cz) searchstat = 1;
-        else if (hit.pos.z>fz) searchstat = 2;
-        else if (hit.wall >= 0)
+        searchsector = hit->sect;
+        if (hit->pos.z<cz) searchstat = 1;
+        else if (hit->pos.z>fz) searchstat = 2;
+        else if (hit->wall >= 0)
         {
-            searchbottomwall = searchwall = hit.wall; searchstat = 0;
-            if (wall[hit.wall].nextwall >= 0)
+            searchbottomwall = searchwall = hit->wall; searchstat = 0;
+            if (wall[hit->wall].nextwall >= 0)
             {
-                getzsofslope(wall[hit.wall].nextsector, hit.pos.x, hit.pos.y, &cz, &fz);
-                if (hit.pos.z > fz)
+                getzsofslope(wall[hit->wall].nextsector, hit->pos.x, hit->pos.y, &cz, &fz);
+                if (hit->pos.z > fz)
                 {
                     searchisbottom = 1;
-                    if (wall[hit.wall].cstat&2) //'2' bottoms of walls
-                        searchbottomwall = wall[hit.wall].nextwall;
+                    if (wall[hit->wall].cstat&2) //'2' bottoms of walls
+                        searchbottomwall = wall[hit->wall].nextwall;
                 }
                 else
                 {
                     searchisbottom = 0;
-                    if ((hit.pos.z > cz) && (wall[hit.wall].cstat&(16+32))) //masking or 1-way
+                    if ((hit->pos.z > cz) && (wall[hit->wall].cstat&(16+32))) //masking or 1-way
                         searchstat = 4;
                 }
             }
         }
-        else if (hit.sprite >= 0) { searchwall = hit.sprite; searchstat = 3; }
+        else if (hit->sprite >= 0) { searchwall = hit->sprite; searchstat = 3; }
         else
         {
-            getzsofslope(hit.sect, hit.pos.x, hit.pos.y, &cz, &fz);
-            if ((hit.pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
+            getzsofslope(hit->sect, hit->pos.x, hit->pos.y, &cz, &fz);
+            if ((hit->pos.z<<1) < cz+fz) searchstat = 1; else searchstat = 2;
             //if (vz < 0) searchstat = 1; else searchstat = 2; //Won't work for slopes :/
         }
 
-        if (preview_mouseaim && spritesortcnt < MAXSPRITESONSCREEN)
+        if (preview_mouseaim)
         {
+            if (spritesortcnt == MAXSPRITESONSCREEN)
+                spritesortcnt--;
+
             tspritetype *tsp = &tsprite[spritesortcnt];
             double dadist, x, y, z;
-            Bmemcpy(tsp, &hit.pos, sizeof(vec3_t));
+            Bmemcpy(tsp, &hit->pos, sizeof(vec3_t));
             x = tsp->x-globalposx; y=tsp->y-globalposy; z=(tsp->z-globalposz)/16.0;
             dadist = Bsqrt(x*x + y*y + z*z);
-            tsp->sectnum = hit.sect;
+            tsp->sectnum = hit->sect;
             tsp->picnum = 2523;  // CROSSHAIR
             tsp->cstat = 128;
+
+            if (hit->wall != -1)
+            {
+                tsp->cstat |= 16;
+                int const ang = getangle(wall[hit->wall].x - POINT2(hit->wall).x, wall[hit->wall].y - POINT2(hit->wall).y);
+                tsp->ang = ang + 512;
+
+                vec2_t const offs ={ sintable[(ang + 1024) & 2047] >> 11,
+                    sintable[(ang + 512) & 2047] >> 11};
+
+                tsp->x -= offs.x;
+                tsp->y -= offs.y;
+
+            }
+            else if (hit->sprite == -1 && (hit->pos.z == sector[hit->sect].floorz || hit->pos.z == sector[hit->sect].ceilingz))
+            {
+                tsp->cstat = 32;
+                tsp->ang = getangle(hit->pos.x - globalposx, hit->pos.y - globalposy);
+            }
+            else if (hit->sprite >= 0)
+            {
+                if (sprite[hit->sprite].cstat & 16)
+                {
+                    tsp->cstat |= 16;
+                    tsp->ang = sprite[hit->sprite].ang;
+                }
+
+                else tsp->ang = (globalang + 1024) & 2047;
+
+                vec2_t const offs = { sintable[(tsp->ang + 1536) & 2047] >> 11,
+                                      sintable[(tsp->ang + 1024) & 2047] >> 11 };
+
+                tsp->x -= offs.x;
+                tsp->y -= offs.y;
+            }
+            static int lastupdate = 0;
+            static int shd = 30;
+            static int shdinc = 1;
+
+            if (totalclock > lastupdate)
+            {
+                shd += shdinc;
+                if (shd >= 30 || shd <= 0)
+                {
+                    shdinc = -shdinc;
+                    shd += shdinc;
+                }
+                lastupdate = totalclock + 3;
+            }
+
+            tsp->shade = 30-shd;
             tsp->owner = MAXSPRITES-1;
-            tsp->xrepeat = tsp->yrepeat = min(max(1, (int32_t) (dadist*48.0/3200.0)), 255);
+            tsp->xrepeat = tsp->yrepeat = min(max(1, (int32_t) (dadist*((double)(shd*3)/3200.0))), 255);
             sprite[tsp->owner].xoffset = sprite[tsp->owner].yoffset = 0;
             tspriteptr[spritesortcnt++] = tsp;
         }
@@ -2217,8 +2275,8 @@ void polymost_editorfunc(void)
                 int32_t w1[2] ={ wal[k].x, wal[k].y };
                 int32_t w2[2] ={ wall[wal[k].point2].x, wall[wal[k].point2].y };
                 int32_t w21[2] ={ w1[0]-w2[0], w1[1]-w2[1] };
-                int32_t pw1[2] ={ w1[0]-hit.pos.x, w1[1]-hit.pos.y };
-                int32_t pw2[2] ={ w2[0]-hit.pos.x, w2[1]-hit.pos.y };
+                int32_t pw1[2] ={ w1[0]-hit->pos.x, w1[1]-hit->pos.y };
+                int32_t pw2[2] ={ w2[0]-hit->pos.x, w2[1]-hit->pos.y };
                 float w1d = (float) (scrv_r[0]*pw1[0] + scrv_r[1]*pw1[1]);
                 float w2d = (float) (scrv_r[0]*pw2[0] + scrv_r[1]*pw2[1]);
                 int32_t ptonline[2], scrp[2];
@@ -2482,8 +2540,6 @@ static inline int32_t testvisiblemost(float const x0, float const x1)
     }
     return 0;
 }
-
-#define POINT2(i) (wall[wall[i].point2])
 
 static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32_t dawall, vec2_t * const n)
 {
