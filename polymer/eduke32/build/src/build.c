@@ -3307,6 +3307,8 @@ void overheadeditor(void)
                 zoom += (ztarget - zoom) >> 3;
             else zoom++;
             zoom = min(zoom, ztarget);
+            if (zoom == 65536)
+                silentmessage("Ludicrous Zoom!");
         }
         else if (zoom > ztarget)
         {
@@ -5946,9 +5948,6 @@ end_point_dragging:
                 ztarget = clamp(ztarget, 16, 65536);
 
                 _printmessage16("Zoom: %d",ztarget);
-
-                if (ztarget == 16 || ztarget == 65536)
-                    message("Ludicrous Zoom!");
             }
         }
 
