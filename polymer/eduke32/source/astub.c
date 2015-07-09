@@ -7872,9 +7872,9 @@ static void InitCustomColors(void)
     vgapal16[32*4+2] = 21;
 
     // grid color
-    vgapal16[25*4+0] = 19;
-    vgapal16[25*4+1] = 17;
-    vgapal16[25*4+2] = 17;
+    vgapal16[25*4+0] = 17;
+    vgapal16[25*4+1] = 15;
+    vgapal16[25*4+2] = 15;
 
     vgapal16[26*4+0] = 24;
     vgapal16[26*4+1] = 24;

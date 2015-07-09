@@ -9011,7 +9011,7 @@ void clearmidstatbar16(void)
 
 static void clearministatbar16(void)
 {
-    int32_t i, col = whitecol - 20;
+    int32_t i, col = editorcolors[25];
 
     begindrawing();
 

@@ -59,7 +59,7 @@ const char *YUPDOWNWALL[2] = {"UPWALL","DOWNWALL"};
 
 void drawgradient(void)
 {
-    int32_t i, col = whitecol-21;
+    int32_t i, col = editorcolors[25];
     begindrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim && col>0; i++,col--)
         CLEARLINES2D(i, 1, (col<<24)|(col<<16)|(col<<8)|col);

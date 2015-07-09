@@ -16959,7 +16959,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
                 xp2 += xinc;
             }
 
-            i = drawline16(halfxdim16+sx1,midydim16+sy1+yofs, halfxdim16+sx1+dx,midydim16+sy1+dy+yofs, whitecol-25);
+            i = drawline16(halfxdim16+sx1,midydim16+sy1+yofs, halfxdim16+sx1+dx,midydim16+sy1+dy+yofs, editorcolors[25]);
             if (i==0 || (xp2<-editorgridextent || xp2>editorgridextent ||
                          yp2<-editorgridextent || yp2>editorgridextent))
             {
@@ -17007,13 +17007,13 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
                 if (xp1 >= 0)
                 {
                     if (xp1 != xp2)
-                        drawline16(xp1,yp1,xp1,yp2,whitecol-25);
+                        drawline16(xp1,yp1,xp1,yp2,editorcolors[25]);
                 }
             }
             if (i >= editorgridextent && xp1 < xdim)
                 xp2 = xp1;
             if (xp2 >= 0 && xp2 < xdim)
-                drawline16(xp2,yp1, xp2,yp2, whitecol-25);
+                drawline16(xp2,yp1, xp2,yp2, editorcolors[25]);
         }
 
         // horizontal lines
@@ -17028,7 +17028,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
             {
                 if ((yp1 > midydim16-ydim16) && (yp1 <= midydim16))
                 {
-                    drawline16mid(-xp1,-yp1, -xp2,-yp1, whitecol-25);
+                    drawline16mid(-xp1,-yp1, -xp2,-yp1, editorcolors[25]);
                     tempy = yp1;
                 }
             }
