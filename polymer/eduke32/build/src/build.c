@@ -3323,14 +3323,14 @@ void overheadeditor(void)
         {
             if (totalclock > waitdelay)
             {
-                uint32_t ms = (highlightsectorcnt>0) ? 75 : 200;
+                uint32_t ms = 50;// (highlightsectorcnt>0) ? 75 : 200;
                 // wait for event, timeout after 200 ms - (last loop time)
                 idle_waitevent_timeout(ms - min(getticks()-lasttick, ms));
                 // have synctics reset to 0 after we've slept to avoid zooming out to the max instantly
                 resetsynctics = 1;
             }
         }
-        else waitdelay = totalclock + 30; // should be 250 ms
+        else waitdelay = totalclock + 6; // should be 50 ms
 
         lasttick = getticks();
 
@@ -3593,7 +3593,7 @@ void overheadeditor(void)
                             }
 
                             if ((i == pointhighlight-16384) && (totalclock & 32))
-                                col += (2<<2);
+                                col += 4;
 
                             drawsmallabel(dabuffer, editorcolors[0], col,
                                           sprite[i].x, sprite[i].y, sprite[i].z);
@@ -5904,20 +5904,30 @@ end_point_dragging:
         {
             int32_t didzoom=0;
 
-            if ((DOWN_BK(MOVEUP) || (bstatus&16)) && zoom < 32768)
+            if ((DOWN_BK(MOVEUP) || (bstatus&16)) && zoom < 65536)
             {
                 if (DOWN_BK(MOVEUP))
+                {
                     ztarget += (synctics*(ztarget>>4))>>(eitherSHIFT<<1);
+
+                    if (zoom < 64)
+                        ztarget += (synctics*(ztarget>>4)) * (eitherSHIFT);
+                }
                 if (bstatus&16)
                     ztarget += 4*(ztarget>>4);
 
                 if (zoom < 24) zoom += 2;
                 didzoom = 1;
             }
-            if ((DOWN_BK(MOVEDOWN) || (bstatus&32)) && zoom > 32)
+            if ((DOWN_BK(MOVEDOWN) || (bstatus&32)) && zoom > 16)
             {
                 if (DOWN_BK(MOVEDOWN))
+                {
                     ztarget -= (synctics*(ztarget>>4))>>(eitherSHIFT<<1);
+
+                    if (zoom < 64)
+                        ztarget -= (synctics * (ztarget >> 4)) * (eitherSHIFT);
+                }
                 if (bstatus&32)
                     ztarget -= 4*(ztarget>>4);
 
@@ -5933,10 +5943,15 @@ end_point_dragging:
                     pos.x = mousxplc;
                     pos.y = mousyplc;
                 }
-                ztarget = clamp(ztarget, 32, 32768);
+                ztarget = clamp(ztarget, 16, 65536);
+
                 _printmessage16("Zoom: %d",ztarget);
+
+                if (ztarget == 16 || ztarget == 65536)
+                    message("Ludicrous Zoom!");
             }
         }
+
 
         if (keystatus[0x22])  // G (grid on/off)
         {
@@ -8996,7 +9011,7 @@ void clearmidstatbar16(void)
 
 static void clearministatbar16(void)
 {
-    int32_t i, col = whitecol - 16;
+    int32_t i, col = whitecol - 20;
 
     begindrawing();
 

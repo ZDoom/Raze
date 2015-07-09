@@ -17261,15 +17261,10 @@ int32_t getspritecol(int32_t spr)
         if (cols[i] > cnt)
             col = i, cnt = cols[i];
 
-    float sum = (float)curpalette[col].r * GRAYSCALE_COEFF_RED + (float)curpalette[col].g * GRAYSCALE_COEFF_GREEN +
-                (float)curpalette[col].b * GRAYSCALE_COEFF_BLUE;
-
-    while (col < 240 &&
-           ((float)curpalette[col + 1].r * GRAYSCALE_COEFF_RED + (float)curpalette[col + 1].g * GRAYSCALE_COEFF_GREEN +
-            (float)curpalette[col + 1].b * GRAYSCALE_COEFF_BLUE) > sum)
+    while (col < 240 && curpalette[col+1].r > curpalette[col].r)
         col++;
 
-    tilecols[picnum] = col - 8;
+    tilecols[picnum] = col - 4;
 
     return palookup[pal][tilecols[picnum]];
 }
@@ -17311,12 +17306,12 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
                                           (!m32_sideview && ((sprite[j].x == sprite[pointhighlight-16384].x) &&
                                                   (sprite[j].y == sprite[pointhighlight-16384].y)))))
         {
-            if (totalclock & 32) col += 8;
+            if (totalclock & 32) col += 4;
         }
         else // if (highlightcnt > 0)
         {
             if (show2dsprite[j>>3]&pow2char[j&7])
-                if (totalclock & 32) col += 8;
+                if (totalclock & 32) col += 4;
         }
     }
 
