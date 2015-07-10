@@ -75,7 +75,7 @@ flags_cl=$(flags_cl) /arch:SSE
 flags_link=/RELEASE /LTCG # /LIBPATH:$(WDKROOT)\lib\wxp\i386 /LIBPATH:$(WDKROOT)\lib\Crt\i386
 !endif
 
-ENGINEOPTS=/DUSE_OPENGL /DPOLYMER /DUSE_LIBPNG /DUSE_LIBVPX /DHAVE_VORBIS /DHAVE_FLAC
+ENGINEOPTS=/DUSE_OPENGL /DPOLYMER /DUSE_LIBPNG /DUSE_LIBVPX /DHAVE_VORBIS #/DHAVE_FLAC
 
 !ifdef CPLUSPLUS
 ENGINEOPTS=$(ENGINEOPTS) /TP
@@ -98,7 +98,7 @@ ENET_CFLAGS=/I$(ENET_INC) /I$(ENET_SRC)
 AUDIOLIB_CFLAGS=/I$(AUDIOLIB_INC) /I$(AUDIOLIB_SRC) 
 
 LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib shlwapi.lib oleaut32.lib ole32.lib imm32.lib version.lib \
-     libFLAC.a libogg.a libvorbis.a libvorbisfile.a libvpx.a libpng_mini.a libz_mini.a libcompat-from-mingw-w64.a \
+     libogg.a libvorbis.a libvorbisfile.a libvpx.a libpng_mini.a libz_mini.a libcompat-from-mingw-w64.a \
      dxguid.lib dsound.lib advapi32.lib libcompat-to-msvc.a
 
 !if ("$(RENDERTYPE)"=="SDL")
