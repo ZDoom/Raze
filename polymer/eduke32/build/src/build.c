@@ -44,9 +44,9 @@ static void CallExtSetupMapFilename(const char *mapname);
 static void CallExtLoadMap(const char *mapname);
 static int32_t CallExtPreSaveMap(void);
 static void CallExtSaveMap(const char *mapname);
-static const char *CallExtGetSectorCaption(int16_t sectnum);
-static const char *CallExtGetWallCaption(int16_t wallnum);
-static const char *CallExtGetSpriteCaption(int16_t spritenum);
+static inline const char *CallExtGetSectorCaption(int16_t sectnum) { return ExtGetSectorCaption(sectnum); }
+static inline const char *CallExtGetWallCaption(int16_t wallnum) { return ExtGetWallCaption(wallnum); }
+static inline const char *CallExtGetSpriteCaption(int16_t spritenum) { return ExtGetSpriteCaption(spritenum); }
 static void CallExtShowSectorData(int16_t sectnum);
 static void CallExtShowWallData(int16_t wallnum);
 static void CallExtShowSpriteData(int16_t spritenum);
@@ -3253,24 +3253,21 @@ static void isc_transform(int32_t *x, int32_t *y)
 static void drawspritelabel(int i)
 {
     const char *dabuffer = CallExtGetSpriteCaption(i);
-    if (dabuffer[0] != 0)
-    {
-        int const blocking = (sprite[i].cstat & 1);
 
-        int col = spritecol2d[sprite[i].picnum][0] ? editorcolors[spritecol2d[sprite[i].picnum][0]] : getspritecol(i);
+    if (!dabuffer[0])
+        return;
 
-        if (col == -1)
-            col = editorcolors[3];
+//    int const blocking = (sprite[i].cstat & 1);
 
-        if ((i == pointhighlight - 16384) && (totalclock & 32))
-            col += 4;
+    int col = spritecol2d[sprite[i].picnum][0] ? editorcolors[spritecol2d[sprite[i].picnum][0]] : getspritecol(i);
 
-        if (sprite[i].sectnum < 0)
-            col = editorcolors[4];  // red
+    if ((i == pointhighlight - 16384) && (totalclock & 32))
+        col += 4;
+    else if (sprite[i].sectnum < 0)
+        col = editorcolors[4];  // red
 
-        drawsmallabel(dabuffer, editorcolors[0], col, /*blocking ? editorcolors[5] :*/ col - 3,
-            sprite[i].x, sprite[i].y, sprite[i].z);
-    }
+    drawsmallabel(dabuffer, editorcolors[0], col, /*blocking ? editorcolors[5] :*/ col - 3,
+        sprite[i].x, sprite[i].y, sprite[i].z);
 }
 
 #define EDITING_MAP_P() (newnumwalls>=0 || joinsector[0]>=0 || circlewall>=0 || (bstatus&1) || isc.active)
@@ -11079,18 +11076,6 @@ static void CallExtSaveMap(const char *mapname)
     ExtSaveMap(mapname);
     saveboard("backup.map", &pos, ang, cursectnum);
     VM_OnEvent(EVENT_SAVEMAP, -1);
-}
-static const char *CallExtGetSectorCaption(int16_t sectnum)
-{
-    return ExtGetSectorCaption(sectnum);
-}
-static const char *CallExtGetWallCaption(int16_t wallnum)
-{
-    return ExtGetWallCaption(wallnum);
-}
-static const char *CallExtGetSpriteCaption(int16_t spritenum)
-{
-    return ExtGetSpriteCaption(spritenum);
 }
 static void CallExtShowSectorData(int16_t sectnum)
 {

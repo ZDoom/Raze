@@ -623,9 +623,7 @@ int32_t taglab_getnextfreetag(int32_t *duetoptr)
 
 static void taglab_handle1(int32_t linktagp, int32_t tagnum, char *buf)
 {
-    const char *label = NULL;
-    if (linktagp && showtags==2)
-        label = taglab_getlabel(tagnum);
+    char const * const label = (linktagp && showtags==2) ? taglab_getlabel(tagnum) : NULL;
 
     if (label)
         Bsprintf(buf, "%d<%s>", tagnum, label);
@@ -901,38 +899,37 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
         SpriteName(spritenum,lo);
         if (lo[0]!=0)
         {
+            Bsprintf(tempbuf,"%s",lo);
+
             if (sprite[spritenum].pal==1)
-                Bsprintf(tempbuf,"%s (MULTIPLAYER)",lo);
-            else
-                Bsprintf(tempbuf,"%s",lo);
+                Bstrcat(tempbuf," (MULTIPLAYER)");
         }
 
         return tempbuf;
     }
 
+    char histr[TAGLAB_MAX+16], lostr[TAGLAB_MAX+16];
+
+    taglab_handle1(lt&2, sprite[spritenum].hitag, histr);
+
+    if (sprite[spritenum].picnum==SECTOREFFECTOR)
     {
-        char histr[TAGLAB_MAX+16], lostr[TAGLAB_MAX+16];
-
-        taglab_handle1(lt&2, sprite[spritenum].hitag, histr);
-
-        if (sprite[spritenum].picnum==SECTOREFFECTOR)
+        if (onnames!=8)
         {
-            if (onnames!=8)
-            {
-                Bsprintf(lo,"%s",SectorEffectorText(spritenum));
-                Bsprintf(tempbuf,"%s, %s",lo, histr);
-            }
+            Bsprintf(lo,"%s",SectorEffectorText(spritenum));
+            Bsprintf(tempbuf,"%s, %s",lo, histr);
         }
+    }
+    else
+    {
+        taglab_handle1(lt&1, sprite[spritenum].lotag, lostr);
+
+        SpriteName(spritenum,lo);
+
+        if (sprite[spritenum].extra != -1)
+            Bsprintf(tempbuf,"%s,%s,%d %s", histr, lostr, TrackerCast(sprite[spritenum].extra), lo);
         else
-        {
-            taglab_handle1(lt&1, sprite[spritenum].lotag, lostr);
-
-            SpriteName(spritenum,lo);
-            if (sprite[spritenum].extra != -1)
-                Bsprintf(tempbuf,"%s,%s,%d %s", histr, lostr, TrackerCast(sprite[spritenum].extra), lo);
-            else
-                Bsprintf(tempbuf,"%s,%s %s", histr, lostr, lo);
-        }
+            Bsprintf(tempbuf,"%s,%s %s", histr, lostr, lo);
     }
 
     return tempbuf;

@@ -65,33 +65,31 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
 {
     if (!skiploadincs) { gbxinc = asm1; gbyinc = asm2; }
 
-    {
-        const char *const A_C_RESTRICT palptr = &ghlinepal[paloffs];
-        const char *const A_C_RESTRICT buf = gbuf;
-        const int32_t bxinc = gbxinc, byinc = gbyinc;
-        const int32_t logx = glogx, logy = glogy;
-        char *pp = (char *)p;
-        const uint8_t logx32 = 32-logx, logy32 = 32-logy;
+    const char *const A_C_RESTRICT palptr = &ghlinepal[paloffs];
+    const char *const A_C_RESTRICT buf = gbuf;
+    const vec2_t inc ={ gbxinc, gbyinc };
+    const vec2_t log ={ glogx, glogy };
+    const vec2_t log32 ={ 32-log.x, 32-log.y };
+    char *pp = (char *)p;
 
 #ifdef CLASSIC_SLICE_BY_4
-        for (; cnt>=4; cnt-=4, pp-=4)
-        {
-            *pp = palptr[buf[((bx>>logx32)<<logy)+(by>>logy32)]];
-            *(pp-1) = palptr[buf[(((bx-bxinc)>>logx32)<<logy)+((by-byinc)>>logy32)]];
-            *(pp-2) = palptr[buf[(((bx-(bxinc<<1))>>logx32)<<logy)+((by-(byinc<<1))>>logy32)]];
-            *(pp-3) = palptr[buf[(((bx-(bxinc*3))>>logx32)<<logy)+((by-(byinc*3))>>logy32)]];
+    for (; cnt>=4; cnt-=4, pp-=4)
+    {
+        *pp = palptr[buf[((bx>>log32.x)<<log.y)+(by>>log32.y)]];
+        *(pp-1) = palptr[buf[(((bx-inc.x)>>log32.x)<<log.y)+((by-inc.y)>>log32.y)]];
+        *(pp-2) = palptr[buf[(((bx-(inc.x<<1))>>log32.x)<<log.y)+((by-(inc.y<<1))>>log32.y)]];
+        *(pp-3) = palptr[buf[(((bx-(inc.x*3))>>log32.x)<<log.y)+((by-(inc.y*3))>>log32.y)]];
 
-            bx -= bxinc<<2;
-            by -= byinc<<2;
-        }
+        bx -= inc.x<<2;
+        by -= inc.y<<2;
+    }
 #endif
 
-        for (; cnt>=0; cnt--, pp--)
-        {
-            *pp = palptr[buf[((bx>>logx32)<<logy)+(by>>logy32)]];
-            bx -= bxinc;
-            by -= byinc;
-        }
+    for (; cnt>=0; cnt--, pp--)
+    {
+        *pp = palptr[buf[((bx>>log32.x)<<log.y)+(by>>log32.y)]];
+        bx -= inc.x;
+        by -= inc.y;
     }
 }
 

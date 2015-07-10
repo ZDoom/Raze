@@ -16483,145 +16483,124 @@ uint32_t drawlinepat = 0xffffffff;
 
 int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 {
-    int32_t i, dx, dy, pinc, d;
-    uint32_t patc=0;
-    intptr_t p;
-
 //int32_t odx,ody;
 //int32_t ox1=x1,oy1=y1, ox2=x2,oy2=y2;
 
-    dx = x2-x1;
-    dy = y2-y1;
+    vec2_t d ={ x2-x1, y2-y1 };
 
 //odx=dx;
 //ody=dy;
 
-    if (dx >= 0)
+    if (d.x < 0)
     {
-        if (x1 >= xres || x2 < 0)
-            return 0;
-        if (x1 < 0)
-        {
-            if (dy) y1 += scale(0-x1,dy,dx);
-            x1 = 0;
-        }
-        if (x2 >= xres)
-        {
-            if (dy) y2 += scale(xres-1-x2,dy,dx);
-            x2 = xres-1;
-        }
-    }
-    else
-    {
-        if (x2 >= xres || x1 < 0)
-            return 0;
-        if (x2 < 0)
-        {
-            if (dy) y2 += scale(0-x2,dy,dx);
-            x2 = 0;
-        }
-        if (x1 >= xres)
-        {
-            if (dy) y1 += scale(xres-1-x1,dy,dx);
-            x1 = xres-1;
-        }
+        swaplong(&x1, &x2);
+        swaplong(&y1, &y2);
     }
 
-    if (dy >= 0)
+    if (x1 >= xres || x2 < 0)
+        return 0;
+
+    if (x1 < 0)
     {
-        if (y1 >= ydim16 || y2 < 0)
-            return 0;
-        if (y1 < 0)
-        {
-            if (dx) x1 += scale(0-y1,dx,dy);
-            y1 = 0;
-            x1 = clamp(x1, 0, xres-1);
-        }
-        if (y2 >= ydim16)
-        {
-            if (dx) x2 += scale(ydim16-1-y2,dx,dy);
-            y2 = ydim16-1;
-            x2 = clamp(x2, 0, xres-1);
-        }
+        if (d.y) y1 += scale(0-x1,d.y,d.x);
+        x1 = 0;
     }
-    else
+
+    if (x2 >= xres)
     {
-        if (y2 >= ydim16 || y1 < 0)
-            return 0;
-        if (y2 < 0)
-        {
-            if (dx) x2 += scale(0-y2,dx,dy);
-            y2 = 0;
-            x2 = clamp(x2, 0, xres-1);
-        }
-        if (y1 >= ydim16)
-        {
-            if (dx) x1 += scale(ydim16-1-y1,dx,dy);
-            y1 = ydim16-1;
-            x1 = clamp(x1, 0, xres-1);
-        }
+        if (d.y) y2 += scale(xres-1-x2,d.y,d.x);
+        x2 = xres-1;
+    }
+
+    if ((d.x < 0 && d.y >= 0) || (d.y < 0 && d.x >= 0))
+    {
+        swaplong(&x1, &x2);
+        swaplong(&y1, &y2);
+    }
+
+    if (y1 >= ydim16 || y2 < 0)
+        return 0;
+
+    if (y1 < 0)
+    {
+        if (d.x) x1 += scale(0-y1,d.x,d.y);
+        y1 = 0;
+        x1 = clamp(x1, 0, xres-1);
+    }
+
+    if (y2 >= ydim16)
+    {
+        if (d.x) x2 += scale(ydim16-1-y2,d.x,d.y);
+        y2 = ydim16-1;
+        x2 = clamp(x2, 0, xres-1);
+    }
+
+    if (d.y < 0)
+    {
+        swaplong(&x1, &x2);
+        swaplong(&y1, &y2);
     }
 
 //if (ox1||ox2||oy1||oy2)
 //    if (x1<0||x1>=xres || y2<0||y2>=yres)
 //        attach_here();
 
-    dx = klabs(x2-x1)+1; dy = klabs(y2-y1)+1;
-    if (dx >= dy)
+    d.x = klabs(x2-x1)+1;
+    d.y = klabs(y2-y1)+1;
+
+    if ((d.x >= d.y && x2 < x1) || (d.x < d.y && y2 < y1))
     {
-        if (x2 < x1)
-        {
-            i = x1; x1 = x2; x2 = i;
-            i = y1; y1 = y2; y2 = i;
-        }
-        d = 0;
-        if (y2 > y1) pinc = bytesperline; else pinc = -bytesperline;
-
-        begindrawing(); //{{{
-        p = (y1*bytesperline)+x1+frameplace;
-        if (dy == 0 && drawlinepat == 0xffffffff)
-        {
-            i = ((int32_t)col<<24)|((int32_t)col<<16)|((int32_t)col<<8)|col;
-            clearbufbyte((void *)p, dx, i);
-        }
-        else
-            for (i=dx; i>0; i--)
-            {
-                if (drawlinepat & pow2long[(patc++)&31])
-                    drawpixel((char *)p, col);
-                d += dy;
-                if (d >= dx) { d -= dx; p += pinc; }
-                p++;
-            }
-        enddrawing();   //}}}
-
-        return 1;
+        swaplong(&x1, &x2);
+        swaplong(&y1, &y2);
     }
 
-    if (y2 < y1)
-    {
-        i = x1; x1 = x2; x2 = i;
-        i = y1; y1 = y2; y2 = i;
-    }
-    d = 0;
-    if (x2 > x1) pinc = 1; else pinc = -1;
+    int df = 0;
+    uint32_t patc=UINT_MAX;
+    int pinc, inc = 1;
 
     begindrawing(); //{{{
-    p = (y1*bytesperline)+x1+frameplace;
-    for (i=dy; i>0; i--)
+
+    intptr_t p = (y1*bytesperline)+x1+frameplace;
+
+    if (d.x >= d.y)
     {
-        if (drawlinepat & pow2long[(patc++)&31])
-            drawpixel((char *)p, col);
-        d += dx;
-        if (d >= dy) { d -= dy; p += pinc; }
-        p += bytesperline;
+        pinc = (y2 > y1) ? bytesperline : -bytesperline;
     }
+    else
+    {
+        pinc = (x2 > x1) ? 1 : -1;
+        swaplong(&d.x, &d.y);
+        inc = bytesperline;
+    }
+
+    if (inc == 1 && d.y == 1 && drawlinepat == 0xffffffff)
+        clearbufbyte((void *)p, d.x, ((int32_t) col<<24)|((int32_t) col<<16)|((int32_t) col<<8)|col);
+    else if (drawlinepat == 0xffffffff)
+    {
+        for (int i=d.x; i>0; i--)
+        {
+            drawpixel((char *) p, col);
+            df += d.y;
+            if (df >= d.x) { df -= d.x; p += pinc; }
+            p += inc;
+        }
+    }
+    else
+    for (int i=d.x; i>0; i--)
+    {
+        if (drawlinepat & pow2long[(++patc)&31])
+            drawpixel((char *) p, col);
+        df += d.y;
+        if (df >= d.x) { df -= d.x; p += pinc; }
+        p += inc;
+    }
+
     enddrawing();   //}}}
 
     return 1;
 }
 
-static void drawline16mid(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
+FORCE_INLINE void drawline16mid(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 {
     drawline16(halfxdim16+x1,midydim16+y1, halfxdim16+x2,midydim16+y2, col);
 }
@@ -17246,7 +17225,7 @@ int32_t getspritecol(int32_t spr)
     if (tilecols[picnum]) return palookup[pal][tilecols[picnum]];
 
     if (!waloff[picnum]) loadtile(picnum);
-    if (!waloff[picnum]) return -1;
+    if (!waloff[picnum]) return editorcolors[3];
 
     uint32_t cols[256];
 
@@ -17284,11 +17263,7 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
         if (spritecol2d[sprite[j].picnum][0])
             col = spritecol2d[sprite[j].picnum][0];
         else
-        {
             col = getspritecol(j);
-
-            if (col == -1) col = editorcolors[3];
-        }
 
 /*
         else if ((sprite[j].cstat&1) > 0)
@@ -17725,20 +17700,34 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
 
         letptr = &fontptr[name[i]<<3];
         ptr = (char *)(bytesperline*ypos + (stx-(fontsize&1)) + frameplace);
-        for (y=ymin; y<=ymax; y++)
+
+        if (backcol >= 0)
         {
-            for (x=0; x<charxsiz; x++)
+            for (y=ymin; y<=ymax; y++)
             {
-                if ((unsigned)(stx+x) >= xdim || ptr < (char *)frameplace)
-                    continue;
-                if (letptr[y]&pow2char[7-(fontsize&1)-x])
-                    ptr[x] = (uint8_t)col;
-                else if (backcol >= 0)
-                    ptr[x] = (uint8_t)backcol;
+                for (x=0; x<charxsiz; x++)
+                {
+                    if ((unsigned) (stx+x) >= (unsigned)xdim || ptr < (char *) frameplace) break;
+                    ptr[x] = (letptr[y]&pow2char[7-(fontsize&1)-x]) ? (uint8_t) col : (uint8_t) backcol;
+                }
+                ptr += bytesperline;
             }
-            ptr += bytesperline;
         }
+        else
+        {
+            for (y=ymin; y<=ymax; y++)
+            {
+                for (x=0; x<charxsiz; x++)
+                {
+                    if ((unsigned) (stx+x) >= (unsigned)xdim || ptr < (char *) frameplace) break;
+                    ptr[x] = (letptr[y]&pow2char[7-(fontsize&1)-x]) ? (uint8_t) col : ptr[x];
+                }
+                ptr += bytesperline;
+            }
+        }
+
         stx += charxsiz;
+
         if (stx >= xdim)
             break;
     }
