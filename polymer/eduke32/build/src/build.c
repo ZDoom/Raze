@@ -3318,10 +3318,10 @@ void overheadeditor(void)
             zoom = max(zoom, ztarget);
         }
 
-        if (!((vel|angvel|svel) //DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
+        if (!((vel|angvel|svel) || ztarget != zoom//DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
                 || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || keystatus[0x10] || keystatus[0x11]
                 || keystatus[0x48] || keystatus[0x4b] || keystatus[0x4d] || keystatus[0x50]  // keypad keys
-                || bstatus || OSD_IsMoving() || ztarget != zoom))
+                || bstatus || OSD_IsMoving()))
         {
             if (totalclock > waitdelay)
             {

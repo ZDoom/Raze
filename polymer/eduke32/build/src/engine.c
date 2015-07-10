@@ -1117,7 +1117,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
     g_nodraw = 0;
     scansector_collectsprites = 0;
 
-    if (editstatus==1)
+    if (editstatus==1 && in3dmode())
     {
         if (getrendermode() == REND_CLASSIC)
         {
