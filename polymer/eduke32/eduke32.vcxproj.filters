@@ -249,9 +249,6 @@
     <ClInclude Include="source\jaudiolib\src\linklist.h">
       <Filter>jaudiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\src\ll_man.h">
-      <Filter>jaudiolib\headers</Filter>
-    </ClInclude>
     <ClInclude Include="source\jaudiolib\src\multivoc.h">
       <Filter>jaudiolib\headers</Filter>
     </ClInclude>
