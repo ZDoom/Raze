@@ -670,8 +670,8 @@ const char *ExtGetSectorType(int32_t lotag)
 {
     switch (lotag)
     {
-    case 1: return "WATER (SE 7)";
-    case 2: return "UNDERWATER (SE 7)";
+    case 1: return "WATER";
+    case 2: return "UNDERWATER";
     case 9: return "STAR TREK DOORS";
     case 15: return "ELEVATOR TRANSPORT (SE 17)";
     case 16: return "ELEVATOR PLATFORM DOWN";
@@ -689,7 +689,7 @@ const char *ExtGetSectorType(int32_t lotag)
     case 29: return "TEETH DOOR (SE 22)";
     case 30: return "ROTATE RISE BRIDGE";
     case 31: return "2 WAY TRAIN (SE=30)";
-    case 32767: return "SECRET ROOM";
+    case 32767: return "SECRET AREA";
     case -1: return "END OF LEVEL";
     default:
         if (lotag > 10000 && lotag < 32767)
@@ -779,17 +779,17 @@ const char *SectorEffectorTagText(int32_t lotag)
     static const char *tags[] =
     {
         "ROTATED SECTOR",                // 0
-        "PIVOT SPRITE FOR SE 0",
+        "ROTATION PIVOT",
         "EARTHQUAKE",
         "RANDOM LIGHTS AFTER SHOT OUT",
         "RANDOM LIGHTS",
         "(UNKNOWN)",                     // 5
         "SUBWAY",
         "TRANSPORT",
-        "UP OPEN DOOR LIGHTS",
-        "DOWN OPEN DOOR LIGHTS",
-        "DOOR AUTO CLOSE (H=DELAY)",     // 10
-        "ROTATE SECTOR DOOR",
+        "RISING DOOR LIGHTS",
+        "LOWERING DOOR LIGHTS",
+        "DOOR CLOSE DELAY",              // 10
+        "SWING DOOR PIVOT (ST 23)",
         "LIGHT SWITCH",
         "EXPLOSIVE",
         "SUBWAY CAR",
@@ -801,34 +801,34 @@ const char *SectorEffectorTagText(int32_t lotag)
         "BRIDGE (ST 27)",                // 20
         "DROP FLOOR (ST 28)",
         "TEETH DOOR (ST 29)",
-        "1-WAY SE7 DESTINATION (H=SE 7)",
-        "CONVEYER BELT",
+        "1-WAY TRANSPORT DESTINATION",
+        "CONVEYOR BELT",
         "ENGINE",                        // 25
         "(UNKNOWN)",
-        "CAMERA FOR PLAYBACK",
-        "LIGHTNING (H=TILE#4890)",
+        "DEMO CAMERA",
+        "LIGHTNING (4890) CONTROLLER",
         "FLOAT",
-        "2 WAY TRAIN (ST=31)",           // 30
-        "FLOOR RISE/FALL",
-        "CEILING RISE/FALL",
-        "SPAWN JIB W/QUAKE",
+        "2 WAY TRAIN (ST 31)",           // 30
+        "FLOOR Z",
+        "CEILING Z",
+        "EARTHQUAKE DEBRIS",
     };
 
     Bmemset(tempbuf,0,sizeof(tempbuf));
 
     if (lotag>=0 && lotag<(int32_t)ARRAY_SIZE(tags))
-        Bsprintf(tempbuf, "%d: %s", lotag, tags[lotag]);
+        Bsprintf(tempbuf, "%s", tags[lotag]);
     else
         switch (lotag)
         {
         case 36:
-            Bsprintf(tempbuf,"%d: SHOOTER",lotag);
+            Bsprintf(tempbuf,"SHOOTER");
             break;
         case 49:
-            Bsprintf(tempbuf,"%d: POINT LIGHT",lotag);
+            Bsprintf(tempbuf,"POINT LIGHT");
             break;
         case 50:
-            Bsprintf(tempbuf,"%d: SPOTLIGHT",lotag);
+            Bsprintf(tempbuf,"SPOTLIGHT");
             break;
         default:
             Bsprintf(tempbuf,"%d: (UNKNOWN)",lotag);
@@ -866,7 +866,11 @@ const char *SectorEffectorText(int32_t spritenum)
     if (!lo[5]) // tags are 5 chars or less
         SpriteName(spritenum, tempbuf);
     else
-        Bsprintf(tempbuf, "SE %s",lo);
+    {
+        if (cursprite == spritenum)
+            Bsprintf(tempbuf, "SE %d %s", sprite[spritenum].lotag, lo);
+        else Bstrcpy(tempbuf, lo);
+    }
 
     return (tempbuf);
 }
@@ -10250,8 +10254,11 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
             ydim16 = ydim - STATUS2DSIZ2;  // XXX?
 
-            if (xp1 < 4 || xp1 > xdim-6 || yp1 < 4 || yp1 > ydim16-6)
+            int f = mulscale12(128, zoom);
+
+            if (xp1 < -f || xp1 > xdim+f || yp1 < -f || yp1 > ydim16+f)
                 continue;
+
             rotatesprite(xp1<<16,yp1<<16,zoom<<5,daang,picnum,
                          shade,sprite[i].pal,flags,0,0,xdim-1,ydim16-1);
         }
@@ -10478,7 +10485,10 @@ static void Keys2d3d(void)
     {
         keystatus[KEYSC_F10]=0;
 
-        if (!in3dmode())
+        if (xdimgame != xdim2d || ydimgame != ydim2d)
+            message("2d and 3d mode resolutions don't match!");
+
+        else if (!in3dmode())
         {
             if (eitherSHIFT)
             {
@@ -10492,12 +10502,12 @@ static void Keys2d3d(void)
                 if (++m32_2d3dsize > 5)
                     m32_2d3dsize = 3;
 
-                printmessage16("2d3d size %d", m32_2d3dsize);
+                message("2d3d size %d", m32_2d3dsize);
             }
             else
             {
                 m32_2d3dmode = !m32_2d3dmode;
-                printmessage16("2d3d mode %s", m32_2d3dmode ? "enabled" : "disabled");
+                message("2d3d mode %s", m32_2d3dmode ? "enabled" : "disabled");
             }
         }
     }

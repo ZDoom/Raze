@@ -262,10 +262,11 @@ extern void showsectordata(int16_t sectnum, int16_t small);
 extern void showwalldata(int16_t wallnum, int16_t small);
 extern void showspritedata(int16_t spritenum, int16_t small);
 
-extern void drawsmallabel(const char *text, char col, char backcol, int32_t dax, int32_t day, int32_t daz);
+extern void drawsmallabel(const char *text, char col, char backcol, char border, int32_t dax, int32_t day, int32_t daz);
 
 extern int32_t whitecol;
 extern int32_t circlewall;
+extern int32_t searchlock;
 
 int32_t loadsetup(const char *fn);	// from config.c
 int32_t writesetup(const char *fn);	// from config.c

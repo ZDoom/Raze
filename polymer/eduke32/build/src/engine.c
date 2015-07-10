@@ -17178,8 +17178,8 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
             {
                 // Red walls. Show them on equal-height walls ONLY with setting 2.
                 int32_t bb = (z2 < z1);
-                int32_t dx = mulscale11(sintable[(k+1024 + 1024*bb)&2047],zoome) / 2560;
-                int32_t dy = mulscale11(sintable[(k+512 + 1024*bb)&2047],zoome) / 2560;
+                int32_t dx = mulscale11(sintable[(k+1024 + 1024*bb)&2047],min(4096, zoome)) / 2560;
+                int32_t dy = mulscale11(sintable[(k+512 + 1024*bb)&2047],min(4096, zoome)) / 2560;
 
                 dy = scalescreeny(dy);
                 drawline16mid(dax,day, dax+dx,day+dy, editorcolors[col]);
@@ -17188,8 +17188,8 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         else if (showheightindicators == 2)
         {
             // Show them on white walls ONLY with setting 2.
-            int32_t dx = mulscale11(sintable[(k+2048)&2047],zoome) / 2560;
-            int32_t dy = mulscale11(sintable[(k+1536)&2047],zoome) / 2560;
+            int32_t dx = mulscale11(sintable[(k+2048)&2047],min(4096, zoome)) / 2560;
+            int32_t dy = mulscale11(sintable[(k+1536)&2047],min(4096, zoome)) / 2560;
 
             dy = scalescreeny(dy);
             drawline16mid(dax,day, dax+dx,day+dy, editorcolors[col]);
@@ -17321,8 +17321,10 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
     if (m32_sideview)
         y1 += getscreenvdisp(sprite[j].z-posze,zoome);
 
-    if ((halfxdim16+x1 >= 0) && (halfxdim16+x1 < xdim) &&
-            (midydim16+y1 >= 0) && (midydim16+y1 < ydim16))
+    int f = mulscale12(128, zoome);
+
+    if ((halfxdim16+x1 >= -f) && (halfxdim16+x1 < xdim+f) &&
+            (midydim16+y1 >= -f) && (midydim16+y1 < ydim16+f))
     {
         if (zoome > 512 && sprite[j].clipdist > 32)
             drawcircle16(halfxdim16+x1, midydim16+y1, mulscale14(sprite[j].clipdist<<2, zoome), 16384, col);
@@ -17596,9 +17598,11 @@ static int32_t printext_checkypos(int32_t ypos, int32_t *yminptr, int32_t *ymaxp
 
     if (ypos < 0)
     {
+/*
         ymin = 0-ypos;
         if (ymin > 7)
             return 1;
+*/
     }
     else if (ypos+7 >= ydim)
     {
@@ -17725,8 +17729,8 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
         {
             for (x=0; x<charxsiz; x++)
             {
-                if (stx+x >= xdim)
-                    break;
+                if ((unsigned)(stx+x) >= xdim || ptr < (char *)frameplace)
+                    continue;
                 if (letptr[y]&pow2char[7-(fontsize&1)-x])
                     ptr[x] = (uint8_t)col;
                 else if (backcol >= 0)

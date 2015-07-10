@@ -2517,7 +2517,7 @@ badindex:
                         {
                             drawsmallabel(quotetext,
                                           editorcolors[backcol&255],  // col
-                                          fontsize < 0 ? -1 : editorcolors[fontsize&255],  // backcol
+                                          fontsize < 0 ? -1 : editorcolors[fontsize&255], editorcolors[fontsize&255] - 3, // backcol
                                           x, y, col);  // x y z
                         }
                     }

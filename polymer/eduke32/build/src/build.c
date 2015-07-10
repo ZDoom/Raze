@@ -176,6 +176,7 @@ static int32_t mousx, mousy;
 int16_t prefixtiles[10] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
 uint8_t hlsectorbitmap[MAXSECTORS>>3];  // show2dsector is already taken...
 static int32_t minhlsectorfloorz, numhlsecwalls;
+int32_t searchlock = 0;
 
 // used for:
 //  - hl_all_bunch_sectors_p
@@ -1570,7 +1571,7 @@ static inline void drawline16base(int32_t bx, int32_t by, int32_t x1, int32_t y1
     drawline16(bx+x1, by+y1, bx+x2, by+y2, col);
 }
 
-void drawsmallabel(const char *text, char col, char backcol, int32_t dax, int32_t day, int32_t daz)
+void drawsmallabel(const char *text, char col, char backcol, char border, int32_t dax, int32_t day, int32_t daz)
 {
     int32_t x1, y1, x2, y2;
 
@@ -1583,9 +1584,21 @@ void drawsmallabel(const char *text, char col, char backcol, int32_t dax, int32_
     x2 = x1 + (Bstrlen(text)<<2)+2;
     y2 = y1 + 7;
 
-    if ((x1 > 3) && (x2 < xdim) && (y1 > 1) && (y2 < ydim16))
+    int f = mulscale8(x2-x1, zoom);
+
+    if ((x1 > -f) && (x2 < xdim+f) && (y1 > -f) && (y2 < ydim16+f))
     {
         printext16(x1,y1, col,backcol, text,1);
+
+        drawline16(x1-2, y1-2, x2-2, y1-2, border);
+        drawline16(x1-2, y2+2, x2-2, y2+2, border);
+
+        drawline16(x1-2, y1-1, x2-2, y1-1, border);
+        drawline16(x1-2, y2+1, x2-2, y2+1, border);
+
+        drawline16(x1-3, y1-1, x1-3, y2+1, border);
+        drawline16(x2-1, y1-1, x2-1, y2+1, border);
+
         drawline16(x1-1,y1-1, x2-3,y1-1, backcol);
         drawline16(x1-1,y2+1, x2-3,y2+1, backcol);
 
@@ -3237,6 +3250,29 @@ static void isc_transform(int32_t *x, int32_t *y)
     }
 }
 
+static void drawspritelabel(int i)
+{
+    const char *dabuffer = CallExtGetSpriteCaption(i);
+    if (dabuffer[0] != 0)
+    {
+        int const blocking = (sprite[i].cstat & 1);
+
+        int col = spritecol2d[sprite[i].picnum][0] ? editorcolors[spritecol2d[sprite[i].picnum][0]] : getspritecol(i);
+
+        if (col == -1)
+            col = editorcolors[3];
+
+        if ((i == pointhighlight - 16384) && (totalclock & 32))
+            col += 4;
+
+        if (sprite[i].sectnum < 0)
+            col = editorcolors[4];  // red
+
+        drawsmallabel(dabuffer, editorcolors[0], col, /*blocking ? editorcolors[5] :*/ col - 3,
+            sprite[i].x, sprite[i].y, sprite[i].z);
+    }
+}
+
 #define EDITING_MAP_P() (newnumwalls>=0 || joinsector[0]>=0 || circlewall>=0 || (bstatus&1) || isc.active)
 
 #define HLMEMBERX(Hl, Member) (*(((Hl)&16384) ? &sprite[(Hl)&16383].Member : &wall[Hl].Member))
@@ -3502,8 +3538,7 @@ void overheadeditor(void)
 
                         get_sectors_center(&secshort, 1, &dax, &day);
 
-                        drawsmallabel(dabuffer, editorcolors[0], editorcolors[7],
-                                       dax, day, getflorzofslope(i,dax,day));
+                        drawsmallabel(dabuffer, editorcolors[0], editorcolors[7], editorcolors[7] - 3, dax, day, getflorzofslope(i,dax,day));
                     }
                 }
 
@@ -3543,8 +3578,7 @@ void overheadeditor(void)
 
                         dax = (wal->x+wall[wal->point2].x)>>1;
                         day = (wal->y+wall[wal->point2].y)>>1;
-                        drawsmallabel(dabuffer, editorcolors[0], editorcolors[31],
-                                      dax, day, (i >= numwalls || j<0) ? 0 : getflorzofslope(j, dax,day));
+                        drawsmallabel(dabuffer, editorcolors[0], editorcolors[31], editorcolors[31] - 3, dax, day, (i >= numwalls || j<0) ? 0 : getflorzofslope(j, dax,day));
                     }
                 }
 
@@ -3568,39 +3602,11 @@ void overheadeditor(void)
                         if ((!m32_sideview || !alwaysshowgray) && sprite[i].sectnum >= 0)
                             YAX_SKIPSECTOR(sprite[i].sectnum);
 
-                        dabuffer = CallExtGetSpriteCaption(i);
-                        if (dabuffer[0] != 0)
-                        {
-/*
-                            int32_t blocking = (sprite[i].cstat&1);
-
-                            col = 3 + 2*blocking;
-                            if (spritecol2d[sprite[i].picnum][blocking])
-                                col = spritecol2d[sprite[i].picnum][blocking];
-*/
-
-                            if (sprite[i].sectnum < 0)
-                                col = editorcolors[4];  // red
-                            else
-                            {
-                                if (spritecol2d[sprite[i].picnum][0])
-                                    col = editorcolors[spritecol2d[sprite[i].picnum][0]];
-                                else
-                                {
-                                    col = getspritecol(i);
-
-                                    if (col == -1)
-                                        col = editorcolors[3];
-                                }
-                            }
-
-                            if ((i == pointhighlight-16384) && (totalclock & 32))
-                                col += 4;
-
-                            drawsmallabel(dabuffer, editorcolors[0], col,
-                                          sprite[i].x, sprite[i].y, sprite[i].z);
-                        }
+                        drawspritelabel(i);
                     }
+
+                    if (pointhighlight & 16384)
+                        drawspritelabel(pointhighlight - 16384);
                 }
             }
 
@@ -3784,7 +3790,7 @@ void overheadeditor(void)
             drawline16(0,searchy, 8,searchy, editorcolors[15]);
 
             // 2d3d mode
-            if (m32_2d3dmode)
+            if (m32_2d3dmode && xdimgame == xdim2d && ydimgame == ydim2d)
             {
                 int bakrendmode = rendmode;
                 vec2_t bdim ={ xdim, ydim };
@@ -3825,7 +3831,7 @@ void overheadeditor(void)
             if (!m32_is2d3dmode())
             {
                 ////// draw mouse pointer
-                col = editorcolors[15 - 3*gridlock];
+                col = searchlock ? editorcolors[13] : editorcolors[15 - 3*gridlock];
                 if (joinsector[0] >= 0)
                     col = editorcolors[11];
 
@@ -5961,8 +5967,17 @@ end_point_dragging:
         if (keystatus[0x26])  // L (grid lock)
         {
             keystatus[0x26] = 0;
-            gridlock = !gridlock;
-            printmessage16("Grid locking %s", gridlock?"on":"off");
+
+            if (eitherSHIFT)
+            {
+                searchlock = 1-searchlock;
+                silentmessage("Selection lock %s", searchlock ? "on" : "off");
+            }
+            else
+            {
+                gridlock = !gridlock;
+                silentmessage("Grid locking %s", gridlock ? "on" : "off");
+            }
         }
 
         if (keystatus[0x24])  // J (join sectors)
@@ -8446,7 +8461,7 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line, int8_t
     if (numwalls == 0)
         return -1;
 
-    if (mouseb & 1)
+    if (mouseb & 1 || searchlock)
         return line;
 
     if (!ignore_pointhighlight && (pointhighlight&0xc000) == 16384)
@@ -8521,7 +8536,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
     if (numwalls == 0)
         return -1;
 
-    if (mouseb & 1)
+    if (mouseb & 1 || searchlock)
         return point;
 
     if (grid < 1)
