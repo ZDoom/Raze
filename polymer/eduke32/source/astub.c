@@ -866,7 +866,7 @@ const char *SectorEffectorText(int32_t spritenum)
     else
     {
         if (cursprite == spritenum)
-            Bsprintf(tempbuf, "SE %d %s", sprite[spritenum].lotag, lo);
+            Bsprintf(tempbuf, "SE %d %s", TrackerCast(sprite[spritenum].lotag), lo);
         else Bstrcpy(tempbuf, lo);
     }
 
@@ -7705,7 +7705,7 @@ static void Keys2d(void)
 
     if (autogrid)
     {
-        grid = 0;
+        grid = -1;
 
         while (grid++ < 7)
         {
@@ -10256,8 +10256,11 @@ void ExtPreCheckKeys(void) // just before drawrooms
             if (xp1 < -f || xp1 > xdim+f || yp1 < -f || yp1 > ydim16+f)
                 continue;
 
+            const int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
+            setaspect(yxaspect, divscale16(sprite[i].yrepeat, sprite[i].xrepeat));
             rotatesprite(xp1<<16,yp1<<16,zoom<<5,daang,picnum,
-                         shade,sprite[i].pal,flags,0,0,xdim-1,ydim16-1);
+                         shade,sprite[i].pal,flags|1024,0,0,xdim-1,ydim16-1);
+            setaspect(oviewingrange, oyxaspect);
         }
     }
 

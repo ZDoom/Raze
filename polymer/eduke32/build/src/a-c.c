@@ -75,11 +75,17 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
 #ifdef CLASSIC_SLICE_BY_4
     for (; cnt>=4; cnt-=4, pp-=4)
     {
+#if 0
         *pp = palptr[buf[((bx>>log32.x)<<log.y)+(by>>log32.y)]];
         *(pp-1) = palptr[buf[(((bx-inc.x)>>log32.x)<<log.y)+((by-inc.y)>>log32.y)]];
         *(pp-2) = palptr[buf[(((bx-(inc.x<<1))>>log32.x)<<log.y)+((by-(inc.y<<1))>>log32.y)]];
         *(pp-3) = palptr[buf[(((bx-(inc.x*3))>>log32.x)<<log.y)+((by-(inc.y*3))>>log32.y)]];
-
+#else
+        *(int32_t *)(pp-3) = palptr[buf[(((bx-(inc.x*3))>>log32.x)<<log.y)+((by-(inc.y*3))>>log32.y)]] +
+            (palptr[buf[(((bx-(inc.x<<1))>>log32.x)<<log.y)+((by-(inc.y<<1))>>log32.y)]]<<8) +
+            (palptr[buf[(((bx-inc.x)>>log32.x)<<log.y)+((by-inc.y)>>log32.y)]]<<16) +
+            (palptr[buf[((bx>>log32.x)<<log.y)+(by>>log32.y)]]<<24);
+#endif
         bx -= inc.x<<2;
         by -= inc.y<<2;
     }

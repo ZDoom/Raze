@@ -1573,39 +1573,51 @@ static inline void drawline16base(int32_t bx, int32_t by, int32_t x1, int32_t y1
 
 void drawsmallabel(const char *text, char col, char backcol, char border, int32_t dax, int32_t day, int32_t daz)
 {
-    int32_t x1, y1, x2, y2;
-
     screencoords(&dax,&day, dax-pos.x,day-pos.y, zoom);
+
     if (m32_sideview)
         day += getscreenvdisp(daz-pos.z, zoom);
 
-    x1 = halfxdim16+dax-(Bstrlen(text)<<1);
-    y1 = midydim16+day-4;
-    x2 = x1 + (Bstrlen(text)<<2)+2;
-    y2 = y1 + 7;
+    int32_t const x1 = halfxdim16+dax-(Bstrlen(text)<<1);
+    int32_t const y1 = midydim16+day-4;
+    int32_t const x2 = x1 + (Bstrlen(text)<<2)+2;
+    int32_t const y2 = y1 + 7;
 
     int f = mulscale8(x2-x1, zoom);
 
-    if ((x1 > -f) && (x2 < xdim+f) && (y1 > -f) && (y2 < ydim16+f))
+    if ((x1 <= -f) || (x2 >= xdim + f) || (y1 <= -f) || (y2 >= ydim16 + f))
+        return;
+
+    printext16(x1,y1, col,backcol, text,1);
+
+    drawline16(x1-2, y1-2, x2-2, y1-2, border);
+    drawline16(x1-2, y2+1, x2-2, y2+1, border);
+
+    drawline16(x1-3, y1-1, x1-3, y2+0, border);
+    drawline16(x2-1, y1-1, x2-1, y2+0, border);
+
+    drawline16(x1-1,y1-1, x2-3,y1-1, backcol);
+    drawline16(x1-1,y2+0, x2-3,y2+0, backcol);
+
+    drawline16(x1-2,y1+0, x1-2,y2-1, backcol);
+    drawline16(x2-2,y1+0, x2-2,y2-1, backcol);
+    drawline16(x2-3,y1+0, x2-3,y2+0, backcol);
+
+    begindrawing(); //{{{
+
+    if ((unsigned)y1-1 < ydim16+0u && (unsigned) (x1-2) < xdim2d+0u && (unsigned) (x2-2) < xdim2d+0u)
     {
-        printext16(x1,y1, col,backcol, text,1);
-
-        drawline16(x1-2, y1-2, x2-2, y1-2, border);
-        drawline16(x1-2, y2+2, x2-2, y2+2, border);
-
-        drawline16(x1-2, y1-1, x2-2, y1-1, border);
-        drawline16(x1-2, y2+1, x2-2, y2+1, border);
-
-        drawline16(x1-3, y1-1, x1-3, y2+1, border);
-        drawline16(x2-1, y1-1, x2-1, y2+1, border);
-
-        drawline16(x1-1,y1-1, x2-3,y1-1, backcol);
-        drawline16(x1-1,y2+1, x2-3,y2+1, backcol);
-
-        drawline16(x1-2,y1, x1-2,y2, backcol);
-        drawline16(x2-2,y1, x2-2,y2, backcol);
-        drawline16(x2-3,y1, x2-3,y2, backcol);
+        drawpixel((char *) (frameplace + ((y1-1) * bytesperline) + (x1-2)), border);
+        drawpixel((char *) (frameplace + ((y1-1) * bytesperline) + (x2-2)), border);
     }
+
+    if ((unsigned) y2 < ydim16+0u && (unsigned) (x1-2) < xdim2d+0u && (unsigned) (x2-2) < xdim2d+0u)
+    {
+        drawpixel((char *) (frameplace + ((y2) * bytesperline) + (x1-2)), border);
+        drawpixel((char *) (frameplace + ((y2) * bytesperline) + (x2-2)), border);
+    }
+
+    enddrawing();
 }
 
 // backup highlighted sectors with sprites as mapinfo for later restoration
@@ -3342,16 +3354,16 @@ void overheadeditor(void)
         if (zoom < ztarget)
         {
             if ((ztarget - zoom) >> 3)
-                zoom += (ztarget - zoom) >> 3;
+                zoom += synctics * ((ztarget - zoom) >> 3);
             else zoom++;
             zoom = min(zoom, ztarget);
-            if (zoom == 65536)
+            if (zoom >= 39936)
                 silentmessage("Ludicrous Zoom!");
         }
         else if (zoom > ztarget)
         {
             if ((zoom - ztarget) >> 3)
-                zoom -= (zoom - ztarget) >> 3;
+                zoom -= synctics * ((zoom - ztarget) >> 3);
             else zoom--;
             zoom = max(zoom, ztarget);
         }
@@ -3478,33 +3490,29 @@ void overheadeditor(void)
 
             draw2dgrid(pos.x,pos.y,pos.z,cursectnum,ang,zoom,grid);
             CallExtPreCheckKeys();
-
-            {
-                int32_t cx, cy;
-
-                // Draw brown arrow (start)
-                screencoords(&x2, &y2, startpos.x-pos.x,startpos.y-pos.y, zoom);
-                if (m32_sideview)
-                    y2 += getscreenvdisp(startpos.z-pos.z, zoom);
-
-                cx = halfxdim16+x2;
-                cy = midydim16+y2;
-                if ((cx >= 2 && cx <= xdim-3) && (cy >= 2 && cy <= ydim16-3))
-                {
-                    int16_t angofs = m32_sideview ? m32_sideang : 0;
-                    x1 = mulscale11(sintable[(startang+angofs+2560)&2047],zoom) / 768;
-                    y1 = mulscale11(sintable[(startang+angofs+2048)&2047],zoom) / 768;
-                    i = scalescreeny(x1);
-                    j = scalescreeny(y1);
-                    begindrawing();	//{{{
-                    drawline16base(cx,cy, x1,j, -x1,-j, editorcolors[2]);
-                    drawline16base(cx,cy, x1,j, +y1,-i, editorcolors[2]);
-                    drawline16base(cx,cy, x1,j, -y1,+i, editorcolors[2]);
-                    enddrawing();	//}}}
-                }
-            }
-
             draw2dscreen(&pos,cursectnum,ang,zoom,grid);
+
+            // Draw brown arrow (start)
+            screencoords(&x2, &y2, startpos.x-pos.x,startpos.y-pos.y, zoom);
+            if (m32_sideview)
+                y2 += getscreenvdisp(startpos.z-pos.z, zoom);
+
+            int32_t cx = halfxdim16+x2;
+            int32_t cy = midydim16+y2;
+
+            if ((cx >= 2 && cx <= xdim-3) && (cy >= 2 && cy <= ydim16-3))
+            {
+                int16_t angofs = m32_sideview ? m32_sideang : 0;
+                x1 = mulscale11(sintable[(startang+angofs+2560)&2047],zoom) / 768;
+                y1 = mulscale11(sintable[(startang+angofs+2048)&2047],zoom) / 768;
+                i = scalescreeny(x1);
+                j = scalescreeny(y1);
+                begindrawing();	//{{{
+                drawline16base(cx,cy, x1,j, -x1,-j, editorcolors[6]);
+                drawline16base(cx,cy, x1,j, +y1,-i, editorcolors[6]);
+                drawline16base(cx,cy, x1,j, -y1,+i, editorcolors[6]);
+                enddrawing();	//}}}
+            }
 
             begindrawing();	//{{{
 
@@ -5914,7 +5922,7 @@ end_point_dragging:
         {
             int32_t didzoom=0;
 
-            if ((DOWN_BK(MOVEUP) || (bstatus&16)) && zoom < 65536)
+            if ((DOWN_BK(MOVEUP) || (bstatus&16)) && zoom < 39936)
             {
                 if (DOWN_BK(MOVEUP))
                 {
@@ -5953,7 +5961,7 @@ end_point_dragging:
                     pos.x = mousxplc;
                     pos.y = mousyplc;
                 }
-                ztarget = clamp(ztarget, 16, 65536);
+                ztarget = clamp(ztarget, 16, 39936);
 
                 _printmessage16("Zoom: %d",ztarget);
             }

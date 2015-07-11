@@ -7057,8 +7057,8 @@ static void fillpolygon(int32_t npoints)
                 x1 += mulscale12((day1<<12)+4095-y1, xinc);
                 for (y=day1; y<day2; y++)
                 {
-                    if (dotp2[y])
-                        *(dotp2[y]++) = x1>>12;
+                    Bassert(dotp2[y]);
+                    *(dotp2[y]++) = x1>>12;
                     x1 += xinc;
                 }
             }
@@ -7067,8 +7067,8 @@ static void fillpolygon(int32_t npoints)
                 x2 += mulscale12((day2<<12)+4095-y2, xinc);
                 for (y=day2; y<day1; y++)
                 {
-                    if (dotp1[y])
-                        *(dotp1[y]++) = x2>>12;
+                    Bassert(dotp1[y]);
+                    *(dotp1[y]++) = x2>>12;
                     x2 += xinc;
                 }
             }
@@ -7122,12 +7122,10 @@ static void fillpolygon(int32_t npoints)
             {
                 //maphline
                 const int32_t ox = x2+1-(xdim>>1);
-                const int32_t bx = ox*asm1 + globalposx;
-                const int32_t by = ox*asm2 - globalposy;
 
-                const intptr_t p = ylookup[y]+x2+frameplace;
-
-                hlineasm4(x2-x1,-1L,globalshade<<8,by,bx,p);
+                hlineasm4(x2 - x1, -1L, globalshade << 8,
+                          ox * asm2 - globalposy, ox * asm1 + globalposx,
+                          ylookup[y] + x2 + frameplace);
             }
             else
             {
@@ -13749,23 +13747,25 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
 //
 int32_t lastwall(int16_t point)
 {
-    int32_t i, cnt;
-
     if (point > 0 && wall[point-1].point2 == point)
         return point-1;
 
-    i = point;
-    cnt = MAXWALLS;
+    int i = point, cnt = MAXWALLS;
     do
     {
-        int32_t j = wall[i].point2;
-        if (j == point) return(i);
-        i = j;
-        cnt--;
-    }
-    while (cnt > 0);
+        int const j = wall[i].point2;
 
-    return(point);
+        if (j == point)
+        {
+            point = i;
+            break;
+        }
+
+        i = j;
+    }
+    while (--cnt);
+
+    return point;
 }
 
 
@@ -16523,16 +16523,16 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 
     if (y1 < 0)
     {
-        if (d.x) x1 += scale(0-y1,d.x,d.y);
+        if (d.x)
+            x1 = clamp(x1 + scale(0 - y1, d.x, d.y), 0, xres - 1);
         y1 = 0;
-        x1 = clamp(x1, 0, xres-1);
     }
 
     if (y2 >= ydim16)
     {
-        if (d.x) x2 += scale(ydim16-1-y2,d.x,d.y);
+        if (d.x)
+            x2 = clamp(x2 + scale(ydim16-1-y2, d.x, d.y), 0, xres-1);
         y2 = ydim16-1;
-        x2 = clamp(x2, 0, xres-1);
     }
 
     if (d.y < 0)
@@ -16554,8 +16554,6 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         swaplong(&y1, &y2);
     }
 
-    int df = 0;
-    uint32_t patc=UINT_MAX;
     int pinc, inc = 1;
 
     begindrawing(); //{{{
@@ -16577,7 +16575,7 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         clearbufbyte((void *)p, d.x, ((int32_t) col<<24)|((int32_t) col<<16)|((int32_t) col<<8)|col);
     else if (drawlinepat == 0xffffffff)
     {
-        for (int i=d.x; i>0; i--)
+        for (int i=d.x, df=0; i>0; i--)
         {
             drawpixel((char *) p, col);
             df += d.y;
@@ -16586,13 +16584,17 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         }
     }
     else
-    for (int i=d.x; i>0; i--)
     {
-        if (drawlinepat & pow2long[(++patc)&31])
-            drawpixel((char *) p, col);
-        df += d.y;
-        if (df >= d.x) { df -= d.x; p += pinc; }
-        p += inc;
+        uint32_t patc = UINT_MAX;
+
+        for (int i=d.x, df=0; i>0; i--)
+        {
+            if (drawlinepat & pow2long[(++patc)&31])
+                drawpixel((char *) p, col);
+            df += d.y;
+            if (df >= d.x) { df -= d.x; p += pinc; }
+            p += inc;
+        }
     }
 
     enddrawing();   //}}}
@@ -16611,114 +16613,154 @@ FORCE_INLINE void drawline16mid(int32_t x1, int32_t y1, int32_t x2, int32_t y2, 
 //  >16384: grow in y
 void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
 {
-    if (eccen==16384)
-    {
-        intptr_t p;
-        int32_t xp, yp, xpbpl, ypbpl, d, de, dse, patc=0;
-
-        uint32_t uxres = xres, uydim16 = ydim16;
-
-        if (r < 0) r = -r;
-        if (x1+r < 0 || x1-r >= xres) return;
-        if (y1+r < 0 || y1-r >= ydim16) return;
-
-        /*
-         *      d
-         *    6 | 7
-         *   \  |  /
-         *  5  \|/  8
-         * c----+----a
-         *  4  /|\  1
-         *   /  |  \
-         *    3 | 2
-         *      b
-         */
-
-        xp = 0;
-        yp = r;
-        d = 1 - r;
-        de = 2;
-        dse = 5 - (r << 1);
-
-        begindrawing();
-        p = (y1*bytesperline)+x1+frameplace;
-
-        if (drawlinepat & pow2long[(patc++)&31])
-        {
-            if ((uint32_t)y1 < uydim16 && (uint32_t)(x1+r) < uxres)
-                drawpixel((char *)(p+r), col);    // a
-            if ((uint32_t)x1 < uxres   && (uint32_t)(y1+r) < uydim16)
-                drawpixel((char *)(p+(r*bytesperline)), col);    // b
-            if ((uint32_t)y1 < uydim16 && (uint32_t)(x1-r) < uxres)
-                drawpixel((char *)(p-r), col);    // c
-            if ((uint32_t)x1 < uxres   && (uint32_t)(y1-r) < uydim16)
-                drawpixel((char *)(p-(r*bytesperline)), col);    // d
-        }
-
-        do
-        {
-            if (d < 0)
-            {
-                d += de;
-                de += 2;
-                dse += 2;
-                xp++;
-            }
-            else
-            {
-                d += dse;
-                de += 2;
-                dse += 4;
-                xp++;
-                yp--;
-            }
-
-            ypbpl = yp*bytesperline;
-            xpbpl = xp*bytesperline;
-            if (drawlinepat & pow2long[(patc++)&31])
-            {
-                if ((uint32_t)(x1+yp) < uxres && (uint32_t)(y1+xp) < uydim16)
-                    drawpixel_safe((char *)(p+yp+xpbpl), col);   // 1
-                if ((uint32_t)(x1+xp) < uxres && (uint32_t)(y1+yp) < uydim16)
-                    drawpixel_safe((char *)(p+xp+ypbpl), col);   // 2
-                if ((uint32_t)(x1-xp) < uxres && (uint32_t)(y1+yp) < uydim16)
-                    drawpixel_safe((char *)(p-xp+ypbpl), col);   // 3
-                if ((uint32_t)(x1-yp) < uxres && (uint32_t)(y1+xp) < uydim16)
-                    drawpixel_safe((char *)(p-yp+xpbpl), col);   // 4
-                if ((uint32_t)(x1-yp) < uxres && (uint32_t)(y1-xp) < uydim16)
-                    drawpixel_safe((char *)(p-yp-xpbpl), col);   // 5
-                if ((uint32_t)(x1-xp) < uxres && (uint32_t)(y1-yp) < uydim16)
-                    drawpixel_safe((char *)(p-xp-ypbpl), col);   // 6
-                if ((uint32_t)(x1+xp) < uxres && (uint32_t)(y1-yp) < uydim16)
-                    drawpixel_safe((char *)(p+xp-ypbpl), col);   // 7
-                if ((uint32_t)(x1+yp) < uxres && (uint32_t)(y1-xp) < uydim16)
-                    drawpixel_safe((char *)(p+yp-xpbpl), col);   // 8
-            }
-        }
-        while (yp > xp);
-        enddrawing();
-    }
-    else
+    if (eccen != 16384)
     {
         // JonoF's rough approximation of a circle
-        int32_t l,spx,spy,lpx,lpy,px,py;
+        int32_t l, spx, spy, lpx, lpy, px, py;
 
-        spx = lpx = x1 + mulscale14(r,sintable[0]);
-        spy = lpy = y1 + mulscale14(eccen, mulscale14(r,sintable[512]));
+        spx = lpx = x1 + mulscale14(r, sintable[0]);
+        spy = lpy = y1 + mulscale14(eccen, mulscale14(r, sintable[512]));
 
         for (l=64; l<2048; l+=64)
         {
-            px = x1 + mulscale14(r,sintable[l]);
-            py = y1 + mulscale14(eccen, mulscale14(r,sintable[(l+512)&2047]));
+            px = x1 + mulscale14(r, sintable[l]);
+            py = y1 + mulscale14(eccen, mulscale14(r, sintable[(l+512)&2047]));
 
-            drawline16(lpx,lpy,px,py,col);
+            drawline16(lpx, lpy, px, py, col);
 
             lpx = px;
             lpy = py;
         }
 
-        drawline16(lpx,lpy,spx,spy,col);
+        drawline16(lpx, lpy, spx, spy, col);
+
+        return;
     }
+
+    if (r < 0) r = -r;
+    if (x1+r < 0 || x1-r >= xres) return;
+    if (y1+r < 0 || y1-r >= ydim16) return;
+
+    uint32_t const uxres = xres, uydim16 = ydim16;
+
+    /*
+        *      d
+        *    6 | 7
+        *   \  |  /
+        *  5  \|/  8
+        * c----+----a
+        *  4  /|\  1
+        *   /  |  \
+        *    3 | 2
+        *      b
+        */
+
+    begindrawing();
+    intptr_t const p = (y1*bytesperline)+x1+frameplace;
+
+    uint32_t patc = UINT_MAX;
+
+    if (drawlinepat == 0xffffffff || drawlinepat & pow2long[(++patc)&31])
+    {
+        if ((uint32_t)y1 < uydim16 && (uint32_t)(x1+r) < uxres)
+            drawpixel((char *)(p+r), col);    // a
+        if ((uint32_t)x1 < uxres   && (uint32_t)(y1+r) < uydim16)
+            drawpixel((char *)(p+(r*bytesperline)), col);    // b
+        if ((uint32_t)y1 < uydim16 && (uint32_t)(x1-r) < uxres)
+            drawpixel((char *)(p-r), col);    // c
+        if ((uint32_t)x1 < uxres   && (uint32_t)(y1-r) < uydim16)
+            drawpixel((char *)(p-(r*bytesperline)), col);    // d
+    }
+
+    int32_t xp = 0, yp = r;
+    int32_t d = 1 - r, de = 2, dse = 5 - (r << 1);
+
+    if (drawlinepat != 0xffffffff)
+    {
+        do
+        {
+            if (d < 0)
+            {
+                d += de;
+                dse += 2;
+            }
+            else
+            {
+                d += dse;
+                dse += 4;
+                yp--;
+            }
+
+            xp++;
+            de += 2;
+
+            int32_t ypbpl = yp*bytesperline;
+            int32_t xpbpl = xp*bytesperline;
+
+            if (drawlinepat & pow2long[(++patc) & 31])
+            {
+                if ((uint32_t)(x1 + yp) < uxres && (uint32_t)(y1 + xp) < uydim16)
+                    drawpixel_safe((char *)(p + yp + xpbpl), col);  // 1
+                if ((uint32_t)(x1 + xp) < uxres && (uint32_t)(y1 + yp) < uydim16)
+                    drawpixel_safe((char *)(p + xp + ypbpl), col);  // 2
+                if ((uint32_t)(x1 - xp) < uxres && (uint32_t)(y1 + yp) < uydim16)
+                    drawpixel_safe((char *)(p - xp + ypbpl), col);  // 3
+                if ((uint32_t)(x1 - yp) < uxres && (uint32_t)(y1 + xp) < uydim16)
+                    drawpixel_safe((char *)(p - yp + xpbpl), col);  // 4
+                if ((uint32_t)(x1 - yp) < uxres && (uint32_t)(y1 - xp) < uydim16)
+                    drawpixel_safe((char *)(p - yp - xpbpl), col);  // 5
+                if ((uint32_t)(x1 - xp) < uxres && (uint32_t)(y1 - yp) < uydim16)
+                    drawpixel_safe((char *)(p - xp - ypbpl), col);  // 6
+                if ((uint32_t)(x1 + xp) < uxres && (uint32_t)(y1 - yp) < uydim16)
+                    drawpixel_safe((char *)(p + xp - ypbpl), col);  // 7
+                if ((uint32_t)(x1 + yp) < uxres && (uint32_t)(y1 - xp) < uydim16)
+                    drawpixel_safe((char *)(p + yp - xpbpl), col);  // 8
+            }
+        } while (yp > xp);
+
+        enddrawing();
+        return;
+    }
+
+    do
+    {
+        if (d < 0)
+        {
+            d += de;
+            dse += 2;
+        }
+        else
+        {
+            d += dse;
+            dse += 4;
+            yp--;
+        }
+
+        xp++;
+        de += 2;
+
+        int32_t ypbpl = yp*bytesperline;
+        int32_t xpbpl = xp*bytesperline;
+
+        if ((uint32_t)(x1 + yp) < uxres && (uint32_t)(y1 + xp) < uydim16)
+            drawpixel_safe((char *)(p + yp + xpbpl), col);  // 1
+        if ((uint32_t)(x1 + xp) < uxres && (uint32_t)(y1 + yp) < uydim16)
+            drawpixel_safe((char *)(p + xp + ypbpl), col);  // 2
+        if ((uint32_t)(x1 - xp) < uxres && (uint32_t)(y1 + yp) < uydim16)
+            drawpixel_safe((char *)(p - xp + ypbpl), col);  // 3
+        if ((uint32_t)(x1 - yp) < uxres && (uint32_t)(y1 + xp) < uydim16)
+            drawpixel_safe((char *)(p - yp + xpbpl), col);  // 4
+        if ((uint32_t)(x1 - yp) < uxres && (uint32_t)(y1 - xp) < uydim16)
+            drawpixel_safe((char *)(p - yp - xpbpl), col);  // 5
+        if ((uint32_t)(x1 - xp) < uxres && (uint32_t)(y1 - yp) < uydim16)
+            drawpixel_safe((char *)(p - xp - ypbpl), col);  // 6
+        if ((uint32_t)(x1 + xp) < uxres && (uint32_t)(y1 - yp) < uydim16)
+            drawpixel_safe((char *)(p + xp - ypbpl), col);  // 7
+        if ((uint32_t)(x1 + yp) < uxres && (uint32_t)(y1 - xp) < uydim16)
+            drawpixel_safe((char *)(p + yp - xpbpl), col);  // 8
+    } while (yp > xp);
+
+    enddrawing();
 }
 
 //
@@ -17021,14 +17063,8 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
 static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t posze, int32_t zoome, int32_t grayp)
 {
     const walltype *wal = &wall[i];
-    int32_t j, x1, y1, x2, y2, dz = 0, dz2 = 0;
-    int32_t fz=0,fzn=0;
-//    intptr_t tempint;
-    char col;
 
-    int64_t dist,dx,dy;
-
-    j = wal->nextwall;
+    int32_t j = wal->nextwall;
 #if 0
     if (editstatus == 0)
     {
@@ -17042,34 +17078,32 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         if (!m32_sideview && !(grayp&2) && (j >= 0) && (i > j)) return;
     }
 
+    char col;
+
     if (grayp&1)
-    {
         col = 8;
-    }
     else if (j < 0)
-    {
-        col = 15;
-        if (i == linehighlight)
-            col = (totalclock & 16) ? 15 : 7;
-    }
+        col = (i == linehighlight) && !(totalclock & 16) ? 7 : 15;
     else
     {
-        col = 33;
-        if ((wal->cstat&1) != 0)
-            col = 5;
         if ((unsigned)wal->nextwall < MAXWALLS && ((wal->cstat^wall[j].cstat)&1))
             col = 2;
+        else if ((wal->cstat&1) != 0)
+            col = 5;
+        else col = 33;
+
         if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
             if (totalclock & 16)
                 col += (2<<2);
     }
 
+    int32_t x1, y1, x2, y2;
     screencoords(&x1,&y1, wal->x-posxe,wal->y-posye, zoome);
     screencoords(&x2,&y2, wall[wal->point2].x-posxe,wall[wal->point2].y-posye, zoome);
 
-    dx = wal->x-wall[wal->point2].x;
-    dy = wal->y-wall[wal->point2].y;
-    dist = dx*dx+dy*dy;
+    int64_t dx = wal->x-wall[wal->point2].x;
+    int64_t dy = wal->y-wall[wal->point2].y;
+    int64_t dist = dx*dx+dy*dy;
 
     if (dist > INT32_MAX)
     {
@@ -17086,17 +17120,18 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     else if (circlewall >= 0 && (i == circlewall || wal->nextwall == circlewall))
         col = 14;
 
+    int32_t fz=0, fzn=0;
+
     if (m32_sideview)
     {
         // draw vertical line to neighboring wall
-        int32_t fz2;
         int32_t sect = sectorofwall(i);
 
         fz = getflorzofslope(sect, wal->x,wal->y);
-        fz2 = getflorzofslope(sect, wall[wal->point2].x,wall[wal->point2].y);
+        int32_t fz2 = getflorzofslope(sect, wall[wal->point2].x,wall[wal->point2].y);
 
-        dz = getscreenvdisp(fz-posze,zoome);
-        dz2 = getscreenvdisp(fz2-posze,zoome);
+        int32_t dz = getscreenvdisp(fz-posze,zoome);
+        int32_t dz2 = getscreenvdisp(fz2-posze,zoome);
 
         y1 += dz;
         y2 += dz2;
@@ -17110,6 +17145,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 #ifdef YAX_ENABLE
         {
             int16_t nw = yax_getnextwall(i, YAX_CEILING);
+
             if (nw >= 0)
             {
                 int32_t odrawlinepat = drawlinepat;
@@ -17150,27 +17186,25 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 
         if (wal->nextsector >= 0)
         {
-            int32_t z1 = sector[sectorofwall(i)].floorz;
-            int32_t z2 = sector[wal->nextsector].floorz;
+            int32_t const z1 = sector[sectorofwall(i)].floorz;
+            int32_t const z2 = sector[wal->nextsector].floorz;
 
             if (z1 != z2 || showheightindicators == 2)
             {
                 // Red walls. Show them on equal-height walls ONLY with setting 2.
-                int32_t bb = (z2 < z1);
-                int32_t dx = mulscale11(sintable[(k+1024 + 1024*bb)&2047],min(4096, zoome)) / 2560;
-                int32_t dy = mulscale11(sintable[(k+512 + 1024*bb)&2047],min(4096, zoome)) / 2560;
+                int32_t const bb = (z2 < z1);
+                int32_t const dx = mulscale11(sintable[(k+1024 + 1024*bb)&2047],min(4096, zoome)) / 2560;
+                int32_t const dy = scalescreeny(mulscale11(sintable[(k+512 + 1024*bb)&2047], min(4096, zoome)) / 2560);
 
-                dy = scalescreeny(dy);
                 drawline16mid(dax,day, dax+dx,day+dy, editorcolors[col]);
             }
         }
         else if (showheightindicators == 2)
         {
             // Show them on white walls ONLY with setting 2.
-            int32_t dx = mulscale11(sintable[(k+2048)&2047],min(4096, zoome)) / 2560;
-            int32_t dy = mulscale11(sintable[(k+1536)&2047],min(4096, zoome)) / 2560;
+            int32_t const dx = mulscale11(sintable[(k+2048)&2047],min(4096, zoome)) / 2560;
+            int32_t const dy = scalescreeny(mulscale11(sintable[(k+1536)&2047], min(4096, zoome)) / 2560);
 
-            dy = scalescreeny(dy);
             drawline16mid(dax,day, dax+dx,day+dy, editorcolors[col]);
         }
     }
@@ -17181,11 +17215,14 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         {
             int32_t pointsize = 2;
 
+            col = 15;
+
             if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) &&
                                         (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
             {
                 if (totalclock & 16)
                     pointsize++;
+                else col = 7;
             }
             else //if (highlightcnt > 0)
             {
@@ -17193,10 +17230,10 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
                 {
                     if (totalclock & 16)
                         pointsize++;
+                    else col = 7;
                 }
             }
 
-            col = 15;
             if (m32_sideview)
             {
                 if (wal->nextwall >= 0)
@@ -17208,10 +17245,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
                 }
             }
 
-//                    tempint = ((midydim16+y1)*bytesperline)+(halfxdim16+x1)+frameplace;
-            do
-                drawcircle16(halfxdim16+x1, midydim16+y1, pointsize--, 16384, editorcolors[col]);
-            while (pointsize);
+            drawcircle16(halfxdim16+x1, midydim16+y1, pointsize, 16384, editorcolors[col]);
         }
 }
 
