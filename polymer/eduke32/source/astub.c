@@ -10482,7 +10482,7 @@ static void Keys2d3d(void)
     {
         keystatus[KEYSC_F10]=0;
 
-        if (xdimgame != xdim2d || ydimgame != ydim2d)
+        if (!m32_2d3d_resolutions_match())
             message("2d and 3d mode resolutions don't match!");
 
         else if (!in3dmode())

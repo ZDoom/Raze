@@ -370,9 +370,16 @@ extern vec2_t m32_2d3d;
 #define XSIZE_2D3D (xdim2d / m32_2d3dsize)
 #define YSIZE_2D3D (ydim2d / m32_2d3dsize)
 
+static inline int32_t m32_2d3d_resolutions_match()
+{
+    return (xdimgame == xdim2d && ydimgame == ydim2d);
+}
+
 static inline int32_t m32_is2d3dmode(void)
 {
-    return !in3dmode() && m32_2d3dmode && searchx > m32_2d3d.x && searchx < (m32_2d3d.x + XSIZE_2D3D) &&
+    return !in3dmode() && m32_2d3dmode &&
+        m32_2d3d_resolutions_match() &&
+        searchx > m32_2d3d.x && searchx < (m32_2d3d.x + XSIZE_2D3D) &&
         searchy > m32_2d3d.y && searchy < (m32_2d3d.y + YSIZE_2D3D);
 }
 

@@ -3252,6 +3252,11 @@ static void isc_transform(int32_t *x, int32_t *y)
 
 static void drawspritelabel(int i)
 {
+    // XXX: oob 'i' may happen, such as passing pointhighlight-16384 when
+    // pointhighlight == -1.
+    if ((unsigned)i >= MAXSPRITES)
+        return;
+
     const char *dabuffer = CallExtGetSpriteCaption(i);
 
     if (!dabuffer[0])
