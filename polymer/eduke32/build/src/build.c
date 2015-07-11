@@ -3296,7 +3296,7 @@ void overheadeditor(void)
     int32_t prefixarg = 0, tsign;
     int32_t resetsynctics = 0, lasttick=getticks(), waitdelay=totalclock, lastdraw=getticks();
     int32_t olen[2]={0,0}, dragwall[2] = {-1, -1};
-    int16_t linehighlight2;
+    int16_t linehighlight2 = -1;
 
     ovh.suckwall = -1;
     ovh.split = 0;

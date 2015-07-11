@@ -17413,7 +17413,7 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
 //
 void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride)
 {
-    int32_t i, j, x1, y1;
+    int32_t i, x1, y1;
     int16_t angofs = m32_sideview ? m32_sideang : 0;
 
     int32_t posxe=pos->x, posye=pos->y, posze=pos->z;
@@ -17446,7 +17446,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     {
         for (i=0; i<numwalls; i++)
         {
-            j = wall[i].nextwall;
+            int32_t j = wall[i].nextwall;
             if ((graywallbitmap[i>>3]&(1<<(i&7))) && (j < 0 || (graywallbitmap[j>>3]&(1<<(j&7)))))
                 graybitmap[i>>3] |= (1<<(i&7));
             else
@@ -17472,6 +17472,8 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     }
     else
     {
+        int32_t j = 0;
+
         for (i=0; i<numsectors; i++)
             for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
             {
@@ -17490,7 +17492,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     faketimerhandler();
 
     if (zoome >= 256 || highlightcnt>0)
-        for (j=0; j<MAXSPRITES; j++)
+        for (int32_t j=0; j<MAXSPRITES; j++)
             if (sprite[j].statnum<MAXSTATUS)
             {
                 // if sprite is highlighted, always draw it
@@ -17520,7 +17522,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
         for (i=0; i<m32_swcnt; i++)  // shouldn't it go the other way around?
         {
-            j = m32_wallsprite[i];
+            int32_t j = m32_wallsprite[i];
             if (j<MAXWALLS)
             {
                 if (alwaysshowgray || !(graybitmap[j>>3]&(1<<(j&7))))
@@ -17556,7 +17558,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     y1 = mulscale11(sintable[(ange+angofs+2048)&2047],zoome) / 768;
 
     i = scalescreeny(x1);
-    j = scalescreeny(y1);
+    int32_t j = scalescreeny(y1);
 
     drawline16mid(x1,j, -x1,-j, editorcolors[15]);
     drawline16mid(x1,j, +y1,-i, editorcolors[15]);
