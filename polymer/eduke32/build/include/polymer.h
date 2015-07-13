@@ -201,11 +201,25 @@ typedef struct      s_prrt {
 }                   _prrt;
 
 // BUILD DATA
+
+typedef struct      s_prvert {
+    GLfloat         x;
+    GLfloat         y;
+    GLfloat         z;
+    GLfloat         u;
+    GLfloat         v;
+    GLubyte         r;
+    GLubyte         g;
+    GLubyte         b;
+    GLubyte         a;
+}                   _prvert;
+
 typedef struct      s_prplane {
     // geometry
-    GLfloat*        buffer;
+    _prvert*        buffer;
     int32_t         vertcount;
     GLuint          vbo;
+    int32_t         mapvbo_vertoffset;
     // attributes
     GLfloat         tbn[3][3];
     GLfloat         plane[4];
@@ -258,7 +272,7 @@ typedef struct      s_prwall {
 
     // stuff
     GLfloat*        bigportal;
-    GLfloat*        cap;
+    //GLfloat*        cap;
     GLuint          stuffvbo;
 
     // build wall data
@@ -360,7 +374,7 @@ static inline int32_t polymer_eligible_for_artmap(int32_t tilenum, const pthtyp 
 // CORE
 static void         polymer_displayrooms(int16_t sectnum);
 static void         polymer_drawplane(_prplane* plane);
-static inline void  polymer_inb4mirror(GLfloat* buffer, GLfloat* plane);
+static inline void  polymer_inb4mirror(_prvert* buffer, GLfloat* plane);
 static void         polymer_animatesprites(void);
 static void         polymer_freeboard(void);
 // SECTORS
@@ -418,7 +432,7 @@ static void         polymer_initrendertargets(int32_t count);
 // DEBUG OUTPUT
 void PR_CALLBACK    polymer_debugoutputcallback(GLenum source,GLenum type,GLuint id,GLenum severity,GLsizei length,const GLchar *message,GLvoid *userParam);
 
-#define INDICE(n) ((p->indices) ? (p->indices[(i+n)%p->indicescount]*5) : (((i+n)%p->vertcount)*5))
+#define INDICE(n) ((p->indices) ? (p->indices[(i+n)%p->indicescount]) : (((i+n)%p->vertcount)))
 
 #define SWITCH_CULL_DIRECTION { culledface = (culledface == GL_FRONT) ? GL_BACK : GL_FRONT; bglCullFace(culledface); }
 

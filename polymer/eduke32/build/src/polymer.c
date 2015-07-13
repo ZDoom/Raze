@@ -68,28 +68,57 @@ GLuint          prbasepalmaps[MAXBASEPALS];
 // numshades full indirections (32*256) per lookup
 GLuint          prlookups[MAXPALOOKUPS];
 
-static const GLfloat  vertsprite[4 * 5] =
+GLuint          prmapvbo;
+const GLsizeiptrARB proneplanesize = sizeof(_prvert) * 4;
+const GLintptrARB prwalldatasize = sizeof(_prvert)* 4 * 3; // wall, over and mask planes for every wall
+GLintptrARB prwalldataoffset;
+
+static const _prvert  vertsprite[4] =
 {
-    -0.5f, 0.0f, 0.0f,
-    0.0f, 1.0f,
-    0.5f, 0.0f, 0.0f,
-    1.0f, 1.0f,
-    0.5f, 1.0f, 0.0f,
-    1.0f, 0.0f,
-    -0.5f, 1.0f, 0.0f,
-    0.0f, 0.0f,
+    {
+        -0.5f, 0.0f, 0.0f,
+        0.0f, 1.0f,
+        0xff, 0xff, 0xff, 0xff,
+    },
+    {
+        0.5f, 0.0f, 0.0f,
+        1.0f, 1.0f,
+        0xff, 0xff, 0xff, 0xff,
+    },
+    {
+        0.5f, 1.0f, 0.0f,
+        1.0f, 0.0f,
+        0xff, 0xff, 0xff, 0xff,
+    },
+    {
+        -0.5f, 1.0f, 0.0f,
+        0.0f, 0.0f,
+        0xff, 0xff, 0xff, 0xff,
+    },
 };
 
-static const GLfloat  horizsprite[4 * 5] =
+static const _prvert  horizsprite[4] =
 {
-    -0.5f, 0.0f, 0.5f,
-    0.0f, 0.0f,
-    0.5f, 0.0f, 0.5f,
-    1.0f, 0.0f,
-    0.5f, 0.0f, -0.5f,
-    1.0f, 1.0f,
-    -0.5f, 0.0f, -0.5f,
-    0.0f, 1.0f,
+    {
+        -0.5f, 0.0f, 0.5f,
+        0.0f, 0.0f,
+        0xff, 0xff, 0xff, 0xff,
+    },
+    {
+        0.5f, 0.0f, 0.5f,
+        1.0f, 0.0f,
+        0xff, 0xff, 0xff, 0xff,
+    },
+    {
+        0.5f, 0.0f, -0.5f,
+        1.0f, 1.0f,
+        0xff, 0xff, 0xff, 0xff,
+    },
+    {
+        -0.5f, 0.0f, -0.5f,
+        0.0f, 1.0f,
+        0xff, 0xff, 0xff, 0xff,
+    },
 };
 
 static const GLfloat  skyboxdata[4 * 5 * 6] =
@@ -814,6 +843,7 @@ int32_t             polymer_init(void)
         // Enable everything.
         bglDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
         bglDebugMessageCallbackARB(polymer_debugoutputcallback, NULL);
+        bglEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
     }
 #endif
 
@@ -980,6 +1010,14 @@ void                polymer_loadboard(void)
     int32_t         i;
 
     polymer_freeboard();
+
+    // in the big map buffer, sectors have floor and ceiling vertices for each wall first, then walls
+    prwalldataoffset = numwalls * 2 * sizeof(_prvert);
+
+    bglGenBuffersARB(1, &prmapvbo);
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prmapvbo);
+    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, prwalldataoffset + numwalls * prwalldatasize, NULL, mapvbousage);
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
     i = 0;
     while (i < numsectors)
@@ -1281,9 +1319,9 @@ void                polymer_editorpick(void)
 
             scr[0]=scrx, scr[1]=scry, scr[2]=scrz;
 
-            scrv[0] = x-scrx; 	 
-            scrv[1] = y-scry; 	 
-            scrv[2] = z-scrz; 	 
+            scrv[0] = x-scrx;
+            scrv[1] = y-scry;
+            scrv[2] = z-scrz;
 
             scrvxz[0] = x-scrx;
             scrvxz[1] = z-scrz;
@@ -1787,8 +1825,8 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
 
                     w = prwalls[sec->wallptr + i];
 
-                    if ((w->mask.buffer[(0 * 5) + 1] >= w->mask.buffer[(3 * 5) + 1]) &&
-                        (w->mask.buffer[(1 * 5) + 1] >= w->mask.buffer[(2 * 5) + 1]))
+                    if ((w->mask.buffer[0].y >= w->mask.buffer[3].y) &&
+                        (w->mask.buffer[1].y >= w->mask.buffer[2].y))
                     {
                         i--;
                         continue;
@@ -2068,7 +2106,7 @@ static void         polymer_drawplane(_prplane* plane)
 {
     int32_t         materialbits;
 
-	if (pr_nullrender >= 1) return;
+    if (pr_nullrender >= 1) return;
 
     // debug code for drawing plane inverse TBN
 //     bglDisable(GL_TEXTURE_2D);
@@ -2112,16 +2150,30 @@ static void         polymer_drawplane(_prplane* plane)
 
     bglNormal3f((float)(plane->plane[0]), (float)(plane->plane[1]), (float)(plane->plane[2]));
 
-    if (plane->vbo && (pr_vbos > 0))
+    GLuint planevbo;
+    GLintptrARB geomfbooffset;
+
+    if (plane->mapvbo_vertoffset != -1)
     {
-        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, plane->vbo);
-        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), NULL);
-        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), (GLfloat*)(3 * sizeof(GLfloat)));
+        planevbo = prmapvbo;
+        geomfbooffset = plane->mapvbo_vertoffset;
+    }
+    else
+    {
+        planevbo = plane->vbo;
+        geomfbooffset = NULL;
+    }
+
+    if (planevbo && (pr_vbos > 0))
+    {
+        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, planevbo);
+        bglVertexPointer(3, GL_FLOAT, sizeof(_prvert), (GLvoid *)(geomfbooffset));
+        bglTexCoordPointer(2, GL_FLOAT, sizeof(_prvert), (GLvoid *)(geomfbooffset + (3 * sizeof(GLfloat))));
         if (plane->indices)
             bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, plane->ivbo);
     } else {
-        bglVertexPointer(3, GL_FLOAT, 5 * sizeof(GLfloat), plane->buffer);
-        bglTexCoordPointer(2, GL_FLOAT, 5 * sizeof(GLfloat), &plane->buffer[3]);
+        bglVertexPointer(3, GL_FLOAT, sizeof(_prvert), &plane->buffer->x);
+        bglTexCoordPointer(2, GL_FLOAT, sizeof(_prvert), &plane->buffer->u);
     }
 
     curlight = 0;
@@ -2137,7 +2189,7 @@ static void         polymer_drawplane(_prplane* plane)
 
         if (plane->indices)
         {
-            if (plane->vbo && (pr_vbos > 0))
+            if (planevbo && (pr_vbos > 0))
                 bglDrawElements(GL_TRIANGLES, plane->indicescount, GL_UNSIGNED_SHORT, NULL);
             else
                 bglDrawElements(GL_TRIANGLES, plane->indicescount, GL_UNSIGNED_SHORT, plane->indices);
@@ -2152,7 +2204,7 @@ static void         polymer_drawplane(_prplane* plane)
         curlight++;
     } while ((curlight < plane->lightcount) && (curlight < pr_maxlightpasses) && (!depth || mirrors[depth-1].plane));
 
-    if (plane->vbo && (pr_vbos > 0))
+    if (planevbo && (pr_vbos > 0))
     {
         bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
         if (plane->indices)
@@ -2160,14 +2212,14 @@ static void         polymer_drawplane(_prplane* plane)
     }
 }
 
-static inline void  polymer_inb4mirror(GLfloat* buffer, GLfloat* plane)
+static inline void  polymer_inb4mirror(_prvert* buffer, GLfloat* plane)
 {
     float           pv;
     float           reflectionmatrix[16];
 
-    pv = buffer[0] * plane[0] +
-         buffer[1] * plane[1] +
-         buffer[2] * plane[2];
+    pv = buffer->x * plane[0] +
+         buffer->y * plane[1] +
+         buffer->z * plane[2];
 
     reflectionmatrix[0] = 1 - (2 * plane[0] * plane[0]);
     reflectionmatrix[1] = -2 * plane[0] * plane[1];
@@ -2238,7 +2290,7 @@ static void         polymer_freeboard(void)
             if (prwalls[i]->bigportal) Bfree(prwalls[i]->bigportal);
             if (prwalls[i]->mask.buffer) Bfree(prwalls[i]->mask.buffer);
             if (prwalls[i]->over.buffer) Bfree(prwalls[i]->over.buffer);
-            if (prwalls[i]->cap) Bfree(prwalls[i]->cap);
+            //if (prwalls[i]->cap) Bfree(prwalls[i]->cap);
             if (prwalls[i]->wall.buffer) Bfree(prwalls[i]->wall.buffer);
             if (prwalls[i]->wall.vbo) bglDeleteBuffersARB(1, &prwalls[i]->wall.vbo);
             if (prwalls[i]->over.vbo) bglDeleteBuffersARB(1, &prwalls[i]->over.vbo);
@@ -2310,9 +2362,9 @@ static int32_t      polymer_initsector(int16_t sectnum)
     s = (_prsector *)Xcalloc(1, sizeof(_prsector));
 
     s->verts = (GLdouble *)Xcalloc(sec->wallnum, sizeof(GLdouble) * 3);
-    s->floor.buffer = (GLfloat *)Xcalloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->floor.buffer = (_prvert *)Xcalloc(sec->wallnum, sizeof(_prvert));
     s->floor.vertcount = sec->wallnum;
-    s->ceil.buffer = (GLfloat *)Xcalloc(sec->wallnum, sizeof(GLfloat) * 5);
+    s->ceil.buffer = (_prvert *)Xcalloc(sec->wallnum, sizeof(_prvert));
     s->ceil.vertcount = sec->wallnum;
 
     bglGenBuffersARB(1, &s->floor.vbo);
@@ -2349,9 +2401,9 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     int32_t         ang, needfloor, wallinvalidate;
     int16_t         curstat, curpicnum, floorpicnum, ceilingpicnum;
     char            curxpanning, curypanning;
-    GLfloat*        curbuffer;
+    _prvert*        curbuffer;
 
-	if (pr_nullrender >= 3) return 0;
+    if (pr_nullrender >= 3) return 0;
 
     s = prsectors[sectnum];
     sec = (tsectortype *)&sector[sectnum];
@@ -2373,12 +2425,12 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     {
         if ((-wal->x != s->verts[(i*3)+2]))
         {
-            s->verts[(i*3)+2] = s->floor.buffer[(i*5)+2] = s->ceil.buffer[(i*5)+2] = -(float)wal->x;
+            s->verts[(i*3)+2] = s->floor.buffer[i].z = s->ceil.buffer[i].z = -(float)wal->x;
             needfloor = wallinvalidate = 1;
         }
         if ((wal->y != s->verts[i*3]))
         {
-            s->verts[i*3] = s->floor.buffer[i*5] = s->ceil.buffer[i*5] = (float)wal->y;
+            s->verts[i*3] = s->floor.buffer[i].x = s->ceil.buffer[i].x = (float)wal->y;
             needfloor = wallinvalidate = 1;
         }
 
@@ -2400,8 +2452,8 @@ static int32_t      polymer_updatesector(int16_t sectnum)
         while (i < sec->wallnum)
         {
             getzsofslope(sectnum, wal->x, wal->y, &ceilz, &florz);
-            s->floor.buffer[(i*5)+1] = -(float)(florz) / 16.0f;
-            s->ceil.buffer[(i*5)+1] = -(float)(ceilz) / 16.0f;
+            s->floor.buffer[i].y = -(float)(florz) / 16.0f;
+            s->ceil.buffer[i].y = -(float)(ceilz) / 16.0f;
 
             i++;
             wal = &wall[sec->wallptr + i];
@@ -2474,7 +2526,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
 
             if ((curstat & (2+64)) == (2+64))
             {
-                heidiff = (int32_t)(curbuffer[(i*5)+1] - curbuffer[1]);
+                heidiff = (int32_t)(curbuffer[i].y - curbuffer[0].y);
                 // don't forget the sign, tey could be negative with concave sectors
                 if (tey >= 0)
                     tey = (int32_t)sqrt((double)((tey * tey) + (heidiff * heidiff)));
@@ -2506,8 +2558,8 @@ static int32_t      polymer_updatesector(int16_t sectnum)
             else
                 ypancoef = 0;
 
-            curbuffer[(i*5)+3] = ((float)(tex) / (scalecoef * tilesiz[curpicnum].x)) + xpancoef;
-            curbuffer[(i*5)+4] = ((float)(tey) / (scalecoef * tilesiz[curpicnum].y)) + ypancoef;
+            curbuffer[i].u = ((float)(tex) / (scalecoef * tilesiz[curpicnum].x)) + xpancoef;
+            curbuffer[i].v = ((float)(tey) / (scalecoef * tilesiz[curpicnum].y)) + ypancoef;
 
             j--;
         }
@@ -2525,14 +2577,34 @@ static int32_t      polymer_updatesector(int16_t sectnum)
 attributes:
     if ((pr_vbos > 0) && ((i == -1) || (wallinvalidate)))
     {
-		if (pr_nullrender < 2)
-		{
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->floor.vbo);
-			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat)* 5, s->floor.buffer);
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->ceil.vbo);
-			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat)* 5, s->ceil.buffer);
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		}
+        if (pr_vbos > 0)
+        {
+            if (pr_nullrender < 2)
+            {
+                /*bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->floor.vbo);
+                bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat)* 5, s->floor.buffer);
+                bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->ceil.vbo);
+                bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat)* 5, s->ceil.buffer);
+                */
+
+                GLintptrARB sector_offset = sec->wallptr * 2 * sizeof(_prvert);
+                GLsizeiptrARB cur_sector_size = sec->wallnum * sizeof(_prvert);
+                bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prmapvbo);
+                // floor
+                bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, sector_offset, cur_sector_size, s->floor.buffer);
+                // ceiling
+                bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, sector_offset + cur_sector_size, cur_sector_size, s->ceil.buffer);
+                bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+                s->floor.mapvbo_vertoffset = sector_offset;
+                s->ceil.mapvbo_vertoffset = sector_offset + cur_sector_size;
+            }
+        }
+        else
+        {
+            s->floor.mapvbo_vertoffset = -1;
+            s->ceil.mapvbo_vertoffset = -1;
+        }
     }
 
     if ((!s->flags.empty) && (!s->flags.invalidtex) &&
@@ -2575,22 +2647,22 @@ finish:
         polymer_buildfloor(sectnum);
         if ((pr_vbos > 0))
         {
-			if (pr_nullrender < 2)
-			{
-				if (s->oldindicescount < s->indicescount)
-				{
-					bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
-					bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), NULL, mapvbousage);
-					bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
-					bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), NULL, mapvbousage);
-					s->oldindicescount = s->indicescount;
-				}
-				bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
-				bglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, s->indicescount * sizeof(GLushort), s->floor.indices);
-				bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
-				bglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, s->indicescount * sizeof(GLushort), s->ceil.indices);
-				bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-			}
+            if (pr_nullrender < 2)
+            {
+                if (s->oldindicescount < s->indicescount)
+                {
+                    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
+                    bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), NULL, mapvbousage);
+                    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
+                    bglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->indicescount * sizeof(GLushort), NULL, mapvbousage);
+                    s->oldindicescount = s->indicescount;
+                }
+                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->floor.ivbo);
+                bglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, s->indicescount * sizeof(GLushort), s->floor.indices);
+                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, s->ceil.ivbo);
+                bglBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, s->indicescount * sizeof(GLushort), s->ceil.indices);
+                bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+            }
         }
     }
 
@@ -2790,13 +2862,13 @@ static int32_t      polymer_initwall(int16_t wallnum)
     w = (_prwall *)Xcalloc(1, sizeof(_prwall));
 
     if (w->mask.buffer == NULL) {
-        w->mask.buffer = (GLfloat *)Xmalloc(4 * sizeof(GLfloat) * 5);
+        w->mask.buffer = (_prvert *)Xmalloc(4 * sizeof(_prvert));
         w->mask.vertcount = 4;
     }
     if (w->bigportal == NULL)
         w->bigportal = (GLfloat *)Xmalloc(4 * sizeof(GLfloat) * 5);
-    if (w->cap == NULL)
-        w->cap = (GLfloat *)Xmalloc(4 * sizeof(GLfloat) * 3);
+    //if (w->cap == NULL)
+    //    w->cap = (GLfloat *)Xmalloc(4 * sizeof(GLfloat) * 3);
 
     bglGenBuffersARB(1, &w->wall.vbo);
     bglGenBuffersARB(1, &w->over.vbo);
@@ -2872,7 +2944,7 @@ static void         polymer_updatewall(int16_t wallnum)
     uint32_t        invalid;
     int32_t         sectofwall = sectorofwall(wallnum);
 
-	if (pr_nullrender >= 3) return;
+    if (pr_nullrender >= 3) return;
 
     // yes, this function is messy and unefficient
     // it also works, bitches
@@ -2902,7 +2974,7 @@ static void         polymer_updatewall(int16_t wallnum)
     }
 
     if (w->wall.buffer == NULL) {
-        w->wall.buffer = (GLfloat *)Xcalloc(4, sizeof(GLfloat) * 5);  // XXX
+        w->wall.buffer = (_prvert *)Xcalloc(4, sizeof(_prvert));  // XXX
         w->wall.vertcount = 4;
     }
 
@@ -2964,10 +3036,10 @@ static void         polymer_updatewall(int16_t wallnum)
 
     if ((unsigned)wal->nextsector >= (unsigned)numsectors || !ns)
     {
-        Bmemcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-        Bmemcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-        Bmemcpy(&w->wall.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-        Bmemcpy(&w->wall.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+        Bmemcpy(w->wall.buffer, &s->floor.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 3);
+        Bmemcpy(&w->wall.buffer[1], &s->floor.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 3);
+        Bmemcpy(&w->wall.buffer[2], &s->ceil.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 3);
+        Bmemcpy(&w->wall.buffer[3], &s->ceil.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 3);
 
         if (wal->nextsector < 0)
             curpicnum = wallpicnum;
@@ -3003,10 +3075,10 @@ static void         polymer_updatewall(int16_t wallnum)
             else
                 dist = (float)(xref == 0);
 
-            w->wall.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesiz[curpicnum].x);
-            w->wall.buffer[(i * 5) + 4] = (-(float)(yref + (w->wall.buffer[(i * 5) + 1] * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
+            w->wall.buffer[i].u = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesiz[curpicnum].x);
+            w->wall.buffer[i].v = (-(float)(yref + (w->wall.buffer[i].y * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
 
-            if (wal->cstat & 256) w->wall.buffer[(i * 5) + 4] = -w->wall.buffer[(i * 5) + 4];
+            if (wal->cstat & 256) w->wall.buffer[i].u = -w->wall.buffer[i].v;
 
             i++;
         }
@@ -3017,21 +3089,21 @@ static void         polymer_updatewall(int16_t wallnum)
     {
         nnwallnum = wall[nwallnum].point2;
 
-        if ((s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] < ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-            (s->floor.buffer[((wal->point2 - sec->wallptr) * 5) + 1] < ns->floor.buffer[((nwallnum - nsec->wallptr) * 5) + 1]))
+        if ((s->floor.buffer[wallnum - sec->wallptr].y < ns->floor.buffer[nnwallnum - nsec->wallptr].y) ||
+            (s->floor.buffer[wal->point2 - sec->wallptr].y < ns->floor.buffer[nwallnum - nsec->wallptr].y))
             underwall = 1;
 
         if ((underwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
             int32_t refwall;
 
-            if (s->floor.buffer[((wallnum - sec->wallptr) * 5) + 1] < ns->floor.buffer[((nnwallnum - nsec->wallptr) * 5) + 1])
-                Bmemcpy(w->wall.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+            if (s->floor.buffer[wallnum - sec->wallptr].y < ns->floor.buffer[nnwallnum - nsec->wallptr].y)
+                Bmemcpy(w->wall.buffer, &s->floor.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 3);
             else
-                Bmemcpy(w->wall.buffer, &ns->floor.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
-            Bmemcpy(&w->wall.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-            Bmemcpy(&w->wall.buffer[10], &ns->floor.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
-            Bmemcpy(&w->wall.buffer[15], &ns->floor.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
+                Bmemcpy(w->wall.buffer, &ns->floor.buffer[nnwallnum - nsec->wallptr], sizeof(GLfloat) * 3);
+            Bmemcpy(&w->wall.buffer[1], &s->floor.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 3);
+            Bmemcpy(&w->wall.buffer[2], &ns->floor.buffer[nwallnum - nsec->wallptr], sizeof(GLfloat) * 3);
+            Bmemcpy(&w->wall.buffer[3], &ns->floor.buffer[nnwallnum - nsec->wallptr], sizeof(GLfloat) * 3);
 
             if (wal->cstat & 2)
                 refwall = nwallnum;
@@ -3065,12 +3137,12 @@ static void         polymer_updatewall(int16_t wallnum)
                 else
                     dist = (float)(xref == 0);
 
-                w->wall.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + curxpanning) / (float)(tilesiz[curpicnum].x);
-                w->wall.buffer[(i * 5) + 4] = (-(float)(yref + (w->wall.buffer[(i * 5) + 1] * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
+                w->wall.buffer[i].u = ((dist * 8.0f * wal->xrepeat) + curxpanning) / (float)(tilesiz[curpicnum].x);
+                w->wall.buffer[i].v = (-(float)(yref + (w->wall.buffer[i].y * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
 
                 if ((!(wal->cstat & 2) && (wal->cstat & 256)) ||
                     ((wal->cstat & 2) && (wall[nwallnum].cstat & 256)))
-                    w->wall.buffer[(i * 5) + 4] = -w->wall.buffer[(i * 5) + 4];
+                    w->wall.buffer[i].v = -w->wall.buffer[i].v;
 
                 i++;
             }
@@ -3078,33 +3150,33 @@ static void         polymer_updatewall(int16_t wallnum)
             if (underwall)
                 w->underover |= 1;
 
-            Bmemcpy(w->mask.buffer, &w->wall.buffer[15], sizeof(GLfloat) * 5);
-            Bmemcpy(&w->mask.buffer[5], &w->wall.buffer[10], sizeof(GLfloat) * 5);
+            Bmemcpy(w->mask.buffer, &w->wall.buffer[3], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[1], &w->wall.buffer[2], sizeof(GLfloat) * 5);
         }
         else
         {
-            Bmemcpy(w->mask.buffer, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 5);
-            Bmemcpy(&w->mask.buffer[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 5);
+            Bmemcpy(w->mask.buffer, &s->floor.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[1], &s->floor.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 5);
         }
 
-        if ((s->ceil.buffer[((wallnum - sec->wallptr) * 5) + 1] > ns->ceil.buffer[((nnwallnum - nsec->wallptr) * 5) + 1]) ||
-            (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] > ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1]))
+        if ((s->ceil.buffer[wallnum - sec->wallptr].y > ns->ceil.buffer[nnwallnum - nsec->wallptr].y) ||
+            (s->ceil.buffer[wal->point2 - sec->wallptr].y > ns->ceil.buffer[nwallnum - nsec->wallptr].y))
             overwall = 1;
 
         if ((overwall) || (wal->cstat & 16) || (wal->cstat & 32))
         {
             if (w->over.buffer == NULL) {
-                w->over.buffer = (GLfloat *)Xmalloc(4 * sizeof(GLfloat) * 5);
+                w->over.buffer = (_prvert *)Xmalloc(4 * sizeof(_prvert));
                 w->over.vertcount = 4;
             }
 
-            Bmemcpy(w->over.buffer, &ns->ceil.buffer[(nnwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
-            Bmemcpy(&w->over.buffer[5], &ns->ceil.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
-            if (s->ceil.buffer[((wal->point2 - sec->wallptr) * 5) + 1] > ns->ceil.buffer[((nwallnum - nsec->wallptr) * 5) + 1])
-                Bmemcpy(&w->over.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+            Bmemcpy(w->over.buffer, &ns->ceil.buffer[nnwallnum - nsec->wallptr], sizeof(GLfloat) * 3);
+            Bmemcpy(&w->over.buffer[1], &ns->ceil.buffer[nwallnum - nsec->wallptr], sizeof(GLfloat) * 3);
+            if (s->ceil.buffer[wal->point2 - sec->wallptr].y > ns->ceil.buffer[nwallnum - nsec->wallptr].y)
+                Bmemcpy(&w->over.buffer[2], &s->ceil.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 3);
             else
-                Bmemcpy(&w->over.buffer[10], &ns->ceil.buffer[(nwallnum - nsec->wallptr) * 5], sizeof(GLfloat) * 3);
-            Bmemcpy(&w->over.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+                Bmemcpy(&w->over.buffer[2], &ns->ceil.buffer[nwallnum - nsec->wallptr], sizeof(GLfloat) * 3);
+            Bmemcpy(&w->over.buffer[3], &s->ceil.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 3);
 
             if ((wal->cstat & 16) || (wal->overpicnum == 0))
                 curpicnum = wallpicnum;
@@ -3146,10 +3218,10 @@ static void         polymer_updatewall(int16_t wallnum)
                 else
                     dist = (float)(xref == 0);
 
-                w->over.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesiz[curpicnum].x);
-                w->over.buffer[(i * 5) + 4] = (-(float)(yref + (w->over.buffer[(i * 5) + 1] * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
+                w->over.buffer[i].u = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesiz[curpicnum].x);
+                w->over.buffer[i].v = (-(float)(yref + (w->over.buffer[i].y * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
 
-                if (wal->cstat & 256) w->over.buffer[(i * 5) + 4] = -w->over.buffer[(i * 5) + 4];
+                if (wal->cstat & 256) w->over.buffer[i].v = -w->over.buffer[i].v;
 
                 i++;
             }
@@ -3157,8 +3229,8 @@ static void         polymer_updatewall(int16_t wallnum)
             if (overwall)
                 w->underover |= 2;
 
-            Bmemcpy(&w->mask.buffer[10], &w->over.buffer[5], sizeof(GLfloat) * 5);
-            Bmemcpy(&w->mask.buffer[15], &w->over.buffer[0], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[2], &w->over.buffer[1], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[3], &w->over.buffer[0], sizeof(GLfloat) * 5);
 
             if ((wal->cstat & 16) || (wal->cstat & 32))
             {
@@ -3197,10 +3269,10 @@ static void         polymer_updatewall(int16_t wallnum)
                     else
                         dist = (float)(xref == 0);
 
-                    w->mask.buffer[(i * 5) + 3] = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesiz[curpicnum].x);
-                    w->mask.buffer[(i * 5) + 4] = (-(float)(yref + (w->mask.buffer[(i * 5) + 1] * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
+                    w->mask.buffer[i].u = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesiz[curpicnum].x);
+                    w->mask.buffer[i].v = (-(float)(yref + (w->mask.buffer[i].y * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
 
-                    if (wal->cstat & 256) w->mask.buffer[(i * 5) + 4] = -w->mask.buffer[(i * 5) + 4];
+                    if (wal->cstat & 256) w->mask.buffer[i].v = -w->mask.buffer[i].v;
 
                     i++;
                 }
@@ -3208,25 +3280,26 @@ static void         polymer_updatewall(int16_t wallnum)
         }
         else
         {
-            Bmemcpy(&w->mask.buffer[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 5);
-            Bmemcpy(&w->mask.buffer[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[2], &s->ceil.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 5);
+            Bmemcpy(&w->mask.buffer[3], &s->ceil.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 5);
         }
     }
 
+    // make sure shade color handling is correct below XXX
     if (wal->nextsector < 0)
-        Bmemcpy(w->mask.buffer, w->wall.buffer, sizeof(GLfloat) * 4 * 5);
+        Bmemcpy(w->mask.buffer, w->wall.buffer, sizeof(_prvert) * 4);
 
-    Bmemcpy(w->bigportal, &s->floor.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    Bmemcpy(&w->bigportal[5], &s->floor.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    Bmemcpy(&w->bigportal[10], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    Bmemcpy(&w->bigportal[15], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
+    Bmemcpy(w->bigportal, &s->floor.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 3);
+    Bmemcpy(&w->bigportal[5], &s->floor.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 3);
+    Bmemcpy(&w->bigportal[10], &s->ceil.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 3);
+    Bmemcpy(&w->bigportal[15], &s->ceil.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 3);
 
-    Bmemcpy(&w->cap[0], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    Bmemcpy(&w->cap[3], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    Bmemcpy(&w->cap[6], &s->ceil.buffer[(wal->point2 - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    Bmemcpy(&w->cap[9], &s->ceil.buffer[(wallnum - sec->wallptr) * 5], sizeof(GLfloat) * 3);
-    w->cap[7] += 1048576; // this number is the result of 1048574 + 2
-    w->cap[10] += 1048576; // this one is arbitrary
+    //Bmemcpy(&w->cap[0], &s->ceil.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 3);
+    //Bmemcpy(&w->cap[3], &s->ceil.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 3);
+    //Bmemcpy(&w->cap[6], &s->ceil.buffer[wal->point2 - sec->wallptr], sizeof(GLfloat) * 3);
+    //Bmemcpy(&w->cap[9], &s->ceil.buffer[wallnum - sec->wallptr], sizeof(GLfloat) * 3);
+    //w->cap[7] += 1048576; // this number is the result of 1048574 + 2
+    //w->cap[10] += 1048576; // this one is arbitrary
 
     if (w->underover & 1)
         polymer_computeplane(&w->wall);
@@ -3236,20 +3309,33 @@ static void         polymer_updatewall(int16_t wallnum)
 
     if ((pr_vbos > 0))
     {
-		if (pr_nullrender < 2)
-		{
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->wall.vbo);
-			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, w->wall.buffer);
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->over.vbo);
-			if (w->over.buffer)
-				bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, w->over.buffer);
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->mask.vbo);
-			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, w->mask.buffer);
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
-			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, w->bigportal);
-			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat)* 5, 4 * sizeof(GLfloat)* 3, w->cap);
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		}
+        if (pr_nullrender < 2)
+        {
+            const GLintptrARB thiswalloffset = prwalldataoffset + (prwalldatasize * wallnum);
+            const GLintptrARB thisoveroffset = thiswalloffset + proneplanesize;
+            const GLintptrARB thismaskoffset = thisoveroffset + proneplanesize;
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prmapvbo);
+            bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, thiswalloffset, proneplanesize, w->wall.buffer);
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prmapvbo);
+            if (w->over.buffer)
+                bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, thisoveroffset, proneplanesize, w->over.buffer);
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prmapvbo);
+            bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, thismaskoffset, proneplanesize, w->mask.buffer);
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
+            bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, w->bigportal);
+            //bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat)* 5, 4 * sizeof(GLfloat)* 3, w->cap);
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+            w->wall.mapvbo_vertoffset = thiswalloffset;
+            w->over.mapvbo_vertoffset = thisoveroffset;
+            w->mask.mapvbo_vertoffset = thismaskoffset;
+        }
+    }
+    else
+    {
+        w->wall.mapvbo_vertoffset = -1;
+        w->over.mapvbo_vertoffset = -1;
+        w->mask.mapvbo_vertoffset = -1;
     }
 
     w->flags.empty = 0;
@@ -3310,27 +3396,27 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
             polymer_drawplane(&w->mask);
     }
 
-    if (!searchit && (sector[sectnum].ceilingstat & 1) &&
-        ((wall[wallnum].nextsector < 0) ||
-        !(sector[wall[wallnum].nextsector].ceilingstat & 1)))
-    {
-        bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    //if (!searchit && (sector[sectnum].ceilingstat & 1) &&
+    //    ((wall[wallnum].nextsector < 0) ||
+    //    !(sector[wall[wallnum].nextsector].ceilingstat & 1)))
+    //{
+    //    bglColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-        if (pr_vbos)
-        {
-            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
-            bglVertexPointer(3, GL_FLOAT, 0, (const GLvoid*)(4 * sizeof(GLfloat) * 5));
-        }
-        else
-            bglVertexPointer(3, GL_FLOAT, 0, w->cap);
+    //    if (pr_vbos)
+    //    {
+    //        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, w->stuffvbo);
+    //        bglVertexPointer(3, GL_FLOAT, 0, (const GLvoid*)(4 * sizeof(GLfloat) * 5));
+    //    }
+    //    else
+    //        bglVertexPointer(3, GL_FLOAT, 0, w->cap);
 
-        bglDrawArrays(GL_QUADS, 0, 4);
+    //    bglDrawArrays(GL_QUADS, 0, 4);
 
-        if (pr_vbos)
-            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+    //    if (pr_vbos)
+    //        bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
-        bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    }
+    //    bglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    //}
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Finished drawing wall %i...\n", wallnum);
 }
@@ -3340,7 +3426,7 @@ static void         polymer_computeplane(_prplane* p)
 {
     GLfloat         vec1[5], vec2[5], norm, r;// BxN[3], NxT[3], TxB[3];
     int32_t         i;
-    GLfloat*        buffer;
+    _prvert*        buffer;
     GLfloat*        plane;
 
     if (p->indices && (p->indicescount < 3))
@@ -3352,17 +3438,17 @@ static void         polymer_computeplane(_prplane* p)
     i = 0;
     do
     {
-        vec1[0] = buffer[(INDICE(1)) + 0] - buffer[(INDICE(0)) + 0]; //x1
-        vec1[1] = buffer[(INDICE(1)) + 1] - buffer[(INDICE(0)) + 1]; //y1
-        vec1[2] = buffer[(INDICE(1)) + 2] - buffer[(INDICE(0)) + 2]; //z1
-        vec1[3] = buffer[(INDICE(1)) + 3] - buffer[(INDICE(0)) + 3]; //s1
-        vec1[4] = buffer[(INDICE(1)) + 4] - buffer[(INDICE(0)) + 4]; //t1
+        vec1[0] = buffer[(INDICE(1))].x - buffer[(INDICE(0))].x; //x1
+        vec1[1] = buffer[(INDICE(1))].y - buffer[(INDICE(0))].y; //y1
+        vec1[2] = buffer[(INDICE(1))].z - buffer[(INDICE(0))].z; //z1
+        vec1[3] = buffer[(INDICE(1))].u - buffer[(INDICE(0))].u; //s1
+        vec1[4] = buffer[(INDICE(1))].v - buffer[(INDICE(0))].v; //t1
 
-        vec2[0] = buffer[(INDICE(2)) + 0] - buffer[(INDICE(1)) + 0]; //x2
-        vec2[1] = buffer[(INDICE(2)) + 1] - buffer[(INDICE(1)) + 1]; //y2
-        vec2[2] = buffer[(INDICE(2)) + 2] - buffer[(INDICE(1)) + 2]; //z2
-        vec2[3] = buffer[(INDICE(2)) + 3] - buffer[(INDICE(1)) + 3]; //s2
-        vec2[4] = buffer[(INDICE(2)) + 4] - buffer[(INDICE(1)) + 4]; //t2
+        vec2[0] = buffer[(INDICE(2))].x - buffer[(INDICE(1))].x; //x2
+        vec2[1] = buffer[(INDICE(2))].y - buffer[(INDICE(1))].y; //y2
+        vec2[2] = buffer[(INDICE(2))].z - buffer[(INDICE(1))].z; //z2
+        vec2[3] = buffer[(INDICE(2))].u - buffer[(INDICE(1))].u; //s2
+        vec2[4] = buffer[(INDICE(2))].v - buffer[(INDICE(1))].v; //t2
 
         polymer_crossproduct(vec2, vec1, plane);
 
@@ -3380,7 +3466,7 @@ static void         polymer_computeplane(_prplane* p)
             plane[0] *= norm;
             plane[1] *= norm;
             plane[2] *= norm;
-            plane[3] = -(plane[0] * buffer[0] + plane[1] * buffer[1] + plane[2] * buffer[2]);
+            plane[3] = -(plane[0] * buffer->x + plane[1] * buffer->y + plane[2] * buffer->z);
 
             // calculate T and B
             r = 1.0 / (vec1[3] * vec2[4] - vec2[3] * vec1[4]);
@@ -3509,16 +3595,14 @@ static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum)
 
     do
     {
-        int32_t ii = i << 2;
+        int32_t ii = i * 4;
         j = k = plane->vertcount - 1;
        
         do
         {
-            uint32_t jj = j + (j << 2);
-
-            k -= ((frustum[ii + 0] * plane->buffer[jj + 0] +
-                   frustum[ii + 1] * plane->buffer[jj + 1] +
-                   frustum[ii + 2] * plane->buffer[jj + 2] +
+            k -= ((frustum[ii + 0] * plane->buffer[j].x +
+                   frustum[ii + 1] * plane->buffer[j].y +
+                   frustum[ii + 2] * plane->buffer[j].z +
                    frustum[ii + 3]) < 0.f);
         }
         while (j--);
@@ -3558,7 +3642,7 @@ void                polymer_updatesprite(int32_t snum)
     tspritetype      *tspr = tspriteptr[snum];
     float           xratio, yratio, ang, f;
     float           spos[3];
-    const GLfloat   *inbuffer;
+    const _prvert   *inbuffer;
     uint8_t         flipu, flipv;
     _prsprite       *s;
 
@@ -3566,7 +3650,7 @@ void                polymer_updatesprite(int32_t snum)
     const uint32_t alignmask = (cs & SPR_ALIGN_MASK);
     const uint8_t flooraligned = (alignmask==SPR_FLOOR);
 
-	if (pr_nullrender >= 3) return;
+    if (pr_nullrender >= 3) return;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updating sprite %i...\n", snum);
 
@@ -3576,18 +3660,20 @@ void                polymer_updatesprite(int32_t snum)
     {
         prsprites[tspr->owner] = (_prsprite *)Xcalloc(sizeof(_prsprite), 1);
 
-        prsprites[tspr->owner]->plane.buffer = (GLfloat *)Xcalloc(4, sizeof(GLfloat) * 5);  // XXX
+        prsprites[tspr->owner]->plane.buffer = (_prvert *)Xcalloc(4, sizeof(_prvert));  // XXX
         prsprites[tspr->owner]->plane.vertcount = 4;
+
+        prsprites[tspr->owner]->plane.mapvbo_vertoffset = -1;
     }
 
     if ((tspr->cstat & 48) && (pr_vbos > 0) && !prsprites[tspr->owner]->plane.vbo)
     {
-		if (pr_nullrender < 2)
-		{
-			bglGenBuffersARB(1, &prsprites[tspr->owner]->plane.vbo);
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prsprites[tspr->owner]->plane.vbo);
-			bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat)* 5, NULL, mapvbousage);
-		}
+        if (pr_nullrender < 2)
+        {
+            bglGenBuffersARB(1, &prsprites[tspr->owner]->plane.vbo);
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prsprites[tspr->owner]->plane.vbo);
+            bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(_prvert), NULL, mapvbousage);
+        }
     }
 
     s = prsprites[tspr->owner];
@@ -3729,7 +3815,7 @@ void                polymer_updatesprite(int32_t snum)
     bglGetFloatv(GL_MODELVIEW_MATRIX, spritemodelview);
     bglPopMatrix();
 
-    Bmemcpy(s->plane.buffer, inbuffer, sizeof(GLfloat) * 4 * 5);
+    Bmemcpy(s->plane.buffer, inbuffer, sizeof(_prvert) * 4);
 
     if (flipu || flipv)
     {
@@ -3737,36 +3823,36 @@ void                polymer_updatesprite(int32_t snum)
         do
         {
             if (flipu)
-                s->plane.buffer[(i * 5) + 3] =
-                (s->plane.buffer[(i * 5) + 3] - 1.0f) * -1.0f;
+                s->plane.buffer[i].u =
+                (s->plane.buffer[i].u - 1.0f) * -1.0f;
             if (flipv)
-                s->plane.buffer[(i * 5) + 4] =
-                (s->plane.buffer[(i * 5) + 4] - 1.0f) * -1.0f;
+                s->plane.buffer[i].v =
+                (s->plane.buffer[i].v - 1.0f) * -1.0f;
         }
         while (++i < 4);
     }
 
     i = 0;
     do
-        polymer_transformpoint(&inbuffer[i * 5], &s->plane.buffer[i * 5], spritemodelview);
+        polymer_transformpoint(&inbuffer[i].x, &s->plane.buffer[i].x, spritemodelview);
     while (++i < 4);
 
     polymer_computeplane(&s->plane);
 
-	if (pr_nullrender < 2)
-	{
-		if (alignmask && (pr_vbos > 0))
-		{
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->plane.vbo);
-			bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(GLfloat)* 5, s->plane.buffer);
-			bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		}
-		else if (s->plane.vbo) // clean up the vbo if a wall/floor sprite becomes a face sprite
-		{
-			bglDeleteBuffersARB(1, &s->plane.vbo);
-			s->plane.vbo = 0;
-		}
-	}
+    if (pr_nullrender < 2)
+    {
+        if (alignmask && (pr_vbos > 0))
+        {
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->plane.vbo);
+            bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, 4 * sizeof(_prvert), s->plane.buffer);
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        }
+        else if (s->plane.vbo) // clean up the vbo if a wall/floor sprite becomes a face sprite
+        {
+            bglDeleteBuffersARB(1, &s->plane.vbo);
+            s->plane.vbo = 0;
+        }
+    }
 
     if (alignmask)
     {
@@ -5554,8 +5640,8 @@ static int32_t      polymer_planeinlight(_prplane* plane, _prlight* light)
 
         do
         {
-            if (plane->buffer[(j * 5) + i] > (lightpos[i] + light->range)) k++;
-            if (plane->buffer[(j * 5) + i] < (lightpos[i] - light->range)) l++;
+            if ((&plane->buffer[j].x)[i] > (lightpos[i] + light->range)) k++;
+            if ((&plane->buffer[j].x)[i] < (lightpos[i] - light->range)) l++;
         }
         while (++j < plane->vertcount);
 
@@ -5759,8 +5845,8 @@ static inline void  polymer_culllight(int16_t lighti)
             if (wallvisible(light->x, light->y, sec->wallptr + i) &&
                 (j == 2 || polymer_planeinlight(&w->mask, light))) {
                 if ((w->mask.vertcount == 4) &&
-                    (w->mask.buffer[(0 * 5) + 1] >= w->mask.buffer[(3 * 5) + 1]) &&
-                    (w->mask.buffer[(1 * 5) + 1] >= w->mask.buffer[(2 * 5) + 1]))
+                    (w->mask.buffer[0].y >= w->mask.buffer[3].y) &&
+                    (w->mask.buffer[1].y >= w->mask.buffer[2].y))
                 {
                     i++;
                     continue;
@@ -5998,7 +6084,10 @@ void PR_CALLBACK    polymer_debugoutputcallback(GLenum source,GLenum type,GLuint
     UNREFERENCED_PARAMETER(length);
     UNREFERENCED_PARAMETER(userParam);
 
-    OSD_Printf("PR : Received OpenGL debug message: %s\n", message);
+    if (type == GL_DEBUG_TYPE_ERROR_ARB)
+    {
+        OSD_Printf("PR : Received OpenGL debug message: %s\n", message);
+    }
 }
 
 #endif
