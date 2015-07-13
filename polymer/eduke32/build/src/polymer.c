@@ -2161,7 +2161,7 @@ static void         polymer_drawplane(_prplane* plane)
     else
     {
         planevbo = plane->vbo;
-        geomfbooffset = NULL;
+        geomfbooffset = 0;
     }
 
     if (planevbo && (pr_vbos > 0))
