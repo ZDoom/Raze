@@ -35,6 +35,7 @@ extern int32_t      pr_billboardingmode;
 extern int32_t      pr_verbosity;
 extern int32_t      pr_wireframe;
 extern int32_t      pr_vbos;
+extern int32_t      pr_buckets;
 extern int32_t      pr_gpusmoothing;
 extern int32_t      pr_overrideparallax;
 extern float        pr_parallaxscale;
@@ -189,6 +190,22 @@ typedef struct      s_prprogrambit {
     const char*           frag_prog;
 }                   _prprogrambit;
 
+typedef struct      s_prbucket {
+    // index
+    int16_t         tilenum;
+    char            pal;
+
+    _prmaterial     material;
+    int32_t         invalidmaterial;
+
+    // geom indices
+    GLuint*          indices;
+    uint32_t         count;
+    uint32_t         buffersize;
+
+    struct s_prbucket* next;
+}                   _prbucket;
+
 #include "prlights.h"
 
 // RENDER TARGETS
@@ -219,7 +236,8 @@ typedef struct      s_prplane {
     _prvert*        buffer;
     int32_t         vertcount;
     GLuint          vbo;
-    int32_t         mapvbo_vertoffset;
+    uint32_t        mapvbo_vertoffset;
+    _prbucket*      bucket;
     // attributes
     GLfloat         tbn[3][3];
     GLfloat         plane[4];
@@ -373,6 +391,9 @@ static inline int32_t polymer_eligible_for_artmap(int32_t tilenum, const pthtyp 
 
 // CORE
 static void         polymer_displayrooms(int16_t sectnum);
+static void         polymer_emptybuckets(void);
+static _prbucket*   polymer_findbucket(int16_t tilenum, char pal);
+static void         polymer_bucketplane(_prplane* plane);
 static void         polymer_drawplane(_prplane* plane);
 static inline void  polymer_inb4mirror(_prvert* buffer, GLfloat* plane);
 static void         polymer_animatesprites(void);
@@ -411,7 +432,7 @@ static void         polymer_drawmdsprite(tspritetype *tspr);
 static void         polymer_loadmodelvbos(md3model_t* m);
 // MATERIALS
 static void         polymer_getscratchmaterial(_prmaterial* material);
-static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int8_t vis, int32_t cmeth);
+static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int8_t vis, int32_t cmeth);
 static int32_t      polymer_bindmaterial(const _prmaterial *material, int16_t* lights, int lightcount);
 static void         polymer_unbindmaterial(int32_t programbits);
 static void         polymer_compileprogram(int32_t programbits);

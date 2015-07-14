@@ -26,6 +26,7 @@ int32_t         pr_billboardingmode = 1;
 int32_t         pr_verbosity = 1;       // 0: silent, 1: errors and one-times, 2: multiple-times, 3: flood
 int32_t         pr_wireframe = 0;
 int32_t         pr_vbos = 2;
+int32_t         pr_buckets = 0;
 int32_t         pr_gpusmoothing = 1;
 int32_t         pr_overrideparallax = 0;
 float           pr_parallaxscale = 0.1f;
@@ -72,6 +73,9 @@ GLuint          prmapvbo;
 const GLsizeiptrARB proneplanesize = sizeof(_prvert) * 4;
 const GLintptrARB prwalldatasize = sizeof(_prvert)* 4 * 3; // wall, over and mask planes for every wall
 GLintptrARB prwalldataoffset;
+
+_prbucket       *prbuckethead;
+int32_t         prcanbucket;
 
 static const _prvert  vertsprite[4] =
 {
@@ -1016,7 +1020,7 @@ void                polymer_loadboard(void)
 
     bglGenBuffersARB(1, &prmapvbo);
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prmapvbo);
-    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, prwalldataoffset + numwalls * prwalldatasize, NULL, mapvbousage);
+    bglBufferDataARB(GL_ARRAY_BUFFER_ARB, prwalldataoffset + (numwalls * prwalldatasize), NULL, mapvbousage);
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
     i = 0;
@@ -1169,6 +1173,8 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
             (daposz > cursectflorz) ||
             (daposz < cursectceilz))
     {
+        prcanbucket = 1;
+
         if (!editstatus && pr_verbosity>=1)
         {
             if ((unsigned)dacursectnum < (unsigned)numsectors)
@@ -1194,6 +1200,9 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
             polymer_drawwall(sectorofwall(i), i);
             i--;
         }
+
+        polymer_emptybuckets();
+
         viewangle = daang;
         enddrawing();
         return;
@@ -1789,6 +1798,8 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
     // depth-only occlusion testing pass
 //     overridematerial = 0;
 
+    prcanbucket = 1;
+
     while (front != back)
     {
         sec = (tsectortype *)&sector[sectorqueue[front]];
@@ -1978,6 +1989,8 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
         front++;
     }
 
+    polymer_emptybuckets();
+
     // do the actual shaded drawing
 //     overridematerial = 0xFFFFFFFF;
 
@@ -2102,6 +2115,116 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
     return;
 }
 
+static void         polymer_emptybuckets(void)
+{
+    _prbucket *bucket = prbuckethead;
+
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prmapvbo);
+    bglVertexPointer(3, GL_FLOAT, sizeof(_prvert), NULL);
+    bglTexCoordPointer(2, GL_FLOAT, sizeof(_prvert), (GLvoid *)(3 * sizeof(GLfloat)));
+
+    while (bucket != NULL)
+    {
+        if (bucket->count == 0)
+        {
+            bucket = bucket->next;
+            continue;
+        }
+
+        int32_t materialbits = polymer_bindmaterial(&bucket->material, NULL, 0);
+
+        bglDrawElements(GL_TRIANGLES, bucket->count, GL_UNSIGNED_INT, bucket->indices);
+
+        polymer_unbindmaterial(materialbits);
+
+        bucket->count = 0;
+
+        bucket = bucket->next;
+    }
+
+    bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+    prcanbucket = 0;
+}
+
+static _prbucket*   polymer_findbucket(int16_t tilenum, char pal)
+{
+    _prbucket *bucketptr = prbuckethead;
+
+    // find bucket
+    while (bucketptr != NULL)
+    {
+        if (bucketptr->tilenum == tilenum && bucketptr->pal == pal)
+            break;
+
+        bucketptr = bucketptr->next;
+    }
+
+    // no buckets or no bucket found, create one
+    if (bucketptr == NULL)
+    {
+        bucketptr = (_prbucket *)Xmalloc(sizeof (_prbucket));
+
+        // insert, since most likely to use same pattern next frame
+        // will need to reorder by MRU first every once in a while
+        // or move to hashing lookup
+        bucketptr->next = prbuckethead;
+        prbuckethead = bucketptr;
+
+        bucketptr->tilenum = tilenum;
+        bucketptr->pal = pal;
+
+        bucketptr->invalidmaterial = 1;
+
+        bucketptr->count = 0;
+        bucketptr->buffersize = 1024;
+        bucketptr->indices = (GLuint *)Xmalloc(bucketptr->buffersize * sizeof(GLuint));
+    }
+
+    return bucketptr;
+}
+
+static void         polymer_bucketplane(_prplane* plane)
+{
+    _prbucket *bucketptr = plane->bucket;
+    uint32_t neededindicecount;
+    uint32_t i;
+
+    // we don't keep buffers for quads
+    neededindicecount = (plane->indicescount == 0) ? 6 : plane->indicescount;
+
+    // ensure size
+    while (bucketptr->count + neededindicecount >= bucketptr->buffersize)
+    {
+        bucketptr->buffersize *= 2;
+        bucketptr->indices = (GLuint *)Xrealloc(bucketptr->indices, bucketptr->buffersize * sizeof(GLuint));
+    }
+
+    // queue indices
+    i = 0;
+
+    if (plane->indicescount > 0)
+    {
+        while (i < plane->indicescount)
+        {
+            bucketptr->indices[bucketptr->count] = plane->indices[i] + plane->mapvbo_vertoffset;
+            bucketptr->count++;
+            i++;
+        }
+    }
+    else
+    {
+        static const uint32_t quadindices[6] = { 0, 1, 2, 0, 2, 3 };
+
+        while (i < 6)
+        {
+            bucketptr->indices[bucketptr->count] = quadindices[i] + plane->mapvbo_vertoffset;
+            bucketptr->count++;
+            i++;
+        }
+    }
+}
+
 static void         polymer_drawplane(_prplane* plane)
 {
     int32_t         materialbits;
@@ -2148,6 +2271,12 @@ static void         polymer_drawplane(_prplane* plane)
 //     bglEnd();
 //     bglEnable(GL_TEXTURE_2D);
 
+    if (pr_buckets && pr_vbos > 0 && prcanbucket && plane->bucket)
+    {
+        polymer_bucketplane(plane);
+        return;
+    }
+
     bglNormal3f((float)(plane->plane[0]), (float)(plane->plane[1]), (float)(plane->plane[2]));
 
     GLuint planevbo;
@@ -2156,7 +2285,7 @@ static void         polymer_drawplane(_prplane* plane)
     if (plane->mapvbo_vertoffset != -1)
     {
         planevbo = prmapvbo;
-        geomfbooffset = plane->mapvbo_vertoffset;
+        geomfbooffset = plane->mapvbo_vertoffset * sizeof(_prvert);
     }
     else
     {
@@ -2587,7 +2716,10 @@ attributes:
                 bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 0, sec->wallnum * sizeof(GLfloat)* 5, s->ceil.buffer);
                 */
 
-                GLintptrARB sector_offset = sec->wallptr * 2 * sizeof(_prvert);
+                s->floor.mapvbo_vertoffset = sec->wallptr * 2;
+                s->ceil.mapvbo_vertoffset = s->floor.mapvbo_vertoffset + sec->wallnum;
+
+                GLintptrARB sector_offset = s->floor.mapvbo_vertoffset * sizeof(_prvert);
                 GLsizeiptrARB cur_sector_size = sec->wallnum * sizeof(_prvert);
                 bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prmapvbo);
                 // floor
@@ -2595,9 +2727,6 @@ attributes:
                 // ceiling
                 bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, sector_offset + cur_sector_size, cur_sector_size, s->ceil.buffer);
                 bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
-                s->floor.mapvbo_vertoffset = sector_offset;
-                s->ceil.mapvbo_vertoffset = sector_offset + cur_sector_size;
             }
         }
         else
@@ -2613,7 +2742,7 @@ attributes:
             !Bmemcmp(&s->ceilingstat, &sec->ceilingstat, offsetof(sectortype, visibility) - offsetof(sectortype, ceilingstat)))
         goto finish;
 
-    polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade, sec->visibility, 0);
+    s->floor.bucket = polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade, sec->visibility, 0);
 
     if (sec->floorstat & 256) {
         if (sec->floorstat & 128) {
@@ -2623,7 +2752,7 @@ attributes:
         }
     }
 
-    polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade, sec->visibility, 0);
+    s->ceil.bucket = polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade, sec->visibility, 0);
 
     if (sec->ceilingstat & 256) {
         if (sec->ceilingstat & 128) {
@@ -3046,7 +3175,7 @@ static void         polymer_updatewall(int16_t wallnum)
         else
             curpicnum = walloverpicnum;
 
-        polymer_getbuildmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
+        w->wall.bucket = polymer_getbuildmaterial(&w->wall.material, curpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
 
         if (wal->cstat & 4)
             yref = sec->floorz;
@@ -3116,7 +3245,7 @@ static void         polymer_updatewall(int16_t wallnum)
             curxpanning = wall[refwall].xpanning;
             curypanning = wall[refwall].ypanning;
 
-            polymer_getbuildmaterial(&w->wall.material, curpicnum, curpal, curshade, sec->visibility, DAMETH_WALL);
+            w->wall.bucket = polymer_getbuildmaterial(&w->wall.material, curpicnum, curpal, curshade, sec->visibility, DAMETH_WALL);
 
             if (!(wall[refwall].cstat&4))
                 yref = nsec->floorz;
@@ -3183,12 +3312,12 @@ static void         polymer_updatewall(int16_t wallnum)
             else
                 curpicnum = wallpicnum;
 
-            polymer_getbuildmaterial(&w->over.material, curpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
+            w->over.bucket = polymer_getbuildmaterial(&w->over.material, curpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
 
             if ((wal->cstat & 16) || (wal->cstat & 32))
             {
                 // mask
-                polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
+                w->mask.bucket = polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
 
                 if (wal->cstat & 128)
                 {
@@ -3326,9 +3455,9 @@ static void         polymer_updatewall(int16_t wallnum)
             //bglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(GLfloat)* 5, 4 * sizeof(GLfloat)* 3, w->cap);
             bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
-            w->wall.mapvbo_vertoffset = thiswalloffset;
-            w->over.mapvbo_vertoffset = thisoveroffset;
-            w->mask.mapvbo_vertoffset = thismaskoffset;
+            w->wall.mapvbo_vertoffset = thiswalloffset / sizeof(_prvert);
+            w->over.mapvbo_vertoffset = thisoveroffset / sizeof(_prvert);
+            w->mask.mapvbo_vertoffset = thismaskoffset / sizeof(_prvert);
         }
     }
     else
@@ -4650,10 +4779,14 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->mdspritespace = GL_FALSE;
 }
 
-static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int8_t vis, int32_t cmeth)
+static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int8_t vis, int32_t cmeth)
 {
     pthtyp*         pth;
     int32_t         usinghighpal = 0;
+    _prbucket*      bucketptr;
+
+    // find corresponding bucket; XXX key that with pr_buckets later, need to be tied to restartvid
+    bucketptr = polymer_findbucket(tilenum, pal);
 
     polymer_getscratchmaterial(material);
 
@@ -4760,7 +4893,8 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->shadeoffset = shade;
         material->visibility = ((uint8_t)(vis+16) / 16.0f);
 
-        return;
+        // all the stuff below is mutually exclusive with artmapping
+        goto done;
     }
 
     // PR_BIT_HIGHPALOOKUP_MAP
@@ -4837,6 +4971,15 @@ static void         polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->normalbias[0] = pth->hicr->specpower;
         material->normalbias[1] = pth->hicr->specfactor;
     }
+
+done:
+    if (bucketptr->invalidmaterial != 0)
+    {
+        bucketptr->material = *material;
+        bucketptr->invalidmaterial = 0;
+    }
+
+    return bucketptr;
 }
 
 static int32_t      polymer_bindmaterial(const _prmaterial *material, int16_t* lights, int matlightcount)
