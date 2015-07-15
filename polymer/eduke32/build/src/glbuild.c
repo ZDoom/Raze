@@ -178,6 +178,12 @@ bglBufferSubDataARBProcPtr bglBufferSubDataARB;
 bglMapBufferARBProcPtr bglMapBufferARB;
 bglUnmapBufferARBProcPtr bglUnmapBufferARB;
 
+// ARB_buffer_storage
+bglBufferStorageProcPtr bglBufferStorage;
+
+// ARB_map_buffer_range
+bglMapBufferRangeProcPtr bglMapBufferRange;
+
 // Occlusion queries
 bglGenQueriesARBProcPtr bglGenQueriesARB;
 bglDeleteQueriesARBProcPtr bglDeleteQueriesARB;
@@ -579,6 +585,12 @@ int32_t loadglextensions(void)
     bglMapBufferARB = (bglMapBufferARBProcPtr) GETPROCEXTSOFT("glMapBufferARB");
     bglUnmapBufferARB = (bglUnmapBufferARBProcPtr) GETPROCEXTSOFT("glUnmapBufferARB");
 
+    // ARB_buffer_storage
+    bglBufferStorage = (bglBufferStorageProcPtr)GETPROCEXTSOFT("glBufferStorage");
+
+    // ARB_map_buffer_range
+    bglMapBufferRange = (bglMapBufferRangeProcPtr)GETPROCEXTSOFT("glMapBufferRange");
+
     // Occlusion queries
     bglGenQueriesARB = (bglGenQueriesARBProcPtr) GETPROCEXTSOFT("glGenQueriesARB");
     bglDeleteQueriesARB = (bglDeleteQueriesARBProcPtr) GETPROCEXTSOFT("glDeleteQueriesARB");
@@ -885,6 +897,12 @@ int32_t unloadgldriver(void)
     bglBufferSubDataARB = (bglBufferSubDataARBProcPtr) NULL;
     bglMapBufferARB = (bglMapBufferARBProcPtr) NULL;
     bglUnmapBufferARB = (bglUnmapBufferARBProcPtr) NULL;
+
+    // ARB_buffer_storage
+    bglBufferStorage = (bglBufferStorageProcPtr) NULL;
+
+    // ARB_map_buffer_range
+    bglMapBufferRange = (bglMapBufferRangeProcPtr)NULL;
 
     // Occlusion queries
     bglGenQueriesARB = (bglGenQueriesARBProcPtr) NULL;

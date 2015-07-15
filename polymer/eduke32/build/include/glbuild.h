@@ -492,6 +492,14 @@ extern bglMapBufferARBProcPtr bglMapBufferARB;
 typedef GLboolean   (APIENTRY * bglUnmapBufferARBProcPtr)(GLenum target);
 extern bglUnmapBufferARBProcPtr bglUnmapBufferARB;
 
+// ARB_buffer_storage
+typedef void        (APIENTRY * bglBufferStorageProcPtr)(GLenum target, GLintptrARB size, const GLvoid * data, GLbitfield flags);
+extern bglBufferStorageProcPtr bglBufferStorage;
+
+// ARB_map_buffer_range
+typedef void*       (APIENTRY * bglMapBufferRangeProcPtr) (GLenum target, GLintptr offset, GLsizeiptr length, GLbitfield access);
+extern bglMapBufferRangeProcPtr bglMapBufferRange;
+
 // Occlusion queries
 typedef void (APIENTRY * bglGenQueriesARBProcPtr)(GLsizei n, GLuint *ids);
 extern bglGenQueriesARBProcPtr bglGenQueriesARB;

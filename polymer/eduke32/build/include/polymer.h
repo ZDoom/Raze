@@ -202,6 +202,7 @@ typedef struct      s_prbucket {
     GLuint*          indices;
     uint32_t         count;
     uint32_t         buffersize;
+    GLuint*          indiceoffset;
 
     struct s_prbucket* next;
 }                   _prbucket;

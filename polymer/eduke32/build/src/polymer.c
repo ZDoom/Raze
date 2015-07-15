@@ -74,6 +74,13 @@ const GLsizeiptrARB proneplanesize = sizeof(_prvert) * 4;
 const GLintptrARB prwalldatasize = sizeof(_prvert)* 4 * 3; // wall, over and mask planes for every wall
 GLintptrARB prwalldataoffset;
 
+GLuint          prindexringvbo;
+GLuint          *prindexring;
+const GLsizeiptrARB prindexringsize = 65535;
+GLintptrARB prindexringoffset;
+
+const GLbitfield prindexringmapflags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+
 _prbucket       *prbuckethead;
 int32_t         prcanbucket;
 
@@ -846,7 +853,7 @@ int32_t             polymer_init(void)
     if (glinfo.debugoutput) {
         // Enable everything.
         bglDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE);
-        bglDebugMessageCallbackARB(polymer_debugoutputcallback, NULL);
+        bglDebugMessageCallbackARB((GLDEBUGPROCARB)polymer_debugoutputcallback, NULL);
         bglEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
     }
 #endif
@@ -1022,6 +1029,14 @@ void                polymer_loadboard(void)
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prmapvbo);
     bglBufferDataARB(GL_ARRAY_BUFFER_ARB, prwalldataoffset + (numwalls * prwalldatasize), NULL, mapvbousage);
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+    bglGenBuffersARB(1, &prindexringvbo);
+    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, prindexringvbo);
+
+    bglBufferStorage(GL_ELEMENT_ARRAY_BUFFER, prindexringsize * sizeof(GLuint), NULL, prindexringmapflags | GL_DYNAMIC_STORAGE_BIT);
+    prindexring = (GLuint*)bglMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, prindexringsize * sizeof(GLuint), prindexringmapflags);
+
+    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     i = 0;
     while (i < numsectors)
@@ -1815,7 +1830,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
         {
             // if we have a level boundary somewhere in the sector,
             // consider these walls as visportals
-            if (wall[sec->wallptr + i].nextsector < 0)
+            if (wall[sec->wallptr + i].nextsector < 0 && pr_buckets == 0)
                 doquery = 1;
         }
         while (--i >= 0);
@@ -2123,6 +2138,46 @@ static void         polymer_emptybuckets(void)
     bglVertexPointer(3, GL_FLOAT, sizeof(_prvert), NULL);
     bglTexCoordPointer(2, GL_FLOAT, sizeof(_prvert), (GLvoid *)(3 * sizeof(GLfloat)));
 
+    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, prindexringvbo);
+
+    uint32_t indexcount = 0;
+    while (bucket != NULL)
+    {
+        indexcount += bucket->count;
+
+        bucket = bucket->next;
+    }
+
+    // ensure space in index ring, wrap otherwise
+    if (indexcount + prindexringoffset >= prindexringsize)
+    {
+        bglUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER);
+        prindexring = (GLuint *)bglMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, prindexringsize * sizeof(GLuint), GL_MAP_INVALIDATE_BUFFER_BIT | prindexringmapflags);
+        prindexringoffset = 0;
+    }
+
+    // put indices in the ring, all at once
+    bucket = prbuckethead;
+
+    while (bucket != NULL)
+    {
+        if (bucket->count == 0)
+        {
+            bucket = bucket->next;
+            continue;
+        }
+
+        memcpy(&prindexring[prindexringoffset], bucket->indices, bucket->count * sizeof(GLuint));
+
+        bucket->indiceoffset = (GLuint*)(prindexringoffset * sizeof(GLuint));
+
+        prindexringoffset += bucket->count;
+
+        bucket = bucket->next;
+    }
+
+    bucket = prbuckethead;
+
     while (bucket != NULL)
     {
         if (bucket->count == 0)
@@ -2133,7 +2188,7 @@ static void         polymer_emptybuckets(void)
 
         int32_t materialbits = polymer_bindmaterial(&bucket->material, NULL, 0);
 
-        bglDrawElements(GL_TRIANGLES, bucket->count, GL_UNSIGNED_INT, bucket->indices);
+        bglDrawElements(GL_TRIANGLES, bucket->count, GL_UNSIGNED_INT, bucket->indiceoffset);
 
         polymer_unbindmaterial(materialbits);
 
@@ -2142,6 +2197,7 @@ static void         polymer_emptybuckets(void)
         bucket = bucket->next;
     }
 
+    bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
     prcanbucket = 0;

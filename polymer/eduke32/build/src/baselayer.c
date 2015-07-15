@@ -435,6 +435,7 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
                " Occlusion queries:       %s\n"
                " GLSL:                    %s\n"
                " Debug Output:            %s\n"
+               " Buffer Storage:          %s\n"
 #endif
                " Extensions:\n",
                glinfo.maxanisotropy, glinfo.maxanisotropy>1.0?"":" (no anisotropic filtering)",
@@ -456,7 +457,8 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
                glinfo.sm4 ? "supported": "not supported",
                glinfo.occlusionqueries ? "supported": "not supported",
                glinfo.glsl ? "supported": "not supported",
-               glinfo.debugoutput ? "supported": "not supported"
+               glinfo.debugoutput ? "supported": "not supported",
+               glinfo.bufferstorage ? "supported" : "not supported"
 #endif
               );
 

@@ -78,6 +78,7 @@ struct glinfo_t {
     char occlusionqueries;
     char glsl;
     char debugoutput;
+    char bufferstorage;
     char dumped;
 };
 
