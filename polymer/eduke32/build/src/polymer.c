@@ -3207,7 +3207,7 @@ static void         polymer_updatewall(int16_t wallnum)
             w->wall.buffer[i].u = ((dist * 8.0f * wal->xrepeat) + wal->xpanning) / (float)(tilesiz[curpicnum].x);
             w->wall.buffer[i].v = (-(float)(yref + (w->wall.buffer[i].y * 16)) / ((tilesiz[curpicnum].y * 2048.0f) / (float)(wal->yrepeat))) + ypancoef;
 
-            if (wal->cstat & 256) w->wall.buffer[i].u = -w->wall.buffer[i].v;
+            if (wal->cstat & 256) w->wall.buffer[i].v = -w->wall.buffer[i].v;
 
             i++;
         }
