@@ -959,12 +959,13 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                    i, cflabel[j]);
                         heinumcheckstat = 1;
                     }
+/*                  
                     else if (heinumcheckstat==0)
                     {
                         CORRUPTCHK_PRINT(1, CORRUPT_SECTOR|i,
                                          "SECTOR[%d]: inconsistent %sstat&2 and heinum", i, cflabel[j]);
                     }
-
+*/
                     if (heinumcheckstat != 1)
                         heinumcheckstat = 2;
                 }
