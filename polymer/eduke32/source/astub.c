@@ -117,7 +117,7 @@ sound_t g_sounds[MAXSOUNDS];
 static int16_t g_definedsndnum[MAXSOUNDS];  // maps parse order index to g_sounds index
 static int16_t g_sndnum[MAXSOUNDS];  // maps current order index to g_sounds index
 int32_t g_numsounds = 0;
-static int32_t lastupdate, mousecol, mouseadd = 1, bstatus;
+static int32_t lastupdate, mousecol, bstatus;
 
 static int32_t corruptchecktimer;
 static int32_t curcorruptthing=-1;
@@ -2357,30 +2357,13 @@ static void m32_showmouse(void)
 {
     int32_t i, col;
 
-    if (totalclock > lastupdate)
-    {
-        mousecol += mouseadd;
-        if (mousecol >= 30 || mousecol <= 0)
-        {
-            mouseadd = -mouseadd;
-            mousecol += mouseadd;
-        }
-        lastupdate = totalclock + 3;
-    }
+    mousecol = M32_THROB;
 
-    switch (whitecol)
-    {
-    case 1:  // Shadow Warrior
-        col = whitecol+mousecol;
-        break;
-    case 31: // Duke Nukem 3D
-        col = whitecol-mousecol;
-        break;
-    default:
-        col = whitecol;
-        break;
-    }
+    if (whitecol > editorcolors[0])
+        col = whitecol - mousecol;
+    else col = whitecol + mousecol;
 
+    OSD_Printf("%d\n", col);
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
     {
@@ -2389,7 +2372,7 @@ static void m32_showmouse(void)
     }
 #endif
 
-    if (col != whitecol)
+//    if (col != whitecol)
     {
         for (i=((xdim > 640)?3:2); i<=((xdim > 640)?7:3); i++)
         {
@@ -2409,10 +2392,10 @@ static void m32_showmouse(void)
 
         i = (xdim > 640)?8:4;
 
-        plotpixel(searchx+i,searchy,0);
-        plotpixel(searchx-i,searchy,0);
-        plotpixel(searchx,searchy-i,0);
-        plotpixel(searchx,searchy+i,0);
+        plotpixel(searchx+i,searchy,editorcolors[0]);
+        plotpixel(searchx-i,searchy,editorcolors[0]);
+        plotpixel(searchx,searchy-i,editorcolors[0]);
+        plotpixel(searchx,searchy+i,editorcolors[0]);
     }
 
     if (xdim > 640)
@@ -4323,7 +4306,7 @@ static void Keys3d(void)
 #ifdef YAX_ENABLE__COMPAT
                 flags |= (yax_getnextwall(searchwall, YAX_CEILING)>=0) + 2*(yax_getnextwall(searchwall, YAX_FLOOR)>=0);
 #endif
-                drawtileinfo("Current", WIND1X,WIND1Y,
+                drawtileinfo("Selected", WIND1X,WIND1Y,
                              AIMING_AT_WALL ? wall[w].picnum : wall[w].overpicnum,
                              wall[w].shade, wall[w].pal, wall[w].cstat,
                              wall[searchwall].lotag, wall[searchwall].hitag, wall[searchwall].extra, flags);
@@ -4361,7 +4344,7 @@ static void Keys3d(void)
 
             case SEARCH_CEILING:
             case SEARCH_FLOOR:
-                drawtileinfo("Current", WIND1X, WIND1Y, AIMED_CEILINGFLOOR(picnum), AIMED_CEILINGFLOOR(shade),
+                drawtileinfo("Selected", WIND1X, WIND1Y, AIMED_CEILINGFLOOR(picnum), AIMED_CEILINGFLOOR(shade),
                              AIMED_CEILINGFLOOR(pal), AIMED_CEILINGFLOOR(stat),
                              sector[searchsector].lotag, sector[searchsector].hitag, sector[searchsector].extra,0);
 
@@ -4388,7 +4371,7 @@ static void Keys3d(void)
                 break;
 
             case SEARCH_SPRITE:
-                drawtileinfo("Current", WIND1X, WIND1Y, sprite[searchwall].picnum, sprite[searchwall].shade,
+                drawtileinfo("Selected", WIND1X, WIND1Y, sprite[searchwall].picnum, sprite[searchwall].shade,
                              sprite[searchwall].pal, sprite[searchwall].cstat, sprite[searchwall].lotag,
                              sprite[searchwall].hitag, sprite[searchwall].extra,0);
 
@@ -5407,15 +5390,18 @@ static void Keys3d(void)
             int32_t x = (xdim <= 640);
             int32_t chars = Bsprintf(tempbuf, "%2u ms (%3u fps)", howlong, LastCount);
 
+            int32_t const dax = m32_is2d3dmode() ? m32_2d3d.x + XSIZE_2D3D - 3: windowx2;
+            int32_t const day = m32_is2d3dmode() ? m32_2d3d.y + 4 : windowy1;
+
             if (!x)
             {
-                printext256(windowx2-(chars<<3)+1,windowy1+2,0,-1,tempbuf,x);
-                printext256(windowx2-(chars<<3),windowy1+1,COLOR_WHITE,-1,tempbuf,x);
+                printext256(dax-(chars<<3)+1, day+2,0,-1,tempbuf,x);
+                printext256(dax-(chars<<3), day+1,COLOR_WHITE,-1,tempbuf,x);
             }
             else
             {
-                printext256(windowx2-(chars<<2)+1,windowy1+2,0,-1,tempbuf,x);
-                printext256(windowx2-(chars<<2),windowy1+1,COLOR_WHITE,-1,tempbuf,x);
+                printext256(dax-(chars<<2)+1, day+2,0,-1,tempbuf,x);
+                printext256(dax-(chars<<2), day+1,COLOR_WHITE,-1,tempbuf,x);
             }
 
             if (LastSec < thisSec)
@@ -5531,15 +5517,6 @@ static void Keys3d(void)
             enddrawing();
         }
     }
-
-    if (cursectnum>=0 && sector[cursectnum].lotag==2)
-    {
-        if (sector[cursectnum].ceilingpicnum==FLOORSLIME)
-            SetGamePalette(SLIMEPAL);
-        else
-            SetGamePalette(WATERPAL);
-    }
-    else SetGamePalette(BASEPAL);
 
     if (keystatus[buildkeys[BK_MODE2D_3D]])  // Enter
     {
@@ -7892,7 +7869,7 @@ static void InitCustomColors(void)
     for (i = 0; i<256; i++)
     {
         edcol = (palette_t *)&vgapal16[4*i];
-        editorcolors[i] = getclosestcol(edcol->b,edcol->g,edcol->r);
+        editorcolors[i] = getclosestcol_lim(edcol->b,edcol->g,edcol->r, 239);
     }
 }
 
@@ -10232,12 +10209,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 break;
             }
 
-            if (i+16384 != pointhighlight || !(totalclock&32))
-            {
-                shade = sprite[i].shade;
-                if (shade < 6)
-                    shade = 6;
-            }
+            shade = (i+16384 == pointhighlight) ? 7 - (M32_THROB>>1) : sprite[i].shade;
             
             if (m32_sideview)
             {
@@ -10272,7 +10244,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 int32_t radius, col;
                 int32_t xp1, yp1;
 
-                if (sprite[i].picnum != MUSICANDSFX /*|| zoom < 256*/ )
+                if (sprite[i].picnum != MUSICANDSFX /*|| zoom < 256*/ || sprite[i].hitag < 1000)
                     continue;
 
                 if (showambiencesounds==1 && sprite[i].sectnum!=cursectnum)
@@ -10282,12 +10254,17 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 if (m32_sideview)
                     yp1 += getscreenvdisp(sprite[i].z-pos.z, zoom);
 
-                radius = mulscale14(sprite[i].hitag,zoom);
-                col = 6;
-                if (i+16384 == pointhighlight)
-                    if (totalclock & 32) col += (2<<2);
                 drawlinepat = 0xf0f0f0f0;
-                drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, scalescreeny(16384), editorcolors[col]);
+
+                col = editorcolors[6];
+                if (i+16384 == pointhighlight)
+                {
+                    radius = mulscale14(sprite[i].hitag - (M32_THROB<<2), zoom);
+                    col += M32_THROB>>1;
+                }
+                else radius = mulscale14(sprite[i].hitag, zoom);
+
+                drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, scalescreeny(16384), col);
                 drawlinepat = 0xffffffff;
             }
     }
@@ -10481,6 +10458,16 @@ static void Keys2d3d(void)
         //        mapstate = mapstate->prev;
     }
 #endif
+
+    if (cursectnum>=0 && sector[cursectnum].lotag==2)
+    {
+        if (sector[cursectnum].ceilingpicnum==FLOORSLIME)
+            SetGamePalette(SLIMEPAL);
+        else
+            SetGamePalette(WATERPAL);
+    }
+    else SetGamePalette(BASEPAL);
+
     if (keystatus[KEYSC_F10])
     {
         keystatus[KEYSC_F10]=0;

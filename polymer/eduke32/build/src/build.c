@@ -703,11 +703,10 @@ int32_t app_main(int32_t argc, const char **argv)
     Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
     initcrc();
 
-    {
-        const char *defsfile = G_DefFile();
-        if (!loaddefinitionsfile(defsfile))
-            initprintf("Definitions file \"%s\" loaded.\n",defsfile);
-    }
+    const char *defsfile = G_DefFile();
+
+    if (!loaddefinitionsfile(defsfile))
+        initprintf("Definitions file \"%s\" loaded.\n",defsfile);
 
     for (i=0; i < g_defModulesNum; ++i)
         Bfree (g_defModules[i]);
@@ -2101,7 +2100,7 @@ static void duplicate_selected_sectors(void)
         printmessage16("Sectors duplicated, creating %d new bunches.", numyaxbunches-onumyaxbunches);
     else
 #endif
-        printmessage16("Sectors duplicated and stamped.");
+        printmessage16("Sectors duplicated.");
     asksave = 1;
 
 #ifdef YAX_ENABLE
@@ -2133,7 +2132,7 @@ static void duplicate_selected_sprites(void)
 //                setsprite(j,(vec3_t *)&sprite[j]);
             }
 
-        printmessage16("Sprites duplicated and stamped.");
+        printmessage16("Sprites duplicated.");
         asksave = 1;
     }
     else
@@ -3278,8 +3277,10 @@ static void drawspritelabel(int i)
 
     int col = spritecol2d[sprite[i].picnum][0] ? editorcolors[spritecol2d[sprite[i].picnum][0]] : getspritecol(i);
 
-    if ((i == pointhighlight - 16384) && (totalclock & 32))
-        col += 4;
+    if (show2dsprite[i>>3]&pow2char[i&7])
+        col = editorcolors[14] - (M32_THROB>>1);
+    else if (i == pointhighlight - 16384)
+        col += M32_THROB>>2;
     else if (sprite[i].sectnum < 0)
         col = editorcolors[4];  // red
 
@@ -3368,7 +3369,7 @@ void overheadeditor(void)
             zoom = max(zoom, ztarget);
         }
 
-        if (!((vel|angvel|svel) || ztarget != zoom//DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
+        if (!((vel|angvel|svel) || m32_is2d3dmode() || ztarget != zoom//DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
                 || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || keystatus[0x10] || keystatus[0x11]
                 || keystatus[0x48] || keystatus[0x4b] || keystatus[0x4d] || keystatus[0x50]  // keypad keys
                 || bstatus || OSD_IsMoving()))
@@ -3800,7 +3801,7 @@ void overheadeditor(void)
             drawline16(0,searchy, 8,searchy, editorcolors[15]);
 
             // 2d3d mode
-            if (m32_2d3dmode && xdimgame == xdim2d && ydimgame == ydim2d)
+            if (m32_2d3dmode && m32_2d3d_resolutions_match())
             {
                 int bakrendmode = rendmode;
                 vec2_t bdim ={ xdim, ydim };
@@ -3815,33 +3816,57 @@ void overheadeditor(void)
                 if (m32_2d3d.y + YSIZE_2D3D > ydim2d - 4 - STATUS2DSIZ2)
                     m32_2d3d.y = ydim2d - 4 - YSIZE_2D3D - STATUS2DSIZ2;
 
-                setview(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D);
-                clearview(-1);
+                updatesectorz(pos.x, pos.y, pos.z, &cursectnum);
 
-                vec2_t osearch ={ searchx, searchy };
+                if (cursectnum == -1)
+                    updatesector(pos.x, pos.y, &cursectnum);
 
-                searchx -= m32_2d3d.x;
-                searchy -= m32_2d3d.y;
+                if (cursectnum != -1)
+                {
+                    int32_t cz, fz;
 
-                M32_DrawRoomsAndMasks();
-                setview(0, 0, xdim2d-1, ydim2d-1);
+                    getzsofslope(cursectnum, pos.x, pos.y, &cz, &fz);
 
-                rendmode = bakrendmode;
-                xdim = bdim.x;
-                ydim = bdim.y;
-                searchx = osearch.x;
-                searchy = osearch.y;
+                    inpclamp(&pos.z, cz+(4<<8), fz-(4<<8));
 
-                drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, editorcolors[15]);
-                drawline16(m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y  + YSIZE_2D3D, editorcolors[15]);
-                drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
-                drawline16(m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
+                    setview(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D);
+                    clearview(-1);
+
+                    vec2_t osearch ={ searchx, searchy };
+
+                    searchx -= m32_2d3d.x;
+                    searchy -= m32_2d3d.y;
+
+                    M32_DrawRoomsAndMasks();
+                    setview(0, 0, xdim2d-1, ydim2d-1);
+
+                    rendmode = bakrendmode;
+                    xdim = bdim.x;
+                    ydim = bdim.y;
+                    searchx = osearch.x;
+                    searchy = osearch.y;
+
+                    drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, editorcolors[15]);
+                    drawline16(m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y  + YSIZE_2D3D, editorcolors[15]);
+                    drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
+                    drawline16(m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
+                }
             }
 
             if (!m32_is2d3dmode())
             {
                 ////// draw mouse pointer
+
+                col = editorcolors[0];
+
+                drawline16base(searchx+1, searchy+1, +0, -8, +0, -1, col);
+                drawline16base(searchx+1, searchy+1, +0, 1, +0, 8, col);
+
+                drawline16base(searchx+1, searchy+1, -8, 0, -1, 0, col);
+                drawline16base(searchx+1, searchy+1, 1, 0, 8, 0, col);
+
                 col = searchlock ? editorcolors[13] : editorcolors[15 - 3*gridlock];
+
                 if (joinsector[0] >= 0)
                     col = editorcolors[11];
 
@@ -3865,7 +3890,7 @@ void overheadeditor(void)
 
                     Bsprintf(cbuf, "Map corrupt (level %d): %s%d errors", corruptlevel,
                         numcorruptthings>=MAXCORRUPTTHINGS ? ">=" : "", numcorruptthings);
-                    printext16(8, 8, editorcolors[13], editorcolors[0], cbuf, 0);
+                    printext16(8, 8, editorcolors[13]+(M32_THROB>>2), editorcolors[0], cbuf, 0);
                 }
 
                 if (highlightsectorcnt==0 || highlightcnt==0)
@@ -4890,7 +4915,7 @@ end_yax: ;
 
         if (highlightsectorcnt < 0)
         {
-            if ((bstatus & 1 && highlightcnt <= 0) || (bstatus & 1 && pointhighlight == -1) || keystatus[0x36])  //Right shift (point highlighting)
+            if (((bstatus & 5) == 1 && highlightcnt <= 0) || ((bstatus & 5) == 1 && pointhighlight == -1) || keystatus[0x36])  //Right shift (point highlighting)
             {
                 if (highlightcnt == 0)
                 {
@@ -4901,7 +4926,7 @@ end_yax: ;
                     highlighty2 = searchy;
                     ydim16 = ydim-STATUS2DSIZ2;
 
-                    plotlines2d(xx, yy, 5, editorcolors[14]);
+                    plotlines2d(xx, yy, 5, -editorcolors[14]);
                 }
                 else if (pointhighlight == -1 || keystatus[0x36])
                 {
@@ -5076,7 +5101,7 @@ end_yax: ;
 
         if (highlightcnt < 0)
         {
-            if (keystatus[0xb8])  //Right alt (sector highlighting)
+            if (((bstatus & 4) && highlightsectorcnt <= 0) || (bstatus & 4) && linehighlight == -1 || keystatus[0xb8])  //Right alt (sector highlighting)
             {
                 if (highlightsectorcnt == 0)
                 {
@@ -5089,7 +5114,7 @@ end_yax: ;
                         highlighty2 = searchy;
                         ydim16 = ydim-STATUS2DSIZ2;
 
-                        plotlines2d(xx, yy, 5, editorcolors[10]);
+                        plotlines2d(xx, yy, 5, -editorcolors[10]);
                     }
                 }
                 else
@@ -5763,7 +5788,7 @@ end_after_dragging:
         }
 end_point_dragging:
 
-        if (bstatus&(2|4))  // change arrow position
+        if (bstatus&(2) && !(bstatus&1))  // change arrow position
         {
             if (eitherCTRL)
             {
@@ -5783,7 +5808,7 @@ end_point_dragging:
                         CallExtEditSectorData(cursectornum);
                 }
 
-                bstatus &= ~6;
+                bstatus &= ~2;
             }
             else
             {
@@ -9927,14 +9952,17 @@ static inline int32_t imod(int32_t a, int32_t b)
 
 int32_t fillsector(int16_t sectnum, int32_t fillcolor)
 {
+    if (sectnum == -1)
+        return 0;
+
     int32_t x1, x2, y1, y2, sy, y, daminy;
     int32_t lborder, rborder, uborder, dborder, miny, maxy, dax;
     int16_t z, zz, startwall, endwall, fillcnt;
 
     char col;
 
-    if (fillcolor < 0)
-        col = 159-klabs(sintable[((totalclock<<3)&2047)]>>11);
+    if (fillcolor == -1)
+        col = editorcolors[14]-(M32_THROB>>1);
     else
         col = fillcolor;
 
@@ -9942,8 +9970,6 @@ int32_t fillsector(int16_t sectnum, int32_t fillcolor)
     y = OSD_GetRowsCur();
     uborder = (y>=0)?(y+1)*8:0; dborder = ydim16-STATUS2DSIZ2;
 
-    if (sectnum == -1)
-        return 0;
 
     miny = dborder-1;
     maxy = uborder;
@@ -9972,12 +9998,12 @@ int32_t fillsector(int16_t sectnum, int32_t fillcolor)
     if (miny < uborder) miny = uborder;
     if (maxy >= dborder) maxy = dborder-1;
 
-    daminy = miny+2 - imod(miny+2,3);
+    daminy = miny;// +2 - imod(miny+2, 3);
     if (sector[sectnum].floorz > minhlsectorfloorz)
         daminy++;
 
 //+((totalclock>>2)&3)
-    for (sy=daminy; sy<=maxy; sy+=3)	// JBF 20040116: numframes%3 -> (totalclock>>2)&3
+    for (sy=daminy; sy<=maxy; sy++)	// JBF 20040116: numframes%3 -> (totalclock>>2)&3
     {
         y = pos.y + ((sy-midydim16)<<14)/zoom;
 
@@ -10047,7 +10073,7 @@ int32_t fillsector(int16_t sectnum, int32_t fillcolor)
                 if (fillist[z+1] > rborder)
                     fillist[z+1] = rborder;
 
-                drawline16(fillist[z]+1,sy, fillist[z+1]-1,sy, col);  //editorcolors[fillcolor]
+                drawline16(fillist[z]+1,sy, fillist[z+1]-1,sy, -col);  //editorcolors[fillcolor]
             }
         }
     }

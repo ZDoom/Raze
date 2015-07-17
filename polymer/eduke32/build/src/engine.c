@@ -17090,20 +17090,19 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     char col;
 
     if (grayp&1)
-        col = 8;
+        col = editorcolors[8];
     else if (j < 0)
-        col = (i == linehighlight) && !(totalclock & 16) ? 7 : 15;
+        col = (i == linehighlight) ? editorcolors[15] - M32_THROB : editorcolors[15];
     else
     {
         if ((unsigned)wal->nextwall < MAXWALLS && ((wal->cstat^wall[j].cstat)&1))
-            col = 2;
+            col = editorcolors[2];
         else if ((wal->cstat&1) != 0)
-            col = 5;
-        else col = 33;
+            col = editorcolors[5];
+        else col = editorcolors[4];
 
         if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
-            if (totalclock & 16)
-                col += (2<<2);
+                col += M32_THROB>>2;
     }
 
     int32_t x1, y1, x2, y2;
@@ -17116,18 +17115,22 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 
     if (dist > INT32_MAX)
     {
-        col=9;
+        col=editorcolors[9];
         if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
             if (totalclock & 16) col -= (2<<2);
     }
-    else if (showfirstwall && searchsector>=0 && (sector[searchsector].wallptr == i ||
-             sector[searchsector].wallptr == wall[i].nextwall))
+    else if ((showfirstwall && searchsector>=0 && (sector[searchsector].wallptr == i ||
+                          sector[searchsector].wallptr == wall[i].nextwall)) || 
+        ((show2dwall[i>>3]&pow2char[i&7]) && (show2dwall[wall[i].point2>>3]&pow2char[wall[i].point2&7])))
+             
     {
-        col = 14;
-        if (i == linehighlight) if (totalclock & 16) col -= (2<<2);
+        col = editorcolors[14];
+        if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)) ||
+            ((show2dwall[i>>3]&pow2char[i&7]) && (show2dwall[wall[i].point2>>3]&pow2char[wall[i].point2&7])))
+            col -= M32_THROB>>1;
     }
     else if (circlewall >= 0 && (i == circlewall || wal->nextwall == circlewall))
-        col = 14;
+        col = editorcolors[14];
 
     int32_t fz=0, fzn=0;
 
@@ -17149,7 +17152,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         {
             fzn = getflorzofslope(wal->nextsector, wal->x,wal->y);
 //            if (i < wall[j].point2)
-                drawline16mid(x1,y1, x1,y1+getscreenvdisp(fzn-fz,zoome), editorcolors[col]);
+                drawline16mid(x1,y1, x1,y1+getscreenvdisp(fzn-fz,zoome), col);
         }
 #ifdef YAX_ENABLE
         {
@@ -17160,7 +17163,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
                 int32_t odrawlinepat = drawlinepat;
                 fz2 = getflorzofslope(sectorofwall(nw), wall[nw].x,wall[nw].y);
                 drawlinepat = 0x11111111;
-                drawline16mid(x1,y1, x1,y1+getscreenvdisp(fz2-fz,zoome), editorcolors[col]);
+                drawline16mid(x1,y1, x1,y1+getscreenvdisp(fz2-fz,zoome), col);
                 drawlinepat = odrawlinepat;
             }
         }
@@ -17174,13 +17177,13 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     {
         int32_t one=(klabs(x2-x1) >= klabs(y2-y1)), no=!one;
 
-        drawline16mid(x1+no,y1+one, x2+no,y2+one, editorcolors[col]);
-        drawline16mid(x1-no,y1-one, x2-no,y2-one, editorcolors[col]);
+        drawline16mid(x1+no,y1+one, x2+no,y2+one, col);
+        drawline16mid(x1-no,y1-one, x2-no,y2-one, col);
 
         col += 8;
     }
 
-    drawline16mid(x1,y1, x2,y2, editorcolors[col]);
+    drawline16mid(x1,y1, x2,y2, col);
 
     // Draw height indicators at center of walls if requested and if not in
     // side-view mode.
@@ -17205,7 +17208,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
                 int32_t const dx = mulscale11(sintable[(k+1024 + 1024*bb)&2047],min(4096, zoome)) / 2560;
                 int32_t const dy = scalescreeny(mulscale11(sintable[(k+512 + 1024*bb)&2047], min(4096, zoome)) / 2560);
 
-                drawline16mid(dax,day, dax+dx,day+dy, editorcolors[col]);
+                drawline16mid(dax,day, dax+dx,day+dy, col);
             }
         }
         else if (showheightindicators == 2)
@@ -17214,47 +17217,42 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
             int32_t const dx = mulscale11(sintable[(k+2048)&2047],min(4096, zoome)) / 2560;
             int32_t const dy = scalescreeny(mulscale11(sintable[(k+1536)&2047], min(4096, zoome)) / 2560);
 
-            drawline16mid(dax,day, dax+dx,day+dy, editorcolors[col]);
+            drawline16mid(dax,day, dax+dx,day+dy, col);
         }
     }
 
-    if (zoome >= 256 && editstatus == 1)
+    if ((zoome >= 256 && editstatus == 1) || show2dwall[i>>3]&pow2char[i&7])
         if ((halfxdim16+x1 >= 2) && (halfxdim16+x1 <= xdim-3) &&
                 (midydim16+y1 >= 2) && (midydim16+y1 <= ydim16-3))
         {
             int32_t pointsize = 2;
 
-            col = 15;
+            col = editorcolors[15];
 
             if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) &&
                                         (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
             {
+                col = editorcolors[15] - (M32_THROB>>1);
+
                 if (totalclock & 16)
                     pointsize++;
-                else col = 7;
             }
-            else //if (highlightcnt > 0)
-            {
-                if (show2dwall[i>>3]&pow2char[i&7])
-                {
-                    if (totalclock & 16)
-                        pointsize++;
-                    else col = 7;
-                }
-            }
+            
+            if (show2dwall[i>>3]&pow2char[i&7])
+                col = editorcolors[14] - (M32_THROB>>1);
 
             if (m32_sideview)
             {
                 if (wal->nextwall >= 0)
                 {
                     if (fz < fzn)
-                        col = 7;
+                        col = editorcolors[7];
                     else if (fz == fzn)
-                        col = 4;
+                        col = editorcolors[4];
                 }
             }
 
-            drawcircle16(halfxdim16+x1, midydim16+y1, pointsize, 16384, editorcolors[col]);
+            drawcircle16(halfxdim16+x1, midydim16+y1, pointsize, 16384, col);
         }
 }
 
@@ -17324,12 +17322,17 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
                                           (!m32_sideview && ((sprite[j].x == sprite[pointhighlight-16384].x) &&
                                                   (sprite[j].y == sprite[pointhighlight-16384].y)))))
         {
-            if (totalclock & 32) col += 4;
+            col += M32_THROB>>2;
         }
         else // if (highlightcnt > 0)
         {
             if (show2dsprite[j>>3]&pow2char[j&7])
-                if (totalclock & 32) col += 4;
+            {
+                col = editorcolors[14];
+
+//                if ((totalclock & 16) == 0)
+                    col -= (M32_THROB>>1);
+            }
         }
     }
 
