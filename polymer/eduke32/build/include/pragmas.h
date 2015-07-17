@@ -130,7 +130,7 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
 
 static inline void swapptr(void *a, void *b)
 {
-    intptr_t t = *(intptr_t*) a;
+    intptr_t const t = *(intptr_t*) a;
     *(intptr_t*) a = *(intptr_t*) b;
     *(intptr_t*) b = t;
 }
@@ -176,7 +176,7 @@ EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 
 static inline void swapchar(void *a, void *b)
 {
-    char t = *((char *)b);
+    char const t = *((char *)b);
     *((char *)b) = *((char *)a);
     *((char *)a) = t;
 }
@@ -187,25 +187,25 @@ static inline void swapchar2(void *a, void *b, int32_t s)
 }
 static inline void swapshort(void *a, void *b)
 {
-    int16_t t = *((int16_t *)b);
+    int16_t const t = *((int16_t *)b);
     *((int16_t *)b) = *((int16_t *)a);
     *((int16_t *)a) = t;
 }
 static inline void swaplong(void *a, void *b)
 {
-    int32_t t = *((int32_t *)b);
+    int32_t const t = *((int32_t *)b);
     *((int32_t *)b) = *((int32_t *)a);
     *((int32_t *)a) = t;
 }
 static inline void swapfloat(void *a, void *b)
 {
-    float t = *((float *)b);
+    float const t = *((float *)b);
     *((float *)b) = *((float *)a);
     *((float *)a) = t;
 }
 static inline void swap64bit(void *a, void *b)
 {
-    uint64_t t = *((uint64_t *)b);
+    uint64_t const t = *((uint64_t *)b);
     *((uint64_t *)b) = *((uint64_t *)a);
     *((uint64_t *)a) = t;
 }
@@ -240,7 +240,7 @@ void copybufreverse(const void *S, void *D, int32_t c);
 static inline int32_t krecipasm(int32_t i)
 {
     // Ken did this
-    float f = (float)i;
+    float const f = (float)i;
     i = *(int32_t *)&f;
     return ((reciptable[(i >> 12) & 2047] >> (((i - 0x3f800000) >> 23) & 31)) ^ (i >> 31));
 }

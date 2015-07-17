@@ -1046,7 +1046,7 @@ void   setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   setaspect(int32_t daxrange, int32_t daaspect);
 void   flushperms(void);
 
-void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, char col) ATTRIBUTE((nonnull(1,2)));
+void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int col) ATTRIBUTE((nonnull(1,2)));
 
 void   plotpixel(int32_t x, int32_t y, char col);
 char   getpixel(int32_t x, int32_t y);
@@ -1256,7 +1256,7 @@ void   draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnu
                   int16_t ange, int32_t zoome, int16_t gride);
 void   draw2dscreen(const vec3_t *pos, int16_t cursectnum,
                     int16_t ange, int32_t zoome, int16_t gride) ATTRIBUTE((nonnull(1)));
-int32_t   drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
+int32_t   drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col);
 void   drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col);
 
 int32_t   setrendermode(int32_t renderer);

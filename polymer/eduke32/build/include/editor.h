@@ -446,6 +446,9 @@ FORCE_INLINE void inpclamp(int32_t *x, int32_t mi, int32_t ma)
     if (*x < mi) *x = mi;
 }
 
+extern char *blendtable[MAXBLENDTABS];
+#define drawtranspixel(p, col) drawpixel(p, blendtable[0][(readpixel(p) * 256) + col])
+
 #ifdef __cplusplus
 }
 #endif

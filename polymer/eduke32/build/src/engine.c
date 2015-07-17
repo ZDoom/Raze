@@ -2431,7 +2431,7 @@ char palfadedelta = 0;
 //
 // Internal Engine Functions
 //
-static char *blendtable[MAXBLENDTABS];
+char *blendtable[MAXBLENDTABS];
 #define getblendtab(blend) (blendtable[blend])
 
 static void setpalettefade_calc(uint8_t offset);
@@ -2478,9 +2478,6 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
 {
     spritetype *spr = &sprite[z];
 #ifdef YAX_ENABLE
-    int16_t cb, fb, *sortcnt;
-    int32_t spheight, spzofs;
-
     if (g_nodraw==0)
     {
         if (numyaxbunches==0)
@@ -2498,7 +2495,8 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
     else
         if (yax_nomaskpass==0)
     {
-        sortcnt = &yax_spritesortcnt[yax_globallev];
+        int16_t *sortcnt = &yax_spritesortcnt[yax_globallev];
+
         if (*sortcnt >= MAXSPRITESONSCREEN)
             return 1;
 
@@ -2514,11 +2512,14 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
         if ((spr->cstat&48)==32)
             return 0;
 
+        int16_t cb, fb;
+
         yax_getbunches(sectnum, &cb, &fb);
         if (cb < 0 && fb < 0)
             return 0;
 
-        spzofs = spriteheightofs(z, &spheight, 1);
+        int32_t spheight;
+        int16_t spzofs = spriteheightofs(z, &spheight, 1);
 
         // TODO: get*zofslope?
         if (cb>=0 && spr->z+spzofs-spheight < sector[sectnum].ceilingz)
@@ -2856,8 +2857,8 @@ static WSHELPER_DECL void calc_vplcinc_wall(uint32_t *vplc, int32_t *vinc, inthi
 #ifdef HIGH_PRECISION_SPRITE
 static WSHELPER_DECL void calc_vplcinc_sprite(uint32_t *vplc, int32_t *vinc, int32_t x, int32_t y1v)
 {
-    inthi_t tmpvinc = Blrintf(swallf[x]);
-    inthi_t tmpvplc = globalzd + tmpvinc*(y1v-globalhoriz+1);
+    inthi_t const tmpvinc = Blrintf(swallf[x]);
+    inthi_t const tmpvplc = globalzd + tmpvinc*(y1v-globalhoriz+1);
 
     *vinc = tmpvinc;
     // Clamp the vertical texture coordinate!
@@ -2892,23 +2893,14 @@ static WSHELPER_DECL void calc_vplcinc(uint32_t *vplc, int32_t *vinc, const int3
 //
 static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 {
-    int32_t x;
-    intptr_t p, fpalookup;
-    int32_t y1ve[4], y2ve[4];
-#ifdef MULTI_COLUMN_VLINE
-    char bad;
-    int32_t u4, d4, dax, z;
-#endif
-    vec2_t tsiz;
-    setgotpic(globalpicnum);
-    if (globalshiftval < 0)
-        return;
-
-    tsiz = tilesiz[globalpicnum];
-
-    if ((tsiz.x <= 0) || (tsiz.y <= 0)) return;
+    if (globalshiftval < 0) return;
     if ((uwall[x1] > ydimen) && (uwall[x2] > ydimen)) return;
     if ((dwall[x1] < 0) && (dwall[x2] < 0)) return;
+
+    vec2_t tsiz = tilesiz[globalpicnum];
+    if ((tsiz.x <= 0) || (tsiz.y <= 0)) return;
+
+    setgotpic(globalpicnum);
 
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
@@ -2917,16 +2909,17 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
     if (EDUKE32_PREDICT_FALSE(palookup[globalpal] == NULL))
         globalpal = 0;
 
-    fpalookup = FP_OFF(palookup[globalpal]);
+    intptr_t const fpalookup = FP_OFF(palookup[globalpal]);
 
     setupmvlineasm(globalshiftval, saturatevplc);
 
-
-    x = x1;
+    int32_t x = x1;
     while ((x <= x2) && (startumost[x+windowx1] > startdmost[x+windowx1]))
         x++;
 
-    p = x+frameoffset;
+    intptr_t p = x+frameoffset;
+
+    int32_t y1ve[4], y2ve[4];
 
 #ifdef NONPOW2_YSIZE_ASM
     if (globalshiftval==0)
@@ -2949,10 +2942,9 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
     }
     for (; x<=x2-3; x+=4,p+=4)
     {
-        intptr_t pp;
+        char bad = 0;
 
-        bad = 0;
-        for (z=3,dax=x+3; z>=0; z--,dax--)
+        for (int z=3,dax=x+3; z>=0; z--,dax--)
         {
             y1ve[z] = max(uwall[dax],startumost[dax+windowx1]-windowy1);
             y2ve[z] = min(dwall[dax],startdmost[dax+windowx1]-windowy1)-1;
@@ -2977,8 +2969,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
             palookupoffse[2] = fpalookup + getpalookupsh(mulscale16(swall[x+2],globvis));
         }
 
-        u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
-        d4 = min(min(y2ve[0],y2ve[1]),min(y2ve[2],y2ve[3]));
+        int32_t const u4 = max(max(y1ve[0],y1ve[1]),max(y1ve[2],y1ve[3]));
+        int32_t const d4 = min(min(y2ve[0],y2ve[1]),min(y2ve[2],y2ve[3]));
 
         if ((bad > 0) || (u4 >= d4))
         {
@@ -2996,7 +2988,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 
         if (d4 >= u4) mvlineasm4(d4-u4+1, (char *)(ylookup[u4]+p));
 
-        pp = p+ylookup[d4+1];
+        intptr_t const pp = p+ylookup[d4+1];
+
         if (y2ve[0] > d4) mvlineasm1(vince[0],palookupoffse[0],y2ve[0]-d4-1,vplce[0],bufplce[0],pp+0);
         if (y2ve[1] > d4) mvlineasm1(vince[1],palookupoffse[1],y2ve[1]-d4-1,vplce[1],bufplce[1],pp+1);
         if (y2ve[2] > d4) mvlineasm1(vince[2],palookupoffse[2],y2ve[2]-d4-1,vplce[2],bufplce[2],pp+2);
@@ -3163,13 +3156,12 @@ static inline int32_t bunchfront(int32_t b1, int32_t b2)
 //
 static inline void hline(int32_t xr, int32_t yp)
 {
-    int32_t xl, r, s;
-
-    xl = lastx[yp]; if (xl > xr) return;
-    r = horizlookup2[yp-globalhoriz+horizycent];
+    int32_t const xl = lastx[yp];
+    if (xl > xr) return;
+    int32_t const r = horizlookup2[yp-globalhoriz+horizycent];
     asm1 = (inthi_t)globalx1*r;
     asm2 = (inthi_t)globaly2*r;
-    s = getpalookupsh(mulscale16(r,globvis));
+    int32_t const s = getpalookupsh(mulscale16(r,globvis));
 
     hlineasm4(xr-xl,0,s,(uint32_t)globalx2*r+globalypanning,(uint32_t)globaly1*r+globalxpanning,
               ylookup[yp]+xr+frameoffset);
@@ -3181,10 +3173,8 @@ static inline void hline(int32_t xr, int32_t yp)
 //
 static inline void slowhline(int32_t xr, int32_t yp)
 {
-    int32_t xl, r;
-
-    xl = lastx[yp]; if (xl > xr) return;
-    r = horizlookup2[yp-globalhoriz+horizycent];
+    int32_t const xl = lastx[yp]; if (xl > xr) return;
+    int32_t const r = horizlookup2[yp-globalhoriz+horizycent];
     asm1 = (inthi_t)globalx1*r;
     asm2 = (inthi_t)globaly2*r;
 
@@ -3342,20 +3332,13 @@ static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
         swaplong(&ix1, &ix2);
 #endif
     // PK 20110423: a bit consistency checking is a good thing:
-    int32_t tmp = (ix2 - ix1 >= 0) ? (ix2 - ix1 + 1) : 1;
-    int32_t yinc = tabledivide32((scale(z2, xdimenscale, iy2) << 4) - y, tmp);
+    int32_t const tmp = (ix2 - ix1 >= 0) ? (ix2 - ix1 + 1) : 1;
+    int32_t const yinc = tabledivide32((scale(z2, xdimenscale, iy2) << 4) - y, tmp);
 
     qinterpolatedown16short((intptr_t)&mostbuf[ix1], tmp, y + (globalhoriz << 16), yinc);
 
-    if (mostbuf[ix1] < 0)
-        mostbuf[ix1] = 0;
-    else if (mostbuf[ix1] > ydimen)
-        mostbuf[ix1] = ydimen;
-
-    if (mostbuf[ix2] < 0)
-        mostbuf[ix2] = 0;
-    else if (mostbuf[ix2] > ydimen)
-        mostbuf[ix2] = ydimen;
+    mostbuf[ix1] = clamp(mostbuf[ix1], 0, ydimen);
+    mostbuf[ix2] = clamp(mostbuf[ix2], 0, ydimen);
 }
 
 #ifdef CLASSIC_Z_DIFF_64
@@ -9758,7 +9741,7 @@ static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, c
 // rest x/y: out
 static void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
                                int32_t *y1, int32_t *y2);
-static void get_floorspr_points(const spritetype *spr, int32_t px, int32_t py,
+static void get_floorspr_points(const tspritetype *spr, int32_t px, int32_t py,
                                 int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
                                 int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
 
@@ -9980,7 +9963,7 @@ killsprite:
                             if ((tspr->cstat & 48) == 32)
                             {
                                 numpts = 4;
-                                get_floorspr_points((const spritetype *)tspr, 0, 0,
+                                get_floorspr_points(tspr, 0, 0,
                                                     &xx[0], &xx[1], &xx[2], &xx[3],
                                                     &yy[0], &yy[1], &yy[2], &yy[3]);
                             }
@@ -10085,16 +10068,11 @@ killsprite:
 //
 void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 {
-    walltype *wal;
-    sectortype *sec;
-    spritetype *spr;
     int32_t i, j, k, l;
-    int32_t x, y, x1, y1, x2, y2, x3, y3, x4, y4, bakx1, baky1;
-    int32_t s, w, ox, oy, startwall, cx1, cy1, cx2, cy2;
-    int32_t bakgxvect, bakgyvect, sortnum, gap, npoints;
-    int32_t xvect, yvect, xvect2, yvect2, daslope;
+    int32_t x, y;
+    int32_t s, ox, oy;
 
-    int32_t oyxaspect=yxaspect, oviewingrange=viewingrange;
+    int32_t const oyxaspect = yxaspect, oviewingrange = viewingrange;
 
     setaspect(65536, divscale16((320*5)/8, 200));
 
@@ -10102,31 +10080,31 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     Bmemset(gotsector, 0, (numsectors+7)>>3);
 
-    cx1 = (windowx1<<12); cy1 = (windowy1<<12);
-    cx2 = ((windowx2+1)<<12)-1; cy2 = ((windowy2+1)<<12)-1;
+    vec2_t const c1 ={ (windowx1<<12), (windowy1<<12) };
+    vec2_t const c2 ={ ((windowx2+1)<<12)-1, ((windowy2+1)<<12)-1 };
 
     zoome <<= 8;
 
-    bakgxvect = divscale28(sintable[(1536-ang)&2047],zoome);
-    bakgyvect = divscale28(sintable[(2048-ang)&2047],zoome);
-    xvect = mulscale8(sintable[(2048-ang)&2047],zoome);
-    yvect = mulscale8(sintable[(1536-ang)&2047],zoome);
-    xvect2 = mulscale16(xvect,yxaspect);
-    yvect2 = mulscale16(yvect,yxaspect);
+    vec2_t const bakgvect = { divscale28(sintable[(1536 - ang) & 2047], zoome),
+                        divscale28(sintable[(2048 - ang) & 2047], zoome) };
+    vec2_t const vect = { mulscale8(sintable[(2048 - ang) & 2047], zoome), mulscale8(sintable[(1536 - ang) & 2047], zoome) };
+    vec2_t const vect2 = { mulscale16(vect.x, yxaspect), mulscale16(vect.y, yxaspect) };
 
-    sortnum = 0;
+    int32_t sortnum = 0;
 
     begindrawing(); //{{{
 
-    for (s=0,sec=&sector[s]; s<numsectors; s++,sec++)
+    tsectortype *sec;
+
+    for (s=0,sec=(tsectortype *)&sector[s]; s<numsectors; s++,sec++)
         if (show2dsector[s>>3]&pow2char[s&7])
         {
 #ifdef YAX_ENABLE
             if (yax_getbunch(s, YAX_FLOOR) >= 0 && (sector[s].floorstat&(256+128))==0)
                 continue;
 #endif
-            npoints = 0; i = 0;
-            startwall = sec->wallptr;
+            int32_t npoints = 0; i = 0;
+            int32_t startwall = sec->wallptr;
 #if 0
             for (w=sec->wallnum,wal=&wall[startwall]; w>0; w--,wal++)
             {
@@ -10141,7 +10119,9 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             }
 #else
             j = startwall; l = 0;
-            for (w=sec->wallnum,wal=&wall[startwall]; w>0; w--,wal++,j++)
+            twalltype *wal;
+            int32_t w;
+            for (w=sec->wallnum,wal=(twalltype *)&wall[startwall]; w>0; w--,wal++,j++)
             {
                 k = lastwall(j);
                 if ((k > j) && (npoints > 0)) { xb1[npoints-1] = l; l = npoints; } //overwrite point2
@@ -10149,9 +10129,9 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 //wall[k].y wal->y wall[wal->point2].y
                 if (!dmulscale1(wal->x-wall[k].x,wall[wal->point2].y-wal->y,-(wal->y-wall[k].y),wall[wal->point2].x-wal->x)) continue;
                 ox = wal->x - dax; oy = wal->y - day;
-                x = dmulscale16(ox,xvect,-oy,yvect) + (xdim<<11);
-                y = dmulscale16(oy,xvect2,ox,yvect2) + (ydim<<11);
-                i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
+                x = dmulscale16(ox,vect.x,-oy,vect.y) + (xdim<<11);
+                y = dmulscale16(oy,vect2.x,ox,vect2.y) + (ydim<<11);
+                i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
                 rx1[npoints] = x;
                 ry1[npoints] = y;
                 xb1[npoints] = npoints+1;
@@ -10160,7 +10140,9 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if (npoints > 0) xb1[npoints-1] = l; //overwrite point2
 #endif
             if ((i&0xf0) != 0xf0) continue;
-            bakx1 = rx1[0]; baky1 = mulscale16(ry1[0]-(ydim<<11),xyaspect)+(ydim<<11);
+
+            vec2_t bak ={ rx1[0], mulscale16(ry1[0]-(ydim<<11),xyaspect)+(ydim<<11) };
+
             if (i&0x0f)
             {
                 npoints = clippoly(npoints,i);
@@ -10202,8 +10184,8 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((globalorientation&64) == 0)
             {
                 set_globalpos(dax, day, globalposz);
-                globalx1 = bakgxvect; globaly1 = bakgyvect;
-                globalx2 = bakgxvect; globaly2 = bakgyvect;
+                globalx1 = bakgvect.x; globaly1 = bakgvect.y;
+                globalx2 = bakgvect.x; globaly2 = bakgvect.y;
             }
             else
             {
@@ -10211,15 +10193,15 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 oy = wall[wall[startwall].point2].y - wall[startwall].y;
                 i = nsqrtasm(uhypsq(ox,oy)); if (i == 0) continue;
                 i = 1048576/i;
-                globalx1 = mulscale10(dmulscale10(ox,bakgxvect,oy,bakgyvect),i);
-                globaly1 = mulscale10(dmulscale10(ox,bakgyvect,-oy,bakgxvect),i);
-                ox = (bakx1>>4)-(xdim<<7); oy = (baky1>>4)-(ydim<<7);
+                globalx1 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
+                globaly1 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
+                ox = (bak.x>>4)-(xdim<<7); oy = (bak.y>>4)-(ydim<<7);
                 globalposx = dmulscale28(-oy, globalx1, -ox, globaly1);
                 globalposy = dmulscale28(-ox, globalx1, oy, globaly1);
                 globalx2 = -globalx1;
                 globaly2 = -globaly1;
 
-                daslope = sector[s].floorheinum;
+                int32_t const daslope = sector[s].floorheinum;
                 i = nsqrtasm(daslope*daslope+16777216);
                 set_globalpos(globalposx, mulscale12(globalposy,i), globalposz);
                 globalx2 = mulscale12(globalx2,i);
@@ -10249,7 +10231,10 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
         }
 
     //Sort sprite list
-    gap = 1; while (gap < sortnum) gap = (gap<<1)+1;
+    int32_t gap = 1;
+
+    while (gap < sortnum) gap = (gap << 1) + 1;
+
     for (gap>>=1; gap>0; gap>>=1)
         for (i=0; i<sortnum-gap; i++)
             for (j=i; j>=0; j-=gap)
@@ -10260,48 +10245,49 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     for (s=sortnum-1; s>=0; s--)
     {
-        spr = &sprite[tsprite[s].owner];
+        tspritetype * const spr = (tspritetype * )&sprite[tsprite[s].owner];
         if ((spr->cstat&48) == 32)
         {
             const int32_t xspan = tilesiz[spr->picnum].x;
 
-            npoints = 0;
+            int32_t npoints = 0;
+            vec2_t v1 ={ spr->x, spr->y }, v2, v3, v4;
 
-            x1 = spr->x;
-            y1 = spr->y;
-            get_floorspr_points(spr, 0, 0, &x1, &x2, &x3, &x4,
-                                &y1, &y2, &y3, &y4);
+            get_floorspr_points(spr, 0, 0, &v1.x, &v2.x, &v3.x, &v4.x,
+                                &v1.y, &v2.y, &v3.y, &v4.y);
 
             xb1[0] = 1; xb1[1] = 2; xb1[2] = 3; xb1[3] = 0;
             npoints = 4;
 
             i = 0;
 
-            ox = x1 - dax; oy = y1 - day;
-            x = dmulscale16(ox,xvect,-oy,yvect) + (xdim<<11);
-            y = dmulscale16(oy,xvect2,ox,yvect2) + (ydim<<11);
-            i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
+            ox = v1.x - dax; oy = v1.y - day;
+            x = dmulscale16(ox,vect.x,-oy,vect.y) + (xdim<<11);
+            y = dmulscale16(oy,vect2.x,ox,vect2.y) + (ydim<<11);
+            i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[0] = x; ry1[0] = y;
 
-            ox = x2 - dax; oy = y2 - day;
-            x = dmulscale16(ox,xvect,-oy,yvect) + (xdim<<11);
-            y = dmulscale16(oy,xvect2,ox,yvect2) + (ydim<<11);
-            i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
+            ox = v2.x - dax; oy = v2.y - day;
+            x = dmulscale16(ox,vect.x,-oy,vect.y) + (xdim<<11);
+            y = dmulscale16(oy,vect2.x,ox,vect2.y) + (ydim<<11);
+            i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[1] = x; ry1[1] = y;
 
-            ox = x3 - dax; oy = y3 - day;
-            x = dmulscale16(ox,xvect,-oy,yvect) + (xdim<<11);
-            y = dmulscale16(oy,xvect2,ox,yvect2) + (ydim<<11);
-            i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
+            ox = v3.x - dax; oy = v3.y - day;
+            x = dmulscale16(ox,vect.x,-oy,vect.y) + (xdim<<11);
+            y = dmulscale16(oy,vect2.x,ox,vect2.y) + (ydim<<11);
+            i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[2] = x; ry1[2] = y;
 
             x = rx1[0]+rx1[2]-rx1[1];
             y = ry1[0]+ry1[2]-ry1[1];
-            i |= getclipmask(x-cx1,cx2-x,y-cy1,cy2-y);
+            i |= getclipmask(x-c1.x,c2.x-x,y-c1.y,c2.y-y);
             rx1[3] = x; ry1[3] = y;
 
             if ((i&0xf0) != 0xf0) continue;
-            bakx1 = rx1[0]; baky1 = mulscale16(ry1[0]-(ydim<<11),xyaspect)+(ydim<<11);
+
+            vec2_t bak = { rx1[0], mulscale16(ry1[0] - (ydim << 11), xyaspect) + (ydim << 11) };
+
             if (i&0x0f)
             {
                 npoints = clippoly(npoints,i);
@@ -10334,14 +10320,14 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             globalpolytype = ((spr->cstat&2)>>1)+1;
 
             //relative alignment stuff
-            ox = x2-x1; oy = y2-y1;
+            ox = v2.x-v1.x; oy = v2.y-v1.y;
             i = ox*ox+oy*oy; if (i == 0) continue; i = tabledivide32_noinline(65536*16384, i);
-            globalx1 = mulscale10(dmulscale10(ox,bakgxvect,oy,bakgyvect),i);
-            globaly1 = mulscale10(dmulscale10(ox,bakgyvect,-oy,bakgxvect),i);
-            ox = y1-y4; oy = x4-x1;
+            globalx1 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
+            globaly1 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
+            ox = v1.y-v4.y; oy = v4.x-v1.x;
             i = ox*ox+oy*oy; if (i == 0) continue; i = tabledivide32_noinline(65536*16384, i);
-            globalx2 = mulscale10(dmulscale10(ox,bakgxvect,oy,bakgyvect),i);
-            globaly2 = mulscale10(dmulscale10(ox,bakgyvect,-oy,bakgxvect),i);
+            globalx2 = mulscale10(dmulscale10(ox,bakgvect.x,oy,bakgvect.y),i);
+            globaly2 = mulscale10(dmulscale10(ox,bakgvect.y,-oy,bakgvect.x),i);
 
             ox = picsiz[globalpicnum]; oy = ((ox>>4)&15); ox &= 15;
             if (pow2long[ox] != xspan)
@@ -10351,9 +10337,9 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
                 globaly1 = mulscale(globaly1,xspan,ox);
             }
 
-            bakx1 = (bakx1>>4)-(xdim<<7); baky1 = (baky1>>4)-(ydim<<7);
-            globalposx = dmulscale28(-baky1,globalx1,-bakx1,globaly1);
-            globalposy = dmulscale28(bakx1,globalx2,-baky1,globaly2);
+            bak.x = (bak.x>>4)-(xdim<<7); bak.y = (bak.y>>4)-(ydim<<7);
+            globalposx = dmulscale28(-bak.y,globalx1,-bak.x,globaly1);
+            globalposy = dmulscale28(bak.x,globalx2,-bak.y,globaly2);
 
             if ((spr->cstat&2) == 0)
                 msethlineshift(ox,oy);
@@ -13044,7 +13030,7 @@ static void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
 
 // x1, y1: in/out
 // rest x/y: out
-static void get_floorspr_points(const spritetype *spr, int32_t px, int32_t py,
+static void get_floorspr_points(const tspritetype *spr, int32_t px, int32_t py,
                                 int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
                                 int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
 {
@@ -13421,7 +13407,7 @@ restart_grand:
                 if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
                     continue;
 
-                get_floorspr_points(spr, intx, inty, &x1, &x2, &x3, &x4,
+                get_floorspr_points((tspritetype *)spr, intx, inty, &x1, &x2, &x3, &x4,
                                     &y1, &y2, &y3, &y4);
 
                 if (get_floorspr_clipyou(x1, x2, x3, x4, y1, y2, y3, y4))
@@ -14242,7 +14228,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
                     rxi[0] = x1;
                     ryi[0] = y1;
-                    get_floorspr_points(spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
+                    get_floorspr_points((tspritetype *) spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
                                         &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
 
                     dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist);
@@ -15110,7 +15096,7 @@ restart_grand:
                         if ((pos->z > daz) == ((cstat&8)==0))
                             continue;
 
-                    get_floorspr_points(spr, pos->x, pos->y, &x1, &x2, &x3, &x4,
+                    get_floorspr_points((tspritetype *) spr, pos->x, pos->y, &x1, &x2, &x3, &x4,
                                         &y1, &y2, &y3, &y4);
 
                     const int32_t dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist+4);
@@ -15841,7 +15827,7 @@ void plotpixel(int32_t x, int32_t y, char col)
     enddrawing();   //}}}
 }
 
-void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, char col)
+void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int col)
 {
     int32_t i;
 
@@ -16481,7 +16467,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 //   after clipping or crashes would ensue
 uint32_t drawlinepat = 0xffffffff;
 
-int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
+int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
 {
 //int32_t odx,ody;
 //int32_t ox1=x1,oy1=y1, ox2=x2,oy2=y2;
@@ -16571,6 +16557,41 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         inc = bytesperline;
     }
 
+    int const trans = (col < 0);
+
+    if (trans)
+    {
+        col = -col;
+
+        if (drawlinepat == 0xffffffff)
+        {
+            for (int i=d.x, df=0; i>0; i--)
+            {
+                drawtranspixel((char *) p, col);
+                df += d.y;
+                if (df >= d.x) { df -= d.x; p += pinc; }
+                p += inc;
+            }
+        }
+        else
+        {
+            uint32_t patc = UINT_MAX;
+
+            for (int i=d.x, df=0; i>0; i--)
+            {
+                if (drawlinepat & pow2long[(++patc)&31])
+                    drawtranspixel((char *) p, col);
+                df += d.y;
+                if (df >= d.x) { df -= d.x; p += pinc; }
+                p += inc;
+            }
+        }
+
+        enddrawing();   //}}}
+
+        return 1;
+    }
+
     if (inc == 1 && d.y == 1 && drawlinepat == 0xffffffff)
         clearbufbyte((void *)p, d.x, ((int32_t) col<<24)|((int32_t) col<<16)|((int32_t) col<<8)|col);
     else if (drawlinepat == 0xffffffff)
@@ -16638,8 +16659,7 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
     }
 
     if (r < 0) r = -r;
-    if (x1+r < 0 || x1-r >= xres) return;
-    if (y1+r < 0 || y1-r >= ydim16) return;
+    if (x1+r < 0 || y1+r < 0 || x1-r >= xres || y1-r >= ydim16) return;
 
     uint32_t const uxres = xres, uydim16 = ydim16;
 
@@ -16694,8 +16714,8 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
             xp++;
             de += 2;
 
-            int32_t ypbpl = yp*bytesperline;
-            int32_t xpbpl = xp*bytesperline;
+            int32_t const ypbpl = yp*bytesperline;
+            int32_t const xpbpl = xp*bytesperline;
 
             if (drawlinepat & pow2long[(++patc) & 31])
             {
@@ -16739,8 +16759,8 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
         xp++;
         de += 2;
 
-        int32_t ypbpl = yp*bytesperline;
-        int32_t xpbpl = xp*bytesperline;
+        int32_t const ypbpl = yp*bytesperline;
+        int32_t const xpbpl = xp*bytesperline;
 
         if ((uint32_t)(x1 + yp) < uxres && (uint32_t)(y1 + xp) < uydim16)
             drawpixel_safe((char *)(p + yp + xpbpl), col);  // 1
@@ -16800,13 +16820,8 @@ void qsetmodeany(int32_t daxdim, int32_t daydim)
 //
 void clear2dscreen(void)
 {
-    int32_t clearsz;
-
-    begindrawing(); //{{{
-    if (ydim16 <= yres-STATUS2DSIZ2)
-        clearsz = yres - STATUS2DSIZ2;
-    else
-        clearsz = yres;
+    int32_t const clearsz = (ydim16 <= yres - STATUS2DSIZ2) ? yres - STATUS2DSIZ2 : yres;
+    begindrawing();  //{{{
     Bmemset((char *)frameplace, 0, bytesperline*clearsz);
     enddrawing();   //}}}
 }
@@ -16814,13 +16829,7 @@ void clear2dscreen(void)
 
 ////////// editor side view //////////
 
-int32_t scalescreeny(int32_t sy)
-{
-    if (m32_sideview)
-        return mulscale14(sy, m32_sidesin);
-    else
-        return sy;
-}
+int32_t scalescreeny(int32_t sy) { return (m32_sideview) ? mulscale14(sy, m32_sidesin) : sy; }
 
 // return screen coordinates for BUILD coords x and y (relative to current position)
 void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome)
@@ -17633,24 +17642,23 @@ static int32_t printext_checkypos(int32_t ypos, int32_t *yminptr, int32_t *ymaxp
 //
 int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const char *name, char fontsize)
 {
-    int32_t stx, i, x, y, charxsiz, ocol = col, obackcol = backcol;
     int32_t ymin, ymax;
-    char *fontptr, *letptr, *ptr;
-    char smallbuf[4];
-
-    const int32_t xpos0 = xpos;
-
-    stx = xpos;
 
     if (printext_checkypos(ypos, &ymin, &ymax))
         return 0;
 
     if (fontsize & 2) printext16(xpos+1, ypos+1, 0, -1, name, (fontsize & ~2) | 4);
-    if (fontsize & 1) { fontptr = smalltextfont; charxsiz = 4; }
-    else { fontptr = textfont; charxsiz = 8; }
 
-    begindrawing(); //{{{
-    for (i=0; name[i]; i++)
+    int32_t const ocol = col, obackcol = backcol;
+    char smallbuf[4];
+
+    int32_t stx = xpos;
+    const int32_t xpos0 = xpos;
+
+    char const * const fontptr = (fontsize & 1) ? smalltextfont : textfont;
+    int const charxsiz = 8 - ((fontsize & 1)<<2);
+
+    for (int i=0; name[i]; i++)
     {
         if (name[i] == '^')
         {
@@ -17734,29 +17742,37 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
             continue;
         }
 
-        letptr = &fontptr[name[i]<<3];
-        ptr = (char *)(bytesperline*ypos + (stx-(fontsize&1)) + frameplace);
+        char const * const letptr = &fontptr[name[i]<<3];
+
+        begindrawing(); //{{{
+        char *ptr = (char *)(bytesperline*ypos + (stx-(fontsize&1)) + frameplace);
+        int const trans = (obackcol < -1);
+
+        if (trans && backcol < 0)
+            backcol = -backcol;
 
         if (backcol >= 0)
         {
-            for (y=ymin; y<=ymax; y++)
+            for (int y=ymin; y<=ymax; y++)
             {
-                for (x=0; x<charxsiz; x++)
+                for (int x=0; x<charxsiz; x++)
                 {
                     if ((unsigned) (stx+x) >= (unsigned)xdim || ptr < (char *) frameplace) break;
-                    ptr[x] = (letptr[y]&pow2char[7-(fontsize&1)-x]) ? (uint8_t) col : (uint8_t) backcol;
+                    ptr[x] = (letptr[y] & pow2char[7 - (fontsize & 1) - x]) ?
+                             (uint8_t)col :
+                             trans ? (uint8_t)blendtable[0][(ptr[x] * 256) + backcol] : backcol;
                 }
                 ptr += bytesperline;
             }
         }
         else
         {
-            for (y=ymin; y<=ymax; y++)
+            for (int y=ymin; y<=ymax; y++)
             {
-                for (x=0; x<charxsiz; x++)
+                for (int x=0; x<charxsiz; x++)
                 {
                     if ((unsigned) (stx+x) >= (unsigned)xdim || ptr < (char *) frameplace) break;
-                    ptr[x] = (letptr[y]&pow2char[7-(fontsize&1)-x]) ? (uint8_t) col : ptr[x];
+                    if (letptr[y]&pow2char[7-(fontsize&1)-x]) ptr[x] = (uint8_t) col;
                 }
                 ptr += bytesperline;
             }
