@@ -186,7 +186,7 @@ static uint8_t visited[MAXWALLS>>3];
 
 int32_t m32_2d3dmode = 0;
 int32_t m32_2d3dsize = 4;
-vec2_t m32_2d3d ={ 4, 4 };
+vec2_t m32_2d3d ={ 0xffff, 4 };
 
 typedef struct
 {

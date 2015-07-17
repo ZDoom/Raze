@@ -2363,7 +2363,6 @@ static void m32_showmouse(void)
         col = whitecol - mousecol;
     else col = whitecol + mousecol;
 
-    OSD_Printf("%d\n", col);
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
     {
@@ -7850,9 +7849,9 @@ static void InitCustomColors(void)
     vgapal16[32*4+2] = 21;
 
     // grid color
-    vgapal16[25*4+0] = 17;
-    vgapal16[25*4+1] = 15;
-    vgapal16[25*4+2] = 15;
+    vgapal16[25*4+0] = 16;
+    vgapal16[25*4+1] = 14;
+    vgapal16[25*4+2] = 14;
 
     vgapal16[26*4+0] = 24;
     vgapal16[26*4+1] = 24;
