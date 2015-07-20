@@ -1187,8 +1187,11 @@ void editinput(void)
             osearchx = searchx-mousx;
             osearchy = searchy-mousy;
 
-            silentmessage("x:%d y:%d z:%d ang:%d horiz:%d",pos.x,pos.y,pos.z,ang,horiz);
-            getmessagetimeoff = totalclock+30;
+            if (mousx || mousy)
+            {
+                silentmessage("x:%d y:%d z:%d ang:%d horiz:%d", pos.x, pos.y, pos.z, ang, horiz);
+                getmessagetimeoff = totalclock+30;
+            }
         }
         else if (unrealedlook==0 || (bstatus&(1|2|4))==0)
         {
