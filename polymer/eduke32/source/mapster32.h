@@ -28,9 +28,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // #define VULGARITY
 
-#define COLOR_RED 248
-#define COLOR_WHITE 31
-
 //#define NUMOPTIONS 9
 //char option[NUMOPTIONS] = {0,0,0,0,0,0,1,0,0};
 

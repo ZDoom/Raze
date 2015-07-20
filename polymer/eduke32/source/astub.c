@@ -2371,33 +2371,32 @@ static void m32_showmouse(void)
     }
 #endif
 
-//    if (col != whitecol)
+    int const lores = !!(xdim <= 640);
+
+    for (i = (3 - lores); i <= (7 >> lores); i++)
     {
-        for (i=((xdim > 640)?3:2); i<=((xdim > 640)?7:3); i++)
-        {
-            plotpixel(searchx+i,searchy,col);
-            plotpixel(searchx-i,searchy,col);
-            plotpixel(searchx,searchy-i,col);
-            plotpixel(searchx,searchy+i,col);
-        }
-
-        for (i=1; i<=((xdim > 640)?2:1); i++)
-        {
-            plotpixel(searchx+i,searchy,whitecol);
-            plotpixel(searchx-i,searchy,whitecol);
-            plotpixel(searchx,searchy-i,whitecol);
-            plotpixel(searchx,searchy+i,whitecol);
-        }
-
-        i = (xdim > 640)?8:4;
-
-        plotpixel(searchx+i,searchy,editorcolors[0]);
-        plotpixel(searchx-i,searchy,editorcolors[0]);
-        plotpixel(searchx,searchy-i,editorcolors[0]);
-        plotpixel(searchx,searchy+i,editorcolors[0]);
+        plotpixel(searchx+i,searchy,col);
+        plotpixel(searchx-i,searchy,col);
+        plotpixel(searchx,searchy-i,col);
+        plotpixel(searchx,searchy+i,col);
     }
 
-    if (xdim > 640)
+    for (i=1; i<=(2 >> lores); i++)
+    {
+        plotpixel(searchx+i,searchy,whitecol);
+        plotpixel(searchx-i,searchy,whitecol);
+        plotpixel(searchx,searchy-i,whitecol);
+        plotpixel(searchx,searchy+i,whitecol);
+    }
+
+    i = (8 >> lores);
+
+    plotpixel(searchx+i,searchy,editorcolors[0]);
+    plotpixel(searchx-i,searchy,editorcolors[0]);
+    plotpixel(searchx,searchy-i,editorcolors[0]);
+    plotpixel(searchx,searchy+i,editorcolors[0]);
+
+    if (!lores)
     {
         for (i=1; i<=4; i++)
         {
@@ -3664,10 +3663,11 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
 
     begindrawing();
     printext256(x+2,y+2,0,-1,title,small);
-    printext256(x,y,255-13,-1,title,small);
+    printext256(x,y,editorcolors[14],-1,title,small);
 
     if (flags&4)
-        tileinfo_colorstr = "^242";
+        Bsprintf(tileinfo_colorstr, "^%d", editorcolors[14]);
+
     tileinfo_doprint(x, y, buf, "Pic", picnum, 1);
     tileinfo_doprint(x, y, buf, "Shd", shade, 2);
     tileinfo_doprint(x, y, buf, "Pal", pal, 3);
@@ -3942,7 +3942,8 @@ ENDFOR1:
 
         ExtCheckKeys();
 
-        printmessage256(0,0,"^251Text entry mode.^31 Navigation keys change vars.");
+        Bsprintf(tempbuf, "^%dText entry mode.^%d Navigation keys change vars.", editorcolors[10], whitecol);
+        printmessage256(0,0,tempbuf);
         Bsprintf(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
                  hgap, vgap, spcgap[alphidx], TrackerCast(sprite[linebegspr].shade), TrackerCast(sprite[linebegspr].pal));
         printmessage256(0, 9, buffer);
@@ -4320,7 +4321,7 @@ static void Keys3d(void)
                     height3 = sector[nextsect].ceilingz - sector[searchsector].ceilingz;
                 }
 
-                Bsprintf(lines[num++],"Panning:%s %d, %d", swappedbot?"^242":"",
+                Bsprintf(lines[num++],"Panning:^%d %d, %d", swappedbot?editorcolors[14]:whitecol,
                                 TrackerCast(wall[w].xpanning), TrackerCast(wall[w].ypanning));
                 Bsprintf(lines[num++],"Repeat:  %d, %d", TrackerCast(wall[searchwall].xrepeat), TrackerCast(wall[searchwall].yrepeat));
                 Bsprintf(lines[num++],"Overpic: %d", TrackerCast(wall[searchwall].overpicnum));
@@ -4330,9 +4331,9 @@ static void Keys3d(void)
                     break;
 
                 if (searchwall != searchbottomwall)
-                    Bsprintf(lines[num++],"^251Wall %d ->^242 %d", searchwall, searchbottomwall);
+                    Bsprintf(lines[num++],"^%dWall %d ->^%d %d", editorcolors[10], searchwall, editorcolors[14], searchbottomwall);
                 else
-                    Bsprintf(lines[num++],"^251Wall %d", searchwall);
+                    Bsprintf(lines[num++],"^%dWall %d", editorcolors[10], searchwall);
 
                 if (wall[searchwall].nextsector!=-1)
                     Bsprintf(lines[num++],"LoHeight:%d, HiHeight:%d, Length:%d",height1,height3,dist);
@@ -4365,7 +4366,7 @@ static void Keys3d(void)
                 if (getmessageleng)
                     break;
 
-                Bsprintf(lines[num++],"^251Sector %d^31 %s, Lotag:%s", searchsector, typestr[searchstat], ExtGetSectorCaption(searchsector));
+                Bsprintf(lines[num++],"^%dSector %d^%d %s, Lotag:%s", editorcolors[10], searchsector, whitecol, typestr[searchstat], ExtGetSectorCaption(searchsector));
                 Bsprintf(lines[num++],"Height: %d, Visibility:%d", height2, TrackerCast(sector[searchsector].visibility));
                 break;
 
@@ -4391,11 +4392,11 @@ static void Keys3d(void)
                 if (names[sprite[searchwall].picnum][0])
                 {
                     if (sprite[searchwall].picnum==SECTOREFFECTOR)
-                        Bsprintf(lines[num++],"^251Sprite %d^31 %s", searchwall, SectorEffectorText(searchwall));
+                        Bsprintf(lines[num++],"^%dSprite %d^%d %s", editorcolors[10], searchwall, whitecol, SectorEffectorText(searchwall));
                     else
-                        Bsprintf(lines[num++],"^251Sprite %d^31 %s", searchwall, names[sprite[searchwall].picnum]);
+                        Bsprintf(lines[num++],"^%dSprite %d^%d %s", editorcolors[10], searchwall, whitecol, names[sprite[searchwall].picnum]);
                 }
-                else Bsprintf(lines[num++],"^251Sprite %d^31, picnum %d", searchwall, TrackerCast(sprite[searchwall].picnum));
+                else Bsprintf(lines[num++],"^%dSprite %d^%d, picnum %d", editorcolors[10], searchwall, whitecol, TrackerCast(sprite[searchwall].picnum));
 
                 Bsprintf(lines[num++], "Elevation:%d",
                          getflorzofslope(searchsector, sprite[searchwall].x, sprite[searchwall].y) - sprite[searchwall].z);
@@ -4411,7 +4412,7 @@ static void Keys3d(void)
         {
             while (num < 4)
                 lines[num++][0] = 0;
-            Bsprintf(lines[num++], "^251%s", getmessage);
+            Bsprintf(lines[num++], "^%d%s", editorcolors[10], getmessage);
         }
 
         begindrawing();
@@ -5395,12 +5396,12 @@ static void Keys3d(void)
             if (!x)
             {
                 printext256(dax-(chars<<3)+1, day+2,0,-1,tempbuf,x);
-                printext256(dax-(chars<<3), day+1,COLOR_WHITE,-1,tempbuf,x);
+                printext256(dax-(chars<<3), day+1,whitecol,-1,tempbuf,x);
             }
             else
             {
                 printext256(dax-(chars<<2)+1, day+2,0,-1,tempbuf,x);
-                printext256(dax-(chars<<2), day+1,COLOR_WHITE,-1,tempbuf,x);
+                printext256(dax-(chars<<2), day+1,whitecol,-1,tempbuf,x);
             }
 
             if (LastSec < thisSec)
