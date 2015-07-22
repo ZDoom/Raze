@@ -17117,12 +17117,11 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     {
         col=editorcolors[9];
         if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
-            if (totalclock & 16) col -= (2<<2);
+            col -= M32_THROB>>3;
     }
     else if ((showfirstwall && searchsector>=0 && (sector[searchsector].wallptr == i ||
                           sector[searchsector].wallptr == wall[i].nextwall)) || 
         ((show2dwall[i>>3]&pow2char[i&7]) && (show2dwall[wall[i].point2>>3]&pow2char[wall[i].point2&7])))
-             
     {
         col = editorcolors[14];
         if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)) ||
@@ -17175,12 +17174,10 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 
     if (wal->cstat&64)  // if hitscan bit set
     {
-        int32_t one=(klabs(x2-x1) >= klabs(y2-y1)), no=!one;
+        int32_t const one=(klabs(x2-x1) >= klabs(y2-y1)), no=!one;
 
         drawline16mid(x1+no,y1+one, x2+no,y2+one, col);
         drawline16mid(x1-no,y1-one, x2-no,y2-one, col);
-
-        col += 8;
     }
 
     drawline16mid(x1,y1, x2,y2, col);

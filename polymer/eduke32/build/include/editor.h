@@ -400,7 +400,7 @@ extern int32_t scripthistend;
 #define SEARCH_SPRITE 3
 #define SEARCH_MASKWALL 4
 
-#define ASSERT_AIMING (searchstat>=0 && searchstat<=4)
+#define ASSERT_AIMING ((unsigned)searchstat<=4)
 
 #define AIMING_AT_WALL (searchstat==0)
 #define AIMING_AT_CEILING (searchstat==1)

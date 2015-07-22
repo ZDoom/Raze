@@ -3832,6 +3832,7 @@ void overheadeditor(void)
 
                     inpclamp(&pos.z, cz+(4<<8), fz-(4<<8));
 
+                    enddrawing();
                     setview(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D);
                     clearview(-1);
 
@@ -3849,6 +3850,7 @@ void overheadeditor(void)
                     searchx = osearch.x;
                     searchy = osearch.y;
 
+                    begindrawing();
                     drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, editorcolors[15]);
                     drawline16(m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y  + YSIZE_2D3D, editorcolors[15]);
                     drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);

@@ -3666,7 +3666,10 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
     printext256(x,y,editorcolors[14],-1,title,small);
 
     if (flags&4)
-        Bsprintf(tileinfo_colorstr, "^%d", editorcolors[14]);
+    {
+        Bsprintf(tempbuf, "^%d", editorcolors[14]);
+        tileinfo_colorstr = tempbuf;
+    }
 
     tileinfo_doprint(x, y, buf, "Pic", picnum, 1);
     tileinfo_doprint(x, y, buf, "Shd", shade, 2);
