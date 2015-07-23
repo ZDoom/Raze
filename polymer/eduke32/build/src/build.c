@@ -5793,7 +5793,7 @@ end_after_dragging:
         }
 end_point_dragging:
 
-        if (bstatus&(2) && !(bstatus&1))  // change arrow position
+        if (bstatus&(2) && (!(bstatus&5) || pointhighlight > 0 || highlightcnt > 0 || highlightsectorcnt > 0))  // change arrow position
         {
             if (eitherCTRL)
             {
