@@ -1213,7 +1213,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                 {
                     s->extra = p->max_player_health;
                     s->cstat = 257;
-                    p->inv_amount[GET_JETPACK] =     1599;
+                    p->inv_amount[GET_JETPACK] = 1599;
                 }
 
                 if (s->extra > 0)
@@ -7261,15 +7261,16 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             for (TRAVERSE_CONNECT(p))
             {
-                if (g_player[p].ps->cursectnum == s->sectnum && g_player[p].ps->on_ground)
+                DukePlayer_t *const ps = g_player[p].ps;
+
+                if (ps->cursectnum == s->sectnum && ps->on_ground)
                 {
-                    if (klabs(g_player[p].ps->pos.z-g_player[p].ps->truefz) < PHEIGHT+(9<<8))
+                    if (klabs(ps->pos.z-ps->truefz) < PHEIGHT+(9<<8))
                     {
-                        g_player[p].ps->fric.x += x<<3;
-                        g_player[p].ps->fric.y += l<<3;
+                        ps->fric.x += x<<3;
+                        ps->fric.y += l<<3;
                     }
                 }
-
             }
             sc->floorxpanning += SP>>7;
 
@@ -7368,11 +7369,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             for (TRAVERSE_CONNECT(p))
             {
-                if (sprite[g_player[p].ps->i].sectnum == s->sectnum && g_player[p].ps->on_ground)
+                DukePlayer_t *const ps = g_player[p].ps;
+
+                if (sprite[ps->i].sectnum == s->sectnum && ps->on_ground)
                 {
-                    g_player[p].ps->fric.x += l<<5;
-                    g_player[p].ps->fric.y += x<<5;
-                    g_player[p].ps->pos.z += s->zvel;
+                    ps->fric.x += l<<5;
+                    ps->fric.y += x<<5;
+                    ps->pos.z += s->zvel;
                 }
             }
             A_MoveSector(i);

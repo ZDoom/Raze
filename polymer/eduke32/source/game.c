@@ -2532,16 +2532,18 @@ static void G_PrintCoords(int32_t snum)
         else if (g_netServer || ud.multimode > 1)
             y = 24;
     }
-    Bsprintf(tempbuf,"XYZ= (%d,%d,%d)",ps->pos.x,ps->pos.y,ps->pos.z);
+    Bsprintf(tempbuf, "XYZ= (%d, %d, %d)", ps->pos.x, ps->pos.y, ps->pos.z);
     printext256(x,y,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"A/H/HO= %d,%d,%d",ps->ang,ps->horiz,ps->horizoff);
+    Bsprintf(tempbuf, "A/H/HO= %d, %d, %d", ps->ang, ps->horiz, ps->horizoff);
     printext256(x,y+9,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"ZV= %d",ps->vel.z);
+    Bsprintf(tempbuf,"VEL= (%d, %d, %d) + (%d, %d, 0)",
+             ps->vel.x>>14, ps->vel.y>>14, ps->vel.z, ps->fric.x>>5, ps->fric.y>>5);
     printext256(x,y+18,31,-1,tempbuf,0);
-    Bsprintf(tempbuf,"OG= %d  SBRIDGE=%d SBS=%d",ps->on_ground, ps->spritebridge, ps->sbs);
+    Bsprintf(tempbuf,"OG= %d  SBRIDGE=%d SBS=%d", ps->on_ground, ps->spritebridge, ps->sbs);
     printext256(x,y+27,31,-1,tempbuf,0);
     if (sectnum >= 0)
-        Bsprintf(tempbuf,"SECT= %d (LO=%d EX=%d)",sectnum,TrackerCast(sector[sectnum].lotag),TrackerCast(sector[sectnum].extra));
+        Bsprintf(tempbuf, "SECT= %d (LO=%d EX=%d)", sectnum,
+                 TrackerCast(sector[sectnum].lotag), TrackerCast(sector[sectnum].extra));
     else
         Bsprintf(tempbuf,"SECT= %d", sectnum);
     printext256(x,y+36,31,-1,tempbuf,0);
