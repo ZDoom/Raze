@@ -311,6 +311,7 @@ struct glinfo_t glinfo =
     0,          // Occlusion Queries
     0,          // GLSL
     0,          // Debug Output
+    0,          // Buffer storage
     0,          // GL info dumped
 };
 #endif

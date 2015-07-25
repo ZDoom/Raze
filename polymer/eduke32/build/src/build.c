@@ -5106,7 +5106,8 @@ end_yax: ;
 
         if (highlightcnt < 0)
         {
-            if (((bstatus & 4) && highlightsectorcnt <= 0) || (bstatus & 4) && linehighlight == -1 || keystatus[0xb8])  //Right alt (sector highlighting)
+            if (((bstatus & 4) && highlightsectorcnt <= 0) || ((bstatus & 4) && linehighlight == -1)
+                || keystatus[0xb8])  //Right alt (sector highlighting)
             {
                 if (highlightsectorcnt == 0)
                 {
@@ -9947,6 +9948,7 @@ static int32_t menuselect(void)
     return -1;
 }
 
+#if 0
 static inline int32_t imod(int32_t a, int32_t b)
 {
     if (a >= 0)
@@ -9954,6 +9956,7 @@ static inline int32_t imod(int32_t a, int32_t b)
 
     return ((a+1)%b)+b-1;
 }
+#endif
 
 int32_t fillsector(int16_t sectnum, int32_t fillcolor)
 {

@@ -117,7 +117,7 @@ sound_t g_sounds[MAXSOUNDS];
 static int16_t g_definedsndnum[MAXSOUNDS];  // maps parse order index to g_sounds index
 static int16_t g_sndnum[MAXSOUNDS];  // maps current order index to g_sounds index
 int32_t g_numsounds = 0;
-static int32_t lastupdate, mousecol, bstatus;
+static int32_t mousecol, bstatus;
 
 static int32_t corruptchecktimer;
 static int32_t curcorruptthing=-1;

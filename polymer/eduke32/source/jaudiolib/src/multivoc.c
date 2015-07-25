@@ -580,7 +580,7 @@ int32_t MV_SetFrequency(int32_t handle, int32_t frequency)
     return MV_Ok;
 }
 
-static const inline int16_t *MV_GetVolumeTable(int32_t vol) { return MV_VolumeTable[MIX_VOLUME(vol)]; }
+static inline const int16_t *MV_GetVolumeTable(int32_t vol) { return MV_VolumeTable[MIX_VOLUME(vol)]; }
 
 /*---------------------------------------------------------------------
    Function: MV_SetVoiceMixMode

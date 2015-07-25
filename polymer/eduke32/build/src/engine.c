@@ -17258,7 +17258,8 @@ int32_t getspritecol(int32_t spr)
     int picnum = sprite[spr].picnum;
     int pal = sprite[spr].pal;
 
-    if (palookup[pal] == NULL || tilecols[picnum] && palookup[pal][tilecols[picnum]] == 0) pal = 0;
+    if (palookup[pal] == NULL || (tilecols[picnum] && palookup[pal][tilecols[picnum]] == 0))
+        pal = 0;
 
     if (tilecols[picnum]) return palookup[pal][tilecols[picnum]];
 
