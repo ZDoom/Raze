@@ -7518,6 +7518,10 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             continue;
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
+        {
+            const int viewscrShift = G_GetViewscreenSizeShift(t);
+            const int viewscrTile = TILE_VIEWSCR-viewscrShift;
+
             if (g_curViewscreen >= 0 && actor[OW].t_data[0] == 1)
             {
                 t->picnum = STATIC;
@@ -7525,7 +7529,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 t->xrepeat += 10;
                 t->yrepeat += 9;
             }
-            else if (g_curViewscreen == i && display_mirror != 3 && waloff[TILE_VIEWSCR] && walock[TILE_VIEWSCR] > 200)
+            else if (g_curViewscreen == i && display_mirror != 3 && waloff[viewscrTile] && walock[viewscrTile] > 200)
             {
                 // this exposes a sprite sorting issue which needs to be debugged further...
 #if 0
@@ -7541,16 +7545,15 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     updatesector(newt->x, newt->y, &newt->sectnum);
                 }
 #endif
-
-                t->picnum = TILE_VIEWSCR;
-
+                t->picnum = viewscrTile;
 #if VIEWSCREENFACTOR > 0
-                t->xrepeat = (t->xrepeat>>VIEWSCREENFACTOR) + (t->xrepeat & 1);
-                t->yrepeat = (t->yrepeat>>VIEWSCREENFACTOR) + (t->yrepeat & 1);
+                t->xrepeat >>= viewscrShift;
+                t->yrepeat >>= viewscrShift;
 #endif
             }
 
             break;
+        }
 
         case SHRINKSPARK__STATIC:
             t->picnum = SHRINKSPARK+((totalclock>>4)&3);

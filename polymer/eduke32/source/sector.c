@@ -404,12 +404,15 @@ void G_AnimateCamSprite(int32_t smoothratio)
 
         if (OW >= 0 && dist(&sprite[ps->i], &sprite[i]) < VIEWSCREEN_ACTIVE_DISTANCE)
         {
-            if (waloff[TILE_VIEWSCR] == 0)
-                allocatepermanenttile(TILE_VIEWSCR, tilesiz[PN].x<<VIEWSCREENFACTOR, tilesiz[PN].y<<VIEWSCREENFACTOR);
-            else
-                walock[TILE_VIEWSCR] = 255;
+            const int viewscrShift = G_GetViewscreenSizeShift((const tspritetype *)&sprite[i]);
+            const int viewscrTile = TILE_VIEWSCR-viewscrShift;
 
-            G_SetupCamTile(OW, TILE_VIEWSCR, smoothratio);
+            if (waloff[viewscrTile] == 0)
+                allocatepermanenttile(viewscrTile, tilesiz[PN].x<<viewscrShift, tilesiz[PN].y<<viewscrShift);
+            else
+                walock[viewscrTile] = 255;
+
+            G_SetupCamTile(OW, viewscrTile, smoothratio);
 #ifdef POLYMER
             // Force texture update on viewscreen sprite in Polymer!
             if (getrendermode() == REND_POLYMER)

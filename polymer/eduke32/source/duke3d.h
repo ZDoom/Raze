@@ -105,7 +105,9 @@ enum {
 #define TILE_TILT           (MAXTILES-2)
 #define TILE_ANIM           (MAXTILES-4)
 #define TILE_VIEWSCR        (MAXTILES-5)
-EDUKE32_STATIC_ASSERT(5 <= MAXTILES-MAXUSERTILES);
+// Reserved: TILE_VIEWSCR_1 (MAXTILES-6)
+// Reserved: TILE_VIEWSCR_2 (MAXTILES-7)
+EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 
 // sprites with these statnums should be considered for fixing
 #define ROTFIXSPR_STATNUMP(k) ((k)==STAT_DEFAULT || (k)==STAT_STANDABLE || (k)==STAT_FX || \

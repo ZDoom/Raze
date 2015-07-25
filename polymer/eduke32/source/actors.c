@@ -2235,7 +2235,9 @@ DETONATE:
                     g_curViewscreen = -1;
                     sprite[i].yvel = 0;  // VIEWSCREEN_YVEL
                     T1 = 0;
-                    walock[TILE_VIEWSCR] = 199;
+
+                    for (int ii=0; ii < VIEWSCREENFACTOR; ii++)
+                        walock[TILE_VIEWSCR-ii] = 199;
                 }
             }
 

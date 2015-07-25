@@ -613,6 +613,23 @@ static inline int32_t G_GetMusicIdx(const char *str)
     return (ep * MAXLEVELS) + lev;
 }
 
+static inline int G_GetViewscreenSizeShift(const tspritetype *tspr)
+{
+#if VIEWSCREENFACTOR == 0
+    UNREFERENCED_PARAMETER(tspr);
+    return VIEWSCREENFACTOR;
+#else
+    static const int mask = (1<<VIEWSCREENFACTOR)-1;
+    const int rem = (tspr->xrepeat & mask) | (tspr->yrepeat & mask);
+
+    for (int i=0; i < VIEWSCREENFACTOR; i++)
+        if (rem & (1<<i))
+            return i;
+
+    return VIEWSCREENFACTOR;
+#endif
+}
+
 extern void G_StartMusic(void);
 
 #ifdef LUNATIC
