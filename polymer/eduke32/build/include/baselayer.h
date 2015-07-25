@@ -199,9 +199,26 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs);
 void getvalidmodes(void);
 void resetvideomode(void);
 
-void begindrawing(void);
+//#define DEBUG_FRAME_LOCKING
+
 void enddrawing(void);
 void showframe(int32_t);
+#if !defined DEBUG_FRAME_LOCKING
+void begindrawing(void);
+#else
+void begindrawing_real(void);
+# define BEGINDRAWING_SIZE 256
+extern uint32_t begindrawing_line[BEGINDRAWING_SIZE];
+extern const char *begindrawing_file[BEGINDRAWING_SIZE];
+extern int32_t lockcount;
+# define begindrawing() do {                     \
+    if (lockcount < BEGINDRAWING_SIZE) {         \
+        begindrawing_line[lockcount] = __LINE__; \
+        begindrawing_file[lockcount] = __FILE__; \
+    }                                            \
+    begindrawing_real();                         \
+} while(0)
+#endif
 
 int32_t setpalette(int32_t start, int32_t num);
 //int32_t getpalette(int32_t start, int32_t num, char *dapal);

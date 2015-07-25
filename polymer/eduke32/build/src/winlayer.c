@@ -1905,7 +1905,13 @@ void resetvideomode(void)
 //
 // begindrawing() -- locks the framebuffer for drawing
 //
+#ifdef DEBUG_FRAME_LOCKING
+uint32_t begindrawing_line[BEGINDRAWING_SIZE];
+const char *begindrawing_file[BEGINDRAWING_SIZE];
+void begindrawing_real(void)
+#else
 void begindrawing(void)
+#endif
 {
     if (bpp > 8)
     {
