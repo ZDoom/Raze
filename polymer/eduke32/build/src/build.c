@@ -3504,6 +3504,8 @@ void overheadeditor(void)
             int32_t cx = halfxdim16+x2;
             int32_t cy = midydim16+y2;
 
+            begindrawing();	//{{{  LOCK_FRAME_1
+
             if ((cx >= 2 && cx <= xdim-3) && (cy >= 2 && cy <= ydim16-3))
             {
                 int16_t angofs = m32_sideview ? m32_sideang : 0;
@@ -3511,14 +3513,10 @@ void overheadeditor(void)
                 y1 = mulscale11(sintable[(startang+angofs+2048)&2047],zoom) / 768;
                 i = scalescreeny(x1);
                 j = scalescreeny(y1);
-                begindrawing();	//{{{
                 drawline16base(cx,cy, x1,j, -x1,-j, editorcolors[6]);
                 drawline16base(cx,cy, x1,j, +y1,-i, editorcolors[6]);
                 drawline16base(cx,cy, x1,j, -y1,+i, editorcolors[6]);
-                enddrawing();	//}}}
             }
-
-            begindrawing();	//{{{
 
             if (keystatus[0x2a] && (pointhighlight&16384) && highlightcnt<=0)  // LShift
             {
@@ -3949,7 +3947,7 @@ void overheadeditor(void)
                 }
             }
 
-            enddrawing();	//}}}
+            enddrawing();	//}}} LOCK_FRAME_1
 
             OSD_Draw();
         }

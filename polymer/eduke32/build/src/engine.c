@@ -17778,13 +17778,13 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
                 ptr += bytesperline;
             }
         }
+        enddrawing();   //}}}
 
         stx += charxsiz;
 
         if (stx >= xdim)
             break;
     }
-    enddrawing();   //}}}
 
     return stx;
 }
