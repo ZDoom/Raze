@@ -9468,6 +9468,7 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 # endif
 
     // Update starting sector number (common to classic and Polymost).
+    // ADJUST_GLOBALCURSECTNUM.
     if (globalcursectnum >= MAXSECTORS)
         globalcursectnum -= MAXSECTORS;
     else

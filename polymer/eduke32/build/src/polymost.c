@@ -3651,15 +3651,8 @@ void polymost_drawrooms()
     // Fixes access of stale maskwall[maskwallcnt] (a "scan" index, in BUILD lingo):
     maskwallcnt = 0;
 
-    if (globalcursectnum >= MAXSECTORS)
-        globalcursectnum -= MAXSECTORS;
-    else
-    {
-        int const i = globalcursectnum;
-        updatesector(globalposx, globalposy, &globalcursectnum);
-        if (globalcursectnum < 0) globalcursectnum = i;
-    }
-
+    // NOTE: globalcursectnum has been already adjusted in ADJUST_GLOBALCURSECTNUM.
+    Bassert((unsigned)globalcursectnum < MAXSECTORS);
     polymost_scansector(globalcursectnum);
 
     grhalfxdown10x = grhalfxdown10;
