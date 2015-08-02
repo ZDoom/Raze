@@ -9823,7 +9823,7 @@ killsprite:
                 for (int32_t l=i; l>=0; l-=gap)
                 {
                     if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
-                    swaplong(&tspriteptr[l],&tspriteptr[l+gap]);
+                    swapptr(&tspriteptr[l],&tspriteptr[l+gap]);
                     swaplong(&spritesxyz[l].x,&spritesxyz[l+gap].x);
                     swaplong(&spritesxyz[l].y,&spritesxyz[l+gap].y);
                 }
@@ -9864,7 +9864,7 @@ killsprite:
                     for (int32_t l=i; l<k; l++)
                         if (klabs(spritesxyz[k].z-globalposz) < klabs(spritesxyz[l].z-globalposz))
                         {
-                            swaplong(&tspriteptr[k],&tspriteptr[l]);
+                            swapptr(&tspriteptr[k],&tspriteptr[l]);
                             vec3_t tv3 = spritesxyz[k];
                             spritesxyz[k] = spritesxyz[l];
                             spritesxyz[l] = tv3;
