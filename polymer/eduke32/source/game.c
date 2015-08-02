@@ -8094,11 +8094,11 @@ skip:
         }
 
         actor[i].dispicnum = t->picnum;
+#if 0
         // why?
-        /*
-                if (sector[t->sectnum].floorpicnum == MIRROR)
-                    t->xrepeat = t->yrepeat = 0;
-        */
+        if (sector[t->sectnum].floorpicnum == MIRROR)
+            t->xrepeat = t->yrepeat = 0;
+#endif
     }
 
     if (VM_HaveEvent(EVENT_ANIMATESPRITES))

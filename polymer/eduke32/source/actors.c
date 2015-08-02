@@ -4497,7 +4497,7 @@ ACTOR_STATIC void G_MoveActors(void)
             goto BOLT;
         }
 
-        case BOUNCEMINE__STATIC:
+//        case BOUNCEMINE__STATIC:
         case MORTER__STATIC:
             j = A_Spawn(i,(PLUTOPAK?FRAMEEFFECT1:FRAMEEFFECT1_13));
             actor[j].t_data[0] = 3;

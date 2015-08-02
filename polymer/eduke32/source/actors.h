@@ -143,6 +143,7 @@ typedef struct {
     int16_t picnum,ang,extra,owner; //8b
     int16_t movflag,tempang,timetosleep; //6b
 
+    // NOTE: 'dispicnum' is updated locally, not in sync with the game!
     int16_t actorstayput, dispicnum;
 #if !defined LUNATIC
     // NOTE: shootzvel is not used any more.
