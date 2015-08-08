@@ -6,6 +6,8 @@ gamevar shoots 2605 2  // RPG
 gamevar WEAPON1_SHOOTS 2605 0
 
 define MORTER2 1653
+// NOTE: the custom MORTER2 doesn't spawn FRAMEEFFECT like the MORTER, which
+// has some hard-wired code running.
 defineprojectile MORTER2 PROJ_WORKSLIKE 6150
 defineprojectile MORTER2 PROJ_SPAWNS EXPLOSION2
 defineprojectile MORTER2 PROJ_SOUND RPG_SHOOT
@@ -32,6 +34,8 @@ definequote 400 Failed setting projectile userdata
 useractor notenemy 909  // tree trunk
     ifcount 120
     {
+        zshoot -4096 BOUNCEMINE
+
         // userdata: bitwise-OR in 64
         getprojectile[MORTER2].userdata tmp
         orvar tmp 64

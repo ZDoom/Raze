@@ -4498,10 +4498,13 @@ ACTOR_STATIC void G_MoveActors(void)
         }
 
         case BOUNCEMINE__STATIC:
+        if (s->xvel != 0)
         case MORTER__STATIC:
+        {
             j = A_Spawn(i,(PLUTOPAK?FRAMEEFFECT1:FRAMEEFFECT1_13));
             actor[j].t_data[0] = 3;
-
+        }
+            /* fall-through */
         case HEAVYHBOMB__STATIC:
         {
             int32_t p;
