@@ -44,7 +44,7 @@ int32_t showambiencesounds=2;
 int32_t autosave=180;
 
 int32_t autocorruptcheck;
-int32_t corruptcheck_noalreadyrefd;
+int32_t corruptcheck_noalreadyrefd, corruptcheck_heinum=1;
 int32_t corrupt_tryfix_alt;
 int32_t corruptlevel, numcorruptthings, corruptthings[MAXCORRUPTTHINGS];
 
@@ -941,6 +941,7 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
             CORRUPTCHK_PRINT(5, CORRUPT_SECTOR|i, "SECTOR[%d]: wallptr+wallnum=%d out of range: numwalls=%d", i, endwall, numwalls);
 
         // inconsistent cstat&2 and heinum checker
+        if (corruptcheck_heinum)
         {
             const char *cflabel[2] = {"ceiling", "floor"};
 
@@ -959,13 +960,12 @@ int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing)
                                    i, cflabel[j]);
                         heinumcheckstat = 1;
                     }
-/*                  
-                    else if (heinumcheckstat==0)
+                    else if (corruptcheck_heinum==2 && heinumcheckstat==0)
                     {
                         CORRUPTCHK_PRINT(1, CORRUPT_SECTOR|i,
                                          "SECTOR[%d]: inconsistent %sstat&2 and heinum", i, cflabel[j]);
                     }
-*/
+
                     if (heinumcheckstat != 1)
                         heinumcheckstat = 2;
                 }

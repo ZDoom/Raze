@@ -209,6 +209,8 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "autocorruptchecksec", val, VL) > 0) autocorruptcheck = max(0, atoi_safe(val));
     if (readconfig(fp, "corruptcheck_noalreadyrefd", val, VL) > 0)
         corruptcheck_noalreadyrefd = !!atoi_safe(val);
+    if (readconfig(fp, "corruptcheck_heinum", val, VL) > 0)
+        corruptcheck_heinum = clamp(atoi_safe(val), 0, 2);
     if (readconfig(fp, "fixmaponsave_sprites", val, VL) > 0)
         fixmaponsave_sprites = !!atoi_safe(val);
     if (readconfig(fp, "keeptexturestretch", val, VL) > 0)
@@ -488,6 +490,10 @@ int32_t writesetup(const char *fn)
              "; Ignore 'already referenced wall' warnings\n"
              "corruptcheck_noalreadyrefd = %d\n"
              "\n"
+             "; Auto-correct inconsistent ceilingstat/floorstat bit 2 and .heinum?\n"
+             "; Set to 2, also warn on 'corruptcheck'.\n"
+             "corruptcheck_heinum = %d\n"
+             "\n"
              "; Fix sprite sectnums when saving a map or entering 3D mode\n"
              "fixmaponsave_sprites = %d\n"
              "\n"
@@ -620,7 +626,7 @@ int32_t writesetup(const char *fn)
              msens, unrealedlook, pk_uedaccel, quickmapcycling,
              sideview_reversehrot,
              revertCTRL,scrollamount,pk_turnaccel,pk_turndecel,autosave,autocorruptcheck,
-             corruptcheck_noalreadyrefd, fixmaponsave_sprites, keeptexturestretch,
+             corruptcheck_noalreadyrefd, corruptcheck_heinum, fixmaponsave_sprites, keeptexturestretch,
              showheightindicators,showambiencesounds,pathsearchmode,
              m32_2d3dmode,m32_2d3dsize,m32_2d3d.x, m32_2d3d.y,
              autogray, //showinnergray,

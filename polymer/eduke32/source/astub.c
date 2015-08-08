@@ -8547,11 +8547,7 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
             return OSDCMD_SHOWHELP;
 
         if (setval)
-        {
-            pk_uedaccel = atoi_safe(parm->parms[0]);
-            pk_uedaccel = pk_uedaccel<0 ? 0:pk_uedaccel;
-            pk_uedaccel = pk_uedaccel>5 ? 5:pk_uedaccel;
-        }
+            pk_uedaccel = clamp(atoi_safe(parm->parms[0]), 0, 5);
 
         OSD_Printf("UnrealEd mouse navigation acceleration is %d\n", pk_uedaccel);
         return OSDCMD_OK;
@@ -8621,6 +8617,22 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         corruptcheck_noalreadyrefd = !corruptcheck_noalreadyrefd;
         OSD_Printf("%s 'already referenced' corruption (i.e. one-to-many nextwalls)\n",
                    corruptcheck_noalreadyrefd?"Ignore":"Regard");
+        return OSDCMD_OK;
+    }
+
+    if (!Bstrcasecmp(parm->name, "corruptcheck_heinum"))
+    {
+        if (parm->numparms > 1)
+            return OSDCMD_SHOWHELP;
+
+        static const char *mode[3] = {"disabled", "auto-correct only", "auto-correct and warn"};
+
+        if (setval)
+            corruptcheck_heinum = clamp(atoi_safe(parm->parms[0]), 0, 2);
+
+        OSD_Printf("Check inconsistent ceilingstat/floorstat bit 2 and .heinum: %s\n",
+                   mode[corruptcheck_heinum]);
+
         return OSDCMD_OK;
     }
 
@@ -9058,6 +9070,7 @@ static int32_t registerosdcommands(void)
     OSD_RegisterFunction("show_heightindicators", "show_heightindicators {0, 1 or 2}: sets display of height indicators in 2D mode", osdcmd_vars_pk);
     OSD_RegisterFunction("show_ambiencesounds", "show_ambiencesounds {0, 1 or 2}>: sets display of MUSICANDSFX circles in 2D mode", osdcmd_vars_pk);
     OSD_RegisterFunction("corruptcheck_noalreadyrefd", "corruptcheck_noalreadyrefd: toggles ignoring of one-to-many red wall connections", osdcmd_vars_pk);
+    OSD_RegisterFunction("corruptcheck_heinum", "corruptcheck_heinum: toggles auto-correcting inconsistent c/fstat bit 2 and heinum (2: also warn)", osdcmd_vars_pk);
     OSD_RegisterFunction("keeptexturestretch", "toggles keeping texture stretching when dragging wall vertices", osdcmd_vars_pk);
 
     OSD_RegisterFunction("corruptcheck", "corruptcheck {<seconds>|now|tryfix}: sets auto corruption check interval if <seconds> given, otherwise as indicated", osdcmd_vars_pk);
