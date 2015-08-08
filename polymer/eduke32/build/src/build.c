@@ -552,6 +552,11 @@ void M32_DrawRoomsAndMasks(void)
     }
 }
 
+void M32_OnShowOSD(int32_t shown)
+{
+    AppGrabMouse((!shown) + 2);
+}
+
 int32_t app_main(int32_t argc, const char **argv)
 {
 #ifdef STARTUP_SETUP_WINDOW
@@ -620,7 +625,7 @@ int32_t app_main(int32_t argc, const char **argv)
         NULL, NULL, NULL, NULL, NULL,
         COMMON_clearbackground,
         BGetTime,
-        NULL
+        M32_OnShowOSD
     );
 
     OSD_SetParameters(0,2, 0,0, 4,0);
@@ -738,6 +743,7 @@ int32_t app_main(int32_t argc, const char **argv)
     updatesector(pos.x,pos.y,&cursectnum);
 
     setkeypresscallback(&m32_keypresscallback);
+    M32_OnShowOSD(0);  // make sure the desktop's mouse cursor is hidden
 
     if (cursectnum == -1)
     {
