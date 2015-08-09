@@ -59,6 +59,7 @@ extern int32_t voting;
 
 #define USERMAPENTRYLENGTH 25
 
+#if 0
 static inline void WithSDL2_StartTextInput()
 {
 #if defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
@@ -72,6 +73,7 @@ static inline void WithSDL2_StopTextInput()
     SDL_StopTextInput();
 #endif
 }
+#endif
 
 #define mgametext(x,y,t) G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, -1<<16, 0, 0, 0, 0, xdim-1, ydim-1)
 #define mgametextcenter(x,y,t) G_ScreenText(STARTALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, -1<<16, 1<<16, TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
@@ -3416,7 +3418,6 @@ void M_ChangeMenu(MenuID_t cm)
     {
         typebuf[0] = 0;
         ((MenuTextForm_t*)m_currentMenu->object)->input = typebuf;
-        WithSDL2_StartTextInput();
     }
     else if (m_currentMenu->type == FileSelect)
         M_MenuFileSelectInit((MenuFileSelect_t*)m_currentMenu->object);
@@ -5179,7 +5180,6 @@ static void M_RunMenuInput_MenuEntryString_Activate(MenuEntry_t *entry)
         object->maxlength = TYPEBUFSIZE;
 
     M_MenuEntryStringActivate(/*entry*/);
-    WithSDL2_StartTextInput();
 }
 
 static void M_RunMenuInput_MenuEntryString_Submit(MenuEntry_t *entry, MenuString_t *object)
@@ -5188,7 +5188,6 @@ static void M_RunMenuInput_MenuEntryString_Submit(MenuEntry_t *entry, MenuString
         Bstrncpy(object->variable, object->editfield, object->maxlength);
 
     object->editfield = NULL;
-    WithSDL2_StopTextInput();
 }
 
 static void M_RunMenuInput_MenuEntryString_Cancel(/*MenuEntry_t *entry, */MenuString_t *object)
@@ -5196,7 +5195,6 @@ static void M_RunMenuInput_MenuEntryString_Cancel(/*MenuEntry_t *entry, */MenuSt
     M_MenuEntryStringCancel(/*entry*/);
 
     object->editfield = NULL;
-    WithSDL2_StopTextInput();
 }
 
 static void M_RunMenuInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
@@ -5320,7 +5318,6 @@ static void M_RunMenuInput(Menu_t *cm)
                 object->input = NULL;
 
                 M_ChangeMenuAnimate(cm->parentID, cm->parentAnimation);
-                WithSDL2_StopTextInput();
             }
             else if (hitstate == 1 || M_RunMenuInput_MouseAdvance())
             {
@@ -5329,7 +5326,6 @@ static void M_RunMenuInput(Menu_t *cm)
                 M_MenuTextFormSubmit(object->input);
 
                 object->input = NULL;
-                WithSDL2_StopTextInput();
             }
             break;
         }
