@@ -1090,7 +1090,8 @@ int32_t OSD_HandleChar(char ch)
     }
     return 0;
     case 11:      // control k, delete all to end of line
-        Bmemset(osd->editor.buf + osd->editor.pos, 0, OSDBUFFERSIZE - osd->editor.pos);
+        Bmemset(osd->editor.buf + osd->editor.pos, 0, OSDEDITLENGTH - osd->editor.pos);
+        osd->editor.len = osd->editor.pos;
         return 0;
     case 12:      // control l, clear screen
         Bmemset(osd->text.buf, 0, OSDBUFFERSIZE);
