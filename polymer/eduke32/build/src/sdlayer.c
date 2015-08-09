@@ -2029,33 +2029,27 @@ int32_t handleevents_pollsdl(void)
 
             case SDL_KEYDOWN:
             case SDL_KEYUP:
-                code = keytranslation[ev.key.keysym.scancode];
+            {
+                const SDL_Scancode sc = ev.key.keysym.scancode;
+                code = keytranslation[sc];
 
                 // XXX: see osd.c, OSD_HandleChar(), there are more...
                 if (ev.key.type == SDL_KEYDOWN && !keyascfifo_isfull() &&
-                    (ev.key.keysym.scancode == SDL_SCANCODE_RETURN ||
-                    ev.key.keysym.scancode == SDL_SCANCODE_KP_ENTER ||
-                    ev.key.keysym.scancode == SDL_SCANCODE_ESCAPE ||
-                    ev.key.keysym.scancode == SDL_SCANCODE_BACKSPACE ||
-                    ev.key.keysym.scancode == SDL_SCANCODE_TAB ||
-                    (ev.key.keysym.mod==KMOD_LCTRL &&
-                    (ev.key.keysym.scancode == SDL_SCANCODE_F ||
-                    ev.key.keysym.scancode == SDL_SCANCODE_G ||
-                    ev.key.keysym.scancode == SDL_SCANCODE_K ||
-                    ev.key.keysym.scancode == SDL_SCANCODE_U))))
+                    (sc == SDL_SCANCODE_RETURN || sc == SDL_SCANCODE_KP_ENTER ||
+                     sc == SDL_SCANCODE_ESCAPE ||
+                     sc == SDL_SCANCODE_BACKSPACE ||
+                     sc == SDL_SCANCODE_TAB ||
+                     (ev.key.keysym.mod==KMOD_LCTRL &&
+                      (sc >= SDL_SCANCODE_A && sc <= SDL_SCANCODE_Z))))
                 {
                     char keyvalue;
-                    switch (ev.key.keysym.scancode)
+                    switch (sc)
                     {
                         case SDL_SCANCODE_RETURN: case SDL_SCANCODE_KP_ENTER: keyvalue = '\r'; break;
                         case SDL_SCANCODE_ESCAPE: keyvalue = 27; break;
                         case SDL_SCANCODE_BACKSPACE: keyvalue = '\b'; break;
                         case SDL_SCANCODE_TAB: keyvalue = '\t'; break;
-                        case SDL_SCANCODE_F: keyvalue = 6; break;
-                        case SDL_SCANCODE_G: keyvalue = 7; break;
-                        case SDL_SCANCODE_K: keyvalue = 11; break;
-                        case SDL_SCANCODE_U: keyvalue = 21; break;
-                        default: keyvalue = 0; break;
+                        default: keyvalue = sc - SDL_SCANCODE_A + 1; break;  // Ctrl+A --> 1, etc.
                     }
                     if (OSD_HandleChar(keyvalue))
                         keyascfifo_insert(keyvalue);
@@ -2100,6 +2094,7 @@ int32_t handleevents_pollsdl(void)
                         keypresscallback(code, 0);
                 }
                 break;
+            }
 
             case SDL_MOUSEWHEEL:
                 // initprintf("wheel y %d\n",ev.wheel.y);
