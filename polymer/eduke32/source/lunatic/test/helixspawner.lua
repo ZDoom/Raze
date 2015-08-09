@@ -28,6 +28,9 @@ local nukeswStart = con.actorvar(false)
 -- "volatile" actors.
 local starPal = con.actorvar(0)
 
+-- Color per decasecond, can be changed from outside.
+COLOR = { 1, 2, 6, 7, 8 }
+
 require("end_gamevars")
 
 
@@ -37,9 +40,6 @@ local angvec = xmath.angvec
 
 local D = require("CON.DEFS")
 local GTICSPERSEC = gv.GTICSPERSEC
-
--- color per decasecond
-local COLOR = { 1, 2, 6, 7, 8 }
 
 gameactor
 {
@@ -59,14 +59,14 @@ gameactor
         if (act:has_action(0)) then
             act:set_action(1)  -- TODO: actor constructors, i.e. 'init' callbacks
 
-            local decasec = math.floor((gv.gametic - nukeswStart[spr.owner])/(GTICSPERSEC*10))
+            local decasec = math.floor((gv.gametic - nukeswStart[spr.owner])/(GTICSPERSEC*10)) % 12
 
             local pal = COLOR[decasec+1]
             if (pal ~= nil) then
                 starPal[aci] = pal
             end
 
-            -- At one point, we stop coloring the spawned stars. This tests
+            -- Every 2nd minute, we stop coloring the spawned stars. This tests
             -- per-actor variable resetting to the default value.
             spr.pal = starPal[aci]
         end
