@@ -3812,12 +3812,16 @@ void overheadeditor(void)
             // 2d3d mode
             if (m32_2d3dmode && m32_2d3d_resolutions_match())
             {
+#ifdef USE_OPENGL
                 int bakrendmode = rendmode;
+#endif
                 vec2_t bdim ={ xdim, ydim };
 
                 xdim = xdim2d;
                 ydim = ydim2d;
+#ifdef USE_OPENGL
                 rendmode = REND_CLASSIC;
+#endif
 
                 if (m32_2d3d.x + XSIZE_2D3D > xdim2d - 4)
                     m32_2d3d.x = xdim2d - 4 - XSIZE_2D3D;
@@ -3850,7 +3854,9 @@ void overheadeditor(void)
                     M32_DrawRoomsAndMasks();
                     setview(0, 0, xdim2d-1, ydim2d-1);
 
+#ifdef USE_OPENGL
                     rendmode = bakrendmode;
+#endif
                     xdim = bdim.x;
                     ydim = bdim.y;
                     searchx = osearch.x;

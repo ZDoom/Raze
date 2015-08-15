@@ -10692,17 +10692,21 @@ void ExtCheckKeys(void)
     // 2d3d mode
     if ((in3dmode() && !m32_is2d3dmode()) || m32_is2d3dmode())
     {
+#ifdef USE_OPENGL
         int bakrendmode = rendmode;
 
         if (m32_is2d3dmode())
             rendmode = REND_CLASSIC;
+#endif
 
         Keys3d();
         editinput();
         if (infobox&2)
             m32_showmouse();
 
+#ifdef USE_OPENGL
         rendmode = bakrendmode;
+#endif
     }
     else if (!in3dmode())
     {
