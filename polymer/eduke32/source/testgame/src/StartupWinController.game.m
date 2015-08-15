@@ -4,7 +4,8 @@
 #include "baselayer.h"
 #include "build.h"
 
-static struct {
+static struct
+{
     int fullscreen;
     int xdim3d, ydim3d, bpp3d;
     int forcesetup;
@@ -53,13 +54,17 @@ static struct {
     int idx3d = -1;
     int xdim, ydim, bpp;
 
-    if (firstTime) {
+    if (firstTime)
+    {
         xdim = settings.xdim3d;
         ydim = settings.ydim3d;
         bpp  = settings.bpp3d;
-    } else {
+    }
+    else
+    {
         mode3d = [[modeslist3d objectAtIndex:[videoMode3DPUButton indexOfSelectedItem]] intValue];
-        if (mode3d >= 0) {
+        if (mode3d >= 0)
+        {
             xdim = validmode[mode3d].xdim;
             ydim = validmode[mode3d].ydim;
             bpp = validmode[mode3d].bpp;
@@ -67,10 +72,12 @@ static struct {
 
     }
     mode3d = checkvideomode(&xdim, &ydim, bpp, fullscreen, 1);
-    if (mode3d < 0) {
+    if (mode3d < 0)
+    {
         int i, cd[] = { 32, 24, 16, 15, 8, 0 };
         for (i=0; cd[i]; ) { if (cd[i] >= bpp) i++; else break; }
-        for ( ; cd[i]; i++) {
+        for (; cd[i]; i++)
+        {
             mode3d = checkvideomode(&xdim, &ydim, cd[i], fullscreen, 1);
             if (mode3d < 0) continue;
             break;
@@ -82,12 +89,14 @@ static struct {
 
     modeslist3d = [[NSMutableArray alloc] init];
 
-    for (i = 0; i < validmodecnt; i++) {
-        if (fullscreen == validmode[i].fs) {
+    for (i = 0; i < validmodecnt; i++)
+    {
+        if (fullscreen == validmode[i].fs)
+        {
             if (i == mode3d) idx3d = [modeslist3d count];
             [modeslist3d addObject:[NSNumber numberWithInt:i]];
             [videoMode3DPUButton addItemWithTitle:[NSString stringWithFormat:@"%d %C %d %d-bpp",
-                validmode[i].xdim, 0xd7, validmode[i].ydim, validmode[i].bpp]];
+                                                   validmode[i].xdim, 0xd7, validmode[i].ydim, validmode[i].bpp]];
         }
     }
 
@@ -111,7 +120,8 @@ static struct {
 - (IBAction)start:(id)sender
 {
     int mode = [[modeslist3d objectAtIndex:[videoMode3DPUButton indexOfSelectedItem]] intValue];
-    if (mode >= 0) {
+    if (mode >= 0)
+    {
         settings.xdim3d = validmode[mode].xdim;
         settings.ydim3d = validmode[mode].ydim;
         settings.bpp3d = validmode[mode].bpp;
@@ -151,7 +161,8 @@ static struct {
     // user can enable it if they want to while waiting for something else to happen
     NSEnumerator *enumerator = [[[[tabView tabViewItemAtIndex:0] view] subviews] objectEnumerator];
     NSControl *control;
-    while (control = [enumerator nextObject]) {
+    while (control = [enumerator nextObject])
+    {
         if (control == alwaysShowButton) continue;
         [control setEnabled:false];
     }
@@ -175,7 +186,8 @@ static struct {
     [messagesView replaceCharactersInRange:end withString:str];
     [text endEditing];
 
-    if (shouldAutoScroll) {
+    if (shouldAutoScroll)
+    {
         end.location = [text length];
         end.length = 0;
         [messagesView scrollRangeToVisible:end];
@@ -265,15 +277,17 @@ int startwin_run(void)
 
     [startwin setupRunMode];
 
-    switch ([NSApp runModalForWindow:[startwin window]]) {
-        case NSRunStoppedResponse: retval = 1; break;
-        case NSRunAbortedResponse: retval = 0; break;
-        default: retval = -1;
+    switch ([NSApp runModalForWindow:[startwin window]])
+    {
+    case NSRunStoppedResponse: retval = 1; break;
+    case NSRunAbortedResponse: retval = 0; break;
+    default: retval = -1;
     }
 
     [startwin setupMessagesMode];
 
-    if (retval) {
+    if (retval)
+    {
         fullscreen = settings.fullscreen;
         xdimgame = settings.xdim3d;
         ydimgame = settings.ydim3d;

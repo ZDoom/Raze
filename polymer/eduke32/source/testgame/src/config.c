@@ -12,8 +12,8 @@
 #include "baselayer.h"
 
 static int vesares[13][2] = {{320,200},{360,200},{320,240},{360,240},{320,400},
-                {360,400},{640,350},{640,400},{640,480},{800,600},
-                {1024,768},{1280,1024},{1600,1200}};
+                             {360,400},{640,350},{640,400},{640,480},{800,600},
+                             {1024,768},{1280,1024},{1600,1200}};
 
 static int readconfig(BFILE *fp, const char *key, char *value, unsigned len)
 {
@@ -24,7 +24,8 @@ static int readconfig(BFILE *fp, const char *key, char *value, unsigned len)
 
     Brewind(fp);
 
-    while (1) {
+    while (1)
+    {
         if (!Bfgets(buf, 1000, fp)) return 0;
 
         if (buf[0] == ';') continue;
@@ -108,7 +109,8 @@ int loadsetup(const char *fn)
 
     if (readconfig(fp, "forcesetup", val, VL) > 0) { if (Batoi(val) != 0) forcesetup = 1; else forcesetup = 0; }
     if (readconfig(fp, "fullscreen", val, VL) > 0) { if (Batoi(val) != 0) fullscreen = 1; else fullscreen = 0; }
-    if (readconfig(fp, "resolution", val, VL) > 0) {
+    if (readconfig(fp, "resolution", val, VL) > 0)
+    {
         i = Batoi(val) & 0x0f;
         if ((unsigned)i<13) { xdimgame = xdim2d = vesares[i][0]; ydimgame = ydim2d = vesares[i][1]; }
     }
@@ -166,119 +168,119 @@ int writesetup(const char *fn)
     if (!fp) return -1;
 
     Bfprintf(fp,
-    "; Always show configuration options on startup\n"
-    ";   0 - No\n"
-    ";   1 - Yes\n"
-    "forcesetup = %d\n"
-    "\n"
-    "; Video mode selection\n"
-    ";   0 - Windowed\n"
-    ";   1 - Fullscreen\n"
-    "fullscreen = %d\n"
-    "\n"
-    "; Video resolution\n"
-    "xdim = %d\n"
-    "ydim = %d\n"
-    "\n"
-    "; 3D-mode colour depth\n"
-    "bpp = %d\n"
-    "\n"
+             "; Always show configuration options on startup\n"
+             ";   0 - No\n"
+             ";   1 - Yes\n"
+             "forcesetup = %d\n"
+             "\n"
+             "; Video mode selection\n"
+             ";   0 - Windowed\n"
+             ";   1 - Fullscreen\n"
+             "fullscreen = %d\n"
+             "\n"
+             "; Video resolution\n"
+             "xdim = %d\n"
+             "ydim = %d\n"
+             "\n"
+             "; 3D-mode colour depth\n"
+             "bpp = %d\n"
+             "\n"
 #ifdef USE_OPENGL
-    "; OpenGL mode options\n"
-    "glusetexcache = %d\n"
-    "\n"
+             "; OpenGL mode options\n"
+             "glusetexcache = %d\n"
+             "\n"
 #endif
 #ifdef RENDERTYPEWIN
-    "; Maximum OpenGL mode refresh rate (Windows only, in Hertz)\n"
-    "maxrefreshfreq = %d\n"
-    "\n"
+             "; Maximum OpenGL mode refresh rate (Windows only, in Hertz)\n"
+             "maxrefreshfreq = %d\n"
+             "\n"
 #endif
-    "; 3D mode brightness setting\n"
-    ";   0  - lowest\n"
-    ";   15 - highest\n"
-    "brightness = %d\n"
-    "\n"
-    "; Sound sample frequency\n"
-    ";   0 - 6 KHz\n"
-    ";   1 - 8 KHz\n"
-    ";   2 - 11.025 KHz\n"
-    ";   3 - 16 KHz\n"
-    ";   4 - 22.05 KHz\n"
-    ";   5 - 32 KHz\n"
-    ";   6 - 44.1 KHz\n"
-    "samplerate = %d\n"
-    "\n"
-    "; Music playback\n"
-    ";   0 - Off\n"
-    ";   1 - On\n"
-    "music = %d\n"
-    "\n"
-    "; Enable mouse\n"
-    ";   0 - No\n"
-    ";   1 - Yes\n"
-    "mouse = %d\n"
-    "\n"
-    "; Mouse sensitivity\n"
-    "mousesensitivity = %g\n"
-    "\n"
-    "; Key Settings\n"
-    ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
-    "; +---------------------------------------------------------------------------------------------+\n"
-    "; | 01   3B  3C  3D  3E   3F  40  41  42   43  44  57  58          46                           |\n"
-    "; |ESC   F1  F2  F3  F4   F5  F6  F7  F8   F9 F10 F11 F12        SCROLL                         |\n"
-    "; |                                                                                             |\n"
-    "; |29  02  03  04  05  06  07  08  09  0A  0B  0C  0D   0E     D2  C7  C9      45  B5  37  4A   |\n"
-    "; | ` '1' '2' '3' '4' '5' '6' '7' '8' '9' '0'  -   =  BACK    INS HOME PGUP  NUMLK KP/ KP* KP-  |\n"
-    "; |                                                                                             |\n"
-    "; | 0F  10  11  12  13  14  15  16  17  18  19  1A  1B  2B     D3  CF  D1      47  48  49  4E   |\n"
-    "; |TAB  Q   W   E   R   T   Y   U   I   O   P   [   ]    \\    DEL END PGDN    KP7 KP8 KP9 KP+   |\n"
-    "; |                                                                                             |\n"
-    "; | 3A   1E  1F  20  21  22  23  24  25  26  27  28     1C                     4B  4C  4D       |\n"
-    "; |CAPS  A   S   D   F   G   H   J   K   L   ;   '   ENTER                    KP4 KP5 KP6    9C |\n"
-    "; |                                                                                      KPENTER|\n"
-    "; |  2A    2C  2D  2E  2F  30  31  32  33  34  35    36            C8          4F  50  51       |\n"
-    "; |LSHIFT  Z   X   C   V   B   N   M   ,   .   /   RSHIFT          UP         KP1 KP2 KP3       |\n"
-    "; |                                                                                             |\n"
-    "; | 1D     38              39                  B8     9D       CB  D0   CD      52    53        |\n"
-    "; |LCTRL  LALT           SPACE                RALT   RCTRL   LEFT DOWN RIGHT    KP0    KP.      |\n"
-    "; +---------------------------------------------------------------------------------------------+\n"
-    "\n"
-    "keyforward = %X\n"
-    "keybackward = %X\n"
-    "keyturnleft = %X\n"
-    "keyturnright = %X\n"
-    "keyrun = %X\n"
-    "keystrafe = %X\n"
-    "keyfire = %X\n"
-    "keyuse = %X\n"
-    "keystandhigh = %X\n"
-    "keystandlow = %X\n"
-    "keylookup = %X\n"
-    "keylookdown = %X\n"
-    "keystrafeleft = %X\n"
-    "keystraferight = %X\n"
-    "key2dmode = %X\n"
-    "keyviewcycle = %X\n"
-    "key2dzoomin = %X\n"
-    "key2dzoomout = %X\n"
-    "keychat = %X\n"
-    "keyconsole = %X\n"
-    "\n",
+             "; 3D mode brightness setting\n"
+             ";   0  - lowest\n"
+             ";   15 - highest\n"
+             "brightness = %d\n"
+             "\n"
+             "; Sound sample frequency\n"
+             ";   0 - 6 KHz\n"
+             ";   1 - 8 KHz\n"
+             ";   2 - 11.025 KHz\n"
+             ";   3 - 16 KHz\n"
+             ";   4 - 22.05 KHz\n"
+             ";   5 - 32 KHz\n"
+             ";   6 - 44.1 KHz\n"
+             "samplerate = %d\n"
+             "\n"
+             "; Music playback\n"
+             ";   0 - Off\n"
+             ";   1 - On\n"
+             "music = %d\n"
+             "\n"
+             "; Enable mouse\n"
+             ";   0 - No\n"
+             ";   1 - Yes\n"
+             "mouse = %d\n"
+             "\n"
+             "; Mouse sensitivity\n"
+             "mousesensitivity = %g\n"
+             "\n"
+             "; Key Settings\n"
+             ";  Here's a map of all the keyboard scan codes: NOTE: values are listed in hex!\n"
+             "; +---------------------------------------------------------------------------------------------+\n"
+             "; | 01   3B  3C  3D  3E   3F  40  41  42   43  44  57  58          46                           |\n"
+             "; |ESC   F1  F2  F3  F4   F5  F6  F7  F8   F9 F10 F11 F12        SCROLL                         |\n"
+             "; |                                                                                             |\n"
+             "; |29  02  03  04  05  06  07  08  09  0A  0B  0C  0D   0E     D2  C7  C9      45  B5  37  4A   |\n"
+             "; | ` '1' '2' '3' '4' '5' '6' '7' '8' '9' '0'  -   =  BACK    INS HOME PGUP  NUMLK KP/ KP* KP-  |\n"
+             "; |                                                                                             |\n"
+             "; | 0F  10  11  12  13  14  15  16  17  18  19  1A  1B  2B     D3  CF  D1      47  48  49  4E   |\n"
+             "; |TAB  Q   W   E   R   T   Y   U   I   O   P   [   ]    \\    DEL END PGDN    KP7 KP8 KP9 KP+   |\n"
+             "; |                                                                                             |\n"
+             "; | 3A   1E  1F  20  21  22  23  24  25  26  27  28     1C                     4B  4C  4D       |\n"
+             "; |CAPS  A   S   D   F   G   H   J   K   L   ;   '   ENTER                    KP4 KP5 KP6    9C |\n"
+             "; |                                                                                      KPENTER|\n"
+             "; |  2A    2C  2D  2E  2F  30  31  32  33  34  35    36            C8          4F  50  51       |\n"
+             "; |LSHIFT  Z   X   C   V   B   N   M   ,   .   /   RSHIFT          UP         KP1 KP2 KP3       |\n"
+             "; |                                                                                             |\n"
+             "; | 1D     38              39                  B8     9D       CB  D0   CD      52    53        |\n"
+             "; |LCTRL  LALT           SPACE                RALT   RCTRL   LEFT DOWN RIGHT    KP0    KP.      |\n"
+             "; +---------------------------------------------------------------------------------------------+\n"
+             "\n"
+             "keyforward = %X\n"
+             "keybackward = %X\n"
+             "keyturnleft = %X\n"
+             "keyturnright = %X\n"
+             "keyrun = %X\n"
+             "keystrafe = %X\n"
+             "keyfire = %X\n"
+             "keyuse = %X\n"
+             "keystandhigh = %X\n"
+             "keystandlow = %X\n"
+             "keylookup = %X\n"
+             "keylookdown = %X\n"
+             "keystrafeleft = %X\n"
+             "keystraferight = %X\n"
+             "key2dmode = %X\n"
+             "keyviewcycle = %X\n"
+             "key2dzoomin = %X\n"
+             "key2dzoomout = %X\n"
+             "keychat = %X\n"
+             "keyconsole = %X\n"
+             "\n",
 
-    forcesetup, fullscreen, xdimgame, ydimgame, bppgame,
+             forcesetup, fullscreen, xdimgame, ydimgame, bppgame,
 #ifdef USE_OPENGL
-    glusetexcache,
+             glusetexcache,
 #endif
 #ifdef RENDERTYPEWIN
-    maxrefreshfreq,
+             maxrefreshfreq,
 #endif
-    brightness, option[7]>>4, option[2],
-    option[3], msens,
-    keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
-    keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],
-    keys[12], keys[13], keys[14], keys[15], keys[16], keys[17],
-    keys[18], keys[19]
-        );
+             brightness, option[7]>>4, option[2],
+             option[3], msens,
+             keys[0], keys[1], keys[2], keys[3], keys[4], keys[5],
+             keys[6], keys[7], keys[8], keys[9], keys[10], keys[11],
+             keys[12], keys[13], keys[14], keys[15], keys[16], keys[17],
+             keys[18], keys[19]
+             );
 
     Bfclose(fp);
 

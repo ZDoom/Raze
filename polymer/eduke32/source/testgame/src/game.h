@@ -52,4 +52,4 @@ void    updateinterpolations(void);
 void    dointerpolations(void);
 void    restoreinterpolations(void);
 void    printext(int x, int y, char *buffer, short tilenum /*, char invisiblecol*/);
-void    drawtilebackground (/*int thex, int they,*/ short tilenum, signed char shade, int cx1, int cy1, int cx2, int cy2, char dapalnum);
+void    drawtilebackground(/*int thex, int they,*/ short tilenum, signed char shade, int cx1, int cy1, int cx2, int cy2, char dapalnum);

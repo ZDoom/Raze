@@ -18,8 +18,8 @@
 
 #include "common_game.h"
 
-const char* AppProperName = "KenBuild Editor";
-const char* AppTechnicalName = "testeditor";
+const char *AppProperName = "KenBuild Editor";
+const char *AppTechnicalName = "testeditor";
 
 #if defined(_WIN32)
 #define DEFAULT_GAME_EXEC "testgame.exe"
@@ -29,8 +29,8 @@ const char* AppTechnicalName = "testeditor";
 #define DEFAULT_GAME_LOCAL_EXEC "./eduke32"
 #endif
 
-const char* DefaultGameExec = DEFAULT_GAME_EXEC;
-const char* DefaultGameLocalExec = DEFAULT_GAME_LOCAL_EXEC;
+const char *DefaultGameExec = DEFAULT_GAME_EXEC;
+const char *DefaultGameLocalExec = DEFAULT_GAME_LOCAL_EXEC;
 
 #define SETUPFILENAME "testeditor.cfg"
 const char *defaultsetupfilename = SETUPFILENAME;
@@ -91,7 +91,7 @@ int32_t ExtPreInit(int32_t argc,const char **argv)
     UNREFERENCED_PARAMETER(argc);
     UNREFERENCED_PARAMETER(argv);
 
-	OSD_SetLogFile("testeditor.log");
+    OSD_SetLogFile("testeditor.log");
     OSD_SetVersion(AppProperName,0,2);
     initprintf("%s %s %s\n", AppProperName, s_buildRev, s_buildInfo);
     initprintf("Compiled %s\n", s_buildTimestamp);
@@ -133,9 +133,9 @@ int32_t ExtPostStartupWindow(void)
 
     initgroupfile(G_GrpFile());
 
-        //You can load your own palette lookup tables here if you just
-        //copy the right code!
-    for(i=0;i<256;i++)
+    //You can load your own palette lookup tables here if you just
+    //copy the right code!
+    for (i=0; i<256; i++)
         tempbuf[i] = ((i+32)&255);  //remap colors for screwy palette sectors
     makepalookup(16,tempbuf,0,0,0,1);
 
@@ -171,10 +171,13 @@ void ExtPreCheckKeys(void)
     {
         keystatus[0x3e] = 0;
 
-            //cycle through all vesa modes, then screen-buffer mode
-        if (keystatus[0x2a]|keystatus[0x36]) {
+        //cycle through all vesa modes, then screen-buffer mode
+        if (keystatus[0x2a]|keystatus[0x36])
+        {
             setgamemode(!fullscreen, xdim, ydim, bpp);
-        } else {
+        }
+        else
+        {
 
             //cycle through all modes
             j=-1;
@@ -185,13 +188,14 @@ void ExtPreCheckKeys(void)
                     (validmode[i].ydim == ydim) &&
                     (validmode[i].fs == fullscreen) &&
                     (validmode[i].bpp == bpp))
-                    { j=i; break; }
+                { j=i; break; }
 
             for (k=0; k<validmodecnt; k++)
                 if (validmode[k].fs == fullscreen && validmode[k].bpp == bpp) break;
 
             if (j==-1) j=k;
-            else {
+            else
+            {
                 j++;
                 if (j==validmodecnt) j=k;
             }
@@ -238,8 +242,8 @@ void ExtPreCheckKeys(void)
         dy = (ydim + (ydim >> 3) + (ydim >> 4) + (ydim >> 6)) & (~7);
         i = scale(320,ydim,xdim);
 
-        if (waloff[4094] == 0) allocache(&waloff[4094],/*240L*384L*/dx*dy,&walock[4094]);
-        setviewtotile(4094,/*240L,384L*/dy,dx);
+        if (waloff[4094] == 0) allocache(&waloff[4094],/*240L*384L*/ dx*dy,&walock[4094]);
+        setviewtotile(4094,/*240L,384L*/ dy,dx);
 
         cosang = sintable[(hang+512)&2047];
         sinang = sintable[hang&2047];
@@ -272,35 +276,39 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
     UNREFERENCED_PARAMETER(oura);
     UNREFERENCED_PARAMETER(smoothr);
 
-    for(i=0,tspr=&tsprite[0];i<spritesortcnt;i++,tspr++)
+    for (i=0,tspr=&tsprite[0]; i<spritesortcnt; i++,tspr++)
     {
         if (usevoxels && tiletovox[tspr->picnum] >= 0)
         {
-        switch(tspr->picnum)
-        {
+            switch (tspr->picnum)
+            {
             case PLAYER:
-                if (!voxoff[ tiletovox[PLAYER] ][0]) {
-                    if (qloadkvx(tiletovox[PLAYER],"voxel000.kvx")) {
+                if (!voxoff[tiletovox[PLAYER]][0])
+                {
+                    if (qloadkvx(tiletovox[PLAYER],"voxel000.kvx"))
+                    {
                         tiletovox[PLAYER] = -1;
                         break;
                     }
                 }
                 //tspr->cstat |= 48; tspr->picnum = tiletovox[tspr->picnum];
-                longptr = (int *)voxoff[ tiletovox[PLAYER] ][0];
+                longptr = (int *)voxoff[tiletovox[PLAYER]][0];
                 tspr->xrepeat = scale(tspr->xrepeat,56,longptr[2]);
                 tspr->yrepeat = scale(tspr->yrepeat,56,longptr[2]);
                 tspr->shade -= 6;
                 break;
             case BROWNMONSTER:
-                if (!voxoff[ tiletovox[BROWNMONSTER] ][0]) {
-                    if (qloadkvx(tiletovox[BROWNMONSTER],"voxel001.kvx")) {
+                if (!voxoff[tiletovox[BROWNMONSTER]][0])
+                {
+                    if (qloadkvx(tiletovox[BROWNMONSTER],"voxel001.kvx"))
+                    {
                         tiletovox[BROWNMONSTER] = -1;
                         break;
                     }
                 }
                 //tspr->cstat |= 48; tspr->picnum = tiletovox[tspr->picnum];
                 break;
-        }
+            }
         }
 
         tspr->shade += 6;
@@ -313,7 +321,7 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
 
 void ExtCheckKeys(void)
 {
-    int i;//, p, y, dx, dy, cosang, sinang, bufplc, tsizy, tsizyup15;
+    int i; //, p, y, dx, dy, cosang, sinang, bufplc, tsizy, tsizyup15;
     int j;
 
     if (qsetmode == 200)    //In 3D mode
@@ -336,7 +344,7 @@ void ExtCheckKeys(void)
             sinang = mulscale14(sinang,daviewingrange);
             cosang = mulscale14(cosang,daaspect);
             p = ylookup[windowy1]+frameplace+windowx2+1;
-            for(y=windowy1;y<=windowy2;y++)
+            for (y=windowy1; y<=windowy2; y++)
             {
                 i = divscale16(tsizyup15,dx);
                 stretchhline(0,(xdim>>1)*i+tsizyup15,xdim>>2,i,mulscale32(i,dy)*tsizy+bufplc,p);
@@ -361,7 +369,7 @@ void ExtCheckKeys(void)
 
         i = frameval[framecnt&(AVERAGEFRAMES-1)];
         j = frameval[framecnt&(AVERAGEFRAMES-1)] = getticks(); framecnt++;
-        if (i != j) averagefps = ((mul3(averagefps)+((AVERAGEFRAMES*1000)/(j-i)) )>>2);
+        if (i != j) averagefps = ((mul3(averagefps)+((AVERAGEFRAMES*1000)/(j-i)))>>2);
         Bsprintf((char *)tempbuf,"%d",averagefps);
         printext256(0L,0L,31,-1,(char *)tempbuf,1);
 
@@ -411,9 +419,9 @@ const char *ExtGetSectorCaption(short sectnum)
     else
     {
         Bsprintf((char *)tempbuf,"%hu,%hu",(unsigned short)sector[sectnum].hitag,
-                                  (unsigned short)sector[sectnum].lotag);
+                 (unsigned short)sector[sectnum].lotag);
     }
-    return((char *)tempbuf);
+    return (char *)tempbuf;
 }
 
 const char *ExtGetWallCaption(short wallnum)
@@ -425,9 +433,9 @@ const char *ExtGetWallCaption(short wallnum)
     else
     {
         Bsprintf((char *)tempbuf,"%hu,%hu",(unsigned short)wall[wallnum].hitag,
-                                  (unsigned short)wall[wallnum].lotag);
+                 (unsigned short)wall[wallnum].lotag);
     }
-    return((char *)tempbuf);
+    return (char *)tempbuf;
 }
 
 const char *ExtGetSpriteCaption(short spritenum)
@@ -439,9 +447,9 @@ const char *ExtGetSpriteCaption(short spritenum)
     else
     {
         Bsprintf((char *)tempbuf,"%hu,%hu",(unsigned short)sprite[spritenum].hitag,
-                                  (unsigned short)sprite[spritenum].lotag);
+                 (unsigned short)sprite[spritenum].lotag);
     }
-    return((char *)tempbuf);
+    return (char *)tempbuf;
 }
 
 //printext16 parameters:
@@ -526,11 +534,11 @@ void ExtEditSectorData(short sectnum)    //F7
 
     if (qsetmode == 200)    //In 3D mode
     {
-            //Ceiling
+        //Ceiling
         if (searchstat == 1)
             sector[searchsector].ceilingpicnum++;   //Just a stupid example
 
-            //Floor
+        //Floor
         if (searchstat == 2)
             sector[searchsector].floorshade++;      //Just a stupid example
     }
@@ -590,6 +598,7 @@ void faketimerhandler(void)
 void M32RunScript(const char *s) { UNREFERENCED_PARAMETER(s); }
 void G_Polymer_UnInit(void) { }
 void SetGamePalette(int32_t j) { UNREFERENCED_PARAMETER(j); }
+
 int32_t AmbienceToggle, MixRate, ParentalLock;
 
 int32_t taglab_linktags(int32_t spritep, int32_t num)
@@ -597,7 +606,7 @@ int32_t taglab_linktags(int32_t spritep, int32_t num)
     int32_t link = 0;
 
     g_iReturnVar = link;
-    VM_OnEvent(EVENT_LINKTAGS, spritep?num:-1);
+    VM_OnEvent(EVENT_LINKTAGS, spritep ? num : -1);
     link = g_iReturnVar;
 
     return link;
@@ -643,18 +652,32 @@ int32_t taglab_getnextfreetag(int32_t *duetoptr)
     return 0;
 }
 
-int32_t S_InvalidSound(int32_t num) { UNREFERENCED_PARAMETER(num); return 1; };
-int32_t S_CheckSoundPlaying(int32_t i, int32_t num) { UNREFERENCED_PARAMETER(i); UNREFERENCED_PARAMETER(num); return 0; };
-int32_t S_SoundsPlaying(int32_t i) { UNREFERENCED_PARAMETER(i); return -1; }
-int32_t S_SoundFlags(int32_t num) { UNREFERENCED_PARAMETER(num); return 0; };
-int32_t A_PlaySound(uint32_t num, int32_t i) { UNREFERENCED_PARAMETER(num); UNREFERENCED_PARAMETER(i); return 0; };
-void S_StopSound(int32_t num) { UNREFERENCED_PARAMETER(num); };
+int32_t S_InvalidSound(int32_t num) {
+    UNREFERENCED_PARAMETER(num); return 1;
+};
+int32_t S_CheckSoundPlaying(int32_t i, int32_t num) {
+    UNREFERENCED_PARAMETER(i); UNREFERENCED_PARAMETER(num); return 0;
+};
+int32_t S_SoundsPlaying(int32_t i) {
+    UNREFERENCED_PARAMETER(i); return -1;
+}
+int32_t S_SoundFlags(int32_t num) {
+    UNREFERENCED_PARAMETER(num); return 0;
+};
+int32_t A_PlaySound(uint32_t num, int32_t i) {
+    UNREFERENCED_PARAMETER(num); UNREFERENCED_PARAMETER(i); return 0;
+};
+void S_StopSound(int32_t num) {
+    UNREFERENCED_PARAMETER(num);
+};
 #ifdef __cplusplus
 extern "C"
 #endif
-int32_t FX_StopAllSounds(void) { return 0; };
+int32_t FX_StopAllSounds(void) {
+    return 0;
+};
 
-    //Just thought you might want my getnumber16 code
+//Just thought you might want my getnumber16 code
 /*
 getnumber16(char namestart[80], short num, int maxnumber)
 {

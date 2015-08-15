@@ -26,7 +26,8 @@ const char *G_DefFile(void)
     return defaultdeffilename;
 }
 
-uint8_t *basepaltable[1] = {
+uint8_t *basepaltable[1] =
+{
     palette
 };
 
@@ -35,17 +36,17 @@ uint32_t PaletteIndexFullbrights[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 void Ken_InitMultiPsky(void)
 {
     // default
-    psky * const defaultsky = E_DefinePsky(DEFAULTPSKY);
+    psky *const defaultsky = E_DefinePsky(DEFAULTPSKY);
     defaultsky->lognumtiles = 1;
     defaultsky->horizfrac = 65536;
 
     // DAYSKY
-    psky * const daysky = E_DefinePsky(DAYSKY);
+    psky *const daysky = E_DefinePsky(DAYSKY);
     daysky->lognumtiles = 1;
     daysky->horizfrac = 65536;
 
     // NIGHTSKY
-    psky * const nightsky = E_DefinePsky(NIGHTSKY);
+    psky *const nightsky = E_DefinePsky(NIGHTSKY);
     nightsky->lognumtiles = 3;
     nightsky->horizfrac = 65536;
 }
