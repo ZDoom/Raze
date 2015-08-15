@@ -15,6 +15,10 @@
 /polymer/eduke32/*.sdf
 /polymer/eduke32/*.suo
 /polymer/eduke32/*.opensdf
+/polymer/eduke32/.vs
+/polymer/eduke32/*.vcxproj.user
+/polymer/eduke32/*.psess
+/polymer/eduke32/*.vsp
 /polymer/eduke32/*.elf
 /polymer/eduke32/*.dol
 /polymer/eduke32/*.x86
@@ -35,3 +39,5 @@
 xcuserdata
 project.xcworkspace
 .DS_Store
+/polymer/eduke32/*.cache
+/polymer/eduke32/*.cfg
