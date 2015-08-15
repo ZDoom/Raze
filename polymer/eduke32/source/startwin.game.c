@@ -125,7 +125,10 @@ static void PopulateForm(int32_t pgs)
         for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next)
         {
             if (Bstrcasecmp(dirs->name, "autoload") == 0)
+            {
+                i++;
                 continue;
+            }
 
             (void)ComboBox_AddString(hwnd, dirs->name);
             (void)ComboBox_SetItemData(hwnd, i, i);
