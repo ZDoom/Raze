@@ -3481,6 +3481,8 @@ void overheadeditor(void)
 
             setup_sideview_sincos();
 
+            VM_OnEvent(EVENT_PREDRAW2DSCREEN, -1);
+
             if (graphicsmode && (!m32_sideview || m32_sideelev == 512))
             {
                 Bmemset(show2dsector, 0, sizeof(show2dsector));
