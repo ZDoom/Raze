@@ -122,20 +122,21 @@ static void PopulateForm(int32_t pgs)
         j = ComboBox_AddString(hwnd, "None");
         (void)ComboBox_SetItemData(hwnd, j, 0);
         (void)ComboBox_SetCurSel(hwnd, j);
-        for (dirs=finddirs,i=1; dirs != NULL; dirs=dirs->next)
+        for (dirs=finddirs,i=1,j=1; dirs != NULL; dirs=dirs->next)
         {
             if (Bstrcasecmp(dirs->name, "autoload") == 0)
             {
-                i++;
+                j++;
                 continue;
             }
 
             (void)ComboBox_AddString(hwnd, dirs->name);
-            (void)ComboBox_SetItemData(hwnd, i, i);
+            (void)ComboBox_SetItemData(hwnd, i, j);
             if (Bstrcasecmp(dirs->name,settings.gamedir) == 0)
                 (void)ComboBox_SetCurSel(hwnd, i);
 
             i++;
+            j++;
         }
     }
 
