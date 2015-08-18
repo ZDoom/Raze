@@ -716,6 +716,7 @@ $(DUKE3D_OBJ)/%.$o: $(DUKE3D_RSRC)/%.c | $(DUKE3D_OBJ)
 
 $(DUKE3D_RSRC)/%_banner.c: $(DUKE3D_RSRC)/%.bmp
 	echo "#include \"gtkpixdata_shim.h\"" > $@
+	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
 $(SW_OBJ)/%.$o: $(SW_SRC)/%.c | $(SW_OBJ)
 	$(COMPILE_STATUS)
