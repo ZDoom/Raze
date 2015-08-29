@@ -8155,6 +8155,7 @@ CANCEL:
                 }
                 else if (ch == 't' || ch == 'T')
                 {
+                    bad = 0;
                     test_map(0);
                 }
 #if M32_UNDO
