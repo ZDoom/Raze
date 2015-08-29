@@ -104,7 +104,7 @@ local function truetab(tab)
 end
 
 -- KEEPINSYNC lunacon.lua
-local ALLOWED_VIEWTYPE = truetab { 0, 1, 2, 3,4, 5, 7, 8, -5, -7 }
+local ALLOWED_VIEWTYPE = truetab { 0, 1, 2, 3,4, 5, 7, 8, -5, -7, -8 }
 
 local function def_action_or_move(what, tab)
     if (lastid[what] <= -(2^31)) then

@@ -7868,8 +7868,12 @@ PALONLY:
                     k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury), l<0);
                     break;
                 case 8:
+                case -8:
                     k = (((s->ang+3072+128-oura)&2047)>>8)&7;
-                    t->cstat &= ~4;
+                    if (l > 0)
+                        t->cstat &= ~4;
+                    else
+                        t->cstat |= 4;
                     break;
                 default:
                     k = 0;
