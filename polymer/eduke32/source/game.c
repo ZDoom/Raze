@@ -7869,11 +7869,11 @@ PALONLY:
                     break;
                 case 8:
                 case -8:
-                    k = (((s->ang+3072+128-oura)&2047)>>8)&7;
                     if (l > 0)
-                        t->cstat &= ~4;
+                        k = (((s->ang+3072+128-oura)&2047)>>8)&7;
                     else
-                        t->cstat |= 4;
+                        k = (((oura+3072+128-s->ang)&2047)>>8)&7;
+                    t->cstat &= ~4;
                     break;
                 default:
                     k = 0;
