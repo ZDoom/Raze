@@ -10850,6 +10850,8 @@ static void handlemed(int32_t dohex, const char *disp_membername, const char *ed
     int32_t flags = sign;
     sign &= 1;
 
+    assert(!dohex || thesizeof == sizeof(int16_t));
+
     if (thesizeof==sizeof(int8_t))
     {
         if (sign)
@@ -10858,7 +10860,12 @@ static void handlemed(int32_t dohex, const char *disp_membername, const char *ed
             val = *(uint8_t *)themember;
     }
     else if (thesizeof==sizeof(int16_t))
+    {
         val = *(int16_t *)themember;
+        // Bug fix : Do not sign extend when dealing with hex values
+        if (dohex)
+            val &= 0xFFFF;
+    }
     else //if (thesizeof==sizeof(int32_t))
         val = *(int32_t *)themember;
 
@@ -10870,23 +10877,43 @@ static void handlemed(int32_t dohex, const char *disp_membername, const char *ed
     for (; i<med_dispwidth; i++)
         med_disptext[i] = ' ';
 
-    Bsprintf(med_edittext,"%s %d %s: ", med_typename, med_thenum, edit_membername);
     if (med_editval)
     {
-        printmessage16("%s", med_edittext);
-        val = getnumber16(med_edittext, val, themax, flags);
-
-        if (thesizeof==sizeof(int8_t))
+        // If editing a hex value and either SHIFT is pressed then toggle a specific bit
+        if (SHIFTS_IS_PRESSED && dohex)
         {
-            if (sign)
-                *(int8_t *)themember = (int8_t)val;
-            else
-                *(uint8_t *)themember = (uint8_t)val;
+            // Get highest bit in maximum value
+            int32_t max_bit = 0;
+            while (max_bit < 15 && 1<<(max_bit+1) < themax)
+                max_bit++;
+
+            Bsprintf(med_edittext, "Toggle %s %d %s Bit 0..%d: ", med_typename, med_thenum, edit_membername, max_bit);
+            printmessage16("%s", med_edittext);
+
+            const int32_t bit = getnumber16(med_edittext, -1, max_bit, 1);
+            if (bit >= 0)
+                *(int16_t *)themember = (int16_t)((1<<bit) ^ (*(int16_t *)themember));
         }
-        else if (thesizeof==sizeof(int16_t))
-            *(int16_t *)themember = (int16_t)val;
-        else //if (thesizeof==sizeof(int32_t))
-            *(int32_t *)themember = val;
+        // Else directly edit value
+        else
+        {
+            Bsprintf(med_edittext,"%s %d %s: ", med_typename, med_thenum, edit_membername);
+
+            printmessage16("%s", med_edittext);
+            val = getnumber16(med_edittext, val, themax, flags);
+
+            if (thesizeof==sizeof(int8_t))
+            {
+                if (sign)
+                    *(int8_t *)themember = (int8_t)val;
+                else
+                    *(uint8_t *)themember = (uint8_t)val;
+            }
+            else if (thesizeof==sizeof(int16_t))
+                *(int16_t *)themember = (int16_t)val;
+            else //if (thesizeof==sizeof(int32_t))
+                *(int32_t *)themember = val;
+        }
     }
 }
 
