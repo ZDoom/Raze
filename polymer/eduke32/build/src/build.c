@@ -2831,7 +2831,7 @@ void SetFirstWall(int32_t sectnum, int32_t wallnum, int32_t alsoynw)
     asksave = 1;
 }
 
-static void handlesecthighlight1(int32_t i, int32_t sub, int32_t nograycheck)
+void handlesecthighlight1(int32_t i, int32_t sub, int32_t nograycheck)
 {
     int32_t j;
 

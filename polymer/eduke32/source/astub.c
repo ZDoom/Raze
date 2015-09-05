@@ -4430,6 +4430,28 @@ static void Keys3d(void)
 
     VM_OnEvent(EVENT_PREKEYS3D, -1);
 
+    if (keystatus[KEYSC_RALT] && keystatus[KEYSC_RCTRL] && AIMING_AT_CEILING_OR_FLOOR && searchsector >= 0)
+    {
+        keystatus[KEYSC_RALT] = 0;
+
+        if (highlightcnt >= 0)
+        {
+            message("WARNING: Cannot select sectors while sprites/walls selected");
+        }
+        else
+        {
+            const int32_t sub = keystatus[KEYSC_SEMI];
+            const int32_t add = keystatus[KEYSC_QUOTE];
+
+            if (!add && !sub)
+                reset_highlightsector();
+
+            handlesecthighlight1(searchsector, sub, 1);
+
+            message("%s sector %d", sub ? "De-selected" : "Selected", searchsector);
+        }
+    }
+
     if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(V)) // ' V
     {
         if (AIMING_AT_CEILING_OR_FLOOR)

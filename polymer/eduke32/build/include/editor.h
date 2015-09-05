@@ -328,6 +328,7 @@ void update_highlight(void);
 void update_highlightsector(void);
 void reset_highlightsector(void);
 void reset_highlight(void);
+void handlesecthighlight1(int32_t i, int32_t sub, int32_t nograycheck);
 void ovh_whiteoutgrab(int32_t restoreredwalls);
 
 int32_t inside_editor_curpos(int16_t sectnum);
