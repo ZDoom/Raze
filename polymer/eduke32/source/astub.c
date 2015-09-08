@@ -4447,6 +4447,7 @@ static void Keys3d(void)
                 reset_highlightsector();
 
             handlesecthighlight1(searchsector, sub, 1);
+            update_highlightsector();
 
             message("%s sector %d", sub ? "De-selected" : "Selected", searchsector);
         }
