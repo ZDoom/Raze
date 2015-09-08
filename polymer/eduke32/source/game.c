@@ -8343,6 +8343,7 @@ FOUNDCHEAT:
                 case CHEAT_KEYS:
                     g_player[myconnectindex].ps->got_access =  7;
                     KB_FlushKeyboardQueue();
+                    P_DoQuote(QUOTE_CHEAT_ALL_KEYS, g_player[myconnectindex].ps);
                     end_cheat();
                     return;
 
