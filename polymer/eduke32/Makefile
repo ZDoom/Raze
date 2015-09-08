@@ -319,7 +319,7 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
-    LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lcompat-from-mingw-w64
+    LIBS += -lFLAC -lvorbisfile -lvorbis -logg
     LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Windows/lib$(WINLIB)
     DUKE3D_OBJS+= gameres winbits startwin.game
     DUKE3D_EDITOR_OBJS+= buildres
