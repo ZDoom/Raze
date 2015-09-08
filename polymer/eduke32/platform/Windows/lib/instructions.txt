@@ -32,10 +32,9 @@ libogg
 ### Download ###
 Download: libogg-<version>.tar.xz
   * Stable: https://www.xiph.org/downloads/
-  * SVN: https://svn.xiph.org/trunk/ogg
-  * Git: git://git.xiph.org/mirrors/ogg.git
+  * Git: https://git.xiph.org/ogg.git
 ### Build ###
-    sh ./configure CFLAGS="-g -O2 -fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make
+    sh ./configure && make
 ### Desired Results ###
   * headers: ogg/config_types.h ogg/ogg.h ogg/os_types.h
   * libraries: libogg.a
@@ -47,10 +46,9 @@ libvorbis depends on the results of libogg to compile.
 ### Download ###
 Download: libvorbis-<version>.tar.xz
   * Stable: https://www.xiph.org/downloads/
-  * SVN: https://svn.xiph.org/trunk/vorbis
-  * Git: git://git.xiph.org/mirrors/vorbis.git
+  * Git: https://git.xiph.org/vorbis.git
 ### Build ###
-    sh ./configure CFLAGS="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make
+    sh ./configure && make
 ### Desired Results ###
   * headers: vorbis/codec.h vorbis/vorbisfile.h
   * libraries: libvorbis.a libvorbisfile.a
