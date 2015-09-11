@@ -1033,8 +1033,11 @@ void                polymer_loadboard(void)
     bglGenBuffersARB(1, &prindexringvbo);
     bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, prindexringvbo);
 
-    bglBufferStorage(GL_ELEMENT_ARRAY_BUFFER, prindexringsize * sizeof(GLuint), NULL, prindexringmapflags | GL_DYNAMIC_STORAGE_BIT);
-    prindexring = (GLuint*)bglMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, prindexringsize * sizeof(GLuint), prindexringmapflags);
+    if (pr_buckets)
+    {
+        bglBufferStorage(GL_ELEMENT_ARRAY_BUFFER, prindexringsize * sizeof(GLuint), NULL, prindexringmapflags | GL_DYNAMIC_STORAGE_BIT);
+        prindexring = (GLuint*)bglMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, prindexringsize * sizeof(GLuint), prindexringmapflags);
+    }
 
     bglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -2134,6 +2137,9 @@ static void         polymer_emptybuckets(void)
 {
     _prbucket *bucket = prbuckethead;
 
+    if (pr_buckets == 0)
+        return;
+
     bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prmapvbo);
     bglVertexPointer(3, GL_FLOAT, sizeof(_prvert), NULL);
     bglTexCoordPointer(2, GL_FLOAT, sizeof(_prvert), (GLvoid *)(3 * sizeof(GLfloat)));
@@ -2244,7 +2250,7 @@ static void         polymer_bucketplane(_prplane* plane)
 {
     _prbucket *bucketptr = plane->bucket;
     uint32_t neededindicecount;
-    uint32_t i;
+    int32_t i;
 
     // we don't keep buffers for quads
     neededindicecount = (plane->indicescount == 0) ? 6 : plane->indicescount;
@@ -2338,7 +2344,7 @@ static void         polymer_drawplane(_prplane* plane)
     GLuint planevbo;
     GLintptrARB geomfbooffset;
 
-    if (plane->mapvbo_vertoffset != -1)
+	if (plane->mapvbo_vertoffset != (uint32_t)-1)
     {
         planevbo = prmapvbo;
         geomfbooffset = plane->mapvbo_vertoffset * sizeof(_prvert);
