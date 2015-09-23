@@ -10987,6 +10987,8 @@ static void G_LoadExtraPalettes(void)
     Bmemset(&basepaltable[BASEPAL][255*3], 0, 3);
     Bmemset(&basepaltable[WATERPAL][255*3], 0, 3);
     Bmemset(&basepaltable[SLIMEPAL][255*3], 0, 3);
+
+    E_ReplaceTransparentColorWithBlack();
 }
 
 #define SETFLAG(Tilenum, Flag) g_tile[Tilenum].flags |= Flag

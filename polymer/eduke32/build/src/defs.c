@@ -284,6 +284,9 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
     if (EDUKE32_PREDICT_FALSE(xsiz <= 0 || ysiz <= 0))
         return -2;
 
+    if (!(paletteloaded & PALETTE_MAIN))
+        return -3;
+
     set_tilesiz(tile, xsiz, ysiz);
 
     tile_from_truecolpic(tile, picptr, alphacut);
@@ -821,6 +824,9 @@ static int32_t defsparser(scriptfile *script)
             }
 
             int32_t const texstatus = Defs_ImportTileFromTexture(fn, tile, alphacut, istexture);
+            if (texstatus == -3)
+                initprintf("Error: No palette loaded, in tilefromtexture definition near line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,texturetokptr));
             if (texstatus == (-3)<<8)
                 initprintf("Error: \"%s\" has more than one tile, in tilefromtexture definition near line %s:%d\n",
                            fn, script->filename, scriptfile_getlinum(script,texturetokptr));
@@ -963,6 +969,9 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
             int32_t const texstatus = Defs_ImportTileFromTexture(fn, tile, 255, 0);
+            if (texstatus == -3)
+                initprintf("Error: No palette loaded, in importtile definition near line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
             if (texstatus == (-3)<<8)
                 initprintf("Error: \"%s\" has more than one tile, in importtile definition near line %s:%d\n",
                            fn, script->filename, scriptfile_getlinum(script,cmdtokptr));

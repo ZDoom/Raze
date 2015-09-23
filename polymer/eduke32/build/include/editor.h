@@ -265,7 +265,7 @@ extern void showspritedata(int16_t spritenum, int16_t small);
 
 extern void drawsmallabel(const char *text, char col, char backcol, char border, int32_t dax, int32_t day, int32_t daz);
 
-extern int32_t whitecol;
+extern int32_t whitecol, blackcol;
 extern int32_t circlewall;
 extern int32_t searchlock;
 

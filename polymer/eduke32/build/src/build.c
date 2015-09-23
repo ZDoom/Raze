@@ -722,8 +722,6 @@ int32_t app_main(int32_t argc, const char **argv)
     Bfree (g_defModules);
     g_defModules = NULL;  // be defensive...
 
-    // Here used to be the 'whitecol' calculation
-
     if (E_PostInit())
         M32_FatalEngineError();
 

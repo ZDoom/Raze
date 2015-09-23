@@ -273,7 +273,7 @@ int32_t showfirstwall=0;
 int32_t showheightindicators=1;
 int32_t circlewall=-1;
 
-int32_t whitecol;
+int32_t whitecol, blackcol;
 
 #ifdef POLYMER
 static int16_t maphacklightcnt=0;
@@ -2329,8 +2329,6 @@ int16_t sectorborder[256];
 int32_t ydim16, qsetmode = 0;
 int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 static int32_t *lastx;
-
-static char paletteloaded = 0;
 
 int32_t halfxdim16, midydim16;
 
@@ -8255,10 +8253,9 @@ static int32_t loadtables(void)
 //
 // initfastcolorlookup (internal)
 //
-static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
+static void initfastcolorlookup_scale(int32_t rscale, int32_t gscale, int32_t bscale)
 {
-    int32_t i, j, x, y, z;
-    const char *pal1;
+    int32_t i, j;
 
     j = 0;
     for (i=64; i>=0; i--)
@@ -8269,6 +8266,11 @@ static void initfastcolorlookup(int32_t rscale, int32_t gscale, int32_t bscale)
         bdist[i] = bdist[128-i] = j*bscale;
         j += 129-(i<<1);
     }
+}
+void initfastcolorlookup_palette(void)
+{
+    int32_t i, j, x, y, z;
+    const char *pal1;
 
     Bmemset(colhere,0,sizeof(colhere));
     Bmemset(colhead,0,sizeof(colhead));
@@ -8305,169 +8307,222 @@ static void alloc_palookup(int32_t pal)
 #endif
 }
 
-static int32_t loadpalette_err(const char *msg)
-{
-    engineerrstr = msg;
-    initprintf("ERROR: %s\n", engineerrstr);
-    return -1;
-}
+static void maybe_alloc_palookup(int32_t palnum);
 
 //
 // loadpalette (internal)
 //
-static int32_t loadpalette(void)
+static void loadpalette(void)
 {
-    int32_t fil, lamedukep=0;
-    char *transluc;
+    initfastcolorlookup_scale(30, 59, 11);
 
-    if (paletteloaded != 0) return 0;
+    int32_t fil;
     if ((fil = kopen4load("palette.dat",0)) == -1)
-        return loadpalette_err("Failed to load \"palette.dat\"!");
+        return;
 
-    kread(fil,palette,768);
-    kread(fil,&numshades,2); numshades = B_LITTLE16(numshades);
+
+    // PALETTE_MAIN
+
+    if (kread_and_test(fil,palette,768))
+        return kclose(fil);
+
+    initfastcolorlookup_palette();
+
+    paletteloaded |= PALETTE_MAIN;
+
+
+    // PALETTE_SHADES
+
+    if (kread_and_test(fil,&numshades,2))
+        return kclose(fil);
+    numshades = B_LITTLE16(numshades);
 
     if (numshades <= 1)
-        return loadpalette_err("Invalid number of shades in \"palette.dat\"!");
-
-    alloc_palookup(0);
-
-    transluc = (char *)Xcalloc(256, 256);
-
-    globalpalwritten = palookup[0]; globalpal = 0;
-    setpalookupaddress(globalpalwritten);
-
-    blendtable[0] = transluc;
-    fixtransluscence(FP_OFF(transluc));
+    {
+        initprintf("Warning: Invalid number of shades in \"palette.dat\"!");
+        numshades = 0;
+        return kclose(fil);
+    }
 
     // Auto-detect LameDuke. Its PALETTE.DAT doesn't have a 'numshades' 16-bit
     // int after the base palette, but starts directly with the shade tables.
     // Thus, the first two bytes will be 00 01, which is 256 if read as
     // little-endian int16_t.
-    if (numshades ==  256)
+    int32_t lamedukep = 0;
+    if (numshades == 256)
     {
-        if (klseek(fil, -2, BSEEK_CUR) < 0)
-            return loadpalette_err("klseek() failed in loadpalette()!");
+        static char const * const seekfail = "Warning: klseek() failed in loadpalette()!";
 
-        numshades = 32;
-        lamedukep = 1;
+        uint16_t temp;
+        if (kread_and_test(fil,&temp,2))
+            return kclose(fil);
+        temp = B_LITTLE16(temp);
+        if (temp == 770) // 02 03
+        {
+            if (klseek(fil, -4, BSEEK_CUR) < 0)
+            {
+                initprintf(seekfail);
+                return kclose(fil);
+            }
+
+            numshades = 32;
+            lamedukep = 1;
+        }
+        else
+        {
+            if (klseek(fil, -2, BSEEK_CUR) < 0)
+            {
+                initprintf(seekfail);
+                return kclose(fil);
+            }
+        }
     }
 
     // Read base shade table (palookup 0).
-    kread(fil, palookup[globalpal], numshades<<8);
+    maybe_alloc_palookup(0);
+    if (kread_and_test(fil, palookup[0], numshades<<8))
+        return kclose(fil);
+
+    paletteloaded |= PALETTE_SHADE;
+
+
+    // PALETTE_TRANSLUC
+
+    char * const transluc = blendtable[0] = (char *)Xcalloc(256, 256);
 
     // Read translucency (blending) table.
     if (lamedukep)
     {
-        int32_t i, j;
-
-        for (i=0; i<255; i++)
+        for (int i=0; i<255; i++)
         {
             // NOTE: LameDuke's table doesn't have the last row or column (i==255).
 
             // Read the entries above and on the diagonal, if the table is
             // thought as being row-major.
-            if (kread(fil, &transluc[256*i + i], 256-i-1) != 256-i-1)
-                return loadpalette_err("Failed reading LameDuke translucency table!");
+            if (kread_and_test(fil, &transluc[256*i + i], 256-i-1))
+                return kclose(fil);
 
             // Duplicate the entries below the diagonal.
-            for (j=0; j<i; j++)
+            for (int j=0; j<i; j++)
                 transluc[256*i + j] = transluc[256*j + i];
         }
     }
     else
     {
-        int32_t i, n;
-        uint8_t magic[12];
+        if (kread_and_test(fil, transluc, 65536))
+            return kclose(fil);
+    }
 
-        if (kread(fil, transluc, 65536) != 65536)
-            return loadpalette_err("Failed reading translucency table!");
+    paletteloaded |= PALETTE_TRANSLUC;
 
-        n = kread(fil, magic, (int32_t)sizeof(magic));
-        if (n == (int32_t)sizeof(magic) && !Bmemcmp(magic, "MoreBlendTab", sizeof(magic)))
+
+    // additional blending tables
+
+    uint8_t magic[12];
+    if (kread_and_test(fil, magic, sizeof(magic)) && !Bmemcmp(magic, "MoreBlendTab", sizeof(magic)))
+    {
+        uint8_t addblendtabs;
+        if (kread_and_test(fil, &addblendtabs, 1))
         {
-            // Read in additional blending tables.
-            uint8_t addblendtabs, blendnum;
-            char *tab = (char *)Xmalloc(256*256);
+            initprintf("Warning: failed reading additional blending table count");
+            return kclose(fil);
+        }
 
-            if (kread(fil, &addblendtabs, 1) != 1)
-                return loadpalette_err("failed reading additional blending table count");
-
-            for (i=0; i<addblendtabs; i++)
+        uint8_t blendnum;
+        char *tab = (char *)Xmalloc(256*256);
+        for (int i=0; i<addblendtabs; i++)
+        {
+            if (kread_and_test(fil, &blendnum, 1))
             {
-                static char dup_blendnum_errmsg[] = "duplicate blending table index ??? encountered";
-
-                if (kread(fil, &blendnum, 1) != 1)
-                    return loadpalette_err("failed reading additional blending table index");
-
-                if (getblendtab(blendnum) != NULL)
-                {
-                    char *cp = Bstrchr(dup_blendnum_errmsg, '?');
-                    Bsprintf(cp, "%3d", blendnum);
-                    cp[3] = ' ';
-                    return loadpalette_err(dup_blendnum_errmsg);
-                }
-
-                if (kread(fil, tab, 256*256) != 256*256)
-                    return loadpalette_err("failed reading additional blending table");
-
-                setblendtab(blendnum, tab);
+                initprintf("Warning: failed reading additional blending table index");
+                Bfree(tab);
+                return kclose(fil);
             }
 
-            Bfree(tab);
+            if (getblendtab(blendnum) != NULL)
+                initprintf("Warning: duplicate blending table index %3d encountered", blendnum);
 
-            // Read log2 of count of alpha blending tables.
+            if (kread_and_test(fil, tab, 256*256))
             {
-                uint8_t lognumalphatabs;
-
-                if (kread(fil, &lognumalphatabs, 1) == 1)
-                {
-                    if (!(lognumalphatabs >= 1 && lognumalphatabs <= 7))
-                        return loadpalette_err("invalid lognumalphatabs value, must be in [1 .. 7]");
-                    numalphatabs = 1<<lognumalphatabs;
-                }
+                initprintf("Warning: failed reading additional blending table");
+                Bfree(tab);
+                return kclose(fil);
             }
+
+            setblendtab(blendnum, tab);
+        }
+        Bfree(tab);
+
+        // Read log2 of count of alpha blending tables.
+        uint8_t lognumalphatabs;
+        if (kread_and_test(fil, &lognumalphatabs, 1))
+        {
+            if (!(lognumalphatabs >= 1 && lognumalphatabs <= 7))
+                initprintf("invalid lognumalphatabs value, must be in [1 .. 7]");
+            else
+                numalphatabs = 1<<lognumalphatabs;
         }
     }
 
     kclose(fil);
+}
+
+static void E_PostLoadPalette(void)
+{
+    globalpal = 0;
+    globalpalwritten = palookup[0];
+    setpalookupaddress(globalpalwritten);
+
+    fixtransluscence(FP_OFF(blendtable[0]));
 
 #ifdef DEBUG_TILESIZY_512
-    {
-        int32_t i;
-        // Bump shade 1 by 16.
-        for (i=256; i<512; i++)
-            palookup[0][i] = palookup[0][i+(16<<8)];
-    }
+    // Bump shade 1 by 16.
+    for (int i=256; i<512; i++)
+        palookup[0][i] = palookup[0][i+(16<<8)];
 #endif
 
-    // If Duke3D 1.5 GRP or LameDuke, ...
-    if (Bcrc32((uint8_t *)transluc, 65536, 0)==0x94a1fac6 || lamedukep)
+    // find white and black colors
+    for (int i=0, j, k=0; i<256; i++)
     {
-        int32_t i;
-        // ... fix up translucency table so that transluc(255,x)
-        // and transluc(x,255) is black instead of purple.
-        for (i=0; i<256; i++)
+        j = palette[i*3] + palette[i*3+1] + palette[i*3+2];
+        if (j > k) { k = j; whitecol = i; }
+    }
+    for (int i=0, j, k=768; i<256; i++)
+    {
+        j = palette[i*3] + palette[i*3+1] + palette[i*3+2];
+        if (j < k) { k = j; blackcol = i; }
+    }
+}
+
+void E_ReplaceTransparentColorWithBlack(void)
+{
+    for (int i=0; i<MAXPALOOKUPS; i++)
+    {
+        char * const thispalookup = palookup[i];
+        if (thispalookup == NULL)
+            continue;
+
+        for (int j=0; j<numshades; j++)
         {
-            transluc[(255<<8) + i] = transluc[i];
-            transluc[255 + (i<<8)] = transluc[i<<8];
+            thispalookup[(j<<8) + 255] = 255;
         }
     }
 
-    initfastcolorlookup(30, 59, 11);
-
+    // fix up translucency table so that transluc(255,x)
+    // and transluc(x,255) is black instead of purple.
+    for (int i=0; i<MAXBLENDTABS; i++)
     {
-        int32_t i, j, k = 0;
-        for (i=0; i<256; i++)
+        char * const transluc = blendtable[i];
+        if (transluc == NULL)
+            continue;
+
+        for (int j=0; j<255; j++)
         {
-            j = palette[i*3] + palette[i*3+1] + palette[i*3+2];
-            if (j > k) { k = j; whitecol = i; }
+            transluc[(255<<8) + j] = transluc[(blackcol<<8) + j];
+            transluc[255 + (j<<8)] = transluc[blackcol + (j<<8)];
         }
+        transluc[(255<<8) + 255] = transluc[(blackcol<<8) + blackcol];
     }
-
-    paletteloaded = 1;
-
-    return 0;
 }
 
 // Load LOOKUP.DAT, which contains lookup tables and additional base palettes.
@@ -9077,6 +9132,16 @@ static void sighandler(int sig, siginfo_t *info, void *ctx)
 #endif
 
 //
+// E_FatalError
+//
+static int32_t E_FatalError(char const * const msg)
+{
+    engineerrstr = msg;
+    initprintf("ERROR: %s\n", engineerrstr);
+    return -1;
+}
+
+//
 // preinitengine
 //
 static int32_t preinitcalled = 0;
@@ -9229,8 +9294,7 @@ int32_t initengine(void)
     g_visibility = 512;
     parallaxvisibility = 512;
 
-    if (loadpalette())
-        return 1;
+    loadpalette();
 
 #ifdef USE_OPENGL
     if (!hicinitcounter) hicinit();
@@ -9239,13 +9303,13 @@ int32_t initengine(void)
 
 #ifdef LUNATIC
     if (L_CreateState(&g_engState, "eng", NULL))
-        return loadpalette_err("Failed creating engine Lua state!");
+        return E_FatalError("Failed creating engine Lua state!");
 
     {
         char *luastr = "_LUNATIC_AUX=true; decl=require('ffi').cdef; require'defs_common'";
 
         if (L_RunString(&g_engState, luastr, 0, -1, "eng"))
-            return loadpalette_err("Failed setting up engine Lua state");
+            return E_FatalError("Failed setting up engine Lua state");
     }
 #endif
 
@@ -9258,6 +9322,15 @@ int32_t initengine(void)
 
 int32_t E_PostInit(void)
 {
+    if (!(paletteloaded & PALETTE_MAIN))
+        return E_FatalError("No palette found.");
+    if (!(paletteloaded & PALETTE_SHADE))
+        return E_FatalError("No shade tables found.");
+    if (!(paletteloaded & PALETTE_TRANSLUC))
+        return E_FatalError("No tranlucency tables found.");
+
+    E_PostLoadPalette();
+
     return 0;
 }
 
@@ -9266,8 +9339,6 @@ int32_t E_PostInit(void)
 //
 void uninitengine(void)
 {
-    int32_t i;
-
 #ifdef USE_OPENGL
     polymost_glreset();
     hicinit();
@@ -9284,12 +9355,20 @@ void uninitengine(void)
     DO_FREE_AND_NULL(lookups);
     ALIGNED_FREE_AND_NULL(distrecip);
 
-    for (i=0; i<MAXPALOOKUPS; i++)
+    paletteloaded = 0;
+
+    for (int i=0; i<MAXPALOOKUPS; i++)
         if (palookup[i] != NULL && (i==0 || palookup[i] != palookup[0]))
         {
             // Take care of handling aliased ^^^ cases!
             Bfree(palookup[i]);
         }
+    Bmemset(palookup, 0, sizeof(palookup));
+
+    for (int i=0; i<MAXBLENDTABS; i++)
+        if (blendtable[i] != NULL)
+            Bfree(blendtable[i]);
+    Bmemset(blendtable, 0, sizeof(blendtable));
 
 #ifdef DYNALLOC_ARRAYS
     DO_FREE_AND_NULL(blockptr);
@@ -9299,7 +9378,7 @@ void uninitengine(void)
 
     uninitsystem();
 
-    for (i = 0; i < num_usermaphacks; i++)
+    for (int i = 0; i < num_usermaphacks; i++)
     {
         if (usermaphacks[i].mhkfile)
             Bfree(usermaphacks[i].mhkfile);

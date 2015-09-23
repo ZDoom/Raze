@@ -146,7 +146,6 @@ int32_t ExtPostStartupWindow(void)
     }
 
     setbasepaltable(basepaltable, 1);
-    fillemptylookups();
 
     Ken_InitMultiPsky();
 
@@ -158,6 +157,7 @@ int32_t ExtPostStartupWindow(void)
 
 void ExtPostInit(void)
 {
+    fillemptylookups();
 }
 
 void ExtUnInit(void)

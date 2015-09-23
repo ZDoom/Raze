@@ -527,7 +527,6 @@ int32_t app_main(int32_t argc, const char **argv)
     }
 
     setbasepaltable(basepaltable, 1);
-    fillemptylookups();
 
     Ken_InitMultiPsky();
 
@@ -591,6 +590,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
     for (j=0; j<256; j++) tempbuf[j] = j; //(j&31)+32;
     makepalookup(18,tempbuf,8,8,48,1);
+
+    fillemptylookups();
 
     prepareboard(boardfilename);                   //Load board
 

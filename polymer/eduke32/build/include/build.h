@@ -695,10 +695,19 @@ static inline int32_t BGetTime(void) { return totalclock; }
 
 EXTERN int32_t numframes, randomseed;
 EXTERN int16_t sintable[2048];
+
 EXTERN uint8_t palette[768];
 EXTERN int16_t numshades;
 EXTERN char *palookup[MAXPALOOKUPS];
 EXTERN uint8_t **basepaltableptr;
+EXTERN uint8_t paletteloaded;
+
+enum {
+    PALETTE_MAIN = 1<<0,
+    PALETTE_SHADE = 1<<1,
+    PALETTE_TRANSLUC = 1<<2,
+};
+
 EXTERN char showinvisibility;
 EXTERN int32_t g_visibility, parallaxvisibility;
 EXTERN int32_t g_rotatespriteNoWidescreen;
@@ -1003,6 +1012,8 @@ void   initspritelists(void);
 int32_t loadlookups(int32_t fp);
 void generatefogpals(void);
 void fillemptylookups(void);
+void E_ReplaceTransparentColorWithBlack(void);
+
 int32_t   loadboard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadmaphack(const char *filename);
 void delete_maphack_lights();

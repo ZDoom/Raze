@@ -9918,8 +9918,6 @@ int32_t ExtPostStartupWindow(void)
     if (ReadPaletteTable())
         return 0;
 
-    InitCustomColors();
-
     loadtilegroups(default_tiles_cfg);
 
     ReadHelpFile("m32help.hlp");
@@ -9947,6 +9945,7 @@ int32_t ExtPostStartupWindow(void)
 
 void ExtPostInit(void)
 {
+    InitCustomColors();
 }
 
 void ExtUnInit(void)
