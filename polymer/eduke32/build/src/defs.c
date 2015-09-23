@@ -203,7 +203,7 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
         {
             palette_t const *const col = &picptr[ofs + i];
             faketilebuffer[(i * siz.y) + j] =
-            (col->f < alphacut) ? 255 : getclosestcol(col->b, col->g, col->r);
+            (col->f < alphacut) ? 255 : getclosestcol_lim(col->b, col->g, col->r, 254);
         }
     }
 
