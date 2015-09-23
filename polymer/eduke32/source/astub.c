@@ -2341,17 +2341,6 @@ static inline void SpriteName(int16_t spritenum, char *lo2)
     Bstrcpy(lo2, names[sprite[spritenum].picnum]);
 }// end SpriteName
 
-// Returns: did error?
-static int32_t ReadPaletteTable(void)
-{
-    // Make base shade table at shade 0 into the identity map.
-    // (In the shade table of Duke3D's PALETTE.DAT, palookup[0][239]==143.)
-    // This makes it possible to sensibly use Lunatic's engine.saveLookupDat().
-    palookup[0][239] = 239;
-
-    return G_LoadLookups();
-}
-
 
 static void m32_showmouse(void)
 {
@@ -9915,8 +9904,7 @@ int32_t ExtPostStartupWindow(void)
         return -1;
     }
 
-    if (ReadPaletteTable())
-        return 0;
+    G_LoadLookups();
 
     loadtilegroups(default_tiles_cfg);
 
@@ -9946,6 +9934,15 @@ int32_t ExtPostStartupWindow(void)
 void ExtPostInit(void)
 {
     InitCustomColors();
+
+    // Make base shade table at shade 0 into the identity map.
+    // (In the shade table of Duke3D's PALETTE.DAT, palookup[0][239]==143.)
+    // This makes it possible to sensibly use Lunatic's engine.saveLookupDat().
+    palookup[0][239] = 239;
+
+    generatefogpals();
+
+    fillemptylookups();
 }
 
 void ExtUnInit(void)

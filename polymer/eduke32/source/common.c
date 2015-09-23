@@ -1009,18 +1009,13 @@ uint8_t *basepaltable[BASEPALCOUNT] = {
     NULL /*anim_pal*/
 };
 
-int32_t G_LoadLookups(void)
+void G_LoadLookups(void)
 {
     int32_t fp, j;
 
     if ((fp=kopen4loadfrommod("lookup.dat",0)) == -1)
-    {
         if ((fp=kopen4loadfrommod("lookup.dat",1)) == -1)
-        {
-            initprintf("ERROR: File \"lookup.dat\" not found.\n");
-            return 1;
-        }
-    }
+            return;
 
     j = loadlookups(fp);
 
@@ -1028,26 +1023,20 @@ int32_t G_LoadLookups(void)
     {
         if (j == -1)
             initprintf("ERROR loading \"lookup.dat\": failed reading enough data.\n");
-        return 1;
+
+        return kclose(fp);
     }
 
     for (j=1; j<=5; j++)
     {
         // Account for TITLE and REALMS swap between basepal number and on-disk order.
-        // XXX: this reordering is better off as an argument to us.
         int32_t basepalnum = (j == 3 || j == 4) ? 4+3-j : j;
 
-        if (kread(fp, basepaltable[basepalnum], 768) != 768)
-            return -1;
+        if (kread_and_test(fp, basepaltable[basepalnum], 768))
+            return kclose(fp);
     }
 
     kclose(fp);
-
-    generatefogpals();
-
-    fillemptylookups();
-
-    return 0;
 }
 
 #if defined HAVE_FLAC || defined HAVE_VORBIS

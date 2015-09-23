@@ -8537,16 +8537,15 @@ int32_t loadlookups(int32_t fp)
 {
     uint8_t numlookups;
     char remapbuf[256];
-    int32_t j;
 
-    if (kread(fp, &numlookups, 1) != 1)
+    if (kread_and_test(fp, &numlookups, 1))
         return -1;
 
-    for (j=0; j<numlookups; j++)
+    for (int j=0; j<numlookups; j++)
     {
         uint8_t palnum;
 
-        if (kread(fp, &palnum, 1) != 1)
+        if (kread_and_test(fp, &palnum, 1))
             return -1;
 
         if (palnum >= 256-RESERVEDPALS)
@@ -8555,7 +8554,7 @@ int32_t loadlookups(int32_t fp)
             return -2;
         }
 
-        if (kread(fp, remapbuf, 256) != 256)
+        if (kread_and_test(fp, remapbuf, 256))
             return -1;
 
         makepalookup(palnum, remapbuf, 0,0,0, 0);
