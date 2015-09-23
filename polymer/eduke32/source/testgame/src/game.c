@@ -432,6 +432,23 @@ static int osdcmd_map(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+static void Ken_UninitAll(void)
+{
+    sendlogoff();         //Signing off
+    musicoff();
+    uninitmultiplayers();
+    uninittimer();
+    uninitinput();
+    uninitengine();
+    uninitsb();
+    uninitgroupfile();
+}
+
+static void Ken_FatalEngineError(void)
+{
+    buildprintf("There was a problem initialising the engine: %s.\n", engineerrstr);
+}
+
 int32_t app_main(int32_t argc, const char **argv)
 {
 #if defined STARTUP_SETUP_WINDOW
@@ -505,7 +522,7 @@ int32_t app_main(int32_t argc, const char **argv)
     initgroupfile(G_GrpFile());
     if (initengine())
     {
-        buildprintf("There was a problem initialising the engine: %s.\n", engineerrstr);
+        Ken_FatalEngineError();
         return -1;
     }
 
@@ -527,14 +544,7 @@ int32_t app_main(int32_t argc, const char **argv)
             handleevents();
             if (quitevent)
             {
-                sendlogoff();         //Signing off
-                musicoff();
-                uninitmultiplayers();
-                uninittimer();
-                uninitinput();
-                uninitengine();
-                uninitsb();
-                uninitgroupfile();
+                Ken_UninitAll();
                 return 0;
             }
         }
@@ -547,6 +557,13 @@ int32_t app_main(int32_t argc, const char **argv)
     if (!qloadkvx(nextvoxid,"voxel001.kvx"))
         tiletovox[BROWNMONSTER] = nextvoxid++;
     if (!loaddefinitionsfile(G_DefFile())) buildputs("Definitions file loaded.\n");
+
+    if (E_PostInit())
+    {
+        Ken_UninitAll();
+        Ken_FatalEngineError();
+        return -1;
+    }
 
     //Here's an example of TRUE ornamented walls
     //The allocatepermanenttile should be called right after loadpics
@@ -618,15 +635,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
             if (keystatus[1])
             {
-                sendlogoff();         //Signing off
-                musicoff();
-                uninitmultiplayers();
-                uninittimer();
-                uninitinput();
-                uninitengine();
-                uninitsb();
-                uninitgroupfile();
-                exit(0);
+                Ken_UninitAll();
+                return 0;
             }
         }
         screenpeek = myconnectindex;
@@ -737,14 +747,7 @@ int32_t app_main(int32_t argc, const char **argv)
         drawscreen(screenpeek,i);
     }
 
-    sendlogoff();         //Signing off
-    musicoff();
-    uninitmultiplayers();
-    uninittimer();
-    uninitinput();
-    uninitengine();
-    uninitsb();
-    uninitgroupfile();
+    Ken_UninitAll();
 
     return 0;
 }

@@ -898,6 +898,13 @@ int nextvoxid = 0;  // JBF
 
 extern int startwin_run(void);
 
+static void SW_FatalEngineError(void)
+{
+    wm_msgbox("Build Engine Initialisation Error",
+              "There was a problem initialising the Build engine: %s", engineerrstr);
+    exit(1);
+}
+
 void
 InitGame(int32_t argc, const char **argv)
 {
@@ -908,13 +915,8 @@ InitGame(int32_t argc, const char **argv)
     DSPRINTF(ds,"InitGame...");
     MONO_PRINT(ds);
 
-
     if (initengine())
-    {
-        wm_msgbox("Build Engine Initialisation Error",
-                  "There was a problem initialising the Build engine: %s", engineerrstr);
-        exit(1);
-    }
+        SW_FatalEngineError();
 
     //initgroupfile(G_GrpFile());  // JBF: moving this close to start of program to detect shareware
     InitSetup();
@@ -1034,6 +1036,9 @@ InitGame(int32_t argc, const char **argv)
         Bfree(g_defModules[i]);
     Bfree(g_defModules);
     g_defModules = NULL;
+
+    if (E_PostInit())
+        SW_FatalEngineError();
 
     DemoModeMenuInit = TRUE;
     // precache as much stuff as you can

@@ -9253,6 +9253,15 @@ int32_t initengine(void)
 }
 
 //
+// E_PostInit
+//
+
+int32_t E_PostInit(void)
+{
+    return 0;
+}
+
+//
 // uninitengine
 //
 void uninitengine(void)

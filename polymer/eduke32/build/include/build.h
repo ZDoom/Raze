@@ -997,6 +997,7 @@ typedef struct artheader_t {
 
 int32_t    preinitengine(void);	// a partial setup of the engine used for launch windows
 int32_t    initengine(void);
+int32_t E_PostInit(void);
 void   uninitengine(void);
 void   initspritelists(void);
 int32_t loadlookups(int32_t fp);

@@ -35,6 +35,7 @@ static const char *CallExtGetVer(void);
 static int32_t CallExtInit(void);
 static int32_t CallExtPreInit(int32_t argc,const char **argv);
 static int32_t CallExtPostStartupWindow(void);
+static void CallExtPostInit(void);
 static void CallExtUnInit(void);
 static void CallExtPreCheckKeys(void);
 static void CallExtAnalyzeSprites(int32_t, int32_t, int32_t, int32_t);
@@ -557,6 +558,14 @@ void M32_OnShowOSD(int32_t shown)
     AppGrabMouse((!shown) + 2);
 }
 
+static void M32_FatalEngineError(void)
+{
+    wm_msgbox("Build Engine Initialization Error",
+              "There was a problem initializing the Build engine: %s", engineerrstr);
+    ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
+    exit(2);
+}
+
 int32_t app_main(int32_t argc, const char **argv)
 {
 #ifdef STARTUP_SETUP_WINDOW
@@ -636,12 +645,7 @@ int32_t app_main(int32_t argc, const char **argv)
     Bstrncpy(game_executable, DefaultGameLocalExec, sizeof(game_executable));
 
     if (preinitengine())
-    {
-        wm_msgbox("Build Engine Initialization Error",
-                  "There was a problem initializing the Build engine: %s", engineerrstr);
-        ERRprintf("app_main: There was a problem initializing the Build engine: %s\n", engineerrstr);
-        Bexit(2);
-    }
+        M32_FatalEngineError();
 
     if ((i = CallExtInit()) < 0) return -1;
 
@@ -719,6 +723,11 @@ int32_t app_main(int32_t argc, const char **argv)
     g_defModules = NULL;  // be defensive...
 
     // Here used to be the 'whitecol' calculation
+
+    if (E_PostInit())
+        M32_FatalEngineError();
+
+    CallExtPostInit();
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
     int k = clipmapinfo_load();
@@ -11088,6 +11097,10 @@ static int32_t CallExtPreInit(int32_t argc,const char **argv)
 static int32_t CallExtPostStartupWindow(void)
 {
     return ExtPostStartupWindow();
+}
+static void CallExtPostInit(void)
+{
+    return ExtPostInit();
 }
 static void CallExtUnInit(void)
 {

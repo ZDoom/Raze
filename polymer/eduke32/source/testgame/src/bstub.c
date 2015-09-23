@@ -156,6 +156,10 @@ int32_t ExtPostStartupWindow(void)
     return 0;
 }
 
+void ExtPostInit(void)
+{
+}
+
 void ExtUnInit(void)
 {
     uninitgroupfile();

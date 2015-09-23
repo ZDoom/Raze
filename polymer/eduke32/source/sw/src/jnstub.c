@@ -778,6 +778,9 @@ else
     return rv;
 }
 
+void ExtPostInit(void)
+{
+}
 
 void
 ExtUnInit(void)
