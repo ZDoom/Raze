@@ -699,7 +699,7 @@ int32_t app_main(int32_t argc, const char **argv)
         allocache(&waloff[i], sx*sy, &walock[i]);
         newtile = (char *)waloff[i];
 
-        col = getclosestcol(128>>2, 128>>2, 0);
+        col = getclosestcol(128, 128, 0);
         for (j=0; j<(signed)sizeof(R); j++)
             R[j] *= col;
 

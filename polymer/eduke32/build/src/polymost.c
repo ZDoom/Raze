@@ -283,9 +283,9 @@ void polymost_glreset()
 {
     for (int i=0; i<=MAXPALOOKUPS-1; i++)
     {
-        fogtable[i].r = palookupfog[i].r * (1.f/63.f);
-        fogtable[i].g = palookupfog[i].g * (1.f/63.f);
-        fogtable[i].b = palookupfog[i].b * (1.f/63.f);
+        fogtable[i].r = palookupfog[i].r * (1.f/255.f);
+        fogtable[i].g = palookupfog[i].g * (1.f/255.f);
+        fogtable[i].b = palookupfog[i].b * (1.f/255.f);
         fogtable[i].a = 0;
     }
 

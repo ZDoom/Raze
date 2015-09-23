@@ -280,16 +280,16 @@ InitPalette(void)
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
     // palette for underwater
-    makepalookup(PALETTE_DIVE, tempbuf, 0, 0, 15, TRUE);
+    makepalookup(PALETTE_DIVE, tempbuf, 0, 0, 60, TRUE);
 
-#define FOG_AMT 15
+#define FOG_AMT 60
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
     makepalookup(PALETTE_FOG, tempbuf, FOG_AMT, FOG_AMT, FOG_AMT, TRUE);
 
     for (i = 0; i < 256; i++)
         tempbuf[i] = i;
-    makepalookup(PALETTE_DIVE_LAVA, tempbuf, 11, 0, 0, TRUE);
+    makepalookup(PALETTE_DIVE_LAVA, tempbuf, 44, 0, 0, TRUE);
 
     //
     // 1 Range changes
@@ -460,9 +460,9 @@ void GetPaletteFromVESA(unsigned char *pal)
     int i;
     for (i=0; i<256; i++)
     {
-        pal[i*3+0] = curpalette[i].r>>2;
-        pal[i*3+1] = curpalette[i].g>>2;
-        pal[i*3+2] = curpalette[i].b>>2;
+        pal[i*3+0] = curpalette[i].r;
+        pal[i*3+1] = curpalette[i].g;
+        pal[i*3+2] = curpalette[i].b;
     }
     //    fprintf(stderr,"GetPaletteFromVESA() called\n");
 }

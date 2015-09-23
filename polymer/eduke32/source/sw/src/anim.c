@@ -296,8 +296,6 @@ playanm(short anim_num)
     numframes = ANIMnumframes;
 
     palptr = ANIM_GetPalette();
-    for (i = 0; i < 768; i++)
-        ANIMvesapal[i] = palptr[i]>>2;
 
     tilesiz[ANIM_TILE(ANIMnum)].x = 200;
     tilesiz[ANIM_TILE(ANIMnum)].y = 320;

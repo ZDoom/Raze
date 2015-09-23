@@ -93,6 +93,8 @@ local function shtab_mt__index(sht, idx)
 end
 
 local pal256_t = bcarray.new("uint8_t", 256, "color index 256-tuple")
+local SIZEOF_PAL256 = ffi.sizeof(pal256_t)
+
 -- The shade table type, effectively a bound-checked uint8_t [32][256]:
 shtab_t = bcarray.new(pal256_t, 32, "shade table", nil, nil, { __index = shtab_mt__index })
 local SIZEOF_SHTAB = ffi.sizeof(shtab_t)
@@ -202,8 +204,8 @@ end
 
 
 local function check_colcomp(a)
-    if (type(a) ~= "number" or not (a >= 0 and a < 64)) then
-        error("color component must be in the range [0 .. 64)", 3)
+    if (type(a) ~= "number" or not (a >= 0 and a < 256)) then
+        error("color component must be in the range [0 .. 256)", 3)
     end
 end
 
@@ -325,7 +327,13 @@ if (ismapster32) then
             return nil, errmsg
         end
 
-        local n1 = C.fwrite(C.palette, 3, 256, f)
+        local truncpal = pal256_t()
+        ffi.copy(truncpal, C.palette, SIZEOF_PAL256)
+        for i=0,255 do
+            truncpal[i] = bit.rshift(truncpal[i], 2)
+        end
+
+        local n1 = C.fwrite(truncpal, 3, 256, f)
         f:write("\032\000")  -- int16_t numshades
         local n3 = C.fwrite(sht, 256, 32, f)
         local n4 = C.fwrite(tab, 256, 256, f)
@@ -385,7 +393,13 @@ if (ismapster32) then
         for i=1,5 do
             local bpi = (i==3 or i==4) and 4+3-i or i
 
-            if (C.fwrite(C.basepaltable[bpi], 1, 768, f) ~= 768) then
+            local truncbasepal = pal256_t()
+            ffi.copy(truncbasepal, C.basepaltable[bpi], SIZEOF_PAL256)
+            for j=0,255 do
+                truncbasepal[j] = bit.rshift(truncbasepal[j], 2)
+            end
+
+            if (C.fwrite(truncbasepal, 1, 768, f) ~= 768) then
                 return nil, "failed writing base palette"
             end
         end

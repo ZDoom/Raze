@@ -1029,6 +1029,9 @@ void G_LoadLookups(void)
         if (kread_and_test(fp, paldata, 768))
             return kclose(fp);
 
+        for (int k = 0; k < 768; k++)
+            paldata[k] <<= 2;
+
         setbasepal(basepalnum, paldata);
     }
 

@@ -2192,7 +2192,7 @@ badindex:
             insptr++;
             {
                 int32_t r = Gv_GetVarX(*insptr++), g = Gv_GetVarX(*insptr++), b = Gv_GetVarX(*insptr++);
-                Gv_SetVarX(*insptr++, getclosestcol((r>>2)&63, (g>>2)&63, (b>>2)&63));
+                Gv_SetVarX(*insptr++, getclosestcol(r, g, b));
                 continue;
             }
 

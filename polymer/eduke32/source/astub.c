@@ -7831,55 +7831,55 @@ static void InitCustomColors(void)
     palette_t *edcol;
 
     /* blue */
-    vgapal16[9*4+0] = 63;
-    vgapal16[9*4+1] = 31;
-    vgapal16[9*4+2] = 7;
+    vgapal16[9*4+0] = 252;
+    vgapal16[9*4+1] = 124;
+    vgapal16[9*4+2] = 28;
 
     /* orange */
-    vgapal16[31*4+0] = 20; // blue
-    vgapal16[31*4+1] = 45; // green
-    vgapal16[31*4+2] = 60; // red
+    vgapal16[31*4+0] = 80; // blue
+    vgapal16[31*4+1] = 180; // green
+    vgapal16[31*4+2] = 240; // red
 
-    vgapal16[39*4+0] = 36;
-    vgapal16[39*4+1] = 53;
-    vgapal16[39*4+2] = 63;
+    vgapal16[39*4+0] = 144;
+    vgapal16[39*4+1] = 212;
+    vgapal16[39*4+2] = 252;
 
 
     /* light yellow */
-    vgapal16[22*4+0] = 51;
-    vgapal16[22*4+1] = 63;
-    vgapal16[22*4+2] = 63;
+    vgapal16[22*4+0] = 204;
+    vgapal16[22*4+1] = 252;
+    vgapal16[22*4+2] = 252;
 
     /* grey */
-    vgapal16[23*4+0] = 45;
-    vgapal16[23*4+1] = 45;
-    vgapal16[23*4+2] = 45;
+    vgapal16[23*4+0] = 180;
+    vgapal16[23*4+1] = 180;
+    vgapal16[23*4+2] = 180;
 
     /* blue */
-    vgapal16[24*4+0] = 51;
-    vgapal16[24*4+1] = 41;
-    vgapal16[24*4+2] = 12;
+    vgapal16[24*4+0] = 204;
+    vgapal16[24*4+1] = 164;
+    vgapal16[24*4+2] = 48;
 
-    vgapal16[32*4+0] = 60;
-    vgapal16[32*4+1] = 50;
-    vgapal16[32*4+2] = 21;
+    vgapal16[32*4+0] = 240;
+    vgapal16[32*4+1] = 200;
+    vgapal16[32*4+2] = 84;
 
     // grid color
-    vgapal16[25*4+0] = 16;
-    vgapal16[25*4+1] = 14;
-    vgapal16[25*4+2] = 14;
+    vgapal16[25*4+0] = 64;
+    vgapal16[25*4+1] = 56;
+    vgapal16[25*4+2] = 56;
 
-    vgapal16[26*4+0] = 24;
-    vgapal16[26*4+1] = 24;
-    vgapal16[26*4+2] = 24;
+    vgapal16[26*4+0] = 96;
+    vgapal16[26*4+1] = 96;
+    vgapal16[26*4+2] = 96;
 
-    vgapal16[33*4+0] = 0;//15; // blue
-    vgapal16[33*4+1] = 0;//30; // green
-    vgapal16[33*4+2] = 48;//45; // red
+    vgapal16[33*4+0] = 0; //60; // blue
+    vgapal16[33*4+1] = 0; //120; // green
+    vgapal16[33*4+2] = 192; //180; // red
 
-    vgapal16[41*4+0] = 0;//24;
-    vgapal16[41*4+1] = 0;//40;
-    vgapal16[41*4+2] = 63;//48;
+    vgapal16[41*4+0] = 0; //96;
+    vgapal16[41*4+1] = 0; //160;
+    vgapal16[41*4+2] = 252; //192;
 
     for (i = 0; i<256; i++)
     {

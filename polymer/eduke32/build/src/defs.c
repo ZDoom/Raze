@@ -203,7 +203,7 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
         {
             palette_t const *const col = &picptr[ofs + i];
             faketilebuffer[(i * siz.y) + j] =
-            (col->f < alphacut) ? 255 : getclosestcol(col->b >> 2, col->g >> 2, col->r >> 2);
+            (col->f < alphacut) ? 255 : getclosestcol(col->b, col->g, col->r);
         }
     }
 
@@ -553,9 +553,9 @@ static int32_t defsparser(scriptfile *script)
                 g = clamp(g, 0, 63);
                 b = clamp(b, 0, 63);
 
-                vgapal16[col*4+0] = b; // blue
-                vgapal16[col*4+1] = g; // green
-                vgapal16[col*4+2] = r; // red
+                vgapal16[col*4+0] = b<<2; // blue
+                vgapal16[col*4+1] = g<<2; // green
+                vgapal16[col*4+2] = r<<2; // red
             }
         }
         break;
@@ -572,7 +572,7 @@ static int32_t defsparser(scriptfile *script)
             g = clamp(g, 0, 63);
             b = clamp(b, 0, 63);
 
-            makepalookup(p, NULL, r, g, b, 1);
+            makepalookup(p, NULL, r<<2, g<<2, b<<2, 1);
         }
         break;
         case T_NOFLOORPALRANGE:
@@ -2152,7 +2152,7 @@ static int32_t defsparser(scriptfile *script)
 
             // NOTE: all palookups are initialized, i.e. non-NULL!
             // NOTE2: aliasing (pal==remappal) is OK
-            makepalookup(pal, palookup[remappal], red, green, blue,
+            makepalookup(pal, palookup[remappal], red<<2, green<<2, blue<<2,
                          remappal==0 ? 1 : (nofloorpal == -1 ? g_noFloorPal[remappal] : nofloorpal));
         }
         break;

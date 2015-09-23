@@ -841,7 +841,7 @@ EXTERN char *faketiledata[MAXTILES];
 EXTERN char spritecol2d[MAXTILES][2];
 EXTERN uint8_t tilecols[MAXTILES];
 
-extern char vgapal16[4*256];
+extern uint8_t vgapal16[4*256];
 
 extern uint32_t drawlinepat;
 
@@ -1043,11 +1043,11 @@ void E_RenderArtDataIntoBuffer(palette_t * pic, uint8_t const * buf, int32_t buf
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 intptr_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
-void   makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8_t b, char noFloorPal);
+void   makepalookup(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
 //void   setvgapalette(void);
 void setbasepal(int32_t id, uint8_t const *table);
 void   setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags);
-void   setpalettefade(char r, char g, char b, char offset);
+void   setpalettefade(uint8_t r, uint8_t g, uint8_t b, uint8_t offset);
 void   squarerotatetile(int16_t tilenume);
 void fade_screen_black(int32_t moreopaquep);
 

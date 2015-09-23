@@ -584,10 +584,10 @@ int32_t app_main(int32_t argc, const char **argv)
     makepalookup(16,tempbuf,0,0,0,1);
 
     for (j=0; j<256; j++) tempbuf[j] = j;
-    makepalookup(17,tempbuf,24,24,24,1);
+    makepalookup(17,tempbuf,96,96,96,1);
 
     for (j=0; j<256; j++) tempbuf[j] = j; //(j&31)+32;
-    makepalookup(18,tempbuf,8,8,48,1);
+    makepalookup(18,tempbuf,32,32,192,1);
 
     fillemptylookups();
 

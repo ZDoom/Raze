@@ -1222,8 +1222,8 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 #ifdef YAX_DEBUG_YMOSTS
     if (getrendermode() == REND_CLASSIC && numyaxbunches>0)
     {
-        char purple = getclosestcol(63, 0, 63);
-        char yellow = getclosestcol(63, 63, 0);
+        char purple = getclosestcol(255, 0, 255);
+        char yellow = getclosestcol(255, 255, 0);
 
         begindrawing();
         for (i=0; i<numyaxbunches; i++)
@@ -2332,12 +2332,17 @@ static int32_t *lastx;
 
 int32_t halfxdim16, midydim16;
 
-#define FASTPALGRIDSIZ 8
-static int32_t rdist[129], gdist[129], bdist[129];
+#define FASTPALCOLDEPTH 256
+#define FASTPALRIGHTSHIFT 3
+#define FASTPALRGBDIST (FASTPALCOLDEPTH*2+1)
+static int32_t rdist[FASTPALRGBDIST], gdist[FASTPALRGBDIST], bdist[FASTPALRGBDIST];
+#define FASTPALGRIDSIZ (FASTPALCOLDEPTH>>FASTPALRIGHTSHIFT)
 static char colhere[((FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2))>>3];
 static char colhead[(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)];
 static int32_t colnext[256];
-static char coldist[8] = {0,1,2,3,4,3,2,1};
+#define FASTPALCOLDIST (1<<FASTPALRIGHTSHIFT)
+#define FASTPALCOLDISTMASK (FASTPALCOLDIST-1)
+static uint8_t coldist[FASTPALCOLDIST];
 static int32_t colscan[27];
 
 static int16_t clipnum;
@@ -2374,12 +2379,12 @@ int16_t numscans, numbunches;
 static int16_t numhits;
 int16_t capturecount = 0;
 
-char vgapal16[4*256] =
+uint8_t vgapal16[4*256] =
 {
-    00,00,00,00, 42,00,00,00, 00,42,00,00, 42,42,00,00, 00,00,42,00,
-    42,00,42,00, 00,21,42,00, 42,42,42,00, 21,21,21,00, 63,21,21,00,
-    21,63,21,00, 63,63,21,00, 21,21,63,00, 63,21,63,00, 21,63,63,00,
-    63,63,63,00
+    0,0,0,0, 170,0,0,0, 0,170,0,0, 170,170,0,0, 0,0,170,0,
+    170,0,170,0, 0,85,170,0, 170,170,170,0, 85,85,85,0, 255,85,85,0,
+    85,255,85,0, 255,255,85,0, 85,85,255,0, 255,85,255,0, 85,255,255,0,
+    255,255,255,0
 };
 
 int16_t searchit;
@@ -5345,8 +5350,8 @@ static void drawalls(int32_t bunch)
 # endif
         {
             static char fn[32], tmpbuf[80];
-            char purple = getclosestcol(63, 0, 63);
-            char yellow = getclosestcol(63, 63, 0);
+            char purple = getclosestcol(255, 0, 255);
+            char yellow = getclosestcol(255, 255, 0);
             char *bakframe = (char *)Xaligned_alloc(16, xdim*ydim);
 
             begindrawing();  //{{{
@@ -8255,43 +8260,46 @@ static int32_t loadtables(void)
 //
 static void initfastcolorlookup_scale(int32_t rscale, int32_t gscale, int32_t bscale)
 {
-    int32_t i, j;
-
-    j = 0;
-    for (i=64; i>=0; i--)
+    int32_t j = 0;
+    for (int i=256; i>=0; i--)
     {
         //j = (i-64)*(i-64);
-        rdist[i] = rdist[128-i] = j*rscale;
-        gdist[i] = gdist[128-i] = j*gscale;
-        bdist[i] = bdist[128-i] = j*bscale;
-        j += 129-(i<<1);
+        rdist[i] = rdist[FASTPALCOLDEPTH*2-i] = j*rscale;
+        gdist[i] = gdist[FASTPALCOLDEPTH*2-i] = j*gscale;
+        bdist[i] = bdist[FASTPALCOLDEPTH*2-i] = j*bscale;
+        j += FASTPALRGBDIST-(i<<1);
     }
 }
 void initfastcolorlookup_palette(void)
 {
-    int32_t i, j, x, y, z;
-    const char *pal1;
-
     Bmemset(colhere,0,sizeof(colhere));
     Bmemset(colhead,0,sizeof(colhead));
 
-    pal1 = (char *)&palette[768-3];
-    for (i=255; i>=0; i--,pal1-=3)
+    char const *pal1 = (char *)&palette[768-3];
+    for (int i=255; i>=0; i--,pal1-=3)
     {
-        j = (pal1[0]>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
-            + (pal1[1]>>3)*FASTPALGRIDSIZ + (pal1[2]>>3)
-            + FASTPALGRIDSIZ*FASTPALGRIDSIZ + FASTPALGRIDSIZ+1;
+        int32_t const j = (pal1[0]>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
+            + (pal1[1]>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ + (pal1[2]>>FASTPALRIGHTSHIFT)
+            + FASTPALGRIDSIZ*FASTPALGRIDSIZ + FASTPALGRIDSIZ + 1;
         if (colhere[j>>3]&pow2char[j&7]) colnext[i] = colhead[j]; else colnext[i] = -1;
         colhead[j] = i;
         colhere[j>>3] |= pow2char[j&7];
     }
-
-    i = 0;
+}
+static void initfastcolorlookup_gridvectors(void)
+{
+    int i = 0;
+    int32_t x, y, z;
     for (x=-FASTPALGRIDSIZ*FASTPALGRIDSIZ; x<=FASTPALGRIDSIZ*FASTPALGRIDSIZ; x+=FASTPALGRIDSIZ*FASTPALGRIDSIZ)
         for (y=-FASTPALGRIDSIZ; y<=FASTPALGRIDSIZ; y+=FASTPALGRIDSIZ)
             for (z=-1; z<=1; z++)
                 colscan[i++] = x+y+z;
     i = colscan[13]; colscan[13] = colscan[26]; colscan[26] = i;
+
+    for (i = 0; i < FASTPALCOLDIST/2; i++)
+        coldist[i] = i;
+    for (; i < FASTPALCOLDIST; i++)
+        coldist[i] = FASTPALCOLDIST-i;
 }
 
 
@@ -8315,6 +8323,7 @@ static void maybe_alloc_palookup(int32_t palnum);
 static void loadpalette(void)
 {
     initfastcolorlookup_scale(30, 59, 11);
+    initfastcolorlookup_gridvectors();
 
     int32_t fil;
     if ((fil = kopen4load("palette.dat",0)) == -1)
@@ -8325,6 +8334,9 @@ static void loadpalette(void)
 
     if (kread_and_test(fil,palette,768))
         return kclose(fil);
+
+    for (int k = 0; k < 768; k++)
+        palette[k] <<= 2;
 
     initfastcolorlookup_palette();
 
@@ -8570,10 +8582,10 @@ void generatefogpals(void)
     for (int32_t j=1; j<=255-3; j++)
         if (!palookup[j] && !palookup[j+1] && !palookup[j+2] && !palookup[j+3])
         {
-            makepalookup(j, NULL, 15, 15, 15, 1);
-            makepalookup(j+1, NULL, 15, 0, 0, 1);
-            makepalookup(j+2, NULL, 0, 15, 0, 1);
-            makepalookup(j+3, NULL, 0, 0, 15, 1);
+            makepalookup(j, NULL, 60, 60, 60, 1);
+            makepalookup(j+1, NULL, 60, 0, 0, 1);
+            makepalookup(j+2, NULL, 0, 60, 0, 1);
+            makepalookup(j+3, NULL, 0, 0, 60, 1);
 
             break;
         }
@@ -8602,18 +8614,17 @@ void getclosestcol_flush(void)
 // <lastokcol> must be in [0 .. 255].
 int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
 {
-    const int j = (r>>3)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
-        + (g>>3)*FASTPALGRIDSIZ + (b>>3)
+    const int j = (r>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
+        + (g>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ + (b>>FASTPALRIGHTSHIFT)
         + FASTPALGRIDSIZ*FASTPALGRIDSIZ
-        + FASTPALGRIDSIZ+1;
+        + FASTPALGRIDSIZ + 1;
 
 #ifdef DEBUGGINGAIDS
     Bassert(lastokcol >= 0 && lastokcol <= 255);
 #endif
 
-    r = 64-r, g = 64-g, b = 64-b;
+    uint32_t const col = r | (g<<8) | (b<<16);
 
-    uint32_t col = (r + (g<<8) + (b<<16));
     int mindist = -1;
 
     int const k = (numclosestcolresults > COLRESULTSIZ) ? (COLRESULTSIZ-4) : (numclosestcolresults-4);
@@ -8643,8 +8654,14 @@ int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
 skip:
     getclosestcol_results[numclosestcolresults & (COLRESULTSIZ-1)] = col;
 
-    mindist = min(rdist[coldist[r&7]+64+8], gdist[coldist[g&7]+64+8]);
-    mindist = min(mindist, bdist[coldist[b&7]+64+8]) + 1;
+    int const minrdist = rdist[coldist[r&FASTPALCOLDISTMASK]+FASTPALCOLDEPTH];
+    int const mingdist = gdist[coldist[g&FASTPALCOLDISTMASK]+FASTPALCOLDEPTH];
+    int const minbdist = bdist[coldist[b&FASTPALCOLDISTMASK]+FASTPALCOLDEPTH];
+
+    mindist = min(minrdist, mingdist);
+    mindist = min(mindist, minbdist) + 1;
+
+    r = FASTPALCOLDEPTH-r, g = FASTPALCOLDEPTH-g, b = FASTPALCOLDEPTH-b;
 
     int retcol = -1;
 
@@ -12435,9 +12452,9 @@ void E_RenderArtDataIntoBuffer(palette_t * const pic, uint8_t const * const buf,
                 index *= 3;
 
                 // pic is BGRA
-                picrow[x].r = palette[index+2]<<2;
-                picrow[x].g = palette[index+1]<<2;
-                picrow[x].b = palette[index]<<2;
+                picrow[x].r = palette[index+2];
+                picrow[x].g = palette[index+1];
+                picrow[x].b = palette[index];
                 picrow[x].f = 255;
             }
         }
@@ -15570,7 +15587,7 @@ int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
 //
 // makepalookup
 //
-void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8_t b, char noFloorPal)
+void makepalookup(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal)
 {
     int32_t i, j;
 
@@ -15601,9 +15618,6 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
     }
 
     maybe_alloc_palookup(palnum);
-
-    if ((r|g|b|63) != 63)
-        return;
 
     if ((r|g|b) == 0)
     {
@@ -15699,9 +15713,9 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
     for (i=0; i<256; i++)
     {
         // save palette without any brightness adjustment
-        curpalette[i].r = dapal[i*3+0] << 2;
-        curpalette[i].g = dapal[i*3+1] << 2;
-        curpalette[i].b = dapal[i*3+2] << 2;
+        curpalette[i].r = dapal[i*3+0];
+        curpalette[i].g = dapal[i*3+1];
+        curpalette[i].b = dapal[i*3+2];
         curpalette[i].f = 0;
 
         // brightness adjust the palette
@@ -15784,11 +15798,11 @@ static void setpalettefade_calc(uint8_t offset)
         p = getpal(i);
 
         curpalettefaded[i].b =
-            p.b + (((palfadergb.b - p.b) * offset) >> 6);
+            p.b + (((palfadergb.b - p.b) * offset) >> 8);
         curpalettefaded[i].g =
-            p.g + (((palfadergb.g - p.g) * offset) >> 6);
+            p.g + (((palfadergb.g - p.g) * offset) >> 8);
         curpalettefaded[i].r =
-            p.r + (((palfadergb.r - p.r) * offset) >> 6);
+            p.r + (((palfadergb.r - p.r) * offset) >> 8);
         curpalettefaded[i].f = 0;
     }
 }
@@ -15798,16 +15812,16 @@ static void setpalettefade_calc(uint8_t offset)
 //
 // setpalettefade
 //
-void setpalettefade(char r, char g, char b, char offset)
+void setpalettefade(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
 {
-    palfadergb.r = min(63,r) << 2;
-    palfadergb.g = min(63,g) << 2;
-    palfadergb.b = min(63,b) << 2;
+    palfadergb.r = r;
+    palfadergb.g = g;
+    palfadergb.b = b;
 #ifdef DEBUG_PALETTEFADE
     if (offset)
-        offset = max(offset, 32);
+        offset = max(offset, 128);
 #endif
-    palfadedelta = min(63,offset) << 2;
+    palfadedelta = offset;
 
     setpalettefade_calc(offset);
 

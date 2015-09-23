@@ -2826,17 +2826,13 @@ static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
 
 void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e)
 {
-    setpalettefade(r,g,b,e&63);
+    int32_t tc;
+    setpalettefade(r,g,b,e);
 
-    if ((e&128) == 0)
-    {
-        int32_t tc;
-
-        nextpage();
-        tc = totalclock;
-        while (totalclock < tc + 4)
-            G_HandleAsync();
-    }
+    nextpage();
+    tc = totalclock;
+    while (totalclock < tc + 4)
+        G_HandleAsync();
 }
 
 // START and END limits are always inclusive!
@@ -2918,17 +2914,17 @@ static void G_DisplayExtraScreens(void)
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
-        fadepal(0,0,0, 0,63,7);
+        fadepal(0,0,0, 0,252,28);
         I_ClearAllInput();
         rotatesprite_fs(160<<16,100<<16,65536L,0,3291,0,0,2+8+64+BGSTRETCH);
-        fadepaltile(0,0,0, 63,0,-7, 3291);
+        fadepaltile(0,0,0, 252,0,-28, 3291);
         while (!I_CheckAllInput())
             G_HandleAsync();
 
-        fadepaltile(0,0,0, 0,63,7, 3291);
+        fadepaltile(0,0,0, 0,252,28, 3291);
         I_ClearAllInput();
         rotatesprite_fs(160<<16,100<<16,65536L,0,3290,0,0,2+8+64+BGSTRETCH);
-        fadepaltile(0,0,0, 63,0,-7,3290);
+        fadepaltile(0,0,0, 252,0,-28,3290);
         while (!I_CheckAllInput())
             G_HandleAsync();
 
@@ -2946,15 +2942,15 @@ static void G_DisplayExtraScreens(void)
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
-        fadepal(0,0,0, 0,63,7);
+        fadepal(0,0,0, 0,252,28);
         I_ClearAllInput();
         totalclock = 0;
         rotatesprite_fs(160<<16,100<<16,65536L,0,TENSCREEN,0,0,2+8+64+BGSTRETCH);
-        fadepaltile(0,0,0, 63,0,-7,TENSCREEN);
+        fadepaltile(0,0,0, 252,0,-28,TENSCREEN);
         while (!I_CheckAllInput() && totalclock < 2400)
             G_HandleAsync();
 
-        fadepaltile(0,0,0, 0,63,7, TENSCREEN);
+        fadepaltile(0,0,0, 0,252,28, TENSCREEN);
         I_ClearAllInput();
 #ifdef __ANDROID__
         inExtraScreens = 0;
@@ -3370,9 +3366,9 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     char *ptr = (char *)waloff[CROSSHAIR];
     int32_t i, ii;
 
-    if (DefaultCrosshairColors.f == 0 || g_crosshairSum == r+(g<<1)+(b<<2)) return;
+    if (DefaultCrosshairColors.f == 0 || g_crosshairSum == r+(g<<8)+(b<<16)) return;
 
-    g_crosshairSum = r+(g<<1)+(b<<2);
+    g_crosshairSum = r+(g<<8)+(b<<16);
     CrosshairColors.r = r;
     CrosshairColors.g = g;
     CrosshairColors.b = b;
@@ -3387,8 +3383,8 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     if (ii <= 0) return;
 
     if (getrendermode() == REND_CLASSIC)
-        i = getclosestcol(CrosshairColors.r>>2, CrosshairColors.g>>2, CrosshairColors.b>>2);
-    else i = getclosestcol(63, 63, 63); // use white in GL so we can tint it to the right color
+        i = getclosestcol(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
+    else i = getclosestcol(255, 255, 255); // use white in GL so we can tint it to the right color
 
     do
     {
@@ -3398,7 +3394,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     }
     while (--ii);
 
-    makepalookup(CROSSHAIR_PAL, NULL, CrosshairColors.r>>2, CrosshairColors.g>>2, CrosshairColors.b>>2,1);
+    makepalookup(CROSSHAIR_PAL, NULL, CrosshairColors.r, CrosshairColors.g, CrosshairColors.b,1);
 
 #ifdef USE_OPENGL
     // XXX: this makes us also load all hightile textures tinted with the crosshair color!
@@ -3459,7 +3455,7 @@ int32_t m32_numdebuglines=0;
 
 static void M32_drawdebug(void)
 {
-    int i, col=getclosestcol(63,63,63);
+    int i, col=getclosestcol(255,255,255);
     int x=4, y=8;
 
     if (m32_numdebuglines>0)
@@ -3514,9 +3510,9 @@ static void palaccum_add(palaccum_t *pa, const palette_t *pal, int32_t f)
 
 static void G_FadePalaccum(const palaccum_t *pa)
 {
-    setpalettefade(tabledivide32_noinline(pa->r, pa->sumf),
-                   tabledivide32_noinline(pa->g, pa->sumf),
-                   tabledivide32_noinline(pa->b, pa->sumf), pa->maxf);
+    setpalettefade(tabledivide32_noinline(pa->r, pa->sumf)<<2,
+                   tabledivide32_noinline(pa->g, pa->sumf)<<2,
+                   tabledivide32_noinline(pa->b, pa->sumf)<<2, pa->maxf<<2);
 }
 
 
@@ -4428,7 +4424,7 @@ static void G_ReadGLFrame(void)
         for (x = 0; x < 320; x++)
         {
             const palette_t *pix = &frame[base + mulscale16(x, xf)];
-            pic[320 * y + x] = getclosestcol(pix->r >> 2, pix->g >> 2, pix->b >> 2);
+            pic[320 * y + x] = getclosestcol(pix->r, pix->g, pix->b);
         }
     }
 
@@ -10619,7 +10615,7 @@ static void G_DisplayLogo(void)
 
     setview(0,0,xdim-1,ydim-1);
     clearallviews(0L);
-    G_FadePalette(0,0,0,63);
+    G_FadePalette(0,0,0,252);
 
     flushperms();
     nextpage();
@@ -10641,7 +10637,7 @@ static void G_DisplayLogo(void)
             {
                 Net_GetPackets();
                 G_PlayAnim("logo.anm");
-                G_FadePalette(0,0,0,63);
+                G_FadePalette(0,0,0,252);
                 I_ClearAllInput();
             }
 
@@ -10664,7 +10660,7 @@ static void G_DisplayLogo(void)
         if (!NAM)
         {
             //g_player[myconnectindex].ps->palette = drealms;
-            //G_FadePalette(0,0,0,63);
+            //G_FadePalette(0,0,0,252);
 
             if (logoflags & LOGO_3DRSCREEN)
             {
@@ -10683,7 +10679,7 @@ static void G_DisplayLogo(void)
                     {
                         kclose(i);
                         G_PlayAnim("3dr.anm");
-                        G_FadePalette(0, 0, 0, 63);
+                        G_FadePalette(0,0,0,252);
                         I_ClearAllInput();
                     }
                     else
@@ -10691,11 +10687,11 @@ static void G_DisplayLogo(void)
                         clearallviews(0);
 
                         P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8 + 2 + 1);    // JBF 20040308
-                        fadepal(0, 0, 0, 0, 63, 7);
+                        fadepal(0,0,0, 0,252,28);
                         flushperms();
                         rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + BGSTRETCH);
                         nextpage();
-                        fadepaltile(0, 0, 0, 63, 0, -7, DREALMS);
+                        fadepaltile(0,0,0, 252,0,-28, DREALMS);
                         totalclock = 0;
                         while (totalclock < (120 * 7) && !I_CheckAllInput())
                         {
@@ -10712,7 +10708,7 @@ static void G_DisplayLogo(void)
                             }
                             nextpage();
                         }
-                        fadepaltile(0, 0, 0, 0, 63, 7, DREALMS);
+                        fadepaltile(0,0,0, 0,252,28, DREALMS);
                     }
                 }
 
@@ -10735,7 +10731,7 @@ static void G_DisplayLogo(void)
             flushperms();
             rotatesprite_fs(160<<16,100<<16,65536L,0,BETASCREEN,0,0,2+8+64+BGSTRETCH);
             KB_FlushKeyboardQueue();
-            fadepaltile(0,0,0, 63,0,-7,BETASCREEN);
+            fadepaltile(0,0,0, 252,0,-28,BETASCREEN);
             totalclock = 0;
 
             while (
@@ -12301,10 +12297,10 @@ static void G_DoOrderScreen(void)
 
     for (i=0; i<4; i++)
     {
-        fadepal(0,0,0, 0,63,7);
+        fadepal(0,0,0, 0,252,28);
         I_ClearAllInput();
         rotatesprite_fs(160<<16,100<<16,65536L,0,ORDERING+i,0,0,2+8+64+BGSTRETCH);
-        fadepal(0,0,0, 63,0,-7);
+        fadepal(0,0,0, 252,0,-28);
         while (!I_CheckAllInput())
             G_HandleAsync();
     }
@@ -12352,7 +12348,7 @@ static void G_BonusCutscenes(void)
             clearallviews(0L);
             rotatesprite_fs(0,50<<16,65536L,0,VICTORY1,0,0,2+8+16+64+128+BGSTRETCH);
             nextpage();
-            fadepal(0,0,0, 63,0,-1);
+            fadepal(0,0,0, 252,0,-4);
 
             I_ClearAllInput();
             totalclock = 0;
@@ -12406,7 +12402,7 @@ static void G_BonusCutscenes(void)
                 if (I_CheckAllInput()) break;
             }
 
-            fadepal(0,0,0, 0,63,1);
+            fadepal(0,0,0, 0,252,4);
         }
 
         if (G_GetLogoFlags() & LOGO_NOE1ENDSCREEN)
@@ -12416,9 +12412,9 @@ static void G_BonusCutscenes(void)
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
 
         rotatesprite_fs(160<<16,100<<16,65536L,0,3292,0,0,2+8+64+BGSTRETCH);
-        fadepal(0,0,0, 63,0,-1);
+        fadepal(0,0,0, 252,0,-4);
         G_HandleEventsWhileNoInput();
-        fadepal(0,0,0, 0,63,1);
+        fadepal(0,0,0, 0,252,4);
 
 VOL1_END:
         S_StopMusic();
@@ -12438,14 +12434,14 @@ VOL1_END:
 
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE2BONUSSCENE))
         {
-            fadepal(0,0,0, 63,0,-1);
+            fadepal(0,0,0, 252,0,-4);
             G_PlayAnim("cineov2.anm");
             I_ClearAllInput();
             clearallviews(0L);
             nextpage();
 
             S_PlaySound(PIPEBOMB_EXPLODE);
-            fadepal(0,0,0, 0,63,1);
+            fadepal(0,0,0, 0,252,4);
         }
 
         if (G_GetLogoFlags() & LOGO_NOE2ENDSCREEN)
@@ -12454,9 +12450,9 @@ VOL1_END:
         I_ClearAllInput();
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
         rotatesprite_fs(160<<16,100<<16,65536L,0,3293,0,0,2+8+64+BGSTRETCH);
-        fadepal(0,0,0, 63,0,-1);
+        fadepal(0,0,0, 252,0,-4);
         G_HandleEventsWhileNoInput();
-        fadepal(0,0,0, 0,63,1);
+        fadepal(0,0,0, 0,252,4);
 
         break;
 
@@ -12472,7 +12468,7 @@ VOL1_END:
 
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE4BONUSSCENE))
         {
-            fadepal(0,0,0, 63,0,-1);
+            fadepal(0,0,0, 252,0,-4);
 
             I_ClearAllInput();
             t = G_PlayAnim("vol4e1.anm");
@@ -12506,7 +12502,7 @@ end_vol4e:
 
         G_FadePalette(0,0,0,0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
-//        G_FadePalette(0,0,0,63);
+//        G_FadePalette(0,0,0,252);
         clearallviews(0L);
         menutext(160,60,0,0,"Thanks to all our");
         menutext(160,60+16,0,0,"fans for giving");
@@ -12515,11 +12511,11 @@ end_vol4e:
         menutext(160,70+16+16+16+16,0,0,"sequel soon.");
         nextpage();
 
-        fadepal(0,0,0, 63,0,-3);
+        fadepal(0,0,0, 252,0,-12);
         nextpage();
         I_ClearAllInput();
         G_HandleEventsWhileNoInput();
-        fadepal(0,0,0, 0,63,3);
+        fadepal(0,0,0, 0,252,12);
 
         if (G_GetLogoFlags() & LOGO_NODUKETEAMPIC)
             goto VOL4_END;
@@ -12535,7 +12531,7 @@ VOL4_DUKETEAM:
 
         clearallviews(0L);
         nextpage();
-        G_FadePalette(0,0,0,63);
+        G_FadePalette(0,0,0,252);
 
 VOL4_END:
         FX_StopAllSounds();
@@ -12553,7 +12549,7 @@ VOL4_END:
         nextpage();
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE3BONUSSCENE))
         {
-            fadepal(0,0,0, 63,0,-1);
+            fadepal(0,0,0, 252,0,-4);
             G_PlayAnim("cineov3.anm");
             I_ClearAllInput();
             ototalclock = totalclock+200;
@@ -12612,7 +12608,7 @@ ENDANM:
 
             clearallviews(0L);
             nextpage();
-            G_FadePalette(0,0,0,63);
+            G_FadePalette(0,0,0,252);
         }
 
         I_ClearAllInput();
@@ -12772,7 +12768,7 @@ void G_BonusScreen(int32_t bonusonly)
     }
 
 
-    fadepal(0,0,0, 0,63,7);
+    fadepal(0,0,0, 0,252,28);
     setview(0,0,xdim-1,ydim-1);
     clearallviews(0L);
     nextpage();
@@ -12787,7 +12783,7 @@ void G_BonusScreen(int32_t bonusonly)
         G_BonusCutscenes();
 
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
-    G_FadePalette(0,0,0,63);   // JBF 20031228
+    G_FadePalette(0,0,0,252);   // JBF 20031228
     KB_FlushKeyboardQueue();
     totalclock = 0;
     bonuscnt = 0;
@@ -12806,7 +12802,7 @@ void G_BonusScreen(int32_t bonusonly)
 
         nextpage();
         I_ClearAllInput();
-        fadepal(0,0,0, 63,0,-7);
+        fadepal(0,0,0, 252,0,-28);
         totalclock = 0;
 
         while (totalclock < TICRATE*10)
@@ -12826,7 +12822,7 @@ void G_BonusScreen(int32_t bonusonly)
             }
         }
 
-        fadepal(0,0,0, 0,63,7);
+        fadepal(0,0,0, 0,252,28);
     }
 
     if (bonusonly || (g_netServer || ud.multimode > 1)) return;
@@ -12845,7 +12841,7 @@ void G_BonusScreen(int32_t bonusonly)
 
     nextpage();
     I_ClearAllInput();
-    fadepal(0,0,0, 63,0,-1);
+    fadepal(0,0,0, 252,0,-4);
     bonuscnt = 0;
     totalclock = 0;
 

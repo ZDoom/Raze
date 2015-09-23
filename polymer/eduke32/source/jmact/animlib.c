@@ -292,9 +292,9 @@ int32_t ANIM_LoadAnim(const uint8_t *buffer, int32_t length)
     // load the color palette
     for (i = 0; i < 768; i += 3)
     {
-        anim->pal[i+2] = (*buffer++)>>2;
-        anim->pal[i+1] = (*buffer++)>>2;
-        anim->pal[i] = (*buffer++)>>2;
+        anim->pal[i+2] = *buffer++;
+        anim->pal[i+1] = *buffer++;
+        anim->pal[i] = *buffer++;
         buffer++;
     }
 

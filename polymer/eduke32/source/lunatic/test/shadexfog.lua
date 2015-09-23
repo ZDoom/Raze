@@ -2,7 +2,7 @@
  Usage: in Mapster32,
   > lua "shadexfog=reload'shadexfog'"
   -- for example
-  > lua "shadexfog.create(100, 63,63,63)"
+  > lua "shadexfog.create(100, 255,255,255)"
   > lua "shadexfog.translate(100, 2)"
  In EDuke32, simply pass this module at the command line.
 --]]
@@ -62,7 +62,7 @@ end
 -- palookup, called a "shade-x-fog" palookup set in the following.
 --
 -- Pals <startpalnum> .. <startpalnum>+31 will be taken.
--- <fogr>, <fogg>, <fogb>: intensities of the fog color, [0 .. 63]
+-- <fogr>, <fogg>, <fogb>: intensities of the fog color, [0 .. 255]
 function shadexfog.create(startpalnum, fogr, fogg, fogb)
     local MAXPALNUM = 255-31-engine.RESERVEDPALS
     if (not (startpalnum >= 1 and startpalnum <= MAXPALNUM)) then
@@ -130,7 +130,7 @@ function shadexfog.translate(startpalnum, fogintensity, vis)
 end
 
 if (gv.LUNATIC_CLIENT == gv.LUNATIC_CLIENT_EDUKE32 and LUNATIC_FIRST_TIME) then
-    shadexfog.create(100, 63,63,63)
+    shadexfog.create(100, 255,255,255)
     print("created shadexfog palookups")
 end
 
@@ -406,7 +406,7 @@ function shadexfog.create_additive_trans(startblendidx, numtables, fullbrightsOK
 
         function(r,g,b, R,G,B, level, numtabs)
             local f = level/numtabs
-            return min(f*r+R, 63), min(f*g+G, 63), min(f*b+B, 63)
+            return min(f*r+R, 255), min(f*g+G, 255), min(f*b+B, 255)
         end,
 
         numtables, fullbrightsOK
@@ -420,7 +420,7 @@ function shadexfog.create_brightpass_trans(startblendidx, numtables, fullbrights
 
         function(r,g,b, R,G,B, alpha, numtabs)
             local a = alpha/numtabs
-            local F = 1 - min(a, (R+G+B) / (3*63))
+            local F = 1 - min(a, (R+G+B) / (3*255))
             local f = 1 - F
             return f*r+F*R, f*g+F*G, f*b+F*B
         end,
@@ -491,9 +491,9 @@ engine.registerMenuFunc(
     CreateMenuFunction{
         [0] = shadexfog.create,
         { "Starting palnum", 100, MAXUSERPALOOKUP-31 },
-        { "Red fog color [0-63]", 0, 63 },
-        { "Green fog color [0-63]", 0, 63 },
-        { "Blue fog color [0-63]", 0, 63 },
+        { "Red fog color [0-255]", 0, 255 },
+        { "Green fog color [0-255]", 0, 255 },
+        { "Blue fog color [0-255]", 0, 255 },
     },
 
 formatHelp
@@ -505,7 +505,7 @@ Creates 32 shade tables corresponding to different *shade levels*
 of a fog palookup, together called a *shade-x-fog* palookup set.
 
  Pals <startpalnum> to <startpalnum>+31 will be taken.
- <fogr>, <fogg>, <fogb>: intensities of the fog color, [0 .. 63]
+ <fogr>, <fogg>, <fogb>: intensities of the fog color, [0 .. 255]
 ]]
 )
 

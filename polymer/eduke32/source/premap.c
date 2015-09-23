@@ -1728,7 +1728,7 @@ static void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t e
             return;
         }
 
-        G_FadePalette(r,g,b,start|128);
+        setpalettefade(r,g,b,start);
         flushperms();
         G_DoLoadScreen(" ", tc);
     }
@@ -1942,9 +1942,9 @@ int32_t G_EnterLevel(int32_t g)
 
     ud.playerbest = CONFIG_GetMapBestTime(MapInfo[mii].filename);
 
-    G_FadeLoad(0,0,0, 63,0, -7, 4, -1);
+    G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     G_CacheMapData();
-    G_FadeLoad(0,0,0, 0,63, 7, 4, -2);
+    G_FadeLoad(0,0,0, 0,252, 28, 4, -2);
 
     if (ud.recstat != 2)
     {
