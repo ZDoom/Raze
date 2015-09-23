@@ -106,8 +106,7 @@ int L_CreateState(L_State *estate, const char *name, void (*StateSetupFunc)(lua_
 
     if (!estate->L)
     {
-        Bfree(estate->name);
-        estate->name = NULL;
+        DO_FREE_AND_NULL(estate->name);
         return -2;
     }
 
@@ -131,8 +130,7 @@ void L_DestroyState(L_State *estate)
     if (!L_IsInitialized(estate))
         return;
 
-    Bfree(estate->name);
-    estate->name = NULL;
+    DO_FREE_AND_NULL(estate->name);
 
     lua_close(estate->L);
     estate->L = NULL;

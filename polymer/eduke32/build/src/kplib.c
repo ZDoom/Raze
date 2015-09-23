@@ -1400,9 +1400,9 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
             kfileptr += leng;
             break;
         case 0xda:
-                if ((xdim <= 0) || (ydim <= 0)) { if (dctbuf) Bfree(dctbuf); return(-1); }
+                if ((xdim <= 0) || (ydim <= 0)) { Bfree(dctbuf); return(-1); }
 
-            lnumcomponents = (int32_t)(*kfileptr++); if (!lnumcomponents) { if (dctbuf) Bfree(dctbuf); return(-1); }
+            lnumcomponents = (int32_t)(*kfileptr++); if (!lnumcomponents) { Bfree(dctbuf); return(-1); }
             if (lnumcomponents > 1) kcoltype = 2;
             for (z=0; z<lnumcomponents; z++)
             {
@@ -2465,7 +2465,7 @@ static int32_t kzcheckhash(const char *filnam, char **zipnam, int32_t *fileoffs,
 
 void kzuninit()
 {
-    if (kzhashbuf) { Bfree(kzhashbuf); kzhashbuf = 0; }
+    DO_FREE_AND_NULL(kzhashbuf);
     kzhashpos = kzhashsiz = 0; kzdirnamhead = -1;
 }
 
@@ -3074,11 +3074,8 @@ void kpzdecode(int32_t const leng, intptr_t * const pic, int32_t * const bpl, in
 
     if (kprender(kpzbuf, leng, *pic, *bpl, *xsiz, *ysiz) < 0)
     {
-        if (*pic)
-        {
-            Bfree((void *) *pic);
-            *pic = 0;
-        }
+        Bfree((void *) *pic);
+        *pic = (intptr_t)NULL;
     }
 }
 

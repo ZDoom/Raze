@@ -1163,9 +1163,8 @@ void MIDI_StopSong
             _MIDI_Funcs->ReleasePatches();
         }
 
-        Bfree(_MIDI_TrackPtr);
+        DO_FREE_AND_NULL(_MIDI_TrackPtr);
 
-        _MIDI_TrackPtr     = NULL;
         _MIDI_NumTracks    = 0;
         _MIDI_TrackMemSize = 0;
 
@@ -1252,9 +1251,8 @@ int32_t MIDI_PlaySong
     {
         if (B_UNBUF32(ptr) != MIDI_TRACK_SIGNATURE)
         {
-            Bfree(_MIDI_TrackPtr);
+            DO_FREE_AND_NULL(_MIDI_TrackPtr);
 
-            _MIDI_TrackPtr = NULL;
             _MIDI_TrackMemSize = 0;
 
             return(MIDI_InvalidTrack);

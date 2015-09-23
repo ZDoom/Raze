@@ -120,10 +120,7 @@ unsigned Bstring::length(void) const { return Bstrlen(data); }
 
 void Bstring::clear(void)
 {
-    if (data != NULL)
-        Bfree(data);
-
-    data = NULL;
+    DO_FREE_AND_NULL(data);
 }
 
 ////////// arttool //////////

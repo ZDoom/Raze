@@ -46,15 +46,13 @@ char *g_scriptNamePtr = NULL;
 
 void clearGrpNamePtr(void)
 {
-    if (g_grpNamePtr != NULL)
-        Bfree(g_grpNamePtr);
+    Bfree(g_grpNamePtr);
     // g_grpNamePtr assumed to be assigned to right after
 }
 
 void clearScriptNamePtr(void)
 {
-    if (g_scriptNamePtr != NULL)
-        Bfree(g_scriptNamePtr);
+    Bfree(g_scriptNamePtr);
     // g_scriptNamePtr assumed to be assigned to right after
 }
 

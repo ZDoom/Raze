@@ -111,8 +111,7 @@ void md_freevbos()
             {
                 //            OSD_Printf("freeing model %d vbo\n",i);
                 bglDeleteBuffersARB(m->head.numsurfs, m->vbos);
-                Bfree(m->vbos);
-                m->vbos = NULL;
+                DO_FREE_AND_NULL(m->vbos);
             }
         }
 
@@ -131,7 +130,7 @@ void freeallmodels()
     if (models)
     {
         for (i=0; i<nextmodelid; i++) mdfree(models[i]);
-        Bfree(models); models = NULL;
+        DO_FREE_AND_NULL(models);
         nummodelsalloced = 0;
         nextmodelid = 0;
     }
@@ -144,8 +143,7 @@ void freeallmodels()
 
     if (vertlist)
     {
-        Bfree(vertlist);
-        vertlist = NULL;
+        DO_FREE_AND_NULL(vertlist);
         allocmodelverts = maxmodelverts = 0;
         allocmodeltris = maxmodeltris = 0;
     }
@@ -512,7 +510,7 @@ int32_t md_defineskin(int32_t modelid, const char *skinfn, int32_t palnum, int32
         if (!skl) m->skinmap = sk;
         else skl->next = sk;
     }
-    else if (sk->fn) Bfree(sk->fn);
+    else Bfree(sk->fn);
 
     sk->palette = (uint8_t)palnum;
     sk->flags = (uint8_t)flags;
@@ -2505,22 +2503,21 @@ static void md3free(md3model_t *m)
         }
         Bfree(m->head.surfs);
     }
-    if (m->head.tags) Bfree(m->head.tags);
-    if (m->head.frames) Bfree(m->head.frames);
+    Bfree(m->head.tags);
+    Bfree(m->head.frames);
 
-    if (m->texid) Bfree(m->texid);
+    Bfree(m->texid);
 
-    if (m->muladdframes) Bfree(m->muladdframes);
+    Bfree(m->muladdframes);
 
-    if (m->indexes) Bfree(m->indexes);
-    if (m->vindexes) Bfree(m->vindexes);
-    if (m->maxdepths) Bfree(m->maxdepths);
+    Bfree(m->indexes);
+    Bfree(m->vindexes);
+    Bfree(m->maxdepths);
 
     if (m->vbos)
     {
         bglDeleteBuffersARB(m->head.numsurfs, m->vbos);
-        Bfree(m->vbos);
-        m->vbos = NULL;
+        DO_FREE_AND_NULL(m->vbos);
     }
 
     Bfree(m);

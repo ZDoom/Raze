@@ -718,9 +718,9 @@ int32_t app_main(int32_t argc, const char **argv)
         initprintf("Definitions file \"%s\" loaded.\n",defsfile);
 
     for (i=0; i < g_defModulesNum; ++i)
-        Bfree (g_defModules[i]);
-    Bfree (g_defModules);
-    g_defModules = NULL;  // be defensive...
+        Bfree(g_defModules[i]);
+    DO_FREE_AND_NULL(g_defModules);
+    g_defModulesNum = 0;
 
     if (E_PostInit())
         M32_FatalEngineError();
@@ -733,9 +733,9 @@ int32_t app_main(int32_t argc, const char **argv)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", k);
 
     for (i=0; i < g_clipMapFilesNum; ++i)
-        Bfree (g_clipMapFiles[i]);
-    Bfree (g_clipMapFiles);
-    g_clipMapFiles = NULL;
+        Bfree(g_clipMapFiles[i]);
+    DO_FREE_AND_NULL(g_clipMapFiles);
+    g_clipMapFilesNum = 0;
 #endif
 
     taglab_init();
@@ -2626,8 +2626,7 @@ static int32_t backup_drawn_walls(int32_t restore)
             }
         }
 
-        Bfree(tmpwall);
-        tmpwall = NULL;
+        DO_FREE_AND_NULL(tmpwall);
 
         ovh.bak_wallsdrawn = 0;
     }
@@ -6379,8 +6378,7 @@ end_point_dragging:
                     }
                 }
 
-                if (origframe)
-                    Bfree(origframe);
+                Bfree(origframe);
             }
             else
             {
@@ -6406,11 +6404,7 @@ end_point_dragging:
                             if (!bakframe_fillandfade(&origframe, i, "Use this as second joining sector? (Y/N)"))
                                 continue;
 
-                            if (origframe)
-                            {
-                                Bfree(origframe);
-                                origframe = NULL;
-                            }
+                            DO_FREE_AND_NULL(origframe);
                         }
 
                         joinsector[1] = i;
@@ -7735,8 +7729,7 @@ end_batch_insert_points:
                     printmessage16("Sector deleted.");
                 }
 
-                if (origframe)
-                    Bfree(origframe);
+                Bfree(origframe);
 
 #ifdef YAX_ENABLE
                 for (j=0; j<numsectors; j++)

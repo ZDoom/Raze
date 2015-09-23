@@ -42,11 +42,8 @@ static void Gv_Clear(void)
     {
         DO_FREE_AND_NULL(aGameVars[i].szLabel);
 
-        if ((aGameVars[i].dwFlags & GAMEVAR_USER_MASK) && aGameVars[i].val.plValues)
-        {
-            Bfree(aGameVars[i].val.plValues);
-            aGameVars[i].val.plValues = NULL;
-        }
+        if (aGameVars[i].dwFlags & GAMEVAR_USER_MASK)
+            DO_FREE_AND_NULL(aGameVars[i].val.plValues);
 
         aGameVars[i].val.lValue = 0;
         aGameVars[i].dwFlags |= GAMEVAR_RESET;
@@ -58,11 +55,8 @@ static void Gv_Clear(void)
 
         DO_FREE_AND_NULL(gar->szLabel);
 
-        if ((gar->dwFlags & GAMEARRAY_NORMAL) && gar->vals)
-        {
-            Bfree(gar->vals);
-            gar->vals = NULL;
-        }
+        if (gar->dwFlags & GAMEARRAY_NORMAL)
+            DO_FREE_AND_NULL(gar->vals);
 
         gar->dwFlags |= GAMEARRAY_RESET;
     }
@@ -194,9 +188,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         if (aGameVars[i].dwFlags & GAMEVAR_USER_MASK)
         {
             // only free if not system
-            if (aGameVars[i].val.plValues)
-                Bfree(aGameVars[i].val.plValues);
-            aGameVars[i].val.plValues = NULL;
+            DO_FREE_AND_NULL(aGameVars[i].val.plValues);
         }
     }
 

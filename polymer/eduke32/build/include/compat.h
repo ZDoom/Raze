@@ -953,11 +953,11 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 #endif
 
 #define DO_FREE_AND_NULL(var) do { \
-    if (var != NULL) { Bfree(var); var = NULL; } \
+    Bfree(var); (var) = NULL; \
 } while (0)
 
 #define ALIGNED_FREE_AND_NULL(var) do { \
-    if (var != NULL) { Baligned_free(var); var = NULL; } \
+    Baligned_free(var); (var) = NULL; \
 } while (0)
 
 #define MAYBE_FCLOSE_AND_NULL(fileptr) do { \

@@ -1034,8 +1034,8 @@ InitGame(int32_t argc, const char **argv)
 
     for (i=0; i < g_defModulesNum; ++i)
         Bfree(g_defModules[i]);
-    Bfree(g_defModules);
-    g_defModules = NULL;
+    DO_FREE_AND_NULL(g_defModules);
+    g_defModulesNum = 0;
 
     if (E_PostInit())
         SW_FatalEngineError();

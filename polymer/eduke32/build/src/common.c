@@ -32,8 +32,7 @@ char *g_defNamePtr = NULL;
 
 void clearDefNamePtr(void)
 {
-    if (g_defNamePtr != NULL)
-        Bfree(g_defNamePtr);
+    Bfree(g_defNamePtr);
     // g_defNamePtr assumed to be assigned to right after
 }
 

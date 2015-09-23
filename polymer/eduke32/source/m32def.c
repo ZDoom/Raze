@@ -1810,9 +1810,7 @@ static int32_t C_ParseCommand(void)
             statesinfo[j].numlocals = 0;
             Bsprintf(g_szCurrentBlockName, "%s", statesinfo[j].name);
 
-            if (cs.curStateMenuName)
-                Bfree(cs.curStateMenuName);
-            cs.curStateMenuName = NULL;
+            DO_FREE_AND_NULL(cs.curStateMenuName);
 
             if (C_GetKeyword() < 0)
             {
@@ -1953,8 +1951,7 @@ static int32_t C_ParseCommand(void)
         if (cs.curStateMenuName)
         {
             registerMenuFunction(cs.curStateMenuName, j);
-            Bfree(cs.curStateMenuName);
-            cs.curStateMenuName = NULL;
+            DO_FREE_AND_NULL(cs.curStateMenuName);
         }
 
         g_didDefineSomething = 1;
@@ -3753,8 +3750,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
     //*script = g_scriptPtr-script;
 
-    if (mptr)
-        Bfree(mptr);
+    Bfree(mptr);
 
     if (g_stateCount > ostateCount)
     {

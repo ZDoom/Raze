@@ -521,8 +521,7 @@ void MV_ReleaseXAVoice( VoiceNode * voice )
         return;
     }
 
-    if (xad->block != NULL)
-        free(xad->block);
+    free(xad->block);
     free(xad);
 
     voice->rawdataptr = 0;

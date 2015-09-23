@@ -658,8 +658,7 @@ void MV_ReleaseFLACVoice(VoiceNode *voice)
         FLAC__stream_decoder_finish(fd->stream);
         FLAC__stream_decoder_delete(fd->stream);
     }
-    if (fd->block != NULL)
-        free(fd->block);
+    free(fd->block);
     free(fd);
 
     voice->rawdataptr = 0;

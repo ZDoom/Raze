@@ -1647,8 +1647,7 @@ static void sv_prescriptsave_once()
 }
 static void sv_prescriptload_once()
 {
-    if (script)
-        Bfree(script);
+    Bfree(script);
     script = (intptr_t *)Xmalloc(g_scriptSize * sizeof(script[0]));
 }
 static void sv_postscript_once()

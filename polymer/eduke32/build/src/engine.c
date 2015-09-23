@@ -1817,8 +1817,8 @@ int32_t clipmapinfo_load(void)
             pictoidx[i]=tempictoidx[i];
     }
 
-    Bfree(loadsprite); loadsprite=NULL;
-    Bfree(tempictoidx); tempictoidx=NULL;
+    DO_FREE_AND_NULL(loadsprite);
+    DO_FREE_AND_NULL(tempictoidx);
 
     // don't let other code be distracted by the temporary map we constructed
     numsectors = 0;
@@ -9371,7 +9371,7 @@ void uninitengine(void)
     paletteloaded = 0;
 
     for (int i=0; i<MAXPALOOKUPS; i++)
-        if (palookup[i] != NULL && (i==0 || palookup[i] != palookup[0]))
+        if (i==0 || palookup[i] != palookup[0])
         {
             // Take care of handling aliased ^^^ cases!
             Bfree(palookup[i]);
@@ -9379,13 +9379,11 @@ void uninitengine(void)
     Bmemset(palookup, 0, sizeof(palookup));
 
     for (int i=0; i<MAXBLENDTABS; i++)
-        if (blendtable[i] != NULL)
-            Bfree(blendtable[i]);
+        Bfree(blendtable[i]);
     Bmemset(blendtable, 0, sizeof(blendtable));
 
     for (int i=1; i<MAXBASEPALS; i++)
-        if (basepaltable[i] != NULL)
-            Bfree(basepaltable[i]);
+        Bfree(basepaltable[i]);
     Bmemset(basepaltable, 0, sizeof(basepaltable));
     basepaltable[0] = palette;
 
@@ -9399,12 +9397,11 @@ void uninitengine(void)
 
     for (int i = 0; i < num_usermaphacks; i++)
     {
-        if (usermaphacks[i].mhkfile)
-            Bfree(usermaphacks[i].mhkfile);
-        if (usermaphacks[i].title)
-            Bfree(usermaphacks[i].title);
+        Bfree(usermaphacks[i].mhkfile);
+        Bfree(usermaphacks[i].title);
     }
-    Bfree(usermaphacks);
+    DO_FREE_AND_NULL(usermaphacks);
+    num_usermaphacks = 0;
 
     DO_FREE_AND_NULL(multipsky);
     DO_FREE_AND_NULL(multipskytile);
@@ -11758,8 +11755,7 @@ static void initsmost(void)
 
     for (i = 0; i < (signed)ARRAY_SIZE(dynarray); i++)
     {
-        if (*dynarray[i].ptr)
-            Baligned_free(*dynarray[i].ptr);
+        Baligned_free(*dynarray[i].ptr);
 
         *dynarray[i].ptr = Xaligned_alloc(16, dynarray[i].size);
     }
@@ -11846,8 +11842,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     swallf = (float *) Xrealloc(swallf, xdim * sizeof(float));
 #endif
 
-    if (lookups != NULL)
-        Bfree(lookups);
+    Bfree(lookups);
 
     j = ydim*4;  //Leave room for horizlookup&horizlookup2
     lookups = (int32_t *)Xmalloc(2*j*sizeof(lookups[0]));
@@ -18491,18 +18486,13 @@ void hash_free(hashtable_t *t)
             hashitem_t * const tmp = cur;
             cur = cur->next;
 
-            if (tmp->string)
-            {
-                Bfree(tmp->string);
-                tmp->string = NULL;
-            }
+            Bfree(tmp->string);
             Bfree(tmp);
             num++;
         }
     } while (--remaining >= 0);
 
-    Bfree(t->items);
-    t->items = 0;
+    DO_FREE_AND_NULL(t->items);
 }
 
 // djb3 algorithm

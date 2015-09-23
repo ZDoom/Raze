@@ -130,11 +130,7 @@ void taglab_init()
     hash_init(&g_taglab.hashtab);
 
     for (i=0; i<32768; i++)
-    {
-        if (g_taglab.label[i])
-            Bfree(g_taglab.label[i]);
-        g_taglab.label[i] = NULL;
-    }
+        DO_FREE_AND_NULL(g_taglab.label[i]);
 }
 
 int32_t taglab_load(const char *filename, int32_t flags)
@@ -286,8 +282,7 @@ int32_t taglab_add(const char *label, int16_t tag)
 //        hash_delete(&g_taglab.hashtab, g_taglab.label[tag]);
 
         // a label having the same tag number as 'tag' is deleted
-        Bfree(g_taglab.label[tag]);
-        g_taglab.label[tag] = NULL;
+        DO_FREE_AND_NULL(g_taglab.label[tag]);
         diddel |= 1;
     }
     else
@@ -299,8 +294,7 @@ int32_t taglab_add(const char *label, int16_t tag)
         if (olabeltag>=0)
         {
             // the label gets assigned to a new tag number ('tag deleted')
-            Bfree(g_taglab.label[olabeltag]);
-            g_taglab.label[olabeltag] = NULL;
+            DO_FREE_AND_NULL(g_taglab.label[olabeltag]);
             diddel |= 2;
         }
     }
@@ -1432,10 +1426,7 @@ static void M_Clear(StatusBarMenu *m)
     Bmemset(m->name, 0, sizeof(m->name));
 
     for (i=0; i<MENU_MAX_ENTRIES; i++)
-    {
-        Bfree(m->description[i]);
-        m->description[i] = NULL;
-    }
+        DO_FREE_AND_NULL(m->description[i]);
 }
 
 static int32_t M_HaveDescription(StatusBarMenu *m)

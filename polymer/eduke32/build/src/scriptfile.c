@@ -313,11 +313,9 @@ scriptfile *scriptfile_fromstring(const char *string)
 void scriptfile_close(scriptfile *sf)
 {
     if (!sf) return;
-    if (sf->lineoffs) Bfree(sf->lineoffs);
-    if (sf->textbuf) Bfree(sf->textbuf);
-    if (sf->filename) Bfree(sf->filename);
-    sf->textbuf = NULL;
-    sf->filename = NULL;
+    Bfree(sf->lineoffs);
+    Bfree(sf->textbuf);
+    Bfree(sf->filename);
     Bfree(sf);
 }
 
@@ -398,8 +396,7 @@ int32_t scriptfile_addsymbolvalue(char *name, int32_t val)
 
 void scriptfile_clearsymbols(void)
 {
-    if (symbtab) Bfree(symbtab);
-    symbtab = NULL;
+    DO_FREE_AND_NULL(symbtab);
     symbtablength = 0;
     symbtaballoclength = 0;
 }

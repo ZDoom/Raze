@@ -2425,14 +2425,8 @@ void C_UndefineLevel(int32_t vol, int32_t lev)
     {
         map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
 
-        if (map->filename)
-            Bfree(map->filename);
-        map->filename = NULL;
-
-        if (map->name)
-            Bfree(map->name);
-        map->name = NULL;
-
+        DO_FREE_AND_NULL(map->filename);
+        DO_FREE_AND_NULL(map->name);
         map->partime = 0;
         map->designertime = 0;
     }
@@ -2460,8 +2454,8 @@ void C_AllocProjectile(int32_t j)
 
 void C_FreeProjectile(int32_t j)
 {
-    Bfree(g_tile[j].proj);
-    g_tile[j].proj = g_tile[j].defproj = NULL;
+    DO_FREE_AND_NULL(g_tile[j].proj);
+    g_tile[j].defproj = NULL;
 }
 
 
@@ -6601,8 +6595,7 @@ void C_Compile(const char *filenam)
     kread(fp,(char *)textptr,fs);
     kclose(fp);
 
-    if (script != NULL)
-        Bfree(script);
+    Bfree(script);
 
     script = (intptr_t *)Xcalloc(1,g_scriptSize * sizeof(intptr_t));
     bitptr = (char *)Xcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
@@ -6626,8 +6619,7 @@ void C_Compile(const char *filenam)
         C_Include(g_scriptModules[i]);
         Bfree(g_scriptModules[i]);
     }
-    Bfree(g_scriptModules);
-    g_scriptModules = NULL;
+    DO_FREE_AND_NULL(g_scriptModules);
     g_scriptModulesNum = 0;
 
     flushlogwindow = 1;
@@ -6637,8 +6629,7 @@ void C_Compile(const char *filenam)
 
     //*script = (intptr_t) g_scriptPtr;
 
-    Bfree(mptr);
-    mptr = NULL;
+    DO_FREE_AND_NULL(mptr);
 
     if (g_numCompilerWarnings|g_numCompilerErrors)
         initprintf("Found %d warning(s), %d error(s).\n",g_numCompilerWarnings,g_numCompilerErrors);

@@ -10844,36 +10844,36 @@ static void G_Cleanup(void)
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
     {
-        if (MapInfo[i].name != NULL) Bfree(MapInfo[i].name);
-        if (MapInfo[i].filename != NULL) Bfree(MapInfo[i].filename);
-        if (MapInfo[i].musicfn != NULL) Bfree(MapInfo[i].musicfn);
+        Bfree(MapInfo[i].name);
+        Bfree(MapInfo[i].filename);
+        Bfree(MapInfo[i].musicfn);
 
         G_FreeMapState(i);
     }
 
     for (i=MAXQUOTES-1; i>=0; i--)
     {
-        if (ScriptQuotes[i] != NULL) Bfree(ScriptQuotes[i]);
-        if (ScriptQuoteRedefinitions[i] != NULL) Bfree(ScriptQuoteRedefinitions[i]);
+        Bfree(ScriptQuotes[i]);
+        Bfree(ScriptQuoteRedefinitions[i]);
     }
 
     for (i=MAXPLAYERS-1; i>=0; i--)
     {
-        if (g_player[i].ps != NULL) Bfree(g_player[i].ps);
-        if (g_player[i].sync != NULL) Bfree(g_player[i].sync);
+        Bfree(g_player[i].ps);
+        Bfree(g_player[i].sync);
     }
 
     for (i=MAXSOUNDS-1; i>=0; i--)
     {
-        if (g_sounds[i].filename != NULL) Bfree(g_sounds[i].filename);
+        Bfree(g_sounds[i].filename);
     }
 #if !defined LUNATIC
-    if (label != NULL && label != (char *)&sprite[0]) Bfree(label);
-    if (labelcode != NULL && labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
-    if (script != NULL) Bfree(script);
-    if (bitptr != NULL) Bfree(bitptr);
+    if (label != (char *)&sprite[0]) Bfree(label);
+    if (labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
+    Bfree(script);
+    Bfree(bitptr);
 
-//    if (MusicPtr != NULL) Bfree(MusicPtr);
+//    Bfree(MusicPtr);
 
     hash_free(&h_gamevars);
     hash_free(&h_arrays);
@@ -11702,8 +11702,8 @@ int32_t app_main(int32_t argc, const char **argv)
 
     for (i=0; i < g_defModulesNum; ++i)
         Bfree(g_defModules[i]);
-    Bfree(g_defModules);
-    g_defModules = NULL;
+    DO_FREE_AND_NULL(g_defModules);
+    g_defModulesNum = 0;
 
     if (E_PostInit())
         G_FatalEngineError();
@@ -11795,9 +11795,9 @@ int32_t app_main(int32_t argc, const char **argv)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", i);
 
     for (i=0; i < g_clipMapFilesNum; ++i)
-        Bfree (g_clipMapFiles[i]);
-    Bfree (g_clipMapFiles);
-    g_clipMapFiles = NULL;
+        Bfree(g_clipMapFiles[i]);
+    DO_FREE_AND_NULL(g_clipMapFiles);
+    g_clipMapFilesNum = 0;
 #endif
 
     // check if the minifont will support lowercase letters (3136-3161)

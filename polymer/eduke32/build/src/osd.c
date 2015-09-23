@@ -214,7 +214,7 @@ int32_t OSD_Exec(const char *szScript)
         if (!err || err == 3) // no error message for blank file
             OSD_Printf("Error executing \"%s\"!\n", szScript);
         if (i != -1) kclose(i);
-        if (buf != NULL) Bfree(buf);
+        Bfree(buf);
         return 1;
     }
 
@@ -1981,9 +1981,9 @@ static symbol_t *addnewsymbol(const char *name)
         }
     }
     hash_add(&h_osd, name, osd->numsymbols, 1);
-    name = Bstrtolower(Xstrdup(name));
-    hash_add(&h_osd, name, osd->numsymbols, 1);
-    Bfree((void *)name);
+    char * const newname = Bstrtolower(Xstrdup(name));
+    hash_add(&h_osd, newname, osd->numsymbols, 1);
+    Bfree(newname);
     osd->symbptrs[osd->numsymbols++] = newsymb;
     return newsymb;
 }

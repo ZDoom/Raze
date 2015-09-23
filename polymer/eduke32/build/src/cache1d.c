@@ -642,8 +642,7 @@ int32_t openfrompath(const char *fn, int32_t flags, int32_t mode)
 
     int32_t h = openfrompath_internal(fn, &pfn, flags, mode);
 
-    if (pfn)
-        Bfree(pfn);
+    Bfree(pfn);
 
     return h;
 }
@@ -779,8 +778,7 @@ int32_t initgroupfile(const char *filename)
         Bfree(zfn);
     }
 #else
-    if (zfn)
-        Bfree(zfn);
+    Bfree(zfn);
 #endif
 
     // check if GRP
@@ -1123,8 +1121,7 @@ int32_t kopen4load(const char *filename, char searchfirst)
 
     int32_t h = kopen_internal(filename, &lastpfn, searchfirst, 1, 1, newhandle, filegrp, filehan, filepos);
 
-    if (lastpfn)
-        Bfree(lastpfn);
+    Bfree(lastpfn);
 
     return h;
 }

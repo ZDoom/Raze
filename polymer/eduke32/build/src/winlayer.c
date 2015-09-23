@@ -464,7 +464,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 
     win_close();
 
-    if (argvbuf) Bfree(argvbuf);
+    Bfree(argvbuf);
 
     return r;
 }
@@ -1158,18 +1158,18 @@ static void UninitDirectInput(void)
 
     if (axisdefs)
     {
-        for (i=joynumaxes-1; i>=0; i--) if (axisdefs[i].name) Bfree((void *)axisdefs[i].name);
-        Bfree(axisdefs); axisdefs = NULL;
+        for (i=joynumaxes-1; i>=0; i--) Bfree(axisdefs[i].name);
+        DO_FREE_AND_NULL(axisdefs);
     }
     if (buttondefs)
     {
-        for (i=joynumbuttons-1; i>=0; i--) if (buttondefs[i].name) Bfree((void *)buttondefs[i].name);
-        Bfree(buttondefs); buttondefs = NULL;
+        for (i=joynumbuttons-1; i>=0; i--) Bfree(buttondefs[i].name);
+        DO_FREE_AND_NULL(buttondefs);
     }
     if (hatdefs)
     {
-        for (i=joynumhats-1; i>=0; i--) if (hatdefs[i].name) Bfree((void *)hatdefs[i].name);
-        Bfree(hatdefs); hatdefs = NULL;
+        for (i=joynumhats-1; i>=0; i--) Bfree(hatdefs[i].name);
+        DO_FREE_AND_NULL(hatdefs);
     }
 
     if (di_inputevt)
@@ -2429,11 +2429,10 @@ static void ReleaseDirectDrawSurfaces(void)
         lpDDSPrimary = NULL;
     }
 
-    if (lpOffscreen)
+    // if (lpOffscreen)
     {
         //        initprintf("  - Freeing offscreen buffer\n");
-        Bfree(lpOffscreen);
-        lpOffscreen = NULL;
+        DO_FREE_AND_NULL(lpOffscreen);
     }
 }
 

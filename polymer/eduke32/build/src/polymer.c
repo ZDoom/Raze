@@ -884,8 +884,7 @@ void                polymer_uninit(void)
         while (j < MAXPALOOKUPS)
         {
 //            if (prhighpalookups[i][j].data) {
-//                Bfree(prhighpalookups[i][j].data);
-//                prhighpalookups[i][j].data = NULL;
+//                DO_FREE_AND_NULL(prhighpalookups[i][j].data);
 //            }
             if (prhighpalookups[i][j].map) {
                 bglDeleteTextures(1, &prhighpalookups[i][j].map);
@@ -1271,10 +1270,8 @@ void                polymer_drawmasks(void)
         // Both the top-level game drawrooms and the recursive internal passes
         // should be accounted for here. If these free cause corruption, there's
         // an accounting bug somewhere.
-        Bfree(cursectormaskcount);
-        cursectormaskcount = NULL;
-        Bfree(cursectormasks);
-        cursectormasks = NULL;
+        DO_FREE_AND_NULL(cursectormaskcount);
+        DO_FREE_AND_NULL(cursectormasks);
     }
 
     bglDisable(GL_CULL_FACE);
@@ -2456,18 +2453,17 @@ static void         polymer_freeboard(void)
     {
         if (prsectors[i])
         {
-            if (prsectors[i]->verts) Bfree(prsectors[i]->verts);
-            if (prsectors[i]->floor.buffer) Bfree(prsectors[i]->floor.buffer);
-            if (prsectors[i]->ceil.buffer) Bfree(prsectors[i]->ceil.buffer);
-            if (prsectors[i]->floor.indices) Bfree(prsectors[i]->floor.indices);
-            if (prsectors[i]->ceil.indices) Bfree(prsectors[i]->ceil.indices);
+            Bfree(prsectors[i]->verts);
+            Bfree(prsectors[i]->floor.buffer);
+            Bfree(prsectors[i]->ceil.buffer);
+            Bfree(prsectors[i]->floor.indices);
+            Bfree(prsectors[i]->ceil.indices);
             if (prsectors[i]->ceil.vbo) bglDeleteBuffersARB(1, &prsectors[i]->ceil.vbo);
             if (prsectors[i]->ceil.ivbo) bglDeleteBuffersARB(1, &prsectors[i]->ceil.ivbo);
             if (prsectors[i]->floor.vbo) bglDeleteBuffersARB(1, &prsectors[i]->floor.vbo);
             if (prsectors[i]->floor.ivbo) bglDeleteBuffersARB(1, &prsectors[i]->floor.ivbo);
 
-            Bfree(prsectors[i]);
-            prsectors[i] = NULL;
+            DO_FREE_AND_NULL(prsectors[i]);
         }
 
         i++;
@@ -2478,18 +2474,17 @@ static void         polymer_freeboard(void)
     {
         if (prwalls[i])
         {
-            if (prwalls[i]->bigportal) Bfree(prwalls[i]->bigportal);
-            if (prwalls[i]->mask.buffer) Bfree(prwalls[i]->mask.buffer);
-            if (prwalls[i]->over.buffer) Bfree(prwalls[i]->over.buffer);
-            //if (prwalls[i]->cap) Bfree(prwalls[i]->cap);
-            if (prwalls[i]->wall.buffer) Bfree(prwalls[i]->wall.buffer);
+            Bfree(prwalls[i]->bigportal);
+            Bfree(prwalls[i]->mask.buffer);
+            Bfree(prwalls[i]->over.buffer);
+            // Bfree(prwalls[i]->cap);
+            Bfree(prwalls[i]->wall.buffer);
             if (prwalls[i]->wall.vbo) bglDeleteBuffersARB(1, &prwalls[i]->wall.vbo);
             if (prwalls[i]->over.vbo) bglDeleteBuffersARB(1, &prwalls[i]->over.vbo);
             if (prwalls[i]->mask.vbo) bglDeleteBuffersARB(1, &prwalls[i]->mask.vbo);
             if (prwalls[i]->stuffvbo) bglDeleteBuffersARB(1, &prwalls[i]->stuffvbo);
 
-            Bfree(prwalls[i]);
-            prwalls[i] = NULL;
+            DO_FREE_AND_NULL(prwalls[i]);
         }
 
         i++;
@@ -2500,10 +2495,9 @@ static void         polymer_freeboard(void)
     {
         if (prsprites[i])
         {
-            if (prsprites[i]->plane.buffer) Bfree(prsprites[i]->plane.buffer);
+            Bfree(prsprites[i]->plane.buffer);
             if (prsprites[i]->plane.vbo) bglDeleteBuffersARB(1, &prsprites[i]->plane.vbo);
-            Bfree(prsprites[i]);
-            prsprites[i] = NULL;
+            DO_FREE_AND_NULL(prsprites[i]);
         }
 
         i++;
@@ -6196,8 +6190,7 @@ static void         polymer_initrendertargets(int32_t count)
                 bglDeleteFramebuffersEXT(1, &prrts[i].fbo);
                 prrts[i].fbo = 0;
             }
-            Bfree(prrts);
-            prrts = NULL;
+            DO_FREE_AND_NULL(prrts);
         }
 
         ocount = 0;

@@ -94,14 +94,11 @@ void hicinit(void)
                 if (hr->skybox)
                 {
                     for (j=5; j>=0; j--)
-                        if (hr->skybox->face[j])
-                            Bfree(hr->skybox->face[j]);
+                        Bfree(hr->skybox->face[j]);
                     Bfree(hr->skybox);
                 }
 
-                if (hr->filename)
-                    Bfree(hr->filename);
-
+                Bfree(hr->filename);
                 Bfree(hr);
 
                 hr = next;
@@ -160,7 +157,7 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
     else hrn = hr;
 
     // store into hicreplc the details for this replacement
-    if (hrn->filename) Bfree(hrn->filename);
+    Bfree(hrn->filename);
 
     hrn->filename = Xstrdup(filen);
     hrn->alphacut = min(alphacut,1.0);
@@ -265,13 +262,12 @@ int32_t hicclearsubst(int32_t picnum, int32_t palnum)
 
     if (!hr) return 0;
 
-    if (hr->filename) Bfree(hr->filename);
+    Bfree(hr->filename);
     if (hr->skybox)
     {
         int32_t i;
         for (i=5; i>=0; i--)
-            if (hr->skybox->face[i])
-                Bfree(hr->skybox->face[i]);
+            Bfree(hr->skybox->face[i]);
         Bfree(hr->skybox);
     }
 

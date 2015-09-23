@@ -208,8 +208,7 @@ void texcache_freeptrs(void)
                     texcache.iptrs[ii] = NULL;
                 }
 
-            Bfree(texcache.iptrs[i]);
-            texcache.iptrs[i] = NULL;
+            DO_FREE_AND_NULL(texcache.iptrs[i]);
         }
 
     DO_FREE_AND_NULL(texcache.iptrs);

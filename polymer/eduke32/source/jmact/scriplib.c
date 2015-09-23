@@ -101,20 +101,14 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
     {
         e = section->entries->nextentry;
 
-        if (section->entries->name)
-            Bfree(section->entries->name);
-        if (section->entries->value)
-            Bfree(section->entries->value);
-
+        Bfree(section->entries->name);
+        Bfree(section->entries->value);
         Bfree(section->entries);
         section->entries = e;
     }
 
-    if (section->entries->name)
-        Bfree(section->entries->name);
-    if (section->entries->value)
-        Bfree(section->entries->value);
-
+    Bfree(section->entries->name);
+    Bfree(section->entries->value);
     Bfree(section->entries);
     Bfree(section->name);
 }
@@ -227,7 +221,7 @@ void SCRIPT_AddEntry(int32_t scripthandle, const char * sectionname, const char 
         }
     }
 
-    if (e->value) Bfree(e->value);
+    Bfree(e->value);
     e->value = Bstrdup(entryvalue);
 }
 

@@ -232,12 +232,8 @@ static void FreeGameList(void)
     while (listgrps)
     {
         Bfree(listgrps->name);
-
-        if (listgrps->scriptname)
-            Bfree(listgrps->scriptname);
-
-        if (listgrps->defname)
-            Bfree(listgrps->defname);
+        Bfree(listgrps->scriptname);
+        Bfree(listgrps->defname);
 
         grpinfo_t * const fg = listgrps->next;
         Bfree(listgrps);

@@ -543,11 +543,7 @@ StopSong(void)
     }
     SongType = SongTypeNone;
 
-    if (SongName)
-    {
-        free(SongName);
-    }
-    SongName = 0;
+    DO_FREE_AND_NULL(SongName);
     SongTrack = 0;
 
     if (SongPtr)

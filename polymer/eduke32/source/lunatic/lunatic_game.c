@@ -284,10 +284,7 @@ void El_ClearErrors(void)
 {
     int32_t i;
     for (i=0; i<EL_MAXERRORS; i++)
-    {
-        Bfree(el_errorMsgs[i]);
-        el_errorMsgs[i] = NULL;
-    }
+        DO_FREE_AND_NULL(el_errorMsgs[i]);
     el_numErrors = el_tooMuchErrors = 0;
 }
 

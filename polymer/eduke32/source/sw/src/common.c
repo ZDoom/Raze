@@ -11,8 +11,7 @@ char *g_grpNamePtr = NULL;
 
 void clearGrpNamePtr(void)
 {
-    if (g_grpNamePtr != NULL)
-        Bfree(g_grpNamePtr);
+    Bfree(g_grpNamePtr);
     // g_grpNamePtr assumed to be assigned to right after
 }
 

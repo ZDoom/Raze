@@ -212,11 +212,7 @@ void SDLDrv_PCM_Shutdown(void)
         DummyChunk = NULL;
     }
 
-    if (DummyBuffer  != NULL)
-    {
-        free(DummyBuffer);
-        DummyBuffer = NULL;
-    }
+    DO_FREE_AND_NULL(DummyBuffer);
 
     Mix_CloseAudio();
 

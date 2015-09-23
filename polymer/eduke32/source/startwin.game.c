@@ -788,7 +788,7 @@ int32_t startwin_run(void)
         for (e=wavedevs->devs; e; e=d)
         {
             d = e->next;
-            if (e->devs) Bfree(e->devs);
+            Bfree(e->devs);
             Bfree(e);
         }
         Bfree(wavedevs);

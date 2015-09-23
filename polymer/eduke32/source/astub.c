@@ -8352,8 +8352,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
     }
     else
     {
-        Bfree(testplay_addparam);
-        testplay_addparam = NULL;
+        DO_FREE_AND_NULL(testplay_addparam);
     }
 
 }
@@ -8501,11 +8500,7 @@ static int32_t osdcmd_testplay_addparam(const osdfuncparm_t *parm)
     }
     else
     {
-        if (testplay_addparam)
-        {
-            Bfree(testplay_addparam);
-            testplay_addparam = NULL;
-        }
+        DO_FREE_AND_NULL(testplay_addparam);
     }
 
     return OSDCMD_OK;
@@ -8829,8 +8824,7 @@ static void SaveInHistory(const char *commandstr)
 
     if (dosave)
     {
-        if (scripthist[scripthistend])
-            Bfree(scripthist[scripthistend]);
+        Bfree(scripthist[scripthistend]);
         scripthist[scripthistend] = Xstrdup(commandstr);
         scripthistend++;
         scripthistend %= SCRIPTHISTSIZ;
@@ -9552,10 +9546,8 @@ static int32_t loadtilegroups(const char *fn)
 
     for (i=0; i<tile_groups; i++)
     {
-        if (s_TileGroups[i].pIds)
-            Bfree(s_TileGroups[i].pIds);
-        if (s_TileGroups[i].szText)
-            Bfree(s_TileGroups[i].szText);
+        Bfree(s_TileGroups[i].pIds);
+        Bfree(s_TileGroups[i].szText);
         Bmemcpy(&s_TileGroups[i], &blank, sizeof(blank));
     }
     tile_groups = 0;
@@ -9735,8 +9727,7 @@ static int32_t parseconsounds(scriptfile *script)
             {
 BAD:
                 Bfree(definedname);
-                Bfree(g_sounds[sndnum].filename);
-                g_sounds[sndnum].filename = NULL;
+                DO_FREE_AND_NULL(g_sounds[sndnum].filename);
                 num_invalidsounds++;
                 break;
             }
@@ -9794,7 +9785,8 @@ static int32_t loadconsounds(const char *fn)
         parseconsounds_include(g_scriptModules[i], NULL, "null");
         Bfree(g_scriptModules[i]);
     }
-    Bfree(g_scriptModules);
+    DO_FREE_AND_NULL(g_scriptModules);
+    g_scriptModulesNum = 0;
 
     if (ret < 0)
         initprintf("There was an error parsing \"%s\".\n", fn);
@@ -9951,13 +9943,11 @@ void ExtUnInit(void)
 #if 0
     for (i = MAX_TILE_GROUPS-1; i >= 0; i--)
     {
-        if (s_TileGroups[i].pIds != NULL)
-            Bfree(s_TileGroups[i].pIds);
-        if (s_TileGroups[i].szText != NULL)
-            Bfree(s_TileGroups[i].szText);
+        Bfree(s_TileGroups[i].pIds);
+        Bfree(s_TileGroups[i].szText);
     }
     for (i = numhelppages-1; i >= 0; i--) Bfree(helppage[i]);
-    if (helppage) Bfree(helppage);
+    Bfree(helppage);
 #endif
 }
 

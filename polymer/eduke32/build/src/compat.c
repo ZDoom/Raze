@@ -82,7 +82,7 @@ void set_memerr_handler(void(*handlerfunc)(int32_t, const char *, const char *))
 void Bassert(int expr) { assert(expr); }
 int32_t Brand(void) { return rand(); }
 void *Bmalloc(bsize_t size) { return malloc(size); }
-void Bfree(void *ptr) { Bfree(ptr); }
+void Bfree(void *ptr) { free(ptr); }
 
 int32_t Bopen(const char *pathname, int32_t flags, uint32_t mode)
 {

@@ -628,7 +628,7 @@ void LoadCustomInfoFromScript(char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    if (custommaps[curmap].LevelName) free(custommaps[curmap].LevelName);
+                    Bfree(custommaps[curmap].LevelName);
                     custommaps[curmap].LevelName = strdup(t);
                     LevelInfo[curmap].LevelName = custommaps[curmap].LevelName;
                     break;
@@ -638,7 +638,7 @@ void LoadCustomInfoFromScript(char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    if (custommaps[curmap].SongName) free(custommaps[curmap].SongName);
+                    Bfree(custommaps[curmap].SongName);
                     custommaps[curmap].SongName = strdup(t);
                     LevelInfo[curmap].SongName = custommaps[curmap].SongName;
                     break;
@@ -648,7 +648,7 @@ void LoadCustomInfoFromScript(char *filename)
                     char *t;
                     if (scriptfile_getstring(script, &t)) break;
 
-                    if (custommaps[curmap].Description) free(custommaps[curmap].Description);
+                    Bfree(custommaps[curmap].Description);
                     custommaps[curmap].Description = strdup(t);
                     LevelInfo[curmap].Description = custommaps[curmap].Description;
                     break;
@@ -660,7 +660,7 @@ void LoadCustomInfoFromScript(char *filename)
                     if (scriptfile_getnumber(script, &n)) break;
 
                     Bsnprintf(s, 10, "%d : %02d", n/60, n%60);
-                    if (custommaps[curmap].BestTime) free(custommaps[curmap].BestTime);
+                    Bfree(custommaps[curmap].BestTime);
                     custommaps[curmap].BestTime = strdup(s);
                     LevelInfo[curmap].BestTime = custommaps[curmap].BestTime;
                     break;
@@ -672,7 +672,7 @@ void LoadCustomInfoFromScript(char *filename)
                     if (scriptfile_getnumber(script, &n)) break;
 
                     Bsnprintf(s, 10, "%d : %02d", n/60, n%60);
-                    if (custommaps[curmap].ParTime) free(custommaps[curmap].ParTime);
+                    Bfree(custommaps[curmap].ParTime);
                     custommaps[curmap].ParTime = strdup(s);
                     LevelInfo[curmap].ParTime = custommaps[curmap].ParTime;
                     break;
@@ -882,7 +882,7 @@ void LoadCustomInfoFromScript(char *filename)
 
             if (name)
             {
-                if (custominventoryname[in]) free(custominventoryname[in]);
+                Bfree(custominventoryname[in]);
                 custominventoryname[in] = strdup(name);
                 InventoryDecls[in].name = custominventoryname[in];
             }
@@ -956,7 +956,7 @@ void LoadCustomInfoFromScript(char *filename)
                 if (maxammo >= 0) DamageData[id].max_ammo = maxammo;
                 if (name)
                 {
-                    if (customweaponname[0][id]) free(customweaponname[0][id]);
+                    Bfree(customweaponname[0][id]);
                     customweaponname[0][id] = strdup(name);
                     DamageData[id].weapon_name = customweaponname[0][id];
                 }
@@ -966,7 +966,7 @@ void LoadCustomInfoFromScript(char *filename)
             {
                 if (ammo)
                 {
-                    if (customweaponname[1][id]) free(customweaponname[1][id]);
+                    Bfree(customweaponname[1][id]);
                     customweaponname[1][id] = strdup(ammo);
                     DamageData[id].ammo_name = customweaponname[1][id];
                 }

@@ -316,8 +316,7 @@ int32_t ANIM_LoadAnim(const uint8_t *buffer, int32_t length)
 
 void ANIM_FreeAnim(void)
 {
-    Bfree(anim);
-    anim = NULL;
+    DO_FREE_AND_NULL(anim);
 }
 
 

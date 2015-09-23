@@ -1454,11 +1454,7 @@ end_vol4a:
     Gv_ResetSystemDefaults();
 
     for (i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
-        if (MapInfo[i].savedstate)
-        {
-            Baligned_free(MapInfo[i].savedstate);
-            MapInfo[i].savedstate = NULL;
-        }
+        ALIGNED_FREE_AND_NULL(MapInfo[i].savedstate);
 
     if (ud.m_coop != 1)
     {
@@ -2058,10 +2054,7 @@ void G_FreeMapState(int32_t mapnum)
     {
         if (aGameVars[j].dwFlags & GAMEVAR_NORESET) continue;
         if (aGameVars[j].dwFlags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
-        {
-            if (mapinfo->savedstate->vars[j])
-                Baligned_free(mapinfo->savedstate->vars[j]);
-        }
+            Baligned_free(mapinfo->savedstate->vars[j]);
     }
 #else
     Bfree(mapinfo->savedstate->savecode);

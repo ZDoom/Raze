@@ -146,8 +146,7 @@ int32_t animvpx_uninit_codec(animvpx_codec_ctx *codec)
     if (codec->initstate <= 0)
         return 2;
 
-    Bfree(codec->pic);
-    codec->pic = NULL;
+    DO_FREE_AND_NULL(codec->pic);
 
     if (vpx_codec_destroy(&codec->codec))
     {

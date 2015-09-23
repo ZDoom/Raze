@@ -726,8 +726,7 @@ int32_t unloadgldriver(void)
     if (!hGLDLL) return 0;
 #endif
 
-    Bfree(gldriver);
-    gldriver = NULL;
+    DO_FREE_AND_NULL(gldriver);
 
 #if !defined RENDERTYPESDL && defined _WIN32
     FreeLibrary(hGLDLL);
@@ -1115,8 +1114,7 @@ int32_t unloadglulibrary(void)
     if (!hGLUDLL) return 0;
 #endif
 
-    Bfree(glulibrary);
-    glulibrary = NULL;
+    DO_FREE_AND_NULL(glulibrary);
 
 #if defined _WIN32
     FreeLibrary(hGLUDLL);

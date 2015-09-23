@@ -69,7 +69,7 @@ int32_t SafeOpen(const char *filename, int32_t mode, int32_t sharemode)
 
     if (h < MaxFiles)
     {
-        if (FileNames[h]) Bfree(FileNames[h]);
+        Bfree(FileNames[h]);
         FileNames[h] = (char*)Xmalloc(strlen(filename)+1);
         strcpy(FileNames[h], filename);
     }
@@ -105,8 +105,7 @@ void SafeClose(int32_t handle)
 
     if (handle < MaxFiles && FileNames[handle])
     {
-        Bfree(FileNames[handle]);
-        FileNames[handle] = NULL;
+        DO_FREE_AND_NULL(FileNames[handle]);
     }
 }
 
