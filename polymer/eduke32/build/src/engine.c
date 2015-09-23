@@ -284,10 +284,8 @@ static int16_t maphacklight[PR_MAXLIGHTS];
 #ifdef __cplusplus
 extern "C" {
 #endif
-void setblendtab(int32_t blend, const char *tab);
 #ifdef LUNATIC
 extern const char *(getblendtab)(int32_t blend);
-int32_t setpalookup(int32_t palnum, const uint8_t *shtab);
 #endif
 void setup_sideview_sincos(void);
 int32_t getscreenvdisp(int32_t bz, int32_t zoome);
@@ -2434,7 +2432,6 @@ char palfadedelta = 0;
 //
 // Internal Engine Functions
 //
-char *blendtable[MAXBLENDTABS];
 #define getblendtab(blend) (blendtable[blend])
 
 static void setpalettefade_calc(uint8_t offset);
@@ -15568,6 +15565,7 @@ const char *(getblendtab)(int32_t blend)
 {
     return blendtable[blend];
 }
+#endif
 
 int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
 {
@@ -15582,7 +15580,6 @@ int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
 
     return 0;
 }
-#endif
 
 //
 // makepalookup

@@ -73,7 +73,7 @@ enum scripttoken_t
     T_HIGHPALOOKUP,
     T_TINT,
     T_MAKEPALOOKUP, T_REMAPPAL, T_REMAPSELF,
-    T_NOFLOORPAL,
+    T_NOFLOORPAL, T_FLOORPAL,
     T_RED,T_GREEN,T_BLUE,
     T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_SPECPOWER,T_SPECFACTOR,T_NOCOMPRESS,T_NODOWNSIZE,
     T_FORCEFILTER,
@@ -105,6 +105,8 @@ enum scripttoken_t
     T_COPYTILE,
     T_GLOBALGAMEFLAGS,
     T_MULTIPSKY, T_HORIZFRAC, T_LOGNUMTILES,
+    T_BASEPALETTE, T_PALOOKUP, T_BLENDTABLE,
+    T_RAW, T_OFFSET, T_SHIFTLEFT, T_NOSHADES, T_COPY,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -383,6 +385,9 @@ static int32_t defsparser(scriptfile *script)
         { "copytile",        T_COPYTILE         },
         { "globalgameflags", T_GLOBALGAMEFLAGS  },  // dummy
         { "multipsky",       T_MULTIPSKY        },
+        { "basepalette",     T_BASEPALETTE      },
+        { "palookup",        T_PALOOKUP         },
+        { "blendtable",      T_BLENDTABLE       },
     };
 
     while (1)
@@ -2666,6 +2671,628 @@ static int32_t defsparser(scriptfile *script)
                 default:
                     break;
                 }
+            }
+        }
+        break;
+        case T_BASEPALETTE:
+        {
+            char *blockend;
+            int32_t id;
+
+            static const tokenlist subtokens[] =
+            {
+                { "raw",         T_RAW },
+                { "copy",        T_COPY },
+            };
+
+            if (scriptfile_getsymbol(script,&id))
+                break;
+            if (scriptfile_getbraces(script,&blockend))
+                break;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)id >= MAXBASEPALS))
+            {
+                initprintf("Error: basepalette: Invalid basepal number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                script->textptr = blockend;
+                break;
+            }
+
+            int didLoadPal = 0;
+
+            while (script->textptr < blockend)
+            {
+                int32_t token = getatoken(script,subtokens,ARRAY_SIZE(subtokens));
+                switch (token)
+                {
+                case T_RAW:
+                {
+                    char *rawblockend;
+
+                    static const tokenlist rawsubtokens[] =
+                    {
+                        { "file",           T_FILE },
+                        { "offset",         T_OFFSET },
+                        { "shiftleft",      T_SHIFTLEFT },
+                    };
+
+                    if (scriptfile_getbraces(script,&rawblockend))
+                        break;
+
+                    char * fn = NULL;
+                    int32_t offset = 0;
+                    int32_t shiftleft = 0;
+
+                    while (script->textptr < rawblockend)
+                    {
+                        int32_t token = getatoken(script,rawsubtokens,ARRAY_SIZE(rawsubtokens));
+                        switch (token)
+                        {
+                        case T_FILE:
+                        {
+                            scriptfile_getstring(script,&fn);
+                            break;
+                        }
+                        case T_OFFSET:
+                        {
+                            scriptfile_getnumber(script,&offset);
+                            break;
+                        }
+                        case T_SHIFTLEFT:
+                        {
+                            scriptfile_getnumber(script,&shiftleft);
+                            break;
+                        }
+                        default:
+                            break;
+                        }
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE(fn == NULL))
+                    {
+                        initprintf("Error: basepalette: No filename provided on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE(offset < 0))
+                    {
+                        initprintf("Error: basepalette: Invalid file offset on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)shiftleft >= 8))
+                    {
+                        initprintf("Error: basepalette: Invalid left shift provided on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    int32_t const fil = kopen4load(fn, 0);
+                    if (EDUKE32_PREDICT_FALSE(fil == -1))
+                    {
+                        initprintf("Error: basepalette: Failed opening \"%s\" on line %s:%d\n", fn,
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    if (klseek_and_test(fil, offset, BSEEK_SET))
+                    {
+                        initprintf("Error: basepalette: Seek failed on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        kclose(fil);
+                        break;
+                    }
+
+                    uint8_t * const palbuf = (uint8_t *)Xmalloc(768);
+                    if (kread_and_test(fil,palbuf,768))
+                    {
+                        initprintf("Error: basepalette: Read failed on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        Bfree(palbuf);
+                        kclose(fil);
+                        break;
+                    }
+
+                    if (shiftleft != 0)
+                    {
+                        for (int k = 0; k < 768; k++)
+                            palbuf[k] <<= shiftleft;
+                    }
+
+                    setbasepal(id, palbuf);
+                    didLoadPal = 1;
+
+                    Bfree(palbuf);
+                    kclose(fil);
+                    break;
+                }
+                case T_COPY:
+                {
+                    int32_t source;
+                    scriptfile_getsymbol(script,&source);
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)source >= MAXBASEPALS || source == id))
+                    {
+                        initprintf("Error: basepalette: Invalid source basepal number on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    uint8_t const * const sourcetable = basepaltable[source];
+                    if (EDUKE32_PREDICT_FALSE(sourcetable == NULL))
+                    {
+                        initprintf("Error: basepalette: Source basepal does not exist on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    setbasepal(id, sourcetable);
+                    didLoadPal = 1;
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+
+            if (didLoadPal && id == 0)
+            {
+                initfastcolorlookup_palette();
+
+                paletteloaded |= PALETTE_MAIN;
+            }
+        }
+        break;
+        case T_PALOOKUP:
+        {
+            char *blockend;
+            int32_t id;
+
+            static const tokenlist subtokens[] =
+            {
+                { "raw",            T_RAW },
+                { "copy",           T_COPY },
+
+                { "fogpal",         T_FOGPAL },
+                { "makepalookup",   T_MAKEPALOOKUP },
+
+                { "floorpal",       T_FLOORPAL },
+                { "nofloorpal",     T_NOFLOORPAL },
+            };
+
+            if (scriptfile_getsymbol(script,&id))
+                break;
+            if (scriptfile_getbraces(script,&blockend))
+                break;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)id >= MAXPALOOKUPS))
+            {
+                initprintf("Error: palookup: Invalid pal number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                script->textptr = blockend;
+                break;
+            }
+
+            int didLoadShade = 0;
+
+            while (script->textptr < blockend)
+            {
+                int32_t token = getatoken(script,subtokens,ARRAY_SIZE(subtokens));
+                switch (token)
+                {
+                case T_RAW:
+                {
+                    char *subblockend;
+
+                    static const tokenlist rawsubtokens[] =
+                    {
+                        { "file",           T_FILE },
+                        { "offset",         T_OFFSET },
+                        { "noshades",       T_NOSHADES },
+                    };
+
+                    if (scriptfile_getbraces(script,&subblockend))
+                        break;
+
+                    char * fn = NULL;
+                    int32_t offset = 0;
+                    int32_t length = 256*32; // hardcoding 32 instead of numshades
+
+                    while (script->textptr < subblockend)
+                    {
+                        int32_t token = getatoken(script,rawsubtokens,ARRAY_SIZE(rawsubtokens));
+                        switch (token)
+                        {
+                        case T_FILE:
+                        {
+                            scriptfile_getstring(script,&fn);
+                            break;
+                        }
+                        case T_OFFSET:
+                        {
+                            scriptfile_getnumber(script,&offset);
+                            break;
+                        }
+                        case T_NOSHADES:
+                        {
+                            length = 256;
+                            break;
+                        }
+                        default:
+                            break;
+                        }
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE(fn == NULL))
+                    {
+                        initprintf("Error: palookup: No filename provided on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE(offset < 0))
+                    {
+                        initprintf("Error: palookup: Invalid file offset on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    int32_t const fil = kopen4load(fn, 0);
+                    if (EDUKE32_PREDICT_FALSE(fil == -1))
+                    {
+                        initprintf("Error: palookup: Failed opening \"%s\" on line %s:%d\n", fn,
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    if (klseek_and_test(fil, offset, BSEEK_SET))
+                    {
+                        initprintf("Error: palookup: Seek failed on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        kclose(fil);
+                        break;
+                    }
+
+                    char * const palookupbuf = (char *)Xmalloc(length);
+                    int32_t bytesread = kread(fil, palookupbuf, length);
+                    if (bytesread < 256)
+                    {
+                        initprintf("Error: palookup: Read failed on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        Bfree(palookupbuf);
+                        kclose(fil);
+                        break;
+                    }
+
+                    if (bytesread == 256*32)
+                    {
+                        didLoadShade = 1;
+                        numshades = 32;
+                        setpalookup(id, (uint8_t *)palookupbuf);
+                    }
+                    else
+                    {
+                        if (EDUKE32_PREDICT_FALSE(!(paletteloaded & PALETTE_SHADE)))
+                        {
+                            initprintf("Error: palookup: Shade tables not loaded on line %s:%d\n",
+                                       script->filename, scriptfile_getlinum(script,cmdtokptr));
+                            break;
+                        }
+
+                        makepalookup(id, palookupbuf, 0,0,0, 0);
+                    }
+
+                    Bfree(palookupbuf);
+                    kclose(fil);
+                    break;
+                }
+                case T_COPY:
+                {
+                    int32_t source;
+                    scriptfile_getsymbol(script,&source);
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)source >= MAXPALOOKUPS || source == id))
+                    {
+                        initprintf("Error: palookup: Invalid source pal number on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE(source == 0 && !(paletteloaded & PALETTE_SHADE)))
+                    {
+                        initprintf("Error: palookup: Shade tables not loaded on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    uint8_t const * const sourcepal = (uint8_t *)palookup[source];
+                    if (EDUKE32_PREDICT_FALSE(sourcepal == NULL))
+                    {
+                        initprintf("Error: palookup: Source palookup does not exist on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    setpalookup(id, sourcepal);
+                    didLoadShade = 1;
+                    break;
+                }
+                case T_FOGPAL:
+                {
+                    char *subblockend;
+
+                    static const tokenlist fogpaltokens[] =
+                    {
+                        { "red",   T_RED   }, { "r", T_RED },
+                        { "green", T_GREEN }, { "g", T_GREEN },
+                        { "blue",  T_BLUE  }, { "b", T_BLUE },
+                    };
+
+                    int32_t red = 0, green = 0, blue = 0;
+
+                    if (scriptfile_getbraces(script,&subblockend))
+                        break;
+
+                    while (script->textptr < subblockend)
+                    {
+                        switch (getatoken(script, fogpaltokens, ARRAY_SIZE(fogpaltokens)))
+                        {
+                        case T_RED:
+                            scriptfile_getnumber(script,&red);
+                            red = clamp(red, 0, 63);
+                            break;
+                        case T_GREEN:
+                            scriptfile_getnumber(script,&green);
+                            green = clamp(green, 0, 63);
+                            break;
+                        case T_BLUE:
+                            scriptfile_getnumber(script,&blue);
+                            blue = clamp(blue, 0, 63);
+                            break;
+                        }
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE(!(paletteloaded & PALETTE_SHADE)))
+                    {
+                        initprintf("Error: palookup: Shade tables not loaded on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    makepalookup(id, NULL, red, green, blue, 1);
+                    break;
+                }
+                case T_MAKEPALOOKUP:
+                {
+                    char *subblockend;
+
+                    static const tokenlist makepalookuptokens[] =
+                    {
+                        { "red",   T_RED   }, { "r", T_RED },
+                        { "green", T_GREEN }, { "g", T_GREEN },
+                        { "blue",  T_BLUE  }, { "b", T_BLUE },
+                        { "remappal", T_REMAPPAL },
+                        { "remapself", T_REMAPSELF },
+                    };
+
+                    int32_t red = 0, green = 0, blue = 0;
+                    int32_t remappal = -1;
+
+                    if (scriptfile_getbraces(script,&subblockend))
+                        break;
+
+                    while (script->textptr < subblockend)
+                    {
+                        switch (getatoken(script, makepalookuptokens, ARRAY_SIZE(makepalookuptokens)))
+                        {
+                        case T_RED:
+                            scriptfile_getnumber(script,&red);
+                            red = clamp(red, 0, 63);
+                            break;
+                        case T_GREEN:
+                            scriptfile_getnumber(script,&green);
+                            green = clamp(green, 0, 63);
+                            break;
+                        case T_BLUE:
+                            scriptfile_getnumber(script,&blue);
+                            blue = clamp(blue, 0, 63);
+                            break;
+                        case T_REMAPPAL:
+                            scriptfile_getsymbol(script,&remappal);
+                            break;
+                        case T_REMAPSELF:
+                            remappal = id;
+                            break;
+                        }
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)remappal >= MAXPALOOKUPS))
+                    {
+                        initprintf("Error: palookup: Invalid remappal on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE(!(paletteloaded & PALETTE_SHADE)))
+                    {
+                        initprintf("Error: palookup: Shade tables not loaded on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    makepalookup(id, NULL, red, green, blue, 1);
+
+                    break;
+                }
+                case T_NOFLOORPAL:
+                {
+                    g_noFloorPal[id] = 1;
+                    break;
+                }
+                case T_FLOORPAL:
+                {
+                    g_noFloorPal[id] = 0;
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+
+            if (didLoadShade && id == 0)
+            {
+                paletteloaded |= PALETTE_SHADE;
+            }
+        }
+        break;
+        case T_BLENDTABLE:
+        {
+            char *blockend;
+            int32_t id;
+
+            static const tokenlist subtokens[] =
+            {
+                { "raw",         T_RAW },
+                { "copy",        T_COPY },
+            };
+
+            if (scriptfile_getsymbol(script,&id))
+                break;
+            if (scriptfile_getbraces(script,&blockend))
+                break;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)id >= MAXBLENDTABS))
+            {
+                initprintf("Error: blendtable: Invalid blendtable number on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                script->textptr = blockend;
+                break;
+            }
+
+            int didLoadTransluc = 0;
+
+            while (script->textptr < blockend)
+            {
+                int32_t token = getatoken(script,subtokens,ARRAY_SIZE(subtokens));
+                switch (token)
+                {
+                case T_RAW:
+                {
+                    char *rawblockend;
+
+                    static const tokenlist rawsubtokens[] =
+                    {
+                        { "file",           T_FILE },
+                        { "offset",         T_OFFSET },
+                    };
+
+                    if (scriptfile_getbraces(script,&rawblockend))
+                        break;
+
+                    char * fn = NULL;
+                    int32_t offset = 0;
+
+                    while (script->textptr < rawblockend)
+                    {
+                        int32_t token = getatoken(script,rawsubtokens,ARRAY_SIZE(rawsubtokens));
+                        switch (token)
+                        {
+                        case T_FILE:
+                        {
+                            scriptfile_getstring(script,&fn);
+                            break;
+                        }
+                        case T_OFFSET:
+                        {
+                            scriptfile_getnumber(script,&offset);
+                            break;
+                        }
+                        default:
+                            break;
+                        }
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE(fn == NULL))
+                    {
+                        initprintf("Error: blendtable: No filename provided on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    if (EDUKE32_PREDICT_FALSE(offset < 0))
+                    {
+                        initprintf("Error: blendtable: Invalid file offset on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    int32_t const fil = kopen4load(fn, 0);
+                    if (EDUKE32_PREDICT_FALSE(fil == -1))
+                    {
+                        initprintf("Error: blendtable: Failed opening \"%s\" on line %s:%d\n", fn,
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    if (klseek_and_test(fil, offset, BSEEK_SET))
+                    {
+                        initprintf("Error: blendtable: Seek failed on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        kclose(fil);
+                        break;
+                    }
+
+                    char * const blendbuf = (char *)Xmalloc(256*256);
+                    if (kread_and_test(fil,blendbuf,256*256))
+                    {
+                        initprintf("Error: blendtable: Read failed on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        Bfree(blendbuf);
+                        kclose(fil);
+                        break;
+                    }
+
+                    setblendtab(id, blendbuf);
+                    didLoadTransluc = 1;
+
+                    Bfree(blendbuf);
+                    kclose(fil);
+                    break;
+                }
+                case T_COPY:
+                {
+                    int32_t source;
+                    scriptfile_getsymbol(script,&source);
+
+                    if (EDUKE32_PREDICT_FALSE((unsigned)source >= MAXBLENDTABS || source == id))
+                    {
+                        initprintf("Error: blendtable: Invalid source blendtable number on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    char const * const sourcetable = blendtable[source];
+                    if (EDUKE32_PREDICT_FALSE(sourcetable == NULL))
+                    {
+                        initprintf("Error: blendtable: Source blendtable does not exist on line %s:%d\n",
+                                   script->filename, scriptfile_getlinum(script,cmdtokptr));
+                        break;
+                    }
+
+                    setblendtab(id, sourcetable);
+                    didLoadTransluc = 1;
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+
+            if (didLoadTransluc && id == 0)
+            {
+                paletteloaded |= PALETTE_TRANSLUC;
             }
         }
         break;
