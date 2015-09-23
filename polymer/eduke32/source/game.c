@@ -305,10 +305,10 @@ static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
     rotatesprite(tx,ty,scl,0,BOTTOMSTATUSBAR,4,0,10+16+64,clx1+clofx,cly1+clofy,clx2+clofx-1,cly2+clofy-1);
 }
 
-void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set)
+void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set)
 {
-    if (palid >= BASEPALCOUNT)
-        palid = BASEPAL;
+    if (palid >= MAXBASEPALS)
+        palid = 0;
 
     player->palette = palid;
 
@@ -10982,9 +10982,12 @@ static inline void G_CheckGametype(void)
 static void G_PostLoadPalette(void)
 {
     // Make color index 255 of default/water/slime palette black.
-    Bmemset(&basepaltable[BASEPAL][255*3], 0, 3);
-    Bmemset(&basepaltable[WATERPAL][255*3], 0, 3);
-    Bmemset(&basepaltable[SLIMEPAL][255*3], 0, 3);
+    if (basepaltable[BASEPAL] != NULL)
+        Bmemset(&basepaltable[BASEPAL][255*3], 0, 3);
+    if (basepaltable[WATERPAL] != NULL)
+        Bmemset(&basepaltable[WATERPAL][255*3], 0, 3);
+    if (basepaltable[SLIMEPAL] != NULL)
+        Bmemset(&basepaltable[SLIMEPAL][255*3], 0, 3);
 
     generatefogpals();
 
@@ -11112,8 +11115,6 @@ static void G_Startup(void)
 
     if (initengine())
         G_FatalEngineError();
-
-    setbasepaltable(basepaltable, BASEPALCOUNT);
 
 #ifdef LUNATIC
     El_CreateGameState();

@@ -681,7 +681,7 @@ int32_t G_CheckActivatorMotion(int32_t lotag);
 int32_t A_Dodge(spritetype *s);
 int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t cliptype, int32_t clipdist);
 void P_DoQuote(int32_t q, DukePlayer_t *p);
-void P_SetGamePalette(DukePlayer_t *player, uint8_t palid, int32_t set);
+void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set);
 void G_AddUserQuote(const char *daquote);
 void G_ClearCameraView(DukePlayer_t *ps);
 void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,

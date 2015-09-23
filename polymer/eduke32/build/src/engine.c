@@ -2414,8 +2414,8 @@ static int32_t baktile;
 
 char apptitle[256] = "Build Engine";
 
+uint8_t *basepaltable[MAXBASEPALS] = { palette };
 static uint8_t basepalreset=1;
-uint8_t basepalcount;
 uint8_t curbasepal;
 
 static uint32_t g_lastpalettesum = 0;
@@ -9369,6 +9369,12 @@ void uninitengine(void)
             Bfree(blendtable[i]);
     Bmemset(blendtable, 0, sizeof(blendtable));
 
+    for (int i=1; i<MAXBASEPALS; i++)
+        if (basepaltable[i] != NULL)
+            Bfree(basepaltable[i]);
+    Bmemset(basepaltable, 0, sizeof(basepaltable));
+    basepaltable[0] = palette;
+
 #ifdef DYNALLOC_ARRAYS
     DO_FREE_AND_NULL(blockptr);
 #endif
@@ -15638,15 +15644,14 @@ void makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8
 }
 
 //
-// setbasepaltable
+// setbasepal
 //
-void setbasepaltable(uint8_t **thebasepaltable, uint8_t thebasepalcount)
+void setbasepal(int32_t id, uint8_t const * const table)
 {
-    if (thebasepalcount >= MAXBASEPALS)
-        thebasepalcount = MAXBASEPALS - 1;
+    if (basepaltable[id] == NULL)
+        basepaltable[id] = (uint8_t *)Xmalloc(768);
 
-    basepaltableptr = thebasepaltable;
-    basepalcount = thebasepalcount;
+    Bmemcpy(basepaltable[id], table, 768);
 }
 
 //
@@ -15671,7 +15676,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 
     Bassert((flags&4)==0);
 
-    if (dapalid >= basepalcount)
+    if (/*(unsigned)dapalid >= MAXBASEPALS ||*/ basepaltable[dapalid] == NULL)
         dapalid = 0;
 #ifdef USE_OPENGL
     paldidchange = (curbasepal != dapalid || basepalreset);
@@ -15679,7 +15684,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
     curbasepal = dapalid;
     basepalreset = 0;
 
-    dapal = basepaltableptr[curbasepal];
+    dapal = basepaltable[curbasepal];
 
     if (!(flags&4))
     {

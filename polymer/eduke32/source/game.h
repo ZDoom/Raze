@@ -378,7 +378,7 @@ void G_UpdatePlayerFromMenu(void);
 void M32RunScript(const char *s);
 void P_DoQuote(int32_t q,DukePlayer_t *p);
 extern int32_t textsc(int32_t sc);
-void P_SetGamePalette(DukePlayer_t *player,uint8_t palid,int32_t set);
+void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set);
 
 extern int32_t G_GetStringLineLength(const char *text, const char *end, const int32_t iter);
 extern int32_t G_GetStringNumLines(const char *text, const char *end, const int32_t iter);

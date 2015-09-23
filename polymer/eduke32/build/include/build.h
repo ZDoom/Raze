@@ -77,7 +77,7 @@ enum rendmode_t {
 #define MAXVOXELS 4096
 #define MAXSTATUS 1024
 #define MAXPLAYERS 16
-#define MAXBASEPALS 8
+#define MAXBASEPALS 256
 #define MAXPALOOKUPS 256
 #define MAXBLENDTABS 256
 // Maximum number of component tiles in a multi-psky:
@@ -699,7 +699,7 @@ EXTERN int16_t sintable[2048];
 EXTERN uint8_t palette[768];
 EXTERN int16_t numshades;
 EXTERN char *palookup[MAXPALOOKUPS];
-EXTERN uint8_t **basepaltableptr;
+extern uint8_t *basepaltable[MAXBASEPALS];
 EXTERN uint8_t paletteloaded;
 
 enum {
@@ -1045,7 +1045,7 @@ intptr_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   makepalookup(int32_t palnum, const char *remapbuf, int8_t r, int8_t g, int8_t b, char noFloorPal);
 //void   setvgapalette(void);
-void   setbasepaltable(uint8_t **basepaltable, uint8_t basepalcount);
+void setbasepal(int32_t id, uint8_t const *table);
 void   setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags);
 void   setpalettefade(char r, char g, char b, char offset);
 void   squarerotatetile(int16_t tilenume);

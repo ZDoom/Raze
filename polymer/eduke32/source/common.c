@@ -1001,14 +1001,6 @@ void G_DoAutoload(const char *dirname)
 
 uint32_t PaletteIndexFullbrights[8] = { 0, 0, 0, 0, 0, 0, 0, 2147418112 };
 
-static uint8_t water_pal[768], slime_pal[768], title_pal[768], dre_alms[768], ending_pal[768];
-
-uint8_t *basepaltable[BASEPALCOUNT] = {
-    palette, water_pal, slime_pal,
-    dre_alms, title_pal, ending_pal,
-    NULL /*anim_pal*/
-};
-
 void G_LoadLookups(void)
 {
     int32_t fp, j;
@@ -1027,13 +1019,17 @@ void G_LoadLookups(void)
         return kclose(fp);
     }
 
+    uint8_t paldata[768];
+
     for (j=1; j<=5; j++)
     {
         // Account for TITLE and REALMS swap between basepal number and on-disk order.
         int32_t basepalnum = (j == 3 || j == 4) ? 4+3-j : j;
 
-        if (kread_and_test(fp, basepaltable[basepalnum], 768))
+        if (kread_and_test(fp, paldata, 768))
             return kclose(fp);
+
+        setbasepal(basepalnum, paldata);
     }
 
     kclose(fp);

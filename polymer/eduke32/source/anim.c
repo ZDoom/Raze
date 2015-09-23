@@ -241,7 +241,7 @@ int32_t G_PlayAnim(const char *fn)
         goto end_anim;
     }
 
-    basepaltable[ANIMPAL] = ANIM_GetPalette();
+    setbasepal(ANIMPAL, ANIM_GetPalette());
 
     // setpalette(0L,256L,tempbuf);
     // setbrightness(ud.brightness>>2,tempbuf,2);

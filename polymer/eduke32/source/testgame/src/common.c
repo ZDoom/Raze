@@ -26,11 +26,6 @@ const char *G_DefFile(void)
     return defaultdeffilename;
 }
 
-uint8_t *basepaltable[1] =
-{
-    palette
-};
-
 uint32_t PaletteIndexFullbrights[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 void Ken_InitMultiPsky(void)

@@ -4917,7 +4917,7 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
                           0,
                           GL_RGB,
                           GL_UNSIGNED_BYTE,
-                          basepaltableptr[curbasepal]);
+                          basepaltable[curbasepal]);
             bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);

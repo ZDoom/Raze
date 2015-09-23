@@ -28,7 +28,6 @@ extern "C" {
 extern "C" {
 #endif
 
-extern uint8_t basepalcount;
 extern uint8_t curbasepal;
 
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];

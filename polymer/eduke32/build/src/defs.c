@@ -1937,7 +1937,7 @@ static int32_t defsparser(scriptfile *script)
                     scriptfile_getstring(script,&fn); break;
                 }
             }
-            if (EDUKE32_PREDICT_FALSE((unsigned)basepal >= ((unsigned)basepalcount)))
+            if (EDUKE32_PREDICT_FALSE((unsigned)basepal >= MAXBASEPALS))
             {
                 initprintf("Error: missing or invalid 'base palette number' for highpalookup definition "
                            "near line %s:%d\n", script->filename, scriptfile_getlinum(script,highpaltokptr));

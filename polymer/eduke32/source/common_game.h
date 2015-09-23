@@ -124,8 +124,6 @@ void G_DoAutoload(const char *dirname);
 
 //////////
 
-extern uint8_t *basepaltable[BASEPALCOUNT];
-
 extern void G_LoadLookups(void);
 
 //////////

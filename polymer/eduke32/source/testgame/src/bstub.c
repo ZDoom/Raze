@@ -145,8 +145,6 @@ int32_t ExtPostStartupWindow(void)
         return -1;
     }
 
-    setbasepaltable(basepaltable, 1);
-
     Ken_InitMultiPsky();
 
     tiletovox[PLAYER] = nextvoxid++;
