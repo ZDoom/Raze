@@ -3437,6 +3437,9 @@ local Cblock = {
     state = POS() * sp1 * (lpeg.Cmt(tok.identifier, on.state_begin_Cmt))
                   * sp1 * stmt_list_or_eps * tok.state_ends
         / on.state_end,
+    defstate = POS() * sp1 * (lpeg.Cmt(tok.identifier, on.state_begin_Cmt))
+                     * sp1 * stmt_list_or_eps * tok.state_ends
+        / on.state_end,
 }
 
 for cmdname, cmdpat in pairs(Cblock) do

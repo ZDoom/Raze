@@ -101,6 +101,7 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_DEFINEVOLUMEFLAGS, 20150222 },
     { CON_RESETPLAYERFLAGS, 20150303 },
     { CON_APPENDEVENT, 20150325 },
+    { CON_DEFSTATE, 20150923 },
 };
 #endif
 
@@ -566,6 +567,7 @@ const char *keyw[] =
     "definevolumeflags",        // 380
     "resetplayerflags",         // 381
     "appendevent",              // 382
+    "defstate",                 // 383
     "<null>"
 };
 #endif
@@ -2783,9 +2785,18 @@ static int32_t C_ParseCommand(int32_t loop)
         case -1:
         case -2:
             return 1; //End
+        case CON_DEFSTATE:
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            {
+                C_ReportError(ERROR_FOUNDWITHIN);
+                g_numCompilerErrors++;
+                continue;
+            }
+            goto DO_DEFSTATE;
         case CON_STATE:
             if (g_parsingActorPtr == NULL && g_processingState == 0)
             {
+DO_DEFSTATE:
                 C_GetNextLabelName();
                 g_scriptPtr--;
                 labelcode[g_numLabels] = g_scriptPtr-script;

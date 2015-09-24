@@ -1277,6 +1277,7 @@ lpeg.P(false) +
 "displayrand" +
 "digitalnumberz" +
 "digitalnumber" +
+"defstate" +
 "definevolumename" +
 "definevolumeflags" +
 "definesound" +
