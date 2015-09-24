@@ -1719,7 +1719,9 @@ static void C_GetNextVarType(int32_t type)
 
                 textptr++;
             }
-            *g_scriptPtr++ = g_iThisActorID; // help out the VM by inserting a dummy index
+
+            bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
+            *g_scriptPtr++ = 0; // help out the VM by inserting a dummy index
         }
         else
         {
