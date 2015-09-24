@@ -4579,9 +4579,13 @@ finish_qsprintf:
 
                     int32_t numelts = kfilelength(fil) / sizeof(int32_t);
 
-                    // NOTE: LunaCON is stricter: if the file has no
-                    // elements, resize the array to size zero.
-                    if (numelts > 0)
+                    if (numelts == 0)
+                    {
+                        Baligned_free(aGameArrays[j].plValues);
+                        aGameArrays[j].plValues = NULL;
+                        aGameArrays[j].size = numelts;
+                    }
+                    else if (numelts > 0)
                     {
                         int32_t numbytes = numelts * sizeof(int32_t);
 #ifdef BITNESS64
@@ -4644,18 +4648,20 @@ finish_qsprintf:
                 const int32_t newSize = Gv_GetVarX(*insptr++);
                 const int32_t oldSize = aGameArrays[tw].size;
 
-                if (newSize > 0 && newSize != oldSize)
+                if (newSize >= 0 && newSize != oldSize)
                 {
 //                    OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
 //                               aGameArrays[j].szLabel, aGameArrays[j].size, newSize);
-                    intptr_t *const tmpar = (intptr_t *)Xmalloc(GAR_ELTSZ * oldSize);
-                    memcpy(tmpar, aGameArrays[tw].plValues, GAR_ELTSZ * oldSize);
+                    intptr_t *const tmpar = oldSize != 0 ? (intptr_t *)Xmalloc(GAR_ELTSZ * oldSize) : NULL;
+                    if (oldSize != 0)
+                        memcpy(tmpar, aGameArrays[tw].plValues, GAR_ELTSZ * oldSize);
 
                     Baligned_free(aGameArrays[tw].plValues);
-                    aGameArrays[tw].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, GAR_ELTSZ * newSize);
+                    aGameArrays[tw].plValues = newSize != 0 ? (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, GAR_ELTSZ * newSize) : NULL;
                     aGameArrays[tw].size = newSize;
 
-                    memcpy(aGameArrays[tw].plValues, tmpar, GAR_ELTSZ * min(oldSize, newSize));
+                    if (oldSize != 0)
+                        memcpy(aGameArrays[tw].plValues, tmpar, GAR_ELTSZ * min(oldSize, newSize));
                     if (newSize > oldSize)
                         memset(&aGameArrays[tw].plValues[oldSize], 0, GAR_ELTSZ * (newSize - oldSize));
                 }

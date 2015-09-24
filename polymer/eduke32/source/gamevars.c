@@ -189,8 +189,14 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
             goto corrupt;
         hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
 
-        aGameArrays[i].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, aGameArrays[i].size * GAR_ELTSZ);
-        if (kdfread(aGameArrays[i].plValues, GAR_ELTSZ * aGameArrays[i].size, 1, fil) < 1) goto corrupt;
+        intptr_t const asize = aGameArrays[i].size;
+        if (asize != 0)
+        {
+            aGameArrays[i].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, asize * GAR_ELTSZ);
+            if (kdfread(aGameArrays[i].plValues, GAR_ELTSZ * aGameArrays[i].size, 1, fil) < 1) goto corrupt;
+        }
+        else
+            aGameArrays[i].plValues = NULL;
     }
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
@@ -466,8 +472,13 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     if (!(dwFlags & GAMEARRAY_TYPE_MASK))
     {
         Baligned_free(aGameArrays[i].plValues);
-        aGameArrays[i].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, asize * GAR_ELTSZ);
-        Bmemset(aGameArrays[i].plValues, 0, asize * GAR_ELTSZ);
+        if (asize != 0)
+        {
+            aGameArrays[i].plValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, asize * GAR_ELTSZ);
+            Bmemset(aGameArrays[i].plValues, 0, asize * GAR_ELTSZ);
+        }
+        else
+            aGameArrays[i].plValues = NULL;
     }
     else
         aGameArrays[i].plValues=(intptr_t *)arrayptr;

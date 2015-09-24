@@ -1215,9 +1215,10 @@ static void sv_makevarspec()
         if (aGameArrays[i].dwFlags & GAMEARRAY_READONLY)
             continue;
 
+        intptr_t * const plValues = aGameArrays[i].plValues;
         svgm_vars[j].flags = 0;
-        svgm_vars[j].ptr = aGameArrays[i].plValues;
-        svgm_vars[j].size = sizeof(aGameArrays[0].plValues[0]);
+        svgm_vars[j].ptr = plValues;
+        svgm_vars[j].size = plValues == NULL ? 0 : sizeof(aGameArrays[0].plValues[0]);
         svgm_vars[j].cnt = aGameArrays[i].size;  // assumed constant throughout demo, i.e. no RESIZEARRAY
         j++;
     }
