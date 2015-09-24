@@ -717,21 +717,28 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getsymbol(script,&spd)) break;
             if (scriptfile_getsymbol(script,&type)) break;
 
-            if (check_tile_range("animtilerange", &tile1, &tile2, script, cmdtokptr))
+            if (check_tile("animtilerange", tile1, script, cmdtokptr))
                 break;
-
-            if (EDUKE32_PREDICT_FALSE(tile2-tile1 > 255))
-            {
-                initprintf("Error: animtilerange: tile difference can be at most 255 on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+            if (check_tile("animtilerange", tile2, script, cmdtokptr))
                 break;
-            }
 
             spd = clamp(spd, 0, 15);
             if (EDUKE32_PREDICT_FALSE(type&~3))
             {
                 initprintf("Error: animtilerange: animation type must be 0, 1, 2 or 3 on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+
+            int32_t num = tile2-tile1;
+            if (type == 3 && tile1 > tile2) // PICANM_ANIMTYPE_BACK
+                num = -num;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)num > 255))
+            {
+                initprintf("Error: animtilerange: tile difference can be at most 255 on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
             }
 
             // set anim speed
@@ -741,7 +748,7 @@ static int32_t defsparser(scriptfile *script)
             picanm[tile1].sf &= ~PICANM_ANIMTYPE_MASK;
             picanm[tile1].sf |= type<<PICANM_ANIMTYPE_SHIFT;
             // set anim number
-            picanm[tile1].num = tile2-tile1;
+            picanm[tile1].num = num;
 
             break;
         }
