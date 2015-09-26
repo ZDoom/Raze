@@ -28,7 +28,6 @@
 		0008E68719F1A8F10091588D /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0008E64E19F1A66E0091588D /* Cocoa.framework */; };
 		0008E6E919F1AAFF0091588D /* fx_man.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6CF19F1AAFE0091588D /* fx_man.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E6EA19F1AAFF0091588D /* music.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D019F1AAFE0091588D /* music.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0008E6EB19F1AAFF0091588D /* sndcards.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D119F1AAFE0091588D /* sndcards.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E6EC19F1AAFF0091588D /* _multivc.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D319F1AAFE0091588D /* _multivc.h */; };
 		0008E6F119F1AAFF0091588D /* driver_sdl.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6D819F1AAFF0091588D /* driver_sdl.c */; };
 		0008E6F219F1AAFF0091588D /* driver_sdl.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D919F1AAFF0091588D /* driver_sdl.h */; };
@@ -59,8 +58,6 @@
 		0008E73E19F1ABB80091588D /* joystick.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72C19F1ABB80091588D /* joystick.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E73F19F1ABB80091588D /* keyboard.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72D19F1ABB80091588D /* keyboard.c */; };
 		0008E74019F1ABB80091588D /* keyboard.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72E19F1ABB80091588D /* keyboard.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0008E74119F1ABB80091588D /* mathutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72F19F1ABB80091588D /* mathutil.c */; };
-		0008E74219F1ABB80091588D /* mathutil.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E73019F1ABB80091588D /* mathutil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E74319F1ABB80091588D /* mouse.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E73119F1ABB80091588D /* mouse.c */; };
 		0008E74419F1ABB80091588D /* mouse.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E73219F1ABB80091588D /* mouse.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E74519F1ABB80091588D /* scriplib.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E73319F1ABB80091588D /* scriplib.c */; };
@@ -328,12 +325,10 @@
 		001382E219F361B80007DA6C /* animlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72519F1ABB80091588D /* animlib.c */; };
 		001382E319F361B80007DA6C /* control.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72719F1ABB80091588D /* control.c */; };
 		001382E419F361B80007DA6C /* scriplib.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E73319F1ABB80091588D /* scriplib.c */; };
-		001382E519F361B80007DA6C /* mathutil.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72F19F1ABB80091588D /* mathutil.c */; };
 		001382E619F361B80007DA6C /* mouse.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E73119F1ABB80091588D /* mouse.c */; };
 		001382E719F361B80007DA6C /* file_lib.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72919F1ABB80091588D /* file_lib.c */; };
 		001382E819F361B80007DA6C /* joystick.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E72B19F1ABB80091588D /* joystick.c */; };
 		001382EB19F361B80007DA6C /* mouse.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E73219F1ABB80091588D /* mouse.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		001382EC19F361B80007DA6C /* mathutil.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E73019F1ABB80091588D /* mathutil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382ED19F361B80007DA6C /* joystick.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72C19F1ABB80091588D /* joystick.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382EE19F361B80007DA6C /* control.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72819F1ABB80091588D /* control.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382EF19F361B80007DA6C /* _scrplib.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E72419F1ABB80091588D /* _scrplib.h */; };
@@ -355,7 +350,6 @@
 		0013830619F361BB0007DA6C /* vorbis.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6E719F1AAFF0091588D /* vorbis.c */; };
 		0013830D19F361BB0007DA6C /* linklist.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6DF19F1AAFF0091588D /* linklist.h */; };
 		0013830E19F361BB0007DA6C /* music.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D019F1AAFE0091588D /* music.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0013830F19F361BB0007DA6C /* sndcards.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D119F1AAFE0091588D /* sndcards.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0013831019F361BB0007DA6C /* fx_man.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6CF19F1AAFE0091588D /* fx_man.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0013831119F361BB0007DA6C /* _multivc.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D319F1AAFE0091588D /* _multivc.h */; };
 		0013831219F361BB0007DA6C /* driver_sdl.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D919F1AAFF0091588D /* driver_sdl.h */; };
@@ -432,6 +426,8 @@
 		2085BEBA1A8F23B9002BF4CE /* libSystem.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2085BEB91A8F23B9002BF4CE /* libSystem.dylib */; };
 		20C2146A1B02C19800917E58 /* game.png in Resources */ = {isa = PBXBuildFile; fileRef = 20C214691B02C19800917E58 /* game.png */; };
 		20C2146F1B02C1D800917E58 /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 20C2146E1B02C1D800917E58 /* build.png */; };
+		20CA2FA71BB2456E001231BF /* drivers.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CA2FA61BB2456E001231BF /* drivers.h */; };
+		20CA2FA81BB2456E001231BF /* drivers.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CA2FA61BB2456E001231BF /* drivers.h */; };
 		20F70F131A8F25CE00F71870 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0013832819F366720007DA6C /* libc++.dylib */; };
 /* End PBXBuildFile section */
 
@@ -527,7 +523,6 @@
 		0008E6CA19F1AAA30091588D /* libAudioLib.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libAudioLib.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		0008E6CF19F1AAFE0091588D /* fx_man.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fx_man.h; path = ../../source/jaudiolib/include/fx_man.h; sourceTree = SOURCE_ROOT; };
 		0008E6D019F1AAFE0091588D /* music.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = music.h; path = ../../source/jaudiolib/include/music.h; sourceTree = SOURCE_ROOT; };
-		0008E6D119F1AAFE0091588D /* sndcards.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sndcards.h; path = ../../source/jaudiolib/include/sndcards.h; sourceTree = SOURCE_ROOT; };
 		0008E6D319F1AAFE0091588D /* _multivc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _multivc.h; path = ../../source/jaudiolib/src/_multivc.h; sourceTree = SOURCE_ROOT; };
 		0008E6D819F1AAFF0091588D /* driver_sdl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = driver_sdl.c; path = ../../source/jaudiolib/src/driver_sdl.c; sourceTree = SOURCE_ROOT; };
 		0008E6D919F1AAFF0091588D /* driver_sdl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = driver_sdl.h; path = ../../source/jaudiolib/src/driver_sdl.h; sourceTree = SOURCE_ROOT; };
@@ -558,8 +553,6 @@
 		0008E72C19F1ABB80091588D /* joystick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = joystick.h; path = ../../source/jmact/joystick.h; sourceTree = SOURCE_ROOT; };
 		0008E72D19F1ABB80091588D /* keyboard.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = keyboard.c; path = ../../source/jmact/keyboard.c; sourceTree = SOURCE_ROOT; };
 		0008E72E19F1ABB80091588D /* keyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = keyboard.h; path = ../../source/jmact/keyboard.h; sourceTree = SOURCE_ROOT; };
-		0008E72F19F1ABB80091588D /* mathutil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mathutil.c; path = ../../source/jmact/mathutil.c; sourceTree = SOURCE_ROOT; };
-		0008E73019F1ABB80091588D /* mathutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mathutil.h; path = ../../source/jmact/mathutil.h; sourceTree = SOURCE_ROOT; };
 		0008E73119F1ABB80091588D /* mouse.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mouse.c; path = ../../source/jmact/mouse.c; sourceTree = SOURCE_ROOT; };
 		0008E73219F1ABB80091588D /* mouse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mouse.h; path = ../../source/jmact/mouse.h; sourceTree = SOURCE_ROOT; };
 		0008E73319F1ABB80091588D /* scriplib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scriplib.c; path = ../../source/jmact/scriplib.c; sourceTree = SOURCE_ROOT; };
@@ -802,6 +795,7 @@
 		2085BEB91A8F23B9002BF4CE /* libSystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSystem.dylib; path = usr/lib/libSystem.dylib; sourceTree = SDKROOT; };
 		20C214691B02C19800917E58 /* game.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = game.png; path = bundles/EDuke32.app/Contents/Resources/game.png; sourceTree = SOURCE_ROOT; };
 		20C2146E1B02C1D800917E58 /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = build.png; path = bundles/Mapster32.app/Contents/Resources/build.png; sourceTree = SOURCE_ROOT; };
+		20CA2FA61BB2456E001231BF /* drivers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = drivers.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1152,8 +1146,6 @@
 				0008E72C19F1ABB80091588D /* joystick.h */,
 				0008E72D19F1ABB80091588D /* keyboard.c */,
 				0008E72E19F1ABB80091588D /* keyboard.h */,
-				0008E72F19F1ABB80091588D /* mathutil.c */,
-				0008E73019F1ABB80091588D /* mathutil.h */,
 				0008E73119F1ABB80091588D /* mouse.c */,
 				0008E73219F1ABB80091588D /* mouse.h */,
 				0008E73319F1ABB80091588D /* scriplib.c */,
@@ -1174,9 +1166,9 @@
 		0008E6CE19F1AAFE0091588D /* include */ = {
 			isa = PBXGroup;
 			children = (
+				20CA2FA61BB2456E001231BF /* drivers.h */,
 				0008E6CF19F1AAFE0091588D /* fx_man.h */,
 				0008E6D019F1AAFE0091588D /* music.h */,
-				0008E6D119F1AAFE0091588D /* sndcards.h */,
 			);
 			name = include;
 			path = ../../source/jaudiolib/include;
@@ -1465,7 +1457,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0008E74419F1ABB80091588D /* mouse.h in Headers */,
-				0008E74219F1ABB80091588D /* mathutil.h in Headers */,
 				0008E73E19F1ABB80091588D /* joystick.h in Headers */,
 				0008E73A19F1ABB80091588D /* control.h in Headers */,
 				0008E73619F1ABB80091588D /* _scrplib.h in Headers */,
@@ -1483,13 +1474,13 @@
 			files = (
 				0008E6F819F1AAFF0091588D /* linklist.h in Headers */,
 				0008E6EA19F1AAFF0091588D /* music.h in Headers */,
-				0008E6EB19F1AAFF0091588D /* sndcards.h in Headers */,
 				0008E6E919F1AAFF0091588D /* fx_man.h in Headers */,
 				0008E6EC19F1AAFF0091588D /* _multivc.h in Headers */,
 				0008E6F219F1AAFF0091588D /* driver_sdl.h in Headers */,
 				0008E6FD19F1AAFF0091588D /* multivoc.h in Headers */,
 				0008E6F919F1AAFF0091588D /* ll_man.h in Headers */,
 				0008E6FF19F1AAFF0091588D /* pitch.h in Headers */,
+				20CA2FA71BB2456E001231BF /* drivers.h in Headers */,
 				00970E5119F2108600873EB9 /* driver_nosound.h in Headers */,
 				0008E6F419F1AAFF0091588D /* drivers.h in Headers */,
 			);
@@ -1571,7 +1562,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				001382EB19F361B80007DA6C /* mouse.h in Headers */,
-				001382EC19F361B80007DA6C /* mathutil.h in Headers */,
 				001382ED19F361B80007DA6C /* joystick.h in Headers */,
 				001382EE19F361B80007DA6C /* control.h in Headers */,
 				001382EF19F361B80007DA6C /* _scrplib.h in Headers */,
@@ -1589,13 +1579,13 @@
 			files = (
 				0013830D19F361BB0007DA6C /* linklist.h in Headers */,
 				0013830E19F361BB0007DA6C /* music.h in Headers */,
-				0013830F19F361BB0007DA6C /* sndcards.h in Headers */,
 				0013831019F361BB0007DA6C /* fx_man.h in Headers */,
 				0013831119F361BB0007DA6C /* _multivc.h in Headers */,
 				0013831219F361BB0007DA6C /* driver_sdl.h in Headers */,
 				0013831319F361BB0007DA6C /* multivoc.h in Headers */,
 				0013831419F361BB0007DA6C /* ll_man.h in Headers */,
 				0013831519F361BB0007DA6C /* pitch.h in Headers */,
+				20CA2FA81BB2456E001231BF /* drivers.h in Headers */,
 				0013831619F361BB0007DA6C /* driver_nosound.h in Headers */,
 				0013831719F361BB0007DA6C /* drivers.h in Headers */,
 			);
@@ -1984,7 +1974,6 @@
 				0008E73719F1ABB80091588D /* animlib.c in Sources */,
 				0008E73919F1ABB80091588D /* control.c in Sources */,
 				0008E74519F1ABB80091588D /* scriplib.c in Sources */,
-				0008E74119F1ABB80091588D /* mathutil.c in Sources */,
 				0008E74319F1ABB80091588D /* mouse.c in Sources */,
 				0008E73B19F1ABB80091588D /* file_lib.c in Sources */,
 				0008E73D19F1ABB80091588D /* joystick.c in Sources */,
@@ -2104,7 +2093,6 @@
 				001382E219F361B80007DA6C /* animlib.c in Sources */,
 				001382E319F361B80007DA6C /* control.c in Sources */,
 				001382E419F361B80007DA6C /* scriplib.c in Sources */,
-				001382E519F361B80007DA6C /* mathutil.c in Sources */,
 				001382E619F361B80007DA6C /* mouse.c in Sources */,
 				001382E719F361B80007DA6C /* file_lib.c in Sources */,
 				001382E819F361B80007DA6C /* joystick.c in Sources */,
