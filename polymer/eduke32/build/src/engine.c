@@ -8360,7 +8360,7 @@ static void loadpalette(void)
     // additional blending tables
 
     uint8_t magic[12];
-    if (kread_and_test(fil, magic, sizeof(magic)) && !Bmemcmp(magic, "MoreBlendTab", sizeof(magic)))
+    if (!kread_and_test(fil, magic, sizeof(magic)) && !Bmemcmp(magic, "MoreBlendTab", sizeof(magic)))
     {
         uint8_t addblendtabs;
         if (kread_and_test(fil, &addblendtabs, 1))
