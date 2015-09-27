@@ -284,6 +284,7 @@ ASFORMAT=elf$(SYSBITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
 LINKERFLAGS=
 LIBS=-lm
+GUI_LIBS=
 LIBDIRS=
 
 ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
@@ -773,7 +774,7 @@ ifeq ($(PLATFORM),WINDOWS)
     LIBDIRS+= -Lplatform/Windows/lib$(WINLIB)
     LIBS+= -Wl,--enable-auto-import -lmingwex -lgdi32 -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
     ifeq (0,$(CLANG))
-        LIBS+= -mwindows
+        GUI_LIBS += -mwindows
     endif
     #-lshfolder
     STDCPPLIB:=-lstdc++
