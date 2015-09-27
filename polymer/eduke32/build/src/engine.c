@@ -8178,18 +8178,10 @@ static int32_t loadtables(void)
     if (tablesloaded == 0)
     {
         int32_t i;
-        libdivide_s64_t d;
-        libdivide_s32_t d32;
 
         initksqrt();
 
-        for (i=1; i<DIVTABLESIZE; i++)
-        {
-            d = libdivide_s64_gen(i);
-            divtable64[i].magic = d.magic, divtable64[i].more = d.more;
-            d32 = libdivide_s32_gen(i);
-            divtable32[i].magic = d32.magic, divtable32[i].more = d32.more;
-        }
+        initdivtables();
 
         for (i=0; i<2048; i++)
             reciptable[i] = divscale30(2048, i+2048);

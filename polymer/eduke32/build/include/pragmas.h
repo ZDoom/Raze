@@ -43,6 +43,7 @@ extern int32_t reciptable[2048], fpuasm;
 
 extern libdivide_s64pad_t divtable64[DIVTABLESIZE];
 extern libdivide_s32pad_t divtable32[DIVTABLESIZE];
+extern void initdivtables(void);
 
 #if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
 static inline uint32_t divideu32(uint32_t n, uint32_t d)

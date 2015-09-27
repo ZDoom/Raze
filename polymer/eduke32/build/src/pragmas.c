@@ -13,6 +13,20 @@
 libdivide_s64pad_t divtable64[DIVTABLESIZE];
 libdivide_s32pad_t divtable32[DIVTABLESIZE];
 
+void initdivtables(void)
+{
+    libdivide_s64_t d;
+    libdivide_s32_t d32;
+
+    for (int i=1; i<DIVTABLESIZE; i++)
+    {
+        d = libdivide_s64_gen(i);
+        divtable64[i].magic = d.magic, divtable64[i].more = d.more;
+        d32 = libdivide_s32_gen(i);
+        divtable32[i].magic = d32.magic, divtable32[i].more = d32.more;
+    }
+}
+
 uint32_t divideu32_noinline(uint32_t n, uint32_t d) { return divideu32(n, d); }
 int32_t tabledivide32_noinline(int32_t n, int32_t d) { return tabledivide32(n, d); }
 int32_t tabledivide64_noinline(int64_t n, int32_t d) { return tabledivide64(n, d); }
