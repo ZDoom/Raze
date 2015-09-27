@@ -192,7 +192,7 @@ static struct
 
 static struct _joydef
 {
-    const char *name;
+    char *name;
     uint32_t ofs;	// directinput 'dwOfs' value
 } *axisdefs = NULL, *buttondefs = NULL, *hatdefs = NULL;
 
