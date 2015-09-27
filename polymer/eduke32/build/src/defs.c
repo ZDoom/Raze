@@ -108,6 +108,7 @@ enum scripttoken_t
     T_MULTIPSKY, T_HORIZFRAC, T_LOGNUMTILES,
     T_BASEPALETTE, T_PALOOKUP, T_BLENDTABLE,
     T_RAW, T_OFFSET, T_SHIFTLEFT, T_NOSHADES, T_COPY,
+    T_NUMALPHATABS,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -387,6 +388,7 @@ static int32_t defsparser(scriptfile *script)
         { "basepalette",     T_BASEPALETTE      },
         { "palookup",        T_PALOOKUP         },
         { "blendtable",      T_BLENDTABLE       },
+        { "numalphatables",  T_NUMALPHATABS     },
     };
 
     while (1)
@@ -3299,6 +3301,23 @@ static int32_t defsparser(scriptfile *script)
             if (didLoadTransluc && id == 0)
             {
                 paletteloaded |= PALETTE_TRANSLUC;
+            }
+        }
+        break;
+        case T_NUMALPHATABS:
+        {
+            int32_t value;
+            if (scriptfile_getnumber(script,&value)) break;
+
+            switch (value)
+            {
+                case 0: /*case 1:*/ case 2: case 4: case 8: case 16: case 32: case 64: case 128:
+                    numalphatabs = value;
+                    break;
+                default:
+                    initprintf("Error: numalphatables: Invalid value on line %s:%d\n",
+                               script->filename, scriptfile_getlinum(script,cmdtokptr));
+                    break;
             }
         }
         break;
