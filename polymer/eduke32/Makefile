@@ -169,6 +169,10 @@ GAMEUTILS=ivfrate
 DXUTILS=enumdisplay getdxdidf
 SDLUTILS=makesdlkeytrans
 
+ifeq ($(PLATFORM),DARWIN)
+    UTIL_OBJS += osxbits
+endif
+
 UTIL_OBJS_EXP:=$(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(UTIL_OBJS)))
 
 
