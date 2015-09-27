@@ -15,6 +15,7 @@
 #include "lz4.h"
 #include "common.h"
 #include "mdsprite.h"  // md3model_t
+#include "colmatch.h"
 
 #ifdef USE_OPENGL
 # include "hightile.h"
@@ -186,8 +187,6 @@ static int32_t check_tile(const char *defcmd, int32_t tile, const scriptfile *sc
 
     return 0;
 }
-
-extern void getclosestcol_flush(void);
 
 static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t alphacut)
 {
@@ -2846,7 +2845,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (didLoadPal && id == 0)
             {
-                initfastcolorlookup_palette();
+                initfastcolorlookup_palette(palette);
 
                 paletteloaded |= PALETTE_MAIN;
             }

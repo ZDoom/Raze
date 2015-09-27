@@ -58,6 +58,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "common_game.h"
 #include "input.h"
 #include "compat.h"
+#include "colmatch.h"
 
 #ifdef __ANDROID__
 #include "android.h"

@@ -50,6 +50,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "macros.h"
 #include "lz4.h"
+#include "colmatch.h"
 
 #include "m32script.h"
 #include "m32def.h"

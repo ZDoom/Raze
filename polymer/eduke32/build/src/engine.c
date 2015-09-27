@@ -21,6 +21,7 @@
 #include "crc32.h"
 #include "xxhash.h"
 #include "lz4.h"
+#include "colmatch.h"
 
 #include "baselayer.h"
 #include "scriptfile.h"
@@ -2329,19 +2330,6 @@ int16_t pointhighlight=-1, linehighlight=-1, highlightcnt=0;
 static int32_t *lastx;
 
 int32_t halfxdim16, midydim16;
-
-#define FASTPALCOLDEPTH 256
-#define FASTPALRIGHTSHIFT 3
-#define FASTPALRGBDIST (FASTPALCOLDEPTH*2+1)
-static int32_t rdist[FASTPALRGBDIST], gdist[FASTPALRGBDIST], bdist[FASTPALRGBDIST];
-#define FASTPALGRIDSIZ (FASTPALCOLDEPTH>>FASTPALRIGHTSHIFT)
-static char colhere[((FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2))>>3];
-static char colhead[(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)*(FASTPALGRIDSIZ+2)];
-static int32_t colnext[256];
-#define FASTPALCOLDIST (1<<FASTPALRIGHTSHIFT)
-#define FASTPALCOLDISTMASK (FASTPALCOLDIST-1)
-static uint8_t coldist[FASTPALCOLDIST];
-static int32_t colscan[27];
 
 static int16_t clipnum;
 static const int32_t hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
@@ -8252,54 +8240,6 @@ static int32_t loadtables(void)
 }
 
 
-//
-// initfastcolorlookup (internal)
-//
-static void initfastcolorlookup_scale(int32_t rscale, int32_t gscale, int32_t bscale)
-{
-    int32_t j = 0;
-    for (int i=256; i>=0; i--)
-    {
-        //j = (i-64)*(i-64);
-        rdist[i] = rdist[FASTPALCOLDEPTH*2-i] = j*rscale;
-        gdist[i] = gdist[FASTPALCOLDEPTH*2-i] = j*gscale;
-        bdist[i] = bdist[FASTPALCOLDEPTH*2-i] = j*bscale;
-        j += FASTPALRGBDIST-(i<<1);
-    }
-}
-void initfastcolorlookup_palette(void)
-{
-    Bmemset(colhere,0,sizeof(colhere));
-    Bmemset(colhead,0,sizeof(colhead));
-
-    char const *pal1 = (char *)&palette[768-3];
-    for (int i=255; i>=0; i--,pal1-=3)
-    {
-        int32_t const j = (pal1[0]>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
-            + (pal1[1]>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ + (pal1[2]>>FASTPALRIGHTSHIFT)
-            + FASTPALGRIDSIZ*FASTPALGRIDSIZ + FASTPALGRIDSIZ + 1;
-        if (colhere[j>>3]&pow2char[j&7]) colnext[i] = colhead[j]; else colnext[i] = -1;
-        colhead[j] = i;
-        colhere[j>>3] |= pow2char[j&7];
-    }
-}
-static void initfastcolorlookup_gridvectors(void)
-{
-    int i = 0;
-    int32_t x, y, z;
-    for (x=-FASTPALGRIDSIZ*FASTPALGRIDSIZ; x<=FASTPALGRIDSIZ*FASTPALGRIDSIZ; x+=FASTPALGRIDSIZ*FASTPALGRIDSIZ)
-        for (y=-FASTPALGRIDSIZ; y<=FASTPALGRIDSIZ; y+=FASTPALGRIDSIZ)
-            for (z=-1; z<=1; z++)
-                colscan[i++] = x+y+z;
-    i = colscan[13]; colscan[13] = colscan[26]; colscan[26] = i;
-
-    for (i = 0; i < FASTPALCOLDIST/2; i++)
-        coldist[i] = i;
-    for (; i < FASTPALCOLDIST; i++)
-        coldist[i] = FASTPALCOLDIST-i;
-}
-
-
 static void alloc_palookup(int32_t pal)
 {
 #if defined ENGINE_USING_A_C || (defined CLASSIC_NONPOW2_YSIZE_WALLS && defined CLASSIC_NONPOW2_YSIZE_SPRITES)
@@ -8335,7 +8275,7 @@ static void loadpalette(void)
     for (int k = 0; k < 768; k++)
         palette[k] <<= 2;
 
-    initfastcolorlookup_palette();
+    initfastcolorlookup_palette(palette);
 
     paletteloaded |= PALETTE_MAIN;
 
@@ -8594,121 +8534,6 @@ void fillemptylookups(void)
     for (int32_t j=1; j<MAXPALOOKUPS; j++)
         if (!palookup[j])
             makepalookup(j, NULL, 0,0,0, 1);
-}
-
-#define COLRESULTSIZ 4096
-
-static uint32_t getclosestcol_results[COLRESULTSIZ];
-static int32_t numclosestcolresults;
-
-void getclosestcol_flush(void)
-{
-    Bmemset(getclosestcol_results, 0, COLRESULTSIZ * sizeof(uint32_t));
-    numclosestcolresults = 0;
-}
-
-// Finds a color index in [0 .. lastokcol] closest to (r, g, b).
-// <lastokcol> must be in [0 .. 255].
-int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
-{
-    const int j = (r>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
-        + (g>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ + (b>>FASTPALRIGHTSHIFT)
-        + FASTPALGRIDSIZ*FASTPALGRIDSIZ
-        + FASTPALGRIDSIZ + 1;
-
-#ifdef DEBUGGINGAIDS
-    Bassert(lastokcol >= 0 && lastokcol <= 255);
-#endif
-
-    uint32_t const col = r | (g<<8) | (b<<16);
-
-    int mindist = -1;
-
-    int const k = (numclosestcolresults > COLRESULTSIZ) ? (COLRESULTSIZ-4) : (numclosestcolresults-4);
-
-    if (!numclosestcolresults) goto skip;
-
-    if (col == (getclosestcol_results[(numclosestcolresults-1) & (COLRESULTSIZ-1)] & 0x00ffffff))
-        return getclosestcol_results[(numclosestcolresults-1) & (COLRESULTSIZ-1)]>>24;
-
-    int i;
-
-    for (i = 0; i < k+4; i+=4)
-    {
-        if (col == (getclosestcol_results[i]   & 0x00ffffff)) { mindist = i; break; }
-        if (col == (getclosestcol_results[i+1] & 0x00ffffff)) { mindist = i+1; break; }
-        if (col == (getclosestcol_results[i+2] & 0x00ffffff)) { mindist = i+2; break; }
-        if (col == (getclosestcol_results[i+3] & 0x00ffffff)) { mindist = i+3; break; }
-    }
-
-    if (mindist == -1)
-    for (; i < k; i++)
-        if (col == (getclosestcol_results[i] & 0x00ffffff)) { mindist = i; break; }
-
-    if (mindist != -1 && getclosestcol_results[mindist]>>24 < (unsigned)lastokcol)
-        return getclosestcol_results[mindist]>>24;
-
-skip:
-    getclosestcol_results[numclosestcolresults & (COLRESULTSIZ-1)] = col;
-
-    int const minrdist = rdist[coldist[r&FASTPALCOLDISTMASK]+FASTPALCOLDEPTH];
-    int const mingdist = gdist[coldist[g&FASTPALCOLDISTMASK]+FASTPALCOLDEPTH];
-    int const minbdist = bdist[coldist[b&FASTPALCOLDISTMASK]+FASTPALCOLDEPTH];
-
-    mindist = min(minrdist, mingdist);
-    mindist = min(mindist, minbdist) + 1;
-
-    r = FASTPALCOLDEPTH-r, g = FASTPALCOLDEPTH-g, b = FASTPALCOLDEPTH-b;
-
-    int retcol = -1;
-
-    for (int k=26; k>=0; k--)
-    {
-        i = colscan[k]+j;
-
-        if ((colhere[i>>3]&pow2char[i&7]) == 0)
-            continue;
-
-        i = colhead[i];
-
-        do
-        {
-            char const * const pal1 = (char *)&palette[i*3];
-            int dist = gdist[pal1[1]+g];
-
-            if (dist >= mindist || i > lastokcol) continue;
-            if ((dist += rdist[pal1[0]+r]) >= mindist) continue;
-            if ((dist += bdist[pal1[2]+b]) >= mindist) continue;
-
-            mindist = dist;
-            retcol = i;
-        }
-        while ((i = colnext[i]) >= 0);
-    }
-
-    if (retcol >= 0)
-    {
-        getclosestcol_results[numclosestcolresults++ & (COLRESULTSIZ-1)] |= retcol<<24;
-        return retcol;
-    }
-
-    mindist = INT32_MAX;
-
-    for (i=lastokcol; i>=0; i--)
-    {
-        char const * const pal1 = (char *)&palette[i*3];
-        int dist = gdist[pal1[1]+g];
-
-        if (dist >= mindist) continue;
-        if ((dist += rdist[pal1[0]+r]) >= mindist) continue;
-        if ((dist += bdist[pal1[2]+b]) >= mindist) continue;
-
-        mindist = dist;
-        retcol = i;
-    }
-
-    getclosestcol_results[numclosestcolresults++ & (COLRESULTSIZ-1)] |= retcol<<24;
-    return retcol;
 }
 
 

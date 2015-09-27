@@ -33,6 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "keys.h"
 #include "common.h"
 
+#include "colmatch.h"
+
 // from macros.h
 #define rnd(X) ((krand()>>8)>=(255-(X)))
 

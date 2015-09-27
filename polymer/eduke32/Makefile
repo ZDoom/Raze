@@ -35,7 +35,7 @@ UTIL_LIBS= -lm # -lpthread
 
 ENGINE_OBJ=$(ENGINE_ROOT)/$(obj)
 
-ENGINE_OBJS=baselayer cache1d common compat crc32 defs engine polymost texcache dxtfilter hightile textfont smalltextfont kplib lz4 osd pragmas scriptfile mmulti_null mutex xxhash md4
+ENGINE_OBJS=baselayer cache1d common compat crc32 defs engine polymost texcache dxtfilter hightile textfont smalltextfont kplib lz4 osd pragmas scriptfile mmulti_null mutex xxhash md4 colmatch
 ENGINE_EDITOR_OBJS=build config defs
 ifeq (0,$(NOASM))
   ENGINE_OBJS+= a

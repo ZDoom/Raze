@@ -237,8 +237,6 @@ FORCE_INLINE void set_globalpos(int32_t const x, int32_t const y, int32_t const 
     globalposz  = z, fglobalposz = (float)z;
 }
 
-extern void initfastcolorlookup_palette(void);
-
 #ifdef __cplusplus
 }
 #endif

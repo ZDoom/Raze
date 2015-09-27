@@ -12,6 +12,7 @@
 #include "cache1d.h"
 #include "editor.h"
 #include "common.h"
+#include "colmatch.h"
 
 #include "baselayer.h"
 #include "renderlayer.h"
