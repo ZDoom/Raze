@@ -8408,6 +8408,8 @@ static void loadpalette(void)
     kclose(fil);
 }
 
+uint32_t PaletteIndexFullbrights[8];
+
 static void E_PostLoadPalette(void)
 {
     globalpal = 0;
@@ -8432,6 +8434,27 @@ static void E_PostLoadPalette(void)
     {
         j = palette[i*3] + palette[i*3+1] + palette[i*3+2];
         if (j < k) { k = j; blackcol = i; }
+    }
+
+    // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
+    for (int c = 0; c < 255; ++c) // skipping transparent color
+    {
+        char const * const thispalookup = palookup[0];
+        char const color = thispalookup[c];
+
+        if (EDUKE32_PREDICT_FALSE(palette[color*3] == 0 &&
+                                  palette[color*3+1] == 0 &&
+                                  palette[color*3+2] == 0))
+            continue; // don't consider #000000 fullbright
+
+        for (int s = c + 256; s < 256*32; s += 256)
+            if (EDUKE32_PREDICT_FALSE(thispalookup[s] != color))
+                goto PostLoad_NotFullbright;
+
+        SetPaletteIndexFullbright(c);
+
+PostLoad_NotFullbright:
+        continue; // should be optimized out
     }
 }
 

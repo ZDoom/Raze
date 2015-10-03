@@ -85,8 +85,6 @@ enum rendmode_t {
 #define MAXSPRITESONSCREEN 4096
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
 
-extern uint32_t PaletteIndexFullbrights[8];
-
 #define RESERVEDPALS 4 // don't forget to increment this when adding reserved pals
 #define DETAILPAL   (MAXPALOOKUPS - 1)
 #define GLOWPAL     (MAXPALOOKUPS - 2)

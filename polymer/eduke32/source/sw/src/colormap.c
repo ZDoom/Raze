@@ -29,8 +29,6 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "pal.h"
 #include "game.h"
 
-uint32_t PaletteIndexFullbrights[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-
 short f_c = 3;
 static unsigned char tempbuf[256];
 unsigned char DefaultPalette[256 * 32];

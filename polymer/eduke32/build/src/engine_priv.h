@@ -81,6 +81,10 @@ void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal);
 void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t pal, float factor);
 #endif
 
+extern uint32_t PaletteIndexFullbrights[8];
+#define IsPaletteIndexFullbright(col) (PaletteIndexFullbrights[(col)>>5] & (1u<<((col)&31)))
+#define SetPaletteIndexFullbright(col) (PaletteIndexFullbrights[(col)>>5] |= (1u<<((col)&31)))
+
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
 int32_t wallfront(int32_t l1, int32_t l2);
 

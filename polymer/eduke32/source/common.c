@@ -997,8 +997,6 @@ void G_DoAutoload(const char *dirname)
 
 //////////
 
-uint32_t PaletteIndexFullbrights[8] = { 0, 0, 0, 0, 0, 0, 0, 2147418112 };
-
 void G_LoadLookups(void)
 {
     int32_t fp, j;

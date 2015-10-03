@@ -843,7 +843,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                 if (!fullbrightloadingpass)
                 {
                     // regular texture
-                    if ((PaletteIndexFullbrights[dacol>>5] & (1<<(dacol&31))) && dofullbright)
+                    if (IsPaletteIndexFullbright(dacol) && dofullbright)
                         hasfullbright = 1;
 
                     wpptr->a = 255;
@@ -851,7 +851,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                 else
                 {
                     // texture with only fullbright areas
-                    if (!(PaletteIndexFullbrights[dacol>>5] & (1<<(dacol&31))))    // regular colors
+                    if (!IsPaletteIndexFullbright(dacol))    // regular colors
                     {
                         wpptr->a = 0;
                         hasalpha = 1;
