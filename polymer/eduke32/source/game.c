@@ -10986,7 +10986,8 @@ static void G_PostLoadPalette(void)
     if (basepaltable[SLIMEPAL] != NULL)
         Bmemset(&basepaltable[SLIMEPAL][255*3], 0, 3);
 
-    generatefogpals();
+    if (!(duke3d_globalflags & DUKE3D_NO_HARDCODED_FOGPALS))
+        generatefogpals();
 
     E_ReplaceTransparentColorWithBlack();
 

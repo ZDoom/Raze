@@ -59,6 +59,7 @@ G_EXTERN int32_t duke3d_globalflags;
 
 enum {
     DUKE3D_NO_WIDESCREEN_PINNING = 1<<0,
+    DUKE3D_NO_HARDCODED_FOGPALS = 1<<1,
 };
 
 G_EXTERN DukeStatus_t sbar;

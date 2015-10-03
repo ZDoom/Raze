@@ -127,6 +127,10 @@ static uint32_t templenrepquot=1;
 
 static int32_t duke3d_m32_globalflags;
 
+enum {
+    DUKE3D_NO_HARDCODED_FOGPALS = 1<<1,
+};
+
 //////////////////// Key stuff ////////////////////
 
 #define eitherALT   (keystatus[KEYSC_LALT] || keystatus[KEYSC_RALT])
@@ -9937,7 +9941,8 @@ void ExtPostInit(void)
     // This makes it possible to sensibly use Lunatic's engine.saveLookupDat().
     palookup[0][239] = 239;
 
-    generatefogpals();
+    if (!(duke3d_m32_globalflags & DUKE3D_NO_HARDCODED_FOGPALS))
+        generatefogpals();
 
     fillemptylookups();
 }
