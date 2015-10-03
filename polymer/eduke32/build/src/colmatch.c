@@ -167,7 +167,7 @@ skip:
 
     mindist = INT32_MAX;
 
-    for (i=lastokcol; i>=0; i--)
+    for (i = 0; i < lastokcol; ++i)
     {
         char const * const pal1 = (char *)&colmatch_palette[i*3];
         int dist = gdist[pal1[1]+g];
