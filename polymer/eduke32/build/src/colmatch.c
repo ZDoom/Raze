@@ -50,6 +50,8 @@ void initfastcolorlookup_palette(uint8_t const * const pal)
         colhead[j] = i;
         colhere[j>>3] |= pow2char(j&7);
     }
+
+    getclosestcol_flush();
 }
 void initfastcolorlookup_gridvectors(void)
 {

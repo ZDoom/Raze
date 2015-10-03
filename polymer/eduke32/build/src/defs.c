@@ -109,6 +109,8 @@ enum scripttoken_t
     T_BASEPALETTE, T_PALOOKUP, T_BLENDTABLE,
     T_RAW, T_OFFSET, T_SHIFTLEFT, T_NOSHADES, T_COPY,
     T_NUMALPHATABS,
+    T_UNDEF,
+    T_UNDEFBASEPALETTERANGE, T_UNDEFPALOOKUPRANGE, T_UNDEFBLENDTABLERANGE,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -389,6 +391,9 @@ static int32_t defsparser(scriptfile *script)
         { "palookup",        T_PALOOKUP         },
         { "blendtable",      T_BLENDTABLE       },
         { "numalphatables",  T_NUMALPHATABS     },
+        { "undefbasepaletterange", T_UNDEFBASEPALETTERANGE },
+        { "undefpalookuprange", T_UNDEFPALOOKUPRANGE },
+        { "undefblendtablerange", T_UNDEFBLENDTABLERANGE },
     };
 
     while (1)
@@ -2691,6 +2696,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 { "raw",         T_RAW },
                 { "copy",        T_COPY },
+                { "undef",       T_UNDEF },
             };
 
             if (scriptfile_getsymbol(script,&id))
@@ -2840,6 +2846,15 @@ static int32_t defsparser(scriptfile *script)
                     didLoadPal = 1;
                     break;
                 }
+                case T_UNDEF:
+                {
+                    removebasepal(id);
+
+                    didLoadPal = 0;
+                    if (id == 0)
+                        paletteloaded &= ~PALETTE_MAIN;
+                    break;
+                }
                 default:
                     break;
                 }
@@ -2862,6 +2877,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 { "raw",            T_RAW },
                 { "copy",           T_COPY },
+                { "undef",          T_UNDEF },
 
                 { "fogpal",         T_FOGPAL },
                 { "makepalookup",   T_MAKEPALOOKUP },
@@ -3144,6 +3160,15 @@ static int32_t defsparser(scriptfile *script)
                     g_noFloorPal[id] = 0;
                     break;
                 }
+                case T_UNDEF:
+                {
+                    removepalookup(id);
+
+                    didLoadShade = 0;
+                    if (id == 0)
+                        paletteloaded &= ~PALETTE_SHADE;
+                    break;
+                }
                 default:
                     break;
                 }
@@ -3164,6 +3189,7 @@ static int32_t defsparser(scriptfile *script)
             {
                 { "raw",         T_RAW },
                 { "copy",        T_COPY },
+                { "undef",       T_UNDEF },
             };
 
             if (scriptfile_getsymbol(script,&id))
@@ -3293,6 +3319,15 @@ static int32_t defsparser(scriptfile *script)
                     didLoadTransluc = 1;
                     break;
                 }
+                case T_UNDEF:
+                {
+                    removeblendtab(id);
+
+                    didLoadTransluc = 0;
+                    if (id == 0)
+                        paletteloaded &= ~PALETTE_TRANSLUC;
+                    break;
+                }
                 default:
                     break;
                 }
@@ -3319,6 +3354,75 @@ static int32_t defsparser(scriptfile *script)
                                script->filename, scriptfile_getlinum(script,cmdtokptr));
                     break;
             }
+        }
+        break;
+        case T_UNDEFBASEPALETTERANGE:
+        {
+            int32_t id0, id1;
+
+            if (scriptfile_getsymbol(script,&id0))
+                break;
+            if (scriptfile_getsymbol(script,&id1))
+                break;
+
+            if (EDUKE32_PREDICT_FALSE(id0 > id1 || (unsigned)id0 >= MAXBASEPALS || (unsigned)id1 >= MAXBASEPALS))
+            {
+                initprintf("Error: undefbasepaletterange: Invalid range on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+
+            for (int32_t i = id0; i <= id1; i++)
+                removebasepal(i);
+
+            if (id0 == 0)
+                paletteloaded &= ~PALETTE_MAIN;
+        }
+        break;
+        case T_UNDEFPALOOKUPRANGE:
+        {
+            int32_t id0, id1;
+
+            if (scriptfile_getsymbol(script,&id0))
+                break;
+            if (scriptfile_getsymbol(script,&id1))
+                break;
+
+            if (EDUKE32_PREDICT_FALSE(id0 > id1 || (unsigned)id0 >= MAXPALOOKUPS || (unsigned)id1 >= MAXPALOOKUPS))
+            {
+                initprintf("Error: undefpalookuprange: Invalid range on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+
+            for (int32_t i = id0; i <= id1; i++)
+                removeblendtab(i);
+
+            if (id0 == 0)
+                paletteloaded &= ~PALETTE_SHADE;
+        }
+        break;
+        case T_UNDEFBLENDTABLERANGE:
+        {
+            int32_t id0, id1;
+
+            if (scriptfile_getsymbol(script,&id0))
+                break;
+            if (scriptfile_getsymbol(script,&id1))
+                break;
+
+            if (EDUKE32_PREDICT_FALSE(id0 > id1 || (unsigned)id0 >= MAXBLENDTABS || (unsigned)id1 >= MAXBLENDTABS))
+            {
+                initprintf("Error: undefblendtablerange: Invalid range on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+
+            for (int32_t i = id0; i <= id1; i++)
+                removeblendtab(i);
+
+            if (id0 == 0)
+                paletteloaded &= ~PALETTE_TRANSLUC;
         }
         break;
 

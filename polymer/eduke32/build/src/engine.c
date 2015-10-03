@@ -15371,6 +15371,10 @@ void setblendtab(int32_t blend, const char *tab)
 
     Bmemcpy(blendtable[blend], tab, 256*256);
 }
+void removeblendtab(int32_t const blend)
+{
+    DO_FREE_AND_NULL(blendtable[blend]);
+}
 
 #ifdef LUNATIC
 const char *(getblendtab)(int32_t blend)
@@ -15391,6 +15395,21 @@ int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
     }
 
     return 0;
+}
+void removepalookup(int32_t const palnum)
+{
+    if (palnum == 0 && palookup[palnum] != NULL)
+    {
+        for (int i = 1; i < MAXPALOOKUPS; i++)
+            if (palookup[i] == palookup[palnum])
+                palookup[i] = NULL;
+
+        DO_FREE_AND_NULL(palookup[palnum]);
+    }
+    else if (palookup[palnum] == palookup[0])
+        palookup[palnum] = NULL;
+    else
+        DO_FREE_AND_NULL(palookup[palnum]);
 }
 
 //
@@ -15475,6 +15494,13 @@ void setbasepal(int32_t id, uint8_t const * const table)
         basepaltable[id] = (uint8_t *)Xmalloc(768);
 
     Bmemcpy(basepaltable[id], table, 768);
+}
+void removebasepal(int32_t const id)
+{
+    if (id == 0)
+        Bmemset(basepaltable[id], 0, 768);
+    else
+        DO_FREE_AND_NULL(basepaltable[id]);
 }
 
 //
