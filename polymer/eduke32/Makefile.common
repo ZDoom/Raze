@@ -669,6 +669,10 @@ ifeq ($(SUBPLATFORM),LINUX)
         override NOASM=1
     endif
 
+    ifeq ($(findstring arm,$(SYSARCH)),arm)
+        override NOASM=1
+    endif
+
     ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
         ifeq (1,$(BUILD32_ON_64))
             # On my 64bit Gentoo these are the 32bit emulation libs
