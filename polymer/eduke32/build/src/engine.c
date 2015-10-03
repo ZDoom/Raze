@@ -8396,7 +8396,7 @@ static void loadpalette(void)
 
         // Read log2 of count of alpha blending tables.
         uint8_t lognumalphatabs;
-        if (kread_and_test(fil, &lognumalphatabs, 1))
+        if (!kread_and_test(fil, &lognumalphatabs, 1))
         {
             if (!(lognumalphatabs >= 1 && lognumalphatabs <= 7))
                 initprintf("invalid lognumalphatabs value, must be in [1 .. 7]\n");
