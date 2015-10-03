@@ -8280,7 +8280,7 @@ static void loadpalette(void)
 
     if (numshades <= 1)
     {
-        initprintf("Warning: Invalid number of shades in \"palette.dat\"!");
+        initprintf("Warning: Invalid number of shades in \"palette.dat\"!\n");
         numshades = 0;
         return kclose(fil);
     }
@@ -8292,7 +8292,7 @@ static void loadpalette(void)
     int32_t lamedukep = 0;
     if (numshades == 256)
     {
-        static char const * const seekfail = "Warning: klseek() failed in loadpalette()!";
+        static char const * const seekfail = "Warning: klseek() failed in loadpalette()!\n";
 
         uint16_t temp;
         if (kread_and_test(fil,&temp,2))
@@ -8365,7 +8365,7 @@ static void loadpalette(void)
         uint8_t addblendtabs;
         if (kread_and_test(fil, &addblendtabs, 1))
         {
-            initprintf("Warning: failed reading additional blending table count");
+            initprintf("Warning: failed reading additional blending table count\n");
             return kclose(fil);
         }
 
@@ -8375,17 +8375,17 @@ static void loadpalette(void)
         {
             if (kread_and_test(fil, &blendnum, 1))
             {
-                initprintf("Warning: failed reading additional blending table index");
+                initprintf("Warning: failed reading additional blending table index\n");
                 Bfree(tab);
                 return kclose(fil);
             }
 
             if (getblendtab(blendnum) != NULL)
-                initprintf("Warning: duplicate blending table index %3d encountered", blendnum);
+                initprintf("Warning: duplicate blending table index %3d encountered\n", blendnum);
 
             if (kread_and_test(fil, tab, 256*256))
             {
-                initprintf("Warning: failed reading additional blending table");
+                initprintf("Warning: failed reading additional blending table\n");
                 Bfree(tab);
                 return kclose(fil);
             }
@@ -8399,7 +8399,7 @@ static void loadpalette(void)
         if (kread_and_test(fil, &lognumalphatabs, 1))
         {
             if (!(lognumalphatabs >= 1 && lognumalphatabs <= 7))
-                initprintf("invalid lognumalphatabs value, must be in [1 .. 7]");
+                initprintf("invalid lognumalphatabs value, must be in [1 .. 7]\n");
             else
                 numalphatabs = 1<<lognumalphatabs;
         }
@@ -9161,9 +9161,9 @@ int32_t E_PostInit(void)
     if (!(paletteloaded & PALETTE_MAIN))
         return E_FatalError("No palette found.");
     if (!(paletteloaded & PALETTE_SHADE))
-        return E_FatalError("No shade tables found.");
+        return E_FatalError("No shade table found.");
     if (!(paletteloaded & PALETTE_TRANSLUC))
-        return E_FatalError("No tranlucency tables found.");
+        return E_FatalError("No translucency table found.");
 
     E_PostLoadPalette();
 
