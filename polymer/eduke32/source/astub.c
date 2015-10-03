@@ -125,6 +125,8 @@ static int32_t curcorruptthing=-1;
 
 static uint32_t templenrepquot=1;
 
+static int32_t duke3d_m32_globalflags;
+
 //////////////////// Key stuff ////////////////////
 
 #define eitherALT   (keystatus[KEYSC_LALT] || keystatus[KEYSC_RALT])
@@ -9129,6 +9131,7 @@ enum
     T_INCLUDEDEFAULT,
 
     T_RENAMEFILE,
+    T_GLOBALGAMEFLAGS,
 };
 
 static int32_t parsegroupfiles(scriptfile *script);
@@ -9167,6 +9170,7 @@ static int32_t parsegroupfiles(scriptfile *script)
         { "loadgrp",         T_LOADGRP },
         { "noautoload",      T_NOAUTOLOAD },
         { "renamefile",      T_RENAMEFILE },
+        { "globalgameflags", T_GLOBALGAMEFLAGS },
     };
 
     while (1)
@@ -9222,6 +9226,11 @@ static int32_t parsegroupfiles(scriptfile *script)
             if (scriptfile_getnumber(script,&filenum)) break;
             if (scriptfile_getstring(script,&newname)) break;
             krename(crcval, filenum, newname);
+        }
+        break;
+        case T_GLOBALGAMEFLAGS:
+        {
+            if (scriptfile_getnumber(script,&duke3d_m32_globalflags)) break;
         }
         break;
         case T_EOF:
