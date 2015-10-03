@@ -8524,8 +8524,14 @@ void fillemptylookups(void)
 {
     // Alias remaining unused pal numbers to the base shade table.
     for (int32_t j=1; j<MAXPALOOKUPS; j++)
+    {
+        // If an existing lookup is identical to #0, free it.
+        if (palookup[j] && palookup[j] != palookup[0] && !Bmemcmp(palookup[0], palookup[j], 256*numshades))
+            removepalookup(j);
+
         if (!palookup[j])
             makepalookup(j, NULL, 0,0,0, 1);
+    }
 }
 
 
