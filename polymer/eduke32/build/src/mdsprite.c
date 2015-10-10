@@ -1603,6 +1603,7 @@ static md3model_t *md3load(int32_t fil)
     return(m);
 }
 
+#ifdef POLYMER
 static inline void  invertmatrix(float *m, float *out)
 {
     float det;
@@ -1643,6 +1644,7 @@ static inline void  normalize(float *vec)
     vec[1] *= norm;
     vec[2] *= norm;
 }
+#endif
 
 static void      md3postload_common(md3model_t *m)
 {
