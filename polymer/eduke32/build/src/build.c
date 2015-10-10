@@ -674,6 +674,24 @@ int32_t app_main(int32_t argc, const char **argv)
 
     loadpics("tiles000.art", g_maxCacheSize);
 
+    Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
+    initcrc();
+
+    const char *defsfile = G_DefFile();
+
+    if (!loaddefinitionsfile(defsfile))
+        initprintf("Definitions file \"%s\" loaded.\n",defsfile);
+
+    for (i=0; i < g_defModulesNum; ++i)
+        Bfree(g_defModules[i]);
+    DO_FREE_AND_NULL(g_defModules);
+    g_defModulesNum = 0;
+
+    if (E_PostInit())
+        M32_FatalEngineError();
+
+    CallExtPostInit();
+
 #ifdef YAX_ENABLE
     // init dummy texture for YAX
     // must be after loadpics(), which inits BUILD's cache
@@ -709,24 +727,6 @@ int32_t app_main(int32_t argc, const char **argv)
             Bmemcpy(&newtile[32*j], &R[16*j], 16);
     }
 #endif
-
-    Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
-    initcrc();
-
-    const char *defsfile = G_DefFile();
-
-    if (!loaddefinitionsfile(defsfile))
-        initprintf("Definitions file \"%s\" loaded.\n",defsfile);
-
-    for (i=0; i < g_defModulesNum; ++i)
-        Bfree(g_defModules[i]);
-    DO_FREE_AND_NULL(g_defModules);
-    g_defModulesNum = 0;
-
-    if (E_PostInit())
-        M32_FatalEngineError();
-
-    CallExtPostInit();
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
     int k = clipmapinfo_load();
