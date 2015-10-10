@@ -8302,7 +8302,7 @@ static void loadpalette(void)
         {
             if (klseek(fil, -4, BSEEK_CUR) < 0)
             {
-                initprintf(seekfail);
+                initputs(seekfail);
                 return kclose(fil);
             }
 
@@ -8313,7 +8313,7 @@ static void loadpalette(void)
         {
             if (klseek(fil, -2, BSEEK_CUR) < 0)
             {
-                initprintf(seekfail);
+                initputs(seekfail);
                 return kclose(fil);
             }
         }
