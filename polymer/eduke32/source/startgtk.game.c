@@ -289,7 +289,7 @@ static unsigned char GetModsDirNames(GtkListStore *list)
     {
         Bsnprintf(pdir, sizeof(pdir), "%s/" ".eduke32", homedir);
         dirs = klistpath(pdir, "*", CACHE1D_FIND_DIR);
-        for (dirs=dirs; dirs != NULL; dirs=dirs->next)
+        for (; dirs != NULL; dirs=dirs->next)
         {
             if ((Bstrcmp(dirs->name, "autoload") == 0) ||
                     (Bstrcmp(dirs->name, "..") == 0) ||
