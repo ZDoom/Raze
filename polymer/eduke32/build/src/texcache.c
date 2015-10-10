@@ -587,7 +587,7 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
         if (gi != GL_TRUE) goto failure;   // an uncompressed mipmap
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &gi); WRITEX_FAIL_ON_ERROR();
 
-#ifdef __APPLE__
+#if defined __APPLE__ && defined POLYMER
         if (pr_ati_textureformat_one && gi == 1) gi = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 #endif
         // native -> external (little endian)
