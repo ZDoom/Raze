@@ -525,6 +525,7 @@ CWARNS := -W -Wall \
     -Wpointer-arith \
     -Wextra \
     -Wno-char-subscripts \
+    -Wno-missing-braces \
     #-Wstrict-prototypes \
     #-Waggregate-return \
     #-Wwrite-strings \
@@ -532,7 +533,7 @@ CWARNS := -W -Wall \
     #-Waddress -Wlogical-op
 
 ifneq (0,$(CLANG))
-    CWARNS+= -Wno-unused-value -Wno-parentheses -Wno-missing-braces
+    CWARNS+= -Wno-unused-value -Wno-parentheses
 endif
 
 COMMONFLAGS+= -funsigned-char -fno-strict-aliasing $(F_JUMP_TABLES)
