@@ -279,8 +279,13 @@ int startwin_run(void)
 
     switch ([NSApp runModalForWindow:[startwin window]])
     {
+#ifdef MAC_OS_X_VERSION_10_9
+    case NSModalResponseStop: retval = 1; break;
+    case NSModalResponseAbort: retval = 0; break;
+#else
     case NSRunStoppedResponse: retval = 1; break;
     case NSRunAbortedResponse: retval = 0; break;
+#endif
     default: retval = -1;
     }
 
