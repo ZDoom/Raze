@@ -10,11 +10,16 @@ extern void initfastcolorlookup_palette(uint8_t const * pal) ATTRIBUTE((nonnull(
 extern void initfastcolorlookup_gridvectors(void);
 
 extern int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol);
+extern int32_t getclosestcol_nocache_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol);
 extern void getclosestcol_flush(void);
 
 FORCE_INLINE int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
 {
     return getclosestcol_lim(r, g, b, 255);
+}
+FORCE_INLINE int32_t getclosestcol_nocache(int32_t r, int32_t g, int32_t b)
+{
+    return getclosestcol_nocache_lim(r, g, b, 255);
 }
 
 #ifdef __cplusplus

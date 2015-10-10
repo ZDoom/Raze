@@ -82,13 +82,8 @@ void getclosestcol_flush(void)
 
 // Finds a color index in [0 .. lastokcol] closest to (r, g, b).
 // <lastokcol> must be in [0 .. 255].
-int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
+int32_t getclosestcol_lim(int32_t const r, int32_t const g, int32_t const b, int32_t const lastokcol)
 {
-    const int j = (r>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
-        + (g>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ + (b>>FASTPALRIGHTSHIFT)
-        + FASTPALGRIDSIZ*FASTPALGRIDSIZ
-        + FASTPALGRIDSIZ + 1;
-
 #ifdef DEBUGGINGAIDS
     Bassert(lastokcol >= 0 && lastokcol <= 255);
 #endif
@@ -122,13 +117,27 @@ int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol)
         return getclosestcol_results[mindist]>>24;
 
 skip:
-    getclosestcol_results[numclosestcolresults & (COLRESULTSIZ-1)] = col;
+    i = getclosestcol_nocache_lim(r, g, b, lastokcol);
+    getclosestcol_results[numclosestcolresults++ & (COLRESULTSIZ-1)] = col | (i << 24);
+    return i;
+}
+
+int32_t getclosestcol_nocache_lim(int32_t r, int32_t g, int32_t b, int32_t const lastokcol)
+{
+#ifdef DEBUGGINGAIDS
+    Bassert(lastokcol >= 0 && lastokcol <= 255);
+#endif
+
+    int const j = (r>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
+        + (g>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ + (b>>FASTPALRIGHTSHIFT)
+        + FASTPALGRIDSIZ*FASTPALGRIDSIZ
+        + FASTPALGRIDSIZ + 1;
 
     int const minrdist = rdist[coldist[r&FASTPALCOLDISTMASK]+FASTPALCOLDEPTH];
     int const mingdist = gdist[coldist[g&FASTPALCOLDISTMASK]+FASTPALCOLDEPTH];
     int const minbdist = bdist[coldist[b&FASTPALCOLDISTMASK]+FASTPALCOLDEPTH];
 
-    mindist = min(minrdist, mingdist);
+    int mindist = min(minrdist, mingdist);
     mindist = min(mindist, minbdist) + 1;
 
     r = FASTPALCOLDEPTH-r, g = FASTPALCOLDEPTH-g, b = FASTPALCOLDEPTH-b;
@@ -137,7 +146,7 @@ skip:
 
     for (int k=26; k>=0; k--)
     {
-        i = colscan[k]+j;
+        int i = colscan[k]+j;
 
         if ((colhere[i>>3]&pow2char(i&7)) == 0)
             continue;
@@ -160,14 +169,11 @@ skip:
     }
 
     if (retcol >= 0)
-    {
-        getclosestcol_results[numclosestcolresults++ & (COLRESULTSIZ-1)] |= retcol<<24;
         return retcol;
-    }
 
     mindist = INT32_MAX;
 
-    for (i = 0; i < lastokcol; ++i)
+    for (int i = 0; i < lastokcol; ++i)
     {
         char const * const pal1 = (char *)&colmatch_palette[i*3];
         int dist = gdist[pal1[1]+g];
@@ -180,6 +186,5 @@ skip:
         retcol = i;
     }
 
-    getclosestcol_results[numclosestcolresults++ & (COLRESULTSIZ-1)] |= retcol<<24;
     return retcol;
 }
