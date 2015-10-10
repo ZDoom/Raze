@@ -3005,7 +3005,7 @@ static int32_t defsparser(scriptfile *script)
                             break;
                         }
 
-                        makepalookup(id, palookupbuf, 0,0,0, 0);
+                        makepalookup(id, palookupbuf, 0,0,0, g_noFloorPal[id]);
                     }
 
                     Bfree(palookupbuf);
@@ -3065,15 +3065,15 @@ static int32_t defsparser(scriptfile *script)
                         {
                         case T_RED:
                             scriptfile_getnumber(script,&red);
-                            red = clamp(red, 0, 63);
+                            red = clamp(red, 0, 255);
                             break;
                         case T_GREEN:
                             scriptfile_getnumber(script,&green);
-                            green = clamp(green, 0, 63);
+                            green = clamp(green, 0, 255);
                             break;
                         case T_BLUE:
                             scriptfile_getnumber(script,&blue);
-                            blue = clamp(blue, 0, 63);
+                            blue = clamp(blue, 0, 255);
                             break;
                         }
                     }
@@ -3113,15 +3113,15 @@ static int32_t defsparser(scriptfile *script)
                         {
                         case T_RED:
                             scriptfile_getnumber(script,&red);
-                            red = clamp(red, 0, 63);
+                            red = clamp(red, 0, 255);
                             break;
                         case T_GREEN:
                             scriptfile_getnumber(script,&green);
-                            green = clamp(green, 0, 63);
+                            green = clamp(green, 0, 255);
                             break;
                         case T_BLUE:
                             scriptfile_getnumber(script,&blue);
-                            blue = clamp(blue, 0, 63);
+                            blue = clamp(blue, 0, 255);
                             break;
                         case T_REMAPPAL:
                             scriptfile_getsymbol(script,&remappal);
@@ -3146,7 +3146,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    makepalookup(id, NULL, red, green, blue, 1);
+                    makepalookup(id, NULL, red, green, blue, g_noFloorPal[id]);
 
                     break;
                 }
@@ -3396,7 +3396,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
             for (int32_t i = id0; i <= id1; i++)
-                removeblendtab(i);
+                removepalookup(i);
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_SHADE;
