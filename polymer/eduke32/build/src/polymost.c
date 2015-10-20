@@ -149,10 +149,6 @@ uint8_t alphahackarray[MAXTILES];
 int32_t drawingskybox = 0;
 int32_t hicprecaching = 0;
 
-float r_wspr_variance = 0.000001f;
-float r_wspr_offset = 0.005f;
-float r_fspr_offset = 1.0f;
-
 hitdata_t polymost_hitdata;
 
 #if 0
@@ -2262,37 +2258,40 @@ void polymost_editorfunc(void)
             tspriteptr[spritesortcnt++] = tsp;
         }
 
-        if ((searchstat==1 || searchstat==2) && searchsector>=0)
+        if ((searchstat == 1 || searchstat == 2) && searchsector >= 0)
         {
-            int32_t scrv[2] ={ (v.x>>12), (v.y>>12) };
-            int32_t scrv_r[2] ={ scrv[1], -scrv[0] };
-            walltype *wal = &wall[sector[searchsector].wallptr];
-            uint64_t wdistsq, bestwdistsq=0x7fffffff;
-            int32_t k, bestk=-1;
+            vec2_t const scrv = { (v.x >> 12), (v.y >> 12) };
+            vec2_t const scrv_r = { scrv.y, -scrv.x };
+            walltype const * const wal = &wall[sector[searchsector].wallptr];
+            uint64_t bestwdistsq = 0x7fffffff;
+            int32_t bestk = -1;
 
-            for (k=0; k<sector[searchsector].wallnum; k++)
+            for (int32_t k = 0; k < sector[searchsector].wallnum; k++)
             {
-                int32_t w1[2] ={ wal[k].x, wal[k].y };
-                int32_t w2[2] ={ wall[wal[k].point2].x, wall[wal[k].point2].y };
-                int32_t w21[2] ={ w1[0]-w2[0], w1[1]-w2[1] };
-                int32_t pw1[2] ={ w1[0]-hit->pos.x, w1[1]-hit->pos.y };
-                int32_t pw2[2] ={ w2[0]-hit->pos.x, w2[1]-hit->pos.y };
-                float w1d = (float) (scrv_r[0]*pw1[0] + scrv_r[1]*pw1[1]);
-                float w2d = (float) (scrv_r[0]*pw2[0] + scrv_r[1]*pw2[1]);
-                int32_t ptonline[2], scrp[2];
-                int64_t t1, t2;
+                vec2_t const w1 = { wal[k].x, wal[k].y };
+                vec2_t const w2 = { wall[wal[k].point2].x, wall[wal[k].point2].y };
+                vec2_t const w21 = { w1.x - w2.x, w1.y - w2.y };
+                vec2_t const pw1 = { w1.x - hit->pos.x, w1.y - hit->pos.y };
+                vec2_t const pw2 = { w2.x - hit->pos.x, w2.y - hit->pos.y };
+                float w1d = (float)(scrv_r.x * pw1.x + scrv_r.y * pw1.y);
+                float w2d = (float)-(scrv_r.x * pw2.x + scrv_r.y * pw2.y);
 
-                w2d = -w2d;
-                if ((w1d==0 && w2d==0) || (w1d<0 || w2d<0))
+                if ((w1d == 0 && w2d == 0) || (w1d < 0 || w2d < 0))
                     continue;
-                ptonline[0] = (int32_t) (w2[0]+(w2d/(w1d+w2d))*w21[0]);
-                ptonline[1] = (int32_t) (w2[1]+(w2d/(w1d+w2d))*w21[1]);
-                scrp[0] = ptonline[0]-vect.x;
-                scrp[1] = ptonline[1]-vect.y;
-                if (scrv[0]*scrp[0] + scrv[1]*scrp[1] <= 0)
+
+                vec2_t const ptonline = { (int32_t)(w2.x + (w2d / (w1d + w2d)) * w21.x),
+                                          (int32_t)(w2.y + (w2d / (w1d + w2d)) * w21.y) };
+
+                vec2_t const scrp = { ptonline.x - vect.x, ptonline.y - vect.y };
+
+                if (scrv.x * scrp.x + scrv.y * scrp.y <= 0)
                     continue;
-                t1=scrp[0]; t2=scrp[1];
-                wdistsq = t1*t1 + t2*t2;
+
+                int64_t const t1 = scrp.x;
+                int64_t const t2 = scrp.y;
+
+                uint64_t const wdistsq = t1 * t1 + t2 * t2;
+
                 if (wdistsq < bestwdistsq)
                 {
                     bestk = k;
@@ -3876,13 +3875,11 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
         return;
 
     //Clip to (x1,fsy[2])-(x0,fsy[0])
-    int n = 0;
     t1 = -((dp2[0].x - x1) * (fsy[0] - fsy[2]) - (dp2[0].y - fsy[2]) * (x0 - x1));
+    int n = 0;
 
-    for (int i = 0; i < n2; i++)
+    for (int i = 0, j = 1; i < n2; j = ++i + 1)
     {
-        int j = i + 1;
-
         if (j >= n2)
             j = 0;
 
@@ -3942,6 +3939,7 @@ static inline int32_t polymost_findwall(tspritetype const * const tspr, int32_t 
     }
 
     *rd = dist;
+
     return closest;
 }
 
@@ -4248,15 +4246,16 @@ void polymost_drawsprite(int32_t snum)
             {
                 vec2_t v = { /*Blrintf(vf.x)*/(int)vf.x, /*Blrintf(vf.y)*/(int)vf.y };
 
-                if (walldist <= 0 || ((pos.x - v.x) + (pos.x + v.x)) == (wall[w].x + POINT2(w).x) ||
+                if (walldist <= 2 || ((pos.x - v.x) + (pos.x + v.x)) == (wall[w].x + POINT2(w).x) ||
                     ((pos.y - v.y) + (pos.y + v.y)) == (wall[w].y + POINT2(w).y) ||
                     polymost_lintersect(pos.x - v.x, pos.y - v.y, pos.x + v.x, pos.y + v.y, wall[w].x, wall[w].y,
                                         POINT2(w).x, POINT2(w).y))
                 {
                     int32_t const ang = getangle(wall[w].x - POINT2(w).x, wall[w].y - POINT2(w).y);
-                    float const foffs = tspr->owner * r_wspr_variance * .1f;
-                    vec2f_t const offs = { (float)(sintable[(ang + 1024) & 2047] >> 6) * (r_wspr_offset + foffs),
-                                     (float)(sintable[(ang + 512) & 2047] >> 6) * (r_wspr_offset + foffs)};
+                    float const foffs = ((FindDistance2D((tspr->x-globalposx), (tspr->y-globalposy))>>4) * .0001f) + 
+                        ((tspr->owner != -1 ? tspr->owner & 63 : 0) * .00003f);
+                    vec2f_t const offs = { (float)(sintable[(ang + 1024) & 2047] >> 6) * foffs,
+                                     (float)(sintable[(ang + 512) & 2047] >> 6) * foffs};
 
                     vec0.x -= offs.x;
                     vec0.y -= offs.y;
@@ -4471,10 +4470,8 @@ void polymost_drawsprite(int32_t snum)
                 int32_t npoints = 0;
                 vec2f_t p2[6];
 
-                for (int i = 0; i < 4; ++i)
+                for (int i = 0, j = 1; i < 4; j = ((++i + 1) & 3))
                 {
-                    int j = ((i + 1) & 3);
-
                     if (pxy[i].y >= SCISDIST)
                         p2[npoints++] = pxy[i];
 
@@ -4492,36 +4489,32 @@ void polymost_drawsprite(int32_t snum)
 
                 // Project rotated 3D points to screen
 
-                int32_t i = 1;
-
-                for (int SPRITES_OF_SECT(tspr->sectnum, j), ++i)
-                    if (j == tspr->owner)
-                        break;
-
                 const int foff_sign = (tspr->z > globalposz) ? -1 : 1;
+                float fadjust = 0.f;
 
+                if (tspr->z == sec->ceilingz) tspr->z++, fadjust = .001f * tspr->owner;
+                if (tspr->z == sec->floorz) tspr->z--, fadjust = .001f * tspr->owner;
+
+                float f = (fadjust + (float) (tspr->z - globalposz) + foff_sign) * gyxscale;
+
+                for (int j = 0; j < npoints; j++)
                 {
-                    float const f = ((float) (tspr->z - globalposz) + foff_sign*(i * r_fspr_offset)) * gyxscale;
-
-                    for (int j = 0; j < npoints; j++)
-                    {
-                        float const ryp0 = 1.f / p2[j].y;
-                        pxy[j].x = ghalfx * p2[j].x * ryp0 + ghalfx;
-                        pxy[j].y = f * ryp0 + ghoriz;
-                    }
+                    float const ryp0 = 1.f / p2[j].y;
+                    pxy[j].x = ghalfx * p2[j].x * ryp0 + ghalfx;
+                    pxy[j].y = f * ryp0 + ghoriz;
                 }
 
                 // gd? Copied from floor rendering code
 
                 xtex.d = 0;
-                ytex.d = gxyaspect / (double)(tspr->z - globalposz + foff_sign*(i * r_fspr_offset));
+                ytex.d = gxyaspect / (double)(tspr->z - globalposz + foff_sign);
                 otex.d = -ghoriz * ytex.d;
 
                 // copied&modified from relative alignment
                 vec2f_t const vv = { (float)tspr->x + s * p1.x + c * p1.y, (float)tspr->y + s * p1.y - c * p1.x };
                 vec2f_t ff = { -(p0.x + p1.x) * s, (p0.x + p1.x) * c };
 
-                float f = polymost_invsqrt_approximation(ff.x * ff.x + ff.y * ff.y);
+                f = polymost_invsqrt_approximation(ff.x * ff.x + ff.y * ff.y);
 
                 ff.x *= f;
                 ff.y *= f;
@@ -5675,10 +5668,6 @@ void polymost_initosdfuncs(void)
         { "r_vbos"," enable/disable using Vertex Buffer Objects when drawing models",(void *) &r_vbos, CVAR_BOOL, 0, 1 },
         { "r_vertexarrays","enable/disable using vertex arrays when drawing models",(void *) &r_vertexarrays, CVAR_BOOL, 0, 1 },
         { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 1 },
-
-        { "r_wspr_offset", "anti-fighting offset for wall sprites", (void *) &r_wspr_offset, CVAR_FLOAT, 0, 1 },
-        { "r_wspr_variance", "anti-fighting offset variance for wall sprites", (void *) &r_wspr_variance, CVAR_FLOAT, 0, 1 },
-        { "r_fspr_offset", "anti-fighting offset for floor sprites", (void *) &r_fspr_offset, CVAR_FLOAT, 0, 8 },
 
 #ifdef POLYMER
         // polymer cvars
