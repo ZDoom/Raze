@@ -4095,7 +4095,17 @@ void polymost_drawsprite(int32_t snum)
             // NOTE: yoff not negated not for y flipping, unlike wall and floor
             // aligned sprites.
 
-            vec2f_t s0 = { (float)(tspr->x - globalposx), (float)(tspr->y - globalposy) };
+            int const ang = (getangle(tspr->x - globalposx, tspr->y - globalposy) + 1024) & 2047;
+
+            float const foffs = ((FindDistance2D((tspr->x-globalposx), (tspr->y-globalposy))>>4) * .0001f) +
+                ((tspr->owner != -1 ? tspr->owner & 63 : 0) * .0001f);
+
+            vec2f_t const offs ={ (float) (sintable[(ang + 512) & 2047] >> 6) * foffs,
+                (float) (sintable[(ang) & 2047] >> 6) * foffs };
+
+            vec2f_t s0 = { (float)(tspr->x - globalposx) + offs.x,
+                           (float)(tspr->y - globalposy) + offs.y };
+
             vec2f_t p0 = { s0.y * gcosang - s0.x * gsinang, s0.x * gcosang2 + s0.y * gsinang2 };
 
             if (p0.y <= SCISDIST)
@@ -4253,7 +4263,7 @@ void polymost_drawsprite(int32_t snum)
                 {
                     int32_t const ang = getangle(wall[w].x - POINT2(w).x, wall[w].y - POINT2(w).y);
                     float const foffs = ((FindDistance2D((tspr->x-globalposx), (tspr->y-globalposy))>>4) * .0001f) + 
-                        ((tspr->owner != -1 ? tspr->owner & 63 : 0) * .00003f);
+                        ((tspr->owner != -1 ? tspr->owner & 63 : 0) * .0001f);
                     vec2f_t const offs = { (float)(sintable[(ang + 1024) & 2047] >> 6) * foffs,
                                      (float)(sintable[(ang + 512) & 2047] >> 6) * foffs};
 
