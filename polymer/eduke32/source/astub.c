@@ -9186,6 +9186,7 @@ static int32_t parsegroupfiles(scriptfile *script)
         case T_LOADGRP:
         {
             char *fn;
+            int opathsearchmode = pathsearchmode;
 
             pathsearchmode = 1;
             if (!scriptfile_getstring(script,&fn))
@@ -9202,7 +9203,7 @@ static int32_t parsegroupfiles(scriptfile *script)
                 }
 
             }
-            pathsearchmode = 0;
+            pathsearchmode = opathsearchmode;
         }
         break;
         case T_INCLUDE:
