@@ -6816,9 +6816,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                     if (numplayers < 2 && !g_netServer)
                         ps->opos.z = ps->pos.z;
+
                     ps->pos.z += q;
                     ps->truefz += q;
                     ps->truecz += q;
+
                     if (g_netServer || numplayers > 1)
                         ps->opos.z = ps->pos.z;
                 }
@@ -6870,14 +6872,14 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                         ps->pos.x += sprite[j].x-s->x;
                         ps->pos.y += sprite[j].y-s->y;
+                        ps->opos.z -= ps->pos.z;
                         ps->pos.z = sector[sprite[j].sectnum].floorz-(sc->floorz-ps->pos.z);
-
+                        ps->opos.z += ps->pos.z;
                         actor[k].floorz = sector[sprite[j].sectnum].floorz;
                         actor[k].ceilingz = sector[sprite[j].sectnum].ceilingz;
 
                         ps->bobpos.x = ps->opos.x = ps->pos.x;
                         ps->bobpos.y = ps->opos.y = ps->pos.y;
-                        ps->opos.z = ps->pos.z;
 
                         ps->truefz = actor[k].floorz;
                         ps->truecz = actor[k].ceilingz;
@@ -6890,10 +6892,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     {
                         sprite[k].x += sprite[j].x-s->x;
                         sprite[k].y += sprite[j].y-s->y;
-                        sprite[k].z = sector[sprite[j].sectnum].floorz-
-                                      (sc->floorz-sprite[k].z);
 
-                        Bmemcpy(&actor[k].bpos, &sprite[k], sizeof(vec3_t));
+                        Bmemcpy(&actor[k].bpos, &sprite[k], sizeof(vec2_t));
+
+                        actor[k].bpos.z -= sprite[k].z;
+                        sprite[k].z = sector[sprite[j].sectnum].floorz-
+                            (sc->floorz-sprite[k].z);
+                        actor[k].bpos.z += sprite[k].z;
 
                         changespritesect(k,sprite[j].sectnum);
                         setsprite(k,(vec3_t *)&sprite[k]);
