@@ -64,7 +64,7 @@ MIXERTYPE=WIN
 
 !ifdef DEBUG
 # debugging options
-flags_cl=/Od /Zi
+flags_cl=/Od /Zi # /analyze
 flags_link=/DEBUG
 !else
 # release options
@@ -135,6 +135,7 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\compat.$o \
 	$(ENGINE_OBJ)\crc32.$o \
 	$(ENGINE_OBJ)\defs.$o \
+	$(ENGINE_OBJ)\colmatch.$o \
 	$(ENGINE_OBJ)\engine.$o \
         $(ENGINE_OBJ)\glbuild.$o \
         $(ENGINE_OBJ)\texcache.$o \
