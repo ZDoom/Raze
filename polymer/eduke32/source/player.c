@@ -731,6 +731,8 @@ static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i
                     {
                         l = A_Spawn(k, decaltile);
 
+                        A_SetHitData(l, hit);
+
                         if (!A_CheckSpriteFlags(l, SFLAG_DECAL))
                             actor[l].flags |= SFLAG_DECAL;
 
@@ -1073,6 +1075,8 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
                 if (hitwal->hitag == 0 && proj->decal >= 0)
                 {
                     k = A_Spawn(i, proj->decal);
+
+                    A_SetHitData(k, &hit);
 
                     if (!A_CheckSpriteFlags(k, SFLAG_DECAL))
                         actor[k].flags |= SFLAG_DECAL;
