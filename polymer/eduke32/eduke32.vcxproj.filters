@@ -896,6 +896,9 @@
     <ClCompile Include="source\jaudiolib\src\xa.c">
       <Filter>jaudiolib\source</Filter>
     </ClCompile>
+    <ClCompile Include="build\src\colmatch.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile.msvc">

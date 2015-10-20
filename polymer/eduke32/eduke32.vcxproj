@@ -236,6 +236,7 @@
     <ClCompile Include="build\src\baselayer.c" />
     <ClCompile Include="build\src\build.c" />
     <ClCompile Include="build\src\cache1d.c" />
+    <ClCompile Include="build\src\colmatch.c" />
     <ClCompile Include="build\src\compat.c" />
     <ClCompile Include="build\src\config.c" />
     <ClCompile Include="build\src\crc32.c" />
