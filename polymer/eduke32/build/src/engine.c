@@ -9819,6 +9819,16 @@ killsprite:
                             spritesxyz[k] = spritesxyz[l];
                             spritesxyz[l] = tv3;
                         }
+
+                for (int32_t k=i+1; k<j; k++)
+                    for (int32_t l=i; l<k; l++)
+                        if (tspriteptr[k]->owner < tspriteptr[l]->owner)
+                        {
+                            swapptr(&tspriteptr[k], &tspriteptr[l]);
+                            vec3_t tv3 = spritesxyz[k];
+                            spritesxyz[k] = spritesxyz[l];
+                            spritesxyz[l] = tv3;
+                        }
             }
             i = j;
         }
