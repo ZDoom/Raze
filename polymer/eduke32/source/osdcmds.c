@@ -752,7 +752,10 @@ static int32_t osdcmd_crosshaircolor(const osdfuncparm_t *parm)
     g = Batol(parm->parms[1]);
     b = Batol(parm->parms[2]);
     G_SetCrosshairColor(r,g,b);
-    OSD_Printf("%s\n", parm->raw);
+
+    if (!OSD_ParsingScript())
+        OSD_Printf("%s\n", parm->raw);
+
     return OSDCMD_OK;
 }
 
@@ -1077,6 +1080,8 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
         if (CONTROL_KeyIsBound(ConsoleKeys[i].id))
             OSD_Printf("%-9s %s\"%s\"\n", ConsoleKeys[i].name, CONTROL_KeyBinds[ConsoleKeys[i].id].repeat?"":"norepeat ",
                        CONTROL_KeyBinds[ConsoleKeys[i].id].cmdstr);
+        else OSD_Printf("%s is unbound\n", ConsoleKeys[i].name);
+
         return OSDCMD_OK;
     }
 

@@ -274,7 +274,7 @@ int32_t showfirstwall=0;
 int32_t showheightindicators=1;
 int32_t circlewall=-1;
 
-int32_t whitecol, blackcol;
+uint8_t blackcol;
 
 #ifdef POLYMER
 static int16_t maphacklightcnt=0;

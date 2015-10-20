@@ -703,26 +703,6 @@ int32_t CONFIG_ReadSetup(void)
                     tempbuf[0] = 0;
         */
 
-        SCRIPT_GetString(ud.config.scripthandle, "Misc", "CrosshairColor",&tempbuf[0]);
-        if (tempbuf[0])
-        {
-            char *ptr = strtok(tempbuf,",");
-            palette_t temppal;
-            char *palptr = (char *)&temppal;
-
-            i = 0;
-            while (ptr != NULL && i < 3)
-            {
-                palptr[i++] = Batoi(ptr);
-                ptr = strtok(NULL,",");
-            }
-            if (i == 3)
-            {
-                Bmemcpy(&CrosshairColors,&temppal,sizeof(palette_t));
-                DefaultCrosshairColors.f = 1;
-            }
-        }
-
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
 
 #ifdef _WIN32
@@ -746,7 +726,7 @@ int32_t CONFIG_ReadSetup(void)
 ===================
 */
 
-void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_settings.cfg
+void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.cfg
 {
     int32_t i;
     BFILE *fp;
@@ -778,6 +758,10 @@ void CONFIG_WriteBinds(void) // save binds and aliases to <cfgname>_settings.cfg
                 CONTROL_MouseBinds[i].repeat?"":" norepeat",CONTROL_MouseBinds[i].cmdstr);
 
         OSD_WriteAliases(fp);
+
+        if (g_crosshairSum && g_crosshairSum != DefaultCrosshairColors.r+(DefaultCrosshairColors.g<<1)+(DefaultCrosshairColors.b<<2))
+            Bfprintf(fp, "crosshaircolor %d %d %d\n", CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
+
         OSD_WriteCvars(fp);
 
         Bfclose(fp);
@@ -979,7 +963,7 @@ void CONFIG_WriteSetup(uint32_t flags)
         SCRIPT_Free(ud.config.scripthandle);
 
     OSD_Printf("Wrote %s\n",setupfilename);
-    CONFIG_WriteBinds();
+    CONFIG_WriteSettings();
     Bfflush(NULL);
 }
 

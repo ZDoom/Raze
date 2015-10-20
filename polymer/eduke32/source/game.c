@@ -2421,7 +2421,7 @@ static void G_DrawStatusBar(int32_t snum)
 }
 
 #define COLOR_RED 248
-#define COLOR_WHITE 31
+#define COLOR_WHITE whitecol
 #define LOW_FPS 30
 
 #if defined GEKKO
@@ -3364,15 +3364,19 @@ void G_GetCrosshairColor(void)
 
 void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
 {
-    char *ptr = (char *)waloff[CROSSHAIR];
     int32_t i, ii;
 
-    if (DefaultCrosshairColors.f == 0 || g_crosshairSum == r+(g<<8)+(b<<16)) return;
+    if (g_crosshairSum == r+(g<<8)+(b<<16)) return;
+
+    if (!DefaultCrosshairColors.f)
+        G_GetCrosshairColor();
 
     g_crosshairSum = r+(g<<8)+(b<<16);
     CrosshairColors.r = r;
     CrosshairColors.g = g;
     CrosshairColors.b = b;
+
+    char *ptr = (char *) waloff[CROSSHAIR];
 
     if (waloff[CROSSHAIR] == 0)
     {
@@ -4028,14 +4032,6 @@ void G_DrawBackground(void)
 
     flushperms();
 
-    // XXX: if dapicnum is not available, this might leave the menu background
-    // not drawn, leading to "HOM".
-    if (tilesiz[dapicnum].x == 0 || tilesiz[dapicnum].y == 0)
-    {
-        pus = pub = NUMPAGES;
-        return;
-    }
-
     int32_t y1=0, y2=ydim;
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat == 2)
@@ -4071,6 +4067,14 @@ void G_DrawBackground(void)
         }
         else rotatesprite_fs(160<<16,100<<16,65536L,0,bgtile,16,0,2+8+64+BGSTRETCH);
 
+        return;
+    }
+
+    // XXX: if dapicnum is not available, this might leave the menu background
+    // not drawn, leading to "HOM".
+    if (tilesiz[dapicnum].x == 0 || tilesiz[dapicnum].y == 0)
+    {
+        pus = pub = NUMPAGES;
         return;
     }
 
@@ -7248,8 +7252,7 @@ static inline void G_DoEventAnimSprites(int32_t j)
         return;
 
     spriteext[ow].tspr = &tsprite[j];
-    // XXX: wouldn't screenpeek be more meaningful as current player?
-    VM_OnEvent_(EVENT_ANIMATESPRITES, ow, myconnectindex);
+    VM_OnEvent_(EVENT_ANIMATESPRITES, ow, screenpeek);
     spriteext[ow].tspr = NULL;
 }
 
@@ -11783,15 +11786,6 @@ int32_t app_main(int32_t argc, const char **argv)
             setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
     }
 
-    {
-        char *ptr = Xstrdup(setupfilename), *p = strtok(ptr,".");
-        if (!Bstrcmp(setupfilename, SETUPFILENAME))
-            Bsprintf(tempbuf, "settings.cfg");
-        else Bsprintf(tempbuf,"%s_settings.cfg",p);
-        OSD_Exec(tempbuf);
-        Bfree(ptr);
-    }
-
 #ifdef HAVE_CLIPSHAPE_FEATURE
     if ((i = clipmapinfo_load()) > 0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", i);
@@ -11807,8 +11801,6 @@ int32_t app_main(int32_t argc, const char **argv)
     minitext_lowercase = 1;
     for (i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
         minitext_lowercase &= tile_exists(i);
-
-    OSD_Exec("autoexec.cfg");
 
     system_getcvars();
 
@@ -11857,6 +11849,18 @@ int32_t app_main(int32_t argc, const char **argv)
         S_SoundStartup();
     }
 //    loadtmb();
+
+    char *ptr = Xstrdup(setupfilename), *p = strtok(ptr, ".");
+
+    if (!Bstrcmp(setupfilename, SETUPFILENAME))
+        Bsprintf(tempbuf, "settings.cfg");
+    else
+        Bsprintf(tempbuf, "%s_settings.cfg", p);
+
+    OSD_Exec(tempbuf);
+    Bfree(ptr);
+
+    OSD_Exec("autoexec.cfg");
 
     M_Init();
 
