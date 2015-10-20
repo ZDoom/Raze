@@ -736,17 +736,15 @@ static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i
                         if (!A_CheckSpriteFlags(l, SFLAG_DECAL))
                             actor[l].flags |= SFLAG_DECAL;
 
-                        sprite[l].xvel = -1;
-                        sprite[l].ang = getangle(hitwal->x-wall[hitwal->point2].x,
-                                                 hitwal->y-wall[hitwal->point2].y)+512;
-                        if (flags&1)
+                        sprite[l].ang = (getangle(hitwal->x - wall[hitwal->point2].x,
+                            hitwal->y - wall[hitwal->point2].y) + 1536) & 2047;
+
+                        if (flags & 1)
                             Proj_DoRandDecalSize(l, atwith);
 
                         if (flags&2)
                             sprite[l].cstat = 16+(krand()&(8+4));
 
-                        sprite[l].x -= sintable[(sprite[l].ang+2560)&2047]>>13;
-                        sprite[l].y -= sintable[(sprite[l].ang+2048)&2047]>>13;
 
                         A_SetSprite(l, CLIPMASK0);
 
@@ -1081,7 +1079,6 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
                     if (!A_CheckSpriteFlags(k, SFLAG_DECAL))
                         actor[k].flags |= SFLAG_DECAL;
 
-                    sprite[k].xvel = -1;
                     sprite[k].ang = getangle(hitwal->x - wall[hitwal->point2].x,
                         hitwal->y - wall[hitwal->point2].y) + 512;
                     Bmemcpy(&sprite[k], &hit.pos, sizeof(vec3_t));
@@ -1100,9 +1097,6 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
                         sprite[k].cstat |= 8;
 
                     sprite[k].shade = sector[sprite[k].sectnum].floorshade;
-
-                    sprite[k].x -= sintable[(sprite[k].ang + 2560) & 2047] >> 13;
-                    sprite[k].y -= sintable[(sprite[k].ang + 2048) & 2047] >> 13;
 
                     A_SetSprite(k, CLIPMASK0);
                     A_AddToDeleteQueue(k);
@@ -1239,9 +1233,8 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                     if (hitwal->hitag == 0)
                     {
                         k = A_Spawn(i,atwith);
-                        sprite[k].xvel = -12;
-                        sprite[k].ang = getangle(hitwal->x-wall[hitwal->point2].x,
-                                                 hitwal->y-wall[hitwal->point2].y)+512;
+                        sprite[k].ang = (getangle(hitwal->x - wall[hitwal->point2].x,
+                            hitwal->y - wall[hitwal->point2].y) + 1536) & 2047;
                         Bmemcpy(&sprite[k], &hit.pos, sizeof(vec3_t));
 
                         sprite[k].cstat |= (krand()&4);
