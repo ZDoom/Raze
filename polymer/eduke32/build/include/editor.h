@@ -379,7 +379,7 @@ static inline int32_t m32_2d3d_resolutions_match()
 
 static inline int32_t m32_is2d3dmode(void)
 {
-    return !in3dmode() && m32_2d3dmode &&
+    return !in3dmode() && m32_2d3dmode && (unsigned)cursectnum < MAXSECTORS &&
         m32_2d3d_resolutions_match() &&
         searchx > m32_2d3d.x && searchx < (m32_2d3d.x + XSIZE_2D3D) &&
         searchy > m32_2d3d.y && searchy < (m32_2d3d.y + YSIZE_2D3D);
