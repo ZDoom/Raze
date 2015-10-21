@@ -4984,10 +4984,16 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
             case BLOODSPLAT3__STATIC:
             case BLOODSPLAT4__STATIC:
 
-                if (t[0] == 7*GAMETICSPERSEC) goto BOLT;
-                s->z += 16+(krand()&15);
+                if (t[0] == 3*GAMETICSPERSEC) goto BOLT;
+                actor[i].bpos.z -= s->z;
                 t[0]++;
-                if ((t[0]%9) == 0) s->yrepeat++;
+                if ((t[0]%9) == 0)
+                {
+                    s->yrepeat++;
+                    s->z += (tilesiz[s->picnum].y*s->yrepeat)>>2;
+                }
+                else s->z += 16 + (krand() & 15);
+                actor[i].bpos.z += s->z;
                 goto BOLT;
 
             case NUKEBUTTON__STATIC:

@@ -5566,7 +5566,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->cstat |= 16;
             sp->xrepeat = 7+(krand()&7);
             sp->yrepeat = 7+(krand()&7);
-            sp->z -= (16<<8);
+            sp->z += (tilesiz[sp->picnum].y*sp->yrepeat)>>2;
             if (j >= 0 && sprite[j].pal == 6)
                 sp->pal = 6;
             A_AddToDeleteQueue(i);
