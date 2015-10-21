@@ -2138,7 +2138,7 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
     // flat-tsprite-on-floor shadows.
     // is this still needed?
 
-    if (tspr->cstat&CSTAT_SPRITE_MDHACK)
+    if (tspr->extra&TSPR_EXTRA_MDHACK)
     {
 #ifdef __arm__ // GL ES has a glDepthRangef and the loss of precision is OK there
         float f = (float) (tspr->owner + 1) * (FLT_EPSILON * 8.0);
@@ -2209,7 +2209,7 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
         if (sext->offset.y)  // Compare with SCREEN_FACTORS above
             a0.y = (float) sext->offset.y * f;
 
-        if ((sext->offset.z) && !(tspr->cstat&CSTAT_SPRITE_MDHACK))  // Compare with SCREEN_FACTORS above
+        if ((sext->offset.z) && !(tspr->extra&TSPR_EXTRA_MDHACK))  // Compare with SCREEN_FACTORS above
             a0.z = (float)sext->offset.z / (655360.f * (m0.z+m1.z) * (gxyaspect*fxdimen*(1.f/1280.f)));
 
         k0 = (float)sintable[(sext->pitch+512)&2047] * (1.f/16384.f);
@@ -2303,7 +2303,7 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
-        if (!(tspr->cstat&CSTAT_SPRITE_MDHACK))
+        if (!(tspr->extra&TSPR_EXTRA_MDHACK))
         {
 #ifndef EDUKE32_GLES
             i = r_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi) : 0;

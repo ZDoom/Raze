@@ -944,7 +944,7 @@ static void yax_copytsprites()
 
         Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(spritetype));
         tsprite[spritesortcnt].owner = spritenum;
-
+        tsprite[spritesortcnt].extra = 0;
         tsprite[spritesortcnt].sectnum = sectnum;  // potentially tweak sectnum!
         spritesortcnt++;
     }
@@ -2475,6 +2475,7 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
                 return 1;
 
             Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(spritetype));
+            tsprite[spritesortcnt].extra = 0;
             tsprite[spritesortcnt++].owner = z;
 
 #ifdef YAX_ENABLE
@@ -9764,74 +9765,74 @@ killsprite:
         spritesxyz[i].y = yp;
     }
 
-    {
-        int32_t gap, ys;
+    int32_t gap, ys;
 
-        gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
-        for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
-            for (i=0; i<spritesortcnt-gap; i++)
-                for (int32_t l=i; l>=0; l-=gap)
-                {
-                    if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
-                    swapptr(&tspriteptr[l],&tspriteptr[l+gap]);
-                    swaplong(&spritesxyz[l].x,&spritesxyz[l+gap].x);
-                    swaplong(&spritesxyz[l].y,&spritesxyz[l+gap].y);
-                }
-
-        if (spritesortcnt > 0)
-            spritesxyz[spritesortcnt].y = (spritesxyz[spritesortcnt-1].y^1);
-
-        ys = spritesxyz[0].y; i = 0;
-        for (int32_t j=1; j<=spritesortcnt; j++)
-        {
-            if (spritesxyz[j].y == ys)
-                continue;
-
-            ys = spritesxyz[j].y;
-
-            if (j > i+1)
+    gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
+    for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
+        for (i=0; i<spritesortcnt-gap; i++)
+            for (int32_t l=i; l>=0; l-=gap)
             {
-                for (int32_t k=i; k<j; k++)
-                {
-                    const tspritetype *const s = tspriteptr[k];
-
-                    spritesxyz[k].z = s->z;
-                    if ((s->cstat&48) != 32)
-                    {
-                        int32_t yoff = picanm[s->picnum].yofs + s->yoffset;
-                        int32_t yspan = (tilesiz[s->picnum].y*s->yrepeat<<2);
-
-                        spritesxyz[k].z -= (yoff*s->yrepeat)<<2;
-
-                        if (!(s->cstat&128))
-                            spritesxyz[k].z -= (yspan>>1);
-                        if (klabs(spritesxyz[k].z-globalposz) < (yspan>>1))
-                            spritesxyz[k].z = globalposz;
-                    }
-                }
-
-                for (int32_t k=i+1; k<j; k++)
-                    for (int32_t l=i; l<k; l++)
-                        if (klabs(spritesxyz[k].z-globalposz) < klabs(spritesxyz[l].z-globalposz))
-                        {
-                            swapptr(&tspriteptr[k],&tspriteptr[l]);
-                            vec3_t tv3 = spritesxyz[k];
-                            spritesxyz[k] = spritesxyz[l];
-                            spritesxyz[l] = tv3;
-                        }
-
-                for (int32_t k=i+1; k<j; k++)
-                    for (int32_t l=i; l<k; l++)
-                        if (tspriteptr[k]->owner < tspriteptr[l]->owner)
-                        {
-                            swapptr(&tspriteptr[k], &tspriteptr[l]);
-                            vec3_t tv3 = spritesxyz[k];
-                            spritesxyz[k] = spritesxyz[l];
-                            spritesxyz[l] = tv3;
-                        }
+                if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
+                swapptr(&tspriteptr[l],&tspriteptr[l+gap]);
+                swaplong(&spritesxyz[l].x,&spritesxyz[l+gap].x);
+                swaplong(&spritesxyz[l].y,&spritesxyz[l+gap].y);
             }
-            i = j;
+
+    if (spritesortcnt > 0)
+        spritesxyz[spritesortcnt].y = (spritesxyz[spritesortcnt-1].y^1);
+
+    ys = spritesxyz[0].y; i = 0;
+    for (int32_t j=1; j<=spritesortcnt; j++)
+    {
+        if (spritesxyz[j].y == ys)
+            continue;
+
+        ys = spritesxyz[j].y;
+
+        if (j > i+1)
+        {
+            for (int32_t k=i; k<j; k++)
+            {
+                const tspritetype *const s = tspriteptr[k];
+
+                spritesxyz[k].z = s->z;
+                if ((s->cstat&48) != 32)
+                {
+                    int32_t yoff = picanm[s->picnum].yofs + s->yoffset;
+                    int32_t yspan = (tilesiz[s->picnum].y*s->yrepeat<<2);
+
+                    spritesxyz[k].z -= (yoff*s->yrepeat)<<2;
+
+                    if (!(s->cstat&128))
+                        spritesxyz[k].z -= (yspan>>1);
+                    if (klabs(spritesxyz[k].z-globalposz) < (yspan>>1))
+                        spritesxyz[k].z = globalposz;
+                }
+            }
+
+            for (int32_t k=i+1; k<j; k++)
+                for (int32_t l=i; l<k; l++)
+                    if (klabs(spritesxyz[k].z-globalposz) < klabs(spritesxyz[l].z-globalposz))
+                    {
+                        swapptr(&tspriteptr[k],&tspriteptr[l]);
+                        vec3_t tv3 = spritesxyz[k];
+                        spritesxyz[k] = spritesxyz[l];
+                        spritesxyz[l] = tv3;
+                    }
+
+            for (int32_t k=i+1; k<j; k++)
+                for (int32_t l=i; l<k; l++)
+                    if (tspriteptr[k]->x == tspriteptr[l]->x && 
+                        tspriteptr[k]->y == tspriteptr[l]->y && 
+                        tspriteptr[k]->owner < tspriteptr[l]->owner)
+                    {
+                        swapptr(&tspriteptr[k], &tspriteptr[l]);
+                        vec3_t tv3 = spritesxyz[k];
+                        spritesxyz[k] = spritesxyz[l];
+                        spritesxyz[l] = tv3;
+                    }
         }
+        i = j;
     }
 
     begindrawing(); //{{{
@@ -9856,134 +9857,156 @@ killsprite:
         }
     }
 #endif
+
+    vec2f_t pos;
+
+    pos.x = fglobalposx;
+    pos.y = fglobalposy;
+
+    // CAUTION: maskwallcnt and spritesortcnt may be zero!
+    // Writing e.g. "while (maskwallcnt--)" is wrong!
+    while (maskwallcnt)
     {
-        vec2f_t pos;
+        vec2f_t dot, dot2, middle;
+        // PLAG: sorting stuff
+        _equation maskeq, p1eq, p2eq;
 
-        pos.x = fglobalposx;
-        pos.y = fglobalposy;
+        const int32_t w = (getrendermode()==REND_POLYMER) ?
+            maskwall[maskwallcnt-1] : thewall[maskwall[maskwallcnt-1]];
 
-        // CAUTION: maskwallcnt and spritesortcnt may be zero!
-        // Writing e.g. "while (maskwallcnt--)" is wrong!
-        while (maskwallcnt)
+        maskwallcnt--;
+
+        dot.x = (float)wall[w].x;
+        dot.y = (float)wall[w].y;
+        dot2.x = (float)wall[wall[w].point2].x;
+        dot2.y = (float)wall[wall[w].point2].y;
+
+        maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
+
+        p1eq = equation(pos.x, pos.y, dot.x, dot.y);
+        p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
+
+        middle.x = (dot.x + dot2.x) * .5f;
+        middle.y = (dot.y + dot2.y) * .5f;
+
+        i = spritesortcnt;
+        while (i)
         {
-            vec2f_t dot, dot2, middle;
-            // PLAG: sorting stuff
-            _equation maskeq, p1eq, p2eq;
-
-            const int32_t w = (getrendermode()==REND_POLYMER) ?
-                maskwall[maskwallcnt-1] : thewall[maskwall[maskwallcnt-1]];
-
-            maskwallcnt--;
-
-            dot.x = (float)wall[w].x;
-            dot.y = (float)wall[w].y;
-            dot2.x = (float)wall[wall[w].point2].x;
-            dot2.y = (float)wall[wall[w].point2].y;
-
-            maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
-
-            p1eq = equation(pos.x, pos.y, dot.x, dot.y);
-            p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
-
-            middle.x = (dot.x + dot2.x) * .5f;
-            middle.y = (dot.y + dot2.y) * .5f;
-
-            i = spritesortcnt;
-            while (i)
+            i--;
+            if (tspriteptr[i] != NULL && (tspriteptr[i]->cstat & 1024) != 1024)
             {
-                i--;
-                if (tspriteptr[i] != NULL)
+                vec2f_t spr;
+                const tspritetype *tspr = tspriteptr[i];
+
+                spr.x = (float)tspr->x;
+                spr.y = (float)tspr->y;
+
+                if (!sameside(&maskeq, &spr, &pos))
                 {
-                    vec2f_t spr;
-                    const tspritetype *tspr = tspriteptr[i];
+                    // Sprite and camera are on different sides of the
+                    // masked wall.
 
-                    spr.x = (float)tspr->x;
-                    spr.y = (float)tspr->y;
+                    // Check if the sprite is inside the 'cone' given by
+                    // the rays from the camera to the two wall-points.
+                    const int32_t inleft = sameside(&p1eq, &middle, &spr);
+                    const int32_t inright = sameside(&p2eq, &middle, &spr);
 
-                    if (!sameside(&maskeq, &spr, &pos))
+                    int32_t ok = (inleft && inright);
+
+                    if (!ok)
                     {
-                        // Sprite and camera are on different sides of the
-                        // masked wall.
+                        // If not, check if any of the border points are...
+                        int32_t xx[4] = { tspr->x };
+                        int32_t yy[4] = { tspr->y };
+                        int32_t numpts, jj;
 
-                        // Check if the sprite is inside the 'cone' given by
-                        // the rays from the camera to the two wall-points.
-                        const int32_t inleft = sameside(&p1eq, &middle, &spr);
-                        const int32_t inright = sameside(&p2eq, &middle, &spr);
+                        const _equation pineq = inleft ? p1eq : p2eq;
 
-                        int32_t ok = (inleft && inright);
-
-                        if (!ok)
+                        if ((tspr->cstat & 48) == 32)
                         {
-                            // If not, check if any of the border points are...
-                            int32_t xx[4] = { tspr->x };
-                            int32_t yy[4] = { tspr->y };
-                            int32_t numpts, jj;
+                            numpts = 4;
+                            get_floorspr_points(tspr, 0, 0,
+                                                &xx[0], &xx[1], &xx[2], &xx[3],
+                                                &yy[0], &yy[1], &yy[2], &yy[3]);
+                        }
+                        else
+                        {
+                            const int32_t oang = tspr->ang;
+                            numpts = 2;
 
-                            const _equation pineq = inleft ? p1eq : p2eq;
+                            // Consider face sprites as wall sprites with camera ang.
+                            // XXX: factor 4/5 needed?
+                            if ((tspr->cstat & 48) != 16)
+                                tspriteptr[i]->ang = globalang;
 
-                            if ((tspr->cstat & 48) == 32)
-                            {
-                                numpts = 4;
-                                get_floorspr_points(tspr, 0, 0,
-                                                    &xx[0], &xx[1], &xx[2], &xx[3],
-                                                    &yy[0], &yy[1], &yy[2], &yy[3]);
-                            }
-                            else
-                            {
-                                const int32_t oang = tspr->ang;
-                                numpts = 2;
+                            get_wallspr_points((const spritetype *)tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
 
-                                // Consider face sprites as wall sprites with camera ang.
-                                // XXX: factor 4/5 needed?
-                                if ((tspr->cstat & 48) != 16)
-                                    tspriteptr[i]->ang = globalang;
-
-                                get_wallspr_points((const spritetype *)tspr, &xx[0], &xx[1], &yy[0], &yy[1]);
-
-                                if ((tspr->cstat & 48) == 0)
-                                    tspriteptr[i]->ang = oang;
-                            }
-
-                            for (jj=0; jj<numpts; jj++)
-                            {
-                                spr.x = (float)xx[jj];
-                                spr.y = (float)yy[jj];
-
-                                if (!sameside(&maskeq, &spr, &pos))  // behind the maskwall,
-                                    if ((sameside(&p1eq, &middle, &spr) &&  // inside the 'cone',
-                                         sameside(&p2eq, &middle, &spr))
-                                            || !sameside(&pineq, &middle, &spr))  // or on the other outside.
-                                    {
-                                        ok = 1;
-                                        break;
-                                    }
-                            }
+                            if ((tspr->cstat & 48) == 0)
+                                tspriteptr[i]->ang = oang;
                         }
 
-                        if (ok)
+                        for (jj=0; jj<numpts; jj++)
                         {
-                            debugmask_add(i | 32768, tspr->owner);
-                            drawsprite(i);
-                            tspriteptr[i] = NULL;
+                            spr.x = (float)xx[jj];
+                            spr.y = (float)yy[jj];
+
+                            if (!sameside(&maskeq, &spr, &pos))  // behind the maskwall,
+                                if ((sameside(&p1eq, &middle, &spr) &&  // inside the 'cone',
+                                        sameside(&p2eq, &middle, &spr))
+                                        || !sameside(&pineq, &middle, &spr))  // or on the other outside.
+                                {
+                                    ok = 1;
+                                    break;
+                                }
                         }
+                    }
+
+                    if (ok)
+                    {
+                        debugmask_add(i | 32768, tspr->owner);
+                        drawsprite(i);
+                        tspriteptr[i] = NULL;
                     }
                 }
             }
-
-            debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
-            drawmaskwall(maskwallcnt);
         }
 
-        while (spritesortcnt)
+        debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
+        drawmaskwall(maskwallcnt);
+    }
+
+    i = spritesortcnt;
+
+    while (i)
+    {
+        i--;
+        if (tspriteptr[i] != NULL && (tspriteptr[i]->cstat & 1024) != 1024)
         {
-            spritesortcnt--;
-            if (tspriteptr[spritesortcnt] != NULL)
-            {
-                debugmask_add(spritesortcnt | 32768, tspriteptr[spritesortcnt]->owner);
-                drawsprite(spritesortcnt);
-            }
+            debugmask_add(i | 32768, tspriteptr[i]->owner);
+            drawsprite(i);
+            tspriteptr[i] = NULL;
         }
     }
+
+#ifdef USE_OPENGL
+    if (getrendermode() >= REND_POLYMOST)
+        bglDepthMask(GL_FALSE);
+#endif
+
+    while (spritesortcnt)
+    {
+        spritesortcnt--;
+        if (tspriteptr[spritesortcnt] != NULL && (tspriteptr[spritesortcnt]->cstat & 1024))
+        {
+            drawsprite(spritesortcnt);
+            tspriteptr[spritesortcnt] = NULL;
+        }
+    }
+
+#ifdef USE_OPENGL
+    if (getrendermode() >= REND_POLYMOST)
+        bglDepthMask(GL_TRUE);
+#endif
 
 #ifdef POLYMER
     if (getrendermode() == REND_POLYMER)

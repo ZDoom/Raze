@@ -951,7 +951,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, const tspritetype *tspr)
         mat[12] = -mat[12];
     }
 
-    if (tspr->cstat&CSTAT_SPRITE_MDHACK)
+    if (tspr->extra&TSPR_EXTRA_MDHACK)
     {
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        bglDepthRange(0.0, 0.9999);
@@ -1055,7 +1055,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, const tspritetype *tspr)
     //------------
     bglDisable(GL_CULL_FACE);
 //    bglPopAttrib();
-    if (tspr->cstat&CSTAT_SPRITE_MDHACK)
+    if (tspr->extra&TSPR_EXTRA_MDHACK)
     {
         bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        bglDepthRange(0.0, 0.99999);

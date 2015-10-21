@@ -4181,6 +4181,7 @@ static void G_OROR_DupeSprites(const spritetype *sp)
             tsprite[spritesortcnt].z = tsprite[spritesortcnt].z - sp->z + actor[sp->yvel].ceilingz;
             tsprite[spritesortcnt].sectnum = refsp->sectnum;
             tsprite[spritesortcnt].owner = k;
+            tsprite[spritesortcnt].extra = 0;
 
 //            OSD_Printf("duped sprite of pic %d at %d %d %d\n",tsprite[spritesortcnt].picnum,tsprite[spritesortcnt].x,tsprite[spritesortcnt].y,tsprite[spritesortcnt].z);
             spritesortcnt++;
@@ -7967,7 +7968,8 @@ skip:
                                 newt->yrepeat = 0;
                                 // 512:trans reverse
                                 //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
-                                newt->cstat |= (512+CSTAT_SPRITE_MDHACK);
+                                newt->extra |= TSPR_EXTRA_MDHACK;
+                                newt->cstat |= 512;
                             }
                             else
                             {
@@ -8010,7 +8012,7 @@ skip:
                 //g_restorePalette = 1;   // JBF 20040101: why?
             }
             t->shade = -127;
-            t->cstat |= 8192;
+            t->cstat |= 8192+1024;
             break;
         case FIRE__STATIC:
         case FIRE2__STATIC:
@@ -8021,11 +8023,11 @@ skip:
                 t->z = actor[t->owner].floorz;
             t->shade = -127;
         case SMALLSMOKE__STATIC:
-            t->cstat |= 8192;
+            t->cstat |= 8192+1024;
             break;
         case COOLEXPLOSION1__STATIC:
             t->shade = -127;
-            t->cstat |= 8192;
+            t->cstat |= 8192+1024;
             t->picnum += (s->shade>>1);
             break;
         case PLAYERONWATER__STATIC:

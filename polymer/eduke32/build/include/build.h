@@ -551,7 +551,7 @@ typedef struct {
 #define SPREXT_TSPRACCESS 16
 #define SPREXT_TEMPINVISIBLE 32
 
-#define CSTAT_SPRITE_MDHACK 1024
+#define TSPR_EXTRA_MDHACK 1
 
 EXTERN int32_t guniqhudid;
 EXTERN int32_t spritesortcnt;
