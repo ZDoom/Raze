@@ -48,6 +48,7 @@ BUILD_SRC = \
 	build/src/common.c \
 	build/src/crc32.c \
 	build/src/defs.c \
+        build/src/colmatch.c \
 	build/src/engine.c \
 	build/src/glbuild.c \
 	build/src/polymost.c \
