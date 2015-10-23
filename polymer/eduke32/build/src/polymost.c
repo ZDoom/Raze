@@ -4500,13 +4500,16 @@ void polymost_drawsprite(int32_t snum)
 
                 // Project rotated 3D points to screen
 
-                const int foff_sign = (tspr->z > globalposz) ? -1 : 1;
-                float fadjust = 0.f;
+                int fadjust = 0;
 
-                if (tspr->z == sec->ceilingz) tspr->z++, fadjust = .001f * tspr->owner;
-                if (tspr->z == sec->floorz) tspr->z--, fadjust = .001f * tspr->owner;
+                // unfortunately, offsetting by only 1 isn't enough on most Android devices
+                if (tspr->z == sec->ceilingz || tspr->z == sec->ceilingz + 1)
+                    tspr->z = sec->ceilingz + 2, fadjust = (tspr->owner & 31);
 
-                float f = (fadjust + (float) (tspr->z - globalposz) + foff_sign) * gyxscale;
+                if (tspr->z == sec->floorz || tspr->z == sec->floorz - 1)
+                    tspr->z = sec->floorz - 2, fadjust = -((tspr->owner & 31));
+
+                float f = (float)(tspr->z - globalposz + fadjust) * gyxscale;
 
                 for (int j = 0; j < npoints; j++)
                 {
@@ -4518,7 +4521,7 @@ void polymost_drawsprite(int32_t snum)
                 // gd? Copied from floor rendering code
 
                 xtex.d = 0;
-                ytex.d = gxyaspect / (double)(tspr->z - globalposz + foff_sign);
+                ytex.d = gxyaspect / (double)(tspr->z - globalposz + fadjust);
                 otex.d = -ghoriz * ytex.d;
 
                 // copied&modified from relative alignment
