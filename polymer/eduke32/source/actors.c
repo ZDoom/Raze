@@ -7985,12 +7985,22 @@ static void A_DoLight(int32_t i)
                     s->x += dx>>7;
                     s->y += dy>>7;
 
+                    int16_t sectnum = s->sectnum;
+                    updatesector(s->x, s->y, &sectnum);
+
+                    if ((unsigned) sectnum >= MAXSECTORS || s->z > sector[sectnum].floorz)
+                    {
+                        s->x -= dx>>7;
+                        s->y -= dy>>7;
+                        break;
+                    }
+
                     G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 1024-ii*256,
                         ii==0 ? (48+(255<<8)+(48<<16)) : 255+(48<<8)+(48<<16), PR_LIGHT_PRIO_LOW);
 
                     s->x -= dx>>7;
                     s->y -= dy>>7;
-                }
+            }
                 break;
             }
         }
