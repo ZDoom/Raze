@@ -2133,10 +2133,9 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
     if (grhalfxdown10x < 0) { mat[0] = -mat[0]; mat[4] = -mat[4]; mat[8] = -mat[8]; mat[12] = -mat[12]; }
 
     //------------
-    // Bit 10 is an ugly hack in game.c:G_DoSpriteAnimations() telling md2sprite
-    // to use Z-buffer hacks to hide overdraw problems with the
-    // flat-tsprite-on-floor shadows.
-    // is this still needed?
+    // TSPR_EXTRA_MDHACK is an ugly hack in game.c:G_DoSpriteAnimations() telling md2sprite
+    // to use Z-buffer hacks to hide overdraw problems with the flat-tsprite-on-floor shadows,
+    // also disabling detail, glow, normal, and specular maps.
 
     if (tspr->extra&TSPR_EXTRA_MDHACK)
     {

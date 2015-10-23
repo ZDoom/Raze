@@ -784,7 +784,7 @@ void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t 
 #ifdef POLYMER
     spritetype *s = &sprite[srcsprite];
 
-    if (getrendermode() != REND_POLYMER)
+    if (getrendermode() != REND_POLYMER || pr_lighting != 1)
         return;
 
     if (actor[srcsprite].lightptr == NULL)
@@ -7949,6 +7949,9 @@ static void A_DoLight(int32_t i)
                 A_DeleteLight(i);
         }
 
+        if (pr_lighting != 1)
+            return;
+
         for (ii=0; ii<2; ii++)
         {
             if (sprite[i].picnum <= 0)  // oob safety
@@ -8260,6 +8263,27 @@ int32_t A_CheckSwitchTile(int32_t i)
     return 0;
 }
 
+void G_RefreshLights(void)
+{
+#ifdef POLYMER
+    if (getrendermode() == REND_POLYMER)
+    {
+        int32_t i, k = 0;
+
+        do
+        {
+            i = headspritestat[k++];
+
+            while (i >= 0)
+            {
+                A_DoLight(i);
+                i = nextspritestat[i];
+            }
+        } while (k < MAXSTATUS);
+    }
+#endif
+}
+
 void G_MoveWorld(void)
 {
     extern double g_moveActorsTime;
@@ -8346,24 +8370,7 @@ void G_MoveWorld(void)
         } while (k < MAXSTATUS);
     }
 
-#ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
-    {
-        int32_t i, k = 0;
-
-        do
-        {
-            i = headspritestat[k++];
-
-            while (i >= 0)
-            {
-                A_DoLight(i);
-                i = nextspritestat[i];
-            }
-        } while (k < MAXSTATUS);
-    }
-#endif
-
+    G_RefreshLights();
     G_DoSectorAnimations();
     G_MoveFX();               //ST 11
 }

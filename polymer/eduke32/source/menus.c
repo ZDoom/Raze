@@ -897,6 +897,12 @@ static MenuEntry_t ME_RENDERERSETUP_DETAILTEX = MAKE_MENUENTRY( "Detail textures
 static MenuOption_t MEO_RENDERERSETUP_MODELS = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &usemodels );
 static MenuEntry_t ME_RENDERERSETUP_MODELS = MAKE_MENUENTRY( "Models:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_MODELS, Option );
 #endif
+#ifdef POLYMER
+static char *MEOSN_RENDERERSETUP_LIGHTS [] ={ "Off", "Full", "Map only", };
+static MenuOptionSet_t MEOS_RENDERERSETUP_LIGHTS = MAKE_MENUOPTIONSET(MEOSN_RENDERERSETUP_LIGHTS, NULL, 0x2);
+static MenuOption_t MEO_RENDERERSETUP_LIGHTS = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_RENDERERSETUP_LIGHTS, &pr_lighting);
+static MenuEntry_t ME_RENDERERSETUP_LIGHTS = MAKE_MENUENTRY("Dynamic lights (Polymer)", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_LIGHTS, Option);
+#endif
 
 #ifdef USE_OPENGL
 static MenuEntry_t *MEL_RENDERERSETUP[] = {
@@ -909,6 +915,10 @@ static MenuEntry_t *MEL_RENDERERSETUP[] = {
 #endif
     &ME_Space4,
     &ME_RENDERERSETUP_MODELS,
+#ifdef POLYMER
+    &ME_Space4,
+    &ME_RENDERERSETUP_LIGHTS,
+#endif
 };
 #endif
 
@@ -1617,6 +1627,9 @@ static void M_PreMenu(MenuID_t cm)
         break;
 
     case MENU_RENDERERSETUP:
+#ifdef POLYMER
+        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_LIGHTS, getrendermode() != REND_POLYMER);
+#endif
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXQUALITY, !usehightile);
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_PRECACHE, !usehightile);
 #ifndef EDUKE32_GLES
@@ -2794,6 +2807,8 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
 
 static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
 {
+    int domodechange = 0;
+
     if (entry == &ME_GAMESETUP_AIM_AUTO ||
         entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP ||
         entry == &ME_PLAYER_NAME ||
@@ -2806,10 +2821,21 @@ static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
     else if (entry == &ME_RENDERERSETUP_TEXQUALITY)
     {
         texcache_invalidate();
-        resetvideomode();
-        if (setgamemode(fullscreen,xdim,ydim,bpp))
-            OSD_Printf("restartvid: Reset failed...\n");
         r_downsizevar = r_downsize;
+        domodechange = 1;
+    }
+#ifdef POLYMER
+    else if (entry == &ME_RENDERERSETUP_LIGHTS)
+        domodechange = 1;
+#endif
+
+    if (domodechange)
+    {
+        resetvideomode();
+        if (setgamemode(fullscreen, xdim, ydim, bpp))
+            OSD_Printf("restartvid: Reset failed...\n");
+        onvideomodechange(ud.config.ScreenBPP>8);
+        G_RefreshLights();
     }
 #endif
 }

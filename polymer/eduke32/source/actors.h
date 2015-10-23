@@ -314,6 +314,7 @@ void                G_AddGameLight(int32_t radius,int32_t srcsprite,int32_t zoff
 void                G_ClearCameraView(DukePlayer_t *ps);
 void                G_DoInterpolations(int32_t smoothratio);
 void                G_MoveWorld(void);
+void                G_RefreshLights(void);
 int32_t             G_SetInterpolation(int32_t * const posptr);
 void                G_StopInterpolation(int32_t * const posptr);
 
