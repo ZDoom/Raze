@@ -5291,7 +5291,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 p = A_FindPlayer(s,&x);
                 ps = g_player[p].ps;
 
-                s->z = actor[i].floorz-(ZOFFSET);
+                s->z = actor[i].floorz - 1;
 
                 if (t[2] < 32)
                 {
