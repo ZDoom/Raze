@@ -7361,7 +7361,8 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 continue;
             default:
                 // NOTE: wall-aligned sprites will never take on ceiling/floor shade...
-                if ((t->cstat&16) || (A_CheckEnemySprite((const spritetype *)t) && t->extra > 0) || t->statnum == STAT_PLAYER)
+                if ((t->cstat&16) || (A_CheckEnemySprite((const spritetype *)t) &&
+                    (unsigned)t->owner < MAXSPRITES && sprite[t->owner].extra > 0) || t->statnum == STAT_PLAYER)
                     continue;
             }
 
