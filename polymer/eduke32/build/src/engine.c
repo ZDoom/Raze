@@ -9824,6 +9824,7 @@ killsprite:
                 for (int32_t l=i; l<k; l++)
                     if (tspriteptr[k]->x == tspriteptr[l]->x && 
                         tspriteptr[k]->y == tspriteptr[l]->y && 
+                        (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
                         tspriteptr[k]->owner < tspriteptr[l]->owner)
                     {
                         swapptr(&tspriteptr[k], &tspriteptr[l]);
