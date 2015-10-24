@@ -1677,6 +1677,7 @@ static void M_PreMenu(MenuID_t cm)
 #ifndef EDUKE32_GLES
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXCACHE, !(glusetexcompr && usehightile));
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_DETAILTEX, !usehightile);
+        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_GLOWTEX, !usehightile);
 #endif
         break;
 #endif
