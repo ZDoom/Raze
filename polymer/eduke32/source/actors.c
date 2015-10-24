@@ -8266,7 +8266,7 @@ int32_t A_CheckSwitchTile(int32_t i)
 void G_RefreshLights(void)
 {
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (Numsprites && getrendermode() == REND_POLYMER)
     {
         int32_t i, k = 0;
 

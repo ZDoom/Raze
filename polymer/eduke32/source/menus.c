@@ -549,8 +549,13 @@ static MenuEntry_t ME_DISPLAYSETUP_SCREENSETUP = MAKE_MENUENTRY( "Status and cro
 
 #ifndef DROIDMENU
 #ifdef USE_OPENGL
-static MenuLink_t MEO_DISPLAYSETUP_ADVANCED_GL = { MENU_RENDERERSETUP, MA_Advance, };
-static MenuEntry_t ME_DISPLAYSETUP_ADVANCED_GL = MAKE_MENUENTRY( "Advanced", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ADVANCED_GL, Link );
+static MenuLink_t MEO_DISPLAYSETUP_ADVANCED_GL_POLYMOST = { MENU_POLYMOST, MA_Advance, };
+static MenuEntry_t ME_DISPLAYSETUP_ADVANCED_GL_POLYMOST = MAKE_MENUENTRY( "Polymost setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ADVANCED_GL_POLYMOST, Link );
+
+#ifdef POLYMER
+static MenuLink_t MEO_DISPLAYSETUP_ADVANCED_GL_POLYMER ={ MENU_POLYMER, MA_Advance, };
+static MenuEntry_t ME_DISPLAYSETUP_ADVANCED_GL_POLYMER = MAKE_MENUENTRY("Polymer setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ADVANCED_GL_POLYMER, Link);
+#endif
 #endif
 
 static MenuLink_t MEO_DISPLAYSETUP_VIDEOSETUP = { MENU_VIDEOSETUP, MA_Advance, };
@@ -652,7 +657,7 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
 #ifndef DROIDMENU
     &ME_DISPLAYSETUP_ANISOTROPY,
     &ME_DISPLAYSETUP_VSYNC,
-    &ME_DISPLAYSETUP_ADVANCED_GL,
+    &ME_DISPLAYSETUP_ADVANCED_GL_POLYMOST,
 #endif
 };
 
@@ -668,7 +673,7 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL_POLYMER[] = {
 #ifndef DROIDMENU
     &ME_DISPLAYSETUP_ANISOTROPY,
     &ME_DISPLAYSETUP_VSYNC,
-    &ME_DISPLAYSETUP_ADVANCED_GL,
+    &ME_DISPLAYSETUP_ADVANCED_GL_POLYMER,
 #endif
 };
 
@@ -881,45 +886,80 @@ static MenuEntry_t *MEL_INTERNAL_JOYSTICKAXIS_DIGITAL[] = {
 
 #ifdef USE_OPENGL
 static MenuOption_t MEO_RENDERERSETUP_HIGHTILE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &usehightile );
-static MenuEntry_t ME_RENDERERSETUP_HIGHTILE = MAKE_MENUENTRY( "Hires textures:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_HIGHTILE, Option );
-static MenuRangeInt32_t MEO_RENDERERSETUP_TEXQUALITY = MAKE_MENURANGE( &r_downsize, &MF_Bluefont, 2, 0, 0, 3, 0 );
-static MenuEntry_t ME_RENDERERSETUP_TEXQUALITY = MAKE_MENUENTRY( "Hires texture quality", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_TEXQUALITY, RangeInt32 );
+static MenuEntry_t ME_RENDERERSETUP_HIGHTILE = MAKE_MENUENTRY( "Truecolor textures:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_HIGHTILE, Option );
+
+static char *MEOSN_RENDERERSETUP_TEXQUALITY [] ={ "Full", "Half", "Barf", };
+static MenuOptionSet_t MEOS_RENDERERSETUP_TEXQUALITY = MAKE_MENUOPTIONSET(MEOSN_RENDERERSETUP_TEXQUALITY, NULL, 0x2);
+static MenuOption_t MEO_RENDERERSETUP_TEXQUALITY = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_RENDERERSETUP_TEXQUALITY, &r_downsize);
+static MenuEntry_t ME_RENDERERSETUP_TEXQUALITY = MAKE_MENUENTRY("GL texture quality:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_TEXQUALITY, Option);
+
+
 static MenuOption_t MEO_RENDERERSETUP_PRECACHE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_OffOn, &ud.config.useprecache );
-static MenuEntry_t ME_RENDERERSETUP_PRECACHE = MAKE_MENUENTRY( "Pre-load map textures", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_PRECACHE, Option );
-static char *MEOSN_RENDERERSETUP_TEXCACHE[] = { "Off", "On", "Compress", };
+static MenuEntry_t ME_RENDERERSETUP_PRECACHE = MAKE_MENUENTRY( "Pre-load map textures:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_PRECACHE, Option );
+static char *MEOSN_RENDERERSETUP_TEXCACHE[] = { "Off", "On", "Compr.", };
 static MenuOptionSet_t MEOS_RENDERERSETUP_TEXCACHE = MAKE_MENUOPTIONSET( MEOSN_RENDERERSETUP_TEXCACHE, NULL, 0x2 );
 static MenuOption_t MEO_RENDERERSETUP_TEXCACHE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_RENDERERSETUP_TEXCACHE, &glusetexcache );
-static MenuEntry_t ME_RENDERERSETUP_TEXCACHE = MAKE_MENUENTRY( "On disk texture cache", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_TEXCACHE, Option );
+static MenuEntry_t ME_RENDERERSETUP_TEXCACHE = MAKE_MENUENTRY( "On-disk texture cache:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_TEXCACHE, Option );
 #ifndef EDUKE32_GLES
 static MenuOption_t MEO_RENDERERSETUP_DETAILTEX = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &r_detailmapping );
 static MenuEntry_t ME_RENDERERSETUP_DETAILTEX = MAKE_MENUENTRY( "Detail textures:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_DETAILTEX, Option );
+
+static MenuOption_t MEO_RENDERERSETUP_GLOWTEX = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_NoYes, &r_glowmapping);
+static MenuEntry_t ME_RENDERERSETUP_GLOWTEX = MAKE_MENUENTRY("Glow textures:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_GLOWTEX, Option);
+
 #endif
 static MenuOption_t MEO_RENDERERSETUP_MODELS = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &usemodels );
-static MenuEntry_t ME_RENDERERSETUP_MODELS = MAKE_MENUENTRY( "Models:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_MODELS, Option );
+static MenuEntry_t ME_RENDERERSETUP_MODELS = MAKE_MENUENTRY( "Use 3d models:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_MODELS, Option );
 #endif
+
 #ifdef POLYMER
-static char *MEOSN_RENDERERSETUP_LIGHTS [] ={ "Off", "Full", "Map only", };
-static MenuOptionSet_t MEOS_RENDERERSETUP_LIGHTS = MAKE_MENUOPTIONSET(MEOSN_RENDERERSETUP_LIGHTS, NULL, 0x2);
-static MenuOption_t MEO_RENDERERSETUP_LIGHTS = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_RENDERERSETUP_LIGHTS, &pr_lighting);
-static MenuEntry_t ME_RENDERERSETUP_LIGHTS = MAKE_MENUENTRY("Dynamic lights (Polymer)", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_LIGHTS, Option);
+static char *MEOSN_POLYMER_LIGHTS [] ={ "Off", "Full", "Map only", };
+static MenuOptionSet_t MEOS_POLYMER_LIGHTS = MAKE_MENUOPTIONSET(MEOSN_POLYMER_LIGHTS, NULL, 0x2);
+static MenuOption_t MEO_POLYMER_LIGHTS = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_POLYMER_LIGHTS, &pr_lighting);
+static MenuEntry_t ME_POLYMER_LIGHTS = MAKE_MENUENTRY("Dynamic lights:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_POLYMER_LIGHTS, Option);
+
+static MenuRangeInt32_t MEO_POLYMER_LIGHTPASSES = MAKE_MENURANGE(&r_pr_maxlightpasses, &MF_Bluefont, 1, 10, 1, 10, 1);
+static MenuEntry_t ME_POLYMER_LIGHTPASSES = MAKE_MENUENTRY("Lights per surface:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_POLYMER_LIGHTPASSES, RangeInt32);
+
+static MenuOption_t MEO_POLYMER_SHADOWS = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_OffOn, &pr_shadows);
+static MenuEntry_t ME_POLYMER_SHADOWS = MAKE_MENUENTRY("Dynamic shadows:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_POLYMER_SHADOWS, Option);
+
+static MenuRangeInt32_t MEO_POLYMER_SHADOWCOUNT = MAKE_MENURANGE(&pr_shadowcount, &MF_Bluefont, 1, 10, 1, 10, 1);
+static MenuEntry_t ME_POLYMER_SHADOWCOUNT = MAKE_MENUENTRY("Shadows per surface:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_POLYMER_SHADOWCOUNT, RangeInt32);
+
 #endif
 
 #ifdef USE_OPENGL
-static MenuEntry_t *MEL_RENDERERSETUP[] = {
+static MenuEntry_t *MEL_RENDERERSETUP_POLYMOST[] = {
     &ME_RENDERERSETUP_HIGHTILE,
     &ME_RENDERERSETUP_TEXQUALITY,
     &ME_RENDERERSETUP_PRECACHE,
 #ifndef EDUKE32_GLES
     &ME_RENDERERSETUP_TEXCACHE,
     &ME_RENDERERSETUP_DETAILTEX,
+    &ME_RENDERERSETUP_GLOWTEX,
 #endif
     &ME_Space4,
     &ME_RENDERERSETUP_MODELS,
-#ifdef POLYMER
-    &ME_Space4,
-    &ME_RENDERERSETUP_LIGHTS,
-#endif
 };
+
+#ifdef POLYMER
+static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] ={
+    &ME_RENDERERSETUP_HIGHTILE,
+    &ME_RENDERERSETUP_TEXQUALITY,
+    &ME_RENDERERSETUP_PRECACHE,
+    &ME_RENDERERSETUP_TEXCACHE,
+    &ME_RENDERERSETUP_DETAILTEX,
+    &ME_RENDERERSETUP_GLOWTEX,
+    &ME_Space4,
+    &ME_RENDERERSETUP_MODELS,
+    &ME_Space4,
+    &ME_POLYMER_LIGHTS,
+    &ME_POLYMER_LIGHTPASSES,
+    &ME_POLYMER_SHADOWS,
+    &ME_POLYMER_SHADOWCOUNT,
+};
+#endif
 #endif
 
 #ifdef DROIDMENU
@@ -1178,7 +1218,8 @@ static MenuMenu_t M_MOUSEBTNS = MAKE_MENUMENU( "Mouse Buttons", &MMF_MouseJoySet
 static MenuMenu_t M_MOUSEADVANCED = MAKE_MENUMENU( "Advanced Mouse", &MMF_BigSliders, MEL_MOUSEADVANCED );
 static MenuMenu_t M_JOYSTICKAXIS = MAKE_MENUMENU( NULL, &MMF_BigSliders, MEL_JOYSTICKAXIS );
 #ifdef USE_OPENGL
-static MenuMenu_t M_RENDERERSETUP = MAKE_MENUMENU( "Advanced Video", &MMF_SmallOptions, MEL_RENDERERSETUP );
+static MenuMenu_t M_RENDERERSETUP_POLYMOST = MAKE_MENUMENU( "Polymost Setup", &MMF_SmallOptions, MEL_RENDERERSETUP_POLYMOST );
+static MenuMenu_t M_RENDERERSETUP_POLYMER = MAKE_MENUMENU("Polymer Setup", &MMF_SmallOptions, MEL_RENDERERSETUP_POLYMER );
 #endif
 static MenuMenu_t M_COLCORR = MAKE_MENUMENU( "Color Correction", &MMF_ColorCorrect, MEL_COLCORR );
 static MenuMenu_t M_SCREENSETUP = MAKE_MENUMENU( "Status and crosshair", &MMF_BigOptions, MEL_SCREENSETUP );
@@ -1260,12 +1301,15 @@ static Menu_t Menus[] = {
 #endif
     { &M_CONTROLS, MENU_CONTROLS, MENU_OPTIONS, MA_Return, Menu },
 #ifdef USE_OPENGL
-    { &M_RENDERERSETUP, MENU_RENDERERSETUP, MENU_DISPLAYSETUP, MA_Return, Menu },
+    { &M_RENDERERSETUP_POLYMOST, MENU_POLYMOST, MENU_DISPLAYSETUP, MA_Return, Menu },
 #endif
     { &M_COLCORR, MENU_COLCORR, MENU_DISPLAYSETUP, MA_Return, Menu },
     { &M_COLCORR, MENU_COLCORR_INGAME, MENU_CLOSE, MA_Return, Menu },
     { &M_SCREENSETUP, MENU_SCREENSETUP, MENU_DISPLAYSETUP, MA_Return, Menu },
     { &M_DISPLAYSETUP, MENU_DISPLAYSETUP, MENU_OPTIONS, MA_Return, Menu },
+#ifdef POLYMER
+{ &M_RENDERERSETUP_POLYMER, MENU_POLYMER, MENU_DISPLAYSETUP, MA_Return, Menu },
+#endif
     { &M_LOAD, MENU_LOAD, MENU_MAIN, MA_Return, Menu },
     { &M_SAVE, MENU_SAVE, MENU_MAIN, MA_Return, Menu },
     { &M_STORY, MENU_STORY, MENU_MAIN, MA_Return, Panel },
@@ -1626,10 +1670,8 @@ static void M_PreMenu(MenuID_t cm)
         }
         break;
 
-    case MENU_RENDERERSETUP:
-#ifdef POLYMER
-        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_LIGHTS, getrendermode() != REND_POLYMER);
-#endif
+    case MENU_POLYMER:
+    case MENU_POLYMOST:
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_TEXQUALITY, !usehightile);
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_PRECACHE, !usehightile);
 #ifndef EDUKE32_GLES
@@ -2825,7 +2867,9 @@ static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
         domodechange = 1;
     }
 #ifdef POLYMER
-    else if (entry == &ME_RENDERERSETUP_LIGHTS)
+    else if (entry == &ME_POLYMER_LIGHTS ||
+             entry == &ME_POLYMER_LIGHTPASSES ||
+             entry == &ME_POLYMER_SHADOWCOUNT)
         domodechange = 1;
 #endif
 
