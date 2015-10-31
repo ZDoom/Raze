@@ -5169,16 +5169,14 @@ end_yax: ;
                             }
                         }
 #ifdef YAX_ENABLE
-                        {
-                            int16_t cb, fb;
+                        int16_t cb, fb;
 
-                            yax_getbunches(highlightsector[i], &cb, &fb);
-                            if (cb>=0 || fb>=0)
-                            {
-                                // TROR stuff in the pasted sectors would really
-                                // complicate things, so don't allow this
-                                didmakered=1;
-                            }
+                        yax_getbunches(highlightsector[i], &cb, &fb);
+                        if (cb>=0 || fb>=0)
+                        {
+                            // TROR stuff in the pasted sectors would really
+                            // complicate things, so don't allow this
+                            didmakered=1;
                         }
 #endif
                     }

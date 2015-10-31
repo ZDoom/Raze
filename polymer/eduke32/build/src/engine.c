@@ -331,7 +331,7 @@ int32_t get_alwaysshowgray(void)
 
 void yax_updategrays(int32_t posze)
 {
-    int32_t i, j, k=1;
+    int32_t i, j;
 #ifdef YAX_ENABLE
     int32_t mingoodz=INT32_MAX, maxgoodz=INT32_MIN;
 #else
@@ -345,11 +345,12 @@ void yax_updategrays(int32_t posze)
     {
 #ifdef YAX_ENABLE
         int16_t cb, fb;
-
         yax_getbunches(i, &cb, &fb);
-        // update grayouts due to yax  --v-- has to be half-open  --v--
-        // because only one level should v  be ever active          v
-        k = ((cb<0 || sector[i].ceilingz < posze) && (fb<0 || posze <= sector[i].floorz));
+
+        // Update grayouts due to TROR, has to be --v--       half-open      --v--
+        // because only one level should ever be    v                          v
+        // active.                                  v                          v
+        int32_t keep = ((cb<0 || sector[i].ceilingz < posze) && (fb<0 || posze <= sector[i].floorz));
         if (autogray && (cb>=0 || fb>=0) && (sector[i].ceilingz <= posze && posze <= sector[i].floorz))
         {
             mingoodz = min(mingoodz, sector[i].ceilingz);
@@ -357,9 +358,9 @@ void yax_updategrays(int32_t posze)
         }
 #endif
         // update grayouts due to editorzrange
-        k &= (sector[i].ceilingz >= editorzrange[0] && sector[i].floorz <= editorzrange[1]);
+        keep &= (sector[i].ceilingz >= editorzrange[0] && sector[i].floorz <= editorzrange[1]);
 
-        if (!k)  // outside bounds, gray out!
+        if (!keep)  // outside bounds, gray out!
             graysectbitmap[i>>3] |= (1<<(i&7));
     }
 
