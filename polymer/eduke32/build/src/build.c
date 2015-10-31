@@ -6206,7 +6206,13 @@ end_point_dragging:
 
                     fade_editor_screen(editorcolors[11] | (159<<8));
 
-                    askres = editor_ask_function("Connect yellow ceil w/ blue floor (1) or (v)ice versa?", askchars, 2);
+                    char buffer[128];
+                    Bsnprintf(buffer, sizeof(buffer), "Z differences | yellow ceiling w/ blue floor: %d, vice versa: %d",
+                              compcfz[YAX_CEILING][0]-compcfz[YAX_FLOOR][1],
+                              compcfz[YAX_CEILING][1]-compcfz[YAX_FLOOR][0]);
+                    printext16(8, ydim-STATUS2DSIZ2-12, editorcolors[15], -1, buffer, 0);
+
+                    askres = editor_ask_function("Connect yellow ceiling w/ blue floor (1) or (v)ice versa?", askchars, 2);
                     if (askres==-1)
                         goto end_join_sectors;
                     joinstat &= (1<<askres);
