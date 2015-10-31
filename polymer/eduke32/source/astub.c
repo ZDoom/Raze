@@ -7164,7 +7164,7 @@ static void Keys2d(void)
         if (fb >= 0)
         {
             for (SECTORS_OF_BUNCH(fb,YAX_FLOOR, i))
-                fillsector(i, editorcolors[11]);
+                fillsector_notrans(i, editorcolors[11]);
             fade_editor_screen(editorcolors[11]);
 
             if (ask_if_sure("Clear all TROR extensions from marked sectors?", 0))

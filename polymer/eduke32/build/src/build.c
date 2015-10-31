@@ -2926,7 +2926,7 @@ static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const 
         enddrawing();
     }
 
-    fillsector(sectnum, editorcolors[9]);
+    fillsector_notrans(sectnum, editorcolors[9]);
     fade_editor_screen(editorcolors[9]);
 
     return ask_if_sure(querystr, 0);
@@ -6202,9 +6202,10 @@ end_point_dragging:
                     // now is a good time to ask...
                     for (comp=0; comp<2; comp++)
                         for (k=0; k<collnumsects[comp]; k++)
-                            fillsector(collsectlist[comp][k], comp==0 ? 159 : editorcolors[11]);
+                            fillsector_notrans(collsectlist[comp][k], comp==0 ? 159 : editorcolors[11]);
 
                     fade_editor_screen(editorcolors[11] | (159<<8));
+
                     askres = editor_ask_function("Connect yellow ceil w/ blue floor (1) or (v)ice versa?", askchars, 2);
                     if (askres==-1)
                         goto end_join_sectors;
@@ -6234,7 +6235,7 @@ end_point_dragging:
 
                         for (comp=0; comp<2; comp++)
                             for (k=0; k<collnumsects[comp]; k++)
-                                fillsector(collsectlist[comp][k], comp==0 ? 159 : editorcolors[11]);
+                                fillsector_notrans(collsectlist[comp][k], comp==0 ? 159 : editorcolors[11]);
 
                         fade_editor_screen(editorcolors[11] | (159<<8));
                         askres = editor_ask_function("Move (y)ellow or (b)lue component?", askchars, 2);
@@ -6276,7 +6277,7 @@ end_point_dragging:
                             int32_t movecol = movestat==0 ? 159 : editorcolors[11];
                             for (i=0; i<numsectors; i++)
                                 if (tcollbitmap[i>>3]&(1<<(i&7)))
-                                    fillsector(i, editorcolors[12]);
+                                    fillsector_notrans(i, editorcolors[12]);
 
                             fade_editor_screen(editorcolors[12] | (movecol<<8));
                             moveonwp = ask_if_sure("Also move formerly wall-connected sectors?",0);
@@ -6444,8 +6445,8 @@ end_point_dragging:
                             }
 
                             {
-                                fillsector(i, editorcolors[9]);
-                                fillsector(joinsector[0], editorcolors[9]);
+                                fillsector_notrans(i, editorcolors[9]);
+                                fillsector_notrans(joinsector[0], editorcolors[9]);
                                 fade_editor_screen(editorcolors[9]);
 
                                 if (!ask_if_sure("Really join non-adjacent sectors? (Y/N)", 0))
@@ -9973,7 +9974,7 @@ static inline int32_t imod(int32_t a, int32_t b)
 }
 #endif
 
-int32_t fillsector(int16_t sectnum, int32_t fillcolor)
+int32_t fillsector_maybetrans(int16_t sectnum, int32_t fillcolor, uint8_t dotrans)
 {
     if (sectnum == -1)
         return 0;
@@ -10096,7 +10097,7 @@ int32_t fillsector(int16_t sectnum, int32_t fillcolor)
                 if (fillist[z+1] > rborder)
                     fillist[z+1] = rborder;
 
-                drawline16(fillist[z]+1,sy, fillist[z+1]-1,sy, -col);  //editorcolors[fillcolor]
+                drawline16(fillist[z]+1,sy, fillist[z+1]-1,sy, dotrans ? -col : col);  //editorcolors[fillcolor]
             }
         }
     }

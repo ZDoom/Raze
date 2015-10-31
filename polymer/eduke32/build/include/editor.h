@@ -316,9 +316,19 @@ void _printmessage16(const char *fmt, ...) ATTRIBUTE((format(printf,1,2)));
 
 extern char lastpm16buf[156];
 
-int32_t fillsector(int16_t sectnum, int32_t fillcolor);  // fillcolor == -1: default (pulsating)
+int32_t fillsector_maybetrans(int16_t sectnum, int32_t fillcolor, uint8_t dotrans);  // fillcolor == -1: default (pulsating)
 int32_t ask_if_sure(const char *query, uint32_t flags);
 int32_t editor_ask_function(const char *question, const char *dachars, int32_t numchars);
+
+static inline int32_t fillsector(int16_t sectnum, int32_t fillcolor)
+{
+    return fillsector_maybetrans(sectnum, fillcolor, 1);
+}
+
+static inline int32_t fillsector_notrans(int16_t sectnum, int32_t fillcolor)
+{
+    return fillsector_maybetrans(sectnum, fillcolor, 0);
+}
 
 void spriteoncfz(int32_t i, int32_t *czptr, int32_t *fzptr) ATTRIBUTE((nonnull(2,3)));
 void DoSpriteOrnament(int32_t i);
