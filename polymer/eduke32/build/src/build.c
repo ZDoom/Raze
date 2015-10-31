@@ -5145,7 +5145,7 @@ end_yax: ;
                 else
                 {
                     // didmakered: 'bad'!
-                    int32_t didmakered = (highlightsectorcnt<0), hadouterpoint=0;
+                    int32_t didmakered = (highlightsectorcnt<0) || eitherCTRL, hadouterpoint=0;
 #ifdef YAX_ENABLE
                     for (i=0; i<MAXSECTORS>>3; i++)
                         hlorgraysectbitmap[i] = hlsectorbitmap[i]|graysectbitmap[i];
@@ -5372,8 +5372,9 @@ end_autoredwall:
             {
                 if (highlightsectorcnt == 0)
                 {
-                    int32_t add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
-                    int32_t tx,ty, pointsel = eitherCTRL;
+                    int32_t const add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
+                    int32_t const pointsel = eitherCTRL;
+                    int32_t tx,ty;
 #ifdef YAX_ENABLE
                     // home: ceilings, end: floors
                     int32_t fb, bunchsel = keystatus[0xcf] ? 1 : (keystatus[0xc7] ? 0 : -1);
