@@ -2631,6 +2631,8 @@ static void polymost_drawalls(int32_t const bunch)
         getzsofslope(sectnum,/*Blrintf(nx1)*/(int)n1.x,/*Blrintf(ny1)*/(int)n1.y,&cz,&fz);
         float const cy1 = ((float)(cz-globalposz))*ryp1 + ghoriz, fy1 = ((float)(fz-globalposz))*ryp1 + ghoriz;
 
+        // Floor
+
         globalpicnum = sec->floorpicnum;
         globalshade = sec->floorshade;
         globalpal = sec->floorpal;
@@ -2658,7 +2660,7 @@ static void polymost_drawalls(int32_t const bunch)
         }
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
         {
-            //Parallaxing sky... hacked for Ken's mountain texture; paper-sky only :/
+            //Parallaxing sky... hacked for Ken's mountain texture
             if (!nofog) calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
 
             //Use clamping for tiled sky textures
@@ -2666,14 +2668,15 @@ static void polymost_drawalls(int32_t const bunch)
                 if (dapskyoff[i] != dapskyoff[i-1])
                     { skyclamphack = r_parallaxskyclamping; break; }
 
-            if (bpp == 8 || !usehightile || !hicfindskybox(globalpicnum, globalpal))
+            if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
             {
                 float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
                 float vv[2];
                 float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
                 vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(65536.f*65536.f));
-                vv[0] = dd*((float) ((tilesiz[globalpicnum].y>>1)+parallaxyoffs_override/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
+                vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+parallaxyoffs_override/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
+                vec3f_t o;
 
                 //Hack to draw black rectangle below sky when looking down...
                 xtex.d = xtex.u = xtex.v = 0;
@@ -2686,10 +2689,10 @@ static void polymost_drawalls(int32_t const bunch)
                 otex.u = 0;
                 otex.v = (float)(tilesiz[globalpicnum].y - 1) * otex.d;
 
-                vec3f_t o;
-
                 o.y = ((float)tilesiz[globalpicnum].y*dd-vv[0])/vv[1];
-                if ((o.y > fy0) && (o.y > fy1)) polymost_domost(x0,o.y,x1,o.y);
+
+                if ((o.y > fy0) && (o.y > fy1))
+                    polymost_domost(x0,o.y,x1,o.y);
                 else if ((o.y > fy0) != (o.y > fy1))
                 {
                     //  fy0                      fy1
@@ -2698,13 +2701,19 @@ static void polymost_drawalls(int32_t const bunch)
                     //        \              /
                     //         fy1        fy0
                     o.x = (o.y-fy0)*(x1-x0)/(fy1-fy0) + x0;
-                    if (o.y > fy0) { polymost_domost(x0,o.y,o.x,o.y); polymost_domost(o.x,o.y,x1,fy1); }
-                    else { polymost_domost(x0,fy0,o.x,o.y); polymost_domost(o.x,o.y,x1,o.y); }
+                    if (o.y > fy0)
+                    {
+                        polymost_domost(x0,o.y,o.x,o.y);
+                        polymost_domost(o.x,o.y,x1,fy1);
+                    }
+                    else
+                    {
+                        polymost_domost(x0,fy0,o.x,o.y);
+                        polymost_domost(o.x,o.y,x1,o.y);
+                    }
                 }
-                else polymost_domost(x0,fy0,x1,fy1);
-
-                if (r_parallaxskypanning)
-                    vv[0] += dd*((float)sec->floorypanning)*((float)i)*(1.f/256.f);
+                else
+                    polymost_domost(x0,fy0,x1,fy1);
 
                 xtex.d = xtex.v = 0;
                 ytex.d = ytex.u = 0;
@@ -2712,7 +2721,7 @@ static void polymost_drawalls(int32_t const bunch)
                 xtex.u = otex.d * (t * (float)((uint64_t)(xdimscale * yxaspect) * viewingrange)) *
                          (1.f / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
                 ytex.v = vv[1];
-                otex.v = vv[0];
+                otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->floorypanning*(float)i*(1.f/256.f) : vv[0];
 
                 i = globalpicnum;
                 float const r = (fy1-fy0)/(x1-x0); //slope of line
@@ -2731,8 +2740,6 @@ static void polymost_drawalls(int32_t const bunch)
                     pow2xsplit = 0; polymost_domost(o.x,(o.x-x0)*r+fy0,fx,(fx-x0)*r+fy0); //flor
                 }
                 while (i >= 0);
-
-//                g_nodraw = 0;
             }
             else  //NOTE: code copied from ceiling code... lots of duplicated stuff :/
             {
@@ -2750,260 +2757,6 @@ static void polymost_drawalls(int32_t const bunch)
                     vec2f_t skyp0 = { walpos.y * gcosang - walpos.x * gsinang,
                                       walpos.x * gcosang2 + walpos.y * gsinang2 };
 
-                    walpos = skywal[(i + 1) & 3];
-                    vec2f_t skyp1 = { walpos.y * gcosang - walpos.x * gsinang,
-                                      walpos.x * gcosang2 + walpos.y * gsinang2 };
-
-                    vec2f_t const oskyp0 = skyp0;
-
-                    //Clip to close parallel-screen plane
-                    if (skyp0.y < SCISDIST)
-                    {
-                        if (skyp1.y < SCISDIST) continue;
-                        sky_t0 = (SCISDIST-skyp0.y)/(skyp1.y-skyp0.y); skyp0.x = (skyp1.x-skyp0.x)*sky_t0+skyp0.x; skyp0.y = SCISDIST;
-                    }
-                    else { sky_t0 = 0.f; }
-                    if (skyp1.y < SCISDIST)
-                    {
-                        sky_t1 = (SCISDIST-oskyp0.y)/(skyp1.y-oskyp0.y); skyp1.x = (skyp1.x-oskyp0.x)*sky_t1+oskyp0.x; skyp1.y = SCISDIST;
-                    }
-                    else { sky_t1 = 1.f;  }
-
-                    sky_ryp0 = 1.f/skyp0.y; sky_ryp1 = 1.f/skyp1.y;
-
-                    //Generate screen coordinates for front side of wall
-                    sky_x0 = ghalfx*skyp0.x*sky_ryp0 + ghalfx;
-                    sky_x1 = ghalfx*skyp1.x*sky_ryp1 + ghalfx;
-                    if ((sky_x1 <= sky_x0) || (sky_x0 >= x1) || (x0 >= sky_x1)) continue;
-
-                    sky_ryp0 *= gyxscale; sky_ryp1 *= gyxscale;
-
-                    sky_cy0 = -8192.f*sky_ryp0 + ghoriz;
-                    sky_fy0 =  8192.f*sky_ryp0 + ghoriz;
-                    sky_cy1 = -8192.f*sky_ryp1 + ghoriz;
-                    sky_fy1 =  8192.f*sky_ryp1 + ghoriz;
-
-                    sky_ox0 = sky_x0; sky_ox1 = sky_x1;
-
-                    //Make sure: x0<=_x0<_x1<=_x1
-                    float nfy[2] = { fy0, fy1 };
-                    if (sky_x0 < x0)
-                    {
-                        float const t = (x0-sky_x0)/(sky_x1-sky_x0);
-                        sky_cy0 += (sky_cy1-sky_cy0)*t;
-                        sky_fy0 += (sky_fy1-sky_fy0)*t;
-                        sky_x0 = x0;
-                    }
-                    else if (sky_x0 > x0) nfy[0] += (sky_x0-x0)*(fy1-fy0)/(x1-x0);
-                    if (sky_x1 > x1)
-                    {
-                        float const t = (x1-sky_x1)/(sky_x1-sky_x0);
-                        sky_cy1 += (sky_cy1-sky_cy0)*t;
-                        sky_fy1 += (sky_fy1-sky_fy0)*t;
-                        sky_x1 = x1;
-                    }
-                    else if (sky_x1 < x1) nfy[1] += (sky_x1-x1)*(fy1-fy0)/(x1-x0);
-
-                    //   (skybox floor)
-                    //(_x0,_fy0)-(_x1,_fy1)
-                    //   (skybox wall)
-                    //(_x0,_cy0)-(_x1,_cy1)
-                    //   (skybox ceiling)
-                    //(_x0,nfy0)-(_x1,nfy1)
-
-                    //ceiling of skybox
-
-                    float const ft[4] = { 512 / 16, 512 / -16, fcosglobalang * (1.f / 2147483648.f),
-                                    fsinglobalang * (1.f / 2147483648.f) };
-
-                    xtex.d = 0;
-                    ytex.d = gxyaspect*(1.f/4194304.f);
-                    otex.d = -ghoriz*ytex.d;
-                    xtex.u = (double)ft[3]*fviewingrange*(-1.0/65536.0);
-                    xtex.v = (double)ft[2]*fviewingrange*(-1.0/65536.0);
-                    ytex.u = ft[0]*ytex.d; ytex.v = ft[1]*ytex.d;
-                    otex.u = ft[0]*otex.d; otex.v = ft[1]*otex.d;
-                    otex.u += (ft[2]-xtex.u)*ghalfx;
-                    otex.v -= (ft[3]+xtex.v)*ghalfx;
-                    xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; //y-flip skybox floor
-                    drawingskybox = 6; //ceiling/5th texture/index 4 of skybox
-
-                    if ((sky_fy0 > nfy[0]) && (sky_fy1 > nfy[1])) polymost_domost(sky_x0,sky_fy0,sky_x1,sky_fy1);
-                    else if ((sky_fy0 > nfy[0]) != (sky_fy1 > nfy[1]))
-                    {
-                        //(ox,oy) is intersection of: (_x0,_cy0)-(_x1,_cy1)
-                        //                            (_x0,nfy0)-(_x1,nfy1)
-                        float const t = (sky_fy0-nfy[0])/(nfy[1]-nfy[0]-sky_fy1+sky_fy0);
-                        vec2f_t const o = { sky_x0 + (sky_x1 - sky_x0) * t, sky_fy0 + (sky_fy1 - sky_fy0) * t };
-                        if (nfy[0] > sky_fy0)
-                        {
-                            polymost_domost(sky_x0, nfy[0], o.x, o.y);
-                            polymost_domost(o.x, o.y, sky_x1, sky_fy1);
-                        }
-                        else { polymost_domost(sky_x0,sky_fy0,o.x,o.y); polymost_domost(o.x,o.y,sky_x1,nfy[1]); }
-                    }
-                    else polymost_domost(sky_x0,nfy[0],sky_x1,nfy[1]);
-
-                    //wall of skybox
-                    drawingskybox = i+1; //i+1th texture/index i of skybox
-                    xtex.d = (sky_ryp0-sky_ryp1)*gxyaspect*(1.f/512.f) / (sky_ox0-sky_ox1);
-                    ytex.d = 0;
-                    otex.d = sky_ryp0*gxyaspect*(1.f/512.f) - xtex.d*sky_ox0;
-                    xtex.u = (sky_t0*sky_ryp0 - sky_t1*sky_ryp1)*gxyaspect*(64.f/512.f) / (sky_ox0-sky_ox1);
-                    otex.u = sky_t0*sky_ryp0*gxyaspect*(64.f/512.f) - xtex.u*sky_ox0;
-                    ytex.u = 0;
-                    sky_t0 = -8192.f*sky_ryp0 + ghoriz;
-                    sky_t1 = -8192.f*sky_ryp1 + ghoriz;
-                    float const t = ((xtex.d*sky_ox0 + otex.d)*8.f) / ((sky_ox1-sky_ox0) * sky_ryp0 * 2048.f);
-                    xtex.v = (sky_t0-sky_t1)*t;
-                    ytex.v = (sky_ox1-sky_ox0)*t;
-                    otex.v = -xtex.v*sky_ox0 - ytex.v*sky_t0;
-                    if ((sky_cy0 > nfy[0]) && (sky_cy1 > nfy[1])) polymost_domost(sky_x0,sky_cy0,sky_x1,sky_cy1);
-                    else if ((sky_cy0 > nfy[0]) != (sky_cy1 > nfy[1]))
-                    {
-                        //(ox,oy) is intersection of: (_x0,_fy0)-(_x1,_fy1)
-                        //                            (_x0,nfy0)-(_x1,nfy1)
-                        float const t = (sky_cy0-nfy[0])/(nfy[1]-nfy[0]-sky_cy1+sky_cy0);
-                        vec2f_t const o = { sky_x0 + (sky_x1 - sky_x0) * t, sky_cy0 + (sky_cy1 - sky_cy0) * t };
-                        if (nfy[0] > sky_cy0) { polymost_domost(sky_x0,nfy[0],o.x,o.y); polymost_domost(o.x,o.y,sky_x1,sky_cy1); }
-                        else { polymost_domost(sky_x0,sky_cy0,o.x,o.y); polymost_domost(o.x,o.y,sky_x1,nfy[1]); }
-                    }
-                    else polymost_domost(sky_x0,nfy[0],sky_x1,nfy[1]);
-                }
-
-                //Floor of skybox
-                drawingskybox = 5; //floor/6th texture/index 5 of skybox
-
-                float const ft[4] = { 512 / 16, -512 / -16, fcosglobalang * (1.f / 2147483648.f),
-                                      fsinglobalang * (1.f / 2147483648.f) };
-
-                xtex.d = 0;
-                ytex.d = gxyaspect*(-1.f/4194304.f);
-                otex.d = -ghoriz*ytex.d;
-                xtex.u = ft[3]*((double)viewingrange)*(-1.0/65536.0);
-                xtex.v = ft[2]*((double)viewingrange)*(-1.0/65536.0);
-                ytex.u = ft[0]*ytex.d; ytex.v = ft[1]*ytex.d;
-                otex.u = ft[0]*otex.d; otex.v = ft[1]*otex.d;
-                otex.u += (ft[2]-xtex.u)*ghalfx;
-                otex.v -= (ft[3]+xtex.v)*ghalfx;
-                polymost_domost(x0,fy0,x1,fy1);
-
-                skyclamphack = 0;
-                drawingskybox = 0;
-            }
-
-            skyclamphack = 0;
-            if (!nofog)
-                bglEnable(GL_FOG);
-        }
-
-        globalpicnum = sec->ceilingpicnum; globalshade = sec->ceilingshade; globalpal = (int32_t)((uint8_t)sec->ceilingpal);
-        globalorientation = sec->ceilingstat;
-        globvis = globalcisibility;
-        if (sector[sectnum].visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sector[sectnum].visibility+16));
-
-        DO_TILE_ANIM(globalpicnum, sectnum);
-
-        dapskyoff = getpsky(globalpicnum, NULL, &dapskybits);
-
-        global_cf_fogpal = sec->fogpal;
-        global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
-        global_cf_xpanning = sec->ceilingxpanning; global_cf_ypanning = sec->ceilingypanning, global_cf_heinum = sec->ceilingheinum;
-        global_getzofslope_func = &getceilzofslope;
-
-        if (!(globalorientation&1))
-        {
-#ifdef YAX_ENABLE
-            if (globalposz >= sec->ceilingz || yax_getbunch(sectnum, YAX_CEILING) < 0 || yax_getnextwall(wallnum, YAX_CEILING) >= 0)
-#endif
-                polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, cy0, cy1, sectnum);
-        }
-        else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
-        {
-            if (!nofog) calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
-
-            //Use clamping for tiled sky textures
-            for (int i=(1<<dapskybits)-1; i>0; i--)
-                if (dapskyoff[i] != dapskyoff[i-1])
-                    { skyclamphack = r_parallaxskyclamping; break; }
-
-            if (bpp == 8 || !usehightile || !hicfindskybox(globalpicnum, globalpal))
-            {
-                float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
-                float vv[2];
-                float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
-                vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(65536.f*65536.f));
-                vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+parallaxyoffs_override/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
-                int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
-
-                //Hack to draw black rectangle below sky when looking down...
-                xtex.d = xtex.u = xtex.v = 0;
-                ytex.d = gxyaspect * (1.f / -262144.f);
-                otex.d = -ghoriz * ytex.d;
-                ytex.u = ytex.v = 0;
-                otex.u = otex.v = 0;
-
-                vec3f_t o;
-
-                o.y = -vv[0]/vv[1];
-
-                if ((o.y < cy0) && (o.y < cy1)) polymost_domost(x1,o.y,x0,o.y);
-                else if ((o.y < cy0) != (o.y < cy1))
-                {
-                    /*         cy1        cy0
-                    //        /              \
-                    //oy----------      oy---------
-                    //    /                   \
-                    //  cy0                     cy1
-                    */
-                    o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
-                    if (o.y < cy0) { polymost_domost(o.x,o.y,x0,o.y); polymost_domost(x1,cy1,o.x,o.y); }
-                    else { polymost_domost(o.x,o.y,x0,cy0); polymost_domost(x1,o.y,o.x,o.y); }
-                }
-                else polymost_domost(x1,cy1,x0,cy0);
-
-                if (r_parallaxskypanning)
-                    vv[0] += dd*(float)sec->ceilingypanning*(float)i*(1.f/256.f);
-                
-                xtex.d = 0; ytex.d = 0; otex.d = dd;
-                xtex.u = otex.d * 
-                    (t * (float) ((uint64_t)(xdimscale * yxaspect) * viewingrange)) * (1.f/(16384.0*65536.0*65536.0*5.0*1024.0));
-                ytex.u = 0; //guo calculated later
-                xtex.v = 0; ytex.v = vv[1]; otex.v = vv[0];
-
-                i = globalpicnum; 
-                float const r = (cy1-cy0)/(x1-x0); //slope of line
-                o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
-
-                int y = ((((int32_t)((x0-ghalfx)*o.y))+globalang)>>(11-dapskybits));
-                float fx = x0;
-                do
-                {
-                    globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                    otex.u = otex.d*(t*((float)(globalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - xtex.u*ghalfx;
-                    y++;
-                    o.x = fx; fx = ((float)((y<<(11-dapskybits))-globalang))*o.z+ghalfx;
-                    if (fx > x1) { fx = x1; i = -1; }
-                    pow2xsplit = 0; polymost_domost(fx,(fx-x0)*r+cy0,o.x,(o.x-x0)*r+cy0); //ceil
-                }
-                while (i >= 0);
-
-//                g_nodraw = 0;
-            }
-            else
-            {
-                //Skybox code for parallax ceiling!
-                float sky_t0, sky_t1; // _nx0, _ny0, _nx1, _ny1;
-                float sky_ryp0, sky_ryp1, sky_x0, sky_x1, sky_cy0, sky_fy0, sky_cy1, sky_fy1, sky_ox0, sky_ox1;
-                static vec2f_t const skywal[4] = { { -512, -512 }, { 512, -512 }, { 512, 512 }, { -512, 512 } };
-                pow2xsplit = 0;
-                skyclamphack = 1;
-
-                for (int i=0; i<4; i++)
-                {
-                    walpos = skywal[i&3];
-                    vec2f_t skyp0 = { walpos.y * gcosang - walpos.x * gsinang,
-                                      walpos.x * gcosang2 + walpos.y * gsinang2 };
                     walpos = skywal[(i + 1) & 3];
                     vec2f_t skyp1 = { walpos.y * gcosang - walpos.x * gsinang,
                                       walpos.x * gcosang2 + walpos.y * gsinang2 };
@@ -3040,7 +2793,299 @@ static void polymost_drawalls(int32_t const bunch)
 
                     sky_ox0 = sky_x0; sky_ox1 = sky_x1;
 
-                    //Make sure: x0<=_x0<_x1<=_x1
+                    //Make sure: x0<=_x0<_x1<=x1
+                    float nfy[2] = { fy0, fy1 };
+
+                    if (sky_x0 < x0)
+                    {
+                        float const t = (x0-sky_x0)/(sky_x1-sky_x0);
+                        sky_cy0 += (sky_cy1-sky_cy0)*t;
+                        sky_fy0 += (sky_fy1-sky_fy0)*t;
+                        sky_x0 = x0;
+                    }
+                    else if (sky_x0 > x0) nfy[0] += (sky_x0-x0)*(fy1-fy0)/(x1-x0);
+
+                    if (sky_x1 > x1)
+                    {
+                        float const t = (x1-sky_x1)/(sky_x1-sky_x0);
+                        sky_cy1 += (sky_cy1-sky_cy0)*t;
+                        sky_fy1 += (sky_fy1-sky_fy0)*t;
+                        sky_x1 = x1;
+                    }
+                    else if (sky_x1 < x1) nfy[1] += (sky_x1-x1)*(fy1-fy0)/(x1-x0);
+
+                    //   (skybox floor)
+                    //(_x0,_fy0)-(_x1,_fy1)
+                    //   (skybox wall)
+                    //(_x0,_cy0)-(_x1,_cy1)
+                    //   (skybox ceiling)
+                    //(_x0,nfy0)-(_x1,nfy1)
+
+                    //floor of skybox
+                    drawingskybox = 6; //floor/6th texture/index 5 of skybox
+                    float const ft[4] = { 512 / 16, 512 / -16, fcosglobalang * (1.f / 2147483648.f),
+                                          fsinglobalang * (1.f / 2147483648.f) };
+
+                    xtex.d = 0;
+                    ytex.d = gxyaspect*(1.f/4194304.f);
+                    otex.d = -ghoriz*ytex.d;
+                    xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
+                    xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
+                    ytex.u = ft[0]*ytex.d; ytex.v = ft[1]*ytex.d;
+                    otex.u = ft[0]*otex.d; otex.v = ft[1]*otex.d;
+                    otex.u += (ft[2]-xtex.u)*ghalfx;
+                    otex.v -= (ft[3]+xtex.v)*ghalfx;
+                    xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; //y-flip skybox floor
+
+                    if ((sky_fy0 > nfy[0]) && (sky_fy1 > nfy[1]))
+                        polymost_domost(sky_x0,sky_fy0,sky_x1,sky_fy1);
+                    else if ((sky_fy0 > nfy[0]) != (sky_fy1 > nfy[1]))
+                    {
+                        //(ox,oy) is intersection of: (_x0,_fy0)-(_x1,_fy1)
+                        //                            (_x0,nfy0)-(_x1,nfy1)
+                        float const t = (sky_fy0-nfy[0])/(nfy[1]-nfy[0]-sky_fy1+sky_fy0);
+                        vec2f_t const o = { sky_x0 + (sky_x1-sky_x0)*t, sky_fy0 + (sky_fy1-sky_fy0)*t };
+                        if (nfy[0] > sky_fy0)
+                        {
+                            polymost_domost(sky_x0,nfy[0],o.x,o.y);
+                            polymost_domost(o.x,o.y,sky_x1,sky_fy1);
+                        }
+                        else
+                        {
+                            polymost_domost(sky_x0,sky_fy0,o.x,o.y);
+                            polymost_domost(o.x,o.y,sky_x1,nfy[1]);
+                        }
+                    }
+                    else
+                        polymost_domost(sky_x0,nfy[0],sky_x1,nfy[1]);
+
+                    //wall of skybox
+                    drawingskybox = i+1; //i+1th texture/index i of skybox
+                    xtex.d = (sky_ryp0-sky_ryp1)*gxyaspect*(1.f/512.f) / (sky_ox0-sky_ox1);
+                    ytex.d = 0;
+                    otex.d = sky_ryp0*gxyaspect*(1.f/512.f) - xtex.d*sky_ox0;
+                    xtex.u = (sky_t0*sky_ryp0 - sky_t1*sky_ryp1)*gxyaspect*(64.f/512.f) / (sky_ox0-sky_ox1);
+                    otex.u = sky_t0*sky_ryp0*gxyaspect*(64.f/512.f) - xtex.u*sky_ox0;
+                    ytex.u = 0;
+                    sky_t0 = -8192.f*sky_ryp0 + ghoriz;
+                    sky_t1 = -8192.f*sky_ryp1 + ghoriz;
+                    float const t = ((xtex.d*sky_ox0 + otex.d)*8.f) / ((sky_ox1-sky_ox0) * sky_ryp0 * 2048.f);
+                    xtex.v = (sky_t0-sky_t1)*t;
+                    ytex.v = (sky_ox1-sky_ox0)*t;
+                    otex.v = -xtex.v*sky_ox0 - ytex.v*sky_t0;
+
+                    if ((sky_cy0 > nfy[0]) && (sky_cy1 > nfy[1]))
+                        polymost_domost(sky_x0,sky_cy0,sky_x1,sky_cy1);
+                    else if ((sky_cy0 > nfy[0]) != (sky_cy1 > nfy[1]))
+                    {
+                        //(ox,oy) is intersection of: (_x0,_fy0)-(_x1,_fy1)
+                        //                            (_x0,nfy0)-(_x1,nfy1)
+                        float const t = (sky_cy0-nfy[0])/(nfy[1]-nfy[0]-sky_cy1+sky_cy0);
+                        vec2f_t const o = { sky_x0 + (sky_x1 - sky_x0) * t, sky_cy0 + (sky_cy1 - sky_cy0) * t };
+                        if (nfy[0] > sky_cy0)
+                        {
+                            polymost_domost(sky_x0,nfy[0],o.x,o.y);
+                            polymost_domost(o.x,o.y,sky_x1,sky_cy1);
+                        }
+                        else
+                        {
+                            polymost_domost(sky_x0,sky_cy0,o.x,o.y);
+                            polymost_domost(o.x,o.y,sky_x1,nfy[1]);
+                        }
+                    }
+                    else
+                        polymost_domost(sky_x0,nfy[0],sky_x1,nfy[1]);
+                }
+
+                //Ceiling of skybox
+                drawingskybox = 5; //ceiling/5th texture/index 4 of skybox
+                float const ft[4] = { 512 / 16, -512 / -16, fcosglobalang * (1.f / 2147483648.f),
+                                      fsinglobalang * (1.f / 2147483648.f) };
+
+                xtex.d = 0;
+                ytex.d = gxyaspect*(-1.f/4194304.f);
+                otex.d = -ghoriz*ytex.d;
+                xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
+                xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
+                ytex.u = ft[0]*ytex.d; ytex.v = ft[1]*ytex.d;
+                otex.u = ft[0]*otex.d; otex.v = ft[1]*otex.d;
+                otex.u += (ft[2]-xtex.u)*ghalfx;
+                otex.v -= (ft[3]+xtex.v)*ghalfx;
+
+                polymost_domost(x0,fy0,x1,fy1);
+
+                skyclamphack = 0;
+                drawingskybox = 0;
+            }
+
+            skyclamphack = 0;
+            if (!nofog)
+                bglEnable(GL_FOG);
+        }
+
+        // Ceiling
+
+        globalpicnum = sec->ceilingpicnum;
+        globalshade = sec->ceilingshade;
+        globalpal = sec->ceilingpal;
+        globalorientation = sec->ceilingstat;
+        globvis = (sector[sectnum].visibility != 0) ?
+                  mulscale4(globalcisibility, (uint8_t)(sector[sectnum].visibility + 16)) :
+                  globalcisibility;
+
+        DO_TILE_ANIM(globalpicnum, sectnum);
+
+
+        dapskyoff = getpsky(globalpicnum, NULL, &dapskybits);
+
+        global_cf_fogpal = sec->fogpal;
+        global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
+        global_cf_xpanning = sec->ceilingxpanning; global_cf_ypanning = sec->ceilingypanning, global_cf_heinum = sec->ceilingheinum;
+        global_getzofslope_func = &getceilzofslope;
+
+        if (!(globalorientation&1))
+        {
+#ifdef YAX_ENABLE
+            if (globalposz >= sec->ceilingz || yax_getbunch(sectnum, YAX_CEILING) < 0 || yax_getnextwall(wallnum, YAX_CEILING) >= 0)
+#endif
+                polymost_internal_nonparallaxed(n0, n1, ryp0, ryp1, x0, x1, cy0, cy1, sectnum);
+        }
+        else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
+        {
+            //Parallaxing sky... hacked for Ken's mountain texture
+            if (!nofog) calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
+
+            //Use clamping for tiled sky textures
+            for (int i=(1<<dapskybits)-1; i>0; i--)
+                if (dapskyoff[i] != dapskyoff[i-1])
+                    { skyclamphack = r_parallaxskyclamping; break; }
+
+            if (!usehightile || !hicfindskybox(globalpicnum, globalpal))
+            {
+                float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
+                float vv[2];
+                float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
+                vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(65536.f*65536.f));
+                vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+parallaxyoffs_override/*+g_psky.yoffs*/)) - vv[1]*ghoriz;
+                int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
+                vec3f_t o;
+
+                //Hack to draw color rectangle above sky when looking up...
+                xtex.d = xtex.u = xtex.v = 0;
+
+                ytex.d = gxyaspect * (1.f / -262144.f);
+                ytex.u = 0;
+                ytex.v = 0;
+
+                otex.d = -ghoriz * ytex.d;
+                otex.u = 0;
+                otex.v = 0;
+
+                o.y = -vv[0]/vv[1];
+
+                if ((o.y < cy0) && (o.y < cy1))
+                    polymost_domost(x1,o.y,x0,o.y);
+                else if ((o.y < cy0) != (o.y < cy1))
+                {
+                    /*         cy1        cy0
+                    //        /              \
+                    //oy----------      oy---------
+                    //    /                   \
+                    //  cy0                     cy1 */
+                    o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
+                    if (o.y < cy0)
+                    {
+                        polymost_domost(o.x,o.y,x0,o.y);
+                        polymost_domost(x1,cy1,o.x,o.y);
+                    }
+                    else
+                    {
+                        polymost_domost(o.x,o.y,x0,cy0);
+                        polymost_domost(x1,o.y,o.x,o.y);
+                    }
+                }
+                else
+                    polymost_domost(x1,cy1,x0,cy0);
+
+                xtex.d = xtex.v = 0;
+                ytex.d = ytex.u = 0;
+                otex.d = dd;
+                xtex.u = otex.d * (t * (float)((uint64_t)(xdimscale * yxaspect) * viewingrange)) *
+                         (1.f / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
+                ytex.v = vv[1];
+                otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->ceilingypanning*(float)i*(1.f/256.f) : vv[0];
+
+                i = globalpicnum; 
+                float const r = (cy1-cy0)/(x1-x0); //slope of line
+                o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
+
+                int y = ((((int32_t)((x0-ghalfx)*o.y))+globalang)>>(11-dapskybits));
+                float fx = x0;
+                do
+                {
+                    globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
+                    otex.u = otex.d*(t*((float)(globalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - xtex.u*ghalfx;
+                    y++;
+                    o.x = fx; fx = ((float)((y<<(11-dapskybits))-globalang))*o.z+ghalfx;
+                    if (fx > x1) { fx = x1; i = -1; }
+
+                    pow2xsplit = 0; polymost_domost(fx,(fx-x0)*r+cy0,o.x,(o.x-x0)*r+cy0); //ceil
+                }
+                while (i >= 0);
+            }
+            else
+            {
+                //Skybox code for parallax ceiling!
+                float sky_t0, sky_t1; // _nx0, _ny0, _nx1, _ny1;
+                float sky_ryp0, sky_ryp1, sky_x0, sky_x1, sky_cy0, sky_fy0, sky_cy1, sky_fy1, sky_ox0, sky_ox1;
+                static vec2f_t const skywal[4] = { { -512, -512 }, { 512, -512 }, { 512, 512 }, { -512, 512 } };
+
+                pow2xsplit = 0;
+                skyclamphack = 1;
+
+                for (int i=0; i<4; i++)
+                {
+                    walpos = skywal[i&3];
+                    vec2f_t skyp0 = { walpos.y * gcosang - walpos.x * gsinang,
+                                      walpos.x * gcosang2 + walpos.y * gsinang2 };
+
+                    walpos = skywal[(i + 1) & 3];
+                    vec2f_t skyp1 = { walpos.y * gcosang - walpos.x * gsinang,
+                                      walpos.x * gcosang2 + walpos.y * gsinang2 };
+
+                    vec2f_t const oskyp0 = skyp0;
+
+                    //Clip to close parallel-screen plane
+                    if (skyp0.y < SCISDIST)
+                    {
+                        if (skyp1.y < SCISDIST) continue;
+                        sky_t0 = (SCISDIST-skyp0.y)/(skyp1.y-skyp0.y); skyp0.x = (skyp1.x-skyp0.x)*sky_t0+skyp0.x; skyp0.y = SCISDIST;
+                    }
+                    else { sky_t0 = 0.f; }
+
+                    if (skyp1.y < SCISDIST)
+                    {
+                        sky_t1 = (SCISDIST-oskyp0.y)/(skyp1.y-oskyp0.y); skyp1.x = (skyp1.x-oskyp0.x)*sky_t1+oskyp0.x; skyp1.y = SCISDIST;
+                    }
+                    else { sky_t1 = 1.f; }
+
+                    sky_ryp0 = 1.f/skyp0.y; sky_ryp1 = 1.f/skyp1.y;
+
+                    //Generate screen coordinates for front side of wall
+                    sky_x0 = ghalfx*skyp0.x*sky_ryp0 + ghalfx;
+                    sky_x1 = ghalfx*skyp1.x*sky_ryp1 + ghalfx;
+                    if ((sky_x1 <= sky_x0) || (sky_x0 >= x1) || (x0 >= sky_x1)) continue;
+
+                    sky_ryp0 *= gyxscale; sky_ryp1 *= gyxscale;
+
+                    sky_cy0 = -8192.f*sky_ryp0 + ghoriz;
+                    sky_fy0 =  8192.f*sky_ryp0 + ghoriz;
+                    sky_cy1 = -8192.f*sky_ryp1 + ghoriz;
+                    sky_fy1 =  8192.f*sky_ryp1 + ghoriz;
+
+                    sky_ox0 = sky_x0; sky_ox1 = sky_x1;
+
+                    //Make sure: x0<=_x0<_x1<=x1
                     float ncy[2] = { cy0, cy1 };
 
                     if (sky_x0 < x0)
@@ -3051,6 +3096,7 @@ static void polymost_drawalls(int32_t const bunch)
                         sky_x0 = x0;
                     }
                     else if (sky_x0 > x0) ncy[0] += (sky_x0-x0)*(cy1-cy0)/(x1-x0);
+
                     if (sky_x1 > x1)
                     {
                         float const t = (x1-sky_x1)/(sky_x1-sky_x0);
@@ -3071,26 +3117,39 @@ static void polymost_drawalls(int32_t const bunch)
                     drawingskybox = 5; //ceiling/5th texture/index 4 of skybox
                     float const ft[4] = { 512 / 16, -512 / -16, fcosglobalang * (1.f / 2147483648.f),
                                           fsinglobalang * (1.f / 2147483648.f) };
+
                     xtex.d = 0;
                     ytex.d = gxyaspect*(-1.f/4194304.f);
                     otex.d = -ghoriz*ytex.d;
-                    xtex.u = (double)ft[3]*fviewingrange*(-1.0/65536.0);
-                    xtex.v = (double)ft[2]*fviewingrange*(-1.0/65536.0);
+                    xtex.u = ft[3]*fviewingrange*(-1.0/65536.0);
+                    xtex.v = ft[2]*fviewingrange*(-1.0/65536.0);
                     ytex.u = ft[0]*ytex.d; ytex.v = ft[1]*ytex.d;
                     otex.u = ft[0]*otex.d; otex.v = ft[1]*otex.d;
                     otex.u += (ft[2]-xtex.u)*ghalfx;
                     otex.v -= (ft[3]+xtex.v)*ghalfx;
-                    if ((sky_cy0 < ncy[0]) && (sky_cy1 < ncy[1])) polymost_domost(sky_x1,sky_cy1,sky_x0,sky_cy0);
+
+
+                    if ((sky_cy0 < ncy[0]) && (sky_cy1 < ncy[1]))
+                        polymost_domost(sky_x1,sky_cy1,sky_x0,sky_cy0);
                     else if ((sky_cy0 < ncy[0]) != (sky_cy1 < ncy[1]))
                     {
                         //(ox,oy) is intersection of: (_x0,_cy0)-(_x1,_cy1)
                         //                            (_x0,ncy0)-(_x1,ncy1)
                         float const t = (sky_cy0-ncy[0])/(ncy[1]-ncy[0]-sky_cy1+sky_cy0);
                         vec2f_t const o = { sky_x0 + (sky_x1-sky_x0)*t, sky_cy0 + (sky_cy1-sky_cy0)*t };
-                        if (ncy[0] < sky_cy0) { polymost_domost(o.x,o.y,sky_x0,ncy[0]); polymost_domost(sky_x1,sky_cy1,o.x,o.y); }
-                        else { polymost_domost(o.x,o.y,sky_x0,sky_cy0); polymost_domost(sky_x1,ncy[1],o.x,o.y); }
+                        if (ncy[0] < sky_cy0)
+                        {
+                            polymost_domost(o.x,o.y,sky_x0,ncy[0]);
+                            polymost_domost(sky_x1,sky_cy1,o.x,o.y);
+                        }
+                        else
+                        {
+                            polymost_domost(o.x,o.y,sky_x0,sky_cy0);
+                            polymost_domost(sky_x1,ncy[1],o.x,o.y);
+                        }
                     }
-                    else polymost_domost(sky_x1,ncy[1],sky_x0,ncy[0]);
+                    else
+                        polymost_domost(sky_x1,ncy[1],sky_x0,ncy[0]);
 
                     //wall of skybox
                     drawingskybox = i+1; //i+1th texture/index i of skybox
@@ -3106,23 +3165,35 @@ static void polymost_drawalls(int32_t const bunch)
                     xtex.v = (sky_t0-sky_t1)*t;
                     ytex.v = (sky_ox1-sky_ox0)*t;
                     otex.v = -xtex.v*sky_ox0 - ytex.v*sky_t0;
-                    if ((sky_fy0 < ncy[0]) && (sky_fy1 < ncy[1])) polymost_domost(sky_x1,sky_fy1,sky_x0,sky_fy0);
+
+                    if ((sky_fy0 < ncy[0]) && (sky_fy1 < ncy[1]))
+                        polymost_domost(sky_x1,sky_fy1,sky_x0,sky_fy0);
                     else if ((sky_fy0 < ncy[0]) != (sky_fy1 < ncy[1]))
                     {
                         //(ox,oy) is intersection of: (_x0,_fy0)-(_x1,_fy1)
                         //                            (_x0,ncy0)-(_x1,ncy1)
                         float const t = (sky_fy0-ncy[0])/(ncy[1]-ncy[0]-sky_fy1+sky_fy0);
                         vec2f_t const o = { sky_x0 + (sky_x1 - sky_x0) * t, sky_fy0 + (sky_fy1 - sky_fy0) * t };
-                        if (ncy[0] < sky_fy0) { polymost_domost(o.x,o.y,sky_x0,ncy[0]); polymost_domost(sky_x1,sky_fy1,o.x,o.y); }
-                        else { polymost_domost(o.x,o.y,sky_x0,sky_fy0); polymost_domost(sky_x1,ncy[1],o.x,o.y); }
+                        if (ncy[0] < sky_fy0)
+                        {
+                            polymost_domost(o.x,o.y,sky_x0,ncy[0]);
+                            polymost_domost(sky_x1,sky_fy1,o.x,o.y);
+                        }
+                        else
+                        {
+                            polymost_domost(o.x,o.y,sky_x0,sky_fy0);
+                            polymost_domost(sky_x1,ncy[1],o.x,o.y);
+                        }
                     }
-                    else polymost_domost(sky_x1,ncy[1],sky_x0,ncy[0]);
+                    else
+                        polymost_domost(sky_x1,ncy[1],sky_x0,ncy[0]);
                 }
 
                 //Floor of skybox
                 drawingskybox = 6; //floor/6th texture/index 5 of skybox
                 float const ft[4] = { 512 / 16, 512 / -16, fcosglobalang * (1.f / 2147483648.f),
                                       fsinglobalang * (1.f / 2147483648.f) };
+
                 xtex.d = 0;
                 ytex.d = gxyaspect*(1.f/4194304.f);
                 otex.d = -ghoriz*ytex.d;
@@ -3143,6 +3214,8 @@ static void polymost_drawalls(int32_t const bunch)
             if (!nofog)
                 bglEnable(GL_FOG);
         }
+
+        // Wall
 
         xtex.d = (ryp0-ryp1)*gxyaspect / (x0-x1);
         ytex.d = 0;
