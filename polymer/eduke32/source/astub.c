@@ -9136,6 +9136,8 @@ enum
 
     T_RENAMEFILE,
     T_GLOBALGAMEFLAGS,
+
+    T_DUMMY,
 };
 
 static int32_t parsegroupfiles(scriptfile *script);
@@ -9280,6 +9282,9 @@ int32_t parsetilegroups(scriptfile *script)
         { "#include",        T_INCLUDE          },
         { "define",          T_DEFINE           },
         { "#define",         T_DEFINE           },
+
+        { "dynamicremap",    T_DUMMY            },
+
         { "tilegroup",       T_TILEGROUP        },
         { "spritehotkey",    T_HOTKEY           },
         { "alphabet",        T_ALPHABET         },

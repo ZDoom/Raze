@@ -241,7 +241,7 @@ static void printcoords16(int32_t posxe, int32_t posye, int16_t ange);
 static void overheadeditor(void);
 static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line, int8_t ignore_pointhighlight);
 static int32_t movewalls(int32_t start, int32_t offs);
-static int32_t loadnames(const char *namesfile, int8_t root);
+static void loadnames(const char *namesfile);
 static void getclosestpointonwall(int32_t x, int32_t y, int32_t dawall, int32_t *nx, int32_t *ny,
                                   int32_t maybe_screen_coord_p);
 static void initcrc(void);
@@ -663,7 +663,7 @@ int32_t app_main(int32_t argc, const char **argv)
 
     if (CallExtPostStartupWindow() < 0) return -1;
 
-    loadnames(g_namesFileName, 1);
+    loadnames(g_namesFileName);
 
     if (initinput()) return -1;
 
@@ -10162,195 +10162,131 @@ static int16_t whitelinescan(int16_t sucksect, int16_t dalinehighlight)
     return (clockdir(numwalls) == CLOCKDIR_CCW) ? -1 : tnewnumwalls;
 }
 
-int32_t loadnames(const char *namesfile, int8_t root)
+//
+// names.h loading
+//
+
+enum {
+    T_INCLUDE = 0,
+    T_DEFINE = 1,
+
+    T_DUMMY,
+};
+
+static int32_t parsenamesfile(scriptfile *script)
 {
-    char buffer[1024], *p, *name, *number, *endptr;
-    static int32_t syms=0;
-    int32_t num, line=0, a, comment=0;
-    int8_t quotes=0, anglebrackets=0;
-    BFILE *fp;
+    int32_t syms;
 
-    Bstrncpyz(buffer, namesfile, sizeof(buffer));
-
-    fp = fopenfrompath(buffer,"r");
-    if (!fp)
+    tokenlist const tokens[] =
     {
-        p = buffer;
-        while (*p)
-        {
-            *p = Btolower(*p);
-            p++;
-        }
+        { "include",         T_INCLUDE          },
+        { "#include",        T_INCLUDE          },
+        { "define",          T_DEFINE           },
+        { "#define",         T_DEFINE           },
 
-        if ((fp = fopenfrompath(buffer,"r")) == NULL)
+        { "dynamicremap",    T_DUMMY            },
+    };
+
+    while (1)
+    {
+        int32_t tokn = getatoken(script,tokens,ARRAY_SIZE(tokens));
+        char *cmdtokptr = script->ltextptr;
+        switch (tokn)
         {
-            initprintf("Failed to open %s\n", buffer);
-            return -1;
+        case T_INCLUDE:
+        {
+            char *fn;
+            if (scriptfile_getstring(script,&fn))
+            {
+                initprintf("Error: Malformed include on line %s:%d\n",
+                           script->filename,scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+
+            scriptfile *included;
+
+            included = scriptfile_fromfile(fn);
+            if (!included)
+            {
+                initprintf("Error: Failed including %s on line %s:%d\n",
+                           fn, script->filename,scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+
+            initprintf("Including: %s\n", fn);
+
+            syms += parsenamesfile(included);
+            scriptfile_close(included);
+
+            break;
+        }
+        case T_DEFINE:
+        {
+            char *name;
+            int32_t number;
+
+            if (scriptfile_getstring(script,&name))
+            {
+                initprintf("Error: Malformed define on line %s:%d\n",
+                           script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+
+            if (scriptfile_getsymbol(script,&number))
+            {
+                initprintf("Error: No number given for name \"%s\" on line %s:%d\n",
+                           name, script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+
+            if ((unsigned)number >= MAXTILES)
+            {
+                initprintf("Error: Constant %d for name \"%s\" out of range on line %s:%d\n",
+                           number, name, script->filename, scriptfile_getlinum(script,cmdtokptr));
+                break;
+            }
+
+            if (Bstrlen(name) > 24)
+                initprintf("Warning: Truncating name \"%s\" to 24 characters on line %s:%d\n",
+                           name, script->filename, scriptfile_getlinum(script,cmdtokptr));
+
+            Bstrncpyz(names[number], name, 25);
+            name = names[number];
+
+            ++syms;
+
+            if (scriptfile_addsymbolvalue(name,number) < 0)
+                initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
+                           name, number, script->filename, scriptfile_getlinum(script,cmdtokptr));
+            break;
+        }
+        case T_EOF:
+            return syms;
+        default:
+            break;
         }
     }
 
-    if (root)
-        //clearbufbyte(names, sizeof(names), 0);
-        Bmemset(names,0,sizeof(names));
-
-    initprintf("Loading %s\n", buffer);
-
-    while (Bfgets(buffer, 1024, fp))
-    {
-        a = Bstrlen(buffer);
-        if (a >= 1)
-        {
-            if (a > 1)
-                if (buffer[a-2] == '\r') buffer[a-2] = 0;
-            if (buffer[a-1] == '\n') buffer[a-1] = 0;
-        }
-
-        p = buffer;
-        line++;
-        while (*p == 32) p++; // 32 == 0x20 == space
-        if (*p == 0) continue; // blank line
-
-        if (*p == '#') // make '#' optional for compatibility
-            p++;
-
-        if (*p == '/')
-        {
-            if (*(p+1) == '/') continue; // comment
-            if (*(p+1) == '*') {comment++; continue;} /* comment */
-        }
-        else if (*p == '*' && p[1] == '/')
-        {
-            comment--;
-            continue;
-        }
-        else if (comment)
-            continue;
-        else if (!comment)
-        {
-            while (*p == 32) p++;
-            if (*p == 0) continue; // null directive
-
-            if (!Bstrncmp(p, "define ", 7))
-            {
-                // #define_...
-                p += 7;
-                while (*p == 32) p++;
-                if (*p == 0)
-                {
-                    initprintf("Error: Malformed #define at line %d\n", line-1);
-                    continue;
-                }
-
-                name = p;
-                while (*p != 32 && *p != 0) p++;
-                if (*p == 32)
-                {
-                    *(p++) = 0;
-                    while (*p == 32) p++;
-                    if (*p == 0)  	// #define_NAME with no number
-                    {
-                        initprintf("Error: No number given for name \"%s\" (line %d)\n", name, line-1);
-                        continue;
-                    }
-
-                    number = p;
-                    while (*p != 0 && *p != 32) p++;
-                    *p = 0;
-
-                    // add to list
-                    num = Bstrtol(number, &endptr, 10);
-                    if (*endptr != 0)
-                    {
-                        p = endptr;
-                        goto badline;
-                    }
-                    //printf("Grokked \"%s\" -> \"%d\"\n", name, num);
-                    if (num < 0 || num >= MAXTILES)
-                    {
-                        initprintf("Error: Constant %d for name \"%s\" out of range (line %d)\n", num, name, line-1);
-                        continue;
-                    }
-
-                    if (Bstrlen(name) > 24)
-                        initprintf("Warning: Name \"%s\" longer than 24 characters (line %d). Truncating.\n", name, line-1);
-
-                    Bstrncpyz(names[num], name, 25);
-
-                    syms++;
-
-                    continue;
-                }
-                else  	// #define_NAME with no number
-                {
-                    initprintf("Error: No number given for name \"%s\" (line %d)\n", name, line-1);
-                    continue;
-                }
-            }
-            else if (!Bstrncmp(p, "include ", 8))
-            {
-                // #include_...
-                p += 8;
-                while (*p == 32) p++;
-                if (*p == 0)
-                {
-                    initprintf("Error: Malformed #include at line %d\n", line-1);
-                    continue;
-                }
-
-                if (*p == '\"')
-                    {
-                    quotes = 1;
-                    p++;
-                    }
-                else if (*p == '<')
-                    {
-                    anglebrackets = 1;
-                    p++;
-                    }
-
-                name = p;
-                if (quotes == 1)
-                    {
-                        while (*p != '\"' && *p != 0) p++;
-                        quotes = 0;
-                        if (*p == 0)
-                        {
-                            initprintf("Error: Missing \'\"\' in #include at line %d\n", line-1);
-                            continue;
-                        }
-                        *p = 0;
-                    }
-                else if (anglebrackets == 1)
-                    {
-                        while (*p != '>' && *p != 0) p++;
-                        anglebrackets = 0;
-                        if (*p == 0)
-                        {
-                            initprintf("Error: Missing \'>\' in #include at line %d\n", line-1);
-                            continue;
-                        }
-                        *p = 0;
-                    }
-                else
-                    {
-                    while (*p != 32 && *p != 0) p++;
-                    *p = 0;
-                    }
-
-                loadnames(name, 0);
-
-                continue;
-            }
-        }
-badline:
-        initprintf("Error: Invalid statement found at character %d on line %d\n", (int32_t)(p-buffer), line-1);
-    }
-    if (root)
-        initprintf("Loaded %d names.\n", syms);
-
-    Bfclose(fp);
-    return 0;
+    return syms;
 }
+
+static void loadnames(const char *namesfile)
+{
+    scriptfile *script = scriptfile_fromfile(namesfile);
+
+    if (!script)
+        return;
+
+    initprintf("Loading names file: %s\n", namesfile);
+
+    int32_t const syms = parsenamesfile(script);
+    initprintf("Loaded %d names.\n", syms);
+
+    scriptfile_close(script);
+
+    scriptfile_clearsymbols();
+}
+
 
 void printcoords16(int32_t posxe, int32_t posye, int16_t ange)
 {
