@@ -131,6 +131,9 @@ void usage()
     Bprintf("Copyright (C) 2008 Jonathon Fowler <jf@jonof.id.au>\n");
     Bprintf("Released under the Artistic License 2.0\n");
     Bprintf("\n");
+    Bprintf("  arttool info [tilenum]\n");
+    Bprintf("    Display information about a specific tile, or all if none is specified\n");
+    Bprintf("\n");
     Bprintf("  arttool create [options]\n");
     Bprintf("    -f <filenum>   Selects which numbered ART file to create (default 0)\n");
     Bprintf("    -o <offset>    Specifies the first tile in the file (default 0)\n");
@@ -147,6 +150,9 @@ void usage()
     Bprintf("\n");
     Bprintf("  arttool rmtile <tilenum>\n");
     Bprintf("    Removes a tile from the 'tilesXXX.art' set\n");
+    Bprintf("\n");
+    Bprintf("  arttool exporttile <tilenum>\n");
+    Bprintf("    Exports a tile from the 'tilesXXX.art' set to a PCX file\n");
     Bprintf("\n");
     Bprintf("  arttool tileprop [options] <tilenum>\n");
     Bprintf("    -x <pixels>    X-centre\n");
@@ -166,6 +172,7 @@ private:
     short * tilesizx_;
     short * tilesizy_;
     int * picanm_;
+    int datastartoffset_;
 
     // for removing or replacing tile data
     int markprelength_, markskiplength_, markpostlength_;
@@ -248,13 +255,17 @@ private:
             for (i = 0; i < ntiles; ++i) {
                 picanm_[i] = readLong(infile);
             }
+
+            datastartoffset_ = Bftell(infile);
+
+            Bfclose(infile);
         }
     }
 
 public:
-    ARTFile(Bstring filename)
+    ARTFile(Bstring const & filename)
      : filename_(filename), localtilestart_(0), localtileend_(-1),
-       tilesizx_(0), tilesizy_(0), picanm_(0),
+       tilesizx_(0), tilesizy_(0), picanm_(0), datastartoffset_(0),
        markprelength_(0), markskiplength_(0), markpostlength_(0),
        insert_(0), insertlen_(0)
     {
@@ -280,6 +291,7 @@ public:
         tilesizx_ = new short[ntiles];
         tilesizy_ = new short[ntiles];
         picanm_   = new int[ntiles];
+        datastartoffset_ = 0;
 
         memset(tilesizx_, 0, sizeof(short)*ntiles);
         memset(tilesizy_, 0, sizeof(short)*ntiles);
@@ -347,6 +359,18 @@ public:
         insertlen_ = replacelen;
     }
 
+    void getTileSize(int tile, int& x, int &y)
+    {
+        if (tile < localtilestart_ || tile > localtileend_) {
+            x = y = -1;
+            return;
+        }
+
+        tile -= localtilestart_;
+        x = tilesizx_[tile];
+        y = tilesizy_[tile];
+    }
+
     void setTileSize(int tile, int x, int y)
     {
         if (tile < localtilestart_ || tile > localtileend_) {
@@ -380,6 +404,26 @@ public:
         picanm_[tile] |= ((int)((unsigned char)y) << 16);
     }
 
+    int getXOfs(int tile)
+    {
+        if (tile < localtilestart_ || tile > localtileend_) {
+            return 0;
+        }
+
+        tile -= localtilestart_;
+        return (picanm_[tile] >> 8) & 255;
+    }
+
+    int getYOfs(int tile)
+    {
+        if (tile < localtilestart_ || tile > localtileend_) {
+            return 0;
+        }
+
+        tile -= localtilestart_;
+        return (picanm_[tile] >> 16) & 255;
+    }
+
     void setAnimType(int tile, int type)
     {
         if (tile < localtilestart_ || tile > localtileend_) {
@@ -389,6 +433,16 @@ public:
         tile -= localtilestart_;
         picanm_[tile] &= ~(3<<6);
         picanm_[tile] |= ((int)(type&3) << 6);
+    }
+
+    int getAnimType(int tile)
+    {
+        if (tile < localtilestart_ || tile > localtileend_) {
+            return 0;
+        }
+
+        tile -= localtilestart_;
+        return (picanm_[tile] >> 6) & 3;
     }
 
     void setAnimFrames(int tile, int frames)
@@ -402,6 +456,16 @@ public:
         picanm_[tile] |= ((int)(frames&63));
     }
 
+    int getAnimFrames(int tile)
+    {
+        if (tile < localtilestart_ || tile > localtileend_) {
+            return 0;
+        }
+
+        tile -= localtilestart_;
+        return picanm_[tile] & 63;
+    }
+
     void setAnimSpeed(int tile, int speed)
     {
         if (tile < localtilestart_ || tile > localtileend_) {
@@ -411,6 +475,16 @@ public:
         tile -= localtilestart_;
         picanm_[tile] &= ~(15<<24);
         picanm_[tile] |= ((int)(speed&15) << 24);
+    }
+
+    int getAnimSpeed(int tile)
+    {
+        if (tile < localtilestart_ || tile > localtileend_) {
+            return 0;
+        }
+
+        tile -= localtilestart_;
+        return (picanm_[tile] >> 24) & 15;
     }
 
     int write()
@@ -496,62 +570,197 @@ public:
 
         return 0;
     }
+
+    char * readTile(int tile, int& bytes)
+    {
+        bytes = -1;
+
+        if (tile < localtilestart_ || tile > localtileend_) {
+            return 0;
+        }
+        tile -= localtilestart_;
+
+        if (tilesizx_[tile] == 0 || tilesizy_[tile] == 0) {
+            bytes = 0;
+            return 0;
+        }
+
+        BFILE *infile = Bfopen(filename_(),"rb");
+        if (infile == NULL) {
+            return 0;
+        } else {
+            // skip to the start of the existing ART data
+            Bfseek(infile, datastartoffset_, SEEK_SET);
+        }
+
+        bytes = tilesizx_[tile] * tilesizy_[tile];
+        char * data = new char[bytes];
+
+        for (int i = 0; i < tile; i++) {
+            Bfseek(infile, tilesizx_[i] * tilesizy_[i], SEEK_CUR);
+        }
+        if (Bfread(data, bytes, 1, infile) != 1) {
+            delete [] data;
+            data = 0;
+        }
+
+        Bfclose(infile);
+
+        return data;
+    }
 };
 
-/**
- * Decodes a PCX file directly to BUILD's column-major pixel order
- * @param data the raw file data
- * @param datalen the length of the raw file data
- * @param imgdata receives a pointer to the decoded image data
- * @param imgdataw receives the decoded image width
- * @param imgdatah receives the decoded image height
- * @return 0 on success, 1 if the format is invalid
- */
-int loadimage_pcx(unsigned char * data, int datalen ATTRIBUTE((unused)), char ** imgdata, int& imgdataw, int& imgdatah)
-{
-    if (data[0] != 10 ||
-        data[1] != 5 ||
-        data[2] != 1 ||
-        data[3] != 8 ||
-        data[64] != 0 ||
-        data[65] != 1) {
-        return 1;
+
+class PCX {
+private:
+    static int writebyte(unsigned char colour, unsigned char count, BFILE *ofs)
+    {
+        if (!count) return 0;
+        if (count == 1 && (colour & 0xc0) != 0xc0) {
+            Bfputc(colour, ofs);
+            return 1;
+        } else {
+            Bfputc(0xc0 | count, ofs);
+            Bfputc(colour, ofs);
+            return 2;
+        }
     }
 
-    int bpl = data[66] + ((int)data[67] << 8);
-    int x, y, repeat, colour;
-    unsigned char *wptr, *rptr;
+    static void writeline(unsigned char *buf, int bytes, int step, BFILE *ofs)
+    {
+        unsigned char ths, last;
+        int srcIndex;
+        unsigned char runCount;
 
-    imgdataw = (data[8] + ((int)data[9] << 8)) - (data[4] + ((int)data[5] << 8)) + 1;
-    imgdatah = (data[10] + ((int)data[11] << 8)) - (data[6] + ((int)data[7] << 8)) + 1;
+        runCount = 1;
+        last = *buf;
 
-    *imgdata = new char [imgdataw * imgdatah];
-
-    rptr = data + 128;
-    for (y = 0; y < imgdatah; y++) {
-        wptr = (unsigned char *) (*imgdata + y);
-        x = 0;
-        do {
-            repeat = *(rptr++);
-            if ((repeat & 192) == 192) {
-                colour = *(rptr++);
-                repeat = repeat & 63;
-            } else {
-                colour = repeat;
-                repeat = 1;
-            }
-
-            for (; repeat > 0; repeat--, x++) {
-                if (x < imgdataw) {
-                    *wptr = (unsigned char) colour;
-                    wptr += imgdatah;    // next column
+        for (srcIndex=1; srcIndex<bytes; srcIndex++) {
+            buf += step;
+            ths = *buf;
+            if (ths == last) {
+                runCount++;
+                if (runCount == 63) {
+                    writebyte(last, runCount, ofs);
+                    runCount = 0;
                 }
+            } else {
+                if (runCount)
+                    writebyte(last, runCount, ofs);
+
+                last = ths;
+                runCount = 1;
             }
-        } while (x < bpl);
+        }
+
+        if (runCount) writebyte(last, runCount, ofs);
+        if (bytes&1) writebyte(0, 1, ofs);
     }
 
-    return 0;
-}
+public:
+    /**
+     * Decodes a PCX file to BUILD's column-major pixel order
+     * @param data the raw file data
+     * @param datalen the length of the raw file data
+     * @param imgdata receives a pointer to the decoded image data
+     * @param imgdataw receives the decoded image width
+     * @param imgdatah receives the decoded image height
+     * @return 0 on success, 1 if the format is invalid
+     */
+    static int decode(unsigned char * data, int datalen, char ** imgdata, int& imgdataw, int& imgdatah)
+    {
+        if (datalen < 128 ||
+            data[0] != 10 ||
+            data[1] != 5 ||
+            data[2] != 1 ||
+            data[3] != 8 ||
+            data[64] != 0 ||
+            data[65] != 1) {
+            return 1;
+        }
+
+        int bpl = data[66] + ((int)data[67] << 8);
+        int x, y, repeat, colour;
+        unsigned char *wptr;
+        int roff;
+
+        imgdataw = (data[8] + ((int)data[9] << 8)) - (data[4] + ((int)data[5] << 8)) + 1;
+        imgdatah = (data[10] + ((int)data[11] << 8)) - (data[6] + ((int)data[7] << 8)) + 1;
+
+        *imgdata = new char [imgdataw * imgdatah];
+
+        roff = 128;
+        for (y = 0; y < imgdatah; y++) {
+            wptr = (unsigned char *) (*imgdata + y);
+            x = 0;
+            do {
+                if (EDUKE32_PREDICT_FALSE(roff >= datalen))
+                    return 1;
+                repeat = *(data + roff++);
+
+                if ((repeat & 192) == 192) {
+                    if (EDUKE32_PREDICT_FALSE(roff >= datalen))
+                        return 1;
+                    colour = *(data + roff++);
+                    repeat = repeat & 63;
+                } else {
+                    colour = repeat;
+                    repeat = 1;
+                }
+
+                for (; repeat > 0; repeat--, x++) {
+                    if (x < imgdataw) {
+                        *wptr = (unsigned char) colour;
+                        wptr += imgdatah;   // next column
+                    }
+                }
+            } while (x < bpl);
+        }
+
+        return 0;
+    }
+
+    /**
+     * Writes a PCX file from data in BUILD's column-major pixel order
+     * @param ofs the output file stream
+     * @param imgdata a pointer to the image data
+     * @param imgdataw the image width
+     * @param imgdatah the image height
+     * @param palette the image palette, 256*3 bytes
+     * @return 0 on success
+     */
+    static int write(BFILE *ofs, unsigned char * imgdata, int imgdataw, int imgdatah, unsigned char * palette)
+    {
+        unsigned char head[128];
+        int bpl = imgdataw + (imgdataw&1);
+
+        memset(head,0,128);
+        head[0] = 10;
+        head[1] = 5;
+        head[2] = 1;
+        head[3] = 8;
+        head[8] = (imgdataw-1) & 0xff;
+        head[9] = ((imgdataw-1) >> 8) & 0xff;
+        head[10] = (imgdatah-1) & 0xff;
+        head[11] = ((imgdatah-1) >> 8) & 0xff;
+        head[12] = 72; head[13] = 0;
+        head[14] = 72; head[15] = 0;
+        head[65] = 1;   // 8-bit
+        head[66] = bpl & 0xff;
+        head[67] = (bpl >> 8) & 0xff;
+        head[68] = 1;
+
+        Bfwrite(head, sizeof(head), 1, ofs);
+        for (int i = 0; i < imgdatah; i++) {
+            writeline(imgdata + i, imgdataw, imgdatah, ofs);
+        }
+
+        Bfputc(12, ofs);
+        Bfwrite(palette, 768, 1, ofs);
+
+        return 0;
+    }
+};
 
 /**
  * Loads a tile from a picture file into memory
@@ -561,7 +770,7 @@ int loadimage_pcx(unsigned char * data, int datalen ATTRIBUTE((unused)), char **
  * @param imgdatah receives the decoded image height
  * @return 0 on success
  */
-int loadimage(Bstring filename, char ** imgdata, int& imgdataw, int& imgdatah)
+int loadimage(Bstring const & filename, char ** imgdata, int& imgdataw, int& imgdatah)
 {
     BFILE *infile = Bfopen(filename(),"rb");
     unsigned char * data = 0;
@@ -580,11 +789,51 @@ int loadimage(Bstring filename, char ** imgdata, int& imgdataw, int& imgdatah)
     Bfread(data, 1, datalen, infile);
     Bfclose(infile);
 
-    err = loadimage_pcx(data, datalen, imgdata, imgdataw, imgdatah);
+    err = PCX::decode(data, datalen, imgdata, imgdataw, imgdatah);
 
     delete [] data;
 
     return err;
+}
+
+/**
+ * Saves a tile from memory to disk, taking the palette from palette.dat
+ * @param filename the filename
+ * @param imgdata a pointer to the image data
+ * @param imgdataw the image width
+ * @param imgdatah the image height
+ * @return 0 on success
+ */
+int saveimage(Bstring const & filename, char * imgdata, int imgdataw, int imgdatah)
+{
+    BFILE *outfile = Bfopen(filename(), "wb");
+    BFILE *palfile = Bfopen("palette.dat", "rb");
+    unsigned char palette[768];
+
+    if (palfile != NULL) {
+        Bfread(palette, 768, 1, palfile);
+        for (int i=0; i<256*3; i++) {
+            palette[i] <<= 2;
+        }
+        Bfclose(palfile);
+    } else {
+        Bfprintf(stderr, "warning: palette.dat could not be loaded\n");
+        for (int i=0; i<256; i++) {
+            palette[i*3+0] = i;
+            palette[i*3+1] = i;
+            palette[i*3+2] = i;
+        }
+    }
+
+    if (outfile == NULL) {
+        return 1;
+    }
+
+    PCX::write(outfile, (unsigned char *)imgdata, imgdataw, imgdatah, palette);
+
+    Bfclose(outfile);
+
+    return 0;
 }
 
 class Operation {
@@ -646,6 +895,80 @@ public:
      * @return a value from the Result enum
      */
     virtual Result perform() = 0;
+};
+class InfoOp : public Operation {
+private:
+    int tilenum_;
+
+    void outputInfo(ARTFile& art, int tile)
+    {
+        Bprintf("  Tile %i: ", tile);
+
+        int w, h;
+        art.getTileSize(tile, w, h);
+        Bprintf("%ix%i ", w, h);
+
+        Bprintf("Xofs: %i, ", art.getXOfs(tile));
+        Bprintf("Yofs: %i, ", art.getYOfs(tile));
+        Bprintf("AnimType: %i, ", art.getAnimType(tile));
+        Bprintf("AnimFrames: %i, ", art.getAnimFrames(tile));
+        Bprintf("AnimSpeed: %i\n", art.getAnimSpeed(tile));
+    }
+
+public:
+    InfoOp() : tilenum_(-1) { }
+
+    virtual Result setOption(const Bstring &opt ATTRIBUTE((unused)), const Bstring &value ATTRIBUTE((unused)))
+    {
+        return ERR_BAD_OPTION;
+    }
+
+    virtual Result setParameter(const int &number, const Bstring &value)
+    {
+        switch (number) {
+            case 0:
+                tilenum_ = atoi(value());
+                return ERR_NO_ERROR;
+            default:
+                return ERR_TOO_MANY_PARAMS;
+        }
+    }
+
+    virtual Result perform()
+    {
+        int filenum = 0, tile;
+
+        for (filenum = 0; filenum < 1000; filenum++) {
+            Bstring filename = makefilename(filenum);
+            ARTFile art(filename);
+
+            if (art.getNumTiles() == 0) {
+                // no file exists, so give up
+                if (tilenum_ < 0) {
+                    return ERR_NO_ERROR;
+                }
+                break;
+            }
+
+            if (tilenum_ >= 0) {
+                if (tilenum_ > art.getLastTile()) {
+                    // Not in this file.
+                    continue;
+                } else {
+                    Bprintf("File %s\n", filename());
+                    outputInfo(art, tilenum_);
+                }
+                return ERR_NO_ERROR;
+            } else {
+                Bprintf("File %s\n", filename());
+                for (tile = art.getFirstTile(); tile <= art.getLastTile(); tile++) {
+                    outputInfo(art, tile);
+                }
+            }
+        }
+
+        return ERR_NO_ART_FILE;
+    }
 };
 
 class CreateOp : public Operation {
@@ -860,6 +1183,72 @@ public:
     }
 };
 
+class ExportTileOp : public Operation {
+private:
+    int tilenum_;
+public:
+    ExportTileOp() : tilenum_(-1) { }
+
+    virtual Result setOption(const Bstring &opt ATTRIBUTE((unused)), const Bstring &value ATTRIBUTE((unused)))
+    {
+        return ERR_BAD_OPTION;
+    }
+
+    virtual Result setParameter(const int &number, const Bstring &value)
+    {
+        switch (number) {
+            case 0:
+                tilenum_ = atoi(value());
+                return ERR_NO_ERROR;
+            default:
+                return ERR_TOO_MANY_PARAMS;
+        }
+    }
+
+    virtual Result perform()
+    {
+        int filenum = 0;
+
+        Bstring filename("tile0000.pcx");
+        filename[4] = '0' + (tilenum_ / 1000) % 10;
+        filename[5] = '0' + (tilenum_ / 100) % 10;
+        filename[6] = '0' + (tilenum_ / 10) % 10;
+        filename[7] = '0' + (tilenum_) % 10;
+
+        // open art files until we find the one that encompasses the range we need
+        // and when we find it, export it
+        for (filenum = 0; filenum < 1000; filenum++) {
+            ARTFile art(makefilename(filenum));
+
+            if (art.getNumTiles() == 0) {
+                // no file exists, so give up
+                break;
+            }
+
+            if (tilenum_ >= art.getFirstTile() && tilenum_ <= art.getLastTile()) {
+                int bytes, w, h;
+                char * data = art.readTile(tilenum_, bytes);
+                art.getTileSize(tilenum_, w, h);
+
+                if (bytes == 0) {
+                    return ERR_NO_ERROR;
+                }
+
+                switch (saveimage(filename, data, w, h)) {
+                    case 0: break;  // win
+                    default: return ERR_INVALID_IMAGE;
+                }
+
+                delete [] data;
+
+                return ERR_NO_ERROR;
+            }
+        }
+
+        return ERR_NO_ART_FILE;
+    }
+};
+
 class TilePropOp : public Operation {
 private:
     int xofs_, yofs_;
@@ -981,12 +1370,16 @@ int main(int argc, char ** argv)
         Bstring value;
 
         // create the option handler object according to the first param
-        if (opt == "create") {
+        if (opt == "info") {
+            oper = new InfoOp;
+        } else if (opt == "create") {
             oper = new CreateOp;
         } else if (opt == "addtile") {
             oper = new AddTileOp;
         } else if (opt == "rmtile") {
             oper = new RmTileOp;
+        } else if (opt == "exporttile") {
+            oper = new ExportTileOp;
         } else if (opt == "tileprop") {
             oper = new TilePropOp;
         } else {
