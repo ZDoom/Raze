@@ -553,18 +553,17 @@ int32_t baselayer_init(void)
     OSD_RegisterFunction("setrendermode","setrendermode <number>: sets the engine's rendering mode.\n"
                          "Mode numbers are:\n"
                          "   0 - Classic Build software\n"
-#ifdef USE_OPENGL
                          "   3 - Polygonal OpenGL\n"
                          "   4 - Great justice renderer (Polymer)\n"
-#endif
                          ,
                          osdfunc_setrendermode);
-#ifdef USE_OPENGL
+
 # ifdef DEBUGGINGAIDS
     OSD_RegisterFunction("hicsetpalettetint","hicsetpalettetint: sets palette tinting values",osdcmd_hicsetpalettetint);
 # endif
+
     OSD_RegisterFunction("glinfo","glinfo: shows OpenGL information about the current OpenGL mode",osdcmd_glinfo);
-#endif
+
     polymost_initosdfuncs();
 #endif
 
