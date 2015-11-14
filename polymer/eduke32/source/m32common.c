@@ -45,6 +45,7 @@ int32_t autosave=180;
 
 int32_t autocorruptcheck;
 int32_t corruptcheck_noalreadyrefd, corruptcheck_heinum=1;
+int32_t corruptcheck_game_duke3d=1;  // TODO: at startup, make conditional on which game we are editing for?
 int32_t corrupt_tryfix_alt;
 int32_t corruptlevel, numcorruptthings, corruptthings[MAXCORRUPTTHINGS];
 
@@ -1300,6 +1301,30 @@ end_wall_loop_checks:
         {
             sprite[i].picnum = 0;
             CORRUPTCHK_PRINT(0, CORRUPT_SPRITE|i, "SPRITE[%d].PICNUM=%d out of range, resetting to 0", i, TrackerCast(sprite[i].picnum));
+        }
+
+        if (corruptcheck_game_duke3d)
+        {
+            const int32_t tilenum = sprite[i].picnum;
+
+            if (tilenum >= 1 && tilenum <= 9 && (sprite[i].cstat&48))
+            {
+                const int32_t onumct = numcorruptthings;
+
+                CORRUPTCHK_PRINT(1, CORRUPT_SPRITE|i, "%s sprite %d is not face-aligned",
+                                 names[tilenum], i);
+
+                if (onumct < MAXCORRUPTTHINGS)
+                {
+                    if (tryfixing & (1ull<<onumct))
+                    {
+                        sprite[i].cstat &= ~(32+16);
+                        OSD_Printf(CCHK_CORRECTED "auto-correction: cleared sprite[%d].cstat bits 16 and 32\n", i);
+                    }
+                    else if (1 >= printfromlev)
+                        OSD_Printf("   suggest clearing sprite[%d].cstat bits 16 and 32\n", i);
+                }
+            }
         }
 
         if (klabs(sprite[i].x) > BXY_MAX || klabs(sprite[i].y) > BXY_MAX)

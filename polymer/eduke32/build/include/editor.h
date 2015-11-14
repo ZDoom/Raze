@@ -253,6 +253,7 @@ static inline int32_t get_nextloopstart(int32_t loopstart)
 extern int32_t corruptlevel, numcorruptthings, corruptthings[MAXCORRUPTTHINGS];
 extern int32_t autocorruptcheck;
 extern int32_t corruptcheck_noalreadyrefd, corruptcheck_heinum;
+extern int32_t corruptcheck_game_duke3d;
 extern int32_t corrupt_tryfix_alt;
 extern int32_t CheckMapCorruption(int32_t printfromlev, uint64_t tryfixing);
 
