@@ -9356,12 +9356,14 @@ int32_t parsetilegroups(scriptfile *script)
             if (scriptfile_getstring(script,&name)) break;
             if (scriptfile_getbraces(script,&end)) break;
 
-            s_TileGroups[tile_groups].pIds = (int32_t *)Xcalloc(MAX_TILE_GROUP_ENTRIES, sizeof(int32_t));
-            s_TileGroups[tile_groups].szText = Xstrdup(name);
+            TileGroup *const tileGrp = &s_TileGroups[tile_groups];
+
+            tileGrp->pIds = (int32_t *)Xcalloc(MAX_TILE_GROUP_ENTRIES, sizeof(int32_t));
+            tileGrp->szText = Xstrdup(name);
 
             while (script->textptr < end)
             {
-                tokenlist tgtokens2[] =
+                static const tokenlist tgtokens2[] =
                 {
                     { "tilegroup",  T_TILEGROUP   },
                     { "tile",       T_TILE        },
@@ -9371,15 +9373,16 @@ int32_t parsetilegroups(scriptfile *script)
                     { "colors",     T_COLORS      },
                 };
 
-                int32_t token = getatoken(script,tgtokens2,ARRAY_SIZE(tgtokens2));
+                const int32_t token = getatoken(script,tgtokens2,ARRAY_SIZE(tgtokens2));
+
                 switch (token)
                 {
                 case T_TILE:
                 {
                     if (scriptfile_getsymbol(script,&i)) break;
-                    if (i >= 0 && i < MAXTILES && s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES)
-                        s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i;
-                    //                    OSD_Printf("added tile %d to group %d\n",i,g);
+                    if (i >= 0 && i < MAXTILES && tileGrp->nIds < MAX_TILE_GROUP_ENTRIES)
+                        tileGrp->pIds[tileGrp->nIds++] = i;
+//                    OSD_Printf("added tile %d to group %d\n",i,g);
                     break;
                 }
                 case T_TILERANGE:
@@ -9388,10 +9391,10 @@ int32_t parsetilegroups(scriptfile *script)
                     if (scriptfile_getsymbol(script,&i)) break;
                     if (scriptfile_getsymbol(script,&j)) break;
                     if (i < 0 || i >= MAXTILES || j < 0 || j >= MAXTILES) break;
-                    while (s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES && i <= j)
+                    while (tileGrp->nIds < MAX_TILE_GROUP_ENTRIES && i <= j)
                     {
-                        s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i++;
-                        //                        OSD_Printf("added tile %d to group %d\n",i,g);
+                        tileGrp->pIds[tileGrp->nIds++] = i++;
+//                        OSD_Printf("added tile %d to group %d\n",i,g);
                     }
                     break;
                 }
@@ -9401,16 +9404,16 @@ int32_t parsetilegroups(scriptfile *script)
                     if (scriptfile_getsymbol(script, &i)) break;
                     if (scriptfile_getsymbol(script, &j)) break;
                     if (i < 0 || i >= 256 || j < 0 || j >= 256) break;
-                    s_TileGroups[tile_groups].color1 = i;
-                    s_TileGroups[tile_groups].color2 = j;
+                    tileGrp->color1 = i;
+                    tileGrp->color2 = j;
                     break;
                 }
                 case T_HOTKEY:
                 {
                     char *c;
                     if (scriptfile_getstring(script,&c)) break;
-                    s_TileGroups[tile_groups].key1 = Btoupper(c[0]);
-                    s_TileGroups[tile_groups].key2 = Btolower(c[0]);
+                    tileGrp->key1 = Btoupper(c[0]);
+                    tileGrp->key2 = Btolower(c[0]);
                     break;
                 }
                 case T_TILES:
@@ -9421,9 +9424,9 @@ int32_t parsetilegroups(scriptfile *script)
                     {
                         if (!scriptfile_getsymbol(script,&i))
                         {
-                            if (i >= 0 && i < MAXTILES && s_TileGroups[tile_groups].nIds < MAX_TILE_GROUP_ENTRIES)
-                                s_TileGroups[tile_groups].pIds[s_TileGroups[tile_groups].nIds++] = i;
-                            //                    OSD_Printf("added tile %d to group %d\n",i,g);
+                            if (i >= 0 && i < MAXTILES && tileGrp->nIds < MAX_TILE_GROUP_ENTRIES)
+                                tileGrp->pIds[tileGrp->nIds++] = i;
+//                            OSD_Printf("added tile %d to group %d\n",i,g);
                         }
                     }
                     break;
@@ -9431,8 +9434,7 @@ int32_t parsetilegroups(scriptfile *script)
                 }
             }
 
-            s_TileGroups[tile_groups].pIds = (int32_t *)Xrealloc(s_TileGroups[tile_groups].pIds,
-                                                      s_TileGroups[tile_groups].nIds*sizeof(int32_t));
+            tileGrp->pIds = (int32_t *)Xrealloc(tileGrp->pIds, tileGrp->nIds*sizeof(int32_t));
             tile_groups++;
             break;
         }

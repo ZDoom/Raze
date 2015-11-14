@@ -17142,7 +17142,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
             col -= M32_THROB>>3;
     }
     else if ((showfirstwall && searchsector>=0 && (sector[searchsector].wallptr == i ||
-                                                   sector[searchsector].wallptr == wall[i].nextwall)) ||
+                                                   sector[searchsector].wallptr == wal->nextwall)) ||
              bothSidesHighlighted)
     {
         col = editorcolors[14];
@@ -17249,7 +17249,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
             col = editorcolors[15];
 
             if (i == pointhighlight || ((unsigned)pointhighlight < MAXWALLS &&
-                                        (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
+                                        (wal->x == wall[pointhighlight].x) && (wal->y == wall[pointhighlight].y)))
             {
                 col = editorcolors[15] - (M32_THROB>>1);
 
@@ -17318,25 +17318,27 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
 {
     int32_t x1, y1, x2, y2;
     int col;
-    int16_t const hitblocking=(sprite[j].cstat&256);
-    int16_t const flooraligned=(sprite[j].cstat&32), wallaligned=(sprite[j].cstat&16);
+
+    const spritetype *const spr = &sprite[j];
+    int16_t const hitblocking = (spr->cstat&256);
+    int16_t const flooraligned = (spr->cstat&32), wallaligned = (spr->cstat&16);
 
     int16_t const angofs = m32_sideview ? m32_sideang : 0;
 
-    if (sprite[j].sectnum<0)
+    if (spr->sectnum<0)
         col = editorcolors[4];  // red
     else
     {
-        uint8_t const spritecol = spritecol2d[sprite[j].picnum][0];
+        uint8_t const spritecol = spritecol2d[spr->picnum][0];
 
         if (spritecol)
             col = spritecol;  // XXX: should be editorcolors[spritecol]
         else
             col = getspritecol(j);
 #if 0
-        else if (sprite[j].cstat&1)
+        else if (spr->cstat&1)
         {
-            uint8_t const blockingSpriteCol = spritecol2d[sprite[j].picnum][1];
+            uint8_t const blockingSpriteCol = spritecol2d[spr->picnum][1];
             col = blockingSpriteCol ? blockingSpriteCol : 5;
         }
 #endif
@@ -17346,8 +17348,8 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
     {
         if (pointhighlight >= 16384 &&
             (j+16384 == pointhighlight ||
-             (!m32_sideview && (sprite[j].x == sprite[pointhighlight-16384].x &&
-                                sprite[j].y == sprite[pointhighlight-16384].y))))
+             (!m32_sideview && (spr->x == sprite[pointhighlight-16384].x &&
+                                spr->y == sprite[pointhighlight-16384].y))))
         {
             col += M32_THROB>>2;
         }
@@ -17363,24 +17365,24 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
         }
     }
 
-    screencoords(&x1,&y1, sprite[j].x-posxe,sprite[j].y-posye, zoome);
+    screencoords(&x1,&y1, spr->x-posxe,spr->y-posye, zoome);
 //   tempint = ((midydim16+y1)*bytesperline)+(halfxdim16+x1)+frameplace;
 
     if (m32_sideview)
-        y1 += getscreenvdisp(sprite[j].z-posze,zoome);
+        y1 += getscreenvdisp(spr->z-posze,zoome);
 
     int f = mulscale12(128, zoome);
 
     if ((halfxdim16+x1 >= -f) && (halfxdim16+x1 < xdim+f) &&
             (midydim16+y1 >= -f) && (midydim16+y1 < ydim16+f))
     {
-        if (zoome > 512 && sprite[j].clipdist > 32)
-            drawcircle16(halfxdim16+x1, midydim16+y1, mulscale14(sprite[j].clipdist<<2, zoome), 16384, col);
+        if (zoome > 512 && spr->clipdist > 32)
+            drawcircle16(halfxdim16+x1, midydim16+y1, mulscale14(spr->clipdist<<2, zoome), 16384, col);
 
         drawcircle16(halfxdim16+x1, midydim16+y1, 4, 16384, col);
 
-        x2 = mulscale11(sintable[(sprite[j].ang+angofs+2560)&2047],zoome) / 768;
-        y2 = mulscale11(sintable[(sprite[j].ang+angofs+2048)&2047],zoome) / 768;
+        x2 = mulscale11(sintable[(spr->ang+angofs+2560)&2047],zoome) / 768;
+        y2 = mulscale11(sintable[(spr->ang+angofs+2048)&2047],zoome) / 768;
         y2 = scalescreeny(y2);
 
         drawline16mid(x1,y1, x1+x2,y1+y2, col);
@@ -17395,11 +17397,11 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
 
         if (flooraligned)
         {
-            int32_t fx = mulscale10(mulscale6(tilesiz[sprite[j].picnum].x, sprite[j].xrepeat),zoome) >> 1;
-            int32_t fy = mulscale10(mulscale6(tilesiz[sprite[j].picnum].y, sprite[j].yrepeat),zoome) >> 1;
+            int32_t fx = mulscale10(mulscale6(tilesiz[spr->picnum].x, spr->xrepeat),zoome) >> 1;
+            int32_t fy = mulscale10(mulscale6(tilesiz[spr->picnum].y, spr->yrepeat),zoome) >> 1;
             int32_t co[4][2], ii, in;
-            int32_t sinang = sintable[(sprite[j].ang+angofs+1536)&2047];
-            int32_t cosang = sintable[(sprite[j].ang+angofs+1024)&2047];
+            int32_t sinang = sintable[(spr->ang+angofs+1536)&2047];
+            int32_t cosang = sintable[(spr->ang+angofs+1024)&2047];
             int32_t r,s;
 
             co[0][0] = co[3][0] = -fx;
@@ -17433,15 +17435,15 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
         }
         else if (wallaligned)
         {
-            int32_t fx = mulscale6(tilesiz[sprite[j].picnum].x, sprite[j].xrepeat);
-            int32_t one=(((sprite[j].ang+angofs+256)&512) == 0), no=!one;
+            int32_t fx = mulscale6(tilesiz[spr->picnum].x, spr->xrepeat);
+            int32_t one=(((spr->ang+angofs+256)&512) == 0), no=!one;
 
-            x2 = mulscale11(sintable[(sprite[j].ang+angofs+2560)&2047],zoome) / 6144;
-            y2 = mulscale11(sintable[(sprite[j].ang+angofs+2048)&2047],zoome) / 6144;
+            x2 = mulscale11(sintable[(spr->ang+angofs+2560)&2047],zoome) / 6144;
+            y2 = mulscale11(sintable[(spr->ang+angofs+2048)&2047],zoome) / 6144;
             y2 = scalescreeny(y2);
 
             drawline16mid(x1,y1, x1+x2,y1+y2, col);
-            if (!(sprite[j].cstat&64))  // not 1-sided
+            if (!(spr->cstat&64))  // not 1-sided
             {
                 drawline16mid(x1,y1, x1-x2,y1-y2, col);
                 if (hitblocking)
@@ -17458,8 +17460,8 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
             }
 
 
-            x2 = mulscale13(sintable[(sprite[j].ang+angofs+1024)&2047],zoome) * fx / 4096;
-            y2 = mulscale13(sintable[(sprite[j].ang+angofs+512)&2047],zoome) * fx / 4096;
+            x2 = mulscale13(sintable[(spr->ang+angofs+1024)&2047],zoome) * fx / 4096;
+            y2 = mulscale13(sintable[(spr->ang+angofs+512)&2047],zoome) * fx / 4096;
             y2 = scalescreeny(y2);
 
             drawline16mid(x1,y1, x1-x2,y1-y2, col);
