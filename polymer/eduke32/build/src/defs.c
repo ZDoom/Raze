@@ -81,7 +81,7 @@ enum scripttoken_t
     T_ORIGSIZEX,T_ORIGSIZEY,
     T_UNDEFMODEL,T_UNDEFMODELRANGE,T_UNDEFMODELOF,T_UNDEFTEXTURE,T_UNDEFTEXTURERANGE,
     T_ALPHAHACK,T_ALPHAHACKRANGE,
-    T_SPRITECOL,T_2DCOL,
+    T_SPRITECOL,T_2DCOL,T_2DCOLIDXRANGE,
     T_FOGPAL,
     T_LOADGRP,
     T_DUMMYTILE,T_DUMMYTILERANGE,
@@ -367,6 +367,7 @@ static int32_t defsparser(scriptfile *script)
         { "alphahackrange",  T_ALPHAHACKRANGE 	},
         { "spritecol",	     T_SPRITECOL 		},
         { "2dcol",	     	 T_2DCOL 			},
+        { "2dcolidxrange",   T_2DCOLIDXRANGE	},
         { "fogpal",	     	 T_FOGPAL	 		},
         { "loadgrp",     	 T_LOADGRP	 		},
         { "dummytile",     	 T_DUMMYTILE		},
@@ -568,6 +569,18 @@ static int32_t defsparser(scriptfile *script)
                 vgapal16[col*4+1] = g<<2; // green
                 vgapal16[col*4+2] = r<<2; // red
             }
+        }
+        break;
+        case T_2DCOLIDXRANGE:  // NOTE: takes precedence over 2dcol, see InitCustomColors()
+        {
+            int32_t col, idx, idxend;
+
+            if (scriptfile_getnumber(script,&col)) break;
+            if (scriptfile_getnumber(script,&idx)) break;
+            if (scriptfile_getnumber(script,&idxend)) break;
+
+            while ((unsigned)col < 256 && idx <= idxend)
+                editorcolors[col++] = idx++;
         }
         break;
         case T_FOGPAL:

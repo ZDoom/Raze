@@ -7890,8 +7890,11 @@ static void InitCustomColors(void)
 
     for (i = 0; i<256; i++)
     {
-        edcol = (palette_t *)&vgapal16[4*i];
-        editorcolors[i] = getclosestcol_lim(edcol->b,edcol->g,edcol->r, 239);
+        if (editorcolors[i] == 0)
+        {
+            edcol = (palette_t *)&vgapal16[4*i];
+            editorcolors[i] = getclosestcol_lim(edcol->b,edcol->g,edcol->r, 239);
+        }
     }
 }
 
