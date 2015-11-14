@@ -3291,7 +3291,8 @@ static void drawspritelabel(int i)
 
 //    int const blocking = (sprite[i].cstat & 1);
 
-    int col = spritecol2d[sprite[i].picnum][0] ? editorcolors[spritecol2d[sprite[i].picnum][0]] : getspritecol(i);
+    uint8_t const spritecol = spritecol2d[sprite[i].picnum][0];
+    int col = spritecol ? editorcolors[spritecol] : getspritecol(i);
 
     if (show2dsprite[i>>3]&pow2char[i&7])
         col = editorcolors[14] - (M32_THROB>>1);

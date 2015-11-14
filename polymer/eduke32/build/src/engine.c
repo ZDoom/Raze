@@ -17089,7 +17089,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
 
 static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t posze, int32_t zoome, int32_t grayp)
 {
-    const walltype *wal = &wall[i];
+    const walltype *const wal = &wall[i];
 
     int32_t j = wal->nextwall;
 #if 0
@@ -17119,31 +17119,34 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
             col = editorcolors[5];
         else col = editorcolors[4];
 
-        if ((i == linehighlight) || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
-                col += M32_THROB>>2;
+        if (i == linehighlight || (linehighlight >= 0 && i == wall[linehighlight].nextwall))
+            col += M32_THROB>>2;
     }
+
+    int const p2 = wal->point2;
 
     int32_t x1, y1, x2, y2;
     screencoords(&x1,&y1, wal->x-posxe,wal->y-posye, zoome);
-    screencoords(&x2,&y2, wall[wal->point2].x-posxe,wall[wal->point2].y-posye, zoome);
+    screencoords(&x2,&y2, wall[p2].x-posxe,wall[p2].y-posye, zoome);
 
-    int64_t dx = wal->x-wall[wal->point2].x;
-    int64_t dy = wal->y-wall[wal->point2].y;
-    int64_t dist = dx*dx+dy*dy;
+    int64_t const dx = wal->x-wall[p2].x;
+    int64_t const dy = wal->y-wall[p2].y;
+    int64_t const dist = dx*dx + dy*dy;
+
+    int const bothSidesHighlighted = ((show2dwall[i>>3]&pow2char[i&7]) && (show2dwall[p2>>3]&pow2char[p2&7]));
 
     if (dist > INT32_MAX)
     {
         col=editorcolors[9];
-        if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)))
+        if (i == linehighlight || (linehighlight >= 0 && i == wall[linehighlight].nextwall))
             col -= M32_THROB>>3;
     }
     else if ((showfirstwall && searchsector>=0 && (sector[searchsector].wallptr == i ||
-                          sector[searchsector].wallptr == wall[i].nextwall)) || 
-        ((show2dwall[i>>3]&pow2char[i&7]) && (show2dwall[wall[i].point2>>3]&pow2char[wall[i].point2&7])))
+                                                   sector[searchsector].wallptr == wall[i].nextwall)) ||
+             bothSidesHighlighted)
     {
         col = editorcolors[14];
-        if (i == linehighlight || ((linehighlight >= 0) && (i == wall[linehighlight].nextwall)) ||
-            ((show2dwall[i>>3]&pow2char[i&7]) && (show2dwall[wall[i].point2>>3]&pow2char[wall[i].point2&7])))
+        if (i == linehighlight || (linehighlight >= 0 && i == wall[linehighlight].nextwall) || bothSidesHighlighted)
             col -= M32_THROB>>1;
     }
     else if (circlewall >= 0 && (i == circlewall || wal->nextwall == circlewall))
@@ -17154,13 +17157,13 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     if (m32_sideview)
     {
         // draw vertical line to neighboring wall
-        int32_t sect = sectorofwall(i);
+        int32_t const sect = sectorofwall(i);
 
         fz = getflorzofslope(sect, wal->x,wal->y);
-        int32_t fz2 = getflorzofslope(sect, wall[wal->point2].x,wall[wal->point2].y);
+        int32_t fz2 = getflorzofslope(sect, wall[p2].x, wall[p2].y);
 
-        int32_t dz = getscreenvdisp(fz-posze,zoome);
-        int32_t dz2 = getscreenvdisp(fz2-posze,zoome);
+        int32_t const dz = getscreenvdisp(fz-posze,zoome);
+        int32_t const dz2 = getscreenvdisp(fz2-posze,zoome);
 
         y1 += dz;
         y2 += dz2;
@@ -17173,11 +17176,11 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         }
 #ifdef YAX_ENABLE
         {
-            int16_t nw = yax_getnextwall(i, YAX_CEILING);
+            int16_t const nw = yax_getnextwall(i, YAX_CEILING);
 
             if (nw >= 0)
             {
-                int32_t odrawlinepat = drawlinepat;
+                int32_t const odrawlinepat = drawlinepat;
                 fz2 = getflorzofslope(sectorofwall(nw), wall[nw].x,wall[nw].y);
                 drawlinepat = 0x11111111;
                 drawline16mid(x1,y1, x1,y1+getscreenvdisp(fz2-fz,zoome), col);
@@ -17205,7 +17208,8 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     // XXX: This does not take sloping into account.
     if (showheightindicators && !m32_sideview)
     {
-        int32_t dax,day, k=getangle(x1-x2, y1-y2);
+        int32_t dax,day;
+        int32_t const k = getangle(x1-x2, y1-y2);
 
         screencoords(&dax,&day,
                      ((wal->x+wall[wal->point2].x)>>1)-posxe,
@@ -17244,7 +17248,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 
             col = editorcolors[15];
 
-            if (i == pointhighlight || ((pointhighlight < MAXWALLS) && (pointhighlight >= 0) &&
+            if (i == pointhighlight || ((unsigned)pointhighlight < MAXWALLS &&
                                         (wall[i].x == wall[pointhighlight].x) && (wall[i].y == wall[pointhighlight].y)))
             {
                 col = editorcolors[15] - (M32_THROB>>1);
@@ -17273,23 +17277,28 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
 
 int32_t getspritecol(int32_t spr)
 {
-    int picnum = sprite[spr].picnum;
+    int const picnum = sprite[spr].picnum;
     int pal = sprite[spr].pal;
+    int const tilecol = tilecols[picnum];
 
-    if (palookup[pal] == NULL || (tilecols[picnum] && palookup[pal][tilecols[picnum]] == 0))
+    if (palookup[pal] == NULL || (tilecol && palookup[pal][tilecol] == 0))
         pal = 0;
 
-    if (tilecols[picnum]) return palookup[pal][tilecols[picnum]];
+    if (tilecol) return palookup[pal][tilecol];
 
     if (!waloff[picnum]) loadtile(picnum);
     if (!waloff[picnum]) return editorcolors[3];
+
+    // Calculate 2D mode tile color.
 
     uint32_t cols[256];
 
     Bmemset(cols, 0, sizeof(cols));
 
+    const uint8_t *const texbuf = (const uint8_t *)waloff[picnum];
+
     for (int i = 0; i < tilesiz[picnum].x * tilesiz[picnum].y; i++)
-        cols[*((char *) waloff[picnum] + i)]++;
+        cols[texbuf[i]]++;
 
     unsigned col = 0, cnt = 0;
 
@@ -17309,34 +17318,36 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
 {
     int32_t x1, y1, x2, y2;
     int col;
-    int16_t hitblocking=(sprite[j].cstat&256), flooraligned=(sprite[j].cstat&32), wallaligned=(sprite[j].cstat&16);
+    int16_t const hitblocking=(sprite[j].cstat&256);
+    int16_t const flooraligned=(sprite[j].cstat&32), wallaligned=(sprite[j].cstat&16);
 
-    int16_t angofs = m32_sideview ? m32_sideang : 0;
+    int16_t const angofs = m32_sideview ? m32_sideang : 0;
 
     if (sprite[j].sectnum<0)
         col = editorcolors[4];  // red
     else
     {
-        if (spritecol2d[sprite[j].picnum][0])
-            col = spritecol2d[sprite[j].picnum][0];
+        uint8_t const spritecol = spritecol2d[sprite[j].picnum][0];
+
+        if (spritecol)
+            col = spritecol;  // XXX: should be editorcolors[spritecol]
         else
             col = getspritecol(j);
-
-/*
-        else if ((sprite[j].cstat&1) > 0)
+#if 0
+        else if (sprite[j].cstat&1)
         {
-            col = 5;
-            if (spritecol2d[sprite[j].picnum][1])
-                col = spritecol2d[sprite[j].picnum][1];
+            uint8_t const blockingSpriteCol = spritecol2d[sprite[j].picnum][1];
+            col = blockingSpriteCol ? blockingSpriteCol : 5;
         }
-*/
+#endif
     }
 
     if (editstatus == 1)
     {
-        if ((pointhighlight) >= 16384 && (j+16384 == pointhighlight ||
-                                          (!m32_sideview && ((sprite[j].x == sprite[pointhighlight-16384].x) &&
-                                                  (sprite[j].y == sprite[pointhighlight-16384].y)))))
+        if (pointhighlight >= 16384 &&
+            (j+16384 == pointhighlight ||
+             (!m32_sideview && (sprite[j].x == sprite[pointhighlight-16384].x &&
+                                sprite[j].y == sprite[pointhighlight-16384].y))))
         {
             col += M32_THROB>>2;
         }
