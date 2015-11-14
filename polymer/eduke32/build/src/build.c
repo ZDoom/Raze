@@ -10173,7 +10173,7 @@ enum {
 
 static int32_t parsenamesfile(scriptfile *script)
 {
-    int32_t syms;
+    int32_t syms = 0;
 
     tokenlist const tokens[] =
     {
