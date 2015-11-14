@@ -3374,8 +3374,6 @@ void overheadeditor(void)
                 zoom += synctics * ((ztarget - zoom) >> 3);
             else zoom++;
             zoom = min(zoom, ztarget);
-            if (zoom >= 39936)
-                silentmessage("Ludicrous Zoom!");
         }
         else if (zoom > ztarget)
         {
