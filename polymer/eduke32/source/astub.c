@@ -7847,6 +7847,7 @@ static void InitCustomColors(void)
     vgapal16[31*4+1] = 180; // green
     vgapal16[31*4+2] = 240; // red
 
+    // UNUSED?
     vgapal16[39*4+0] = 144;
     vgapal16[39*4+1] = 212;
     vgapal16[39*4+2] = 252;
@@ -7880,10 +7881,12 @@ static void InitCustomColors(void)
     vgapal16[26*4+1] = 96;
     vgapal16[26*4+2] = 96;
 
+    // UNUSED?
     vgapal16[33*4+0] = 0; //60; // blue
     vgapal16[33*4+1] = 0; //120; // green
     vgapal16[33*4+2] = 192; //180; // red
 
+    // UNUSED?
     vgapal16[41*4+0] = 0; //96;
     vgapal16[41*4+1] = 0; //160;
     vgapal16[41*4+2] = 252; //192;

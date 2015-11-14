@@ -3291,8 +3291,11 @@ static void drawspritelabel(int i)
 
 //    int const blocking = (sprite[i].cstat & 1);
 
+    // KEEPINSYNC drawscreen_drawsprite()
     uint8_t const spritecol = spritecol2d[sprite[i].picnum][0];
-    int col = spritecol ? editorcolors[spritecol] : getspritecol(i);
+    uint8_t const blockingSpriteCol = spritecol2d[sprite[i].picnum][1];
+    int col = spritecol ? editorcolors[(sprite[i].cstat&1) ? blockingSpriteCol : spritecol] :
+        getspritecol(i);
 
     if (show2dsprite[i>>3]&pow2char[i&7])
         col = editorcolors[14] - (M32_THROB>>1);
@@ -3759,7 +3762,7 @@ void overheadeditor(void)
                                     }
 
                                     drawlinebetween(&v1, &v2, !hlp ? 8 :
-                                                    editorcolors[wal->nextwall >= 0 ? 33 : 7],
+                                                    editorcolors[wal->nextwall >= 0 ? 12 : 7],
                                                     0x11111111);
                                 }
                             }

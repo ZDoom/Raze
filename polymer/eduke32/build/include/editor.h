@@ -461,6 +461,8 @@ FORCE_INLINE void inpclamp(int32_t *x, int32_t mi, int32_t ma)
 
 #define drawtranspixel(p, col) drawpixel(p, blendtable[0][(readpixel(p) * 256) + col])
 
+// Timed offset for Mapster32 color index cycling.
+// Range: 0 .. 16
 #define M32_THROB klabs(sintable[((totalclock << 4) & 2047)] >> 10)
 
 #ifdef __cplusplus
