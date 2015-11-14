@@ -1140,7 +1140,7 @@ static void prelevel(char g)
             case LOCATORS__STATIC:
             case MASTERSWITCH__STATIC:
             case RESPAWN__STATIC:
-                sprite[i].cstat &= ~(1|256);
+                sprite[i].cstat &= ~(1|16|32|256);
                 break;
             }
     }
