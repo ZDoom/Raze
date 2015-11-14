@@ -107,7 +107,7 @@ typedef struct
 } TileGroup;
 
 #define MAX_TILE_GROUPS 32
-#define MAX_TILE_GROUP_ENTRIES 1024
+#define MAX_TILE_GROUP_ENTRIES MAXUSERTILES
 
 static TileGroup s_TileGroups[MAX_TILE_GROUPS];
 static int32_t tilegroupItems;

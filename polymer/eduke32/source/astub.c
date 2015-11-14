@@ -3285,13 +3285,20 @@ static int32_t OnSelectTile(int32_t iTile)
         //
         // Display the description strings for each available tile group
         //
+        int32_t j = 0;
+
         for (i = 0; i < tile_groups; i++)
         {
             if (s_TileGroups[i].szText != NULL)
             {
-                if ((i+2)*16 > ydimgame) break;
-                Bsprintf(tempbuf,"(%c) %s",s_TileGroups[i].key1,s_TileGroups[i].szText);
-                printext256(10L, (i+1)*16, whitecol, -1, tempbuf, 0);
+                if ((j+2)*16 > ydimgame) break;
+
+                if (s_TileGroups[i].key1)
+                {
+                    Bsprintf(tempbuf, "(%c) %s", s_TileGroups[i].key1, s_TileGroups[i].szText);
+                    printext256(10L, (j+1)*16, whitecol, -1, tempbuf, 0);
+                    j++;
+                }
             }
         }
         showframe(1);
@@ -3301,7 +3308,7 @@ static int32_t OnSelectTile(int32_t iTile)
         for (i = 0; i < tile_groups; i++)
         {
             if (s_TileGroups[i].pIds != NULL && s_TileGroups[i].key1)
-                if ((ch == s_TileGroups[i].key1) || (ch == s_TileGroups[i].key2))
+                if (ch == s_TileGroups[i].key1 || ch == s_TileGroups[i].key2)
                 {
                     iTile = LoadTileSet(iTile, s_TileGroups[i].pIds, s_TileGroups[i].nIds);
                     bDone = 1;
@@ -9386,7 +9393,7 @@ int32_t parsetilegroups(scriptfile *script)
                 case T_TILE:
                 {
                     if (scriptfile_getsymbol(script,&i)) break;
-                    if (i >= 0 && i < MAXTILES && tileGrp->nIds < MAX_TILE_GROUP_ENTRIES)
+                    if (i >= 0 && i < MAXUSERTILES && tileGrp->nIds < MAX_TILE_GROUP_ENTRIES)
                         tileGrp->pIds[tileGrp->nIds++] = i;
 //                    OSD_Printf("added tile %d to group %d\n",i,g);
                     break;
@@ -9620,11 +9627,18 @@ static int32_t loadtilegroups(const char *fn)
         // If the colors were specified...
         if (s_TileGroups[i].color1 && s_TileGroups[i].color2)
         {
+            // Apply the colors to all tiles in the group...
             for (j = s_TileGroups[i].nIds-1; j >= 0 ; j--)
             {
-                // Apply the colors to all tiles in the group.
-                spritecol2d[s_TileGroups[i].pIds[j]][0] = s_TileGroups[i].color1;
-                spritecol2d[s_TileGroups[i].pIds[j]][1] = s_TileGroups[i].color2;
+                int const tilenum = s_TileGroups[i].pIds[j];
+
+                // ... but for each tile, only if no color has been specified
+                // for it previously.
+                if (spritecol2d[tilenum][0] == 0)
+                {
+                    spritecol2d[tilenum][0] = s_TileGroups[i].color1;
+                    spritecol2d[tilenum][1] = s_TileGroups[i].color2;
+                }
             }
         }
     }
