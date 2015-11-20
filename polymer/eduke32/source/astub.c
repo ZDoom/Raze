@@ -8596,11 +8596,14 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
 
     if (!Bstrcasecmp(parm->name, "script_expertmode"))
     {
-        m32_script_expertmode = !m32_script_expertmode;
+        if (setval)
+            m32_script_expertmode = !!atoi_safe(parm->parms[0]);
+
         if (m32_script_expertmode)
-            OSD_Printf("M32 Script expert mode ENABLED.  Be sure to know what you are doing!\n");
+            OSD_Printf("M32 Script expert mode %sENABLED.  Be sure to know what you are doing!\n",
+                       setval ? "" : "is ");
         else
-            OSD_Printf("M32 Script expert mode DISABLED.\n");
+            OSD_Printf("M32 Script expert mode %sDISABLED.\n", setval ? "" : "is ");
         return OSDCMD_OK;
     }
 
