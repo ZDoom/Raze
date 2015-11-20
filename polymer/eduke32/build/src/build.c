@@ -3289,23 +3289,24 @@ static void drawspritelabel(int i)
     if (!dabuffer[0])
         return;
 
-//    int const blocking = (sprite[i].cstat & 1);
-
     // KEEPINSYNC drawscreen_drawsprite()
     uint8_t const spritecol = spritecol2d[sprite[i].picnum][0];
     uint8_t const blockingSpriteCol = spritecol2d[sprite[i].picnum][1];
     int col = spritecol ? editorcolors[(sprite[i].cstat&1) ? blockingSpriteCol : spritecol] :
         getspritecol(i);
+    int bgcol = col;
 
     if (show2dsprite[i>>3]&pow2char[i&7])
-        col = editorcolors[14] - (M32_THROB>>1);
+    {
+        bgcol = editorcolors[14];
+        col = bgcol - (M32_THROB>>1);
+    }
     else if (i == pointhighlight - 16384)
         col += M32_THROB>>2;
     else if (sprite[i].sectnum < 0)
-        col = editorcolors[4];  // red
+        col = bgcol = editorcolors[4];  // red
 
-    drawsmallabel(dabuffer, editorcolors[0], col, /*blocking ? editorcolors[5] :*/ col - 3,
-        sprite[i].x, sprite[i].y, sprite[i].z);
+    drawsmallabel(dabuffer, editorcolors[0], col, bgcol, sprite[i].x, sprite[i].y, sprite[i].z);
 }
 
 #define EDITING_MAP_P() (newnumwalls>=0 || joinsector[0]>=0 || circlewall>=0 || (bstatus&1) || isc.active)
