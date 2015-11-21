@@ -1112,6 +1112,486 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
     }
 }
 
+static int32_t A_ShootHardcoded(int32_t i, int32_t atwith, int16_t sa, vec3_t srcvect,
+                                spritetype *s, int32_t p, DukePlayer_t *ps)
+{
+    int32_t j, k = -1, l;
+    int32_t vel, zvel = 0;
+    hitdata_t hit;
+    const int16_t sect = s->sectnum;
+
+    switch (DYNAMICTILEMAP(atwith))
+    {
+    case BLOODSPLAT1__STATIC:
+    case BLOODSPLAT2__STATIC:
+    case BLOODSPLAT3__STATIC:
+    case BLOODSPLAT4__STATIC:
+        sa += 64 - (krand()&127);
+        if (p < 0) sa += 1024;
+        zvel = 1024-(krand()&2047);
+        // fall-through
+    case KNEE__STATIC:
+        if (atwith == KNEE)
+        {
+            if (p >= 0)
+            {
+                zvel = (100-ps->horiz-ps->horizoff)<<5;
+                srcvect.z += (6<<8);
+                sa += 15;
+            }
+            else
+            {
+                int32_t x;
+                j = g_player[A_FindPlayer(s,&x)].ps->i;
+                zvel = tabledivide32_noinline((sprite[j].z-srcvect.z)<<8, x+1);
+                sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
+            }
+        }
+
+        Proj_DoHitscan(i, 0, &srcvect, zvel, sa, &hit);
+
+        if (atwith >= BLOODSPLAT1 && atwith <= BLOODSPLAT4)
+        {
+            if (Proj_CheckBlood(&srcvect, &hit, 1024, 16<<8))
+            {
+                const walltype *const hitwal = &wall[hit.wall];
+
+                if (SectorContainsSE13(hitwal->nextsector))
+                    return -1;
+
+                if (hitwal->nextwall >= 0 && wall[hitwal->nextwall].hitag != 0)
+                    return -1;
+
+                if (hitwal->hitag == 0)
+                {
+                    k = A_Spawn(i,atwith);
+                    sprite[k].ang = (getangle(hitwal->x - wall[hitwal->point2].x,
+                        hitwal->y - wall[hitwal->point2].y) + 1536) & 2047;
+                    Bmemcpy(&sprite[k], &hit.pos, sizeof(vec3_t));
+
+                    sprite[k].cstat |= (krand()&4);
+                    A_SetSprite(k,CLIPMASK0);
+                    setsprite(k, (vec3_t *)&sprite[k]);
+                    if (PN == OOZFILTER || PN == NEWBEAST)
+                        sprite[k].pal = 6;
+                }
+            }
+
+            return -1;
+        }
+
+        if (hit.sect < 0) break;
+
+        if (klabs(srcvect.x-hit.pos.x)+klabs(srcvect.y-hit.pos.y) < 1024)
+            Proj_HandleKnee(&hit, i, p, atwith, sa,
+                            NULL, KNEE, 7, SMALLSMOKE, KICK_HIT);
+        break;
+
+    case SHOTSPARK1__STATIC:
+    case SHOTGUN__STATIC:
+    case CHAINGUN__STATIC:
+        if (s->extra >= 0) s->shade = -96;
+
+        if (p >= 0)
+            P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa,
+                             atwith == SHOTSPARK1__STATIC && !WW2GI && !NAM,
+                             1);
+        else
+            A_PreFireHitscan(s, &srcvect, &zvel, &sa, 1);
+
+        if (Proj_DoHitscan(i, 256+1, &srcvect, zvel, sa, &hit))
+            return -1;
+
+        if ((krand()&15) == 0 && sector[hit.sect].lotag == ST_2_UNDERWATER)
+            A_DoWaterTracers(hit.pos.x,hit.pos.y,hit.pos.z,
+                             srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
+
+        if (p >= 0)
+        {
+            k = Proj_InsertShotspark(&hit, i, atwith, 10, sa,
+                                     G_InitialActorStrength(atwith) + (krand()%6));
+
+            if (P_PostFireHitscan(p, k, &hit, i, atwith, zvel,
+                                  -SMALLSMOKE, BULLETHOLE, SHOTSPARK1, 0) < 0)
+                return -1;
+        }
+        else
+        {
+            k = A_PostFireHitscan(&hit, i, atwith, sa, G_InitialActorStrength(atwith),
+                                  -SMALLSMOKE, SHOTSPARK1);
+        }
+
+        if ((krand()&255) < 4)
+            S_PlaySound3D(PISTOL_RICOCHET, k, &hit.pos);
+
+        return -1;
+
+    case GROWSPARK__STATIC:
+        if (p >= 0)
+            P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa, 1, 1);
+        else
+            A_PreFireHitscan(s, &srcvect, &zvel, &sa, 1);
+
+        if (Proj_DoHitscan(i, 256 + 1, &srcvect, zvel, sa, &hit))
+            return -1;
+
+        j = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,GROWSPARK,-16,28,28,sa,0,0,i,1);
+
+        sprite[j].pal = 2;
+        sprite[j].cstat |= 130;
+        sprite[j].xrepeat = sprite[j].yrepeat = 1;
+        A_SetHitData(j, &hit);
+
+        if (hit.wall == -1 && hit.sprite == -1 && hit.sect >= 0)
+        {
+            Proj_MaybeDamageCF2(zvel, hit.sect);
+        }
+        else if (hit.sprite >= 0) A_DamageObject(hit.sprite,j);
+        else if (hit.wall >= 0 && wall[hit.wall].picnum != ACCESSSWITCH && wall[hit.wall].picnum != ACCESSSWITCH2)
+            A_DamageWall(j,hit.wall,&hit.pos,atwith);
+
+        break;
+
+    case FIRELASER__STATIC:
+    case SPIT__STATIC:
+    case COOLEXPLOSION1__STATIC:
+    {
+        int32_t tsiz;
+
+        if (s->extra >= 0) s->shade = -96;
+
+        switch (atwith)
+        {
+        case SPIT__STATIC:
+            vel = 292;
+            break;
+        case COOLEXPLOSION1__STATIC:
+            if (s->picnum == BOSS2) vel = 644;
+            else vel = 348;
+            srcvect.z -= (4<<7);
+            break;
+        case FIRELASER__STATIC:
+        default:
+            vel = 840;
+            srcvect.z -= (4<<7);
+            break;
+        }
+
+        if (p >= 0)
+        {
+            j = GetAutoAimAngle(i, p, atwith, -(12<<8), 0, &srcvect, vel, &zvel, &sa);
+
+            if (j < 0)
+                zvel = (100-ps->horiz-ps->horizoff)*98;
+        }
+        else
+        {
+            j = A_FindPlayer(s, NULL);
+            //                sa = getangle(g_player[j].ps->opos.x-sx,g_player[j].ps->opos.y-sy);
+            sa += 16-(krand()&31);
+            hit.pos.x = safeldist(g_player[j].ps->i, s);
+            zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect.z + (3<<8))*vel, hit.pos.x);
+        }
+
+        zvel = A_GetShootZvel(zvel);
+
+        if (atwith == SPIT)
+        {
+            tsiz = 18;
+            srcvect.z -= (10<<8);
+        }
+        else if (p >= 0)
+            tsiz = 7;
+        else
+        {
+            if (atwith == FIRELASER)
+            {
+                if (p >= 0)
+                    tsiz = 34;
+                else
+                    tsiz = 18;
+            }
+            else
+                tsiz = 18;
+        }
+
+        j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,
+                           atwith,-127,tsiz,tsiz,sa,vel,zvel,i,4);
+        sprite[j].extra += (krand()&7);
+
+        if (atwith == COOLEXPLOSION1)
+        {
+            sprite[j].shade = 0;
+            if (PN == BOSS2)
+            {
+                l = sprite[j].xvel;
+                sprite[j].xvel = MinibossScale(1024);
+                A_SetSprite(j,CLIPMASK0);
+                sprite[j].xvel = l;
+                sprite[j].ang += 128-(krand()&255);
+            }
+        }
+
+        sprite[j].cstat = 128;
+        sprite[j].clipdist = 4;
+
+        sa = s->ang+32-(krand()&63);
+        zvel += 512-(krand()&1023);
+
+        return j;
+    }
+
+    case FREEZEBLAST__STATIC:
+        srcvect.z += (3<<8);
+    case RPG__STATIC:
+        // XXX: "CODEDUP"
+        if (s->extra >= 0) s->shade = -96;
+
+        vel = 644;
+
+        j = -1;
+
+        if (p >= 0)
+        {
+            // NOTE: j is a SPRITE_INDEX
+            j = GetAutoAimAngle(i, p, atwith, 8<<8, 0+2, &srcvect, vel, &zvel, &sa);
+
+            if (j < 0)
+                zvel = (100-ps->horiz-ps->horizoff)*81;
+
+            if (atwith == RPG)
+                A_PlaySound(RPG_SHOOT,i);
+        }
+        else
+        {
+            // NOTE: j is a player index
+            j = A_FindPlayer(s, NULL);
+            sa = getangle(g_player[j].ps->opos.x-srcvect.x, g_player[j].ps->opos.y-srcvect.y);
+            if (PN == BOSS3)
+                srcvect.z -= MinibossScale(32<<8);
+            else if (PN == BOSS2)
+            {
+                vel += 128;
+                srcvect.z += MinibossScale(24<<8);
+            }
+
+            l = safeldist(g_player[j].ps->i, s);
+            zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect.z)*vel, l);
+
+            if (A_CheckEnemySprite(s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
+                sa = s->ang+(krand()&31)-16;
+        }
+
+        if (numplayers > 1 && g_netClient)
+            return -1;
+
+        // l may be a SPRITE_INDEX, see above
+        l = (p >= 0 && j >= 0) ? j : -1;
+
+        zvel = A_GetShootZvel(zvel);
+        j = A_InsertSprite(sect,
+                           srcvect.x+(sintable[(348+sa+512)&2047]/448),
+                           srcvect.y+(sintable[(sa+348)&2047]/448),
+                           srcvect.z-(1<<8),atwith,0,14,14,sa,vel,zvel,i,4);
+
+        sprite[j].extra += (krand()&7);
+        if (atwith != FREEZEBLAST)
+            sprite[j].yvel = l;  // RPG_YVEL
+        else
+        {
+            sprite[j].yvel = g_numFreezeBounces;
+            sprite[j].xrepeat >>= 1;
+            sprite[j].yrepeat >>= 1;
+            sprite[j].zvel -= (2<<4);
+        }
+
+        if (p == -1)
+        {
+            if (PN == BOSS3)
+            {
+                if (krand()&1)
+                {
+                    sprite[j].x -= MinibossScale(sintable[sa&2047]>>6);
+                    sprite[j].y -= MinibossScale(sintable[(sa+1024+512)&2047]>>6);
+                    sprite[j].ang -= MinibossScale(8);
+                }
+                else
+                {
+                    sprite[j].x += MinibossScale(sintable[sa&2047]>>6);
+                    sprite[j].y += MinibossScale(sintable[(sa+1024+512)&2047]>>6);
+                    sprite[j].ang += MinibossScale(4);
+                }
+                sprite[j].xrepeat = MinibossScale(42);
+                sprite[j].yrepeat = MinibossScale(42);
+            }
+            else if (PN == BOSS2)
+            {
+                sprite[j].x -= MinibossScale(sintable[sa&2047]/56);
+                sprite[j].y -= MinibossScale(sintable[(sa+1024+512)&2047]/56);
+                sprite[j].ang -= MinibossScale(8)+(krand()&255)-128;
+                sprite[j].xrepeat = 24;
+                sprite[j].yrepeat = 24;
+            }
+            else if (atwith != FREEZEBLAST)
+            {
+                sprite[j].xrepeat = 30;
+                sprite[j].yrepeat = 30;
+                sprite[j].extra >>= 2;
+            }
+        }
+        else if (PWEAPON(p, g_player[p].ps->curr_weapon, WorksLike) == DEVISTATOR_WEAPON)
+        {
+            sprite[j].extra >>= 2;
+            sprite[j].ang += 16-(krand()&31);
+            sprite[j].zvel += 256-(krand()&511);
+
+            if (g_player[p].ps->hbomb_hold_delay)
+            {
+                sprite[j].x -= sintable[sa&2047]/644;
+                sprite[j].y -= sintable[(sa+1024+512)&2047]/644;
+            }
+            else
+            {
+                sprite[j].x += sintable[sa&2047]>>8;
+                sprite[j].y += sintable[(sa+1024+512)&2047]>>8;
+            }
+            sprite[j].xrepeat >>= 1;
+            sprite[j].yrepeat >>= 1;
+        }
+
+        sprite[j].cstat = 128;
+        if (atwith == RPG)
+            sprite[j].clipdist = 4;
+        else
+            sprite[j].clipdist = 40;
+
+        return j;
+
+    case HANDHOLDINGLASER__STATIC:
+    {
+        const int32_t zoff = (p>=0) ? g_player[p].ps->pyoff : 0;
+        if (p >= 0)
+            zvel = (100-ps->horiz-ps->horizoff)*32;
+        else zvel = 0;
+
+        srcvect.z -= zoff;
+        Proj_DoHitscan(i, 0, &srcvect, zvel, sa, &hit);
+        srcvect.z += zoff;
+
+        j = 0;
+        if (hit.sprite >= 0) break;
+
+        if (hit.wall >= 0 && hit.sect >= 0)
+            if (((hit.pos.x-srcvect.x)*(hit.pos.x-srcvect.x)+(hit.pos.y-srcvect.y)*(hit.pos.y-srcvect.y)) < (290*290))
+            {
+                // ST_2_UNDERWATER
+                if (wall[hit.wall].nextsector >= 0)
+                {
+                    if (sector[wall[hit.wall].nextsector].lotag <= 2 && sector[hit.sect].lotag <= 2)
+                        j = 1;
+                }
+                else if (sector[hit.sect].lotag <= 2)
+                    j = 1;
+            }
+
+        if (j == 1)
+        {
+            int32_t lTripBombControl = (p < 0) ? 0 :
+#ifdef LUNATIC
+                g_player[p].ps->tripbombControl;
+#else
+                Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
+#endif
+            k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,TRIPBOMB,-16,4,5,sa,0,0,i,6);
+            if (lTripBombControl & TRIPBOMB_TIMER)
+            {
+#ifdef LUNATIC
+                int32_t lLifetime = g_player[p].ps->tripbombLifetime;
+                int32_t lLifetimeVar = g_player[p].ps->tripbombLifetimeVar;
+#else
+                int32_t lLifetime=Gv_GetVarByLabel("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, g_player[p].ps->i, p);
+                int32_t lLifetimeVar=Gv_GetVarByLabel("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, g_player[p].ps->i, p);
+#endif
+                // set timer.  blows up when at zero....
+                actor[k].t_data[7]=lLifetime
+                                   + mulscale(krand(),lLifetimeVar, 14)
+                                   - lLifetimeVar;
+                // TIMER_CONTROL
+                actor[k].t_data[6]=1;
+            }
+            else
+                sprite[k].hitag = k;
+
+            A_PlaySound(LASERTRIP_ONWALL,k);
+            sprite[k].xvel = -20;
+            A_SetSprite(k,CLIPMASK0);
+            sprite[k].cstat = 16;
+
+            {
+                int32_t p2 = wall[hit.wall].point2;
+                int32_t a = getangle(wall[hit.wall].x-wall[p2].x, wall[hit.wall].y-wall[p2].y)-512;
+                actor[k].t_data[5] = sprite[k].ang = a;
+            }
+        }
+        return j?k:-1;
+    }
+
+    case BOUNCEMINE__STATIC:
+    case MORTER__STATIC:
+    {
+        int32_t x;
+
+        if (s->extra >= 0) s->shade = -96;
+
+        j = g_player[A_FindPlayer(s, NULL)].ps->i;
+        x = ldist(&sprite[j],s);
+
+        zvel = -x>>1;
+
+        if (zvel < -4096)
+            zvel = -2048;
+        vel = x>>4;
+
+        zvel = A_GetShootZvel(zvel);
+        A_InsertSprite(sect,
+                       srcvect.x+(sintable[(512+sa+512)&2047]>>8),
+                       srcvect.y+(sintable[(sa+512)&2047]>>8),
+                       srcvect.z+(6<<8),atwith,-64,32,32,sa,vel,zvel,i,1);
+        break;
+    }
+
+    case SHRINKER__STATIC:
+        if (s->extra >= 0) s->shade = -96;
+        if (p >= 0)
+        {
+            j = GetAutoAimAngle(i, p, atwith, 4<<8, 0, &srcvect, 768, &zvel, &sa);
+
+            if (j < 0)
+                zvel = (100-ps->horiz-ps->horizoff)*98;
+        }
+        else if (s->statnum != STAT_EFFECTOR)
+        {
+            j = A_FindPlayer(s, NULL);
+            l = safeldist(g_player[j].ps->i, s);
+            zvel = tabledivide32_noinline((g_player[j].ps->opos.z-srcvect.z)*512, l);
+        }
+        else zvel = 0;
+
+        zvel = A_GetShootZvel(zvel);
+        j = A_InsertSprite(sect,
+                           srcvect.x+(sintable[(512+sa+512)&2047]>>12),
+                           srcvect.y+(sintable[(sa+512)&2047]>>12),
+                           srcvect.z+(2<<8),SHRINKSPARK,-16,28,28,sa,768,zvel,i,4);
+
+        sprite[j].cstat = 128;
+        sprite[j].clipdist = 32;
+
+        return j;
+    }
+
+    return -1;
+}
+
 int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 {
     int16_t sa;
@@ -1179,486 +1659,9 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
 #endif // POLYMER
     }
 
-    if (A_CheckSpriteTileFlags(atwith, SFLAG_PROJECTILE))
-        return A_ShootCustom(i, atwith, sa, &srcvect);
-    else
-    {
-        int32_t j, k = -1, l;
-        int32_t vel, zvel = 0;
-        hitdata_t hit;
-        const int16_t sect = s->sectnum;
-
-        switch (DYNAMICTILEMAP(atwith))
-        {
-        case BLOODSPLAT1__STATIC:
-        case BLOODSPLAT2__STATIC:
-        case BLOODSPLAT3__STATIC:
-        case BLOODSPLAT4__STATIC:
-            sa += 64 - (krand()&127);
-            if (p < 0) sa += 1024;
-            zvel = 1024-(krand()&2047);
-            // fall-through
-        case KNEE__STATIC:
-            if (atwith == KNEE)
-            {
-                if (p >= 0)
-                {
-                    zvel = (100-ps->horiz-ps->horizoff)<<5;
-                    srcvect.z += (6<<8);
-                    sa += 15;
-                }
-                else
-                {
-                    int32_t x;
-                    j = g_player[A_FindPlayer(s,&x)].ps->i;
-                    zvel = tabledivide32_noinline((sprite[j].z-srcvect.z)<<8, x+1);
-                    sa = getangle(sprite[j].x-srcvect.x,sprite[j].y-srcvect.y);
-                }
-            }
-
-            Proj_DoHitscan(i, 0, &srcvect, zvel, sa, &hit);
-
-            if (atwith >= BLOODSPLAT1 && atwith <= BLOODSPLAT4)
-            {
-                if (Proj_CheckBlood(&srcvect, &hit, 1024, 16<<8))
-                {
-                    const walltype *const hitwal = &wall[hit.wall];
-
-                    if (SectorContainsSE13(hitwal->nextsector))
-                        return -1;
-
-                    if (hitwal->nextwall >= 0 && wall[hitwal->nextwall].hitag != 0)
-                        return -1;
-
-                    if (hitwal->hitag == 0)
-                    {
-                        k = A_Spawn(i,atwith);
-                        sprite[k].ang = (getangle(hitwal->x - wall[hitwal->point2].x,
-                            hitwal->y - wall[hitwal->point2].y) + 1536) & 2047;
-                        Bmemcpy(&sprite[k], &hit.pos, sizeof(vec3_t));
-
-                        sprite[k].cstat |= (krand()&4);
-                        A_SetSprite(k,CLIPMASK0);
-                        setsprite(k, (vec3_t *)&sprite[k]);
-                        if (PN == OOZFILTER || PN == NEWBEAST)
-                            sprite[k].pal = 6;
-                    }
-                }
-
-                return -1;
-            }
-
-            if (hit.sect < 0) break;
-
-            if (klabs(srcvect.x-hit.pos.x)+klabs(srcvect.y-hit.pos.y) < 1024)
-                Proj_HandleKnee(&hit, i, p, atwith, sa,
-                                NULL, KNEE, 7, SMALLSMOKE, KICK_HIT);
-            break;
-
-        case SHOTSPARK1__STATIC:
-        case SHOTGUN__STATIC:
-        case CHAINGUN__STATIC:
-            if (s->extra >= 0) s->shade = -96;
-
-            if (p >= 0)
-                P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa,
-                                 atwith == SHOTSPARK1__STATIC && !WW2GI && !NAM,
-                                 1);
-            else
-                A_PreFireHitscan(s, &srcvect, &zvel, &sa, 1);
-
-            if (Proj_DoHitscan(i, 256+1, &srcvect, zvel, sa, &hit))
-                return -1;
-
-            if ((krand()&15) == 0 && sector[hit.sect].lotag == ST_2_UNDERWATER)
-                A_DoWaterTracers(hit.pos.x,hit.pos.y,hit.pos.z,
-                                 srcvect.x,srcvect.y,srcvect.z,8-(ud.multimode>>1));
-
-            if (p >= 0)
-            {
-                k = Proj_InsertShotspark(&hit, i, atwith, 10, sa,
-                                         G_InitialActorStrength(atwith) + (krand()%6));
-
-                if (P_PostFireHitscan(p, k, &hit, i, atwith, zvel,
-                                      -SMALLSMOKE, BULLETHOLE, SHOTSPARK1, 0) < 0)
-                    return -1;
-            }
-            else
-            {
-                k = A_PostFireHitscan(&hit, i, atwith, sa, G_InitialActorStrength(atwith),
-                                      -SMALLSMOKE, SHOTSPARK1);
-            }
-
-            if ((krand()&255) < 4)
-                S_PlaySound3D(PISTOL_RICOCHET, k, &hit.pos);
-
-            return -1;
-
-        case GROWSPARK__STATIC:
-            if (p >= 0)
-                P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa, 1, 1);
-            else
-                A_PreFireHitscan(s, &srcvect, &zvel, &sa, 1);
-
-            if (Proj_DoHitscan(i, 256 + 1, &srcvect, zvel, sa, &hit))
-                return -1;
-
-            j = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,GROWSPARK,-16,28,28,sa,0,0,i,1);
-
-            sprite[j].pal = 2;
-            sprite[j].cstat |= 130;
-            sprite[j].xrepeat = sprite[j].yrepeat = 1;
-            A_SetHitData(j, &hit);
-
-            if (hit.wall == -1 && hit.sprite == -1 && hit.sect >= 0)
-            {
-                Proj_MaybeDamageCF2(zvel, hit.sect);
-            }
-            else if (hit.sprite >= 0) A_DamageObject(hit.sprite,j);
-            else if (hit.wall >= 0 && wall[hit.wall].picnum != ACCESSSWITCH && wall[hit.wall].picnum != ACCESSSWITCH2)
-                A_DamageWall(j,hit.wall,&hit.pos,atwith);
-
-            break;
-
-        case FIRELASER__STATIC:
-        case SPIT__STATIC:
-        case COOLEXPLOSION1__STATIC:
-        {
-            int32_t tsiz;
-
-            if (s->extra >= 0) s->shade = -96;
-
-            switch (atwith)
-            {
-            case SPIT__STATIC:
-                vel = 292;
-                break;
-            case COOLEXPLOSION1__STATIC:
-                if (s->picnum == BOSS2) vel = 644;
-                else vel = 348;
-                srcvect.z -= (4<<7);
-                break;
-            case FIRELASER__STATIC:
-            default:
-                vel = 840;
-                srcvect.z -= (4<<7);
-                break;
-            }
-
-            if (p >= 0)
-            {
-                j = GetAutoAimAngle(i, p, atwith, -(12<<8), 0, &srcvect, vel, &zvel, &sa);
-
-                if (j < 0)
-                    zvel = (100-ps->horiz-ps->horizoff)*98;
-            }
-            else
-            {
-                j = A_FindPlayer(s, NULL);
-                //                sa = getangle(g_player[j].ps->opos.x-sx,g_player[j].ps->opos.y-sy);
-                sa += 16-(krand()&31);
-                hit.pos.x = safeldist(g_player[j].ps->i, s);
-                zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect.z + (3<<8))*vel, hit.pos.x);
-            }
-
-            zvel = A_GetShootZvel(zvel);
-
-            if (atwith == SPIT)
-            {
-                tsiz = 18;
-                srcvect.z -= (10<<8);
-            }
-            else if (p >= 0)
-                tsiz = 7;
-            else
-            {
-                if (atwith == FIRELASER)
-                {
-                    if (p >= 0)
-                        tsiz = 34;
-                    else
-                        tsiz = 18;
-                }
-                else
-                    tsiz = 18;
-            }
-
-            j = A_InsertSprite(sect,srcvect.x,srcvect.y,srcvect.z,
-                               atwith,-127,tsiz,tsiz,sa,vel,zvel,i,4);
-            sprite[j].extra += (krand()&7);
-
-            if (atwith == COOLEXPLOSION1)
-            {
-                sprite[j].shade = 0;
-                if (PN == BOSS2)
-                {
-                    l = sprite[j].xvel;
-                    sprite[j].xvel = MinibossScale(1024);
-                    A_SetSprite(j,CLIPMASK0);
-                    sprite[j].xvel = l;
-                    sprite[j].ang += 128-(krand()&255);
-                }
-            }
-
-            sprite[j].cstat = 128;
-            sprite[j].clipdist = 4;
-
-            sa = s->ang+32-(krand()&63);
-            zvel += 512-(krand()&1023);
-
-            return j;
-        }
-
-        case FREEZEBLAST__STATIC:
-            srcvect.z += (3<<8);
-        case RPG__STATIC:
-            // XXX: "CODEDUP"
-            if (s->extra >= 0) s->shade = -96;
-
-            vel = 644;
-
-            j = -1;
-
-            if (p >= 0)
-            {
-                // NOTE: j is a SPRITE_INDEX
-                j = GetAutoAimAngle(i, p, atwith, 8<<8, 0+2, &srcvect, vel, &zvel, &sa);
-
-                if (j < 0)
-                    zvel = (100-ps->horiz-ps->horizoff)*81;
-
-                if (atwith == RPG)
-                    A_PlaySound(RPG_SHOOT,i);
-            }
-            else
-            {
-                // NOTE: j is a player index
-                j = A_FindPlayer(s, NULL);
-                sa = getangle(g_player[j].ps->opos.x-srcvect.x, g_player[j].ps->opos.y-srcvect.y);
-                if (PN == BOSS3)
-                    srcvect.z -= MinibossScale(32<<8);
-                else if (PN == BOSS2)
-                {
-                    vel += 128;
-                    srcvect.z += MinibossScale(24<<8);
-                }
-
-                l = safeldist(g_player[j].ps->i, s);
-                zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect.z)*vel, l);
-
-                if (A_CheckEnemySprite(s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
-                    sa = s->ang+(krand()&31)-16;
-            }
-
-            if (numplayers > 1 && g_netClient)
-                return -1;
-
-            // l may be a SPRITE_INDEX, see above
-            l = (p >= 0 && j >= 0) ? j : -1;
-
-            zvel = A_GetShootZvel(zvel);
-            j = A_InsertSprite(sect,
-                               srcvect.x+(sintable[(348+sa+512)&2047]/448),
-                               srcvect.y+(sintable[(sa+348)&2047]/448),
-                               srcvect.z-(1<<8),atwith,0,14,14,sa,vel,zvel,i,4);
-
-            sprite[j].extra += (krand()&7);
-            if (atwith != FREEZEBLAST)
-                sprite[j].yvel = l;  // RPG_YVEL
-            else
-            {
-                sprite[j].yvel = g_numFreezeBounces;
-                sprite[j].xrepeat >>= 1;
-                sprite[j].yrepeat >>= 1;
-                sprite[j].zvel -= (2<<4);
-            }
-
-            if (p == -1)
-            {
-                if (PN == BOSS3)
-                {
-                    if (krand()&1)
-                    {
-                        sprite[j].x -= MinibossScale(sintable[sa&2047]>>6);
-                        sprite[j].y -= MinibossScale(sintable[(sa+1024+512)&2047]>>6);
-                        sprite[j].ang -= MinibossScale(8);
-                    }
-                    else
-                    {
-                        sprite[j].x += MinibossScale(sintable[sa&2047]>>6);
-                        sprite[j].y += MinibossScale(sintable[(sa+1024+512)&2047]>>6);
-                        sprite[j].ang += MinibossScale(4);
-                    }
-                    sprite[j].xrepeat = MinibossScale(42);
-                    sprite[j].yrepeat = MinibossScale(42);
-                }
-                else if (PN == BOSS2)
-                {
-                    sprite[j].x -= MinibossScale(sintable[sa&2047]/56);
-                    sprite[j].y -= MinibossScale(sintable[(sa+1024+512)&2047]/56);
-                    sprite[j].ang -= MinibossScale(8)+(krand()&255)-128;
-                    sprite[j].xrepeat = 24;
-                    sprite[j].yrepeat = 24;
-                }
-                else if (atwith != FREEZEBLAST)
-                {
-                    sprite[j].xrepeat = 30;
-                    sprite[j].yrepeat = 30;
-                    sprite[j].extra >>= 2;
-                }
-            }
-            else if (PWEAPON(p, g_player[p].ps->curr_weapon, WorksLike) == DEVISTATOR_WEAPON)
-            {
-                sprite[j].extra >>= 2;
-                sprite[j].ang += 16-(krand()&31);
-                sprite[j].zvel += 256-(krand()&511);
-
-                if (g_player[p].ps->hbomb_hold_delay)
-                {
-                    sprite[j].x -= sintable[sa&2047]/644;
-                    sprite[j].y -= sintable[(sa+1024+512)&2047]/644;
-                }
-                else
-                {
-                    sprite[j].x += sintable[sa&2047]>>8;
-                    sprite[j].y += sintable[(sa+1024+512)&2047]>>8;
-                }
-                sprite[j].xrepeat >>= 1;
-                sprite[j].yrepeat >>= 1;
-            }
-
-            sprite[j].cstat = 128;
-            if (atwith == RPG)
-                sprite[j].clipdist = 4;
-            else
-                sprite[j].clipdist = 40;
-
-            return j;
-
-        case HANDHOLDINGLASER__STATIC:
-        {
-            const int32_t zoff = (p>=0) ? g_player[p].ps->pyoff : 0;
-            if (p >= 0)
-                zvel = (100-ps->horiz-ps->horizoff)*32;
-            else zvel = 0;
-
-            srcvect.z -= zoff;
-            Proj_DoHitscan(i, 0, &srcvect, zvel, sa, &hit);
-            srcvect.z += zoff;
-
-            j = 0;
-            if (hit.sprite >= 0) break;
-
-            if (hit.wall >= 0 && hit.sect >= 0)
-                if (((hit.pos.x-srcvect.x)*(hit.pos.x-srcvect.x)+(hit.pos.y-srcvect.y)*(hit.pos.y-srcvect.y)) < (290*290))
-                {
-                    // ST_2_UNDERWATER
-                    if (wall[hit.wall].nextsector >= 0)
-                    {
-                        if (sector[wall[hit.wall].nextsector].lotag <= 2 && sector[hit.sect].lotag <= 2)
-                            j = 1;
-                    }
-                    else if (sector[hit.sect].lotag <= 2)
-                        j = 1;
-                }
-
-            if (j == 1)
-            {
-                int32_t lTripBombControl = (p < 0) ? 0 :
-#ifdef LUNATIC
-                    g_player[p].ps->tripbombControl;
-#else
-                    Gv_GetVarByLabel("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, g_player[p].ps->i, p);
-#endif
-                k = A_InsertSprite(hit.sect,hit.pos.x,hit.pos.y,hit.pos.z,TRIPBOMB,-16,4,5,sa,0,0,i,6);
-                if (lTripBombControl & TRIPBOMB_TIMER)
-                {
-#ifdef LUNATIC
-                    int32_t lLifetime = g_player[p].ps->tripbombLifetime;
-                    int32_t lLifetimeVar = g_player[p].ps->tripbombLifetimeVar;
-#else
-                    int32_t lLifetime=Gv_GetVarByLabel("STICKYBOMB_LIFETIME", NAM_GRENADE_LIFETIME, g_player[p].ps->i, p);
-                    int32_t lLifetimeVar=Gv_GetVarByLabel("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, g_player[p].ps->i, p);
-#endif
-                    // set timer.  blows up when at zero....
-                    actor[k].t_data[7]=lLifetime
-                                       + mulscale(krand(),lLifetimeVar, 14)
-                                       - lLifetimeVar;
-                    // TIMER_CONTROL
-                    actor[k].t_data[6]=1;
-                }
-                else
-                    sprite[k].hitag = k;
-
-                A_PlaySound(LASERTRIP_ONWALL,k);
-                sprite[k].xvel = -20;
-                A_SetSprite(k,CLIPMASK0);
-                sprite[k].cstat = 16;
-
-                {
-                    int32_t p2 = wall[hit.wall].point2;
-                    int32_t a = getangle(wall[hit.wall].x-wall[p2].x, wall[hit.wall].y-wall[p2].y)-512;
-                    actor[k].t_data[5] = sprite[k].ang = a;
-                }
-            }
-            return j?k:-1;
-        }
-
-        case BOUNCEMINE__STATIC:
-        case MORTER__STATIC:
-        {
-            int32_t x;
-
-            if (s->extra >= 0) s->shade = -96;
-
-            j = g_player[A_FindPlayer(s, NULL)].ps->i;
-            x = ldist(&sprite[j],s);
-
-            zvel = -x>>1;
-
-            if (zvel < -4096)
-                zvel = -2048;
-            vel = x>>4;
-
-            zvel = A_GetShootZvel(zvel);
-            A_InsertSprite(sect,
-                           srcvect.x+(sintable[(512+sa+512)&2047]>>8),
-                           srcvect.y+(sintable[(sa+512)&2047]>>8),
-                           srcvect.z+(6<<8),atwith,-64,32,32,sa,vel,zvel,i,1);
-            break;
-        }
-
-        case SHRINKER__STATIC:
-            if (s->extra >= 0) s->shade = -96;
-            if (p >= 0)
-            {
-                j = GetAutoAimAngle(i, p, atwith, 4<<8, 0, &srcvect, 768, &zvel, &sa);
-
-                if (j < 0)
-                    zvel = (100-ps->horiz-ps->horizoff)*98;
-            }
-            else if (s->statnum != STAT_EFFECTOR)
-            {
-                j = A_FindPlayer(s, NULL);
-                l = safeldist(g_player[j].ps->i, s);
-                zvel = tabledivide32_noinline((g_player[j].ps->opos.z-srcvect.z)*512, l);
-            }
-            else zvel = 0;
-
-            zvel = A_GetShootZvel(zvel);
-            j = A_InsertSprite(sect,
-                               srcvect.x+(sintable[(512+sa+512)&2047]>>12),
-                               srcvect.y+(sintable[(sa+512)&2047]>>12),
-                               srcvect.z+(2<<8),SHRINKSPARK,-16,28,28,sa,768,zvel,i,4);
-
-            sprite[j].cstat = 128;
-            sprite[j].clipdist = 32;
-
-            return j;
-        }
-    }
-
-    return -1;
+    return A_CheckSpriteTileFlags(atwith, SFLAG_PROJECTILE) ?
+        A_ShootCustom(i, atwith, sa, &srcvect) :
+        A_ShootHardcoded(i, atwith, sa, srcvect, s, p, ps);
 }
 
 
