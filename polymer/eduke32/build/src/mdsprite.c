@@ -2217,6 +2217,9 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
         k3 = (float)sintable[sext->roll&2047] * (1.f/16384.f);
     }
 
+    float const xpanning = (float)sext->xpanning * (1.f/256.f);
+    float const ypanning = (float)sext->ypanning * (1.f/256.f);
+
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
         //PLAG : sorting stuff
@@ -2302,6 +2305,11 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
         //i = mdloadskin((md2model *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,surfi); //hack for testing multiple surfaces per MD3
         bglBindTexture(GL_TEXTURE_2D, i);
 
+        bglMatrixMode(GL_TEXTURE);
+        bglLoadIdentity();
+        bglTranslatef(xpanning, ypanning, 1.0f);
+        bglMatrixMode(GL_MODELVIEW);
+
         if (!(tspr->extra&TSPR_EXTRA_MDHACK))
         {
 #ifndef EDUKE32_GLES
@@ -2319,6 +2327,7 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
 
                 bglMatrixMode(GL_TEXTURE);
                 bglLoadIdentity();
+                bglTranslatef(xpanning, ypanning, 1.0f);
                 bglScalef(f, f, 1.0f);
                 bglMatrixMode(GL_MODELVIEW);
             }
@@ -2326,7 +2335,14 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
             i = r_glowmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, GLOWPAL, surfi) : 0;
 
             if (i)
+            {
                 polymost_setupglowtexture(++texunits, i);
+
+                bglMatrixMode(GL_TEXTURE);
+                bglLoadIdentity();
+                bglTranslatef(xpanning, ypanning, 1.0f);
+                bglMatrixMode(GL_MODELVIEW);
+            }
 #endif
 
             if (r_vertexarrays && r_vbos)
@@ -2469,6 +2485,10 @@ static int32_t polymost_md3draw(md3model_t *m, const tspritetype *tspr)
 
     bglDisable(GL_CULL_FACE);
 //    bglPopAttrib();
+
+    bglMatrixMode(GL_TEXTURE);
+    bglLoadIdentity();
+    bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
 
     globalnoeffect=0;
