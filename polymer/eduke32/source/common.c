@@ -552,19 +552,13 @@ static void G_AddSteamPaths(const char *basepath)
 
     // Duke Nukem 3D: Megaton Edition (Steam)
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot", basepath);
-    addsearchpath_user(buf, SEARCHPATH_REMOVE);
+    addsearchpath_user(buf);
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/dc", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/nw", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/vacation", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
-    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music", basepath);
-    addsearchpath(buf);
-    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music/nwinter", basepath);
-    addsearchpath_user(buf, SEARCHPATH_NWINTER);
-    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music/vacation", basepath);
-    addsearchpath(buf);
 
     // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
 #if defined EDUKE32_OSX
@@ -811,19 +805,13 @@ void G_AddSearchPaths(void)
         DWORD const remaining = sizeof(buf) - bufsize;
 
         Bstrncpy(suffix, "/gameroot", remaining);
-        addsearchpath_user(buf, SEARCHPATH_REMOVE);
+        addsearchpath(buf);
         Bstrncpy(suffix, "/gameroot/addons/dc", remaining);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
         Bstrncpy(suffix, "/gameroot/addons/nw", remaining);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
         Bstrncpy(suffix, "/gameroot/addons/vacation", remaining);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
-        Bstrncpy(suffix, "/gameroot/music", remaining);
-        addsearchpath(buf);
-        Bstrncpy(suffix, "/gameroot/music/nwinter", remaining);
-        addsearchpath_user(buf, SEARCHPATH_NWINTER);
-        Bstrncpy(suffix, "/gameroot/music/vacation", remaining);
-        addsearchpath(buf);
     }
 
     // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
@@ -885,9 +873,6 @@ void G_CleanupSearchPaths(void)
 
     if (!(NAM || NAPALM))
         removesearchpaths_withuser(SEARCHPATH_NAM);
-
-    if (!(NWINTER))
-        removesearchpaths_withuser(SEARCHPATH_NWINTER);
 }
 
 //////////

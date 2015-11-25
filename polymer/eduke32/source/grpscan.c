@@ -57,7 +57,7 @@ static grpinfo_t const internalgrpfiles[] =
     { "Duke Caribbean: Life's a Beach",        VACA15_CRC,  22521880, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, NULL, process_vacapp15, NULL },
     { "Duke Caribbean: Life's a Beach",        DUKECB_CRC,  22213819, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, NULL, NULL, NULL, NULL },
     { "Duke Caribbean: Life's a Beach",        (int32_t)0x65B5F690, 22397273, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "VACATION.CON", NULL, NULL, NULL },
-    { "Duke: Nuclear Winter",                  DUKENW_CRC,  16169365, GAMEFLAG_DUKE|GAMEFLAG_ADDON|GAMEFLAG_NWINTER, DUKE15_CRC, "NWINTER.CON", NULL, NULL, NULL },
+    { "Duke: Nuclear Winter",                  DUKENW_CRC,  16169365, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "NWINTER.CON", NULL, NULL, NULL },
     { "Duke!ZONE II (1.3D)",                   DZ2_13_CRC,  26135388, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE13_CRC, "DZ-GAME.CON", NULL, NULL, NULL },
     { "Duke!ZONE II",                          DZ2_PP_CRC,  44100411, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "DZ-GAME.CON", NULL, NULL, NULL },
     { "Duke!ZONE II",                          (int32_t)0x1E9516F1,  3186656, GAMEFLAG_DUKE|GAMEFLAG_ADDON, DUKE15_CRC, "DZ-GAME.CON", NULL, NULL, NULL },

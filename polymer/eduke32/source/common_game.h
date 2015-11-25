@@ -23,7 +23,6 @@ extern int32_t usecwd;
 #define GAMEFLAG_SHAREWARE  0x00000020
 #define GAMEFLAG_DUKEBETA   0x00000060 // includes 0x20 since it's a shareware beta
 #define GAMEFLAGMASK        0x0000007F // flags allowed from grpinfo
-#define GAMEFLAG_NWINTER    0x00000080
 
 extern struct grpfile_t const *g_selectedGrp;
 
@@ -37,7 +36,6 @@ extern int32_t g_usingAddon;
 #define WW2GI               (g_gameType & GAMEFLAG_WW2GI)
 #define SHAREWARE           (g_gameType & GAMEFLAG_SHAREWARE)
 #define DUKEBETA            ((g_gameType & GAMEFLAG_DUKEBETA) == GAMEFLAG_DUKEBETA)
-#define NWINTER             (g_gameType & GAMEFLAG_NWINTER)
 
 enum Games_t {
     GAME_DUKE = 0,
@@ -60,8 +58,6 @@ enum instpath_t {
 enum searchpathtypes_t {
     SEARCHPATH_REMOVE = 1<<0,
     SEARCHPATH_NAM    = 1<<1,
-
-    SEARCHPATH_NWINTER = 1<<2,
 };
 
 typedef enum basepal_ {
