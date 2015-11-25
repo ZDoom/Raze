@@ -1034,8 +1034,7 @@ void G_LoadLookups(void)
     kclose(fp);
 }
 
-#if defined HAVE_FLAC || defined HAVE_VORBIS
-int32_t S_UpgradeFormat(const char *fn, char searchfirst)
+int32_t S_OpenAudio(const char *fn, char searchfirst)
 {
     char *testfn, *extension;
     int32_t fp = -1;
@@ -1093,6 +1092,5 @@ int32_t S_UpgradeFormat(const char *fn, char searchfirst)
     }
 
     Bfree(testfn);
-    return -1;
+    return kopen4loadfrommod(fn, searchfirst);
 }
-#endif

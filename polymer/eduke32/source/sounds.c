@@ -186,13 +186,7 @@ int32_t S_PlayMusic(const char *fn)
     if (!ud.config.MusicToggle || fn == NULL)
         return 0;
 
-    int32_t fp;
-
-#if defined HAVE_FLAC || defined HAVE_VORBIS
-    if ((fp = S_UpgradeFormat(fn, 0)) < 0)
-#endif
-        fp = kopen4loadfrommod(fn, 0);
-
+    int32_t fp = S_OpenAudio(fn, 0);
     if (EDUKE32_PREDICT_FALSE(fp < 0))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open \"%s\" for playback!\n",fn);
@@ -355,19 +349,11 @@ int32_t S_LoadSound(uint32_t num)
         return 0;
     }
 
-    int32_t fp;
-#if defined HAVE_FLAC || defined HAVE_VORBIS
-    fp = S_UpgradeFormat(g_sounds[num].filename, g_loadFromGroupOnly);
-    if (fp == -1)
-#endif
+    int32_t fp = S_OpenAudio(g_sounds[num].filename, g_loadFromGroupOnly);
+    if (EDUKE32_PREDICT_FALSE(fp == -1))
     {
-        fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
-
-        if (EDUKE32_PREDICT_FALSE(fp == -1))
-        {
-            OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
-            return 0;
-        }
+        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
+        return 0;
     }
 
     int32_t l = kfilelength(fp);

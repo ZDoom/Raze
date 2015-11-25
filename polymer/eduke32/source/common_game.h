@@ -128,9 +128,7 @@ extern void G_LoadLookups(void);
 
 //////////
 
-#if defined HAVE_FLAC || defined HAVE_VORBIS
-int32_t S_UpgradeFormat(const char *fn, char searchfirst);
-#endif
+extern int32_t S_OpenAudio(const char *fn, char searchfirst);
 
 #ifdef __cplusplus
 }

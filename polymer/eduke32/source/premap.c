@@ -280,25 +280,18 @@ static void G_PrecacheSprites(void)
 // FIXME: this function is a piece of shit, needs specific sounds listed
 static int32_t G_CacheSound(uint32_t num)
 {
-    int16_t fp = -1;
-    int32_t   l;
-
     if (num >= MAXSOUNDS || !ud.config.SoundToggle) return 0;
 
     if (EDUKE32_PREDICT_FALSE(!g_sounds[num].filename)) return 0;
 
-#if defined HAVE_FLAC || defined HAVE_VORBIS
-    fp = S_UpgradeFormat(g_sounds[num].filename, g_loadFromGroupOnly);
-    if (fp == -1)
-#endif
-        fp = kopen4loadfrommod(g_sounds[num].filename,g_loadFromGroupOnly);
-    if (fp == -1)
+    int32_t fp = S_OpenAudio(g_sounds[num].filename, g_loadFromGroupOnly);
+    if (EDUKE32_PREDICT_FALSE(fp == -1))
     {
 //        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
         return 0;
     }
 
-    l = kfilelength(fp);
+    int32_t l = kfilelength(fp);
     g_sounds[num].soundsiz = l;
 
     if ((ud.level_number == 0 && ud.volume_number == 0 && (num == 189 || num == 232 || num == 99 || num == 233 || num == 17)) ||

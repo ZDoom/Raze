@@ -125,8 +125,6 @@ void S_SoundShutdown(void)
 
 int32_t S_LoadSound(uint32_t num)
 {
-    int32_t   fp = -1, l;
-
     if (!SM32_havesound) return 0;
     if (num >= MAXSOUNDS || SoundToggle == 0) return 0;
 
@@ -136,18 +134,14 @@ int32_t S_LoadSound(uint32_t num)
         return 0;
     }
 
-#if defined HAVE_FLAC || defined HAVE_VORBIS
-    fp = S_UpgradeFormat(g_sounds[num].filename, 0);
-    if (fp == -1)
-#endif
-        fp = kopen4loadfrommod(g_sounds[num].filename,0);
+    int32_t fp = S_OpenAudio(g_sounds[num].filename, 0);
     if (fp == -1)
     {
         OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
         return 0;
     }
 
-    l = kfilelength(fp);
+    int32_t l = kfilelength(fp);
     g_sounds[num].soundsiz = l;
 
     g_sounds[num].lock = 200;
