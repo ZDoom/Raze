@@ -8213,6 +8213,8 @@ const uint8_t CheatFunctionIDs[] =
     CHEAT_DEBUG,
 };
 
+char const * const g_NAMMattCheatQuote = "Matt Saettler.  matts@saettler.com";
+
 static void doinvcheat(int32_t invidx, int32_t defaultnum, int32_t event)
 {
     defaultnum = VM_OnEventWithReturn(event, g_player[myconnectindex].ps->i, myconnectindex, defaultnum);
@@ -8264,7 +8266,11 @@ GAME_STATIC void G_DoCheats(void)
 
     if (VOLUMEONE && !vol1inited)
     {
-        Bstrcpy(CheatStrings[2],"scotty##");
+        // change "scotty###" to "scotty##"
+        uint32_t const warpend = Bstrlen(CheatStrings[2]);
+        if (strcmp(&CheatStrings[2][warpend-3], "###") == 0)
+            CheatStrings[2][warpend-1] = '\0';
+
         Bstrcpy(CheatStrings[6],"<RESERVED>");
         vol1inited = 1;
     }
@@ -8597,7 +8603,16 @@ FOUNDCHEAT:
                     return;
 
                 case CHEAT_TODD:
-                    P_DoQuote(QUOTE_CHEAT_TODD,g_player[myconnectindex].ps);
+                    if (NAM)
+                    {
+                        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], g_NAMMattCheatQuote);
+                        P_DoQuote(QUOTE_RESERVED4,g_player[myconnectindex].ps);
+                    }
+                    else
+                    {
+                        P_DoQuote(QUOTE_CHEAT_TODD,g_player[myconnectindex].ps);
+                    }
+
                     end_cheat();
                     return;
 
@@ -11619,6 +11634,65 @@ int32_t app_main(int32_t argc, const char **argv)
     {
         Bstrcpy(GametypeNames[0],"GruntMatch (Spawn)");
         Bstrcpy(GametypeNames[2],"GruntMatch (No Spawn)");
+    }
+
+    // KEEPINSYNC: NAM_WW2GI_CHEATS
+    if (WW2GI)
+    {
+        CheatKeys[0] = CheatKeys[1] = sc_W;
+
+        Bstrcpy(CheatStrings[0], "2god");
+        Bstrcpy(CheatStrings[1], "2blood");
+        Bstrcpy(CheatStrings[2], "2level###");
+        Bstrcpy(CheatStrings[3], "2coords");
+        Bstrcpy(CheatStrings[4], "2view");
+        Bstrcpy(CheatStrings[5], "<RESERVED>");
+        Bstrcpy(CheatStrings[7], "<RESERVED>");
+        Bstrcpy(CheatStrings[8], "<RESERVED>");
+        Bstrcpy(CheatStrings[9], "2rate");
+        Bstrcpy(CheatStrings[10], "2skill");
+        Bstrcpy(CheatStrings[11], "<RESERVED>");
+        Bstrcpy(CheatStrings[12], "<RESERVED>");
+        Bstrcpy(CheatStrings[13], "<RESERVED>");
+        Bstrcpy(CheatStrings[16], "2matt");
+        Bstrcpy(CheatStrings[17], "2showmap");
+        Bstrcpy(CheatStrings[18], "2ryan");
+        Bstrcpy(CheatStrings[19], "<RESERVED>");
+        Bstrcpy(CheatStrings[20], "2clip");
+        Bstrcpy(CheatStrings[21], "2weapons");
+        Bstrcpy(CheatStrings[22], "2inventory");
+        Bstrcpy(CheatStrings[23], "<RESERVED>");
+        Bstrcpy(CheatStrings[24], "2debug");
+        Bstrcpy(CheatStrings[26], "2cgs");
+    }
+    else if (NAM)
+    {
+        CheatKeys[0] = sc_N;
+        CheatKeys[1] = sc_V;
+
+        Bstrcpy(CheatStrings[0], "acaleb");
+        Bstrcpy(CheatStrings[1], "ablood");
+        Bstrcpy(CheatStrings[2], "alevel###");
+        Bstrcpy(CheatStrings[3], "acoords");
+        Bstrcpy(CheatStrings[4], "aview");
+        Bstrcpy(CheatStrings[5], "<RESERVED>");
+        Bstrcpy(CheatStrings[7], "<RESERVED>");
+        Bstrcpy(CheatStrings[8], "<RESERVED>");
+        Bstrcpy(CheatStrings[9], "arate");
+        Bstrcpy(CheatStrings[10], "askill");
+        Bstrcpy(CheatStrings[11], "<RESERVED>");
+        Bstrcpy(CheatStrings[12], "ahyper");
+        Bstrcpy(CheatStrings[13], "<RESERVED>");
+        Bstrcpy(CheatStrings[16], "amatt");
+        Bstrcpy(CheatStrings[17], "ashowmap");
+        Bstrcpy(CheatStrings[18], "agod");
+        Bstrcpy(CheatStrings[19], "<RESERVED>");
+        Bstrcpy(CheatStrings[20], "aclip");
+        Bstrcpy(CheatStrings[21], "aweapons");
+        Bstrcpy(CheatStrings[22], "ainventory");
+        Bstrcpy(CheatStrings[23], "<RESERVED>");
+        Bstrcpy(CheatStrings[24], "adebug");
+        Bstrcpy(CheatStrings[26], "acgs");
     }
 
     if (!usecwd)

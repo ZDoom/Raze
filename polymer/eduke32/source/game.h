@@ -264,6 +264,8 @@ extern const char *s_buildDate;
 extern const char *g_rtsNamePtr;
 
 extern char CheatStrings[][MAXCHEATLEN];
+extern char const * const g_NAMMattCheatQuote;
+
 extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
 extern char boardfilename[BMAX_PATH];
 

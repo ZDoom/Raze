@@ -1752,8 +1752,35 @@ static void M_PreMenu(MenuID_t cm)
 
         for (i = 0; i < NUMCHEATFUNCS; i++)
         {
+            uint32_t cheatmask = cl_cheatmask & (1<<i);
+
+            // KEEPINSYNC: NAM_WW2GI_CHEATS
+            if (NAM_WW2GI)
+            {
+                switch (i)
+                {
+                case CHEATFUNC_CASHMAN:
+                case CHEATFUNC_GIVEALLITEMS:
+                case CHEATFUNC_QUOTEBETA:
+                case CHEATFUNC_MONSTERS:
+                case CHEATFUNC_QUOTEALLEN:
+                case CHEATFUNC_GIVEKEYS:
+                    cheatmask = 0;
+                    break;
+                }
+            }
+            if (WW2GI)
+            {
+                switch (i)
+                {
+                case CHEATFUNC_HYPER:
+                    cheatmask = 0;
+                    break;
+                }
+            }
+
             // only show cheats that have been typed in before
-            MEL_CHEATS[i+1] = (cl_cheatmask & (1<<i)) ? &ME_CheatCodes[i] : NULL;
+            MEL_CHEATS[i+1] = cheatmask ? &ME_CheatCodes[i] : NULL;
 
             // disable outside of a single-player game
             MenuEntry_DisableOnCondition(&ME_CheatCodes[i], menucheatsdisabled);
@@ -1763,7 +1790,7 @@ static void M_PreMenu(MenuID_t cm)
         if (!DUKEBETA)
         {
             ME_CheatCodes[CHEATFUNC_QUOTEBETA].name = ScriptQuotes[QUOTE_CHEAT_BETA];
-            ME_CheatCodes[CHEATFUNC_QUOTETODD].name = ScriptQuotes[QUOTE_CHEAT_TODD];
+            ME_CheatCodes[CHEATFUNC_QUOTETODD].name = NAM ? g_NAMMattCheatQuote : ScriptQuotes[QUOTE_CHEAT_TODD];
             ME_CheatCodes[CHEATFUNC_QUOTEALLEN].name = ScriptQuotes[QUOTE_CHEAT_ALLEN];
         }
         break;
@@ -3132,6 +3159,23 @@ static void M_MenuVerify(int32_t input)
     }
 }
 
+static int M_CheatStringMatch(char const * input, char const * cheat)
+{
+    while (*cheat || *input)
+    {
+        if (*cheat != *input)
+        {
+            if (!(*cheat == '#' && Bisdigit(*input)))
+                return 0;
+        }
+
+        ++cheat;
+        ++input;
+    }
+
+    return 1;
+}
+
 static void M_MenuTextFormSubmit(char *input)
 {
     switch (g_currentMenu)
@@ -3161,24 +3205,15 @@ static void M_MenuTextFormSubmit(char *input)
     {
         const size_t inputlength = Bstrlen(input);
         Bstrcpy(tempbuf, input);
-        const char *numberpos = NULL;
         for (size_t i = 0; i < inputlength; i++)
-        {
             tempbuf[i] = Btolower(tempbuf[i]);
-            if (Bisdigit(tempbuf[i]))
-            {
-                if (numberpos == NULL)
-                    numberpos = &input[i];
-                tempbuf[i] = '#';
-            }
-        }
 
         int8_t cheatID = -1;
 
         if (inputlength > 2 && tempbuf[0] == scantoasc[CheatKeys[0]] && tempbuf[1] == scantoasc[CheatKeys[1]])
         {
             for (size_t i = 0; i < NUMCHEATS; i++)
-                if (!Bstrcmp(tempbuf+2, CheatStrings[i]))
+                if (M_CheatStringMatch(tempbuf+2, CheatStrings[i]))
                 {
                     cheatID = i;
                     break;
@@ -3191,15 +3226,33 @@ static void M_MenuTextFormSubmit(char *input)
                 S_PlaySound(KICK_HIT);
                 break;
             case CHEAT_SCOTTY:
-                M_Cheat_Warp(numberpos);
+            {
+                char const * const numberpos = Bstrchr(CheatStrings[CHEAT_SCOTTY], '#');
+                if (numberpos == NULL)
+                {
+                    S_PlaySound(KICK_HIT);
+                    break;
+                }
+
+                M_Cheat_Warp(input + (numberpos - CheatStrings[CHEAT_SCOTTY]) + 2);
                 if (g_player[myconnectindex].ps->gm&MODE_MENU)
                     S_PlaySound(DUKE_GET);
                 break;
+            }
             case CHEAT_SKILL:
-                M_Cheat_Skill(numberpos);
+            {
+                char const * const numberpos = Bstrchr(CheatStrings[CHEAT_SKILL], '#');
+                if (numberpos == NULL)
+                {
+                    S_PlaySound(KICK_HIT);
+                    break;
+                }
+
+                M_Cheat_Skill(input + (numberpos - CheatStrings[CHEAT_SKILL]) + 2);
                 if (g_player[myconnectindex].ps->gm&MODE_MENU)
                     S_PlaySound(DUKE_GET);
                 break;
+            }
             default:
                 M_Cheat(cheatID);
                 S_PlaySound(DUKE_GET);
@@ -3209,7 +3262,8 @@ static void M_MenuTextFormSubmit(char *input)
         if (cheatID >= 0)
             cl_cheatmask |= CheatFunctionFlags[cheatID];
 
-        if ((cl_cheatmask & (1<<CHEATFUNC_QUOTEBETA)) && (cl_cheatmask & (1<<CHEATFUNC_QUOTETODD)) && (cl_cheatmask & (1<<CHEATFUNC_QUOTEALLEN)))
+        if ((NAM_WW2GI && (cl_cheatmask & (1<<CHEATFUNC_QUOTETODD))) ||
+            ((cl_cheatmask & (1<<CHEATFUNC_QUOTEBETA)) && (cl_cheatmask & (1<<CHEATFUNC_QUOTETODD)) && (cl_cheatmask & (1<<CHEATFUNC_QUOTEALLEN))))
             cl_cheatmask = ~0;
 
         M_ChangeMenu(MENU_CHEATS);
