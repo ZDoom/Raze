@@ -1034,63 +1034,112 @@ void G_LoadLookups(void)
     kclose(fp);
 }
 
-int32_t S_OpenAudio(const char *fn, char searchfirst)
+//////////
+
+static int32_t S_TryFormats(char const * const testfn, char * const fn_suffix, char const searchfirst)
 {
-    char *testfn, *extension;
-    int32_t fp = -1;
+#ifdef HAVE_FLAC
+    {
+        Bstrcpy(fn_suffix, ".flac");
+        int32_t const fp = kopen4loadfrommod(testfn, searchfirst);
+        if (fp >= 0)
+            return fp;
+    }
+#endif
 
-    testfn = (char *)Xmalloc(Bstrlen(fn) + 6);
-    Bstrcpy(testfn, fn);
-    extension = Bstrrchr(testfn, '.');
+#ifdef HAVE_VORBIS
+    {
+        Bstrcpy(fn_suffix, ".ogg");
+        int32_t const fp = kopen4loadfrommod(testfn, searchfirst);
+        if (fp >= 0)
+            return fp;
+    }
+#endif
 
+    return -1;
+}
+
+static int32_t S_TryExtensionReplacements(char const * const testfn, char const searchfirst)
+{
+    char * extension = Bstrrchr(testfn, '.');
+    char * const fn_end = Bstrchr(testfn, '\0');
+
+    // ex: grabbag.voc --> grabbag_voc.*
     if (extension != NULL)
     {
-        char * const fn_end = Bstrrchr(testfn, '\0');
         *extension = '_';
 
-#ifdef HAVE_FLAC
-        char const * const extFLAC = ".flac";
-        Bstrcpy(fn_end, extFLAC);
-        fp = kopen4loadfrommod(testfn, searchfirst);
+        int32_t const fp = S_TryFormats(testfn, fn_end, searchfirst);
         if (fp >= 0)
-        {
-            Bfree(testfn);
             return fp;
-        }
-#endif
+    }
+    else
+    {
+        extension = fn_end;
+    }
 
-#ifdef HAVE_VORBIS
-        char const * const extOGG = ".ogg";
-        Bstrcpy(fn_end, extOGG);
-        fp = kopen4loadfrommod(testfn, searchfirst);
+    // ex: grabbag.mid --> grabbag.*
+    {
+        int32_t const fp = S_TryFormats(testfn, extension, searchfirst);
         if (fp >= 0)
-        {
-            Bfree(testfn);
             return fp;
-        }
-#endif
+    }
 
-#ifdef HAVE_FLAC
-        Bstrcpy(extension, extFLAC);
-        fp = kopen4loadfrommod(testfn, searchfirst);
-        if (fp >= 0)
-        {
-            Bfree(testfn);
-            return fp;
-        }
-#endif
+    return -1;
+}
 
-#ifdef HAVE_VORBIS
-        Bstrcpy(extension, extOGG);
-        fp = kopen4loadfrommod(testfn, searchfirst);
+int32_t S_OpenAudio(const char *fn, char searchfirst)
+{
+    int32_t const origfp = kopen4loadfrommod(fn, searchfirst);
+    char const * const origparent = origfp != -1 ? kfileparent(origfp) : NULL;
+    uint32_t const origparentlength = origparent != NULL ? Bstrlen(origparent) : 0;
+
+    char * const testfn = (char *)Xmalloc(Bstrlen(fn) + 12 + origparentlength); // "music/" + overestimation of parent minus extension + ".flac" + '\0'
+
+    // look in ./
+    // ex: ./grabbag.mid
+    {
+        Bstrcpy(testfn, fn);
+        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst);
         if (fp >= 0)
         {
             Bfree(testfn);
+            kclose(origfp);
             return fp;
         }
-#endif
+    }
+
+    // look in ./music/<file's parent GRP name>/
+    // ex: ./music/duke3d/grabbag.mid
+    // ex: ./music/nwinter/grabbag.mid
+    if (origparent != NULL)
+    {
+        char const * const origparentextension = Bstrrchr(origparent, '.');
+        uint32_t namelength = origparentextension != NULL ? origparentextension - origparent : origparentlength;
+
+        Bsprintf(testfn, "music/%.*s/%s", namelength, origparent, fn);
+        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst);
+        if (fp >= 0)
+        {
+            Bfree(testfn);
+            kclose(origfp);
+            return fp;
+        }
+    }
+
+    // look in ./music/
+    // ex: ./music/grabbag.mid
+    {
+        Bsprintf(testfn, "music/%s", fn);
+        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst);
+        if (fp >= 0)
+        {
+            Bfree(testfn);
+            kclose(origfp);
+            return fp;
+        }
     }
 
     Bfree(testfn);
-    return kopen4loadfrommod(fn, searchfirst);
+    return origfp;
 }
