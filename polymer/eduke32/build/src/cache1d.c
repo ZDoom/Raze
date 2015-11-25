@@ -693,6 +693,7 @@ static intptr_t groupfil[MAXGROUPFILES] = {-1,-1,-1,-1,-1,-1,-1,-1};
 static int32_t groupfilpos[MAXGROUPFILES];
 static uint8_t groupfilgrp[MAXGROUPFILES];
 static char *gfilelist[MAXGROUPFILES];
+static char *groupname[MAXGROUPFILES];
 static int32_t *gfileoffs[MAXGROUPFILES];
 static int32_t groupcrc[MAXGROUPFILES];
 
@@ -802,6 +803,7 @@ int32_t initgroupfile(const char *filename)
         }
         gfileoffs[numgroupfiles][gnumfiles[numgroupfiles]] = j;
         initgroupfile_crc32(numgroupfiles);
+        groupname[numgroupfiles] = Xstrdup(filename);
         numgroupfiles++;
         return 0;
     }
@@ -906,6 +908,7 @@ int32_t initgroupfile(const char *filename)
         }
         gfileoffs[numgroupfiles][gnumfiles[numgroupfiles]] = j;
         initgroupfile_crc32(numgroupfiles);
+        groupname[numgroupfiles] = Xstrdup(filename);
         numgroupfiles++;
         return 0;
     }
@@ -921,8 +924,10 @@ void uninitgroupfile(void)
     for (i=numgroupfiles-1; i>=0; i--)
         if (groupfil[i] != -1)
         {
-            Bfree(gfilelist[i]);
-            Bfree(gfileoffs[i]);
+            DO_FREE_AND_NULL(gfilelist[i]);
+            DO_FREE_AND_NULL(gfileoffs[i]);
+            DO_FREE_AND_NULL(groupname[i]);
+
             Bclose(groupfil[i]);
             groupfil[i] = -1;
         }
