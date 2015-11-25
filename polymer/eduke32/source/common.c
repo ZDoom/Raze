@@ -503,50 +503,20 @@ void G_LoadGroups(int32_t autoload)
 }
 
 #ifdef _WIN32
-const char * G_GetInstallPath(int32_t insttype)
+static int G_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, DWORD * OutputSize)
 {
-    static char spath[NUMINSTPATHS][BMAX_PATH];
-    static int32_t success[NUMINSTPATHS] = { -1, -1, -1, -1, -1 };
-    int32_t siz = BMAX_PATH;
+    HKEY hkey;
+    LONG keygood = RegOpenKeyEx(HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ | KEY_WOW64_32KEY, &hkey);
+    // KEY_WOW64_32KEY gets us around Wow6432Node on 64-bit builds
 
-    if (success[insttype] == -1)
-    {
-        HKEY HKLM32;
-        LONG keygood = RegOpenKeyEx(HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ | KEY_WOW64_32KEY, &HKLM32);
-        // KEY_WOW64_32KEY gets us around Wow6432Node on 64-bit builds
+    if (keygood != ERROR_SUCCESS)
+        return 0;
 
-        if (keygood == ERROR_SUCCESS)
-        {
-            switch (insttype)
-            {
-            case INSTPATH_STEAM_DUKE3D_MEGATON:
-                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", NULL, spath[insttype], (LPDWORD)&siz);
-                break;
-            case INSTPATH_STEAM_DUKE3D_3DR:
-                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 359850", "InstallLocation", NULL, spath[insttype], (LPDWORD)&siz);
-                break;
-            case INSTPATH_GOG_DUKE3D:
-                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", NULL, spath[insttype], (LPDWORD)&siz);
-                break;
-            case INSTPATH_3DR_DUKE3D:
-                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\3DRealms\\Duke Nukem 3D", NULL, NULL, spath[insttype], (LPDWORD)&siz);
-                break;
-            case INSTPATH_3DR_ANTH:
-                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\3DRealms\\Anthology", NULL, NULL, spath[insttype], (LPDWORD)&siz);
-                break;
-            case INSTPATH_STEAM_NAM:
-                success[insttype] = SHGetValueA(HKLM32, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 329650", "InstallLocation", NULL, spath[insttype], (LPDWORD)&siz);
-                break;
-            }
+    LSTATUS retval = SHGetValueA(hkey, SubKey, Value, NULL, Output, OutputSize);
 
-            RegCloseKey(HKLM32);
-        }
-    }
+    RegCloseKey(hkey);
 
-    if (success[insttype] == ERROR_SUCCESS)
-        return spath[insttype];
-
-    return NULL;
+    return retval == ERROR_SUCCESS;
 }
 #endif
 
@@ -580,32 +550,29 @@ static void G_AddSteamPaths(const char *basepath)
 {
     char buf[BMAX_PATH];
 
+    // Duke Nukem 3D: Megaton Edition (Steam)
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/dc", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/nw", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/vacation", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music", basepath);
     addsearchpath(buf);
-
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music/nwinter", basepath);
     addsearchpath_user(buf, SEARCHPATH_NWINTER);
-
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/music/vacation", basepath);
     addsearchpath(buf);
 
+    // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
 #if defined EDUKE32_OSX
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/Duke Nukem 3D.app/drive_c/Program Files/Duke Nukem 3D", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
 #endif
 
+    // NAM (Steam)
 #if defined EDUKE32_OSX
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/Nam.app/Contents/Resources/Nam.boxer/C.harddisk/NAM", basepath);
 #else
@@ -814,6 +781,7 @@ void G_AddSearchPaths(void)
         Bsnprintf(buf, sizeof(buf), "%s/Steam/steamapps/libraryfolders.vdf", support[i]);
         G_ParseSteamKeyValuesForPaths(buf);
 
+        // Duke Nukem 3D: Atomic Edition (GOG.com)
         Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D.app/Contents/Resources/Duke Nukem 3D.boxer/C.harddisk", applications[i]);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
@@ -832,57 +800,80 @@ void G_AddSearchPaths(void)
         Bfree(support[i]);
     }
 #elif defined (_WIN32)
-    char buf[BMAX_PATH];
-    const char* instpath;
+    char buf[BMAX_PATH] = {0};
+    DWORD bufsize;
 
-    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D_MEGATON)))
+    // Duke Nukem 3D: Megaton Edition (Steam)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", buf, &bufsize))
     {
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot", instpath);
-        addsearchpath_user(buf, SEARCHPATH_REMOVE);
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
 
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/dc", instpath);
+        Bstrncpy(suffix, "/gameroot", remaining);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/nw", instpath);
+        Bstrncpy(suffix, "/gameroot/addons/dc", remaining);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/addons/vacation", instpath);
+        Bstrncpy(suffix, "/gameroot/addons/nw", remaining);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/music", instpath);
+        Bstrncpy(suffix, "/gameroot/addons/vacation", remaining);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
+        Bstrncpy(suffix, "/gameroot/music", remaining);
         addsearchpath(buf);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/music/nwinter", instpath);
+        Bstrncpy(suffix, "/gameroot/music/nwinter", remaining);
         addsearchpath_user(buf, SEARCHPATH_NWINTER);
-
-        Bsnprintf(buf, sizeof(buf), "%s/gameroot/music/vacation", instpath);
+        Bstrncpy(suffix, "/gameroot/music/vacation", remaining);
         addsearchpath(buf);
     }
 
-    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_DUKE3D_3DR)))
+    // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 359850", "InstallLocation", buf, &bufsize))
     {
-        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
+
+        Bstrncpy(suffix, "/Duke Nukem 3D", remaining);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
-    if ((instpath = G_GetInstallPath(INSTPATH_GOG_DUKE3D)))
-        addsearchpath_user(instpath, SEARCHPATH_REMOVE);
-
-    if ((instpath = G_GetInstallPath(INSTPATH_3DR_DUKE3D)))
+    // Duke Nukem 3D: Atomic Edition (GOG.com)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\GOG.com\\GOGDUKE3D", "PATH", buf, &bufsize))
     {
-        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
-    if ((instpath = G_GetInstallPath(INSTPATH_3DR_ANTH)))
+    // Duke Nukem 3D (3D Realms Anthology)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\3DRealms\\Duke Nukem 3D", NULL, buf, &bufsize))
     {
-        Bsnprintf(buf, sizeof(buf), "%s/Duke Nukem 3D", instpath);
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
+
+        Bstrncpy(suffix, "/Duke Nukem 3D", remaining);
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
-    if ((instpath = G_GetInstallPath(INSTPATH_STEAM_NAM)))
+    // 3D Realms Anthology
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\3DRealms\\Anthology", NULL, buf, &bufsize))
     {
-        Bsnprintf(buf, sizeof(buf), "%s/NAM", instpath);
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
+
+        Bstrncpy(suffix, "/Duke Nukem 3D", remaining);
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
+    }
+
+    // NAM (Steam)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 329650", "InstallLocation", buf, &bufsize))
+    {
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
+
+        Bstrncpy(suffix, "/NAM", remaining);
         addsearchpath_user(buf, SEARCHPATH_NAM);
     }
 #endif
