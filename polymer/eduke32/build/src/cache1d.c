@@ -990,10 +990,7 @@ static int32_t check_filename_mismatch(const char * const filename, int ofs)
 
 static int32_t kopen_internal(const char *filename, char **lastpfn, char searchfirst, char checkcase, char tryzip, int32_t newhandle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
-    int32_t j, k, fil;
-    char bad, *gfileptr;
-    intptr_t i;
-
+    int32_t fil;
     if (searchfirst == 0 && (fil = openfrompath_internal(filename, lastpfn, BO_BINARY|BO_RDONLY, BS_IREAD)) >= 0)
     {
 #ifdef FILENAME_CASE_CHECK
@@ -1040,6 +1037,7 @@ static int32_t kopen_internal(const char *filename, char **lastpfn, char searchf
 #ifdef WITHKPLIB
     if (tryzip)
     {
+        intptr_t i;
         if ((kzcurhand != newhandle) && (kztell() >= 0))
         {
             if (kzcurhand >= 0) arraypos[kzcurhand] = kztell();
@@ -1059,34 +1057,31 @@ static int32_t kopen_internal(const char *filename, char **lastpfn, char searchf
     UNREFERENCED_PARAMETER(tryzip);
 #endif
 
-    for (k=numgroupfiles-1; k>=0; k--)
+    for (int32_t k = searchfirst != 1 ? numgroupfiles-1 : 0; k >= 0; --k)
     {
-        if (searchfirst == 1) k = 0;
-        if (groupfil[k] >= 0)
+        if (groupfil[k] < 0)
+            continue;
+
+        for (int32_t i = gnumfiles[k]-1; i >= 0; --i)
         {
-            for (i=gnumfiles[k]-1; i>=0; i--)
+            char const * const gfileptr = (char *)&gfilelist[k][i<<4];
+
+            unsigned int j;
+            for (j = 0; j < 13; ++j)
             {
-                gfileptr = (char *)&gfilelist[k][i<<4];
-
-                bad = 0;
-                for (j=0; j<13; j++)
-                {
-                    if (!filename[j]) break;
-                    if (toupperlookup[filename[j]] != toupperlookup[gfileptr[j]])
-                    {
-                        bad = 1;
-                        break;
-                    }
-                }
-                if (bad) continue;
-                if (j<13 && gfileptr[j]) continue;   // JBF: because e1l1.map might exist before e1l1
-                if (j==13 && filename[j]) continue;   // JBF: long file name
-
-                arraygrp[newhandle] = k;
-                arrayhan[newhandle] = i;
-                arraypos[newhandle] = 0;
-                return newhandle;
+                if (!filename[j]) break;
+                if (toupperlookup[filename[j]] != toupperlookup[gfileptr[j]])
+                    goto gnumfiles_continue;
             }
+            if (j<13 && gfileptr[j]) continue;   // JBF: because e1l1.map might exist before e1l1
+            if (j==13 && filename[j]) continue;   // JBF: long file name
+
+            arraygrp[newhandle] = k;
+            arrayhan[newhandle] = i;
+            arraypos[newhandle] = 0;
+            return newhandle;
+
+gnumfiles_continue: ;
         }
     }
 
