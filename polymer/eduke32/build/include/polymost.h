@@ -72,15 +72,16 @@ static inline int32_t eligible_for_tileshades(int32_t const picnum, int32_t cons
 
 static inline float getshadefactor(int32_t const shade)
 {
-    int32_t const shadebound = (shadescale_unbounded || shade>=numshades) ? numshades : numshades-1;
-    float const clamped_shade = min(max(shade*shadescale, 0), shadebound);
-
     // 8-bit tiles, i.e. non-hightiles and non-models, don't get additional
     // glColor() shading with r_usetileshades!
     if (getrendermode() == REND_POLYMOST && r_usetileshades &&
             !(globalflags & GLOBAL_NO_GL_TILESHADES) &&
             eligible_for_tileshades(globalpicnum, globalpal))
         return 1.f;
+
+    float const shadebound = (float)((shadescale_unbounded || shade>=numshades) ? numshades : numshades-1);
+    float const scaled_shade = (float)shade*shadescale;
+    float const clamped_shade = min(max(scaled_shade, 0.f), shadebound);
 
     return ((float)(numshades-clamped_shade))/(float)numshades;
 }
