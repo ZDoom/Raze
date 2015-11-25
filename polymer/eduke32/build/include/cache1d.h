@@ -45,6 +45,7 @@ int32_t	ktell(int32_t handle);
 void	kclose(int32_t handle);
 
 void krename(int32_t crcval, int32_t filenum, const char *newname);
+char const * kfileparent(int32_t handle);
 
 typedef struct { intptr_t *hand; int32_t leng; char *lock ; } cactype;
 

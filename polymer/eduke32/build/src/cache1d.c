@@ -1100,6 +1100,16 @@ void krename(int32_t crcval, int32_t filenum, const char *newname)
     }
 }
 
+char const * kfileparent(int32_t const handle)
+{
+    int32_t const groupnum = filegrp[handle];
+
+    if ((unsigned)groupnum >= MAXGROUPFILES || groupfil[groupnum] == -1)
+        return NULL;
+
+    return groupname[groupnum];
+}
+
 int32_t kopen4load(const char *filename, char searchfirst)
 {
     int32_t newhandle = MAXOPENFILES-1;
