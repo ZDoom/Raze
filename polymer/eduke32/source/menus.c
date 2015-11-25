@@ -73,8 +73,10 @@ FORCE_INLINE void WithSDL2_StopTextInput()
 #endif
 }
 
-#define mgametext(x,y,t) G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, -1<<16, 0, 0, 0, 0, xdim-1, ydim-1)
-#define mgametextcenter(x,y,t) G_ScreenText(STARTALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, -1<<16, 1<<16, TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
+static int32_t mgametext_xbetween = -(1<<16);
+
+#define mgametext(x,y,t) G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, mgametext_xbetween, 0, 0, 0, 0, xdim-1, ydim-1)
+#define mgametextcenter(x,y,t) G_ScreenText(STARTALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, mgametext_xbetween, 1<<16, TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
 #define mminitext(x,y,t,p) minitext_(x, y, t, 0, p, 2|8|16|ROTATESPRITE_FULL16)
 #define mmenutext(x,y,t) G_ScreenText(BIGALPHANUM, x, (y) - (12<<16), 65536L, 0, 0, (const char *)OSD_StripColors(menutextbuf,t), 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1)
 #define mmenutextcenter(x,y,t) G_ScreenText(BIGALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), (y) - (12<<16), 65536L, 0, 0, (const char *)OSD_StripColors(menutextbuf,t), 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE|TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
@@ -1382,6 +1384,8 @@ void M_Init(void)
     // prepare menu fonts
     MF_Redfont.tilenum = MF_RedfontBlue.tilenum = MF_RedfontGreen.tilenum = BIGALPHANUM;
     MF_Bluefont.tilenum = MF_BluefontRed.tilenum = STARTALPHANUM;
+    if (NAM_WW2GI)
+        mgametext_xbetween = MF_Bluefont.xbetween = MF_BluefontRed.xbetween = 0;
     MF_Minifont.tilenum = MF_MinifontRed.tilenum = MF_MinifontDarkGray.tilenum = MINIFONT;
     if (!minitext_lowercase)
     {
@@ -1479,6 +1483,8 @@ void M_Init(void)
         }
     ++k;
     MEOS_NETOPTIONS_GAMETYPE.numOptions = k;
+    if (NAM_WW2GI)
+        ME_NETOPTIONS_MONSTERS.name = "Enemies";
 
     // prepare savegames
     for (i = 0; i < MAXSAVEGAMES; ++i)
@@ -1583,6 +1589,12 @@ void M_Init(void)
             ++*r;
         }
     }
+
+    // prepare sound setup
+    if (WW2GI)
+        ME_SOUND_DUKETALK.name = "GI talk:";
+    else if (NAM)
+        ME_SOUND_DUKETALK.name = "Grunt talk:";
 
     // prepare shareware
     if (VOLUMEONE)
@@ -1873,7 +1885,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         mminitext(origin.x + (90<<16), origin.y + (90<<16), "Game Type", 2);
         mminitext(origin.x + (90<<16), origin.y + ((90+8)<<16), "Episode", 2);
         mminitext(origin.x + (90<<16), origin.y + ((90+8+8)<<16), "Level", 2);
-        mminitext(origin.x + (90<<16), origin.y + ((90+8+8+8)<<16), "Monsters", 2);
+        mminitext(origin.x + (90<<16), origin.y + ((90+8+8+8)<<16), ME_NETOPTIONS_MONSTERS.name, 2);
         if (ud.m_coop == 0)
             mminitext(origin.x + (90<<16), origin.y + ((90+8+8+8+8)<<16), "Markers", 2);
         else if (ud.m_coop == 1)

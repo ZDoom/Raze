@@ -1907,6 +1907,9 @@ static int32_t P_DisplayKnuckles(int32_t gs)
     static const int8_t knuckle_frames[] = {0,1,2,2,3,3,3,2,2,1,0};
     const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
+    if (WW2GI)
+        return 0;
+
     if (ps->knuckle_incs == 0)
         return 0;
 
@@ -3089,18 +3092,18 @@ static int32_t P_DoCounters(int32_t snum)
     {
         if (++p->knuckle_incs == 10)
         {
-            if (totalclock > 1024)
-                if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
-                {
+            if (!WW2GI)
+            {
+                if (totalclock > 1024)
+                    if (snum == screenpeek || GTFLAGS(GAMETYPE_COOPSOUND))
+                    {
+                        if (rand()&1)
+                            A_PlaySound(DUKE_CRACK,p->i);
+                        else A_PlaySound(DUKE_CRACK2,p->i);
+                    }
 
-                    if (rand()&1)
-                        A_PlaySound(DUKE_CRACK,p->i);
-                    else A_PlaySound(DUKE_CRACK2,p->i);
-
-                }
-
-            A_PlaySound(DUKE_CRACK_FIRST,p->i);
-
+                A_PlaySound(DUKE_CRACK_FIRST,p->i);
+            }
         }
         else if (p->knuckle_incs == 22 || TEST_SYNC_KEY(g_player[snum].sync->bits, SK_FIRE))
             p->knuckle_incs=0;

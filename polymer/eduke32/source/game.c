@@ -2174,10 +2174,13 @@ static void G_DrawStatusBar(int32_t snum)
 
                 G_DrawInvNum(284-30-o, yofssh, 200-6, (uint8_t)i, 0, orient&~16);
 
-                if (j > 0)
-                    minitext(288-30-o, 180, "On", 0, orient);
-                else if ((uint32_t)j != 0x80000000)
-                    minitext(284-30-o, 180, "Off", 2, orient);
+                if (!WW2GI)
+                {
+                    if (j > 0)
+                        minitext(288-30-o, 180, "On", 0, orient);
+                    else if ((uint32_t)j != 0x80000000)
+                        minitext(284-30-o, 180, "Off", 2, orient);
+                }
 
                 if (p->inven_icon >= ICON_SCUBA)
                     minitext(284-35-o, 180, "Auto", 2, orient);
@@ -2403,7 +2406,7 @@ static void G_DrawStatusBar(int32_t snum)
                 if (p->inven_icon >= ICON_SCUBA) minitext(284-35-o,SBY+14,"Auto",2,10+16+permbit + ROTATESPRITE_MAX);
             }
 
-            if (u&(2048+4096))
+            if (u&(2048+4096) && !WW2GI)
             {
                 j = G_GetInvOn(p);
 
@@ -11630,12 +11633,6 @@ int32_t app_main(int32_t argc, const char **argv)
     G_LoadGroups(!g_noAutoLoad && !ud.config.NoAutoLoad);
 //    flushlogwindow = 1;
 
-    if (NAM_WW2GI)
-    {
-        Bstrcpy(GametypeNames[0],"GruntMatch (Spawn)");
-        Bstrcpy(GametypeNames[2],"GruntMatch (No Spawn)");
-    }
-
     // KEEPINSYNC: NAM_WW2GI_CHEATS
     if (WW2GI)
     {
@@ -11664,6 +11661,9 @@ int32_t app_main(int32_t argc, const char **argv)
         Bstrcpy(CheatStrings[23], "<RESERVED>");
         Bstrcpy(CheatStrings[24], "2debug");
         Bstrcpy(CheatStrings[26], "2cgs");
+
+        Bstrcpy(GametypeNames[0],"GI Match (Spawn)");
+        Bstrcpy(GametypeNames[2],"GI Match (No Spawn)");
     }
     else if (NAM)
     {
@@ -11693,6 +11693,9 @@ int32_t app_main(int32_t argc, const char **argv)
         Bstrcpy(CheatStrings[23], "<RESERVED>");
         Bstrcpy(CheatStrings[24], "adebug");
         Bstrcpy(CheatStrings[26], "acgs");
+
+        Bstrcpy(GametypeNames[0],"GruntMatch (Spawn)");
+        Bstrcpy(GametypeNames[2],"GruntMatch (No Spawn)");
     }
 
     if (!usecwd)
@@ -13018,6 +13021,7 @@ void G_BonusScreen(int32_t bonusonly)
                     }
                     if (!NAM_WW2GI && !DUKEBETA && MapInfo[G_LastMapInfoIndex()].designertime)
                     {
+                        // EDuke 2.0 / NAM source suggests "Green Beret's Time:"
                         gametext(10,yy+9,"3D Realms' Time:",0,2+8+16);
                         yy+=10;
                     }

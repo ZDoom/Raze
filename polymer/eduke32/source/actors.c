@@ -1213,7 +1213,8 @@ ACTOR_STATIC void G_MovePlayers(void)
                 {
                     s->extra = p->max_player_health;
                     s->cstat = 257;
-                    p->inv_amount[GET_JETPACK] = 1599;
+                    if (!WW2GI)
+                        p->inv_amount[GET_JETPACK] = 1599;
                 }
 
                 if (s->extra > 0)
