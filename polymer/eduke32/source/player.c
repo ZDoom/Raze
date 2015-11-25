@@ -2463,7 +2463,7 @@ void P_DisplayWeapon(void)
                     break;
                 }
 
-                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
+                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING) && DUKE)
                     o |= 512;
 
                 if ((*kb) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload)-17)
@@ -2580,7 +2580,7 @@ void P_DisplayWeapon(void)
                 if (VM_OnEvent(EVENT_DRAWWEAPON,g_player[screenpeek].ps->i,screenpeek))
                     break;
 
-                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING))
+                if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING) && DUKE)
                     o |= 512;
 
                 if ((*kb) < (PWEAPON(screenpeek, p->curr_weapon, TotalTime)+1) && (*kb) > 0)
