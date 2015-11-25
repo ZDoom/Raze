@@ -284,7 +284,7 @@ static int32_t G_CacheSound(uint32_t num)
 
     if (EDUKE32_PREDICT_FALSE(!g_sounds[num].filename)) return 0;
 
-    int32_t fp = S_OpenAudio(g_sounds[num].filename, g_loadFromGroupOnly);
+    int32_t fp = S_OpenAudio(g_sounds[num].filename, g_loadFromGroupOnly, 0);
     if (EDUKE32_PREDICT_FALSE(fp == -1))
     {
 //        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);

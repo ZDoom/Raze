@@ -128,7 +128,7 @@ extern void G_LoadLookups(void);
 
 //////////
 
-extern int32_t S_OpenAudio(const char *fn, char searchfirst);
+extern int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t ismusic);
 
 #ifdef __cplusplus
 }

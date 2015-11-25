@@ -186,7 +186,7 @@ int32_t S_PlayMusic(const char *fn)
     if (!ud.config.MusicToggle || fn == NULL)
         return 0;
 
-    int32_t fp = S_OpenAudio(fn, 0);
+    int32_t fp = S_OpenAudio(fn, 0, 1);
     if (EDUKE32_PREDICT_FALSE(fp < 0))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open \"%s\" for playback!\n",fn);
@@ -349,7 +349,7 @@ int32_t S_LoadSound(uint32_t num)
         return 0;
     }
 
-    int32_t fp = S_OpenAudio(g_sounds[num].filename, g_loadFromGroupOnly);
+    int32_t fp = S_OpenAudio(g_sounds[num].filename, g_loadFromGroupOnly, 0);
     if (EDUKE32_PREDICT_FALSE(fp == -1))
     {
         OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);

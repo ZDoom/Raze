@@ -1059,7 +1059,7 @@ static int32_t S_TryFormats(char const * const testfn, char * const fn_suffix, c
     return -1;
 }
 
-static int32_t S_TryExtensionReplacements(char const * const testfn, char const searchfirst)
+static int32_t S_TryExtensionReplacements(char const * const testfn, char const searchfirst, uint8_t const ismusic)
 {
     char * extension = Bstrrchr(testfn, '.');
     char * const fn_end = Bstrchr(testfn, '\0');
@@ -1079,6 +1079,7 @@ static int32_t S_TryExtensionReplacements(char const * const testfn, char const 
     }
 
     // ex: grabbag.mid --> grabbag.*
+    if (ismusic) // this conditional is a hack so that subway.voc does not upgrade to Megaton's music/subway.ogg
     {
         int32_t const fp = S_TryFormats(testfn, extension, searchfirst);
         if (fp >= 0)
@@ -1088,7 +1089,7 @@ static int32_t S_TryExtensionReplacements(char const * const testfn, char const 
     return -1;
 }
 
-int32_t S_OpenAudio(const char *fn, char searchfirst)
+int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 {
     int32_t const origfp = kopen4loadfrommod(fn, searchfirst);
     char const * const origparent = origfp != -1 ? kfileparent(origfp) : NULL;
@@ -1100,7 +1101,7 @@ int32_t S_OpenAudio(const char *fn, char searchfirst)
     // ex: ./grabbag.mid
     {
         Bstrcpy(testfn, fn);
-        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst);
+        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, 1);
         if (fp >= 0)
         {
             Bfree(testfn);
@@ -1118,7 +1119,7 @@ int32_t S_OpenAudio(const char *fn, char searchfirst)
         uint32_t namelength = origparentextension != NULL ? origparentextension - origparent : origparentlength;
 
         Bsprintf(testfn, "music/%.*s/%s", namelength, origparent, fn);
-        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst);
+        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
         if (fp >= 0)
         {
             Bfree(testfn);
@@ -1131,7 +1132,7 @@ int32_t S_OpenAudio(const char *fn, char searchfirst)
     // ex: ./music/grabbag.mid
     {
         Bsprintf(testfn, "music/%s", fn);
-        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst);
+        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
         if (fp >= 0)
         {
             Bfree(testfn);
