@@ -1194,7 +1194,7 @@ static int32_t A_ShootHardcoded(int32_t i, int32_t atwith, int16_t sa, vec3_t sr
 
         if (p >= 0)
             P_PreFireHitscan(i, p, atwith, &srcvect, &zvel, &sa,
-                             atwith == SHOTSPARK1__STATIC && !WW2GI && !NAM,
+                             atwith == SHOTSPARK1__STATIC && !NAM_WW2GI,
                              1);
         else
             A_PreFireHitscan(s, &srcvect, &zvel, &sa, 1);

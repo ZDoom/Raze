@@ -1386,8 +1386,8 @@ static weapondata_t weapondefaults[MAX_WEAPONS] = {
     },
 
     {
-        PISTOL_WEAPON, /*NAM?20:*/12, /*NAM?50:*/27, 2, 5, 0,
-        /*(NAM?WEAPON_HOLSTER_CLEARS_CLIP:0) |*/ WEAPON_RELOAD_TIMING,
+        PISTOL_WEAPON, /*NAM_WW2GI?20:*/12, /*NAM_WW2GI?50:*/27, 2, 5, 0,
+        /*(NAM_WW2GI?WEAPON_HOLSTER_CLEARS_CLIP:0) |*/ WEAPON_RELOAD_TIMING,
         SHOTSPARK1__STATIC, 2, SHELL__STATIC, 0, 0, PISTOL_FIRE__STATIC, 0, 0,
         EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, INSERT_CLIP__STATIC, 255+(95<<8)
     },
@@ -1421,7 +1421,7 @@ static weapondata_t weapondefaults[MAX_WEAPONS] = {
     },
 
     {
-        SHRINKER_WEAPON, 0, 0, 10, /*NAM?30:*/12, 0,
+        SHRINKER_WEAPON, 0, 0, 10, /*NAM_WW2GI?30:*/12, 0,
         WEAPON_GLOWS,
         SHRINKER__STATIC, 0, 0, 0, SHRINKER_FIRE__STATIC, 0, 0, 0,
         EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, SELECT_WEAPON__STATIC, 128+(255<<8)+(128<<16)
@@ -1456,9 +1456,9 @@ static weapondata_t weapondefaults[MAX_WEAPONS] = {
     },
 
     {
-        GROW_WEAPON, 0, 0, 3, /*NAM?30:*/5, 0,
+        GROW_WEAPON, 0, 0, 3, /*NAM_WW2GI?30:*/5, 0,
         WEAPON_GLOWS,
-        GROWSPARK__STATIC, /*NAM?2:*/0, /*NAM?SHELL:*/0, 0, 0, /*NAM?0:*/EXPANDERSHOOT__STATIC, 0, 0,
+        GROWSPARK__STATIC, /*NAM_WW2GI?2:*/0, /*NAM_WW2GI?SHELL:*/0, 0, 0, /*NAM_WW2GI?0:*/EXPANDERSHOOT__STATIC, 0, 0,
         EJECT_CLIP__STATIC, INSERT_CLIP__STATIC, SELECT_WEAPON__STATIC, 255+(95<<8)
     },
 };
@@ -1577,7 +1577,7 @@ static void Gv_AddSystemVars(void)
     char aszBuf[64];
 #endif
 
-    if (NAM)
+    if (NAM_WW2GI)
     {
         weapondefaults[PISTOL_WEAPON].Clip = 20;
         weapondefaults[PISTOL_WEAPON].Reload = 50;
@@ -1618,7 +1618,7 @@ static void Gv_AddSystemVars(void)
     {
         DukePlayer_t *ps = g_player[i].ps;
 
-        ps->pipebombControl = NAM ? PIPEBOMB_TIMER : PIPEBOMB_REMOTE;
+        ps->pipebombControl = NAM_WW2GI ? PIPEBOMB_TIMER : PIPEBOMB_REMOTE;
         ps->pipebombLifetime = NAM_GRENADE_LIFETIME;
         ps->pipebombLifetimeVar = NAM_GRENADE_LIFETIME_VAR;
 
@@ -1634,7 +1634,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     Gv_NewVar("TRIPBOMB_CONTROL", TRIPBOMB_TRIPWIRE, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
-    Gv_NewVar("PIPEBOMB_CONTROL", NAM?PIPEBOMB_TIMER:PIPEBOMB_REMOTE, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
+    Gv_NewVar("PIPEBOMB_CONTROL", NAM_WW2GI ? PIPEBOMB_TIMER : PIPEBOMB_REMOTE, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM);
 
     Gv_NewVar("RESPAWN_MONSTERS", (intptr_t)&ud.respawn_monsters,GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
     Gv_NewVar("RESPAWN_ITEMS",(intptr_t)&ud.respawn_items, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);

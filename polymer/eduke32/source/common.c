@@ -60,7 +60,6 @@ const char *G_DefaultGrpFile(void)
 {
     if (DUKE)
         return defaultgamegrp[GAME_DUKE];
-    // order is important for the following three because GAMEFLAG_NAM overlaps all
     else if (NAPALM)
         return defaultgamegrp[GAME_NAPALM];
     else if (WW2GI)
@@ -871,7 +870,7 @@ void G_CleanupSearchPaths(void)
 {
     removesearchpaths_withuser(SEARCHPATH_REMOVE);
 
-    if (!(NAM || NAPALM))
+    if (!NAM)
         removesearchpaths_withuser(SEARCHPATH_NAM);
 }
 

@@ -34,6 +34,7 @@ extern int32_t g_usingAddon;
 #define NAM                 (g_gameType & GAMEFLAG_NAM)
 #define NAPALM              (g_gameType & GAMEFLAG_NAPALM)
 #define WW2GI               (g_gameType & GAMEFLAG_WW2GI)
+#define NAM_WW2GI           (g_gameType & (GAMEFLAG_NAM|GAMEFLAG_WW2GI))
 #define SHAREWARE           (g_gameType & GAMEFLAG_SHAREWARE)
 #define DUKEBETA            ((g_gameType & GAMEFLAG_DUKEBETA) == GAMEFLAG_DUKEBETA)
 

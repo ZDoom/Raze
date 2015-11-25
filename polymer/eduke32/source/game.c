@@ -1205,7 +1205,7 @@ int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x,  int32_t y,  cons
     }
 
     // order is important, this bit comes after the rest
-    if ((hack & 2) && !NAM) // squishtext
+    if ((hack & 2) && !NAM_WW2GI) // squishtext
         --xbetween;
 
     if (x == (160<<16))
@@ -5884,7 +5884,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                 sp->shade = -8;
 
-                if (sp->yvel == 1 || NAM)
+                if (sp->yvel == 1 || NAM_WW2GI)
                 {
                     sp->ang = a+512;
                     sp->xvel = 30;
@@ -11615,7 +11615,7 @@ int32_t app_main(int32_t argc, const char **argv)
     G_LoadGroups(!g_noAutoLoad && !ud.config.NoAutoLoad);
 //    flushlogwindow = 1;
 
-    if (WW2GI || NAM)
+    if (NAM_WW2GI)
     {
         Bstrcpy(GametypeNames[0],"GruntMatch (Spawn)");
         Bstrcpy(GametypeNames[2],"GruntMatch (No Spawn)");
@@ -12707,7 +12707,7 @@ static int32_t G_PrintTime_ClockPad(void)
     {
         for (ii=MapInfo[G_LastMapInfoIndex()].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
         clockpad = max(clockpad,ij);
-        if (!NAM && MapInfo[G_LastMapInfoIndex()].designertime)
+        if (!NAM_WW2GI && MapInfo[G_LastMapInfoIndex()].designertime)
         {
             for (ii=MapInfo[G_LastMapInfoIndex()].designertime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) ;
             clockpad = max(clockpad,ij);
@@ -12942,7 +12942,7 @@ void G_BonusScreen(int32_t bonusonly)
                         gametext(10,yy+9,"Par Time:",0,2+8+16);
                         yy+=10;
                     }
-                    if (!NAM && !DUKEBETA && MapInfo[G_LastMapInfoIndex()].designertime)
+                    if (!NAM_WW2GI && !DUKEBETA && MapInfo[G_LastMapInfoIndex()].designertime)
                     {
                         gametext(10,yy+9,"3D Realms' Time:",0,2+8+16);
                         yy+=10;
@@ -12986,7 +12986,7 @@ void G_BonusScreen(int32_t bonusonly)
                             gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);
                             yy+=10;
                         }
-                        if (!NAM && !DUKEBETA && MapInfo[G_LastMapInfoIndex()].designertime)
+                        if (!NAM_WW2GI && !DUKEBETA && MapInfo[G_LastMapInfoIndex()].designertime)
                         {
                             G_PrintDesignerTime();
                             gametext((320>>2)+71,yy+9,tempbuf,0,2+8+16);

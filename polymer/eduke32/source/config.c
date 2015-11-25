@@ -666,7 +666,7 @@ int32_t CONFIG_ReadSetup(void)
                 g_grpNamePtr = dup_filename(G_DefaultGrpFile());
         }
 
-        if (!NAM)
+        if (!NAM_WW2GI)
         {
             SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Out",&ud.lockout);
             SCRIPT_GetString(ud.config.scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
@@ -830,7 +830,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", maxrefreshfreq, FALSE, FALSE);
 #endif
 
-    if (!NAM)
+    if (!NAM_WW2GI)
     {
         SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Out",ud.lockout,FALSE,FALSE);
         SCRIPT_PutString(ud.config.scripthandle, "Screen Setup", "Password",ud.pwlockout);
