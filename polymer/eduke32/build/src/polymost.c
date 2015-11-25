@@ -1801,7 +1801,11 @@ do                                                                              
 
         bglDisable(GL_FOG);
 
+        bglDepthFunc(GL_EQUAL);
+
         polymost_drawpoly(dpxy, n, method_);
+
+        bglDepthFunc(GL_LEQUAL);
 
         if (!nofog)
             bglEnable(GL_FOG);
