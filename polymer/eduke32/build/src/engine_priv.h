@@ -149,8 +149,6 @@ extern int32_t m32_numdebuglines;
 #endif
 
 
-extern int32_t indrawroomsandmasks;
-
 
 #if defined(_MSC_VER) && !defined(NOASM)
 

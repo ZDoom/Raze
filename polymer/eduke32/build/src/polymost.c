@@ -1466,7 +1466,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     static int32_t fullbright_pass = 0;
 
-    if (pth->flags & PTH_HASFULLBRIGHT && indrawroomsandmasks && r_fullbrights)
+    if (pth->flags & PTH_HASFULLBRIGHT && r_fullbrights)
     {
         if (!fullbright_pass)
             fullbright_pass = 1;

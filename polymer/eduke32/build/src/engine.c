@@ -175,7 +175,6 @@ static uint32_t *distrecip;
 
 static int32_t *lookups = NULL;
 static int32_t dommxoverlay = 1, beforedrawrooms = 1;
-int32_t indrawroomsandmasks = 0;
 
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
@@ -9327,7 +9326,6 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     int32_t didmirror = 0;
 
     beforedrawrooms = 0;
-    indrawroomsandmasks = 1;
 
     set_globalpos(daposx, daposy, daposz);
     set_globalang(daang);
@@ -10057,7 +10055,6 @@ killsprite:
     }
 #endif
 
-    indrawroomsandmasks = 0;
     enddrawing();   //}}}
 }
 
