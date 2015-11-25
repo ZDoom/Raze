@@ -572,6 +572,10 @@ static void G_AddSteamPaths(const char *basepath)
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Nam/NAM", basepath);
 #endif
     addsearchpath_user(buf, SEARCHPATH_NAM);
+
+    // WWII GI (Steam)
+    Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/World War II GI/WW2GI", basepath);
+    addsearchpath_user(buf, SEARCHPATH_WW2GI);
 }
 
 // A bare-bones "parser" for Valve's KeyValues VDF format.
@@ -863,6 +867,17 @@ void G_AddSearchPaths(void)
         Bstrncpy(suffix, "/NAM", remaining);
         addsearchpath_user(buf, SEARCHPATH_NAM);
     }
+
+    // WWII GI (Steam)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 376750", "InstallLocation", buf, &bufsize))
+    {
+        char * const suffix = buf + bufsize - 1;
+        DWORD const remaining = sizeof(buf) - bufsize;
+
+        Bstrncpy(suffix, "/WW2GI", remaining);
+        addsearchpath_user(buf, SEARCHPATH_WW2GI);
+    }
 #endif
 }
 
@@ -872,6 +887,9 @@ void G_CleanupSearchPaths(void)
 
     if (!NAM)
         removesearchpaths_withuser(SEARCHPATH_NAM);
+
+    if (!WW2GI)
+        removesearchpaths_withuser(SEARCHPATH_WW2GI);
 }
 
 //////////

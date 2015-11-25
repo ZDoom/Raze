@@ -53,12 +53,14 @@ enum instpath_t {
     INSTPATH_3DR_DUKE3D,
     INSTPATH_3DR_ANTH,
     INSTPATH_STEAM_NAM,
+    INSTPATH_STEAM_WW2GI,
     NUMINSTPATHS
 };
 
 enum searchpathtypes_t {
     SEARCHPATH_REMOVE = 1<<0,
     SEARCHPATH_NAM    = 1<<1,
+    SEARCHPATH_WW2GI  = 1<<2,
 };
 
 typedef enum basepal_ {
