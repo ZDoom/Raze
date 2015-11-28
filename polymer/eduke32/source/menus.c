@@ -176,8 +176,8 @@ static MenuFont_t MF_Null             = { -1, 10,  0,  0,     0,      0,      0,
 static MenuFont_t MF_Redfont          = { -1, 10,  0,  1, 5<<16, 15<<16,  0<<16, 0<<16, TEXT_BIGALPHANUM | TEXT_UPPERCASE };
 static MenuFont_t MF_RedfontBlue      = { -1, 10,  1,  1, 5<<16, 15<<16,  0<<16, 0<<16, TEXT_BIGALPHANUM | TEXT_UPPERCASE };
 static MenuFont_t MF_RedfontGreen     = { -1, 10,  8,  1, 5<<16, 15<<16,  0<<16, 0<<16, TEXT_BIGALPHANUM | TEXT_UPPERCASE };
-static MenuFont_t MF_Bluefont         = { -1, 10,  0, 16, 5<<16,  7<<16, -1<<16, 0<<16, 0 };
-static MenuFont_t MF_BluefontRed      = { -1, 10, 10, 16, 5<<16,  7<<16, -1<<16, 0<<16, 0 };
+static MenuFont_t MF_Bluefont         = { -1, 10,  0, 16, 5<<16,  7<<16, -(1<<16), 0<<16, 0 };
+static MenuFont_t MF_BluefontRed      = { -1, 10, 10, 16, 5<<16,  7<<16, -(1<<16), 0<<16, 0 };
 static MenuFont_t MF_Minifont         = { -1, 10,  0, 16, 4<<16,  5<<16,  1<<16, 1<<16, 0 };
 static MenuFont_t MF_MinifontRed      = { -1, 16, 21, 16, 4<<16,  5<<16,  1<<16, 1<<16, 0 };
 static MenuFont_t MF_MinifontDarkGray = { -1, 10, 13, 16, 4<<16,  5<<16,  1<<16, 1<<16, 0 };
@@ -4762,7 +4762,7 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
 
             M_BlackRectangle(origin.x + (60<<16), origin.y + (86<<16), 200<<16, 28<<16, 0);
 
-            G_ScreenText(STARTALPHANUM, origin.x + (160<<16), origin.y + (98<<16), 65536, 0, 0, object->instructions, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, -1<<16, 1<<16, TEXT_XCENTER|TEXT_YBOTTOM, 0, 0, xdim-1, ydim-1);
+            G_ScreenText(STARTALPHANUM, origin.x + (160<<16), origin.y + (98<<16), 65536, 0, 0, object->instructions, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, mgametext_xbetween, 1<<16, TEXT_XCENTER|TEXT_YBOTTOM, 0, 0, xdim-1, ydim-1);
 
             const char *displaytext = object->input;
 
@@ -4776,7 +4776,7 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
                 displaytext = tempbuf;
             }
 
-            const vec2_t textreturn = G_ScreenText(STARTALPHANUM, origin.x + (160<<16), origin.y + (102<<16), 65536, 0, 0, displaytext, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, -1<<16, 1<<16, TEXT_XCENTER, 0, 0, xdim-1, ydim-1);
+            const vec2_t textreturn = G_ScreenText(STARTALPHANUM, origin.x + (160<<16), origin.y + (102<<16), 65536, 0, 0, displaytext, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, mgametext_xbetween, 1<<16, TEXT_XCENTER, 0, 0, xdim-1, ydim-1);
 
             M_PreMenuDraw(cm->menuID, NULL, origin);
 
