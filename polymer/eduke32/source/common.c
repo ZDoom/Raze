@@ -511,7 +511,7 @@ static int G_ReadRegistryValue(char const * const SubKey, char const * const Val
     if (keygood != ERROR_SUCCESS)
         return 0;
 
-    LSTATUS retval = SHGetValueA(hkey, SubKey, Value, NULL, Output, OutputSize);
+    LONG retval = SHGetValueA(hkey, SubKey, Value, NULL, Output, OutputSize);
 
     RegCloseKey(hkey);
 
@@ -1109,7 +1109,7 @@ int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
     if (origparent != NULL)
     {
         char const * const origparentextension = Bstrrchr(origparent, '.');
-        uint32_t namelength = origparentextension != NULL ? origparentextension - origparent : origparentlength;
+        uint32_t namelength = origparentextension != NULL ? (unsigned)(origparentextension - origparent) : origparentlength;
 
         Bsprintf(testfn, "music/%.*s/%s", namelength, origparent, fn);
         int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);

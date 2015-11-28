@@ -2152,7 +2152,7 @@ static void         polymer_emptybuckets(void)
     }
 
     // ensure space in index ring, wrap otherwise
-    if (indexcount + prindexringoffset >= prindexringsize)
+    if (indexcount + prindexringoffset >= (unsigned)prindexringsize)
     {
         bglUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER);
         prindexring = (GLuint *)bglMapBufferRange(GL_ELEMENT_ARRAY_BUFFER, 0, prindexringsize * sizeof(GLuint), GL_MAP_INVALIDATE_BUFFER_BIT | prindexringmapflags);
