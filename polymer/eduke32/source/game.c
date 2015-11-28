@@ -11636,7 +11636,13 @@ int32_t app_main(int32_t argc, const char **argv)
     // KEEPINSYNC: NAM_WW2GI_CHEATS
     if (WW2GI)
     {
+#if 0
+        // WWII GI's original cheat prefix temporarily disabled because W conflicts with WSAD movement
         CheatKeys[0] = CheatKeys[1] = sc_W;
+#else
+        CheatKeys[0] = sc_G;
+        CheatKeys[1] = sc_I;
+#endif
 
         Bstrcpy(CheatStrings[0], "2god");
         Bstrcpy(CheatStrings[1], "2blood");
