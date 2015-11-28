@@ -1029,7 +1029,7 @@ void G_LoadLookups(void)
 
 //////////
 
-static int32_t S_TryFormats(char const * const testfn, char * const fn_suffix, char const searchfirst)
+static int32_t S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
 {
 #ifdef HAVE_FLAC
     {
@@ -1052,7 +1052,7 @@ static int32_t S_TryFormats(char const * const testfn, char * const fn_suffix, c
     return -1;
 }
 
-static int32_t S_TryExtensionReplacements(char const * const testfn, char const searchfirst, uint8_t const ismusic)
+static int32_t S_TryExtensionReplacements(char * const testfn, char const searchfirst, uint8_t const ismusic)
 {
     char * extension = Bstrrchr(testfn, '.');
     char * const fn_end = Bstrchr(testfn, '\0');
