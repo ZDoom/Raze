@@ -551,7 +551,7 @@ static void G_AddSteamPaths(const char *basepath)
 
     // Duke Nukem 3D: Megaton Edition (Steam)
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot", basepath);
-    addsearchpath_user(buf);
+    addsearchpath(buf);
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/dc", basepath);
     addsearchpath_user(buf, SEARCHPATH_REMOVE);
     Bsnprintf(buf, sizeof(buf), "%s/steamapps/common/Duke Nukem 3D/gameroot/addons/nw", basepath);
