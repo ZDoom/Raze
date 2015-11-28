@@ -858,12 +858,12 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                     }
                 }
 
-                if (dacol != 255)
                 {
                     char *p = (char *)(palookup[dapal])+(int32_t)(dashade<<8);
                     dacol = (uint8_t)p[dacol];
                 }
-                else
+
+                if (dacol == 255)
                 {
                     wpptr->a = 0;
                     hasalpha = 1;
@@ -1553,7 +1553,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             ; /* do nothing */
     }
 
-    if ((!(method&3)) && (!fullbright_pass))
+    if (!(method&3) && fullbright_pass < 2)
     {
         bglDisable(GL_BLEND);
         bglDisable(GL_ALPHA_TEST);
