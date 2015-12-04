@@ -4368,6 +4368,27 @@ static void P_ProcessWeapon(int32_t snum)
     }
 }
 
+void P_EndLevel(void)
+{
+    int32_t i;
+
+    for (TRAVERSE_CONNECT(i))
+        g_player[i].ps->gm = MODE_EOL;
+
+    if (ud.from_bonus)
+    {
+        ud.m_level_number = ud.level_number = ud.from_bonus;
+        ud.from_bonus = 0;
+    }
+    else
+    {
+        ud.level_number++;
+        if (ud.level_number >= MAXLEVELS)
+            ud.level_number = 0;
+        ud.m_level_number = ud.level_number;
+    }
+}
+
 static int32_t P_DoFist(DukePlayer_t *p)
 {
     // the fist punching NUKEBUTTON
@@ -4382,13 +4403,13 @@ static int32_t P_DoFist(DukePlayer_t *p)
 
     if (p->fist_incs > 42)
     {
-        int32_t i;
-
-        for (TRAVERSE_CONNECT(i))
-            g_player[i].ps->gm = MODE_EOL;
-
         if (p->buttonpalette && ud.from_bonus == 0)
         {
+            int32_t i;
+
+            for (TRAVERSE_CONNECT(i))
+                g_player[i].ps->gm = MODE_EOL;
+
             ud.from_bonus = ud.level_number+1;
             if (ud.secretlevel > 0 && ud.secretlevel <= MAXLEVELS)
                 ud.level_number = ud.secretlevel-1;
@@ -4396,21 +4417,7 @@ static int32_t P_DoFist(DukePlayer_t *p)
         }
         else
         {
-            if (ud.from_bonus)
-            {
-                ud.m_level_number = ud.level_number = ud.from_bonus;
-                ud.from_bonus = 0;
-            }
-            else
-            {
-                if (ud.level_number == ud.secretlevel && ud.from_bonus > 0)
-                    ud.level_number = ud.from_bonus;
-                else ud.level_number++;
-
-                if (ud.level_number > MAXLEVELS-1)
-                    ud.level_number = 0;
-                ud.m_level_number = ud.level_number;
-            }
+            P_EndLevel();
         }
 
         p->fist_incs = 0;
@@ -4613,16 +4620,7 @@ void P_ProcessInput(int32_t snum)
         }
         else if (p->timebeforeexit == 1)
         {
-            for (TRAVERSE_CONNECT(i))
-                g_player[i].ps->gm = MODE_EOL;
-
-            ud.m_level_number = ud.level_number++;
-
-            if (ud.from_bonus)
-            {
-                ud.m_level_number = ud.level_number = ud.from_bonus;
-                ud.from_bonus = 0;
-            }
+            P_EndLevel();
             return;
         }
     }

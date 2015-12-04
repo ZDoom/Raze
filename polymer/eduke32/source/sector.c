@@ -1390,24 +1390,9 @@ int32_t P_ActivateSwitch(int32_t snum, int32_t w, int32_t switchissprite)
         }
     }
 
-    if (lotag == 65535)
+    if (lotag == UINT16_MAX)
     {
-        g_player[myconnectindex].ps->gm = MODE_EOL;
-
-        if (ud.from_bonus)
-        {
-            ud.level_number = ud.from_bonus;
-            ud.m_level_number = ud.level_number;
-            ud.from_bonus = 0;
-        }
-        else
-        {
-            ud.level_number++;
-            if (ud.level_number > MAXLEVELS-1)
-                ud.level_number = 0;
-            ud.m_level_number = ud.level_number;
-        }
-
+        P_EndLevel();
         return 1;
     }
 
@@ -2978,7 +2963,6 @@ static void G_ClearCameras(DukePlayer_t *p)
 
 void P_CheckSectors(int32_t snum)
 {
-    int32_t i = -1;
     DukePlayer_t *const p = g_player[snum].ps;
 
     if (p->cursectnum > -1)
@@ -2991,22 +2975,8 @@ void P_CheckSectors(int32_t snum)
             return;
 
         case UINT16_MAX:
-            for (TRAVERSE_CONNECT(i))
-                g_player[i].ps->gm = MODE_EOL;
             sector[p->cursectnum].lotag = 0;
-            if (ud.from_bonus)
-            {
-                ud.level_number = ud.from_bonus;
-                ud.m_level_number = ud.level_number;
-                ud.from_bonus = 0;
-            }
-            else
-            {
-                ud.level_number++;
-                if (ud.level_number > MAXLEVELS-1)
-                    ud.level_number = 0;
-                ud.m_level_number = ud.level_number;
-            }
+            P_EndLevel();
             return;
 
         case UINT16_MAX-1:
@@ -3068,7 +3038,7 @@ void P_CheckSectors(int32_t snum)
         p->toggle_key_flag = 1;
         hitscanwall = -1;
 
-        i = P_FindWall(p,&hitscanwall);
+        int32_t i = P_FindWall(p,&hitscanwall);
 
         if (hitscanwall >= 0 && i < 1280 && wall[hitscanwall].overpicnum == MIRROR)
             if (wall[hitscanwall].lotag > 0 && !A_CheckSoundPlaying(p->i,wall[hitscanwall].lotag) && snum == screenpeek)
@@ -3291,6 +3261,7 @@ void P_CheckSectors(int32_t snum)
         if (neartagsector >= 0 && (sector[neartagsector].lotag&16384) == 0 &&
                 isanearoperator(sector[neartagsector].lotag))
         {
+            int32_t i;
             for (SPRITES_OF_SECT(neartagsector, i))
             {
                 if (PN == ACTIVATOR || PN == MASTERSWITCH)
