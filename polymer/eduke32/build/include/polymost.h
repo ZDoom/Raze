@@ -139,10 +139,22 @@ static inline float polymost_invsqrt_approximation(float x)
 
 // Flags of the <dameth> argument of various functions
 enum {
+    DAMETH_NOMASK = 0,
+    DAMETH_MASK = 1,
+    DAMETH_TRANS1 = 2,
+    DAMETH_TRANS2 = 3,
+
+    DAMETH_MASKPROPS = 3,
+    DAMETH_TEXPROPS = ~3,
+
     DAMETH_CLAMPED = 4,
 
     DAMETH_WALL = 32,  // signals a texture for a wall (for r_npotwallmode)
 
+    // used internally by polymost_domost
+    DAMETH_BACKFACECULL = -1,
+
+    // used internally by uploadtexture
     DAMETH_NOCOMPRESS = 4096,
     DAMETH_HI = 8192,
     DAMETH_NOFIX = 16384,

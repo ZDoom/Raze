@@ -595,7 +595,7 @@ static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t
 {
     vec2_t doxy = { dasiz2.x-1, dasiz2.y-1 };
 
-    if (dameth&4) { doxy.x = min(doxy.x, dasiz.x); doxy.y = min(doxy.y, dasiz.y); }
+    if (dameth & DAMETH_CLAMPED) { doxy.x = min(doxy.x, dasiz.x); doxy.y = min(doxy.y, dasiz.y); }
     else { dasiz = dasiz2; } //Make repeating textures duplicate top/left parts
 
     dasiz.x--; dasiz.y--; //Hacks for optimization inside loop
@@ -1378,7 +1378,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (g_nodraw) return;
 #endif
 
-    if (method == -1 || (uint32_t)globalpicnum >= MAXTILES) return;
+    if (method == DAMETH_BACKFACECULL || (uint32_t)globalpicnum >= MAXTILES) return;
 
     const int32_t method_ = method;
 
@@ -1411,7 +1411,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         if (!waloff[globalpicnum])
         {
             tsiz.x = tsiz.y = 1;
-            method = 1; //Hack to update Z-buffer for invalid mirror textures
+            method = DAMETH_MASK; //Hack to update Z-buffer for invalid mirror textures
         }
     }
 
@@ -1452,7 +1452,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     if (skyclamphack) method |= DAMETH_CLAMPED;
 
-    pthtyp *pth = our_texcache_fetch(method&(~3));
+    pthtyp *pth = our_texcache_fetch(method & DAMETH_TEXPROPS);
 
     if (!pth)
     {
@@ -1505,7 +1505,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (r_detailmapping)
     {
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL) &&
-            (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & (~3))) && 
+            (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & DAMETH_TEXPROPS)) &&
             detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
         {
             polymost_setupdetailtexture(++texunits, detailpth ? detailpth->glpic : 0);
@@ -1529,7 +1529,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (r_glowmapping)
     {
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL) &&
-            (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, method&(~3))) &&
+            (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, method & DAMETH_TEXPROPS)) &&
             glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
             polymost_setupglowtexture(++texunits, glowpth ? glowpth->glpic : 0);
     }
@@ -1553,7 +1553,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             ; /* do nothing */
     }
 
-    if (!(method&3) && fullbright_pass < 2)
+    if (!(method & DAMETH_MASKPROPS) && fullbright_pass < 2)
     {
         bglDisable(GL_BLEND);
         bglDisable(GL_ALPHA_TEST);
@@ -1578,7 +1578,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         pc[0] = pc[1] = pc[2] = getshadefactor(globalshade);
 
     // spriteext full alpha control
-    pc[3] = float_trans[method & 3] * (1.f - drawpoly_alpha);
+    pc[3] = float_trans[method & DAMETH_MASKPROPS] * (1.f - drawpoly_alpha);
 
     if (pth)
     {
@@ -1868,7 +1868,7 @@ static inline int32_t vsinsaft(int32_t const i)
     return r;
 }
 
-static int32_t domostpolymethod = 0;
+static int32_t domostpolymethod = DAMETH_NOMASK;
 
 #define DOMOST_OFFSET .01f
 
@@ -2471,7 +2471,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
         }
     }
 
-    domostpolymethod = (globalorientation>>7)&3;
+    domostpolymethod = (globalorientation>>7) & DAMETH_MASKPROPS;
 
     pow2xsplit = 0;
     drawpoly_alpha = 0.f;
@@ -2482,19 +2482,19 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     if (have_floor)
     {
         if (globalposz > getflorzofslope(sectnum, globalposx, globalposy))
-            domostpolymethod = -1; //Back-face culling
+            domostpolymethod = DAMETH_BACKFACECULL; //Back-face culling
 
         polymost_domost(x0, y0, x1, y1); //flor
     }
     else
     {
         if (globalposz < getceilzofslope(sectnum, globalposx, globalposy))
-            domostpolymethod = -1; //Back-face culling
+            domostpolymethod = DAMETH_BACKFACECULL; //Back-face culling
 
         polymost_domost(x1, y1, x0, y0); //ceil
     }
 
-    domostpolymethod = 0;
+    domostpolymethod = DAMETH_NOMASK;
 }
 
 static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
@@ -3233,7 +3233,7 @@ static void polymost_drawalls(int32_t const bunch)
 
         float const ogux = xtex.u, oguy = ytex.u, oguo = otex.u;
 
-        Bassert(domostpolymethod == 0);
+        Bassert(domostpolymethod == DAMETH_NOMASK);
         domostpolymethod = DAMETH_WALL;
 
         if (nextsectnum >= 0)
@@ -3359,7 +3359,7 @@ static void polymost_drawalls(int32_t const bunch)
             } while (0);
         }
 
-        domostpolymethod = 0;
+        domostpolymethod = DAMETH_NOMASK;
 
         if (nextsectnum >= 0)
             if ((!(gotsector[nextsectnum>>3]&pow2char[nextsectnum&7])) && testvisiblemost(x0,x1))
@@ -3880,14 +3880,14 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     }
     if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-    int method = 1 | DAMETH_WALL;
+    int method = DAMETH_MASK | DAMETH_WALL;
 
     if (wal->cstat & 128)
     {
         if (!(wal->cstat & 512))
-            method = 2 | DAMETH_WALL;
+            method = DAMETH_TRANS1 | DAMETH_WALL;
         else
-            method = 3 | DAMETH_WALL;
+            method = DAMETH_TRANS2 | DAMETH_WALL;
     }
 
     if (!nofog)
@@ -4095,14 +4095,14 @@ void polymost_drawsprite(int32_t snum)
         off.y = (int32_t)tspr->yoffset + flag ? h_yoffs[globalpicnum] : picanm[globalpicnum].yofs;
     }
 
-    int32_t method = 1 + 4;
+    int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
 
     if (tspr->cstat & 2)
     {
         if (!(tspr->cstat & 512))
-            method = 2 + 4;
+            method = DAMETH_TRANS1 | DAMETH_CLAMPED;
         else
-            method = 3 + 4;
+            method = DAMETH_TRANS2 | DAMETH_CLAMPED;
     }
 
     drawpoly_alpha = spriteext[spritenum].alpha;
@@ -4988,14 +4988,14 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     }
 #endif
 
-    int32_t method = 4; //Use OpenGL clamping - dorotatesprite never repeats
+    int32_t method = DAMETH_CLAMPED; //Use OpenGL clamping - dorotatesprite never repeats
 
     if (!(dastat & RS_NOMASK))
     {
         if (dastat & RS_TRANS1)
-            method |= (dastat & RS_TRANS2) ? 3 : 2;
+            method |= (dastat & RS_TRANS2) ? DAMETH_TRANS2 : DAMETH_TRANS1;
         else
-            method |= 1;
+            method |= DAMETH_MASK;
     }
 
     drawpoly_alpha = daalpha * (1.0f / 255.0f);
@@ -5323,7 +5323,7 @@ void polymost_fillpolygon(int32_t npoints)
     if (gloy1 != -1) setpolymost2dview(); //disables blending, texturing, and depth testing
     bglEnable(GL_ALPHA_TEST);
     bglEnable(GL_TEXTURE_2D);
-    pthtyp *pth = our_texcache_fetch(0);
+    pthtyp *pth = our_texcache_fetch(DAMETH_NOMASK);
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
     float const f = getshadefactor(globalshade);

@@ -1111,7 +1111,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
         skyhoriz += 360.0f;
 
     drawingskybox = 1;
-    pth = texcache_fetch(cursky, 0, 0, 0);
+    pth = texcache_fetch(cursky, 0, 0, DAMETH_NOMASK);
     drawingskybox = 0;
 
     // if it's not a skybox, make the sky parallax
@@ -1661,7 +1661,7 @@ int16_t             polymer_addlight(_prlight* light)
                 loadtile(picnum);
 
             pth = NULL;
-            pth = texcache_fetch(picnum, 0, 0, 0);
+            pth = texcache_fetch(picnum, 0, 0, DAMETH_NOMASK);
 
             if (pth)
                 light->lightmap = pth->glpic;
@@ -2798,7 +2798,7 @@ attributes:
             !Bmemcmp(&s->ceilingstat, &sec->ceilingstat, offsetof(sectortype, visibility) - offsetof(sectortype, ceilingstat)))
         goto finish;
 
-    s->floor.bucket = polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade, sec->visibility, 0);
+    s->floor.bucket = polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade, sec->visibility, DAMETH_NOMASK);
 
     if (sec->floorstat & 256) {
         if (sec->floorstat & 128) {
@@ -2808,7 +2808,7 @@ attributes:
         }
     }
 
-    s->ceil.bucket = polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade, sec->visibility, 0);
+    s->ceil.bucket = polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade, sec->visibility, DAMETH_NOMASK);
 
     if (sec->ceilingstat & 256) {
         if (sec->ceilingstat & 128) {
@@ -4128,7 +4128,7 @@ void         polymer_drawsky(int16_t tilenum, char palnum, int8_t shade)
     bglScalef(1000.0f, 1000.0f, 1000.0f);
 
     drawingskybox = 1;
-    pth = texcache_fetch(tilenum,0,0,0);
+    pth = texcache_fetch(tilenum, 0, 0, DAMETH_NOMASK);
     drawingskybox = 0;
 
     if (pth && (pth->flags & PTH_SKYBOX))
@@ -4176,7 +4176,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
         DO_TILE_ANIM(picnum, 0);
         if (!waloff[picnum])
             loadtile(picnum);
-        pth = texcache_fetch(picnum, palnum, 0, 0);
+        pth = texcache_fetch(picnum, palnum, 0, DAMETH_NOMASK);
         glpics[i] = pth ? pth->glpic : 0;
 
         glcolors[i][0] = glcolors[i][1] = glcolors[i][2] = getshadefactor(shade);
@@ -5001,7 +5001,7 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
-    if (hicfindsubst(tilenum, DETAILPAL) && (pth = texcache_fetch(tilenum, DETAILPAL, 0, 0)) && 
+    if (hicfindsubst(tilenum, DETAILPAL) && (pth = texcache_fetch(tilenum, DETAILPAL, 0, DAMETH_NOMASK)) &&
         pth->hicr && (pth->hicr->palnum == DETAILPAL))
     {
         material->detailmap = pth->glpic;
@@ -5010,17 +5010,17 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // PR_BIT_GLOW_MAP
-    if (hicfindsubst(tilenum, GLOWPAL) && (pth = texcache_fetch(tilenum, GLOWPAL, 0, 0)) && 
+    if (hicfindsubst(tilenum, GLOWPAL) && (pth = texcache_fetch(tilenum, GLOWPAL, 0, DAMETH_NOMASK)) &&
         pth->hicr && (pth->hicr->palnum == GLOWPAL))
         material->glowmap = pth->glpic;
 
     // PR_BIT_SPECULAR_MAP
-    if (hicfindsubst(tilenum, SPECULARPAL) && (pth = texcache_fetch(tilenum, SPECULARPAL, 0, 0)) && 
+    if (hicfindsubst(tilenum, SPECULARPAL) && (pth = texcache_fetch(tilenum, SPECULARPAL, 0, DAMETH_NOMASK)) &&
         pth->hicr && (pth->hicr->palnum == SPECULARPAL))
         material->specmap = pth->glpic;
 
     // PR_BIT_NORMAL_MAP
-    if (hicfindsubst(tilenum, NORMALPAL) && (pth = texcache_fetch(tilenum, NORMALPAL, 0, 0)) && 
+    if (hicfindsubst(tilenum, NORMALPAL) && (pth = texcache_fetch(tilenum, NORMALPAL, 0, DAMETH_NOMASK)) &&
         pth->hicr && (pth->hicr->palnum == NORMALPAL))
     {
         material->normalmap = pth->glpic;
@@ -5731,7 +5731,7 @@ static void         polymer_updatelights(void)
                     loadtile(picnum);
 
                 pth = NULL;
-                pth = texcache_fetch(picnum, 0, 0, 0);
+                pth = texcache_fetch(picnum, 0, 0, DAMETH_NOMASK);
 
                 if (pth)
                     light->lightmap = pth->glpic;
