@@ -2891,7 +2891,9 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
 
 static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
 {
+#ifdef USE_OPENGL
     int domodechange = 0;
+#endif
 
     if (entry == &ME_GAMESETUP_AIM_AUTO ||
         entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP ||
