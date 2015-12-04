@@ -352,7 +352,7 @@ void                polymer_loadboard(void);
 void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
 void                polymer_drawmasks(void);
 void                polymer_editorpick(void);
-void                polymer_inb4rotatesprite(int16_t tilenum, char pal, int8_t shade);
+void                polymer_inb4rotatesprite(int16_t tilenum, char pal, int8_t shade, int32_t method);
 void                polymer_postrotatesprite(void);
 void                polymer_drawmaskwall(int32_t damaskwallcnt);
 void                polymer_drawsprite(int32_t snum);

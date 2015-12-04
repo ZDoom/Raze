@@ -44,7 +44,8 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
     // load from art
     for (pth=texcache.list[j]; pth; pth=pth->next)
         if (pth->picnum == dapicnum && pth->palnum == dapalnum && pth->shade == dashade && 
-                (pth->flags & (PTH_CLAMPED+PTH_HIGHTILE)) == TO_PTH_CLAMPED(dameth) &&
+                (pth->flags & (PTH_CLAMPED | PTH_HIGHTILE | PTH_NOTRANSFIX)) ==
+                    (TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth)) &&
                 polymost_want_npotytex(dameth, tilesiz[dapicnum].y) == !!(pth->flags&PTH_NPOTWALL)
            )
         {
@@ -84,7 +85,8 @@ pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int3
             {
                 Bmemcpy(pth, pth2, sizeof(pthtyp));
                 pth->picnum = dapicnum;
-                pth->flags = TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox>0)*PTH_SKYBOX;
+                pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) |
+                             PTH_HIGHTILE | (drawingskybox>0)*PTH_SKYBOX;
                 if (pth2->flags & PTH_HASALPHA)
                     pth->flags |= PTH_HASALPHA;
                 pth->hicr = si;
@@ -133,8 +135,9 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     {
         if (pth->picnum == dapicnum && pth->palnum == checkcachepal &&
             (checktintpal > 0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
-            (pth->flags & (PTH_CLAMPED + PTH_HIGHTILE + PTH_SKYBOX)) ==
-            (TO_PTH_CLAMPED(dameth) + PTH_HIGHTILE + (drawingskybox > 0) * PTH_SKYBOX) &&
+            (pth->flags & (PTH_CLAMPED | PTH_HIGHTILE | PTH_SKYBOX | PTH_NOTRANSFIX)) ==
+                (TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) |
+                 PTH_HIGHTILE | (drawingskybox > 0) * PTH_SKYBOX) &&
             (drawingskybox > 0 ? (pth->skyface == drawingskybox) : 1))
         {
             if (pth->flags & PTH_INVALIDATED)
@@ -442,7 +445,7 @@ static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t
     struct texcacheid_t {
         int32_t len, method;
         char effect, name[BMAX_PATH+3];  // +3: pad to a multiple of 4
-    } id = { len, dameth, effect, "" };
+    } id = { len, DAMETH_NARROW_MASKPROPS(dameth), effect, "" };
 
     Bstrcpy(id.name, fn);
 

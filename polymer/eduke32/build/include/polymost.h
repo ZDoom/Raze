@@ -145,7 +145,6 @@ enum {
     DAMETH_TRANS2 = 3,
 
     DAMETH_MASKPROPS = 3,
-    DAMETH_TEXPROPS = ~3,
 
     DAMETH_CLAMPED = 4,
 
@@ -160,8 +159,9 @@ enum {
     DAMETH_NOFIX = 16384,
 };
 
-// DAMETH_CLAMPED -> PTH_CLAMPED conversion
-#define TO_PTH_CLAMPED(dameth) (((dameth)&DAMETH_CLAMPED)>>2)
+#define DAMETH_NARROW_MASKPROPS(dameth) (((dameth)&(~DAMETH_TRANS1))|(((dameth)&DAMETH_TRANS1)>>1))
+EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
+EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_CLAMPED) == DAMETH_CLAMPED);
 
 // Do we want a NPOT-y-as-classic texture for this <dameth> and <ysiz>?
 static inline int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
@@ -171,7 +171,7 @@ static inline int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
 }
 
 // pthtyp pth->flags bits
-enum {
+enum pthtyp_flags {
     PTH_CLAMPED = 1,
     PTH_HIGHTILE = 2,
     PTH_SKYBOX = 4,
@@ -181,6 +181,8 @@ enum {
     PTH_FORCEFILTER = 64,
 
     PTH_INVALIDATED = 128,
+
+    PTH_NOTRANSFIX = 256, // fixtransparency() bypassed
 };
 
 typedef struct pthtyp_t
@@ -194,12 +196,21 @@ typedef struct pthtyp_t
     vec2_t          siz;
     int16_t         picnum;
 
+    uint16_t        flags; // see pthtyp_flags
     char            palnum;
     char            shade;
     char            effects;
-    char            flags;      // 1 = clamped (dameth&4), 2 = hightile, 4 = skybox face, 8 = hasalpha, 16 = hasfullbright, 128 = invalidated
     char            skyface;
 } pthtyp;
+
+// DAMETH -> PTH conversions
+#define TO_PTH_CLAMPED(dameth) (((dameth)&DAMETH_CLAMPED)>>2)
+EDUKE32_STATIC_ASSERT(TO_PTH_CLAMPED(DAMETH_CLAMPED) == PTH_CLAMPED);
+#define TO_PTH_NOTRANSFIX(dameth) ((((~(dameth))&DAMETH_MASK)<<8)&(((~(dameth))&DAMETH_TRANS1)<<7))
+EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_NOMASK) == PTH_NOTRANSFIX);
+EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_MASK) == 0);
+EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_TRANS1) == 0);
+EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_MASKPROPS) == 0);
 
 extern void gloadtile_art(int32_t,int32_t,int32_t,int32_t,int32_t,pthtyp *,int32_t);
 extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,char);

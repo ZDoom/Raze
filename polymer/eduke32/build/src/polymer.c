@@ -1427,11 +1427,11 @@ void                polymer_editorpick(void)
     searchit = 0;
 }
 
-void                polymer_inb4rotatesprite(int16_t tilenum, char pal, int8_t shade)
+void                polymer_inb4rotatesprite(int16_t tilenum, char pal, int8_t shade, int32_t method)
 {
     _prmaterial     rotatespritematerial;
 
-    polymer_getbuildmaterial(&rotatespritematerial, tilenum, pal, shade, 0, DAMETH_CLAMPED);
+    polymer_getbuildmaterial(&rotatespritematerial, tilenum, pal, shade, 0, method);
 
     rotatespritematerialbits = polymer_bindmaterial(&rotatespritematerial, NULL, 0);
 }
@@ -2798,7 +2798,7 @@ attributes:
             !Bmemcmp(&s->ceilingstat, &sec->ceilingstat, offsetof(sectortype, visibility) - offsetof(sectortype, ceilingstat)))
         goto finish;
 
-    s->floor.bucket = polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade, sec->visibility, DAMETH_NOMASK);
+    s->floor.bucket = polymer_getbuildmaterial(&s->floor.material, floorpicnum, sec->floorpal, sec->floorshade, sec->visibility, (sec->floorstat & 384) ? DAMETH_MASK : DAMETH_NOMASK);
 
     if (sec->floorstat & 256) {
         if (sec->floorstat & 128) {
@@ -2808,7 +2808,7 @@ attributes:
         }
     }
 
-    s->ceil.bucket = polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade, sec->visibility, DAMETH_NOMASK);
+    s->ceil.bucket = polymer_getbuildmaterial(&s->ceil.material, ceilingpicnum, sec->ceilingpal, sec->ceilingshade, sec->visibility, (sec->ceilingstat & 384) ? DAMETH_MASK : DAMETH_NOMASK);
 
     if (sec->ceilingstat & 256) {
         if (sec->ceilingstat & 128) {
@@ -3348,7 +3348,7 @@ static void         polymer_updatewall(int16_t wallnum)
             (s->ceil.buffer[wal->point2 - sec->wallptr].y > ns->ceil.buffer[nwallnum - nsec->wallptr].y))
             overwall = 1;
 
-        if ((overwall) || (wal->cstat & 16) || (wal->cstat & 32))
+        if ((overwall) || (wal->cstat & 48))
         {
             if (w->over.buffer == NULL) {
                 w->over.buffer = (_prvert *)Xmalloc(4 * sizeof(_prvert));
@@ -3370,10 +3370,10 @@ static void         polymer_updatewall(int16_t wallnum)
 
             w->over.bucket = polymer_getbuildmaterial(&w->over.material, curpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
 
-            if ((wal->cstat & 16) || (wal->cstat & 32))
+            if (wal->cstat & 48)
             {
                 // mask
-                w->mask.bucket = polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL);
+                w->mask.bucket = polymer_getbuildmaterial(&w->mask.material, walloverpicnum, wal->pal, wal->shade, sec->visibility, DAMETH_WALL | ((wal->cstat & 48) == 48 ? DAMETH_NOMASK : DAMETH_MASK));
 
                 if (wal->cstat & 128)
                 {
@@ -3877,7 +3877,7 @@ void                polymer_updatesprite(int32_t snum)
     }
 
     polymer_getbuildmaterial(&s->plane.material, curpicnum, tspr->pal, tspr->shade,
-                             sector[tspr->sectnum].visibility, DAMETH_CLAMPED);
+                             sector[tspr->sectnum].visibility, DAMETH_MASK | DAMETH_CLAMPED);
 
     if (tspr->cstat & 2)
     {
@@ -5010,7 +5010,7 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // PR_BIT_GLOW_MAP
-    if (hicfindsubst(tilenum, GLOWPAL) && (pth = texcache_fetch(tilenum, GLOWPAL, 0, DAMETH_NOMASK)) &&
+    if (hicfindsubst(tilenum, GLOWPAL) && (pth = texcache_fetch(tilenum, GLOWPAL, 0, DAMETH_MASK)) &&
         pth->hicr && (pth->hicr->palnum == GLOWPAL))
         material->glowmap = pth->glpic;
 

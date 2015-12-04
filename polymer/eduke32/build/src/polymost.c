@@ -593,6 +593,9 @@ static void resizeglcheck(void)
 
 static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t dameth)
 {
+    if (!(dameth & DAMETH_MASKPROPS))
+        return;
+
     vec2_t doxy = { dasiz2.x-1, dasiz2.y-1 };
 
     if (dameth & DAMETH_CLAMPED) { doxy.x = min(doxy.x, dasiz.x); doxy.y = min(doxy.y, dasiz.y); }
@@ -946,7 +949,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
         npoty = PTH_NPOTWALL;
     }
 
-    uploadtexture(doalloc, siz, hasalpha ? GL_RGBA : GL_RGB, GL_RGBA, pic, tsiz, dameth);
+    uploadtexture(doalloc, siz, hasalpha ? GL_RGBA : GL_RGB, GL_RGBA, pic, tsiz, dameth | DAMETH_NOFIX);
 
     Bfree(pic);
 
@@ -956,7 +959,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
     pth->palnum = dapal;
     pth->shade = dashade;
     pth->effects = 0;
-    pth->flags = TO_PTH_CLAMPED(dameth) | (hasalpha*PTH_HASALPHA) | npoty;
+    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | (hasalpha*PTH_HASALPHA) | npoty;
     pth->hicr = NULL;
 
     if (hasfullbright && !fullbrightloadingpass)
@@ -1257,7 +1260,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
     pth->picnum = dapic;
     pth->effects = effect;
-    pth->flags = TO_PTH_CLAMPED(dameth) | PTH_HIGHTILE | ((facen>0) * PTH_SKYBOX) | ((hasalpha != 255) ? PTH_HASALPHA : 0) |
+    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) |
+                 PTH_HIGHTILE | ((facen>0) * PTH_SKYBOX) |
+                 ((hasalpha != 255) ? PTH_HASALPHA : 0) |
                  (hicr->flags & HICR_FORCEFILTER ? PTH_FORCEFILTER : 0);
     pth->skyface = facen;
     pth->hicr = hicr;
@@ -1452,7 +1457,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     if (skyclamphack) method |= DAMETH_CLAMPED;
 
-    pthtyp *pth = our_texcache_fetch(method & DAMETH_TEXPROPS);
+    pthtyp *pth = our_texcache_fetch(method);
 
     if (!pth)
     {
@@ -1505,7 +1510,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (r_detailmapping)
     {
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL) &&
-            (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & DAMETH_TEXPROPS)) &&
+            (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & ~DAMETH_MASKPROPS)) &&
             detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
         {
             polymost_setupdetailtexture(++texunits, detailpth ? detailpth->glpic : 0);
@@ -1529,7 +1534,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (r_glowmapping)
     {
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL) &&
-            (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, method & DAMETH_TEXPROPS)) &&
+            (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, method | DAMETH_MASK)) &&
             glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
             polymost_setupglowtexture(++texunits, glowpth ? glowpth->glpic : 0);
     }
@@ -4978,16 +4983,6 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     const int32_t oldnormalmapping = pr_normalmapping;
 #endif
 
-# ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
-    {
-        pr_normalmapping = 0;
-        polymer_inb4rotatesprite(picnum, dapalnum, dashade);
-        r_detailmapping = 0;
-        r_glowmapping = 0;
-    }
-#endif
-
     int32_t method = DAMETH_CLAMPED; //Use OpenGL clamping - dorotatesprite never repeats
 
     if (!(dastat & RS_NOMASK))
@@ -4997,6 +4992,16 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         else
             method |= DAMETH_MASK;
     }
+
+#ifdef POLYMER
+    if (getrendermode() == REND_POLYMER)
+    {
+        pr_normalmapping = 0;
+        polymer_inb4rotatesprite(picnum, dapalnum, dashade, method);
+        r_detailmapping = 0;
+        r_glowmapping = 0;
+    }
+#endif
 
     drawpoly_alpha = daalpha * (1.0f / 255.0f);
 
@@ -5840,7 +5845,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     hicprecaching = 1;
 
 
-    texcache_fetch(dapicnum, dapalnum, 0, (datype & 1)*DAMETH_CLAMPED);
+    texcache_fetch(dapicnum, dapalnum, 0, (datype & 1)*(DAMETH_CLAMPED|DAMETH_MASK));
     hicprecaching = 0;
 
     if (datype == 0 || !usemodels) return;
