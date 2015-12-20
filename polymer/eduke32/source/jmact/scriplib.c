@@ -724,13 +724,13 @@ int32_t SCRIPT_GetNumber(int32_t scripthandle, const char * sectionname, const c
         {
             // hex
             *number = strtol(e->value+2, &p, 16);
-            if (p == e->value || *p != 0 || *p != ' ' || *p != '\t') return 1;
+            if (p == e->value+2 || (*p != 0 && *p != ' ' && *p != '\t')) return 1;
         }
         else
         {
             // decimal
             *number = strtol(e->value, &p, 10);
-            if (p == e->value || *p != 0 || *p != ' ' || *p != '\t') return 1;
+            if (p == e->value || (*p != 0 && *p != ' ' && *p != '\t')) return 1;
         }
     }
 
