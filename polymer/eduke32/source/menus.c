@@ -3453,25 +3453,39 @@ void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype)
     switch (animtype)
     {
         case MA_Advance:
-            m_animation.out = M_Anim_SinOutRight;
-            m_animation.in = M_Anim_SinInRight;
-            m_animation.start = totalclock;
-            m_animation.length = 30;
+        {
+            Menu_t * const previousMenu = m_currentMenu;
 
-            m_animation.previous = m_currentMenu;
-            M_ChangeMenu(cm);
-            m_animation.current = m_currentMenu;
+            if (!M_ChangeMenu(cm))
+            {
+                m_animation.out = M_Anim_SinOutRight;
+                m_animation.in = M_Anim_SinInRight;
+                m_animation.start = totalclock;
+                m_animation.length = 30;
+
+                m_animation.previous = previousMenu;
+                m_animation.current = m_currentMenu;
+            }
+
             break;
+        }
         case MA_Return:
-            m_animation.out = M_Anim_SinOutLeft;
-            m_animation.in = M_Anim_SinInLeft;
-            m_animation.start = totalclock;
-            m_animation.length = 30;
+        {
+            Menu_t * const previousMenu = m_currentMenu;
 
-            m_animation.previous = m_currentMenu;
-            M_ChangeMenu(cm);
-            m_animation.current = m_currentMenu;
+            if (!M_ChangeMenu(cm))
+            {
+                m_animation.out = M_Anim_SinOutLeft;
+                m_animation.in = M_Anim_SinInLeft;
+                m_animation.start = totalclock;
+                m_animation.length = 30;
+
+                m_animation.previous = previousMenu;
+                m_animation.current = m_currentMenu;
+            }
+
             break;
+        }
         default:
             m_animation.start = 0;
             m_animation.length = 0;
@@ -3480,7 +3494,7 @@ void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype)
     }
 }
 
-void M_ChangeMenu(MenuID_t cm)
+int M_ChangeMenu(MenuID_t cm)
 {
     Menu_t *search;
     int32_t i;
@@ -3502,7 +3516,7 @@ void M_ChangeMenu(MenuID_t cm)
         search = M_FindMenu(cm);
 
         if (search == NULL)
-            return;
+            return 0; // intentional, so that users don't use any random value as "don't change"
 
         m_previousMenu = m_currentMenu;
         g_previousMenu = g_currentMenu;
@@ -3510,7 +3524,7 @@ void M_ChangeMenu(MenuID_t cm)
         g_currentMenu = cm;
     }
     else
-        return;
+        return 1;
 
     switch (g_currentMenu)
     {
@@ -3586,6 +3600,8 @@ void M_ChangeMenu(MenuID_t cm)
 
         M_MenuEntryFocus(/*currentry*/);
     }
+
+    return 0;
 }
 
 

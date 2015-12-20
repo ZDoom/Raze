@@ -419,7 +419,7 @@ extern int32_t g_lastSaveSlot;
 extern int32_t g_quitDeadline;
 extern int32_t voting;
 int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char *t,int32_t bits);
-void M_ChangeMenu(int32_t cm);
+int M_ChangeMenu(int32_t cm);
 void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype);
 int32_t M_IsTextInput(Menu_t *cm);
 void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
