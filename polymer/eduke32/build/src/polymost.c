@@ -839,13 +839,24 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
 
                 dacol = *(char *)(waloff[dapic]+x2*tsiz.y+y2);
 
+                if (dacol == 255)
+                {
+                    wpptr->a = 0;
+                    hasalpha = 1;
+                }
+                else
+                    wpptr->a = 255;
+
+                {
+                    char *p = (char *)(palookup[dapal])+(int32_t)(dashade<<8);
+                    dacol = (uint8_t)p[dacol];
+                }
+
                 if (!fullbrightloadingpass)
                 {
                     // regular texture
                     if (IsPaletteIndexFullbright(dacol) && dofullbright)
                         hasfullbright = 1;
-
-                    wpptr->a = 255;
                 }
                 else
                 {
@@ -855,21 +866,6 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                         wpptr->a = 0;
                         hasalpha = 1;
                     }
-                    else   // fullbright
-                    {
-                        wpptr->a = 255;
-                    }
-                }
-
-                {
-                    char *p = (char *)(palookup[dapal])+(int32_t)(dashade<<8);
-                    dacol = (uint8_t)p[dacol];
-                }
-
-                if (dacol == 255)
-                {
-                    wpptr->a = 0;
-                    hasalpha = 1;
                 }
 
                 bricolor((palette_t *)wpptr, dacol);
