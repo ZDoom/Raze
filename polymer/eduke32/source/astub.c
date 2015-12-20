@@ -127,8 +127,10 @@ static uint32_t templenrepquot=1;
 
 static int32_t duke3d_m32_globalflags;
 
-enum {
+// KEEPINSYNC global.h (used values only)
+enum DUKE3D_GLOBALFLAGS {
     DUKE3D_NO_HARDCODED_FOGPALS = 1<<1,
+    DUKE3D_NO_PALETTE_CHANGES = 1<<2,
 };
 
 //////////////////// Key stuff ////////////////////
@@ -9976,10 +9978,13 @@ void ExtPostInit(void)
 {
     InitCustomColors();
 
-    // Make base shade table at shade 0 into the identity map.
-    // (In the shade table of Duke3D's PALETTE.DAT, palookup[0][239]==143.)
-    // This makes it possible to sensibly use Lunatic's engine.saveLookupDat().
-    palookup[0][239] = 239;
+    if (!(duke3d_m32_globalflags & DUKE3D_NO_PALETTE_CHANGES))
+    {
+        // Make base shade table at shade 0 into the identity map.
+        // (In the shade table of Duke3D's PALETTE.DAT, palookup[0][239]==143.)
+        // This makes it possible to sensibly use Lunatic's engine.saveLookupDat().
+        palookup[0][239] = 239;
+    }
 
     if (!(duke3d_m32_globalflags & DUKE3D_NO_HARDCODED_FOGPALS))
         generatefogpals();

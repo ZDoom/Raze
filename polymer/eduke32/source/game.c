@@ -11002,18 +11002,24 @@ static inline void G_CheckGametype(void)
 
 static void G_PostLoadPalette(void)
 {
-    // Make color index 255 of default/water/slime palette black.
-    if (basepaltable[BASEPAL] != NULL)
-        Bmemset(&basepaltable[BASEPAL][255*3], 0, 3);
-    if (basepaltable[WATERPAL] != NULL)
-        Bmemset(&basepaltable[WATERPAL][255*3], 0, 3);
-    if (basepaltable[SLIMEPAL] != NULL)
-        Bmemset(&basepaltable[SLIMEPAL][255*3], 0, 3);
+    if (!(duke3d_globalflags & DUKE3D_NO_PALETTE_CHANGES))
+    {
+        // Make color index 255 of default/water/slime palette black.
+        if (basepaltable[BASEPAL] != NULL)
+            Bmemset(&basepaltable[BASEPAL][255*3], 0, 3);
+        if (basepaltable[WATERPAL] != NULL)
+            Bmemset(&basepaltable[WATERPAL][255*3], 0, 3);
+        if (basepaltable[SLIMEPAL] != NULL)
+            Bmemset(&basepaltable[SLIMEPAL][255*3], 0, 3);
+    }
 
     if (!(duke3d_globalflags & DUKE3D_NO_HARDCODED_FOGPALS))
         generatefogpals();
 
-    E_ReplaceTransparentColorWithBlack();
+    if (!(duke3d_globalflags & DUKE3D_NO_PALETTE_CHANGES))
+    {
+        E_ReplaceTransparentColorWithBlack();
+    }
 
     fillemptylookups();
 }

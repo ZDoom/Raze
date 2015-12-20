@@ -57,9 +57,11 @@ extern "C" {
 
 G_EXTERN int32_t duke3d_globalflags;
 
-enum {
+// KEEPINSYNC astub.c (used values only)
+enum DUKE3D_GLOBALFLAGS {
     DUKE3D_NO_WIDESCREEN_PINNING = 1<<0,
     DUKE3D_NO_HARDCODED_FOGPALS = 1<<1,
+    DUKE3D_NO_PALETTE_CHANGES = 1<<2,
 };
 
 G_EXTERN DukeStatus_t sbar;
