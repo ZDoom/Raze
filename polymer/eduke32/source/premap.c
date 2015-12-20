@@ -1929,7 +1929,7 @@ int32_t G_EnterLevel(int32_t g)
     G_AlignWarpElevators();
     resetpspritevars(g);
 
-    ud.playerbest = CONFIG_GetMapBestTime(MapInfo[mii].filename);
+    ud.playerbest = CONFIG_GetMapBestTime(G_HaveUserMap() ? boardfilename : MapInfo[mii].filename, g_loadedMapHack.md4);
 
     G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     G_CacheMapData();
