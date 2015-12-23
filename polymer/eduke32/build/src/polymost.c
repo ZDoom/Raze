@@ -4062,8 +4062,8 @@ int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 }
 
 #define TSPR_OFFSET(tspr)                                                                                              \
-    (((FindDistance2D((tspr->x - globalposx), (tspr->y - globalposy)) >> 3) * .0001f) +                                \
-     ((tspr->owner != -1 ? tspr->owner & 63 : 0) * .0001f))
+    (((FindDistance2D((tspr->x - globalposx), (tspr->y - globalposy)) >> 3) * .0002f) +                                \
+     ((tspr->owner != -1 ? tspr->owner & 63 : 0) * .0002f))
 
 void polymost_drawsprite(int32_t snum)
 {
@@ -5496,10 +5496,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     bricolor(&p, col);
     bricolor(&b, arbackcol);
 
-    if (getrendermode() < REND_POLYMOST || !in3dmode())
-        return -1;
-
-    if (!polymosttext && gen_font_glyph_tex() < 0)
+    if (getrendermode() < REND_POLYMOST || !in3dmode() || (!polymosttext && gen_font_glyph_tex() < 0))
         return -1;
     else
         bglBindTexture(GL_TEXTURE_2D, polymosttext);
@@ -5556,10 +5553,12 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
             smallbuf[bi++] = 0;
 
             if (col)
+            {
                 col = Batol(smallbuf);
 
-            if ((unsigned)col >= 256)
-                col = 0;
+                if ((unsigned) col >= 256)
+                    col = 0;
+            }
 
             bricolor(&p, col);
 
@@ -5649,10 +5648,7 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
         {
 #ifdef POLYMER
             if (!Bstrcasecmp(parm->name, "r_pr_maxlightpasses"))
-            {
                 pr_maxlightpasses = r_pr_maxlightpasses;
-                return r;
-            }
 #endif
         }
 
@@ -5662,10 +5658,7 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
     if (r == OSDCMD_OK)
     {
         if (!Bstrcasecmp(parm->name, "r_swapinterval"))
-        {
             setvsync(vsync);
-            return r;
-        }
         else if (!Bstrcasecmp(parm->name, "r_downsize"))
         {
             if (r_downsizevar == -1)
@@ -5680,24 +5673,13 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
             }
 
             r_downsizevar = r_downsize;
-
-            return r;
         }
         else if (!Bstrcasecmp(parm->name, "r_anisotropy"))
-        {
             gltexapplyprops();
-            return r;
-        }
         else if (!Bstrcasecmp(parm->name, "r_texfilter"))
-        {
             gltexturemode(parm);
-            return r;
-        }
         else if (!Bstrcasecmp(parm->name, "r_usenewshading"))
-        {
             bglFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
-            return r;
-        }
 #ifdef POLYMER
         else if (!Bstrcasecmp(parm->name, "r_pr_maxlightpasses"))
         {
@@ -5706,7 +5688,6 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
                 polymer_invalidatelights();
                 pr_maxlightpasses = r_pr_maxlightpasses;
             }
-            return r;
         }
 #endif
     }
@@ -5780,10 +5761,12 @@ void polymost_initosdfuncs(void)
         { "r_pr_vbos", "contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void *) &pr_vbos, CVAR_INT | CVAR_RESTARTVID, 0, 2 },
         { "r_pr_buckets", "controls batching of primitives. 0: no batching. 1: buckets of materials.", (void *)&pr_buckets, CVAR_BOOL | CVAR_NOSAVE | CVAR_RESTARTVID, 0, 1 },
         { "r_pr_gpusmoothing", "toggles model animation interpolation", (void *)&pr_gpusmoothing, CVAR_INT, 0, 1 },
-        { "r_pr_overrideparallax", "overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", (void *) &pr_overrideparallax, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
+        { "r_pr_overrideparallax", "overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", 
+          (void *) &pr_overrideparallax, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
         { "r_pr_parallaxscale", "overriden parallax mapping offset scale", (void *) &pr_parallaxscale, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },
         { "r_pr_parallaxbias", "overriden parallax mapping offset bias", (void *) &pr_parallaxbias, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },
-        { "r_pr_overridespecular", "overrides specular material power and factor values with values from the pr_specularpower and pr_specularfactor cvars; use it to fine-tune DEF tokens", (void *) &pr_overridespecular, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
+        { "r_pr_overridespecular", "overrides specular material power and factor values with values from the pr_specularpower and pr_specularfactor cvars; use it to fine-tune DEF tokens",
+          (void *) &pr_overridespecular, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
         { "r_pr_specularpower", "overriden specular material power", (void *) &pr_specularpower, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
         { "r_pr_specularfactor", "overriden specular material factor", (void *) &pr_specularfactor, CVAR_FLOAT | CVAR_NOSAVE, -10, 1000 },
         { "r_pr_highpalookups", "enable/disable highpalookups", (void *) &pr_highpalookups, CVAR_BOOL, 0, 1 },
@@ -5817,8 +5800,7 @@ void polymost_initosdfuncs(void)
 //        if (editstatus==0 && !Bstrcmp(cvars_polymost[i].name, "r_preview_mouseaim"))
 //            continue;
 
-        if (OSD_RegisterCvar(&cvars_polymost[i]))
-            continue;
+        if (OSD_RegisterCvar(&cvars_polymost[i])) continue;
 
         OSD_RegisterFunction(cvars_polymost[i].name, cvars_polymost[i].desc,
                              cvars_polymost[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_polymost : osdcmd_cvar_set);
@@ -5847,17 +5829,12 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     if (datype == 0 || !usemodels) return;
 
     mid = md_tilehasmodel(dapicnum,dapalnum);
+
     if (mid < 0 || models[mid]->mdnum < 2) return;
 
-    {
-        int32_t i,j=0;
+    int j = (models[mid]->mdnum == 3) ? ((md3model_t *)models[mid])->head.numsurfs : 0;
 
-        if (models[mid]->mdnum == 3)
-            j = ((md3model_t *)models[mid])->head.numsurfs;
-
-        for (i=0; i<=j; i++)
-            mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
-    }
+    for (int i = 0; i <= j; i++) mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
 }
 
 #else /* if !defined USE_OPENGL */
