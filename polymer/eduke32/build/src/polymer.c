@@ -2206,23 +2206,25 @@ static void         polymer_emptybuckets(void)
     prcanbucket = 0;
 }
 
+static hashtable_t h_buckets      ={ 2048, NULL };
+
 static _prbucket*   polymer_findbucket(int16_t tilenum, char pal)
 {
-    _prbucket *bucketptr = prbuckethead;
+    char propstr[16];
+
+    Bsprintf(propstr, "%d_%d", tilenum, pal);
+
+    _prbucket *bucketptr = prbuckethead ? (_prbucket *)hash_find(&h_buckets, propstr) : NULL;
 
     // find bucket
-    while (bucketptr != NULL)
-    {
-        if (bucketptr->tilenum == tilenum && bucketptr->pal == pal)
-            break;
-
-        bucketptr = bucketptr->next;
-    }
 
     // no buckets or no bucket found, create one
-    if (bucketptr == NULL)
+    if (bucketptr == NULL || (intptr_t)bucketptr == -1)
     {
         bucketptr = (_prbucket *)Xmalloc(sizeof (_prbucket));
+
+        if (h_buckets.items == NULL)
+            hash_init(&h_buckets);
 
         // insert, since most likely to use same pattern next frame
         // will need to reorder by MRU first every once in a while
@@ -2238,6 +2240,8 @@ static _prbucket*   polymer_findbucket(int16_t tilenum, char pal)
         bucketptr->count = 0;
         bucketptr->buffersize = 1024;
         bucketptr->indices = (GLuint *)Xmalloc(bucketptr->buffersize * sizeof(GLuint));
+
+        hash_add(&h_buckets, propstr, (intptr_t)bucketptr, 1);
     }
 
     return bucketptr;
