@@ -2664,7 +2664,11 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     if ((!s->flags.empty) && (!needfloor) &&
             (floorpicnum == s->floorpicnum_anim) &&
             (ceilingpicnum == s->ceilingpicnum_anim) &&
+#ifndef UNTRACKED_STRUCTS
+            (s->trackedrev == sectorchanged[sectnum]))
+#else
             !Bmemcmp(&s->ceilingstat, &sec->ceilingstat, offsetof(sectortype, visibility) - offsetof(sectortype, ceilingstat)))
+#endif
         goto attributes;
 
     wal = &wall[sec->wallptr];
@@ -2760,6 +2764,9 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     s->ceilingxpanning = sec->ceilingxpanning;
     s->floorypanning = sec->floorypanning;
     s->ceilingypanning = sec->ceilingypanning;
+#ifndef UNTRACKED_STRUCTS
+    s->trackedrev = sectorchanged[sectnum];
+#endif
 
     i = -1;
 
@@ -3186,7 +3193,11 @@ static void         polymer_updatewall(int16_t wallnum)
             (w->invalidid == invalid) &&
             (wallpicnum == w->picnum_anim) &&
             (walloverpicnum == w->overpicnum_anim) &&
+#ifndef UNTRACKED_STRUCTS
+            (w->trackedrev == wallchanged[nwallnum]) &&
+#else
             !Bmemcmp(&wal->cstat, &w->cstat, NBYTES_WALL_CSTAT_THROUGH_YPANNING) &&
+#endif
             ((nwallnum < 0 || nwallnum > numwalls) ||
              ((nwallpicnum == w->nwallpicnum) &&
               (wall[nwallnum].xpanning == w->nwallxpanning) &&
@@ -3205,7 +3216,9 @@ static void         polymer_updatewall(int16_t wallnum)
 
         w->picnum_anim = wallpicnum;
         w->overpicnum_anim = walloverpicnum;
-
+#ifndef UNTRACKED_STRUCTS
+        w->trackedrev = wallchanged[nwallnum];
+#endif
         if (nwallnum >= 0 && nwallnum < numwalls)
         {
             w->nwallpicnum = nwallpicnum;
@@ -3826,10 +3839,10 @@ static inline void  polymer_scansprites(int16_t sectnum, tspritetype* localtspri
 
 void                polymer_updatesprite(int32_t snum)
 {
-    int32_t         curpicnum, xsize, ysize, i, j;
+    int32_t         xsize, ysize, i, j;
     int32_t         tilexoff, tileyoff, xoff, yoff, centeryoff=0;
     tspritetype      *tspr = tspriteptr[snum];
-    float           xratio, yratio, ang, f;
+    float           xratio, yratio, ang;
     float           spos[3];
     const _prvert   *inbuffer;
     uint8_t         flipu, flipv;
@@ -3845,39 +3858,43 @@ void                polymer_updatesprite(int32_t snum)
 
     if (tspr->owner < 0 || tspr->picnum < 0) return;
 
-    if (prsprites[tspr->owner] == NULL)
+    s = prsprites[tspr->owner];
+
+    if (s == NULL)
     {
-        prsprites[tspr->owner] = (_prsprite *)Xcalloc(sizeof(_prsprite), 1);
+        s = prsprites[tspr->owner] = (_prsprite *)Xcalloc(sizeof(_prsprite), 1);
 
-        prsprites[tspr->owner]->plane.buffer = (_prvert *)Xcalloc(4, sizeof(_prvert));  // XXX
-        prsprites[tspr->owner]->plane.vertcount = 4;
-
-        prsprites[tspr->owner]->plane.mapvbo_vertoffset = -1;
+        s->plane.buffer = (_prvert *)Xcalloc(4, sizeof(_prvert));  // XXX
+        s->plane.vertcount = 4;
+        s->plane.mapvbo_vertoffset = -1;
+        s->trackedrev = UINT32_MAX;
     }
 
-    if ((tspr->cstat & 48) && (pr_vbos > 0) && !prsprites[tspr->owner]->plane.vbo)
+    if ((tspr->cstat & 48) && (pr_vbos > 0) && !s->plane.vbo)
     {
         if (pr_nullrender < 2)
         {
-            bglGenBuffersARB(1, &prsprites[tspr->owner]->plane.vbo);
-            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, prsprites[tspr->owner]->plane.vbo);
+            bglGenBuffersARB(1, &s->plane.vbo);
+            bglBindBufferARB(GL_ARRAY_BUFFER_ARB, s->plane.vbo);
             bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(_prvert), NULL, mapvbousage);
         }
     }
 
-    s = prsprites[tspr->owner];
-
-    curpicnum = tspr->picnum;
+    int32_t curpicnum = tspr->picnum;
     DO_TILE_ANIM(curpicnum, tspr->owner+32768);
 
     if (tspr->cstat & 48 && searchit != 2)
     {
-        uint32_t xxhash = XXH32((uint8_t *)tspr, offsetof(spritetype, owner), 0xDEADBEEF);
+#ifndef UNTRACKED_STRUCTS
+        uint32_t const changed = spritechanged[tspr->owner];
+#else
+        uint32_t const changed = XXH32((uint8_t *) tspr, offsetof(spritetype, owner), 0xDEADBEEF);
+#endif
 
-        if (xxhash == s->hash && tspr->picnum == curpicnum)
+        if (changed == s->trackedrev && tspr->picnum == curpicnum)
             return;
 
-        s->hash = xxhash;
+        s->trackedrev = changed;
     }
 
     polymer_getbuildmaterial(&s->plane.material, curpicnum, tspr->pal, tspr->shade,
@@ -3891,13 +3908,13 @@ void                polymer_updatesprite(int32_t snum)
             s->plane.material.diffusemodulation[3] = 0xAA;
     }
 
-    f = s->plane.material.diffusemodulation[3] * (1.0f - spriteext[tspr->owner].alpha);
+    float f = s->plane.material.diffusemodulation[3] * (1.0f - spriteext[tspr->owner].alpha);
     s->plane.material.diffusemodulation[3] = (GLubyte)f;
 
     if (searchit == 2)
     {
         polymer_drawsearchplane(&s->plane, NULL, 0x03, (GLubyte *) &tspr->owner);
-        s->hash = 0xDEADBEEF;
+        s->trackedrev = UINT32_MAX;
     }
 
     curpicnum = tspr->picnum;

@@ -282,6 +282,7 @@ typedef struct      s_prsector {
         int32_t     invalidtex  : 1;
     }               flags;
     uint32_t        invalidid;
+    uint32_t        trackedrev;
 }                   _prsector;
 
 typedef struct      s_prwall {
@@ -314,11 +315,12 @@ typedef struct      s_prwall {
         int32_t     uptodate    : 1;
         int32_t     invalidtex  : 1;
     }               flags;
+    uint32_t        trackedrev;
 }                   _prwall;
 
 typedef struct      s_prsprite {
     _prplane        plane;
-    uint32_t        hash;
+    uint32_t        trackedrev;
 }                   _prsprite;
 
 typedef struct      s_prmirror {
@@ -369,7 +371,7 @@ extern _prsprite    *prsprites[MAXSPRITES];
 static inline void polymer_invalidatesprite(int32_t i)
 {
     if (prsprites[i])
-        prsprites[i]->hash = 0xDEADBEEF;
+        prsprites[i]->trackedrev = UINT32_MAX;
 }
 
 extern GLuint       prartmaps[MAXTILES];
