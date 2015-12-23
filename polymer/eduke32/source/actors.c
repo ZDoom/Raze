@@ -777,7 +777,7 @@ static void A_MoveSector(int i)
 // this is the same crap as in game.c's tspr manipulation.  puke.
 // XXX: may access tilesizy out-of-bounds by bad user code.
 #define LIGHTRAD (s->yrepeat * tilesiz[s->picnum + LIGHTRAD_PICOFS].y)
-#define LIGHTRAD2 (((s->yrepeat) + (rand() % (s->yrepeat >> 2))) * tilesiz[s->picnum + LIGHTRAD_PICOFS].y)
+#define LIGHTRAD2 ((s->yrepeat + ((rand() % s->yrepeat)>>2)) * tilesiz[s->picnum + LIGHTRAD_PICOFS].y)
 
 void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority)
 {
@@ -7934,8 +7934,9 @@ static void A_DoLight(int32_t i)
     spritetype *const s = &sprite[i];
     int32_t numsavedfires = 0;
 
-    if ((sprite[i].picnum != SECTOREFFECTOR && ((s->cstat & 32768) || s->yrepeat < 4)) || A_CheckSpriteFlags(i, SFLAG_NOLIGHT) ||
-        (A_CheckSpriteFlags(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
+    if (((sector[s->sectnum].floorz - sector[s->sectnum].ceilingz) < 16) || s->z > sector[s->sectnum].floorz || s->z > actor[i].floorz ||
+        (s->picnum != SECTOREFFECTOR && ((s->cstat & 32768) || s->yrepeat < 4)) ||
+        A_CheckSpriteFlags(i, SFLAG_NOLIGHT) || (A_CheckSpriteFlags(i, SFLAG_USEACTIVATOR) && sector[s->sectnum].lotag & 16384))
     {
         if (actor[i].lightptr != NULL)
             A_DeleteLight(i);
@@ -7955,10 +7956,10 @@ static void A_DoLight(int32_t i)
 
         for (ii=0; ii<2; ii++)
         {
-            if (sprite[i].picnum <= 0)  // oob safety
+            if (s->picnum <= 0)  // oob safety
                 break;
 
-            switch (DYNAMICTILEMAP(sprite[i].picnum-1+ii))
+            switch (DYNAMICTILEMAP(s->picnum-1+ii))
             {
             case DIPSWITCH__STATIC:
             case DIPSWITCH2__STATIC:
@@ -7976,9 +7977,6 @@ static void A_DoLight(int32_t i)
             case ACCESSSWITCH__STATIC:
             case ACCESSSWITCH2__STATIC:
                 {
-                    int32_t dx = sintable[(s->ang+512)&2047];
-                    int32_t dy = sintable[(s->ang)&2047];
-
                     if ((s->cstat & 32768) || A_CheckSpriteFlags(i, SFLAG_NOLIGHT))
                     {
                         if (actor[i].lightptr != NULL)
@@ -7986,33 +7984,32 @@ static void A_DoLight(int32_t i)
                         break;
                     }
 
-                    s->x += dx>>7;
-                    s->y += dy>>7;
+                    vec2_t const d = { sintable[(s->ang+512)&2047]>>7, sintable[(s->ang)&2047]>>7 };
+
+                    s->x += d.x;
+                    s->y += d.y;
 
                     int16_t sectnum = s->sectnum;
                     updatesector(s->x, s->y, &sectnum);
 
-                    if ((unsigned) sectnum >= MAXSECTORS || s->z > sector[sectnum].floorz)
-                    {
-                        s->x -= dx>>7;
-                        s->y -= dy>>7;
-                        break;
-                    }
+                    if ((unsigned) sectnum >= MAXSECTORS || s->z > sector[sectnum].floorz || s->z < sector[sectnum].ceilingz)
+                        goto POOP;
 
-                    G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 1024-ii*256,
-                        ii==0 ? (48+(255<<8)+(48<<16)) : 255+(48<<8)+(48<<16), PR_LIGHT_PRIO_LOW);
+                    G_AddGameLight(0, i, (s->yrepeat*tilesiz[s->picnum].y)<<1, 512-ii*128,
+                        ii==0 ? (172+(200<<8)+(104<<16)) : 216+(52<<8)+(20<<16), PR_LIGHT_PRIO_LOW);
 
-                    s->x -= dx>>7;
-                    s->y -= dy>>7;
-            }
+                POOP:
+                    s->x -= d.x;
+                    s->y -= d.y;
+                }
                 break;
             }
         }
 
-        switch (DYNAMICTILEMAP(sprite[i].picnum))
+        switch (DYNAMICTILEMAP(s->picnum))
         {
         case ATOMICHEALTH__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD2 * 3, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
 
         case FIRE__STATIC:
@@ -8035,7 +8032,7 @@ static void A_DoLight(int32_t i)
                 case 1: color = 128+(128<<8)+(255<<16); break;
                 case 2: color = 255+(48<<8)+(48<<16); break;
                 case 8: color = 48+(255<<8)+(48<<16); break;
-                default: color = 255+(95<<8); break;
+                default: color = 240+(160<<8)+(80<<16); break;
                 }
 
                 for (jj=numsavedfires-1; jj>=0; jj--)
@@ -8058,12 +8055,12 @@ static void A_DoLight(int32_t i)
 
         case OOZFILTER__STATIC:
             if (s->xrepeat > 4)
-                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 4096, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 4096, 176+(252<<8)+(120<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
         case FLOORFLAME__STATIC:
         case FIREBARREL__STATIC:
         case FIREVASE__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<2), LIGHTRAD2>>1, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
             break;
 
         case EXPLOSION2__STATIC:
@@ -8076,7 +8073,7 @@ static void A_DoLight(int32_t i)
                 s->x -= x;
                 s->y -= y;
 
-                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD, 255+(95<<8),
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD, 240+(160<<8)+(80<<16),
                     s->yrepeat > 32 ? PR_LIGHT_PRIO_HIGH_GAME : PR_LIGHT_PRIO_LOW_GAME);
 
                 s->x += x;
@@ -8095,7 +8092,7 @@ static void A_DoLight(int32_t i)
                 s->x -= x;
                 s->y -= y;
 
-                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 2048, 255+(95<<8),PR_LIGHT_PRIO_HIGH_GAME);
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 1024, 216+(52<<8)+(20<<16),PR_LIGHT_PRIO_HIGH_GAME);
 
                 s->x += x;
                 s->y += y;
@@ -8109,20 +8106,20 @@ static void A_DoLight(int32_t i)
                 s->x -= x;
                 s->y -= y;
 
-                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 2048, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 2048, 176+(252<<8)+(120<<16),PR_LIGHT_PRIO_HIGH_GAME);
 
                 s->x += x;
                 s->y += y;
             }
             break;
         case FREEZEBLAST__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD<<2, 128+(128<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD<<2, 72+(88<<8)+(140<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
         case COOLEXPLOSION1__STATIC:
             G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD<<2, 128+(0<<8)+(255<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
         case SHRINKSPARK__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
+            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD, 176+(252<<8)+(120<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
         case FIRELASER__STATIC:
             if (s->statnum == STAT_PROJECTILE)
@@ -8140,7 +8137,7 @@ static void A_DoLight(int32_t i)
                 s->x -= x;
                 s->y -= y;
 
-                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 16 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 8 * s->yrepeat, 240+(160<<8)+(80<<16),PR_LIGHT_PRIO_LOW_GAME);
                 actor[i].lightcount = 1;
 
                 s->x += x;
