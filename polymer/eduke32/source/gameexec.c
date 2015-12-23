@@ -4980,14 +4980,14 @@ finish_qsprintf:
 
         case CON_SIN:
             insptr++;
-            Gv_SetVarX(*insptr, sintable[Gv_GetVarX(*(insptr+1))&2047]);
-            insptr += 2;
+            tw = *insptr++;
+            Gv_SetVarX(tw, sintable[Gv_GetVarX(*insptr++)&2047]);
             continue;
 
         case CON_COS:
             insptr++;
-            Gv_SetVarX(*insptr, sintable[(Gv_GetVarX(*(insptr+1))+512)&2047]);
-            insptr += 2;
+            tw = *insptr++;
+            Gv_SetVarX(tw, sintable[(Gv_GetVarX(*insptr++)+512)&2047]);
             continue;
 
         case CON_ADDVARVAR:
