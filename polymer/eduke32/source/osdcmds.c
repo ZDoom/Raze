@@ -433,6 +433,16 @@ int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
+int32_t osdcmd_restartmap(const osdfuncparm_t *parm)
+{
+    UNREFERENCED_PARAMETER(parm);
+
+    if (g_player[myconnectindex].ps->gm & MODE_GAME && ud.multimode == 1)
+        g_player[myconnectindex].ps->gm = MODE_RESTART;
+
+    return OSDCMD_OK;
+}
+
 static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 {
     int32_t newbpp = ud.config.ScreenBPP, newwidth = ud.config.ScreenWidth,
@@ -1735,6 +1745,7 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("quit","quit: exits the game immediately", osdcmd_quit);
     OSD_RegisterFunction("exit","exit: exits the game immediately", osdcmd_quit);
 
+    OSD_RegisterFunction("restartmap", "restartmap: restarts the current map", osdcmd_restartmap);
     OSD_RegisterFunction("restartsound","restartsound: reinitializes the sound system",osdcmd_restartsound);
     OSD_RegisterFunction("restartvid","restartvid: reinitializes the video mode",osdcmd_restartvid);
 #if !defined LUNATIC
