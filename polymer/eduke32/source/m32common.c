@@ -337,9 +337,6 @@ mapundo_t *mapstate = NULL;
 
 int32_t map_revision = 1;
 
-#define QADDNSZ 400
-
-
 static int32_t try_match_with_prev(int32_t idx, int32_t numsthgs, uint32_t crc)
 {
     if (mapstate->prev && mapstate->prev->num[idx]==numsthgs && mapstate->prev->crc[idx]==crc)
@@ -359,7 +356,7 @@ static void create_compressed_block(int32_t idx, const void *srcdata, uint32_t s
     uint32_t j;
 
     // allocate
-    mapstate->sws[idx] = (char *)Xmalloc(4 + size + QADDNSZ);
+    mapstate->sws[idx] = (char *)Xmalloc(4 + LZ4_compressBound(size));
 
     // compress & realloc
     j = LZ4_compress((const char*)srcdata, mapstate->sws[idx]+4, size);

@@ -7,7 +7,7 @@ extern "C" {
 
 #ifdef USE_OPENGL
 
-#define TEXCACHEMAGIC "LZ40"
+#define TEXCACHEMAGIC "LZ41"
 #define GLTEXCACHEADSIZ 8192
 #define TEXCACHEHASHSIZE 1024
 
