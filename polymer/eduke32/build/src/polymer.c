@@ -4839,14 +4839,86 @@ static void         polymer_getscratchmaterial(_prmaterial* material)
     material->mdspritespace = GL_FALSE;
 }
 
+static void         polymer_setupartmap(int16_t tilenum, char pal)
+{
+    if (!prartmaps[tilenum]) {
+        char *tilebuffer = (char *) waloff[tilenum];
+        char *tempbuffer = (char *) Xmalloc(tilesiz[tilenum].x * tilesiz[tilenum].y);
+        int i, j, k;
+
+        i = k = 0;
+        while (i < tilesiz[tilenum].y) {
+            j = 0;
+            while (j < tilesiz[tilenum].x) {
+                tempbuffer[k] = tilebuffer[(j * tilesiz[tilenum].y) + i];
+                k++;
+                j++;
+            }
+            i++;
+        }
+
+        bglGenTextures(1, &prartmaps[tilenum]);
+        bglBindTexture(GL_TEXTURE_2D, prartmaps[tilenum]);
+        bglTexImage2D(GL_TEXTURE_2D,
+            0,
+            GL_R8,
+            tilesiz[tilenum].x,
+            tilesiz[tilenum].y,
+            0,
+            GL_RED,
+            GL_UNSIGNED_BYTE,
+            tempbuffer);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        bglBindTexture(GL_TEXTURE_2D, 0);
+        Bfree(tempbuffer);
+    }
+
+    if (!prbasepalmaps[curbasepal]) {
+        bglGenTextures(1, &prbasepalmaps[curbasepal]);
+        bglBindTexture(GL_TEXTURE_2D, prbasepalmaps[curbasepal]);
+        bglTexImage2D(GL_TEXTURE_2D,
+            0,
+            GL_RGB,
+            256,
+            1,
+            0,
+            GL_RGB,
+            GL_UNSIGNED_BYTE,
+            basepaltable[curbasepal]);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP);
+        bglBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    if (!prlookups[pal]) {
+        bglGenTextures(1, &prlookups[pal]);
+        bglBindTexture(GL_TEXTURE_RECTANGLE, prlookups[pal]);
+        bglTexImage2D(GL_TEXTURE_RECTANGLE,
+            0,
+            GL_R8,
+            256,
+            numshades,
+            0,
+            GL_RED,
+            GL_UNSIGNED_BYTE,
+            palookup[pal]);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP);
+        bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP);
+        bglBindTexture(GL_TEXTURE_RECTANGLE, 0);
+    }
+}
+
 static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tilenum, char pal, int8_t shade, int8_t vis, int32_t cmeth)
 {
-    pthtyp*         pth;
-    int32_t         usinghighpal = 0;
-    _prbucket*      bucketptr;
-
     // find corresponding bucket; XXX key that with pr_buckets later, need to be tied to restartvid
-    bucketptr = polymer_findbucket(tilenum, pal);
+    _prbucket *bucketptr = polymer_findbucket(tilenum, pal);
 
     polymer_getscratchmaterial(material);
 
@@ -4854,7 +4926,7 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         loadtile(tilenum);
 
     // PR_BIT_DIFFUSE_MAP
-    pth = texcache_fetch(tilenum, pal, 0, cmeth);
+    pthtyp *pth = texcache_fetch(tilenum, pal, 0, cmeth);
 
     if (pth)
     {
@@ -4870,79 +4942,10 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     int32_t usinghighpal = 0;
 
     // Lazily fill in all the textures we need, move this to precaching later
-    if (pr_artmapping && !(globalflags & GLOBAL_NO_GL_TILESHADES) && polymer_eligible_for_artmap(tilenum, pth)) {
-        if (!prartmaps[tilenum]) {
-            char *tilebuffer = (char *)waloff[tilenum];
-            char *tempbuffer = (char *)Xmalloc(tilesiz[tilenum].x * tilesiz[tilenum].y);
-            int i, j, k;
-
-            i = k = 0;
-            while (i < tilesiz[tilenum].y) {
-                j = 0;
-                while (j < tilesiz[tilenum].x) {
-                    tempbuffer[k] = tilebuffer[(j * tilesiz[tilenum].y) + i];
-                    k++;
-                    j++;
-                }
-                i++;
-            }
-
-            bglGenTextures(1, &prartmaps[tilenum]);
-            bglBindTexture(GL_TEXTURE_2D, prartmaps[tilenum]);
-            bglTexImage2D(GL_TEXTURE_2D,
-                          0,
-                          GL_R8,
-                          tilesiz[tilenum].x,
-                          tilesiz[tilenum].y,
-                          0,
-                          GL_RED,
-                          GL_UNSIGNED_BYTE,
-                          tempbuffer);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            bglBindTexture(GL_TEXTURE_2D, 0);
-            Bfree(tempbuffer);
-        }
-
-        if (!prbasepalmaps[curbasepal]) {
-            bglGenTextures(1, &prbasepalmaps[curbasepal]);
-            bglBindTexture(GL_TEXTURE_2D, prbasepalmaps[curbasepal]);
-            bglTexImage2D(GL_TEXTURE_2D,
-                          0,
-                          GL_RGB,
-                          256,
-                          1,
-                          0,
-                          GL_RGB,
-                          GL_UNSIGNED_BYTE,
-                          basepaltable[curbasepal]);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglBindTexture(GL_TEXTURE_2D, 0);
-        }
-
-        if (!prlookups[pal]) {
-            bglGenTextures(1, &prlookups[pal]);
-            bglBindTexture(GL_TEXTURE_RECTANGLE, prlookups[pal]);
-            bglTexImage2D(GL_TEXTURE_RECTANGLE,
-                          0,
-                          GL_R8,
-                          256,
-                          numshades,
-                          0,
-                          GL_RED,
-                          GL_UNSIGNED_BYTE,
-                          palookup[pal]);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglTexParameteri(GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-            bglBindTexture(GL_TEXTURE_RECTANGLE, 0);
-        }
+    if (pr_artmapping && !(globalflags & GLOBAL_NO_GL_TILESHADES) && polymer_eligible_for_artmap(tilenum, pth))
+    {
+        if (!prartmaps[tilenum] || !prbasepalmaps[curbasepal] || !prlookups[pal])
+            polymer_setupartmap(tilenum, pal);
 
         material->artmap = prartmaps[tilenum];
         material->basepalmap = prbasepalmaps[curbasepal];
@@ -4953,7 +4956,7 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         }
 
         material->shadeoffset = shade;
-        material->visibility = ((uint8_t)(vis+16) / 16.0f);
+        material->visibility = ((uint8_t) (vis+16) / 16.0f);
 
         // all the stuff below is mutually exclusive with artmapping
         goto done;
