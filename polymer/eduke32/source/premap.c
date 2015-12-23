@@ -2000,12 +2000,6 @@ int32_t G_EnterLevel(int32_t g)
 
     for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
 
-    g_restorePalette = -1;
-
-    G_UpdateScreenArea();
-    clearview(0L);
-    G_DrawBackground();
-    G_DrawRooms(myconnectindex,65536);
 
     g_player[myconnectindex].ps->over_shoulder_on = 0;
 
@@ -2028,6 +2022,13 @@ int32_t G_EnterLevel(int32_t g)
 
     OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
                MapInfo[mii].name);
+
+    g_restorePalette = -1;
+
+    G_UpdateScreenArea();
+    clearview(0L);
+    G_DrawBackground();
+    G_DrawRooms(myconnectindex,65536);
 
     Net_WaitForServer();
     return 0;
