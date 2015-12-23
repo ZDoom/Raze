@@ -11579,10 +11579,10 @@ int32_t app_main(int32_t argc, const char **argv)
                 if (Batoi(tempbuf) > atoi(s_buildDate))
                 {
                     if (wm_ynbox("EDuke32","A new version of EDuke32 is available. "
-                                 "Browse to http://eduke32.sourceforge.net now?"))
+                                 "Browse to http://www.eduke32.com now?"))
                     {
                         SHELLEXECUTEINFOA sinfo;
-                        char *p = "http://eduke32.sourceforge.net";
+                        char *p = "http://www.eduke32.com";
 
                         Bmemset(&sinfo, 0, sizeof(sinfo));
                         sinfo.cbSize = sizeof(sinfo);

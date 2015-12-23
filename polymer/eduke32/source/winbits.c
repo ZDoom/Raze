@@ -40,8 +40,8 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     int32_t bytes_sent, i=0, j=0;
     struct sockaddr_in dest_addr;
     struct hostent *h;
-    char *host = "eduke32.sourceforge.net";
-    char *req = "GET http://eduke32.sourceforge.net/VERSION HTTP/1.0\r\n\r\n\r\n";
+    char *host = "www.eduke32.com";
+    char *req = "GET http://www.eduke32.com/VERSION HTTP/1.0\r\n\r\n\r\n";
     char *tok;
     char tempbuf[2048],otherbuf[16],ver[16];
     SOCKET mysock;
