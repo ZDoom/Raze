@@ -8125,7 +8125,8 @@ static void A_DoLight(int32_t i)
             G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), LIGHTRAD, 128+(255<<8)+(128<<16),PR_LIGHT_PRIO_HIGH_GAME);
             break;
         case FIRELASER__STATIC:
-            G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
+            if (s->statnum == STAT_PROJECTILE)
+                G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 64 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
             break;
         case RPG__STATIC:
             G_AddGameLight(0, i, ((s->yrepeat*tilesiz[s->picnum].y)<<1), 128 * s->yrepeat, 255+(95<<8),PR_LIGHT_PRIO_LOW_GAME);
