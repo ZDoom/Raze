@@ -183,41 +183,41 @@ static MenuFont_t MF_MinifontRed      = { -1, 16, 21, 16, 4<<16,  5<<16,  1<<16,
 static MenuFont_t MF_MinifontDarkGray = { -1, 10, 13, 16, 4<<16,  5<<16,  1<<16, 1<<16, 0 };
 
 
-static MenuMenuFormat_t MMF_Top_Main =             { {  MENU_MARGIN_CENTER<<16, 55<<16, }, -170<<16 };
-static MenuMenuFormat_t MMF_Top_Episode =          { {  MENU_MARGIN_CENTER<<16, 48<<16, }, -190<<16 };
-static MenuMenuFormat_t MMF_Top_Skill =            { {  MENU_MARGIN_CENTER<<16, 58<<16, }, -190<<16 };
-static MenuMenuFormat_t MMF_Top_Options =          { {  MENU_MARGIN_CENTER<<16, 38<<16, }, -190<<16 };
-static MenuMenuFormat_t MMF_Top_Joystick_Network = { {  MENU_MARGIN_CENTER<<16, 70<<16, }, -190<<16 };
-static MenuMenuFormat_t MMF_BigOptions =           { {    MENU_MARGIN_WIDE<<16, 38<<16, }, -190<<16 };
-static MenuMenuFormat_t MMF_SmallOptions =         { {    MENU_MARGIN_WIDE<<16, 37<<16, },  170<<16 };
-static MenuMenuFormat_t MMF_Macros =               { {                  26<<16, 40<<16, },  160<<16 };
-static MenuMenuFormat_t MMF_SmallOptionsNarrow  =  { { MENU_MARGIN_REGULAR<<16, 38<<16, }, -190<<16 };
-static MenuMenuFormat_t MMF_KeyboardSetupFuncs =   { {                  70<<16, 34<<16, },  151<<16 };
-static MenuMenuFormat_t MMF_MouseJoySetupBtns =    { {                  76<<16, 34<<16, },  143<<16 };
-static MenuMenuFormat_t MMF_FuncList =             { {                 100<<16, 51<<16, },  152<<16 };
-static MenuMenuFormat_t MMF_ColorCorrect =         { { MENU_MARGIN_REGULAR<<16, 86<<16, },  190<<16 };
-static MenuMenuFormat_t MMF_BigSliders =           { {    MENU_MARGIN_WIDE<<16, 37<<16, },  190<<16 };
-static MenuMenuFormat_t MMF_LoadSave =             { {                 223<<16, 48<<16, },  320<<16 };
-static MenuMenuFormat_t MMF_NetSetup =             { {                  36<<16, 38<<16, },  190<<16 };
-static MenuMenuFormat_t MMF_FileSelectLeft =       { {                  40<<16, 45<<16, },  162<<16 };
-static MenuMenuFormat_t MMF_FileSelectRight =      { {                 164<<16, 45<<16, },  162<<16 };
+static MenuMenuFormat_t MMF_Top_Main =             { {  MENU_MARGIN_CENTER<<16, 55<<16, }, -(170<<16) };
+static MenuMenuFormat_t MMF_Top_Episode =          { {  MENU_MARGIN_CENTER<<16, 48<<16, }, -(190<<16) };
+static MenuMenuFormat_t MMF_Top_Skill =            { {  MENU_MARGIN_CENTER<<16, 58<<16, }, -(190<<16) };
+static MenuMenuFormat_t MMF_Top_Options =          { {  MENU_MARGIN_CENTER<<16, 38<<16, }, -(190<<16) };
+static MenuMenuFormat_t MMF_Top_Joystick_Network = { {  MENU_MARGIN_CENTER<<16, 70<<16, }, -(190<<16) };
+static MenuMenuFormat_t MMF_BigOptions =           { {    MENU_MARGIN_WIDE<<16, 38<<16, }, -(190<<16) };
+static MenuMenuFormat_t MMF_SmallOptions =         { {    MENU_MARGIN_WIDE<<16, 37<<16, },    170<<16 };
+static MenuMenuFormat_t MMF_Macros =               { {                  26<<16, 40<<16, },    160<<16 };
+static MenuMenuFormat_t MMF_SmallOptionsNarrow  =  { { MENU_MARGIN_REGULAR<<16, 38<<16, }, -(190<<16) };
+static MenuMenuFormat_t MMF_KeyboardSetupFuncs =   { {                  70<<16, 34<<16, },    151<<16 };
+static MenuMenuFormat_t MMF_MouseJoySetupBtns =    { {                  76<<16, 34<<16, },    143<<16 };
+static MenuMenuFormat_t MMF_FuncList =             { {                 100<<16, 51<<16, },    152<<16 };
+static MenuMenuFormat_t MMF_ColorCorrect =         { { MENU_MARGIN_REGULAR<<16, 86<<16, },    190<<16 };
+static MenuMenuFormat_t MMF_BigSliders =           { {    MENU_MARGIN_WIDE<<16, 37<<16, },    190<<16 };
+static MenuMenuFormat_t MMF_LoadSave =             { {                 223<<16, 48<<16, },    320<<16 };
+static MenuMenuFormat_t MMF_NetSetup =             { {                  36<<16, 38<<16, },    190<<16 };
+static MenuMenuFormat_t MMF_FileSelectLeft =       { {                  40<<16, 45<<16, },    162<<16 };
+static MenuMenuFormat_t MMF_FileSelectRight =      { {                 164<<16, 45<<16, },    162<<16 };
 
 static MenuEntryFormat_t MEF_Null =             {     0,      0,        0,  20<<16, 65536 };
 static MenuEntryFormat_t MEF_MainMenu =         { 4<<16,      0,        0, 110<<16, 65536 };
 static MenuEntryFormat_t MEF_CenterMenu =       { 7<<16,      0,        0, 110<<16, 65536 };
 static MenuEntryFormat_t MEF_BigOptions =       { 4<<16,      0,  190<<16,  20<<16, 65536 };
 static MenuEntryFormat_t MEF_BigOptions_Apply = { 4<<16, 16<<16,  190<<16,  20<<16, 65536 };
-static MenuEntryFormat_t MEF_BigOptionsRt =     { 4<<16,      0, -260<<16,  20<<16, 65536 };
+static MenuEntryFormat_t MEF_BigOptionsRt =     { 4<<16,      0,-(260<<16), 20<<16, 65536 };
 #if defined USE_OPENGL || !defined DROIDMENU
 static MenuEntryFormat_t MEF_SmallOptions =     { 1<<16,      0,  216<<16,  10<<16, 32768 };
 #endif
-static MenuEntryFormat_t MEF_BigCheats =        { 3<<16,      0, -260<<16,  20<<16, 65536 };
-static MenuEntryFormat_t MEF_Cheats =           { 2<<16,      0, -260<<16,  10<<16, 32768 };
+static MenuEntryFormat_t MEF_BigCheats =        { 3<<16,      0,-(260<<16), 20<<16, 65536 };
+static MenuEntryFormat_t MEF_Cheats =           { 2<<16,      0,-(260<<16), 10<<16, 32768 };
 static MenuEntryFormat_t MEF_PlayerNarrow =     { 1<<16,      0,   90<<16,  10<<16, 32768 };
 static MenuEntryFormat_t MEF_Macros =           { 2<<16,     -1,  268<<16,  10<<16, 32768 };
 static MenuEntryFormat_t MEF_VideoSetup =       { 4<<16,      0,  168<<16,  20<<16, 65536 };
 static MenuEntryFormat_t MEF_FuncList =         { 3<<16,      0,  100<<16,  10<<16, 32768 };
-static MenuEntryFormat_t MEF_ColorCorrect =     { 2<<16,      0, -240<<16,  20<<16, 65536 };
+static MenuEntryFormat_t MEF_ColorCorrect =     { 2<<16,      0,-(240<<16), 20<<16, 65536 };
 static MenuEntryFormat_t MEF_BigSliders =       { 2<<16,      0,  170<<16,  20<<16, 65536 };
 static MenuEntryFormat_t MEF_LoadSave =         { 7<<16,     -1,   78<<16,  20<<16, 65536 };
 static MenuEntryFormat_t MEF_NetSetup =         { 4<<16,      0,  112<<16,  20<<16, 65536 };
@@ -1068,11 +1068,9 @@ static MenuEntry_t ME_SOUND_ADVSOUND = MAKE_MENUENTRY( "Advanced", &MF_Redfont, 
 static MenuEntry_t *MEL_SOUND[] = {
     &ME_SOUND,
     &ME_SOUND_MUSIC,
-    &ME_Space2,
     &ME_SOUND_VOLUME_MASTER,
     &ME_SOUND_VOLUME_EFFECTS,
     &ME_SOUND_VOLUME_MUSIC,
-    &ME_Space2,
     &ME_SOUND_DUKETALK,
 #ifndef DROIDMENU
     &ME_SOUND_ADVSOUND,
@@ -2657,34 +2655,30 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
 
     if (entry == &ME_VIDEOSETUP_APPLY)
     {
-        int32_t pxdim, pydim, pfs, pbpp, prend, pvsync;
-        int32_t nxdim, nydim, nfs, nbpp, nrend, nvsync;
+        resolution_t p ={ xdim, ydim, fullscreen, bpp, 0 };
+        int32_t prend = getrendermode();
+        int32_t pvsync = vsync;
 
-        pxdim = xdim;
-        pydim = ydim;
-        pbpp  = bpp;
-        pfs   = fullscreen;
-        pvsync = vsync;
-        prend = getrendermode();
-        nxdim = resolution[newresolution].xdim;
-        nydim = resolution[newresolution].ydim;
-        nfs   = newfullscreen;
-        nvsync = newvsync;
+        resolution_t n = { resolution[newresolution].xdim, resolution[newresolution].ydim, newfullscreen,
+                           (newrendermode == REND_CLASSIC) ? 8 : resolution[newresolution].bppmax, 0 };
+        int32_t nrend = newrendermode;
+        int32_t nvsync = newvsync;;
 
-
-        nbpp  = (newrendermode == REND_CLASSIC) ? 8 : resolution[newresolution].bppmax;
-        nrend = newrendermode;
-
-        if (setgamemode(nfs, nxdim, nydim, nbpp) < 0)
+        if (setgamemode(n.flags, n.xdim, n.ydim, n.bppmax) < 0)
         {
-            if (setgamemode(pfs, pxdim, pydim, pbpp) < 0)
+            if (setgamemode(p.flags, p.xdim, p.ydim, p.bppmax) < 0)
             {
                 setrendermode(prend);
                 G_GameExit("Failed restoring old video mode.");
             }
-            else onvideomodechange(pbpp > 8);
+            else 
+            {
+                onvideomodechange(p.bppmax > 8);
+                setvsync(pvsync);
+                vsync = pvsync;
+            }
         }
-        else onvideomodechange(nbpp > 8);
+        else onvideomodechange(n.bppmax > 8);
 
         g_restorePalette = -1;
         G_UpdateScreenArea();

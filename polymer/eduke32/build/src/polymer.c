@@ -4863,6 +4863,8 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         }
     }
 
+    int32_t usinghighpal = 0;
+
     // Lazily fill in all the textures we need, move this to precaching later
     if (pr_artmapping && !(globalflags & GLOBAL_NO_GL_TILESHADES) && polymer_eligible_for_artmap(tilenum, pth)) {
         if (!prartmaps[tilenum]) {
