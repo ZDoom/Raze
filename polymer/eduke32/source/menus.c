@@ -418,7 +418,7 @@ MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_CenterMenu, OPTIONS_TOUCHSETUP, MENU
 #endif
 MAKE_MENU_TOP_ENTRYLINK( "Cheats", MEF_CenterMenu, OPTIONS_CHEATS, MENU_CHEATS );
 
-static int32_t newresolution, newrendermode, newfullscreen;
+static int32_t newresolution, newrendermode, newfullscreen, newvsync;
 
 enum resflags_t {
     RES_FS  = 0x1,
@@ -458,6 +458,14 @@ static MenuEntry_t ME_VIDEOSETUP_RENDERER = MAKE_MENUENTRY( "Renderer:", &MF_Red
 
 static MenuOption_t MEO_VIDEOSETUP_FULLSCREEN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_NoYes, &newfullscreen );
 static MenuEntry_t ME_VIDEOSETUP_FULLSCREEN = MAKE_MENUENTRY( "Fullscreen:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_FULLSCREEN, Option );
+
+
+static char *MEOSN_VIDEOSETUP_VSYNC [] ={ "Adaptive", "Off", "On", };
+static int32_t MEOSV_VIDEOSETUP_VSYNC [] ={ -1, 0, 1, };
+static MenuOptionSet_t MEOS_VIDEOSETUP_VSYNC = MAKE_MENUOPTIONSET(MEOSN_VIDEOSETUP_VSYNC, MEOSV_VIDEOSETUP_VSYNC, 0x2);
+static MenuOption_t MEO_VIDEOSETUP_VSYNC = MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_VSYNC, &newvsync);
+static MenuEntry_t ME_VIDEOSETUP_VSYNC = MAKE_MENUENTRY("VSync:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_VSYNC, Option);
+
 static MenuEntry_t ME_VIDEOSETUP_APPLY = MAKE_MENUENTRY( "Apply Changes", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_NULL, Link );
 
 
@@ -494,11 +502,6 @@ static int32_t MEOSV_DISPLAYSETUP_ANISOTROPY[] = { 1, 2, 4, 8, 16, };
 static MenuOptionSet_t MEOS_DISPLAYSETUP_ANISOTROPY = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_ANISOTROPY, MEOSV_DISPLAYSETUP_ANISOTROPY, 0x0 );
 static MenuOption_t MEO_DISPLAYSETUP_ANISOTROPY = MAKE_MENUOPTION(&MF_Redfont, &MEOS_DISPLAYSETUP_ANISOTROPY, &glanisotropy);
 static MenuEntry_t ME_DISPLAYSETUP_ANISOTROPY = MAKE_MENUENTRY( "Anisotropy:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ANISOTROPY, Option );
-static char *MEOSN_DISPLAYSETUP_VSYNC[] = { "Adaptive", "Off", "On", };
-static int32_t MEOSV_DISPLAYSETUP_VSYNC[] = { -1, 0, 1, };
-static MenuOptionSet_t MEOS_DISPLAYSETUP_VSYNC = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_VSYNC, MEOSV_DISPLAYSETUP_VSYNC, 0x2 );
-static MenuOption_t MEO_DISPLAYSETUP_VSYNC = MAKE_MENUOPTION(&MF_Redfont, &MEOS_DISPLAYSETUP_VSYNC, &vsync);
-static MenuEntry_t ME_DISPLAYSETUP_VSYNC = MAKE_MENUENTRY( "VSync:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_VSYNC, Option );
 
 #ifdef DROIDMENU
 static MenuOption_t MEO_DISPLAYSETUP_HIDEDPAD = MAKE_MENUOPTION(&MF_Redfont, &MEOS_NoYes, &droidinput.hideStick);
@@ -634,6 +637,7 @@ static MenuEntry_t *MEL_VIDEOSETUP[] = {
     &ME_VIDEOSETUP_RENDERER,
 #endif
     &ME_VIDEOSETUP_FULLSCREEN,
+    &ME_VIDEOSETUP_VSYNC,
     &ME_Space6,
     &ME_VIDEOSETUP_APPLY,
 };
@@ -662,7 +666,6 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
 #endif
 #ifndef DROIDMENU
     &ME_DISPLAYSETUP_ANISOTROPY,
-    &ME_DISPLAYSETUP_VSYNC,
     &ME_DISPLAYSETUP_ADVANCED_GL_POLYMOST,
 #endif
 };
@@ -678,7 +681,6 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL_POLYMER[] = {
     &ME_DISPLAYSETUP_TEXFILTER,
 #ifndef DROIDMENU
     &ME_DISPLAYSETUP_ANISOTROPY,
-    &ME_DISPLAYSETUP_VSYNC,
     &ME_DISPLAYSETUP_ADVANCED_GL_POLYMER,
 #endif
 };
@@ -1706,7 +1708,7 @@ static void M_PreMenu(MenuID_t cm)
 
         MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_APPLY,
              (xdim == resolution[nr].xdim && ydim == resolution[nr].ydim &&
-              getrendermode() == newrendermode && fullscreen == newfullscreen)
+              getrendermode() == newrendermode && fullscreen == newfullscreen && vsync == newvsync)
              || (newfullscreen ? !(resolution[nr].flags & RES_FS) : !(resolution[nr].flags & RES_WIN))
              || (newrendermode != REND_CLASSIC && resolution[nr].bppmax <= 8));
         break;
@@ -2655,17 +2657,20 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
 
     if (entry == &ME_VIDEOSETUP_APPLY)
     {
-        int32_t pxdim, pydim, pfs, pbpp, prend;
-        int32_t nxdim, nydim, nfs, nbpp, nrend;
+        int32_t pxdim, pydim, pfs, pbpp, prend, pvsync;
+        int32_t nxdim, nydim, nfs, nbpp, nrend, nvsync;
 
         pxdim = xdim;
         pydim = ydim;
         pbpp  = bpp;
         pfs   = fullscreen;
+        pvsync = vsync;
         prend = getrendermode();
         nxdim = resolution[newresolution].xdim;
         nydim = resolution[newresolution].ydim;
         nfs   = newfullscreen;
+        nvsync = newvsync;
+
 
         nbpp  = (newrendermode == REND_CLASSIC) ? 8 : resolution[newresolution].bppmax;
         nrend = newrendermode;
@@ -2684,7 +2689,8 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
         g_restorePalette = -1;
         G_UpdateScreenArea();
         setrendermode(nrend);
-
+        setvsync(nvsync);
+        vsync = nvsync;
         ud.config.ScreenMode = fullscreen;
         ud.config.ScreenWidth = xdim;
         ud.config.ScreenHeight = ydim;
@@ -2781,8 +2787,6 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         pr_customaspect = MEOSV_DISPLAYSETUP_ASPECTRATIO_POLYMER[newOption];
     }
 #endif
-    else if (entry == &ME_DISPLAYSETUP_VSYNC)
-        setvsync(newOption);
 #endif
     else if (entry == &ME_SOUND)
     {
@@ -3556,6 +3560,7 @@ int M_ChangeMenu(MenuID_t cm)
         }
         newrendermode = getrendermode();
         newfullscreen = fullscreen;
+        newvsync = vsync;
         break;
 
     case MENU_ADVSOUND:
