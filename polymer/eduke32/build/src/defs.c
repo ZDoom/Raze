@@ -858,7 +858,7 @@ static int32_t defsparser(scriptfile *script)
             if (texstatus == -3)
                 initprintf("Error: No palette loaded, in tilefromtexture definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,texturetokptr));
-            if (texstatus == (-3)<<8)
+            if (texstatus == -(3<<8))
                 initprintf("Error: \"%s\" has more than one tile, in tilefromtexture definition near line %s:%d\n",
                            fn, script->filename, scriptfile_getlinum(script,texturetokptr));
             if (texstatus < 0)
@@ -1003,7 +1003,7 @@ static int32_t defsparser(scriptfile *script)
             if (texstatus == -3)
                 initprintf("Error: No palette loaded, in importtile definition near line %s:%d\n",
                            script->filename, scriptfile_getlinum(script,cmdtokptr));
-            if (texstatus == (-3)<<8)
+            if (texstatus == -(3<<8))
                 initprintf("Error: \"%s\" has more than one tile, in importtile definition near line %s:%d\n",
                            fn, script->filename, scriptfile_getlinum(script,cmdtokptr));
             if (texstatus < 0)
