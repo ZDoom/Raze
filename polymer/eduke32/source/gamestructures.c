@@ -170,6 +170,9 @@ int32_t __fastcall VM_GetUserdef(register int32_t lLabelID)
         case USERDEFS_M_GAMETYPEFLAGS: lLabelID = GametypeFlags[ud.m_coop]; break;
         case USERDEFS_GLOBALFLAGS: lLabelID = globalflags; break;
         case USERDEFS_GLOBALGAMEFLAGS: lLabelID = duke3d_globalflags; break;
+        case USERDEFS_VM_PLAYER: lLabelID = vm.g_p; break;
+        case USERDEFS_VM_SPRITE: lLabelID = vm.g_i; break;
+        case USERDEFS_VM_DISTANCE: lLabelID = vm.g_x; break;
         default: lLabelID = -1; break;
     }
 
@@ -286,6 +289,9 @@ void __fastcall VM_SetUserdef(register int32_t const lLabelID, register int32_t 
         case USERDEFS_M_ORIGIN_Y: ud.m_origin.y = iSet; break;
         case USERDEFS_GLOBALFLAGS: globalflags = iSet; break;
         case USERDEFS_GLOBALGAMEFLAGS: duke3d_globalflags = iSet; break;
+        case USERDEFS_VM_PLAYER: vm.g_p = iSet; vm.g_pp = g_player[iSet].ps; break;
+        case USERDEFS_VM_SPRITE: vm.g_i = iSet; vm.g_sp = &sprite[iSet]; vm.g_t = &actor[iSet].t_data[0]; break;
+        case USERDEFS_VM_DISTANCE: vm.g_x = iSet; break;
         default: break;
     }
 }
