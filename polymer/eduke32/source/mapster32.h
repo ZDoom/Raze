@@ -75,8 +75,6 @@ static int32_t updownunits=1024;
 
 //int32_t intro=0;
 
-static int32_t acurpalette=0;
-
 //void ContextHelp(int16_t spritenum);
 //void ResetKeys();
 

@@ -10857,22 +10857,12 @@ void faketimerhandler(void)
     sampletimer();
 }
 
-void SetGamePalette(int32_t j)
+void SetGamePalette(int32_t palid)
 {
-    switch (j)
-    {
-    default:
-        j=0;
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-        if (acurpalette==j)
-            return;
-        acurpalette=j;
-        setbrightness(GAMMA_CALC,j,2);
-        break;
-    }
+    if ((unsigned)palid >= MAXBASEPALS)
+        palid = 0;
+
+    setbrightness(GAMMA_CALC, palid, 2);
 }
 
 static void SearchSectors(int32_t dir)  // <0: backwards, >=0: forwards
