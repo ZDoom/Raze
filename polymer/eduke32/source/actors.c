@@ -4381,12 +4381,8 @@ ACTOR_STATIC void G_MoveActors(void)
             {
                 for (SPRITES_OF_SECT(sect, j))
                 {
-                    switch (DYNAMICTILEMAP(sprite[j].picnum))
+                    if (A_CheckSpriteTileFlags(sprite[j].picnum, SFLAG_GREENSLIMEFOOD))
                     {
-                    case LIZTROOP__STATIC:
-                    case LIZMAN__STATIC:
-                    case PIGCOP__STATIC:
-                    case NEWBEAST__STATIC:
                         if (ldist(s,&sprite[j]) < 768 && (klabs(s->z-sprite[j].z)<8192))   //Gulp them
                         {
                             t[5] = j;
