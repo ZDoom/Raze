@@ -63,9 +63,9 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
         {
             const int32_t ii = palookup[dapal][pic[i].a] * 3;
 
-            pic2[i].b = cptr[palette[ii+2]*4];
-            pic2[i].g = cptr[palette[ii+1]*4];
-            pic2[i].r = cptr[palette[ii+0]*4];
+            pic2[i].b = cptr[palette[ii+2]];
+            pic2[i].g = cptr[palette[ii+1]];
+            pic2[i].r = cptr[palette[ii+0]];
             pic2[i].a = 255;
         }
     }
