@@ -61,11 +61,11 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
 
         for (int32_t i=xsiz*ysiz-1; i>=0; i--)
         {
-            const int32_t ii = palookup[dapal][pic[i].a] * 3;
+            const int32_t ii = palookup[dapal][pic[i].a];
 
-            pic2[i].b = cptr[palette[ii+2]];
-            pic2[i].g = cptr[palette[ii+1]];
-            pic2[i].r = cptr[palette[ii+0]];
+            pic2[i].b = cptr[curpalette[ii].b];
+            pic2[i].g = cptr[curpalette[ii].g];
+            pic2[i].r = cptr[curpalette[ii].r];
             pic2[i].a = 255;
         }
     }

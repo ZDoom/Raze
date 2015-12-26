@@ -208,7 +208,7 @@ void updateanimation(md2model_t *m, const tspritetype *tspr, uint8_t lpal);
 int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf);
 void mdinit(void);
 void freeallmodels(void);
-void clearskins(void);
+void clearskins(int32_t type);
 int32_t polymost_mddraw(const tspritetype *tspr);
 EXTERN void md3_vox_calcmat_common(const tspritetype *tspr, const vec3f_t *a0, float f, float mat[16]);
 

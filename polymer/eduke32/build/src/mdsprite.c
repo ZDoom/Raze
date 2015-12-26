@@ -181,7 +181,7 @@ static void nullskintexids(GLuint texid)
     }
 }
 
-void clearskins()
+void clearskins(int32_t type)
 {
     int32_t i, j;
 
@@ -200,7 +200,7 @@ void clearskins()
                     v->texid[j] = 0;
                 }
         }
-        else if (m->mdnum == 2 || m->mdnum == 3)
+        else if ((m->mdnum == 2 || m->mdnum == 3) && type == INVALIDATE_ALL)
         {
             mdskinmap_t *sk;
             md2model_t *m2 = (md2model_t *)m;

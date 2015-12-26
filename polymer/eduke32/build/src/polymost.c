@@ -197,8 +197,8 @@ void gltexinvalidatetype(int32_t type)
         }
     }
 
-    if (type == INVALIDATE_ALL)
-        clearskins();
+    clearskins(type);
+
 #ifdef DEBUGGINGAIDS
     OSD_Printf("gltexinvalidateall()\n");
 #endif
@@ -316,7 +316,7 @@ void polymost_glreset()
             texcache.list[i] = NULL;
         }
 
-        clearskins();
+        clearskins(INVALIDATE_ALL);
     }
 
     if (polymosttext)
