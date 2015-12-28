@@ -4484,6 +4484,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
     CAMERA(sect) = p->cursectnum;
 
+    G_RefreshLights(smoothratio);
     G_DoInterpolations(smoothratio);
     G_AnimateCamSprite(smoothratio);
 
@@ -5919,7 +5920,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case EXPLOSION2__STATIC:
             if (sp->yrepeat > 32)
             {
-                G_AddGameLight(0, i, ((sp->yrepeat*tilesiz[sp->picnum].y)<<1), 32768, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                G_AddGameLight(0, i, ((sp->yrepeat*tilesiz[sp->picnum].y)<<1), 32768, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME, 65536);
                 actor[i].lightcount = 2;
             }
         case EXPLOSION2BOT__STATIC:

@@ -876,20 +876,6 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
     const int32_t p = (s->picnum == APLAYER) ? P_GetP(s) : -1;
     DukePlayer_t *const ps = p >= 0 ? g_player[p].ps : NULL;
 
-#ifdef POLYMER
-    if (getrendermode() == REND_POLYMER && proj->flashcolor)
-    {
-        int32_t x = ((sintable[(s->ang + 512) & 2047]) >> 7), y = ((sintable[(s->ang) & 2047]) >> 7);
-
-        s->x += x;
-        s->y += y;
-        G_AddGameLight(0, i, PHEIGHT, 8192, proj->flashcolor, PR_LIGHT_PRIO_MAX_GAME);
-        actor[i].lightcount = 2;
-        s->x -= x;
-        s->y -= y;
-    }
-#endif // POLYMER
-
     if (proj->offset == 0)
         proj->offset = 1;
 
@@ -1634,29 +1620,6 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
                 srcvect.y += (sintable[(sa+512+96)&2047]>>7);
             }
         }
-
-#ifdef POLYMER
-        switch (DYNAMICTILEMAP(atwith))
-        {
-        case FIRELASER__STATIC:
-        case SHOTGUN__STATIC:
-        case SHOTSPARK1__STATIC:
-        case CHAINGUN__STATIC:
-        case RPG__STATIC:
-        case MORTER__STATIC:
-            {
-                int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
-                s->x += x;
-                s->y += y;
-                G_AddGameLight(0, i, PHEIGHT, 8192, 255+(95<<8), PR_LIGHT_PRIO_MAX_GAME);
-                actor[i].lightcount = 2;
-                s->x -= x;
-                s->y -= y;
-            }
-
-            break;
-        }
-#endif // POLYMER
     }
 
     return A_CheckSpriteTileFlags(atwith, SFLAG_PROJECTILE) ?
@@ -1991,20 +1954,7 @@ static void P_FireWeapon(int32_t snum)
     }
 
     if (!(PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_NOVISIBLE))
-    {
-#ifdef POLYMER
-        spritetype *s = &sprite[p->i];
-        int32_t x = ((sintable[(s->ang + 512) & 2047]) >> 7), y = ((sintable[(s->ang) & 2047]) >> 7);
-
-        s->x += x;
-        s->y += y;
-        G_AddGameLight(0, p->i, PHEIGHT, 8192, PWEAPON(snum, p->curr_weapon, FlashColor), PR_LIGHT_PRIO_MAX_GAME);
-        actor[p->i].lightcount = 2;
-        s->x -= x;
-        s->y -= y;
-#endif  // POLYMER
         p->visibility = 0;
-    }
 }
 
 static void P_DoWeaponSpawn(int32_t snum)
@@ -3844,6 +3794,59 @@ void P_FragPlayer(int32_t snum)
 # define PIPEBOMB_CONTROL(snum) (Gv_GetVarByLabel("PIPEBOMB_CONTROL", PIPEBOMB_REMOTE, -1, snum))
 #endif
 
+enum
+{
+    WS_NOTHING,
+    WS_FIRE,
+    WS_FIRE_AND_SPAWN,
+} weaponstate_t;
+
+int32_t P_WeaponState(int32_t snum, int32_t reset)
+{
+    int32_t kb = g_player[snum].ps->kickback_pic;
+    int32_t sb_snum = g_player[snum].sync->bits;
+    int32_t weapon = g_player[snum].ps->curr_weapon;
+
+    if ((kb) < PWEAPON(snum, weapon, TotalTime))
+    {
+        if (PWEAPON(snum, weapon, Flags) & WEAPON_AUTOMATIC)
+        {
+            if (!(PWEAPON(snum, weapon, Flags) & WEAPON_SEMIAUTO))
+            {
+                if (reset)
+                    kb = 0;
+
+                if (PWEAPON(snum, weapon, Flags) & WEAPON_FIREEVERYTHIRD)
+                {
+                    if ((kb % 3) == 0)
+                        return WS_FIRE_AND_SPAWN;
+                }
+                else if (PWEAPON(snum, weapon, Flags) & WEAPON_FIREEVERYOTHER)
+                    return WS_FIRE_AND_SPAWN;
+                else
+                {
+                    if (kb == PWEAPON(snum, weapon, FireDelay))
+                        return WS_FIRE;
+                }
+            }
+            else
+            {
+                if (PWEAPON(snum, weapon, Flags) & WEAPON_FIREEVERYOTHER)
+                    return WS_FIRE_AND_SPAWN;
+                else
+                {
+                    if (kb == PWEAPON(snum, weapon, FireDelay))
+                        return WS_FIRE;
+                }
+            }
+        }
+        else if (kb == PWEAPON(snum, weapon, FireDelay))
+            return WS_FIRE;
+    }
+
+    return WS_NOTHING;
+}
+
 static void P_ProcessWeapon(int32_t snum)
 {
     DukePlayer_t *const p = g_player[snum].ps;
@@ -3917,24 +3920,7 @@ static void P_ProcessWeapon(int32_t snum)
     }
 
     if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_GLOWS)
-    {
         p->random_club_frame += 64; // Glowing
-
-        if (p->kickback_pic == 0)
-        {
-            spritetype *s = &sprite[p->i];
-            int32_t x = ((sintable[(s->ang+512)&2047])>>7), y = ((sintable[(s->ang)&2047])>>7);
-            int32_t r = 1024+(sintable[p->random_club_frame&2047]>>3);
-
-            s->x += x;
-            s->y += y;
-            G_AddGameLight(0, p->i, PHEIGHT, max(r, 0), PWEAPON(snum, p->curr_weapon, FlashColor),PR_LIGHT_PRIO_HIGH_GAME);
-            actor[p->i].lightcount = 2;
-            s->x -= x;
-            s->y -= y;
-        }
-
-    }
 
     // this is a hack for WEAPON_FIREEVERYOTHER
     if (actor[p->i].t_data[7])
@@ -4306,63 +4292,32 @@ static void P_ProcessWeapon(int32_t snum)
                     }
                 }
             }
-            else if (*kb >= PWEAPON(snum, p->curr_weapon, FireDelay) && (*kb) < PWEAPON(snum, p->curr_weapon, TotalTime)
-                     && ((PWEAPON(snum, p->curr_weapon, WorksLike) == KNEE_WEAPON)?1:p->ammo_amount[p->curr_weapon] > 0))
+            else if (*kb >= PWEAPON(snum, p->curr_weapon, FireDelay) && (*kb) < PWEAPON(snum, p->curr_weapon, TotalTime) &&
+                ((PWEAPON(snum, p->curr_weapon, WorksLike) == KNEE_WEAPON) ? 1 : p->ammo_amount[p->curr_weapon] > 0))
             {
-                if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_AUTOMATIC)
+                int const reset = (TEST_SYNC_KEY(sb_snum, SK_FIRE) == 0 && PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RESET);
+
+                switch (P_WeaponState(snum, reset))
                 {
-                    if (!(PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_SEMIAUTO))
-                    {
-                        if (TEST_SYNC_KEY(sb_snum, SK_FIRE) == 0 && PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RESET)
-                            *kb = 0;
-                        if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_FIREEVERYTHIRD)
-                        {
-                            if (((*(kb))%3) == 0)
-                            {
-                                P_FireWeapon(snum);
-                                P_DoWeaponSpawn(snum);
-                            }
-                        }
-                        else if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_FIREEVERYOTHER)
-                        {
-                            P_FireWeapon(snum);
-                            P_DoWeaponSpawn(snum);
-                        }
-                        else
-                        {
-                            if (*kb == PWEAPON(snum, p->curr_weapon, FireDelay))
-                            {
-                                P_FireWeapon(snum);
-//                                P_DoWeaponSpawn(snum);
-                            }
-                        }
-                        if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RESET &&
-                                (*kb) > PWEAPON(snum, p->curr_weapon, TotalTime)-PWEAPON(snum, p->curr_weapon, HoldDelay) &&
-                                ((PWEAPON(snum, p->curr_weapon, WorksLike) == KNEE_WEAPON) || p->ammo_amount[p->curr_weapon] > 0))
-                        {
-                            if (TEST_SYNC_KEY(sb_snum, SK_FIRE)) *kb = 1;
-                            else *kb = 0;
-                        }
-                    }
-                    else
-                    {
-                        if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_FIREEVERYOTHER)
-                        {
-                            P_FireWeapon(snum);
-                            P_DoWeaponSpawn(snum);
-                        }
-                        else
-                        {
-                            if (*kb == PWEAPON(snum, p->curr_weapon, FireDelay))
-                            {
-                                P_FireWeapon(snum);
-//                                P_DoWeaponSpawn(snum);
-                            }
-                        }
-                    }
-                }
-                else if (*kb == PWEAPON(snum, p->curr_weapon, FireDelay))
+                case WS_FIRE_AND_SPAWN:
                     P_FireWeapon(snum);
+                    P_DoWeaponSpawn(snum);
+
+                    if (reset) *kb = 0;
+                    else if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RESET &&
+                        (*kb) > PWEAPON(snum, p->curr_weapon, TotalTime) - PWEAPON(snum, p->curr_weapon, HoldDelay))
+                        *kb = (TEST_SYNC_KEY(sb_snum, SK_FIRE)) ? 1 : 0;
+                    break;
+                case WS_FIRE:
+                    P_FireWeapon(snum);
+
+                    if (reset) *kb = 0;
+                    else if (PWEAPON(snum, p->curr_weapon, Flags) & WEAPON_RESET &&
+                        (*kb) > PWEAPON(snum, p->curr_weapon, TotalTime) - PWEAPON(snum, p->curr_weapon, HoldDelay))
+                        *kb = (TEST_SYNC_KEY(sb_snum, SK_FIRE)) ? 1 : 0;
+                    break;
+                default: break;
+                }
             }
         }
     }
@@ -5380,6 +5335,7 @@ HORIZONLY:
     // RBG***
 
     p->pos.z += PHEIGHT;
+    actor[p->i].bpos = *(vec3_t *)&sprite[p->i];
     setsprite(p->i,(vec3_t *)&p->pos.x);
     p->pos.z -= PHEIGHT;
 

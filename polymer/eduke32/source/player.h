@@ -396,6 +396,7 @@ void        P_QuickKill(DukePlayer_t *p);
 void        P_SelectNextInvItem(DukePlayer_t *p);
 void        P_UpdateScreenPal(DukePlayer_t *p);
 void        P_EndLevel(void);
+int32_t     P_WeaponState(int32_t snum, int32_t reset);
 
 void P_CheckWeaponI(int32_t snum);
 int32_t P_GetHudPal(const DukePlayer_t *p);
