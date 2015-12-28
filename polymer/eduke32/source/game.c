@@ -1362,6 +1362,9 @@ extern int32_t cacnum;
 extern cactype cac[];
 #endif
 
+#define COLOR_RED redcol
+#define COLOR_WHITE whitecol
+
 static void G_ShowCacheLocks(void)
 {
     int16_t i,k;
@@ -1378,7 +1381,7 @@ static void G_ShowCacheLocks(void)
                 break;
 
             Bsprintf(tempbuf,"Locked- %d: Leng:%d, Lock:%d",i,cac[i].leng,*cac[i].lock);
-            printext256(0L,k,31,-1,tempbuf,1);
+            printext256(0L,k,COLOR_WHITE,-1,tempbuf,1);
             k += 6;
         }
 #endif
@@ -1392,12 +1395,12 @@ static void G_ShowCacheLocks(void)
                 break;
 
             Bsprintf(tempbuf,"RTS Locked %d:",i);
-            printext256(0,k,31,-1,tempbuf,1);
+            printext256(0,k,COLOR_WHITE,-1,tempbuf,1);
             k += 6;
         }
 
     if (k >= ydim-12 && k<ydim-6)
-        printext256(0,k,31,-1,"(MORE . . .)",1);
+        printext256(0,k,COLOR_WHITE,-1,"(MORE . . .)",1);
 
     // sounds
     if (xdim < 640)
@@ -1416,7 +1419,7 @@ static void G_ShowCacheLocks(void)
 
                 Bsprintf(tempbuf, "snd #%d inst %d: voice %d, ow %d", i, j,
                          g_sounds[i].SoundOwner[j].voice, g_sounds[i].SoundOwner[j].ow);
-                printext256(240,k,31,-1,tempbuf,0);
+                printext256(240,k,COLOR_WHITE,-1,tempbuf,0);
 
                 k += 9;
             }
@@ -2423,8 +2426,6 @@ static void G_DrawStatusBar(int32_t snum)
     }
 }
 
-#define COLOR_RED 248
-#define COLOR_WHITE whitecol
 #define LOW_FPS 30
 
 #if defined GEKKO
@@ -2518,7 +2519,7 @@ static struct {
 
 #define printcoordsline(fmt, ...) do { \
     Bsprintf(tempbuf, fmt, ## __VA_ARGS__); \
-    printext256(20, y+=9, 31, -1, tempbuf, 0); \
+    printext256(20, y+=9, COLOR_WHITE, -1, tempbuf, 0); \
 } while (0)
 
 static void G_PrintCoords(int32_t snum)
@@ -2537,32 +2538,32 @@ static void G_PrintCoords(int32_t snum)
             y = 24;
     }
     Bsprintf(tempbuf, "XYZ= (%d, %d, %d)", ps->pos.x, ps->pos.y, ps->pos.z);
-    printext256(x,y,31,-1,tempbuf,0);
+    printext256(x,y,COLOR_WHITE,-1,tempbuf,0);
     Bsprintf(tempbuf, "A/H/HO= %d, %d, %d", ps->ang, ps->horiz, ps->horizoff);
-    printext256(x,y+9,31,-1,tempbuf,0);
+    printext256(x,y+9,COLOR_WHITE,-1,tempbuf,0);
     Bsprintf(tempbuf,"VEL= (%d, %d, %d) + (%d, %d, 0)",
              ps->vel.x>>14, ps->vel.y>>14, ps->vel.z, ps->fric.x>>5, ps->fric.y>>5);
-    printext256(x,y+18,31,-1,tempbuf,0);
+    printext256(x,y+18,COLOR_WHITE,-1,tempbuf,0);
     Bsprintf(tempbuf,"OG= %d  SBRIDGE=%d SBS=%d", ps->on_ground, ps->spritebridge, ps->sbs);
-    printext256(x,y+27,31,-1,tempbuf,0);
+    printext256(x,y+27,COLOR_WHITE,-1,tempbuf,0);
     if (sectnum >= 0)
         Bsprintf(tempbuf, "SECT= %d (LO=%d EX=%d)", sectnum,
                  TrackerCast(sector[sectnum].lotag), TrackerCast(sector[sectnum].extra));
     else
         Bsprintf(tempbuf,"SECT= %d", sectnum);
-    printext256(x,y+36,31,-1,tempbuf,0);
+    printext256(x,y+36,COLOR_WHITE,-1,tempbuf,0);
 //    Bsprintf(tempbuf,"SEED= %d",randomseed);
-//    printext256(x,y+45,31,-1,tempbuf,0);
+//    printext256(x,y+45,COLOR_WHITE,-1,tempbuf,0);
     y -= 9;
 
     y += 7;
     Bsprintf(tempbuf,"THOLD= %d", ps->transporter_hold);
-    printext256(x,y+54,31,-1,tempbuf,0);
+    printext256(x,y+54,COLOR_WHITE,-1,tempbuf,0);
     Bsprintf(tempbuf,"GAMETIC= %d, TOTALCLOCK=%d", g_moveThingsCount, totalclock);
-    printext256(x,y+63,31,-1,tempbuf,0);
+    printext256(x,y+63,COLOR_WHITE,-1,tempbuf,0);
 #ifdef DEBUGGINGAIDS
     Bsprintf(tempbuf,"NUMSPRITES= %d", Numsprites);
-    printext256(x,y+72,31,-1,tempbuf,0);
+    printext256(x,y+72,COLOR_WHITE,-1,tempbuf,0);
     if (g_moveThingsCount > g_spriteStat.lastgtic + REALGAMETICSPERSEC)
     {
         g_spriteStat.lastgtic = g_moveThingsCount;
@@ -2570,16 +2571,16 @@ static void G_PrintCoords(int32_t snum)
         g_spriteStat.numins = 0;
     }
     Bsprintf(tempbuf,"INSERTIONS/s= %u", g_spriteStat.lastnumins);
-    printext256(x,y+81,31,-1,tempbuf,0);
+    printext256(x,y+81,COLOR_WHITE,-1,tempbuf,0);
     Bsprintf(tempbuf,"ONSCREEN= %d", g_spriteStat.numonscreen);
-    printext256(x,y+90,31,-1,tempbuf,0);
+    printext256(x,y+90,COLOR_WHITE,-1,tempbuf,0);
     y += 3*9;
 #endif
     y += 7;
     Bsprintf(tempbuf,"VR=%.03f  YX=%.03f",(double)dr_viewingrange/65536.0,(double)dr_yxaspect/65536.0);
-    printext256(x,y+72,31,-1,tempbuf,0);
+    printext256(x,y+72,COLOR_WHITE,-1,tempbuf,0);
     Bsprintf(tempbuf, "MOVEACTORS [ms]= %.3e", g_moveActorsTime);
-    printext256(x,y+81,31,-1,tempbuf,0);
+    printext256(x,y+81,COLOR_WHITE,-1,tempbuf,0);
 
 #ifdef USE_OPENGL
     if (ud.coords == 2)

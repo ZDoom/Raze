@@ -700,7 +700,7 @@ EXTERN char *palookup[MAXPALOOKUPS];
 extern uint8_t *basepaltable[MAXBASEPALS];
 EXTERN uint8_t paletteloaded;
 EXTERN char *blendtable[MAXBLENDTABS];
-EXTERN uint8_t whitecol;
+EXTERN uint8_t whitecol, redcol;
 
 enum {
     PALETTE_MAIN = 1<<0,

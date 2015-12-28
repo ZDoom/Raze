@@ -8435,6 +8435,8 @@ static void E_PostLoadPalette(void)
         if (j < k) { k = j; blackcol = i; }
     }
 
+    redcol = getclosestcol(255, 0, 0);
+
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
     for (int c = 0; c < 255; ++c) // skipping transparent color
     {
