@@ -2677,13 +2677,13 @@ static int32_t Proj_MaybeDamageCF(const spritetype *s)
 
 ACTOR_STATIC void Proj_MoveCustom(int32_t i)
 {
+    int const m = SpriteProjectile[i].workslike & PROJECTILE_MOVED;
+    SpriteProjectile[i].workslike |= PROJECTILE_MOVED;
+
     const projectile_t *const proj = &SpriteProjectile[i];
     spritetype *const s = &sprite[i];
     vec3_t davect;
     int32_t j=0;
-
-    if (proj->pal >= 0)
-        s->pal = proj->pal;
 
     switch (proj->workslike & PROJECTILE_TYPE_MASK)
     {
@@ -2727,9 +2727,7 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
 
         if (proj->trail >= 0)
         {
-            int32_t cnt;
-
-            for (cnt=0; cnt<=proj->tnum; cnt++)
+            for (int cnt=0; cnt<=proj->tnum; cnt++)
             {
                 j = A_Spawn(i, proj->trail);
 
@@ -2754,6 +2752,14 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
                 ll >>= 1;
             }
 
+            uint16_t cst = 0;
+
+            if (!m && (unsigned) s->owner < MAXSPRITES)
+            {
+                cst = sprite[s->owner].cstat;
+                sprite[s->owner].cstat &= ~CSTAT_SPRITE_BLOCK;
+            }
+
             do
             {
                 vec3_t tmpvect;
@@ -2765,6 +2771,8 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
 
                 j = A_MoveSprite(i, &tmpvect, CLIPMASK1);
             } while (!j && --cnt > 0);
+
+            if (cst) sprite[s->owner].cstat = cst;
         }
 
         if (!(proj->workslike & PROJECTILE_BOUNCESOFFWALLS) &&  // NOT_BOUNCESOFFWALLS_YVEL

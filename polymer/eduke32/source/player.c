@@ -978,6 +978,9 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
         sprite[j].xrepeat = proj->xrepeat;
         sprite[j].yrepeat = proj->yrepeat;
 
+        if (proj->pal >= 0)
+            sprite[j].pal = proj->pal;
+
         if (proj->extra_rand > 0)
             sprite[j].extra += (krand()&proj->extra_rand);
 
