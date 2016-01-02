@@ -103,6 +103,14 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_RESETPLAYERFLAGS, 20150303 },
     { CON_APPENDEVENT, 20150325 },
     { CON_DEFSTATE, 20150923 },
+    { CON_SHIFTVARVARL, 20160101 },
+    { CON_SHIFTVARVARR, 20160101 },
+    { CON_IFVARVARLE, 20160101 },
+    { CON_IFVARVARGE, 20160101 },
+    { CON_IFVARVARBOTH, 20160101 },
+    { CON_WHILEVARL, 20160101 },
+    { CON_WHILEVARVARL, 20160101 },
+
 };
 #endif
 
@@ -1861,7 +1869,7 @@ static void C_GetNextVarType(int32_t type)
             if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
             {
                 g_numCompilerErrors++;
-                C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                C_ReportError(ERROR_NOTAMEMBER);
                 return;
             }
 
@@ -2989,7 +2997,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                    C_ReportError(ERROR_NOTAMEMBER);
                     continue;
                 }
 
@@ -3795,7 +3803,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                    C_ReportError(ERROR_NOTAMEMBER);
                     continue;
                 }
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
@@ -3912,7 +3920,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                    C_ReportError(ERROR_NOTAMEMBER);
                     continue;
                 }
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
@@ -3974,7 +3982,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                    C_ReportError(ERROR_NOTAMEMBER);
                     continue;
                 }
 
@@ -4050,7 +4058,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                    C_ReportError(ERROR_NOTAMEMBER);
                     continue;
                 }
 
@@ -4101,7 +4109,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                    C_ReportError(ERROR_NOTAMEMBER);
                     continue;
                 }
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
@@ -4291,7 +4299,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                    C_ReportError(ERROR_NOTAMEMBER);
                     continue;
                 }
 
@@ -4370,7 +4378,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
                     g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
+                    C_ReportError(ERROR_NOTAMEMBER);
                     continue;
                 }
 
@@ -6818,7 +6826,7 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: error: found more `}' than `{' before `%s'.\n",g_szScriptFileName,g_lineNumber,tempbuf);
         break;
     case ERROR_EVENTONLY:
-        initprintf("%s:%d: error: `%s' only valid during events.\n",g_szScriptFileName,g_lineNumber,tempbuf);
+        initprintf("%s:%d: error: keyword `%s' only available during events.\n",g_szScriptFileName,g_lineNumber,tempbuf);
         break;
     case ERROR_EXCEEDSMAXTILES:
         initprintf("%s:%d: error: `%s' value exceeds MAXTILES.  Maximum is %d.\n",g_szScriptFileName,g_lineNumber,tempbuf,MAXTILES-1);
@@ -6836,19 +6844,19 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: error: did not find `endswitch' before `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     case ERROR_NOTAGAMEDEF:
-        initprintf("%s:%d: error: symbol `%s' is not a game definition.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        initprintf("%s:%d: error: symbol `%s' is not a definition.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     case ERROR_NOTAGAMEVAR:
-        initprintf("%s:%d: error: symbol `%s' is not a game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        initprintf("%s:%d: error: symbol `%s' is not a variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     case ERROR_NOTAGAMEARRAY:
-        initprintf("%s:%d: error: symbol `%s' is not a game array.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        initprintf("%s:%d: error: symbol `%s' is not an array.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     case ERROR_GAMEARRAYBNC:
-        initprintf("%s:%d: error: square brackets for index of game array not closed, expected ] found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
+        initprintf("%s:%d: error: malformed array index: expected ], found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
         break;
     case ERROR_GAMEARRAYBNO:
-        initprintf("%s:%d: error: square brackets for index of game array not opened, expected [ found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
+        initprintf("%s:%d: error: malformed array index: expected [, found %c\n",g_szScriptFileName,g_lineNumber,*textptr);
         break;
     case ERROR_INVALIDARRAYWRITE:
         initprintf("%s:%d: error: arrays can only be written to using `setarray'.\n",g_szScriptFileName,g_lineNumber);
@@ -6859,8 +6867,8 @@ void C_ReportError(int32_t iError)
     case ERROR_PARAMUNDEFINED:
         initprintf("%s:%d: error: parameter `%s' is undefined.\n",g_szScriptFileName,g_lineNumber,tempbuf);
         break;
-    case ERROR_SYMBOLNOTRECOGNIZED:
-        initprintf("%s:%d: error: symbol `%s' is not recognized.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+    case ERROR_NOTAMEMBER:
+        initprintf("%s:%d: error: symbol `%s' is not a valid structure member.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     case ERROR_SYNTAXERROR:
         initprintf("%s:%d: error: syntax error.\n",g_szScriptFileName,g_lineNumber);
@@ -6881,7 +6889,7 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: warning: duplicate case ignored.\n",g_szScriptFileName,g_lineNumber);
         break;
     case WARNING_DUPLICATEDEFINITION:
-        initprintf("%s:%d: warning: duplicate game definition `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        initprintf("%s:%d: warning: duplicate definition `%s' ignored.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     case WARNING_EVENTSYNC:
         initprintf("%s:%d: warning: found `%s' within a local event.\n",g_szScriptFileName,g_lineNumber,tempbuf);
@@ -6890,13 +6898,13 @@ void C_ReportError(int32_t iError)
         initprintf("%s:%d: warning: expected a label, found a constant.\n",g_szScriptFileName,g_lineNumber);
         break;
     case WARNING_NAMEMATCHESVAR:
-        initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        initprintf("%s:%d: warning: symbol `%s' already used for variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
         break;
     case WARNING_VARMASKSKEYWORD:
-        initprintf("%s:%d: warning: game variable `%s' masks keyword.\n", g_szScriptFileName, g_lineNumber, label+(g_numLabels<<6));
+        initprintf("%s:%d: warning: variable `%s' masks keyword.\n", g_szScriptFileName, g_lineNumber, label+(g_numLabels<<6));
         break;
     case WARNING_ARRAYMASKSKEYWORD:
-        initprintf("%s:%d: warning: game array `%s' masks keyword.\n", g_szScriptFileName, g_lineNumber, label+(g_numLabels<<6));
+        initprintf("%s:%d: warning: array `%s' masks keyword.\n", g_szScriptFileName, g_lineNumber, label+(g_numLabels<<6));
         break;
     }
 }
