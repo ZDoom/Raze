@@ -205,7 +205,9 @@ enum ScriptError_t
     WARNING_DUPLICATEDEFINITION,
     WARNING_EVENTSYNC,
     WARNING_LABELSONLY,
-    WARNING_NAMEMATCHESVAR
+    WARNING_NAMEMATCHESVAR,
+    WARNING_VARMASKSKEYWORD,
+    WARNING_ARRAYMASKSKEYWORD
 };
 
 enum PlayerLabel_t
@@ -1049,6 +1051,13 @@ enum ScriptKeywords_t
     CON_RESETPLAYERFLAGS,   // 381
     CON_APPENDEVENT,        // 382
     CON_DEFSTATE,           // 383
+    CON_SHIFTVARVARL,       // 384
+    CON_SHIFTVARVARR,       // 385
+    CON_IFVARVARLE,         // 386
+    CON_IFVARVARGE,         // 387
+    CON_IFVARVARBOTH,       // 388
+    CON_WHILEVARL,          // 389
+    CON_WHILEVARVARL,       // 390
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

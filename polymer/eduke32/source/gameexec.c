@@ -4978,6 +4978,18 @@ finish_qsprintf:
             insptr += 2;
             continue;
 
+        case CON_SHIFTVARVARL:
+            insptr++;
+            tw = *insptr++;
+            Gv_SetVarX(tw, Gv_GetVarX(tw) << Gv_GetVarX(*insptr++));
+            continue;
+
+        case CON_SHIFTVARVARR:
+            insptr++;
+            tw = *insptr++;
+            Gv_SetVarX(tw, Gv_GetVarX(tw) >> Gv_GetVarX(*insptr++));
+            continue;
+
         case CON_SIN:
             insptr++;
             tw = *insptr++;
@@ -5097,6 +5109,14 @@ finish_qsprintf:
             VM_CONDITIONAL(tw);
             continue;
 
+        case CON_IFVARVARBOTH:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            tw = (Gv_GetVarX(*insptr++) && tw);
+            insptr--;
+            VM_CONDITIONAL(tw);
+            continue;
+
         case CON_IFVARVARN:
             insptr++;
             tw = Gv_GetVarX(*insptr++);
@@ -5121,10 +5141,26 @@ finish_qsprintf:
             VM_CONDITIONAL(tw);
             continue;
 
+        case CON_IFVARVARGE:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            tw = (tw >= Gv_GetVarX(*insptr++));
+            insptr--;
+            VM_CONDITIONAL(tw);
+            continue;
+
         case CON_IFVARVARL:
             insptr++;
             tw = Gv_GetVarX(*insptr++);
             tw = (tw < Gv_GetVarX(*insptr++));
+            insptr--;
+            VM_CONDITIONAL(tw);
+            continue;
+
+        case CON_IFVARVARLE:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            tw = (tw <= Gv_GetVarX(*insptr++));
             insptr--;
             VM_CONDITIONAL(tw);
             continue;
@@ -5148,6 +5184,18 @@ finish_qsprintf:
             continue;
         }
 
+        case CON_WHILEVARL:
+        {
+            intptr_t const *const savedinsptr = insptr + 2;
+            do
+            {
+                insptr = savedinsptr;
+                tw = (Gv_GetVarX(*(insptr - 1)) < *insptr);
+                VM_CONDITIONAL(tw);
+            } while (tw);
+            continue;
+        }
+
         case CON_WHILEVARVARN:
         {
             intptr_t const *const savedinsptr = insptr + 2;
@@ -5160,6 +5208,20 @@ finish_qsprintf:
                 VM_CONDITIONAL(tw);
             }
             while (tw);
+            continue;
+        }
+
+        case CON_WHILEVARVARL:
+        {
+            intptr_t const *const savedinsptr = insptr + 2;
+            do
+            {
+                insptr = savedinsptr;
+                tw = Gv_GetVarX(*(insptr - 1));
+                tw = (tw < Gv_GetVarX(*insptr++));
+                insptr--;
+                VM_CONDITIONAL(tw);
+            } while (tw);
             continue;
         }
 

@@ -37,6 +37,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #define NUMKEYWORDS (int32_t)ARRAY_SIZE(keyw)
+#define NUMALTKEYWORDS (int32_t)ARRAY_SIZE(altkeyw)
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 uint32_t g_scriptDateVersion = 99999999;  // YYYYMMDD
@@ -181,6 +182,43 @@ static const char *C_GetLabelType(int32_t type)
     return Xstrdup(x);
 }
 
+typedef struct {
+    const char* token;
+    int32_t val;
+} tokenmap_t;
+
+const tokenmap_t altkeyw [] =
+{
+    { "#define", CON_DEFINE },
+    { "al", CON_ADDLOGVAR },
+    { "var", CON_GAMEVAR },
+    { "array", CON_GAMEARRAY },
+    { "shiftl", CON_SHIFTVARVARL },
+    { "shiftr", CON_SHIFTVARVARR },
+    { "rand", CON_RANDVARVAR },
+    { "set", CON_SETVARVAR },
+    { "add", CON_ADDVARVAR },
+    { "sub", CON_SUBVARVAR },
+    { "mul", CON_MULVARVAR },
+    { "div", CON_DIVVARVAR },
+    { "mod", CON_MODVARVAR },
+    { "and", CON_ANDVARVAR },
+    { "or", CON_ORVARVAR },
+    { "xor", CON_XORVARVAR },
+    { "ifl", CON_IFVARVARL },
+    { "ifle", CON_IFVARVARLE },
+    { "ifg", CON_IFVARVARG },
+    { "ifge", CON_IFVARVARGE },
+    { "ife", CON_IFVARVARE },
+    { "ifn", CON_IFVARVARN },
+    { "ifand", CON_IFVARVARAND },
+    { "ifor", CON_IFVARVAROR },
+    { "ifxor", CON_IFVARVARXOR },
+    { "ifeither", CON_IFVARVAREITHER },
+    { "ifboth", CON_IFVARVARBOTH },
+    { "whilen", CON_WHILEVARVARN },
+    { "whilel", CON_WHILEVARVARL },
+};
 
 const char *keyw[] =
 {
@@ -568,6 +606,13 @@ const char *keyw[] =
     "resetplayerflags",         // 381
     "appendevent",              // 382
     "defstate",                 // 383
+    "shiftvarvarl",             // 384
+    "shiftvarvarr",             // 385
+    "ifvarvarle",               // 386
+    "ifvarvarge",               // 387
+    "ifvarvarboth",             // 388
+    "whilevarl",                // 389
+    "whilevarvarl",             // 390
     "<null>"
 };
 #endif
@@ -1277,6 +1322,7 @@ void C_InitHashes()
     }
 
     for (i=g_scriptLastKeyword; i>=0; i--) hash_add(&h_keywords,keyw[i],i,0);
+    for (i=0; i<NUMALTKEYWORDS; i++) hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val, 0);
     for (i=0; SectorLabels[i].lId >= 0; i++) hash_add(&sectorH,SectorLabels[i].name,i,0);
     for (i=0; WallLabels[i].lId >= 0; i++) hash_add(&wallH,WallLabels[i].name,i,0);
     for (i=0; UserdefsLabels[i].lId >= 0; i++) hash_add(&userdefH,UserdefsLabels[i].name,i,0);
@@ -2992,9 +3038,9 @@ DO_DEFSTATE:
 
             if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
             {
-                g_numCompilerErrors++;
-                C_ReportError(ERROR_ISAKEYWORD);
-                continue;
+                g_numCompilerWarnings++;
+                C_ReportError(WARNING_VARMASKSKEYWORD);
+                hash_delete(&h_keywords, label+(g_numLabels<<6));
             }
 
             //printf("Translating number  '%.20s'\n",textptr);
@@ -3037,9 +3083,9 @@ DO_DEFSTATE:
 
             if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
             {
-                g_numCompilerErrors++;
-                C_ReportError(ERROR_ISAKEYWORD);
-                continue;
+                g_numCompilerWarnings++;
+                C_ReportError(WARNING_ARRAYMASKSKEYWORD);
+                hash_delete(&h_keywords, label+(g_numLabels<<6));
             }
 
             i = hash_find(&h_gamevars,label+(g_numLabels<<6));
@@ -4353,6 +4399,8 @@ DO_DEFSTATE:
         case CON_ANDVARVAR:
         case CON_ORVARVAR:
         case CON_XORVARVAR:
+        case CON_SHIFTVARVARL:
+        case CON_SHIFTVARVARR:
         case CON_DISPLAYRANDVARVAR:
         case CON_SIN:
         case CON_COS:
@@ -4840,12 +4888,16 @@ DO_DEFSTATE:
         case CON_IFVARVARG:
         case CON_IFVARVARL:
         case CON_IFVARVARE:
+        case CON_IFVARVARLE:
+        case CON_IFVARVARGE:
+        case CON_IFVARVARBOTH:
         case CON_IFVARVARN:
         case CON_IFVARVARAND:
         case CON_IFVARVAROR:
         case CON_IFVARVARXOR:
         case CON_IFVARVAREITHER:
         case CON_WHILEVARVARN:
+        case CON_WHILEVARVARL:
             {
                 intptr_t offset;
                 intptr_t lastScriptPtr = g_scriptPtr - &script[0] - 1;
@@ -4894,6 +4946,7 @@ DO_DEFSTATE:
         case CON_IFVARXOR:
         case CON_IFVAREITHER:
         case CON_WHILEVARN:
+        case CON_WHILEVARL:
             {
                 intptr_t offset;
                 intptr_t lastScriptPtr = (g_scriptPtr-script-1);
@@ -4919,7 +4972,7 @@ DO_DEFSTATE:
                 *tempscrptr = (intptr_t) g_scriptPtr;
                 bitptr[(tempscrptr-script)>>3] |= (BITPTR_POINTER<<((tempscrptr-script)&7));
 
-                if (tw != CON_WHILEVARN)
+                if (tw != CON_WHILEVARN && tw != CON_WHILEVARL)
                 {
                     j = C_GetKeyword();
 
@@ -6647,8 +6700,8 @@ void C_Compile(const char *filenam)
 
     DO_FREE_AND_NULL(mptr);
 
-    if (g_numCompilerWarnings|g_numCompilerErrors)
-        initprintf("Found %d warning(s), %d error(s).\n",g_numCompilerWarnings,g_numCompilerErrors);
+    if (g_numCompilerWarnings || g_numCompilerErrors)
+        initprintf("Found %d warning(s), %d error(s).\n", g_numCompilerWarnings, g_numCompilerErrors);
 
     if (g_numCompilerErrors)
     {
@@ -6838,6 +6891,12 @@ void C_ReportError(int32_t iError)
         break;
     case WARNING_NAMEMATCHESVAR:
         initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        break;
+    case WARNING_VARMASKSKEYWORD:
+        initprintf("%s:%d: warning: game variable `%s' masks keyword.\n", g_szScriptFileName, g_lineNumber, label+(g_numLabels<<6));
+        break;
+    case WARNING_ARRAYMASKSKEYWORD:
+        initprintf("%s:%d: warning: game array `%s' masks keyword.\n", g_szScriptFileName, g_lineNumber, label+(g_numLabels<<6));
         break;
     }
 }
