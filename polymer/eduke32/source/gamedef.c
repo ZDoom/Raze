@@ -81,7 +81,6 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_IFVARVAREITHER, 20080907 },
     { CON_SAVENN, 20080915 },
     { CON_COPY, 20090219 },
-//    { CON_INV, 20090619 },
     { CON_QSTRNCAT, 20090712 },
     { CON_STOPACTORSOUND, 20090715 },
     { CON_IFSERVER, 20100722 },
@@ -110,6 +109,8 @@ static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
     { CON_IFVARVARBOTH, 20160101 },
     { CON_WHILEVARL, 20160101 },
     { CON_WHILEVARVARL, 20160101 },
+    { CON_KLABS, 20160101 },
+    { CON_INV, 20160101 },
 
 };
 #endif
@@ -226,6 +227,7 @@ const tokenmap_t altkeyw [] =
     { "ifboth", CON_IFVARVARBOTH },
     { "whilen", CON_WHILEVARVARN },
     { "whilel", CON_WHILEVARVARL },
+    { "abs", CON_KLABS },
 };
 
 const char *keyw[] =
@@ -576,7 +578,7 @@ const char *keyw[] =
     "getarraysize",             // 343
     "savenn",                   // 344
     "copy",                     // 345
-    "<null>",                   // 346 internal inversion function
+    "inv",                      // 346
     "sectorofwall",             // 347
     "qstrncat",                 // 348
     "ifactorsound",             // 349
@@ -621,6 +623,7 @@ const char *keyw[] =
     "ifvarvarboth",             // 388
     "whilevarl",                // 389
     "whilevarvarl",             // 390
+    "klabs",                    // 391
     "<null>"
 };
 #endif
@@ -4474,6 +4477,8 @@ DO_DEFSTATE:
         case CON_GETTICKS:
         case CON_GETCURRADDRESS:
         case CON_GETMUSICPOSITION:
+        case CON_KLABS:
+        case CON_INV:
             C_GetNextVarType(GAMEVAR_READONLY);
             continue;
 

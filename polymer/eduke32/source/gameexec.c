@@ -4536,6 +4536,14 @@ finish_qsprintf:
             insptr += 2;
             continue;
 
+        case CON_KLABS:
+            if ((aGameVars[*(insptr + 1)].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
+                aGameVars[*(insptr + 1)].val.lValue = klabs(aGameVars[*(insptr + 1)].val.lValue);
+            else
+                Gv_SetVarX(*(insptr + 1), klabs(Gv_GetVarX(*(insptr + 1))));
+            insptr += 2;
+            continue;
+
         case CON_SETARRAY:
             insptr++;
             {
