@@ -1278,20 +1278,20 @@ hashtable_t h_gamevars    = { MAXGAMEVARS>>1, NULL };
 hashtable_t h_arrays      = { MAXGAMEARRAYS>>1, NULL };
 hashtable_t h_labels      = { 11264>>1, NULL };
 
-static hashtable_t h_keywords       = { CON_END>>1, NULL };
+static hashtable_t h_keywords   = { CON_END>>1, NULL };
 
-static hashtable_t sectorH     = { SECTOR_END>>1, NULL };
-static hashtable_t wallH       = { WALL_END>>1, NULL };
-static hashtable_t userdefH    = { USERDEFS_END>>1, NULL };
+static hashtable_t h_sector     = { SECTOR_END>>1, NULL };
+static hashtable_t h_wall       = { WALL_END>>1, NULL };
+static hashtable_t h_userdef    = { USERDEFS_END>>1, NULL };
 
-static hashtable_t projectileH = { PROJ_END>>1, NULL };
-static hashtable_t playerH     = { PLAYER_END>>1, NULL };
-static hashtable_t inputH      = { INPUT_END>>1, NULL };
-static hashtable_t actorH      = { ACTOR_END>>1, NULL };
-static hashtable_t tspriteH    = { ACTOR_END>>1, NULL };
+static hashtable_t h_projectile = { PROJ_END>>1, NULL };
+static hashtable_t h_player     = { PLAYER_END>>1, NULL };
+static hashtable_t h_input      = { INPUT_END>>1, NULL };
+static hashtable_t h_actor      = { ACTOR_END>>1, NULL };
+static hashtable_t h_tsprite    = { ACTOR_END>>1, NULL };
 
-static hashtable_t tiledataH   = { TILEDATA_END>>1, NULL };
-static hashtable_t paldataH    = { PALDATA_END>>1, NULL };
+static hashtable_t h_tiledata   = { TILEDATA_END>>1, NULL };
+static hashtable_t h_paldata    = { PALDATA_END>>1, NULL };
 
 void C_InitHashes()
 {
@@ -1304,16 +1304,16 @@ void C_InitHashes()
     initsoundhashnames();
 
     hash_init(&h_keywords);
-    hash_init(&sectorH);
-    hash_init(&wallH);
-    hash_init(&userdefH);
-    hash_init(&projectileH);
-    hash_init(&playerH);
-    hash_init(&inputH);
-    hash_init(&actorH);
-    hash_init(&tspriteH);
-    hash_init(&tiledataH);
-    hash_init(&paldataH);
+    hash_init(&h_sector);
+    hash_init(&h_wall);
+    hash_init(&h_userdef);
+    hash_init(&h_projectile);
+    hash_init(&h_player);
+    hash_init(&h_input);
+    hash_init(&h_actor);
+    hash_init(&h_tsprite);
+    hash_init(&h_tiledata);
+    hash_init(&h_paldata);
 
     g_scriptLastKeyword = NUMKEYWORDS-1;
     // determine last CON keyword for backward compatibility with older mods
@@ -1334,16 +1334,16 @@ void C_InitHashes()
 
     for (i=g_scriptLastKeyword; i>=0; i--) hash_add(&h_keywords,keyw[i],i,0);
     for (i=0; i<NUMALTKEYWORDS; i++) hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val, 0);
-    for (i=0; SectorLabels[i].lId >= 0; i++) hash_add(&sectorH,SectorLabels[i].name,i,0);
-    for (i=0; WallLabels[i].lId >= 0; i++) hash_add(&wallH,WallLabels[i].name,i,0);
-    for (i=0; UserdefsLabels[i].lId >= 0; i++) hash_add(&userdefH,UserdefsLabels[i].name,i,0);
-    for (i=0; ProjectileLabels[i].lId >= 0; i++) hash_add(&projectileH,ProjectileLabels[i].name,i,0);
-    for (i=0; PlayerLabels[i].lId >= 0; i++) hash_add(&playerH,PlayerLabels[i].name,i,0);
-    for (i=0; InputLabels[i].lId >= 0; i++) hash_add(&inputH,InputLabels[i].name,i,0);
-    for (i=0; ActorLabels[i].lId >= 0; i++) hash_add(&actorH,ActorLabels[i].name,i,0);
-    for (i=0; TsprLabels[i].lId >= 0; i++) hash_add(&tspriteH,TsprLabels[i].name,i,0);
-    for (i=0; TileDataLabels[i].lId >= 0; i++) hash_add(&tiledataH,TileDataLabels[i].name,i,0);
-    for (i=0; PalDataLabels[i].lId >= 0; i++) hash_add(&paldataH,PalDataLabels[i].name,i,0);
+    for (i=0; SectorLabels[i].lId >= 0; i++) hash_add(&h_sector,SectorLabels[i].name,i,0);
+    for (i=0; WallLabels[i].lId >= 0; i++) hash_add(&h_wall,WallLabels[i].name,i,0);
+    for (i=0; UserdefsLabels[i].lId >= 0; i++) hash_add(&h_userdef,UserdefsLabels[i].name,i,0);
+    for (i=0; ProjectileLabels[i].lId >= 0; i++) hash_add(&h_projectile,ProjectileLabels[i].name,i,0);
+    for (i=0; PlayerLabels[i].lId >= 0; i++) hash_add(&h_player,PlayerLabels[i].name,i,0);
+    for (i=0; InputLabels[i].lId >= 0; i++) hash_add(&h_input,InputLabels[i].name,i,0);
+    for (i=0; ActorLabels[i].lId >= 0; i++) hash_add(&h_actor,ActorLabels[i].name,i,0);
+    for (i=0; TsprLabels[i].lId >= 0; i++) hash_add(&h_tsprite,TsprLabels[i].name,i,0);
+    for (i=0; TileDataLabels[i].lId >= 0; i++) hash_add(&h_tiledata,TileDataLabels[i].name,i,0);
+    for (i=0; PalDataLabels[i].lId >= 0; i++) hash_add(&h_paldata,PalDataLabels[i].name,i,0);
 }
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
@@ -1785,7 +1785,11 @@ static void C_GetNextVarType(int32_t type)
         }
         else
         {
-            C_GetNextVarType(0);
+            if (*textptr == ']')
+                *g_scriptPtr++ = g_iThisActorID;
+            else
+                C_GetNextVarType(0);
+
             C_SkipComments();
         }
 
@@ -1832,39 +1836,39 @@ static void C_GetNextVarType(int32_t type)
             switch (i - g_iStructVarIDs)
             {
             case STRUCT_SPRITE:
-                lLabelID=C_GetLabelNameOffset(&actorH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameOffset(&h_actor,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_SECTOR:
-                lLabelID=C_GetLabelNameOffset(&sectorH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameOffset(&h_sector,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_WALL:
-                lLabelID=C_GetLabelNameOffset(&wallH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameOffset(&h_wall,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_PLAYER:
-                lLabelID=C_GetLabelNameOffset(&playerH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameOffset(&h_player,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_ACTORVAR:
             case STRUCT_PLAYERVAR:
                 lLabelID=GetDefID(label+(g_numLabels<<6));
                 break;
             case STRUCT_TSPR:
-                lLabelID=C_GetLabelNameOffset(&tspriteH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameOffset(&h_tsprite,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_PROJECTILE:
             case STRUCT_THISPROJECTILE:
-                lLabelID=C_GetLabelNameOffset(&projectileH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameOffset(&h_projectile,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_USERDEF:
-                lLabelID=C_GetLabelNameOffset(&userdefH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameOffset(&h_userdef,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_INPUT:
-                lLabelID=C_GetLabelNameOffset(&inputH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameOffset(&h_input,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_TILEDATA:
-                lLabelID=C_GetLabelNameOffset(&tiledataH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameOffset(&h_tiledata,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_PALDATA:
-                lLabelID=C_GetLabelNameOffset(&paldataH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameOffset(&h_paldata,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             }
 
@@ -2112,6 +2116,62 @@ static int32_t C_GetNextValue(int32_t type)
     textptr += l;
 
     return 0;   // literal value
+}
+
+static int32_t C_GetStructureIndexes(int32_t labelsonly, hashtable_t *table)
+{
+    while ((*textptr != '['))
+        textptr++;
+
+    if (*textptr == '[')
+        textptr++;
+
+    C_SkipComments();
+
+    if (*textptr == ']')
+        *g_scriptPtr++ = g_iThisActorID;
+    else
+    {
+        g_labelsOnly = labelsonly;
+        C_GetNextVar();
+        g_labelsOnly = 0;
+    }
+
+    // now get name of .xxx
+    while (*textptr != '.')
+    {
+        if (*textptr == 0xa || !*textptr)
+            break;
+
+        textptr++;
+    }
+
+    if (EDUKE32_PREDICT_FALSE(*textptr != '.'))
+    {
+        g_numCompilerErrors++;
+        C_ReportError(ERROR_SYNTAXERROR);
+        return -1;
+    }
+
+    textptr++;
+
+    if (!table)
+        return 0;
+
+    // .xxx
+
+    C_GetNextLabelName();
+
+    int32_t lLabelID = C_GetLabelNameOffset(table, Bstrtolower(label + (g_numLabels << 6)));
+
+    if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
+    {
+        g_numCompilerErrors++;
+        C_ReportError(ERROR_NOTAMEMBER);
+        return -1;
+    }
+
+    return lLabelID;
 }
 
 static inline int32_t C_IntPow2(int32_t v)
@@ -2956,53 +3016,10 @@ DO_DEFSTATE:
         case CON_GETTHISPROJECTILE:
         case CON_GETPROJECTILE:
             {
-                int32_t lLabelID;
+                int32_t lLabelID = C_GetStructureIndexes(tw == CON_SETTHISPROJECTILE || tw == CON_GETTHISPROJECTILE, &h_projectile);
 
-                // syntax getwall[<var>].x <VAR>
-                // gets the value of wall[<var>].xxx into <VAR>
-
-                // now get name of .xxx
-                while ((*textptr != '['))
-                {
-                    textptr++;
-                }
-                if (*textptr == '[')
-                    textptr++;
-
-                // get the ID of the DEF
-                if (tw == CON_SETTHISPROJECTILE)
-                    g_labelsOnly = 1;
-                C_GetNextVar();
-                g_labelsOnly = 0;
-                // now get name of .xxx
-                while (*textptr != '.')
-                {
-                    if (*textptr == 0xa)
-                        break;
-                    if (!*textptr)
-                        break;
-
-                    textptr++;
-                }
-                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYNTAXERROR);
+                if (lLabelID == -1)
                     continue;
-                }
-                textptr++;
-                /// now pointing at 'xxx'
-                C_GetNextLabelName();
-                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
-
-                lLabelID=C_GetLabelNameOffset(&projectileH,Bstrtolower(label+(g_numLabels<<6)));
-                //printf("LabelID is %d\n",lLabelID);
-                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_NOTAMEMBER);
-                    continue;
-                }
 
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=ProjectileLabels[lLabelID].lId;
@@ -3763,52 +3780,11 @@ DO_DEFSTATE:
         case CON_SETSECTOR:
         case CON_GETSECTOR:
             {
-                int32_t lLabelID;
+                int32_t lLabelID = C_GetStructureIndexes(1, &h_sector);
 
-                // syntax getsector[<var>].x <VAR>
-                // gets the value of sector[<var>].xxx into <VAR>
-
-                // now get name of .xxx
-                while ((*textptr != '['))
-                {
-                    textptr++;
-                }
-                if (*textptr == '[')
-                    textptr++;
-
-                // get the ID of the DEF
-                g_labelsOnly = 1;
-                C_GetNextVar();
-                g_labelsOnly = 0;
-                // now get name of .xxx
-                while (*textptr != '.')
-                {
-                    if (*textptr == 0xa)
-                        break;
-                    if (!*textptr)
-                        break;
-
-                    textptr++;
-                }
-                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYNTAXERROR);
+                if (lLabelID == -1)
                     continue;
-                }
-                textptr++;
-                /// now pointing at 'xxx'
-                C_GetNextLabelName();
-                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
-                lLabelID=C_GetLabelNameID(SectorLabels,&sectorH,Bstrtolower(label+(g_numLabels<<6)));
-
-                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_NOTAMEMBER);
-                    continue;
-                }
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=lLabelID;
 
@@ -3880,52 +3856,11 @@ DO_DEFSTATE:
         case CON_SETWALL:
         case CON_GETWALL:
             {
-                int32_t lLabelID;
+                int32_t lLabelID = C_GetStructureIndexes(1, &h_wall);
 
-                // syntax getwall[<var>].x <VAR>
-                // gets the value of wall[<var>].xxx into <VAR>
-
-                // now get name of .xxx
-                while ((*textptr != '['))
-                {
-                    textptr++;
-                }
-                if (*textptr == '[')
-                    textptr++;
-
-                // get the ID of the DEF
-                g_labelsOnly = 1;
-                C_GetNextVar();
-                g_labelsOnly = 0;
-                // now get name of .xxx
-                while (*textptr != '.')
-                {
-                    if (*textptr == 0xa)
-                        break;
-                    if (!*textptr)
-                        break;
-
-                    textptr++;
-                }
-                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYNTAXERROR);
+                if (lLabelID == -1)
                     continue;
-                }
-                textptr++;
-                /// now pointing at 'xxx'
-                C_GetNextLabelName();
-                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
-                lLabelID=C_GetLabelNameID(WallLabels,&wallH,Bstrtolower(label+(g_numLabels<<6)));
-
-                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_NOTAMEMBER);
-                    continue;
-                }
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=lLabelID;
 
@@ -3942,52 +3877,10 @@ DO_DEFSTATE:
         case CON_SETPLAYER:
         case CON_GETPLAYER:
             {
-                int32_t lLabelID;
+                int32_t lLabelID = C_GetStructureIndexes(1, &h_player);
 
-                // syntax getwall[<var>].x <VAR>
-                // gets the value of wall[<var>].xxx into <VAR>
-
-                // now get name of .xxx
-                while ((*textptr != '['))
-                {
-                    textptr++;
-                }
-                if (*textptr == '[')
-                    textptr++;
-
-                // get the ID of the DEF
-                g_labelsOnly = 1;
-                C_GetNextVar();
-                g_labelsOnly = 0;
-                // now get name of .xxx
-                while (*textptr != '.')
-                {
-                    if (*textptr == 0xa)
-                        break;
-                    if (!*textptr)
-                        break;
-
-                    textptr++;
-                }
-                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYNTAXERROR);
+                if (lLabelID == -1)
                     continue;
-                }
-                textptr++;
-                /// now pointing at 'xxx'
-                C_GetNextLabelName();
-                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
-
-                lLabelID=C_GetLabelNameOffset(&playerH,Bstrtolower(label+(g_numLabels<<6)));
-                //printf("LabelID is %d\n",lLabelID);
-                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_NOTAMEMBER);
-                    continue;
-                }
 
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=PlayerLabels[lLabelID].lId;
@@ -4018,52 +3911,10 @@ DO_DEFSTATE:
         case CON_SETINPUT:
         case CON_GETINPUT:
             {
-                int32_t lLabelID;
+                int32_t lLabelID = C_GetStructureIndexes(1, &h_input);
 
-                // syntax getwall[<var>].x <VAR>
-                // gets the value of wall[<var>].xxx into <VAR>
-
-                // now get name of .xxx
-                while ((*textptr != '['))
-                {
-                    textptr++;
-                }
-                if (*textptr == '[')
-                    textptr++;
-
-                // get the ID of the DEF
-                g_labelsOnly = 1;
-                C_GetNextVar();
-                g_labelsOnly = 0;
-                // now get name of .xxx
-                while (*textptr != '.')
-                {
-                    if (*textptr == 0xa)
-                        break;
-                    if (!*textptr)
-                        break;
-
-                    textptr++;
-                }
-                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYNTAXERROR);
+                if (lLabelID == -1)
                     continue;
-                }
-                textptr++;
-                /// now pointing at 'xxx'
-                C_GetNextLabelName();
-                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
-
-                lLabelID=C_GetLabelNameOffset(&inputH,Bstrtolower(label+(g_numLabels<<6)));
-                //printf("LabelID is %d\n",lLabelID);
-                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_NOTAMEMBER);
-                    continue;
-                }
 
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=InputLabels[lLabelID].lId;
@@ -4089,13 +3940,12 @@ DO_DEFSTATE:
                 // now get name of .xxx
                 while (*textptr != '.')
                 {
-                    if (*textptr == 0xa)
-                        break;
-                    if (!*textptr)
+                    if (*textptr == 0xa || !*textptr)
                         break;
 
                     textptr++;
                 }
+
                 if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
                 {
                     g_numCompilerErrors++;
@@ -4107,7 +3957,7 @@ DO_DEFSTATE:
                 C_GetNextLabelName();
                 //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
 
-                lLabelID=C_GetLabelNameID(UserdefsLabels,&userdefH,Bstrtolower(label+(g_numLabels<<6)));
+                lLabelID=C_GetLabelNameID(UserdefsLabels,&h_userdef,Bstrtolower(label+(g_numLabels<<6)));
 
                 if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
@@ -4136,35 +3986,8 @@ DO_DEFSTATE:
                 // syntax [gs]etactorvar[<var>].<varx> <VAR>
                 // gets the value of the per-actor variable varx into VAR
 
-                // now get name of <var>
-                while ((*textptr != '['))
-                {
-                    textptr++;
-                }
-                if (*textptr == '[')
-                    textptr++;
-
-                // get the ID of the DEF
-                g_labelsOnly = 1;
-                C_GetNextVar();
-                g_labelsOnly = 0;
-                // now get name of .<varx>
-                while (*textptr != '.')
-                {
-                    if (*textptr == 0xa)
-                        break;
-                    if (!*textptr)
-                        break;
-
-                    textptr++;
-                }
-                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYNTAXERROR);
+                if (C_GetStructureIndexes(1, NULL) == -1)
                     continue;
-                }
-                textptr++;
 
                 if (g_scriptPtr[-1] == g_iThisActorID) // convert to "setvarvar"
                 {
@@ -4257,54 +4080,10 @@ DO_DEFSTATE:
         case CON_SETACTOR:
         case CON_GETACTOR:
             {
-                int32_t lLabelID;
+                int32_t lLabelID = C_GetStructureIndexes(1, &h_actor);
 
-                // syntax getwall[<var>].x <VAR>
-                // gets the value of wall[<var>].xxx into <VAR>
-
-                // now get name of .xxx
-                while ((*textptr != '['))
-                    textptr++;
-
-                if (*textptr == '[')
-                    textptr++;
-
-                // get the ID of the DEF
-                g_labelsOnly = 1;
-                C_GetNextVar();
-                g_labelsOnly = 0;
-                // now get name of .xxx
-
-                while (*textptr != '.')
-                {
-                    if (*textptr == 0xa)
-                        break;
-                    if (!*textptr)
-                        break;
-
-                    textptr++;
-                }
-
-                if (EDUKE32_PREDICT_FALSE(*textptr != '.'))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYNTAXERROR);
+                if (lLabelID == -1)
                     continue;
-                }
-                textptr++;
-                /// now pointing at 'xxx'
-
-                C_GetNextLabelName();
-                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
-
-                lLabelID=C_GetLabelNameOffset(&actorH,Bstrtolower(label+(g_numLabels<<6)));
-                //printf("LabelID is %d\n",lLabelID);
-                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_NOTAMEMBER);
-                    continue;
-                }
 
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=ActorLabels[lLabelID].lId;
@@ -4331,7 +4110,6 @@ DO_DEFSTATE:
         case CON_GETTSPR:
         case CON_SETTSPR:
             {
-                int32_t lLabelID;
 #if 0
                 if (unlikely(g_currentEvent != EVENT_ANIMATESPRITES))
                 {
@@ -4340,50 +4118,10 @@ DO_DEFSTATE:
                     g_numCompilerWarnings++;
                 }
 #endif
-                // syntax getwall[<var>].x <VAR>
-                // gets the value of wall[<var>].xxx into <VAR>
+                int32_t lLabelID = C_GetStructureIndexes(1, &h_tsprite);
 
-                // now get name of .xxx
-                while ((*textptr != '['))
-                {
-                    textptr++;
-                }
-                if (*textptr == '[')
-                    textptr++;
-
-                // get the ID of the DEF
-                g_labelsOnly = 1;
-                C_GetNextVar();
-                g_labelsOnly = 0;
-                // now get name of .xxx
-                while (*textptr != '.')
-                {
-                    if (*textptr == 0xa)
-                        break;
-                    if (!*textptr)
-                        break;
-
-                    textptr++;
-                }
-                if (EDUKE32_PREDICT_FALSE(*textptr!='.'))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_SYNTAXERROR);
+                if (lLabelID == -1)
                     continue;
-                }
-                textptr++;
-                /// now pointing at 'xxx'
-                C_GetNextLabelName();
-                //printf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));
-
-                lLabelID=C_GetLabelNameOffset(&tspriteH,Bstrtolower(label+(g_numLabels<<6)));
-                //printf("LabelID is %d\n",lLabelID);
-                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
-                {
-                    g_numCompilerErrors++;
-                    C_ReportError(ERROR_NOTAMEMBER);
-                    continue;
-                }
 
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=TsprLabels[lLabelID].lId;
@@ -6773,15 +6511,15 @@ void C_Compile(const char *filenam)
         freehashnames();
         freesoundhashnames();
 
-        hash_free(&sectorH);
-        hash_free(&wallH);
-        hash_free(&userdefH);
+        hash_free(&h_sector);
+        hash_free(&h_wall);
+        hash_free(&h_userdef);
 
-        hash_free(&projectileH);
-        hash_free(&playerH);
-        hash_free(&inputH);
-        hash_free(&actorH);
-        hash_free(&tspriteH);
+        hash_free(&h_projectile);
+        hash_free(&h_player);
+        hash_free(&h_input);
+        hash_free(&h_actor);
+        hash_free(&h_tsprite);
 
         g_totalLines += g_lineNumber;
 
