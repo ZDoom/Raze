@@ -1888,7 +1888,6 @@ static void C_GetNextVarType(int32_t type)
                 break;
             }
 
-            //printf("LabelID is %d\n",lLabelID);
             if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
             {
                 g_numCompilerErrors++;
@@ -1903,14 +1902,8 @@ static void C_GetNextVarType(int32_t type)
             case STRUCT_SPRITE:
                 *g_scriptPtr++=ActorLabels[lLabelID].lId;
 
-                //printf("member's flags are: %02Xh\n",ActorLabels[lLabelID].flags);
                 if (ActorLabels[lLabelID].flags & LABEL_HASPARM2)
-                {
-                    //printf("Member has PARM2\n");
-                    // get parm2
-                    // get the ID of the DEF
                     C_GetNextVarType(0);
-                }
                 break;
             case STRUCT_SECTOR:
                 *g_scriptPtr++=SectorLabels[lLabelID].lId;
@@ -1921,14 +1914,8 @@ static void C_GetNextVarType(int32_t type)
             case STRUCT_PLAYER:
                 *g_scriptPtr++=PlayerLabels[lLabelID].lId;
 
-                //printf("member's flags are: %02Xh\n",ActorLabels[lLabelID].flags);
                 if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2)
-                {
-                    //printf("Member has PARM2\n");
-                    // get parm2
-                    // get the ID of the DEF
                     C_GetNextVarType(0);
-                }
                 break;
             case STRUCT_ACTORVAR:
             case STRUCT_PLAYERVAR:
@@ -3030,11 +3017,6 @@ DO_DEFSTATE:
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=ProjectileLabels[lLabelID].lId;
 
-                //printf("member's flags are: %02Xh\n",PlayerLabels[lLabelID].flags);
-
-                // now at target VAR...
-
-                // get the ID of the DEF
                 switch (tw)
                 {
                 case CON_SETPROJECTILE:
@@ -3053,7 +3035,6 @@ DO_DEFSTATE:
             // defines var1 and sets initial value.
             // flags are used to define usage
             // (see top of this files for flags)
-            //printf("Got gamedef. Getting Label. '%.20s'\n",textptr);
 
             if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) || (*textptr == '-')))
             {
@@ -3067,8 +3048,6 @@ DO_DEFSTATE:
             }
 
             C_GetNextLabelName();
-            //printf("Got Label '%.20s'\n",textptr);
-            // Check to see it's already defined
 
             if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
             {
@@ -3077,26 +3056,21 @@ DO_DEFSTATE:
                 hash_delete(&h_keywords, label+(g_numLabels<<6));
             }
 
-            //printf("Translating number  '%.20s'\n",textptr);
             C_GetNextValue(LABEL_DEFINE); // get initial value
-            //printf("Done Translating number.  '%.20s'\n",textptr);
-
             C_GetNextValue(LABEL_DEFINE); // get flags
-            //Bsprintf(g_szBuf,"Adding GameVar=\"%s\", val=%l, flags=%lX",label+(g_numLabels<<6),
-            //      *(g_scriptPtr-2), *(g_scriptPtr-1));
-            //AddLog(g_szBuf);
+
             if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr-1)&GAMEVAR_USER_MASK)==3))
             {
                 g_numCompilerWarnings++;
                 *(g_scriptPtr-1)^=GAMEVAR_PERPLAYER;
                 C_ReportError(WARNING_BADGAMEVAR);
             }
+
             Gv_NewVar(label+(g_numLabels<<6),*(g_scriptPtr-2),
                 (*(g_scriptPtr-1))
                 // can't define default or secret
                 & (~(GAMEVAR_DEFAULT | GAMEVAR_SECRET))
                 );
-            //AddLog("Added gamevar");
             g_scriptPtr -= 3; // no need to save in script...
             continue;
 
@@ -3112,8 +3086,6 @@ DO_DEFSTATE:
                 continue;
             }
             C_GetNextLabelName();
-            //printf("Got Label '%.20s'\n",textptr);
-            // Check to see it's already defined
 
             if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
             {
@@ -3137,10 +3109,7 @@ DO_DEFSTATE:
 
         case CON_DEFINE:
             {
-                //printf("Got definition. Getting Label. '%.20s'\n",textptr);
                 C_GetNextLabelName();
-                //printf("Got label. '%.20s'\n",textptr);
-                // Check to see it's already defined
 
                 if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
                 {
@@ -3156,9 +3125,7 @@ DO_DEFSTATE:
                     C_ReportError(WARNING_NAMEMATCHESVAR);
                 }
 
-                //printf("Translating. '%.20s'\n",textptr);
                 C_GetNextValue(LABEL_DEFINE);
-                //printf("Translated. '%.20s'\n",textptr);
 
                 i = hash_find(&h_labels,label+(g_numLabels<<6));
                 if (i>=0)
@@ -3170,12 +3137,10 @@ DO_DEFSTATE:
                         g_numCompilerWarnings++;
                         initprintf("%s:%d: warning: ignored redefinition of `%s' to %d (old: %d).\n",g_szScriptFileName,
                                    g_lineNumber,label+(g_numLabels<<6), (int32_t)(*(g_scriptPtr-1)), labelcode[i]);
-                        //C_ReportError(WARNING_DUPLICATEDEFINITION);
                     }
                 }
                 else
                 {
-                    //              printf("Defining Definition \"%s\" to be '%d'\n",label+(g_numLabels<<6),*(g_scriptPtr-1));
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
                     labeltype[g_numLabels] = LABEL_DEFINE;
                     labelcode[g_numLabels++] = *(g_scriptPtr-1);
@@ -3970,11 +3935,8 @@ DO_DEFSTATE:
 
                 /// now pointing at 'xxx'
 
-                // get the ID of the DEF
                 C_GetNextLabelName();
-                //printf("found label of \"%s\"\n",   label+(g_numLabels<<6));
 
-                // Check to see if it's a keyword
                 if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_numLabels<<6))>=0))
                 {
                     g_numCompilerErrors++;
@@ -3983,10 +3945,9 @@ DO_DEFSTATE:
                 }
 
                 i=GetDefID(label+(g_numLabels<<6));
-                //printf("Label \"%s\" ID is %d\n",label+(g_numLabels<<6), i);
+
                 if (EDUKE32_PREDICT_FALSE(i<0))
                 {
-                    // not a defined DEF
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_NOTAGAMEVAR);
                     continue;
@@ -4047,14 +4008,8 @@ DO_DEFSTATE:
                 bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++=ActorLabels[lLabelID].lId;
 
-                //printf("member's flags are: %02Xh\n",ActorLabels[lLabelID].flags);
                 if (ActorLabels[lLabelID].flags & LABEL_HASPARM2)
-                {
-                    //printf("Member has PARM2\n");
-                    // get parm2
-                    // get the ID of the DEF
                     C_GetNextVar();
-                }
 
                 C_GetNextVarType((tw == CON_GETACTOR) ? GAMEVAR_READONLY : 0);
                 continue;
@@ -4166,9 +4121,7 @@ DO_DEFSTATE:
             continue;
 
         case CON_ENHANCED:
-            // don't store in pCode...
             g_scriptPtr--;
-            //printf("We are enhanced, baby...\n");
             C_GetNextValue(LABEL_DEFINE);
             g_scriptPtr--;
             if (EDUKE32_PREDICT_FALSE(*g_scriptPtr > BYTEVERSION_JF))
@@ -4242,7 +4195,6 @@ DO_DEFSTATE:
                 // adds const1 to var1 (const1 can be negative...)
                 //printf("Found [add|set]var at line= %d\n",g_lineNumber);
 
-                // get the ID of the DEF
                 if (tw != CON_ZSHOOT && tw != CON_EZSHOOT)
                     C_GetNextVarType(GAMEVAR_READONLY);
                 else C_GetNextVar();
