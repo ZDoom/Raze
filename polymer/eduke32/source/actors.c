@@ -2757,7 +2757,7 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
             if (!m && (unsigned) s->owner < MAXSPRITES)
             {
                 cst = sprite[s->owner].cstat;
-                sprite[s->owner].cstat &= ~CSTAT_SPRITE_BLOCK;
+                sprite[s->owner].cstat &= (uint16_t)~CSTAT_SPRITE_BLOCK;
             }
 
             do
