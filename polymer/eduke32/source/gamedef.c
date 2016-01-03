@@ -6356,39 +6356,11 @@ void C_Compile(const char *filenam)
 
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
-# ifdef _WIN32
-            Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n\n"
-                     "You can find \"%s\" in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.\n\n"
-                     "If you don't already own a copy of Duke or haven't seen your disc in years, don't worry -- you can download the full, registered "
-                     "version of Duke Nukem 3D: Atomic Edition immediately for only $5.99 through our partnership with GOG.com.\n\n"
-                     "Not a typo; it's less than 6 bucks.  Get Duke now?\n\n"
-                     "(Clicking yes will bring you to our web store)",
-                     G_GrpFile(),G_GrpFile());
-
-            if (wm_ynbox("Important - Duke Nukem 3D not found - EDuke32","%s",tempbuf))
-            {
-                SHELLEXECUTEINFOA sinfo;
-                char *p = "http://www.gog.com/en/gamecard/duke_nukem_3d_atomic_edition/?pp=6c1e671f9af5b46d9c1a52067bdf0e53685674f7";
-
-                Bmemset(&sinfo, 0, sizeof(sinfo));
-                sinfo.cbSize = sizeof(sinfo);
-                sinfo.fMask = SEE_MASK_CLASSNAME;
-                sinfo.lpVerb = "open";
-                sinfo.lpFile = p;
-                sinfo.nShow = SW_SHOWNORMAL;
-                sinfo.lpClass = "http";
-
-                if (!ShellExecuteExA(&sinfo))
-                    G_GameExit("Error launching default system browser!");
-            }
-            G_GameExit("");
-# else
-            Bsprintf(tempbuf,"Duke Nukem 3D game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n"
-                     "You can find \"%s\" in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation CD-ROM.\n\n"
-                     "EDuke32 will now close.",
-                     G_GrpFile(),G_GrpFile());
+            Bsprintf(tempbuf,"Required game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n\n"
+                     "You can find \"%s\" in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation disc.\n\n"
+                     "Please copy \"%s\" to your game directory and restart EDuke32!",
+                     G_GrpFile(), G_GrpFile(), G_GrpFile());
             G_GameExit(tempbuf);
-# endif
         }
         else
         {
