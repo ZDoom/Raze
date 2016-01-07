@@ -4937,7 +4937,7 @@ static void G_DumpDebugInfo(void)
     int32_t i,j,x;
     //    FILE * fp=fopen("condebug.log","w");
 
-    VM_ScriptInfo();
+    VM_ScriptInfo(insptr, 64);
     OSD_Printf("\n");
 
     OSD_Printf("Current gamevar values:\n");
@@ -11417,7 +11417,7 @@ static int32_t G_EndOfLevel(void)
 void app_crashhandler(void)
 {
     G_CloseDemoWrite();
-    VM_ScriptInfo();
+    VM_ScriptInfo(insptr, 64);
     G_GameQuit();
 }
 

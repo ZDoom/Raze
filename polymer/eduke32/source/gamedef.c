@@ -1388,6 +1388,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
             {
                 g_numCompilerErrors++;
                 initprintf("Internal compiler error at %" PRIdPTR " (0x%" PRIxPTR ")\n",i,i);
+                VM_ScriptInfo(&script[i], 16);
             }
 
             scriptptrs[i] = 1;

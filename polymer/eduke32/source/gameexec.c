@@ -94,22 +94,22 @@ GAMEEXEC_STATIC void VM_Execute(int32_t loop);
         }                                                                                                              \
     }
 
-void VM_ScriptInfo(void)
+extern void VM_ScriptInfo(intptr_t const *ptr, int32_t range)
 {
 #if !defined LUNATIC
     if (!script)
         return;
 
-    if (insptr)
+    if (ptr)
     {
         initprintf("\n");
 
-        for (intptr_t const *p = insptr - 32; p < insptr + 32; p++)
+        for (intptr_t const *p = ptr - (range>>1); p < ptr + (range>>1); p++)
         {
             if ((int32_t)(p - script) >= g_scriptSize)
                 break;
 
-            initprintf("%5d: %3d: ", (int32_t) (p - script), (int32_t) (p - insptr));
+            initprintf("%5d: %3d: ", (int32_t) (p - script), (int32_t) (p - ptr));
 
             if (*p >> 12 && (*p & VM_INSTMASK) < CON_END)
                 initprintf("%5d %s\n", (int32_t) (*p >> 12), keyw[*p & VM_INSTMASK]);
@@ -120,10 +120,13 @@ void VM_ScriptInfo(void)
         initprintf("\n");
     }
 
-    if (vm.g_i)
-        initprintf("current actor: %d (%d)\n", vm.g_i, TrackerCast(vm.g_sp->picnum));
+    if (ptr == insptr)
+    {
+        if (vm.g_i)
+            initprintf("current actor: %d (%d)\n", vm.g_i, TrackerCast(vm.g_sp->picnum));
 
-    initprintf("g_errorLineNum: %d, g_tw: %d\n", g_errorLineNum, g_tw);
+        initprintf("g_errorLineNum: %d, g_tw: %d\n", g_errorLineNum, g_tw);
+    }
 #endif
 }
 
@@ -5471,7 +5474,7 @@ finish_qsprintf:
             continue;
 
         default:
-            VM_ScriptInfo();
+            VM_ScriptInfo(insptr, 64);
 
             G_GameExit("An error has occurred in the EDuke32 virtual machine.\n\n"
                        "If you are an end user, please e-mail the file eduke32.log\n"
