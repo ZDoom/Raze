@@ -2163,7 +2163,7 @@ static int32_t C_GetStructureIndexes(int32_t labelsonly, hashtable_t *table)
 
     C_GetNextLabelName();
 
-    int32_t lLabelID = C_GetLabelNameOffset(table, Bstrtolower(label + (g_numLabels << 6)));
+    int32_t const lLabelID = C_GetLabelNameOffset(table, Bstrtolower(label + (g_numLabels << 6)));
 
     if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
     {
@@ -2243,7 +2243,6 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
 
 static int32_t C_CountCaseStatements()
 {
-    int32_t lCount;
     char *temptextptr = textptr;
     int32_t temp_ScriptLineNumber = g_lineNumber;
     intptr_t scriptoffset = (unsigned)(g_scriptPtr-script);
@@ -2263,7 +2262,7 @@ static int32_t C_CountCaseStatements()
 
     g_lineNumber = temp_ScriptLineNumber;
 
-    lCount=g_numCases;
+    int32_t const lCount=g_numCases;
     g_numCases=0;
     g_caseScriptPtr = (intptr_t *)(script+caseoffset);
     g_numCases = 0;
@@ -2879,20 +2878,13 @@ static int32_t C_ParseCommand(int32_t loop)
 
     do
     {
-        if (EDUKE32_PREDICT_FALSE(quitevent))
-        {
-            initprintf("Aborted.\n");
-            G_Shutdown();
-            Bexit(0);
-        }
-
         if (EDUKE32_PREDICT_FALSE(g_numCompilerErrors > 63 || (*textptr == '\0') || (*(textptr+1) == '\0') || C_SkipComments()))
             return 1;
 
         if (EDUKE32_PREDICT_FALSE(g_scriptDebug))
             C_ReportError(-1);
 
-        int32_t otw = g_lastKeyword;
+        int32_t const otw = g_lastKeyword;
 
         switch ((g_lastKeyword = tw = C_GetNextKeyword()))
         {
@@ -3009,7 +3001,7 @@ DO_DEFSTATE:
         case CON_GETTHISPROJECTILE:
         case CON_GETPROJECTILE:
             {
-                int32_t lLabelID = C_GetStructureIndexes(tw == CON_SETTHISPROJECTILE || tw == CON_GETTHISPROJECTILE, &h_projectile);
+                int32_t const lLabelID = C_GetStructureIndexes(tw == CON_SETTHISPROJECTILE || tw == CON_GETTHISPROJECTILE, &h_projectile);
 
                 if (lLabelID == -1)
                     continue;
@@ -3751,7 +3743,7 @@ DO_DEFSTATE:
         case CON_SETSECTOR:
         case CON_GETSECTOR:
             {
-                int32_t lLabelID = C_GetStructureIndexes(1, &h_sector);
+                int32_t const lLabelID = C_GetStructureIndexes(1, &h_sector);
 
                 if (lLabelID == -1)
                     continue;
@@ -3821,7 +3813,7 @@ DO_DEFSTATE:
         case CON_SETWALL:
         case CON_GETWALL:
             {
-                int32_t lLabelID = C_GetStructureIndexes(1, &h_wall);
+                int32_t const lLabelID = C_GetStructureIndexes(1, &h_wall);
 
                 if (lLabelID == -1)
                     continue;
@@ -3836,7 +3828,7 @@ DO_DEFSTATE:
         case CON_SETPLAYER:
         case CON_GETPLAYER:
             {
-                int32_t lLabelID = C_GetStructureIndexes(1, &h_player);
+                int32_t const lLabelID = C_GetStructureIndexes(1, &h_player);
 
                 if (lLabelID == -1)
                     continue;
@@ -3854,7 +3846,7 @@ DO_DEFSTATE:
         case CON_SETINPUT:
         case CON_GETINPUT:
             {
-                int32_t lLabelID = C_GetStructureIndexes(1, &h_input);
+                int32_t const lLabelID = C_GetStructureIndexes(1, &h_input);
 
                 if (lLabelID == -1)
                     continue;
@@ -3887,7 +3879,7 @@ DO_DEFSTATE:
                 textptr++;
                 C_GetNextLabelName();
 
-                int32_t lLabelID=C_GetLabelNameID(UserdefsLabels,&h_userdef,Bstrtolower(label+(g_numLabels<<6)));
+                int32_t const lLabelID=C_GetLabelNameID(UserdefsLabels,&h_userdef,Bstrtolower(label+(g_numLabels<<6)));
 
                 if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
                 {
@@ -4000,7 +3992,7 @@ DO_DEFSTATE:
         case CON_SETACTOR:
         case CON_GETACTOR:
             {
-                int32_t lLabelID = C_GetStructureIndexes(1, &h_actor);
+                int32_t const lLabelID = C_GetStructureIndexes(1, &h_actor);
 
                 if (lLabelID == -1)
                     continue;
@@ -4026,7 +4018,7 @@ DO_DEFSTATE:
                     g_numCompilerWarnings++;
                 }
 #endif
-                int32_t lLabelID = C_GetStructureIndexes(1, &h_tsprite);
+                int32_t const lLabelID = C_GetStructureIndexes(1, &h_tsprite);
 
                 if (lLabelID == -1)
                     continue;
@@ -5054,7 +5046,6 @@ repeatcase:
         case CON_IFGAPZL:
         case CON_IFFLOORDISTL:
         case CON_IFCEILINGDISTL:
-            //        case 74:
         case CON_IFPHEALTHL:
         case CON_IFSPRITEPAL:
         case CON_IFGOTWEAPONCE:
