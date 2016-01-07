@@ -1802,7 +1802,10 @@ static void C_GetNextVarType(int32_t type)
         else
         {
             if (*textptr == ']')
+            {
+                bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
                 *g_scriptPtr++ = g_iThisActorID;
+            }
             else
                 C_GetNextVarType(0);
 
@@ -2130,7 +2133,10 @@ static int32_t C_GetStructureIndexes(int32_t labelsonly, hashtable_t *table)
     C_SkipComments();
 
     if (*textptr == ']')
+    {
+        bitptr[(g_scriptPtr-script)>>3] &= ~(BITPTR_POINTER<<((g_scriptPtr-script)&7));
         *g_scriptPtr++ = g_iThisActorID;
+    }
     else
     {
         g_labelsOnly = labelsonly;
