@@ -745,7 +745,6 @@ static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i
                         if (flags&2)
                             sprite[l].cstat = 16+(krand()&(8+4));
 
-
                         A_SetSprite(l, CLIPMASK0);
 
                         // BULLETHOLE already adds itself to the deletion queue in
@@ -3802,12 +3801,11 @@ enum
     WS_NOTHING,
     WS_FIRE,
     WS_FIRE_AND_SPAWN,
-} weaponstate_t;
+};
 
 int32_t P_WeaponState(int32_t snum, int32_t reset)
 {
     int32_t kb = g_player[snum].ps->kickback_pic;
-    int32_t sb_snum = g_player[snum].sync->bits;
     int32_t weapon = g_player[snum].ps->curr_weapon;
 
     if ((kb) < PWEAPON(snum, weapon, TotalTime))
