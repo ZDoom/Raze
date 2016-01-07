@@ -640,13 +640,17 @@ int32_t __fastcall Gv_GetVar(int32_t id, int32_t iActor, int32_t iPlayer)
 
     if (f == GAMEVAR_PERACTOR)
     {
-        if (EDUKE32_PREDICT_FALSE((unsigned) iActor >= MAXSPRITES)) goto badsprite;
+        if (EDUKE32_PREDICT_FALSE((unsigned) iActor >= MAXSPRITES)) goto badindex;
         rv = aGameVars[id].val.plValues[iActor];
     }
     else if (!f) rv = aGameVars[id].val.lValue;
     else if (f == GAMEVAR_PERPLAYER)
     {
-        if (EDUKE32_PREDICT_FALSE((unsigned) iPlayer >= MAXPLAYERS)) goto badplayer;
+        if (EDUKE32_PREDICT_FALSE((unsigned) iPlayer >= MAXPLAYERS))
+        {
+            iActor = iPlayer;
+            goto badindex;
+        }
         rv = aGameVars[id].val.plValues[iPlayer];
     }
     else switch (f)
@@ -669,7 +673,7 @@ nastyhacks:
         if (EDUKE32_PREDICT_FALSE((unsigned)index >= (unsigned)aGameArrays[id].size))
         {
             iActor = index;
-            goto badindex;
+            goto badarrayindex;
         }
 
         rv = Gv_GetGameArrayValue(id, index);
@@ -679,7 +683,9 @@ nastyhacks:
         int indexvar = *insptr++;
         int32_t index = Gv_GetVar(indexvar, iActor, iPlayer);
 
-        switch ((id&(MAXGAMEVARS-1)) - g_iStructVarIDs)
+        id &= (MAXGAMEVARS - 1);
+
+        switch (id - g_iStructVarIDs)
         {
         case STRUCT_SPRITE:
         {
@@ -691,7 +697,7 @@ nastyhacks:
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXSPRITES))
             {
                 iActor = index;
-                goto badsprite;
+                goto badindex;
             }
 
             rv = VM_GetSprite(index, label, indexvar);
@@ -704,7 +710,7 @@ nastyhacks:
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXSPRITES))
             {
                 iActor = index;
-                goto badsprite;
+                goto badindex;
             }
 
             rv = VM_GetTsprite(index, label);
@@ -717,7 +723,7 @@ nastyhacks:
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXSPRITES))
             {
                 iActor = index;
-                goto badsprite;
+                goto badindex;
             }
 
             rv = VM_GetActiveProjectile(index, label);
@@ -731,7 +737,7 @@ nastyhacks:
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXTILES))
             {
                 iActor = index;
-                goto badtile;
+                goto badindex;
             }
 
             rv = VM_GetProjectile(index, label);
@@ -744,7 +750,7 @@ nastyhacks:
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXTILES))
             {
                 iActor = index;
-                goto badtile;
+                goto badindex;
             }
 
             rv = VM_GetTileData(index, label);
@@ -758,7 +764,7 @@ nastyhacks:
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXPALOOKUPS))
             {
                 iActor = index;
-                goto badpal;
+                goto badindex;
             }
 
             rv = VM_GetPalData(index, label);
@@ -776,8 +782,8 @@ nastyhacks:
 
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXPLAYERS))
             {
-                iPlayer = index;
-                goto badplayer;
+                iActor = index;
+                goto badindex;
             }
 
             rv = VM_GetPlayer(index, label, indexvar);
@@ -791,8 +797,8 @@ nastyhacks:
 
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXPLAYERS))
             {
-                iPlayer = index;
-                goto badplayer;
+                iActor = index;
+                goto badindex;
             }
 
             rv = VM_GetPlayerInput(index, label);
@@ -808,9 +814,9 @@ nastyhacks:
             if (indexvar == g_iThisActorID) index = sprite[vm.g_i].sectnum;
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXSECTORS))
             {
-                iPlayer = index;
+                iActor = index;
                 insptr++;
-                goto badsector;
+                goto badindex;
             }
             rv = VM_GetSector(index, *insptr++);
             break;
@@ -818,9 +824,9 @@ nastyhacks:
         case STRUCT_WALL:
             if (EDUKE32_PREDICT_FALSE((unsigned) index >= MAXWALLS))
             {
-                iPlayer = index;
+                iActor = index;
                 insptr++;
-                goto badwall;
+                goto badindex;
             }
             rv = VM_GetWall(index, *insptr++);
             break;
@@ -841,32 +847,12 @@ nastyhacks:
 
     return (rv ^ -negateResult) + negateResult;
 
-badindex:
+badarrayindex:
     CON_ERRPRINTF("Gv_GetVar(): invalid array index (%s[%d])\n", aGameArrays[id].szLabel,iActor);
     return -1;
 
-badplayer:
-    CON_ERRPRINTF("Gv_GetVar(): invalid player ID %d\n", iPlayer);
-    return -1;
-
-badsprite:
-    CON_ERRPRINTF("Gv_GetVar(): invalid sprite ID %d\n", iActor);
-    return -1;
-
-badsector:
-    CON_ERRPRINTF("Gv_GetVar(): invalid sector ID %d\n", iPlayer);
-    return -1;
-
-badwall:
-    CON_ERRPRINTF("Gv_GetVar(): invalid wall ID %d\n", iPlayer);
-    return -1;
-
-badtile:
-    CON_ERRPRINTF("Gv_GetVar(): invalid tile ID %d\n", iActor);
-    return -1;
-
-badpal:
-    CON_ERRPRINTF("Gv_GetVar(): invalid pal ID %d\n", iActor);
+badindex:
+    CON_ERRPRINTF("Gv_GetVar(): invalid index %d for \"%s\"\n", iActor, aGameVars[id].szLabel);
     return -1;
 }
 
