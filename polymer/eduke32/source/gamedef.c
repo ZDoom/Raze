@@ -5901,11 +5901,12 @@ repeatcase:
             continue;
 
         case CON_ENDA:
-            if (EDUKE32_PREDICT_FALSE(g_parsingActorPtr == NULL))
+            if (EDUKE32_PREDICT_FALSE(g_parsingActorPtr == NULL || g_parsingEventPtr))
             {
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `enda' without open `actor'.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
+                g_parsingEventPtr = NULL;
             }
             if (EDUKE32_PREDICT_FALSE(g_numBraces != 0))
             {
