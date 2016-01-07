@@ -3058,12 +3058,8 @@ DO_DEFSTATE:
                 C_ReportError(WARNING_BADGAMEVAR);
             }
 
-            Gv_NewVar(label+(g_numLabels<<6),*(g_scriptPtr-2),
-                (*(g_scriptPtr-1))
-                // can't define default or secret
-                & (~(GAMEVAR_DEFAULT | GAMEVAR_SECRET))
-                );
-            g_scriptPtr -= 3; // no need to save in script...
+            Gv_NewVar(label+(g_numLabels<<6), *(g_scriptPtr-2), (*(g_scriptPtr-1)) & (~GAMEVAR_DEFAULT));
+            g_scriptPtr -= 3;
             continue;
 
         case CON_GAMEARRAY:

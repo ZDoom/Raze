@@ -35,7 +35,6 @@ enum GamevarFlags_t {
     GAMEVAR_USER_MASK  = (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR),
     GAMEVAR_RESET      = 0x00000008, // INTERNAL, don't use
     GAMEVAR_DEFAULT    = 0x00000100, // UNUSED, but always cleared for user-defined gamevars
-    GAMEVAR_SECRET     = 0x00000200, // don't dump...
     GAMEVAR_NODEFAULT  = 0x00000400, // don't reset on actor spawn
     GAMEVAR_SYSTEM     = 0x00000800, // cannot change mode flags...(only default value)
     GAMEVAR_READONLY   = 0x00001000, // values are read-only (no setvar allowed)

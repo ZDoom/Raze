@@ -366,9 +366,6 @@ void Gv_DumpValues(void)
 
     for (i=0; i<g_gameVarCount; i++)
     {
-        if (aGameVars[i].dwFlags & (GAMEVAR_SECRET))
-            continue; // do nothing...
-
         OSD_Printf("gamevar %s ",aGameVars[i].szLabel);
 
         if (aGameVars[i].dwFlags & (GAMEVAR_INTPTR))
