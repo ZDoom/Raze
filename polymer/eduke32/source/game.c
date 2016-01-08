@@ -11902,6 +11902,16 @@ int32_t app_main(int32_t argc, const char **argv)
 
     system_getcvars();
 
+    char *ptr = Xstrdup(setupfilename), *p = strtok(ptr, ".");
+
+    if (!Bstrcmp(setupfilename, SETUPFILENAME))
+        Bsprintf(tempbuf, "settings.cfg");
+    else
+        Bsprintf(tempbuf, "%s_settings.cfg", p);
+
+    OSD_Exec(tempbuf);
+    Bfree(ptr);
+
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
         if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
@@ -11947,16 +11957,6 @@ int32_t app_main(int32_t argc, const char **argv)
         S_SoundStartup();
     }
 //    loadtmb();
-
-    char *ptr = Xstrdup(setupfilename), *p = strtok(ptr, ".");
-
-    if (!Bstrcmp(setupfilename, SETUPFILENAME))
-        Bsprintf(tempbuf, "settings.cfg");
-    else
-        Bsprintf(tempbuf, "%s_settings.cfg", p);
-
-    OSD_Exec(tempbuf);
-    Bfree(ptr);
 
     OSD_Exec("autoexec.cfg");
 
