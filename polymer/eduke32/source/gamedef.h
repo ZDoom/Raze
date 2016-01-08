@@ -1059,6 +1059,9 @@ enum ScriptKeywords_t
     CON_WHILEVARL,          // 389
     CON_WHILEVARVARL,       // 390
     CON_KLABS,              // 391
+    CON_IFVARLE,            // 392
+    CON_IFVARGE,            // 393
+    CON_IFVARBOTH,          // 394
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

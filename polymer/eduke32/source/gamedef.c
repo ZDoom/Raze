@@ -568,6 +568,9 @@ const char *keyw[] =
     "whilevarl",                // 389
     "whilevarvarl",             // 390
     "klabs",                    // 391
+    "ifvarle",                  // 392
+    "ifvarge",                  // 393
+    "ifvarboth",                // 394
     "<null>"
 };
 #endif
@@ -4479,12 +4482,15 @@ DO_DEFSTATE:
             continue;
 
         case CON_IFVARL:
+        case CON_IFVARLE:
         case CON_IFVARG:
+        case CON_IFVARGE:
         case CON_IFVARE:
         case CON_IFVARN:
         case CON_IFVARAND:
         case CON_IFVAROR:
         case CON_IFVARXOR:
+        case CON_IFVARBOTH:
         case CON_IFVAREITHER:
         case CON_WHILEVARN:
         case CON_WHILEVARL:

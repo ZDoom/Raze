@@ -5256,16 +5256,34 @@ finish_qsprintf:
             VM_CONDITIONAL(tw || *insptr);
             continue;
 
+        case CON_IFVARBOTH:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            VM_CONDITIONAL(tw && *insptr);
+            continue;
+
         case CON_IFVARG:
             insptr++;
             tw = Gv_GetVarX(*insptr++);
             VM_CONDITIONAL(tw > *insptr);
             continue;
 
+        case CON_IFVARGE:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            VM_CONDITIONAL(tw >= *insptr);
+            continue;
+
         case CON_IFVARL:
             insptr++;
             tw = Gv_GetVarX(*insptr++);
             VM_CONDITIONAL(tw < *insptr);
+            continue;
+
+        case CON_IFVARLE:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            VM_CONDITIONAL(tw <= *insptr);
             continue;
 
         case CON_IFPHEALTHL:
