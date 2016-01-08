@@ -5809,6 +5809,10 @@ repeatcase:
             continue;
 
         case CON_RETURN:
+            if (g_checkingSwitch)
+                return 1;
+            continue;
+
         case CON_BREAK:
             if (g_checkingSwitch)
             {
