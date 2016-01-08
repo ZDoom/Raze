@@ -2811,7 +2811,7 @@ jwzgles_glBitmap (GLsizei width, GLsizei height, GLfloat xorig, GLfloat yorig,
 }
 */
 
-/*
+
 void
 jwzgles_glPushAttrib(int flags)
 {
@@ -2823,7 +2823,7 @@ jwzgles_glPopAttrib(void)
 {
  // Assert (0, "glPopAttrib unimplemented");
 }
-*/
+
 
 
 /* These are needed for object hit detection in pinion.
