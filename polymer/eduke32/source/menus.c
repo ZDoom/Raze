@@ -1706,7 +1706,11 @@ static void M_PreMenu(MenuID_t cm)
 
         MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_APPLY,
              (xdim == resolution[nr].xdim && ydim == resolution[nr].ydim &&
-              getrendermode() == newrendermode && fullscreen == newfullscreen && vsync == newvsync)
+              getrendermode() == newrendermode && fullscreen == newfullscreen
+#ifdef USE_OPENGL
+              && vsync == newvsync
+#endif
+             )
              || (newfullscreen ? !(resolution[nr].flags & RES_FS) : !(resolution[nr].flags & RES_WIN))
              || (newrendermode != REND_CLASSIC && resolution[nr].bppmax <= 8));
         break;
@@ -2657,12 +2661,16 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
     {
         resolution_t p ={ xdim, ydim, fullscreen, bpp, 0 };
         int32_t prend = getrendermode();
+#ifdef USE_OPENGL
         int32_t pvsync = vsync;
+#endif
 
         resolution_t n = { resolution[newresolution].xdim, resolution[newresolution].ydim, newfullscreen,
                            (newrendermode == REND_CLASSIC) ? 8 : resolution[newresolution].bppmax, 0 };
         int32_t nrend = newrendermode;
-        int32_t nvsync = newvsync;;
+#ifdef USE_OPENGL
+        int32_t nvsync = newvsync;
+#endif
 
         if (setgamemode(n.flags, n.xdim, n.ydim, n.bppmax) < 0)
         {
@@ -2674,8 +2682,10 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
             else 
             {
                 onvideomodechange(p.bppmax > 8);
+#ifdef USE_OPENGL
                 setvsync(pvsync);
                 vsync = pvsync;
+#endif
             }
         }
         else onvideomodechange(n.bppmax > 8);
@@ -2683,8 +2693,10 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
         g_restorePalette = -1;
         G_UpdateScreenArea();
         setrendermode(nrend);
+#ifdef USE_OPENGL
         setvsync(nvsync);
         vsync = nvsync;
+#endif
         ud.config.ScreenMode = fullscreen;
         ud.config.ScreenWidth = xdim;
         ud.config.ScreenHeight = ydim;
@@ -3554,7 +3566,9 @@ int M_ChangeMenu(MenuID_t cm)
         }
         newrendermode = getrendermode();
         newfullscreen = fullscreen;
+#ifdef USE_OPENGL
         newvsync = vsync;
+#endif
         break;
 
     case MENU_ADVSOUND:
