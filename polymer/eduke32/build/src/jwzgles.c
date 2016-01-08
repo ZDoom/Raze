@@ -103,7 +103,7 @@
 #undef countof
 #define countof(x) (signed)((signed)sizeof((x))/(signed)sizeof((*x)))
 
-#ifndef USE_IPHONE
+#ifdef __ANDROID__
 #include <android/log.h>
 #define LOG_TAG "JWZGLES"
 #define LOGD(...)  __android_log_print(ANDROID_LOG_DEBUG,LOG_TAG,__VA_ARGS__)
@@ -115,13 +115,13 @@
 #ifdef HAVE_COCOA
   extern void jwxyz_abort (const char *fmt, ...) __dead2;
 # define Assert(C,S) do { if (!(C)) { jwxyz_abort ("%s",S); }} while(0)
-#elif defined USE_IPHONE
-# define Assert(C,S)
-#else
+#elif defined __ANDROID__
 # define Assert(C,S) do { \
     if (!(C)) { \
     	LOGE ( "ASSERT jwzgles: %s\n", S); \
     }} while(0)
+#else
+# define Assert(C,S)
 #endif
 
 

@@ -344,7 +344,7 @@ extern GLenum jwzgles_glGetError();
 extern const GLubyte * jwzgles_glGetString(GLenum name);
 
 
-typedef float GLclampd;
+// typedef float GLclampd;
 
 extern void jwzgles_glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
 extern void jwzgles_glCopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
