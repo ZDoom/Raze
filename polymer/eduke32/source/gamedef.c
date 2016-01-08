@@ -40,80 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define NUMALTKEYWORDS (int32_t)ARRAY_SIZE(altkeyw)
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
-uint32_t g_scriptDateVersion = 99999999;  // YYYYMMDD
-#if !defined LUNATIC
-static uint32_t g_scriptLastKeyword; // = NUMKEYWORDS-1;
-
-#define NUMKEYWDATES (int32_t)ARRAY_SIZE(g_keywdate)
-// { keyw, date } means that at the date, all keywords up to keyw inclusive are available
-static struct { uint32_t keyw; uint32_t date; } g_keywdate[] =
-{
-    // beginning of eduke32 svn
-    { CON_CANSEE, 20060423 },    
-    { CON_CANSEESPR, 20060424 },
-    // some stuff here not representable this way
-    { CON_FINDNEARSPRITEZVAR, 20060516 },
-    { CON_EZSHOOT, 20060701 },
-    { CON_EZSHOOTVAR, 20060822 },
-    { CON_JUMP, 20060828 },
-    { CON_QSTRLEN, 20060930 },
-    { CON_QUAKE, 20070105 },
-    { CON_SHOWVIEW, 20070208 },
-    { CON_NEXTSPRITESECT, 20070819 },
-    { CON_GETKEYNAME, 20071024 },  // keyw numbers have been
-    { CON_SPRITENOPAL, 20071220 }, // shuffled around here
-    { CON_HITRADIUSVAR, 20080216 },
-    { CON_ROTATESPRITE16, 20080314 },
-    { CON_SETARRAY, 20080401 },
-    { CON_READARRAYFROMFILE, 20080405 },
-    { CON_STARTTRACKVAR, 20080510 },
-    { CON_QGETSYSSTR, 20080709 },
-    { CON_GETTICKS, 20080711 },
-    { CON_SETTSPR, 20080713 },
-    { CON_CLEARMAPSTATE, 20080716 },
-    { CON_SCRIPTSIZE, 20080720 },
-    { CON_SETGAMENAME, 20080722 },
-    { CON_CMENU, 20080725 },
-    { CON_GETTIMEDATE, 20080809 },
-    { CON_ACTIVATECHEAT, 20080810 },
-    { CON_SETGAMEPALETTE, 20080816 },
-    { CON_SETCFGNAME, 20080817 },
-    { CON_IFVARVAREITHER, 20080907 },
-    { CON_SAVENN, 20080915 },
-    { CON_COPY, 20090219 },
-    { CON_QSTRNCAT, 20090712 },
-    { CON_STOPACTORSOUND, 20090715 },
-    { CON_IFSERVER, 20100722 },
-    { CON_CALCHYPOTENUSE, 20100927 },
-    { CON_CLIPMOVENOSLIDE, 20101009 },
-    { CON_INCLUDEDEFAULT, 20110615 },
-    { CON_SETACTORSOUNDPITCH, 20111102 },
-    { CON_ECHO, 20120304 },
-    { CON_SHOWVIEWUNBIASED, 20120331 },
-    { CON_ROTATESPRITEA, 20130324 },
-    { CON_ACTIVATE, 20130522 },
-    { CON_SCREENTEXT, 20130529 },
-    { CON_DYNAMICSOUNDREMAP, 20130530 },
-    { CON_SCREENSOUND, 20130628 },
-    { CON_SETMUSICPOSITION, 20150116 },
-    { CON_UNDEFINELEVEL, 20150208 },
-    { CON_IFCUTSCENE, 20150210 },
-    { CON_DEFINEVOLUMEFLAGS, 20150222 },
-    { CON_RESETPLAYERFLAGS, 20150303 },
-    { CON_APPENDEVENT, 20150325 },
-    { CON_DEFSTATE, 20150923 },
-    { CON_SHIFTVARVARL, 20160101 },
-    { CON_SHIFTVARVARR, 20160101 },
-    { CON_IFVARVARLE, 20160101 },
-    { CON_IFVARVARGE, 20160101 },
-    { CON_IFVARVARBOTH, 20160101 },
-    { CON_WHILEVARL, 20160101 },
-    { CON_WHILEVARVARL, 20160101 },
-    { CON_KLABS, 20160101 },
-    { CON_INV, 20160101 },
-
-};
-#endif
 
 char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
 
@@ -1331,24 +1257,7 @@ void C_InitHashes()
     hash_init(&h_tiledata);
     hash_init(&h_paldata);
 
-    g_scriptLastKeyword = NUMKEYWORDS-1;
-    // determine last CON keyword for backward compatibility with older mods
-    if (g_scriptDateVersion < g_keywdate[NUMKEYWDATES-1].date)
-    {
-        for (i=NUMKEYWDATES-1; i>=0; i--)
-        {
-            if (g_scriptDateVersion >= g_keywdate[i].date)
-            {
-                g_scriptLastKeyword = g_keywdate[i].keyw;
-                break;
-            }
-        }
-
-        if (i<0)
-            g_scriptLastKeyword = g_keywdate[0].keyw-1;  // may be slightly imprecise
-    }
-
-    for (i=g_scriptLastKeyword; i>=0; i--) hash_add(&h_keywords,keyw[i],i,0);
+    for (i=0; i<NUMKEYWORDS; i++) hash_add(&h_keywords,keyw[i],i,0);
     for (i=0; i<NUMALTKEYWORDS; i++) hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val, 0);
     for (i=0; SectorLabels[i].lId >= 0; i++) hash_add(&h_sector,SectorLabels[i].name,i,0);
     for (i=0; WallLabels[i].lId >= 0; i++) hash_add(&h_wall,WallLabels[i].name,i,0);

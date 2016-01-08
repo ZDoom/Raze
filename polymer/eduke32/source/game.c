@@ -10258,23 +10258,6 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
                     i++;
                     continue;
                 }
-                if (!Bstrcasecmp(c+1, "conversion"))
-                {
-                    if (argc > i+1)
-                    {
-                        uint32_t j = Batol(argv[i+1]);
-                        if (j>=10000000 && j<=99999999)
-                        {
-                            g_scriptDateVersion = j;
-                            initprintf("CON script date version: %d\n",j);
-                        }
-                        else
-                            initprintf("CON script date version must be specified as YYYYMMDD, ignoring.\n");
-                        i++;
-                    }
-                    i++;
-                    continue;
-                }
                 if (!Bstrcasecmp(c+1,"nologo"))
                 {
                     g_noLogo = 1;

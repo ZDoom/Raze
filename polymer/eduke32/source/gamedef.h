@@ -91,7 +91,6 @@ extern char g_szScriptFileName[BMAX_PATH];
 extern int32_t g_totalLines,g_lineNumber;
 extern int32_t g_numCompilerErrors,g_numCompilerWarnings,g_numQuoteRedefinitions;
 extern int32_t g_scriptVersion;
-extern uint32_t g_scriptDateVersion;  // YYYYMMDD
 extern char g_szBuf[1024];
 
 extern const char *EventNames[];  // MAXEVENTS
