@@ -183,8 +183,30 @@ enum
     // EF_HIDEFROMMP = 1<<1,
 };
 
+EXTERN_INLINE_HEADER void G_UpdateInterpolations(void);
+EXTERN_INLINE_HEADER void G_RestoreInterpolations(void);
+
 #ifdef __cplusplus
 }
+#endif
+
+#if defined global_c_ || !defined DISABLE_INLINING
+
+EXTERN_INLINE void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
+{
+    for (int i=g_numInterpolations-1; i>=0; i--) oldipos[i] = *curipos[i];
+}
+
+EXTERN_INLINE void G_RestoreInterpolations(void)  //Stick at end of drawscreen
+{
+    int32_t i=g_numInterpolations-1;
+
+    if (--g_interpolationLock)
+        return;
+
+    for (; i>=0; i--) *curipos[i] = bakipos[i];
+}
+
 #endif
 
 #endif

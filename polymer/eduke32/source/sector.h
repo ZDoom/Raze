@@ -161,10 +161,23 @@ static inline vec3_t G_GetCameraPosition(int32_t i, int32_t smoothratio)
     return cam;
 }
 
+EXTERN_INLINE_HEADER int32_t G_CheckPlayerInSector(int32_t sect);
+
 #ifdef __cplusplus
 }
 #endif
 
-#include "sector_inline.h"
+#if defined sector_c_ || !defined DISABLE_INLINING
+
+EXTERN_INLINE int32_t G_CheckPlayerInSector(int32_t sect)
+{
+    int32_t i;
+    for (TRAVERSE_CONNECT(i))
+        if ((unsigned)g_player[i].ps->i < MAXSPRITES && sprite[g_player[i].ps->i].sectnum == sect)
+            return i;
+    return -1;
+}
+
+#endif
 
 #endif

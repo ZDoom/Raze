@@ -589,8 +589,6 @@ enum CheatCodeFunctions
     ) >= ((int32_t)size)-1 \
 )
 
-#include "game_inline.h"
-
 static inline void G_NewGame_EnterLevel(void)
 {
     G_NewGame(ud.m_volume_number, ud.m_level_number, ud.m_player_skill);
@@ -640,8 +638,30 @@ void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
                        int32_t shade, int32_t orientation, int32_t p);
 #endif
 
+EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
+
+EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue);
+
 #ifdef __cplusplus
 }
+#endif
+
+#if defined game_c_ || !defined DISABLE_INLINING
+
+EXTERN_INLINE void G_SetStatusBarScale(int32_t sc)
+{
+    ud.statusbarscale = clamp(sc, 36, 100);
+    G_UpdateScreenArea();
+}
+
+// the point of this is to prevent re-running a function or calculation passed to potentialValue
+// without making a new variable under each individual circumstance
+EXTERN_INLINE void SetIfGreater(int32_t *variable, int32_t potentialValue)
+{
+    if (potentialValue > *variable)
+        *variable = potentialValue;
+}
+
 #endif
 
 #endif

@@ -561,10 +561,6 @@ ifeq ($(PLATFORM),WINDOWS)
 endif
 
 ifneq ($(LUNATIC),0)
-    # FIXME: Lunatic doesn't build with inlining because of wacky include
-    # chains!
-    override DISABLEINLINING=1
-
     ifneq ($(CPLUSPLUS),0)
         # FIXME: Lunatic C++ doesn't build because otherwise it doesn't find
         # INT32_MIN and the like.

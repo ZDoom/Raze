@@ -237,10 +237,6 @@ ifneq ($(USE_LIBVPX),0)
     DUKE3D_OBJS+= animvpx
 endif
 
-ifneq (0,$(DISABLEINLINING))
-    DUKE3D_OBJS+= game_inline actors_inline sector_inline
-endif
-
 DUKE3D_MISCDEPS=
 DUKE3D_EDITOR_MISCDEPS=
 

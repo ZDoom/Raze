@@ -390,16 +390,7 @@
     <ClInclude Include="source\animvpx.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\actors_inline.h">
-      <Filter>eduke32\headers</Filter>
-    </ClInclude>
     <ClInclude Include="source\common_game.h">
-      <Filter>eduke32\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="source\game_inline.h">
-      <Filter>eduke32\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="source\sector_inline.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
     <ClInclude Include="build\include\winbits.h">
@@ -796,15 +787,6 @@
     </ClCompile>
     <ClCompile Include="source\enet\src\compress.c">
       <Filter>enet\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\actors_inline.c">
-      <Filter>eduke32\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\game_inline.c">
-      <Filter>eduke32\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\sector_inline.c">
-      <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\common.c">
       <Filter>eduke32\source</Filter>

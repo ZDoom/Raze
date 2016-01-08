@@ -155,7 +155,6 @@
     <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchJoy.h" />
     <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\WheelSelect.h" />
     <ClInclude Include="source\actors.h" />
-    <ClInclude Include="source\actors_inline.h" />
     <ClInclude Include="source\android.h" />
     <ClInclude Include="source\android\in_android.h" />
     <ClInclude Include="source\anim.h" />
@@ -165,7 +164,6 @@
     <ClInclude Include="source\demo.h" />
     <ClInclude Include="source\events_defs.h" />
     <ClInclude Include="source\game.h" />
-    <ClInclude Include="source\game_inline.h" />
     <ClInclude Include="source\gameexec.h" />
     <ClInclude Include="source\gamevars.h" />
     <ClInclude Include="source\global.h" />
@@ -181,7 +179,6 @@
     <ClInclude Include="source\quotes.h" />
     <ClInclude Include="source\savegame.h" />
     <ClInclude Include="source\sector.h" />
-    <ClInclude Include="source\sector_inline.h" />
     <ClInclude Include="source\_functio.h" />
     <ClInclude Include="source\_rts.h" />
     <ClInclude Include="source\config.h" />
@@ -284,7 +281,6 @@
     <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\TouchJoy.cpp" />
     <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\WheelSelect.cpp" />
     <ClCompile Include="source\actors.c" />
-    <ClCompile Include="source\actors_inline.c" />
     <ClCompile Include="source\android\android-jni.cpp" />
     <ClCompile Include="source\android\in_android.c" />
     <ClCompile Include="source\anim.c" />
@@ -296,7 +292,6 @@
     <ClCompile Include="source\demo.c" />
     <ClCompile Include="source\enet\src\compress.c" />
     <ClCompile Include="source\game.c" />
-    <ClCompile Include="source\game_inline.c" />
     <ClCompile Include="source\gamedef.c" />
     <ClCompile Include="source\gameexec.c" />
     <ClCompile Include="source\gamestructures.c" />
@@ -329,7 +324,6 @@
     <ClCompile Include="source\savegame.c" />
     <ClCompile Include="source\sdlmusic.c" />
     <ClCompile Include="source\sector.c" />
-    <ClCompile Include="source\sector_inline.c" />
     <ClCompile Include="source\sounds.c" />
     <ClCompile Include="source\sounds_mapster32.c" />
     <ClCompile Include="source\soundsdyn.c" />

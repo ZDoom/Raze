@@ -636,8 +636,6 @@
 		0008E99919F1AD9B0091588D /* _functio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _functio.h; path = ../../source/_functio.h; sourceTree = SOURCE_ROOT; };
 		0008E99A19F1AD9B0091588D /* _midi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _midi.h; path = ../../source/_midi.h; sourceTree = SOURCE_ROOT; };
 		0008E99B19F1AD9B0091588D /* _rts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = _rts.h; path = ../../source/_rts.h; sourceTree = SOURCE_ROOT; };
-		0008E99C19F1AD9B0091588D /* actors_inline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = actors_inline.c; path = ../../source/actors_inline.c; sourceTree = SOURCE_ROOT; };
-		0008E99D19F1AD9B0091588D /* actors_inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = actors_inline.h; path = ../../source/actors_inline.h; sourceTree = SOURCE_ROOT; };
 		0008E99E19F1AD9B0091588D /* actors.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = actors.c; path = ../../source/actors.c; sourceTree = SOURCE_ROOT; };
 		0008E99F19F1AD9B0091588D /* actors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = actors.h; path = ../../source/actors.h; sourceTree = SOURCE_ROOT; };
 		0008E9A019F1AD9B0091588D /* anim.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = anim.c; path = ../../source/anim.c; sourceTree = SOURCE_ROOT; };
@@ -650,8 +648,6 @@
 		0008E9A719F1AD9B0091588D /* demo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = demo.h; path = ../../source/demo.h; sourceTree = SOURCE_ROOT; };
 		0008E9A819F1AD9B0091588D /* duke3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = duke3d.h; path = ../../source/duke3d.h; sourceTree = SOURCE_ROOT; };
 		0008E9A919F1AD9B0091588D /* function.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = function.h; path = ../../source/function.h; sourceTree = SOURCE_ROOT; };
-		0008E9AA19F1AD9B0091588D /* game_inline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = game_inline.c; path = ../../source/game_inline.c; sourceTree = SOURCE_ROOT; };
-		0008E9AB19F1AD9B0091588D /* game_inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game_inline.h; path = ../../source/game_inline.h; sourceTree = SOURCE_ROOT; };
 		0008E9AC19F1AD9B0091588D /* game.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = game.c; path = ../../source/game.c; sourceTree = SOURCE_ROOT; };
 		0008E9AD19F1AD9B0091588D /* game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = game.h; path = ../../source/game.h; sourceTree = SOURCE_ROOT; };
 		0008E9AE19F1AD9B0091588D /* gamedef.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gamedef.c; path = ../../source/gamedef.c; sourceTree = SOURCE_ROOT; };
@@ -696,8 +692,6 @@
 		0008E9D519F1AD9B0091588D /* savegame.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = savegame.c; path = ../../source/savegame.c; sourceTree = SOURCE_ROOT; };
 		0008E9D619F1AD9B0091588D /* savegame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = savegame.h; path = ../../source/savegame.h; sourceTree = SOURCE_ROOT; };
 		0008E9D719F1AD9B0091588D /* sdlmusic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sdlmusic.c; path = ../../source/sdlmusic.c; sourceTree = SOURCE_ROOT; };
-		0008E9D819F1AD9B0091588D /* sector_inline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sector_inline.c; path = ../../source/sector_inline.c; sourceTree = SOURCE_ROOT; };
-		0008E9D919F1AD9B0091588D /* sector_inline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sector_inline.h; path = ../../source/sector_inline.h; sourceTree = SOURCE_ROOT; };
 		0008E9DA19F1AD9B0091588D /* sector.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sector.c; path = ../../source/sector.c; sourceTree = SOURCE_ROOT; };
 		0008E9DB19F1AD9B0091588D /* sector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sector.h; path = ../../source/sector.h; sourceTree = SOURCE_ROOT; };
 		0008E9DC19F1AD9B0091588D /* soundefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = soundefs.h; path = ../../source/soundefs.h; sourceTree = SOURCE_ROOT; };
@@ -1045,8 +1039,6 @@
 				0008E99919F1AD9B0091588D /* _functio.h */,
 				0008E99A19F1AD9B0091588D /* _midi.h */,
 				0008E99B19F1AD9B0091588D /* _rts.h */,
-				0008E99C19F1AD9B0091588D /* actors_inline.c */,
-				0008E99D19F1AD9B0091588D /* actors_inline.h */,
 				0008E99E19F1AD9B0091588D /* actors.c */,
 				0008E99F19F1AD9B0091588D /* actors.h */,
 				0008E9A019F1AD9B0091588D /* anim.c */,
@@ -1061,8 +1053,6 @@
 				0008E9A719F1AD9B0091588D /* demo.h */,
 				0008E9A819F1AD9B0091588D /* duke3d.h */,
 				0008E9A919F1AD9B0091588D /* function.h */,
-				0008E9AA19F1AD9B0091588D /* game_inline.c */,
-				0008E9AB19F1AD9B0091588D /* game_inline.h */,
 				0008E9AC19F1AD9B0091588D /* game.c */,
 				0008E9AD19F1AD9B0091588D /* game.h */,
 				0008E9AE19F1AD9B0091588D /* gamedef.c */,
@@ -1107,8 +1097,6 @@
 				0008E9D519F1AD9B0091588D /* savegame.c */,
 				0008E9D619F1AD9B0091588D /* savegame.h */,
 				0008E9D719F1AD9B0091588D /* sdlmusic.c */,
-				0008E9D819F1AD9B0091588D /* sector_inline.c */,
-				0008E9D919F1AD9B0091588D /* sector_inline.h */,
 				0008E9DA19F1AD9B0091588D /* sector.c */,
 				0008E9DB19F1AD9B0091588D /* sector.h */,
 				0008E9DC19F1AD9B0091588D /* soundefs.h */,

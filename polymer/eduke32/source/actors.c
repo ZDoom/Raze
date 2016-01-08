@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#define actors_c_
+
 #include "duke3d.h"
 #include "actors.h"
 #include "gamedef.h"

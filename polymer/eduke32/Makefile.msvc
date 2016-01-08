@@ -191,9 +191,7 @@ MACT_OBJS=$(DUKE3D_OBJ)\file_lib.$o \
 	$(DUKE3D_OBJ)\scriplib.$o
  
 DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
-	$(DUKE3D_OBJ)\game_inline.$o \
 	$(DUKE3D_OBJ)\actors.$o \
-	$(DUKE3D_OBJ)\actors_inline.$o \
 	$(DUKE3D_OBJ)\anim.$o \
 	$(DUKE3D_OBJ)\animsounds.$o \
 	$(DUKE3D_OBJ)\animvpx.$o \
@@ -211,7 +209,6 @@ DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
 	$(DUKE3D_OBJ)\premap.$o \
 	$(DUKE3D_OBJ)\savegame.$o \
 	$(DUKE3D_OBJ)\sector.$o \
-	$(DUKE3D_OBJ)\sector_inline.$o \
 	$(DUKE3D_OBJ)\rev.$o \
 	$(DUKE3D_OBJ)\rts.$o \
 	$(DUKE3D_OBJ)\config.$o \

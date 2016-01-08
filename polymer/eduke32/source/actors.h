@@ -328,10 +328,70 @@ FORCE_INLINE void   Sect_SetInterpolation(int sectnum) { Sect_ToggleInterpolatio
 int32_t G_ToggleWallInterpolation(int32_t w, int32_t doset);
 #endif
 
+#if KRANDDEBUG
+# define ACTOR_INLINE __fastcall
+# define ACTOR_INLINE_HEADER extern __fastcall
+#else
+# define ACTOR_INLINE EXTERN_INLINE
+# define ACTOR_INLINE_HEADER EXTERN_INLINE_HEADER
+#endif
+
+extern int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t cliptype, int32_t clipdist);
+ACTOR_INLINE_HEADER int A_CheckEnemyTile(int32_t pn);
+ACTOR_INLINE_HEADER int32_t A_SetSprite(int32_t i,uint32_t cliptype);
+ACTOR_INLINE_HEADER int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype);
+
+EXTERN_INLINE_HEADER int32_t G_CheckForSpaceCeiling(int32_t sectnum);
+EXTERN_INLINE_HEADER int32_t G_CheckForSpaceFloor(int32_t sectnum);
+
+EXTERN_INLINE_HEADER int32_t A_CheckEnemySprite(const spritetype *s);
+
 #ifdef __cplusplus
 }
 #endif
 
-#include "actors_inline.h"
+#if defined actors_c_ || !defined DISABLE_INLINING
+
+# if !KRANDDEBUG || (KRANDDEBUG && defined actors_c_)
+
+ACTOR_INLINE int A_CheckEnemyTile(int32_t pn)
+{
+    return ((g_tile[pn].flags & (SFLAG_HARDCODED_BADGUY | SFLAG_BADGUY)) != 0);
+}
+
+ACTOR_INLINE int32_t A_SetSprite(int32_t i,uint32_t cliptype)
+{
+    vec3_t davect = {(sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
+                     (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,
+                     sprite[i].zvel
+                    };
+    return (A_MoveSprite(i,&davect,cliptype)==0);
+}
+
+ACTOR_INLINE int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint32_t cliptype)
+{
+    return A_MoveSpriteClipdist(spritenum, change, cliptype, -1);
+}
+
+# endif
+
+EXTERN_INLINE int32_t G_CheckForSpaceCeiling(int32_t sectnum)
+{
+    return ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 &&
+            (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1));
+}
+
+EXTERN_INLINE int32_t G_CheckForSpaceFloor(int32_t sectnum)
+{
+    return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 &&
+            (sector[sectnum].floorpicnum==MOONSKY1 || sector[sectnum].floorpicnum==BIGORBIT1));
+}
+
+EXTERN_INLINE int32_t A_CheckEnemySprite(const spritetype *s)
+{
+    return A_CheckEnemyTile(s->picnum);
+}
+
+#endif
 
 #endif
