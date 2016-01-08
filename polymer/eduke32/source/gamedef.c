@@ -127,6 +127,7 @@ typedef struct {
 const tokenmap_t altkeyw [] =
 {
     { "#define", CON_DEFINE },
+    { "#include", CON_INCLUDE },
     { "al", CON_ADDLOGVAR },
     { "var", CON_GAMEVAR },
     { "array", CON_GAMEARRAY },
@@ -158,6 +159,7 @@ const tokenmap_t altkeyw [] =
     { "abs", CON_KLABS },
 
     { "getp", CON_GETPLAYER },
+    { "getpv", CON_GETPLAYERVAR },
     { "gets", CON_GETSECTOR },
     { "geta", CON_GETACTOR },
     { "getav", CON_GETACTORVAR },
@@ -166,6 +168,7 @@ const tokenmap_t altkeyw [] =
     { "geti", CON_GETINPUT },
 
     { "setp", CON_SETPLAYER },
+    { "setpv", CON_SETPLAYERVAR },
     { "sets", CON_SETSECTOR },
     { "seta", CON_SETACTOR },
     { "setav", CON_SETACTORVAR },
