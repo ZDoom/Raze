@@ -385,6 +385,9 @@ static MenuOption_t MEO_GAMESETUP_QUICKSWITCH = MAKE_MENUOPTION(&MF_Redfont, &ME
 static MenuEntry_t ME_GAMESETUP_QUICKSWITCH = MAKE_MENUENTRY("Quick weapon switch:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_QUICKSWITCH, Option);
 #endif
 
+static MenuLink_t MEO_GAMESETUP_CHEATS = { MENU_CHEATS, MA_Advance, };
+static MenuEntry_t ME_GAMESETUP_CHEATS = MAKE_MENUENTRY( "Cheats", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_CHEATS, Link );
+
 static MenuEntry_t *MEL_GAMESETUP[] = {
     &ME_ADULTMODE,
 #if defined STARTUP_SETUP_WINDOW && !defined DROIDMENU
@@ -401,6 +404,7 @@ static MenuEntry_t *MEL_GAMESETUP[] = {
     &ME_GAMESETUP_UPDATES,
 #endif
 #endif
+    &ME_GAMESETUP_CHEATS,
 };
 
 MAKE_MENU_TOP_ENTRYLINK( "Game Setup", MEF_CenterMenu, OPTIONS_GAMESETUP, MENU_GAMESETUP );
@@ -416,7 +420,6 @@ MAKE_MENU_TOP_ENTRYLINK( "Joystick Setup", MEF_CenterMenu, OPTIONS_JOYSTICKSETUP
 #ifdef DROIDMENU
 MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_CenterMenu, OPTIONS_TOUCHSETUP, MENU_TOUCHSETUP );
 #endif
-MAKE_MENU_TOP_ENTRYLINK( "Cheats", MEF_CenterMenu, OPTIONS_CHEATS, MENU_CHEATS );
 
 static int32_t newresolution, newrendermode, newfullscreen, newvsync;
 
@@ -614,7 +617,6 @@ static MenuEntry_t *MEL_OPTIONS[] = {
 #else
     &ME_OPTIONS_TOUCHSETUP,
 #endif
-    &ME_OPTIONS_CHEATS
 };
 
 static MenuEntry_t *MEL_CONTROLS[] = {
@@ -1331,7 +1333,7 @@ static Menu_t Menus[] = {
     { &M_SOUND, MENU_SOUND, MENU_OPTIONS, MA_Return, Menu },
     { &M_SOUND, MENU_SOUND_INGAME, MENU_CLOSE, MA_Return, Menu },
     { &M_ADVSOUND, MENU_ADVSOUND, MENU_SOUND, MA_Return, Menu },
-    { &M_CHEATS, MENU_CHEATS, MENU_OPTIONS, MA_Return, Menu },
+    { &M_CHEATS, MENU_CHEATS, MENU_GAMESETUP, MA_Return, Menu },
     { &M_CHEATENTRY, MENU_CHEATENTRY, MENU_CHEATS, MA_None, TextForm },
     { &M_CHEAT_WARP, MENU_CHEAT_WARP, MENU_CHEATS, MA_None, TextForm },
     { &M_CHEAT_SKILL, MENU_CHEAT_SKILL, MENU_CHEATS, MA_None, TextForm },
