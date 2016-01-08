@@ -18539,6 +18539,164 @@ intptr_t hash_findcase(const hashtable_t *t, const char *s)
     return -1;
 }
 
+
+void inthash_init(inthashtable_t *t)
+{
+    if (EDUKE32_PREDICT_FALSE(!t->count))
+    {
+        initputs("inthash_add(): count is zero!\n");
+        return;
+    }
+
+    inthash_free(t);
+
+    t->items = (inthashitem_t *)Xcalloc(t->count, sizeof(inthashitem_t));
+}
+
+void inthash_loop(inthashtable_t const *t, void (*func)(intptr_t, intptr_t))
+{
+    if (EDUKE32_PREDICT_FALSE(t->items == NULL))
+    {
+        initputs("inthash_loop(): table not initialized!\n");
+        return;
+    }
+
+    for (inthashitem_t const * item = t->items, * const items_end = t->items + t->count; item < items_end; ++item)
+        func(item->key, item->value);
+}
+
+void inthash_free(inthashtable_t *t)
+{
+    DO_FREE_AND_NULL(t->items);
+}
+
+// djb3 algorithm
+static inline uint32_t inthash_getcode(intptr_t key)
+{
+    uint32_t h = 5381;
+
+    for (uint8_t const * keybuf = (uint8_t *)&key, * const keybuf_end = keybuf + sizeof(intptr_t); keybuf < keybuf_end; ++keybuf)
+        h = ((h << 5) + h) ^ (uint32_t)*keybuf;
+
+    return h;
+}
+
+void inthash_add(inthashtable_t *t, intptr_t key, intptr_t value, int32_t replace)
+{
+    if (EDUKE32_PREDICT_FALSE(t->items == NULL))
+    {
+        initputs("inthash_add(): table not initialized!\n");
+        return;
+    }
+
+    inthashitem_t * seeker = t->items + inthash_getcode(key) % t->count;
+
+    if (seeker->collision == NULL)
+    {
+        seeker->key = key;
+        seeker->value = value;
+        seeker->collision = seeker;
+
+        return;
+    }
+
+    if (seeker->key == key)
+    {
+        if (replace)
+            seeker->value = value;
+        return;
+    }
+
+    while (seeker != seeker->collision)
+    {
+        seeker = seeker->collision;
+
+        if (seeker->key == key)
+        {
+            if (replace)
+                seeker->value = value;
+            return;
+        }
+    }
+
+    inthashitem_t *tail = seeker;
+
+    do
+        tail = t->items + (tail - t->items + 1) % t->count;
+    while (tail->collision != NULL && tail != seeker);
+
+    if (EDUKE32_PREDICT_FALSE(tail == seeker))
+    {
+        initputs("inthash_add(): table full!\n");
+        return;
+    }
+
+    tail->key = key;
+    tail->value = value;
+    tail->collision = seeker->collision = tail;
+}
+
+// delete at most once
+void inthash_delete(inthashtable_t *t, intptr_t key)
+{
+    if (EDUKE32_PREDICT_FALSE(t->items == NULL))
+    {
+        initputs("inthash_delete(): table not initialized!\n");
+        return;
+    }
+
+    inthashitem_t * seeker = t->items + inthash_getcode(key) % t->count;
+
+    if (seeker->collision == NULL)
+        return;
+
+    if (seeker->key == key)
+    {
+        seeker->collision = NULL;
+        return;
+    }
+
+    while (seeker != seeker->collision)
+    {
+        inthashitem_t * const prev = seeker;
+        seeker = seeker->collision;
+
+        if (seeker->key == key)
+        {
+            prev->collision = seeker == seeker->collision ? prev : seeker->collision;
+            seeker->collision = NULL;
+            return;
+        }
+    }
+}
+
+intptr_t inthash_find(inthashtable_t const *t, intptr_t key)
+{
+    if (EDUKE32_PREDICT_FALSE(t->items == NULL))
+    {
+        initputs("inthash_find(): table not initialized!\n");
+        return -1;
+    }
+
+    inthashitem_t const * seeker = t->items + inthash_getcode(key) % t->count;
+
+    if (seeker->collision == NULL)
+        return -1;
+
+    if (seeker->key == key)
+        return seeker->value;
+
+    while (seeker != seeker->collision)
+    {
+        seeker = seeker->collision;
+
+        if (seeker->key == key)
+            return seeker->value;
+    }
+
+    return -1;
+}
+
 /*
  * vim:ts=8:
  */
