@@ -1,6 +1,6 @@
 /*
   Simple DirectMedia Layer
-  Copyright (C) 1997-2014 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 1997-2016 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -56,7 +56,7 @@
 #undef __IRIX__
 #define __IRIX__    1
 #endif
-#if defined(linux) || defined(__linux) || defined(__linux__)
+#if (defined(linux) || defined(__linux) || defined(__linux__))
 #undef __LINUX__
 #define __LINUX__   1
 #endif
@@ -109,7 +109,7 @@
 #undef __RISCOS__
 #define __RISCOS__  1
 #endif
-#if defined(__SVR4)
+#if defined(__sun) && defined(__SVR4)
 #undef __SOLARIS__
 #define __SOLARIS__ 1
 #endif
@@ -141,6 +141,23 @@
 #undef __PSP__
 #define __PSP__ 1
 #endif
+
+/* The NACL compiler defines __native_client__ and __pnacl__
+ * Ref: http://www.chromium.org/nativeclient/pnacl/stability-of-the-pnacl-bitcode-abi
+ */
+#if defined(__native_client__)
+#undef __LINUX__
+#undef __NACL__
+#define __NACL__ 1
+#endif
+#if defined(__pnacl__)
+#undef __LINUX__
+#undef __PNACL__
+#define __PNACL__ 1
+/* PNACL with newlib supports static linking only */
+#define __SDL_NOGETPROCADDR__
+#endif
+
 
 #include "begin_code.h"
 /* Set up for C function definitions, even when using C++ */
