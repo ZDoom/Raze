@@ -202,7 +202,6 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
     if (kdfread(apScriptGameEvent,sizeof(apScriptGameEvent),1,fil) != 1) goto corrupt;
-    G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_BACK_NON0);
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -317,9 +316,7 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
         dfwrite(aGameArrays[i].plValues, GAR_ELTSZ * aGameArrays[i].size, 1, fil);
     }
 
-    G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_FWD_NON0);
     dfwrite(apScriptGameEvent,sizeof(apScriptGameEvent),1,fil);
-    G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_BACK_NON0);
 
     for (int i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
         if (MapInfo[i].savedstate != NULL)

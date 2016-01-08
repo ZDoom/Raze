@@ -139,8 +139,7 @@ static void VM_DeleteSprite(int32_t iActor, int32_t iPlayer)
     A_DeleteSprite(iActor);
 }
 
-intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
-intptr_t *apScriptGameEventEnd[MAXGAMEEVENTS];
+intptr_t apScriptGameEvent[MAXGAMEEVENTS];
 
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
 #ifdef LUNATIC
@@ -182,7 +181,7 @@ FORCE_INLINE int32_t VM_EventCommon_(const int32_t iEventID, const int32_t iActo
     g_currentEventExec = iEventID;
 
     intptr_t const *oinsptr = insptr;
-    insptr = apScriptGameEvent[iEventID];
+    insptr = script + apScriptGameEvent[iEventID];
 
     const vmstate_t vm_backup = vm;
     vm = tempvm;

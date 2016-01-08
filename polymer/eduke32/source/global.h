@@ -117,7 +117,6 @@ G_EXTERN int32_t playerswhenstarted;
 G_EXTERN int32_t screenpeek;
 G_EXTERN int32_t startofdynamicinterpolations;
 G_EXTERN int32_t ototalclock;
-G_EXTERN intptr_t *g_parsingActorPtr;
 G_EXTERN intptr_t *g_scriptPtr;
 G_EXTERN int32_t *labelcode,*labeltype;
 G_EXTERN intptr_t *script;

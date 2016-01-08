@@ -52,8 +52,8 @@ static int32_t g_checkingIfElse, g_processingState, g_lastKeyword = -1;
 
 // The pointer to the start of the case table in a switch statement.
 // First entry is 'default' code.
-static intptr_t *g_caseScriptPtr=NULL;
-static intptr_t *previous_event=NULL;
+static intptr_t *g_caseScriptPtr;
+static intptr_t previous_event;
 static int32_t g_numCases = 0;
 static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
 static int32_t g_labelsOnly = 0, g_skipKeywordCheck = 0, g_dynamicTileMapping = 0, g_dynamicSoundMapping = 0;
@@ -70,8 +70,10 @@ weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
 #endif
 
 #if !defined LUNATIC
-static intptr_t *g_parsingEventPtr=NULL;
-static intptr_t *g_parsingEventBreakPtr=NULL;
+static intptr_t g_parsingActorPtr;
+static intptr_t g_parsingEventPtr;
+static intptr_t g_parsingEventBreakPtr;
+static intptr_t apScriptGameEventEnd[MAXGAMEEVENTS];
 static char *textptr;
 #endif
 
@@ -1277,10 +1279,7 @@ static int32_t g_ifElseAborted;
 
 static int32_t C_SetScriptSize(int32_t newsize)
 {
-    intptr_t oscriptPtr = (unsigned)(g_scriptPtr-script);
-    intptr_t ocaseScriptPtr = (unsigned)(g_caseScriptPtr-script);
-    intptr_t oparsingEventPtr = (unsigned)(g_parsingEventPtr-script);
-    intptr_t oparsingActorPtr = (unsigned)(g_parsingActorPtr-script);
+    intptr_t const oscript = (intptr_t)script;
     intptr_t *newscript;
     intptr_t i, j;
     int32_t osize = g_scriptSize;
@@ -1308,7 +1307,6 @@ static int32_t C_SetScriptSize(int32_t newsize)
 
     G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
-    G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_FWD_NON0);
 
     initprintf("Resizing code buffer to %d*%d bytes\n",newsize, (int32_t)sizeof(intptr_t));
 
@@ -1332,16 +1330,10 @@ static int32_t C_SetScriptSize(int32_t newsize)
     }
 
     g_scriptSize = newsize;
-    g_scriptPtr = (intptr_t *)(script+oscriptPtr);
+    g_scriptPtr = script + (intptr_t)g_scriptPtr - oscript;
 
     if (g_caseScriptPtr)
-        g_caseScriptPtr = (intptr_t *)(script+ocaseScriptPtr);
-
-    if (g_parsingEventPtr)
-        g_parsingEventPtr = (intptr_t *)(script+oparsingEventPtr);
-
-    if (g_parsingActorPtr)
-        g_parsingActorPtr = (intptr_t *)(script+oparsingActorPtr);
+        g_caseScriptPtr = script + (intptr_t)g_caseScriptPtr - oscript;
 
     for (i=(((newsize>=osize)?osize:newsize))-1; i>=0; i--)
         if (scriptptrs[i])
@@ -1352,7 +1344,6 @@ static int32_t C_SetScriptSize(int32_t newsize)
 
     G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_BACK_NON0);
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_BACK_NON0);
-    G_Util_PtrToIdx(apScriptGameEvent, MAXGAMEEVENTS, script, P2I_BACK_NON0);
 
     Bfree(scriptptrs);
     return 0;
@@ -1418,7 +1409,7 @@ static int32_t C_SkipComments(void)
                         initprintf("%s:%d: debug: EOF in comment!\n",g_szScriptFileName,g_lineNumber);
                     C_ReportError(-1);
                     initprintf("%s:%d: error: found `/*' with no `*/'.\n",g_szScriptFileName,g_lineNumber);
-                    g_parsingActorPtr = NULL; g_processingState = g_numBraces = 0;
+                    g_parsingActorPtr = g_processingState = g_numBraces = 0;
                     g_numCompilerErrors++;
                     continue;
                 }
@@ -2782,9 +2773,10 @@ static void C_FillEventBreakStackWithJump(intptr_t *breakPtr, intptr_t destinati
 {
     while (breakPtr)
     {
+        breakPtr = script + (intptr_t)breakPtr;
         intptr_t const tempPtr = *breakPtr;
         *breakPtr = destination;
-        breakPtr = (intptr_t*)tempPtr;
+        breakPtr = (intptr_t *)tempPtr;
     }
 }
 
@@ -2817,7 +2809,7 @@ static int32_t C_ParseCommand(int32_t loop)
             }
             goto DO_DEFSTATE;
         case CON_STATE:
-            if (g_parsingActorPtr == NULL && g_processingState == 0)
+            if (!g_parsingActorPtr && g_processingState == 0)
             {
 DO_DEFSTATE:
                 C_GetNextLabelName();
@@ -3345,7 +3337,7 @@ DO_DEFSTATE:
 
             g_numBraces = 0;
             g_scriptPtr--;
-            g_parsingActorPtr = g_scriptPtr;
+            g_parsingActorPtr = g_scriptPtr - script;
 
             if (tw == CON_USERACTOR)
             {
@@ -3390,12 +3382,12 @@ DO_DEFSTATE:
 
             if (tw == CON_EVENTLOADACTOR)
             {
-                g_tile[*g_scriptPtr].loadPtr = g_parsingActorPtr;
+                g_tile[*g_scriptPtr].loadPtr = script + g_parsingActorPtr;
                 g_checkingIfElse = 0;
                 continue;
             }
 
-            g_tile[*g_scriptPtr].execPtr = g_parsingActorPtr;
+            g_tile[*g_scriptPtr].execPtr = script + g_parsingActorPtr;
 
             if (tw == CON_USERACTOR)
             {
@@ -3411,8 +3403,8 @@ DO_DEFSTATE:
 
             for (j=0; j<4; j++)
             {
-                bitptr[(g_parsingActorPtr+j-script)>>3] &= ~(1<<((g_parsingActorPtr+j-script)&7));
-                *(g_parsingActorPtr+j) = 0;
+                bitptr[(intptr_t)((intptr_t *)g_parsingActorPtr+j)>>3] &= ~(1<<((intptr_t)((intptr_t *)g_parsingActorPtr+j)&7));
+                *((script+j)+g_parsingActorPtr) = 0;
                 if (j == 3)
                 {
                     j = 0;
@@ -3455,9 +3447,9 @@ DO_DEFSTATE:
                         break;
                     }
                     if (*(g_scriptPtr-1) >= (intptr_t)&script[0] && *(g_scriptPtr-1) < (intptr_t)&script[g_scriptSize])
-                        bitptr[(g_parsingActorPtr+j-script)>>3] |= (BITPTR_POINTER<<((g_parsingActorPtr+j-script)&7));
-                    else bitptr[(g_parsingActorPtr+j-script)>>3] &= ~(1<<((g_parsingActorPtr+j-script)&7));
-                    *(g_parsingActorPtr+j) = *(g_scriptPtr-1);
+                        bitptr[(intptr_t)((intptr_t *)g_parsingActorPtr+j)>>3] |= (BITPTR_POINTER<<((intptr_t)((intptr_t *)g_parsingActorPtr+j)&7));
+                    else bitptr[(intptr_t)((intptr_t *)g_parsingActorPtr+j)>>3] &= ~(1<<((intptr_t)((intptr_t *)g_parsingActorPtr+j)&7));
+                    *((script+j)+g_parsingActorPtr) = *(g_scriptPtr-1);
                 }
             }
             g_checkingIfElse = 0;
@@ -3473,8 +3465,7 @@ DO_DEFSTATE:
 
             g_numBraces = 0;
             g_scriptPtr--;
-            g_parsingEventPtr = g_scriptPtr;
-            g_parsingActorPtr = g_scriptPtr;
+            g_parsingEventPtr = g_parsingActorPtr = g_scriptPtr - script;
 
             C_SkipComments();
             j = 0;
@@ -3510,12 +3501,11 @@ DO_DEFSTATE:
             }
             else // if (tw == CON_APPENDEVENT)
             {
-                intptr_t const destination = g_parsingEventPtr - script;
-                intptr_t *previous_event_end = apScriptGameEventEnd[j];
-                *(previous_event_end++) = CON_JUMP;
+                intptr_t *previous_event_end = script + apScriptGameEventEnd[j];
+                *(previous_event_end++) = CON_JUMP | (g_lineNumber << 12);
                 *(previous_event_end++) = MAXGAMEVARS;
-                C_FillEventBreakStackWithJump((intptr_t*)*previous_event_end, destination);
-                *(previous_event_end++) = destination;
+                C_FillEventBreakStackWithJump((intptr_t *)*previous_event_end, g_parsingEventPtr);
+                *(previous_event_end++) = g_parsingEventPtr;
             }
 
             g_checkingIfElse = 0;
@@ -4351,7 +4341,7 @@ DO_DEFSTATE:
             }
 
         case CON_SPRITEFLAGS:
-            if (g_parsingActorPtr == NULL && g_processingState == 0)
+            if (!g_parsingActorPtr && g_processingState == 0)
             {
                 g_scriptPtr--;
 
@@ -4536,7 +4526,7 @@ DO_DEFSTATE:
 
         case CON_ROTATESPRITE16:
         case CON_ROTATESPRITE:
-            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL && g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_numCompilerErrors++;
@@ -4552,7 +4542,7 @@ DO_DEFSTATE:
             continue;
 
         case CON_ROTATESPRITEA:
-            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL && g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_numCompilerErrors++;
@@ -4563,7 +4553,7 @@ DO_DEFSTATE:
 
         case CON_SHOWVIEW:
         case CON_SHOWVIEWUNBIASED:
-            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL && g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_numCompilerErrors++;
@@ -4644,7 +4634,7 @@ DO_DEFSTATE:
         case CON_DIGITALNUMBER:
         case CON_DIGITALNUMBERZ:
         case CON_SCREENTEXT:
-            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL && g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_numCompilerErrors++;
@@ -4678,7 +4668,7 @@ DO_DEFSTATE:
         case CON_MYOSPAL:
         case CON_MYOSX:
         case CON_MYOSPALX:
-            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL && g_processingState == 0))
+            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);
                 g_numCompilerErrors++;
@@ -5758,7 +5748,7 @@ repeatcase:
 
         case CON_ENDEVENT:
 
-            if (EDUKE32_PREDICT_FALSE(g_parsingEventPtr == NULL))
+            if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr))
             {
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `endevent' without open `onevent'.\n",g_szScriptFileName,g_lineNumber);
@@ -5775,48 +5765,46 @@ repeatcase:
                 g_numCompilerErrors++;
             }
             // if event has already been declared then put a jump in instead
-            if (EDUKE32_PREDICT_FALSE((intptr_t)previous_event))
+            if (previous_event)
             {
-                intptr_t const destination = previous_event - script;
-
                 g_scriptPtr--;
-                *(g_scriptPtr++) = CON_JUMP;
+                *(g_scriptPtr++) = CON_JUMP | (g_lineNumber << 12);
                 *(g_scriptPtr++) = MAXGAMEVARS;
-                *(g_scriptPtr++) = destination;
-                *(g_scriptPtr++) = CON_ENDEVENT;
-                previous_event = NULL;
+                *(g_scriptPtr++) = previous_event;
+                *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
 
-                C_FillEventBreakStackWithJump(g_parsingEventBreakPtr, destination);
+                C_FillEventBreakStackWithJump((intptr_t *)g_parsingEventBreakPtr, previous_event);
+
+                previous_event = 0;
             }
             else
             {
                 // pad space for the next potential appendevent
-                apScriptGameEventEnd[g_currentEvent] = g_scriptPtr-1;
-                g_parsingEventPtr = (intptr_t*)(g_scriptPtr - script - 1);
-                *(g_scriptPtr++) = CON_ENDEVENT;
-                *(g_scriptPtr++) = (intptr_t)g_parsingEventBreakPtr;
-                *(g_scriptPtr++) = CON_ENDEVENT;
+                apScriptGameEventEnd[g_currentEvent] = (g_scriptPtr-1)-script;
+                *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
+                *(g_scriptPtr++) = g_parsingEventBreakPtr;
+                *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
             }
 
-            g_parsingEventBreakPtr = g_parsingEventPtr = g_parsingActorPtr = NULL;
+            g_parsingEventBreakPtr = g_parsingEventPtr = g_parsingActorPtr = 0;
             g_currentEvent = -1;
             Bsprintf(g_szCurrentBlockName,"(none)");
             continue;
 
         case CON_ENDA:
-            if (EDUKE32_PREDICT_FALSE(g_parsingActorPtr == NULL || g_parsingEventPtr))
+            if (EDUKE32_PREDICT_FALSE(!g_parsingActorPtr || g_parsingEventPtr))
             {
                 C_ReportError(-1);
                 initprintf("%s:%d: error: found `enda' without open `actor'.\n",g_szScriptFileName,g_lineNumber);
                 g_numCompilerErrors++;
-                g_parsingEventPtr = NULL;
+                g_parsingEventPtr = 0;
             }
             if (EDUKE32_PREDICT_FALSE(g_numBraces != 0))
             {
                 C_ReportError(g_numBraces > 0 ? ERROR_OPENBRACKET : ERROR_CLOSEBRACKET);
                 g_numCompilerErrors++;
             }
-            g_parsingActorPtr = NULL;
+            g_parsingActorPtr = 0;
             Bsprintf(g_szCurrentBlockName,"(none)");
             continue;
 
@@ -5837,10 +5825,10 @@ repeatcase:
             else if (g_parsingEventPtr)
             {
                 g_scriptPtr--;
-                *(g_scriptPtr++) = CON_JUMP;
+                *(g_scriptPtr++) = CON_JUMP | (g_lineNumber << 12);
                 *(g_scriptPtr++) = MAXGAMEVARS;
-                *g_scriptPtr = (intptr_t)g_parsingEventBreakPtr;
-                g_parsingEventBreakPtr = g_scriptPtr++;
+                *g_scriptPtr = g_parsingEventBreakPtr;
+                g_parsingEventBreakPtr = g_scriptPtr++ - script;
             }
             continue;
 
@@ -6137,6 +6125,7 @@ void C_Compile(const char *filenam)
     int32_t i;
 
     Bmemset(apScriptGameEvent, 0, sizeof(apScriptGameEvent));
+    Bmemset(apScriptGameEventEnd, 0, sizeof(apScriptGameEventEnd));
 
     for (i=MAXTILES-1; i>=0; i--)
         Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
@@ -6259,14 +6248,15 @@ void C_Compile(const char *filenam)
     {
         for (i = 0; i < MAXEVENTS; ++i)
         {
-            intptr_t *eventEnd = apScriptGameEventEnd[i];
+            intptr_t *eventEnd = script + apScriptGameEventEnd[i];
             if (eventEnd)
             {
                 // C_FillEventBreakStackWithEndEvent
                 intptr_t *breakPtr = (intptr_t*)*(eventEnd + 2);
                 while (breakPtr)
                 {
-                    *(breakPtr-2) = CON_ENDEVENT;
+                    breakPtr = script + (intptr_t)breakPtr;
+                    *(breakPtr-2) = CON_ENDEVENT | (g_lineNumber << 12);
                     breakPtr = (intptr_t*)*breakPtr;
                 }
             }

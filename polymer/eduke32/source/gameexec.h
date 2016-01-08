@@ -66,7 +66,7 @@ static inline int32_t VM_HaveEvent(int32_t iEventID)
 #ifdef LUNATIC
     return L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID);
 #else
-    return apScriptGameEvent[iEventID]!=NULL;
+    return !!apScriptGameEvent[iEventID];
 #endif
 }
 

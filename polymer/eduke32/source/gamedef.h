@@ -79,8 +79,7 @@ enum QuickStructureAccess_t {
 
 extern int32_t g_iStructVarIDs;
 
-extern intptr_t *apScriptGameEvent[MAXGAMEEVENTS];
-extern intptr_t *apScriptGameEventEnd[MAXGAMEEVENTS];
+extern intptr_t apScriptGameEvent[MAXGAMEEVENTS];
 #endif
 
 extern int32_t otherp;

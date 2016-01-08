@@ -295,7 +295,6 @@ extern int32_t          block_deletesprite;
 extern int32_t          g_noEnemies;
 extern int32_t          otherp;
 extern int32_t          ticrandomseed;
-extern intptr_t         *g_parsingActorPtr;
 extern projectile_t     SpriteProjectile[MAXSPRITES];
 
 
