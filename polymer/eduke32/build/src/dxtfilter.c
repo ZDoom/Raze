@@ -181,6 +181,10 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
 
     dxt_handle_io(fil, tabledivide32(miplen, stride)<<2, midbuf, packbuf);
 
+#if defined EDUKE32_GLES
+    UNREFERENCED_PARAMETER(pict);
+#endif
+
     return 0;
 }
 

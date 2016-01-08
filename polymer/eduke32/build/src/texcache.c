@@ -284,9 +284,16 @@ static void texcache_deletefiles(void)
 
 static int32_t texcache_enabled(void)
 {
+#if defined EDUKE32_GLES || !defined USE_GLEXT
+    return 0;
+#else
     if (!glusetexcompr || !glusetexcache) return 0;
 
-    if (!glinfo.texcompr || !bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
+    if (!glinfo.texcompr
+# ifdef DYNAMIC_GLEXT
+        || !bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB
+# endif
+        )
     {
         // lacking the necessary extensions to do this
         OSD_Printf("Warning: the GL driver lacks necessary functions to use caching\n");
@@ -301,6 +308,7 @@ static int32_t texcache_enabled(void)
     }
 
     return 1;
+#endif
 }
 
 void texcache_openfiles(void)
@@ -533,13 +541,16 @@ failure:
 
 void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
 {
-    static GLint glGetTexLevelParameterivOK = GL_TRUE;
     char cachefn[BMAX_PATH];
     char *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
-    uint32_t alloclen=0, level=0;
+    uint32_t alloclen=0;
+#ifndef EDUKE32_GLES
+    static GLint glGetTexLevelParameterivOK = GL_TRUE;
+    uint32_t level=0;
     uint32_t padx=0, pady=0;
     GLint gi;
+#endif
     int32_t offset = 0;
 
     if (!texcache_enabled()) return;
@@ -611,6 +622,7 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
         pict.ydim = head->ydim;
         pict.border = 0;
         pict.depth = 16;
+        miplen = 0;
 #endif
         if (alloclen < miplen)
         {
@@ -701,8 +713,6 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
 #endif
     {
-        GLint format;
-
         if (texcache_readdata(&pict, sizeof(texcachepicture)))
         {
             TEXCACHE_FREEBUFS();
@@ -748,6 +758,7 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
 #endif
 
 #ifndef EDUKE32_GLES
+        GLint format;
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);
         if ((*glerr = bglGetError()) != GL_NO_ERROR)
         {
@@ -763,6 +774,10 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
         }
 #endif
     }
+
+#if !defined USE_GLEXT && defined EDUKE32_GLES
+    UNREFERENCED_PARAMETER(glerr);
+#endif
 
     TEXCACHE_FREEBUFS();
     return 0;
