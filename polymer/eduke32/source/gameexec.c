@@ -104,11 +104,8 @@ extern void VM_ScriptInfo(intptr_t const *ptr, int32_t range)
     {
         initprintf("\n");
 
-        for (intptr_t const *p = ptr - (range>>1); p < ptr + (range>>1); p++)
+        for (intptr_t const *p = max(ptr - (range>>1), script), *p_end = min(ptr + (range>>1), script + g_scriptSize); p < p_end; p++)
         {
-            if ((int32_t)(p - script) >= g_scriptSize)
-                break;
-
             initprintf("%5d: %3d: ", (int32_t) (p - script), (int32_t) (p - ptr));
 
             if (*p >> 12 && (*p & VM_INSTMASK) < CON_END)
