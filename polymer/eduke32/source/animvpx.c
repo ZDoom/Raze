@@ -380,6 +380,7 @@ read_ivf_frame:
 static GLuint texname = 0;
 static int32_t texuploaded;
 
+#ifdef USE_GLEXT
 // YUV->RGB conversion fragment shader adapted from
 // http://www.fourcc.org/fccyvrgb.php: "Want some sample code?"
 // direct link: http://www.fourcc.org/source/YUV420P-OpenGL-GLSLang.c
@@ -408,9 +409,11 @@ static char *fragprog_src =
 
     "  gl_FragColor = vec4(r,g,b,1.0);\n"
     "}\n";
+#endif
 
 void animvpx_setup_glstate(void)
 {
+#ifdef USE_GLEXT
     if (glinfo.glsl)
     {
         GLint gli;
@@ -444,6 +447,7 @@ void animvpx_setup_glstate(void)
         /* Finally, use the program. */
         bglUseProgramObjectARB(PHandle);
     }
+#endif
 
     ////////// GL STATE //////////
 
@@ -466,7 +470,9 @@ void animvpx_setup_glstate(void)
     bglDisable(GL_CULL_FACE);
     bglEnable(GL_TEXTURE_2D);
 
+#ifdef USE_GLEXT
     bglActiveTextureARB(GL_TEXTURE0_ARB);
+#endif
     bglGenTextures(1, &texname);
     bglBindTexture(GL_TEXTURE_2D, texname);
 
@@ -484,8 +490,10 @@ void animvpx_setup_glstate(void)
 
 void animvpx_restore_glstate(void)
 {
+#ifdef USE_GLEXT
     if (glinfo.glsl)
         bglUseProgramObjectARB(0);
+#endif
 
 //    bglPopAttrib();
 

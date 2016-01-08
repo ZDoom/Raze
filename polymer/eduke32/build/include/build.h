@@ -1313,14 +1313,16 @@ extern int32_t gltexmaxsize;
 void gltexapplyprops (void);
 void texcache_invalidate(void);
 
-#ifndef EDUKE32_GLES
+# ifdef USE_GLEXT
 extern int32_t r_detailmapping;
 extern int32_t r_glowmapping;
-#endif
+# endif
 
 extern int32_t r_vertexarrays;
+# ifdef USE_GLEXT
 extern int32_t r_vbos;
 extern int32_t r_vbocount;
+# endif
 extern int32_t r_animsmoothing;
 extern int32_t r_parallaxskyclamping;
 extern int32_t r_parallaxskypanning;

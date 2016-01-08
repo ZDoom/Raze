@@ -701,15 +701,12 @@ int32_t loadglextensions(void)
     bwglCreateContextAttribsARB = (bwglCreateContextAttribsARBProcPtr) GETPROCEXTSOFT("wglCreateContextAttribsARB");
 #endif
 
-#if defined EDUKE32_GLES
-    // XXX: Replace with a proper GL ES solution,
-    // along with the following "unkludgeable" functions that are used in POLYMER=0 builds:
+    // the following ARB functions are used in POLYMER=0 builds:
+    // glActiveTextureARB,
     // glDeleteBuffersARB, glGenBuffersARB, glBindBufferARB,
     // glMapBufferARB, glUnmapBufferARB, glBufferDataARB,
     // glClientActiveTextureARB,
     // glGetCompressedTexImageARB, glCompressedTexImage2DARB
-    bglActiveTextureARB = (bglActiveTextureARBProcPtr) glActiveTexture;
-#endif
 
     return err;
 #else

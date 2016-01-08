@@ -1446,7 +1446,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     if (c > 8)
     {
         int32_t i, j;
-#ifndef EDUKE32_GLES
+#ifdef USE_GLEXT
         int32_t multisamplecheck = (glmultisample > 0);
 #else
         int32_t multisamplecheck = 0;
@@ -1468,7 +1468,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
               { SDL_GL_CONTEXT_MINOR_VERSION, 1 },
 #endif
               { SDL_GL_DOUBLEBUFFER, 1 },
-#ifndef EDUKE32_GLES
+#ifdef USE_GLEXT
               { SDL_GL_MULTISAMPLEBUFFERS, glmultisample > 0 },
               { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
 #endif

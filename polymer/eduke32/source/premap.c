@@ -512,7 +512,7 @@ void G_CacheMapData(void)
                                 polymost_precache(i,k,type);
                         }
 
-#ifndef EDUKE32_GLES
+#ifdef USE_GLEXT
                         if (r_detailmapping && !KB_KeyPressed(sc_Space))
                             polymost_precache(i,DETAILPAL,type);
                         if (r_glowmapping && !KB_KeyPressed(sc_Space))

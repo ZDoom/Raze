@@ -7,10 +7,8 @@
 #if !defined GEKKO && !defined EDUKE32_GLES
 # define DYNAMIC_GL
 # define DYNAMIC_GLU
-#endif
-
-#if !defined GEKKO
 # define DYNAMIC_GLEXT
+# define USE_GLEXT
 #endif
 
 #ifdef _WIN32

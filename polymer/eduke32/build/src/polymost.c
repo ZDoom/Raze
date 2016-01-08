@@ -97,8 +97,10 @@ int32_t glusetexcache = 0, glusememcache = 0;
 int32_t glusetexcompr = 1;
 int32_t glusetexcache = 2, glusememcache = 1;
 int32_t r_polygonmode = 0;     // 0:GL_FILL,1:GL_LINE,2:GL_POINT //FUK
-int32_t glmultisample = 0, glnvmultisamplehint = 0;
 static int32_t lastglpolygonmode = 0; //FUK
+#endif
+#ifdef USE_GLEXT
+int32_t glmultisample = 0, glnvmultisamplehint = 0;
 int32_t r_detailmapping = 1;
 int32_t r_glowmapping = 1;
 #endif
@@ -114,8 +116,10 @@ int32_t glrendmode = REND_POLYMOST;
 
 int32_t r_fullbrights = 1;
 int32_t r_vertexarrays = 1;
+#ifdef USE_GLEXT
 int32_t r_vbos = 1;
 int32_t r_vbocount = 64;
+#endif
 int32_t r_animsmoothing = 1;
 int32_t r_downsize = 0;
 int32_t r_downsizevar = -1;
@@ -212,7 +216,7 @@ static void bind_2d_texture(GLuint texture, int filter)
     bglBindTexture(GL_TEXTURE_2D, texture);
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[filter].mag);
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[filter].min);
-#ifndef EDUKE32_GLES
+#ifdef USE_GLEXT
     if (glinfo.maxanisotropy > 1.f)
         bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
 #endif
@@ -323,7 +327,9 @@ void polymost_glreset()
         bglDeleteTextures(1,&polymosttext);
     polymosttext=0;
 
+#ifdef USE_GLEXT
     md_freevbos();
+#endif
 
     Bmemset(texcache.list,0,sizeof(texcache.list));
     glox1 = -1;
@@ -350,7 +356,7 @@ void polymost_glinit()
     //bglHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     //bglEnable(GL_LINE_SMOOTH);
 
-#ifndef EDUKE32_GLES
+#ifdef USE_GLEXT
     if (glmultisample > 0 && glinfo.multisample)
     {
         if (glinfo.nvmultisamplehint)
@@ -372,13 +378,13 @@ void polymost_glinit()
             r_glowmapping = 0;
         }
     }
-#endif
 
     if (r_vbos && (!glinfo.vbos))
     {
         OSD_Printf("Your OpenGL implementation doesn't support Vertex Buffer Objects. Disabling...\n");
         r_vbos = 0;
     }
+#endif
 
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -763,7 +769,7 @@ static void polymost_setuptexture(const int32_t dameth, int filter)
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[filter].mag);
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[filter].min);
 
-#ifndef EDUKE32_GLES
+#ifdef USE_GLEXT
     if (glinfo.maxanisotropy > 1.f)
     {
         uint32_t i = (unsigned)Blrintf(glinfo.maxanisotropy);
@@ -1302,7 +1308,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     return 0;
 }
 
-#if !defined EDUKE32_GLES
+#ifdef USE_GLEXT
 void polymost_setupdetailtexture(const int32_t texunits, const int32_t tex)
 {
     bglActiveTextureARB(texunits);
@@ -1497,9 +1503,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         bglMatrixMode(GL_MODELVIEW);
     }
 
+#ifdef USE_GLEXT
     int32_t texunits = GL_TEXTURE0_ARB;
 
-#ifndef EDUKE32_GLES
     // detail texture
     pthtyp *detailpth = NULL;
 
@@ -1726,6 +1732,7 @@ do                                                                              
 
                 float const r = 1.f/dp;
 
+#ifdef USE_GLEXT
                 if (texunits > GL_TEXTURE0_ARB)
                 {
                     j = GL_TEXTURE0_ARB;
@@ -1733,6 +1740,7 @@ do                                                                              
                         bglMultiTexCoord2fARB(j++, (up * r - du0 + uoffs) * invtsiz2.x, vp * r * invtsiz2.y);
                 }
                 else
+#endif
                     bglTexCoord2f((up * r - du0 + uoffs) * invtsiz2.x, vp * r * invtsiz2.y);
 
                 bglVertex3f((o.x - ghalfx) * r * grhalfxdown10x,
@@ -1752,12 +1760,14 @@ do                                                                              
         {
             float const r = 1.f / dd[i];
 
+#ifdef USE_GLEXT
             if (texunits > GL_TEXTURE0_ARB)
             {
                 j = GL_TEXTURE0_ARB;
                 while (j <= texunits) bglMultiTexCoord2fARB(j++, uu[i] * r * scale.x, vv[i] * r * scale.y);
             }
             else
+#endif
                 bglTexCoord2f(uu[i] * r * scale.x, vv[i] * r * scale.y);
 
             bglVertex3f((px[i] - ghalfx) * r * grhalfxdown10x,
@@ -1767,20 +1777,25 @@ do                                                                              
         bglEnd();
     }
 
-    do
+#ifdef USE_GLEXT
+    while (texunits > GL_TEXTURE0_ARB)
     {
         bglActiveTextureARB(texunits);
         bglMatrixMode(GL_TEXTURE);
         bglLoadIdentity();
         bglMatrixMode(GL_MODELVIEW);
 
-        if (texunits > GL_TEXTURE0_ARB)
-        {
-            bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
-            bglDisable(GL_TEXTURE_2D);
-        }
+        bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
+        bglDisable(GL_TEXTURE_2D);
+
+        --texunits;
     }
-    while (--texunits >= GL_TEXTURE0_ARB);
+
+    bglActiveTextureARB(GL_TEXTURE0_ARB);
+#endif
+    bglMatrixMode(GL_TEXTURE);
+    bglLoadIdentity();
+    bglMatrixMode(GL_MODELVIEW);
 
     if (getrendermode() == REND_POLYMOST)
     {
@@ -4975,7 +4990,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     bglEnable(GL_TEXTURE_2D);
 
 #if defined(POLYMER)
+# ifdef USE_GLEXT
     const int32_t olddetailmapping = r_detailmapping, oldglowmapping = r_glowmapping;
+# endif
     const int32_t oldnormalmapping = pr_normalmapping;
 #endif
 
@@ -4994,8 +5011,10 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     {
         pr_normalmapping = 0;
         polymer_inb4rotatesprite(picnum, dapalnum, dashade, method);
+# ifdef USE_GLEXT
         r_detailmapping = 0;
         r_glowmapping = 0;
+# endif
     }
 #endif
 
@@ -5118,8 +5137,10 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 #ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
     {
+# ifdef USE_GLEXT
         r_detailmapping = olddetailmapping;
         r_glowmapping = oldglowmapping;
+# endif
         polymer_postrotatesprite();
         pr_normalmapping = oldnormalmapping;
     }
@@ -5707,9 +5728,11 @@ void polymost_initosdfuncs(void)
         { "r_parallaxskyclamping","enable/disable parallaxed floor/ceiling sky texture clamping", (void *) &r_parallaxskyclamping, CVAR_BOOL, 0, 1 },
         { "r_parallaxskypanning","enable/disable parallaxed floor/ceiling panning when drawing a parallaxing sky", (void *) &r_parallaxskypanning, CVAR_BOOL, 0, 1 },
 
-#ifndef EDUKE32_GLES
+#ifdef USE_GLEXT
         { "r_detailmapping","enable/disable detail mapping",(void *) &r_detailmapping, CVAR_BOOL, 0, 1 },
         { "r_glowmapping","enable/disable glow mapping",(void *) &r_glowmapping, CVAR_BOOL, 0, 1 },
+#endif
+#ifndef EDUKE32_GLES
         { "r_polygonmode","debugging feature",(void *) &r_polygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
         { "r_texcache","enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
         { "r_memcache","enable/disable texture cache memory cache",(void *) &glusememcache, CVAR_BOOL, 0, 1 },
@@ -5737,8 +5760,10 @@ void polymost_initosdfuncs(void)
         },
 
         { "r_usetileshades", "enable/disable Polymost tile shade textures", (void *) &r_usetileshades, CVAR_INT | CVAR_INVALIDATEART, 0, 2 },
+#ifdef USE_GLEXT
         { "r_vbocount","sets the number of Vertex Buffer Objects to use when drawing models",(void *) &r_vbocount, CVAR_INT, 1, 256 },
         { "r_vbos"," enable/disable using Vertex Buffer Objects when drawing models",(void *) &r_vbos, CVAR_BOOL, 0, 1 },
+#endif
         { "r_vertexarrays","enable/disable using vertex arrays when drawing models",(void *) &r_vertexarrays, CVAR_BOOL, 0, 1 },
         { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 1 },
 

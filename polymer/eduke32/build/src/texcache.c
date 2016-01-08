@@ -620,7 +620,9 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
             midbuf = (void *)Xrealloc(midbuf, miplen);
         }
 
+#ifdef USE_GLEXT
         bglGetCompressedTexImageARB(GL_TEXTURE_2D, level, pic); WRITEX_FAIL_ON_ERROR();
+#endif
 
         if (Bwrite(texcache.filehandle, &pict, sizeof(texcachepicture)) != sizeof(texcachepicture)) goto failure;
         if (dxtfilter(texcache.filehandle, &pict, pic, midbuf, packbuf, miplen)) goto failure;
@@ -736,12 +738,14 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
             return TEXCACHERR_DEDXT;
         }
 
+#ifdef USE_GLEXT
         bglCompressedTexImage2DARB(GL_TEXTURE_2D,level,pict.format,pict.xdim,pict.ydim,pict.border,pict.size,pic);
         if ((*glerr=bglGetError()) != GL_NO_ERROR)
         {
             TEXCACHE_FREEBUFS();
             return TEXCACHERR_COMPTEX;
         }
+#endif
 
 #ifndef EDUKE32_GLES
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);

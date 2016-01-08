@@ -2822,7 +2822,9 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
 #endif
                 if (Bstrstr(glinfo.renderer,"Radeon X1"))
                 {
+#ifdef USE_GLEXT
                     r_vbos = 0;
+#endif
 #ifdef POLYMER
                     pr_ati_nodepthoffset = 1;
                     initprintf("Enabling ATI R520 polygon offset workaround.\n");
