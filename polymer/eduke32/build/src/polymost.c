@@ -29,11 +29,7 @@ extern int32_t filelength(int h); // kplib.c
 extern char textfont[2048], smalltextfont[2048];
 
 int32_t rendmode=0;
-#ifdef EDUKE32_GLES
-int32_t usemodels=0;
-#else
 int32_t usemodels=1;
-#endif
 int32_t usehightile=1;
 int32_t vsync=0;
 
