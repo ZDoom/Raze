@@ -28,6 +28,7 @@
 # define GLdouble double
 
 # define GL_ACCUM_BUFFER_BIT			0x00000200
+# undef GL_ALL_ATTRIB_BITS
 # define GL_ALL_ATTRIB_BITS			0x000FFFFF
 # define GL_AUTO_NORMAL				0x0D80
 # define GL_BLEND_SRC_ALPHA			0x80CB

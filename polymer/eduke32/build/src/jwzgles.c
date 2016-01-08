@@ -98,6 +98,11 @@
 
 #include "jwzglesI.h"
 
+#if !defined(_MSC_VER) || _MSC_FULL_VER < 180031101
+# undef UNREFERENCED_PARAMETER
+# define UNREFERENCED_PARAMETER(x) (x) = (x)
+#endif
+
 #define STRINGIFY(X) #X
 
 #undef countof
@@ -114,8 +119,10 @@
 
 #ifdef HAVE_COCOA
   extern void jwxyz_abort (const char *fmt, ...) __dead2;
+# define Have_Assert
 # define Assert(C,S) do { if (!(C)) { jwxyz_abort ("%s",S); }} while(0)
 #elif defined __ANDROID__
+# define Have_Assert
 # define Assert(C,S) do { \
     if (!(C)) { \
     	LOGE ( "ASSERT jwzgles: %s\n", S); \
@@ -282,20 +289,20 @@ static jwzgles_state *state = 0;
          LOGD("jwzgles: "A "\n",B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)
 # define CHECK(S) check_gl_error(S)
 #else
-// "" defeats -Wempty-body
-# define LOG(A)                                     ""
-# define LOG1(A,B)                                  ""
-# define LOG2(A,B,C)                                ""
-# define LOG3(A,B,C,D)                              ""
-# define LOG4(A,B,C,D,E)                            ""
-# define LOG5(A,B,C,D,E,F)                          ""
-# define LOG6(A,B,C,D,E,F,G)                        ""
-# define LOG7(A,B,C,D,E,F,G,H)                      ""
-# define LOG8(A,B,C,D,E,F,G,H,I)                    ""
-# define LOG9(A,B,C,D,E,F,G,H,I,J)                  ""
-# define LOG10(A,B,C,D,E,F,G,H,I,J,K)               ""
-# define LOG17(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R) ""
-# define CHECK(S)                                   ""
+static inline void jklmnop_donothing(void) { };
+# define LOG(A)                                     jklmnop_donothing()
+# define LOG1(A,B)                                  jklmnop_donothing()
+# define LOG2(A,B,C)                                jklmnop_donothing()
+# define LOG3(A,B,C,D)                              jklmnop_donothing()
+# define LOG4(A,B,C,D,E)                            jklmnop_donothing()
+# define LOG5(A,B,C,D,E,F)                          jklmnop_donothing()
+# define LOG6(A,B,C,D,E,F,G)                        jklmnop_donothing()
+# define LOG7(A,B,C,D,E,F,G,H)                      jklmnop_donothing()
+# define LOG8(A,B,C,D,E,F,G,H,I)                    jklmnop_donothing()
+# define LOG9(A,B,C,D,E,F,G,H,I,J)                  jklmnop_donothing()
+# define LOG10(A,B,C,D,E,F,G,H,I,J,K)               jklmnop_donothing()
+# define LOG17(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R) jklmnop_donothing()
+# define CHECK(S)                                   jklmnop_donothing()
 #endif
 
 #ifdef DEBUG
@@ -515,6 +522,8 @@ make_room (const char *name, void **array, int span, int *count, int *size)
       /* LOG3("%s: grew %d -> %d", name, *size, new_size); */
       *size = new_size;
     }
+
+  UNREFERENCED_PARAMETER(name);
 }
 
 
@@ -605,6 +614,10 @@ jwzgles_glNewList (int id, int mode)
   state->list_enabled = state->enabled;
 
   LOG1("glNewList -> %d", id);
+
+#ifndef Have_Assert
+  UNREFERENCED_PARAMETER(mode);
+#endif
 }
 
 
@@ -1411,6 +1424,9 @@ jwzgles_glColorMaterial (GLenum face, GLenum mode)
          arrays don't distinguish between "color" and "material", */
       Assert (0, "glColorMaterial: unimplemented mode");
     }
+#else
+  UNREFERENCED_PARAMETER(face);
+  UNREFERENCED_PARAMETER(mode);
 #endif
 }
 
@@ -1654,7 +1670,9 @@ static int
 cq2t (unsigned char **arrayP, int stride, int count)
 {
   int count2 = count * 6 / 4;
+# ifdef Have_Assert
   int size  = stride * count;
+# endif
   int size2 = stride * count2;
   const unsigned char    *oarray,  *in;
   unsigned char *array2, *oarray2, *out;
@@ -2453,6 +2471,8 @@ copy_array_data (draw_array *A, int count, const char *name)
 
 # ifdef DEBUG
   dump_array_data (A, count, "saved", name, 0);
+# else
+  UNREFERENCED_PARAMETER(name);
 # endif
 }
 
@@ -2466,7 +2486,9 @@ restore_arrays (list_fn *F, int count)
 
   for (i = 0; i < 4; i++)
     {
+# ifdef DEBUG
       const char *name = 0;
+# endif
 
       if (!A[i].size)
         continue;
@@ -2479,19 +2501,27 @@ restore_arrays (list_fn *F, int count)
 
       switch (i) {
       case 0: glVertexPointer  (A[i].size, A[i].type, A[i].stride, A[i].data);
+# ifdef DEBUG
         name = "vertex ";
+# endif
         CHECK("glVertexPointer");
         break;
       case 1: glNormalPointer  (           A[i].type, A[i].stride, A[i].data);
+# ifdef DEBUG
         name = "normal ";
+# endif
         CHECK("glNormalPointer");
         break;
       case 2: glTexCoordPointer(A[i].size, A[i].type, A[i].stride, A[i].data);
+# ifdef DEBUG
         name = "texture";
+# endif
         CHECK("glTexCoordPointer");
         break;
       case 3: glColorPointer   (A[i].size, A[i].type, A[i].stride, A[i].data);
+# ifdef DEBUG
         name = "color  ";
+# endif
         CHECK("glColorPointer");
         break;
       default: Assert (0, "wat"); break;
@@ -2503,6 +2533,10 @@ restore_arrays (list_fn *F, int count)
     }
 
   glBindBuffer (GL_ARRAY_BUFFER, 0);    /* Keep out of others' hands */
+
+# ifndef DEBUG
+  UNREFERENCED_PARAMETER(count);
+# endif
 }
 
 
@@ -2816,6 +2850,7 @@ void
 jwzgles_glPushAttrib(int flags)
 {
   //Assert (0, "glPushAttrib unimplemented");
+  UNREFERENCED_PARAMETER(flags);
 }
 
 void
