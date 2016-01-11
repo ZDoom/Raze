@@ -353,7 +353,8 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
     klseek(i, 0, BSEEK_SET);
 
     int32_t xxhtime = getticks();
-    void *xxh = XXH32_init(0x1337);
+    XXH32_CREATESTATE_STATIC(xxh);
+    XXH32_reset(xxh, 0x1337);
     do
     {
         j = kread(i, buf, 256);

@@ -1,7 +1,8 @@
 /*
    xxHash - Extremely Fast Hash algorithm
    Header File
-   Copyright (C) 2012-2014, Yann Collet.
+   Copyright (C) 2012-2016, Yann Collet.
+
    BSD 2-Clause License (http://www.opensource.org/licenses/bsd-license.php)
 
    Redistribution and use in source and binary forms, with or without
@@ -28,7 +29,7 @@
    OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    You can contact the author at :
-   - xxHash source repository : http://code.google.com/p/xxhash/
+   - xxHash source repository : https://github.com/Cyan4973/xxHash
 */
 
 /* Notice extracted from xxHash homepage :
@@ -55,114 +56,174 @@ SHA1-32         0.28 GB/s    10
 Q.Score is a measure of quality of the hash function.
 It depends on successfully passing SMHasher test set.
 10 is a perfect score.
+
+A 64-bits version, named XXH64, is available since r35.
+It offers much better speed, but for 64-bits applications only.
+Name     Speed on 64 bits    Speed on 32 bits
+XXH64       13.8 GB/s            1.9 GB/s
+XXH32        6.8 GB/s            6.0 GB/s
 */
 
-#pragma once
+#ifndef XXHASH_H_5627135585666179
+#define XXHASH_H_5627135585666179 1
 
 #if defined (__cplusplus)
 extern "C" {
 #endif
 
 
-/*****************************
-   Type
-*****************************/
+/* ****************************
+*  Definitions
+******************************/
+#include <stddef.h>   /* size_t */
 typedef enum { XXH_OK=0, XXH_ERROR } XXH_errorcode;
 
 
+/* ****************************
+*  API modifier
+******************************/
+/*!XXH_PRIVATE_API
+*  Transforms all publics symbols within `xxhash.c` into private ones.
+*  Methodology :
+*  instead of : #include "xxhash.h"
+*  do :
+*     #define XXH_PRIVATE_API
+*     #include "xxhash.c"   // note the .c , instead of .h
+*  also : don't compile and link xxhash.c separately
+*/
+#ifdef XXH_PRIVATE_API
+#  if defined(__GNUC__)
+#    define XXH_PUBLIC_API static __attribute__((unused))
+#  elif defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */)
+#    define XXH_PUBLIC_API static inline
+#  elif defined(_MSC_VER)
+#    define XXH_PUBLIC_API static __inline
+#  else
+#    define XXH_PUBLIC_API static   /* this version may generate warnings for unused static functions; disable the relevant warning */
+#  endif
+#else
+#  define XXH_PUBLIC_API   /* do nothing */
+#endif
 
-/*****************************
-   Simple Hash Functions
-*****************************/
+/*!XXH_NAMESPACE, aka Namespace Emulation :
 
-unsigned int       XXH32 (const void* input, unsigned int len, unsigned int seed);
-unsigned long long XXH64 (const void* input, unsigned int len, unsigned long long seed);
+If you want to include _and expose_ xxHash functions from within your own library,
+but also want to avoid symbol collisions with another library which also includes xxHash,
 
-/*
+you can use XXH_NAMESPACE, to automatically prefix any public symbol from `xxhash.c`
+with the value of XXH_NAMESPACE (so avoid to keep it NULL and avoid numeric values).
+
+Note that no change is required within the calling program as long as it also includes `xxhash.h` :
+regular symbol name will be automatically translated by this header.
+*/
+#ifdef XXH_NAMESPACE
+#  define XXH_CAT(A,B) A##B
+#  define XXH_NAME2(A,B) XXH_CAT(A,B)
+#  define XXH32 XXH_NAME2(XXH_NAMESPACE, XXH32)
+#  define XXH64 XXH_NAME2(XXH_NAMESPACE, XXH64)
+#  define XXH_versionNumber XXH_NAME2(XXH_NAMESPACE, XXH_versionNumber)
+#  define XXH32_createState XXH_NAME2(XXH_NAMESPACE, XXH32_createState)
+#  define XXH64_createState XXH_NAME2(XXH_NAMESPACE, XXH64_createState)
+#  define XXH32_freeState XXH_NAME2(XXH_NAMESPACE, XXH32_freeState)
+#  define XXH64_freeState XXH_NAME2(XXH_NAMESPACE, XXH64_freeState)
+#  define XXH32_reset XXH_NAME2(XXH_NAMESPACE, XXH32_reset)
+#  define XXH64_reset XXH_NAME2(XXH_NAMESPACE, XXH64_reset)
+#  define XXH32_update XXH_NAME2(XXH_NAMESPACE, XXH32_update)
+#  define XXH64_update XXH_NAME2(XXH_NAMESPACE, XXH64_update)
+#  define XXH32_digest XXH_NAME2(XXH_NAMESPACE, XXH32_digest)
+#  define XXH64_digest XXH_NAME2(XXH_NAMESPACE, XXH64_digest)
+#endif
+
+
+/* *************************************
+*  Version
+***************************************/
+#define XXH_VERSION_MAJOR    0
+#define XXH_VERSION_MINOR    5
+#define XXH_VERSION_RELEASE  0
+#define XXH_VERSION_NUMBER  (XXH_VERSION_MAJOR *100*100 + XXH_VERSION_MINOR *100 + XXH_VERSION_RELEASE)
+XXH_PUBLIC_API unsigned XXH_versionNumber (void);
+
+
+/* ****************************
+*  Simple Hash Functions
+******************************/
+
+XXH_PUBLIC_API unsigned int       XXH32 (const void* input, size_t length, unsigned int seed);
+XXH_PUBLIC_API unsigned long long XXH64 (const void* input, size_t length, unsigned long long seed);
+
+/*!
 XXH32() :
-    Calculate the 32-bits hash of sequence of length "len" stored at memory address "input".
-    The memory between input & input+len must be valid (allocated and read-accessible).
+    Calculate the 32-bits hash of sequence "length" bytes stored at memory address "input".
+    The memory between input & input+length must be valid (allocated and read-accessible).
     "seed" can be used to alter the result predictably.
-    This function successfully passes all SMHasher tests.
     Speed on Core 2 Duo @ 3 GHz (single thread, SMHasher benchmark) : 5.4 GB/s
-    Note that "len" is type "int", which means it is limited to 2^31-1.
-    If your data is larger, use the advanced functions below.
 XXH64() :
     Calculate the 64-bits hash of sequence of length "len" stored at memory address "input".
+    "seed" can be used to alter the result predictably.
+    This function runs faster on 64-bits systems, but slower on 32-bits systems (see benchmark).
 */
 
 
+/* ****************************
+*  Advanced Hash Functions
+******************************/
+typedef struct XXH32_state_s XXH32_state_t;   /* incomplete */
+typedef struct XXH64_state_s XXH64_state_t;   /* incomplete */
 
-/*****************************
-   Advanced Hash Functions
-*****************************/
 
-void*         XXH32_init   (unsigned int seed);
-XXH_errorcode XXH32_update (void* state, const void* input, unsigned int len);
-unsigned int  XXH32_digest (void* state);
+/*!Static allocation
+   For static linking only, do not use in the context of DLL ! */
+typedef struct { long long ll[ 6]; } XXH32_stateBody_t;
+typedef struct { long long ll[11]; } XXH64_stateBody_t;
 
-void*         		XXH64_init   (unsigned long long seed);
-XXH_errorcode 		XXH64_update (void* state, const void* input, unsigned int len);
-unsigned long long  XXH64_digest (void* state);
+#define XXH32_CREATESTATE_STATIC(name) XXH32_stateBody_t name##xxhbody; void* name##xxhvoid = &(name##xxhbody); XXH32_state_t* name = (XXH32_state_t*)(name##xxhvoid)   /* no final ; */
+#define XXH64_CREATESTATE_STATIC(name) XXH64_stateBody_t name##xxhbody; void* name##xxhvoid = &(name##xxhbody); XXH64_state_t* name = (XXH64_state_t*)(name##xxhvoid)   /* no final ; */
 
-/*
-These functions calculate the xxhash of an input provided in several small packets,
-as opposed to an input provided as a single block.
 
-It must be started with :
-void* XXHnn_init()
-The function returns a pointer which holds the state of calculation.
-If the pointer is NULL, allocation has failed, so no state can be tracked.
+/*!Dynamic allocation
+   To be preferred in the context of DLL */
 
-The state pointer must be provided as "void* state" parameter for XXHnn_update().
-XXHnn_update() can be called as many times as necessary.
-The user must provide a valid (allocated) input.
+XXH_PUBLIC_API XXH32_state_t* XXH32_createState(void);
+XXH_PUBLIC_API XXH_errorcode  XXH32_freeState(XXH32_state_t* statePtr);
+
+XXH_PUBLIC_API XXH64_state_t* XXH64_createState(void);
+XXH_PUBLIC_API XXH_errorcode  XXH64_freeState(XXH64_state_t* statePtr);
+
+
+/* hash streaming */
+
+XXH_PUBLIC_API XXH_errorcode XXH32_reset  (XXH32_state_t* statePtr, unsigned int seed);
+XXH_PUBLIC_API XXH_errorcode XXH32_update (XXH32_state_t* statePtr, const void* input, size_t length);
+XXH_PUBLIC_API unsigned int  XXH32_digest (const XXH32_state_t* statePtr);
+
+XXH_PUBLIC_API XXH_errorcode      XXH64_reset  (XXH64_state_t* statePtr, unsigned long long seed);
+XXH_PUBLIC_API XXH_errorcode      XXH64_update (XXH64_state_t* statePtr, const void* input, size_t length);
+XXH_PUBLIC_API unsigned long long XXH64_digest (const XXH64_state_t* statePtr);
+
+/*!
+These functions generate the xxHash of an input provided in multiple segments,
+as opposed to provided as a single block.
+
+XXH state must first be allocated, using either static or dynamic method provided above.
+
+Start a new hash by initializing state with a seed, using XXHnn_reset().
+
+Then, feed the hash state by calling XXHnn_update() as many times as necessary.
+Obviously, input must be valid, hence allocated and read accessible.
 The function returns an error code, with 0 meaning OK, and any other value meaning there is an error.
-Note that "len" is type "int", which means it is limited to 2^31-1.
-If your data is larger, it is recommended to chunk your data into blocks
-of size for example 2^30 (1GB) to avoid any "int" overflow issue.
 
-Finally, you can end the calculation anytime, by using XXHnn_digest().
-This function returns the final nn-bits hash.
-You must provide the same "void* state" parameter created by XXHnn_init().
-Memory will be freed by XXHnn_digest().
-*/
+Finally, a hash value can be produced anytime, by using XXHnn_digest().
+This function returns the nn-bits hash.
+It's nonetheless possible to continue inserting input into the hash state
+and later on generate some new hashes, by calling again XXHnn_digest().
 
-
-int           XXH32_sizeofState(void);
-XXH_errorcode XXH32_resetState(void* state, unsigned int seed);
-
-#define       XXH32_SIZEOFSTATE 48
-typedef struct { long long ll[(XXH32_SIZEOFSTATE+(sizeof(long long)-1))/sizeof(long long)]; } XXH32_stateSpace_t;
-
-int           XXH64_sizeofState(void);
-XXH_errorcode XXH64_resetState(void* state, unsigned long long seed);
-
-#define       XXH64_SIZEOFSTATE 88
-typedef struct { long long ll[(XXH64_SIZEOFSTATE+(sizeof(long long)-1))/sizeof(long long)]; } XXH64_stateSpace_t;
-
-/*
-These functions allow user application to make its own allocation for state.
-
-XXHnn_sizeofState() is used to know how much space must be allocated for the xxHash nn-bits state.
-Note that the state must be aligned to access 'long long' fields. Memory must be allocated and referenced by a pointer.
-This pointer must then be provided as 'state' into XXHnn_resetState(), which initializes the state.
-
-For static allocation purposes (such as allocation on stack, or freestanding systems without malloc()),
-use the structure XXHnn_stateSpace_t, which will ensure that memory space is large enough and correctly aligned to access 'long long' fields.
-*/
-
-
-unsigned int       XXH32_intermediateDigest (void* state);
-unsigned long long XXH64_intermediateDigest (void* state);
-/*
-These functions do the same as XXHnn_digest(), generating a nn-bit hash,
-but preserve memory context.
-This way, it becomes possible to generate intermediate hashes, and then continue feeding data with XXHnn_update().
-To free memory context, use XXHnn_digest(), or free().
+When done, free XXH state space if it was allocated dynamically.
 */
 
 
 #if defined (__cplusplus)
 }
 #endif
+
+#endif /* XXHASH_H_5627135585666179 */
