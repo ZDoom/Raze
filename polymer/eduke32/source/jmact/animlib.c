@@ -89,7 +89,7 @@ typedef struct
     lp_descriptor * curlp;        // header of large page currently in memory
     uint16_t * thepage;     // buffer where current large page is loaded
     uint8_t imagebuffer[IMAGEBUFFERSIZE]; // buffer where anim frame is decoded
-    const uint8_t * buffer;
+    uint8_t * buffer;
     uint8_t pal[768];
     int32_t  currentframe;
 } anim_t;
@@ -255,7 +255,7 @@ static inline void drawframe(uint16_t framenumber)
 }
 
 // <length> is the file size, for consistency checking.
-int32_t ANIM_LoadAnim(const uint8_t *buffer, int32_t length)
+int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length)
 {
     int32_t i;
 

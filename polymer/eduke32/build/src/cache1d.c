@@ -518,10 +518,6 @@ void removesearchpaths_withuser(int32_t usermask)
 
 int32_t findfrompath(const char *fn, char **where)
 {
-    searchpath_t *sp;
-    char *pfn, *ffn;
-    int32_t allocsiz;
-
     // pathsearchmode == 0: tests current dir and then the dirs of the path stack
     // pathsearchmode == 1: tests fn without modification, then like for pathsearchmode == 0
 
@@ -557,16 +553,18 @@ int32_t findfrompath(const char *fn, char **where)
 #endif
     }
 
-    for (pfn = (char *)fn; toupperlookup[*pfn] == '/'; pfn++);
-    ffn = Xstrdup(pfn);
+    char const *cpfn;
+
+    for (cpfn = fn; toupperlookup[*cpfn] == '/'; cpfn++);
+    char *ffn = Xstrdup(cpfn);
 
     Bcorrectfilename(ffn,0);	// compress relative paths
 
-    allocsiz = max(maxsearchpathlen, 2);	// "./" (aka. curdir)
+    int32_t allocsiz = max(maxsearchpathlen, 2);	// "./" (aka. curdir)
     allocsiz += strlen(ffn);
     allocsiz += 1;	// a nul
 
-    pfn = (char *)Xmalloc(allocsiz);
+    char *pfn = (char *)Xmalloc(allocsiz);
 
     strcpy(pfn, "./");
     strcat(pfn, ffn);
@@ -577,7 +575,7 @@ int32_t findfrompath(const char *fn, char **where)
         return 0;
     }
 
-    for (sp = searchpathhead; sp; sp = sp->next)
+    for (searchpath_t *sp = searchpathhead; sp; sp = sp->next)
     {
         char *tfn = Xstrdup(ffn);
 
@@ -1765,7 +1763,7 @@ static uint32_t compress_part(uint32_t k, intptr_t f)
 // Write from 'buffer' to 'f'.
 C1D_STATIC void c1d_write_compressed(const void *buffer, bsize_t dasizeof, bsize_t count, intptr_t f)
 {
-    const char *ptr = (char*)buffer;
+    char const *ptr = (char const *)buffer;
 
     if (dasizeof > LZWSIZE)
     {

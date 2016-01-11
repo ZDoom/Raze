@@ -40,7 +40,7 @@ void initfastcolorlookup_palette(uint8_t const * const pal)
 
     colmatch_palette = pal;
 
-    char const *pal1 = (char *)&pal[768-3];
+    char const *pal1 = (char const *)&pal[768-3];
     for (int i=255; i>=0; i--,pal1-=3)
     {
         int32_t const j = (pal1[0]>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
@@ -155,7 +155,7 @@ int32_t getclosestcol_nocache_lim(int32_t r, int32_t g, int32_t b, int32_t const
 
         do
         {
-            char const * const pal1 = (char *)&colmatch_palette[i*3];
+            char const * const pal1 = (char const *)&colmatch_palette[i*3];
             int dist = gdist[pal1[1]+g];
 
             if (dist >= mindist || i > lastokcol) continue;
@@ -175,7 +175,7 @@ int32_t getclosestcol_nocache_lim(int32_t r, int32_t g, int32_t b, int32_t const
 
     for (int i = 0; i < lastokcol; ++i)
     {
-        char const * const pal1 = (char *)&colmatch_palette[i*3];
+        char const * const pal1 = (char const *)&colmatch_palette[i*3];
         int dist = gdist[pal1[1]+g];
 
         if (dist >= mindist) continue;

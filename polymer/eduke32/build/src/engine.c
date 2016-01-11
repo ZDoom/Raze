@@ -98,7 +98,7 @@ usermaphack_t g_loadedMapHack;  // used only for the MD4 part
 
 int32_t compare_usermaphacks(const void *a, const void *b)
 {
-    return Bmemcmp(((usermaphack_t*) a)->md4, ((usermaphack_t*) b)->md4, 16);
+    return Bmemcmp(((usermaphack_t const *) a)->md4, ((usermaphack_t const *) b)->md4, 16);
 }
 usermaphack_t *usermaphacks;
 int32_t num_usermaphacks;
@@ -12635,7 +12635,7 @@ int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
 {
     int16_t tempsectnum = sprite[spritenum].sectnum;
 
-    if ((void *)newpos != (void *)&sprite[spritenum])
+    if ((void const *)newpos != (void *)&sprite[spritenum])
         Bmemcpy(&sprite[spritenum], newpos, sizeof(vec3_t));
 
     updatesector(newpos->x,newpos->y,&tempsectnum);
@@ -12652,7 +12652,7 @@ int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
 {
     int16_t tempsectnum = sprite[spritenum].sectnum;
 
-    if ((void *)newpos != (void *)&sprite[spritenum])
+    if ((void const *)newpos != (void *)&sprite[spritenum])
         Bmemcpy(&sprite[spritenum], newpos, sizeof(vec3_t));
 
     updatesectorz(newpos->x,newpos->y,newpos->z,&tempsectnum);
@@ -13393,7 +13393,7 @@ restart_grand:
                 if (klabs(intx-sv->x)+klabs(inty-sv->y) > klabs((hit->pos.x)-sv->x)+klabs((hit->pos.y)-sv->y))
                     continue;
 
-                get_floorspr_points((tspritetype *)spr, intx, inty, &x1, &x2, &x3, &x4,
+                get_floorspr_points((tspritetype const *)spr, intx, inty, &x1, &x2, &x3, &x4,
                                     &y1, &y2, &y3, &y4);
 
                 if (get_floorspr_clipyou(x1, x2, x3, x4, y1, y2, y3, y4))
@@ -14214,7 +14214,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
                     rxi[0] = x1;
                     ryi[0] = y1;
-                    get_floorspr_points((tspritetype *) spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
+                    get_floorspr_points((tspritetype const *) spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
                                         &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
 
                     dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist);
@@ -15082,7 +15082,7 @@ restart_grand:
                         if ((pos->z > daz) == ((cstat&8)==0))
                             continue;
 
-                    get_floorspr_points((tspritetype *) spr, pos->x, pos->y, &x1, &x2, &x3, &x4,
+                    get_floorspr_points((tspritetype const *) spr, pos->x, pos->y, &x1, &x2, &x3, &x4,
                                         &y1, &y2, &y3, &y4);
 
                     const int32_t dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist+4);
@@ -18052,11 +18052,13 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     #endif
     text[0].compression = PNG_TEXT_COMPRESSION_NONE;
     text[0].key = "Title";
-    text[0].text = (png_charp)(editstatus ? "Mapster32 screenshot" : "EDuke32 screenshot");
+    char *pngtext = Bstrdup((editstatus ? "Mapster32 screenshot" : "EDuke32 screenshot"));
+    text[0].text = pngtext;
 
     text[1].compression = PNG_TEXT_COMPRESSION_NONE;
     text[1].key = "Software";
-    text[1].text = (char *)versionstr;
+    char *pngversion = Bstrdup(versionstr);
+    text[1].text = pngversion;
     png_set_text(png_ptr, info_ptr, text, 2);
 
     // get/set the pixel data
@@ -18095,6 +18097,10 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     Bfclose(fp);
     if (palette) png_free(png_ptr, palette);
     if (text) png_free(png_ptr, text);
+
+    DO_FREE_AND_NULL(pngtext);
+    DO_FREE_AND_NULL(pngversion);
+
     if (buf) png_free(png_ptr, buf);
     if (rowptrs) png_free(png_ptr, rowptrs);
     png_destroy_write_struct(&png_ptr, &info_ptr);
@@ -18287,7 +18293,7 @@ int32_t setrendermode(int32_t renderer)
 #ifdef USE_OPENGL
 void setrollangle(int32_t rolla)
 {
-    gtang = (float)rolla * (PI * (1.f/1024.f));
+    gtang = (float)rolla * ((float)PI * (1.f/1024.f));
 }
 #endif
 

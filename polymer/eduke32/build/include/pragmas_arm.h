@@ -80,10 +80,10 @@ void clearbufbyte(void *D, int32_t c, int32_t a);
 void copybufbyte(const void *S, void *D, int32_t c);
 void copybufreverse(const void *S, void *D, int32_t c);
 
-static inline int32_t krecipasm(int32_t i)
+static inline int32_t krecipasm(int32_t const i)
 {
     // Ken did this
-    float f = (float)i;
+    float f = (float const)i;
     i = *(int32_t *)&f;
     return ((reciptable[(i >> 12) & 2047] >> (((i - 0x3f800000) >> 23) & 31)) ^ (i >> 31));
 }

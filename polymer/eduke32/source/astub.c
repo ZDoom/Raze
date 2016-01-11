@@ -8042,7 +8042,7 @@ static void G_CheckCommandLine(int32_t argc, const char **argv)
 
     while (i < argc)
     {
-        c = (char *)argv[i];
+        c = argv[i];
 
         if ((*c == '-')
 #ifdef _WIN32

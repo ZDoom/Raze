@@ -40,7 +40,7 @@ typedef struct {
     SOUNDOWNER SoundOwner[4];
     int16_t ps,pe,vo;
     char pr,m;
-    volatile char lock;
+    char lock;
     char *definedname;  // new
 } sound_t;
 

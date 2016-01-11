@@ -241,8 +241,8 @@ void copybufreverse(const void *S, void *D, int32_t c);
 static inline int32_t krecipasm(int32_t i)
 {
     // Ken did this
-    float const f = (float)i;
-    i = *(int32_t *)&f;
+    float const f = (float const)i;
+    i = *(int32_t const *)&f;
     return ((reciptable[(i >> 12) & 2047] >> (((i - 0x3f800000) >> 23) & 31)) ^ (i >> 31));
 }
 

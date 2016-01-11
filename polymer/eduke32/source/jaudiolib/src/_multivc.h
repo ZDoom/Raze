@@ -84,7 +84,7 @@ typedef struct VoiceNode
     const int16_t *LeftVolume;
     const int16_t *RightVolume;
 
-    const void *rawdataptr;
+    void *rawdataptr;
 
     const char *NextBlock;
     const char *LoopStart;

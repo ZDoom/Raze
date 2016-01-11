@@ -25,6 +25,7 @@
  */
 
 typedef unsigned char *POINTER;
+typedef unsigned char const *RPOINTER;
 typedef unsigned short UINT2;
 typedef unsigned int  UINT4;
 
@@ -130,7 +131,7 @@ void md4block(MD4_CTX *context, const unsigned char *input, unsigned int inputLe
     if (inputLen >= partLen)
     {
         MD4_memcpy
-        ((POINTER)&context->buffer[index], (POINTER)input, partLen);
+        ((POINTER)&context->buffer[index], (RPOINTER)input, partLen);
         MD4Transform(context->state, context->buffer);
 
         for (i = partLen; i + 63 < inputLen; i += 64)
@@ -143,7 +144,7 @@ void md4block(MD4_CTX *context, const unsigned char *input, unsigned int inputLe
 
     /* Buffer remaining input */
     MD4_memcpy
-    ((POINTER)&context->buffer[index], (POINTER)&input[i],
+    ((POINTER)&context->buffer[index], (RPOINTER)&input[i],
      inputLen-i);
 }
 

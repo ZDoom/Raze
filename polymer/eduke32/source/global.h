@@ -142,7 +142,7 @@ G_EXTERN sound_t g_sounds[MAXSOUNDS];
 G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;
 G_EXTERN vec3_t my,omy,myvel;
-G_EXTERN volatile char g_soundlocks[MAXSOUNDS];
+G_EXTERN char g_soundlocks[MAXSOUNDS];
 G_EXTERN int32_t g_restorePalette;
 G_EXTERN int32_t g_screenCapture;
 G_EXTERN int32_t g_noEnemies;

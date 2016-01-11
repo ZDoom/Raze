@@ -384,7 +384,7 @@ static int32_t texuploaded;
 // YUV->RGB conversion fragment shader adapted from
 // http://www.fourcc.org/fccyvrgb.php: "Want some sample code?"
 // direct link: http://www.fourcc.org/source/YUV420P-OpenGL-GLSLang.c
-static char *fragprog_src =
+static const char *fragprog_src =
     "#version 120\n"
 
     "uniform sampler2D tex;\n"

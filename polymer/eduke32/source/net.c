@@ -1109,7 +1109,7 @@ void Net_ReceiveMapUpdate(ENetEvent *event)
 
 static int Net_CompareActors(const void *actor1, const void *actor2)
 {
-    return ((netactor_t *)actor1)->netIndex - ((netactor_t *)actor2)->netIndex;
+    return ((netactor_t const *)actor1)->netIndex - ((netactor_t const *)actor2)->netIndex;
 }
 
 void Net_SaveMapState(netmapstate_t *save)

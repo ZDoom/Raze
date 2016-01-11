@@ -461,7 +461,7 @@ static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t
         Bstrcat(id.name, fn);
 
     Bsprintf(cachefn, "%08x%08x%08x",
-        XXH32((uint8_t *)fn, Bstrlen(fn), TEXCACHEMAGIC[3]),
+        XXH32((uint8_t const *)fn, Bstrlen(fn), TEXCACHEMAGIC[3]),
         XXH32((uint8_t *)id.name, Bstrlen(id.name), TEXCACHEMAGIC[3]),
         XXH32((uint8_t *)&id, sizeof(struct texcacheid_t), TEXCACHEMAGIC[3]));
     

@@ -417,7 +417,7 @@ static inline int32_t G_GetTeamPalette(int32_t team)
 
 #define minitextshade(x, y, t, s, p, sb) minitext_(x,y,t,s,p,sb)
 #define minitext(x, y, t, p, sb) minitext_(x,y,t,0,p,sb)
-#define menutext(x,y,s,p,t) menutext_(x,y,s,p,(char *)OSD_StripColors(menutextbuf,t),10+16)
+#define menutext(x,y,s,p,t) menutext_(x,y,s,p,OSD_StripColors(menutextbuf,t),10+16)
 #define gametext(x,y,t,s,dabits) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536, 0)
 #define gametextscaled(x,y,t,s,dabits) G_PrintGameText(1,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536, 0)
 #define gametextpal(x,y,t,s,p) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536, 0)

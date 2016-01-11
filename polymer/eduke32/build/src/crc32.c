@@ -6,7 +6,7 @@
 uint32_t Bcrc32(const void* data, size_t length, uint32_t crc)
 {
     const uint32_t* current = (const uint32_t*) data;
-    uint8_t *currentChar;
+    uint8_t const * currentChar;
     crc = ~crc;
 
 #ifdef BITNESS64
@@ -61,7 +61,7 @@ uint32_t Bcrc32(const void* data, size_t length, uint32_t crc)
     }
 #endif
 
-    currentChar = (uint8_t*) current;
+    currentChar = (uint8_t const *) current;
     // remaining 1 to 7 bytes (standard algorithm)
     while (length-- > 0)
         crc = (crc >> 8) ^ crc32table[0][(crc & 0xFF) ^ *currentChar++];

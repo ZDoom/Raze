@@ -226,13 +226,13 @@ static inline void __fastcall VM_DoConditional(register int32_t condition)
 
 static int X_DoSortDefault(const void *lv, const void *rv)
 {
-    return *(int32_t *)rv - *(int32_t *)lv;
+    return *(int32_t const *)rv - *(int32_t const *)lv;
 }
 
 static int X_DoSort(const void *lv, const void *rv)
 {
-    m32_sortvar1 = *(int32_t *)lv;
-    m32_sortvar2 = *(int32_t *)rv;
+    m32_sortvar1 = *(int32_t const *)lv;
+    m32_sortvar2 = *(int32_t const *)rv;
     insptr = x_sortingstateptr;
     VM_Execute(0);
     return g_iReturnVar;

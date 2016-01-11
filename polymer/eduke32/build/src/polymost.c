@@ -424,8 +424,8 @@ static void fogcalc_old(int32_t shade, int32_t vis)
 
 // For GL_LINEAR fog:
 #define FOGDISTCONST 600
-#define FULLVIS_BEGIN 2.9e30
-#define FULLVIS_END 3.0e30
+#define FULLVIS_BEGIN 2.9e30f
+#define FULLVIS_END 3.0e30f
 
 static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
@@ -2735,7 +2735,7 @@ static void polymost_drawalls(int32_t const bunch)
                 ytex.d = ytex.u = 0;
                 otex.d = dd;
                 xtex.u = otex.d * (t * (float)((uint64_t)(xdimscale * yxaspect) * viewingrange)) *
-                         (1.f / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
+                         (1.f / (16384.f * 65536.f * 65536.f * 5.f * 1024.f));
                 ytex.v = vv[1];
                 otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->floorypanning*(float)i*(1.f/256.f) : vv[0];
 
@@ -3027,7 +3027,7 @@ static void polymost_drawalls(int32_t const bunch)
                 ytex.d = ytex.u = 0;
                 otex.d = dd;
                 xtex.u = otex.d * (t * (float)((uint64_t)(xdimscale * yxaspect) * viewingrange)) *
-                         (1.f / (16384.0 * 65536.0 * 65536.0 * 5.0 * 1024.0));
+                         (1.f / (16384.f * 65536.f * 65536.f * 5.f * 1024.f));
                 ytex.v = vv[1];
                 otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->ceilingypanning*(float)i*(1.f/256.f) : vv[0];
 
@@ -4839,7 +4839,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
                 fov = pr_hudfov;
 #endif
             if (fov != -1)
-                f = 1.f/tanf(((float)fov * 2.56f) * ((.5f * PI) * (1.0f/2048.f)));
+                f = 1.f/tanf(((float)fov * 2.56f) * ((.5f * (float)PI) * (1.0f/2048.f)));
 
             m[0][0] = f*fydimen; m[0][2] = 1.f;
             m[1][1] = f*fxdimen; m[1][2] = 1.f;
@@ -5617,7 +5617,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 static int32_t gltexturemode(const osdfuncparm_t *parm)
 {
     int32_t m;
-    const char *p;
+    char *p;
 
     if (parm->numparms != 1)
     {
@@ -5629,7 +5629,7 @@ static int32_t gltexturemode(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
-    m = Bstrtoul(parm->parms[0], (char **)&p, 10);
+    m = Bstrtoul(parm->parms[0], &p, 10);
     if (p == parm->parms[0])
     {
         // string

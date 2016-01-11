@@ -47,7 +47,7 @@ static int32_t RTS_AddFile(const char *filename)
     // read the entire file in
     //      FIXME: shared opens
 
-    handle = kopen4loadfrommod((char *)filename, 0);
+    handle = kopen4loadfrommod(filename, 0);
     if (handle < 0)
     {
         initprintf("RTS file \"%s\" was not found\n",filename);

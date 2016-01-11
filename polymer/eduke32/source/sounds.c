@@ -277,18 +277,22 @@ void S_Cleanup(void)
     // process from our own local copy of the delete queue so we don't hold the lock long
     mutex_lock(&s_mutex);
 
-    if (!dnum)
+    uint32_t ldnum = dnum;
+
+    if (!ldnum)
     {
         mutex_unlock(&s_mutex);
         return;
     }
 
-    Bmemcpy(ldq, (void *)dq, dnum * sizeof(int32_t));
-
-    uint32_t ldnum = dnum-1;
     dnum = 0;
 
+    for (uint32_t i = 0; i < ldnum; i++)
+        ldq[i] = dq[i];
+
     mutex_unlock(&s_mutex);
+
+    ldnum--;
 
     do
     {

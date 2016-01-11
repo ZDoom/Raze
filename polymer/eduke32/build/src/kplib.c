@@ -208,7 +208,8 @@ static inline int32_t bitrev(int32_t b, int32_t c)
 
 #endif
 
-static uint8_t fakebuf[8], *nfilptr;
+static uint8_t fakebuf[8];
+static uint8_t const *nfilptr;
 static int32_t nbitpos;
 static void suckbitsnextblock()
 {
@@ -237,7 +238,7 @@ static void suckbitsnextblock()
     //          |===|===|
     //----x     O---x     O--------
     nbitpos = B_BIG32(B_UNBUF32(&filptr[8]));
-    nfilptr = (uint8_t *)&filptr[nbitpos+12];
+    nfilptr = &filptr[nbitpos+12];
     B_BUF32(&fakebuf[0], B_UNBUF32(&filptr[0])); //Copy last dword of IDAT chunk
     if (B_UNBUF32(&filptr[12]) == B_LITTLE32(0x54414449)) //Copy 1st dword of next IDAT chunk
         B_BUF32(&fakebuf[4], B_UNBUF32(&filptr[16]));
@@ -754,7 +755,7 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
 
     if ((B_UNBUF32(&kfilebuf[0]) != B_LITTLE32(0x474e5089)) || (B_UNBUF32(&kfilebuf[4]) != B_LITTLE32(0x0a1a0a0d)))
         return(-1); //"Invalid PNG file signature"
-    filptr = (uint8_t *)&kfilebuf[8];
+    filptr = (uint8_t const *)&kfilebuf[8];
 
     trnsrgb = 0; filter1st = -1; filterest = 0;
 
@@ -1289,7 +1290,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
 
     if (!kpeginited) { kpeginited = 1; initkpeg(); }
 
-    kfileptr = (uint8_t *)kfilebuf;
+    kfileptr = (uint8_t const *)kfilebuf;
     kfileend = &kfileptr[kfilength];
 
     if (B_UNBUF16(kfileptr) == B_LITTLE16(0xd8ff)) kfileptr += 2;
@@ -1348,7 +1349,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                     ch = *kfileptr++; leng--;
                     if (ch >= 16) { index = ch-12; }
                     else { index = ch; }
-                    Bmemcpy((void *)&hufnumatbit[index][1],(void *)kfileptr,16); kfileptr += 16;
+                    Bmemcpy((void *)&hufnumatbit[index][1],(void const *)kfileptr,16); kfileptr += 16;
                     leng -= 16;
 
                     v = 0; hufcnt[index] = 0;
@@ -1357,7 +1358,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
                     {
                         hufmaxatbit[index][i] = v+hufnumatbit[index][i];
                         hufvalatbit[index][i] = hufcnt[index]-v;
-                        Bmemcpy((void *)&huftable[index][hufcnt[index]],(void *)kfileptr,(int32_t)hufnumatbit[index][i]);
+                        Bmemcpy((void *)&huftable[index][hufcnt[index]],(void const *)kfileptr,(int32_t)hufnumatbit[index][i]);
                         if (i <= 10)
                             for (c=0; c<hufnumatbit[index][i]; c++)
                                 for (j=(1<<(10-i)); j>0; j--)
@@ -1468,7 +1469,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
             for (y=0; y<ydim; y+=glvstep)
                 for (x=0; x<xdim; x+=glhstep)
                 {
-                    if (kfileptr-4-(uint8_t *)kfilebuf >= kfilength) goto kpegrend_break2; //rest of file is missing!
+                    if (kfileptr-4-(uint8_t const *)kfilebuf >= kfilength) goto kpegrend_break2; //rest of file is missing!
 
                     if (!dctbuf) dc = dct[0];
                     for (c=0; c<lnumcomponents; c++)
@@ -1607,7 +1608,7 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
         default: kfileptr += leng; break;
         }
     }
-    while (kfileptr-(uint8_t *)kfilebuf < kfilength);
+    while (kfileptr-(uint8_t const *)kfilebuf < kfilength);
 
     if (!dctbuf) return(0);
 
@@ -1663,7 +1664,7 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
 
     if ((kfilebuf[0] != 'G') || (kfilebuf[1] != 'I') || (kfilebuf[2] != 'F')) return(-1);
     paleng = (1<<((kfilebuf[10]&7)+1));
-    ptr = (uint8_t *)&kfilebuf[13];
+    ptr = (uint8_t const *)&kfilebuf[13];
     if (kfilebuf[10]&128) { cptr = ptr; ptr += paleng*3; }
     transcol = -1;
     while ((chunkind = *ptr++) == '!')
@@ -1827,7 +1828,7 @@ static int32_t ktgarend(const char *header, int32_t fleng,
     if ((header[16]&7) || (header[16] == 0) || (header[16] > 32)) return(-1);
     if (header[17]&0xc0) return(-1);
 
-    fptr = (uint8_t *)&header[header[0]+18];
+    fptr = (uint8_t const *)&header[header[0]+18];
     xsiz = (int32_t)B_LITTLE16(B_UNBUF16(&header[12])); if (xsiz <= 0) return(-1);
     ysiz = (int32_t)B_LITTLE16(B_UNBUF16(&header[14])); if (ysiz <= 0) return(-1);
     colbyte = ((((int32_t)header[16])+7)>>3);
@@ -2027,7 +2028,8 @@ static int32_t kpcxrend(const char *buf, int32_t fleng,
 {
     int32_t  j, x, y, nplanes, x0, x1, y0, y1, bpl, xsiz, ysiz;
     intptr_t p,i;
-    uint8_t c, *cptr;
+    uint8_t c;
+    uint8_t const *cptr;
 
     if (B_UNBUF32(buf) != B_LITTLE32(0x0801050a)) return(-1);
     xsiz = B_LITTLE16(B_UNBUF16(&buf[ 8]))-B_LITTLE16(B_UNBUF16(&buf[4]))+1; if (xsiz <= 0) return(-1);
@@ -2038,7 +2040,7 @@ static int32_t kpcxrend(const char *buf, int32_t fleng,
     if (nplanes == 1)
     {
         //if (buf[fleng-769] != 12) return(-1); //Some PCX are buggy!
-        cptr = (uint8_t *)&buf[fleng-768];
+        cptr = (uint8_t const *)&buf[fleng-768];
         for (i=0; i<256; i++)
         {
             palcol[i] = (((int32_t)cptr[0])<<16) +
@@ -2062,7 +2064,7 @@ static int32_t kpcxrend(const char *buf, int32_t fleng,
 
     x = x0 = 0; x1 = xsiz;
     y = y0 = 0; y1 = ysiz;
-    cptr = (uint8_t *)&buf[128];
+    cptr = (uint8_t const *)&buf[128];
     p = y*dabytesperline+daframeplace;
 
     if (bpl > xsiz) { daxres = min(daxres,x1); x1 += bpl-xsiz; }
@@ -2238,14 +2240,14 @@ static int32_t istarga(const uint8_t *buf, int32_t leng)
 
 void kpgetdim(const char *buf, int32_t leng, int32_t *xsiz, int32_t *ysiz)
 {
-    int32_t *lptr;
+    int32_t const *lptr;
     const uint8_t *cptr;
-    const uint8_t *ubuf = (uint8_t *)buf;
+    const uint8_t *ubuf = (uint8_t const *)buf;
 
     (*xsiz) = (*ysiz) = 0; if (leng < 16) return;
     if (B_UNBUF16(&ubuf[0]) == B_LITTLE16(0x5089)) //.PNG
     {
-        lptr = (int32_t *)buf;
+        lptr = (int32_t const *)buf;
         if ((lptr[0] != (int32_t)B_LITTLE32(0x474e5089)) || (lptr[1] != (int32_t)B_LITTLE32(0x0a1a0a0d))) return;
         lptr = &lptr[2];
         while (((uintptr_t)lptr-(uintptr_t)buf) < (uintptr_t)(leng-16))
@@ -2257,7 +2259,7 @@ void kpgetdim(const char *buf, int32_t leng, int32_t *xsiz, int32_t *ysiz)
     }
     else if (B_UNBUF16(&ubuf[0]) == B_LITTLE16(0xd8ff)) //.JPG
     {
-        cptr = (uint8_t *)&buf[2];
+        cptr = (uint8_t const *)&buf[2];
         while (((uintptr_t)cptr-(uintptr_t)buf) < (uintptr_t)(leng-8))
         {
             if ((cptr[0] != 0xff) || (cptr[1] == 0xff)) { cptr++; continue; }
@@ -2323,7 +2325,7 @@ void kpgetdim(const char *buf, int32_t leng, int32_t *xsiz, int32_t *ysiz)
 int32_t kprender(const char *buf, int32_t leng, intptr_t frameptr, int32_t bpl,
                  int32_t xdim, int32_t ydim)
 {
-    uint8_t *ubuf = (uint8_t *)buf;
+    uint8_t const *ubuf = (uint8_t const *)buf;
 
     paleng = 0; bakcol = 0; numhufblocks = zlibcompflags = 0; filtype = -1;
 

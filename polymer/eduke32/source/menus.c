@@ -100,7 +100,7 @@ static void creditsminitext(int32_t x, int32_t y, const char *t, int32_t p)
     G_ScreenTextShadow(1, 1, MINIFONT, x, y, 65536, 0, 0, t, 0, p, 2|8|16|ROTATESPRITE_FULL16, 0, 4<<16, 8<<16, 1<<16, 0, f, 0, 0, xdim-1, ydim-1);
 }
 
-int32_t menutext_(int32_t x, int32_t y, int32_t s, int32_t p, char *t, int32_t bits)
+int32_t menutext_(int32_t x, int32_t y, int32_t s, int32_t p, char const *t, int32_t bits)
 {
     vec2_t dim;
     int32_t f = TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE;

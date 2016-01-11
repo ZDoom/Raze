@@ -116,7 +116,7 @@ static const char *LabelTypeText[] =
     "event"
 };
 
-static const char *C_GetLabelType(int32_t type)
+static char *C_GetLabelType(int32_t type)
 {
     uint32_t i;
     char x[64];
@@ -1457,8 +1457,8 @@ static int32_t C_GetNextValue(int32_t type)
         *(g_scriptPtr++) = 0;
         textptr += l;
 
-        el = (char *)C_GetLabelType(type);
-        gl = (char *)C_GetLabelType(labeltype[i]);
+        el = C_GetLabelType(type);
+        gl = C_GetLabelType(labeltype[i]);
         C_CUSTOMERROR("expected %s, found %s.", el, gl);
 //        initprintf("i=%d, %s!!! lt:%d t:%d\n", i, label+(i*MAXLABELLEN), labeltype[i], type);
         Bfree(el);

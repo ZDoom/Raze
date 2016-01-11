@@ -332,7 +332,7 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
 
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
 
-    if ((i = kopen4load((char *)parm->parms[0],0)) < 0)
+    if ((i = kopen4load(parm->parms[0],0)) < 0)
     {
         OSD_Printf("fileinfo: File \"%s\" not found.\n", parm->parms[0]);
         return OSDCMD_OK;
@@ -1797,7 +1797,7 @@ int32_t OSD_Dispatch(const char *cmd)
         int32_t numparms = 0;
         symbol_t *symb;
         osdfuncparm_t ofp;
-        char *parms[MAXPARMS];
+        char const *parms[MAXPARMS];
 
         Bmemset(parms, 0, sizeof(parms));
 
@@ -2054,7 +2054,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         {
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%f\"\n%s: %s\n",osd->cvars[i].c.name,*(float *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,(char *)osd->cvars[i].c.desc);
+                OSD_Printf("\"%s\" is \"%f\"\n%s: %s\n",osd->cvars[i].c.name,*(float *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,osd->cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
@@ -2075,7 +2075,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         {
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%f\"\n%s: %s\n",osd->cvars[i].c.name,*(double *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,(char *)osd->cvars[i].c.desc);
+                OSD_Printf("\"%s\" is \"%f\"\n%s: %s\n",osd->cvars[i].c.name,*(double *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,osd->cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
@@ -2098,7 +2098,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         {
             if (showval)
             {
-                OSD_Printf((osd->cvars[i].c.type & CVAR_UINT) ? "\"%s\" is \"%u\"\n%s: %s\n" : "\"%s\" is \"%d\"\n%s: %s\n",osd->cvars[i].c.name,*(int32_t *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,(char *)osd->cvars[i].c.desc);
+                OSD_Printf((osd->cvars[i].c.type & CVAR_UINT) ? "\"%s\" is \"%u\"\n%s: %s\n" : "\"%s\" is \"%d\"\n%s: %s\n",osd->cvars[i].c.name,*(int32_t *)osd->cvars[i].c.vptr,osd->cvars[i].c.name,osd->cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 
@@ -2119,7 +2119,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
         {
             if (showval)
             {
-                OSD_Printf("\"%s\" is \"%s\"\n%s: %s\n",osd->cvars[i].c.name,(char *)osd->cvars[i].c.vptr,osd->cvars[i].c.name, (char *)osd->cvars[i].c.desc);
+                OSD_Printf("\"%s\" is \"%s\"\n%s: %s\n",osd->cvars[i].c.name,(char *)osd->cvars[i].c.vptr,osd->cvars[i].c.name, osd->cvars[i].c.desc);
                 return OSDCMD_OK;
             }
 

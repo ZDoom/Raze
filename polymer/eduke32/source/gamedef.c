@@ -93,7 +93,7 @@ enum
 };
 
 #if !defined LUNATIC
-static const char *C_GetLabelType(int32_t type)
+static char *C_GetLabelType(int32_t type)
 {
     int32_t i;
     char x[64];
@@ -1954,7 +1954,7 @@ static int32_t C_GetNextValue(int32_t type)
         {
             if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
             {
-                char *gl = (char *)C_GetLabelType(labeltype[i]);
+                char *gl = C_GetLabelType(labeltype[i]);
                 initprintf("%s:%d: debug: %s label `%s'.\n",g_szScriptFileName,g_lineNumber,gl,label+(i<<6));
                 Bfree(gl);
             }
@@ -1969,8 +1969,8 @@ static int32_t C_GetNextValue(int32_t type)
         BITPTR_CLEAR(g_scriptPtr-script);
         *(g_scriptPtr++) = 0;
         textptr += l;
-        char *el = (char *)C_GetLabelType(type);
-        char *gl = (char *)C_GetLabelType(labeltype[i]);
+        char *el = C_GetLabelType(type);
+        char *gl = C_GetLabelType(labeltype[i]);
         C_ReportError(-1);
         initprintf("%s:%d: warning: expected %s, found %s.\n",g_szScriptFileName,g_lineNumber,el,gl);
         g_numCompilerWarnings++;
@@ -6162,7 +6162,7 @@ void C_Compile(const char *filenam)
 
     C_InitProjectiles();
 
-    int32_t fp = kopen4loadfrommod((char *)filenam,g_loadFromGroupOnly);
+    int32_t fp = kopen4loadfrommod(filenam,g_loadFromGroupOnly);
 
     if (fp == -1) // JBF: was 0
     {

@@ -32,7 +32,7 @@
 // 8-bit mono source, 16-bit mono output
 void MV_Mix16BitMono(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint8_t const * const source = (uint8_t *) start;
+    uint8_t const * const source = (uint8_t const *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0;
     
@@ -56,7 +56,7 @@ void MV_Mix16BitMono(uint32_t position, uint32_t rate, const char *start, uint32
 // 8-bit mono source, 16-bit stereo output
 void MV_Mix16BitStereo(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint8_t const * const source = (uint8_t *) start;
+    uint8_t const * const source = (uint8_t const *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0, sample1;
     
@@ -85,7 +85,7 @@ void MV_Mix16BitStereo(uint32_t position, uint32_t rate, const char *start, uint
 // 16-bit mono source, 16-bit mono output
 void MV_Mix16BitMono16(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint16_t const * const source = (uint16_t *) start;
+    uint16_t const * const source = (uint16_t const *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0l, sample0h, sample0;
     
@@ -118,7 +118,7 @@ void MV_Mix16BitMono16(uint32_t position, uint32_t rate, const char *start, uint
 // 16-bit mono source, 16-bit stereo output
 void MV_Mix16BitStereo16(uint32_t position, uint32_t rate, const char *start, uint32_t length)
 {
-    uint16_t const * const source = (uint16_t *) start;
+    uint16_t const * const source = (uint16_t const *) start;
     int16_t *dest = (int16_t *) MV_MixDestination;
     int32_t sample0l, sample0h, sample0;
     int32_t sample1l, sample1h, sample1;
@@ -159,7 +159,7 @@ void MV_Mix16BitStereo16(uint32_t position, uint32_t rate, const char *start, ui
 
 void MV_16BitReverb(char const *src, char *dest, int16_t *volume, int32_t count)
 {
-    uint16_t const * input = (uint16_t *) src;
+    uint16_t const * input = (uint16_t const *) src;
     int16_t * output = (int16_t *) dest;
     int16_t sample0l, sample0h, sample0;
     

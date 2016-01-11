@@ -5584,7 +5584,7 @@ static void MaybeTrainKillPlayer(const spritetype *s, int32_t dosetopos)
 
                 ps->cursectnum = s->sectnum;
 
-                setsprite(ps->i,(vec3_t *)s);
+                setsprite(ps->i,(vec3_t const *)s);
                 P_QuickKill(ps);
             }
         }

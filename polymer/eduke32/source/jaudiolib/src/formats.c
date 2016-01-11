@@ -80,7 +80,7 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
         return KeepPlaying;
     }
 
-    const uint8_t *ptr = (uint8_t *)voice->NextBlock;
+    const uint8_t *ptr = (uint8_t const *)voice->NextBlock;
 
     voice->Playing = TRUE;
     voice->Paused = FALSE;
@@ -186,7 +186,7 @@ end_of_data:
             // Repeat begin
             if (voice->LoopEnd == NULL)
             {
-                voice->LoopCount = LITTLE16(*(uint16_t *)ptr);
+                voice->LoopCount = LITTLE16(*(uint16_t const *)ptr);
                 voice->LoopStart = (char *)((intptr_t) ptr + blocklength);
             }
             ptr += blocklength;
@@ -201,7 +201,7 @@ end_of_data:
             {
                 if ((voice->LoopCount > 0) && (voice->LoopStart != NULL))
                 {
-                    ptr = (uint8_t *) voice->LoopStart;
+                    ptr = (uint8_t const *) voice->LoopStart;
 
                     if (voice->LoopCount < 0xffff)
                     {
@@ -216,7 +216,7 @@ end_of_data:
             // Extended block
             voice->bits  = 8;
             voice->channels = 1;
-            tc = LITTLE16(*(uint16_t *)ptr);
+            tc = LITTLE16(*(uint16_t const *)ptr);
             packtype = *(ptr + 2);
             voicemode = *(ptr + 3);
             ptr += blocklength;
@@ -224,10 +224,10 @@ end_of_data:
 
         case 9 :
             // New sound data block
-            samplespeed = LITTLE32(*(uint32_t *)ptr);
+            samplespeed = LITTLE32(*(uint32_t const *)ptr);
             BitsPerSample = (unsigned)*(ptr + 4);
             Channels = (unsigned)*(ptr + 5);
-            Format = (unsigned)LITTLE16(*(uint16_t *)(ptr + 6));
+            Format = (unsigned)LITTLE16(*(uint16_t const *)(ptr + 6));
 
             if ((BitsPerSample == 8) && (Channels == 1 || Channels == 2) && (Format == VOC_8BIT))
             {
@@ -271,8 +271,8 @@ end_of_data:
 
     if (voice->Playing)
     {
-        voice->NextBlock    = (char *)ptr + blocklength;
-        voice->sound        = (char *)ptr;
+        voice->NextBlock    = (char const *)ptr + blocklength;
+        voice->sound        = (char const *)ptr;
 
         // CODEDUP multivoc.c MV_SetVoicePitch
         voice->SamplingRate = samplespeed;
