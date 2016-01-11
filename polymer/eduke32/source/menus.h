@@ -166,7 +166,7 @@ typedef struct MenuLink_t
 typedef struct MenuOptionSet_t
 {
     // traits
-    char **optionNames;
+    char const **optionNames;
     int32_t *optionValues; // If NULL, the identity of currentOption is assumed.
 
     // pop-up list appearance
@@ -202,7 +202,7 @@ typedef struct MenuCustom2Col_t
 {
     // effect
     uint8_t *column[2];
-    char **key;
+    char const **key;
 
     // appearance
     MenuFont_t *font;

@@ -9598,7 +9598,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         case T_MUSIC:
         {
             char *tinttokptr = script->ltextptr;
-            char *ID=NULL, *fn="";
+            char *ID = NULL, *fn = NULL;
             char *musicend;
 
             if (scriptfile_getbraces(script,&musicend)) break;
@@ -9625,7 +9625,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     break;
                 }
 
-                if (check_file_exist(fn))
+                if (fn == NULL || check_file_exist(fn))
                     break;
 
                 res = S_DefineMusic(ID, fn);
@@ -9802,7 +9802,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         case T_SOUND:
         {
             char *tinttokptr = script->ltextptr;
-            char *fn="";
+            char *fn = NULL;
             int32_t num=-1;
             char *musicend;
 
@@ -9827,7 +9827,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     break;
                 }
 
-                if (check_file_exist(fn))
+                if (fn == NULL || check_file_exist(fn))
                     break;
 
                 if (S_DefineSound(num,fn) == -1)
@@ -11222,7 +11222,7 @@ static void G_Startup(void)
             if (wm_ynbox("Upgrade to the full version of Duke Nukem 3D","%s",tempbuf))
             {
                 SHELLEXECUTEINFOA sinfo;
-                char *p = "http://store.steampowered.com/app/225140";
+                char const *p = "http://store.steampowered.com/app/225140";
 
                 Bmemset(&sinfo, 0, sizeof(sinfo));
                 sinfo.cbSize = sizeof(sinfo);
@@ -11573,7 +11573,7 @@ int32_t app_main(int32_t argc, const char **argv)
                                  "Browse to http://www.eduke32.com now?"))
                     {
                         SHELLEXECUTEINFOA sinfo;
-                        char *p = "http://www.eduke32.com";
+                        char const *p = "http://www.eduke32.com";
 
                         Bmemset(&sinfo, 0, sizeof(sinfo));
                         sinfo.cbSize = sizeof(sinfo);

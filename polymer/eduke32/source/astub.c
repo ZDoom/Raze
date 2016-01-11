@@ -104,7 +104,7 @@ static int32_t lastsave = -180*60;
 static int32_t NoAutoLoad = 0;
 static int32_t spnoclip=1;
 
-static char *default_tiles_cfg = "tiles.cfg";
+static char const *default_tiles_cfg = "tiles.cfg";
 static int32_t pathsearchmode_oninit;
 
 #ifdef LUNATIC
@@ -3626,7 +3626,7 @@ restart:
 #define WIND1X   3
 #define WIND1Y 150
 
-static char *tileinfo_colorstr = "";
+static char const *tileinfo_colorstr = "";
 
 static void tileinfo_doprint(int32_t x, int32_t y, char *buf, const char *label, int32_t value, int32_t pos)
 {

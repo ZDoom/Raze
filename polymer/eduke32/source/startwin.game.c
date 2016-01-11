@@ -80,7 +80,7 @@ static inline void clearfilenames(void)
     finddirs = NULL;
 }
 
-static inline int32_t getfilenames(char *path)
+static inline int32_t getfilenames(char const *path)
 {
     clearfilenames();
     finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
@@ -499,11 +499,13 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
             ZeroMemory(&tab, sizeof(tab));
             tab.mask = TCIF_TEXT;
-            tab.pszText = TEXT("Setup");
+            tab.pszText = Bstrdup(TEXT("Setup"));
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
+            Bfree(tab.pszText);
             tab.mask = TCIF_TEXT;
-            tab.pszText = TEXT("Message Log");
+            tab.pszText = Bstrdup(TEXT("Message Log"));
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
+            Bfree(tab.pszText);
 
             // Work out the position and size of the area inside the tab control for the pages
             ZeroMemory(&r, sizeof(r));

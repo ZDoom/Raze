@@ -324,13 +324,11 @@ int32_t (*baselayer_osdcmd_vidmode_func)(const osdfuncparm_t *parm);
 
 static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
 {
-    int32_t m;
-    char *p;
-
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
 
-    m = Bstrtol(parm->parms[0], &p, 10);
+    char *p;
+    int32_t m = Bstrtol(parm->parms[0], &p, 10);
 
     if (m != REND_CLASSIC && m != REND_POLYMOST && m != REND_POLYMER)
         return OSDCMD_SHOWHELP;
@@ -361,20 +359,22 @@ static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
 
     setrendermode(m);
 
+    char const *renderer;
+
     switch (getrendermode())
     {
     case REND_CLASSIC:
-        p = "classic software";
+        renderer = "classic software";
         break;
     case REND_POLYMOST:
-        p = "polygonal OpenGL";
+        renderer = "polygonal OpenGL";
         break;
     case REND_POLYMER:
-        p = "great justice (Polymer)";
+        renderer = "great justice (Polymer)";
         break;
     }
 
-    OSD_Printf("Rendering method changed to %s\n", p);
+    OSD_Printf("Rendering method changed to %s\n", renderer);
 
     return OSDCMD_OK;
 }

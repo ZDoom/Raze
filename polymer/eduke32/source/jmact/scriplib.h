@@ -39,7 +39,7 @@ extern "C" {
 =
 ==============
 */
-int32_t SCRIPT_Init( char * name );
+int32_t SCRIPT_Init( char const * name );
 
 
 /*
@@ -59,7 +59,7 @@ void SCRIPT_Free( int32_t scripthandle );
 ==============
 */
 
-int32_t SCRIPT_Load ( char * filename );
+int32_t SCRIPT_Load ( char const * filename );
 
 /*
 ==============
@@ -68,7 +68,7 @@ int32_t SCRIPT_Load ( char * filename );
 =
 ==============
 */
-void SCRIPT_Save (int32_t scripthandle, char * filename);
+void SCRIPT_Save (int32_t scripthandle, char const * filename);
 
 
 /*
@@ -89,7 +89,7 @@ int32_t SCRIPT_NumberSections( int32_t scripthandle );
 ==============
 */
 
-char * SCRIPT_Section( int32_t scripthandle, int32_t which );
+char const * SCRIPT_Section( int32_t scripthandle, int32_t which );
 
 /*
 ==============
@@ -99,7 +99,7 @@ char * SCRIPT_Section( int32_t scripthandle, int32_t which );
 ==============
 */
 
-int32_t SCRIPT_NumberEntries( int32_t scripthandle, char * sectionname );
+int32_t SCRIPT_NumberEntries( int32_t scripthandle, char const * sectionname );
 
 /*
 ==============
@@ -109,7 +109,7 @@ int32_t SCRIPT_NumberEntries( int32_t scripthandle, char * sectionname );
 ==============
 */
 
-char * SCRIPT_Entry( int32_t scripthandle, char * sectionname, int32_t which );
+char const * SCRIPT_Entry( int32_t scripthandle, char const * sectionname, int32_t which );
 
 
 /*
@@ -119,7 +119,7 @@ char * SCRIPT_Entry( int32_t scripthandle, char * sectionname, int32_t which );
 =
 ==============
 */
-char * SCRIPT_GetRaw(int32_t scripthandle, char * sectionname, char * entryname);
+char const * SCRIPT_GetRaw(int32_t scripthandle, char const * sectionname, char const * entryname);
 
 /*
 ==============
@@ -128,20 +128,8 @@ char * SCRIPT_GetRaw(int32_t scripthandle, char * sectionname, char * entryname)
 =
 ==============
 */
-int32_t SCRIPT_GetStringPtr
-   (
-   int32_t scripthandle,
-   char * sectionname,
-   char * entryname,
-   char ** dest
-   );
-int32_t SCRIPT_GetString
-   (
-   int32_t scripthandle,
-   char * sectionname,
-   char * entryname,
-   char * dest
-   );
+int32_t SCRIPT_GetStringPtr(int32_t scripthandle, char const *sectionname, char const *entryname, char **dest);
+int32_t SCRIPT_GetString(int32_t scripthandle, char const *sectionname, char const *entryname, char *dest);
 
 /*
 ==============
@@ -150,14 +138,8 @@ int32_t SCRIPT_GetString
 =
 ==============
 */
-int32_t SCRIPT_GetDoubleString
-   (
-   int32_t scripthandle,
-   const char * sectionname,
-   const char * entryname,
-   char * dest1,
-   char * dest2
-   );
+int32_t SCRIPT_GetDoubleString(int32_t scripthandle, const char *sectionname, const char *entryname, char *dest1,
+                               char *dest2);
 
 /*
 ==============
@@ -166,13 +148,7 @@ int32_t SCRIPT_GetDoubleString
 =
 ==============
 */
-int32_t SCRIPT_GetNumber
-   (
-   int32_t scripthandle,
-   const char * sectionname,
-   const char * entryname,
-   int32_t * number
-   );
+int32_t SCRIPT_GetNumber(int32_t scripthandle, const char *sectionname, const char *entryname, int32_t *number);
 
 /*
 ==============
@@ -181,13 +157,7 @@ int32_t SCRIPT_GetNumber
 =
 ==============
 */
-int32_t SCRIPT_GetBoolean
-   (
-   int32_t scripthandle,
-   char * sectionname,
-   char * entryname,
-   int32_t * boole
-   );
+int32_t SCRIPT_GetBoolean(int32_t scripthandle, char const *sectionname, char const *entryname, int32_t *boole);
 
 /*
 ==============
@@ -196,7 +166,7 @@ int32_t SCRIPT_GetBoolean
 =
 ==============
 */
-void SCRIPT_PutSection( int32_t scripthandle, char * sectionname );
+void SCRIPT_PutSection( int32_t scripthandle, char const * sectionname );
 
 /*
 ==============
@@ -205,13 +175,7 @@ void SCRIPT_PutSection( int32_t scripthandle, char * sectionname );
 =
 ==============
 */
-void SCRIPT_PutRaw
-   (
-   int32_t scripthandle,
-   char * sectionname,
-   char * entryname,
-   char * raw
-   );
+void SCRIPT_PutRaw(int32_t scripthandle, char const * sectionname, char const * entryname, char const * raw);
 
 /*
 ==============
@@ -220,13 +184,7 @@ void SCRIPT_PutRaw
 =
 ==============
 */
-void SCRIPT_PutString
-   (
-   int32_t scripthandle,
-   char * sectionname,
-   char * entryname,
-   const char * string
-   );
+void SCRIPT_PutString(int32_t scripthandle, char const *sectionname, char const *entryname, const char *string);
 
 /*
 ==============
@@ -235,14 +193,8 @@ void SCRIPT_PutString
 =
 ==============
 */
-void SCRIPT_PutDoubleString
-   (
-   int32_t scripthandle,
-   const char * sectionname,
-   const char * entryname,
-   const char * string1,
-   const char * string2
-   );
+void SCRIPT_PutDoubleString(int32_t scripthandle, const char *sectionname, const char *entryname, const char *string1,
+                            const char *string2);
 
 /*
 ==============
@@ -251,15 +203,8 @@ void SCRIPT_PutDoubleString
 =
 ==============
 */
-void SCRIPT_PutNumber
-   (
-   int32_t scripthandle,
-   const char * sectionname,
-   const char * entryname,
-   int32_t number,
-   int32_t hexadecimal,
-   int32_t defaultvalue
-   );
+void SCRIPT_PutNumber(int32_t scripthandle, const char *sectionname, const char *entryname, int32_t number,
+                      int32_t hexadecimal, int32_t defaultvalue);
 
 /*
 ==============
@@ -268,13 +213,7 @@ void SCRIPT_PutNumber
 =
 ==============
 */
-void SCRIPT_PutBoolean
-   (
-   int32_t scripthandle,
-   char * sectionname,
-   char * entryname,
-   int32_t boole
-   );
+void SCRIPT_PutBoolean(int32_t scripthandle, char *sectionname, char *entryname, int32_t boole);
 
 /*
 ==============
@@ -284,14 +223,7 @@ void SCRIPT_PutBoolean
 ==============
 */
 
-void SCRIPT_PutDouble
-   (
-   int32_t scripthandle,
-   char * sectionname,
-   char * entryname,
-   double number,
-   int32_t defaultvalue
-   );
+void SCRIPT_PutDouble(int32_t scripthandle, char *sectionname, char *entryname, double number, int32_t defaultvalue);
 
 
 #ifdef __cplusplus

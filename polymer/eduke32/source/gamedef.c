@@ -6129,7 +6129,7 @@ void C_InitProjectiles(void)
 extern int32_t g_numObituaries;
 extern int32_t g_numSelfObituaries;
 
-static char * C_ScriptVersionString(int32_t version)
+static char const * C_ScriptVersionString(int32_t version)
 {
     switch (version)
     {

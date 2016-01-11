@@ -347,7 +347,7 @@ static char *getsymbtabspace(int32_t reqd)
     return pos;
 }
 
-int32_t scriptfile_getsymbolvalue(char *name, int32_t *val)
+int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val)
 {
     char *scanner = symbtab;
 
@@ -366,7 +366,7 @@ int32_t scriptfile_getsymbolvalue(char *name, int32_t *val)
     return 0;
 }
 
-int32_t scriptfile_addsymbolvalue(char *name, int32_t val)
+int32_t scriptfile_addsymbolvalue(char const *name, int32_t val)
 {
     char *sp;
     //	if (scriptfile_getsymbolvalue(name, &x)) return -1;   // already exists

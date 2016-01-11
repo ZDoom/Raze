@@ -18051,14 +18051,12 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     text = (png_textp)png_malloc(png_ptr, 2*png_sizeof(png_text));
     #endif
     text[0].compression = PNG_TEXT_COMPRESSION_NONE;
-    text[0].key = "Title";
-    char *pngtext = Bstrdup((editstatus ? "Mapster32 screenshot" : "EDuke32 screenshot"));
-    text[0].text = pngtext;
+    text[0].key = Bstrdup("Title");
+    text[0].text = Bstrdup((editstatus ? "Mapster32 screenshot" : "EDuke32 screenshot"));
 
     text[1].compression = PNG_TEXT_COMPRESSION_NONE;
-    text[1].key = "Software";
-    char *pngversion = Bstrdup(versionstr);
-    text[1].text = pngversion;
+    text[1].key = Bstrdup("Software");
+    text[1].text = Bstrdup(versionstr);
     png_set_text(png_ptr, info_ptr, text, 2);
 
     // get/set the pixel data
@@ -18096,10 +18094,14 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
 
     Bfclose(fp);
     if (palette) png_free(png_ptr, palette);
-    if (text) png_free(png_ptr, text);
 
-    DO_FREE_AND_NULL(pngtext);
-    DO_FREE_AND_NULL(pngversion);
+    DO_FREE_AND_NULL(text[0].key);
+    DO_FREE_AND_NULL(text[0].text);
+
+    DO_FREE_AND_NULL(text[1].key);
+    DO_FREE_AND_NULL(text[1].text);
+
+    if (text) png_free(png_ptr, text);
 
     if (buf) png_free(png_ptr, buf);
     if (rowptrs) png_free(png_ptr, rowptrs);

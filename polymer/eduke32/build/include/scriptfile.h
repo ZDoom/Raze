@@ -30,8 +30,8 @@ scriptfile *scriptfile_fromstring(const char *string);
 void scriptfile_close(scriptfile *sf);
 int32_t scriptfile_eof(scriptfile *sf);
 
-int32_t scriptfile_getsymbolvalue(char *name, int32_t *val);
-int32_t scriptfile_addsymbolvalue(char *name, int32_t val);
+int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val);
+int32_t scriptfile_addsymbolvalue(char const *name, int32_t val);
 void scriptfile_clearsymbols(void);
 
 #ifdef __cplusplus

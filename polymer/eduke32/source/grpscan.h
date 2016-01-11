@@ -61,6 +61,16 @@ enum addon_t {
     NUMADDONS
 };
 
+typedef struct internalgrpinfo_t {
+    char const *name;
+    int32_t const crcval;
+    int32_t const size;
+    int32_t const game;
+    int32_t const dependency;
+    char const *scriptname;
+    void(*postprocessing)(int32_t);
+} internalgrpinfo_t;
+
 typedef struct grpinfo_t {
 	char *name;
 	int32_t crcval;

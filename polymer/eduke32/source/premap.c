@@ -1754,7 +1754,8 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 // levnamebuf should have at least size BMAX_PATH
 void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int32_t level_number)
 {
-    char *p, *exts[] = {
+    char *p;
+    char const *exts [] ={
 #ifdef HAVE_FLAC
                  "flac",
 #endif

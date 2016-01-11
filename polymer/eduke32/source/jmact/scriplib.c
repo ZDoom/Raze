@@ -230,7 +230,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
 {
     char *fence = data + length;
     char *dp, *sp, ch=0, lastch=0;
-    char *currentsection = "";
+    char const *currentsection = "";
     char *currententry = NULL;
     char *currentvalue = NULL;
     enum
@@ -423,7 +423,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
 
 //---
 
-int32_t SCRIPT_Init(char * name)
+int32_t SCRIPT_Init(char const * name)
 {
     int32_t h = SCRIPT_New();
 
@@ -437,7 +437,7 @@ void SCRIPT_Free(int32_t scripthandle)
     SCRIPT_Delete(scripthandle);
 }
 
-int32_t SCRIPT_Load(char * filename)
+int32_t SCRIPT_Load(char const * filename)
 {
     int32_t s,h,l;
     char *b;
@@ -463,9 +463,9 @@ int32_t SCRIPT_Load(char * filename)
     return s;
 }
 
-void SCRIPT_Save(int32_t scripthandle, char * filename)
+void SCRIPT_Save(int32_t scripthandle, char const * filename)
 {
-    char *section, *entry, *value;
+    char const *section, *entry, *value;
     int32_t sec, ent, numsect, nument;
     FILE *fp;
 
@@ -510,7 +510,7 @@ int32_t SCRIPT_NumberSections(int32_t scripthandle)
     return c;
 }
 
-char * SCRIPT_Section(int32_t scripthandle, int32_t which)
+char const * SCRIPT_Section(int32_t scripthandle, int32_t which)
 {
     ScriptSectionType *s,*ls=NULL;
 
@@ -522,7 +522,7 @@ char * SCRIPT_Section(int32_t scripthandle, int32_t which)
     return s->name;
 }
 
-int32_t SCRIPT_NumberEntries(int32_t scripthandle, char * sectionname)
+int32_t SCRIPT_NumberEntries(int32_t scripthandle, char const * sectionname)
 {
     ScriptSectionType *s;
     ScriptEntryType *e,*le=NULL;
@@ -538,7 +538,7 @@ int32_t SCRIPT_NumberEntries(int32_t scripthandle, char * sectionname)
     return c;
 }
 
-char * SCRIPT_Entry(int32_t scripthandle, char * sectionname, int32_t which)
+char const * SCRIPT_Entry(int32_t scripthandle, char const * sectionname, int32_t which)
 {
     ScriptSectionType *s;
     ScriptEntryType *e,*le=NULL;
@@ -553,7 +553,7 @@ char * SCRIPT_Entry(int32_t scripthandle, char * sectionname, int32_t which)
     return e->name;
 }
 
-char * SCRIPT_GetRaw(int32_t scripthandle, char * sectionname, char * entryname)
+char const * SCRIPT_GetRaw(int32_t scripthandle, char const * sectionname, char const * entryname)
 {
     ScriptSectionType *s;
     ScriptEntryType *e;
@@ -647,7 +647,7 @@ static char * SCRIPT_ParseString(char ** dest, char * p)
     return p;
 }
 
-int32_t SCRIPT_GetStringPtr(int32_t scripthandle, char * sectionname, char * entryname, char ** dest)
+int32_t SCRIPT_GetStringPtr(int32_t scripthandle, char const * sectionname, char const * entryname, char ** dest)
 {
     ScriptSectionType *s;
     ScriptEntryType *e;
@@ -669,7 +669,7 @@ int32_t SCRIPT_GetStringPtr(int32_t scripthandle, char * sectionname, char * ent
     return 0;
 }
 
-int32_t SCRIPT_GetString(int32_t scripthandle, char * sectionname, char * entryname, char * dest)
+int32_t SCRIPT_GetString(int32_t scripthandle, char const * sectionname, char const * entryname, char * dest)
 {
     return SCRIPT_GetStringPtr(scripthandle, sectionname, entryname, &dest);
 }
@@ -737,7 +737,7 @@ int32_t SCRIPT_GetNumber(int32_t scripthandle, const char * sectionname, const c
     return 0;
 }
 
-int32_t SCRIPT_GetBoolean(int32_t scripthandle, char * sectionname, char * entryname, int32_t * boole)
+int32_t SCRIPT_GetBoolean(int32_t scripthandle, char const * sectionname, char const * entryname, int32_t * boole)
 {
     ScriptSectionType *s;
     ScriptEntryType *e;
@@ -760,29 +760,16 @@ int32_t SCRIPT_GetBoolean(int32_t scripthandle, char * sectionname, char * entry
     return 0;
 }
 
-void SCRIPT_PutSection(int32_t scripthandle, char * sectionname)
+void SCRIPT_PutSection(int32_t scripthandle, char const * sectionname)
 {
     SCRIPT_AddSection(scripthandle, sectionname);
 }
-
-void SCRIPT_PutRaw
-(
-    int32_t scripthandle,
-    char * sectionname,
-    char * entryname,
-    char * raw
-)
+void SCRIPT_PutRaw(int32_t scripthandle, char const *sectionname, char const *entryname, char const *raw)
 {
     SCRIPT_AddEntry(scripthandle, sectionname, entryname, raw);
 }
 
-void SCRIPT_PutString
-(
-    int32_t scripthandle,
-    char * sectionname,
-    char * entryname,
-    const char * string
-)
+void SCRIPT_PutString(int32_t scripthandle, char const *sectionname, char const *entryname, const char *string)
 {
     const char *q;
     char *raw,*p;

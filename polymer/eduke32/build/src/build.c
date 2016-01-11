@@ -10914,7 +10914,7 @@ void test_map(int32_t mode)
 
     if ((!mode && cursectnum >= 0) || (mode && startsectnum >= 0))
     {
-        char *param = " -map " PLAYTEST_MAPNAME " -noinstancechecking";
+        char const *param = " -map " PLAYTEST_MAPNAME " -noinstancechecking";
         char *fullparam;
         char current_cwd[BMAX_PATH];
         int32_t slen = 0;
