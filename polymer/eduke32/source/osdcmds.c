@@ -882,7 +882,7 @@ static int32_t osdcmd_name(const osdfuncparm_t *parm)
 
 static int32_t osdcmd_button(const osdfuncparm_t *parm)
 {
-    char *p = (char *)parm->name+9;  // skip "gamefunc_"
+    char const *p = parm->name+9;  // skip "gamefunc_"
 //    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
     CONTROL_OSDInput[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
     return OSDCMD_OK;
@@ -1290,7 +1290,7 @@ static int32_t osdcmd_password(const osdfuncparm_t *parm)
         Bmemset(g_netPassword, 0, sizeof(g_netPassword));
         return OSDCMD_OK;
     }
-    Bstrncpy(g_netPassword, (char *)(parm->raw) + 9, sizeof(g_netPassword)-1);
+    Bstrncpy(g_netPassword, (parm->raw) + 9, sizeof(g_netPassword)-1);
 
     return OSDCMD_OK;
 }

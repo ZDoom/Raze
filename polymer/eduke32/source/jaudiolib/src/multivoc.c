@@ -54,7 +54,7 @@ static const int16_t *MV_GetVolumeTable(int32_t vol);
 
 static void MV_CalcPanTable(void);
 
-#define IS_QUIET(ptr) ((void *)(ptr) == (void *)&MV_VolumeTable[0])
+#define IS_QUIET(ptr) ((void const *)(ptr) == (void *)&MV_VolumeTable[0])
 
 static int32_t MV_ReverbLevel;
 static int32_t MV_ReverbDelay;
@@ -83,8 +83,8 @@ char *MV_MixBuffer[MV_NUMBEROFBUFFERS + 1];
 
 static VoiceNode *MV_Voices = NULL;
 
-static volatile VoiceNode VoiceList;
-static volatile VoiceNode VoicePool;
+static VoiceNode VoiceList;
+static VoiceNode VoicePool;
 
 static int32_t MV_MixPage = 0;
 

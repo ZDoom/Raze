@@ -107,7 +107,7 @@ static void win_printversion(void)
         Bstrcat(&str[l], osv.szCSDVersion);
     }
 
-    initprintf("%s (build %lu.%lu.%lu)\n", str, osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
+    initprintf("Running on %s (build %lu.%lu.%lu)\n", str, osv.dwMajorVersion, osv.dwMinorVersion, osv.dwBuildNumber);
     Bfree(str);
 }
 
