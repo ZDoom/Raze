@@ -5050,6 +5050,10 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
     return 0;
 }
 
+static actor_t NullActor;
+static spriteext_t NullSprExt;
+static spritesmooth_t NullSprSmooth;
+
 int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,
                        int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss)
 {
@@ -5096,10 +5100,9 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 #endif
 
     s = &sprite[i];
-
-    Bmemcpy(s, &spr_temp, sizeof(spritetype));
-    Bmemset(&actor[i], 0, sizeof(actor_t));
-    Bmemcpy(&actor[i].bpos, s, sizeof(vec3_t)); // update bposx/y/z
+    *s = *(spritetype *)&spr_temp;
+    actor[i] = NullActor;
+    actor[i].bpos = *(vec3_t *) &s;
 
     if ((unsigned)s_ow < MAXSPRITES)
     {
@@ -5115,8 +5118,8 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     G_InitActor(i, s_pn, 1);
 
-    Bmemset(&spriteext[i], 0, sizeof(spriteext_t));
-    Bmemset(&spritesmooth[i], 0, sizeof(spritesmooth_t));
+    spriteext[i] = NullSprExt;
+    spritesmooth[i] = NullSprSmooth;
 
 #if defined LUNATIC
     if (!g_noResetVars)
