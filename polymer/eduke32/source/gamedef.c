@@ -2783,6 +2783,7 @@ static void C_FillEventBreakStackWithJump(intptr_t *breakPtr, intptr_t destinati
     {
         breakPtr = script + (intptr_t)breakPtr;
         intptr_t const tempPtr = *breakPtr;
+        BITPTR_CLEAR(breakPtr-script);
         *breakPtr = destination;
         breakPtr = (intptr_t *)tempPtr;
     }
@@ -3510,9 +3511,12 @@ DO_DEFSTATE:
             else // if (tw == CON_APPENDEVENT)
             {
                 intptr_t *previous_event_end = script + apScriptGameEventEnd[j];
+                BITPTR_CLEAR(previous_event_end-script);
                 *(previous_event_end++) = CON_JUMP | (g_lineNumber << 12);
+                BITPTR_CLEAR(previous_event_end-script);
                 *(previous_event_end++) = MAXGAMEVARS;
                 C_FillEventBreakStackWithJump((intptr_t *)*previous_event_end, g_parsingEventPtr);
+                BITPTR_CLEAR(previous_event_end-script);
                 *(previous_event_end++) = g_parsingEventPtr;
             }
 
@@ -5778,9 +5782,13 @@ repeatcase:
             if (previous_event)
             {
                 g_scriptPtr--;
+                BITPTR_CLEAR(g_scriptPtr-script);
                 *(g_scriptPtr++) = CON_JUMP | (g_lineNumber << 12);
+                BITPTR_CLEAR(g_scriptPtr-script);
                 *(g_scriptPtr++) = MAXGAMEVARS;
+                BITPTR_CLEAR(g_scriptPtr-script);
                 *(g_scriptPtr++) = previous_event;
+                BITPTR_CLEAR(g_scriptPtr-script);
                 *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
 
                 C_FillEventBreakStackWithJump((intptr_t *)g_parsingEventBreakPtr, previous_event);
@@ -5791,8 +5799,11 @@ repeatcase:
             {
                 // pad space for the next potential appendevent
                 apScriptGameEventEnd[g_currentEvent] = (g_scriptPtr-1)-script;
+                BITPTR_CLEAR(g_scriptPtr-script);
                 *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
+                BITPTR_CLEAR(g_scriptPtr-script);
                 *(g_scriptPtr++) = g_parsingEventBreakPtr;
+                BITPTR_CLEAR(g_scriptPtr-script);
                 *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
             }
 
@@ -5839,8 +5850,11 @@ repeatcase:
             else if (g_parsingEventPtr)
             {
                 g_scriptPtr--;
+                BITPTR_CLEAR(g_scriptPtr-script);
                 *(g_scriptPtr++) = CON_JUMP | (g_lineNumber << 12);
+                BITPTR_CLEAR(g_scriptPtr-script);
                 *(g_scriptPtr++) = MAXGAMEVARS;
+                BITPTR_CLEAR(g_scriptPtr-script);
                 *g_scriptPtr = g_parsingEventBreakPtr;
                 g_parsingEventBreakPtr = g_scriptPtr++ - script;
             }
