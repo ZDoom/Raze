@@ -147,7 +147,7 @@ typedef struct mapundo_
     // most of the time.  +4 bytes refcount at the beginning.
     char *sws[3];  // sector, wall, sprite
 
-    uint32_t crc[3];
+    uintptr_t crc[3];
 
     struct mapundo_ *next;  // 'redo' loads this
     struct mapundo_ *prev;  // 'undo' loads this

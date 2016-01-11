@@ -337,7 +337,7 @@ mapundo_t *mapstate = NULL;
 
 int32_t map_revision = 1;
 
-static int32_t try_match_with_prev(int32_t idx, int32_t numsthgs, uint32_t crc)
+static int32_t try_match_with_prev(int32_t idx, int32_t numsthgs, uintptr_t crc)
 {
     if (mapstate->prev && mapstate->prev->num[idx]==numsthgs && mapstate->prev->crc[idx]==crc)
     {
@@ -351,7 +351,7 @@ static int32_t try_match_with_prev(int32_t idx, int32_t numsthgs, uint32_t crc)
     return 0;
 }
 
-static void create_compressed_block(int32_t idx, const void *srcdata, uint32_t size, uint32_t crc)
+static void create_compressed_block(int32_t idx, const void *srcdata, uint32_t size, uintptr_t crc)
 {
     uint32_t j;
 
@@ -442,15 +442,24 @@ void create_map_snapshot(void)
 
     if (numsectors)
     {
-        int32_t j;
-        uint32_t temphash = XXH32((uint8_t *)sector, numsectors*sizeof(sectortype), numsectors*sizeof(sectortype));
+#if !defined UINTPTR_MAX
+# error Need UINTPTR_MAX define to select between 32- and 64-bit functions
+#endif
+#if UINTPTR_MAX == 0xffffffff
+        /* 32-bit */
+#define XXH__ XXH32
+#else
+        /* 64-bit */
+#define XXH__ XXH64
+#endif
+        uintptr_t temphash = XXH__((uint8_t *)sector, numsectors*sizeof(sectortype), numsectors*sizeof(sectortype));
 
         if (!try_match_with_prev(0, numsectors, temphash))
             create_compressed_block(0, sector, numsectors*sizeof(sectortype), temphash);
 
         if (numwalls)
         {
-            temphash = XXH32((uint8_t *)wall, numwalls*sizeof(walltype), numwalls*sizeof(walltype));
+            temphash = XXH__((uint8_t *)wall, numwalls*sizeof(walltype), numwalls*sizeof(walltype));
 
             if (!try_match_with_prev(1, numwalls, temphash))
                 create_compressed_block(1, wall, numwalls*sizeof(walltype), temphash);
@@ -458,7 +467,7 @@ void create_map_snapshot(void)
 
         if (Numsprites)
         {
-            temphash = XXH32((uint8_t *)sprite, MAXSPRITES*sizeof(spritetype), MAXSPRITES*sizeof(spritetype));
+            temphash = XXH__((uint8_t *)sprite, MAXSPRITES*sizeof(spritetype), MAXSPRITES*sizeof(spritetype));
 
             if (!try_match_with_prev(2, Numsprites, temphash))
             {
@@ -466,7 +475,7 @@ void create_map_snapshot(void)
                 spritetype *const tspri = (spritetype *)Xmalloc(Numsprites*sizeof(spritetype) + 4);
                 spritetype *spri = tspri;
 
-                for (j=0; j<MAXSPRITES && i < Numsprites; j++)
+                for (int j=0; j<MAXSPRITES && i < Numsprites; j++)
                     if (sprite[j].statnum != MAXSTATUS)
                     {
                         Bmemcpy(spri++, &sprite[j], sizeof(spritetype));
@@ -477,6 +486,7 @@ void create_map_snapshot(void)
                 Bfree(tspri);
             }
         }
+#undef XXH__
     }
 
     CheckMapCorruption(5, 0);
