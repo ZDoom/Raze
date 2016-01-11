@@ -1316,8 +1316,6 @@ static int32_t C_SetScriptSize(int32_t newsize)
     G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
     G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
 
-    initprintf("Resizing code buffer to %d*%d bytes\n",newsize, (int32_t)sizeof(intptr_t));
-
     newscript = (intptr_t *)Xrealloc(script, newsize * sizeof(intptr_t));
     newbitptr = (char *)Xcalloc(1,(((newsize+7)>>3)+1) * sizeof(uint8_t));
 
@@ -1487,7 +1485,7 @@ static void C_GetNextLabelName(void)
     label[(g_numLabels<<6)+i] = 0;
 
     if (!(g_numCompilerErrors|g_numCompilerWarnings) && g_scriptDebug > 1)
-        initprintf("%s:%d: debug: got label `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        initprintf("%s:%d: debug: label `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
 }
 
 static int32_t C_GetKeyword(void)
@@ -1545,7 +1543,7 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
         g_scriptPtr++;
 
         if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-            initprintf("%s:%d: debug: translating keyword `%s'.\n",g_szScriptFileName,g_lineNumber,keyw[i]);
+            initprintf("%s:%d: debug: keyword `%s'.\n",g_szScriptFileName,g_lineNumber,keyw[i]);
         return i;
     }
 
@@ -1627,7 +1625,7 @@ static void C_GetNextVarType(int32_t type)
             *g_scriptPtr = parse_decimal_number();
 
         if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-            initprintf("%s:%d: debug: accepted constant %ld in place of gamevar.\n",
+            initprintf("%s:%d: debug: constant %ld in place of gamevar.\n",
                        g_szScriptFileName,g_lineNumber,(long)*g_scriptPtr);
 
         BITPTR_CLEAR(g_scriptPtr-script);
@@ -1870,7 +1868,7 @@ static void C_GetNextVarType(int32_t type)
                 if (EDUKE32_PREDICT_TRUE(labeltype[i] & LABEL_DEFINE))
                 {
                     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
-                        initprintf("%s:%d: debug: accepted defined label `%s' instead of gamevar.\n",g_szScriptFileName,g_lineNumber,label+(i<<6));
+                        initprintf("%s:%d: debug: label `%s' in place of gamevar.\n",g_szScriptFileName,g_lineNumber,label+(i<<6));
                     BITPTR_CLEAR(g_scriptPtr-script);
                     *g_scriptPtr++ = MAXGAMEVARS;
                     BITPTR_CLEAR(g_scriptPtr-script);
@@ -1902,7 +1900,7 @@ static void C_GetNextVarType(int32_t type)
     }
 
     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
-        initprintf("%s:%d: debug: accepted gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
+        initprintf("%s:%d: debug: gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
 
     BITPTR_CLEAR(g_scriptPtr-script);
     *g_scriptPtr++=(i|f);
@@ -1957,7 +1955,7 @@ static int32_t C_GetNextValue(int32_t type)
             if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
             {
                 char *gl = (char *)C_GetLabelType(labeltype[i]);
-                initprintf("%s:%d: debug: accepted %s label `%s'.\n",g_szScriptFileName,g_lineNumber,gl,label+(i<<6));
+                initprintf("%s:%d: debug: %s label `%s'.\n",g_szScriptFileName,g_lineNumber,gl,label+(i<<6));
                 Bfree(gl);
             }
 
@@ -2021,7 +2019,7 @@ static int32_t C_GetNextValue(int32_t type)
         *g_scriptPtr = parse_decimal_number();
 
     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
-        initprintf("%s:%d: debug: accepted constant %ld.\n",
+        initprintf("%s:%d: debug: constant %ld.\n",
                    g_szScriptFileName,g_lineNumber,(long)*g_scriptPtr);
 
     g_scriptPtr++;
@@ -2871,7 +2869,7 @@ DO_DEFSTATE:
             }
 
             if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
-                initprintf("%s:%d: debug: accepted state label `%s'.\n", g_szScriptFileName, g_lineNumber, label+(j<<6));
+                initprintf("%s:%d: debug: state label `%s'.\n", g_szScriptFileName, g_lineNumber, label+(j<<6));
             *g_scriptPtr = (intptr_t) (script+labelcode[j]);
 
             // 'state' type labels are always script addresses, as far as I can see
@@ -6136,15 +6134,15 @@ static char * C_ScriptVersionString(int32_t version)
     switch (version)
     {
     case 9:
-        return "0.99";
+        return ", v0.99 compatibility mode";
     case 10:
-        return "1.0";
+        return ", v1.0 compatibility mode";
     case 11:
-        return "1.1";
+        return ", v1.1 compatibility mode";
     case 13:
-        return "1.3D";
+        return ", v1.3D compatibility mode";
     default:
-        return "1.4+";
+        return "";
     }
 }
 
@@ -6165,14 +6163,16 @@ void C_Compile(const char *filenam)
     C_InitProjectiles();
 
     int32_t fp = kopen4loadfrommod((char *)filenam,g_loadFromGroupOnly);
+
     if (fp == -1) // JBF: was 0
     {
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
+            char const *gf = G_GrpFile();
+
             Bsprintf(tempbuf,"Required game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n\n"
                      "You can find \"%s\" in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation disc.\n\n"
-                     "Please copy \"%s\" to your game directory and restart EDuke32!",
-                     G_GrpFile(), G_GrpFile(), G_GrpFile());
+                     "Please copy \"%s\" to your game directory and restart EDuke32!", gf, gf, gf);
             G_GameExit(tempbuf);
         }
         else
@@ -6185,15 +6185,15 @@ void C_Compile(const char *filenam)
         return; //Not there
     }
 
-    int32_t fs = kfilelength(fp);
+    int32_t const fs = kfilelength(fp);
 
     initprintf("Compiling: %s (%d bytes)\n",filenam,fs);
 
     flushlogwindow = 0;
 
-    uint32_t startcompiletime = getticks();
+    uint32_t const startcompiletime = getticks();
 
-    char *mptr = (char *)Xmalloc(fs+1);
+    char * mptr = (char *)Xmalloc(fs+1);
     mptr[fs] = 0;
 
     textptr = (char *) mptr;
@@ -6290,6 +6290,13 @@ void C_Compile(const char *filenam)
             }
         }
 
+        g_totalLines += g_lineNumber;
+
+        C_SetScriptSize(g_scriptPtr-script+8);
+
+        initprintf("Script compiled in %dms, %ld bytes%s\n", getticks() - startcompiletime,
+                   (unsigned long)(g_scriptPtr-script), C_ScriptVersionString(g_scriptVersion));
+
         hash_free(&h_labels);
         hash_free(&h_keywords);
         freehashnames();
@@ -6305,46 +6312,42 @@ void C_Compile(const char *filenam)
         hash_free(&h_actor);
         hash_free(&h_tsprite);
 
-        g_totalLines += g_lineNumber;
-
-        C_SetScriptSize(g_scriptPtr-script+8);
-
-        initprintf("Script compiled in %dms, %ld*%db, language version %s\n", getticks() - startcompiletime,
-                   (unsigned long)(g_scriptPtr-script), (int32_t)sizeof(intptr_t), C_ScriptVersionString(g_scriptVersion));
-
-        initprintf("%d/%d labels, %d/%d variables, %d/%d arrays\n", g_numLabels,
-                   (int32_t)min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
-                                MAXSPRITES * sizeof(spritetype)/(1<<6)),
-                   g_gameVarCount, MAXGAMEVARS, g_gameArrayCount, MAXGAMEARRAYS);
-
-        if (g_numQuoteRedefinitions)
-            initprintf("%d strings, ", g_numQuoteRedefinitions);
-
-        int j;
-
-        for (i=MAXQUOTES-1, j=0; i>=0; i--)
+        if (g_scriptDebug)
         {
-            if (ScriptQuotes[i])
-                j++;
+            initprintf("%d/%d labels, %d/%d variables, %d/%d arrays\n", g_numLabels,
+                (int32_t) min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
+                    MAXSPRITES * sizeof(spritetype)/(1<<6)),
+                g_gameVarCount, MAXGAMEVARS, g_gameArrayCount, MAXGAMEARRAYS);
+
+            if (g_numQuoteRedefinitions)
+                initprintf("%d strings, ", g_numQuoteRedefinitions);
+
+            int j;
+
+            for (i=MAXQUOTES-1, j=0; i>=0; i--)
+            {
+                if (ScriptQuotes[i])
+                    j++;
+            }
+
+            if (j) initprintf("%d quotes, ", j);
+
+            for (i=MAXGAMEEVENTS-1, j=0; i>=0; i--)
+            {
+                if (apScriptGameEvent[i])
+                    j++;
+            }
+            if (j) initprintf("%d events, ", j);
+
+            for (i=MAXTILES-1, j=0; i>=0; i--)
+            {
+                if (g_tile[i].execPtr)
+                    j++;
+            }
+            if (j) initprintf("%d actors", j);
+
+            initprintf("\n");
         }
-
-        if (j) initprintf("%d quotes, ", j);
-
-        for (i=MAXGAMEEVENTS-1, j=0; i>=0; i--)
-        {
-            if (apScriptGameEvent[i])
-                j++;
-        }
-        if (j) initprintf("%d events, ", j);
-
-        for (i=MAXTILES-1, j=0; i>=0; i--)
-        {
-            if (g_tile[i].execPtr)
-                j++;
-        }
-        if (j) initprintf("%d actors", j);
-
-        initprintf("\n");
 
         C_InitQuotes();
     }
