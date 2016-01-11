@@ -395,7 +395,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
             case '\n':
             case '\r':
                 // value complete, add it using parsed name
-                while (*dp == ' ' && *dp == '\t') dp--;
+                while (*dp == ' ' || *dp == '\t') dp--;
                 *(dp) = 0;
                 while (*currentvalue == ' ' || *currentvalue == '\t') currentvalue++;
                 state = ParsingIdle;
