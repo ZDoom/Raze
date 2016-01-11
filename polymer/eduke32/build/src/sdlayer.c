@@ -475,9 +475,13 @@ int32_t sdlayer_checkversion(void)
     SDL_GetVersion(&linked);
     SDL_VERSION(&compiled);
 
-    initprintf("Initializing SDL system interface "
-               "(compiled against SDL version %d.%d.%d, found version %d.%d.%d)\n",
-               compiled.major, compiled.minor, compiled.patch, linked.major, linked.minor, linked.patch);
+    if (!Bmemcmp(&compiled, &linked, sizeof(SDL_version)))
+        initprintf("Initializing SDL %d.%d.%d\n",
+            compiled.major, compiled.minor, compiled.patch);
+    else
+    initprintf("Initializing SDL %d.%d.%d"
+               "(built against SDL version %d.%d.%d)\n",
+               linked.major, linked.minor, linked.patch, compiled.major, compiled.minor, compiled.patch);
 
     if (SDL_VERSIONNUM(linked.major, linked.minor, linked.patch) < SDL_REQUIREDVERSION)
     {
@@ -521,8 +525,6 @@ int32_t initsystem(void)
 
     if (!novideo)
     {
-        const char *drvname = SDL_GetVideoDriver(0);
-        
 #ifdef USE_OPENGL
         if (loadgldriver(getenv("BUILD_GLDRV")))
         {
@@ -531,9 +533,12 @@ int32_t initsystem(void)
         }
 #endif
 
+#ifndef _WIN32
+        const char *drvname = SDL_GetVideoDriver(0);
+
         if (drvname)
             initprintf("Using \"%s\" video driver\n", drvname);
-
+#endif
         wm_setapptitle(apptitle);
     }
 
