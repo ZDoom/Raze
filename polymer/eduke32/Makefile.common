@@ -526,11 +526,14 @@ CWARNS := -W -Wall \
     -Wextra \
     -Wno-char-subscripts \
     -Wno-missing-braces \
+    -Wuninitialized \
+    -Wlogical-op \
+    -Wcast-qual \
     #-Wstrict-prototypes \
     #-Waggregate-return \
     #-Wwrite-strings \
-    #-Wcast-qual -Wcast-align \
-    #-Waddress -Wlogical-op
+    #-Wcast-align \
+    #-Waddress 
 
 ifneq (0,$(CLANG))
     CWARNS+= -Wno-unused-value -Wno-parentheses
