@@ -501,6 +501,9 @@
     <ClInclude Include="source\jaudiolib\include\drivers.h">
       <Filter>jaudiolib\headers</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\md4.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -879,6 +882,12 @@
       <Filter>jaudiolib\source</Filter>
     </ClCompile>
     <ClCompile Include="build\src\colmatch.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\common.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\md4.c">
       <Filter>build\source</Filter>
     </ClCompile>
   </ItemGroup>

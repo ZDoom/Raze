@@ -109,6 +109,7 @@
     <ClInclude Include="build\include\kplib.h" />
     <ClInclude Include="build\include\libdivide.h" />
     <ClInclude Include="build\include\lzwnew.h" />
+    <ClInclude Include="build\include\md4.h" />
     <ClInclude Include="build\include\mdsprite.h" />
     <ClInclude Include="build\include\mmulti.h" />
     <ClInclude Include="build\include\mutex.h" />
@@ -234,6 +235,7 @@
     <ClCompile Include="build\src\build.c" />
     <ClCompile Include="build\src\cache1d.c" />
     <ClCompile Include="build\src\colmatch.c" />
+    <ClCompile Include="build\src\common.c" />
     <ClCompile Include="build\src\compat.c" />
     <ClCompile Include="build\src\config.c" />
     <ClCompile Include="build\src\crc32.c" />
@@ -247,6 +249,7 @@
     <ClCompile Include="build\src\jwzgles.c" />
     <ClCompile Include="build\src\kplib.c" />
     <ClCompile Include="build\src\lzwnew.c" />
+    <ClCompile Include="build\src\md4.c" />
     <ClCompile Include="build\src\mdsprite.c" />
     <ClCompile Include="build\src\mutex.c" />
     <ClCompile Include="build\src\osd.c" />
