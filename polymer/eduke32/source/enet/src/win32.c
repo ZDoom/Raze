@@ -83,7 +83,7 @@ enet_address_set_host (ENetAddress * address, const char * name)
 int
 enet_address_get_host_ip (const ENetAddress * address, char * name, size_t nameLength)
 {
-    char * addr = inet_ntoa (* (struct in_addr *) & address -> host);
+    char * addr = inet_ntoa (* (struct in_addr const *) & address -> host);
     if (addr == NULL)
         return -1;
     else
@@ -292,7 +292,7 @@ enet_socket_destroy (ENetSocket socket)
 int
 enet_socket_send (ENetSocket socket,
                   const ENetAddress * address,
-                  const ENetBuffer * buffers,
+                  ENetBuffer * buffers,
                   size_t bufferCount)
 {
     struct sockaddr_in sin;
