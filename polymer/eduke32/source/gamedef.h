@@ -38,6 +38,8 @@ extern "C" {
 #define MAXCHEATLEN             20
 #define NUMCHEATCODES           (int32_t)ARRAY_SIZE(CheatStrings)
 
+#define VM_INSTMASK 0xfff
+
 extern intptr_t const * insptr;
 extern void VM_ScriptInfo(intptr_t const *ptr, int32_t range);
 

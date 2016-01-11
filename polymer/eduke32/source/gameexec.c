@@ -83,8 +83,6 @@ GAMEEXEC_STATIC void VM_Execute(int32_t loop);
 # include "gamestructures.c"
 #endif
 
-#define VM_INSTMASK 0xfff
-
 #define VM_CONDITIONAL(xxx)                                                                                            \
     {                                                                                                                  \
         if ((xxx) || ((insptr = (intptr_t *)*(insptr + 1)) && (((*insptr) & VM_INSTMASK) == CON_ELSE)))                \

@@ -2123,7 +2123,7 @@ static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
         C_ReportError(-1);
         g_numCompilerWarnings++;
         initprintf("%s:%d: warning: malformed `%s' branch\n",g_szScriptFileName,g_lineNumber,
-                   keyw[*(g_scriptPtr) & 0xFFF]);
+                   keyw[*(g_scriptPtr) & VM_INSTMASK]);
         return 1;
     }
     return 0;
@@ -2140,7 +2140,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
         return 0;
     }
 
-    if ((*(g_scriptPtr) & 0xFFF) != CON_NULLOP || *(g_scriptPtr)>>12 != IFELSE_MAGIC)
+    if ((*(g_scriptPtr) & VM_INSTMASK) != CON_NULLOP || *(g_scriptPtr)>>12 != IFELSE_MAGIC)
         g_ifElseAborted = 0;
 
     if (EDUKE32_PREDICT_FALSE(g_ifElseAborted))
@@ -2149,7 +2149,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
         g_numCompilerWarnings++;
         g_scriptPtr = lastScriptPtr + &script[0];
         initprintf("%s:%d: warning: empty `%s' branch\n",g_szScriptFileName,g_lineNumber,
-                   keyw[*(g_scriptPtr) & 0xFFF]);
+                   keyw[*(g_scriptPtr) & VM_INSTMASK]);
         *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
         return 1;
     }
@@ -5106,13 +5106,13 @@ repeatcase:
             g_numBraces--;
 
             if ((*(g_scriptPtr-2)>>12) == (IFELSE_MAGIC) &&
-                ((*(g_scriptPtr-2) & 0xFFF) == CON_LEFTBRACE)) // rewrite "{ }" into "nullop"
+                ((*(g_scriptPtr-2) & VM_INSTMASK) == CON_LEFTBRACE)) // rewrite "{ }" into "nullop"
             {
                 //            initprintf("%s:%d: rewriting empty braces '{ }' as 'nullop' from right\n",g_szScriptFileName,g_lineNumber);
                 *(g_scriptPtr-2) = CON_NULLOP + (IFELSE_MAGIC<<12);
                 g_scriptPtr -= 2;
 
-                if (C_GetKeyword() != CON_ELSE && (*(g_scriptPtr-2)&0xFFF) != CON_ELSE)
+                if (C_GetKeyword() != CON_ELSE && (*(g_scriptPtr-2) & VM_INSTMASK) != CON_ELSE)
                     g_ifElseAborted = 1;
                 else g_ifElseAborted = 0;
 
