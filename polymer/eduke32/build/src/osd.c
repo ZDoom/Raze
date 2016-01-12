@@ -202,9 +202,12 @@ int32_t OSD_Exec(const char *szScript)
     int32_t i, len, err = 0;
     char *buf = NULL;
 
-    if ((i = kopen4load(szScript, 0)) == -1) err = 1;
-    if (!err && (len = kfilelength(i)) <= 0) err = 2; // blank file
-    if (!err && (buf = (char *)Xmalloc(len + 1)) == NULL) err = 3;
+    if ((i = kopen4load(szScript, 0)) == -1)
+        err = 1;
+    else if ((len = kfilelength(i)) <= 0)
+        err = 2; // blank file
+    else if ((buf = (char *)Xmalloc(len + 1)) == NULL)
+        err = 3;
 
     if (!err || err == 3)
         OSD_Printf("Executing \"%s\"\n", szScript);

@@ -585,7 +585,7 @@ extern int32_t demorec_difftics_cvar, demorec_diffcompress_cvar, demorec_synccom
 
 int32_t CONFIG_ReadSetup(void)
 {
-    int32_t dummy, i = 0;
+    int32_t dummy;
     char commmacro[] = "CommbatMacro# ";
     char tempbuf[1024];
 
@@ -600,12 +600,14 @@ int32_t CONFIG_ReadSetup(void)
         ud.config.scripthandle = SCRIPT_Load(setupfilename);
     else if (SafeFileExists(SETUPFILENAME) && ud.config.scripthandle < 0)
     {
+        int32_t i;
         i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
                    "Import configuration data from \"%s\"?",setupfilename,SETUPFILENAME);
         if (i) ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
     }
     else if (SafeFileExists("duke3d.cfg") && ud.config.scripthandle < 0)
     {
+        int32_t i;
         i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
                    "Import configuration data from \"duke3d.cfg\"?",setupfilename);
         if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");

@@ -10,6 +10,8 @@
 
 #if TARGET_OS_MAC
 
+#include "compat.h"
+
 #import <AppKit/AppKit.h>
 
 #include "sdl_inc.h"
@@ -76,6 +78,8 @@ static NSString *getApplicationName(void)
     SDL_Event event;
     event.type = SDL_QUIT;
     SDL_PushEvent(&event);
+
+    UNREFERENCED_PARAMETER(sender);
 }
 @end
 
@@ -206,6 +210,9 @@ static void CustomApplicationMain (int argc, char **argv)
 
     [sdlMain release];
     [pool release];
+
+    UNREFERENCED_PARAMETER(argc);
+    UNREFERENCED_PARAMETER(argv);
 }
 
 
@@ -254,6 +261,9 @@ static void CustomApplicationMain (int argc, char **argv)
     SDL_strlcpy(arg, temparg, arglen);
     gArgv[gArgc++] = arg;
     gArgv[gArgc] = NULL;
+
+    UNREFERENCED_PARAMETER(theApplication);
+
     return TRUE;
 }
 
@@ -269,6 +279,8 @@ static void CustomApplicationMain (int argc, char **argv)
     /* Hand off to main application code */
     gCalledAppMainline = TRUE;
     status = SDL_main (gArgc, gArgv);
+
+    UNREFERENCED_PARAMETER(note);
 
     /* We're done, thank you for playing */
     exit(status);

@@ -2586,6 +2586,7 @@ int32_t C_AllocQuote(int32_t qnum)
     return 0;
 }
 
+#ifndef EDUKE32_TOUCH_DEVICES
 static void C_ReplaceQuoteSubstring(const size_t q, char const * const query, char const * const replacement)
 {
     size_t querylength = Bstrlen(query);
@@ -2601,6 +2602,7 @@ static void C_ReplaceQuoteSubstring(const size_t q, char const * const query, ch
             i = MAXQUOTELEN - querylength - 2;
         }
 }
+#endif
 
 void C_InitQuotes(void)
 {

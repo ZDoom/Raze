@@ -372,6 +372,8 @@ static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
     case REND_POLYMER:
         renderer = "great justice (Polymer)";
         break;
+    default:
+        EDUKE32_UNREACHABLE_SECTION(break);
     }
 
     OSD_Printf("Rendering method changed to %s\n", renderer);
