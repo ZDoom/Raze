@@ -2243,7 +2243,7 @@
 					/usr/local/Cellar/zlib/1.2.8/lib,
 				);
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -2328,7 +2328,7 @@
 					/usr/local/Cellar/zlib/1.2.8/lib,
 				);
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -2419,7 +2419,7 @@
 					/usr/local/Cellar/zlib/1.2.8/lib,
 				);
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -2504,7 +2504,7 @@
 					/usr/local/Cellar/zlib/1.2.8/lib,
 				);
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -2589,7 +2589,7 @@
 					/usr/local/Cellar/zlib/1.2.8/lib,
 				);
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -2666,7 +2666,7 @@
 					/usr/local/Cellar/zlib/1.2.8/lib,
 				);
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -2746,7 +2746,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -2820,7 +2820,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -2899,7 +2899,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -2972,7 +2972,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3034,7 +3034,6 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3094,7 +3093,6 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3172,7 +3170,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3246,7 +3244,7 @@
 				);
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3330,6 +3328,7 @@
 					../../../../../SDL_mixer,
 				);
 				INFOPLIST_FILE = iOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib",
@@ -3415,6 +3414,7 @@
 					../../../../../SDL_mixer,
 				);
 				INFOPLIST_FILE = iOS/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/usr/lib",
@@ -3499,12 +3499,12 @@
 					../../../../../SDL/include,
 					../../../../../SDL_mixer,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					/usr/local/Cellar/zlib/1.2.8/lib,
 				);
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3581,12 +3581,12 @@
 					../../../../../SDL/include,
 					../../../../../SDL_mixer,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					/usr/local/Cellar/zlib/1.2.8/lib,
 				);
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3667,9 +3667,9 @@
 					../../../../../SDL/include,
 					../../../../../SDL_mixer,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3746,9 +3746,9 @@
 					../../../../../SDL/include,
 					../../../../../SDL_mixer,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3829,9 +3829,9 @@
 					../../../../../SDL/include,
 					../../../../../SDL_mixer,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
@@ -3908,9 +3908,9 @@
 					../../../../../SDL/include,
 					../../../../../SDL_mixer,
 				);
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = /usr/local/lib;
 				LLVM_LTO = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-D_THREAD_SAFE",
