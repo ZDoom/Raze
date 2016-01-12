@@ -185,7 +185,7 @@ static int32_t joyblast=0;
 
 static struct
 {
-    char *name;
+    char const *name;
     LPDIRECTINPUTDEVICE7A *did;
     LPCDIDATAFORMAT df;
 } devicedef = { "joystick", &lpDID, &c_dfDIJoystick };
@@ -731,7 +731,7 @@ int32_t handleevents(void)
 }
 
 
-void switchlayout(char * layout)
+void switchlayout(char const * layout)
 {
     char layoutname[KL_NAMELENGTH];
 
@@ -2802,10 +2802,10 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         GLubyte *p,*p2,*p3;
         int32_t err = 0;
 
-        glinfo.vendor     = (char *)bglGetString(GL_VENDOR);
-        glinfo.renderer   = (char *)bglGetString(GL_RENDERER);
-        glinfo.version    = (char *)bglGetString(GL_VERSION);
-        glinfo.extensions = (char *)bglGetString(GL_EXTENSIONS);
+        glinfo.vendor     = (char const *)bglGetString(GL_VENDOR);
+        glinfo.renderer   = (char const *)bglGetString(GL_RENDERER);
+        glinfo.version    = (char const *)bglGetString(GL_VERSION);
+        glinfo.extensions = (char const *)bglGetString(GL_EXTENSIONS);
 
         // GL driver blacklist
 

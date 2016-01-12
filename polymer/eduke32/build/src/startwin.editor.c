@@ -234,13 +234,13 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
             ZeroMemory(&tab, sizeof(tab));
             tab.mask = TCIF_TEXT;
-            tab.pszText = Bstrdup(TEXT("Setup"));
+            static char textSetup[] = TEXT("Setup");
+            tab.pszText = textSetup;
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)0, (LPARAM)&tab);
-            Bfree(tab.pszText);
             tab.mask = TCIF_TEXT;
-            tab.pszText = Bstrdup(TEXT("Message Log"));
+            static char textMessageLog[] = TEXT("Message Log");
+            tab.pszText = textMessageLog;
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)1, (LPARAM)&tab);
-            Bfree(tab.pszText);
             // Work out the position and size of the area inside the tab control for the pages
             ZeroMemory(&r, sizeof(r));
             GetClientRect(hwnd, &r);

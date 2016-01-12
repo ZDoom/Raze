@@ -353,13 +353,16 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
             ZeroMemory(&tab, sizeof(tab));
             tab.mask = TCIF_TEXT;
-            tab.pszText = TEXT("Configuration");
+            static char textConfiguration[] = TEXT("Configuration")
+            tab.pszText = textConfiguration;
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
-            tab.pszText = TEXT("Game");
+            static char textGame[] = TEXT("Game")
+            tab.pszText = textGame;
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_GAME, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
-            tab.pszText = TEXT("Messages");
+            static char textMessages[] = TEXT("Messages");
+            tab.pszText = textMessages;
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
 
             // Work out the position and size of the area inside the tab control for the pages

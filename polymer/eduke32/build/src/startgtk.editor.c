@@ -136,7 +136,7 @@ static gboolean on_startwin_delete_event(GtkWidget *widget, GdkEvent *event, gpo
 
 static GdkPixbuf *load_banner(void)
 {
-    return gdk_pixbuf_from_pixdata((GdkPixdata*)&startbanner_pixdata, FALSE, NULL);
+    return gdk_pixbuf_from_pixdata((GdkPixdata const *)&startbanner_pixdata, FALSE, NULL);
 }
 
 static void SetPage(int32_t n)

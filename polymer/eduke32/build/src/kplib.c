@@ -2745,7 +2745,7 @@ int32_t kzfindfile(char *filnam)
 #else
             if (!hfind)
             {
-                char *s = ".";
+                char const *s = ".";
                 if (wildstpathleng > 0)
                 {
                     filnam[wildstpathleng] = 0;

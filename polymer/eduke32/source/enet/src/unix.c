@@ -139,7 +139,7 @@ enet_address_get_host_ip (const ENetAddress * address, char * name, size_t nameL
 #ifdef HAS_INET_NTOP
     if (inet_ntop (AF_INET, & address -> host, name, nameLength) == NULL)
 #else
-    char * addr = inet_ntoa (* (struct in_addr *) & address -> host);
+    char * addr = inet_ntoa (* (struct in_addr const *) & address -> host);
     if (addr != NULL)
     {
         size_t addrLen = strlen(addr);

@@ -46,10 +46,10 @@ static int32_t setsprite_eyeheight(int16_t spritenum, const vec3_t *pos)
 void initsb(char,char,int,char,char,char,char);
 void uninitsb(void);
 void setears(int,int,int,int);
-void wsayfollow(char *,int,int,int *,int *,char);
-void wsay(char *,int,int,int);
+void wsayfollow(char const *,int,int,int *,int *,char);
+void wsay(char const *,int,int,int);
 void loadwaves(void);
-void loadsong(char *);
+void loadsong(char const *);
 void musicon(void);
 void musicoff(void);
 void refreshaudio(void);

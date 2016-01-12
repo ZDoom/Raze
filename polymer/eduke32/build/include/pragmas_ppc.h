@@ -245,7 +245,8 @@ static inline void swap64bit(void *a, void *b)
 static inline int32_t krecipasm(int32_t i)
 {
     // Ken did this
-    float f = (float) i; i = *(int32_t *) &f;
+    float const f = (float const)i;
+    i = *(int32_t const *)&f;
     return((reciptable[(i>>12)&2047]>>(((i-0x3f800000)>>23)&31))^(i>>31));
 }
 

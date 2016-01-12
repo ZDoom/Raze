@@ -318,7 +318,7 @@ static playbackstatus MV_GetNextVorbisBlock(VoiceNode *voice)
 #ifdef GEKKO
     // If libtremor had the three additional ov_read() parameters that libvorbis has,
     // this would be better handled using the endianness parameter.
-    int16_t *data = (int16_t *)(voice->sound);  // assumes signed 16-bit
+    int16_t *data = (int16_t *)(vd->block);  // assumes signed 16-bit
     for (bytesread = 0; bytesread < BLOCKSIZE / 2; ++bytesread)
         data[bytesread] = (data[bytesread] & 0xff) << 8 | ((data[bytesread] & 0xff00) >> 8);
 #endif

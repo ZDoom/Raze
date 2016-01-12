@@ -61,7 +61,7 @@ static int retval = -1, mode = TAB_MESSAGES;
 static GdkPixbuf *load_banner(void)
 {
     extern const GdkPixdata startbanner_pixdata;
-    return gdk_pixbuf_from_pixdata(&startbanner_pixdata, FALSE, NULL);
+    return gdk_pixbuf_from_pixdata((GdkPixdata const *)&startbanner_pixdata, FALSE, NULL);
 }
 
 static void SetPage(int n)

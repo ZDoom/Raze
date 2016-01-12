@@ -24,7 +24,7 @@ void setears(int daposx, int daposy, int daxvect, int dayvect)
     UNREFERENCED_PARAMETER(dayvect);
 }
 
-void wsayfollow(char *dafilename, int dafreq, int davol, int *daxplc, int *dayplc, char followstat)
+void wsayfollow(char const *dafilename, int dafreq, int davol, int *daxplc, int *dayplc, char followstat)
 {
     UNREFERENCED_PARAMETER(dafilename);
     UNREFERENCED_PARAMETER(dafreq);
@@ -34,7 +34,7 @@ void wsayfollow(char *dafilename, int dafreq, int davol, int *daxplc, int *daypl
     UNREFERENCED_PARAMETER(followstat);
 }
 
-void wsay(char *dafilename, int dafreq, int volume1, int volume2)
+void wsay(char const *dafilename, int dafreq, int volume1, int volume2)
 {
     UNREFERENCED_PARAMETER(dafilename);
     UNREFERENCED_PARAMETER(dafreq);
@@ -46,7 +46,7 @@ void loadwaves(void)
 {
 }
 
-void loadsong(char *filename)
+void loadsong(char const *filename)
 {
     UNREFERENCED_PARAMETER(filename);
 }

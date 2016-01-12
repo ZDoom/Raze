@@ -10915,7 +10915,6 @@ void test_map(int32_t mode)
     if ((!mode && cursectnum >= 0) || (mode && startsectnum >= 0))
     {
         char const *param = " -map " PLAYTEST_MAPNAME " -noinstancechecking";
-        char *fullparam;
         char current_cwd[BMAX_PATH];
         int32_t slen = 0;
         BFILE *fp;
@@ -10930,14 +10929,14 @@ void test_map(int32_t mode)
             fclose(fp);
         else
         {
+            char const * lastslash = (char const *)Bstrrchr(mapster32_fullpath, '/');
 #ifdef _WIN32
-            fullparam = (char *)Bstrrchr(mapster32_fullpath, '\\');
-#else
-            fullparam = (char *)Bstrrchr(mapster32_fullpath, '/');
+            char const * lastbackslash = (char const *)Bstrrchr(mapster32_fullpath, '\\');
+            lastslash = max(lastslash, lastbackslash);
 #endif
-            if (fullparam)
+            if (lastslash)
             {
-                slen = fullparam-mapster32_fullpath+1;
+                slen = lastslash-mapster32_fullpath+1;
                 Bstrncpy(game_executable, mapster32_fullpath, slen);
                 Bstrncpy(game_executable+slen, DefaultGameExec, sizeof(game_executable)-slen);
             }
@@ -10955,7 +10954,7 @@ void test_map(int32_t mode)
         // and a possible extra space not in testplay_addparam,
         // the length should be Bstrlen(game_executable)+Bstrlen(param)+(slen+1)+2+1.
 
-        fullparam = (char *)Xmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
+        char *fullparam = (char *)Xmalloc(Bstrlen(game_executable)+Bstrlen(param)+slen+4);
         Bsprintf(fullparam,"\"%s\"",game_executable);
 
         if (testplay_addparam)

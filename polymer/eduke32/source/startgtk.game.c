@@ -258,7 +258,7 @@ static gboolean on_startwin_delete_event(GtkWidget *widget, GdkEvent *event, gpo
 
 static GdkPixbuf *load_banner(void)
 {
-    return gdk_pixbuf_from_pixdata((GdkPixdata*)&startbanner_pixdata, FALSE, NULL);
+    return gdk_pixbuf_from_pixdata((GdkPixdata const *)&startbanner_pixdata, FALSE, NULL);
 }
 
 static void SetPage(int32_t n)
@@ -444,7 +444,7 @@ static void PopulateForm(unsigned char pgs)
         for (grpfile_t const * fg = foundgrps; fg; fg=fg->next)
         {
             gtk_list_store_append(list, &iter);
-            gtk_list_store_set(list, &iter, 0, fg->type->name, 1, fg->filename, 2, (gpointer)fg, -1);
+            gtk_list_store_set(list, &iter, 0, fg->type->name, 1, fg->filename, 2, (void const *)fg, -1);
             if (settings.grp == fg)
             {
                 GtkTreeSelection *sel = gtk_tree_view_get_selection(gamelist);

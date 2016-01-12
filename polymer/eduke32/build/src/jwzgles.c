@@ -2955,7 +2955,7 @@ jwzgles_glTexImage2D (GLenum target,
                       GLenum  	type,
                       const GLvoid *data)
 {
-  GLvoid *d2 = (GLvoid *) data;
+  GLvoid *d2 = NULL;
   Assert (!state->compiling_verts, "glTexImage2D not allowed inside glBegin");
   Assert (!state->compiling_list,  /* technically legal, but stupid! */
           "glTexImage2D not allowed inside glNewList");
@@ -2974,7 +2974,7 @@ jwzgles_glTexImage2D (GLenum target,
   /* GLES does not let us omit the data pointer to create a blank texture. */
   if (! data)
     {
-      d2 = (GLvoid *) calloc (1, width * height * sizeof(GLfloat) * 4);
+      data = d2 = (GLvoid *) calloc (1, width * height * sizeof(GLfloat) * 4);
       Assert (d2, "out of memory");
     }
 
@@ -2987,12 +2987,12 @@ jwzgles_glTexImage2D (GLenum target,
     LOG10 ("direct %-12s %s %d %s %d %d %d %s %s 0x%lX", "glTexImage2D", 
            mode_desc(target), level, mode_desc(internalFormat),
            width, height, border, mode_desc(format), mode_desc(type),
-           (unsigned long) d2);
+           (unsigned long) data);
   glTexImage2D (target, level, internalFormat, width, height, border,
-                format, type, d2);  /* the real one */
+                format, type, data);  /* the real one */
   CHECK("glTexImage2D");
 
-  if (d2 != data) free (d2);
+  free (d2);
 }
 
 void
@@ -3258,7 +3258,7 @@ jwzgles_gluBuild2DMipmaps (GLenum target,
   int w2 = to_pow2(width);
   int h2 = to_pow2(height);
 
-  void *d2 = (void *) data;
+  void *d2 = NULL;
 
   /* OpenGLES no longer supports "4" as a synonym for "RGBA". */
   switch (internalFormat) {
@@ -3283,10 +3283,10 @@ jwzgles_gluBuild2DMipmaps (GLenum target,
       int ibpl = istride * width;
       int obpl = ostride * w2;
       int oy;
-      const unsigned char *in = (unsigned char *) data;
+      const unsigned char *in = (const unsigned char *) data;
       unsigned char *out = (unsigned char *) malloc (h2 * obpl);
       Assert (out, "out of memory");
-      d2 = out;
+      data = d2 = out;
 
       for (oy = 0; oy < h2; oy++)
         {
@@ -3312,8 +3312,8 @@ jwzgles_gluBuild2DMipmaps (GLenum target,
     }
 
   jwzgles_glTexImage2D (target, 0, internalFormat, w2, h2, 0, 
-                        format, type, d2);
-  if (d2 != data) free (d2);
+                        format, type, data);
+  free (d2);
 
   return 0;
 }

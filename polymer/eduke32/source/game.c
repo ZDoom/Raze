@@ -9889,10 +9889,11 @@ const char **g_elModules;
 
 static void G_AddDemo(const char* param)
 {
-    char * colon = (char *)Bstrchr(param, ':');
+    Bstrncpy(tempbuf, param, sizeof(tempbuf));
+    char * colon = (char *)Bstrchr(tempbuf, ':');
     int32_t framespertic=-1, numrepeats=1;
 
-    if (colon && colon != param)
+    if (colon && colon != tempbuf)
     {
         // -d<filename>:<num>[,<num>]
         // profiling options
@@ -9900,7 +9901,7 @@ static void G_AddDemo(const char* param)
         Bsscanf(colon, "%u,%u", &framespertic, &numrepeats);
     }
 
-    Demo_SetFirst(param);
+    Demo_SetFirst(tempbuf);
 
     if (framespertic < 0)
     {

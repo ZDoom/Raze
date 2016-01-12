@@ -714,9 +714,10 @@ int32_t initinput(void)
 #endif
 
 #if defined EDUKE32_OSX
+    static char sdl_has3buttonmouse[] = "SDL_HAS3BUTTONMOUSE=1";
     // force OS X to operate in >1 button mouse mode so that LMB isn't adulterated
     if (!getenv("SDL_HAS3BUTTONMOUSE"))
-        putenv("SDL_HAS3BUTTONMOUSE=1");
+        putenv(sdl_has3buttonmouse);
 #endif
 
     if (!keyremapinit)
