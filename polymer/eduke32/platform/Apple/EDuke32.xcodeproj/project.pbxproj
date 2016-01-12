@@ -1765,7 +1765,7 @@
 		0008E64119F1A5AA0091588D /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0610;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = Voidpoint;
 			};
 			buildConfigurationList = 0008E64419F1A5AA0091588D /* Build configuration list for PBXProject "EDuke32" */;
@@ -2171,6 +2171,7 @@
 		0008E64519F1A5AA0091588D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				ONLY_ACTIVE_ARCH = YES;
 			};
@@ -2262,6 +2263,7 @@
 					"-DUSING_LTO",
 					"-DNOASM",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.eduke32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = macosx;
@@ -2346,6 +2348,7 @@
 					"-DUSING_LTO",
 					"-DNOASM",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.eduke32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = macosx;
@@ -2436,6 +2439,7 @@
 					"-DUSING_LTO",
 					"-DNOASM",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.mapster32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = macosx;
@@ -2520,6 +2524,7 @@
 					"-DUSING_LTO",
 					"-DNOASM",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.mapster32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				SUPPORTED_PLATFORMS = macosx;
@@ -3346,6 +3351,7 @@
 				);
 				OTHER_LDFLAGS = "";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.eduke32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
@@ -3430,6 +3436,7 @@
 				);
 				OTHER_LDFLAGS = "";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.eduke32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;

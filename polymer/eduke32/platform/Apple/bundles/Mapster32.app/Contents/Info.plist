@@ -13,7 +13,7 @@
 	<key>CFBundleIconFile</key>
 	<string>mapster32.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.voidpoint.mapster32</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
