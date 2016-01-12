@@ -1715,7 +1715,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         if (gammabrightness && setgamma() < 0) gammabrightness = 0;
     }
 
-#ifdef USE_OPENGL
+#if defined USE_OPENGL && defined USE_GLEXT
     if (hGLWindow && glinfo.vsync) bwglSwapIntervalEXT(vsync_render);
 #endif
     if (inp) AcquireInputDevices(1);
@@ -1752,7 +1752,9 @@ void setvsync(int32_t sync)
         return;
     }
     vsync_render = sync;
+# ifdef USE_GLEXT
     bwglSwapIntervalEXT(sync);
+# endif
 }
 
 static void cdsenummodes(void)
@@ -2760,9 +2762,10 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
 
     loadglextensions();
 
+# if defined DEBUGGINGAIDS && defined USE_GLEXT
     // We should really be checking for the new WGL extension string instead
     // Enable this to leverage ARB_debug_output
-    if (bwglCreateContextAttribsARB && 0) {
+    if (bwglCreateContextAttribsARB) {
         HGLRC debuggingContext = hGLRC;
 
         // This corresponds to WGL_CONTEXT_FLAGS_ARB set to WGL_CONTEXT_DEBUG_BIT_ARB
@@ -2783,6 +2786,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             loadglextensions();
         }
     }
+# endif
 
     polymost_glreset();
 
