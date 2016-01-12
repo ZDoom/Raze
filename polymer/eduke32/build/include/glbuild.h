@@ -38,6 +38,12 @@
 //#include <GL/glext.h>
 #if defined EDUKE32_OSX
 # include <OpenGL/glext.h>
+# define GL_MAP_WRITE_BIT                  0x0002
+# define GL_MAP_INVALIDATE_BUFFER_BIT      0x0008
+# define GL_MAP_PERSISTENT_BIT             0x0040
+# define GL_MAP_COHERENT_BIT               0x0080
+# define GL_DYNAMIC_STORAGE_BIT            0x0100
+# define GL_DEBUG_TYPE_ERROR_ARB           0x824C
 #elif defined EDUKE32_IOS
 typedef double GLdouble;
 # include <OpenGLES/ES1/glext.h>
