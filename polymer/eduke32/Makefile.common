@@ -279,7 +279,7 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
 endif
 
 CONLYFLAGS=-std=gnu99 -Wimplicit -Werror-implicit-function-declaration
-CPPONLYFLAGS= -fno-exceptions -fno-rtti -Wno-write-strings
+CPPONLYFLAGS= -fno-exceptions -fno-rtti
 ASFORMAT=elf$(SYSBITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
 LINKERFLAGS=
@@ -296,8 +296,9 @@ ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     endif
     M_TUNE_GENERIC := -mtune=generic
     M_STACKREALIGN := -mstackrealign
-    W_STRICT_OVERFLOW := -Wno-strict-overflow
 endif
+
+W_STRICT_OVERFLOW := -Wno-strict-overflow
 
 ifeq ($(HOSTPLATFORM),WINDOWS)
 # MSYS2 lets you create files named NUL but has a /dev/null. Go figure.
@@ -404,14 +405,6 @@ ifneq (0,$(PROFILER))
 endif
 
 
-
-
-ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
-    ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 1)))
-        COMPILERFLAGS+= -Wno-attributes
-    endif
-endif
-
 ifeq ($(PLATFORM),WII)
     override USE_LIBVPX = 0
     override NETCODE = 0
@@ -510,39 +503,63 @@ else
     endif
 endif
 
-W_NO_UNUSED_RESULT :=
-ifeq (0,$(CLANG))
-#    W_NO_UNUSED_RESULT := $(shell echo '' | $(CC) -E -Wno-unused-result - 2>/dev/null && echo -Wno-unused-result)
-#    W_NO_UNUSED_RESULT := $(findstring -Wno-unused-result,$(W_NO_UNUSED_RESULT))
-    ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
-        ifeq (1,$(strip $(shell expr $(GCC_MINOR) \>= 4)))
-            W_NO_UNUSED_RESULT := -Wno-unused-result
-        endif
-    endif
-endif
+W_UNINITIALIZED := -Wuninitialized
+W_GCC_4_1 := -Wno-attributes
+W_GCC_4_2 := $(W_STRICT_OVERFLOW)
+W_GCC_4_4 := -Wno-unused-result
+W_GCC_4_5 := -Wlogical-op -Wcast-qual
 
-CWARNS := -W -Wall \
-    -Wpointer-arith \
+CWARNS = -W -Wall \
     -Wextra \
+    -Wpointer-arith \
     -Wno-char-subscripts \
     -Wno-missing-braces \
-    -Wno-unknown-warning-option \
-    -Wuninitialized \
-    -Wlogical-op \
-    -Wcast-qual \
     -Wwrite-strings \
+    $(W_UNINITIALIZED) \
+    $(W_GCC_4_1) \
+    $(W_GCC_4_2) \
+    $(W_GCC_4_4) \
+    $(W_GCC_4_5) \
     #-Wstrict-prototypes \
     #-Waggregate-return \
     #-Wcast-align \
     #-Waddress 
 
 ifneq (0,$(CLANG))
-    CWARNS+= -Wno-unused-value -Wno-parentheses
+    CWARNS+= -Wno-unused-value -Wno-parentheses -Wno-unknown-warning-option
+else
+    ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \< 4)))
+        W_GCC_4_5 :=
+        W_GCC_4_4 :=
+        ifeq (0,$(OPTLEVEL))
+            W_UNINITIALIZED :=
+        endif
+        W_GCC_4_2 :=
+        W_GCC_4_1 :=
+    endif
+
+    ifeq (1,$(strip $(shell expr $(GCC_MAJOR) = 4)))
+        ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 5)))
+            W_GCC_4_5 :=
+            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 4)))
+                W_GCC_4_4 :=
+                ifeq (0,$(OPTLEVEL))
+                    W_UNINITIALIZED :=
+                endif
+                ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 2)))
+                    W_GCC_4_2 :=
+                    ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 1)))
+                        W_GCC_4_1 :=
+                    endif
+                endif
+            endif
+        endif
+    endif
 endif
 
 COMMONFLAGS+= -funsigned-char -fno-strict-aliasing $(F_JUMP_TABLES)
 
-COMPILERFLAGS+= $(CWARNS) $(W_NO_UNUSED_RESULT) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+COMPILERFLAGS+= $(CWARNS) -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
 
 ifeq (0,$(NETCODE))
     COMPILERFLAGS+= -DNETCODE_DISABLE
@@ -969,7 +986,7 @@ ifeq ($(PLATFORM),WII)
     LIBS+= -laesnd_tueidj -lpng -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
 endif
 
-COMPILERFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 -DMIXERTYPE$(MIXERTYPE)=1 $(W_STRICT_OVERFLOW)
+COMPILERFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 -DMIXERTYPE$(MIXERTYPE)=1
 
 ifneq (0,$(USE_OPENGL))
     COMPILERFLAGS+= -DUSE_OPENGL
