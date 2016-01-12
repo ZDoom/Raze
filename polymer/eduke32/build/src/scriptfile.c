@@ -192,7 +192,7 @@ int32_t scriptfile_getlinum(const scriptfile *sf, const char *ptr)
 
     ind = ((intptr_t)ptr) - ((intptr_t)sf->textbuf);
 
-    for (stp=1; stp+stp<sf->linenum; stp+=stp); //stp = highest power of 2 less than sf->linenum
+    for (stp=1; stp+stp<sf->linenum; stp+=stp) { } //stp = highest power of 2 less than sf->linenum
     for (i=0; stp; stp>>=1)
         if ((i+stp < sf->linenum) && (sf->lineoffs[i+stp] < ind)) i += stp;
     return(i+1); //i = index to highest lineoffs which is less than ind; convert to 1-based line numbers
@@ -337,7 +337,7 @@ static char *getsymbtabspace(int32_t reqd)
 
     if (symbtablength + reqd > symbtaballoclength)
     {
-        for (i=max(symbtaballoclength,SYMBTABSTARTSIZE); symbtablength+reqd>i; i<<=1);
+        for (i=max(symbtaballoclength,SYMBTABSTARTSIZE); symbtablength+reqd>i; i<<=1) { }
         np = (char *)Xrealloc(symbtab, i);
         symbtab = np; symbtaballoclength = i;
     }

@@ -3129,11 +3129,11 @@ static inline int32_t bunchfront(int32_t b1, int32_t b2)
 
     if (x1b1 >= x1b2)
     {
-        for (; xb2[b2f] < x1b1; b2f = bunchp2[b2f]);
+        for (; xb2[b2f] < x1b1; b2f = bunchp2[b2f]) { }
         return wallfront(b1f, b2f);
     }
 
-    for (; xb2[b1f] < x1b2; b1f = bunchp2[b1f]);
+    for (; xb2[b1f] < x1b2; b1f = bunchp2[b1f]) { }
     return wallfront(b1f, b2f);
 }
 

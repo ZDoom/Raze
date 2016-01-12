@@ -411,7 +411,7 @@ int32_t addsearchpath_user(const char *p, int32_t user)
     srch->path    = (char *)Xmalloc(srch->pathlen + 1);
 
     Bstrcpy(srch->path, path);
-    for (s=srch->path; *s; s++);
+    for (s=srch->path; *s; s++) { }
     s--;
 
     if (s<srch->path || toupperlookup[*s] != '/')
@@ -442,7 +442,7 @@ int32_t removesearchpath(const char *p)
     if (path[Bstrlen(path)-1] == '\\')
         path[Bstrlen(path)-1] = 0;
 
-    for (s=path; *s; s++);
+    for (s=path; *s; s++) { }
     s--;
 
     if (s<path || toupperlookup[*s] != '/')
@@ -555,7 +555,7 @@ int32_t findfrompath(const char *fn, char **where)
 
     char const *cpfn;
 
-    for (cpfn = fn; toupperlookup[*cpfn] == '/'; cpfn++);
+    for (cpfn = fn; toupperlookup[*cpfn] == '/'; cpfn++) { }
     char *ffn = Xstrdup(cpfn);
 
     Bcorrectfilename(ffn,0);	// compress relative paths
@@ -1030,7 +1030,7 @@ static int32_t kopen_internal(const char *filename, char **lastpfn, char searchf
         return newhandle;
     }
 
-    for (; toupperlookup[*filename] == '/'; filename++);
+    for (; toupperlookup[*filename] == '/'; filename++) { }
 
 #ifdef WITHKPLIB
     if (tryzip)

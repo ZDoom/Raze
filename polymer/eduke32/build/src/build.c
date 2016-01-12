@@ -10747,7 +10747,7 @@ static void AlignWalls_(int32_t tilenum, int32_t z0, int32_t z1, int32_t doxpann
     if (doxpanning)
         wall[w1_pan].xpanning = (uint8_t)((wall[w0_pan].xpanning + (wall[w0_rep].xrepeat<<3))%tilesiz[tilenum].x);
 
-    for (n=picsiz[tilenum]>>4; (1<<n)<tilesiz[tilenum].y; n++);
+    for (n=picsiz[tilenum]>>4; (1<<n)<tilesiz[tilenum].y; n++) { }
 
     wall[w1_rep].yrepeat = wall[w0_rep].yrepeat;
     wall[w1_pan].ypanning = (uint8_t)(wall[w0_pan].ypanning + (((z1-z0)*wall[w0_rep].yrepeat)>>(n+3)));

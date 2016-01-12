@@ -621,8 +621,8 @@ static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t 
 
     if (!glinfo.texnpot)
     {
-        for (xsiz=1; xsiz<tsizx; xsiz+=xsiz);
-        for (ysiz=1; ysiz<tsizy; ysiz+=ysiz);
+        for (xsiz=1; xsiz<tsizx; xsiz+=xsiz) { }
+        for (ysiz=1; ysiz<tsizy; ysiz+=ysiz) { }
     }
     else
     {

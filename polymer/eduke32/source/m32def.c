@@ -3741,7 +3741,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
     Bmemcpy(&cs, &cs_default, sizeof(compilerstate_t));
 
-    while (C_ParseCommand() == 0);
+    while (C_ParseCommand() == 0) { }
 
 //    flushlogwindow = 1;
 

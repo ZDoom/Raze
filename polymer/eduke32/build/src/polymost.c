@@ -798,8 +798,8 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
 
     if (!glinfo.texnpot)
     {
-        for (siz.x = 1; siz.x < tsiz.x; siz.x += siz.x);
-        for (siz.y = 1; siz.y < tsiz.y; siz.y += siz.y);
+        for (siz.x = 1; siz.x < tsiz.x; siz.x += siz.x) { }
+        for (siz.y = 1; siz.y < tsiz.y; siz.y += siz.y) { }
     }
     else
     {
@@ -1060,8 +1060,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if (!glinfo.texnpot)
         {
-            for (siz.x=1; siz.x<tsiz.x; siz.x+=siz.x);
-            for (siz.y=1; siz.y<tsiz.y; siz.y+=siz.y);
+            for (siz.x=1; siz.x<tsiz.x; siz.x+=siz.x) { }
+            for (siz.y=1; siz.y<tsiz.y; siz.y+=siz.y) { }
         }
         else
             siz = tsiz;
@@ -3396,11 +3396,11 @@ static int32_t polymost_bunchfront(const int32_t b1, const int32_t b2)
 
     if (x1b1 >= x1b2)
     {
-        for (; dxb2[b2f]<=x1b1; b2f=bunchp2[b2f]);
+        for (; dxb2[b2f]<=x1b1; b2f=bunchp2[b2f]) { }
         return wallfront(b1f, b2f);
     }
 
-    for (; dxb2[b1f]<=x1b2; b1f=bunchp2[b1f]);
+    for (; dxb2[b1f]<=x1b2; b1f=bunchp2[b1f]) { }
     return wallfront(b1f, b2f);
 }
 
@@ -3513,7 +3513,7 @@ void polymost_scansector(int32_t sectnum)
         for (int z=bunchfrst; z<numbunches; z++)
         {
             int zz;
-            for (zz=bunchfirst[z]; bunchp2[zz]>=0; zz=bunchp2[zz]);
+            for (zz=bunchfirst[z]; bunchp2[zz]>=0; zz=bunchp2[zz]) { }
             bunchlast[z] = zz;
         }
     }
