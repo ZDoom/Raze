@@ -32,12 +32,10 @@
 		0008E6F119F1AAFF0091588D /* driver_sdl.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6D819F1AAFF0091588D /* driver_sdl.c */; };
 		0008E6F219F1AAFF0091588D /* driver_sdl.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D919F1AAFF0091588D /* driver_sdl.h */; };
 		0008E6F319F1AAFF0091588D /* drivers.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6DA19F1AAFF0091588D /* drivers.c */; };
-		0008E6F419F1AAFF0091588D /* drivers.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6DB19F1AAFF0091588D /* drivers.h */; };
 		0008E6F519F1AAFF0091588D /* flac.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6DC19F1AAFF0091588D /* flac.c */; };
 		0008E6F619F1AAFF0091588D /* formats.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6DD19F1AAFF0091588D /* formats.c */; };
 		0008E6F719F1AAFF0091588D /* fx_man.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6DE19F1AAFF0091588D /* fx_man.c */; };
 		0008E6F819F1AAFF0091588D /* linklist.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6DF19F1AAFF0091588D /* linklist.h */; };
-		0008E6F919F1AAFF0091588D /* ll_man.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6E019F1AAFF0091588D /* ll_man.h */; };
 		0008E6FA19F1AAFF0091588D /* mix.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6E119F1AAFF0091588D /* mix.c */; };
 		0008E6FB19F1AAFF0091588D /* mixst.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6E219F1AAFF0091588D /* mixst.c */; };
 		0008E6FC19F1AAFF0091588D /* multivoc.c in Sources */ = {isa = PBXBuildFile; fileRef = 0008E6E319F1AAFF0091588D /* multivoc.c */; };
@@ -354,10 +352,8 @@
 		0013831119F361BB0007DA6C /* _multivc.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D319F1AAFE0091588D /* _multivc.h */; };
 		0013831219F361BB0007DA6C /* driver_sdl.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6D919F1AAFF0091588D /* driver_sdl.h */; };
 		0013831319F361BB0007DA6C /* multivoc.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6E419F1AAFF0091588D /* multivoc.h */; };
-		0013831419F361BB0007DA6C /* ll_man.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6E019F1AAFF0091588D /* ll_man.h */; };
 		0013831519F361BB0007DA6C /* pitch.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6E619F1AAFF0091588D /* pitch.h */; };
 		0013831619F361BB0007DA6C /* driver_nosound.h in Headers */ = {isa = PBXBuildFile; fileRef = 00970E4F19F2108600873EB9 /* driver_nosound.h */; };
-		0013831719F361BB0007DA6C /* drivers.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E6DB19F1AAFF0091588D /* drivers.h */; };
 		0013831C19F361DE0007DA6C /* libBUILD-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 001382DE19F361B60007DA6C /* libBUILD-iOS.a */; };
 		0013831D19F361DE0007DA6C /* libMACT-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 001382F819F361B80007DA6C /* libMACT-iOS.a */; };
 		0013831E19F361DE0007DA6C /* libAudioLib-iOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0013831B19F361BB0007DA6C /* libAudioLib-iOS.a */; };
@@ -429,6 +425,10 @@
 		20CA2FA71BB2456E001231BF /* drivers.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CA2FA61BB2456E001231BF /* drivers.h */; };
 		20CA2FA81BB2456E001231BF /* drivers.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CA2FA61BB2456E001231BF /* drivers.h */; };
 		20F70F131A8F25CE00F71870 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0013832819F366720007DA6C /* libc++.dylib */; };
+		20FD1D481C44E4BE00C2E553 /* colmatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 20FD1D471C44E4BE00C2E553 /* colmatch.h */; };
+		20FD1D491C44E4BE00C2E553 /* colmatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 20FD1D471C44E4BE00C2E553 /* colmatch.h */; };
+		20FD1D511C44E4E700C2E553 /* colmatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 20FD1D501C44E4E700C2E553 /* colmatch.c */; };
+		20FD1D521C44E4E700C2E553 /* colmatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 20FD1D501C44E4E700C2E553 /* colmatch.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -527,12 +527,10 @@
 		0008E6D819F1AAFF0091588D /* driver_sdl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = driver_sdl.c; path = ../../source/jaudiolib/src/driver_sdl.c; sourceTree = SOURCE_ROOT; };
 		0008E6D919F1AAFF0091588D /* driver_sdl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = driver_sdl.h; path = ../../source/jaudiolib/src/driver_sdl.h; sourceTree = SOURCE_ROOT; };
 		0008E6DA19F1AAFF0091588D /* drivers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = drivers.c; path = ../../source/jaudiolib/src/drivers.c; sourceTree = SOURCE_ROOT; };
-		0008E6DB19F1AAFF0091588D /* drivers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drivers.h; path = ../../source/jaudiolib/src/drivers.h; sourceTree = SOURCE_ROOT; };
 		0008E6DC19F1AAFF0091588D /* flac.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = flac.c; path = ../../source/jaudiolib/src/flac.c; sourceTree = SOURCE_ROOT; };
 		0008E6DD19F1AAFF0091588D /* formats.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = formats.c; path = ../../source/jaudiolib/src/formats.c; sourceTree = SOURCE_ROOT; };
 		0008E6DE19F1AAFF0091588D /* fx_man.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fx_man.c; path = ../../source/jaudiolib/src/fx_man.c; sourceTree = SOURCE_ROOT; };
 		0008E6DF19F1AAFF0091588D /* linklist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = linklist.h; path = ../../source/jaudiolib/src/linklist.h; sourceTree = SOURCE_ROOT; };
-		0008E6E019F1AAFF0091588D /* ll_man.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ll_man.h; path = ../../source/jaudiolib/src/ll_man.h; sourceTree = SOURCE_ROOT; };
 		0008E6E119F1AAFF0091588D /* mix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mix.c; path = ../../source/jaudiolib/src/mix.c; sourceTree = SOURCE_ROOT; };
 		0008E6E219F1AAFF0091588D /* mixst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mixst.c; path = ../../source/jaudiolib/src/mixst.c; sourceTree = SOURCE_ROOT; };
 		0008E6E319F1AAFF0091588D /* multivoc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = multivoc.c; path = ../../source/jaudiolib/src/multivoc.c; sourceTree = SOURCE_ROOT; };
@@ -790,6 +788,8 @@
 		20C214691B02C19800917E58 /* game.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = game.png; path = bundles/EDuke32.app/Contents/Resources/game.png; sourceTree = SOURCE_ROOT; };
 		20C2146E1B02C1D800917E58 /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = build.png; path = bundles/Mapster32.app/Contents/Resources/build.png; sourceTree = SOURCE_ROOT; };
 		20CA2FA61BB2456E001231BF /* drivers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drivers.h; path = ../../source/jaudiolib/include/drivers.h; sourceTree = SOURCE_ROOT; };
+		20FD1D471C44E4BE00C2E553 /* colmatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = colmatch.h; path = ../../build/include/colmatch.h; sourceTree = SOURCE_ROOT; };
+		20FD1D501C44E4E700C2E553 /* colmatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = colmatch.c; path = ../../build/src/colmatch.c; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1171,12 +1171,10 @@
 				0008E6D819F1AAFF0091588D /* driver_sdl.c */,
 				0008E6D919F1AAFF0091588D /* driver_sdl.h */,
 				0008E6DA19F1AAFF0091588D /* drivers.c */,
-				0008E6DB19F1AAFF0091588D /* drivers.h */,
 				0008E6DC19F1AAFF0091588D /* flac.c */,
 				0008E6DD19F1AAFF0091588D /* formats.c */,
 				0008E6DE19F1AAFF0091588D /* fx_man.c */,
 				0008E6DF19F1AAFF0091588D /* linklist.h */,
-				0008E6E019F1AAFF0091588D /* ll_man.h */,
 				0008E6E119F1AAFF0091588D /* mix.c */,
 				0008E6E219F1AAFF0091588D /* mixst.c */,
 				0008E6E319F1AAFF0091588D /* multivoc.c */,
@@ -1197,6 +1195,7 @@
 				0008E8A219F1AC530091588D /* baselayer.h */,
 				0008E8A319F1AC530091588D /* build.h */,
 				0008E8A419F1AC530091588D /* cache1d.h */,
+				20FD1D471C44E4BE00C2E553 /* colmatch.h */,
 				0008E8A519F1AC530091588D /* common.h */,
 				0008E8A619F1AC530091588D /* compat.h */,
 				0008E8A719F1AC530091588D /* crc32.h */,
@@ -1254,6 +1253,7 @@
 				0008E8DC19F1AC530091588D /* baselayer.c */,
 				0008E8DD19F1AC530091588D /* build.c */,
 				0008E8DE19F1AC530091588D /* cache1d.c */,
+				20FD1D501C44E4E700C2E553 /* colmatch.c */,
 				0008E8DF19F1AC530091588D /* common.c */,
 				0008E8E019F1AC530091588D /* compat.c */,
 				0008E8E119F1AC530091588D /* config.c */,
@@ -1409,6 +1409,7 @@
 				0008E96419F1AC540091588D /* engine_oldmap.h in Headers */,
 				0008E94419F1AC540091588D /* pragmas_x86_gcc.h in Headers */,
 				0008E92319F1AC540091588D /* a.h in Headers */,
+				20FD1D481C44E4BE00C2E553 /* colmatch.h in Headers */,
 				0008E94E19F1AC540091588D /* SDLMain.h in Headers */,
 				0008E94119F1AC540091588D /* pragmas.h in Headers */,
 				0008E94C19F1AC540091588D /* sdlappicon.h in Headers */,
@@ -1466,11 +1467,9 @@
 				0008E6EC19F1AAFF0091588D /* _multivc.h in Headers */,
 				0008E6F219F1AAFF0091588D /* driver_sdl.h in Headers */,
 				0008E6FD19F1AAFF0091588D /* multivoc.h in Headers */,
-				0008E6F919F1AAFF0091588D /* ll_man.h in Headers */,
 				0008E6FF19F1AAFF0091588D /* pitch.h in Headers */,
 				20CA2FA71BB2456E001231BF /* drivers.h in Headers */,
 				00970E5119F2108600873EB9 /* driver_nosound.h in Headers */,
-				0008E6F419F1AAFF0091588D /* drivers.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1506,6 +1505,7 @@
 				001382B719F361B60007DA6C /* m32script.h in Headers */,
 				001382B819F361B60007DA6C /* osxmain.h in Headers */,
 				001382B919F361B60007DA6C /* texcache.h in Headers */,
+				20FD1D491C44E4BE00C2E553 /* colmatch.h in Headers */,
 				001382BA19F361B60007DA6C /* build.h in Headers */,
 				001382BB19F361B60007DA6C /* prlights.h in Headers */,
 				001382BC19F361B60007DA6C /* renderlayer.h in Headers */,
@@ -1571,11 +1571,9 @@
 				0013831119F361BB0007DA6C /* _multivc.h in Headers */,
 				0013831219F361BB0007DA6C /* driver_sdl.h in Headers */,
 				0013831319F361BB0007DA6C /* multivoc.h in Headers */,
-				0013831419F361BB0007DA6C /* ll_man.h in Headers */,
 				0013831519F361BB0007DA6C /* pitch.h in Headers */,
 				20CA2FA81BB2456E001231BF /* drivers.h in Headers */,
 				0013831619F361BB0007DA6C /* driver_nosound.h in Headers */,
-				0013831719F361BB0007DA6C /* drivers.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1950,6 +1948,7 @@
 				0008E96119F1AC540091588D /* dxtfilter.c in Sources */,
 				0008E96B19F1AC540091588D /* lz4.c in Sources */,
 				0008E97419F1AC540091588D /* osd.c in Sources */,
+				20FD1D511C44E4E700C2E553 /* colmatch.c in Sources */,
 				0008E96619F1AC540091588D /* glbuild.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2051,6 +2050,7 @@
 				0013829219F361B60007DA6C /* common.c in Sources */,
 				0013829319F361B60007DA6C /* mutex.c in Sources */,
 				0013829519F361B60007DA6C /* crc32.c in Sources */,
+				20FD1D521C44E4E700C2E553 /* colmatch.c in Sources */,
 				0013829719F361B60007DA6C /* texcache.c in Sources */,
 				0013829819F361B60007DA6C /* cache1d.c in Sources */,
 				0013829919F361B60007DA6C /* smalltextfont.c in Sources */,
