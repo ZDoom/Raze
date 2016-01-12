@@ -747,9 +747,9 @@
 		000C486C19F35516006E6B52 /* EDuke32-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "EDuke32-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		000C486D19F35516006E6B52 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		000C486F19F35516006E6B52 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
-		000C487519F35517006E6B52 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		000C487519F35517006E6B52 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = iOS/Info.plist; sourceTree = SOURCE_ROOT; };
 		000C487719F35517006E6B52 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		000C487F19F35517006E6B52 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		000C487F19F35517006E6B52 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = iOS/Images.xcassets; sourceTree = SOURCE_ROOT; };
 		000C48CE19F35D6E006E6B52 /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = "../../../../../SDL/Xcode-iOS/SDL/SDL.xcodeproj"; sourceTree = "<group>"; };
 		000C48D619F35D92006E6B52 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		000C48EB19F35DD7006E6B52 /* SDL_mixer.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL_mixer.xcodeproj; path = "../../../../../SDL_mixer/Xcode-iOS/SDL_mixer.xcodeproj"; sourceTree = "<group>"; };
@@ -777,19 +777,19 @@
 		00970E5D19F213B300873EB9 /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		00970E6019F2142400873EB9 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		00CD003119F374ED00636963 /* duke3d.grp */ = {isa = PBXFileReference; lastKnownFileType = file; name = duke3d.grp; path = ../../../../../duke3d.grp; sourceTree = SOURCE_ROOT; };
-		2038AE951A8F122D0093B7B2 /* libdivide.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libdivide.h; sourceTree = "<group>"; };
-		2038AE981A8F12590093B7B2 /* md4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = md4.h; sourceTree = "<group>"; };
-		2038AE9B1A8F126C0093B7B2 /* md4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = md4.c; sourceTree = "<group>"; };
+		2038AE951A8F122D0093B7B2 /* libdivide.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libdivide.h; path = ../../build/include/libdivide.h; sourceTree = SOURCE_ROOT; };
+		2038AE981A8F12590093B7B2 /* md4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = md4.h; path = ../../build/include/md4.h; sourceTree = SOURCE_ROOT; };
+		2038AE9B1A8F126C0093B7B2 /* md4.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = md4.c; path = ../../build/src/md4.c; sourceTree = SOURCE_ROOT; };
 		2038AE9E1A8F12B60093B7B2 /* animsounds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = animsounds.c; path = ../../source/animsounds.c; sourceTree = SOURCE_ROOT; };
 		2038AE9F1A8F12B60093B7B2 /* animsounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = animsounds.h; path = ../../source/animsounds.h; sourceTree = SOURCE_ROOT; };
 		2038AEA21A8F137E0093B7B2 /* DUKE.RTS */ = {isa = PBXFileReference; lastKnownFileType = file; name = DUKE.RTS; path = ../../../../../DUKE.RTS; sourceTree = SOURCE_ROOT; };
-		206B3A051B074F3000E5DBD0 /* jwzgles.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jwzgles.h; sourceTree = "<group>"; };
-		206B3A061B074F3000E5DBD0 /* jwzglesI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = jwzglesI.h; sourceTree = "<group>"; };
-		206B3A0B1B074F6400E5DBD0 /* jwzgles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = jwzgles.c; sourceTree = "<group>"; };
+		206B3A051B074F3000E5DBD0 /* jwzgles.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jwzgles.h; path = ../../build/include/jwzgles.h; sourceTree = SOURCE_ROOT; };
+		206B3A061B074F3000E5DBD0 /* jwzglesI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jwzglesI.h; path = ../../build/include/jwzglesI.h; sourceTree = SOURCE_ROOT; };
+		206B3A0B1B074F6400E5DBD0 /* jwzgles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jwzgles.c; path = ../../build/src/jwzgles.c; sourceTree = SOURCE_ROOT; };
 		2085BEB91A8F23B9002BF4CE /* libSystem.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSystem.dylib; path = usr/lib/libSystem.dylib; sourceTree = SDKROOT; };
 		20C214691B02C19800917E58 /* game.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = game.png; path = bundles/EDuke32.app/Contents/Resources/game.png; sourceTree = SOURCE_ROOT; };
 		20C2146E1B02C1D800917E58 /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = build.png; path = bundles/Mapster32.app/Contents/Resources/build.png; sourceTree = SOURCE_ROOT; };
-		20CA2FA61BB2456E001231BF /* drivers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = drivers.h; sourceTree = "<group>"; };
+		20CA2FA61BB2456E001231BF /* drivers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drivers.h; path = ../../source/jaudiolib/include/drivers.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2163,7 +2163,8 @@
 				000C487719F35517006E6B52 /* en */,
 			);
 			name = InfoPlist.strings;
-			sourceTree = "<group>";
+			path = iOS;
+			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXVariantGroup section */
 
