@@ -1029,6 +1029,8 @@ void G_LoadLookups(void)
 
 //////////
 
+#ifdef FORMAT_UPGRADE_ELIGIBLE
+
 static int32_t S_TryFormats(char * const testfn, char * const fn_suffix, char const searchfirst)
 {
 #ifdef HAVE_FLAC
@@ -1137,3 +1139,5 @@ int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
     Bfree(testfn);
     return origfp;
 }
+
+#endif

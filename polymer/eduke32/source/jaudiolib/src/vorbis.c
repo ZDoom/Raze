@@ -481,6 +481,17 @@ void MV_ReleaseVorbisVoice( VoiceNode * voice )
 int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
     int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
+    UNREFERENCED_PARAMETER(ptr);
+    UNREFERENCED_PARAMETER(ptrlength);
+    UNREFERENCED_PARAMETER(loopstart);
+    UNREFERENCED_PARAMETER(loopend);
+    UNREFERENCED_PARAMETER(pitchoffset);
+    UNREFERENCED_PARAMETER(vol);
+    UNREFERENCED_PARAMETER(left);
+    UNREFERENCED_PARAMETER(right);
+    UNREFERENCED_PARAMETER(priority);
+    UNREFERENCED_PARAMETER(callbackval);
+
     MV_Printf("MV_PlayVorbis: OggVorbis support not included in this binary.\n");
     return -1;
 }
@@ -488,6 +499,15 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t 
 int32_t MV_PlayVorbis3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
     int32_t distance, int32_t priority, uint32_t callbackval)
 {
+    UNREFERENCED_PARAMETER(ptr);
+    UNREFERENCED_PARAMETER(ptrlength);
+    UNREFERENCED_PARAMETER(loophow);
+    UNREFERENCED_PARAMETER(pitchoffset);
+    UNREFERENCED_PARAMETER(angle);
+    UNREFERENCED_PARAMETER(distance);
+    UNREFERENCED_PARAMETER(priority);
+    UNREFERENCED_PARAMETER(callbackval);
+
     MV_Printf("MV_PlayVorbis: OggVorbis support not included in this binary.\n");
     return -1;
 }
