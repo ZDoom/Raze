@@ -173,6 +173,7 @@ int32_t __fastcall VM_GetUserdef(register int32_t lLabelID)
         case USERDEFS_VM_PLAYER: lLabelID = vm.g_p; break;
         case USERDEFS_VM_SPRITE: lLabelID = vm.g_i; break;
         case USERDEFS_VM_DISTANCE: lLabelID = vm.g_x; break;
+        case USERDEFS_SOUNDTOGGLE: lLabelID = ud.config.SoundToggle; break;
         default: lLabelID = -1; break;
     }
 

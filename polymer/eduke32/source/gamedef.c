@@ -1177,6 +1177,7 @@ const memberlabel_t UserdefsLabels[]=
     { "vm_player", USERDEFS_VM_PLAYER, 0, 0 },
     { "vm_sprite", USERDEFS_VM_SPRITE, 0, 0 },
     { "vm_distance", USERDEFS_VM_DISTANCE, 0, 0 },
+    { "soundtoggle", USERDEFS_SOUNDTOGGLE, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
