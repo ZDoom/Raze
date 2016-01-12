@@ -243,9 +243,6 @@ then
     echo svn update -r $head
     svn update -r $head
 
-    # throw the svn revision into a header.
-    echo "s_buildRev = \"r$head\";" > source/rev.h
-
     # export the source tree into the output directory
     svn export . $output/$date-$head/${basename}_$date-$head
     echo svn export . $output/$date-$head/${basename}_$date-$head
@@ -259,14 +256,12 @@ then
         rm -r ${basename}_$date-$head/$i
     done
 
+    # throw the svn revision into a file the Makefile will read
+    echo "$head" > EDUKE32_REVISION
+
     echo tar cJf ${basename}_src_$date-$head.tar.xz ${basename}_$date-$head
     tar cJf ${basename}_src_$date-$head.tar.xz ${basename}_$date-$head
     rm -r ${basename}_$date-$head
-
-    # clean up the revision header
-    cd $top/$source
-    echo svn revert "source/rev.h"
-    svn revert "source/rev.h"
 
     # output the changelog since last snapshot in the output directory
     if [ $lastrevision ]
