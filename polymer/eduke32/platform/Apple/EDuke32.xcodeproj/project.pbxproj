@@ -379,13 +379,6 @@
 		00970E3219F2076B00873EB9 /* libvpx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E2219F2076B00873EB9 /* libvpx.a */; };
 		00970E3419F207F000873EB9 /* a-c.c in Sources */ = {isa = PBXBuildFile; fileRef = 00970E3319F207F000873EB9 /* a-c.c */; };
 		00970E3919F20A7600873EB9 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 0008E90119F1AC540091588D /* SDLMain.m */; };
-		00970E3A19F20AA900873EB9 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1D19F2076B00873EB9 /* libpng.a */; };
-		00970E3B19F20AA900873EB9 /* libSDL2_mixer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1E19F2076B00873EB9 /* libSDL2_mixer.a */; };
-		00970E3C19F20AA900873EB9 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1F19F2076B00873EB9 /* libSDL2.a */; };
-		00970E3D19F20AB100873EB9 /* libFLAC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1B19F2076B00873EB9 /* libFLAC.a */; };
-		00970E3E19F20AB100873EB9 /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1C19F2076B00873EB9 /* libogg.a */; };
-		00970E3F19F20AB100873EB9 /* libvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E2019F2076B00873EB9 /* libvorbis.a */; };
-		00970E4019F20AB100873EB9 /* libvorbisfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E2119F2076B00873EB9 /* libvorbisfile.a */; };
 		00970E4619F20F7E00873EB9 /* libBUILD.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0008E6B719F1A9260091588D /* libBUILD.a */; };
 		00970E4719F20F7E00873EB9 /* libMACT.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0008E6C219F1A9AF0091588D /* libMACT.a */; };
 		00970E4819F20F7E00873EB9 /* libAudioLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0008E6CA19F1AAA30091588D /* libAudioLib.a */; };
@@ -863,9 +856,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00970E3B19F20AA900873EB9 /* libSDL2_mixer.a in Frameworks */,
-				00970E3A19F20AA900873EB9 /* libpng.a in Frameworks */,
-				00970E3C19F20AA900873EB9 /* libSDL2.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -880,10 +870,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00970E3F19F20AB100873EB9 /* libvorbis.a in Frameworks */,
-				00970E3D19F20AB100873EB9 /* libFLAC.a in Frameworks */,
-				00970E4019F20AB100873EB9 /* libvorbisfile.a in Frameworks */,
-				00970E3E19F20AB100873EB9 /* libogg.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
