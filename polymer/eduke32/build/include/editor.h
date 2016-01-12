@@ -190,7 +190,7 @@ extern void clearkeys(void);
 
 extern const char *ExtGetVer(void);
 extern int32_t ExtInit(void);
-extern int32_t ExtPreInit(int32_t argc,const char **argv);
+extern int32_t ExtPreInit(int32_t argc,char const * const * argv);
 extern int32_t ExtPostStartupWindow(void);
 extern void ExtPostInit(void);
 extern void ExtUnInit(void);

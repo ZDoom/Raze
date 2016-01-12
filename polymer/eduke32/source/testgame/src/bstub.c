@@ -86,7 +86,7 @@ const char *ExtGetVer(void)
     return s_buildRev;
 }
 
-int32_t ExtPreInit(int32_t argc,const char **argv)
+int32_t ExtPreInit(int32_t argc,char const * const * argv)
 {
     UNREFERENCED_PARAMETER(argc);
     UNREFERENCED_PARAMETER(argv);

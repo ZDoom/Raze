@@ -34,7 +34,7 @@ static char kensig[64];
 
 static const char *CallExtGetVer(void);
 static int32_t CallExtInit(void);
-static int32_t CallExtPreInit(int32_t argc,const char **argv);
+static int32_t CallExtPreInit(int32_t argc,char const * const * argv);
 static int32_t CallExtPostStartupWindow(void);
 static void CallExtPostInit(void);
 static void CallExtUnInit(void);
@@ -567,7 +567,7 @@ static void M32_FatalEngineError(void)
     exit(2);
 }
 
-int32_t app_main(int32_t argc, const char **argv)
+int32_t app_main(int32_t argc, char const * const * argv)
 {
 #ifdef STARTUP_SETUP_WINDOW
     char cmdsetup = 0;
@@ -11026,7 +11026,7 @@ static int32_t CallExtInit(void)
 {
     return ExtInit();
 }
-static int32_t CallExtPreInit(int32_t argc,const char **argv)
+static int32_t CallExtPreInit(int32_t argc,char const * const * argv)
 {
     return ExtPreInit(argc, argv);
 }

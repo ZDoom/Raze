@@ -88,7 +88,7 @@ int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens)
 
 //////////
 
-int32_t G_CheckCmdSwitch(int32_t argc, const char **argv, const char *str)
+int32_t G_CheckCmdSwitch(int32_t argc, char const * const * argv, const char *str)
 {
     int32_t i;
     for (i=0; i<argc; i++)

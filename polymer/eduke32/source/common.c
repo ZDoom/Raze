@@ -254,7 +254,7 @@ int32_t usecwd;
 static void G_LoadAddon(void);
 int32_t g_groupFileHandle;
 
-void G_ExtPreInit(int32_t argc,const char **argv)
+void G_ExtPreInit(int32_t argc,char const * const * argv)
 {
     usecwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
 

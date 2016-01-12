@@ -88,7 +88,7 @@ static inline void realloc_copy(char **fn, const char *buf)
 
 int32_t getatoken(scriptfile *sf, const tokenlist *tl, int32_t ntokens);
 
-int32_t G_CheckCmdSwitch(int32_t argc, const char **argv, const char *str);
+int32_t G_CheckCmdSwitch(int32_t argc, char const * const * argv, const char *str);
 
 int32_t testkopen(const char *filename, char searchfirst);  // full-blown kopen4load
 int32_t check_file_exist(const char *fn);  // findfrompath with pathsearchmode=1 / search in zips

@@ -9918,7 +9918,7 @@ static void G_AddDemo(const char* param)
     }
 }
 
-static void G_CheckCommandLine(int32_t argc, const char **argv)
+static void G_CheckCommandLine(int32_t argc, char const * const * argv)
 {
     int16_t i = 1, j;
     const char *c, *k;
@@ -11451,7 +11451,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)==128);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
-int32_t app_main(int32_t argc, const char **argv)
+int32_t app_main(int32_t argc, char const * const * argv)
 {
     int32_t i = 0, j;
 

@@ -449,7 +449,7 @@ static void Ken_FatalEngineError(void)
     buildprintf("There was a problem initialising the engine: %s.\n", engineerrstr);
 }
 
-int32_t app_main(int32_t argc, const char **argv)
+int32_t app_main(int32_t argc, char const * const * argv)
 {
 #if defined STARTUP_SETUP_WINDOW
     int cmdsetup = 0;

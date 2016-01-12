@@ -906,7 +906,7 @@ static void SW_FatalEngineError(void)
 }
 
 void
-InitGame(int32_t argc, const char **argv)
+InitGame(int32_t argc, char const * const * argv)
 {
     extern int MovesPerPacket;
     //void *ReserveMem=NULL;
@@ -2879,7 +2879,7 @@ GameIntro(void)
 }
 
 void
-Control(int32_t argc, const char **argv)
+Control(int32_t argc, char const * const * argv)
 {
 
     InitGame(argc, argv);
@@ -3371,7 +3371,7 @@ int DetectShareware(void)
 }
 
 
-void CommandLineHelp(const char **argv)
+void CommandLineHelp(char const * const * argv)
 {
     int i;
 #ifdef RENDERTYPEWIN
@@ -3418,7 +3418,7 @@ void CommandLineHelp(const char **argv)
 #endif
 }
 
-int32_t app_main(int32_t argc, const char **argv)
+int32_t app_main(int32_t argc, char const * const * argv)
 {
     int i;
     int stat, nexti;

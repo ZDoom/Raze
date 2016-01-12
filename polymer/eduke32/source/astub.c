@@ -8002,7 +8002,7 @@ extern char forcegl;
 const char **g_argv;
 #endif
 
-static void G_CheckCommandLine(int32_t argc, const char **argv)
+static void G_CheckCommandLine(int32_t argc, char const * const * argv)
 {
     int32_t i = 1, j, maxlen=0, *lengths;
     const char *c, *k;
@@ -8388,7 +8388,7 @@ static int32_t check_filename_casing(void)
 }
 #endif
 
-int32_t ExtPreInit(int32_t argc,const char **argv)
+int32_t ExtPreInit(int32_t argc,char const * const * argv)
 {
 #if defined(_WIN32) && defined(DEBUGGINGAIDS)
     {

@@ -437,7 +437,7 @@ int32_t main(int32_t argc, char *argv[])
 
     r = app_main(buildargc, (const char **)buildargv);
 #else
-    r = app_main(argc, (const char **)argv);
+    r = app_main(argc, (char const * const *)argv);
 #endif
 
     startwin_close();
