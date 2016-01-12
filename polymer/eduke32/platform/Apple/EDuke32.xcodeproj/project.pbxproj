@@ -2269,6 +2269,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.eduke32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2382,6 +2384,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.eduke32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2501,6 +2505,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.mapster32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2614,6 +2620,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.mapster32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2724,6 +2732,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -2826,6 +2836,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -2931,6 +2943,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -3030,6 +3044,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -3134,6 +3150,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
@@ -3232,6 +3250,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -3369,6 +3389,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
@@ -3468,6 +3490,8 @@
 					"-DHAVE_SDL",
 					"-DUSING_LTO",
 					"-DNOASM",
+					"-DHAVE_VORBIS",
+					"-DHAVE_FLAC",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
