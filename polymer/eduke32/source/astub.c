@@ -8698,6 +8698,32 @@ static int32_t osdcmd_vars_pk(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
+    if (!Bstrcasecmp(parm->name, "pointhighlightdist"))
+    {
+        if (parm->numparms > 1)
+            return OSDCMD_SHOWHELP;
+
+        if (setval)
+            pointhighlightdist = atoi_safe(parm->parms[0]);
+
+        OSD_Printf("Point highlight distance: %d\n", pointhighlightdist);
+
+        return OSDCMD_OK;
+    }
+
+    if (!Bstrcasecmp(parm->name, "linehighlightdist"))
+    {
+        if (parm->numparms > 1)
+            return OSDCMD_SHOWHELP;
+
+        if (setval)
+            linehighlightdist = atoi_safe(parm->parms[0]);
+
+        OSD_Printf("Line highlight distance: %d\n", linehighlightdist);
+
+        return OSDCMD_OK;
+    }
+
     if (!Bstrcasecmp(parm->name, "corruptcheck"))
     {
         if (parm->numparms >= 1)
@@ -9101,6 +9127,8 @@ static int32_t registerosdcommands(void)
 
     //PK
     OSD_RegisterFunction("m32_2d3dmode", "2d3dmode: experimental 2d/3d hybrid mode", osdcmd_vars_pk);
+    OSD_RegisterFunction("pointhighlightdist", "pointhighlightdist: distance at which points are selected", osdcmd_vars_pk);
+    OSD_RegisterFunction("linehighlightdist", "linehighlightdist: distance at which lines are selected", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_turnaccel", "pk_turnaccel <value>: sets turning acceleration+deceleration", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_turndecel", "pk_turndecel <value>: sets turning deceleration", osdcmd_vars_pk);
     OSD_RegisterFunction("pk_uedaccel", "pk_uedaccel <value>: sets UnrealEd movement speed factor (0-5, exponentially)", osdcmd_vars_pk);

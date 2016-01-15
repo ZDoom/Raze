@@ -218,6 +218,9 @@ int32_t pk_uedaccel=3;
 int8_t keeptexturestretch = 1;
 int8_t sideview_reversehrot = 0;
 
+int16_t pointhighlightdist = 512;
+int16_t linehighlightdist = 1024;
+
 char lastpm16buf[156];
 
 //static int32_t checksectorpointer_warn = 0;
@@ -8531,7 +8534,7 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line, int8_t
     if (!ignore_pointhighlight && (pointhighlight&0xc000) == 16384)
         return -1;
 
-    dist = 1024;
+    dist = linehighlightdist;
     if (m32_sideview)
     {
         daxplc = searchx;
@@ -8593,7 +8596,7 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line, int8_t
 
 int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
 {
-    int32_t i, j, dst, dist = 512, closest = -1;
+    int32_t i, j, dst, dist = pointhighlightdist, closest = -1;
     int32_t dax,day;
     int32_t alwaysshowgray = get_alwaysshowgray();
 

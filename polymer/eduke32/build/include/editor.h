@@ -176,6 +176,7 @@ extern int32_t getscreenvdisp(int32_t bz, int32_t zoome);
 extern void setup_sideview_sincos(void);
 
 extern int8_t keeptexturestretch;
+extern int16_t pointhighlightdist, linehighlightdist;
 
 extern int32_t wallength(int16_t i);
 extern void fixrepeats(int16_t i);

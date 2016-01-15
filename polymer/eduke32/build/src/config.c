@@ -226,6 +226,12 @@ int32_t loadsetup(const char *fn)
     if (readconfig(fp, "pathsearchmode", val, VL) > 0)
         pathsearchmode = clamp(atoi_safe(val), 0, 1);
 
+    if (readconfig(fp, "pointhighlightdist", val, VL) > 0)
+        pointhighlightdist = atoi_safe(val);
+
+    if (readconfig(fp, "linehighlightdist", val, VL) > 0)
+        linehighlightdist = atoi_safe(val);
+
     if (readconfig(fp, "2d3dmode", val, VL) > 0)
         m32_2d3dmode = clamp(atoi_safe(val), 0, 1);
 
@@ -520,6 +526,10 @@ int32_t writesetup(const char *fn)
              "2d3d_x = %d\n"
              "2d3d_y = %d\n"
              "\n"
+             "; Point and line highlight/selection distances\n"
+             "pointhighlightdist = %d\n"
+             "linehighlightdist = %d\n"
+             "\n"
              "; TROR: Automatic grayout of plain (non-extended) sectors,\n"
              ";       toggled with Ctrl-A:\n"
              "autogray = %d\n"
@@ -635,6 +645,7 @@ int32_t writesetup(const char *fn)
              corruptcheck_heinum, fixmaponsave_sprites, keeptexturestretch,
              showheightindicators,showambiencesounds,pathsearchmode,
              m32_2d3dmode,m32_2d3dsize,m32_2d3d.x, m32_2d3d.y,
+             pointhighlightdist, linehighlightdist,
              autogray, //showinnergray,
              graphicsmode,
              MixRate,AmbienceToggle,ParentalLock, !!m32_osd_tryscript,
