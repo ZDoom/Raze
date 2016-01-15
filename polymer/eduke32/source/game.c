@@ -5054,40 +5054,12 @@ static actor_t NullActor;
 static spriteext_t NullSprExt;
 static spritesmooth_t NullSprSmooth;
 
-int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int32_t s_pn,int32_t s_s,
-                       int32_t s_xr,int32_t s_yr,int32_t s_a,int32_t s_ve,int32_t s_zv,int32_t s_ow,int32_t s_ss)
+int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int16_t s_pn,int8_t s_s,
+                       uint8_t s_xr,uint8_t s_yr,int16_t s_a,int16_t s_ve,int16_t s_zv,int16_t s_ow,int16_t s_ss)
 {
-    int32_t p;
-    int32_t i;
-    spritetype *s;
-    tspritetype spr_temp;
+    int32_t i = Net_IsRelevantStat(s_ss) ? Net_InsertSprite(whatsect, s_ss) : insertsprite(whatsect, s_ss);
 
-    // NetAlloc
-    if (Net_IsRelevantStat(s_ss))
-    {
-        i = Net_InsertSprite(whatsect,s_ss);
-    }
-    else
-    {
-        i = insertsprite(whatsect,s_ss);
-    }
-
-    memset(&spr_temp, 0, sizeof(spritetype));
-    spr_temp.x = s_x;
-    spr_temp.y = s_y;
-    spr_temp.z = s_z;
-    spr_temp.picnum = s_pn;
-    spr_temp.shade = s_s;
-    spr_temp.xrepeat = s_xr;
-    spr_temp.yrepeat = s_yr;
-    spr_temp.sectnum = whatsect;
-    spr_temp.statnum = s_ss;
-    spr_temp.ang = s_a;
-    spr_temp.owner = s_ow;
-    spr_temp.xvel = s_ve;
-    spr_temp.zvel = s_zv;
-
-    if (i < 0)
+    if (EDUKE32_PREDICT_FALSE(i) < 0)
     {
         G_DumpDebugInfo();
         OSD_Printf("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
@@ -5095,11 +5067,14 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
         G_GameExit("Too many sprites spawned.");
     }
 
+    tspritetype spr_temp = { s_x, s_y,      s_z,  0,   s_pn, s_s,  0, 0,    0, s_xr, s_yr, 0,
+                             0,   whatsect, s_ss, s_a, s_ow, s_ve, 0, s_zv, 0, 0,    0 };
+
 #ifdef DEBUGGINGAIDS
     g_spriteStat.numins++;
 #endif
 
-    s = &sprite[i];
+    spritetype *s = &sprite[i];
     *s = *(spritetype *)&spr_temp;
     actor[i] = NullActor;
     actor[i].bpos = *(vec3_t *) &s;
@@ -5113,8 +5088,6 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     actor[i].actorstayput = actor[i].extra = actor[i].lightId = -1;
     actor[i].owner = s_ow;
-
-    // sprpos[i].ang = sprpos[i].oldang = sprite[i].ang;
 
     G_InitActor(i, s_pn, 1);
 
@@ -5131,7 +5104,7 @@ int32_t A_InsertSprite(int32_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int3
 
     if (VM_HaveEvent(EVENT_EGS))
     {
-        int32_t pl=A_FindPlayer(s, &p);
+        int32_t p, pl = A_FindPlayer(s, &p);
 
         block_deletesprite++;
         VM_OnEventWithDist_(EVENT_EGS, i, pl, p);
