@@ -761,7 +761,7 @@ static void A_MoveSector(int i)
 
     for (i = sector[s->sectnum].wallptr; i < endwall; i++)
     {
-        vec2_t const v = { msx[j], msy[j] };
+        vec2_t const v = g_origins[j];
         vec2_t t;
         rotatepoint(zerovec, v, k & 2047, &t);
         dragpoint(i, s->x + t.x, s->y + t.y, 0);
@@ -1579,7 +1579,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                     case STAT_STANDABLE:
                     case STAT_PLAYER:
                     {
-                        vec3_t vect = { msx[t[4]+1], msy[t[4]+1], sprite[j].z };
+                        vec3_t vect = { g_origins[t[4]+1].x, g_origins[t[4]+1].y, sprite[j].z };
 
                         s->ang = getangle(vect.x-s->x, vect.y-s->y);
                         setsprite(j, &vect);
@@ -1680,7 +1680,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                     if ((sector[sect].floorz-s->z) > 8192)
                         s->picnum++;
 
-                if (s->z < msx[t[4]+2])
+                if (s->z < g_origins[t[4]+2].x)
                 {
                     t[0]++;
                     s->xvel = 0;
@@ -1692,9 +1692,9 @@ ACTOR_STATIC void G_MoveStandables(void)
             {
                 if (s->xvel < 192)
                     s->xvel += 8;
-                s->ang = getangle(msx[t[4]]-s->x,msy[t[4]]-s->y);
+                s->ang = getangle(g_origins[t[4]].x - s->x, g_origins[t[4]].y - s->y);
                 A_SetSprite(i,CLIPMASK0);
-                if (((s->x-msx[t[4]])*(s->x-msx[t[4]])+(s->y-msy[t[4]])*(s->y-msy[t[4]])) < (128*128))
+                if (((s->x-g_origins[t[4]].x)*(s->x-g_origins[t[4]].x)+(s->y-g_origins[t[4]].y)*(s->y-g_origins[t[4]].y)) < (128*128))
                     t[0]++;
             }
 
@@ -1705,7 +1705,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 vec3_t vect;
                 Bmemcpy(&vect,s,sizeof(vec3_t));
                 vect.z -= (34<<8);
-                setsprite(msy[t[4]+2],&vect);
+                setsprite(g_origins[t[4]+2].y, &vect);
             }
 
 

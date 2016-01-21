@@ -111,7 +111,7 @@ G_EXTERN int32_t g_scriptDebug;
 G_EXTERN int32_t g_showShareware;
 G_EXTERN int8_t g_numPlayerSprites;
 G_EXTERN int32_t g_tripbombLaserMode;
-G_EXTERN int32_t msx[2048],msy[2048];
+G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
 G_EXTERN int32_t neartaghitdist,lockclock,g_startArmorAmount;
 G_EXTERN int32_t playerswhenstarted;
 G_EXTERN int32_t screenpeek;

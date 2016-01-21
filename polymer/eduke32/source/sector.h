@@ -35,6 +35,7 @@ extern "C" {
 #define MAXCYCLERS      1024
 #define MAXANIMATES     1024
 #define MAXANIMWALLS    512
+#define MAXANIMPOINTS   2048
 
 #define VIEWSCREEN_ACTIVE_DISTANCE 8192
 
@@ -48,7 +49,7 @@ typedef struct {
     int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
     intptr_t animateptr[MAXANIMATES];
     int32_t lockclock;
-    int32_t msx[2048], msy[2048];
+    vec2_t origins[MAXANIMPOINTS];
     int32_t randomseed, g_globalRandom;
     int32_t pskyidx;
 

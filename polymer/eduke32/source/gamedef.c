@@ -4036,10 +4036,10 @@ DO_DEFSTATE:
             g_scriptPtr--;
             C_GetNextValue(LABEL_DEFINE);
             g_scriptPtr--;
-            if (EDUKE32_PREDICT_FALSE(*g_scriptPtr > BYTEVERSION_JF))
+            if (EDUKE32_PREDICT_FALSE(*g_scriptPtr > BYTEVERSION_EDUKE32))
             {
                 g_numCompilerWarnings++;
-                initprintf("%s:%d: warning: need build %d, found build %d\n",g_szScriptFileName,g_lineNumber,k,BYTEVERSION_JF);
+                initprintf("%s:%d: warning: need build %d, found build %d\n",g_szScriptFileName,g_lineNumber,k,BYTEVERSION_EDUKE32);
             }
             continue;
 

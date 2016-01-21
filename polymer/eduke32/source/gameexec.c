@@ -5727,8 +5727,7 @@ void G_SaveMapState(void)
     Bmemcpy(&save->SpriteDeletionQueue[0],&SpriteDeletionQueue[0],sizeof(SpriteDeletionQueue));
     Bmemcpy(&save->g_spriteDeleteQueuePos,&g_spriteDeleteQueuePos,sizeof(g_spriteDeleteQueuePos));
     Bmemcpy(&save->animwall[0],&animwall[0],sizeof(animwall));
-    Bmemcpy(&save->msx[0],&msx[0],sizeof(msx));
-    Bmemcpy(&save->msy[0],&msy[0],sizeof(msy));
+    Bmemcpy(&save->origins[0],&g_origins[0],sizeof(g_origins));
     Bmemcpy(&save->g_mirrorWall[0],&g_mirrorWall[0],sizeof(g_mirrorWall));
     Bmemcpy(&save->g_mirrorSector[0],&g_mirrorSector[0],sizeof(g_mirrorSector));
     Bmemcpy(&save->g_mirrorCount,&g_mirrorCount,sizeof(g_mirrorCount));
@@ -5851,8 +5850,7 @@ void G_RestoreMapState(void)
         Bmemcpy(&SpriteDeletionQueue[0],&save->SpriteDeletionQueue[0],sizeof(SpriteDeletionQueue));
         Bmemcpy(&g_spriteDeleteQueuePos,&save->g_spriteDeleteQueuePos,sizeof(g_spriteDeleteQueuePos));
         Bmemcpy(&animwall[0],&save->animwall[0],sizeof(animwall));
-        Bmemcpy(&msx[0],&save->msx[0],sizeof(msx));
-        Bmemcpy(&msy[0],&save->msy[0],sizeof(msy));
+        Bmemcpy(&g_origins[0],&save->origins[0],sizeof(g_origins));
         Bmemcpy(&g_mirrorWall[0],&save->g_mirrorWall[0],sizeof(g_mirrorWall));
         Bmemcpy(&g_mirrorSector[0],&save->g_mirrorSector[0],sizeof(g_mirrorSector));
         Bmemcpy(&g_mirrorCount,&save->g_mirrorCount,sizeof(g_mirrorCount));

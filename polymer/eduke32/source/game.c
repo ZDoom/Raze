@@ -5988,28 +5988,23 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             sp->z = sector[sect].ceilingz+(48<<8);
             T5 = tempwallptr;
 
-            msx[tempwallptr] = sp->x;
-            msy[tempwallptr] = sp->y;
-            msx[tempwallptr+2] = sp->z;
+            g_origins[tempwallptr] = *(vec2_t *) sp;
+            g_origins[tempwallptr+2].x = sp->z;
 
             s = headspritestat[STAT_DEFAULT];
             while (s >= 0)
             {
                 if (sprite[s].picnum == CRANEPOLE && SHT == (sprite[s].hitag))
                 {
-                    msy[tempwallptr+2] = s;
+                    g_origins[tempwallptr+2].y = s;
 
                     T2 = sprite[s].sectnum;
 
                     sprite[s].xrepeat = 48;
                     sprite[s].yrepeat = 128;
 
-                    msx[tempwallptr+1] = sprite[s].x;
-                    msy[tempwallptr+1] = sprite[s].y;
-
-                    sprite[s].x = sp->x;
-                    sprite[s].y = sp->y;
-                    sprite[s].z = sp->z;
+                    g_origins[tempwallptr+1] = *(vec2_t *)&sprite[s];
+                    *(vec3_t *) &sprite[s] = *(vec3_t *) sp;
                     sprite[s].shade = sp->shade;
 
                     setsprite(s,(vec3_t *)&sprite[s]);
@@ -6887,10 +6882,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 T2 = tempwallptr;
                 for (s=startwall; s<endwall; s++)
                 {
-                    msx[tempwallptr] = wall[s].x-sp->x;
-                    msy[tempwallptr] = wall[s].y-sp->y;
+                    g_origins[tempwallptr].x = wall[s].x-sp->x;
+                    g_origins[tempwallptr].y = wall[s].y-sp->y;
+
                     tempwallptr++;
-                    if (EDUKE32_PREDICT_FALSE(tempwallptr > 2047))
+                    if (EDUKE32_PREDICT_FALSE(tempwallptr >= MAXANIMPOINTS))
                     {
                         Bsprintf(tempbuf, "Too many moving sectors at (%d,%d).\n",
                                         TrackerCast(wall[s].x),TrackerCast(wall[s].y));
@@ -11593,7 +11589,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
     G_ScanGroups();
 
 #ifdef STARTUP_SETUP_WINDOW
-    if (i < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_JF || ud.config.ForceSetup)) || g_commandSetup)
+    if (i < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_EDUKE32 || ud.config.ForceSetup)) || g_commandSetup)
     {
         if (quitevent || !startwin_run())
         {

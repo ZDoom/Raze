@@ -54,16 +54,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 #ifdef LUNATIC
 // Lunatic
-# define BYTEVERSION_JF      303
+# define BYTEVERSION_EDUKE32      306
 #else
 // Non-Lua build
-# define BYTEVERSION_JF      303
+# define BYTEVERSION_EDUKE32      306
 #endif
 
 //#define BYTEVERSION_13      27
 //#define BYTEVERSION_14      116
 //#define BYTEVERSION_15      117
-#define BYTEVERSION         (BYTEVERSION_JF+(PLUTOPAK?1:(VOLUMEONE<<1)))
+#define BYTEVERSION         (BYTEVERSION_EDUKE32+(PLUTOPAK?1:(VOLUMEONE<<1)))
 
 #define NUMPAGES            1
 
