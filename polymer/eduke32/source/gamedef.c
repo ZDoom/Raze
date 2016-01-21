@@ -574,6 +574,7 @@ const char *keyw[] =
     "ifvarle",                  // 392
     "ifvarge",                  // 393
     "ifvarboth",                // 394
+    "movesector",               // 395
     "<null>"
 };
 #endif
@@ -4012,6 +4013,7 @@ DO_DEFSTATE:
         case CON_SETMUSICPOSITION:
         case CON_STARTCUTSCENE:
         case CON_RESETPLAYERFLAGS:
+        case CON_MOVESECTOR:
             C_GetNextVar();
             continue;
 

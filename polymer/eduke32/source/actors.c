@@ -745,7 +745,7 @@ static int32_t move_rotfixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
     return 1;
 }
 
-static void A_MoveSector(int i)
+void A_MoveSector(int i)
 {
     // T1,T2 and T3 are used for all the sector moving stuff!!!
 

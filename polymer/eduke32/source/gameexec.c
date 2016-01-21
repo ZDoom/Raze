@@ -2554,6 +2554,11 @@ nullquote:
             G_InitTimer(Gv_GetVarX(*insptr++));
             continue;
 
+        case CON_MOVESECTOR:
+            insptr++;
+            A_MoveSector(Gv_GetVarX(*insptr++));
+            continue;
+
         case CON_TIME:
             insptr += 2;
             continue;
