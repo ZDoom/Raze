@@ -6157,6 +6157,43 @@ static char const * C_ScriptVersionString(int32_t version)
     }
 }
 
+void C_PrintStats(void)
+{
+    initprintf("%d/%d labels, %d/%d variables, %d/%d arrays\n", g_numLabels,
+        (int32_t) min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
+            MAXSPRITES * sizeof(spritetype)/(1<<6)),
+        g_gameVarCount, MAXGAMEVARS, g_gameArrayCount, MAXGAMEARRAYS);
+
+    if (g_numQuoteRedefinitions)
+        initprintf("%d strings, ", g_numQuoteRedefinitions);
+
+    int i, j;
+
+    for (i=MAXQUOTES-1, j=0; i>=0; i--)
+    {
+        if (ScriptQuotes[i])
+            j++;
+    }
+
+    if (j) initprintf("%d quotes, ", j);
+
+    for (i=MAXGAMEEVENTS-1, j=0; i>=0; i--)
+    {
+        if (apScriptGameEvent[i])
+            j++;
+    }
+    if (j) initprintf("%d events, ", j);
+
+    for (i=MAXTILES-1, j=0; i>=0; i--)
+    {
+        if (g_tile[i].execPtr)
+            j++;
+    }
+    if (j) initprintf("%d actors", j);
+
+    initprintf("\n");
+}
+
 void C_Compile(const char *filenam)
 {
     int32_t i;
@@ -6315,41 +6352,7 @@ void C_Compile(const char *filenam)
         freesoundhashnames();
 
         if (g_scriptDebug)
-        {
-            initprintf("%d/%d labels, %d/%d variables, %d/%d arrays\n", g_numLabels,
-                (int32_t) min((MAXSECTORS * sizeof(sectortype)/sizeof(int32_t)),
-                    MAXSPRITES * sizeof(spritetype)/(1<<6)),
-                g_gameVarCount, MAXGAMEVARS, g_gameArrayCount, MAXGAMEARRAYS);
-
-            if (g_numQuoteRedefinitions)
-                initprintf("%d strings, ", g_numQuoteRedefinitions);
-
-            int j;
-
-            for (i=MAXQUOTES-1, j=0; i>=0; i--)
-            {
-                if (ScriptQuotes[i])
-                    j++;
-            }
-
-            if (j) initprintf("%d quotes, ", j);
-
-            for (i=MAXGAMEEVENTS-1, j=0; i>=0; i--)
-            {
-                if (apScriptGameEvent[i])
-                    j++;
-            }
-            if (j) initprintf("%d events, ", j);
-
-            for (i=MAXTILES-1, j=0; i>=0; i--)
-            {
-                if (g_tile[i].execPtr)
-                    j++;
-            }
-            if (j) initprintf("%d actors", j);
-
-            initprintf("\n");
-        }
+            C_PrintStats();
 
         C_InitQuotes();
     }
