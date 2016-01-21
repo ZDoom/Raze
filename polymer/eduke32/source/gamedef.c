@@ -1358,13 +1358,10 @@ static int32_t C_SetScriptSize(int32_t newsize)
     return 0;
 }
 
-static int32_t ispecial(const char c)
+static inline int32_t ispecial(const char c)
 {
-    if (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
-            c == ',' || c == ';' || (c == 0x0a /*&& ++g_lineNumber*/))
-        return 1;
-
-    return 0;
+    return (c == ' ' || c == 0x0d || c == '(' || c == ')' ||
+        c == ',' || c == ';' || (c == 0x0a /*&& ++g_lineNumber*/));
 }
 
 static inline void C_NextLine(void)
@@ -1453,33 +1450,32 @@ static int32_t C_SkipComments(void)
 #define GetDefID(szGameLabel) hash_find(&h_gamevars,szGameLabel)
 #define GetADefID(szGameLabel) hash_find(&h_arrays,szGameLabel)
 
-static int32_t isaltok(const char c)
+static inline int32_t isaltok(const char c)
 {
-    return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '\\' ||
-            c == '*' || c == '-' || c == '_' || c == '.');
+    return (isalnum(c) || c == '{' || c == '}' || c == '/' || c == '\\' || c == '*' || c == '-' || c == '_' ||
+            c == '.');
 }
 
-static int32_t C_IsLabelChar(const char c, int32_t i)
+static inline int32_t C_IsLabelChar(const char c, int32_t const i)
 {
-    return (isalnum(c) || c=='_' || c=='*' || c=='?' ||
-            (i > 0 && (c=='+' || c=='-' || c=='.')));
+    return (isalnum(c) || c == '_' || c == '*' || c == '?' || (i > 0 && (c == '+' || c == '-' || c == '.')));
 }
 
-static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t *tH, const char *psz)
+static inline int32_t C_GetLabelNameID(const memberlabel_t *pLabel, hashtable_t const * const table, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the ID for the label, or -1
 
-    int32_t l = hash_findcase(tH,psz);
+    int32_t l = hash_findcase(table, psz);
     return (l >= 0) ? pLabel[l].lId : -1;
 }
 
-static inline int32_t C_GetLabelNameOffset(hashtable_t *tH, const char *psz)
+static inline int32_t C_GetLabelNameOffset(hashtable_t const * const table, const char *psz)
 {
     // find the label psz in the table pLabel.
     // returns the offset in the array for the label, or -1
 
-    return hash_findcase(tH,psz);
+    return hash_findcase(table, psz);
 }
 
 static void C_GetNextLabelName(void)
@@ -1491,6 +1487,7 @@ static void C_GetNextLabelName(void)
 //    while (ispecial(*textptr) == 0 && *textptr!='['&& *textptr!=']' && *textptr!='\t' && *textptr!='\n' && *textptr!='\r')
     while (C_IsLabelChar(*textptr, i))
         label[(g_numLabels<<6)+(i++)] = *(textptr++);
+
     label[(g_numLabels<<6)+i] = 0;
 
     if (!(g_numCompilerErrors|g_numCompilerWarnings) && g_scriptDebug > 1)
