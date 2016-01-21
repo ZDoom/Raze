@@ -1250,27 +1250,25 @@ static hashtable_t h_tsprite    = { ACTOR_END>>1, NULL };
 static hashtable_t h_tiledata   = { TILEDATA_END>>1, NULL };
 static hashtable_t h_paldata    = { PALDATA_END>>1, NULL };
 
+static hashtable_t * const tables[] = {
+    &h_gamevars,   &h_arrays, &h_labels, &h_keywords, &h_sector,  &h_wall,     &h_userdef,
+    &h_projectile, &h_player, &h_input,  &h_actor,    &h_tsprite, &h_tiledata, &h_paldata
+};
+
+static hashtable_t * const tables_free [] ={
+    &h_labels, &h_keywords, &h_sector,  &h_wall,     &h_userdef,
+    &h_projectile, &h_player, &h_input,  &h_actor,    &h_tsprite, &h_tiledata, &h_paldata
+};
+
 void C_InitHashes()
 {
-    int32_t i;
+    uint32_t i;
 
-    hash_init(&h_gamevars);
-    hash_init(&h_arrays);
-    hash_init(&h_labels);
+    for (i=0; i < ARRAY_SIZE(tables)-1; i++)
+        hash_init(tables[i]);
+
     inithashnames();
     initsoundhashnames();
-
-    hash_init(&h_keywords);
-    hash_init(&h_sector);
-    hash_init(&h_wall);
-    hash_init(&h_userdef);
-    hash_init(&h_projectile);
-    hash_init(&h_player);
-    hash_init(&h_input);
-    hash_init(&h_actor);
-    hash_init(&h_tsprite);
-    hash_init(&h_tiledata);
-    hash_init(&h_paldata);
 
     for (i=0; i<NUMKEYWORDS; i++) hash_add(&h_keywords,keyw[i],i,0);
     for (i=0; i<NUMALTKEYWORDS; i++) hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val, 0);
@@ -6310,20 +6308,11 @@ void C_Compile(const char *filenam)
         initprintf("Script compiled in %dms, %ld bytes%s\n", getticks() - startcompiletime,
                    (unsigned long)(g_scriptPtr-script), C_ScriptVersionString(g_scriptVersion));
 
-        hash_free(&h_labels);
-        hash_free(&h_keywords);
+        for (i=0; (unsigned)i < ARRAY_SIZE(tables_free)-1; i++)
+            hash_free(tables_free[i]);
+
         freehashnames();
         freesoundhashnames();
-
-        hash_free(&h_sector);
-        hash_free(&h_wall);
-        hash_free(&h_userdef);
-
-        hash_free(&h_projectile);
-        hash_free(&h_player);
-        hash_free(&h_input);
-        hash_free(&h_actor);
-        hash_free(&h_tsprite);
 
         if (g_scriptDebug)
         {
