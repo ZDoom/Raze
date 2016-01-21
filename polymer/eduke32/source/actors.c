@@ -5630,6 +5630,14 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
         const int32_t nexti = nextspritestat[i];
         spritetype *const s = &sprite[i];
 
+        int32_t p, pl = A_FindPlayer(s, &p);
+
+        if (VM_OnEventWithBoth(EVENT_MOVEEFFECTORS, i, pl, p, 0))
+        {
+            i = nexti;
+            continue;
+        }
+
         sectortype *const sc = &sector[s->sectnum];
         const int32_t st = s->lotag;
         const int32_t sh = s->hitag;
