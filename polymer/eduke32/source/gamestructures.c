@@ -306,38 +306,40 @@ int32_t __fastcall VM_GetActiveProjectile(register int32_t const iActor, registe
         return -1;
     }
 
+    projectile_t * const p = &SpriteProjectile[iActor];
+
     switch (lLabelID)
     {
-        case PROJ_WORKSLIKE: lLabelID = SpriteProjectile[iActor].workslike; break;
-        case PROJ_SPAWNS: lLabelID = SpriteProjectile[iActor].spawns; break;
-        case PROJ_SXREPEAT: lLabelID = SpriteProjectile[iActor].sxrepeat; break;
-        case PROJ_SYREPEAT: lLabelID = SpriteProjectile[iActor].syrepeat; break;
-        case PROJ_SOUND: lLabelID = SpriteProjectile[iActor].sound; break;
-        case PROJ_ISOUND: lLabelID = SpriteProjectile[iActor].isound; break;
-        case PROJ_VEL: lLabelID = SpriteProjectile[iActor].vel; break;
-        case PROJ_EXTRA: lLabelID = SpriteProjectile[iActor].extra; break;
-        case PROJ_DECAL: lLabelID = SpriteProjectile[iActor].decal; break;
-        case PROJ_TRAIL: lLabelID = SpriteProjectile[iActor].trail; break;
-        case PROJ_TXREPEAT: lLabelID = SpriteProjectile[iActor].txrepeat; break;
-        case PROJ_TYREPEAT: lLabelID = SpriteProjectile[iActor].tyrepeat; break;
-        case PROJ_TOFFSET: lLabelID = SpriteProjectile[iActor].toffset; break;
-        case PROJ_TNUM: lLabelID = SpriteProjectile[iActor].tnum; break;
-        case PROJ_DROP: lLabelID = SpriteProjectile[iActor].drop; break;
-        case PROJ_CSTAT: lLabelID = SpriteProjectile[iActor].cstat; break;
-        case PROJ_CLIPDIST: lLabelID = SpriteProjectile[iActor].clipdist; break;
-        case PROJ_SHADE: lLabelID = SpriteProjectile[iActor].shade; break;
-        case PROJ_XREPEAT: lLabelID = SpriteProjectile[iActor].xrepeat; break;
-        case PROJ_YREPEAT: lLabelID = SpriteProjectile[iActor].yrepeat; break;
-        case PROJ_PAL: lLabelID = SpriteProjectile[iActor].pal; break;
-        case PROJ_EXTRA_RAND: lLabelID = SpriteProjectile[iActor].extra_rand; break;
-        case PROJ_HITRADIUS: lLabelID = SpriteProjectile[iActor].hitradius; break;
-        case PROJ_MOVECNT: lLabelID = SpriteProjectile[iActor].movecnt; break;
-        case PROJ_OFFSET: lLabelID = SpriteProjectile[iActor].offset; break;
-        case PROJ_BOUNCES: lLabelID = SpriteProjectile[iActor].bounces; break;
-        case PROJ_BSOUND: lLabelID = SpriteProjectile[iActor].bsound; break;
-        case PROJ_RANGE: lLabelID = SpriteProjectile[iActor].range; break;
-        case PROJ_FLASH_COLOR: lLabelID = SpriteProjectile[iActor].flashcolor; break;
-        case PROJ_USERDATA: lLabelID = SpriteProjectile[iActor].userdata; break;
+        case PROJ_WORKSLIKE: lLabelID = p->workslike; break;
+        case PROJ_SPAWNS: lLabelID = p->spawns; break;
+        case PROJ_SXREPEAT: lLabelID = p->sxrepeat; break;
+        case PROJ_SYREPEAT: lLabelID = p->syrepeat; break;
+        case PROJ_SOUND: lLabelID = p->sound; break;
+        case PROJ_ISOUND: lLabelID = p->isound; break;
+        case PROJ_VEL: lLabelID = p->vel; break;
+        case PROJ_EXTRA: lLabelID = p->extra; break;
+        case PROJ_DECAL: lLabelID = p->decal; break;
+        case PROJ_TRAIL: lLabelID = p->trail; break;
+        case PROJ_TXREPEAT: lLabelID = p->txrepeat; break;
+        case PROJ_TYREPEAT: lLabelID = p->tyrepeat; break;
+        case PROJ_TOFFSET: lLabelID = p->toffset; break;
+        case PROJ_TNUM: lLabelID = p->tnum; break;
+        case PROJ_DROP: lLabelID = p->drop; break;
+        case PROJ_CSTAT: lLabelID = p->cstat; break;
+        case PROJ_CLIPDIST: lLabelID = p->clipdist; break;
+        case PROJ_SHADE: lLabelID = p->shade; break;
+        case PROJ_XREPEAT: lLabelID = p->xrepeat; break;
+        case PROJ_YREPEAT: lLabelID = p->yrepeat; break;
+        case PROJ_PAL: lLabelID = p->pal; break;
+        case PROJ_EXTRA_RAND: lLabelID = p->extra_rand; break;
+        case PROJ_HITRADIUS: lLabelID = p->hitradius; break;
+        case PROJ_MOVECNT: lLabelID = p->movecnt; break;
+        case PROJ_OFFSET: lLabelID = p->offset; break;
+        case PROJ_BOUNCES: lLabelID = p->bounces; break;
+        case PROJ_BSOUND: lLabelID = p->bsound; break;
+        case PROJ_RANGE: lLabelID = p->range; break;
+        case PROJ_FLASH_COLOR: lLabelID = p->flashcolor; break;
+        case PROJ_USERDATA: lLabelID = p->userdata; break;
         default: lLabelID = -1; break;
     }
 
@@ -353,46 +355,46 @@ void __fastcall VM_SetActiveProjectile(register int32_t const iActor, register i
         return;
     }
 
+    projectile_t * const p = &SpriteProjectile[iActor];
+
     switch (lLabelID)
     {
-        case PROJ_WORKSLIKE: SpriteProjectile[iActor].workslike = iSet; break;
-        case PROJ_SPAWNS: SpriteProjectile[iActor].spawns = iSet; break;
-        case PROJ_SXREPEAT: SpriteProjectile[iActor].sxrepeat = iSet; break;
-        case PROJ_SYREPEAT: SpriteProjectile[iActor].syrepeat = iSet; break;
-        case PROJ_SOUND: SpriteProjectile[iActor].sound = iSet; break;
-        case PROJ_ISOUND: SpriteProjectile[iActor].isound = iSet; break;
-        case PROJ_VEL: SpriteProjectile[iActor].vel = iSet; break;
-        case PROJ_EXTRA: SpriteProjectile[iActor].extra = iSet; break;
-        case PROJ_DECAL: SpriteProjectile[iActor].decal = iSet; break;
-        case PROJ_TRAIL: SpriteProjectile[iActor].trail = iSet; break;
-        case PROJ_TXREPEAT: SpriteProjectile[iActor].txrepeat = iSet; break;
-        case PROJ_TYREPEAT: SpriteProjectile[iActor].tyrepeat = iSet; break;
-        case PROJ_TOFFSET: SpriteProjectile[iActor].toffset = iSet; break;
-        case PROJ_TNUM: SpriteProjectile[iActor].tnum = iSet; break;
-        case PROJ_DROP: SpriteProjectile[iActor].drop = iSet; break;
-        case PROJ_CSTAT: SpriteProjectile[iActor].cstat = iSet; break;
-        case PROJ_CLIPDIST: SpriteProjectile[iActor].clipdist = iSet; break;
-        case PROJ_SHADE: SpriteProjectile[iActor].shade = iSet; break;
-        case PROJ_XREPEAT: SpriteProjectile[iActor].xrepeat = iSet; break;
-        case PROJ_YREPEAT: SpriteProjectile[iActor].yrepeat = iSet; break;
-        case PROJ_PAL: SpriteProjectile[iActor].pal = iSet; break;
-        case PROJ_EXTRA_RAND: SpriteProjectile[iActor].extra_rand = iSet; break;
-        case PROJ_HITRADIUS: SpriteProjectile[iActor].hitradius = iSet; break;
-        case PROJ_MOVECNT: SpriteProjectile[iActor].movecnt = iSet; break;
-        case PROJ_OFFSET: SpriteProjectile[iActor].offset = iSet; break;
-        case PROJ_BOUNCES: SpriteProjectile[iActor].bounces = iSet; break;
-        case PROJ_BSOUND: SpriteProjectile[iActor].bsound = iSet; break;
-        case PROJ_RANGE: SpriteProjectile[iActor].range = iSet; break;
-        case PROJ_FLASH_COLOR: SpriteProjectile[iActor].flashcolor = iSet; break;
-        case PROJ_USERDATA: SpriteProjectile[iActor].userdata = iSet; break;
+        case PROJ_WORKSLIKE: p->workslike = iSet; break;
+        case PROJ_SPAWNS: p->spawns = iSet; break;
+        case PROJ_SXREPEAT: p->sxrepeat = iSet; break;
+        case PROJ_SYREPEAT: p->syrepeat = iSet; break;
+        case PROJ_SOUND: p->sound = iSet; break;
+        case PROJ_ISOUND: p->isound = iSet; break;
+        case PROJ_VEL: p->vel = iSet; break;
+        case PROJ_EXTRA: p->extra = iSet; break;
+        case PROJ_DECAL: p->decal = iSet; break;
+        case PROJ_TRAIL: p->trail = iSet; break;
+        case PROJ_TXREPEAT: p->txrepeat = iSet; break;
+        case PROJ_TYREPEAT: p->tyrepeat = iSet; break;
+        case PROJ_TOFFSET: p->toffset = iSet; break;
+        case PROJ_TNUM: p->tnum = iSet; break;
+        case PROJ_DROP: p->drop = iSet; break;
+        case PROJ_CSTAT: p->cstat = iSet; break;
+        case PROJ_CLIPDIST: p->clipdist = iSet; break;
+        case PROJ_SHADE: p->shade = iSet; break;
+        case PROJ_XREPEAT: p->xrepeat = iSet; break;
+        case PROJ_YREPEAT: p->yrepeat = iSet; break;
+        case PROJ_PAL: p->pal = iSet; break;
+        case PROJ_EXTRA_RAND: p->extra_rand = iSet; break;
+        case PROJ_HITRADIUS: p->hitradius = iSet; break;
+        case PROJ_MOVECNT: p->movecnt = iSet; break;
+        case PROJ_OFFSET: p->offset = iSet; break;
+        case PROJ_BOUNCES: p->bounces = iSet; break;
+        case PROJ_BSOUND: p->bsound = iSet; break;
+        case PROJ_RANGE: p->range = iSet; break;
+        case PROJ_FLASH_COLOR: p->flashcolor = iSet; break;
+        case PROJ_USERDATA: p->userdata = iSet; break;
         default: break;
     }
 }
 
 int32_t __fastcall VM_GetPlayer(register int32_t const iPlayer, register int32_t lLabelID, register int32_t const lParm2)
 {
-    DukePlayer_t *const ps = g_player[iPlayer].ps;
-
     if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
     {
         CON_ERRPRINTF("tried to get %s on invalid target player (%d) from spr %d\n",
@@ -407,6 +409,8 @@ int32_t __fastcall VM_GetPlayer(register int32_t const iPlayer, register int32_t
                       PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
         return -1;
     }
+
+    DukePlayer_t *const ps = g_player[iPlayer].ps;
 
     switch (lLabelID)
     {
@@ -575,7 +579,6 @@ int32_t __fastcall VM_GetPlayer(register int32_t const iPlayer, register int32_t
 
 void __fastcall VM_SetPlayer(register int32_t const iPlayer, register int32_t const lLabelID, register int32_t const lParm2, register int32_t const iSet)
 {
-    DukePlayer_t * const ps = g_player[iPlayer].ps;
 
     if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
     {
@@ -591,6 +594,8 @@ void __fastcall VM_SetPlayer(register int32_t const iPlayer, register int32_t co
                       PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
         return;
     }
+
+    DukePlayer_t * const ps = g_player[iPlayer].ps;
 
     switch (lLabelID)
     {
@@ -775,14 +780,16 @@ int32_t __fastcall VM_GetPlayerInput(register int32_t const iPlayer, register in
         return -1;
     }
 
+    input_t * const i = g_player[iPlayer].sync;
+
     switch (lLabelID)
     {
-        case INPUT_AVEL: lLabelID = g_player[iPlayer].sync->avel; break;
-        case INPUT_HORZ: lLabelID = g_player[iPlayer].sync->horz; break;
-        case INPUT_FVEL: lLabelID = g_player[iPlayer].sync->fvel; break;
-        case INPUT_SVEL: lLabelID = g_player[iPlayer].sync->svel; break;
-        case INPUT_BITS: lLabelID = g_player[iPlayer].sync->bits; break;
-        case INPUT_EXTBITS: lLabelID = g_player[iPlayer].sync->extbits; break;
+        case INPUT_AVEL: lLabelID = i->avel; break;
+        case INPUT_HORZ: lLabelID = i->horz; break;
+        case INPUT_FVEL: lLabelID = i->fvel; break;
+        case INPUT_SVEL: lLabelID = i->svel; break;
+        case INPUT_BITS: lLabelID = i->bits; break;
+        case INPUT_EXTBITS: lLabelID = i->extbits; break;
         default: lLabelID = -1; break;
     }
 
@@ -797,14 +804,16 @@ void __fastcall VM_SetPlayerInput(register int32_t const iPlayer, register int32
         return;
     }
 
+    input_t * const i = g_player[iPlayer].sync;
+
     switch (lLabelID)
     {
-        case INPUT_AVEL: g_player[iPlayer].sync->avel = iSet; break;
-        case INPUT_HORZ: g_player[iPlayer].sync->horz = iSet; break;
-        case INPUT_FVEL: g_player[iPlayer].sync->fvel = iSet; break;
-        case INPUT_SVEL: g_player[iPlayer].sync->svel = iSet; break;
-        case INPUT_BITS: g_player[iPlayer].sync->bits = iSet; break;
-        case INPUT_EXTBITS: g_player[iPlayer].sync->extbits = iSet; break;
+        case INPUT_AVEL: i->avel = iSet; break;
+        case INPUT_HORZ: i->horz = iSet; break;
+        case INPUT_FVEL: i->fvel = iSet; break;
+        case INPUT_SVEL: i->svel = iSet; break;
+        case INPUT_BITS: i->bits = iSet; break;
+        case INPUT_EXTBITS: i->extbits = iSet; break;
         default: break;
     }
 }
@@ -819,27 +828,29 @@ int32_t __fastcall VM_GetWall(register int32_t const iWall, register int32_t lLa
         return -1;
     }
 
+    walltype * const w = &wall[iWall];
+
     switch (lLabelID)
     {
-        case WALL_X: lLabelID = wall[iWall].x; break;
-        case WALL_Y: lLabelID = wall[iWall].y; break;
-        case WALL_POINT2: lLabelID = wall[iWall].point2; break;
-        case WALL_NEXTWALL: lLabelID = wall[iWall].nextwall; break;
-        case WALL_NEXTSECTOR: lLabelID = wall[iWall].nextsector; break;
-        case WALL_CSTAT: lLabelID = wall[iWall].cstat; break;
-        case WALL_PICNUM: lLabelID = wall[iWall].picnum; break;
-        case WALL_OVERPICNUM: lLabelID = wall[iWall].overpicnum; break;
-        case WALL_SHADE: lLabelID = wall[iWall].shade; break;
-        case WALL_PAL: lLabelID = wall[iWall].pal; break;
-        case WALL_XREPEAT: lLabelID = wall[iWall].xrepeat; break;
-        case WALL_YREPEAT: lLabelID = wall[iWall].yrepeat; break;
-        case WALL_XPANNING: lLabelID = wall[iWall].xpanning; break;
-        case WALL_YPANNING: lLabelID = wall[iWall].ypanning; break;
-        case WALL_LOTAG: lLabelID = (int16_t)wall[iWall].lotag; break;
-        case WALL_HITAG: lLabelID = (int16_t)wall[iWall].hitag; break;
-        case WALL_ULOTAG: lLabelID = wall[iWall].lotag; break;
-        case WALL_UHITAG: lLabelID = wall[iWall].hitag; break;
-        case WALL_EXTRA: lLabelID = wall[iWall].extra; break;
+        case WALL_X: lLabelID = w->x; break;
+        case WALL_Y: lLabelID = w->y; break;
+        case WALL_POINT2: lLabelID = w->point2; break;
+        case WALL_NEXTWALL: lLabelID = w->nextwall; break;
+        case WALL_NEXTSECTOR: lLabelID = w->nextsector; break;
+        case WALL_CSTAT: lLabelID = w->cstat; break;
+        case WALL_PICNUM: lLabelID = w->picnum; break;
+        case WALL_OVERPICNUM: lLabelID = w->overpicnum; break;
+        case WALL_SHADE: lLabelID = w->shade; break;
+        case WALL_PAL: lLabelID = w->pal; break;
+        case WALL_XREPEAT: lLabelID = w->xrepeat; break;
+        case WALL_YREPEAT: lLabelID = w->yrepeat; break;
+        case WALL_XPANNING: lLabelID = w->xpanning; break;
+        case WALL_YPANNING: lLabelID = w->ypanning; break;
+        case WALL_LOTAG: lLabelID = (int16_t)w->lotag; break;
+        case WALL_HITAG: lLabelID = (int16_t)w->hitag; break;
+        case WALL_ULOTAG: lLabelID = w->lotag; break;
+        case WALL_UHITAG: lLabelID = w->hitag; break;
+        case WALL_EXTRA: lLabelID = w->extra; break;
         default: lLabelID = -1;
     }
 
@@ -854,27 +865,29 @@ void __fastcall VM_SetWall(register int32_t const iWall, register int32_t const 
         return;
     }
 
+    walltype * const w = &wall[iWall];
+
     switch (lLabelID)
     {
-        case WALL_X: wall[iWall].x = iSet; break;
-        case WALL_Y: wall[iWall].y = iSet; break;
-        case WALL_POINT2: wall[iWall].point2 = iSet; break;
-        case WALL_NEXTWALL: wall[iWall].nextwall = iSet; break;
-        case WALL_NEXTSECTOR: wall[iWall].nextsector = iSet; break;
-        case WALL_CSTAT: wall[iWall].cstat = iSet; break;
-        case WALL_PICNUM: wall[iWall].picnum = iSet; break;
-        case WALL_OVERPICNUM: wall[iWall].overpicnum = iSet; break;
-        case WALL_SHADE: wall[iWall].shade = iSet; break;
-        case WALL_PAL: wall[iWall].pal = iSet; break;
-        case WALL_XREPEAT: wall[iWall].xrepeat = iSet; break;
-        case WALL_YREPEAT: wall[iWall].yrepeat = iSet; break;
-        case WALL_XPANNING: wall[iWall].xpanning = iSet; break;
-        case WALL_YPANNING: wall[iWall].ypanning = iSet; break;
-        case WALL_LOTAG: wall[iWall].lotag = (int16_t)iSet; break;
-        case WALL_HITAG: wall[iWall].hitag = (int16_t)iSet; break;
-        case WALL_ULOTAG: wall[iWall].lotag = iSet; break;
-        case WALL_UHITAG: wall[iWall].hitag = iSet; break;
-        case WALL_EXTRA: wall[iWall].extra = iSet; break;
+        case WALL_X: w->x = iSet; break;
+        case WALL_Y: w->y = iSet; break;
+        case WALL_POINT2: w->point2 = iSet; break;
+        case WALL_NEXTWALL: w->nextwall = iSet; break;
+        case WALL_NEXTSECTOR: w->nextsector = iSet; break;
+        case WALL_CSTAT: w->cstat = iSet; break;
+        case WALL_PICNUM: w->picnum = iSet; break;
+        case WALL_OVERPICNUM: w->overpicnum = iSet; break;
+        case WALL_SHADE: w->shade = iSet; break;
+        case WALL_PAL: w->pal = iSet; break;
+        case WALL_XREPEAT: w->xrepeat = iSet; break;
+        case WALL_YREPEAT: w->yrepeat = iSet; break;
+        case WALL_XPANNING: w->xpanning = iSet; break;
+        case WALL_YPANNING: w->ypanning = iSet; break;
+        case WALL_LOTAG: w->lotag = (int16_t)iSet; break;
+        case WALL_HITAG: w->hitag = (int16_t)iSet; break;
+        case WALL_ULOTAG: w->lotag = iSet; break;
+        case WALL_UHITAG: w->hitag = iSet; break;
+        case WALL_EXTRA: w->extra = iSet; break;
     }
 
     return;
