@@ -748,9 +748,11 @@ static int32_t move_rotfixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
 static void A_MoveSector(int i)
 {
     // T1,T2 and T3 are used for all the sector moving stuff!!!
+
     spritetype * const s = &sprite[i];
+    int32_t p, pl = A_FindPlayer(s, &p);
+    int const k = VM_OnEventWithBoth(EVENT_MOVESECTOR, i, pl, p, T3);
     int j = T2;
-    int const k = T3;
 
     s->x += (s->xvel * (sintable[(s->ang + 512) & 2047])) >> 14;
     s->y += (s->xvel * (sintable[s->ang & 2047])) >> 14;
