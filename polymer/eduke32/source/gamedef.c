@@ -2038,13 +2038,16 @@ static int32_t C_GetNextValue(int32_t type)
     return 0;   // literal value
 }
 
-static int32_t C_GetStructureIndexes(int32_t labelsonly, hashtable_t *table)
+static int32_t C_GetStructureIndexes(int32_t const labelsonly, hashtable_t const * const table)
 {
-    while ((*textptr != '['))
-        textptr++;
+    C_SkipComments();
 
-    if (*textptr == '[')
-        textptr++;
+    if (EDUKE32_PREDICT_FALSE(*textptr++ != '['))
+    {
+        g_numCompilerErrors++;
+        C_ReportError(ERROR_SYNTAXERROR);
+        return -1;
+    }
 
     C_SkipComments();
 
@@ -2060,23 +2063,18 @@ static int32_t C_GetStructureIndexes(int32_t labelsonly, hashtable_t *table)
         g_labelsOnly = 0;
     }
 
+    textptr++;
+
+    C_SkipComments();
+
     // now get name of .xxx
-    while (*textptr != '.')
-    {
-        if (*textptr == 0xa || !*textptr)
-            break;
 
-        textptr++;
-    }
-
-    if (EDUKE32_PREDICT_FALSE(*textptr != '.'))
+    if (EDUKE32_PREDICT_FALSE(*textptr++ != '.'))
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_SYNTAXERROR);
         return -1;
     }
-
-    textptr++;
 
     if (!table)
         return 0;
