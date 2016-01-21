@@ -54,7 +54,7 @@ static int32_t g_checkingIfElse, g_processingState, g_lastKeyword = -1;
 // First entry is 'default' code.
 static intptr_t *g_caseScriptPtr;
 static intptr_t previous_event;
-static int32_t g_numCases = 0;
+static int32_t g_numCases = 0, g_checkingCase = 0;
 static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
 static int32_t g_labelsOnly = 0, g_skipKeywordCheck = 0, g_dynamicTileMapping = 0, g_dynamicSoundMapping = 0;
 static int32_t g_numBraces = 0;
@@ -2767,14 +2767,14 @@ LUNATIC_EXTERN void C_SetCfgName(const char *cfgname)
 }
 
 #if !defined LUNATIC
-static void C_BitOrNextValue(int32_t *valptr)
+static inline void C_BitOrNextValue(int32_t *valptr)
 {
     C_GetNextValue(LABEL_DEFINE);
     g_scriptPtr--;
     *valptr |= *g_scriptPtr;
 }
 
-static void C_FinishBitOr(int32_t value)
+static inline void C_FinishBitOr(int32_t value)
 {
     BITPTR_CLEAR(g_scriptPtr-script);
     *g_scriptPtr = value;
@@ -4810,117 +4810,112 @@ DO_DEFSTATE:
             continue;
 
         case CON_CASE:
+        case CON_DEFAULT:
             {
-                intptr_t tempoffset = 0;
-                intptr_t *tempscrptr = NULL;
-                //AddLog("Found Case");
-
                 if (EDUKE32_PREDICT_FALSE(g_checkingSwitch < 1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(-1);
-                    initprintf("%s:%d: error: found `case' statement when not in switch\n",g_szScriptFileName,g_lineNumber);
+                    initprintf("%s:%d: error: found `%s' statement when not in switch\n", g_szScriptFileName,
+                               g_lineNumber, tw == CON_CASE ? "case" : "default");
                     g_scriptPtr--;
                     return 1;
                 }
 
+                intptr_t tempoffset = 0;
+                intptr_t *tempscrptr = NULL;
+
+                g_checkingCase++;
 repeatcase:
-                g_scriptPtr--; // don't save in code
+                g_scriptPtr--;
                 g_numCases++;
-                //Bsprintf(g_szBuf,"case1: %.12s",textptr);
-                //AddLog(g_szBuf);
-                C_GetNextValue(LABEL_DEFINE);
+
+                C_SkipComments();
+
+                if (tw == CON_CASE)
+                {
+                    C_GetNextValue(LABEL_DEFINE);
+                    j= *(--g_scriptPtr);
+                }
+
+                C_SkipComments();
+
                 if (*textptr == ':')
                     textptr++;
-                //Bsprintf(g_szBuf,"case2: %.12s",textptr);
-                //AddLog(g_szBuf);
 
-                j= *(--g_scriptPtr);      // get value
-                //Bsprintf(g_szBuf,"case: Value of case %d is %d",(int32_t)g_numCases,(int32_t)j);
-                //AddLog(g_szBuf);
+                C_SkipComments();
+
                 if (g_caseScriptPtr)
                 {
-                    for (i=(g_numCases/2)-1; i>=0; i--)
-                        if (EDUKE32_PREDICT_FALSE(g_caseScriptPtr[i*2+1]==j))
+                    if (tw == CON_DEFAULT)
+                    {
+                        if (EDUKE32_PREDICT_FALSE(g_caseScriptPtr && g_caseScriptPtr[0]!=0))
                         {
-                            g_numCompilerWarnings++;
-                            C_ReportError(WARNING_DUPLICATECASE);
-                            break;
+                            // duplicate default statement
+                            g_numCompilerErrors++;
+                            C_ReportError(-1);
+                            initprintf("%s:%d: error: multiple `default' statements found in switch\n", g_szScriptFileName, g_lineNumber);
                         }
-                        //AddLog("Adding value to script");
-                        g_caseScriptPtr[g_numCases++]=j;   // save value
-                        g_caseScriptPtr[g_numCases]=(intptr_t)((intptr_t *)g_scriptPtr-&script[0]);  // save offset
+                        g_caseScriptPtr[0]=(intptr_t) (g_scriptPtr-&script[0]);   // save offset
+                    }
+                    else
+                    {
+                        for (i=(g_numCases/2)-1; i>=0; i--)
+                            if (EDUKE32_PREDICT_FALSE(g_caseScriptPtr[i*2+1]==j))
+                            {
+                                g_numCompilerWarnings++;
+                                C_ReportError(WARNING_DUPLICATECASE);
+                                break;
+                            }
+                        g_caseScriptPtr[g_numCases++]=j;
+                        g_caseScriptPtr[g_numCases]=(intptr_t) ((intptr_t *) g_scriptPtr-&script[0]);
+                    }
                 }
-                //      j = C_GetKeyword();
-                //Bsprintf(g_szBuf,"case3: %.12s",textptr);
-                //AddLog(g_szBuf);
 
-                if (C_GetKeyword() == CON_CASE)
+                j = C_GetKeyword();
+
+                if (j == CON_CASE || j == CON_DEFAULT)
                 {
                     //AddLog("Found Repeat Case");
-                    C_GetNextKeyword();    // eat 'case'
+                    C_GetNextKeyword();    // eat keyword
                     goto repeatcase;
                 }
-                //Bsprintf(g_szBuf,"case4: '%.12s'",textptr);
-                //AddLog(g_szBuf);
+
                 tempoffset = (unsigned)(tempscrptr-script);
 
                 while (C_ParseCommand(0) == 0)
                 {
-                    //Bsprintf(g_szBuf,"case5 '%.25s'",textptr);
-                    //AddLog(g_szBuf);
-                    if (C_GetKeyword() == CON_CASE)
+                    j = C_GetKeyword();
+
+                    if (j == CON_CASE || j == CON_DEFAULT)
                     {
-                        //AddLog("Found Repeat Case");
-                        C_GetNextKeyword();    // eat 'case'
+                        C_GetNextKeyword();    // eat keyword
                         tempscrptr = (intptr_t *)(script+tempoffset);
                         goto repeatcase;
                     }
                 }
+
                 tempscrptr = (intptr_t *)(script+tempoffset);
-                //AddLog("End Case");
                 continue;
-                //      break;
             }
-        case CON_DEFAULT:
-            g_scriptPtr--;    // don't save
-
-            C_SkipComments();
-
-            if (*textptr == ':')
-                textptr++;
-
-            if (EDUKE32_PREDICT_FALSE(g_checkingSwitch<1))
-            {
-                g_numCompilerErrors++;
-                C_ReportError(-1);
-                initprintf("%s:%d: error: found `default' statement when not in switch\n",g_szScriptFileName,g_lineNumber);
-                return 1;
-            }
-            if (EDUKE32_PREDICT_FALSE(g_caseScriptPtr && g_caseScriptPtr[0]!=0))
-            {
-                // duplicate default statement
-                g_numCompilerErrors++;
-                C_ReportError(-1);
-                initprintf("%s:%d: error: multiple `default' statements found in switch\n",g_szScriptFileName,g_lineNumber);
-            }
-            if (g_caseScriptPtr)
-            {
-                g_caseScriptPtr[0]=(intptr_t)(g_scriptPtr-&script[0]);   // save offset
-                //            bitptr[(g_caseScriptPtr-script)>>3] |= (BITPTR_POINTER<<((g_caseScriptPtr-script)&7));
-            }
-            //Bsprintf(g_szBuf,"default: '%.22s'",textptr);
-            //AddLog(g_szBuf);
-            C_ParseCommand(1);
-            continue;
 
         case CON_ENDSWITCH:
             //AddLog("End Switch");
+            if (g_caseScriptPtr)
+            {
+                if (EDUKE32_PREDICT_FALSE(g_checkingCase))
+                {
+                    g_numCompilerErrors++;
+                    C_ReportError(-1);
+                    initprintf("%s:%d: error: found `endswitch' before `break' or `return'\n", g_szScriptFileName, g_lineNumber);
+                }
+            }
+
             if (EDUKE32_PREDICT_FALSE(--g_checkingSwitch < 0))
             {
                 g_numCompilerErrors++;
                 C_ReportError(-1);
-                initprintf("%s:%d: error: found `endswitch' without matching `switch'\n",g_szScriptFileName,g_lineNumber);
+                initprintf("%s:%d: error: found `endswitch' without matching `switch'\n", g_szScriptFileName, g_lineNumber);
             }
             return 1;      // end of block
 
@@ -5835,7 +5830,10 @@ repeatcase:
 
         case CON_RETURN:
             if (g_checkingSwitch)
+            {
+                g_checkingCase = 0;
                 return 1;
+            }
             continue;
 
         case CON_BREAK:
@@ -5849,6 +5847,8 @@ repeatcase:
                     g_scriptPtr--;
                     continue;
                 }
+
+                g_checkingCase = 0;
                 return 1;
             }
             else if (g_parsingEventPtr)

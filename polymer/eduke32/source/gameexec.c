@@ -2414,7 +2414,8 @@ nullquote:
                 // script offset to default case (null if none)
                 // For each case: value, ptr to code
                 int32_t const lValue = Gv_GetVarX(*insptr++), lEnd = *insptr++, lCases = *insptr++;
-                intptr_t const *lpDefault = insptr++, *lpCases = insptr;
+                intptr_t const * const lpDefault = insptr++;
+                intptr_t const * const lpCases = insptr;
                 int32_t left = 0, right = lCases - 1;
                 insptr += lCases << 1;
 
