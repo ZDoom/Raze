@@ -1430,6 +1430,12 @@ static int32_t C_SkipComments(void)
 
                 textptr+=2;
                 continue;
+            default:
+                C_ReportError(-1);
+                initprintf("%s:%d: error: malformed comment.\n", g_szScriptFileName, g_lineNumber);
+                C_NextLine();
+                g_numCompilerErrors++;
+                continue;
             }
             continue;
 
