@@ -40,7 +40,7 @@ void __fastcall VM_SetPlayerInput(register int32_t const iPlayer, register int32
 int32_t __fastcall VM_GetWall(register int32_t const iWall, register int32_t lLabelID);
 void __fastcall VM_SetWall(register int32_t const iWall, register int32_t const lLabelID, register int32_t const iSet);
 int32_t __fastcall VM_GetSector(register int32_t const iSector, register int32_t lLabelID);
-void __fastcall VM_SetSector(register int32_t const iSector, register int32_t const lLabelID, register int32_t const iSet);
+void __fastcall VM_SetSector(register int32_t const iSector, register int32_t const lLabelID, register int32_t iSet);
 int32_t __fastcall VM_GetSprite(register int32_t const iActor, register int32_t lLabelID, register int32_t const lParm2);
 void __fastcall VM_SetSprite(register int32_t const iActor, register int32_t const lLabelID, register int32_t const lParm2, register int32_t const iSet);
 int32_t __fastcall VM_GetTsprite(register int32_t const iActor, register int32_t lLabelID);
@@ -888,33 +888,42 @@ int32_t __fastcall VM_GetSector(register int32_t const iSector, register int32_t
         return -1;
     }
 
+    sectortype * const s = &sector[iSector];
+
     switch (lLabelID)
     {
-        case SECTOR_WALLPTR: lLabelID = sector[iSector].wallptr; break;
-        case SECTOR_WALLNUM: lLabelID = sector[iSector].wallnum; break;
-        case SECTOR_CEILINGZ: lLabelID = sector[iSector].ceilingz; break;
-        case SECTOR_FLOORZ: lLabelID = sector[iSector].floorz; break;
-        case SECTOR_CEILINGSTAT: lLabelID = sector[iSector].ceilingstat; break;
-        case SECTOR_FLOORSTAT: lLabelID = sector[iSector].floorstat; break;
-        case SECTOR_CEILINGPICNUM: lLabelID = sector[iSector].ceilingpicnum; break;
-        case SECTOR_CEILINGSLOPE: lLabelID = sector[iSector].ceilingheinum; break;
-        case SECTOR_CEILINGSHADE: lLabelID = sector[iSector].ceilingshade; break;
-        case SECTOR_CEILINGPAL: lLabelID = sector[iSector].ceilingpal; break;
-        case SECTOR_CEILINGXPANNING: lLabelID = sector[iSector].ceilingxpanning; break;
-        case SECTOR_CEILINGYPANNING: lLabelID = sector[iSector].ceilingypanning; break;
-        case SECTOR_FLOORPICNUM: lLabelID = sector[iSector].floorpicnum; break;
-        case SECTOR_FLOORSLOPE: lLabelID = sector[iSector].floorheinum; break;
-        case SECTOR_FLOORSHADE: lLabelID = sector[iSector].floorshade; break;
-        case SECTOR_FLOORPAL: lLabelID = sector[iSector].floorpal; break;
-        case SECTOR_FLOORXPANNING: lLabelID = sector[iSector].floorxpanning; break;
-        case SECTOR_FLOORYPANNING: lLabelID = sector[iSector].floorypanning; break;
-        case SECTOR_VISIBILITY: lLabelID = sector[iSector].visibility; break;
-        case SECTOR_FOGPAL: lLabelID = sector[iSector].fogpal; break;
-        case SECTOR_LOTAG: lLabelID = (int16_t)sector[iSector].lotag; break;
-        case SECTOR_HITAG: lLabelID = (int16_t)sector[iSector].hitag; break;
-        case SECTOR_ULOTAG: lLabelID = sector[iSector].lotag; break;
-        case SECTOR_UHITAG: lLabelID = sector[iSector].hitag; break;
-        case SECTOR_EXTRA: lLabelID = sector[iSector].extra; break;
+        case SECTOR_WALLPTR: lLabelID = s->wallptr; break;
+        case SECTOR_WALLNUM: lLabelID = s->wallnum; break;
+
+        case SECTOR_CEILINGZ: lLabelID = s->ceilingz; break;
+        case SECTOR_CEILINGZVEL: lLabelID = (GetAnimationGoal(&s->ceilingz) == -1) ? 0 : s->extra; break;
+        case SECTOR_CEILINGZGOAL: lLabelID = GetAnimationGoal(&s->ceilingz); break;
+
+        case SECTOR_FLOORZ: lLabelID = s->floorz; break;
+        case SECTOR_FLOORZVEL: lLabelID = (GetAnimationGoal(&s->floorz) == -1) ? 0 : s->extra; break;
+        case SECTOR_FLOORZGOAL: lLabelID = GetAnimationGoal(&s->floorz); break;
+
+        case SECTOR_CEILINGSTAT: lLabelID = s->ceilingstat; break;
+        case SECTOR_FLOORSTAT: lLabelID = s->floorstat; break;
+        case SECTOR_CEILINGPICNUM: lLabelID = s->ceilingpicnum; break;
+        case SECTOR_CEILINGSLOPE: lLabelID = s->ceilingheinum; break;
+        case SECTOR_CEILINGSHADE: lLabelID = s->ceilingshade; break;
+        case SECTOR_CEILINGPAL: lLabelID = s->ceilingpal; break;
+        case SECTOR_CEILINGXPANNING: lLabelID = s->ceilingxpanning; break;
+        case SECTOR_CEILINGYPANNING: lLabelID = s->ceilingypanning; break;
+        case SECTOR_FLOORPICNUM: lLabelID = s->floorpicnum; break;
+        case SECTOR_FLOORSLOPE: lLabelID = s->floorheinum; break;
+        case SECTOR_FLOORSHADE: lLabelID = s->floorshade; break;
+        case SECTOR_FLOORPAL: lLabelID = s->floorpal; break;
+        case SECTOR_FLOORXPANNING: lLabelID = s->floorxpanning; break;
+        case SECTOR_FLOORYPANNING: lLabelID = s->floorypanning; break;
+        case SECTOR_VISIBILITY: lLabelID = s->visibility; break;
+        case SECTOR_FOGPAL: lLabelID = s->fogpal; break;
+        case SECTOR_LOTAG: lLabelID = (int16_t)s->lotag; break;
+        case SECTOR_HITAG: lLabelID = (int16_t)s->hitag; break;
+        case SECTOR_ULOTAG: lLabelID = s->lotag; break;
+        case SECTOR_UHITAG: lLabelID = s->hitag; break;
+        case SECTOR_EXTRA: lLabelID = s->extra; break;
         case SECTOR_CEILINGBUNCH:
         case SECTOR_FLOORBUNCH:
 #ifdef YAX_ENABLE
@@ -929,7 +938,7 @@ int32_t __fastcall VM_GetSector(register int32_t const iSector, register int32_t
     return lLabelID;
 }
 
-void __fastcall VM_SetSector(register int32_t const iSector, register int32_t const lLabelID, register int32_t const iSet)
+void __fastcall VM_SetSector(register int32_t const iSector, register int32_t const lLabelID, register int32_t iSet)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)iSector >= (unsigned)numsectors))
     {
@@ -937,33 +946,48 @@ void __fastcall VM_SetSector(register int32_t const iSector, register int32_t co
         return;
     }
 
+    sectortype * const s = &sector[iSector];
+
     switch (lLabelID)
     {
-        case SECTOR_WALLPTR: sector[iSector].wallptr = iSet; break;
-        case SECTOR_WALLNUM: sector[iSector].wallnum = iSet; break;
-        case SECTOR_CEILINGZ: sector[iSector].ceilingz = iSet; break;
-        case SECTOR_FLOORZ: sector[iSector].floorz = iSet; break;
-        case SECTOR_CEILINGSTAT: sector[iSector].ceilingstat = iSet; break;
-        case SECTOR_FLOORSTAT: sector[iSector].floorstat = iSet; break;
-        case SECTOR_CEILINGPICNUM: sector[iSector].ceilingpicnum = iSet; break;
-        case SECTOR_CEILINGSLOPE: sector[iSector].ceilingheinum = iSet; break;
-        case SECTOR_CEILINGSHADE: sector[iSector].ceilingshade = iSet; break;
-        case SECTOR_CEILINGPAL: sector[iSector].ceilingpal = iSet; break;
-        case SECTOR_CEILINGXPANNING: sector[iSector].ceilingxpanning = iSet; break;
-        case SECTOR_CEILINGYPANNING: sector[iSector].ceilingypanning = iSet; break;
-        case SECTOR_FLOORPICNUM: sector[iSector].floorpicnum = iSet; break;
-        case SECTOR_FLOORSLOPE: sector[iSector].floorheinum = iSet; break;
-        case SECTOR_FLOORSHADE: sector[iSector].floorshade = iSet; break;
-        case SECTOR_FLOORPAL: sector[iSector].floorpal = iSet; break;
-        case SECTOR_FLOORXPANNING: sector[iSector].floorxpanning = iSet; break;
-        case SECTOR_FLOORYPANNING: sector[iSector].floorypanning = iSet; break;
-        case SECTOR_VISIBILITY: sector[iSector].visibility = iSet; break;
-        case SECTOR_FOGPAL: sector[iSector].fogpal = iSet; break;
-        case SECTOR_LOTAG: sector[iSector].lotag = (int16_t)iSet; break;
-        case SECTOR_HITAG: sector[iSector].hitag = (int16_t)iSet; break;
-        case SECTOR_ULOTAG: sector[iSector].lotag = iSet; break;
-        case SECTOR_UHITAG: sector[iSector].hitag = iSet; break;
-        case SECTOR_EXTRA: sector[iSector].extra = iSet; break;
+        case SECTOR_WALLPTR: s->wallptr = iSet; break;
+        case SECTOR_WALLNUM: s->wallnum = iSet; break;
+
+        case SECTOR_CEILINGZ: s->ceilingz = iSet; break;
+        case SECTOR_CEILINGZVEL: s->extra = iSet;
+            if ((iSet = GetAnimationGoal(&s->ceilingz)) != -1)
+        case SECTOR_CEILINGZGOAL: 
+            SetAnimation(iSector, &s->ceilingz, iSet, s->extra);
+            break;
+
+        case SECTOR_FLOORZ: s->floorz = iSet; break;
+        case SECTOR_FLOORZVEL: s->extra = iSet;
+            if ((iSet = GetAnimationGoal(&s->floorz)) != -1)
+        case SECTOR_FLOORZGOAL:
+            SetAnimation(iSector, &s->floorz, iSet, s->extra);
+            break;
+
+        case SECTOR_CEILINGSTAT: s->ceilingstat = iSet; break;
+        case SECTOR_FLOORSTAT: s->floorstat = iSet; break;
+        case SECTOR_CEILINGPICNUM: s->ceilingpicnum = iSet; break;
+        case SECTOR_CEILINGSLOPE: s->ceilingheinum = iSet; break;
+        case SECTOR_CEILINGSHADE: s->ceilingshade = iSet; break;
+        case SECTOR_CEILINGPAL: s->ceilingpal = iSet; break;
+        case SECTOR_CEILINGXPANNING: s->ceilingxpanning = iSet; break;
+        case SECTOR_CEILINGYPANNING: s->ceilingypanning = iSet; break;
+        case SECTOR_FLOORPICNUM: s->floorpicnum = iSet; break;
+        case SECTOR_FLOORSLOPE: s->floorheinum = iSet; break;
+        case SECTOR_FLOORSHADE: s->floorshade = iSet; break;
+        case SECTOR_FLOORPAL: s->floorpal = iSet; break;
+        case SECTOR_FLOORXPANNING: s->floorxpanning = iSet; break;
+        case SECTOR_FLOORYPANNING: s->floorypanning = iSet; break;
+        case SECTOR_VISIBILITY: s->visibility = iSet; break;
+        case SECTOR_FOGPAL: s->fogpal = iSet; break;
+        case SECTOR_LOTAG: s->lotag = (int16_t) iSet; break;
+        case SECTOR_HITAG: s->hitag = (int16_t) iSet; break;
+        case SECTOR_ULOTAG: s->lotag = iSet; break;
+        case SECTOR_UHITAG: s->hitag = iSet; break;
+        case SECTOR_EXTRA: s->extra = iSet; break;
         case SECTOR_CEILINGBUNCH:
         case SECTOR_FLOORBUNCH:
         default: break;

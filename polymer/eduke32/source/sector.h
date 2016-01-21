@@ -33,7 +33,7 @@ extern "C" {
 #endif
 
 #define MAXCYCLERS      1024
-#define MAXANIMATES     256
+#define MAXANIMATES     1024
 #define MAXANIMWALLS    512
 
 #define VIEWSCREEN_ACTIVE_DISTANCE 8192
