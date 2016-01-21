@@ -18504,7 +18504,7 @@ void hash_delete(hashtable_t *t, const char *s)
     while ((cur = cur->next));
 }
 
-intptr_t hash_find(const hashtable_t *t, const char *s)
+intptr_t hash_find(const hashtable_t * const t, char const * const s)
 {
     if (t->items == NULL)
     {
@@ -18525,7 +18525,7 @@ intptr_t hash_find(const hashtable_t *t, const char *s)
     return -1;
 }
 
-intptr_t hash_findcase(const hashtable_t *t, const char *s)
+intptr_t hash_findcase(const hashtable_t * const t, char const * const s)
 {
 
     if (t->items == NULL)
