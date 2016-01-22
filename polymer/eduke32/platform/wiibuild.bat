@@ -40,8 +40,8 @@ xcopy /e /q /y /EXCLUDE:%wiidir%\xcopy_exclude.txt package\common apps\mapster32
 xcopy /e /q /y /EXCLUDE:%wiidir%\xcopy_exclude.txt package\sdk apps\mapster32\
 
 "ls.exe" -l -R apps
-7z.exe a -mx9 -t7z eduke32-wii-r%rev%-debug-elf.7z *.elf -xr!*.svn*
-7z.exe a -mx9 -t7z eduke32-wii-r%rev%.7z apps -xr!*.svn*
+7z.exe a -mx9 -ms=on -t7z eduke32-wii-r%rev%-debug-elf.7z *.elf -xr!*.svn*
+7z.exe a -mx9 -ms=on -t7z eduke32-wii-r%rev%.7z apps -xr!*.svn*
 
 :end
 

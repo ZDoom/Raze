@@ -113,8 +113,8 @@ function package_game_lunatic ()
 
 function package_execute ()
 {
-    echo 7zr a -mx9 -t7z $output/$date-$head/${*}_$date-$head.7z *
-    7zr a -mx9 -t7z $output/$date-$head/${*}_$date-$head.7z *
+    echo 7zr a -mx9 -ms=on -t7z $output/$date-$head/${*}_$date-$head.7z *
+    7zr a -mx9 -ms=on -t7z $output/$date-$head/${*}_$date-$head.7z *
 
     cd $top/$source
 
