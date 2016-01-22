@@ -257,11 +257,13 @@ then
     done
 
     # throw the svn revision into a file the Makefile will read
-    echo "$head" > EDUKE32_REVISION
+    echo "$head" > ${basename}_$date-$head/EDUKE32_REVISION
 
     echo tar cJf ${basename}_src_$date-$head.tar.xz ${basename}_$date-$head
     tar cJf ${basename}_src_$date-$head.tar.xz ${basename}_$date-$head
     rm -r ${basename}_$date-$head
+
+    cd $top/$source
 
     # output the changelog since last snapshot in the output directory
     if [ $lastrevision ]
