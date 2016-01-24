@@ -1267,7 +1267,7 @@ void C_InitHashes()
 {
     uint32_t i;
 
-    for (i=0; i < ARRAY_SIZE(tables)-1; i++)
+    for (i=0; i < ARRAY_SIZE(tables); i++)
         hash_init(tables[i]);
 
     inithashnames();
@@ -6344,7 +6344,7 @@ void C_Compile(const char *filenam)
         initprintf("Script compiled in %dms, %ld bytes%s\n", getticks() - startcompiletime,
                    (unsigned long)(g_scriptPtr-script), C_ScriptVersionString(g_scriptVersion));
 
-        for (i=0; (unsigned)i < ARRAY_SIZE(tables_free)-1; i++)
+        for (i=0; (unsigned)i < ARRAY_SIZE(tables_free); i++)
             hash_free(tables_free[i]);
 
         freehashnames();
