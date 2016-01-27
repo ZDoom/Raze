@@ -3194,7 +3194,7 @@ static void         polymer_updatewall(int16_t wallnum)
             (wallpicnum == w->picnum_anim) &&
             (walloverpicnum == w->overpicnum_anim) &&
 #ifndef UNTRACKED_STRUCTS
-            (w->trackedrev == wallchanged[nwallnum]) &&
+            (w->trackedrev == wallchanged[wallnum]) &&
 #else
             !Bmemcmp(&wal->cstat, &w->cstat, NBYTES_WALL_CSTAT_THROUGH_YPANNING) &&
 #endif
@@ -3217,7 +3217,7 @@ static void         polymer_updatewall(int16_t wallnum)
         w->picnum_anim = wallpicnum;
         w->overpicnum_anim = walloverpicnum;
 #ifndef UNTRACKED_STRUCTS
-        w->trackedrev = wallchanged[nwallnum];
+        w->trackedrev = wallchanged[wallnum];
 #endif
         if (nwallnum >= 0 && nwallnum < numwalls)
         {
