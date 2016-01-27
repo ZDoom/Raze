@@ -1263,6 +1263,8 @@ static hashtable_t * const tables_free [] ={
     &h_projectile, &h_player, &h_input,  &h_actor,    &h_tsprite, &h_tiledata, &h_paldata
 };
 
+#define STRUCT_HASH_SETUP(table, labels) do { for (i=0; labels[i].lId >= 0; i++) hash_add(&table, labels[i].name, i, 0); } while (0)
+
 void C_InitHashes()
 {
     uint32_t i;
@@ -1273,19 +1275,22 @@ void C_InitHashes()
     inithashnames();
     initsoundhashnames();
 
-    for (i=0; i<NUMKEYWORDS; i++) hash_add(&h_keywords,keyw[i],i,0);
-    for (i=0; i<NUMALTKEYWORDS; i++) hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val, 0);
-    for (i=0; SectorLabels[i].lId >= 0; i++) hash_add(&h_sector,SectorLabels[i].name,i,0);
-    for (i=0; WallLabels[i].lId >= 0; i++) hash_add(&h_wall,WallLabels[i].name,i,0);
-    for (i=0; UserdefsLabels[i].lId >= 0; i++) hash_add(&h_userdef,UserdefsLabels[i].name,i,0);
-    for (i=0; ProjectileLabels[i].lId >= 0; i++) hash_add(&h_projectile,ProjectileLabels[i].name,i,0);
-    for (i=0; PlayerLabels[i].lId >= 0; i++) hash_add(&h_player,PlayerLabels[i].name,i,0);
-    for (i=0; InputLabels[i].lId >= 0; i++) hash_add(&h_input,InputLabels[i].name,i,0);
-    for (i=0; ActorLabels[i].lId >= 0; i++) hash_add(&h_actor,ActorLabels[i].name,i,0);
-    for (i=0; TsprLabels[i].lId >= 0; i++) hash_add(&h_tsprite,TsprLabels[i].name,i,0);
-    for (i=0; TileDataLabels[i].lId >= 0; i++) hash_add(&h_tiledata,TileDataLabels[i].name,i,0);
-    for (i=0; PalDataLabels[i].lId >= 0; i++) hash_add(&h_paldata,PalDataLabels[i].name,i,0);
+  for (i=0; i<NUMKEYWORDS; i++) hash_add(&h_keywords, keyw[i], i, 0);
+  for (i=0; i<NUMALTKEYWORDS; i++) hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val, 0);
+
+  STRUCT_HASH_SETUP(h_sector, SectorLabels);
+  STRUCT_HASH_SETUP(h_wall, WallLabels);
+  STRUCT_HASH_SETUP(h_userdef, UserdefsLabels);
+  STRUCT_HASH_SETUP(h_projectile, ProjectileLabels);
+  STRUCT_HASH_SETUP(h_player, PlayerLabels);
+  STRUCT_HASH_SETUP(h_input, InputLabels);
+  STRUCT_HASH_SETUP(h_actor, ActorLabels);
+  STRUCT_HASH_SETUP(h_tsprite, TsprLabels);
+  STRUCT_HASH_SETUP(h_tiledata, TileDataLabels);
+  STRUCT_HASH_SETUP(h_paldata, PalDataLabels);
 }
+
+#undef STRUCT_HASH_SETUP
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
 #define IFELSE_MAGIC 31337
