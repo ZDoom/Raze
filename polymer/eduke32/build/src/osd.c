@@ -752,7 +752,7 @@ void OSD_Init(void)
         { "osdeditshade", "sets the shade of the OSD input text", (void *) &osd->draw.editshade, CVAR_INT, 0, 7 },
         { "osdtextshade", "sets the shade of the OSD text", (void *) &osd->draw.textshade, CVAR_INT, 0, 7 },
         { "osdpromptshade", "sets the shade of the OSD prompt", (void *) &osd->draw.promptshade, CVAR_INT, INT8_MIN, INT8_MAX },
-        { "osdrows", "sets the number of visible lines of the OSD", (void *) &osd->draw.rows, CVAR_INT|CVAR_FUNCPTR, 1, MAXPALOOKUPS-1 },
+        { "osdrows", "sets the number of visible lines of the OSD", (void *) &osd->draw.rows, CVAR_INT|CVAR_FUNCPTR, 1, 400 },
         { "osdtextmode", "set OSD text mode (0:graphical, 1:fast)", (void *) &osd->draw.mode, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
         { "osdlogcutoff", "sets the maximal line count of the log file", (void *) &osd->log.cutoff, CVAR_INT, 0, 262144 },
         { "osdhistorydepth", "sets the history depth, in lines", (void *) &osd->history.maxlines, CVAR_INT|CVAR_FUNCPTR, OSDMINHISTORYDEPTH, OSDMAXHISTORYDEPTH },
