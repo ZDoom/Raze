@@ -7999,7 +7999,7 @@ extern char forcegl;
 #endif
 
 #ifdef LUNATIC
-const char **g_argv;
+char const * const * g_argv;
 #endif
 
 static void G_CheckCommandLine(int32_t argc, char const * const * argv)

@@ -9166,7 +9166,7 @@ int32_t initengine(void)
         return E_FatalError("Failed creating engine Lua state!");
 
     {
-        char *luastr = "_LUNATIC_AUX=true; decl=require('ffi').cdef; require'defs_common'";
+        static char const * const luastr = "_LUNATIC_AUX=true; decl=require('ffi').cdef; require'defs_common'";
 
         if (L_RunString(&g_engState, luastr, -1, "eng"))
             return E_FatalError("Failed setting up engine Lua state");

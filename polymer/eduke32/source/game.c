@@ -9852,7 +9852,7 @@ int32_t loaddefinitions_game(const char *fn, int32_t preload)
 }
 
 #ifdef LUNATIC
-const char **g_argv;
+char const * const * g_argv;
 const char **g_elModules;
 #endif
 
