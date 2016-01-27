@@ -122,6 +122,9 @@ extern void VM_ScriptInfo(intptr_t const *ptr, int32_t range)
 
         initprintf("g_errorLineNum: %d, g_tw: %d\n", g_errorLineNum, g_tw);
     }
+#else
+    UNREFERENCED_PARAMETER(ptr);
+    UNREFERENCED_PARAMETER(range);
 #endif
 }
 
