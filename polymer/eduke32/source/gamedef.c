@@ -3675,7 +3675,7 @@ DO_DEFSTATE:
                     continue;
 
                 BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=lLabelID;
+                *g_scriptPtr++=SectorLabels[lLabelID].lId;
 
                 C_GetNextVarType((tw == CON_GETSECTOR) ? GAMEVAR_READONLY : 0);
                 continue;
@@ -3745,7 +3745,7 @@ DO_DEFSTATE:
                     continue;
 
                 BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=lLabelID;
+                *g_scriptPtr++=WallLabels[lLabelID].lId;
 
                 C_GetNextVarType((tw == CON_GETWALL) ? GAMEVAR_READONLY : 0);
                 continue;
