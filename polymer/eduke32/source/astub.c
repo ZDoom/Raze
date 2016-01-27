@@ -9192,6 +9192,8 @@ enum
     T_RENAMEFILE,
     T_GLOBALGAMEFLAGS,
 
+    T_GAMESTARTUP,
+
     T_DUMMY,
 };
 
@@ -9723,6 +9725,7 @@ static int32_t parseconsounds(scriptfile *script)
         { "define",          T_DEFINE           },
         { "#define",         T_DEFINE           },
         { "definesound",     T_DEFINESOUND      },
+        { "gamestartup",     T_GAMESTARTUP      },
     };
 
     while (1)
@@ -9753,6 +9756,11 @@ static int32_t parseconsounds(scriptfile *script)
             if (scriptfile_addsymbolvalue(name,number) < 0)
                 initprintf("Warning: Symbol %s was NOT redefined to %d on line %s:%d\n",
                            name,number,script->filename,scriptfile_getlinum(script,cmdtokptr));
+            break;
+        }
+        case T_GAMESTARTUP:
+        {
+            if (scriptfile_getsymbol(script, &g_visibility)) break;
             break;
         }
         case T_DEFINESOUND:
@@ -9878,6 +9886,9 @@ static int32_t loadconsounds(const char *fn)
         initprintf("\"%s\" doesn't contain sound definitions. No sounds loaded.\n", fn);
     else
         initprintf("Loaded %d sound definitions.\n", ret);
+
+    if (g_visibility != 512)
+        initprintf("Global visibility: %d\n", g_visibility);
 
     scriptfile_close(script);
     scriptfile_clearsymbols();
