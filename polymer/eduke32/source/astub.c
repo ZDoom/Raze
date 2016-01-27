@@ -5128,7 +5128,7 @@ static void Keys3d(void)
         {
             AIMED_CEILINGFLOOR(stat) ^= 8;
             message("Sector %d %s texture expansion bit %s", searchsector, typestr[searchstat],
-                    ONOFF(sector[searchsector].ceilingstat&8));
+                    ONOFF(AIMED_CEILINGFLOOR(stat)&8));
             asksave = 1;
         }
     }
