@@ -4837,12 +4837,12 @@ DO_DEFSTATE:
                 g_checkingCase++;
 repeatcase:
                 g_scriptPtr--;
-                g_numCases++;
 
                 C_SkipComments();
 
                 if (tw == CON_CASE)
                 {
+                    g_numCases++;
                     C_GetNextValue(LABEL_DEFINE);
                     j= *(--g_scriptPtr);
                 }
@@ -4887,6 +4887,7 @@ repeatcase:
                 {
                     //AddLog("Found Repeat Case");
                     C_GetNextKeyword();    // eat keyword
+                    tw = j;
                     goto repeatcase;
                 }
 
@@ -4900,11 +4901,11 @@ repeatcase:
                     {
                         C_GetNextKeyword();    // eat keyword
                         tempscrptr = (intptr_t *)(script+tempoffset);
+                        tw = j;
                         goto repeatcase;
                     }
                 }
 
-                tempscrptr = (intptr_t *)(script+tempoffset);
                 continue;
             }
 
