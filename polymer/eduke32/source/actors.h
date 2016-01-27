@@ -376,6 +376,8 @@ ACTOR_INLINE int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change, uint3
 
 # endif
 
+# include "namesdyn.h"
+
 EXTERN_INLINE int32_t G_CheckForSpaceCeiling(int32_t sectnum)
 {
     return ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 &&
