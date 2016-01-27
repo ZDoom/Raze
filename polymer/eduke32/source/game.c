@@ -11049,7 +11049,7 @@ void El_CreateGameState(void)
     {
         extern const char luaJIT_BC_defs[];
 
-        if ((i = L_RunString(&g_ElState, (char *)luaJIT_BC_defs, 0,
+        if ((i = L_RunString(&g_ElState, luaJIT_BC_defs,
                              LUNATIC_DEFS_BC_SIZE, "defs.ilua")))
         {
             initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);

@@ -698,7 +698,7 @@ static int32_t osdcmd_lua(const osdfuncparm_t *parm)
 
     // For the 'lua' OSD command, don't make errors appear on-screen:
     el_addNewErrors = 0;
-    ret = L_RunString(&g_ElState, (char *)parm->parms[0], 0, -1, "console");
+    ret = L_RunString(&g_ElState, parm->parms[0], -1, "console");
     el_addNewErrors = 1;
 
     if (ret != 0)

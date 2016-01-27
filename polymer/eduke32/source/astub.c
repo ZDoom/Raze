@@ -8908,7 +8908,7 @@ static int32_t osdcmd_lua(const osdfuncparm_t *parm)
         return OSDCMD_OK;
     }
 
-    ret = L_RunString(&g_EmState, (char *)parm->parms[0], 0, -1, "console");
+    ret = L_RunString(&g_EmState, parm->parms[0], -1, "console");
     if (ret != 0)
         OSD_Printf("Error running the Lua code (error code %d)\n", ret);
     else
@@ -9988,7 +9988,7 @@ int32_t ExtPostStartupWindow(void)
     {
         extern const char luaJIT_BC_defs_m32[];
 
-        int32_t i = L_RunString(&g_EmState, (char *)luaJIT_BC_defs_m32, 0,
+        int32_t i = L_RunString(&g_EmState, luaJIT_BC_defs_m32,
                                 LUNATIC_DEFS_M32_BC_SIZE, "defs_m32.ilua");
         if (i != 0)
         {

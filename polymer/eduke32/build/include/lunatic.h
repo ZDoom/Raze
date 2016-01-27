@@ -40,7 +40,7 @@ extern void (*L_OutOfMemFunc)(void);
 int L_CreateState(L_State *estate, const char *name, void (*StateSetupFunc)(lua_State *));
 void L_DestroyState(L_State *estate);
 int L_RunOnce(L_State *estate, const char *fn);
-int L_RunString(L_State *estate, char *buf, int dofreebuf, int size, const char *name);
+int L_RunString(L_State *estate, char const *buf, int size, const char *name);
 
 static inline int L_IsInitialized(const L_State *estate) { return (estate->L != NULL); }
 

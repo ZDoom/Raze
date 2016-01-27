@@ -187,7 +187,7 @@ static void L_ErrorPrint(const char *errmsg)
 
 // size < 0: length of <buf> is determined using strlen()
 // size >= 0: size given, for loading of LuaJIT bytecode
-int L_RunString(L_State *estate, char *buf, int dofreebuf, int size, const char *name)
+int L_RunString(L_State *estate, char const *buf, int size, const char *name)
 {
     int32_t i;
     lua_State *L = estate->L;
@@ -202,8 +202,6 @@ int L_RunString(L_State *estate, char *buf, int dofreebuf, int size, const char 
     else
         i = luaL_loadbuffer(L, buf, size, name);
     Bassert(lua_gettop(L)==2);
-    if (dofreebuf)
-        Bfree(buf);
 
     if (i == LUA_ERRMEM)
         L_OutOfMemFunc();
@@ -243,5 +241,7 @@ int L_RunOnce(L_State *estate, const char *fn)
     if (i != 0)
         return i;
 
-    return L_RunString(estate, buf, 1, -1, fn);
+    int const retval = L_RunString(estate, buf, -1, fn);
+    Bfree(buf);
+    return retval;
 }
