@@ -9660,7 +9660,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
 
             if (!anim)
             {
-                initprintf("Error: expected a hardcoded anim file name (sans extension) on line %s:%d\n",
+                initprintf("Error: expected animation filename on line %s:%d\n",
                            script->filename, scriptfile_getlinum(script, otokptr));
                 break;
             }
