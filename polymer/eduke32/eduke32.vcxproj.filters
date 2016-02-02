@@ -507,6 +507,7 @@
     <ClInclude Include="source\mpu401.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
+    <ClInclude Include="source\_midi.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">

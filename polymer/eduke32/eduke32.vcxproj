@@ -87,6 +87,18 @@
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f Makefile.msvc veryclean WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">USE_OPENGL;POLYMER;NOASM</NMakePreprocessorDefinitions>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</IncludePath>
+  </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="build\include\a.h" />
     <ClInclude Include="build\include\baselayer.h" />
