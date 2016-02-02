@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -19,6 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
+
 #include "compat.h"
 
 #include <time.h>
@@ -5238,6 +5239,151 @@ finish_qsprintf:
             } while (tw);
             continue;
         }
+
+        case CON_FOR:  // special-purpose iteration
+            insptr++;
+            {
+                const int32_t var = *insptr++, how = *insptr++;
+                const int32_t parm2 = how<=ITER_DRAWNSPRITES ? 0 : Gv_GetVarX(*insptr++);
+                intptr_t const *const end = insptr + *insptr, *const beg = ++insptr;
+
+                switch (how)
+                {
+                case ITER_ALLSPRITES:
+                    for (int jj=0; jj<MAXSPRITES; jj++)
+                    {
+                        if (sprite[jj].statnum == MAXSTATUS)
+                            continue;
+
+                        Gv_SetVarX(var, jj);
+                        insptr = beg;
+                        VM_Execute(0);
+                    }
+                    break;
+                case ITER_ALLSECTORS:
+                    for (int jj=0; jj<numsectors; jj++)
+                    {
+                        Gv_SetVarX(var, jj);
+                        insptr = beg;
+                        VM_Execute(0);
+                    }
+                    break;
+                case ITER_ALLWALLS:
+                    for (int jj=0; jj<numwalls; jj++)
+                    {
+                        Gv_SetVarX(var, jj);
+                        insptr = beg;
+                        VM_Execute(0);
+                    }
+                    break;
+                case ITER_ACTIVELIGHTS:
+#ifdef POLYMER
+                    for (int jj=0; jj<PR_MAXLIGHTS; jj++)
+                    {
+                        if (!prlights[jj].flags.active)
+                            continue;
+
+                        Gv_SetVarX(var, jj);
+                        insptr = beg;
+                        VM_Execute(0);
+                    }
+#endif
+                    break;
+
+                case ITER_DRAWNSPRITES:
+                {
+/*
+                    tspritetype lastSpriteBackup;
+                    tspritetype *const lastSpritePtr = (tspritetype *) &sprite[MAXSPRITES-1];
+*/
+
+                    // Back up sprite MAXSPRITES-1.
+/*
+                    Bmemcpy(&lastSpriteBackup, lastSpritePtr, sizeof(tspritetype));
+*/
+
+                    for (int ii=0; ii<spritesortcnt; ii++)
+                    {
+/*
+                        Bmemcpy(lastSpritePtr, &tsprite[ii], sizeof(tspritetype));
+*/
+                        Gv_SetVarX(var, ii);
+                        insptr = beg;
+                        VM_Execute(0);
+
+                        // Copy over potentially altered tsprite.
+/*
+                        Bmemcpy(&tsprite[ii], lastSpritePtr, sizeof(tspritetype));
+*/
+                    }
+
+                    // Restore sprite MAXSPRITES-1.
+/*
+                    Bmemcpy(lastSpritePtr, &lastSpriteBackup, sizeof(tspritetype));
+*/
+                    break;
+                }
+
+                case ITER_SPRITESOFSECTOR:
+                    if ((unsigned)parm2 >= MAXSECTORS) goto badindex;
+                    for (int jj=headspritesect[parm2]; jj>=0; jj=nextspritesect[jj])
+                    {
+                        Gv_SetVarX(var, jj);
+                        insptr = beg;
+                        VM_Execute(0);
+                    }
+                    break;
+                case ITER_SPRITESOFSTATUS:
+                    if ((unsigned) parm2 >= MAXSTATUS) goto badindex;
+                    for (int jj=headspritestat[parm2]; jj>=0; jj=nextspritestat[jj])
+                    {
+                        Gv_SetVarX(var, jj);
+                        insptr = beg;
+                        VM_Execute(0);
+                    }
+                    break;
+                case ITER_WALLSOFSECTOR:
+                    if ((unsigned) parm2 >= MAXSECTORS) goto badindex;
+                    for (int jj=sector[parm2].wallptr, endwall=jj+sector[parm2].wallnum-1;
+                    jj<=endwall; jj++)
+                    {
+                        Gv_SetVarX(var, jj);
+                        insptr = beg;
+                        VM_Execute(0);
+                    }
+                    break;
+                case ITER_LOOPOFWALL:
+                    if ((unsigned) parm2 >= numwalls) goto badindex;
+                    {
+                        int jj = parm2;
+                        do
+                        {
+                            Gv_SetVarX(var, jj);
+                            insptr = beg;
+                            VM_Execute(0);
+                            jj = wall[jj].point2;
+                        } while (jj != parm2);
+                    }
+                    break;
+                case ITER_RANGE:
+                    for (int jj=0; jj<parm2; jj++)
+                    {
+                        Gv_SetVarX(var, jj);
+                        insptr = beg;
+                        VM_Execute(0);
+                    }
+                    break;
+                default:
+                    CON_ERRPRINTF("Unknown iteration type %d!", how);
+                    continue;
+                badindex:
+                    OSD_Printf(OSD_ERROR "Line %d, %s %s: index %d out of range!\n", g_errorLineNum, keyw[g_tw],
+                        iter_tokens[how].token, parm2);
+                    continue;
+                }
+                insptr = end;
+            }
+            continue;
 
         case CON_IFVARAND:
             insptr++;

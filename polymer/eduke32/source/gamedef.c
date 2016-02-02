@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -118,11 +118,6 @@ static char *C_GetLabelType(int32_t type)
 
     return Xstrdup(x);
 }
-
-typedef struct {
-    const char* token;
-    int32_t val;
-} tokenmap_t;
 
 const tokenmap_t altkeyw [] =
 {
@@ -575,6 +570,7 @@ const char *keyw[] =
     "ifvarge",                  // 393
     "ifvarboth",                // 394
     "movesector",               // 395
+    "for",                      // 396
     "<null>"
 };
 #endif
@@ -1226,6 +1222,26 @@ const memberlabel_t PalDataLabels[]=
     { "", -1, 0, 0  }     // END OF LIST
 };
 
+const tokenmap_t iter_tokens [] =
+{
+    { "allsprites", ITER_ALLSPRITES },
+    { "allsectors", ITER_ALLSECTORS },
+    { "allwalls", ITER_ALLWALLS },
+    { "activelights", ITER_ACTIVELIGHTS },
+    { "drawnsprites", ITER_DRAWNSPRITES },
+    { "spritesofsector", ITER_SPRITESOFSECTOR },
+    { "spritesofstatus", ITER_SPRITESOFSTATUS },
+    { "loopofwall", ITER_LOOPOFWALL },
+    { "wallsofsector", ITER_WALLSOFSECTOR },
+    { "range", ITER_RANGE },
+    // vvv alternatives go here vvv
+    { "lights", ITER_ACTIVELIGHTS },
+    { "sprofsec", ITER_SPRITESOFSECTOR },
+    { "sprofstat", ITER_SPRITESOFSTATUS },
+    { "walofsec", ITER_WALLSOFSECTOR },
+    { "", -1 }     // END OF LIST
+};
+
 #endif
 
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
@@ -1239,6 +1255,7 @@ hashtable_t h_arrays      = { MAXGAMEARRAYS>>1, NULL };
 hashtable_t h_labels      = { 11264>>1, NULL };
 
 static hashtable_t h_keywords   = { CON_END>>1, NULL };
+static hashtable_t h_iter       = { ITER_END>>1, NULL };
 
 static hashtable_t h_sector     = { SECTOR_END>>1, NULL };
 static hashtable_t h_wall       = { WALL_END>>1, NULL };
@@ -1255,12 +1272,14 @@ static hashtable_t h_paldata    = { PALDATA_END>>1, NULL };
 
 static hashtable_t * const tables[] = {
     &h_gamevars,   &h_arrays, &h_labels, &h_keywords, &h_sector,  &h_wall,     &h_userdef,
-    &h_projectile, &h_player, &h_input,  &h_actor,    &h_tsprite, &h_tiledata, &h_paldata
+    &h_projectile, &h_player, &h_input,  &h_actor,    &h_tsprite, &h_tiledata, &h_paldata,
+    &h_iter
 };
 
 static hashtable_t * const tables_free [] ={
     &h_labels, &h_keywords, &h_sector,  &h_wall,     &h_userdef,
-    &h_projectile, &h_player, &h_input,  &h_actor,    &h_tsprite, &h_tiledata, &h_paldata
+    &h_projectile, &h_player, &h_input,  &h_actor,    &h_tsprite, &h_tiledata, &h_paldata,
+    &h_iter
 };
 
 #define STRUCT_HASH_SETUP(table, labels) do { for (i=0; labels[i].lId >= 0; i++) hash_add(&table, labels[i].name, i, 0); } while (0)
@@ -1288,6 +1307,9 @@ void C_InitHashes()
     STRUCT_HASH_SETUP(h_tsprite, TsprLabels);
     STRUCT_HASH_SETUP(h_tiledata, TileDataLabels);
     STRUCT_HASH_SETUP(h_paldata, PalDataLabels);
+
+    for (i=0; iter_tokens[i].val >=0; i++)
+        hash_add(&h_iter, iter_tokens[i].token, iter_tokens[i].val, 0);
 }
 
 #undef STRUCT_HASH_SETUP
@@ -4550,6 +4572,33 @@ DO_DEFSTATE:
 
                 continue;
             }
+
+        case CON_FOR:  // special-purpose iteration
+        {
+            C_GetNextVarType(GAMEVAR_READONLY);
+
+            C_GetNextLabelName();
+
+            int32_t how = hash_find(&h_iter, label + (g_numLabels << 6));
+            if (how < 0)
+            {
+                C_CUSTOMERROR("unknown iteration type `%s'.", label + (g_numLabels << 6));
+                return 1;
+            }
+            *g_scriptPtr++ = how;
+
+            if (how >= ITER_SPRITESOFSECTOR)
+                C_GetNextVar();
+
+            intptr_t offset = g_scriptPtr-script;
+            g_scriptPtr++; //Leave a spot for the location to jump to after completion
+
+            C_ParseCommand(0);
+
+            intptr_t *tscrptr = (intptr_t *) script+offset;
+            *tscrptr = (g_scriptPtr-script)-offset;  // relative offset
+            continue;
+        }
 
         case CON_ROTATESPRITE16:
         case CON_ROTATESPRITE:

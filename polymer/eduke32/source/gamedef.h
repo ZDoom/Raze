@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -39,6 +39,17 @@ extern "C" {
 #define NUMCHEATCODES           (int32_t)ARRAY_SIZE(CheatStrings)
 
 #define VM_INSTMASK 0xfff
+
+#define C_CUSTOMERROR(Text, ...) do { \
+    C_ReportError(-1);                                                  \
+    initprintf("%s:%d: error: " Text "\n", g_szScriptFileName, g_lineNumber, ## __VA_ARGS__); \
+    g_numCompilerErrors++; \
+    } while (0)
+#define C_CUSTOMWARNING(Text, ...) do { \
+    C_ReportError(-1);                                                  \
+    initprintf("%s:%d: warning: " Text "\n", g_szScriptFileName, g_lineNumber, ## __VA_ARGS__); \
+    g_numCompilerWarnings++; \
+    } while (0)
 
 extern intptr_t const * insptr;
 extern void VM_ScriptInfo(intptr_t const *ptr, int32_t range);
@@ -165,6 +176,13 @@ void C_Compile(const char *filenam);
 extern int32_t g_errorLineNum;
 extern int32_t g_tw;
 extern const char *keyw[];
+
+typedef struct {
+    const char* token;
+    int32_t val;
+} tokenmap_t;
+
+extern const tokenmap_t iter_tokens [];
 
 // KEEPINSYNC lunatic/con_lang.lua
 enum SystemString_t {
@@ -672,6 +690,22 @@ enum ProjectileLabel_t
 };
 #if !defined LUNATIC
 
+enum IterationTypes_t
+{
+    ITER_ALLSPRITES,
+    ITER_ALLSECTORS,
+    ITER_ALLWALLS,
+    ITER_ACTIVELIGHTS,
+    ITER_DRAWNSPRITES,
+    // ---
+    ITER_SPRITESOFSECTOR,
+    ITER_SPRITESOFSTATUS,
+    ITER_WALLSOFSECTOR,
+    ITER_LOOPOFWALL,
+    ITER_RANGE,
+    ITER_END
+};
+
 enum ScriptKeywords_t
 {
     CON_DEFINELEVELNAME,    // 0
@@ -1070,6 +1104,7 @@ enum ScriptKeywords_t
     CON_IFVARGE,            // 393
     CON_IFVARBOTH,          // 394
     CON_MOVESECTOR,         // 395
+    CON_FOR,                // 396
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua
