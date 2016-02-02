@@ -50,6 +50,7 @@ static int32_t MusicIsWaveform = 0;
 static char *MusicPtr = NULL;
 static int32_t MusicVoice = -1;
 static int32_t MusicPaused = 0;
+static int32_t SoundPaused = 0;
 
 static mutex_t s_mutex;
 static volatile uint32_t dq[DQSIZE], dnum = 0;
@@ -147,6 +148,25 @@ void S_PauseMusic(int32_t onf)
     else
         MUSIC_Continue();
 }
+
+void S_PauseSounds(int32_t onf)
+{
+    if (SoundPaused == onf)
+        return;
+
+    SoundPaused = onf;
+
+    for (int i=0; i<g_maxSoundPos; ++i)
+    {
+        for (int j = 0; j<MAXSOUNDINSTANCES; ++j)
+        {
+            if (g_sounds[i].SoundOwner[j].voice > 0)
+                FX_PauseVoice(g_sounds[i].SoundOwner[j].voice, onf);
+        }
+    }
+}
+
+
 
 void S_MusicVolume(int32_t volume)
 {

@@ -3787,15 +3787,14 @@ void G_DisplayRest(int32_t smoothratio)
             I_EscapeTriggerClear();
             S_PlaySound(EXITMENUSOUND);
             M_ChangeMenu(MENU_CLOSE);
+            S_PauseSounds(0);
         }
         else if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU &&
                  g_player[myconnectindex].ps->newowner == -1 &&
                  (g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
         {
             I_EscapeTriggerClear();
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-
+            S_PauseSounds(1);
             S_MenuSound();
 
             M_OpenMenu(myconnectindex);
@@ -9031,9 +9030,8 @@ void G_HandleLocalKeys(void)
         {
             KB_ClearKeyDown(sc_F1);
             M_ChangeMenu(MENU_STORY);
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
 
+            S_PauseSounds(1);
             M_OpenMenu(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2))
@@ -9083,8 +9081,7 @@ FAKE_F2:
                 G_DrawRooms(myconnectindex,65536);
                 g_screenCapture = 0;
 
-                FX_StopAllSounds();
-                S_ClearSoundLocks();
+                S_PauseSounds(1);
 
                 //                setview(0,0,xdim-1,ydim-1);
                 M_OpenMenu(myconnectindex);
@@ -9103,8 +9100,8 @@ FAKE_F2:
 
 FAKE_F3:
                 M_ChangeMenu(MENU_LOAD);
-                FX_StopAllSounds();
-                S_ClearSoundLocks();
+
+                S_PauseSounds(1);
 
                 //                setview(0,0,xdim-1,ydim-1);
                 M_OpenMenu(myconnectindex);
@@ -9120,8 +9117,7 @@ FAKE_F3:
         if (KB_UnBoundKeyPressed(sc_F4))
         {
             KB_ClearKeyDown(sc_F4);
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
+            S_PauseSounds(1);
 
             M_OpenMenu(myconnectindex);
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
@@ -9218,9 +9214,7 @@ FAKE_F3:
             {
                 KB_FlushKeyboardQueue();
                 KB_ClearKeysDown();
-                FX_StopAllSounds();
-                S_ClearSoundLocks();
-
+                S_PauseSounds(1);
                 G_LoadPlayerMaybeMulti(g_lastSaveSlot);
             }
         }
@@ -9229,8 +9223,7 @@ FAKE_F3:
         {
             KB_ClearKeyDown(sc_F10);
             M_ChangeMenu(MENU_QUIT_INGAME);
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
+            S_PauseSounds(1);
             M_OpenMenu(myconnectindex);
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
@@ -9243,8 +9236,7 @@ FAKE_F3:
         {
             KB_ClearKeyDown(sc_F11);
             M_ChangeMenu(MENU_COLCORR_INGAME);
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
+            S_PauseSounds(1);
             M_OpenMenu(myconnectindex);
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
