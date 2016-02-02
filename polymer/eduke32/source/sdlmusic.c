@@ -108,7 +108,6 @@ int32_t MUSIC_Init(int32_t SoundCard)
     const SDL_version *linked = Mix_Linked_Version();
 
     UNREFERENCED_PARAMETER(SoundCard);
-    UNREFERENCED_PARAMETER(Address);
 
     if (music_initialized)
     {
