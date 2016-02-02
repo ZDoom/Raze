@@ -504,6 +504,9 @@
     <ClInclude Include="build\include\md4.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="source\mpu401.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
