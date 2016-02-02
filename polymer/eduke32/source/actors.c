@@ -423,13 +423,15 @@ int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t c
     {
         // use that value
     }
+    else if (A_CheckSpriteFlags(spritenum, SFLAG_REALCLIPDIST))
+        clipdist = spr->clipdist<<2;
     else if (badguy)
     {
         if (spr->xrepeat > 60)
             clipdist = 1024;
         else if (spr->picnum == LIZMAN)
             clipdist = 292;
-        else if (A_CheckSpriteTileFlags(spr->picnum, SFLAG_BADGUY))
+        else if (A_CheckSpriteFlags(spritenum, SFLAG_BADGUY))
             clipdist = spr->clipdist<<2;
         else
             clipdist = 192;
@@ -733,7 +735,7 @@ static int32_t move_rotfixed_sprite(int32_t j, int32_t pivotspr, int32_t daang)
 {
     if ((ROTFIXSPR_STATNUMP(sprite[j].statnum) ||
          ((sprite[j].statnum == STAT_ACTOR || sprite[j].statnum == STAT_ZOMBIEACTOR) &&
-          A_CheckSpriteTileFlags(sprite[j].picnum, SFLAG_ROTFIXED))) &&
+          A_CheckSpriteFlags(j, SFLAG_ROTFIXED))) &&
         actor[j].t_data[7] == (ROTFIXSPR_MAGIC | pivotspr))
     {
         rotatepoint(zerovec, *(vec2_t *)&actor[j].t_data[8], daang & 2047, (vec2_t *)&sprite[j].x);
@@ -1035,8 +1037,8 @@ int32_t A_IncurDamage(int32_t sn)
                 break;
 
             default:
-                if (A_CheckSpriteTileFlags(dmg->picnum, SFLAG_PROJECTILE) &&
-                    (SpriteProjectile[sn].workslike & PROJECTILE_RPG))
+                if (A_CheckSpriteFlags(dmg->owner, SFLAG_PROJECTILE) &&
+                    (SpriteProjectile[dmg->owner].workslike & PROJECTILE_RPG))
                     P_Nudge(p, sn, 2);
                 else
                     P_Nudge(p, sn, 1);
@@ -4396,7 +4398,7 @@ ACTOR_STATIC void G_MoveActors(void)
             {
                 for (SPRITES_OF_SECT(sect, j))
                 {
-                    if (A_CheckSpriteTileFlags(sprite[j].picnum, SFLAG_GREENSLIMEFOOD))
+                    if (A_CheckSpriteFlags(j, SFLAG_GREENSLIMEFOOD))
                     {
                         if (ldist(s,&sprite[j]) < 768 && (klabs(s->z-sprite[j].z)<8192))   //Gulp them
                         {

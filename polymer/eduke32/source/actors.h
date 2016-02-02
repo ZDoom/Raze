@@ -258,6 +258,7 @@ enum sflags_t {
     SFLAG_NOWATERDIP       = 0x00200000,
     SFLAG_HURTSPAWNBLOOD   = 0x00400000,
     SFLAG_GREENSLIMEFOOD   = 0x00800000,
+    SFLAG_REALCLIPDIST     = 0x01000000
 };
 
 // Custom projectiles "workslike" flags.

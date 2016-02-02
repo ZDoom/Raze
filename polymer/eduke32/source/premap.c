@@ -983,7 +983,7 @@ static void G_SetupRotfixedSprites(void)
                 // too useful with moving sectors anyway
                 if ((ROTFIXSPR_STATNUMP(spr->statnum) && spr->picnum!=TRIPBOMB) ||
                     ((spr->statnum==STAT_ACTOR || spr->statnum==STAT_ZOMBIEACTOR) &&
-                     A_CheckSpriteTileFlags(spr->picnum, SFLAG_ROTFIXED)))
+                     A_CheckSpriteFlags(j, SFLAG_ROTFIXED)))
                 {
                     int32_t pivot = i;
 

@@ -5275,7 +5275,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 if (sp->xrepeat == 0 || sp->yrepeat == 0)
                     sp->xrepeat = sp->yrepeat = 1;
 
-                if (A_CheckSpriteTileFlags(sp->picnum, SFLAG_BADGUY))
+                if (A_CheckSpriteFlags(i, SFLAG_BADGUY))
                 {
                     if (ud.monsters_off == 1)
                     {
@@ -5286,7 +5286,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                     A_Fall(i);
 
-                    if (A_CheckSpriteTileFlags(sp->picnum, SFLAG_BADGUYSTAYPUT))
+                    if (A_CheckSpriteFlags(i, SFLAG_BADGUYSTAYPUT))
                         actor[i].actorstayput = sp->sectnum;
 
                     g_player[myconnectindex].ps->max_actors_killed++;

@@ -1527,7 +1527,7 @@ void A_DamageWall(int32_t spr, int32_t dawallnum, const vec3_t *pos, int32_t atw
     walltype *wal = &wall[dawallnum];
 
     if (wal->overpicnum == MIRROR && wal->pal != 4 &&
-            A_CheckSpriteTileFlags(atwith,SFLAG_PROJECTILE) &&
+            A_CheckSpriteFlags(spr,SFLAG_PROJECTILE) &&
             (SpriteProjectile[spr].workslike & PROJECTILE_RPG))
     {
         if (wal->nextwall == -1 || wall[wal->nextwall].pal != 4)
@@ -2273,7 +2273,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
                 if ((PN != DRONE) && (PN != ROTATEGUN) && (PN != COMMANDER) && (PN < GREENSLIME || PN > GREENSLIME+7))
                     if (sprite[sn].picnum != FREEZEBLAST)
-                        if (!A_CheckSpriteTileFlags(PN, SFLAG_BADGUY) || A_CheckSpriteTileFlags(PN, SFLAG_HURTSPAWNBLOOD))
+                        if (!A_CheckSpriteFlags(i, SFLAG_BADGUY) || A_CheckSpriteFlags(i, SFLAG_HURTSPAWNBLOOD))
                         {
                             j = A_Spawn(sn,JIBS6);
                             if (sprite[sn].pal == 6)
@@ -2288,7 +2288,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
                 if (j >= 0 && sprite[j].picnum == APLAYER && PN != ROTATEGUN && PN != DRONE)
                     if (g_player[P_Get(j)].ps->curr_weapon == SHOTGUN_WEAPON)
-                        if (!A_CheckSpriteTileFlags(PN, SFLAG_BADGUY) || A_CheckSpriteTileFlags(PN, SFLAG_HURTSPAWNBLOOD))
+                        if (!A_CheckSpriteFlags(i, SFLAG_BADGUY) || A_CheckSpriteFlags(i, SFLAG_HURTSPAWNBLOOD))
                         {
                             A_Shoot(i,BLOODSPLAT3);
                             A_Shoot(i,BLOODSPLAT1);
