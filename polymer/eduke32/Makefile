@@ -742,7 +742,7 @@ $(ENGINE_OBJ) $(MACT_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(TESTGAME_OBJ) $(DUKE3D_O
 
 ## PHONIES
 
-clean: cleanduke3d
+veryclean: clean
 
 # Delete executables, object files created from sources in source/, and
 # miscellaneous generated files related to Lunatic on non-Linux.
@@ -764,9 +764,8 @@ cleansw:
 cleanutils:
 	-rm -f $(addsuffix $(EXESUFFIX),$(UTILS) $(GAMEUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(UTILS))) $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(GAMEUTILS))) $(addsuffix $(EXESUFFIX),$(DXUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(DXUTILS))) $(addsuffix $(EXESUFFIX),$(SDLUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(SDLUTILS))) $(UTIL_OBJS_EXP)
 
-veryclean: clean cleanutils
+clean: cleanduke3d cleanutils
 ifeq ($(PRETTY_OUTPUT),1)
-	echo "Removed test game and utils objects."
 	echo "rm -f $(ENGINE_OBJ)/*.$o $(MACT_OBJ)/*.$o $(AUDIOLIB_OBJ)/*.$o $(ENET_OBJ)/*.$o $(DUKE3D_RSRC)/*banner* $(EBACKTRACEDLL)"
 endif
 	-rm -f $(ENGINE_OBJ)/*.$o $(MACT_OBJ)/*.$o $(AUDIOLIB_OBJ)/*.$o $(ENET_OBJ)/*.$o $(DUKE3D_RSRC)/*banner* $(EBACKTRACEDLL)
