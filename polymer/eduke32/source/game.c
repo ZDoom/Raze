@@ -5076,7 +5076,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
     spritetype *s = &sprite[i];
     *s = *(spritetype *)&spr_temp;
     actor[i] = NullActor;
-    actor[i].bpos = *(vec3_t *) &s;
+    actor[i].bpos = *(vec3_t *)s;
 
     if ((unsigned)s_ow < MAXSPRITES)
     {
