@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -23,9 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define actors_c_
 
 #include "duke3d.h"
-#include "actors.h"
-#include "gamedef.h"
-#include "gameexec.h"
 
 #if KRANDDEBUG
 # define ACTOR_STATIC

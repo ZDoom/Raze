@@ -195,6 +195,7 @@ DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
 	$(DUKE3D_OBJ)\anim.$o \
 	$(DUKE3D_OBJ)\animsounds.$o \
 	$(DUKE3D_OBJ)\animvpx.$o \
+        $(DUKE3D_OBJ)\cheats.$o \
 	$(DUKE3D_OBJ)\common.$o \
 	$(DUKE3D_OBJ)\demo.$o \
 	$(DUKE3D_OBJ)\gamedef.$o \

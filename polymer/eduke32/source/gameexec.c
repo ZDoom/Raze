@@ -20,22 +20,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "compat.h"
-
-#include <time.h>
-#include <stdlib.h>
-#include <math.h>  // sqrt
-
-#include "build.h"
 
 #include "duke3d.h"
-#include "gamedef.h"
-#include "gameexec.h"
+#include <time.h>
+#include <math.h>  // sqrt
+
 #include "scriplib.h"
 #include "savegame.h"
-#include "premap.h"
 #include "osdcmds.h"
-#include "osd.h"
 #include "menus.h"
 #include "input.h"
 #include "anim.h"

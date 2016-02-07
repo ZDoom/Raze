@@ -507,7 +507,12 @@
     <ClInclude Include="source\mpu401.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\_midi.h" />
+    <ClInclude Include="source\_midi.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\cheats.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -679,9 +684,6 @@
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\winbits.c">
-      <Filter>eduke32\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\wrapper.c">
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\jaudiolib\src\driver_directsound.c">
@@ -893,6 +895,9 @@
     </ClCompile>
     <ClCompile Include="build\src\md4.c">
       <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\cheats.c">
+      <Filter>eduke32\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

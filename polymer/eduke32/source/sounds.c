@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -27,20 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define __STDC_LIMIT_MACROS
 #endif
 
-#include <stdio.h>
-#include <string.h>
-
-#include "fx_man.h"
-#include "music.h"
 #include "duke3d.h"
-#include "osd.h"
-#include "sounds.h"
-
-#include "common_game.h"
-
-#ifdef _WIN32
-#include "winlayer.h"
-#endif
+#include "renderlayer.h" // for win_gethwnd()
 
 #define DQSIZE 128
 

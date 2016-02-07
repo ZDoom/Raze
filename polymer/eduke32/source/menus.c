@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -20,23 +20,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "compat.h"
 #include "duke3d.h"
-#include "renderlayer.h"
-#include "net.h"
-#include "player.h"
-#include "mouse.h"
-#include "joystick.h"
-#include "osd.h"
 #include "osdcmds.h"
-#include "gamedef.h"
-#include "gameexec.h"
 #include "savegame.h"
-#include "premap.h"
 #include "demo.h"
 #include "xxhash.h"
-#include "common.h"
-#include "common_game.h"
 #include "input.h"
 #include "menus.h"
 

@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -21,14 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 
 #include "duke3d.h"
-#include "game.h"
-#include "common_game.h"
-#include "osd.h"
-#include "gamedef.h"
-#include "premap.h"
-#include "sounds.h"
-#include "fx_man.h"
-#include "gameexec.h"
 #include "anim.h"
 #include "menus.h"
 #include "demo.h"

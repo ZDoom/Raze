@@ -23,7 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef game_h_
 #define game_h_
 
-#include "premap.h"
+#include "premap.h" // XXX
 
 #ifdef __cplusplus
 extern "C" {
@@ -263,9 +263,6 @@ extern const char *s_buildDate;
 
 extern const char *g_rtsNamePtr;
 
-extern char CheatStrings[][MAXCHEATLEN];
-extern char const * const g_NAMMattCheatQuote;
-
 extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
 extern char boardfilename[BMAX_PATH];
 
@@ -283,6 +280,7 @@ extern int32_t althud_numberpal;
 extern int32_t althud_numbertile;
 extern int32_t althud_shadows;
 
+extern int32_t g_Debug;
 extern int32_t g_Shareware;
 #if !defined LUNATIC
 extern int32_t g_cameraClock;
@@ -345,6 +343,7 @@ void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n);
 void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n);
 void G_AddUserQuote(const char *daquote);
 void G_BackToMenu(void);
+void G_DumpDebugInfo(void);
 
 const char* G_PrintYourTime(void);
 const char* G_PrintParTime(void);
@@ -514,68 +513,6 @@ enum {
     ST_30_ROTATE_RISE_BRIDGE = 30,
     ST_31_TWO_WAY_TRAIN = 31,
     // left: ST 32767, 65534, 65535
-};
-
-// Cheats
-// KEEPINSYNC game.c: char CheatStrings[][]
-enum cheatindex_t
-{
-    CHEAT_CORNHOLIO,  // 0
-    CHEAT_STUFF,
-    CHEAT_SCOTTY,
-    CHEAT_COORDS,
-    CHEAT_VIEW,
-    CHEAT_TIME,  // 5
-    CHEAT_UNLOCK,
-    CHEAT_CASHMAN,
-    CHEAT_ITEMS,
-    CHEAT_RATE,
-    CHEAT_SKILL,  // 10
-    CHEAT_BETA,
-    CHEAT_HYPER,
-    CHEAT_MONSTERS,
-    CHEAT_RESERVED,
-    CHEAT_RESERVED2,  // 15
-    CHEAT_TODD,
-    CHEAT_SHOWMAP,
-    CHEAT_KROZ,
-    CHEAT_ALLEN,
-    CHEAT_CLIP,  // 20
-    CHEAT_WEAPONS,
-    CHEAT_INVENTORY,
-    CHEAT_KEYS,
-    CHEAT_DEBUG,
-    CHEAT_RESERVED3,  // 25
-    CHEAT_COMEGETSOME,
-    NUMCHEATS,
-};
-
-// KEEPINSYNC game.c: uint8_t CheatFunctionIDs[]
-// KEEPINSYNC menus.c: MenuEntry_t ME_CheatCodes[]
-enum CheatCodeFunctions
-{
-    CHEATFUNC_CASHMAN,
-    CHEATFUNC_GOD,
-    CHEATFUNC_GIVEEVERYTHING,
-    CHEATFUNC_GIVEWEAPONS,
-    CHEATFUNC_GIVEALLITEMS,
-    CHEATFUNC_GIVEINVENTORY,
-    CHEATFUNC_GIVEKEYS,
-    CHEATFUNC_HYPER,
-    CHEATFUNC_VIEW,
-    CHEATFUNC_SHOWMAP,
-    CHEATFUNC_UNLOCK,
-    CHEATFUNC_CLIP,
-    CHEATFUNC_WARP,
-    CHEATFUNC_SKILL,
-    CHEATFUNC_MONSTERS,
-    CHEATFUNC_FRAMERATE,
-    CHEATFUNC_QUOTEBETA,
-    CHEATFUNC_QUOTETODD,
-    CHEATFUNC_QUOTEALLEN,
-    CHEATFUNC_COORDS,
-    CHEATFUNC_DEBUG,
-    NUMCHEATFUNCS,
 };
 
 
