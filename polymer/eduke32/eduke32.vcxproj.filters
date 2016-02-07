@@ -516,6 +516,9 @@
     <ClInclude Include="source\sbar.h">
       <Filter>eduke32\source\editor</Filter>
     </ClInclude>
+    <ClInclude Include="source\screentext.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -903,6 +906,9 @@
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\sbar.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\screentext.c">
       <Filter>eduke32\source</Filter>
     </ClCompile>
   </ItemGroup>

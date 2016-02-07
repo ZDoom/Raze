@@ -24,6 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "sbar.h"
 
+int32_t althud_flashing = 1;
+int32_t althud_numbertile = 2930;
+int32_t althud_numberpal = 0;
+
+#ifdef EDUKE32_TOUCH_DEVICES
+int32_t althud_shadows = 0;
+#else
+int32_t althud_shadows = 1;
+#endif
+
 int32_t sbarsc(int32_t sc)
 {
     return scale(sc, ud.statusbarscale, 100);

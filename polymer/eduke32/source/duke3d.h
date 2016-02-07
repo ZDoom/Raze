@@ -143,6 +143,7 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 #include "gamedef.h"
 #include "gameexec.h"
 #include "gamevars.h"
+#include "screentext.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"

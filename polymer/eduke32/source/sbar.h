@@ -19,6 +19,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
+
+#pragma once
+
+extern int32_t althud_flashing;
+extern int32_t althud_numberpal;
+extern int32_t althud_numbertile;
+extern int32_t althud_shadows;
+
 int32_t sbarsc(int32_t sc);
 int32_t sbarx16(int32_t x);
 int32_t sbary16(int32_t y);
