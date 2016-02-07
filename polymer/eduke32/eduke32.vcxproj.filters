@@ -513,6 +513,9 @@
     <ClInclude Include="source\cheats.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
+    <ClInclude Include="source\sbar.h">
+      <Filter>eduke32\source\editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -897,6 +900,9 @@
       <Filter>build\source</Filter>
     </ClCompile>
     <ClCompile Include="source\cheats.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\sbar.c">
       <Filter>eduke32\source</Filter>
     </ClCompile>
   </ItemGroup>

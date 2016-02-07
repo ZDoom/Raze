@@ -55,6 +55,7 @@ $(DUKE3D_OBJ)/net.$o: $(DUKE3D_SRC)/net.c $(duke3d_h)
 $(DUKE3D_OBJ)/player.$o: $(DUKE3D_SRC)/player.c $(duke3d_h)
 $(DUKE3D_OBJ)/premap.$o: $(DUKE3D_SRC)/premap.c $(duke3d_h) $(ENGINE_INC)/osd.h
 $(DUKE3D_OBJ)/savegame.$o: $(DUKE3D_SRC)/savegame.c $(duke3d_h) $(DUKE3D_SRC)/savegame.h
+$(DUKE3D_OBJ)/sbar.$o: $(DUKE3D_SRC)/sbar.c $(DUKE3D_SRC)/sbar.h
 $(DUKE3D_OBJ)/sector.$o: $(DUKE3D_SRC)/sector.c $(duke3d_h) $(DUKE3D_SRC)/input.h
 $(DUKE3D_OBJ)/sounds.$o: $(DUKE3D_SRC)/sounds.c $(duke3d_h)
 $(DUKE3D_OBJ)/soundsdyn.$o: $(DUKE3D_SRC)/soundsdyn.c $(duke3d_h)

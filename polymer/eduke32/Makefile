@@ -230,7 +230,7 @@ MAPSTER32_TARGET:=$(MAPSTER32)$(EXESUFFIX)
 COMMON_OBJS=rev
 COMMON_EDITOR_OBJS=m32common m32def m32exec m32vars rev
 
-DUKE3D_OBJS=game global actors gamedef gameexec gamevars player premap sector anim animsounds common config demo input menus namesdyn net savegame rts osdfuncs osdcmds grpscan sounds soundsdyn cheats
+DUKE3D_OBJS=game global actors gamedef gameexec gamevars player premap sector anim animsounds common config demo input menus namesdyn net savegame rts osdfuncs osdcmds grpscan sounds soundsdyn cheats sbar
 DUKE3D_EDITOR_OBJS=astub common grpscan sounds_mapster32
 
 ifneq ($(USE_LIBVPX),0)

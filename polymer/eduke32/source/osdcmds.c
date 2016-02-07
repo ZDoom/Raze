@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdfuncs.h"
 #include "demo.h"  // g_firstDemoFile[]
 #include "cheats.h"
+#include "sbar.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"
@@ -35,16 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "android/in_android.h"
 #endif
 
-extern int32_t voting, g_doQuickSave;
 struct osdcmd_cheatsinfo osdcmd_cheatsinfo_stat;
 float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
-extern int32_t althud_numbertile, althud_numberpal, althud_shadows, althud_flashing, hud_glowingquotes;
-extern int32_t hud_showmapname;
-extern int32_t r_maxfps;
-extern uint32_t g_frameDelay;
-extern int32_t demorec_diffs_cvar, demorec_force_cvar, demorec_seeds_cvar, demoplay_diffs, demoplay_showsync;
-extern int32_t demorec_difftics_cvar, demorec_diffcompress_cvar, demorec_synccompress_cvar;
-extern void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 
 uint32_t cl_cheatmask;
 

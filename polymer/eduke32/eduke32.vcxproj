@@ -193,6 +193,7 @@
     <ClInclude Include="source\premap.h" />
     <ClInclude Include="source\quotes.h" />
     <ClInclude Include="source\savegame.h" />
+    <ClInclude Include="source\sbar.h" />
     <ClInclude Include="source\sector.h" />
     <ClInclude Include="source\_functio.h" />
     <ClInclude Include="source\_midi.h" />
@@ -341,6 +342,7 @@
     <ClCompile Include="source\premap.c" />
     <ClCompile Include="source\rts.c" />
     <ClCompile Include="source\savegame.c" />
+    <ClCompile Include="source\sbar.c" />
     <ClCompile Include="source\sdlmusic.c" />
     <ClCompile Include="source\sector.c" />
     <ClCompile Include="source\sounds.c" />
