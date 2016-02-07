@@ -471,7 +471,7 @@ ifneq (0,$(RELEASE))
 
     ifneq (0,$(LTO))
         COMPILERFLAGS += -DUSING_LTO
-        COMMONFLAGS += -flto
+        COMMONFLAGS += -flto -fno-lto-odr-type-merging
     endif
 else
     ## Debugging enabled
