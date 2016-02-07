@@ -5353,7 +5353,7 @@ finish_qsprintf:
                     }
                     break;
                 case ITER_LOOPOFWALL:
-                    if ((unsigned) parm2 >= numwalls) goto badindex;
+                    if ((unsigned) parm2 >= (unsigned)numwalls) goto badindex;
                     {
                         int jj = parm2;
                         do
@@ -5518,7 +5518,11 @@ finish_qsprintf:
                     }
                 }
             }
+
             VM_CONDITIONAL(tw);
+
+#undef IFAWAYDIST
+
         }
         continue;
 
