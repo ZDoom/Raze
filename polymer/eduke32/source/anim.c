@@ -39,15 +39,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 hashtable_t h_dukeanim = { 8, NULL };
 dukeanim_t * g_animPtr;
 
-dukeanim_t *G_FindAnim(const char *s)
+dukeanim_t *Anim_Find(const char *s)
 {
     intptr_t ptr = hash_findcase(&h_dukeanim, s);
     return (dukeanim_t *)(ptr == -1 ? NULL : (dukeanim_t *)ptr);
 }
 
-dukeanim_t * G_DefineAnim(const char *fn, uint8_t fdelay, void (*sound_func)(int32_t))
+dukeanim_t * Anim_Setup(const char *fn, uint8_t fdelay, void (*sound_func)(int32_t))
 {
-    dukeanim_t * anim = G_FindAnim(fn);
+    dukeanim_t * anim = Anim_Find(fn);
     
     if (!anim)
         anim = (dukeanim_t *)Xcalloc(1, sizeof(dukeanim_t));
@@ -62,27 +62,27 @@ dukeanim_t * G_DefineAnim(const char *fn, uint8_t fdelay, void (*sound_func)(int
     return anim;
 }
 
-void G_InitAnim(void)
+void Anim_Init(void)
 {
     hash_init(&h_dukeanim);
 
-    G_DefineAnim("logo.anm", 9, logoanimsounds);
-    G_DefineAnim("3dr.anm", 10, NULL);
-    G_DefineAnim("vol4e1.anm", 10, endanimvol41);
-    G_DefineAnim("vol4e2.anm", 14, endanimvol42);
-    G_DefineAnim("vol4e3.anm", 10, endanimvol43);
-    G_DefineAnim("vol41a.anm", 14, first4animsounds);
-    G_DefineAnim("vol42a.anm", 18, intro4animsounds);
-    G_DefineAnim("vol43a.anm", 10, intro42animsounds);
-    G_DefineAnim("duketeam.anm", 10, NULL);
-    G_DefineAnim("radlogo.anm", 10, NULL);
-    G_DefineAnim("cineov2.anm", 18, endanimsounds);
-    G_DefineAnim("cineov3.anm", 10, endanimsounds);
+    Anim_Setup("logo.anm", 9, logoanimsounds);
+    Anim_Setup("3dr.anm", 10, NULL);
+    Anim_Setup("vol4e1.anm", 10, endanimvol41);
+    Anim_Setup("vol4e2.anm", 14, endanimvol42);
+    Anim_Setup("vol4e3.anm", 10, endanimvol43);
+    Anim_Setup("vol41a.anm", 14, first4animsounds);
+    Anim_Setup("vol42a.anm", 18, intro4animsounds);
+    Anim_Setup("vol43a.anm", 10, intro42animsounds);
+    Anim_Setup("duketeam.anm", 10, NULL);
+    Anim_Setup("radlogo.anm", 10, NULL);
+    Anim_Setup("cineov2.anm", 18, endanimsounds);
+    Anim_Setup("cineov3.anm", 10, endanimsounds);
 }
 
-int32_t G_PlayAnim(const char *fn)
+int32_t Anim_Play(const char *fn)
 {
-    dukeanim_t *anim = G_FindAnim(fn);
+    dukeanim_t *anim = Anim_Find(fn);
 
     if (!anim)
     {

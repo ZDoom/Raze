@@ -2741,12 +2741,12 @@ nullquote:
 
                 if (tw == CON_IFCUTSCENE)
                 {
-                    VM_CONDITIONAL(g_animPtr == G_FindAnim(ScriptQuotes[j]));
+                    VM_CONDITIONAL(g_animPtr == Anim_Find(ScriptQuotes[j]));
                     continue;
                 }
 
                 tw = ps->palette;
-                G_PlayAnim(ScriptQuotes[j]);
+                Anim_Play(ScriptQuotes[j]);
                 P_SetGamePalette(ps, tw, 2 + 16);
                 continue;
             }

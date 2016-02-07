@@ -6700,10 +6700,10 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     break;
 */
 
-                anim = G_FindAnim(animname);
+                anim = Anim_Find(animname);
 
                 if (!anim)
-                    anim = G_DefineAnim(animname, delay, NULL);
+                    anim = Anim_Setup(animname, delay, NULL);
                 else
                     anim->framedelay = delay;
             }
@@ -6720,7 +6720,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             scriptfile_getstring(script, &animname);
 
             if (animname)
-                anim = G_FindAnim(animname);
+                anim = Anim_Find(animname);
 
             if (!anim)
             {
@@ -6752,7 +6752,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                     scriptfile_getstring(script, &animname);
 
                     if (animname)
-                        anim = G_FindAnim(animname);
+                        anim = Anim_Find(animname);
                     continue;
                 }
 
@@ -7685,7 +7685,7 @@ static void G_DisplayLogo(void)
             if (!I_CheckAllInput() && g_noLogoAnim == 0)
             {
                 Net_GetPackets();
-                G_PlayAnim("logo.anm");
+                Anim_Play("logo.anm");
                 G_FadePalette(0,0,0,252);
                 I_ClearAllInput();
             }
@@ -7727,7 +7727,7 @@ static void G_DisplayLogo(void)
                     if (i != -1)
                     {
                         kclose(i);
-                        G_PlayAnim("3dr.anm");
+                        Anim_Play("3dr.anm");
                         G_FadePalette(0,0,0,252);
                         I_ClearAllInput();
                     }
@@ -8745,7 +8745,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
 
     if (quitevent) return 4;
 
-    G_InitAnim();
+    Anim_Init();
 
     const char *defsfile = G_DefFile();
     uint32_t stime = getticks();
@@ -9492,7 +9492,7 @@ VOL1_END:
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE2BONUSSCENE))
         {
             fadepal(0,0,0, 252,0,-4);
-            G_PlayAnim("cineov2.anm");
+            Anim_Play("cineov2.anm");
             I_ClearAllInput();
             clearallviews(0L);
             nextpage();
@@ -9528,19 +9528,19 @@ VOL1_END:
             fadepal(0,0,0, 252,0,-4);
 
             I_ClearAllInput();
-            t = G_PlayAnim("vol4e1.anm");
+            t = Anim_Play("vol4e1.anm");
             clearallviews(0L);
             nextpage();
             if (t)
                 goto end_vol4e;
 
-            t = G_PlayAnim("vol4e2.anm");
+            t = Anim_Play("vol4e2.anm");
             clearallviews(0L);
             nextpage();
             if (t)
                 goto end_vol4e;
 
-            G_PlayAnim("vol4e3.anm");
+            Anim_Play("vol4e3.anm");
             clearallviews(0L);
             nextpage();
         }
@@ -9581,7 +9581,7 @@ VOL4_DUKETEAM:
         clearallviews(0L);
         nextpage();
 
-        G_PlayAnim("DUKETEAM.ANM");
+        Anim_Play("DUKETEAM.ANM");
 
         I_ClearAllInput();
         G_HandleEventsWhileNoInput();
@@ -9607,7 +9607,7 @@ VOL4_END:
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE3BONUSSCENE))
         {
             fadepal(0,0,0, 252,0,-4);
-            G_PlayAnim("cineov3.anm");
+            Anim_Play("cineov3.anm");
             I_ClearAllInput();
             ototalclock = totalclock+200;
             while (totalclock < ototalclock)
@@ -9622,7 +9622,7 @@ VOL4_END:
         if (G_GetLogoFlags() & LOGO_NOE3RADLOGO)
             goto ENDANM;
 
-        G_PlayAnim("RADLOGO.ANM");
+        Anim_Play("RADLOGO.ANM");
 
         if (ud.lockout == 0 && !I_CheckAllInput())
         {
@@ -9658,7 +9658,7 @@ ENDANM:
             clearallviews(0L);
             nextpage();
 
-            G_PlayAnim("DUKETEAM.ANM");
+            Anim_Play("DUKETEAM.ANM");
 
             I_ClearAllInput();
             G_HandleEventsWhileNoInput();
