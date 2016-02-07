@@ -20,24 +20,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "compat.h"
-#include "osdcmds.h"
-#include "baselayer.h"
 #include "duke3d.h"
-#include "game.h"
-#include "net.h"
-#include "premap.h"
+#include "osdcmds.h"
 #include "menus.h"
-#include "osd.h"
 #include "osdfuncs.h"
-#include "gamedef.h"
 #include "demo.h"  // g_firstDemoFile[]
-#include "common.h"
-
-#include <ctype.h>
-#include <limits.h>
-#include <math.h>
-#include "enet/enet.h"
+#include "cheats.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"

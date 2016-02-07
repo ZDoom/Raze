@@ -20,11 +20,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-/*
-#include "duke3d.h"
-#include "gamedef.h"
-#include "osd.h"
-*/
 // this is all the crap for accessing the game's structs through the CON VM
 // I got a 3-4 fps gain by inlining these...
 

@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -20,25 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-/*
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
-*/
-
-#include "baselayer.h"
 #include "duke3d.h"
-#include "game.h"
-#include "common_game.h"
 #include "scriplib.h"
-#include "osd.h"
 #include "osdcmds.h"
-#include "osdfuncs.h"
-#ifdef _WIN32
-#include "winlayer.h"
-#endif
 
 #ifdef __ANDROID__
 #include "android.h"
@@ -49,14 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define __SETUP__   // JBF 20031211
 #include "_functio.h"
-
-/*
-===================
-=
-= CONFIG_FunctionNameToNum
-=
-===================
-*/
 
 hashtable_t h_gamefuncs    = { NUMGAMEFUNCTIONS<<1, NULL };
 
@@ -81,13 +57,6 @@ int32_t CONFIG_FunctionNameToNum(const char *func)
     return i;
 }
 
-/*
-===================
-=
-= CONFIG_FunctionNumToName
-=
-===================
-*/
 
 char *CONFIG_FunctionNumToName(int32_t func)
 {
@@ -95,14 +64,6 @@ char *CONFIG_FunctionNumToName(int32_t func)
         return NULL;
     return gamefunctions[func];
 }
-
-/*
-===================
-=
-= CONFIG_AnalogNameToNum
-=
-===================
-*/
 
 
 int32_t CONFIG_AnalogNameToNum(const char *func)
@@ -148,14 +109,6 @@ const char *CONFIG_AnalogNumToName(int32_t func)
     return NULL;
 }
 
-
-/*
-===================
-=
-= CONFIG_SetDefaults
-=
-===================
-*/
 
 void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
 {
@@ -409,13 +362,6 @@ void CONFIG_MapKey(int32_t which, kb_scancode key1, kb_scancode oldkey1, kb_scan
     }
 }
 
-/*
-===================
-=
-= CONFIG_SetupMouse
-=
-===================
-*/
 
 void CONFIG_SetupMouse(void)
 {
@@ -486,13 +432,6 @@ void CONFIG_SetupMouse(void)
     }
 }
 
-/*
-===================
-=
-= CONFIG_SetupJoystick
-=
-===================
-*/
 
 void CONFIG_SetupJoystick(void)
 {
@@ -567,21 +506,6 @@ void CONFIG_SetupJoystick(void)
     }
 }
 
-/*
-===================
-=
-= CONFIG_ReadSetup
-=
-===================
-*/
-extern void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
-extern palette_t CrosshairColors;
-extern palette_t DefaultCrosshairColors;
-extern char g_modDir[BMAX_PATH];
-extern int32_t r_maxfps;
-extern int32_t g_noSetup;
-extern int32_t demorec_diffs_cvar, demoplay_diffs;
-extern int32_t demorec_difftics_cvar, demorec_diffcompress_cvar, demorec_synccompress_cvar;
 
 int32_t CONFIG_ReadSetup(void)
 {
@@ -629,7 +553,6 @@ int32_t CONFIG_ReadSetup(void)
         }
 
         Bmemset(tempbuf, 0, sizeof(tempbuf));
-//        Bmemset(dummybuf, 0, sizeof(dummybuf));
         SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
 
         while (Bstrlen(OSD_StripColors(dummybuf,tempbuf)) > 10)
@@ -697,14 +620,6 @@ int32_t CONFIG_ReadSetup(void)
         else glrendmode = REND_POLYMOST;
 #endif
 
-        /*
-
-                    SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Color",&ud.color);
-                    G_CheckPlayerColor((int32_t *)&ud.color,-1);
-                    g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
-                    tempbuf[0] = 0;
-        */
-
         SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
 
 #ifdef _WIN32
@@ -714,19 +629,10 @@ int32_t CONFIG_ReadSetup(void)
 
     }
 
-    //CONFIG_SetupMouse(ud.config.scripthandle);
-    //CONFIG_SetupJoystick(ud.config.scripthandle);
     ud.config.setupread = 1;
     return 0;
 }
 
-/*
-===================
-=
-= CONFIG_WriteSetup
-=
-===================
-*/
 
 void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.cfg
 {
@@ -1022,8 +928,4 @@ int32_t CONFIG_SetMapBestTime(uint8_t const * const mapmd4, int32_t const tm)
     SCRIPT_PutNumber(ud.config.scripthandle, "MapTimes", m, tm, FALSE, FALSE);
     return 0;
 }
-
-/*
- * vim:ts=4:sw=4:
- */
 

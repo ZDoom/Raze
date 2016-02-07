@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "xxhash.h"
 #include "input.h"
 #include "menus.h"
+#include "cheats.h"
 
 #include <sys/stat.h>
 
