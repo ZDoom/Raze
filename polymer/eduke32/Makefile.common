@@ -471,7 +471,7 @@ ifneq (0,$(RELEASE))
 
     ifneq (0,$(LTO))
         COMPILERFLAGS += -DUSING_LTO
-        COMMONFLAGS += -flto -fno-lto-odr-type-merging
+        COMMONFLAGS += -flto
     endif
 else
     ## Debugging enabled
@@ -658,6 +658,12 @@ SDL_FRAMEWORK ?= 0
 
 ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     L_SSP := -lssp
+endif
+
+ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 5)))
+    ifneq (0,$(LTO))
+        COMMONFLAGS += -fno-lto-odr-type-merging
+    endif
 endif
 
 # NOTE: If your setup doesn't have libstdc++, you can try using libsupc++.
