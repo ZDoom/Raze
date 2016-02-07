@@ -2550,6 +2550,15 @@ nullquote:
             G_InitTimer(Gv_GetVarX(*insptr++));
             continue;
 
+        case CON_NEXTSECTORNEIGHBORZ:
+            insptr++;
+            {
+                int32_t params[4];
+                Gv_GetManyVars(4, params);
+                aGameVars[g_iReturnVarID].val.lValue = nextsectorneighborz(params[0], params[1], params[2], params[3]);
+            }
+            continue;
+
         case CON_MOVESECTOR:
             insptr++;
             A_MoveSector(Gv_GetVarX(*insptr++));

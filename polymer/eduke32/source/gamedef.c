@@ -571,6 +571,7 @@ const char *keyw[] =
     "ifvarboth",                // 394
     "movesector",               // 395
     "for",                      // 396
+    "nextsectorneighborz",      // 397
     "<null>"
 };
 #endif
@@ -4696,6 +4697,7 @@ DO_DEFSTATE:
 
         case CON_MOVESPRITE:
         case CON_SETSPRITE:
+        case CON_NEXTSECTORNEIGHBORZ:
             C_GetManyVars(4);
             if (tw == CON_MOVESPRITE)
             {
