@@ -2750,6 +2750,7 @@ nullquote:
 
                 if (tw == CON_IFCUTSCENE)
                 {
+                    insptr--;
                     VM_CONDITIONAL(g_animPtr == Anim_Find(ScriptQuotes[j]));
                     continue;
                 }
