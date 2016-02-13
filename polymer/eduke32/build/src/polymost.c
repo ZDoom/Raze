@@ -677,9 +677,6 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t intexfmt, int32_t texfmt
             bglTexSubImage2D(GL_TEXTURE_2D,0,0,0,siz.x,siz.y,texfmt,GL_UNSIGNED_BYTE,pic); //overwrite old texture
     }
 
-#if 0
-    gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA8,xsiz,ysiz,texfmt,GL_UNSIGNED_BYTE,pic); //Needs C++ to link?
-#elif 1
     vec2_t siz2 = siz;
 
     for (int j=1; (siz2.x > 1) || (siz2.y > 1); j++)
@@ -739,7 +736,6 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t intexfmt, int32_t texfmt
 
         siz2 = siz3;
     }
-#endif
 }
 
 

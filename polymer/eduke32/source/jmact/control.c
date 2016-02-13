@@ -745,14 +745,14 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
 
 void CONTROL_ClearButton(int32_t whichbutton)
 {
+    if (CONTROL_CheckRange(whichbutton)) return;
 
 #ifdef __ANDROID__
     CONTROL_Android_ClearButton(whichbutton);
-#else
-    if (CONTROL_CheckRange(whichbutton)) return;
+#endif
+
     BUTTONCLEAR(whichbutton);
     CONTROL_Flags[whichbutton].cleared = TRUE;
-#endif
 }
 
 void CONTROL_ProcessBinds(void)
@@ -805,12 +805,9 @@ void CONTROL_GetInput(ControlInfo *info)
     CONTROL_Android_PollDevices(info);
 #else
     CONTROL_PollDevices(info);
-
     CONTROL_GetFunctionInput();
-
     inputchecked = 1;
 #endif
-
 }
 
 int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ticspersecond)

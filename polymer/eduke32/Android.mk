@@ -20,15 +20,23 @@ LOCAL_MODULE    := duke
 
 # -O2  -fvisibility=hidden
 
-LOCAL_CFLAGS :=   -x c++ -std=gnu++11 -fvisibility=hidden -fPIC -O2 -DNDEBUG -DUSING_LTO -flto -fno-stack-protector -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=0 -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT
+LOCAL_CFLAGS :=   -x c++ -std=gnu++11 -fvisibility=hidden -fPIC -fno-stack-protector -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=0 -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT
+
+ifeq ($(NDK_DEBUG), 1)
+    LOCAL_CFLAGS +=   -O0 -ggdb -fno-omit-frame-pointer
+else
+    LOCAL_CFLAGS +=   -O2 -DNDEBUG -DUSING_LTO -flto 
+endif
+
 LOCAL_CFLAGS += -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -Wno-unused-result  -Wno-char-subscripts -Wno-strict-overflow -Wno-attributes -Wno-write-strings
 LOCAL_CPPFLAGS := -std=gnu++03
 
 LOCAL_CFLAGS += -DHAVE_SDL -DHAVE_VORBIS -DHAVE_JWZGLES -DHAVE_ANDROID -DRENDERTYPESDL=1  -DUSE_OPENGL -DNETCODE_DISABLE -DUSE_LIBVPX
 
-#LOCAL_CFLAGS += -mhard-float -D_NDK_MATH_NO_SOFTFP=1
+LOCAL_CFLAGS += -mhard-float -D_NDK_MATH_NO_SOFTFP=1
 
 LOCAL_LDFLAGS := -fuse-ld=bfd
+TARGET_LDFLAGS += -Wl,--no-warn-mismatch -lm_hard
 LOCAL_ARM_NEON = true
 
 LOCAL_C_INCLUDES :=  $(LOCAL_PATH)/source $(LOCAL_PATH)/source/jmact $(LOCAL_PATH)/source/jaudiolib/include $(LOCAL_PATH)/source/enet/include  $(LOCAL_PATH)/build/include
@@ -141,11 +149,6 @@ LOCAL_LDLIBS :=  -lGLESv1_CM -lEGL -ldl -llog -lOpenSLES -lz -L$(TOP_DIR)/openss
 LOCAL_STATIC_LIBRARIES :=   libpng crypto 
 LOCAL_SHARED_LIBRARIES := touchcontrols ogg vorbis SDL2 SDL2_mixer libvpx
 # SDL2_image
-
-ifeq ($(GP_LIC),1)
-LOCAL_STATIC_LIBRARIES +=  s-setup
-LOCAL_CFLAGS += -DGP_LIC
-endif
 
 include $(BUILD_SHARED_LIBRARY)
 

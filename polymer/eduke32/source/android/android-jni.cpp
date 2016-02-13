@@ -33,10 +33,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "TouchControlsContainer.h"
 #include "JNITouchControlsUtils.h"
 
-#ifdef GP_LIC
-#include "s-setup/s-setup.h"
-#endif
-
 extern "C" {
 #define DEFAULT_FADE_FRAMES 10
 
@@ -88,6 +84,7 @@ droidsysinfo_t droidinfo;
 static int curRenderer;
 
 static bool hideTouchControls = true;
+static bool hasTouch = false;
 static int weaponWheelVisible = false;
 
 
@@ -197,6 +194,9 @@ void gameSettingsButton(int state)
 
 void showWeaponsInventory(bool show)
 {
+    if (!controlsCreated)
+        return;
+
     if (show)
     {
         for (int n = 0; n < 10; n++)
@@ -216,8 +216,16 @@ void showWeaponsInventory(bool show)
     }
 }
 
+void AndroidShowKeyboard(int onf)
+{
+    showKeyboard(onf);
+}
+
 void gameButton(int state, int code)
 {
+    if (!controlsCreated)
+        return;
+
     switch (code)
     {
         case gamefunc_Fire: 
@@ -312,7 +320,7 @@ void blankTapButton(int state, int code)
 
 void weaponWheelSelected(int enabled) { 
     showWeaponsInventory(enabled ? true : false); 
-    PortableTimer(enabled ? 30 : 120);
+    PortableTimer(enabled ? 0 : 120);
 }
 
 void weaponWheelChosen(int segment)
@@ -452,7 +460,7 @@ void initControls(int width, int height, const char *graphics_path)
 
     tcGameMain->addControl(new touchcontrols::Button("use", touchcontrols::RectF(20, 4, 23, 7), "use", gamefunc_Open));
     tcGameMain->addControl(
-    new touchcontrols::Button("attack", touchcontrols::RectF(20, 7, 23, 10), "fire2", gamefunc_Fire));
+    new touchcontrols::Button("fire", touchcontrols::RectF(20, 7, 23, 10), "fire2", gamefunc_Fire));
     tcGameMain->addControl(
     new touchcontrols::Button("jump", touchcontrols::RectF(23, 6, 26, 9), "jump", gamefunc_Jump));
     tcGameMain->addControl(
@@ -575,6 +583,8 @@ void initControls(int width, int height, const char *graphics_path)
 void updateTouchScreenMode(touchscreemode_t mode)
 {
     // LOGI("updateTouchScreenModeA %d",mode);
+    if (!controlsCreated)
+        return;
 
     static touchscreemode_t lastMode = TOUCH_SCREEN_BLANK;
 
@@ -649,12 +659,6 @@ void updateTouchScreenMode(touchscreemode_t mode)
             inv_buttons[i]->setAlpha(tcGameWeapons->getFadedAlpha() * ((inv & (1 << i)) ? 1.f : 0.3f));
 }
 
-
-#ifdef GP_LIC
-#define GP_LIC_INC 1
-#include "s-setup/gp_lic_include.h"
-#endif
-
 extern char videomodereset;
 
 void frameControls()
@@ -679,6 +683,9 @@ void frameControls()
 
     curRenderer = (PortableRead(READ_RENDERER) != REND_CLASSIC);
 
+    if (!controlsCreated)
+        return;
+
     updateTouchScreenMode((touchscreemode_t)PortableRead(READ_SCREEN_MODE));
 
     setHideSticks(droidinput.hideStick);
@@ -696,21 +703,16 @@ void frameControls()
     }
 
     controlsContainer.draw();
-
-#ifdef GP_LIC
-#undef GP_LIC_INC
-#define GP_LIC_INC 2
-#include "s-setup/gp_lic_include.h"
-#endif
 }
 
 void setTouchSettings(int other)
 {
     // TODO: defined names for these values
-    hideTouchControls = other & 0x80000000 ? true : false;
+    hasTouch = other & 0x4000 ? true : false;
+    hideTouchControls = other & 0x8000 ? true : false;
 
     // keep in sync with Duke3d/res/values/strings.xml
-    int doubletap_options[5] = { -1, gamefunc_Quick_Kick, gamefunc_AutoRun, gamefunc_MedKit, gamefunc_Jetpack };
+    int doubletap_options[4] = { -1, gamefunc_Quick_Kick, gamefunc_MedKit, gamefunc_Jetpack };
 
     droidinput.left_double_action = doubletap_options[((other >> 4) & 0xF)];
     droidinput.right_double_action = doubletap_options[((other >> 8) & 0xF)];
@@ -729,19 +731,14 @@ static inline const char *getGamePath() { return gamePath.c_str(); }
 
 jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_init(JNIEnv *env, jobject thiz, jstring graphics_dir,
                                                                jint audio_rate, jint audio_buffer_size,
-                                                               jobjectArray argsArray, jint renderer,
+                                                               jobjectArray argsArray,
                                                                jstring jduke3d_path)
 {
     env_ = env;
 
-#ifdef GP_LIC
-    getGlobalClasses(env_);
-#endif
-
     droidinfo.audio_sample_rate = audio_rate;
     droidinfo.audio_buffer_size = audio_buffer_size;
 
-    // curRenderer = renderer;
     curRenderer = REND_GL;
 
     argv[0] = "eduke32";
@@ -760,10 +757,6 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_init(JNIEnv *env, jobj
     // Change working dir, save games etc
     // FIXME: potentially conflicts with chdirs in -game_dir support
     chdir(getGamePath());
-    char timidity_env[512];
-
-    sprintf(timidity_env, "TIMIDITY_CFG=%s/../timidity.cfg", getGamePath());
-    putenv(timidity_env);
 
     LOGI("duke3d_path = %s", getGamePath());
 
@@ -772,23 +765,13 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_init(JNIEnv *env, jobj
 
     LOGI("obbPath = %s", obbPath.c_str());
 
-    initControls(droidinfo.screen_width, droidinfo.screen_height, (obbPath + "/assets/").c_str());
+    if (hasTouch)
+        initControls(droidinfo.screen_width, droidinfo.screen_height, (obbPath + "/assets/").c_str());
 
     PortableInit(argc, argv);
 
     return 0;
 }
-
-
-/*
-jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_frame(JNIEnv *env, jobject thiz)
-{
-    LOGI("Java_com_voidpoint_duke3d_engine_NativeLib_frame");
-
-//    frameControls();
-    return 0;
-}
-*/
 
 __attribute__((visibility("default"))) jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
@@ -827,36 +810,26 @@ void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_doAction(JNIEnv *env, 
     LOGI("doAction %d %d", state, action);
 
     // gamepadButtonPressed();
-    if (hideTouchControls && tcGameMain)
+    if (controlsCreated && hideTouchControls && tcGameMain)
     {
         if (tcGameMain->isEnabled())
-            tcGameMain->animateOut(30);
+            tcGameMain->setEnabled(false);
 
         if (tcGameWeapons && tcGameWeapons->isEnabled())
-            tcGameWeapons->animateOut(30);
+            tcGameWeapons->setEnabled(false);
     }
 
     PortableAction(state, action);
 }
 
-void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_analogFwd(JNIEnv *env, jobject obj, jfloat v)
+void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_analogMove(JNIEnv *env, jobject obj, jfloat fwd, jfloat strafe)
 {
-    PortableMove(v, NAN);
+    PortableMove(fwd, strafe);
 }
 
-void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_analogSide(JNIEnv *env, jobject obj, jfloat v)
+void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_analogLook(JNIEnv *env, jobject obj, jfloat pitch, jfloat yaw)
 {
-    PortableMove(NAN, v);
-}
-
-void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_analogPitch(JNIEnv *env, jobject obj, jint mode, jfloat v)
-{
-    PortableLookJoystick(NAN, v);
-}
-
-void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_analogYaw(JNIEnv *env, jobject obj, jint mode, jfloat v)
-{
-    PortableLookJoystick(v, NAN);
+    PortableLookJoystick(yaw, pitch);
 }
 
 void EXPORT_ME
@@ -920,9 +893,4 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_getScreenshot(JNIEnv *
     return ret;
 }
 
-#ifdef GP_LIC
-#undef GP_LIC_INC
-#define GP_LIC_INC 3
-#include "s-setup/gp_lic_include.h"
-#endif
 }

@@ -68,7 +68,6 @@ int PortableTimer(int tics) { G_InitTimer(tics);  }
 int PortableKeyEvent(int state, int code,int unicode)
 {
     LOGI("PortableKeyEvent %d %d %d",state,(SDL_Scancode)code,unicode);
-
     SDL_SendKeyboardKey(state ? SDL_PRESSED : SDL_RELEASED, (SDL_Scancode)code);
     SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
 
@@ -117,11 +116,6 @@ void changeActionState(int state, int action)
     droidinput.functionHeld  &= ~((uint64_t) 1<<((uint64_t) (action)));
 }
 
-#ifdef GP_LIC
-#define GP_LIC_INC 4
-#include "s-setup/gp_lic_include.h"
-#endif
-
 void PortableAction(int state, int action)
 {
     LOGI("PortableAction action = %d, state = %d", action, state);
@@ -140,11 +134,6 @@ void PortableAction(int state, int action)
     {
         //if (PortableRead(READ_SCREEN_MODE) != TOUCH_SCREEN_GAME) //If not in game don't do any of this
         ///     return;
-
-#ifdef GP_LIC
-#define GP_LIC_INC 5
-#include "s-setup/gp_lic_include.h"
-#endif
 
         //Special toggle for crouch, NOT when using jetpack or in water
         if (droidinput.toggleCrouch)
@@ -343,7 +332,6 @@ void CONTROL_Android_SetLastWeapon(int w)
 
 void CONTROL_Android_ClearButton(int32_t whichbutton)
 {
-    BUTTONCLEAR(whichbutton);
     droidinput.functionHeld  &= ~((uint64_t)1<<((uint64_t)(whichbutton)));
 }
 
@@ -355,9 +343,9 @@ void CONTROL_Android_PollDevices(ControlInfo *info)
     info->dz = (int32_t)nearbyintf(-droidinput.forwardmove * ANDROIDMOVEFACTOR);
     info->dx = (int32_t)nearbyintf(droidinput.sidemove * ANDROIDMOVEFACTOR) >> 5;
     info->dpitch =
-    (int32_t)nearbyint(droidinput.pitch * ANDROIDLOOKFACTOR + droidinput.pitch_joystick * ANDROIDPITCHFACTORJOYSTICK);
+    (int32_t)nearbyintf(droidinput.pitch * ANDROIDLOOKFACTOR + droidinput.pitch_joystick * ANDROIDPITCHFACTORJOYSTICK);
     info->dyaw =
-    (int32_t)nearbyint(-droidinput.yaw * ANDROIDLOOKFACTOR - droidinput.yaw_joystick * ANDROIDYAWFACTORJOYSTICK);
+    (int32_t)nearbyintf(-droidinput.yaw * ANDROIDLOOKFACTOR - droidinput.yaw_joystick * ANDROIDYAWFACTORJOYSTICK);
 
     droidinput.pitch = droidinput.yaw = 0.f;
     CONTROL_ButtonState = droidinput.functionSticky | droidinput.functionHeld;

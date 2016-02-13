@@ -118,7 +118,7 @@ void PortableAutomapControl(float zoom,float dx,float dy);
 
 void PortableInit(int argc, const char ** argv);
 
-void AndroidSetConsoleShown(int onf);
+void AndroidShowKeyboard(int onf);
 
 
 #ifdef __cplusplus
