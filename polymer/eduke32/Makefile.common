@@ -660,11 +660,11 @@ ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
     L_SSP := -lssp
 endif
 
-ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 5)))
-    ifneq (0,$(LTO))
-        COMMONFLAGS += -fno-lto-odr-type-merging
-    endif
-endif
+# ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 5)))
+#     ifneq (0,$(LTO))
+#         COMMONFLAGS += -fno-lto-odr-type-merging
+#     endif
+# endif
 
 # NOTE: If your setup doesn't have libstdc++, you can try using libsupc++.
 # Search for STDCPPLIB below and change it to -lsupc++.
