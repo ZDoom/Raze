@@ -42,6 +42,24 @@ dukeanim_t * g_animPtr;
 dukeanim_t *Anim_Find(const char *s)
 {
     intptr_t ptr = hash_findcase(&h_dukeanim, s);
+
+    if (ptr == -1)
+    {
+        int const siz = Bstrlen(s) + 5;
+        char * const str = (char *)Xcalloc(1, siz);
+
+        maybe_append_ext(str, siz, s, ".anm");
+        ptr = hash_findcase(&h_dukeanim, str);
+
+        if (ptr == -1)
+        {
+            maybe_append_ext(str, siz, s, ".ivf");
+            ptr = hash_findcase(&h_dukeanim, str);
+        }
+
+        Bfree(str);
+    }
+
     return (dukeanim_t *)(ptr == -1 ? NULL : (dukeanim_t *)ptr);
 }
 
