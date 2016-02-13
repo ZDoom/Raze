@@ -20,7 +20,7 @@ LOCAL_MODULE    := duke
 
 # -O2  -fvisibility=hidden
 
-LOCAL_CFLAGS :=   -x c++ -std=gnu++03 -fvisibility=hidden -fPIC -O2 -DNDEBUG -DUSING_LTO -flto -fno-stack-protector -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=0 -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT
+LOCAL_CFLAGS :=   -x c++ -std=gnu++11 -fvisibility=hidden -fPIC -O2 -DNDEBUG -DUSING_LTO -flto -fno-stack-protector -funsigned-char -fno-strict-aliasing -DNO_GCC_BUILTINS -D_FORTIFY_SOURCE=0 -pthread -DHAVE_INTTYPES  -D_GNU_SOURCE=1 -D_REENTRANT
 LOCAL_CFLAGS += -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -Wno-unused-result  -Wno-char-subscripts -Wno-strict-overflow -Wno-attributes -Wno-write-strings
 LOCAL_CPPFLAGS := -std=gnu++03
 
@@ -105,7 +105,12 @@ GAME_SRC=source/game.c \
 	source/sounds.c \
 	source/soundsdyn.c \
   	source/sdlmusic.c \
-  	source/rev.c 
+  	source/rev.c \
+        source/cmdline.c \
+        source/screens.c \
+        source/screentext.c \
+        source/cheats.c \
+        source/sbar.c
  
  JAUDIO_SRC=source/jaudiolib/src/drivers.c \
 	source/jaudiolib/src//fx_man.c \
