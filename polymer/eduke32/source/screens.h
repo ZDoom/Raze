@@ -37,7 +37,7 @@ typedef struct {
     int32_t numonscreen;
 } sprstat_t;
 
-sprstat_t g_spriteStat;
+extern sprstat_t g_spriteStat;
 #endif
 
 extern int32_t dr_yxaspect, dr_viewingrange;

@@ -9,6 +9,8 @@
 #include "compat.h"
 #include "baselayer.h"
 
+extern int32_t maxrefreshfreq;
+
 #ifdef _WIN32
 HWND win_gethwnd(void);
 HINSTANCE win_gethinstance(void);

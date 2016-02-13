@@ -12,6 +12,7 @@ extern uint32_t maxrefreshfreq;
 extern int32_t glusecds;
 
 extern char di_disabled;
+extern char forcegl;
 
 HWND win_gethwnd(void);
 HINSTANCE win_gethinstance(void);

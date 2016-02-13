@@ -101,6 +101,7 @@ extern int32_t curbrightness, gammabrightness;
 char nogl=0;
 static int32_t vsync_render=0;
 #endif
+int32_t maxrefreshfreq=0;
 
 // last gamma, contrast, brightness
 static float lastvidgcb[3];
@@ -1113,7 +1114,8 @@ void getvalidmodes(void)
     for (i = 0; i < SDL_GetNumDisplayModes(0); i++)
     {
         SDL_GetDisplayMode(0, i, &dispmode);
-        if ((dispmode.w > MAXXDIM) || (dispmode.h > MAXYDIM))
+        if ((dispmode.w > MAXXDIM) || (dispmode.h > MAXYDIM) ||
+            (maxrefreshfreq && (dispmode.refresh_rate > maxrefreshfreq)))
             continue;
 
         // HACK: 8-bit == Software, 32-bit == OpenGL
@@ -1436,6 +1438,23 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
 }
 
 #if SDL_MAJOR_VERSION!=1
+void setrefreshrate(void)
+{
+    SDL_DisplayMode dispmode;
+    SDL_GetCurrentDisplayMode(0, &dispmode);
+
+    dispmode.refresh_rate = maxrefreshfreq;
+
+    SDL_DisplayMode newmode;
+    SDL_GetClosestDisplayMode(0, &dispmode, &newmode);
+
+    if (dispmode.refresh_rate != newmode.refresh_rate)
+    {
+        initprintf("Refresh rate: %dHz\n", newmode.refresh_rate);
+        SDL_SetWindowDisplayMode(sdl_window, &newmode);
+    }
+}
+
 int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
     int32_t regrab = 0, ret;
@@ -1505,6 +1524,8 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
             SDL_GL_SetSwapInterval(vsync_render);
 
+            setrefreshrate();
+
 #ifdef _WIN32
             loadglextensions();
 #endif
@@ -1519,6 +1540,8 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                                       ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
         if (!sdl_window)
             SDL2_VIDEO_ERR("SDL_CreateWindow");
+
+        setrefreshrate();
 
         sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
         if (!sdl_renderer)

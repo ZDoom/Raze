@@ -604,6 +604,10 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     printext256(20, y+=9, COLOR_WHITE, -1, tempbuf, 0); \
 } while (0)
 
+#ifdef DEBUGGINGAIDS
+sprstat_t g_spriteStat;
+#endif
+
 static void G_PrintCoords(int32_t snum)
 {
     const int32_t x = 250;
