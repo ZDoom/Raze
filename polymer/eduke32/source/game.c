@@ -5194,13 +5194,8 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 }
             }
 
-//            if (!preload)
+            if (!preload)
             {
-/*
-                if (check_file_exist(animname))
-                    break;
-*/
-
                 anim = Anim_Find(animname);
 
                 if (!anim)
@@ -5212,8 +5207,19 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         break;
         case T_ANIMSOUNDS:
         {
-            char *otokptr = script->ltextptr;
             char *animsoundsend = NULL;
+
+            if (scriptfile_getbraces(script, &animsoundsend))
+                break;
+
+            if (preload)
+            {
+                while (script->textptr < animsoundsend)
+                    script->textptr++;
+                break;
+            }
+
+            char *otokptr = script->ltextptr;
             int32_t numpairs = 0, allocsz = 4, bad = 1, lastframenum = INT32_MIN;
             dukeanim_t *anim = NULL;
             char *animname = NULL;
@@ -5230,8 +5236,6 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 break;
             }
 
-            if (scriptfile_getbraces(script, &animsoundsend))
-                break;
 
             if (anim->sounds)
             {
@@ -5241,21 +5245,11 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 anim->numsounds = 0;
             }
 
-            if (!preload)
-                anim->sounds = (uint16_t *)Xcalloc(allocsz, 2 * sizeof(uint16_t));
+            anim->sounds = (uint16_t *)Xcalloc(allocsz, 2 * sizeof(uint16_t));
+
             while (script->textptr < animsoundsend)
             {
                 int32_t framenum, soundnum;
-
-                if (preload)
-                {
-                    // dummy
-                    scriptfile_getstring(script, &animname);
-
-                    if (animname)
-                        anim = Anim_Find(animname);
-                    continue;
-                }
 
                 // HACK: we've reached the end of the list
                 //  (hack because it relies on knowledge of
@@ -5318,20 +5312,17 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 numpairs++;
             }
 
-            if (!preload)
+            if (!bad)
             {
-                if (!bad)
-                {
-                    anim->numsounds = numpairs;
-                    // initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
-                    //           hardcoded_anim_tokens[animnum].text, numpairs);
-                }
-                else
-                {
-                    DO_FREE_AND_NULL(anim->sounds);
-                    initprintf("Failed defining sound sequence for hi-anim \"%s\".\n",
-                               animname);
-                }
+                anim->numsounds = numpairs;
+                // initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
+                //           hardcoded_anim_tokens[animnum].text, numpairs);
+            }
+            else
+            {
+                DO_FREE_AND_NULL(anim->sounds);
+                initprintf("Failed defining sound sequence for hi-anim \"%s\".\n",
+                            animname);
             }
         }
         break;
