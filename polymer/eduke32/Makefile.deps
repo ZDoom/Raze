@@ -40,7 +40,8 @@ $(DUKE3D_OBJ)/game.$o: $(DUKE3D_SRC)/game.c $(game_defs_dep) $(MACT_ROOT)/scripl
 $(DUKE3D_OBJ)/actors.$o: $(DUKE3D_SRC)/actors.c $(duke3d_h)
 $(DUKE3D_OBJ)/anim.$o: $(DUKE3D_SRC)/anim.c $(duke3d_h) $(DUKE3D_SRC)/input.h $(MACT_ROOT)/animlib.h $(DUKE3D_SRC)/animvpx.h $(DUKE3D_SRC)/animsounds.h
 $(DUKE3D_OBJ)/animsounds.$o: $(DUKE3D_SRC)/animsounds.c $(DUKE3D_SRC)/animsounds.h
-$(DUKE3D_OBJ)/cheats.$o: $(DUKE3D_SRC)/cheats.c
+$(DUKE3D_OBJ)/cheats.$o: $(DUKE3D_SRC)/cheats.c $(DUKE3D_SRC)/cheats.h
+$(DUKE3D_OBJ)/cmdline.$o: $(DUKE3D_SRC)/cmdline.c $(DUKE3D_SRC)/cmdline.h
 $(DUKE3D_OBJ)/demo.$o: $(DUKE3D_SRC)/demo.c $(duke3d_h) $(DUKE3D_SRC)/input.h
 $(DUKE3D_OBJ)/gamedef.$o: $(DUKE3D_SRC)/gamedef.c $(duke3d_h) $(gamedef_h) $(DUKE3D_SRC)/savegame.h
 $(DUKE3D_OBJ)/gameexec.$o: $(DUKE3D_SRC)/gameexec.c $(DUKE3D_SRC)/gamestructures.c $(duke3d_h) $(gamedef_h)
@@ -56,6 +57,7 @@ $(DUKE3D_OBJ)/player.$o: $(DUKE3D_SRC)/player.c $(duke3d_h)
 $(DUKE3D_OBJ)/premap.$o: $(DUKE3D_SRC)/premap.c $(duke3d_h) $(ENGINE_INC)/osd.h
 $(DUKE3D_OBJ)/savegame.$o: $(DUKE3D_SRC)/savegame.c $(duke3d_h) $(DUKE3D_SRC)/savegame.h
 $(DUKE3D_OBJ)/sbar.$o: $(DUKE3D_SRC)/sbar.c $(DUKE3D_SRC)/sbar.h
+$(DUKE3D_OBJ)/screens.$o: $(DUKE3D_SRC)/screens.c $(DUKE3D_SRC)/screens.h
 $(DUKE3D_OBJ)/screentext.$o: $(DUKE3D_SRC)/screentext.c $(DUKE3D_SRC)/screentext.h
 $(DUKE3D_OBJ)/sector.$o: $(DUKE3D_SRC)/sector.c $(duke3d_h) $(DUKE3D_SRC)/input.h
 $(DUKE3D_OBJ)/sounds.$o: $(DUKE3D_SRC)/sounds.c $(duke3d_h)

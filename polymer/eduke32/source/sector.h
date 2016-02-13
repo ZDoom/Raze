@@ -86,6 +86,7 @@ typedef struct {
     twalltype wall[MAXWALLS];
 #if !defined LUNATIC
     intptr_t *vars[MAXGAMEVARS];
+    intptr_t *arrays[MAXGAMEARRAYS];
 #else
     char *savecode;
 #endif

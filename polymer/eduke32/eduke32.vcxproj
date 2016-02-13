@@ -174,6 +174,7 @@
     <ClInclude Include="source\animsounds.h" />
     <ClInclude Include="source\animvpx.h" />
     <ClInclude Include="source\cheats.h" />
+    <ClInclude Include="source\cmdline.h" />
     <ClInclude Include="source\common_game.h" />
     <ClInclude Include="source\demo.h" />
     <ClInclude Include="source\events_defs.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="source\quotes.h" />
     <ClInclude Include="source\savegame.h" />
     <ClInclude Include="source\sbar.h" />
+    <ClInclude Include="source\screens.h" />
     <ClInclude Include="source\screentext.h" />
     <ClInclude Include="source\sector.h" />
     <ClInclude Include="source\_functio.h" />
@@ -308,6 +310,7 @@
     <ClCompile Include="source\animvpx.c" />
     <ClCompile Include="source\astub.c" />
     <ClCompile Include="source\cheats.c" />
+    <ClCompile Include="source\cmdline.c" />
     <ClCompile Include="source\config.c" />
     <ClCompile Include="source\common.c" />
     <ClCompile Include="source\demo.c" />
@@ -344,6 +347,7 @@
     <ClCompile Include="source\rts.c" />
     <ClCompile Include="source\savegame.c" />
     <ClCompile Include="source\sbar.c" />
+    <ClCompile Include="source\screens.c" />
     <ClCompile Include="source\screentext.c" />
     <ClCompile Include="source\sdlmusic.c" />
     <ClCompile Include="source\sector.c" />

@@ -276,6 +276,7 @@ extern int32_t ticrandomseed;
 extern int32_t vote_map;
 extern int32_t voting;
 
+extern int32_t MAXCACHE1DSIZE;
 //extern int8_t cheatbuf[MAXCHEATLEN],cheatbuflen;
 
 #define CROSSHAIR_PAL (MAXPALOOKUPS-RESERVEDPALS-1)
@@ -326,12 +327,6 @@ void G_DrawFrags(void);
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio);
 void G_DrawRooms(int32_t snum,int32_t smoothratio);
 void G_DrawTXDigiNumZ(int32_t starttile,int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,int32_t cs,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
-#if !defined LUNATIC
-void G_DrawTile(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation);
-void G_DrawTilePal(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation,int32_t p);
-void G_DrawTilePalSmall(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation,int32_t p);
-void G_DrawTileSmall(int32_t x,int32_t y,int32_t tilenum,int32_t shade,int32_t orientation);
-#endif
 void G_FadePalette(int32_t r,int32_t g,int32_t b,int32_t e);
 void G_GameExit(const char *t) ATTRIBUTE((noreturn));
 void G_GameQuit(void);
@@ -519,8 +514,6 @@ extern void G_StartMusic(void);
 
 #ifdef LUNATIC
 void El_SetCON(const char *conluacode);
-void G_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
-                       int32_t shade, int32_t orientation, int32_t p);
 #endif
 
 EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);

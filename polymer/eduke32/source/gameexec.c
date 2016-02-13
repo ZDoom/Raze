@@ -2385,16 +2385,16 @@ nullquote:
                 switch (tw)
                 {
                     case CON_MYOS:
-                        G_DrawTile(pos.x, pos.y, tilenum, shade, orientation);
+                        VM_DrawTile(pos.x, pos.y, tilenum, shade, orientation);
                         break;
                     case CON_MYOSPAL:
-                        G_DrawTilePal(pos.x, pos.y, tilenum, shade, orientation, Gv_GetVarX(*insptr++));
+                        VM_DrawTilePal(pos.x, pos.y, tilenum, shade, orientation, Gv_GetVarX(*insptr++));
                         break;
                     case CON_MYOSX:
-                        G_DrawTileSmall(pos.x, pos.y, tilenum, shade, orientation);
+                        VM_DrawTileSmall(pos.x, pos.y, tilenum, shade, orientation);
                         break;
                     case CON_MYOSPALX:
-                        G_DrawTilePalSmall(pos.x, pos.y, tilenum, shade, orientation, Gv_GetVarX(*insptr++));
+                        VM_DrawTilePalSmall(pos.x, pos.y, tilenum, shade, orientation, Gv_GetVarX(*insptr++));
                         break;
                 }
                 continue;
@@ -6134,5 +6134,53 @@ int32_t VM_CheckSquished2(int32_t i, int32_t snum)
     vm.g_pp = g_player[snum].ps;
 
     return VM_CheckSquished();
+}
+#endif
+
+// MYOS* CON commands.
+LUNATIC_EXTERN void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
+    int32_t shade, int32_t orientation, int32_t p)
+{
+    int32_t a = 0;
+
+    orientation &= (ROTATESPRITE_MAX-1);
+
+    if (orientation&4)
+        a = 1024;
+
+    if (!(orientation&ROTATESPRITE_FULL16))
+    {
+        x<<=16;
+        y<<=16;
+    }
+
+    rotatesprite_win(x, y, zoom, a, tilenum, shade, p, 2|orientation);
+}
+
+#if !defined LUNATIC
+void VM_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
+{
+    DukePlayer_t *ps = g_player[screenpeek].ps;
+    int32_t p = ps->cursectnum >= 0 ? sector[ps->cursectnum].floorpal : 0;
+
+    VM_DrawTileGeneric(x, y, 65536, tilenum, shade, orientation, p);
+}
+
+void VM_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
+{
+    VM_DrawTileGeneric(x, y, 65536, tilenum, shade, orientation, p);
+}
+
+void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation)
+{
+    DukePlayer_t *ps = g_player[screenpeek].ps;
+    int32_t p = ps->cursectnum >= 0 ? sector[ps->cursectnum].floorpal : 0;
+
+    VM_DrawTileGeneric(x, y, 32768, tilenum, shade, orientation, p);
+}
+
+void VM_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p)
+{
+    VM_DrawTileGeneric(x, y, 32768, tilenum, shade, orientation, p);
 }
 #endif

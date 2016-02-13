@@ -56,6 +56,16 @@ int32_t G_GetAngleDelta(int32_t a,int32_t na);
 void G_RestoreMapState();
 void G_SaveMapState();
 
+#if !defined LUNATIC
+void VM_DrawTile(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
+void VM_DrawTilePal(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p);
+void VM_DrawTilePalSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation, int32_t p);
+void VM_DrawTileSmall(int32_t x, int32_t y, int32_t tilenum, int32_t shade, int32_t orientation);
+#else
+void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
+    int32_t shade, int32_t orientation, int32_t p);
+#endif
+
 int32_t VM_OnEventWithBoth_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn);
 int32_t VM_OnEventWithReturn_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t iReturn);
 int32_t VM_OnEventWithDist_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist);

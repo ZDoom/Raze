@@ -519,6 +519,12 @@
     <ClInclude Include="source\screentext.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
+    <ClInclude Include="source\screens.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="source\cmdline.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -909,6 +915,12 @@
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="source\screentext.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\screens.c">
+      <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\cmdline.c">
       <Filter>eduke32\source</Filter>
     </ClCompile>
   </ItemGroup>
