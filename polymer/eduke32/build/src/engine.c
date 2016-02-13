@@ -18428,11 +18428,15 @@ static inline uint32_t hash_getcode(const char *s)
 
 void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace)
 {
+#ifdef DEBUGGINGAIDS
+    Bassert(t->items != NULL);
+#else
     if (EDUKE32_PREDICT_FALSE(t->items == NULL))
     {
         initprintf("hash_add(): table not initialized!\n");
         return;
     }
+#endif
 
     uint32_t code = hash_getcode(s) % t->size;
     hashitem_t *cur = t->items[code];
@@ -18470,11 +18474,15 @@ void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace)
 // delete at most once
 void hash_delete(hashtable_t *t, const char *s)
 {
+#ifdef DEBUGGINGAIDS
+    Bassert(t->items != NULL);
+#else
     if (t->items == NULL)
     {
         initprintf("hash_delete(): table not initialized!\n");
         return;
     }
+#endif
 
     uint32_t code = hash_getcode(s) % t->size;
     hashitem_t *cur = t->items[code];
@@ -18506,11 +18514,15 @@ void hash_delete(hashtable_t *t, const char *s)
 
 intptr_t hash_find(const hashtable_t * const t, char const * const s)
 {
+#ifdef DEBUGGINGAIDS
+    Bassert(t->items != NULL);
+#else
     if (t->items == NULL)
     {
         initprintf("hash_find(): table not initialized!\n");
         return -1;
     }
+#endif
 
     hashitem_t *cur = t->items[hash_getcode(s) % t->size];
 
@@ -18527,12 +18539,15 @@ intptr_t hash_find(const hashtable_t * const t, char const * const s)
 
 intptr_t hash_findcase(const hashtable_t * const t, char const * const s)
 {
-
+#ifdef DEBUGGINGAIDS
+    Bassert(t->items != NULL);
+#else
     if (t->items == NULL)
     {
         initprintf("hash_findcase(): table not initialized!\n");
         return -1;
     }
+#endif
 
     hashitem_t *cur = t->items[hash_getcode(s) % t->size];
 
@@ -18563,11 +18578,15 @@ void inthash_init(inthashtable_t *t)
 
 void inthash_loop(inthashtable_t const *t, void (*func)(intptr_t, intptr_t))
 {
+#ifdef DEBUGGINGAIDS
+    Bassert(t->items != NULL);
+#else
     if (EDUKE32_PREDICT_FALSE(t->items == NULL))
     {
         initputs("inthash_loop(): table not initialized!\n");
         return;
     }
+#endif
 
     for (inthashitem_t const * item = t->items, * const items_end = t->items + t->count; item < items_end; ++item)
         func(item->key, item->value);
@@ -18591,11 +18610,15 @@ static inline uint32_t inthash_getcode(intptr_t key)
 
 void inthash_add(inthashtable_t *t, intptr_t key, intptr_t value, int32_t replace)
 {
+#ifdef DEBUGGINGAIDS
+    Bassert(t->items != NULL);
+#else
     if (EDUKE32_PREDICT_FALSE(t->items == NULL))
     {
         initputs("inthash_add(): table not initialized!\n");
         return;
     }
+#endif
 
     inthashitem_t * seeker = t->items + inthash_getcode(key) % t->count;
 
@@ -18647,11 +18670,15 @@ void inthash_add(inthashtable_t *t, intptr_t key, intptr_t value, int32_t replac
 // delete at most once
 void inthash_delete(inthashtable_t *t, intptr_t key)
 {
+#ifdef DEBUGGINGAIDS
+    Bassert(t->items != NULL);
+#else
     if (EDUKE32_PREDICT_FALSE(t->items == NULL))
     {
         initputs("inthash_delete(): table not initialized!\n");
         return;
     }
+#endif
 
     inthashitem_t * seeker = t->items + inthash_getcode(key) % t->count;
 
@@ -18680,11 +18707,15 @@ void inthash_delete(inthashtable_t *t, intptr_t key)
 
 intptr_t inthash_find(inthashtable_t const *t, intptr_t key)
 {
+#ifdef DEBUGGINGAIDS
+    Bassert(t->items != NULL);
+#else
     if (EDUKE32_PREDICT_FALSE(t->items == NULL))
     {
         initputs("inthash_find(): table not initialized!\n");
         return -1;
     }
+#endif
 
     inthashitem_t const * seeker = t->items + inthash_getcode(key) % t->count;
 
