@@ -5207,6 +5207,14 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         break;
         case T_ANIMSOUNDS:
         {
+
+            char *otokptr = script->ltextptr;
+            int32_t numpairs = 0, allocsz = 4, bad = 1, lastframenum = INT32_MIN;
+            dukeanim_t *anim = NULL;
+            char *animname = NULL;
+
+            scriptfile_getstring(script, &animname);
+
             char *animsoundsend = NULL;
 
             if (scriptfile_getbraces(script, &animsoundsend))
@@ -5215,16 +5223,22 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
             if (preload)
             {
                 while (script->textptr < animsoundsend)
-                    script->textptr++;
+                {
+                    int32_t dummy;
+
+                    // HACK: we've reached the end of the list
+                    //  (hack because it relies on knowledge of
+                    //   how scriptfile_* preprocesses the text)
+                    if (animsoundsend - script->textptr == 1)
+                        break;
+
+                    if (scriptfile_getnumber(script, &dummy))
+                        break;
+                }
+
                 break;
             }
 
-            char *otokptr = script->ltextptr;
-            int32_t numpairs = 0, allocsz = 4, bad = 1, lastframenum = INT32_MIN;
-            dukeanim_t *anim = NULL;
-            char *animname = NULL;
-
-            scriptfile_getstring(script, &animname);
 
             if (animname)
                 anim = Anim_Find(animname);
