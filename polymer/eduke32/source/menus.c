@@ -4676,8 +4676,8 @@ static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
 {
 #if !defined EDUKE32_TOUCH_DEVICES
     if (!MOUSEACTIVECONDITION)
-        return;
 #endif
+        return;
 
     if (cm->menuID == MENU_MAIN)
         return;

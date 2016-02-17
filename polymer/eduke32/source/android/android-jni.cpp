@@ -21,9 +21,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <jni.h>
 #include <android/log.h>
 
@@ -43,7 +40,7 @@ extern int32_t G_GetScreenshotFromSavegame(const char *filename, char *pal, char
 #include "in_android.h"
 #include "../function.h"
 
-#include "../GL/gl.h"
+// #include "../GL/gl.h"
 
 // Copied from build.h, which didnt include here
 enum rendmode_t
@@ -86,6 +83,7 @@ static int curRenderer;
 static bool hideTouchControls = true;
 static bool hasTouch = false;
 static int weaponWheelVisible = false;
+static bool hwScaling = false;
 
 
 static int controlsCreated = 0;
@@ -142,49 +140,19 @@ void openGLStart()
         glDisable(GL_CULL_FACE);
 
         glMatrixMode(GL_MODELVIEW);
-
-        // nanoPushState();
     }
-/*
-    else  // software mode
-    {
-        glDisable(GL_ALPHA_TEST);
-        glDisableClientState(GL_COLOR_ARRAY);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_TEXTURE_2D);
-        glDisable(GL_CULL_FACE);
-        glMatrixMode(GL_MODELVIEW);
-    }
-*/
 }
 
 void openGLEnd()
 {
     if (curRenderer == REND_GL)
-    {
-        // glPopMatrix();
-        // nanoPopState();
         glPopMatrix();
-    }
-/*
-    else  // Software mode
-    {
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-        glMatrixMode(GL_MODELVIEW);
-    }
-*/
 }
 
 void gameSettingsButton(int state)
 {
     if (state == 1)
-    {
         showTouchSettings();
-    }
 }
 
 // This is a bit of a hack, if the weapon wheel was selected, then an inv chosen instead, we need to cancel the weapon
@@ -207,12 +175,16 @@ void showWeaponsInventory(bool show)
 
         tcGameWeapons->fade(touchcontrols::FADE_IN, 5);  // fade in
         weaponWheelVisible = true;
+
+        PortableTimer(0);
     }
     else  // hide
     {
         tcGameWeapons->setAllButtonsEnable(false);
         weaponWheel->setTapMode(false);
         weaponWheelVisible = false;
+
+        PortableTimer(120);
     }
 }
 
@@ -256,12 +228,10 @@ void gameButton(int state, int code)
                 {
                     weaponWheel->setTapMode(true);
                     showWeaponsInventory(true);
-                    PortableTimer(30);
                 }
                 else
                 {
                     showWeaponsInventory(false);
-                    PortableTimer(120);
                 }
             }
             break;
@@ -289,7 +259,6 @@ void inventoryButton(int state, int code)
     {
         // Inventory chosen, hide them and wheel
         showWeaponsInventory(false);
-        PortableTimer(120);
     }
 }
 
@@ -320,7 +289,6 @@ void blankTapButton(int state, int code)
 
 void weaponWheelSelected(int enabled) { 
     showWeaponsInventory(enabled ? true : false); 
-    PortableTimer(enabled ? 0 : 120);
 }
 
 void weaponWheelChosen(int segment)
@@ -396,6 +364,16 @@ void initControls(int width, int height, const char *graphics_path)
     touchcontrols::GLScaleWidth = (float)width;
     touchcontrols::GLScaleHeight = (float)-height;
 
+    touchcontrols::ScaleY = nearbyintf(((float) height/(float) width) * touchcontrols::ScaleX);
+
+/*
+    if (hwScaling)
+    {
+        touchcontrols::GLScaleWidth = (float) (width * 2);
+        touchcontrols::GLScaleHeight = (float) -(height * 2);
+    }
+*/
+
     LOGI("initControls %d x %d,x path = %s", width, height, graphics_path);
 
     if (controlsCreated)
@@ -412,10 +390,9 @@ void initControls(int width, int height, const char *graphics_path)
     tcBlankTap = new touchcontrols::TouchControls("blank_tap", false, false);
     tcYesNo = new touchcontrols::TouchControls("yes_no", false, false);
     tcMenuMain = new touchcontrols::TouchControls("menu", false, false);
-    tcGameMain = new touchcontrols::TouchControls("game", false, true, 1, true);
-    tcGameWeapons = new touchcontrols::TouchControls("weapons", false, true, 1, false);
+    tcGameMain = new touchcontrols::TouchControls("game", false, true, 1);
+    tcGameWeapons = new touchcontrols::TouchControls("weapons", false, false);
     tcAutomap = new touchcontrols::TouchControls("automap", false, false);
-    // tcInventory   = new touchcontrols::TouchControls("inventory", false,true,1,false);
 
     ///////////////////////// BLANK TAP SCREEN //////////////////////
 
@@ -437,7 +414,7 @@ void initControls(int width, int height, const char *graphics_path)
     ///////////////////////// MAIN MENU SCREEN /////////////////////
 
     tcMenuMain->addControl(
-    new touchcontrols::Button("arrow_left", touchcontrols::RectF(0, 2, 2, 4), "arrow_left", SDL_SCANCODE_ESCAPE));
+    new touchcontrols::Button("arrow_left", touchcontrols::RectF(0, 0, 2, 2), "arrow_left", SDL_SCANCODE_ESCAPE));
     tcMenuMain->signal_button.connect(sigc::ptr_fun(&menuButton));
 
     touchcontrols::MultitouchMouse *mouseMenu =
@@ -634,13 +611,11 @@ void updateTouchScreenMode(touchscreemode_t mode)
 
                 // This is a bit of a hack, we need to enable the inventory buttons so they can be edited, they will not
                 // be seen anyway
-                showWeaponsInventory(true);
                 break;
             case TOUCH_SCREEN_GAME:
                 tcGameMain->setEnabled(true);
                 tcGameMain->fade(touchcontrols::FADE_IN, DEFAULT_FADE_FRAMES);
                 tcGameWeapons->setEnabled(true);
-                showWeaponsInventory(false);
                 break;
             case TOUCH_SCREEN_AUTOMAP:
                 tcAutomap->setEnabled(true);
@@ -710,6 +685,7 @@ void setTouchSettings(int other)
     // TODO: defined names for these values
     hasTouch = other & 0x4000 ? true : false;
     hideTouchControls = other & 0x8000 ? true : false;
+    hwScaling = other & 0x10000 ? true : false;
 
     // keep in sync with Duke3d/res/values/strings.xml
     int doubletap_options[4] = { -1, gamefunc_Quick_Kick, gamefunc_MedKit, gamefunc_Jetpack };

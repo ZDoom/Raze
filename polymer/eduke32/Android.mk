@@ -16,7 +16,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE    := duke
+LOCAL_MODULE    := duke3d
 
 # -O2  -fvisibility=hidden
 
@@ -29,7 +29,7 @@ else
 endif
 
 LOCAL_CFLAGS += -W  -Werror-implicit-function-declaration -Wpointer-arith -Wextra  -Wno-unused-result  -Wno-char-subscripts -Wno-strict-overflow -Wno-attributes -Wno-write-strings
-LOCAL_CPPFLAGS := -std=gnu++03
+LOCAL_CPPFLAGS := -std=gnu++11
 
 LOCAL_CFLAGS += -DHAVE_SDL -DHAVE_VORBIS -DHAVE_JWZGLES -DHAVE_ANDROID -DRENDERTYPESDL=1  -DUSE_OPENGL -DNETCODE_DISABLE -DUSE_LIBVPX
 

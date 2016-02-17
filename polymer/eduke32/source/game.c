@@ -5207,7 +5207,6 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         break;
         case T_ANIMSOUNDS:
         {
-
             char *otokptr = script->ltextptr;
             int32_t numpairs = 0, allocsz = 4, bad = 1, lastframenum = INT32_MIN;
             dukeanim_t *anim = NULL;
@@ -5239,7 +5238,6 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                 break;
             }
 
-
             if (animname)
                 anim = Anim_Find(animname);
 
@@ -5249,7 +5247,6 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
                            script->filename, scriptfile_getlinum(script, otokptr));
                 break;
             }
-
 
             if (anim->sounds)
             {

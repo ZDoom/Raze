@@ -134,6 +134,14 @@ int32_t r_parallaxskypanning = 0;
 
 #define MIN_CACHETIME_PRINT 10
 
+#ifdef EDUKE32_GLES
+int32_t texfmt_art = GL_RGB5_A1;
+int32_t texfmt_alpha = GL_RGBA4;
+#else
+int32_t texfmt_art = GL_RGBA;
+int32_t texfmt_alpha = GL_RGBA;
+#endif
+
 // this was faster in MSVC but slower with GCC... currently unknown on ARM where both
 // the FPU and possibly the optimization path in the compiler need improvement
 #if 0
@@ -671,10 +679,20 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t intexfmt, int32_t texfmt
 
     if (!miplevel)
     {
+redo:
         if (doalloc&1)
             bglTexImage2D(GL_TEXTURE_2D,0,intexfmt,siz.x,siz.y,0,texfmt,GL_UNSIGNED_BYTE,pic); //loading 1st time
         else
             bglTexSubImage2D(GL_TEXTURE_2D,0,0,0,siz.x,siz.y,texfmt,GL_UNSIGNED_BYTE,pic); //overwrite old texture
+
+        if (bglGetError() != GL_NO_ERROR)
+        {
+            if (intexfmt == GL_RGB5_A1)
+                texfmt_art = intexfmt = GL_RGB;
+            else if (intexfmt == GL_RGBA4)
+                texfmt_alpha = intexfmt = GL_RGBA;
+            goto redo;
+        }
     }
 
     vec2_t siz2 = siz;
@@ -728,10 +746,20 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t intexfmt, int32_t texfmt
 
         if (j >= miplevel)
         {
+redo_mip:
             if (doalloc & 1) // loading 1st time
                 bglTexImage2D(GL_TEXTURE_2D, j - miplevel, intexfmt, siz3.x, siz3.y, 0, texfmt, GL_UNSIGNED_BYTE, pic);  
             else             // overwrite old texture
                 bglTexSubImage2D(GL_TEXTURE_2D, j - miplevel, 0, 0, siz3.x, siz3.y, texfmt, GL_UNSIGNED_BYTE, pic);  
+
+            if (bglGetError() != GL_NO_ERROR)
+            {
+                if (intexfmt == GL_RGB5_A1)
+                    texfmt_art = intexfmt = GL_RGB;
+                else if (intexfmt == GL_RGBA4)
+                    texfmt_alpha = intexfmt = GL_RGBA;
+                goto redo_mip;
+            }
         }
 
         siz2 = siz3;
@@ -943,7 +971,8 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
         npoty = PTH_NPOTWALL;
     }
 
-    uploadtexture(doalloc, siz, hasalpha ? GL_RGBA : GL_RGB, GL_RGBA, pic, tsiz, dameth | DAMETH_NOFIX);
+    uploadtexture(doalloc, siz, hasalpha && texfmt_art == GL_RGBA ? GL_RGB : texfmt_art,
+        GL_RGBA, pic, tsiz, dameth | DAMETH_NOFIX);
 
     Bfree(pic);
 
@@ -1221,14 +1250,18 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         if (glinfo.texcompr && glusetexcompr && !(hicr->flags & HICR_NOSAVE))
             intexfmt = (hasalpha == 255) ? GL_COMPRESSED_RGB_ARB : GL_COMPRESSED_RGBA_ARB;
         else
-#endif
             if (hasalpha == 255) intexfmt = GL_RGB;
+#else
+        if (hasalpha == 255) intexfmt = texfmt_art;
+        else intexfmt = texfmt_alpha;
+#endif
 
         if ((doalloc&3)==1)
             bglGenTextures(1, &pth->glpic); //# of textures (make OpenGL allocate structure)
         bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
         fixtransparency(pic,tsiz,siz,dameth);
+
         uploadtexture(doalloc,siz,intexfmt,texfmt,pic,tsiz,
                       dameth | DAMETH_HI | DAMETH_NOFIX | (hicr->flags & HICR_NOCOMPRESS ? DAMETH_NOCOMPRESS : 0));
     }
