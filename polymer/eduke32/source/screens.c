@@ -2035,19 +2035,19 @@ static int32_t G_PrintTime_ClockPad(void)
     int32_t clockpad = 2;
     int32_t ii, ij;
 
-    for (ii=g_player[myconnectindex].ps->player_par/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++);
+    for (ii=g_player[myconnectindex].ps->player_par/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
     clockpad = max(clockpad, ij);
     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
     {
-        for (ii=MapInfo[G_LastMapInfoIndex()].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++);
+        for (ii=MapInfo[G_LastMapInfoIndex()].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
         clockpad = max(clockpad, ij);
         if (!NAM_WW2GI && MapInfo[G_LastMapInfoIndex()].designertime)
         {
-            for (ii=MapInfo[G_LastMapInfoIndex()].designertime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++);
+            for (ii=MapInfo[G_LastMapInfoIndex()].designertime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
             clockpad = max(clockpad, ij);
         }
     }
-    if (ud.playerbest > 0) for (ii=ud.playerbest/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++);
+    if (ud.playerbest > 0) for (ii=ud.playerbest/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
     clockpad = max(clockpad, ij);
 
     return clockpad;
