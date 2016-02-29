@@ -417,7 +417,17 @@
 		20C2146F1B02C1D800917E58 /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 20C2146E1B02C1D800917E58 /* build.png */; };
 		20CA2FA71BB2456E001231BF /* drivers.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CA2FA61BB2456E001231BF /* drivers.h */; };
 		20CA2FA81BB2456E001231BF /* drivers.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CA2FA61BB2456E001231BF /* drivers.h */; };
+		20E16CE11C7022C300EE8446 /* cmdline.c in Sources */ = {isa = PBXBuildFile; fileRef = 20E16CDF1C7022C300EE8446 /* cmdline.c */; };
+		20E16CE21C7022C300EE8446 /* cmdline.c in Sources */ = {isa = PBXBuildFile; fileRef = 20E16CDF1C7022C300EE8446 /* cmdline.c */; };
+		20E16CE81C7022DE00EE8446 /* screens.c in Sources */ = {isa = PBXBuildFile; fileRef = 20E16CE61C7022DE00EE8446 /* screens.c */; };
+		20E16CE91C7022DE00EE8446 /* screens.c in Sources */ = {isa = PBXBuildFile; fileRef = 20E16CE61C7022DE00EE8446 /* screens.c */; };
 		20F70F131A8F25CE00F71870 /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 0013832819F366720007DA6C /* libc++.dylib */; };
+		20F7124D1C6C19E5006B68D0 /* screentext.c in Sources */ = {isa = PBXBuildFile; fileRef = 20F7124B1C6C19E5006B68D0 /* screentext.c */; };
+		20F7124E1C6C19E5006B68D0 /* screentext.c in Sources */ = {isa = PBXBuildFile; fileRef = 20F7124B1C6C19E5006B68D0 /* screentext.c */; };
+		20F712511C6C19F4006B68D0 /* sbar.c in Sources */ = {isa = PBXBuildFile; fileRef = 20F7124F1C6C19F4006B68D0 /* sbar.c */; };
+		20F712521C6C19F4006B68D0 /* sbar.c in Sources */ = {isa = PBXBuildFile; fileRef = 20F7124F1C6C19F4006B68D0 /* sbar.c */; };
+		20F712551C6C1A07006B68D0 /* cheats.c in Sources */ = {isa = PBXBuildFile; fileRef = 20F712531C6C1A07006B68D0 /* cheats.c */; };
+		20F712561C6C1A07006B68D0 /* cheats.c in Sources */ = {isa = PBXBuildFile; fileRef = 20F712531C6C1A07006B68D0 /* cheats.c */; };
 		20FD1D481C44E4BE00C2E553 /* colmatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 20FD1D471C44E4BE00C2E553 /* colmatch.h */; };
 		20FD1D491C44E4BE00C2E553 /* colmatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 20FD1D471C44E4BE00C2E553 /* colmatch.h */; };
 		20FD1D511C44E4E700C2E553 /* colmatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 20FD1D501C44E4E700C2E553 /* colmatch.c */; };
@@ -782,6 +792,16 @@
 		20C214691B02C19800917E58 /* game.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = game.png; path = bundles/EDuke32.app/Contents/Resources/game.png; sourceTree = SOURCE_ROOT; };
 		20C2146E1B02C1D800917E58 /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = build.png; path = bundles/Mapster32.app/Contents/Resources/build.png; sourceTree = SOURCE_ROOT; };
 		20CA2FA61BB2456E001231BF /* drivers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drivers.h; path = ../../source/jaudiolib/include/drivers.h; sourceTree = SOURCE_ROOT; };
+		20E16CDF1C7022C300EE8446 /* cmdline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmdline.c; path = ../../source/cmdline.c; sourceTree = SOURCE_ROOT; };
+		20E16CE01C7022C300EE8446 /* cmdline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cmdline.h; path = ../../source/cmdline.h; sourceTree = SOURCE_ROOT; };
+		20E16CE61C7022DE00EE8446 /* screens.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = screens.c; path = ../../source/screens.c; sourceTree = SOURCE_ROOT; };
+		20E16CE71C7022DE00EE8446 /* screens.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = screens.h; path = ../../source/screens.h; sourceTree = SOURCE_ROOT; };
+		20F7124B1C6C19E5006B68D0 /* screentext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = screentext.c; path = ../../source/screentext.c; sourceTree = SOURCE_ROOT; };
+		20F7124C1C6C19E5006B68D0 /* screentext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = screentext.h; path = ../../source/screentext.h; sourceTree = SOURCE_ROOT; };
+		20F7124F1C6C19F4006B68D0 /* sbar.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sbar.c; path = ../../source/sbar.c; sourceTree = SOURCE_ROOT; };
+		20F712501C6C19F4006B68D0 /* sbar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sbar.h; path = ../../source/sbar.h; sourceTree = SOURCE_ROOT; };
+		20F712531C6C1A07006B68D0 /* cheats.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cheats.c; path = ../../source/cheats.c; sourceTree = SOURCE_ROOT; };
+		20F712541C6C1A07006B68D0 /* cheats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cheats.h; path = ../../source/cheats.h; sourceTree = SOURCE_ROOT; };
 		20FD1D471C44E4BE00C2E553 /* colmatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = colmatch.h; path = ../../build/include/colmatch.h; sourceTree = SOURCE_ROOT; };
 		20FD1D501C44E4E700C2E553 /* colmatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = colmatch.c; path = ../../build/src/colmatch.c; sourceTree = SOURCE_ROOT; };
 		20FD1D6A1C44E64700C2E553 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS9.2.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
@@ -1037,6 +1057,10 @@
 				2038AE9F1A8F12B60093B7B2 /* animsounds.h */,
 				0008E9A219F1AD9B0091588D /* animvpx.c */,
 				0008E9A319F1AD9B0091588D /* animvpx.h */,
+				20F712531C6C1A07006B68D0 /* cheats.c */,
+				20F712541C6C1A07006B68D0 /* cheats.h */,
+				20E16CDF1C7022C300EE8446 /* cmdline.c */,
+				20E16CE01C7022C300EE8446 /* cmdline.h */,
 				0008E9A419F1AD9B0091588D /* config.c */,
 				0008E9A519F1AD9B0091588D /* config.h */,
 				0008E9A619F1AD9B0091588D /* demo.c */,
@@ -1086,6 +1110,12 @@
 				0008E9D419F1AD9B0091588D /* rts.h */,
 				0008E9D519F1AD9B0091588D /* savegame.c */,
 				0008E9D619F1AD9B0091588D /* savegame.h */,
+				20F7124F1C6C19F4006B68D0 /* sbar.c */,
+				20F712501C6C19F4006B68D0 /* sbar.h */,
+				20E16CE61C7022DE00EE8446 /* screens.c */,
+				20E16CE71C7022DE00EE8446 /* screens.h */,
+				20F7124B1C6C19E5006B68D0 /* screentext.c */,
+				20F7124C1C6C19E5006B68D0 /* screentext.h */,
 				0008E9D719F1AD9B0091588D /* sdlmusic.c */,
 				0008E9DA19F1AD9B0091588D /* sector.c */,
 				0008E9DB19F1AD9B0091588D /* sector.h */,
@@ -1858,11 +1888,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				0008E9F519F1AD9B0091588D /* namesdyn.c in Sources */,
+				20E16CE81C7022DE00EE8446 /* screens.c in Sources */,
 				0008E9EB19F1AD9B0091588D /* gamedef.c in Sources */,
+				20F7124D1C6C19E5006B68D0 /* screentext.c in Sources */,
 				0008EA0219F1AD9B0091588D /* soundsdyn.c in Sources */,
 				2038AEA01A8F12B60093B7B2 /* animsounds.c in Sources */,
 				0008E9EF19F1AD9B0091588D /* gamevars.c in Sources */,
 				0008E9EC19F1AD9B0091588D /* gameexec.c in Sources */,
+				20F712511C6C19F4006B68D0 /* sbar.c in Sources */,
+				20E16CE11C7022C300EE8446 /* cmdline.c in Sources */,
 				0008E9FB19F1AD9B0091588D /* rev.c in Sources */,
 				0008E9EA19F1AD9B0091588D /* game.c in Sources */,
 				0008EA0719F1ADC90091588D /* common.c in Sources */,
@@ -1886,6 +1920,7 @@
 				0008E9F719F1AD9B0091588D /* osdcmds.c in Sources */,
 				0008E9F819F1AD9B0091588D /* osdfuncs.c in Sources */,
 				0008E9FD19F1AD9B0091588D /* savegame.c in Sources */,
+				20F712551C6C1A07006B68D0 /* cheats.c in Sources */,
 				0008E9F919F1AD9B0091588D /* player.c in Sources */,
 				0008E9E719F1AD9B0091588D /* config.c in Sources */,
 			);
@@ -2002,6 +2037,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				000C48A319F35601006E6B52 /* global.c in Sources */,
+				20E16CE21C7022C300EE8446 /* cmdline.c in Sources */,
 				000C489B19F35601006E6B52 /* anim.c in Sources */,
 				000C48B319F35601006E6B52 /* sounds.c in Sources */,
 				000C48AE19F35601006E6B52 /* rev.c in Sources */,
@@ -2013,13 +2049,17 @@
 				000C48A019F35601006E6B52 /* gameexec.c in Sources */,
 				000C48AD19F35601006E6B52 /* premap.c in Sources */,
 				000C489E19F35601006E6B52 /* game.c in Sources */,
+				20E16CE91C7022DE00EE8446 /* screens.c in Sources */,
 				000C48AC19F35601006E6B52 /* player.c in Sources */,
 				000C489C19F35601006E6B52 /* config.c in Sources */,
 				000C48A619F35601006E6B52 /* input.c in Sources */,
 				000C48F219F35F42006E6B52 /* gamevars.c in Sources */,
+				20F712521C6C19F4006B68D0 /* sbar.c in Sources */,
 				000C489919F35601006E6B52 /* common.c in Sources */,
 				000C48AF19F35601006E6B52 /* rts.c in Sources */,
+				20F7124E1C6C19E5006B68D0 /* screentext.c in Sources */,
 				000C489D19F35601006E6B52 /* demo.c in Sources */,
+				20F712561C6C1A07006B68D0 /* cheats.c in Sources */,
 				000C48A719F35601006E6B52 /* menus.c in Sources */,
 				2038AEA11A8F12B60093B7B2 /* animsounds.c in Sources */,
 				000C48A919F35601006E6B52 /* net.c in Sources */,
