@@ -422,7 +422,7 @@
 		20FD1D491C44E4BE00C2E553 /* colmatch.h in Headers */ = {isa = PBXBuildFile; fileRef = 20FD1D471C44E4BE00C2E553 /* colmatch.h */; };
 		20FD1D511C44E4E700C2E553 /* colmatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 20FD1D501C44E4E700C2E553 /* colmatch.c */; };
 		20FD1D521C44E4E700C2E553 /* colmatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 20FD1D501C44E4E700C2E553 /* colmatch.c */; };
-		20FD1D6B1C44E64700C2E553 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20FD1D6A1C44E64700C2E553 /* GameController.framework */; };
+		20FD1D6B1C44E64700C2E553 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20FD1D6A1C44E64700C2E553 /* GameController.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
