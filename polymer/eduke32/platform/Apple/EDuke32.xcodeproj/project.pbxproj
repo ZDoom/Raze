@@ -1755,6 +1755,11 @@
 			attributes = {
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = Voidpoint;
+				TargetAttributes = {
+					000C486B19F35516006E6B52 = {
+						DevelopmentTeam = 7562P9P72J;
+					};
+				};
 			};
 			buildConfigurationList = 0008E64419F1A5AA0091588D /* Build configuration list for PBXProject "EDuke32" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -3606,6 +3611,7 @@
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.eduke32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -3717,6 +3723,7 @@
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.voidpoint.eduke32;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
