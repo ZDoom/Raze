@@ -134,14 +134,6 @@ int32_t r_parallaxskypanning = 0;
 
 #define MIN_CACHETIME_PRINT 10
 
-#ifdef EDUKE32_GLES
-int32_t texfmt_art = GL_RGB5_A1;
-int32_t texfmt_alpha = GL_RGBA4;
-#else
-int32_t texfmt_art = GL_RGBA;
-int32_t texfmt_alpha = GL_RGBA;
-#endif
-
 // this was faster in MSVC but slower with GCC... currently unknown on ARM where both
 // the FPU and possibly the optimization path in the compiler need improvement
 #if 0
@@ -646,14 +638,62 @@ static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t
     }
 }
 
-void uploadtexture(int32_t doalloc, vec2_t siz, int32_t intexfmt, int32_t texfmt,
+#if defined EDUKE32_GLES
+// sorted first in increasing order of size, then in decreasing order of quality
+static int32_t const texfmts_rgb_mask[] = { GL_RGB5_A1, GL_RGBA, 0 };
+static int32_t const texfmts_rgb[] = { GL_RGB565, GL_RGB5_A1, GL_RGB, GL_RGBA, 0 };
+static int32_t const texfmts_rgba[] = { GL_RGBA4, GL_RGBA, 0 } ;
+
+static int32_t const *texfmt_rgb_mask = texfmts_rgb_mask;
+static int32_t const *texfmt_rgb = texfmts_rgb;
+static int32_t const *texfmt_rgba = texfmts_rgba;
+
+static int32_t polymost_glTexImage2D_error(int32_t * intexfmt, int32_t const **intexfmt_master)
+{
+    GLenum err;
+    while ((err = bglGetError()) != GL_NO_ERROR)
+    {
+        if ((*intexfmt = *++*intexfmt_master) == 0)
+        {
+            initprintf("No texture formats supported (error 0x%X).\n", err);
+            Bfflush(NULL);
+            uninitengine();
+            Bexit(565);
+        }
+
+        return 1;
+    }
+
+    return 0;
+}
+#else
+# define polymost_glTexImage2D_error(...) (0)
+#endif
+
+void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
                    coltype *pic, vec2_t tsiz, int32_t dameth)
 {
     const int hi = !!(dameth & DAMETH_HI);
     const int nodownsize = !!(dameth & DAMETH_NODOWNSIZE);
     const int nomiptransfix  = !!(dameth & DAMETH_NOFIX);
+    const int hasalpha  = !!(dameth & DAMETH_HASALPHA) && (dameth & DAMETH_MASKPROPS) != DAMETH_NOMASK;
 
-    dameth &= ~(DAMETH_HI|DAMETH_NODOWNSIZE|DAMETH_NOFIX);
+    dameth &= ~(DAMETH_HI|DAMETH_NODOWNSIZE|DAMETH_NOFIX|DAMETH_NOTEXCOMPRESS|DAMETH_HASALPHA|DAMETH_ONEBITALPHA);
+
+#if !defined EDUKE32_GLES
+    const int texcompress_ok  = !(dameth & DAMETH_NOTEXCOMPRESS);
+
+    int32_t intexfmt;
+    if (glinfo.texcompr && glusetexcompr && texcompress_ok)
+        intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
+    else
+        intexfmt = hasalpha ? GL_RGBA : GL_RGB;
+#else
+    const int onebitalpha  = !!(dameth & DAMETH_ONEBITALPHA);
+
+    int32_t const ** intexfmt_master = hasalpha ? (onebitalpha ? &texfmt_rgb_mask : &texfmt_rgba) : &texfmt_rgb;
+    int32_t intexfmt = **intexfmt_master;
+#endif
 
     if (gltexmaxsize <= 0)
     {
@@ -679,20 +719,15 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t intexfmt, int32_t texfmt
 
     if (!miplevel)
     {
-redo:
-        if (doalloc&1)
-            bglTexImage2D(GL_TEXTURE_2D,0,intexfmt,siz.x,siz.y,0,texfmt,GL_UNSIGNED_BYTE,pic); //loading 1st time
-        else
-            bglTexSubImage2D(GL_TEXTURE_2D,0,0,0,siz.x,siz.y,texfmt,GL_UNSIGNED_BYTE,pic); //overwrite old texture
-
-        if (bglGetError() != GL_NO_ERROR)
+        BuildGLErrorCheck(); // XXX
+        do
         {
-            if (intexfmt == GL_RGB5_A1)
-                texfmt_art = intexfmt = GL_RGB;
-            else if (intexfmt == GL_RGBA4)
-                texfmt_alpha = intexfmt = GL_RGBA;
-            goto redo;
+            if (doalloc&1)
+                bglTexImage2D(GL_TEXTURE_2D,0,intexfmt,siz.x,siz.y,0,texfmt,GL_UNSIGNED_BYTE,pic); //loading 1st time
+            else
+                bglTexSubImage2D(GL_TEXTURE_2D,0,0,0,siz.x,siz.y,texfmt,GL_UNSIGNED_BYTE,pic); //overwrite old texture
         }
+        while (polymost_glTexImage2D_error(&intexfmt, intexfmt_master));
     }
 
     vec2_t siz2 = siz;
@@ -746,20 +781,15 @@ redo:
 
         if (j >= miplevel)
         {
-redo_mip:
-            if (doalloc & 1) // loading 1st time
-                bglTexImage2D(GL_TEXTURE_2D, j - miplevel, intexfmt, siz3.x, siz3.y, 0, texfmt, GL_UNSIGNED_BYTE, pic);  
-            else             // overwrite old texture
-                bglTexSubImage2D(GL_TEXTURE_2D, j - miplevel, 0, 0, siz3.x, siz3.y, texfmt, GL_UNSIGNED_BYTE, pic);  
-
-            if (bglGetError() != GL_NO_ERROR)
+            BuildGLErrorCheck(); // XXX
+            do
             {
-                if (intexfmt == GL_RGB5_A1)
-                    texfmt_art = intexfmt = GL_RGB;
-                else if (intexfmt == GL_RGBA4)
-                    texfmt_alpha = intexfmt = GL_RGBA;
-                goto redo_mip;
+                if (doalloc & 1) // loading 1st time
+                    bglTexImage2D(GL_TEXTURE_2D, j - miplevel, intexfmt, siz3.x, siz3.y, 0, texfmt, GL_UNSIGNED_BYTE, pic);
+                else             // overwrite old texture
+                    bglTexSubImage2D(GL_TEXTURE_2D, j - miplevel, 0, 0, siz3.x, siz3.y, texfmt, GL_UNSIGNED_BYTE, pic);
             }
+            while (polymost_glTexImage2D_error(&intexfmt, intexfmt_master));
         }
 
         siz2 = siz3;
@@ -971,8 +1001,9 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
         npoty = PTH_NPOTWALL;
     }
 
-    uploadtexture(doalloc, siz, hasalpha && texfmt_art == GL_RGBA ? GL_RGB : texfmt_art,
-        GL_RGBA, pic, tsiz, dameth | DAMETH_NOFIX);
+    uploadtexture(doalloc, siz, GL_RGBA, pic, tsiz,
+                  dameth | DAMETH_NOFIX | DAMETH_NOTEXCOMPRESS |
+                  (hasalpha ? (DAMETH_HASALPHA|DAMETH_ONEBITALPHA) : 0));
 
     Bfree(pic);
 
@@ -1008,7 +1039,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     coltype *pic = NULL;
 
     char *fn;
-    int32_t picfillen, intexfmt = GL_RGBA, filh;
+    int32_t picfillen, filh;
 
     int32_t startticks=0, willprint=0;
 
@@ -1246,24 +1277,17 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
             hicr->flags |= (HICR_NODOWNSIZE + HICR_NOTEXCOMPRESS);
 
-#if !defined EDUKE32_GLES
-        if (glinfo.texcompr && glusetexcompr && !(hicr->flags & HICR_NOTEXCOMPRESS))
-            intexfmt = (hasalpha == 255) ? GL_COMPRESSED_RGB_ARB : GL_COMPRESSED_RGBA_ARB;
-        else
-            if (hasalpha == 255) intexfmt = GL_RGB;
-#else
-        if (hasalpha == 255) intexfmt = texfmt_art;
-        else intexfmt = texfmt_alpha;
-#endif
-
         if ((doalloc&3)==1)
             bglGenTextures(1, &pth->glpic); //# of textures (make OpenGL allocate structure)
         bglBindTexture(GL_TEXTURE_2D,pth->glpic);
 
         fixtransparency(pic,tsiz,siz,dameth);
 
-        uploadtexture(doalloc,siz,intexfmt,texfmt,pic,tsiz,
-                      dameth | DAMETH_HI | DAMETH_NOFIX | (hicr->flags & HICR_NODOWNSIZE ? DAMETH_NODOWNSIZE : 0));
+        uploadtexture(doalloc,siz,texfmt,pic,tsiz,
+                      dameth | DAMETH_HI | DAMETH_NOFIX |
+                      TO_DAMETH_NODOWNSIZE(hicr->flags) |
+                      TO_DAMETH_NOTEXCOMPRESS(hicr->flags) |
+                      (hasalpha != 255 ? DAMETH_HASALPHA : 0));
     }
 
     // precalculate scaling parameters for replacement

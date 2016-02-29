@@ -739,7 +739,7 @@ static inline int32_t hicfxmask(int32_t pal)
 //Note: even though it says md2model, it works for both md2model&md3model
 int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 {
-    int32_t i, bpl, osizx, osizy, texfmt = GL_RGBA, intexfmt = GL_RGBA;
+    int32_t i, bpl, osizx, osizy;
     char *skinfile, hasalpha, fn[BMAX_PATH];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
@@ -850,7 +850,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     {
         osizx = cachead.xdim;
         osizy = cachead.ydim;
-        hasalpha = (cachead.flags & CACHEAD_HASALPHA) ? 1 : 0;
+        hasalpha = !!(cachead.flags & CACHEAD_HASALPHA);
         if (pal < (MAXPALOOKUPS - RESERVEDPALS))
             m->usesalpha = hasalpha;
         //kclose(filh);	// FIXME: uncomment when cache1d.c is fixed
@@ -889,18 +889,15 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         bglBindTexture(GL_TEXTURE_2D, *texidx);
 
         //gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,xsiz,ysiz,GL_BGRA_EXT,GL_UNSIGNED_BYTE,(char *)fptr);
-#if !defined EDUKE32_GLES
-        if (glinfo.texcompr && glusetexcompr && !(sk->flags & HICR_NOTEXCOMPRESS))
-            intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
-        else
-#endif
-            if (!hasalpha)
-                intexfmt = GL_RGB;
 
-        if (glinfo.bgra)
-            texfmt = GL_BGRA;
+        int32_t const texfmt = glinfo.bgra ? GL_BGRA : GL_RGBA;
 
-        uploadtexture((doalloc&1), siz, intexfmt, texfmt, (coltype *)fptr, siz, DAMETH_HI | (sk->flags & HICR_NODOWNSIZE ? DAMETH_NODOWNSIZE : 0));
+        uploadtexture((doalloc&1), siz, texfmt, (coltype *)fptr, siz,
+                      DAMETH_HI |
+                      TO_DAMETH_NODOWNSIZE(sk->flags) |
+                      TO_DAMETH_NOTEXCOMPRESS(sk->flags) |
+                      (hasalpha ? DAMETH_HASALPHA : 0));
+
         Bfree((void *)fptr);
     }
 

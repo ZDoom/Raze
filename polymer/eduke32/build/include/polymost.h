@@ -29,7 +29,7 @@ struct glfiltermodes {
 extern struct glfiltermodes glfiltermodes[NUMGLFILTERMODES];
 
 //void phex(char v, char *s);
-void uploadtexture(int32_t doalloc, vec2_t siz, int32_t intexfmt, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
+void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
 void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
@@ -157,11 +157,19 @@ enum {
     DAMETH_NODOWNSIZE = 4096,
     DAMETH_HI = 8192,
     DAMETH_NOFIX = 16384,
+    DAMETH_NOTEXCOMPRESS = 32768,
+    DAMETH_HASALPHA = 65536,
+    DAMETH_ONEBITALPHA = 131072,
 };
 
 #define DAMETH_NARROW_MASKPROPS(dameth) (((dameth)&(~DAMETH_TRANS1))|(((dameth)&DAMETH_TRANS1)>>1))
 EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_MASKPROPS) == DAMETH_MASK);
 EDUKE32_STATIC_ASSERT(DAMETH_NARROW_MASKPROPS(DAMETH_CLAMPED) == DAMETH_CLAMPED);
+
+#define TO_DAMETH_NODOWNSIZE(hicr_flags) (((hicr_flags)&HICR_NODOWNSIZE)<<8)
+EDUKE32_STATIC_ASSERT(TO_DAMETH_NODOWNSIZE(HICR_NODOWNSIZE) == DAMETH_NODOWNSIZE);
+#define TO_DAMETH_NOTEXCOMPRESS(hicr_flags) (((hicr_flags)&HICR_NOTEXCOMPRESS)<<15)
+EDUKE32_STATIC_ASSERT(TO_DAMETH_NOTEXCOMPRESS(HICR_NOTEXCOMPRESS) == DAMETH_NOTEXCOMPRESS);
 
 // Do we want a NPOT-y-as-classic texture for this <dameth> and <ysiz>?
 static inline int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
