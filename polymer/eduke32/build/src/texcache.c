@@ -508,7 +508,7 @@ int32_t texcache_readtexheader(const char *fn, int32_t len, int32_t dameth, char
         READTEXHEADER_FAILURE(4);
 
     // handle nocompress
-    if (!modelp && !(head->flags & CACHEAD_NOCOMPRESS) && head->quality != r_downsize)
+    if (!modelp && !(head->flags & CACHEAD_NODOWNSIZE) && head->quality != r_downsize)
         return 0;
 
     if (gltexmaxsize && (head->xdim > (1<<gltexmaxsize) || head->ydim > (1<<gltexmaxsize)))

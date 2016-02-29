@@ -890,7 +890,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
         //gluBuild2DMipmaps(GL_TEXTURE_2D,GL_RGBA,xsiz,ysiz,GL_BGRA_EXT,GL_UNSIGNED_BYTE,(char *)fptr);
 #if !defined EDUKE32_GLES
-        if (glinfo.texcompr && glusetexcompr && !(sk->flags & HICR_NOSAVE))
+        if (glinfo.texcompr && glusetexcompr && !(sk->flags & HICR_NOTEXCOMPRESS))
             intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
         else
 #endif
@@ -900,7 +900,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         if (glinfo.bgra)
             texfmt = GL_BGRA;
 
-        uploadtexture((doalloc&1), siz, intexfmt, texfmt, (coltype *)fptr, siz, DAMETH_HI | (sk->flags & HICR_NOCOMPRESS ? DAMETH_NOCOMPRESS : 0));
+        uploadtexture((doalloc&1), siz, intexfmt, texfmt, (coltype *)fptr, siz, DAMETH_HI | (sk->flags & HICR_NODOWNSIZE ? DAMETH_NODOWNSIZE : 0));
         Bfree((void *)fptr);
     }
 
@@ -952,17 +952,17 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
     if (glinfo.texcompr && glusetexcompr && glusetexcache)
-        if (!gotcache && !(sk->flags & HICR_NOSAVE))
+        if (!gotcache && !(sk->flags & HICR_NOTEXCOMPRESS))
         {
             const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
 
             // save off the compressed version
-            cachead.quality = (sk->flags & HICR_NOCOMPRESS) ? 0 : r_downsize;
+            cachead.quality = (sk->flags & HICR_NODOWNSIZE) ? 0 : r_downsize;
             cachead.xdim = osizx>>cachead.quality;
             cachead.ydim = osizy>>cachead.quality;
 
             cachead.flags = nonpow2*CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0) |
-                            (sk->flags & HICR_NOCOMPRESS ? CACHEAD_NOCOMPRESS : 0);
+                            (sk->flags & HICR_NODOWNSIZE ? CACHEAD_NODOWNSIZE : 0);
 
 ///            OSD_Printf("Caching \"%s\"\n",fn);
             texcache_writetex(fn, picfillen, pal<<8, hicfxmask(pal), &cachead);

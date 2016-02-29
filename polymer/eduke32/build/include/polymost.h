@@ -154,7 +154,7 @@ enum {
     DAMETH_BACKFACECULL = -1,
 
     // used internally by uploadtexture
-    DAMETH_NOCOMPRESS = 4096,
+    DAMETH_NODOWNSIZE = 4096,
     DAMETH_HI = 8192,
     DAMETH_NOFIX = 16384,
 };

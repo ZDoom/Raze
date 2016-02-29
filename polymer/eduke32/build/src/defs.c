@@ -279,7 +279,7 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
 
 #ifdef USE_OPENGL
         if (istexture)
-            hicsetsubsttex(tile, 0, fn, (float)(255-alphacut) * (1.f/255.f), 1.0f, 1.0f, 1.0f, 1.0f, HICR_NOSAVE|HICR_NOCOMPRESS);
+            hicsetsubsttex(tile, 0, fn, (float)(255-alphacut) * (1.f/255.f), 1.0f, 1.0f, 1.0f, 1.0f, HICR_NOTEXCOMPRESS|HICR_NODOWNSIZE);
 #endif
 
         return 1;
@@ -299,7 +299,7 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
 
 #ifdef USE_OPENGL
     if (istexture)
-        hicsetsubsttex(tile, 0, fn, (float)(255-alphacut) * (1.f/255.f), 1.0f, 1.0f, 1.0, 1.0, HICR_NOSAVE|HICR_NOCOMPRESS);
+        hicsetsubsttex(tile, 0, fn, (float)(255-alphacut) * (1.f/255.f), 1.0f, 1.0f, 1.0, 1.0, HICR_NOTEXCOMPRESS|HICR_NODOWNSIZE);
 #else
     UNREFERENCED_PARAMETER(istexture);
 #endif
@@ -1578,9 +1578,9 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getnumber(script,&surfnum); break;
 #ifdef USE_OPENGL
                         case T_NOCOMPRESS:
-                            flags |= HICR_NOSAVE; break;
+                            flags |= HICR_NOTEXCOMPRESS; break;
                         case T_NODOWNSIZE:
-                            flags |= HICR_NOCOMPRESS; break;
+                            flags |= HICR_NODOWNSIZE; break;
                         case T_FORCEFILTER:
                             flags |= HICR_FORCEFILTER; break;
 #endif
@@ -1914,9 +1914,9 @@ static int32_t defsparser(scriptfile *script)
                     scriptfile_getstring(script,&fn[5]); break;
 #ifdef USE_OPENGL
                 case T_NOCOMPRESS:
-                    flags |= HICR_NOSAVE; break;
+                    flags |= HICR_NOTEXCOMPRESS; break;
                 case T_NODOWNSIZE:
-                    flags |= HICR_NOCOMPRESS; break;
+                    flags |= HICR_NODOWNSIZE; break;
                 case T_FORCEFILTER:
                     flags |= HICR_FORCEFILTER; break;
 #endif
@@ -2252,9 +2252,9 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&specfactor); break;
 #ifdef USE_OPENGL
                         case T_NOCOMPRESS:
-                            flags |= HICR_NOSAVE; break;
+                            flags |= HICR_NOTEXCOMPRESS; break;
                         case T_NODOWNSIZE:
-                            flags |= HICR_NOCOMPRESS; break;
+                            flags |= HICR_NODOWNSIZE; break;
                         case T_FORCEFILTER:
                             flags |= HICR_FORCEFILTER; break;
 #endif
@@ -2340,9 +2340,9 @@ static int32_t defsparser(scriptfile *script)
                             scriptfile_getdouble(script,&specfactor); break;
 #ifdef USE_OPENGL
                         case T_NOCOMPRESS:
-                            flags |= HICR_NOSAVE; break;
+                            flags |= HICR_NOTEXCOMPRESS; break;
                         case T_NODOWNSIZE:
-                            flags |= HICR_NOCOMPRESS; break;
+                            flags |= HICR_NODOWNSIZE; break;
                         case T_FORCEFILTER:
                             flags |= HICR_FORCEFILTER; break;
 #endif

@@ -650,10 +650,10 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t intexfmt, int32_t texfmt
                    coltype *pic, vec2_t tsiz, int32_t dameth)
 {
     const int hi = !!(dameth & DAMETH_HI);
-    const int nocompress = !!(dameth & DAMETH_NOCOMPRESS);
+    const int nodownsize = !!(dameth & DAMETH_NODOWNSIZE);
     const int nomiptransfix  = !!(dameth & DAMETH_NOFIX);
 
-    dameth &= ~(DAMETH_HI|DAMETH_NOCOMPRESS|DAMETH_NOFIX);
+    dameth &= ~(DAMETH_HI|DAMETH_NODOWNSIZE|DAMETH_NOFIX);
 
     if (gltexmaxsize <= 0)
     {
@@ -674,7 +674,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t intexfmt, int32_t texfmt
     while ((siz.x >> miplevel) > (1 << gltexmaxsize) || (siz.y >> miplevel) > (1 << gltexmaxsize))
         miplevel++;
 
-    if (hi && !nocompress && r_downsize > miplevel)
+    if (hi && !nodownsize && r_downsize > miplevel)
         miplevel = r_downsize;
 
     if (!miplevel)
@@ -1244,10 +1244,10 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         else texfmt = GL_BGRA;
 
         if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
-            hicr->flags |= (HICR_NOCOMPRESS + HICR_NOSAVE);
+            hicr->flags |= (HICR_NODOWNSIZE + HICR_NOTEXCOMPRESS);
 
 #if !defined EDUKE32_GLES
-        if (glinfo.texcompr && glusetexcompr && !(hicr->flags & HICR_NOSAVE))
+        if (glinfo.texcompr && glusetexcompr && !(hicr->flags & HICR_NOTEXCOMPRESS))
             intexfmt = (hasalpha == 255) ? GL_COMPRESSED_RGB_ARB : GL_COMPRESSED_RGBA_ARB;
         else
             if (hasalpha == 255) intexfmt = GL_RGB;
@@ -1263,7 +1263,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         fixtransparency(pic,tsiz,siz,dameth);
 
         uploadtexture(doalloc,siz,intexfmt,texfmt,pic,tsiz,
-                      dameth | DAMETH_HI | DAMETH_NOFIX | (hicr->flags & HICR_NOCOMPRESS ? DAMETH_NOCOMPRESS : 0));
+                      dameth | DAMETH_HI | DAMETH_NOFIX | (hicr->flags & HICR_NODOWNSIZE ? DAMETH_NODOWNSIZE : 0));
     }
 
     // precalculate scaling parameters for replacement
@@ -1283,7 +1283,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     DO_FREE_AND_NULL(pic);
 
     if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
-        hicr->flags |= HICR_NOCOMPRESS | HICR_NOSAVE;
+        hicr->flags |= HICR_NODOWNSIZE | HICR_NOTEXCOMPRESS;
 
     pth->picnum = dapic;
     pth->effects = effect;
@@ -1294,18 +1294,18 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     pth->skyface = facen;
     pth->hicr = hicr;
 
-    if (!gotcache && glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOSAVE))
+    if (!gotcache && glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOTEXCOMPRESS))
     {
         const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
 
         // save off the compressed version
-        cachead.quality = (hicr->flags & HICR_NOCOMPRESS) ? 0 : r_downsize;
+        cachead.quality = (hicr->flags & HICR_NODOWNSIZE) ? 0 : r_downsize;
         cachead.xdim = tsiz.x >> cachead.quality;
         cachead.ydim = tsiz.y >> cachead.quality;
 
-        // handle nocompress:
+        // handle nodownsize:
         cachead.flags = nonpow2 * CACHEAD_NONPOW2 | (hasalpha != 255 ? CACHEAD_HASALPHA : 0) |
-                        (hicr->flags & HICR_NOCOMPRESS ? CACHEAD_NOCOMPRESS : 0);
+                        (hicr->flags & HICR_NODOWNSIZE ? CACHEAD_NODOWNSIZE : 0);
 
         ///            OSD_Printf("Caching \"%s\"\n", fn);
         texcache_writetex(fn, picfillen + (dapalnum << 8), dameth, effect, &cachead);

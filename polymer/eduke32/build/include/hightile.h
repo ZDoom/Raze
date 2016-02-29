@@ -68,16 +68,16 @@ enum
     CACHEAD_NONPOW2 = 1,
     CACHEAD_HASALPHA = 2,
     CACHEAD_COMPRESSED = 4,
-    CACHEAD_NOCOMPRESS = 8,
+    CACHEAD_NODOWNSIZE = 8,
 };
 
 // hicreplctyp hicr->flags bits
 enum
 {
-    HICR_NOSAVE = 1,
+    HICR_NOTEXCOMPRESS = 1,
     HICR_FORCEFILTER = 2,
 
-    HICR_NOCOMPRESS = 16,
+    HICR_NODOWNSIZE = 16,
 };
 
 // hictinting[].f / gloadtile_hi() and daskinloader() <effect> arg bits
