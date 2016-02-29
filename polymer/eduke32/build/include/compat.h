@@ -932,6 +932,7 @@ FORCE_INLINE void *xrealloc(void * const ptr, const bsize_t size)
     return newptr;
 }
 
+#if !defined NO_ALIGNED_MALLOC
 FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 {
 #ifdef _WIN32
@@ -946,7 +947,7 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
     if (ptr == NULL) handle_memerr();
     return ptr;
 }
-
+#endif
 
 #ifdef __cplusplus
 }
@@ -983,21 +984,29 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 # define Xmalloc(size) (EDUKE32_PRE_XALLLOC, xmalloc(size))
 # define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLLOC, xcalloc(nmemb, size))
 # define Xrealloc(ptr, size) (EDUKE32_PRE_XALLLOC, xrealloc(ptr, size))
-# define Xaligned_alloc(size, alignment) (EDUKE32_PRE_XALLLOC, xaligned_malloc(size, alignment))
+# if !defined NO_ALIGNED_MALLOC
+#  define Xaligned_alloc(size, alignment) (EDUKE32_PRE_XALLLOC, xaligned_malloc(size, alignment))
+# else
+#  define Xaligned_alloc(size, alignment) Xmalloc(size)
+# endif
 # define Bexit(status) do { initprintf("exit(%d) at %s:%d in %s()\n", status, __FILE__, __LINE__, EDUKE32_FUNCTION); exit(status); } while (0)
 #else
 # define Xstrdup xstrdup
 # define Xmalloc xmalloc
 # define Xcalloc xcalloc
 # define Xrealloc xrealloc
-# define Xaligned_alloc xaligned_malloc
+# if !defined NO_ALIGNED_MALLOC
+#  define Xaligned_alloc xaligned_malloc
+# else
+#  define Xaligned_alloc(size, alignment) Xmalloc(size)
+# endif
 # define Bexit exit
 #endif
 
-#ifdef _WIN32
-# define Baligned_free(ptr) _aligned_free(ptr)
+#if defined _WIN32 && !defined NO_ALIGNED_MALLOC
+# define Baligned_free _aligned_free
 #else
-# define Baligned_free(ptr) Bfree(ptr)
+# define Baligned_free Bfree
 #endif
 
 static inline void maybe_grow_buffer(char ** const buffer, int32_t * const buffersize, int32_t const newsize)
