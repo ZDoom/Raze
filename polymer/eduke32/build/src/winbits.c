@@ -61,12 +61,22 @@ static void win_printversion(void)
 
     switch (osv.dwPlatformId)
     {
+        case VER_PLATFORM_WIN32_WINDOWS:
+            if (osv.dwMinorVersion < 10)
+                ver = "95";
+            else if (osv.dwMinorVersion < 90)
+                ver = "98";
+            else
+                ver = "ME";
+            break;
+
         case VER_PLATFORM_WIN32_NT:
             switch (osv.dwMajorVersion)
             {
                 case 5:
                     switch (osv.dwMinorVersion)
                     {
+                        case 0: ver = "2000"; break;
                         case 1: ver = "XP"; break;
                         case 2: ver = osv.wProductType == VER_NT_WORKSTATION ? "XP x64" : "Server 2003"; break;
                     }
@@ -85,7 +95,7 @@ static void win_printversion(void)
                 case 10:
                     switch (osv.dwMinorVersion)
                     {
-                        case 0: ver = osv.wProductType == VER_NT_WORKSTATION ? "10" : "Server 10"; break;
+                        case 0: ver = osv.wProductType == VER_NT_WORKSTATION ? "10" : "Server 2016"; break;
                     }
                     break;
             }
