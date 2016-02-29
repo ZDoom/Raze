@@ -90,6 +90,12 @@ typedef unsigned int GLenum;
 #define GL_TEXTURE_RECTANGLE                    0x84F5
 
 
+// custom error checking
+
+extern GLenum BuildGLError;
+extern void BuildGLErrorCheck(void);
+
+
 //////// dynamic/static API wrapping ////////
 
 #if defined DYNAMIC_GL

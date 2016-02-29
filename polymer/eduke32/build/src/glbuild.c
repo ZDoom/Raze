@@ -11,6 +11,15 @@
 # include "sdlayer.h"
 #endif
 
+GLenum BuildGLError;
+void BuildGLErrorCheck(void)
+{
+    volatile GLenum err;
+    while ((err = bglGetError()) != GL_NO_ERROR)
+    {
+        BuildGLError = err; // set a watchpoint/breakpoint here
+    }
+}
 
 #if defined DYNAMIC_GL
 
