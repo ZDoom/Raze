@@ -7,18 +7,18 @@
   </asmv3:application>
   <assemblyIdentity
       version="1.0.0.0"
-      processorArchitecture="amd64"
-      name="EDuke32"
+      processorArchitecture="*"
+      name="VoidSW.Mapster32"
       type="win32"
 />
-  <description>EDuke32</description>
+  <description>Mapster32 for VoidSW</description>
   <dependency>
     <dependentAssembly>
       <assemblyIdentity
           type="win32"
           name="Microsoft.Windows.Common-Controls"
           version="6.0.0.0"
-          processorArchitecture="amd64"
+          processorArchitecture="*"
           publicKeyToken="6595b64144ccf1df"
           language="*"
         />
