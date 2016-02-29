@@ -51,16 +51,22 @@ extern int32_t voting;
 FORCE_INLINE void WithSDL2_StartTextInput()
 {
 #if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
-//    SDL_StartTextInput();
+# if defined __ANDROID__
     AndroidShowKeyboard(1);
+# else
+    SDL_StartTextInput();
+# endif
 #endif
 }
 
 FORCE_INLINE void WithSDL2_StopTextInput()
 {
 #if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
-//    SDL_StopTextInput();
+# if defined __ANDROID__
     AndroidShowKeyboard(0);
+# else
+    SDL_StopTextInput();
+# endif
 #endif
 }
 
