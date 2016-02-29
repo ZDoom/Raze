@@ -407,7 +407,7 @@ int32_t main(int32_t argc, char *argv[])
 
     if (!CheckWinVersion())
     {
-        MessageBox(0, "This application requires Windows XP or better to run.", apptitle, MB_OK | MB_ICONSTOP);
+        MessageBox(0, "This application requires a newer Windows version to run.", apptitle, MB_OK | MB_ICONSTOP);
         return -1;
     }
 #elif defined(GEKKO)

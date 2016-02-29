@@ -45,14 +45,9 @@ BOOL CheckWinVersion(void)
     ZeroMemory(&osv, sizeof(osv));
     osv.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
 
-    // we don't like anything older than Windows XP
-
     if (!GetVersionEx((LPOSVERSIONINFOA)&osv)) return FALSE;
 
-    if (osv.dwMajorVersion >= 6) return TRUE;
-    if (osv.dwMajorVersion == 5 && osv.dwMinorVersion >= 1) return TRUE;
-
-    return FALSE;
+    return TRUE;
 }
 
 static void win_printversion(void)

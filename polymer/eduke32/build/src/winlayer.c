@@ -336,7 +336,7 @@ int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, in
 
     if (!CheckWinVersion() || hPrevInst)
     {
-        MessageBox(0, "This application requires Windows XP or better to run.",
+        MessageBox(0, "This application requires a newer Windows version to run.",
                    apptitle, MB_OK|MB_ICONSTOP);
         return -1;
     }
