@@ -22,6 +22,8 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
         if (r >= 0)
             return r;
     }
+#elif defined _WIN32
+    return (MessageBox(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL) == IDYES);
 #elif defined GEKKO
     puts(buf);
     puts("Assuming yes...");
@@ -98,6 +100,10 @@ int32_t initsystem(void)
 #endif
 
     mutex_init(&m_initprintf);
+
+#ifdef _WIN32
+    win_init();
+#endif
 
     if (sdlayer_checkversion())
         return -1;
@@ -225,7 +231,9 @@ uint64_t getu64ticks(void)
 
 uint64_t getu64tickspersec(void)
 {
-# if defined __APPLE__
+# if defined _WIN32
+    return win_timerfreq;
+# elif defined __APPLE__
     static mach_timebase_info_data_t ti;
     if (ti.denom == 0)
         (void) mach_timebase_info(&ti);  // ti.numer/ti.denom: nsec/(m_a_t() tick)
@@ -367,6 +375,10 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         if (nogl)
             return -1;
 
+# ifdef _WIN32
+        win_setvideomode(c);
+# endif
+
         struct glattribs
         {
             SDL_GLattr attr;
@@ -412,6 +424,9 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 return -1;
             }
 
+#ifdef _WIN32
+            loadglextensions();
+#endif
         } while (multisamplecheck--);
     }
     else
@@ -554,6 +569,11 @@ int32_t handleevents_pollsdl(void)
                     if (mousegrab && moustat)
                         grabmouse_low(!!appactive);
 #endif
+# ifdef _WIN32
+                    if (backgroundidle)
+                        SetPriorityClass(GetCurrentProcess(),
+                                         appactive ? NORMAL_PRIORITY_CLASS : IDLE_PRIORITY_CLASS);
+# endif
                     rv = -1;
 
                     if (ev.active.state & SDL_APPMOUSEFOCUS)
