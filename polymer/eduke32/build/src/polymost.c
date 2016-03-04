@@ -1036,12 +1036,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 {
     if (!hicr) return -1;
 
-    coltype *pic = NULL;
-
     char *fn;
-    int32_t picfillen, filh;
-
-    int32_t startticks=0, willprint=0;
 
     if (facen > 0)
     {
@@ -1058,17 +1053,19 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         fn = hicr->filename;
     }
 
+    int32_t filh;
     if (EDUKE32_PREDICT_FALSE((filh = kopen4load(fn, 0)) < 0))
     {
         OSD_Printf("hightile: %s (pic %d) not found\n", fn, dapic);
         return -2;
     }
 
-    picfillen = kfilelength(filh);
-
+    int32_t picfillen = kfilelength(filh);
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
-    char hasalpha = 255;
+    int32_t startticks = getticks(), willprint = 0;
+
+    char hasalpha;
     texcacheheader cachead;
     int32_t gotcache = texcache_readtexheader(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead, 0);
     vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
@@ -1077,12 +1074,12 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     {
         tsiz.x = cachead.xdim;
         tsiz.y = cachead.ydim;
-        hasalpha = (cachead.flags & CACHEAD_HASALPHA) ? 0 : 255;
+        hasalpha = !!(cachead.flags & CACHEAD_HASALPHA);
     }
     else
     {
-        int32_t r, g, b;
-        int32_t j, y;
+        // CODEDUP: mdloadskin
+
         int32_t isart = 0;
 
         gotcache = 0;	// the compressed version will be saved to disk
@@ -1129,9 +1126,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         }
 
         int32_t const bytesperline = siz.x * sizeof(coltype);
-        pic = (coltype *)Xcalloc(siz.y, bytesperline);
-
-        startticks = getticks();
+        coltype *pic = (coltype *)Xcalloc(siz.y, bytesperline);
 
         static coltype *lastpic = NULL;
         static char *lastfn = NULL;
@@ -1185,25 +1180,25 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             }
         }
 
-        r = (glinfo.bgra) ? hictinting[dapalnum].r : hictinting[dapalnum].b;
-        g = hictinting[dapalnum].g;
-        b = (glinfo.bgra) ? hictinting[dapalnum].b : hictinting[dapalnum].r;
+        char *cptr = britable[gammabrightness ? 0 : curbrightness];
 
-        for (y = 0, j = 0; y < tsiz.y; y++, j += siz.x)
+        int32_t r = (glinfo.bgra) ? hictinting[dapalnum].r : hictinting[dapalnum].b;
+        int32_t g = hictinting[dapalnum].g;
+        int32_t b = (glinfo.bgra) ? hictinting[dapalnum].b : hictinting[dapalnum].r;
+
+        char al = 255;
+
+        for (int32_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
         {
-            coltype tcol;
-            char *cptr = britable[gammabrightness ? 0 : curbrightness];
-            coltype *rpptr = &pic[j];
+            coltype tcol, *rpptr = &pic[j];
 
-            int32_t x;
-
-            for (x=0; x<tsiz.x; x++)
+            for (int32_t x = 0; x < tsiz.x; ++x)
             {
                 tcol.b = cptr[rpptr[x].b];
                 tcol.g = cptr[rpptr[x].g];
                 tcol.r = cptr[rpptr[x].r];
                 tcol.a = rpptr[x].a;
-                hasalpha &= rpptr[x].a;
+                al &= rpptr[x].a;
 
                 if (effect & HICTINT_GRAYSCALE)
                 {
@@ -1249,13 +1244,13 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             }
         }
 
+        hasalpha = (al != 255);
+
         if ((!(dameth & DAMETH_CLAMPED)) || facen) //Duplicate texture pixels (wrapping tricks for non power of 2 texture sizes)
         {
             if (siz.x > tsiz.x)  // Copy left to right
             {
-                int32_t *lptr = (int32_t *)pic;
-
-                for (y = 0; y < tsiz.y; y++, lptr += siz.x)
+                for (int32_t y = 0, *lptr = (int32_t *)pic; y < tsiz.y; y++, lptr += siz.x)
                     Bmemcpy(&lptr[tsiz.x], lptr, (siz.x - tsiz.x) << 2);
             }
 
@@ -1263,16 +1258,13 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 Bmemcpy(&pic[siz.x * tsiz.y], pic, (siz.y - tsiz.y) * siz.x << 2);
         }
 
-        int32_t texfmt;
-
         if (!glinfo.bgra)
         {
-            texfmt = GL_RGBA;
-
-            for (j=siz.x*siz.y-1; j>=0; j--)
+            for (int32_t j = siz.x*siz.y - 1; j >= 0; j--)
                 swapchar(&pic[j].r, &pic[j].b);
         }
-        else texfmt = GL_BGRA;
+
+        // end CODEDUP
 
         if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
             hicr->flags |= (HICR_NODOWNSIZE + HICR_NOTEXCOMPRESS);
@@ -1283,11 +1275,15 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         fixtransparency(pic,tsiz,siz,dameth);
 
+        int32_t const texfmt = glinfo.bgra ? GL_BGRA : GL_RGBA;
+
         uploadtexture(doalloc,siz,texfmt,pic,tsiz,
                       dameth | DAMETH_HI | DAMETH_NOFIX |
                       TO_DAMETH_NODOWNSIZE(hicr->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(hicr->flags) |
-                      (hasalpha != 255 ? DAMETH_HASALPHA : 0));
+                      (hasalpha ? DAMETH_HASALPHA : 0));
+
+        Bfree(pic);
     }
 
     // precalculate scaling parameters for replacement
@@ -1304,8 +1300,6 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
     polymost_setuptexture(dameth, hicr->flags & HICR_FORCEFILTER ? TEXFILTER_ON : -1);
 
-    DO_FREE_AND_NULL(pic);
-
     if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
         hicr->flags |= HICR_NODOWNSIZE | HICR_NOTEXCOMPRESS;
 
@@ -1313,7 +1307,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     pth->effects = effect;
     pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) |
                  PTH_HIGHTILE | ((facen>0) * PTH_SKYBOX) |
-                 ((hasalpha != 255) ? PTH_HASALPHA : 0) |
+                 (hasalpha ? PTH_HASALPHA : 0) |
                  (hicr->flags & HICR_FORCEFILTER ? PTH_FORCEFILTER : 0);
     pth->skyface = facen;
     pth->hicr = hicr;
@@ -1328,7 +1322,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         cachead.ydim = tsiz.y >> cachead.quality;
 
         // handle nodownsize:
-        cachead.flags = nonpow2 * CACHEAD_NONPOW2 | (hasalpha != 255 ? CACHEAD_HASALPHA : 0) |
+        cachead.flags = nonpow2 * CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0) |
                         (hicr->flags & HICR_NODOWNSIZE ? CACHEAD_NODOWNSIZE : 0);
 
         ///            OSD_Printf("Caching \"%s\"\n", fn);

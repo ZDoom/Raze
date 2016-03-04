@@ -80,7 +80,7 @@ enum
     HICR_NODOWNSIZE = 16,
 };
 
-// hictinting[].f / gloadtile_hi() and daskinloader() <effect> arg bits
+// hictinting[].f / gloadtile_hi() and mdloadskin() <effect> arg bits
 enum
 {
     HICTINT_GRAYSCALE = 1,

@@ -23,14 +23,6 @@ static int32_t curextra=MAXTILES;
 
 #define MIN_CACHETIME_PRINT 10
 
-static void QuitOnFatalError(const char *msg)
-{
-    if (msg)
-        initprintf("%s\n", msg);
-    uninitengine();
-    Bexit(1);
-}
-
 
 static int32_t addtileP(int32_t model,int32_t tile,int32_t pallet)
 {
@@ -586,169 +578,35 @@ int32_t md_undefinemodel(int32_t modelid)
     return 0;
 }
 
-static int32_t daskinloader(int32_t filh, intptr_t *fptr, int32_t *bpl, int32_t *sizx, int32_t *sizy,
-                            int32_t *osizx, int32_t *osizy, char *hasalpha, int32_t pal, char effect)
-{
-    char *cptr,al=255;
-    coltype *pic;
-    int32_t xsiz, ysiz, tsizx = 0, tsizy = 0;
-    int32_t r, g, b;
-    int32_t j, y, x;
-    int32_t isart = 0;
-
-    int32_t const picfillen = kpzbufloadfil(filh);
-
-    // tsizx/y = replacement texture's natural size
-    // xsiz/y = 2^x size of replacement
-
-#ifdef WITHKPLIB
-    kpgetdim(kpzbuf,picfillen,&tsizx,&tsizy);
-#endif
-
-    if (tsizx == 0 || tsizy == 0)
-    {
-        if (E_CheckUnitArtFileHeader((uint8_t *)kpzbuf, picfillen))
-            return -2;
-
-        tsizx = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
-        tsizy = B_LITTLE16(B_UNBUF16(&kpzbuf[18]));
-
-        if (tsizx == 0 || tsizy == 0)
-            return -2;
-
-        isart = 1;
-    }
-
-    if (!glinfo.texnpot)
-    {
-        for (xsiz=1; xsiz<tsizx; xsiz+=xsiz) { }
-        for (ysiz=1; ysiz<tsizy; ysiz+=ysiz) { }
-    }
-    else
-    {
-        xsiz = tsizx;
-        ysiz = tsizy;
-    }
-    *osizx = tsizx; *osizy = tsizy;
-
-    if (isart)
-    {
-        if (tsizx * tsizy + ARTv1_UNITOFFSET > picfillen)
-            return -2;
-    }
-
-    int32_t const bytesperline = xsiz * sizeof(coltype);
-    pic = (coltype *)Xcalloc(ysiz, bytesperline);
-
-    if (isart)
-    {
-        E_RenderArtDataIntoBuffer((palette_t *)pic, (uint8_t *)&kpzbuf[ARTv1_UNITOFFSET], xsiz, tsizx, tsizy);
-    }
-#ifdef WITHKPLIB
-    else
-    {
-        if (kprender(kpzbuf,picfillen,(intptr_t)pic,bytesperline,xsiz,ysiz))
-        {
-            Bfree(pic);
-            return -2;
-        }
-    }
-#endif
-
-    cptr = &britable[gammabrightness ? 0 : curbrightness][0];
-    r=(glinfo.bgra)?hictinting[pal].b:hictinting[pal].r;
-    g=hictinting[pal].g;
-    b=(glinfo.bgra)?hictinting[pal].r:hictinting[pal].b;
-    for (y=0,j=0; y<tsizy; y++,j+=xsiz)
-    {
-        coltype *rpptr = &pic[j], tcol;
-
-        for (x=0; x<tsizx; x++)
-        {
-            tcol.b = cptr[rpptr[x].b];
-            tcol.g = cptr[rpptr[x].g];
-            tcol.r = cptr[rpptr[x].r];
-
-            if (effect & HICTINT_GRAYSCALE)
-            {
-                tcol.g = tcol.r = tcol.b = (uint8_t)((tcol.r * GRAYSCALE_COEFF_RED) + (tcol.g * GRAYSCALE_COEFF_GREEN) +
-                                                     (tcol.b * GRAYSCALE_COEFF_BLUE));
-            }
-
-            if (effect & HICTINT_INVERT)
-            {
-                tcol.b = 255-tcol.b;
-                tcol.g = 255-tcol.g;
-                tcol.r = 255-tcol.r;
-            }
-
-            if (effect & HICTINT_COLORIZE)
-            {
-                tcol.b = min((int32_t)(tcol.b)*b/64,255);
-                tcol.g = min((int32_t)(tcol.g)*g/64,255);
-                tcol.r = min((int32_t)(tcol.r)*r/64,255);
-            }
-
-            switch (effect & HICTINT_BLENDMASK)
-            {
-                case HICTINT_BLEND_SCREEN:
-                    tcol.b = 255 - (((255 - tcol.b) * (255 - b)) >> 8);
-                    tcol.g = 255 - (((255 - tcol.g) * (255 - g)) >> 8);
-                    tcol.r = 255 - (((255 - tcol.r) * (255 - r)) >> 8);
-                    break;
-                case HICTINT_BLEND_OVERLAY:
-                    tcol.b = tcol.b < 128 ? (tcol.b * b) >> 7 : 255 - (((255 - tcol.b) * (255 - b)) >> 7);
-                    tcol.g = tcol.g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
-                    tcol.r = tcol.r < 128 ? (tcol.r * r) >> 7 : 255 - (((255 - tcol.r) * (255 - r)) >> 7);
-                    break;
-                case HICTINT_BLEND_HARDLIGHT:
-                    tcol.b = b < 128 ? (tcol.b * b) >> 7 : 255 - (((255 - tcol.b) * (255 - b)) >> 7);
-                    tcol.g = g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
-                    tcol.r = r < 128 ? (tcol.r * r) >> 7 : 255 - (((255 - tcol.r) * (255 - r)) >> 7);
-                    break;
-            }
-
-            rpptr[x].b = tcol.b;
-            rpptr[x].g = tcol.g;
-            rpptr[x].r = tcol.r;
-            al &= rpptr[x].a;
-        }
-    }
-    if (!glinfo.bgra)
-    {
-        for (j=xsiz*ysiz-1; j>=0; j--)
-        {
-            swapchar(&pic[j].r, &pic[j].b);
-        }
-    }
-
-    *sizx = xsiz;
-    *sizy = ysiz;
-    *bpl = xsiz;
-    *fptr = (intptr_t)pic;
-    *hasalpha = (al != 255);
-
-    return 0;
-}
-
 static inline int32_t hicfxmask(int32_t pal)
 {
     return globalnoeffect ? 0 : (hictinting[pal].f & HICEFFECTMASK);
 }
 
+static int32_t mdloadskin_notfound(char * const skinfile, char const * const fn)
+{
+    OSD_Printf("Skin \"%s\" not found.\n", fn);
+
+    skinfile[0] = 0;
+    return 0;
+}
+
+static int32_t mdloadskin_failed(char * const skinfile, char const * const fn)
+{
+    OSD_Printf("Failed loading skin file \"%s\".\n", fn);
+
+    skinfile[0] = 0;
+    return 0;
+}
+
 //Note: even though it says md2model, it works for both md2model&md3model
 int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 {
-    int32_t i, bpl, osizx, osizy;
-    char *skinfile, hasalpha, fn[BMAX_PATH];
+    int32_t i;
+    char *skinfile, fn[BMAX_PATH];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
-    int32_t doalloc = 1, filh;
-    int32_t gotcache, picfillen;
-    texcacheheader cachead;
-
-    int32_t startticks, willprint=0;
-    vec2_t siz = { 0, 0 };
+    int32_t doalloc = 1;
 
     if (m->mdnum == 2)
         surf = 0;
@@ -831,55 +689,207 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     *texidx = 0;
 
+    int32_t filh;
     if ((filh = kopen4load(fn, 0)) < 0)
-    {
-        OSD_Printf("Skin \"%s\" not found.\n",fn);
-        skinfile[0] = 0;
-        return 0;
-    }
+        return mdloadskin_notfound(skinfile, fn);
 
 
-    picfillen = kfilelength(filh);
+    int32_t picfillen = kfilelength(filh);
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
-    startticks = getticks();
+    int32_t startticks = getticks(), willprint = 0;
 
-    gotcache = texcache_readtexheader(fn, picfillen, pal<<8, hicfxmask(pal), &cachead, 1);
+    char hasalpha;
+    texcacheheader cachead;
+    int32_t gotcache = texcache_readtexheader(fn, picfillen, pal<<8, hicfxmask(pal), &cachead, 1);
+    vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
 
-    if (gotcache && !texcache_loadskin(&cachead, &doalloc, texidx, &siz.x, &siz.y))
+    if (gotcache && !texcache_loadskin(&cachead, &doalloc, texidx, &siz))
     {
-        osizx = cachead.xdim;
-        osizy = cachead.ydim;
+        tsiz.x = cachead.xdim;
+        tsiz.y = cachead.ydim;
         hasalpha = !!(cachead.flags & CACHEAD_HASALPHA);
+
         if (pal < (MAXPALOOKUPS - RESERVEDPALS))
             m->usesalpha = hasalpha;
-        //kclose(filh);	// FIXME: uncomment when cache1d.c is fixed
     }
     else
     {
-        int32_t ret;
-        intptr_t fptr=0;
+        char const effect = hicfxmask(pal);
+
+        // CODEDUP: gloadtile_hi
+
+        int32_t isart = 0;
 
         gotcache = 0;	// the compressed version will be saved to disk
 
-        if ((filh = kopen4load(fn, 0)) < 0)
-            return -1;
+        int32_t const length = kpzbufload(fn);
+        if (length == 0)
+            return mdloadskin_notfound(skinfile, fn);
 
-        ret = daskinloader(filh,&fptr,&bpl,&siz.x,&siz.y,&osizx,&osizy,&hasalpha,pal,hicfxmask(pal));
+        // tsizx/y = replacement texture's natural size
+        // xsiz/y = 2^x size of replacement
 
-        if (ret)
+#ifdef WITHKPLIB
+        kpgetdim(kpzbuf,picfillen,&tsiz.x,&tsiz.y);
+#endif
+
+        if (tsiz.x == 0 || tsiz.y == 0)
         {
-            kclose(filh);
-            OSD_Printf("Failed loading skin file \"%s\": error %d\n", fn, ret);
-            if (ret==-1)
-                QuitOnFatalError("OUT OF MEMORY in daskinloader!");
+            if (E_CheckUnitArtFileHeader((uint8_t *)kpzbuf, picfillen))
+                return mdloadskin_failed(skinfile, fn);
 
-            skinfile[0] = 0;
-            return(0);
+            tsiz.x = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
+            tsiz.y = B_LITTLE16(B_UNBUF16(&kpzbuf[18]));
+
+            if (tsiz.x == 0 || tsiz.y == 0)
+                return mdloadskin_failed(skinfile, fn);
+
+            isart = 1;
         }
-        else kclose(filh);
 
-        willprint = 1;
+        if (!glinfo.texnpot)
+        {
+            for (siz.x=1; siz.x<tsiz.x; siz.x+=siz.x) { }
+            for (siz.y=1; siz.y<tsiz.y; siz.y+=siz.y) { }
+        }
+        else
+            siz = tsiz;
+
+        if (isart)
+        {
+            if (tsiz.x * tsiz.y + ARTv1_UNITOFFSET > picfillen)
+                return mdloadskin_failed(skinfile, fn);
+        }
+
+        int32_t const bytesperline = siz.x * sizeof(coltype);
+        coltype *pic = (coltype *)Xcalloc(siz.y, bytesperline);
+
+        static coltype *lastpic = NULL;
+        static char *lastfn = NULL;
+        static int32_t lastsize = 0;
+
+        if (lastpic && lastfn && !Bstrcmp(lastfn,fn))
+        {
+            willprint=1;
+            Bmemcpy(pic, lastpic, siz.x*siz.y*sizeof(coltype));
+        }
+        else
+        {
+            if (isart)
+            {
+                E_RenderArtDataIntoBuffer((palette_t *)pic, (uint8_t *)&kpzbuf[ARTv1_UNITOFFSET], siz.x, tsiz.x, tsiz.y);
+            }
+#ifdef WITHKPLIB
+            else
+            {
+                if (kprender(kpzbuf,picfillen,(intptr_t)pic,bytesperline,siz.x,siz.y))
+                {
+                    Bfree(pic);
+                    return mdloadskin_failed(skinfile, fn);
+                }
+            }
+#endif
+
+            willprint=2;
+
+            if (hicprecaching)
+            {
+                lastfn = fn;  // careful...
+                if (!lastpic)
+                {
+                    lastpic = (coltype *)Bmalloc(siz.x*siz.y*sizeof(coltype));
+                    lastsize = siz.x*siz.y;
+                }
+                else if (lastsize < siz.x*siz.y)
+                {
+                    Bfree(lastpic);
+                    lastpic = (coltype *)Bmalloc(siz.x*siz.y*sizeof(coltype));
+                }
+                if (lastpic)
+                    Bmemcpy(lastpic, pic, siz.x*siz.y*sizeof(coltype));
+            }
+            else if (lastpic)
+            {
+                DO_FREE_AND_NULL(lastpic);
+                lastfn = NULL;
+                lastsize = 0;
+            }
+        }
+
+        char *cptr = britable[gammabrightness ? 0 : curbrightness];
+
+        int32_t r = (glinfo.bgra) ? hictinting[pal].r : hictinting[pal].b;
+        int32_t g = hictinting[pal].g;
+        int32_t b = (glinfo.bgra) ? hictinting[pal].b : hictinting[pal].r;
+
+        char al = 255;
+
+        for (int32_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
+        {
+            coltype tcol, *rpptr = &pic[j];
+
+            for (int32_t x = 0; x < tsiz.x; ++x)
+            {
+                tcol.b = cptr[rpptr[x].b];
+                tcol.g = cptr[rpptr[x].g];
+                tcol.r = cptr[rpptr[x].r];
+                tcol.a = rpptr[x].a;
+                al &= rpptr[x].a;
+
+                if (effect & HICTINT_GRAYSCALE)
+                {
+                    tcol.g = tcol.r = tcol.b = (uint8_t) ((tcol.b * GRAYSCALE_COEFF_RED) +
+                                                          (tcol.g * GRAYSCALE_COEFF_GREEN) +
+                                                          (tcol.r * GRAYSCALE_COEFF_BLUE));
+                }
+
+                if (effect & HICTINT_INVERT)
+                {
+                    tcol.b = 255 - tcol.b;
+                    tcol.g = 255 - tcol.g;
+                    tcol.r = 255 - tcol.r;
+                }
+
+                if (effect & HICTINT_COLORIZE)
+                {
+                    tcol.b = min((int32_t)((tcol.b) * r) >> 6, 255);
+                    tcol.g = min((int32_t)((tcol.g) * g) >> 6, 255);
+                    tcol.r = min((int32_t)((tcol.r) * b) >> 6, 255);
+                }
+
+                switch (effect & HICTINT_BLENDMASK)
+                {
+                    case HICTINT_BLEND_SCREEN:
+                        tcol.b = 255 - (((255 - tcol.b) * (255 - r)) >> 8);
+                        tcol.g = 255 - (((255 - tcol.g) * (255 - g)) >> 8);
+                        tcol.r = 255 - (((255 - tcol.r) * (255 - b)) >> 8);
+                        break;
+                    case HICTINT_BLEND_OVERLAY:
+                        tcol.b = tcol.b < 128 ? (tcol.b * r) >> 7 : 255 - (((255 - tcol.b) * (255 - r)) >> 7);
+                        tcol.g = tcol.g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
+                        tcol.r = tcol.r < 128 ? (tcol.r * b) >> 7 : 255 - (((255 - tcol.r) * (255 - b)) >> 7);
+                        break;
+                    case HICTINT_BLEND_HARDLIGHT:
+                        tcol.b = r < 128 ? (tcol.b * r) >> 7 : 255 - (((255 - tcol.b) * (255 - r)) >> 7);
+                        tcol.g = g < 128 ? (tcol.g * g) >> 7 : 255 - (((255 - tcol.g) * (255 - g)) >> 7);
+                        tcol.r = b < 128 ? (tcol.r * b) >> 7 : 255 - (((255 - tcol.r) * (255 - b)) >> 7);
+                        break;
+                }
+
+                rpptr[x] = tcol;
+            }
+        }
+
+        hasalpha = (al != 255);
+
+        // mdloadskin doesn't duplicate npow2 texture pixels
+
+        if (!glinfo.bgra)
+        {
+            for (int32_t j = siz.x*siz.y - 1; j >= 0; j--)
+                swapchar(&pic[j].r, &pic[j].b);
+        }
 
         if (pal < (MAXPALOOKUPS - RESERVEDPALS))
             m->usesalpha = hasalpha;
@@ -892,22 +902,22 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
         int32_t const texfmt = glinfo.bgra ? GL_BGRA : GL_RGBA;
 
-        uploadtexture((doalloc&1), siz, texfmt, (coltype *)fptr, siz,
+        uploadtexture((doalloc&1), siz, texfmt, pic, siz,
                       DAMETH_HI |
                       TO_DAMETH_NODOWNSIZE(sk->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(sk->flags) |
                       (hasalpha ? DAMETH_HASALPHA : 0));
 
-        Bfree((void *)fptr);
+        Bfree(pic);
     }
 
     if (!m->skinloaded)
     {
-        if (siz.x != osizx || siz.y != osizy)
+        if (siz.x != tsiz.x || siz.y != tsiz.y)
         {
             float fx, fy;
-            fx = ((float)osizx)/((float)siz.x);
-            fy = ((float)osizy)/((float)siz.y);
+            fx = ((float)tsiz.x)/((float)siz.x);
+            fy = ((float)tsiz.y)/((float)siz.y);
             if (m->mdnum == 2)
             {
                 int32_t *lptr;
@@ -955,8 +965,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
             // save off the compressed version
             cachead.quality = (sk->flags & HICR_NODOWNSIZE) ? 0 : r_downsize;
-            cachead.xdim = osizx>>cachead.quality;
-            cachead.ydim = osizy>>cachead.quality;
+            cachead.xdim = tsiz.x>>cachead.quality;
+            cachead.ydim = tsiz.y>>cachead.quality;
 
             cachead.flags = nonpow2*CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0) |
                             (sk->flags & HICR_NODOWNSIZE ? CACHEAD_NODOWNSIZE : 0);

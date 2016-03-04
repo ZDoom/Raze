@@ -701,7 +701,7 @@ static void texcache_setuptexture(int32_t *doalloc, GLuint *glpic)
     bglBindTexture(GL_TEXTURE_2D,*glpic);
 }
 
-static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int32_t *xsiz, int32_t *ysiz)
+static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr)
 {
     int32_t level = 0;
     texcachepicture pict;
@@ -726,12 +726,6 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
         pict.ydim = B_LITTLE32(pict.ydim);
         pict.border = B_LITTLE32(pict.border);
         pict.depth = B_LITTLE32(pict.depth);
-
-        if (level == 0)
-        { 
-            if (xsiz) *xsiz = pict.xdim;
-            if (ysiz) *ysiz = pict.ydim;
-        }
 
         if (alloclen < pict.size)
         {
@@ -783,16 +777,19 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr, int3
     return 0;
 }
 
-int32_t texcache_loadskin(const texcacheheader *head, int32_t *doalloc, GLuint *glpic, int32_t *xsiz, int32_t *ysiz)
+int32_t texcache_loadskin(const texcacheheader *head, int32_t *doalloc, GLuint *glpic, vec2_t *siz)
 {
     int32_t err=0;
     GLenum glerr=GL_NO_ERROR;
 
     texcache_setuptexture(doalloc, glpic);
 
+    siz->x = head->xdim;
+    siz->y = head->ydim;
+
     CLEAR_GL_ERRORS();
 
-    if ((err = texcache_loadmips(head, &glerr, xsiz, ysiz)))
+    if ((err = texcache_loadmips(head, &glerr)))
     {
         if (err > 0)
             initprintf("texcache_loadskin: %s  (glerr=%x)\n", texcache_errorstr[err], glerr);
@@ -815,7 +812,7 @@ int32_t texcache_loadtile(const texcacheheader *head, int32_t *doalloc, pthtyp *
 
     CLEAR_GL_ERRORS();
 
-    if ((err = texcache_loadmips(head, &glerr, NULL, NULL)))
+    if ((err = texcache_loadmips(head, &glerr)))
     {
         if (err > 0)
             initprintf("texcache_loadtile: %s  (glerr=%x)\n", texcache_errorstr[err], glerr);

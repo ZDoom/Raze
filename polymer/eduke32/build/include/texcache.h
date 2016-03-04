@@ -58,7 +58,7 @@ extern void texcache_init(void);
 extern int32_t texcache_loadoffsets(void);
 extern int32_t texcache_readdata(void *dest, int32_t len);
 extern pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth);
-extern int32_t texcache_loadskin(const texcacheheader *head, int32_t *doalloc, GLuint *glpic, int32_t *xsiz, int32_t *ysiz);
+extern int32_t texcache_loadskin(const texcacheheader *head, int32_t *doalloc, GLuint *glpic, vec2_t *siz);
 extern int32_t texcache_loadtile(const texcacheheader *head, int32_t *doalloc, pthtyp *pth);
 extern void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head);
 extern int32_t texcache_readtexheader(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head, int32_t modelp);
