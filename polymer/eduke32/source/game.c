@@ -6133,10 +6133,6 @@ int32_t app_main(int32_t argc, char const * const * argv)
         Bfree(str);
     }
 
-#ifdef USE_OPENGL
-    glusetexcache = -1;
-#endif
-
     i = CONFIG_ReadSetup();
 
 #ifdef _WIN32
@@ -6179,14 +6175,6 @@ int32_t app_main(int32_t argc, char const * const * argv)
             }
             else initprintf("update: failed to check for updates\n");
         }
-    }
-#endif
-
-#if defined(USE_OPENGL) && !defined(EDUKE32_GLES)
-    if (glusetexcache == -1)
-    {
-        ud.config.useprecache = glusetexcompr = 1;
-        glusetexcache = 2;
     }
 #endif
 
