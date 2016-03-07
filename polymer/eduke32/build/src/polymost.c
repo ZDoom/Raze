@@ -678,8 +678,6 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     const int nomiptransfix  = !!(dameth & DAMETH_NOFIX);
     const int hasalpha  = !!(dameth & DAMETH_HASALPHA) && (dameth & DAMETH_MASKPROPS) != DAMETH_NOMASK;
 
-    dameth &= ~(DAMETH_HI|DAMETH_NODOWNSIZE|DAMETH_NOFIX|DAMETH_NOTEXCOMPRESS|DAMETH_HASALPHA|DAMETH_ONEBITALPHA);
-
 #if !defined EDUKE32_GLES
     const int texcompress_ok  = !(dameth & DAMETH_NOTEXCOMPRESS);
 
@@ -694,6 +692,8 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     int32_t const ** intexfmt_master = hasalpha ? (onebitalpha ? &texfmt_rgb_mask : &texfmt_rgba) : &texfmt_rgb;
     int32_t intexfmt = **intexfmt_master;
 #endif
+
+    dameth &= ~(DAMETH_HI|DAMETH_NODOWNSIZE|DAMETH_NOFIX|DAMETH_NOTEXCOMPRESS|DAMETH_HASALPHA|DAMETH_ONEBITALPHA);
 
     if (gltexmaxsize <= 0)
     {
