@@ -1189,6 +1189,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         int32_t b = (glinfo.bgra) ? hictinting[dapalnum].b : hictinting[dapalnum].r;
 
         char al = 255;
+        char onebitalpha = 1;
 
         for (int32_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
         {
@@ -1199,8 +1200,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 tcol.b = cptr[rpptr[x].b];
                 tcol.g = cptr[rpptr[x].g];
                 tcol.r = cptr[rpptr[x].r];
-                tcol.a = rpptr[x].a;
-                al &= rpptr[x].a;
+                al &= tcol.a = rpptr[x].a;
+                onebitalpha &= tcol.a == 0 || tcol.a == 255;
 
                 if (effect & HICTINT_GRAYSCALE)
                 {
@@ -1284,6 +1285,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                       TO_DAMETH_NODOWNSIZE(hicr->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(hicr->flags) |
                       TO_DAMETH_ARTIMMUNITY(hicr->flags) |
+                      (onebitalpha ? DAMETH_ONEBITALPHA : 0) |
                       (hasalpha ? DAMETH_HASALPHA : 0));
 
         Bfree(pic);

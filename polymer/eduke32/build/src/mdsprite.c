@@ -824,6 +824,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         int32_t b = (glinfo.bgra) ? hictinting[pal].b : hictinting[pal].r;
 
         char al = 255;
+        char onebitalpha = 1;
 
         for (int32_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
         {
@@ -834,8 +835,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                 tcol.b = cptr[rpptr[x].b];
                 tcol.g = cptr[rpptr[x].g];
                 tcol.r = cptr[rpptr[x].r];
-                tcol.a = rpptr[x].a;
-                al &= rpptr[x].a;
+                al &= tcol.a = rpptr[x].a;
+                onebitalpha &= tcol.a == 0 || tcol.a == 255;
 
                 if (effect & HICTINT_GRAYSCALE)
                 {
@@ -907,6 +908,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                       TO_DAMETH_NODOWNSIZE(sk->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(sk->flags) |
                       TO_DAMETH_ARTIMMUNITY(sk->flags) |
+                      (onebitalpha ? DAMETH_ONEBITALPHA : 0) |
                       (hasalpha ? DAMETH_HASALPHA : 0));
 
         Bfree(pic);
