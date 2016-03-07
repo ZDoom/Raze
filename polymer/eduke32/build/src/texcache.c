@@ -507,7 +507,7 @@ int32_t texcache_readtexheader(const char *fn, int32_t len, int32_t dameth, char
     if (!(head->flags & CACHEAD_COMPRESSED) && glusetexcache == 2)
         READTEXHEADER_FAILURE(4);
 
-    // handle nocompress
+    // handle nodownsize
     if (!modelp && !(head->flags & CACHEAD_NODOWNSIZE) && head->quality != r_downsize)
         return 0;
 

@@ -279,7 +279,7 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
 
 #ifdef USE_OPENGL
         if (istexture)
-            hicsetsubsttex(tile, 0, fn, (float)(255-alphacut) * (1.f/255.f), 1.0f, 1.0f, 1.0f, 1.0f, HICR_NOTEXCOMPRESS|HICR_NODOWNSIZE);
+            hicsetsubsttex(tile, 0, fn, (float)(255-alphacut) * (1.f/255.f), 1.0f, 1.0f, 1.0f, 1.0f, HICR_ARTIMMUNITY);
 #endif
 
         return 1;
@@ -299,7 +299,7 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
 
 #ifdef USE_OPENGL
     if (istexture)
-        hicsetsubsttex(tile, 0, fn, (float)(255-alphacut) * (1.f/255.f), 1.0f, 1.0f, 1.0, 1.0, HICR_NOTEXCOMPRESS|HICR_NODOWNSIZE);
+        hicsetsubsttex(tile, 0, fn, (float)(255-alphacut) * (1.f/255.f), 1.0f, 1.0f, 1.0, 1.0, HICR_ARTIMMUNITY);
 #else
     UNREFERENCED_PARAMETER(istexture);
 #endif

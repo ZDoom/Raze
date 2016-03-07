@@ -78,6 +78,7 @@ enum
     HICR_FORCEFILTER = 2,
 
     HICR_NODOWNSIZE = 16,
+    HICR_ARTIMMUNITY = 32,
 };
 
 // hictinting[].f / gloadtile_hi() and mdloadskin() <effect> arg bits

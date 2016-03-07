@@ -673,13 +673,14 @@ static int32_t polymost_glTexImage2D_error(int32_t * intexfmt, int32_t const **i
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
                    coltype *pic, vec2_t tsiz, int32_t dameth)
 {
+    const int artimmunity = !!(dameth & DAMETH_ARTIMMUNITY);
     const int hi = !!(dameth & DAMETH_HI);
-    const int nodownsize = !!(dameth & DAMETH_NODOWNSIZE);
+    const int nodownsize = !!(dameth & DAMETH_NODOWNSIZE) || artimmunity;
     const int nomiptransfix  = !!(dameth & DAMETH_NOFIX);
     const int hasalpha  = !!(dameth & DAMETH_HASALPHA) && (dameth & DAMETH_MASKPROPS) != DAMETH_NOMASK;
 
 #if !defined EDUKE32_GLES
-    const int texcompress_ok  = !(dameth & DAMETH_NOTEXCOMPRESS);
+    const int texcompress_ok  = !(dameth & DAMETH_NOTEXCOMPRESS) && !artimmunity;
 
     int32_t intexfmt;
     if (glinfo.texcompr && glusetexcompr && texcompress_ok)
@@ -693,7 +694,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     int32_t intexfmt = **intexfmt_master;
 #endif
 
-    dameth &= ~(DAMETH_HI|DAMETH_NODOWNSIZE|DAMETH_NOFIX|DAMETH_NOTEXCOMPRESS|DAMETH_HASALPHA|DAMETH_ONEBITALPHA);
+    dameth &= ~DAMETH_UPLOADTEXTURE_MASK;
 
     if (gltexmaxsize <= 0)
     {
@@ -1002,7 +1003,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
     }
 
     uploadtexture(doalloc, siz, GL_RGBA, pic, tsiz,
-                  dameth | DAMETH_NOFIX | DAMETH_NOTEXCOMPRESS |
+                  dameth | DAMETH_ARTIMMUNITY |
                   (hasalpha ? (DAMETH_HASALPHA|DAMETH_ONEBITALPHA) : 0));
 
     Bfree(pic);
@@ -1267,7 +1268,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         // end CODEDUP
 
         if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
-            hicr->flags |= (HICR_NODOWNSIZE + HICR_NOTEXCOMPRESS);
+            hicr->flags |= HICR_ARTIMMUNITY;
 
         if ((doalloc&3)==1)
             bglGenTextures(1, &pth->glpic); //# of textures (make OpenGL allocate structure)
@@ -1281,6 +1282,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                       dameth | DAMETH_HI | DAMETH_NOFIX |
                       TO_DAMETH_NODOWNSIZE(hicr->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(hicr->flags) |
+                      TO_DAMETH_ARTIMMUNITY(hicr->flags) |
                       (hasalpha ? DAMETH_HASALPHA : 0));
 
         Bfree(pic);
@@ -1301,7 +1303,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     polymost_setuptexture(dameth, hicr->flags & HICR_FORCEFILTER ? TEXFILTER_ON : -1);
 
     if (tsiz.x>>r_downsize <= tilesiz[dapic].x || tsiz.y>>r_downsize <= tilesiz[dapic].y)
-        hicr->flags |= HICR_NODOWNSIZE | HICR_NOTEXCOMPRESS;
+        hicr->flags |= HICR_ARTIMMUNITY;
 
     pth->picnum = dapic;
     pth->effects = effect;
@@ -1312,18 +1314,18 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     pth->skyface = facen;
     pth->hicr = hicr;
 
-    if (!gotcache && glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOTEXCOMPRESS))
+    if (!gotcache && glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOTEXCOMPRESS) && !(hicr->flags & HICR_ARTIMMUNITY))
     {
         const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
 
         // save off the compressed version
-        cachead.quality = (hicr->flags & HICR_NODOWNSIZE) ? 0 : r_downsize;
+        cachead.quality = (hicr->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY)) ? 0 : r_downsize;
         cachead.xdim = tsiz.x >> cachead.quality;
         cachead.ydim = tsiz.y >> cachead.quality;
 
         // handle nodownsize:
         cachead.flags = nonpow2 * CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0) |
-                        (hicr->flags & HICR_NODOWNSIZE ? CACHEAD_NODOWNSIZE : 0);
+                        (hicr->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY) ? CACHEAD_NODOWNSIZE : 0);
 
         ///            OSD_Printf("Caching \"%s\"\n", fn);
         texcache_writetex(fn, picfillen + (dapalnum << 8), dameth, effect, &cachead);

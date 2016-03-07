@@ -906,6 +906,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                       DAMETH_HI | DAMETH_MASK |
                       TO_DAMETH_NODOWNSIZE(sk->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(sk->flags) |
+                      TO_DAMETH_ARTIMMUNITY(sk->flags) |
                       (hasalpha ? DAMETH_HASALPHA : 0));
 
         Bfree(pic);
@@ -959,17 +960,17 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
     if (glinfo.texcompr && glusetexcompr && glusetexcache)
-        if (!gotcache && !(sk->flags & HICR_NOTEXCOMPRESS))
+        if (!gotcache && !(sk->flags & HICR_NOTEXCOMPRESS) && !(sk->flags & HICR_ARTIMMUNITY))
         {
             const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
 
             // save off the compressed version
-            cachead.quality = (sk->flags & HICR_NODOWNSIZE) ? 0 : r_downsize;
+            cachead.quality = (sk->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY)) ? 0 : r_downsize;
             cachead.xdim = tsiz.x>>cachead.quality;
             cachead.ydim = tsiz.y>>cachead.quality;
 
             cachead.flags = nonpow2*CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0) |
-                            (sk->flags & HICR_NODOWNSIZE ? CACHEAD_NODOWNSIZE : 0);
+                            (sk->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY) ? CACHEAD_NODOWNSIZE : 0);
 
 ///            OSD_Printf("Caching \"%s\"\n",fn);
             texcache_writetex(fn, picfillen, pal<<8, hicfxmask(pal), &cachead);
