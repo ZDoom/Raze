@@ -959,8 +959,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
-    if (glinfo.texcompr && glusetexcompr && glusetexcache)
-        if (!gotcache && !(sk->flags & HICR_NOTEXCOMPRESS) && !(sk->flags & HICR_ARTIMMUNITY))
+    if (!gotcache && glinfo.texcompr && glusetexcache && !(sk->flags & HICR_NOTEXCOMPRESS) &&
+        (glusetexcompr == 2 || (glusetexcompr && !(sk->flags & HICR_ARTIMMUNITY))))
         {
             const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
 

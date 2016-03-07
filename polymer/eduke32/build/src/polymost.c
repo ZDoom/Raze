@@ -680,10 +680,10 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     const int hasalpha  = !!(dameth & DAMETH_HASALPHA) && (dameth & DAMETH_MASKPROPS) != DAMETH_NOMASK;
 
 #if !defined EDUKE32_GLES
-    const int texcompress_ok  = !(dameth & DAMETH_NOTEXCOMPRESS) && !artimmunity;
+    const int texcompress_ok = glinfo.texcompr && !(dameth & DAMETH_NOTEXCOMPRESS) && (glusetexcompr == 2 || (glusetexcompr && !artimmunity));
 
     int32_t intexfmt;
-    if (glinfo.texcompr && glusetexcompr && texcompress_ok)
+    if (texcompress_ok)
         intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
     else
         intexfmt = hasalpha ? GL_RGBA : GL_RGB;
@@ -1004,6 +1004,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
 
     uploadtexture(doalloc, siz, GL_RGBA, pic, tsiz,
                   dameth | DAMETH_ARTIMMUNITY |
+                  (dapic >= MAXUSERTILES ? (DAMETH_NOTEXCOMPRESS|DAMETH_NODOWNSIZE) : 0) | /* never process these short-lived tiles */
                   (hasalpha ? (DAMETH_HASALPHA|DAMETH_ONEBITALPHA) : 0));
 
     Bfree(pic);
@@ -1314,7 +1315,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     pth->skyface = facen;
     pth->hicr = hicr;
 
-    if (!gotcache && glinfo.texcompr && glusetexcompr && glusetexcache && !(hicr->flags & HICR_NOTEXCOMPRESS) && !(hicr->flags & HICR_ARTIMMUNITY))
+    if (!gotcache && glinfo.texcompr && glusetexcache && !(hicr->flags & HICR_NOTEXCOMPRESS) &&
+        (glusetexcompr == 2 || (glusetexcompr && !(hicr->flags & HICR_ARTIMMUNITY))))
     {
         const int32_t nonpow2 = check_nonpow2(siz.x) || check_nonpow2(siz.y);
 
@@ -5781,7 +5783,7 @@ void polymost_initosdfuncs(void)
         { "r_polygonmode","debugging feature",(void *) &r_polygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
         { "r_texcache","enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
         { "r_memcache","enable/disable texture cache memory cache",(void *) &glusememcache, CVAR_BOOL, 0, 1 },
-        { "r_texcompr","enable/disable OpenGL texture compression",(void *) &glusetexcompr, CVAR_BOOL, 0, 1 },
+        { "r_texcompr","enable/disable OpenGL texture compression: 0: off  1: hightile only  2: ART and hightile",(void *) &glusetexcompr, CVAR_INT, 0, 2 },
 #endif
 
 #ifdef REDBLUEMODE
