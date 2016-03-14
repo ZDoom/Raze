@@ -17314,19 +17314,13 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
     int16_t const flooraligned = (spr->cstat&32), wallaligned = (spr->cstat&16);
 
     int16_t const angofs = m32_sideview ? m32_sideang : 0;
+    uint8_t const spritecol = spritecol2d[spr->picnum][blocking];
 
     // KEEPINSYNC build.c: drawspritelabel()
     if (spr->sectnum<0)
         col = editorcolors[4];  // red
     else
-    {
-        uint8_t const spritecol = spritecol2d[spr->picnum][0];
-
-        if (spritecol)
-            col = editorcolors[blocking ? spritecol2d[spr->picnum][1] : spritecol];
-        else
-            col = getspritecol(j);
-    }
+        col = spritecol ? editorcolors[spritecol] : getspritecol(j);
 
     if (editstatus == 1)
     {
@@ -17335,7 +17329,9 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
              (!m32_sideview && (spr->x == sprite[pointhighlight-16384].x &&
                                 spr->y == sprite[pointhighlight-16384].y))))
         {
-            col += M32_THROB>>2;
+            if (spritecol >= 8 && spritecol <= 15)
+                col -= M32_THROB>>1;
+            else col += M32_THROB>>2;
         }
         else // if (highlightcnt > 0)
         {
