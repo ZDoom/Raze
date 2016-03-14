@@ -960,14 +960,11 @@ void G_AddConModule(const char *buffer)
 // loads all group (grp, zip, pk3/4) files in the given directory
 void G_LoadGroupsInDir(const char *dirname)
 {
-    static const char *extensions[4] = { "*.grp", "*.zip", "*.pk3", "*.pk4" };
-
+    static const char *extensions[] = { "*.grp", "*.zip", "*.ssi", "*.pk3", "*.pk4" };
     char buf[BMAX_PATH];
-    int32_t i;
-
     fnlist_t fnlist = FNLIST_INITIALIZER;
 
-    for (i=0; i<4; i++)
+    for (unsigned i=0; i<(sizeof(extensions)/sizeof(extensions[0])); i++)
     {
         CACHE1D_FIND_REC *rec;
 
