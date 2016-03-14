@@ -147,7 +147,7 @@ LOCAL_SRC_FILES = $(ANDROID_SRC) $(JAUDIO_SRC) $(JMACT_SRC) $(GAME_SRC) $(BUILD_
 
 LOCAL_LDLIBS :=  -lGLESv1_CM -lEGL -ldl -llog -lOpenSLES -lz -L$(TOP_DIR)/openssl/libs/ 
 LOCAL_STATIC_LIBRARIES :=   libpng crypto 
-LOCAL_SHARED_LIBRARIES := touchcontrols ogg vorbis SDL2 SDL2_mixer libvpx
+LOCAL_SHARED_LIBRARIES := ogg vorbis SDL2 SDL2_mixer libvpx drm
 # SDL2_image
 
 include $(BUILD_SHARED_LIBRARY)

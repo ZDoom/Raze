@@ -57,17 +57,15 @@ extern int SDL_SendMouseButton(SDL_Window * window, Uint32 mouseID, Uint8 state,
 
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO,"DUKE", __VA_ARGS__))
 
-extern int32_t main(int32_t argc, char *argv []);
-
 static char sdl_text[2];
 
 droidinput_t droidinput;
 
-int PortableTimer(int tics) { G_InitTimer(tics);  }
+int AndroidTimer(int tics) { G_InitTimer(tics);  }
 
-int PortableKeyEvent(int state, int code,int unicode)
+int AndroidKeyEvent(int state, int code,int unicode)
 {
-    LOGI("PortableKeyEvent %d %d %d",state,(SDL_Scancode)code,unicode);
+    LOGI("AndroidKeyEvent %d %d %d",state,(SDL_Scancode)code,unicode);
     SDL_SendKeyboardKey(state ? SDL_PRESSED : SDL_RELEASED, (SDL_Scancode)code);
     SDL_EventState(SDL_TEXTINPUT, SDL_ENABLE);
 
@@ -86,18 +84,18 @@ int PortableKeyEvent(int state, int code,int unicode)
         }
 
         if (state == 2)
-            PortableKeyEvent(0, code, unicode);
+            AndroidKeyEvent(0, code, unicode);
     }
 
     return 0;
 }
 
-void PortableMouseMenu(float x,float y)
+void AndroidMouseMenu(float x,float y)
 {
     SDL_SendMouseMotion(NULL,0,0,x,y);
 }
 
-void PortableMouseMenuButton(int state,int button)
+void AndroidMouseMenuButton(int state,int button)
 {
     SDL_SendMouseButton(NULL, SDL_TOUCH_MOUSEID, state?SDL_PRESSED:SDL_RELEASED, SDL_BUTTON_LEFT);
 }
@@ -116,23 +114,20 @@ void changeActionState(int state, int action)
     droidinput.functionHeld  &= ~((uint64_t) 1<<((uint64_t) (action)));
 }
 
-void PortableAction(int state, int action)
+void AndroidAction(int state, int action)
 {
-    LOGI("PortableAction action = %d, state = %d", action, state);
+    LOGI("AndroidAction action = %d, state = %d", action, state);
 
     if (action >= MENU_UP && action <= MENU_BACK)
     {
-//        if (PortableRead(READ_SCREEN_MODE) == TOUCH_SCREEN_MENU)
-        {
-            int const sdl_code [] = { SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT,
-                    SDL_SCANCODE_RIGHT, SDL_SCANCODE_RETURN, SDL_SCANCODE_ESCAPE };
-            PortableKeyEvent(state, sdl_code[action-MENU_UP], 0);
-            return;
-        }
+        int const sdl_code [] = { SDL_SCANCODE_UP, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT,
+                SDL_SCANCODE_RIGHT, SDL_SCANCODE_RETURN, SDL_SCANCODE_ESCAPE };
+        AndroidKeyEvent(state, sdl_code[action-MENU_UP], 0);
+        return;
     }
     else
     {
-        //if (PortableRead(READ_SCREEN_MODE) != TOUCH_SCREEN_GAME) //If not in game don't do any of this
+        //if (AndroidRead(READ_SCREEN_MODE) != TOUCH_SCREEN_GAME) //If not in game don't do any of this
         ///     return;
 
         //Special toggle for crouch, NOT when using jetpack or in water
@@ -145,7 +140,7 @@ void PortableAction(int state, int action)
                 droidinput.crouchToggleState = 0;
                 if (action == gamefunc_Crouch)
                     state = 0;
-                else PortableAction(0, gamefunc_Crouch);
+                else AndroidAction(0, gamefunc_Crouch);
             }
 
             if (action == gamefunc_Crouch)
@@ -177,9 +172,9 @@ void PortableAction(int state, int action)
             changeActionState(state, action);
 
         if (state == 2)
-            PortableAction(0, action);
+            AndroidAction(0, action);
 
-        // LOGI("PortableAction state = 0x%016llX", CONTROL_ButtonState);
+        // LOGI("AndroidAction state = 0x%016llX", CONTROL_ButtonState);
     }
 }
 
@@ -196,7 +191,7 @@ float analogCalibrate(float v)
 }
 
 //Need these NAN check as not cumulative.
-void PortableMove(float fwd, float strafe)
+void AndroidMove(float fwd, float strafe)
 {
     if (!ud.auto_run)
     {
@@ -211,13 +206,13 @@ void PortableMove(float fwd, float strafe)
         droidinput.sidemove    = fclamp2(analogCalibrate(strafe),    -1.f, 1.f);
 }
 
-void PortableLook(float yaw, float pitch)
+void AndroidLook(float yaw, float pitch)
 {
     droidinput.pitch += pitch;
     droidinput.yaw   += yaw;
 }
 
-void PortableLookJoystick(float yaw, float pitch)
+void AndroidLookJoystick(float yaw, float pitch)
 {
     if (!isnan(pitch))
         droidinput.pitch_joystick = analogCalibrate(pitch);
@@ -226,14 +221,9 @@ void PortableLookJoystick(float yaw, float pitch)
         droidinput.yaw_joystick   = analogCalibrate(yaw);
 }
 
-void PortableCommand(const char * cmd)
+void AndroidOSD(const char * cmd)
 {
     OSD_Dispatch(cmd);
-}
-
-void PortableInit(int argc, const char ** argv)
-{
-    main(argc, ( char **)argv);
 }
 
 int consoleShown = 0;
@@ -243,49 +233,49 @@ void AndroidSetConsoleShown(int onf)
 }
 
 extern int inExtraScreens; //In game.c
-int32_t PortableRead(portableread_t r)
+int32_t AndroidRead(portableread_t r)
 {
     int32_t rv;
 
     switch (r)
     {
-    case READ_SCREEN_MODE:
+    case R_TOUCH_MODE:
         if (g_animPtr || inExtraScreens)
             rv = TOUCH_SCREEN_BLANK_TAP;
         else if (consoleShown)
             rv = TOUCH_SCREEN_CONSOLE;
-        else if ((g_player[myconnectindex].ps->gm & MODE_MENU) == MODE_MENU)
+        else if ((g_player[myconnectindex].ps->gm & MODE_MENU) == MODE_MENU && g_currentMenu != MENU_MAIN)
             rv = (m_currentMenu->type == Verify) ? TOUCH_SCREEN_YES_NO : TOUCH_SCREEN_MENU;
+        else if ((g_player[myconnectindex].ps->gm & MODE_MENU) == MODE_MENU && g_currentMenu == MENU_MAIN)
+            rv = TOUCH_SCREEN_MENU_NOBACK;
 /*
         else if (ud.overhead_on == 2)
             rv = TOUCH_SCREEN_AUTOMAP;
 */
         else if ((g_player[myconnectindex].ps->gm & MODE_GAME))
-            if (PortableRead(READ_IS_DEAD))
+            if (AndroidRead(R_PLAYER_DEAD_FLAG))
                 rv = TOUCH_SCREEN_BLANK_TAP;
             else
                 rv = TOUCH_SCREEN_GAME;
         else
             rv = TOUCH_SCREEN_BLANK_TAP;
          break;
-    case READ_WEAPONS:
+    case R_PLAYER_GOTWEAPON:
         rv = g_player[myconnectindex].ps->gotweapon; break;
-    case READ_AUTOMAP:
+    case R_UD_OVERHEAD_ON:
         rv = 0; break;//ud.overhead_on != 0;  break;// ud.overhead_on ranges from 0-2
-    case READ_MAPFOLLOWMODE:
+    case R_UD_SCROLLMODE:
         rv = ud.scrollmode; break;
-    case READ_RENDERER:
-        rv = getrendermode(); break;
-    case READ_LASTWEAPON:
+    case R_PLAYER_LASTWEAPON:
         rv = droidinput.lastWeapon;
         if ((unsigned)rv < MAX_WEAPONS && !g_player[myconnectindex].ps->ammo_amount[rv])
             rv = -1;
         break;
-    case READ_PAUSED:
+    case R_GAME_PAUSED:
         rv = ud.pause_on != 0; break;
-    case READ_IS_DEAD:
+    case R_PLAYER_DEAD_FLAG:
         rv = g_player[myconnectindex].ps->dead_flag; break;
-    case READ_INVENTORY:
+    case R_PLAYER_INV_AMOUNT:
         rv = 0;
         for (int i = 0; i < GET_MAX; i++)
         {
@@ -293,7 +283,7 @@ int32_t PortableRead(portableread_t r)
                 rv += (1 << i);
         }
         break;
-    case READ_SOMETHINGONPLAYER:
+    case R_SOMETHINGONPLAYER:
         rv = g_player[myconnectindex].ps->somethingonplayer != -1;
         break;
     default:
@@ -305,7 +295,7 @@ int32_t PortableRead(portableread_t r)
 
 static float map_zoom,map_dx,map_dy = 0;
 
-void PortableAutomapControl(float zoom,float dx,float dy)
+void AndroidAutomapControl(float zoom,float dx,float dy)
 {
     map_zoom += zoom;
     map_dx += dx;

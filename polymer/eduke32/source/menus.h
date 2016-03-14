@@ -57,6 +57,8 @@ enum MenuIndex_t {
     MENU_MOUSEADVANCED  = 212,
     MENU_JOYSTICKAXIS   = 213,
     MENU_TOUCHSETUP     = 214,
+    MENU_TOUCHSENS      = 215,
+    MENU_TOUCHBUTTONS   = 216,
 	MENU_CONTROLS       = 220,
     MENU_POLYMOST       = 230,
     MENU_COLCORR        = 231,

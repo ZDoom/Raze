@@ -40,16 +40,15 @@ extern "C"
 #define MINCONTROLALPHA             0.25f
 
 typedef enum {
-    READ_SCREEN_MODE,
-    READ_WEAPONS,
-    READ_AUTOMAP,
-    READ_MAPFOLLOWMODE,
-    READ_RENDERER,
-    READ_LASTWEAPON,
-    READ_PAUSED,
-    READ_IS_DEAD,
-    READ_INVENTORY,
-    READ_SOMETHINGONPLAYER
+    R_TOUCH_MODE,
+    R_PLAYER_GOTWEAPON,
+    R_UD_OVERHEAD_ON,
+    R_UD_SCROLLMODE,
+    R_PLAYER_LASTWEAPON,
+    R_GAME_PAUSED,
+    R_PLAYER_DEAD_FLAG,
+    R_PLAYER_INV_AMOUNT,
+    R_SOMETHINGONPLAYER
 } portableread_t;
 
 
@@ -57,7 +56,8 @@ typedef enum {
     TOUCH_SCREEN_BLANK, //Nothing on screen (not used)
     TOUCH_SCREEN_BLANK_TAP, //One button filling screen with no graphic, tap to send Enter key
     TOUCH_SCREEN_YES_NO, //Yes/No buttons on screen, sends Enter or Esc
-    TOUCH_SCREEN_MENU, //Normal Menu arrows and Enter Esc keys
+    TOUCH_SCREEN_MENU, //Normal menu
+    TOUCH_SCREEN_MENU_NOBACK, // menu without back button
     TOUCH_SCREEN_GAME, //Normal game screen
     TOUCH_SCREEN_AUTOMAP, //When auto map is up (not used yet)
     TOUCH_SCREEN_CONSOLE //When Console is up
@@ -100,27 +100,25 @@ typedef struct
 extern droidinput_t droidinput;
 extern droidsysinfo_t droidinfo;
 
-int PortableTimer(int tics);
-int PortableKeyEvent(int state, int code, int unicode);
-int PortableRead(portableread_t r);
+int AndroidTimer(int tics);
+int AndroidKeyEvent(int state, int code, int unicode);
+int AndroidRead(portableread_t r);
 
-void PortableAction(int state, int action);
+void AndroidAction(int state, int action);
 
-void PortableMouseMenu(float x,float y);
-void PortableMouseMenuButton(int state,int button);
+void AndroidMouseMenu(float x,float y);
+void AndroidMouseMenuButton(int state,int button);
 
-void PortableMove(float fwd, float strafe);
-void PortableLook(float yaw, float pitch);
-void PortableLookJoystick(float yaw, float pitch);
-void PortableCommand(const char * cmd);
+void AndroidMove(float fwd, float strafe);
+void AndroidLook(float yaw, float pitch);
+void AndroidLookJoystick(float yaw, float pitch);
+void AndroidOSD(const char * cmd);
 
-void PortableAutomapControl(float zoom,float dx,float dy);
-
-void PortableInit(int argc, const char ** argv);
+void AndroidAutomapControl(float zoom,float dx,float dy);
 
 void AndroidShowKeyboard(int onf);
 
-
+void AndroidToggleButtonEditor(void);
 #ifdef __cplusplus
 }
 #endif

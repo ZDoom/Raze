@@ -111,11 +111,6 @@ extern const char *(*El_SerializeGamevars)(int32_t *slenptr, int32_t levelnum);
 void El_FreeSaveCode(void);
 #endif
 
-#ifdef __ANDROID__
-char const * G_GetStringFromSavegame(const char *filename, int type);
-int32_t G_GetScreenshotFromSavegame(const char *filename, char *pal, char *data);
-#endif
-
 #ifdef __cplusplus
 }
 #endif

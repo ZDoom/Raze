@@ -1681,7 +1681,7 @@ void enddrawing(void)
 #if SDL_MAJOR_VERSION != 1
 
 #ifdef __ANDROID__
-extern "C" void frameControls();
+extern "C" void AndroidDrawControls();
 #endif
 
 void showframe(int32_t w)
@@ -1699,7 +1699,7 @@ void showframe(int32_t w)
             fullscreen_tint_gl(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
 #ifdef __ANDROID__
-        frameControls();
+        AndroidDrawControls();
 #endif
         SDL_GL_SwapWindow(sdl_window);
         return;

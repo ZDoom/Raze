@@ -416,6 +416,8 @@ MAKE_MENU_TOP_ENTRYLINK( "Mouse Setup", MEF_CenterMenu, OPTIONS_MOUSESETUP, MENU
 MAKE_MENU_TOP_ENTRYLINK( "Joystick Setup", MEF_CenterMenu, OPTIONS_JOYSTICKSETUP, MENU_JOYSTICKSETUP );
 #ifdef DROIDMENU
 MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_CenterMenu, OPTIONS_TOUCHSETUP, MENU_TOUCHSETUP );
+MAKE_MENU_TOP_ENTRYLINK( "Touch Sensitivity", MEF_CenterMenu, OPTIONS_TOUCHSENS, MENU_TOUCHSENS);
+MAKE_MENU_TOP_ENTRYLINK( "Touch Buttons", MEF_CenterMenu, OPTIONS_TOUCHBUTTONS, MENU_TOUCHBUTTONS);
 #endif
 
 static int32_t newresolution, newrendermode, newfullscreen, newvsync;
@@ -480,7 +482,9 @@ static MenuOption_t MEO_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUOPTION(&MF_Redfont, 
 #else
 static MenuOption_t MEO_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &r_usenewaspect);
 #endif
+#ifndef DROIDMENU
 static MenuEntry_t ME_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUENTRY( "Widescreen:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ASPECTRATIO, Option );
+#endif
 #ifdef POLYMER
 static char const *MEOSN_DISPLAYSETUP_ASPECTRATIO_POLYMER[] = { "Auto", "4:3", "16:10", "5:3", "16:9", "1.85:1", "2.39:1", };
 static double MEOSV_DISPLAYSETUP_ASPECTRATIO_POLYMER[] = { 0., 1.33, 1.6, 1.66, 1.78, 1.85, 2.39, };
@@ -645,8 +649,8 @@ static MenuEntry_t *MEL_DISPLAYSETUP[] = {
     &ME_DISPLAYSETUP_COLORCORR,
 #ifndef DROIDMENU
     &ME_DISPLAYSETUP_VIDEOSETUP,
-#endif
     &ME_DISPLAYSETUP_ASPECTRATIO,
+#endif
     &ME_DISPLAYSETUP_PIXELDOUBLING,
 };
 
@@ -656,8 +660,8 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
     &ME_DISPLAYSETUP_COLORCORR,
 #ifndef DROIDMENU
     &ME_DISPLAYSETUP_VIDEOSETUP,
-#endif
     &ME_DISPLAYSETUP_ASPECTRATIO,
+#endif
     &ME_DISPLAYSETUP_TEXFILTER,
 #ifdef DROIDMENU
     &ME_DISPLAYSETUP_HIDEDPAD,
@@ -675,8 +679,8 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL_POLYMER[] = {
     &ME_DISPLAYSETUP_COLORCORR,
 #ifndef DROIDMENU
     &ME_DISPLAYSETUP_VIDEOSETUP,
-#endif
     &ME_DISPLAYSETUP_ASPECTRATIO_POLYMER,
+#endif
     &ME_DISPLAYSETUP_TEXFILTER,
 #ifndef DROIDMENU
     &ME_DISPLAYSETUP_ANISOTROPY,
@@ -779,27 +783,38 @@ static MenuEntry_t *MEL_MOUSESETUP[] = {
 
 #ifdef DROIDMENU
 static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_MOVE = MAKE_MENURANGE(&droidinput.forward_sens, &MF_Redfont, 1.f, 9.f, 0.f, 17, 1 + EnforceIntervals);
-static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_MOVE = MAKE_MENUENTRY("Run sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_MOVE, RangeFloat);
+static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_MOVE = MAKE_MENUENTRY("Running:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_MOVE, RangeFloat);
 
 static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_STRAFE = MAKE_MENURANGE(&droidinput.strafe_sens, &MF_Redfont, 1.f, 9.f, 0.f, 17, 1 + EnforceIntervals);
-static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_STRAFE = MAKE_MENUENTRY("Strafe sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_STRAFE, RangeFloat);
+static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_STRAFE = MAKE_MENUENTRY("Strafing:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_STRAFE, RangeFloat);
 
 static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_LOOK = MAKE_MENURANGE(&droidinput.pitch_sens, &MF_Redfont, 1.f, 9.f, 0.f, 17, 1 + EnforceIntervals);
-static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_LOOK = MAKE_MENUENTRY("Look sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_LOOK, RangeFloat);
+static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_LOOK = MAKE_MENUENTRY("Looking:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_LOOK, RangeFloat);
 
 static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_TURN = MAKE_MENURANGE(&droidinput.yaw_sens, &MF_Redfont, 1.f, 9.f, 0.f, 17, 1 + EnforceIntervals);
-static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_TURN = MAKE_MENUENTRY("Turn sens:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_TURN, RangeFloat);
+static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_TURN = MAKE_MENUENTRY("Turning:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_TURN, RangeFloat);
 
 static MenuOption_t MEO_TOUCHSETUP_INVERT = MAKE_MENUOPTION(&MF_Redfont, &MEOS_NoYes, &droidinput.invertLook);
 static MenuEntry_t ME_TOUCHSETUP_INVERT = MAKE_MENUENTRY("Invert look:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_INVERT, Option);
 
+MAKE_MENU_TOP_ENTRYLINK("Sensitivity", MEF_CenterMenu, TOUCHSENS, MENU_TOUCHSENS);
+MAKE_MENU_TOP_ENTRYLINK("Button Setup", MEF_CenterMenu, TOUCHBUTTONS, MENU_TOUCHBUTTONS);
+
 static MenuEntry_t *MEL_TOUCHSETUP [] ={
+    &ME_TOUCHSENS,
+    &ME_TOUCHBUTTONS,
+};
+
+static MenuEntry_t *MEL_TOUCHSENS [] ={
     &ME_TOUCHSETUP_SENSITIVITY_MOVE,
     &ME_TOUCHSETUP_SENSITIVITY_STRAFE,
     &ME_TOUCHSETUP_SENSITIVITY_LOOK,
     &ME_TOUCHSETUP_SENSITIVITY_TURN,
     &ME_Space2,
     &ME_TOUCHSETUP_INVERT,
+};
+
+static MenuEntry_t *MEL_TOUCHBUTTONS [] ={
 };
 #endif
 
@@ -1219,7 +1234,9 @@ static MenuMenu_t M_CONTROLS = MAKE_MENUMENU( "Control Setup", &MMF_Top_Options,
 static MenuMenu_t M_CHEATS = MAKE_MENUMENU( "Cheats", &MMF_SmallOptions, MEL_CHEATS );
 static MenuMenu_t M_MOUSESETUP = MAKE_MENUMENU( "Mouse Setup", &MMF_BigOptions, MEL_MOUSESETUP );
 #ifdef DROIDMENU
-static MenuMenu_t M_TOUCHSETUP = MAKE_MENUMENU( "Touch Setup", &MMF_BigOptions, MEL_TOUCHSETUP );
+static MenuMenu_t M_TOUCHSETUP = MAKE_MENUMENU( "Touch Setup", &MMF_Top_Options, MEL_TOUCHSETUP );
+static MenuMenu_t M_TOUCHSENS = MAKE_MENUMENU( "Sensitivity", &MMF_BigOptions, MEL_TOUCHSENS);
+static MenuMenu_t M_TOUCHBUTTONS = MAKE_MENUMENU("Button Setup", &MMF_BigOptions, MEL_TOUCHBUTTONS);
 #endif
 static MenuMenu_t M_JOYSTICKSETUP = MAKE_MENUMENU( "Joystick Setup", &MMF_Top_Joystick_Network, MEL_JOYSTICKSETUP );
 static MenuMenu_t M_JOYSTICKBTNS = MAKE_MENUMENU( "Joystick Buttons", &MMF_MouseJoySetupBtns, MEL_JOYSTICKBTNS );
@@ -1311,6 +1328,8 @@ static Menu_t Menus[] = {
     { &M_JOYSTICKAXIS, MENU_JOYSTICKAXIS, MENU_JOYSTICKAXES, MA_Return, Menu },
 #ifdef DROIDMENU
     { &M_TOUCHSETUP, MENU_TOUCHSETUP, MENU_OPTIONS, MA_Return, Menu },
+    { &M_TOUCHSENS, MENU_TOUCHSENS, MENU_TOUCHSETUP, MA_Return, Menu },
+    { &M_TOUCHBUTTONS, MENU_TOUCHBUTTONS, MENU_TOUCHSETUP, MA_Return, Menu },
 #endif
     { &M_CONTROLS, MENU_CONTROLS, MENU_OPTIONS, MA_Return, Menu },
 #ifdef USE_OPENGL
@@ -2790,10 +2809,12 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         gltexfiltermode = newOption ? TEXFILTER_ON : TEXFILTER_OFF;
         gltexapplyprops();
     }
+#ifndef DROIDMENU
     else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO)
     {
         r_usenewaspect = newOption & 1;
     }
+#endif
 #ifdef POLYMER
     else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO_POLYMER)
     {
@@ -3101,8 +3122,10 @@ static int32_t M_MenuEntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
     else if (entry == &ME_DISPLAYSETUP_TEXFILTER)
         return gltexfiltermode;
 */
+#ifndef DROIDMENU
     else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO)
         return r_usenewaspect;
+#endif
 #ifdef POLYMER
     else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO_POLYMER)
         return clamp(currentValue, 0, ARRAY_SIZE(MEOSV_DISPLAYSETUP_ASPECTRATIO_POLYMER)-1);
@@ -3582,6 +3605,12 @@ int M_ChangeMenu(MenuID_t cm)
         soundrate = ud.config.MixRate;
         soundvoices = ud.config.NumVoices;
         break;
+
+#ifdef DROIDMENU
+    case MENU_TOUCHBUTTONS:
+        AndroidToggleButtonEditor();
+        break;
+#endif
 
     default:
         break;
