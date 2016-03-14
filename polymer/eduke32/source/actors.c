@@ -330,7 +330,7 @@ static int32_t Proj_MaybeDoTransport(int32_t spritenum, const tspritetype * cons
 
 // Check whether sprite <s> is on/in a non-SE7 water sector.
 // <othersectptr>: if not NULL, the sector on the other side.
-static int32_t A_CheckNoSE7Water(const spritetype *s, int32_t sectnum, int32_t slotag, int32_t *othersectptr)
+int32_t A_CheckNoSE7Water(const spritetype *s, int32_t sectnum, int32_t slotag, int32_t *othersectptr)
 {
     if (slotag==ST_1_ABOVE_WATER || slotag==ST_2_UNDERWATER)
     {

@@ -239,26 +239,27 @@ static int32_t VM_CheckSquished(void)
 {
     sectortype const * const sc = &sector[vm.g_sp->sectnum];
 
-    if (sc->lotag == ST_23_SWINGING_DOOR || EDUKE32_PREDICT_FALSE(vm.g_sp->picnum == APLAYER && ud.noclip))
+    if (sc->lotag == ST_23_SWINGING_DOOR ||
+        (sc->lotag == ST_1_ABOVE_WATER && !A_CheckNoSE7Water(vm.g_sp, vm.g_sp->sectnum, sc->lotag, NULL)) ||
+        (vm.g_sp->picnum == APLAYER && ud.noclip))
         return 0;
 
-    {
-        int32_t fz=sc->floorz, cz=sc->ceilingz;
+    int32_t fz=sc->floorz, cz=sc->ceilingz;
 #ifdef YAX_ENABLE
-        int16_t cb, fb;
+    int16_t cb, fb;
 
-        yax_getbunches(vm.g_sp->sectnum, &cb, &fb);
-        if (cb >= 0 && (sc->ceilingstat&512)==0)  // if ceiling non-blocking...
-            cz -= (32<<8);  // unconditionally don't squish... yax_getneighborsect is slowish :/
-        if (fb >= 0 && (sc->floorstat&512)==0)
-            fz += (32<<8);
+    yax_getbunches(vm.g_sp->sectnum, &cb, &fb);
+
+    if (cb >= 0 && (sc->ceilingstat&512)==0)  // if ceiling non-blocking...
+        cz -= (32<<8);  // unconditionally don't squish... yax_getneighborsect is slowish :/
+    if (fb >= 0 && (sc->floorstat&512)==0)
+        fz += (32<<8);
 #endif
 
-        if (vm.g_sp->pal == 1 ?
-            (fz - cz >= (32<<8) || (sc->lotag&32768)) :
-            (fz - cz >= (12<<8)))
-        return 0;
-    }
+    if (vm.g_sp->pal == 1 ?
+        (fz - cz >= (32<<8) || (sc->lotag&32768)) :
+        (fz - cz >= (12<<8)))
+    return 0;
     
     P_DoQuote(QUOTE_SQUISHED, vm.g_pp);
 

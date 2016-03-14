@@ -301,6 +301,7 @@ extern projectile_t     SpriteProjectile[MAXSPRITES];
 
 
 void                A_AddToDeleteQueue(int32_t i);
+int32_t             A_CheckNoSE7Water(const spritetype *s, int32_t sectnum, int32_t slotag, int32_t *othersectptr);
 int32_t             A_CheckSwitchTile(int32_t i);
 void                A_DeleteSprite(int32_t s);
 void                A_DoGuts(int32_t sp,int32_t gtype,int32_t n);
