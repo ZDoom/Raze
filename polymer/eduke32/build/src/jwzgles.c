@@ -279,14 +279,14 @@ static jwzgles_state *state = 0;
 # define LOG5(A,B,C,D,E,F)     LOGD("jwzgles: " A "\n",B,C,D,E,F)
 # define LOG6(A,B,C,D,E,F,G)   LOGD("jwzgles: " A "\n",B,C,D,E,F,G)
 # define LOG7(A,B,C,D,E,F,G,H) LOGD("jwzgles: " A "\n",B,C,D,E,F,G,H)
-# define LOG8(A,B,C,D,E,F,G,H,I)\
-         LOGD("jwzgles: "A "\n",B,C,D,E,F,G,H,I)
-# define LOG9(A,B,C,D,E,F,G,H,I,J)\
-         LOGD("jwzgles: "A "\n",B,C,D,E,F,G,H,I,J)
-# define LOG10(A,B,C,D,E,F,G,H,I,J,K)\
-         LOGD("jwzgles: "A "\n",B,C,D,E,F,G,H,I,J,K)
-# define LOG17(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)\
-         LOGD("jwzgles: "A "\n",B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)
+# define LOG8(A,B,C,D,E,F,G,H,I) \
+         LOGD("jwzgles: " A "\n",B,C,D,E,F,G,H,I)
+# define LOG9(A,B,C,D,E,F,G,H,I,J) \
+         LOGD("jwzgles: " A "\n",B,C,D,E,F,G,H,I,J)
+# define LOG10(A,B,C,D,E,F,G,H,I,J,K) \
+         LOGD("jwzgles: " A "\n",B,C,D,E,F,G,H,I,J,K)
+# define LOG17(A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R) \
+         LOGD("jwzgles: " A "\n",B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R)
 # define CHECK(S) check_gl_error(S)
 #else
 static inline void jklmnop_donothing(void) { };
@@ -2955,7 +2955,7 @@ jwzgles_glTexImage2D (GLenum target,
                       GLenum  	type,
                       const GLvoid *data)
 {
-  GLvoid *d2 = NULL;
+  GLvoid *d2 = (GLvoid *) data;
   Assert (!state->compiling_verts, "glTexImage2D not allowed inside glBegin");
   Assert (!state->compiling_list,  /* technically legal, but stupid! */
           "glTexImage2D not allowed inside glNewList");
@@ -2974,7 +2974,7 @@ jwzgles_glTexImage2D (GLenum target,
   /* GLES does not let us omit the data pointer to create a blank texture. */
   if (! data)
     {
-      data = d2 = (GLvoid *) calloc (1, width * height * sizeof(GLfloat) * 4);
+      d2 = (GLvoid *) calloc (1, width * height * sizeof(GLfloat) * 4);
       Assert (d2, "out of memory");
     }
 
@@ -2987,12 +2987,12 @@ jwzgles_glTexImage2D (GLenum target,
     LOG10 ("direct %-12s %s %d %s %d %d %d %s %s 0x%lX", "glTexImage2D", 
            mode_desc(target), level, mode_desc(internalFormat),
            width, height, border, mode_desc(format), mode_desc(type),
-           (unsigned long) data);
+           (unsigned long) d2);
   glTexImage2D (target, level, internalFormat, width, height, border,
-                format, type, data);  /* the real one */
+                format, type, d2);  /* the real one */
   CHECK("glTexImage2D");
 
-  free (d2);
+  if (d2 != data) free (d2);
 }
 
 void
@@ -3258,7 +3258,7 @@ jwzgles_gluBuild2DMipmaps (GLenum target,
   int w2 = to_pow2(width);
   int h2 = to_pow2(height);
 
-  void *d2 = NULL;
+  void *d2 = (void *) data;
 
   /* OpenGLES no longer supports "4" as a synonym for "RGBA". */
   switch (internalFormat) {
@@ -3283,10 +3283,10 @@ jwzgles_gluBuild2DMipmaps (GLenum target,
       int ibpl = istride * width;
       int obpl = ostride * w2;
       int oy;
-      const unsigned char *in = (const unsigned char *) data;
-      unsigned char *out = (unsigned char *) malloc (h2 * obpl);
+      const unsigned char *in = (unsigned char *) data;
+      unsigned char *out = (unsigned char *) malloc(h2 * obpl);
       Assert (out, "out of memory");
-      data = d2 = out;
+      d2 = out;
 
       for (oy = 0; oy < h2; oy++)
         {
@@ -3312,8 +3312,8 @@ jwzgles_gluBuild2DMipmaps (GLenum target,
     }
 
   jwzgles_glTexImage2D (target, 0, internalFormat, w2, h2, 0, 
-                        format, type, data);
-  free (d2);
+                        format, type, d2);
+  if (d2 != data) free (d2);
 
   return 0;
 }
@@ -3812,17 +3812,13 @@ jwzgles_glFrustum (GLfloat left,   GLfloat right,
                    GLfloat bottom, GLfloat top,
                    GLfloat near,   GLfloat far)
 {
-    GLfloat const rlr = 1.f / (right - left);
-    GLfloat const tbr = 1.f / (top - bottom);
-    GLfloat const fnr = 1.f / (far - near);
-
-    GLfloat x = (2 * near)        * rlr;
-    GLfloat a = (right + left)    * rlr;
-    GLfloat y = (2 * near)        * tbr;
-    GLfloat b = (top + bottom)    * tbr;
-    GLfloat c = -(far + near)     * fnr;
-    GLfloat d = -(2 * far * near) * fnr;
     GLfloat m[16];
+    GLfloat x = (2 * near)        / (right-left);
+    GLfloat y = (2 * near)        / (top - bottom);
+    GLfloat a = (right + left)    / (right - left);
+    GLfloat b = (top + bottom)    / (top - bottom);
+    GLfloat c = -(far + near)     / (far - near);
+    GLfloat d = -(2 * far * near) / (far - near);
 
     # define M(X,Y)  m[Y * 4 + X]
     M(0,0) = x; M(0,1) = 0; M(0,2) =  a; M(0,3) = 0;
@@ -3841,15 +3837,12 @@ jwzgles_glOrtho (GLfloat left,   GLfloat right,
                  GLfloat near,   GLfloat far)
 {
   GLfloat m[16];
-  GLfloat const rlr = 1.f/(right - left);
-  GLfloat a = 2 * rlr;
-  GLfloat b = -(right + left) * rlr;
-  GLfloat const tbr = 1.f/(top - bottom);
-  GLfloat c = 2 * tbr;
-  GLfloat d = -(top + bottom) * tbr;
-  GLfloat const fnr = 1.f/(far - near);
-  GLfloat e = -2 * fnr;
-  GLfloat f = -(far + near) * fnr;
+  GLfloat a = 2 / (right - left);
+  GLfloat b = -(right + left) / (right - left);
+  GLfloat c = 2 / (top - bottom);
+  GLfloat d = -(top + bottom) / (top - bottom);
+  GLfloat e = -2 / (far - near);
+  GLfloat f = -(far + near) / (far - near);
 
 # define M(X,Y)  m[Y * 4 + X]
   M(0,0) = a; M(0,1) = 0; M(0,2) = 0; M(0,3) = b;
