@@ -1654,28 +1654,6 @@ void G_DoOrderScreen(void)
 
 static void G_BonusCutscenes(void)
 {
-    int32_t bonuscnt=0;
-    int32_t t;
-
-    int32_t breathe [] =
-    {
-        0,  30, VICTORY1+1, 176, 59,
-        30,  60, VICTORY1+2, 176, 59,
-        60,  90, VICTORY1+1, 176, 59,
-        90, 120,          0, 176, 59
-    };
-
-    int32_t bossmove [] =
-    {
-        0, 120, VICTORY1+3, 86, 59,
-        220, 260, VICTORY1+4, 86, 59,
-        260, 290, VICTORY1+5, 86, 59,
-        290, 320, VICTORY1+6, 86, 59,
-        320, 350, VICTORY1+7, 86, 59,
-        350, 380, VICTORY1+8, 86, 59,
-        350, 380, VICTORY1+8, 86, 59 // duplicate row to alleviate overflow in the for loop below "boss"
-    };
-
     if (!(numplayers < 2 && ud.eog && ud.from_bonus == 0))
         return;
 
@@ -1687,6 +1665,18 @@ static void G_BonusCutscenes(void)
 
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE1BONUSSCENE))
         {
+            int32_t bonuscnt=0;
+            int32_t const bossmove [] =
+            {
+                0, 120, VICTORY1+3, 86, 59,
+                220, 260, VICTORY1+4, 86, 59,
+                260, 290, VICTORY1+5, 86, 59,
+                290, 320, VICTORY1+6, 86, 59,
+                320, 350, VICTORY1+7, 86, 59,
+                350, 380, VICTORY1+8, 86, 59,
+                350, 380, VICTORY1+8, 86, 59 // duplicate row to alleviate overflow in the for loop below "boss"
+            };
+
             P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, 8+2+1); // JBF 20040308
             clearallviews(0L);
             rotatesprite_fs(0, 50<<16, 65536L, 0, VICTORY1, 0, 0, 2+8+16+64+128+BGSTRETCH);
@@ -1703,7 +1693,7 @@ static void G_BonusCutscenes(void)
 
                 // boss
                 if (totalclock > 390 && totalclock < 780)
-                    for (t=0; t<35; t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
+                    for (int t=0; t<35; t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
                     {
                         if (t==10 && bonuscnt == 1)
                         {
@@ -1717,6 +1707,14 @@ static void G_BonusCutscenes(void)
                 // Breathe
                 if (totalclock < 450 || totalclock >= 750)
                 {
+                    int32_t const breathe [] =
+                    {
+                        0,  30, VICTORY1+1, 176, 59,
+                        30,  60, VICTORY1+2, 176, 59,
+                        60,  90, VICTORY1+1, 176, 59,
+                        90, 120,          0, 176, 59
+                    };
+
                     if (totalclock >= 750)
                     {
                         rotatesprite_fs(86<<16, 59<<16, 65536L, 0, VICTORY1+8, 0, 0, 2+8+16+64+128+BGSTRETCH);
@@ -1727,7 +1725,7 @@ static void G_BonusCutscenes(void)
                         }
 
                     }
-                    for (t=0; t<20; t+=5)
+                    for (int t=0; t<20; t+=5)
                         if (breathe[t+2] && (totalclock%120) > breathe[t] && (totalclock%120) <= breathe[t+1])
                         {
                             if (t==5 && bonuscnt == 0)
@@ -1814,7 +1812,7 @@ static void G_BonusCutscenes(void)
             fadepal(0, 0, 0, 252, 0, -4);
 
             I_ClearAllInput();
-            t = Anim_Play("vol4e1.anm");
+            int t = Anim_Play("vol4e1.anm");
             clearallviews(0L);
             nextpage();
             if (t)
