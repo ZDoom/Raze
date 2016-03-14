@@ -3241,19 +3241,16 @@ static void M_MenuTextFormSubmit(char *input)
     case MENU_ADULTPASSWORD:
         if (Bstrlen(input) && (ud.pwlockout[0] == 0 || ud.lockout == 0))
             Bstrcpy(&ud.pwlockout[0], input);
-#if 0
         else if (Bstrcmp(input, &ud.pwlockout[0]) == 0)
         {
-#if 0
-            for (x=0; x<g_numAnimWalls; x++)
-                if (wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
+            for (int x=0; x<g_numAnimWalls; x++)
+                if ((unsigned) animwall[x].wallnum < (unsigned)numwalls && wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                         wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
                         wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
                     if (wall[animwall[x].wallnum].extra >= 0)
                         wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
-#endif
+            ud.lockout = 0;
         }
-#endif
 
         S_PlaySound(PISTOL_BODYHIT);
         M_ChangeMenu(MENU_GAMESETUP);
