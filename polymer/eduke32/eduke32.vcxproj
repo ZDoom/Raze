@@ -53,7 +53,7 @@
     <PlatformToolset>v140</PlatformToolset>
     <OutDir>.\</OutDir>
     <IntDir>.\</IntDir>
-    <NMakeIncludeSearchPath>$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include</NMakeIncludeSearchPath>
+    <NMakeIncludeSearchPath>$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;platform\windows\include</NMakeIncludeSearchPath>
     <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc DEBUG=1 WINBITS=32</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=32</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc veryclean DEBUG=1 WINBITS=32</NMakeCleanCommandLine>
@@ -73,19 +73,19 @@
     <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f Makefile.msvc DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f Makefile.msvc veryclean DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">USE_OPENGL;POLYMER;SDL_FRAMEWORK;SDL_TARGET=2</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f Makefile.msvc WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f Makefile.msvc veryclean all WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f Makefile.msvc veryclean WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">USE_OPENGL;POLYMER;SDL_FRAMEWORK;SDL_TARGET=2</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f Makefile.msvc DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f Makefile.msvc veryclean DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">USE_OPENGL;POLYMER;NOASM;HAVE_INTTYPES</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">USE_OPENGL;POLYMER;NOASM;HAVE_INTTYPES;SDL_FRAMEWORK;SDL_TARGET=2</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f Makefile.msvc WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f Makefile.msvc veryclean all WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f Makefile.msvc veryclean WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">USE_OPENGL;POLYMER;NOASM</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">USE_OPENGL;POLYMER;NOASM;SDL_FRAMEWORK;SDL_TARGET=2</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</IncludePath>

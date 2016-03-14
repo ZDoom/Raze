@@ -348,11 +348,11 @@ all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
 
 eduke32$(EXESUFFIX): $(DUKE3D_OBJS) $(ENGINE_OBJS) $(AUDIOLIB_OBJS) $(ENET_OBJS)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) /LIBPATH:$(AUDIOPLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
-	$(MT) -manifest $(DUKE3D_RSRC)$(WINLIB)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
+	$(MT) -manifest $(DUKE3D_RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 mapster32$(EXESUFFIX): $(DUKE3D_EDITOR_OBJS) $(ENGINE_OBJS) $(ENGINE_EDITOR_OBJS) $(AUDIOLIB_OBJS)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) /LIBPATH:$(AUDIOPLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
-	$(MT) -manifest $(DUKE3D_RSRC)$(WINLIB)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
+	$(MT) -manifest $(DUKE3D_RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 	
 !include Makefile.deps
 !include $(ENGINE_ROOT)\Makefile.deps
