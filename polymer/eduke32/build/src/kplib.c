@@ -30,6 +30,7 @@ credits.
 **************************************************************************************************/
 
 #include "compat.h"
+#include "baselayer.h"
 #include "kplib.h"
 #include <string.h>
 #include <fcntl.h>
@@ -84,8 +85,8 @@ static __inline int32_t _lrotl(int32_t i, int sh)
 #define ASMNAME(x)
 #endif
 
-static intptr_t frameplace;
-static int32_t bytesperline, xres, yres;
+static intptr_t kp_frameplace;
+static int32_t kp_bytesperline, kp_xres, kp_yres;
 
 static const int32_t pow2mask[32] =
 {
@@ -161,7 +162,7 @@ static int32_t hxbit[59][2], ibuf0[288], nbuf0[32], ibuf1[32], nbuf1[32];
 static const uint8_t *filptr;
 static uint8_t slidebuf[32768], opixbuf0[4], opixbuf1[4];
 static uint8_t pnginited = 0;
-B_KPLIB_STATIC uint8_t olinbuf[131072] ASMNAME("olinbuf"); //WARNING:max xres is: 131072/bpp-1
+B_KPLIB_STATIC uint8_t olinbuf[131072] ASMNAME("olinbuf"); //WARNING:max kp_xres is: 131072/bpp-1
 B_KPLIB_STATIC int32_t ATTRIBUTE((used)) abstab10[1024] ASMNAME("abstab10");
 
 //Variables to speed up dynamic Huffman decoding:
@@ -366,7 +367,7 @@ static int32_t initpass()  //Interlaced images have 7 "passes", non-interlaced h
     //j=2,ixoff=2    3   4   5     ((12+(1<<2)-1 - 2)>>2) = 3
     //j=1,ixoff=1   6 7 8 9 a b    ((12+(1<<1)-1 - 1)>>1) = 6
     ixsiz = ((xsiz+ixstp-1-ixoff)>>j); //It's confusing! See the above example.
-    nbpl = (bytesperline<<k);
+    nbpl = (kp_bytesperline<<k);
 
     //Initialize this to make filters fast:
     xsizbpl = ((0x04021301>>(kcoltype<<2))&15)*ixsiz;
@@ -384,12 +385,12 @@ static int32_t initpass()  //Interlaced images have 7 "passes", non-interlaced h
 
     i = ixoff; i = (((-(i>=0))|(ixstp-1))&i);
     k = (((-(yplc>=0))|(iystp-1))&yplc);
-    nfplace = k*bytesperline + (i<<2) + frameplace;
+    nfplace = k*kp_bytesperline + (i<<2) + kp_frameplace;
 
     //Precalculate x-clipping to screen borders (speeds up putbuf)
-    //Equation: (0 <= xr <= ixsiz) && (0 <= xr*ixstp+globxoffs+ixoff <= xres)
+    //Equation: (0 <= xr <= ixsiz) && (0 <= xr*ixstp+globxoffs+ixoff <= kp_xres)
     xr0 = max((-ixoff+(1<<j)-1)>>j,0);
-    xr1 = min((xres-ixoff+(1<<j)-1)>>j,ixsiz);
+    xr1 = min((kp_xres-ixoff+(1<<j)-1)>>j,ixsiz);
     xr0 = ixsiz-xr0;
     xr1 = ixsiz-xr1;
 
@@ -672,7 +673,7 @@ static void putbuf(const uint8_t *buf, int32_t leng)
         if (xplc > 0) return;
 
         //Draw line!
-        if ((uint32_t)yplc < (uint32_t)yres)
+        if ((uint32_t)yplc < (uint32_t)kp_yres)
         {
             x = xr0; p = nfplace;
             switch (kcoltype)
@@ -743,7 +744,7 @@ static void initpngtables()
 }
 
 static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
-                        intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres)
+                        intptr_t dakpframeplace, int32_t dakpbytesperline, int32_t daxres, int32_t dayres)
 {
     int32_t i, j, k, bfinal, btype, hlit, hdist, leng;
     int32_t slidew, slider;
@@ -844,10 +845,10 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
     filptr = &filptr[leng-4]; bitpos = -((leng-4)<<3); nfilptr = 0;
     //if (leng < 4) will it crash?
 
-    frameplace = daframeplace;
-    bytesperline = dabytesperline;
-    xres = daxres;
-    yres = dayres;
+    kp_frameplace = dakpframeplace;
+    kp_bytesperline = dakpbytesperline;
+    kp_xres = daxres;
+    kp_yres = dayres;
     switch (kcoltype)
     {
     case 4: xmn[0] = 1; xmn[1] = 0; break;
@@ -896,7 +897,7 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
                 if (slidew >= slider)
                 {
                     putbuf(&slidebuf[(slider-16384)&32767],16384); slider += 16384;
-                    if ((yplc >= yres) && (intlac < 2)) goto kpngrend_goodret;
+                    if ((yplc >= kp_yres) && (intlac < 2)) goto kpngrend_goodret;
                 }
                 slidebuf[(slidew++)&32767] = (uint8_t)getbits(8);
             }
@@ -949,7 +950,7 @@ static int32_t kpngrend(const char *kfilebuf, int32_t kfilength,
             if (slidew >= slider)
             {
                 putbuf(&slidebuf[(slider-16384)&32767],16384); slider += 16384;
-                if ((yplc >= yres) && (intlac < 2)) goto kpngrend_goodret;
+                if ((yplc >= kp_yres) && (intlac < 2)) goto kpngrend_goodret;
             }
 
             k = peekbits(LOGQHUFSIZ0);
@@ -1187,7 +1188,7 @@ static void yrbrend(int32_t x, int32_t y, int32_t *ldct)
     for (yy=0; yy<(lcompvsamp[0]<<3); yy+=8)
     {
         oy = y+yy; if ((unsigned)oy >= (unsigned)clipydim) { odc += (lcomphsamp[0]<<6); continue; }
-        pp = oy*bytesperline + ((x)<<2) + frameplace;
+        pp = oy*kp_bytesperline + ((x)<<2) + kp_frameplace;
         for (xx=0; xx<(lcomphsamp[0]<<3); xx+=8,odc+=64)
         {
             ox = x+xx; if ((unsigned)ox >= (unsigned)clipxdim) continue;
@@ -1209,7 +1210,7 @@ static void yrbrend(int32_t x, int32_t y, int32_t *ldct)
                                               colclipup8[(unsigned)(yv+crmul[cr+2049]+cbmul[cb+2048])>>22]+
                                               colclip[(unsigned)(yv+cbmul[cb+2049])>>22];
                     }
-                    p += bytesperline;
+                    p += kp_bytesperline;
                     dc += 8;
                     if (!((yyy+1)&(lcompvsamp[0]-1))) dc2 += 8;
                 }
@@ -1234,7 +1235,7 @@ static void yrbrend(int32_t x, int32_t y, int32_t *ldct)
                                                 colclipup8[(unsigned)(yv+ i)>>22]+
                                                 colclip[(unsigned)(yv+cb)>>22];
                     }
-                    p += bytesperline;
+                    p += kp_bytesperline;
                     dc += 8;
                     if (!((yyy+1)&(lcompvsamp[0]-1))) dc2 += 8;
                 }
@@ -1259,7 +1260,7 @@ static void yrbrend(int32_t x, int32_t y, int32_t *ldct)
                                               colclipup8[(unsigned)(yv+crmul[cr+2049]+cbmul[cb+2048])>>22]+
                                               colclip[(unsigned)(yv+cbmul[cb+2049])>>22];
                     }
-                    p += bytesperline;
+                    p += kp_bytesperline;
                     dc += 8;
                     if (!((yyy+1)&(lcompvsamp[0]-1))) dc2 += 8;
                 }
@@ -1278,7 +1279,7 @@ void (*kplib_yrbrend_func)(int32_t,int32_t,int32_t *) = yrbrend;
 
 
 static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
-                        intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres)
+                        intptr_t dakpframeplace, int32_t dakpbytesperline, int32_t daxres, int32_t dayres)
 {
     int32_t i, j, v, leng = 0, xdim = 0, ydim = 0, index, prec, restartcnt, restartinterval;
     int32_t x, y, z, xx, yy, zz, *dc = NULL, num, curbits, c, daval, dabits, *hqval, *hqbits, hqcnt, *quanptr = NULL;
@@ -1322,10 +1323,10 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
             xdim = B_BIG16(B_UNBUF16(&kfileptr[2]));
             //printf("%s: %ld / %ld = %ld\n",filename,xdim*ydim*3,kfilength,(xdim*ydim*3)/kfilength);
 
-            frameplace = daframeplace;
-            bytesperline = dabytesperline;
-            xres = daxres;
-            yres = dayres;
+            kp_frameplace = dakpframeplace;
+            kp_bytesperline = dakpbytesperline;
+            kp_xres = daxres;
+            kp_yres = dayres;
             gnumcomponents = kfileptr[4];
             kfileptr += 5;
             ghsampmax = gvsampmax = glhsampmax = glvsampmax = 0;
@@ -1459,8 +1460,8 @@ static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
             glvstep = (gvsampmax>>glvstep); lcompvsamp[0] = min(lcompvsamp[0],glvstep); glvstep <<= 3;
             lcomphvsamp0 = lcomphsamp[0]*lcompvsamp[0];
 
-            clipxdim = min(xdim,xres);
-            clipydim = min(ydim,yres);
+            clipxdim = min(xdim,kp_xres);
+            clipydim = min(ydim,kp_yres);
 
             Alut[0] = (1<<Al); Alut[1] = -Alut[0];
 
@@ -1649,7 +1650,7 @@ static uint8_t suffix[4100], filbuffer[768], tempstack[4096];
 static int32_t prefix[4100];
 
 static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
-                        intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres)
+                        intptr_t dakpframeplace, int32_t dakpbytesperline, int32_t daxres, int32_t dayres)
 {
     int32_t i, x, y, xsiz, ysiz, yinc, xend, xspan, yspan, currstr, numbitgoal;
     int32_t lzcols, dat, blocklen, bitcnt, xoff, transcol;
@@ -1707,7 +1708,7 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
     yspan += daglobyoffs;  //UGLY HACK
     y = daglobyoffs;
     if ((uint32_t)y < (uint32_t)dayres)
-        { yoff = y*dabytesperline+daframeplace; x = daglobxoffs; xend = xspan; }
+        { yoff = y*dakpbytesperline+dakpframeplace; x = daglobxoffs; xend = xspan; }
     else
         { x = daglobxoffs+0x80000000; xend = xspan+0x80000000; }
 
@@ -1759,7 +1760,7 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
                     case 2: case 1: return(0);
                     }
                 if ((uint32_t)y < (uint32_t)dayres)
-                    { yoff = y*dabytesperline+daframeplace; x = daglobxoffs; xend = xspan; }
+                    { yoff = y*dakpbytesperline+dakpframeplace; x = daglobxoffs; xend = xspan; }
                 else
                     { x = daglobxoffs+0x80000000; xend = xspan+0x80000000; }
             }
@@ -1777,7 +1778,7 @@ static int32_t kgifrend(const char *kfilebuf, int32_t kfilelength,
 //char pal6bit[256][3], image[ydim][xdim];
 #ifdef KPCEL
 static int32_t kcelrend(const char *buf, int32_t fleng,
-                        intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres)
+                        intptr_t dakpframeplace, int32_t dakpbytesperline, int32_t daxres, int32_t dayres)
 {
     int32_t i, x, y, x0, x1, y0, y1, xsiz, ysiz;
     const char *cptr;
@@ -1804,7 +1805,7 @@ static int32_t kcelrend(const char *buf, int32_t fleng,
         for (x=x0; x<x1; x++)
         {
             if (((uint32_t)x < (uint32_t)daxres) && ((uint32_t)y < (uint32_t)dayres))
-                B_BUF32(y*dabytesperline+x*4+daframeplace, palcol[cptr[0]]);
+                B_BUF32(y*dakpbytesperline+x*4+dakpframeplace, palcol[cptr[0]]);
             cptr++;
         }
     return(0);
@@ -1815,7 +1816,7 @@ static int32_t kcelrend(const char *buf, int32_t fleng,
 //=============================  TARGA begins ================================
 
 static int32_t ktgarend(const char *header, int32_t fleng,
-                        intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres)
+                        intptr_t dakpframeplace, int32_t dakpbytesperline, int32_t daxres, int32_t dayres)
 {
     int32_t i = 0, x, y, pi, xi, yi, x0, x1, y0, y1, xsiz, ysiz, rlestat, colbyte, pixbyte;
     intptr_t p;
@@ -1851,11 +1852,11 @@ static int32_t ktgarend(const char *header, int32_t fleng,
 
     if (!(header[17]&16)) { x0 = 0;      x1 = xsiz; xi = 1; }
     else { x0 = xsiz-1; x1 = -1;   xi =-1; }
-    if (header[17]&32) { y0 = 0;      y1 = ysiz; yi = 1; pi = dabytesperline; }
-    else { y0 = ysiz-1; y1 = -1;   yi =-1; pi =-dabytesperline; }
+    if (header[17]&32) { y0 = 0;      y1 = ysiz; yi = 1; pi = dakpbytesperline; }
+    else { y0 = ysiz-1; y1 = -1;   yi =-1; pi =-dakpbytesperline; }
     if (header[2] < 8) rlestat = -2; else rlestat = -1;
 
-    p = y0*dabytesperline+daframeplace;
+    p = y0*dakpbytesperline+dakpframeplace;
     for (y=y0; y!=y1; y+=yi,p+=pi)
         for (x=x0; x!=x1; x+=xi)
         {
@@ -1910,7 +1911,7 @@ static int32_t ktgarend(const char *header, int32_t fleng,
 //                      | rastoff(?): bitmap data |
 //                      +-------------------------+
 static int32_t kbmprend(const char *buf, int32_t fleng,
-                        intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres)
+                        intptr_t dakpframeplace, int32_t dakpbytesperline, int32_t daxres, int32_t dayres)
 {
     int32_t i, j, x, y, x0, x1, y0, y1, rastoff, headsiz, xsiz, ysiz, cdim, comp, cptrinc, *lptr;
     const char *cptr;
@@ -1994,7 +1995,7 @@ static int32_t kbmprend(const char *buf, int32_t fleng,
     for (y=y0; y<y1; y++,cptr=&cptr[cptrinc])
     {
         if ((uint32_t)y >= (uint32_t)dayres) continue;
-        lptr = (int32_t *)(y*dabytesperline+daframeplace);
+        lptr = (int32_t *)(y*dakpbytesperline+dakpframeplace);
         switch (cdim)
         {
         case  1: for (x=x0; x<x1; x++) lptr[x] = palcol[(int32_t)((cptr[x>>3]>>((x&7)^7))&1)]; break;
@@ -2024,7 +2025,7 @@ static int32_t kbmprend(const char *buf, int32_t fleng,
 //==============================  PCX begins =================================
 //Note: currently only supports 8 and 24 bit PCX
 static int32_t kpcxrend(const char *buf, int32_t fleng,
-                        intptr_t daframeplace, int32_t dabytesperline, int32_t daxres, int32_t dayres)
+                        intptr_t dakpframeplace, int32_t dakpbytesperline, int32_t daxres, int32_t dayres)
 {
     int32_t  j, x, y, nplanes, x0, x1, y0, y1, bpl, xsiz, ysiz;
     intptr_t p,i;
@@ -2057,15 +2058,15 @@ static int32_t kpcxrend(const char *buf, int32_t fleng,
         //Make sure background is opaque (since 24-bit PCX renderer doesn't do it)
         x0 = 0; x1 = min(xsiz,daxres);
         y0 = 0; y1 = min(ysiz,dayres);
-        i = y0*dabytesperline + daframeplace+3;
-        for (y=y0; y<y1; y++,i+=dabytesperline)
+        i = y0*dakpbytesperline + dakpframeplace+3;
+        for (y=y0; y<y1; y++,i+=dakpbytesperline)
             for (x=x0; x<x1; x++) *(char *)((x<<2)+i) = 255;
     }
 
     x = x0 = 0; x1 = xsiz;
     y = y0 = 0; y1 = ysiz;
     cptr = (uint8_t const *)&buf[128];
-    p = y*dabytesperline+daframeplace;
+    p = y*dakpbytesperline+dakpframeplace;
 
     if (bpl > xsiz) { daxres = min(daxres,x1); x1 += bpl-xsiz; }
 
@@ -2080,7 +2081,7 @@ static int32_t kpcxrend(const char *buf, int32_t fleng,
             {
                 if ((uint32_t)y < (uint32_t)dayres)
                     if ((uint32_t)x < (uint32_t)daxres) B_BUF32((void *) (x+p), j);
-                x += 4; if (x >= x1) { x = x0; y++; p += dabytesperline; }
+                x += 4; if (x >= x1) { x = x0; y++; p += dakpbytesperline; }
             }
         }
         while (y < y1);
@@ -2094,7 +2095,7 @@ static int32_t kpcxrend(const char *buf, int32_t fleng,
             {
                 if ((uint32_t)y < (uint32_t)dayres)
                     if ((uint32_t)x < (uint32_t)daxres) *(char *)(x+p) = c;
-                x += 4; if (x >= x1) { j--; if (j < 0) { j = 3-1; y++; p += dabytesperline; } x = x0+j; }
+                x += 4; if (x >= x1) { j--; if (j < 0) { j = 3-1; y++; p += dakpbytesperline; } x = x0+j; }
             }
         }
         while (y < y1);
@@ -3062,27 +3063,25 @@ int32_t kzseek(int32_t offset, int32_t whence)
 //====================== ZIP decompression code ends =========================
 //===================== HANDY PICTURE function begins ========================
 #include "cache1d.h"
-
-void kpzdecode(int32_t const leng, intptr_t * const pic, int32_t * const bpl, int32_t * const xsiz, int32_t * const ysiz)
+void kpzdecode(int32_t const leng, intptr_t * const pic, int32_t * const xsiz, int32_t * const ysiz)
 {
     *pic = 0;
 
     kpgetdim(kpzbuf, leng, xsiz, ysiz);
-    *bpl = (*xsiz)<<2;
 
-    *pic = (intptr_t)Xmalloc(*ysiz * *bpl);
+    *pic = (intptr_t)Xmalloc(*ysiz * ((*xsiz)<<2));
     if (!*pic)
         return;
 
-    if (kprender(kpzbuf, leng, *pic, *bpl, *xsiz, *ysiz) < 0)
+    if (kprender(kpzbuf, leng, *pic, ((*xsiz)<<2), *xsiz, *ysiz) < 0)
     {
         Bfree((void *) *pic);
         *pic = (intptr_t)NULL;
     }
 }
 
-void kpzload(const char * const filnam, intptr_t * const pic, int32_t * const bpl, int32_t * const xsiz, int32_t * const ysiz)
+void kpzload(const char * const filnam, intptr_t * const pic, int32_t * const xsiz, int32_t * const ysiz)
 {
-    kpzdecode(kpzbufload(filnam), pic, bpl, xsiz, ysiz);
+    kpzdecode(kpzbufload(filnam), pic, xsiz, ysiz);
 }
 //====================== HANDY PICTURE function ends =========================

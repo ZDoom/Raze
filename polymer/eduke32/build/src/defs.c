@@ -240,12 +240,12 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
     if (check_file_exist(fn))
         return -1;
 
-    int32_t xsiz = 0, ysiz = 0, bpl;
+    int32_t xsiz = 0, ysiz = 0;
     palette_t *picptr = NULL;
 
     int32_t const length = kpzbufload(fn);
 #ifdef WITHKPLIB
-    kpzdecode(length, (intptr_t *)&picptr, &bpl, &xsiz, &ysiz);
+    kpzdecode(length, (intptr_t *)&picptr, &xsiz, &ysiz);
 #endif
 
     if (!picptr)

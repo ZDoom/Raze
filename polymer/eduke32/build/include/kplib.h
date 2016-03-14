@@ -25,8 +25,8 @@ typedef struct
 extern kzfilestate kzfs;
 
 	//High-level (easy) picture loading function:
-extern void kpzdecode (int32_t, intptr_t *, int32_t *, int32_t *, int32_t *);
-extern void kpzload (const char *, intptr_t *, int32_t *, int32_t *, int32_t *);
+extern void kpzdecode (int32_t, intptr_t *, int32_t *, int32_t *);
+extern void kpzload (const char *, intptr_t *, int32_t *, int32_t *);
 	//Low-level PNG/JPG functions:
 extern void kpgetdim (const char *, int32_t, int32_t *, int32_t *);
 extern int32_t kprender (const char *, int32_t, intptr_t, int32_t, int32_t, int32_t);
