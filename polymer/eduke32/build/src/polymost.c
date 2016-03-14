@@ -1267,7 +1267,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if (!glinfo.bgra)
         {
-            for (int32_t j = siz.x*siz.y - 1; j >= 0; j--)
+            texfmt = GL_RGBA;
+
+            for (int i=siz.x*siz.y, j=0; j<i; j++)
                 swapchar(&pic[j].r, &pic[j].b);
         }
 
@@ -5035,7 +5037,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     bglLoadMatrixf(&m[0][0]);
     bglMatrixMode(GL_MODELVIEW);
-    bglPushMatrix();
+//    bglPushMatrix();
     bglLoadIdentity();
 
     bglDisable(GL_DEPTH_TEST);
@@ -5198,7 +5200,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         pr_normalmapping = oldnormalmapping;
     }
 #endif
-    bglPopMatrix();
+//    bglPopMatrix();
     bglMatrixMode(GL_PROJECTION);
     bglPopMatrix();
 
