@@ -24,6 +24,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
+#pragma once
+
 #ifndef file_lib_public_
 #define file_lib_public_
 #ifdef __cplusplus

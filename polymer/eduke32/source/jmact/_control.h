@@ -32,6 +32,8 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 //
 //****************************************************************************
 
+#pragma once
+
 #ifndef control_private_h_
 #define control_private_h_
 #ifdef __cplusplus

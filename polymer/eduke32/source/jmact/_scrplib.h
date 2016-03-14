@@ -27,7 +27,7 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 */
 //-------------------------------------------------------------------------
 
-// scrplib.h
+#pragma once
 
 #ifndef scriplib_private_h_
 #define scriplib_private_h_

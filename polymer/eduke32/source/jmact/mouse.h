@@ -25,6 +25,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 */
 //-------------------------------------------------------------------------
 
+#pragma once
+
 #ifndef mouse_h_
 #define mouse_h_
 #ifdef __cplusplus

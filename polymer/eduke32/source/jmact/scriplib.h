@@ -24,7 +24,7 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 */
 //-------------------------------------------------------------------------
 
-// scriplib.h
+#pragma once
 
 #ifndef scriplib_public_h_
 #define scriplib_public_h_

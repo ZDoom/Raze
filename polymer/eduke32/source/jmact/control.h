@@ -31,6 +31,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 //
 //***************************************************************************
 
+#pragma once
+
 #ifndef control_public_h_
 #define control_public_h_
 #ifdef __cplusplus

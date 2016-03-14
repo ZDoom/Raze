@@ -31,6 +31,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 //
 /////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+
 #ifndef animlib_public_h_
 #define animlib_public_h_
 #ifdef __cplusplus

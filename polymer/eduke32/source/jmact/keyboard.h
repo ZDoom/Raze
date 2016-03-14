@@ -25,6 +25,8 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 */
 //-------------------------------------------------------------------------
 
+#pragma once
+
 #ifndef keyboard_public_h_
 #define keyboard_public_h_
 #ifdef __cplusplus
