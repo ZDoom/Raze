@@ -49,50 +49,6 @@ extern int32_t playerswhenstarted;
 #define WEAPON_POS_RAISE            10
 #define WEAPON_POS_START             6
 
-enum dukeinv_t {
-    GET_STEROIDS,  // 0
-    GET_SHIELD,
-    GET_SCUBA,
-    GET_HOLODUKE,
-    GET_JETPACK,
-    GET_DUMMY1,  // 5
-    GET_ACCESS,
-    GET_HEATS,
-    GET_DUMMY2,
-    GET_FIRSTAID,
-    GET_BOOTS,  // 10
-    GET_MAX
-};
-
-// these are not in the same order as the above, and it can't be changed for compat reasons. lame!
-enum dukeinvicon_t {
-    ICON_NONE,  // 0
-    ICON_FIRSTAID,
-    ICON_STEROIDS,
-    ICON_HOLODUKE,
-    ICON_JETPACK,
-    ICON_HEATS,  // 5
-    ICON_SCUBA,
-    ICON_BOOTS,
-    ICON_MAX
-};
-
-enum dukeweapon_t {
-    KNEE_WEAPON,  // 0
-    PISTOL_WEAPON,
-    SHOTGUN_WEAPON,
-    CHAINGUN_WEAPON,
-    RPG_WEAPON,
-    HANDBOMB_WEAPON,  // 5
-    SHRINKER_WEAPON,
-    DEVISTATOR_WEAPON,
-    TRIPBOMB_WEAPON,
-    FREEZE_WEAPON,
-    HANDREMOTE_WEAPON,  // 10
-    GROW_WEAPON,
-    MAX_WEAPONS
-};
-
 enum weaponflags_t {
     WEAPON_SPAWNTYPE1           = 0x00000000, // just spawn
     WEAPON_HOLSTER_CLEARS_CLIP  = 0x00000001, // 'holstering' clears the current clip
