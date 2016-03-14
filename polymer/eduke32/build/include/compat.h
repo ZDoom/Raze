@@ -2,6 +2,8 @@
 // certain build environments. It also levels the playing field caused
 // by different platforms.
 
+#pragma once
+
 #ifndef compat_h_
 #define compat_h_
 

@@ -2,6 +2,8 @@
 // for the Build Engine
 // by Jonathon Fowler (jf@jonof.id.au)
 
+#pragma once
+
 #ifndef baselayer_h_
 #define baselayer_h_
 

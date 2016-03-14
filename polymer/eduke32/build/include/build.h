@@ -5,6 +5,7 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jf@jonof.id.au)
 
+#pragma once
 
 #ifndef build_h_
 #define build_h_
