@@ -357,6 +357,7 @@ int sdlayer_mobilefilter(void *userdata, SDL_Event *event)
             mobile_halted = 1;
             return 0;
         case SDL_APP_DIDENTERBACKGROUND:
+            gltexinvalidatetype(INVALIDATE_ALL);
             // tear down video?
             return 0;
         case SDL_APP_WILLENTERFOREGROUND:
@@ -1253,7 +1254,7 @@ void sdlayer_setvideomode_opengl(void)
 
     bglEnable(GL_TEXTURE_2D);
     bglShadeModel(GL_SMOOTH);  // GL_FLAT
-    bglClearColor(0, 0, 0, 0.5);  // Black Background
+    bglClearColor(0, 0, 0, 1.0);  // Black Background
     bglHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Use FASTEST for ortho!
 //    bglHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
@@ -2186,7 +2187,6 @@ int32_t handleevents_pollsdl(void)
 int32_t handleevents(void)
 {
 #ifdef __ANDROID__
-    extern int mobile_halted;
     if (mobile_halted) return 0;
 #endif
 

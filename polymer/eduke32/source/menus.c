@@ -286,7 +286,7 @@ MAKE_MENU_TOP_ENTRYLINK( "Options", MEF_MainMenu, MAIN_OPTIONS, MENU_OPTIONS );
 MAKE_MENU_TOP_ENTRYLINK( "Help", MEF_MainMenu, MAIN_HELP, MENU_STORY );
 #endif
 MAKE_MENU_TOP_ENTRYLINK( "Credits", MEF_MainMenu, MAIN_CREDITS, MENU_CREDITS );
-MAKE_MENU_TOP_ENTRYLINK( "Return To Title", MEF_MainMenu, MAIN_QUITTOTITLE, MENU_QUITTOTITLE );
+MAKE_MENU_TOP_ENTRYLINK( "End Game", MEF_MainMenu, MAIN_QUITTOTITLE, MENU_QUITTOTITLE );
 MAKE_MENU_TOP_ENTRYLINK( "Quit", MEF_MainMenu, MAIN_QUIT, MENU_QUIT );
 #ifndef DROIDMENU
 MAKE_MENU_TOP_ENTRYLINK( "Quit Game", MEF_MainMenu, MAIN_QUITGAME, MENU_QUIT );
@@ -298,8 +298,8 @@ static MenuEntry_t *MEL_MAIN[] = {
     &ME_MAIN_OPTIONS,
 #ifndef DROIDMENU
     &ME_MAIN_HELP,
-#endif
     &ME_MAIN_CREDITS,
+#endif
     &ME_MAIN_QUIT,
 };
 
@@ -3447,19 +3447,7 @@ static Menu_t* M_FindMenu(MenuID_t query)
     return M_FindMenuBinarySearch(query, 0, numMenus-1);
 }
 
-typedef struct MenuAnimation_t
-{
-    int32_t (*out)(struct MenuAnimation_t *);
-    int32_t (*in)(struct MenuAnimation_t *);
-
-    Menu_t *previous;
-    Menu_t *current;
-
-    int32_t start;
-    int32_t length;
-} MenuAnimation_t;
-
-static MenuAnimation_t m_animation;
+MenuAnimation_t m_animation;
 
 int32_t M_Anim_SinOutRight(MenuAnimation_t *animdata)
 {

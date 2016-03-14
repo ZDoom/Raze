@@ -369,9 +369,11 @@ static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
     case REND_POLYMOST:
         renderer = "polygonal OpenGL";
         break;
+#ifdef POLYMER
     case REND_POLYMER:
         renderer = "great justice (Polymer)";
         break;
+#endif
     default:
         EDUKE32_UNREACHABLE_SECTION(break);
     }
@@ -556,7 +558,9 @@ int32_t baselayer_init(void)
                          "Mode numbers are:\n"
                          "   0 - Classic Build software\n"
                          "   3 - Polygonal OpenGL\n"
+#ifdef POLYMER
                          "   4 - Great justice renderer (Polymer)\n"
+#endif
                          ,
                          osdfunc_setrendermode);
 

@@ -115,8 +115,6 @@ typedef enum MenuAnimationType_t
     MA_Advance,
 } MenuAnimationType_t;
 
-
-
 // a subset of screentext parameters, restricted because menus require accessibility
 typedef struct MenuFont_t
 {
@@ -413,6 +411,19 @@ typedef struct Menu_t
     MenuType_t type;
 } Menu_t;
 
+typedef struct MenuAnimation_t
+{
+    int32_t(*out)(struct MenuAnimation_t *);
+    int32_t(*in)(struct MenuAnimation_t *);
+
+    Menu_t *previous;
+    Menu_t *current;
+
+    int32_t start;
+    int32_t length;
+} MenuAnimation_t;
+
+extern MenuAnimation_t m_animation;
 
 extern MenuID_t g_currentMenu;
 extern Menu_t *m_currentMenu;

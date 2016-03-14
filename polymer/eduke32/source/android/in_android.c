@@ -245,7 +245,7 @@ int32_t AndroidRead(portableread_t r)
         else if (consoleShown)
             rv = TOUCH_SCREEN_CONSOLE;
         else if ((g_player[myconnectindex].ps->gm & MODE_MENU) == MODE_MENU && g_currentMenu != MENU_MAIN)
-            rv = (m_currentMenu->type == Verify) ? TOUCH_SCREEN_YES_NO : TOUCH_SCREEN_MENU;
+            rv = (m_currentMenu->type == Verify && totalclock > (m_animation.length + m_animation.start)) ? TOUCH_SCREEN_YES_NO : TOUCH_SCREEN_MENU;
         else if ((g_player[myconnectindex].ps->gm & MODE_MENU) == MODE_MENU && g_currentMenu == MENU_MAIN)
             rv = TOUCH_SCREEN_MENU_NOBACK;
 /*

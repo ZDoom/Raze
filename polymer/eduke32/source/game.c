@@ -6105,10 +6105,6 @@ int32_t app_main(int32_t argc, char const * const * argv)
     g_numSkills = 4;
     ud.multimode = 1;
 
-#ifdef __ANDROID__
-    G_AddDef("duke3d-android.def");
-#endif
-
     // This needs to happen before G_CheckCommandLine() because G_GameExit()
     // accesses g_player[0].
     G_MaybeAllocPlayer(0);

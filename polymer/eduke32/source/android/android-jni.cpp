@@ -54,7 +54,6 @@ static bool hasTouch = false;
 static bool weaponWheelVisible = false;
 static bool hwScaling = false;
 static bool controlsCreated = false;
-static bool backButtonEnabled = true;
 
 TouchControlsContainer controlsContainer;
 
@@ -69,9 +68,9 @@ TouchControls *tcAutomap;
 TouchStick *touchJoyLeft;
 WheelSelect *weaponWheel;
 
-Button *inv_buttons[GET_MAX];
+Button *invButtonPtrs[GET_MAX];
 
-std::string obbPath, gamePath;
+std::string gamePath;
 
 void AndroidPreDrawButtons()
 {
@@ -124,8 +123,7 @@ void AndroidShowWheel(bool show)
 
         // Show inventory buttons
         tcGameWeapons->setAllButtonsEnabled(true);
-        tcGameWeapons->fade(FADE_IN, 5);
-
+//        tcGameWeapons->fade(FADE_IN, 5);
         weaponWheelVisible = true;
 
         AndroidTimer(0);
@@ -180,8 +178,8 @@ namespace callbacks
             {
                 if (!weaponWheelVisible)
                 {
-                    weaponWheel->setTapMode(true);
                     AndroidShowWheel(true);
+                    weaponWheel->setTapMode(true);
                 }
                 else
                 {
@@ -217,12 +215,13 @@ namespace callbacks
 
     void menu_button(int state, int code)
     {
+        if (weaponWheelVisible)
+            AndroidShowWheel(false);
+
         AndroidKeyEvent(state, code, code);
 
         if (controlsContainer.editingControls)
             controlsContainer.editorButtonPress();
-
-        AndroidShowWheel(false);
     }
 
     void menu_select(int action, float x, float y, float dx, float dy)
@@ -336,58 +335,62 @@ void AndroidTouchInit(int width, int height, const char *graphics_path)
     ///////////////////////// BLANK TAP SCREEN //////////////////////
 
     // One button on whole screen with no graphic, send a return key
-    tcBlankTap->addControl(new Button("whole_screen", RectF(0, 0, 26, 16), "", SDL_SCANCODE_RETURN));
+    tcBlankTap->addControl(new Button("whole_screen", RectF(0, 0, ScaleX, ScaleY), "", SDL_SCANCODE_RETURN));
     tcBlankTap->signal_button.connect(sigc::ptr_fun(&callbacks::proceed));
 
 
     ///////////////////////// YES NO SCREEN /////////////////////
 
-    tcYesNo->addControl(new Button("enter", RectF(16, 9, 18, 11), "button_yes", SDL_SCANCODE_RETURN));
-    tcYesNo->addControl(new Button("esc", RectF(8, 9, 10, 11), "button_no", SDL_SCANCODE_ESCAPE));
+    tcYesNo->addControl(new Button("enter", RectF(37, 19, 43, 25), "button_yes", SDL_SCANCODE_RETURN));
+    tcYesNo->addControl(new Button("esc", RectF(21, 19, 27, 25), "button_no", SDL_SCANCODE_ESCAPE));
     tcYesNo->signal_button.connect(sigc::ptr_fun(&callbacks::menu_button));
 
 
     // menu and shared back button
 
-    MultitouchMouse *mouseMenu = new MultitouchMouse("mouse", RectF(0, 0, 26, 16), "");
+    MultitouchMouse *mouseMenu = new MultitouchMouse("mouse", RectF(0, 0, ScaleX, ScaleY), "");
     mouseMenu->signal_action.connect(sigc::ptr_fun(&callbacks::menu_select));
     mouseMenu->setHideGraphics(true);
     tcMenuMain->addControl(mouseMenu);
 
-    Button *console_button = new Button("keyboard", "Development console", RectF(8, 0, 10, 2), "button_console", KEY_SHOW_KBRD, false, true);
-    tcMenuMain->addControl(console_button);
+    Button *consoleButton = new Button("keyboard", "Development console", RectF(4, 0, 8, 4), "button_console", KEY_SHOW_KBRD, false, true);
+    tcMenuMain->addControl(consoleButton);
 
-    tcBackButton->addControl(new Button("menu_back", RectF(0, 0, 2, 2), "button_left", SDL_SCANCODE_ESCAPE));
+    tcBackButton->addControl(new Button("menu_back", RectF(0, 0, 4, 4), "button_left", SDL_SCANCODE_ESCAPE));
     tcBackButton->signal_button.connect(sigc::ptr_fun(&callbacks::menu_button));
 
     // main controls
 
-    tcGameMain->addControl(new Button("use", RectF(20, 4, 23, 7), "button_use", gamefunc_Open));
-    tcGameMain->addControl(new Button("fire", RectF(20, 7, 23, 10), "button_fire", gamefunc_Fire));
-    tcGameMain->addControl(new Button("jump", RectF(23, 6, 26, 9), "button_jump", gamefunc_Jump));
-    tcGameMain->addControl(new Button("crouch", RectF(24, 12, 26, 14), "button_crouch", gamefunc_Crouch));
-    tcGameMain->addControl(new Button("kick", "Mighty Foot", RectF(23, 3, 26, 6), "button_kick", gamefunc_Quick_Kick, false, true));
+    tcGameMain->addControl(new Button("menu_game", RectF(0, 0, 4, 4), "button_menu", SDL_SCANCODE_ESCAPE));
+    tcGameMain->signal_button.connect(sigc::ptr_fun(&callbacks::menu_button));
 
-    Button *map_button = new Button("map", "Overhead map", RectF(6, 0, 8, 2), "button_map", gamefunc_Map, false, true);
-    tcGameMain->addControl(map_button);
+    tcGameMain->addControl(new Button("use", RectF(50, 14, 55, 19), "button_use", gamefunc_Open));
+    tcGameMain->addControl(new Button("fire", RectF(50, 20, 55, 25), "button_fire", gamefunc_Fire));
+    tcGameMain->addControl(new Button("jump", RectF(56, 17, 61, 22), "button_jump", gamefunc_Jump));
+    tcGameMain->addControl(new Button("kick", "Mighty Foot", RectF(56, 11, 61, 16), "button_kick", gamefunc_Quick_Kick, false, true));
 
-    Button *inv_button = new Button("show_inventory", "Inventory", RectF(24, 0, 26, 2), "button_activate", KEY_SHOW_INVEN);
-    tcGameMain->addControl(inv_button);
+    tcGameMain->addControl(new Button("crouch", RectF(59, ScaleY - 5, 62, ScaleY - 2), "button_crouch", gamefunc_Crouch));
+
+    Button *mapButton = new Button("map", "Overhead map", RectF(6, 0, 8, 2), "button_map", gamefunc_Map, false, true);
+    tcGameMain->addControl(mapButton);
+
+    Button *invButton = new Button("show_inventory", "Inventory", RectF(60, 0, 64, 4), "button_inv", KEY_SHOW_INVEN);
+    tcGameMain->addControl(invButton);
     tcGameMain->addControl(new Button("next_weapon", "Next weapon", RectF(0, 3, 3, 5), "button_up", gamefunc_Next_Weapon, false, true));
     tcGameMain->addControl(new Button("prev_weapon", "Previous weapon", RectF(0, 5, 3, 7), "button_down", gamefunc_Previous_Weapon, false, true));
     tcGameMain->addControl(new Button("quick_save", "Save game", RectF(22, 0, 24, 2), "button_save", KEY_QUICK_SAVE, false, true));
     tcGameMain->addControl(new Button("quick_load", "Load game", RectF(20, 0, 22, 2), "button_load", KEY_QUICK_LOAD, false, true));
 
-    tcGameMain->addControl(console_button);
+    tcGameMain->addControl(consoleButton);
 
     // Left stick
-    touchJoyLeft = new TouchStick("stick", RectF(0, 8, 8, 16), "button_move");
+    touchJoyLeft = new TouchStick("stick", RectF(4, ScaleY - 20, 24, ScaleY), "button_move");
     tcGameMain->addControl(touchJoyLeft);
     touchJoyLeft->signal_move.connect(sigc::ptr_fun(&callbacks::move));
     touchJoyLeft->signal_double_tap.connect(sigc::ptr_fun(&callbacks::left_double_tap));
 
     // Mouse look for whole screen
-    Mouse *mouse = new Mouse("mouse", RectF(3, 0, 26, 16), "");
+    Mouse *mouse = new Mouse("mouse", RectF(3, 0, ScaleX, ScaleY), "");
     mouse->signal_action.connect(sigc::ptr_fun(&callbacks::look));
     mouse->signal_double_tap.connect(sigc::ptr_fun(&callbacks::right_double_tap));
 
@@ -397,33 +400,33 @@ void AndroidTouchInit(int width, int height, const char *graphics_path)
     tcGameMain->signal_button.connect(sigc::ptr_fun(&callbacks::in_game));
 
     // Automap
-    MultitouchMouse *multimouse = new MultitouchMouse("gamemouse", RectF(0, 0, 26, 16), "");
-    multimouse->setHideGraphics(true);
-    tcAutomap->addControl(multimouse);
-    multimouse->signal_action.connect(sigc::ptr_fun(&callbacks::automap_multitouch_mouse_move));
-    tcAutomap->addControl(map_button);
+    MultitouchMouse *mapMouse = new MultitouchMouse("gamemouse", RectF(0, 0, ScaleX, ScaleY), "");
+    mapMouse->setHideGraphics(true);
+    tcAutomap->addControl(mapMouse);
+    mapMouse->signal_action.connect(sigc::ptr_fun(&callbacks::automap_multitouch_mouse_move));
+    tcAutomap->addControl(mapButton);
     tcAutomap->signal_button.connect(sigc::ptr_fun(&callbacks::in_game));
     tcAutomap->setAlpha(0.5);
 
     // Weapons
     // Now inventory in the weapons control group!
 
-    weaponWheel = new WheelSelect("weapon_wheel", RectF(7, 2, 19, 14), "weapon_wheel_orange_blank", 10);
+    weaponWheel = new WheelSelect("weapon_wheel", RectF(17, (ScaleY / 2) - 15, 47, (ScaleY / 2) + 15), "weapon_wheel_orange_blank", 10);
     weaponWheel->signal_selected.connect(sigc::ptr_fun(&callbacks::select_weapon));
     weaponWheel->signal_enabled.connect(sigc::ptr_fun(&callbacks::show_wheel));
     tcGameWeapons->addControl(weaponWheel);
 
-    inv_buttons[GET_FIRSTAID] = new Button("medkit", RectF(0, 5, 2, 7), "button_inv1", gamefunc_MedKit, false, false, true);
-    inv_buttons[GET_STEROIDS] = new Button("steroids", RectF(0, 11, 2, 13), "button_inv2", gamefunc_Steroids, false, false, true);
-    inv_buttons[GET_HOLODUKE] = new Button("holoduke", RectF(0, 9, 2, 11), "button_inv3", gamefunc_Holo_Duke, false, false, true);
-    inv_buttons[GET_JETPACK] = new Button("jetpack", RectF(0, 3, 2, 5), "button_inv4", gamefunc_Jetpack, false, false, true);
-    inv_buttons[GET_HEATS] = new Button("nightv", RectF(0, 7, 2, 9), "button_inv5", gamefunc_NightVision, false, false, true);
+    invButtonPtrs[GET_JETPACK] = new Button("jetpack", RectF(0, 6, 4, 10), "button_inv4", gamefunc_Jetpack, false, false, true);
+    invButtonPtrs[GET_STEROIDS] = new Button("steroids", RectF(0, 11, 4, 15), "button_inv2", gamefunc_Steroids, false, false, true);
+    invButtonPtrs[GET_HEATS] = new Button("nightv", RectF(0, 16, 4, 20), "button_inv5", gamefunc_NightVision, false, false, true);
+    invButtonPtrs[GET_HOLODUKE] = new Button("holoduke", RectF(0, 21, 4, 25), "button_inv3", gamefunc_Holo_Duke, false, false, true);
+    invButtonPtrs[GET_FIRSTAID] = new Button("medkit", RectF(0, 26, 4, 30), "button_inv1", gamefunc_MedKit, false, false, true);
 
-    tcGameWeapons->addControl(inv_buttons[GET_JETPACK]);
-    tcGameWeapons->addControl(inv_buttons[GET_FIRSTAID]);
-    tcGameWeapons->addControl(inv_buttons[GET_HEATS]);
-    tcGameWeapons->addControl(inv_buttons[GET_HOLODUKE]);
-    tcGameWeapons->addControl(inv_buttons[GET_STEROIDS]);
+    tcGameWeapons->addControl(invButtonPtrs[GET_JETPACK]);
+    tcGameWeapons->addControl(invButtonPtrs[GET_FIRSTAID]);
+    tcGameWeapons->addControl(invButtonPtrs[GET_HEATS]);
+    tcGameWeapons->addControl(invButtonPtrs[GET_HOLODUKE]);
+    tcGameWeapons->addControl(invButtonPtrs[GET_STEROIDS]);
 
     // Inventory are the only buttons so safe to do this
     tcGameWeapons->signal_button.connect(sigc::ptr_fun(&callbacks::inv_button));
@@ -442,6 +445,8 @@ void AndroidTouchInit(int width, int height, const char *graphics_path)
     tcGameWeapons->resetOutput();
     tcGameWeapons->setAllButtonsEnabled(false);
     weaponWheel->setTapMode(false);
+    int segmap[10] ={ 3, 4, 5, 6, 7, 8, 9, 0, 1, 2 };
+    weaponWheel->setSegmentMap(segmap);
     weaponWheelVisible = false;
     tcMenuMain->setAlpha(droidinput.gameControlsAlpha);
     tcBackButton->setAlpha(droidinput.gameControlsAlpha);
@@ -485,7 +490,6 @@ void updateTouchScreenMode(touchscreemode_t mode)
                 break;
             case TOUCH_SCREEN_GAME:
                 tcGameMain->resetOutput();
-
                 tcGameMain->fade(FADE_OUT, DEFAULT_FADE_FRAMES);
                 tcGameWeapons->setEnabled(false);
                 break;
@@ -500,7 +504,9 @@ void updateTouchScreenMode(touchscreemode_t mode)
         switch (mode)
         {
             case TOUCH_SCREEN_BLANK:  // Does not exist yet break;
-            case TOUCH_SCREEN_BLANK_TAP: tcBlankTap->setEnabled(true); break;
+            case TOUCH_SCREEN_BLANK_TAP:
+                tcBlankTap->setEnabled(true);
+                break;
             case TOUCH_SCREEN_YES_NO:
                 tcYesNo->setEnabled(true);
                 tcYesNo->fade(FADE_IN, DEFAULT_FADE_FRAMES);
@@ -530,8 +536,7 @@ void updateTouchScreenMode(touchscreemode_t mode)
         lastMode = mode;
     }
 
-    backButtonEnabled = !tcBlankTap->enabled && mode != TOUCH_SCREEN_MENU_NOBACK;
-    tcBackButton->setEnabled(backButtonEnabled);
+    tcBackButton->setEnabled(!tcBlankTap->enabled && mode != TOUCH_SCREEN_MENU_NOBACK && mode != TOUCH_SCREEN_GAME);
 }
 
 extern char videomodereset;
@@ -573,21 +578,28 @@ void AndroidDrawControls()
     if (tcBackButton)
         tcBackButton->setAlpha(droidinput.gameControlsAlpha);
 
-    int inv = AndroidRead(R_PLAYER_INV_AMOUNT);
-
     if (tcGameWeapons)
     {
-        for (int i = 0; i < GET_MAX; ++i)
-            if (inv_buttons[i])
-                inv_buttons[i]->setAlpha(tcGameWeapons->getFadedAlpha() * ((inv & (1 << i)) ? 1.f : 0.3f));
-
         tcGameWeapons->setAlpha(droidinput.gameControlsAlpha);
+
+        int inv = AndroidRead(R_PLAYER_INV_AMOUNT);
+
+        for (int i = 0; i < GET_MAX; ++i)
+            if (invButtonPtrs[i])
+            {
+                if (!weaponWheelVisible)
+                    invButtonPtrs[i]->setEnabled((inv & (1 << i)));
+
+                invButtonPtrs[i]->setAlpha(tcGameWeapons->getFadedAlpha() * ((inv & (1 << i)) ? 1.f : 0.3f));
+            }
     }
 
     controlsContainer.draw();
 
+/*
     if (controlsContainer.editingControls)
         tcBackButton->draw();
+*/
 }
 
 
@@ -625,11 +637,6 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_i(JNIEnv *env, jobject thiz, 
 
     LOGI("duke3d_path = %s", getGamePath());
 
-    const char *p = env->GetStringUTFChars(graphics_dir, NULL);
-    obbPath = std::string(p);
-
-    LOGI("obbPath = %s", obbPath.c_str());
-
     if (hasTouch)
         AndroidTouchInit(droidinfo.screen_width, droidinfo.screen_height, "/assets/");
     else LOGI("skipping touch input");
@@ -665,12 +672,12 @@ Java_com_voidpoint_duke3d_NativeLib_kp(JNIEnv *env, jobject obj, jint down, jint
 void EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_te(JNIEnv *env, jobject obj, jint action, jint pid,
                                                                      jfloat x, jfloat y)
 {
-    if (tcBackButton && backButtonEnabled)
-        tcBackButton->processPointer(action, pid, x, y);
-
-    // LOGI("TOUCHED");
-    controlsContainer.processPointer(action, pid, x, y);
-
+    if (tcBackButton && tcBackButton->enabled)
+    {
+        if (!tcBackButton->processPointer(action, pid, x, y))
+            controlsContainer.processPointer(action, pid, x, y);
+    }
+    else controlsContainer.processPointer(action, pid, x, y);
 }
 
 
@@ -701,8 +708,7 @@ void EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_al(JNIEnv *env, jobject obj, 
     AndroidLookJoystick(yaw, pitch);
 }
 
-void EXPORT_ME
-Java_com_voidpoint_duke3d_NativeLib_sts(JNIEnv *env, jobject obj, int other)
+void EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_sts(JNIEnv *env, jobject obj, int other)
 {
     // TODO: defined names for these values
     hasTouch = other & 0x4000 ? true : false;
@@ -733,8 +739,7 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_qc(JNIEnv *env, jobject obj, 
     AndroidOSD(quickCommandString.c_str());
 }
 
-void EXPORT_ME
-Java_com_voidpoint_duke3d_NativeLib_sss(JNIEnv *env, jobject thiz, jint width, jint height)
+void EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_sss(JNIEnv *env, jobject thiz, jint width, jint height)
 {
     droidinfo.screen_width = width;
     droidinfo.screen_height = height;
