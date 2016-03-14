@@ -1836,6 +1836,9 @@ static void M_PreMenu(MenuID_t cm)
             ME_CheatCodes[CHEATFUNC_QUOTETODD].name = NAM ? g_NAMMattCheatQuote : ScriptQuotes[QUOTE_CHEAT_TODD];
             ME_CheatCodes[CHEATFUNC_QUOTEALLEN].name = ScriptQuotes[QUOTE_CHEAT_ALLEN];
         }
+
+        MenuEntry_DisableOnCondition(&ME_ENTERCHEAT, (cl_cheatmask == UINT32_MAX));
+
         break;
     }
 
@@ -3312,7 +3315,10 @@ static void M_MenuTextFormSubmit(char *input)
 
         if ((NAM_WW2GI && (cl_cheatmask & (1<<CHEATFUNC_QUOTETODD))) ||
             ((cl_cheatmask & (1<<CHEATFUNC_QUOTEBETA)) && (cl_cheatmask & (1<<CHEATFUNC_QUOTETODD)) && (cl_cheatmask & (1<<CHEATFUNC_QUOTEALLEN))))
+        {
+            S_PlaySound(DUKE_GETWEAPON6);
             cl_cheatmask = ~0;
+        }
 
         M_ChangeMenu(MENU_CHEATS);
         break;

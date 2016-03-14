@@ -126,6 +126,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define SHRINKER_HIT__STATIC 246
 #define RATTY__STATIC 247
 #define BONUSMUSIC__STATIC 249
+#define DUKE_GETWEAPON6__STATIC 264
 #define ALIEN_SWITCH1__STATIC 272
 #define RIPHEADNECK__STATIC 284
 #define ENDSEQVOL3SND4__STATIC 288
@@ -277,6 +278,7 @@ extern int32_t DUKE_SCREAM;
 extern int32_t SHRINKER_HIT;
 extern int32_t RATTY;
 extern int32_t BONUSMUSIC;
+extern int32_t DUKE_GETWEAPON6;
 extern int32_t ALIEN_SWITCH1;
 extern int32_t RIPHEADNECK;
 extern int32_t ENDSEQVOL3SND4;
