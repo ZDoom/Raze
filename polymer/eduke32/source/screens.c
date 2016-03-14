@@ -1579,7 +1579,7 @@ void G_DisplayLogo(void)
                     // JBF 20030804
                     if (totalclock >= 280 && totalclock < 395)
                     {
-                        rotatesprite_fs(160<<16, (151)<<16, (410-totalclock)<<12, 0, PLUTOPAKSPRITE+1, 0, 0, 2+8);
+                        rotatesprite_fs(160<<16, (151)<<16, (410-totalclock)<<12, 0, PLUTOPAKSPRITE+1, (sintable[(totalclock<<4)&2047]>>11), 0, 2+8);
                         if (soundanm == 2)
                         {
                             soundanm++;
@@ -1593,7 +1593,7 @@ void G_DisplayLogo(void)
                             soundanm++;
                             S_PlaySound(PIPEBOMB_EXPLODE);
                         }
-                        rotatesprite_fs(160<<16, (151)<<16, 30<<11, 0, PLUTOPAKSPRITE+1, 0, 0, 2+8);
+                        rotatesprite_fs(160<<16, (151)<<16, 30<<11, 0, PLUTOPAKSPRITE+1, (sintable[(totalclock<<4)&2047]>>11), 0, 2+8);
                     }
                 }
 
