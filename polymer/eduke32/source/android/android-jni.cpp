@@ -30,29 +30,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "TouchControlsContainer.h"
 #include "JNITouchControlsUtils.h"
 
+#include "inv.h"
+
 using namespace touchcontrols;
 
 extern "C" {
-#define DEFAULT_FADE_FRAMES 10
 
 #include "in_android.h"
 #include "function.h"
 
-enum dukeinv_t
-{
-    GET_STEROIDS,  // 0
-    GET_SHIELD,
-    GET_SCUBA,
-    GET_HOLODUKE,
-    GET_JETPACK,
-    GET_DUMMY1,  // 5
-    GET_ACCESS,
-    GET_HEATS,
-    GET_DUMMY2,
-    GET_FIRSTAID,
-    GET_BOOTS,  // 10
-    GET_MAX
-};
+#define DEFAULT_FADE_FRAMES 10
 
 #ifndef LOGI
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "DUKE", __VA_ARGS__))
@@ -81,9 +68,6 @@ TouchControls *tcAutomap;
 
 TouchStick *touchJoyLeft;
 WheelSelect *weaponWheel;
-
-extern JNIEnv *env_;
-JavaVM *jvm_;
 
 Button *inv_buttons[GET_MAX];
 
@@ -133,12 +117,15 @@ void AndroidShowWheel(bool show)
 
     if (show)
     {
+        int weap = AndroidRead(R_PLAYER_GOTWEAPON);
+
         for (int n = 0; n < 10; n++)
-            weaponWheel->setSegmentEnabled(n, (AndroidRead(R_PLAYER_GOTWEAPON) >> n) & 0x1);
+            weaponWheel->setSegmentEnabled(n, (weap >> n) & 0x1);
 
         // Show inventory buttons
         tcGameWeapons->setAllButtonsEnabled(true);
         tcGameWeapons->fade(FADE_IN, 5);
+
         weaponWheelVisible = true;
 
         AndroidTimer(0);
@@ -234,6 +221,8 @@ namespace callbacks
 
         if (controlsContainer.editingControls)
             controlsContainer.editorButtonPress();
+
+        AndroidShowWheel(false);
     }
 
     void menu_select(int action, float x, float y, float dx, float dy)
@@ -290,7 +279,7 @@ namespace callbacks
         if (weaponWheelVisible)
             return;
 
-        float const scale = .1f;
+        float const scale = 10.f;
 
         AndroidLook(dx * droidinput.yaw_sens * scale, -dy * droidinput.pitch_sens * scale * (droidinput.invertLook ? -1.f : 1.f));
     }
@@ -319,6 +308,8 @@ void AndroidTouchInit(int width, int height, const char *graphics_path)
 {
     GLScaleWidth = (float)width;
     GLScaleHeight = (float)-height;
+
+    GLAspectRatio = GLScaleWidth/GLScaleHeight;
 
     ScaleY = nearbyintf(((float) height/(float) width) * ScaleX);
 
@@ -351,8 +342,8 @@ void AndroidTouchInit(int width, int height, const char *graphics_path)
 
     ///////////////////////// YES NO SCREEN /////////////////////
 
-    tcYesNo->addControl(new Button("enter", RectF(16, 9, 18, 11), "yes", SDL_SCANCODE_RETURN));
-    tcYesNo->addControl(new Button("esc", RectF(8, 9, 10, 11), "no", SDL_SCANCODE_ESCAPE));
+    tcYesNo->addControl(new Button("enter", RectF(16, 9, 18, 11), "button_yes", SDL_SCANCODE_RETURN));
+    tcYesNo->addControl(new Button("esc", RectF(8, 9, 10, 11), "button_no", SDL_SCANCODE_ESCAPE));
     tcYesNo->signal_button.connect(sigc::ptr_fun(&callbacks::menu_button));
 
 
@@ -363,36 +354,34 @@ void AndroidTouchInit(int width, int height, const char *graphics_path)
     mouseMenu->setHideGraphics(true);
     tcMenuMain->addControl(mouseMenu);
 
-    Button *console_button = new Button("keyboard", "Development console", RectF(8, 0, 10, 2), "keyboard", KEY_SHOW_KBRD, false, true);
+    Button *console_button = new Button("keyboard", "Development console", RectF(8, 0, 10, 2), "button_console", KEY_SHOW_KBRD, false, true);
     tcMenuMain->addControl(console_button);
 
-    tcBackButton->addControl(new Button("menu_back", RectF(0, 0, 2, 2), "arrow_left", SDL_SCANCODE_ESCAPE));
+    tcBackButton->addControl(new Button("menu_back", RectF(0, 0, 2, 2), "button_left", SDL_SCANCODE_ESCAPE));
     tcBackButton->signal_button.connect(sigc::ptr_fun(&callbacks::menu_button));
 
     // main controls
 
-    tcGameMain->setAlpha(droidinput.gameControlsAlpha);
+    tcGameMain->addControl(new Button("use", RectF(20, 4, 23, 7), "button_use", gamefunc_Open));
+    tcGameMain->addControl(new Button("fire", RectF(20, 7, 23, 10), "button_fire", gamefunc_Fire));
+    tcGameMain->addControl(new Button("jump", RectF(23, 6, 26, 9), "button_jump", gamefunc_Jump));
+    tcGameMain->addControl(new Button("crouch", RectF(24, 12, 26, 14), "button_crouch", gamefunc_Crouch));
+    tcGameMain->addControl(new Button("kick", "Mighty Foot", RectF(23, 3, 26, 6), "button_kick", gamefunc_Quick_Kick, false, true));
 
-    tcGameMain->addControl(new Button("use", RectF(20, 4, 23, 7), "use", gamefunc_Open));
-    tcGameMain->addControl(new Button("fire", RectF(20, 7, 23, 10), "fire2", gamefunc_Fire));
-    tcGameMain->addControl(new Button("jump", RectF(23, 6, 26, 9), "jump", gamefunc_Jump));
-    tcGameMain->addControl(new Button("crouch", RectF(24, 12, 26, 14), "crouch", gamefunc_Crouch));
-    tcGameMain->addControl(new Button("kick", "Mighty Foot", RectF(23, 3, 26, 6), "boot", gamefunc_Quick_Kick, false, true));
-
-    Button *map_button = new Button("map", "Overhead map", RectF(6, 0, 8, 2), "map", gamefunc_Map, false, true);
+    Button *map_button = new Button("map", "Overhead map", RectF(6, 0, 8, 2), "button_map", gamefunc_Map, false, true);
     tcGameMain->addControl(map_button);
 
-    Button *inv_button = new Button("show_inventory", "Inventory", RectF(24, 0, 26, 2), "inv", KEY_SHOW_INVEN);
+    Button *inv_button = new Button("show_inventory", "Inventory", RectF(24, 0, 26, 2), "button_activate", KEY_SHOW_INVEN);
     tcGameMain->addControl(inv_button);
-    tcGameMain->addControl(new Button("next_weapon", "Next weapon", RectF(0, 3, 3, 5), "next_weap", gamefunc_Next_Weapon, false, true));
-    tcGameMain->addControl(new Button("prev_weapon", "Previous weapon", RectF(0, 5, 3, 7), "prev_weap", gamefunc_Previous_Weapon, false, true));
-    tcGameMain->addControl(new Button("quick_save", "Save game", RectF(22, 0, 24, 2), "save", KEY_QUICK_SAVE, false, true));
-    tcGameMain->addControl(new Button("quick_load", "Load game", RectF(20, 0, 22, 2), "load", KEY_QUICK_LOAD, false, true));
+    tcGameMain->addControl(new Button("next_weapon", "Next weapon", RectF(0, 3, 3, 5), "button_up", gamefunc_Next_Weapon, false, true));
+    tcGameMain->addControl(new Button("prev_weapon", "Previous weapon", RectF(0, 5, 3, 7), "button_down", gamefunc_Previous_Weapon, false, true));
+    tcGameMain->addControl(new Button("quick_save", "Save game", RectF(22, 0, 24, 2), "button_save", KEY_QUICK_SAVE, false, true));
+    tcGameMain->addControl(new Button("quick_load", "Load game", RectF(20, 0, 22, 2), "button_load", KEY_QUICK_LOAD, false, true));
 
     tcGameMain->addControl(console_button);
 
     // Left stick
-    touchJoyLeft = new TouchStick("stick", RectF(0, 7, 8, 16), "strafe_arrow");
+    touchJoyLeft = new TouchStick("stick", RectF(0, 8, 8, 16), "button_move");
     tcGameMain->addControl(touchJoyLeft);
     touchJoyLeft->signal_move.connect(sigc::ptr_fun(&callbacks::move));
     touchJoyLeft->signal_double_tap.connect(sigc::ptr_fun(&callbacks::left_double_tap));
@@ -416,30 +405,28 @@ void AndroidTouchInit(int width, int height, const char *graphics_path)
     tcAutomap->signal_button.connect(sigc::ptr_fun(&callbacks::in_game));
     tcAutomap->setAlpha(0.5);
 
+    // Weapons
     // Now inventory in the weapons control group!
 
-    inv_buttons[GET_JETPACK] = new Button("jetpack", RectF(0, 3, 2, 5), "jetpack", gamefunc_Jetpack, false, false, true);
-    inv_buttons[GET_FIRSTAID] = new Button("medkit", RectF(0, 5, 2, 7), "medkit", gamefunc_MedKit, false, false, true);
-    inv_buttons[GET_HEATS] = new Button("nightv", RectF(0, 7, 2, 9), "nightvision", gamefunc_NightVision, false, false, true);
-    inv_buttons[GET_HOLODUKE] = new Button("holoduke", RectF(0, 9, 2, 11), "holoduke", gamefunc_Holo_Duke, false, false, true);
-    inv_buttons[GET_STEROIDS] = new Button("steroids", RectF(0, 11, 2, 13), "steroids", gamefunc_Steroids, false, false, true);
+    weaponWheel = new WheelSelect("weapon_wheel", RectF(7, 2, 19, 14), "weapon_wheel_orange_blank", 10);
+    weaponWheel->signal_selected.connect(sigc::ptr_fun(&callbacks::select_weapon));
+    weaponWheel->signal_enabled.connect(sigc::ptr_fun(&callbacks::show_wheel));
+    tcGameWeapons->addControl(weaponWheel);
+
+    inv_buttons[GET_FIRSTAID] = new Button("medkit", RectF(0, 5, 2, 7), "button_inv1", gamefunc_MedKit, false, false, true);
+    inv_buttons[GET_STEROIDS] = new Button("steroids", RectF(0, 11, 2, 13), "button_inv2", gamefunc_Steroids, false, false, true);
+    inv_buttons[GET_HOLODUKE] = new Button("holoduke", RectF(0, 9, 2, 11), "button_inv3", gamefunc_Holo_Duke, false, false, true);
+    inv_buttons[GET_JETPACK] = new Button("jetpack", RectF(0, 3, 2, 5), "button_inv4", gamefunc_Jetpack, false, false, true);
+    inv_buttons[GET_HEATS] = new Button("nightv", RectF(0, 7, 2, 9), "button_inv5", gamefunc_NightVision, false, false, true);
 
     tcGameWeapons->addControl(inv_buttons[GET_JETPACK]);
     tcGameWeapons->addControl(inv_buttons[GET_FIRSTAID]);
     tcGameWeapons->addControl(inv_buttons[GET_HEATS]);
     tcGameWeapons->addControl(inv_buttons[GET_HOLODUKE]);
     tcGameWeapons->addControl(inv_buttons[GET_STEROIDS]);
-//    tcGameWeapons->addControl(inv_button);
 
     // Inventory are the only buttons so safe to do this
     tcGameWeapons->signal_button.connect(sigc::ptr_fun(&callbacks::inv_button));
-
-    // Weapons
-    weaponWheel = new WheelSelect("weapon_wheel", RectF(7, 2, 19, 14), "weapon_wheel_orange_blank", 10);
-    weaponWheel->signal_selected.connect(sigc::ptr_fun(&callbacks::select_weapon));
-    weaponWheel->signal_enabled.connect(sigc::ptr_fun(&callbacks::show_wheel));
-    tcGameWeapons->addControl(weaponWheel);
-    tcGameWeapons->setAlpha(0.9);
 
 
     controlsContainer.addControlGroup(tcMenuMain);
@@ -451,7 +438,11 @@ void AndroidTouchInit(int width, int height, const char *graphics_path)
     controlsContainer.addControlGroup(tcBlankTap);
 
     tcGameMain->setAlpha(droidinput.gameControlsAlpha);
-    tcGameWeapons->setAlpha(droidinput.gameControlsAlpha);
+    tcGameWeapons->setAlpha(0.f);
+    tcGameWeapons->resetOutput();
+    tcGameWeapons->setAllButtonsEnabled(false);
+    weaponWheel->setTapMode(false);
+    weaponWheelVisible = false;
     tcMenuMain->setAlpha(droidinput.gameControlsAlpha);
     tcBackButton->setAlpha(droidinput.gameControlsAlpha);
 
@@ -539,12 +530,6 @@ void updateTouchScreenMode(touchscreemode_t mode)
         lastMode = mode;
     }
 
-    int inv = AndroidRead(R_PLAYER_INV_AMOUNT);
-
-    for (int i = 0; i < GET_MAX; ++i)
-        if (inv_buttons[i])
-            inv_buttons[i]->setAlpha(tcGameWeapons->getFadedAlpha() * ((inv & (1 << i)) ? 1.f : 0.3f));
-
     backButtonEnabled = !tcBlankTap->enabled && mode != TOUCH_SCREEN_MENU_NOBACK;
     tcBackButton->setEnabled(backButtonEnabled);
 }
@@ -582,14 +567,22 @@ void AndroidDrawControls()
     if (tcGameMain)
         tcGameMain->setAlpha(droidinput.gameControlsAlpha);
 
-    if (tcGameWeapons)
-        tcGameWeapons->setAlpha(droidinput.gameControlsAlpha);
-
     if (tcMenuMain)
         tcMenuMain->setAlpha(droidinput.gameControlsAlpha);
 
     if (tcBackButton)
         tcBackButton->setAlpha(droidinput.gameControlsAlpha);
+
+    int inv = AndroidRead(R_PLAYER_INV_AMOUNT);
+
+    if (tcGameWeapons)
+    {
+        for (int i = 0; i < GET_MAX; ++i)
+            if (inv_buttons[i])
+                inv_buttons[i]->setAlpha(tcGameWeapons->getFadedAlpha() * ((inv & (1 << i)) ? 1.f : 0.3f));
+
+        tcGameWeapons->setAlpha(droidinput.gameControlsAlpha);
+    }
 
     controlsContainer.draw();
 
@@ -600,20 +593,16 @@ void AndroidDrawControls()
 
 #define EXPORT_ME __NDK_FPABI__ __attribute__((visibility("default")))
 
-JNIEnv *env_;
-
 int argc = 1;
 const char *argv[32];
 
 static inline const char *getGamePath() { return gamePath.c_str(); }
 
-jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_init(JNIEnv *env, jobject thiz, jstring graphics_dir,
+jint EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_i(JNIEnv *env, jobject thiz, jstring graphics_dir,
                                                                jint audio_rate, jint audio_buffer_size,
                                                                jobjectArray argsArray,
                                                                jstring jduke3d_path)
 {
-    env_ = env;
-
     droidinfo.audio_sample_rate = audio_rate;
     droidinfo.audio_buffer_size = audio_buffer_size;
 
@@ -642,7 +631,7 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_init(JNIEnv *env, jobj
     LOGI("obbPath = %s", obbPath.c_str());
 
     if (hasTouch)
-        AndroidTouchInit(droidinfo.screen_width, droidinfo.screen_height, (obbPath + "/assets/").c_str());
+        AndroidTouchInit(droidinfo.screen_width, droidinfo.screen_height, "/assets/");
     else LOGI("skipping touch input");
 
     main(argc, (char **)argv);
@@ -653,14 +642,13 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_init(JNIEnv *env, jobj
 __attribute__((visibility("default"))) jint JNI_OnLoad(JavaVM *vm, void *reserved)
 {
     LOGI("JNI_OnLoad");
-    setTCJNIEnv(vm);
-    jvm_ = vm;
+    JNI_SetEnv(vm);
     return JNI_VERSION_1_4;
 }
 
 
 void EXPORT_ME
-Java_com_voidpoint_duke3d_engine_NativeLib_keyPress(JNIEnv *env, jobject obj, jint down, jint keycode, jint unicode)
+Java_com_voidpoint_duke3d_NativeLib_kp(JNIEnv *env, jobject obj, jint down, jint keycode, jint unicode)
 {
     LOGI("keypress %d", keycode);
     if (controlsContainer.isEditing())
@@ -674,7 +662,7 @@ Java_com_voidpoint_duke3d_engine_NativeLib_keyPress(JNIEnv *env, jobject obj, ji
 }
 
 
-void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_touchEvent(JNIEnv *env, jobject obj, jint action, jint pid,
+void EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_te(JNIEnv *env, jobject obj, jint action, jint pid,
                                                                      jfloat x, jfloat y)
 {
     if (tcBackButton && backButtonEnabled)
@@ -686,7 +674,7 @@ void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_touchEvent(JNIEnv *env
 }
 
 
-void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_doAction(JNIEnv *env, jobject obj, jint state, jint action)
+void EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_da(JNIEnv *env, jobject obj, jint state, jint action)
 {
     LOGI("doAction %d %d", state, action);
 
@@ -703,18 +691,18 @@ void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_doAction(JNIEnv *env, 
     AndroidAction(state, action);
 }
 
-void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_analogMove(JNIEnv *env, jobject obj, jfloat fwd, jfloat strafe)
+void EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_am(JNIEnv *env, jobject obj, jfloat fwd, jfloat strafe)
 {
     AndroidMove(fwd, strafe);
 }
 
-void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_analogLook(JNIEnv *env, jobject obj, jfloat pitch, jfloat yaw)
+void EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_al(JNIEnv *env, jobject obj, jfloat pitch, jfloat yaw)
 {
     AndroidLookJoystick(yaw, pitch);
 }
 
 void EXPORT_ME
-Java_com_voidpoint_duke3d_engine_NativeLib_setTouchSettings(JNIEnv *env, jobject obj, int other)
+Java_com_voidpoint_duke3d_NativeLib_sts(JNIEnv *env, jobject obj, int other)
 {
     // TODO: defined names for these values
     hasTouch = other & 0x4000 ? true : false;
@@ -730,14 +718,14 @@ Java_com_voidpoint_duke3d_engine_NativeLib_setTouchSettings(JNIEnv *env, jobject
     LOGI("setTouchSettings left_double_action = %d", droidinput.left_double_action);
 }
 
-void EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_resetTouchSettings(JNIEnv *env, jobject obj)
+void EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_rts(JNIEnv *env, jobject obj)
 {
     controlsContainer.resetDefaults();
 }
 
 std::string quickCommandString;
 
-jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_quickCommand(JNIEnv *env, jobject obj, jstring command)
+jint EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_qc(JNIEnv *env, jobject obj, jstring command)
 {
     const char *p = env->GetStringUTFChars(command, NULL);
     quickCommandString = std::string(p) + "\n";
@@ -746,7 +734,7 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_engine_NativeLib_quickCommand(JNIEnv *e
 }
 
 void EXPORT_ME
-Java_com_voidpoint_duke3d_engine_NativeLib_setScreenSize(JNIEnv *env, jobject thiz, jint width, jint height)
+Java_com_voidpoint_duke3d_NativeLib_sss(JNIEnv *env, jobject thiz, jint width, jint height)
 {
     droidinfo.screen_width = width;
     droidinfo.screen_height = height;

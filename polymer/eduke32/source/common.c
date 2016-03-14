@@ -544,6 +544,7 @@ static void G_LoadAddon(void)
         g_selectedGrp = grp;
 }
 
+#ifndef EDUKE32_TOUCH_DEVICES
 #if defined EDUKE32_OSX || defined __linux__ || defined EDUKE32_BSD
 static void G_AddSteamPaths(const char *basepath)
 {
@@ -745,9 +746,11 @@ static void G_ParseSteamKeyValuesForPaths(const char *vdf)
     Bfree(vdfbufstart);
 }
 #endif
+#endif
 
 void G_AddSearchPaths(void)
 {
+#ifndef EDUKE32_TOUCH_DEVICES
 #if defined __linux__ || defined EDUKE32_BSD
     char buf[BMAX_PATH];
     char *homepath = Bgethomedir();
@@ -878,6 +881,7 @@ void G_AddSearchPaths(void)
         Bstrncpy(suffix, "/WW2GI", remaining);
         addsearchpath_user(buf, SEARCHPATH_WW2GI);
     }
+#endif
 #endif
 }
 

@@ -1267,8 +1267,6 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if (!glinfo.bgra)
         {
-            texfmt = GL_RGBA;
-
             for (int i=siz.x*siz.y, j=0; j<i; j++)
                 swapchar(&pic[j].r, &pic[j].b);
         }

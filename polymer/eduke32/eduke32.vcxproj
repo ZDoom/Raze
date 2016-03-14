@@ -183,6 +183,7 @@
     <ClInclude Include="source\gamevars.h" />
     <ClInclude Include="source\global.h" />
     <ClInclude Include="source\input.h" />
+    <ClInclude Include="source\inv.h" />
     <ClInclude Include="source\jaudiolib\include\drivers.h" />
     <ClInclude Include="source\lunatic\lunatic_game.h" />
     <ClInclude Include="source\lunatic\lunatic_m32.h" />

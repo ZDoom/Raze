@@ -31,13 +31,10 @@ extern "C"
 
 // where do these numbers come from?
 #define ANDROIDMOVEFACTOR           6400
-#define ANDROIDLOOKFACTOR          160000
+#define ANDROIDLOOKFACTOR          1600
 
 #define ANDROIDPITCHFACTORJOYSTICK          2000
 #define ANDROIDYAWFACTORJOYSTICK            4000
-
-
-#define MINCONTROLALPHA             0.25f
 
 typedef enum {
     R_TOUCH_MODE,

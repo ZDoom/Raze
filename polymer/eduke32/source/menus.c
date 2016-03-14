@@ -286,7 +286,7 @@ MAKE_MENU_TOP_ENTRYLINK( "Options", MEF_MainMenu, MAIN_OPTIONS, MENU_OPTIONS );
 MAKE_MENU_TOP_ENTRYLINK( "Help", MEF_MainMenu, MAIN_HELP, MENU_STORY );
 #endif
 MAKE_MENU_TOP_ENTRYLINK( "Credits", MEF_MainMenu, MAIN_CREDITS, MENU_CREDITS );
-MAKE_MENU_TOP_ENTRYLINK( "Quit To Title", MEF_MainMenu, MAIN_QUITTOTITLE, MENU_QUITTOTITLE );
+MAKE_MENU_TOP_ENTRYLINK( "Return To Title", MEF_MainMenu, MAIN_QUITTOTITLE, MENU_QUITTOTITLE );
 MAKE_MENU_TOP_ENTRYLINK( "Quit", MEF_MainMenu, MAIN_QUIT, MENU_QUIT );
 #ifndef DROIDMENU
 MAKE_MENU_TOP_ENTRYLINK( "Quit Game", MEF_MainMenu, MAIN_QUITGAME, MENU_QUIT );
@@ -813,9 +813,6 @@ static MenuEntry_t *MEL_TOUCHSENS [] ={
     &ME_Space2,
     &ME_TOUCHSETUP_INVERT,
 };
-
-static MenuEntry_t *MEL_TOUCHBUTTONS [] ={
-};
 #endif
 
 MAKE_MENU_TOP_ENTRYLINK( "Edit Buttons", MEF_CenterMenu, JOYSTICK_EDITBUTTONS, MENU_JOYSTICKBTNS );
@@ -1236,7 +1233,7 @@ static MenuMenu_t M_MOUSESETUP = MAKE_MENUMENU( "Mouse Setup", &MMF_BigOptions, 
 #ifdef DROIDMENU
 static MenuMenu_t M_TOUCHSETUP = MAKE_MENUMENU( "Touch Setup", &MMF_Top_Options, MEL_TOUCHSETUP );
 static MenuMenu_t M_TOUCHSENS = MAKE_MENUMENU( "Sensitivity", &MMF_BigOptions, MEL_TOUCHSENS);
-static MenuMenu_t M_TOUCHBUTTONS = MAKE_MENUMENU("Button Setup", &MMF_BigOptions, MEL_TOUCHBUTTONS);
+static MenuPanel_t M_TOUCHBUTTONS ={ "Button Setup", MENU_TOUCHSETUP, MA_Return, MENU_TOUCHSETUP, MA_Advance, };
 #endif
 static MenuMenu_t M_JOYSTICKSETUP = MAKE_MENUMENU( "Joystick Setup", &MMF_Top_Joystick_Network, MEL_JOYSTICKSETUP );
 static MenuMenu_t M_JOYSTICKBTNS = MAKE_MENUMENU( "Joystick Buttons", &MMF_MouseJoySetupBtns, MEL_JOYSTICKBTNS );
@@ -1329,7 +1326,7 @@ static Menu_t Menus[] = {
 #ifdef DROIDMENU
     { &M_TOUCHSETUP, MENU_TOUCHSETUP, MENU_OPTIONS, MA_Return, Menu },
     { &M_TOUCHSENS, MENU_TOUCHSENS, MENU_TOUCHSETUP, MA_Return, Menu },
-    { &M_TOUCHBUTTONS, MENU_TOUCHBUTTONS, MENU_TOUCHSETUP, MA_Return, Menu },
+    { &M_TOUCHBUTTONS, MENU_TOUCHBUTTONS, MENU_TOUCHSETUP, MA_Return, Panel },
 #endif
     { &M_CONTROLS, MENU_CONTROLS, MENU_OPTIONS, MA_Return, Menu },
 #ifdef USE_OPENGL
@@ -2147,7 +2144,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
     case MENU_QUITTOTITLE:
         fade_screen_black(1);
-        mgametextcenter(origin.x, origin.y + (90<<16), "Quit to Title?");
+        mgametextcenter(origin.x, origin.y + (90<<16), "End game and return to title screen?");
 #ifndef DROIDMENU
         mgametextcenter(origin.x, origin.y + (99<<16), "(Y/N)");
 #endif
@@ -2360,7 +2357,6 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             };
             const char *body[] =
             {
-                "Alan Ondra",        // testing
                 "Bioman",            // GTK work, APT repository and package upkeep
                 "Brandon Bergren",   // "Bdragon" - tiles.cfg
                 "Charlie Honig",     // "CONAN" - showview command
@@ -2368,7 +2364,6 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                 "David Koenig",      // "Bargle" - Merged a couple of things from duke3d_w32
                 "Ed Coolidge",       // Mapster32 improvements
                 "Emile Belanger",    // original Android work
-                "Ferry Landzaat",    // ? (listed on the wiki page)
                 "Hunter_rus",        // tons of stuff
                 "James Bentler",     // Mapster32 improvements
                 "Jasper Foreman",    // netcode contributions
@@ -2384,11 +2379,9 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                 "Ozkan Sezer",       // SDL/GTK version checking improvements
                 "Peter Green",       // "Plugwash" - dynamic remapping, custom gametypes
                 "Peter Veenstra",    // "Qbix" - port to 64-bit
-                "Randy Heit",        // random snippets of ZDoom here and there
                 "Robin Green",       // CON array support
                 "Ryan Gordon",       // "icculus" - icculus.org Duke3D port sound code
                 "Stephen Anthony",   // early 64-bit porting work
-                "Thijs Leenders",    // Android icon work
                 "tueidj",            // Wii port
                 " ",
             };
