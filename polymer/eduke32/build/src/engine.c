@@ -17320,7 +17320,7 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
     if (spr->sectnum<0)
         col = editorcolors[4];  // red
     else
-        col = spritecol ? editorcolors[spritecol] : getspritecol(j);
+        col = spritecol ? editorcolors[spritecol] : blocking ? editorcolors[5] : getspritecol(j);
 
     if (editstatus == 1)
     {

@@ -3293,9 +3293,11 @@ static void drawspritelabel(int i)
         return;
 
     // KEEPINSYNC drawscreen_drawsprite()
-    uint8_t const spritecol = spritecol2d[sprite[i].picnum][(sprite[i].cstat&1)];
+    tspritetype const * s = (tspritetype *)&sprite[i];
+    uint8_t const spritecol = spritecol2d[s->picnum][(s->cstat&1)];
     int col = spritecol ? editorcolors[spritecol] : getspritecol(i);
-    int bordercol = col;
+    int const blocking = s->cstat & 1;
+    int bordercol = blocking ? editorcolors[5] : col;
 
     // group selection
     if (show2dsprite[i>>3]&pow2char[i&7])
@@ -3309,14 +3311,14 @@ static void drawspritelabel(int i)
             col -= M32_THROB>>1;
         else col += M32_THROB>>2;
 
-        if (bordercol > col)
+        if (bordercol > col && !blocking)
             bordercol = col;
     }
 
-    else if (sprite[i].sectnum < 0)
+    else if (s->sectnum < 0)
         col = bordercol = editorcolors[4];  // red
 
-    drawsmallabel(dabuffer, editorcolors[0], col, bordercol, sprite[i].x, sprite[i].y, sprite[i].z);
+    drawsmallabel(dabuffer, editorcolors[0], col, bordercol, s->x, s->y, s->z);
 }
 
 #define EDITING_MAP_P() (newnumwalls>=0 || joinsector[0]>=0 || circlewall>=0 || (bstatus&1) || isc.active)

@@ -887,14 +887,14 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
     static char tempbuf[1024];
     int32_t retfast = 0, lt;
 
-    Bmemset(tempbuf,0,sizeof(tempbuf));
-
     if (!(onnames>=3 && onnames<=8) || (onnames==7 && sprite[spritenum].picnum!=SECTOREFFECTOR))
         retfast = 1;
     if (onnames==5 && !tileInGroup(tilegroupItems, sprite[spritenum].picnum))
         retfast = 1;
     if (onnames==6 && sprite[spritenum].picnum != sprite[cursprite].picnum)
         retfast = 1;
+
+    tempbuf[0] = 0;
 
     if (retfast)
         return tempbuf;
@@ -905,7 +905,9 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
 
     if ((sprite[spritenum].lotag|sprite[spritenum].hitag) == 0)
     {
+        Bmemset(tempbuf, 0, sizeof(tempbuf));
         SpriteName(spritenum,lo);
+
         if (lo[0]!=0)
         {
             Bsprintf(tempbuf,"%s",lo);
@@ -925,14 +927,15 @@ const char *ExtGetSpriteCaption(int16_t spritenum)
     {
         if (onnames!=8)
         {
+            Bmemset(tempbuf, 0, sizeof(tempbuf));
             Bsprintf(lo,"%s",SectorEffectorText(spritenum));
             Bsprintf(tempbuf,"%s, %s",lo, histr);
         }
     }
     else
     {
+        Bmemset(tempbuf, 0, sizeof(tempbuf));
         taglab_handle1(lt&1, sprite[spritenum].lotag, lostr);
-
         SpriteName(spritenum,lo);
 
         if (sprite[spritenum].extra != -1)
