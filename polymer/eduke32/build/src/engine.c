@@ -5380,7 +5380,7 @@ typedef zint_t voxint_t;
 // drawvox
 //
 static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasprang,
-                    int32_t daxscale, int32_t dayscale, char daindex,
+                    int32_t daxscale, int32_t dayscale, int32_t daindex,
                     int8_t dashade, char dapal, const int32_t *daumost, const int32_t *dadmost)
 {
     int32_t i, j, k, x, y;
