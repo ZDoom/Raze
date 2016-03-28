@@ -1,5 +1,5 @@
-#ifndef __DARKRL__MATH_HPP__
-#define __DARKRL__MATH_HPP__
+#ifndef DARKRL__MATH_HPP__
+#define DARKRL__MATH_HPP__
 
 #include <algorithm>
 

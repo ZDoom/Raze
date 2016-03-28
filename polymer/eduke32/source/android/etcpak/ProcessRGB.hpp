@@ -1,5 +1,5 @@
-#ifndef __PROCESSRGB_HPP__
-#define __PROCESSRGB_HPP__
+#ifndef PROCESSRGB_HPP__
+#define PROCESSRGB_HPP__
 
 #include "Types.hpp"
 

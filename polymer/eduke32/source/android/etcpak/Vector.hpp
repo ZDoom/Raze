@@ -1,5 +1,5 @@
-#ifndef __DARKRL__VECTOR_HPP__
-#define __DARKRL__VECTOR_HPP__
+#ifndef DARKRL__VECTOR_HPP__
+#define DARKRL__VECTOR_HPP__
 
 #include <assert.h>
 #include <algorithm>

@@ -1,5 +1,5 @@
-#ifndef __DARKRL__TYPES_HPP__
-#define __DARKRL__TYPES_HPP__
+#ifndef DARKRL__TYPES_HPP__
+#define DARKRL__TYPES_HPP__
 
 #include <cstdint>
 

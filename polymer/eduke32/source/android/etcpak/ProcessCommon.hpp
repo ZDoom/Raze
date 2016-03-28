@@ -1,5 +1,5 @@
-#ifndef __PROCESSCOMMON_HPP__
-#define __PROCESSCOMMON_HPP__
+#ifndef PROCESSCOMMON_HPP__
+#define PROCESSCOMMON_HPP__
 
 #include <assert.h>
 #include <stddef.h>

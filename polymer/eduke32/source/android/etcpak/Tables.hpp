@@ -1,5 +1,5 @@
-#ifndef __TABLES_HPP__
-#define __TABLES_HPP__
+#ifndef TABLES_HPP__
+#define TABLES_HPP__
 
 #include "Types.hpp"
 
