@@ -97,7 +97,7 @@ typedef struct
 extern droidinput_t droidinput;
 extern droidsysinfo_t droidinfo;
 
-int AndroidTimer(int tics);
+void AndroidTimer(int tics);
 int AndroidKeyEvent(int state, int code, int unicode);
 int AndroidRead(portableread_t r);
 

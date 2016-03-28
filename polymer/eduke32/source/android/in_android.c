@@ -55,13 +55,18 @@ extern int SDL_SendMouseButton(SDL_Window * window, Uint32 mouseID, Uint8 state,
 #include "in_android.h"
 #include <android/log.h>
 
+#if defined __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO,"DUKE", __VA_ARGS__))
 
 static char sdl_text[2];
 
 droidinput_t droidinput;
 
-int AndroidTimer(int tics) { G_InitTimer(tics);  }
+void AndroidTimer(int tics) { G_InitTimer(tics);  }
 
 int AndroidKeyEvent(int state, int code,int unicode)
 {
@@ -344,4 +349,6 @@ void CONTROL_Android_PollDevices(ControlInfo *info)
     //LOGI("poll state = 0x%016llX",CONTROL_ButtonState);
 }
 
-
+#if defined __GNUC__
+# pragma GCC diagnostic pop
+#endif

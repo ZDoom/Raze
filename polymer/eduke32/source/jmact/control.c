@@ -46,11 +46,13 @@ CONTROL_JoyAxes[MAXJOYAXES];
 static controlaxistype    CONTROL_LastMouseAxes[MAXMOUSEAXES],
 CONTROL_LastJoyAxes[MAXJOYAXES];
 static int32_t   CONTROL_MouseAxesScale[MAXMOUSEAXES],             CONTROL_JoyAxesScale[MAXJOYAXES];
+#ifndef __ANDROID__
 static int32_t   CONTROL_MouseButtonState[MAXMOUSEBUTTONS],        CONTROL_JoyButtonState[MAXJOYBUTTONS];
 static int32_t   CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS],  CONTROL_JoyButtonClickedTime[MAXJOYBUTTONS];
 static int32_t CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedState[MAXJOYBUTTONS];
 static int32_t CONTROL_MouseButtonClicked[MAXMOUSEBUTTONS],      CONTROL_JoyButtonClicked[MAXJOYBUTTONS];
 static uint8_t CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedCount[MAXJOYBUTTONS];
+#endif
 static int32_t(*ExtGetTime)(void);
 int32_t CONTROL_Started = FALSE;
 //static int32_t ticrate;
@@ -94,6 +96,7 @@ void CONTROL_FreeMouseBind(int32_t i)
     BIND(CONTROL_MouseBinds[i], NULL, 0, NULL);
 }
 
+#ifndef __ANDROID__
 static void CONTROL_GetMouseDelta(void)
 {
     int32_t x,y;
@@ -114,6 +117,7 @@ static void CONTROL_GetMouseDelta(void)
     CONTROL_MouseAxes[0].analog = (int32_t)(x * 4.0f * CONTROL_MouseSensitivity);
     CONTROL_MouseAxes[1].analog = (int32_t)((y * 4.0f * CONTROL_MouseSensitivity) * 2.0f);
 }
+#endif
 
 static int32_t CONTROL_GetTime(void)
 {
@@ -122,6 +126,7 @@ static int32_t CONTROL_GetTime(void)
     return t;
 }
 
+#ifndef __ANDROID__
 static void CONTROL_SetFlag(int32_t which, int32_t active)
 {
     if (CONTROL_CheckRange(which)) return;
@@ -141,6 +146,7 @@ static void CONTROL_SetFlag(int32_t which, int32_t active)
         CONTROL_Flags[which].active = (CONTROL_Flags[which].active ? FALSE : TRUE);
     }
 }
+#endif
 
 #if 0
 int32_t CONTROL_KeyboardFunctionPressed(int32_t which)
@@ -429,6 +435,7 @@ void CONTROL_ClearAssignments(void)
         CONTROL_JoyAxesScale[i] = NORMALAXISSCALE;
 }
 
+#ifndef __ANDROID__
 static void DoGetDeviceButtons(
     int32_t buttons, int32_t tm,
     int32_t NumButtons,
@@ -742,6 +749,7 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
         while (i--);
     }
 }
+#endif
 
 void CONTROL_ClearButton(int32_t whichbutton)
 {
@@ -775,6 +783,7 @@ void CONTROL_ProcessBinds(void)
     while (i--);
 }
 
+#ifndef __ANDROID__
 static void CONTROL_GetFunctionInput(void)
 {
     int32_t periphs[CONTROL_NUM_FLAGS];
@@ -798,6 +807,7 @@ static void CONTROL_GetFunctionInput(void)
 
     memset(CONTROL_OSDInput, 0, sizeof(CONTROL_OSDInput));
 }
+#endif
 
 void CONTROL_GetInput(ControlInfo *info)
 {

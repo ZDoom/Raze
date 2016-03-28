@@ -296,8 +296,6 @@ void wm_setapptitle(const char *name)
 //
 //
 
-static void attach_debugger_here(void) {}
-
 /* XXX: libexecinfo could be used on systems without gnu libc. */
 #if !defined _WIN32 && defined __GNUC__ && !defined __OpenBSD__ && !(defined __APPLE__ && defined __BIG_ENDIAN__) && !defined GEKKO && !defined EDUKE32_TOUCH_DEVICES && !defined __OPENDINGUX__
 # define PRINTSTACKONSEGV 1
@@ -305,6 +303,9 @@ static void attach_debugger_here(void) {}
 #endif
 
 static inline char grabmouse_low(char a);
+
+#ifndef __ANDROID__
+static void attach_debugger_here(void) {}
 
 static void sighandler(int signum)
 {
@@ -329,6 +330,7 @@ static void sighandler(int signum)
         Bexit(8);
     }
 }
+#endif
 
 #ifdef __ANDROID__
 int mobile_halted = 0;
@@ -371,6 +373,8 @@ int sdlayer_mobilefilter(void *userdata, SDL_Event *event)
         default:
             return 1;//!halt;
     }
+
+    UNREFERENCED_PARAMETER(userdata);
 }
 #endif
 

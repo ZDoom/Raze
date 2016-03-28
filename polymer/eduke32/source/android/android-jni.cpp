@@ -39,6 +39,11 @@ extern "C" {
 #include "in_android.h"
 #include "function.h"
 
+#if defined __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 #define DEFAULT_FADE_FRAMES 10
 
 #ifndef LOGI
@@ -624,7 +629,7 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_i(JNIEnv *env, jobject thiz, 
     for (int i = 0; i < argCount; i++)
     {
         jstring string = (jstring)(env)->GetObjectArrayElement(argsArray, i);
-        argv[argc] = (char *)(env)->GetStringUTFChars(string, 0);
+        argv[argc] = (char const *)(env)->GetStringUTFChars(string, 0);
         LOGI("arg = %s", argv[argc]);
         argc++;
     }
@@ -641,7 +646,9 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_i(JNIEnv *env, jobject thiz, 
         AndroidTouchInit(droidinfo.screen_width, droidinfo.screen_height, "/assets/");
     else LOGI("skipping touch input");
 
-    main(argc, (char **)argv);
+    extern int SDL_main(int argc, char const *argv[]);
+
+    SDL_main(argc, (char const **)argv);
 
     return 0;
 }
@@ -737,6 +744,8 @@ jint EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_qc(JNIEnv *env, jobject obj, 
     quickCommandString = std::string(p) + "\n";
     env->ReleaseStringUTFChars(command, p);
     AndroidOSD(quickCommandString.c_str());
+
+    return 0;
 }
 
 void EXPORT_ME Java_com_voidpoint_duke3d_NativeLib_sss(JNIEnv *env, jobject thiz, jint width, jint height)
@@ -754,5 +763,9 @@ void EXPORT_ME Java_org_libsdl_app_SDLActivity_nativeInit(JNIEnv *env, jclass cl
     SDL_SetMainReady();
     // SDL_EventState(SDL_TEXTINPUT,SDL_ENABLE);
 }
+
+#if defined __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 }
