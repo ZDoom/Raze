@@ -2978,8 +2978,11 @@ jwzgles_glTexImage2D (GLenum target,
       Assert (d2, "out of memory");
     }
 
+#if 0
+  // WTF is right. I see no problem with this situation.
   if (internalFormat == GL_RGB && format == GL_RGBA)
     internalFormat = GL_RGBA;  /* WTF */
+#endif
   if (type == GL_UNSIGNED_INT_8_8_8_8_REV)
     type = GL_UNSIGNED_BYTE;
 
