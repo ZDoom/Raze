@@ -54,9 +54,9 @@ void Average( const uint8* data, v4i* a )
         for( int i=0; i<4; i++ )
         {
             int index = (j & 2) + (i >> 1);
-            b[index] += *data++;
-            g[index] += *data++;
             r[index] += *data++;
+            g[index] += *data++;
+            b[index] += *data++;
             data++;
         }
     }
@@ -116,9 +116,9 @@ void CalcErrorBlock( const uint8* data, uint err[4][4] )
 uint CalcError( const uint block[4], const v4i& average )
 {
     uint err = 0x3FFFFFFF; // Big value to prevent negative values, but small enough to prevent overflow
-    err -= block[0] * 2 * average[2];
+    err -= block[0] * 2 * average[0];
     err -= block[1] * 2 * average[1];
-    err -= block[2] * 2 * average[0];
+    err -= block[2] * 2 * average[2];
     err += 8 * ( sq( average[0] ) + sq( average[1] ) + sq( average[2] ) );
     return err;
 }
@@ -191,9 +191,9 @@ uint64 CheckSolid( const uint8* src )
     }
 
     return 0x02000000 |
-        ( uint( src[0] & 0xF8 ) << 16 ) |
+        ( uint( src[0] & 0xF8 ) ) |
         ( uint( src[1] & 0xF8 ) << 8 ) |
-        ( uint( src[2] & 0xF8 ) );
+        ( uint( src[2] & 0xF8 ) << 16 );
 }
 
 void PrepareAverages( v4i a[8], const uint8* src, uint err[4] )
@@ -219,9 +219,9 @@ void FindBestFit( uint64 terr[2][8], uint16 tsel[16][8], v4i a[8], const uint32*
         uint bid = id[i];
         uint64* ter = terr[bid%2];
 
-        uint8 b = *data++;
-        uint8 g = *data++;
         uint8 r = *data++;
+        uint8 g = *data++;
+        uint8 b = *data++;
         data++;
 
         int dr = a[bid][0] - r;
@@ -270,9 +270,9 @@ std::pair<uint64, uint64> Planar(const uint8* src)
 
     for (int i = 0; i < 16; ++i)
     {
-        b += src[i * 4 + 0];
+        r += src[i * 4 + 0];
         g += src[i * 4 + 1];
-        r += src[i * 4 + 2];
+        b += src[i * 4 + 2];
     }
 
     int32 difRyz = 0;
@@ -286,9 +286,9 @@ std::pair<uint64, uint64> Planar(const uint8* src)
 
     for (int i = 0; i < 16; ++i)
     {
-        int32 difB = (static_cast<int>(src[i * 4 + 0]) << 4) - b;
+        int32 difR = (static_cast<int>(src[i * 4 + 0]) << 4) - r;
         int32 difG = (static_cast<int>(src[i * 4 + 1]) << 4) - g;
-        int32 difR = (static_cast<int>(src[i * 4 + 2]) << 4) - r;
+        int32 difB = (static_cast<int>(src[i * 4 + 2]) << 4) - b;
 
         difRyz += difR * scaling[i % 4];
         difGyz += difG * scaling[i % 4];
@@ -376,9 +376,9 @@ std::pair<uint64, uint64> Planar(const uint8* src)
         int32 cG = clampu8((gh2 * (i / 4) + gv2 * (i % 4) + go2) >> 2);
         int32 cB = clampu8((bh2 * (i / 4) + bv2 * (i % 4) + bo2) >> 2);
 
-        int32 difB = static_cast<int>(src[i * 4 + 0]) - cB;
+        int32 difR = static_cast<int>(src[i * 4 + 0]) - cR;
         int32 difG = static_cast<int>(src[i * 4 + 1]) - cG;
-        int32 difR = static_cast<int>(src[i * 4 + 2]) - cR;
+        int32 difB = static_cast<int>(src[i * 4 + 2]) - cB;
 
         int32 dif = difR * 38 + difG * 76 + difB * 14;
 
