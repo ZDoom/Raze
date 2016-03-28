@@ -692,13 +692,13 @@ static void texcache_setuptexture(int32_t *doalloc, GLuint *glpic)
 
 static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr)
 {
-    int32_t level = 0;
     texcachepicture pict;
     char *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
     int32_t alloclen=0;
 
 #ifndef EDUKE32_GLES
+    int32_t level = 0;
     for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
 #endif
     {

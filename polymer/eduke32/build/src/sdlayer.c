@@ -94,7 +94,9 @@ char modechange=1;
 char offscreenrendering=0;
 char videomodereset = 0;
 int32_t nofog=0;
+#ifndef EDUKE32_GLES
 static uint16_t sysgamma[3][256];
+#endif
 extern int32_t curbrightness, gammabrightness;
 #ifdef USE_OPENGL
 // OpenGL stuff
