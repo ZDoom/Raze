@@ -1,4 +1,5 @@
 #include <array>
+#include <math.h>
 #include <string.h>
 
 #include "Math.hpp"
@@ -547,15 +548,15 @@ std::pair<uint64, uint64> Planar(const uint8* src)
     float dB = b * (4.0f / 16.0f);
 
     // calculating the three colors RGBO, RGBH, and RGBV.  RGB = df - af * x - bf * y;
-    float cofR = std::fma(aR,  255.0f, std::fma(bR,  255.0f, dR));
-    float cofG = std::fma(aG,  255.0f, std::fma(bG,  255.0f, dG));
-    float cofB = std::fma(aB,  255.0f, std::fma(bB,  255.0f, dB));
-    float chfR = std::fma(aR, -425.0f, std::fma(bR,  255.0f, dR));
-    float chfG = std::fma(aG, -425.0f, std::fma(bG,  255.0f, dG));
-    float chfB = std::fma(aB, -425.0f, std::fma(bB,  255.0f, dB));
-    float cvfR = std::fma(aR,  255.0f, std::fma(bR, -425.0f, dR));
-    float cvfG = std::fma(aG,  255.0f, std::fma(bG, -425.0f, dG));
-    float cvfB = std::fma(aB,  255.0f, std::fma(bB, -425.0f, dB));
+    float cofR = fma(aR,  255.0f, fma(bR,  255.0f, dR));
+    float cofG = fma(aG,  255.0f, fma(bG,  255.0f, dG));
+    float cofB = fma(aB,  255.0f, fma(bB,  255.0f, dB));
+    float chfR = fma(aR, -425.0f, fma(bR,  255.0f, dR));
+    float chfG = fma(aG, -425.0f, fma(bG,  255.0f, dG));
+    float chfB = fma(aB, -425.0f, fma(bB,  255.0f, dB));
+    float cvfR = fma(aR,  255.0f, fma(bR, -425.0f, dR));
+    float cvfG = fma(aG,  255.0f, fma(bG, -425.0f, dG));
+    float cvfB = fma(aB,  255.0f, fma(bB, -425.0f, dB));
 
     // convert to r6g7b6
     int32 coR = convert6(cofR);
