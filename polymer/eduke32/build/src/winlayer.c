@@ -2891,6 +2891,15 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             {
                 // support texture compression
                 glinfo.texcompr = 1;
+
+#ifdef DYNAMIC_GLEXT
+                if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
+                {
+                    // lacking the necessary extensions to do this
+                    initprintf("Warning: the GL driver lacks necessary functions to use caching\n");
+                    glinfo.texcompr = 0;
+                }
+#endif
             }
             else if (!Bstrcmp((char *)p2, "GL_ARB_texture_non_power_of_two"))
             {

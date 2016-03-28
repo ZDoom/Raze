@@ -1313,6 +1313,15 @@ void sdlayer_setvideomode_opengl(void)
     glinfo.fbos = !!Bstrstr(glinfo.extensions, "GL_EXT_framebuffer_object") || !!Bstrstr(glinfo.extensions, "GL_OES_framebuffer_object");
 
 #ifndef __ANDROID__
+# ifdef DYNAMIC_GLEXT
+    if (glinfo.texcompr && (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB))
+    {
+        // lacking the necessary extensions to do this
+        initprintf("Warning: the GL driver lacks necessary functions to use caching\n");
+        glinfo.texcompr = 0;
+    }
+# endif
+
     glinfo.bgra = !!Bstrstr(glinfo.extensions, "GL_EXT_bgra");
     glinfo.clamptoedge = !!Bstrstr(glinfo.extensions, "GL_EXT_texture_edge_clamp") ||
                          !!Bstrstr(glinfo.extensions, "GL_SGIS_texture_edge_clamp");

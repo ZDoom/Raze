@@ -287,19 +287,8 @@ static int32_t texcache_enabled(void)
 #if defined EDUKE32_GLES || !defined USE_GLEXT
     return 0;
 #else
-    if (!glusetexcompr || !glusetexcache) return 0;
-
-    if (!glinfo.texcompr
-# ifdef DYNAMIC_GLEXT
-        || !bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB
-# endif
-        )
-    {
-        // lacking the necessary extensions to do this
-        OSD_Printf("Warning: the GL driver lacks necessary functions to use caching\n");
-        glusetexcache = 0;
+    if (!glinfo.texcompr || !glusetexcompr || !glusetexcache)
         return 0;
-    }
 
     if (!texcache.index || texcache.filehandle < 0)
     {
