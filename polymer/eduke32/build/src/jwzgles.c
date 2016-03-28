@@ -3020,6 +3020,64 @@ jwzgles_glTexSubImage2D (GLenum target, GLint level,
 }
 
 void
+jwzgles_glCompressedTexImage2D (GLenum target,
+                                GLint  	level,
+                                GLint  	internalFormat,
+                                GLsizei  	width,
+                                GLsizei  	height,
+                                GLint  	border,
+                                GLsizei imageSize,
+                                const GLvoid *data)
+{
+  GLvoid *d2 = NULL;
+  Assert (!state->compiling_verts, "glCompressedTexImage2D not allowed inside glBegin");
+  Assert (!state->compiling_list,  /* technically legal, but stupid! */
+          "glCompressedTexImage2D not allowed inside glNewList");
+
+//  Assert (width  == to_pow2(width),   "width must be a power of 2");
+//  Assert (height == to_pow2(height), "height must be a power of 2");
+
+  /* GLES does not let us omit the data pointer to create a blank texture. */
+  if (! data)
+    {
+      data = d2 = (GLvoid *) calloc (1, width * height * sizeof(GLfloat) * 4);
+      Assert (d2, "out of memory");
+    }
+
+  if (! state->replaying_list)
+    LOG9 ("direct %-12s %s %d %s %d %d %d %d 0x%lX", "glCompressedTexImage2D",
+          mode_desc(target), level, mode_desc(internalFormat),
+          width, height, border, imageSize,
+          (unsigned long) data);
+  glCompressedTexImage2D (target, level, internalFormat, width, height, border,
+                imageSize, data);  /* the real one */
+  CHECK("glCompressedTexImage2D");
+
+  free (d2);
+}
+
+void
+jwzgles_glCompressedTexSubImage2D (GLenum target, GLint level,
+                                   GLint xoffset, GLint yoffset,
+                                   GLsizei width, GLsizei height,
+                                   GLenum format, GLsizei imageSize,
+                                   const GLvoid *pixels)
+{
+  Assert (!state->compiling_verts,
+          "glCompressedTexSubImage2D not allowed inside glBegin");
+  Assert (!state->compiling_list,   /* technically legal, but stupid! */
+          "glCompressedTexSubImage2D not allowed inside glNewList");
+
+  if (! state->replaying_list)
+    LOG10 ("direct %-12s %s %d %d %d %d %d %s %d 0x%lX", "glCompressedTexSubImage2D",
+           mode_desc(target), level, xoffset, yoffset, width, height,
+           mode_desc (format), imageSize, (unsigned long) pixels);
+  glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height,
+                   format, imageSize, pixels);  /* the real one */
+  CHECK("glCompressedTexSubImage2D");
+}
+
+void
 jwzgles_glCopyTexImage2D (GLenum target, GLint level, GLenum internalformat,
                           GLint x, GLint y, GLsizei width, GLsizei height,
                           GLint border)
