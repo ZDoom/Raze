@@ -1,4 +1,3 @@
-#include <array>
 #include <math.h>
 #include <string.h>
 
@@ -17,7 +16,28 @@ static inline uint32 byteswap(uint32 l)
     return ((l >> 8u) & 0xff00u) | ((l & 0xff00u) << 8u) | (l << 24u) | (l >> 24u);
 }
 
-typedef std::array<uint16, 4> v4i;
+template<typename T, size_t size>
+struct simple_array
+{
+    simple_array()
+    {
+        memset(data, 0, sizeof(data));
+    }
+
+    T operator [](int i) const
+    {
+        return data[i];
+    }
+    T & operator [](int i)
+    {
+        return data[i];
+    }
+
+protected:
+    T data[size];
+};
+
+typedef simple_array<uint16, 4> v4i;
 
 void Average( const uint8* data, v4i* a )
 {
@@ -41,10 +61,22 @@ void Average( const uint8* data, v4i* a )
         }
     }
 
-    a[0] = v4i{ uint16( (r[2] + r[3] + 4) / 8 ), uint16( (g[2] + g[3] + 4) / 8 ), uint16( (b[2] + b[3] + 4) / 8 ), 0};
-    a[1] = v4i{ uint16( (r[0] + r[1] + 4) / 8 ), uint16( (g[0] + g[1] + 4) / 8 ), uint16( (b[0] + b[1] + 4) / 8 ), 0};
-    a[2] = v4i{ uint16( (r[1] + r[3] + 4) / 8 ), uint16( (g[1] + g[3] + 4) / 8 ), uint16( (b[1] + b[3] + 4) / 8 ), 0};
-    a[3] = v4i{ uint16( (r[0] + r[2] + 4) / 8 ), uint16( (g[0] + g[2] + 4) / 8 ), uint16( (b[0] + b[2] + 4) / 8 ), 0};
+    a[0][0] = uint16( (r[2] + r[3] + 4) / 8 );
+    a[0][1] = uint16( (g[2] + g[3] + 4) / 8 );
+    a[0][2] = uint16( (b[2] + b[3] + 4) / 8 );
+    a[0][3] = 0;
+    a[1][0] = uint16( (r[0] + r[1] + 4) / 8 );
+    a[1][1] = uint16( (g[0] + g[1] + 4) / 8 );
+    a[1][2] = uint16( (b[0] + b[1] + 4) / 8 );
+    a[1][3] = 0;
+    a[2][0] = uint16( (r[1] + r[3] + 4) / 8 );
+    a[2][1] = uint16( (g[1] + g[3] + 4) / 8 );
+    a[2][2] = uint16( (b[1] + b[3] + 4) / 8 );
+    a[2][3] = 0;
+    a[3][0] = uint16( (r[0] + r[2] + 4) / 8 );
+    a[3][1] = uint16( (g[0] + g[2] + 4) / 8 );
+    a[3][2] = uint16( (b[0] + b[2] + 4) / 8 );
+    a[3][3] = 0;
 }
 
 void CalcErrorBlock( const uint8* data, uint err[4][4] )
