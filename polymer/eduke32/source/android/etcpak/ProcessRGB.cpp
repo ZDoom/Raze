@@ -12,6 +12,11 @@
 namespace
 {
 
+static inline uint32 byteswap(uint32 l)
+{
+    return ((l >> 8u) & 0xff00u) | ((l & 0xff00u) << 8u) | (l << 24u) | (l >> 24u);
+}
+
 typedef std::array<uint16, 4> v4i;
 
 void Average( const uint8* data, v4i* a )
@@ -361,8 +366,8 @@ std::pair<uint64, uint64> Planar(const uint8* src)
 
     lo |= g_flags[idx];
 
-    uint64 result = static_cast<uint32>(_bswap(lo));
-    result |= static_cast<uint64>(static_cast<uint32>(_bswap(hi))) << 32;
+    uint64 result = static_cast<uint32>(byteswap(lo));
+    result |= static_cast<uint64>(static_cast<uint32>(byteswap(hi))) << 32;
 
     return std::make_pair(result, error);
 }
