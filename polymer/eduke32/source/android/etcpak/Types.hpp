@@ -1,7 +1,11 @@
 #ifndef DARKRL__TYPES_HPP__
 #define DARKRL__TYPES_HPP__
 
-#include <cstdint>
+#if __cplusplus < 201103L
+# include <stdint.h>
+#else
+# include <cstdint>
+#endif
 
 typedef int8_t      int8;
 typedef uint8_t     uint8;
