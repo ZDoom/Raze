@@ -59,6 +59,10 @@ typedef unsigned int GLenum;
 # define GL_WRITE_ONLY_ARB                 0x88B9
 # define GL_STREAM_DRAW_ARB                0x88E0
 # define GL_STATIC_DRAW_ARB                0x88E4
+
+# define GL_RGBA4                          0x8056
+# define GL_RGB5_A1                        0x8057
+# define GL_RGB565                         0x8D62
 #else
 # include "glext.h"
 #endif

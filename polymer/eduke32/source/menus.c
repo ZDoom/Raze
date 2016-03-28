@@ -3590,7 +3590,7 @@ int M_ChangeMenu(MenuID_t cm)
         soundvoices = ud.config.NumVoices;
         break;
 
-#ifdef DROIDMENU
+#ifdef __ANDROID__
     case MENU_TOUCHBUTTONS:
         AndroidToggleButtonEditor();
         break;

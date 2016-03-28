@@ -785,6 +785,7 @@
 		2038AE9E1A8F12B60093B7B2 /* animsounds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = animsounds.c; path = ../../source/animsounds.c; sourceTree = SOURCE_ROOT; };
 		2038AE9F1A8F12B60093B7B2 /* animsounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = animsounds.h; path = ../../source/animsounds.h; sourceTree = SOURCE_ROOT; };
 		2038AEA21A8F137E0093B7B2 /* DUKE.RTS */ = {isa = PBXFileReference; lastKnownFileType = file; name = DUKE.RTS; path = ../../../../../DUKE.RTS; sourceTree = SOURCE_ROOT; };
+		204D6B4F1C9896B0001FA505 /* inv.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = inv.h; path = ../../source/inv.h; sourceTree = SOURCE_ROOT; };
 		206B3A051B074F3000E5DBD0 /* jwzgles.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jwzgles.h; path = ../../build/include/jwzgles.h; sourceTree = SOURCE_ROOT; };
 		206B3A061B074F3000E5DBD0 /* jwzglesI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = jwzglesI.h; path = ../../build/include/jwzglesI.h; sourceTree = SOURCE_ROOT; };
 		206B3A0B1B074F6400E5DBD0 /* jwzgles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jwzgles.c; path = ../../build/src/jwzgles.c; sourceTree = SOURCE_ROOT; };
@@ -1087,6 +1088,7 @@
 				0008E9BD19F1AD9B0091588D /* grpscan.h */,
 				0008E9BE19F1AD9B0091588D /* input.c */,
 				0008E9BF19F1AD9B0091588D /* input.h */,
+				204D6B4F1C9896B0001FA505 /* inv.h */,
 				0008E9C019F1AD9B0091588D /* keys.h */,
 				0008E9C119F1AD9B0091588D /* macros.h */,
 				0008E9C219F1AD9B0091588D /* menus.c */,
