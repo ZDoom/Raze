@@ -58,8 +58,10 @@ ifeq ($(PLATFORM),DARWIN)
     ifneq (0,$(OSX_STARTUPWINDOW))
         ENGINE_EDITOR_OBJS += startosx.editor
     endif
-    ifeq (1,$(SDL_FRAMEWORK))
-        ENGINE_OBJS+=SDLMain
+    ifeq ($(SDL_TARGET),1)
+        ifeq (1,$(SDL_FRAMEWORK))
+            ENGINE_OBJS+=SDLMain
+        endif
     endif
 endif
 ifeq ($(PLATFORM),WINDOWS)

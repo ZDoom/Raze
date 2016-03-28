@@ -95,7 +95,6 @@
 		0008E94B19F1AC540091588D /* sdl_inc.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8CA19F1AC530091588D /* sdl_inc.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E94C19F1AC540091588D /* sdlappicon.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8CB19F1AC530091588D /* sdlappicon.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E94D19F1AC540091588D /* sdlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8CC19F1AC530091588D /* sdlayer.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0008E94E19F1AC540091588D /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8CD19F1AC530091588D /* SDLMain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E95019F1AC540091588D /* texcache.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8CF19F1AC530091588D /* texcache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E95119F1AC540091588D /* tracker.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8D019F1AC530091588D /* tracker.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E95219F1AC540091588D /* tracker_operator.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8D119F1AC530091588D /* tracker_operator.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -293,7 +292,6 @@
 		001382BD19F361B60007DA6C /* engine_oldmap.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8E719F1AC540091588D /* engine_oldmap.h */; };
 		001382BE19F361B60007DA6C /* pragmas_x86_gcc.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8C319F1AC530091588D /* pragmas_x86_gcc.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382BF19F361B60007DA6C /* a.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8A119F1AC530091588D /* a.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		001382C019F361B60007DA6C /* SDLMain.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8CD19F1AC530091588D /* SDLMain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382C119F361B60007DA6C /* pragmas.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8C019F1AC530091588D /* pragmas.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382C219F361B60007DA6C /* sdlappicon.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8CB19F1AC530091588D /* sdlappicon.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382C319F361B60007DA6C /* tracker.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8D019F1AC530091588D /* tracker.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -378,7 +376,6 @@
 		00970E3119F2076B00873EB9 /* libvpx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E2219F2076B00873EB9 /* libvpx.a */; };
 		00970E3219F2076B00873EB9 /* libvpx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E2219F2076B00873EB9 /* libvpx.a */; };
 		00970E3419F207F000873EB9 /* a-c.c in Sources */ = {isa = PBXBuildFile; fileRef = 00970E3319F207F000873EB9 /* a-c.c */; };
-		00970E3919F20A7600873EB9 /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 0008E90119F1AC540091588D /* SDLMain.m */; };
 		00970E4619F20F7E00873EB9 /* libBUILD.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0008E6B719F1A9260091588D /* libBUILD.a */; };
 		00970E4719F20F7E00873EB9 /* libMACT.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0008E6C219F1A9AF0091588D /* libMACT.a */; };
 		00970E4819F20F7E00873EB9 /* libAudioLib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0008E6CA19F1AAA30091588D /* libAudioLib.a */; };
@@ -603,7 +600,6 @@
 		0008E8CA19F1AC530091588D /* sdl_inc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sdl_inc.h; path = ../../build/include/sdl_inc.h; sourceTree = SOURCE_ROOT; };
 		0008E8CB19F1AC530091588D /* sdlappicon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sdlappicon.h; path = ../../build/include/sdlappicon.h; sourceTree = SOURCE_ROOT; };
 		0008E8CC19F1AC530091588D /* sdlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sdlayer.h; path = ../../build/include/sdlayer.h; sourceTree = SOURCE_ROOT; };
-		0008E8CD19F1AC530091588D /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDLMain.h; path = ../../build/include/SDLMain.h; sourceTree = SOURCE_ROOT; };
 		0008E8CF19F1AC530091588D /* texcache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = texcache.h; path = ../../build/include/texcache.h; sourceTree = SOURCE_ROOT; };
 		0008E8D019F1AC530091588D /* tracker.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = tracker.hpp; path = ../../build/include/tracker.hpp; sourceTree = SOURCE_ROOT; };
 		0008E8D119F1AC530091588D /* tracker_operator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = tracker_operator.hpp; path = ../../build/include/tracker_operator.hpp; sourceTree = SOURCE_ROOT; };
@@ -636,7 +632,6 @@
 		0008E8FE19F1AC540091588D /* scriptfile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scriptfile.c; path = ../../build/src/scriptfile.c; sourceTree = SOURCE_ROOT; };
 		0008E8FF19F1AC540091588D /* sdlayer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sdlayer.c; path = ../../build/src/sdlayer.c; sourceTree = SOURCE_ROOT; };
 		0008E90019F1AC540091588D /* sdlkeytrans.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sdlkeytrans.c; path = ../../build/src/sdlkeytrans.c; sourceTree = SOURCE_ROOT; };
-		0008E90119F1AC540091588D /* SDLMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SDLMain.m; path = ../../build/src/SDLMain.m; sourceTree = SOURCE_ROOT; };
 		0008E90219F1AC540091588D /* smalltextfont.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = smalltextfont.c; path = ../../build/src/smalltextfont.c; sourceTree = SOURCE_ROOT; };
 		0008E90419F1AC540091588D /* startosx.editor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = startosx.editor.m; path = ../../build/src/startosx.editor.m; sourceTree = SOURCE_ROOT; };
 		0008E90619F1AC540091588D /* texcache.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = texcache.c; path = ../../build/src/texcache.c; sourceTree = SOURCE_ROOT; };
@@ -1270,7 +1265,6 @@
 				0008E8CA19F1AC530091588D /* sdl_inc.h */,
 				0008E8CB19F1AC530091588D /* sdlappicon.h */,
 				0008E8CC19F1AC530091588D /* sdlayer.h */,
-				0008E8CD19F1AC530091588D /* SDLMain.h */,
 				0008E8CF19F1AC530091588D /* texcache.h */,
 				0008E8D019F1AC530091588D /* tracker.hpp */,
 				0008E8D119F1AC530091588D /* tracker_operator.hpp */,
@@ -1319,7 +1313,6 @@
 				0008E8FE19F1AC540091588D /* scriptfile.c */,
 				0008E8FF19F1AC540091588D /* sdlayer.c */,
 				0008E90019F1AC540091588D /* sdlkeytrans.c */,
-				0008E90119F1AC540091588D /* SDLMain.m */,
 				0008E90219F1AC540091588D /* smalltextfont.c */,
 				0008E90419F1AC540091588D /* startosx.editor.m */,
 				0008E90619F1AC540091588D /* texcache.c */,
@@ -1465,7 +1458,6 @@
 				0008E94419F1AC540091588D /* pragmas_x86_gcc.h in Headers */,
 				0008E92319F1AC540091588D /* a.h in Headers */,
 				20FD1D481C44E4BE00C2E553 /* colmatch.h in Headers */,
-				0008E94E19F1AC540091588D /* SDLMain.h in Headers */,
 				0008E94119F1AC540091588D /* pragmas.h in Headers */,
 				0008E94C19F1AC540091588D /* sdlappicon.h in Headers */,
 				0008E95119F1AC540091588D /* tracker.hpp in Headers */,
@@ -1567,7 +1559,6 @@
 				001382BD19F361B60007DA6C /* engine_oldmap.h in Headers */,
 				001382BE19F361B60007DA6C /* pragmas_x86_gcc.h in Headers */,
 				001382BF19F361B60007DA6C /* a.h in Headers */,
-				001382C019F361B60007DA6C /* SDLMain.h in Headers */,
 				001382C119F361B60007DA6C /* pragmas.h in Headers */,
 				001382C219F361B60007DA6C /* sdlappicon.h in Headers */,
 				204D6B661C98973F001FA505 /* Vector.hpp in Headers */,
@@ -1995,7 +1986,6 @@
 				0008E96919F1AC540091588D /* kplib.c in Sources */,
 				0008E96319F1AC540091588D /* engine.c in Sources */,
 				0008E99519F1AC540091588D /* voxmodel.c in Sources */,
-				00970E3919F20A7600873EB9 /* SDLMain.m in Sources */,
 				0008E97819F1AC540091588D /* pragmas.c in Sources */,
 				0008E95C19F1AC540091588D /* common.c in Sources */,
 				0008E97319F1AC540091588D /* mutex.c in Sources */,
