@@ -87,7 +87,7 @@ int32_t glanisotropy = 1;            // 0 = maximum supported by card
 int32_t gltexfiltermode = TEXFILTER_OFF;
 
 #ifdef EDUKE32_GLES
-int32_t glusetexcompr = 0;
+int32_t glusetexcompr = 2;
 int32_t glusetexcache = 0, glusememcache = 0;
 #else
 int32_t glusetexcompr = 1;
@@ -648,12 +648,30 @@ static int32_t const *texfmt_rgb_mask = texfmts_rgb_mask;
 static int32_t const *texfmt_rgb = texfmts_rgb;
 static int32_t const *texfmt_rgba = texfmts_rgba;
 
-static int32_t polymost_glTexImage2D_error(int32_t * intexfmt, int32_t const **intexfmt_master)
+#if defined EDUKE32_IOS
+static int32_t const comprtexfmts_rgb[] = { GL_ETC1_RGB8_OES, 0 };
+static int32_t const comprtexfmts_rgba[] = { 0 };
+static int32_t const comprtexfmts_rgb_mask[] = { 0 };
+#else
+static int32_t const comprtexfmts_rgb[] = { GL_COMPRESSED_RGB8_ETC2, GL_ETC1_RGB8_OES, 0 };
+// TODO: waiting on etcpak support for ETC2 with alpha
+static int32_t const comprtexfmts_rgba[] = { /*GL_COMPRESSED_RGBA8_ETC2_EAC,*/ 0 };
+static int32_t const comprtexfmts_rgb_mask[] = { /*GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2,*/ 0 };
+#endif
+
+static int32_t const *comprtexfmt_rgb_mask = comprtexfmts_rgb_mask;
+static int32_t const *comprtexfmt_rgb = comprtexfmts_rgb;
+static int32_t const *comprtexfmt_rgba = comprtexfmts_rgba;
+
+static int32_t Polymost_glTexImage2D_Error(int32_t const ** const intexfmt_master)
 {
-    GLenum err;
-    while ((err = bglGetError()) != GL_NO_ERROR)
+    GLenum checkerr, err = GL_NO_ERROR;
+    while ((checkerr = bglGetError()) != GL_NO_ERROR)
+        err = checkerr;
+
+    if (err != GL_NO_ERROR)
     {
-        if ((*intexfmt = *++*intexfmt_master) == 0)
+        if (*++*intexfmt_master == 0)
         {
             initprintf("No texture formats supported (error 0x%X).\n", err);
             Bfflush(NULL);
@@ -666,9 +684,167 @@ static int32_t polymost_glTexImage2D_error(int32_t * intexfmt, int32_t const **i
 
     return 0;
 }
+
+static int32_t Polymost_glCompressedTexImage2D_Error(int32_t const ** const comprtexfmt_master)
+{
+    GLenum checkerr, err = GL_NO_ERROR;
+    while ((checkerr = bglGetError()) != GL_NO_ERROR)
+        err = checkerr;
+
+    if (err != GL_NO_ERROR)
+    {
+        if (*++*comprtexfmt_master == 0)
+        {
+            return 2;
+        }
+
+        return 1;
+    }
+
+    return 0;
+}
+
+# ifdef __cplusplus
+extern "C" {
+# endif
+extern uint64_t ProcessRGB(uint8_t const *);
+extern uint64_t ProcessRGB_ETC2(uint8_t const *);
+# ifdef __cplusplus
+}
+# endif
+
 #else
-# define polymost_glTexImage2D_error(...) (0)
+# define Polymost_glTexImage2D_Error(...) (0)
 #endif
+
+static void Polymost_SendTexToDriver(int32_t const doalloc,
+                                     vec2_t const siz,
+                                     int32_t const texfmt,
+                                     coltype const * const pic,
+#if !defined EDUKE32_GLES
+                                     int32_t const intexfmt,
+#else
+                                     int32_t const ** const intexfmt_master,
+                                     int32_t const ** const comprtexfmt_master,
+# define intexfmt (**intexfmt_master)
+                                     int32_t const texcompress_ok,
+#endif
+                                     int32_t const level)
+{
+    BuildGLErrorCheck(); // XXX
+
+#if defined EDUKE32_GLES
+    if (texcompress_ok && **comprtexfmt_master && (siz.x & 3) == 0 && (siz.y & 3) == 0)
+    {
+        size_t const picLength = siz.x * siz.y;
+        size_t const fourRows = siz.x << 2u;
+        GLsizei const imageSize = picLength >> 1u; // 4x4 pixels --> 8 bytes
+        uint8_t * const comprpic = (uint8_t *)Xaligned_alloc(8, imageSize);
+        int32_t err;
+
+        do
+        {
+            int32_t const comprtexfmt = **comprtexfmt_master;
+
+            switch (comprtexfmt)
+            {
+                case GL_ETC1_RGB8_OES:
+                {
+                    coltype buf[4*4];
+                    uint64_t * out = (uint64_t *)comprpic;
+                    for (coltype const * row = pic, * const pic_end = pic + picLength; row < pic_end; row += fourRows)
+                        for (coltype const * block = row, * const row_end = row + siz.x; block < row_end; block += 4)
+                        {
+                            buf[0] = block[0];
+                            buf[1] = block[siz.x];
+                            buf[2] = block[siz.x*2];
+                            buf[3] = block[siz.x*3];
+                            buf[4] = block[1];
+                            buf[5] = block[siz.x+1];
+                            buf[6] = block[siz.x*2+1];
+                            buf[7] = block[siz.x*3+1];
+                            buf[8] = block[2];
+                            buf[9] = block[siz.x+2];
+                            buf[10] = block[siz.x*2+2];
+                            buf[11] = block[siz.x*3+2];
+                            buf[12] = block[3];
+                            buf[13] = block[siz.x+3];
+                            buf[14] = block[siz.x*2+3];
+                            buf[15] = block[siz.x*3+3];
+
+                            *out++ = ProcessRGB((uint8_t const *)buf);
+                        }
+                    break;
+                }
+
+                case GL_COMPRESSED_RGB8_ETC2:
+                {
+                    coltype buf[4*4];
+                    uint64_t * out = (uint64_t *)comprpic;
+                    for (coltype const * row = pic, * const pic_end = pic + picLength; row < pic_end; row += fourRows)
+                        for (coltype const * block = row, * const row_end = row + siz.x; block < row_end; block += 4)
+                        {
+                            buf[0] = block[0];
+                            buf[1] = block[siz.x];
+                            buf[2] = block[siz.x*2];
+                            buf[3] = block[siz.x*3];
+                            buf[4] = block[1];
+                            buf[5] = block[siz.x+1];
+                            buf[6] = block[siz.x*2+1];
+                            buf[7] = block[siz.x*3+1];
+                            buf[8] = block[2];
+                            buf[9] = block[siz.x+2];
+                            buf[10] = block[siz.x*2+2];
+                            buf[11] = block[siz.x*3+2];
+                            buf[12] = block[3];
+                            buf[13] = block[siz.x+3];
+                            buf[14] = block[siz.x*2+3];
+                            buf[15] = block[siz.x*3+3];
+
+                            *out++ = ProcessRGB_ETC2((uint8_t const *)buf);
+                        }
+                    break;
+                }
+
+# if 0
+                case GL_COMPRESSED_RGBA8_ETC2_EAC:
+                {
+                    break;
+                }
+
+                case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+                {
+                    break;
+                }
+# endif
+
+                default:
+                    EDUKE32_UNREACHABLE_SECTION(break);
+            }
+
+            if (doalloc & 1)
+                jwzgles_glCompressedTexImage2D(GL_TEXTURE_2D, level, comprtexfmt, siz.x,siz.y, 0, imageSize, comprpic);
+            else
+                jwzgles_glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, comprtexfmt, imageSize, comprpic);
+        }
+        while ((err = Polymost_glCompressedTexImage2D_Error(comprtexfmt_master)) == 1);
+
+        Baligned_free(comprpic);
+
+        if (err == 0)
+            return;
+    }
+#endif
+
+    do
+    {
+        if (doalloc & 1)
+            bglTexImage2D(GL_TEXTURE_2D, level, intexfmt, siz.x,siz.y, 0, texfmt, GL_UNSIGNED_BYTE, pic);
+        else
+            bglTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, texfmt, GL_UNSIGNED_BYTE, pic);
+    }
+    while (Polymost_glTexImage2D_Error(intexfmt_master));
+}
 
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
                    coltype *pic, vec2_t tsiz, int32_t dameth)
@@ -678,12 +854,11 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     const int nodownsize = !!(dameth & DAMETH_NODOWNSIZE) || artimmunity;
     const int nomiptransfix  = !!(dameth & DAMETH_NOFIX);
     const int hasalpha  = !!(dameth & DAMETH_HASALPHA) && (dameth & DAMETH_MASKPROPS) != DAMETH_NOMASK;
+    const int texcompress_ok = !(dameth & DAMETH_NOTEXCOMPRESS) && (glusetexcompr == 2 || (glusetexcompr && !artimmunity));
 
 #if !defined EDUKE32_GLES
-    const int texcompress_ok = glinfo.texcompr && !(dameth & DAMETH_NOTEXCOMPRESS) && (glusetexcompr == 2 || (glusetexcompr && !artimmunity));
-
     int32_t intexfmt;
-    if (texcompress_ok)
+    if (texcompress_ok && glinfo.texcompr)
         intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
     else
         intexfmt = hasalpha ? GL_RGBA : GL_RGB;
@@ -691,7 +866,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     const int onebitalpha  = !!(dameth & DAMETH_ONEBITALPHA);
 
     int32_t const ** intexfmt_master = hasalpha ? (onebitalpha ? &texfmt_rgb_mask : &texfmt_rgba) : &texfmt_rgb;
-    int32_t intexfmt = **intexfmt_master;
+    int32_t const ** comprtexfmt_master = hasalpha ? (onebitalpha ? &comprtexfmt_rgb_mask : &comprtexfmt_rgba) : &comprtexfmt_rgb;
 #endif
 
     dameth &= ~DAMETH_UPLOADTEXTURE_MASK;
@@ -723,17 +898,15 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
         miplevel = r_downsize;
 
     if (!miplevel)
-    {
-        BuildGLErrorCheck(); // XXX
-        do
-        {
-            if (doalloc&1)
-                bglTexImage2D(GL_TEXTURE_2D,0,intexfmt,siz.x,siz.y,0,texfmt,GL_UNSIGNED_BYTE,pic); //loading 1st time
-            else
-                bglTexSubImage2D(GL_TEXTURE_2D,0,0,0,siz.x,siz.y,texfmt,GL_UNSIGNED_BYTE,pic); //overwrite old texture
-        }
-        while (polymost_glTexImage2D_error(&intexfmt, intexfmt_master));
-    }
+        Polymost_SendTexToDriver(doalloc, siz, texfmt, pic,
+#if !defined EDUKE32_GLES
+                                 intexfmt,
+#else
+                                 intexfmt_master,
+                                 comprtexfmt_master,
+                                 texcompress_ok,
+#endif
+                                 0);
 
     vec2_t siz2 = siz;
 
@@ -785,17 +958,15 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
         }
 
         if (j >= miplevel)
-        {
-            BuildGLErrorCheck(); // XXX
-            do
-            {
-                if (doalloc & 1) // loading 1st time
-                    bglTexImage2D(GL_TEXTURE_2D, j - miplevel, intexfmt, siz3.x, siz3.y, 0, texfmt, GL_UNSIGNED_BYTE, pic);
-                else             // overwrite old texture
-                    bglTexSubImage2D(GL_TEXTURE_2D, j - miplevel, 0, 0, siz3.x, siz3.y, texfmt, GL_UNSIGNED_BYTE, pic);
-            }
-            while (polymost_glTexImage2D_error(&intexfmt, intexfmt_master));
-        }
+            Polymost_SendTexToDriver(doalloc, siz3, texfmt, pic,
+#if !defined EDUKE32_GLES
+                                     intexfmt,
+#else
+                                     intexfmt_master,
+                                     comprtexfmt_master,
+                                     texcompress_ok,
+#endif
+                                     j - miplevel);
 
         siz2 = siz3;
     }
@@ -5789,8 +5960,8 @@ void polymost_initosdfuncs(void)
         { "r_polygonmode","debugging feature",(void *) &r_polygonmode, CVAR_INT | CVAR_NOSAVE, 0, 3 },
         { "r_texcache","enable/disable OpenGL compressed texture cache",(void *) &glusetexcache, CVAR_INT, 0, 2 },
         { "r_memcache","enable/disable texture cache memory cache",(void *) &glusememcache, CVAR_BOOL, 0, 1 },
-        { "r_texcompr","enable/disable OpenGL texture compression: 0: off  1: hightile only  2: ART and hightile",(void *) &glusetexcompr, CVAR_INT, 0, 2 },
 #endif
+        { "r_texcompr","enable/disable OpenGL texture compression: 0: off  1: hightile only  2: ART and hightile",(void *) &glusetexcompr, CVAR_INT, 0, 2 },
 
 #ifdef REDBLUEMODE
         { "r_redbluemode","enable/disable experimental OpenGL red-blue glasses mode",(void *) &glredbluemode, CVAR_BOOL, 0, 1 },

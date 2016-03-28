@@ -25,11 +25,14 @@ LOCAL_CFLAGS    = $(COMMONFLAGS)
 LOCAL_CPPFLAGS  = $(COMMONFLAGS)
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/source $(LOCAL_PATH)/source/jmact $(LOCAL_PATH)/source/jaudiolib/include $(LOCAL_PATH)/source/enet/include $(LOCAL_PATH)/build/include
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/source/android/etcpak
 LOCAL_C_INCLUDES += $(TOP_DIR)/ $(TOP_DIR)/Libraries/liboggvorbis/include $(TOP_DIR)/Libraries/ $(TOP_DIR)/Libraries/SDL2/include $(TOP_DIR)/Libraries/SDL2_mixer/include $(TOP_DIR)/Libraries/TinyXML/include $(TOP_DIR)/TouchControls $(TOP_DIR)/Libraries/libvpx/include
 
 ANDROID_SRC = \
     build/src/jwzgles.c \
     source/android/android-jni.cpp \
+    source/android/etcpak/ProcessRGB.cpp \
+    source/android/etcpak/Tables.cpp \
     source/android/in_android.c
 
 BUILD_SRC = \

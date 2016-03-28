@@ -1303,13 +1303,11 @@ void sdlayer_setvideomode_opengl(void)
 
     glinfo.maxanisotropy = 1.0;
     glinfo.bgra = 0;
-    glinfo.texcompr = 0;
     glinfo.clamptoedge = 1;
     glinfo.multitex = 1;
 
     // process the extensions string and flag stuff we recognize
 
-    glinfo.texcompr = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor, "ATI Technologies Inc.");
     glinfo.texnpot = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_non_power_of_two") || !!Bstrstr(glinfo.extensions, "GL_OES_texture_npot");
     glinfo.multisample = !!Bstrstr(glinfo.extensions, "GL_ARB_multisample");
     glinfo.nvmultisamplehint = !!Bstrstr(glinfo.extensions, "GL_NV_multisample_filter_hint");
@@ -1318,7 +1316,8 @@ void sdlayer_setvideomode_opengl(void)
     glinfo.shadow = !!Bstrstr(glinfo.extensions, "GL_ARB_shadow");
     glinfo.fbos = !!Bstrstr(glinfo.extensions, "GL_EXT_framebuffer_object") || !!Bstrstr(glinfo.extensions, "GL_OES_framebuffer_object");
 
-#ifndef __ANDROID__
+#if !defined EDUKE32_GLES
+    glinfo.texcompr = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor, "ATI Technologies Inc.");
 # ifdef DYNAMIC_GLEXT
     if (glinfo.texcompr && (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB))
     {
@@ -1353,6 +1352,9 @@ void sdlayer_setvideomode_opengl(void)
             initprintf("3dfx card detected: OpenGL fog disabled\n");
         warnonce |= 1;
     }
+#else
+    // don't bother checking because ETC2 et al. are not listed in extensions anyway
+    glinfo.texcompr = 1; // !!Bstrstr(glinfo.extensions, "GL_OES_compressed_ETC1_RGB8_texture");
 #endif
 
 //    if (Bstrstr(glinfo.extensions, "GL_EXT_texture_filter_anisotropic"))

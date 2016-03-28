@@ -420,14 +420,14 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
     if (!glinfo.dumped)
         return OSDCMD_OK;
 
-    initprintf(" Maximum anisotropy:      %.1f%s\n"
+    initprintf(
                " BGRA textures:           %s\n"
                " Non-power-of-2 textures: %s\n"
                " Clamp-to-edge:           %s\n"
                " Multitexturing:          %s\n"
                " Frame Buffer Objects:    %s\n"
-               " Texure compression:      %s\n"
 #ifndef EDUKE32_GLES
+               " Texture compression:     %s\n"
                " Multisampling:           %s\n"
                " NVIDIA multisample hint: %s\n"
                " ARBfp fragment programs: %s\n"
@@ -442,16 +442,16 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
                " Debug Output:            %s\n"
                " Buffer Storage:          %s\n"
 #endif
+               " Maximum anisotropy:      %.1f%s\n"
                " Extensions:\n",
-               glinfo.maxanisotropy, glinfo.maxanisotropy>1.0?"":" (no anisotropic filtering)",
                glinfo.bgra ? "supported": "not supported",
                glinfo.texnpot ? "supported": "not supported",
                glinfo.clamptoedge ? "supported": "not supported",
                glinfo.multitex ? "supported": "not supported",
                glinfo.fbos ? "supported": "not supported",
-               glinfo.texcompr ? "supported": "not supported"
 #ifndef EDUKE32_GLES
-               ,glinfo.multisample ? "supported": "not supported",
+               glinfo.texcompr ? "supported": "not supported",
+               glinfo.multisample ? "supported": "not supported",
                glinfo.nvmultisamplehint ? "supported": "not supported",
                glinfo.arbfp ? "supported": "not supported",
                glinfo.depthtex ? "supported": "not supported",
@@ -463,8 +463,9 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
                glinfo.occlusionqueries ? "supported": "not supported",
                glinfo.glsl ? "supported": "not supported",
                glinfo.debugoutput ? "supported": "not supported",
-               glinfo.bufferstorage ? "supported" : "not supported"
+               glinfo.bufferstorage ? "supported" : "not supported",
 #endif
+               glinfo.maxanisotropy, glinfo.maxanisotropy>1.0?"":" (no anisotropic filtering)"
               );
 
     s = Bstrdup(glinfo.extensions);

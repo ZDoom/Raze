@@ -63,6 +63,9 @@ typedef unsigned int GLenum;
 # define GL_RGBA4                          0x8056
 # define GL_RGB5_A1                        0x8057
 # define GL_RGB565                         0x8D62
+# define GL_COMPRESSED_RGB8_ETC2           0x9274
+# define GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 0x9276
+# define GL_COMPRESSED_RGBA8_ETC2_EAC      0x9278
 #else
 # include "glext.h"
 #endif
@@ -93,6 +96,9 @@ typedef unsigned int GLenum;
 
 #define GL_TEXTURE_RECTANGLE                    0x84F5
 
+#ifndef GL_ETC1_RGB8_OES
+# define GL_ETC1_RGB8_OES 0x8D64
+#endif
 
 // custom error checking
 
