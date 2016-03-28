@@ -697,7 +697,7 @@ uint64 ProcessRGB_ETC2( const uint8* src )
     size_t idx = GetLeastError( err, 4 );
     EncodeAverages( d, a, idx );
 
-    uint32 terr[2][8] = {};
+    uint64 terr[2][8] = {};
     uint16 tsel[16][8];
     auto id = g_id[idx];
     FindBestFit( terr, tsel, a, id, src );
