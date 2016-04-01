@@ -1040,6 +1040,7 @@ static int32_t kopen_internal(const char *filename, char **lastpfn, char searchf
         {
             if (kzcurhand >= 0) arraypos[kzcurhand] = kztell();
             kzclose();
+            kzcurhand = -1;
         }
         if (searchfirst != 1 && (i = kzipopen(filename)) != 0)
         {
