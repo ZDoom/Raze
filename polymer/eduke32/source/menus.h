@@ -339,7 +339,7 @@ typedef struct MenuMenu_t
 
     // state
     int32_t currentEntry, currentColumn;
-    int32_t totalHeight, scrollPos;
+    int32_t scrollPos;
 } MenuMenu_t;
 typedef struct MenuPanel_t
 {
