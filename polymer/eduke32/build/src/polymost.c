@@ -1202,7 +1202,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
         pth->ofb = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
         pth->flags |= PTH_HASFULLBRIGHT;
 
-        gloadtile_art(dapic, dapal, -1, 0, dameth, pth->ofb, 1);
+        gloadtile_art(dapic, dapal, -1, 0, (dameth & DAMETH_MASKPROPS) == DAMETH_NOMASK ? dameth | DAMETH_MASK : dameth, pth->ofb, 1);
 
         fullbrightloadingpass = 0;
     }
