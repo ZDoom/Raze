@@ -5803,7 +5803,7 @@ static void G_Startup(void)
         {
             initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!\n");
 
-#ifdef _WIN32
+#if 0//def _WIN32
             Bsprintf(tempbuf, "You have run Duke Nukem 3D shareware %d times.  It is now time to upgrade to the complete version!\n\n"
                      "Upgrade Duke Nukem 3D now?\n", ud.executions);
 
