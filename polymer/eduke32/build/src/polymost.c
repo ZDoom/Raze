@@ -475,6 +475,8 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
 
 void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
+    if (nofog) return;
+
     fogcalc(tile, shade, vis, pal);
     bglFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
 
@@ -489,6 +491,8 @@ void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 
 void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t pal, float factor)
 {
+    if (nofog) return;
+
     // NOTE: for r_usenewshading >= 2, the fog beginning/ending distance results are
     // unused.
     fogcalc(tile, shade, vis, pal);
@@ -2716,7 +2720,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     pow2xsplit = 0;
     drawpoly_alpha = 0.f;
 
-    if (!nofog) calc_and_apply_fog(globalpicnum, fogpal_shade(sec, global_cf_shade), sec->visibility,
+    calc_and_apply_fog(globalpicnum, fogpal_shade(sec, global_cf_shade), sec->visibility,
         POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
 
     if (have_floor)
@@ -2905,7 +2909,7 @@ static void polymost_drawalls(int32_t const bunch)
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].floorstat&1)))
         {
             //Parallaxing sky... hacked for Ken's mountain texture
-            if (!nofog) calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
+            calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
 
             //Use clamping for tiled sky textures
             for (int i=(1<<dapskybits)-1; i>0; i--)
@@ -3197,7 +3201,7 @@ static void polymost_drawalls(int32_t const bunch)
         else if ((nextsectnum < 0) || (!(sector[nextsectnum].ceilingstat&1)))
         {
             //Parallaxing sky... hacked for Ken's mountain texture
-            if (!nofog) calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
+            calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
 
             //Use clamping for tiled sky textures
             for (int i=(1<<dapskybits)-1; i>0; i--)
@@ -3509,7 +3513,7 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-                if (!nofog) calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+                calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1; polymost_domost(x1,ocy1,x0,ocy0);
                 if (wal->cstat&8) { xtex.u = ogux; ytex.u = oguy; otex.u = oguo; }
@@ -3546,7 +3550,7 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 if (nwal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-                if (!nofog) calc_and_apply_fog(nwal->picnum, fogpal_shade(sec, nwal->shade), sec->visibility, get_floor_fogpal(sec));
+                calc_and_apply_fog(nwal->picnum, fogpal_shade(sec, nwal->shade), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1; polymost_domost(x0,ofy0,x1,ofy1);
                 if (wal->cstat&(2+8)) { otex.u = oguo; xtex.u = ogux; ytex.u = oguy; }
@@ -3594,7 +3598,7 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-                if (!nofog) calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+                calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
                 pow2xsplit = 1; polymost_domost(x0, cy0, x1, cy1);
             } while (0);
         }
@@ -4130,8 +4134,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
             method = DAMETH_TRANS2 | DAMETH_WALL;
     }
 
-    if (!nofog)
-        calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+    calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
     float const csy[4] = { ((float)(cz[0] - globalposz)) * ryp0 + ghoriz,
                            ((float)(cz[1] - globalposz)) * ryp0 + ghoriz,
@@ -4301,8 +4304,8 @@ int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 }
 
 #define TSPR_OFFSET(tspr)                                                                                              \
-    (((FindDistance2D((tspr->x - globalposx), (tspr->y - globalposy)) >> 3) * .0002f) +                                \
-     ((tspr->owner != -1 ? tspr->owner & 63 : 0) * .0002f))
+    (((FindDistance2D((tspr->x - globalposx), (tspr->y - globalposy)) >> 3) * .0002f)                                  \
+      + ((tspr->owner != -1 ? tspr->owner & 63 : 0) * .0002f))
 
 void polymost_drawsprite(int32_t snum)
 {
@@ -4349,8 +4352,7 @@ void polymost_drawsprite(int32_t snum)
 
     sec = (tsectortype *)&sector[tspr->sectnum];
 
-    if (!nofog)
-        calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, globalshade), sec->visibility, get_floor_fogpal(sec));
+    calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, globalshade), sec->visibility, get_floor_fogpal(sec));
 
     while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
     {
