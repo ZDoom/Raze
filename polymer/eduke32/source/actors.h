@@ -314,11 +314,11 @@ void                A_PlayAlertSound(int32_t i);
 void                A_RadiusDamage(int32_t i,int32_t r,int32_t hp1,int32_t hp2,int32_t hp3,int32_t hp4);
 void                A_SpawnMultiple(int32_t sp,int32_t pic,int32_t n);
 
-void                G_AddGameLight(int32_t radius,int32_t srcsprite,int32_t zoffset,int32_t range,int32_t color,int32_t priority, int32_t smoothratio);
+void                G_AddGameLight(int32_t radius,int32_t srcsprite,int32_t zoffset,int32_t range,int32_t color,int32_t priority);
 void                G_ClearCameraView(DukePlayer_t *ps);
 void                G_DoInterpolations(int32_t smoothratio);
 void                G_MoveWorld(void);
-void                G_RefreshLights(int32_t smoothratio);
+void                G_RefreshLights(void);
 int32_t             G_SetInterpolation(int32_t * const posptr);
 void                G_StopInterpolation(int32_t * const posptr);
 

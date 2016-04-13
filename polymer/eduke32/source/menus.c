@@ -2959,7 +2959,7 @@ static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
         if (setgamemode(fullscreen, xdim, ydim, bpp))
             OSD_Printf("restartvid: Reset failed...\n");
         onvideomodechange(ud.config.ScreenBPP>8);
-        G_RefreshLights(65536);
+        G_RefreshLights();
     }
 #endif
 }
