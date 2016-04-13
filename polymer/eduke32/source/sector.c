@@ -2478,21 +2478,11 @@ void P_HandleSharedKeys(int32_t snum)
             {
                 switch (p->inven_icon)
                 {
-                case ICON_JETPACK:
-                    sb_snum |= BIT(SK_JETPACK);
-                    break;
-                case ICON_HOLODUKE:
-                    sb_snum |= BIT(SK_HOLODUKE);
-                    break;
-                case ICON_HEATS:
-                    sb_snum |= BIT(SK_NIGHTVISION);
-                    break;
-                case ICON_FIRSTAID:
-                    sb_snum |= BIT(SK_MEDKIT);
-                    break;
-                case ICON_STEROIDS:
-                    sb_snum |= BIT(SK_STEROIDS);
-                    break;
+                    case ICON_JETPACK: sb_snum |= BIT(SK_JETPACK); break;
+                    case ICON_HOLODUKE: sb_snum |= BIT(SK_HOLODUKE); break;
+                    case ICON_HEATS: sb_snum |= BIT(SK_NIGHTVISION); break;
+                    case ICON_FIRSTAID: sb_snum |= BIT(SK_MEDKIT); break;
+                    case ICON_STEROIDS: sb_snum |= BIT(SK_STEROIDS); break;
                 }
             }
         }
@@ -2532,11 +2522,10 @@ void P_HandleSharedKeys(int32_t snum)
         {
             p->invdisptime = GAMETICSPERSEC*2;
 
-            if (TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT)) k = 1;
-            else k = 0;
+            int32_t k = !!(TEST_SYNC_KEY(sb_snum, SK_INV_RIGHT));
 
             if (p->refresh_inventory) p->refresh_inventory = 0;
-            dainv = p->inven_icon;
+            int32_t dainv = p->inven_icon;
 
             i = 0;
 
@@ -2548,25 +2537,11 @@ CHECKINV1:
                 switch (dainv)
                 {
                 case ICON_JETPACK:
-                    if (p->inv_amount[GET_JETPACK] > 0 && i > 1)
-                        break;
-                    if (k) dainv++;
-                    else dainv--;
-                    goto CHECKINV1;
                 case ICON_SCUBA:
-                    if (p->inv_amount[GET_SCUBA] > 0 && i > 1)
-                        break;
-                    if (k) dainv++;
-                    else dainv--;
-                    goto CHECKINV1;
                 case ICON_STEROIDS:
-                    if (p->inv_amount[GET_STEROIDS] > 0 && i > 1)
-                        break;
-                    if (k) dainv++;
-                    else dainv--;
-                    goto CHECKINV1;
                 case ICON_HOLODUKE:
-                    if (p->inv_amount[GET_HOLODUKE] > 0 && i > 1)
+                case ICON_HEATS:
+                    if (p->inv_amount[icon_to_inv[dainv]] > 0 && i > 1)
                         break;
                     if (k) dainv++;
                     else dainv--;
@@ -2577,12 +2552,6 @@ CHECKINV1:
                         break;
                     if (k) dainv = 2;
                     else dainv = 7;
-                    goto CHECKINV1;
-                case ICON_HEATS:
-                    if (p->inv_amount[GET_HEATS] > 0 && i > 1)
-                        break;
-                    if (k) dainv++;
-                    else dainv--;
                     goto CHECKINV1;
                 case ICON_BOOTS:
                     if (p->inv_amount[GET_BOOTS] > 0 && i > 1)

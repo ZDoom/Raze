@@ -3504,32 +3504,24 @@ nullquote:
         case CON_ADDINVENTORY:
         {
             insptr += 2;
-            switch (*(insptr-1))
+
+            int const item = *(insptr-1);
+
+            switch (item)
             {
             case GET_STEROIDS:
-                ps->inv_amount[GET_STEROIDS] = *insptr;
-                ps->inven_icon = ICON_STEROIDS;
+            case GET_SCUBA:
+            case GET_HOLODUKE:
+            case GET_JETPACK:
+            case GET_HEATS:
+            case GET_FIRSTAID:
+            case GET_BOOTS:
+                ps->inven_icon = inv_to_icon[item];
+                ps->inv_amount[item] = *insptr;
                 break;
 
             case GET_SHIELD:
-                ps->inv_amount[GET_SHIELD] += *insptr;// 100;
-                if (ps->inv_amount[GET_SHIELD] > ps->max_shield_amount)
-                    ps->inv_amount[GET_SHIELD] = ps->max_shield_amount;
-                break;
-
-            case GET_SCUBA:
-                ps->inv_amount[GET_SCUBA] = *insptr;// 1600;
-                ps->inven_icon = ICON_SCUBA;
-                break;
-
-            case GET_HOLODUKE:
-                ps->inv_amount[GET_HOLODUKE] = *insptr;// 1600;
-                ps->inven_icon = ICON_HOLODUKE;
-                break;
-
-            case GET_JETPACK:
-                ps->inv_amount[GET_JETPACK] = *insptr;// 1600;
-                ps->inven_icon = ICON_JETPACK;
+                ps->inv_amount[GET_SHIELD] = max(ps->inv_amount[GET_SHIELD] + *insptr, ps->max_shield_amount);
                 break;
 
             case GET_ACCESS:
@@ -3547,22 +3539,8 @@ nullquote:
                 }
                 break;
 
-            case GET_HEATS:
-                ps->inv_amount[GET_HEATS] = *insptr;
-                ps->inven_icon = ICON_HEATS;
-                break;
-
-            case GET_FIRSTAID:
-                ps->inven_icon = ICON_FIRSTAID;
-                ps->inv_amount[GET_FIRSTAID] = *insptr;
-                break;
-
-            case GET_BOOTS:
-                ps->inven_icon = ICON_BOOTS;
-                ps->inv_amount[GET_BOOTS] = *insptr;
-                break;
             default:
-                CON_ERRPRINTF("Invalid inventory ID %d\n", (int32_t)*(insptr-1));
+                CON_ERRPRINTF("Invalid inventory ID %d\n", item);
                 break;
             }
             insptr++;
