@@ -30,7 +30,7 @@ LOCAL_C_INCLUDES += $(TOP_DIR)/ $(TOP_DIR)/Libraries/liboggvorbis/include $(TOP_
 
 ANDROID_SRC = \
     build/src/jwzgles.c \
-    source/android/android-jni.cpp \
+    platform/Android/Duke3d/jni/android-jni.cpp \
     source/android/etcpak/ProcessRGB.cpp \
     source/android/etcpak/Tables.cpp \
     source/android/in_android.c
