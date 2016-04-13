@@ -2772,7 +2772,7 @@ CHECKINV1:
             }
         }
 
-        if (TEST_SYNC_KEY(sb_snum, SK_HOLODUKE) && p->newowner == -1)
+        if (TEST_SYNC_KEY(sb_snum, SK_HOLODUKE) && (p->newowner == -1 || p->holoduke_on != -1))
         {
             if (p->holoduke_on == -1)
             {
@@ -2832,7 +2832,7 @@ CHECKINV1:
             }
         }
 
-        if (p->newowner == -1 && TEST_SYNC_KEY(sb_snum, SK_JETPACK))
+        if ((p->newowner == -1 || p->jetpack_on) && TEST_SYNC_KEY(sb_snum, SK_JETPACK))
         {
             if (VM_OnEvent(EVENT_USEJETPACK,g_player[snum].ps->i,snum) == 0)
             {
