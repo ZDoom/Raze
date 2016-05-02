@@ -903,7 +903,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
         int32_t const texfmt = glinfo.bgra ? GL_BGRA : GL_RGBA;
 
-        uploadtexture((doalloc&1), siz, texfmt, pic, siz,
+        uploadtexture((doalloc&1), siz, texfmt, pic, tsiz,
                       DAMETH_HI | DAMETH_MASK |
                       TO_DAMETH_NODOWNSIZE(sk->flags) |
                       TO_DAMETH_NOTEXCOMPRESS(sk->flags) |
