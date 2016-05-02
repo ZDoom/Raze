@@ -338,6 +338,7 @@ void polymost_glreset()
 #endif
 }
 
+static void Polymost_InitDummyTexture(void);
 
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
@@ -391,6 +392,8 @@ void polymost_glinit()
     
     texcache_setupmemcache();
     texcache_checkgarbage();
+
+    Polymost_InitDummyTexture();
 }
 
 ////////// VISIBILITY FOG ROUTINES //////////
@@ -1210,6 +1213,23 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
 
         fullbrightloadingpass = 0;
     }
+}
+
+static void Polymost_InitDummyTexture(void)
+{
+    // init dummy texture to trigger possible failure of all compression modes
+    coltype dummypic[4*4] = { { 0, 0, 0, 0 } };
+    vec2_t const dummysiz = { 4, 4 };
+    GLuint dummytex = 0;
+
+    bglGenTextures(1, &dummytex);
+    bglBindTexture(GL_TEXTURE_2D, dummytex);
+
+    uploadtexture(1, dummysiz, GL_RGBA, dummypic, dummysiz, DAMETH_NOMASK|DAMETH_NOFIX|DAMETH_NODOWNSIZE);
+    uploadtexture(1, dummysiz, GL_RGBA, dummypic, dummysiz, DAMETH_MASK|DAMETH_HASALPHA|DAMETH_NOFIX|DAMETH_NODOWNSIZE);
+    uploadtexture(1, dummysiz, GL_RGBA, dummypic, dummysiz, DAMETH_MASK|DAMETH_ONEBITALPHA|DAMETH_NOFIX|DAMETH_NODOWNSIZE);
+
+    bglDeleteTextures(1, &dummytex);
 }
 
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
