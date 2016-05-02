@@ -378,12 +378,31 @@ int sdlayer_mobilefilter(void *userdata, SDL_Event *event)
 }
 #endif
 
+#ifdef __ANDROID__
+# include <setjmp.h>
+static jmp_buf eduke32_exit_jmp_buf;
+static int eduke32_return_value;
+
+void eduke32_exit_return(int retval)
+{
+    eduke32_return_value = retval;
+    longjmp(eduke32_exit_jmp_buf, 1);
+}
+#endif
+
 #ifdef _WIN32
 int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int32_t nCmdShow)
 #else
 int32_t main(int32_t argc, char *argv[])
 #endif
 {
+#ifdef __ANDROID__
+    if (setjmp(eduke32_exit_jmp_buf))
+    {
+        return eduke32_return_value;
+    }
+#endif
+
     int32_t r;
 
 #ifdef USE_OPENGL

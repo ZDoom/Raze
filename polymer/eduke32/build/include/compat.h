@@ -1005,6 +1005,11 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 # define Bexit exit
 #endif
 
+#ifdef __ANDROID__
+void eduke32_exit_return(int) ATTRIBUTE((noreturn));
+# define exit(x) eduke32_exit_return(x)
+#endif
+
 #if defined _WIN32 && !defined NO_ALIGNED_MALLOC
 # define Baligned_free _aligned_free
 #else
