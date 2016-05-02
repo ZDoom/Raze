@@ -850,7 +850,6 @@ void G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t 
     UNREFERENCED_PARAMETER(range);
     UNREFERENCED_PARAMETER(color);
     UNREFERENCED_PARAMETER(priority);
-    UNREFERENCED_PARAMETER(smoothratio);
 #endif
 }
 
@@ -8296,8 +8295,6 @@ void G_RefreshLights(void)
             }
         } while (k < MAXSTATUS);
     }
-#else
-    UNREFERENCED_PARAMETER(smoothratio);
 #endif
 }
 
