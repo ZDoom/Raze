@@ -2385,7 +2385,7 @@ static int32_t P_CheckDetonatorSpecialCase(DukePlayer_t *const p, int32_t weapid
 
 void P_HandleSharedKeys(int32_t snum)
 {
-    int32_t i, k = 0, dainv;
+    int32_t i, k = 0;
     uint32_t sb_snum = g_player[snum].sync->bits, j;
     DukePlayer_t *const p = g_player[snum].ps;
 
