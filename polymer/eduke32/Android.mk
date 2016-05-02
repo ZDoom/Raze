@@ -4,14 +4,13 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := duke3d
 
-COMMONFLAGS     := -x c++ -std=gnu++11 -fvisibility=hidden -fPIC -funsigned-char -fno-strict-aliasing -pthread -mhard-float \
+COMMONFLAGS     := -x c++ -std=gnu++11 -fvisibility=hidden -fPIC -funsigned-char -fno-strict-aliasing -pthread \
                    -W -Wall -Wextra -Wpointer-arith -Wno-char-subscripts -Wno-missing-braces -Wwrite-strings -Wuninitialized \
                    -Wno-attributes -Wno-strict-overflow -Wno-unused-result -Wlogical-op -Wcast-qual \
                    -DHAVE_SDL -DHAVE_VORBIS -DHAVE_JWZGLES -DHAVE_ANDROID -DRENDERTYPESDL=1 -DUSE_OPENGL -DNETCODE_DISABLE -DUSE_LIBVPX \
-                   -DHAVE_INTTYPES -D_GNU_SOURCE=1 -D_REENTRANT -D_NDK_MATH_NO_SOFTFP=1
+                   -DHAVE_INTTYPES -D_GNU_SOURCE=1 -D_REENTRANT
 
 LOCAL_LDFLAGS   := -fuse-ld=bfd
-TARGET_LDFLAGS  += -Wl,--no-warn-mismatch -lm_hard
 LOCAL_ARM_NEON  = true
 
 ifeq ($(NDK_DEBUG), 1)
