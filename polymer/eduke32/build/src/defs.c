@@ -78,6 +78,7 @@ enum scripttoken_t
     T_RED,T_GREEN,T_BLUE,
     T_TEXTURE,T_ALPHACUT,T_XSCALE,T_YSCALE,T_SPECPOWER,T_SPECFACTOR,T_NOCOMPRESS,T_NODOWNSIZE,
     T_FORCEFILTER,
+    T_ARTQUALITY,
     T_ORIGSIZEX,T_ORIGSIZEY,
     T_UNDEFMODEL,T_UNDEFMODELRANGE,T_UNDEFMODELOF,T_UNDEFTEXTURE,T_UNDEFTEXTURERANGE,
     T_ALPHAHACK,T_ALPHAHACKRANGE,
@@ -1557,6 +1558,7 @@ static int32_t defsparser(scriptfile *script)
                         { "nocompress",    T_NOCOMPRESS },
                         { "nodownsize",    T_NODOWNSIZE },
                         { "forcefilter",  T_FORCEFILTER },
+                        { "artquality",    T_ARTQUALITY },
                     };
 
                     if (scriptfile_getbraces(script,&skinend)) break;
@@ -1583,6 +1585,8 @@ static int32_t defsparser(scriptfile *script)
                             flags |= HICR_NODOWNSIZE; break;
                         case T_FORCEFILTER:
                             flags |= HICR_FORCEFILTER; break;
+                        case T_ARTQUALITY:
+                            flags |= HICR_ARTIMMUNITY; break;
 #endif
                         }
                     }
@@ -1888,6 +1892,7 @@ static int32_t defsparser(scriptfile *script)
                 { "nocompress", T_NOCOMPRESS },
                 { "nodownsize", T_NODOWNSIZE },
                 { "forcefilter", T_FORCEFILTER },
+                { "artquality", T_ARTQUALITY },
             };
 
             if (scriptfile_getbraces(script,&modelend)) break;
@@ -1919,6 +1924,8 @@ static int32_t defsparser(scriptfile *script)
                     flags |= HICR_NODOWNSIZE; break;
                 case T_FORCEFILTER:
                     flags |= HICR_FORCEFILTER; break;
+                case T_ARTQUALITY:
+                    flags |= HICR_ARTIMMUNITY; break;
 #endif
                 }
             }
@@ -2229,6 +2236,7 @@ static int32_t defsparser(scriptfile *script)
                         { "nocompress",      T_NOCOMPRESS },
                         { "nodownsize",      T_NODOWNSIZE },
                         { "forcefilter",     T_FORCEFILTER },
+                        { "artquality",      T_ARTQUALITY },
                         { "orig_sizex",      T_ORIGSIZEX }, { "orig_sizey", T_ORIGSIZEY }
                     };
 
@@ -2257,6 +2265,8 @@ static int32_t defsparser(scriptfile *script)
                             flags |= HICR_NODOWNSIZE; break;
                         case T_FORCEFILTER:
                             flags |= HICR_FORCEFILTER; break;
+                        case T_ARTQUALITY:
+                            flags |= HICR_ARTIMMUNITY; break;
 #endif
                         case T_ORIGSIZEX:
                             scriptfile_getnumber(script, &xsiz);
@@ -2321,6 +2331,7 @@ static int32_t defsparser(scriptfile *script)
                         { "nocompress",      T_NOCOMPRESS },
                         { "nodownsize",      T_NODOWNSIZE },
                         { "forcefilter",     T_FORCEFILTER },
+                        { "artquality",      T_ARTQUALITY },
                     };
 
                     if (EDUKE32_PREDICT_FALSE(scriptfile_getbraces(script,&detailend))) break;
@@ -2345,6 +2356,8 @@ static int32_t defsparser(scriptfile *script)
                             flags |= HICR_NODOWNSIZE; break;
                         case T_FORCEFILTER:
                             flags |= HICR_FORCEFILTER; break;
+                        case T_ARTQUALITY:
+                            flags |= HICR_ARTIMMUNITY; break;
 #endif
                         default:
                             break;
