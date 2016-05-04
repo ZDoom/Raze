@@ -387,11 +387,17 @@ void eduke32_exit_return(int retval)
 {
     eduke32_return_value = retval;
     longjmp(eduke32_exit_jmp_buf, 1);
+    EDUKE32_UNREACHABLE_SECTION(return);
 }
 #endif
 
 #ifdef _WIN32
 int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int32_t nCmdShow)
+#elif defined __ANDROID__
+# ifdef __cplusplus
+extern "C" int eduke32_android_main(int argc, char const *argv[]);
+# endif
+int eduke32_android_main(int argc, char const *argv[])
 #else
 int32_t main(int32_t argc, char *argv[])
 #endif

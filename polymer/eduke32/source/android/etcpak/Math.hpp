@@ -1,7 +1,14 @@
 #ifndef DARKRL__MATH_HPP__
 #define DARKRL__MATH_HPP__
 
+#if defined __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include <algorithm>
+#if defined __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 #include "Types.hpp"
 

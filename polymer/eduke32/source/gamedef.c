@@ -1674,7 +1674,7 @@ static void C_GetNextVarType(int32_t type)
 #endif
         return;
     }
-    else if ((*textptr == '-')/* && !isdigit(*(textptr+1))*/)
+    else if (*textptr == '-'/* && !isdigit(*(textptr+1))*/)
     {
         if (EDUKE32_PREDICT_FALSE(type))
         {
@@ -1701,7 +1701,7 @@ static void C_GetNextVarType(int32_t type)
     }
 
     C_SkipComments(); //skip comments and whitespace
-    if ((*textptr == '['))     //read of array as a gamevar
+    if (*textptr == '[')     //read of array as a gamevar
     {
         int32_t lLabelID = -1;
 

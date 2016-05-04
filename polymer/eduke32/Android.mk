@@ -7,6 +7,7 @@ LOCAL_MODULE    := duke3d
 COMMONFLAGS     := -x c++ -std=gnu++11 -fvisibility=hidden -fPIC -funsigned-char -fno-strict-aliasing -pthread \
                    -W -Wall -Wextra -Wpointer-arith -Wno-char-subscripts -Wno-missing-braces -Wwrite-strings -Wuninitialized \
                    -Wno-attributes -Wno-strict-overflow -Wno-unused-result -Wlogical-op -Wcast-qual \
+                   -Wno-unknown-warning-option -Wno-deprecated-register -Werror=return-type \
                    -DHAVE_SDL -DHAVE_VORBIS -DHAVE_JWZGLES -DHAVE_ANDROID -DRENDERTYPESDL=1 -DUSE_OPENGL -DNETCODE_DISABLE -DUSE_LIBVPX \
                    -DHAVE_INTTYPES -D_GNU_SOURCE=1 -D_REENTRANT
 
@@ -16,8 +17,11 @@ LOCAL_ARM_NEON  = true
 ifeq ($(NDK_DEBUG), 1)
     COMMONFLAGS += -O0 -ggdb -fno-omit-frame-pointer -fno-stack-protector -D_FORTIFY_SOURCE=0 -DDEBUGGINGAIDS=0
 else
-    COMMONFLAGS += -O2 -DNDEBUG -DUSING_LTO -flto -D_FORTIFY_SOURCE=2
-    LOCAL_LDFLAGS += -flto
+    COMMONFLAGS += -O2 -DNDEBUG -D_FORTIFY_SOURCE=2
+    ifeq ($(findstring clang,$(NDK_TOOLCHAIN_VERSION)),)
+        COMMONFLAGS += -DUSING_LTO -flto
+        LOCAL_LDFLAGS += -flto
+    endif
 endif
 
 LOCAL_CFLAGS    = $(COMMONFLAGS)
