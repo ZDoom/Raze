@@ -433,7 +433,7 @@ int32_t texcache_readdata(void *dest, int32_t len)
     return 0;
 }
 
-static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t len, const int32_t dameth, const char effect)
+char const * texcache_calcid(char *cachefn, const char *fn, const int32_t len, const int32_t dameth, const char effect)
 {
     // Assert that BMAX_PATH is a multiple of 4 so that struct texcacheid_t
     // gets no padding inserted by the compiler.
@@ -442,15 +442,16 @@ static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t
     struct texcacheid_t {
         int32_t len, method;
         char effect, name[BMAX_PATH+3];  // +3: pad to a multiple of 4
-    } id = { len, DAMETH_NARROW_MASKPROPS(dameth), effect, "" };
+    } id = { len, dameth, effect, "" };
 
     Bstrcpy(id.name, fn);
 
-    while (Bstrlen(id.name) < BMAX_PATH - Bstrlen(fn))
+    size_t const fnlen = Bstrlen(fn);
+    while (Bstrlen(id.name) < BMAX_PATH - fnlen)
         Bstrcat(id.name, fn);
 
     Bsprintf(cachefn, "%08x%08x%08x",
-        XXH32((uint8_t const *)fn, Bstrlen(fn), TEXCACHEMAGIC[3]),
+        XXH32((uint8_t *)id.name, fnlen, TEXCACHEMAGIC[3]),
         XXH32((uint8_t *)id.name, Bstrlen(id.name), TEXCACHEMAGIC[3]),
         XXH32((uint8_t *)&id, sizeof(struct texcacheid_t), TEXCACHEMAGIC[3]));
     
@@ -460,16 +461,14 @@ static const char * texcache_calcid(char *cachefn, const char *fn, const int32_t
 #define READTEXHEADER_FAILURE(x) { err = x; goto failure; }
 
 // returns 1 on success
-int32_t texcache_readtexheader(const char *fn, int32_t len, int32_t dameth, char effect,
-                         texcacheheader *head, int32_t modelp)
+int32_t texcache_readtexheader(char const * const cachefn, texcacheheader *head, int32_t modelp)
 {
     int32_t i, err = 0;
-    char cachefn[BMAX_PATH];
 
     if (!texcache_enabled())
         return 0;
 
-    i = hash_find(&texcache.hashes, texcache_calcid(cachefn, fn, len, dameth, effect));
+    i = hash_find(&texcache.hashes, cachefn);
 
     if (i < 0 || !texcache.iptrs[i])
         return 0;  // didn't find it
@@ -528,9 +527,8 @@ failure:
 #undef READTEXHEADER_FAILURE
 #define WRITEX_FAIL_ON_ERROR() if (bglGetError() != GL_NO_ERROR) goto failure
 
-void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect, texcacheheader *head)
+void texcache_writetex(char const * const cachefn, texcacheheader *head)
 {
-    char cachefn[BMAX_PATH];
     char *pic = NULL, *packbuf = NULL;
     void *midbuf = NULL;
     uint32_t alloclen=0;
@@ -631,7 +629,7 @@ void texcache_writetex(const char *fn, int32_t len, int32_t dameth, char effect,
 
     {
         texcacheindex *t;
-        int32_t i = hash_find(&texcache.hashes, texcache_calcid(cachefn, fn, len, dameth, effect));
+        int32_t i = hash_find(&texcache.hashes, cachefn);
         if (i > -1)
         {
             // update an existing entry

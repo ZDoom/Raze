@@ -1268,7 +1268,9 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
     char hasalpha;
     texcacheheader cachead;
-    int32_t gotcache = texcache_readtexheader(fn, picfillen+(dapalnum<<8), dameth, effect, &cachead, 0);
+    char texcacheid[BMAX_PATH];
+    texcache_calcid(texcacheid, fn, picfillen+(dapalnum<<8), DAMETH_NARROW_MASKPROPS(dameth), effect);
+    int32_t gotcache = texcache_readtexheader(texcacheid, &cachead, 0);
     vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
 
     if (gotcache && !texcache_loadtile(&cachead, &doalloc, pth))
@@ -1531,7 +1533,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                         (hicr->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY) ? CACHEAD_NODOWNSIZE : 0);
 
         ///            OSD_Printf("Caching \"%s\"\n", fn);
-        texcache_writetex(fn, picfillen + (dapalnum << 8), dameth, effect, &cachead);
+        texcache_writetex(texcacheid, &cachead);
 
         if (willprint)
         {

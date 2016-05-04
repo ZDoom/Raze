@@ -701,7 +701,9 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     char hasalpha;
     texcacheheader cachead;
-    int32_t gotcache = texcache_readtexheader(fn, picfillen, pal<<8, hicfxmask(pal), &cachead, 1);
+    char texcacheid[BMAX_PATH];
+    texcache_calcid(texcacheid, fn, picfillen, pal<<8, hicfxmask(pal));
+    int32_t gotcache = texcache_readtexheader(texcacheid, &cachead, 1);
     vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
 
     if (gotcache && !texcache_loadskin(&cachead, &doalloc, texidx, &siz))
@@ -975,7 +977,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                             (sk->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY) ? CACHEAD_NODOWNSIZE : 0);
 
 ///            OSD_Printf("Caching \"%s\"\n",fn);
-            texcache_writetex(fn, picfillen, pal<<8, hicfxmask(pal), &cachead);
+            texcache_writetex(texcacheid, &cachead);
 
             if (willprint)
             {
