@@ -69,6 +69,8 @@ enum
     CACHEAD_HASALPHA = 2,
     CACHEAD_COMPRESSED = 4,
     CACHEAD_NODOWNSIZE = 8,
+    CACHEAD_HASFULLBRIGHT = 16,
+    CACHEAD_NPOTWALL = 32,
 };
 
 // hicreplctyp hicr->flags bits

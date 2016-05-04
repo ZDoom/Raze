@@ -1031,9 +1031,29 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
 {
     static int32_t fullbrightloadingpass = 0;
     vec2_t siz = { 0, 0 }, tsiz = tilesiz[dapic];
+    size_t const picdim = tsiz.x*tsiz.y;
     char hasalpha = 0, hasfullbright = 0;
-    int32_t npoty = 0;
+    char npoty = 0;
 
+    texcacheheader cachead;
+    char texcacheid[BMAX_PATH];
+    {
+        // Absolutely disgusting.
+        uint32_t firstint = 0;
+        if (waloff[dapic])
+            Bmemcpy(&firstint, (void *)waloff[dapic], min(4, picdim));
+        sprintf(texcacheid, "%08x", firstint);
+    }
+    texcache_calcid(texcacheid, texcacheid, picdim | ((unsigned)dapal<<24u), DAMETH_NARROW_MASKPROPS(dameth) | ((unsigned)dapic<<8u) | ((unsigned)dashade<<24u), tintpalnum);
+    int32_t gotcache = texcache_readtexheader(texcacheid, &cachead, 0);
+
+    if (gotcache && !texcache_loadtile(&cachead, &doalloc, pth))
+    {
+        hasalpha = !!(cachead.flags & CACHEAD_HASALPHA);
+        hasfullbright = !!(cachead.flags & CACHEAD_HASFULLBRIGHT);
+        npoty = !!(cachead.flags & CACHEAD_NPOTWALL);
+    }
+    else
     {
         if (!glinfo.texnpot)
         {
@@ -1180,12 +1200,14 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
             Bmemcpy(&pic[siz.x * siz.y], pic, siz.x * ydif * sizeof(coltype));
             siz.y = tsiz.y = nextpoty;
 
-            npoty = PTH_NPOTWALL;
+            npoty = 1;
         }
 
         uploadtexture(doalloc, siz, GL_RGBA, pic, tsiz,
                       dameth | DAMETH_ARTIMMUNITY |
                       (dapic >= MAXUSERTILES ? (DAMETH_NOTEXCOMPRESS|DAMETH_NODOWNSIZE) : 0) | /* never process these short-lived tiles */
+                      (hasfullbright ? DAMETH_HASFULLBRIGHT : 0) |
+                      (npoty ? DAMETH_NPOTWALL : 0) |
                       (hasalpha ? (DAMETH_HASALPHA|DAMETH_ONEBITALPHA) : 0));
 
         Bfree(pic);
@@ -1197,8 +1219,23 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
     pth->palnum = dapal;
     pth->shade = dashade;
     pth->effects = 0;
-    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | (hasalpha*PTH_HASALPHA) | npoty;
+    pth->flags = TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) | (hasalpha*PTH_HASALPHA) | (npoty*PTH_NPOTWALL);
     pth->hicr = NULL;
+
+#if defined USE_GLEXT && !defined EDUKE32_GLES
+    if (!gotcache && glinfo.texcompr && glusetexcache && glusetexcompr == 2 && dapic < MAXUSERTILES)
+    {
+        cachead.quality = 0;
+        cachead.xdim = tsiz.x;
+        cachead.ydim = tsiz.y;
+
+        cachead.flags = (check_nonpow2(siz.x) || check_nonpow2(siz.y)) * CACHEAD_NONPOW2 |
+                        npoty * CACHEAD_NPOTWALL |
+                        hasalpha * CACHEAD_HASALPHA | hasfullbright * CACHEAD_HASFULLBRIGHT | CACHEAD_NODOWNSIZE;
+
+        texcache_writetex_fromdriver(texcacheid, &cachead);
+    }
+#endif
 
     if (hasfullbright && !fullbrightloadingpass)
     {
