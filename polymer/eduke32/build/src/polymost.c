@@ -888,7 +888,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
             gltexmaxsize = 0;
             for (; i>1; i>>=1) gltexmaxsize++;
 #ifdef EDUKE32_GLES
-            while ((1<<gltexmaxsize) > xdim)
+            while ((1<<(gltexmaxsize-1)) > xdim)
                 gltexmaxsize--;
 #endif
         }
