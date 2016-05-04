@@ -1030,166 +1030,166 @@ static void polymost_setuptexture(const int32_t dameth, int filter)
 void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t dashade, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
     static int32_t fullbrightloadingpass = 0;
-
-    vec2_t siz, tsiz = tilesiz[dapic];
-
-    if (!glinfo.texnpot)
-    {
-        for (siz.x = 1; siz.x < tsiz.x; siz.x += siz.x) { }
-        for (siz.y = 1; siz.y < tsiz.y; siz.y += siz.y) { }
-    }
-    else
-    {
-        if ((tsiz.x|tsiz.y) == 0)
-            siz.x = siz.y = 1;
-        else
-            siz = tsiz;
-    }
-
-    coltype *pic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
+    vec2_t siz = { 0, 0 }, tsiz = tilesiz[dapic];
     char hasalpha = 0, hasfullbright = 0;
+    int32_t npoty = 0;
 
-    if (!waloff[dapic])
     {
-        //Force invalid textures to draw something - an almost purely transparency texture
-        //This allows the Z-buffer to be updated for mirrors (which are invalidated textures)
-        pic[0].r = pic[0].g = pic[0].b = 0; pic[0].a = 1;
-        tsiz.x = tsiz.y = 1; hasalpha = 1;
-    }
-    else
-    {
-        const int dofullbright = !(picanm[dapic].sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT);
-
-        for (int y = 0; y < siz.y; y++)
+        if (!glinfo.texnpot)
         {
-            coltype *wpptr = &pic[y * siz.x];
-            int32_t y2 = (y < tsiz.y) ? y : y - tsiz.y;
+            for (siz.x = 1; siz.x < tsiz.x; siz.x += siz.x) { }
+            for (siz.y = 1; siz.y < tsiz.y; siz.y += siz.y) { }
+        }
+        else
+        {
+            if ((tsiz.x|tsiz.y) == 0)
+                siz.x = siz.y = 1;
+            else
+                siz = tsiz;
+        }
 
-            for (int x = 0; x < siz.x; x++, wpptr++)
+        coltype *pic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
+
+        if (!waloff[dapic])
+        {
+            //Force invalid textures to draw something - an almost purely transparency texture
+            //This allows the Z-buffer to be updated for mirrors (which are invalidated textures)
+            pic[0].r = pic[0].g = pic[0].b = 0; pic[0].a = 1;
+            tsiz.x = tsiz.y = 1; hasalpha = 1;
+        }
+        else
+        {
+            const int dofullbright = !(picanm[dapic].sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT);
+
+            for (int y = 0; y < siz.y; y++)
             {
-                int32_t dacol;
-                int32_t x2 = (x < tsiz.x) ? x : x-tsiz.x;
+                coltype *wpptr = &pic[y * siz.x];
+                int32_t y2 = (y < tsiz.y) ? y : y - tsiz.y;
 
-                if ((dameth & DAMETH_CLAMPED) && (x >= tsiz.x || y >= tsiz.y)) //Clamp texture
+                for (int x = 0; x < siz.x; x++, wpptr++)
                 {
-                    wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0;
-                    continue;
-                }
+                    int32_t dacol;
+                    int32_t x2 = (x < tsiz.x) ? x : x-tsiz.x;
 
-                dacol = *(char *)(waloff[dapic]+x2*tsiz.y+y2);
+                    if ((dameth & DAMETH_CLAMPED) && (x >= tsiz.x || y >= tsiz.y)) //Clamp texture
+                    {
+                        wpptr->r = wpptr->g = wpptr->b = wpptr->a = 0;
+                        continue;
+                    }
 
-                if (dacol == 255)
-                {
-                    wpptr->a = 0;
-                    hasalpha = 1;
-                }
-                else
-                    wpptr->a = 255;
+                    dacol = *(char *)(waloff[dapic]+x2*tsiz.y+y2);
 
-                {
-                    char *p = (char *)(palookup[dapal])+(int32_t)(dashade<<8);
-                    dacol = (uint8_t)p[dacol];
-                }
-
-                if (!fullbrightloadingpass)
-                {
-                    // regular texture
-                    if (IsPaletteIndexFullbright(dacol) && dofullbright)
-                        hasfullbright = 1;
-                }
-                else
-                {
-                    // texture with only fullbright areas
-                    if (!IsPaletteIndexFullbright(dacol))    // regular colors
+                    if (dacol == 255)
                     {
                         wpptr->a = 0;
                         hasalpha = 1;
                     }
-                }
+                    else
+                        wpptr->a = 255;
 
-                bricolor((palette_t *)wpptr, dacol);
-
-                if (!fullbrightloadingpass && tintpalnum >= 0)
-                {
-                    uint8_t const r = hictinting[tintpalnum].r;
-                    uint8_t const g = hictinting[tintpalnum].g;
-                    uint8_t const b = hictinting[tintpalnum].b;
-                    uint8_t const effect = hictinting[tintpalnum].f;
-
-                    if (effect & HICTINT_GRAYSCALE)
                     {
-                        wpptr->g = wpptr->r = wpptr->b = (uint8_t) ((wpptr->r * GRAYSCALE_COEFF_RED) +
-                                                              (wpptr->g * GRAYSCALE_COEFF_GREEN) +
-                                                              (wpptr->b * GRAYSCALE_COEFF_BLUE));
+                        char *p = (char *)(palookup[dapal])+(int32_t)(dashade<<8);
+                        dacol = (uint8_t)p[dacol];
                     }
 
-                    if (effect & HICTINT_INVERT)
+                    if (!fullbrightloadingpass)
                     {
-                        wpptr->b = 255 - wpptr->b;
-                        wpptr->g = 255 - wpptr->g;
-                        wpptr->r = 255 - wpptr->r;
+                        // regular texture
+                        if (IsPaletteIndexFullbright(dacol) && dofullbright)
+                            hasfullbright = 1;
+                    }
+                    else
+                    {
+                        // texture with only fullbright areas
+                        if (!IsPaletteIndexFullbright(dacol))    // regular colors
+                        {
+                            wpptr->a = 0;
+                            hasalpha = 1;
+                        }
                     }
 
-                    if (effect & HICTINT_COLORIZE)
-                    {
-                        wpptr->b = min((int32_t)((wpptr->b) * b) >> 6, 255);
-                        wpptr->g = min((int32_t)((wpptr->g) * g) >> 6, 255);
-                        wpptr->r = min((int32_t)((wpptr->r) * r) >> 6, 255);
-                    }
+                    bricolor((palette_t *)wpptr, dacol);
 
-                    switch (effect & HICTINT_BLENDMASK)
+                    if (!fullbrightloadingpass && tintpalnum >= 0)
                     {
-                        case HICTINT_BLEND_SCREEN:
-                            wpptr->b = 255 - (((255 - wpptr->b) * (255 - b)) >> 8);
-                            wpptr->g = 255 - (((255 - wpptr->g) * (255 - g)) >> 8);
-                            wpptr->r = 255 - (((255 - wpptr->r) * (255 - r)) >> 8);
-                            break;
-                        case HICTINT_BLEND_OVERLAY:
-                            wpptr->b = wpptr->b < 128 ? (wpptr->b * b) >> 7 : 255 - (((255 - wpptr->b) * (255 - b)) >> 7);
-                            wpptr->g = wpptr->g < 128 ? (wpptr->g * g) >> 7 : 255 - (((255 - wpptr->g) * (255 - g)) >> 7);
-                            wpptr->r = wpptr->r < 128 ? (wpptr->r * r) >> 7 : 255 - (((255 - wpptr->r) * (255 - r)) >> 7);
-                            break;
-                        case HICTINT_BLEND_HARDLIGHT:
-                            wpptr->b = b < 128 ? (wpptr->b * b) >> 7 : 255 - (((255 - wpptr->b) * (255 - b)) >> 7);
-                            wpptr->g = g < 128 ? (wpptr->g * g) >> 7 : 255 - (((255 - wpptr->g) * (255 - g)) >> 7);
-                            wpptr->r = r < 128 ? (wpptr->r * r) >> 7 : 255 - (((255 - wpptr->r) * (255 - r)) >> 7);
-                            break;
+                        uint8_t const r = hictinting[tintpalnum].r;
+                        uint8_t const g = hictinting[tintpalnum].g;
+                        uint8_t const b = hictinting[tintpalnum].b;
+                        uint8_t const effect = hictinting[tintpalnum].f;
+
+                        if (effect & HICTINT_GRAYSCALE)
+                        {
+                            wpptr->g = wpptr->r = wpptr->b = (uint8_t) ((wpptr->r * GRAYSCALE_COEFF_RED) +
+                                                                  (wpptr->g * GRAYSCALE_COEFF_GREEN) +
+                                                                  (wpptr->b * GRAYSCALE_COEFF_BLUE));
+                        }
+
+                        if (effect & HICTINT_INVERT)
+                        {
+                            wpptr->b = 255 - wpptr->b;
+                            wpptr->g = 255 - wpptr->g;
+                            wpptr->r = 255 - wpptr->r;
+                        }
+
+                        if (effect & HICTINT_COLORIZE)
+                        {
+                            wpptr->b = min((int32_t)((wpptr->b) * b) >> 6, 255);
+                            wpptr->g = min((int32_t)((wpptr->g) * g) >> 6, 255);
+                            wpptr->r = min((int32_t)((wpptr->r) * r) >> 6, 255);
+                        }
+
+                        switch (effect & HICTINT_BLENDMASK)
+                        {
+                            case HICTINT_BLEND_SCREEN:
+                                wpptr->b = 255 - (((255 - wpptr->b) * (255 - b)) >> 8);
+                                wpptr->g = 255 - (((255 - wpptr->g) * (255 - g)) >> 8);
+                                wpptr->r = 255 - (((255 - wpptr->r) * (255 - r)) >> 8);
+                                break;
+                            case HICTINT_BLEND_OVERLAY:
+                                wpptr->b = wpptr->b < 128 ? (wpptr->b * b) >> 7 : 255 - (((255 - wpptr->b) * (255 - b)) >> 7);
+                                wpptr->g = wpptr->g < 128 ? (wpptr->g * g) >> 7 : 255 - (((255 - wpptr->g) * (255 - g)) >> 7);
+                                wpptr->r = wpptr->r < 128 ? (wpptr->r * r) >> 7 : 255 - (((255 - wpptr->r) * (255 - r)) >> 7);
+                                break;
+                            case HICTINT_BLEND_HARDLIGHT:
+                                wpptr->b = b < 128 ? (wpptr->b * b) >> 7 : 255 - (((255 - wpptr->b) * (255 - b)) >> 7);
+                                wpptr->g = g < 128 ? (wpptr->g * g) >> 7 : 255 - (((255 - wpptr->g) * (255 - g)) >> 7);
+                                wpptr->r = r < 128 ? (wpptr->r * r) >> 7 : 255 - (((255 - wpptr->r) * (255 - r)) >> 7);
+                                break;
+                        }
                     }
                 }
             }
         }
+
+        if (doalloc) bglGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
+        bglBindTexture(GL_TEXTURE_2D,pth->glpic);
+
+        fixtransparency(pic,tsiz,siz,dameth);
+
+        if (polymost_want_npotytex(dameth, siz.y) && tsiz.x == siz.x && tsiz.y == siz.y)  // XXX
+        {
+            const int32_t nextpoty = 1 << ((picsiz[dapic] >> 4) + 1);
+            const int32_t ydif = nextpoty - siz.y;
+            coltype *paddedpic;
+
+            Bassert(ydif < siz.y);
+
+            paddedpic = (coltype *)Xrealloc(pic, siz.x * nextpoty * sizeof(coltype));
+
+            pic = paddedpic;
+            Bmemcpy(&pic[siz.x * siz.y], pic, siz.x * ydif * sizeof(coltype));
+            siz.y = tsiz.y = nextpoty;
+
+            npoty = PTH_NPOTWALL;
+        }
+
+        uploadtexture(doalloc, siz, GL_RGBA, pic, tsiz,
+                      dameth | DAMETH_ARTIMMUNITY |
+                      (dapic >= MAXUSERTILES ? (DAMETH_NOTEXCOMPRESS|DAMETH_NODOWNSIZE) : 0) | /* never process these short-lived tiles */
+                      (hasalpha ? (DAMETH_HASALPHA|DAMETH_ONEBITALPHA) : 0));
+
+        Bfree(pic);
     }
-
-    if (doalloc) bglGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
-    bglBindTexture(GL_TEXTURE_2D,pth->glpic);
-
-    fixtransparency(pic,tsiz,siz,dameth);
-
-    int32_t npoty = 0;
-
-    if (polymost_want_npotytex(dameth, siz.y) && tsiz.x == siz.x && tsiz.y == siz.y)  // XXX
-    {
-        const int32_t nextpoty = 1 << ((picsiz[dapic] >> 4) + 1);
-        const int32_t ydif = nextpoty - siz.y;
-        coltype *paddedpic;
-
-        Bassert(ydif < siz.y);
-
-        paddedpic = (coltype *)Xrealloc(pic, siz.x * nextpoty * sizeof(coltype));
-
-        pic = paddedpic;
-        Bmemcpy(&pic[siz.x * siz.y], pic, siz.x * ydif * sizeof(coltype));
-        siz.y = tsiz.y = nextpoty;
-
-        npoty = PTH_NPOTWALL;
-    }
-
-    uploadtexture(doalloc, siz, GL_RGBA, pic, tsiz,
-                  dameth | DAMETH_ARTIMMUNITY |
-                  (dapic >= MAXUSERTILES ? (DAMETH_NOTEXCOMPRESS|DAMETH_NODOWNSIZE) : 0) | /* never process these short-lived tiles */
-                  (hasalpha ? (DAMETH_HASALPHA|DAMETH_ONEBITALPHA) : 0));
-
-    Bfree(pic);
 
     polymost_setuptexture(dameth, -1);
 
