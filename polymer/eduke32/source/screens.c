@@ -1326,7 +1326,7 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
             setpalettefade(r, g, b, end);  // have to set to end fade value if we break!
             return;
         }
-        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, tile, 0, 0, 2+8+BGSTRETCH);
+        rotatesprite_fs(160<<16, 100<<16, 65536L, 0, tile, 0, 0, 2+8+64+BGSTRETCH);
         G_FadePalette(r, g, b, start);
 
         start += step;
@@ -1486,7 +1486,7 @@ void G_DisplayLogo(void)
                         P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8 + 2 + 1);    // JBF 20040308
                         fadepal(0, 0, 0, 0, 252, 28);
                         flushperms();
-                        rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + BGSTRETCH);
+                        rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
                         nextpage();
                         fadepaltile(0, 0, 0, 252, 0, -28, DREALMS);
                         totalclock = 0;
