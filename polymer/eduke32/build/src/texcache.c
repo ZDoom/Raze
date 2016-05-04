@@ -282,7 +282,7 @@ static void texcache_deletefiles(void)
     unlink(ptempbuf);
 }
 
-static int32_t texcache_enabled(void)
+int32_t texcache_enabled(void)
 {
 #if defined EDUKE32_GLES || !defined USE_GLEXT
     return 0;
@@ -525,42 +525,11 @@ failure:
 }
 
 #undef READTEXHEADER_FAILURE
-#define WRITEX_FAIL_ON_ERROR() if (bglGetError() != GL_NO_ERROR) goto failure
 
-void texcache_writetex(char const * const cachefn, texcacheheader *head)
+#if defined USE_GLEXT && !defined EDUKE32_GLES
+
+void texcache_prewritetex(texcacheheader *head)
 {
-    char *pic = NULL, *packbuf = NULL;
-    void *midbuf = NULL;
-    uint32_t alloclen=0;
-#ifndef EDUKE32_GLES
-    static GLint glGetTexLevelParameterivOK = GL_TRUE;
-    uint32_t level=0;
-    uint32_t padx=0, pady=0;
-    GLint gi;
-#endif
-    int32_t offset = 0;
-
-    if (!texcache_enabled()) return;
-
-#ifndef EDUKE32_GLES
-    gi = GL_FALSE;
-    bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &gi);
-    if (gi != GL_TRUE)
-    {
-        if (glGetTexLevelParameterivOK == GL_TRUE)
-        {
-            OSD_Printf("Error: glGetTexLevelParameteriv returned GL_FALSE!\n");
-            glGetTexLevelParameterivOK = GL_FALSE;
-        }
-        return;
-    }
-#endif
-
-    Blseek(texcache.filehandle, 0, BSEEK_END);
-
-    offset = Blseek(texcache.filehandle, 0, BSEEK_CUR);
-    //    OSD_Printf("Caching %s, offset 0x%x\n", cachefn, offset);
-
     Bmemcpy(head->magic, TEXCACHEMAGIC, 4);   // sizes are set by caller
 
     if (glusetexcache == 2)
@@ -571,19 +540,43 @@ void texcache_writetex(char const * const cachefn, texcacheheader *head)
     head->ydim = B_LITTLE32(head->ydim);
     head->flags = B_LITTLE32(head->flags);
     head->quality = B_LITTLE32(head->quality);
+}
 
+#define WRITEX_FAIL_ON_ERROR() if (bglGetError() != GL_NO_ERROR) goto failure
+
+void texcache_writetex_fromdriver(char const * const cachefn, texcacheheader *head)
+{
+    texcachepicture pict;
+    char *pic = NULL, *packbuf = NULL;
+    void *midbuf = NULL;
+    uint32_t alloclen=0;
+
+    if (!texcache_enabled()) return;
+
+    GLint gi = GL_FALSE;
+    bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &gi);
+    if (gi != GL_TRUE)
+    {
+        static GLint glGetTexLevelParameterivOK = GL_TRUE;
+        if (glGetTexLevelParameterivOK == GL_TRUE)
+        {
+            OSD_Printf("Error: glGetTexLevelParameteriv returned GL_FALSE!\n");
+            glGetTexLevelParameterivOK = GL_FALSE;
+        }
+        return;
+    }
+
+    texcache_prewritetex(head);
+
+    Blseek(texcache.filehandle, 0, BSEEK_END);
+    int32_t offset = Blseek(texcache.filehandle, 0, BSEEK_CUR);
+    //    OSD_Printf("Caching %s, offset 0x%x\n", cachefn, offset);
     if (Bwrite(texcache.filehandle, head, sizeof(texcacheheader)) != sizeof(texcacheheader)) goto failure;
 
     CLEAR_GL_ERRORS();
 
-#ifndef EDUKE32_GLES
-    for (level = 0; level==0 || (padx > 1 || pady > 1); level++)
-#endif
+    for (uint32_t level = 0, padx = 0, pady = 0; level == 0 || (padx > 1 || pady > 1); ++level)
     {
-        uint32_t miplen;
-        texcachepicture pict;
-
-#ifndef EDUKE32_GLES
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_ARB, &gi); WRITEX_FAIL_ON_ERROR();
         if (gi != GL_TRUE) goto failure;   // an uncompressed mipmap
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &gi); WRITEX_FAIL_ON_ERROR();
@@ -602,15 +595,8 @@ void texcache_writetex(char const * const cachefn, texcacheheader *head)
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_DEPTH, &gi); WRITEX_FAIL_ON_ERROR();
         pict.depth = B_LITTLE32(gi);
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &gi); WRITEX_FAIL_ON_ERROR();
-        miplen = gi; pict.size = B_LITTLE32(gi);
-#else // TODO: actually code this ;)
-//        pict.format = GL_ETC1_RGB8_OES;
-        pict.xdim = head->xdim;
-        pict.ydim = head->ydim;
-        pict.border = 0;
-        pict.depth = 16;
-        miplen = 0;
-#endif
+        uint32_t miplen = gi; pict.size = B_LITTLE32(gi);
+
         if (alloclen < miplen)
         {
             pic = (char *)Xrealloc(pic, miplen);
@@ -619,51 +605,13 @@ void texcache_writetex(char const * const cachefn, texcacheheader *head)
             midbuf = (void *)Xrealloc(midbuf, miplen);
         }
 
-#ifdef USE_GLEXT
         bglGetCompressedTexImageARB(GL_TEXTURE_2D, level, pic); WRITEX_FAIL_ON_ERROR();
-#endif
 
         if (Bwrite(texcache.filehandle, &pict, sizeof(texcachepicture)) != sizeof(texcachepicture)) goto failure;
         if (dxtfilter(texcache.filehandle, &pict, pic, midbuf, packbuf, miplen)) goto failure;
     }
 
-    {
-        texcacheindex *t;
-        int32_t i = hash_find(&texcache.hashes, cachefn);
-        if (i > -1)
-        {
-            // update an existing entry
-            t = texcache.iptrs[i];
-            t->offset = offset;
-            t->len = Blseek(texcache.filehandle, 0, BSEEK_CUR) - t->offset;
-            /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
-        }
-        else
-        {
-            t = texcache.currentindex;
-            Bstrcpy(t->name, cachefn);
-            t->offset = offset;
-            t->len = Blseek(texcache.filehandle, 0, BSEEK_CUR) - t->offset;
-            t->next = (texcacheindex *)Xcalloc(1, sizeof(texcacheindex));
-
-            hash_add(&texcache.hashes, cachefn, texcache.numentries, 0);
-            if (++texcache.numentries > texcache.iptrcnt)
-            {
-                texcache.iptrcnt += 512;
-                texcache.iptrs = (texcacheindex **)Xrealloc(texcache.iptrs, sizeof(intptr_t) * texcache.iptrcnt);
-            }
-            texcache.iptrs[texcache.numentries - 1] = t;
-            texcache.currentindex = t->next;
-        }
-
-        if (texcache.index)
-        {
-            fseek(texcache.index, 0, BSEEK_END);
-            Bfprintf(texcache.index, "%s %d %d\n", t->name, t->offset, t->len);
-        }
-        else
-            OSD_Printf("wtf?\n");
-    }
+    texcache_postwritetex(cachefn, offset);
 
     goto success;
 
@@ -677,6 +625,47 @@ success:
 }
 
 #undef WRITEX_FAIL_ON_ERROR
+
+void texcache_postwritetex(char const * const cachefn, int32_t const offset)
+{
+    texcacheindex *t;
+    int32_t i = hash_find(&texcache.hashes, cachefn);
+    if (i > -1)
+    {
+        // update an existing entry
+        t = texcache.iptrs[i];
+        t->offset = offset;
+        t->len = Blseek(texcache.filehandle, 0, BSEEK_CUR) - t->offset;
+        /*initprintf("%s %d got a match for %s offset %d\n",__FILE__, __LINE__, cachefn,offset);*/
+    }
+    else
+    {
+        t = texcache.currentindex;
+        Bstrcpy(t->name, cachefn);
+        t->offset = offset;
+        t->len = Blseek(texcache.filehandle, 0, BSEEK_CUR) - t->offset;
+        t->next = (texcacheindex *)Xcalloc(1, sizeof(texcacheindex));
+
+        hash_add(&texcache.hashes, cachefn, texcache.numentries, 0);
+        if (++texcache.numentries > texcache.iptrcnt)
+        {
+            texcache.iptrcnt += 512;
+            texcache.iptrs = (texcacheindex **)Xrealloc(texcache.iptrs, sizeof(intptr_t) * texcache.iptrcnt);
+        }
+        texcache.iptrs[texcache.numentries - 1] = t;
+        texcache.currentindex = t->next;
+    }
+
+    if (texcache.index)
+    {
+        fseek(texcache.index, 0, BSEEK_END);
+        Bfprintf(texcache.index, "%s %d %d\n", t->name, t->offset, t->len);
+    }
+    else
+        OSD_Printf("wtf?\n");
+}
+
+#endif
 
 static void texcache_setuptexture(int32_t *doalloc, GLuint *glpic)
 {
@@ -695,10 +684,12 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr)
     void *midbuf = NULL;
     int32_t alloclen=0;
 
-#ifndef EDUKE32_GLES
-    int32_t level = 0;
-    for (level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
+#if !defined USE_GLEXT && defined EDUKE32_GLES
+    UNREFERENCED_PARAMETER(glerr);
+    UNREFERENCED_PARAMETER(head);
 #endif
+
+    for (int32_t level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
     {
         if (texcache_readdata(&pict, sizeof(texcachepicture)))
         {
@@ -722,6 +713,7 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr)
             midbuf = (void *)Xrealloc(midbuf, pict.size);
         }
 
+#if defined USE_GLEXT && !defined EDUKE32_GLES
         if (dedxtfilter(texcache.filehandle, &pict, pic, midbuf, packbuf,
                         (head->flags & CACHEAD_COMPRESSED)!=0))
         {
@@ -729,16 +721,13 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr)
             return TEXCACHERR_DEDXT;
         }
 
-#ifdef USE_GLEXT
         bglCompressedTexImage2DARB(GL_TEXTURE_2D,level,pict.format,pict.xdim,pict.ydim,pict.border,pict.size,pic);
         if ((*glerr=bglGetError()) != GL_NO_ERROR)
         {
             TEXCACHE_FREEBUFS();
             return TEXCACHERR_COMPTEX;
         }
-#endif
 
-#ifndef EDUKE32_GLES
         GLint format;
         bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);
         if ((*glerr = bglGetError()) != GL_NO_ERROR)
@@ -755,10 +744,6 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr)
         }
 #endif
     }
-
-#if !defined USE_GLEXT && defined EDUKE32_GLES
-    UNREFERENCED_PARAMETER(glerr);
-#endif
 
     TEXCACHE_FREEBUFS();
     return 0;

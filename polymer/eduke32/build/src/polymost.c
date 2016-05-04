@@ -1518,6 +1518,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     pth->skyface = facen;
     pth->hicr = hicr;
 
+#if defined USE_GLEXT && !defined EDUKE32_GLES
     if (!gotcache && glinfo.texcompr && glusetexcache && !(hicr->flags & HICR_NOTEXCOMPRESS) &&
         (glusetexcompr == 2 || (glusetexcompr && !(hicr->flags & HICR_ARTIMMUNITY))))
     {
@@ -1533,7 +1534,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                         (hicr->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY) ? CACHEAD_NODOWNSIZE : 0);
 
         ///            OSD_Printf("Caching \"%s\"\n", fn);
-        texcache_writetex(texcacheid, &cachead);
+        texcache_writetex_fromdriver(texcacheid, &cachead);
 
         if (willprint)
         {
@@ -1546,6 +1547,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         else
             OSD_Printf("Cached \"%s\"\n", fn);
     }
+#endif
 
     if (willprint)
     {

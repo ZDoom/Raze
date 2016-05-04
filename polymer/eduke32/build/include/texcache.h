@@ -52,6 +52,7 @@ extern globaltexcache texcache;
 
 extern char TEXCACHEFILE[BMAX_PATH];
 
+extern int32_t texcache_enabled(void);
 extern void texcache_freeptrs(void);
 extern void texcache_syncmemcache(void);
 extern void texcache_init(void);
@@ -61,7 +62,9 @@ extern pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashad
 extern int32_t texcache_loadskin(const texcacheheader *head, int32_t *doalloc, GLuint *glpic, vec2_t *siz);
 extern int32_t texcache_loadtile(const texcacheheader *head, int32_t *doalloc, pthtyp *pth);
 extern char const * texcache_calcid(char *cachefn, const char *fn, const int32_t len, const int32_t dameth, const char effect);
-extern void texcache_writetex(char const * cachefn, texcacheheader *head);
+extern void texcache_prewritetex(texcacheheader *head);
+extern void texcache_postwritetex(char const * const cachefn, int32_t const offset);
+extern void texcache_writetex_fromdriver(char const * cachefn, texcacheheader *head);
 extern int32_t texcache_readtexheader(char const * cachefn, texcacheheader *head, int32_t modelp);
 extern void texcache_openfiles(void);
 extern void texcache_setupmemcache(void);

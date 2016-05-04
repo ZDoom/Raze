@@ -43,6 +43,7 @@ Description of Ken's filter to improve LZW compression of DXT1 format by ~15%: (
 #include "texcache.h"
 #include "lz4.h"
 
+#ifndef EDUKE32_GLES
 static uint16_t dxt_hicosub(uint16_t c)
 {
     int32_t r, g, b;
@@ -60,8 +61,9 @@ static uint16_t dedxt_hicoadd(uint16_t c)
     b = ((c>> 0)+(g>>1))&31;
     return((r<<11)+(g<<5)+b);
 }
+#endif
 
-static void dxt_handle_io(int32_t fil, int32_t len, void *midbuf, char *packbuf)
+void dxt_handle_io(int32_t fil, int32_t len, void *midbuf, char *packbuf)
 {
     void *writebuf;
     int32_t j, cleng;
@@ -89,7 +91,7 @@ static void dxt_handle_io(int32_t fil, int32_t len, void *midbuf, char *packbuf)
     Bwrite(fil, writebuf, cleng);
 }
 
-static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
+int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
                                void *midbuf, int32_t mbufsiz, char *packbuf, int32_t ispacked)
 {
     void *inbuf;
@@ -133,19 +135,18 @@ static int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
     return 0;
 }
 
+#ifndef EDUKE32_GLES
 // NOTE: <pict> members are in external (little) endianness.
 int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, void *midbuf, char *packbuf, uint32_t miplen)
 {
     uint32_t j, k, offs, stride;
     char *cptr;
 
-#if !defined EDUKE32_GLES
     if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)) ||
             (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT1_EXT))) { offs = 0; stride = 8; }
     else if ((pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT3_EXT)) ||
              (pict->format == (signed) B_LITTLE32(GL_COMPRESSED_RGBA_S3TC_DXT5_EXT))) { offs = 8; stride = 16; }
     else
-#endif
         { offs = 0; stride = 8; }
 
     if (stride == 16) //If DXT3...
@@ -181,10 +182,6 @@ int32_t dxtfilter(int32_t fil, const texcachepicture *pict, const char *pic, voi
 
     dxt_handle_io(fil, tabledivide32(miplen, stride)<<2, midbuf, packbuf);
 
-#if defined EDUKE32_GLES
-    UNREFERENCED_PARAMETER(pict);
-#endif
-
     return 0;
 }
 
@@ -194,13 +191,11 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
     int32_t j, k, offs, stride;
     char *cptr;
 
-#if !defined EDUKE32_GLES
     if ((pict->format == GL_COMPRESSED_RGB_S3TC_DXT1_EXT) ||
             (pict->format == GL_COMPRESSED_RGBA_S3TC_DXT1_EXT)) { offs = 0; stride = 8; }
     else if ((pict->format == GL_COMPRESSED_RGBA_S3TC_DXT3_EXT) ||
              (pict->format == GL_COMPRESSED_RGBA_S3TC_DXT5_EXT)) { offs = 8; stride = 16; }
     else
-#endif
         { offs = 0; stride = 8; }
 
     if (stride == 16) //If DXT3...
@@ -245,4 +240,6 @@ int32_t dedxtfilter(int32_t fil, const texcachepicture *pict, char *pic, void *m
 
     return 0;
 }
+#endif
+
 #endif

@@ -963,6 +963,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
+#if defined USE_GLEXT && !defined EDUKE32_GLES
     if (!gotcache && glinfo.texcompr && glusetexcache && !(sk->flags & HICR_NOTEXCOMPRESS) &&
         (glusetexcompr == 2 || (glusetexcompr && !(sk->flags & HICR_ARTIMMUNITY))))
         {
@@ -977,7 +978,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                             (sk->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY) ? CACHEAD_NODOWNSIZE : 0);
 
 ///            OSD_Printf("Caching \"%s\"\n",fn);
-            texcache_writetex(texcacheid, &cachead);
+            texcache_writetex_fromdriver(texcacheid, &cachead);
 
             if (willprint)
             {
@@ -989,6 +990,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             else
                 OSD_Printf("Cached skin \"%s\"\n", fn);
         }
+#endif
 
     if (willprint)
     {
