@@ -338,7 +338,9 @@ void polymost_glreset()
 #endif
 }
 
-static void Polymost_InitDummyTexture(void);
+#if defined EDUKE32_GLES
+static void Polymost_DetermineTextureFormatSupport(void);
+#endif
 
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
@@ -393,7 +395,9 @@ void polymost_glinit()
     texcache_setupmemcache();
     texcache_checkgarbage();
 
-    Polymost_InitDummyTexture();
+#if defined EDUKE32_GLES
+    Polymost_DetermineTextureFormatSupport();
+#endif
 }
 
 ////////// VISIBILITY FOG ROUTINES //////////
@@ -651,9 +655,9 @@ static int32_t const texfmts_rgb_mask[] = { GL_RGB5_A1, GL_RGBA, 0 };
 static int32_t const texfmts_rgb[] = { GL_RGB565, GL_RGB5_A1, GL_RGB, GL_RGBA, 0 };
 static int32_t const texfmts_rgba[] = { GL_RGBA4, GL_RGBA, 0 } ;
 
-static int32_t const *texfmt_rgb_mask = texfmts_rgb_mask;
-static int32_t const *texfmt_rgb = texfmts_rgb;
-static int32_t const *texfmt_rgba = texfmts_rgba;
+static int32_t texfmt_rgb_mask;
+static int32_t texfmt_rgb;
+static int32_t texfmt_rgba;
 
 #if defined EDUKE32_IOS
 static int32_t const comprtexfmts_rgb[] = { GL_ETC1_RGB8_OES, 0 };
@@ -666,50 +670,9 @@ static int32_t const comprtexfmts_rgba[] = { /*GL_COMPRESSED_RGBA8_ETC2_EAC,*/ 0
 static int32_t const comprtexfmts_rgb_mask[] = { /*GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2,*/ 0 };
 #endif
 
-static int32_t const *comprtexfmt_rgb_mask = comprtexfmts_rgb_mask;
-static int32_t const *comprtexfmt_rgb = comprtexfmts_rgb;
-static int32_t const *comprtexfmt_rgba = comprtexfmts_rgba;
-
-static int32_t Polymost_glTexImage2D_Error(int32_t const ** const intexfmt_master)
-{
-    GLenum checkerr, err = GL_NO_ERROR;
-    while ((checkerr = bglGetError()) != GL_NO_ERROR)
-        err = checkerr;
-
-    if (err != GL_NO_ERROR)
-    {
-        if (*++*intexfmt_master == 0)
-        {
-            initprintf("No texture formats supported (error 0x%X).\n", err);
-            Bfflush(NULL);
-            uninitengine();
-            Bexit(565);
-        }
-
-        return 1;
-    }
-
-    return 0;
-}
-
-static int32_t Polymost_glCompressedTexImage2D_Error(int32_t const ** const comprtexfmt_master)
-{
-    GLenum checkerr, err = GL_NO_ERROR;
-    while ((checkerr = bglGetError()) != GL_NO_ERROR)
-        err = checkerr;
-
-    if (err != GL_NO_ERROR)
-    {
-        if (*++*comprtexfmt_master == 0)
-        {
-            return 2;
-        }
-
-        return 1;
-    }
-
-    return 0;
-}
+static int32_t comprtexfmt_rgb_mask;
+static int32_t comprtexfmt_rgb;
+static int32_t comprtexfmt_rgba;
 
 # ifdef __cplusplus
 extern "C" {
@@ -743,88 +706,133 @@ static ETCFunction_t Polymost_PickETCFunction(int32_t const comprtexfmt)
     }
 }
 
-#else
-# define Polymost_glTexImage2D_Error(...) (0)
+static int Polymost_ConfirmNoGLError(void)
+{
+    GLenum checkerr, err = GL_NO_ERROR;
+    while ((checkerr = bglGetError()) != GL_NO_ERROR)
+        err = checkerr;
+
+    return err == GL_NO_ERROR;
+}
+
+static int32_t Polymost_TryDummyTexture(coltype const * const pic, int32_t const * formats)
+{
+    while (*formats)
+    {
+        bglTexImage2D(GL_TEXTURE_2D, 0, *formats, 4,4, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic);
+
+        if (Polymost_ConfirmNoGLError())
+            return *formats;
+
+        ++formats;
+    }
+
+    initputs("No texture formats supported?!\n");
+
+    return 0;
+}
+
+static int32_t Polymost_TryCompressedDummyTexture(coltype const * const pic, int32_t const * formats)
+{
+    while (*formats)
+    {
+        ETCFunction_t func = Polymost_PickETCFunction(*formats);
+        uint64_t const comprpic = func((uint8_t const *)pic);
+        jwzgles_glCompressedTexImage2D(GL_TEXTURE_2D, 0, *formats, 4,4, 0, sizeof(uint64_t), &comprpic);
+
+        if (Polymost_ConfirmNoGLError())
+            return *formats;
+
+        ++formats;
+    }
+
+    return 0;
+}
+
+static void Polymost_DetermineTextureFormatSupport(void)
+{
+    // init dummy texture to trigger possible failure of all compression modes
+    coltype pic[4*4] = { { 0, 0, 0, 0 } };
+    GLuint tex = 0;
+
+    bglGenTextures(1, &tex);
+    bglBindTexture(GL_TEXTURE_2D, tex);
+
+    BuildGLErrorCheck(); // XXX: Clear errors.
+
+    texfmt_rgb = Polymost_TryDummyTexture(pic, texfmts_rgb);
+    texfmt_rgba = Polymost_TryDummyTexture(pic, texfmts_rgba);
+    texfmt_rgb_mask = Polymost_TryDummyTexture(pic, texfmts_rgb_mask);
+
+    comprtexfmt_rgb = Polymost_TryCompressedDummyTexture(pic, comprtexfmts_rgb);
+    comprtexfmt_rgba = Polymost_TryCompressedDummyTexture(pic, comprtexfmts_rgba);
+    comprtexfmt_rgb_mask = Polymost_TryCompressedDummyTexture(pic, comprtexfmts_rgb_mask);
+
+    bglDeleteTextures(1, &tex);
+}
 #endif
 
 static void Polymost_SendTexToDriver(int32_t const doalloc,
                                      vec2_t const siz,
                                      int32_t const texfmt,
                                      coltype const * const pic,
-#if !defined EDUKE32_GLES
                                      int32_t const intexfmt,
-#else
-                                     int32_t const ** const intexfmt_master,
-                                     int32_t const ** const comprtexfmt_master,
-# define intexfmt (**intexfmt_master)
+#if defined EDUKE32_GLES
+                                     int32_t const comprtexfmt,
                                      int32_t const texcompress_ok,
 #endif
                                      int32_t const level)
 {
-    BuildGLErrorCheck(); // XXX
-
 #if defined EDUKE32_GLES
-    if (texcompress_ok && **comprtexfmt_master && (siz.x & 3) == 0 && (siz.y & 3) == 0)
+    if (texcompress_ok && comprtexfmt && (siz.x & 3) == 0 && (siz.y & 3) == 0)
     {
         size_t const picLength = siz.x * siz.y;
         size_t const fourRows = siz.x << 2u;
         GLsizei const imageSize = picLength >> 1u; // 4x4 pixels --> 8 bytes
         uint8_t * const comprpic = (uint8_t *)Xaligned_alloc(8, imageSize);
-        int32_t err;
 
-        do
-        {
-            int32_t const comprtexfmt = **comprtexfmt_master;
+        ETCFunction_t func = Polymost_PickETCFunction(comprtexfmt);
 
-            ETCFunction_t func = Polymost_PickETCFunction(comprtexfmt);
+        coltype buf[4*4];
+        uint64_t * out = (uint64_t *)comprpic;
+        for (coltype const * row = pic, * const pic_end = pic + picLength; row < pic_end; row += fourRows)
+            for (coltype const * block = row, * const row_end = row + siz.x; block < row_end; block += 4)
+            {
+                buf[0] = block[0];
+                buf[1] = block[siz.x];
+                buf[2] = block[siz.x*2];
+                buf[3] = block[siz.x*3];
+                buf[4] = block[1];
+                buf[5] = block[siz.x+1];
+                buf[6] = block[siz.x*2+1];
+                buf[7] = block[siz.x*3+1];
+                buf[8] = block[2];
+                buf[9] = block[siz.x+2];
+                buf[10] = block[siz.x*2+2];
+                buf[11] = block[siz.x*3+2];
+                buf[12] = block[3];
+                buf[13] = block[siz.x+3];
+                buf[14] = block[siz.x*2+3];
+                buf[15] = block[siz.x*3+3];
 
-            coltype buf[4*4];
-            uint64_t * out = (uint64_t *)comprpic;
-            for (coltype const * row = pic, * const pic_end = pic + picLength; row < pic_end; row += fourRows)
-                for (coltype const * block = row, * const row_end = row + siz.x; block < row_end; block += 4)
-                {
-                    buf[0] = block[0];
-                    buf[1] = block[siz.x];
-                    buf[2] = block[siz.x*2];
-                    buf[3] = block[siz.x*3];
-                    buf[4] = block[1];
-                    buf[5] = block[siz.x+1];
-                    buf[6] = block[siz.x*2+1];
-                    buf[7] = block[siz.x*3+1];
-                    buf[8] = block[2];
-                    buf[9] = block[siz.x+2];
-                    buf[10] = block[siz.x*2+2];
-                    buf[11] = block[siz.x*3+2];
-                    buf[12] = block[3];
-                    buf[13] = block[siz.x+3];
-                    buf[14] = block[siz.x*2+3];
-                    buf[15] = block[siz.x*3+3];
+                *out++ = func((uint8_t const *)buf);
+            }
 
-                    *out++ = func((uint8_t const *)buf);
-                }
-
-            if (doalloc & 1)
-                jwzgles_glCompressedTexImage2D(GL_TEXTURE_2D, level, comprtexfmt, siz.x,siz.y, 0, imageSize, comprpic);
-            else
-                jwzgles_glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, comprtexfmt, imageSize, comprpic);
-        }
-        while ((err = Polymost_glCompressedTexImage2D_Error(comprtexfmt_master)) == 1);
+        if (doalloc & 1)
+            jwzgles_glCompressedTexImage2D(GL_TEXTURE_2D, level, comprtexfmt, siz.x,siz.y, 0, imageSize, comprpic);
+        else
+            jwzgles_glCompressedTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, comprtexfmt, imageSize, comprpic);
 
         Baligned_free(comprpic);
 
-        if (err == 0)
-            return;
+        return;
     }
 #endif
 
-    do
-    {
-        if (doalloc & 1)
-            bglTexImage2D(GL_TEXTURE_2D, level, intexfmt, siz.x,siz.y, 0, texfmt, GL_UNSIGNED_BYTE, pic);
-        else
-            bglTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, texfmt, GL_UNSIGNED_BYTE, pic);
-    }
-    while (Polymost_glTexImage2D_Error(intexfmt_master));
+    if (doalloc & 1)
+        bglTexImage2D(GL_TEXTURE_2D, level, intexfmt, siz.x,siz.y, 0, texfmt, GL_UNSIGNED_BYTE, pic);
+    else
+        bglTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, texfmt, GL_UNSIGNED_BYTE, pic);
 }
 
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
@@ -846,8 +854,8 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
 #else
     const int onebitalpha  = !!(dameth & DAMETH_ONEBITALPHA);
 
-    int32_t const ** intexfmt_master = hasalpha ? (onebitalpha ? &texfmt_rgb_mask : &texfmt_rgba) : &texfmt_rgb;
-    int32_t const ** comprtexfmt_master = hasalpha ? (onebitalpha ? &comprtexfmt_rgb_mask : &comprtexfmt_rgba) : &comprtexfmt_rgb;
+    int32_t const intexfmt = hasalpha ? (onebitalpha ? texfmt_rgb_mask : texfmt_rgba) : texfmt_rgb;
+    int32_t const comprtexfmt = hasalpha ? (onebitalpha ? comprtexfmt_rgb_mask : comprtexfmt_rgba) : comprtexfmt_rgb;
 #endif
 
     dameth &= ~DAMETH_UPLOADTEXTURE_MASK;
@@ -880,11 +888,9 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
 
     if (!miplevel)
         Polymost_SendTexToDriver(doalloc, siz, texfmt, pic,
-#if !defined EDUKE32_GLES
                                  intexfmt,
-#else
-                                 intexfmt_master,
-                                 comprtexfmt_master,
+#if defined EDUKE32_GLES
+                                 comprtexfmt,
                                  texcompress_ok,
 #endif
                                  0);
@@ -940,11 +946,9 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
 
         if (j >= miplevel)
             Polymost_SendTexToDriver(doalloc, siz3, texfmt, pic,
-#if !defined EDUKE32_GLES
                                      intexfmt,
-#else
-                                     intexfmt_master,
-                                     comprtexfmt_master,
+#if defined EDUKE32_GLES
+                                     comprtexfmt,
                                      texcompress_ok,
 #endif
                                      j - miplevel);
@@ -1224,23 +1228,6 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
 
         fullbrightloadingpass = 0;
     }
-}
-
-static void Polymost_InitDummyTexture(void)
-{
-    // init dummy texture to trigger possible failure of all compression modes
-    coltype dummypic[4*4] = { { 0, 0, 0, 0 } };
-    vec2_t const dummysiz = { 4, 4 };
-    GLuint dummytex = 0;
-
-    bglGenTextures(1, &dummytex);
-    bglBindTexture(GL_TEXTURE_2D, dummytex);
-
-    uploadtexture(1, dummysiz, GL_RGBA, dummypic, dummysiz, DAMETH_NOMASK|DAMETH_NOFIX|DAMETH_NODOWNSIZE);
-    uploadtexture(1, dummysiz, GL_RGBA, dummypic, dummysiz, DAMETH_MASK|DAMETH_HASALPHA|DAMETH_NOFIX|DAMETH_NODOWNSIZE);
-    uploadtexture(1, dummysiz, GL_RGBA, dummypic, dummysiz, DAMETH_MASK|DAMETH_ONEBITALPHA|DAMETH_NOFIX|DAMETH_NODOWNSIZE);
-
-    bglDeleteTextures(1, &dummytex);
 }
 
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
