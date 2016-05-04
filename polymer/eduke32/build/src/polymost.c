@@ -720,6 +720,29 @@ extern uint64_t ProcessRGB_ETC2(uint8_t const *);
 }
 # endif
 
+typedef uint64_t (*ETCFunction_t)(uint8_t const *);
+
+static ETCFunction_t Polymost_PickETCFunction(int32_t const comprtexfmt)
+{
+    switch (comprtexfmt)
+    {
+        case GL_ETC1_RGB8_OES:
+            return ProcessRGB;
+
+        case GL_COMPRESSED_RGB8_ETC2:
+            return ProcessRGB_ETC2;
+
+# if 0
+        case GL_COMPRESSED_RGBA8_ETC2_EAC:
+
+        case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
+# endif
+
+        default:
+            EDUKE32_UNREACHABLE_SECTION(return NULL);
+    }
+}
+
 #else
 # define Polymost_glTexImage2D_Error(...) (0)
 #endif
@@ -753,81 +776,32 @@ static void Polymost_SendTexToDriver(int32_t const doalloc,
         {
             int32_t const comprtexfmt = **comprtexfmt_master;
 
-            switch (comprtexfmt)
-            {
-                case GL_ETC1_RGB8_OES:
+            ETCFunction_t func = Polymost_PickETCFunction(comprtexfmt);
+
+            coltype buf[4*4];
+            uint64_t * out = (uint64_t *)comprpic;
+            for (coltype const * row = pic, * const pic_end = pic + picLength; row < pic_end; row += fourRows)
+                for (coltype const * block = row, * const row_end = row + siz.x; block < row_end; block += 4)
                 {
-                    coltype buf[4*4];
-                    uint64_t * out = (uint64_t *)comprpic;
-                    for (coltype const * row = pic, * const pic_end = pic + picLength; row < pic_end; row += fourRows)
-                        for (coltype const * block = row, * const row_end = row + siz.x; block < row_end; block += 4)
-                        {
-                            buf[0] = block[0];
-                            buf[1] = block[siz.x];
-                            buf[2] = block[siz.x*2];
-                            buf[3] = block[siz.x*3];
-                            buf[4] = block[1];
-                            buf[5] = block[siz.x+1];
-                            buf[6] = block[siz.x*2+1];
-                            buf[7] = block[siz.x*3+1];
-                            buf[8] = block[2];
-                            buf[9] = block[siz.x+2];
-                            buf[10] = block[siz.x*2+2];
-                            buf[11] = block[siz.x*3+2];
-                            buf[12] = block[3];
-                            buf[13] = block[siz.x+3];
-                            buf[14] = block[siz.x*2+3];
-                            buf[15] = block[siz.x*3+3];
+                    buf[0] = block[0];
+                    buf[1] = block[siz.x];
+                    buf[2] = block[siz.x*2];
+                    buf[3] = block[siz.x*3];
+                    buf[4] = block[1];
+                    buf[5] = block[siz.x+1];
+                    buf[6] = block[siz.x*2+1];
+                    buf[7] = block[siz.x*3+1];
+                    buf[8] = block[2];
+                    buf[9] = block[siz.x+2];
+                    buf[10] = block[siz.x*2+2];
+                    buf[11] = block[siz.x*3+2];
+                    buf[12] = block[3];
+                    buf[13] = block[siz.x+3];
+                    buf[14] = block[siz.x*2+3];
+                    buf[15] = block[siz.x*3+3];
 
-                            *out++ = ProcessRGB((uint8_t const *)buf);
-                        }
-                    break;
+                    *out++ = func((uint8_t const *)buf);
                 }
-
-                case GL_COMPRESSED_RGB8_ETC2:
-                {
-                    coltype buf[4*4];
-                    uint64_t * out = (uint64_t *)comprpic;
-                    for (coltype const * row = pic, * const pic_end = pic + picLength; row < pic_end; row += fourRows)
-                        for (coltype const * block = row, * const row_end = row + siz.x; block < row_end; block += 4)
-                        {
-                            buf[0] = block[0];
-                            buf[1] = block[siz.x];
-                            buf[2] = block[siz.x*2];
-                            buf[3] = block[siz.x*3];
-                            buf[4] = block[1];
-                            buf[5] = block[siz.x+1];
-                            buf[6] = block[siz.x*2+1];
-                            buf[7] = block[siz.x*3+1];
-                            buf[8] = block[2];
-                            buf[9] = block[siz.x+2];
-                            buf[10] = block[siz.x*2+2];
-                            buf[11] = block[siz.x*3+2];
-                            buf[12] = block[3];
-                            buf[13] = block[siz.x+3];
-                            buf[14] = block[siz.x*2+3];
-                            buf[15] = block[siz.x*3+3];
-
-                            *out++ = ProcessRGB_ETC2((uint8_t const *)buf);
-                        }
-                    break;
-                }
-
-# if 0
-                case GL_COMPRESSED_RGBA8_ETC2_EAC:
-                {
-                    break;
-                }
-
-                case GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2:
-                {
-                    break;
-                }
-# endif
-
-                default:
-                    EDUKE32_UNREACHABLE_SECTION(break);
-            }
 
             if (doalloc & 1)
                 jwzgles_glCompressedTexImage2D(GL_TEXTURE_2D, level, comprtexfmt, siz.x,siz.y, 0, imageSize, comprpic);
