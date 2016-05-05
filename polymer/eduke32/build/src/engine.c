@@ -8289,7 +8289,7 @@ static void loadpalette(void)
     // Thus, the first two bytes will be 00 01, which is 256 if read as
     // little-endian int16_t.
     int32_t lamedukep = 0;
-    if (numshades == 256)
+    if (numshades >= 256)
     {
         static char const * const seekfail = "Warning: klseek() failed in loadpalette()!\n";
 
@@ -8297,7 +8297,7 @@ static void loadpalette(void)
         if (kread_and_test(fil,&temp,2))
             return kclose(fil);
         temp = B_LITTLE16(temp);
-        if (temp == 770) // 02 03
+        if (temp == 770 || numshades > 256) // 02 03
         {
             if (klseek(fil, -4, BSEEK_CUR) < 0)
             {
