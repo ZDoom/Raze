@@ -2,14 +2,23 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
+ifeq ($(findstring clang,$(NDK_TOOLCHAIN_VERSION)),)
+    FOUND_CLANG := 0
+else
+    FOUND_CLANG := 1
+endif
+
 LOCAL_MODULE    := duke3d
 
 COMMONFLAGS     := -x c++ -std=gnu++11 -fvisibility=hidden -fPIC -funsigned-char -fno-strict-aliasing -pthread \
                    -W -Wall -Wextra -Wpointer-arith -Wno-char-subscripts -Wno-missing-braces -Wwrite-strings -Wuninitialized \
-                   -Wno-attributes -Wno-strict-overflow -Wno-unused-result -Wlogical-op -Wcast-qual \
-                   -Wno-unknown-warning-option -Wno-deprecated-register -Werror=return-type \
+                   -Wno-attributes -Wno-strict-overflow -Wno-unused-result -Wlogical-op -Wcast-qual -Werror=return-type \
                    -DHAVE_SDL -DHAVE_VORBIS -DHAVE_JWZGLES -DHAVE_ANDROID -DRENDERTYPESDL=1 -DUSE_OPENGL -DNETCODE_DISABLE -DUSE_LIBVPX \
                    -DHAVE_INTTYPES -D_GNU_SOURCE=1 -D_REENTRANT
+
+ifeq ($(FOUND_CLANG),1)
+    COMMONFLAGS += -Wno-unknown-warning-option -Wno-deprecated-register
+endif
 
 LOCAL_LDFLAGS   := -fuse-ld=bfd
 LOCAL_ARM_NEON  = true
@@ -18,7 +27,7 @@ ifeq ($(NDK_DEBUG), 1)
     COMMONFLAGS += -O0 -ggdb -fno-omit-frame-pointer -fno-stack-protector -D_FORTIFY_SOURCE=0 -DDEBUGGINGAIDS=0
 else
     COMMONFLAGS += -O2 -DNDEBUG -D_FORTIFY_SOURCE=2
-    ifeq ($(findstring clang,$(NDK_TOOLCHAIN_VERSION)),)
+    ifeq ($(FOUND_CLANG),0)
         COMMONFLAGS += -DUSING_LTO -flto
         LOCAL_LDFLAGS += -flto
     endif
