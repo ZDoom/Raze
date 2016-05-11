@@ -15,9 +15,21 @@
 #define LIBDIVIDE_VC 1
 #endif
 
+#if defined(__x86_64__) || defined(_WIN64) || defined(_M_64)
+#define LIBDIVIDE_IS_X86_64 1
+#endif
+
+#if defined(__i386__)
+#define LIBDIVIDE_IS_i386 1
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+
+#if LIBDIVIDE_IS_X86_64 || defined __SSE2__ || (defined _M_IX86_FP && _M_IX86_FP == 2)
+#define LIBDIVIDE_USE_SSE2 1
+#endif
 
 #if LIBDIVIDE_USE_SSE2
     #include <emmintrin.h>
@@ -35,20 +47,8 @@
 #define HAS_INT128_T 1
 #endif
 
-#if defined(__x86_64__) || defined(_WIN64) || defined(_M_64)
-#define LIBDIVIDE_IS_X86_64 1
-#endif
-
-#if defined(__i386__)
-#define LIBDIVIDE_IS_i386 1
-#endif
-
 #if __GNUC__ || __clang__
 #define LIBDIVIDE_GCC_STYLE_ASM 1
-#endif
-
-#if LIBDIVIDE_IS_X86_64 || defined __SSE2__ || (defined _M_IX86_FP && _M_IX86_FP == 2)
-#define LIBDIVIDE_USE_SSE2 1
 #endif
 
 /* Explanation of "more" field: bit 6 is whether to use shift path.  If we are using the shift path, bit 7 is whether the divisor is negative in the signed case; in the unsigned case it is 0.   Bits 0-4 is shift value (for shift path or mult path).  In 32 bit case, bit 5 is always 0.  We use bit 7 as the "negative divisor indicator" so that we can use sign extension to efficiently go to a full-width -1.
