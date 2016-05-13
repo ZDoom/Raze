@@ -400,6 +400,8 @@ static __inline void swap64bit(void *a, void *b)
     }
 }
 
+#define swapdouble swap64bit
+
 //swapchar2(ptr1,ptr2,xsiz); is the same as:
 //swapchar(ptr1,ptr2); swapchar(ptr1+1,ptr2+xsiz);
 static __inline void swapchar2(void *a, void *b, int32_t s)

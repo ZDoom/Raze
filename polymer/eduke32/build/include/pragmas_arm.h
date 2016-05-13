@@ -30,27 +30,33 @@ static inline void swapchar2(void *a, void *b, int32_t s)
 }
 static inline void swapshort(void *a, void *b)
 {
-    int16_t t = *((int16_t *)b);
+    int16_t const t = *((int16_t *)b);
     *((int16_t *)b) = *((int16_t *)a);
     *((int16_t *)a) = t;
 }
 static inline void swaplong(void *a, void *b)
 {
-    int32_t t = *((int32_t *)b);
+    int32_t const t = *((int32_t *)b);
     *((int32_t *)b) = *((int32_t *)a);
     *((int32_t *)a) = t;
 }
 static inline void swapfloat(void *a, void *b)
 {
-    float t = *((float *)b);
+    float const t = *((float *)b);
     *((float *)b) = *((float *)a);
     *((float *)a) = t;
 }
+static inline void swapdouble(void *a, void *b)
+{
+    double const t = *((double *) b);
+    *((double *) b) = *((double *) a);
+    *((double *) a) = t;
+}
 static inline void swap64bit(void *a, void *b)
 {
-    int64_t t = *((int64_t *)b);
-    *((int64_t *)b) = *((int64_t *)a);
-    *((int64_t *)a) = t;
+    uint64_t const t = *((uint64_t *)b);
+    *((uint64_t *)b) = *((uint64_t *)a);
+    *((uint64_t *)a) = t;
 }
 
 static inline char readpixel(void *s) { return (*((char *)(s))); }
@@ -58,7 +64,7 @@ static inline void drawpixel(void *s, char a) { *((char *)(s)) = a; }
 
 static inline int32_t klabs(int32_t a)
 {
-    const uint32_t m = a >> (sizeof(int32_t) * CHAR_BIT - 1);
+    const uint32_t m = a >> (sizeof(uint32_t) * CHAR_BIT - 1);
     return (a ^ m) - m;
 }
 static inline int32_t ksgn(int32_t a) { return (a > 0) - (a < 0); }

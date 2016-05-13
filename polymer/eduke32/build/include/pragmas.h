@@ -204,6 +204,12 @@ FORCE_INLINE void swapfloat(void *a, void *b)
     *((float *)b) = *((float *)a);
     *((float *)a) = t;
 }
+FORCE_INLINE void swapdouble(void *a, void *b)
+{
+    double const t = *((double *) b);
+    *((double *) b) = *((double *) a);
+    *((double *) a) = t;
+}
 FORCE_INLINE void swap64bit(void *a, void *b)
 {
     uint64_t const t = *((uint64_t *)b);
@@ -216,7 +222,7 @@ FORCE_INLINE void drawpixel(void *s, char a) { *((char *)(s)) = a; }
 
 FORCE_INLINE int32_t klabs(int32_t a)
 {
-    const uint32_t m = a >> (sizeof(int) * CHAR_BIT - 1);
+    const uint32_t m = a >> (sizeof(uint32_t) * CHAR_BIT - 1);
     return (a ^ m) - m;
 }
 FORCE_INLINE int32_t ksgn(int32_t a) { return (a > 0) - (a < 0); }

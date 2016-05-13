@@ -235,11 +235,18 @@ static inline void swapfloat(void *a, void *b)
     *(float*) b = t;
 }
 
+static inline void swapdouble(void *a, void *b)
+{
+    double const t = *((double *) b);
+    *((double *) b) = *((double *) a);
+    *((double *) a) = t;
+}
+
 static inline void swap64bit(void *a, void *b)
 {
-    double t = *(double*) a;
-    *(double*) a = *(double*) b;
-    *(double*) b = t;
+    uint64_t t = *(uint64_t*) a;
+    *(uint64_t*) a = *(uint64_t*) b;
+    *(uint64_t*) b = t;
 }
 
 static inline int32_t krecipasm(int32_t i)

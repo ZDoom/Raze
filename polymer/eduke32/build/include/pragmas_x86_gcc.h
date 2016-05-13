@@ -512,7 +512,7 @@ void copybufreverse(const void *S, void *D, int32_t c);
 				"movl %%ecx, 4(%%ebx); movl %%edx, 4(%%eax)" \
 		: : "a" (__a), "b" (__b) : "ecx", "edx", "memory", "cc"); \
 	 0; })
-
+#define swapdouble swap64bit
 //swapchar2(ptr1,ptr2,xsiz); is the same as:
 //swapchar(ptr1,ptr2); swapchar(ptr1+1,ptr2+xsiz);
 #define swapchar2(a,b,S) \
