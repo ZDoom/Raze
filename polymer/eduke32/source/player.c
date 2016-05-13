@@ -140,10 +140,9 @@ static inline projectile_t * Proj_GetProjectile(int tile)
     return ((unsigned)tile < MAXTILES && g_tile[tile].proj) ? g_tile[tile].proj : &DefaultProjectile;
 }
 
-static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, int32_t atwith)
+static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, int32_t atwith, int16_t sect)
 {
     int32_t n, j, i;
-    int16_t sect = -1;
     vec3_t srcvect;
     vec3_t destvect;
 
@@ -170,7 +169,7 @@ static void A_HitscanProjTrail(const vec3_t *sv, const vec3_t *dv, int32_t ang, 
         srcvect.x += destvect.x;
         srcvect.y += destvect.y;
         srcvect.z += destvect.z;
-        updatesector(srcvect.x,srcvect.y,&sect);
+        updatesectorz(srcvect.x,srcvect.y,srcvect.z,&sect);
         if (sect < 0)
             break;
         getzsofslope(sect,srcvect.x,srcvect.y,&n,&j);
@@ -911,7 +910,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
             return -1;
 
         if (proj->trail >= 0)
-            A_HitscanProjTrail(srcvect, &hit.pos, sa, atwith);
+            A_HitscanProjTrail(srcvect, &hit.pos, sa, atwith, sect);
 
         if (proj->workslike & PROJECTILE_WATERBUBBLES)
         {
