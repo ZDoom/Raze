@@ -3521,7 +3521,7 @@ nullquote:
                 break;
 
             case GET_SHIELD:
-                ps->inv_amount[GET_SHIELD] = max(ps->inv_amount[GET_SHIELD] + *insptr, ps->max_shield_amount);
+                ps->inv_amount[GET_SHIELD] = min(ps->inv_amount[GET_SHIELD] + *insptr, ps->max_shield_amount);
                 break;
 
             case GET_ACCESS:
