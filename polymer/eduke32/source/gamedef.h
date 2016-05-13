@@ -1106,6 +1106,7 @@ enum ScriptKeywords_t
     CON_MOVESECTOR,         // 395
     CON_FOR,                // 396
     CON_NEXTSECTORNEIGHBORZ,// 397
+    CON_CLAMP,              // 398
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

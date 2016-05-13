@@ -4769,6 +4769,15 @@ finish_qsprintf:
             insptr += 2;
             continue;
 
+        case CON_CLAMP:
+            insptr++;
+            {
+                tw = *insptr++;
+                int const min = Gv_GetVarX(*insptr++);
+                Gv_SetVarX(tw, clamp2(Gv_GetVarX(tw), min, Gv_GetVarX(*insptr++)));
+            }
+            continue;
+
         case CON_INV:
             if ((aGameVars[*(insptr + 1)].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
                 aGameVars[*(insptr + 1)].val.lValue = -aGameVars[*(insptr + 1)].val.lValue;

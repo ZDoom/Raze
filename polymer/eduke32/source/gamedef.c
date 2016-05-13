@@ -572,6 +572,7 @@ const char *keyw[] =
     "movesector",               // 395
     "for",                      // 396
     "nextsectorneighborz",      // 397
+    "clamp",                    // 398
     "<null>"
 };
 #endif
@@ -4060,6 +4061,11 @@ DO_DEFSTATE:
         case CON_KLABS:
         case CON_INV:
             C_GetNextVarType(GAMEVAR_READONLY);
+            continue;
+
+        case CON_CLAMP:
+            C_GetNextVarType(GAMEVAR_READONLY);
+            C_GetManyVars(2);
             continue;
 
         case CON_ENHANCED:
