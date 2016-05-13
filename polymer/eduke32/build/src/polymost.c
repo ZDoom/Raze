@@ -2653,9 +2653,9 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     //Texture flipping
     if (globalorientation&4)
     {
-        swap64bit(&xtex.u, &xtex.v);
-        swap64bit(&ytex.u, &ytex.v);
-        swap64bit(&otex.u, &otex.v);
+        swapdouble(&xtex.u, &xtex.v);
+        swapdouble(&ytex.u, &ytex.v);
+        swapdouble(&otex.u, &otex.v);
     }
 
     if (globalorientation&16) { xtex.u = -xtex.u; ytex.u = -ytex.u; otex.u = -otex.u; }
@@ -3650,11 +3650,11 @@ static int32_t polymost_bunchfront(const int32_t b1, const int32_t b2)
 
     if (x1b1 >= x1b2)
     {
-        for (; dxb2[b2f]<=x1b1; b2f=bunchp2[b2f]) { }
+        while (dxb2[b2f]<=x1b1) b2f=bunchp2[b2f];
         return wallfront(b1f, b2f);
     }
 
-    for (; dxb2[b1f]<=x1b2; b1f=bunchp2[b1f]) { }
+    while (dxb2[b1f]<=x1b2) b1f=bunchp2[b1f];
     return wallfront(b1f, b2f);
 }
 
@@ -3672,16 +3672,16 @@ void polymost_scansector(int32_t sectnum)
         {
             tspritetype const * const spr = (tspritetype *)&sprite[z];
 
-            if ((spr->cstat & 0x8000 && !showinvisibility) || spr->xrepeat == 0 || spr->yrepeat == 0)
-                continue;
-
-            vec2_t const s = { spr->x-globalposx, spr->y-globalposy };
-
-            if ((spr->cstat&48) || (usemodels && tile2model[spr->picnum].modelid>=0) || ((s.x * gcosang) + (s.y * gsinang) > 0))
+            if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) && (spr->xrepeat > 0) && (spr->yrepeat > 0))
             {
-                if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-s.x, sintable[spr->ang&2047],-s.y) > 0)
-                    if (engine_addtsprite(z, sectnum))
-                        break;
+                vec2_t const s = { spr->x-globalposx, spr->y-globalposy };
+
+                if ((spr->cstat&48) || (usemodels && tile2model[spr->picnum].modelid>=0) || ((s.x * gcosang) + (s.y * gsinang) > 0))
+                {
+                    if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-s.x, sintable[spr->ang&2047],-s.y) > 0)
+                        if (engine_addtsprite(z, sectnum))
+                            break;
+                }
             }
         }
 
@@ -3735,34 +3735,40 @@ void polymost_scansector(int32_t sectnum)
             p2.x = ((fp2.y * fcosglobalang) - (fp2.x * fsinglobalang)) * (1.0f/64.f);
             p2.y = ((fp2.x * (float) cosviewingrangeglobalang) + (fp2.y * (float) sinviewingrangeglobalang)) * (1.0f/64.f);
 
-            if ((p1.y >= SCISDIST) || (p2.y >= SCISDIST))
-                if (p1.x*p2.y < p2.x*p1.y) //if wall is facing you...
+            //if wall is facing you...
+            if ((p1.y >= SCISDIST || p2.y >= SCISDIST) && (p1.x*p2.y < p2.x*p1.y))
+            {
+                dxb1[numscans] = (p1.y >= SCISDIST) ? (p1.x*ghalfx/p1.y + ghalfx) : -1e32f;
+                dxb2[numscans] = (p2.y >= SCISDIST) ? (p2.x*ghalfx/p2.y + ghalfx) : 1e32f;
+
+                if (dxb1[numscans] < dxb2[numscans])
                 {
-                    if (p1.y >= SCISDIST)
-                        dxb1[numscans] = p1.x*ghalfx/p1.y + ghalfx;
-                    else dxb1[numscans] = -1e32f;
-
-                    if (p2.y >= SCISDIST)
-                        dxb2[numscans] = p2.x*ghalfx/p2.y + ghalfx;
-                    else dxb2[numscans] = 1e32f;
-
-                    if (dxb1[numscans] < dxb2[numscans])
-                        { thesector[numscans] = sectnum; thewall[numscans] = z; bunchp2[numscans] = numscans+1; numscans++; }
+                    thesector[numscans] = sectnum;
+                    thewall[numscans] = z;
+                    bunchp2[numscans] = numscans + 1;
+                    numscans++;
                 }
+            }
 
             if ((wall[z].point2 < z) && (scanfirst < numscans))
-                { bunchp2[numscans-1] = scanfirst; scanfirst = numscans; }
+            {
+                bunchp2[numscans-1] = scanfirst;
+                scanfirst = numscans;
+            }
         }
 
         for (int z=numscansbefore; z<numscans; z++)
+        {
             if ((wall[thewall[z]].point2 != thewall[bunchp2[z]]) || (dxb2[z] > dxb1[bunchp2[z]]))
             {
-                bunchfirst[numbunches++] = bunchp2[z]; bunchp2[z] = -1;
+                bunchfirst[numbunches++] = bunchp2[z];
+                bunchp2[z] = -1;
 #ifdef YAX_ENABLE
                 if (scansector_retfast)
                     return;
 #endif
             }
+        }
 
         for (int z=bunchfrst; z<numbunches; z++)
         {
@@ -3787,7 +3793,8 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
 
     int32_t imin = (px[1] < px[0]);
 
-    for (int i=n-1; i>=2; i--) if (px[i] < px[imin]) imin = i;
+    for (int i=n-1; i>=2; i--)
+        if (px[i] < px[imin]) imin = i;
 
     int32_t vcnt = 1; //0 is dummy solid node
 
@@ -4149,12 +4156,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     int method = DAMETH_MASK | DAMETH_WALL;
 
     if (wal->cstat & 128)
-    {
-        if (!(wal->cstat & 512))
-            method = DAMETH_TRANS1 | DAMETH_WALL;
-        else
-            method = DAMETH_TRANS2 | DAMETH_WALL;
-    }
+        method = DAMETH_WALL | ((wal->cstat & 512)) ? DAMETH_TRANS2 : DAMETH_TRANS1;
 
     calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
@@ -4260,7 +4262,7 @@ typedef struct
 
 wallspriteinfo_t wsprinfo[MAXSPRITES];
 
-static inline int32_t polymost_findwall(tspritetype const * const tspr, int32_t * rd)
+static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
     int32_t dist = 4, closest = -1;
     tsectortype const * const sect = (tsectortype  * )&sector[tspr->sectnum];
@@ -4268,7 +4270,8 @@ static inline int32_t polymost_findwall(tspritetype const * const tspr, int32_t 
 
     for (int i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
     {
-        if (!polymost_getclosestpointonwall((const vec2_t *)tspr, i, &n))
+        if ((wall[i].nextsector == -1 || ((sector[wall[i].nextsector].ceilingz > (tspr->z - ((tsiz->y * tspr->yrepeat) << 2))) ||
+             sector[wall[i].nextsector].floorz < tspr->z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, i, &n))
         {
             int const dst = klabs(tspr->x - n.x) + klabs(tspr->y - n.y);
 
@@ -4363,12 +4366,7 @@ void polymost_drawsprite(int32_t snum)
     int32_t method = DAMETH_MASK | DAMETH_CLAMPED;
 
     if (tspr->cstat & 2)
-    {
-        if (!(tspr->cstat & 512))
-            method = DAMETH_TRANS1 | DAMETH_CLAMPED;
-        else
-            method = DAMETH_TRANS2 | DAMETH_CLAMPED;
-    }
+        method = DAMETH_CLAMPED | ((tspr->cstat & 512) ? DAMETH_TRANS2 : DAMETH_TRANS1);
 
     drawpoly_alpha = spriteext[spritenum].alpha;
 
@@ -4381,16 +4379,13 @@ void polymost_drawsprite(int32_t snum)
         if (usemodels && tile2model[Ptile2tile(tspr->picnum, tspr->pal)].modelid >= 0 &&
             tile2model[Ptile2tile(tspr->picnum, tspr->pal)].framenum >= 0)
         {
-            if (polymost_mddraw(tspr))
-                return;
-
+            if (polymost_mddraw(tspr)) return;
             break;  // else, render as flat sprite
         }
 
         if (usevoxels && (tspr->cstat & 48) != 48 && tiletovox[tspr->picnum] >= 0 && voxmodels[tiletovox[tspr->picnum]])
         {
-            if (polymost_voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr))
-                return;
+            if (polymost_voxdraw(voxmodels[tiletovox[tspr->picnum]], tspr)) return;
             break;  // else, render as flat sprite
         }
 
@@ -4579,7 +4574,7 @@ void polymost_drawsprite(int32_t snum)
             if (s == -1 || !wsprinfo[s].wall || (spritechanged[s] != wsprinfo[s].srev) ||
                 (w != -1 && wallchanged[w] != wsprinfo[s].wrev))
             {
-                w = polymost_findwall(tspr, &walldist);
+                w = polymost_findwall(tspr, &tsiz, &walldist);
 
                 if (s != -1 && w != -1)
                 {
@@ -4770,8 +4765,6 @@ void polymost_drawsprite(int32_t snum)
                 if ((globalorientation & 8) > 0)
                     off.y = -off.y;
 
-                vec2f_t pxy[6];
-
                 vec2f_t const p0 = { (float)((tsiz.x >> 1) - off.x) * tspr->xrepeat,
                                      (float)((tsiz.y >> 1) - off.y) * tspr->yrepeat },
                               p1 = { (float)((tsiz.x >> 1) + off.x) * tspr->xrepeat,
@@ -4779,6 +4772,8 @@ void polymost_drawsprite(int32_t snum)
 
                 float const c = sintable[(tspr->ang + 512) & 2047] * (1.0f / 65536.f);
                 float const s = sintable[tspr->ang & 2047] * (1.0f / 65536.f);
+
+                vec2f_t pxy[6];
 
                 // Project 3D to 2D
                 for (int j = 0; j < 4; j++)
@@ -5650,14 +5645,12 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
             scy *= ydime/xdime;
     }
 
-    {
-        int32_t ousehightile = usehightile;
-        usehightile = usehitile && usehightile;
-        pth = texcache_fetch(wallnum, 0, 0, DAMETH_CLAMPED);
-        if (usehightile)
-            loadedhitile[wallnum>>3] |= (1<<(wallnum&7));
-        usehightile = ousehightile;
-    }
+    int32_t const ousehightile = usehightile;
+    usehightile = usehitile && usehightile;
+    pth = texcache_fetch(wallnum, 0, 0, DAMETH_CLAMPED);
+    if (usehightile)
+        loadedhitile[wallnum>>3] |= (1<<(wallnum&7));
+    usehightile = ousehightile;
 
     bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
