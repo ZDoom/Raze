@@ -218,7 +218,7 @@ int32_t pk_uedaccel=3;
 int8_t keeptexturestretch = 1;
 int8_t sideview_reversehrot = 0;
 
-int16_t pointhighlightdist = 512;
+int16_t pointhighlightdist = 128;
 int16_t linehighlightdist = 1024;
 
 char lastpm16buf[156];
