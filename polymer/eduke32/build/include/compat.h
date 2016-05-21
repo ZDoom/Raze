@@ -987,9 +987,9 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 # define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLLOC, xcalloc(nmemb, size))
 # define Xrealloc(ptr, size) (EDUKE32_PRE_XALLLOC, xrealloc(ptr, size))
 # if !defined NO_ALIGNED_MALLOC
-#  define Xaligned_alloc(size, alignment) (EDUKE32_PRE_XALLLOC, xaligned_malloc(size, alignment))
+#  define Xaligned_alloc(alignment, size) (EDUKE32_PRE_XALLLOC, xaligned_malloc(size, alignment))
 # else
-#  define Xaligned_alloc(size, alignment) Xmalloc(size)
+#  define Xaligned_alloc(alignment, size) Xmalloc(size)
 # endif
 # define Bexit(status) do { initprintf("exit(%d) at %s:%d in %s()\n", status, __FILE__, __LINE__, EDUKE32_FUNCTION); exit(status); } while (0)
 #else
@@ -1000,7 +1000,7 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 # if !defined NO_ALIGNED_MALLOC
 #  define Xaligned_alloc xaligned_malloc
 # else
-#  define Xaligned_alloc(size, alignment) Xmalloc(size)
+#  define Xaligned_alloc(alignment, size) Xmalloc(size)
 # endif
 # define Bexit exit
 #endif
