@@ -987,7 +987,7 @@ FORCE_INLINE void *xaligned_malloc(const bsize_t alignment, const bsize_t size)
 # define Xcalloc(nmemb, size) (EDUKE32_PRE_XALLLOC, xcalloc(nmemb, size))
 # define Xrealloc(ptr, size) (EDUKE32_PRE_XALLLOC, xrealloc(ptr, size))
 # if !defined NO_ALIGNED_MALLOC
-#  define Xaligned_alloc(alignment, size) (EDUKE32_PRE_XALLLOC, xaligned_malloc(size, alignment))
+#  define Xaligned_alloc(alignment, size) (EDUKE32_PRE_XALLLOC, xaligned_malloc(alignment, size))
 # else
 #  define Xaligned_alloc(alignment, size) Xmalloc(size)
 # endif
