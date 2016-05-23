@@ -277,7 +277,7 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
 endif
 
 CONLYFLAGS=-std=gnu99 -Wimplicit -Werror-implicit-function-declaration
-CPPONLYFLAGS= -fno-exceptions -fno-rtti
+CXXONLYFLAGS= -fno-exceptions -fno-rtti
 ASFORMAT=elf$(SYSBITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
 LINKERFLAGS=
@@ -1090,7 +1090,7 @@ COMPILER=$(CC) $(CONLYFLAGS)
 COMPILER_OBJC=$(COBJC) $(CONLYFLAGS)
 LINKER=$(L_CC)
 ifneq ($(CPLUSPLUS),0)
-    COMPILER=$(CXX) $(CPPONLYFLAGS)
+    COMPILER=$(CXX) $(CXXONLYFLAGS)
     LINKER=$(L_CXX)
 endif
 
@@ -1101,7 +1101,7 @@ ifneq (,$(CFLAGS))
     COMMONFLAGS+= $(CFLAGS)
 endif
 ifneq (,$(CXXFLAGS))
-    CPPONLYFLAGS+= $(CXXFLAGS)
+    CXXONLYFLAGS+= $(CXXFLAGS)
 endif
 ifneq (,$(LDFLAGS))
     LINKERFLAGS+= $(LDFLAGS)
