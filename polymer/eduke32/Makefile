@@ -559,11 +559,11 @@ libcache1d$(DLLSUFFIX): $(ENGINE_SRC)/cache1d.c
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) -Wall -Wextra -DCACHE1D_COMPRESS_ONLY -shared -fPIC $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-%$(EXESUFFIX): $(ENGINE_OBJ)/%.$o $(UTIL_OBJS_EXP)
+%$(EXESUFFIX): $(ENGINE_OBJ)/%.$o $(UTIL_OBJS_EXP) | $(ENGINE_OBJ)
 	$(ONESTEP_STATUS)
 	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_ONESTEP)
 
-%$(EXESUFFIX): $(DUKE3D_OBJ)/%.$o
+%$(EXESUFFIX): $(DUKE3D_OBJ)/%.$o | $(DUKE3D_OBJ)
 	$(ONESTEP_STATUS)
 	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_ONESTEP)
 
@@ -583,7 +583,7 @@ arttool$(EXESUFFIX): $(ENGINE_OBJ)/arttool.$o
 #### Lunatic
 
 # Create object files directly with luajit
-$(DUKE3D_OBJ)/luaJIT_BC_%.$o: source/lunatic/%.lua
+$(DUKE3D_OBJ)/luaJIT_BC_%.$o: source/lunatic/%.lua | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(LUAJIT) -bg $(LUAJIT_BCOPTS) $< $@ $(RECIPE_RESULT_COMPILE)
 
@@ -591,29 +591,29 @@ $(DUKE3D_OBJ)/luaJIT_BC_%.$o: source/lunatic/%.lua
 # NOTE: The target path must match EXACTLY with that of the DEFS_BC_SIZE
 # determination in Makefile.common, because it is embedded into the bytecode as
 # debugging information.
-$(DUKE3D_OBJ)/luaJIT_BC_%.$o: source/lunatic/%.ilua
+$(DUKE3D_OBJ)/luaJIT_BC_%.$o: source/lunatic/%.ilua | $(DUKE3D_OBJ)
 	$(RECIPE_IF) $(LUAJIT) -bg $(LUAJIT_BCOPTS) $< $@ $(RECIPE_RESULT_COMPILE)
 
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/lunatic/%.c
+$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/lunatic/%.c | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
 # List of exported symbols, OS X
-$(DUKE3D_OBJ)/lunatic_dynsymlist_osx: $(DUKE3D_SRC)/lunatic/dynsymlist
+$(DUKE3D_OBJ)/lunatic_dynsymlist_osx: $(DUKE3D_SRC)/lunatic/dynsymlist | $(DUKE3D_OBJ)
 	sed 's/[{};]//g;s/[A-Za-z_][A-Za-z_0-9]*/_&/g' $< > $@
 
-$(DUKE3D_OBJ)/lunatic_dynsymlist_m32_osx: $(DUKE3D_SRC)/lunatic/dynsymlist_m32
+$(DUKE3D_OBJ)/lunatic_dynsymlist_m32_osx: $(DUKE3D_SRC)/lunatic/dynsymlist_m32 | $(DUKE3D_OBJ)
 	sed 's/[{};]//g;s/[A-Za-z_][A-Za-z_0-9]*/_&/g' $< > $@
 
-#$(DUKE3D_OBJ)/lunatic_aliases_list: $(DUKE3D_OBJ)/lunatic_dynsymlist_osx
+#$(DUKE3D_OBJ)/lunatic_aliases_list: $(DUKE3D_OBJ)/lunatic_dynsymlist_osx | $(DUKE3D_OBJ)
 #	sed 's/_\([A-Za-z_][A-Za-z_0-9]*\)/_\1 \1/g' $< > $@
 
 # List of exported symbols, Windows
-$(DUKE3D_OBJ)/lunatic_eduke32.def: $(DUKE3D_SRC)/lunatic/dynsymlist
+$(DUKE3D_OBJ)/lunatic_eduke32.def: $(DUKE3D_SRC)/lunatic/dynsymlist | $(DUKE3D_OBJ)
 	echo EXPORTS > $@
 	sed 's/[{};]//g' $< >> $@
 
-$(DUKE3D_OBJ)/lunatic_mapster32.def: $(DUKE3D_SRC)/lunatic/dynsymlist_m32
+$(DUKE3D_OBJ)/lunatic_mapster32.def: $(DUKE3D_SRC)/lunatic/dynsymlist_m32 | $(DUKE3D_OBJ)
 	echo EXPORTS > $@
 	sed 's/[{};]//g' $< >> $@
 
