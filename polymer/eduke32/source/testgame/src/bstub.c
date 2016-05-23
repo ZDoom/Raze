@@ -271,7 +271,7 @@ extern intptr_t voxoff[][MAXVOXMIPS];
 void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr)
 {
     int i, *longptr;
-    spritetype *tspr;
+    tspritetype *tspr;
 
     UNREFERENCED_PARAMETER(ourx);
     UNREFERENCED_PARAMETER(oury);
