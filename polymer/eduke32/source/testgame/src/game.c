@@ -2041,7 +2041,7 @@ void analyzesprites(int dax, int day)
 
 void tagcode(void)
 {
-    int i, /*nexti,*/ j, k, l, s, dax, day, /*daz, dax2, day2,*/ cnt, good;
+    int i, /*nexti,*/ j, k, l, s, /*daz, dax2, day2,*/ cnt, good;
     short startwall, endwall, dasector, p, oldang;
 
     for (p=connecthead; p>=0; p=connectpoint2[p])
@@ -2165,7 +2165,11 @@ void tagcode(void)
                 if (swingang[i] == swingangopen[i]) swinganginc[i] = 0;
             }
             for (k=1; k<=3; k++)
-                rotatepoint(swingx[i][0],swingy[i][0],swingx[i][k],swingy[i][k],swingang[i],&wall[swingwall[i][k]].x,&wall[swingwall[i][k]].y);
+            {
+                vec2_t const pivot = { swingx[i][0], swingy[i][0] };
+                vec2_t const p = { swingx[i][k], swingy[i][k] };
+                rotatepoint(pivot, p, swingang[i], (vec2_t *)&wall[swingwall[i][k]].x);
+            }
 
             if (swinganginc[i] != 0)
             {
@@ -2197,7 +2201,11 @@ void tagcode(void)
                                     swingang[i] = ((swingang[i]-swinganginc[i])&2047);
                                 }
                                 for (k=1; k<=3; k++)
-                                    rotatepoint(swingx[i][0],swingy[i][0],swingx[i][k],swingy[i][k],swingang[i],&wall[swingwall[i][k]].x,&wall[swingwall[i][k]].y);
+                                {
+                                    vec2_t const pivot = { swingx[i][0], swingy[i][0] };
+                                    vec2_t const p = { swingx[i][k], swingy[i][k] };
+                                    rotatepoint(pivot, p, swingang[i], (vec2_t *)&wall[swingwall[i][k]].x);
+                                }
                                 if (swingang[i] == swingangclosed[i])
                                 {
                                     wsayfollow("closdoor.wav",4096L+(krand()&511)-256,256L,&swingx[i][0],&swingy[i][0],0);
@@ -2232,8 +2240,11 @@ void tagcode(void)
         revolveang[i] = ((revolveang[i]-(TICSPERFRAME<<2))&2047);
         for (k=startwall; k<endwall; k++)
         {
-            rotatepoint(revolvepivotx[i],revolvepivoty[i],revolvex[i][k-startwall],revolvey[i][k-startwall],revolveang[i],&dax,&day);
-            dragpoint(k,dax,day,0);
+            vec2_t const pivot = { revolvepivotx[i], revolvepivoty[i] };
+            vec2_t const p = { revolvex[i][k-startwall], revolvey[i][k-startwall] };
+            vec2_t daxy;
+            rotatepoint(pivot, p, revolveang[i], &daxy);
+            dragpoint(k,daxy.x,daxy.y,0);
         }
     }
 

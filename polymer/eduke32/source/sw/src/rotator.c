@@ -309,7 +309,7 @@ int DoRotatorMove(short SpriteNum)
     short ndx,w,startwall,endwall;
     SPRITEp pivot = NULL;
     int i, nexti;
-    int nx,ny;
+    vec2_t nxy;
     int dist,closest;
     SWBOOL kill = FALSE;
 
@@ -408,9 +408,8 @@ int DoRotatorMove(short SpriteNum)
     // move points
     for (w = startwall, ndx = 0; w <= endwall; w++)
     {
-        rotatepoint(pivot->x, pivot->y,
-                    r->origx[ndx], r->origy[ndx],
-                    r->pos, &nx, &ny);
+        vec2_t const orig = { r->origx[ndx], r->origy[ndx] };
+        rotatepoint(*(vec2_t *)&pivot->x, orig, r->pos, &nxy);
 
         dragpoint(w, nx, ny, 0);
         ndx++;

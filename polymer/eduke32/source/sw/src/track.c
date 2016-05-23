@@ -1659,7 +1659,7 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
     // increment Players delta angle
     pp->RevolveDeltaAng = NORM_ANGLE(pp->RevolveDeltaAng + GlobSpeedSO);
 
-    rotatepoint(sop->xmid, sop->ymid, pp->RevolveX, pp->RevolveY, pp->RevolveDeltaAng, &pp->posx, &pp->posy);
+    rotatepoint(*(vec2_t *)&sop->xmid, *(vec2_t *)&pp->RevolveX, pp->RevolveDeltaAng, (vec2_t *)&pp->posx);
 
     // THIS WAS CAUSING PROLEMS!!!!
     // Sectors are still being manipulated so you can end up in a void (-1) sector
@@ -1675,7 +1675,8 @@ MovePlayer(PLAYERp pp, SECTOR_OBJECTp sop, int nx, int ny)
 void
 MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
 {
-    int j, k, c, rx, ry;
+    int j, k, c;
+    vec2_t rxy;
     short startwall, endwall, save_ang, pnum;
     PLAYERp pp;
     SECTORp *sectp;
@@ -1741,16 +1742,16 @@ MovePoints(SECTOR_OBJECTp sop, short delta_ang, int nx, int ny)
             if (TEST(wp->extra, WALLFX_LOOP_SPIN_4X))
                 rot_ang = NORM_ANGLE(rot_ang * 4);
 
-            rotatepoint(sop->xmid, sop->ymid, wp->x, wp->y, rot_ang, &rx, &ry);
+            rotatepoint(*(vec2_t *)&sop->xmid, *(vec2_t *)&wp->x, rot_ang, &rxy);
 
             if (wp->extra && TEST(wp->extra, WALLFX_LOOP_OUTER))
             {
-                dragpoint(k, rx, ry, 0);
+                dragpoint(k, rxy.x, rxy.y, 0);
             }
             else
             {
-                wp->x = rx;
-                wp->y = ry;
+                wp->x = rxy.x;
+                wp->y = rxy.y;
             }
         }
 
@@ -1853,12 +1854,12 @@ PlayerPart:
 
             if (TEST(wall[sector[sp->sectnum].wallptr].extra, WALLFX_LOOP_REVERSE_SPIN))
             {
-                rotatepoint(sop->xmid, sop->ymid, sp->x, sp->y, -delta_ang, &sp->x, &sp->y);
+                rotatepoint(*(vec2_t *)&sop->xmid, *(vec2_t *)&sp->x, -delta_ang, (vec2_t *)&sp->x);
                 sp->ang = NORM_ANGLE(sp->ang - delta_ang);
             }
             else
             {
-                rotatepoint(sop->xmid, sop->ymid, sp->x, sp->y, delta_ang, &sp->x, &sp->y);
+                rotatepoint(*(vec2_t *)&sop->xmid, *(vec2_t *)&sp->x, delta_ang, (vec2_t *)&sp->x);
                 sp->ang = NORM_ANGLE(sp->ang + delta_ang);
             }
 
@@ -1868,7 +1869,7 @@ PlayerPart:
             if (!TEST(sop->flags, SOBJ_DONT_ROTATE))
             {
                 // NOT part of a sector - independant of any sector
-                rotatepoint(sop->xmid, sop->ymid, sp->x, sp->y, delta_ang, &sp->x, &sp->y);
+                rotatepoint(*(vec2_t *)&sop->xmid, *(vec2_t *)&sp->x, delta_ang, (vec2_t *)&sp->x);
                 sp->ang = NORM_ANGLE(sp->ang + delta_ang);
             }
 

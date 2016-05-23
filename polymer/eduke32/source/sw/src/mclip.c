@@ -525,7 +525,8 @@ int testpointinquad(int x, int y, int *qx, int *qy)
 
 short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy)
 {
-    int i, x[4], y[4];
+    int i;
+    vec2_t xy[4];
     SECTOR_OBJECTp sop = pp->sop;
     int ret;
     short ang;
@@ -535,9 +536,10 @@ short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy
     rot_ang = NORM_ANGLE(new_ang + sop->spin_ang - sop->ang_orig);
     for (i = 0; i < 4; i++)
     {
-        rotatepoint(pp->posx, pp->posy, ox[i], oy[i], rot_ang, &x[i], &y[i]);
+        vec2_t const p = { ox[i], oy[i] };
+        rotatepoint(*(vec2_t *)&pp->posx, p, rot_ang, &xy[i]);
         // cannot use sop->xmid and ymid because the SO is off the map at this point
-        //rotatepoint(sop->xmid, sop->ymid, ox[i], oy[i], rot_ang, &x[i], &y[i]);
+        //rotatepoint(*(vec2_t *)&sop->xmid, p, rot_ang, &xy[i]);
     }
 
     //Given the 4 points: x[4], y[4]
@@ -546,8 +548,8 @@ short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy
         // move to new pos
         for (i = 0; i < 4; i++)
         {
-            qx[i] = x[i];
-            qy[i] = y[i];
+            qx[i] = xy[i].x;
+            qy[i] = xy[i].y;
         }
         return TRUE;
     }

@@ -1833,23 +1833,21 @@ void DrawCrosshair(PLAYERp pp)
         {
             SPRITEp hp = &sprite[hit_sprite];
             USERp hu = User[hit_sprite];
-            int dx,dy,dz;
-
+            vec2_t const zero = { 0, 0 };
 
             // Find the delta coordinates from player to monster that is targeted
-            dx = hp->x - pp->posx;
-            dy = hp->y - pp->posy;
-            dz = ((hp->z - (SPRITE_SIZE_Z(hit_sprite)/2)) - pp->posz) >> 4;
+            vec2_t dxy = { hp->x - pp->posx, hp->y - pp->posy };
+            int dz = ((hp->z - (SPRITE_SIZE_Z(hit_sprite)/2)) - pp->posz) >> 4;
 
-            rotatepoint(0,0,dx,dy,(-pp->pang)&2047,&dx,&dy);
+            rotatepoint(zero, dxy, (-pp->pang)&2047, &dxy);
 
-            if (dx == 0) return;
+            if (dxy.x == 0) return;
 
             wdx = windowx1 + ((windowx2-windowx1)/2);
             wdy = windowy1 + ((windowy2-windowy1)/2);
 
-            x = (dy * wdx << 8) / dx + (wdx << 8);
-            y = (dz * wdx << 8) / dx + (wdy << 8);
+            x = (dxy.y * wdx << 8) / dxy.x + (wdx << 8);
+            y = (dz * wdx << 8) / dxy.x + (wdy << 8);
 
             y -= 100;
             y += (pp->horiz*wdx)/160;
