@@ -55,8 +55,8 @@ void musicoff(void);
 void refreshaudio(void);
 
 // declared in config.c
-int loadsetup(const char *);
-int writesetup(const char *);
+int Ken_loadsetup(const char *);
+int Ken_writesetup(const char *);
 
 /***************************************************************************
     KEN'S TAG DEFINITIONS:      (Please define your own tags for your games)
@@ -508,7 +508,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
         }
     }
 
-    if ((i = loadsetup(setupfilename)) < 0)
+    if ((i = Ken_loadsetup(setupfilename)) < 0)
         buildputs("Configuration file not found, using defaults.\n");
 
 #if defined STARTUP_SETUP_WINDOW
@@ -517,7 +517,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
         if (quitevent || !startwin_run()) return -1;
     }
 #endif
-    writesetup(setupfilename);
+    Ken_writesetup(setupfilename);
 
     initgroupfile(G_GrpFile());
     if (initengine())
@@ -5035,7 +5035,7 @@ void initlava(void)
     modify exact [eax edx]
 int addlava(int);
 #elif defined(_MSC_VER) && !defined(NOASM)
-inline int addlava(void *b)
+int addlava(void *b)
 {
     _asm
     {
@@ -5051,7 +5051,7 @@ inline int addlava(void *b)
     }
 }
 #elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
-inline int addlava(void *b)
+int addlava(void *b)
 {
     int r;
     __asm__ __volatile__(
@@ -5069,7 +5069,7 @@ inline int addlava(void *b)
     return r;
 }
 #else
-inline int addlava(void *bx)
+int addlava(void *bx)
 {
     char *b = (char *)bx;
     return b[-133] + b[-132] + b[-131] + b[1] + b[-1] + b[131] + b[132];

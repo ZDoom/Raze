@@ -58,7 +58,7 @@ extern short brightness;
 extern int fullscreen;
 extern unsigned char option[8];
 extern unsigned char keys[NUMBUILDKEYS];
-extern double msens;
+double msens;
 
 /*
  * SETUP.DAT
@@ -98,7 +98,7 @@ extern double msens;
  * 18     = Chat (0xf)
  */
 
-int loadsetup(const char *fn)
+int Ken_loadsetup(const char *fn)
 {
     BFILE *fp;
 #define VL 32
@@ -160,7 +160,7 @@ int loadsetup(const char *fn)
     return 0;
 }
 
-int writesetup(const char *fn)
+int Ken_writesetup(const char *fn)
 {
     BFILE *fp;
 
