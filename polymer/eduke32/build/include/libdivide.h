@@ -238,7 +238,7 @@ static inline __m128i libdivide__u64_to_m128(uint64_t x) {
 #elif defined(__ICC)
     uint64_t __attribute__((aligned(16))) temp[2] = {x,x};
     return _mm_load_si128((const __m128i*)temp);
-#elif __clang__
+#elif __clang__ && (2 > __clang_major__ || (2 == __clang_major__ && 7 > __clang_minor__))
     // clang does not provide this intrinsic either
     return (__m128i){x, x};
 #else
