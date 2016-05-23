@@ -189,6 +189,9 @@ KENBUILD_CFLAGS=-I$(KENBUILD_SRC)
 KENBUILD_GAME ?= kenbuild
 KENBUILD_EDITOR ?= kenbuild-editor
 
+KENBUILD_GAME_PROPER ?= KenBuild
+KENBUILD_EDITOR_PROPER ?= KenBuild Editor
+
 KENBUILD_GAME_OBJS=game sound_stub common config
 KENBUILD_EDITOR_OBJS=bstub common
 
@@ -227,6 +230,9 @@ DUKE3D_OBJ=$(DUKE3D_SRC)/$(obj)
 
 DUKE3D_GAME ?= eduke32
 DUKE3D_EDITOR ?= mapster32
+
+DUKE3D_GAME_PROPER ?= EDuke32
+DUKE3D_EDITOR_PROPER ?= Mapster32
 
 COMMON_GAME_OBJS=rev
 COMMON_EDITOR_OBJS=m32common m32def m32exec m32vars rev
@@ -370,6 +376,9 @@ SW_CFLAGS=-I$(SW_INC)
 SW_GAME ?= voidsw
 SW_EDITOR ?= voidsw-editor
 
+SW_GAME_PROPER ?= VoidSW
+SW_EDITOR_PROPER ?= VoidSW Editor
+
 SW_GAME_OBJS=actor ai anim border break bunny cache cheats colormap common config console coolg coolie copysect demo draw eel game girlninj goro grpscan hornet interp interpsh inv jplayer jsector jweapon lava light mclip mdastr menus miscactr morph net ninja panel player predict quake ripper ripper2 rooms rotator rts save scrip2 sector serp setup skel skull slidor sounds spike sprite sumo swconfig sync text track vator vis wallmove warp weapon zilla zombie saveable
 SW_EDITOR_OBJS=jnstub brooms bldscript jbhlp colormap grpscan common
 
@@ -474,9 +483,9 @@ ifneq ($(STRIP),)
 	$(STRIP) $@
 endif
 ifeq ($(PLATFORM),DARWIN)
-	cp -RPf "platform/Apple/bundles/EDuke32.app" "./"
-	mkdir -p "EDuke32.app/Contents/MacOS"
-	cp -f "$(DUKE3D_GAME)$(EXESUFFIX)" "EDuke32.app/Contents/MacOS/"
+	cp -RPf "platform/Apple/bundles/$(DUKE3D_GAME_PROPER).app" "./"
+	mkdir -p "$(DUKE3D_GAME_PROPER).app/Contents/MacOS"
+	cp -f "$(DUKE3D_GAME)$(EXESUFFIX)" "$(DUKE3D_GAME_PROPER).app/Contents/MacOS/"
 endif
 
 $(DUKE3D_EDITOR)$(EXESUFFIX): $(DUKE3D_EDITOR_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(DUKE3D_EDITOR_MISCDEPS)
@@ -491,9 +500,9 @@ ifneq ($(STRIP),)
 	$(STRIP) $@
 endif
 ifeq ($(PLATFORM),DARWIN)
-	cp -RPf "platform/Apple/bundles/Mapster32.app" "./"
-	mkdir -p "Mapster32.app/Contents/MacOS"
-	cp -f "$(DUKE3D_EDITOR)$(EXESUFFIX)" "Mapster32.app/Contents/MacOS/"
+	cp -RPf "platform/Apple/bundles/$(DUKE3D_EDITOR_PROPER).app" "./"
+	mkdir -p "$(DUKE3D_EDITOR_PROPER).app/Contents/MacOS"
+	cp -f "$(DUKE3D_EDITOR)$(EXESUFFIX)" "$(DUKE3D_EDITOR_PROPER).app/Contents/MacOS/"
 endif
 
 $(SW_GAME)$(EXESUFFIX): $(SW_GAME_OBJS_EXP) $(COMMON_OBJS_EXP) $(MIDI_OBJS_EXP) $(ENGINE_OBJS_EXP) $(MACT_OBJS_EXP) $(AUDIOLIB_OBJS_EXP)
@@ -736,7 +745,7 @@ ifeq ($(PRETTY_OUTPUT),1)
 endif
 	-rm -f $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX) $(DUKE3D_OBJ)/*.$o $(DUKE3D_GAME_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)
 ifeq ($(PLATFORM),DARWIN)
-	-rm -rf EDuke32.app Mapster32.app
+	-rm -rf "$(DUKE3D_GAME_PROPER).app" "$(DUKE3D_EDITOR_PROPER).app"
 endif
 
 cleantest:
