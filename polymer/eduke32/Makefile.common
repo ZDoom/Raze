@@ -103,34 +103,32 @@ SYSBITS=32
 # CC and giving us PLATFORM specifically.
 #
 ifndef HOSTPLATFORM
-    uname:=$(strip $(shell uname -s))
     HOSTPLATFORM=UNKNOWN
-    ifeq ($(findstring Linux,$(uname)),Linux)
-        HOSTPLATFORM=LINUX
-    endif
-    ifeq ($(findstring BSD,$(uname)),BSD)
-        HOSTPLATFORM=BSD
-    endif
-    ifeq ($(findstring MINGW,$(uname)),MINGW)
+    ifeq ($(findstring Windows,$(OS)),Windows)
         HOSTPLATFORM=WINDOWS
-    endif
-    ifeq ($(findstring Darwin,$(uname)),Darwin)
-        HOSTPLATFORM=DARWIN
-    endif
-    ifeq ($(findstring BeOS,$(uname)),BeOS)
-        HOSTPLATFORM=BEOS
-    endif
-    ifeq ($(findstring skyos,$(uname)),skyos)
-        HOSTPLATFORM=SKYOS
-    endif
-    ifeq ($(findstring QNX,$(uname)),QNX)
-        HOSTPLATFORM=QNX
-    endif
-    ifeq ($(findstring SunOS,$(uname)),SunOS)
-        HOSTPLATFORM=SUNOS
-    endif
-    ifeq ($(findstring syllable,$(uname)),syllable)
-        HOSTPLATFORM=SYLLABLE
+    else
+        uname:=$(strip $(shell uname -s))
+        ifeq ($(findstring Linux,$(uname)),Linux)
+            HOSTPLATFORM=LINUX
+        else ifeq ($(findstring BSD,$(uname)),BSD)
+            HOSTPLATFORM=BSD
+        else ifeq ($(findstring MINGW,$(uname)),MINGW)
+            HOSTPLATFORM=WINDOWS
+        else ifeq ($(findstring MSYS,$(uname)),MSYS)
+            HOSTPLATFORM=WINDOWS
+        else ifeq ($(findstring Darwin,$(uname)),Darwin)
+            HOSTPLATFORM=DARWIN
+        else ifeq ($(findstring BeOS,$(uname)),BeOS)
+            HOSTPLATFORM=BEOS
+        else ifeq ($(findstring skyos,$(uname)),skyos)
+            HOSTPLATFORM=SKYOS
+        else ifeq ($(findstring QNX,$(uname)),QNX)
+            HOSTPLATFORM=QNX
+        else ifeq ($(findstring SunOS,$(uname)),SunOS)
+            HOSTPLATFORM=SUNOS
+        else ifeq ($(findstring syllable,$(uname)),syllable)
+            HOSTPLATFORM=SYLLABLE
+        endif
     endif
 endif
 ifndef PLATFORM
