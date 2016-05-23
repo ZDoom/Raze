@@ -179,78 +179,78 @@ UTIL_OBJS_EXP:=$(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(UTIL_OBJS)))
 
 # KenBuild (Test Game)
 
-TESTGAME_ROOT=$(DUKE3D_SRC)/testgame
-TESTGAME_SRC=$(TESTGAME_ROOT)/src
-TESTGAME_RSRC=$(TESTGAME_ROOT)/rsrc
-TESTGAME_OBJ=$(TESTGAME_ROOT)/$(obj)
+KENBUILD_ROOT=$(DUKE3D_SRC)/testgame
+KENBUILD_SRC=$(KENBUILD_ROOT)/src
+KENBUILD_RSRC=$(KENBUILD_ROOT)/rsrc
+KENBUILD_OBJ=$(KENBUILD_ROOT)/$(obj)
 
-TEST_CFLAGS=-I$(TESTGAME_SRC)
+KENBUILD_CFLAGS=-I$(KENBUILD_SRC)
 
-TESTGAME ?= testgame
-TESTEDITOR ?= testeditor
+KENBUILD_GAME ?= kenbuild
+KENBUILD_EDITOR ?= kenbuild-editor
 
-TESTGAME_OBJS=game sound_stub common config
-TESTEDITOR_OBJS=bstub common
+KENBUILD_GAME_OBJS=game sound_stub common config
+KENBUILD_EDITOR_OBJS=bstub common
 
 ifeq ($(RENDERTYPE),SDL)
     ifeq (1,$(HAVE_GTK2))
-        TESTGAME_OBJS+= game_banner startgtk.game
-        TESTEDITOR_OBJS+= build_banner
+        KENBUILD_GAME_OBJS+= game_banner startgtk.game
+        KENBUILD_EDITOR_OBJS+= build_banner
     endif
 
-    TESTGAME_OBJS+= game_icon
-    TESTEDITOR_OBJS+= build_icon
+    KENBUILD_GAME_OBJS+= game_icon
+    KENBUILD_EDITOR_OBJS+= build_icon
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    TESTGAME_OBJS+= gameres startwin.game
-    TESTEDITOR_OBJS+= buildres
+    KENBUILD_GAME_OBJS+= gameres startwin.game
+    KENBUILD_EDITOR_OBJS+= buildres
 endif
 
 ifeq ($(PLATFORM),DARWIN)
     ifneq (0,$(OSX_STARTUPWINDOW))
-        TESTGAME_OBJS += StartupWinController.game
+        KENBUILD_GAME_OBJS += StartupWinController.game
     endif
 endif
 
-TESTGAME_OBJS_EXP:=$(addprefix $(TESTGAME_OBJ)/,$(addsuffix .$o,$(TESTGAME_OBJS)))
-TESTEDITOR_OBJS_EXP:=$(addprefix $(TESTGAME_OBJ)/,$(addsuffix .$o,$(TESTEDITOR_OBJS)))
+KENBUILD_GAME_OBJS_EXP:=$(addprefix $(KENBUILD_OBJ)/,$(addsuffix .$o,$(KENBUILD_GAME_OBJS)))
+KENBUILD_EDITOR_OBJS_EXP:=$(addprefix $(KENBUILD_OBJ)/,$(addsuffix .$o,$(KENBUILD_EDITOR_OBJS)))
 
 
 # Duke Nukem 3D
 
 DUKE3D_CFLAGS=-I$(DUKE3D_INC)
 
-DUKE3D_LINKERFLAGS=
-DUKE3D_EDITOR_LINKERFLAGS=
+DUKE3D_GAME_LDFLAGS=
+DUKE3D_EDITOR_LDFLAGS=
 
 DUKE3D_OBJ=$(DUKE3D_SRC)/$(obj)
 
-EDUKE32 ?= eduke32
-MAPSTER32 ?= mapster32
+DUKE3D_GAME ?= eduke32
+DUKE3D_EDITOR ?= mapster32
 
-COMMON_OBJS=rev
+COMMON_GAME_OBJS=rev
 COMMON_EDITOR_OBJS=m32common m32def m32exec m32vars rev
 
-DUKE3D_OBJS=game global actors gamedef gameexec gamevars player premap sector anim animsounds common config demo input menus namesdyn net savegame rts osdfuncs osdcmds grpscan sounds soundsdyn cheats sbar screentext screens cmdline
+DUKE3D_GAME_OBJS=game global actors gamedef gameexec gamevars player premap sector anim animsounds common config demo input menus namesdyn net savegame rts osdfuncs osdcmds grpscan sounds soundsdyn cheats sbar screentext screens cmdline
 DUKE3D_EDITOR_OBJS=astub common grpscan sounds_mapster32
 
 ifneq ($(USE_LIBVPX),0)
-    DUKE3D_OBJS+= animvpx
+    DUKE3D_GAME_OBJS+= animvpx
 endif
 
-DUKE3D_MISCDEPS=
+DUKE3D_GAME_MISCDEPS=
 DUKE3D_EDITOR_MISCDEPS=
 
 # Lunatic object base names. These are not used in targets directly.
-LUNATIC_COMMON_OBJS = luaJIT_BC_defs_common luaJIT_BC_engine_maptext luaJIT_BC_engine luaJIT_BC_bcarray luaJIT_BC_bcheck luaJIT_BC_bitar luaJIT_BC_xmath luaJIT_BC_v luaJIT_BC_dump luaJIT_BC_dis_x86 luaJIT_BC_dis_x64
+LUNATIC_OBJS = luaJIT_BC_defs_common luaJIT_BC_engine_maptext luaJIT_BC_engine luaJIT_BC_bcarray luaJIT_BC_bcheck luaJIT_BC_bitar luaJIT_BC_xmath luaJIT_BC_v luaJIT_BC_dump luaJIT_BC_dis_x86 luaJIT_BC_dis_x64
 LUNATIC_GAME_OBJS = luaJIT_BC_con_lang luaJIT_BC_lunacon luaJIT_BC_randgen luaJIT_BC_stat luaJIT_BC_control luaJIT_BC_defs luaJIT_BC_savegame luaJIT_BC_fs
 
 ## Lunatic devel
 ifneq (0,$(LUNATIC))
     # TODO: remove debugging modules from release build
 
-    DUKE3D_EDITOR_OBJS+= lunatic_m32 $(LUNATIC_COMMON_OBJS)
-    DUKE3D_OBJS+= lunatic_game $(LUNATIC_COMMON_OBJS)
+    DUKE3D_EDITOR_OBJS+= lunatic_m32 $(LUNATIC_OBJS)
+    DUKE3D_GAME_OBJS+= lunatic_game $(LUNATIC_OBJS)
 
     DUKE3D_EDITOR_OBJS+= luaJIT_BC_defs_m32
 
@@ -264,7 +264,7 @@ ifneq (0,$(LUNATIC))
         endif
     endif
     LIBS+= -llpeg
-    DUKE3D_OBJS+= $(LUNATIC_GAME_OBJS)
+    DUKE3D_GAME_OBJS+= $(LUNATIC_GAME_OBJS)
 
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
     # executable no matter what the debugging level
@@ -277,20 +277,20 @@ ifneq (0,$(LUNATIC))
             STRIP+= -s $(DUKE3D_SRC)/lunatic/dynsymlist_osx
         endif
 
-        DUKE3D_MISCDEPS+= $(DUKE3D_SRC)/lunatic/dynsymlist_osx
+        DUKE3D_GAME_MISCDEPS+= $(DUKE3D_SRC)/lunatic/dynsymlist_osx
         LINKERFLAGS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(DUKE3D_SRC)/lunatic/aliases_list #-exported_symbols_list $(DUKE3D_SRC)/lunatic/dynsymlist_osx
     endif
     ifeq ($(PLATFORM),WINDOWS)
         override STRIP=
-        DUKE3D_MISCDEPS+= $(DUKE3D_SRC)/lunatic/eduke32.def
-        DUKE3D_LINKERFLAGS+= $(DUKE3D_SRC)/lunatic/eduke32.def
+        DUKE3D_GAME_MISCDEPS+= $(DUKE3D_SRC)/lunatic/eduke32.def
+        DUKE3D_GAME_LDFLAGS+= $(DUKE3D_SRC)/lunatic/eduke32.def
         DUKE3D_EDITOR_MISCDEPS+= $(DUKE3D_SRC)/lunatic/mapster32.def
-        DUKE3D_EDITOR_LINKERFLAGS+= $(DUKE3D_SRC)/lunatic/mapster32.def
+        DUKE3D_EDITOR_LDFLAGS+= $(DUKE3D_SRC)/lunatic/mapster32.def
     endif
     ifeq ($(SUBPLATFORM),LINUX)
         override STRIP=
-        DUKE3D_LINKERFLAGS+= -Wl,--dynamic-list=$(DUKE3D_SRC)/lunatic/dynsymlist
-        DUKE3D_EDITOR_LINKERFLAGS+= -Wl,--dynamic-list=$(DUKE3D_SRC)/lunatic/dynsymlist_m32
+        DUKE3D_GAME_LDFLAGS+= -Wl,--dynamic-list=$(DUKE3D_SRC)/lunatic/dynsymlist
+        DUKE3D_EDITOR_LDFLAGS+= -Wl,--dynamic-list=$(DUKE3D_SRC)/lunatic/dynsymlist_m32
     endif
 endif
 
@@ -314,14 +314,14 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 
     ifneq (0,$(OSX_STARTUPWINDOW))
-        DUKE3D_OBJS += GrpFile.game GameListSource.game startosx.game
+        DUKE3D_GAME_OBJS += GrpFile.game GameListSource.game startosx.game
     endif
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg
     LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Windows/lib$(WINLIB)
-    DUKE3D_OBJS+= gameres winbits startwin.game
+    DUKE3D_GAME_OBJS+= gameres winbits startwin.game
     DUKE3D_EDITOR_OBJS+= buildres
     ifeq ($(MIXERTYPE),WIN)
         LIBS+= -ldsound
@@ -335,11 +335,11 @@ endif
 
 ifeq ($(RENDERTYPE),SDL)
     ifeq (1,$(HAVE_GTK2))
-        DUKE3D_OBJS+= game_banner startgtk.game
+        DUKE3D_GAME_OBJS+= game_banner startgtk.game
         DUKE3D_EDITOR_OBJS+= build_banner
     endif
 
-    DUKE3D_OBJS+= game_icon
+    DUKE3D_GAME_OBJS+= game_icon
     DUKE3D_EDITOR_OBJS+= build_icon
 endif
 ifeq ($(MIXERTYPE),SDL)
@@ -348,12 +348,12 @@ endif
 
 ## Construct file names of object files
 
-COMMON_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(COMMON_OBJS)))
+COMMON_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(COMMON_GAME_OBJS)))
 COMMON_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(COMMON_EDITOR_OBJS)))
 
 MIDI_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(MIDI_OBJS)))
 
-DUKE3D_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_OBJS)))
+DUKE3D_GAME_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_GAME_OBJS)))
 DUKE3D_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_EDITOR_OBJS)))
 
 
@@ -367,27 +367,27 @@ SW_OBJ=$(SW_ROOT)/$(obj)
 
 SW_CFLAGS=-I$(SW_INC)
 
-SW ?= voidsw
+SW_GAME ?= voidsw
 SW_EDITOR ?= voidsw-editor
 
-SW_OBJS=actor ai anim border break bunny cache cheats colormap common config console coolg coolie copysect demo draw eel game girlninj goro grpscan hornet interp interpsh inv jplayer jsector jweapon lava light mclip mdastr menus miscactr morph net ninja panel player predict quake ripper ripper2 rooms rotator rts save scrip2 sector serp setup skel skull slidor sounds spike sprite sumo swconfig sync text track vator vis wallmove warp weapon zilla zombie saveable
+SW_GAME_OBJS=actor ai anim border break bunny cache cheats colormap common config console coolg coolie copysect demo draw eel game girlninj goro grpscan hornet interp interpsh inv jplayer jsector jweapon lava light mclip mdastr menus miscactr morph net ninja panel player predict quake ripper ripper2 rooms rotator rts save scrip2 sector serp setup skel skull slidor sounds spike sprite sumo swconfig sync text track vator vis wallmove warp weapon zilla zombie saveable
 SW_EDITOR_OBJS=jnstub brooms bldscript jbhlp colormap grpscan common
 
 ifeq ($(RENDERTYPE),SDL)
     ifeq (1,$(HAVE_GTK2))
-        SW_OBJS+= game_banner startgtk.game
+        SW_GAME_OBJS+= game_banner startgtk.game
         SW_EDITOR_OBJS+= build_banner
     endif
 
-    SW_OBJS+= game_icon
+    SW_GAME_OBJS+= game_icon
     SW_EDITOR_OBJS+= game_icon
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    SW_OBJS+= gameres startwin.game
+    SW_GAME_OBJS+= gameres startwin.game
     SW_EDITOR_OBJS+= buildres
 endif
 
-SW_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(SW_OBJS)))
+SW_GAME_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(SW_GAME_OBJS)))
 SW_EDITOR_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(SW_EDITOR_OBJS)))
 
 
@@ -400,16 +400,16 @@ endif
 
 all: duke3d
 
-duke3d: start $(EDUKE32)$(EXESUFFIX) $(MAPSTER32)$(EXESUFFIX)
-	@ls -l $(EDUKE32)$(EXESUFFIX)
-	@ls -l $(MAPSTER32)$(EXESUFFIX)
+duke3d: start $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX)
+	@ls -l $(DUKE3D_GAME)$(EXESUFFIX)
+	@ls -l $(DUKE3D_EDITOR)$(EXESUFFIX)
 
-test: start $(TESTGAME)$(EXESUFFIX) $(TESTEDITOR)$(EXESUFFIX)
-	@ls -l $(TESTGAME)$(EXESUFFIX)
-	@ls -l $(TESTEDITOR)$(EXESUFFIX)
+test: start $(KENBUILD_GAME)$(EXESUFFIX) $(KENBUILD_EDITOR)$(EXESUFFIX)
+	@ls -l $(KENBUILD_GAME)$(EXESUFFIX)
+	@ls -l $(KENBUILD_EDITOR)$(EXESUFFIX)
 
-sw: start $(SW)$(EXESUFFIX) $(SW_EDITOR)$(EXESUFFIX)
-	@ls -l $(SW)$(EXESUFFIX)
+sw: start $(SW_GAME)$(EXESUFFIX) $(SW_EDITOR)$(EXESUFFIX)
+	@ls -l $(SW_GAME)$(EXESUFFIX)
 	@ls -l $(SW_EDITOR)$(EXESUFFIX)
 
 ebacktrace: start $(EBACKTRACEDLL)
@@ -429,45 +429,45 @@ sdlutils: $(addsuffix $(EXESUFFIX),$(SDLUTILS))
 
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
-$(TESTGAME)$(DOLSUFFIX): $(TESTGAME)$(EXESUFFIX)
-$(TESTEDITOR)$(DOLSUFFIX): $(TESTEDITOR)$(EXESUFFIX)
-$(EDUKE32)$(DOLSUFFIX): $(EDUKE32)$(EXESUFFIX)
-$(MAPSTER32)$(DOLSUFFIX): $(MAPSTER32)$(EXESUFFIX)
-$(SW)$(DOLSUFFIX): $(SW)$(EXESUFFIX)
+$(KENBUILD_GAME)$(DOLSUFFIX): $(KENBUILD_GAME)$(EXESUFFIX)
+$(KENBUILD_EDITOR)$(DOLSUFFIX): $(KENBUILD_EDITOR)$(EXESUFFIX)
+$(DUKE3D_GAME)$(DOLSUFFIX): $(DUKE3D_GAME)$(EXESUFFIX)
+$(DUKE3D_EDITOR)$(DOLSUFFIX): $(DUKE3D_EDITOR)$(EXESUFFIX)
+$(SW_GAME)$(DOLSUFFIX): $(SW_GAME)$(EXESUFFIX)
 $(SW_EDITOR)$(DOLSUFFIX): $(SW_EDITOR)$(EXESUFFIX)
 endif
 endif
 
-$(TESTGAME)$(EXESUFFIX): $(TESTGAME_OBJS_EXP) $(COMMON_OBJS_EXP) $(ENGINE_OBJS_EXP)
+$(KENBUILD_GAME)$(EXESUFFIX): $(KENBUILD_GAME_OBJS_EXP) $(COMMON_OBJS_EXP) $(ENGINE_OBJS_EXP)
 	$(LINK_STATUS)
 	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(TESTGAME)$(EXESUFFIX) $(TESTGAME)$(DOLSUFFIX)
+	$(ELF2DOL) $(KENBUILD_GAME)$(EXESUFFIX) $(KENBUILD_GAME)$(DOLSUFFIX)
 endif
 endif
 ifneq ($(STRIP),)
 	$(STRIP) $@
 endif
 
-$(TESTEDITOR)$(EXESUFFIX): $(TESTEDITOR_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP)
+$(KENBUILD_EDITOR)$(EXESUFFIX): $(KENBUILD_EDITOR_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP)
 	$(LINK_STATUS)
 	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(TESTEDITOR)$(EXESUFFIX) $(TESTEDITOR)$(DOLSUFFIX)
+	$(ELF2DOL) $(KENBUILD_EDITOR)$(EXESUFFIX) $(KENBUILD_EDITOR)$(DOLSUFFIX)
 endif
 endif
 ifneq ($(STRIP),)
 	$(STRIP) $@
 endif
 
-$(EDUKE32)$(EXESUFFIX): $(DUKE3D_OBJS_EXP) $(COMMON_OBJS_EXP) $(MIDI_OBJS_EXP) $(ENGINE_OBJS_EXP) $(MACT_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(ENET_TARGET) $(DUKE3D_MISCDEPS)
+$(DUKE3D_GAME)$(EXESUFFIX): $(DUKE3D_GAME_OBJS_EXP) $(COMMON_OBJS_EXP) $(MIDI_OBJS_EXP) $(ENGINE_OBJS_EXP) $(MACT_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(ENET_TARGET) $(DUKE3D_GAME_MISCDEPS)
 	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(DUKE3D_LINKERFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
+	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(DUKE3D_GAME_LDFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(EDUKE32)$(EXESUFFIX) $(EDUKE32)$(DOLSUFFIX)
+	$(ELF2DOL) $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_GAME)$(DOLSUFFIX)
 endif
 endif
 ifneq ($(STRIP),)
@@ -476,15 +476,15 @@ endif
 ifeq ($(PLATFORM),DARWIN)
 	cp -RPf "platform/Apple/bundles/EDuke32.app" "./"
 	mkdir -p "EDuke32.app/Contents/MacOS"
-	cp -f "$(EDUKE32)$(EXESUFFIX)" "EDuke32.app/Contents/MacOS/"
+	cp -f "$(DUKE3D_GAME)$(EXESUFFIX)" "EDuke32.app/Contents/MacOS/"
 endif
 
-$(MAPSTER32)$(EXESUFFIX): $(DUKE3D_EDITOR_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(DUKE3D_EDITOR_MISCDEPS)
+$(DUKE3D_EDITOR)$(EXESUFFIX): $(DUKE3D_EDITOR_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(DUKE3D_EDITOR_MISCDEPS)
 	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(DUKE3D_EDITOR_LINKERFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
+	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(DUKE3D_EDITOR_LDFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(MAPSTER32)$(EXESUFFIX) $(MAPSTER32)$(DOLSUFFIX)
+	$(ELF2DOL) $(DUKE3D_EDITOR)$(EXESUFFIX) $(DUKE3D_EDITOR)$(DOLSUFFIX)
 endif
 endif
 ifneq ($(STRIP),)
@@ -493,15 +493,15 @@ endif
 ifeq ($(PLATFORM),DARWIN)
 	cp -RPf "platform/Apple/bundles/Mapster32.app" "./"
 	mkdir -p "Mapster32.app/Contents/MacOS"
-	cp -f "$(MAPSTER32)$(EXESUFFIX)" "Mapster32.app/Contents/MacOS/"
+	cp -f "$(DUKE3D_EDITOR)$(EXESUFFIX)" "Mapster32.app/Contents/MacOS/"
 endif
 
-$(SW)$(EXESUFFIX): $(SW_OBJS_EXP) $(COMMON_OBJS_EXP) $(MIDI_OBJS_EXP) $(ENGINE_OBJS_EXP) $(MACT_OBJS_EXP) $(AUDIOLIB_OBJS_EXP)
+$(SW_GAME)$(EXESUFFIX): $(SW_GAME_OBJS_EXP) $(COMMON_OBJS_EXP) $(MIDI_OBJS_EXP) $(ENGINE_OBJS_EXP) $(MACT_OBJS_EXP) $(AUDIOLIB_OBJS_EXP)
 	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(DUKE3D_LINKERFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
+	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(DUKE3D_GAME_LDFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(SW)$(EXESUFFIX) $(SW)$(DOLSUFFIX)
+	$(ELF2DOL) $(SW_GAME)$(EXESUFFIX) $(SW_GAME)$(DOLSUFFIX)
 endif
 endif
 ifneq ($(STRIP),)
@@ -510,7 +510,7 @@ endif
 
 $(SW_EDITOR)$(EXESUFFIX): $(SW_EDITOR_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP)
 	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(DUKE3D_EDITOR_LINKERFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
+	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(DUKE3D_EDITOR_LDFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
 	$(ELF2DOL) $(SW_EDITOR)$(EXESUFFIX) $(SW_EDITOR)$(DOLSUFFIX)
@@ -649,23 +649,23 @@ $(ENET_OBJ)/%.o: $(ENET_SRC)/%.c $(ENET_INC)/enet/*.h | $(ENET_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(ENET_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(TESTGAME_OBJ)/%.$o: $(TESTGAME_SRC)/%.c | $(TESTGAME_OBJ)
+$(KENBUILD_OBJ)/%.$o: $(KENBUILD_SRC)/%.c | $(KENBUILD_OBJ)
 	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(TESTGAME_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
+	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(TESTGAME_OBJ)/%.$o: $(TESTGAME_SRC)/%.m | $(TESTGAME_OBJ)
+$(KENBUILD_OBJ)/%.$o: $(KENBUILD_SRC)/%.m | $(KENBUILD_OBJ)
 	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_OBJC) $(COMMONFLAGS) $(COMPILERFLAGS) $(TESTGAME_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
+	$(RECIPE_IF) $(COMPILER_OBJC) $(COMMONFLAGS) $(COMPILERFLAGS) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(TESTGAME_OBJ)/%.$o: $(TESTGAME_RSRC)/%.rc | $(TESTGAME_OBJ)
+$(KENBUILD_OBJ)/%.$o: $(KENBUILD_RSRC)/%.rc | $(KENBUILD_OBJ)
 	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(RC) -i $< -o $@ --include-dir=$(ENGINE_INC) --include-dir=$(TESTGAME_SRC) --include-dir=$(TESTGAME_RSRC) $(RECIPE_RESULT_COMPILE)
+	$(RECIPE_IF) $(RC) -i $< -o $@ --include-dir=$(ENGINE_INC) --include-dir=$(KENBUILD_SRC) --include-dir=$(KENBUILD_RSRC) $(RECIPE_RESULT_COMPILE)
 
-$(TESTGAME_OBJ)/%.$o: $(TESTGAME_RSRC)/%.c | $(TESTGAME_OBJ)
+$(KENBUILD_OBJ)/%.$o: $(KENBUILD_RSRC)/%.c | $(KENBUILD_OBJ)
 	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(TESTGAME_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
+	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(TESTGAME_RSRC)/%_banner.c: $(TESTGAME_RSRC)/%.bmp
+$(KENBUILD_RSRC)/%_banner.c: $(KENBUILD_RSRC)/%.bmp
 	echo "#include \"gtkpixdata_shim.h\"" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
@@ -721,7 +721,7 @@ $(SW_RSRC)/%_banner.c: $(SW_RSRC)/%.bmp
 	echo "#include \"gtkpixdata_shim.h\"" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
-$(ENGINE_OBJ) $(MACT_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(TESTGAME_OBJ) $(DUKE3D_OBJ) $(SW_OBJ):
+$(ENGINE_OBJ) $(MACT_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(KENBUILD_OBJ) $(DUKE3D_OBJ) $(SW_OBJ):
 	-mkdir $@ $(DONT_PRINT) $(DONT_FAIL)
 
 ## PHONIES
@@ -732,18 +732,18 @@ veryclean: clean
 # miscellaneous generated files related to Lunatic on non-Linux.
 cleanduke3d:
 ifeq ($(PRETTY_OUTPUT),1)
-	echo "rm -f $(EDUKE32)$(EXESUFFIX) $(MAPSTER32)$(EXESUFFIX) $(DUKE3D_OBJ)/*.$o $(DUKE3D_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)"
+	echo "rm -f $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX) $(DUKE3D_OBJ)/*.$o $(DUKE3D_GAME_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)"
 endif
-	-rm -f $(EDUKE32)$(EXESUFFIX) $(MAPSTER32)$(EXESUFFIX) $(DUKE3D_OBJ)/*.$o $(DUKE3D_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)
+	-rm -f $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX) $(DUKE3D_OBJ)/*.$o $(DUKE3D_GAME_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf EDuke32.app Mapster32.app
 endif
 
 cleantest:
-	-rm -f $(TESTGAME)$(EXESUFFIX) $(TESTEDITOR)$(EXESUFFIX) $(TESTGAME_OBJ)/*.$o
+	-rm -f $(KENBUILD_GAME)$(EXESUFFIX) $(KENBUILD_EDITOR)$(EXESUFFIX) $(KENBUILD_OBJ)/*.$o
 
 cleansw:
-	-rm -f $(SW)$(EXESUFFIX) $(SW_EDITOR)$(EXESUFFIX) $(SW_OBJ)/*.$o
+	-rm -f $(SW_GAME)$(EXESUFFIX) $(SW_EDITOR)$(EXESUFFIX) $(SW_OBJ)/*.$o
 
 cleanutils:
 	-rm -f $(addsuffix $(EXESUFFIX),$(UTILS) $(GAMEUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(UTILS))) $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(GAMEUTILS))) $(addsuffix $(EXESUFFIX),$(DXUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(DXUTILS))) $(addsuffix $(EXESUFFIX),$(SDLUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(SDLUTILS))) $(UTIL_OBJS_EXP)
