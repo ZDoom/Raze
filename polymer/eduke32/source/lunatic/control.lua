@@ -442,7 +442,7 @@ function _myos(x, y, zoom, tilenum, shade, orientation, pal)
         pal = (sect>=0) and sector[sect].floorpal or 0
     end
 
-    ffiC.G_DrawTileGeneric(x, y, zoom, tilenum, shade, orientation, pal)
+    ffiC.VM_DrawTileGeneric(x, y, zoom, tilenum, shade, orientation, pal)
 end
 
 function _inittimer(ticspersec)

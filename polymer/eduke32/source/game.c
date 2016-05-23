@@ -5989,7 +5989,9 @@ static int32_t G_EndOfLevel(void)
 void app_crashhandler(void)
 {
     G_CloseDemoWrite();
+#if !defined LUNATIC
     VM_ScriptInfo(insptr, 64);
+#endif
     G_GameQuit();
 }
 

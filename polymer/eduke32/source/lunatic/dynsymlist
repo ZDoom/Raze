@@ -219,7 +219,7 @@ P_DoQuote;
 P_SetGamePalette;
 G_AddUserQuote;
 G_ClearCameraView;
-G_DrawTileGeneric;
+VM_DrawTileGeneric;
 G_InitTimer;
 G_GetTimeDate;
 G_ToggleWallInterpolation;

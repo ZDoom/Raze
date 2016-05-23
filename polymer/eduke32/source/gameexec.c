@@ -85,9 +85,9 @@ GAMEEXEC_STATIC void VM_Execute(int32_t loop);
         }                                                                                                              \
     }
 
-extern void VM_ScriptInfo(intptr_t const *ptr, int32_t range)
-{
 #if !defined LUNATIC
+void VM_ScriptInfo(intptr_t const *ptr, int32_t range)
+{
     if (!script)
         return;
 
@@ -115,11 +115,8 @@ extern void VM_ScriptInfo(intptr_t const *ptr, int32_t range)
 
         initprintf("g_errorLineNum: %d, g_tw: %d\n", g_errorLineNum, g_tw);
     }
-#else
-    UNREFERENCED_PARAMETER(ptr);
-    UNREFERENCED_PARAMETER(range);
-#endif
 }
+#endif
 
 static void VM_DeleteSprite(int32_t iActor, int32_t iPlayer)
 {

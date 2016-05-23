@@ -51,8 +51,10 @@ extern "C" {
     g_numCompilerWarnings++; \
     } while (0)
 
+#if !defined LUNATIC
 extern intptr_t const * insptr;
 extern void VM_ScriptInfo(intptr_t const *ptr, int32_t range);
+#endif
 
 extern hashtable_t h_gamefuncs;
 
