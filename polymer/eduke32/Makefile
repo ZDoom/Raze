@@ -33,7 +33,7 @@ ENGINE=build
 
 ENGINE_CFLAGS=-I$(ENGINE_SRC)
 
-ENGINE_OBJ=$(ENGINE_ROOT)/$(obj)
+ENGINE_OBJ=$(obj)/$(ENGINE)
 
 ENGINE_OBJS=baselayer cache1d common compat crc32 defs engine polymost texcache dxtfilter hightile textfont smalltextfont kplib lz4 osd pragmas scriptfile mmulti_null mutex xxhash md4 colmatch
 ENGINE_EDITOR_OBJS=build config defs
@@ -99,7 +99,7 @@ MACT=mact
 MACT_ROOT=$(DUKE3D_SRC)/jmact
 MACT_SRC=$(MACT_ROOT)
 MACT_INC=$(MACT_ROOT)
-MACT_OBJ=$(MACT_ROOT)/$(obj)
+MACT_OBJ=$(obj)/$(MACT)
 
 MACT_OBJS=file_lib control keyboard mouse joystick scriplib animlib
 
@@ -115,7 +115,7 @@ AUDIOLIB_OBJS=drivers fx_man multivoc mix mixst pitch formats vorbis flac xa dri
 AUDIOLIB_ROOT=$(DUKE3D_SRC)/jaudiolib
 AUDIOLIB_SRC=$(AUDIOLIB_ROOT)/src
 AUDIOLIB_INC=$(AUDIOLIB_ROOT)/include
-AUDIOLIB_OBJ=$(AUDIOLIB_ROOT)/$(obj)
+AUDIOLIB_OBJ=$(obj)/$(AUDIOLIB)
 
 AUDIOLIB_CFLAGS=-I$(AUDIOLIB_ROOT)/third-party/common/include
 
@@ -150,7 +150,7 @@ ENET_OBJS=callbacks host list packet peer protocol compress
 ENET_ROOT=$(DUKE3D_SRC)/enet
 ENET_SRC=$(ENET_ROOT)/src
 ENET_INC=$(ENET_ROOT)/include
-ENET_OBJ=$(ENET_ROOT)/$(obj)
+ENET_OBJ=$(obj)/$(ENET)
 
 ENET_CFLAGS=
 
@@ -192,7 +192,7 @@ KENBUILD=kenbuild
 KENBUILD_ROOT=$(DUKE3D_SRC)/testgame
 KENBUILD_SRC=$(KENBUILD_ROOT)/src
 KENBUILD_RSRC=$(KENBUILD_ROOT)/rsrc
-KENBUILD_OBJ=$(KENBUILD_ROOT)/$(obj)
+KENBUILD_OBJ=$(obj)/$(KENBUILD)
 
 KENBUILD_CFLAGS=-I$(KENBUILD_SRC)
 
@@ -238,7 +238,7 @@ DUKE3D_CFLAGS=-I$(DUKE3D_INC)
 DUKE3D_GAME_LDFLAGS=
 DUKE3D_EDITOR_LDFLAGS=
 
-DUKE3D_OBJ=$(DUKE3D_SRC)/$(obj)
+DUKE3D_OBJ=$(obj)/$(DUKE3D)
 
 DUKE3D_GAME ?= eduke32
 DUKE3D_EDITOR ?= mapster32
@@ -383,7 +383,7 @@ SW_ROOT=$(DUKE3D_SRC)/sw
 SW_SRC=$(SW_ROOT)/src
 SW_INC=$(SW_SRC)
 SW_RSRC=$(SW_ROOT)/rsrc
-SW_OBJ=$(SW_ROOT)/$(obj)
+SW_OBJ=$(obj)/$(SW)
 
 SW_CFLAGS=-I$(SW_INC)
 
@@ -744,7 +744,10 @@ $(SW_RSRC)/%_banner.c: $(SW_RSRC)/%.bmp
 	echo "#include \"gtkpixdata_shim.h\"" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
-$(ENGINE_OBJ) $(MACT_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(KENBUILD_OBJ) $(DUKE3D_OBJ) $(SW_OBJ):
+$(obj):
+	-mkdir $@ $(DONT_PRINT) $(DONT_FAIL)
+
+$(ENGINE_OBJ) $(MACT_OBJ) $(AUDIOLIB_OBJ) $(ENET_OBJ) $(KENBUILD_OBJ) $(DUKE3D_OBJ) $(SW_OBJ): | $(obj)
 	-mkdir $@ $(DONT_PRINT) $(DONT_FAIL)
 
 ## PHONIES
@@ -754,28 +757,24 @@ veryclean: clean
 # Delete executables, object files created from sources in source/, and
 # miscellaneous generated files related to Lunatic on non-Linux.
 cleanduke3d:
-ifeq ($(PRETTY_OUTPUT),1)
-	echo "rm -f $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX) $(DUKE3D_OBJ)/*.$o $(DUKE3D_GAME_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)"
-endif
-	-rm -f $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX) $(DUKE3D_OBJ)/*.$o $(DUKE3D_GAME_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)
+	-rm -f $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX) $(DUKE3D_GAME_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)
+	-rm -f $(DUKE3D_RSRC)/*banner*
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf "$(DUKE3D_GAME_PROPER).app" "$(DUKE3D_EDITOR_PROPER).app"
 endif
 
 cleantest:
-	-rm -f $(KENBUILD_GAME)$(EXESUFFIX) $(KENBUILD_EDITOR)$(EXESUFFIX) $(KENBUILD_OBJ)/*.$o
+	-rm -f $(KENBUILD_GAME)$(EXESUFFIX) $(KENBUILD_EDITOR)$(EXESUFFIX)
 
 cleansw:
-	-rm -f $(SW_GAME)$(EXESUFFIX) $(SW_EDITOR)$(EXESUFFIX) $(SW_OBJ)/*.$o
+	-rm -f $(SW_GAME)$(EXESUFFIX) $(SW_EDITOR)$(EXESUFFIX)
 
 cleanutils:
-	-rm -f $(addsuffix $(EXESUFFIX),$(UTILS) $(GAMEUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(UTILS))) $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(GAMEUTILS))) $(addsuffix $(EXESUFFIX),$(DXUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(DXUTILS))) $(addsuffix $(EXESUFFIX),$(SDLUTILS)) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(SDLUTILS))) $(UTIL_OBJS_EXP)
+	-rm -f $(addsuffix $(EXESUFFIX),$(UTILS) $(GAMEUTILS))
 
 clean: cleanduke3d cleanutils
-ifeq ($(PRETTY_OUTPUT),1)
-	echo "rm -f $(ENGINE_OBJ)/*.$o $(MACT_OBJ)/*.$o $(AUDIOLIB_OBJ)/*.$o $(ENET_OBJ)/*.$o $(DUKE3D_RSRC)/*banner* $(EBACKTRACEDLL)"
-endif
-	-rm -f $(ENGINE_OBJ)/*.$o $(MACT_OBJ)/*.$o $(AUDIOLIB_OBJ)/*.$o $(ENET_OBJ)/*.$o $(DUKE3D_RSRC)/*banner* $(EBACKTRACEDLL)
+	-rm -rf $(obj)/
+	-rm -f $(EBACKTRACEDLL)
 
 printutils:
 	echo "$(addsuffix $(EXESUFFIX),$(UTILS) $(GAMEUTILS))"
