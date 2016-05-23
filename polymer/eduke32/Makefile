@@ -35,8 +35,36 @@ ENGINE_CFLAGS=-I$(ENGINE_SRC)
 
 ENGINE_OBJ=$(obj)/$(ENGINE)
 
-ENGINE_OBJS=baselayer cache1d common compat crc32 defs engine polymost texcache dxtfilter hightile textfont smalltextfont kplib lz4 osd pragmas scriptfile mmulti_null mutex xxhash md4 colmatch
-ENGINE_EDITOR_OBJS=build config defs
+ENGINE_OBJS = \
+    baselayer \
+    cache1d \
+    common \
+    compat \
+    crc32 \
+    defs \
+    engine \
+    polymost \
+    texcache \
+    dxtfilter \
+    hightile \
+    textfont \
+    smalltextfont \
+    kplib \
+    lz4 \
+    osd \
+    pragmas \
+    scriptfile \
+    mmulti_null \
+    mutex \
+    xxhash \
+    md4 \
+    colmatch \
+
+ENGINE_EDITOR_OBJS = \
+    build \
+    config \
+    defs \
+
 ifeq (0,$(NOASM))
   ENGINE_OBJS+= a
 else
@@ -101,7 +129,14 @@ MACT_SRC=$(MACT_ROOT)
 MACT_INC=$(MACT_ROOT)
 MACT_OBJ=$(obj)/$(MACT)
 
-MACT_OBJS=file_lib control keyboard mouse joystick scriplib animlib
+MACT_OBJS = \
+    file_lib \
+    control \
+    keyboard \
+    mouse \
+    joystick \
+    scriplib \
+    animlib \
 
 MACT_OBJS_EXP:=$(addprefix $(MACT_OBJ)/,$(addsuffix .$o,$(MACT_OBJS)))
 
@@ -110,7 +145,18 @@ MACT_OBJS_EXP:=$(addprefix $(MACT_OBJ)/,$(addsuffix .$o,$(MACT_OBJS)))
 
 AUDIOLIB=audiolib
 
-AUDIOLIB_OBJS=drivers fx_man multivoc mix mixst pitch formats vorbis flac xa driver_nosound
+AUDIOLIB_OBJS = \
+    drivers \
+    fx_man \
+    multivoc \
+    mix \
+    mixst \
+    pitch \
+    formats \
+    vorbis \
+    flac \
+    xa \
+    driver_nosound \
 
 AUDIOLIB_ROOT=$(DUKE3D_SRC)/jaudiolib
 AUDIOLIB_SRC=$(AUDIOLIB_ROOT)/src
@@ -145,7 +191,14 @@ AUDIOLIB_OBJS_EXP:=$(addprefix $(AUDIOLIB_OBJ)/,$(addsuffix .$o,$(AUDIOLIB_OBJS)
 
 ENET=enet
 
-ENET_OBJS=callbacks host list packet peer protocol compress
+ENET_OBJS = \
+    callbacks \
+    host \
+    list \
+    packet \
+    peer \
+    protocol \
+    compress \
 
 ENET_ROOT=$(DUKE3D_SRC)/enet
 ENET_SRC=$(ENET_ROOT)/src
@@ -172,11 +225,40 @@ endif
 
 # Tools
 
-UTIL_OBJS=compat pragmas kplib cache1d crc32 colmatch compat_tools
-UTILS=kextract kgroup transpal wad2art wad2map kmd2tool md2tool generateicon cacheinfo arttool givedepth mkpalette unpackssi bsuite
-GAMEUTILS=ivfrate
-DXUTILS=enumdisplay getdxdidf
-SDLUTILS=makesdlkeytrans
+UTIL_OBJS = \
+    compat \
+    pragmas \
+    kplib \
+    cache1d \
+    crc32 \
+    colmatch \
+    compat_tools \
+
+UTILS= \
+    kextract \
+    kgroup \
+    transpal \
+    wad2art \
+    wad2map \
+    kmd2tool \
+    md2tool \
+    generateicon \
+    cacheinfo \
+    arttool \
+    givedepth \
+    mkpalette \
+    unpackssi \
+    bsuite \
+
+GAMEUTILS= \
+    ivfrate \
+
+DXUTILS= \
+    enumdisplay \
+    getdxdidf \
+
+SDLUTILS= \
+    makesdlkeytrans \
 
 ifeq ($(PLATFORM),DARWIN)
     UTIL_OBJS += osxbits
@@ -202,8 +284,15 @@ KENBUILD_EDITOR ?= kenbuild-editor
 KENBUILD_GAME_PROPER ?= KenBuild
 KENBUILD_EDITOR_PROPER ?= KenBuild Editor
 
-KENBUILD_GAME_OBJS=game sound_stub common config
-KENBUILD_EDITOR_OBJS=bstub common
+KENBUILD_GAME_OBJS = \
+    game \
+    sound_stub \
+    common \
+    config \
+
+KENBUILD_EDITOR_OBJS = \
+    bstub \
+    common \
 
 ifeq ($(RENDERTYPE),SDL)
     ifeq (1,$(HAVE_GTK2))
@@ -249,11 +338,53 @@ DUKE3D_EDITOR ?= mapster32
 DUKE3D_GAME_PROPER ?= EDuke32
 DUKE3D_EDITOR_PROPER ?= Mapster32
 
-COMMON_GAME_OBJS=rev
-COMMON_EDITOR_OBJS=m32common m32def m32exec m32vars rev
+COMMON_GAME_OBJS = \
+    rev \
 
-DUKE3D_GAME_OBJS=game global actors gamedef gameexec gamevars player premap sector anim animsounds common config demo input menus namesdyn net savegame rts osdfuncs osdcmds grpscan sounds soundsdyn cheats sbar screentext screens cmdline
-DUKE3D_EDITOR_OBJS=astub common grpscan sounds_mapster32
+COMMON_EDITOR_OBJS = \
+    m32common \
+    m32def \
+    m32exec \
+    m32vars \
+    rev \
+
+DUKE3D_GAME_OBJS = \
+    game \
+    global \
+    actors \
+    gamedef \
+    gameexec \
+    gamevars \
+    player \
+    premap \
+    sector \
+    anim \
+    animsounds \
+    common \
+    config \
+    demo \
+    input \
+    menus \
+    namesdyn \
+    net \
+    savegame \
+    rts \
+    osdfuncs \
+    osdcmds \
+    grpscan \
+    sounds \
+    soundsdyn \
+    cheats \
+    sbar \
+    screentext \
+    screens \
+    cmdline \
+
+DUKE3D_EDITOR_OBJS = \
+    astub \
+    common \
+    grpscan \
+    sounds_mapster32 \
 
 ifneq ($(USE_LIBVPX),0)
     DUKE3D_GAME_OBJS+= animvpx
@@ -263,8 +394,28 @@ DUKE3D_GAME_MISCDEPS=
 DUKE3D_EDITOR_MISCDEPS=
 
 # Lunatic object base names. These are not used in targets directly.
-LUNATIC_OBJS = luaJIT_BC_defs_common luaJIT_BC_engine_maptext luaJIT_BC_engine luaJIT_BC_bcarray luaJIT_BC_bcheck luaJIT_BC_bitar luaJIT_BC_xmath luaJIT_BC_v luaJIT_BC_dump luaJIT_BC_dis_x86 luaJIT_BC_dis_x64
-LUNATIC_GAME_OBJS = luaJIT_BC_con_lang luaJIT_BC_lunacon luaJIT_BC_randgen luaJIT_BC_stat luaJIT_BC_control luaJIT_BC_defs luaJIT_BC_savegame luaJIT_BC_fs
+LUNATIC_OBJS = \
+    luaJIT_BC_defs_common \
+    luaJIT_BC_engine_maptext \
+    luaJIT_BC_engine \
+    luaJIT_BC_bcarray \
+    luaJIT_BC_bcheck \
+    luaJIT_BC_bitar \
+    luaJIT_BC_xmath \
+    luaJIT_BC_v \
+    luaJIT_BC_dump \
+    luaJIT_BC_dis_x86 \
+    luaJIT_BC_dis_x64 \
+
+LUNATIC_GAME_OBJS = \
+    luaJIT_BC_con_lang \
+    luaJIT_BC_lunacon \
+    luaJIT_BC_randgen \
+    luaJIT_BC_stat \
+    luaJIT_BC_control \
+    luaJIT_BC_defs \
+    luaJIT_BC_savegame \
+    luaJIT_BC_fs \
 
 ## Lunatic devel
 ifneq (0,$(LUNATIC))
@@ -395,8 +546,87 @@ SW_EDITOR ?= voidsw-editor
 SW_GAME_PROPER ?= VoidSW
 SW_EDITOR_PROPER ?= VoidSW Editor
 
-SW_GAME_OBJS=actor ai anim border break bunny cache cheats colormap common config console coolg coolie copysect demo draw eel game girlninj goro grpscan hornet interp interpsh inv jplayer jsector jweapon lava light mclip mdastr menus miscactr morph net ninja panel player predict quake ripper ripper2 rooms rotator rts save scrip2 sector serp setup skel skull slidor sounds spike sprite sumo swconfig sync text track vator vis wallmove warp weapon zilla zombie saveable
-SW_EDITOR_OBJS=jnstub brooms bldscript jbhlp colormap grpscan common
+SW_GAME_OBJS = \
+    actor \
+    ai \
+    anim \
+    border \
+    break \
+    bunny \
+    cache \
+    cheats \
+    colormap \
+    common \
+    config \
+    console \
+    coolg \
+    coolie \
+    copysect \
+    demo \
+    draw \
+    eel \
+    game \
+    girlninj \
+    goro \
+    grpscan \
+    hornet \
+    interp \
+    interpsh \
+    inv \
+    jplayer \
+    jsector \
+    jweapon \
+    lava \
+    light \
+    mclip \
+    mdastr \
+    menus \
+    miscactr \
+    morph \
+    net \
+    ninja \
+    panel \
+    player \
+    predict \
+    quake \
+    ripper \
+    ripper2 \
+    rooms \
+    rotator \
+    rts \
+    save \
+    scrip2 \
+    sector \
+    serp \
+    setup \
+    skel \
+    skull \
+    slidor \
+    sounds \
+    spike \
+    sprite \
+    sumo \
+    swconfig \
+    sync \
+    text \
+    track \
+    vator \
+    vis \
+    wallmove \
+    warp \
+    weapon \
+    zilla \
+    zombie \
+    saveable \
+
+SW_EDITOR_OBJS = \
+    jnstub \
+    brooms \
+    bldscript \
+    jbhlp \
+    colormap \
+    grpscan \
+    common \
 
 ifeq ($(RENDERTYPE),SDL)
     ifeq (1,$(HAVE_GTK2))
