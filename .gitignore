@@ -1,5 +1,9 @@
 /polymer/eduke32/eduke32
 /polymer/eduke32/mapster32
+/polymer/eduke32/voidsw
+/polymer/eduke32/voidsw-editor
+/polymer/eduke32/kenbuild
+/polymer/eduke32/kenbuild-editor
 /polymer/eduke32/apps
 /polymer/eduke32/*.exe
 /polymer/eduke32/*.dll
@@ -27,15 +31,7 @@
 /polymer/eduke32/*.app
 /polymer/eduke32/rsrc/game_banner.c
 /polymer/eduke32/rsrc/editor_banner.c
-/polymer/eduke32/source/lunatic/eduke32.def
-/polymer/eduke32/source/lunatic/mapster32.def
-/polymer/eduke32/source/obj
-/polymer/eduke32/build/obj
-/polymer/eduke32/source/jaudiolib/obj
-/polymer/eduke32/source/jmact/obj
-/polymer/eduke32/source/enet/obj
-/polymer/eduke32/source/testgame/obj
-/polymer/eduke32/source/sw/obj
+/polymer/eduke32/obj
 xcuserdata
 project.xcworkspace
 .DS_Store
