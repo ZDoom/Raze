@@ -193,17 +193,17 @@ TESTGAME_OBJS=game sound_stub common config
 TESTEDITOR_OBJS=bstub common
 
 ifeq ($(RENDERTYPE),SDL)
-	ifeq (1,$(HAVE_GTK2))
-		TESTGAME_OBJS+= game_banner startgtk.game
-		TESTEDITOR_OBJS+= build_banner
-	endif
+    ifeq (1,$(HAVE_GTK2))
+        TESTGAME_OBJS+= game_banner startgtk.game
+        TESTEDITOR_OBJS+= build_banner
+    endif
 
-	TESTGAME_OBJS+= game_icon
-	TESTEDITOR_OBJS+= build_icon
+    TESTGAME_OBJS+= game_icon
+    TESTEDITOR_OBJS+= build_icon
 endif
 ifeq ($(PLATFORM),WINDOWS)
-	TESTGAME_OBJS+= gameres startwin.game
-	TESTEDITOR_OBJS+= buildres
+    TESTGAME_OBJS+= gameres startwin.game
+    TESTEDITOR_OBJS+= buildres
 endif
 
 ifeq ($(PLATFORM),DARWIN)
@@ -383,8 +383,8 @@ ifeq ($(RENDERTYPE),SDL)
     SW_EDITOR_OBJS+= game_icon
 endif
 ifeq ($(PLATFORM),WINDOWS)
-	SW_OBJS+= gameres startwin.game
-	SW_EDITOR_OBJS+= buildres
+    SW_OBJS+= gameres startwin.game
+    SW_EDITOR_OBJS+= buildres
 endif
 
 SW_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(SW_OBJS)))
