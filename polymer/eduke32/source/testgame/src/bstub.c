@@ -371,7 +371,7 @@ void ExtCheckKeys(void)
 
         i = frameval[framecnt&(AVERAGEFRAMES-1)];
         j = frameval[framecnt&(AVERAGEFRAMES-1)] = getticks(); framecnt++;
-        if (i != j) averagefps = ((mul3(averagefps)+((AVERAGEFRAMES*1000)/(j-i)))>>2);
+        if (i != j) averagefps = (averagefps*3 + (AVERAGEFRAMES*1000)/(j-i))>>2;
         Bsprintf((char *)tempbuf,"%d",averagefps);
         printext256(0L,0L,31,-1,(char *)tempbuf,1);
 

@@ -136,6 +136,8 @@ FORCE_INLINE void swapptr(void *a, void *b)
     *(intptr_t*) b = t;
 }
 
+FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
+
 #if defined(__GNUC__) && defined(GEKKO)
 
 // GCC Inline Assembler version (PowerPC)
