@@ -52,7 +52,7 @@ static struct
 {
     int i, mode3d, fullscreen = ([fullscreenButton state] == NSOnState);
     int idx3d = -1;
-    int xdim, ydim, bpp;
+    int xdim = 0, ydim = 0, bpp = 0;
 
     if (firstTime)
     {
@@ -69,8 +69,8 @@ static struct
             ydim = validmode[mode3d].ydim;
             bpp = validmode[mode3d].bpp;
         }
-
     }
+
     mode3d = checkvideomode(&xdim, &ydim, bpp, fullscreen, 1);
     if (mode3d < 0)
     {
@@ -105,16 +105,21 @@ static struct
 
 - (IBAction)alwaysShowClicked:(id)sender
 {
+    UNREFERENCED_PARAMETER(sender);
 }
 
 - (IBAction)fullscreenClicked:(id)sender
 {
     [self populateVideoModes:NO];
+
+    UNREFERENCED_PARAMETER(sender);
 }
 
 - (IBAction)cancel:(id)sender
 {
     [NSApp abortModal];
+
+    UNREFERENCED_PARAMETER(sender);
 }
 
 - (IBAction)start:(id)sender
@@ -131,6 +136,8 @@ static struct
     settings.forcesetup = [alwaysShowButton state] == NSOnState;
 
     [NSApp stopModal];
+
+    UNREFERENCED_PARAMETER(sender);
 }
 
 - (void)setupRunMode
@@ -234,7 +241,7 @@ int startwin_puts(const char *s)
     if (!s) return -1;
     if (startwin == nil) return 1;
 
-    ns = [[NSString alloc] initWithCString:s];
+    ns = [[NSString alloc] initWithUTF8String:s];
     [startwin putsMessage:ns];
     [ns release];
 
@@ -248,7 +255,7 @@ int startwin_settitle(const char *s)
     if (!s) return -1;
     if (startwin == nil) return 1;
 
-    ns = [[NSString alloc] initWithCString:s];
+    ns = [[NSString alloc] initWithUTF8String:s];
     [startwin setTitle:ns];
     [ns release];
 
@@ -258,6 +265,7 @@ int startwin_settitle(const char *s)
 int startwin_idle(void *v)
 {
     if (startwin) [[startwin window] displayIfNeeded];
+    UNREFERENCED_PARAMETER(v);
     return 0;
 }
 
