@@ -88,7 +88,7 @@ static struct
     { "'", 0x28 },
     { "`", 0x29 },
     { "LShift", 0x2a },
-    { "\\", 0x2b },
+    { "Backslash", 0x2b },
     { "Z", 0x2c },
     { "X", 0x2d },
     { "C", 0x2e },
