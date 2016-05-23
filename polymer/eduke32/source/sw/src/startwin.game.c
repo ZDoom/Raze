@@ -16,7 +16,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <windowsx.h>
+#ifndef _WIN32_IE
 #define _WIN32_IE 0x0300
+#endif
 #include <commctrl.h>
 #include <stdio.h>
 
@@ -466,7 +468,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
     case WM_CTLCOLORSTATIC:
         if ((HWND)lParam == pages[TAB_MESSAGES])
-            return (BOOL)GetSysColorBrush(COLOR_WINDOW);
+            return (BOOL)(intptr_t)GetSysColorBrush(COLOR_WINDOW);
         break;
 
     default: break;
