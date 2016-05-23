@@ -29,6 +29,8 @@ endif
 
 # BUILD Engine
 
+ENGINE=build
+
 ENGINE_CFLAGS=-I$(ENGINE_SRC)
 
 ENGINE_OBJ=$(ENGINE_ROOT)/$(obj)
@@ -92,6 +94,8 @@ ENGINE_EDITOR_OBJS_EXP:=$(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(ENGINE_EDIT
 
 # MACT
 
+MACT=mact
+
 MACT_ROOT=$(DUKE3D_SRC)/jmact
 MACT_SRC=$(MACT_ROOT)
 MACT_INC=$(MACT_ROOT)
@@ -103,6 +107,8 @@ MACT_OBJS_EXP:=$(addprefix $(MACT_OBJ)/,$(addsuffix .$o,$(MACT_OBJS)))
 
 
 # AudioLib
+
+AUDIOLIB=audiolib
 
 AUDIOLIB_OBJS=drivers fx_man multivoc mix mixst pitch formats vorbis flac xa driver_nosound
 
@@ -136,6 +142,8 @@ AUDIOLIB_OBJS_EXP:=$(addprefix $(AUDIOLIB_OBJ)/,$(addsuffix .$o,$(AUDIOLIB_OBJS)
 
 
 # ENet
+
+ENET=enet
 
 ENET_OBJS=callbacks host list packet peer protocol compress
 
@@ -179,6 +187,8 @@ UTIL_OBJS_EXP:=$(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(UTIL_OBJS)))
 
 # KenBuild (Test Game)
 
+KENBUILD=kenbuild
+
 KENBUILD_ROOT=$(DUKE3D_SRC)/testgame
 KENBUILD_SRC=$(KENBUILD_ROOT)/src
 KENBUILD_RSRC=$(KENBUILD_ROOT)/rsrc
@@ -220,6 +230,8 @@ KENBUILD_EDITOR_OBJS_EXP:=$(addprefix $(KENBUILD_OBJ)/,$(addsuffix .$o,$(KENBUIL
 
 
 # Duke Nukem 3D
+
+DUKE3D=duke3d
 
 DUKE3D_CFLAGS=-I$(DUKE3D_INC)
 
@@ -364,6 +376,8 @@ DUKE3D_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_EDIT
 
 
 # Shadow Warrior
+
+SW=sw
 
 SW_ROOT=$(DUKE3D_SRC)/sw
 SW_SRC=$(SW_ROOT)/src
