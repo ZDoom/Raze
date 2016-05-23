@@ -25,7 +25,6 @@ ifndef EBACKTRACEDLL
         EBACKTRACEDLL = ebacktrace1-64.dll
     endif
 endif
-EBACKTRACEDLL_TARGET:=$(EBACKTRACEDLL)
 
 
 # BUILD Engine
@@ -190,9 +189,6 @@ TEST_CFLAGS=-I$(TESTGAME_SRC)
 TESTGAME ?= testgame
 TESTEDITOR ?= testeditor
 
-TESTGAME_TARGET:=$(TESTGAME)$(EXESUFFIX)
-TESTEDITOR_TARGET:=$(TESTEDITOR)$(EXESUFFIX)
-
 TESTGAME_OBJS=game sound_stub common config
 TESTEDITOR_OBJS=bstub common
 
@@ -231,9 +227,6 @@ DUKE3D_OBJ=$(DUKE3D_SRC)/$(obj)
 
 EDUKE32 ?= eduke32
 MAPSTER32 ?= mapster32
-
-EDUKE32_TARGET:=$(EDUKE32)$(EXESUFFIX)
-MAPSTER32_TARGET:=$(MAPSTER32)$(EXESUFFIX)
 
 COMMON_OBJS=rev
 COMMON_EDITOR_OBJS=m32common m32def m32exec m32vars rev
@@ -377,9 +370,6 @@ SW_CFLAGS=-I$(SW_INC)
 SW ?= voidsw
 SW_EDITOR ?= voidsw-editor
 
-SW_TARGET:=$(SW)$(EXESUFFIX)
-SW_EDITOR_TARGET:=$(SW_EDITOR)$(EXESUFFIX)
-
 SW_OBJS=actor ai anim border break bunny cache cheats colormap common config console coolg coolie copysect demo draw eel game girlninj goro grpscan hornet interp interpsh inv jplayer jsector jweapon lava light mclip mdastr menus miscactr morph net ninja panel player predict quake ripper ripper2 rooms rotator rts save scrip2 sector serp setup skel skull slidor sounds spike sprite sumo swconfig sync text track vator vis wallmove warp weapon zilla zombie saveable
 SW_EDITOR_OBJS=jnstub brooms bldscript jbhlp colormap grpscan common
 
@@ -410,34 +400,20 @@ endif
 
 all: duke3d
 
-duke3d: start $(EDUKE32_TARGET) $(MAPSTER32_TARGET) 
-ifneq (,$(EDUKE32_TARGET))
+duke3d: start $(EDUKE32)$(EXESUFFIX) $(MAPSTER32)$(EXESUFFIX)
 	@ls -l $(EDUKE32)$(EXESUFFIX)
-endif
-ifneq (,$(MAPSTER32_TARGET))
 	@ls -l $(MAPSTER32)$(EXESUFFIX)
-endif
 
-test: start $(TESTGAME_TARGET) $(TESTEDITOR_TARGET) 
-ifneq (,$(TESTGAME_TARGET))
+test: start $(TESTGAME)$(EXESUFFIX) $(TESTEDITOR)$(EXESUFFIX)
 	@ls -l $(TESTGAME)$(EXESUFFIX)
-endif
-ifneq (,$(TESTEDITOR_TARGET))
 	@ls -l $(TESTEDITOR)$(EXESUFFIX)
-endif
 
-sw: start $(SW_TARGET) $(SW_EDITOR_TARGET) 
-ifneq (,$(SW_TARGET))
+sw: start $(SW)$(EXESUFFIX) $(SW_EDITOR)$(EXESUFFIX)
 	@ls -l $(SW)$(EXESUFFIX)
-endif
-ifneq (,$(SW_EDITOR_TARGET))
 	@ls -l $(SW_EDITOR)$(EXESUFFIX)
-endif
 
-ebacktrace: start $(EBACKTRACEDLL_TARGET) 
-ifneq (,$(EBACKTRACEDLL_TARGET))
+ebacktrace: start $(EBACKTRACEDLL)
 	@ls -l $(EBACKTRACEDLL)
-endif
 
 start:
 	$(BUILD_STARTED)
