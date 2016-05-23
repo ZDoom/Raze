@@ -238,6 +238,9 @@ DUKE3D_CFLAGS=-I$(DUKE3D_INC)
 DUKE3D_GAME_LDFLAGS=
 DUKE3D_EDITOR_LDFLAGS=
 
+DUKE3D_GAME_STRIPFLAGS=
+DUKE3D_EDITOR_STRIPFLAGS=
+
 DUKE3D_OBJ=$(obj)/$(DUKE3D)
 
 DUKE3D_GAME ?= eduke32
@@ -291,19 +294,18 @@ ifneq (0,$(LUNATIC))
         # strip on OSX says: removing global symbols from a final linked no longer supported.
         #                    Use -exported_symbols_list at link time when building
         # But, following _their_ directions does not give us the symbols! wtf?
-        ifneq ($(STRIP),0)
-            STRIP+= -s $(DUKE3D_SRC)/lunatic/dynsymlist_osx
-        endif
+        DUKE3D_GAME_STRIPFLAGS+= -s $(DUKE3D_OBJ)/lunatic_dynsymlist_osx
+        DUKE3D_EDITOR_STRIPFLAGS+= -s $(DUKE3D_OBJ)/lunatic_dynsymlist_m32_osx
 
-        DUKE3D_GAME_MISCDEPS+= $(DUKE3D_SRC)/lunatic/dynsymlist_osx
-        LINKERFLAGS+= -pagezero_size 10000 -image_base 100000000 #-Wl,-alias_list -Wl,$(DUKE3D_SRC)/lunatic/aliases_list #-exported_symbols_list $(DUKE3D_SRC)/lunatic/dynsymlist_osx
+        DUKE3D_GAME_MISCDEPS+= $(DUKE3D_OBJ)/lunatic_dynsymlist_osx
+        DUKE3D_EDITOR_MISCDEPS+= $(DUKE3D_OBJ)/lunatic_dynsymlist_m32_osx
+        LINKERFLAGS+= -pagezero_size 10000 -image_base 100000000
+        # DUKE3D_GAME_LDFLAGS+= #-Wl,-alias_list -Wl,$(DUKE3D_OBJ)/lunatic_aliases_list #-exported_symbols_list $(DUKE3D_OBJ)/lunatic_dynsymlist_osx
     endif
     ifeq ($(PLATFORM),WINDOWS)
         override STRIP=
-        DUKE3D_GAME_MISCDEPS+= $(DUKE3D_SRC)/lunatic/eduke32.def
-        DUKE3D_GAME_LDFLAGS+= $(DUKE3D_SRC)/lunatic/eduke32.def
-        DUKE3D_EDITOR_MISCDEPS+= $(DUKE3D_SRC)/lunatic/mapster32.def
-        DUKE3D_EDITOR_LDFLAGS+= $(DUKE3D_SRC)/lunatic/mapster32.def
+        DUKE3D_GAME_MISCDEPS+= $(DUKE3D_OBJ)/lunatic_eduke32.def
+        DUKE3D_EDITOR_MISCDEPS+= $(DUKE3D_OBJ)/lunatic_mapster32.def
     endif
     ifeq ($(SUBPLATFORM),LINUX)
         override STRIP=
@@ -494,7 +496,7 @@ ifneq ($(ELF2DOL),)
 endif
 endif
 ifneq ($(STRIP),)
-	$(STRIP) $@
+	$(STRIP) $@ $(DUKE3D_GAME_STRIPFLAGS)
 endif
 ifeq ($(PLATFORM),DARWIN)
 	cp -RPf "platform/Apple/bundles/$(DUKE3D_GAME_PROPER).app" "./"
@@ -511,7 +513,7 @@ ifneq ($(ELF2DOL),)
 endif
 endif
 ifneq ($(STRIP),)
-	$(STRIP) $@
+	$(STRIP) $@ $(DUKE3D_EDITOR_STRIPFLAGS)
 endif
 ifeq ($(PLATFORM),DARWIN)
 	cp -RPf "platform/Apple/bundles/$(DUKE3D_EDITOR_PROPER).app" "./"
@@ -521,7 +523,7 @@ endif
 
 $(SW_GAME)$(EXESUFFIX): $(SW_GAME_OBJS_EXP) $(COMMON_OBJS_EXP) $(MIDI_OBJS_EXP) $(ENGINE_OBJS_EXP) $(MACT_OBJS_EXP) $(AUDIOLIB_OBJS_EXP)
 	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(DUKE3D_GAME_LDFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
+	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
 	$(ELF2DOL) $(SW_GAME)$(EXESUFFIX) $(SW_GAME)$(DOLSUFFIX)
@@ -533,7 +535,7 @@ endif
 
 $(SW_EDITOR)$(EXESUFFIX): $(SW_EDITOR_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP)
 	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(DUKE3D_EDITOR_LDFLAGS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
+	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(GUI_LIBS) $(LIBDIRS) $(LIBS) $(STATICSTDCPP) $(RECIPE_RESULT_LINK)
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
 	$(ELF2DOL) $(SW_EDITOR)$(EXESUFFIX) $(SW_EDITOR)$(DOLSUFFIX)
@@ -596,20 +598,22 @@ $(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/lunatic/%.c
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-# TODO: _m32
 # List of exported symbols, OS X
-$(DUKE3D_SRC)/lunatic/dynsymlist_osx: $(DUKE3D_SRC)/lunatic/dynsymlist
+$(DUKE3D_OBJ)/lunatic_dynsymlist_osx: $(DUKE3D_SRC)/lunatic/dynsymlist
 	sed 's/[{};]//g;s/[A-Za-z_][A-Za-z_0-9]*/_&/g' $< > $@
 
-#$(DUKE3D_SRC)/lunatic/aliases_list: $(DUKE3D_SRC)/lunatic/dynsymlist_osx
+$(DUKE3D_OBJ)/lunatic_dynsymlist_m32_osx: $(DUKE3D_SRC)/lunatic/dynsymlist_m32
+	sed 's/[{};]//g;s/[A-Za-z_][A-Za-z_0-9]*/_&/g' $< > $@
+
+#$(DUKE3D_OBJ)/lunatic_aliases_list: $(DUKE3D_OBJ)/lunatic_dynsymlist_osx
 #	sed 's/_\([A-Za-z_][A-Za-z_0-9]*\)/_\1 \1/g' $< > $@
 
 # List of exported symbols, Windows
-$(DUKE3D_SRC)/lunatic/eduke32.def: $(DUKE3D_SRC)/lunatic/dynsymlist
+$(DUKE3D_OBJ)/lunatic_eduke32.def: $(DUKE3D_SRC)/lunatic/dynsymlist
 	echo EXPORTS > $@
 	sed 's/[{};]//g' $< >> $@
 
-$(DUKE3D_SRC)/lunatic/mapster32.def: $(DUKE3D_SRC)/lunatic/dynsymlist_m32
+$(DUKE3D_OBJ)/lunatic_mapster32.def: $(DUKE3D_SRC)/lunatic/dynsymlist_m32
 	echo EXPORTS > $@
 	sed 's/[{};]//g' $< >> $@
 
@@ -757,7 +761,7 @@ veryclean: clean
 # Delete executables, object files created from sources in source/, and
 # miscellaneous generated files related to Lunatic on non-Linux.
 cleanduke3d:
-	-rm -f $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX) $(DUKE3D_GAME_MISCDEPS) $(DUKE3D_EDITOR_MISCDEPS)
+	-rm -f $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX)
 	-rm -f $(DUKE3D_RSRC)/*banner*
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf "$(DUKE3D_GAME_PROPER).app" "$(DUKE3D_EDITOR_PROPER).app"
