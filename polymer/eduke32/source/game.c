@@ -6406,38 +6406,33 @@ int32_t app_main(int32_t argc, char const * const * argv)
         if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
         {
             int32_t i = 0;
+            int32_t j = 0;
             int32_t xres[] = {ud.config.ScreenWidth,800,640,320};
             int32_t yres[] = {ud.config.ScreenHeight,600,480,240};
+#ifdef USE_OPENGL
             int32_t bpp[] = {32,16,8};
+#else
+            int32_t bpp[] = {8};
+#endif
 
             initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n",
                        ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.config.ScreenMode?"fullscreen":"windowed");
 
-#ifdef USE_OPENGL
+            while (setgamemode(0,xres[i],yres[i],bpp[j]) < 0)
             {
-                int32_t j = 0;
-                while (setgamemode(0,xres[i],yres[i],bpp[j]) < 0)
-                {
-                    initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[i]);
+                initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[j]);
 
-                    if (++j == 3)
-                    {
-                        if (++i == 4)
-                            G_GameExit("Unable to set failsafe video mode!");
-                        j = 0;
-                    }
+                if (++j == ARRAY_SIZE(bpp))
+                {
+                    if (++i == ARRAY_SIZE(xres))
+                        G_GameExit("Unable to set failsafe video mode!");
+                    j = 0;
                 }
             }
-#else
-            while (setgamemode(0,xres[i],yres[i],8) < 0)
-            {
-                initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],8);
-                i++;
-            }
-#endif
+
             ud.config.ScreenWidth = xres[i];
             ud.config.ScreenHeight = yres[i];
-            ud.config.ScreenBPP = bpp[i];
+            ud.config.ScreenBPP = bpp[j];
         }
 
         setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
