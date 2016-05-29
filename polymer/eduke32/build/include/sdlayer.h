@@ -73,12 +73,6 @@ int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout);
         destroy_window_resources();                                                                                    \
         return -1;                                                                                                     \
     }
-
-#define SDL2_VIDEO_FALLBACK(XX)                                                                                        \
-    {                                                                                                                  \
-        initprintf("Falling back to SDL_GetWindowSurface: " XX " failed: %s\n", SDL_GetError());                       \
-    }
-#define SDL2_RENDERER_DESTROY(XX) SDL_DestroyRenderer(XX), XX = NULL
 #endif
 
 static inline void idle_waitevent_timeout(uint32_t timeout)

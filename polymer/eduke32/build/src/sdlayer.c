@@ -513,7 +513,7 @@ int32_t sdlayer_checkversion(void)
             compiled.major, compiled.minor, compiled.patch);
     else
     initprintf("Initializing SDL %d.%d.%d"
-               "(built against SDL version %d.%d.%d)\n",
+               " (built against SDL version %d.%d.%d)\n",
                linked.major, linked.minor, linked.patch, compiled.major, compiled.minor, compiled.patch);
 
     if (SDL_VERSIONNUM(linked.major, linked.minor, linked.patch) < SDL_REQUIREDVERSION)
@@ -1500,6 +1500,53 @@ void setrefreshrate(void)
     }
 }
 
+static void sdl_trycreaterenderer_fail(char const * const failurepoint)
+{
+    initprintf("Falling back to SDL_GetWindowSurface: %s failed: %s\n", failurepoint, SDL_GetError());
+    SDL_DestroyRenderer(sdl_renderer);
+    sdl_renderer = NULL;
+}
+
+static void sdl_trycreaterenderer(int32_t const x, int32_t const y)
+{
+    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
+    if (!sdl_renderer)
+    {
+        sdl_trycreaterenderer_fail("SDL_CreateRenderer");
+        return;
+    }
+
+    SDL_RendererInfo sdl_rendererinfo;
+    SDL_GetRendererInfo(sdl_renderer, &sdl_rendererinfo);
+
+    if (sdl_rendererinfo.flags & SDL_RENDERER_SOFTWARE) // this would be useless
+    {
+        initprintf("Falling back to SDL_GetWindowSurface: software SDL_Renderer \"%s\" provides no benefit.\n", sdl_rendererinfo.name);
+        SDL_DestroyRenderer(sdl_renderer);
+        sdl_renderer = NULL;
+        return;
+    }
+
+    initprintf("Trying SDL_Renderer \"%s\"\n", sdl_rendererinfo.name);
+
+    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, x, y);
+    if (!sdl_texture)
+    {
+        sdl_trycreaterenderer_fail("SDL_CreateTexture");
+        return;
+    }
+
+    sdl_surface = SDL_CreateRGBSurface(0, x, y, 32, 0, 0, 0, 0);
+
+    if (!sdl_surface)
+    {
+        SDL_DestroyTexture(sdl_texture);
+        sdl_texture = NULL;
+        sdl_trycreaterenderer_fail("SDL_CreateRGBSurface");
+        return;
+    }
+}
+
 int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
     int32_t regrab = 0, ret;
@@ -1588,38 +1635,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
         setrefreshrate();
 
-        sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
-        if (!sdl_renderer)
-            SDL2_VIDEO_FALLBACK("SDL_CreateRenderer")
-        else
-        {
-            SDL_RendererInfo sdl_rendererinfo;
-            SDL_GetRendererInfo(sdl_renderer, &sdl_rendererinfo);
-            if (sdl_rendererinfo.flags & SDL_RENDERER_SOFTWARE)  // this would be useless
-                SDL2_RENDERER_DESTROY(sdl_renderer);
-            else
-            {
-                sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, x, y);
-                if (!sdl_texture)
-                {
-                    SDL2_VIDEO_FALLBACK("SDL_CreateTexture");
-                    SDL2_RENDERER_DESTROY(sdl_renderer);
-                }
-            }
-
-            if (sdl_texture)
-            {
-                sdl_surface = SDL_CreateRGBSurface(0, x, y, 32, 0, 0, 0, 0);
-
-                if (!sdl_surface)
-                {
-                    SDL2_VIDEO_FALLBACK("SDL_CreateRGBSurface");
-                    SDL_DestroyTexture(sdl_texture);
-                    sdl_texture = NULL;
-                    SDL2_RENDERER_DESTROY(sdl_renderer);
-                }
-            }
-        }
+        sdl_trycreaterenderer(x, y);
 
         if (!sdl_surface)
         {
