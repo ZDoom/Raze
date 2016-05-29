@@ -43,7 +43,9 @@ credits.
 #if !defined(_WIN32)
 #include <unistd.h>
 #include <dirent.h>
+# if !defined __INTEL_COMPILER
 typedef long long  __int64;
+# endif
 static __inline int32_t _lrotl(int32_t i, int sh)
 { return((i>>(-sh))|(i<<sh)); }
 /*__inline*/ int32_t filelength(int h)
