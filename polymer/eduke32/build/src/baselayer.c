@@ -171,17 +171,25 @@ extern "C" {
 #endif
 
 #if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
-int32_t nx_unprotect(intptr_t beg, intptr_t end)
+static int32_t nx_unprotect(intptr_t beg, intptr_t end, int prot)
 {
 # if defined _WIN32
+#  define B_PROT_RW PAGE_READWRITE
+#  define B_PROT_RX PAGE_EXECUTE_READ
+#  define B_PROT_RWX PAGE_EXECUTE_READWRITE
+
     DWORD oldprot;
 
-    if (!VirtualProtect((LPVOID) beg, (SIZE_T)end - (SIZE_T)beg, PAGE_EXECUTE_READWRITE, &oldprot))
+    if (!VirtualProtect((LPVOID) beg, (SIZE_T)end - (SIZE_T)beg, prot, &oldprot))
     {
         initprintf("VirtualProtect() error! Crashing in 3... 2... 1...\n");
         return 1;
     }
 # elif defined __linux || defined EDUKE32_BSD || defined __APPLE__
+#  define B_PROT_RW (PROT_READ|PROT_WRITE)
+#  define B_PROT_RX (PROT_READ|PROT_EXEC)
+#  define B_PROT_RWX (PROT_READ|PROT_WRITE|PROT_EXEC)
+
     int32_t pagesize;
     size_t dep_begin_page;
     pagesize = sysconf(_SC_PAGE_SIZE);
@@ -191,7 +199,7 @@ int32_t nx_unprotect(intptr_t beg, intptr_t end)
         return 1;
     }
     dep_begin_page = ((size_t)beg) & ~(pagesize-1);
-    if (mprotect((void *) dep_begin_page, (size_t)end - dep_begin_page, PROT_READ|PROT_WRITE) < 0)
+    if (mprotect((void *) dep_begin_page, (size_t)end - dep_begin_page, prot) < 0)
     {
         initprintf("Error making code writeable (errno=%d)\n", errno);
         return 1;
@@ -221,7 +229,7 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx)
 
         ylookup = (intptr_t *)Xaligned_alloc(16, lastyidx * sizeof(intptr_t));
 #if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
-        nx_unprotect((intptr_t)ylookup, (intptr_t)ylookup + (lastyidx * sizeof(intptr_t)));
+        nx_unprotect((intptr_t)ylookup, (intptr_t)ylookup + (lastyidx * sizeof(intptr_t)), B_PROT_RW);
 #endif
         ylookupsiz = lastyidx;
     }
@@ -248,7 +256,7 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx)
 void makeasmwriteable(void)
 {
 #if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
-    nx_unprotect((intptr_t)&dep_begin, (intptr_t)&dep_end);
+    nx_unprotect((intptr_t)&dep_begin, (intptr_t)&dep_end, B_PROT_RWX);
 #endif
 }
 

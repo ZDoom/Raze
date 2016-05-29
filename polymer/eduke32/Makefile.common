@@ -716,10 +716,15 @@ ifeq ($(SUBPLATFORM),LINUX)
 endif
 ifeq ($(PLATFORM),DARWIN)
     COMPILERFLAGS+= -DUNDERSCORES
-    ASFORMAT=macho$(SYSBITS)
+    ASFORMAT=macho
     ASFLAGS+= -DUNDERSCORES
-    # ASM on OS X crashes in mmxoverlay()
-    override NOASM=1
+
+    ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
+        ifeq (0,$(BUILD32_ON_64))
+            ASFORMAT+=64
+            override NOASM=1
+        endif
+    endif
 
     # LIBDIRS+= -Lplatform/Apple/lib
     # COMPILERFLAGS+= -Iplatform/Apple/include
