@@ -228,9 +228,6 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx)
         Baligned_free(ylookup);
 
         ylookup = (intptr_t *)Xaligned_alloc(16, lastyidx * sizeof(intptr_t));
-#if !defined(NOASM) && !defined(GEKKO) && !defined(__ANDROID__)
-        nx_unprotect((intptr_t)ylookup, (intptr_t)ylookup + (lastyidx * sizeof(intptr_t)), B_PROT_RW);
-#endif
         ylookupsiz = lastyidx;
     }
 
