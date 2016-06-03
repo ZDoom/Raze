@@ -910,6 +910,10 @@ $(KENBUILD_OBJ)/%.$o: $(KENBUILD_SRC)/%.c | $(KENBUILD_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
+$(KENBUILD_OBJ)/%.$o: $(KENBUILD_OBJ)/%.c
+	$(COMPILE_STATUS)
+	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
+
 $(KENBUILD_OBJ)/%.$o: $(KENBUILD_SRC)/%.m | $(KENBUILD_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER_OBJC) $(COMMONFLAGS) $(COMPILERFLAGS) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
@@ -922,11 +926,15 @@ $(KENBUILD_OBJ)/%.$o: $(KENBUILD_RSRC)/%.c | $(KENBUILD_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(KENBUILD_RSRC)/%_banner.c: $(KENBUILD_RSRC)/%.bmp
+$(KENBUILD_OBJ)/%_banner.c: $(KENBUILD_RSRC)/%.bmp | $(KENBUILD_OBJ)
 	echo "#include \"gtkpixdata_shim.h\"" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
 $(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/%.c | $(DUKE3D_OBJ)
+	$(COMPILE_STATUS)
+	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
+
+$(DUKE3D_OBJ)/%.$o: $(DUKE3D_OBJ)/%.c
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
@@ -954,11 +962,15 @@ $(DUKE3D_OBJ)/%.$o: $(DUKE3D_RSRC)/%.c | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(DUKE3D_RSRC)/%_banner.c: $(DUKE3D_RSRC)/%.bmp
+$(DUKE3D_OBJ)/%_banner.c: $(DUKE3D_RSRC)/%.bmp | $(DUKE3D_OBJ)
 	echo "#include \"gtkpixdata_shim.h\"" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
 $(SW_OBJ)/%.$o: $(SW_SRC)/%.c | $(SW_OBJ)
+	$(COMPILE_STATUS)
+	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(SW_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
+
+$(SW_OBJ)/%.$o: $(SW_OBJ)/%.c
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(SW_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
@@ -974,7 +986,7 @@ $(SW_OBJ)/%.$o: $(SW_RSRC)/%.c | $(SW_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS) $(SW_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(SW_RSRC)/%_banner.c: $(SW_RSRC)/%.bmp
+$(SW_OBJ)/%_banner.c: $(SW_RSRC)/%.bmp | $(SW_OBJ)
 	echo "#include \"gtkpixdata_shim.h\"" > $@
 	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
 
@@ -992,7 +1004,6 @@ veryclean: clean
 # miscellaneous generated files related to Lunatic on non-Linux.
 cleanduke3d:
 	-rm -f $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX)
-	-rm -f $(DUKE3D_RSRC)/*banner*
 ifeq ($(PLATFORM),DARWIN)
 	-rm -rf "$(DUKE3D_GAME_PROPER).app" "$(DUKE3D_EDITOR_PROPER).app"
 endif
