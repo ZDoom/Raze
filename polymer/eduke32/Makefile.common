@@ -92,12 +92,6 @@ ifeq ($(GCC_MINOR),)
     GCC_MINOR    := 8
 endif
 
-# Detect machine architecture
-ifndef SYSARCH
-    SYSARCH:=$(strip $(shell uname -m))
-endif
-SYSBITS=32
-
 # Detect the platform if it wasn't explicitly given to us from
 # the outside world. This allows cross-compilation by overriding
 # CC and giving us PLATFORM specifically.
@@ -278,7 +272,7 @@ endif
 
 CONLYFLAGS=-std=gnu99 -Wimplicit -Werror-implicit-function-declaration
 CXXONLYFLAGS= -fno-exceptions -fno-rtti
-ASFORMAT=elf$(SYSBITS)
+ASFORMAT=elf$(BITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
 LINKERFLAGS=
 L_CXXONLYFLAGS=
@@ -306,28 +300,43 @@ ifeq ($(HOSTPLATFORM),WINDOWS)
     endif
 endif
 
+# Detect machine architecture
+BITS=32
+
 ifeq ($(PLATFORM),WINDOWS)
     ifndef COMPILERTARGET
         COMPILERTARGET:=$(strip $(shell $(CC) -dumpmachine))
     endif
 
+    IMPLICIT_ARCH=i386
     ifeq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
-        SYSARCH:=x86_64
-        SYSBITS=64
+        IMPLICIT_ARCH=x86_64
+        BITS=64
     endif
 
-    WINLIB?=/$(SYSBITS)
+    WINLIB?=/$(BITS)
+else ifeq ($(PLATFORM),WII)
+    IMPLICIT_ARCH=ppc
 else
-ifneq (1,$(BUILD32_ON_64))
-    ifeq ($(findstring x86_64,$(ARCH)),x86_64)
-        SYSBITS=64
-    endif
-    ifeq ($(ARCH),)
-        ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
-            SYSBITS=64
+    ifeq (1,$(BUILD32_ON_64))
+        ifeq ($(ARCH),)
+            override ARCH:=-arch i386
         endif
     endif
-endif
+
+    ifneq ($(ARCH),)
+        override ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(strip $(ARCH)))))
+        ifneq ($(findstring -arch,$(ARCH)),-arch)
+            override ARCH := -arch $(ARCH)
+        endif
+        IMPLICIT_ARCH=$(ARCH)
+    else
+        IMPLICIT_ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(strip $(shell uname -m)))))
+    endif
+
+    ifeq ($(findstring x86_64,$(IMPLICIT_ARCH)),x86_64)
+        BITS=64
+    endif
 endif
 
 ifeq ($(PLATFORM),DARWIN)
@@ -354,7 +363,7 @@ ifeq ($(PLATFORM),DARWIN)
     ifeq (1,$(BUILD32_ON_64))
         COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
     else
-        ifeq ($(findstring ppc,$(ARCH)),ppc)
+        ifeq ($(findstring ppc,$(IMPLICIT_ARCH)),ppc)
             COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
         endif
     endif
@@ -378,20 +387,9 @@ else
 endif
 
 ifndef OPTOPT
-    ifeq ($(PLATFORM), WII)
-        OPTOPT=
-    else
-        OPTOPTARCH=$(ARCH)
-        ifeq (,$(OPTOPTARCH))
-            OPTOPTARCH=$(SYSARCH)
-        endif
-
-        ifeq (i686,$(findstring i686, $(OPTOPTARCH)))
-            OPTOPT=-march=pentium3 $(M_TUNE_GENERIC) -mmmx
-            # -msse2 -mfpmath=sse,387 -malign-double $(M_STACKREALIGN)
-        else
-            OPTOPT=
-        endif
+    ifeq ($(findstring i386, $(IMPLICIT_ARCH)),i386)
+        OPTOPT=-march=pentium3 $(M_TUNE_GENERIC) -mmmx
+        # -msse2 -mfpmath=sse,387 -malign-double $(M_STACKREALIGN)
     endif
 endif
 
@@ -572,10 +570,10 @@ LUAJIT:=luajit
 # the native LuaJIT to emit PE object files.
 ifeq ($(PLATFORM),WINDOWS)
     LUAJIT_BCOPTS := -o windows
-    ifeq (32,$(SYSBITS))
+    ifeq (32,$(BITS))
         LUAJIT_BCOPTS += -a x86
     endif
-    ifeq (64,$(SYSBITS))
+    ifeq (64,$(BITS))
         LUAJIT_BCOPTS += -a x64
     endif
 endif
@@ -692,20 +690,13 @@ ifeq ($(SUBPLATFORM),LINUX)
         override NOASM=1
     endif
 
-    ifeq ($(findstring arm,$(SYSARCH)),arm)
-        override NOASM=1
-    endif
-
-    ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
+    ifneq ($(findstring i386,$(IMPLICIT_ARCH)),i386)
         ifeq (1,$(BUILD32_ON_64))
             # On my 64bit Gentoo these are the 32bit emulation libs
-            LIBS+= -m32
             LIBDIRS+= -L/emul/linux/x86/usr/lib
             COMMONFLAGS+= -m32
             # Override WITHOUT_GTK=0
             GTKCOMPAT32=1
-        else
-            override NOASM=1
         endif
     endif
 
@@ -719,11 +710,9 @@ ifeq ($(PLATFORM),DARWIN)
     ASFORMAT=macho
     ASFLAGS+= -DUNDERSCORES
 
-    ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
-        ifeq (0,$(BUILD32_ON_64))
-            ASFORMAT+=64
-            override NOASM=1
-        endif
+    ifeq ($(findstring x86_64,$(IMPLICIT_ARCH)),x86_64)
+        ASFORMAT+=64
+        override NOASM=1
     endif
 
     # LIBDIRS+= -Lplatform/Apple/lib
@@ -760,18 +749,8 @@ ifeq ($(PLATFORM),DARWIN)
         COMPILERFLAGS += -DDARWIN9
     endif
 
-    ifeq (1,$(BUILD32_ON_64))
-        ARCH=-arch i386
-    endif
-
-    ifneq ($(findstring x86_64,$(ARCH)),x86_64)
-        ifeq (,$(ARCH))
-            ifneq ($(findstring x86_64,$(SYSARCH)),x86_64)
-                LINKERFLAGS += -read_only_relocs suppress
-            endif
-        else
-            LINKERFLAGS += -read_only_relocs suppress
-        endif
+    ifneq ($(findstring x86_64,$(IMPLICIT_ARCH)),x86_64)
+        LINKERFLAGS += -read_only_relocs suppress
     endif
 
     ifeq (0,$(CLANG))
@@ -784,7 +763,7 @@ ifeq ($(PLATFORM),WINDOWS)
     ifeq (0,$(CLANG))
         L_CXXONLYFLAGS += -static-libstdc++
     endif
-    ASFORMAT=win$(SYSBITS)
+    ASFORMAT=win$(BITS)
     ASFLAGS+= -DUNDERSCORES
 
     # Windows types can be SDL or WIN
@@ -813,11 +792,6 @@ ifeq ($(PLATFORM),WINDOWS)
     endif
     #-lshfolder
     STDCPPLIB:=-lstdc++
-    ifeq ($(findstring x86_64,$(SYSARCH)),x86_64)
-        ifneq (1,$(BUILD32_ON_64))
-            override NOASM=1
-        endif
-    endif
 
     COMMONFLAGS += -fno-pic
 endif
@@ -827,9 +801,6 @@ ifeq ($(PLATFORM),BSD)
     RENDERTYPE=SDL
     MIXERTYPE=SDL
     COMPILERFLAGS+= -DHAVE_INTTYPES
-    ifneq ($(findstring i386,$(SYSARCH)),i386)
-        override NOASM=1
-    endif
     STDCPPLIB:=-lstdc++
 endif
 ifeq ($(PLATFORM),BEOS)
@@ -892,6 +863,10 @@ ifeq ($(PLATFORM),GCW)
 endif
 ifeq ($(PLATFORM),DINGOO)
     COMPILERFLAGS += -D__OPENDINGUX__
+endif
+
+ifneq ($(findstring i386,$(IMPLICIT_ARCH)),i386)
+    override NOASM=1
 endif
 
 ifneq ($(EXESUFFIX_OVERRIDE),)

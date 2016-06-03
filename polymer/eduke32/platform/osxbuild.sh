@@ -260,31 +260,31 @@ if [ $buildtools$installtools != 00 ] && [ -d "build" ]; then
         if [ $build64 == 1 ]; then
             if [ $builddebug == 1 ]; then
                 dobuildtools "x86_64 debug" \
-                    "ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.debug.x64 $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=1 $makecmd utils"
+                    "ARCH=x86_64 EXESUFFIX_OVERRIDE=.debug.x64 $commonargs RELEASE=0 USE_LIBVPX=1 $makecmd utils"
             fi
 
             dobuildtools "x86_64 release" \
-                "ARCH='-arch x86_64' EXESUFFIX_OVERRIDE=.x64 $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=1 $makecmd utils"
+                "ARCH=x86_64 EXESUFFIX_OVERRIDE=.x64 $commonargs RELEASE=1 USE_LIBVPX=1 $makecmd utils"
         fi
 
         if [ $build86 == 1 ]; then
             if [ $builddebug == 1 ]; then
                 dobuildtools "x86 debug" \
-                    "EXESUFFIX_OVERRIDE=.debug.x86 $commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBVPX=0 $makecmd utils"
+                    "ARCH=i386 EXESUFFIX_OVERRIDE=.debug.x86 $commonargs RELEASE=0 USE_LIBVPX=0 $makecmd utils"
             fi
 
             dobuildtools "x86 release" \
-                "EXESUFFIX_OVERRIDE=.x86 $commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBVPX=0 $makecmd utils"
+                "ARCH=i386 EXESUFFIX_OVERRIDE=.x86 $commonargs RELEASE=1 USE_LIBVPX=0 $makecmd utils"
         fi
 
         if [ $buildppc == 1 ]; then
             if [ $builddebug == 1 ]; then
                 dobuildtools "PowerPC debug" \
-                    "ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.debug.ppc $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBVPX=0 $makecmd utils"
+                    "ARCH=ppc EXESUFFIX_OVERRIDE=.debug.ppc $commonargs RELEASE=0 USE_LIBVPX=0 $makecmd utils"
             fi
 
             dobuildtools "PowerPC release" \
-                "ARCH='-arch ppc' EXESUFFIX_OVERRIDE=.ppc $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBVPX=0 $makecmd utils"
+                "ARCH=ppc EXESUFFIX_OVERRIDE=.ppc $commonargs RELEASE=1 USE_LIBVPX=0 $makecmd utils"
         fi
 
         mkdir -p tools
@@ -344,28 +344,28 @@ if [ $buildmain == 1 ]; then
 
     if [ $build64 == 1 ]; then
         if [ $builddebug == 1 ]; then
-            dobuildem debug.x64 "ARCH='-arch x86_64' $commonargs RELEASE=0 BUILD32_ON_64=0 $makecmd"
+            dobuildem debug.x64 "ARCH=x86_64 $commonargs RELEASE=0 $makecmd"
         fi
 
         if [ $buildrelease == 1 ]; then
-            dobuildem x64 "ARCH='-arch x86_64' $commonargs RELEASE=1 BUILD32_ON_64=0 $makecmd"
+            dobuildem x64 "ARCH=x86_64 $commonargs RELEASE=1 $makecmd"
         fi
     fi
 
     if [ $build86 == 1 ]; then
         if [ $builddebug == 1 ]; then
-            dobuildem debug.x86 "$commonargs RELEASE=0 BUILD32_ON_64=1 USE_LIBPNG=0 USE_LIBVPX=0 $makecmd"
+            dobuildem debug.x86 "ARCH=i386 $commonargs RELEASE=0 USE_LIBPNG=0 USE_LIBVPX=0 $makecmd"
         fi
 
-        dobuildem x86 "$commonargs RELEASE=1 BUILD32_ON_64=1 USE_LIBPNG=0 USE_LIBVPX=0 $makecmd"
+        dobuildem x86 "ARCH=i386 $commonargs RELEASE=1 USE_LIBPNG=0 USE_LIBVPX=0 $makecmd"
     fi
 
     if [ $buildppc == 1 ]; then
         if [ $builddebug == 1 ]; then
-            dobuildem debug.ppc "ARCH='-arch ppc' $commonargs RELEASE=0 BUILD32_ON_64=0 USE_LIBPNG=0 USE_LIBVPX=0 $makecmd"
+            dobuildem debug.ppc "ARCH=ppc $commonargs RELEASE=0 USE_LIBPNG=0 USE_LIBVPX=0 $makecmd"
         fi
 
-        dobuildem ppc "ARCH='-arch ppc' $commonargs RELEASE=1 BUILD32_ON_64=0 USE_LIBPNG=0 USE_LIBVPX=0 $makecmd"
+        dobuildem ppc "ARCH=ppc $commonargs RELEASE=1 USE_LIBPNG=0 USE_LIBVPX=0 $makecmd"
     fi
 fi
 
