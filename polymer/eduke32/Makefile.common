@@ -388,8 +388,17 @@ endif
 
 ifndef OPTOPT
     ifeq ($(findstring i386, $(IMPLICIT_ARCH)),i386)
-        OPTOPT=-march=pentium3 $(M_TUNE_GENERIC) -mmmx
-        # -msse2 -mfpmath=sse,387 -malign-double $(M_STACKREALIGN)
+        ifeq ($(PLATFORM),DARWIN)
+            OPTOPT=-march=nocona -mmmx -msse -msse2 -msse3
+        else
+            OPTOPT=-march=pentium3 $(M_TUNE_GENERIC) -mmmx
+            # -msse2 -mfpmath=sse,387 -malign-double $(M_STACKREALIGN)
+        endif
+    endif
+    ifeq ($(findstring x86_64, $(IMPLICIT_ARCH)),x86_64)
+        ifeq ($(PLATFORM),DARWIN)
+            OPTOPT=-march=core2 -msse3 -mssse3
+        endif
     endif
 endif
 
