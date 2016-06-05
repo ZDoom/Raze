@@ -2524,6 +2524,7 @@ void polymost_editorfunc(void)
             tsp->shade = 30-shd;
             tsp->owner = MAXSPRITES-1;
             tsp->xrepeat = tsp->yrepeat = min(max(1, (int32_t) (dadist*((double)(shd*3)/3200.0))), 255);
+            tsp->extra = 0;
             sprite[tsp->owner].xoffset = sprite[tsp->owner].yoffset = 0;
             tspriteptr[spritesortcnt++] = tsp;
         }

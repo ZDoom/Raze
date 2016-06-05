@@ -3832,6 +3832,7 @@ static inline void  polymer_scansprites(int16_t sectnum, tspritetype* localtspri
             // this function's localtsprite is either the tsprite global or
             // polymer_drawroom's locattsprite, so no aliasing
             Bmemcpy(&localtsprite[*localspritesortcnt], spr, sizeof(spritetype));
+            localtsprite[*localspritesortcnt].extra = 0;
             localtsprite[(*localspritesortcnt)++].owner = i;
         }
     }
@@ -4690,16 +4691,10 @@ static void         polymer_drawmdsprite(tspritetype *tspr)
                     sk->skinnum == tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum &&
                     sk->surfnum == surfi)
                     mdspritematerial.detailscale[0] = mdspritematerial.detailscale[1] = sk->param;
-        }
 
-        if (!(tspr->extra&TSPR_EXTRA_MDHACK))
-        {
             mdspritematerial.specmap =
                     mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,SPECULARPAL,surfi);
-        }
 
-        if (!(tspr->extra&TSPR_EXTRA_MDHACK))
-        {
             mdspritematerial.normalmap =
                     mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,NORMALPAL,surfi);
 
@@ -4710,10 +4705,7 @@ static void         polymer_drawmdsprite(tspritetype *tspr)
                     mdspritematerial.normalbias[0] = sk->specpower;
                     mdspritematerial.normalbias[1] = sk->specfactor;
                 }
-        }
 
-        if (!(tspr->extra&TSPR_EXTRA_MDHACK))
-        {
             mdspritematerial.glowmap =
                     mdloadskin((md2model_t *)m,tile2model[Ptile2tile(tspr->picnum,lpal)].skinnum,GLOWPAL,surfi);
         }
