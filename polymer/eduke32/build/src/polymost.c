@@ -842,7 +842,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     const int hi = !!(dameth & DAMETH_HI);
     const int nodownsize = !!(dameth & DAMETH_NODOWNSIZE) || artimmunity;
     const int nomiptransfix  = !!(dameth & DAMETH_NOFIX);
-    const int hasalpha  = !!(dameth & DAMETH_HASALPHA) && (dameth & DAMETH_MASKPROPS) != DAMETH_NOMASK;
+    const int hasalpha = !!(dameth & DAMETH_HASALPHA);
     const int texcompress_ok = !(dameth & DAMETH_NOTEXCOMPRESS) && (glusetexcompr == 2 || (glusetexcompr && !artimmunity));
 
 #if !defined EDUKE32_GLES
@@ -1224,7 +1224,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
         pth->ofb = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
         pth->flags |= PTH_HASFULLBRIGHT;
 
-        gloadtile_art(dapic, dapal, -1, 0, (dameth & DAMETH_MASKPROPS) == DAMETH_NOMASK ? dameth | DAMETH_MASK : dameth, pth->ofb, 1);
+        gloadtile_art(dapic, dapal, -1, 0, (dameth & ~DAMETH_MASKPROPS) | DAMETH_MASK, pth->ofb, 1);
 
         fullbrightloadingpass = 0;
     }
@@ -1786,7 +1786,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (r_glowmapping)
     {
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL) &&
-            (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, method | DAMETH_MASK)) &&
+            (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, (method & ~DAMETH_MASKPROPS) | DAMETH_MASK)) &&
             glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
             polymost_setupglowtexture(++texunits, glowpth ? glowpth->glpic : 0);
     }
