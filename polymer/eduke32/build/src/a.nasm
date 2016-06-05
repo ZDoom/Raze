@@ -5,6 +5,30 @@
 ; This file has been modified from Ken Silverman's original release
 ; by Jonathon Fowler (jf@jonof.id.au)
 
+%ifidn __OUTPUT_FORMAT__, x64
+%define ASM_x86_64
+%elifidn __OUTPUT_FORMAT__, win64
+%define ASM_x86_64
+%elifidn __OUTPUT_FORMAT__, elf64
+%define ASM_x86_64
+%elifidn __OUTPUT_FORMAT__, macho64
+%define ASM_x86_64
+%elifidn __OUTPUT_FORMAT__, win32
+%define ASM_x86
+%elifidn __OUTPUT_FORMAT__, elf32
+%define ASM_x86
+%elifidn __OUTPUT_FORMAT__, macho32
+%define ASM_x86
+%elifidn __OUTPUT_FORMAT__, win
+%define ASM_x86
+%elifidn __OUTPUT_FORMAT__, elf
+%define ASM_x86
+%elifidn __OUTPUT_FORMAT__, macho
+%define ASM_x86
+%endif
+
+%ifdef ASM_x86
+
 ;CPU 586
 
 SECTION .text
@@ -2894,3 +2918,5 @@ pentiumpro:
 	ret
 
 dep_end:
+
+%endif
