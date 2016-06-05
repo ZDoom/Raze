@@ -38,7 +38,7 @@ import types
 
 import textwrap
 
-import logging 
+import logging
 reload(logging)
 
 import sys, struct, string, math
@@ -76,14 +76,14 @@ class md3Vert:
 	xyz = []
 	normal = 0
 	binaryFormat = "<3hh"
-	
+
 	def __init__(self):
 		self.xyz = [0, 0, 0]
 		self.normal = 0
-		
+
 	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
-	
+
 	# copied from PhaethonH <phaethon@linux.ucla.edu> md3.py
 	def Decode(self, latlng):
 		lat = (latlng >> 8) & 0xFF;
@@ -95,11 +95,11 @@ class md3Vert:
 		z =                 math.cos(lng)
 		retval = [ x, y, z ]
 		return retval
-	
+
 	# copied from PhaethonH <phaethon@linux.ucla.edu> md3.py
 	def Encode(self, normal):
 		x, y, z = normal
-		
+
 		# normalise
 		l = math.sqrt((x*x) + (y*y) + (z*z))
 		if l == 0:
@@ -107,13 +107,13 @@ class md3Vert:
 		x = x/l
 		y = y/l
 		z = z/l
-		
+
 		if (x == 0.0) & (y == 0.0) :
 			if z > 0.0:
 				return 0
 			else:
 				return (128 << 8)
-		
+
 		# Encode a normal vector into a 16-bit latitude-longitude value
 		#lng = math.acos(z)
 		#lat = math.acos(x / math.sin(lng))
@@ -122,7 +122,7 @@ class md3Vert:
 		lat = math.atan2(y, x) * 255 / (2 * math.pi)
 		retval = ((int(lat) & 0xFF) << 8) | (int(lng) & 0xFF)
 		return retval
-	
+
 	def Load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
@@ -131,7 +131,7 @@ class md3Vert:
 		self.xyz[2] = data[2] * MD3_XYZ_SCALE
 		self.normal = data[3]
 		return self
-		
+
 	def Save(self, file):
 		tmpData = [0] * 4
 		tmpData[0] = self.xyz[0] / MD3_XYZ_SCALE
@@ -141,7 +141,7 @@ class md3Vert:
 		data = struct.pack(self.binaryFormat, tmpData[0], tmpData[1], tmpData[2], tmpData[3])
 		file.write(data)
 		#print "Wrote MD3 Vertex: ", data
-	
+
 	def Dump(self):
 		log.info("MD3 Vertex")
 		log.info("X: %s", self.xyz[0])
@@ -149,7 +149,7 @@ class md3Vert:
 		log.info("Z: %s", self.xyz[2])
 		log.info("Normal: %s", self.normal)
 		log.info("")
-		
+
 class md3TexCoord:
 	u = 0.0
 	v = 0.0
@@ -159,7 +159,7 @@ class md3TexCoord:
 	def __init__(self):
 		self.u = 0.0
 		self.v = 0.0
-		
+
 	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
 
@@ -184,7 +184,7 @@ class md3TexCoord:
 		log.info("U: %s", self.u)
 		log.info("V: %s", self.v)
 		log.info("")
-		
+
 
 class md3Triangle:
 	indexes = []
@@ -193,7 +193,7 @@ class md3Triangle:
 
 	def __init__(self):
 		self.indexes = [ 0, 0, 0 ]
-		
+
 	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
 
@@ -223,13 +223,13 @@ class md3Triangle:
 class md3Shader:
 	name = ""
 	index = 0
-	
+
 	binaryFormat = "<%dsi" % MAX_QPATH
 
 	def __init__(self):
 		self.name = ""
 		self.index = 0
-		
+
 	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
 
@@ -272,9 +272,9 @@ class md3Surface:
 	triangles = []
 	uv = []
 	verts = []
-	
+
 	binaryFormat = "<4s%ds10i" % MAX_QPATH  # 1 int, name, then 10 ints
-	
+
 	def __init__(self):
 		self.ident = ""
 		self.name = ""
@@ -292,7 +292,7 @@ class md3Surface:
 		self.triangles = []
 		self.uv = []
 		self.verts = []
-		
+
 	def GetSize(self):
 		sz = struct.calcsize(self.binaryFormat)
 		self.ofsTriangles = sz
@@ -309,7 +309,7 @@ class md3Surface:
 			sz += v.GetSize()
 		self.ofsEnd = sz
 		return self.ofsEnd
-		
+
 	def Load(self, file, log):
 		# where are we in the file (for calculating real offsets)
 		ofsBegin = file.tell()
@@ -327,28 +327,28 @@ class md3Surface:
 		self.ofsUV = data[9]
 		self.ofsVerts = data[10]
 		self.ofsEnd = data[11]
-		
+
 		# load the tri info
 		file.seek(ofsBegin + self.ofsTriangles, 0)
 		for i in range(0, self.numTriangles):
 			self.triangles.append(md3Triangle())
 			self.triangles[i].Load(file)
 			#self.triangles[i].Dump(log)
-		
+
 		# load the shader info
 		file.seek(ofsBegin + self.ofsShaders, 0)
 		for i in range(0, self.numShaders):
 			self.shaders.append(md3Shader())
 			self.shaders[i].Load(file)
 			#self.shaders[i].Dump(log)
-			
+
 		# load the uv info
 		file.seek(ofsBegin + self.ofsUV, 0)
 		for i in range(0, self.numVerts):
 			self.uv.append(md3TexCoord())
 			self.uv[i].Load(file)
 			#self.uv[i].Dump(log)
-			
+
 		# load the verts info
 		file.seek(ofsBegin + self.ofsVerts, 0)
 		for i in range(0, self.numFrames):
@@ -357,12 +357,12 @@ class md3Surface:
 				#i*self.numVerts+j=where in the surface vertex list the vert position for this frame is
 				self.verts[(i * self.numVerts) + j].Load(file)
 				#self.verts[j].Dump(log)
-			
+
 		# go to the end of this structure
 		file.seek(ofsBegin+self.ofsEnd, 0)
-			
+
 		return self
-	
+
 	def Save(self, file):
 		self.GetSize()
 		tmpData = [0] * 12
@@ -412,23 +412,23 @@ class md3Surface:
 		log.info("Offset to Verts: %s", self.ofsVerts)
 		log.info("Offset to end: %s", self.ofsEnd)
 		log.info("")
-		
+
 
 class md3Tag:
 	name = ""
 	origin = []
 	axis = []
-	
+
 	binaryFormat="<%ds3f9f" % MAX_QPATH
-	
+
 	def __init__(self):
 		self.name = ""
 		self.origin = [0, 0, 0]
 		self.axis = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-		
+
 	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
-		
+
 	def Load(self, file):
 		tmpData = file.read(struct.calcsize(self.binaryFormat))
 		data = struct.unpack(self.binaryFormat, tmpData)
@@ -446,7 +446,7 @@ class md3Tag:
 		self.axis[7] = data[11]
 		self.axis[8] = data[12]
 		return self
-		
+
 	def Save(self, file):
 		tmpData = [0] * 13
 		tmpData[0] = self.name
@@ -465,30 +465,30 @@ class md3Tag:
 		data = struct.pack(self.binaryFormat, tmpData[0],tmpData[1],tmpData[2],tmpData[3],tmpData[4],tmpData[5],tmpData[6], tmpData[7], tmpData[8], tmpData[9], tmpData[10], tmpData[11], tmpData[12])
 		file.write(data)
 		#print "wrote MD3 Tag structure: ",data
-		
+
 	def Dump(self, log):
 		log.info("MD3 Tag")
 		log.info("Name: %s", self.name)
 		log.info("Origin: %s", self.origin)
 		log.info("Axis: %s", self.axis)
 		log.info("")
-	
+
 class md3Frame:
 	mins = 0
 	maxs = 0
 	localOrigin = 0
 	radius = 0.0
 	name = ""
-	
+
 	binaryFormat="<3f3f3ff16s"
-	
+
 	def __init__(self):
 		self.mins = [0, 0, 0]
 		self.maxs = [0, 0, 0]
 		self.localOrigin = [0, 0, 0]
 		self.radius = 0.0
 		self.name = ""
-		
+
 	def GetSize(self):
 		return struct.calcsize(self.binaryFormat)
 
@@ -614,7 +614,7 @@ class md3Object:
 			self.frames.append(md3Frame())
 			self.frames[i].Load(file)
 			#self.frames[i].Dump(log)
-		
+
 		# load the tags info
 		file.seek(self.ofsTags, 0)
 		for i in range(0, self.numFrames):
@@ -623,7 +623,7 @@ class md3Object:
 				tag.Load(file)
 				#tag.Dump(log)
 				self.tags.append(tag)
-		
+
 		# load the surface info
 		file.seek(self.ofsSurfaces, 0)
 		for i in range(0, self.numSurfaces):
@@ -653,10 +653,10 @@ class md3Object:
 
 		for f in self.frames:
 			f.Save(file)
-			
+
 		for t in self.tags:
 			t.Save(file)
-			
+
 		for s in self.surfaces:
 			s.Save(file)
 
@@ -689,7 +689,7 @@ def StripPath(path):
 			path = path[c:]
 			break
 	return path
-	
+
 # strips the model from path
 def StripModel(path):
 	for c in range(len(path), 0, -1):
@@ -708,7 +708,7 @@ def StripExtension(name):
 			best = n
 	name = name[0:best]
 	return name
-	
+
 # strips gamedir
 def StripGamePath(name):
 	gamepath = GAMEDIR.replace( '\\', '/' )
@@ -760,7 +760,7 @@ def RadiusFromBounds(mins, maxs):
 	corner = [0, 0, 0]
 	a = 0
 	b = 0
-	
+
 	for i in range(0, 3):
 		a = abs(mins[i])
 		b = abs(maxs[i])
@@ -788,17 +788,17 @@ def MatrixFromAngles(pitch, yaw, roll):
 
 	sr = math.sin(DEG2RAD(roll))
 	cr = math.cos(DEG2RAD(roll))
-	
+
 #	return [[cp * cy, (sr * sp * cy + cr * -sy), (cr * sp * cy + -sr * -sy), 0.0],
 #			[cp * sy, (sr * sp * sy + cr * cy),  (cr * sp * sy + -sr * cy),  0.0],
 #			[-sp,      sr * cp,                   cr * cp,                   0.0],
 #			[0.0,      0.0,                       0.0,                       1.0]]
-	
+
 	return [[cp * cy,                     cp * sy,                 -sp,       0.0],
 			[(sr * sp * cy + cr * -sy),  (sr * sp * sy + cr * cy),  sr * cp,  0.0],
 			[(cr * sp * cy + -sr * -sy), (cr * sp * sy + -sr * cy), cr * cp,  0.0],
 			[0.0,                         0.0,                      0.0,      1.0]]
-			
+
 def MatrixTransformPoint(m, p):
 	return [m[0][0] * p[0] + m[1][0] * p[1] + m[2][0] * p[2] + m[3][0],
 			m[0][1] * p[0] + m[1][1] * p[1] + m[2][1] * p[2] + m[3][1],
@@ -809,7 +809,7 @@ def MatrixTransformNormal(m, p):
 	return [m[0][0] * p[0] + m[1][0] * p[1] + m[2][0] * p[2],
 			m[0][1] * p[0] + m[1][1] * p[1] + m[2][1] * p[2],
 			m[0][2] * p[0] + m[1][2] * p[1] + m[2][2] * p[2]]
-			
+
 def MatrixMultiply(b, a):
 	return [[
 			a[0][0] * b[0][0] + a[0][1] * b[1][0] + a[0][2] * b[2][0],
@@ -832,7 +832,7 @@ def MatrixMultiply(b, a):
 			a[3][0] * b[0][2] + a[3][1] * b[1][2] + a[3][2] * b[2][2] + b[3][2],
 			1.0,
 			]]
-			
+
 def MatrixSetupTransform(forward, left, up, origin):
 	return [[forward[0], forward[1], forward[2], origin[0]],
 			[left[0],    left[1],   left[2],     origin[1]],
@@ -840,54 +840,54 @@ def MatrixSetupTransform(forward, left, up, origin):
 			[0.0,        0.0,       0.0,         1.0]]
 
 # our own logger class. it works just the same as a normal logger except
-# all info messages get show. 
+# all info messages get show.
 class Logger(logging.Logger):
 	def __init__(self, name,level = logging.NOTSET):
 		logging.Logger.__init__(self, name, level)
-		
+
 		self.has_warnings = False
 		self.has_errors = False
 		self.has_critical = False
-	
+
 	def info(self, msg, *args, **kwargs):
 		apply(self._log,(logging.INFO, msg, args), kwargs)
-		
+
 	def warning(self, msg, *args, **kwargs):
 		logging.Logger.warning(self, msg, *args, **kwargs)
 		self.has_warnings = True
-	
+
 	def error(self, msg, *args, **kwargs):
 		logging.Logger.error(self, msg, *args, **kwargs)
 		self.has_errors = True
-		
+
 	def critical(self, msg, *args, **kwargs):
 		logging.Logger.critical(self, msg, *args, **kwargs)
 		self.has_errors = True
-		
+
 # should be able to make this print to stdout in realtime and save MESSAGES
 # as well. perhaps also have a log to file option
 class LogHandler(logging.StreamHandler):
 	def __init__(self):
 		logging.StreamHandler.__init__(self, sys.stdout)
-		
+
 		if "md3_export_log" not in Blender.Text.Get():
 			self.outtext = Blender.Text.New("md3_export_log")
 		else:
 			self.outtext = Blender.Text.Get('md3_export_log')
 			self.outtext.clear()
-			
+
 		self.lastmsg = ''
-		
+
 	def emit(self, record):
 		# print to stdout and  to a new blender text object
 		msg = self.format(record)
-		
+
 		if msg == self.lastmsg:
 			return
-		
+
 		self.lastmsg = msg
 		self.outtext.write("%s\n" %msg)
-		
+
 		logging.StreamHandler.emit(self, record)
 
 logging.setLoggerClass(Logger)
@@ -899,50 +899,50 @@ handler.setFormatter(formatter)
 
 log.addHandler(handler)
 # set this to minimum output level. eg. logging.DEBUG, logging.WARNING, logging.ERROR
-# logging.CRITICAL. logging.INFO will make little difference as these always get 
+# logging.CRITICAL. logging.INFO will make little difference as these always get
 # output'd
 log.setLevel(logging.WARNING)
 
 
 class BlenderGui:
 	def __init__(self):
-		text = """A log has been written to a blender text window. Change this window type to 
+		text = """A log has been written to a blender text window. Change this window type to
 a text window and you will be able to select the file md3_export_log."""
 
 		text = textwrap.wrap(text,40)
 		text += ['']
-		
+
 		if log.has_critical:
 			text += ['There were critical errors!!!!']
-			
+
 		elif log.has_errors:
 			text += ['There were errors!']
-			
+
 		elif log.has_warnings:
 			text += ['There were warnings']
-			
+
 		# add any more text before here
 		text.reverse()
-		
+
 		self.msg = text
-		
+
 		Blender.Draw.Register(self.gui, self.event, self.button_event)
-		
+
 	def gui(self,):
 		quitbutton = Blender.Draw.Button("Exit", 1, 0, 0, 100, 20, "Close Window")
-		
+
 		y = 35
-		
+
 		for line in self.msg:
 			BGL.glRasterPos2i(10,y)
 			Blender.Draw.Text(line)
 			y+=15
-			
+
 	def event(self,evt, val):
 		if evt == Blender.Draw.ESCKEY:
 			Blender.Draw.Exit()
 			return
-	
+
 	def button_event(self,evt):
 		if evt == 1:
 			Blender.Draw.Exit()
@@ -988,12 +988,12 @@ def ProcessSurface(scene, blenderObject, md3, pathName, modelName):
 	surf.numFrames = md3.numFrames
 	surf.name = blenderObject.getName()
 	surf.ident = MD3_IDENT
-	
+
 	# create shader for surface
 	surf.shaders.append(md3Shader())
 	surf.numShaders += 1
 	surf.shaders[0].index = 0
-	
+
 	log.info("Materials: %s", mesh.materials)
 	# :P
 	#shaderpath=Blender.Draw.PupStrInput("shader path for "+blenderObject.name+":", "", MAX_QPATH )
@@ -1011,13 +1011,13 @@ def ProcessSurface(scene, blenderObject, md3, pathName, modelName):
 
 	# process each face in the mesh
 	for face in mesh.faces:
-		
+
 		tris_in_this_face = []  #to handle quads and up...
-		
+
 		# this makes a list of indices for each tri in this face. a quad will be [[0,1,1],[0,2,3]]
 		for vi in range(1, len(face.v)-1):
 			tris_in_this_face.append([0, vi, vi + 1])
-		
+
 		# loop across each tri in the face, then each vertex in the tri
 		for this_tri in tris_in_this_face:
 			numFaces += 1
@@ -1032,19 +1032,19 @@ def ProcessSurface(scene, blenderObject, md3, pathName, modelName):
 				elif mesh.vertexUV:
 					uv = (face.v[i].uvco[0], face.v[i].uvco[1])
 				else:
-					uv = (0.0, 0.0) # handle case with no tex coords	
+					uv = (0.0, 0.0) # handle case with no tex coords
 
-				
+
 				if vertDict.has_key((index, uv)):
 					# if we've seen this exact vertex before, simply add it
 					# to the tris list of vertex indices
 					tri.indexes[tri_ind] = vertDict[(index, uv)]
 				else:
-					# havent seen this tri before 
+					# havent seen this tri before
 					# (or its uv coord is different, so we need to duplicate it)
-					
+
 					vertDict[(index, uv)] = numVerts
-					
+
 					# put the uv coord into the list
 					# (uv coord are directly related to each vertex)
 					tex = md3TexCoord()
@@ -1054,11 +1054,11 @@ def ProcessSurface(scene, blenderObject, md3, pathName, modelName):
 
 					tri.indexes[tri_ind] = numVerts
 
-					# now because we have created a new index, 
+					# now because we have created a new index,
 					# we need a way to link it to the index that
 					# blender returns for NMVert.index
 					if indexDict.has_key(index):
-						# already there - each of the entries against 
+						# already there - each of the entries against
 						# this key represents  the same vertex with a
 						# different uv value
 						ilist = indexDict[index]
@@ -1124,23 +1124,23 @@ def ProcessSurface(scene, blenderObject, md3, pathName, modelName):
 def Export(fileName):
 	if(fileName.find('.md3', -4) <= 0):
 		fileName += '.md3'
-		
+
 	log.info("Starting ...")
-	
+
 	log.info("Exporting MD3 format to: %s", fileName)
-	
+
 	pathName = StripGamePath(StripModel(fileName))
 	log.info("Shader path name: %s", pathName)
-	
+
 	modelName = StripExtension(StripPath(fileName))
 	log.info("Model name: %s", modelName)
-	
+
 	md3 = md3Object()
 	md3.ident = MD3_IDENT
 	md3.version = MD3_VERSION
 
 	tagList = []
-	
+
 	# get the scene
 	scene = Blender.Scene.getCurrent()
 	context = scene.getRenderingContext()
@@ -1175,10 +1175,10 @@ def Export(fileName):
 		else:
 			log.info("Skipping object: %s", obj.name)
 
-	
+
 	# work out the transforms for the tags for each frame of the export
 	for i in range(1, md3.numFrames + 1):
-		
+
 		# needed to update IPO's value, but probably not the best way for that...
 		scene.makeCurrent()
 		Blender.Set("curframe", i)
@@ -1189,15 +1189,15 @@ def Export(fileName):
 			t.origin[0] = matrix[3][0]
 			t.origin[1] = matrix[3][1]
 			t.origin[2] = matrix[3][2]
-				
+
 			t.axis[0] = matrix[0][0]
 			t.axis[1] = matrix[0][1]
 			t.axis[2] = matrix[0][2]
-				
+
 			t.axis[3] = matrix[1][0]
 			t.axis[4] = matrix[1][1]
 			t.axis[5] = matrix[1][2]
-				
+
 			t.axis[6] = matrix[2][0]
 			t.axis[7] = matrix[2][1]
 			t.axis[8] = matrix[2][2]
@@ -1213,7 +1213,7 @@ def Export(fileName):
 
 def FileSelectorCallback(fileName):
 	Export(fileName)
-	
+
 	BlenderGui()
 
 Blender.Window.FileSelector(FileSelectorCallback, "Export Quake3 MD3")

@@ -1657,7 +1657,7 @@ void G_ResetTimers(uint8_t keepgtics)
 void G_ClearFIFO(void)
 {
     int32_t i = MAXPLAYERS-1;
-    
+
     g_emuJumpTics = 0;
 
     Bmemset(&avg, 0, sizeof(input_t));
@@ -1818,7 +1818,7 @@ int32_t G_EnterLevel(int32_t g)
         S_ClearSoundLocks();
         FX_SetReverb(0);
         setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
-    }	       
+    }
 
     if (G_HaveUserMap())
     {

@@ -1,23 +1,23 @@
 /*
  Copyright (C) 2009 Jonathon Fowler <jf@jonof.id.au>
- 
+
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
  as published by the Free Software Foundation; either version 2
  of the License, or (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- 
+
  See the GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- 
+
  */
- 
+
 /**
  * libSDL output driver for MultiVoc
  */
@@ -67,7 +67,7 @@ static void fillData(int32_t chan, void *ptr, int32_t remaining, void *udata)
 
     UNREFERENCED_PARAMETER(chan);
     UNREFERENCED_PARAMETER(udata);
-    
+
     if (!MixBuffer || !MixCallBack)
       return;
 
@@ -76,24 +76,24 @@ static void fillData(int32_t chan, void *ptr, int32_t remaining, void *udata)
 	while (remaining > 0) {
 		if (MixBufferUsed == MixBufferSize) {
 			MixCallBack();
-			
+
 			MixBufferUsed = 0;
 			MixBufferCurrent++;
 			if (MixBufferCurrent >= MixBufferCount) {
 				MixBufferCurrent -= MixBufferCount;
 			}
 		}
-		
+
 		while (remaining > 0 && MixBufferUsed < MixBufferSize) {
 			sptr = MixBuffer + (MixBufferCurrent * MixBufferSize) + MixBufferUsed;
-			
+
 			len = MixBufferSize - MixBufferUsed;
 			if (remaining < len) {
 				len = remaining;
 			}
-			
+
 			memcpy(ptr, sptr, len);
-			
+
 			ptr = (void *)((uintptr_t)(ptr) + len);
 			MixBufferUsed += len;
 			remaining -= len;
@@ -112,7 +112,7 @@ int32_t SDLDrv_GetError(void)
 const char *SDLDrv_ErrorString( int32_t ErrorNumber )
 {
     const char *ErrorString;
-	
+
     switch( ErrorNumber ) {
         case SDLErr_Warning :
         case SDLErr_Error :
@@ -122,7 +122,7 @@ const char *SDLDrv_ErrorString( int32_t ErrorNumber )
         case SDLErr_Ok :
             ErrorString = "SDL Audio ok.";
             break;
-			
+
         case SDLErr_Uninitialised:
             ErrorString = "SDL Audio uninitialised.";
             break;
@@ -228,25 +228,25 @@ int32_t SDLDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
 		ErrorCode = SDLErr_Uninitialised;
 		return SDLErr_Error;
 	}
-	
+
 	if (Playing) {
 		SDLDrv_PCM_StopPlayback();
 	}
-    
+
 	MixBuffer = BufferStart;
 	MixBufferSize = BufferSize;
 	MixBufferCount = NumDivisions;
 	MixBufferCurrent = 0;
 	MixBufferUsed = 0;
 	MixCallBack = CallBackFunc;
-	
+
 	// prime the buffer
 	MixCallBack();
-    
+
 	Mix_Resume(-1);
-    
+
     Playing = 1;
-    
+
 	return SDLErr_Ok;
 }
 
@@ -257,7 +257,7 @@ void SDLDrv_PCM_StopPlayback(void)
 	}
 
     Mix_Pause(-1);
-	
+
 	Playing = 0;
 }
 

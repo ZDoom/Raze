@@ -252,7 +252,7 @@ machxbits3: rol eax, 6                     ;xbits
 	mov dword ptr [hmach1b+2], ebx
 	mov dword ptr [hmach1c+2], ebx
 	mov dword ptr [hmach1d+2], ebx
-	
+
 CDECLENDSET 2
 	ret
 
@@ -967,7 +967,7 @@ machvsh8: shl edx, 88h     ;16-sh
 	mov dword ptr _vplce[4], ebp
 
 	pop ebp
-	
+
 CDECLEND 6
 	ret
 
@@ -1325,7 +1325,7 @@ ALIGN 16
 mvcase15:
 	mov dword ptr [edi], ebx
 	jmp beginmvlineasm4
-	
+
 ALIGN 16
 PUBLIC _setupspritevline
 _setupspritevline:
@@ -2778,4 +2778,4 @@ pentiumpro:
 PUBLIC _dep_end
 _dep_end:
 code ends
-END 
+END

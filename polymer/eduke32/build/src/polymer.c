@@ -891,7 +891,7 @@ void                polymer_uninit(void)
                 prhighpalookups[i][j].map = 0;
             }
             j++;
-        }        
+        }
         i++;
     }
 
@@ -1741,7 +1741,7 @@ void                polymer_texinvalidate(void)
 void                polymer_definehighpalookup(char basepalnum, char palnum, char *data)
 {
     prhighpalookups[basepalnum][palnum].data = (char *)Xmalloc(PR_HIGHPALOOKUP_DATA_SIZE);
-    
+
     Bmemcpy(prhighpalookups[basepalnum][palnum].data, data, PR_HIGHPALOOKUP_DATA_SIZE);
 }
 
@@ -2014,17 +2014,17 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
 //     while (front < back)
 //     {
 //         sec = &sector[sectorqueue[front]];
-// 
+//
 //         polymer_drawsector(sectorqueue[front]);
-// 
+//
 //         i = 0;
 //         while (i < sec->wallnum)
 //         {
 //             polymer_drawwall(sectorqueue[front], sec->wallptr + i);
-// 
+//
 //             i++;
 //         }
-// 
+//
 //         front++;
 //     }
 
@@ -3698,7 +3698,7 @@ static void         polymer_computeplane(_prplane* p)
         }
         i+= (p->indices) ? 3 : 1;
     }
-    while ((p->indices && i < p->indicescount) || 
+    while ((p->indices && i < p->indicescount) ||
           (!p->indices && i < p->vertcount));
 }
 
@@ -3793,13 +3793,13 @@ static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum)
 {
     int32_t         i, j, k = -1;
     i = 4;
-    
+
 
     do
     {
         int32_t ii = i * 4;
         j = k = plane->vertcount - 1;
-       
+
         do
         {
             k -= ((frustum[ii + 0] * plane->buffer[j].x +
@@ -4634,7 +4634,7 @@ static void         polymer_drawmdsprite(tspritetype *tspr)
 //         bglDisable(GL_TEXTURE_2D);
 //         bglBegin(GL_LINES);
 //         bglColor4f(1.0, 1.0, 1.0, 1.0);
-// 
+//
 //         int i = 0;
 //         while (i < s->numverts)
 //         {
@@ -4740,7 +4740,7 @@ static void         polymer_drawmdsprite(tspritetype *tspr)
             curlight = 0;
             do {
                 materialbits = polymer_bindmaterial(&mdspritematerial, modellights, modellightcount);
-                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);  
+                bglDrawElements(GL_TRIANGLES, s->numtris * 3, GL_UNSIGNED_INT, 0);
                 polymer_unbindmaterial(materialbits);
             } while ((++curlight < modellightcount) && (curlight < pr_maxlightpasses));
 
@@ -5671,7 +5671,7 @@ static void         polymer_compileprogram(int32_t programbits)
 #ifdef PR_LINEAR_FOG
     if (programbits & prprogrambits[PR_BIT_FOG].bit)
     {
-        prprograms[programbits].uniform_linearFog = bglGetUniformLocationARB(program, "linearFog");        
+        prprograms[programbits].uniform_linearFog = bglGetUniformLocationARB(program, "linearFog");
     }
 #endif
     // PR_BIT_GLOW_MAP

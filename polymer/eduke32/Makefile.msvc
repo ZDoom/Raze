@@ -87,15 +87,15 @@ NOASM=1
 
 CC=cl
 AS=ml
-LINK=link /nologo /opt:ref 
+LINK=link /nologo /opt:ref
 MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
 	/I$(DUKE3D_INC) /I$(ENGINE_INC)\msvc /I$(ENGINE_INC) /I$(MACT_ROOT) /I$(AUDIOLIB_ROOT)\include /I$(ENET_ROOT)\include \
- 	/W2 $(ENGINEOPTS) \
- 	/I$(PLATFORM)\include /I$(AUDIOINC)\include /DRENDERTYPE$(RENDERTYPE)=1 /DMIXERTYPE$(MIXERTYPE)=1 /DSDL_FRAMEWORK /DSDL_TARGET=2 
+	/W2 $(ENGINEOPTS) \
+	/I$(PLATFORM)\include /I$(AUDIOINC)\include /DRENDERTYPE$(RENDERTYPE)=1 /DMIXERTYPE$(MIXERTYPE)=1 /DSDL_FRAMEWORK /DSDL_TARGET=2
 
 ENET_CFLAGS=/I$(ENET_INC) /I$(ENET_SRC)
-AUDIOLIB_CFLAGS=/I$(AUDIOLIB_INC) /I$(AUDIOLIB_SRC) 
+AUDIOLIB_CFLAGS=/I$(AUDIOLIB_INC) /I$(AUDIOLIB_SRC)
 
 LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib shlwapi.lib oleaut32.lib ole32.lib imm32.lib version.lib \
      libogg.a libvorbis.a libvorbisfile.a libvpx.a libpng_mini.a libz_mini.a \
@@ -189,7 +189,7 @@ MACT_OBJS=$(DUKE3D_OBJ)\file_lib.$o \
 	$(DUKE3D_OBJ)\mouse.$o \
 	$(DUKE3D_OBJ)\joystick.$o \
 	$(DUKE3D_OBJ)\scriplib.$o
- 
+
 DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
 	$(DUKE3D_OBJ)\actors.$o \
 	$(DUKE3D_OBJ)\anim.$o \
@@ -349,11 +349,11 @@ all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
 eduke32$(EXESUFFIX): $(DUKE3D_OBJS) $(ENGINE_OBJS) $(AUDIOLIB_OBJS) $(ENET_OBJS)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) /LIBPATH:$(AUDIOPLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $(DUKE3D_RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
-	
+
 mapster32$(EXESUFFIX): $(DUKE3D_EDITOR_OBJS) $(ENGINE_OBJS) $(ENGINE_EDITOR_OBJS) $(AUDIOLIB_OBJS)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) /LIBPATH:$(AUDIOPLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $(DUKE3D_RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
-	
+
 !include Makefile.deps
 !include $(ENGINE_ROOT)\Makefile.deps
 
@@ -361,6 +361,6 @@ mapster32$(EXESUFFIX): $(DUKE3D_EDITOR_OBJS) $(ENGINE_OBJS) $(ENGINE_EDITOR_OBJS
 
 clean:
 	-del /Q eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) $(DUKE3D_OBJS) $(DUKE3D_EDITOR_OBJS) *.pdb *.map *.manifest
-	
+
 veryclean: clean
 	-del /Q $(ENGINE_OBJS) $(ENGINE_EDITOR_OBJS) $(ENET_OBJS) $(AUDIOLIB_OBJS)

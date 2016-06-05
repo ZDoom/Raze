@@ -6683,7 +6683,7 @@ static void Keys3d(void)
                     wall[searchwall].extra = tempextra;
 
                 fixxrepeat(searchwall, templenrepquot);
-            }                
+            }
 
 
             if (AIMING_AT_WALL)
@@ -7402,7 +7402,7 @@ static void Keys2d(void)
             if (tcursectornum >= 0)
             {
                 Bsprintf(tempbuf,"Sector %d Extra: ",tcursectornum);
-                sector[tcursectornum].extra = getnumber16(tempbuf,sector[tcursectornum].extra,BTAG_MAX,1);                
+                sector[tcursectornum].extra = getnumber16(tempbuf,sector[tcursectornum].extra,BTAG_MAX,1);
             }
         }
     }
@@ -10112,7 +10112,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     sectorpals[isec][1] = sector[isec].ceilingpal;
                     sector[isec].floorpal = sprite[i].pal;
                     sector[isec].ceilingpal = sprite[i].pal;
-                    
+
                     for (w = headspritesect[isec]; w >= 0; w = nextspritesect[w])
                     {
                         if (w == i)
@@ -10336,7 +10336,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
             }
 
             shade = (i+16384 == pointhighlight) ? 7 - (M32_THROB>>1) : sprite[i].shade;
-            
+
             if (m32_sideview)
             {
                 screencoords(&xp1, &yp1, sprite[i].x-pos.x, sprite[i].y-pos.y, zoom);
@@ -10344,7 +10344,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 yp1 -= mulscale14(tilesiz[picnum].y<<2, zoom);
                 xp1 += halfxdim16;
             }
-            else 
+            else
                 ovhscrcoords(sprite[i].x, sprite[i].y-(tilesiz[picnum].y<<2), &xp1, &yp1);
 
             ydim16 = ydim - STATUS2DSIZ2;  // XXX?
@@ -10786,11 +10786,11 @@ void ExtCheckKeys(void)
             for (w=headspritesect[isec]; w>=0; w=nextspritesect[w])
             {
                 if (w == i)
-                    continue; 
+                    continue;
                 sprite[w].shade = spriteshades[w];
                 sprite[w].pal = spritepals[w];
             }
-            
+
         }
     }
 

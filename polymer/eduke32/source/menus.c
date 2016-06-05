@@ -2699,7 +2699,7 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
                 setrendermode(prend);
                 G_GameExit("Failed restoring old video mode.");
             }
-            else 
+            else
             {
                 onvideomodechange(p.bppmax > 8);
 #ifdef USE_OPENGL

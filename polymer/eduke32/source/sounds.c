@@ -729,7 +729,7 @@ int32_t A_PlaySound(uint32_t num, int32_t i)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)num > (unsigned)g_maxSoundPos)) return -1;
 
-    return (unsigned)i >= MAXSPRITES ? S_PlaySound(num) : 
+    return (unsigned)i >= MAXSPRITES ? S_PlaySound(num) :
         S_PlaySound3D(num, i, (vec3_t *)&sprite[i]);
 }
 

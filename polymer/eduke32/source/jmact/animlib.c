@@ -114,7 +114,7 @@ static inline uint16_t findpage(uint16_t framenumber)
 
     // this scans the last used page and higher first and then scans the
     // previously accessed pages afterwards if it doesn't find anything
-    do 
+    do
     {
         for (; i<anim->lpheader->nLps; i++)
             if (anim->LpArray[i].baseRecord <= framenumber &&
@@ -130,7 +130,7 @@ static inline uint16_t findpage(uint16_t framenumber)
         }
     }
     while (0);
-    
+
     return i;
 }
 
@@ -336,7 +336,7 @@ uint8_t * ANIM_DrawFrame(int32_t framenumber)
 
     do drawframe(cnt++);
     while (cnt < framenumber);
-    
+
     anim->currentframe = framenumber;
     return anim->imagebuffer;
 }

@@ -1042,7 +1042,7 @@ enum ScriptKeywords_t
     CON_SCRIPTSIZE,         // 329
     CON_SETGAMENAME,        // 330
     CON_CMENU,              // 331
-    CON_GETTIMEDATE,        // 332 
+    CON_GETTIMEDATE,        // 332
     CON_ACTIVATECHEAT,      // 333
     CON_SETGAMEPALETTE,     // 334
     CON_SETDEFNAME,         // 335

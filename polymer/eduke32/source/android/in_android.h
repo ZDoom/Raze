@@ -86,7 +86,7 @@ typedef struct
     float gameControlsAlpha;
 } droidinput_t;
 
-typedef struct  
+typedef struct
 {
     int32_t audio_sample_rate;
     int32_t audio_buffer_size;

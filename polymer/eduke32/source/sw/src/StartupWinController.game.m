@@ -1,20 +1,20 @@
 //-------------------------------------------------------------------------
 /*
  Copyright (C) 2007 Jonathon Fowler <jf@jonof.id.au>
- 
+
  This file is part of JFShadowWarrior
- 
+
  Shadow Warrior is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
  as published by the Free Software Foundation; either version 2
  of the License, or (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- 
+
  See the GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
@@ -64,7 +64,7 @@ static struct soundQuality_t {
 	IBOutlet NSPopUpButton *videoMode3DPUButton;
     IBOutlet NSPopUpButton *soundQualityPUButton;
 	IBOutlet NSScrollView *gameList;
-	
+
 	IBOutlet NSButton *cancelButton;
 	IBOutlet NSButton *startButton;
 }
@@ -99,7 +99,7 @@ static struct soundQuality_t {
 	int i, mode3d, fullscreen = ([fullscreenButton state] == NSOnState);
 	int idx3d = -1;
 	int xdim, ydim, bpp;
-	
+
 	if (firstTime) {
 		xdim = settings.xdim3d;
 		ydim = settings.ydim3d;
@@ -111,7 +111,7 @@ static struct soundQuality_t {
 			ydim = validmode[mode3d].ydim;
 			bpp = validmode[mode3d].bpp;
 		}
-		
+
 	}
 	mode3d = checkvideomode(&xdim, &ydim, bpp, fullscreen, 1);
 	if (mode3d < 0) {
@@ -123,7 +123,7 @@ static struct soundQuality_t {
 			break;
 		}
 	}
-	
+
 	[modeslist3d release];
 	[videoMode3DPUButton removeAllItems];
 
@@ -144,9 +144,9 @@ static struct soundQuality_t {
 - (void)populateSoundQuality:(BOOL)firstTime
 {
     int i, curidx = -1;
-    
+
     [soundQualityPUButton removeAllItems];
-    
+
     for (i = 0; soundQualities[i].frequency > 0; i++) {
         const char *ch;
         switch (soundQualities[i].channels) {
@@ -154,14 +154,14 @@ static struct soundQuality_t {
             case 2: ch = "Stereo"; break;
             default: ch = "?"; break;
         }
-        
+
         NSString *s = [NSString stringWithFormat:@"%dkHz, %d-bit, %s",
                        soundQualities[i].frequency / 1000,
                        soundQualities[i].samplesize,
                        ch
                        ];
         [soundQualityPUButton addItemWithTitle:s];
-        
+
         if (firstTime &&
             soundQualities[i].frequency == settings.samplerate &&
             soundQualities[i].samplesize == settings.bitspersample &&
@@ -169,12 +169,12 @@ static struct soundQuality_t {
             curidx = i;
         }
     }
-    
+
     if (firstTime && curidx < 0) {
         soundQualities[i].frequency = settings.samplerate;
         soundQualities[i].samplesize = settings.bitspersample;
         soundQualities[i].channels = settings.channels;
-        
+
         const char *ch;
         switch (soundQualities[i].channels) {
             case 1: ch = "Mono"; break;
@@ -187,11 +187,11 @@ static struct soundQuality_t {
                        ch
                        ];
         [soundQualityPUButton addItemWithTitle:s];
-        
+
         curidx = i++;
         soundQualities[i].frequency = -1;
     }
-    
+
     if (curidx >= 0) {
         [soundQualityPUButton selectItemAtIndex:curidx];
     }
@@ -220,14 +220,14 @@ static struct soundQuality_t {
 		settings.bpp3d = validmode[mode].bpp;
 		settings.fullscreen = validmode[mode].fs;
 	}
-	
+
     int quality = [soundQualityPUButton indexOfSelectedItem];
     if (quality >= 0) {
         settings.samplerate = soundQualities[quality].frequency;
         settings.bitspersample = soundQualities[quality].samplesize;
         settings.channels = soundQualities[quality].channels;
     }
-    
+
 	int row = [[gameList documentView] selectedRow];
 	if (row >= 0) {
 		struct grpfile *p = [[gamelistsrc grpAtIndex:row] entryptr];
@@ -235,7 +235,7 @@ static struct soundQuality_t {
 			strcpy(settings.selectedgrp, p->name);
 		}
 	}
-    
+
     settings.usemouse = [useMouseButton state] == NSOnState;
     settings.usejoystick = [useJoystickButton state] == NSOnState;
 	settings.forcesetup = [alwaysShowButton state] == NSOnState;
@@ -260,7 +260,7 @@ static struct soundQuality_t {
 	while ((control = [enumerator nextObject])) {
         [control setEnabled:true];
     }
-	
+
 	gamelistsrc = [[GameListSource alloc] init];
 	[[gameList documentView] setDataSource:gamelistsrc];
 	[[gameList documentView] deselectAll:nil];
@@ -270,7 +270,7 @@ static struct soundQuality_t {
 		[[gameList documentView] scrollRowToVisible:row];
 		[[gameList documentView] selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
 	}
-	
+
 	[cancelButton setEnabled:true];
 	[startButton setEnabled:true];
 
@@ -309,7 +309,7 @@ static struct soundQuality_t {
 	[text beginEditing];
 	[messagesView replaceCharactersInRange:end withString:str];
 	[text endEditing];
-	
+
 	if (shouldAutoScroll) {
 		end.location = [text length];
 		end.length = 0;
@@ -329,22 +329,22 @@ static StartupWinController *startwin = nil;
 int startwin_open(void)
 {
 	if (startwin != nil) return 1;
-	
+
 	startwin = [[StartupWinController alloc] initWithWindowNibName:@"startwin.game"];
 	if (startwin == nil) return -1;
-    
+
     {
         static unsigned soundQualityFrequencies[] = { 44100, 22050, 11025 };
         static unsigned soundQualitySampleSizes[] = { 16, 8 };
         static unsigned soundQualityChannels[]    = { 2, 1 };
         unsigned f, b, c, i;
-        
+
         i = sizeof(soundQualityFrequencies) *
             sizeof(soundQualitySampleSizes) *
             sizeof(soundQualityChannels) /
             sizeof(int) + 2;    // one for the terminator, one for a custom setting
         soundQualities = (struct soundQuality_t *) malloc(i * sizeof(struct soundQuality_t));
-        
+
         i = 0;
         for (c = 0; c < sizeof(soundQualityChannels) / sizeof(int); c++) {
             for (b = 0; b < sizeof(soundQualitySampleSizes) / sizeof(int); b++) {
@@ -352,15 +352,15 @@ int startwin_open(void)
                     soundQualities[i].frequency = soundQualityFrequencies[f];
                     soundQualities[i].samplesize = soundQualitySampleSizes[b];
                     soundQualities[i].channels = soundQualityChannels[c];
-                    
+
                     i++;
                 }
             }
         }
-        
+
         soundQualities[i].frequency = -1;
     }
-    
+
 	[startwin setupMessagesMode];
 	[startwin showWindow:nil];
 
@@ -395,10 +395,10 @@ int startwin_puts(const char *s)
 int startwin_settitle(const char *s)
 {
 	NSString *ns;
-	
+
 	if (!s) return -1;
 	if (startwin == nil) return 1;
-	
+
 	ns = [[NSString alloc] initWithCString:s];
 	[startwin setTitle:ns];
 	[ns release];
@@ -418,9 +418,9 @@ extern int32 ScreenMode, ScreenWidth, ScreenHeight, ScreenBPP, ForceSetup, UseMo
 int startwin_run(void)
 {
 	int retval;
-	
+
 	if (startwin == nil) return 0;
-	
+
 	ScanGroups();
 
 	settings.fullscreen = ScreenMode;
@@ -434,9 +434,9 @@ int startwin_run(void)
     settings.usejoystick = UseJoystick;
 	settings.forcesetup = ForceSetup;
 	strncpy(settings.selectedgrp, grpfile, BMAX_PATH);
-	
+
 	[startwin setupRunMode];
-	
+
 	switch ([NSApp runModalForWindow:[startwin window]]) {
 #ifdef MAC_OS_X_VERSION_10_9
 		case NSModalResponseStop: retval = 1; break;
@@ -447,7 +447,7 @@ int startwin_run(void)
 #endif
 		default: retval = -1;
 	}
-	
+
 	[startwin setupMessagesMode];
 
 	if (retval) {
@@ -463,6 +463,6 @@ int startwin_run(void)
 		ForceSetup = settings.forcesetup;
 		grpfile = settings.selectedgrp;
 	}
-	
+
 	return retval;
 }

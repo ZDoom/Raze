@@ -391,7 +391,7 @@ void polymost_glinit()
     texcache_init();
     texcache_loadoffsets();
     texcache_openfiles();
-    
+
     texcache_setupmemcache();
     texcache_checkgarbage();
 
@@ -1682,7 +1682,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     for (int i=0; i<n; ++i)
     {
         //Up/down rotation
-        vec3f_t const orot = {   dpxy[i].x - ghalfx, 
+        vec3f_t const orot = {   dpxy[i].x - ghalfx,
                                 (dpxy[i].y - ghoriz) * gchang - ozgs,
                                 (dpxy[i].y - ghoriz) * gshang + ozgc };
 
@@ -2189,7 +2189,7 @@ static void polymost_domost(float x0, float y0, float x1, float y1)
 
         //Test for intersection on umost (0) and dmost (1)
 
-        float const d[2] = { ((dm0.y - dm1.y) * dx) - ((dm0.x - dm1.x) * cv[0]), 
+        float const d[2] = { ((dm0.y - dm1.y) * dx) - ((dm0.x - dm1.x) * cv[0]),
                              ((dm0.y - dm1.y) * dx) - ((dm0.x - dm1.x) * cv[1]) };
 
         float const n[2] = { ((dm0.y - cy[0]) * dx) - ((dm0.x - n0.x) * cv[0]),
@@ -3285,7 +3285,7 @@ static void polymost_drawalls(int32_t const bunch)
                 ytex.v = vv[1];
                 otex.v = r_parallaxskypanning ? vv[0] + dd*(float)sec->ceilingypanning*(float)i*(1.f/256.f) : vv[0];
 
-                i = globalpicnum; 
+                i = globalpicnum;
                 float const r = (cy1-cy0)/(x1-x0); //slope of line
                 o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
 
@@ -3802,7 +3802,7 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
     vsp[vcnt].cy[0] = vsp[vcnt].fy[0] = py[imin];
     vcnt++;
 
-    int i = imin+1, j = imin-1; 
+    int i = imin+1, j = imin-1;
     if (i >= n) i = 0;
     if (j < 0) j = n-1;
 
@@ -3901,7 +3901,7 @@ void polymost_drawrooms()
         }
     }
 #endif
-    
+
     //Polymost supports true look up/down :) Here, we convert horizon to angle.
     //gchang&gshang are cos&sin of this angle (respectively)
     fviewingrange = (float) viewingrange;
@@ -4561,8 +4561,8 @@ void polymost_drawsprite(int32_t snum)
             float f = (float)(tsiz.x >> 1) + (float)off.x;
 
             vec2f_t const vf = { extent.x * f, extent.y * f };
-            
-            vec2f_t vec0 = { (float)(pos.x - globalposx) - vf.x, 
+
+            vec2f_t vec0 = { (float)(pos.x - globalposx) - vf.x,
                              (float)(pos.y - globalposy) - vf.y };
 
             int32_t const s = tspr->owner;
@@ -5362,7 +5362,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         do
         {
             int32_t zz = z+1; if (zz == nn) zz = 0;
-            float const y1 = py2[z], y2 = py2[zz]-y1; 
+            float const y1 = py2[z], y2 = py2[zz]-y1;
             if ((cy1 <= y1) && (y1 <= cy2)) { pxy[n].y = y1; pxy[n].x = px2[z]; n++; }
             float fy = (float)(y2 <= 0 ? cy2 : cy1); d = fy - y1;
             if ((d < y2) != (d < 0)) { pxy[n].y = fy; pxy[n].x = (px2[zz]-px2[z])*d/y2 + px2[z]; n++; }
@@ -5779,7 +5779,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         int const c = Bstrlen(name);
 
         bglColor4ub(b.r,b.g,b.b,255);
-        
+
         bglBegin(GL_QUADS);
 
         bglVertex2i(xpos,ypos);
@@ -6027,7 +6027,7 @@ void polymost_initosdfuncs(void)
         { "r_pr_vbos", "contols Vertex Buffer Object usage. 0: no VBOs. 1: VBOs for map data. 2: VBOs for model data.", (void *) &pr_vbos, CVAR_INT | CVAR_RESTARTVID, 0, 2 },
         { "r_pr_buckets", "controls batching of primitives. 0: no batching. 1: buckets of materials.", (void *)&pr_buckets, CVAR_BOOL | CVAR_NOSAVE | CVAR_RESTARTVID, 0, 1 },
         { "r_pr_gpusmoothing", "toggles model animation interpolation", (void *)&pr_gpusmoothing, CVAR_INT, 0, 1 },
-        { "r_pr_overrideparallax", "overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens", 
+        { "r_pr_overrideparallax", "overrides parallax mapping scale and bias values with values from the pr_parallaxscale and pr_parallaxbias cvars; use it to fine-tune DEF tokens",
           (void *) &pr_overrideparallax, CVAR_BOOL | CVAR_NOSAVE, 0, 1 },
         { "r_pr_parallaxscale", "overriden parallax mapping offset scale", (void *) &pr_parallaxscale, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },
         { "r_pr_parallaxbias", "overriden parallax mapping offset bias", (void *) &pr_parallaxbias, CVAR_FLOAT | CVAR_NOSAVE, -10, 10 },

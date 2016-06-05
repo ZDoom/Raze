@@ -442,7 +442,7 @@ int32_t MV_PlayVOC3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pit
     // Ensure angle is within 0 - 127
     angle &= MV_MAXPANPOSITION;
 
-    return MV_PlayVOC(ptr, ptrlength, loophow, -1, pitchoffset, max(0, 255 - distance), 
+    return MV_PlayVOC(ptr, ptrlength, loophow, -1, pitchoffset, max(0, 255 - distance),
         MV_PanTable[ angle ][ volume ].left, MV_PanTable[ angle ][ volume ].right, priority, callbackval);
 }
 

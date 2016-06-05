@@ -125,7 +125,7 @@ int32_t RTS_IsInitialized(void)
 }
 
 
-#define RTS_BAD_LUMP(lump) ((uint32_t)lump >= (uint32_t)rts_numlumps) 
+#define RTS_BAD_LUMP(lump) ((uint32_t)lump >= (uint32_t)rts_numlumps)
 
 int32_t RTS_SoundLength(int32_t lump)
 {

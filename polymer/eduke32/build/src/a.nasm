@@ -32,7 +32,7 @@
 ;CPU 586
 
 SECTION .text
-	
+
 %ifdef UNDERSCORES
 %define asm1 _asm1
 %define asm2 _asm2
@@ -645,7 +645,7 @@ CDECLBEGINSET 1
 CDECLENDSET 1
 	ret
 
-	
+
 	ALIGN 16
 prosetupvlineasm:
 CDECLBEGINSET 1
@@ -677,7 +677,7 @@ CDECLBEGINSET 1
 CDECLENDSET 1
 	ret
 
-	
+
 	ALIGN 16
 setupmvlineasm:
     ;; NOTE: We actually receive two args (second one: saturate vplc?), but the
@@ -700,7 +700,7 @@ CDECLBEGINSET 1
 CDECLENDSET 1
 	ret
 
-	
+
 	ALIGN 16
 prevlineasm1:
 CDECLBEGINSET 6
@@ -1474,7 +1474,7 @@ ALIGN 16
 mvcase15:
 	mov dword [edi], ebx
 	jmp beginmvlineasm4
-	
+
 
 	ALIGN 16
 setupspritevline:
@@ -1658,7 +1658,7 @@ CDECLBEGINSET 2
 CDECLENDSET 2
 	ret
 
-	
+
 	ALIGN 16
 mhline:
 CDECLBEGINSET 6
@@ -1689,7 +1689,7 @@ CDECLBEGINSET 6
 	mov dword [mmach8d+2], eax
 	jmp short mhlineskipmodify_nosetup
 
-	
+
 	ALIGN 16
 mhlineskipmodify:
 CDECLBEGINSET 6
@@ -1772,7 +1772,7 @@ mendhline:
 CDECLENDSET 6
 	ret
 
-	
+
 	ALIGN 16
 tsethlineshift:
 CDECLBEGINSET 2
@@ -1786,7 +1786,7 @@ CDECLBEGINSET 2
 CDECLENDSET 2
 	ret
 
-	
+
 	ALIGN 16
 thline:
 CDECLBEGINSET 6
@@ -2139,7 +2139,7 @@ CDECLBEGINSET 3
 CDECLENDSET 3
 	ret
 
-	
+
 	ALIGN 16
 slopevlin:
 CDECLBEGINSET 6
@@ -2369,7 +2369,7 @@ endrhline:
 CDECLENDSET 6
 	ret
 
-	
+
 	ALIGN 16
 setuprmhlineasm4:
 CDECLBEGINSET 6
@@ -2381,7 +2381,7 @@ CDECLBEGINSET 6
 CDECLENDSET 6
 	ret
 
-	
+
 	ALIGN 16
 rmhlineasm4:
 CDECLBEGINSET 6
@@ -2538,7 +2538,7 @@ CDECLBEGINSET 2
 CDECLENDSET 2
 	ret
 
-	
+
 	ALIGN 16
 drawslab:
 CDECLBEGINSET 6

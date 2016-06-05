@@ -1068,7 +1068,7 @@ static BOOL InitDirectInput(void)
 
     //        initprintf("  - Creating %s device\n", devicedef.name);
     result = IDirectInput7_CreateDeviceEx(lpDI, bREFGUID guidDevs, bREFIID IID_IDirectInputDevice7, (LPVOID *)&dev, NULL);
-    
+
     if (FAILED(result)) { HorribleDInputDeath("Failed creating device", result); }
     else if (result != DI_OK) initprintf("    Created device with warning: %s\n",GetDInputError(result));
 

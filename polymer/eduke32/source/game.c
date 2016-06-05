@@ -1368,7 +1368,7 @@ static void Yax_SetBunchInterpolation(int32_t sectnum, int32_t cf)
 
     if (bunchnum < 0 || bunchnum >= numyaxbunches)
         return;
-    
+
     for (SECTORS_OF_BUNCH(bunchnum, YAX_CEILING, i))
         G_SetInterpolation(&sector[i].ceilingz);
     for (SECTORS_OF_BUNCH(bunchnum, YAX_FLOOR, i))

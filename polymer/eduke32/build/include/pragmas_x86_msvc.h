@@ -1,6 +1,6 @@
 //
 // Microsoft C inline assembler
-// 
+//
 
 //{{{
 
@@ -39,7 +39,7 @@ static __inline int32_t dmulscale##x (int32_t a, int32_t d, int32_t S, int32_t D
 } \
 
 
-EDUKE32_GENERATE_PRAGMAS 
+EDUKE32_GENERATE_PRAGMAS
 #undef EDUKE32_SCALER_PRAGMA
 
 static __inline int32_t mulscale32(int32_t a, int32_t d)

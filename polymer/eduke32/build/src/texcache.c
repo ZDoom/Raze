@@ -43,7 +43,7 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
 
     // load from art
     for (pth=texcache.list[j]; pth; pth=pth->next)
-        if (pth->picnum == dapicnum && pth->palnum == dapalnum && pth->shade == dashade && 
+        if (pth->picnum == dapicnum && pth->palnum == dapalnum && pth->shade == dashade &&
                 (pth->flags & (PTH_CLAMPED | PTH_HIGHTILE | PTH_NOTRANSFIX)) ==
                     (TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth)) &&
                 polymost_want_npotytex(dameth, tilesiz[dapicnum].y) == !!(pth->flags&PTH_NPOTWALL)
@@ -454,7 +454,7 @@ char const * texcache_calcid(char *cachefn, const char *fn, const int32_t len, c
         XXH32((uint8_t *)id.name, fnlen, TEXCACHEMAGIC[3]),
         XXH32((uint8_t *)id.name, Bstrlen(id.name), TEXCACHEMAGIC[3]),
         XXH32((uint8_t *)&id, sizeof(struct texcacheid_t), TEXCACHEMAGIC[3]));
-    
+
     return cachefn;
 }
 

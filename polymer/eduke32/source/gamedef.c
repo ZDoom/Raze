@@ -2578,7 +2578,7 @@ LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
         proj->shade = val; break;
     case PROJ_XREPEAT:
         proj->xrepeat = val; break;
-    case PROJ_YREPEAT: 
+    case PROJ_YREPEAT:
         proj->yrepeat = val; break;
     case PROJ_PAL:
         proj->pal = val; break;

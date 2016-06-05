@@ -915,7 +915,7 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
 
     // MV_TotalMemory + 2: FIXME, see valgrind_errors.log
     int const totalmem = Voices * sizeof(VoiceNode) + MV_TOTALBUFFERSIZE + 2;
-    
+
     char *ptr = (char *) Xaligned_alloc(16, totalmem);
 
     if (!ptr)

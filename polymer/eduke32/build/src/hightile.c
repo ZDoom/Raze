@@ -42,7 +42,7 @@ hicreplctyp *hicfindsubst(int32_t picnum, int32_t palnum)
 }
 
 //
-// this is separate because it's not worth passing an extra parameter which is "0" in 99.9999% of cases 
+// this is separate because it's not worth passing an extra parameter which is "0" in 99.9999% of cases
 // to the regular hicfindsubst() function
 //
 hicreplctyp *hicfindskybox(int32_t picnum, int32_t palnum)

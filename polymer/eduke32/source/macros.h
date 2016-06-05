@@ -90,7 +90,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define SK_OPEN         29
 #define SK_INVENTORY    30
 #define SK_ESCAPE       31
-    
+
 // rotatesprite flags
 #define ROTATE_SPRITE_TRANSLUCENT   (BIT(0))
 #define ROTATE_SPRITE_VIEW_CLIP     (BIT(1)) // clip to view

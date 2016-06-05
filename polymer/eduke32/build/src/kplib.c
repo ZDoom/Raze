@@ -2275,7 +2275,7 @@ void kpgetdim(const char *buf, int32_t leng, int32_t *xsiz, int32_t *ysiz)
             cptr = &cptr[B_BIG16(B_UNBUF16(&cptr[2]))+2];
         }
     }
-    else 
+    else
     {
         if ((ubuf[0] == 'G') && (ubuf[1] == 'I') && (ubuf[2] == 'F')) //.GIF
         {

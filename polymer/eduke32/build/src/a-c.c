@@ -378,7 +378,7 @@ int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
 
     do
     {
-        
+
         if (buf[vplc>>logy] != 255)
             *pp = pal[buf[vplc>>logy]];
         pp += ourbpl;

@@ -57,7 +57,7 @@ enum {
 	CACHE1D_FIND_NOCURDIR = 8,
 
 	CACHE1D_OPT_NOSTACK = 0x100,
-	
+
 	// the lower the number, the higher the priority
 	CACHE1D_SOURCE_DRIVE = 0,
 	CACHE1D_SOURCE_CURDIR = 1,

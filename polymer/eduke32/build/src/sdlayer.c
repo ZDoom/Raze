@@ -1969,7 +1969,7 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
         case SDL_MOUSEBUTTONUP:
         {
             int32_t j;
-            
+
             // some of these get reordered to match winlayer
             switch (ev->button.button)
             {

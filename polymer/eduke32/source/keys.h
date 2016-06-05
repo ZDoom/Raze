@@ -120,7 +120,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    #define KEYSC_gPGDN    0x51
    #define KEYSC_gINS     0x52
    #define KEYSC_gDEL     0x53
-   
+
    #define KEYSC_F11    0x57
    #define KEYSC_F12    0x58
 
@@ -140,7 +140,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    #define KEYSC_PGDN     0xD1
    #define KEYSC_INSERT   0xD2
    #define KEYSC_DELETE   0xD3
-   
+
     #define asc_Esc         27
     #define asc_Enter       13
     #define asc_Space       32

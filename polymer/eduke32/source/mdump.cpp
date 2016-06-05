@@ -22,7 +22,7 @@ LONG MiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInfo )
 	//HWND hParent = NULL;						// find a better value for your app
 
 	// firstly see if dbghelp.dll is around and has the function we need
-	// look next to the EXE first, as the one in System32 might be old 
+	// look next to the EXE first, as the one in System32 might be old
 	// (e.g. Windows 2000)
 	HMODULE hDll = NULL;
 	char szDbgHelpPath[_MAX_PATH];

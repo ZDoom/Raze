@@ -61,7 +61,7 @@ void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
     if (GAME_isspace(ch)) return;
     if ((ac = GAME_getchartile(ch)) == -1)
         return;
-    
+
     usehightile = (osdhightile && ht);
     rotatesprite_fs(OSD_SCALE(9*x<<16),
         OSD_SCALE((y<<3)<<16),

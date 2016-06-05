@@ -2511,7 +2511,7 @@ repeatcase:
                     C_CUSTOMERROR("local variable `%s' already defined.", tlabel);
                 else
                 {
-                    uint16_t *numlocals = (cs.currentStateIdx >= 0) ? 
+                    uint16_t *numlocals = (cs.currentStateIdx >= 0) ?
                         &statesinfo[cs.currentStateIdx].numlocals : &aEventNumLocals[cs.currentEvent];
 
                     if (((int32_t)(*numlocals))+1 > M32_MAX_LOCALS)
@@ -2544,7 +2544,7 @@ repeatcase:
         {
             const int32_t asize = *(g_scriptPtr-1);
 
-            if (cs.currentStateIdx < 0 && cs.currentEvent < 0)        
+            if (cs.currentStateIdx < 0 && cs.currentEvent < 0)
                 Gv_NewArray(tlabel, NULL, asize, GAMEARRAY_NORMAL);
             else  // local array
             {

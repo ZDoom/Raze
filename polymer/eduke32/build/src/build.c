@@ -2942,7 +2942,7 @@ static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const 
 //  0 if wall limit would be reached.
 //  1 if inserted point on a plain white or 2 points on a plain red wall.
 //  N >= 2 if inserted N points on TROR-constrained wall.
-//  N|(EXPECTED<<16) if inserted N points but EXPECTED walls were expected. 
+//  N|(EXPECTED<<16) if inserted N points but EXPECTED walls were expected.
 static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_t onewnumwalls, int32_t *mapwallnum)
 {
 #ifdef YAX_ENABLE
@@ -9957,7 +9957,7 @@ static int32_t menuselect(void)
             }
             else getfilenames(selectedboardfilename, "*.map");;
 
-            
+
             ch = 0;
 
             begindrawing();

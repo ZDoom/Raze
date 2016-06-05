@@ -1764,7 +1764,7 @@ static void FuncMenu_Process(const StatusBarMenu *m, int32_t col, int32_t row)
             for (i=0; i<MAXSPRITES; i++)
                 j += correct_picnum(&sprite[i].picnum);
 
-            printmessage16("Replaced %d invalid tiles",j);   
+            printmessage16("Replaced %d invalid tiles",j);
         }
         break;
 

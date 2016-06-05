@@ -912,11 +912,11 @@ SPRITE VARIABLES:
 
     Example: if the linked lists look like the following:
          ????????????????
-               Sector lists:               Status lists:               
+               Sector lists:               Status lists:
          ????????????????J
-           Sector0:  4, 5, 8             Status0:  2, 0, 8             
-           Sector1:  16, 2, 0, 7         Status1:  4, 5, 16, 7, 3, 9   
-           Sector2:  3, 9                                              
+           Sector0:  4, 5, 8             Status0:  2, 0, 8
+           Sector1:  16, 2, 0, 7         Status1:  4, 5, 16, 7, 3, 9
+           Sector2:  3, 9
          ????????????????
     Notice that each number listed above is shown exactly once on both the
         left and right side.  This is because any sprite that exists must

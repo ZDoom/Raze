@@ -579,9 +579,9 @@ static inline void relvec2f(GLfloat *v1, GLfloat *v2, GLfloat *out)
 }
 
 /* ========================================================== */
-/* inverse of matrix 
+/* inverse of matrix
  *
- * Compute inverse of matrix a, returning determinant m and 
+ * Compute inverse of matrix a, returning determinant m and
  * inverse b
  */
 
@@ -594,9 +594,9 @@ static inline void relvec2f(GLfloat *v1, GLfloat *v2, GLfloat *out)
 }
 
 /* ========================================================== */
-/* inverse of matrix 
+/* inverse of matrix
  *
- * Compute inverse of matrix a, returning determinant m and 
+ * Compute inverse of matrix a, returning determinant m and
  * inverse b
  */
 

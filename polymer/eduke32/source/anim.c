@@ -66,7 +66,7 @@ dukeanim_t *Anim_Find(const char *s)
 dukeanim_t * Anim_Setup(const char *fn, uint8_t fdelay, void (*sound_func)(int32_t))
 {
     dukeanim_t * anim = Anim_Find(fn);
-    
+
     if (!anim)
         anim = (dukeanim_t *)Xcalloc(1, sizeof(dukeanim_t));
 

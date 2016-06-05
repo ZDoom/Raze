@@ -9823,8 +9823,8 @@ killsprite:
 
             for (int32_t k=i+1; k<j; k++)
                 for (int32_t l=i; l<k; l++)
-                    if (tspriteptr[k]->x == tspriteptr[l]->x && 
-                        tspriteptr[k]->y == tspriteptr[l]->y && 
+                    if (tspriteptr[k]->x == tspriteptr[l]->x &&
+                        tspriteptr[k]->y == tspriteptr[l]->y &&
                         (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
                         tspriteptr[k]->owner < tspriteptr[l]->owner)
                     {
@@ -12859,7 +12859,7 @@ restart_grand:
                                 goto add_nextsector;
                         }
                     }
-                
+
 #endif
                 return 0;
             }
@@ -14205,7 +14205,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
                         //Side blocker
                         if ((x2-x1)*((pos->x)-x1) + (y2-y1)*((pos->y)-y1) < 0)
-                            addclipline(x1-day,y1+dax,x1+dax,y1+day,(int16_t)j+49152); 
+                            addclipline(x1-day,y1+dax,x1+dax,y1+day,(int16_t)j+49152);
                         else if ((x1-x2)*((pos->x)-x2) + (y1-y2)*((pos->y)-y2) < 0)
                             addclipline(x2+day,y2-dax,x2-dax,y2-day,(int16_t)j+49152);
                     }
@@ -15009,13 +15009,13 @@ restart_grand:
 #ifdef YAX_ENABLE
                         if (mcf!=YAX_FLOOR && cb < 0)
 #endif
-                        *ceilz = daz, *ceilhit = k+16384; 
+                        *ceilz = daz, *ceilhit = k+16384;
 
                     if (daz2 < *florz)
 #ifdef YAX_ENABLE
                         if (mcf!=YAX_CEILING && fb < 0)
 #endif
-                        *florz = daz2, *florhit = k+16384; 
+                        *florz = daz2, *florhit = k+16384;
                 }
             }
         }
@@ -15981,7 +15981,7 @@ void squarerotatetile(int16_t tilenume)
 
     if (siz != tilesiz[tilenume].y)
         return;
-    
+
     for (i=siz-1; i>=3; i-=4)
     {
         ptr2 = ptr1 = (char *) (waloff[tilenume]+i*(siz+1));
@@ -17255,7 +17255,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
                 if (totalclock & 16)
                     pointsize++;
             }
-            
+
             if (show2dwall[i>>3]&pow2char[i&7])
                 col = editorcolors[14] - (M32_THROB>>1);
 

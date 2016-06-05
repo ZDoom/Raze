@@ -71,7 +71,7 @@ typedef struct
     cvar_t c;
 
     // default value for cvar, assigned when var is registered
-    union 
+    union
     {
         int32_t i;
         uint32_t uint;
@@ -171,7 +171,7 @@ extern osdmain_t *osd;
 extern BFILE *osdlog;
 extern const char* osdlogfn;
 
-enum osdflags_t 
+enum osdflags_t
 {
 //    OSD_INITIALIZED = 0x00000001,
     OSD_DRAW        = 0x00000002,

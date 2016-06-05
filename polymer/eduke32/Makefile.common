@@ -531,7 +531,7 @@ CWARNS = -W -Wall \
     #-Wstrict-prototypes \
     #-Waggregate-return \
     #-Wcast-align \
-    #-Waddress 
+    #-Waddress
 
 ifneq (0,$(CLANG))
     CWARNS+= -Wno-unused-value -Wno-parentheses -Wno-unknown-warning-option

@@ -5,7 +5,7 @@
  * the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation.  No representations are made about the suitability of this
- * software for any purpose.  It is provided "as is" without express or 
+ * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  */
 
@@ -138,7 +138,7 @@ typedef struct { GLfloat s, t, r, q; } STRQ;
 typedef struct { GLfloat r, g, b, a; } RGBA;
 
 
-/* Used to record all calls to glVertex3f, glNormal3f, etc. 
+/* Used to record all calls to glVertex3f, glNormal3f, etc.
    while inside glBegin / glEnd so that we can convert that
    to a single call to glDrawArrays.
  */
@@ -573,7 +573,7 @@ jwzgles_glGenLists (int n)
     {
       list *L;
       int id = 0;
-      make_room ("glGenLists", 
+      make_room ("glGenLists",
                  (void **) &state->lists.lists,
                  sizeof (*state->lists.lists),
                  &state->lists.count, &state->lists.size);
@@ -608,7 +608,7 @@ jwzgles_glNewList (int id, int mode)
 
   if (L->count != 0) jwzgles_glDeleteLists (L->id, 1); /* Overwriting */
   Assert (L->count == 0, "glNewList corrupted");
-  
+
   state->compiling_list = id;
 
   state->list_enabled = state->enabled;
@@ -642,7 +642,7 @@ jwzgles_glEndList (void)
 
 
 static void
-list_push (const char * const name, 
+list_push (const char * const name,
            list_fn_cb fn, fn_proto proto, void_int *av)
 {
   list *L;
@@ -655,7 +655,7 @@ list_push (const char * const name,
   L = &state->lists.lists[state->compiling_list-1];
   Assert (L, "glNewList: no list");
 
-  make_room ("glNewLists", 
+  make_room ("glNewLists",
              (void **) &L->fns, sizeof (*L->fns),
              &L->count, &L->size);
   memset (&L->fns[L->count], 0, sizeof (*L->fns));
@@ -706,7 +706,7 @@ list_push (const char * const name,
   case PROTO_ARRAYS:
     if (fn == (list_fn_cb) &jwzgles_glDrawArrays ||
         fn == (list_fn_cb) &jwzgles_glTexParameteri)
-      LOG4 ("  push %-12s %s %d %d", name, mode_desc (av[0].i), 
+      LOG4 ("  push %-12s %s %d %d", name, mode_desc (av[0].i),
             av[1].i, av[2].i);
     else
       LOG4 ("  push %-12s %d %d %d", name, av[0].i, av[1].i, av[2].i);
@@ -719,7 +719,7 @@ list_push (const char * const name,
              mode_desc(av[0].i), mode_desc(av[1].i), av[2].f);
     break;
   case PROTO_IIII:
-    LOG5 ("  push %-12s %d %d %d %d", name, 
+    LOG5 ("  push %-12s %d %d %d %d", name,
           av[0].i, av[1].i, av[2].i, av[3].i);
     break;
   case PROTO_FFFF:
@@ -796,7 +796,7 @@ jwzgles_glBegin (int mode)
    */
 
   if (!state->replaying_list)
-    LOG2 ("%sglBegin %s", 
+    LOG2 ("%sglBegin %s",
           (state->compiling_list || state->replaying_list ? "  " : ""),
           mode_desc (mode));
 
@@ -819,7 +819,7 @@ jwzgles_glDeleteLists (int id0, int range)
       void_int vv[2];
       vv[0].i = id0;
       vv[1].i = range;
-      list_push ("glDeleteLists", (list_fn_cb) &jwzgles_glDeleteLists, 
+      list_push ("glDeleteLists", (list_fn_cb) &jwzgles_glDeleteLists,
                  PROTO_II, vv);
     }
   else
@@ -854,7 +854,7 @@ jwzgles_glDeleteLists (int id0, int range)
                   free (lf->arrays);
                 }
             }
-          if (L->fns) 
+          if (L->fns)
             free (L->fns);
           if (L->buffer)
             glDeleteBuffers (1, &L->buffer);
@@ -883,7 +883,7 @@ jwzgles_glNormal3fv (const GLfloat *v)
       vv[0].f = v[0];
       vv[1].f = v[1];
       vv[2].f = v[2];
-      list_push ("glNormal3f", (list_fn_cb) &jwzgles_glNormal3f, 
+      list_push ("glNormal3f", (list_fn_cb) &jwzgles_glNormal3f,
                  PROTO_FFF, vv);
     }
   else
@@ -939,7 +939,7 @@ jwzgles_glTexCoord4fv (const GLfloat *v)
   else
     {
       if (!state->replaying_list)
-        LOG6 ("%s%sglTexCoord4f %7.3f %7.3f %7.3f %7.3f", 
+        LOG6 ("%s%sglTexCoord4f %7.3f %7.3f %7.3f %7.3f",
               (state->compiling_list || state->replaying_list ? "  " : ""),
               (state->compiling_verts ? "  rec  " : ""),
               v[0], v[1], v[2], v[3]);
@@ -1034,13 +1034,13 @@ jwzgles_glColor4fv (const GLfloat *v)
       vv[1].f = v[1];
       vv[2].f = v[2];
       vv[3].f = v[3];
-      list_push ("glColor4f", (list_fn_cb) &jwzgles_glColor4f, 
+      list_push ("glColor4f", (list_fn_cb) &jwzgles_glColor4f,
                  PROTO_FFFF, vv);
     }
   else
     {
       if (!state->replaying_list)
-        LOG6 ("%s%sglColor4f    %7.3f %7.3f %7.3f %7.3f", 
+        LOG6 ("%s%sglColor4f    %7.3f %7.3f %7.3f %7.3f",
               (state->compiling_list || state->replaying_list ? "  " : ""),
               (state->compiling_verts ? "  rec  " : ""),
               v[0], v[1], v[2], v[3]);
@@ -1122,7 +1122,7 @@ jwzgles_glColor4i (GLint r, GLint g, GLint b, GLint a)
 {
   /* -0x8000000 - 0x7FFFFFFF  =>  0.0 - 1.0 */
   jwzgles_glColor4f (0.5 + (GLfloat) r / 0xFFFFFFFF,
-                     0.5 + (GLfloat) g / 0xFFFFFFFF, 
+                     0.5 + (GLfloat) g / 0xFFFFFFFF,
                      0.5 + (GLfloat) b / 0xFFFFFFFF,
                      0.5 + (GLfloat) a / 0xFFFFFFFF);
 }
@@ -1154,7 +1154,7 @@ jwzgles_glColor4ui (GLuint r, GLuint g, GLuint b, GLuint a)
 {
   /* 0 - 0xFFFFFFFF  =>  0.0 - 1.0 */
   jwzgles_glColor4f ((GLfloat) r / 0xFFFFFFFF,
-                     (GLfloat) g / 0xFFFFFFFF, 
+                     (GLfloat) g / 0xFFFFFFFF,
                      (GLfloat) b / 0xFFFFFFFF,
                      (GLfloat) a / 0xFFFFFFFF);
 }
@@ -1312,10 +1312,10 @@ jwzgles_glMaterialfv (GLenum face, GLenum pname, const GLfloat *color)
 
   if (state->compiling_verts)
     {
-      if ((face == GL_FRONT || 
+      if ((face == GL_FRONT ||
            face == GL_FRONT_AND_BACK) &&
-          (pname == GL_AMBIENT || 
-           pname == GL_DIFFUSE || 
+          (pname == GL_AMBIENT ||
+           pname == GL_DIFFUSE ||
            pname == GL_AMBIENT_AND_DIFFUSE))
         {
           jwzgles_glColor4f (color[0], color[1], color[2], color[3]);
@@ -1334,7 +1334,7 @@ jwzgles_glMaterialfv (GLenum face, GLenum pname, const GLfloat *color)
       vv[3].f = color[1];
       vv[4].f = color[2];
       vv[5].f = color[3];
-      list_push ("glMaterialfv", (list_fn_cb) &jwzgles_glMaterialfv, 
+      list_push ("glMaterialfv", (list_fn_cb) &jwzgles_glMaterialfv,
                  PROTO_IIFV, vv);
     }
   else
@@ -1415,7 +1415,7 @@ jwzgles_glColorMaterial (GLenum face, GLenum mode)
       void_int vv[2];
       vv[0].i = face;
       vv[1].i = mode;
-      list_push ("glColorMaterial", (list_fn_cb) &jwzgles_glColorMaterial, 
+      list_push ("glColorMaterial", (list_fn_cb) &jwzgles_glColorMaterial,
                  PROTO_II, vv);
     }
   else
@@ -1628,7 +1628,7 @@ jwzgles_glPolygonMode (GLenum face, GLenum mode)
       void_int vv[2];
       vv[0].i = face;
       vv[1].i = mode;
-      list_push ("glPolygonMode", (list_fn_cb) &jwzgles_glPolygonMode, 
+      list_push ("glPolygonMode", (list_fn_cb) &jwzgles_glPolygonMode,
                  PROTO_II, vv);
     }
   else
@@ -1647,7 +1647,7 @@ jwzgles_glDrawBuffer (GLenum buf)
     {
       void_int vv[1];
       vv[0].i = buf;
-      list_push ("glDrawBuffer", (list_fn_cb) &jwzgles_glDrawBuffer, 
+      list_push ("glDrawBuffer", (list_fn_cb) &jwzgles_glDrawBuffer,
                  PROTO_I, vv);
     }
   else
@@ -1715,7 +1715,7 @@ cq2t (unsigned char **arrayP, int stride, int count)
   *arrayP = oarray2;
   return count2;
 }
-                              
+
 
 /* Convert all coordinates in a GL_QUADS vert_set to GL_TRIANGLES.
  */
@@ -1965,7 +1965,7 @@ optimize_arrays (void)
     }
 
   glBindBuffer (GL_ARRAY_BUFFER, buf_name);
-  glBufferData (GL_ARRAY_BUFFER, 
+  glBufferData (GL_ARRAY_BUFFER,
                 combo_count * sizeof (*combo),
                 combo,
                 GL_STATIC_DRAW);
@@ -2052,7 +2052,7 @@ jwzgles_glCallList (int id)
           case PROTO_II:
             if (fn == (list_fn_cb) &jwzgles_glBindTexture ||
                 fn == (list_fn_cb) &jwzgles_glBindBuffer)
-              LOG3 ("  call %-12s %s %d", F->name, 
+              LOG3 ("  call %-12s %s %d", F->name,
                     mode_desc (av[0].i), av[1].i);
             else
               LOG3 ("  call %-12s %d %d", F->name, av[0].i, av[1].i);
@@ -2065,7 +2065,7 @@ jwzgles_glCallList (int id)
             break;
 
           case PROTO_IF:
-            LOG3 ("  call %-12s %s %7.3f", F->name, 
+            LOG3 ("  call %-12s %s %7.3f", F->name,
                   mode_desc (av[0].f), av[1].f);
             ((void (*) (GLint, GLfloat)) fn) (av[0].i, av[1].f);
             break;
@@ -2073,10 +2073,10 @@ jwzgles_glCallList (int id)
           case PROTO_III: III:
             if (fn == (list_fn_cb) &jwzgles_glDrawArrays ||
                 fn == (list_fn_cb) &jwzgles_glTexParameteri)
-              LOG4 ("  call %-12s %s %d %d", F->name, 
+              LOG4 ("  call %-12s %s %d %d", F->name,
                     mode_desc (av[0].i), av[1].i, av[2].i);
             else
-              LOG4 ("  call %-12s %d %d %d", F->name, 
+              LOG4 ("  call %-12s %d %d %d", F->name,
                     av[0].i, av[1].i, av[2].i);
             ((void (*) (int, int, int)) fn) (av[0].i, av[1].i, av[2].i);
             break;
@@ -2097,7 +2097,7 @@ jwzgles_glCallList (int id)
           case PROTO_IIII:
             LOG5 ("  call %-12s %d %d %d %d", F->name,
                   av[0].i, av[1].i, av[2].i, av[3].i);
-            ((void (*) (int, int, int, int)) fn) 
+            ((void (*) (int, int, int, int)) fn)
               (av[0].i, av[1].i, av[2].i, av[3].i);
             break;
 
@@ -2130,9 +2130,9 @@ jwzgles_glCallList (int id)
               v[2] = av[4].f;
               v[3] = av[5].f;
               LOG7 ("  call %-12s %s %-8s %3.1f %3.1f %3.1f %3.1f", F->name,
-                    mode_desc (av[0].i), mode_desc (av[1].i), 
+                    mode_desc (av[0].i), mode_desc (av[1].i),
                     av[2].f, av[3].f, av[4].f, av[5].f);
-              ((void (*) (int, int, const GLfloat *)) fn) 
+              ((void (*) (int, int, const GLfloat *)) fn)
                 (av[0].i, av[1].i, v);
             }
             break;
@@ -2144,7 +2144,7 @@ jwzgles_glCallList (int id)
               v[1] = av[2].i;
               v[2] = av[3].i;
               v[3] = av[4].i;
-              LOG6 ("  call %-12s %s %3d %3d %3d %3d", F->name, 
+              LOG6 ("  call %-12s %s %3d %3d %3d %3d", F->name,
                     mode_desc (av[0].i),
                     av[1].i, av[2].i, av[3].i, av[4].i);
               ((void (*) (int, const int *)) fn) (av[0].i, v);
@@ -2159,9 +2159,9 @@ jwzgles_glCallList (int id)
               v[2] = av[4].i;
               v[3] = av[5].i;
               LOG7 ("  call %-12s %s %-8s %3d %3d %3d %3d", F->name,
-                    mode_desc (av[0].i), mode_desc (av[1].i), 
+                    mode_desc (av[0].i), mode_desc (av[1].i),
                     av[2].i, av[3].i, av[4].i, av[5].i);
-              ((void (*) (int, int, const int *)) fn) 
+              ((void (*) (int, int, const int *)) fn)
                 (av[0].i, av[1].i, v);
             }
             break;
@@ -2280,19 +2280,19 @@ dump_array_data (draw_array *A, int count,
 
   if (A->binding)
     {
-      fprintf (stderr, 
-               "jwzgles:     %s %s %d %s %2d, %4d = %5d   bind %d @ %d\n", 
+      fprintf (stderr,
+               "jwzgles:     %s %s %d %s %2d, %4d = %5d   bind %d @ %d\n",
                action, name,
-               A->size, mode_desc(A->type), A->stride, 
+               A->size, mode_desc(A->type), A->stride,
                count, bytes, A->binding, (int) A->data);
     }
   else
     {
       Assert (bytes == A->bytes, "array data corrupted");
 
-      fprintf (stderr, "jwzgles:     %s %s %d %s %2d, %4d = %5d @ %lX", 
+      fprintf (stderr, "jwzgles:     %s %s %d %s %2d, %4d = %5d @ %lX",
                action, name,
-               A->size, mode_desc(A->type), A->stride, 
+               A->size, mode_desc(A->type), A->stride,
                count, bytes, (unsigned long) A->data);
       if (old)
         fprintf (stderr, " / %lX", (unsigned long) old);
@@ -2318,7 +2318,7 @@ dump_array_data (draw_array *A, int count,
       for (i = 0; i < count * A->size; i++)
         {
           if (i % 4 == 0)
-            fprintf (stderr, "\njwzgles:    %4d: ", 
+            fprintf (stderr, "\njwzgles:    %4d: ",
                      i + (int) A->data / sizeof(GLfloat));
           fprintf (stderr, " %7.3f", d[i]);
         }
@@ -2593,7 +2593,7 @@ jwzgles_glInterleavedArrays (GLenum format, GLsizei stride, const void *data)
   jwzgles_glEnableClientState (GL_VERTEX_ARRAY);
 
   if (!state->replaying_list)
-    LOG4 ("%sglInterleavedArrays %s %d %lX", 
+    LOG4 ("%sglInterleavedArrays %s %d %lX",
           (state->compiling_list || state->replaying_list ? "  " : ""),
           mode_desc (format), stride, (unsigned long) data);
 
@@ -2602,7 +2602,7 @@ jwzgles_glInterleavedArrays (GLenum format, GLsizei stride, const void *data)
     glVertexPointer (2, GL_FLOAT, stride, c);
     CHECK("glVertexPointer");
     if (!state->replaying_list)
-      LOG3 ("%s  -> glVertexPointer 2 FLOAT %d %lX", 
+      LOG3 ("%s  -> glVertexPointer 2 FLOAT %d %lX",
             (state->compiling_list || state->replaying_list ? "  " : ""),
             stride, (unsigned long) c);
     break;
@@ -2610,11 +2610,11 @@ jwzgles_glInterleavedArrays (GLenum format, GLsizei stride, const void *data)
     glVertexPointer (3, GL_FLOAT, stride, c);
     CHECK("glVertexPointer");
     if (!state->replaying_list)
-      LOG3 ("%s  -> glVertexPointer 3 FLOAT %d %lX", 
+      LOG3 ("%s  -> glVertexPointer 3 FLOAT %d %lX",
             (state->compiling_list || state->replaying_list ? "  " : ""),
             stride, (unsigned long) c);
     break;
-  case GL_C4UB_V2F:	
+  case GL_C4UB_V2F:
     if (stride == 0)
       stride = 4*B + 2*F;
     jwzgles_glEnableClientState (GL_COLOR_ARRAY);
@@ -2650,14 +2650,14 @@ jwzgles_glInterleavedArrays (GLenum format, GLsizei stride, const void *data)
     glNormalPointer (GL_FLOAT, stride, c);
     CHECK("glNormalPointer");
     if (!state->replaying_list)
-      LOG3 ("%s  -> glNormalPointer   FLOAT %d %lX", 
+      LOG3 ("%s  -> glNormalPointer   FLOAT %d %lX",
             (state->compiling_list || state->replaying_list ? "  " : ""),
             stride, (unsigned long) c);
     c += 3*F;
     glVertexPointer (3, GL_FLOAT, stride, c);
     CHECK("glVertexPointer");
     if (!state->replaying_list)
-      LOG3 ("%s  -> glVertexPointer 3 FLOAT %d %lX", 
+      LOG3 ("%s  -> glVertexPointer 3 FLOAT %d %lX",
             (state->compiling_list || state->replaying_list ? "  " : ""),
             stride, (unsigned long) c);
     break;
@@ -2987,7 +2987,7 @@ jwzgles_glTexImage2D (GLenum target,
     type = GL_UNSIGNED_BYTE;
 
   if (! state->replaying_list)
-    LOG10 ("direct %-12s %s %d %s %d %d %d %s %s 0x%lX", "glTexImage2D", 
+    LOG10 ("direct %-12s %s %d %s %d %d %d %s %s 0x%lX", "glTexImage2D",
            mode_desc(target), level, mode_desc(internalFormat),
            width, height, border, mode_desc(format), mode_desc(type),
            (unsigned long) data);
@@ -3011,7 +3011,7 @@ jwzgles_glTexSubImage2D (GLenum target, GLint level,
           "glTexSubImage2D not allowed inside glNewList");
 
   if (! state->replaying_list)
-    LOG10 ("direct %-12s %s %d %d %d %d %d %s %s 0x%lX", "glTexSubImage2D", 
+    LOG10 ("direct %-12s %s %d %d %d %d %d %s %s 0x%lX", "glTexSubImage2D",
            mode_desc(target), level, xoffset, yoffset, width, height,
            mode_desc (format), mode_desc (type), (unsigned long) pixels);
   glTexSubImage2D (target, level, xoffset, yoffset, width, height,
@@ -3082,12 +3082,12 @@ jwzgles_glCopyTexImage2D (GLenum target, GLint level, GLenum internalformat,
                           GLint x, GLint y, GLsizei width, GLsizei height,
                           GLint border)
 {
-  Assert (!state->compiling_verts, 
+  Assert (!state->compiling_verts,
           "glCopyTexImage2D not allowed inside glBegin");
   Assert (!state->compiling_list,    /* technically legal, but stupid! */
           "glCopyTexImage2D not allowed inside glNewList");
   if (! state->replaying_list)
-    LOG9 ("direct %-12s %s %d %s %d %d %d %d %d", "glCopyTexImage2D", 
+    LOG9 ("direct %-12s %s %d %s %d %d %d %d %d", "glCopyTexImage2D",
           mode_desc(target), level, mode_desc(internalformat),
           x, y, width, height, border);
   glCopyTexImage2D (target, level, internalformat, x, y, width, height,
@@ -3106,7 +3106,7 @@ jwzgles_glTexGenfv (GLenum coord, GLenum pname, const GLfloat *params)
   texgen_state *s = NULL;
 
   if (pname == GL_TEXTURE_GEN_MODE)
-    LOG5 ("%sdirect %-12s %s %s %s", 
+    LOG5 ("%sdirect %-12s %s %s %s",
           (state->compiling_list || state->replaying_list ? "  " : ""),
           "glTexGenfv",
           mode_desc(coord), mode_desc(pname), mode_desc(params[0]));
@@ -3161,7 +3161,7 @@ jwzgles_glGetTexGenfv (GLenum coord, GLenum pname, GLfloat *params)
   }
 
   if (pname == GL_TEXTURE_GEN_MODE)
-    LOG5 ("%sdirect %-12s %s %s -> %s", 
+    LOG5 ("%sdirect %-12s %s %s -> %s",
           (state->compiling_list || state->replaying_list ? "  " : ""),
           "glGetTexGenfv",
           mode_desc(coord), mode_desc(pname), mode_desc(params[0]));
@@ -3180,7 +3180,7 @@ dot_product (int rank, GLfloat *a, GLfloat *b)
   /* A dot B  =>  (A[1] * B[1]) + ... + (A[n] * B[n]) */
   GLfloat ret = 0;
   int i;
-  for (i = 0; i < rank; i++) 
+  for (i = 0; i < rank; i++)
     ret += a[i] * b[i];
   return ret;
 }
@@ -3204,7 +3204,7 @@ generate_texture_coords (GLuint first, GLuint count)
     { GL_T, ISENABLED_TEXTURE_GEN_T, 0, { 0, } },
     { GL_R, ISENABLED_TEXTURE_GEN_R, 0, { 0, } },
     { GL_Q, ISENABLED_TEXTURE_GEN_Q, 0, { 0, }}};
-                                                    
+
   int tcoords = 0;
 
   /* Read the texture plane configs that were stored with glTexGen.
@@ -3372,7 +3372,7 @@ jwzgles_gluBuild2DMipmaps (GLenum target,
       format = GL_RGBA;
     }
 
-  jwzgles_glTexImage2D (target, 0, internalFormat, w2, h2, 0, 
+  jwzgles_glTexImage2D (target, 0, internalFormat, w2, h2, 0,
                         format, type, data);
   free (d2);
 
@@ -3724,11 +3724,11 @@ jwzgles_gluErrorString (GLenum error)
    subsequently-recorded call to glDrawArrays.  This is a little weird.
  */
 void
-jwzgles_glVertexPointer (GLuint size, GLuint type, GLuint stride, 
+jwzgles_glVertexPointer (GLuint size, GLuint type, GLuint stride,
                          const GLvoid *ptr)
 {
   if (! state->replaying_list)
-    LOG5 ("direct %-12s %d %s %d 0x%lX", "glVertexPointer", 
+    LOG5 ("direct %-12s %d %s %d 0x%lX", "glVertexPointer",
           size, mode_desc(type), stride, (unsigned long) ptr);
   glVertexPointer (size, type, stride, ptr);  /* the real one */
   CHECK("glVertexPointer");
@@ -3739,29 +3739,29 @@ void
 jwzgles_glNormalPointer (GLuint type, GLuint stride, const GLvoid *ptr)
 {
   if (! state->replaying_list)
-    LOG4 ("direct %-12s %s %d 0x%lX", "glNormalPointer", 
+    LOG4 ("direct %-12s %s %d 0x%lX", "glNormalPointer",
           mode_desc(type), stride, (unsigned long) ptr);
   glNormalPointer (type, stride, ptr);  /* the real one */
   CHECK("glNormalPointer");
 }
 
 void
-jwzgles_glColorPointer (GLuint size, GLuint type, GLuint stride, 
+jwzgles_glColorPointer (GLuint size, GLuint type, GLuint stride,
                         const GLvoid *ptr)
 {
   if (! state->replaying_list)
-    LOG5 ("direct %-12s %d %s %d 0x%lX", "glColorPointer", 
+    LOG5 ("direct %-12s %d %s %d 0x%lX", "glColorPointer",
           size, mode_desc(type), stride, (unsigned long) ptr);
   glColorPointer (size, type, stride, ptr);  /* the real one */
   CHECK("glColorPointer");
 }
 
 void
-jwzgles_glTexCoordPointer (GLuint size, GLuint type, GLuint stride, 
+jwzgles_glTexCoordPointer (GLuint size, GLuint type, GLuint stride,
                            const GLvoid *ptr)
 {
   if (! state->replaying_list)
-    LOG5 ("direct %-12s %d %s %d 0x%lX", "glTexCoordPointer", 
+    LOG5 ("direct %-12s %d %s %d 0x%lX", "glTexCoordPointer",
           size, mode_desc(type), stride, (unsigned long) ptr);
   glTexCoordPointer (size, type, stride, ptr);  /* the real one */
   CHECK("glTexCoordPointer");
@@ -3820,7 +3820,7 @@ jwzgles_glTexParameterf (GLuint target, GLuint pname, GLfloat param)
   else
     {
       if (! state->replaying_list)
-        LOG4 ("direct %-12s %s %s %7.3f", "glTexParameterf", 
+        LOG4 ("direct %-12s %s %s %7.3f", "glTexParameterf",
               mode_desc(target), mode_desc(pname), param);
       glTexParameterf (target, pname, param);  /* the real one */
       CHECK("glTexParameterf");
@@ -3856,7 +3856,7 @@ jwzgles_glBindTexture (GLuint target, GLuint texture)
   /* else */
     {
       if (! state->replaying_list)
-        LOG3 ("direct %-12s %s %d", "glBindTexture", 
+        LOG3 ("direct %-12s %s %d", "glBindTexture",
               mode_desc(target), texture);
       glBindTexture (target, texture);  /* the real one */
       CHECK("glBindTexture");
@@ -3917,7 +3917,7 @@ jwzgles_glOrtho (GLfloat left,   GLfloat right,
 
 
 void
-jwzgles_gluPerspective (GLdouble fovy, GLdouble aspect, 
+jwzgles_gluPerspective (GLdouble fovy, GLdouble aspect,
                         GLdouble near, GLdouble far)
 {
   GLfloat m[16];
@@ -3955,9 +3955,9 @@ jwzgles_gluLookAt (GLfloat eyex, GLfloat eyey, GLfloat eyez,
   GLfloat m[16];
   GLfloat x[3], y[3], z[3];
   GLfloat mag;
-    
+
   /* Make rotation matrix */
-    
+
   /* Z vector */
   z[0] = eyex - centerx;
   z[1] = eyey - centery;
@@ -3968,41 +3968,41 @@ jwzgles_gluLookAt (GLfloat eyex, GLfloat eyey, GLfloat eyez,
     z[1] /= mag;
     z[2] /= mag;
   }
-    
+
   /* Y vector */
   y[0] = upx;
   y[1] = upy;
   y[2] = upz;
-    
+
   /* X vector = Y cross Z */
   x[0] = y[1] * z[2] - y[2] * z[1];
   x[1] = -y[0] * z[2] + y[2] * z[0];
   x[2] = y[0] * z[1] - y[1] * z[0];
-    
+
   /* Recompute Y = Z cross X */
   y[0] = z[1] * x[2] - z[2] * x[1];
   y[1] = -z[0] * x[2] + z[2] * x[0];
   y[2] = z[0] * x[1] - z[1] * x[0];
-    
+
   /* mpichler, 19950515 */
   /* cross product gives area of parallelogram, which is < 1.0 for
    * non-perpendicular unit-length vectors; so normalize x, y here
    */
-    
+
   mag = sqrt(x[0] * x[0] + x[1] * x[1] + x[2] * x[2]);
   if (mag) {
     x[0] /= mag;
     x[1] /= mag;
     x[2] /= mag;
   }
-    
+
   mag = sqrt(y[0] * y[0] + y[1] * y[1] + y[2] * y[2]);
   if (mag) {
     y[0] /= mag;
     y[1] /= mag;
     y[2] /= mag;
   }
-    
+
 #define M(row,col)  m[col*4+row]
   M(0, 0) = x[0]; M(0, 1) = x[1]; M(0, 2) = x[2]; M(0, 3) = 0.0;
   M(1, 0) = y[0]; M(1, 1) = y[1]; M(1, 2) = y[2]; M(1, 3) = 0.0;
@@ -4011,7 +4011,7 @@ jwzgles_gluLookAt (GLfloat eyex, GLfloat eyey, GLfloat eyez,
 #undef M
 
   jwzgles_glMultMatrixf(m);
-    
+
   /* Translate Eye to Origin */
   jwzgles_glTranslatef(-eyex, -eyey, -eyez);
 }
@@ -4024,7 +4024,7 @@ static void __gluMultMatrixVecd (const GLdouble matrix[16],
   int i;
 
   for (i=0; i<4; i++) {
-    out[i] = 
+    out[i] =
       in[0] * matrix[0*4+i] +
       in[1] * matrix[1*4+i] +
       in[2] * matrix[2*4+i] +
@@ -4033,8 +4033,8 @@ static void __gluMultMatrixVecd (const GLdouble matrix[16],
 }
 
 GLint
-jwzgles_gluProject (GLdouble objx, GLdouble objy, GLdouble objz, 
-                    const GLdouble modelMatrix[16], 
+jwzgles_gluProject (GLdouble objx, GLdouble objy, GLdouble objz,
+                    const GLdouble modelMatrix[16],
                     const GLdouble projMatrix[16],
                     const GLint viewport[4],
                     GLdouble *winx, GLdouble *winy, GLdouble *winz)

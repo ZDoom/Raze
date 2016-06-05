@@ -69,7 +69,7 @@ print "Creating highpalookup map %s for palette %d with depth %d:%d:%d..." % (sy
 for k in range(zdim):
     for j in range(ydim):
         for i in range(xdim):
-            rgb = [float(i) / (xdim - 1), float(j) / (ydim - 1), float(k) / (zdim - 1)]            
+            rgb = [float(i) / (xdim - 1), float(j) / (ydim - 1), float(k) / (zdim - 1)]
             rgb = makehighpalookuppixel(palnum, rgb)
             # save as BGRA as that's what TGA uses
             pixels.append(struct.pack('BBBB', int(rgb[2] * 255), int(rgb[1] * 255), int(rgb[0] * 255), 255))

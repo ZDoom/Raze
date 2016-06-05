@@ -964,7 +964,7 @@ void __fastcall VM_SetSector(register int32_t const iSector, register int32_t co
         case SECTOR_CEILINGZ: s->ceilingz = iSet; break;
         case SECTOR_CEILINGZVEL: s->extra = iSet;
             if ((iSet = GetAnimationGoal(&s->ceilingz)) != -1)
-        case SECTOR_CEILINGZGOAL: 
+        case SECTOR_CEILINGZGOAL:
             SetAnimation(iSector, &s->ceilingz, iSet, s->extra);
             break;
 

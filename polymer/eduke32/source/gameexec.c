@@ -257,7 +257,7 @@ static int32_t VM_CheckSquished(void)
         (fz - cz >= (32<<8) || (sc->lotag&32768)) :
         (fz - cz >= (12<<8)))
     return 0;
-    
+
     P_DoQuote(QUOTE_SQUISHED, vm.g_pp);
 
     if (A_CheckEnemySprite(vm.g_sp))
@@ -5829,7 +5829,7 @@ void G_SaveMapState(void)
         mapinfo->savedstate = (mapstate_t *) Xaligned_alloc(16, sizeof(mapstate_t));
         Bmemset(mapinfo->savedstate, 0, sizeof(mapstate_t));
     }
-    
+
     mapstate_t *save = mapinfo->savedstate;
 
     if (save == NULL)

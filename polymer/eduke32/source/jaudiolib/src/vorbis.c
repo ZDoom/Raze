@@ -1,21 +1,21 @@
 /*
  Copyright (C) 2009 Jonathon Fowler <jf@jonof.id.au>
- 
+
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License
  as published by the Free Software Foundation; either version 2
  of the License, or (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- 
+
  See the GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- 
+
  */
 
 /**
@@ -53,9 +53,9 @@ typedef struct {
    void * ptr;
    size_t length;
    size_t pos;
-   
+
    OggVorbis_File vf;
-   
+
    char block[BLOCKSIZE];
    int32_t lastbitstream;
 } vorbis_data;
@@ -457,7 +457,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t 
 
    MV_SetVoiceVolume( voice, vol, left, right );
    MV_PlayVoice( voice );
-   
+
    return voice->handle;
 }
 

@@ -3390,7 +3390,7 @@ void P_DropWeapon(int32_t snum)
 
     if ((unsigned)cw >= MAX_WEAPONS)
         return;
-      
+
     if (krand()&1)
         A_Spawn(p->i, WeaponPickupSprites[cw]);
     else switch (cw)
@@ -3871,7 +3871,7 @@ static void P_ProcessWeapon(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_FIRE))
     {
         P_SetWeaponGamevars(snum, p);
-        
+
         if (VM_OnEvent(EVENT_PRESSEDFIRE, p->i, snum) != 0)
             sb_snum &= ~BIT(SK_FIRE);
     }
@@ -3879,7 +3879,7 @@ static void P_ProcessWeapon(int32_t snum)
     if (TEST_SYNC_KEY(sb_snum, SK_HOLSTER))   // 'Holster Weapon
     {
         P_SetWeaponGamevars(snum, p);
-        
+
         if (VM_OnEvent(EVENT_HOLSTER, p->i, snum) == 0)
         {
             if (PWEAPON(snum, p->curr_weapon, WorksLike) != KNEE_WEAPON)

@@ -2702,7 +2702,7 @@ int32_t polymost_mddraw(const tspritetype *tspr)
         allocmodelverts = maxmodelverts;
     }
 
-    mdmodel_t *const vm = models[tile2model[Ptile2tile(tspr->picnum, 
+    mdmodel_t *const vm = models[tile2model[Ptile2tile(tspr->picnum,
     (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal)].modelid];
     if (vm->mdnum == 1) { return polymost_voxdraw((voxmodel_t *)vm,tspr); }
     if (vm->mdnum == 3) { return polymost_md3draw((md3model_t *)vm,tspr); }
