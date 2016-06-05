@@ -5226,7 +5226,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     bglLoadMatrixf(&m[0][0]);
     bglMatrixMode(GL_MODELVIEW);
-//    bglPushMatrix();
+    bglPushMatrix();
     bglLoadIdentity();
 
     bglDisable(GL_DEPTH_TEST);
@@ -5389,7 +5389,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         pr_normalmapping = oldnormalmapping;
     }
 #endif
-//    bglPopMatrix();
+    bglPopMatrix();
     bglMatrixMode(GL_PROJECTION);
     bglPopMatrix();
 
