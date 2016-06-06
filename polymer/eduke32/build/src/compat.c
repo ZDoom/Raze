@@ -30,7 +30,7 @@
 #if defined __linux || defined EDUKE32_BSD
 # include <libgen.h> // for dirname()
 #endif
-#if defined __FreeBSD__
+#if defined EDUKE32_BSD
 # include <limits.h> // for PATH_MAX
 # include <sys/sysctl.h> // for sysctl() to get path to executable
 #endif
