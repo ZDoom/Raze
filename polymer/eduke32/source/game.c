@@ -3148,7 +3148,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     {
                         if (wall[ s ].nextsector >= 0 &&
                                 sector[ wall[ s ].nextsector].hitag == 0 &&
-                                sector[ wall[ s ].nextsector].lotag < 3)
+                                (int16_t)sector[ wall[ s ].nextsector].lotag < 3)
                         {
 #ifdef YAX_ENABLE
                             outerwall = wall[s].nextwall;
@@ -3158,6 +3158,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                             break;
                         }
                     }
+
 #ifdef YAX_ENABLE
                     actor[i].t_data[9] = -1;
 
