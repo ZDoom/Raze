@@ -3868,7 +3868,7 @@ void                polymer_updatesprite(int32_t snum)
         s->plane.buffer = (_prvert *)Xcalloc(4, sizeof(_prvert));  // XXX
         s->plane.vertcount = 4;
         s->plane.mapvbo_vertoffset = -1;
-        s->trackedrev = UINT32_MAX;
+        s->hash = 0xDEADBEEF;
     }
 
     if ((tspr->cstat & 48) && (pr_vbos > 0) && !s->plane.vbo)
@@ -3886,16 +3886,12 @@ void                polymer_updatesprite(int32_t snum)
 
     if (tspr->cstat & 48 && searchit != 2)
     {
-#ifndef UNTRACKED_STRUCTS
-        uint32_t const changed = spritechanged[tspr->owner];
-#else
         uint32_t const changed = XXH32((uint8_t *) tspr, offsetof(spritetype, owner), 0xDEADBEEF);
-#endif
 
-        if (changed == s->trackedrev && tspr->picnum == curpicnum)
+        if (changed == s->hash)
             return;
 
-        s->trackedrev = changed;
+        s->hash = changed;
     }
 
     polymer_getbuildmaterial(&s->plane.material, curpicnum, tspr->pal, tspr->shade,
@@ -3915,7 +3911,7 @@ void                polymer_updatesprite(int32_t snum)
     if (searchit == 2)
     {
         polymer_drawsearchplane(&s->plane, NULL, 0x03, (GLubyte *) &tspr->owner);
-        s->trackedrev = UINT32_MAX;
+        s->hash = 0xDEADBEEF;
     }
 
     curpicnum = tspr->picnum;

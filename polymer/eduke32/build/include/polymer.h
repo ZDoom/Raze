@@ -320,7 +320,7 @@ typedef struct      s_prwall {
 
 typedef struct      s_prsprite {
     _prplane        plane;
-    uint32_t        trackedrev;
+    uint32_t        hash;
 }                   _prsprite;
 
 typedef struct      s_prmirror {
@@ -371,7 +371,7 @@ extern _prsprite    *prsprites[MAXSPRITES];
 static inline void polymer_invalidatesprite(int32_t i)
 {
     if (prsprites[i])
-        prsprites[i]->trackedrev = UINT32_MAX;
+        prsprites[i]->hash = 0xDEADBEEF;
 }
 
 extern GLuint       prartmaps[MAXTILES];
