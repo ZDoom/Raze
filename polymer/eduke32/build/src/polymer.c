@@ -3857,7 +3857,9 @@ void                polymer_updatesprite(int32_t snum)
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updating sprite %i...\n", snum);
 
-    if (tspr->owner < 0 || tspr->picnum < 0) return;
+    int32_t const curpicnum = tspr->picnum;
+
+    if (tspr->owner < 0 || curpicnum < 0) return;
 
     s = prsprites[tspr->owner];
 
@@ -3880,9 +3882,6 @@ void                polymer_updatesprite(int32_t snum)
             bglBufferDataARB(GL_ARRAY_BUFFER_ARB, 4 * sizeof(_prvert), NULL, mapvbousage);
         }
     }
-
-    int32_t curpicnum = tspr->picnum;
-    DO_TILE_ANIM(curpicnum, tspr->owner+32768);
 
     if (tspr->cstat & 48 && searchit != 2)
     {
@@ -3913,9 +3912,6 @@ void                polymer_updatesprite(int32_t snum)
         polymer_drawsearchplane(&s->plane, NULL, 0x03, (GLubyte *) &tspr->owner);
         s->hash = 0xDEADBEEF;
     }
-
-    curpicnum = tspr->picnum;
-    DO_TILE_ANIM(curpicnum, tspr->owner+32768);
 
     if (((tspr->cstat>>4) & 3) == 0)
         xratio = (float)(tspr->xrepeat) * 0.20f; // 32 / 160
