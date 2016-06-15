@@ -26,9 +26,9 @@
 typedef enum
 {
     ASS_NoSound,
-#if defined HAVE_DS
+#if defined MIXERTYPEWIN
     ASS_DirectSound,
-#elif defined HAVE_SDL
+#elif defined MIXERTYPESDL
     ASS_SDL,
 #endif
     ASS_NumSoundCards,

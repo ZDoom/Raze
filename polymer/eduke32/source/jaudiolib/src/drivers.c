@@ -27,9 +27,9 @@
 
 #include "driver_nosound.h"
 
-#if defined HAVE_DS
+#if defined MIXERTYPEWIN
 # include "driver_directsound.h"
-#elif defined HAVE_SDL
+#elif defined MIXERTYPESDL
 # include "driver_sdl.h"
 #endif
 
@@ -56,14 +56,14 @@ static struct
     },
 
 	// Windows DirectSound
-#if defined HAVE_DS
+#if defined MIXERTYPEWIN
     {
     DirectSoundDrv_GetError, DirectSoundDrv_ErrorString, DirectSoundDrv_PCM_Init, DirectSoundDrv_PCM_Shutdown,
     DirectSoundDrv_PCM_BeginPlayback, DirectSoundDrv_PCM_StopPlayback, DirectSoundDrv_PCM_Lock,
     DirectSoundDrv_PCM_Unlock,
     },
     // Simple DirectMedia Layer
-#elif defined HAVE_SDL
+#elif defined MIXERTYPESDL
     {
     SDLDrv_GetError, SDLDrv_ErrorString, SDLDrv_PCM_Init, SDLDrv_PCM_Shutdown,
     SDLDrv_PCM_BeginPlayback, SDLDrv_PCM_StopPlayback, SDLDrv_PCM_Lock, SDLDrv_PCM_Unlock,

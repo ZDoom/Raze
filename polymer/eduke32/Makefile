@@ -167,17 +167,15 @@ AUDIOLIB_CFLAGS=-I$(AUDIOLIB_ROOT)/third-party/common/include
 
 ifeq ($(PLATFORM),WINDOWS)
     ifeq ($(MIXERTYPE),WIN)
-        AUDIOLIB_CFLAGS+= -DHAVE_DS
         AUDIOLIB_OBJS+= driver_directsound
     endif
 endif
 
 ifeq ($(MIXERTYPE),SDL)
-    AUDIOLIB_CFLAGS+= -DHAVE_SDL
     ifneq ($(PLATFORM),DARWIN)
         ifneq ($(PLATFORM),WINDOWS)
             ifneq ($(PLATFORM),WII)
-                AUDIOLIB_CFLAGS+=`pkg-config --cflags vorbis`
+                AUDIOLIB_CFLAGS+=`$(PKG_CONFIG) --cflags vorbis`
             endif
         endif
     endif

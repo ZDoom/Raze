@@ -82,9 +82,9 @@ int32_t FX_Init(int32_t SoundCard, int32_t numvoices, int32_t numchannels, unsig
 
     if (SoundCard == ASS_AutoDetect)
     {
-#if defined HAVE_DS
+#if defined MIXERTYPEWIN
         SoundCard = ASS_DirectSound;
-#elif defined HAVE_SDL
+#elif defined MIXERTYPESDL
         SoundCard = ASS_SDL;
 #else
 #warning No sound driver selected!
