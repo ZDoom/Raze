@@ -385,9 +385,6 @@ else
     ifneq (0,$(KRANDDEBUG))
         COMMONFLAGS += -fno-inline -fno-inline-functions -fno-inline-functions-called-once
     endif
-    ifeq (1,$(SDL_TARGET))
-        COMPILERFLAGS += -DNOSDLPARACHUTE
-    endif
 endif
 
 ifndef OPTOPT
@@ -684,16 +681,9 @@ endif
 # NOTE: If your setup doesn't have libstdc++, you can try using libsupc++.
 # Search for STDCPPLIB below and change it to -lsupc++.
 
-SDL_INCLUDES=-I$(SDLROOT)/include -I$(SDLROOT)/include/SDL
-SDL_LIB=-l$(SDLNAME)
-SDL_MIXER_LIB=-l$(SDLNAME)_mixer
-
 ifeq ($(SUBPLATFORM),LINUX)
-    RENDERTYPE=SDL
-    MIXERTYPE=SDL
     COMPILERFLAGS+= -DHAVE_INTTYPES
     GTKCOMPAT32=0
-    SDL_FRAMEWORK=0
 
     # On Linux, we don't need to specify libstdc++ manually, the linker will
     # presumably take care for us.
@@ -749,19 +739,11 @@ ifeq ($(PLATFORM),DARWIN)
         COMPILERFLAGS+= -I/sw/include
     endif
 
-    RENDERTYPE    = SDL
-    MIXERTYPE     = SDL
     STDCPPLIB:=-lstdc++
     COMPILERFLAGS    += -DHAVE_INTTYPES
     DLLSUFFIX=.dylib
     GTKCOMPAT32    = 0
     WITHOUT_GTK   ?= 1
-
-    ifeq (1,$(SDL_FRAMEWORK))
-        SDL_INCLUDES=-I$(APPLE_FRAMEWORKS)/SDL.framework/Headers -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
-        SDL_LIB=-l$(SDLNAME)main -Wl,-framework,SDL -Wl,-rpath -Wl,"@loader_path/../Frameworks"
-        SDL_MIXER_LIB=-Wl,-framework,SDL_mixer
-    endif
 
     ifeq (1,$(DARWIN9))
         COMPILERFLAGS += -DDARWIN9
@@ -789,18 +771,11 @@ ifeq ($(PLATFORM),WINDOWS)
     MIXERTYPE?=WIN
     ifneq ($(RENDERTYPE),SDL)
         ifeq ($(MIXERTYPE),SDL)
-            MIXERTYPE:=WIN
+            override MIXERTYPE:=WIN
         endif
     endif
 
-    SDL_INCLUDES=
-    ifeq ($(SDL_TARGET),1)
-        SDL_MIXER_LIB=platform/Windows/lib$(WINLIB)/SDL_mixer.lib
-    endif
-
     WITHOUT_GTK?=1
-    SDLCONFIG=
-    SDL_FRAMEWORK=1
     EXESUFFIX=.exe
     DLLSUFFIX=.dll
     LIBDIRS+= -Lplatform/Windows/lib$(WINLIB)
@@ -812,25 +787,22 @@ ifeq ($(PLATFORM),WINDOWS)
     STDCPPLIB:=-lstdc++
 
     COMMONFLAGS += -fno-pic
+else
+    RENDERTYPE?=SDL
+    MIXERTYPE?=SDL
 endif
 ifeq ($(PLATFORM),BSD)
     COMPILERFLAGS+= -I/usr/local/include
 
-    RENDERTYPE=SDL
-    MIXERTYPE=SDL
     COMPILERFLAGS+= -DHAVE_INTTYPES
     STDCPPLIB:=-lstdc++
 endif
 ifeq ($(PLATFORM),BEOS)
     override NOASM=1
 
-    RENDERTYPE=SDL
-    MIXERTYPE=SDL
     STDCPPLIB:=-lstdc++
 endif
 ifeq ($(PLATFORM),SKYOS)
-    RENDERTYPE=SDL
-    MIXERTYPE=SDL
     EXESUFFIX=.app
     override NOASM=1
     COMPILERFLAGS+= -DUNDERSCORES -I/boot/programs/sdk/include/sdl
@@ -838,9 +810,6 @@ ifeq ($(PLATFORM),SKYOS)
     LIBS+= -lSDL -lnet
 endif
 ifeq ($(PLATFORM),WII)
-    RENDERTYPE=SDL
-    MIXERTYPE=SDL
-    SDL_INCLUDES=
     EXESUFFIX=.elf
     override USE_OPENGL=0
     override POLYMER=0
@@ -851,28 +820,21 @@ ifeq ($(PLATFORM),WII)
     COMPILERFLAGS+= -DGEKKO -DHAVE_INTTYPES -D__POWERPC__ -I$(LIBOGC_INC) -I$(PORTLIBS)/include -Iplatform/Wii/include
     SDLCONFIG=
     SDL_TARGET=1
-    SDL_FRAMEWORK=1
     LIBDIRS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib -Lplatform/Wii/lib
 endif
 ifeq ($(PLATFORM),QNX)
-    RENDERTYPE=SDL
-    MIXERTYPE=SDL
     override USE_OPENGL=0
     override NOASM=1
     STDCPPLIB:=-lstdc++
     LIBS+= -lsocket
 endif
 ifeq ($(PLATFORM),SUNOS)
-    RENDERTYPE=SDL
-    MIXERTYPE=SDL
     override USE_OPENGL=0
     override NOASM=1
     STDCPPLIB:=-lstdc++
     LIBS+= -lsocket -lnsl
 endif
 ifeq ($(PLATFORM),SYLLABLE)
-    RENDERTYPE=SDL
-    MIXERTYPE=SDL
     override USE_OPENGL=0
     override NOASM=1
 endif
@@ -897,55 +859,54 @@ ifneq (0,$(CLANG))
     endif
 endif
 
-ifeq ($(SDL_TARGET),2)
-    SDLCONFIG ?= sdl2-config
-    SDLNAME ?= SDL2
-endif
-ifeq ($(SDL_TARGET),1)
-    SDLCONFIG ?= sdl-config
-    SDLNAME ?= SDL
-endif
-
-ifneq ($(SDLCONFIG),)
-    SDLVERSION:=$(strip $(shell $(SDLCONFIG) --version))
-    ifneq ($(SDLVERSION),)
-        SDLROOT:=$(strip $(shell $(SDLCONFIG) --prefix))
-    endif
-endif
-
-SDL_STATIC?=1
-
 ifeq ($(RENDERTYPE),SDL)
+    ifeq ($(SDL_TARGET),2)
+        SDLCONFIG ?= sdl2-config
+        SDLNAME ?= SDL2
+    endif
+    ifeq ($(SDL_TARGET),1)
+        SDLCONFIG ?= sdl-config
+        SDLNAME ?= SDL
+        ifeq (0,$(RELEASE))
+            COMPILERFLAGS += -DNOSDLPARACHUTE
+        endif
+    endif
+
+    ifneq ($(strip $(SDLCONFIG)),)
+        ifeq ($(strip $(shell $(SDLCONFIG) --version $(DONT_PRINT_STDERR))),)
+            override SDLCONFIG =
+        endif
+    endif
+
     COMPILERFLAGS += -DSDL_TARGET=$(SDL_TARGET)
 
-    ifeq ($(SDL_FRAMEWORK),1)
-        COMPILERFLAGS += -DSDL_FRAMEWORK
-    endif
-
-    ifneq ($(PLATFORM),WINDOWS)
-        ifeq ($(SDL_FRAMEWORK),1)
-            ifeq ($(PLATFORM),DARWIN)
-                LIBS        += -Wl,-framework,SDL
-                COMPILERFLAGS+= -I$(APPLE_FRAMEWORKS)/SDL.framework/Headers \
-                                -I$(APPLE_FRAMEWORKS)/SDL_mixer.framework/Headers
+    ifneq ($(SDL_FRAMEWORK),0)
+        ifeq ($(PLATFORM),DARWIN)
+            LIBDIRS += -F$(APPLE_FRAMEWORKS)
+            ifeq ($(MIXERTYPE),SDL)
+                COMPILERFLAGS += -I$(APPLE_FRAMEWORKS)/$(SDLNAME)_mixer.framework/Headers
+                LIBS += -Wl,-framework,$(SDLNAME)_mixer
             endif
-        else
-            ifneq ($(SDLCONFIG),)
-                SDLCONFIG_COMMONFLAGS:=$(subst -Dmain=SDL_main,,$(strip $(shell $(SDLCONFIG) --cflags)))
-                SDLCONFIG_LIBS:=$(strip $(shell $(SDLCONFIG) --libs))
-
-                LIBS+= $(SDLCONFIG_LIBS)
-                COMMONFLAGS+= $(SDLCONFIG_COMMONFLAGS)
-            endif
+            COMPILERFLAGS += -I$(APPLE_FRAMEWORKS)/$(SDLNAME).framework/Headers
+            LIBS += -Wl,-framework,$(SDLNAME) -Wl,-rpath -Wl,"@loader_path/../Frameworks"
         endif
     else
-        COMPILERFLAGS += -D_GNU_SOURCE=1
-        ifneq ($(SDL_STATIC),0)
-            ifneq ($(SDL_TARGET),1) # Since SDL2 is under the zlib license, link statically if possible.
-                LIBS+= -static
-            endif
+        ifeq ($(MIXERTYPE),SDL)
+            LIBS += -l$(SDLNAME)_mixer
         endif
-        LIBS+= -l$(SDLNAME)main -l$(SDLNAME) -lmingw32 -lgdi32 -limm32 -lole32 -loleaut32 -lwinmm -lversion
+        ifneq ($(SDLCONFIG),)
+            SDLCONFIG_CFLAGS := $(strip $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags)))
+            SDLCONFIG_LIBS := $(strip $(subst -mwindows,,$(shell $(SDLCONFIG) --libs)))
+
+            COMMONFLAGS += $(SDLCONFIG_CFLAGS)
+            LIBS += $(SDLCONFIG_LIBS)
+        else
+            ifeq ($(SDL_TARGET),1)
+                COMPILERFLAGS += -D_GNU_SOURCE=1
+            endif
+            COMPILERFLAGS += -D_REENTRANT -DSDL_USEFOLDER
+            LIBS+= -l$(SDLNAME)
+        endif
     endif
 
     ifeq (1,$(WITHOUT_GTK))
@@ -969,25 +930,14 @@ ifeq ($(RENDERTYPE),SDL)
         endif
     endif
 
-    COMPILERFLAGS += $(SDL_INCLUDES)
-    ifneq ($(MIXERTYPE),WIN)
-        LIBS += $(SDL_MIXER_LIB)
+    ifeq ($(PLATFORM),WINDOWS)
+        LIBS += -ldxguid_sdl -lmingw32 -lgdi32 -limm32 -lole32 -loleaut32 -lwinmm -lversion
     endif
-    LIBS += $(SDL_LIB)
 endif
 ifeq ($(RENDERTYPE),WIN)
     LIBS+= -ldxguid
 endif
 
-# SDL depends on these
-ifeq ($(PLATFORM),WINDOWS)
-    ifeq ($(RENDERTYPE),SDL)
-    SDL_LIB:=-l$(SDLNAME)main $(SDL_LIB)
-        ifeq ($(MIXERTYPE),WIN)
-            LIBS+= -ldxguid_sdl
-        endif
-    endif
-endif
 ifeq ($(PLATFORM),WII)
     LIBS+= -laesnd_tueidj -lpng -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
 endif

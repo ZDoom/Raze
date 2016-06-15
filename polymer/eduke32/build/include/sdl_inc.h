@@ -7,8 +7,8 @@
 # undef __MINGW64_VERSION_MAJOR
 #endif
 
-#if defined(SDL_FRAMEWORK)
-# if (SDL_TARGET == 2)
+#if defined SDL_USEFOLDER
+# if SDL_TARGET == 2
 #  include <SDL2/SDL.h>
 #  include <SDL2/SDL_syswm.h>
 # else
@@ -17,6 +17,9 @@
 # endif
 #else
 # include "SDL.h"
+# if !defined __APPLE__
+#  include "SDL_syswm.h"
+# endif
 #endif
 
 #if defined __MINGW64_VERSION_MAJOR_BACKUP && !defined __MINGW64__
@@ -43,38 +46,37 @@ Minimum required SDL versions:
 #error SDL version found is too old
 #endif
 
-#if defined(_NEED_SDLMIXER)
-# if defined(SDL_FRAMEWORK)
-#  if defined(_WIN32) || defined(GEKKO)
-#   if (SDL_TARGET == 2)
-#    include <SDL2/SDL_mixer.h>
-#   else
-#    include <SDL/SDL_mixer.h>
-#   endif
+#if defined _NEED_SDLMIXER
+
+# if defined SDL_USEFOLDER
+#  if SDL_TARGET == 2
+#   include <SDL2/SDL_mixer.h>
 #  else
-#   if (SDL_TARGET == 2)
-#    include <SDL2/SDL_mixer.h>
-#   else
-#    include <SDL_mixer/SDL_mixer.h>
-#   endif
+#   include <SDL/SDL_mixer.h>
 #  endif
 # else
 #  include "SDL_mixer.h"
 # endif
+
 /* starting with 1.2.1, SDL_mixer provides MIX_xxx version
    macros. the new SDL_MIXER_xxx version macros start with
    1.2.6 but they keep backwards compatibility. 1.2.0 does
    not even have any version macros, so let's reject it */
-#if !defined(MIX_MAJOR_VERSION) || !defined(MIX_MINOR_VERSION) || !defined(MIX_PATCHLEVEL)
-#error SDL_mixer version found is too old
+# if !defined(MIX_MAJOR_VERSION) || !defined(MIX_MINOR_VERSION) || !defined(MIX_PATCHLEVEL)
+#  error SDL_mixer version found is too old
+# endif
+
+# ifndef MIX_COMPILEDVERSION
+#  define MIX_COMPILEDVERSION	(SDL_VERSIONNUM(MIX_MAJOR_VERSION,MIX_MINOR_VERSION,MIX_PATCHLEVEL))
+# endif
+# if MIX_COMPILEDVERSION < MIX_REQUIREDVERSION
+#  error SDL_mixer version found is too old
+# endif
+
+# if SDL_MAJOR_VERSION != MIX_MAJOR_VERSION
+#  error Major version of SDL_mixer headers does not match SDL headers
+# endif
+
 #endif
-#ifndef MIX_COMPILEDVERSION
-#define MIX_COMPILEDVERSION	(SDL_VERSIONNUM(MIX_MAJOR_VERSION,MIX_MINOR_VERSION,MIX_PATCHLEVEL))
-#endif
-#if MIX_COMPILEDVERSION < MIX_REQUIREDVERSION
-#error SDL_mixer version found is too old
-#endif	/* end of bad version error */
-#endif	/* end of SDL_mixer checks */
 
 #endif	/* SDL_INC_H_ */
-

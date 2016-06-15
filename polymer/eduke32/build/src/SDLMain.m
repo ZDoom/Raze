@@ -3,6 +3,8 @@
        Non-NIB-Code & other changes: Max Horn <max@quendi.de>
 
     Feel free to customize this file to suit your needs
+
+    Modified for EDuke32
 */
 
 #import <Foundation/Foundation.h>
@@ -15,7 +17,8 @@
 #import <AppKit/AppKit.h>
 
 #include "sdl_inc.h"
-#include "SDLMain.h"
+
+#import <Cocoa/Cocoa.h>
 
 #include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h>
@@ -31,6 +34,11 @@
 /* Use this flag to determine whether we use CPS (docking) or not */
 #define		SDL_USE_CPS
 #ifdef SDL_USE_CPS
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Portions of CPS.h */
 typedef struct CPSProcessSerNum
 {
@@ -41,6 +49,10 @@ typedef struct CPSProcessSerNum
 extern OSErr	CPSGetCurrentProcess( CPSProcessSerNum *psn);
 extern OSErr 	CPSEnableForegroundOperation( CPSProcessSerNum *psn, UInt32 _arg2, UInt32 _arg3, UInt32 _arg4, UInt32 _arg5);
 extern OSErr	CPSSetFrontProcess( CPSProcessSerNum *psn);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* SDL_USE_CPS */
 
@@ -83,11 +95,11 @@ static NSString *getApplicationName(void)
 }
 @end
 
-@interface SDLMain (NSObject) <NSFileManagerDelegate>
+@interface SDLMain : NSObject <NSFileManagerDelegate>
 @end
 
 /* The main class of the application, the application's delegate */
-@implementation SDLMain (NSObject)
+@implementation SDLMain
 
 /* Set the working directory to the .app's parent directory */
 - (void) setupWorkingDirectory:(BOOL)shouldChdir

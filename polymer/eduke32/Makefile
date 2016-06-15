@@ -88,7 +88,7 @@ ifeq ($(PLATFORM),DARWIN)
         ENGINE_EDITOR_OBJS += startosx.editor
     endif
     ifeq ($(SDL_TARGET),1)
-        ifeq (1,$(SDL_FRAMEWORK))
+        ifneq ($(SDL_FRAMEWORK),0)
             ENGINE_OBJS+=SDLMain
         endif
     endif
@@ -805,7 +805,7 @@ getdxdidf$(EXESUFFIX): $(ENGINE_OBJ)/getdxdidf.$o
 	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(LIBDIRS) $(LIBS) -ldinput $(RECIPE_RESULT_ONESTEP)
 makesdlkeytrans$(EXESUFFIX): $(ENGINE_OBJ)/makesdlkeytrans.$o
 	$(ONESTEP_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(LIBDIRS) $(LIBS) $(SDL_INCLUDES) $(RECIPE_RESULT_ONESTEP)
+	$(RECIPE_IF) $(LINKER) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_ONESTEP)
 arttool$(EXESUFFIX): $(ENGINE_OBJ)/arttool.$o
 	$(ONESTEP_STATUS)
 	$(RECIPE_IF) $(L_CXX) $(CXXONLYFLAGS) $(L_CXXONLYFLAGS) -o $@ $^ $(COMMONFLAGS) $(LINKERFLAGS) $(LIBDIRS) $(LIBS) $(STDCPPLIB) $(RECIPE_RESULT_ONESTEP)
