@@ -25,7 +25,9 @@ STRIP=$(CROSS)strip
 AS=nasm
 PKG_CONFIG=pkg-config
 
-DONT_PRINT = > /dev/null 2>&1
+NULLSTREAM = /dev/null
+DONT_PRINT = > $(NULLSTREAM) 2>&1
+DONT_PRINT_STDERR = 2> $(NULLSTREAM)
 DONT_FAIL = ; exit 0
 
 # Override defaults that absolutely will not work.
@@ -298,7 +300,7 @@ W_STRICT_OVERFLOW := -Wno-strict-overflow
 ifeq ($(HOSTPLATFORM),WINDOWS)
 # MSYS2 lets you create files named NUL but has a /dev/null. Go figure.
     ifeq (,$(wildcard /dev/null))
-        DONT_PRINT = > NUL 2>&1
+        NULLSTREAM = NUL
     endif
 endif
 
