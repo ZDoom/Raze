@@ -390,8 +390,13 @@ endif
 
 ifndef OPTOPT
     ifeq ($(findstring x86_64, $(IMPLICIT_ARCH)),x86_64)
-        ifeq ($(PLATFORM),DARWIN)
-            OPTOPT=-march=core2 -mmmx -msse -msse2 -msse3 -mssse3
+        ifeq ($(findstring x86_64h, $(IMPLICIT_ARCH)),x86_64h)
+            OPTOPT=-march=haswell -mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mpopcnt -mpclmul -mavx -mrdrnd -mf16c -mfsgsbase -mavx2 -maes -mfma -mbmi -mbmi2
+            # -mcrc32 -mmovbe
+        else
+            ifeq ($(PLATFORM),DARWIN)
+                OPTOPT=-march=core2 -mmmx -msse -msse2 -msse3 -mssse3
+            endif
         endif
     endif
     ifeq ($(findstring i386, $(IMPLICIT_ARCH)),i386)
