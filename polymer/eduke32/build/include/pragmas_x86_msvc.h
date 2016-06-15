@@ -82,22 +82,8 @@ static __inline int32_t dmulscale32(int32_t a, int32_t d, int32_t S, int32_t D)
     }
 }
 
-static __inline char readpixel(void *d)
-{
-    _asm {
-        mov edx, d
-            mov al, byte ptr[edx]
-    }
-}
-
-static __inline void drawpixel(void *d, char a)
-{
-    _asm {
-        mov edx, d
-            mov al, a
-            mov byte ptr[edx], al
-    }
-}
+static __inline char readpixel(void *s) { return *(char *)s; }
+static __inline void drawpixel(void *s, char a) { *(char *)s = a; }
 
 static __inline void clearbuf(void *d, int32_t c, int32_t a)
 {

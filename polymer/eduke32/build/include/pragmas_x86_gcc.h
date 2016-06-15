@@ -451,16 +451,9 @@ void copybufreverse(const void *S, void *D, int32_t c);
 		: "a" (__a), "d" (__d), "S" (__S), "D" (__D) : "ebx", "cc"); \
 	 __d; })
 
-#define readpixel(D) \
-	({ void *__D=(D); int32_t __a; \
-	   __asm__ __volatile__ ("movb (%%edi), %%al" \
-		: "=a" (__a): "D" (__D) : "cc"); \
-	 __a; })
-#define drawpixel(D,a) \
-	({ void *__D=(D); int32_t __a=(a); \
-	   __asm__ __volatile__ ("movb %%al, (%%edi)" \
-		: : "D" (__D), "a" (__a) : "memory", "cc"); \
-	 0; })
+FORCE_INLINE char readpixel(void *s) { return *(char *)s; }
+FORCE_INLINE void drawpixel(void *s, char a) { *(char *)s = a; }
+
 #define clearbuf(D,c,a) \
 	({ void *__D=(D); int32_t __c=(c), __a=(a); \
 	   __asm__ __volatile__ ("rep; stosl" \
