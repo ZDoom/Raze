@@ -79,8 +79,6 @@ static inline void ALLOC_MAPART_ARRAY(origar_t &origar, bakar_t &bakar)
 
 void E_MapArt_Clear(void)
 {
-    int32_t i;
-
     if (g_bakTileFileNum == NULL)
         return;  // per-map ART N/A
 
@@ -95,13 +93,15 @@ void E_MapArt_Clear(void)
         artfilplc = 0L;
     }
 
-    for (i=0; i<MAXTILES; i++)
+    for (int i=0; i<MAXTILES; i++)
+    {
         if (tilefilenum[i] >= MAXARTFILES_BASE)
         {
             // XXX: OK way to free it? Better: cache1d API. CACHE1D_FREE
             walock[i] = 1;
             waloff[i] = 0;
         }
+    }
 
     // Restore original per-tile arrays
     RESTORE_MAPART_ARRAY(tilefilenum, g_bakTileFileNum);
@@ -121,8 +121,6 @@ void E_MapArt_Clear(void)
 
 void E_MapArt_Setup(const char *filename)
 {
-    int32_t i;
-
     E_MapArt_Clear();
 
     if (Bstrlen(filename) + 7 >= sizeof(mapartfilename))
@@ -149,9 +147,9 @@ void E_MapArt_Setup(const char *filename)
     ALLOC_MAPART_ARRAY(tilesiz, g_bakTileSiz);
     ALLOC_MAPART_ARRAY(picanm, g_bakPicAnm);
 
-    for (i=MAXARTFILES_BASE; i<MAXARTFILES_TOTAL; i++)
+    for (int i=MAXARTFILES_BASE; i<MAXARTFILES_TOTAL; i++)
     {
-        int32_t ret = E_ReadArtFileOfID(i);
+        int ret = E_ReadArtFileOfID(i);
 
         if (ret != 0)
         {
@@ -284,7 +282,7 @@ int32_t E_ReadArtFileHeader(int32_t const fil, char const * const fn, artheader_
 
 int32_t E_ReadArtFileHeaderFromBuffer(uint8_t const * const buf, artheader_t * const local)
 {
-    int32_t const artversion = B_LITTLE32(B_UNBUF32(&buf[0]));
+    int const artversion = B_LITTLE32(B_UNBUF32(&buf[0]));
     if (EDUKE32_PREDICT_FALSE(artversion != 1))
     {
         initprintf("loadpics: Invalid art file version\n");
@@ -349,7 +347,7 @@ void E_ReadArtFileTileInfo(int32_t const fil, artheader_t const * const local)
     kread(fil, tilesizy, local->numtiles*sizeof(int16_t));
     kread(fil, &picanm[local->tilestart], local->numtiles*sizeof(picanm_t));
 
-    for (int32_t i=local->tilestart; i<=local->tileend; i++)
+    for (int i=local->tilestart; i<=local->tileend; i++)
     {
         tilesiz[i].x = B_LITTLE16(tilesizx[i-local->tilestart]);
         tilesiz[i].y = B_LITTLE16(tilesizy[i-local->tilestart]);
@@ -366,9 +364,9 @@ void E_ReadArtFileIntoFakeData(int32_t const fil, artheader_t const * const loca
     char *buffer = NULL;
     int32_t buffersize = 0;
 
-    for (int32_t i=local->tilestart; i<=local->tileend; i++)
+    for (int i=local->tilestart; i<=local->tileend; i++)
     {
-        int32_t dasiz = tilesiz[i].x * tilesiz[i].y;
+        int const dasiz = tilesiz[i].x * tilesiz[i].y;
 
         if (dasiz == 0)
         {
@@ -377,9 +375,7 @@ void E_ReadArtFileIntoFakeData(int32_t const fil, artheader_t const * const loca
         }
 
         maybe_grow_buffer(&buffer, &buffersize, dasiz);
-
         kread(fil, buffer, dasiz);
-
         E_CreateFakeTile(i, dasiz, buffer);
     }
 
@@ -431,7 +427,7 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
 #endif
 
         artheader_t local;
-        int32_t headerval = E_ReadArtFileHeader(fil, fn, &local);
+        int const headerval = E_ReadArtFileHeader(fil, fn, &local);
         if (headerval != 0)
             return headerval;
 
@@ -465,11 +461,11 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
         }
         else
         {
-            int32_t offscount = 4+4+4+4+(local.numtiles<<3);
+            int offscount = 4+4+4+4+(local.numtiles<<3);
 
-            for (int32_t i=local.tilestart; i<=local.tileend; i++)
+            for (int i=local.tilestart; i<=local.tileend; ++i)
             {
-                int32_t dasiz = tilesiz[i].x * tilesiz[i].y;
+                int const dasiz = tilesiz[i].x * tilesiz[i].y;
 
                 tilefilenum[i] = tilefilei;
                 tilefileoffs[i] = offscount;
@@ -495,8 +491,6 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
 //
 int32_t loadpics(const char *filename, int32_t askedsize)
 {
-    int32_t tilefilei;
-
     Bstrncpyz(artfilename, filename, sizeof(artfilename));
 
     Bmemset(&tilesiz[0], 0, sizeof(vec2_t) * MAXTILES);
@@ -504,16 +498,13 @@ int32_t loadpics(const char *filename, int32_t askedsize)
 
     //    artsize = 0;
 
-    for (tilefilei=0; tilefilei<MAXARTFILES_BASE; tilefilei++)
+    for (int tilefilei=0; tilefilei<MAXARTFILES_BASE; tilefilei++)
         E_ReadArtFileOfID(tilefilei);
 
     Bmemset(gotpic, 0, sizeof(gotpic));
 
     //cachesize = min((int32_t)((Bgetsysmemsize()/100)*60),max(artsize,askedsize));
-    if (Bgetsysmemsize() <= (uint32_t) askedsize)
-        cachesize = (Bgetsysmemsize()/100)*60;
-    else
-        cachesize = askedsize;
+    cachesize = (Bgetsysmemsize() <= (uint32_t)askedsize) ? (Bgetsysmemsize() / 100) * 60 : askedsize;
 
     // NOTE: this doesn't make a lot of sense on modern OSs...
     while ((pic = Bmalloc(cachesize)) == NULL)
@@ -541,10 +532,9 @@ static void postloadtile(int16_t tilenume);
 
 void loadtile(int16_t tilenume)
 {
-    int32_t dasiz;
-
     if ((unsigned) tilenume >= (unsigned) MAXTILES) return;
-    if ((dasiz = tilesiz[tilenume].x*tilesiz[tilenume].y) <= 0) return;
+    int const dasiz = tilesiz[tilenume].x*tilesiz[tilenume].y;
+    if (dasiz <= 0) return;
 
     // Allocate storage if necessary.
     if (waloff[tilenume] == 0)
@@ -571,19 +561,18 @@ void E_LoadTileIntoBuffer(int16_t tilenume, int32_t dasiz, char *buffer)
         return;
     }
 
-    int32_t const i = tilefilenum[tilenume];
+    int const tfn = tilefilenum[tilenume];
 
     // Potentially switch open ART file.
-    if (i != artfilnum)
+    if (tfn != artfilnum)
     {
-        const char *fn;
-
         if (artfil != -1)
             kclose(artfil);
 
-        fn = E_GetArtFileName(i);
+        char const *fn = E_GetArtFileName(tfn);
 
         artfil = kopen4load(fn, 0);
+
         if (artfil == -1)
         {
             initprintf("Failed opening ART file \"%s\"!\n", fn);
@@ -591,7 +580,7 @@ void E_LoadTileIntoBuffer(int16_t tilenume, int32_t dasiz, char *buffer)
             Bexit(11);
         }
 
-        artfilnum = i;
+        artfilnum = tfn;
         artfilplc = 0L;
 
         faketimerhandler();
@@ -646,24 +635,24 @@ static void postloadtile(int16_t tilenume)
 // Assumes pic has been initialized to zero.
 void E_RenderArtDataIntoBuffer(palette_t * const pic, uint8_t const * const buf, int32_t const bufsizx, int32_t const sizx, int32_t const sizy)
 {
-    for (int32_t y = 0; y < sizy; y++)
+    for (int y = 0; y < sizy; ++y)
     {
         palette_t * const picrow = &pic[bufsizx * y];
 
-        for (int32_t x = 0; x < sizx; x++)
+        for (int x = 0; x < sizx; ++x)
         {
             uint8_t index = buf[sizy * x + y];
 
-            if (index != 255)
-            {
-                index *= 3;
+            if (index == 255)
+                continue;
 
-                // pic is BGRA
-                picrow[x].r = palette[index+2];
-                picrow[x].g = palette[index+1];
-                picrow[x].b = palette[index];
-                picrow[x].f = 255;
-            }
+            index *= 3;
+
+            // pic is BGRA
+            picrow[x].r = palette[index+2];
+            picrow[x].g = palette[index+1];
+            picrow[x].b = palette[index];
+            picrow[x].f = 255;
         }
     }
 }
@@ -673,12 +662,10 @@ void E_RenderArtDataIntoBuffer(palette_t * const pic, uint8_t const * const buf,
 //
 intptr_t allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
-    int32_t dasiz;
-
     if (xsiz <= 0 || ysiz <= 0 || (unsigned) tilenume >= MAXTILES)
         return 0;
 
-    dasiz = xsiz*ysiz;
+    int const dasiz = xsiz*ysiz;
 
     walock[tilenume] = 255;
     allocache(&waloff[tilenume], dasiz, &walock[tilenume]);
@@ -692,6 +679,7 @@ intptr_t allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 //
 // copytilepiece
 //
+#if 0
 void copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz,
     int32_t tilenume2, int32_t sx2, int32_t sy2)
 {
@@ -728,6 +716,7 @@ void copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, in
         }
     }
 }
+#endif
 
 void Buninitart(void)
 {

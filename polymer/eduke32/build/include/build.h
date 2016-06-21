@@ -1157,24 +1157,24 @@ void      rotatepoint(vec2_t pivot, vec2_t p, int16_t daang, vec2_t *p2) ATTRIBU
 int32_t   lastwall(int16_t point);
 int32_t   nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, int16_t direction);
 
-int32_t   getceilzofslopeptr(const sectortype *sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
-int32_t   getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
-void   getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day,
+int32_t   getceilzofslopeptr(const usectortype *sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
+int32_t   getflorzofslopeptr(const usectortype *sec, int32_t dax, int32_t day) ATTRIBUTE((nonnull(1)));
+void   getzsofslopeptr(const usectortype *sec, int32_t dax, int32_t day,
                        int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(1,4,5)));
 
 FORCE_INLINE int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
-    return getceilzofslopeptr(&sector[sectnum], dax, day);
+    return getceilzofslopeptr((usectortype *)&sector[sectnum], dax, day);
 }
 
 FORCE_INLINE int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
-    return getflorzofslopeptr(&sector[sectnum], dax, day);
+    return getflorzofslopeptr((usectortype *)&sector[sectnum], dax, day);
 }
 
 FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
-    getzsofslopeptr(&sector[sectnum], dax, day, ceilz, florz);
+    getzsofslopeptr((usectortype *)&sector[sectnum], dax, day, ceilz, florz);
 }
 
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
