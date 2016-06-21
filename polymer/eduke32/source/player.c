@@ -1721,7 +1721,7 @@ static int32_t P_DisplayFist(int32_t gs)
     int32_t looking_arc,fisti,fistpal;
     int32_t fistzoom, fistz;
 
-    int32_t wx[2] = { windowx1, windowx2 };
+    int32_t wx[2] = { windowxy1.x, windowxy2.x };
 
     const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
@@ -1756,7 +1756,7 @@ static int32_t P_DisplayFist(int32_t gs)
         (-fisti+222+(g_player[screenpeek].sync->avel>>5))<<16,
         (looking_arc+fistz)<<16,
         fistzoom,0,FIST,gs,fistpal,2,
-        wx[0],windowy1,wx[1],windowy2);
+        wx[0],windowxy1.y,wx[1],windowxy2.y);
 
     return 1;
 }
@@ -1771,8 +1771,8 @@ static void G_DrawTileScaled(int32_t x, int32_t y, int32_t tilenum, int32_t shad
     int32_t ang = 0;
     int32_t xoff = 192;
 
-    int32_t wx[2] = { windowx1, windowx2 };
-    int32_t wy[2] = { windowy1, windowy2 };
+    int32_t wx[2] = { windowxy1.x, windowxy2.x };
+    int32_t wy[2] = { windowxy1.y, windowxy2.y };
     int32_t yofs = 0;
 
     switch (hudweap.cur)
@@ -4576,7 +4576,7 @@ void P_ProcessInput(int32_t snum)
         j = lz&(MAXSPRITES-1);
 
         if ((sprite[j].cstat&33) == 33 || (sprite[j].cstat&17) == 17 ||
-                clipshape_idx_for_sprite(&sprite[j], -1) >= 0)
+                clipshape_idx_for_sprite((uspritetype *)&sprite[j], -1) >= 0)
         {
             // EDuke32 extension: xvel of 1 makes a sprite be never regarded as a bridge.
             if ((sprite[j].xvel&1) == 0)

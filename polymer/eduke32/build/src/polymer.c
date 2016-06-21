@@ -917,8 +917,8 @@ void                polymer_setaspect(int32_t ang)
     if (pr_customaspect != 0.0f)
         aspect = pr_customaspect;
     else
-        aspect = (float)(windowx2-windowx1+1) /
-                 (float)(windowy2-windowy1+1);
+        aspect = (float)(windowxy2.x-windowxy1.x+1) /
+                 (float)(windowxy2.y-windowxy1.y+1);
 
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
@@ -930,7 +930,7 @@ void                polymer_glinit(void)
     bglClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     bglClearStencil(0);
     bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    bglViewport(windowx1, yres-(windowy2+1),windowx2-windowx1+1, windowy2-windowy1+1);
+    bglViewport(windowxy1.x, yres-(windowxy2.y+1),windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
 
     // texturing
     bglEnable(GL_TEXTURE_2D);
@@ -2033,7 +2033,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
     {
         bglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prrts[0].fbo);
         bglPushAttrib(GL_VIEWPORT_BIT);
-        bglViewport(windowx1, yres-(windowy2+1),windowx2-windowx1+1, windowy2-windowy1+1);
+        bglViewport(windowxy1.x, yres-(windowxy2.y+1),windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
 
         bglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

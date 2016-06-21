@@ -616,7 +616,7 @@ FORCE_INLINE void sector_tracker_hook(uintptr_t address)
     Bassert(usector < ((MAXSECTORS + M32_FIXME_SECTORS) * sizeof(sectortype)));
 #endif
 
-    sectorchanged[usector / sizeof(sectortype)]++;
+    ++sectorchanged[usector / sizeof(sectortype)];
 }
 
 FORCE_INLINE void wall_tracker_hook(uintptr_t address)
@@ -627,7 +627,7 @@ FORCE_INLINE void wall_tracker_hook(uintptr_t address)
     Bassert(uwall < ((MAXWALLS + M32_FIXME_WALLS) * sizeof(walltype)));
 #endif
 
-    wallchanged[uwall / sizeof(walltype)]++;
+    ++wallchanged[uwall / sizeof(walltype)];
 }
 
 FORCE_INLINE void sprite_tracker_hook(uintptr_t address)
@@ -638,7 +638,7 @@ FORCE_INLINE void sprite_tracker_hook(uintptr_t address)
     Bassert(usprite < (MAXSPRITES * sizeof(spritetype)));
 #endif
 
-    spritechanged[usprite / sizeof(spritetype)]++;
+    ++spritechanged[usprite / sizeof(spritetype)];
 }
 
 
@@ -712,7 +712,7 @@ EXTERN int32_t g_rotatespriteNoWidescreen;
 // alpha-blending tables:
 EXTERN uint8_t numalphatabs;
 
-EXTERN int32_t windowx1, windowy1, windowx2, windowy2;
+EXTERN vec2_t windowxy1, windowxy2;
 EXTERN int16_t *startumost, *startdmost;
 
 // The maximum tile offset ever used in any tiled parallaxed multi-sky.
@@ -1098,7 +1098,7 @@ FORCE_INLINE void rotatesprite_fs_alpha(int32_t sx, int32_t sy, int32_t z, int16
 FORCE_INLINE void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                     int8_t dashade, char dapalnum, int32_t dastat)
 {
-    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, windowx1,windowy1,windowx2,windowy2);
+    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
 }
 
 void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt);
@@ -1188,7 +1188,7 @@ FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
 
-int32_t clipshape_idx_for_sprite(spritetype *curspr, int32_t curidx);
+int32_t clipshape_idx_for_sprite(uspritetype const * const curspr, int32_t curidx);
 
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
@@ -1216,10 +1216,10 @@ int32_t   changespritestat(int16_t spritenum, int16_t newstatnum);
 int32_t   setsprite(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
-int32_t spriteheightofsptr(const spritetype *spr, int32_t *height, int32_t alsotileyofs);
+int32_t spriteheightofsptr(const uspritetype *spr, int32_t *height, int32_t alsotileyofs);
 FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
 {
-    return spriteheightofsptr(&sprite[i], height, alsotileyofs);
+    return spriteheightofsptr((uspritetype *)&sprite[i], height, alsotileyofs);
 }
 
 int32_t   screencapture(const char *filename, char inverseit, const char *versionstr) ATTRIBUTE((nonnull(1)));

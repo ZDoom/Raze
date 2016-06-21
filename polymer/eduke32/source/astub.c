@@ -5425,8 +5425,8 @@ static void Keys3d(void)
             int32_t x = (xdim <= 640);
             int32_t chars = Bsprintf(tempbuf, "%2u ms (%3u fps)", howlong, LastCount);
 
-            int32_t const dax = m32_is2d3dmode() ? m32_2d3d.x + XSIZE_2D3D - 3: windowx2;
-            int32_t const day = m32_is2d3dmode() ? m32_2d3d.y + 4 : windowy1;
+            int32_t const dax = m32_is2d3dmode() ? m32_2d3d.x + XSIZE_2D3D - 3: windowxy2.x;
+            int32_t const day = m32_is2d3dmode() ? m32_2d3d.y + 4 : windowxy1.y;
 
             if (!x)
             {

@@ -570,19 +570,19 @@ static void resizeglcheck(void)
     bglPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 #endif
 
-    if ((glox1 != windowx1) || (gloy1 != windowy1) || (glox2 != windowx2) || (gloy2 != windowy2))
+    if ((glox1 != windowxy1.x) || (gloy1 != windowxy1.y) || (glox2 != windowxy2.x) || (gloy2 != windowxy2.y))
     {
-        const int32_t ourxdimen = (windowx2-windowx1+1);
+        const int32_t ourxdimen = (windowxy2.x-windowxy1.x+1);
         float ratio = get_projhack_ratio();
         const int32_t fovcorrect = (int32_t)(ourxdimen*ratio - ourxdimen);
 
         ratio = 1.f/ratio;
 
-        glox1 = (float)windowx1; gloy1 = (float)windowy1;
-        glox2 = (float)windowx2; gloy2 = (float)windowy2;
+        glox1 = (float)windowxy1.x; gloy1 = (float)windowxy1.y;
+        glox2 = (float)windowxy2.x; gloy2 = (float)windowxy2.y;
 
-        bglViewport(windowx1-(fovcorrect/2), yres-(windowy2+1),
-                    ourxdimen+fovcorrect, windowy2-windowy1+1);
+        bglViewport(windowxy1.x-(fovcorrect/2), yres-(windowxy2.y+1),
+                    ourxdimen+fovcorrect, windowxy2.y-windowxy1.y+1);
 
         bglMatrixMode(GL_PROJECTION);
 
@@ -1632,11 +1632,12 @@ static inline pthtyp *our_texcache_fetch(int32_t dameth)
 
 static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method)
 {
+    if (method == DAMETH_BACKFACECULL ||
 #ifdef YAX_ENABLE
-    if (g_nodraw) return;
+        g_nodraw ||
 #endif
-
-    if (method == DAMETH_BACKFACECULL || (uint32_t)globalpicnum >= MAXTILES) return;
+        (uint32_t)globalpicnum >= MAXTILES)
+        return;
 
     const int32_t method_ = method;
 
@@ -1683,9 +1684,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     for (int i=0; i<n; ++i)
     {
         //Up/down rotation
-        vec3f_t const orot = {   dpxy[i].x - ghalfx,
-                                (dpxy[i].y - ghoriz) * gchang - ozgs,
-                                (dpxy[i].y - ghoriz) * gshang + ozgc };
+        vec3f_t const orot = { dpxy[i].x - ghalfx,
+                              (dpxy[i].y - ghoriz) * gchang - ozgs,
+                              (dpxy[i].y - ghoriz) * gshang + ozgc };
 
         // Tilt rotation
         float const r = ghalfx / orot.z;
@@ -1758,10 +1759,10 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     int32_t texunits = GL_TEXTURE0_ARB;
 
     // detail texture
-    pthtyp *detailpth = NULL;
-
     if (r_detailmapping)
     {
+        pthtyp *detailpth = NULL;
+
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL) &&
             (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & ~DAMETH_MASKPROPS)) &&
             detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
@@ -1782,10 +1783,10 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
 
     // glow texture
-    pthtyp *glowpth = NULL;
-
     if (r_glowmapping)
     {
+        pthtyp *glowpth = NULL;
+
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL) &&
             (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, (method & ~DAMETH_MASKPROPS) | DAMETH_MASK)) &&
             glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
@@ -1868,26 +1869,23 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         float const r = 1.f / (opxy[0].x*px[0] + opxy[0].y*px[1] + opxy[0].z*px[2]);
 
-        float ngdx = (opxy[0].x*dd[0] + opxy[0].y*dd[1] + opxy[0].z*dd[2])*r,
-              ngux = (opxy[0].x*uu[0] + opxy[0].y*uu[1] + opxy[0].z*uu[2])*r,
-              ngvx = (opxy[0].x*vv[0] + opxy[0].y*vv[1] + opxy[0].z*vv[2])*r;
+        vec3f_t ngx = { (opxy[0].x * dd[0] + opxy[0].y * dd[1] + opxy[0].z * dd[2]) * r,
+                        ((opxy[0].x * uu[0] + opxy[0].y * uu[1] + opxy[0].z * uu[2]) * r) * hacksc.x,
+                        ((opxy[0].x * vv[0] + opxy[0].y * vv[1] + opxy[0].z * vv[2]) * r) * hacksc.y };
 
-        float ngdy = (opxy[1].x*dd[0] + opxy[1].y*dd[1] + opxy[1].z*dd[2])*r,
-              nguy = (opxy[1].x*uu[0] + opxy[1].y*uu[1] + opxy[1].z*uu[2])*r,
-              ngvy = (opxy[1].x*vv[0] + opxy[1].y*vv[1] + opxy[1].z*vv[2])*r;
+        vec3f_t ngy = { (opxy[1].x * dd[0] + opxy[1].y * dd[1] + opxy[1].z * dd[2]) * r,
+                        ((opxy[1].x * uu[0] + opxy[1].y * uu[1] + opxy[1].z * uu[2]) * r) * hacksc.x,
+                        ((opxy[1].x * vv[0] + opxy[1].y * vv[1] + opxy[1].z * vv[2]) * r) * hacksc.y };
 
-        float ngdo = dd[0] - opxy[2].x * ngdx - opxy[2].y * ngdy,
-              nguo = uu[0] - opxy[2].x * ngux - opxy[2].y * nguy,
-              ngvo = vv[0] - opxy[2].x * ngvx - opxy[2].y * ngvy;
-
-        ngux *= hacksc.x; nguy *= hacksc.x; nguo *= hacksc.x;
-        ngvx *= hacksc.y; ngvy *= hacksc.y; ngvo *= hacksc.y;
+        vec3f_t ngo = { dd[0] - opxy[2].x * ngx.d - opxy[2].y * ngy.d,
+                        (uu[0] - opxy[2].x * ngx.u - opxy[2].y * ngy.u) * hacksc.x,
+                        (vv[0] - opxy[2].x * ngx.v - opxy[2].y * ngy.v) * hacksc.y };
 
         float const uoffs = ((float)(tsiz2.x - tsiz.x) * 0.5f);
 
-        ngux -= ngdx * uoffs;
-        nguy -= ngdy * uoffs;
-        nguo -= ngdo * uoffs;
+        ngx.u -= ngx.d * uoffs;
+        ngy.u -= ngy.d * uoffs;
+        ngo.u -= ngo.d * uoffs;
 
         float du0, du1;
 
@@ -1895,23 +1893,21 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         for (int i=0; i<npoints; ++i)
         {
             vec2f_t const o = { px[i], py[i] };
-            float const f = (o.x*ngux + o.y*nguy + nguo) / (o.x*ngdx + o.y*ngdy + ngdo);
+            float const f = (o.x*ngx.u + o.y*ngy.u + ngo.u) / (o.x*ngx.d + o.y*ngy.d + ngo.d);
             if (!i) { du0 = du1 = f; continue; }
             if (f < du0) du0 = f;
             else if (f > du1) du1 = f;
         }
 
         float const rf = 1.0f / tsiz.x;
+        int const ix1 = (int)floorf(du1 * rf);
 
-        int32_t ix0 = (int)floorf(du0 * rf);
-        int32_t const ix1 = (int)floorf(du1 * rf);
-
-        for (; ix0<=ix1; ++ix0)
+        for (int ix0 = (int)floorf(du0 * rf); ix0 <= ix1; ++ix0)
         {
             du0 = (float)(ix0 * tsiz.x);        // + uoffs;
             du1 = (float)((ix0 + 1) * tsiz.x);  // + uoffs;
 
-            float duj = (px[0]*ngux + py[0]*nguy + nguo) / (px[0]*ngdx + py[0]*ngdy + ngdo);
+            float duj = (px[0]*ngx.u + py[0]*ngy.u + ngo.u) / (px[0]*ngx.d + py[0]*ngy.d + ngo.d);
             int i = 0, nn = 0;
 
             do
@@ -1923,7 +1919,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
                 float const dui = duj;
 
-                duj = (px[j]*ngux + py[j]*nguy + nguo) / (px[j]*ngdx + py[j]*ngdy + ngdo);
+                duj = (px[j]*ngx.u + py[j]*ngy.u + ngo.u) / (px[j]*ngx.d + py[j]*ngy.d + ngo.d);
 
                 if ((du0 <= dui) && (dui <= du1))
                 {
@@ -1932,22 +1928,22 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
                     nn++;
                 }
 
-                //ox*(ngux-ngdx*du1) + oy*(nguy-ngdy*du1) + (nguo-ngdo*du1) = 0
+                //ox*(ngx.u-ngx.d*du1) + oy*(ngy.u-ngdy*du1) + (ngo.u-ngo.d*du1) = 0
                 //(px[j]-px[i])*f + px[i] = ox
                 //(py[j]-py[i])*f + py[i] = oy
 
                 ///Solve for f
-                //((px[j]-px[i])*f + px[i])*(ngux-ngdx*du1) +
-                //((py[j]-py[i])*f + py[i])*(nguy-ngdy*du1) + (nguo-ngdo*du1) = 0
+                //((px[j]-px[i])*f + px[i])*(ngx.u-ngx.d*du1) +
+                //((py[j]-py[i])*f + py[i])*(ngy.u-ngdy*du1) + (ngo.u-ngo.d*du1) = 0
 
 #define DRAWPOLY_MATH_BULLSHIT(XXX)                                                                                \
 do                                                                                                                 \
 {                                                                                                                  \
-    float const f = -(px[i] * (ngux - ngdx * XXX) + py[i] * (nguy - ngdy * XXX) + (nguo - ngdo * XXX)) /           \
-        ((px[j] - px[i]) * (ngux - ngdx * XXX) + (py[j] - py[i]) * (nguy - ngdy * XXX));                           \
+    float const f = -(px[i] * (ngx.u - ngx.d * XXX) + py[i] * (ngy.u - ngy.d * XXX) + (ngo.u - ngo.d * XXX)) /     \
+        ((px[j] - px[i]) * (ngx.u - ngx.d * XXX) + (py[j] - py[i]) * (ngy.u - ngy.d * XXX));                       \
     uu[nn] = (px[j] - px[i]) * f + px[i];                                                                          \
     vv[nn] = (py[j] - py[i]) * f + py[i];                                                                          \
-    nn++;                                                                                                          \
+    ++nn;                                                                                                          \
 } while (0)
 
                 if (duj <= dui)
@@ -1969,30 +1965,28 @@ do                                                                              
 
             if (nn < 3) continue;
 
-            vec2f_t const invtsiz2 ={ 1.f / tsiz2.x, 1.f / tsiz2.y };
+            vec2f_t const invtsiz2 = { 1.f / tsiz2.x, 1.f / tsiz2.y };
 
             bglBegin(GL_TRIANGLE_FAN);
 
-            for (i=0; i<nn; i++)
+            for (i=0; i<nn; ++i)
             {
                 vec2f_t const o = { uu[i], vv[i] };
-
-                float const dp = o.x*ngdx + o.y*ngdy + ngdo,
-                            up = o.x*ngux + o.y*nguy + nguo,
-                            vp = o.x*ngvx + o.y*ngvy + ngvo;
-
-                float const r = 1.f/dp;
+                vec3f_t const p = { o.x * ngx.d + o.y * ngy.d + ngo.d,
+                                    o.x * ngx.u + o.y * ngy.u + ngo.u,
+                                    o.x * ngx.v + o.y * ngy.v + ngo.v };
+                float const r = 1.f/p.d;
 
 #ifdef USE_GLEXT
                 if (texunits > GL_TEXTURE0_ARB)
                 {
                     j = GL_TEXTURE0_ARB;
                     while (j <= texunits)
-                        bglMultiTexCoord2fARB(j++, (up * r - du0 + uoffs) * invtsiz2.x, vp * r * invtsiz2.y);
+                        bglMultiTexCoord2fARB(j++, (p.u * r - du0 + uoffs) * invtsiz2.x, p.v * r * invtsiz2.y);
                 }
                 else
 #endif
-                    bglTexCoord2f((up * r - du0 + uoffs) * invtsiz2.x, vp * r * invtsiz2.y);
+                    bglTexCoord2f((p.u * r - du0 + uoffs) * invtsiz2.x, p.v * r * invtsiz2.y);
 
                 bglVertex3f((o.x - ghalfx) * r * grhalfxdown10x,
                             (ghoriz - o.y) * r * grhalfxdown10,
@@ -2003,11 +1997,11 @@ do                                                                              
     }
     else
     {
-        vec2f_t const scale ={ 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
+        vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
 
         bglBegin(GL_TRIANGLE_FAN);
 
-        for (int i = 0; i < npoints; i++)
+        for (int i = 0; i < npoints; ++i)
         {
             float const r = 1.f / dd[i];
 
@@ -2048,16 +2042,16 @@ do                                                                              
     bglLoadIdentity();
     bglMatrixMode(GL_MODELVIEW);
 
-    if (getrendermode() == REND_POLYMOST)
-    {
-        int const clamp_mode = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
+    if (getrendermode() != REND_POLYMOST)
+        return;
 
-        if (drawpoly_srepeat)
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
+    int const clamp_mode = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
 
-        if (drawpoly_trepeat)
-            bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
-    }
+    if (drawpoly_srepeat)
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
+
+    if (drawpoly_trepeat)
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
 
     if (fullbright_pass == 1)
     {
@@ -2085,7 +2079,7 @@ do                                                                              
 
 static inline void vsp_finalize_init(int32_t const vcnt)
 {
-    for (int i=0; i<vcnt; i++)
+    for (int i=0; i<vcnt; ++i)
     {
         vsp[i].cy[1] = vsp[i+1].cy[0]; vsp[i].ctag = i;
         vsp[i].fy[1] = vsp[i+1].fy[0]; vsp[i].ftag = i;
@@ -2141,7 +2135,7 @@ static int32_t domostpolymethod = DAMETH_NOMASK;
 
 static void polymost_domost(float x0, float y0, float x1, float y1)
 {
-    int32_t const dir = (x0 < x1);
+    int const dir = (x0 < x1);
 
     if (dir) //clip dmost (floor)
     {
@@ -2215,8 +2209,8 @@ static void polymost_domost(float x0, float y0, float x1, float y1)
         //Test if right edge requires split
         if ((dm1.x > n0.x) && (dm1.x < n1.x))
         {
-            const float t = (dm1.x-n0.x)*cv[dir] - (dm1.y-cy[dir])*dx;
-            if (((!dir) && (t < 0)) || ((dir) && (t > 0)))
+            float const t = (dm1.x-n0.x)*cv[dir] - (dm1.y-cy[dir])*dx;
+            if (((!dir) && (t < 0.f)) || ((dir) && (t > 0.f)))
                 { spx[scnt] = dm1.x; spt[scnt] = -1; scnt++; }
         }
 
@@ -3864,7 +3858,7 @@ void polymost_drawrooms()
     if (getrendermode() == REND_CLASSIC) return;
 
     begindrawing();
-    frameoffset = frameplace + windowy1*bytesperline + windowx1;
+    frameoffset = frameplace + windowxy1.y*bytesperline + windowxy1.x;
 
     resizeglcheck();
 #ifdef YAX_ENABLE
@@ -3889,14 +3883,14 @@ void polymost_drawrooms()
         if (redblueclearcnt < numpages) { redblueclearcnt++; bglColorMask(1,1,1,1); bglClear(GL_COLOR_BUFFER_BIT); }
         if (grbfcnt&1)
         {
-            bglViewport(windowx1-16,yres-(windowy2+1),windowx2-(windowx1-16)+1,windowy2-windowy1+1);
+            bglViewport(windowxy1.x-16,yres-(windowxy2.y+1),windowxy2.x-(windowxy1.x-16)+1,windowxy2.y-windowxy1.y+1);
             bglColorMask(1,0,0,1);
             globalposx += singlobalang>>10;
             globalposy -= cosglobalang>>10;
         }
         else
         {
-            bglViewport(windowx1,yres-(windowy2+1),windowx2+16-windowx1+1,windowy2-windowy1+1);
+            bglViewport(windowxy1.x,yres-(windowxy2.y+1),windowxy2.x+16-windowxy1.x+1,windowxy2.y-windowxy1.y+1);
             bglColorMask(0,1,1,1);
             globalposx -= singlobalang>>10;
             globalposy += cosglobalang>>10;
@@ -3943,9 +3937,9 @@ void polymost_drawrooms()
 
     //Generate viewport trapezoid (for handling screen up/down)
     vec3f_t p[4] = {  { 0-1,                                  0-1,                                  0 },
-                      { (float)(windowx2 + 1 - windowx1 + 2), 0-1,                                  0 },
-                      { (float)(windowx2 + 1 - windowx1 + 2), (float)(windowy2 + 1 - windowy1 + 2), 0 },
-                      { 0-1,                                  (float)(windowy2 + 1 - windowy1 + 2), 0 } };
+                      { (float)(windowxy2.x + 1 - windowxy1.x + 2), 0-1,                                  0 },
+                      { (float)(windowxy2.x + 1 - windowxy1.x + 2), (float)(windowxy2.y + 1 - windowxy1.y + 2), 0 },
+                      { 0-1,                                  (float)(windowxy2.y + 1 - windowxy1.y + 2), 0 } };
 
     for (int i=0; i<4; i++)
     {
@@ -5070,7 +5064,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     tspr.cstat = globalorientation = (dastat&RS_TRANS1) | ((dastat&RS_TRANS2)<<4) | ((dastat&RS_YFLIP)<<1);
 
     if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
-        bglViewport(windowx1, yres-(windowy2+1), windowx2-windowx1+1, windowy2-windowy1+1);
+        bglViewport(windowxy1.x, yres-(windowxy2.y+1), windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
     else
     {
         bglViewport(0, 0, xdim, ydim);

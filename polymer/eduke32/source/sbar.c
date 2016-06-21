@@ -34,7 +34,7 @@ int32_t althud_shadows = 0;
 int32_t althud_shadows = 1;
 #endif
 
-int32_t sbarsc(int32_t sc)
+inline int32_t sbarsc(int32_t sc)
 {
     return scale(sc, ud.statusbarscale, 100);
 }
@@ -78,13 +78,13 @@ int32_t sbary16(int32_t y)
 
 static void G_PatchStatusBar(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
-    int32_t scl = sbarsc(65536);
-    int32_t tx = sbarx16((160<<16) - (tilesiz[BOTTOMSTATUSBAR].x<<15)); // centered
-    int32_t ty = sbary(200-tilesiz[BOTTOMSTATUSBAR].y);
+    int32_t const scl = sbarsc(65536);
+    int32_t const tx = sbarx16((160<<16) - (tilesiz[BOTTOMSTATUSBAR].x<<15)); // centered
+    int32_t const ty = sbary(200-tilesiz[BOTTOMSTATUSBAR].y);
 
-    int32_t clx1 = sbarsc(scale(x1, xdim, 320)), cly1 = sbarsc(scale(y1, ydim, 200));
-    int32_t clx2 = sbarsc(scale(x2, xdim, 320)), cly2 = sbarsc(scale(y2, ydim, 200));
-    int32_t clofx = (xdim - sbarsc(xdim)) >> 1, clofy = (ydim - sbarsc(ydim));
+    int32_t const clx1 = sbarsc(scale(x1, xdim, 320)), cly1 = sbarsc(scale(y1, ydim, 200));
+    int32_t const clx2 = sbarsc(scale(x2, xdim, 320)), cly2 = sbarsc(scale(y2, ydim, 200));
+    int32_t const clofx = (xdim - sbarsc(xdim)) >> 1, clofy = (ydim - sbarsc(ydim));
 
     rotatesprite(tx, ty, scl, 0, BOTTOMSTATUSBAR, 4, 0, 10+16+64, clx1+clofx, cly1+clofy, clx2+clofx-1, cly2+clofy-1);
 }
@@ -1082,23 +1082,23 @@ void G_DrawBackground(void)
     if (ud.screen_size > 8)
     {
         // across top
-        for (y=0; y<windowy1; y+=tilesiz[dapicnum].y)
+        for (y=0; y<windowxy1.y; y+=tilesiz[dapicnum].y)
             for (x=0; x<xdim; x+=tilesiz[dapicnum].x)
-                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, y1, xdim-1, windowy1-1);
+                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, y1, xdim-1, windowxy1.y-1);
 
         // sides
-        const int32_t rx = windowx2-windowx2%tilesiz[dapicnum].x;
-        for (y=windowy1-windowy1%tilesiz[dapicnum].y; y<windowy2; y+=tilesiz[dapicnum].y)
-            for (x=0; x<windowx1 || x+rx<xdim; x+=tilesiz[dapicnum].x)
+        const int32_t rx = windowxy2.x-windowxy2.x%tilesiz[dapicnum].x;
+        for (y=windowxy1.y-windowxy1.y%tilesiz[dapicnum].y; y<windowxy2.y; y+=tilesiz[dapicnum].y)
+            for (x=0; x<windowxy1.x || x+rx<xdim; x+=tilesiz[dapicnum].x)
             {
-                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, windowy1, windowx1-1, windowy2-1);
-                rotatesprite((x+rx)<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, windowx2, windowy1, xdim-1, windowy2-1);
+                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, windowxy1.y, windowxy1.x-1, windowxy2.y-1);
+                rotatesprite((x+rx)<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, windowxy2.x, windowxy1.y, xdim-1, windowxy2.y-1);
             }
 
         // along bottom
-        for (y=windowy2-(windowy2%tilesiz[dapicnum].y); y<y2; y+=tilesiz[dapicnum].y)
+        for (y=windowxy2.y-(windowxy2.y%tilesiz[dapicnum].y); y<y2; y+=tilesiz[dapicnum].y)
             for (x=0; x<xdim; x+=tilesiz[dapicnum].x)
-                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, windowy2, xdim-1, y2-1);
+                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, windowxy2.y, xdim-1, y2-1);
     }
 
     // draw in the bits to the left and right of the non-fullsize status bar
@@ -1124,10 +1124,10 @@ void G_DrawBackground(void)
             if (ud.multimode > 4) y += 8;
         }
 
-        x1 = max(windowx1-4, 0);
-        y1 = max(windowy1-4, y);
-        x2 = min(windowx2+4, xdim-1);
-        y2 = min(windowy2+4, scale(ydim, 200-sbarsc(tilesiz[BOTTOMSTATUSBAR].y), 200)-1);
+        x1 = max(windowxy1.x-4, 0);
+        y1 = max(windowxy1.y-4, y);
+        x2 = min(windowxy2.x+4, xdim-1);
+        y2 = min(windowxy2.y+4, scale(ydim, 200-sbarsc(tilesiz[BOTTOMSTATUSBAR].y), 200)-1);
 
         for (y=y1+4; y<y2-4; y+=64)
         {

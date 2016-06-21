@@ -504,7 +504,7 @@ int32_t clipmapinfo_load(void)
 }
 
 
-int32_t clipshape_idx_for_sprite(spritetype *curspr, int32_t curidx)
+int32_t clipshape_idx_for_sprite(uspritetype const * const curspr, int32_t curidx)
 {
     if (curidx < 0)  // per-sprite init
         curidx = pictoidx[curspr->picnum];
@@ -517,7 +517,7 @@ int32_t clipshape_idx_for_sprite(spritetype *curspr, int32_t curidx)
     return curidx;
 }
 #else
-int32_t clipshape_idx_for_sprite(spritetype *curspr, int32_t curidx)
+int32_t clipshape_idx_for_sprite(uspritetype const * const curspr, int32_t curidx)
 {
     UNREFERENCED_PARAMETER(curspr);
     UNREFERENCED_PARAMETER(curidx);
@@ -593,7 +593,7 @@ int32_t clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t 
 
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
-int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
+int32_t clipsprite_try(uspritetype const * const spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
 {
     // try and see whether this sprite's picnum has sector-like clipping data
     int32_t i = pictoidx[spr->picnum];
@@ -626,7 +626,7 @@ int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_
             return 1;
 
         if (clipspritenum < MAXCLIPNUM)
-            clipspritelist[clipspritenum++] = spr-sprite;
+            clipspritelist[clipspritenum++] = spr-(uspritetype *)sprite;
         //initprintf("%d: clip sprite[%d]\n",clipspritenum,j);
         return 1;
     }
@@ -635,7 +635,7 @@ int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_
 }
 
 // return: -1 if curspr has x-flip xor y-flip (in the horizontal map plane!), 1 else
-int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t *clipsectcnt, const vec3_t *vect)
+int32_t clipsprite_initindex(int32_t curidx, uspritetype const * const curspr, int32_t *clipsectcnt, const vec3_t *vect)
 {
     int32_t k, daz = curspr->z;
     int32_t scalex, scaley, scalez, flipx, flipy;
@@ -868,7 +868,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
     int32_t dax, day;
     int32_t retval=0;
 
-    spritetype *curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
+    uspritetype const * curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
     int32_t curidx=-1, clipsectcnt, clipspritecnt;
 
     const int32_t dawalclipmask = (cliptype&65535);        //CLIPMASK0 = 0x00010001
@@ -917,7 +917,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 mapinfo_set(&origmapinfo, &clipmapinfo);
             }
 
-            curspr = &sprite[clipspritelist[clipspritecnt]];
+            curspr = (uspritetype *)&sprite[clipspritelist[clipspritecnt]];
             curidx = clipshape_idx_for_sprite(curspr, curidx);
 
             if (curidx < 0)
@@ -1029,7 +1029,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 if (!curspr)
                     objtype = (int16_t) j+32768;
                 else
-                    objtype = (int16_t) (curspr-sprite)+49152;
+                    objtype = (int16_t) (curspr-(uspritetype *)sprite)+49152;
 
                 //Add 2 boxes at endpoints
                 bsz = walldist; if (gx < 0) bsz = -bsz;
@@ -1062,7 +1062,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 #endif
         for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
         {
-            const spritetype *const spr = &sprite[j];
+            const uspritetype *const spr = (uspritetype *)&sprite[j];
             const int32_t cstat = spr->cstat;
 
             if ((cstat&dasprclipmask) == 0)

@@ -789,22 +789,22 @@ static void G_PrintFPS(void)
         {
             int32_t chars = Bsprintf(tempbuf, "%d ms (%3u fps)", howlong, LastCount);
 
-            printext256(windowx2-(chars<<(3-x))+1, windowy1+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-            printext256(windowx2-(chars<<(3-x)), windowy1+1+FPS_YOFFSET,
+            printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+2+FPS_YOFFSET, 0, -1, tempbuf, x);
+            printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+1+FPS_YOFFSET,
                 (LastCount < LOW_FPS) ? COLOR_RED : COLOR_WHITE, -1, tempbuf, x);
 
             if (ud.tickrate > 1)
             {
                 chars = Bsprintf(tempbuf, "max fps: %3u", MaxFrames);
 
-                printext256(windowx2-(chars<<(3-x))+1, windowy1+10+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-                printext256(windowx2-(chars<<(3-x)), windowy1+10+FPS_YOFFSET,
+                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+10+2+FPS_YOFFSET, 0, -1, tempbuf, x);
+                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+10+FPS_YOFFSET,
                     (MaxFrames < LOW_FPS) ? COLOR_RED : COLOR_WHITE, -1, tempbuf, x);
 
                 chars = Bsprintf(tempbuf, "min fps: %3u", MinFrames);
 
-                printext256(windowx2-(chars<<(3-x))+1, windowy1+20+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-                printext256(windowx2-(chars<<(3-x)), windowy1+20+FPS_YOFFSET,
+                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+20+2+FPS_YOFFSET, 0, -1, tempbuf, x);
+                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+20+FPS_YOFFSET,
                     (MinFrames < LOW_FPS) ? COLOR_RED : COLOR_WHITE, -1, tempbuf, x);
             }
 
@@ -814,8 +814,8 @@ static void G_PrintFPS(void)
                 chars = Bsprintf(tempbuf, "%d +- %d ms", (g_netClientPeer->lastRoundTripTime + g_netClientPeer->roundTripTime)/2,
                     (g_netClientPeer->lastRoundTripTimeVariance + g_netClientPeer->roundTripTimeVariance)/2);
 
-                printext256(windowx2-(chars<<(3-x))+1, windowy1+30+2+FPS_YOFFSET, 0, -1, tempbuf, x);
-                printext256(windowx2-(chars<<(3-x)), windowy1+30+1+FPS_YOFFSET, g_netClientPeer->lastRoundTripTime > 200 ? COLOR_RED : COLOR_WHITE, -1, tempbuf, x);
+                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+30+2+FPS_YOFFSET, 0, -1, tempbuf, x);
+                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+30+1+FPS_YOFFSET, g_netClientPeer->lastRoundTripTime > 200 ? COLOR_RED : COLOR_WHITE, -1, tempbuf, x);
             }
         }
 

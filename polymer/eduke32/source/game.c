@@ -1062,18 +1062,18 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             {
                 begindrawing();
                 {
-                    const int32_t height = windowy2-windowy1+1;
-                    const int32_t width = windowx2-windowx1+1;
+                    const int32_t height = windowxy2.y-windowxy1.y+1;
+                    const int32_t width = windowxy2.x-windowxy1.x+1;
 
-                    uint8_t *f = (uint8_t *)(frameplace + ylookup[windowy1]);
+                    uint8_t *f = (uint8_t *)(frameplace + ylookup[windowxy1.y]);
                     int32_t x, y;
 
                     for (y=0; y < (height>>1); y++)
-                        swapbufreverse(f + y*bytesperline + windowx2,
-                                       f + (height-1-y)*bytesperline + windowx1,
+                        swapbufreverse(f + y*bytesperline + windowxy2.x,
+                                       f + (height-1-y)*bytesperline + windowxy1.x,
                                        width);
 
-                    f += (height>>1)*bytesperline + windowx1;
+                    f += (height>>1)*bytesperline + windowxy1.x;
 
                     if (height&1)
                         for (x=0; x<(width>>1); x++)
