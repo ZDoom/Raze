@@ -112,7 +112,7 @@ int32_t G_CheckActivatorMotion(int32_t lotag)
 
             for (j = g_animateCount-1; j >= 0; j--)
                 if (s->sectnum == animatesect[j])
-                    return(1);
+                    return 1;
 
             j = headspritestat[STAT_EFFECTOR];
             while (j >= 0)
@@ -123,14 +123,14 @@ int32_t G_CheckActivatorMotion(int32_t lotag)
                     case SE_11_SWINGING_DOOR:
                     case SE_30_TWO_WAY_TRAIN:
                         if (actor[j].t_data[4])
-                            return(1);
+                            return 1;
                         break;
                     case SE_20_STRETCH_BRIDGE:
                     case SE_31_FLOOR_RISE_FALL:
                     case SE_32_CEILING_RISE_FALL:
                     case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
                         if (actor[j].t_data[0])
-                            return(1);
+                            return 1;
                         break;
                     }
 
@@ -139,7 +139,7 @@ int32_t G_CheckActivatorMotion(int32_t lotag)
         }
         i = nextspritestat[i];
     }
-    return(0);
+    return 0;
 }
 
 int32_t CheckDoorTile(int32_t dapic)

@@ -163,7 +163,7 @@ int32_t CONTROL_KeyboardFunctionPressed(int32_t which)
     if (CONTROL_KeyMapping[which].key2 != KEYUNDEFINED && !KeyBindings[CONTROL_KeyMapping[which].key2].cmdstr)
         key2 = KB_KeyDown[ CONTROL_KeyMapping[which].key2 ] ? TRUE : FALSE;
 
-    return (key1 | key2);
+    return key1 | key2;
 }
 
 void CONTROL_ClearKeyboardFunction(int32_t which)

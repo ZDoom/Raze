@@ -293,7 +293,7 @@ static int32_t screencapture_tga(const char *filename, char inverseit)
     OSD_Printf("Saved screenshot to %s\n", fn);
     Bfree(fn);
     capturecount++;
-    return(0);
+    return 0;
 }
 # endif
 

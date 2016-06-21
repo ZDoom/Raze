@@ -256,7 +256,7 @@ extern uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[409
     {
         // Ken did this
         d = ((a<0)<<3) + ((b<0)<<2) + ((c<0)<<1) + (d<0);
-        return(((d<<4)^0xf0)|d);
+        return (((d<<4)^0xf0)|d);
     }
 
     inline int32_t getkensmessagecrc(int32_t b)
@@ -352,7 +352,7 @@ FORCE_INLINE int32_t bad_tspr(const uspritetype *tspr)
 //
 FORCE_INLINE int32_t getpalookup(int32_t davis, int32_t dashade)
 {
-    return (min(max(dashade + (davis >> 8), 0), numshades - 1));
+    return min(max(dashade + (davis >> 8), 0), numshades - 1);
 }
 
 FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(davis, globalshade) << 8; }

@@ -1338,7 +1338,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                             bad2--; if (bad2 == 0) break;
                         } while ((klabs((vect->x)-spr->x) < t) && (klabs((vect->y)-spr->y) < t));
                         bad = -1;
-                        k--; if (k <= 0) return(bad);
+                        k--; if (k <= 0) return bad;
                         updatesector(vect->x, vect->y, sectnum);
                     }
                 }
@@ -1399,7 +1399,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                             bad2--; if (bad2 == 0) break;
                         } while (clipinsidebox((vec2_t *)vect, i, walldist-4) != 0);
                         bad = -1;
-                        k--; if (k <= 0) return(bad);
+                        k--; if (k <= 0) return bad;
                         updatesector(vect->x, vect->y, sectnum);
                         if (*sectnum < 0) return -1;
                     }
@@ -1416,5 +1416,5 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
         dir = -dir;
     } while (bad != 0);
 
-    return(bad);
+    return bad;
 }

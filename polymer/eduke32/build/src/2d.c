@@ -114,7 +114,7 @@ char getpixel(int32_t x, int32_t y)
     begindrawing(); //{{{
     r = readpixel((void *) (ylookup[y]+x+frameplace));
     enddrawing();   //}}}
-    return(r);
+    return r;
 }
 
 

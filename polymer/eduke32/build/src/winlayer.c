@@ -1818,7 +1818,7 @@ static HRESULT WINAPI getvalidmodes_enum(DDSURFACEDESC *ddsd, VOID *udata)
         ADDMODE(ddsd->dwWidth, ddsd->dwHeight, ddsd->ddpfPixelFormat.dwRGBBitCount, 1,-1);
     }
 
-    return(DDENUMRET_OK);
+    return DDENUMRET_OK;
 }
 
 static int sortmodes(const void *a_, const void *b_)

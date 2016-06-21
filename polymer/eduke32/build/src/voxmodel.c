@@ -135,7 +135,7 @@ static int32_t isrectfree(int32_t x0, int32_t y0, int32_t dx, int32_t dy)
     int32_t i, j, x;
     i = y0*gvox->mytexx + x0;
     for (dy=0; dy; dy--, i+=gvox->mytexx)
-        for (x=0; x<dx; x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return(0); }
+        for (x=0; x<dx; x++) { j = i+x; if (zbit[j>>5]&(1<<SHIFTMOD32(j))) return 0; }
 #else
     int32_t i = y0*mytexo5 + (x0>>5);
     dx += x0-1;
@@ -167,7 +167,7 @@ static int32_t isrectfree(int32_t x0, int32_t y0, int32_t dx, int32_t dy)
         }
     }
 #endif
-    return(1);
+    return 1;
 }
 
 static void setrect(int32_t x0, int32_t y0, int32_t dx, int32_t dy)
@@ -581,7 +581,7 @@ skindidntfit:
 
     Bfree(shp); Bfree(zbit); Bfree(bx0);
 
-    return(gvox);
+    return gvox;
 }
 
 static void alloc_vcolhashead(void)
@@ -785,7 +785,7 @@ static int32_t loadkv6(const char *filnam)
     if (B_LITTLE32(i) != 0x6c78764b)
     {
         kclose(fil);
-        return(-1);
+        return -1;
     } //Kvxl
 
     kread(fil, &voxsiz, sizeof(vec3_t));

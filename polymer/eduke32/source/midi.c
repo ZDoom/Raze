@@ -136,7 +136,7 @@ static int32_t _MIDI_ReadNumber
         value += *FromPtr++;
     }
 
-    return(value);
+    return value;
 }
 
 
@@ -168,7 +168,7 @@ static int32_t _MIDI_ReadDelta
         while (c & 0x80);
     }
 
-    return(value);
+    return value;
 }
 
 
@@ -707,23 +707,23 @@ static int32_t _MIDI_SendControlChange
                  c1, c2);
         if (status == MIDI_DONT_PLAY)
         {
-            return(MIDI_Ok);
+            return MIDI_Ok;
         }
     }
 
     if (_MIDI_Funcs == NULL)
     {
-        return(MIDI_Error);
+        return MIDI_Error;
     }
 
     if (_MIDI_Funcs->ControlChange == NULL)
     {
-        return(MIDI_Error);
+        return MIDI_Error;
     }
 
     _MIDI_Funcs->ControlChange(channel, c1, c2);
 
-    return(MIDI_Ok);
+    return MIDI_Ok;
 }
 
 
@@ -769,7 +769,7 @@ int32_t MIDI_AllNotesOff
         _MIDI_SendControlChange(channel, 0x78, 0);
     }
 
-    return(MIDI_Ok);
+    return MIDI_Ok;
 }
 
 
@@ -933,7 +933,7 @@ int32_t MIDI_Reset
 
     Reset = TRUE;
 
-    return(MIDI_Ok);
+    return MIDI_Ok;
 }
 
 
@@ -953,7 +953,7 @@ int32_t MIDI_SetVolume
 
     if (_MIDI_Funcs == NULL)
     {
-        return(MIDI_NullMidiModule);
+        return MIDI_NullMidiModule;
     }
 
     volume = min(MIDI_MaxVolume, volume);
@@ -978,7 +978,7 @@ int32_t MIDI_SetVolume
         _MIDI_SendChannelVolumes();
     }
 
-    return(MIDI_Ok);
+    return MIDI_Ok;
 }
 
 
@@ -998,7 +998,7 @@ int32_t MIDI_GetVolume
 
     if (_MIDI_Funcs == NULL)
     {
-        return(MIDI_NullMidiModule);
+        return MIDI_NullMidiModule;
     }
 
     if (_MIDI_Funcs->GetVolume)
@@ -1010,7 +1010,7 @@ int32_t MIDI_GetVolume
         volume = _MIDI_TotalVolume;
     }
 
-    return(volume);
+    return volume;
 }
 
 
@@ -1118,7 +1118,7 @@ int32_t MIDI_SongPlaying
 )
 
 {
-    return(_MIDI_SongActive);
+    return _MIDI_SongActive;
 }
 
 
@@ -1209,12 +1209,12 @@ int32_t MIDI_PlaySong
 
     if (_MIDI_Funcs == NULL)
     {
-        return(MIDI_NullMidiModule);
+        return MIDI_NullMidiModule;
     }
 
     if (B_UNBUF32(song) != MIDI_HEADER_SIGNATURE)
     {
-        return(MIDI_InvalidMidiFile);
+        return MIDI_InvalidMidiFile;
     }
 
     song += 4;
@@ -1232,14 +1232,14 @@ int32_t MIDI_PlaySong
 
     if (format > MAX_FORMAT)
     {
-        return(MIDI_UnknownMidiFormat);
+        return MIDI_UnknownMidiFormat;
     }
 
     ptr = song + headersize;
 
     if (_MIDI_NumTracks == 0)
     {
-        return(MIDI_NoTracks);
+        return MIDI_NoTracks;
     }
 
     _MIDI_TrackMemSize = _MIDI_NumTracks  * sizeof(track);
@@ -1255,7 +1255,7 @@ int32_t MIDI_PlaySong
 
             _MIDI_TrackMemSize = 0;
 
-            return(MIDI_InvalidTrack);
+            return MIDI_InvalidTrack;
         }
 
         tracklength = _MIDI_ReadNumber(ptr + 4, 4);
@@ -1295,7 +1295,7 @@ int32_t MIDI_PlaySong
     while (_MPU_BuffersWaiting < 4) _MIDI_ServiceRoutine();
     MPU_BeginPlayback();
 
-    return(MIDI_Ok);
+    return MIDI_Ok;
 }
 
 
@@ -1337,7 +1337,7 @@ int32_t MIDI_GetTempo
 )
 
 {
-    return(MIDI_Tempo);
+    return MIDI_Tempo;
 }
 
 
@@ -1487,7 +1487,7 @@ static int32_t _MIDI_ProcessNextTick
 
     _MIDI_AdvanceTick();
 
-    return(TimeSet);
+    return TimeSet;
 }
 
 

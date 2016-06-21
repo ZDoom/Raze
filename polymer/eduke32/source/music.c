@@ -119,7 +119,7 @@ const char *MUSIC_ErrorString
         break;
     }
 
-    return(ErrorString);
+    return ErrorString;
 }
 
 
@@ -148,7 +148,7 @@ int32_t MUSIC_Init
 
     status = MUSIC_InitMidi(SoundCard, &MUSIC_MidiFunctions, Address);
 
-    return(status);
+    return status;
 }
 
 
@@ -172,7 +172,7 @@ int32_t MUSIC_Shutdown
 
     //MPU_Reset();
 
-    return(status);
+    return status;
 }
 
 
@@ -244,9 +244,9 @@ int32_t MUSIC_GetVolume
 {
     if (MUSIC_SoundDevice == -1)
     {
-        return(0);
+        return 0;
     }
-    return(MIDI_GetVolume());
+    return MIDI_GetVolume();
 }
 
 
@@ -279,7 +279,7 @@ int32_t MUSIC_SongPlaying
 )
 
 {
-    return(MIDI_SongPlaying());
+    return MIDI_SongPlaying();
 }
 
 
@@ -330,7 +330,7 @@ int32_t MUSIC_StopSong
     MUSIC_StopFade();
     MIDI_StopSong();
     MUSIC_SetErrorCode(MUSIC_Ok);
-    return(MUSIC_Ok);
+    return MUSIC_Ok;
 }
 
 
@@ -355,11 +355,11 @@ int32_t MUSIC_PlaySong
         if (status != MIDI_Ok)
         {
             MUSIC_SetErrorCode(MUSIC_MidiError);
-            return(MUSIC_Warning);
+            return MUSIC_Warning;
         }
     }
 
-    return(MUSIC_Ok);
+    return MUSIC_Ok;
 }
 
 
@@ -501,7 +501,7 @@ int32_t MUSIC_InitMidi
 
     MIDI_SetMidiFuncs(Funcs);
 
-    return(MIDI_Ok);
+    return MIDI_Ok;
 }
 
 
@@ -521,7 +521,7 @@ int32_t MUSIC_FadeVolume
 {
     UNREFERENCED_PARAMETER(milliseconds);
     MIDI_SetVolume(tovolume);
-    return(MUSIC_Ok);
+    return MUSIC_Ok;
 }
 
 
@@ -537,7 +537,7 @@ int32_t MUSIC_FadeActive
 )
 
 {
-    return(0);
+    return 0;
 }
 
 

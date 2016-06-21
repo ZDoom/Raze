@@ -4052,7 +4052,7 @@ jwzgles_gluProject (GLdouble objx, GLdouble objy, GLdouble objz,
   in[3]=1.0;
   __gluMultMatrixVecd(modelMatrix, in, out);
   __gluMultMatrixVecd(projMatrix, out, in);
-  if (in[3] == 0.0) return(GL_FALSE);
+  if (in[3] == 0.0) return GL_FALSE;
   in[0] /= in[3];
   in[1] /= in[3];
   in[2] /= in[3];
@@ -4068,7 +4068,7 @@ jwzgles_gluProject (GLdouble objx, GLdouble objy, GLdouble objz,
   *winx=in[0];
   *winy=in[1];
   *winz=in[2];
-  return(GL_TRUE);
+  return GL_TRUE;
 }
 
 

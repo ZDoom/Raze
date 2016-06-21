@@ -419,7 +419,7 @@ static int32_t defsparser(scriptfile *script)
             initprintf("Error on line %s:%d.\n", script->filename,scriptfile_getlinum(script,cmdtokptr));
             break;
         case T_EOF:
-            return(0);
+            return 0;
         case T_INCLUDE:
         {
             char *fn;

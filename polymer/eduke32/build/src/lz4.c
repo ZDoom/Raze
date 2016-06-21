@@ -948,7 +948,7 @@ void LZ4_resetStream (LZ4_stream_t* LZ4_stream)
 int LZ4_freeStream (LZ4_stream_t* LZ4_stream)
 {
     FREEMEM(LZ4_stream);
-    return (0);
+    return 0;
 }
 
 

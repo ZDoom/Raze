@@ -919,7 +919,7 @@ CANCEL:
 //    clearfilenames();
     uninitengine();
 
-    return(0);
+    return 0;
 }
 
 static int32_t mhk=0;
@@ -1523,7 +1523,7 @@ char changechar(char dachar, int32_t dadir, char smooshyalign, char boundcheck)
             }
         }
     }
-    return(dachar);
+    return dachar;
 }
 
 
@@ -8719,7 +8719,7 @@ static int32_t adjustmark(int32_t *xplc, int32_t *yplc, int16_t danumwalls)
     *xplc = dax;
     *yplc = day;
 
-    return(0);
+    return 0;
 }
 
 static int32_t checkautoinsert(int32_t dax, int32_t day, int16_t danumwalls)
@@ -8954,7 +8954,7 @@ static int32_t deletesector(int16_t sucksect)
         if (wall[i].nextwall >= startwall)
             wall[i].nextsector--;
 
-    return(0);
+    return 0;
 }
 
 int32_t fixspritesectors(void)
@@ -9045,7 +9045,7 @@ static int32_t movewalls(int32_t start, int32_t offs)
     yax_tweakwalls(start, offs);
 #endif
 
-    return(0);
+    return 0;
 }
 
 int32_t wallength(int16_t i)
@@ -9177,7 +9177,7 @@ static int32_t numloopsofsector(int16_t sectnum)
     endwall = startwall + sector[sectnum].wallnum;
     for (i=startwall; i<endwall; i++)
         if (wall[i].point2 < i) numloops++;
-    return(numloops);
+    return numloops;
 }
 #endif
 
@@ -9628,7 +9628,7 @@ static int32_t getfilenames(const char *path, const char *kind)
     findfileshigh = fnlist.findfiles;
     currentlist = (findfileshigh != NULL);
 
-    return(0);
+    return 0;
 }
 
 static void tweak_sboardfilename(void)
@@ -10122,7 +10122,7 @@ int32_t fillsector_maybetrans(int16_t sectnum, int32_t fillcolor, uint8_t dotran
         }
     }
 
-    return(0);
+    return 0;
 }
 
 static int16_t whitelinescan(int16_t sucksect, int16_t dalinehighlight)

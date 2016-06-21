@@ -725,7 +725,7 @@ const char *ExtGetSectorCaption(int16_t sectnum)
         else
             Bsprintf(tempbuf,"%hu %s", TrackerCast(sector[sectnum].lotag), lo);
     }
-    return(tempbuf);
+    return tempbuf;
 }
 
 const char *ExtGetWallCaption(int16_t wallnum)
@@ -738,13 +738,13 @@ const char *ExtGetWallCaption(int16_t wallnum)
     {
         Bsprintf(tempbuf,"%d", wallength(wallnum));
         wall[wallnum].cstat &= ~(1<<14);
-        return(tempbuf);
+        return tempbuf;
     }
 
     if (!(onnames==2 || onnames==4))
     {
         tempbuf[0] = 0;
-        return(tempbuf);
+        return tempbuf;
     }
 
     // HERE
@@ -777,7 +777,7 @@ const char *ExtGetWallCaption(int16_t wallnum)
         }
     }
 
-    return(tempbuf);
+    return tempbuf;
 } //end
 
 const char *SectorEffectorTagText(int32_t lotag)
@@ -843,7 +843,7 @@ const char *SectorEffectorTagText(int32_t lotag)
             break;
         }
 
-    return (tempbuf);
+    return tempbuf;
 }
 
 const char *MusicAndSFXTagText(int32_t lotag)
@@ -880,7 +880,7 @@ const char *SectorEffectorText(int32_t spritenum)
         else Bstrcpy(tempbuf, lo);
     }
 
-    return (tempbuf);
+    return tempbuf;
 }
 
 const char *ExtGetSpriteCaption(int16_t spritenum)
@@ -9302,7 +9302,7 @@ static int32_t parsegroupfiles(scriptfile *script)
         }
         break;
         case T_EOF:
-            return(0);
+            return 0;
         default:
             break;
         }
@@ -9610,7 +9610,7 @@ int32_t parsetilegroups(scriptfile *script)
             break;
         }
         case T_EOF:
-            return(0);
+            return 0;
         default:
             break;
         }

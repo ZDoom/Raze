@@ -257,7 +257,7 @@ int32_t MPU_Reset
     midiStreamStop(hmido);
     midiStreamClose(hmido);
 
-    return(MPU_Ok);
+    return MPU_Ok;
 }
 
 
@@ -281,9 +281,9 @@ int32_t MPU_Init
 
     if (midiOutGetDevCaps(mididevice, &midicaps, sizeof(MIDIOUTCAPS)) != MMSYSERR_NOERROR) return MPU_Error;
 
-    if (midiStreamOpen(&hmido,(LPUINT)&mididevice,1,(DWORD_PTR)MPU_MIDICallback,0L,CALLBACK_FUNCTION) != MMSYSERR_NOERROR) return(MPU_Error);
+    if (midiStreamOpen(&hmido,(LPUINT)&mididevice,1,(DWORD_PTR)MPU_MIDICallback,0L,CALLBACK_FUNCTION) != MMSYSERR_NOERROR) return MPU_Error;
 
-    return(MPU_Ok);
+    return MPU_Ok;
 }
 
 

@@ -193,14 +193,14 @@ static int32_t G_GetAngleDelta(int32_t a,int32_t na)
     if (klabs(a-na) < 1024)
     {
 //        OSD_Printf("G_GetAngleDelta() returning %d\n",na-a);
-        return (na-a);
+        return na-a;
     }
 
     if (na > 1024) na -= 2048;
     if (a > 1024) a -= 2048;
 
 //    OSD_Printf("G_GetAngleDelta() returning %d\n",na-a);
-    return (na-a);
+    return na-a;
 }
 
 static inline void __fastcall VM_DoConditional(register int32_t condition)

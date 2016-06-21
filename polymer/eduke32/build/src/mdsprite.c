@@ -261,9 +261,9 @@ int32_t md_loadmodel(const char *fn)
         models = ml; nummodelsalloced += MODELALLOCGROUP;
     }
 
-    vm = mdload(fn); if (!vm) return(-1);
+    vm = mdload(fn); if (!vm) return -1;
     models[nextmodelid++] = vm;
-    return(nextmodelid-1);
+    return nextmodelid-1;
 }
 
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags)
@@ -308,7 +308,7 @@ static int32_t framename2index(mdmodel_t *vm, const char *nam)
     }
     break;
     }
-    return(i);
+    return i;
 }
 
 int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume, int32_t skinnum, float smoothduration, int32_t pal)
@@ -318,9 +318,9 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
 
     if (!mdinited) mdinit();
 
-    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return(-1);
-    if ((uint32_t)tilenume >= (uint32_t)MAXTILES) return(-2);
-    if (!framename) return(-3);
+    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
+    if ((uint32_t)tilenume >= (uint32_t)MAXTILES) return -2;
+    if (!framename) return -3;
 
     tilenume=addtileP(modelid,tilenume,pal);
     m = (md2model_t *)models[modelid];
@@ -332,7 +332,7 @@ int32_t md_defineframe(int32_t modelid, const char *framename, int32_t tilenume,
     }
 
     i = framename2index((mdmodel_t *)m,framename);
-    if (i == m->numframes) return(-3);   // frame name invalid
+    if (i == m->numframes) return -3;   // frame name invalid
 
     tile2model[tilenume].modelid = modelid;
     tile2model[tilenume].framenum = i;
@@ -350,7 +350,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
 
     if (!mdinited) mdinit();
 
-    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return(-1);
+    if ((uint32_t)modelid >= (uint32_t)nextmodelid) return -1;
 
     Bmemset(&ma, 0, sizeof(ma));
     m = (md2model_t *)models[modelid];
@@ -376,7 +376,7 @@ int32_t md_defineanimation(int32_t modelid, const char *framestart, const char *
     map->next = m->animations;
     m->animations = map;
 
-    return(0);
+    return 0;
 }
 
 #if 0
@@ -638,7 +638,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     if (!sk)
     {
         if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
-            return (0);
+            return 0;
 
         if (skzero)
         {
@@ -1000,7 +1000,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             OSD_Printf("Load skin: p%d-e%d \"%s\"... %d ms\n", pal, hicfxmask(pal), fn, etime);
     }
 
-    return(*texidx);
+    return (*texidx);
 }
 
 //Note: even though it says md2model, it works for both md2model&md3model
@@ -1223,7 +1223,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     head.ofseof = B_LITTLE32(head.ofseof);
 #endif
 
-    if ((head.id != IDP2_MAGIC) || (head.vers != 8)) { Bfree(m); return(0); } //"IDP2"
+    if ((head.id != IDP2_MAGIC) || (head.vers != 8)) { Bfree(m); return 0; } //"IDP2"
 
     ournumskins = head.numskins ? head.numskins : 1;
     ournumglcmds = head.numglcmds ? head.numglcmds : 1;
@@ -1241,22 +1241,22 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
 
     klseek(fil,head.ofsframes,SEEK_SET);
     if (kread(fil,(char *)m->frames,m->numframes*m->framebytes) != m->numframes*m->framebytes)
-        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
 
     if (m->numglcmds > 0)
     {
         klseek(fil,head.ofsglcmds,SEEK_SET);
         if (kread(fil,(char *)m->glcmds,m->numglcmds*sizeof(int32_t)) != (int32_t)(m->numglcmds*sizeof(int32_t)))
-            { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+            { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
     }
 
     klseek(fil,head.ofstris,SEEK_SET);
     if (kread(fil,(char *)m->tris,head.numtris*sizeof(md2tri_t)) != (int32_t)(head.numtris*sizeof(md2tri_t)))
-        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
 
     klseek(fil,head.ofsuv,SEEK_SET);
     if (kread(fil,(char *)m->uv,head.numuv*sizeof(md2uv_t)) != (int32_t)(head.numuv*sizeof(md2uv_t)))
-        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+        { Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
 
 #if B_BIG_ENDIAN != 0
     {
@@ -1306,7 +1306,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     {
         klseek(fil,head.ofsskins,SEEK_SET);
         if (kread(fil,m->skinfn,64*m->numskins) != 64*m->numskins)
-            { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return(0); }
+            { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
     }
 
     m->texid = (GLuint *)Xcalloc(ournumskins, sizeof(GLuint) * (HICEFFECTMASK+1));
@@ -1314,7 +1314,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     maxmodelverts = max(maxmodelverts, m->numverts);
     maxmodeltris = max(maxmodeltris, head.numtris);
 
-    //return(m);
+    //return m;
 
     // the MD2 is now loaded internally - let's begin the MD3 conversion process
     //OSD_Printf("Beginning md3 conversion.\n");
@@ -1437,7 +1437,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
     // die MD2 ! DIE !
     Bfree(m->texid); Bfree(m->skinfn); Bfree(m->basepath); Bfree(m->uv); Bfree(m->tris); Bfree(m->glcmds); Bfree(m->frames); Bfree(m);
 
-    return((md2model_t *)m3);
+    return ((md2model_t *)m3);
 }
 //---------------------------------------- MD2 LIBRARY ENDS ----------------------------------------
 
@@ -1501,7 +1501,7 @@ static md3model_t *md3load(int32_t fil)
     m->head.eof = B_LITTLE32(m->head.eof);
 #endif
 
-    if ((m->head.id != IDP3_MAGIC) && (m->head.vers != 15)) { Bfree(m); return(0); } //"IDP3"
+    if ((m->head.id != IDP3_MAGIC) && (m->head.vers != 15)) { Bfree(m); return 0; } //"IDP3"
 
     m->numskins = m->head.numskins; //<- dead code?
     m->numframes = m->head.numframes;
@@ -1623,7 +1623,7 @@ static md3model_t *md3load(int32_t fil)
 
     m->vbos = NULL;
 
-    return(m);
+    return m;
 }
 
 #ifdef POLYMER

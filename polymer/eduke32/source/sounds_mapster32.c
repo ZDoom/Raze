@@ -276,7 +276,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         g_sounds[num].num++;
     }
     else g_sounds[num].lock--;
-    return (voice);
+    return voice;
 }
 
 void S_PlaySound(int32_t num)
@@ -501,7 +501,7 @@ int32_t S_CheckSoundPlaying(int32_t i, int32_t num)
             return 1;
         return 0;
     }
-    return(g_sounds[num].num);
+    return g_sounds[num].num;
 }
 
 int32_t S_SoundsPlaying(int32_t i)

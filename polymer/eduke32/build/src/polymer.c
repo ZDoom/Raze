@@ -769,7 +769,7 @@ int32_t             polymer_init(void)
     {
         OSD_Printf("PR : Your video card driver/combo doesn't support the necessary features!\n");
         OSD_Printf("PR : Disabling Polymer...\n");
-        return (0);
+        return 0;
     }
 
     // clean up existing stuff since it will be initialized again if we're re-entering here
@@ -782,7 +782,7 @@ int32_t             polymer_init(void)
     if (prtess == 0)
     {
         OSD_Printf("PR : Tessellation object initialization failed!\n");
-        return (0);
+        return 0;
     }
 
     polymer_loadboard();
@@ -860,7 +860,7 @@ int32_t             polymer_init(void)
 
     if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete in %d ms.\n", getticks()-t);
 
-    return (1);
+    return 1;
 }
 
 void                polymer_uninit(void)
@@ -1627,23 +1627,23 @@ int16_t             polymer_addlight(_prlight* light)
     int32_t         lighti;
 
     if (lightcount >= PR_MAXLIGHTS || light->priority > pr_maxlightpriority || !pr_lighting)
-        return (-1);
+        return -1;
 
     if ((light->sector == -1) || (light->sector >= numsectors))
-        return (-1);
+        return -1;
 
     lighti = 0;
     while ((lighti < PR_MAXLIGHTS) && (prlights[lighti].flags.active))
         lighti++;
 
     if (lighti == PR_MAXLIGHTS)
-        return (-1);
+        return -1;
 #if 0
     // Spot lights disabled on ATI cards because they cause crashes with
     // Catalyst 12.8 drivers.
     // See: http://forums.duke4.net/topic/5723-hrp-polymer-crash/
     if (pr_ati_fboworkaround && light->radius)
-        return (-1);
+        return -1;
 #endif
     Bmemcpy(&prlights[lighti], light, sizeof(_prlight));
 
@@ -1680,7 +1680,7 @@ int16_t             polymer_addlight(_prlight* light)
 
     lightcount++;
 
-    return (lighti);
+    return lighti;
 }
 
 void                polymer_deletelight(int16_t lighti)
@@ -2575,7 +2575,7 @@ static int32_t      polymer_initsector(int16_t sectnum)
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initialized sector %i.\n", sectnum);
 
-    return (1);
+    return 1;
 }
 
 static int32_t      polymer_updatesector(int16_t sectnum)
@@ -2602,7 +2602,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     if (s == NULL)
     {
         if (pr_verbosity >= 1) OSD_Printf("PR : Can't update uninitialized sector %i.\n", sectnum);
-        return (-1);
+        return -1;
     }
 
     needfloor = wallinvalidate = 0;
@@ -2875,7 +2875,7 @@ finish:
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Updated sector %i.\n", sectnum);
 
-    return (0);
+    return 0;
 }
 
 void PR_CALLBACK    polymer_tesserror(GLenum error)
@@ -2923,7 +2923,7 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
     sec = (usectortype *)&sector[sectnum];
 
     if (s == NULL)
-        return (-1);
+        return -1;
 
     if (s->floor.indices == NULL)
     {
@@ -2968,7 +2968,7 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Tesselated floor of sector %i.\n", sectnum);
 
-    return (1);
+    return 1;
 }
 
 static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
@@ -3091,7 +3091,7 @@ static int32_t      polymer_initwall(int16_t wallnum)
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initialized wall %i.\n", wallnum);
 
-    return (1);
+    return 1;
 }
 
 // TODO: r_npotwallmode. Needs polymost_is_npotmode() handling among others.
@@ -5471,7 +5471,7 @@ static int32_t      polymer_bindmaterial(const _prmaterial *material, int16_t* l
 
     bglActiveTextureARB(GL_TEXTURE0_ARB);
 
-    return (programbits);
+    return programbits;
 }
 
 static void         polymer_unbindmaterial(int32_t programbits)

@@ -50,7 +50,7 @@ static uint16_t dxt_hicosub(uint16_t c)
     g = ((c>> 5)&63);
     r = ((c>>11)-(g>>1))&31;
     b = ((c>> 0)-(g>>1))&31;
-    return((r<<11)+(g<<5)+b);
+    return ((r<<11)+(g<<5)+b);
 }
 
 static uint16_t dedxt_hicoadd(uint16_t c)
@@ -59,7 +59,7 @@ static uint16_t dedxt_hicoadd(uint16_t c)
     g = ((c>> 5)&63);
     r = ((c>>11)+(g>>1))&31;
     b = ((c>> 0)+(g>>1))&31;
-    return((r<<11)+(g<<5)+b);
+    return ((r<<11)+(g<<5)+b);
 }
 #endif
 

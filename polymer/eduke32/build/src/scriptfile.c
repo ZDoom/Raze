@@ -35,9 +35,9 @@ int32_t scriptfile_getstring(scriptfile *sf, char **retst)
     if (*retst == NULL)
     {
         initprintf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
-        return(-2);
+        return -2;
     }
-    return(0);
+    return 0;
 }
 
 int32_t scriptfile_getnumber(scriptfile *sf, int32_t *num)
@@ -172,7 +172,7 @@ int32_t scriptfile_getbraces(scriptfile *sf, char **braceend)
     bracestart = ++sf->textptr; bracecnt = 1;
     while (1)
     {
-        if (sf->textptr >= sf->eof) return(0);
+        if (sf->textptr >= sf->eof) return 0;
         if (sf->textptr[0] == '{') bracecnt++;
         if (sf->textptr[0] == '}') { bracecnt--; if (!bracecnt) break; }
         sf->textptr++;
@@ -188,14 +188,14 @@ int32_t scriptfile_getlinum(const scriptfile *sf, const char *ptr)
     int32_t i, stp;
     intptr_t ind;
 
-    //for(i=0;i<sf->linenum;i++) if (sf->lineoffs[i] >= ind) return(i+1); //brute force algo
+    //for(i=0;i<sf->linenum;i++) if (sf->lineoffs[i] >= ind) return i+1; //brute force algo
 
     ind = ((intptr_t)ptr) - ((intptr_t)sf->textbuf);
 
     for (stp=1; stp+stp<sf->linenum; stp+=stp) { } //stp = highest power of 2 less than sf->linenum
     for (i=0; stp; stp>>=1)
         if ((i+stp < sf->linenum) && (sf->lineoffs[i+stp] < ind)) i += stp;
-    return(i+1); //i = index to highest lineoffs which is less than ind; convert to 1-based line numbers
+    return i+1; //i = index to highest lineoffs which is less than ind; convert to 1-based line numbers
 }
 
 void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)

@@ -2132,9 +2132,9 @@ static int32_t spriteobstructswall(spritetype *s, int32_t w)
 
     // check if the sprite obstructs the wall
     if ((d1 < d2) && (min(x1, x2) <= x) && (x <= max(x1, x2)) && (min(y1, y2) <= y) && (y <= max(y1, y2)))
-        return (1);
+        return 1;
     else
-        return (0);
+        return 0;
 }
 #endif
 //
@@ -2147,14 +2147,14 @@ static inline int32_t bunchfront(int32_t b1, int32_t b2)
     int const x2b2 = xb2[bunchlast[b2]] + 1;
 
     if (x1b1 >= x2b2)
-        return (-1);
+        return -1;
 
     int b2f = bunchfirst[b2];
     int const x1b2 = xb1[b2f];
     int const x2b1 = xb2[bunchlast[b1]] + 1;
 
     if (x1b2 >= x2b1)
-        return (-1);
+        return -1;
 
     if (x1b1 >= x1b2)
     {
@@ -6145,7 +6145,7 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
             while ((z < npoints) && (xb1[z] < 0)) z++;
         }
         while (z < npoints);
-        if (npoints2 <= 2) return(0);
+        if (npoints2 <= 2) return 0;
 
         for (z=1; z<splitcnt; z++)
             for (zz=0; zz<z; zz++)
@@ -6194,7 +6194,7 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
             while ((z < npoints2) && (xb2[z] < 0)) z++;
         }
         while (z < npoints2);
-        if (npoints <= 2) return(0);
+        if (npoints <= 2) return 0;
 
         for (z=1; z<splitcnt; z++)
             for (zz=0; zz<z; zz++)
@@ -6244,7 +6244,7 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
             while ((z < npoints) && (xb1[z] < 0)) z++;
         }
         while (z < npoints);
-        if (npoints2 <= 2) return(0);
+        if (npoints2 <= 2) return 0;
 
         for (z=1; z<splitcnt; z++)
             for (zz=0; zz<z; zz++)
@@ -6293,7 +6293,7 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
             while ((z < npoints2) && (xb2[z] < 0)) z++;
         }
         while (z < npoints2);
-        if (npoints <= 2) return(0);
+        if (npoints <= 2) return 0;
 
         for (z=1; z<splitcnt; z++)
             for (zz=0; zz<z; zz++)
@@ -6307,7 +6307,7 @@ static int32_t clippoly(int32_t npoints, int32_t clipstat)
                     { t = xb1[bunchp2[z]]; xb1[bunchp2[z]] = xb1[bunchp2[zz]]; xb1[bunchp2[zz]] = t; }
             }
     }
-    return(npoints);
+    return npoints;
 }
 
 
@@ -6342,7 +6342,7 @@ static int32_t clippoly4(int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
         z = zz;
     }
     while (z != 0);
-    if (nn < 3) return(0);
+    if (nn < 3) return 0;
 
     n = 0; z = 0;
     do
@@ -6366,7 +6366,7 @@ static int32_t clippoly4(int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
         z = zz;
     }
     while (z != 0);
-    return(n);
+    return n;
 }
 
 
@@ -7370,7 +7370,7 @@ int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
     do_deletespritestat(spritenum);
     do_insertsprite_at_headofstat(spritenum, newstatnum);
 
-    return(0);
+    return 0;
 }
 
 //
@@ -8155,15 +8155,15 @@ _point2d        intersection(_equation eq1, _equation eq2)
     ret.x = ((eq1.b*eq2.c - eq2.b*eq1.c) * det);
     ret.y = ((eq2.a*eq1.c - eq1.a*eq2.c) * det);
 
-    return (ret);
+    return ret;
 }
 
 // check if a point that's on the line is within the segment boundaries
 int32_t             pointonmask(_point2d point, _maskleaf* wall)
 {
     if ((min(wall->p1.x, wall->p2.x) <= point.x) && (point.x <= max(wall->p1.x, wall->p2.x)) && (min(wall->p1.y, wall->p2.y) <= point.y) && (point.y <= max(wall->p1.y, wall->p2.y)))
-        return (1);
-    return (0);
+        return 1;
+    return 0;
 }
 
 // returns 1 if wall2 is hidden by wall1
@@ -8173,21 +8173,21 @@ int32_t             wallobstructswall(_maskleaf* wall1, _maskleaf* wall2)
 
     cross = intersection(wall2->p1eq, wall1->maskeq);
     if (pointonmask(cross, wall1))
-        return (1);
+        return 1;
 
     cross = intersection(wall2->p2eq, wall1->maskeq);
     if (pointonmask(cross, wall1))
-        return (1);
+        return 1;
 
     cross = intersection(wall1->p1eq, wall2->maskeq);
     if (pointonmask(cross, wall2))
-        return (1);
+        return 1;
 
     cross = intersection(wall1->p2eq, wall2->maskeq);
     if (pointonmask(cross, wall2))
-        return (1);
+        return 1;
 
-    return (0);
+    return 0;
 }
 
 // recursive mask drawing function
@@ -9287,15 +9287,15 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
     struct spritetypev6 v6spr;
 
     if ((fil = kopen4load(filename,fromwhere)) == -1)
-        { mapversion = 5L; return(-1); }
+        { mapversion = 5L; return -1; }
 
     kread(fil,&mapversion,4); mapversion = B_LITTLE32(mapversion);
-    if (mapversion != 5L && mapversion != 6L) { kclose(fil); return(-2); }
+    if (mapversion != 5L && mapversion != 6L) { kclose(fil); return -2; }
 
     prepare_loadboard(fil, dapos, daang, dacursectnum);
 
     kread(fil,&numsectors,2); numsectors = B_LITTLE16(numsectors);
-    if (numsectors > MAXSECTORS) { kclose(fil); return(-1); }
+    if (numsectors > MAXSECTORS) { kclose(fil); return -1; }
     for (i=0; i<numsectors; i++)
     {
         switch (mapversion)
@@ -9340,7 +9340,7 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
     }
 
     kread(fil,&numwalls,2); numwalls = B_LITTLE16(numwalls);
-    if (numwalls > MAXWALLS) { kclose(fil); return(-1); }
+    if (numwalls > MAXWALLS) { kclose(fil); return -1; }
     for (i=0; i<numwalls; i++)
     {
         switch (mapversion)
@@ -9387,7 +9387,7 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
     }
 
     kread(fil,&numsprites,2); numsprites = B_LITTLE16(numsprites);
-    if (numsprites > MAXSPRITES) { kclose(fil); return(-1); }
+    if (numsprites > MAXSPRITES) { kclose(fil); return -1; }
     for (i=0; i<numsprites; i++)
     {
         switch (mapversion)
@@ -9763,21 +9763,21 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     if (in3dmode() && videomodereset == 0 &&
             (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
-        return(0);
+        return 0;
 
     Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
            "  (c) Copyright 1995 Ken Silverman.  Summary:  BUILD = Ken. !!!!");
     //  if (getkensmessagecrc(FP_OFF(kensmessage)) != 0x56c764d4)
     //      { OSD_Printf("Nice try.\n"); Bexit(0); }
 
-    //if (checkvideomode(&daxdim, &daydim, dabpp, davidoption)<0) return (-1);
+    //if (checkvideomode(&daxdim, &daydim, dabpp, davidoption)<0) return -1;
 
     //bytesperline is set in this function
 
     j = bpp;
 
     g_lastpalettesum = 0;
-    if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return(-1);
+    if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return -1;
 
     // Workaround possible bugs in the GL driver
     makeasmwriteable();
@@ -9838,7 +9838,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 #endif
 #endif
     qsetmode = 200;
-    return(0);
+    return 0;
 }
 
 
@@ -10092,11 +10092,11 @@ int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
     updatesector(newpos->x,newpos->y,&tempsectnum);
 
     if (tempsectnum < 0)
-        return(-1);
+        return -1;
     if (tempsectnum != sprite[spritenum].sectnum)
         changespritesect(spritenum,tempsectnum);
 
-    return(0);
+    return 0;
 }
 
 int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
@@ -10109,11 +10109,11 @@ int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
     updatesectorz(newpos->x,newpos->y,newpos->z,&tempsectnum);
 
     if (tempsectnum < 0)
-        return(-1);
+        return -1;
     if (tempsectnum != sprite[spritenum].sectnum)
         changespritesect(spritenum,tempsectnum);
 
-    return(0);
+    return 0;
 }
 
 
@@ -10902,7 +10902,7 @@ restart_grand:
     }
 #endif
 
-    return(0);
+    return 0;
 }
 
 

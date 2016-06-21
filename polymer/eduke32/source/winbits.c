@@ -54,7 +54,7 @@ int32_t G_GetVersionFromWebsite(char *buffer)
         if (WSAStartup(0x101,&ws) == SOCKET_ERROR)
         {
 //            initprintf("update: Winsock error in G_GetVersionFromWebsite() (%d)\n",errno);
-            return(0);
+            return 0;
         }
         wsainitialized = 1;
     }
@@ -63,7 +63,7 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     if ((h=gethostbyname(host)) == NULL)
     {
 //        initprintf("update: gethostbyname() error in G_GetVersionFromWebsite() (%d)\n",h_errno);
-        return(0);
+        return 0;
     }
 
     dest_addr.sin_addr.s_addr = ((struct in_addr *)(h->h_addr))->s_addr;
@@ -78,20 +78,20 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     if (mysock == INVALID_SOCKET)
     {
 //        initprintf("update: socket() error in G_GetVersionFromWebsite() (%d)\n",errno);
-        return(0);
+        return 0;
     }
     initprintf("Connecting to http://%s\n",host);
     if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR)
     {
         //      initprintf("update: connect() error in G_GetVersionFromWebsite() (%d)\n",errno);
-        return(0);
+        return 0;
     }
 
     bytes_sent = send(mysock, req, strlen(req), 0);
     if (bytes_sent == SOCKET_ERROR)
     {
         //    initprintf("update: send() error in G_GetVersionFromWebsite() (%d)\n",errno);
-        return(0);
+        return 0;
     }
 
     //    initprintf("sent %d bytes\n",bytes_sent);
@@ -135,9 +135,9 @@ int32_t G_GetVersionFromWebsite(char *buffer)
         if (j)
         {
             strcpy(buffer,ver);
-            return(1);
+            return 1;
         }
     }
-    return(0);
+    return 0;
 }
 #endif

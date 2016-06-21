@@ -84,7 +84,7 @@ static inline int32_t getfilenames(char const *path)
 {
     clearfilenames();
     finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
-    return(0);
+    return 0;
 }
 
 #define POPULATE_VIDEO 1

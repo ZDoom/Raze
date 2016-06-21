@@ -56,7 +56,7 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
                 pth->palnum = dapalnum;
             }
 
-            return(pth);
+            return pth;
         }
 
     pth = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
@@ -67,7 +67,7 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
     pth->next = texcache.list[j];
     texcache.list[j] = pth;
 
-    return(pth);
+    return pth;
 }
 
 pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int32_t dameth)

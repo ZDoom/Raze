@@ -5391,7 +5391,7 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         }
         break;
         case T_EOF:
-            return(0);
+            return 0;
         default:
             break;
         }

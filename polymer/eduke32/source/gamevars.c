@@ -261,9 +261,9 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         AddLog("Done Dumping...");
     }
 # endif
-    return(0);
+    return 0;
 corrupt:
-    return(1);
+    return 1;
 }
 
 void Gv_WriteSave(FILE *fil, int32_t newbehav)

@@ -496,17 +496,17 @@ static int32_t G_GetInvAmount(const DukePlayer_t *p)
     case ICON_FIRSTAID:
         return p->inv_amount[GET_FIRSTAID];
     case ICON_STEROIDS:
-        return ((p->inv_amount[GET_STEROIDS]+3)>>2);
+        return (p->inv_amount[GET_STEROIDS]+3)>>2;
     case ICON_HOLODUKE:
-        return ((p->inv_amount[GET_HOLODUKE]+15)/24);
+        return (p->inv_amount[GET_HOLODUKE]+15)/24;
     case ICON_JETPACK:
-        return ((p->inv_amount[GET_JETPACK]+15)>>4);
+        return (p->inv_amount[GET_JETPACK]+15)>>4;
     case ICON_HEATS:
         return p->inv_amount[GET_HEATS]/12;
     case ICON_SCUBA:
-        return ((p->inv_amount[GET_SCUBA]+63)>>6);
+        return (p->inv_amount[GET_SCUBA]+63)>>6;
     case ICON_BOOTS:
-        return (p->inv_amount[GET_BOOTS]>>1);
+        return p->inv_amount[GET_BOOTS]>>1;
     }
 
     return -1;
@@ -1112,7 +1112,6 @@ void G_DrawBackground(void)
                 rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, y2, x2, ydim-1);
                 rotatesprite((xdim-x)<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, xdim-x2-1, y2, xdim-1, ydim-1);
             }
-
     }
 
     if (ud.screen_size > 8)

@@ -50,7 +50,7 @@ static intptr_t kzipopen(const char *filnam)
     newst[0] = '|';
     for (i=0; filnam[i] && (i < sizeof(newst)-2); i++) newst[i+1] = filnam[i];
     newst[i+1] = 0;
-    return(kzopen(newst));
+    return kzopen(newst);
 }
 
 #endif
@@ -1140,7 +1140,7 @@ int32_t kread_internal(int32_t handle, void *buffer, int32_t leng, uint8_t *arra
     int32_t filenum = arrayhan[handle];
     int32_t groupnum = arraygrp[handle];
 
-    if (groupnum == GRP_FILESYSTEM) return(Bread(filenum,buffer,leng));
+    if (groupnum == GRP_FILESYSTEM) return Bread(filenum,buffer,leng);
 #ifdef WITHKPLIB
     else if (groupnum == GRP_ZIP)
     {
@@ -1151,7 +1151,7 @@ int32_t kread_internal(int32_t handle, void *buffer, int32_t leng, uint8_t *arra
             kzipopen(filenamsav[handle]);
             kzseek(arraypos[handle],SEEK_SET);
         }
-        return(kzread(buffer,leng));
+        return kzread(buffer,leng);
     }
 #endif
 
@@ -1177,10 +1177,10 @@ int32_t kread_internal(int32_t handle, void *buffer, int32_t leng, uint8_t *arra
         leng = Bread(groupfil[rootgroupnum],buffer,leng);
         arraypos[handle] += leng;
         groupfilpos[rootgroupnum] += leng;
-        return(leng);
+        return leng;
     }
 
-    return(0);
+    return 0;
 }
 
 int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
@@ -1189,7 +1189,7 @@ int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, uint8_t 
 
     groupnum = arraygrp[handle];
 
-    if (groupnum == GRP_FILESYSTEM) return(Blseek(arrayhan[handle],offset,whence));
+    if (groupnum == GRP_FILESYSTEM) return Blseek(arrayhan[handle],offset,whence);
 #ifdef WITHKPLIB
     else if (groupnum == GRP_ZIP)
     {
@@ -1200,7 +1200,7 @@ int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, uint8_t 
             kzipopen(filenamsav[handle]);
             kzseek(arraypos[handle],SEEK_SET);
         }
-        return(kzseek(offset,whence));
+        return kzseek(offset,whence);
     }
 #endif
 
@@ -1217,9 +1217,9 @@ int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, uint8_t 
         case BSEEK_CUR:
             arraypos[handle] += offset; break;
         }
-        return(arraypos[handle]);
+        return arraypos[handle];
     }
-    return(-1);
+    return -1;
 }
 
 int32_t kfilelength_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
@@ -1229,7 +1229,7 @@ int32_t kfilelength_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayh
     groupnum = arraygrp[handle];
     if (groupnum == GRP_FILESYSTEM)
     {
-        // return(filelength(arrayhan[handle]))
+        // return (filelength(arrayhan[handle]))
         return Bfilelength(arrayhan[handle]);
     }
 #ifdef WITHKPLIB
@@ -1246,14 +1246,14 @@ int32_t kfilelength_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayh
     }
 #endif
     i = arrayhan[handle];
-    return(gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i]);
+    return gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i];
 }
 
 int32_t ktell_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
     int32_t groupnum = arraygrp[handle];
 
-    if (groupnum == GRP_FILESYSTEM) return(Blseek(arrayhan[handle],0,BSEEK_CUR));
+    if (groupnum == GRP_FILESYSTEM) return Blseek(arrayhan[handle],0,BSEEK_CUR);
 #ifdef WITHKPLIB
     else if (groupnum == GRP_ZIP)
     {
@@ -1269,7 +1269,7 @@ int32_t ktell_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan, in
 #endif
     if (groupfil[groupnum] != -1)
         return arraypos[handle];
-    return(-1);
+    return -1;
 }
 
 void kclose_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan)

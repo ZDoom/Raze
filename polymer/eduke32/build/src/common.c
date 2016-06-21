@@ -166,7 +166,7 @@ int32_t fnlist_getnames(fnlist_t *fnl, const char *dirname, const char *pattern,
     for (r=fnl->findfiles; r; r=r->next)
         fnl->numfiles++;
 
-    return(0);
+    return 0;
 }
 
 
