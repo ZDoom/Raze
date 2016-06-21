@@ -102,7 +102,7 @@ LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib shlwapi.
      dxguid.lib dsound.lib advapi32.lib libcompat-to-msvc.a
 
 !if ("$(RENDERTYPE)"=="SDL")
-LIBS=libSDL2main.a libSDL2.a libSDL2_mixer.a $(LIBS)
+LIBS=libSDL2main.a libSDL2.a $(LIBS)
 !endif
 
 LIBS=/NODEFAULTLIB:glu32.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib /NODEFAULTLIB:libcmt.lib \
