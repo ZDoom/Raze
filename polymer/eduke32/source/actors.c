@@ -2770,7 +2770,7 @@ ACTOR_STATIC void Proj_MoveCustom(int32_t i)
                 tmpvect.y = (k*(sintable[s->ang&2047]))>>14;
                 tmpvect.z = ll;
 
-                j = A_MoveSprite(i, &tmpvect, CLIPMASK1);
+                j = A_MoveSprite(i, &tmpvect, (A_CheckSpriteFlags(i, SFLAG_NOCLIP) ? 0 : CLIPMASK1));
             } while (!j && --cnt > 0);
 
             if (cst) sprite[s->owner].cstat = cst;
@@ -3014,7 +3014,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                 tmpvect.x = (k*(sintable[(s->ang+512)&2047]))>>14;
                 tmpvect.y = (k*(sintable[s->ang&2047]))>>14;
                 tmpvect.z = ll;
-                j = A_MoveSprite(i,&tmpvect, CLIPMASK1);
+                j = A_MoveSprite(i,&tmpvect, (A_CheckSpriteFlags(i, SFLAG_NOCLIP) ? 0 : CLIPMASK1));
             }
 
 
