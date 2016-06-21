@@ -27,7 +27,11 @@ extern int32_t althud_numberpal;
 extern int32_t althud_numbertile;
 extern int32_t althud_shadows;
 
-int32_t sbarsc(int32_t sc);
+FORCE_INLINE int32_t sbarsc(int32_t sc)
+{
+    return scale(sc, ud.statusbarscale, 100);
+}
+
 int32_t sbarx16(int32_t x);
 int32_t sbary16(int32_t y);
 void G_DrawInventory(const DukePlayer_t *p);

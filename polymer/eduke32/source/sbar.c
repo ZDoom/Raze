@@ -34,11 +34,6 @@ int32_t althud_shadows = 0;
 int32_t althud_shadows = 1;
 #endif
 
-inline int32_t sbarsc(int32_t sc)
-{
-    return scale(sc, ud.statusbarscale, 100);
-}
-
 static int32_t sbarx(int32_t x)
 {
     if (ud.screen_size == 4) return sbarsc(x<<16);

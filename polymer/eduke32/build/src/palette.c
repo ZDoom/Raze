@@ -686,7 +686,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
     }
 }
 
-inline palette_t getpal(int32_t col)
+palette_t getpal(int32_t col)
 {
     if (!gammabrightness)
     {
