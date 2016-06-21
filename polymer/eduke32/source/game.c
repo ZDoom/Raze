@@ -39,6 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sbar.h"
 #include "screens.h"
 #include "cmdline.h"
+#include "palette.h"
 
 #ifdef __ANDROID__
 #include "android.h"
@@ -6298,7 +6299,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
     DO_FREE_AND_NULL(g_defModules);
     g_defModulesNum = 0;
 
-    if (E_PostInit())
+    if (E_PostInitTables())
         G_FatalEngineError();
 
     G_PostLoadPalette();

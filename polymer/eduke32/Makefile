@@ -44,6 +44,7 @@ ENGINE_OBJS = \
     defs \
     engine \
     hash \
+    palette \
     polymost \
     texcache \
     dxtfilter \

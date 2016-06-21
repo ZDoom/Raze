@@ -5,6 +5,7 @@
 #include "compat.h"
 #include "build.h"
 #include "baselayer.h"
+#include "palette.h"
 
 #include "grpscan.h"
 

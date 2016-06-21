@@ -20,6 +20,7 @@
 #include "build.h"
 #include "osd.h"
 #include "engine_priv.h"
+#include "palette.h"
 
 #ifdef USE_OPENGL
 # include "glbuild.h"
@@ -97,7 +98,6 @@ int32_t nofog=0;
 #ifndef EDUKE32_GLES
 static uint16_t sysgamma[3][256];
 #endif
-extern int32_t curbrightness, gammabrightness;
 #ifdef USE_OPENGL
 // OpenGL stuff
 char nogl=0;

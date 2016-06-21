@@ -531,6 +531,12 @@
     <ClInclude Include="build\include\hash.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\palette.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="build\include\colmatch.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -930,6 +936,9 @@
       <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="build\src\hash.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\palette.c">
       <Filter>build\source</Filter>
     </ClCompile>
   </ItemGroup>

@@ -105,6 +105,7 @@
     <ClInclude Include="build\include\build.h" />
     <ClInclude Include="build\include\buildtypes.h" />
     <ClInclude Include="build\include\cache1d.h" />
+    <ClInclude Include="build\include\colmatch.h" />
     <ClInclude Include="build\include\compat.h" />
     <ClInclude Include="build\include\common.h" />
     <ClInclude Include="build\include\crc32.h" />
@@ -129,6 +130,7 @@
     <ClInclude Include="build\include\osd.h" />
     <ClInclude Include="build\include\osxbits.h" />
     <ClInclude Include="build\include\osxmain.h" />
+    <ClInclude Include="build\include\palette.h" />
     <ClInclude Include="build\include\polymer.h" />
     <ClInclude Include="build\include\polymost.h" />
     <ClInclude Include="build\include\pragmas.h" />
@@ -275,6 +277,7 @@
     <ClCompile Include="build\src\mdsprite.c" />
     <ClCompile Include="build\src\mutex.c" />
     <ClCompile Include="build\src\osd.c" />
+    <ClCompile Include="build\src\palette.c" />
     <ClCompile Include="build\src\polymer.c" />
     <ClCompile Include="build\src\polymost.c" />
     <ClCompile Include="build\src\pragmas.c" />

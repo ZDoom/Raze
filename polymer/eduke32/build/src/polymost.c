@@ -21,6 +21,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "kplib.h"
 #include "texcache.h"
 #include "common.h"
+#include "palette.h"
 
 #ifndef _WIN32
 extern int32_t filelength(int h); // kplib.c

@@ -11,6 +11,7 @@ $(ENGINE_OBJ)/crc32.$o: $(ENGINE_SRC)/crc32.c $(ENGINE_INC)/crc32.h
 $(ENGINE_OBJ)/defs.$o: $(ENGINE_SRC)/defs.c $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/scriptfile.h $(ENGINE_INC)/compat.h
 $(ENGINE_OBJ)/engine.$o: $(ENGINE_SRC)/engine.c $(ENGINE_INC)/compat.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/a.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/baselayer.h $(ENGINE_SRC)/engine_priv.h $(ENGINE_SRC)/engine_oldmap.h $(ENGINE_INC)/polymost.h $(ENGINE_INC)/hightile.h $(ENGINE_INC)/mdsprite.h $(ENGINE_INC)/polymer.h
 $(ENGINE_OBJ)/hash.$o: $(ENGINE_SRC)/hash.c $(ENGINE_INC)/hash.h
+$(ENGINE_OBJ)/palette.$o: $(ENGINE_SRC)/palette.c $(ENGINE_INC)/palette.h
 $(ENGINE_OBJ)/polymost.$o: $(ENGINE_SRC)/polymost.c $(ENGINE_INC)/lz4.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_SRC)/engine_priv.h $(ENGINE_INC)/polymost.h $(ENGINE_INC)/hightile.h $(ENGINE_INC)/mdsprite.h $(ENGINE_INC)/texcache.h
 $(ENGINE_OBJ)/texcache.$o: $(ENGINE_SRC)/texcache.c $(ENGINE_INC)/texcache.h $(ENGINE_INC)/polymost.h $(ENGINE_INC)/dxtfilter.h $(ENGINE_INC)/kplib.h
 $(ENGINE_OBJ)/dxtfilter.$o: $(ENGINE_SRC)/dxtfilter.c $(ENGINE_INC)/dxtfilter.h $(ENGINE_INC)/texcache.h

@@ -28,8 +28,6 @@ extern "C" {
 extern "C" {
 #endif
 
-extern uint8_t curbasepal;
-
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
@@ -59,8 +57,6 @@ extern int16_t searchbottomwall, searchisbottom;
 
 extern char inpreparemirror;
 
-extern int32_t curbrightness, gammabrightness;
-extern char britable[16][256];
 extern char picsiz[MAXTILES];
 extern int16_t sectorborder[256];
 extern int32_t qsetmode;
@@ -76,14 +72,9 @@ extern int16_t numscans, numbunches;
 // For GL_EXP2 fog:
 #define FOGSCALE 0.0000768f
 
-extern palette_t palookupfog[MAXPALOOKUPS];
 void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal);
 void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t pal, float factor);
 #endif
-
-extern uint32_t PaletteIndexFullbrights[8];
-#define IsPaletteIndexFullbright(col) (PaletteIndexFullbrights[(col)>>5] & (1u<<((col)&31)))
-#define SetPaletteIndexFullbright(col) (PaletteIndexFullbrights[(col)>>5] |= (1u<<((col)&31)))
 
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
 int32_t wallfront(int32_t l1, int32_t l2);
@@ -201,22 +192,6 @@ FORCE_INLINE void setgotpic(int32_t tilenume)
 }
 
 #endif
-
-static inline void bricolor(palette_t *wpptr, int32_t dacol)
-{
-    if (gammabrightness)
-    {
-        wpptr->r = curpalette[dacol].r;
-        wpptr->g = curpalette[dacol].g;
-        wpptr->b = curpalette[dacol].b;
-    }
-    else
-    {
-        wpptr->r = britable[curbrightness][ curpalette[dacol].r ];
-        wpptr->g = britable[curbrightness][ curpalette[dacol].g ];
-        wpptr->b = britable[curbrightness][ curpalette[dacol].b ];
-    }
-}
 
 // Get properties of parallaxed sky to draw.
 // Returns: pointer to tile offset array. Sets-by-pointer the other two.

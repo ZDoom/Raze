@@ -13,6 +13,7 @@
 #include "compat.h"
 #include "pragmas.h"
 #include "glbuild.h"
+#include "palette.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,19 +79,10 @@ enum rendmode_t {
 #define MAXVOXELS 4096
 #define MAXSTATUS 1024
 #define MAXPLAYERS 16
-#define MAXBASEPALS 256
-#define MAXPALOOKUPS 256
-#define MAXBLENDTABS 256
 // Maximum number of component tiles in a multi-psky:
 #define MAXPSKYTILES 8
 #define MAXSPRITESONSCREEN 4096
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
-
-#define RESERVEDPALS 4 // don't forget to increment this when adding reserved pals
-#define DETAILPAL   (MAXPALOOKUPS - 1)
-#define GLOWPAL     (MAXPALOOKUPS - 2)
-#define SPECULARPAL (MAXPALOOKUPS - 3)
-#define NORMALPAL   (MAXPALOOKUPS - 4)
 
 #define TSPR_TEMP 99
 
@@ -849,13 +841,6 @@ extern uint32_t drawlinepat;
 extern void faketimerhandler(void);
 
 extern char apptitle[256];
-typedef struct {
-    char r,g,b,f;
-} palette_t;
-extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
-extern char palfadedelta;
-
-extern int8_t g_noFloorPal[MAXPALOOKUPS];
 
 extern int32_t novoxmips;
 
@@ -872,6 +857,8 @@ extern int32_t rendmode;
 #endif
 EXTERN uint16_t h_xsize[MAXTILES], h_ysize[MAXTILES];
 EXTERN int8_t h_xoffs[MAXTILES], h_yoffs[MAXTILES];
+
+EXTERN char *globalpalwritten;
 
 enum {
     GLOBAL_NO_GL_TILESHADES = 1<<0,
@@ -1007,13 +994,9 @@ typedef struct artheader_t {
 
 int32_t    preinitengine(void);	// a partial setup of the engine used for launch windows
 int32_t    initengine(void);
-int32_t E_PostInit(void);
 void   uninitengine(void);
 void   initspritelists(void);
-int32_t loadlookups(int32_t fp);
-void generatefogpals(void);
-void fillemptylookups(void);
-void E_ReplaceTransparentColorWithBlack(void);
+int32_t E_FatalError(char const * const msg);
 
 int32_t   loadboard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 int32_t   loadmaphack(const char *filename);

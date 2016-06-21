@@ -94,7 +94,6 @@ static HWND hWindow = 0;
 static BOOL window_class_registered = FALSE;
 
 static DDGAMMARAMP sysgamma;
-extern int32_t curbrightness, gammabrightness;
 
 #ifdef USE_OPENGL
 // OpenGL stuff
