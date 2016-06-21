@@ -112,12 +112,13 @@ int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t const lDefault,int32_t 
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 
-static inline void A_ResetVars(const int32_t iActor)
+FORCE_INLINE void A_ResetVars(const int32_t iActor)
 {
-    for (int i = 0; i < g_gameVarCount; i++)
+    for (int i = 0; i < g_gameVarCount; ++i)
     {
-        if ((aGameVars[i].dwFlags & (GAMEVAR_PERACTOR | GAMEVAR_NODEFAULT)) == GAMEVAR_PERACTOR)
-            aGameVars[i].val.plValues[iActor] = aGameVars[i].lDefault;
+        if ((aGameVars[i].dwFlags & (GAMEVAR_PERACTOR | GAMEVAR_NODEFAULT)) != GAMEVAR_PERACTOR)
+            continue;
+        aGameVars[i].val.plValues[iActor] = aGameVars[i].lDefault;
     }
 }
 
@@ -138,7 +139,7 @@ void Gv_FinalizeWeaponDefaults(void);
 
 #if !defined LUNATIC
 #define VM_GAMEVAR_OPERATOR(func, operator)                                                                            \
-    static inline void __fastcall func(const int32_t id, const int32_t lValue)                                         \
+    FORCE_INLINE void __fastcall func(const int32_t id, const int32_t lValue)                                          \
     {                                                                                                                  \
         switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))                                        \
         {                                                                                                              \
@@ -160,22 +161,23 @@ void Gv_FinalizeWeaponDefaults(void);
     }
 
 #if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
-static inline void __fastcall Gv_DivVar(const int32_t id, const int32_t lValue)
+FORCE_INLINE void __fastcall Gv_DivVar(const int32_t id, const int32_t lValue)
 {
-    static libdivide_s32_t sdiv;
-    static int32_t lastlValue;
-    libdivide_s32_t *dptr = &sdiv;
-    intptr_t *iptr = &aGameVars[id].val.lValue;
-
-    if (EDUKE32_PREDICT_FALSE((aGameVars[id].dwFlags & GAMEVAR_PERPLAYER && (unsigned)vm.g_p > MAXPLAYERS - 1) ||
-                              (aGameVars[id].dwFlags & GAMEVAR_PERACTOR && (unsigned)vm.g_i > MAXSPRITES - 1)))
+    if (EDUKE32_PREDICT_FALSE((aGameVars[id].dwFlags & GAMEVAR_PERPLAYER && (unsigned) vm.g_p > MAXPLAYERS - 1) ||
+        (aGameVars[id].dwFlags & GAMEVAR_PERACTOR && (unsigned) vm.g_i > MAXSPRITES - 1)))
         return;
 
-    if ((unsigned)lValue < DIVTABLESIZE)
-        dptr = (libdivide_s32_t *)&divtable32[lValue];
-    else if (lValue != lastlValue)
-        sdiv = libdivide_s32_gen(lValue), lastlValue = lValue;
+    static libdivide_s32_t sdiv;
+    static int32_t lastlValue;
+    libdivide_s32_t *dptr = ((unsigned) lValue < DIVTABLESIZE) ? (libdivide_s32_t *) &divtable32[lValue] : &sdiv;
+    intptr_t *iptr = &aGameVars[id].val.lValue;
 
+    if (lValue == lastlValue || dptr != &sdiv)
+        goto skip;
+
+    sdiv = libdivide_s32_gen((lastlValue = lValue));
+
+skip:
     switch (aGameVars[id].dwFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))
     {
         case GAMEVAR_PERPLAYER: iptr = &aGameVars[id].val.plValues[vm.g_p];
