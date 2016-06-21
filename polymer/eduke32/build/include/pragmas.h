@@ -54,8 +54,7 @@ static inline uint32_t divideu32(uint32_t n, uint32_t d)
     if (d == lastd)
         goto skip;
 
-    lastd = d;
-    udiv = libdivide_u32_gen(d);
+    udiv = libdivide_u32_gen((lastd = d));
 skip:
     return libdivide_u32_do(n, &udiv);
 }
@@ -69,8 +68,7 @@ static inline int32_t tabledivide64(int64_t n, int32_t d)
     if (d == lastd || dptr != &sdiv)
         goto skip;
 
-    lastd = d;
-    sdiv = libdivide_s64_gen(d);
+    sdiv = libdivide_s64_gen((lastd = d));
 skip:
     return libdivide_s64_do(n, dptr);
 }
@@ -84,8 +82,7 @@ static inline int32_t tabledivide32(int32_t n, int32_t d)
     if (d == lastd || dptr != &sdiv)
         goto skip;
 
-    lastd = d;
-    sdiv = libdivide_s32_gen(d);
+    sdiv = libdivide_s32_gen((lastd = d));
 skip:
     return libdivide_s32_do(n, dptr);
 }
@@ -165,13 +162,11 @@ FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
 //
 
 #define EDUKE32_SCALER_PRAGMA(a)                                                                                       \
-    FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * qw(edx)) >> by(a)); }           \
-                                                                                                                       \
-    FORCE_INLINE int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                             \
+    FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * qw(edx)) >> by(a)); }            \
+    FORCE_INLINE int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                              \
     {                                                                                                                  \
         return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> by(a));                                               \
     }
-
 
 EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 
