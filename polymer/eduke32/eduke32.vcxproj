@@ -284,6 +284,7 @@
     <ClCompile Include="build\src\pragmas.c" />
     <ClCompile Include="build\src\lz4.c" />
     <ClCompile Include="build\src\rawinput.c" />
+    <ClCompile Include="build\src\screenshot.c" />
     <ClCompile Include="build\src\scriptfile.c" />
     <ClCompile Include="build\src\sdlayer.c" />
     <ClCompile Include="build\src\sdlayer12.c" />

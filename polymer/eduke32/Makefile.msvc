@@ -159,7 +159,8 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\scriptfile.$o \
 	$(ENGINE_OBJ)\mutex.$o \
 	$(ENGINE_OBJ)\winbits.$o \
-	$(ENGINE_OBJ)\xxhash.$o
+	$(ENGINE_OBJ)\xxhash.$o \
+	$(ENGINE_OBJ)\screenshot.$o
 
 ENGINE_EDITOR_OBJS=$(ENGINE_OBJ)\build.$o \
 	$(ENGINE_OBJ)\startwin.editor.$o \

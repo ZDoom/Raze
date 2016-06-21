@@ -62,6 +62,7 @@ ENGINE_OBJS = \
     xxhash \
     md4 \
     colmatch \
+    screenshot
 
 ENGINE_EDITOR_OBJS = \
     build \
