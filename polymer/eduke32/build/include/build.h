@@ -1178,7 +1178,7 @@ FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_
 
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
 // ".nextsector >= 0 iff .nextwall >= 0" holds.
-FORCE_INLINE int32_t redwallp(const walltype *wal)
+FORCE_INLINE int32_t redwallp(const twalltype *wal)
 {
     return (wal->nextwall >= 0 && wal->nextsector >= 0);
 }

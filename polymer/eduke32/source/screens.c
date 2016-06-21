@@ -315,7 +315,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     int32_t xvect, yvect, xvect2, yvect2;
     int16_t p;
     char col;
-    walltype *wal, *wal2;
+    twalltype *wal, *wal2;
     spritetype *spr;
 
     int32_t tmpydim = (xdim*5)/8;
@@ -340,7 +340,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         z1 = sector[i].ceilingz;
         z2 = sector[i].floorz;
 
-        for (j=startwall, wal=&wall[startwall]; j<endwall; j++, wal++)
+        for (j=startwall, wal=(twalltype *)&wall[startwall]; j<endwall; j++, wal++)
         {
             k = wal->nextwall;
             if (k < 0) continue;
@@ -361,7 +361,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             x1 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
             y1 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
 
-            wal2 = &wall[wal->point2];
+            wal2 = (twalltype *)&wall[wal->point2];
             ox = wal2->x-cposx;
             oy = wal2->y-cposy;
             x2 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
@@ -529,7 +529,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         endwall = sector[i].wallptr + sector[i].wallnum;
 
         k = -1;
-        for (j=startwall, wal=&wall[startwall]; j<endwall; j++, wal++)
+        for (j=startwall, wal=(twalltype *)&wall[startwall]; j<endwall; j++, wal++)
         {
             if (wal->nextwall >= 0) continue;
 
@@ -550,7 +550,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             }
 
             k = wal->point2;
-            wal2 = &wall[k];
+            wal2 = (twalltype *)&wall[k];
             ox = wal2->x-cposx;
             oy = wal2->y-cposy;
             x2 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);

@@ -260,7 +260,7 @@ static int32_t VM_CheckSquished(void)
 
     P_DoQuote(QUOTE_SQUISHED, vm.g_pp);
 
-    if (A_CheckEnemySprite(vm.g_sp))
+    if (A_CheckEnemySprite((tspritetype *)vm.g_sp))
         vm.g_sp->xvel = 0;
 
     if (EDUKE32_PREDICT_FALSE(vm.g_sp->pal == 1)) // frozen
@@ -290,7 +290,7 @@ int32_t A_Dodge(spritetype *s)
     const int32_t mxvect = sintable[(s->ang+512)&2047];
     const int32_t myvect = sintable[s->ang&2047];
 
-    if (A_CheckEnemySprite(s) && s->extra <= 0) // hack
+    if (A_CheckEnemySprite((tspritetype *)s) && s->extra <= 0) // hack
         return 0;
 
     for (int32_t i=headspritestat[STAT_PROJECTILE]; i>=0; i=nextspritestat[i]) //weapons list
@@ -417,13 +417,13 @@ void A_GetZLimits(int32_t iActor)
 
     if ((florhit&49152) == 49152 && (sprite[florhit&(MAXSPRITES-1)].cstat&48) == 0)
     {
-        const spritetype *hitspr = &sprite[florhit&(MAXSPRITES-1)];
+        tspritetype const * const hitspr = (tspritetype *)&sprite[florhit&(MAXSPRITES-1)];
 
         florhit &= (MAXSPRITES-1);
 
         // If a non-projectile would fall onto non-frozen enemy OR an enemy onto a player...
         if ((A_CheckEnemySprite(hitspr) && hitspr->pal != 1 && s->statnum != STAT_PROJECTILE)
-                || (hitspr->picnum == APLAYER && A_CheckEnemySprite(s)))
+                || (hitspr->picnum == APLAYER && A_CheckEnemySprite((tspritetype *)s)))
         {
             actor[iActor].flags |= SFLAG_NOFLOORSHADOW;  // No shadows on actors
             s->xvel = -256;  // SLIDE_ABOVE_ENEMY
@@ -528,7 +528,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t movflags)
         vm.g_sp->zvel += ((actor[vm.g_i].mv.vvel<<4) - vm.g_sp->zvel)/5;
 #endif
 
-    if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
+    if (A_CheckEnemySprite((tspritetype *)vm.g_sp) && vm.g_sp->extra <= 0) // hack
         return;
 
     if (movflags&seekplayer)
@@ -653,7 +653,7 @@ GAMEEXEC_STATIC void VM_Move(void)
     // XXX: Does it break anything? Where are movflags with all bits set created?
     const uint16_t *movflagsptr = &AC_MOVFLAGS(vm.g_sp, &actor[vm.g_i]);
     const int32_t movflags = /*(*movflagsptr==-1) ? 0 :*/ *movflagsptr;
-    const int32_t deadflag = (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0);
+    const int32_t deadflag = (A_CheckEnemySprite((tspritetype *)vm.g_sp) && vm.g_sp->extra <= 0);
 
     AC_COUNT(vm.g_t)++;
 
@@ -721,7 +721,7 @@ dead:
     if (vm.g_sp->xvel > -6 && vm.g_sp->xvel < 6)
         vm.g_sp->xvel = 0;
 
-    int badguyp = A_CheckEnemySprite(vm.g_sp);
+    int badguyp = A_CheckEnemySprite((tspritetype *)vm.g_sp);
 
     if (vm.g_sp->xvel || vm.g_sp->zvel)
     {
@@ -983,7 +983,7 @@ static void VM_Fall(int32_t g_i, spritetype *g_sp)
     // Preliminary new z position of the actor.
     int32_t z = actor[g_i].floorz - ZOFFSET;
 
-    if (A_CheckEnemySprite(g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
+    if (A_CheckEnemySprite((tspritetype *)g_sp) || (g_sp->picnum == APLAYER && g_sp->owner >= 0))
     {
         if (g_sp->zvel > 3084 && g_sp->extra <= 1)
         {
@@ -1292,7 +1292,7 @@ skip_check:
 
                 int32_t sclip = 768, angdif = 16;
 
-                if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->xrepeat > 56)
+                if (A_CheckEnemySprite((tspritetype *)vm.g_sp) && vm.g_sp->xrepeat > 56)
                 {
                     sclip = 3084;
                     angdif = 48;
@@ -1413,7 +1413,7 @@ skip_check:
 
             AC_COUNT(vm.g_t) = AC_ACTION_COUNT(vm.g_t) = AC_CURFRAME(vm.g_t) = 0;
 
-            if (!A_CheckEnemySprite(vm.g_sp) || vm.g_sp->extra > 0) // hack
+            if (!A_CheckEnemySprite((tspritetype *)vm.g_sp) || vm.g_sp->extra > 0) // hack
                 if (vm.g_sp->hitag&random_angle)
                     vm.g_sp->ang = krand()&2047;
             continue;
@@ -1813,7 +1813,7 @@ skip_check:
             AC_COUNT(vm.g_t) = 0;
             AC_MOVE_ID(vm.g_t) = *insptr++;
             vm.g_sp->hitag = *insptr++;
-            if (A_CheckEnemySprite(vm.g_sp) && vm.g_sp->extra <= 0) // hack
+            if (A_CheckEnemySprite((tspritetype *)vm.g_sp) && vm.g_sp->extra <= 0) // hack
                 continue;
             if (vm.g_sp->hitag&random_angle)
                 vm.g_sp->ang = krand()&2047;
@@ -3725,7 +3725,7 @@ nullquote:
             continue;
 
         case CON_IFRESPAWN:
-            if (A_CheckEnemySprite(vm.g_sp)) VM_CONDITIONAL(ud.respawn_monsters)
+            if (A_CheckEnemySprite((tspritetype *)vm.g_sp)) VM_CONDITIONAL(ud.respawn_monsters)
             else if (A_CheckInventorySprite(vm.g_sp)) VM_CONDITIONAL(ud.respawn_inventory)
             else VM_CONDITIONAL(ud.respawn_items)
             continue;
@@ -5701,7 +5701,7 @@ void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist)
 
     if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_sp->sectnum >= MAXSECTORS))
     {
-        if (A_CheckEnemySprite(vm.g_sp))
+        if (A_CheckEnemySprite((tspritetype *)vm.g_sp))
             vm.g_pp->actors_killed++;
 
         A_DeleteSprite(vm.g_i);
@@ -5798,7 +5798,7 @@ void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist)
         return;
     }
 
-    if (A_CheckEnemySprite(vm.g_sp))
+    if (A_CheckEnemySprite((tspritetype *)vm.g_sp))
     {
         if (vm.g_sp->xrepeat > 60 || (ud.respawn_monsters == 1 && vm.g_sp->extra <= 0))
             return;

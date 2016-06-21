@@ -1633,7 +1633,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 {
                     sp->xrepeat = 48;
                     sp->yrepeat = 64;
-                    if (sprite[j].statnum == STAT_PLAYER || A_CheckEnemySprite(&sprite[j]))
+                    if (sprite[j].statnum == STAT_PLAYER || A_CheckEnemySprite((tspritetype *)&sprite[j]))
                         sp->z -= (32<<8);
                 }
             }
@@ -3576,7 +3576,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 continue;
             default:
                 // NOTE: wall-aligned sprites will never take on ceiling/floor shade...
-                if ((t->cstat&16) || (A_CheckEnemySprite((const spritetype *)t) &&
+                if ((t->cstat&16) || (A_CheckEnemySprite((tspritetype *)t) &&
                     (unsigned)t->owner < MAXSPRITES && sprite[t->owner].extra > 0) || t->statnum == STAT_PLAYER)
                     continue;
             }
@@ -4126,14 +4126,14 @@ skip:
         // player has nightvision on.  We should pass stuff like "from which player is this view
         // supposed to be" as parameters ("drawing context") instead of relying on globals.
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
-                (A_CheckEnemySprite((const spritetype *)s) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
+                (A_CheckEnemySprite((tspritetype *)s) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
         {
             t->pal = 6;
             t->shade = 0;
         }
 
         // Fake floor shadow, implemented by inserting a new tsprite.
-        if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite((const spritetype *)s) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
+        if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite((tspritetype *)s) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
             if (t->statnum != TSPR_TEMP && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE && s->picnum != HOTMEAT)
             {
                 if (actor[i].dispicnum < 0)

@@ -2260,7 +2260,7 @@ void A_DamageObject(int32_t i,int32_t sn)
 
         if ((sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && sprite[i].statnum != STAT_PROJECTILE)
         {
-            if (A_CheckEnemySprite(&sprite[i]) == 1)
+            if (A_CheckEnemySprite((tspritetype *)&sprite[i]) == 1)
             {
                 if (sprite[sn].picnum == RPG)
                     sprite[sn].extra <<= 1;
@@ -2877,7 +2877,7 @@ int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
     hitdata_t hit;
     int32_t zoff = 0;
 
-    if (A_CheckEnemySprite(&sprite[i]))
+    if (A_CheckEnemySprite((tspritetype *) &sprite[i]))
         zoff = (42<<8);
     else if (PN == APLAYER)
         zoff = (39<<8);
@@ -2892,7 +2892,7 @@ int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
     if (hitsp)
         *hitsp = hit.sprite;
 
-    if (hit.wall >= 0 && (wall[hit.wall].cstat&16) && A_CheckEnemySprite(&sprite[i]))
+    if (hit.wall >= 0 && (wall[hit.wall].cstat&16) && A_CheckEnemySprite((tspritetype *) &sprite[i]))
         return 1<<30;
 
     return FindDistance2D(hit.pos.x-SX,hit.pos.y-SY);
