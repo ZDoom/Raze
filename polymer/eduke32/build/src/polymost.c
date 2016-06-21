@@ -4577,14 +4577,17 @@ void polymost_drawsprite(int32_t snum)
             {
                 w = polymost_findwall(tspr, &tsiz, &walldist);
 
-                if (s != -1 && w != -1)
+                if (s != -1)
                 {
                     wallspriteinfo_t *ws = &wsprinfo[s];
-
                     ws->wall = w;
-                    ws->wdist = walldist;
-                    ws->wrev = wallchanged[w];
-                    ws->srev = spritechanged[s];
+
+                    if (w != -1)
+                    {
+                        ws->wdist = walldist;
+                        ws->wrev = wallchanged[w];
+                        ws->srev = spritechanged[s];
+                    }
                 }
             }
             else if (s != -1)
