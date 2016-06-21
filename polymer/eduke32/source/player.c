@@ -760,7 +760,7 @@ SKIPBULLETHOLE:
 }
 
 // Finish shooting hitscan weapon from actor (sprite <i>).
-static int32_t A_PostFireHitscan(const hitdata_t *hit, int32_t i, int32_t atwith, int32_t sa, int32_t extra,
+static int32_t A_PostFireHitscan(const hitdata_t *hit, int32_t i, int32_t atwith, int32_t zvel, int32_t sa, int32_t extra,
                                  int32_t spawnatimpacttile, int32_t damagewalltile)
 {
     int32_t k = Proj_InsertShotspark(hit, i, atwith, 24, sa, extra);
@@ -775,7 +775,19 @@ static int32_t A_PostFireHitscan(const hitdata_t *hit, int32_t i, int32_t atwith
             sprite[k].xrepeat = sprite[k].yrepeat = 0;
     }
     else if (hit->wall >= 0)
+    {
         A_DamageWall(k, hit->wall, &hit->pos, damagewalltile);
+        Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+    }
+    else
+    {
+        if (Proj_MaybeDamageCF2(zvel, hit->sect))
+        {
+            sprite[k].xrepeat = 0;
+            sprite[k].yrepeat = 0;
+        }
+        else Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+    }
 
     return k;
 }
@@ -929,8 +941,8 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
         }
         else
         {
-            k = A_PostFireHitscan(&hit, i, atwith, sa, Proj_GetExtra(atwith),
-                atwith, atwith);
+            k = A_PostFireHitscan(&hit, i, atwith, zvel, sa,
+                Proj_GetExtra(atwith), atwith, atwith);
         }
 
         if ((krand() & 255) < 4 && proj->isound >= 0)
@@ -1215,8 +1227,8 @@ static int32_t A_ShootHardcoded(int32_t i, int32_t atwith, int16_t sa, vec3_t sr
         }
         else
         {
-            k = A_PostFireHitscan(&hit, i, atwith, sa, G_InitialActorStrength(atwith),
-                                  -SMALLSMOKE, SHOTSPARK1);
+            k = A_PostFireHitscan(&hit, i, atwith, zvel, sa,
+                                  G_InitialActorStrength(atwith), -SMALLSMOKE, SHOTSPARK1);
         }
 
         if ((krand()&255) < 4)
