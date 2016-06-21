@@ -87,15 +87,15 @@ static inline float getshadefactor(int32_t const shade)
 
 #define POLYMOST_CHOOSE_FOG_PAL(fogpal, pal) \
     ((fogpal) ? (fogpal) : (pal))
-static inline int32_t get_floor_fogpal(tsectortype const * const sec)
+static inline int32_t get_floor_fogpal(usectortype const * const sec)
 {
     return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->floorpal);
 }
-static inline int32_t get_ceiling_fogpal(tsectortype const * const sec)
+static inline int32_t get_ceiling_fogpal(usectortype const * const sec)
 {
     return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->ceilingpal);
 }
-static inline int32_t fogpal_shade(tsectortype const * const sec, int32_t const shade)
+static inline int32_t fogpal_shade(usectortype const * const sec, int32_t const shade)
 {
     // When fogging is due to sector[].fogpal, don't make the fog parameters
     // depend on the shade of the object.

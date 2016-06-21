@@ -258,9 +258,9 @@ static int32_t A_FindTargetSprite(const spritetype *s, int32_t aang, int32_t atw
             break;
         for (i=headspritestat[aimstats[k]]; i >= 0; i=nextspritestat[i])
             if (sprite[i].xrepeat > 0 && sprite[i].extra >= 0 && (sprite[i].cstat&(257+32768)) == 257)
-                if (A_CheckEnemySprite((tspritetype *)&sprite[i]) || k < 2)
+                if (A_CheckEnemySprite((uspritetype *)&sprite[i]) || k < 2)
                 {
-                    if (A_CheckEnemySprite((tspritetype *)&sprite[i]) || PN == APLAYER || PN == SHARK)
+                    if (A_CheckEnemySprite((uspritetype *)&sprite[i]) || PN == APLAYER || PN == SHARK)
                     {
                         if (PN == APLAYER && s->picnum == APLAYER && s != &sprite[i] &&
                                 //                        ud.ffire == 0 &&
@@ -602,7 +602,7 @@ static int32_t SectorContainsSE13(int32_t sectnum)
 // (in that case walltype *hitwal may be stale)
 static inline void HandleHitWall(hitdata_t *hit)
 {
-    twalltype const * const hitwal = (twalltype *)&wall[hit->wall];
+    uwalltype const * const hitwal = (uwalltype *)&wall[hit->wall];
 
     if ((hitwal->cstat&2) && redwallp(hitwal))
         if (hit->pos.z >= sector[hitwal->nextsector].floorz)
@@ -692,7 +692,7 @@ static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i
     }
     else if (hit->wall >= 0)
     {
-        twalltype const * const hitwal = (twalltype *)&wall[hit->wall];
+        uwalltype const * const hitwal = (uwalltype *)&wall[hit->wall];
 
         Proj_MaybeSpawn(k, spawnatimpacttile, hit);
 
@@ -800,7 +800,7 @@ static int32_t Proj_CheckBlood(const vec3_t *srcvect, const hitdata_t *hit,
     if (hit->wall < 0 || hit->sect < 0)
         return 0;
 
-    twalltype const * const hitwal = (twalltype *)&wall[hit->wall];
+    uwalltype const * const hitwal = (uwalltype *)&wall[hit->wall];
 
     if (FindDistance2D(srcvect->x-hit->pos.x, srcvect->y-hit->pos.y) < projrange)
         if (hitwal->overpicnum != BIGFORCE && (hitwal->cstat&16) == 0)
@@ -978,7 +978,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
                 l = safeldist(g_player[j].ps->i, s);
                 zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect->z)*vel, l);
 
-                if (A_CheckEnemySprite((tspritetype *)s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
+                if (A_CheckEnemySprite((uspritetype *)s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
                     sa = s->ang + (krand() & 31) - 16;
             }
         }
@@ -1067,7 +1067,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
         if (Proj_CheckBlood(srcvect, &hit, proj->range,
             mulscale3(proj->yrepeat, tilesiz[proj->decal].y) << 8))
         {
-            const twalltype *const hitwal = (twalltype *)&wall[hit.wall];
+            const uwalltype *const hitwal = (uwalltype *)&wall[hit.wall];
 
             if (FindDistance2D(hitwal->x - wall[hitwal->point2].x, hitwal->y - wall[hitwal->point2].y) >
                 (mulscale3(proj->xrepeat + 8, tilesiz[proj->decal].x)))
@@ -1162,7 +1162,7 @@ static int32_t A_ShootHardcoded(int32_t i, int32_t atwith, int16_t sa, vec3_t sr
         {
             if (Proj_CheckBlood(&srcvect, &hit, 1024, 16<<8))
             {
-                const twalltype *const hitwal = (twalltype *)&wall[hit.wall];
+                const uwalltype *const hitwal = (uwalltype *)&wall[hit.wall];
 
                 if (SectorContainsSE13(hitwal->nextsector))
                     return -1;
@@ -1386,7 +1386,7 @@ static int32_t A_ShootHardcoded(int32_t i, int32_t atwith, int16_t sa, vec3_t sr
             l = safeldist(g_player[j].ps->i, s);
             zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect.z)*vel, l);
 
-            if (A_CheckEnemySprite((tspritetype *)s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
+            if (A_CheckEnemySprite((uspritetype *)s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
                 sa = s->ang+(krand()&31)-16;
         }
 
@@ -1636,7 +1636,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
         {
             srcvect.z -= (7<<8);
 
-            if (A_CheckEnemySprite((tspritetype *)s) && PN != COMMANDER)
+            if (A_CheckEnemySprite((uspritetype *)s) && PN != COMMANDER)
             {
                 srcvect.x += (sintable[(sa+1024+96)&2047]>>7);
                 srcvect.y += (sintable[(sa+512+96)&2047]>>7);
@@ -4587,7 +4587,7 @@ void P_ProcessInput(int32_t snum)
                 p->sbs = j;
             }
         }
-        else if (A_CheckEnemySprite((tspritetype *)&sprite[j]) && sprite[j].xrepeat > 24 && klabs(s->z-sprite[j].z) < (84<<8))
+        else if (A_CheckEnemySprite((uspritetype *)&sprite[j]) && sprite[j].xrepeat > 24 && klabs(s->z-sprite[j].z) < (84<<8))
         {
             // TX: I think this is what makes the player slide off enemies... might
             // be a good sprite flag to add later.
@@ -5567,7 +5567,7 @@ HORIZONLY:
                     break;
                 }
                 default:
-                    if (A_CheckEnemySprite((tspritetype *)&sprite[p->actorsqu]))
+                    if (A_CheckEnemySprite((uspritetype *)&sprite[p->actorsqu]))
                         p->actors_killed++;
                     A_DeleteSprite(p->actorsqu);
                     break;

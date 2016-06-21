@@ -503,9 +503,9 @@ static inline void inplace_vx_tweak_wall(walltypevx *vxwal, int32_t yaxp)
 typedef sectortypevx sectortype;
 typedef walltypevx walltype;
 
-typedef sectortype tsectortype;
-typedef walltype twalltype;
-typedef spritetype tspritetype;
+typedef sectortype usectortype;
+typedef walltype uwalltype;
+typedef spritetype uspritetype;
 //////////////////// END Lunatic new-generation map format ////////////////
 #else
 typedef sectortypev7 sectortype;
@@ -522,7 +522,7 @@ typedef struct {
     uint8_t filler;
     float alpha;
     // NOTE: keep 'tspr' on an 8-byte boundary:
-    tspritetype *tspr;
+    uspritetype *tspr;
 #if !defined UINTPTR_MAX
 # error Need UINTPTR_MAX define to select between 32- and 64-bit structs
 #endif
@@ -570,7 +570,7 @@ EXTERN spritesmooth_t *spritesmooth;
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
 EXTERN spritetype *sprite;
-EXTERN tspritetype *tsprite;
+EXTERN uspritetype *tsprite;
 #else
 EXTERN spriteext_t spriteext[MAXSPRITES+MAXUNIQHUDID];
 EXTERN spritesmooth_t spritesmooth[MAXSPRITES+MAXUNIQHUDID];
@@ -578,7 +578,7 @@ EXTERN spritesmooth_t spritesmooth[MAXSPRITES+MAXUNIQHUDID];
 EXTERN sectortype sector[MAXSECTORS + M32_FIXME_SECTORS];
 EXTERN walltype wall[MAXWALLS + M32_FIXME_WALLS];
 EXTERN spritetype sprite[MAXSPRITES];
-EXTERN tspritetype tsprite[MAXSPRITESONSCREEN];
+EXTERN uspritetype tsprite[MAXSPRITESONSCREEN];
 #endif
 
 EXTERN uint32_t sectorchanged[MAXSECTORS + M32_FIXME_SECTORS];
@@ -644,7 +644,7 @@ FORCE_INLINE void sprite_tracker_hook(uintptr_t address)
 
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];
-EXTERN tspritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
+EXTERN uspritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t wx1, wy1, wx2, wy2;
 EXTERN int32_t xdim, ydim, numpages;
@@ -1178,7 +1178,7 @@ FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_
 
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
 // ".nextsector >= 0 iff .nextwall >= 0" holds.
-FORCE_INLINE int32_t redwallp(const twalltype *wal)
+FORCE_INLINE int32_t redwallp(const uwalltype *wal)
 {
     return (wal->nextwall >= 0 && wal->nextsector >= 0);
 }

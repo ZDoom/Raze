@@ -111,7 +111,7 @@ typedef struct {
     // VM state: either ==0 (top-level), >=1 and < MAXEVENTS+1 (event),
     // or >= MAXEVENTS+1 and < MAXEVENTS+1+g_stateCount (state)
     int32_t g_st;
-    tspritetype *g_sp;
+    uspritetype *g_sp;
     uint32_t flags; //g_errorFlag, g_returnFlag;
 
     // 1:updatehighlight, 2:updatehighlightsector, 4:interactive (from menu)?

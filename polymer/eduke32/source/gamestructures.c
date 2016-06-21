@@ -1167,7 +1167,7 @@ int32_t __fastcall VM_GetTsprite(register int32_t const iActor, register int32_t
         return -1;
     }
 
-    tspritetype * const tspr = spriteext[iActor].tspr;
+    uspritetype * const tspr = spriteext[iActor].tspr;
 
     if (EDUKE32_PREDICT_FALSE(!tspr))
     {
@@ -1216,7 +1216,7 @@ void __fastcall VM_SetTsprite(register int32_t const iActor, register int32_t co
         return;
     }
 
-    tspritetype * const tspr = spriteext[iActor].tspr;
+    uspritetype * const tspr = spriteext[iActor].tspr;
 
     if (EDUKE32_PREDICT_FALSE(!tspr))
     {

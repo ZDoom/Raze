@@ -347,7 +347,7 @@ ACTOR_INLINE_HEADER int32_t A_MoveSprite(int32_t spritenum, const vec3_t *change
 EXTERN_INLINE_HEADER int32_t G_CheckForSpaceCeiling(int32_t sectnum);
 EXTERN_INLINE_HEADER int32_t G_CheckForSpaceFloor(int32_t sectnum);
 
-EXTERN_INLINE_HEADER int32_t A_CheckEnemySprite(tspritetype const * const s);
+EXTERN_INLINE_HEADER int32_t A_CheckEnemySprite(uspritetype const * const s);
 
 #ifdef __cplusplus
 }
@@ -392,7 +392,7 @@ EXTERN_INLINE int32_t G_CheckForSpaceFloor(int32_t sectnum)
             (sector[sectnum].floorpicnum==MOONSKY1 || sector[sectnum].floorpicnum==BIGORBIT1));
 }
 
-EXTERN_INLINE int32_t A_CheckEnemySprite(tspritetype const * const s)
+EXTERN_INLINE int32_t A_CheckEnemySprite(uspritetype const * const s)
 {
     return A_CheckEnemyTile(s->picnum);
 }

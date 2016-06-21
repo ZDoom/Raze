@@ -388,7 +388,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
 {
     int32_t lightp = (lLabelID >= LIGHT_X);
     int32_t i = (how&ACCESS_USEVARS) ? vm.g_i : lVar1;
-    tspritetype *datspr = NULL;
+    uspritetype *datspr = NULL;
     const memberlabel_t *dalabel = lightp ? &LightLabels[lLabelID-LIGHT_X] : &SpriteLabels[lLabelID];
 
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)

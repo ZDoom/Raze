@@ -204,13 +204,13 @@ typedef struct
 
 EXTERN mdmodel_t **models;
 
-void updateanimation(md2model_t *m, const tspritetype *tspr, uint8_t lpal);
+void updateanimation(md2model_t *m, const uspritetype *tspr, uint8_t lpal);
 int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf);
 void mdinit(void);
 void freeallmodels(void);
 void clearskins(int32_t type);
-int32_t polymost_mddraw(const tspritetype *tspr);
-EXTERN void md3_vox_calcmat_common(const tspritetype *tspr, const vec3f_t *a0, float f, float mat[16]);
+int32_t polymost_mddraw(const uspritetype *tspr);
+EXTERN void md3_vox_calcmat_common(const uspritetype *tspr, const vec3f_t *a0, float f, float mat[16]);
 
 EXTERN int32_t mdpause;
 EXTERN int32_t nextmodelid;
@@ -218,7 +218,7 @@ EXTERN voxmodel_t *voxmodels[MAXVOXELS];
 
 void voxfree(voxmodel_t *m);
 voxmodel_t *voxload(const char *filnam);
-int32_t polymost_voxdraw(voxmodel_t *m, const tspritetype *tspr);
+int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr);
 
 int      md3postload_polymer(md3model_t* m);
 //int32_t md_thinoutmodel(int32_t modelid, uint8_t *usedframebitmap);

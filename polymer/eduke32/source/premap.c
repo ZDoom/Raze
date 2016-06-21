@@ -71,7 +71,7 @@ static void G_CacheSpriteNum(int32_t i)
     char maxc;
     int32_t j;
 
-    if (ud.monsters_off && A_CheckEnemySprite((tspritetype *)&sprite[i])) return;
+    if (ud.monsters_off && A_CheckEnemySprite((uspritetype *)&sprite[i])) return;
 
     maxc = 1;
 

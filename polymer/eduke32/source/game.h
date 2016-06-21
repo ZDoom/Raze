@@ -493,7 +493,7 @@ static inline int32_t G_GetMusicIdx(const char *str)
     return (ep * MAXLEVELS) + lev;
 }
 
-static inline int G_GetViewscreenSizeShift(const tspritetype *tspr)
+static inline int G_GetViewscreenSizeShift(const uspritetype *tspr)
 {
 #if VIEWSCREENFACTOR == 0
     UNREFERENCED_PARAMETER(tspr);

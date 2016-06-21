@@ -49,7 +49,7 @@ void A_LoadActor(int32_t iActor);
 
 void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist);
 void A_Fall(int32_t iActor);
-int32_t A_FurthestVisiblePoint(int32_t iActor,tspritetype * const ts,int32_t *dax,int32_t *day);
+int32_t A_FurthestVisiblePoint(int32_t iActor,uspritetype * const ts,int32_t *dax,int32_t *day);
 int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs);
 void A_GetZLimits(int32_t iActor);
 int32_t G_GetAngleDelta(int32_t a,int32_t na);

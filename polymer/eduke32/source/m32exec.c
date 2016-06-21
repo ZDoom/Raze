@@ -157,7 +157,7 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
 
         vm.g_i = iActor;    // current sprite ID
         if (vm.g_i >= 0)
-            vm.g_sp = (tspritetype *)&sprite[vm.g_i];
+            vm.g_sp = (uspritetype *)&sprite[vm.g_i];
 
         vm.g_st = 1+iEventID;
 
@@ -241,7 +241,7 @@ static int X_DoSort(const void *lv, const void *rv)
 // in interactive execution, allow the current sprite index to be the aimed-at sprite (in 3d mode)
 #define X_ERROR_INVALIDCI()                                                                                            \
     if ((vm.g_i < 0 || vm.g_i >= MAXSPRITES) &&                                                                        \
-        (vm.g_st != 0 || searchstat != 3 || (vm.g_i = searchwall, vm.g_sp = (tspritetype *)&sprite[vm.g_i], 0)))       \
+        (vm.g_st != 0 || searchstat != 3 || (vm.g_i = searchwall, vm.g_sp = (uspritetype *)&sprite[vm.g_i], 0)))       \
     {                                                                                                                  \
         M32_ERROR("Current sprite index invalid!");                                                                    \
         continue;                                                                                                      \
@@ -262,7 +262,7 @@ static int X_DoSort(const void *lv, const void *rv)
     }
 
 #define X_ERROR_INVALIDSP()                                                                                            \
-    if (!vm.g_sp && (vm.g_st != 0 || searchstat != 3 || (vm.g_sp = (tspritetype *)&sprite[searchwall], 0)))            \
+    if (!vm.g_sp && (vm.g_st != 0 || searchstat != 3 || (vm.g_sp = (uspritetype *)&sprite[searchwall], 0)))            \
     {                                                                                                                  \
         M32_ERROR("Current sprite invalid!");                                                                          \
         continue;                                                                                                      \
@@ -1271,7 +1271,7 @@ skip_check:
                 const int32_t parm2 = how<=ITER_DRAWNSPRITES ? 0 : Gv_GetVarX(*insptr++);
                 instype *const end = insptr + *insptr, *const beg = ++insptr;
                 const int32_t vm_i_bak = vm.g_i;
-                tspritetype *const vm_sp_bak = vm.g_sp;
+                uspritetype *const vm_sp_bak = vm.g_sp;
 
                 if (vm.flags&VMFLAG_ERROR)
                     continue;
@@ -1285,7 +1285,7 @@ skip_check:
                             continue;
                         Gv_SetVarX(var, jj);
                         vm.g_i = jj;
-                        vm.g_sp = (tspritetype *)&sprite[jj];
+                        vm.g_sp = (uspritetype *)&sprite[jj];
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1331,7 +1331,7 @@ skip_check:
                             jj &= (MAXSPRITES-1);
                             Gv_SetVarX(var, jj);
                             vm.g_i = jj;
-                            vm.g_sp = (tspritetype *)&sprite[jj];
+                            vm.g_sp = (uspritetype *)&sprite[jj];
                             insptr = beg;
                             VM_Execute(1);
                         }
@@ -1359,27 +1359,27 @@ skip_check:
                     break;
                 case ITER_DRAWNSPRITES:
                 {
-                    tspritetype lastSpriteBackup;
-                    tspritetype *const lastSpritePtr = (tspritetype *)&sprite[MAXSPRITES-1];
+                    uspritetype lastSpriteBackup;
+                    uspritetype *const lastSpritePtr = (uspritetype *)&sprite[MAXSPRITES-1];
 
                     // Back up sprite MAXSPRITES-1.
-                    Bmemcpy(&lastSpriteBackup, lastSpritePtr, sizeof(tspritetype));
+                    Bmemcpy(&lastSpriteBackup, lastSpritePtr, sizeof(uspritetype));
 
                     for (int ii=0; ii<spritesortcnt && !vm.flags; ii++)
                     {
                         vm.g_sp = lastSpritePtr;
-                        Bmemcpy(lastSpritePtr, &tsprite[ii], sizeof(tspritetype));
+                        Bmemcpy(lastSpritePtr, &tsprite[ii], sizeof(uspritetype));
 
                         Gv_SetVarX(var, ii);
                         insptr = beg;
                         VM_Execute(1);
 
                         // Copy over potentially altered tsprite.
-                        Bmemcpy(&tsprite[ii], lastSpritePtr, sizeof(tspritetype));
+                        Bmemcpy(&tsprite[ii], lastSpritePtr, sizeof(uspritetype));
                     }
 
                     // Restore sprite MAXSPRITES-1.
-                    Bmemcpy(lastSpritePtr, &lastSpriteBackup, sizeof(tspritetype));
+                    Bmemcpy(lastSpritePtr, &lastSpriteBackup, sizeof(uspritetype));
                     break;
                 }
                 case ITER_SPRITESOFSECTOR:
@@ -1389,7 +1389,7 @@ skip_check:
                     {
                         Gv_SetVarX(var, jj);
                         vm.g_i = jj;
-                        vm.g_sp = (tspritetype *)&sprite[jj];
+                        vm.g_sp = (uspritetype *)&sprite[jj];
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1701,7 +1701,7 @@ badindex:
 
                 ret = insertsprite(dasectnum, 0);
                 vm.g_i = ret;
-                vm.g_sp = (tspritetype *)&sprite[ret];
+                vm.g_sp = (uspritetype *)&sprite[ret];
             }
             continue;
 
@@ -1736,7 +1736,7 @@ badindex:
 
                     Bmemcpy(&sprite[nspritenum], &sprite[ospritenum], sizeof(spritetype));
                     vm.g_i = nspritenum;
-                    vm.g_sp = (tspritetype *)&sprite[nspritenum];
+                    vm.g_sp = (uspritetype *)&sprite[nspritenum];
                 }
                 else
                 {
@@ -2833,7 +2833,7 @@ dodefault:
             newcurspritei = Gv_GetVarX(*insptr++);
             X_ERROR_INVALIDSPRI(newcurspritei);
             vm.g_i = newcurspritei;
-            vm.g_sp = (tspritetype *)&sprite[vm.g_i];
+            vm.g_sp = (uspritetype *)&sprite[vm.g_i];
             continue;
         }
 

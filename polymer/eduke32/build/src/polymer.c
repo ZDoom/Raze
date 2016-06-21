@@ -1460,14 +1460,14 @@ static void         polymer_drawsearchplane(_prplane *plane, GLubyte *oldcolor, 
 
 void                polymer_drawmaskwall(int32_t damaskwallcnt)
 {
-    tsectortype     *sec;
+    usectortype     *sec;
     walltype        *wal;
     _prwall         *w;
     GLubyte         oldcolor[4];
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Masked wall %i...\n", damaskwallcnt);
 
-    sec = (tsectortype *)&sector[sectorofwall(maskwall[damaskwallcnt])];
+    sec = (usectortype *)&sector[sectorofwall(maskwall[damaskwallcnt])];
     wal = &wall[maskwall[damaskwallcnt]];
     w = prwalls[maskwall[damaskwallcnt]];
 
@@ -1488,8 +1488,8 @@ void                polymer_drawsprite(int32_t snum)
     int32_t         i, j, cs;
     _prsprite       *s;
 
-    tspritetype      *const tspr = tspriteptr[snum];
-    const tsectortype *sec;
+    uspritetype      *const tspr = tspriteptr[snum];
+    const usectortype *sec;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Sprite %i...\n", snum);
 
@@ -1504,9 +1504,9 @@ void                polymer_drawsprite(int32_t snum)
 
     DO_TILE_ANIM(tspr->picnum, tspr->owner+32768);
 
-    sec = (tsectortype *)&sector[tspr->sectnum];
+    sec = (usectortype *)&sector[tspr->sectnum];
     calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, tspr->shade), sec->visibility,
-                       get_floor_fogpal((tsectortype *)&sector[tspr->sectnum]));
+                       get_floor_fogpal((usectortype *)&sector[tspr->sectnum]));
 
     if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 &&
         tile2model[Ptile2tile(tspr->picnum,tspr->pal)].framenum >= 0 &&
@@ -1757,7 +1757,7 @@ int32_t             polymer_havehighpalookup(int32_t basepalnum, int32_t palnum)
 // CORE
 static void         polymer_displayrooms(const int16_t dacursectnum)
 {
-    tsectortype      *sec;
+    usectortype      *sec;
     int32_t         i;
     int16_t         bunchnum;
     int16_t         ns;
@@ -1770,7 +1770,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
     GLfloat         localprojectionmatrix[16];
     float           frustum[5 * 4];
     int32_t         localspritesortcnt;
-    tspritetype     localtsprite[MAXSPRITESONSCREEN];
+    uspritetype     localtsprite[MAXSPRITESONSCREEN];
     int16_t         localmaskwall[MAXWALLSB];
     int16_t         localmaskwallcnt;
     _prmirror       mirrorlist[10];
@@ -1817,7 +1817,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
 
     while (front != back)
     {
-        sec = (tsectortype *)&sector[sectorqueue[front]];
+        sec = (usectortype *)&sector[sectorqueue[front]];
 
         polymer_pokesector(sectorqueue[front]);
         polymer_drawsector(sectorqueue[front], FALSE);
@@ -2542,12 +2542,12 @@ static void         polymer_freeboard(void)
 // SECTORS
 static int32_t      polymer_initsector(int16_t sectnum)
 {
-    tsectortype      *sec;
+    usectortype      *sec;
     _prsector*      s;
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Initializing sector %i...\n", sectnum);
 
-    sec = (tsectortype *)&sector[sectnum];
+    sec = (usectortype *)&sector[sectnum];
     s = (_prsector *)Xcalloc(1, sizeof(_prsector));
 
     s->verts = (GLdouble *)Xcalloc(sec->wallnum, sizeof(GLdouble) * 3);
@@ -2581,7 +2581,7 @@ static int32_t      polymer_initsector(int16_t sectnum)
 static int32_t      polymer_updatesector(int16_t sectnum)
 {
     _prsector*      s;
-    tsectortype      *sec;
+    usectortype      *sec;
     walltype        *wal;
     int32_t         i, j;
     int32_t         ceilz, florz;
@@ -2595,7 +2595,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
     if (pr_nullrender >= 3) return 0;
 
     s = prsectors[sectnum];
-    sec = (tsectortype *)&sector[sectnum];
+    sec = (usectortype *)&sector[sectnum];
 
     secangcos = secangsin = 2;
 
@@ -2914,13 +2914,13 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
 {
     // This function tesselates the floor/ceiling of a sector and stores the triangles in a display list.
     _prsector*      s;
-    tsectortype     *sec;
+    usectortype     *sec;
     intptr_t        i;
 
     if (pr_verbosity >= 2) OSD_Printf("PR : Tesselating floor of sector %i...\n", sectnum);
 
     s = prsectors[sectnum];
-    sec = (tsectortype *)&sector[sectnum];
+    sec = (usectortype *)&sector[sectnum];
 
     if (s == NULL)
         return (-1);
@@ -2973,7 +2973,7 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
 
 static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
 {
-    tsectortype     *sec;
+    usectortype     *sec;
     _prsector*      s;
     GLubyte         oldcolor[4];
     int32_t         draw;
@@ -2981,7 +2981,7 @@ static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing sector %i...\n", sectnum);
 
-    sec = (tsectortype *)&sector[sectnum];
+    sec = (usectortype *)&sector[sectnum];
     s = prsectors[sectnum];
 
     queuedmask = FALSE;
@@ -3549,7 +3549,7 @@ static void         polymer_updatewall(int16_t wallnum)
 
 static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
 {
-    tsectortype     *sec;
+    usectortype     *sec;
     walltype        *wal;
     _prwall         *w;
     GLubyte         oldcolor[4];
@@ -3557,7 +3557,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing wall %i...\n", wallnum);
 
-    sec = (tsectortype *)&sector[sectnum];
+    sec = (usectortype *)&sector[sectnum];
     wal = &wall[wallnum];
     w = prwalls[wallnum];
 
@@ -3817,7 +3817,7 @@ static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum)
     return 1;
 }
 
-static inline void  polymer_scansprites(int16_t sectnum, tspritetype* localtsprite, int32_t* localspritesortcnt)
+static inline void  polymer_scansprites(int16_t sectnum, uspritetype* localtsprite, int32_t* localspritesortcnt)
 {
     int32_t         i;
     spritetype      *spr;
@@ -3842,7 +3842,7 @@ void                polymer_updatesprite(int32_t snum)
 {
     int32_t         xsize, ysize, i, j;
     int32_t         tilexoff, tileyoff, xoff, yoff, centeryoff=0;
-    tspritetype      *tspr = tspriteptr[snum];
+    uspritetype      *tspr = tspriteptr[snum];
     float           xratio, yratio, ang;
     float           spos[3];
     const _prvert   *inbuffer;
@@ -4328,7 +4328,7 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
 }
 
 // MDSPRITES
-static void         polymer_drawmdsprite(tspritetype *tspr)
+static void         polymer_drawmdsprite(uspritetype *tspr)
 {
     md3model_t*     m;
     mdskinmap_t*    sk;

@@ -254,9 +254,9 @@ struct {
 ffi.cdef([[
 typedef $ sectortype;
 typedef $ walltype;
-// NOTE: spritetype and tspritetype are different types with the same data members.
+// NOTE: spritetype and uspritetype are different types with the same data members.
 typedef $ spritetype;
-typedef struct { spritetype; } tspritetype;
+typedef struct { spritetype; } uspritetype;
 
 typedef struct {
     int32_t x, y;
@@ -326,7 +326,7 @@ if (ffiC.engine_main_arrays_are_static ~= 0) then
     sectortype sector[];
     walltype wall[];
     spritetype sprite[];
-    tspritetype tsprite[];
+    uspritetype tsprite[];
     spriteext_t spriteext[];
     ]]
 else
@@ -334,7 +334,7 @@ else
     sectortype *sector;
     walltype *wall;
     spritetype *sprite;
-    tspritetype *tsprite;
+    uspritetype *tsprite;
     spriteext_t *spriteext;
     ]]
 end
@@ -673,8 +673,8 @@ local spriteext_mt = {
 ffi.metatype("spriteext_t", spriteext_mt)
 
 local spritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof(strip_const(SPRITE_STRUCT)))
--- NOTE: this is the *protected* tspritetype pointer.
-local tspritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof("tspritetype"))
+-- NOTE: this is the *protected* uspritetype pointer.
+local tspritetype_ptr_ct = ffi.typeof("$ *", ffi.typeof("uspritetype"))
 
 local intarg = ffi.new("int32_t[1]")
 
@@ -841,7 +841,7 @@ function finish_spritetype(mt_index)
         tspritetype_mt.__index[name] = func
     end
     ffi.metatype("spritetype", spritetype_mt)
-    ffi.metatype("tspritetype", tspritetype_mt)
+    ffi.metatype("uspritetype", tspritetype_mt)
 end
 
 

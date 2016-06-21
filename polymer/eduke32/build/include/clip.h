@@ -45,8 +45,8 @@ extern clipinfo_t clipinfo[CM_MAX];
 typedef struct
 {
     int16_t numsectors, numwalls;
-    tsectortype *sector;
-    twalltype *wall;
+    usectortype *sector;
+    uwalltype *wall;
 } mapinfo_t;
 
 extern mapinfo_t origmapinfo, clipmapinfo;

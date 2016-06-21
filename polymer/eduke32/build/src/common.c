@@ -189,15 +189,15 @@ int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char
 
 int32_t ldist(const void *s1, const void *s2)
 {
-    tspritetype const *const sp1 = (tspritetype const *)s1;
-    tspritetype const *const sp2 = (tspritetype const *)s2;
+    uspritetype const *const sp1 = (uspritetype const *)s1;
+    uspritetype const *const sp2 = (uspritetype const *)s2;
     return sepldist(sp1->x - sp2->x, sp1->y - sp2->y);
 }
 
 int32_t dist(const void *s1, const void *s2)
 {
-    tspritetype const *const sp1 = (tspritetype const *)s1;
-    tspritetype const *const sp2 = (tspritetype const *)s2;
+    uspritetype const *const sp1 = (uspritetype const *)s1;
+    uspritetype const *const sp2 = (uspritetype const *)s2;
     return sepdist(sp1->x - sp2->x, sp1->y - sp2->y, sp1->z - sp2->z);
 }
 

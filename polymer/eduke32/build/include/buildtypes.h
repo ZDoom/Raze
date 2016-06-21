@@ -9,9 +9,9 @@
 
 #define StructTracker(tracker, type) type
 
-#define WALLTYPE twalltype
-#define SECTORTYPE tsectortype
-#define SPRITETYPE tspritetype
+#define WALLTYPE uwalltype
+#define SECTORTYPE usectortype
+#define SPRITETYPE uspritetype
 
 #else
 

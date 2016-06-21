@@ -421,7 +421,7 @@ static inline void  polymer_normalize(float* vec);
 static inline void  polymer_pokesector(int16_t sectnum);
 static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projection, float* frustum);
 static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum);
-static inline void  polymer_scansprites(int16_t sectnum, tspritetype* tsprite, int32_t* spritesortcnt);
+static inline void  polymer_scansprites(int16_t sectnum, uspritetype* tsprite, int32_t* spritesortcnt);
 static void         polymer_updatesprite(int32_t snum);
 // SKIES
 static void         polymer_getsky(void);
@@ -431,7 +431,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
 static void         polymer_drawartskyquad(int32_t p1, int32_t p2, GLfloat height);
 static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shade);
 // MDSPRITES
-static void         polymer_drawmdsprite(tspritetype *tspr);
+static void         polymer_drawmdsprite(uspritetype *tspr);
 static void         polymer_loadmodelvbos(md3model_t* m);
 // MATERIALS
 static void         polymer_getscratchmaterial(_prmaterial* material);

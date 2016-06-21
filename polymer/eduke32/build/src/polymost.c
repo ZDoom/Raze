@@ -2464,7 +2464,7 @@ void polymost_editorfunc(void)
             if (spritesortcnt == MAXSPRITESONSCREEN)
                 spritesortcnt--;
 
-            tspritetype *tsp = &tsprite[spritesortcnt];
+            uspritetype *tsp = &tsprite[spritesortcnt];
             double dadist, x, y, z;
             Bmemcpy(tsp, &hit->pos, sizeof(vec3_t));
             x = tsp->x-globalposx; y=tsp->y-globalposy; z=(tsp->z-globalposz)/16.0;
@@ -2592,7 +2592,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
 {
     int const have_floor = sectnum & MAXSECTORS;
     sectnum &= ~MAXSECTORS;
-    tsectortype const * const sec = (tsectortype *)&sector[sectnum];
+    usectortype const * const sec = (usectortype *)&sector[sectnum];
 
     // comments from floor code:
             //(singlobalang/-16384*(sx-ghalfx) + 0*(sy-ghoriz) + (cosviewingrangeglobalang/16384)*ghalfx)*d + globalposx    = u*16
@@ -2839,7 +2839,7 @@ static void polymost_drawalls(int32_t const bunch)
     drawpoly_alpha = 0.f;
 
     int32_t const sectnum = thesector[bunchfirst[bunch]];
-    tsectortype const * const sec = (tsectortype *)&sector[sectnum];
+    usectortype const * const sec = (usectortype *)&sector[sectnum];
 
     //DRAW WALLS SECTION!
     for (int z=bunchfirst[bunch]; z>=0; z=bunchp2[z])
@@ -2851,9 +2851,9 @@ static void polymost_drawalls(int32_t const bunch)
             continue;
 #endif
 
-        twalltype * const wal = (twalltype *)&wall[wallnum], *wal2 = (twalltype *)&wall[wal->point2];
+        uwalltype * const wal = (uwalltype *)&wall[wallnum], *wal2 = (uwalltype *)&wall[wal->point2];
         int32_t const nextsectnum = wal->nextsector;
-        tsectortype * const nextsec = nextsectnum>=0 ? (tsectortype *)&sector[nextsectnum] : NULL;
+        usectortype * const nextsec = nextsectnum>=0 ? (usectortype *)&sector[nextsectnum] : NULL;
 
         //Offset&Rotate 3D coordinates to screen 3D space
         vec2f_t walpos = { (float)(wal->x-globalposx), (float)(wal->y-globalposy) };
@@ -3544,12 +3544,12 @@ static void polymost_drawalls(int32_t const bunch)
             }
             if (((ofy0 < fy0) || (ofy1 < fy1)) && (!((sec->floorstat&sector[nextsectnum].floorstat)&1)))
             {
-                twalltype *nwal;
+                uwalltype *nwal;
 
                 if (!(wal->cstat&2)) nwal = wal;
                 else
                 {
-                    nwal = (twalltype *)&wall[wal->nextwall];
+                    nwal = (uwalltype *)&wall[wal->nextwall];
                     otex.u += (float)(nwal->xpanning - wal->xpanning) * otex.d;
                     xtex.u += (float)(nwal->xpanning - wal->xpanning) * xtex.d;
                     ytex.u += (float)(nwal->xpanning - wal->xpanning) * ytex.d;
@@ -3672,7 +3672,7 @@ void polymost_scansector(int32_t sectnum)
 
         for (int z=headspritesect[sectnum]; z>=0; z=nextspritesect[z])
         {
-            tspritetype const * const spr = (tspritetype *)&sprite[z];
+            uspritetype const * const spr = (uspritetype *)&sprite[z];
 
             if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) && (spr->xrepeat > 0) && (spr->yrepeat > 0))
             {
@@ -3697,12 +3697,12 @@ void polymost_scansector(int32_t sectnum)
         int scanfirst = numscans;
         vec2f_t p2 = { 0, 0 };
 
-        twalltype *wal;
+        uwalltype *wal;
         int z;
 
-        for (z=startwall,wal=(twalltype *)&wall[z]; z<endwall; z++,wal++)
+        for (z=startwall,wal=(uwalltype *)&wall[z]; z<endwall; z++,wal++)
         {
-            twalltype const * const wal2 = (twalltype *)&wall[wal->point2];
+            uwalltype const * const wal2 = (uwalltype *)&wall[wal->point2];
             vec2f_t const fp1 = { (float)(wal->x-globalposx), (float)(wal->y-globalposy) };
             vec2f_t const fp2 = { (float)(wal2->x-globalposx), (float)(wal2->y-globalposy) };
 
@@ -4059,15 +4059,15 @@ void polymost_drawrooms()
 void polymost_drawmaskwall(int32_t damaskwallcnt)
 {
     int const z = maskwall[damaskwallcnt];
-    twalltype const * const wal = (twalltype *)&wall[thewall[z]], *wal2 = (twalltype *)&wall[wal->point2];
+    uwalltype const * const wal = (uwalltype *)&wall[thewall[z]], *wal2 = (uwalltype *)&wall[wal->point2];
     int32_t const sectnum = thesector[z];
-    tsectortype const * const sec = (tsectortype *)&sector[sectnum];
+    usectortype const * const sec = (usectortype *)&sector[sectnum];
 
 //    if (wal->nextsector < 0) return;
     // Without MASKWALL_BAD_ACCESS fix:
     // wal->nextsector is -1, WGR2 SVN Lochwood Hollow (Til' Death L1)  (or trueror1.map)
 
-    tsectortype const * const nsec = (tsectortype *)&sector[wal->nextsector];
+    usectortype const * const nsec = (usectortype *)&sector[wal->nextsector];
 
     globalpicnum = wal->overpicnum;
     if ((uint32_t)globalpicnum >= MAXTILES)
@@ -4264,10 +4264,10 @@ typedef struct
 
 wallspriteinfo_t wsprinfo[MAXSPRITES];
 
-static inline int32_t polymost_findwall(tspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
+static inline int32_t polymost_findwall(uspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
     int32_t dist = 4, closest = -1;
-    tsectortype const * const sect = (tsectortype  * )&sector[tspr->sectnum];
+    usectortype const * const sect = (usectortype  * )&sector[tspr->sectnum];
     vec2_t n;
 
     for (int i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
@@ -4336,12 +4336,12 @@ int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 
 void polymost_drawsprite(int32_t snum)
 {
-    tspritetype *const tspr = tspriteptr[snum];
+    uspritetype *const tspr = tspriteptr[snum];
 
     if (EDUKE32_PREDICT_FALSE(bad_tspr(tspr)))
         return;
 
-    const tsectortype *sec;
+    const usectortype *sec;
 
     int32_t spritenum = tspr->owner;
 
@@ -4372,7 +4372,7 @@ void polymost_drawsprite(int32_t snum)
 
     drawpoly_alpha = spriteext[spritenum].alpha;
 
-    sec = (tsectortype *)&sector[tspr->sectnum];
+    sec = (usectortype *)&sector[tspr->sectnum];
 
     calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, globalshade), sec->visibility, get_floor_fogpal(sec));
 
@@ -4969,7 +4969,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
     vec3f_t vec1;
 
-    tspritetype tspr;
+    uspritetype tspr;
     Bmemset(&tspr, 0, sizeof(spritetype));
 
     hudtyp const * const hud = tile2model[tilenum].hudmem[(dastat&4)>>2];

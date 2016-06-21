@@ -99,7 +99,7 @@ void G_ClearCameraView(DukePlayer_t *ps)
 }
 
 // Manhattan distance between wall-point and sprite.
-static inline int32_t G_WallSpriteDist(const twalltype * const wal, const tspritetype * const spr)
+static inline int32_t G_WallSpriteDist(const uwalltype * const wal, const uspritetype * const spr)
 {
     return klabs(wal->x - spr->x) + klabs(wal->y - spr->y);
 }
@@ -107,7 +107,7 @@ static inline int32_t G_WallSpriteDist(const twalltype * const wal, const tsprit
 void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3, int32_t hp4)
 {
     int32_t d, q, stati;
-    tspritetype const *const s = (tspritetype *)&sprite[i];
+    uspritetype const *const s = (uspritetype *)&sprite[i];
 
     static const int32_t statlist[] = {
         STAT_DEFAULT, STAT_ACTOR, STAT_STANDABLE,
@@ -130,7 +130,7 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
 
         do
         {
-            const twalltype *wal;
+            const uwalltype *wal;
             const int32_t dasect = sectorlist[sectcnt++];
             const int32_t startwall = sector[dasect].wallptr;
             const int32_t endwall = startwall+sector[dasect].wallnum;
@@ -140,8 +140,8 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
 
             // Check if "hit" 1st or 3rd wall-point. This mainly makes sense
             // for rectangular "ceiling light"-style sectors.
-            if (G_WallSpriteDist((twalltype *)&wall[startwall], s) < r ||
-                    G_WallSpriteDist((twalltype *)&wall[wall[w2].point2], s) < r)
+            if (G_WallSpriteDist((uwalltype *)&wall[startwall], s) < r ||
+                    G_WallSpriteDist((uwalltype *)&wall[wall[w2].point2], s) < r)
             {
                 if (((sector[dasect].ceilingz-s->z)>>8) < r)
                     Sect_DamageCeilingOrFloor(0, dasect);
@@ -149,7 +149,7 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
                     Sect_DamageCeilingOrFloor(1, dasect);
             }
 
-            for (w=startwall,wal=(twalltype *)&wall[startwall]; w<endwall; w++,wal++)
+            for (w=startwall,wal=(uwalltype *)&wall[startwall]; w<endwall; w++,wal++)
                 if (G_WallSpriteDist(wal, s) < r)
                 {
                     int16_t sect = -1;
@@ -205,12 +205,12 @@ SKIPWALLCHECK:
                 if (s->picnum != SHRINKSPARK || (sj->cstat&257))
                     if (dist(s, sj) < r)
                     {
-                        if (A_CheckEnemySprite((tspritetype *)sj) && !cansee(sj->x, sj->y,sj->z+q, sj->sectnum, s->x, s->y, s->z+q, s->sectnum))
+                        if (A_CheckEnemySprite((uspritetype *)sj) && !cansee(sj->x, sj->y,sj->z+q, sj->sectnum, s->x, s->y, s->z+q, s->sectnum))
                             goto BOLT;
                         A_DamageObject(j, i);
                     }
             }
-            else if (sj->extra >= 0 && (tspritetype *)sj != s && (sj->picnum == TRIPBOMB || A_CheckEnemySprite((tspritetype *)sj) || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL || (sj->cstat&257) || sj->picnum == DUKELYINGDEAD))
+            else if (sj->extra >= 0 && (uspritetype *)sj != s && (sj->picnum == TRIPBOMB || A_CheckEnemySprite((uspritetype *)sj) || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL || (sj->cstat&257) || sj->picnum == DUKELYINGDEAD))
             {
                 if (s->picnum == SHRINKSPARK && sj->picnum != SHARK && (j == s->owner || sj->xrepeat < 24))
                 {
@@ -304,13 +304,13 @@ BOLT:
 // <spritenum>: the projectile
 // <i>: the SE7
 // <fromunderp>: below->above change?
-static int32_t Proj_MaybeDoTransport(int32_t spritenum, const tspritetype * const effector, int32_t fromunderp, int32_t daz)
+static int32_t Proj_MaybeDoTransport(int32_t spritenum, const uspritetype * const effector, int32_t fromunderp, int32_t daz)
 {
     if (totalclock <= actor[spritenum].lasttransport)
         return 0;
 
     spritetype *const spr = &sprite[spritenum];
-    const tspritetype *const otherse = (tspritetype *)&sprite[effector->owner];
+    const uspritetype *const otherse = (uspritetype *)&sprite[effector->owner];
 
     actor[spritenum].lasttransport = totalclock + (TICSPERFRAME<<2);
 
@@ -401,7 +401,7 @@ static int32_t A_CheckNeedZUpdate(int32_t spritenum, int32_t changez, int32_t *d
 int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t cliptype, int32_t clipdist)
 {
     spritetype *const spr = &sprite[spritenum];
-    const int32_t badguy = A_CheckEnemySprite((tspritetype *)spr);
+    const int32_t badguy = A_CheckEnemySprite((uspritetype *)spr);
     const int32_t oldx = spr->x, oldy = spr->y;
 
     if (spr->statnum == STAT_MISC || (badguy && spr->xrepeat < 4))
@@ -540,12 +540,12 @@ int32_t A_MoveSpriteClipdist(int32_t spritenum, const vec3_t *change, uint32_t c
 
                     if (lotag == ST_1_ABOVE_WATER)
                         if (daz >= actor[spritenum].floorz)
-                            if (Proj_MaybeDoTransport(spritenum, (tspritetype *)&sprite[i], 0, daz))
+                            if (Proj_MaybeDoTransport(spritenum, (uspritetype *)&sprite[i], 0, daz))
                                 return 0;
 
                     if (lotag == ST_2_UNDERWATER)
                         if (daz <= actor[spritenum].ceilingz)
-                            if (Proj_MaybeDoTransport(spritenum, (tspritetype *)&sprite[i], 1, daz))
+                            if (Proj_MaybeDoTransport(spritenum, (uspritetype *)&sprite[i], 1, daz))
                                 return 0;
                 }
         }
@@ -641,7 +641,7 @@ void A_DoGuts(int32_t sp, int32_t gtype, int32_t n)
     int32_t gutz,floorz;
     int32_t i,a,j,sx = 32,sy = 32;
 
-    tspritetype const * const s = (tspritetype *)&sprite[sp];
+    uspritetype const * const s = (uspritetype *)&sprite[sp];
 
     if (A_CheckEnemySprite(s) && s->xrepeat < 16)
         sx = sy = 8;
@@ -673,7 +673,7 @@ void A_DoGutsDir(int32_t sp, int32_t gtype, int32_t n)
 {
     int32_t gutz,floorz;
     int32_t i,a,j,sx = 32,sy = 32;
-    tspritetype const * const s = (tspritetype *)&sprite[sp];
+    uspritetype const * const s = (uspritetype *)&sprite[sp];
 
     if (A_CheckEnemySprite(s) && s->xrepeat < 16)
         sx = sy = 8;
@@ -876,7 +876,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                 actor[i].timetosleep++;
                 if (actor[i].timetosleep >= (x>>8))
                 {
-                    if (A_CheckEnemySprite((tspritetype *)s))
+                    if (A_CheckEnemySprite((uspritetype *)s))
                     {
                         const int32_t px = g_player[p].ps->opos.x+64-(krand()&127);
                         const int32_t py = g_player[p].ps->opos.y+64-(krand()&127);
@@ -947,7 +947,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                 }
             }
 
-            if (A_CheckEnemySprite((tspritetype *)s) && A_CheckSpriteFlags(i,SFLAG_NOSHADE) == 0)
+            if (A_CheckEnemySprite((uspritetype *)s) && A_CheckSpriteFlags(i,SFLAG_NOSHADE) == 0)
             {
                 if (sector[s->sectnum].ceilingstat&1)
                     s->shade = sector[s->sectnum].ceilingshade;
@@ -3064,7 +3064,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     j &= (MAXSPRITES-1);
 
                     if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
-                        if (A_CheckEnemySprite((tspritetype *)&sprite[j]) || sprite[j].picnum == APLAYER)
+                        if (A_CheckEnemySprite((uspritetype *)&sprite[j]) || sprite[j].picnum == APLAYER)
                         {
                             j = A_Spawn(i, TRANSPORTERSTAR);
                             sprite[j].pal = 1;
@@ -4913,7 +4913,7 @@ DETONATEB:
             goto BOLT;
         }
 
-        if (!g_netServer && ud.multimode < 2 && A_CheckEnemySprite((tspritetype *)s))
+        if (!g_netServer && ud.multimode < 2 && A_CheckEnemySprite((uspritetype *)s))
         {
             if (g_noEnemies == 1)
             {
@@ -5598,7 +5598,7 @@ static void MaybeTrainKillEnemies(int32_t i, int32_t numguts)
     {
         const int32_t nextj = nextspritesect[j];
 
-        if (sprite[j].extra >= 0 && sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite((tspritetype *)&sprite[j]))
+        if (sprite[j].extra >= 0 && sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite((uspritetype *)&sprite[j]))
         {
             int16_t k = sprite[j].sectnum;
 
@@ -6564,7 +6564,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     for (SPRITES_OF(STAT_ACTOR, k))
                     {
-                        if (sprite[k].extra > 0 && A_CheckEnemySprite((tspritetype *)&sprite[k])
+                        if (sprite[k].extra > 0 && A_CheckEnemySprite((uspritetype *)&sprite[k])
                                 && clipinsidebox((vec2_t *)&sprite[k], j, 256) == 1)
                             goto BOLT;
                     }
@@ -7756,7 +7756,7 @@ BOLT:
 
         if (s->lotag == SE_29_WAVES)
         {
-            tsectortype const *const sc = (tsectortype *)&sector[s->sectnum];
+            usectortype const *const sc = (usectortype *)&sector[s->sectnum];
 
             if (sc->wallnum == 4)
             {

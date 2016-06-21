@@ -270,7 +270,7 @@ extern uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[409
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
 extern int16_t bunchfirst[MAXWALLSB], bunchlast[MAXWALLSB];
 extern int16_t maskwall[MAXWALLSB], maskwallcnt;
-extern tspritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
+extern uspritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern intptr_t frameoffset;
@@ -318,7 +318,7 @@ void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t
 
 extern void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
     int32_t *y1, int32_t *y2);
-extern void get_floorspr_points(const tspritetype *spr, int32_t px, int32_t py,
+extern void get_floorspr_points(const uspritetype *spr, int32_t px, int32_t py,
     int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
     int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
 
@@ -340,7 +340,7 @@ int32_t animateoffs(int const tilenum);
     } while (0)
 #endif
 
-FORCE_INLINE int32_t bad_tspr(const tspritetype *tspr)
+FORCE_INLINE int32_t bad_tspr(const uspritetype *tspr)
 {
     // NOTE: tspr->owner >= MAXSPRITES (could be model) has to be handled by
     // caller.

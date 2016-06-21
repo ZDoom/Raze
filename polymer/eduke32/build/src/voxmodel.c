@@ -896,7 +896,7 @@ voxmodel_t *voxload(const char *filnam)
 }
 
 //Draw voxel model as perfect cubes
-int32_t polymost_voxdraw(voxmodel_t *m, const tspritetype *tspr)
+int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
 {
     // float clut[6] = {1.02,1.02,0.94,1.06,0.98,0.98};
     float f, g, k0;

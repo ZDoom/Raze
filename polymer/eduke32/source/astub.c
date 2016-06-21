@@ -9022,7 +9022,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
         if (in3dmode() && AIMING_AT_SPRITE)
         {
             vm.g_i = searchwall;
-            vm.g_sp = (tspritetype *)&sprite[vm.g_i];
+            vm.g_sp = (uspritetype *)&sprite[vm.g_i];
         }
 
         // If OSD is down, that would interfere with user input, so don't consider
@@ -10402,7 +10402,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr)
 {
     int32_t i, k;
-    tspritetype *tspr;
+    uspritetype *tspr;
     int32_t frames=0, sh;
 
     UNREFERENCED_PARAMETER(ourx);
