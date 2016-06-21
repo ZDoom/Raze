@@ -64,7 +64,7 @@ extern int16_t globalpicnum;
 extern int32_t globalpal;
 
 // Compare with polymer_eligible_for_artmap()
-static inline int32_t eligible_for_tileshades(int32_t const picnum, int32_t const pal)
+FORCE_INLINE int32_t eligible_for_tileshades(int32_t const picnum, int32_t const pal)
 {
     return !usehightile || !hicfindsubst(picnum, pal);
 }
@@ -87,29 +87,29 @@ static inline float getshadefactor(int32_t const shade)
 
 #define POLYMOST_CHOOSE_FOG_PAL(fogpal, pal) \
     ((fogpal) ? (fogpal) : (pal))
-static inline int32_t get_floor_fogpal(usectortype const * const sec)
+FORCE_INLINE int32_t get_floor_fogpal(usectortype const * const sec)
 {
     return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->floorpal);
 }
-static inline int32_t get_ceiling_fogpal(usectortype const * const sec)
+FORCE_INLINE int32_t get_ceiling_fogpal(usectortype const * const sec)
 {
     return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->ceilingpal);
 }
-static inline int32_t fogpal_shade(usectortype const * const sec, int32_t const shade)
+FORCE_INLINE int32_t fogpal_shade(usectortype const * const sec, int32_t const shade)
 {
     // When fogging is due to sector[].fogpal, don't make the fog parameters
     // depend on the shade of the object.
     return sec->fogpal ? 0 : shade;
 }
 
-static inline int check_nonpow2(int32_t const x)
+FORCE_INLINE int check_nonpow2(int32_t const x)
 {
     return (x > 1 && (x&(x-1)));
 }
 
 // Are we using the mode that uploads non-power-of-two wall textures like they
 // render in classic?
-static inline int polymost_is_npotmode(void)
+FORCE_INLINE int polymost_is_npotmode(void)
 {
     // The glinfo.texnpot check is so we don't have to deal with that case in
     // gloadtile_art().
@@ -189,7 +189,7 @@ EDUKE32_STATIC_ASSERT(TO_DAMETH_NOTEXCOMPRESS(HICR_NOTEXCOMPRESS) == DAMETH_NOTE
 EDUKE32_STATIC_ASSERT(TO_DAMETH_ARTIMMUNITY(HICR_ARTIMMUNITY) == DAMETH_ARTIMMUNITY);
 
 // Do we want a NPOT-y-as-classic texture for this <dameth> and <ysiz>?
-static inline int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
+FORCE_INLINE int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
 {
     return getrendermode() != REND_POLYMER &&  // r_npotwallmode NYI in Polymer
         polymost_is_npotmode() && (dameth&DAMETH_WALL) && check_nonpow2(ysiz);
