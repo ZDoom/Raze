@@ -941,6 +941,9 @@
     <ClCompile Include="build\src\palette.c">
       <Filter>build\source</Filter>
     </ClCompile>
+    <ClCompile Include="build\src\2d.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile.msvc">

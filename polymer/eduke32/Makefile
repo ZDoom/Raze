@@ -43,6 +43,7 @@ ENGINE_OBJS = \
     crc32 \
     defs \
     engine \
+    2d \
     hash \
     palette \
     polymost \

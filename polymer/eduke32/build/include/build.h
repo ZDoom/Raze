@@ -644,6 +644,7 @@ EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;
 EXTERN int16_t thewall[MAXWALLSB];
 EXTERN tspritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
+EXTERN int32_t wx1, wy1, wx2, wy2;
 EXTERN int32_t xdim, ydim, numpages;
 EXTERN int32_t yxaspect, viewingrange;
 EXTERN intptr_t *ylookup;

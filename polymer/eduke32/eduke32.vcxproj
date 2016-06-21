@@ -253,6 +253,7 @@
     <ClInclude Include="source\enet\include\enet\win32.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="build\src\2d.c" />
     <ClCompile Include="build\src\a-c.c" />
     <ClCompile Include="build\src\baselayer.c" />
     <ClCompile Include="build\src\build.c" />
