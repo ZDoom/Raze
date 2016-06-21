@@ -1,6 +1,15 @@
 #include "build.h"
 #include "engine_priv.h"
 
+int16_t clipnum;
+linetype clipit[MAXCLIPNUM];
+int32_t clipsectnum, origclipsectnum, clipspritenum;
+int16_t clipsectorlist[MAXCLIPNUM], origclipsectorlist[MAXCLIPNUM];
+#ifdef HAVE_CLIPSHAPE_FEATURE
+int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
+#endif
+static int16_t clipobjectval[MAXCLIPNUM];
+
 ////// sector-like clipping for sprites //////
 #ifdef HAVE_CLIPSHAPE_FEATURE
 void mapinfo_set(mapinfo_t *bak, mapinfo_t *newmap)
@@ -38,14 +47,6 @@ static tsectortype *loadsector;
 static twalltype *loadwall, *loadwallinv;
 static tspritetype *loadsprite;
 
-int16_t clipnum;
-linetype clipit[MAXCLIPNUM];
-int32_t clipsectnum, origclipsectnum, clipspritenum;
-int16_t clipsectorlist[MAXCLIPNUM], origclipsectorlist[MAXCLIPNUM];
-#ifdef HAVE_CLIPSHAPE_FEATURE
-int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
-#endif
-static int16_t clipobjectval[MAXCLIPNUM];
 
 void clipmapinfo_init()
 {
@@ -532,17 +533,17 @@ int32_t clipmoveboxtracenum = 3;
 //
 // clipinsidebox
 //
-int32_t clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist)
+int32_t clipinsidebox(vec2_t *vect, int16_t wallnum, int32_t walldist)
 {
     int32_t const r = walldist<<1;
     twalltype const *wal = (twalltype *) &wall[wallnum];
-    vec2_t const v1 ={ wal->x + walldist - x, wal->y + walldist - y };
+    vec2_t const v1 ={ wal->x + walldist - vect->x, wal->y + walldist - vect->y };
     wal = (twalltype *) &wall[wal->point2];
-    vec2_t v2 ={ wal->x + walldist - x, wal->y + walldist - y };
+    vec2_t v2 ={ wal->x + walldist - vect->x, wal->y + walldist - vect->y };
 
     if (((v1.x < 0) && (v2.x < 0)) || ((v1.y < 0) && (v2.y < 0)) ||
         ((v1.x >= r) && (v2.x >= r)) || ((v1.y >= r) && (v2.y >= r)))
-        return (0);
+        return 0;
 
     v2.x -= v1.x; v2.y -= v1.y;
 
@@ -569,12 +570,12 @@ int32_t clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t 
     x1 += walldist-x; x2 += walldist-x;
 
     if (((x1 < 0) && (x2 < 0)) || ((x1 >= r) && (x2 >= r)))
-        return (0);
+        return 0;
 
     y1 += walldist-y; y2 += walldist-y;
 
     if (((y1 < 0) && (y2 < 0)) || ((y1 >= r) && (y2 >= r)))
-        return (0);
+        return 0;
 
     x2 -= x1; y2 -= y1;
 
@@ -607,23 +608,22 @@ int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_
 
         if ((spr->cstat&48)!=32)  // face/wall sprite
         {
-            int32_t tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
+            int32_t const tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
             maxcorrection = divideu32_noinline(maxcorrection * (int32_t) spr->xrepeat, tempint1);
         }
         else  // floor sprite
         {
-            int32_t tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
-            int32_t tempint2 = clipmapinfo.sector[k].CM_YREPEAT;
+            int32_t const tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
+            int32_t const tempint2 = clipmapinfo.sector[k].CM_YREPEAT;
             maxcorrection = max(divideu32_noinline(maxcorrection * (int32_t) spr->xrepeat, tempint1),
                 divideu32_noinline(maxcorrection * (int32_t) spr->yrepeat, tempint2));
         }
 
         maxcorrection -= MAXCLIPDIST;
 
-        if (spr->x < xmin - maxcorrection) return 1;
-        if (spr->y < ymin - maxcorrection) return 1;
-        if (spr->x > xmax + maxcorrection) return 1;
-        if (spr->y > ymax + maxcorrection) return 1;
+        if ((spr->x < xmin - maxcorrection) || (spr->y < ymin - maxcorrection) ||
+            (spr->x > xmax + maxcorrection) || (spr->y > ymax + maxcorrection))
+            return 1;
 
         if (clipspritenum < MAXCLIPNUM)
             clipspritelist[clipspritenum++] = spr-sprite;
@@ -681,17 +681,17 @@ int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t *clipse
     for (k=clipinfo[curidx].qbeg; k<=clipinfo[curidx].qend; k++)
     {
         const int32_t j = sectq[k];
-        sectortype *const sec = &sector[j];
+        tsectortype *const sec = (tsectortype *)&sector[j];
         const int32_t startwall = sec->wallptr, endwall = startwall+sec->wallnum;
 
         int32_t w;
-        walltype *wal;
+        twalltype *wal;
 
         sec->floorz = daz + mulscale22(scalez, CM_FLOORZ(j));
         sec->ceilingz = daz + mulscale22(scalez, CM_CEILINGZ(j));
         //initprintf("sec %d: f=%d, c=%d\n", j, sec->floorz, sec->ceilingz);
 
-        for (w=startwall, wal=&wall[startwall]; w<endwall; w++, wal++)
+        for (w=startwall, wal=(twalltype *)&wall[startwall]; w<endwall; w++, wal++)
         {
             wal->x = mulscale22(scalex, CM_WALL_X(w));
             wal->y = mulscale22(scaley, CM_WALL_Y(w));
@@ -717,6 +717,7 @@ int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t *clipse
 
     return flipmul;
 }
+
 #endif
 
 static int32_t clipmove_warned=0;
@@ -737,9 +738,8 @@ static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, 
     }
 }
 
-static inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy,
-    int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-    int32_t *daxptr, int32_t *dayptr)
+FORCE_INLINE void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy, int32_t x1, int32_t y1, int32_t x2,
+                                      int32_t y2, int32_t *daxptr, int32_t *dayptr)
 {
     int32_t daz;
 
@@ -751,11 +751,11 @@ static inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy,
 }
 
 // Returns: should clip?
-static int32_t check_floor_curb(int32_t dasect, int32_t nextsect, int32_t flordist,
-    int32_t posz, int32_t dax, int32_t day)
+static int32_t check_floor_curb(int32_t dasect, int32_t nextsect, int32_t flordist, int32_t posz,
+                                int32_t dax, int32_t day)
 {
-    const sectortype *sec2 = &sector[nextsect];
-    int32_t daz2 = getflorzofslope(nextsect, dax, day);
+    tsectortype const * const sec2 = (tsectortype *)&sector[nextsect];
+    int32_t const daz2 = getflorzofslope(nextsect, dax, day);
 
     return ((sec2->floorstat&1) == 0 &&  // parallaxed floor curbs don't clip
         posz >= daz2-(flordist-1) &&  // also account for desired z distance tolerance
@@ -763,9 +763,9 @@ static int32_t check_floor_curb(int32_t dasect, int32_t nextsect, int32_t flordi
 }
 
 int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
-    int32_t xvect, int32_t yvect,
-    int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype,
-    uint8_t noslidep)
+                  int32_t xvect, int32_t yvect,
+                  int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype,
+                  uint8_t noslidep)
 {
     const int32_t oboxtracenum = clipmoveboxtracenum;
 
@@ -860,6 +860,9 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
     int32_t xvect, int32_t yvect,
     int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
 {
+    if ((xvect|yvect) == 0 || *sectnum < 0)
+        return 0;
+
     int32_t i, j, k, tempint1, tempint2;
     int32_t x1, y1, x2, y2;
     int32_t dax, day;
@@ -884,8 +887,6 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
     const int32_t xmin = cx-rad, ymin = cy-rad;
     const int32_t xmax = cx+rad, ymax = cy+rad;
 
-    if ((xvect|yvect) == 0 || *sectnum < 0)
-        return 0;
 
     clipmove_warned = 0;
     clipnum = 0;
@@ -895,8 +896,8 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
     clipspritecnt = 0; clipspritenum = 0;
     do
     {
-        const walltype *wal;
-        const sectortype *sec;
+        const twalltype *wal;
+        const tsectortype *sec;
         int32_t dasect, startwall, endwall;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -935,17 +936,16 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
         ////////// Walls //////////
 
-        sec = &sector[dasect];
+        sec = (tsectortype *)&sector[dasect];
         startwall = sec->wallptr; endwall = startwall + sec->wallnum;
-        for (j=startwall, wal=&wall[startwall]; j<endwall; j++, wal++)
+        for (j=startwall, wal=(twalltype *)&wall[startwall]; j<endwall; j++, wal++)
         {
             int32_t clipyou = 0, dx, dy;
-            const walltype *const wal2 = &wall[wal->point2];
+            const twalltype *const wal2 = (twalltype *)&wall[wal->point2];
 
-            if (wal->x < xmin && wal2->x < xmin) continue;
-            if (wal->x > xmax && wal2->x > xmax) continue;
-            if (wal->y < ymin && wal2->y < ymin) continue;
-            if (wal->y > ymax && wal2->y > ymax) continue;
+            if ((wal->x < xmin && wal2->x < xmin) || (wal->x > xmax && wal2->x > xmax) ||
+                (wal->y < ymin && wal2->y < ymin) || (wal->y > ymax && wal2->y > ymax))
+                continue;
 
             x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
 
@@ -961,7 +961,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
             {
                 if (wal->nextsector>=0)
                 {
-                    const sectortype *sec2 = &sector[wal->nextsector];
+                    const tsectortype *sec2 = (tsectortype *)&sector[wal->nextsector];
 
                     clipmove_tweak_pos(pos, gx, gy, x1, y1, x2, y2, &dax, &day);
 
@@ -1012,7 +1012,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 
                     if (clipyou == 0)
                     {
-                        const sectortype *sec2 = &sector[wal->nextsector];
+                        const tsectortype *sec2 = (tsectortype *)&sector[wal->nextsector];
                         int32_t daz2 = getceilzofslope(wal->nextsector, dax, day);
 
                         clipyou = ((sec2->ceilingstat&1) == 0 &&
@@ -1308,8 +1308,8 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
         clipsectcnt = 0; clipsectnum = 1;
         do
         {
-            const walltype *wal;
-            const sectortype *sec;
+            const twalltype *wal;
+            const tsectortype *sec;
             int32_t startwall, endwall;
 #if 0
             // Push FACE sprites
@@ -1344,21 +1344,21 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                 }
             }
 #endif
-            sec = &sector[clipsectorlist[clipsectcnt]];
+            sec = (tsectortype *)&sector[clipsectorlist[clipsectcnt]];
             if (dir > 0)
                 startwall = sec->wallptr, endwall = startwall + sec->wallnum;
             else
                 endwall = sec->wallptr, startwall = endwall + sec->wallnum;
 
-            for (i=startwall, wal=&wall[startwall]; i!=endwall; i+=dir, wal+=dir)
-                if (clipinsidebox(vect->x, vect->y, i, walldist-4) == 1)
+            for (i=startwall, wal=(twalltype *)&wall[startwall]; i!=endwall; i+=dir, wal+=dir)
+                if (clipinsidebox((vec2_t *)vect, i, walldist-4) == 1)
                 {
                     j = 0;
                     if (wal->nextsector < 0) j = 1;
                     if (wal->cstat&dawalclipmask) j = 1;
                     if (j == 0)
                     {
-                        const sectortype *const sec2 = &sector[wal->nextsector];
+                        const tsectortype *const sec2 = (tsectortype *)&sector[wal->nextsector];
                         int32_t daz2;
 
                         //Find closest point on wall (dax, day) to (vect->x, vect->y)
@@ -1397,7 +1397,7 @@ int32_t pushmove(vec3_t *vect, int16_t *sectnum,
                         {
                             vect->x = (vect->x) + dx; vect->y = (vect->y) + dy;
                             bad2--; if (bad2 == 0) break;
-                        } while (clipinsidebox(vect->x, vect->y, i, walldist-4) != 0);
+                        } while (clipinsidebox((vec2_t *)vect, i, walldist-4) != 0);
                         bad = -1;
                         k--; if (k <= 0) return(bad);
                         updatesector(vect->x, vect->y, sectnum);

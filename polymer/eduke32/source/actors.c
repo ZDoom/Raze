@@ -6565,13 +6565,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     for (SPRITES_OF(STAT_ACTOR, k))
                     {
                         if (sprite[k].extra > 0 && A_CheckEnemySprite(&sprite[k])
-                                && clipinsidebox(sprite[k].x, sprite[k].y, j, 256) == 1)
+                                && clipinsidebox((vec2_t *)&sprite[k], j, 256) == 1)
                             goto BOLT;
                     }
 
                     for (SPRITES_OF(STAT_PLAYER, k))
                     {
-                        if (sprite[k].owner >= 0 && clipinsidebox(sprite[k].x, sprite[k].y, j, 144) == 1)
+                        if (sprite[k].owner >= 0 && clipinsidebox((vec2_t *)&sprite[k], j, 144) == 1)
                         {
                             t[5] = 8; // Delay
                             k = (SP>>3)*t[3];
