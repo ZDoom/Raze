@@ -43,6 +43,7 @@ ENGINE_OBJS = \
     crc32 \
     defs \
     engine \
+    clip \
     2d \
     hash \
     palette \
@@ -62,7 +63,8 @@ ENGINE_OBJS = \
     xxhash \
     md4 \
     colmatch \
-    screenshot
+    screenshot \
+    mhk
 
 ENGINE_EDITOR_OBJS = \
     build \

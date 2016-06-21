@@ -1,4 +1,3 @@
-#include "compat.h"
 #include "build.h"
 #include "editor.h"
 
@@ -117,7 +116,6 @@ char getpixel(int32_t x, int32_t y)
     enddrawing();   //}}}
     return(r);
 }
-
 
 
 //

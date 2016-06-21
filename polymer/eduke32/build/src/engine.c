@@ -5,7 +5,6 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jf@jonof.id.au)
 
-
 #define ENGINE
 
 #if (PNG_LIBPNG_VER > 10599)
@@ -94,14 +93,6 @@ float debug1, debug2;
 
 int32_t mapversion=7; // JBF 20040211: default mapversion to 7
 int32_t g_loadedMapVersion = -1;  // -1: none (e.g. started new)
-usermaphack_t g_loadedMapHack;  // used only for the MD4 part
-
-int32_t compare_usermaphacks(const void *a, const void *b)
-{
-    return Bmemcmp(((usermaphack_t const *) a)->md4, ((usermaphack_t const *) b)->md4, 16);
-}
-usermaphack_t *usermaphacks;
-int32_t num_usermaphacks;
 
 static int32_t get_mapversion(void);
 
@@ -235,11 +226,6 @@ const char *engineerrstr = "No error";
 int32_t showfirstwall=0;
 int32_t showheightindicators=1;
 int32_t circlewall=-1;
-
-#ifdef POLYMER
-static int16_t maphacklightcnt=0;
-static int16_t maphacklight[PR_MAXLIGHTS];
-#endif
 
 // forward refs
 #ifdef __cplusplus
@@ -1246,562 +1232,6 @@ void setslope(int32_t sectnum, int32_t cf, int16_t slope)
     }
 }
 
-////// sector-like clipping for sprites //////
-#ifdef HAVE_CLIPSHAPE_FEATURE
-typedef struct
-{
-    int16_t numsectors, numwalls;
-    tsectortype *sector;
-    twalltype *wall;
-} mapinfo_t;
-
-static void mapinfo_set(mapinfo_t *bak, mapinfo_t *newmap)
-{
-    if (bak)
-    {
-        bak->numsectors = numsectors;
-        bak->numwalls = numwalls;
-        bak->sector = (tsectortype *)sector;
-        bak->wall = (twalltype *)wall;
-    }
-
-    if (newmap)
-    {
-        numsectors = newmap->numsectors;
-        numwalls = newmap->numwalls;
-        sector = (sectortype *)newmap->sector;
-        wall = (walltype *)newmap->wall;
-    }
-}
-
-static mapinfo_t origmapinfo, clipmapinfo;
-static int32_t quickloadboard=0;
-
-#define CM_MAX 256  // must be a power of 2
-
-typedef struct
-{
-    int16_t qbeg, qend;  // indices into sectq
-    int16_t picnum, next;
-    int32_t maxdist;
-} clipinfo_t;
-
-static int32_t numclipmaps;
-static clipinfo_t clipinfo[CM_MAX];
-
-static int32_t numclipsects;  // number in sectq[]
-static int16_t *sectoidx, *sectq;  // [numsectors]
-static int16_t pictoidx[MAXTILES];  // maps tile num to clipinfo[] index
-static int16_t *tempictoidx;
-
-static tsectortype *loadsector;
-static twalltype *loadwall, *loadwallinv;
-static tspritetype *loadsprite;
-
-// sectoidx bits
-#undef CM_NONE
-#define CM_NONE (CM_MAX<<1)
-#define CM_SOME (CM_NONE-1)
-#define CM_OUTER (CM_MAX)   // sector surrounds clipping sector
-
-// sprite -> sector tag mappings
-#define CM_XREPEAT floorpal
-#define CM_YREPEAT floorxpanning
-#define CM_XOFFSET ceilingshade
-#define CM_YOFFSET floorshade
-#define CM_CSTAT hitag
-#define CM_ANG extra
-#define CM_FLOORZ(Sec) (*(int32_t *)&sector[Sec].ceilingxpanning)  // ceilingxpanning,ceilingypanning,floorpicnum
-#define CM_CEILINGZ(Sec) (*(int32_t *)&sector[Sec].visibility)  // visibility,fogpal,lotag
-
-// backup of original normalized coordinates
-#define CM_WALL_X(Wal) (*(int32_t *)&wall[Wal].picnum)  // picnum, overpicnum
-#define CM_WALL_Y(Wal) (*(int32_t *)&wall[Wal].lotag)  // lotag, hitag
-
-// don't rotate when applying clipping, for models with rotational symmetry
-#define CM_NOROT(Spri) (sprite[Spri].cstat&2)
-#define CM_NOROTS(Sect) (sector[Sect].CM_CSTAT&2)
-
-
-static void clipmapinfo_init()
-{
-    numclipmaps = 0;
-    numclipsects = 0;
-
-    DO_FREE_AND_NULL(sectq);
-    DO_FREE_AND_NULL(sectoidx);
-    DO_FREE_AND_NULL(tempictoidx);
-    DO_FREE_AND_NULL(loadsector);
-    DO_FREE_AND_NULL(loadwall);
-    DO_FREE_AND_NULL(loadwallinv);
-    DO_FREE_AND_NULL(loadsprite);
-
-    // two's complement trick, -1 = 0xff
-    Bmemset(&pictoidx, -1, sizeof(pictoidx));
-    Bmemset(&clipmapinfo, 0, sizeof(mapinfo_t));
-
-    numsectors = 0;
-    numwalls = 0;
-}
-
-// loads the clip maps.
-// this should be called before any real map is loaded.
-int32_t clipmapinfo_load(void)
-{
-    int32_t i,k,w;
-
-    int32_t lwcp = 0;
-    int32_t fi;
-
-    int32_t *fisec = NULL;
-    int32_t *fispr = NULL;
-
-    int32_t ournumsectors=0, ournumwalls=0, ournumsprites=0;
-
-    clipmapinfo_init();
-
-    loadsector = (tsectortype *)Xmalloc(MAXSECTORS * sizeof(sectortype));
-    loadwall = (twalltype *)Xmalloc(MAXWALLS * sizeof(walltype));
-    loadsprite = (tspritetype *)Xmalloc(MAXSPRITES * sizeof(spritetype));
-
-    if (g_clipMapFilesNum)
-        fisec = (int32_t *)Xcalloc(g_clipMapFilesNum, sizeof (int32_t));
-    if (g_clipMapFilesNum)
-        fispr = (int32_t *)Xcalloc(g_clipMapFilesNum, sizeof (int32_t));
-
-    quickloadboard = 1;
-    for (fi = 0; fi < g_clipMapFilesNum; ++fi)
-    {
-        int16_t ang,cs;
-        vec3_t tmppos;
-
-        fisec[fi] = ournumsectors;
-        fispr[fi] = ournumsprites;
-
-        i = loadboard(g_clipMapFiles[fi], 8, &tmppos, &ang, &cs);
-        if (i<0)
-            continue;
-        // Numsprites will now be set!
-
-        initprintf("Loading clip map: %s\n", g_clipMapFiles[fi]);
-
-        if (ournumsectors+numsectors>MAXSECTORS ||
-                ournumwalls+numwalls>MAXWALLS ||
-                ournumsprites+Numsprites>MAXSPRITES)
-        {
-            initprintf("clip map: warning: exceeded limits when loading %s, aborting.\n", g_clipMapFiles[fi]);
-            break;
-        }
-
-        Bmemcpy(loadsector+ournumsectors, sector, numsectors*sizeof(sectortype));
-        Bmemcpy(loadwall+ournumwalls, wall, numwalls*sizeof(walltype));
-        Bmemcpy(loadsprite+ournumsprites, sprite, Numsprites*sizeof(spritetype));
-        for (i=ournumsectors; i<ournumsectors+numsectors; i++)
-            loadsector[i].wallptr += ournumwalls;
-        for (i=ournumwalls; i<ournumwalls+numwalls; i++)
-        {
-            if (loadwall[i].point2>=0)
-                loadwall[i].point2 += ournumwalls;
-            if (loadwall[i].nextwall>=0)
-            {
-                loadwall[i].nextwall += ournumwalls;
-                loadwall[i].nextsector += ournumsectors;
-            }
-        }
-        for (i=ournumsprites; i<ournumsprites+Numsprites; i++)
-            if (loadsprite[i].sectnum>=0)
-                loadsprite[i].sectnum += ournumsectors;
-        ournumsectors += numsectors;
-        ournumwalls += numwalls;
-        ournumsprites += Numsprites;
-
-        ++lwcp;
-    }
-    quickloadboard = 0;
-
-    if (ournumsectors==0 || ournumwalls==0 || ournumsprites==0)  // nothing loaded
-    {
-        clipmapinfo_init();
-
-        Bfree(fisec);
-        Bfree(fispr);
-
-        return -1;
-    }
-
-    // shrink
-    loadsector = (tsectortype *)Xrealloc(loadsector, ournumsectors*sizeof(sectortype));
-    loadwall = (twalltype *)Xrealloc(loadwall, ournumwalls*sizeof(walltype));
-
-    Bmemcpy(sector, loadsector, ournumsectors*sizeof(sectortype));
-    Bmemcpy(wall, loadwall, ournumwalls*sizeof(walltype));
-    Bmemcpy(sprite, loadsprite, ournumsprites*sizeof(spritetype));
-    numsectors = ournumsectors;
-    numwalls = ournumwalls;
-
-    //  vvvv    don't use headsprite[sect,stat]!   vvvv
-
-    sectoidx = (int16_t *)Xmalloc(numsectors*sizeof(sectoidx[0]));
-
-    for (i=0; i<numsectors; i++)
-        sectoidx[i] = CM_NONE;
-
-    // determine outer sectors
-    for (i=0; i<numsectors; i++)
-    {
-        for (w=sector[i].wallptr; w<sector[i].wallptr+sector[i].wallnum; w++)
-            if (wall[w].nextsector<0)
-            {
-                sectoidx[i] = CM_OUTER;
-                break;
-            }
-    }
-    // break connections between outer sectors
-    for (i=0; i<numsectors; i++)
-    {
-        if (sectoidx[i] == CM_OUTER)
-            for (w=sector[i].wallptr; w<sector[i].wallptr+sector[i].wallnum; w++)
-            {
-                k = wall[w].nextwall;
-                if (k>=0 && sectoidx[wall[w].nextsector]==CM_OUTER)
-                {
-                    wall[k].nextwall = wall[k].nextsector = -1;
-                    wall[w].nextwall = wall[w].nextsector = -1;
-                }
-            }
-    }
-
-    {
-        int16_t ns, outersect;
-        int32_t pn,scnt, x,y,z, maxdist;
-
-        sectq = (int16_t *)Xmalloc(numsectors*sizeof(sectq[0]));
-        tempictoidx = (int16_t *)Xmalloc(MAXTILES*sizeof(tempictoidx[0]));
-
-        for (i=0; i<MAXTILES; i++)
-            tempictoidx[i]=-1;
-
-        // collect sprite picnums
-        for (i=0; i<MAXSPRITES && sprite[i].statnum<MAXSTATUS; i++)
-        {
-            pn = sprite[i].picnum;
-            k = sprite[i].sectnum;
-            //    -v-  note the <=                         ignore sprites in outer sectors
-            if (pn<=0 || pn>=MAXTILES || k<0 || k>=numsectors || (sectoidx[k]&CM_OUTER))
-                continue;
-
-            if (numclipmaps >= CM_MAX)
-            {
-                initprintf("warning: reached max clip map number %d, not processing any more\n", CM_MAX);
-                break;
-            }
-
-            // chain
-            if (pictoidx[pn]>=0)
-            {
-                if (sectoidx[k]&CM_SOME)
-                {
-                    for (fi = 0; fi < g_clipMapFilesNum; ++fi)
-                        if (k>=fisec[fi])
-                            break;
-                    initprintf("clip map \"%s\": error: tried to chain picnum %d (sprite %d) in sector %d which"
-                               " already belongs to picnum %d.\n", g_clipMapFiles[fi], pn, i-fispr[fi], k-fisec[fi],
-                               clipinfo[sectoidx[k]].picnum);
-                    clipmapinfo_init();
-
-                    Bfree(fisec);
-                    Bfree(fispr);
-
-                    return 2;
-                }
-
-                // new one is front
-                clipinfo[numclipmaps].next = pictoidx[pn];
-                pictoidx[pn] = numclipmaps;
-            }
-            else
-            {
-                clipinfo[numclipmaps].next = -1;
-                pictoidx[pn] = numclipmaps;
-            }
-
-            if (!CM_NOROT(i))
-            {
-                if (sprite[i].ang!=1536 && sprite[i].ang!=512)
-                {
-                    for (fi = 0; fi < g_clipMapFilesNum; ++fi)
-                        if (i>=fispr[fi])
-                            break;
-                    initprintf("clip map \"%s\": warning: sprite %d pointing neither northward nor southward. %s will be wrong.\n",
-                               g_clipMapFiles[fi], i-fispr[fi], (sprite[i].cstat&48)==32 ? "Scaling and flipping" : "X-flipping");
-                }
-            }
-
-            clipinfo[numclipmaps].picnum = pn;
-
-            // collect sectors
-            scnt = numclipsects;
-            sectq[numclipsects++] = k;
-            sectoidx[k] = numclipmaps;
-
-            clipinfo[numclipmaps].qbeg = scnt;
-
-            outersect = -1;
-
-            do
-            {
-                k = sectq[scnt];
-
-                for (w=sector[k].wallptr; w<sector[k].wallptr+sector[k].wallnum; w++)
-                {
-                    ns = wall[w].nextsector;
-                    if (ns>=0)
-                    {
-                        if (sectoidx[ns]==CM_NONE)
-                        {
-                            sectoidx[ns] = numclipmaps;
-                            sectq[numclipsects++] = ns;
-                        }
-                        else if (sectoidx[ns]&CM_OUTER)
-                        {
-                            if (outersect>=0 && ns!=outersect)
-                            {
-                                for (fi = 0; fi < g_clipMapFilesNum; ++fi)
-                                    if (ns>=fisec[fi])
-                                        break;
-                                initprintf("clip map \"%s\": error: encountered more than one outer sector (%d and %d)"
-                                           " for sprite %d.\n", g_clipMapFiles[fi], outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
-                                clipmapinfo_init();
-
-                                Bfree(fisec);
-                                Bfree(fispr);
-
-                                return 3;
-                            }
-
-                            outersect = ns;
-                            sectoidx[outersect] |= numclipmaps;
-                        }
-                        else if (sectoidx[ns]!=numclipmaps)
-                        {
-                            for (fi = 0; fi < g_clipMapFilesNum; ++fi)
-                                if (ns>=fisec[fi])
-                                    break;
-                            initprintf("clip map \"%s\": error: encountered sector %d belonging to index %d"
-                                       " while collecting sectors for sprite %d (index %d).\n",
-                                       g_clipMapFiles[fi], ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
-                            clipmapinfo_init();
-
-                            Bfree(fisec);
-                            Bfree(fispr);
-
-                            return 4;
-                        }
-                    }
-                }
-            }
-            while (++scnt < numclipsects);
-
-            if (outersect==-1)
-            {
-                initprintf("clip map: INTERNAL ERROR: outersect==-1!\n");
-                clipmapinfo_init();
-
-                Bfree(fisec);
-                Bfree(fispr);
-
-                return 5;
-            }
-
-            sectq[numclipsects++] = outersect;  // last is outer
-            clipinfo[numclipmaps].qend = numclipsects-1;
-
-            // normalize
-            maxdist = 0;
-
-            for (scnt=clipinfo[numclipmaps].qbeg; scnt<=clipinfo[numclipmaps].qend; scnt++)
-            {
-                k = sectq[scnt];
-
-                x = sprite[i].x;
-                y = sprite[i].y;
-                z = sprite[i].z;
-
-                sector[k].floorz -= z;
-                sector[k].ceilingz -= z;
-
-                if (scnt==clipinfo[numclipmaps].qbeg)
-                {
-                    // backup sprite tags since we'll discard sprites later
-                    sector[k].CM_XREPEAT = sprite[i].xrepeat;
-                    sector[k].CM_YREPEAT = sprite[i].yrepeat;
-                    sector[k].CM_XOFFSET = sprite[i].xoffset;
-                    sector[k].CM_YOFFSET = sprite[i].yoffset;
-                    sector[k].CM_CSTAT = sprite[i].cstat;
-                    sector[k].CM_ANG = sprite[i].ang;
-                }
-
-                // backup floor and ceiling z
-                CM_FLOORZ(k) = sector[k].floorz;
-                CM_CEILINGZ(k) = sector[k].ceilingz;
-
-                for (w=sector[k].wallptr; w<sector[k].wallptr+sector[k].wallnum; w++)
-                {
-                    wall[w].x -= x;
-                    wall[w].y -= y;
-
-                    if (scnt!=clipinfo[numclipmaps].qend)
-                    {
-                        if (CM_NOROT(i))
-                        {
-                            if (klabs(wall[w].x) > maxdist)
-                                maxdist = klabs(wall[w].x);
-                            if (klabs(wall[w].y) > maxdist)
-                                maxdist = klabs(wall[w].y);
-                        }
-                        else
-                        {
-                            int32_t tmp = ksqrt(uhypsq(wall[w].x, wall[w].y));
-                            if (tmp > maxdist)
-                                maxdist = tmp;
-                        }
-                    }
-
-                    // aliasing
-                    if (wall[w].lotag>0 || wall[w].hitag>0)
-                    {
-                        int32_t ii;
-
-                        if (wall[w].lotag>0 && wall[w].hitag>0)
-                        {
-                            if (wall[w].lotag > wall[w].hitag)
-                                swapshort(&wall[w].lotag, &wall[w].hitag);
-
-                            for (ii=wall[w].lotag; ii<wall[w].hitag; ii++)
-                                tempictoidx[ii] = numclipmaps;
-                        }
-                        else if (wall[w].lotag>0)
-                        {
-                            if (wall[w].lotag<MAXTILES)
-                                tempictoidx[wall[w].lotag] = numclipmaps;
-                        }
-                        else
-                        {
-                            if (wall[w].hitag<MAXTILES)
-                                tempictoidx[wall[w].hitag] = numclipmaps;
-                        }
-                    }
-
-                    CM_WALL_X(w) = wall[w].x;
-                    CM_WALL_Y(w) = wall[w].y;
-                }
-            }
-
-            clipinfo[numclipmaps].maxdist = maxdist;
-            numclipmaps++;
-        }
-    }
-
-    // yes, too much copying, but better than ugly code
-    Bmemcpy(loadsector, sector, ournumsectors*sizeof(sectortype));
-    Bmemcpy(loadwall, wall, ournumwalls*sizeof(walltype));
-
-    // loadwallinv will contain all walls with inverted orientation for x/y-flip handling
-    loadwallinv = (twalltype *)Xmalloc(ournumwalls*sizeof(walltype));
-
-    {
-        int32_t j, loopstart, loopend, numloopwalls;
-
-        // invert walls!
-        loopstart = 0;
-        for (j=0; j<ournumwalls; j++)
-        {
-            wall[j].nextsector = wall[j].nextwall = -1;
-
-            if (wall[j].point2 < j)
-            {
-                loopend = j+1;
-                numloopwalls = loopend-loopstart;
-
-                if (numloopwalls<3)
-                {
-                    loopstart = loopend;
-                    continue;
-                }
-
-                for (k=0; k<numloopwalls; k++)
-                {
-                    wall[loopstart+k].x = loadwall[loopstart + (numloopwalls+1-k)%numloopwalls].x;
-                    wall[loopstart+k].y = loadwall[loopstart + (numloopwalls+1-k)%numloopwalls].y;
-
-                    CM_WALL_X(loopstart+k) = wall[loopstart+k].x;
-                    CM_WALL_Y(loopstart+k) = wall[loopstart+k].y;
-                }
-
-                loopstart = loopend;
-            }
-        }
-
-        // reconstruct wall connections
-        for (i=0; i<ournumsectors; i++)
-        {
-            for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
-                checksectorpointer(j, i);
-        }
-    }
-    Bmemcpy(loadwallinv, wall, ournumwalls*sizeof(walltype));
-
-    clipmapinfo.numsectors = numsectors;
-    clipmapinfo.sector = loadsector;
-    clipmapinfo.numwalls = numwalls;
-    clipmapinfo.wall = loadwall;
-
-    for (i=0; i<MAXTILES; i++)
-    {
-        if (pictoidx[i]==-1 && tempictoidx[i]>=0)
-            pictoidx[i]=tempictoidx[i];
-    }
-
-    DO_FREE_AND_NULL(loadsprite);
-    DO_FREE_AND_NULL(tempictoidx);
-
-    // don't let other code be distracted by the temporary map we constructed
-    numsectors = 0;
-    numwalls = 0;
-    initspritelists();
-
-    if (lwcp > 0)
-        initprintf("Loaded clip map%s.\n", lwcp==1?"":"s");
-
-    Bfree(fisec);
-    Bfree(fispr);
-
-    return 0;
-}
-
-
-int32_t clipshape_idx_for_sprite(spritetype *curspr, int32_t curidx)
-{
-    if (curidx < 0)  // per-sprite init
-        curidx = pictoidx[curspr->picnum];
-    else
-        curidx = clipinfo[curidx].next;
-
-    while (curidx>=0 && (curspr->cstat&32) != (sector[sectq[clipinfo[curidx].qbeg]].CM_CSTAT&32))
-        curidx = clipinfo[curidx].next;
-
-    return curidx;
-}
-#else
-int32_t clipshape_idx_for_sprite(spritetype *curspr, int32_t curidx)
-{
-    UNREFERENCED_PARAMETER(curspr);
-    UNREFERENCED_PARAMETER(curidx);
-    return -1;
-}
-#endif  // HAVE_CLIPSHAPE_FEATURE
-////// //////
-
 #define WALLS_ARE_CONSISTENT(k) ((wall[k].x == x2 && wall[k].y == y2)   \
                                  && ((wall[wall[k].point2]).x == x1 && (wall[wall[k].point2]).y == y1))
 
@@ -1963,245 +1393,6 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum)
 
 #undef WALLS_ARE_CONSISTENT
 
-
-#if defined(_MSC_VER) && !defined(NOASM)
-
-//
-// Microsoft C Inline Assembly Routines
-//
-
-static inline int32_t nsqrtasm(int32_t a)
-{
-    _asm
-    {
-        push ebx
-        mov eax, a
-        test eax, 0xff000000
-        mov ebx, eax
-        jnz short over24
-        shr ebx, 12
-        mov cx, word ptr shlookup[ebx*2]
-        jmp short under24
-        over24:
-        shr ebx, 24
-        mov cx, word ptr shlookup[ebx*2+8192]
-        under24:
-        shr eax, cl
-        mov cl, ch
-        mov ax, word ptr sqrtable[eax*2]
-        shr eax, cl
-        pop ebx
-    }
-}
-
-static inline int32_t msqrtasm(int32_t c)
-{
-    _asm
-    {
-        push ebx
-        mov ecx, c
-        mov eax, 0x40000000
-        mov ebx, 0x20000000
-        begit:
-        cmp ecx, eax
-        jl skip
-        sub ecx, eax
-        lea eax, [eax+ebx*4]
-        skip:
-        sub eax, ebx
-        shr eax, 1
-        shr ebx, 2
-        jnz begit
-        cmp ecx, eax
-        sbb eax, -1
-        shr eax, 1
-        pop ebx
-    }
-}
-
-static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
-{
-    _asm
-    {
-        push ebx
-        mov eax, a
-        mov ebx, b
-        mov ecx, c
-        mov edx, d
-        sar eax, 31
-        add ebx, ebx
-        adc eax, eax
-        add ecx, ecx
-        adc eax, eax
-        add edx, edx
-        adc eax, eax
-        mov ebx, eax
-        shl ebx, 4
-        or al, 0xf0
-        xor eax, ebx
-        pop ebx
-    }
-}
-
-static inline int32_t getkensmessagecrc(void *b)
-{
-    _asm
-    {
-        push ebx
-        mov ebx, b
-        xor eax, eax
-        mov ecx, 32
-        beg:
-        mov edx, dword ptr [ebx+ecx*4-4]
-        ror edx, cl
-        adc eax, edx
-        bswap eax
-        loop short beg
-        pop ebx
-    }
-}
-
-#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)	// _MSC_VER
-
-//
-// GCC "Inline" Assembly Routines
-//
-
-#define nsqrtasm(a) \
-    ({ int32_t __r, __a=(a); \
-       __asm__ __volatile__ ( \
-        "testl $0xff000000, %%eax\n\t" \
-        "movl %%eax, %%ebx\n\t" \
-        "jnz 0f\n\t" \
-        "shrl $12, %%ebx\n\t" \
-        "movw " ASMSYM("shlookup") "(,%%ebx,2), %%cx\n\t" \
-        "jmp 1f\n\t" \
-        "0:\n\t" \
-        "shrl $24, %%ebx\n\t" \
-        "movw (" ASMSYM("shlookup") "+8192)(,%%ebx,2), %%cx\n\t" \
-        "1:\n\t" \
-        "shrl %%cl, %%eax\n\t" \
-        "movb %%ch, %%cl\n\t" \
-        "movw " ASMSYM("sqrtable") "(,%%eax,2), %%ax\n\t" \
-        "shrl %%cl, %%eax" \
-        : "=a" (__r) : "a" (__a) : "ebx", "ecx", "cc"); \
-     __r; })
-
-// edx is blown by this code somehow?!
-#define msqrtasm(c) \
-    ({ int32_t __r, __c=(c); \
-       __asm__ __volatile__ ( \
-        "movl $0x40000000, %%eax\n\t" \
-        "movl $0x20000000, %%ebx\n\t" \
-        "0:\n\t" \
-        "cmpl %%eax, %%ecx\n\t" \
-        "jl 1f\n\t" \
-        "subl %%eax, %%ecx\n\t" \
-        "leal (%%eax,%%ebx,4), %%eax\n\t" \
-        "1:\n\t" \
-        "subl %%ebx, %%eax\n\t" \
-        "shrl $1, %%eax\n\t" \
-        "shrl $2, %%ebx\n\t" \
-        "jnz 0b\n\t" \
-        "cmpl %%eax, %%ecx\n\t" \
-        "sbbl $-1, %%eax\n\t" \
-        "shrl $1, %%eax" \
-        : "=a" (__r) : "c" (__c) : "edx","ebx", "cc"); \
-     __r; })
-
-#define getclipmask(a,b,c,d) \
-    ({ int32_t __a=(a), __b=(b), __c=(c), __d=(d); \
-       __asm__ __volatile__ ("sarl $31, %%eax; addl %%ebx, %%ebx; adcl %%eax, %%eax; " \
-                "addl %%ecx, %%ecx; adcl %%eax, %%eax; addl %%edx, %%edx; " \
-                "adcl %%eax, %%eax; movl %%eax, %%ebx; shl $4, %%ebx; " \
-                "orb $0xf0, %%al; xorl %%ebx, %%eax" \
-        : "=a" (__a), "=b" (__b), "=c" (__c), "=d" (__d) \
-        : "a" (__a), "b" (__b), "c" (__c), "d" (__d) : "cc"); \
-     __a; })
-
-
-#define getkensmessagecrc(b) \
-    ({ int32_t __a, __b=(b); \
-       __asm__ __volatile__ ( \
-        "xorl %%eax, %%eax\n\t" \
-        "movl $32, %%ecx\n\t" \
-        "0:\n\t" \
-        "movl -4(%%ebx,%%ecx,4), %%edx\n\t" \
-        "rorl %%cl, %%edx\n\t" \
-        "adcl %%edx, %%eax\n\t" \
-        "bswapl %%eax\n\t" \
-        "loop 0b" \
-        : "=a" (__a) : "b" (__b) : "ecx", "edx" \
-     __a; })
-
-#else   // __GNUC__ && __i386__
-
-static inline int32_t nsqrtasm(uint32_t a)
-{
-    // JBF 20030901: This was a damn lot simpler to reverse engineer than
-    // msqrtasm was. Really, it was just like simplifying an algebra equation.
-    uint16_t c;
-
-    if (a & 0xff000000)  			// test eax, 0xff000000  /  jnz short over24
-    {
-        c = shlookup[(a >> 24) + 4096];	// mov ebx, eax
-        // over24: shr ebx, 24
-        // mov cx, word ptr shlookup[ebx*2+8192]
-    }
-    else
-    {
-        c = shlookup[a >> 12];		// mov ebx, eax
-        // shr ebx, 12
-        // mov cx, word ptr shlookup[ebx*2]
-        // jmp short under24
-    }
-    a >>= c&0xff;				// under24: shr eax, cl
-    a = (a&0xffff0000)|(sqrtable[a]);	// mov ax, word ptr sqrtable[eax*2]
-    a >>= ((c&0xff00) >> 8);		// mov cl, ch
-    // shr eax, cl
-    return a;
-}
-
-static inline int32_t msqrtasm(uint32_t c)
-{
-    uint32_t a,b;
-
-    a = 0x40000000l;		// mov eax, 0x40000000
-    b = 0x20000000l;		// mov ebx, 0x20000000
-    do  				// begit:
-    {
-        if (c >= a)  		// cmp ecx, eax	 /  jl skip
-        {
-            c -= a;		// sub ecx, eax
-            a += b*4;	// lea eax, [eax+ebx*4]
-        }			// skip:
-        a -= b;			// sub eax, ebx
-        a >>= 1;		// shr eax, 1
-        b >>= 2;		// shr ebx, 2
-    }
-    while (b);			// jnz begit
-    if (c >= a)			// cmp ecx, eax
-        a++;			// sbb eax, -1
-    a >>= 1;			// shr eax, 1
-    return a;
-}
-
-static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
-{
-    // Ken did this
-    d = ((a<0)<<3) + ((b<0)<<2) + ((c<0)<<1) + (d<0);
-    return(((d<<4)^0xf0)|d);
-}
-
-inline int32_t getkensmessagecrc(int32_t b)
-{
-    UNREFERENCED_PARAMETER(b);
-    return 0x56c764d4l;
-}
-
-#endif
-
-
 int32_t xb1[MAXWALLSB];  // Polymost uses this as a temp array
 static int32_t yb1[MAXWALLSB], xb2[MAXWALLSB], yb2[MAXWALLSB];
 int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
@@ -2232,7 +1423,8 @@ intptr_t frameoffset;
 
 static int32_t nrx1[8], nry1[8], nrx2[8], nry2[8]; // JBF 20031206: Thanks Ken
 
-static int32_t rxi[8], ryi[8], rzi[8], rxi2[8], ryi2[8], rzi2[8];
+int32_t rxi[8], ryi[8];
+static int32_t rzi[8], rxi2[8], ryi2[8], rzi2[8];
 static int32_t xsi[8], ysi[8], horizycent;
 static int32_t *horizlookup=0, *horizlookup2=0;
 
@@ -2272,20 +1464,10 @@ static int32_t *lastx;
 
 int32_t halfxdim16, midydim16;
 
-static int16_t clipnum;
 static const int32_t hitscangoalx = (1<<29)-1, hitscangoaly = (1<<29)-1;
 #ifdef USE_OPENGL
 int32_t hitallsprites = 0;
 #endif
-
-typedef struct { int32_t x1, y1, x2, y2; } linetype;
-static linetype clipit[MAXCLIPNUM];
-static int32_t clipsectnum, origclipsectnum, clipspritenum;
-static int16_t clipsectorlist[MAXCLIPNUM], origclipsectorlist[MAXCLIPNUM];
-#ifdef HAVE_CLIPSHAPE_FEATURE
-static int16_t clipspritelist[MAXCLIPNUM];  // sector-like sprite clipping
-#endif
-static int16_t clipobjectval[MAXCLIPNUM];
 
 typedef struct
 {
@@ -3071,7 +2253,7 @@ static inline void slowhline(int32_t xr, int32_t yp)
 //
 // prepwall (internal)
 //
-static void prepwall(int32_t z, const walltype *wal)
+static void prepwall(int32_t z, const twalltype *wal)
 {
     int32_t l=0, ol=0, x;
 
@@ -3223,17 +2405,17 @@ static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
 typedef int64_t zint_t;
 
 // For drawvox()
-static inline zint_t mulscale16z(int32_t a, int32_t d)
+FORCE_INLINE zint_t mulscale16z(int32_t a, int32_t d)
 {
     return ((zint_t)a * d)>>16;
 }
 
-static inline zint_t mulscale20z(int32_t a, int32_t d)
+FORCE_INLINE zint_t mulscale20z(int32_t a, int32_t d)
 {
     return ((zint_t)a * d)>>20;
 }
 
-static inline zint_t dmulscale24z(int32_t a, int32_t d, int32_t S, int32_t D)
+FORCE_INLINE zint_t dmulscale24z(int32_t a, int32_t d, int32_t S, int32_t D)
 {
     return (((zint_t)a * d) + ((zint_t)S * D)) >> 24;
 }
@@ -3920,29 +3102,23 @@ do_vlineasm1:
 //
 static void transmaskvline(int32_t x)
 {
-    uint32_t vplc;
-    int32_t vinc;
-    intptr_t palookupoffs;
-    intptr_t bufplc,p;
-    int32_t y1v, y2v;
+    if ((unsigned)x >= xdimen) return;
 
-    vec2_t ntsiz;
+    int32_t const y1v = max(uwall[x],startumost[x+windowx1]-windowy1);
+    int32_t const y2v = min(dwall[x],startdmost[x+windowx1]-windowy1) - 1;
 
-    if ((x < 0) || (x >= xdimen)) return;
-
-    y1v = max(uwall[x],startumost[x+windowx1]-windowy1);
-    y2v = min(dwall[x],startdmost[x+windowx1]-windowy1);
-    y2v--;
     if (y2v < y1v) return;
 
-    palookupoffs = FP_OFF(palookup[globalpal]) + getpalookupsh(mulscale16(swall[x],globvis));
+    intptr_t palookupoffs = FP_OFF(palookup[globalpal]) + getpalookupsh(mulscale16(swall[x],globvis));
 
-    ntsiz.x = -tilesiz[globalpicnum].x;
-    ntsiz.y = -tilesiz[globalpicnum].y;
+    vec2_t ntsiz = { -tilesiz[globalpicnum].x, -tilesiz[globalpicnum].y };
+    intptr_t bufplc;
     calc_bufplc(&bufplc, lwall[x], ntsiz);
+    uint32_t vplc;
+    int32_t vinc;
     calc_vplcinc(&vplc, &vinc, swall, x, y1v);
 
-    p = ylookup[y1v]+x+frameoffset;
+    intptr_t p = ylookup[y1v]+x+frameoffset;
 
 #ifdef NONPOW2_YSIZE_ASM
     if (globalshiftval==0)
@@ -3959,17 +3135,11 @@ static void transmaskvline(int32_t x)
 #ifdef MULTI_COLUMN_VLINE
 static void transmaskvline2(int32_t x)
 {
-    int32_t y1, y2, x2;
-    int32_t y1ve[2], y2ve[2];
-
-    uintptr_t p;
-
-    vec2_t ntsiz;
-
-    if ((x < 0) || (x >= xdimen)) return;
+    if ((unsigned)x >= xdimen) return;
     if (x == xdimen-1) { transmaskvline(x); return; }
 
-    x2 = x+1;
+    int32_t y1ve[2], y2ve[2];
+    int32_t x2 = x+1;
 
     y1ve[0] = max(uwall[x],startumost[x+windowx1]-windowy1);
     y2ve[0] = min(dwall[x],startdmost[x+windowx1]-windowy1)-1;
@@ -3983,18 +3153,17 @@ static void transmaskvline2(int32_t x)
 
     setuptvlineasm2(globalshiftval,palookupoffse[0],palookupoffse[1]);
 
-    ntsiz.x = -tilesiz[globalpicnum].x;
-    ntsiz.y = -tilesiz[globalpicnum].y;
+    vec2_t const ntsiz = { -tilesiz[globalpicnum].x, -tilesiz[globalpicnum].y };
 
     calc_bufplc(&bufplce[0], lwall[x], ntsiz);
     calc_bufplc(&bufplce[1], lwall[x2], ntsiz);
     calc_vplcinc(&vplce[0], &vince[0], swall, x, y1ve[0]);
     calc_vplcinc(&vplce[1], &vince[1], swall, x2, y1ve[1]);
 
-    y1 = max(y1ve[0],y1ve[1]);
-    y2 = min(y2ve[0],y2ve[1]);
+    int32_t const y1 = max(y1ve[0],y1ve[1]);
+    int32_t const y2 = min(y2ve[0],y2ve[1]);
 
-    p = x+frameoffset;
+    uintptr_t p = x+frameoffset;
 
     if (y1ve[0] != y1ve[1])
     {
@@ -4030,8 +3199,6 @@ static void transmaskvline2(int32_t x)
 //
 static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 {
-    int32_t x;
-
     setgotpic(globalpicnum);
 
     Bassert(globalshiftval>=0 || ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)));
@@ -4043,23 +3210,23 @@ static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 
     setuptvlineasm(globalshiftval, saturatevplc);
 
-    x = x1;
+    int32_t x = x1;
     while ((x <= x2) && (startumost[x+windowx1] > startdmost[x+windowx1]))
-        x++;
+        ++x;
 
 #ifndef ENGINE_USING_A_C
     if (globalshiftval==0)
     {
-        while (x <= x2) transmaskvline(x), x++;
+        while (x <= x2) transmaskvline(x++);
     }
     else
 #endif
     {
 #ifdef MULTI_COLUMN_VLINE
-        if ((x <= x2) && (x&1)) transmaskvline(x), x++;
+        if ((x <= x2) && (x&1)) transmaskvline(x++);
         while (x < x2) transmaskvline2(x), x += 2;
 #endif
-        while (x <= x2) transmaskvline(x), x++;
+        while (x <= x2) transmaskvline(x++);
     }
 
     faketimerhandler();
@@ -4080,7 +3247,7 @@ static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 
 // cntup16>>16 iterations
 
-static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, char *p)
+static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, uint32_t by, char *p)
 {
     char ch;
 
@@ -4091,8 +3258,6 @@ static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
     const uint32_t ydiv = globalyspan > 1 ? (uint32_t)ourdivscale32(1, globalyspan) : UINT32_MAX;
     const uint32_t yspan = globalyspan;
     const int32_t xinc = asm1, yinc = asm2;
-
-    UNREFERENCED_PARAMETER(junk);
 
     for (cntup16>>=16; cntup16>0; cntup16--)
     {
@@ -4106,7 +3271,7 @@ static void nonpow2_mhline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
 }
 
 // cntup16>>16 iterations
-static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_t by, char *p)
+static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, uint32_t by, char *p)
 {
     char ch;
 
@@ -4118,8 +3283,6 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_
     const uint32_t ydiv = globalyspan > 1 ? (uint32_t)ourdivscale32(1, globalyspan) : UINT32_MAX;
     const uint32_t yspan = globalyspan;
     const int32_t xinc = asm1, yinc = asm2;
-
-    UNREFERENCED_PARAMETER(junk);
 
     if (globalorientation&512)
     {
@@ -4177,9 +3340,9 @@ static void ceilspritehline(int32_t x2, int32_t y)
     else
     {
         if ((globalorientation&2) == 0)
-            nonpow2_mhline(globalbufplc,bx,(x2-x1)<<16,0L,by,(char *)(ylookup[y]+x1+frameoffset));
+            nonpow2_mhline(globalbufplc,bx,(x2-x1)<<16,by,(char *)(ylookup[y]+x1+frameoffset));
         else
-            nonpow2_thline(globalbufplc,bx,(x2-x1)<<16,0L,by,(char *)(ylookup[y]+x1+frameoffset));
+            nonpow2_thline(globalbufplc,bx,(x2-x1)<<16,by,(char *)(ylookup[y]+x1+frameoffset));
     }
 }
 
@@ -4189,12 +3352,10 @@ static void ceilspritehline(int32_t x2, int32_t y)
 //
 static void ceilspritescan(int32_t x1, int32_t x2)
 {
-    int32_t x;
-
     int32_t y1 = uwall[x1];
     int32_t y2 = y1;
 
-    for (x=x1; x<=x2; x++)
+    for (int x=x1; x<=x2; ++x)
     {
         const int32_t twall = uwall[x]-1;
         const int32_t bwall = dwall[x];
@@ -4247,7 +3408,7 @@ static inline void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, i
 }
 
 // cnt iterations
-static void tslopevlin(uint8_t *p, int32_t i, const intptr_t *slopalptr, int32_t cnt, int32_t bx, int32_t by)
+static void tslopevlin(uint8_t *p, const intptr_t *slopalptr, int32_t cnt, int32_t bx, int32_t by)
 {
     const char *const A_C_RESTRICT buf = ggbuf;
     const char *const A_C_RESTRICT pal = ggpal;
@@ -4262,13 +3423,10 @@ static void tslopevlin(uint8_t *p, int32_t i, const intptr_t *slopalptr, int32_t
 
     do
     {
-        uint8_t ch;
-        uint32_t u, v;
-
-        i = (sloptable[(bz>>6)+8192]); bz += bzinc;
-        u = bx + xtou*i;
-        v = by + ytov*i;
-        ch = *(uint8_t *)(slopalptr[0] + buf[((u>>(32-logx))<<logy)+(v>>(32-logy))]);
+        int const i = (sloptable[(bz>>6)+8192]); bz += bzinc;
+        uint32_t u = bx + xtou*i;
+        uint32_t v = by + ytov*i;
+        uint8_t ch = *(uint8_t *)(slopalptr[0] + buf[((u>>(32-logx))<<logy)+(v>>(32-logy))]);
 
         if (ch != 255)
             *p = trans[transmode ? *p|(pal[ch]<<8) : (*p<<8)|pal[ch]];
@@ -4444,7 +3602,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
             if ((globalorientation&256)==0)
                 slopevlin(ylookup[y2]+x+frameoffset,krecipasm(asm3>>3),(intptr_t)nptr2,y2-y1+1,globalx1,globaly1);
             else
-                tslopevlin((uint8_t *)(ylookup[y2]+x+frameoffset),0,nptr2,y2-y1+1,globalx1,globaly1);
+                tslopevlin((uint8_t *)(ylookup[y2]+x+frameoffset),nptr2,y2-y1+1,globalx1,globaly1);
 
             if ((x&15) == 0) faketimerhandler();
         }
@@ -4648,7 +3806,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
 
 
 // set orientation, panning, shade, pal; picnum
-static void setup_globals_wall1(const walltype *wal, int32_t dapicnum)
+static void setup_globals_wall1(const twalltype *wal, int32_t dapicnum)
 {
     globalorientation = wal->cstat;
 
@@ -4664,7 +3822,7 @@ static void setup_globals_wall1(const walltype *wal, int32_t dapicnum)
     if (palookup[globalpal] == NULL) globalpal = 0;    // JBF: fixes crash
 }
 
-static void setup_globals_wall2(const walltype *wal, uint8_t secvisibility, int32_t topzref, int32_t botzref)
+static void setup_globals_wall2(const twalltype *wal, uint8_t secvisibility, int32_t topzref, int32_t botzref)
 {
     const int32_t logtilesizy = (picsiz[globalpicnum]>>4);
     const int32_t tsizy = tilesiz[globalpicnum].y;
@@ -4894,7 +4052,7 @@ static void drawalls(int32_t bunch)
         }
 
         const int32_t wallnum = thewall[z];
-        const walltype *const wal = &wall[wallnum];
+        const twalltype *const wal = (twalltype *)&wall[wallnum];
 
         const int32_t nextsectnum = wal->nextsector;
         const sectortype *const nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
@@ -5067,10 +4225,8 @@ static void drawalls(int32_t bunch)
                             searchstat = 0; searchit = 1;
                         }
 
-                    {
-                        const walltype *twal = (wal->cstat&2) ? &wall[wal->nextwall] : wal;
-                        setup_globals_wall1(twal, twal->picnum);
-                    }
+                    const twalltype *twal = (wal->cstat&2) ? (twalltype *)&wall[wal->nextwall] : wal;
+                    setup_globals_wall1(twal, twal->picnum);
 
                     setup_globals_wall2(wal, sec->visibility, nextsec->floorz, sec->ceilingz);
 
@@ -5083,12 +4239,11 @@ static void drawalls(int32_t bunch)
                         if (should_clip_fwall(x1, x2))
 #endif
                         for (x=x1; x<=x2; x++)
-                            if (uwall[x] < dmost[x])
-                                if (umost[x] <= dmost[x])
-                                {
-                                    dmost[x] = uwall[x];
-                                    if (umost[x] > dmost[x]) numhits--;
-                                }
+                            if (uwall[x] < dmost[x] && umost[x] <= dmost[x])
+                            {
+                                dmost[x] = uwall[x];
+                                if (umost[x] > dmost[x]) numhits--;
+                            }
                     }
                     else
                     {
@@ -5635,27 +4790,24 @@ static uint8_t falpha_to_blend(float alpha, int32_t *cstatptr, int32_t transbit1
     return blendidx;
 }
 
-static inline int32_t mulscale_triple30(int32_t a, int32_t b, int32_t c)
+FORCE_INLINE int32_t mulscale_triple30(int32_t a, int32_t b, int32_t c)
 {
     return ((int64_t)a * b * c)>>30;
 }
 
 static void drawsprite_classic(int32_t snum)
 {
+    tspritetype *const tspr = tspriteptr[snum];
+    const int32_t sectnum = tspr->sectnum;
+
+    if (sectnum < 0 || bad_tspr(tspr))
+        return;
+
     int32_t x1, y1, x2, y2, i, j, k, x;
     int32_t z, zz, z1, z2, xp1, yp1, xp2, yp2;
     int32_t dax, day, dax1, dax2, y;
     int32_t vtilenum = 0;
 
-    tspritetype *const tspr = tspriteptr[snum];
-
-    const int32_t sectnum = tspr->sectnum;
-
-    if (sectnum < 0)
-        return;
-
-    if (bad_tspr(tspr))
-        return;
 
     uint8_t blendidx = tspr->blend;
     const int32_t xb = spritesxyz[snum].x;
@@ -6004,59 +5156,57 @@ draw_as_face_sprite:
         owallmost(uwall, MAXWALLSB-1, z1-globalposz);
         owallmost(dwall, MAXWALLSB-1, z2-globalposz);
 
+        int32_t hplc = divscale19(xdimenscale,sy1);
+        const int32_t hplc2 = divscale19(xdimenscale,sy2);
+        const int32_t idiv = sx2-sx1;
+        int32_t hinc[4] = { idiv ? tabledivide32(hplc2-hplc, idiv) : 0 };
+
+#ifdef HIGH_PRECISION_SPRITE
+        const float cc = ((1<<19)*fxdimen*(float)yxaspect) * (1.f/320.f);
+        const float loopcc = ((cstat&8) ? -1 : 1)*((float)(1<<30)*(1<<24))
+            / (yspan*tspr->yrepeat);
+        float hplcf = cc/sy1;
+        float hincf[4] = {idiv ? (cc/sy2 - hplcf)/idiv : 0};
+
+#ifdef CLASSIC_SLICE_BY_4
+        hincf[1] = hincf[0] * 2.f;
+        hincf[2] = hincf[0] * 3.f;
+        hincf[3] = hincf[0] * 4.f;
+#endif // CLASSIC_SLICE_BY_4
+#endif // HIGH_PRECISION_SPRITE
+#ifdef CLASSIC_SLICE_BY_4
+        hinc[1] = hinc[0]<<1;
+        hinc[2] = hinc[0]*3;
+        hinc[3] = hinc[0]<<2;
+#endif
+        i = sx1;
+
+#ifdef CLASSIC_SLICE_BY_4
+        for (; i<=sx2-4; i+=4)
         {
-            int32_t hplc = divscale19(xdimenscale,sy1);
-            const int32_t hplc2 = divscale19(xdimenscale,sy2);
-            const int32_t idiv = sx2-sx1;
-            int32_t hinc[4] = { idiv ? tabledivide32(hplc2-hplc, idiv) : 0 };
-
+            swall[i] = (krecipasm(hplc)<<2);
+            swall[i+1] = (krecipasm(hplc+hinc[0])<<2);
+            swall[i+2] = (krecipasm(hplc+hinc[1])<<2);
+            swall[i+3] = (krecipasm(hplc+hinc[2])<<2);
+            hplc += hinc[3];
 #ifdef HIGH_PRECISION_SPRITE
-            const float cc = ((1<<19)*fxdimen*(float)yxaspect) * (1.f/320.f);
-            const float loopcc = ((cstat&8) ? -1 : 1)*((float)(1<<30)*(1<<24))
-                / (yspan*tspr->yrepeat);
-            float hplcf = cc/sy1;
-            float hincf[4] = {idiv ? (cc/sy2 - hplcf)/idiv : 0};
-
-#ifdef CLASSIC_SLICE_BY_4
-            hincf[1] = hincf[0] * 2.f;
-            hincf[2] = hincf[0] * 3.f;
-            hincf[3] = hincf[0] * 4.f;
-#endif // CLASSIC_SLICE_BY_4
+            swallf[i] =   loopcc/hplcf;
+            swallf[i+1] = loopcc/(hplcf+hincf[0]);
+            swallf[i+2] = loopcc/(hplcf+hincf[1]);
+            swallf[i+3] = loopcc/(hplcf+hincf[2]);
+            hplcf += hincf[3];
 #endif // HIGH_PRECISION_SPRITE
-#ifdef CLASSIC_SLICE_BY_4
-            hinc[1] = hinc[0]<<1;
-            hinc[2] = hinc[0]*3;
-            hinc[3] = hinc[0]<<2;
-#endif
-            i = sx1;
-
-#ifdef CLASSIC_SLICE_BY_4
-            for (; i<=sx2-4; i+=4)
-            {
-                swall[i] = (krecipasm(hplc)<<2);
-                swall[i+1] = (krecipasm(hplc+hinc[0])<<2);
-                swall[i+2] = (krecipasm(hplc+hinc[1])<<2);
-                swall[i+3] = (krecipasm(hplc+hinc[2])<<2);
-                hplc += hinc[3];
-#ifdef HIGH_PRECISION_SPRITE
-                swallf[i] =   loopcc/hplcf;
-                swallf[i+1] = loopcc/(hplcf+hincf[0]);
-                swallf[i+2] = loopcc/(hplcf+hincf[1]);
-                swallf[i+3] = loopcc/(hplcf+hincf[2]);
-                hplcf += hincf[3];
-#endif // HIGH_PRECISION_SPRITE
-            }
+        }
 #endif // CLASSIC_SLICE_BY_4
 
-            for (; i<=sx2; i++)
-            {
-                swall[i] = (krecipasm(hplc)<<2);
-                hplc += hinc[0];
+        for (; i<=sx2; i++)
+        {
+            swall[i] = (krecipasm(hplc)<<2);
+            hplc += hinc[0];
 #ifdef HIGH_PRECISION_SPRITE
-                swallf[i] = loopcc/hplcf;
-                hplcf += hincf[0];
+            swallf[i] = loopcc/hplcf;
+            hplcf += hincf[0];
 #endif
-            }
         }
 
         for (i=smostwallcnt-1; i>=0; i--)
@@ -6198,8 +5348,6 @@ draw_as_face_sprite:
     }
     else if ((cstat&48) == 32)
     {
-        int32_t bot, cosang, sinang;
-
         if ((cstat&64) != 0)
             if ((globalposz > tspr->z) == ((cstat&8)==0))
                 return;
@@ -6218,7 +5366,8 @@ draw_as_face_sprite:
 
         //Get top-left corner
         i = ((tspr->ang+2048-globalang)&2047);
-        cosang = sintable[(i+512)&2047]; sinang = sintable[i];
+        int32_t cosang = sintable[(i+512)&2047]; 
+        int32_t sinang = sintable[i];
         dax = ((xspan>>1)+xoff)*tspr->xrepeat;
         day = ((yspan>>1)+yoff)*tspr->yrepeat;
         rzi[0] += dmulscale12(sinang,dax,cosang,day);
@@ -6245,7 +5394,7 @@ draw_as_face_sprite:
             { z = 1; z1 = 0; z2 = 2; }
 
         dax = rzi[z1]-rzi[z]; day = rxi[z1]-rxi[z];
-        bot = dmulscale8(dax,dax,day,day);
+        int32_t bot = dmulscale8(dax,dax,day,day);
         if ((klabs(dax)>>13) >= bot || (klabs(day)>>13) >= bot)
             return;
         globalx1 = divscale18(dax,bot);
@@ -6273,7 +5422,6 @@ draw_as_face_sprite:
             i = rxi[1]; rxi[1] = rxi[3]; rxi[3] = i;
             i = rzi[1]; rzi[1] = rzi[3]; rzi[3] = i;
         }
-
 
         //Clip polygon in 3-space
         int32_t npoints = 4;
@@ -6644,42 +5792,41 @@ draw_as_face_sprite:
 #endif
         if (searchit >= 1 && yp > (4<<8) && (searchy >= lwall[searchx] && searchy < swall[searchx]))
         {
-            const int32_t siz = divscale19(xdimenscale,yp);
-            const int32_t xv = mulscale16(nxrepeat,xyaspect);
+            int32_t const xdsiz = divscale19(xdimenscale,yp);
+            int32_t const xv = mulscale16(nxrepeat,xyaspect);
 
-            const int32_t xspan = ((B_LITTLE32(longptr[0])+B_LITTLE32(longptr[1]))>>1);
-            const int32_t yspan = B_LITTLE32(longptr[2]);
+            int32_t const xspan = ((B_LITTLE32(longptr[0]) + B_LITTLE32(longptr[1])) >> 1);
+            int32_t const yspan = B_LITTLE32(longptr[2]);
 
-            const int32_t xsiz = mulscale_triple30(siz, xv, xspan);
-            const int32_t ysiz = mulscale_triple30(siz, nyrepeat, yspan);
+            vec2_t const siz ={ mulscale_triple30(xdsiz, xv, xspan), mulscale_triple30(xdsiz, nyrepeat, yspan) };
 
             //Watch out for divscale overflow
-            if (((xspan>>11) < xsiz) && (yspan < (ysiz>>1)))
+            if (((xspan>>11) < siz.x) && (yspan < (siz.y>>1)))
             {
-                x1 = xb-(xsiz>>1);
-                if (xspan&1) x1 += mulscale31(siz,xv);  //Odd xspans
-                i = mulscale30(siz,xv*xoff);
+                x1 = xb-(siz.x>>1);
+                if (xspan&1) x1 += mulscale31(xdsiz,xv);  //Odd xspans
+                i = mulscale30(xdsiz,xv*xoff);
                 if ((cstat&4) == 0) x1 -= i; else x1 += i;
 
-                y1 = mulscale16(tspr->z-globalposz,siz);
-                //y1 -= mulscale30(siz,nyrepeat*yoff);
-                y1 += (globalhoriz<<8)-ysiz;
+                y1 = mulscale16(tspr->z-globalposz,xdsiz);
+                //y1 -= mulscale30(xdsiz,nyrepeat*yoff);
+                y1 += (globalhoriz<<8)-siz.y;
                 //if (cstat&128)  //Already fixed up above
-                y1 += (ysiz>>1);
+                y1 += (siz.y>>1);
 
-                x2 = x1+xsiz-1;
-                y2 = y1+ysiz-1;
+                x2 = x1+siz.x-1;
+                y2 = y1+siz.y-1;
                 if ((y1|255) < (y2|255) && searchx >= (x1>>8)+1 && searchx <= (x2>>8))
                 {
                     int32_t startum, startdm;
 
                     if ((sec->ceilingstat&3) == 0)
-                        startum = globalhoriz+mulscale24(siz,sec->ceilingz-globalposz)-1;
+                        startum = globalhoriz+mulscale24(xdsiz,sec->ceilingz-globalposz)-1;
                     else
                         startum = 0;
 
                     if ((sec->floorstat&3) == 0)
-                        startdm = globalhoriz+mulscale24(siz,sec->floorz-globalposz)+1;
+                        startdm = globalhoriz+mulscale24(xdsiz,sec->floorz-globalposz)+1;
                     else
                         startdm = INT32_MAX;
 
@@ -6732,10 +5879,6 @@ static void drawsprite(int32_t snum)
 //
 static void drawmaskwall(int16_t damaskwallcnt)
 {
-    int32_t i, j, k, x, z, sectnum, z1, z2, lx, rx;
-    sectortype *sec, *nsec;
-    walltype *wal;
-
     //============================================================================= //POLYMOST BEGINS
 #ifdef USE_OPENGL
     if (getrendermode() == REND_POLYMOST) { polymost_drawmaskwall(damaskwallcnt); return; }
@@ -6756,21 +5899,22 @@ static void drawmaskwall(int16_t damaskwallcnt)
 #endif
     //============================================================================= //POLYMOST ENDS
 
-    z = maskwall[damaskwallcnt];
-    wal = &wall[thewall[z]];
-    sectnum = thesector[z]; sec = &sector[sectnum];
-    nsec = &sector[wal->nextsector];
-    z1 = max(nsec->ceilingz,sec->ceilingz);
-    z2 = min(nsec->floorz,sec->floorz);
+    int32_t z = maskwall[damaskwallcnt];
+    twalltype *wal = (twalltype *)&wall[thewall[z]];
+    int32_t sectnum = thesector[z];
+    tsectortype *sec = (tsectortype *)&sector[sectnum];
+    tsectortype *nsec = (tsectortype *)&sector[wal->nextsector];
+    int32_t z1 = max(nsec->ceilingz,sec->ceilingz);
+    int32_t z2 = min(nsec->floorz,sec->floorz);
 
     wallmost(uwall,z,sectnum,(uint8_t)0);
     wallmost(uplc,z,(int32_t)wal->nextsector,(uint8_t)0);
-    for (x=xb1[z]; x<=xb2[z]; x++)
+    for (int x=xb1[z]; x<=xb2[z]; x++)
         if (uplc[x] > uwall[x])
             uwall[x] = uplc[x];
     wallmost(dwall,z,sectnum,(uint8_t)1);
     wallmost(dplc,z,(int32_t)wal->nextsector,(uint8_t)1);
-    for (x=xb1[z]; x<=xb2[z]; x++)
+    for (int x=xb1[z]; x<=xb2[z]; x++)
         if (dplc[x] < dwall[x])
             dwall[x] = dplc[x];
     prepwall(z,wal);
@@ -6778,13 +5922,13 @@ static void drawmaskwall(int16_t damaskwallcnt)
     setup_globals_wall1(wal, wal->overpicnum);
     setup_globals_wall2(wal, sec->visibility, z1, z2);
 
-    for (i=smostwallcnt-1; i>=0; i--)
+    for (int i=smostwallcnt-1, j=smostwall[i]; i>=0; j=smostwall[--i])
     {
-        j = smostwall[i];
         if ((xb1[j] > xb2[z]) || (xb2[j] < xb1[z])) continue;
         if (wallfront(j,z)) continue;
 
-        lx = max(xb1[j],xb1[z]); rx = min(xb2[j],xb2[z]);
+        int lx = max(xb1[j],xb1[z]);
+        int rx = min(xb2[j],xb2[z]);
 
         switch (smostwalltype[i])
         {
@@ -6793,17 +5937,15 @@ static void drawmaskwall(int16_t damaskwallcnt)
             {
                 if ((lx == xb1[z]) && (rx == xb2[z])) return;
                 //clearbufbyte(&dwall[lx],(rx-lx+1)*sizeof(dwall[0]),0L);
-                for (x=lx; x<=rx; x++) dwall[x] = 0;
+                for (int x=lx; x<=rx; x++) dwall[x] = 0;
             }
             break;
         case 1:
-            k = smoststart[i] - xb1[j];
-            for (x=lx; x<=rx; x++)
+            for (int x=lx, k = smoststart[i] - xb1[j]; x<=rx; x++)
                 if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
             break;
         case 2:
-            k = smoststart[i] - xb1[j];
-            for (x=lx; x<=rx; x++)
+            for (int x=lx, k = smoststart[i] - xb1[j]; x<=rx; x++)
                 if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
             break;
         }
@@ -8349,10 +7491,10 @@ int32_t lintersect(int32_t x1, int32_t y1, int32_t z1,
 // rintersect (internal)
 //
 // returns: -1 if didn't intersect, coefficient (x3--x4 fraction)<<16 else
-static int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
-                          int32_t vx_, int32_t vy_, int32_t vz,
-                          int32_t x3, int32_t y3, int32_t x4, int32_t y4,
-                          int32_t *intx, int32_t *inty, int32_t *intz)
+int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
+                   int32_t vx_, int32_t vy_, int32_t vz,
+                   int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+                   int32_t *intx, int32_t *inty, int32_t *intz)
 {
     //p1 towards p2 is a ray
     int64_t topt, topu, t;
@@ -8392,81 +7534,6 @@ int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy,
                      int32_t y3, int32_t x4, int32_t y4, int32_t *intx, int32_t *inty, int32_t *intz)
 {
     return (rintersect(x1, y1, z1, vx, vy, vz, x3, y3, x4, y4, intx, inty, intz) != -1);
-}
-
-//
-// keepaway (internal)
-//
-static inline void keepaway(int32_t *x, int32_t *y, int32_t w)
-{
-    const int32_t x1 = clipit[w].x1, dx = clipit[w].x2-x1;
-    const int32_t y1 = clipit[w].y1, dy = clipit[w].y2-y1;
-    const int32_t ox = ksgn(-dy), oy = ksgn(dx);
-    char first = (klabs(dx) <= klabs(dy));
-
-    while (1)
-    {
-        if (dx*(*y-y1) > (*x-x1)*dy)
-            return;
-
-        if (first == 0)
-            *x += ox;
-        else
-            *y += oy;
-
-        first ^= 1;
-    }
-}
-
-
-//
-// raytrace (internal)
-//
-static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
-{
-    int32_t hitwall = -1;
-
-    for (int32_t z=clipnum-1; z>=0; z--)
-    {
-        const int32_t x1 = clipit[z].x1, x2 = clipit[z].x2, x21 = x2-x1;
-        const int32_t y1 = clipit[z].y1, y2 = clipit[z].y2, y21 = y2-y1;
-
-        int32_t topu = x21*(y3-y1) - (x3-x1)*y21;
-        if (topu <= 0)
-            continue;
-
-        if (x21*(*y4-y1) > (*x4-x1)*y21)
-            continue;
-
-        const int32_t x43 = *x4-x3;
-        const int32_t y43 = *y4-y3;
-
-        if (x43*(y1-y3) > (x1-x3)*y43)
-            continue;
-
-        if (x43*(y2-y3) <= (x2-x3)*y43)
-            continue;
-
-        const int32_t bot = x43*y21 - x21*y43;
-        if (bot == 0)
-            continue;
-
-        int32_t cnt = 256, nintx, ninty;
-
-        do
-        {
-            cnt--; if (cnt < 0) { *x4 = x3; *y4 = y3; return z; }
-            nintx = x3 + scale(x43,topu,bot);
-            ninty = y3 + scale(y43,topu,bot);
-            topu--;
-        }
-        while (x21*(ninty-y1) <= (nintx-x1)*y21);
-
-        if (klabs(x3-nintx)+klabs(y3-ninty) < klabs(x3-*x4)+klabs(y3-*y4))
-            { *x4 = nintx; *y4 = ninty; hitwall = z; }
-    }
-
-    return hitwall;
 }
 
 //
@@ -9218,9 +8285,9 @@ static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, c
 
 // x1, y1: in/out
 // rest x/y: out
-static void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
+void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
                                int32_t *y1, int32_t *y2);
-static void get_floorspr_points(const tspritetype *spr, int32_t px, int32_t py,
+void get_floorspr_points(const tspritetype *spr, int32_t px, int32_t py,
                                 int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
                                 int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
 
@@ -10584,329 +9651,6 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
 }
 
 
-#ifdef POLYMER
-void delete_maphack_lights()
-{
-    int32_t i;
-    for (i=0; i<maphacklightcnt; i++)
-    {
-        if (maphacklight[i] >= 0)
-            polymer_deletelight(maphacklight[i]);
-        maphacklight[i] = -1;
-    }
-
-    maphacklightcnt = 0;
-}
-#else
-void delete_maphack_lights() {}
-#endif
-
-//
-// loadmaphack
-//
-int32_t loadmaphack(const char *filename)
-{
-    enum
-    {
-        T_SPRITE = 0,
-        T_ANGOFF,
-        T_NOMODEL,
-        T_NOANIM,
-        T_PITCH,
-        T_ROLL,
-        T_MDXOFF,
-        T_MDYOFF,
-        T_MDZOFF,
-        T_AWAY1,
-        T_AWAY2,
-        T_LIGHT,
-    };
-
-    static struct { const char *text; int32_t tokenid; } legaltokens[] =
-    {
-        { "sprite", T_SPRITE },
-        { "angleoff", T_ANGOFF },
-        { "angoff", T_ANGOFF },
-        { "notmd2", T_NOMODEL },
-        { "notmd3", T_NOMODEL },
-        { "notmd", T_NOMODEL },
-        { "nomd2anim", T_NOANIM },
-        { "nomd3anim", T_NOANIM },
-        { "nomdanim", T_NOANIM },
-        { "pitch", T_PITCH },
-        { "roll", T_ROLL },
-        { "mdxoff", T_MDXOFF },
-        { "mdyoff", T_MDYOFF },
-        { "mdzoff", T_MDZOFF },
-        { "away1", T_AWAY1 },
-        { "away2", T_AWAY2 },
-        { "light", T_LIGHT },
-        { NULL, -1 }
-    };
-
-    scriptfile *script = NULL;
-    char *tok, *cmdtokptr;
-    int32_t i;
-    int32_t whichsprite = -1;
-    static char fn[BMAX_PATH];
-
-#ifdef POLYMER
-    int32_t toomanylights = 0;
-
-    delete_maphack_lights();
-#endif
-
-    if (filename)
-    {
-        Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
-        Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) *(MAXSPRITES+MAXUNIQHUDID));
-        Bstrcpy(fn, filename);
-        script = scriptfile_fromfile(filename);
-    }
-    else if (fn[0])
-    {
-        // re-load
-        // XXX: what if we changed between levels? Could a wrong maphack be loaded?
-        script = scriptfile_fromfile(fn);
-    }
-
-    if (!script)
-    {
-        fn[0] = 0;
-        return -1;
-    }
-
-    while (1)
-    {
-        tok = scriptfile_gettoken(script);
-        if (!tok) break;
-        for (i=0; legaltokens[i].text; i++) if (!Bstrcasecmp(tok,legaltokens[i].text)) break;
-        cmdtokptr = script->ltextptr;
-
-        if (!filename && legaltokens[i].tokenid != T_LIGHT) continue;
-
-        switch (legaltokens[i].tokenid)
-        {
-        case T_SPRITE:     // sprite <xx>
-            if (scriptfile_getnumber(script, &whichsprite)) break;
-
-            if ((unsigned)whichsprite >= (unsigned)MAXSPRITES)
-            {
-                // sprite number out of range
-                initprintf("Sprite number out of range 0-%d on line %s:%d\n",
-                           MAXSPRITES-1,script->filename, scriptfile_getlinum(script,cmdtokptr));
-                whichsprite = -1;
-                break;
-            }
-
-            break;
-        case T_ANGOFF:     // angoff <xx>
-        {
-            int32_t ang;
-            if (scriptfile_getnumber(script, &ang)) break;
-
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring angle offset directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].angoff = (int16_t)ang;
-        }
-        break;
-        case T_NOMODEL:      // notmd
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring not-MD2/MD3 directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].flags |= SPREXT_NOTMD;
-            break;
-        case T_NOANIM:      // nomdanim
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring no-MD2/MD3-anim directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].flags |= SPREXT_NOMDANIM;
-            break;
-        case T_PITCH:     // pitch <xx>
-        {
-            int32_t pitch;
-            if (scriptfile_getnumber(script, &pitch)) break;
-
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring pitch directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].pitch = (int16_t)pitch;
-        }
-        break;
-        case T_ROLL:     // roll <xx>
-        {
-            int32_t roll;
-            if (scriptfile_getnumber(script, &roll)) break;
-
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring roll directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].roll = (int16_t)roll;
-        }
-        break;
-        case T_MDXOFF:     // mdxoff <xx>
-        {
-            int32_t i;
-            if (scriptfile_getnumber(script, &i)) break;
-
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring mdxoff directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].offset.x = i;
-        }
-        break;
-        case T_MDYOFF:     // mdyoff <xx>
-        {
-            int32_t i;
-            if (scriptfile_getnumber(script, &i)) break;
-
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring mdyoff directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].offset.y = i;
-        }
-        break;
-        case T_MDZOFF:     // mdzoff <xx>
-        {
-            int32_t i;
-            if (scriptfile_getnumber(script, &i)) break;
-
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring mdzoff directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].offset.z = i;
-        }
-        break;
-        case T_AWAY1:      // away1
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].flags |= SPREXT_AWAY1;
-            break;
-        case T_AWAY2:      // away2
-            if (whichsprite < 0)
-            {
-                // no sprite directive preceeding
-                initprintf("Ignoring moving away directive because of absent/invalid sprite number on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script,cmdtokptr));
-                break;
-            }
-            spriteext[whichsprite].flags |= SPREXT_AWAY2;
-            break;
-#ifdef POLYMER
-        case T_LIGHT:      // light sector x y z range r g b radius faderadius angle horiz minshade maxshade priority tilenum
-        {
-            int32_t value;
-            int16_t lightid;
-#pragma pack(push,1)
-            _prlight light;
-#pragma pack(pop)
-            if (toomanylights)
-                break;  // ignore further light defs
-
-            scriptfile_getnumber(script, &value);
-            light.sector = value;
-            scriptfile_getnumber(script, &value);
-            light.x = value;
-            scriptfile_getnumber(script, &value);
-            light.y = value;
-            scriptfile_getnumber(script, &value);
-            light.z = value;
-            scriptfile_getnumber(script, &value);
-            light.range = value;
-            scriptfile_getnumber(script, &value);
-            light.color[0] = value;
-            scriptfile_getnumber(script, &value);
-            light.color[1] = value;
-            scriptfile_getnumber(script, &value);
-            light.color[2] = value;
-            scriptfile_getnumber(script, &value);
-            light.radius = value;
-            scriptfile_getnumber(script, &value);
-            light.faderadius = value;
-            scriptfile_getnumber(script, &value);
-            light.angle = value;
-            scriptfile_getnumber(script, &value);
-            light.horiz = value;
-            scriptfile_getnumber(script, &value);
-            light.minshade = value;
-            scriptfile_getnumber(script, &value);
-            light.maxshade = value;
-            scriptfile_getnumber(script, &value);
-            light.priority = value;
-            scriptfile_getnumber(script, &value);
-            light.tilenum = value;
-
-            light.publicflags.emitshadow = 1;
-            light.publicflags.negative = 0;
-
-            if (getrendermode() == REND_POLYMER)
-            {
-                if (maphacklightcnt == PR_MAXLIGHTS)
-                {
-                    initprintf("warning: max light count %d exceeded, "
-                               "ignoring further light defs\n", PR_MAXLIGHTS);
-                    toomanylights = 1;
-                    break;
-                }
-
-                lightid = polymer_addlight(&light);
-                if (lightid>=0)
-                    maphacklight[maphacklightcnt++] = lightid;
-            }
-
-            break;
-        }
-#endif // POLYMER
-
-        default:
-            // unrecognised token
-            break;
-        }
-    }
-
-    scriptfile_close(script);
-    return 0;
-}
-
-
 #ifdef NEW_MAP_FORMAT
 LUNATIC_CB int32_t (*saveboard_maptext)(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 #endif
@@ -11980,65 +10724,6 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
 
 
 //
-// clipinsidebox
-//
-int32_t clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist)
-{
-    walltype *wal;
-    int32_t x1, y1, x2, y2;
-
-    const int32_t r = walldist<<1;
-
-    wal = &wall[wallnum];     x1 = wal->x+walldist-x; y1 = wal->y+walldist-y;
-    wal = &wall[wal->point2]; x2 = wal->x+walldist-x; y2 = wal->y+walldist-y;
-
-    if ((x1 < 0) && (x2 < 0)) return(0);
-    if ((y1 < 0) && (y2 < 0)) return(0);
-    if ((x1 >= r) && (x2 >= r)) return(0);
-    if ((y1 >= r) && (y2 >= r)) return(0);
-
-    x2 -= x1; y2 -= y1;
-    if (x2*(walldist-y1) >= y2*(walldist-x1))  //Front
-    {
-        if (x2 > 0) x2 *= (0-y1); else x2 *= (r-y1);
-        if (y2 > 0) y2 *= (r-x1); else y2 *= (0-x1);
-        return(x2 < y2);
-    }
-    if (x2 > 0) x2 *= (r-y1); else x2 *= (0-y1);
-    if (y2 > 0) y2 *= (0-x1); else y2 *= (r-x1);
-    return((x2 >= y2)<<1);
-}
-
-
-//
-// clipinsideboxline
-//
-int32_t clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t walldist)
-{
-    const int32_t r = walldist<<1;
-
-    x1 += walldist-x; x2 += walldist-x;
-    if ((x1 < 0) && (x2 < 0)) return(0);
-    if ((x1 >= r) && (x2 >= r)) return(0);
-
-    y1 += walldist-y; y2 += walldist-y;
-    if ((y1 < 0) && (y2 < 0)) return(0);
-    if ((y1 >= r) && (y2 >= r)) return(0);
-
-    x2 -= x1; y2 -= y1;
-    if (x2*(walldist-y1) >= y2*(walldist-x1))  //Front
-    {
-        if (x2 > 0) x2 *= (0-y1); else x2 *= (r-y1);
-        if (y2 > 0) y2 *= (r-x1); else y2 *= (0-x1);
-        return(x2 < y2);
-    }
-    if (x2 > 0) x2 *= (r-y1); else x2 *= (0-y1);
-    if (y2 > 0) y2 *= (0-x1); else y2 *= (r-x1);
-    return((x2 >= y2)<<1);
-}
-
-
-//
 // inside
 //
 // See http://fabiensanglard.net/duke3d/build_engine_internals.php,
@@ -12048,18 +10733,18 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
     if (sectnum >= 0 && sectnum < numsectors)
     {
         uint32_t cnt1 = 0, cnt2 = 0;
-        walltype *wal = &wall[sector[sectnum].wallptr];
+        twalltype const * wal = (twalltype *) &wall[sector[sectnum].wallptr];
         int32_t i = sector[sectnum].wallnum;
 
         do
         {
             // Get the x and y components of the [tested point]-->[wall
             // point{1,2}] vectors.
-            int32_t x1 = wal->x-x, x2 = wall[wal->point2].x-x;
-            int32_t y1 = wal->y-y, y2 = wall[wal->point2].y-y;
+            vec2_t v1 = { wal->x - x, wal->y - y };
+            vec2_t v2 = { wall[wal->point2].x - x, wall[wal->point2].y - y };
 
             // First, test if the point is EXACTLY_ON_WALL_POINT.
-            if ((x1|y1) == 0 || (x2|y2)==0)
+            if ((v1.x|v1.y) == 0 || (v2.x|v2.y)==0)
                 return 1;
 
             // If their signs differ[*], ...
@@ -12068,16 +10753,11 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
             // Equivalently, the branch is taken iff
             //   y1 != y2 AND y_m <= y < y_M,
             // where y_m := min(y1, y2) and y_M := max(y1, y2).
-            if ((y1^y2) < 0)
-            {
-                if ((x1^x2) >= 0)
-                    cnt1 ^= x1;
-                else
-                    cnt1 ^= (x1*y2-x2*y1)^y2;
-            }
+            if ((v1.y^v2.y) < 0)
+                cnt1 ^= (((v1.x^v2.x) >= 0) ? v1.x : (v1.x*v2.y-v2.x*v1.y)^v2.y);
 
-            y1--;
-            y2--;
+            v1.y--;
+            v2.y--;
 
             // Now, do the same comparisons, but with the interval half-open on
             // the other side! That is, take the branch iff
@@ -12085,15 +10765,12 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
             // For a rectangular sector, without EXACTLY_ON_WALL_POINT, this
             // would still leave the lower left and upper right points
             // "outside" the sector.
-            if ((y1^y2) < 0)
+            if ((v1.y^v2.y) < 0)
             {
-                x1--;
-                x2--;
+                v1.x--;
+                v2.x--;
 
-                if ((x1^x2) >= 0)
-                    cnt2 ^= x1;
-                else
-                    cnt2 ^= (x1*y2-x2*y1)^y2;
+                cnt2 ^= (((v1.x^v2.x) >= 0) ? v1.x : (v1.x*v2.y-v2.x*v1.y)^v2.y);
             }
 
             wal++; i--;
@@ -12522,7 +11199,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
 
 // x1, y1: in/out
 // rest x/y: out
-static void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
+void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
                                int32_t *y1, int32_t *y2)
 {
     //These lines get the 2 points of the rotated sprite
@@ -12551,7 +11228,7 @@ static void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
 
 // x1, y1: in/out
 // rest x/y: out
-static void get_floorspr_points(const tspritetype *spr, int32_t px, int32_t py,
+void get_floorspr_points(const tspritetype *spr, int32_t px, int32_t py,
                                 int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
                                 int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4)
 {
@@ -12669,10 +11346,6 @@ static int32_t try_facespr_intersect(const spritetype *spr, const vec3_t *refpos
 //
 // hitscan
 //
-#ifdef HAVE_CLIPSHAPE_FEATURE
-static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t *clipsectcnt, const vec3_t *vect);
-#endif
-
 int32_t hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                 hitdata_t *hit, uint32_t cliptype)
 {
@@ -13274,766 +11947,6 @@ int32_t lastwall(int16_t point)
 
     return point;
 }
-
-
-////////// CLIPMOVE //////////
-
-int32_t clipmoveboxtracenum = 3;
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-static int32_t clipsprite_try(const spritetype *spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax)
-{
-    // try and see whether this sprite's picnum has sector-like clipping data
-    int32_t i = pictoidx[spr->picnum];
-    // handle sector-like floor sprites separately
-    while (i>=0 && (spr->cstat&32) != (clipmapinfo.sector[sectq[clipinfo[i].qbeg]].CM_CSTAT&32))
-        i = clipinfo[i].next;
-
-    if (i>=0)
-    {
-        int32_t maxcorrection = clipinfo[i].maxdist;
-        const int32_t k = sectq[clipinfo[i].qbeg];
-
-        if ((spr->cstat&48)!=32)  // face/wall sprite
-        {
-            int32_t tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
-            maxcorrection = divideu32_noinline(maxcorrection * (int32_t)spr->xrepeat, tempint1);
-        }
-        else  // floor sprite
-        {
-            int32_t tempint1 = clipmapinfo.sector[k].CM_XREPEAT;
-            int32_t tempint2 = clipmapinfo.sector[k].CM_YREPEAT;
-            maxcorrection = max(divideu32_noinline(maxcorrection * (int32_t)spr->xrepeat, tempint1),
-                                divideu32_noinline(maxcorrection * (int32_t)spr->yrepeat, tempint2));
-        }
-
-        maxcorrection -= MAXCLIPDIST;
-
-        if (spr->x < xmin - maxcorrection) return 1;
-        if (spr->y < ymin - maxcorrection) return 1;
-        if (spr->x > xmax + maxcorrection) return 1;
-        if (spr->y > ymax + maxcorrection) return 1;
-
-        if (clipspritenum < MAXCLIPNUM)
-            clipspritelist[clipspritenum++] = spr-sprite;
-//initprintf("%d: clip sprite[%d]\n",clipspritenum,j);
-        return 1;
-    }
-
-    return 0;
-}
-
-// return: -1 if curspr has x-flip xor y-flip (in the horizontal map plane!), 1 else
-static int32_t clipsprite_initindex(int32_t curidx, spritetype *curspr, int32_t *clipsectcnt, const vec3_t *vect)
-{
-    int32_t k, daz = curspr->z;
-    int32_t scalex, scaley, scalez, flipx, flipy;
-    int32_t flipmul=1;
-
-    const int32_t j = sectq[clipinfo[curidx].qbeg];
-    const int32_t tempint1 = sector[j].CM_XREPEAT;
-    const int32_t tempint2 = sector[j].CM_YREPEAT;
-
-    const int32_t rotang = (curspr->ang - sector[j].CM_ANG)&2047;
-    const int32_t dorot = !CM_NOROTS(j);
-
-    if ((curspr->cstat&48)!=32)  // face/wall sprite
-    {
-        scalex = scaley = divscale22(curspr->xrepeat, tempint1);
-        scalez = divscale22(curspr->yrepeat, tempint2);
-
-        flipx = 1-((curspr->cstat&4)>>1);
-        flipy = 1;
-    }
-    else
-    {
-        scalex = divscale22(curspr->xrepeat, tempint1);
-        scaley = divscale22(curspr->yrepeat, tempint2);
-        scalez = scalex;
-
-        flipx = 1-((curspr->cstat&4)>>1);
-        flipy = 1-((curspr->cstat&8)>>2);
-    }
-
-    if (dorot)
-    {
-        flipmul = flipx*flipy;
-        if (flipmul==-1)
-            wall = (walltype *)loadwallinv;
-    }
-
-    if ((curspr->cstat&128) != (sector[j].CM_CSTAT&128))
-        daz += (((curspr->cstat&128)>>6)-1)*((tilesiz[curspr->picnum].y*curspr->yrepeat)<<1);
-
-    *clipsectcnt = clipsectnum = 0;
-    // init sectors for this index
-    for (k=clipinfo[curidx].qbeg; k<=clipinfo[curidx].qend; k++)
-    {
-        const int32_t j = sectq[k];
-        sectortype *const sec = &sector[j];
-        const int32_t startwall = sec->wallptr, endwall = startwall+sec->wallnum;
-
-        int32_t w;
-        walltype *wal;
-
-        sec->floorz = daz + mulscale22(scalez, CM_FLOORZ(j));
-        sec->ceilingz = daz + mulscale22(scalez, CM_CEILINGZ(j));
-//initprintf("sec %d: f=%d, c=%d\n", j, sec->floorz, sec->ceilingz);
-
-        for (w=startwall,wal=&wall[startwall]; w<endwall; w++,wal++)
-        {
-            wal->x = mulscale22(scalex, CM_WALL_X(w));
-            wal->y = mulscale22(scaley, CM_WALL_Y(w));
-
-            if (dorot)
-            {
-                wal->x *= flipx;
-                wal->y *= flipy;
-                rotatepoint(zerovec, *(vec2_t *)wal, rotang, (vec2_t *)wal);
-            }
-
-            wal->x += curspr->x;
-            wal->y += curspr->y;
-        }
-
-        if (inside(vect->x, vect->y, j)==1)
-            clipsectorlist[clipsectnum++] = j;
-    }
-
-    // add outer sector if not inside inner ones
-    if (clipsectnum==0)
-        clipsectorlist[clipsectnum++] = sectq[k-1];
-
-    return flipmul;
-}
-#endif
-
-static int32_t clipmove_warned=0;
-
-static void addclipline(int32_t dax1, int32_t day1, int32_t dax2, int32_t day2, int32_t daoval)
-{
-    if (clipnum < MAXCLIPNUM)
-    {
-        clipit[clipnum].x1 = dax1; clipit[clipnum].y1 = day1;
-        clipit[clipnum].x2 = dax2; clipit[clipnum].y2 = day2;
-        clipobjectval[clipnum] = daoval;
-        clipnum++;
-    }
-    else if (!clipmove_warned)
-    {
-        initprintf("!!clipnum\n");
-        clipmove_warned = 1;
-    }
-}
-
-static inline void clipmove_tweak_pos(const vec3_t *pos, int32_t gx, int32_t gy,
-                                      int32_t x1, int32_t y1, int32_t x2, int32_t y2,
-                                      int32_t *daxptr, int32_t *dayptr)
-{
-    int32_t daz;
-
-    if (rintersect(pos->x,pos->y,0, gx,gy,0, x1,y1, x2,y2, daxptr,dayptr,&daz) == -1)
-    {
-        *daxptr = pos->x;
-        *dayptr = pos->y;
-    }
-}
-
-// Returns: should clip?
-static int32_t check_floor_curb(int32_t dasect, int32_t nextsect, int32_t flordist,
-                                int32_t posz, int32_t dax, int32_t day)
-{
-    const sectortype *sec2 = &sector[nextsect];
-    int32_t daz2 = getflorzofslope(nextsect, dax,day);
-
-    return ((sec2->floorstat&1) == 0 &&  // parallaxed floor curbs don't clip
-                posz >= daz2-(flordist-1) &&  // also account for desired z distance tolerance
-                daz2 < getflorzofslope(dasect, dax,day)-(1<<8));  // curbs less tall than 256 z units don't clip
-}
-
-int32_t clipmovex(vec3_t *pos, int16_t *sectnum,
-                  int32_t xvect, int32_t yvect,
-                  int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype,
-                  uint8_t noslidep)
-{
-    const int32_t oboxtracenum = clipmoveboxtracenum;
-
-    if (noslidep)
-        clipmoveboxtracenum = 1;
-    int32_t ret = clipmove(pos, sectnum, xvect, yvect,
-                           walldist, ceildist, flordist, cliptype);
-    clipmoveboxtracenum = oboxtracenum;
-
-    return ret;
-}
-
-//
-// clipmove
-//
-int32_t clipmove(vec3_t *pos, int16_t *sectnum,
-                 int32_t xvect, int32_t yvect,
-                 int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
-{
-    int32_t i, j, k, tempint1, tempint2;
-    int32_t x1, y1, x2, y2;
-    int32_t dax, day;
-    int32_t retval=0;
-
-    spritetype *curspr=NULL;  // non-NULL when handling sprite with sector-like clipping
-    int32_t curidx=-1, clipsectcnt, clipspritecnt;
-
-    const int32_t dawalclipmask = (cliptype&65535);        //CLIPMASK0 = 0x00010001
-    const int32_t dasprclipmask = (cliptype>>16);          //CLIPMASK1 = 0x01000040
-
-    const int32_t oxvect=xvect, oyvect=yvect;
-
-    int32_t goalx = pos->x + (xvect>>14);
-    int32_t goaly = pos->y + (yvect>>14);
-    const int32_t cx = (pos->x+goalx)>>1;
-    const int32_t cy = (pos->y+goaly)>>1;
-
-    //Extra walldist for sprites on sector lines
-    const int32_t gx=goalx-(pos->x), gy=goaly-(pos->y);
-    const int32_t rad = nsqrtasm(uhypsq(gx,gy)) + MAXCLIPDIST+walldist + 8;
-    const int32_t xmin = cx-rad, ymin = cy-rad;
-    const int32_t xmax = cx+rad, ymax = cy+rad;
-
-    if ((xvect|yvect) == 0 || *sectnum < 0)
-        return 0;
-
-    clipmove_warned = 0;
-    clipnum = 0;
-
-    clipsectorlist[0] = (*sectnum);
-    clipsectcnt = 0; clipsectnum = 1;
-    clipspritecnt = 0; clipspritenum = 0;
-    do
-    {
-        const walltype *wal;
-        const sectortype *sec;
-        int32_t dasect, startwall, endwall;
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-        if (clipsectcnt>=clipsectnum)
-        {
-            // one bunch of sectors completed (either the very first
-            // one or a sector-like sprite one), prepare the next
-
-//initprintf("init sprite %d\n", clipspritecnt);
-            if (!curspr)
-            {
-                // init sector-like sprites for clipping
-                origclipsectnum = clipsectnum;
-                Bmemcpy(origclipsectorlist, clipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));
-
-                // replace sector and wall with clip map
-                mapinfo_set(&origmapinfo, &clipmapinfo);
-            }
-
-            curspr = &sprite[clipspritelist[clipspritecnt]];
-            curidx = clipshape_idx_for_sprite(curspr, curidx);
-
-            if (curidx < 0)
-            {
-                clipspritecnt++;
-                continue;
-            }
-
-            clipsprite_initindex(curidx, curspr, &clipsectcnt, pos);
-        }
-#endif
-
-        dasect = clipsectorlist[clipsectcnt++];
-//if (curspr)
-//    initprintf("sprite %d/%d: sect %d/%d (%d)\n", clipspritecnt,clipspritenum, clipsectcnt,clipsectnum,dasect);
-
-        ////////// Walls //////////
-
-        sec = &sector[dasect];
-        startwall = sec->wallptr; endwall = startwall + sec->wallnum;
-        for (j=startwall,wal=&wall[startwall]; j<endwall; j++,wal++)
-        {
-            int32_t clipyou = 0, dx, dy;
-            const walltype *const wal2 = &wall[wal->point2];
-
-            if (wal->x < xmin && wal2->x < xmin) continue;
-            if (wal->x > xmax && wal2->x > xmax) continue;
-            if (wal->y < ymin && wal2->y < ymin) continue;
-            if (wal->y > ymax && wal2->y > ymax) continue;
-
-            x1 = wal->x; y1 = wal->y; x2 = wal2->x; y2 = wal2->y;
-
-            dx = x2-x1; dy = y2-y1;
-            if (dx*((pos->y)-y1) < ((pos->x)-x1)*dy) continue;  //If wall's not facing you
-
-            if (dx > 0) dax = dx*(ymin-y1); else dax = dx*(ymax-y1);
-            if (dy > 0) day = dy*(xmax-x1); else day = dy*(xmin-x1);
-            if (dax >= day) continue;
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-            if (curspr)
-            {
-                if (wal->nextsector>=0)
-                {
-                    const sectortype *sec2 = &sector[wal->nextsector];
-
-                    clipmove_tweak_pos(pos, gx,gy, x1,y1, x2,y2, &dax,&day);
-
-                    #define CLIPMV_SPR_F_DAZ2 getflorzofslope(wal->nextsector, dax,day)
-                    #define CLIPMV_SPR_F_BASEZ getflorzofslope(sectq[clipinfo[curidx].qend], dax,day)
-
-                    if ((sec2->floorstat&1) == 0)
-                        if (CLIPMV_SPR_F_DAZ2-(flordist-1) <= pos->z)
-                            if (pos->z <= CLIPMV_SPR_F_BASEZ+(flordist-1))
-                                clipyou = 1;
-
-                    if (clipyou == 0)
-                    {
-                        #define CLIPMV_SPR_C_DAZ2 getceilzofslope(wal->nextsector, dax,day)
-                        #define CLIPMV_SPR_C_BASEZ getceilzofslope(sectq[clipinfo[curidx].qend], dax,day)
-
-                        if ((sec2->ceilingstat&1) == 0)
-                            if (CLIPMV_SPR_C_BASEZ-(ceildist-1) <= pos->z)
-                                if (pos->z <= CLIPMV_SPR_C_DAZ2+(ceildist-1))
-                                    clipyou = 1;
-                    }
-                }
-            }
-            else
-#endif
-            if (wal->nextsector < 0 || (wal->cstat&dawalclipmask))
-            {
-                clipyou = 1;
-#ifdef YAX_ENABLE
-                int16_t cb = yax_getbunch(dasect, YAX_CEILING);
-
-                if (cb >= 0 && (sec->ceilingstat & yax_waltosecmask(dawalclipmask)) == 0)
-                {
-                    int32_t ynw = yax_getnextwall(j, YAX_CEILING);
-
-                    if (ynw >= 0 && wall[ynw].nextsector >= 0 && (wall[ynw].cstat & dawalclipmask) == 0)
-                    {
-                        clipmove_tweak_pos(pos, gx,gy, x1,y1, x2,y2, &dax,&day);
-                        clipyou = check_floor_curb(dasect, wall[ynw].nextsector, flordist, pos->z, dax, day);
-                    }
-                }
-#endif
-            }
-            else if (editstatus == 0)
-            {
-                clipmove_tweak_pos(pos, gx,gy, x1,y1, x2,y2, &dax,&day);
-                clipyou = check_floor_curb(dasect, wal->nextsector, flordist, pos->z, dax, day);
-
-                if (clipyou == 0)
-                {
-                    const sectortype *sec2 = &sector[wal->nextsector];
-                    int32_t daz2 = getceilzofslope(wal->nextsector, dax,day);
-
-                    clipyou = ((sec2->ceilingstat&1) == 0 &&
-                                   pos->z <= daz2+(ceildist-1) &&
-                                   daz2 > getceilzofslope(dasect, dax,day)+(1<<8));
-                }
-            }
-
-            if (clipyou)
-            {
-                int16_t objtype;
-                int32_t bsz;
-
-                if (!curspr)
-                    objtype = (int16_t)j+32768;
-                else
-                    objtype = (int16_t)(curspr-sprite)+49152;
-
-                //Add 2 boxes at endpoints
-                bsz = walldist; if (gx < 0) bsz = -bsz;
-                addclipline(x1-bsz,y1-bsz, x1-bsz,y1+bsz, objtype);
-                addclipline(x2-bsz,y2-bsz, x2-bsz,y2+bsz, objtype);
-                bsz = walldist; if (gy < 0) bsz = -bsz;
-                addclipline(x1+bsz,y1-bsz, x1-bsz,y1-bsz, objtype);
-                addclipline(x2+bsz,y2-bsz, x2-bsz,y2-bsz, objtype);
-
-                dax = walldist; if (dy > 0) dax = -dax;
-                day = walldist; if (dx < 0) day = -day;
-                addclipline(x1+dax,y1+day, x2+dax,y2+day, objtype);
-            }
-            else if (wal->nextsector>=0)
-            {
-                for (i=clipsectnum-1; i>=0; i--)
-                    if (wal->nextsector == clipsectorlist[i]) break;
-                if (i < 0) clipsectorlist[clipsectnum++] = wal->nextsector;
-            }
-        }
-
-        ////////// Sprites //////////
-
-        if (dasprclipmask==0)
-            continue;
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-        if (curspr)
-            continue;  // next sector of this index
-#endif
-        for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
-        {
-            const spritetype *const spr = &sprite[j];
-            const int32_t cstat = spr->cstat;
-
-            if ((cstat&dasprclipmask) == 0)
-                continue;
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-            if (clipsprite_try(spr, xmin,ymin, xmax,ymax))
-                continue;
-#endif
-            x1 = spr->x; y1 = spr->y;
-
-            switch (cstat&48)
-            {
-            case 0:
-                if (x1 >= xmin && x1 <= xmax && y1 >= ymin && y1 <= ymax)
-                {
-                    const int32_t daz = spr->z + spriteheightofs(j, &k, 1);
-
-                    if (pos->z > daz-k-flordist && pos->z < daz+ceildist)
-                    {
-                        int32_t bsz;
-                        bsz = (spr->clipdist<<2)+walldist; if (gx < 0) bsz = -bsz;
-                        addclipline(x1-bsz,y1-bsz,x1-bsz,y1+bsz,(int16_t)j+49152);
-                        bsz = (spr->clipdist<<2)+walldist; if (gy < 0) bsz = -bsz;
-                        addclipline(x1+bsz,y1-bsz,x1-bsz,y1-bsz,(int16_t)j+49152);
-                    }
-                }
-                break;
-
-            case 16:
-            {
-                const int32_t daz = spr->z + spriteheightofs(j, &k, 1);
-
-                if (pos->z > daz-k-flordist && pos->z < daz+ceildist)
-                {
-                    get_wallspr_points(spr, &x1, &x2, &y1, &y2);
-
-                    if (clipinsideboxline(cx,cy,x1,y1,x2,y2,rad) != 0)
-                    {
-                        dax = mulscale14(sintable[(spr->ang+256+512)&2047],walldist);
-                        day = mulscale14(sintable[(spr->ang+256)&2047],walldist);
-
-                        if ((x1-(pos->x))*(y2-(pos->y)) >= (x2-(pos->x))*(y1-(pos->y)))   //Front
-                        {
-                            addclipline(x1+dax,y1+day,x2+day,y2-dax,(int16_t)j+49152);
-                        }
-                        else
-                        {
-                            if ((cstat&64) != 0) continue;
-                            addclipline(x2-dax,y2-day,x1-day,y1+dax,(int16_t)j+49152);
-                        }
-
-                        //Side blocker
-                        if ((x2-x1)*((pos->x)-x1) + (y2-y1)*((pos->y)-y1) < 0)
-                            addclipline(x1-day,y1+dax,x1+dax,y1+day,(int16_t)j+49152);
-                        else if ((x1-x2)*((pos->x)-x2) + (y1-y2)*((pos->y)-y2) < 0)
-                            addclipline(x2+day,y2-dax,x2-dax,y2-day,(int16_t)j+49152);
-                    }
-                }
-                break;
-            }
-
-            case 32:
-            {
-                if (pos->z > spr->z - flordist && pos->z < spr->z + ceildist)
-                {
-                    if ((cstat&64) != 0)
-                        if ((pos->z > spr->z) == ((cstat&8)==0))
-                            continue;
-
-                    rxi[0] = x1;
-                    ryi[0] = y1;
-                    get_floorspr_points((tspritetype const *) spr, 0, 0, &rxi[0], &rxi[1], &rxi[2], &rxi[3],
-                                        &ryi[0], &ryi[1], &ryi[2], &ryi[3]);
-
-                    dax = mulscale14(sintable[(spr->ang-256+512)&2047],walldist);
-                    day = mulscale14(sintable[(spr->ang-256)&2047],walldist);
-
-                    if ((rxi[0]-(pos->x))*(ryi[1]-(pos->y)) < (rxi[1]-(pos->x))*(ryi[0]-(pos->y)))
-                    {
-                        if (clipinsideboxline(cx,cy,rxi[1],ryi[1],rxi[0],ryi[0],rad) != 0)
-                            addclipline(rxi[1]-day,ryi[1]+dax,rxi[0]+dax,ryi[0]+day,(int16_t)j+49152);
-                    }
-                    else if ((rxi[2]-(pos->x))*(ryi[3]-(pos->y)) < (rxi[3]-(pos->x))*(ryi[2]-(pos->y)))
-                    {
-                        if (clipinsideboxline(cx,cy,rxi[3],ryi[3],rxi[2],ryi[2],rad) != 0)
-                            addclipline(rxi[3]+day,ryi[3]-dax,rxi[2]-dax,ryi[2]-day,(int16_t)j+49152);
-                    }
-
-                    if ((rxi[1]-(pos->x))*(ryi[2]-(pos->y)) < (rxi[2]-(pos->x))*(ryi[1]-(pos->y)))
-                    {
-                        if (clipinsideboxline(cx,cy,rxi[2],ryi[2],rxi[1],ryi[1],rad) != 0)
-                            addclipline(rxi[2]-dax,ryi[2]-day,rxi[1]-day,ryi[1]+dax,(int16_t)j+49152);
-                    }
-                    else if ((rxi[3]-(pos->x))*(ryi[0]-(pos->y)) < (rxi[0]-(pos->x))*(ryi[3]-(pos->y)))
-                    {
-                        if (clipinsideboxline(cx,cy,rxi[0],ryi[0],rxi[3],ryi[3],rad) != 0)
-                            addclipline(rxi[0]+dax,ryi[0]+day,rxi[3]+day,ryi[3]-dax,(int16_t)j+49152);
-                    }
-                }
-                break;
-            }
-            }
-        }
-    }
-    while (clipsectcnt < clipsectnum || clipspritecnt < clipspritenum);
-
-#ifdef HAVE_CLIPSHAPE_FEATURE
-    if (curspr)
-    {
-        // restore original map
-        mapinfo_set(NULL, &origmapinfo);
-
-        clipsectnum = origclipsectnum;
-        Bmemcpy(clipsectorlist, origclipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));
-    }
-#endif
-
-    int32_t hitwalls[4], hitwall;
-    int32_t cnt = clipmoveboxtracenum;
-
-    do
-    {
-        int32_t intx=goalx, inty=goaly;
-
-        hitwall = raytrace(pos->x, pos->y, &intx, &inty);
-        if (hitwall >= 0)
-        {
-            const int32_t lx = clipit[hitwall].x2-clipit[hitwall].x1;
-            const int32_t ly = clipit[hitwall].y2-clipit[hitwall].y1;
-            const uint64_t tempull = (int64_t)lx*(int64_t)lx + (int64_t)ly*(int64_t)ly;
-
-            if (tempull > 0 && tempull < INT32_MAX)
-            {
-                tempint2 = (int32_t)tempull;
-
-                tempint1 = (goalx-intx)*lx + (goaly-inty)*ly;
-
-                if ((klabs(tempint1)>>11) < tempint2)
-                    i = divscale20(tempint1,tempint2);
-                else
-                    i = 0;
-                goalx = mulscale20(lx,i)+intx;
-                goaly = mulscale20(ly,i)+inty;
-            }
-
-            tempint1 = dmulscale6(lx,oxvect,ly,oyvect);
-            for (i=cnt+1; i<=clipmoveboxtracenum; i++)
-            {
-                j = hitwalls[i];
-                tempint2 = dmulscale6(clipit[j].x2-clipit[j].x1, oxvect,
-                                      clipit[j].y2-clipit[j].y1, oyvect);
-                if ((tempint1^tempint2) < 0)
-                {
-                    updatesector(pos->x,pos->y,sectnum);
-                    return retval;
-                }
-            }
-
-            keepaway(&goalx, &goaly, hitwall);
-            xvect = (goalx-intx)<<14;
-            yvect = (goaly-inty)<<14;
-
-            if (cnt == clipmoveboxtracenum)
-                retval = (uint16_t)clipobjectval[hitwall];
-            hitwalls[cnt] = hitwall;
-        }
-        cnt--;
-
-        pos->x = intx;
-        pos->y = inty;
-    }
-    while ((xvect|yvect) != 0 && hitwall >= 0 && cnt > 0);
-
-    for (j=0; j<clipsectnum; j++)
-        if (inside(pos->x,pos->y,clipsectorlist[j]) == 1)
-        {
-            *sectnum = clipsectorlist[j];
-            return retval;
-        }
-
-    *sectnum = -1; tempint1 = INT32_MAX;
-    for (j=numsectors-1; j>=0; j--)
-        if (inside(pos->x,pos->y,j) == 1)
-        {
-            if (sector[j].ceilingstat&2)
-                tempint2 = getceilzofslope(j, pos->x, pos->y) - pos->z;
-            else
-                tempint2 = sector[j].ceilingz - pos->z;
-
-            if (tempint2 > 0)
-            {
-                if (tempint2 < tempint1)
-                    { *sectnum = j; tempint1 = tempint2; }
-            }
-            else
-            {
-                if (sector[j].floorstat&2)
-                    tempint2 = pos->z - getflorzofslope(j, pos->x, pos->y);
-                else
-                    tempint2 = pos->z - sector[j].floorz;
-
-                if (tempint2 <= 0)
-                {
-                    *sectnum = j;
-                    return retval;
-                }
-                if (tempint2 < tempint1)
-                    { *sectnum = j; tempint1 = tempint2; }
-            }
-        }
-
-    return retval;
-}
-
-
-//
-// pushmove
-//
-int32_t pushmove(vec3_t *vect, int16_t *sectnum,
-                 int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype)
-{
-    int32_t i, j, k, t, dx, dy, dax, day, daz;
-    int32_t dir, bad, bad2;
-
-    const int32_t dawalclipmask = (cliptype&65535);
-//    const int32_t dasprclipmask = (cliptype>>16);
-
-    if (*sectnum < 0)
-        return -1;
-
-    k = 32;
-    dir = 1;
-    do
-    {
-        int32_t clipsectcnt;
-
-        bad = 0;
-
-        clipsectorlist[0] = *sectnum;
-        clipsectcnt = 0; clipsectnum = 1;
-        do
-        {
-            const walltype *wal;
-            const sectortype *sec;
-            int32_t startwall, endwall;
-#if 0
-            // Push FACE sprites
-            for(i=headspritesect[clipsectorlist[clipsectcnt]];i>=0;i=nextspritesect[i])
-            {
-                spr = &sprite[i];
-                if (((spr->cstat&48) != 0) && ((spr->cstat&48) != 48)) continue;
-                if ((spr->cstat&dasprclipmask) == 0) continue;
-
-                dax = (vect->x)-spr->x; day = (vect->y)-spr->y;
-                t = (spr->clipdist<<2)+walldist;
-                if ((klabs(dax) < t) && (klabs(day) < t))
-                {
-                    daz = spr->z + spriteheightofs(i, &t, 1);
-                    if (((vect->z) < daz+ceildist) && ((vect->z) > daz-t-flordist))
-                    {
-                        t = (spr->clipdist<<2)+walldist;
-
-                        j = getangle(dax,day);
-                        dx = (sintable[(j+512)&2047]>>11);
-                        dy = (sintable[(j)&2047]>>11);
-                        bad2 = 16;
-                        do
-                        {
-                            vect->x = (vect->x) + dx; vect->y = (vect->y) + dy;
-                            bad2--; if (bad2 == 0) break;
-                        } while ((klabs((vect->x)-spr->x) < t) && (klabs((vect->y)-spr->y) < t));
-                        bad = -1;
-                        k--; if (k <= 0) return(bad);
-                        updatesector(vect->x,vect->y,sectnum);
-                    }
-                }
-            }
-#endif
-            sec = &sector[clipsectorlist[clipsectcnt]];
-            if (dir > 0)
-                startwall = sec->wallptr, endwall = startwall + sec->wallnum;
-            else
-                endwall = sec->wallptr, startwall = endwall + sec->wallnum;
-
-            for (i=startwall,wal=&wall[startwall]; i!=endwall; i+=dir,wal+=dir)
-                if (clipinsidebox(vect->x,vect->y,i,walldist-4) == 1)
-                {
-                    j = 0;
-                    if (wal->nextsector < 0) j = 1;
-                    if (wal->cstat&dawalclipmask) j = 1;
-                    if (j == 0)
-                    {
-                        const sectortype *const sec2 = &sector[wal->nextsector];
-                        int32_t daz2;
-
-                        //Find closest point on wall (dax, day) to (vect->x, vect->y)
-                        dax = wall[wal->point2].x-wal->x;
-                        day = wall[wal->point2].y-wal->y;
-                        daz = dax*((vect->x)-wal->x) + day*((vect->y)-wal->y);
-                        if (daz <= 0)
-                            t = 0;
-                        else
-                        {
-                            daz2 = dax*dax+day*day;
-                            if (daz >= daz2) t = (1<<30); else t = divscale30(daz,daz2);
-                        }
-                        dax = wal->x + mulscale30(dax,t);
-                        day = wal->y + mulscale30(day,t);
-
-
-                        daz = getflorzofslope(clipsectorlist[clipsectcnt],dax,day);
-                        daz2 = getflorzofslope(wal->nextsector,dax,day);
-                        if ((daz2 < daz-(1<<8)) && ((sec2->floorstat&1) == 0))
-                            if (vect->z >= daz2-(flordist-1)) j = 1;
-
-                        daz = getceilzofslope(clipsectorlist[clipsectcnt],dax,day);
-                        daz2 = getceilzofslope(wal->nextsector,dax,day);
-                        if ((daz2 > daz+(1<<8)) && ((sec2->ceilingstat&1) == 0))
-                            if (vect->z <= daz2+(ceildist-1)) j = 1;
-                    }
-
-                    if (j != 0)
-                    {
-                        j = getangle(wall[wal->point2].x-wal->x,wall[wal->point2].y-wal->y);
-                        dx = (sintable[(j+1024)&2047]>>11);
-                        dy = (sintable[(j+512)&2047]>>11);
-                        bad2 = 16;
-                        do
-                        {
-                            vect->x = (vect->x) + dx; vect->y = (vect->y) + dy;
-                            bad2--; if (bad2 == 0) break;
-                        }
-                        while (clipinsidebox(vect->x,vect->y,i,walldist-4) != 0);
-                        bad = -1;
-                        k--; if (k <= 0) return(bad);
-                        updatesector(vect->x,vect->y,sectnum);
-                        if (*sectnum < 0) return -1;
-                    }
-                    else
-                    {
-                        for (j=clipsectnum-1; j>=0; j--)
-                            if (wal->nextsector == clipsectorlist[j]) break;
-                        if (j < 0) clipsectorlist[clipsectnum++] = wal->nextsector;
-                    }
-                }
-
-            clipsectcnt++;
-        }
-        while (clipsectcnt < clipsectnum);
-        dir = -dir;
-    }
-    while (bad != 0);
-
-    return(bad);
-}
-
 
 // breadth-first search helpers
 void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt)
@@ -15249,7 +13162,7 @@ int32_t sectorofwall(int16_t theline)
 
 int32_t sectorofwall_noquick(int16_t theline)
 {
-    if (theline < 0 || theline >= numwalls)
+    if ((unsigned)theline >= numwalls)
         return -1;
 
     return sectorofwall_internal(theline);
@@ -15261,20 +13174,17 @@ int32_t getceilzofslopeptr(const sectortype *sec, int32_t dax, int32_t day)
     if (!(sec->ceilingstat&2))
         return sec->ceilingz;
 
-    {
-        const walltype *wal = &wall[sec->wallptr];
+    twalltype const *wal = (twalltype *)&wall[sec->wallptr];
 
-        // floor(sqrt(2**31-1)) == 46340
-        int32_t i, j, wx=wal->x, wy=wal->y;
-        int32_t dx = wall[wal->point2].x-wx, dy = wall[wal->point2].y-wy;
+    // floor(sqrt(2**31-1)) == 46340
+    vec2_t const w = *(vec2_t *) wal;
+    vec2_t const d ={ wall[wal->point2].x-w.x , wall[wal->point2].y-w.y };
 
-        i = nsqrtasm(uhypsq(dx,dy))<<5;
-        if (i == 0)
-            return sec->ceilingz;
+    int32_t const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    if (i == 0) return sec->ceilingz;
 
-        j = dmulscale3(dx, day-wy, -dy, dax-wx);
-        return sec->ceilingz + (scale(sec->ceilingheinum,j>>1,i)<<1);
-    }
+    int32_t const j = dmulscale3(d.x, day-w.y, -d.y, dax-w.x);
+    return sec->ceilingz + (scale(sec->ceilingheinum,j>>1,i)<<1);
 }
 
 int32_t getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day)
@@ -15282,41 +13192,37 @@ int32_t getflorzofslopeptr(const sectortype *sec, int32_t dax, int32_t day)
     if (!(sec->floorstat&2))
         return sec->floorz;
 
-    {
-        const walltype *wal = &wall[sec->wallptr];
+    twalltype const *wal = (twalltype *) &wall[sec->wallptr];
 
-        int32_t i, j, wx=wal->x, wy=wal->y;
-        int32_t dx = wall[wal->point2].x-wx, dy = wall[wal->point2].y-wy;
+    vec2_t const w = *(vec2_t *) wal;
+    vec2_t const d ={ wall[wal->point2].x-w.x , wall[wal->point2].y-w.y };
 
-        i = nsqrtasm(uhypsq(dx,dy))<<5;
-        if (i == 0)
-            return sec->floorz;
+    int32_t const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    if (i == 0) return sec->floorz;
 
-        j = dmulscale3(dx, day-wy, -dy, dax-wx);
-        return sec->floorz + (scale(sec->floorheinum,j>>1,i)<<1);
-    }
+    int32_t const j = dmulscale3(d.x, day-w.y, -d.y, dax-w.x);
+    return sec->floorz + (scale(sec->floorheinum,j>>1,i)<<1);
 }
 
 void getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     *ceilz = sec->ceilingz; *florz = sec->floorz;
 
-    if ((sec->ceilingstat|sec->floorstat)&2)
-    {
-        int32_t i, j;
-        const walltype *wal = &wall[sec->wallptr], *wal2 = &wall[wal->point2];
-        const int32_t dx = wal2->x-wal->x, dy = wal2->y-wal->y;
+    if (((sec->ceilingstat|sec->floorstat)&2) != 2)
+        return;
 
-        i = nsqrtasm(uhypsq(dx,dy))<<5;
-        if (i == 0)
-            return;
+    twalltype const *wal = (twalltype *) &wall[sec->wallptr];
+    twalltype const *wal2 = (twalltype *) &wall[wal->point2];
+    const vec2_t d ={ wal2->x-wal->x, wal2->y-wal->y };
 
-        j = dmulscale3(dx,day-wal->y, -dy,dax-wal->x);
-        if (sec->ceilingstat&2)
-            *ceilz += scale(sec->ceilingheinum,j>>1,i)<<1;
-        if (sec->floorstat&2)
-            *florz += scale(sec->floorheinum,j>>1,i)<<1;
-    }
+    int32_t const i = nsqrtasm(uhypsq(d.x,d.y))<<5;
+    if (i == 0) return;
+
+    int32_t const j = dmulscale3(d.x,day-wal->y, -d.y,dax-wal->x);
+    if (sec->ceilingstat&2)
+        *ceilz += scale(sec->ceilingheinum,j>>1,i)<<1;
+    if (sec->floorstat&2)
+        *florz += scale(sec->floorheinum,j>>1,i)<<1;
 }
 
 
@@ -15367,13 +13273,11 @@ void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 //
 int32_t loopnumofsector(int16_t sectnum, int16_t wallnum)
 {
-    int32_t i;
-
     int32_t numloops = 0;
     const int32_t startwall = sector[sectnum].wallptr;
     const int32_t endwall = startwall + sector[sectnum].wallnum;
 
-    for (i=startwall; i<endwall; i++)
+    for (int i=startwall; i<endwall; i++)
     {
         if (i == wallnum)
             return numloops;

@@ -307,6 +307,8 @@ enum {
 #undef UNTRACKED_STRUCTS
 #endif
 
+#include "clip.h"
+
 #ifdef NEW_MAP_FORMAT
 //////////////////// Lunatic new-generation map format ////////////////////
 
@@ -1102,18 +1104,6 @@ FORCE_INLINE void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a,
 void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt);
 void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16_t elt);
 
-extern int32_t clipmoveboxtracenum;
-
-int32_t   clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist,
-                   int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
-int32_t clipmovex(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect,
-                  int32_t walldist, int32_t ceildist, int32_t flordist, uint32_t cliptype,
-                  uint8_t noslidep) ATTRIBUTE((nonnull(1,2)));
-int32_t   clipinsidebox(int32_t x, int32_t y, int16_t wallnum, int32_t walldist);
-int32_t   clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1,
-                            int32_t x2, int32_t y2, int32_t walldist);
-int32_t   pushmove(vec3_t *vect, int16_t *sectnum, int32_t walldist,
-                   int32_t ceildist, int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1,2)));
 void   getzrange(const vec3_t *vect, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
                  int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
 int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
@@ -1474,6 +1464,11 @@ static inline int32_t setspritez_old(int16_t spritenum, int32_t x, int32_t y, in
     const vec3_t vector = { x, y, z };
     return setspritez(spritenum, &vector);
 }
+
+extern int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
+    int32_t vx_, int32_t vy_, int32_t vz,
+    int32_t x3, int32_t y3, int32_t x4, int32_t y4,
+    int32_t *intx, int32_t *inty, int32_t *intz);
 
 #ifdef __cplusplus
 }

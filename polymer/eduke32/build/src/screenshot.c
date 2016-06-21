@@ -3,7 +3,6 @@
 # include <string.h>
 #endif
 
-#include "compat.h"
 #include "build.h"
 #include "editor.h"
 

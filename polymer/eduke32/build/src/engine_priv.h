@@ -1,7 +1,8 @@
+#pragma once
+
 #ifndef ENGINE_PRIV_H
 #define ENGINE_PRIV_H
 
-#define MAXCLIPNUM 1024
 #define MAXPERMS 512
 #define MAXARTFILES_BASE 200
 #define MAXARTFILES_TOTAL 220
@@ -26,6 +27,244 @@ extern "C" {
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+extern uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[4096+256];
+
+#if defined(_MSC_VER) && !defined(NOASM)
+
+    //
+    // Microsoft C Inline Assembly Routines
+    //
+
+    static inline int32_t nsqrtasm(int32_t a)
+    {
+        _asm
+        {
+            push ebx
+            mov eax, a
+            test eax, 0xff000000
+            mov ebx, eax
+            jnz short over24
+            shr ebx, 12
+            mov cx, word ptr shlookup[ebx*2]
+            jmp short under24
+            over24 :
+            shr ebx, 24
+                mov cx, word ptr shlookup[ebx*2+8192]
+                under24 :
+                shr eax, cl
+                mov cl, ch
+                mov ax, word ptr sqrtable[eax*2]
+                shr eax, cl
+                pop ebx
+        }
+    }
+
+    static inline int32_t msqrtasm(int32_t c)
+    {
+        _asm
+        {
+            push ebx
+            mov ecx, c
+            mov eax, 0x40000000
+            mov ebx, 0x20000000
+            begit:
+            cmp ecx, eax
+                jl skip
+                sub ecx, eax
+                lea eax, [eax+ebx*4]
+                skip :
+                sub eax, ebx
+                shr eax, 1
+                shr ebx, 2
+                jnz begit
+                cmp ecx, eax
+                sbb eax, -1
+                shr eax, 1
+                pop ebx
+        }
+    }
+
+    static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
+    {
+        _asm
+        {
+            push ebx
+            mov eax, a
+            mov ebx, b
+            mov ecx, c
+            mov edx, d
+            sar eax, 31
+            add ebx, ebx
+            adc eax, eax
+            add ecx, ecx
+            adc eax, eax
+            add edx, edx
+            adc eax, eax
+            mov ebx, eax
+            shl ebx, 4
+            or al, 0xf0
+            xor eax, ebx
+            pop ebx
+        }
+    }
+
+    static inline int32_t getkensmessagecrc(void *b)
+    {
+        _asm
+        {
+            push ebx
+            mov ebx, b
+            xor eax, eax
+            mov ecx, 32
+            beg:
+            mov edx, dword ptr[ebx+ecx*4-4]
+                ror edx, cl
+                adc eax, edx
+                bswap eax
+                loop short beg
+                pop ebx
+        }
+    }
+
+#elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)	// _MSC_VER
+
+    //
+    // GCC "Inline" Assembly Routines
+    //
+
+#define nsqrtasm(a) \
+    ({ int32_t __r, __a=(a); \
+       __asm__ __volatile__ ( \
+        "testl $0xff000000, %%eax\n\t" \
+        "movl %%eax, %%ebx\n\t" \
+        "jnz 0f\n\t" \
+        "shrl $12, %%ebx\n\t" \
+        "movw " ASMSYM("shlookup") "(,%%ebx,2), %%cx\n\t" \
+        "jmp 1f\n\t" \
+        "0:\n\t" \
+        "shrl $24, %%ebx\n\t" \
+        "movw (" ASMSYM("shlookup") "+8192)(,%%ebx,2), %%cx\n\t" \
+        "1:\n\t" \
+        "shrl %%cl, %%eax\n\t" \
+        "movb %%ch, %%cl\n\t" \
+        "movw " ASMSYM("sqrtable") "(,%%eax,2), %%ax\n\t" \
+        "shrl %%cl, %%eax" \
+        : "=a" (__r) : "a" (__a) : "ebx", "ecx", "cc"); \
+     __r; })
+
+    // edx is blown by this code somehow?!
+#define msqrtasm(c) \
+    ({ int32_t __r, __c=(c); \
+       __asm__ __volatile__ ( \
+        "movl $0x40000000, %%eax\n\t" \
+        "movl $0x20000000, %%ebx\n\t" \
+        "0:\n\t" \
+        "cmpl %%eax, %%ecx\n\t" \
+        "jl 1f\n\t" \
+        "subl %%eax, %%ecx\n\t" \
+        "leal (%%eax,%%ebx,4), %%eax\n\t" \
+        "1:\n\t" \
+        "subl %%ebx, %%eax\n\t" \
+        "shrl $1, %%eax\n\t" \
+        "shrl $2, %%ebx\n\t" \
+        "jnz 0b\n\t" \
+        "cmpl %%eax, %%ecx\n\t" \
+        "sbbl $-1, %%eax\n\t" \
+        "shrl $1, %%eax" \
+        : "=a" (__r) : "c" (__c) : "edx","ebx", "cc"); \
+     __r; })
+
+#define getclipmask(a,b,c,d) \
+    ({ int32_t __a=(a), __b=(b), __c=(c), __d=(d); \
+       __asm__ __volatile__ ("sarl $31, %%eax; addl %%ebx, %%ebx; adcl %%eax, %%eax; " \
+                "addl %%ecx, %%ecx; adcl %%eax, %%eax; addl %%edx, %%edx; " \
+                "adcl %%eax, %%eax; movl %%eax, %%ebx; shl $4, %%ebx; " \
+                "orb $0xf0, %%al; xorl %%ebx, %%eax" \
+        : "=a" (__a), "=b" (__b), "=c" (__c), "=d" (__d) \
+        : "a" (__a), "b" (__b), "c" (__c), "d" (__d) : "cc"); \
+     __a; })
+
+
+#define getkensmessagecrc(b) \
+    ({ int32_t __a, __b=(b); \
+       __asm__ __volatile__ ( \
+        "xorl %%eax, %%eax\n\t" \
+        "movl $32, %%ecx\n\t" \
+        "0:\n\t" \
+        "movl -4(%%ebx,%%ecx,4), %%edx\n\t" \
+        "rorl %%cl, %%edx\n\t" \
+        "adcl %%edx, %%eax\n\t" \
+        "bswapl %%eax\n\t" \
+        "loop 0b" \
+        : "=a" (__a) : "b" (__b) : "ecx", "edx" \
+     __a; })
+
+#else   // __GNUC__ && __i386__
+
+    static inline int32_t nsqrtasm(uint32_t a)
+    {
+        // JBF 20030901: This was a damn lot simpler to reverse engineer than
+        // msqrtasm was. Really, it was just like simplifying an algebra equation.
+        uint16_t c;
+
+        if (a & 0xff000000)  			// test eax, 0xff000000  /  jnz short over24
+        {
+            c = shlookup[(a >> 24) + 4096];	// mov ebx, eax
+                                            // over24: shr ebx, 24
+                                            // mov cx, word ptr shlookup[ebx*2+8192]
+        }
+        else
+        {
+            c = shlookup[a >> 12];		// mov ebx, eax
+                                        // shr ebx, 12
+                                        // mov cx, word ptr shlookup[ebx*2]
+                                        // jmp short under24
+        }
+        a >>= c&0xff;				// under24: shr eax, cl
+        a = (a&0xffff0000)|(sqrtable[a]);	// mov ax, word ptr sqrtable[eax*2]
+        a >>= ((c&0xff00) >> 8);		// mov cl, ch
+                                        // shr eax, cl
+        return a;
+    }
+
+    static inline int32_t msqrtasm(uint32_t c)
+    {
+        uint32_t a, b;
+
+        a = 0x40000000l;		// mov eax, 0x40000000
+        b = 0x20000000l;		// mov ebx, 0x20000000
+        do  				// begit:
+        {
+            if (c >= a)  		// cmp ecx, eax	 /  jl skip
+            {
+                c -= a;		// sub ecx, eax
+                a += b*4;	// lea eax, [eax+ebx*4]
+            }			// skip:
+            a -= b;			// sub eax, ebx
+            a >>= 1;		// shr eax, 1
+            b >>= 2;		// shr ebx, 2
+        } while (b);			// jnz begit
+        if (c >= a)			// cmp ecx, eax
+            a++;			// sbb eax, -1
+        a >>= 1;			// shr eax, 1
+        return a;
+    }
+
+    static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
+    {
+        // Ken did this
+        d = ((a<0)<<3) + ((b<0)<<2) + ((c<0)<<1) + (d<0);
+        return(((d<<4)^0xf0)|d);
+    }
+
+    inline int32_t getkensmessagecrc(int32_t b)
+    {
+        UNREFERENCED_PARAMETER(b);
+        return 0x56c764d4l;
+    }
+
 #endif
 
 extern int16_t thesector[MAXWALLSB], thewall[MAXWALLSB];
@@ -66,6 +305,7 @@ extern int32_t xb1[MAXWALLSB];
 extern int32_t rx1[MAXWALLSB], ry1[MAXWALLSB];
 extern int16_t bunchp2[MAXWALLSB];
 extern int16_t numscans, numbunches;
+extern int32_t rxi[8], ryi[8];
 
 #ifdef USE_OPENGL
 
@@ -75,6 +315,13 @@ extern int16_t numscans, numbunches;
 void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal);
 void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t pal, float factor);
 #endif
+
+extern void get_wallspr_points(const spritetype *spr, int32_t *x1, int32_t *x2,
+    int32_t *y1, int32_t *y2);
+extern void get_floorspr_points(const tspritetype *spr, int32_t px, int32_t py,
+    int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
+    int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
+
 
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
 int32_t wallfront(int32_t l1, int32_t l2);

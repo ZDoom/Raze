@@ -105,6 +105,7 @@
     <ClInclude Include="build\include\build.h" />
     <ClInclude Include="build\include\buildtypes.h" />
     <ClInclude Include="build\include\cache1d.h" />
+    <ClInclude Include="build\include\clip.h" />
     <ClInclude Include="build\include\colmatch.h" />
     <ClInclude Include="build\include\compat.h" />
     <ClInclude Include="build\include\common.h" />
@@ -258,6 +259,7 @@
     <ClCompile Include="build\src\baselayer.c" />
     <ClCompile Include="build\src\build.c" />
     <ClCompile Include="build\src\cache1d.c" />
+    <ClCompile Include="build\src\clip.c" />
     <ClCompile Include="build\src\colmatch.c" />
     <ClCompile Include="build\src\common.c" />
     <ClCompile Include="build\src\compat.c" />
@@ -276,6 +278,7 @@
     <ClCompile Include="build\src\lzwnew.c" />
     <ClCompile Include="build\src\md4.c" />
     <ClCompile Include="build\src\mdsprite.c" />
+    <ClCompile Include="build\src\mhk.c" />
     <ClCompile Include="build\src\mutex.c" />
     <ClCompile Include="build\src\osd.c" />
     <ClCompile Include="build\src\palette.c" />

@@ -137,6 +137,7 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\defs.$o \
 	$(ENGINE_OBJ)\colmatch.$o \
 	$(ENGINE_OBJ)\engine.$o \
+	$(ENGINE_OBJ)\clip.$o \
 	$(ENGINE_OBJ)\2d.$o \
 	$(ENGINE_OBJ)\hash.$o \
 	$(ENGINE_OBJ)\palette.$o \
@@ -160,7 +161,8 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\mutex.$o \
 	$(ENGINE_OBJ)\winbits.$o \
 	$(ENGINE_OBJ)\xxhash.$o \
-	$(ENGINE_OBJ)\screenshot.$o
+	$(ENGINE_OBJ)\screenshot.$o \
+	$(ENGINE_OBJ)\mhk.$o
 
 ENGINE_EDITOR_OBJS=$(ENGINE_OBJ)\build.$o \
 	$(ENGINE_OBJ)\startwin.editor.$o \

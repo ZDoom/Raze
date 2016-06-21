@@ -537,6 +537,9 @@
     <ClInclude Include="build\include\colmatch.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\clip.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -945,6 +948,12 @@
       <Filter>build\source</Filter>
     </ClCompile>
     <ClCompile Include="build\src\screenshot.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\mhk.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\clip.c">
       <Filter>build\source</Filter>
     </ClCompile>
   </ItemGroup>
