@@ -956,6 +956,9 @@
     <ClCompile Include="build\src\clip.c">
       <Filter>build\source</Filter>
     </ClCompile>
+    <ClCompile Include="build\src\tiles.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile.msvc">

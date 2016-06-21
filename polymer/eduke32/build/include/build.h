@@ -1074,6 +1074,7 @@ int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
                       const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
 void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
                    const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
+void   Buninitart(void);
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
 FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,

@@ -296,6 +296,7 @@
     <ClCompile Include="build\src\startwin.editor.c" />
     <ClCompile Include="build\src\texcache.c" />
     <ClCompile Include="build\src\textfont.c" />
+    <ClCompile Include="build\src\tiles.c" />
     <ClCompile Include="build\src\voxmodel.c" />
     <ClCompile Include="build\src\winbits.c" />
     <ClCompile Include="build\src\winlayer.c" />

@@ -43,6 +43,7 @@ ENGINE_OBJS = \
     crc32 \
     defs \
     engine \
+    tiles \
     clip \
     2d \
     hash \
