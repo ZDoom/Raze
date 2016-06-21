@@ -528,6 +528,9 @@
     <ClInclude Include="source\inv.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\hash.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">
@@ -925,6 +928,9 @@
     </ClCompile>
     <ClCompile Include="source\cmdline.c">
       <Filter>eduke32\source</Filter>
+    </ClCompile>
+    <ClCompile Include="build\src\hash.c">
+      <Filter>build\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

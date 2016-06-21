@@ -137,6 +137,7 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\defs.$o \
 	$(ENGINE_OBJ)\colmatch.$o \
 	$(ENGINE_OBJ)\engine.$o \
+	$(ENGINE_OBJ)\hash.$o \
         $(ENGINE_OBJ)\glbuild.$o \
         $(ENGINE_OBJ)\texcache.$o \
         $(ENGINE_OBJ)\kplib.$o \

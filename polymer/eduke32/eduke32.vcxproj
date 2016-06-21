@@ -115,6 +115,7 @@
     <ClInclude Include="build\include\glbuild.h" />
     <ClInclude Include="build\include\glext.h" />
     <ClInclude Include="build\include\gtkbits.h" />
+    <ClInclude Include="build\include\hash.h" />
     <ClInclude Include="build\include\hightile.h" />
     <ClInclude Include="build\include\jwzgles.h" />
     <ClInclude Include="build\include\jwzglesI.h" />
@@ -265,6 +266,7 @@
     <ClCompile Include="build\src\engine.c" />
     <ClCompile Include="build\src\glbuild.c" />
     <ClCompile Include="build\src\gtkbits.c" />
+    <ClCompile Include="build\src\hash.c" />
     <ClCompile Include="build\src\hightile.c" />
     <ClCompile Include="build\src\jwzgles.c" />
     <ClCompile Include="build\src\kplib.c" />
