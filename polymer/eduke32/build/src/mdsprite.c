@@ -1707,9 +1707,9 @@ static void      md3postload_common(md3model_t *m)
                 if (!verti && !surfi)
                     continue;
 
-                frame->min.x = max(frame->min.x, f.x);
-                frame->min.y = max(frame->min.y, f.y);
-                frame->min.z = max(frame->min.z, f.z);
+                frame->min.x = min(frame->min.x, f.x);
+                frame->min.y = min(frame->min.y, f.y);
+                frame->min.z = min(frame->min.z, f.z);
                 frame->max.x = max(frame->max.x, f.x);
                 frame->max.y = max(frame->max.y, f.y);
                 frame->max.z = max(frame->max.z, f.z);
