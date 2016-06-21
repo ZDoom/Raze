@@ -845,7 +845,7 @@ static void yax_copytsprites()
 {
     int32_t i, spritenum, gotthrough, sectnum;
     int32_t sortcnt = yax_spritesortcnt[yax_globallev];
-    const spritetype *spr;
+    const tspritetype *spr;
 
     for (i=0; i<sortcnt; i++)
     {
@@ -854,7 +854,7 @@ static void yax_copytsprites()
         gotthrough = spritenum&(MAXSPRITES|(MAXSPRITES<<1));
 
         spritenum &= MAXSPRITES-1;
-        spr = &sprite[spritenum];
+        spr = (tspritetype *)&sprite[spritenum];
         sectnum = spr->sectnum;
 
         if (gotthrough == (MAXSPRITES|(MAXSPRITES<<1)))
@@ -1535,7 +1535,7 @@ char apptitle[256] = "Build Engine";
 //          1=break out of sprite collecting;
 int32_t engine_addtsprite(int16_t z, int16_t sectnum)
 {
-    spritetype *spr = &sprite[z];
+    tspritetype *spr = (tspritetype *)&sprite[z];
 #ifdef YAX_ENABLE
     if (g_nodraw==0)
     {
@@ -1711,7 +1711,7 @@ static void scansector(int16_t startsectnum)
 #endif
         for (int32_t i=headspritesect[sectnum]; i>=0; i=nextspritesect[i])
         {
-            const spritetype *const spr = &sprite[i];
+            const tspritetype *const spr = (tspritetype *)&sprite[i];
 
             if (((spr->cstat&0x8000) == 0 || showinvisibility) &&
                     spr->xrepeat > 0 && spr->yrepeat > 0)
@@ -1738,9 +1738,9 @@ static void scansector(int16_t startsectnum)
 
         for (int32_t w=startwall; w<endwall; w++)
         {
-            const walltype *const wal = &wall[w];
+            const twalltype *const wal = (twalltype *)&wall[w];
             const int32_t nextsectnum = wal->nextsector;
-            const walltype *const wal2 = &wall[wal->point2];
+            const twalltype *const wal2 = (twalltype *)&wall[wal->point2];
 
             const int32_t x1 = wal->x-globalposx, y1 = wal->y-globalposy;
             const int32_t x2 = wal2->x-globalposx, y2 = wal2->y-globalposy;
@@ -2538,7 +2538,7 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
     if (wi == sector[sectnum].wallptr)
         return owallmost(mostbuf,w,z);
 
-    const walltype *const wal = &wall[wi];
+    const twalltype *const wal = (twalltype *)&wall[wi];
     const int32_t x1 = wal->x, x2 = wall[wal->point2].x-x1;
     const int32_t y1 = wal->y, y2 = wall[wal->point2].y-y1;
 
@@ -2665,7 +2665,7 @@ static void calc_globalshifts(void)
     if (globalyshift > 31) globalyshift=0;
 }
 
-static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
+static int32_t setup_globals_cf1(const tsectortype *sec, int32_t pal, int32_t zd,
                                  int32_t picnum, int32_t shade, int32_t stat,
                                  int32_t xpanning, int32_t ypanning, int32_t x1)
 {
@@ -2760,7 +2760,7 @@ static int32_t setup_globals_cf1(const sectortype *sec, int32_t pal, int32_t zd,
 static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
 {
     int32_t x, y1, y2;
-    const sectortype *const sec = &sector[sectnum];
+    const tsectortype *const sec = (tsectortype *)&sector[sectnum];
 
     if (setup_globals_cf1(sec, sec->ceilingpal, sec->ceilingz-globalposz,
                           sec->ceilingpicnum, sec->ceilingshade, sec->ceilingstat,
@@ -2858,7 +2858,7 @@ static void ceilscan(int32_t x1, int32_t x2, int32_t sectnum)
 static void florscan(int32_t x1, int32_t x2, int32_t sectnum)
 {
      int32_t x, y1, y2;
-     const sectortype *const sec = &sector[sectnum];
+     const tsectortype *const sec = (tsectortype *)&sector[sectnum];
 
      if (setup_globals_cf1(sec, sec->floorpal, globalposz-sec->floorz,
                            sec->floorpicnum, sec->floorshade, sec->floorstat,
@@ -3451,8 +3451,8 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     // Er, yes, they're not global anymore:
     int32_t globalx, globaly, globalz, globalzx;
 
-    const sectortype *const sec = &sector[sectnum];
-    const walltype *wal;
+    const tsectortype *const sec = (tsectortype *)&sector[sectnum];
+    const twalltype *wal;
 
     if (dastat == 0)
     {
@@ -3482,7 +3482,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return;
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
 
-    wal = &wall[sec->wallptr];
+    wal = (twalltype *)&wall[sec->wallptr];
     wx = wall[wal->point2].x - wal->x;
     wy = wall[wal->point2].y - wal->y;
     dasqr = krecipasm(nsqrtasm(uhypsq(wx,wy)));
@@ -3619,7 +3619,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 //
 static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, int32_t bunch)
 {
-    sectortype *sec;
+    tsectortype *sec;
     int32_t j, k, l, m, n, x, z, wallnum, nextsectnum, globalhorizbak;
     int16_t *topptr, *botptr;
 
@@ -3631,7 +3631,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     UNREFERENCED_PARAMETER(dax1);
     UNREFERENCED_PARAMETER(dax2);
 
-    sectnum = thesector[bunchfirst[bunch]]; sec = &sector[sectnum];
+    sectnum = thesector[bunchfirst[bunch]]; sec = (tsectortype *)&sector[sectnum];
 
     globalhorizbak = globalhoriz;
     globvis = globalpisibility;
@@ -3925,7 +3925,7 @@ static void drawalls(int32_t bunch)
     int32_t z = bunchfirst[bunch];
 
     const int32_t sectnum = thesector[z];
-    const sectortype *const sec = &sector[sectnum];
+    const tsectortype *const sec = (tsectortype *)&sector[sectnum];
 
     uint8_t andwstat1 = 0xff, andwstat2 = 0xff;
 
@@ -4055,7 +4055,7 @@ static void drawalls(int32_t bunch)
         const twalltype *const wal = (twalltype *)&wall[wallnum];
 
         const int32_t nextsectnum = wal->nextsector;
-        const sectortype *const nextsec = nextsectnum>=0 ? &sector[nextsectnum] : NULL;
+        const tsectortype *const nextsec = nextsectnum>=0 ? (tsectortype *)&sector[nextsectnum] : NULL;
 
         int32_t gotswall = 0;
 
@@ -4705,7 +4705,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
 }
 
 
-static void setup_globals_sprite1(const tspritetype *tspr, const sectortype *sec,
+static void setup_globals_sprite1(const tspritetype *tspr, const tsectortype *sec,
                                      int32_t yspan, int32_t yoff, int32_t tilenum,
                                      int32_t cstat, int32_t *z1ptr, int32_t *z2ptr)
 {
@@ -4816,7 +4816,7 @@ static void drawsprite_classic(int32_t snum)
     const int32_t spritenum = tspr->owner;
     const float alpha = spriteext[spritenum].alpha;
 
-    const sectortype *const sec = &sector[sectnum];
+    const tsectortype *const sec = (tsectortype *)&sector[sectnum];
 
     int32_t cstat=tspr->cstat, tilenum;
 
@@ -7260,7 +7260,7 @@ static int32_t loadtables(void)
 // insert sprite at the head of sector list, change .sectnum
 LISTFN_STATIC void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sectnum)
 {
-    int16_t ohead = headspritesect[sectnum];
+    int16_t const ohead = headspritesect[sectnum];
 
     prevspritesect[spritenum] = -1;
     nextspritesect[spritenum] = ohead;
@@ -7274,8 +7274,9 @@ LISTFN_STATIC void do_insertsprite_at_headofsect(int16_t spritenum, int16_t sect
 // remove sprite 'deleteme' from its sector list
 LISTFN_STATIC void do_deletespritesect(int16_t deleteme)
 {
-    int32_t sectnum = sprite[deleteme].sectnum;
-    int32_t prev = prevspritesect[deleteme], next = nextspritesect[deleteme];
+    int32_t const sectnum = sprite[deleteme].sectnum;
+    int32_t const prev = prevspritesect[deleteme];
+    int32_t const next = nextspritesect[deleteme];
 
     if (headspritesect[sectnum] == deleteme)
         headspritesect[sectnum] = next;
@@ -7290,7 +7291,7 @@ LISTFN_STATIC void do_deletespritesect(int16_t deleteme)
 // insert sprite at head of status list, change .statnum
 LISTFN_STATIC void do_insertsprite_at_headofstat(int16_t spritenum, int16_t statnum)
 {
-    int16_t ohead = headspritestat[statnum];
+    int16_t const ohead = headspritestat[statnum];
 
     prevspritestat[spritenum] = -1;
     nextspritestat[spritenum] = ohead;
@@ -7304,13 +7305,11 @@ LISTFN_STATIC void do_insertsprite_at_headofstat(int16_t spritenum, int16_t stat
 // insertspritestat (internal)
 LISTFN_STATIC int32_t insertspritestat(int16_t statnum)
 {
-    int16_t blanktouse;
-
     if ((statnum >= MAXSTATUS) || (headspritestat[MAXSTATUS] == -1))
-        return(-1);  //list full
+        return -1;  //list full
 
     // remove one sprite from the statnum-freelist
-    blanktouse = headspritestat[MAXSTATUS];
+    int16_t const blanktouse = headspritestat[MAXSTATUS];
     headspritestat[MAXSTATUS] = nextspritestat[blanktouse];
 
     // make back-link of the new freelist head point to nil
@@ -7321,14 +7320,15 @@ LISTFN_STATIC int32_t insertspritestat(int16_t statnum)
 
     do_insertsprite_at_headofstat(blanktouse, statnum);
 
-    return(blanktouse);
+    return blanktouse;
 }
 
 // remove sprite 'deleteme' from its status list
 static void do_deletespritestat(int16_t deleteme)
 {
-    int32_t sectnum = sprite[deleteme].statnum;
-    int32_t prev = prevspritestat[deleteme], next = nextspritestat[deleteme];
+    int32_t const sectnum = sprite[deleteme].statnum;
+    int32_t const prev = prevspritestat[deleteme];
+    int32_t const next = nextspritestat[deleteme];
 
     if (headspritestat[sectnum] == deleteme)
         headspritestat[sectnum] = next;
@@ -7345,7 +7345,7 @@ static void do_deletespritestat(int16_t deleteme)
 int32_t insertsprite(int16_t sectnum, int16_t statnum)
 {
     // TODO: guard against bad sectnum?
-    int32_t newspritenum = insertspritestat(statnum);
+    int32_t const newspritenum = insertspritestat(statnum);
 
     if (newspritenum >= 0)
     {
@@ -7368,7 +7368,7 @@ int32_t deletesprite(int16_t spritenum)
             == (sprite[spritenum].sectnum == MAXSECTORS));
 
     if (sprite[spritenum].statnum == MAXSTATUS)
-        return(-1);  // already not in the world
+        return -1;  // already not in the world
 
     do_deletespritestat(spritenum);
     do_deletespritesect(spritenum);
@@ -7398,17 +7398,16 @@ int32_t deletesprite(int16_t spritenum)
 int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
 {
     // XXX: NOTE: MAXSECTORS is allowed
-    if (newsectnum < 0 || newsectnum > MAXSECTORS)
-        return(-1);
-    if (sprite[spritenum].sectnum == MAXSECTORS)
-        return(-1);
+    if ((newsectnum < 0 || newsectnum > MAXSECTORS) || (sprite[spritenum].sectnum == MAXSECTORS))
+        return -1;
+
     if (sprite[spritenum].sectnum == newsectnum)
-        return(0);
+        return 0;
 
     do_deletespritesect(spritenum);
     do_insertsprite_at_headofsect(spritenum, newsectnum);
 
-    return(0);
+    return 0;
 }
 
 //
@@ -7417,12 +7416,11 @@ int32_t changespritesect(int16_t spritenum, int16_t newsectnum)
 int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
 {
     // XXX: NOTE: MAXSTATUS is allowed
-    if (newstatnum < 0 || newstatnum > MAXSTATUS)
-        return(-1);
-    if (sprite[spritenum].statnum == MAXSTATUS)
-        return(-1);  // can't set the statnum of a sprite not in the world
+    if ((newstatnum < 0 || newstatnum > MAXSTATUS) || (sprite[spritenum].statnum == MAXSTATUS))
+        return -1;  // can't set the statnum of a sprite not in the world
+
     if (sprite[spritenum].statnum == newstatnum)
-        return(0);  // sprite already has desired statnum
+        return 0;  // sprite already has desired statnum
 
     do_deletespritestat(spritenum);
     do_insertsprite_at_headofstat(spritenum, newstatnum);
@@ -7439,11 +7437,11 @@ int32_t lintersect(int32_t x1, int32_t y1, int32_t z1,
                    int32_t *intx, int32_t *inty, int32_t *intz)
 {
     // p1 to p2 is a line segment
-    int32_t x21 = x2 - x1;
-    int32_t x34 = x3 - x4;
-    int32_t y21 = y2 - y1;
-    int32_t y34 = y3 - y4;
-    int32_t bot = x21 * y34 - y21 * x34;
+    int32_t const x21 = x2 - x1;
+    int32_t const x34 = x3 - x4;
+    int32_t const y21 = y2 - y1;
+    int32_t const y34 = y3 - y4;
+    int32_t const bot = x21 * y34 - y21 * x34;
     int32_t topt;
 
     if (bot == 0)
@@ -8191,21 +8189,16 @@ static inline _equation       equation(float x1, float y1, float x2, float y2)
 int32_t                 wallvisible(int32_t x, int32_t y, int16_t wallnum)
 {
     // 1 if wall is in front of player 0 otherwise
-    int32_t            a1, a2;
-    walltype        *w1, *w2;
+    twalltype *w1 = (twalltype *)&wall[wallnum];
+    twalltype *w2 = (twalltype *)&wall[w1->point2];
 
-    w1 = &wall[wallnum];
-    w2 = &wall[w1->point2];
-
-    a1 = getangle(w1->x - x, w1->y - y);
-    a2 = getangle(w2->x - x, w2->y - y);
+    int32_t a1 = getangle(w1->x - x, w1->y - y);
+    int32_t a2 = getangle(w2->x - x, w2->y - y);
 
     //if ((wallnum == 23) || (wallnum == 9))
     //    OSD_Printf("Wall %d : %d - sector %d - x %d - y %d.\n", wallnum, (a2 + (2048 - a1)) & 2047, globalcursectnum, globalposx, globalposy);
 
-    if (((a2 + (2048 - a1)) & 2047) <= 1024)
-        return (1);
-    return (0);
+    return (((a2 + (2048 - a1)) & 2047) <= 1024);
 }
 
 #if 0
@@ -10888,7 +10881,7 @@ int32_t nextsectorneighborz(int16_t sectnum, int32_t refz, int16_t topbottom, in
     int32_t nextz = (direction==1) ? INT32_MAX : INT32_MIN;
     int32_t sectortouse = -1;
 
-    const walltype *wal = &wall[sector[sectnum].wallptr];
+    const twalltype *wal = (twalltype *)&wall[sector[sectnum].wallptr];
     int32_t i = sector[sectnum].wallnum;
 
     do
@@ -10957,8 +10950,8 @@ restart_grand:
     for (dacnt=0; dacnt<danum; dacnt++)
     {
         const int32_t dasectnum = clipsectorlist[dacnt];
-        const sectortype *const sec = &sector[dasectnum];
-        const walltype *wal;
+        const tsectortype *const sec = (tsectortype *)&sector[dasectnum];
+        const twalltype *wal;
         int32_t cnt;
 #ifdef YAX_ENABLE
         int32_t cfz1[2], cfz2[2];  // both wrt dasectnum
@@ -10968,7 +10961,7 @@ restart_grand:
         getzsofslope(dasectnum, x1,y1, &cfz1[0], &cfz1[1]);
         getzsofslope(dasectnum, x2,y2, &cfz2[0], &cfz2[1]);
 #endif
-        for (cnt=sec->wallnum,wal=&wall[sec->wallptr]; cnt>0; cnt--,wal++)
+        for (cnt=sec->wallnum,wal=(twalltype *)&wall[sec->wallptr]; cnt>0; cnt--,wal++)
         {
             const twalltype *const wal2 = (twalltype *)&wall[wal->point2];
             const int32_t x31 = wal->x-x1, x34 = wal->x-wal2->x;
@@ -11116,7 +11109,7 @@ static int32_t hitscan_hitsectcf=-1;
 
 // stat, heinum, z: either ceiling- or floor-
 // how: -1: behave like ceiling, 1: behave like floor
-static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdata_t *hit,
+static int32_t hitscan_trysector(const vec3_t *sv, const tsectortype *sec, hitdata_t *hit,
                                  int32_t vx, int32_t vy, int32_t vz,
                                  uint16_t stat, int16_t heinum, int32_t z, int32_t how, const intptr_t *tmp)
 {
@@ -11125,8 +11118,8 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
 
     if (stat&2)
     {
-        const walltype *const wal = &wall[sec->wallptr];
-        const walltype *const wal2 = &wall[wal->point2];
+        const twalltype *const wal = (twalltype *)&wall[sec->wallptr];
+        const twalltype *const wal2 = (twalltype *)&wall[wal->point2];
         int32_t j, dax=wal2->x-wal->x, day=wal2->y-wal->y;
 
         i = nsqrtasm(uhypsq(dax,day)); if (i == 0) return 1; //continue;
@@ -11161,9 +11154,9 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
     {
         if (tmp==NULL)
         {
-            if (inside(x1,y1,sec-sector) == 1)
+            if (inside(x1,y1,sec-(tsectortype *)sector) == 1)
             {
-                hit_set(hit, sec-sector, -1, -1, x1, y1, z1);
+                hit_set(hit, sec-(tsectortype *)sector, -1, -1, x1, y1, z1);
                 hitscan_hitsectcf = (how+1)>>1;
             }
         }
@@ -11175,7 +11168,7 @@ static int32_t hitscan_trysector(const vec3_t *sv, const sectortype *sec, hitdat
 
             if (!thislastsec)
             {
-                if (inside(x1,y1,sec-sector) == 1)
+                if (inside(x1,y1,sec-(tsectortype *)sector) == 1)
                     hit_set(hit, curspr->sectnum, -1, curspr-sprite, x1, y1, z1);
             }
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -11378,8 +11371,8 @@ restart_grand:
     clipspritecnt = clipspritenum = 0;
     do
     {
-        const sectortype *sec;
-        const walltype *wal;
+        const tsectortype *sec;
+        const twalltype *wal;
         int32_t dasector, z, startwall, endwall;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -11407,7 +11400,7 @@ restart_grand:
             tempshortcnt = 0;
         }
 #endif
-        dasector = clipsectorlist[tempshortcnt]; sec = &sector[dasector];
+        dasector = clipsectorlist[tempshortcnt]; sec = (tsectortype *)&sector[dasector];
 
         i = 1;
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -11429,10 +11422,10 @@ restart_grand:
         ////////// Walls //////////
 
         startwall = sec->wallptr; endwall = startwall + sec->wallnum;
-        for (z=startwall,wal=&wall[startwall]; z<endwall; z++,wal++)
+        for (z=startwall,wal=(twalltype *)&wall[startwall]; z<endwall; z++,wal++)
         {
             const int32_t nextsector = wal->nextsector;
-            const walltype *const wal2 = &wall[wal->point2];
+            const twalltype *const wal2 = (twalltype *)&wall[wal->point2];
             int32_t daz2, zz;
 
             if (curspr && nextsector<0) continue;
@@ -11697,12 +11690,12 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
 
         const int32_t startwall = sector[dasector].wallptr;
         const int32_t endwall = startwall + sector[dasector].wallnum - 1;
-        const walltype *wal;
+        const twalltype *wal;
         int32_t z;
 
-        for (z=startwall,wal=&wall[startwall]; z<=endwall; z++,wal++)
+        for (z=startwall,wal=(twalltype *)&wall[startwall]; z<=endwall; z++,wal++)
         {
-            const walltype *const wal2 = &wall[wal->point2];
+            const twalltype *const wal2 = (twalltype *)&wall[wal->point2];
             const int32_t nextsector = wal->nextsector;
 
             const int32_t x1=wal->x, y1=wal->y, x2=wal2->x, y2=wal2->y;
@@ -12013,7 +12006,7 @@ void updatesector(int32_t x, int32_t y, int16_t *sectnum)
 
     if ((unsigned)*sectnum < (unsigned)numsectors)
     {
-        const walltype *wal = &wall[sector[*sectnum].wallptr];
+        const twalltype *wal = (twalltype *)&wall[sector[*sectnum].wallptr];
         int32_t j = sector[*sectnum].wallnum;
 
         do
@@ -12073,7 +12066,7 @@ void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *
 
     if (*sectnum >= 0 && *sectnum < numsectors)
     {
-        const walltype *wal = &wall[sector[*sectnum].wallptr];
+        const twalltype *wal = (twalltype *)&wall[sector[*sectnum].wallptr];
         int32_t j = sector[*sectnum].wallnum;
 
         do
@@ -12103,7 +12096,7 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
 
     if ((uint32_t)(*sectnum) < 2*MAXSECTORS)
     {
-        const walltype *wal;
+        const twalltype *wal;
         int32_t j, cz, fz;
 
         int32_t nofirstzcheck = 0;
@@ -12136,7 +12129,7 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
             if (inside_p(x, y, *sectnum))
                 return;
 
-        wal = &wall[sector[*sectnum].wallptr];
+        wal = (twalltype *)&wall[sector[*sectnum].wallptr];
         j = sector[*sectnum].wallnum;
         do
         {
@@ -12976,11 +12969,8 @@ void setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 //
 // setviewback
 //
-extern char modechange;
 void setviewback(void)
 {
-    int32_t k;
-
     if (setviewcnt <= 0) return;
     setviewcnt--;
 
@@ -12999,11 +12989,8 @@ void setviewback(void)
     copybufbyte(&bakdmost[windowx1],&startdmost[windowx1],(windowx2-windowx1+1)*sizeof(startdmost[0]));
     frameplace = bakframeplace[setviewcnt];
 
-    if (setviewcnt == 0)
-        k = bakxsiz[0];
-    else
-        k = max(bakxsiz[setviewcnt-1],bakxsiz[setviewcnt]);
-    calc_ylookup(bytesperline, k);
+    calc_ylookup(bytesperline,
+                 (setviewcnt == 0) ? bakxsiz[0] : max(bakxsiz[setviewcnt - 1], bakxsiz[setviewcnt]));
 
     modechange=1;
 }
@@ -13015,13 +13002,13 @@ void setviewback(void)
 void squarerotatetile(int16_t tilenume)
 {
     int32_t siz = tilesiz[tilenume].x;
-    int32_t i, j;
-    char *ptr1, *ptr2;
 
     if (siz != tilesiz[tilenume].y)
         return;
 
-    for (i=siz-1; i>=3; i-=4)
+    char *ptr1, *ptr2;
+
+    for (int i=siz-1, j; i>=3; i-=4)
     {
         ptr2 = ptr1 = (char *) (waloff[tilenume]+i*(siz+1));
         swapchar(--ptr1, (ptr2 -= siz));
@@ -13049,8 +13036,6 @@ void squarerotatetile(int16_t tilenume)
 void preparemirror(int32_t dax, int32_t day, int16_t daang, int16_t dawall,
                    int32_t *tposx, int32_t *tposy, int16_t *tang)
 {
-    int32_t i;
-
     const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
     const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
 
@@ -13058,7 +13043,7 @@ void preparemirror(int32_t dax, int32_t day, int16_t daang, int16_t dawall,
     if (j == 0)
         return;
 
-    i = ((dax-x)*dx + (day-y)*dy)<<1;
+    int i = ((dax-x)*dx + (day-y)*dy)<<1;
 
     *tposx = (x<<1) + scale(dx,i,j) - dax;
     *tposy = (y<<1) + scale(dy,i,j) - day;
@@ -13096,34 +13081,32 @@ void completemirror(void)
     // from the inside of the mirror.
 
     begindrawing();
+
+    // Width in pixels (screen x's are inclusive on both sides):
+    const int32_t width = mirrorsx2-mirrorsx1+1;
+    // Height in pixels (screen y's are half-open because they come from umost/dmost):
+    const int32_t height = mirrorsy2-mirrorsy1;
+
+    // Address of the mirror wall's top left corner in the source scene:
+    intptr_t p = frameplace + ylookup[windowy1+mirrorsy1] + windowx1+mirrorsx1;
+
+    // Offset (wrt p) of a mirror line's left corner in the destination:
+    // p+destof == frameplace + ylookup[...] + windowx2-mirrorsx2
+    const int32_t destofs = windowx2-mirrorsx2-windowx1-mirrorsx1;
+
+    for (int y=0; y<height; y++)
     {
-        // Width in pixels (screen x's are inclusive on both sides):
-        const int32_t width = mirrorsx2-mirrorsx1+1;
-        // Height in pixels (screen y's are half-open because they come from umost/dmost):
-        const int32_t height = mirrorsy2-mirrorsy1;
-
-        // Address of the mirror wall's top left corner in the source scene:
-        intptr_t p = frameplace + ylookup[windowy1+mirrorsy1] + windowx1+mirrorsx1;
-
-        // Offset (wrt p) of a mirror line's left corner in the destination:
-        // p+destof == frameplace + ylookup[...] + windowx2-mirrorsx2
-        const int32_t destofs = windowx2-mirrorsx2-windowx1-mirrorsx1;
-
-        int32_t y;
-
-        for (y=0; y<height; y++)
-        {
 #if 0
-            if ((p-frameplace) + width-1 >= bytesperline*ydim)
-                printf("oob read: mirrorsx1=%d, mirrorsx2=%d\n", mirrorsx1, mirrorsx2);
+        if ((p-frameplace) + width-1 >= bytesperline*ydim)
+            printf("oob read: mirrorsx1=%d, mirrorsx2=%d\n", mirrorsx1, mirrorsx2);
 #endif
-            copybufbyte((void *)p, tempbuf, width);
-            copybufreverse(&tempbuf[width-1], (void *)(p+destofs+1), width);
+        copybufbyte((void *)p, tempbuf, width);
+        copybufreverse(&tempbuf[width-1], (void *)(p+destofs+1), width);
 
-            p += ylookup[1];
-            faketimerhandler();
-        }
+        p += ylookup[1];
+        faketimerhandler();
     }
+
     enddrawing();
 }
 
@@ -13148,13 +13131,11 @@ static int32_t sectorofwall_internal(int16_t theline)
 
 int32_t sectorofwall(int16_t theline)
 {
-    int32_t i;
-
     if (theline < 0 || theline >= numwalls)
         return -1;
 
-    i = wall[theline].nextwall;
-    if (i >= 0 && i < MAXWALLS)
+    int i = wall[theline].nextwall;
+    if ((unsigned)i < MAXWALLS)
         return wall[i].nextsector;
 
     return sectorofwall_internal(theline);
@@ -13231,7 +13212,7 @@ void getzsofslopeptr(const sectortype *sec, int32_t dax, int32_t day, int32_t *c
 //
 void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 {
-    const walltype *const wal = &wall[sector[dasect].wallptr];
+    const twalltype *const wal = (twalltype *)&wall[sector[dasect].wallptr];
     const int32_t dax = wall[wal->point2].x-wal->x;
     const int32_t day = wall[wal->point2].y-wal->y;
 
@@ -13252,7 +13233,7 @@ void alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 //
 void alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z)
 {
-    const walltype *const wal = &wall[sector[dasect].wallptr];
+    const twalltype *const wal = (twalltype *)&wall[sector[dasect].wallptr];
     const int32_t dax = wall[wal->point2].x-wal->x;
     const int32_t day = wall[wal->point2].y-wal->y;
 
@@ -13297,7 +13278,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
 {
     int32_t i, j, numwallsofloop;
     int32_t dagoalloop;
-    walltype *tmpwall;
+    twalltype *tmpwall;
 
     const int32_t startwall = sector[sectnum].wallptr;
     const int32_t danumwalls = sector[sectnum].wallnum;
@@ -13306,7 +13287,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
     if (newfirstwall < startwall || newfirstwall >= startwall+danumwalls)
         return;
 
-    tmpwall = (walltype *)Xmalloc(danumwalls * sizeof(walltype));
+    tmpwall = (twalltype *)Xmalloc(danumwalls * sizeof(walltype));
 
     Bmemcpy(tmpwall, &wall[startwall], danumwalls*sizeof(walltype));
 
