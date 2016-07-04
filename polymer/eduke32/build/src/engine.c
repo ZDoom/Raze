@@ -5867,8 +5867,9 @@ static void drawmaskwall(int16_t damaskwallcnt)
     setup_globals_wall1(wal, wal->overpicnum);
     setup_globals_wall2(wal, sec->visibility, z1, z2);
 
-    for (int i=smostwallcnt-1, j=smostwall[i]; i>=0; j=smostwall[--i])
+    for (int i=smostwallcnt-1; i>=0; i--)
     {
+        int j=smostwall[i];
         if ((xb1[j] > xb2[z]) || (xb2[j] < xb1[z])) continue;
         if (wallfront(j,z)) continue;
 
