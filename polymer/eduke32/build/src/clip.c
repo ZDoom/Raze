@@ -519,7 +519,7 @@ int32_t clipshape_idx_for_sprite(uspritetype const * const curspr, int32_t curid
 #else
 int32_t clipshape_idx_for_sprite(uspritetype const * const curspr, int32_t curidx)
 {
-    UNREFERENCED_PARAMETER(curspr);
+    (void)curspr;
     UNREFERENCED_PARAMETER(curidx);
     return -1;
 }
