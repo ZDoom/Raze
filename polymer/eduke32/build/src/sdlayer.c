@@ -2123,13 +2123,19 @@ int32_t handleevents_pollsdl(void)
                 const SDL_Scancode sc = ev.key.keysym.scancode;
                 code = keytranslation[sc];
 
+                // Modifiers that have to be held down to be effective
+                // (excludes KMOD_NUM, for example).
+                static const int MODIFIERS =
+                    KMOD_LSHIFT|KMOD_RSHIFT|KMOD_LCTRL|KMOD_RCTRL|
+                    KMOD_LALT|KMOD_RALT|KMOD_LGUI|KMOD_RGUI;
+
                 // XXX: see osd.c, OSD_HandleChar(), there are more...
                 if (ev.key.type == SDL_KEYDOWN && !keyascfifo_isfull() &&
                     (sc == SDL_SCANCODE_RETURN || sc == SDL_SCANCODE_KP_ENTER ||
                      sc == SDL_SCANCODE_ESCAPE ||
                      sc == SDL_SCANCODE_BACKSPACE ||
                      sc == SDL_SCANCODE_TAB ||
-                     (ev.key.keysym.mod==KMOD_LCTRL &&
+                     (((ev.key.keysym.mod) & MODIFIERS) == KMOD_LCTRL &&
                       (sc >= SDL_SCANCODE_A && sc <= SDL_SCANCODE_Z))))
                 {
                     char keyvalue;
