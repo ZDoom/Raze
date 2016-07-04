@@ -2981,6 +2981,10 @@ static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_
 
         M32_MarkPointInsertion(thewall);
 
+        for (int32_t i=0; i < numwalls; i++)
+            if (wall[i].cstat&(1<<14))
+                M32_MarkPointInsertion(i);
+
         j = 0;
         for (i=0; i<numwalls; i++)
             j += !!(wall[i].cstat&(1<<14));
