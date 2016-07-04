@@ -2936,6 +2936,29 @@ static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const 
     return ask_if_sure(querystr, 0);
 }
 
+#ifdef YAX_ENABLE
+static void M32_MarkPointInsertion(int32_t thewall)
+{
+    int32_t i, tmpcf;
+    int32_t nextw = wall[thewall].nextwall;
+
+    // round 1
+    for (YAX_ITER_WALLS(thewall, i, tmpcf))
+        wall[i].cstat |= (1<<14);
+    if (nextw >= 0)
+        for (YAX_ITER_WALLS(nextw, i, tmpcf))
+            wall[i].cstat |= (1<<14);
+    // round 2 (enough?)
+    for (YAX_ITER_WALLS(thewall, i, tmpcf))
+        if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
+            wall[wall[i].nextwall].cstat |= (1<<14);
+    if (nextw >= 0)
+        for (YAX_ITER_WALLS(nextw, i, tmpcf))
+            if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
+                wall[wall[i].nextwall].cstat |= (1<<14);
+}
+#endif
+
 // High-level insert point, handles TROR constrained walls too
 //  onewnumwalls: old numwalls + drawn walls.
 // <mapwallnum>: see insertpoint()
@@ -2948,7 +2971,7 @@ static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_
 {
 #ifdef YAX_ENABLE
     int32_t nextw = wall[thewall].nextwall;
-    int32_t i, j, k, m, tmpcf;
+    int32_t i, j, k, m;
 
     if (yax_islockedwall(thewall) || (nextw>=0 && yax_islockedwall(nextw)))
     {
@@ -2956,20 +2979,7 @@ static int32_t M32_InsertPoint(int32_t thewall, int32_t dax, int32_t day, int32_
         for (i=0; i<numwalls; i++)
             wall[i].cstat &= ~(1<<14);
 
-        // round 1
-        for (YAX_ITER_WALLS(thewall, i, tmpcf))
-            wall[i].cstat |= (1<<14);
-        if (nextw >= 0)
-            for (YAX_ITER_WALLS(nextw, i, tmpcf))
-                wall[i].cstat |= (1<<14);
-        // round 2 (enough?)
-        for (YAX_ITER_WALLS(thewall, i, tmpcf))
-            if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
-                wall[wall[i].nextwall].cstat |= (1<<14);
-        if (nextw >= 0)
-            for (YAX_ITER_WALLS(nextw, i, tmpcf))
-                if (wall[i].nextwall >= 0 && (wall[wall[i].nextwall].cstat&(1<<14))==0)
-                    wall[wall[i].nextwall].cstat |= (1<<14);
+        M32_MarkPointInsertion(thewall);
 
         j = 0;
         for (i=0; i<numwalls; i++)
