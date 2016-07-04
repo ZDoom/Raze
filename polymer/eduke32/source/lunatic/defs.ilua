@@ -1705,7 +1705,9 @@ local function readintostr_mod(fn)
         return nil
     end
 
-    return defs_c.readintostr(fd)
+    local ret = defs_c.readintostr(fd)
+    ffiC.kclose(fd)
+    return ret
 end
 
 

@@ -399,25 +399,21 @@ int32_t sectorofwall_noquick(int16_t theline);
 ]]
 
 -- Reads the whole file given by the k* file descriptor into a Lua string.
--- Always closes the file descriptor.
+-- Does not close the file descriptor.
 function readintostr(fd, kopen4load_func)
     -- XXX: this is pretty much the same as the code in L_RunOnce()
 
     local sz = ffiC.kfilelength(fd)
     if (sz == 0) then
-        ffiC.kclose(fd)
         return ""
     end
 
     if (sz < 0) then
-        ffi.kclose(fd)
         error("INTERNAL ERROR: kfilelength() returned negative length")
     end
 
     local str = ffi.new("char [?]", sz)
     local readlen = ffiC.kread(fd, str, sz)
-
-    ffiC.kclose(fd); fd=-1
 
     if (readlen ~= sz) then
         error("INTERNAL ERROR: couldn't read file wholly")
