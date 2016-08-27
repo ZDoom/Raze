@@ -33,15 +33,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "inttypes.h"
 
-enum PITCH_ERRORS
-   {
-   PITCH_Warning = -2,
-   PITCH_Error = -1,
-   PITCH_Ok = 0,
-   };
-
-//void          PITCH_Init( void );
-uint32_t PITCH_GetScale( int32_t pitchoffset );
-void          PITCH_UnlockMemory( void );
-int32_t           PITCH_LockMemory( void );
+uint32_t PITCH_GetScale(int32_t pitchoffset);
 #endif

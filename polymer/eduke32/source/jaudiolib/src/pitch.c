@@ -47,15 +47,9 @@ static int32_t PITCH_Installed = 0;
 
 void PITCH_Init(void)
 {
-    int32_t note;
-    int32_t detune;
-
-    if (PITCH_Installed)
-        return;
-
-    for (note = 0; note < 12; note++)
+    for (int note = 0; note < 12; note++)
     {
-        for (detune = 0; detune < MAXDETUNE; detune++)
+        for (int detune = 0; detune < MAXDETUNE; detune++)
         {
             PitchTable[note][detune] = (uint32_t) (65536.f * powf(2.f, (note * MAXDETUNE + detune) / (12.f * MAXDETUNE)));
         }
@@ -73,25 +67,20 @@ void PITCH_Init(void)
 
 uint32_t PITCH_GetScale(int32_t pitchoffset)
 {
-    uint32_t scale;
-    int32_t octaveshift;
-    int32_t noteshift;
-    int32_t note;
-    int32_t detune;
-
-    if ( !PITCH_Installed )
+    if (!PITCH_Installed)
         PITCH_Init();
 
     if (pitchoffset == 0)
-        return PitchTable[ 0 ][ 0 ];
+        return PitchTable[0][0];
 
-    noteshift = pitchoffset % 1200;
+    int noteshift = pitchoffset % 1200;
+
     if (noteshift < 0)
         noteshift += 1200;
 
-    note   = noteshift / 100;
-    detune = (noteshift % 100) / (100 / MAXDETUNE);
-    octaveshift = (pitchoffset - noteshift) / 1200;
+    int note   = noteshift / 100;
+    int detune = (noteshift % 100) / (100 / MAXDETUNE);
+    int octaveshift = (pitchoffset - noteshift) / 1200;
 
     if (detune < 0)
     {
@@ -104,7 +93,7 @@ uint32_t PITCH_GetScale(int32_t pitchoffset)
         }
     }
 
-    scale = PitchTable[ note ][ detune ];
+    uint32_t scale = PitchTable[note][detune];
 
     return (octaveshift < 0) ? (scale >> -octaveshift) : (scale <<= octaveshift);
 }
