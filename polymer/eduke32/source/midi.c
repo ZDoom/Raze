@@ -798,11 +798,8 @@ static void _MIDI_SetChannelVolume
     // For user volume
     volume *= _MIDI_UserChannelVolume[ channel ];
 
-    if (_MIDI_Funcs->SetVolume == NULL)
-    {
-        volume *= _MIDI_TotalVolume;
-        volume = tabledivide32_noinline(volume, MIDI_MaxVolume);
-    }
+    volume *= _MIDI_TotalVolume;
+    volume = tabledivide32_noinline(volume, MIDI_MaxVolume);
 
     // For user volume
     volume >>= 8;
@@ -940,22 +937,7 @@ int32_t MIDI_SetVolume
 
     _MIDI_TotalVolume = volume;
 
-    if (_MIDI_Funcs->SetVolume)
-    {
-        _MIDI_Funcs->SetVolume(volume);
-
-        for (i = 0; i < NUM_MIDI_CHANNELS; i++)
-        {
-            if (_MIDI_RerouteFunctions[ i ] != NULL)
-            {
-                _MIDI_SetChannelVolume(i, _MIDI_ChannelVolume[ i ]);
-            }
-        }
-    }
-    else
-    {
-        _MIDI_SendChannelVolumes();
-    }
+    _MIDI_SendChannelVolumes();
 
     return MIDI_Ok;
 }
@@ -967,29 +949,9 @@ int32_t MIDI_SetVolume
    Returns the total volume of the music.
 ---------------------------------------------------------------------*/
 
-int32_t MIDI_GetVolume
-(
-    void
-)
-
+int32_t MIDI_GetVolume(void)
 {
-    int32_t volume;
-
-    if (_MIDI_Funcs == NULL)
-    {
-        return MIDI_NullMidiModule;
-    }
-
-    if (_MIDI_Funcs->GetVolume)
-    {
-        volume = _MIDI_Funcs->GetVolume();
-    }
-    else
-    {
-        volume = _MIDI_TotalVolume;
-    }
-
-    return volume;
+    return (_MIDI_Funcs == NULL) ? MIDI_NullMidiModule : _MIDI_TotalVolume;
 }
 
 
@@ -1086,11 +1048,6 @@ void MIDI_StopSong
 
         MIDI_Reset();
         _MIDI_ResetTracks();
-
-        if (_MIDI_Funcs->ReleasePatches)
-        {
-            _MIDI_Funcs->ReleasePatches();
-        }
 
         DO_FREE_AND_NULL(_MIDI_TrackPtr);
 
@@ -1194,18 +1151,7 @@ int32_t MIDI_PlaySong
         CurrentTrack++;
     }
 
-    if (_MIDI_Funcs->GetVolume != NULL)
-    {
-        _MIDI_TotalVolume = _MIDI_Funcs->GetVolume();
-    }
-
     _MIDI_InitEMIDI();
-
-    if (_MIDI_Funcs->LoadPatch)
-    {
-        MIDI_LoadTimbres();
-    }
-
     _MIDI_ResetTracks();
 
     if (!Reset)
@@ -1652,118 +1598,6 @@ static void _MIDI_InitEMIDI
             _MIDI_TotalMeasures = _MIDI_Measure;
         }
 
-        Track++;
-        tracknum++;
-    }
-
-    _MIDI_ResetTracks();
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MIDI_LoadTimbres
-
-   Preloads the timbres on cards that use patch-caching.
----------------------------------------------------------------------*/
-
-void MIDI_LoadTimbres
-(
-    void
-)
-
-{
-    int32_t    event;
-    int32_t    command;
-    int32_t    channel;
-    int32_t    length;
-    int32_t    Finished;
-    track *Track;
-    int32_t    tracknum;
-
-    Track = _MIDI_TrackPtr;
-    tracknum = 0;
-    while ((tracknum < _MIDI_NumTracks) && (Track != NULL))
-    {
-        Finished = FALSE;
-        while (!Finished)
-        {
-            GET_NEXT_EVENT(Track, event);
-
-            if (GET_MIDI_COMMAND(event) == MIDI_SPECIAL)
-            {
-                switch (event)
-                {
-                case MIDI_SYSEX :
-                case MIDI_SYSEX_CONTINUE :
-                    length = _MIDI_ReadDelta(Track);
-                    Track->pos += length;
-                    break;
-
-                case MIDI_META_EVENT :
-                    GET_NEXT_EVENT(Track, command);
-                    GET_NEXT_EVENT(Track, length);
-
-                    if (command == MIDI_END_OF_TRACK)
-                    {
-                        Finished = TRUE;
-                    }
-
-                    Track->pos += length;
-                    break;
-                }
-
-                if (!Finished)
-                {
-                    _MIDI_ReadDelta(Track);
-                }
-
-                continue;
-            }
-
-            if (event & MIDI_RUNNING_STATUS)
-            {
-                Track->RunningStatus = event;
-            }
-            else
-            {
-                event = Track->RunningStatus;
-                Track->pos--;
-            }
-
-            channel = GET_MIDI_CHANNEL(event);
-            command = GET_MIDI_COMMAND(event);
-            length = _MIDI_CommandLengths[ command ];
-
-            if (command == MIDI_CONTROL_CHANGE)
-            {
-                if (*Track->pos == MIDI_MONO_MODE_ON)
-                {
-                    length++;
-                }
-
-                if (*Track->pos == EMIDI_PROGRAM_CHANGE)
-                {
-                    _MIDI_Funcs->LoadPatch(*(Track->pos + 1));
-                }
-            }
-
-            if (channel == MIDI_RHYTHM_CHANNEL)
-            {
-                if (command == MIDI_NOTE_ON)
-                {
-                    _MIDI_Funcs->LoadPatch(128 + *Track->pos);
-                }
-            }
-            else
-            {
-                if (command == MIDI_PROGRAM_CHANGE)
-                {
-                    _MIDI_Funcs->LoadPatch(*Track->pos);
-                }
-            }
-            Track->pos += length;
-            _MIDI_ReadDelta(Track);
-        }
         Track++;
         tracknum++;
     }

@@ -145,10 +145,6 @@ int32_t MUSIC_InitMidi(int32_t card, midifuncs *Funcs, int32_t Address)
     Funcs->ProgramChange = MPU_ProgramChange;
     Funcs->ChannelAftertouch = MPU_ChannelAftertouch;
     Funcs->PitchBend = MPU_PitchBend;
-    Funcs->ReleasePatches = NULL;
-    Funcs->LoadPatch = NULL;
-    Funcs->SetVolume = NULL /*MPU_SetVolume*/;
-    Funcs->GetVolume = NULL /*MPU_GetVolume*/;
 
     MIDI_SetMidiFuncs(Funcs);
 

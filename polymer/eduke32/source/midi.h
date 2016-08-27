@@ -55,20 +55,16 @@ enum MIDI_Errors
 extern char MIDI_PatchMap[ 128 ];
 
 typedef struct
-   {
-   void ( *NoteOff )( int32_t channel, int32_t key, int32_t velocity );
-   void ( *NoteOn )( int32_t channel, int32_t key, int32_t velocity );
-   void ( *PolyAftertouch )( int32_t channel, int32_t key, int32_t pressure );
-   void ( *ControlChange )( int32_t channel, int32_t number, int32_t value );
-   void ( *ProgramChange )( int32_t channel, int32_t program );
-   void ( *ChannelAftertouch )( int32_t channel, int32_t pressure );
-   void ( *PitchBend )( int32_t channel, int32_t lsb, int32_t msb );
-   void ( *ReleasePatches )( void );
-   void ( *LoadPatch )( int32_t number );
-   void ( *SetVolume )( int32_t volume );
-   int32_t  ( *GetVolume )( void );
-   void ( *FinishBuffer )( void );
-   } midifuncs;
+{
+    void (*NoteOff)(int32_t channel, int32_t key, int32_t velocity);
+    void (*NoteOn)(int32_t channel, int32_t key, int32_t velocity);
+    void (*PolyAftertouch)(int32_t channel, int32_t key, int32_t pressure);
+    void (*ControlChange)(int32_t channel, int32_t number, int32_t value);
+    void (*ProgramChange)(int32_t channel, int32_t program);
+    void (*ChannelAftertouch)(int32_t channel, int32_t pressure);
+    void (*PitchBend)(int32_t channel, int32_t lsb, int32_t msb);
+    void (*FinishBuffer)(void);
+} midifuncs;
 
 void MIDI_RerouteMidiChannel( int32_t channel, int32_t ( *function )( int32_t event, int32_t c1, int32_t c2 ) );
 int32_t  MIDI_AllNotesOff( void );
