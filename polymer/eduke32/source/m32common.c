@@ -475,7 +475,7 @@ void create_map_snapshot(void)
                 spritetype *const tspri = (spritetype *)Xmalloc(Numsprites*sizeof(spritetype) + 4);
                 spritetype *spri = tspri;
 
-                for (int j=0; j<MAXSPRITES && i < Numsprites; j++)
+                for (bssize_t j=0; j<MAXSPRITES && i < Numsprites; j++)
                     if (sprite[j].statnum != MAXSTATUS)
                     {
                         Bmemcpy(spri++, &sprite[j], sizeof(spritetype));
@@ -740,7 +740,7 @@ static int32_t check_spritelist_consistency()
     if (Numsprites < 0 || Numsprites > MAXSPRITES)
         return 1;
 
-    for (int i=0; i<MAXSPRITES; i++)
+    for (bssize_t i=0; i<MAXSPRITES; i++)
     {
         const int32_t sectnum=sprite[i].sectnum, statnum=sprite[i].statnum;
 
@@ -766,7 +766,7 @@ static int32_t check_spritelist_consistency()
 
     Bmemset(havesprite, 0, (Numsprites+7)>>3);
 
-    for (int s=0; s<numsectors; s++)
+    for (bssize_t s=0; s<numsectors; s++)
     {
         int i;
         csc_s = s;
@@ -792,7 +792,7 @@ static int32_t check_spritelist_consistency()
     }
 
     csc_s = -1;
-    for (int i=0; i<MAXSPRITES; i++)
+    for (bssize_t i=0; i<MAXSPRITES; i++)
     {
         csc_i = i;
 
@@ -803,7 +803,7 @@ static int32_t check_spritelist_consistency()
 
     // STATUS LIST -- we now clear havesprite[] bits
 
-    for (int s=0; s<MAXSTATUS; s++)
+    for (bssize_t s=0; s<MAXSTATUS; s++)
     {
         int i;
         csc_s = s;
@@ -831,7 +831,7 @@ static int32_t check_spritelist_consistency()
     }
 
     csc_s = -1;
-    for (int i=0; i<Numsprites; i++)
+    for (bssize_t i=0; i<Numsprites; i++)
     {
         csc_i = i;
 

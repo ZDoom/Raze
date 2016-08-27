@@ -62,9 +62,9 @@ void S_SoundStartup(void)
     initprintf("%d voices, %d channels, %d-bit %d Hz\n", ud.config.NumVoices, ud.config.NumChannels,
         ud.config.NumBits, ud.config.MixRate);
 
-    for (int i=0; i<g_maxSoundPos; ++i)
+    for (bssize_t i=0; i<g_maxSoundPos; ++i)
     {
-        for (int j = 0; j<MAXSOUNDINSTANCES; ++j)
+        for (bssize_t j = 0; j<MAXSOUNDINSTANCES; ++j)
         {
             g_sounds[i].num = 0;
             g_sounds[i].SoundOwner[j].voice = 0;
@@ -144,9 +144,9 @@ void S_PauseSounds(int32_t onf)
 
     SoundPaused = onf;
 
-    for (int i=0; i<g_maxSoundPos; ++i)
+    for (bssize_t i=0; i<g_maxSoundPos; ++i)
     {
-        for (int j = 0; j<MAXSOUNDINSTANCES; ++j)
+        for (bssize_t j = 0; j<MAXSOUNDINSTANCES; ++j)
         {
             if (g_sounds[i].SoundOwner[j].voice > 0)
                 FX_PauseVoice(g_sounds[i].SoundOwner[j].voice, onf);
@@ -767,7 +767,7 @@ void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset)
     if ((unsigned)num > (unsigned)g_maxSoundPos || g_sounds[num].num <= 0)
         return;
 
-    for (int j=0; j<MAXSOUNDINSTANCES; ++j)
+    for (bssize_t j=0; j<MAXSOUNDINSTANCES; ++j)
     {
         int32_t voice = g_sounds[num].SoundOwner[j].voice;
 
@@ -811,7 +811,7 @@ void S_Update(void)
 
     do
     {
-        for (int k=0; k<MAXSOUNDINSTANCES; ++k)
+        for (bssize_t k=0; k<MAXSOUNDINSTANCES; ++k)
         {
             int32_t i = g_sounds[num].SoundOwner[k].ow;
 
@@ -865,7 +865,7 @@ int32_t A_CheckSoundPlaying(int32_t i, int32_t num)
 
     if (g_sounds[num].num > 0 && i >= 0)
     {
-        for (int32_t j=0; j<MAXSOUNDINSTANCES; ++j)
+        for (bssize_t j=0; j<MAXSOUNDINSTANCES; ++j)
             if (g_sounds[num].SoundOwner[j].ow == i)
                 return 1;
     }
@@ -879,7 +879,7 @@ int32_t A_CheckAnySoundPlaying(int32_t i)
     int32_t const msp = g_maxSoundPos;
     int32_t k;
 
-    for (int32_t j=0; j<msp; ++j)
+    for (bssize_t j=0; j<msp; ++j)
     {
         for (k=0; k<MAXSOUNDINSTANCES; ++k)
             if (g_sounds[j].SoundOwner[k].ow == i)

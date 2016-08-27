@@ -2137,7 +2137,7 @@ static inline uint32_t C_Pow2IntLogBase2(int32_t const v)
 
     register uint32_t r = (v & b[0]) != 0;
 
-    for (int i = 4; i > 0; i--)
+    for (bssize_t i = 4; i > 0; i--)
         r |= ((v & b[i]) != 0) << i;
 
     return r;
@@ -2454,13 +2454,13 @@ void C_UndefineVolume(int32_t vol)
 {
     Bassert((unsigned)vol < MAXVOLUMES);
 
-    for (int32_t i = 0; i < MAXLEVELS; i++)
+    for (bssize_t i = 0; i < MAXLEVELS; i++)
         C_UndefineLevel(vol, i);
 
     EpisodeNames[vol][0] = '\0';
 
     g_numVolumes = 0;
-    for (int32_t i = MAXVOLUMES-1; i >= 0; i--)
+    for (bssize_t i = MAXVOLUMES-1; i >= 0; i--)
     {
         if (EpisodeNames[i][0])
         {
@@ -2477,7 +2477,7 @@ void C_UndefineSkill(int32_t skill)
     SkillNames[skill][0] = '\0';
 
     g_numSkills = 0;
-    for (int32_t i = MAXSKILLS-1; i >= 0; i--)
+    for (bssize_t i = MAXSKILLS-1; i >= 0; i--)
     {
         if (SkillNames[i][0])
         {
@@ -2626,7 +2626,7 @@ static void C_ReplaceQuoteSubstring(const size_t q, char const * const query, ch
 {
     size_t querylength = Bstrlen(query);
 
-    for (int i = MAXQUOTELEN - querylength - 2; i >= 0; i--)
+    for (bssize_t i = MAXQUOTELEN - querylength - 2; i >= 0; i--)
         if (Bstrncmp(&apStrings[q][i], query, querylength) == 0)
         {
             Bmemset(tempbuf, 0, sizeof(tempbuf));
@@ -2641,7 +2641,7 @@ static void C_ReplaceQuoteSubstring(const size_t q, char const * const query, ch
 
 void C_InitQuotes(void)
 {
-    for (int i = 0; i < 128; i++) C_AllocQuote(i);
+    for (bssize_t i = 0; i < 128; i++) C_AllocQuote(i);
 
 #ifdef EDUKE32_TOUCH_DEVICES
     apStrings[QUOTE_DEAD] = 0;
@@ -2722,14 +2722,14 @@ void C_InitQuotes(void)
     EDUKE32_STATIC_ASSERT(SUICIDEQUOTEINDEX + ARRAY_SIZE(PlayerSelfObituaries)-1 < MAXQUOTES);
 
     g_numObituaries = ARRAY_SIZE(PlayerObituaries);
-    for (int i = g_numObituaries - 1; i >= 0; i--)
+    for (bssize_t i = g_numObituaries - 1; i >= 0; i--)
     {
         if (C_AllocQuote(i + OBITQUOTEINDEX))
             Bstrcpy(apStrings[i + OBITQUOTEINDEX], PlayerObituaries[i]);
     }
 
     g_numSelfObituaries = ARRAY_SIZE(PlayerSelfObituaries);
-    for (int i = g_numSelfObituaries - 1; i >= 0; i--)
+    for (bssize_t i = g_numSelfObituaries - 1; i >= 0; i--)
     {
         if (C_AllocQuote(i + SUICIDEQUOTEINDEX))
             Bstrcpy(apStrings[i + SUICIDEQUOTEINDEX], PlayerSelfObituaries[i]);
@@ -6191,7 +6191,7 @@ void C_InitProjectiles(void)
 
     DefaultProjectile = Projectile;
 
-    for (int i=MAXTILES-1; i>=0; i--)
+    for (bssize_t i=MAXTILES-1; i>=0; i--)
     {
         if (g_tile[i].proj)
             *g_tile[i].proj = DefaultProjectile;

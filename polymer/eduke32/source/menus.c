@@ -3237,7 +3237,7 @@ static void M_MenuTextFormSubmit(char *input)
             Bstrcpy(&ud.pwlockout[0], input);
         else if (Bstrcmp(input, &ud.pwlockout[0]) == 0)
         {
-            for (int x=0; x<g_numAnimWalls; x++)
+            for (bssize_t x=0; x<g_numAnimWalls; x++)
                 if ((unsigned) animwall[x].wallnum < (unsigned)numwalls && wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                         wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
                         wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)

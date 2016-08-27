@@ -632,7 +632,7 @@ static int32_t _internal_osdfunc_history(const osdfuncparm_t *parm)
 
     OSD_Printf(OSDTEXT_RED "Command history:\n");
 
-    for (int32_t i=osd->history.maxlines-1; i>=0; i--)
+    for (bssize_t i=osd->history.maxlines-1; i>=0; i--)
         if (h->buf[i])
             OSD_Printf("%4d \"%s\"\n", h->total - h->lines + (++j), h->buf[i]);
 
@@ -660,7 +660,7 @@ void OSD_Cleanup(void)
     DO_FREE_AND_NULL(osd->cvars);
     DO_FREE_AND_NULL(osd->editor.buf);
     DO_FREE_AND_NULL(osd->editor.tmp);
-    for (int i=0; i<OSDMAXHISTORYDEPTH; i++)
+    for (bssize_t i=0; i<OSDMAXHISTORYDEPTH; i++)
         DO_FREE_AND_NULL(osd->history.buf[i]);
     DO_FREE_AND_NULL(osd->text.buf);
     DO_FREE_AND_NULL(osd->text.fmt);
@@ -686,7 +686,7 @@ static int32_t osdcmd_cvar_set_osd(const osdfuncparm_t *parm)
         OSD_SetTextMode(osd->draw.mode);
     else if (!Bstrcasecmp(parm->name, "osdhistorydepth"))
     {
-        for (int i = OSDMAXHISTORYDEPTH - 1; i >= osd->history.maxlines; i--)
+        for (bssize_t i = OSDMAXHISTORYDEPTH - 1; i >= osd->history.maxlines; i--)
             DO_FREE_AND_NULL(osd->history.buf[i]);
     }
 

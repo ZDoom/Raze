@@ -232,7 +232,7 @@ static int32_t Defs_LoadTileIntoBuffer(int32_t const tile)
 
 static void Defs_ApplyPaletteToTileBuffer(int32_t const tsiz, int32_t const pal)
 {
-    for (int32_t i = 0; i < tsiz; i++)
+    for (bssize_t i = 0; i < tsiz; i++)
         faketilebuffer[i] = palookup[pal][faketilebuffer[i]];
 }
 
@@ -1095,7 +1095,7 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile_range("undefinetilerange", &tile1, &tile2, script, cmdtokptr))
                 break;
 
-            for (int32_t i = tile1; i <= tile2; i++)
+            for (bssize_t i = tile1; i <= tile2; i++)
                 E_UndefineTile(i);
 
             break;
@@ -2585,7 +2585,7 @@ static int32_t defsparser(scriptfile *script)
                     usermaphacks = (usermaphack_t *)Xrealloc(usermaphacks, num_usermaphacks*sizeof(usermaphack_t));
                     usermaphack_t *newusermaphack = &usermaphacks[num_usermaphacks - 1];
 
-                    for (int i = 0; i < 16; i++)
+                    for (bssize_t i = 0; i < 16; i++)
                     {
                         char smallbuf[3] = { 0, 0, 0 };
                         smallbuf[0] = mapmd4string[2*i];
@@ -2837,7 +2837,7 @@ static int32_t defsparser(scriptfile *script)
 
                     if (shiftleft != 0)
                     {
-                        for (int k = 0; k < 768; k++)
+                        for (bssize_t k = 0; k < 768; k++)
                             palbuf[k] <<= shiftleft;
                     }
 
@@ -3398,7 +3398,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            for (int32_t i = id0; i <= id1; i++)
+            for (bssize_t i = id0; i <= id1; i++)
                 removebasepal(i);
 
             if (id0 == 0)
@@ -3421,7 +3421,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            for (int32_t i = id0; i <= id1; i++)
+            for (bssize_t i = id0; i <= id1; i++)
                 removepalookup(i);
 
             if (id0 == 0)
@@ -3444,7 +3444,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            for (int32_t i = id0; i <= id1; i++)
+            for (bssize_t i = id0; i <= id1; i++)
                 removeblendtab(i);
 
             if (id0 == 0)

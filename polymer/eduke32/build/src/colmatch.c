@@ -24,7 +24,7 @@ static uint8_t const * colmatch_palette;
 void initfastcolorlookup_scale(int32_t rscale, int32_t gscale, int32_t bscale)
 {
     int32_t j = 0;
-    for (int i=256; i>=0; i--)
+    for (bssize_t i=256; i>=0; i--)
     {
         //j = (i-64)*(i-64);
         rdist[i] = rdist[FASTPALCOLDEPTH*2-i] = j*rscale;
@@ -41,7 +41,7 @@ void initfastcolorlookup_palette(uint8_t const * const pal)
     colmatch_palette = pal;
 
     char const *pal1 = (char const *)&pal[768-3];
-    for (int i=255; i>=0; i--,pal1-=3)
+    for (bssize_t i=255; i>=0; i--,pal1-=3)
     {
         int32_t const j = (pal1[0]>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ*FASTPALGRIDSIZ
             + (pal1[1]>>FASTPALRIGHTSHIFT)*FASTPALGRIDSIZ + (pal1[2]>>FASTPALRIGHTSHIFT)
@@ -144,7 +144,7 @@ int32_t getclosestcol_nocache_lim(int32_t r, int32_t g, int32_t b, int32_t const
 
     int retcol = -1;
 
-    for (int k=26; k>=0; k--)
+    for (bssize_t k=26; k>=0; k--)
     {
         int i = colscan[k]+j;
 
@@ -173,7 +173,7 @@ int32_t getclosestcol_nocache_lim(int32_t r, int32_t g, int32_t b, int32_t const
 
     mindist = INT32_MAX;
 
-    for (int i = 0; i < lastokcol; ++i)
+    for (bssize_t i = 0; i < lastokcol; ++i)
     {
         char const * const pal1 = (char const *)&colmatch_palette[i*3];
         int dist = gdist[pal1[1]+g];

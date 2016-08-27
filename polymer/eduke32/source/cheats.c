@@ -281,7 +281,7 @@ void G_DoCheats(void)
 
             for (cheatNum=0; cheatNum < NUMCHEATCODES; cheatNum++)
             {
-                for (int j = 0; j<cheatbuflen; j++)
+                for (bssize_t j = 0; j<cheatbuflen; j++)
                 {
                     if (cheatbuf[j] == CheatStrings[cheatNum][j] || (CheatStrings[cheatNum][j] == '#' && ch >= '0' && ch <= '9'))
                     {
@@ -308,7 +308,7 @@ void G_DoCheats(void)
                 {
                     int const weaponLimit = (VOLUMEONE) ? 6 : 0;
 
-                    for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
+                    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
                     {
                         P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
                         pPlayer->gotweapon |= (1<<weaponNum);
@@ -399,10 +399,10 @@ void G_DoCheats(void)
                             P_DoQuote(QUOTE_RESERVED4, pPlayer);
                             G_CheatGetInv(pPlayer);
 
-                            for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
+                            for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
                                 pPlayer->gotweapon |= (1<<weaponNum);
 
-                            for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
+                            for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
                                 P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
 
                             pPlayer->got_access = 7;
@@ -430,10 +430,10 @@ void G_DoCheats(void)
                 {
                     int const weaponLimit = (VOLUMEONE) ? 6 : 0;
 
-                    for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
+                    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
                         pPlayer->gotweapon |= (1<<weaponNum);
 
-                    for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
+                    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
                         P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
 
                     G_CheatGetInv(pPlayer);

@@ -47,7 +47,7 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
 
     if (!is8bit)
     {
-        for (int32_t i=xsiz*ysiz-1; i>=0; i--)
+        for (bssize_t i=xsiz*ysiz-1; i>=0; i--)
         {
             pic2[i].b = cptr[pic[i].r];
             pic2[i].g = cptr[pic[i].g];
@@ -60,7 +60,7 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
         if (palookup[dapal] == NULL)
             dapal = 0;
 
-        for (int32_t i=xsiz*ysiz-1; i>=0; i--)
+        for (bssize_t i=xsiz*ysiz-1; i>=0; i--)
         {
             const int32_t ii = palookup[dapal][pic[i].a];
 
@@ -265,8 +265,8 @@ static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, 
         nx = x0; break;
     }
 
-    for (int32_t yy=0; yy<y; yy++, lptr+=gvox->mytexx)
-        for (int32_t xx=0; xx<x; xx++)
+    for (bssize_t yy=0; yy<y; yy++, lptr+=gvox->mytexx)
+        for (bssize_t xx=0; xx<x; xx++)
         {
             switch (face)
             {
@@ -300,8 +300,8 @@ static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, 
         }
 
     //Extend borders horizontally
-    for (int32_t yy=VOXBORDWIDTH; yy<y+VOXBORDWIDTH; yy++)
-        for (int32_t xx=0; xx<VOXBORDWIDTH; xx++)
+    for (bssize_t yy=VOXBORDWIDTH; yy<y+VOXBORDWIDTH; yy++)
+        for (bssize_t xx=0; xx<VOXBORDWIDTH; xx++)
         {
             lptr = &gvox->mytex[(shp[z].y+yy)*gvox->mytexx + shp[z].x];
             lptr[xx] = lptr[VOXBORDWIDTH];
@@ -309,7 +309,7 @@ static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, 
         }
 
     //Extend borders vertically
-    for (int32_t yy=0; yy<VOXBORDWIDTH; yy++)
+    for (bssize_t yy=0; yy<VOXBORDWIDTH; yy++)
     {
         Bmemcpy(&gvox->mytex[(shp[z].y+yy)*gvox->mytexx + shp[z].x],
                 &gvox->mytex[(shp[z].y+VOXBORDWIDTH)*gvox->mytexx + shp[z].x],
@@ -325,7 +325,7 @@ static void addquad(int32_t x0, int32_t y0, int32_t z0, int32_t x1, int32_t y1, 
     qptr->v[1].x = x1; qptr->v[1].y = y1; qptr->v[1].z = z1;
     qptr->v[2].x = x2; qptr->v[2].y = y2; qptr->v[2].z = z2;
 
-    for (int32_t j=0; j<3; j++)
+    for (bssize_t j=0; j<3; j++)
     {
         qptr->v[j].u = shp[z].x+VOXBORDWIDTH;
         qptr->v[j].v = shp[z].y+VOXBORDWIDTH;
@@ -416,7 +416,7 @@ static voxmodel_t *vox2poly()
 
     int32_t ov, oz=0;
 
-    for (int32_t cnt=0; cnt<2; cnt++)
+    for (bssize_t cnt=0; cnt<2; cnt++)
     {
         void (*daquad)(int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t) =
             cnt == 0 ? cntquad : addquad;
@@ -427,9 +427,9 @@ static voxmodel_t *vox2poly()
         int32_t v = 0;
 
         for (i=-1; i<=1; i+=2)
-            for (int32_t y=0; y<voxsiz.y; y++)
-                for (int32_t x=0; x<=voxsiz.x; x++)
-                    for (int32_t z=0; z<=voxsiz.z; z++)
+            for (bssize_t y=0; y<voxsiz.y; y++)
+                for (bssize_t x=0; x<=voxsiz.x; x++)
+                    for (bssize_t z=0; z<=voxsiz.z; z++)
                     {
                         ov = v; v = (isolid(x, y, z) && (!isolid(x, y+i, z)));
                         if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
@@ -443,9 +443,9 @@ static voxmodel_t *vox2poly()
                     }
 
         for (i=-1; i<=1; i+=2)
-            for (int32_t z=0; z<voxsiz.z; z++)
-                for (int32_t x=0; x<=voxsiz.x; x++)
-                    for (int32_t y=0; y<=voxsiz.y; y++)
+            for (bssize_t z=0; z<voxsiz.z; z++)
+                for (bssize_t x=0; x<=voxsiz.x; x++)
+                    for (bssize_t y=0; y<=voxsiz.y; y++)
                     {
                         ov = v; v = (isolid(x, y, z) && (!isolid(x, y, z-i)));
                         if ((by0[y] >= 0) && ((by0[y] != oz) || (v >= ov)))
@@ -459,9 +459,9 @@ static voxmodel_t *vox2poly()
                     }
 
         for (i=-1; i<=1; i+=2)
-            for (int32_t x=0; x<voxsiz.x; x++)
-                for (int32_t y=0; y<=voxsiz.y; y++)
-                    for (int32_t z=0; z<=voxsiz.z; z++)
+            for (bssize_t x=0; x<voxsiz.x; x++)
+                for (bssize_t y=0; y<=voxsiz.y; y++)
+                    for (bssize_t z=0; z<=voxsiz.z; z++)
                     {
                         ov = v; v = (isolid(x, y, z) && (!isolid(x-i, y, z)));
                         if ((by0[z] >= 0) && ((by0[z] != oz) || (v >= ov)))
@@ -480,8 +480,8 @@ static voxmodel_t *vox2poly()
 
             int32_t sc = 0;
 
-            for (int32_t y=gmaxy; y; y--)
-                for (int32_t x=gmaxx; x>=y; x--)
+            for (bssize_t y=gmaxy; y; y--)
+                for (bssize_t x=gmaxx; x>=y; x--)
                 {
                     i = shcnt[y*shcntp+x]; shcnt[y*shcntp+x] = sc; //shcnt changes from counter to head index
 
@@ -515,7 +515,7 @@ skindidntfit:
             memset(zbit, 0, i);
 
             v = gvox->mytexx*gvox->mytexy;
-            for (int32_t z=0; z<sc; z++)
+            for (bssize_t z=0; z<sc; z++)
             {
                 const int32_t dx = shp[z].x + (VOXBORDWIDTH<<1);
                 const int32_t dy = shp[z].y + (VOXBORDWIDTH<<1);
@@ -540,8 +540,8 @@ skindidntfit:
                         //Re-generate shp[].x/y (box sizes) from shcnt (now head indices) for next pass :/
                         j = 0;
 
-                        for (int32_t y=gmaxy; y; y--)
-                            for (int32_t x=gmaxx; x>=y; x--)
+                        for (bssize_t y=gmaxy; y; y--)
+                            for (bssize_t x=gmaxx; x>=y; x--)
                             {
                                 i = shcnt[y*shcntp+x];
 
@@ -603,7 +603,7 @@ static void read_pal(int32_t fil, int32_t pal[256])
 {
     klseek(fil, -768, SEEK_END);
 
-    for (int32_t i=0; i<256; i++)
+    for (bssize_t i=0; i<256; i++)
     {
         char c[3];
         kread(fil, c, 3);
@@ -640,12 +640,12 @@ static int32_t loadvox(const char *filnam)
     char *const tbuf = (char *)Xmalloc(voxsiz.z*sizeof(uint8_t));
 
     klseek(fil, 12, SEEK_SET);
-    for (int32_t x=0; x<voxsiz.x; x++)
-        for (int32_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
+    for (bssize_t x=0; x<voxsiz.x; x++)
+        for (bssize_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
         {
             kread(fil, tbuf, voxsiz.z);
 
-            for (int32_t z=voxsiz.z-1; z>=0; z--)
+            for (bssize_t z=voxsiz.z-1; z>=0; z--)
                 if (tbuf[z] != 255)
                 {
                     const int32_t i = j+z;
@@ -654,12 +654,12 @@ static int32_t loadvox(const char *filnam)
         }
 
     klseek(fil, 12, SEEK_SET);
-    for (int32_t x=0; x<voxsiz.x; x++)
-        for (int32_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
+    for (bssize_t x=0; x<voxsiz.x; x++)
+        for (bssize_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
         {
             kread(fil, tbuf, voxsiz.z);
 
-            for (int32_t z=0; z<voxsiz.z; z++)
+            for (bssize_t z=0; z<voxsiz.z; z++)
             {
                 if (tbuf[z] == 255)
                     continue;
@@ -739,8 +739,8 @@ static int32_t loadkvx(const char *filnam)
 
     char *cptr = tbuf;
 
-    for (int32_t x=0; x<voxsiz.x; x++) //Set surface voxels to 1 else 0
-        for (int32_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
+    for (bssize_t x=0; x<voxsiz.x; x++) //Set surface voxels to 1 else 0
+        for (bssize_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
         {
             i = xyoffs[x*ysizp1+y+1] - xyoffs[x*ysizp1+y];
             if (!i)
@@ -762,7 +762,7 @@ static int32_t loadkvx(const char *filnam)
 
                 setzrange1(vbit, j+z0, j+z1);  // PK: oob in AMC TC dev if vbit alloc'd w/o +1
 
-                for (int32_t z=z0; z<z1; z++)
+                for (bssize_t z=z0; z<z1; z++)
                     putvox(x, y, z, pal[*cptr++]);
             }
         }
@@ -819,8 +819,8 @@ static int32_t loadkv6(const char *filnam)
     vcolhashsizm1--;
     alloc_vcolhashead();
 
-    for (int32_t x=0; x<voxsiz.x; x++)
-        for (int32_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
+    for (bssize_t x=0; x<voxsiz.x; x++)
+        for (bssize_t y=0, j=x*yzsiz; y<voxsiz.y; y++, j+=voxsiz.z)
         {
             int32_t z1 = voxsiz.z;
 
@@ -1020,7 +1020,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
 
     bglBegin(GL_QUADS);  // {{{
 
-    for (int32_t i=0, fi=0; i<m->qcnt; i++)
+    for (bssize_t i=0, fi=0; i<m->qcnt; i++)
     {
         if (i == m->qfacind[fi])
         {
@@ -1034,7 +1034,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
         const int32_t yy = vptr[0].y + vptr[2].y;
         const int32_t zz = vptr[0].z + vptr[2].z;
 
-        for (int32_t j=0; j<4; j++)
+        for (bssize_t j=0; j<4; j++)
         {
             vec3f_t fp;
 #if (VOXBORDWIDTH == 0)

@@ -328,7 +328,7 @@ int32_t ANIM_NumFrames(void)
 
 uint8_t * ANIM_DrawFrame(int32_t framenumber)
 {
-    int32_t cnt = anim->currentframe;
+    bssize_t cnt = anim->currentframe;
 
     // handle first play and looping or rewinding
     if (cnt < 0 || cnt > framenumber)

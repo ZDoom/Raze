@@ -977,7 +977,7 @@ REDODOOR:
         {
             j = sprite[j].hitag;
 
-            for (int SPRITES_OF(STAT_EFFECTOR, l))
+            for (bssize_t SPRITES_OF(STAT_EFFECTOR, l))
             {
                 if ((sprite[l].lotag&0xff)==SE_21_DROP_FLOOR && !actor[l].t_data[0] &&
                         sprite[l].hitag == j)
@@ -1091,14 +1091,14 @@ void G_OperateActivators(int nTag, int playerNum)
 
 void G_OperateMasterSwitches(int nTag)
 {
-    for (int SPRITES_OF(STAT_STANDABLE, i))
+    for (bssize_t SPRITES_OF(STAT_STANDABLE, i))
         if (PN(i) == MASTERSWITCH && SLT(i) == nTag && SP(i) == 0)
             SP(i) = 1;
 }
 
 void G_OperateForceFields(int32_t spriteNum, int32_t wallTag)
 {
-    for (int animwallNum = 0; animwallNum < g_numAnimWalls; ++animwallNum)
+    for (bssize_t animwallNum = 0; animwallNum < g_numAnimWalls; ++animwallNum)
     {
         int const wallNum = animwall[animwallNum].wallnum;
 
@@ -1154,7 +1154,7 @@ void G_OperateForceFields(int32_t spriteNum, int32_t wallTag)
 //  2: is one, on
 static int G_IsLikeDipswitch(int switchPic)
 {
-    for (int i=0; i<2; i++)
+    for (bssize_t i=0; i<2; i++)
         if (switchPic == DIPSWITCH+i || switchPic == TECHSWITCH+i || switchPic == ALIENSWITCH+i)
             return 1+i;
 
@@ -1232,7 +1232,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
             static const int32_t key_switchpal[3]  = { 0, 21, 23 };
             static const int32_t need_key_quote[3] = { QUOTE_NEED_BLUE_KEY, QUOTE_NEED_RED_KEY, QUOTE_NEED_YELLOW_KEY };
 
-            for (int nKeyPal = 0; nKeyPal < 3; nKeyPal++)
+            for (bssize_t nKeyPal = 0; nKeyPal < 3; nKeyPal++)
             {
                 if (nSwitchPal == key_switchpal[nKeyPal])
                 {
@@ -1268,7 +1268,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
         break;
     }
 
-    for (int SPRITES_OF(STAT_DEFAULT, spriteNum))
+    for (bssize_t SPRITES_OF(STAT_DEFAULT, spriteNum))
     {
         if (lotag == SLT(spriteNum))
         {
@@ -1321,7 +1321,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
         }
     }
 
-    for (int nWall=numwalls-1; nWall>=0; nWall--)
+    for (bssize_t nWall=numwalls-1; nWall>=0; nWall--)
     {
         if (lotag == wall[nWall].lotag)
         {
@@ -1403,7 +1403,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
             if (nSwitchPicnum >= MULTISWITCH && nSwitchPicnum <= MULTISWITCH + 3)
                 lotag += nSwitchPicnum - MULTISWITCH;
 
-            for (int SPRITES_OF(STAT_EFFECTOR, spriteNum))
+            for (bssize_t SPRITES_OF(STAT_EFFECTOR, spriteNum))
             {
                 if (sprite[spriteNum].hitag == lotag)
                 {
@@ -1458,7 +1458,7 @@ void G_ActivateBySector(int sectNum, int spriteNum)
 {
     int nActivatedSectors = 0;
 
-    for (int SPRITES_OF_SECT(sectNum, i))
+    for (bssize_t SPRITES_OF_SECT(sectNum, i))
         if (PN(i) == ACTIVATOR)
         {
             G_OperateActivators(SLT(i),-1);
@@ -1732,13 +1732,13 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
 
             pWall = &wall[sector[sectNum].wallptr];
 
-            for (int i = sector[sectNum].wallnum; i > 0; i--, pWall++)
+            for (bssize_t i = sector[sectNum].wallnum; i > 0; i--, pWall++)
                 if (pWall->shade > nDarkestWall)
                     nDarkestWall = pWall->shade;
 
             int const nRand = krand() & 1;
 
-            for (int SPRITES_OF(STAT_EFFECTOR, i))
+            for (bssize_t SPRITES_OF(STAT_EFFECTOR, i))
                 if (SHT(i) == wall[nWall].lotag && SLT(i) == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
                 {
                     T3(i) = nRand;
@@ -1786,11 +1786,11 @@ int Sect_DamageCeilingOrFloor(int damageFloor, int const sectNum)
 
             if (sector[sectNum].hitag == 0)
             {
-                for (int SPRITES_OF_SECT(sectNum, i))
+                for (bssize_t SPRITES_OF_SECT(sectNum, i))
                 {
                     if (PN(i) == SECTOREFFECTOR && SLT(i) == SE_12_LIGHT_SWITCH)
                     {
-                        for (int SPRITES_OF(STAT_EFFECTOR, j))
+                        for (bssize_t SPRITES_OF(STAT_EFFECTOR, j))
                             if (sprite[j].hitag == SHT(i))
                                 actor[j].t_data[3] = 1;
                         break;
@@ -1800,7 +1800,7 @@ int Sect_DamageCeilingOrFloor(int damageFloor, int const sectNum)
 
             int j = krand() & 1;
 
-            for (int SPRITES_OF(STAT_EFFECTOR, i))
+            for (bssize_t SPRITES_OF(STAT_EFFECTOR, i))
             {
                 if (SHT(i) == sector[sectNum].hitag && SLT(i) == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
                 {
@@ -1902,7 +1902,7 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
     case CACTUS__STATIC:
     {
         if (isRPG == 1)
-            for (int k=64; k>0; k--)
+            for (bssize_t k=64; k>0; k--)
             {
                 int newSprite =
                 A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48,
@@ -1917,7 +1917,7 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
         case FIRELASER__STATIC:
         case HYDRENT__STATIC:
         case HEAVYHBOMB__STATIC:
-            for (int k=64; k>0; k--)
+            for (bssize_t k=64; k>0; k--)
             {
                 int newSprite =
                 A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48,
@@ -1936,7 +1936,7 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
 
     case HANGLIGHT__STATIC:
     case GENERICPOLE2__STATIC:
-        for (int k=6; k>0; k--)
+        for (bssize_t k=6; k>0; k--)
             A_InsertSprite(SECT(spriteNum),SX(spriteNum),SY(spriteNum),SZ(spriteNum)-ZOFFSET3,SCRAP1+(krand()&15),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[spriteNum].zvel>>2),spriteNum,5);
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         A_DeleteSprite(spriteNum);
@@ -1950,7 +1950,7 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
 
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         pSprite = &sprite[spriteNum];
-        for (int j=16; j>0; j--)
+        for (bssize_t j=16; j>0; j--)
             RANDOMSCRAP(pSprite, spriteNum);
 
         break;
@@ -1968,7 +1968,7 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
     case ANTENNA__STATIC:
         if (sprite[damageSrc].extra != G_DefaultActorHealth(SHOTSPARK1))
         {
-            for (int j=15; j>0; j--)
+            for (bssize_t j=15; j>0; j--)
                 A_InsertSprite(SECT(spriteNum),SX(spriteNum),SY(spriteNum),sector[SECT(spriteNum)].floorz-ZOFFSET4-(j<<9),SCRAP1+(krand()&15),-8,64,64,
                                krand()&2047,(krand()&127)+64,-(krand()&511)-256,spriteNum,5);
             A_Spawn(spriteNum,EXPLOSION2);
@@ -2027,7 +2027,7 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
         break;
 
     case FETUSBROKE__STATIC:
-        for (int j=48; j>0; j--)
+        for (bssize_t j=48; j>0; j--)
         {
             A_Shoot(spriteNum,BLOODSPLAT1);
             SA(spriteNum) += 333;
@@ -2202,7 +2202,7 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
     case TRIPODCAMERA__STATIC:
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         pSprite = &sprite[spriteNum];
-        for (int j=16; j>0; j--)
+        for (bssize_t j=16; j>0; j--)
             RANDOMSCRAP(pSprite, spriteNum);
         A_DeleteSprite(spriteNum);
         break;
@@ -2303,11 +2303,11 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
 
 void G_AlignWarpElevators(void)
 {
-    for (int SPRITES_OF(STAT_EFFECTOR, i))
+    for (bssize_t SPRITES_OF(STAT_EFFECTOR, i))
     {
         if (SLT(i) == SE_17_WARP_ELEVATOR && SS(i) > 16)
         {
-            for (int SPRITES_OF(STAT_EFFECTOR, j))
+            for (bssize_t SPRITES_OF(STAT_EFFECTOR, j))
             {
                 if (i != j && sprite[j].lotag == SE_17_WARP_ELEVATOR && SHT(i) == sprite[j].hitag)
                 {
@@ -3123,7 +3123,7 @@ void P_CheckSectors(int playerNum)
             case VIEWSCREEN__STATIC:
             case VIEWSCREEN2__STATIC:
                 // Try to find a camera sprite for the viewscreen.
-                for (int SPRITES_OF(STAT_ACTOR, spriteNum))
+                for (bssize_t SPRITES_OF(STAT_ACTOR, spriteNum))
                 {
                     if (PN(spriteNum) == CAMERA1 && SP(spriteNum) == 0 && sprite[neartagsprite].hitag == SLT(spriteNum))
                     {
@@ -3186,7 +3186,7 @@ void P_CheckSectors(int playerNum)
         if (neartagsector >= 0 && (sector[neartagsector].lotag&16384) == 0 &&
                 isanearoperator(sector[neartagsector].lotag))
         {
-            for (int SPRITES_OF_SECT(neartagsector, spriteNum))
+            for (bssize_t SPRITES_OF_SECT(neartagsector, spriteNum))
             {
                 if (PN(spriteNum) == ACTIVATOR || PN(spriteNum) == MASTERSWITCH)
                     return;
@@ -3198,7 +3198,7 @@ void P_CheckSectors(int playerNum)
         {
             if (isanunderoperator(sector[sprite[pPlayer->i].sectnum].lotag))
             {
-                for (int SPRITES_OF_SECT(sprite[pPlayer->i].sectnum, spriteNum))
+                for (bssize_t SPRITES_OF_SECT(sprite[pPlayer->i].sectnum, spriteNum))
                 {
                     if (PN(spriteNum) == ACTIVATOR || PN(spriteNum) == MASTERSWITCH)
                         return;

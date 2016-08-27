@@ -829,11 +829,11 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         char al = 255;
         char onebitalpha = 1;
 
-        for (int32_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
+        for (bssize_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
         {
             coltype tcol, *rpptr = &pic[j];
 
-            for (int32_t x = 0; x < tsiz.x; ++x)
+            for (bssize_t x = 0; x < tsiz.x; ++x)
             {
                 tcol.b = cptr[rpptr[x].b];
                 tcol.g = cptr[rpptr[x].g];
@@ -891,7 +891,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
         if (!glinfo.bgra)
         {
-            for (int32_t j = siz.x*siz.y - 1; j >= 0; j--)
+            for (bssize_t j = siz.x*siz.y - 1; j >= 0; j--)
                 swapchar(&pic[j].r, &pic[j].b);
         }
 
@@ -2570,7 +2570,7 @@ static void md3free(md3model_t *m)
 
     if (m->head.surfs)
     {
-        for (int surfi=m->head.numsurfs-1; surfi>=0; surfi--)
+        for (bssize_t surfi=m->head.numsurfs-1; surfi>=0; surfi--)
         {
             md3surf_t *s = &m->head.surfs[surfi];
             Bfree(s->tris);

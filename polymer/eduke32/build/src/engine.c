@@ -381,7 +381,7 @@ void yax_setbunch(int16_t i, int16_t cf, int16_t bunchnum)
         if (bunchnum > -3)
         {
             // TODO: for in-game too?
-            for (int ynw, j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
+            for (bssize_t ynw, j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
             {
                 ynw = yax_getnextwall(j, cf);
                 if (ynw >= 0)
@@ -621,7 +621,7 @@ int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf)
     if (bunchnum < 0)
         return -1;
 
-    for (int SECTORS_OF_BUNCH(bunchnum, !cf, i))
+    for (bssize_t SECTORS_OF_BUNCH(bunchnum, !cf, i))
         if (inside(x, y, i)==1)
             return i;
 
@@ -1665,7 +1665,7 @@ static void scansector(int16_t startsectnum)
 #ifdef YAX_ENABLE
         if (scansector_collectsprites)
 #endif
-        for (int32_t i=headspritesect[sectnum]; i>=0; i=nextspritesect[i])
+        for (bssize_t i=headspritesect[sectnum]; i>=0; i=nextspritesect[i])
         {
             const uspritetype *const spr = (uspritetype *)&sprite[i];
 
@@ -1692,7 +1692,7 @@ static void scansector(int16_t startsectnum)
 
         vec2_t p1, p2 = { 0, 0 };
 
-        for (int32_t w=startwall; w<endwall; w++)
+        for (bssize_t w=startwall; w<endwall; w++)
         {
             const uwalltype *const wal = (uwalltype *)&wall[w];
             const int32_t nextsectnum = wal->nextsector;
@@ -1750,7 +1750,7 @@ skipitaddwall:
                 bunchp2[numscans-1] = scanfirst, scanfirst = numscans;
         }
 
-        for (int32_t s=onumscans; s<numscans; s++)
+        for (bssize_t s=onumscans; s<numscans; s++)
             if (wall[thewall[s]].point2 != thewall[bunchp2[s]] || xb2[s] >= xb1[bunchp2[s]])
             {
                 bunchfirst[numbunches++] = bunchp2[s], bunchp2[s] = -1;
@@ -1760,7 +1760,7 @@ skipitaddwall:
 #endif
             }
 
-        for (int32_t bn=onumbunches; bn<numbunches; bn++)
+        for (bssize_t bn=onumbunches; bn<numbunches; bn++)
         {
             int32_t s;
             for (s=bunchfirst[bn]; bunchp2[s]>=0; s=bunchp2[s])
@@ -1782,7 +1782,7 @@ void printscans(void)
 
     Bmemset(didscan, 0, sizeof(didscan));
 
-    for (int s=0; s<numscans; s++)
+    for (bssize_t s=0; s<numscans; s++)
     {
         if (bunchp2[s] >= 0 && (didscan[s>>3] & (1<<(s&7)))==0)
         {
@@ -1813,10 +1813,10 @@ void printscans(void)
 
 void printbunches(void)
 {
-    for (int bn=0; bn<numbunches; bn++)
+    for (bssize_t bn=0; bn<numbunches; bn++)
     {
         printf("bunch %d: ", bn);
-        for (int s=bunchfirst[bn]; s>=0; s=bunchp2[s])
+        for (bssize_t s=bunchfirst[bn]; s>=0; s=bunchp2[s])
             printf("%d(%d) ", s, thewall[s]);
         printf("\n");
     }
@@ -1960,7 +1960,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
     {
         char bad = 0;
 
-        for (int z=3,dax=x+3; z>=0; z--,dax--)
+        for (bssize_t z=3,dax=x+3; z>=0; z--,dax--)
         {
             y1ve[z] = max(uwall[dax],startumost[dax+windowxy1.x]-windowxy1.y);
             y2ve[z] = min(dwall[dax],startdmost[dax+windowxy1.x]-windowxy1.y)-1;
@@ -2397,14 +2397,14 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, zint_t z)
 
     if ((bad&3) == 3)
     {
-        for (int i=ix1; i<=ix2; i++)
+        for (bssize_t i=ix1; i<=ix2; i++)
             mostbuf[i] = 0;
         return bad;
     }
 
     if ((bad&12) == 12)
     {
-        for (int i=ix1; i<=ix2; i++)
+        for (bssize_t i=ix1; i<=ix2; i++)
             mostbuf[i] = ydimen;
         return bad;
     }
@@ -2418,13 +2418,13 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, zint_t z)
         if ((bad&3) == 2)
         {
             if (xb1[w] <= xcross) { iy2 = inty; ix2 = xcross; }
-            for (int i=xcross+1; i<=xb2[w]; i++)
+            for (bssize_t i=xcross+1; i<=xb2[w]; i++)
                 mostbuf[i] = 0;
         }
         else
         {
             if (xcross <= xb2[w]) { iy1 = inty; ix1 = xcross; }
-            for (int i=xb1[w]; i<=xcross; i++)
+            for (bssize_t i=xb1[w]; i<=xcross; i++)
                 mostbuf[i] = 0;
         }
     }
@@ -2438,13 +2438,13 @@ static int32_t owallmost(int16_t *mostbuf, int32_t w, zint_t z)
         if ((bad&12) == 8)
         {
             if (xb1[w] <= xcross) { iy2 = inty; ix2 = xcross; }
-            for (int i=xcross+1; i<=xb2[w]; i++)
+            for (bssize_t i=xcross+1; i<=xb2[w]; i++)
                 mostbuf[i] = ydimen;
         }
         else
         {
             if (xcross <= xb2[w]) { iy1 = inty; ix1 = xcross; }
-            for (int i=xb1[w]; i<=xcross; i++)
+            for (bssize_t i=xb1[w]; i<=xcross; i++)
                 mostbuf[i] = ydimen;
         }
     }
@@ -2537,14 +2537,14 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
 
     if ((bad&3) == 3)
     {
-        for (int i=ix1; i<=ix2; i++)
+        for (bssize_t i=ix1; i<=ix2; i++)
             mostbuf[i] = 0;
         return bad;
     }
 
     if ((bad&12) == 12)
     {
-        for (int i=ix1; i<=ix2; i++)
+        for (bssize_t i=ix1; i<=ix2; i++)
             mostbuf[i] = ydimen;
         return bad;
     }
@@ -2566,13 +2566,13 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
         if ((bad&3) == 2)
         {
             if (xb1[w] <= xcross) { z2 = intz; iy2 = inty; ix2 = xcross; }
-            for (int i=xcross+1; i<=xb2[w]; i++)
+            for (bssize_t i=xcross+1; i<=xb2[w]; i++)
                 mostbuf[i] = 0;
         }
         else
         {
             if (xcross <= xb2[w]) { z1 = intz; iy1 = inty; ix1 = xcross; }
-            for (int i=xb1[w]; i<=xcross; i++)
+            for (bssize_t i=xb1[w]; i<=xcross; i++)
                 mostbuf[i] = 0;
         }
     }
@@ -2592,13 +2592,13 @@ static int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dasta
         if ((bad&12) == 8)
         {
             if (xb1[w] <= xcross) { z2 = intz; iy2 = inty; ix2 = xcross; }
-            for (int i=xcross+1; i<=xb2[w]; i++)
+            for (bssize_t i=xcross+1; i<=xb2[w]; i++)
                 mostbuf[i] = ydimen;
         }
         else
         {
             if (xcross <= xb2[w]) { z1 = intz; iy1 = inty; ix1 = xcross; }
-            for (int i=xb1[w]; i<=xcross; i++)
+            for (bssize_t i=xb1[w]; i<=xcross; i++)
                 mostbuf[i] = ydimen;
         }
     }
@@ -3311,7 +3311,7 @@ static void ceilspritescan(int32_t x1, int32_t x2)
     int32_t y1 = uwall[x1];
     int32_t y2 = y1;
 
-    for (int x=x1; x<=x2; ++x)
+    for (bssize_t x=x1; x<=x2; ++x)
     {
         const int32_t twall = uwall[x]-1;
         const int32_t bwall = dwall[x];
@@ -3364,7 +3364,7 @@ static inline void setupslopevlin_alsotrans(int32_t logylogx, intptr_t bufplc, i
 }
 
 // cnt iterations
-static void tslopevlin(uint8_t *p, const intptr_t *slopalptr, int32_t cnt, int32_t bx, int32_t by)
+static void tslopevlin(uint8_t *p, const intptr_t *slopalptr, bssize_t cnt, int32_t bx, int32_t by)
 {
     const char *const A_C_RESTRICT buf = ggbuf;
     const char *const A_C_RESTRICT pal = ggpal;
@@ -4456,7 +4456,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
 
     begindrawing(); //{{{
 
-    for (int32_t cnt=0; cnt<8; cnt++)
+    for (bssize_t cnt=0; cnt<8; cnt++)
     {
         int32_t xs=0, ys=0, xi=0, yi=0;
 
@@ -5854,12 +5854,12 @@ static void drawmaskwall(int16_t damaskwallcnt)
 
     wallmost(uwall,z,sectnum,(uint8_t)0);
     wallmost(uplc,z,(int32_t)wal->nextsector,(uint8_t)0);
-    for (int x=xb1[z]; x<=xb2[z]; x++)
+    for (bssize_t x=xb1[z]; x<=xb2[z]; x++)
         if (uplc[x] > uwall[x])
             uwall[x] = uplc[x];
     wallmost(dwall,z,sectnum,(uint8_t)1);
     wallmost(dplc,z,(int32_t)wal->nextsector,(uint8_t)1);
-    for (int x=xb1[z]; x<=xb2[z]; x++)
+    for (bssize_t x=xb1[z]; x<=xb2[z]; x++)
         if (dplc[x] < dwall[x])
             dwall[x] = dplc[x];
     prepwall(z,wal);
@@ -5867,7 +5867,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
     setup_globals_wall1(wal, wal->overpicnum);
     setup_globals_wall2(wal, sec->visibility, z1, z2);
 
-    for (int i=smostwallcnt-1; i>=0; i--)
+    for (bssize_t i=smostwallcnt-1; i>=0; i--)
     {
         int j=smostwall[i];
         if ((xb1[j] > xb2[z]) || (xb2[j] < xb1[z])) continue;
@@ -5883,15 +5883,15 @@ static void drawmaskwall(int16_t damaskwallcnt)
             {
                 if ((lx == xb1[z]) && (rx == xb2[z])) return;
                 //clearbufbyte(&dwall[lx],(rx-lx+1)*sizeof(dwall[0]),0L);
-                for (int x=lx; x<=rx; x++) dwall[x] = 0;
+                for (bssize_t x=lx; x<=rx; x++) dwall[x] = 0;
             }
             break;
         case 1:
-            for (int x=lx, k = smoststart[i] - xb1[j]; x<=rx; x++)
+            for (bssize_t x=lx, k = smoststart[i] - xb1[j]; x<=rx; x++)
                 if (smost[k+x] > uwall[x]) uwall[x] = smost[k+x];
             break;
         case 2:
-            for (int x=lx, k = smoststart[i] - xb1[j]; x<=rx; x++)
+            for (bssize_t x=lx, k = smoststart[i] - xb1[j]; x<=rx; x++)
                 if (smost[k+x] < dwall[x]) dwall[x] = smost[k+x];
             break;
         }
@@ -6023,7 +6023,7 @@ static void fillpolygon(int32_t npoints)
         int16_t *const xptr = &smost[i*nodesperline];
         int16_t *const xptr2 = &smost[i*nodesperline + (nodesperline>>1)];
 
-        const int32_t cnt = dotp1[y]-xptr;
+        const bssize_t cnt = dotp1[y]-xptr;
 
         for (z=cnt-1; z>=0; z--)
         {
@@ -7486,7 +7486,7 @@ int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy,
 
 psky_t * E_DefinePsky(int32_t const tilenum)
 {
-    for (int i = 0; i < pskynummultis; i++)
+    for (bssize_t i = 0; i < pskynummultis; i++)
         if (multipskytile[i] == tilenum)
             return &multipsky[i];
 
@@ -7754,7 +7754,7 @@ void uninitengine(void)
 
     paletteloaded = 0;
 
-    for (int i=0; i<MAXPALOOKUPS; i++)
+    for (bssize_t i=0; i<MAXPALOOKUPS; i++)
         if (i==0 || palookup[i] != palookup[0])
         {
             // Take care of handling aliased ^^^ cases!
@@ -7762,11 +7762,11 @@ void uninitengine(void)
         }
     Bmemset(palookup, 0, sizeof(palookup));
 
-    for (int i=0; i<MAXBLENDTABS; i++)
+    for (bssize_t i=0; i<MAXBLENDTABS; i++)
         Bfree(blendtable[i]);
     Bmemset(blendtable, 0, sizeof(blendtable));
 
-    for (int i=1; i<MAXBASEPALS; i++)
+    for (bssize_t i=1; i<MAXBASEPALS; i++)
         Bfree(basepaltable[i]);
     Bmemset(basepaltable, 0, sizeof(basepaltable));
     basepaltable[0] = palette;
@@ -7779,7 +7779,7 @@ void uninitengine(void)
 
     uninitsystem();
 
-    for (int i = 0; i < num_usermaphacks; i++)
+    for (bssize_t i = 0; i < num_usermaphacks; i++)
     {
         Bfree(usermaphacks[i].mhkfile);
         Bfree(usermaphacks[i].title);
@@ -8301,7 +8301,7 @@ killsprite:
     gap = 1; while (gap < spritesortcnt) gap = (gap<<1)+1;
     for (gap>>=1; gap>0; gap>>=1)   //Sort sprite list
         for (i=0; i<spritesortcnt-gap; i++)
-            for (int32_t l=i; l>=0; l-=gap)
+            for (bssize_t l=i; l>=0; l-=gap)
             {
                 if (spritesxyz[l].y <= spritesxyz[l+gap].y) break;
                 swapptr(&tspriteptr[l],&tspriteptr[l+gap]);
@@ -8313,7 +8313,7 @@ killsprite:
         spritesxyz[spritesortcnt].y = (spritesxyz[spritesortcnt-1].y^1);
 
     ys = spritesxyz[0].y; i = 0;
-    for (int32_t j=1; j<=spritesortcnt; j++)
+    for (bssize_t j=1; j<=spritesortcnt; j++)
     {
         if (spritesxyz[j].y == ys)
             continue;
@@ -8322,7 +8322,7 @@ killsprite:
 
         if (j > i+1)
         {
-            for (int32_t k=i; k<j; k++)
+            for (bssize_t k=i; k<j; k++)
             {
                 const uspritetype *const s = tspriteptr[k];
 
@@ -8341,8 +8341,8 @@ killsprite:
                 }
             }
 
-            for (int32_t k=i+1; k<j; k++)
-                for (int32_t l=i; l<k; l++)
+            for (bssize_t k=i+1; k<j; k++)
+                for (bssize_t l=i; l<k; l++)
                     if (klabs(spritesxyz[k].z-globalposz) < klabs(spritesxyz[l].z-globalposz))
                     {
                         swapptr(&tspriteptr[k],&tspriteptr[l]);
@@ -8351,8 +8351,8 @@ killsprite:
                         spritesxyz[l] = tv3;
                     }
 
-            for (int32_t k=i+1; k<j; k++)
-                for (int32_t l=i; l<k; l++)
+            for (bssize_t k=i+1; k<j; k++)
+                for (bssize_t l=i; l<k; l++)
                     if (tspriteptr[k]->x == tspriteptr[l]->x &&
                         tspriteptr[k]->y == tspriteptr[l]->y &&
                         (tspriteptr[k]->cstat & 48) == (tspriteptr[l]->cstat & 48) &&
@@ -9734,7 +9734,7 @@ static void PolymostProcessVoxels(void)
     OSD_Printf("Generating voxel models for Polymost. This may take a while...\n");
     nextpage();
 
-    for (int32_t i=0; i<MAXVOXELS; i++)
+    for (bssize_t i=0; i<MAXVOXELS; i++)
     {
         if (voxfilenames[i])
         {
@@ -9867,7 +9867,7 @@ void nextpage(void)
     {
     case 200:
         begindrawing(); //{{{
-        for (int i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
+        for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
             per = &permfifo[i];
             if ((per->pagesleft > 0) && (per->pagesleft <= numpages))
@@ -9881,7 +9881,7 @@ void nextpage(void)
         showframe(0);
 
         begindrawing(); //{{{
-        for (int i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
+        for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
             per = &permfifo[i];
             if (per->pagesleft >= 130)
@@ -9908,7 +9908,7 @@ void nextpage(void)
 #ifdef USE_OPENGL
     omdtims = mdtims; mdtims = getticks();
 
-    for (int i = 0; i < Numsprites; ++i)
+    for (bssize_t i = 0; i < Numsprites; ++i)
         if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
             spriteext[i].mdanimtims += mdtims - omdtims;
 #endif
@@ -9929,7 +9929,7 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
     int32_t lengcnt = 0;
     const int32_t lengtot = kfilelength(fil);
 
-    for (int32_t i=0; i<MAXVOXMIPS; i++)
+    for (bssize_t i=0; i<MAXVOXMIPS; i++)
     {
         int32_t dasiz;
         kread(fil, &dasiz, 4); dasiz = B_LITTLE32(dasiz);
@@ -10199,7 +10199,7 @@ restart_grand:
         const int32_t dasectnum = clipsectorlist[dacnt];
         const usectortype *const sec = (usectortype *)&sector[dasectnum];
         const uwalltype *wal;
-        int32_t cnt;
+        bssize_t cnt;
 #ifdef YAX_ENABLE
         int32_t cfz1[2], cfz2[2];  // both wrt dasectnum
         int16_t bn[2];
@@ -11033,7 +11033,7 @@ void dragpoint(int16_t pointhighlight, int32_t dax, int32_t day, uint8_t flags)
         int32_t w = yaxwalls[i];
         const int32_t tmpstartwall = w;
 
-        int32_t cnt = MAXWALLS;
+        bssize_t cnt = MAXWALLS;
 
         while (1)
         {
@@ -11264,7 +11264,7 @@ void updatesector(int32_t x, int32_t y, int16_t *sectnum)
         while (--wallsleft);
     }
 
-    for (int i=numsectors-1; i>=0; --i)
+    for (bssize_t i=numsectors-1; i>=0; --i)
         if (inside_p(x, y, i))
             SET_AND_RETURN(*sectnum, i);
 
@@ -11321,7 +11321,7 @@ void updatesectorexclude(int32_t x, int32_t y, int16_t *sectnum, const uint8_t *
         while (--wallsleft);
     }
 
-    for (int i=numsectors-1; i>=0; --i)
+    for (bssize_t i=numsectors-1; i>=0; --i)
         if (inside_exclude_p(x, y, i, excludesectbitmap))
             SET_AND_RETURN(*sectnum, i);
 
@@ -11380,7 +11380,7 @@ void updatesectorz(int32_t x, int32_t y, int32_t z, int16_t *sectnum)
         while (--wallsleft);
     }
 
-    for (int i=numsectors-1; i>=0; --i)
+    for (bssize_t i=numsectors-1; i>=0; --i)
         if (inside_z_p(x,y,z, i))
             SET_AND_RETURN(*sectnum, i);
 
@@ -11555,7 +11555,7 @@ restart_grand:
 
             clipsprite_initindex(curidx, curspr, &clipsectcnt, pos);
 
-            for (int i=0; i<clipsectnum; i++)
+            for (bssize_t i=0; i<clipsectnum; i++)
             {
                 int const k = clipsectorlist[i];
 
@@ -11587,7 +11587,7 @@ restart_grand:
         const int startwall = startsec->wallptr;
         const int endwall = startwall + startsec->wallnum;
 
-        for (int j=startwall; j<endwall; j++)
+        for (bssize_t j=startwall; j<endwall; j++)
         {
             const int k = wall[j].nextsector;
 
@@ -11704,12 +11704,12 @@ restart_grand:
 
     ////////// Sprites //////////
 
-    for (int i=0; i<clipsectnum; i++)
+    for (bssize_t i=0; i<clipsectnum; i++)
     {
         if (dasprclipmask==0)
             break;
 
-        for (int j=headspritesect[clipsectorlist[i]]; j>=0; j=nextspritesect[j])
+        for (bssize_t j=headspritesect[clipsectorlist[i]]; j>=0; j=nextspritesect[j])
         {
             const int32_t cstat = sprite[j].cstat;
             int32_t daz, daz2;
@@ -11837,7 +11837,7 @@ restart_grand:
                     if (cb < 0)
                         continue;
 
-                    for (int SECTORS_OF_BUNCH(cb,YAX_FLOOR, j))
+                    for (bssize_t SECTORS_OF_BUNCH(cb,YAX_FLOOR, j))
                         if (inside(pos->x,pos->y, j)==1)
                         {
                             clipsectorlist[clipsectnum++] = j;
@@ -11873,7 +11873,7 @@ restart_grand:
                     if (fb < 0)
                         continue;
 
-                    for (int SECTORS_OF_BUNCH(fb, YAX_CEILING, j))
+                    for (bssize_t SECTORS_OF_BUNCH(fb, YAX_CEILING, j))
                         if (inside(pos->x,pos->y, j)==1)
                         {
                             clipsectorlist[clipsectnum++] = j;
@@ -11967,11 +11967,11 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 #endif
     setaspect_new();
 
-    for (int i=0; i<windowxy1.x; i++) { startumost[i] = 1, startdmost[i] = 0; }
+    for (bssize_t i=0; i<windowxy1.x; i++) { startumost[i] = 1, startdmost[i] = 0; }
     Bassert(windowxy2.x < xdim);  // xdim is the number of alloc'd elements in start*most[].
-    for (int i=windowxy1.x; i<=windowxy2.x; i++)
+    for (bssize_t i=windowxy1.x; i<=windowxy2.x; i++)
         { startumost[i] = windowxy1.y, startdmost[i] = windowxy2.y+1; }
-    for (int i=windowxy2.x+1; i<xdim; i++) { startumost[i] = 1, startdmost[i] = 0; }
+    for (bssize_t i=windowxy2.x+1; i<xdim; i++) { startumost[i] = 1, startdmost[i] = 0; }
 }
 
 
@@ -12123,7 +12123,7 @@ void clearview(int32_t dacol)
     //dacol += (dacol<<8); dacol += (dacol<<16);
     int const dx = windowxy2.x-windowxy1.x+1;
     intptr_t p = frameplace+ylookup[windowxy1.y]+windowxy1.x;
-    for (int y=windowxy1.y; y<=windowxy2.y; ++y)
+    for (bssize_t y=windowxy1.y; y<=windowxy2.y; ++y)
     {
         //clearbufbyte((void*)p,dx,dacol);
         Bmemset((void *)p,dacol,dx);
@@ -12247,7 +12247,7 @@ void squarerotatetile(int16_t tilenume)
 
     char *ptr1, *ptr2;
 
-    for (int i=siz-1, j; i>=3; i-=4)
+    for (bssize_t i=siz-1, j; i>=3; i-=4)
     {
         ptr2 = ptr1 = (char *) (waloff[tilenume]+i*(siz+1));
         swapchar(--ptr1, (ptr2 -= siz));
@@ -12335,7 +12335,7 @@ void completemirror(void)
     // p+destof == frameplace + ylookup[...] + windowx2-mirrorsx2
     int const destofs = windowxy2.x-mirrorsx2-windowxy1.x-mirrorsx1;
 
-    for (int y=0; y<height; y++)
+    for (bssize_t y=0; y<height; y++)
     {
 #if 0
         if ((p-frameplace) + width-1 >= bytesperline*ydim)
@@ -12499,7 +12499,7 @@ int32_t loopnumofsector(int16_t sectnum, int16_t wallnum)
     const int32_t startwall = sector[sectnum].wallptr;
     const int32_t endwall = startwall + sector[sectnum].wallnum;
 
-    for (int i=startwall; i<endwall; i++)
+    for (bssize_t i=startwall; i<endwall; i++)
     {
         if (i == wallnum)
             return numloops;
@@ -12683,7 +12683,7 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
     char const * const fontptr = (fontsize & 1) ? smalltextfont : textfont;
     int const charxsiz = 8 - ((fontsize & 1)<<2);
 
-    for (int i=0; name[i]; i++)
+    for (bssize_t i=0; name[i]; i++)
     {
         if (name[i] == '^')
         {
@@ -12778,9 +12778,9 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
 
         if (backcol >= 0)
         {
-            for (int y=ymin; y<=ymax; y++)
+            for (bssize_t y=ymin; y<=ymax; y++)
             {
-                for (int x=0; x<charxsiz; x++)
+                for (bssize_t x=0; x<charxsiz; x++)
                 {
                     if ((unsigned) (stx+x) >= (unsigned)xdim || ptr < (char *) frameplace) break;
                     ptr[x] = (letptr[y] & pow2char[7 - (fontsize & 1) - x]) ?
@@ -12792,9 +12792,9 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
         }
         else
         {
-            for (int y=ymin; y<=ymax; y++)
+            for (bssize_t y=ymin; y<=ymax; y++)
             {
-                for (int x=0; x<charxsiz; x++)
+                for (bssize_t x=0; x<charxsiz; x++)
                 {
                     if ((unsigned) (stx+x) >= (unsigned)xdim || ptr < (char *) frameplace) break;
                     if (letptr[y]&pow2char[7-(fontsize&1)-x]) ptr[x] = (uint8_t) col;
@@ -12941,7 +12941,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 static void PolymerProcessModels(void)
 {
     // potentially deferred MD3 postprocessing
-    for (int32_t i=0; i<nextmodelid; i++)
+    for (bssize_t i=0; i<nextmodelid; i++)
     {
         if (models[i]->mdnum==3 && ((md3model_t *)models[i])->head.surfs[0].geometry == NULL)
         {
@@ -13043,10 +13043,10 @@ void invalidatetile(int16_t tilenume, int32_t pal, int32_t how)
         const int32_t firstpal = (pal < 0) ? 0 : pal;
         const int32_t numpals = (pal < 0) ? MAXPALOOKUPS : 1;
 
-        for (int hp = 0; hp <= 4; hp+=4)
+        for (bssize_t hp = 0; hp <= 4; hp+=4)
         {
             if (how & pow2long[hp])
-                for (int np = firstpal; np < firstpal+numpals; np++)
+                for (bssize_t np = firstpal; np < firstpal+numpals; np++)
                     gltexinvalidate(tilenume, np, hp);
         }
 

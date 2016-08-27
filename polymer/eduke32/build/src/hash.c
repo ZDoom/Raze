@@ -14,7 +14,7 @@ void hash_loop(hashtable_t *t, void(*func)(const char *, intptr_t))
     if (t->items == NULL)
         return;
 
-    for (int32_t i=0; i < t->size; i++)
+    for (bssize_t i=0; i < t->size; i++)
         for (hashitem_t *item=t->items[i]; item != NULL; item = item->next)
             func(item->string, item->key);
 }

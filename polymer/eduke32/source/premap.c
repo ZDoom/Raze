@@ -636,11 +636,11 @@ void P_RandomSpawnPoint(int playerNum)
 
         if (GametypeFlags[ud.coop] & GAMETYPE_TDMSPAWN)
         {
-            for (int j=0; j<ud.multimode; j++)
+            for (bssize_t j=0; j<ud.multimode; j++)
             {
                 if (j != playerNum && g_player[j].ps->team == pPlayer->team && sprite[g_player[j].ps->i].extra > 0)
                 {
-                    for (int k=0; k<g_numPlayerSprites; k++)
+                    for (bssize_t k=0; k<g_numPlayerSprites; k++)
                     {
                         dist = FindDistance2D(g_player[j].ps->pos.x - g_playerSpawnPoints[k].pos.x,
                                               g_player[j].ps->pos.y - g_playerSpawnPoints[k].pos.y);
@@ -846,7 +846,7 @@ void P_ResetWeapons(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
-    for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
+    for (bssize_t weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
         pPlayer->ammo_amount[weaponNum] = 0;
 
     pPlayer->weapon_pos                 = WEAPON_POS_START;
@@ -883,7 +883,7 @@ static void resetprestat(int playerNum, int gameMode)
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
     g_spriteDeleteQueuePos = 0;
-    for (int i = 0; i < g_deleteQueueSize; i++) SpriteDeletionQueue[i] = -1;
+    for (bssize_t i = 0; i < g_deleteQueueSize; i++) SpriteDeletionQueue[i] = -1;
 
     pPlayer->hbomb_on          = 0;
     pPlayer->cheat_phase       = 0;
@@ -1429,12 +1429,12 @@ end_vol4a:
 #endif
     Gv_ResetSystemDefaults();
 
-    for (int i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
+    for (bssize_t i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
         ALIGNED_FREE_AND_NULL(aMapInfo[i].savedstate);
 
     if (ud.m_coop != 1)
     {
-        for (int weaponNum = 0; weaponNum < MAX_WEAPONS; weaponNum++)
+        for (bssize_t weaponNum = 0; weaponNum < MAX_WEAPONS; weaponNum++)
         {
             if (PWEAPON(0, weaponNum, WorksLike) == PISTOL_WEAPON)
             {
@@ -1619,7 +1619,7 @@ static void resetpspritevars(char gameMode)
 
 static inline void clearfrags(void)
 {
-    for (int i = 0; i < ud.multimode; i++)
+    for (bssize_t i = 0; i < ud.multimode; i++)
     {
         playerdata_t *const pPlayerData = &g_player[i];
         pPlayerData->ps->frag = pPlayerData->ps->fraggedself = 0;
@@ -1661,11 +1661,11 @@ void G_ClearFIFO(void)
 
 int G_FindLevelByFile(const char *fileName)
 {
-    for (int volumeNum = 0; volumeNum < MAXVOLUMES; volumeNum++)
+    for (bssize_t volumeNum = 0; volumeNum < MAXVOLUMES; volumeNum++)
     {
         int const volumeOffset = volumeNum * MAXLEVELS;
 
-        for (int levelNum = 0; levelNum < MAXLEVELS; levelNum++)
+        for (bssize_t levelNum = 0; levelNum < MAXLEVELS; levelNum++)
         {
             if (aMapInfo[volumeOffset + levelNum].filename == NULL)
                 continue;
@@ -2023,7 +2023,7 @@ void G_FreeMapState(int levelNum)
         return;
 
 #if !defined LUNATIC
-    for (int j=0; j<g_gameVarCount; j++)
+    for (bssize_t j=0; j<g_gameVarCount; j++)
     {
 //        if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
         if (aGameVars[j].flags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))

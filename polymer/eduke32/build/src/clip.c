@@ -785,7 +785,7 @@ static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
 {
     int32_t hitwall = -1;
 
-    for (int32_t z=clipnum-1; z>=0; z--)
+    for (bssize_t z=clipnum-1; z>=0; z--)
     {
         const int32_t x1 = clipit[z].x1, x2 = clipit[z].x2, x21 = x2-x1;
         const int32_t y1 = clipit[z].y1, y2 = clipit[z].y2, y21 = y2-y1;
@@ -810,7 +810,7 @@ static inline int32_t raytrace(int32_t x3, int32_t y3, int32_t *x4, int32_t *y4)
         if (bot == 0)
             continue;
 
-        int32_t cnt = 256, nintx, ninty;
+        bssize_t cnt = 256, nintx, ninty;
 
         do
         {
@@ -1181,7 +1181,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 #endif
 
     int32_t hitwalls[4], hitwall;
-    int32_t cnt = clipmoveboxtracenum;
+    bssize_t cnt = clipmoveboxtracenum;
 
     do
     {

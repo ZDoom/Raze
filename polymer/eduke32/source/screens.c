@@ -282,8 +282,8 @@ static void G_DrawCameraText(int16_t i)
     {
         int32_t flipbits = (totalclock<<1)&48;
 
-        for (int32_t x=-64; x<394; x+=64)
-            for (int32_t y=0; y<200; y+=64)
+        for (bssize_t x=-64; x<394; x+=64)
+            for (bssize_t y=0; y<200; y+=64)
                 rotatesprite_win(x<<16, y<<16, 65536L, 0, STATIC, 0, 0, 2+flipbits);
     }
 }
@@ -1693,7 +1693,7 @@ static void G_BonusCutscenes(void)
 
                 // boss
                 if (totalclock > 390 && totalclock < 780)
-                    for (int t=0; t<35; t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
+                    for (bssize_t t=0; t<35; t+=5) if (bossmove[t+2] && (totalclock%390) > bossmove[t] && (totalclock%390) <= bossmove[t+1])
                     {
                         if (t==10 && bonuscnt == 1)
                         {
@@ -1725,7 +1725,7 @@ static void G_BonusCutscenes(void)
                         }
 
                     }
-                    for (int t=0; t<20; t+=5)
+                    for (bssize_t t=0; t<20; t+=5)
                         if (breathe[t+2] && (totalclock%120) > breathe[t] && (totalclock%120) <= breathe[t+1])
                         {
                             if (t==5 && bonuscnt == 0)

@@ -9150,7 +9150,7 @@ static void clearministatbar16(void)
 // similar to how inside() did before r3898.
 int32_t loopinside(int32_t x, int32_t y, int16_t startwall)
 {
-    int32_t cnt = clockdir(startwall);
+    bssize_t cnt = clockdir(startwall);
     int32_t i = startwall;
 
     do

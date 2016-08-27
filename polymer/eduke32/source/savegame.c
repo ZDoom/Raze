@@ -55,13 +55,13 @@ void G_Util_PtrToIdx(void *ptr, int32_t const count, const void *base, int32_t c
     // WARNING: C std doesn't say that bit pattern of NULL is necessarily 0!
     if ((mode & P2I_BACK_BIT) == 0)
     {
-        for (int i = 0; i < count; i++)
+        for (bssize_t i = 0; i < count; i++)
             if (!onlynon0_p || iptr[i])
                 iptr[i] -= ibase;
     }
     else
     {
-        for (int i = 0; i < count; i++)
+        for (bssize_t i = 0; i < count; i++)
             if (!onlynon0_p || iptr[i])
                 iptr[i] += ibase;
     }
@@ -75,7 +75,7 @@ void G_Util_PtrToIdx2(void *ptr, int32_t const count, size_t const stride, const
 
     if ((mode & P2I_BACK_BIT) == 0)
     {
-        for (int i = 0; i < count; ++i)
+        for (bssize_t i = 0; i < count; ++i)
         {
             if (!onlynon0_p || *(intptr_t *)iptr)
                 *(intptr_t *)iptr -= ibase;
@@ -85,7 +85,7 @@ void G_Util_PtrToIdx2(void *ptr, int32_t const count, size_t const stride, const
     }
     else
     {
-        for (int i = 0; i < count; ++i)
+        for (bssize_t i = 0; i < count; ++i)
         {
             if (!onlynon0_p || *(intptr_t *)iptr)
                 *(intptr_t *)iptr += ibase;
@@ -828,7 +828,7 @@ static int32_t applydiff(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **di
 {
     uint8_t *dumptr=*dumpvar, *diffptr=*diffvar;
     const dataspec_t *sp=spec;
-    int32_t cnt, eltnum=-1, nbytes=(getnumvar(spec)+7)>>3, l=Bstrlen((const char *)spec->ptr);
+    bssize_t cnt, eltnum=-1, nbytes=(getnumvar(spec)+7)>>3, l=Bstrlen((const char *)spec->ptr);
 
     if (Bmemcmp(diffptr, spec->ptr, l))  // check STRING magic (sync check)
         return 1;
@@ -922,7 +922,7 @@ readidx_##Idxbits##_##Datbits:               \
 static uint32_t calcsz(const dataspec_t *spec)
 {
     const dataspec_t *sp=spec;
-    int32_t cnt;
+    bssize_t cnt;
     uint32_t dasiz=0;
 
     for (; sp->flags!=DS_END; sp++)
@@ -1750,7 +1750,7 @@ static void sv_preprojectilesave()
 #endif
     g_numProjectiles = 0;
 
-    for (int i=0; i<MAXTILES; i++)
+    for (bssize_t i=0; i<MAXTILES; i++)
     {
         if (g_tile[i].proj)
         {
@@ -1775,7 +1775,7 @@ static void sv_preprojectileload()
     if (ProjectileData != NULL || g_numProjectiles > 0)
         ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
 
-    for (int i=0; i<MAXTILES; i++)
+    for (bssize_t i=0; i<MAXTILES; i++)
         C_FreeProjectile(i);
 }
 
@@ -1786,7 +1786,7 @@ static void sv_postprojectileload()
 #endif
     g_numProjectiles = 0;
 
-    for (int i=0; i<MAXTILES; i++)
+    for (bssize_t i=0; i<MAXTILES; i++)
     {
         if (g_tile[i].proj)
         {

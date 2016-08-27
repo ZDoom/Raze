@@ -185,7 +185,7 @@ void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth)
 //Use this for palette effects ... but not ones that change every frame!
 void gltexinvalidatetype(int32_t type)
 {
-    for (int j=0; j<=GLTEXCACHEADSIZ-1; j++)
+    for (bssize_t j=0; j<=GLTEXCACHEADSIZ-1; j++)
     {
         for (pthtyp *pth=texcache.list[j]; pth; pth=pth->next)
         {
@@ -232,7 +232,7 @@ void gltexapplyprops(void)
 
     gltexfiltermode = clamp(gltexfiltermode, 0, NUMGLFILTERMODES-1);
 
-    for (int i=0; i<=GLTEXCACHEADSIZ-1; i++)
+    for (bssize_t i=0; i<=GLTEXCACHEADSIZ-1; i++)
     {
         for (pthtyp *pth=texcache.list[i]; pth; pth=pth->next)
         {
@@ -245,14 +245,14 @@ void gltexapplyprops(void)
         }
     }
 
-    for (int i=0; i<nextmodelid; i++)
+    for (bssize_t i=0; i<nextmodelid; i++)
     {
         md2model_t *m = (md2model_t *)models[i];
 
         if (m->mdnum < 2)
             continue;
 
-        for (int j = 0; j < m->numskins * (HICEFFECTMASK + 1); j++)
+        for (bssize_t j = 0; j < m->numskins * (HICEFFECTMASK + 1); j++)
         {
             if (!m->texid[j])
                 continue;
@@ -260,7 +260,7 @@ void gltexapplyprops(void)
         }
 
         for (mdskinmap_t *sk = m->skinmap; sk; sk = sk->next)
-            for (int j = 0; j < (HICEFFECTMASK + 1); j++)
+            for (bssize_t j = 0; j < (HICEFFECTMASK + 1); j++)
             {
                 if (!sk->texid[j])
                     continue;
@@ -278,7 +278,7 @@ static int32_t gltexcacnum = -1;
 
 void polymost_glreset()
 {
-    for (int i=0; i<=MAXPALOOKUPS-1; i++)
+    for (bssize_t i=0; i<=MAXPALOOKUPS-1; i++)
     {
         fogtable[i].r = palookupfog[i].r * (1.f/255.f);
         fogtable[i].g = palookupfog[i].g * (1.f/255.f);
@@ -297,7 +297,7 @@ void polymost_glreset()
     }
     else
     {
-        for (int i = 0; i <= GLTEXCACHEADSIZ-1; i++)
+        for (bssize_t i = 0; i <= GLTEXCACHEADSIZ-1; i++)
         {
             for (pthtyp *pth = texcache.list[i]; pth;)
             {
@@ -620,11 +620,11 @@ static void fixtransparency(coltype *dapic, vec2_t dasiz, vec2_t dasiz2, int32_t
 
     //Set transparent pixels to average color of neighboring opaque pixels
     //Doing this makes bilinear filtering look much better for masked textures (I.E. sprites)
-    for (int y=doxy.y; y>=0; y--)
+    for (bssize_t y=doxy.y; y>=0; y--)
     {
         coltype * wpptr = &dapic[y*dasiz2.x+doxy.x];
 
-        for (int x=doxy.x; x>=0; x--,wpptr--)
+        for (bssize_t x=doxy.x; x>=0; x--,wpptr--)
         {
             if (wpptr->a) continue;
 
@@ -898,17 +898,17 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
 
     vec2_t siz2 = siz;
 
-    for (int j=1; (siz2.x > 1) || (siz2.y > 1); j++)
+    for (bssize_t j=1; (siz2.x > 1) || (siz2.y > 1); j++)
     {
         vec2_t const siz3 = { max(1, siz2.x >> 1), max(1, siz2.y >> 1) };  // this came from the GL_ARB_texture_non_power_of_two spec
         //x3 = ((x2+1)>>1); y3 = ((y2+1)>>1);
 
-        for (int y=0; y<siz3.y; y++)
+        for (bssize_t y=0; y<siz3.y; y++)
         {
             coltype *wpptr = &pic[y*siz3.x];
             coltype const *rpptr = &pic[(y<<1)*siz2.x];
 
-            for (int x=0; x<siz3.x; x++,wpptr++,rpptr+=2)
+            for (bssize_t x=0; x<siz3.x; x++,wpptr++,rpptr+=2)
             {
                 int32_t r=0, g=0, b=0, a=0, k=0;
 
@@ -1060,12 +1060,12 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
         {
             const int dofullbright = !(picanm[dapic].sf & PICANM_NOFULLBRIGHT_BIT) && !(globalflags & GLOBAL_NO_GL_FULLBRIGHT);
 
-            for (int y = 0; y < siz.y; y++)
+            for (bssize_t y = 0; y < siz.y; y++)
             {
                 coltype *wpptr = &pic[y * siz.x];
                 int32_t y2 = (y < tsiz.y) ? y : y - tsiz.y;
 
-                for (int x = 0; x < siz.x; x++, wpptr++)
+                for (bssize_t x = 0; x < siz.x; x++, wpptr++)
                 {
                     int32_t dacol;
                     int32_t x2 = (x < tsiz.x) ? x : x-tsiz.x;
@@ -1391,11 +1391,11 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         char al = 255;
         char onebitalpha = 1;
 
-        for (int32_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
+        for (bssize_t y = 0, j = 0; y < tsiz.y; ++y, j += siz.x)
         {
             coltype tcol, *rpptr = &pic[j];
 
-            for (int32_t x = 0; x < tsiz.x; ++x)
+            for (bssize_t x = 0; x < tsiz.x; ++x)
             {
                 tcol.b = cptr[rpptr[x].b];
                 tcol.g = cptr[rpptr[x].g];
@@ -1463,7 +1463,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if (!glinfo.bgra)
         {
-            for (int i=siz.x*siz.y, j=0; j<i; j++)
+            for (bssize_t i=siz.x*siz.y, j=0; j<i; j++)
                 swapchar(&pic[j].r, &pic[j].b);
         }
 
@@ -1650,7 +1650,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
         float f = 0; //f is area of polygon / 2
 
-        for (int i=n-2, j=n-1,k=0; k<n; i=j,j=k,k++)
+        for (bssize_t i=n-2, j=n-1,k=0; k<n; i=j,j=k,k++)
             f += (dpxy[i].x-dpxy[k].x)*dpxy[j].y;
 
         if (f <= 0) return;
@@ -1681,7 +1681,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     float const ozgs = ghalfx * gshang,
                 ozgc = ghalfx * gchang;
 
-    for (int i=0; i<n; ++i)
+    for (bssize_t i=0; i<n; ++i)
     {
         //Up/down rotation
         vec3f_t const orot = { dpxy[i].x - ghalfx,
@@ -1890,7 +1890,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         float du0, du1;
 
         //Find min&max u coordinates (du0...du1)
-        for (int i=0; i<npoints; ++i)
+        for (bssize_t i=0; i<npoints; ++i)
         {
             vec2f_t const o = { px[i], py[i] };
             float const f = (o.x*ngx.u + o.y*ngy.u + ngo.u) / (o.x*ngx.d + o.y*ngy.d + ngo.d);
@@ -1902,7 +1902,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         float const rf = 1.0f / tsiz.x;
         int const ix1 = (int)floorf(du1 * rf);
 
-        for (int ix0 = (int)floorf(du0 * rf); ix0 <= ix1; ++ix0)
+        for (bssize_t ix0 = (int)floorf(du0 * rf); ix0 <= ix1; ++ix0)
         {
             du0 = (float)(ix0 * tsiz.x);        // + uoffs;
             du1 = (float)((ix0 + 1) * tsiz.x);  // + uoffs;
@@ -2001,7 +2001,7 @@ do                                                                              
 
         bglBegin(GL_TRIANGLE_FAN);
 
-        for (int i = 0; i < npoints; ++i)
+        for (bssize_t i = 0; i < npoints; ++i)
         {
             float const r = 1.f / dd[i];
 
@@ -2079,7 +2079,7 @@ do                                                                              
 
 static inline void vsp_finalize_init(int32_t const vcnt)
 {
-    for (int i=0; i<vcnt; ++i)
+    for (bssize_t i=0; i<vcnt; ++i)
     {
         vsp[i].cy[1] = vsp[i+1].cy[0]; vsp[i].ctag = i;
         vsp[i].fy[1] = vsp[i+1].fy[0]; vsp[i].ftag = i;
@@ -2089,7 +2089,7 @@ static inline void vsp_finalize_init(int32_t const vcnt)
     vsp[vcnt-1].n = 0; vsp[0].p = vcnt-1;
 
     //VSPMAX-1 is dummy empty node
-    for (int i=vcnt; i<VSPMAX; i++) { vsp[i].n = i+1; vsp[i].p = i-1; }
+    for (bssize_t i=vcnt; i<VSPMAX; i++) { vsp[i].n = i+1; vsp[i].p = i-1; }
     vsp[VSPMAX-1].n = vcnt; vsp[vcnt].p = VSPMAX-1;
 }
 
@@ -2162,7 +2162,7 @@ static void polymost_domost(float x0, float y0, float x1, float y1)
     float spx[4];
     int32_t  spt[4];
 
-    for (int newi, i=vsp[0].n; i; i=newi)
+    for (bssize_t newi, i=vsp[0].n; i; i=newi)
     {
         newi = vsp[i].n; n0.x = vsp[i].x; n1.x = vsp[newi].x;
 
@@ -2218,7 +2218,7 @@ static void polymost_domost(float x0, float y0, float x1, float y1)
 
         float const rdx = 1.f/dx;
 
-        for (int z=0, vcnt=0; z<=scnt; z++,i=vcnt)
+        for (bssize_t z=0, vcnt=0; z<=scnt; z++,i=vcnt)
         {
             float t;
 
@@ -2532,7 +2532,7 @@ void polymost_editorfunc(void)
             uint64_t bestwdistsq = 0x7fffffff;
             int32_t bestk = -1;
 
-            for (int32_t k = 0; k < sector[searchsector].wallnum; k++)
+            for (bssize_t k = 0; k < sector[searchsector].wallnum; k++)
             {
                 vec2_t const w1 = { wal[k].x, wal[k].y };
                 vec2_t const w2 = { wall[wal[k].point2].x, wall[wal[k].point2].y };
@@ -2797,7 +2797,7 @@ static void calc_ypanning(int32_t refposz, float ryp0, float ryp1,
 
 static inline int32_t testvisiblemost(float const x0, float const x1)
 {
-    for (int i=vsp[0].n, newi; i; i=newi)
+    for (bssize_t i=vsp[0].n, newi; i; i=newi)
     {
         newi = vsp[i].n;
         if ((x0 < vsp[newi].x) && (vsp[i].x < x1) && (vsp[i].ctag >= 0))
@@ -2836,7 +2836,7 @@ static void polymost_drawalls(int32_t const bunch)
     usectortype const * const sec = (usectortype *)&sector[sectnum];
 
     //DRAW WALLS SECTION!
-    for (int z=bunchfirst[bunch]; z>=0; z=bunchp2[z])
+    for (bssize_t z=bunchfirst[bunch]; z>=0; z=bunchp2[z])
     {
         int32_t const wallnum = thewall[z];
 
@@ -2930,7 +2930,7 @@ static void polymost_drawalls(int32_t const bunch)
             calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
 
             //Use clamping for tiled sky textures
-            for (int i=(1<<dapskybits)-1; i>0; i--)
+            for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
                 if (dapskyoff[i] != dapskyoff[i-1])
                     { skyclamphack = r_parallaxskyclamping; break; }
 
@@ -3017,7 +3017,7 @@ static void polymost_drawalls(int32_t const bunch)
                 pow2xsplit = 0;
                 skyclamphack = 1;
 
-                for (int i=0; i<4; i++)
+                for (bssize_t i=0; i<4; i++)
                 {
                     walpos = skywal[i&3];
                     vec2f_t skyp0 = { walpos.y * gcosang - walpos.x * gsinang,
@@ -3222,7 +3222,7 @@ static void polymost_drawalls(int32_t const bunch)
             calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
 
             //Use clamping for tiled sky textures
-            for (int i=(1<<dapskybits)-1; i>0; i--)
+            for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
                 if (dapskyoff[i] != dapskyoff[i-1])
                     { skyclamphack = r_parallaxskyclamping; break; }
 
@@ -3309,7 +3309,7 @@ static void polymost_drawalls(int32_t const bunch)
                 pow2xsplit = 0;
                 skyclamphack = 1;
 
-                for (int i=0; i<4; i++)
+                for (bssize_t i=0; i<4; i++)
                 {
                     walpos = skywal[i&3];
                     vec2f_t skyp0 = { walpos.y * gcosang - walpos.x * gsinang,
@@ -3664,7 +3664,7 @@ void polymost_scansector(int32_t sectnum)
     {
         sectnum = sectorborder[--sectorbordercnt];
 
-        for (int z=headspritesect[sectnum]; z>=0; z=nextspritesect[z])
+        for (bssize_t z=headspritesect[sectnum]; z>=0; z=nextspritesect[z])
         {
             uspritetype const * const spr = (uspritetype *)&sprite[z];
 
@@ -3753,7 +3753,7 @@ void polymost_scansector(int32_t sectnum)
             }
         }
 
-        for (int z=numscansbefore; z<numscans; z++)
+        for (bssize_t z=numscansbefore; z<numscans; z++)
         {
             if ((wall[thewall[z]].point2 != thewall[bunchp2[z]]) || (dxb2[z] > dxb1[bunchp2[z]]))
             {
@@ -3766,7 +3766,7 @@ void polymost_scansector(int32_t sectnum)
             }
         }
 
-        for (int z=bunchfrst; z<numbunches; z++)
+        for (bssize_t z=bunchfrst; z<numbunches; z++)
         {
             int zz;
             for (zz=bunchfirst[z]; bunchp2[zz]>=0; zz=bunchp2[zz]) { }
@@ -3789,7 +3789,7 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
 
     int32_t imin = (px[1] < px[0]);
 
-    for (int i=n-1; i>=2; i--)
+    for (bssize_t i=n-1; i>=2; i--)
         if (px[i] < px[imin]) imin = i;
 
     int32_t vcnt = 1; //0 is dummy solid node
@@ -3941,7 +3941,7 @@ void polymost_drawrooms()
                       { (float)(windowxy2.x + 1 - windowxy1.x + 2), (float)(windowxy2.y + 1 - windowxy1.y + 2), 0 },
                       { 0-1,                                  (float)(windowxy2.y + 1 - windowxy1.y + 2), 0 } };
 
-    for (int i=0; i<4; i++)
+    for (bssize_t i=0; i<4; i++)
     {
         //Tilt rotation (backwards)
         vec2f_t const o = { p[i].x-ghalfx, p[i].y-ghoriz };
@@ -3958,7 +3958,7 @@ void polymost_drawrooms()
 
     vec3f_t p2[6];
 
-    for (int i=0; i<4; i++)
+    for (bssize_t i=0; i<4; i++)
     {
         int const j = i < 3 ? i + 1 : 0;
 
@@ -3978,7 +3978,7 @@ void polymost_drawrooms()
 
     float sx[4], sy[4];
 
-    for (int i = 0; i < n; i++)
+    for (bssize_t i = 0; i < n; i++)
     {
         float const r = ghalfx / p2[i].z;
         sx[i] = p2[i].x * r + ghalfx;
@@ -4023,13 +4023,13 @@ void polymost_drawrooms()
 
         int32_t closest = 0;              //Almost works, but not quite :(
 
-        for (int i=1; i<numbunches; ++i)
+        for (bssize_t i=1; i<numbunches; ++i)
         {
             int const bnch = polymost_bunchfront(i,closest); if (bnch < 0) continue;
             ptempbuf[i] = 1;
             if (!bnch) { ptempbuf[closest] = 1; closest = i; }
         }
-        for (int i=0; i<numbunches; ++i) //Double-check
+        for (bssize_t i=0; i<numbunches; ++i) //Double-check
         {
             if (ptempbuf[i]) continue;
             int const bnch = polymost_bunchfront(i,closest); if (bnch < 0) continue;
@@ -4189,7 +4189,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     int n2 = 0;
     t1 = -((dpxy[0].x - x0) * (csy[2] - csy[0]) - (dpxy[0].y - csy[0]) * (x1 - x0));
 
-    for (int i=0; i<4; i++)
+    for (bssize_t i=0; i<4; i++)
     {
         int j = i + 1;
 
@@ -4218,7 +4218,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     t1 = -((dp2[0].x - x1) * (fsy[0] - fsy[2]) - (dp2[0].y - fsy[2]) * (x0 - x1));
     int n = 0;
 
-    for (int i = 0, j = 1; i < n2; j = ++i + 1)
+    for (bssize_t i = 0, j = 1; i < n2; j = ++i + 1)
     {
         if (j >= n2)
             j = 0;
@@ -4264,7 +4264,7 @@ static inline int32_t polymost_findwall(uspritetype const * const tspr, vec2_t c
     usectortype const * const sect = (usectortype  * )&sector[tspr->sectnum];
     vec2_t n;
 
-    for (int i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
+    for (bssize_t i=sect->wallptr; i<sect->wallptr + sect->wallnum; i++)
     {
         if ((wall[i].nextsector == -1 || ((sector[wall[i].nextsector].ceilingz > (tspr->z - ((tsiz->y * tspr->yrepeat) << 2))) ||
              sector[wall[i].nextsector].floorz < tspr->z)) && !polymost_getclosestpointonwall((const vec2_t *) tspr, i, &n))
@@ -4775,7 +4775,7 @@ void polymost_drawsprite(int32_t snum)
                 vec2f_t pxy[6];
 
                 // Project 3D to 2D
-                for (int j = 0; j < 4; j++)
+                for (bssize_t j = 0; j < 4; j++)
                 {
                     vec2f_t s0 = { (float)(tspr->x - globalposx), (float)(tspr->y - globalposy) };
 
@@ -4816,7 +4816,7 @@ void polymost_drawsprite(int32_t snum)
                 int32_t npoints = 0;
                 vec2f_t p2[6];
 
-                for (int i = 0, j = 1; i < 4; j = ((++i + 1) & 3))
+                for (bssize_t i = 0, j = 1; i < 4; j = ((++i + 1) & 3))
                 {
                     if (pxy[i].y >= SCISDIST)
                         p2[npoints++] = pxy[i];
@@ -4846,7 +4846,7 @@ void polymost_drawsprite(int32_t snum)
 
                 float f = (float)(tspr->z - globalposz + fadjust) * gyxscale;
 
-                for (int j = 0; j < npoints; j++)
+                for (bssize_t j = 0; j < npoints; j++)
                 {
                     float const ryp0 = 1.f / p2[j].y;
                     pxy[j].x = ghalfx * p2[j].x * ryp0 + ghalfx;
@@ -5419,7 +5419,7 @@ static void drawtrap(float x0, float x1, float y0, float x2, float x3, float y1)
     else               { px[1] = x1; py[1] = y0; px[2] = x3; px[3] = x2; py[3] = y1; n = 4; }
 
     bglBegin(GL_TRIANGLE_FAN);
-    for (int i=0; i<n; i++)
+    for (bssize_t i=0; i<n; i++)
     {
         px[i] = min(max(px[i],trapextx[0]),trapextx[1]);
         bglTexCoord2f(px[i]*xtex.u + py[i]*ytex.u + otex.u,
@@ -5578,7 +5578,7 @@ void polymost_fillpolygon(int32_t npoints)
     otex.v = (fxdim * xtex.v + fydim * ytex.v) * -0.5f - fglobalposy * (1.f / 4294967296.f);
 
     //Convert int32_t to float (in-place)
-    for (int i=0; i<npoints; ++i)
+    for (bssize_t i=0; i<npoints; ++i)
     {
         ((float *)rx1)[i] = ((float)rx1[i])*(1.0f/4096.f);
         ((float *)ry1)[i] = ((float)ry1[i])*(1.0f/4096.f);
@@ -5707,12 +5707,12 @@ static int32_t gen_font_glyph_tex(void)
 
     char * cptr = (char *)textfont;
 
-    for (int h=0; h<256; h++)
+    for (bssize_t h=0; h<256; h++)
     {
         char *tptr = tbuf + (h%32)*8 + (h/32)*256*8;
-        for (int i=0; i<8; i++)
+        for (bssize_t i=0; i<8; i++)
         {
-            for (int j=0; j<8; j++)
+            for (bssize_t j=0; j<8; j++)
             {
                 if (cptr[h*8+i] & pow2char[7-j]) tptr[j] = 255;
             }
@@ -5722,12 +5722,12 @@ static int32_t gen_font_glyph_tex(void)
 
     cptr = (char *)smalltextfont;
 
-    for (int h=0; h<256; h++)
+    for (bssize_t h=0; h<256; h++)
     {
         char *tptr = tbuf + 256*64 + (h%32)*8 + (h/32)*256*8;
-        for (int i=1; i<7; i++)
+        for (bssize_t i=1; i<7; i++)
         {
-            for (int j=2; j<6; j++)
+            for (bssize_t j=2; j<6; j++)
             {
                 if (cptr[h*8+i] & pow2char[7-j]) tptr[j-2] = 255;
             }
@@ -5798,7 +5798,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
     bglBegin(GL_QUADS);
 
-    for (int c=0; name[c]; ++c)
+    for (bssize_t c=0; name[c]; ++c)
     {
         if (name[c] == '^' && isdigit(name[c+1]))
         {
@@ -6099,7 +6099,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
 
     int j = (models[mid]->mdnum == 3) ? ((md3model_t *)models[mid])->head.numsurfs : 0;
 
-    for (int i = 0; i <= j; i++) mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
+    for (bssize_t i = 0; i <= j; i++) mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
 }
 
 #else /* if !defined USE_OPENGL */

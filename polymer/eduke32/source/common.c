@@ -203,8 +203,8 @@ void G_InitMultiPsky(int32_t const CLOUDYOCEAN__DYN, int32_t const MOONSKY1__DYN
 
 #if 0
     // This assertion should hold. See note above.
-    for (int i=0; i<pskynummultis; ++i)
-        for (int j=0; j<(1<<multipsky[i].lognumtiles); ++j)
+    for (bssize_t i=0; i<pskynummultis; ++i)
+        for (bssize_t j=0; j<(1<<multipsky[i].lognumtiles); ++j)
             Bassert(multipsky[i].tileofs[j] <= PSKYOFF_MAX);
 #endif
 }
@@ -1020,7 +1020,7 @@ void G_LoadLookups(void)
         if (kread_and_test(fp, paldata, 768))
             return kclose(fp);
 
-        for (int k = 0; k < 768; k++)
+        for (bssize_t k = 0; k < 768; k++)
             paldata[k] <<= 2;
 
         setbasepal(basepalnum, paldata);

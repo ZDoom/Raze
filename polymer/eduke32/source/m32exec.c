@@ -1279,7 +1279,7 @@ skip_check:
                 switch (how)
                 {
                 case ITER_ALLSPRITES:
-                    for (int jj=0; jj<MAXSPRITES && !vm.flags; jj++)
+                    for (bssize_t jj=0; jj<MAXSPRITES && !vm.flags; jj++)
                     {
                         if (sprite[jj].statnum == MAXSTATUS)
                             continue;
@@ -1291,7 +1291,7 @@ skip_check:
                     }
                     break;
                 case ITER_ALLSECTORS:
-                    for (int jj=0; jj<numsectors && !vm.flags; jj++)
+                    for (bssize_t jj=0; jj<numsectors && !vm.flags; jj++)
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
@@ -1299,7 +1299,7 @@ skip_check:
                     }
                     break;
                 case ITER_ALLWALLS:
-                    for (int jj=0; jj<numwalls && !vm.flags; jj++)
+                    for (bssize_t jj=0; jj<numwalls && !vm.flags; jj++)
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;
@@ -1308,7 +1308,7 @@ skip_check:
                     break;
                 case ITER_ACTIVELIGHTS:
 #ifdef POLYMER
-                    for (int jj=0; jj<PR_MAXLIGHTS; jj++)
+                    for (bssize_t jj=0; jj<PR_MAXLIGHTS; jj++)
                     {
                         if (!prlights[jj].flags.active)
                             continue;
@@ -1323,7 +1323,7 @@ skip_check:
                     break;
 
                 case ITER_SELSPRITES:
-                    for (int ii=0; ii<highlightcnt && !vm.flags; ii++)
+                    for (bssize_t ii=0; ii<highlightcnt && !vm.flags; ii++)
                     {
                         int jj = highlight[ii];
                         if (jj&0xc000)
@@ -1338,7 +1338,7 @@ skip_check:
                     }
                     break;
                 case ITER_SELSECTORS:
-                    for (int ii=0; ii<highlightsectorcnt && !vm.flags; ii++)
+                    for (bssize_t ii=0; ii<highlightsectorcnt && !vm.flags; ii++)
                     {
                         int jj=highlightsector[ii];
                         Gv_SetVarX(var, jj);
@@ -1347,7 +1347,7 @@ skip_check:
                     }
                     break;
                 case ITER_SELWALLS:
-                    for (int ii=0; ii<highlightcnt && !vm.flags; ii++)
+                    for (bssize_t ii=0; ii<highlightcnt && !vm.flags; ii++)
                     {
                         int jj=highlight[ii];
                         if (jj&0xc000)
@@ -1365,7 +1365,7 @@ skip_check:
                     // Back up sprite MAXSPRITES-1.
                     Bmemcpy(&lastSpriteBackup, lastSpritePtr, sizeof(uspritetype));
 
-                    for (int ii=0; ii<spritesortcnt && !vm.flags; ii++)
+                    for (bssize_t ii=0; ii<spritesortcnt && !vm.flags; ii++)
                     {
                         vm.pUSprite = lastSpritePtr;
                         Bmemcpy(lastSpritePtr, &tsprite[ii], sizeof(uspritetype));
@@ -1385,7 +1385,7 @@ skip_check:
                 case ITER_SPRITESOFSECTOR:
                     if (parm2 < 0 || parm2 >= MAXSECTORS)
                         goto badindex;
-                    for (int jj=headspritesect[parm2]; jj>=0 && !vm.flags; jj=nextspritesect[jj])
+                    for (bssize_t jj=headspritesect[parm2]; jj>=0 && !vm.flags; jj=nextspritesect[jj])
                     {
                         Gv_SetVarX(var, jj);
                         vm.spriteNum = jj;
@@ -1397,7 +1397,7 @@ skip_check:
                 case ITER_WALLSOFSECTOR:
                     if (parm2 < 0 || parm2 >= MAXSECTORS)
                         goto badindex;
-                    for (int jj=sector[parm2].wallptr, endwall=jj+sector[parm2].wallnum-1;
+                    for (bssize_t jj=sector[parm2].wallptr, endwall=jj+sector[parm2].wallnum-1;
                             jj<=endwall && !vm.flags; jj++)
                     {
                         Gv_SetVarX(var, jj);
@@ -1421,7 +1421,7 @@ skip_check:
                     }
                     break;
                 case ITER_RANGE:
-                    for (int jj=0; jj<parm2 && !vm.flags; jj++)
+                    for (bssize_t jj=0; jj<parm2 && !vm.flags; jj++)
                     {
                         Gv_SetVarX(var, jj);
                         insptr = beg;

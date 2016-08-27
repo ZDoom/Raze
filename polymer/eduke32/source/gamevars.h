@@ -113,7 +113,7 @@ int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 
 FORCE_INLINE void A_ResetVars(int const spriteNum)
 {
-    for (int i = 0; i < g_gameVarCount; ++i)
+    for (bssize_t i = 0; i < g_gameVarCount; ++i)
     {
         if ((aGameVars[i].flags & (GAMEVAR_PERACTOR | GAMEVAR_NODEFAULT)) != GAMEVAR_PERACTOR)
             continue;

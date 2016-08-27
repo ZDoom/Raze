@@ -46,7 +46,7 @@ static inline void clearmapartfilename(void)
 
 static inline void E_RecalcPicSiz(void)
 {
-    for (int i=0; i<MAXTILES; i++)
+    for (bssize_t i=0; i<MAXTILES; i++)
         set_picsiz(i);
 }
 
@@ -93,7 +93,7 @@ void E_MapArt_Clear(void)
         artfilplc = 0L;
     }
 
-    for (int i=0; i<MAXTILES; i++)
+    for (bssize_t i=0; i<MAXTILES; i++)
     {
         if (tilefilenum[i] >= MAXARTFILES_BASE)
         {
@@ -147,7 +147,7 @@ void E_MapArt_Setup(const char *filename)
     ALLOC_MAPART_ARRAY(tilesiz, g_bakTileSiz);
     ALLOC_MAPART_ARRAY(picanm, g_bakPicAnm);
 
-    for (int i=MAXARTFILES_BASE; i<MAXARTFILES_TOTAL; i++)
+    for (bssize_t i=MAXARTFILES_BASE; i<MAXARTFILES_TOTAL; i++)
     {
         int ret = E_ReadArtFileOfID(i);
 
@@ -347,7 +347,7 @@ void E_ReadArtFileTileInfo(int32_t const fil, artheader_t const * const local)
     kread(fil, tilesizy, local->numtiles*sizeof(int16_t));
     kread(fil, &picanm[local->tilestart], local->numtiles*sizeof(picanm_t));
 
-    for (int i=local->tilestart; i<=local->tileend; i++)
+    for (bssize_t i=local->tilestart; i<=local->tileend; i++)
     {
         tilesiz[i].x = B_LITTLE16(tilesizx[i-local->tilestart]);
         tilesiz[i].y = B_LITTLE16(tilesizy[i-local->tilestart]);
@@ -364,7 +364,7 @@ void E_ReadArtFileIntoFakeData(int32_t const fil, artheader_t const * const loca
     char *buffer = NULL;
     int32_t buffersize = 0;
 
-    for (int i=local->tilestart; i<=local->tileend; i++)
+    for (bssize_t i=local->tilestart; i<=local->tileend; i++)
     {
         int const dasiz = tilesiz[i].x * tilesiz[i].y;
 
@@ -435,7 +435,7 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
         {
             // Check whether we can evict existing tiles to make place for
             // per-map ART ones.
-            for (int32_t i=local.tilestart; i<=local.tileend; i++)
+            for (bssize_t i=local.tilestart; i<=local.tileend; i++)
             {
                 // Tiles having dummytile replacements or those that are
                 // cache1d-locked can't be replaced.
@@ -463,7 +463,7 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
         {
             int offscount = 4+4+4+4+(local.numtiles<<3);
 
-            for (int i=local.tilestart; i<=local.tileend; ++i)
+            for (bssize_t i=local.tilestart; i<=local.tileend; ++i)
             {
                 int const dasiz = tilesiz[i].x * tilesiz[i].y;
 
@@ -498,7 +498,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
 
     //    artsize = 0;
 
-    for (int tilefilei=0; tilefilei<MAXARTFILES_BASE; tilefilei++)
+    for (bssize_t tilefilei=0; tilefilei<MAXARTFILES_BASE; tilefilei++)
         E_ReadArtFileOfID(tilefilei);
 
     Bmemset(gotpic, 0, sizeof(gotpic));
@@ -635,11 +635,11 @@ static void postloadtile(int16_t tilenume)
 // Assumes pic has been initialized to zero.
 void E_RenderArtDataIntoBuffer(palette_t * const pic, uint8_t const * const buf, int32_t const bufsizx, int32_t const sizx, int32_t const sizy)
 {
-    for (int y = 0; y < sizy; ++y)
+    for (bssize_t y = 0; y < sizy; ++y)
     {
         palette_t * const picrow = &pic[bufsizx * y];
 
-        for (int x = 0; x < sizx; ++x)
+        for (bssize_t x = 0; x < sizx; ++x)
         {
             uint8_t index = buf[sizy * x + y];
 

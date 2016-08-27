@@ -565,7 +565,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
 
         int32_t i = 0, dst = INT32_MAX;
 
-        for (int32_t k=g_mirrorCount-1; k>=0; k--)
+        for (bssize_t k=g_mirrorCount-1; k>=0; k--)
         {
             const int32_t j =
                 klabs(wall[g_mirrorWall[k]].x - x) +
@@ -582,7 +582,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
             int32_t startwall = sector[g_mirrorSector[i]].wallptr;
             int32_t endwall = startwall + sector[g_mirrorSector[i]].wallnum;
 
-            for (int32_t k=startwall; k<endwall; k++)
+            for (bssize_t k=startwall; k<endwall; k++)
             {
                 int32_t j = wall[k].nextwall;
                 if (j >= 0 && (wall[j].cstat&32) && wall[j].overpicnum==MIRROR)  // cmp. premap.c
@@ -852,7 +852,7 @@ void G_DrawRooms(int playerNum, int smoothRatio)
                 {
                     //Block off unscreen section of 90ø tilted screen
                     int const j = tiltcx-(60*tiltcs);
-                    for (int i=(60*tiltcs)-1; i>=0; i--)
+                    for (bssize_t i=(60*tiltcs)-1; i>=0; i--)
                     {
                         startumost[i] = 1;
                         startumost[i+j] = 1;
@@ -2897,7 +2897,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     {
                         int const startwall = sector[sectNum].wallptr;
                         int const endwall   = startwall + sector[sectNum].wallnum;
-                        for (int j = startwall; j < endwall; j++)
+                        for (bssize_t j = startwall; j < endwall; j++)
                         {
                             int const nextSect = wall[j].nextsector;
 
@@ -2966,7 +2966,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 int const startWall   = sector[sectNum].wallptr;
                 int const endWall     = startWall + sector[sectNum].wallnum;
 
-                for (int findWall=startWall; findWall<endWall; findWall++)
+                for (bssize_t findWall=startWall; findWall<endWall; findWall++)
                 {
                     int const x = wall[findWall].x;
                     int const y = wall[findWall].y;
@@ -2983,7 +2983,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
                 closestDist = INT32_MAX;
 
-                for (int findWall=startWall; findWall<endWall; findWall++)
+                for (bssize_t findWall=startWall; findWall<endWall; findWall++)
                 {
                     int const x = wall[findWall].x;
                     int const y = wall[findWall].y;
@@ -3017,7 +3017,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 int const startWall = sector[sectNum].wallptr;
                 int const endWall = startWall+sector[sectNum].wallnum;
 
-                for (int w=startWall; w<endWall; ++w)
+                for (bssize_t w=startWall; w<endWall; ++w)
                 {
                     if (!(wall[w].hitag & 1))
                         wall[w].shade = pSprite->shade;
@@ -3041,7 +3041,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 int const startWall = sector[sectNum].wallptr;
                 int const endWall   = startWall + sector[sectNum].wallnum;
 
-                for (int w = startWall; w < endWall; ++w)
+                for (bssize_t w = startWall; w < endWall; ++w)
                     if (wall[w].hitag == 0)
                         wall[w].hitag = 9999;
 
@@ -3064,7 +3064,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 int const startWall = sector[sectNum].wallptr;
                 int const endWall   = startWall + sector[sectNum].wallnum;
 
-                for (int w = startWall; w < endWall; ++w)
+                for (bssize_t w = startWall; w < endWall; ++w)
                     if (wall[w].hitag == 0)
                         wall[w].hitag = 9999;
 
@@ -3083,7 +3083,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 pSprite->owner = sector[sectNum].ceilingpal << 8;
                 pSprite->owner |= sector[sectNum].floorpal;
 
-                for (int w = startWall; w < endWall; ++w)
+                for (bssize_t w = startWall; w < endWall; ++w)
                     if (wall[w].shade > T4(newSprite))
                         T4(newSprite) = wall[w].shade;
             }
@@ -3102,7 +3102,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     int const startWall = sector[sectNum].wallptr;
                     int const endWall   = startWall + sector[sectNum].wallnum;
 
-                    for (int w = startWall; w < endWall; ++w)
+                    for (bssize_t w = startWall; w < endWall; ++w)
                         if (wall[w].shade > T3(newSprite))
                             T3(newSprite) = wall[w].shade;
 
@@ -3161,7 +3161,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     int const endWall = startWall+sector[sectNum].wallnum;
 
                     T2(newSprite) = tempwallptr;
-                    for (int w = startWall; w < endWall; ++w)
+                    for (bssize_t w = startWall; w < endWall; ++w)
                     {
                         g_origins[tempwallptr].x = wall[w].x - pSprite->x;
                         g_origins[tempwallptr].y = wall[w].y - pSprite->y;
@@ -4616,7 +4616,7 @@ void G_HandleLocalKeys(void)
         int ridiculeNum = 0;
 
         // NOTE: sc_F1 .. sc_F10 are contiguous. sc_F11 is not sc_F10+1.
-        for (int j=sc_F1; j<=sc_F10; j++)
+        for (bssize_t j=sc_F1; j<=sc_F10; j++)
             if (KB_UnBoundKeyPressed(j))
             {
                 KB_ClearKeyDown(j);
@@ -5411,7 +5411,7 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     if (pScript)
         parsedefinitions_game(pScript, firstPass);
 
-    for (int i=0; i < g_defModulesNum; ++i)
+    for (bssize_t i=0; i < g_defModulesNum; ++i)
         parsedefinitions_game_include(g_defModules[i], NULL, "null", firstPass);
 
     if (pScript)
@@ -5620,19 +5620,19 @@ static void A_InitEnemyFlags(void)
     int NoWaterDipEnemies[] = { OCTABRAIN, COMMANDER, DRONE };
     int GreenSlimeFoodEnemies[] = { LIZTROOP, LIZMAN, PIGCOP, NEWBEAST };
 
-    for (int i=GREENSLIME; i<=GREENSLIME+7; i++)
+    for (bssize_t i=GREENSLIME; i<=GREENSLIME+7; i++)
         SETFLAG(i, SFLAG_HARDCODED_BADGUY);
 
-    for (int i=ARRAY_SIZE(DukeEnemies)-1; i>=0; i--)
+    for (bssize_t i=ARRAY_SIZE(DukeEnemies)-1; i>=0; i--)
         SETFLAG(DukeEnemies[i], SFLAG_HARDCODED_BADGUY);
 
-    for (int i=ARRAY_SIZE(SolidEnemies)-1; i>=0; i--)
+    for (bssize_t i=ARRAY_SIZE(SolidEnemies)-1; i>=0; i--)
         SETFLAG(SolidEnemies[i], SFLAG_NODAMAGEPUSH);
 
-    for (int i=ARRAY_SIZE(NoWaterDipEnemies)-1; i>=0; i--)
+    for (bssize_t i=ARRAY_SIZE(NoWaterDipEnemies)-1; i>=0; i--)
         SETFLAG(NoWaterDipEnemies[i], SFLAG_NOWATERDIP);
 
-    for (int i=ARRAY_SIZE(GreenSlimeFoodEnemies)-1; i>=0; i--)
+    for (bssize_t i=ARRAY_SIZE(GreenSlimeFoodEnemies)-1; i>=0; i--)
         SETFLAG(GreenSlimeFoodEnemies[i], SFLAG_GREENSLIMEFOOD);
 }
 #undef SETFLAG
@@ -6120,7 +6120,7 @@ int app_main(int argc, char const * const * argv)
 
     // used with binds for fast function lookup
     hash_init(&h_gamefuncs);
-    for (int i=NUMGAMEFUNCTIONS-1; i>=0; i--)
+    for (bssize_t i=NUMGAMEFUNCTIONS-1; i>=0; i--)
     {
         char *str = Bstrtolower(Xstrdup(gamefunctions[i]));
         hash_add(&h_gamefuncs,gamefunctions[i],i,0);
@@ -6246,11 +6246,11 @@ int app_main(int argc, char const * const * argv)
     }
     else
     {
-        for (int i=0; i<ud.multimode-1; i++)
+        for (bssize_t i=0; i<ud.multimode-1; i++)
             connectpoint2[i] = i+1;
         connectpoint2[ud.multimode-1] = -1;
 
-        for (int i=1; i<ud.multimode; i++)
+        for (bssize_t i=1; i<ud.multimode; i++)
             g_player[i].playerquitflag = 1;
     }
 
@@ -6258,7 +6258,7 @@ int app_main(int argc, char const * const * argv)
 
     // NOTE: Allocating the DukePlayer_t structs has to be before compiling scripts,
     // because in Lunatic, the {pipe,trip}bomb* members are initialized.
-    for (int i=0; i<MAXPLAYERS; i++)
+    for (bssize_t i=0; i<MAXPLAYERS; i++)
         G_MaybeAllocPlayer(i);
 
     G_Startup(); // a bunch of stuff including compiling cons
@@ -6267,9 +6267,9 @@ int app_main(int argc, char const * const * argv)
 
     g_player[myconnectindex].ps->palette = BASEPAL;
 
-    for (int i=1, j=numplayers; j<ud.multimode; j++)
+    for (bssize_t i=1, j=numplayers; j<ud.multimode; j++)
     {
-        Bsprintf(g_player[j].user_name,"PLAYER %d",j+1);
+        Bsprintf(g_player[j].user_name,"PLAYER %zd",j+1);
         g_player[j].ps->team = g_player[j].pteam = i;
         g_player[j].ps->weaponswitch = 3;
         g_player[j].ps->auto_aim = 0;
@@ -6289,7 +6289,7 @@ int app_main(int argc, char const * const * argv)
         loaddefinitions_game(defsfile, FALSE);
     }
 
-    for (int i=0; i < g_defModulesNum; ++i)
+    for (bssize_t i=0; i < g_defModulesNum; ++i)
         Bfree(g_defModules[i]);
     DO_FREE_AND_NULL(g_defModules);
     g_defModulesNum = 0;
@@ -6366,7 +6366,7 @@ int app_main(int argc, char const * const * argv)
         CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
 
         // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-        for (int i=0; i<joynumaxes; i++)
+        for (bssize_t i=0; i<joynumaxes; i++)
             setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
     }
 
@@ -6375,7 +6375,7 @@ int app_main(int argc, char const * const * argv)
     if (clipMapError > 0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", clipMapError);
 
-    for (int i=0; i < g_clipMapFilesNum; ++i)
+    for (bssize_t i=0; i < g_clipMapFilesNum; ++i)
         Bfree(g_clipMapFiles[i]);
     DO_FREE_AND_NULL(g_clipMapFiles);
     g_clipMapFilesNum = 0;
@@ -6384,7 +6384,7 @@ int app_main(int argc, char const * const * argv)
     // check if the minifont will support lowercase letters (3136-3161)
     // there is room for them in tiles012.art between "[\]^_." and "{|}~"
     minitext_lowercase = 1;
-    for (int i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
+    for (bssize_t i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
         minitext_lowercase &= tile_exists(i);
 
     system_getcvars();
@@ -6489,7 +6489,7 @@ MAIN_LOOP_RESTART:
                 ud.m_respawn_monsters = 1;
             else ud.m_respawn_monsters = 0;
 
-            for (int TRAVERSE_CONNECT(i))
+            for (bssize_t TRAVERSE_CONNECT(i))
             {
                 P_ResetWeapons(i);
                 P_ResetInventory(i);
@@ -6716,14 +6716,15 @@ int G_DoMoveThings(void)
     if (g_RTSPlaying > 0)
         g_RTSPlaying--;
 
-    for (int i=0; i<MAXUSERQUOTES; i++)
+    for (bssize_t i=0; i<MAXUSERQUOTES; i++)
+    {
         if (user_quote_time[i])
         {
-            user_quote_time[i]--;
-            if (user_quote_time[i] > ud.msgdisptime)
+            if (--user_quote_time[i] > ud.msgdisptime)
                 user_quote_time[i] = ud.msgdisptime;
             if (!user_quote_time[i]) pub = NUMPAGES;
         }
+    }
 
     // Name display when aiming at opponents
     if (ud.idplayers && (g_netServer || ud.multimode > 1)
@@ -6735,14 +6736,14 @@ int G_DoMoveThings(void)
         hitdata_t hitData;
         DukePlayer_t *const pPlayer = g_player[screenpeek].ps;
 
-        for (int TRAVERSE_CONNECT(i))
+        for (bssize_t TRAVERSE_CONNECT(i))
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
         hitscan((vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(pPlayer->ang + 512) & 2047], sintable[pPlayer->ang & 2047],
                 (100 - pPlayer->horiz - pPlayer->horizoff) << 11, &hitData, 0xffff0030);
 
-        for (int TRAVERSE_CONNECT(i))
+        for (bssize_t TRAVERSE_CONNECT(i))
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
@@ -6782,7 +6783,7 @@ int G_DoMoveThings(void)
     if (g_netServer || g_netClient)
         randomseed = ticrandomseed;
 
-    for (int TRAVERSE_CONNECT(i))
+    for (bssize_t TRAVERSE_CONNECT(i))
         Bmemcpy(g_player[i].inputBits, &inputfifo[(g_netServer && myconnectindex == i)][i], sizeof(input_t));
 
     G_UpdateInterpolations();
@@ -6816,7 +6817,7 @@ int G_DoMoveThings(void)
         A_MoveDummyPlayers();//ST 13
     }
 
-    for (int TRAVERSE_CONNECT(i))
+    for (bssize_t TRAVERSE_CONNECT(i))
     {
         if (g_player[i].inputBits->extbits&(1<<6))
         {
@@ -6871,7 +6872,7 @@ void A_SpawnWallGlass(int spriteNum,int wallNum,int glassCnt)
 {
     if (wallNum < 0)
     {
-        for (int j = glassCnt - 1; j >= 0; --j)
+        for (bssize_t j = glassCnt - 1; j >= 0; --j)
         {
             int const a = SA(spriteNum) - 256 + (krand() & 511) + 1024;
             A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum), GLASSPIECES + (j % 3), -32, 36, 36, a,

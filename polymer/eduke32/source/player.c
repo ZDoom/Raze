@@ -114,7 +114,7 @@ static void A_DoWaterTracers(int x1, int y1, int z1, int x2, int y2, int z2, int
     vec3_t const  v = { tabledivide32_noinline(x2 - x1, n + 1), tabledivide32_noinline(y2 - y1, n + 1),
                         tabledivide32_noinline(z2 - z1, n + 1) };
 
-    for (int i=n; i>0; i--)
+    for (bssize_t i=n; i>0; i--)
     {
         x1 += v.x;
         y1 += v.y;
@@ -157,7 +157,7 @@ static void A_HitscanProjTrail(const vec3_t *startPos, const vec3_t *endPos, int
 
     int32_t j;
 
-    for (int i = pProj->tnum; i > 0; --i)
+    for (bssize_t i = pProj->tnum; i > 0; --i)
     {
         spawnPos.x += increment.x;
         spawnPos.y += increment.y;
@@ -241,12 +241,12 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
     int lastDist     = INT32_MAX;
     int returnSprite = -1;
 
-    for (int k=0; k<4; k++)
+    for (bssize_t k=0; k<4; k++)
     {
         if (returnSprite >= 0)
             break;
 
-        for (int spriteNum=headspritestat[aimstats[k]]; spriteNum >= 0; spriteNum=nextspritestat[spriteNum])
+        for (bssize_t spriteNum=headspritestat[aimstats[k]]; spriteNum >= 0; spriteNum=nextspritestat[spriteNum])
         {
             if ((sprite[spriteNum].xrepeat > 0 && sprite[spriteNum].extra >= 0 &&
                  (sprite[spriteNum].cstat & (257 + 32768)) == 257) ||
@@ -561,7 +561,7 @@ static int SectorContainsSE13(int sectNum)
 {
     if (sectNum >= 0)
     {
-        for (int SPRITES_OF_SECT(sectNum, i))
+        for (bssize_t SPRITES_OF_SECT(sectNum, i))
         {
             if (sprite[i].statnum == STAT_EFFECTOR && sprite[i].lotag == SE_13_EXPLOSIVE)
                 return 1;
@@ -1630,7 +1630,7 @@ static void P_DisplaySpit(void)
 
     int const rotY = loogCounter<<2;
 
-    for (int i=0; i < pPlayer->numloogs; i++)
+    for (bssize_t i=0; i < pPlayer->numloogs; i++)
     {
         int const rotAng = klabs(sintable[((loogCounter + i) << 5) & 2047]) >> 5;
         int const rotZoom  = 4096 + ((loogCounter + i) << 9);
@@ -1898,7 +1898,7 @@ static void P_FireWeapon(int playerNum)
     //        OSD_Printf("doing %d %d %d\n",PWEAPON(snum, p->curr_weapon, Shoots),p->curr_weapon,snum);
     A_Shoot(pPlayer->i, PWEAPON(playerNum, pPlayer->curr_weapon, Shoots));
 
-    for (int burstFire = PWEAPON(playerNum, pPlayer->curr_weapon, ShotsPerBurst) - 1; burstFire > 0; --burstFire)
+    for (bssize_t burstFire = PWEAPON(playerNum, pPlayer->curr_weapon, ShotsPerBurst) - 1; burstFire > 0; --burstFire)
     {
         if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_FIREEVERYOTHER)
         {
@@ -3595,7 +3595,7 @@ int P_FindOtherPlayer(int playerNum, int32_t *pDist)
     int closestPlayer     = playerNum;
     int closestPlayerDist = INT32_MAX;
 
-    for (int TRAVERSE_CONNECT(otherPlayer))
+    for (bssize_t TRAVERSE_CONNECT(otherPlayer))
     {
         if (playerNum != otherPlayer && sprite[g_player[otherPlayer].ps->i].extra > 0)
         {
@@ -4262,7 +4262,7 @@ static void P_ProcessWeapon(int playerNum)
 
 void P_EndLevel(void)
 {
-    for (int TRAVERSE_CONNECT(playerNum))
+    for (bssize_t TRAVERSE_CONNECT(playerNum))
         g_player[playerNum].ps->gm = MODE_EOL;
 
     if (ud.from_bonus)
@@ -4295,7 +4295,7 @@ static int P_DoFist(DukePlayer_t *pPlayer)
     {
         if (pPlayer->buttonpalette && ud.from_bonus == 0)
         {
-            for (int TRAVERSE_CONNECT(playerNum))
+            for (bssize_t TRAVERSE_CONNECT(playerNum))
                 g_player[playerNum].ps->gm = MODE_EOL;
 
             ud.from_bonus = ud.level_number + 1;

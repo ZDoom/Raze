@@ -201,10 +201,10 @@ void texcache_freeptrs(void)
     if (!texcache.iptrs)
         return;
 
-    for (int i = 0; i < texcache.numentries; i++)
+    for (bssize_t i = 0; i < texcache.numentries; i++)
         if (texcache.iptrs[i])
         {
-            for (int ii = texcache.numentries - 1; ii >= 0; ii--)
+            for (bssize_t ii = texcache.numentries - 1; ii >= 0; ii--)
                 if (i != ii && texcache.iptrs[ii] == texcache.iptrs[i])
                 {
                     /*OSD_Printf("removing duplicate cacheptr %d\n",ii);*/
@@ -689,7 +689,7 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr)
     UNREFERENCED_PARAMETER(head);
 #endif
 
-    for (int32_t level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
+    for (bssize_t level = 0; level==0 || (pict.xdim > 1 || pict.ydim > 1); level++)
     {
         if (texcache_readdata(&pict, sizeof(texcachepicture)))
         {

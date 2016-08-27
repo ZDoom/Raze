@@ -142,7 +142,7 @@ static void _MIDI_ResetTracks(void)
     _MIDI_Context         = 0;
 
     track *ptr = _MIDI_TrackPtr;
-    for (int i = 0; i < _MIDI_NumTracks; ++i)
+    for (bssize_t i = 0; i < _MIDI_NumTracks; ++i)
     {
         ptr->pos                    = ptr->start;
         ptr->delay                  = _MIDI_ReadDelta(ptr);
@@ -517,7 +517,7 @@ static int32_t _MIDI_SendControlChange(int32_t channel, int32_t c1, int32_t c2)
 
 int32_t MIDI_AllNotesOff(void)
 {
-    for (int channel = 0; channel < NUM_MIDI_CHANNELS; channel++)
+    for (bssize_t channel = 0; channel < NUM_MIDI_CHANNELS; channel++)
     {
         _MIDI_SendControlChange(channel, 0x40, 0);
         _MIDI_SendControlChange(channel, MIDI_ALL_NOTES_OFF, 0);
@@ -542,7 +542,7 @@ static void _MIDI_SetChannelVolume(int32_t channel, int32_t volume)
 
 static void _MIDI_SendChannelVolumes(void)
 {
-    for (int channel = 0; channel < NUM_MIDI_CHANNELS; channel++)
+    for (bssize_t channel = 0; channel < NUM_MIDI_CHANNELS; channel++)
         _MIDI_SetChannelVolume(channel, _MIDI_ChannelVolume[channel]);
 }
 
@@ -550,7 +550,7 @@ int32_t MIDI_Reset(void)
 {
     MIDI_AllNotesOff();
 
-    for (int channel = 0; channel < NUM_MIDI_CHANNELS; channel++)
+    for (bssize_t channel = 0; channel < NUM_MIDI_CHANNELS; channel++)
     {
         _MIDI_SendControlChange(channel, MIDI_RESET_ALL_CONTROLLERS, 0);
         _MIDI_SendControlChange(channel, MIDI_RPN_MSB, MIDI_PITCHBEND_MSB);

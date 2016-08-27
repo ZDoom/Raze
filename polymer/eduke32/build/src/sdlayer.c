@@ -461,7 +461,7 @@ int32_t main(int32_t argc, char *argv[])
     const char **buildargv = (const char **) Bmalloc(sizeof(char *)*(buildargc+1));
     char *wp = argvbuf;
 
-    for (int i=0; i<buildargc; i++, wp++)
+    for (bssize_t i=0; i<buildargc; i++, wp++)
     {
         buildargv[i] = wp;
         while (*wp) wp++;

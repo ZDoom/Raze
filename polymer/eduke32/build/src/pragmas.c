@@ -18,7 +18,7 @@ void initdivtables(void)
     libdivide_s64_t d;
     libdivide_s32_t d32;
 
-    for (int i=1; i<DIVTABLESIZE; i++)
+    for (bssize_t i=1; i<DIVTABLESIZE; i++)
     {
         d = libdivide_s64_gen(i);
         divtable64[i].magic = d.magic, divtable64[i].more = d.more;

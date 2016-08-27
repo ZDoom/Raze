@@ -61,7 +61,7 @@ void sethlinesizes(int32_t logx, int32_t logy, intptr_t bufplc)
 { glogx = logx; glogy = logy; gbuf = (char *)bufplc; }
 void setpalookupaddress(char *paladdr) { ghlinepal = paladdr; }
 void setuphlineasm4(int32_t bxinc, int32_t byinc) { gbxinc = bxinc; gbyinc = byinc; }
-void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, uint32_t bx, intptr_t p)
+void hlineasm4(bssize_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, uint32_t bx, intptr_t p)
 {
     if (!skiploadincs) { gbxinc = asm1; gbyinc = asm2; }
 
@@ -103,7 +103,7 @@ void hlineasm4(int32_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, 
 ///// Sloped ceiling/floor vertical line functions /////
 extern int32_t sloptable[16384];
 
-void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, int32_t cnt, int32_t bx, int32_t by)
+void slopevlin(intptr_t p, int32_t i, intptr_t slopaloffs, bssize_t cnt, int32_t bx, int32_t by)
 {
     intptr_t * A_C_RESTRICT slopalptr;
     int32_t bz, bzinc;
@@ -140,7 +140,7 @@ static inline int32_t getpix(int32_t logy, const char *buf, uint32_t vplc)
 
 void setupvlineasm(int32_t neglogy) { glogy = neglogy; }
 // cnt+1 loop iterations!
-int32_t vlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
+int32_t vlineasm1(int32_t vinc, intptr_t paloffs, bssize_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
     const char *const A_C_RESTRICT buf = (char *)bufplc;
     const char *const A_C_RESTRICT pal = (char *)paloffs;
@@ -226,7 +226,7 @@ typedef uint32_t uint32_vec4 __attribute__ ((vector_size (16)));
 
 #ifdef CLASSIC_NONPOW2_YSIZE_WALLS
 // cnt >= 1
-static void vlineasm4nlogy(int32_t cnt, char *p, char *const A_C_RESTRICT * pal, char *const A_C_RESTRICT * buf,
+static void vlineasm4nlogy(bssize_t cnt, char *p, char *const A_C_RESTRICT * pal, char *const A_C_RESTRICT * buf,
 # ifdef USE_VECTOR_EXT
     uint32_vec4 vplc, const uint32_vec4 vinc)
 # else
@@ -258,7 +258,7 @@ static void vlineasm4nlogy(int32_t cnt, char *p, char *const A_C_RESTRICT * pal,
 #endif
 
 // cnt >= 1
-void vlineasm4(int32_t cnt, char *p)
+void vlineasm4(bssize_t cnt, char *p)
 {
     char * const A_C_RESTRICT pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
     char * const A_C_RESTRICT buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
@@ -350,7 +350,7 @@ void setupmvlineasm(int32_t neglogy, int32_t dosaturate)
 }
 
 // cnt+1 loop iterations!
-int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
+int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, bssize_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
     char ch;
 
@@ -391,7 +391,7 @@ int32_t mvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, i
 }
 
 // cnt >= 1
-void mvlineasm4(int32_t cnt, char *p)
+void mvlineasm4(bssize_t cnt, char *p)
 {
     char *const A_C_RESTRICT pal[4] = {(char *)palookupoffse[0], (char *)palookupoffse[1], (char *)palookupoffse[2], (char *)palookupoffse[3]};
     char *const A_C_RESTRICT buf[4] = {(char *)bufplce[0], (char *)bufplce[1], (char *)bufplce[2], (char *)bufplce[3]};
@@ -483,7 +483,7 @@ void setuptvlineasm(int32_t neglogy, int32_t dosaturate)
 
 #if !defined USE_ASM64
 // cnt+1 loop iterations!
-int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, int32_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
+int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, bssize_t cnt, uint32_t vplc, intptr_t bufplc, intptr_t p)
 {
     char ch;
 
@@ -540,7 +540,7 @@ void tvlineasm2(uint32_t vplc2, int32_t vinc1, intptr_t bufplc1, intptr_t bufplc
 {
     char ch;
 
-    int32_t cnt = tabledivide32(asm2-p-1, bpl);  // >= 1
+    bssize_t cnt = tabledivide32(asm2-p-1, bpl);  // >= 1
     const int32_t vinc2 = asm1;
 
     const char *const A_C_RESTRICT buf1 = (char *)bufplc1;
@@ -671,7 +671,7 @@ void setupspritevline(intptr_t paloffs, int32_t bxinc, int32_t byinc, int32_t ys
     gbyinc = byinc;
     glogy = ysiz;
 }
-void spritevline(int32_t bx, int32_t by, int32_t cnt, intptr_t bufplc, intptr_t p)
+void spritevline(int32_t bx, int32_t by, bssize_t cnt, intptr_t bufplc, intptr_t p)
 {
     gbuf = (char *)bufplc;
     for (; cnt>1; cnt--)
@@ -691,7 +691,7 @@ void msetupspritevline(intptr_t paloffs, int32_t bxinc, int32_t byinc, int32_t y
     gbyinc = byinc;
     glogy = ysiz;
 }
-void mspritevline(int32_t bx, int32_t by, int32_t cnt, intptr_t bufplc, intptr_t p)
+void mspritevline(int32_t bx, int32_t by, bssize_t cnt, intptr_t bufplc, intptr_t p)
 {
     char ch;
 
@@ -713,7 +713,7 @@ void tsetupspritevline(intptr_t paloffs, int32_t bxinc, int32_t byinc, int32_t y
     gbyinc = byinc;
     glogy = ysiz;
 }
-void tspritevline(int32_t bx, int32_t by, int32_t cnt, intptr_t bufplc, intptr_t p)
+void tspritevline(int32_t bx, int32_t by, bssize_t cnt, intptr_t bufplc, intptr_t p)
 {
     char ch;
 
@@ -761,7 +761,7 @@ void drawslab(int32_t dx, int32_t v, int32_t dy, int32_t vi, intptr_t vptr, intp
 }
 
 #if 0
-void stretchhline(intptr_t p0, int32_t u, int32_t cnt, int32_t uinc, intptr_t rptr, intptr_t p)
+void stretchhline(intptr_t p0, int32_t u, bssize_t cnt, int32_t uinc, intptr_t rptr, intptr_t p)
 {
     p0 = p-(cnt<<2);
     do

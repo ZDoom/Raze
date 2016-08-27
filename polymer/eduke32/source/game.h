@@ -502,7 +502,7 @@ static inline int G_GetViewscreenSizeShift(const uspritetype *tspr)
     static const int mask = (1<<VIEWSCREENFACTOR)-1;
     const int rem = (tspr->xrepeat & mask) | (tspr->yrepeat & mask);
 
-    for (int i=0; i < VIEWSCREENFACTOR; i++)
+    for (bssize_t i=0; i < VIEWSCREENFACTOR; i++)
         if (rem & (1<<i))
             return i;
 

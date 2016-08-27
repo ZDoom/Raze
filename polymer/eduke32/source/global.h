@@ -194,7 +194,7 @@ EXTERN_INLINE_HEADER void G_RestoreInterpolations(void);
 
 EXTERN_INLINE void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
 {
-    for (int i=g_numInterpolations-1; i>=0; i--) oldipos[i] = *curipos[i];
+    for (bssize_t i=g_numInterpolations-1; i>=0; i--) oldipos[i] = *curipos[i];
 }
 
 EXTERN_INLINE void G_RestoreInterpolations(void)  //Stick at end of drawscreen

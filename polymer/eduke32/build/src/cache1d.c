@@ -311,7 +311,7 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 void agecache(void)
 {
 #ifndef DEBUG_ALLOCACHE_AS_MALLOC
-    int32_t cnt = (cacnum>>4);
+    bssize_t cnt = (cacnum>>4);
 
     if (agecount >= cacnum)
         agecount = cacnum-1;
@@ -792,7 +792,7 @@ int32_t initgroupfile(const char *filename)
         kread_grp(numgroupfiles,gfilelist[numgroupfiles],gnumfiles[numgroupfiles]<<4);
 
         int32_t j = (gnumfiles[numgroupfiles]+1)<<4, k;
-        for (int32_t i=0; i<gnumfiles[numgroupfiles]; i++)
+        for (bssize_t i=0; i<gnumfiles[numgroupfiles]; i++)
         {
             k = B_LITTLE32(*((int32_t *)&gfilelist[numgroupfiles][(i<<4)+12]));
             gfilelist[numgroupfiles][(i<<4)+12] = 0;
@@ -880,7 +880,7 @@ int32_t initgroupfile(const char *filename)
         gfileoffs[numgroupfiles] = (int32_t *)Xmalloc((gnumfiles[numgroupfiles]+1)<<2);
 
         int32_t j = (version == 2 ? 267 : 254) + (numfiles * 121), k;
-        for (int32_t i = 0; i < numfiles; i++)
+        for (bssize_t i = 0; i < numfiles; i++)
         {
             // get the string length
             kread_grp(numgroupfiles, &temp, 1);
@@ -1056,12 +1056,12 @@ static int32_t kopen_internal(const char *filename, char **lastpfn, char searchf
     UNREFERENCED_PARAMETER(tryzip);
 #endif
 
-    for (int32_t k = searchfirst != 1 ? numgroupfiles-1 : 0; k >= 0; --k)
+    for (bssize_t k = searchfirst != 1 ? numgroupfiles-1 : 0; k >= 0; --k)
     {
         if (groupfil[k] < 0)
             continue;
 
-        for (int32_t i = gnumfiles[k]-1; i >= 0; --i)
+        for (bssize_t i = gnumfiles[k]-1; i >= 0; --i)
         {
             char const * const gfileptr = (char *)&gfilelist[k][i<<4];
 
@@ -1089,7 +1089,7 @@ gnumfiles_continue: ;
 
 void krename(int32_t crcval, int32_t filenum, const char *newname)
 {
-    for (int32_t k=numgroupfiles-1; k>=0; k--)
+    for (bssize_t k=numgroupfiles-1; k>=0; k--)
     {
         if (groupfil[k] >= 0 && groupcrc[k] == crcval)
         {

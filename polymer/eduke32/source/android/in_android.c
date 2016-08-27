@@ -282,7 +282,7 @@ int32_t AndroidRead(portableread_t r)
         rv = g_player[myconnectindex].ps->dead_flag; break;
     case R_PLAYER_INV_AMOUNT:
         rv = 0;
-        for (int i = 0; i < GET_MAX; i++)
+        for (bssize_t i = 0; i < GET_MAX; i++)
         {
             if (g_player[myconnectindex].ps->inv_amount[i])
                 rv += (1 << i);

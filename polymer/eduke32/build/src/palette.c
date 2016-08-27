@@ -115,7 +115,7 @@ void loadpalette(void)
     if (kread_and_test(fil, palette, 768))
         return kclose(fil);
 
-    for (int k = 0; k < 768; k++)
+    for (bssize_t k = 0; k < 768; k++)
         palette[k] <<= 2;
 
     initfastcolorlookup_palette(palette);
@@ -185,7 +185,7 @@ void loadpalette(void)
     // Read translucency (blending) table.
     if (lamedukep)
     {
-        for (int i=0; i<255; i++)
+        for (bssize_t i=0; i<255; i++)
         {
             // NOTE: LameDuke's table doesn't have the last row or column (i==255).
 
@@ -195,7 +195,7 @@ void loadpalette(void)
                 return kclose(fil);
 
             // Duplicate the entries below the diagonal.
-            for (int j=0; j<i; j++)
+            for (bssize_t j=0; j<i; j++)
                 transluc[256*i + j] = transluc[256*j + i];
         }
     }
@@ -222,7 +222,7 @@ void loadpalette(void)
 
         uint8_t blendnum;
         char *tab = (char *) Xmalloc(256*256);
-        for (int i=0; i<addblendtabs; i++)
+        for (bssize_t i=0; i<addblendtabs; i++)
         {
             if (kread_and_test(fil, &blendnum, 1))
             {
@@ -271,17 +271,17 @@ static void E_PostLoadPalette(void)
 
 #ifdef DEBUG_TILESIZY_512
     // Bump shade 1 by 16.
-    for (int i=256; i<512; i++)
+    for (bssize_t i=256; i<512; i++)
         palookup[0][i] = palookup[0][i+(16<<8)];
 #endif
 
     // find white and black colors
-    for (int i=0, j, k=0; i<256; i++)
+    for (bssize_t i=0, j, k=0; i<256; i++)
     {
         j = palette[i*3] + palette[i*3+1] + palette[i*3+2];
         if (j > k) { k = j; whitecol = i; }
     }
-    for (int i=0, j, k=768; i<256; i++)
+    for (bssize_t i=0, j, k=768; i<256; i++)
     {
         j = palette[i*3] + palette[i*3+1] + palette[i*3+2];
         if (j < k) { k = j; blackcol = i; }
@@ -290,7 +290,7 @@ static void E_PostLoadPalette(void)
     redcol = getclosestcol(255, 0, 0);
 
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
-    for (int c = 0; c < 255; ++c) // skipping transparent color
+    for (bssize_t c = 0; c < 255; ++c) // skipping transparent color
     {
         char const * const thispalookup = palookup[0];
         char const color = thispalookup[c];
@@ -300,7 +300,7 @@ static void E_PostLoadPalette(void)
             palette[color*3+2] == 0))
             continue; // don't consider #000000 fullbright
 
-        for (int s = c + 256; s < 256*32; s += 256)
+        for (bssize_t s = c + 256; s < 256*32; s += 256)
             if (EDUKE32_PREDICT_FALSE(thispalookup[s] != color))
                 goto PostLoad_NotFullbright;
 
@@ -331,13 +331,13 @@ int32_t E_PostInitTables(void)
 
 void E_ReplaceTransparentColorWithBlack(void)
 {
-    for (int i=0; i<MAXPALOOKUPS; i++)
+    for (bssize_t i=0; i<MAXPALOOKUPS; i++)
     {
         char * const thispalookup = palookup[i];
         if (thispalookup == NULL)
             continue;
 
-        for (int j=0; j<numshades; j++)
+        for (bssize_t j=0; j<numshades; j++)
         {
             thispalookup[(j<<8) + 255] = 255;
         }
@@ -345,13 +345,13 @@ void E_ReplaceTransparentColorWithBlack(void)
 
     // fix up translucency table so that transluc(255,x)
     // and transluc(x,255) is black instead of purple.
-    for (int i=0; i<MAXBLENDTABS; i++)
+    for (bssize_t i=0; i<MAXBLENDTABS; i++)
     {
         char * const transluc = blendtable[i];
         if (transluc == NULL)
             continue;
 
-        for (int j=0; j<255; j++)
+        for (bssize_t j=0; j<255; j++)
         {
             transluc[(255<<8) + j] = transluc[(blackcol<<8) + j];
             transluc[255 + (j<<8)] = transluc[blackcol + (j<<8)];
@@ -376,7 +376,7 @@ int32_t loadlookups(int32_t fp)
     if (kread_and_test(fp, &numlookups, 1))
         return -1;
 
-    for (int j=0; j<numlookups; j++)
+    for (bssize_t j=0; j<numlookups; j++)
     {
         uint8_t palnum;
 
@@ -402,7 +402,7 @@ void generatefogpals(void)
 {
     // Find a gap of four consecutive unused pal numbers to generate fog shade
     // tables.
-    for (int32_t j=1; j<=255-3; j++)
+    for (bssize_t j=1; j<=255-3; j++)
         if (!palookup[j] && !palookup[j+1] && !palookup[j+2] && !palookup[j+3])
         {
             makepalookup(j, NULL, 60, 60, 60, 1);
@@ -417,7 +417,7 @@ void generatefogpals(void)
 void fillemptylookups(void)
 {
     // Alias remaining unused pal numbers to the base shade table.
-    for (int32_t j=1; j<MAXPALOOKUPS; j++)
+    for (bssize_t j=1; j<MAXPALOOKUPS; j++)
     {
         // If an existing lookup is identical to #0, free it.
         if (palookup[j] && palookup[j] != palookup[0] && !Bmemcmp(palookup[0], palookup[j], 256*numshades))
@@ -479,7 +479,7 @@ void removepalookup(int32_t const palnum)
 {
     if (palnum == 0 && palookup[palnum] != NULL)
     {
-        for (int i = 1; i < MAXPALOOKUPS; i++)
+        for (bssize_t i = 1; i < MAXPALOOKUPS; i++)
             if (palookup[i] == palookup[palnum])
                 palookup[i] = NULL;
 

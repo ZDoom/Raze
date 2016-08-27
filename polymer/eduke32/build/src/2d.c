@@ -343,7 +343,7 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
 
         if (drawlinepat == 0xffffffff)
         {
-            for (int i=d.x, df=0; i>0; i--)
+            for (bssize_t i=d.x, df=0; i>0; i--)
             {
                 drawtranspixel((char *) p, col);
                 df += d.y;
@@ -355,7 +355,7 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
         {
             uint32_t patc = UINT_MAX;
 
-            for (int i=d.x, df=0; i>0; i--)
+            for (bssize_t i=d.x, df=0; i>0; i--)
             {
                 if (drawlinepat & pow2long[(++patc)&31])
                     drawtranspixel((char *) p, col);
@@ -374,7 +374,7 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
         clearbufbyte((void *) p, d.x, ((int32_t) col<<24)|((int32_t) col<<16)|((int32_t) col<<8)|col);
     else if (drawlinepat == 0xffffffff)
     {
-        for (int i=d.x, df=0; i>0; i--)
+        for (bssize_t i=d.x, df=0; i>0; i--)
         {
             drawpixel((char *) p, col);
             df += d.y;
@@ -386,7 +386,7 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
     {
         uint32_t patc = UINT_MAX;
 
-        for (int i=d.x, df=0; i>0; i--)
+        for (bssize_t i=d.x, df=0; i>0; i--)
         {
             if (drawlinepat & pow2long[(++patc)&31])
                 drawpixel((char *) p, col);
@@ -1024,12 +1024,12 @@ int32_t getspritecol(int32_t spr)
 
     const uint8_t *const texbuf = (const uint8_t *) waloff[picnum];
 
-    for (int i = 0; i < tilesiz[picnum].x * tilesiz[picnum].y; i++)
+    for (bssize_t i = 0; i < tilesiz[picnum].x * tilesiz[picnum].y; i++)
         cols[texbuf[i]]++;
 
     unsigned col = 0, cnt = 0;
 
-    for (int i = 0; i < 240; i++)
+    for (bssize_t i = 0; i < 240; i++)
         if (cols[i] > cnt)
             col = i, cnt = cols[i];
 
@@ -1282,7 +1282,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     faketimerhandler();
 
     if (zoome >= 256 || highlightcnt>0)
-        for (int32_t j=0; j<MAXSPRITES; j++)
+        for (bssize_t j=0; j<MAXSPRITES; j++)
             if (sprite[j].statnum<MAXSTATUS)
             {
                 // if sprite is highlighted, always draw it

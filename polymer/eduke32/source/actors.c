@@ -42,7 +42,7 @@ int32_t G_SetInterpolation(int32_t * const posptr)
     if (g_numInterpolations >= MAXINTERPOLATIONS)
         return 1;
 
-    for (int i = 0; i < g_numInterpolations; ++i)
+    for (bssize_t i = 0; i < g_numInterpolations; ++i)
         if (curipos[i] == posptr)
             return 0;
 
@@ -54,7 +54,7 @@ int32_t G_SetInterpolation(int32_t * const posptr)
 
 void G_StopInterpolation(int32_t * const posptr)
 {
-    for (int i = 0; i < g_numInterpolations; ++i)
+    for (bssize_t i = 0; i < g_numInterpolations; ++i)
         if (curipos[i] == posptr)
         {
             g_numInterpolations--;
@@ -71,7 +71,7 @@ void G_DoInterpolations(int32_t smoothratio)       //Stick at beginning of draws
 
     int32_t odelta, ndelta = 0;
 
-    for (int i = 0, j = 0; i < g_numInterpolations; ++i)
+    for (bssize_t i = 0, j = 0; i < g_numInterpolations; ++i)
     {
         odelta = ndelta;
         bakipos[i] = *curipos[i];
@@ -91,7 +91,7 @@ void G_ClearCameraView(DukePlayer_t *ps)
     updatesector(ps->pos.x, ps->pos.y, &ps->cursectnum);
     P_UpdateScreenPal(ps);
 
-    for (int SPRITES_OF(STAT_ACTOR, k))
+    for (bssize_t SPRITES_OF(STAT_ACTOR, k))
         if (sprite[k].picnum==CAMERA1)
             sprite[k].yvel = 0;
 }
@@ -190,7 +190,7 @@ SKIPWALLCHECK:
 
     q = -ZOFFSET2 + (krand()&(ZOFFSET5-1));
 
-    for (int stati=0; stati < ARRAY_SSIZE(statnumList); stati++)
+    for (bssize_t stati=0; stati < ARRAY_SSIZE(statnumList); stati++)
     {
         int32_t otherSprite = headspritestat[statnumList[stati]];
         
@@ -529,7 +529,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
         {
             // Projectile sector changes due to transport SEs (SE7_PROJECTILE).
             // PROJECTILE_CHSECT
-            for (int SPRITES_OF(STAT_TRANSPORT, otherSpriteNum))
+            for (bssize_t SPRITES_OF(STAT_TRANSPORT, otherSpriteNum))
             {
                 if (sprite[otherSpriteNum].sectnum == newSectnum)
                 {
@@ -651,7 +651,7 @@ void A_DoGuts(int32_t spriteNum, int32_t tileNum, int32_t spawnCnt)
     if (pSprite->picnum == COMMANDER)
         gutZ -= (24<<8);
 
-    for (int j=spawnCnt; j>0; j--)
+    for (bssize_t j=spawnCnt; j>0; j--)
     {
         int const i = A_InsertSprite(pSprite->sectnum, pSprite->x + (krand() & 255) - 128,
                                      pSprite->y + (krand() & 255) - 128, gutZ - (krand() & 8191), tileNum, -32, repeat.x,
@@ -684,7 +684,7 @@ void A_DoGutsDir(int32_t spriteNum, int32_t tileNum, int32_t spawnCnt)
     if (s->picnum == COMMANDER)
         gutZ -= (24<<8);
 
-    for (int j=spawnCnt; j>0; j--)
+    for (bssize_t j=spawnCnt; j>0; j--)
     {
         int const i = A_InsertSprite(s->sectnum, s->x, s->y, gutZ, tileNum, -32, repeat.x, repeat.y, krand() & 2047,
                                      256 + (krand() & 127), -512 - (krand() & 2047), spriteNum, 5);
@@ -708,7 +708,7 @@ LUNATIC_EXTERN int32_t G_ToggleWallInterpolation(int32_t wallNum, int32_t setInt
 
 void Sect_ToggleInterpolation(int sectNum, int setInterpolation)
 {
-    for (int j = sector[sectNum].wallptr, endwall = sector[sectNum].wallptr + sector[sectNum].wallnum; j < endwall; j++)
+    for (bssize_t j = sector[sectNum].wallptr, endwall = sector[sectNum].wallptr + sector[sectNum].wallnum; j < endwall; j++)
     {
         G_ToggleWallInterpolation(j, setInterpolation);
 
@@ -753,7 +753,7 @@ void A_MoveSector(int spriteNum)
 
     int const endWall = sector[pSprite->sectnum].wallptr + sector[pSprite->sectnum].wallnum;
 
-    for (int wallNum = sector[pSprite->sectnum].wallptr; wallNum < endWall; wallNum++)
+    for (bssize_t wallNum = sector[pSprite->sectnum].wallptr; wallNum < endWall; wallNum++)
     {
         vec2_t const origin = g_origins[originIdx];
         vec2_t result;
@@ -857,7 +857,7 @@ ACTOR_STATIC void A_MaybeAwakenBadGuys(int spriteNum)
     {
         uspritetype *const pSprite = (uspritetype *)&sprite[spriteNum];
 
-        for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_ZOMBIEACTOR, spriteNum, nextSprite))
+        for (bssize_t nextSprite, SPRITES_OF_STAT_SAFE(STAT_ZOMBIEACTOR, spriteNum, nextSprite))
         {
             if (A_CheckEnemySprite(&sprite[spriteNum]))
             {
@@ -998,7 +998,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
 // stupid name, but it's what the function does.
 FORCE_INLINE int G_FindExplosionInSector(int sectnum)
 {
-    for (int SPRITES_OF(STAT_MISC, i))
+    for (bssize_t SPRITES_OF(STAT_MISC, i))
         if (PN(i) == EXPLOSION2 && sectnum == SECT(i))
             return i;
 
@@ -1089,7 +1089,7 @@ int32_t A_IncurDamage(int32_t spriteNum)
 
 void A_MoveCyclers(void)
 {
-    for (int i=g_numCyclers-1; i>=0; i--)
+    for (bssize_t i=g_numCyclers-1; i>=0; i--)
     {
         int16_t *const pCycler = cyclers[i];
         const int32_t  sectNum = pCycler[0];
@@ -1108,7 +1108,7 @@ void A_MoveCyclers(void)
         {
             walltype *pWall = &wall[sector[sectNum].wallptr];
 
-            for (int wallsLeft = sector[sectNum].wallnum; wallsLeft > 0; wallsLeft--, pWall++)
+            for (bssize_t wallsLeft = sector[sectNum].wallnum; wallsLeft > 0; wallsLeft--, pWall++)
             {
                 if (pWall->hitag != 1)
                 {
@@ -1491,7 +1491,7 @@ ACTOR_STATIC void G_MoveFallers(void)
                     {
                         T1(spriteNum) = 1;
 
-                        for (int SPRITES_OF(STAT_FALLER, j))
+                        for (bssize_t SPRITES_OF(STAT_FALLER, j))
                         {
                             if (sprite[j].hitag == SHT(spriteNum))
                             {
@@ -2264,7 +2264,7 @@ DETONATE:
                             sprite[spriteNum].yvel = 0;  // VIEWSCREEN_YVEL
                             T1(spriteNum)          = 0;
 
-                            for (int ii = 0; ii < VIEWSCREENFACTOR; ii++) walock[TILE_VIEWSCR - ii] = 199;
+                            for (bssize_t ii = 0; ii < VIEWSCREENFACTOR; ii++) walock[TILE_VIEWSCR - ii] = 199;
                         }
                     }
 
@@ -2602,7 +2602,7 @@ ACTOR_STATIC void P_HandleBeingSpitOn(DukePlayer_t * const ps)
     int j = 3+(krand()&3);
     ps->numloogs = j;
     ps->loogcnt = 24*4;
-    for (int x=0; x < j; x++)
+    for (bssize_t x=0; x < j; x++)
     {
         ps->loogiex[x] = krand()%xdim;
         ps->loogiey[x] = krand()%ydim;
@@ -2753,7 +2753,7 @@ ACTOR_STATIC void Proj_MoveCustom(int spriteNum)
 
         if (pProj->trail >= 0)
         {
-            for (int cnt=0; cnt<=pProj->tnum; cnt++)
+            for (bssize_t cnt=0; cnt<=pProj->tnum; cnt++)
             {
                 otherSprite = A_Spawn(spriteNum, pProj->trail);
 
@@ -3331,7 +3331,7 @@ static void P_FinishWaterChange(int32_t j, DukePlayer_t *ps, int32_t sectlotag, 
         A_Spawn(j, WATERSPLASH2);
 
     if (sectlotag == ST_1_ABOVE_WATER)
-        for (int l = 0; l < 9; l++)
+        for (bssize_t l = 0; l < 9; l++)
             sprite[A_Spawn(ps->i, WATERBUBBLE)].z += krand()&16383;
 }
 
@@ -3632,7 +3632,7 @@ next_sprite:
 
 static int16_t A_FindLocator(int32_t n, int32_t sn)
 {
-    for (int SPRITES_OF(STAT_LOCATOR, i))
+    for (bssize_t SPRITES_OF(STAT_LOCATOR, i))
     {
         if ((sn == -1 || sn == SECT(i)) && n == SLT(i))
             return i;
@@ -5043,7 +5043,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     pSprite->yrepeat = l;
                     pSprite->shade   = (l >> 1) - 48;
 
-                    for (int j = pData[0]; j > 0; j--) A_SetSprite(spriteNum, CLIPMASK0);
+                    for (bssize_t j = pData[0]; j > 0; j--) A_SetSprite(spriteNum, CLIPMASK0);
                     goto next_sprite;
             }
 
@@ -5146,7 +5146,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     A_AddToDeleteQueue(spriteNum);
                     PN(spriteNum) ++;
 
-                    for (int SPRITES_OF(STAT_MISC, j))
+                    for (bssize_t SPRITES_OF(STAT_MISC, j))
                     {
                         if (sprite[j].picnum == BLOODPOOL && ldist(pSprite, &sprite[j]) < 348)
                         {
@@ -5734,7 +5734,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     }
                 }
 
-                for (int SPRITES_OF_SECT(pSprite->sectnum, p))
+                for (bssize_t SPRITES_OF_SECT(pSprite->sectnum, p))
                 {
                     // KEEPINSYNC1
                     if (sprite[p].statnum != STAT_EFFECTOR && sprite[p].statnum != STAT_PROJECTILE)
@@ -5761,7 +5761,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             else if (l==0 && (pSector->floorstat&64))
             {
                 // fix for jittering of sprites in halted rotating sectors
-                for (int SPRITES_OF_SECT(pSprite->sectnum, p))
+                for (bssize_t SPRITES_OF_SECT(pSprite->sectnum, p))
                 {
                     // KEEPINSYNC1
                     if (sprite[p].statnum != STAT_EFFECTOR && sprite[p].statnum != STAT_PROJECTILE)
@@ -8216,7 +8216,7 @@ int32_t A_CheckSwitchTile(int32_t i)
         return 1;
 
     // Loop to catch both states of switches.
-    for (int j=1; j>=0; j--)
+    for (bssize_t j=1; j>=0; j--)
     {
         switch (DYNAMICTILEMAP(PN(i)-j))
         {
