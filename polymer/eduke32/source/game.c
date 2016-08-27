@@ -737,7 +737,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         CAMERA(ang) = actor[ud.camerasprite].tempang +
             mulscale16(((s->ang+1024-actor[ud.camerasprite].tempang)&2047)-1024, smoothratio);
 
-        dont_draw = VM_OnEvent(EVENT_DISPLAYROOMSCAMERA, p->i, snum);
+        dont_draw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERA, p->i, snum, 0);
 
         if (dont_draw != 1)  // event return values other than 0 and 1 are reserved
         {
@@ -1001,7 +1001,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         // NOTE: might be rendering off-screen here, so CON commands that draw stuff
         //  like showview must cope with that situation or bail out!
-        dont_draw = VM_OnEvent(EVENT_DISPLAYROOMS, p->i, snum);
+        dont_draw = VM_OnEventWithReturn(EVENT_DISPLAYROOMS, p->i, snum, 0);
 
         CAMERA(horiz) = clamp(CAMERA(horiz), HORIZ_MIN, HORIZ_MAX);
 
