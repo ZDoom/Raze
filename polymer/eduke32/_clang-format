@@ -1,4 +1,7 @@
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
 AlignEscapedNewlinesLeft: false
+AlignOperands: true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortCaseLabelsOnASingleLine: true
@@ -11,9 +14,9 @@ BinPackArguments: true
 BinPackParameters: true
 BreakBeforeBinaryOperators: false
 BreakBeforeBraces: Allman
-BreakBeforeTernaryOperators: false
+BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
-ColumnLimit: 120
+ColumnLimit: 125
 ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ConstructorInitializerIndentWidth: 0
 ContinuationIndentWidth: 0
@@ -26,8 +29,9 @@ KeepEmptyLinesAtTheStartOfBlocks: false
 Language: Cpp
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: None
-PointerAlignment: Middle
+PointerAlignment: Right
 PointerBindsToType: false
+SpaceAfterCStyleCast: false
 SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: false
 SpacesBeforeTrailingComments: 2
