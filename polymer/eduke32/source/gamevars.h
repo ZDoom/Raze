@@ -125,7 +125,7 @@ void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
 void Gv_ResetVars(void);
-int32_t Gv_ReadSave(int32_t kFile);
+int Gv_ReadSave(int32_t kFile);
 void Gv_WriteSave(FILE *fil);
 #else
 extern int32_t g_noResetVars;

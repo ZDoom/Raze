@@ -256,13 +256,13 @@ static int32_t VM_CheckSquished(void)
     yax_getbunches(vm.pSprite->sectnum, &cb, &fb);
 
     if (cb >= 0 && (pSector->ceilingstat&512)==0)  // if ceiling non-blocking...
-        ceilZ -= (32<<8);  // unconditionally don't squish... yax_getneighborsect is slowish :/
+        ceilZ -= ZOFFSET5;  // unconditionally don't squish... yax_getneighborsect is slowish :/
     if (fb >= 0 && (pSector->floorstat&512)==0)
-        floorZ += (32<<8);
+        floorZ += ZOFFSET5;
 #endif
 
     if (vm.pSprite->pal == 1 ?
-        (floorZ - ceilZ >= (32<<8) || (pSector->lotag&32768)) :
+        (floorZ - ceilZ >= ZOFFSET5 || (pSector->lotag&32768)) :
         (floorZ - ceilZ >= ZOFFSET4))
     return 0;
 
@@ -824,8 +824,8 @@ dead:
             }
         }
         else if (vm.pSprite->picnum == APLAYER)
-            if (vm.pSprite->z < actor[vm.spriteNum].ceilingz+(32<<8))
-                vm.pSprite->z = actor[vm.spriteNum].ceilingz+(32<<8);
+            if (vm.pSprite->z < actor[vm.spriteNum].ceilingz+ZOFFSET5)
+                vm.pSprite->z = actor[vm.spriteNum].ceilingz+ZOFFSET5;
 
         vec3_t const vect = { (nXvel * (sintable[(angDiff + 512) & 2047])) >> 14,
                               (nXvel * (sintable[angDiff & 2047])) >> 14, vm.pSprite->zvel };
@@ -1342,7 +1342,7 @@ skip_check:
             if (pPlayer->holoduke_on >= 0)
             {
                 pSprite = (uspritetype *)&sprite[pPlayer->holoduke_on];
-                tw = cansee(vm.pSprite->x,vm.pSprite->y,vm.pSprite->z-(krand()&((32<<8)-1)),vm.pSprite->sectnum,
+                tw = cansee(vm.pSprite->x,vm.pSprite->y,vm.pSprite->z-(krand()&(ZOFFSET5-1)),vm.pSprite->sectnum,
                            pSprite->x,pSprite->y,pSprite->z,pSprite->sectnum);
 
                 if (tw == 0)
@@ -3517,7 +3517,7 @@ nullquote:
 
         case CON_IFONWATER:
             VM_CONDITIONAL(sector[vm.pSprite->sectnum].lotag == ST_1_ABOVE_WATER &&
-                           klabs(vm.pSprite->z - sector[vm.pSprite->sectnum].floorz) < (32 << 8));
+                           klabs(vm.pSprite->z - sector[vm.pSprite->sectnum].floorz) < ZOFFSET5);
             continue;
 
         case CON_IFINWATER:
@@ -3723,24 +3723,24 @@ nullquote:
             insptr++;
             if (sector[vm.pSprite->sectnum].lotag == 0)
             {
-                int16_t neartagsector, neartagwall, neartagsprite;
-                int32_t neartaghitdist;
+                int16_t foundSect, foundWall, foundSprite;
+                int32_t foundDist;
 
-                neartag(vm.pSprite->x,vm.pSprite->y,vm.pSprite->z-(32<<8),vm.pSprite->sectnum,vm.pSprite->ang,
-                        &neartagsector,&neartagwall,&neartagsprite,&neartaghitdist, 768, 4+1, NULL);
+                neartag(vm.pSprite->x,vm.pSprite->y,vm.pSprite->z-ZOFFSET5,vm.pSprite->sectnum,vm.pSprite->ang,
+                        &foundSect,&foundWall,&foundSprite,&foundDist, 768, 4+1, NULL);
 
-                if (neartagsector >= 0 && isanearoperator(sector[neartagsector].lotag))
-                    if ((sector[neartagsector].lotag&0xff) == ST_23_SWINGING_DOOR || sector[neartagsector].floorz == sector[neartagsector].ceilingz)
-                        if ((sector[neartagsector].lotag&(16384|32768)) == 0)
+                if (foundSect >= 0 && isanearoperator(sector[foundSect].lotag))
+                    if ((sector[foundSect].lotag&0xff) == ST_23_SWINGING_DOOR || sector[foundSect].floorz == sector[foundSect].ceilingz)
+                        if ((sector[foundSect].lotag&(16384|32768)) == 0)
                         {
                             int32_t j;
 
-                            for (SPRITES_OF_SECT(neartagsector, j))
+                            for (SPRITES_OF_SECT(foundSect, j))
                                 if (sprite[j].picnum == ACTIVATOR)
                                     break;
 
                             if (j == -1)
-                                G_OperateSectors(neartagsector,vm.spriteNum);
+                                G_OperateSectors(foundSect,vm.spriteNum);
                         }
             }
             continue;

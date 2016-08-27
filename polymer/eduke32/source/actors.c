@@ -54,7 +54,7 @@ int32_t G_SetInterpolation(int32_t * const posptr)
 
 void G_StopInterpolation(int32_t * const posptr)
 {
-    for (int i = startofdynamicinterpolations; i < g_numInterpolations; ++i)
+    for (int i = 0; i < g_numInterpolations; ++i)
         if (curipos[i] == posptr)
         {
             g_numInterpolations--;
@@ -188,7 +188,7 @@ void A_RadiusDamage(int32_t spriteNum, int32_t blastRadius, int32_t dmg1, int32_
 
 SKIPWALLCHECK:
 
-    q = -ZOFFSET2 + (krand()&((32<<8)-1));
+    q = -ZOFFSET2 + (krand()&(ZOFFSET5-1));
 
     for (int stati=0; stati < ARRAY_SSIZE(statnumList); stati++)
     {
@@ -903,7 +903,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                     {
                         vec3_t const p = { g_player[playerNum].ps->pos.x + 64 - (krand() & 127),
                                            g_player[playerNum].ps->pos.y + 64 - (krand() & 127),
-                                           g_player[playerNum].ps->pos.z - (krand() % (32 << 8))
+                                           g_player[playerNum].ps->pos.z - (krand() % ZOFFSET5)
                         };
 
                         int16_t pSectnum = g_player[playerNum].ps->cursectnum;
@@ -1303,7 +1303,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                 if (sector[pSprite->sectnum].lotag != ST_2_UNDERWATER)
                     A_Fall(spriteNum);
                 if (pSprite->zvel == 0 && sector[pSprite->sectnum].lotag == ST_1_ABOVE_WATER)
-                    pSprite->z += (32<<8);
+                    pSprite->z += ZOFFSET5;
             }
 
             if (pSprite->extra < 8)
@@ -2168,7 +2168,7 @@ DETONATE:
                         }
                     }
 
-                    pSprite->z -= (32<<8);
+                    pSprite->z -= ZOFFSET5;
 
                     if (pSprite->xrepeat)
                         for (x=0; x<8; x++) RANDOMSCRAP(pSprite, spriteNum);
@@ -3901,8 +3901,8 @@ ACTOR_STATIC void G_MoveActors(void)
                 pSprite->shade += (sector[pSprite->sectnum].ceilingshade-pSprite->shade)>>1;
             else pSprite->shade += (sector[pSprite->sectnum].floorshade-pSprite->shade)>>1;
 
-            if (pSprite->z < sector[sectNum].ceilingz+(32<<8))
-                pSprite->z = sector[sectNum].ceilingz+(32<<8);
+            if (pSprite->z < sector[sectNum].ceilingz+ZOFFSET5)
+                pSprite->z = sector[sectNum].ceilingz+ZOFFSET5;
 
 #if 0 //def POLYMER
             gamelights[gamelightcount&(PR_MAXLIGHTS-1)].sector = s->sectnum;
@@ -4586,7 +4586,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
             if (sector[SECT(spriteNum)].lotag == ST_1_ABOVE_WATER && pSprite->zvel == 0 && actor[spriteNum].floorz == sector[sectNum].floorz)
             {
-                pSprite->z += (32<<8);
+                pSprite->z += ZOFFSET5;
                 if (pData[5] == 0)
                 {
                     pData[5] = 1;
@@ -7298,7 +7298,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 pSector->ceilingz += pSprite->yvel;
                 if (pSector->ceilingz > pSector->floorz)
                     pSector->floorz = pSector->ceilingz;
-                if (pSector->ceilingz > pSprite->z+(32<<8))
+                if (pSector->ceilingz > pSprite->z+ZOFFSET5)
                     pData[0]++;
                 break;
             case 1:

@@ -371,7 +371,7 @@ static inline int32_t G_GetTeamPalette(int32_t team)
 #define A_CheckSpriteTileFlags(iPicnum, iType) (((unsigned)iPicnum < MAXTILES) && (g_tile[iPicnum].flags & iType) != 0)
 #define S_StopSound(num) S_StopEnvSound(num, -1)
 
-extern int32_t G_StartRTS(int32_t i, int localp);
+extern int G_StartRTS(int lumpNum, int localPlayer);
 
 extern void G_MaybeAllocPlayer(int32_t pnum);
 

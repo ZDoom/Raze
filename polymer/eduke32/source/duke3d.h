@@ -44,8 +44,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "fx_man.h"
 
 #define APPNAME             "EDuke32"
-#define VERSION             "2.0.0devel"
-#define HEAD2               APPNAME " " VERSION
+#define HEAD2               APPNAME
 
 #define VOLUMEALL           (g_Shareware == 0)
 #define PLUTOPAK            (g_scriptVersion == 14)

@@ -116,7 +116,6 @@ G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
 G_EXTERN int32_t neartaghitdist,lockclock,g_startArmorAmount;
 G_EXTERN int32_t playerswhenstarted;
 G_EXTERN int32_t screenpeek;
-G_EXTERN int32_t startofdynamicinterpolations;
 G_EXTERN int32_t ototalclock;
 G_EXTERN intptr_t *g_scriptPtr;
 G_EXTERN int32_t *labelcode,*labeltype;

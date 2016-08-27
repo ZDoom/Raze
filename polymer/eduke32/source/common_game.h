@@ -94,7 +94,7 @@ extern void G_AddConModule(const char *buffer);
 extern void clearGrpNamePtr(void);
 extern void clearScriptNamePtr(void);
 
-extern int32_t loaddefinitions_game(const char *, int32_t);
+extern int loaddefinitions_game(const char *fileName, int32_t firstPass);
 extern int32_t g_groupFileHandle;
 
 //////////

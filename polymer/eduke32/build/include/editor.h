@@ -12,8 +12,6 @@
 extern "C" {
 #endif
 
-#define VERSION "2.0.0devel"
-
 extern const char *defaultsetupfilename;
 extern char setupfilename[BMAX_PATH];
 

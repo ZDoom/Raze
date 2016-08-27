@@ -1385,209 +1385,223 @@ static void Yax_SetBunchInterpolation(int32_t sectnum, int32_t cf)
 //
 // 1. j>=0: Spawn from parent sprite <j> with picnum <pn>
 // 2. j<0: Spawn from already *existing* sprite <pn>
-int32_t A_Spawn(int32_t j, int32_t pn)
+int A_Spawn(int spriteNum, int tileNum)
 {
-    int32_t i, s, startwall, endwall, sect;
-    spritetype *sp;
+    int         newSprite;
+    int         sectNum;
+    spritetype *pSprite;
 
-    if (j >= 0)
+    if (spriteNum >= 0)
     {
         // spawn from parent sprite <j>
-        i = A_InsertSprite(sprite[j].sectnum,sprite[j].x,sprite[j].y,sprite[j].z,
-                           pn,0,0,0,0,0,0,j,0);
-        actor[i].picnum = sprite[j].picnum;
+        newSprite = A_InsertSprite(sprite[spriteNum].sectnum,sprite[spriteNum].x,sprite[spriteNum].y,sprite[spriteNum].z,
+                           tileNum,0,0,0,0,0,0,spriteNum,0);
+        actor[newSprite].picnum = sprite[spriteNum].picnum;
     }
     else
     {
         // spawn from already existing sprite <pn>
-        i = pn;
+        newSprite = tileNum;
 
-        Bmemset(&actor[i], 0, sizeof(actor_t));
-        Bmemcpy(&actor[i].bpos, &sprite[i], sizeof(vec3_t));
+        Bmemset(&actor[newSprite], 0, sizeof(actor_t));
+        Bmemcpy(&actor[newSprite].bpos, &sprite[newSprite], sizeof(vec3_t));
 
-        actor[i].picnum = PN(i);
+        actor[newSprite].picnum = PN(newSprite);
 
-        if (PN(i) == SECTOREFFECTOR && SLT(i) == 50)
-            actor[i].picnum = OW(i);
+        if (PN(newSprite) == SECTOREFFECTOR && SLT(newSprite) == 50)
+            actor[newSprite].picnum = OW(newSprite);
 
-        OW(i) = actor[i].owner = i;
+        OW(newSprite) = actor[newSprite].owner = newSprite;
 
-        actor[i].floorz = sector[SECT(i)].floorz;
-        actor[i].ceilingz = sector[SECT(i)].ceilingz;
+        actor[newSprite].floorz = sector[SECT(newSprite)].floorz;
+        actor[newSprite].ceilingz = sector[SECT(newSprite)].ceilingz;
 
-        actor[i].actorstayput = actor[i].lightId = actor[i].extra = -1;
+        actor[newSprite].actorstayput = actor[newSprite].lightId = actor[newSprite].extra = -1;
 
-        if ((CS(i)&48) && PN(i) != SPEAKER && PN(i) != LETTER && PN(i) != DUCK && PN(i) != TARGET && PN(i) != TRIPBOMB && PN(i) != VIEWSCREEN && PN(i) != VIEWSCREEN2)
-            if (!(PN(i) >= CRACK1 && PN(i) <= CRACK4))
+        if ((CS(newSprite) & 48)
+            && PN(newSprite) != SPEAKER
+            && PN(newSprite) != LETTER
+            && PN(newSprite) != DUCK
+            && PN(newSprite) != TARGET
+            && PN(newSprite) != TRIPBOMB
+            && PN(newSprite) != VIEWSCREEN
+            && PN(newSprite) != VIEWSCREEN2
+            && (!(PN(newSprite) >= CRACK1 && PN(newSprite) <= CRACK4)))
+        {
+            if (SS(newSprite) == 127)
+                goto SPAWN_END;
+
+            if (A_CheckSwitchTile(newSprite) && (CS(newSprite) & 16))
             {
-                if (SS(i) == 127)
-                    goto SPAWN_END;
-
-                if (A_CheckSwitchTile(i) && (CS(i)&16))
+                if (sprite[newSprite].pal && PN(newSprite) != ACCESSSWITCH && PN(newSprite) != ACCESSSWITCH2)
                 {
-                    if (sprite[i].pal && PN(i) != ACCESSSWITCH && PN(i) != ACCESSSWITCH2)
+                    if (((!g_netServer && ud.multimode < 2)) || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_DMSWITCHES)))
                     {
-                        if (((!g_netServer && ud.multimode < 2)) || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_DMSWITCHES)))
-                        {
-                            sprite[i].xrepeat = sprite[i].yrepeat = 0;
-                            SLT(i) = SHT(i) = 0;
-                            sprite[i].cstat = 32768;
-                            goto SPAWN_END;
-                        }
+                        sprite[newSprite].xrepeat = sprite[newSprite].yrepeat = 0;
+                        SLT(newSprite) = SHT(newSprite) = 0;
+                        sprite[newSprite].cstat = 32768;
+                        goto SPAWN_END;
                     }
-
-                    CS(i) |= 257;
-
-                    if (sprite[i].pal && PN(i) != ACCESSSWITCH && PN(i) != ACCESSSWITCH2)
-                        sprite[i].pal = 0;
-                    goto SPAWN_END;
                 }
 
-                if (SHT(i))
-                {
-                    changespritestat(i, STAT_FALLER);
-                    CS(i) |=  257;
-                    SH(i) = g_impactDamage;
-                    goto SPAWN_END;
-                }
+                CS(newSprite) |= 257;
+
+                if (sprite[newSprite].pal && PN(newSprite) != ACCESSSWITCH && PN(newSprite) != ACCESSSWITCH2)
+                    sprite[newSprite].pal = 0;
+                goto SPAWN_END;
             }
 
-        if (CS(i)&1)
-            CS(i) |= 256;
+            if (SHT(newSprite))
+            {
+                changespritestat(newSprite, STAT_FALLER);
+                CS(newSprite) |= 257;
+                SH(newSprite) = g_impactDamage;
+                goto SPAWN_END;
+            }
+        }
 
-        if (!G_InitActor(i, sprite[i].picnum, 0))
-            T2(i) = T5(i) = 0;  // AC_MOVE_ID, AC_ACTION_ID
+        if (CS(newSprite) & 1)
+            CS(newSprite) |= 256;
+
+        if (!G_InitActor(newSprite, sprite[newSprite].picnum, 0))
+            T2(newSprite) = T5(newSprite) = 0;  // AC_MOVE_ID, AC_ACTION_ID
     }
 
-    sp = &sprite[i];
-    sect = sp->sectnum;
+    pSprite = &sprite[newSprite];
+    sectNum = pSprite->sectnum;
 
     //some special cases that can't be handled through the dynamictostatic system.
-    if ((sp->picnum >= BOLT1 && sp->picnum <= BOLT1+3) ||
-            (sp->picnum >= SIDEBOLT1 && sp->picnum <= SIDEBOLT1+3))
+    if ((pSprite->picnum >= BOLT1 && pSprite->picnum <= BOLT1 + 3) || (pSprite->picnum >= SIDEBOLT1 && pSprite->picnum <= SIDEBOLT1 + 3))
     {
-        T1(i) = sp->xrepeat;
-        T2(i) = sp->yrepeat;
-        sp->yvel = 0;
-        changespritestat(i, STAT_STANDABLE);
-    }
-    else if ((sp->picnum >= CAMERA1 && sp->picnum <= CAMERA1+4) ||
-                 sp->picnum==CAMERAPOLE || sp->picnum==GENERICPOLE)
-    {
-        if (sp->picnum != GENERICPOLE)
-        {
-            sp->extra = 1;
+        T1(newSprite) = pSprite->xrepeat;
+        T2(newSprite) = pSprite->yrepeat;
+        pSprite->yvel = 0;
 
-            sp->cstat &= 32768;
-            if (g_damageCameras) sp->cstat |= 257;
-        }
-        if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
+        changespritestat(newSprite, STAT_STANDABLE);
+    }
+    else if ((pSprite->picnum >= CAMERA1 && pSprite->picnum <= CAMERA1 + 4) || pSprite->picnum == CAMERAPOLE || pSprite->picnum == GENERICPOLE)
+    {
+        if (pSprite->picnum != GENERICPOLE)
         {
-            sp->xrepeat = sp->yrepeat = 0;
-            changespritestat(i, STAT_MISC);
+            pSprite->extra = 1;
+
+            pSprite->cstat &= 32768;
+            if (g_damageCameras)
+                pSprite->cstat |= 257;
+        }
+
+        if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
+        {
+            pSprite->xrepeat = pSprite->yrepeat = 0;
+            changespritestat(newSprite, STAT_MISC);
         }
         else
         {
-            sp->pal = 0;
-            if (!(sp->picnum == CAMERAPOLE || sp->picnum == GENERICPOLE))
+            pSprite->pal = 0;
+
+            if (!(pSprite->picnum == CAMERAPOLE || pSprite->picnum == GENERICPOLE))
             {
-                sp->picnum = CAMERA1;
-                changespritestat(i, STAT_ACTOR);
+                pSprite->picnum = CAMERA1;
+                changespritestat(newSprite, STAT_ACTOR);
             }
         }
     }
-    else switch (DYNAMICTILEMAP(sp->picnum))
+    else
+        switch (DYNAMICTILEMAP(pSprite->picnum))
         {
         default:
-            if (G_HaveActor(sp->picnum))
+            if (G_HaveActor(pSprite->picnum))
             {
-                if (j == -1 && sp->lotag > ud.player_skill)
+                if (spriteNum == -1 && pSprite->lotag > ud.player_skill)
                 {
-                    sp->xrepeat=sp->yrepeat=0;
-                    changespritestat(i, STAT_MISC);
+                    pSprite->xrepeat = pSprite->yrepeat = 0;
+                    changespritestat(newSprite, STAT_MISC);
                     break;
                 }
 
                 //  Init the size
-                if (sp->xrepeat == 0 || sp->yrepeat == 0)
-                    sp->xrepeat = sp->yrepeat = 1;
+                if (pSprite->xrepeat == 0 || pSprite->yrepeat == 0)
+                    pSprite->xrepeat = pSprite->yrepeat = 1;
 
-                if (A_CheckSpriteFlags(i, SFLAG_BADGUY))
+                if (A_CheckSpriteFlags(newSprite, SFLAG_BADGUY))
                 {
                     if (ud.monsters_off == 1)
                     {
-                        sp->xrepeat=sp->yrepeat=0;
-                        changespritestat(i, STAT_MISC);
+                        pSprite->xrepeat = pSprite->yrepeat = 0;
+                        changespritestat(newSprite, STAT_MISC);
                         break;
                     }
 
-                    A_Fall(i);
+                    A_Fall(newSprite);
 
-                    if (A_CheckSpriteFlags(i, SFLAG_BADGUYSTAYPUT))
-                        actor[i].actorstayput = sp->sectnum;
+                    if (A_CheckSpriteFlags(newSprite, SFLAG_BADGUYSTAYPUT))
+                        actor[newSprite].actorstayput = pSprite->sectnum;
 
                     g_player[myconnectindex].ps->max_actors_killed++;
-                    sp->clipdist = 80;
-                    if (j >= 0)
+                    pSprite->clipdist = 80;
+
+                    if (spriteNum >= 0)
                     {
-                        if (sprite[j].picnum == RESPAWN)
-                            actor[i].tempang = sprite[i].pal = sprite[j].pal;
-                        changespritestat(i, STAT_ACTOR);
+                        if (sprite[spriteNum].picnum == RESPAWN)
+                            actor[newSprite].tempang = sprite[newSprite].pal = sprite[spriteNum].pal;
+
+                        changespritestat(newSprite, STAT_ACTOR);
                     }
-                    else changespritestat(i, STAT_ZOMBIEACTOR);
+                    else
+                        changespritestat(newSprite, STAT_ZOMBIEACTOR);
                 }
                 else
                 {
-                    sp->clipdist = 40;
-                    sp->owner = i;
-                    changespritestat(i, STAT_ACTOR);
+                    pSprite->clipdist = 40;
+                    pSprite->owner    = newSprite;
+                    changespritestat(newSprite, STAT_ACTOR);
                 }
 
-                actor[i].timetosleep = 0;
+                actor[newSprite].timetosleep = 0;
 
-                if (j >= 0)
-                    sp->ang = sprite[j].ang;
+                if (spriteNum >= 0)
+                    pSprite->ang = sprite[spriteNum].ang;
             }
             break;
         case FOF__STATIC:
-            sp->xrepeat = sp->yrepeat = 0;
-            changespritestat(i, STAT_MISC);
+            pSprite->xrepeat = pSprite->yrepeat = 0;
+            changespritestat(newSprite, STAT_MISC);
             break;
         case WATERSPLASH2__STATIC:
-            if (j >= 0)
+            if (spriteNum >= 0)
             {
-                setsprite(i,(vec3_t *)&sprite[j]);
-                sp->xrepeat = sp->yrepeat = 8+(krand()&7);
+                setsprite(newSprite, (vec3_t *)&sprite[spriteNum]);
+                pSprite->xrepeat = pSprite->yrepeat = 8+(krand()&7);
             }
-            else sp->xrepeat = sp->yrepeat = 16+(krand()&15);
+            else pSprite->xrepeat = pSprite->yrepeat = 16+(krand()&15);
 
-            sp->shade = -16;
-            sp->cstat |= 128;
-            if (j >= 0)
+            pSprite->shade = -16;
+            pSprite->cstat |= 128;
+
+            if (spriteNum >= 0)
             {
-                if (sector[sprite[j].sectnum].lotag == ST_2_UNDERWATER)
+                if (sector[sprite[spriteNum].sectnum].lotag == ST_2_UNDERWATER)
                 {
-                    sp->z = getceilzofslope(SECT(i),SX(i),SY(i))+(16<<8);
-                    sp->cstat |= 8;
+                    pSprite->z = getceilzofslope(SECT(newSprite),SX(newSprite),SY(newSprite))+(16<<8);
+                    pSprite->cstat |= 8;
                 }
-                else if (sector[sprite[j].sectnum].lotag == ST_1_ABOVE_WATER)
-                    sp->z = getflorzofslope(SECT(i),SX(i),SY(i));
+                else if (sector[sprite[spriteNum].sectnum].lotag == ST_1_ABOVE_WATER)
+                    pSprite->z = getflorzofslope(SECT(newSprite),SX(newSprite),SY(newSprite));
             }
 
-            if (sector[sect].floorpicnum == FLOORSLIME ||
-                    sector[sect].ceilingpicnum == FLOORSLIME)
-                sp->pal = 7;
+            if (sector[sectNum].floorpicnum == FLOORSLIME || sector[sectNum].ceilingpicnum == FLOORSLIME)
+                pSprite->pal = 7;
         case DOMELITE__STATIC:
-            if (sp->picnum == DOMELITE)
-                sp->cstat |= 257;
+            if (pSprite->picnum == DOMELITE)
+                pSprite->cstat |= 257;
         case NEON1__STATIC:
         case NEON2__STATIC:
         case NEON3__STATIC:
         case NEON4__STATIC:
         case NEON5__STATIC:
         case NEON6__STATIC:
-            if (sp->picnum != WATERSPLASH2)
-                sp->cstat |= 257;
+            if (pSprite->picnum != WATERSPLASH2)
+                pSprite->cstat |= 257;
         case NUKEBUTTON__STATIC:
         case JIBS1__STATIC:
         case JIBS2__STATIC:
@@ -1604,221 +1618,217 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case DUKETORSO__STATIC:
         case DUKEGUN__STATIC:
         case DUKELEG__STATIC:
-            changespritestat(i, STAT_MISC);
+            changespritestat(newSprite, STAT_MISC);
             break;
         case TONGUE__STATIC:
-            if (j >= 0)
-                sp->ang = sprite[j].ang;
-            sp->z -= 38<<8;
-            sp->zvel = 256-(krand()&511);
-            sp->xvel = 64-(krand()&127);
-            changespritestat(i, STAT_PROJECTILE);
+            if (spriteNum >= 0)
+                pSprite->ang = sprite[spriteNum].ang;
+            pSprite->z -= 38<<8;
+            pSprite->zvel = 256-(krand()&511);
+            pSprite->xvel = 64-(krand()&127);
+            changespritestat(newSprite, STAT_PROJECTILE);
             break;
         case NATURALLIGHTNING__STATIC:
-            sp->cstat &= ~257;
-            sp->cstat |= 32768;
+            pSprite->cstat &= ~257;
+            pSprite->cstat |= 32768;
             break;
         case TRANSPORTERSTAR__STATIC:
         case TRANSPORTERBEAM__STATIC:
-            if (j == -1) break;
-            if (sp->picnum == TRANSPORTERBEAM)
+            if (spriteNum == -1) break;
+            if (pSprite->picnum == TRANSPORTERBEAM)
             {
-                sp->xrepeat = 31;
-                sp->yrepeat = 1;
-                sp->z = sector[sprite[j].sectnum].floorz-PHEIGHT;
+                pSprite->xrepeat = 31;
+                pSprite->yrepeat = 1;
+                pSprite->z = sector[sprite[spriteNum].sectnum].floorz-PHEIGHT;
             }
             else
             {
-                if (sprite[j].statnum == STAT_PROJECTILE)
-                    sp->xrepeat = sp->yrepeat = 8;
+                if (sprite[spriteNum].statnum == STAT_PROJECTILE)
+                    pSprite->xrepeat = pSprite->yrepeat = 8;
                 else
                 {
-                    sp->xrepeat = 48;
-                    sp->yrepeat = 64;
-                    if (sprite[j].statnum == STAT_PLAYER || A_CheckEnemySprite(&sprite[j]))
-                        sp->z -= (32<<8);
+                    pSprite->xrepeat = 48;
+                    pSprite->yrepeat = 64;
+                    if (sprite[spriteNum].statnum == STAT_PLAYER || A_CheckEnemySprite(&sprite[spriteNum]))
+                        pSprite->z -= ZOFFSET5;
                 }
             }
 
-            sp->shade = -127;
-            sp->cstat = 128|2;
-            sp->ang = sprite[j].ang;
+            pSprite->shade = -127;
+            pSprite->cstat = 128|2;
+            pSprite->ang = sprite[spriteNum].ang;
 
-            sp->xvel = 128;
-            changespritestat(i, STAT_MISC);
-            A_SetSprite(i,CLIPMASK0);
-            setsprite(i,(vec3_t *)sp);
+            pSprite->xvel = 128;
+            changespritestat(newSprite, STAT_MISC);
+            A_SetSprite(newSprite,CLIPMASK0);
+            setsprite(newSprite,(vec3_t *)pSprite);
             break;
 
         case FRAMEEFFECT1_13__STATIC:
             if (PLUTOPAK) break;
         case FRAMEEFFECT1__STATIC:
-            if (j >= 0)
+            if (spriteNum >= 0)
             {
-                sp->xrepeat = sprite[j].xrepeat;
-                sp->yrepeat = sprite[j].yrepeat;
-                T2(i) = sprite[j].picnum;
+                pSprite->xrepeat = sprite[spriteNum].xrepeat;
+                pSprite->yrepeat = sprite[spriteNum].yrepeat;
+                T2(newSprite) = sprite[spriteNum].picnum;
             }
-            else sp->xrepeat = sp->yrepeat = 0;
+            else pSprite->xrepeat = pSprite->yrepeat = 0;
 
-            changespritestat(i, STAT_MISC);
+            changespritestat(newSprite, STAT_MISC);
 
             break;
 
         case LASERLINE__STATIC:
-            sp->yrepeat = 6;
-            sp->xrepeat = 32;
+            pSprite->yrepeat = 6;
+            pSprite->xrepeat = 32;
 
             if (g_tripbombLaserMode == 1)
-                sp->cstat = 16 + 2;
+                pSprite->cstat = 16 + 2;
             else if (g_tripbombLaserMode == 0 || g_tripbombLaserMode == 2)
-                sp->cstat = 16;
+                pSprite->cstat = 16;
             else
             {
-                sp->xrepeat = 0;
-                sp->yrepeat = 0;
+                pSprite->xrepeat = 0;
+                pSprite->yrepeat = 0;
             }
 
-            if (j >= 0) sp->ang = actor[j].t_data[5]+512;
-            changespritestat(i, STAT_MISC);
+            if (spriteNum >= 0) pSprite->ang = actor[spriteNum].t_data[5]+512;
+            changespritestat(newSprite, STAT_MISC);
             break;
 
         case FORCESPHERE__STATIC:
-            if (j == -1)
+            if (spriteNum == -1)
             {
-                sp->cstat = 32768;
-                changespritestat(i, STAT_ZOMBIEACTOR);
+                pSprite->cstat = 32768;
+                changespritestat(newSprite, STAT_ZOMBIEACTOR);
             }
             else
             {
-                sp->xrepeat = sp->yrepeat = 1;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 1;
+                changespritestat(newSprite, STAT_MISC);
             }
             break;
 
         case BLOOD__STATIC:
-            sp->xrepeat = sp->yrepeat = 16;
-            sp->z -= (26<<8);
-            if (j >= 0 && sprite[j].pal == 6)
-                sp->pal = 6;
-            changespritestat(i, STAT_MISC);
+            pSprite->xrepeat = pSprite->yrepeat = 16;
+            pSprite->z -= (26<<8);
+            if (spriteNum >= 0 && sprite[spriteNum].pal == 6)
+                pSprite->pal = 6;
+            changespritestat(newSprite, STAT_MISC);
             break;
         case BLOODPOOL__STATIC:
         case PUKE__STATIC:
         {
-            int16_t s1;
-            s1 = sp->sectnum;
+            int16_t pukeSect = pSprite->sectnum;
 
-            updatesector(sp->x+108,sp->y+108,&s1);
-            if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+            updatesector(pSprite->x + 108, pSprite->y + 108, &pukeSect);
+            if (pukeSect >= 0 && sector[pukeSect].floorz == sector[pSprite->sectnum].floorz)
             {
-                updatesector(sp->x-108,sp->y-108,&s1);
-                if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+                updatesector(pSprite->x - 108, pSprite->y - 108, &pukeSect);
+                if (pukeSect >= 0 && sector[pukeSect].floorz == sector[pSprite->sectnum].floorz)
                 {
-                    updatesector(sp->x+108,sp->y-108,&s1);
-                    if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+                    updatesector(pSprite->x + 108, pSprite->y - 108, &pukeSect);
+                    if (pukeSect >= 0 && sector[pukeSect].floorz == sector[pSprite->sectnum].floorz)
                     {
-                        updatesector(sp->x-108,sp->y+108,&s1);
-                        if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
+                        updatesector(pSprite->x - 108, pSprite->y + 108, &pukeSect);
+                        if (pukeSect >= 0 && sector[pukeSect].floorz != sector[pSprite->sectnum].floorz)
                         {
-                            sp->xrepeat = sp->yrepeat = 0;
-                            changespritestat(i, STAT_MISC);
+                            pSprite->xrepeat = pSprite->yrepeat = 0;
+                            changespritestat(newSprite, STAT_MISC);
                             break;
                         }
-
                     }
                     else
                     {
-                        sp->xrepeat = sp->yrepeat = 0;
-                        changespritestat(i, STAT_MISC);
+                        pSprite->xrepeat = pSprite->yrepeat = 0;
+                        changespritestat(newSprite, STAT_MISC);
                         break;
                     }
-
                 }
                 else
                 {
-                    sp->xrepeat = sp->yrepeat = 0;
-                    changespritestat(i, STAT_MISC);
+                    pSprite->xrepeat = pSprite->yrepeat = 0;
+                    changespritestat(newSprite, STAT_MISC);
                     break;
                 }
-
             }
             else
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
 
-        }
-
-        if (sector[SECT(i)].lotag == ST_1_ABOVE_WATER)
-        {
-            changespritestat(i, STAT_MISC);
-            break;
-        }
-
-        if (j >= 0 && sp->picnum != PUKE)
-        {
-            if (sprite[j].pal == 1)
-                sp->pal = 1;
-            else if (sprite[j].pal != 6 && sprite[j].picnum != NUKEBARREL && sprite[j].picnum != TIRE)
+            if (sector[SECT(newSprite)].lotag == ST_1_ABOVE_WATER)
             {
-                if (sprite[j].picnum == FECES)
-                    sp->pal = 7; // Brown
-                else sp->pal = 2; // Red
+                changespritestat(newSprite, STAT_MISC);
+                break;
             }
-            else sp->pal = 0;  // green
 
-            if (sprite[j].picnum == TIRE)
-                sp->shade = 127;
+            if (spriteNum >= 0 && pSprite->picnum != PUKE)
+            {
+                if (sprite[spriteNum].pal == 1)
+                    pSprite->pal = 1;
+                else if (sprite[spriteNum].pal != 6 && sprite[spriteNum].picnum != NUKEBARREL && sprite[spriteNum].picnum != TIRE)
+                    pSprite->pal = (sprite[spriteNum].picnum == FECES) ? 7 : 2;  // Brown or red
+                else
+                    pSprite->pal = 0;  // green
+
+                if (sprite[spriteNum].picnum == TIRE)
+                    pSprite->shade = 127;
+            }
+            pSprite->cstat |= 32;
         }
-        sp->cstat |= 32;
         case FECES__STATIC:
-            if (j >= 0)
-                sp->xrepeat = sp->yrepeat = 1;
-            changespritestat(i, STAT_MISC);
+            if (spriteNum >= 0)
+                pSprite->xrepeat = pSprite->yrepeat = 1;
+            changespritestat(newSprite, STAT_MISC);
             break;
 
         case BLOODSPLAT1__STATIC:
         case BLOODSPLAT2__STATIC:
         case BLOODSPLAT3__STATIC:
         case BLOODSPLAT4__STATIC:
-            sp->cstat |= 16;
-            sp->xrepeat = 7+(krand()&7);
-            sp->yrepeat = 7+(krand()&7);
-            sp->z += (tilesiz[sp->picnum].y*sp->yrepeat)>>2;
-            if (j >= 0 && sprite[j].pal == 6)
-                sp->pal = 6;
-            A_AddToDeleteQueue(i);
-            changespritestat(i, STAT_MISC);
+            pSprite->cstat |= 16;
+            pSprite->xrepeat = 7 + (krand() & 7);
+            pSprite->yrepeat = 7 + (krand() & 7);
+            pSprite->z += (tilesiz[pSprite->picnum].y * pSprite->yrepeat) >> 2;
+
+            if (spriteNum >= 0 && sprite[spriteNum].pal == 6)
+                pSprite->pal = 6;
+
+            A_AddToDeleteQueue(newSprite);
+            changespritestat(newSprite, STAT_MISC);
             break;
 
         case TRIPBOMB__STATIC:
-            if (sp->lotag > ud.player_skill)
+            if (pSprite->lotag > ud.player_skill)
             {
-                sp->xrepeat=sp->yrepeat=0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
 
-            sp->xrepeat=4;
-            sp->yrepeat=5;
+            pSprite->xrepeat = 4;
+            pSprite->yrepeat = 5;
+            pSprite->hitag   = newSprite;
+            pSprite->owner   = pSprite->hitag;
+            pSprite->xvel    = 16;
 
-            sp->owner = sp->hitag = i;
+            A_SetSprite(newSprite,CLIPMASK0);
 
-            sp->xvel = 16;
-            A_SetSprite(i,CLIPMASK0);
-            actor[i].t_data[0] = 17;
-            actor[i].t_data[2] = 0;
-            actor[i].t_data[5] = sp->ang;
-            changespritestat(i, STAT_ZOMBIEACTOR);
+            actor[newSprite].t_data[0] = 17;
+            actor[newSprite].t_data[2] = 0;
+            actor[newSprite].t_data[5] = pSprite->ang;
+
+            changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
 
         case SPACEMARINE__STATIC:
-            sp->extra = 20;
-            sp->cstat |= 257;
-            changespritestat(i, STAT_ZOMBIEACTOR);
+            pSprite->extra = 20;
+            pSprite->cstat |= 257;
+            changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
 
         case HYDRENT__STATIC:
@@ -1886,26 +1896,27 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case PIPE4__STATIC:
         case PIPE5__STATIC:
         case PIPE6__STATIC:
-            sp->clipdist = 32;
-            sp->cstat |= 257;
+            pSprite->clipdist = 32;
+            pSprite->cstat |= 257;
         case OCEANSPRITE4__STATIC:
-            changespritestat(i, STAT_DEFAULT);
+            changespritestat(newSprite, STAT_DEFAULT);
             break;
         case FEMMAG1__STATIC:
         case FEMMAG2__STATIC:
-            sp->cstat &= ~257;
-            changespritestat(i, STAT_DEFAULT);
+            pSprite->cstat &= ~257;
+            changespritestat(newSprite, STAT_DEFAULT);
             break;
         case DUKETAG__STATIC:
         case SIGN1__STATIC:
         case SIGN2__STATIC:
-            if ((!g_netServer && ud.multimode < 2) && sp->pal)
+            if ((!g_netServer && ud.multimode < 2) && pSprite->pal)
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
             }
-            else sp->pal = 0;
+            else pSprite->pal = 0;
             break;
+
         case MASKWALL1__STATIC:
         case MASKWALL2__STATIC:
         case MASKWALL3__STATIC:
@@ -1921,67 +1932,70 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case MASKWALL13__STATIC:
         case MASKWALL14__STATIC:
         case MASKWALL15__STATIC:
-            j = sp->cstat & SPAWN_PROTECT_CSTAT_MASK;
-            sp->cstat = j|CSTAT_SPRITE_BLOCK;
-            changespritestat(i, STAT_DEFAULT);
+        {
+            int const j    = pSprite->cstat & SPAWN_PROTECT_CSTAT_MASK;
+            pSprite->cstat = j | CSTAT_SPRITE_BLOCK;
+            changespritestat(newSprite, STAT_DEFAULT);
             break;
+        }
         case FOOTPRINTS__STATIC:
         case FOOTPRINTS2__STATIC:
         case FOOTPRINTS3__STATIC:
         case FOOTPRINTS4__STATIC:
-            if (j >= 0)
+            if (spriteNum >= 0)
             {
-                int16_t s1 = sp->sectnum;
+                int16_t footSect = pSprite->sectnum;
 
-                updatesector(sp->x+84,sp->y+84,&s1);
-                if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+                updatesector(pSprite->x + 84, pSprite->y + 84, &footSect);
+                if (footSect >= 0 && sector[footSect].floorz == sector[pSprite->sectnum].floorz)
                 {
-                    updatesector(sp->x-84,sp->y-84,&s1);
-                    if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+                    updatesector(pSprite->x - 84, pSprite->y - 84, &footSect);
+                    if (footSect >= 0 && sector[footSect].floorz == sector[pSprite->sectnum].floorz)
                     {
-                        updatesector(sp->x+84,sp->y-84,&s1);
-                        if (s1 >= 0 && sector[s1].floorz == sector[sp->sectnum].floorz)
+                        updatesector(pSprite->x + 84, pSprite->y - 84, &footSect);
+                        if (footSect >= 0 && sector[footSect].floorz == sector[pSprite->sectnum].floorz)
                         {
-                            updatesector(sp->x-84,sp->y+84,&s1);
-                            if (s1 >= 0 && sector[s1].floorz != sector[sp->sectnum].floorz)
+                            updatesector(pSprite->x - 84, pSprite->y + 84, &footSect);
+                            if (footSect >= 0 && sector[footSect].floorz != sector[pSprite->sectnum].floorz)
                             {
-                                sp->xrepeat = sp->yrepeat = 0;
-                                changespritestat(i, STAT_MISC);
+                                pSprite->xrepeat = pSprite->yrepeat = 0;
+                                changespritestat(newSprite, STAT_MISC);
                                 break;
                             }
                         }
                         else
                         {
-                            sp->xrepeat = sp->yrepeat = 0;
+                            pSprite->xrepeat = pSprite->yrepeat = 0;
                             break;
                         }
                     }
                     else
                     {
-                        sp->xrepeat = sp->yrepeat = 0;
+                        pSprite->xrepeat = pSprite->yrepeat = 0;
                         break;
                     }
                 }
                 else
                 {
-                    sp->xrepeat = sp->yrepeat = 0;
+                    pSprite->xrepeat = pSprite->yrepeat = 0;
                     break;
                 }
 
-                sp->cstat = 32+((g_player[P_Get(j)].ps->footprintcount&1)<<2);
-                sp->ang = sprite[j].ang;
+                pSprite->cstat = 32 + ((g_player[P_Get(spriteNum)].ps->footprintcount & 1) << 2);
+                pSprite->ang   = sprite[spriteNum].ang;
             }
 
-            sp->z = sector[sect].floorz;
-            if (sector[sect].lotag != ST_1_ABOVE_WATER && sector[sect].lotag != ST_2_UNDERWATER)
-                sp->xrepeat = sp->yrepeat = 32;
+            pSprite->z = sector[sectNum].floorz;
 
-            A_AddToDeleteQueue(i);
-            changespritestat(i, STAT_MISC);
+            if (sector[sectNum].lotag != ST_1_ABOVE_WATER && sector[sectNum].lotag != ST_2_UNDERWATER)
+                pSprite->xrepeat = pSprite->yrepeat = 32;
+
+            A_AddToDeleteQueue(newSprite);
+            changespritestat(newSprite, STAT_MISC);
             break;
 
         case PODFEM1__STATIC:
-            sp->extra <<= 1;
+            pSprite->extra <<= 1;
         case FEM1__STATIC:
         case FEM2__STATIC:
         case FEM3__STATIC:
@@ -1995,149 +2009,158 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case NAKED1__STATIC:
         case STATUE__STATIC:
         case TOUGHGAL__STATIC:
-            sp->yvel = sp->hitag;
-            sp->hitag = -1;
+            pSprite->yvel  = pSprite->hitag;
+            pSprite->hitag = -1;
         case BLOODYPOLE__STATIC:
-            sp->cstat |= 257;
-            sp->clipdist = 32;
-            changespritestat(i, STAT_ZOMBIEACTOR);
+            pSprite->cstat   |= 257;
+            pSprite->clipdist = 32;
+            changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
 
         case QUEBALL__STATIC:
         case STRIPEBALL__STATIC:
-            sp->cstat = 256;
-            sp->clipdist = 8;
-            changespritestat(i, STAT_ZOMBIEACTOR);
+            pSprite->cstat    = 256;
+            pSprite->clipdist = 8;
+            changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
 
         case DUKELYINGDEAD__STATIC:
-            if (j >= 0 && sprite[j].picnum == APLAYER)
+            if (spriteNum >= 0 && sprite[spriteNum].picnum == APLAYER)
             {
-                sp->xrepeat = sprite[j].xrepeat;
-                sp->yrepeat = sprite[j].yrepeat;
-                sp->shade = sprite[j].shade;
-                sp->pal = g_player[P_Get(j)].ps->palookup;
+                pSprite->xrepeat = sprite[spriteNum].xrepeat;
+                pSprite->yrepeat = sprite[spriteNum].yrepeat;
+                pSprite->shade   = sprite[spriteNum].shade;
+                pSprite->pal     = g_player[P_Get(spriteNum)].ps->palookup;
             }
         case DUKECAR__STATIC:
         case HELECOPT__STATIC:
             //                if(sp->picnum == HELECOPT || sp->picnum == DUKECAR) sp->xvel = 1024;
-            sp->cstat = 0;
-            sp->extra = 1;
-            sp->xvel = 292;
-            sp->zvel = 360;
+            pSprite->cstat = 0;
+            pSprite->extra = 1;
+            pSprite->xvel  = 292;
+            pSprite->zvel  = 360;
         case BLIMP__STATIC:
-            sp->cstat |= 257;
-            sp->clipdist = 128;
-            changespritestat(i, STAT_ACTOR);
+            pSprite->cstat   |= 257;
+            pSprite->clipdist = 128;
+            changespritestat(newSprite, STAT_ACTOR);
             break;
 
         case RESPAWNMARKERRED__STATIC:
-            sp->xrepeat = sp->yrepeat = 24;
-            if (j >= 0) sp->z = actor[j].floorz; // -(1<<4);
-            changespritestat(i, STAT_ACTOR);
+            pSprite->xrepeat = pSprite->yrepeat = 24;
+            if (spriteNum >= 0)
+                pSprite->z = actor[spriteNum].floorz;  // -(1<<4);
+            changespritestat(newSprite, STAT_ACTOR);
             break;
 
         case MIKE__STATIC:
-            sp->yvel = sp->hitag;
-            sp->hitag = 0;
-            changespritestat(i, STAT_ACTOR);
+            pSprite->yvel  = pSprite->hitag;
+            pSprite->hitag = 0;
+            changespritestat(newSprite, STAT_ACTOR);
             break;
         case WEATHERWARN__STATIC:
-            changespritestat(i, STAT_ACTOR);
+            changespritestat(newSprite, STAT_ACTOR);
             break;
 
         case SPOTLITE__STATIC:
-            T1(i) = sp->x;
-            T2(i) = sp->y;
+            T1(newSprite) = pSprite->x;
+            T2(newSprite) = pSprite->y;
             break;
         case BULLETHOLE__STATIC:
-            sp->xrepeat = sp->yrepeat = 3;
-            sp->cstat = 16+(krand()&12);
-            A_AddToDeleteQueue(i);
-            changespritestat(i, STAT_MISC);
+            pSprite->xrepeat = 3;
+            pSprite->yrepeat = 3;
+            pSprite->cstat   = 16 + (krand() & 12);
+
+            A_AddToDeleteQueue(newSprite);
+            changespritestat(newSprite, STAT_MISC);
             break;
 
         case MONEY__STATIC:
         case MAIL__STATIC:
         case PAPER__STATIC:
-            actor[i].t_data[0] = krand()&2047;
-            sp->cstat = krand()&12;
-            sp->xrepeat = sp->yrepeat = 8;
-            sp->ang = krand()&2047;
-            changespritestat(i, STAT_MISC);
+            actor[newSprite].t_data[0] = krand() & 2047;
+
+            pSprite->cstat   = krand() & 12;
+            pSprite->xrepeat = 8;
+            pSprite->yrepeat = 8;
+            pSprite->ang     = krand() & 2047;
+
+            changespritestat(newSprite, STAT_MISC);
             break;
 
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
-            sp->owner = i;
-            sp->lotag = sp->extra = 1;
-            changespritestat(i, STAT_STANDABLE);
+            pSprite->owner = newSprite;
+            pSprite->lotag = pSprite->extra = 1;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
 
         case SHELL__STATIC: //From the player
         case SHOTGUNSHELL__STATIC:
-            if (j >= 0)
+            if (spriteNum >= 0)
             {
-                int32_t a;
+                int shellAng;
 
-                if (sprite[j].picnum == APLAYER)
+                if (sprite[spriteNum].picnum == APLAYER)
                 {
-                    int32_t snum = P_Get(j);
-                    const DukePlayer_t *const ps = g_player[snum].ps;
+                    int const                 playerNum = P_Get(spriteNum);
+                    const DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
 
-                    a = ps->ang-(krand()&63)+8;  //Fine tune
+                    shellAng = pPlayer->ang - (krand() & 63) + 8;  // Fine tune
 
-                    T1(i) = krand()&1;
-                    sp->z = (3<<8) + ps->pyoff + ps->pos.z - ((ps->horizoff + ps->horiz-100)<<4);
-                    if (sp->picnum == SHOTGUNSHELL)
-                        sp->z += (3<<8);
-                    sp->zvel = -(krand()&255);
+                    T1(newSprite) = krand() & 1;
+
+                    pSprite->z = (3 << 8) + pPlayer->pyoff + pPlayer->pos.z - ((pPlayer->horizoff + pPlayer->horiz - 100) << 4);
+
+                    if (pSprite->picnum == SHOTGUNSHELL)
+                        pSprite->z += (3 << 8);
+
+                    pSprite->zvel = -(krand() & 255);
                 }
                 else
                 {
-                    a = sp->ang;
-                    sp->z = sprite[j].z-PHEIGHT+(3<<8);
+                    shellAng          = pSprite->ang;
+                    pSprite->z = sprite[spriteNum].z - PHEIGHT + (3 << 8);
                 }
 
-                sp->x = sprite[j].x+(sintable[(a+512)&2047]>>7);
-                sp->y = sprite[j].y+(sintable[a&2047]>>7);
+                pSprite->x     = sprite[spriteNum].x + (sintable[(shellAng + 512) & 2047] >> 7);
+                pSprite->y     = sprite[spriteNum].y + (sintable[shellAng & 2047] >> 7);
+                pSprite->shade = -8;
 
-                sp->shade = -8;
-
-                if (sp->yvel == 1 || NAM_WW2GI)
+                if (pSprite->yvel == 1 || NAM_WW2GI)
                 {
-                    sp->ang = a+512;
-                    sp->xvel = 30;
+                    pSprite->ang  = shellAng + 512;
+                    pSprite->xvel = 30;
                 }
                 else
                 {
-                    sp->ang = a-512;
-                    sp->xvel = 20;
+                    pSprite->ang  = shellAng - 512;
+                    pSprite->xvel = 20;
                 }
-                sp->xrepeat=sp->yrepeat=4;
 
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 4;
+
+                changespritestat(newSprite, STAT_MISC);
             }
             break;
 
         case RESPAWN__STATIC:
-            sp->extra = 66-13;
+            pSprite->extra = 66-13;
         case MUSICANDSFX__STATIC:
-            if ((!g_netServer && ud.multimode < 2) && sp->pal == 1)
+            if ((!g_netServer && ud.multimode < 2) && pSprite->pal == 1)
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
-            sp->cstat = 32768;
-            changespritestat(i, STAT_FX);
+            pSprite->cstat = 32768;
+            changespritestat(newSprite, STAT_FX);
             break;
 
         case EXPLOSION2__STATIC:
-            if (sp->yrepeat > 32)
+            if (pSprite->yrepeat > 32)
             {
-                G_AddGameLight(0, i, ((sp->yrepeat*tilesiz[sp->picnum].y)<<1), 32768, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
-                actor[i].lightcount = 2;
+                G_AddGameLight(0, newSprite, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 32768, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
+                actor[newSprite].lightcount = 2;
             }
         case EXPLOSION2BOT__STATIC:
         case BURNING__STATIC:
@@ -2146,185 +2169,201 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case SHRINKEREXPLOSION__STATIC:
         case COOLEXPLOSION1__STATIC:
 
-            if (j >= 0)
+            if (spriteNum >= 0)
             {
-                sp->ang = sprite[j].ang;
-                sp->shade = -64;
-                sp->cstat = 128|(krand()&4);
+                pSprite->ang = sprite[spriteNum].ang;
+                pSprite->shade = -64;
+                pSprite->cstat = 128|(krand()&4);
             }
 
-            if (sp->picnum == EXPLOSION2 || sp->picnum == EXPLOSION2BOT)
+            if (pSprite->picnum == EXPLOSION2 || pSprite->picnum == EXPLOSION2BOT)
             {
-                sp->xrepeat = sp->yrepeat = 48;
-                sp->shade = -127;
-                sp->cstat |= 128;
+                pSprite->xrepeat = pSprite->yrepeat = 48;
+                pSprite->shade = -127;
+                pSprite->cstat |= 128;
             }
-            else if (sp->picnum == SHRINKEREXPLOSION)
-                sp->xrepeat = sp->yrepeat = 32;
-            else if (sp->picnum == SMALLSMOKE)
+            else if (pSprite->picnum == SHRINKEREXPLOSION)
+                pSprite->xrepeat = pSprite->yrepeat = 32;
+            else if (pSprite->picnum == SMALLSMOKE)
             {
                 // 64 "money"
-                sp->xrepeat = sp->yrepeat = 24;
+                pSprite->xrepeat = pSprite->yrepeat = 24;
             }
-            else if (sp->picnum == BURNING || sp->picnum == BURNING2)
-                sp->xrepeat = sp->yrepeat = 4;
+            else if (pSprite->picnum == BURNING || pSprite->picnum == BURNING2)
+                pSprite->xrepeat = pSprite->yrepeat = 4;
 
-            sp->cstat |= 8192;
+            pSprite->cstat |= 8192;
 
-            if (j >= 0)
+            if (spriteNum >= 0)
             {
-                int32_t z = getflorzofslope(sp->sectnum,sp->x,sp->y);
-                if (sp->z > z-ZOFFSET4)
-                    sp->z = z-ZOFFSET4;
+                int const floorZ = getflorzofslope(pSprite->sectnum, pSprite->x, pSprite->y);
+
+                if (pSprite->z > floorZ-ZOFFSET4)
+                    pSprite->z = floorZ-ZOFFSET4;
             }
 
-            changespritestat(i, STAT_MISC);
+            changespritestat(newSprite, STAT_MISC);
 
             break;
 
         case PLAYERONWATER__STATIC:
-            if (j >= 0)
+            if (spriteNum >= 0)
             {
-                sp->xrepeat = sprite[j].xrepeat;
-                sp->yrepeat = sprite[j].yrepeat;
-                sp->zvel = 128;
-                if (sector[sp->sectnum].lotag != ST_2_UNDERWATER)
-                    sp->cstat |= 32768;
+                pSprite->xrepeat = sprite[spriteNum].xrepeat;
+                pSprite->yrepeat = sprite[spriteNum].yrepeat;
+                pSprite->zvel = 128;
+                if (sector[pSprite->sectnum].lotag != ST_2_UNDERWATER)
+                    pSprite->cstat |= 32768;
             }
-            changespritestat(i, STAT_DUMMYPLAYER);
+            changespritestat(newSprite, STAT_DUMMYPLAYER);
             break;
 
         case APLAYER__STATIC:
-            sp->xrepeat = sp->yrepeat = 0;
-            sp->cstat = 32768;
-            if ((!g_netServer && ud.multimode < 2) ||
-                    ((GametypeFlags[ud.coop] & GAMETYPE_COOPSPAWN)/GAMETYPE_COOPSPAWN) != sp->lotag)
-                changespritestat(i,STAT_MISC);
-            else
-                changespritestat(i,STAT_PLAYER);
-            break;
-        case WATERBUBBLE__STATIC:
-            if (j >= 0 && sprite[j].picnum == APLAYER)
-                sp->z -= (16<<8);
-            if (sp->picnum == WATERBUBBLE)
-            {
-                if (j >= 0)
-                    sp->ang = sprite[j].ang;
-                sp->xrepeat = sp->yrepeat = 4;
-            }
-            else sp->xrepeat = sp->yrepeat = 32;
+            pSprite->xrepeat = 0;
+            pSprite->yrepeat = 0;
+            pSprite->cstat   = 32768;
 
-            changespritestat(i, STAT_MISC);
+            changespritestat(newSprite, ((!g_netServer && ud.multimode < 2)
+                                         || ((GametypeFlags[ud.coop] & GAMETYPE_COOPSPAWN) / GAMETYPE_COOPSPAWN) != pSprite->lotag)
+                                        ? STAT_MISC
+                                        : STAT_PLAYER);
+            break;
+
+        case WATERBUBBLE__STATIC:
+            if (spriteNum >= 0)
+            {
+                if (sprite[spriteNum].picnum == APLAYER)
+                    pSprite->z -= (16 << 8);
+
+                pSprite->ang = sprite[spriteNum].ang;
+            }
+
+            pSprite->xrepeat = pSprite->yrepeat = 4;
+            changespritestat(newSprite, STAT_MISC);
             break;
 
         case CRANE__STATIC:
 
-            sp->cstat |= 64|257;
+            pSprite->cstat |= 64|257;
 
-            sp->picnum += 2;
-            sp->z = sector[sect].ceilingz+(48<<8);
-            T5(i) = tempwallptr;
+            pSprite->picnum += 2;
+            pSprite->z = sector[sectNum].ceilingz+(48<<8);
+            T5(newSprite) = tempwallptr;
 
-            g_origins[tempwallptr] = *(vec2_t *) sp;
-            g_origins[tempwallptr+2].x = sp->z;
+            g_origins[tempwallptr] = *(vec2_t *) pSprite;
+            g_origins[tempwallptr+2].x = pSprite->z;
 
-            s = headspritestat[STAT_DEFAULT];
-            while (s >= 0)
+
+            if (headspritestat[STAT_DEFAULT] != -1)
             {
-                if (sprite[s].picnum == CRANEPOLE && SHT(i) == (sprite[s].hitag))
+                int findSprite = headspritestat[STAT_DEFAULT];
+
+                do
                 {
-                    g_origins[tempwallptr+2].y = s;
+                    if (sprite[findSprite].picnum == CRANEPOLE && SHT(newSprite) == (sprite[findSprite].hitag))
+                    {
+                        g_origins[tempwallptr + 2].y = findSprite;
 
-                    T2(i) = sprite[s].sectnum;
+                        T2(newSprite) = sprite[findSprite].sectnum;
 
-                    sprite[s].xrepeat = 48;
-                    sprite[s].yrepeat = 128;
+                        sprite[findSprite].xrepeat = 48;
+                        sprite[findSprite].yrepeat = 128;
 
-                    g_origins[tempwallptr+1] = *(vec2_t *)&sprite[s];
-                    *(vec3_t *) &sprite[s] = *(vec3_t *) sp;
-                    sprite[s].shade = sp->shade;
+                        g_origins[tempwallptr + 1]     = *(vec2_t *)&sprite[findSprite];
+                        *(vec3_t *)&sprite[findSprite] = *(vec3_t *)pSprite;
+                        sprite[findSprite].shade       = pSprite->shade;
 
-                    setsprite(s,(vec3_t *)&sprite[s]);
-                    break;
-                }
-                s = nextspritestat[s];
+                        setsprite(findSprite, (vec3_t *)&sprite[findSprite]);
+                        break;
+                    }
+                    findSprite = nextspritestat[findSprite];
+                } while (findSprite >= 0);
             }
 
             tempwallptr += 3;
-            sp->owner = -1;
-            sp->extra = 8;
-            changespritestat(i, STAT_STANDABLE);
+            pSprite->owner = -1;
+            pSprite->extra = 8;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
 
         case TRASH__STATIC:
-            sp->ang = krand()&2047;
-            sp->xrepeat = sp->yrepeat = 24;
-            changespritestat(i, STAT_STANDABLE);
+            pSprite->ang = krand()&2047;
+            pSprite->xrepeat = pSprite->yrepeat = 24;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
 
         case WATERDRIP__STATIC:
-            if (j >= 0 && (sprite[j].statnum == STAT_PLAYER || sprite[j].statnum == STAT_ACTOR))
+            if (spriteNum >= 0 && (sprite[spriteNum].statnum == STAT_PLAYER || sprite[spriteNum].statnum == STAT_ACTOR))
             {
-                sp->shade = 32;
-                if (sprite[j].pal != 1)
+                if (sprite[spriteNum].pal != 1)
                 {
-                    sp->pal = 2;
-                    sp->z -= (18<<8);
+                    pSprite->pal = 2;
+                    pSprite->z -= (18<<8);
                 }
-                else sp->z -= (13<<8);
-                sp->ang = getangle(g_player[0].ps->pos.x-sp->x,g_player[0].ps->pos.y-sp->y);
-                sp->xvel = 48-(krand()&31);
-                A_SetSprite(i,CLIPMASK0);
+                else pSprite->z -= (13<<8);
+
+                pSprite->shade = 32;
+                pSprite->ang   = getangle(g_player[0].ps->pos.x - pSprite->x, g_player[0].ps->pos.y - pSprite->y);
+                pSprite->xvel  = 48 - (krand() & 31);
+
+                A_SetSprite(newSprite,CLIPMASK0);
             }
-            else if (j == -1)
+            else if (spriteNum == -1)
             {
-                sp->z += (4<<8);
-                T1(i) = sp->z;
-                T2(i) = krand()&127;
+                pSprite->z += (4<<8);
+                T1(newSprite) = pSprite->z;
+                T2(newSprite) = krand()&127;
             }
         case WATERDRIPSPLASH__STATIC:
-            sp->xrepeat = sp->yrepeat = 24;
-            changespritestat(i, STAT_STANDABLE);
+            pSprite->xrepeat = pSprite->yrepeat = 24;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
 
         case PLUG__STATIC:
-            sp->lotag = 9999;
-            changespritestat(i, STAT_STANDABLE);
+            pSprite->lotag = 9999;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
+
         case TOUCHPLATE__STATIC:
-            T3(i) = sector[sect].floorz;
-            if (sector[sect].lotag != ST_1_ABOVE_WATER && sector[sect].lotag != ST_2_UNDERWATER)
-                sector[sect].floorz = sp->z;
-            if (sp->pal && (g_netServer || ud.multimode > 1))
+            T3(newSprite) = sector[sectNum].floorz;
+
+            if (sector[sectNum].lotag != ST_1_ABOVE_WATER && sector[sectNum].lotag != ST_2_UNDERWATER)
+                sector[sectNum].floorz = pSprite->z;
+
+            if (pSprite->pal && (g_netServer || ud.multimode > 1))
             {
-                sp->xrepeat=sp->yrepeat=0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat=pSprite->yrepeat=0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
+            // touchplate falls through
         case WATERBUBBLEMAKER__STATIC:
-            if (EDUKE32_PREDICT_FALSE(sp->hitag && sp->picnum == WATERBUBBLEMAKER))
+            if (EDUKE32_PREDICT_FALSE(pSprite->hitag && pSprite->picnum == WATERBUBBLEMAKER))
             {
                 // JBF 20030913: Pisses off X_Move(), eg. in bobsp2
                 OSD_Printf(OSD_ERROR "WARNING: WATERBUBBLEMAKER %d @ %d,%d with hitag!=0. Applying fixup.\n",
-                           i,TrackerCast(sp->x),TrackerCast(sp->y));
-                sp->hitag = 0;
+                           newSprite,TrackerCast(pSprite->x),TrackerCast(pSprite->y));
+                pSprite->hitag = 0;
             }
-            sp->cstat |= 32768;
-            changespritestat(i, STAT_STANDABLE);
+            pSprite->cstat |= 32768;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
+
         case MASTERSWITCH__STATIC:
-            if (sp->picnum == MASTERSWITCH)
-                sp->cstat |= 32768;
-            sp->yvel = 0;
-            changespritestat(i, STAT_STANDABLE);
+            if (pSprite->picnum == MASTERSWITCH)
+                pSprite->cstat |= 32768;
+            pSprite->yvel = 0;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
+
         case TARGET__STATIC:
         case DUCK__STATIC:
         case LETTER__STATIC:
-            sp->extra = 1;
-            sp->cstat |= 257;
-            changespritestat(i, STAT_ACTOR);
+            pSprite->extra = 1;
+            pSprite->cstat |= 257;
+            changespritestat(newSprite, STAT_ACTOR);
             break;
+
         case OCTABRAINSTAYPUT__STATIC:
         case LIZTROOPSTAYPUT__STATIC:
         case PIGCOPSTAYPUT__STATIC:
@@ -2333,15 +2372,15 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case PIGCOPDIVE__STATIC:
         case COMMANDERSTAYPUT__STATIC:
         case BOSS4STAYPUT__STATIC:
-            actor[i].actorstayput = sp->sectnum;
+            actor[newSprite].actorstayput = pSprite->sectnum;
         case BOSS1__STATIC:
         case BOSS2__STATIC:
         case BOSS3__STATIC:
         case BOSS4__STATIC:
         case ROTATEGUN__STATIC:
         case GREENSLIME__STATIC:
-            if (sp->picnum == GREENSLIME)
-                sp->extra = 1;
+            if (pSprite->picnum == GREENSLIME)
+                pSprite->extra = 1;
         case DRONE__STATIC:
         case LIZTROOPONTOILET__STATIC:
         case LIZTROOPJUSTSIT__STATIC:
@@ -2361,209 +2400,211 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case RAT__STATIC:
         case SHARK__STATIC:
 
-            if (sp->pal == 0)
+            if (pSprite->pal == 0)
             {
-                switch (DYNAMICTILEMAP(sp->picnum))
+                switch (DYNAMICTILEMAP(pSprite->picnum))
                 {
-                case LIZTROOPONTOILET__STATIC:
-                case LIZTROOPSHOOT__STATIC:
-                case LIZTROOPJETPACK__STATIC:
-                case LIZTROOPDUCKING__STATIC:
-                case LIZTROOPRUNNING__STATIC:
-                case LIZTROOPSTAYPUT__STATIC:
-                case LIZTROOPJUSTSIT__STATIC:
-                case LIZTROOP__STATIC:
-                    sp->pal = 22;
-                    break;
+                    case LIZTROOPONTOILET__STATIC:
+                    case LIZTROOPSHOOT__STATIC:
+                    case LIZTROOPJETPACK__STATIC:
+                    case LIZTROOPDUCKING__STATIC:
+                    case LIZTROOPRUNNING__STATIC:
+                    case LIZTROOPSTAYPUT__STATIC:
+                    case LIZTROOPJUSTSIT__STATIC:
+                    case LIZTROOP__STATIC: pSprite->pal = 22; break;
                 }
             }
             else
             {
                 if (!PLUTOPAK)
-                    sp->extra <<= 1;
+                    pSprite->extra <<= 1;
             }
 
-            if (sp->picnum == BOSS4STAYPUT || sp->picnum == BOSS1 || sp->picnum == BOSS2 ||
-                sp->picnum == BOSS1STAYPUT || sp->picnum == BOSS3 || sp->picnum == BOSS4)
+            if (pSprite->picnum == BOSS4STAYPUT || pSprite->picnum == BOSS1 || pSprite->picnum == BOSS2 ||
+                pSprite->picnum == BOSS1STAYPUT || pSprite->picnum == BOSS3 || pSprite->picnum == BOSS4)
             {
-                if (j >= 0 && sprite[j].picnum == RESPAWN)
-                    sp->pal = sprite[j].pal;
-                if (sp->pal)
+                if (spriteNum >= 0 && sprite[spriteNum].picnum == RESPAWN)
+                    pSprite->pal = sprite[spriteNum].pal;
+
+                if (pSprite->pal)
                 {
-                    sp->clipdist = 80;
-                    sp->xrepeat = sp->yrepeat = 40;
+                    pSprite->clipdist = 80;
+                    pSprite->xrepeat  = pSprite->yrepeat = 40;
                 }
                 else
                 {
-                    sp->xrepeat = sp->yrepeat = 80;
-                    sp->clipdist = 164;
+                    pSprite->xrepeat  = pSprite->yrepeat = 80;
+                    pSprite->clipdist = 164;
                 }
             }
             else
             {
-                if (sp->picnum != SHARK)
+                if (pSprite->picnum != SHARK)
                 {
-                    sp->xrepeat = sp->yrepeat = 40;
-                    sp->clipdist = 80;
+                    pSprite->xrepeat  = pSprite->yrepeat = 40;
+                    pSprite->clipdist = 80;
                 }
                 else
                 {
-                    sp->xrepeat = sp->yrepeat = 60;
-                    sp->clipdist = 40;
+                    pSprite->xrepeat  = pSprite->yrepeat = 60;
+                    pSprite->clipdist = 40;
                 }
             }
 
             // If spawned from parent sprite (as opposed to 'from premap'),
             // ignore skill.
-            if (j >= 0) sp->lotag = 0;
+            if (spriteNum >= 0)
+                pSprite->lotag = 0;
 
-            if ((sp->lotag > ud.player_skill) || ud.monsters_off == 1)
+            if ((pSprite->lotag > ud.player_skill) || ud.monsters_off == 1)
             {
-                sp->xrepeat=sp->yrepeat=0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat=pSprite->yrepeat=0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
             else
             {
-                A_Fall(i);
+                A_Fall(newSprite);
 
-                if (sp->picnum == RAT)
+                if (pSprite->picnum == RAT)
                 {
-                    sp->ang = krand()&2047;
-                    sp->xrepeat = sp->yrepeat = 48;
-                    sp->cstat = 0;
+                    pSprite->ang = krand()&2047;
+                    pSprite->xrepeat = pSprite->yrepeat = 48;
+                    pSprite->cstat = 0;
                 }
                 else
                 {
-                    sp->cstat |= 257;
+                    pSprite->cstat |= 257;
 
-                    if (sp->picnum != SHARK)
+                    if (pSprite->picnum != SHARK)
                         g_player[myconnectindex].ps->max_actors_killed++;
                 }
 
-                if (sp->picnum == ORGANTIC) sp->cstat |= 128;
+                if (pSprite->picnum == ORGANTIC) pSprite->cstat |= 128;
 
-                if (j >= 0)
+                if (spriteNum >= 0)
                 {
-                    actor[i].timetosleep = 0;
-                    A_PlayAlertSound(i);
-                    changespritestat(i, STAT_ACTOR);
+                    actor[newSprite].timetosleep = 0;
+                    A_PlayAlertSound(newSprite);
+                    changespritestat(newSprite, STAT_ACTOR);
                 }
-                else changespritestat(i, STAT_ZOMBIEACTOR);
+                else changespritestat(newSprite, STAT_ZOMBIEACTOR);
             }
 
-            if (sp->picnum == ROTATEGUN)
-                sp->zvel = 0;
+            if (pSprite->picnum == ROTATEGUN)
+                pSprite->zvel = 0;
 
             break;
 
         case LOCATORS__STATIC:
-            sp->cstat |= 32768;
-            changespritestat(i, STAT_LOCATOR);
+            pSprite->cstat |= 32768;
+            changespritestat(newSprite, STAT_LOCATOR);
             break;
 
         case ACTIVATORLOCKED__STATIC:
         case ACTIVATOR__STATIC:
-            sp->cstat = 32768;
-            if (sp->picnum == ACTIVATORLOCKED)
-                sector[sp->sectnum].lotag |= 16384;
-            changespritestat(i, STAT_ACTIVATOR);
+            pSprite->cstat = 32768;
+            if (pSprite->picnum == ACTIVATORLOCKED)
+                sector[pSprite->sectnum].lotag |= 16384;
+            changespritestat(newSprite, STAT_ACTIVATOR);
             break;
 
         case DOORSHOCK__STATIC:
-            sp->cstat |= 1+256;
-            sp->shade = -12;
-            changespritestat(i, STAT_STANDABLE);
+            pSprite->cstat |= 1+256;
+            pSprite->shade = -12;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
 
         case OOZ__STATIC:
         case OOZ2__STATIC:
-            sp->shade = -12;
+        {
+            pSprite->shade = -12;
 
-            if (j >= 0)
+            if (spriteNum >= 0)
             {
-                if (sprite[j].picnum == NUKEBARREL)
-                    sp->pal = 8;
-                A_AddToDeleteQueue(i);
+                if (sprite[spriteNum].picnum == NUKEBARREL)
+                    pSprite->pal = 8;
+                A_AddToDeleteQueue(newSprite);
             }
 
-            changespritestat(i, STAT_ACTOR);
+            changespritestat(newSprite, STAT_ACTOR);
 
-            A_GetZLimits(i);
+            A_GetZLimits(newSprite);
 
-            j = (actor[i].floorz-actor[i].ceilingz)>>9;
+            int const oozSize = (actor[newSprite].floorz-actor[newSprite].ceilingz)>>9;
 
-            sp->yrepeat = j;
-            sp->xrepeat = 25-(j>>1);
-            sp->cstat |= (krand()&4);
+            pSprite->yrepeat = oozSize;
+            pSprite->xrepeat = 25-(oozSize>>1);
+            pSprite->cstat |= (krand()&4);
 
             break;
+        }
 
         case REACTOR2__STATIC:
         case REACTOR__STATIC:
-            sp->extra = g_impactDamage;
-            CS(i) |= 257;
-            if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
+            pSprite->extra = g_impactDamage;
+            CS(newSprite) |= 257;
+            if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
-            sp->pal = 0;
-            SS(i) = -17;
+            pSprite->pal = 0;
+            SS(newSprite) = -17;
 
-            changespritestat(i, STAT_ZOMBIEACTOR);
+            changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
 
         case HEAVYHBOMB__STATIC:
-            if (j >= 0)
-                sp->owner = j;
-            else sp->owner = i;
+            if (spriteNum >= 0)
+                pSprite->owner = spriteNum;
+            else pSprite->owner = newSprite;
 
-            sp->xrepeat = sp->yrepeat = 9;
-            sp->yvel = 4;
-            CS(i) |= 257;
+            pSprite->xrepeat = pSprite->yrepeat = 9;
+            pSprite->yvel = 4;
+            CS(newSprite) |= 257;
 
-            if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
+            if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
-            sp->pal = 0;
-            SS(i) = -17;
+            pSprite->pal = 0;
+            SS(newSprite) = -17;
 
-            changespritestat(i, STAT_ZOMBIEACTOR);
+            changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
 
         case RECON__STATIC:
-            if (sp->lotag > ud.player_skill)
+            if (pSprite->lotag > ud.player_skill)
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 goto SPAWN_END;
             }
             g_player[myconnectindex].ps->max_actors_killed++;
-            actor[i].t_data[5] = 0;
+            actor[newSprite].t_data[5] = 0;
             if (ud.monsters_off == 1)
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
-            sp->extra = 130;
-            CS(i) |= 256; // Make it hitable
+            pSprite->extra = 130;
+            CS(newSprite) |= 256; // Make it hitable
 
-            if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
+            if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
-            sp->pal = 0;
-            SS(i) = -17;
+            pSprite->pal = 0;
+            SS(newSprite) = -17;
 
-            changespritestat(i, STAT_ZOMBIEACTOR);
+            changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
 
         case ATOMICHEALTH__STATIC:
@@ -2598,121 +2639,121 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case FIRSTAID__STATIC:
         case SIXPAK__STATIC:
 
-            if (j >= 0)
+            if (spriteNum >= 0)
             {
-                sp->lotag = 0;
-                sp->z -= (32<<8);
-                sp->zvel = -1024;
-                A_SetSprite(i,CLIPMASK0);
-                sp->cstat = krand()&4;
+                pSprite->lotag = 0;
+                pSprite->z -= ZOFFSET5;
+                pSprite->zvel = -1024;
+                A_SetSprite(newSprite,CLIPMASK0);
+                pSprite->cstat = krand()&4;
             }
             else
             {
-                sp->owner = i;
-                sp->cstat = 0;
+                pSprite->owner = newSprite;
+                pSprite->cstat = 0;
             }
 
-            if (((!g_netServer && ud.multimode < 2) && sp->pal != 0) || (sp->lotag > ud.player_skill))
+            if (((!g_netServer && ud.multimode < 2) && pSprite->pal != 0) || (pSprite->lotag > ud.player_skill))
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
 
-            sp->pal = 0;
+            pSprite->pal = 0;
 
         case ACCESSCARD__STATIC:
 
-            if (sp->picnum == ATOMICHEALTH)
-                sp->cstat |= 128;
+            if (pSprite->picnum == ATOMICHEALTH)
+                pSprite->cstat |= 128;
 
-            if ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_ACCESSCARDSPRITES) && sp->picnum == ACCESSCARD)
+            if ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_ACCESSCARDSPRITES) && pSprite->picnum == ACCESSCARD)
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
             else
             {
-                if (sp->picnum == AMMO)
-                    sp->xrepeat = sp->yrepeat = 16;
-                else sp->xrepeat = sp->yrepeat = 32;
+                if (pSprite->picnum == AMMO)
+                    pSprite->xrepeat = pSprite->yrepeat = 16;
+                else pSprite->xrepeat = pSprite->yrepeat = 32;
             }
 
-            sp->shade = -17;
+            pSprite->shade = -17;
 
-            if (j >= 0) changespritestat(i, STAT_ACTOR);
+            if (spriteNum >= 0) changespritestat(newSprite, STAT_ACTOR);
             else
             {
-                changespritestat(i, STAT_ZOMBIEACTOR);
-                A_Fall(i);
+                changespritestat(newSprite, STAT_ZOMBIEACTOR);
+                A_Fall(newSprite);
             }
             break;
 
         case WATERFOUNTAIN__STATIC:
-            SLT(i) = 1;
+            SLT(newSprite) = 1;
 
         case TREE1__STATIC:
         case TREE2__STATIC:
         case TIRE__STATIC:
         case CONE__STATIC:
         case BOX__STATIC:
-            CS(i) = 257; // Make it hitable
-            sprite[i].extra = 1;
-            changespritestat(i, STAT_STANDABLE);
+            CS(newSprite) = 257; // Make it hitable
+            sprite[newSprite].extra = 1;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
 
         case FLOORFLAME__STATIC:
-            sp->shade = -127;
-            changespritestat(i, STAT_STANDABLE);
+            pSprite->shade = -127;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
 
         case BOUNCEMINE__STATIC:
-            sp->owner = i;
-            sp->cstat |= 1+256; //Make it hitable
-            sp->xrepeat = sp->yrepeat = 24;
-            sp->shade = -127;
-            sp->extra = g_impactDamage<<2;
-            changespritestat(i, STAT_ZOMBIEACTOR);
+            pSprite->owner = newSprite;
+            pSprite->cstat |= 1+256; //Make it hitable
+            pSprite->xrepeat = pSprite->yrepeat = 24;
+            pSprite->shade = -127;
+            pSprite->extra = g_impactDamage<<2;
+            changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
 
         case STEAM__STATIC:
-            if (j >= 0)
+            if (spriteNum >= 0)
             {
-                sp->ang = sprite[j].ang;
-                sp->cstat = 16+128+2;
-                sp->xrepeat=sp->yrepeat=1;
-                sp->xvel = -8;
-                A_SetSprite(i,CLIPMASK0);
+                pSprite->ang = sprite[spriteNum].ang;
+                pSprite->cstat = 16+128+2;
+                pSprite->xrepeat=pSprite->yrepeat=1;
+                pSprite->xvel = -8;
+                A_SetSprite(newSprite,CLIPMASK0);
             }
         case CEILINGSTEAM__STATIC:
-            changespritestat(i, STAT_STANDABLE);
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
 
         case SECTOREFFECTOR__STATIC:
-            sp->cstat |= 32768;
-            sp->xrepeat = sp->yrepeat = 0;
+            pSprite->cstat |= 32768;
+            pSprite->xrepeat = pSprite->yrepeat = 0;
 
-            switch (sp->lotag)
+            switch (pSprite->lotag)
             {
 #ifdef LEGACY_ROR
             case 40:
             case 41:
-                sp->cstat = 32;
-                sp->xrepeat = sp->yrepeat = 64;
-                changespritestat(i, STAT_EFFECTOR);
-                for (j=0; j < MAXSPRITES; j++)
-                    if (sprite[j].picnum == SECTOREFFECTOR && (sprite[j].lotag == 40 || sprite[j].lotag == 41) &&
-                            sprite[j].hitag == sp->hitag && i != j)
+                pSprite->cstat = 32;
+                pSprite->xrepeat = pSprite->yrepeat = 64;
+                changespritestat(newSprite, STAT_EFFECTOR);
+                for (spriteNum=0; spriteNum < MAXSPRITES; spriteNum++)
+                    if (sprite[spriteNum].picnum == SECTOREFFECTOR && (sprite[spriteNum].lotag == 40 || sprite[spriteNum].lotag == 41) &&
+                            sprite[spriteNum].hitag == pSprite->hitag && newSprite != spriteNum)
                     {
 //                        initprintf("found ror match\n");
-                        sp->yvel = j;
+                        pSprite->yvel = spriteNum;
                         break;
                     }
                 goto SPAWN_END;
                 break;
             case 46:
-                ror_protectedsectors[sp->sectnum] = 1;
+                ror_protectedsectors[pSprite->sectnum] = 1;
                 /* XXX: fall-through intended? */
 #endif
             case SE_49_POINT_LIGHT:
@@ -2720,106 +2761,106 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             {
                 int32_t j, nextj;
 
-                for (TRAVERSE_SPRITE_SECT(headspritesect[sp->sectnum], j, nextj))
+                for (TRAVERSE_SPRITE_SECT(headspritesect[pSprite->sectnum], j, nextj))
                     if (sprite[j].picnum == ACTIVATOR || sprite[j].picnum == ACTIVATORLOCKED)
-                        actor[i].flags |= SFLAG_USEACTIVATOR;
+                        actor[newSprite].flags |= SFLAG_USEACTIVATOR;
             }
-            changespritestat(i, sp->lotag==46 ? STAT_EFFECTOR : STAT_LIGHT);
+            changespritestat(newSprite, pSprite->lotag==46 ? STAT_EFFECTOR : STAT_LIGHT);
             goto SPAWN_END;
             break;
             }
 
-            sp->yvel = sector[sect].extra;
+            pSprite->yvel = sector[sectNum].extra;
 
-            switch (sp->lotag)
+            switch (pSprite->lotag)
             {
             case SE_28_LIGHTNING:
-                T6(i) = 65;// Delay for lightning
+                T6(newSprite) = 65;// Delay for lightning
                 break;
             case SE_7_TELEPORT: // Transporters!!!!
             case SE_23_ONE_WAY_TELEPORT:// XPTR END
-                if (sp->lotag != SE_23_ONE_WAY_TELEPORT)
+                if (pSprite->lotag != SE_23_ONE_WAY_TELEPORT)
                 {
-                    for (j=0; j<MAXSPRITES; j++)
-                        if (sprite[j].statnum < MAXSTATUS && sprite[j].picnum == SECTOREFFECTOR &&
-                                (sprite[j].lotag == SE_7_TELEPORT || sprite[j].lotag == SE_23_ONE_WAY_TELEPORT) && i != j && sprite[j].hitag == SHT(i))
+                    for (spriteNum=0; spriteNum<MAXSPRITES; spriteNum++)
+                        if (sprite[spriteNum].statnum < MAXSTATUS && sprite[spriteNum].picnum == SECTOREFFECTOR &&
+                                (sprite[spriteNum].lotag == SE_7_TELEPORT || sprite[spriteNum].lotag == SE_23_ONE_WAY_TELEPORT) && newSprite != spriteNum && sprite[spriteNum].hitag == SHT(newSprite))
                         {
-                            OW(i) = j;
+                            OW(newSprite) = spriteNum;
                             break;
                         }
                 }
-                else OW(i) = i;
+                else OW(newSprite) = newSprite;
 
-                T5(i) = (sector[sect].floorz == SZ(i));  // ONFLOORZ
-                sp->cstat = 0;
-                changespritestat(i, STAT_TRANSPORT);
+                T5(newSprite) = (sector[sectNum].floorz == SZ(newSprite));  // ONFLOORZ
+                pSprite->cstat = 0;
+                changespritestat(newSprite, STAT_TRANSPORT);
                 goto SPAWN_END;
             case SE_1_PIVOT:
-                sp->owner = -1;
-                T1(i) = 1;
+                pSprite->owner = -1;
+                T1(newSprite) = 1;
                 break;
             case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 
-                if (sp->ang == 512)
+                if (pSprite->ang == 512)
                 {
-                    T2(i) = sector[sect].ceilingz;
-                    if (sp->pal)
-                        sector[sect].ceilingz = sp->z;
+                    T2(newSprite) = sector[sectNum].ceilingz;
+                    if (pSprite->pal)
+                        sector[sectNum].ceilingz = pSprite->z;
                 }
                 else
                 {
-                    T2(i) = sector[sect].floorz;
-                    if (sp->pal)
-                        sector[sect].floorz = sp->z;
+                    T2(newSprite) = sector[sectNum].floorz;
+                    if (pSprite->pal)
+                        sector[sectNum].floorz = pSprite->z;
                 }
 
-                sp->hitag <<= 2;
+                pSprite->hitag <<= 2;
                 break;
 
             case SE_19_EXPLOSION_LOWERS_CEILING:
-                sp->owner = -1;
+                pSprite->owner = -1;
                 break;
             case SE_25_PISTON: // Pistons
-                T4(i) = sector[sect].ceilingz;
-                T5(i) = 1;
-                sector[sect].ceilingz = sp->z;
-                G_SetInterpolation(&sector[sect].ceilingz);
+                T4(newSprite) = sector[sectNum].ceilingz;
+                T5(newSprite) = 1;
+                sector[sectNum].ceilingz = pSprite->z;
+                G_SetInterpolation(&sector[sectNum].ceilingz);
                 break;
             case SE_35:
-                sector[sect].ceilingz = sp->z;
+                sector[sectNum].ceilingz = pSprite->z;
                 break;
             case SE_27_DEMO_CAM:
                 if (ud.recstat == 1)
                 {
-                    sp->xrepeat=sp->yrepeat=64;
-                    sp->cstat &= 32768;
+                    pSprite->xrepeat=pSprite->yrepeat=64;
+                    pSprite->cstat &= 32768;
                 }
                 break;
             case SE_12_LIGHT_SWITCH:
 
-                T2(i) = sector[sect].floorshade;
-                T3(i) = sector[sect].ceilingshade;
+                T2(newSprite) = sector[sectNum].floorshade;
+                T3(newSprite) = sector[sectNum].ceilingshade;
                 break;
 
             case SE_13_EXPLOSIVE:
 
-                T1(i) = sector[sect].ceilingz;
-                T2(i) = sector[sect].floorz;
+                T1(newSprite) = sector[sectNum].ceilingz;
+                T2(newSprite) = sector[sectNum].floorz;
 
-                if (klabs(T1(i)-sp->z) < klabs(T2(i)-sp->z))
-                    sp->owner = 1;
-                else sp->owner = 0;
+                if (klabs(T1(newSprite)-pSprite->z) < klabs(T2(newSprite)-pSprite->z))
+                    pSprite->owner = 1;
+                else pSprite->owner = 0;
 
-                if (sp->ang == 512)
+                if (pSprite->ang == 512)
                 {
-                    if (sp->owner)
-                        sector[sect].ceilingz = sp->z;
+                    if (pSprite->owner)
+                        sector[sectNum].ceilingz = pSprite->z;
                     else
-                        sector[sect].floorz = sp->z;
+                        sector[sectNum].floorz = pSprite->z;
 #ifdef YAX_ENABLE
                     {
-                        int16_t cf=!sp->owner, bn=yax_getbunch(sect, cf);
-                        int32_t jj, daz=SECTORFLD(sect,z, cf);
+                        int16_t cf=!pSprite->owner, bn=yax_getbunch(sectNum, cf);
+                        int32_t jj, daz=SECTORFLD(sectNum,z, cf);
 
                         if (bn >= 0)
                         {
@@ -2840,38 +2881,39 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 #endif
                 }
                 else
-                    sector[sect].ceilingz = sector[sect].floorz = sp->z;
+                    sector[sectNum].ceilingz = sector[sectNum].floorz = pSprite->z;
 
-                if (sector[sect].ceilingstat&1)
+                if (sector[sectNum].ceilingstat&1)
                 {
-                    sector[sect].ceilingstat ^= 1;
-                    T4(i) = 1;
+                    sector[sectNum].ceilingstat ^= 1;
+                    T4(newSprite) = 1;
 
-                    if (!sp->owner && sp->ang==512)
+                    if (!pSprite->owner && pSprite->ang==512)
                     {
-                        sector[sect].ceilingstat ^= 1;
-                        T4(i) = 0;
+                        sector[sectNum].ceilingstat ^= 1;
+                        T4(newSprite) = 0;
                     }
 
-                    sector[sect].ceilingshade =
-                        sector[sect].floorshade;
+                    sector[sectNum].ceilingshade =
+                        sector[sectNum].floorshade;
 
-                    if (sp->ang==512)
+                    if (pSprite->ang==512)
                     {
-                        startwall = sector[sect].wallptr;
-                        endwall = startwall+sector[sect].wallnum;
-                        for (j=startwall; j<endwall; j++)
+                        int const startwall = sector[sectNum].wallptr;
+                        int const endwall   = startwall + sector[sectNum].wallnum;
+                        for (int j = startwall; j < endwall; j++)
                         {
-                            int32_t x = wall[j].nextsector;
-                            if (x >= 0)
-                                if (!(sector[x].ceilingstat&1))
+                            int const nextSect = wall[j].nextsector;
+
+                            if (nextSect >= 0)
+                            {
+                                if (!(sector[nextSect].ceilingstat & 1))
                                 {
-                                    sector[sect].ceilingpicnum =
-                                        sector[x].ceilingpicnum;
-                                    sector[sect].ceilingshade =
-                                        sector[x].ceilingshade;
-                                    break; //Leave earily
+                                    sector[sectNum].ceilingpicnum = sector[nextSect].ceilingpicnum;
+                                    sector[sectNum].ceilingshade  = sector[nextSect].ceilingshade;
+                                    break;  // Leave earily
                                 }
+                            }
                         }
                     }
                 }
@@ -2879,381 +2921,389 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
 
             case SE_17_WARP_ELEVATOR:
+            {
+                T3(newSprite) = sector[sectNum].floorz;  // Stopping loc
 
-                T3(i) = sector[sect].floorz; //Stopping loc
+                int nextSectNum = nextsectorneighborz(sectNum, sector[sectNum].floorz, -1, -1);
 
-                j = nextsectorneighborz(sect,sector[sect].floorz,-1,-1);
-
-                if (EDUKE32_PREDICT_TRUE(j >= 0))
-                    T4(i) = sector[j].ceilingz;
+                if (EDUKE32_PREDICT_TRUE(nextSectNum >= 0))
+                    T4(newSprite) = sector[nextSectNum].ceilingz;
                 else
                 {
                     // use elevator sector's ceiling as heuristic
-                    T4(i) = sector[sect].ceilingz;
+                    T4(newSprite) = sector[sectNum].ceilingz;
 
                     OSD_Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector's ceilingz to "
-                               "determine when to warp. Sector %d adjacent to a door?\n", i, sect);
+                                         "determine when to warp. Sector %d adjacent to a door?\n",
+                               newSprite, sectNum);
                 }
 
-                j = nextsectorneighborz(sect,sector[sect].ceilingz,1,1);
+                nextSectNum = nextsectorneighborz(sectNum, sector[sectNum].ceilingz, 1, 1);
 
-                if (EDUKE32_PREDICT_TRUE(j >= 0))
-                    T5(i) = sector[j].floorz;
+                if (EDUKE32_PREDICT_TRUE(nextSectNum >= 0))
+                    T5(newSprite) = sector[nextSectNum].floorz;
                 else
                 {
                     // XXX: we should return to the menu for this and similar failures
-                    Bsprintf(tempbuf, "SE 17 (warp elevator) setup failed: sprite %d at (%d, %d)",
-                             i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y));
+                    Bsprintf(tempbuf, "SE 17 (warp elevator) setup failed: sprite %d at (%d, %d)", newSprite,
+                             TrackerCast(sprite[newSprite].x), TrackerCast(sprite[newSprite].y));
                     G_GameExit(tempbuf);
                 }
 
                 if (numplayers < 2 && !g_netServer)
                 {
-                    G_SetInterpolation(&sector[sect].floorz);
-                    G_SetInterpolation(&sector[sect].ceilingz);
+                    G_SetInterpolation(&sector[sectNum].floorz);
+                    G_SetInterpolation(&sector[sectNum].ceilingz);
                 }
-
-                break;
+            }
+            break;
 
             case SE_24_CONVEYOR:
-                sp->yvel <<= 1;
+                pSprite->yvel <<= 1;
             case SE_36_PROJ_SHOOTER:
                 break;
 
             case SE_20_STRETCH_BRIDGE:
             {
-                int32_t x, y, d, q = INT32_MAX;
-                int32_t clostest=0;
+                int       closestDist = INT32_MAX;
+                int       closestWall = 0;
+                int const startWall   = sector[sectNum].wallptr;
+                int const endWall     = startWall + sector[sectNum].wallnum;
 
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
-
-                //find the two most clostest wall x's and y's
-                for (s=startwall; s<endwall; s++)
+                for (int findWall=startWall; findWall<endWall; findWall++)
                 {
-                    x = wall[s].x;
-                    y = wall[s].y;
+                    int const x = wall[findWall].x;
+                    int const y = wall[findWall].y;
+                    int const d = FindDistance2D(pSprite->x - x, pSprite->y - y);
 
-                    d = FindDistance2D(sp->x-x,sp->y-y);
-                    if (d < q)
+                    if (d < closestDist)
                     {
-                        q = d;
-                        clostest = s;
+                        closestDist = d;
+                        closestWall = findWall;
                     }
                 }
 
-                T2(i) = clostest;
+                T2(newSprite) = closestWall;
 
-                q = INT32_MAX;
+                closestDist = INT32_MAX;
 
-                for (s=startwall; s<endwall; s++)
+                for (int findWall=startWall; findWall<endWall; findWall++)
                 {
-                    x = wall[s].x;
-                    y = wall[s].y;
+                    int const x = wall[findWall].x;
+                    int const y = wall[findWall].y;
+                    int const d = FindDistance2D(pSprite->x - x, pSprite->y - y);
 
-                    d = FindDistance2D(sp->x-x,sp->y-y);
-                    if (d < q && s != T2(i))
+                    if (d < closestDist && findWall != T2(newSprite))
                     {
-                        q = d;
-                        clostest = s;
+                        closestDist = d;
+                        closestWall = findWall;
                     }
                 }
 
-                T3(i) = clostest;
+                T3(newSprite) = closestWall;
             }
 
             break;
 
             case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
+            {
 
-                T4(i)=sector[sect].floorshade;
+                T4(newSprite)=sector[sectNum].floorshade;
 
-                sector[sect].floorshade = sp->shade;
-                sector[sect].ceilingshade = sp->shade;
+                sector[sectNum].floorshade   = pSprite->shade;
+                sector[sectNum].ceilingshade = pSprite->shade;
 
-                sp->owner = sector[sect].ceilingpal<<8;
-                sp->owner |= sector[sect].floorpal;
+                pSprite->owner = sector[sectNum].ceilingpal << 8;
+                pSprite->owner |= sector[sectNum].floorpal;
 
                 //fix all the walls;
 
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
+                int const startWall = sector[sectNum].wallptr;
+                int const endWall = startWall+sector[sectNum].wallnum;
 
-                for (s=startwall; s<endwall; s++)
+                for (int w=startWall; w<endWall; ++w)
                 {
-                    if (!(wall[s].hitag&1))
-                        wall[s].shade=sp->shade;
-                    if ((wall[s].cstat&2) && wall[s].nextwall >= 0)
-                        wall[wall[s].nextwall].shade = sp->shade;
+                    if (!(wall[w].hitag & 1))
+                        wall[w].shade = pSprite->shade;
+
+                    if ((wall[w].cstat & 2) && wall[w].nextwall >= 0)
+                        wall[wall[w].nextwall].shade = pSprite->shade;
                 }
                 break;
+            }
 
             case SE_31_FLOOR_RISE_FALL:
             {
-                T2(i) = sector[sect].floorz;
-                //    T3 = sp->hitag;
-                if (sp->ang != 1536)
+                T2(newSprite) = sector[sectNum].floorz;
+
+                if (pSprite->ang != 1536)
                 {
-                    sector[sect].floorz = sp->z;
-                    Yax_SetBunchZs(sect, YAX_FLOOR, sp->z);
+                    sector[sectNum].floorz = pSprite->z;
+                    Yax_SetBunchZs(sectNum, YAX_FLOOR, pSprite->z);
                 }
 
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
+                int const startWall = sector[sectNum].wallptr;
+                int const endWall   = startWall + sector[sectNum].wallnum;
 
-                for (s=startwall; s<endwall; s++)
-                    if (wall[s].hitag == 0) wall[s].hitag = 9999;
+                for (int w = startWall; w < endWall; ++w)
+                    if (wall[w].hitag == 0)
+                        wall[w].hitag = 9999;
 
-                G_SetInterpolation(&sector[sect].floorz);
-                Yax_SetBunchInterpolation(sect, YAX_FLOOR);
+                G_SetInterpolation(&sector[sectNum].floorz);
+                Yax_SetBunchInterpolation(sectNum, YAX_FLOOR);
             }
             break;
 
             case SE_32_CEILING_RISE_FALL:
             {
-                T2(i) = sector[sect].ceilingz;
-                T3(i) = sp->hitag;
-                if (sp->ang != 1536)
+                T2(newSprite) = sector[sectNum].ceilingz;
+                T3(newSprite) = pSprite->hitag;
+
+                if (pSprite->ang != 1536)
                 {
-                    sector[sect].ceilingz = sp->z;
-                    Yax_SetBunchZs(sect, YAX_CEILING, sp->z);
+                    sector[sectNum].ceilingz = pSprite->z;
+                    Yax_SetBunchZs(sectNum, YAX_CEILING, pSprite->z);
                 }
 
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
+                int const startWall = sector[sectNum].wallptr;
+                int const endWall   = startWall + sector[sectNum].wallnum;
 
-                for (s=startwall; s<endwall; s++)
-                    if (wall[s].hitag == 0) wall[s].hitag = 9999;
+                for (int w = startWall; w < endWall; ++w)
+                    if (wall[w].hitag == 0)
+                        wall[w].hitag = 9999;
 
-                G_SetInterpolation(&sector[sect].ceilingz);
-                Yax_SetBunchInterpolation(sect, YAX_CEILING);
+                G_SetInterpolation(&sector[sectNum].ceilingz);
+                Yax_SetBunchInterpolation(sectNum, YAX_CEILING);
             }
             break;
 
             case SE_4_RANDOM_LIGHTS: //Flashing lights
+            {
+                T3(newSprite) = sector[sectNum].floorshade;
 
-                T3(i) = sector[sect].floorshade;
+                int const startWall = sector[sectNum].wallptr;
+                int const endWall   = startWall + sector[sectNum].wallnum;
 
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
+                pSprite->owner = sector[sectNum].ceilingpal << 8;
+                pSprite->owner |= sector[sectNum].floorpal;
 
-                sp->owner = sector[sect].ceilingpal<<8;
-                sp->owner |= sector[sect].floorpal;
-
-                for (s=startwall; s<endwall; s++)
-                    if (wall[s].shade > T4(i))
-                        T4(i) = wall[s].shade;
-
-                break;
+                for (int w = startWall; w < endWall; ++w)
+                    if (wall[w].shade > T4(newSprite))
+                        T4(newSprite) = wall[w].shade;
+            }
+            break;
 
             case SE_9_DOWN_OPEN_DOOR_LIGHTS:
-                if (sector[sect].lotag &&
-                        labs(sector[sect].ceilingz-sp->z) > 1024)
-                    sector[sect].lotag |= 32768; //If its open
+                if (sector[sectNum].lotag &&
+                        labs(sector[sectNum].ceilingz-pSprite->z) > 1024)
+                    sector[sectNum].lotag |= 32768; //If its open
             case SE_8_UP_OPEN_DOOR_LIGHTS:
                 //First, get the ceiling-floor shade
+                {
+                    T1(newSprite) = sector[sectNum].floorshade;
+                    T2(newSprite) = sector[sectNum].ceilingshade;
 
-                T1(i) = sector[sect].floorshade;
-                T2(i) = sector[sect].ceilingshade;
+                    int const startWall = sector[sectNum].wallptr;
+                    int const endWall   = startWall + sector[sectNum].wallnum;
 
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
+                    for (int w = startWall; w < endWall; ++w)
+                        if (wall[w].shade > T3(newSprite))
+                            T3(newSprite) = wall[w].shade;
 
-                for (s=startwall; s<endwall; s++)
-                    if (wall[s].shade > T3(i))
-                        T3(i) = wall[s].shade;
-
-                T4(i) = 1; //Take Out;
-
+                    T4(newSprite) = 1;  // Take Out;
+                }
                 break;
 
-            case SE_11_SWINGING_DOOR://Pivitor rotater
-                T4(i) = (sp->ang > 1024) ? 2 : -2;
-                /* fall-through */
+            case SE_11_SWINGING_DOOR:  // Pivitor rotater
+                T4(newSprite) = (pSprite->ang > 1024) ? 2 : -2;
+            /* fall-through */
             case SE_0_ROTATING_SECTOR:
-            case SE_2_EARTHQUAKE://Earthquakemakers
-            case SE_5://Boss Creature
-            case SE_6_SUBWAY://Subway
-            case SE_14_SUBWAY_CAR://Caboos
-            case SE_15_SLIDING_DOOR://Subwaytype sliding door
-            case SE_16_REACTOR://That rotating blocker reactor thing
-            case SE_26://ESCELATOR
-            case SE_30_TWO_WAY_TRAIN://No rotational subways
-                if (sp->lotag == SE_0_ROTATING_SECTOR)
+            case SE_2_EARTHQUAKE:      // Earthquakemakers
+            case SE_5:                 // Boss Creature
+            case SE_6_SUBWAY:          // Subway
+            case SE_14_SUBWAY_CAR:     // Caboos
+            case SE_15_SLIDING_DOOR:   // Subwaytype sliding door
+            case SE_16_REACTOR:        // That rotating blocker reactor thing
+            case SE_26:                // ESCELATOR
+            case SE_30_TWO_WAY_TRAIN:  // No rotational subways
+                if (pSprite->lotag == SE_0_ROTATING_SECTOR)
                 {
-                    if (sector[sect].lotag == ST_30_ROTATE_RISE_BRIDGE)
+                    if (sector[sectNum].lotag == ST_30_ROTATE_RISE_BRIDGE)
                     {
-                        sprite[i].clipdist = (sp->pal) ? 1 : 0;
-                        T4(i) = sector[sect].floorz;
-                        sector[sect].hitag = i;
+                        sprite[newSprite].clipdist = (pSprite->pal) ? 1 : 0;
+                        T4(newSprite) = sector[sectNum].floorz;
+                        sector[sectNum].hitag = newSprite;
                     }
 
-                    for (j = MAXSPRITES-1; j>=0; j--)
+                    for (spriteNum = MAXSPRITES-1; spriteNum>=0; spriteNum--)
                     {
-                        if (sprite[j].statnum < MAXSTATUS)
-                            if (sprite[j].picnum == SECTOREFFECTOR &&
-                                    sprite[j].lotag == SE_1_PIVOT &&
-                                    sprite[j].hitag == sp->hitag)
+                        if (sprite[spriteNum].statnum < MAXSTATUS)
+                            if (sprite[spriteNum].picnum == SECTOREFFECTOR &&
+                                    sprite[spriteNum].lotag == SE_1_PIVOT &&
+                                    sprite[spriteNum].hitag == pSprite->hitag)
                             {
-                                if (sp->ang == 512)
+                                if (pSprite->ang == 512)
                                 {
-                                    sp->x = sprite[j].x;
-                                    sp->y = sprite[j].y;
+                                    pSprite->x = sprite[spriteNum].x;
+                                    pSprite->y = sprite[spriteNum].y;
                                 }
                                 break;
                             }
                     }
-                    if (EDUKE32_PREDICT_FALSE(j == -1))
+                    if (EDUKE32_PREDICT_FALSE(spriteNum == -1))
                     {
                         OSD_Printf(OSD_ERROR "Found lonely Sector Effector (lotag 0) at (%d,%d)\n",
-                            TrackerCast(sp->x),TrackerCast(sp->y));
-                        changespritestat(i, STAT_ACTOR);
+                            TrackerCast(pSprite->x),TrackerCast(pSprite->y));
+                        changespritestat(newSprite, STAT_ACTOR);
                         goto SPAWN_END;
                     }
-                    sp->owner = j;
+                    pSprite->owner = spriteNum;
                 }
 
-                startwall = sector[sect].wallptr;
-                endwall = startwall+sector[sect].wallnum;
-
-                T2(i) = tempwallptr;
-                for (s=startwall; s<endwall; s++)
                 {
-                    g_origins[tempwallptr].x = wall[s].x-sp->x;
-                    g_origins[tempwallptr].y = wall[s].y-sp->y;
+                    int const startWall = sector[sectNum].wallptr;
+                    int const endWall = startWall+sector[sectNum].wallnum;
 
-                    tempwallptr++;
-                    if (EDUKE32_PREDICT_FALSE(tempwallptr >= MAXANIMPOINTS))
+                    T2(newSprite) = tempwallptr;
+                    for (int w = startWall; w < endWall; ++w)
                     {
-                        Bsprintf(tempbuf, "Too many moving sectors at (%d,%d).\n",
-                                        TrackerCast(wall[s].x),TrackerCast(wall[s].y));
-                        G_GameExit(tempbuf);
+                        g_origins[tempwallptr].x = wall[w].x - pSprite->x;
+                        g_origins[tempwallptr].y = wall[w].y - pSprite->y;
+
+                        tempwallptr++;
+                        if (EDUKE32_PREDICT_FALSE(tempwallptr >= MAXANIMPOINTS))
+                        {
+                            Bsprintf(tempbuf, "Too many moving sectors at (%d,%d).\n",
+                                TrackerCast(wall[w].x), TrackerCast(wall[w].y));
+                            G_GameExit(tempbuf);
+                        }
                     }
                 }
 
-                if (sp->lotag == SE_5 || sp->lotag == SE_30_TWO_WAY_TRAIN ||
-                        sp->lotag == SE_6_SUBWAY || sp->lotag == SE_14_SUBWAY_CAR)
+                if (pSprite->lotag == SE_5 || pSprite->lotag == SE_30_TWO_WAY_TRAIN ||
+                        pSprite->lotag == SE_6_SUBWAY || pSprite->lotag == SE_14_SUBWAY_CAR)
                 {
 #ifdef YAX_ENABLE
-                    int32_t outerwall=-1;
+                    int outerWall = -1;
 #endif
-                    startwall = sector[sect].wallptr;
-                    endwall = startwall+sector[sect].wallnum;
+                    int const startWall = sector[sectNum].wallptr;
+                    int const endWall   = startWall + sector[sectNum].wallnum;
 
-                    sp->extra = (sector[sect].hitag != UINT16_MAX);
+                    pSprite->extra = (sector[sectNum].hitag != UINT16_MAX);
 
                     // TRAIN_SECTOR_TO_SE_INDEX
-                    sector[sect].hitag = i;
+                    sector[sectNum].hitag = newSprite;
 
-                    j = 0;
+                    spriteNum = 0;
 
-                    for (s=startwall; s<endwall; s++)
+                    int foundWall = startWall;
+
+                    for (; foundWall<endWall; foundWall++)
                     {
-                        if (wall[ s ].nextsector >= 0 &&
-                                sector[ wall[ s ].nextsector].hitag == 0 &&
-                                (int16_t)sector[ wall[ s ].nextsector].lotag < 3)
+                        if (wall[ foundWall ].nextsector >= 0 &&
+                                sector[ wall[ foundWall ].nextsector].hitag == 0 &&
+                                (int16_t)sector[ wall[ foundWall ].nextsector].lotag < 3)
                         {
 #ifdef YAX_ENABLE
-                            outerwall = wall[s].nextwall;
+                            outerWall = wall[foundWall].nextwall;
 #endif
-                            s = wall[s].nextsector;
-                            j = 1;
+                            foundWall = wall[foundWall].nextsector;
+                            spriteNum = 1;
                             break;
                         }
                     }
 
 #ifdef YAX_ENABLE
-                    actor[i].t_data[9] = -1;
+                    actor[newSprite].t_data[9] = -1;
 
-                    if (outerwall >= 0)
+                    if (outerWall >= 0)
                     {
-                        int32_t uppersect = yax_vnextsec(outerwall, YAX_CEILING);
+                        int upperSect = yax_vnextsec(outerWall, YAX_CEILING);
 
-                        if (uppersect >= 0)
+                        if (upperSect >= 0)
                         {
-                            int32_t jj;
-                            for (jj=headspritesect[uppersect]; jj>=0; jj=nextspritesect[jj])
-                                if (sprite[jj].picnum==SECTOREFFECTOR && sprite[jj].lotag==sp->lotag)
+                            int foundEffector = headspritesect[upperSect];
+
+                            for (; foundEffector >= 0; foundEffector = nextspritesect[foundEffector])
+                                if (sprite[foundEffector].picnum == SECTOREFFECTOR && sprite[foundEffector].lotag == pSprite->lotag)
                                     break;
-                            if (jj < 0)
+
+                            if (foundEffector < 0)
                             {
-                                Sect_SetInterpolation(uppersect);
-                                actor[i].t_data[9] = uppersect;
+                                Sect_SetInterpolation(upperSect);
+                                actor[newSprite].t_data[9] = upperSect;
                             }
                         }
                     }
 #endif
-                    if (j == 0)
+                    if (spriteNum == 0)
                     {
                         Bsprintf(tempbuf,"Subway found no zero'd sectors with locators\nat (%d,%d).\n",
-                            TrackerCast(sp->x),TrackerCast(sp->y));
+                            TrackerCast(pSprite->x),TrackerCast(pSprite->y));
                         G_GameExit(tempbuf);
                     }
 
-                    sp->owner = -1;
-                    T1(i) = s;
+                    pSprite->owner = -1;
+                    T1(newSprite) = foundWall;
 
-                    if (sp->lotag != SE_30_TWO_WAY_TRAIN)
-                        T4(i) = sp->hitag;
+                    if (pSprite->lotag != SE_30_TWO_WAY_TRAIN)
+                        T4(newSprite) = pSprite->hitag;
                 }
-
-                else if (sp->lotag == SE_16_REACTOR)
-                    T4(i) = sector[sect].ceilingz;
-
-                else if (sp->lotag == SE_26)
+                else if (pSprite->lotag == SE_16_REACTOR)
+                    T4(newSprite) = sector[sectNum].ceilingz;
+                else if (pSprite->lotag == SE_26)
                 {
-                    T4(i) = sp->x;
-                    T5(i) = sp->y;
-                    if (sp->shade==sector[sect].floorshade) //UP
-                        sp->zvel = -256;
-                    else
-                        sp->zvel = 256;
-
-                    sp->shade = 0;
+                    T4(newSprite)  = pSprite->x;
+                    T5(newSprite)  = pSprite->y;
+                    pSprite->zvel  = (pSprite->shade == sector[sectNum].floorshade) ? -256 : 256;  // UP
+                    pSprite->shade = 0;
                 }
-                else if (sp->lotag == SE_2_EARTHQUAKE)
+                else if (pSprite->lotag == SE_2_EARTHQUAKE)
                 {
-                    T6(i) = sector[sp->sectnum].floorheinum;
-                    sector[sp->sectnum].floorheinum = 0;
+                    T6(newSprite) = sector[pSprite->sectnum].floorheinum;
+                    sector[pSprite->sectnum].floorheinum = 0;
                 }
             }
 
-            switch (sp->lotag)
+            switch (pSprite->lotag)
             {
-            case SE_6_SUBWAY:
-            case SE_14_SUBWAY_CAR:
-                S_FindMusicSFX(sect, &j);
-                if (j == -1) j = SUBWAY;
-                actor[i].lastvx = j;
-            case SE_30_TWO_WAY_TRAIN:
-                if (g_netServer || numplayers > 1) break;
-            case SE_0_ROTATING_SECTOR:
-            case SE_1_PIVOT:
-            case SE_5:
-            case SE_11_SWINGING_DOOR:
-            case SE_15_SLIDING_DOOR:
-            case SE_16_REACTOR:
-            case SE_26:
-                Sect_SetInterpolation(sprite[i].sectnum);
-                break;
+                case SE_6_SUBWAY:
+                case SE_14_SUBWAY_CAR:
+                    S_FindMusicSFX(sectNum, &spriteNum);
+                    // XXX: uh.. what?
+                    if (spriteNum == -1)
+                        spriteNum = SUBWAY;
+                    actor[newSprite].lastvx = spriteNum;
+                case SE_30_TWO_WAY_TRAIN:
+                    if (g_netServer || numplayers > 1)
+                        break;
+                case SE_0_ROTATING_SECTOR:
+                case SE_1_PIVOT:
+                case SE_5:
+                case SE_11_SWINGING_DOOR:
+                case SE_15_SLIDING_DOOR:
+                case SE_16_REACTOR:
+                case SE_26: Sect_SetInterpolation(sprite[newSprite].sectnum); break;
             }
 
-            changespritestat(i, STAT_EFFECTOR);
+            changespritestat(newSprite, STAT_EFFECTOR);
             break;
 
         case SEENINE__STATIC:
         case OOZFILTER__STATIC:
-            sp->shade = -16;
-            if (sp->xrepeat <= 8)
+            pSprite->shade = -16;
+            if (pSprite->xrepeat <= 8)
             {
-                sp->cstat = 32768;
-                sp->xrepeat=sp->yrepeat=0;
+                pSprite->cstat   = 32768;
+                pSprite->xrepeat = 0;
+                pSprite->yrepeat = 0;
             }
-            else sp->cstat = 1+256;
-            sp->extra = g_impactDamage<<2;
-            sp->owner = i;
+            else pSprite->cstat = 1+256;
 
-            changespritestat(i, STAT_STANDABLE);
+            pSprite->extra = g_impactDamage << 2;
+            pSprite->owner = newSprite;
+
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
 
         case CRACK1__STATIC:
@@ -3261,37 +3311,38 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case CRACK3__STATIC:
         case CRACK4__STATIC:
         case FIREEXT__STATIC:
-            if (sp->picnum == FIREEXT)
+            if (pSprite->picnum == FIREEXT)
             {
-                sp->cstat = 257;
-                sp->extra = g_impactDamage<<2;
+                pSprite->cstat = 257;
+                pSprite->extra = g_impactDamage<<2;
             }
             else
             {
-                sp->cstat |= (sp->cstat & 48) ? 1 : 17;
-                sp->extra = 1;
+                pSprite->cstat |= (pSprite->cstat & 48) ? 1 : 17;
+                pSprite->extra = 1;
             }
 
-            if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
+            if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
                 break;
             }
 
-            sp->pal = 0;
-            sp->owner = i;
-            changespritestat(i, STAT_STANDABLE);
-            sp->xvel = 8;
-            A_SetSprite(i,CLIPMASK0);
+            pSprite->pal   = 0;
+            pSprite->owner = newSprite;
+            pSprite->xvel  = 8;
+
+            changespritestat(newSprite, STAT_STANDABLE);
+            A_SetSprite(newSprite,CLIPMASK0);
             break;
 
         case TOILET__STATIC:
         case STALL__STATIC:
-            sp->lotag = 1;
-            sp->cstat |= 257;
-            sp->clipdist = 8;
-            sp->owner = i;
+            pSprite->lotag = 1;
+            pSprite->cstat |= 257;
+            pSprite->clipdist = 8;
+            pSprite->owner = newSprite;
             break;
 
         case CANWITHSOMETHING__STATIC:
@@ -3299,7 +3350,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case CANWITHSOMETHING3__STATIC:
         case CANWITHSOMETHING4__STATIC:
         case RUBBERCAN__STATIC:
-            sp->extra = 0;
+            pSprite->extra = 0;
         case EXPLODINGBARREL__STATIC:
         case HORSEONSIDE__STATIC:
         case FIREBARREL__STATIC:
@@ -3308,31 +3359,31 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case NUKEBARRELDENTED__STATIC:
         case NUKEBARRELLEAKED__STATIC:
         case WOODENHORSE__STATIC:
-            if (j >= 0)
-                sp->xrepeat = sp->yrepeat = 32;
-            sp->clipdist = 72;
-            A_Fall(i);
-            if (j >= 0)
-                sp->owner = j;
-            else sp->owner = i;
+            if (spriteNum >= 0)
+                pSprite->xrepeat = pSprite->yrepeat = 32;
+            pSprite->clipdist = 72;
+            A_Fall(newSprite);
+            if (spriteNum >= 0)
+                pSprite->owner = spriteNum;
+            else pSprite->owner = newSprite;
         case EGG__STATIC:
-            if (ud.monsters_off == 1 && sp->picnum == EGG)
+            if (ud.monsters_off == 1 && pSprite->picnum == EGG)
             {
-                sp->xrepeat = sp->yrepeat = 0;
-                changespritestat(i, STAT_MISC);
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
             }
             else
             {
-                if (sp->picnum == EGG)
-                    sp->clipdist = 24;
-                sp->cstat = 257|(krand()&4);
-                changespritestat(i, STAT_ZOMBIEACTOR);
+                if (pSprite->picnum == EGG)
+                    pSprite->clipdist = 24;
+                pSprite->cstat = 257|(krand()&4);
+                changespritestat(newSprite, STAT_ZOMBIEACTOR);
             }
             break;
 
         case TOILETWATER__STATIC:
-            sp->shade = -16;
-            changespritestat(i, STAT_STANDABLE);
+            pSprite->shade = -16;
+            changespritestat(newSprite, STAT_STANDABLE);
             break;
         }
 
@@ -3340,143 +3391,145 @@ SPAWN_END:
     if (VM_HaveEvent(EVENT_SPAWN))
     {
         int32_t p;
-        int32_t pl=A_FindPlayer(&sprite[i],&p);
-        VM_OnEventWithDist_(EVENT_SPAWN,i, pl, p);
+        int32_t pl=A_FindPlayer(&sprite[newSprite],&p);
+        VM_OnEventWithDist_(EVENT_SPAWN,newSprite, pl, p);
     }
 
-    return i;
+    return newSprite;
 }
 
-static int32_t G_MaybeTakeOnFloorPal(uspritetype *datspr, int32_t sect)
+static int G_MaybeTakeOnFloorPal(uspritetype *pSprite, int sectNum)
 {
-    int32_t dapal = sector[sect].floorpal;
+    int const floorPal = sector[sectNum].floorpal;
 
-    if (dapal && !g_noFloorPal[dapal]
-            && !A_CheckSpriteFlags(datspr->owner,SFLAG_NOPAL))
+    if (floorPal && !g_noFloorPal[floorPal] && !A_CheckSpriteFlags(pSprite->owner, SFLAG_NOPAL))
     {
-        datspr->pal = dapal;
+        pSprite->pal = floorPal;
         return 1;
     }
 
     return 0;
 }
 
-static int32_t getofs_viewtype5(const uspritetype *s, uspritetype *t, int32_t a, uint8_t invertp)
+static int32_t getofs_viewtype5(const uspritetype *pSprite, uspritetype *pTSprite, int viewAng, uint8_t invertp)
 {
-    int32_t angdif = invertp ? a-s->ang : s->ang-a;
-    int32_t k = (((angdif+3072+128)&2047)>>8)&7;
+    int const angDiff     = invertp ? viewAng - pSprite->ang : pSprite->ang - viewAng;
+    int       frameOffset = (((angDiff + 3072 + 128) & 2047) >> 8) & 7;
 
-    if (k>4)
+    if (frameOffset > 4)
     {
-        k = 8-k;
-        t->cstat |= 4;
+        frameOffset = 8 - frameOffset;
+        pTSprite->cstat |= 4;
     }
-    else t->cstat &= ~4;
+    else
+        pTSprite->cstat &= ~4;
 
-    return k;
+    return frameOffset;
 }
 
-static int32_t getofs_viewtype7(const uspritetype *s, uspritetype *t, int32_t a, uint8_t invertp)
+static int32_t getofs_viewtype7(const uspritetype *pSprite, uspritetype *pTSprite, int viewAng, uint8_t invertp)
 {
-    int32_t angdif = invertp ? a-s->ang : s->ang-a;
-    int32_t k = ((angdif+3072+128)&2047)/170;
+    int angDiff     = invertp ? viewAng - pSprite->ang : pSprite->ang - viewAng;
+    int frameOffset = ((angDiff + 3072 + 128) & 2047) / 170;
 
-    if (k>6)
+    if (frameOffset > 6)
     {
-        k = 12-k;
-        t->cstat |= 4;
+        frameOffset = 12 - frameOffset;
+        pTSprite->cstat |= 4;
     }
-    else t->cstat &= ~4;
+    else
+        pTSprite->cstat &= ~4;
 
-    return k;
+    return frameOffset;
 }
 
-static int32_t G_CheckAdultTile(int32_t pic)
+// XXX: this fucking sucks and needs to be replaced with a SFLAG
+static int G_CheckAdultTile(int tileNum)
 {
-    switch (pic)
+    switch (tileNum)
     {
-    case FEM1__STATIC:
-    case FEM2__STATIC:
-    case FEM3__STATIC:
-    case FEM4__STATIC:
-    case FEM5__STATIC:
-    case FEM6__STATIC:
-    case FEM7__STATIC:
-    case FEM8__STATIC:
-    case FEM9__STATIC:
-    case FEM10__STATIC:
-    case MAN__STATIC:
-    case MAN2__STATIC:
-    case WOMAN__STATIC:
-    case NAKED1__STATIC:
-    case PODFEM1__STATIC:
-    case FEMMAG1__STATIC:
-    case FEMMAG2__STATIC:
-    case FEMPIC1__STATIC:
-    case FEMPIC2__STATIC:
-    case FEMPIC3__STATIC:
-    case FEMPIC4__STATIC:
-    case FEMPIC5__STATIC:
-    case FEMPIC6__STATIC:
-    case FEMPIC7__STATIC:
-    case BLOODYPOLE__STATIC:
-    case FEM6PAD__STATIC:
-    case STATUE__STATIC:
-    case STATUEFLASH__STATIC:
-    case OOZ__STATIC:
-    case OOZ2__STATIC:
-    case WALLBLOOD1__STATIC:
-    case WALLBLOOD2__STATIC:
-    case WALLBLOOD3__STATIC:
-    case WALLBLOOD4__STATIC:
-    case WALLBLOOD5__STATIC:
-    case WALLBLOOD7__STATIC:
-    case WALLBLOOD8__STATIC:
-    case SUSHIPLATE1__STATIC:
-    case SUSHIPLATE2__STATIC:
-    case SUSHIPLATE3__STATIC:
-    case SUSHIPLATE4__STATIC:
-    case FETUS__STATIC:
-    case FETUSJIB__STATIC:
-    case FETUSBROKE__STATIC:
-    case HOTMEAT__STATIC:
-    case FOODOBJECT16__STATIC:
-    case DOLPHIN1__STATIC:
-    case DOLPHIN2__STATIC:
-    case TOUGHGAL__STATIC:
-    case TAMPON__STATIC:
-    case XXXSTACY__STATIC:
-    case 4946:
-    case 4947:
-    case 693:
-    case 2254:
-    case 4560:
-    case 4561:
-    case 4562:
-    case 4498:
-    case 4957:
-        return 1;
+        case FEM1__STATIC:
+        case FEM2__STATIC:
+        case FEM3__STATIC:
+        case FEM4__STATIC:
+        case FEM5__STATIC:
+        case FEM6__STATIC:
+        case FEM7__STATIC:
+        case FEM8__STATIC:
+        case FEM9__STATIC:
+        case FEM10__STATIC:
+        case MAN__STATIC:
+        case MAN2__STATIC:
+        case WOMAN__STATIC:
+        case NAKED1__STATIC:
+        case PODFEM1__STATIC:
+        case FEMMAG1__STATIC:
+        case FEMMAG2__STATIC:
+        case FEMPIC1__STATIC:
+        case FEMPIC2__STATIC:
+        case FEMPIC3__STATIC:
+        case FEMPIC4__STATIC:
+        case FEMPIC5__STATIC:
+        case FEMPIC6__STATIC:
+        case FEMPIC7__STATIC:
+        case BLOODYPOLE__STATIC:
+        case FEM6PAD__STATIC:
+        case STATUE__STATIC:
+        case STATUEFLASH__STATIC:
+        case OOZ__STATIC:
+        case OOZ2__STATIC:
+        case WALLBLOOD1__STATIC:
+        case WALLBLOOD2__STATIC:
+        case WALLBLOOD3__STATIC:
+        case WALLBLOOD4__STATIC:
+        case WALLBLOOD5__STATIC:
+        case WALLBLOOD7__STATIC:
+        case WALLBLOOD8__STATIC:
+        case SUSHIPLATE1__STATIC:
+        case SUSHIPLATE2__STATIC:
+        case SUSHIPLATE3__STATIC:
+        case SUSHIPLATE4__STATIC:
+        case FETUS__STATIC:
+        case FETUSJIB__STATIC:
+        case FETUSBROKE__STATIC:
+        case HOTMEAT__STATIC:
+        case FOODOBJECT16__STATIC:
+        case DOLPHIN1__STATIC:
+        case DOLPHIN2__STATIC:
+        case TOUGHGAL__STATIC:
+        case TAMPON__STATIC:
+        case XXXSTACY__STATIC:
+        case 4946:
+        case 4947:
+        case 693:
+        case 2254:
+        case 4560:
+        case 4561:
+        case 4562:
+        case 4498:
+        case 4957:
+            return 1;
     }
 
     return 0;
 }
 
-static inline void G_DoEventAnimSprites(int32_t j)
+static inline void G_DoEventAnimSprites(int tspriteNum)
 {
-    const int32_t ow = tsprite[j].owner;
+    int const tsprOwner = tsprite[tspriteNum].owner;
 
-    if ((((unsigned)ow >= MAXSPRITES || (spriteext[ow].flags & SPREXT_TSPRACCESS) != SPREXT_TSPRACCESS)) &&
-        tsprite[j].statnum != TSPR_TEMP)
+    if ((((unsigned)tsprOwner >= MAXSPRITES || (spriteext[tsprOwner].flags & SPREXT_TSPRACCESS) != SPREXT_TSPRACCESS))
+        && tsprite[tspriteNum].statnum != TSPR_TEMP)
         return;
 
-    spriteext[ow].tspr = &tsprite[j];
-    VM_OnEvent_(EVENT_ANIMATESPRITES, ow, screenpeek);
-    spriteext[ow].tspr = NULL;
+    spriteext[tsprOwner].tspr = &tsprite[tspriteNum];
+    VM_OnEvent_(EVENT_ANIMATESPRITES, tsprOwner, screenpeek);
+    spriteext[tsprOwner].tspr = NULL;
 }
 
 void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothratio)
 {
-    int32_t j, k, playerNum;
+    int32_t j, frameOffset, playerNum;
     intptr_t l;
 
     if (spritesortcnt == 0)
@@ -3549,8 +3602,8 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     break;
                 }
 #endif
-                k = getofs_viewtype5(t, t, oura, 0);
-                t->picnum = s->picnum+k;
+                frameOffset = getofs_viewtype5(t, t, oura, 0);
+                t->picnum = s->picnum+frameOffset;
                 break;
             case BLOODSPLAT1__STATIC:
             case BLOODSPLAT2__STATIC:
@@ -3787,8 +3840,8 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 break;
             }
 #endif
-            k = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), 0);
-            t->picnum = RPG+k;
+            frameOffset = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), 0);
+            t->picnum = RPG+frameOffset;
             break;
 
         case RECON__STATIC:
@@ -3799,13 +3852,13 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 break;
             }
 #endif
-            k = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), 0);
+            frameOffset = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), 0);
 
             // RECON_T4
             if (klabs(curframe) > 64)
-                k += 7;  // tilted recon car
+                frameOffset += 7;  // tilted recon car
 
-            t->picnum = RECON+k;
+            t->picnum = RECON+frameOffset;
 
             break;
 
@@ -3852,53 +3905,37 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 if (ud.showweapons && sprite[g_player[playerNum].ps->i].extra > 0 && g_player[playerNum].ps->curr_weapon > 0
                         && spritesortcnt < MAXSPRITESONSCREEN)
                 {
-                    uspritetype *const newt = &tsprite[spritesortcnt];
-                    int32_t curweap = g_player[playerNum].ps->curr_weapon;
+                    uspritetype *const newTspr       = &tsprite[spritesortcnt];
+                    int const          currentWeapon = g_player[playerNum].ps->curr_weapon;
 
-                    Bmemcpy(newt, t, sizeof(spritetype));
-
-                    newt->statnum = TSPR_TEMP;
-                    /*
-                    newt->yrepeat = (t->yrepeat>>3);
-                    if (t->yrepeat < 4) t->yrepeat = 4;
-                    */
-
-                    newt->cstat = newt->pal = 0;
-
-                    newt->picnum = (curweap==GROW_WEAPON ? GROWSPRITEICON : WeaponPickupSprites[curweap]);
-
-                    if (pSprite->owner >= 0)
-                        newt->z = g_player[playerNum].ps->pos.z-ZOFFSET4;
-                    else
-                        newt->z = pSprite->z-(51<<8);
-
-                    if (newt->picnum == HEAVYHBOMB)
-                        newt->xrepeat = newt->yrepeat = 10;
-                    else
-                        newt->xrepeat = newt->yrepeat = 16;
+                    *newTspr         = *t;
+                    newTspr->statnum = TSPR_TEMP;
+                    newTspr->cstat   = 0;
+                    newTspr->pal     = 0;
+                    newTspr->picnum  = (currentWeapon == GROW_WEAPON ? GROWSPRITEICON : WeaponPickupSprites[currentWeapon]);
+                    newTspr->z       = (pSprite->owner >= 0) ? g_player[playerNum].ps->pos.z - ZOFFSET4 : pSprite->z - (51 << 8);
+                    newTspr->xrepeat = (newTspr->picnum == HEAVYHBOMB) ? 10 : 16;
+                    newTspr->yrepeat = newTspr->xrepeat;
 
                     spritesortcnt++;
                 }
 
-                if (g_player[playerNum].inputBits->extbits & (1<<7) && !ud.pause_on && spritesortcnt<MAXSPRITESONSCREEN)
+                if (g_player[playerNum].inputBits->extbits & (1 << 7) && !ud.pause_on && spritesortcnt < MAXSPRITESONSCREEN)
                 {
-                    uspritetype *const tSpawned = t;
+                    uspritetype *const playerTyping = t;
 
-                    tSpawned->statnum = TSPR_TEMP;
-                    tSpawned->yrepeat = (t->yrepeat >> 3);
+                    playerTyping->statnum = TSPR_TEMP;
+                    playerTyping->yrepeat = (t->yrepeat >> 3);
 
-                    if (tSpawned->yrepeat < 4)
-                        tSpawned->yrepeat = 4;
+                    if (playerTyping->yrepeat < 4)
+                        playerTyping->yrepeat = 4;
 
-                    tSpawned->cstat  = 0;
-                    tSpawned->picnum = RESPAWNMARKERGREEN;
-
-                    tSpawned->z = (pSprite->owner >= 0)
-                                  ? g_player[playerNum].ps->pos.z - (20 << 8)
-                                  : tSpawned->z = pSprite->z - (96 << 8);
-
-                    tSpawned->xrepeat = tSpawned->yrepeat = 32;
-                    tSpawned->pal = 20;
+                    playerTyping->cstat   = 0;
+                    playerTyping->picnum  = RESPAWNMARKERGREEN;
+                    playerTyping->z       = (pSprite->owner >= 0) ? (g_player[playerNum].ps->pos.z - (20 << 8)) : (pSprite->z - (96 << 8));
+                    playerTyping->xrepeat = 32;
+                    playerTyping->yrepeat = 32;
+                    playerTyping->pal     = 20;
 
                     spritesortcnt++;
                 }
@@ -3909,17 +3946,17 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 #ifdef USE_OPENGL
                 if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
-                    k = 0;
+                    frameOffset = 0;
                     t->cstat &= ~4;
                 }
                 else
 #endif
-                    k = getofs_viewtype5(pSprite, t, oura, 0);
+                    frameOffset = getofs_viewtype5(pSprite, t, oura, 0);
 
-                if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER) k += 1795-1405;
-                else if ((actor[i].floorz-pSprite->z) > (64<<8)) k += 60;
+                if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER) frameOffset += 1795-1405;
+                else if ((actor[i].floorz-pSprite->z) > (64<<8)) frameOffset += 60;
 
-                t->picnum += k;
+                t->picnum += frameOffset;
                 t->pal = g_player[playerNum].ps->palookup;
 
                 goto PALONLY;
@@ -3965,17 +4002,17 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 #ifdef USE_OPENGL
                         if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                         {
-                            k = 0;
+                            frameOffset = 0;
                             t->cstat &= ~4;
                         }
                         else
 #endif
-                            k = getofs_viewtype5(pSprite, t, oura, 0);
+                            frameOffset = getofs_viewtype5(pSprite, t, oura, 0);
 
-                        if (sector[t->sectnum].lotag == ST_2_UNDERWATER) k += 1795-1405;
-                        else if ((actor[i].floorz-pSprite->z) > (64<<8)) k += 60;
+                        if (sector[t->sectnum].lotag == ST_2_UNDERWATER) frameOffset += 1795-1405;
+                        else if ((actor[i].floorz-pSprite->z) > (64<<8)) frameOffset += 60;
 
-                        t->picnum += k;
+                        t->picnum += frameOffset;
                         t->pal = g_player[playerNum].ps->palookup;
                     }
                 }
@@ -4051,7 +4088,7 @@ PALONLY:
 #ifdef USE_OPENGL
             if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
-                k = 0;
+                frameOffset = 0;
                 t->cstat &= ~4;
             }
             else
@@ -4059,47 +4096,45 @@ PALONLY:
                 switch (l)
                 {
                 case 2:
-                    k = (((pSprite->ang+3072+128-oura)&2047)>>8)&1;
+                    frameOffset = (((pSprite->ang+3072+128-oura)&2047)>>8)&1;
                     break;
 
                 case 3:
                 case 4:
-                    k = (((pSprite->ang+3072+128-oura)&2047)>>7)&7;
-                    if (k > 3)
+                    frameOffset = (((pSprite->ang+3072+128-oura)&2047)>>7)&7;
+                    if (frameOffset > 3)
                     {
                         t->cstat |= 4;
-                        k = 7-k;
+                        frameOffset = 7-frameOffset;
                     }
                     else t->cstat &= ~4;
                     break;
 
                 case 5:
                 case -5:
-                    k = getofs_viewtype5(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), l<0);
+                    frameOffset = getofs_viewtype5(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), l<0);
                     break;
                 case 7:
                 case -7:
-                    k = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), l<0);
+                    frameOffset = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), l<0);
                     break;
                 case 8:
                 case -8:
-                    if (l > 0)
-                        k = (((pSprite->ang+3072+128-oura)&2047)>>8)&7;
-                    else
-                        k = (((oura+3072+128-pSprite->ang)&2047)>>8)&7;
+                    frameOffset = (l > 0) ? (((pSprite->ang + 3072 + 128 - oura) & 2047) >> 8) & 7
+                                : (((oura + 3072 + 128 - pSprite->ang) & 2047) >> 8) & 7;
                     t->cstat &= ~4;
                     break;
                 default:
-                    k = 0;
+                    frameOffset = 0;
                     break;
                 }
 
             l = klabs(l);
 
 #if !defined LUNATIC
-            t->picnum += k + apScript[scrofs_action] + l*curframe;
+            t->picnum += frameOffset + apScript[scrofs_action] + l*curframe;
 #else
-            t->picnum += k + startframe + l*curframe;
+            t->picnum += frameOffset + startframe + l*curframe;
 #endif
             // XXX: t->picnum can be out-of-bounds by bad user code.
 
@@ -4149,47 +4184,46 @@ skip:
 
                 if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != REND_POLYMER)
                 {
-                    int32_t daz = ((sector[sect].lotag & 0xff) > 2 || pSprite->statnum == STAT_PROJECTILE ||
+                    int const shadowZ = ((sector[sect].lotag & 0xff) > 2 || pSprite->statnum == STAT_PROJECTILE ||
                                    pSprite->statnum == STAT_MISC || pSprite->picnum == DRONE || pSprite->picnum == COMMANDER)
                                   ? sector[sect].floorz
-                                  : daz = actor[i].floorz;
+                                  : actor[i].floorz;
 
-                    if ((pSprite->z-daz) < ZOFFSET3 && g_player[screenpeek].ps->pos.z < daz)
+                    if ((pSprite->z-shadowZ) < ZOFFSET3 && g_player[screenpeek].ps->pos.z < shadowZ)
                     {
-                        uspritetype *const newt = &tsprite[spritesortcnt];
+                        uspritetype *const tsprShadow = &tsprite[spritesortcnt];
 
-                        Bmemcpy(newt, t, sizeof(spritetype));
+                        *tsprShadow         = *t;
+                        tsprShadow->statnum = TSPR_TEMP;
+                        tsprShadow->yrepeat = (t->yrepeat >> 3);
 
-                        newt->statnum = TSPR_TEMP;
+                        if (t->yrepeat < 4)
+                            t->yrepeat = 4;
 
-                        newt->yrepeat = (t->yrepeat>>3);
-                        if (t->yrepeat < 4) t->yrepeat = 4;
+                        tsprShadow->shade   = 127;
+                        tsprShadow->cstat  |= 2;
+                        tsprShadow->z       = shadowZ;
+                        tsprShadow->pal     = 4;
 
-                        newt->shade = 127;
-                        newt->cstat |= 2;
 
-                        newt->z = daz;
-                        newt->pal = 4;
 #ifdef USE_OPENGL
                         if (getrendermode() >= REND_POLYMOST)
                         {
                             if (usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
                             {
-                                newt->yrepeat = 0;
+                                tsprShadow->yrepeat = 0;
                                 // 512:trans reverse
                                 //1024:tell MD2SPRITE.C to use Z-buffer hacks to hide overdraw issues
-                                newt->extra |= TSPR_EXTRA_MDHACK;
-                                newt->cstat |= 512;
+                                tsprShadow->extra |= TSPR_EXTRA_MDHACK;
+                                tsprShadow->cstat |= 512;
                             }
                             else
                             {
-                                int32_t ii;
+                                int const ii
+                                = getangle(tsprShadow->x - g_player[screenpeek].ps->pos.x, tsprShadow->y - g_player[screenpeek].ps->pos.y);
 
-                                ii = getangle(newt->x-g_player[screenpeek].ps->pos.x,
-                                              newt->y-g_player[screenpeek].ps->pos.y);
-
-                                newt->x += sintable[(ii+2560)&2047]>>9;
-                                newt->y += sintable[(ii+2048)&2047]>>9;
+                                tsprShadow->x += sintable[(ii+2560)&2047]>>9;
+                                tsprShadow->y += sintable[(ii+2048)&2047]>>9;
                             }
                         }
 #endif
@@ -4244,14 +4278,14 @@ skip:
 #ifdef USE_OPENGL
             if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
-                k = 0;
+                frameOffset = 0;
                 t->cstat &= ~4;
             }
             else
 #endif
-                k = getofs_viewtype5(t, t, oura, 0);
+                frameOffset = getofs_viewtype5(t, t, oura, 0);
 
-            t->picnum = pSprite->picnum+k+((T1(i)<4)*5);
+            t->picnum = pSprite->picnum+frameOffset+((T1(i)<4)*5);
             t->shade = sprite[pSprite->owner].shade;
 
             break;
@@ -4304,8 +4338,8 @@ skip:
                 break;
             }
 #endif
-            k = getofs_viewtype5(t, t, oura, 0);
-            t->picnum = pSprite->picnum+k;
+            frameOffset = getofs_viewtype5(t, t, oura, 0);
+            t->picnum = pSprite->picnum+frameOffset;
             break;
         }
 
@@ -4354,16 +4388,16 @@ void G_InitTimer(int32_t ticspersec)
 static int32_t g_RTSPlaying;
 
 // Returns: started playing?
-int32_t G_StartRTS(int32_t i, int localp)
+extern int G_StartRTS(int lumpNum, int localPlayer)
 {
     if (!ud.lockout && ud.config.SoundToggle &&
-        RTS_IsInitialized() && g_RTSPlaying == 0 && (ud.config.VoiceToggle & (localp ? 1 : 4)))
+        RTS_IsInitialized() && g_RTSPlaying == 0 && (ud.config.VoiceToggle & (localPlayer ? 1 : 4)))
     {
-        char *sndptr = (char *)RTS_GetSound(i-1);
+        char *const pData = (char *)RTS_GetSound(lumpNum - 1);
 
-        if (sndptr != NULL)
+        if (pData != NULL)
         {
-            FX_Play3D(sndptr, RTS_SoundLength(i-1), FX_ONESHOT, 0, 0, FX_VOLUME(1), 255, -i);
+            FX_Play3D(pData, RTS_SoundLength(lumpNum - 1), FX_ONESHOT, 0, 0, FX_VOLUME(1), 255, -lumpNum);
             g_RTSPlaying = 7;
             return 1;
         }
@@ -4374,22 +4408,17 @@ int32_t G_StartRTS(int32_t i, int localp)
 
 void G_StartMusic(void)
 {
-    const int32_t i = g_musicIndex;
-    Bassert(aMapInfo[i].musicfn != NULL);
+    int const levelNum = g_musicIndex;
+    Bassert(aMapInfo[levelNum].musicfn != NULL);
 
-    {
-        S_PlayMusic(aMapInfo[i].musicfn);
+    S_PlayMusic(aMapInfo[levelNum].musicfn);
 
-        Bsnprintf(apStrings[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", aMapInfo[i].musicfn);
-        P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
-    }
+    Bsnprintf(apStrings[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", aMapInfo[levelNum].musicfn);
+    P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
 }
 
 void G_HandleLocalKeys(void)
 {
-    int32_t i;
-    int32_t j;
-
 //    CONTROL_ProcessBinds();
 
     if (ud.recstat == 2)
@@ -4546,9 +4575,10 @@ void G_HandleLocalKeys(void)
         if (KB_KeyPressed(sc_kpad_6))
         {
             KB_ClearKeyDown(sc_kpad_6);
-            j = (15<<(int)ALT_IS_PRESSED)<<(2*(int)SHIFTS_IS_PRESSED);
-            g_demo_goalCnt = g_demo_paused ? g_demo_cnt+1 : g_demo_cnt+REALGAMETICSPERSEC*j;
-            g_demo_rewind = 0;
+
+            int const fwdTics = (15 << (int)ALT_IS_PRESSED) << (2 * (int)SHIFTS_IS_PRESSED);
+            g_demo_goalCnt    = g_demo_paused ? g_demo_cnt + 1 : g_demo_cnt + REALGAMETICSPERSEC * fwdTics;
+            g_demo_rewind     = 0;
 
             if (g_demo_goalCnt > g_demo_totalCnt)
                 g_demo_goalCnt = 0;
@@ -4558,9 +4588,10 @@ void G_HandleLocalKeys(void)
         else if (KB_KeyPressed(sc_kpad_4))
         {
             KB_ClearKeyDown(sc_kpad_4);
-            j = (15<<(int)ALT_IS_PRESSED)<<(2*(int)SHIFTS_IS_PRESSED);
-            g_demo_goalCnt = g_demo_paused ? g_demo_cnt-1 : g_demo_cnt-REALGAMETICSPERSEC*j;
-            g_demo_rewind = 1;
+
+            int const rewindTics = (15 << (int)ALT_IS_PRESSED) << (2 * (int)SHIFTS_IS_PRESSED);
+            g_demo_goalCnt       = g_demo_paused ? g_demo_cnt - 1 : g_demo_cnt - REALGAMETICSPERSEC * rewindTics;
+            g_demo_rewind        = 1;
 
             if (g_demo_goalCnt <= 0)
                 g_demo_goalCnt = 1;
@@ -4586,22 +4617,22 @@ void G_HandleLocalKeys(void)
 
     if (SHIFTS_IS_PRESSED || ALT_IS_PRESSED || WIN_IS_PRESSED)
     {
-        i = 0;
+        int ridiculeNum = 0;
 
         // NOTE: sc_F1 .. sc_F10 are contiguous. sc_F11 is not sc_F10+1.
-        for (j=sc_F1; j<=sc_F10; j++)
+        for (int j=sc_F1; j<=sc_F10; j++)
             if (KB_UnBoundKeyPressed(j))
             {
                 KB_ClearKeyDown(j);
-                i = j - sc_F1 + 1;
+                ridiculeNum = j - sc_F1 + 1;
                 break;
             }
 
-        if (i)
+        if (ridiculeNum)
         {
             if (SHIFTS_IS_PRESSED)
             {
-                if (i == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == QUOTE_MUSIC)
+                if (ridiculeNum == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == QUOTE_MUSIC)
                 {
                     const int32_t maxi = VOLUMEALL ? MUS_FIRST_SPECIAL : 6;
 
@@ -4618,22 +4649,22 @@ void G_HandleLocalKeys(void)
                     return;
                 }
 
-                G_AddUserQuote(ud.ridecule[i-1]);
+                G_AddUserQuote(ud.ridecule[ridiculeNum-1]);
 
 #ifndef NETCODE_DISABLE
                 tempbuf[0] = PACKET_MESSAGE;
                 tempbuf[1] = 255;
                 tempbuf[2] = 0;
-                Bstrcat(tempbuf+2,ud.ridecule[i-1]);
+                Bstrcat(tempbuf+2,ud.ridecule[ridiculeNum-1]);
 
-                i = 2+strlen(ud.ridecule[i-1]);
+                ridiculeNum = 2+strlen(ud.ridecule[ridiculeNum-1]);
 
-                tempbuf[i++] = myconnectindex;
+                tempbuf[ridiculeNum++] = myconnectindex;
 
                 if (g_netClient)
-                    enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, i, 0));
+                    enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, ridiculeNum, 0));
                 else if (g_netServer)
-                    enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, i, 0));
+                    enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, ridiculeNum, 0));
 #endif
                 pus = NUMPAGES;
                 pub = NUMPAGES;
@@ -4642,13 +4673,13 @@ void G_HandleLocalKeys(void)
             }
 
             // Not SHIFT -- that is, either some ALT or WIN.
-            if (G_StartRTS(i, 1))
+            if (G_StartRTS(ridiculeNum, 1))
             {
 #ifndef NETCODE_DISABLE
                 if ((g_netServer || ud.multimode > 1))
                 {
                     tempbuf[0] = PACKET_RTS;
-                    tempbuf[1] = i;
+                    tempbuf[1] = ridiculeNum;
                     tempbuf[2] = myconnectindex;
 
                     if (g_netClient)
@@ -4678,8 +4709,8 @@ void G_HandleLocalKeys(void)
         if (KB_UnBoundKeyPressed(sc_F1)/* || (ud.show_help && I_AdvanceTrigger())*/)
         {
             KB_ClearKeyDown(sc_F1);
-            M_ChangeMenu(MENU_STORY);
 
+            M_ChangeMenu(MENU_STORY);
             S_PauseSounds(1);
             M_OpenMenu(myconnectindex);
 
@@ -4689,27 +4720,6 @@ void G_HandleLocalKeys(void)
                 totalclock = ototalclock;
                 screenpeek = myconnectindex;
             }
-
-            /*
-            I_AdvanceTriggerClear();
-            ud.show_help ++;
-
-            if (ud.show_help > 2)
-            {
-                ud.show_help = 0;
-                if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2) ready2send = 1;
-                G_UpdateScreenArea();
-            }
-            else
-            {
-                setview(0,0,xdim-1,ydim-1);
-                if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
-                {
-                    ready2send = 0;
-                    totalclock = ototalclock;
-                }
-            }
-            */
         }
 
         //        if((!net_server && ud.multimode < 2))
@@ -4724,6 +4734,7 @@ FAKE_F2:
                     P_DoQuote(QUOTE_SAVE_DEAD,g_player[myconnectindex].ps);
                     return;
                 }
+
                 M_ChangeMenu(MENU_SAVE);
 
                 g_screenCapture = 1;
@@ -4731,8 +4742,6 @@ FAKE_F2:
                 g_screenCapture = 0;
 
                 S_PauseSounds(1);
-
-                //                setview(0,0,xdim-1,ydim-1);
                 M_OpenMenu(myconnectindex);
 
                 if ((!g_netServer && ud.multimode < 2))
@@ -4749,16 +4758,15 @@ FAKE_F2:
 
 FAKE_F3:
                 M_ChangeMenu(MENU_LOAD);
-
                 S_PauseSounds(1);
-
-                //                setview(0,0,xdim-1,ydim-1);
                 M_OpenMenu(myconnectindex);
+
                 if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
                 {
                     ready2send = 0;
                     totalclock = ototalclock;
                 }
+
                 screenpeek = myconnectindex;
             }
         }
@@ -4766,30 +4774,30 @@ FAKE_F3:
         if (KB_UnBoundKeyPressed(sc_F4))
         {
             KB_ClearKeyDown(sc_F4);
-            S_PauseSounds(1);
 
+            S_PauseSounds(1);
             M_OpenMenu(myconnectindex);
+
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 0;
                 totalclock = ototalclock;
             }
-            M_ChangeMenu(MENU_SOUND_INGAME);
 
+            M_ChangeMenu(MENU_SOUND_INGAME);
         }
 
         if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicToggle)
         {
-            map_t *map = &aMapInfo[g_musicIndex];
-            char *const qmusic = apStrings[QUOTE_MUSIC];
+            map_t *const pMapInfo    = &aMapInfo[g_musicIndex];
+            char *const  musicString = apStrings[QUOTE_MUSIC];
 
             KB_ClearKeyDown(sc_F5);
 
-            if (map->musicfn != NULL)
-                Bsnprintf(qmusic, MAXQUOTELEN, "%s.  Use SHIFT-F5 to change.",
-                map->musicfn);
+            if (pMapInfo->musicfn != NULL)
+                Bsnprintf(musicString, MAXQUOTELEN, "%s.  Use SHIFT-F5 to change.", pMapInfo->musicfn);
             else
-                qmusic[0] = '\0';
+                musicString[0] = '\0';
 
             P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
         }
@@ -4797,9 +4805,11 @@ FAKE_F3:
         if ((KB_UnBoundKeyPressed(sc_F6) || g_doQuickSave == 1) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
             KB_ClearKeyDown(sc_F6);
+
             g_doQuickSave = 0;
 
-            if (g_lastSaveSlot == -1) goto FAKE_F2;
+            if (g_lastSaveSlot == -1)
+                goto FAKE_F2;
 
             KB_FlushKeyboardQueue();
 
@@ -4808,6 +4818,7 @@ FAKE_F3:
                 P_DoQuote(QUOTE_SAVE_DEAD,g_player[myconnectindex].ps);
                 return;
             }
+
             g_screenCapture = 1;
             G_DrawRooms(myconnectindex,65536);
             g_screenCapture = 0;
@@ -4828,38 +4839,35 @@ FAKE_F3:
         if (KB_UnBoundKeyPressed(sc_F7))
         {
             KB_ClearKeyDown(sc_F7);
-            if (g_player[myconnectindex].ps->over_shoulder_on)
-                g_player[myconnectindex].ps->over_shoulder_on = 0;
-            else
-            {
-                g_player[myconnectindex].ps->over_shoulder_on = 1;
-                CAMERADIST = 0;
-                CAMERACLOCK = totalclock;
-            }
-            P_DoQuote(QUOTE_VIEW_MODE_OFF+g_player[myconnectindex].ps->over_shoulder_on,g_player[myconnectindex].ps);
+
+            g_player[myconnectindex].ps->over_shoulder_on = !g_player[myconnectindex].ps->over_shoulder_on;
+
+            CAMERADIST  = 0;
+            CAMERACLOCK = totalclock;
+
+            P_DoQuote(QUOTE_VIEW_MODE_OFF + g_player[myconnectindex].ps->over_shoulder_on, g_player[myconnectindex].ps);
         }
 
         if (KB_UnBoundKeyPressed(sc_F8))
         {
             KB_ClearKeyDown(sc_F8);
-            ud.fta_on = !ud.fta_on;
-            if (ud.fta_on) P_DoQuote(QUOTE_MESSAGES_ON,g_player[myconnectindex].ps);
-            else
-            {
-                ud.fta_on = 1;
-                P_DoQuote(QUOTE_MESSAGES_OFF,g_player[myconnectindex].ps);
-                ud.fta_on = 0;
-            }
+
+            ud.fta_on     = !ud.fta_on;
+            int const fta = ud.fta_on;
+            ud.fta_on     = 1;
+            P_DoQuote(ud.fta_on ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, g_player[myconnectindex].ps);
+            ud.fta_on     = fta;
         }
 
         if ((KB_UnBoundKeyPressed(sc_F9) || g_doQuickSave == 2) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
             KB_ClearKeyDown(sc_F9);
+
             g_doQuickSave = 0;
 
-            if (g_lastSaveSlot == -1) goto FAKE_F3;
-
-            if (g_lastSaveSlot >= 0)
+            if (g_lastSaveSlot == -1)
+                goto FAKE_F3;
+            else if (g_lastSaveSlot >= 0)
             {
                 KB_FlushKeyboardQueue();
                 KB_ClearKeysDown();
@@ -4871,9 +4879,11 @@ FAKE_F3:
         if (KB_UnBoundKeyPressed(sc_F10))
         {
             KB_ClearKeyDown(sc_F10);
+
             M_ChangeMenu(MENU_QUIT_INGAME);
             S_PauseSounds(1);
             M_OpenMenu(myconnectindex);
+
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 0;
@@ -4884,9 +4894,11 @@ FAKE_F3:
         if (KB_UnBoundKeyPressed(sc_F11))
         {
             KB_ClearKeyDown(sc_F11);
+
             M_ChangeMenu(MENU_COLCORR_INGAME);
             S_PauseSounds(1);
             M_OpenMenu(myconnectindex);
+
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
                 ready2send = 0;
@@ -4896,19 +4908,16 @@ FAKE_F3:
 
         if (ud.overhead_on != 0)
         {
+            int const timerOffset = (totalclock - nonsharedtimer);
+            nonsharedtimer += timerOffset;
 
-            j = totalclock-nonsharedtimer;
-            nonsharedtimer += j;
             if (BUTTON(gamefunc_Enlarge_Screen))
-                g_player[myconnectindex].ps->zoom += mulscale6(j,max(g_player[myconnectindex].ps->zoom,256));
+                g_player[myconnectindex].ps->zoom += mulscale6(timerOffset, max(g_player[myconnectindex].ps->zoom, 256));
+
             if (BUTTON(gamefunc_Shrink_Screen))
-                g_player[myconnectindex].ps->zoom -= mulscale6(j,max(g_player[myconnectindex].ps->zoom,256));
+                g_player[myconnectindex].ps->zoom -= mulscale6(timerOffset, max(g_player[myconnectindex].ps->zoom, 256));
 
-            if (g_player[myconnectindex].ps->zoom > 2048)
-                g_player[myconnectindex].ps->zoom = 2048;
-            if (g_player[myconnectindex].ps->zoom < 48)
-                g_player[myconnectindex].ps->zoom = 48;
-
+            g_player[myconnectindex].ps->zoom = clamp(g_player[myconnectindex].ps->zoom, 48, 2048);
         }
     }
 
@@ -4916,8 +4925,8 @@ FAKE_F3:
     {
         I_EscapeTriggerClear();
         ud.last_overhead = ud.overhead_on;
-        ud.overhead_on = 0;
-        ud.scrollmode = 0;
+        ud.overhead_on   = 0;
+        ud.scrollmode    = 0;
         G_UpdateScreenArea();
     }
 
@@ -5042,10 +5051,10 @@ static void parsedefinitions_game_include(const char *fn, scriptfile *script, co
     }
 }
 
-static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
+static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 {
-    int32_t tokn;
-    char *cmdtokptr;
+    int   token;
+    char *pToken;
 
     static const tokenlist tokens[] =
     {
@@ -5064,349 +5073,353 @@ static int32_t parsedefinitions_game(scriptfile *script, int32_t preload)
         { "globalgameflags", T_GLOBALGAMEFLAGS  },
     };
 
-    static const tokenlist sound_musictokens[] =
+    static const tokenlist soundTokens[] =
     {
         { "id",   T_ID  },
         { "file", T_FILE },
     };
 
-    static const tokenlist animtokens [] =
+    static const tokenlist animTokens [] =
     {
         { "delay", T_DELAY },
     };
 
-    while (1)
+    do
     {
-        tokn = getatoken(script,tokens,ARRAY_SIZE(tokens));
-        cmdtokptr = script->ltextptr;
-        switch (tokn)
+        token  = getatoken(pScript, tokens, ARRAY_SIZE(tokens));
+        pToken = pScript->ltextptr;
+
+        switch (token)
         {
         case T_LOADGRP:
         {
-            char *fn;
+            char *fileName;
 
             pathsearchmode = 1;
-            if (!scriptfile_getstring(script,&fn) && preload)
+            if (!scriptfile_getstring(pScript,&fileName) && firstPass)
             {
-                int32_t j = initgroupfile(fn);
-
-                if (j == -1)
-                    initprintf("Could not find file \"%s\".\n",fn);
+                if (initgroupfile(fileName) == -1)
+                    initprintf("Could not find file \"%s\".\n", fileName);
                 else
                 {
-                    initprintf("Using file \"%s\" as game data.\n",fn);
+                    initprintf("Using file \"%s\" as game data.\n", fileName);
                     if (!g_noAutoLoad && !ud.config.NoAutoLoad)
-                        G_DoAutoload(fn);
+                        G_DoAutoload(fileName);
                 }
-
             }
+
             pathsearchmode = 0;
         }
         break;
         case T_CACHESIZE:
         {
-            int32_t j;
-            if (scriptfile_getnumber(script,&j) || !preload) break;
+            int32_t cacheSize;
 
-            if (j > 0) MAXCACHE1DSIZE = j<<10;
+            if (scriptfile_getnumber(pScript, &cacheSize) || !firstPass)
+                break;
+
+            if (cacheSize > 0)
+                MAXCACHE1DSIZE = cacheSize << 10;
         }
         break;
         case T_INCLUDE:
         {
-            char *fn;
-            if (!scriptfile_getstring(script,&fn))
-                parsedefinitions_game_include(fn, script, cmdtokptr, preload);
+            char *fileName;
+
+            if (!scriptfile_getstring(pScript, &fileName))
+                parsedefinitions_game_include(fileName, pScript, pToken, firstPass);
+
             break;
         }
         case T_INCLUDEDEFAULT:
         {
-            parsedefinitions_game_include(G_DefaultDefFile(), script, cmdtokptr, preload);
+            parsedefinitions_game_include(G_DefaultDefFile(), pScript, pToken, firstPass);
             break;
         }
         case T_NOAUTOLOAD:
-            if (preload)
+            if (firstPass)
                 g_noAutoLoad = 1;
             break;
         case T_MUSIC:
         {
-            char *tinttokptr = script->ltextptr;
-            char *ID = NULL, *fn = NULL;
-            char *musicend;
+            char *tokenPtr = pScript->ltextptr;
+            char *musicID  = NULL;
+            char *fileName = NULL;
+            char *musicEnd;
 
-            if (scriptfile_getbraces(script,&musicend)) break;
-            while (script->textptr < musicend)
+            if (scriptfile_getbraces(pScript, &musicEnd))
+                break;
+
+            while (pScript->textptr < musicEnd)
             {
-                switch (getatoken(script,sound_musictokens,ARRAY_SIZE(sound_musictokens)))
+                switch (getatoken(pScript, soundTokens, ARRAY_SIZE(soundTokens)))
                 {
-                case T_ID:
-                    scriptfile_getstring(script,&ID);
-                    break;
-                case T_FILE:
-                    scriptfile_getstring(script,&fn);
-                    break;
+                    case T_ID: scriptfile_getstring(pScript, &musicID); break;
+                    case T_FILE: scriptfile_getstring(pScript, &fileName); break;
                 }
             }
-            if (!preload)
-            {
-                int32_t res;
 
-                if (ID==NULL)
+            if (!firstPass)
+            {
+                if (musicID==NULL)
                 {
                     initprintf("Error: missing ID for music definition near line %s:%d\n",
-                               script->filename, scriptfile_getlinum(script,tinttokptr));
+                               pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
                     break;
                 }
 
-                if (fn == NULL || check_file_exist(fn))
+                if (fileName == NULL || check_file_exist(fileName))
                     break;
 
-                res = S_DefineMusic(ID, fn);
-
-                if (res == -1)
-                    initprintf("Error: invalid music ID on line %s:%d\n",
-                               script->filename, scriptfile_getlinum(script,tinttokptr));
+                if (S_DefineMusic(musicID, fileName) == -1)
+                    initprintf("Error: invalid music ID on line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
             }
         }
         break;
 
         case T_CUTSCENE:
         {
-            int32_t delay = 10;
-            char *animend;
-            dukeanim_t *anim = NULL;
-            char *animname = NULL;
+            char *fileName = NULL;
 
-            scriptfile_getstring(script, &animname);
+            scriptfile_getstring(pScript, &fileName);
 
-            if (scriptfile_getbraces(script, &animend))
+            char *animEnd;
+
+            if (scriptfile_getbraces(pScript, &animEnd))
                 break;
 
-            while (script->textptr < animend)
+            int32_t frameDelay = 10;
+
+            while (pScript->textptr < animEnd)
             {
-                switch (getatoken(script, animtokens, ARRAY_SIZE(animtokens)))
+                switch (getatoken(pScript, animTokens, ARRAY_SIZE(animTokens)))
                 {
-                    case T_DELAY: scriptfile_getnumber(script, &delay); break;
+                    case T_DELAY: scriptfile_getnumber(pScript, &frameDelay); break;
                 }
             }
 
-            if (!preload)
+            if (!firstPass)
             {
-                anim = Anim_Find(animname);
+                dukeanim_t *animPtr = Anim_Find(fileName);
 
-                if (!anim)
-                    anim = Anim_Setup(animname, delay, NULL);
+                if (!animPtr)
+                    animPtr = Anim_Setup(fileName, frameDelay, NULL);
                 else
-                    anim->framedelay = delay;
+                    animPtr->framedelay = frameDelay;
             }
         }
         break;
         case T_ANIMSOUNDS:
         {
-            char *otokptr = script->ltextptr;
-            int32_t numpairs = 0, allocsz = 4, bad = 1, lastframenum = INT32_MIN;
-            dukeanim_t *anim = NULL;
-            char *animname = NULL;
+            char *tokenPtr     = pScript->ltextptr;
+            int   numPairs     = 0;
+            int   allocSize    = 4;
+            int   defError     = 1;
+            int   lastFrameNum = INT32_MIN;
+            char *fileName     = NULL;
 
-            scriptfile_getstring(script, &animname);
+            scriptfile_getstring(pScript, &fileName);
 
-            char *animsoundsend = NULL;
+            char *animSoundsEnd = NULL;
 
-            if (scriptfile_getbraces(script, &animsoundsend))
+            if (scriptfile_getbraces(pScript, &animSoundsEnd))
                 break;
 
-            if (preload)
+            if (firstPass)
             {
-                while (script->textptr < animsoundsend)
+                while (pScript->textptr < animSoundsEnd)
                 {
                     int32_t dummy;
 
                     // HACK: we've reached the end of the list
                     //  (hack because it relies on knowledge of
                     //   how scriptfile_* preprocesses the text)
-                    if (animsoundsend - script->textptr == 1)
+                    if (animSoundsEnd - pScript->textptr == 1)
                         break;
 
-                    if (scriptfile_getnumber(script, &dummy))
+                    if (scriptfile_getnumber(pScript, &dummy))
                         break;
                 }
 
                 break;
             }
 
-            if (animname)
-                anim = Anim_Find(animname);
+            dukeanim_t *animPtr = NULL;
 
-            if (!anim)
+            if (fileName)
             {
-                initprintf("Error: expected animation filename on line %s:%d\n",
-                           script->filename, scriptfile_getlinum(script, otokptr));
-                break;
+                animPtr = Anim_Find(fileName);
+
+                if (!animPtr)
+                {
+                    initprintf("Error: expected animation filename on line %s:%d\n",
+                        pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
+                    break;
+                }
+
+                if (animPtr->sounds)
+                {
+                    initprintf("Warning: overwriting already defined hi-anim %s's sounds on line %s:%d\n", fileName,
+                        pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
+                    Bfree(animPtr->sounds);
+                    animPtr->numsounds = 0;
+                }
+
+                animPtr->sounds = (uint16_t *) Xcalloc(allocSize, 2 * sizeof(uint16_t));
             }
 
-            if (anim->sounds)
+            while (pScript->textptr < animSoundsEnd)
             {
-                initprintf("Warning: overwriting already defined hi-anim %s's sounds on line %s:%d\n", animname,
-                           script->filename, scriptfile_getlinum(script, otokptr));
-                Bfree(anim->sounds);
-                anim->numsounds = 0;
-            }
-
-            anim->sounds = (uint16_t *)Xcalloc(allocsz, 2 * sizeof(uint16_t));
-
-            while (script->textptr < animsoundsend)
-            {
-                int32_t framenum, soundnum;
+                int32_t frameNum;
+                int32_t soundNum;
 
                 // HACK: we've reached the end of the list
                 //  (hack because it relies on knowledge of
                 //   how scriptfile_* preprocesses the text)
-                if (animsoundsend - script->textptr == 1)
+                if (animSoundsEnd - pScript->textptr == 1)
                     break;
 
                 // would produce error when it encounters the closing '}'
                 // without the above hack
-                if (scriptfile_getnumber(script, &framenum))
+                if (scriptfile_getnumber(pScript, &frameNum))
                     break;
 
-                bad = 1;
+                defError = 1;
 
                 // TODO: look carefully at whether this can be removed.
-                if (anim->sounds == NULL)  // Bcalloc check
+                if (animPtr->sounds == NULL)  // Bcalloc check
                     break;
 
-                if (scriptfile_getsymbol(script, &soundnum))
+                if (scriptfile_getsymbol(pScript, &soundNum))
                     break;
 
                 // frame numbers start at 1 for us
-                if (framenum <= 0)
+                if (frameNum <= 0)
                 {
-                    initprintf("Error: frame number must be greater zero on line %s:%d\n", script->filename,
-                               scriptfile_getlinum(script, script->ltextptr));
+                    initprintf("Error: frame number must be greater zero on line %s:%d\n", pScript->filename,
+                               scriptfile_getlinum(pScript, pScript->ltextptr));
                     break;
                 }
 
-                if (framenum < lastframenum)
+                if (frameNum < lastFrameNum)
                 {
                     initprintf("Error: frame numbers must be in (not necessarily strictly)"
                                " ascending order (line %s:%d)\n",
-                               script->filename, scriptfile_getlinum(script, script->ltextptr));
+                               pScript->filename, scriptfile_getlinum(pScript, pScript->ltextptr));
                     break;
                 }
-                lastframenum = framenum;
 
-                if ((unsigned)soundnum >= MAXSOUNDS)
+                lastFrameNum = frameNum;
+
+                if ((unsigned)soundNum >= MAXSOUNDS)
                 {
-                    initprintf("Error: sound number #%d invalid on line %s:%d\n", soundnum, script->filename,
-                               scriptfile_getlinum(script, script->ltextptr));
+                    initprintf("Error: sound number #%d invalid on line %s:%d\n", soundNum, pScript->filename,
+                               scriptfile_getlinum(pScript, pScript->ltextptr));
                     break;
                 }
 
-                if (numpairs >= allocsz)
+                if (numPairs >= allocSize)
                 {
                     void *newptr;
 
-                    allocsz *= 2;
-                    newptr = Xrealloc(anim->sounds, allocsz * 2 * sizeof(uint16_t));
+                    allocSize *= 2;
+                    newptr = Xrealloc(animPtr->sounds, allocSize * 2 * sizeof(uint16_t));
 
-                    anim->sounds = (uint16_t *)newptr;
+                    animPtr->sounds = (uint16_t *)newptr;
                 }
 
-                bad = 0;
+                defError = 0;
 
-                anim->sounds[2 * numpairs] = framenum;
-                anim->sounds[2 * numpairs + 1] = soundnum;
-                numpairs++;
+                animPtr->sounds[2 * numPairs]     = frameNum;
+                animPtr->sounds[2 * numPairs + 1] = soundNum;
+
+                ++numPairs;
             }
 
-            if (!bad)
+            if (!defError)
             {
-                anim->numsounds = numpairs;
+                animPtr->numsounds = numPairs;
                 // initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
                 //           hardcoded_anim_tokens[animnum].text, numpairs);
             }
             else
             {
-                DO_FREE_AND_NULL(anim->sounds);
-                initprintf("Failed defining sound sequence for hi-anim \"%s\".\n",
-                            animname);
+                DO_FREE_AND_NULL(animPtr->sounds);
+                initprintf("Failed defining sound sequence for hi-anim \"%s\".\n", fileName);
             }
         }
         break;
 
         case T_SOUND:
         {
-            char *tinttokptr = script->ltextptr;
-            char *fn = NULL;
-            int32_t num=-1;
-            char *musicend;
+            char *  tokenPtr = pScript->ltextptr;
+            char *  fileName = NULL;
+            int32_t soundNum = -1;
+            char *  musicEnd;
 
-            if (scriptfile_getbraces(script,&musicend)) break;
-            while (script->textptr < musicend)
+            if (scriptfile_getbraces(pScript, &musicEnd))
+                break;
+
+            while (pScript->textptr < musicEnd)
             {
-                switch (getatoken(script,sound_musictokens,ARRAY_SIZE(sound_musictokens)))
+                switch (getatoken(pScript, soundTokens, ARRAY_SIZE(soundTokens)))
                 {
-                case T_ID:
-                    scriptfile_getsymbol(script,&num);
-                    break;
-                case T_FILE:
-                    scriptfile_getstring(script,&fn);
-                    break;
+                    case T_ID: scriptfile_getsymbol(pScript, &soundNum); break;
+                    case T_FILE: scriptfile_getstring(pScript, &fileName); break;
                 }
             }
-            if (!preload)
+
+            if (!firstPass)
             {
-                if (num==-1)
+                if (soundNum==-1)
                 {
-                    initprintf("Error: missing ID for sound definition near line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+                    initprintf("Error: missing ID for sound definition near line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
                     break;
                 }
 
-                if (fn == NULL || check_file_exist(fn))
+                if (fileName == NULL || check_file_exist(fileName))
                     break;
 
-                if (S_DefineSound(num,fn) == -1)
-                    initprintf("Error: invalid sound ID on line %s:%d\n", script->filename, scriptfile_getlinum(script,tinttokptr));
+                if (S_DefineSound(soundNum,fileName) == -1)
+                    initprintf("Error: invalid sound ID on line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
             }
         }
         break;
         case T_RENAMEFILE:
         {
-            int32_t crcval = 0, filenum = -1;
-            char *newname = NULL;
-            if (scriptfile_getnumber(script,&crcval)) break;
-            if (scriptfile_getnumber(script,&filenum)) break;
-            if (scriptfile_getstring(script,&newname)) break;
-            krename(crcval, filenum, newname);
+            int32_t fileCRC = 0;
+            int32_t fileNum = -1;
+            char *  newName = NULL;
+
+            if (scriptfile_getnumber(pScript, &fileCRC)) break;
+            if (scriptfile_getnumber(pScript, &fileNum)) break;
+            if (scriptfile_getstring(pScript, &newName)) break;
+
+            krename(fileCRC, fileNum, newName);
         }
         break;
-        case T_GLOBALGAMEFLAGS:
-        {
-            if (scriptfile_getnumber(script,&duke3d_globalflags)) break;
-        }
-        break;
-        case T_EOF:
-            return 0;
-        default:
-            break;
+        case T_GLOBALGAMEFLAGS: scriptfile_getnumber(pScript, &duke3d_globalflags); break;
+        case T_EOF: return 0;
+        default: break;
         }
     }
+    while (1);
+
     return 0;
 }
 
-int32_t loaddefinitions_game(const char *fn, int32_t preload)
+int loaddefinitions_game(const char *fileName, int32_t firstPass)
 {
-    scriptfile *script;
-    int32_t i;
+    scriptfile *pScript = scriptfile_fromfile(fileName);
 
-    script = scriptfile_fromfile(fn);
-    if (script)
-        parsedefinitions_game(script, preload);
+    if (pScript)
+        parsedefinitions_game(pScript, firstPass);
 
-    for (i=0; i < g_defModulesNum; ++i)
-        parsedefinitions_game_include(g_defModules[i], NULL, "null", preload);
+    for (int i=0; i < g_defModulesNum; ++i)
+        parsedefinitions_game_include(g_defModules[i], NULL, "null", firstPass);
 
-    if (script)
-        scriptfile_close(script);
+    if (pScript)
+        scriptfile_close(pScript);
 
     scriptfile_clearsymbols();
 
@@ -5599,7 +5612,7 @@ static void G_PostLoadPalette(void)
 // Has to be after setting the dynamic names (e.g. SHARK).
 static void A_InitEnemyFlags(void)
 {
-    int32_t DukeEnemies[] = {
+    int DukeEnemies[] = {
         SHARK, RECON, DRONE,
         LIZTROOPONTOILET, LIZTROOPJUSTSIT, LIZTROOPSTAYPUT, LIZTROOPSHOOT,
         LIZTROOPJETPACK, LIZTROOPSHOOT, LIZTROOPDUCKING, LIZTROOPRUNNING, LIZTROOP,
@@ -5607,9 +5620,9 @@ static void A_InitEnemyFlags(void)
         LIZMAN, LIZMANSPITTING, LIZMANJUMP, ORGANTIC,
         BOSS1, BOSS2, BOSS3, BOSS4, RAT, ROTATEGUN };
 
-    int32_t SolidEnemies[] = { TANK, BOSS1, BOSS2, BOSS3, BOSS4, RECON, ROTATEGUN };
-    int32_t NoWaterDipEnemies[] = { OCTABRAIN, COMMANDER, DRONE };
-    int32_t GreenSlimeFoodEnemies[] = { LIZTROOP, LIZMAN, PIGCOP, NEWBEAST };
+    int SolidEnemies[] = { TANK, BOSS1, BOSS2, BOSS3, BOSS4, RECON, ROTATEGUN };
+    int NoWaterDipEnemies[] = { OCTABRAIN, COMMANDER, DRONE };
+    int GreenSlimeFoodEnemies[] = { LIZTROOP, LIZMAN, PIGCOP, NEWBEAST };
 
     for (int i=GREENSLIME; i<=GREENSLIME+7; i++)
         SETFLAG(i, SFLAG_HARDCODED_BADGUY);
@@ -5684,10 +5697,10 @@ void G_PostCreateGameState(void)
     A_InitEnemyFlags();
 }
 
-static void G_HandleMemErr(int32_t line, const char *file, const char *func)
+static void G_HandleMemErr(int lineNum, const char *fileName, const char *funcName)
 {
     static char msg[128];
-    Bsnprintf(msg, sizeof(msg), "Out of memory in %s:%d (%s)\n", file, line, func);
+    Bsnprintf(msg, sizeof(msg), "Out of memory in %s:%d (%s)\n", fileName, lineNum, funcName);
 #ifdef DEBUGGINGAIDS
     Bassert(0);
 #endif
@@ -6929,8 +6942,8 @@ void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n)
         if (sect >= 0)
         {
             z = sector[sect].floorz-(krand()&(klabs(sector[sect].ceilingz-sector[sect].floorz)));
-            if (z < -(32<<8) || z > (32<<8))
-                z = SZ(i)-(32<<8)+(krand()&((64<<8)-1));
+            if (z < -ZOFFSET5 || z > ZOFFSET5)
+                z = SZ(i)-ZOFFSET5+(krand()&((64<<8)-1));
             a = SA(i)-1024;
             A_InsertSprite(SECT(i),x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),-(krand()&1023),i,5);
         }
@@ -7003,8 +7016,8 @@ void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n)
 
         updatesector(x1,y1,&sect);
         z = sector[sect].floorz-(krand()&(klabs(sector[sect].ceilingz-sector[sect].floorz)));
-        if (z < -(32<<8) || z > (32<<8))
-            z = SZ(i)-(32<<8)+(krand()&((64<<8)-1));
+        if (z < -ZOFFSET5 || z > ZOFFSET5)
+            z = SZ(i)-ZOFFSET5+(krand()&((64<<8)-1));
         a = SA(i)-1024;
         k = A_InsertSprite(SECT(i),x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),-(krand()&2047),i,5);
         sprite[k].pal = krand()&7;

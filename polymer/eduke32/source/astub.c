@@ -8006,7 +8006,7 @@ static void G_ShowParameterHelp(void)
               "-usecwd\t\t\tRead game data and configuration file from working directory\n"
               "\n-?, -help, --help\t\tDisplay this help message and exit"
               ;
-    Bsprintf(tempbuf, "Mapster32 %s %s", VERSION, s_buildRev);
+    Bsprintf(tempbuf, "Mapster32 %s", s_buildRev);
     wm_msgbox(tempbuf, "%s", s);
 }
 
@@ -8422,8 +8422,8 @@ int32_t ExtPreInit(int32_t argc,char const * const * argv)
     G_ExtPreInit(argc, argv);
 
     OSD_SetLogFile("mapster32.log");
-    OSD_SetVersion("Mapster32" " " VERSION,0,2);
-    initprintf("Mapster32 %s %s %s\n", VERSION, s_buildRev, s_buildInfo);
+    OSD_SetVersion("Mapster32",0,2);
+    initprintf("Mapster32 %s %s\n", s_buildRev, s_buildInfo);
     initprintf("Compiled %s\n", s_buildTimestamp);
     //    initprintf("Copyright (c) 2008 EDuke32 team\n");
 
@@ -9970,7 +9970,7 @@ int32_t ExtInit(void)
     getmessageleng = 0;
     getmessagetimeoff = 0;
 
-    Bsprintf(apptitle, "Mapster32 %s %s", VERSION, s_buildRev);
+    Bsprintf(apptitle, "Mapster32 %s", s_buildRev);
     autosavetimer = totalclock+120*autosave;
 
     registerosdcommands();

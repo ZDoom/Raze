@@ -1004,7 +1004,7 @@ void G_OperateRespawns(int32_t low)
             if (!ud.monsters_off || !A_CheckEnemyTile(respr->hitag))
             {
                 int32_t j = A_Spawn(i, TRANSPORTERSTAR);
-                sprite[j].z -= (32<<8);
+                sprite[j].z -= ZOFFSET5;
 
                 // Just a way to killit (see G_MoveFX(): RESPAWN__STATIC)
                 respr->extra = 66-12;
@@ -2144,7 +2144,7 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
         }
 
         int newSprite = A_Spawn(spriteNum, STEAM);
-        sprite[newSprite].z = sector[SECT(spriteNum)].floorz-(32<<8);
+        sprite[newSprite].z = sector[SECT(spriteNum)].floorz-ZOFFSET5;
         break;
     }
 

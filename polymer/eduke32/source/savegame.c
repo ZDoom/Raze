@@ -101,7 +101,6 @@ void G_ResetInterpolations(void)
     int32_t k, i;
 
     g_numInterpolations = 0;
-    startofdynamicinterpolations = 0;
 
     k = headspritestat[STAT_EFFECTOR];
     while (k >= 0)

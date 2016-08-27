@@ -62,7 +62,7 @@ intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
 // counts to zero. Call this function as many times as needed.
 //
 // Returns: old g_gameVarCount | (g_gameArrayCount<<16).
-static int32_t Gv_Free(void)
+static int Gv_Free(void)
 {
     for (int i=0; i<g_gameVarCount; ++i)
     {
@@ -107,7 +107,7 @@ static void Gv_Clear(void)
         DO_FREE_AND_NULL(aGameArrays[i].szLabel);
 }
 
-int32_t Gv_ReadSave(int32_t kFile)
+int Gv_ReadSave(int32_t kFile)
 {
     char savedstate[MAXVOLUMES*MAXLEVELS];
     char tbuf[12];

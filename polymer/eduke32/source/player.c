@@ -259,7 +259,7 @@ static int32_t A_FindTargetSprite(const spritetype *pSprite, int32_t projAngle, 
                          (GTFLAGS(GAMETYPE_TDM) && g_player[P_Get(spriteNum)].ps->team == g_player[playerNum].ps->team)))
                         continue;
 
-                    if (gotShrinker && sprite[spriteNum].xrepeat < 30 || PN(spriteNum) == SHARK ||
+                    if ((gotShrinker && sprite[spriteNum].xrepeat < 30) || PN(spriteNum) == SHARK ||
                         !(PN(spriteNum) >= GREENSLIME && PN(spriteNum) <= GREENSLIME + 7) ||
                         (gotFreezer && sprite[spriteNum].pal == 1))
                         continue;
@@ -283,9 +283,9 @@ static int32_t A_FindTargetSprite(const spritetype *pSprite, int32_t projAngle, 
 
                         int const canSee = (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN)
                                             ? cansee(SX(spriteNum), SY(spriteNum), SZ(spriteNum), SECT(spriteNum), pSprite->x, pSprite->y,
-                                                    pSprite->z - (32 << 8), pSprite->sectnum)
-                                            : cansee(SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (32 << 8), SECT(spriteNum), pSprite->x, pSprite->y,
-                                                    pSprite->z - (32 << 8), pSprite->sectnum);
+                                                    pSprite->z - ZOFFSET5, pSprite->sectnum)
+                                            : cansee(SX(spriteNum), SY(spriteNum), SZ(spriteNum) - ZOFFSET5, SECT(spriteNum), pSprite->x, pSprite->y,
+                                                    pSprite->z - ZOFFSET5, pSprite->sectnum);
 
                         if (onScreen && canSee)
                         {
@@ -1329,7 +1329,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
                 j          = A_FindPlayer(pSprite, NULL);
                 shootAngle = getangle(g_player[j].ps->opos.x - startPos.x, g_player[j].ps->opos.y - startPos.y);
                 if (PN(spriteNum) == BOSS3)
-                    startPos.z -= MinibossScale(spriteNum, 32 << 8);
+                    startPos.z -= MinibossScale(spriteNum, ZOFFSET5);
                 else if (PN(spriteNum) == BOSS2)
                 {
                     vel += 128;
@@ -3480,7 +3480,7 @@ static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
 
     if ((touchObject & 49152) == 49152)
     {
-        int const touchSprite = touchObject & MAXSPRITES-1;
+        int const touchSprite = touchObject & (MAXSPRITES - 1);
 
         if (sprite[touchSprite].picnum == CACTUS)
         {
@@ -4786,14 +4786,19 @@ void P_ProcessInput(int playerNum)
         }
     }
 
+    int                  velocityModifier = TICSPERFRAME;
+    const uint8_t *const weaponFrame      = &pPlayer->kickback_pic;
+    int                  floorZOffset     = 40;
+    int const            playerShrunk     = (pSprite->yrepeat < 32);
+
     if (pPlayer->on_crane >= 0)
         goto HORIZONLY;
 
     pPlayer->weapon_sway = (pSprite->xvel < 32 || pPlayer->on_ground == 0 || pPlayer->bobcounter == 1024)
                            ? (((pPlayer->weapon_sway & 2047) > (1024 + 96))
-                           ? (pPlayer->weapon_sway -= 96)
+                           ? (pPlayer->weapon_sway - 96)
                            : (((pPlayer->weapon_sway & 2047) < (1024 - 96)))
-                           ? (pPlayer->weapon_sway += 96)
+                           ? (pPlayer->weapon_sway + 96)
                            : 1024)
                            : pPlayer->bobcounter;
 
@@ -4828,9 +4833,6 @@ void P_ProcessInput(int playerNum)
     }
 
     // Shrinking code
-
-    int       floorZOffset = 40;
-    int const playerShrunk = (pSprite->yrepeat < 32);
 
     if (sectorLotag == ST_2_UNDERWATER)
         P_DoWater(playerNum, playerBits, floorZ, ceilZ);
@@ -5070,9 +5072,6 @@ void P_ProcessInput(int playerNum)
         }
     }
 
-    int                  velocityModifier = TICSPERFRAME;
-    const uint8_t *const weaponFrame      = &pPlayer->kickback_pic;
-
     if (pPlayer->fist_incs || pPlayer->transporter_hold > 2 || pPlayer->hard_landing || pPlayer->access_incs > 0 ||
         pPlayer->knee_incs > 0 || (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == TRIPBOMB_WEAPON &&
                                    *weaponFrame > 1 && *weaponFrame < PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay)))
@@ -5190,7 +5189,7 @@ void P_ProcessInput(int playerNum)
 
         if (sectorLotag == ST_2_UNDERWATER)
             playerSpeedReduction = 0x1400;
-        else if ((pPlayer->on_ground && (TEST_SYNC_KEY(playerBits, SK_CROUCH))
+        else if (((pPlayer->on_ground && (TEST_SYNC_KEY(playerBits, SK_CROUCH)))
                   || (*weaponFrame > 10 && PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == KNEE_WEAPON)))
             playerSpeedReduction = 0x2000;
 
@@ -5253,7 +5252,7 @@ HORIZONLY:;
     // This makes the player view lower when shrunk.  NOTE that it can get the
     // view below the sector floor (and does, when on the ground).
     if (pPlayer->jetpack_on == 0 && sectorLotag != ST_2_UNDERWATER && sectorLotag != ST_1_ABOVE_WATER && playerShrunk)
-        pPlayer->pos.z += 32<<8;
+        pPlayer->pos.z += ZOFFSET5;
 
     if (pPlayer->jetpack_on == 0)
     {
@@ -5312,7 +5311,7 @@ HORIZONLY:;
                 return;
             }
         }
-        else if (klabs(floorZ - ceilZ) < (32 << 8) && isanunderoperator(sector[pPlayer->cursectnum].lotag))
+        else if (klabs(floorZ - ceilZ) < ZOFFSET5 && isanunderoperator(sector[pPlayer->cursectnum].lotag))
             G_ActivateBySector(pPlayer->cursectnum, pPlayer->i);
     }
 
@@ -5327,8 +5326,7 @@ HORIZONLY:;
         if (VM_OnEvent(EVENT_LOOKUP,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            if (TEST_SYNC_KEY(playerBits, SK_RUN)) pPlayer->horiz += 12;
-            pPlayer->horiz += 12;
+            pPlayer->horiz += 12<<(TEST_SYNC_KEY(playerBits, SK_RUN));
             centerHoriz++;
         }
     }
@@ -5338,8 +5336,7 @@ HORIZONLY:;
         if (VM_OnEvent(EVENT_LOOKDOWN,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            if (TEST_SYNC_KEY(playerBits, SK_RUN)) pPlayer->horiz -= 12;
-            pPlayer->horiz -= 12;
+            pPlayer->horiz -= 12<<(TEST_SYNC_KEY(playerBits, SK_RUN));
             centerHoriz++;
         }
     }
@@ -5348,8 +5345,7 @@ HORIZONLY:;
     {
         if (VM_OnEvent(EVENT_AIMUP,pPlayer->i,playerNum) == 0)
         {
-            if (TEST_SYNC_KEY(playerBits, SK_RUN)) pPlayer->horiz += 6;
-            pPlayer->horiz += 6;
+            pPlayer->horiz += 6<<(TEST_SYNC_KEY(playerBits, SK_RUN));
             centerHoriz++;
         }
     }
@@ -5358,8 +5354,7 @@ HORIZONLY:;
     {
         if (VM_OnEvent(EVENT_AIMDOWN,pPlayer->i,playerNum) == 0)
         {
-            if (TEST_SYNC_KEY(playerBits, SK_RUN)) pPlayer->horiz -= 6;
-            pPlayer->horiz -= 6;
+            pPlayer->horiz -= 6<<(TEST_SYNC_KEY(playerBits, SK_RUN));
             centerHoriz++;
         }
     }
@@ -5383,12 +5378,7 @@ HORIZONLY:;
         if (pPlayer->horizoff > -5 && pPlayer->horizoff < 5) pPlayer->horizoff = 0;
     }
 
-    pPlayer->horiz += g_player[playerNum].inputBits->horz;
-
-    if (pPlayer->horiz > HORIZ_MAX)
-        pPlayer->horiz = HORIZ_MAX;
-    else if (pPlayer->horiz < HORIZ_MIN)
-        pPlayer->horiz = HORIZ_MIN;
+    pPlayer->horiz = clamp(pPlayer->horiz + g_player[playerNum].inputBits->horz, HORIZ_MIN, HORIZ_MAX);
 
     //Shooting code/changes
 
