@@ -170,6 +170,9 @@ const tokenmap_t altkeyw [] =
     { "setw", CON_SETWALL },
     { "setu", CON_SETUSERDEF },
     { "seti", CON_SETINPUT },
+
+    { "string", CON_DEFINEQUOTE },
+    { "print", CON_QUOTE },
 };
 
 const char *keyw[] =
