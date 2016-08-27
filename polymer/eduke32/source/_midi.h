@@ -1,10 +1,12 @@
+//-------------------------------------------------------------------------
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 2016 EDuke32 developers and contributors
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+This file is part of EDuke32.
+
+EDuke32 is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,20 +17,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
-
 */
-/**********************************************************************
-   module: _MIDI.H
-
-   author: James R. Dose
-   date:   May 25, 1994
-
-   Private header for MIDI.C.  Midi song file playback routines.
-
-   (c) Copyright 1994 James R. Dose.  All Rights Reserved.
-**********************************************************************/
+//-------------------------------------------------------------------------
 
 #ifndef ___MIDI_H
 #define ___MIDI_H
@@ -103,180 +93,55 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #define EMIDI_GeneralMIDI       0
 
-#define EMIDI_AffectsCurrentCard( c, type ) \
-   ( ( ( c ) == EMIDI_ALL_CARDS ) || ( ( c ) == ( type ) ) )
-
-
+#define EMIDI_AffectsCurrentCard(c, type) (((c) == EMIDI_ALL_CARDS) || ((c) == (type)))
 #define EMIDI_NUM_CONTEXTS      7
-typedef struct
-   {
-   char *pos;
-   char *loopstart;
-   int16_t          loopcount;
-   int16_t          RunningStatus;
-   unsigned       time;
-   int32_t           FPSecondsPerTick;
-   int16_t          tick;
-   int16_t          beat;
-   int16_t          measure;
-   int16_t          BeatsPerMeasure;
-   int16_t          TicksPerBeat;
-   int16_t          TimeBase;
-   int32_t           delay;
-   int16_t          active;
-   } songcontext;
 
 typedef struct
-   {
-   char *start;
-   char *pos;
+{
+    char *pos;
+    char *loopstart;
+    int16_t loopcount;
+    int16_t RunningStatus;
+    unsigned time;
+    int32_t FPSecondsPerTick;
+    int16_t tick;
+    int16_t beat;
+    int16_t measure;
+    int16_t BeatsPerMeasure;
+    int16_t TicksPerBeat;
+    int16_t TimeBase;
+    int32_t delay;
+    int16_t active;
+} songcontext;
 
-   int32_t           delay;
-   int16_t          active;
-   int16_t          RunningStatus;
+typedef struct
+{
+    char *start;
+    char *pos;
 
-   int16_t          currentcontext;
-   songcontext    context[ EMIDI_NUM_CONTEXTS ];
+    int32_t delay;
+    int16_t active;
+    int16_t RunningStatus;
 
-   char           EMIDI_IncludeTrack;
-   char           EMIDI_ProgramChange;
-   char           EMIDI_VolumeChange;
-   } track;
+    int16_t currentcontext;
+    songcontext context[EMIDI_NUM_CONTEXTS];
 
-static int32_t _MIDI_ReadNumber( void *from, size_t size );
-static int32_t _MIDI_ReadDelta( track *ptr );
-static void _MIDI_ResetTracks( void );
-static void _MIDI_AdvanceTick( void );
-static void _MIDI_MetaEvent( track *Track );
-static void _MIDI_SysEx( track *Track );
-static int32_t  _MIDI_InterpretControllerInfo( track *Track, int32_t TimeSet,
-   int32_t channel, int32_t c1, int32_t c2 );
-static int32_t  _MIDI_SendControlChange( int32_t channel, int32_t c1, int32_t c2 );
-static void _MIDI_SetChannelVolume( int32_t channel, int32_t volume );
-static void _MIDI_SendChannelVolumes( void );
-static int32_t  _MIDI_ProcessNextTick( void );
-static void _MIDI_InitEMIDI( void );
+    char EMIDI_IncludeTrack;
+    char EMIDI_ProgramChange;
+    char EMIDI_VolumeChange;
+} track;
 
-/*
-               if ( c1 == EMIDI_LOOP_START )
-                  {
-                  if ( c2 == 0 )
-                     {
-                     Track->context[ 0 ].loopcount = EMIDI_INFINITE;
-                     }
-                  else
-                     {
-                     Track->context[ 0 ].loopcount = c2;
-                     }
-
-                  Track->context[ 0 ].pos              = Track->pos;
-                  Track->context[ 0 ].loopstart        = Track->pos;
-                  Track->context[ 0 ].RunningStatus    = Track->RunningStatus;
-                  Track->context[ 0 ].time             = _MIDI_Time;
-                  Track->context[ 0 ].FPSecondsPerTick = _MIDI_FPSecondsPerTick;
-                  Track->context[ 0 ].tick             = _MIDI_Tick;
-                  Track->context[ 0 ].beat             = _MIDI_Beat;
-                  Track->context[ 0 ].measure          = _MIDI_Measure;
-                  Track->context[ 0 ].BeatsPerMeasure  = _MIDI_BeatsPerMeasure;
-                  Track->context[ 0 ].TicksPerBeat     = _MIDI_TicksPerBeat;
-                  Track->context[ 0 ].TimeBase         = _MIDI_TimeBase;
-                  break;
-                  }
-
-               if ( ( c1 == EMIDI_LOOP_END ) &&
-                  ( c2 == EMIDI_END_LOOP_VALUE ) )
-                  {
-                  if ( ( Track->context[ 0 ].loopstart != NULL ) &&
-                     ( Track->context[ 0 ].loopcount != 0 ) )
-                     {
-                     if ( Track->context[ 0 ].loopcount != EMIDI_INFINITE )
-                        {
-                        Track->context[ 0 ].loopcount--;
-                        }
-
-                     Track->pos           = Track->context[ 0 ].loopstart;
-                     Track->RunningStatus = Track->context[ 0 ].RunningStatus;
-
-                     if ( !TimeSet )
-                        {
-                        _MIDI_Time             = Track->context[ 0 ].time;
-                        _MIDI_FPSecondsPerTick = Track->context[ 0 ].FPSecondsPerTick;
-                        _MIDI_Tick             = Track->context[ 0 ].tick;
-                        _MIDI_Beat             = Track->context[ 0 ].beat;
-                        _MIDI_Measure          = Track->context[ 0 ].measure;
-                        _MIDI_BeatsPerMeasure  = Track->context[ 0 ].BeatsPerMeasure;
-                        _MIDI_TicksPerBeat     = Track->context[ 0 ].TicksPerBeat;
-                        _MIDI_TimeBase         = Track->context[ 0 ].TimeBase;
-                        TimeSet = TRUE;
-                        }
-                     }
-                  break;
-                  }
-
-               if ( c1 == MIDI_MONO_MODE_ON )
-                  {
-                  Track->pos++;
-                  }
-
-               if ( ( c1 == MIDI_VOLUME ) && ( !Track->EMIDI_VolumeChange ) )
-                  {
-                  _MIDI_SetChannelVolume( channel, c2 );
-                  break;
-                  }
-               else if ( ( c1 == EMIDI_VOLUME_CHANGE ) &&
-                  ( Track->EMIDI_VolumeChange ) )
-                  {
-                  _MIDI_SetChannelVolume( channel, c2 );
-                  break;
-                  }
-
-               if ( ( c1 == EMIDI_PROGRAM_CHANGE ) &&
-                  ( Track->EMIDI_ProgramChange ) )
-                  {
-                  _MIDI_Funcs->ProgramChange( channel, MIDI_PatchMap[ c2 & 0x7f ] );
-                  break;
-                  }
-
-               if ( c1 == EMIDI_CONTEXT_START )
-                  {
-                  break;
-                  }
-
-               if ( c1 == EMIDI_CONTEXT_END )
-                  {
-                  if ( ( Track->currentcontext != _MIDI_Context ) ||
-                     ( Track->context[ _MIDI_Context ].pos == NULL )
-                     {
-                     break;
-                     }
-
-                  Track->currentcontext = _MIDI_Context;
-                  Track->context[ 0 ].loopstart = Track->context[ _MIDI_Context ].loopstart;
-                  Track->context[ 0 ].loopcount = Track->context[ _MIDI_Context ].loopcount;
-                  Track->pos           = Track->context[ _MIDI_Context ].pos;
-                  Track->RunningStatus = Track->context[ _MIDI_Context ].RunningStatus;
-
-                  if ( TimeSet )
-                     {
-                     break;
-                     }
-
-                  _MIDI_Time             = Track->context[ _MIDI_Context ].time;
-                  _MIDI_FPSecondsPerTick = Track->context[ _MIDI_Context ].FPSecondsPerTick;
-                  _MIDI_Tick             = Track->context[ _MIDI_Context ].tick;
-                  _MIDI_Beat             = Track->context[ _MIDI_Context ].beat;
-                  _MIDI_Measure          = Track->context[ _MIDI_Context ].measure;
-                  _MIDI_BeatsPerMeasure  = Track->context[ _MIDI_Context ].BeatsPerMeasure;
-                  _MIDI_TicksPerBeat     = Track->context[ _MIDI_Context ].TicksPerBeat;
-                  _MIDI_TimeBase         = Track->context[ _MIDI_Context ].TimeBase;
-                  TimeSet = TRUE;
-                  break;
-                  }
-
-               if ( _MIDI_Funcs->ControlChange )
-                  {
-                  _MIDI_Funcs->ControlChange( channel, c1, c2 );
-                  }
- */
+static int32_t _MIDI_ReadNumber(void *from, size_t size);
+static int32_t _MIDI_ReadDelta(track *ptr);
+static void _MIDI_ResetTracks(void);
+static void _MIDI_AdvanceTick(void);
+static void _MIDI_MetaEvent(track *Track);
+static void _MIDI_SysEx(track *Track);
+static int32_t _MIDI_InterpretControllerInfo(track *Track, int32_t TimeSet, int32_t channel, int32_t c1, int32_t c2);
+static int32_t _MIDI_SendControlChange(int32_t channel, int32_t c1, int32_t c2);
+static void _MIDI_SetChannelVolume(int32_t channel, int32_t volume);
+static void _MIDI_SendChannelVolumes(void);
+static int32_t _MIDI_ProcessNextTick(void);
+static void _MIDI_InitEMIDI(void);
 
 #endif

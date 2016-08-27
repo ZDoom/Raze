@@ -1,6 +1,6 @@
 //-------------------------------------------------------------------------
 /*
-Copyright (C) 2010 EDuke32 developers and contributors
+Copyright (C) 2016 EDuke32 developers and contributors
 
 This file is part of EDuke32.
 
@@ -19,17 +19,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
-
-/**********************************************************************
-   module: MUSIC.C
-
-   author: James R. Dose
-   date:   March 25, 1994
-
-   Device independant music playback routines.
-
-   (c) Copyright 1994 James R. Dose.  All Rights Reserved.
-**********************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -61,20 +50,16 @@ int32_t MUSIC_InitMidi(int32_t card, midifuncs *Funcs, int32_t Address);
 #define MUSIC_SetErrorCode(status) MUSIC_ErrorCode = (status);
 
 const char *MUSIC_ErrorString(int32_t ErrorNumber)
-
 {
     const char *ErrorString;
 
     switch (ErrorNumber)
     {
         case MUSIC_Warning:
-        case MUSIC_Error: ErrorString = MUSIC_ErrorString(MUSIC_ErrorCode); break;
-
-        case MUSIC_Ok: ErrorString = "Music ok."; break;
-
-        case MUSIC_MidiError: ErrorString = "Error playing MIDI file."; break;
-
-        default: ErrorString = "Unknown Music error code."; break;
+        case MUSIC_Error:       ErrorString = MUSIC_ErrorString(MUSIC_ErrorCode); break;
+        case MUSIC_Ok:          ErrorString = "Music ok."; break;
+        case MUSIC_MidiError:   ErrorString = "Error playing MIDI file."; break;
+        default:                ErrorString = "Unknown Music error code."; break;
     }
 
     return ErrorString;
@@ -83,9 +68,6 @@ const char *MUSIC_ErrorString(int32_t ErrorNumber)
 
 int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 {
-    for (int i = 0; i < 128; i++)
-        MIDI_PatchMap[i] = i;
-
     MUSIC_SoundDevice = SoundCard;
 
     return MUSIC_InitMidi(SoundCard, &MUSIC_MidiFunctions, Address);

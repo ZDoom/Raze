@@ -1,12 +1,12 @@
+//-------------------------------------------------------------------------
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
-Copyright (C) 2015 EDuke32 developers
-Copyright (C) 2015 Voidpoint, LLC
+Copyright (C) 2016 EDuke32 developers and contributors
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+This file is part of EDuke32.
+
+EDuke32 is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,18 +17,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
 */
-/**********************************************************************
-   module: FX_MAN.C
-
-   author: James R. Dose
-   date:   March 17, 1994
-
-   Device independant sound effect routines.
-
-   (c) Copyright 1994 James R. Dose.  All Rights Reserved.
-**********************************************************************/
+//-------------------------------------------------------------------------
 
 #include "compat.h"
 #include <stdio.h>
@@ -48,13 +38,10 @@ const char *FX_ErrorString(int32_t ErrorNumber)
     switch (ErrorNumber)
     {
         case FX_Warning:
-        case FX_Error: ErrorString = FX_ErrorString(FX_ErrorCode); break;
-
-        case FX_Ok: ErrorString = "Fx ok."; break;
-
-        case FX_MultiVocError: ErrorString = MV_ErrorString(MV_Error); break;
-
-        default: ErrorString = "Unknown Fx error code."; break;
+        case FX_Error:          ErrorString = FX_ErrorString(FX_ErrorCode); break;
+        case FX_Ok:             ErrorString = "Fx ok."; break;
+        case FX_MultiVocError:  ErrorString = MV_ErrorString(MV_Error); break;
+        default:                ErrorString = "Unknown Fx error code."; break;
     }
 
     return ErrorString;

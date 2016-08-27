@@ -1,10 +1,12 @@
+//-------------------------------------------------------------------------
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 2016 EDuke32 developers and contributors
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+This file is part of EDuke32.
+
+EDuke32 is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License version 2
+as published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,19 +17,8 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
-Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 */
-/**********************************************************************
-   module: MIDI.H
-
-   author: James R. Dose
-   date:   May 25, 1994
-
-   Public header for MIDI.C.  Midi song file playback routines.
-
-   (c) Copyright 1994 James R. Dose.  All Rights Reserved.
-**********************************************************************/
+//-------------------------------------------------------------------------
 
 #ifndef __MIDI_H
 #define __MIDI_H
