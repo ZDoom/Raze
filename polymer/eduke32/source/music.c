@@ -39,16 +39,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 
 #ifndef TRUE
-#define TRUE  ( 1 == 1 )
-#define FALSE ( !TRUE )
+#define TRUE (1 == 1)
+#define FALSE (!TRUE)
 #endif
 
 #ifndef min
-#define min(a,b) (((a)<(b))?(a):(b))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 
 #ifndef max
-# define max(a,b) ( ((a) > (b)) ? (a) : (b) )
+#define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
 int32_t MUSIC_SoundDevice = -1;
@@ -58,203 +58,61 @@ static midifuncs MUSIC_MidiFunctions;
 
 int32_t MUSIC_InitMidi(int32_t card, midifuncs *Funcs, int32_t Address);
 
-#define MUSIC_SetErrorCode( status ) \
-   MUSIC_ErrorCode = ( status );
+#define MUSIC_SetErrorCode(status) MUSIC_ErrorCode = (status);
 
-/*---------------------------------------------------------------------
-   Function: MUSIC_ErrorString
-
-   Returns a pointer to the error message associated with an error
-   number.  A -1 returns a pointer the current error.
----------------------------------------------------------------------*/
-
-const char *MUSIC_ErrorString
-(
-    int32_t ErrorNumber
-)
+const char *MUSIC_ErrorString(int32_t ErrorNumber)
 
 {
     const char *ErrorString;
 
     switch (ErrorNumber)
     {
-    case MUSIC_Warning :
-    case MUSIC_Error :
-        ErrorString = MUSIC_ErrorString(MUSIC_ErrorCode);
-        break;
+        case MUSIC_Warning:
+        case MUSIC_Error: ErrorString = MUSIC_ErrorString(MUSIC_ErrorCode); break;
 
-    case MUSIC_Ok :
-        ErrorString = "Music ok.";
-        break;
+        case MUSIC_Ok: ErrorString = "Music ok."; break;
 
-    case MUSIC_MidiError :
-        ErrorString = "Error playing MIDI file.";
-        break;
+        case MUSIC_MidiError: ErrorString = "Error playing MIDI file."; break;
 
-    default :
-        ErrorString = "Unknown Music error code.";
-        break;
+        default: ErrorString = "Unknown Music error code."; break;
     }
 
     return ErrorString;
 }
 
 
-/*---------------------------------------------------------------------
-   Function: MUSIC_Init
-
-   Selects which sound device to use.
----------------------------------------------------------------------*/
-
-int32_t MUSIC_Init
-(
-    int32_t SoundCard,
-    int32_t Address
-)
-
+int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 {
-    int32_t i;
-    int32_t status;
-
-    for (i = 0; i < 128; i++)
-    {
-        MIDI_PatchMap[ i ] = i;
-    }
+    for (int i = 0; i < 128; i++)
+        MIDI_PatchMap[i] = i;
 
     MUSIC_SoundDevice = SoundCard;
 
-    status = MUSIC_InitMidi(SoundCard, &MUSIC_MidiFunctions, Address);
-
-    return status;
+    return MUSIC_InitMidi(SoundCard, &MUSIC_MidiFunctions, Address);
 }
 
 
-/*---------------------------------------------------------------------
-   Function: MUSIC_Shutdown
-
-   Terminates use of sound device.
----------------------------------------------------------------------*/
-
-int32_t MUSIC_Shutdown
-(
-    void
-)
-
+int32_t MUSIC_Shutdown(void)
 {
-    int32_t status;
-
-    status = MUSIC_Ok;
-
     MIDI_StopSong();
 
-    //MPU_Reset();
-
-    return status;
+    return MUSIC_Ok;
 }
 
 
-/*---------------------------------------------------------------------
-   Function: MUSIC_SetVolume
-
-   Sets the volume of music playback.
----------------------------------------------------------------------*/
-
-void MUSIC_SetVolume
-(
-    int32_t volume
-)
-
+void MUSIC_SetVolume(int32_t volume)
 {
-    volume = max(0, volume);
-    volume = min(volume, 255);
     if (MUSIC_SoundDevice != -1)
-    {
-        MIDI_SetVolume(volume);
-    }
+        MIDI_SetVolume(min(max(0, volume), 255));
 }
 
 
+int32_t MUSIC_GetVolume(void) { return MUSIC_SoundDevice == -1 ? 0 : MIDI_GetVolume(); }
+void MUSIC_SetLoopFlag(int32_t loopflag) { MIDI_SetLoopFlag(loopflag); }
+void MUSIC_Continue(void) { MIDI_ContinueSong(); }
+void MUSIC_Pause(void) { MIDI_PauseSong(); }
 
-/*---------------------------------------------------------------------
-   Function: MUSIC_GetVolume
-
-   Returns the volume of music playback.
----------------------------------------------------------------------*/
-
-int32_t MUSIC_GetVolume
-(
-    void
-)
-
-{
-    if (MUSIC_SoundDevice == -1)
-    {
-        return 0;
-    }
-    return MIDI_GetVolume();
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_SetLoopFlag
-
-   Set whether the music will loop or end when it reaches the end of
-   the song.
----------------------------------------------------------------------*/
-
-void MUSIC_SetLoopFlag
-(
-    int32_t loopflag
-)
-
-{
-    MIDI_SetLoopFlag(loopflag);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_Continue
-
-   Continues playback of a paused song.
----------------------------------------------------------------------*/
-
-void MUSIC_Continue
-(
-    void
-)
-
-{
-    MIDI_ContinueSong();
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_Pause
-
-   Pauses playback of a song.
----------------------------------------------------------------------*/
-
-void MUSIC_Pause
-(
-    void
-)
-
-{
-    MIDI_PauseSong();
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_StopSong
-
-   Stops playback of current song.
----------------------------------------------------------------------*/
-
-int32_t MUSIC_StopSong
-(
-    void
-)
-
+int32_t MUSIC_StopSong(void)
 {
     MIDI_StopSong();
     MUSIC_SetErrorCode(MUSIC_Ok);
@@ -262,67 +120,39 @@ int32_t MUSIC_StopSong
 }
 
 
-/*---------------------------------------------------------------------
-   Function: MUSIC_PlaySong
-
-   Begins playback of MIDI song.
----------------------------------------------------------------------*/
-
-int32_t MUSIC_PlaySong
-(
-    char *song,
-    int32_t loopflag
-)
-
+int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
 {
-    int32_t status;
+    MUSIC_StopSong();
 
+    if (MIDI_PlaySong(song, loopflag) != MIDI_Ok)
     {
-        MUSIC_StopSong();
-        status = MIDI_PlaySong(song, loopflag);
-        if (status != MIDI_Ok)
-        {
-            MUSIC_SetErrorCode(MUSIC_MidiError);
-            return MUSIC_Warning;
-        }
+        MUSIC_SetErrorCode(MUSIC_MidiError);
+        return MUSIC_Warning;
     }
 
     return MUSIC_Ok;
 }
 
 
-int32_t MUSIC_InitMidi
-(
-    int32_t        card,
-    midifuncs *Funcs,
-    int32_t        Address
-)
-
+int32_t MUSIC_InitMidi(int32_t card, midifuncs *Funcs, int32_t Address)
 {
     UNREFERENCED_PARAMETER(card);
     UNREFERENCED_PARAMETER(Address);
-    Funcs->NoteOff           = MPU_NoteOff;
-    Funcs->NoteOn            = MPU_NoteOn;
-    Funcs->PolyAftertouch    = MPU_PolyAftertouch;
-    Funcs->ControlChange     = MPU_ControlChange;
-    Funcs->ProgramChange     = MPU_ProgramChange;
+    Funcs->NoteOff = MPU_NoteOff;
+    Funcs->NoteOn = MPU_NoteOn;
+    Funcs->PolyAftertouch = MPU_PolyAftertouch;
+    Funcs->ControlChange = MPU_ControlChange;
+    Funcs->ProgramChange = MPU_ProgramChange;
     Funcs->ChannelAftertouch = MPU_ChannelAftertouch;
-    Funcs->PitchBend         = MPU_PitchBend;
-    Funcs->ReleasePatches    = NULL;
-    Funcs->LoadPatch         = NULL;
-    Funcs->SetVolume         = NULL /*MPU_SetVolume*/;
-    Funcs->GetVolume         = NULL /*MPU_GetVolume*/;
+    Funcs->PitchBend = MPU_PitchBend;
+    Funcs->ReleasePatches = NULL;
+    Funcs->LoadPatch = NULL;
+    Funcs->SetVolume = NULL /*MPU_SetVolume*/;
+    Funcs->GetVolume = NULL /*MPU_GetVolume*/;
 
     MIDI_SetMidiFuncs(Funcs);
 
     return MIDI_Ok;
 }
 
-
-
-
-void MUSIC_Update(void)
-{
-    MIDI_UpdateMusic();
-}
-
+void MUSIC_Update(void) { MIDI_UpdateMusic(); }
