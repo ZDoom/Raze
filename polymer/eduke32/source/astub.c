@@ -5212,7 +5212,9 @@ static void Keys3d(void)
     }
 
 
-    if (keystatus[KEYSC_HOME])
+    if (keystatus[KEYSC_HOME] && keystatus[KEYSC_END])
+        updownunits = 128;
+    else if (keystatus[KEYSC_HOME])
         updownunits = 256;
     else if (keystatus[KEYSC_END])
         updownunits = 512;
@@ -5455,7 +5457,13 @@ static void Keys3d(void)
     if ((bstatus&(4|2|1))==4 && !unrealedlook)  //PK
         Bsprintf(tempbuf,"VIEW");
     else if ((bstatus&(2|1))==2)
-        Bsprintf(tempbuf,"Z%s", keystatus[KEYSC_HOME]?" 256":keystatus[KEYSC_END]?" 512":"");
+        Bsprintf(tempbuf, "Z%s", keystatus[KEYSC_HOME] && keystatus[KEYSC_END]
+                                 ? " 128"
+                                 : keystatus[KEYSC_HOME] 
+                                 ? " 256" 
+                                 : keystatus[KEYSC_END]
+                                 ? " 512"
+                                 : "");
 
     if ((bstatus&(2|1))==1 || (keystatus[KEYSC_SPACE]))
         Bsprintf(tempbuf,"LOCK");
@@ -5863,8 +5871,18 @@ static void Keys3d(void)
 
     // ----------
     i = 512;
-    if (keystatus[KEYSC_RSHIFT]) i = 8;
-    if (keystatus[KEYSC_LSHIFT]) i = 1;
+
+    if (keystatus[KEYSC_RSHIFT])
+        i = 8;
+    else if (keystatus[KEYSC_LSHIFT])
+        i = 1;
+    else if (keystatus[KEYSC_HOME] && keystatus[KEYSC_END])
+        i = 64;
+    else if (keystatus[KEYSC_HOME])
+        i = 128;
+    else if (keystatus[KEYSC_END])
+        i = 256;
+
     mouseaction=0;
 
     if (eitherCTRL && !eitherSHIFT && (bstatus&1) && AIMING_AT_CEILING_OR_FLOOR)
