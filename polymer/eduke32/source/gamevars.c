@@ -1657,30 +1657,6 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("cameradist",(intptr_t)&g_cameraDistance, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
     Gv_NewVar("cameraclock",(intptr_t)&g_cameraClock, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
 
-    Gv_NewVar("myx",(intptr_t)&my.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("myy",(intptr_t)&my.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("myz",(intptr_t)&my.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("omyx",(intptr_t)&omy.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("omyy",(intptr_t)&omy.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("omyz",(intptr_t)&omy.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("myvelx",(intptr_t)&myvel.x, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("myvely",(intptr_t)&myvel.y, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-    Gv_NewVar("myvelz",(intptr_t)&myvel.z, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
-
-    Gv_NewVar("myhoriz",(intptr_t)&myhoriz, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
-    Gv_NewVar("myhorizoff",(intptr_t)&myhorizoff, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
-    Gv_NewVar("omyhoriz",(intptr_t)&omyhoriz, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
-    Gv_NewVar("omyhorizoff",(intptr_t)&omyhorizoff, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
-    Gv_NewVar("myang",(intptr_t)&myang, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
-    Gv_NewVar("omyang",(intptr_t)&omyang, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
-    Gv_NewVar("mycursectnum",(intptr_t)&mycursectnum, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
-    Gv_NewVar("myjumpingcounter",(intptr_t)&myjumpingcounter, GAMEVAR_SYSTEM | GAMEVAR_SHORTPTR);
-
-    Gv_NewVar("myjumpingtoggle",(intptr_t)&myjumpingtoggle, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
-    Gv_NewVar("myonground",(intptr_t)&myonground, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
-    Gv_NewVar("myhardlanding",(intptr_t)&myhardlanding, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
-    Gv_NewVar("myreturntocenter",(intptr_t)&myreturntocenter, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
-
     Gv_NewVar("display_mirror",(intptr_t)&display_mirror, GAMEVAR_SYSTEM | GAMEVAR_CHARPTR);
     Gv_NewVar("randomseed",(intptr_t)&randomseed, GAMEVAR_SYSTEM | GAMEVAR_INTPTR);
 
@@ -1834,30 +1810,6 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("camerasect")].global  = (intptr_t)&ud.camerasect;
     aGameVars[Gv_GetVarIndex("cameradist")].global  = (intptr_t)&g_cameraDistance;
     aGameVars[Gv_GetVarIndex("cameraclock")].global = (intptr_t)&g_cameraClock;
-
-    aGameVars[Gv_GetVarIndex("myx")].global    = (intptr_t)&my.x;
-    aGameVars[Gv_GetVarIndex("myy")].global    = (intptr_t)&my.y;
-    aGameVars[Gv_GetVarIndex("myz")].global    = (intptr_t)&my.z;
-    aGameVars[Gv_GetVarIndex("omyx")].global   = (intptr_t)&omy.x;
-    aGameVars[Gv_GetVarIndex("omyy")].global   = (intptr_t)&omy.y;
-    aGameVars[Gv_GetVarIndex("omyz")].global   = (intptr_t)&omy.z;
-    aGameVars[Gv_GetVarIndex("myvelx")].global = (intptr_t)&myvel.x;
-    aGameVars[Gv_GetVarIndex("myvely")].global = (intptr_t)&myvel.y;
-    aGameVars[Gv_GetVarIndex("myvelz")].global = (intptr_t)&myvel.z;
-
-    aGameVars[Gv_GetVarIndex("myhoriz")].global          = (intptr_t)&myhoriz;
-    aGameVars[Gv_GetVarIndex("myhorizoff")].global       = (intptr_t)&myhorizoff;
-    aGameVars[Gv_GetVarIndex("omyhoriz")].global         = (intptr_t)&omyhoriz;
-    aGameVars[Gv_GetVarIndex("omyhorizoff")].global      = (intptr_t)&omyhorizoff;
-    aGameVars[Gv_GetVarIndex("myang")].global            = (intptr_t)&myang;
-    aGameVars[Gv_GetVarIndex("omyang")].global           = (intptr_t)&omyang;
-    aGameVars[Gv_GetVarIndex("mycursectnum")].global     = (intptr_t)&mycursectnum;
-    aGameVars[Gv_GetVarIndex("myjumpingcounter")].global = (intptr_t)&myjumpingcounter;
-
-    aGameVars[Gv_GetVarIndex("myjumpingtoggle")].global = (intptr_t)&myjumpingtoggle;
-    aGameVars[Gv_GetVarIndex("myonground")].global = (intptr_t)&myonground;
-    aGameVars[Gv_GetVarIndex("myhardlanding")].global = (intptr_t)&myhardlanding;
-    aGameVars[Gv_GetVarIndex("myreturntocenter")].global = (intptr_t)&myreturntocenter;
 
     aGameVars[Gv_GetVarIndex("display_mirror")].global = (intptr_t)&display_mirror;
     aGameVars[Gv_GetVarIndex("randomseed")].global = (intptr_t)&randomseed;

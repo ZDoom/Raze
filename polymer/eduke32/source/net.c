@@ -241,19 +241,6 @@ void Net_WaitForServer(void)
 
 void Net_ResetPrediction(void)
 {
-    Bmemcpy(&my, &g_player[myconnectindex].ps, sizeof(vec3_t));
-    Bmemcpy(&omy, &g_player[myconnectindex].ps, sizeof(vec3_t));
-    Bmemset(&myvel, 0, sizeof(vec3_t));
-
-    myang = omyang = g_player[myconnectindex].ps->ang;
-    myhoriz = omyhoriz = g_player[myconnectindex].ps->horiz;
-    myhorizoff = omyhorizoff = g_player[myconnectindex].ps->horizoff;
-    mycursectnum = g_player[myconnectindex].ps->cursectnum;
-    myjumpingcounter = g_player[myconnectindex].ps->jumping_counter;
-    myjumpingtoggle = g_player[myconnectindex].ps->jumping_toggle;
-    myonground = g_player[myconnectindex].ps->on_ground;
-    myhardlanding = g_player[myconnectindex].ps->hard_landing;
-    myreturntocenter = g_player[myconnectindex].ps->return_to_center;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

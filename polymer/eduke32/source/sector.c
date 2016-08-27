@@ -302,11 +302,13 @@ void G_DoSectorAnimations(void)
                         {
                             g_player[p].ps->pos.z += v;
                             g_player[p].ps->vel.z = 0;
+/*
                             if (p == myconnectindex)
                             {
                                 my.z += v;
                                 myvel.z = 0;
                             }
+*/
                         }
 
             for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
