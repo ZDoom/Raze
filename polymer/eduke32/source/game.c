@@ -1007,9 +1007,11 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
         if (dont_draw != 1)  // event return values other than 0 and 1 are reserved
         {
+/*
             if (EDUKE32_PREDICT_FALSE(dont_draw != 0))
                 OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMS return value must be 0 or 1, "
                            "other values are reserved.\n");
+*/
 
             G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(ang), CAMERA(horiz), smoothratio);
 #ifdef LEGACY_ROR
@@ -1216,17 +1218,17 @@ void G_DumpDebugInfo(void)
                 TrackerCast(sprite[j].x),TrackerCast(sprite[j].y),TrackerCast(sprite[j].z),TrackerCast(sprite[j].picnum));
             for (i=0; i<g_gameVarCount; i++)
             {
-                if (aGameVars[i].dwFlags & (GAMEVAR_PERACTOR))
+                if (aGameVars[i].nFlags & (GAMEVAR_PERACTOR))
                 {
-                    if (aGameVars[i].val.plValues[j] != aGameVars[i].lDefault)
+                    if (aGameVars[i].pValues[j] != aGameVars[i].nDefault)
                     {
                         OSD_Printf("gamevar %s ",aGameVars[i].szLabel);
-                        OSD_Printf("%" PRIdPTR "",aGameVars[i].val.plValues[j]);
+                        OSD_Printf("%" PRIdPTR "",aGameVars[i].pValues[j]);
                         OSD_Printf(" GAMEVAR_PERACTOR");
-                        if (aGameVars[i].dwFlags != GAMEVAR_PERACTOR)
+                        if (aGameVars[i].nFlags != GAMEVAR_PERACTOR)
                         {
                             OSD_Printf(" // ");
-                            if (aGameVars[i].dwFlags & (GAMEVAR_SYSTEM))
+                            if (aGameVars[i].nFlags & (GAMEVAR_SYSTEM))
                             {
                                 OSD_Printf(" (system)");
                             }
@@ -1633,7 +1635,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 {
                     sp->xrepeat = 48;
                     sp->yrepeat = 64;
-                    if (sprite[j].statnum == STAT_PLAYER || A_CheckEnemySprite((uspritetype *)&sprite[j]))
+                    if (sprite[j].statnum == STAT_PLAYER || A_CheckEnemySprite(&sprite[j]))
                         sp->z -= (32<<8);
                 }
             }
@@ -3576,7 +3578,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 continue;
             default:
                 // NOTE: wall-aligned sprites will never take on ceiling/floor shade...
-                if ((t->cstat&16) || (A_CheckEnemySprite((uspritetype *)t) &&
+                if ((t->cstat&16) || (A_CheckEnemySprite(t) &&
                     (unsigned)t->owner < MAXSPRITES && sprite[t->owner].extra > 0) || t->statnum == STAT_PLAYER)
                     continue;
             }
@@ -4126,14 +4128,14 @@ skip:
         // player has nightvision on.  We should pass stuff like "from which player is this view
         // supposed to be" as parameters ("drawing context") instead of relying on globals.
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
-                (A_CheckEnemySprite((uspritetype *)s) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
+                (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
         {
             t->pal = 6;
             t->shade = 0;
         }
 
         // Fake floor shadow, implemented by inserting a new tsprite.
-        if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite((uspritetype *)s) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
+        if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
             if (t->statnum != TSPR_TEMP && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE && s->picnum != HOTMEAT)
             {
                 if (actor[i].dispicnum < 0)

@@ -1924,13 +1924,13 @@ static void C_GetNextVarType(int32_t type)
         return;
 
     }
-    if (EDUKE32_PREDICT_FALSE(type == GAMEVAR_READONLY && aGameVars[i].dwFlags & GAMEVAR_READONLY))
+    if (EDUKE32_PREDICT_FALSE(type == GAMEVAR_READONLY && aGameVars[i].nFlags & GAMEVAR_READONLY))
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_VARREADONLY);
         return;
     }
-    else if (EDUKE32_PREDICT_FALSE(aGameVars[i].dwFlags & type))
+    else if (EDUKE32_PREDICT_FALSE(aGameVars[i].nFlags & type))
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_VARTYPEMISMATCH);
@@ -3894,7 +3894,7 @@ DO_DEFSTATE:
                     C_ReportError(ERROR_NOTAGAMEVAR);
                     continue;
                 }
-                if (EDUKE32_PREDICT_FALSE(aGameVars[i].dwFlags & GAMEVAR_READONLY))
+                if (EDUKE32_PREDICT_FALSE(aGameVars[i].nFlags & GAMEVAR_READONLY))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_VARREADONLY);
@@ -3904,7 +3904,7 @@ DO_DEFSTATE:
                 switch (tw)
                 {
                 case CON_SETACTORVAR:
-                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].dwFlags & GAMEVAR_PERACTOR)))
+                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].nFlags & GAMEVAR_PERACTOR)))
                         {
                             g_numCompilerErrors++;
                             C_ReportError(-1);
@@ -3913,7 +3913,7 @@ DO_DEFSTATE:
                         }
                         break;
                 case CON_SETPLAYERVAR:
-                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].dwFlags & GAMEVAR_PERPLAYER)))
+                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].nFlags & GAMEVAR_PERPLAYER)))
                         {
                             g_numCompilerErrors++;
                             C_ReportError(-1);
@@ -4239,7 +4239,7 @@ DO_DEFSTATE:
             BITPTR_CLEAR(g_scriptPtr-script);
             *g_scriptPtr++=i;
 
-            if (EDUKE32_PREDICT_FALSE(aGameArrays[i].dwFlags & GAMEARRAY_READONLY))
+            if (EDUKE32_PREDICT_FALSE(aGameArrays[i].nFlags & GAMEARRAY_READONLY))
             {
                 C_ReportError(ERROR_ARRAYREADONLY);
                 g_numCompilerErrors++;
@@ -4279,7 +4279,7 @@ DO_DEFSTATE:
 
             BITPTR_CLEAR(g_scriptPtr-script);
             *g_scriptPtr++ = i;
-            if (tw==CON_RESIZEARRAY && (aGameArrays[i].dwFlags & GAMEARRAY_TYPE_MASK))
+            if (tw==CON_RESIZEARRAY && (aGameArrays[i].nFlags & GAMEARRAY_TYPE_MASK))
             {
                 C_ReportError(-1);
                 initprintf("can't resize system array `%s'.", label+(g_numLabels<<6));

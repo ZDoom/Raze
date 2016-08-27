@@ -71,7 +71,7 @@ static void G_CacheSpriteNum(int32_t i)
     char maxc;
     int32_t j;
 
-    if (ud.monsters_off && A_CheckEnemySprite((uspritetype *)&sprite[i])) return;
+    if (ud.monsters_off && A_CheckEnemySprite(&sprite[i])) return;
 
     maxc = 1;
 
@@ -2039,8 +2039,8 @@ void G_FreeMapState(int32_t mapnum)
 #if !defined LUNATIC
     for (j=0; j<g_gameVarCount; j++)
     {
-        if (aGameVars[j].dwFlags & GAMEVAR_NORESET) continue;
-        if (aGameVars[j].dwFlags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
+        if (aGameVars[j].nFlags & GAMEVAR_NORESET) continue;
+        if (aGameVars[j].nFlags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
             Baligned_free(mapinfo->savedstate->vars[j]);
     }
 #else

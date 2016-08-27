@@ -48,11 +48,11 @@ void A_LoadActor(int32_t iActor);
 #endif
 
 void A_Execute(int32_t iActor, int32_t iPlayer, int32_t lDist);
-void A_Fall(int32_t iActor);
+void A_Fall(int nSprite);
 int32_t A_FurthestVisiblePoint(int32_t iActor,uspritetype * const ts,int32_t *dax,int32_t *day);
 int32_t A_GetFurthestAngle(int32_t iActor,int32_t angs);
 void A_GetZLimits(int32_t iActor);
-int32_t G_GetAngleDelta(int32_t a,int32_t na);
+int G_GetAngleDelta(int a,int na);
 void G_RestoreMapState();
 void G_SaveMapState();
 
@@ -66,38 +66,38 @@ void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
     int32_t shade, int32_t orientation, int32_t p);
 #endif
 
-int32_t VM_OnEventWithBoth_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn);
-int32_t VM_OnEventWithReturn_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t iReturn);
-int32_t VM_OnEventWithDist_(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist);
-int32_t VM_OnEvent_(int32_t iEventID, int32_t iActor, int32_t iPlayer);
+int32_t VM_OnEventWithBoth_(int nEventID, int nSprite, int nPlayer, int nDist, int32_t nReturn);
+int32_t VM_OnEventWithReturn_(int nEventID, int nSprite, int nPlayer, int32_t nReturn);
+int32_t VM_OnEventWithDist_(int nEventID, int nSprite, int nPlayer, int nDist);
+int32_t VM_OnEvent_(int nEventID, int nSprite, int nPlayer);
 
-FORCE_INLINE int32_t VM_HaveEvent(int32_t iEventID)
+FORCE_INLINE int VM_HaveEvent(int nEventID)
 {
 #ifdef LUNATIC
-    return L_IsInitialized(&g_ElState) && El_HaveEvent(iEventID);
+    return L_IsInitialized(&g_ElState) && El_HaveEvent(nEventID);
 #else
-    return !!apScriptGameEvent[iEventID];
+    return !!apScriptGameEvent[nEventID];
 #endif
 }
 
-FORCE_INLINE int32_t VM_OnEventWithBoth(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t iReturn)
+FORCE_INLINE int32_t VM_OnEventWithBoth(int nEventID, int nSprite, int nPlayer, int nDist, int32_t nReturn)
 {
-    return VM_HaveEvent(iEventID) ? VM_OnEventWithBoth_(iEventID, iActor, iPlayer, lDist, iReturn) : iReturn;
+    return VM_HaveEvent(nEventID) ? VM_OnEventWithBoth_(nEventID, nSprite, nPlayer, nDist, nReturn) : nReturn;
 }
 
-FORCE_INLINE int32_t VM_OnEventWithReturn(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t iReturn)
+FORCE_INLINE int32_t VM_OnEventWithReturn(int nEventID, int nSprite, int nPlayer, int nReturn)
 {
-    return VM_HaveEvent(iEventID) ? VM_OnEventWithReturn_(iEventID, iActor, iPlayer, iReturn) : iReturn;
+    return VM_HaveEvent(nEventID) ? VM_OnEventWithReturn_(nEventID, nSprite, nPlayer, nReturn) : nReturn;
 }
 
-FORCE_INLINE int32_t VM_OnEventWithDist(int32_t iEventID, int32_t iActor, int32_t iPlayer, int32_t lDist)
+FORCE_INLINE int32_t VM_OnEventWithDist(int nEventID, int nSprite, int nPlayer, int nDist)
 {
-    return VM_HaveEvent(iEventID) ? VM_OnEventWithDist_(iEventID, iActor, iPlayer, lDist) : 0;
+    return VM_HaveEvent(nEventID) ? VM_OnEventWithDist_(nEventID, nSprite, nPlayer, nDist) : 0;
 }
 
-FORCE_INLINE int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlayer)
+FORCE_INLINE int32_t VM_OnEvent(int nEventID, int nSprite, int nPlayer)
 {
-    return VM_HaveEvent(iEventID) ? VM_OnEvent_(iEventID, iActor, iPlayer) : 0;
+    return VM_HaveEvent(nEventID) ? VM_OnEvent_(nEventID, nSprite, nPlayer) : 0;
 }
 
 #define CON_ERRPRINTF(Text, ...) do { \
@@ -105,7 +105,7 @@ FORCE_INLINE int32_t VM_OnEvent(int32_t iEventID, int32_t iActor, int32_t iPlaye
 } while (0)
 
 void G_GetTimeDate(int32_t *vals);
-int32_t G_StartTrack(int32_t level);
+int G_StartTrack(int nLevel);
 int32_t A_Dodge(spritetype *s);
 #ifdef LUNATIC
 void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sect,

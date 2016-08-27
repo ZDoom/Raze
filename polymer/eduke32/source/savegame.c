@@ -1196,10 +1196,10 @@ static void sv_makevarspec()
     int32_t i, j, numsavedvars=0, numsavedarrays=0, per;
 
     for (i=0; i<g_gameVarCount; i++)
-        numsavedvars += (aGameVars[i].dwFlags&SV_SKIPMASK) ? 0 : 1;
+        numsavedvars += (aGameVars[i].nFlags&SV_SKIPMASK) ? 0 : 1;
 
     for (i=0; i<g_gameArrayCount; i++)
-        numsavedarrays += !(aGameArrays[i].dwFlags & GAMEARRAY_READONLY);  // SYSTEM_GAMEARRAY
+        numsavedarrays += !(aGameArrays[i].nFlags & GAMEARRAY_READONLY);  // SYSTEM_GAMEARRAY
 
     Bfree(svgm_vars);
     svgm_vars = (dataspec_gv_t *)Xmalloc((numsavedvars+numsavedarrays+2)*sizeof(dataspec_gv_t));
@@ -1211,13 +1211,13 @@ static void sv_makevarspec()
     j=1;
     for (i=0; i<g_gameVarCount; i++)
     {
-        if (aGameVars[i].dwFlags&SV_SKIPMASK)
+        if (aGameVars[i].nFlags&SV_SKIPMASK)
             continue;
 
-        per = aGameVars[i].dwFlags&GAMEVAR_USER_MASK;
+        per = aGameVars[i].nFlags&GAMEVAR_USER_MASK;
 
         svgm_vars[j].flags = 0;
-        svgm_vars[j].ptr = (per==0) ? &aGameVars[i].val.lValue : aGameVars[i].val.plValues;
+        svgm_vars[j].ptr = (per==0) ? &aGameVars[i].nValue : aGameVars[i].pValues;
         svgm_vars[j].size = sizeof(intptr_t);
         svgm_vars[j].cnt = (per==0) ? 1 : (per==GAMEVAR_PERPLAYER ? MAXPLAYERS : MAXSPRITES);
         j++;
@@ -1228,13 +1228,13 @@ static void sv_makevarspec()
         // We must not update read-only SYSTEM_GAMEARRAY gamearrays: besides
         // being questionable by itself, sizeof(...) may be e.g. 4 whereas the
         // actual element type is int16_t (such as tilesizx[]/tilesizy[]).
-        if (aGameArrays[i].dwFlags & GAMEARRAY_READONLY)
+        if (aGameArrays[i].nFlags & GAMEARRAY_READONLY)
             continue;
 
-        intptr_t * const plValues = aGameArrays[i].plValues;
+        intptr_t * const plValues = aGameArrays[i].pValues;
         svgm_vars[j].flags = 0;
         svgm_vars[j].ptr = plValues;
-        svgm_vars[j].size = plValues == NULL ? 0 : sizeof(aGameArrays[0].plValues[0]);
+        svgm_vars[j].size = plValues == NULL ? 0 : sizeof(aGameArrays[0].pValues[0]);
         svgm_vars[j].cnt = aGameArrays[i].size;  // assumed constant throughout demo, i.e. no RESIZEARRAY
         j++;
     }

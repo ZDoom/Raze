@@ -186,7 +186,7 @@ void A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3,
 
 SKIPWALLCHECK:
 
-    q = -(16<<8) + (krand()&((32<<8)-1));
+    q = -ZOFFSET2 + (krand()&((32<<8)-1));
 
     for (stati=0; stati < ARRAY_SSIZE(statlist); stati++)
     {
@@ -203,12 +203,12 @@ SKIPWALLCHECK:
                 if (s->picnum != SHRINKSPARK || (sj->cstat&257))
                     if (dist(s, sj) < r)
                     {
-                        if (A_CheckEnemySprite((uspritetype *)sj) && !cansee(sj->x, sj->y,sj->z+q, sj->sectnum, s->x, s->y, s->z+q, s->sectnum))
+                        if (A_CheckEnemySprite(sj) && !cansee(sj->x, sj->y,sj->z+q, sj->sectnum, s->x, s->y, s->z+q, s->sectnum))
                             goto BOLT;
                         A_DamageObject(j, i);
                     }
             }
-            else if (sj->extra >= 0 && (uspritetype *)sj != s && (sj->picnum == TRIPBOMB || A_CheckEnemySprite((uspritetype *)sj) || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL || (sj->cstat&257) || sj->picnum == DUKELYINGDEAD))
+            else if (sj->extra >= 0 && (uspritetype *)sj != s && (sj->picnum == TRIPBOMB || A_CheckEnemySprite(sj) || sj->picnum == QUEBALL || sj->picnum == STRIPEBALL || (sj->cstat&257) || sj->picnum == DUKELYINGDEAD))
             {
                 if (s->picnum == SHRINKSPARK && sj->picnum != SHARK && (j == s->owner || sj->xrepeat < 24))
                 {
@@ -397,7 +397,7 @@ static int32_t A_CheckNeedZUpdate(int32_t spritenum, int32_t changez, int32_t *d
 int32_t A_MoveSpriteClipdist(int32_t spritenum, vec3_t const * const change, uint32_t cliptype, int32_t clipdist)
 {
     spritetype * const spr = &sprite[spritenum];
-    const int32_t badguy = A_CheckEnemySprite((uspritetype *)spr);
+    const int32_t badguy = A_CheckEnemySprite(spr);
     const int32_t oldx = spr->x, oldy = spr->y;
 
     if (spr->statnum == STAT_MISC || (badguy && spr->xrepeat < 4))
@@ -872,7 +872,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                 actor[i].timetosleep++;
                 if (actor[i].timetosleep >= (x>>8))
                 {
-                    if (A_CheckEnemySprite((uspritetype *)s))
+                    if (A_CheckEnemySprite(s))
                     {
                         const int32_t px = g_player[p].ps->opos.x+64-(krand()&127);
                         const int32_t py = g_player[p].ps->opos.y+64-(krand()&127);
@@ -943,7 +943,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                 }
             }
 
-            if (A_CheckEnemySprite((uspritetype *)s) && A_CheckSpriteFlags(i,SFLAG_NOSHADE) == 0)
+            if (A_CheckEnemySprite(s) && A_CheckSpriteFlags(i,SFLAG_NOSHADE) == 0)
             {
                 if (sector[s->sectnum].ceilingstat&1)
                     s->shade = sector[s->sectnum].ceilingshade;
@@ -1445,7 +1445,7 @@ ACTOR_STATIC void G_MoveFallers(void)
             int32_t j;
             const int32_t oextra = s->extra;
 
-            s->z -= (16<<8);
+            s->z -= ZOFFSET2;
             T2 = s->ang;
             if ((j = A_IncurDamage(i)) >= 0)
             {
@@ -1474,7 +1474,7 @@ ACTOR_STATIC void G_MoveFallers(void)
                 }
             }
             s->ang = T2;
-            s->z += (16<<8);
+            s->z += ZOFFSET2;
         }
         else if (T1 == 1)
         {
@@ -1514,7 +1514,7 @@ ACTOR_STATIC void G_MoveFallers(void)
                         s->zvel = 6144;
                     s->z += s->zvel;
                 }
-                if ((sector[sect].floorz-s->z) < (16<<8))
+                if ((sector[sect].floorz-s->z) < ZOFFSET2)
                 {
                     int32_t j = 1+(krand()&7);
                     for (x=0; x<j; x++) RANDOMSCRAP;
@@ -2620,7 +2620,7 @@ static void G_WeaponHitCeilingOrFloor(int32_t i, spritetype *s, int32_t *j)
         *j = 16384|s->sectnum;
         s->zvel = -1;
     }
-    else if (s->z > actor[i].floorz + (16<<8)*(sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
+    else if (s->z > actor[i].floorz + ZOFFSET2*(sector[s->sectnum].lotag == ST_1_ABOVE_WATER))
     {
         *j = 16384|s->sectnum;
 
@@ -3054,7 +3054,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     j &= (MAXSPRITES-1);
 
                     if (s->picnum == FREEZEBLAST && sprite[j].pal == 1)
-                        if (A_CheckEnemySprite((uspritetype *)&sprite[j]) || sprite[j].picnum == APLAYER)
+                        if (A_CheckEnemySprite(&sprite[j]) || sprite[j].picnum == APLAYER)
                         {
                             j = A_Spawn(i, TRANSPORTERSTAR);
                             sprite[j].pal = 1;
@@ -3969,7 +3969,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     A_Shoot(i,FIRELASER);
                     s->ang = a;
                 }
-                if (t[2] > (GAMETICSPERSEC*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
+                if (t[2] > (GAMETICSPERSEC*3) || !cansee(s->x,s->y,s->z-ZOFFSET2,s->sectnum, ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
                 {
                     t[0] = 0;
                     t[2] = 0;
@@ -3992,7 +3992,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 else
                 {
                     t[2]++;
-                    if (t[2] > (GAMETICSPERSEC*3) || !cansee(s->x,s->y,s->z-(16<<8),s->sectnum, ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
+                    if (t[2] > (GAMETICSPERSEC*3) || !cansee(s->x,s->y,s->z-ZOFFSET2,s->sectnum, ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
                     {
                         t[0] = 1;
                         t[2] = 0;
@@ -4887,7 +4887,7 @@ DETONATEB:
             goto BOLT;
         }
 
-        if (!g_netServer && ud.multimode < 2 && A_CheckEnemySprite((uspritetype *)s))
+        if (!g_netServer && ud.multimode < 2 && A_CheckEnemySprite(s))
         {
             if (g_noEnemies == 1)
             {
@@ -5049,7 +5049,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     else
                     {
                         l = getflorzofslope(sect,s->x,s->y)-s->z;
-                        if( l > (16<<8) ) KILLIT(i);
+                        if( l > ZOFFSET2 ) KILLIT(i);
                     }
                     else
                     */
@@ -5572,7 +5572,7 @@ static void MaybeTrainKillEnemies(int32_t i, int32_t numguts)
     {
         const int32_t nextj = nextspritesect[j];
 
-        if (sprite[j].extra >= 0 && sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite((uspritetype *)&sprite[j]))
+        if (sprite[j].extra >= 0 && sprite[j].statnum == STAT_ACTOR && A_CheckEnemySprite(&sprite[j]))
         {
             int16_t k = sprite[j].sectnum;
 
@@ -6533,7 +6533,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     for (SPRITES_OF(STAT_ACTOR, k))
                     {
-                        if (sprite[k].extra > 0 && A_CheckEnemySprite((uspritetype *)&sprite[k])
+                        if (sprite[k].extra > 0 && A_CheckEnemySprite(&sprite[k])
                                 && clipinsidebox((vec2_t *)&sprite[k], j, 256) == 1)
                             goto BOLT;
                     }
@@ -7239,7 +7239,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                         if (!(sprite[j].picnum >= CRANE && sprite[j].picnum <= CRANE+3))
                         {
-                            if (sprite[j].z > actor[j].floorz-(16<<8))
+                            if (sprite[j].z > actor[j].floorz-ZOFFSET2)
                             {
                                 actor[j].bpos.x = sprite[j].x;
                                 actor[j].bpos.y = sprite[j].y;

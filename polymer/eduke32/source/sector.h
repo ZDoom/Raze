@@ -124,18 +124,18 @@ void G_AnimateWalls(void);
 int32_t G_ActivateWarpElevators(int32_t s,int32_t d);
 int32_t G_CheckActivatorMotion(int32_t lotag);
 void G_DoSectorAnimations(void);
-void G_OperateActivators(int32_t low,int32_t snum);
+void G_OperateActivators(int nTag, int nPlayer);
 void G_OperateForceFields(int32_t s,int32_t low);
-void G_OperateMasterSwitches(int32_t low);
+void G_OperateMasterSwitches(int nTag);
 void G_OperateRespawns(int32_t low);
 void G_OperateSectors(int32_t sn,int32_t ii);
 void P_HandleSharedKeys(int32_t snum);
 int32_t GetAnimationGoal(const int32_t *animptr);
 int32_t isanearoperator(int32_t lotag);
 int32_t isanunderoperator(int32_t lotag);
-int32_t P_ActivateSwitch(int32_t snum,int32_t w,int32_t switchissprite);
+int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType);
 void P_CheckSectors(int32_t snum);
-int32_t Sect_DamageCeilingOrFloor(int32_t floorp, int32_t sn);
+int Sect_DamageCeilingOrFloor(int nDmgFloor, int const nSectnum);
 int32_t SetAnimation(int32_t animsect,int32_t *animptr,int32_t thegoal,int32_t thevel);
 
 #define FORCEFIELD_CSTAT (64+16+4+1)

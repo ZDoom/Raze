@@ -258,9 +258,9 @@ static int32_t A_FindTargetSprite(const spritetype *s, int32_t aang, int32_t atw
             break;
         for (i=headspritestat[aimstats[k]]; i >= 0; i=nextspritestat[i])
             if (sprite[i].xrepeat > 0 && sprite[i].extra >= 0 && (sprite[i].cstat&(257+32768)) == 257)
-                if (A_CheckEnemySprite((uspritetype *)&sprite[i]) || k < 2)
+                if (A_CheckEnemySprite(&sprite[i]) || k < 2)
                 {
-                    if (A_CheckEnemySprite((uspritetype *)&sprite[i]) || PN == APLAYER || PN == SHARK)
+                    if (A_CheckEnemySprite(&sprite[i]) || PN == APLAYER || PN == SHARK)
                     {
                         if (PN == APLAYER && s->picnum == APLAYER && s != &sprite[i] &&
                                 //                        ud.ffire == 0 &&
@@ -978,7 +978,7 @@ static int32_t A_ShootCustom(const int32_t i, const int32_t atwith, int16_t sa, 
                 l = safeldist(g_player[j].ps->i, s);
                 zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect->z)*vel, l);
 
-                if (A_CheckEnemySprite((uspritetype *)s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
+                if (A_CheckEnemySprite(s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
                     sa = s->ang + (krand() & 31) - 16;
             }
         }
@@ -1386,7 +1386,7 @@ static int32_t A_ShootHardcoded(int32_t i, int32_t atwith, int16_t sa, vec3_t sr
             l = safeldist(g_player[j].ps->i, s);
             zvel = tabledivide32_noinline((g_player[j].ps->opos.z - srcvect.z)*vel, l);
 
-            if (A_CheckEnemySprite((uspritetype *)s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
+            if (A_CheckEnemySprite(s) && (AC_MOVFLAGS(s, &actor[i]) & face_player_smart))
                 sa = s->ang+(krand()&31)-16;
         }
 
@@ -1636,7 +1636,7 @@ int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel)
         {
             srcvect.z -= (7<<8);
 
-            if (A_CheckEnemySprite((uspritetype *)s) && PN != COMMANDER)
+            if (A_CheckEnemySprite(s) && PN != COMMANDER)
             {
                 srcvect.x += (sintable[(sa+1024+96)&2047]>>7);
                 srcvect.y += (sintable[(sa+512+96)&2047]>>7);
@@ -3753,8 +3753,8 @@ void P_FragPlayer(int32_t snum)
     {
         P_PalFrom(p, 63, 63,0,0);
 
-        p->pos.z -= (16<<8);
-        s->z -= (16<<8);
+        p->pos.z -= ZOFFSET2;
+        s->z -= ZOFFSET2;
 
         p->dead_flag = (512-((krand()&1)<<10)+(krand()&255)-512)&2047;
         if (p->dead_flag == 0)
@@ -4531,7 +4531,7 @@ void P_ProcessInput(int32_t snum)
 
     truefdist = klabs(p->pos.z-j);
 
-    if ((lz&49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT+(16<<8))
+    if ((lz&49152) == 16384 && psectlotag == 1 && truefdist > PHEIGHT+ZOFFSET2)
         psectlotag = 0;
 
     actor[p->i].floorz = fz;
@@ -4587,7 +4587,7 @@ void P_ProcessInput(int32_t snum)
                 p->sbs = j;
             }
         }
-        else if (A_CheckEnemySprite((uspritetype *)&sprite[j]) && sprite[j].xrepeat > 24 && klabs(s->z-sprite[j].z) < (84<<8))
+        else if (A_CheckEnemySprite(&sprite[j]) && sprite[j].xrepeat > 24 && klabs(s->z-sprite[j].z) < (84<<8))
         {
             // TX: I think this is what makes the player slide off enemies... might
             // be a good sprite flag to add later.
@@ -4707,7 +4707,7 @@ void P_ProcessInput(int32_t snum)
 
         pushmove((vec3_t *)p,&p->cursectnum,128L,(4L<<8),(20L<<8),CLIPMASK0);
 
-        if (fz > cz+(16<<8) && s->pal != 1)
+        if (fz > cz+ZOFFSET2 && s->pal != 1)
             p->rotscrnang = (p->dead_flag + ((fz+p->pos.z)>>7))&2047;
 
         p->on_warping_sector = 0;
@@ -5024,7 +5024,7 @@ void P_ProcessInput(int32_t snum)
             // not jumping or crouching
 
             if (!TEST_SYNC_KEY(sb_snum, SK_JUMP) && !TEST_SYNC_KEY(sb_snum, SK_CROUCH) &&
-                    p->on_ground && (sector[p->cursectnum].floorstat&2) && p->pos.z >= (fz-(i<<8)-(16<<8)))
+                    p->on_ground && (sector[p->cursectnum].floorstat&2) && p->pos.z >= (fz-(i<<8)-ZOFFSET2))
                 p->pos.z = fz-(i<<8);
             else
             {
@@ -5100,9 +5100,9 @@ void P_ProcessInput(int32_t snum)
             else if (p->jumping_counter == 0)
             {
                 p->pos.z += ((fz-(i<<7))-p->pos.z)>>1; //Smooth on the water
-                if (p->on_warping_sector == 0 && p->pos.z > fz-(16<<8))
+                if (p->on_warping_sector == 0 && p->pos.z > fz-ZOFFSET2)
                 {
-                    p->pos.z = fz-(16<<8);
+                    p->pos.z = fz-ZOFFSET2;
                     p->vel.z >>= 1;
                 }
             }
@@ -5220,7 +5220,7 @@ void P_ProcessInput(int32_t snum)
             }
         }
 
-        if (p->on_ground && truefdist <= PHEIGHT+(16<<8) && P_CheckFloorDamage(p, j))
+        if (p->on_ground && truefdist <= PHEIGHT+ZOFFSET2 && P_CheckFloorDamage(p, j))
         {
             P_DoQuote(QUOTE_BOOTS_ON, p);
             p->inv_amount[GET_BOOTS] -= 2;
@@ -5567,7 +5567,7 @@ HORIZONLY:
                     break;
                 }
                 default:
-                    if (A_CheckEnemySprite((uspritetype *)&sprite[p->actorsqu]))
+                    if (A_CheckEnemySprite(&sprite[p->actorsqu]))
                         p->actors_killed++;
                     A_DeleteSprite(p->actorsqu);
                     break;
