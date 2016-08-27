@@ -358,7 +358,7 @@ extern int32_t A_Spawn(int32_t j, int32_t pn);
 extern void VM_FallSprite(int32_t i);
 extern int32_t VM_ResetPlayer2(int32_t snum, int32_t flags);
 extern void A_RadiusDamage(int32_t i, int32_t r, int32_t, int32_t, int32_t, int32_t);
-extern void G_OperateSectors(int32_t sn, int32_t ii);
+extern void G_OperateSectors(int sectNum, int spriteNum);
 extern void G_OperateActivators(int32_t low,int32_t snum);
 int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int16_t s_pn,int8_t s_s,
                               uint8_t s_xr,uint8_t s_yr,int16_t s_a,int16_t s_ve,int16_t s_zv,int16_t s_ow,int16_t s_ss);

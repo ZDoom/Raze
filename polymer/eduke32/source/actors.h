@@ -312,7 +312,7 @@ int32_t A_CheckSwitchTile(int32_t i);
 void    A_DeleteSprite(int spriteNum);
 void    A_DoGuts(int32_t sp, int32_t gtype, int32_t n);
 void    A_DoGutsDir(int32_t sp, int32_t gtype, int32_t n);
-int32_t A_IncurDamage(int32_t sn);
+int A_IncurDamage(int spriteNum);
 void    A_MoveCyclers(void);
 void    A_MoveDummyPlayers(void);
 void    A_MoveSector(int i);

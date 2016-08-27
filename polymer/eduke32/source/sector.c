@@ -424,13 +424,11 @@ void G_AnimateCamSprite(int32_t smoothratio)
 
 void G_AnimateWalls(void)
 {
-    int32_t p = g_numAnimWalls-1;
-
-    for (; p>=0; p--)
+    for (bssize_t p = g_numAnimWalls-1; p>=0; p--)
     {
-        const int32_t i = animwall[p].wallnum;
+        int const wallNum = animwall[p].wallnum;
 
-        switch (DYNAMICTILEMAP(wall[i].picnum))
+        switch (DYNAMICTILEMAP(wall[wallNum].picnum))
         {
         case SCREENBREAK1__STATIC:
         case SCREENBREAK2__STATIC:
@@ -449,11 +447,10 @@ void G_AnimateWalls(void)
         case SCREENBREAK17__STATIC:
         case SCREENBREAK18__STATIC:
         case SCREENBREAK19__STATIC:
-
             if ((krand()&255) < 16)
             {
-                animwall[p].tag = wall[i].picnum;
-                wall[i].picnum = SCREENBREAK6;
+                animwall[p].tag = wall[wallNum].picnum;
+                wall[wallNum].picnum = SCREENBREAK6;
             }
 
             continue;
@@ -461,46 +458,43 @@ void G_AnimateWalls(void)
         case SCREENBREAK6__STATIC:
         case SCREENBREAK7__STATIC:
         case SCREENBREAK8__STATIC:
-
-            if (animwall[p].tag >= 0 && wall[i].extra != FEMPIC2 && wall[i].extra != FEMPIC3)
-                wall[i].picnum = animwall[p].tag;
+            if (animwall[p].tag >= 0 && wall[wallNum].extra != FEMPIC2 && wall[wallNum].extra != FEMPIC3)
+                wall[wallNum].picnum = animwall[p].tag;
             else
             {
-                wall[i].picnum++;
-                if (wall[i].picnum == (SCREENBREAK6+3))
-                    wall[i].picnum = SCREENBREAK6;
+                wall[wallNum].picnum++;
+                if (wall[wallNum].picnum == (SCREENBREAK6+3))
+                    wall[wallNum].picnum = SCREENBREAK6;
             }
             continue;
         }
 
-        if ((wall[i].cstat&16) && G_GetForcefieldPicnum(i)==W_FORCEFIELD)
+        if ((wall[wallNum].cstat&16) && G_GetForcefieldPicnum(wallNum)==W_FORCEFIELD)
         {
-            const int32_t t = animwall[p].tag;
+            int const wallTag = animwall[p].tag;
 
-            if (wall[i].cstat&254)
+            if (wall[wallNum].cstat&254)
             {
-                wall[i].xpanning -= t>>10; // sintable[(t+512)&2047]>>12;
-                wall[i].ypanning -= t>>10; // sintable[t&2047]>>12;
+                wall[wallNum].xpanning -= wallTag>>10; // sintable[(t+512)&2047]>>12;
+                wall[wallNum].ypanning -= wallTag>>10; // sintable[t&2047]>>12;
 
-                if (wall[i].extra == 1)
+                if (wall[wallNum].extra == 1)
                 {
-                    wall[i].extra = 0;
-                    animwall[p].tag = 0;
+                    wall[wallNum].extra = 0;
+                    animwall[p].tag     = 0;
                 }
                 else
                     animwall[p].tag+=128;
 
                 if (animwall[p].tag < (128<<4))
                 {
-                    if (animwall[p].tag&128)
-                        wall[i].overpicnum = W_FORCEFIELD;
-                    else wall[i].overpicnum = W_FORCEFIELD+1;
+                    wall[wallNum].overpicnum = (animwall[p].tag & 128) ? W_FORCEFIELD : W_FORCEFIELD + 1;
                 }
                 else
                 {
                     if ((krand()&255) < 32)
                         animwall[p].tag = 128<<(krand()&3);
-                    else wall[i].overpicnum = W_FORCEFIELD+1;
+                    else wall[wallNum].overpicnum = W_FORCEFIELD+1;
                 }
             }
         }
@@ -532,7 +526,7 @@ int32_t G_ActivateWarpElevators(int32_t s, int32_t d) //Parm = sectoreffectornum
     return 0;
 }
 
-void G_OperateSectors(int32_t sectNum, int32_t spriteNum)
+void G_OperateSectors(int sectNum, int spriteNum)
 {
     int32_t j=0;
     int32_t i;
@@ -1015,24 +1009,24 @@ void G_OperateRespawns(int32_t low)
     }
 }
 
-void G_OperateActivators(int nTag, int playerNum)
+void G_OperateActivators(int lotag, int playerNum)
 {
     int32_t i, nexti, j, k;
 
     for (i=g_numCyclers-1; i>=0; i--)
     {
-        int16_t *const p = &cyclers[i][0];
+        int16_t *const pCycler = &cyclers[i][0];
 
-        if (p[4] == nTag)
+        if (pCycler[4] == lotag)
         {
-            p[5] = !p[5];
+            pCycler[5] = !pCycler[5];
 
-            sector[p[0]].floorshade = sector[p[0]].ceilingshade = p[3];
+            sector[pCycler[0]].floorshade = sector[pCycler[0]].ceilingshade = pCycler[3];
 
-            walltype *pWall = &wall[sector[p[0]].wallptr];
+            walltype *pWall = &wall[sector[pCycler[0]].wallptr];
 
-            for (j = sector[p[0]].wallnum; j > 0; j--, pWall++)
-                pWall->shade = p[3];
+            for (j = sector[pCycler[0]].wallnum; j > 0; j--, pWall++)
+                pWall->shade = pCycler[3];
         }
     }
 
@@ -1040,7 +1034,7 @@ void G_OperateActivators(int nTag, int playerNum)
 
     for (SPRITES_OF_STAT_SAFE(STAT_ACTIVATOR, i, nexti))
     {
-        if (sprite[i].lotag == nTag)
+        if (sprite[i].lotag == lotag)
         {
             if (sprite[i].picnum == ACTIVATORLOCKED)
             {
@@ -1088,24 +1082,24 @@ void G_OperateActivators(int nTag, int playerNum)
         }
     }
 
-    G_OperateRespawns(nTag);
+    G_OperateRespawns(lotag);
 }
 
-void G_OperateMasterSwitches(int nTag)
+void G_OperateMasterSwitches(int lotag)
 {
     for (bssize_t SPRITES_OF(STAT_STANDABLE, i))
-        if (PN(i) == MASTERSWITCH && SLT(i) == nTag && SP(i) == 0)
+        if (PN(i) == MASTERSWITCH && SLT(i) == lotag && SP(i) == 0)
             SP(i) = 1;
 }
 
-void G_OperateForceFields(int32_t spriteNum, int32_t wallTag)
+void G_OperateForceFields(int spriteNum, int wallTag)
 {
     for (bssize_t animwallNum = 0; animwallNum < g_numAnimWalls; ++animwallNum)
     {
         int const wallNum = animwall[animwallNum].wallnum;
 
-        if ((wallTag == wall[wallNum].lotag || wallTag == -1) || G_GetForcefieldPicnum(wallNum) == W_FORCEFIELD ||
-            (wall[wallNum].overpicnum == BIGFORCE))
+        if ((wallTag == wall[wallNum].lotag || wallTag == -1)
+            && (G_GetForcefieldPicnum(wallNum) == W_FORCEFIELD || (wall[wallNum].overpicnum == BIGFORCE)))
         {
             animwall[animwallNum].tag = 0;
 
@@ -1524,9 +1518,9 @@ void A_DamageWall(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
         (sector[pWall->nextsector].floorz > vPos->z) &&
         (sector[pWall->nextsector].floorz != sector[pWall->nextsector].ceilingz))
     {
-        int const nSwitchPicnum = G_GetForcefieldPicnum(wallNum);
+        int const switchPic = G_GetForcefieldPicnum(wallNum);
 
-        switch (DYNAMICTILEMAP(nSwitchPicnum))
+        switch (DYNAMICTILEMAP(switchPic))
         {
             case W_FORCEFIELD__STATIC:
                 pWall->extra = 1;  // tell the forces to animate

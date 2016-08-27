@@ -125,10 +125,10 @@ int32_t G_ActivateWarpElevators(int32_t s,int32_t d);
 int32_t G_CheckActivatorMotion(int32_t lotag);
 void G_DoSectorAnimations(void);
 void G_OperateActivators(int nTag, int playerNum);
-void G_OperateForceFields(int32_t s,int32_t low);
+void G_OperateForceFields(int spriteNum,int wallTag);
 void G_OperateMasterSwitches(int nTag);
 void G_OperateRespawns(int32_t low);
-void G_OperateSectors(int32_t sn,int32_t ii);
+extern void G_OperateSectors(int sectNum,int spriteNum);
 void P_HandleSharedKeys(int32_t snum);
 int32_t GetAnimationGoal(const int32_t *animptr);
 int32_t isanearoperator(int32_t lotag);
@@ -141,12 +141,12 @@ int32_t SetAnimation(int32_t animsect,int32_t *animptr,int32_t thegoal,int32_t t
 #define FORCEFIELD_CSTAT (64+16+4+1)
 
 // Returns W_FORCEFIELD if wall has a forcefield overpicnum, its overpicnum else.
-static inline int32_t G_GetForcefieldPicnum(int32_t wallnum)
+static inline int G_GetForcefieldPicnum(int wallNum)
 {
-    int32_t picnum = wall[wallnum].overpicnum;
-    if (picnum == W_FORCEFIELD+1)
-        picnum = W_FORCEFIELD;
-    return picnum;
+    int tileNum = wall[wallNum].overpicnum;
+    if (tileNum == W_FORCEFIELD + 1)
+        tileNum = W_FORCEFIELD;
+    return tileNum;
 }
 
 // Returns the interpolated position of the camera that the player is looking
