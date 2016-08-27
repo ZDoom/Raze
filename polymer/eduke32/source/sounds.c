@@ -235,7 +235,7 @@ int32_t S_PlayMusic(const char *fn)
     else
     {
         int32_t const mvol = MASTER_VOLUME(ud.config.MusicVolume);
-        MusicVoice = FX_PlayLoopedAuto(MusicPtr, MusicLen, 0, 0,
+        MusicVoice = FX_PlayLooped(MusicPtr, MusicLen, 0, 0,
                                        0, mvol, mvol, mvol,
                                        FX_MUSIC_PRIORITY, MUSIC_ID);
         if (MusicVoice > FX_Ok)
@@ -630,14 +630,14 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
         if (repeatp && !ambsfxp)
         {
-            voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
+            voice = FX_PlayLooped(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
                                       pitch, FX_VOLUME(sndist>>6), FX_VOLUME(sndist>>6), 0,  // XXX: why is 'right' 0?
                                       g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
         }
         else
         {
             // Ambient MUSICANDSFX always start playing using the 3D routines!
-            voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz,
+            voice = FX_Play3D(g_sounds[num].ptr, g_sounds[num].soundsiz,
                                   repeatp ? FX_LOOP : FX_ONESHOT,
                                   pitch, sndang>>4, FX_VOLUME(sndist>>6),
                                   g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
@@ -703,11 +703,11 @@ int32_t S_PlaySound(int32_t num)
     }
 
     if (g_sounds[num].m & SF_LOOP)
-        voice = FX_PlayLoopedAuto(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
+        voice = FX_PlayLooped(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
                                   pitch,FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME),
                                   g_sounds[num].soundsiz, (num * MAXSOUNDINSTANCES) + j);
     else
-        voice = FX_PlayAuto3D(g_sounds[num].ptr, g_sounds[num].soundsiz, FX_ONESHOT,
+        voice = FX_Play3D(g_sounds[num].ptr, g_sounds[num].soundsiz, FX_ONESHOT,
                               pitch, 0, FX_VOLUME(255-LOUDESTVOLUME),
                               g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
 

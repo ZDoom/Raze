@@ -226,13 +226,13 @@ static wavefmt_t FX_AutoDetectFormat(const char *ptr, uint32_t length)
     return fmt;
 }
 
-int32_t FX_PlayAuto(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol,
+int32_t FX_Play(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol,
                 int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
-    return FX_PlayLoopedAuto(ptr, length, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
+    return FX_PlayLooped(ptr, length, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
 }
 
-int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
+int32_t FX_PlayLooped(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
                           int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
     int32_t handle = -1;
@@ -256,7 +256,7 @@ int32_t FX_PlayLoopedAuto(char *ptr, uint32_t length, int32_t loopstart, int32_t
     return handle;
 }
 
-int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
+int32_t FX_Play3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
                       int32_t priority, uint32_t callbackval)
 {
     int32_t handle = -1;
@@ -278,19 +278,6 @@ int32_t FX_PlayAuto3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitch
     }
 
     return handle;
-}
-
-int32_t FX_SetVoiceCallback(int32_t handle, uint32_t callbackval)
-{
-    int32_t status = MV_SetVoiceCallback(handle, callbackval);
-
-    if (status != MV_Ok)
-    {
-        FX_SetErrorCode(FX_MultiVocError);
-        return FX_Warning;
-    }
-
-    return FX_Ok;
 }
 
 int32_t FX_SetPrintf(void (*function)(const char *, ...))

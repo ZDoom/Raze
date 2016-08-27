@@ -1026,20 +1026,6 @@ int32_t MV_Shutdown(void)
     return MV_Ok;
 }
 
-int32_t MV_SetVoiceCallback(int32_t handle, uint32_t callbackval)
-{
-    VoiceNode *voice = MV_BeginService(handle);
-
-    if (voice == NULL)
-        return MV_Error;
-
-    voice->callbackval = callbackval;
-
-    MV_EndService();
-
-    return MV_Ok;
-}
-
 void MV_SetPrintf(void (*function)(const char *, ...)) { MV_Printf = function; }
 
 const char *loopStartTags[loopStartTagCount] = { "LOOP_START", "LOOPSTART" };

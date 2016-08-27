@@ -299,18 +299,6 @@ void MUSIC_SetVolume(int32_t volume)
 } // MUSIC_SetVolume
 
 
-void MUSIC_SetMidiChannelVolume(int32_t channel, int32_t volume)
-{
-    UNREFERENCED_PARAMETER(channel);
-    UNREFERENCED_PARAMETER(volume);
-} // MUSIC_SetMidiChannelVolume
-
-
-void MUSIC_ResetMidiChannelVolumes(void)
-{
-} // MUSIC_ResetMidiChannelVolumes
-
-
 int32_t MUSIC_GetVolume(void)
 {
     return (Mix_VolumeMusic(-1) << 1);  // convert 0-128 to 0-255.
@@ -321,12 +309,6 @@ void MUSIC_SetLoopFlag(int32_t loopflag)
 {
     music_loopflag = loopflag;
 } // MUSIC_SetLoopFlag
-
-
-int32_t MUSIC_SongPlaying(void)
-{
-    return ((Mix_PlayingMusic()) ? TRUE : FALSE);
-} // MUSIC_SongPlaying
 
 
 void MUSIC_Continue(void)
@@ -503,82 +485,6 @@ int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
 
     return MUSIC_Ok;
 }
-
-
-void MUSIC_SetContext(int32_t context)
-{
-    music_context = context;
-} // MUSIC_SetContext
-
-
-int32_t MUSIC_GetContext(void)
-{
-    return music_context;
-} // MUSIC_GetContext
-
-
-void MUSIC_SetSongTick(uint32_t PositionInTicks)
-{
-    UNREFERENCED_PARAMETER(PositionInTicks);
-} // MUSIC_SetSongTick
-
-
-void MUSIC_SetSongTime(uint32_t milliseconds)
-{
-    UNREFERENCED_PARAMETER(milliseconds);
-}// MUSIC_SetSongTime
-
-
-void MUSIC_SetSongPosition(int32_t measure, int32_t beat, int32_t tick)
-{
-    UNREFERENCED_PARAMETER(measure);
-    UNREFERENCED_PARAMETER(beat);
-    UNREFERENCED_PARAMETER(tick);
-} // MUSIC_SetSongPosition
-
-
-void MUSIC_GetSongPosition(songposition *pos)
-{
-    UNREFERENCED_PARAMETER(pos);
-} // MUSIC_GetSongPosition
-
-
-void MUSIC_GetSongLength(songposition *pos)
-{
-    UNREFERENCED_PARAMETER(pos);
-} // MUSIC_GetSongLength
-
-
-int32_t MUSIC_FadeVolume(int32_t tovolume, int32_t milliseconds)
-{
-    UNREFERENCED_PARAMETER(tovolume);
-    Mix_FadeOutMusic(milliseconds);
-    return MUSIC_Ok;
-} // MUSIC_FadeVolume
-
-
-int32_t MUSIC_FadeActive(void)
-{
-    return ((Mix_FadingMusic() == MIX_FADING_OUT) ? TRUE : FALSE);
-} // MUSIC_FadeActive
-
-
-void MUSIC_StopFade(void)
-{
-} // MUSIC_StopFade
-
-
-void MUSIC_RerouteMidiChannel(int32_t channel, int32_t (*function)(int32_t, int32_t, int32_t))
-{
-    UNREFERENCED_PARAMETER(channel);
-    UNREFERENCED_PARAMETER(function);
-} // MUSIC_RerouteMidiChannel
-
-
-void MUSIC_RegisterTimbreBank(char *timbres)
-{
-    UNREFERENCED_PARAMETER(timbres);
-} // MUSIC_RegisterTimbreBank
 
 
 void MUSIC_Update(void)

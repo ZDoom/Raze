@@ -77,12 +77,12 @@ int32_t FX_SetPan(int32_t handle, int32_t vol, int32_t left, int32_t right);
 int32_t FX_SetPitch(int32_t handle, int32_t pitchoffset);
 int32_t FX_SetFrequency(int32_t handle, int32_t frequency);
 
-int32_t FX_PlayAuto(char *ptr, uint32_t ptrlength, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
-    int32_t priority, uint32_t callbackval);
-int32_t FX_PlayLoopedAuto(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
-    int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
-int32_t FX_PlayAuto3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
-    int32_t distance, int32_t priority, uint32_t callbackval);
+int32_t FX_Play(char *ptr, uint32_t ptrlength, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
+                int32_t priority, uint32_t callbackval);
+int32_t FX_PlayLooped(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
+                      int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
+int32_t FX_Play3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
+                  int32_t distance, int32_t priority, uint32_t callbackval);
 
 int32_t FX_Pan3D(int32_t handle, int32_t angle, int32_t distance);
 int32_t FX_SoundActive(int32_t handle);
@@ -90,7 +90,6 @@ int32_t FX_SoundsPlaying(void);
 int32_t FX_StopSound(int32_t handle);
 int32_t FX_StopAllSounds(void);
 
-int32_t FX_SetVoiceCallback(int32_t handle, uint32_t callbackval);
 int32_t FX_SetPrintf(void(*function)(const char *, ...));
 
 int32_t FX_GetPosition(int32_t handle, int32_t *position);

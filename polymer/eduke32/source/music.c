@@ -87,31 +87,8 @@ const char *MUSIC_ErrorString
         ErrorString = "Music ok.";
         break;
 
-    case MUSIC_ASSVersion :
-        ErrorString = "Apogee Sound System Version WinMM  "
-                      "Programmed by Jim Dose, Ported by Jonathon Fowler\n"
-                      "(c) Copyright 1996 James R. Dose.  All Rights Reserved.\n";
-        break;
-
-    case MUSIC_SoundCardError :
-    case MUSIC_MPU401Error :
-        ErrorString = "Could not detect MPU-401.";
-        break;
-
-    case MUSIC_InvalidCard :
-        ErrorString = "Invalid Music device.";
-        break;
-
     case MUSIC_MidiError :
         ErrorString = "Error playing MIDI file.";
-        break;
-
-    case MUSIC_TaskManError :
-        ErrorString = "TaskMan error.";
-        break;
-
-    case MUSIC_DPMI_Error :
-        ErrorString = "DPMI Error in MUSIC.";
         break;
 
     default :
@@ -197,38 +174,6 @@ void MUSIC_SetVolume
 }
 
 
-/*---------------------------------------------------------------------
-   Function: MUSIC_SetMidiChannelVolume
-
-   Sets the volume of music playback on the specified MIDI channel.
----------------------------------------------------------------------*/
-
-void MUSIC_SetMidiChannelVolume
-(
-    int32_t channel,
-    int32_t volume
-)
-
-{
-    MIDI_SetUserChannelVolume(channel, volume);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_ResetMidiChannelVolumes
-
-   Sets the volume of music playback on all MIDI channels to full volume.
----------------------------------------------------------------------*/
-
-void MUSIC_ResetMidiChannelVolumes
-(
-    void
-)
-
-{
-    MIDI_ResetUserChannelVolume();
-}
-
 
 /*---------------------------------------------------------------------
    Function: MUSIC_GetVolume
@@ -264,22 +209,6 @@ void MUSIC_SetLoopFlag
 
 {
     MIDI_SetLoopFlag(loopflag);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_SongPlaying
-
-   Returns whether there is a song playing.
----------------------------------------------------------------------*/
-
-int32_t MUSIC_SongPlaying
-(
-    void
-)
-
-{
-    return MIDI_SongPlaying();
 }
 
 
@@ -327,7 +256,6 @@ int32_t MUSIC_StopSong
 )
 
 {
-    MUSIC_StopFade();
     MIDI_StopSong();
     MUSIC_SetErrorCode(MUSIC_Ok);
     return MUSIC_Ok;
@@ -363,120 +291,6 @@ int32_t MUSIC_PlaySong
 }
 
 
-/*---------------------------------------------------------------------
-   Function: MUSIC_SetContext
-
-   Sets the song context.
----------------------------------------------------------------------*/
-
-void MUSIC_SetContext
-(
-    int32_t context
-)
-
-{
-    MIDI_SetContext(context);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_GetContext
-
-   Returns the current song context.
----------------------------------------------------------------------*/
-
-int32_t MUSIC_GetContext
-(
-    void
-)
-
-{
-    return MIDI_GetContext();
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_SetSongTick
-
-   Sets the position of the song pointer.
----------------------------------------------------------------------*/
-
-void MUSIC_SetSongTick
-(
-    uint32_t PositionInTicks
-)
-
-{
-    MIDI_SetSongTick(PositionInTicks);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_SetSongTime
-
-   Sets the position of the song pointer.
----------------------------------------------------------------------*/
-
-void MUSIC_SetSongTime
-(
-    uint32_t milliseconds
-)
-
-{
-    MIDI_SetSongTime(milliseconds);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_SetSongPosition
-
-   Sets the position of the song pointer.
----------------------------------------------------------------------*/
-
-void MUSIC_SetSongPosition
-(
-    int32_t measure,
-    int32_t beat,
-    int32_t tick
-)
-
-{
-    MIDI_SetSongPosition(measure, beat, tick);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_GetSongPosition
-
-   Returns the position of the song pointer.
----------------------------------------------------------------------*/
-
-void MUSIC_GetSongPosition
-(
-    songposition *pos
-)
-
-{
-    MIDI_GetSongPosition(pos);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_GetSongLength
-
-   Returns the length of the song.
----------------------------------------------------------------------*/
-
-void MUSIC_GetSongLength
-(
-    songposition *pos
-)
-
-{
-    MIDI_GetSongLength(pos);
-}
-
-
 int32_t MUSIC_InitMidi
 (
     int32_t        card,
@@ -505,88 +319,6 @@ int32_t MUSIC_InitMidi
 }
 
 
-/*---------------------------------------------------------------------
-   Function: MUSIC_FadeVolume
-
-   Fades music volume from current level to another over a specified
-   period of time.
----------------------------------------------------------------------*/
-
-int32_t MUSIC_FadeVolume
-(
-    int32_t tovolume,
-    int32_t milliseconds
-)
-
-{
-    UNREFERENCED_PARAMETER(milliseconds);
-    MIDI_SetVolume(tovolume);
-    return MUSIC_Ok;
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_FadeActive
-
-   Returns whether the fade routine is active.
----------------------------------------------------------------------*/
-
-int32_t MUSIC_FadeActive
-(
-    void
-)
-
-{
-    return 0;
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_StopFade
-
-   Stops fading the music.
----------------------------------------------------------------------*/
-
-void MUSIC_StopFade
-(
-    void
-)
-
-{}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_RerouteMidiChannel
-
-   Sets callback function to reroute MIDI commands from specified
-   function.
----------------------------------------------------------------------*/
-
-void MUSIC_RerouteMidiChannel
-(
-    int32_t channel,
-    int32_t(*function)(int32_t, int32_t, int32_t)
-)
-
-{
-    MIDI_RerouteMidiChannel(channel, function);
-}
-
-
-/*---------------------------------------------------------------------
-   Function: MUSIC_RegisterTimbreBank
-
-   Halts playback of all sounds.
----------------------------------------------------------------------*/
-
-void MUSIC_RegisterTimbreBank
-(
-    char *timbres
-)
-
-{
-    UNREFERENCED_PARAMETER(timbres);
-}
 
 
 void MUSIC_Update(void)

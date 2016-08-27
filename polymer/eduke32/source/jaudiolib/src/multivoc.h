@@ -96,8 +96,6 @@ extern int32_t MV_ErrorCode;
 
 enum MV_Errors
 {
-    MV_Warning = -2,
-    MV_Error = -1,
     MV_Ok = 0,
     MV_NotInstalled,
     MV_DriverError,
@@ -164,7 +162,6 @@ int32_t MV_GetReverseStereo(void);
 int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numchannels,
                 void *initdata);
 int32_t MV_Shutdown(void);
-int32_t MV_SetVoiceCallback(int32_t handle, uint32_t callbackval);
 void MV_SetPrintf(void (*function)(const char *fmt, ...));
 
 #ifdef __cplusplus

@@ -4369,7 +4369,7 @@ int32_t G_StartRTS(int32_t i, int localp)
 
         if (sndptr != NULL)
         {
-            FX_PlayAuto3D(sndptr, RTS_SoundLength(i-1), FX_ONESHOT, 0, 0, FX_VOLUME(1), 255, -i);
+            FX_Play3D(sndptr, RTS_SoundLength(i-1), FX_ONESHOT, 0, 0, FX_VOLUME(1), 255, -i);
             g_RTSPlaying = 7;
             return 1;
         }
