@@ -34,6 +34,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "inttypes.h"
 #include "limits.h"
 #include "drivers.h"
+#include "multivoc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,43 +58,61 @@ enum FX_LOOP_HOW
 #define FX_MUSIC_PRIORITY	INT_MAX
 
 const char *FX_ErrorString(int32_t ErrorNumber);
-int32_t FX_Init(int32_t SoundCard, int32_t numvoices, int32_t numchannels, unsigned mixrate, void *initdata);
+int32_t FX_Init(int32_t numvoices, int32_t numchannels, unsigned mixrate, void *initdata);
 int32_t FX_Shutdown(void);
-void FX_SetCallBack(void(*function)(uint32_t));
-void FX_SetVolume(int32_t volume);
-int32_t FX_GetVolume(void);
 
-void FX_SetReverseStereo(int32_t setting);
-int32_t FX_GetReverseStereo(void);
-void FX_SetReverb(int32_t reverb);
-int32_t FX_GetMaxReverbDelay(void);
-int32_t FX_GetReverbDelay(void);
-void FX_SetReverbDelay(int32_t delay);
 
-int32_t FX_PauseVoice(int32_t handle, int32_t pause);
-int32_t FX_VoiceAvailable(int32_t priority);
-int32_t FX_EndLooping(int32_t handle);
-int32_t FX_SetPan(int32_t handle, int32_t vol, int32_t left, int32_t right);
-int32_t FX_SetPitch(int32_t handle, int32_t pitchoffset);
-int32_t FX_SetFrequency(int32_t handle, int32_t frequency);
 
-int32_t FX_Play(char *ptr, uint32_t ptrlength, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
-                int32_t priority, uint32_t callbackval);
-int32_t FX_PlayLooped(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
+int32_t FX_Play(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
                       int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
 int32_t FX_Play3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
                   int32_t distance, int32_t priority, uint32_t callbackval);
 
-int32_t FX_Pan3D(int32_t handle, int32_t angle, int32_t distance);
-int32_t FX_SoundActive(int32_t handle);
-int32_t FX_SoundsPlaying(void);
-int32_t FX_StopSound(int32_t handle);
-int32_t FX_StopAllSounds(void);
 
 int32_t FX_SetPrintf(void(*function)(const char *, ...));
 
-int32_t FX_GetPosition(int32_t handle, int32_t *position);
-int32_t FX_SetPosition(int32_t handle, int32_t position);
+extern int32_t FX_ErrorCode;
+#define FX_SetErrorCode(status) FX_ErrorCode = (status);
+
+FORCE_INLINE int FX_CheckMVErr(int32_t status)
+{
+    if (status != MV_Ok)
+    {
+        FX_SetErrorCode(FX_MultiVocError);
+        status = FX_Warning;
+    }
+
+    return status;
+}
+
+FORCE_INLINE void FX_SetCallBack(void(*function)(uint32_t)) { MV_SetCallBack(function); }
+FORCE_INLINE void FX_SetVolume(int32_t volume) { MV_SetVolume(volume); }
+FORCE_INLINE int32_t FX_GetVolume(void) { return MV_GetVolume(); }
+FORCE_INLINE void FX_SetReverseStereo(int32_t setting) { MV_SetReverseStereo(setting); }
+FORCE_INLINE int32_t FX_GetReverseStereo(void) { return MV_GetReverseStereo(); }
+FORCE_INLINE void FX_SetReverb(int32_t reverb) { MV_SetReverb(reverb); }
+FORCE_INLINE int32_t FX_GetMaxReverbDelay(void) { return MV_GetMaxReverbDelay(); }
+FORCE_INLINE int32_t FX_GetReverbDelay(void) { return MV_GetReverbDelay(); }
+FORCE_INLINE void FX_SetReverbDelay(int32_t delay) { MV_SetReverbDelay(delay); }
+FORCE_INLINE int32_t FX_VoiceAvailable(int32_t priority) { return MV_VoiceAvailable(priority); }
+FORCE_INLINE int32_t FX_PauseVoice(int32_t handle, int32_t pause) { return FX_CheckMVErr(MV_PauseVoice(handle, pause)); }
+FORCE_INLINE int32_t FX_GetPosition(int32_t handle, int32_t *position) { return FX_CheckMVErr(MV_GetPosition(handle, position)); }
+FORCE_INLINE int32_t FX_SetPosition(int32_t handle, int32_t position) { return FX_CheckMVErr(MV_SetPosition(handle, position)); }
+FORCE_INLINE int32_t FX_EndLooping(int32_t handle) { return FX_CheckMVErr(MV_EndLooping(handle)); }
+FORCE_INLINE int32_t FX_SetPan(int32_t handle, int32_t vol, int32_t left, int32_t right)
+{
+    return FX_CheckMVErr(MV_SetPan(handle, vol, left, right));
+}
+FORCE_INLINE int32_t FX_SetPitch(int32_t handle, int32_t pitchoffset) { return FX_CheckMVErr(MV_SetPitch(handle, pitchoffset)); }
+FORCE_INLINE int32_t FX_SetFrequency(int32_t handle, int32_t frequency) { return FX_CheckMVErr(MV_SetFrequency(handle, frequency)); }
+FORCE_INLINE int32_t FX_Pan3D(int32_t handle, int32_t angle, int32_t distance)
+{
+    return FX_CheckMVErr(MV_Pan3D(handle, angle, distance));
+}
+FORCE_INLINE int32_t FX_SoundActive(int32_t handle) { return MV_VoicePlaying(handle); }
+FORCE_INLINE int32_t FX_SoundsPlaying(void) { return MV_VoicesPlaying(); }
+FORCE_INLINE int32_t FX_StopSound(int32_t handle) { return FX_CheckMVErr(MV_Kill(handle)); }
+FORCE_INLINE int32_t FX_StopAllSounds(void) { return FX_CheckMVErr(MV_KillAllVoices()); }
 
 #ifdef __cplusplus
 }

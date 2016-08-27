@@ -96,17 +96,14 @@ extern int32_t MV_ErrorCode;
 
 enum MV_Errors
 {
+    MV_Error = -1,
     MV_Ok = 0,
     MV_NotInstalled,
     MV_DriverError,
     MV_NoVoices,
     MV_NoMem,
     MV_VoiceNotFound,
-    MV_InvalidVOCFile,
-    MV_InvalidWAVFile,
-    MV_InvalidVorbisFile,
-    MV_InvalidFLACFile,
-    MV_InvalidXAFile,
+    MV_InvalidFile,
 };
 
 extern void (*MV_Printf)(const char *fmt, ...);

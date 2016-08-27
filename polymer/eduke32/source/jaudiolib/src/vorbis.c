@@ -381,7 +381,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t 
 
    if (!vd)
    {
-       MV_SetErrorCode(MV_InvalidVorbisFile);
+       MV_SetErrorCode(MV_InvalidFile);
        return MV_Error;
    }
 
@@ -395,7 +395,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t 
    if (status < 0)
    {
        MV_Printf("MV_PlayVorbis: err %d\n", status);
-       MV_SetErrorCode(MV_InvalidVorbisFile);
+       MV_SetErrorCode(MV_InvalidFile);
        return MV_Error;
    }
 
@@ -405,7 +405,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t 
    {
        ov_clear(&vd->vf);
        free(vd);
-       MV_SetErrorCode(MV_InvalidVorbisFile);
+       MV_SetErrorCode(MV_InvalidFile);
        return MV_Error;
    }
 
@@ -413,7 +413,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t 
    {
        ov_clear(&vd->vf);
        free(vd);
-       MV_SetErrorCode(MV_InvalidVorbisFile);
+       MV_SetErrorCode(MV_InvalidFile);
        return MV_Error;
    }
 

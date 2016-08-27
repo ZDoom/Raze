@@ -32,7 +32,6 @@ typedef enum
     ASS_SDL,
 #endif
     ASS_NumSoundCards,
-    ASS_AutoDetect = -2
 } soundcardnames;
 
 extern int32_t ASS_SoundDriver;

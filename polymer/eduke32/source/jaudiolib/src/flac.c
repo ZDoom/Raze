@@ -446,7 +446,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t lo
     fd = (flac_data *)calloc(1, sizeof(flac_data));
     if (!fd)
     {
-        MV_SetErrorCode(MV_InvalidFLACFile);
+        MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
     }
 
@@ -468,7 +468,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t lo
                                          (void *)fd) != FLAC__STREAM_DECODER_INIT_STATUS_OK)
     {
         MV_Printf("MV_PlayFLAC: %s\n", FLAC__stream_decoder_get_resolved_state_string(fd->stream));
-        MV_SetErrorCode(MV_InvalidFLACFile);
+        MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
     }
 
@@ -540,7 +540,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t lo
                             FLAC__stream_decoder_finish(fd->stream);
                             FLAC__stream_decoder_delete(fd->stream);
                             free(fd);
-                            MV_SetErrorCode(MV_InvalidFLACFile);
+                            MV_SetErrorCode(MV_InvalidFile);
                             return MV_Error;
                         }
 

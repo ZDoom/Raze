@@ -53,7 +53,7 @@ void S_SoundStartup(void)
 
     initprintf("Initializing sound... ");
 
-    if (FX_Init(ASS_AutoDetect, ud.config.NumVoices, ud.config.NumChannels, ud.config.MixRate, initdata) != FX_Ok)
+    if (FX_Init(ud.config.NumVoices, ud.config.NumChannels, ud.config.MixRate, initdata) != FX_Ok)
     {
         initprintf("failed! %s\n", FX_ErrorString(FX_Error));
         return;
@@ -235,7 +235,7 @@ int32_t S_PlayMusic(const char *fn)
     else
     {
         int32_t const mvol = MASTER_VOLUME(ud.config.MusicVolume);
-        MusicVoice = FX_PlayLooped(MusicPtr, MusicLen, 0, 0,
+        MusicVoice = FX_Play(MusicPtr, MusicLen, 0, 0,
                                        0, mvol, mvol, mvol,
                                        FX_MUSIC_PRIORITY, MUSIC_ID);
         if (MusicVoice > FX_Ok)
@@ -630,7 +630,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
         if (repeatp && !ambsfxp)
         {
-            voice = FX_PlayLooped(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
+            voice = FX_Play(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
                                       pitch, FX_VOLUME(sndist>>6), FX_VOLUME(sndist>>6), 0,  // XXX: why is 'right' 0?
                                       g_sounds[num].pr, (num * MAXSOUNDINSTANCES) + j);
         }
@@ -703,7 +703,7 @@ int32_t S_PlaySound(int32_t num)
     }
 
     if (g_sounds[num].m & SF_LOOP)
-        voice = FX_PlayLooped(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
+        voice = FX_Play(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
                                   pitch,FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME),
                                   g_sounds[num].soundsiz, (num * MAXSOUNDINSTANCES) + j);
     else

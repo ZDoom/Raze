@@ -43,16 +43,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "pitch.h"
 #include "multivoc.h"
 #include "_multivc.h"
+#include "fx_man.h"
 
-static void MV_Mix(VoiceNode *voice, int32_t buffer);
 static void MV_StopVoice(VoiceNode *voice);
 static void MV_ServiceVoc(void);
 
 static VoiceNode *MV_GetVoice(int32_t handle);
 
 static const int16_t *MV_GetVolumeTable(int32_t vol);
-
-static void MV_CalcPanTable(void);
 
 #define IS_QUIET(ptr) ((void const *)(ptr) == (void *)&MV_VolumeTable[0])
 
@@ -103,13 +101,13 @@ int32_t MV_ErrorCode = MV_NotInstalled;
 
 static int32_t lockdepth = 0;
 
-static inline void DisableInterrupts(void)
+FORCE_INLINE void DisableInterrupts(void)
 {
     if (lockdepth++ <= 0)
         SoundDriver_Lock();
 }
 
-static inline void RestoreInterrupts(void)
+FORCE_INLINE void RestoreInterrupts(void)
 {
     if (--lockdepth <= 0)
         SoundDriver_Unlock();
@@ -133,22 +131,14 @@ const char *MV_ErrorString(int32_t ErrorNumber)
             return "Out of memory in Multivoc.";
         case MV_VoiceNotFound:
             return "No voice with matching handle found.";
-        case MV_InvalidVOCFile:
-            return "Invalid VOC file passed in to Multivoc.";
-        case MV_InvalidWAVFile:
-            return "Invalid WAV file passed in to Multivoc.";
-        case MV_InvalidVorbisFile:
-            return "Invalid OggVorbis file passed in to Multivoc.";
-        case MV_InvalidFLACFile:
-            return "Invalid FLAC file passed in to Multivoc.";
-        case MV_InvalidXAFile:
-            return "Invalid XA file passed in to Multivoc.";
+        case MV_InvalidFile:
+            return "Invalid file passed in to Multivoc.";
         default:
             return "Unknown Multivoc error code.";
     }
 }
 
-static void MV_Mix(VoiceNode *voice, int32_t buffer)
+static void MV_Mix(VoiceNode *voice, int const buffer)
 {
     /* cheap fix for a crash under 64-bit linux */
     /*                            v  v  v  v    */
@@ -169,11 +159,11 @@ static void MV_Mix(VoiceNode *voice, int32_t buffer)
     }
 
     // Add this voice to the mix
-    while (length > 0)
+    do
     {
         const char *start = voice->sound;
-        uint32_t rate = voice->RateScale;
-        uint32_t position = voice->position;
+        uint32_t const rate = voice->RateScale;
+        uint32_t const position = voice->position;
         int32_t voclength;
 
         // Check if the last sample in this buffer would be
@@ -210,7 +200,7 @@ static void MV_Mix(VoiceNode *voice, int32_t buffer)
                 FixedPointBufferSize = voice->RateScale * (length - voice->channels);
             }
         }
-    }
+    } while (length > 0);
 }
 
 void MV_PlayVoice(VoiceNode *voice)
@@ -297,10 +287,11 @@ static void MV_ServiceVoc(void)
     // Play any waiting voices
     //DisableInterrupts();
 
-    VoiceNode *voice;
 
-    if (!VoiceList.next || (voice = VoiceList.next) == &VoiceList)
+    if (!VoiceList.next || VoiceList.next == &VoiceList)
         return;
+
+    VoiceNode *voice = VoiceList.next;
 
     int iter = 0;
 
@@ -835,9 +826,7 @@ static void MV_StopPlayback(void)
     // Make sure all callbacks are done.
     DisableInterrupts();
 
-    VoiceNode *voice, *next;
-
-    for (voice = VoiceList.next; voice != &VoiceList; voice = next)
+    for (VoiceNode *voice = VoiceList.next, *next; voice != &VoiceList; voice = next)
     {
         next = voice->next;
 
@@ -929,16 +918,13 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
     MV_Voices = (VoiceNode *)ptr;
     ptr += Voices * sizeof(VoiceNode);
 
-    // Set number of voices before calculating volume table
     MV_MaxVoices = Voices;
 
     LL_Reset((VoiceNode*) &VoiceList, next, prev);
     LL_Reset((VoiceNode*) &VoicePool, next, prev);
 
     for (int index = 0; index < Voices; index++)
-    {
         LL_Add((VoiceNode*) &VoicePool, &MV_Voices[ index ], next, prev);
-    }
 
     MV_SetReverseStereo(FALSE);
 

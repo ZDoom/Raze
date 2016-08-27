@@ -347,7 +347,7 @@ int32_t MV_PlayWAV(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
 
     if ((memcmp(riff.RIFF, "RIFF", 4) != 0) || (memcmp(riff.WAVE, "WAVE", 4) != 0) || (memcmp(riff.fmt, "fmt ", 4) != 0))
     {
-        MV_SetErrorCode(MV_InvalidWAVFile);
+        MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
     }
 
@@ -368,7 +368,7 @@ int32_t MV_PlayWAV(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     if (format.wFormatTag != 1 || (format.nChannels != 1 && format.nChannels != 2) ||
         ((format.nBitsPerSample != 8) && (format.nBitsPerSample != 16)) || memcmp(data.DATA, "data", 4) != 0)
     {
-        MV_SetErrorCode(MV_InvalidWAVFile);
+        MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
     }
 
@@ -455,7 +455,7 @@ int32_t MV_PlayVOC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     // Make sure it looks like a valid VOC file.
     if (memcmp(ptr, "Creative Voice File", 19) != 0)
     {
-        MV_SetErrorCode(MV_InvalidVOCFile);
+        MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
     }
 

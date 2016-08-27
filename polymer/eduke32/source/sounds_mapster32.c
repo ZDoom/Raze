@@ -73,19 +73,16 @@ void S_Callback(uint32_t);
 int32_t S_SoundStartup(void)
 {
     int32_t status;
-    int32_t fxdevicetype;
     void *initdata = 0;
 
     // TODO: read config
     int32_t FXVolume=220, /*NumVoices=32,*/ NumChannels=2, ReverseStereo=0;
 
-    fxdevicetype = ASS_AutoDetect;
-
 #ifdef MIXERTYPEWIN
     initdata = (void *) win_gethwnd(); // used for DirectSound
 #endif
 
-    status = FX_Init(fxdevicetype, NumVoices, NumChannels, MixRate, initdata);
+    status = FX_Init(NumVoices, NumChannels, MixRate, initdata);
     if (status == FX_Ok)
     {
         FX_SetVolume(FXVolume);
@@ -260,7 +257,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
         if (g_sounds[num].num > 0)
             return -1;
 
-        voice = FX_PlayLooped(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
+        voice = FX_Play(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
                                   pitch, sndist>>6, sndist>>6, 0, g_sounds[num].pr, num);
     }
     else
@@ -319,7 +316,7 @@ void S_PlaySound(int32_t num)
 
     if (g_sounds[num].m & SF_LOOP)
     {
-        voice = FX_PlayLooped(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
+        voice = FX_Play(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
                                   pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz,num);
     }
     else

@@ -460,7 +460,7 @@ int32_t MV_PlayXA
 
    xad = (xa_data *) calloc( 1, sizeof(xa_data) );
    if (!xad) {
-      MV_SetErrorCode( MV_InvalidXAFile );
+      MV_SetErrorCode( MV_InvalidFile );
       return MV_Error;
    }
 

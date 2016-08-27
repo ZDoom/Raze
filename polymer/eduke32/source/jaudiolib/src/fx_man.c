@@ -41,8 +41,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 int32_t FX_ErrorCode = FX_Ok;
 int32_t FX_Installed = FALSE;
 
-#define FX_SetErrorCode(status) FX_ErrorCode = (status);
-
 const char *FX_ErrorString(int32_t ErrorNumber)
 {
     const char *ErrorString;
@@ -54,8 +52,6 @@ const char *FX_ErrorString(int32_t ErrorNumber)
 
         case FX_Ok: ErrorString = "Fx ok."; break;
 
-        case FX_InvalidCard: ErrorString = "Invalid Sound Fx device."; break;
-
         case FX_MultiVocError: ErrorString = MV_ErrorString(MV_Error); break;
 
         default: ErrorString = "Unknown Fx error code."; break;
@@ -64,39 +60,19 @@ const char *FX_ErrorString(int32_t ErrorNumber)
     return ErrorString;
 }
 
-static inline int32_t FX_CheckMVErr(int32_t status)
-{
-    if (status != MV_Ok)
-    {
-        FX_SetErrorCode(FX_MultiVocError);
-        status = FX_Warning;
-    }
-
-    return status;
-}
-
-int32_t FX_Init(int32_t SoundCard, int32_t numvoices, int32_t numchannels, unsigned mixrate, void *initdata)
+int32_t FX_Init(int32_t numvoices, int32_t numchannels, unsigned mixrate, void *initdata)
 {
     if (FX_Installed)
         FX_Shutdown();
 
-    if (SoundCard == ASS_AutoDetect)
-    {
 #if defined MIXERTYPEWIN
-        SoundCard = ASS_DirectSound;
+    int SoundCard = ASS_DirectSound;
 #elif defined MIXERTYPESDL
-        SoundCard = ASS_SDL;
+    int SoundCard = ASS_SDL;
 #else
 #warning No sound driver selected!
-        SoundCard = ASS_NoSound;
+    int SoundCard = ASS_NoSound;
 #endif
-    }
-
-    if (SoundCard < 0 || SoundCard >= ASS_NumSoundCards)
-    {
-        FX_SetErrorCode(FX_InvalidCard);
-        return FX_Error;
-    }
 
     if (SoundDriver_IsSupported(SoundCard) == 0)
     {
@@ -136,62 +112,12 @@ int32_t FX_Shutdown(void)
     return status;
 }
 
-void FX_SetCallBack(void (*function)(uint32_t)) { MV_SetCallBack(function); }
-
-void FX_SetVolume(int32_t volume) { MV_SetVolume(volume); }
-
-int32_t FX_GetVolume(void) { return MV_GetVolume(); }
-
-void FX_SetReverseStereo(int32_t setting) { MV_SetReverseStereo(setting); }
-
-int32_t FX_GetReverseStereo(void) { return MV_GetReverseStereo(); }
-
-void FX_SetReverb(int32_t reverb) { MV_SetReverb(reverb); }
-
-int32_t FX_GetMaxReverbDelay(void) { return MV_GetMaxReverbDelay(); }
-
-int32_t FX_GetReverbDelay(void) { return MV_GetReverbDelay(); }
-
-void FX_SetReverbDelay(int32_t delay) { MV_SetReverbDelay(delay); }
-
-int32_t FX_VoiceAvailable(int32_t priority) { return MV_VoiceAvailable(priority); }
-
-int32_t FX_PauseVoice(int32_t handle, int32_t pause) { return FX_CheckMVErr(MV_PauseVoice(handle, pause)); }
-
-int32_t FX_GetPosition(int32_t handle, int32_t *position) { return FX_CheckMVErr(MV_GetPosition(handle, position)); }
-
-int32_t FX_SetPosition(int32_t handle, int32_t position) { return FX_CheckMVErr(MV_SetPosition(handle, position)); }
-
-int32_t FX_EndLooping(int32_t handle) { return FX_CheckMVErr(MV_EndLooping(handle)); }
-
-int32_t FX_SetPan(int32_t handle, int32_t vol, int32_t left, int32_t right)
+static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
 {
-    return FX_CheckMVErr(MV_SetPan(handle, vol, left, right));
-}
-
-int32_t FX_SetPitch(int32_t handle, int32_t pitchoffset) { return FX_CheckMVErr(MV_SetPitch(handle, pitchoffset)); }
-
-int32_t FX_SetFrequency(int32_t handle, int32_t frequency) { return FX_CheckMVErr(MV_SetFrequency(handle, frequency)); }
-
-int32_t FX_Pan3D(int32_t handle, int32_t angle, int32_t distance)
-{
-    return FX_CheckMVErr(MV_Pan3D(handle, angle, distance));
-}
-
-int32_t FX_SoundActive(int32_t handle) { return MV_VoicePlaying(handle); }
-
-int32_t FX_SoundsPlaying(void) { return MV_VoicesPlaying(); }
-
-int32_t FX_StopSound(int32_t handle) { return FX_CheckMVErr(MV_Kill(handle)); }
-
-int32_t FX_StopAllSounds(void) { return FX_CheckMVErr(MV_KillAllVoices()); }
-
-static wavefmt_t FX_AutoDetectFormat(const char *ptr, uint32_t length)
-{
-    wavefmt_t fmt = FMT_UNKNOWN;
-
     if (length < 12)
-        return fmt;
+        return FMT_UNKNOWN;
+
+    wavefmt_t fmt = FMT_UNKNOWN;
 
     switch (LITTLE32(*(int32_t const *)ptr))
     {
@@ -226,26 +152,18 @@ static wavefmt_t FX_AutoDetectFormat(const char *ptr, uint32_t length)
     return fmt;
 }
 
-int32_t FX_Play(char *ptr, uint32_t length, int32_t pitchoffset, int32_t vol,
-                int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
-{
-    return FX_PlayLooped(ptr, length, -1, -1, pitchoffset, vol, left, right, priority, callbackval);
-}
-
-int32_t FX_PlayLooped(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
+int32_t FX_Play(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
                           int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
-    int32_t handle = -1;
-
     EDUKE32_STATIC_ASSERT(FMT_MAX == 7);
 
     static int32_t(*const func[FMT_MAX])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, uint32_t) =
     { NULL, NULL, MV_PlayVOC, MV_PlayWAV, MV_PlayVorbis, MV_PlayFLAC, MV_PlayXA };
 
-    wavefmt_t const fmt = FX_AutoDetectFormat(ptr, length);
+    wavefmt_t const fmt = FX_DetectFormat(ptr, length);
 
-    if (func[fmt])
-        handle = func[fmt](ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval);
+    int handle =
+    (func[fmt]) ? func[fmt](ptr, length, loopstart, loopend, pitchoffset, vol, left, right, priority, callbackval) : -1;
 
     if (handle <= MV_Ok)
     {
@@ -259,17 +177,15 @@ int32_t FX_PlayLooped(char *ptr, uint32_t length, int32_t loopstart, int32_t loo
 int32_t FX_Play3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
                       int32_t priority, uint32_t callbackval)
 {
-    int32_t handle = -1;
-
     EDUKE32_STATIC_ASSERT(FMT_MAX == 7);
 
     static int32_t (*const func[FMT_MAX])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, uint32_t) =
     { NULL, NULL, MV_PlayVOC3D, MV_PlayWAV3D, MV_PlayVorbis3D, MV_PlayFLAC3D, MV_PlayXA3D };
 
-    wavefmt_t const fmt = FX_AutoDetectFormat(ptr, length);
+    wavefmt_t const fmt = FX_DetectFormat(ptr, length);
 
-    if (func[fmt])
-        handle = func[fmt](ptr, length, loophow, pitchoffset, angle, distance, priority, callbackval);
+    int handle =
+    (func[fmt]) ? func[fmt](ptr, length, loophow, pitchoffset, angle, distance, priority, callbackval) : -1;
 
     if (handle <= MV_Ok)
     {
