@@ -725,8 +725,8 @@ dead:
 
     if (vm.pSprite->xvel || vm.pSprite->zvel)
     {
-        int nXvel    = vm.pSprite->xvel;
-        int angDiff = vm.pSprite->ang;
+        int spriteXvel = vm.pSprite->xvel;
+        int angDiff    = vm.pSprite->ang;
 
         if (badguyp && vm.pSprite->picnum != ROTATEGUN)
         {
@@ -796,7 +796,7 @@ dead:
 
             if (vm.playerDist < 960 && vm.pSprite->xrepeat > 16)
             {
-                nXvel = -(1024 - vm.playerDist);
+                spriteXvel = -(1024 - vm.playerDist);
                 angDiff = getangle(vm.pPlayer->pos.x - vm.pSprite->x, vm.pPlayer->pos.y - vm.pSprite->y);
 
                 if (vm.playerDist < 512)
@@ -819,7 +819,7 @@ dead:
                 {
                     if (AC_COUNT(vm.pData) & 1)
                         return;
-                    nXvel <<= 1;
+                    spriteXvel <<= 1;
                 }
             }
         }
@@ -827,8 +827,8 @@ dead:
             if (vm.pSprite->z < actor[vm.spriteNum].ceilingz+ZOFFSET5)
                 vm.pSprite->z = actor[vm.spriteNum].ceilingz+ZOFFSET5;
 
-        vec3_t const vect = { (nXvel * (sintable[(angDiff + 512) & 2047])) >> 14,
-                              (nXvel * (sintable[angDiff & 2047])) >> 14, vm.pSprite->zvel };
+        vec3_t const vect = { (spriteXvel * (sintable[(angDiff + 512) & 2047])) >> 14,
+                              (spriteXvel * (sintable[angDiff & 2047])) >> 14, vm.pSprite->zvel };
 
         actor[vm.spriteNum].movflag = A_MoveSprite(vm.spriteNum, &vect, (A_CheckSpriteFlags(vm.spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK0));
     }
@@ -941,14 +941,14 @@ static int32_t A_GetWaterZOffset(int spriteNum)
 
 static void VM_Fall(int spriteNum, spritetype *pSprite)
 {
-    int nGravity = g_spriteGravity;
+    int spriteGravity = g_spriteGravity;
 
     pSprite->xoffset = pSprite->yoffset = 0;
 
     if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER || EDUKE32_PREDICT_FALSE(G_CheckForSpaceCeiling(pSprite->sectnum)))
-        nGravity = g_spriteGravity/6;
+        spriteGravity = g_spriteGravity/6;
     else if (EDUKE32_PREDICT_FALSE(G_CheckForSpaceFloor(pSprite->sectnum)))
-        nGravity = 0;
+        spriteGravity = 0;
 
     if (!actor[spriteNum].cgg-- || (sector[pSprite->sectnum].floorstat&2))
     {
@@ -959,8 +959,8 @@ static void VM_Fall(int spriteNum, spritetype *pSprite)
     if (pSprite->z < actor[spriteNum].floorz-ZOFFSET)
     {
         // Free fall.
-        pSprite->zvel = min(pSprite->zvel+nGravity, ACTOR_MAXFALLINGZVEL);
-        int32_t newZ = pSprite->z + pSprite->zvel;
+        pSprite->zvel = min(pSprite->zvel+spriteGravity, ACTOR_MAXFALLINGZVEL);
+        int newZ = pSprite->z + pSprite->zvel;
 
 #ifdef YAX_ENABLE
         if (yax_getbunch(pSprite->sectnum, YAX_FLOOR) >= 0 &&
@@ -976,7 +976,7 @@ static void VM_Fall(int spriteNum, spritetype *pSprite)
     }
 
     // Preliminary new z position of the actor.
-    int32_t newZ = actor[spriteNum].floorz - ZOFFSET;
+    int newZ = actor[spriteNum].floorz - ZOFFSET;
 
     if (A_CheckEnemySprite(pSprite) || (pSprite->picnum == APLAYER && pSprite->owner >= 0))
     {
@@ -1274,35 +1274,35 @@ skip_check:
                     continue;
                 }
 
-                int nDist = 768;
+                int dist    = 768;
                 int angDiff = 16;
 
                 if (A_CheckEnemySprite(vm.pSprite) && vm.pSprite->xrepeat > 56)
                 {
-                    nDist = 3084;
+                    dist    = 3084;
                     angDiff = 48;
                 }
 
-#define CHECK(x)                                                                                                            \
-    if (x >= 0 && sprite[x].picnum == vm.pSprite->picnum)                                                                   \
-    {                                                                                                                       \
-        VM_CONDITIONAL(0);                                                                                                  \
-        continue;                                                                                                           \
+#define CHECK(x)                                                                                                                           \
+    if (x >= 0 && sprite[x].picnum == vm.pSprite->picnum)                                                                                  \
+    {                                                                                                                                      \
+        VM_CONDITIONAL(0);                                                                                                                 \
+        continue;                                                                                                                          \
     }
-#define CHECK2(x)                                                                                                           \
-    do                                                                                                                      \
-    {                                                                                                                       \
-        vm.pSprite->ang += x;                                                                                               \
-        tw = A_CheckHitSprite(vm.spriteNum, &temphit);                                                                      \
-        vm.pSprite->ang -= x;                                                                                               \
+#define CHECK2(x)                                                                                                                          \
+    do                                                                                                                                     \
+    {                                                                                                                                      \
+        vm.pSprite->ang += x;                                                                                                              \
+        tw = A_CheckHitSprite(vm.spriteNum, &temphit);                                                                                     \
+        vm.pSprite->ang -= x;                                                                                                              \
     } while (0)
 
-                if (tw > nDist)
+                if (tw > dist)
                 {
                     CHECK(temphit);
                     CHECK2(angDiff);
 
-                    if (tw > nDist)
+                    if (tw > dist)
                     {
                         CHECK(temphit);
                         CHECK2(-angDiff);
@@ -5771,6 +5771,39 @@ void A_LoadActor(int32_t spriteNum)
 }
 #endif
 
+void VM_UpdateAnim(int spriteNum, int32_t *pData)
+{
+#if !defined LUNATIC
+    intptr_t const actionofs = AC_ACTION_ID(pData);
+    intptr_t const *actionptr = (actionofs != 0 && actionofs + 4u < (unsigned) g_scriptSize) ? &apScript[actionofs] : NULL;
+
+    if (actionptr != NULL)
+#endif
+    {
+#if !defined LUNATIC
+        int const action_frames = actionptr[1];
+        int const action_incval = actionptr[3];
+        int const action_delay  = actionptr[4];
+#else
+        int const action_frames = actor[spriteNum].ac.numframes;
+        int const action_incval = actor[spriteNum].ac.incval;
+        int const action_delay  = actor[spriteNum].ac.delay;
+#endif
+        uint16_t *actionticsptr = &AC_ACTIONTICS(&sprite[spriteNum], &actor[spriteNum]);
+        *actionticsptr += TICSPERFRAME;
+
+        if (*actionticsptr > action_delay)
+        {
+            *actionticsptr = 0;
+            AC_ACTION_COUNT(pData)++;
+            AC_CURFRAME(pData) += action_incval;
+        }
+
+        if (klabs(AC_CURFRAME(pData)) >= klabs(action_frames * action_incval))
+            AC_CURFRAME(pData) = 0;
+    }
+}
+
 // NORECURSE
 void A_Execute(int spriteNum, int playerNum, int32_t playerDist)
 {
@@ -5781,8 +5814,6 @@ void A_Execute(int spriteNum, int playerNum, int32_t playerDist)
 
 #ifdef LUNATIC
     int32_t killit=0;
-#else
-    intptr_t actionofs, *actionptr;
 #endif
 
 /*
@@ -5805,35 +5836,7 @@ void A_Execute(int spriteNum, int playerNum, int32_t playerDist)
         return;
     }
 
-#if !defined LUNATIC
-    actionofs = AC_ACTION_ID(vm.pData);
-    actionptr = (actionofs != 0 && actionofs + 4u < (unsigned)g_scriptSize) ? &apScript[actionofs] : NULL;
-
-    if (actionptr != NULL)
-#endif
-    {
-#if !defined LUNATIC
-        int const action_frames = actionptr[1];
-        int const action_incval = actionptr[3];
-        int const action_delay = actionptr[4];
-#else
-        int const action_frames = actor[vm.spriteNum].ac.numframes;
-        int const action_incval = actor[vm.spriteNum].ac.incval;
-        int const action_delay = actor[vm.spriteNum].ac.delay;
-#endif
-        uint16_t *actionticsptr = &AC_ACTIONTICS(vm.pSprite, &actor[vm.spriteNum]);
-        *actionticsptr += TICSPERFRAME;
-
-        if (*actionticsptr > action_delay)
-        {
-            *actionticsptr = 0;
-            AC_ACTION_COUNT(vm.pData)++;
-            AC_CURFRAME(vm.pData) += action_incval;
-        }
-
-        if (klabs(AC_CURFRAME(vm.pData)) >= klabs(action_frames * action_incval))
-            AC_CURFRAME(vm.pData) = 0;
-    }
+    VM_UpdateAnim(vm.spriteNum, vm.pData);
 
 #ifdef LUNATIC
     int const picnum = vm.pSprite->picnum;
@@ -6016,6 +6019,27 @@ void G_SaveMapState(void)
         }
         else save->vars[i] = (intptr_t *)aGameVars[i].global;
     }
+
+    for (bssize_t i=g_gameArrayCount-1; i>=0; i--)
+    {
+        if ((aGameArrays[i].flags & GAMEARRAY_RESTORE) == 0)
+            continue;
+
+        int size;
+
+        switch (aGameArrays[i].flags & (GAMEARRAY_OFCHAR | GAMEARRAY_OFSHORT | GAMEARRAY_OFINT))
+        {
+            case GAMEARRAY_OFCHAR: size  = sizeof(uint8_t); break;
+            case GAMEARRAY_OFSHORT: size = sizeof(uint16_t); break;
+            case GAMEARRAY_OFINT: size   = sizeof(uint32_t); break;
+            default: size                = sizeof(uintptr_t); break;
+        }
+
+        if (!save->arrays[i])
+            save->arrays[i] = (intptr_t *)Xaligned_alloc(16, aGameArrays[i].size * size);
+
+        Bmemcpy(&save->arrays[i][0], &aGameArrays[i].pValues[0], aGameArrays[i].size * size);
+    }
 #else
     int32_t slen;
     const char *svcode = El_SerializeGamevars(&slen, levelNum);
@@ -6132,6 +6156,24 @@ void G_RestoreMapState(void)
         }
 
         Gv_RefreshPointers();
+
+        for (bssize_t i=g_gameArrayCount-1; i>=0; i--)
+        {
+            if ((aGameArrays[i].flags & GAMEARRAY_RESTORE) == 0 || !pSavedState->arrays[i])
+                continue;
+
+            int size;
+
+            switch (aGameArrays[i].flags & (GAMEARRAY_OFCHAR | GAMEARRAY_OFSHORT | GAMEARRAY_OFINT))
+            {
+                case GAMEARRAY_OFCHAR: size  = sizeof(uint8_t); break;
+                case GAMEARRAY_OFSHORT: size = sizeof(uint16_t); break;
+                case GAMEARRAY_OFINT: size   = sizeof(uint32_t); break;
+                default: size                = sizeof(uintptr_t); break;
+            }
+
+            Bmemcpy(&aGameArrays[i].pValues[0], &pSavedState->arrays[i][0], aGameArrays[i].size * size);
+        }
 #else
         if (pSavedState->savecode)
         {
