@@ -209,7 +209,7 @@ typedef struct {
 // KEEPINSYNC lunatic/defs.ilua
 typedef struct {
     DukePlayer_t *ps;
-    input_t *sync;
+    input_t *inputBits;
 
     int32_t netsynctime;
     int16_t ping, filler;
@@ -338,63 +338,59 @@ static inline void P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, u
     }
 }
 
-int32_t     A_GetHitscanRange(int32_t i);
-void        P_GetInput(int32_t snum);
-void        P_AddAmmo(int32_t weapon,DukePlayer_t *p,int32_t amount);
-void        P_AddWeapon(DukePlayer_t *p,int32_t weapon, int32_t doswitch);
-void        P_CheckWeapon(DukePlayer_t *p);
-void        P_DisplayScuba(void);
-void        P_DisplayWeapon(void);
-void        P_DropWeapon(int32_t snum);
-int32_t     P_FindOtherPlayer(int32_t p, int32_t *d);
-void        P_FragPlayer(int32_t snum);
-void        P_UpdatePosWhenViewingCam(DukePlayer_t *p);
-void        P_ProcessInput(int32_t snum);
-void        P_QuickKill(DukePlayer_t *p);
-void        P_SelectNextInvItem(DukePlayer_t *p);
-void        P_UpdateScreenPal(DukePlayer_t *p);
-void        P_EndLevel(void);
-
-void P_CheckWeaponI(int32_t snum);
-int P_GetHudPal(const DukePlayer_t *p);
+int32_t A_GetHitscanRange(int spriteNum);
+void    P_GetInput(int playerNum);
+void P_AddAmmo(DukePlayer_t *pPlayer, int weaponNum, int addAmount);
+void    P_AddWeapon(DukePlayer_t *pPlayer,int weaponNum, int switchWeapon);
+void    P_CheckWeapon(DukePlayer_t *pPlayer);
+void    P_DisplayScuba(void);
+void    P_DisplayWeapon(void);
+void    P_DropWeapon(int playerNum);
+int P_FindOtherPlayer(int playerNum, int32_t *d);
+void    P_FragPlayer(int playerNum);
+void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
+void    P_ProcessInput(int playerNum);
+void    P_QuickKill(DukePlayer_t *pPlayer);
+void    P_SelectNextInvItem(DukePlayer_t *pPlayer);
+void    P_UpdateScreenPal(DukePlayer_t *pPlayer);
+void    P_EndLevel(void);
+void    P_CheckWeaponI(int32_t playerNum);
+int     P_GetHudPal(const DukePlayer_t *pPlayer);
 
 int32_t Proj_GetDamage(projectile_t const * pProj);
 
 #if !defined LUNATIC
-void P_SetWeaponGamevars(int snum, const DukePlayer_t *p);
+void P_SetWeaponGamevars(int playerNum, const DukePlayer_t *pPlayer);
 #else
-void P_SetWeaponGamevars(int snum, const DukePlayer_t *p)
+void P_SetWeaponGamevars(int playerNum, const DukePlayer_t *pPlayer)
 {
-    UNREFERENCED_PARAMETER(snum);
-    UNREFERENCED_PARAMETER(p);
+    UNREFERENCED_PARAMETER(playerNum);
+    UNREFERENCED_PARAMETER(pPlayer);
 }
 #endif
 
 // Get the player index given an APLAYER sprite pointer.
-static inline int32_t P_GetP(const spritetype *spr)
+static inline int P_GetP(const void *pSprite)
 {
 #if 0  // unprotected player index retrieval
     return spr->yvel;
 #elif defined NETCODE_DISABLE
-    UNREFERENCED_PARAMETER(spr);  // for NDEBUG build
+    UNREFERENCED_PARAMETER(pSprite);  // for NDEBUG build
     // NOTE: In the no-netcode build, there's no point to pass player indices
     // at all since there is ever only one player. However, merely returning 0
     // would mean making this build less strict than the normal one.
-    Bassert(spr->yvel == 0);
+    Bassert(pSprite->yvel == 0);
     return 0;
 #else
-    int32_t pidx = spr->yvel;
-    if ((unsigned)pidx >= (unsigned)playerswhenstarted)
-        pidx = 0;
-    return pidx;
+    int playerNum = ((const uspritetype *)pSprite)->yvel;
+    if ((unsigned)playerNum >= (unsigned)playerswhenstarted)
+        playerNum = 0;
+    return playerNum;
 #endif
 }
 
 // Get the player index given an APLAYER sprite index.
-static inline int32_t P_Get(int32_t spritenum)
-{
-    return P_GetP(&sprite[spritenum]);
-}
+static inline int P_Get(int32_t spriteNum) { return P_GetP((const uspritetype *)&sprite[spriteNum]); }
 
 #ifdef __cplusplus
 }

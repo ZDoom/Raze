@@ -387,86 +387,86 @@ static inline int32_t calc_smoothratio(int32_t totalclk, int32_t ototalclk)
 }
 
 // sector effector lotags
-enum {
-    SE_0_ROTATING_SECTOR = 0,
-    SE_1_PIVOT = 1,
-    SE_2_EARTHQUAKE = 2,
+enum
+{
+    SE_0_ROTATING_SECTOR              = 0,
+    SE_1_PIVOT                        = 1,
+    SE_2_EARTHQUAKE                   = 2,
     SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT = 3,
-    SE_4_RANDOM_LIGHTS = 4,
-    SE_5 = 5,
-    SE_6_SUBWAY = 6,
+    SE_4_RANDOM_LIGHTS                = 4,
+    SE_5                              = 5,
+    SE_6_SUBWAY                       = 6,
     // ^^ potentially incomplete substitution in code
     // vv almost surely complete substitution
-    SE_7_TELEPORT = 7,
-    SE_8_UP_OPEN_DOOR_LIGHTS = 8,
-    SE_9_DOWN_OPEN_DOOR_LIGHTS = 9,
-    SE_10_DOOR_AUTO_CLOSE = 10,
-    SE_11_SWINGING_DOOR = 11,
-    SE_12_LIGHT_SWITCH = 12,
-    SE_13_EXPLOSIVE = 13,
-    SE_14_SUBWAY_CAR = 14,
-    SE_15_SLIDING_DOOR = 15,
-    SE_16_REACTOR = 16,
-    SE_17_WARP_ELEVATOR = 17,
+    SE_7_TELEPORT                      = 7,
+    SE_8_UP_OPEN_DOOR_LIGHTS           = 8,
+    SE_9_DOWN_OPEN_DOOR_LIGHTS         = 9,
+    SE_10_DOOR_AUTO_CLOSE              = 10,
+    SE_11_SWINGING_DOOR                = 11,
+    SE_12_LIGHT_SWITCH                 = 12,
+    SE_13_EXPLOSIVE                    = 13,
+    SE_14_SUBWAY_CAR                   = 14,
+    SE_15_SLIDING_DOOR                 = 15,
+    SE_16_REACTOR                      = 16,
+    SE_17_WARP_ELEVATOR                = 17,
     SE_18_INCREMENTAL_SECTOR_RISE_FALL = 18,
-    SE_19_EXPLOSION_LOWERS_CEILING = 19,
-    SE_20_STRETCH_BRIDGE = 20,
-    SE_21_DROP_FLOOR = 21,
-    SE_22_TEETH_DOOR = 22,
-    SE_23_ONE_WAY_TELEPORT = 23,
-    SE_24_CONVEYOR = 24,
-    SE_25_PISTON = 25,
-    SE_26 = 26,
-    SE_27_DEMO_CAM = 27,
-    SE_28_LIGHTNING = 28,
-    SE_29_WAVES = 29,
-    SE_30_TWO_WAY_TRAIN = 30,
-    SE_31_FLOOR_RISE_FALL = 31,
-    SE_32_CEILING_RISE_FALL = 32,
-    SE_33_QUAKE_DEBRIS = 33,
-    SE_34 = 34,  // XXX
-    SE_35 = 35,  // XXX
-    SE_36_PROJ_SHOOTER = 36,
-    SE_49_POINT_LIGHT = 49,
-    SE_50_SPOT_LIGHT = 50,
-    SE_130 = 130,
-    SE_131 = 131,
+    SE_19_EXPLOSION_LOWERS_CEILING     = 19,
+    SE_20_STRETCH_BRIDGE               = 20,
+    SE_21_DROP_FLOOR                   = 21,
+    SE_22_TEETH_DOOR                   = 22,
+    SE_23_ONE_WAY_TELEPORT             = 23,
+    SE_24_CONVEYOR                     = 24,
+    SE_25_PISTON                       = 25,
+    SE_26                              = 26,
+    SE_27_DEMO_CAM                     = 27,
+    SE_28_LIGHTNING                    = 28,
+    SE_29_WAVES                        = 29,
+    SE_30_TWO_WAY_TRAIN                = 30,
+    SE_31_FLOOR_RISE_FALL              = 31,
+    SE_32_CEILING_RISE_FALL            = 32,
+    SE_33_QUAKE_DEBRIS                 = 33,
+    SE_34                              = 34,  // XXX
+    SE_35                              = 35,  // XXX
+    SE_36_PROJ_SHOOTER                 = 36,
+    SE_49_POINT_LIGHT                  = 49,
+    SE_50_SPOT_LIGHT                   = 50,
+    SE_130                             = 130,
+    SE_131                             = 131,
 };
 
 // sector lotags
-enum {
+enum
+{
+    ST_0_NO_EFFECT   = 0,
     ST_1_ABOVE_WATER = 1,
-    ST_2_UNDERWATER = 2,
-    ST_3 = 3,
+    ST_2_UNDERWATER  = 2,
+    ST_3             = 3,
     // ^^^ maybe not complete substitution in code
-    ST_9_SLIDING_ST_DOOR = 9,
-    ST_15_WARP_ELEVATOR = 15,
-    ST_16_PLATFORM_DOWN = 16,
-    ST_17_PLATFORM_UP = 17,
-    ST_18_ELEVATOR_DOWN = 18,
-    ST_19_ELEVATOR_UP = 19,
-    ST_20_CEILING_DOOR = 20,
-    ST_21_FLOOR_DOOR = 21,
-    ST_22_SPLITTING_DOOR = 22,
-    ST_23_SWINGING_DOOR = 23,
-    ST_25_SLIDING_DOOR = 25,
-    ST_26_SPLITTING_ST_DOOR = 26,
-    ST_27_STRETCH_BRIDGE = 27,
-    ST_28_DROP_FLOOR = 28,
-    ST_29_TEETH_DOOR = 29,
+    ST_9_SLIDING_ST_DOOR     = 9,
+    ST_15_WARP_ELEVATOR      = 15,
+    ST_16_PLATFORM_DOWN      = 16,
+    ST_17_PLATFORM_UP        = 17,
+    ST_18_ELEVATOR_DOWN      = 18,
+    ST_19_ELEVATOR_UP        = 19,
+    ST_20_CEILING_DOOR       = 20,
+    ST_21_FLOOR_DOOR         = 21,
+    ST_22_SPLITTING_DOOR     = 22,
+    ST_23_SWINGING_DOOR      = 23,
+    ST_25_SLIDING_DOOR       = 25,
+    ST_26_SPLITTING_ST_DOOR  = 26,
+    ST_27_STRETCH_BRIDGE     = 27,
+    ST_28_DROP_FLOOR         = 28,
+    ST_29_TEETH_DOOR         = 29,
     ST_30_ROTATE_RISE_BRIDGE = 30,
-    ST_31_TWO_WAY_TRAIN = 31,
+    ST_31_TWO_WAY_TRAIN      = 31,
     // left: ST 32767, 65534, 65535
 };
 
 
-# define G_ModDirSnprintf(buf, size, basename, ...) \
-( \
-    ( \
-        (g_modDir[0] != '/') ? \
-            Bsnprintf(buf, size, "%s/" basename, g_modDir, ## __VA_ARGS__) : \
-            Bsnprintf(buf, size, basename, ## __VA_ARGS__) \
-    ) >= ((int32_t)size)-1 \
+#define G_ModDirSnprintf(buf, size, basename, ...)                                                                          \
+    \
+(((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/" basename, g_modDir, ##__VA_ARGS__)                                      \
+                       : Bsnprintf(buf, size, basename, ##__VA_ARGS__)) >= ((int32_t)size) - 1\
 )
 
 static inline void G_NewGame_EnterLevel(void)
@@ -477,14 +477,14 @@ static inline void G_NewGame_EnterLevel(void)
         G_BackToMenu();
 }
 
-static inline int32_t G_GetMusicIdx(const char *str)
+static inline int G_GetMusicIdx(const char *str)
 {
     int32_t lev, ep;
-    char b1, b2;
+    char    b1, b2;
 
-    int32_t matches = sscanf(str, "%c%d%c%d", &b1,&ep, &b2,&lev);
+    int numMatches = sscanf(str, "%c%d%c%d", &b1,&ep, &b2,&lev);
 
-    if (matches != 4 || Btoupper(b1) != 'E' || Btoupper(b2) != 'L')
+    if (numMatches != 4 || Btoupper(b1) != 'E' || Btoupper(b2) != 'L')
         return -1;
 
     if ((unsigned)--lev >= MAXLEVELS || (unsigned)--ep >= MAXVOLUMES)

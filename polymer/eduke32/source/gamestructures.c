@@ -775,7 +775,7 @@ int32_t __fastcall VM_GetPlayerInput(register int32_t const playerNum, register 
         return -1;
     }
 
-    input_t * const i = g_player[playerNum].sync;
+    input_t * const i = g_player[playerNum].inputBits;
 
     switch (labelNum)
     {
@@ -799,7 +799,7 @@ void __fastcall VM_SetPlayerInput(register int32_t const playerNum, register int
         return;
     }
 
-    input_t * const i = g_player[playerNum].sync;
+    input_t * const i = g_player[playerNum].inputBits;
 
     switch (labelNum)
     {

@@ -310,7 +310,7 @@ void G_DoCheats(void)
 
                     for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS-j; weapon++)
                     {
-                        P_AddAmmo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
+                        P_AddAmmo(g_player[myconnectindex].ps, weapon, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
                         g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
                     }
 
@@ -402,7 +402,7 @@ void G_DoCheats(void)
                                 g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
 
                             for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
-                                P_AddAmmo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
+                                P_AddAmmo(g_player[myconnectindex].ps, weapon, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
 
                             g_player[myconnectindex].ps->got_access = 7;
                         }
@@ -435,7 +435,7 @@ void G_DoCheats(void)
                         g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
 
                     for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS-j; weapon++)
-                        P_AddAmmo(weapon, g_player[myconnectindex].ps, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
+                        P_AddAmmo(g_player[myconnectindex].ps, weapon, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
 
                     G_CheatGetInv();
                     g_player[myconnectindex].ps->got_access = 7;

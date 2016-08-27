@@ -781,7 +781,7 @@ static int32_t osdcmd_give(const osdfuncparm_t *parm)
     else if (!Bstrcasecmp(parm->parms[0], "ammo"))
     {
         for (i=MAX_WEAPONS-(VOLUMEONE?6:1)-1; i>=PISTOL_WEAPON; i--)
-            P_AddAmmo(i,g_player[myconnectindex].ps,g_player[myconnectindex].ps->max_ammo_amount[i]);
+            P_AddAmmo(g_player[myconnectindex].ps,i,g_player[myconnectindex].ps->max_ammo_amount[i]);
         return OSDCMD_OK;
     }
     else if (!Bstrcasecmp(parm->parms[0], "armor"))

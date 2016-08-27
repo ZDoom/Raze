@@ -85,7 +85,7 @@ G_EXTERN char tempbuf[MAXSECTORS<<1],packbuf[PACKBUF_SIZE],menutextbuf[128],buf[
 G_EXTERN char typebuf[TYPEBUFSIZE];
 
 G_EXTERN input_t avg;
-G_EXTERN input_t loc;
+G_EXTERN input_t localInput;
 G_EXTERN input_t recsync[RECSYNCBUFSIZ];
 G_EXTERN int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
 G_EXTERN int16_t animatesect[MAXANIMATES];

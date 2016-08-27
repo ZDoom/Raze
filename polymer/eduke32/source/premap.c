@@ -1662,13 +1662,13 @@ void G_ClearFIFO(void)
 
     Bmemset(&avg, 0, sizeof(input_t));
 
-    clearbufbyte(&loc,sizeof(input_t),0L);
+    clearbufbyte(&localInput,sizeof(input_t),0L);
     clearbufbyte(&inputfifo,sizeof(input_t)*MOVEFIFOSIZ*MAXPLAYERS,0L);
 
     for (; i >= 0; i--)
     {
-        if (g_player[i].sync != NULL)
-            Bmemset(g_player[i].sync, 0, sizeof(input_t));
+        if (g_player[i].inputBits != NULL)
+            Bmemset(g_player[i].inputBits, 0, sizeof(input_t));
         g_player[i].vote = g_player[i].gotvote = 0;
     }
 }

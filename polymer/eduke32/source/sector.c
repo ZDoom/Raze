@@ -1966,7 +1966,7 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
     case FUELPOD__STATIC:
     case SOLARPANNEL__STATIC:
     case ANTENNA__STATIC:
-        if (sprite[damageSrc].extra != G_InitialActorStrength(SHOTSPARK1))
+        if (sprite[damageSrc].extra != G_DefaultActorHealth(SHOTSPARK1))
         {
             for (int j=15; j>0; j--)
                 A_InsertSprite(SECT(spriteNum),SX(spriteNum),SY(spriteNum),sector[SECT(spriteNum)].floorz-ZOFFSET4-(j<<9),SCRAP1+(krand()&15),-8,64,64,
@@ -2344,7 +2344,7 @@ void P_HandleSharedKeys(int32_t playerNum)
 
     if (pPlayer->cheat_phase == 1) return;
 
-    uint32_t playerBits = g_player[playerNum].sync->bits, weaponNum;
+    uint32_t playerBits = g_player[playerNum].inputBits->bits, weaponNum;
 
     // 1<<0  =  jump
     // 1<<1  =  crouch
@@ -2922,25 +2922,25 @@ void P_CheckSectors(int playerNum)
     if (pPlayer->gm &MODE_TYPE || sprite[pPlayer->i].extra <= 0)
         return;
 
-    if (TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_OPEN))
+    if (TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_OPEN))
     {
         if (VM_OnEvent(EVENT_USE, pPlayer->i, playerNum) != 0)
-            g_player[playerNum].sync->bits &= ~BIT(SK_OPEN);
+            g_player[playerNum].inputBits->bits &= ~BIT(SK_OPEN);
     }
 
-    if (ud.cashman && TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_OPEN))
+    if (ud.cashman && TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_OPEN))
         A_SpawnMultiple(pPlayer->i, MONEY, 2);
 
     if (pPlayer->newowner >= 0)
     {
-        if (klabs(g_player[playerNum].sync->svel) > 768 || klabs(g_player[playerNum].sync->fvel) > 768)
+        if (klabs(g_player[playerNum].inputBits->svel) > 768 || klabs(g_player[playerNum].inputBits->fvel) > 768)
         {
             G_ClearCameras(pPlayer);
             return;
         }
     }
 
-    if (!TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_OPEN) && !TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_ESCAPE))
+    if (!TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_OPEN) && !TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_ESCAPE))
         pPlayer->toggle_key_flag = 0;
     else if (!pPlayer->toggle_key_flag)
     {
@@ -2949,7 +2949,7 @@ void P_CheckSectors(int playerNum)
         int16_t neartagsector, neartagwall, neartagsprite;
         int32_t neartaghitdist;
 
-        if (TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_ESCAPE))
+        if (TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_ESCAPE))
         {
             if (pPlayer->newowner >= 0)
                 G_ClearCameras(pPlayer);
@@ -3150,7 +3150,7 @@ void P_CheckSectors(int playerNum)
             }  // switch
         }
 
-        if (TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_OPEN) == 0)
+        if (TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_OPEN) == 0)
             return;
 
         if (pPlayer->newowner >= 0)

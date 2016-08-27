@@ -3476,7 +3476,7 @@ static inline void G_DoEventAnimSprites(int32_t j)
 
 void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothratio)
 {
-    int32_t j, k, p;
+    int32_t j, k, playerNum;
     intptr_t l;
 
     if (spritesortcnt == 0)
@@ -3614,15 +3614,15 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         const int32_t i = t->owner;
         // XXX: what's up with the (i < 0) check?
         // NOTE: not const spritetype because set at SET_SPRITE_NOT_TSPRITE (see below).
-        uspritetype *const s = (i < 0) ? &tsprite[j] : (uspritetype *)&sprite[i];
+        uspritetype *const pSprite = (i < 0) ? &tsprite[j] : (uspritetype *)&sprite[i];
 
-        if (ud.lockout && G_CheckAdultTile(DYNAMICTILEMAP(s->picnum)))
+        if (ud.lockout && G_CheckAdultTile(DYNAMICTILEMAP(pSprite->picnum)))
         {
             t->xrepeat = t->yrepeat = 0;
             continue;
         }
 
-        if (s->picnum == NATURALLIGHTNING)
+        if (pSprite->picnum == NATURALLIGHTNING)
         {
             t->shade = -127;
             t->cstat |= 8192;
@@ -3633,7 +3633,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
         Bassert(i >= 0);
 
-        const DukePlayer_t *const ps = (s->statnum != STAT_ACTOR && s->picnum == APLAYER && s->owner >= 0) ? g_player[P_GetP((const spritetype *)s)].ps : NULL;
+        const DukePlayer_t *const ps = (pSprite->statnum != STAT_ACTOR && pSprite->picnum == APLAYER && pSprite->owner >= 0) ? g_player[P_GetP(pSprite)].ps : NULL;
         if (ps && ps->newowner == -1)
         {
             t->x -= mulscale16(65536-smoothratio,ps->pos.x-ps->opos.x);
@@ -3643,15 +3643,15 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             t->z += mulscale16(smoothratio,ps->pos.z-ps->opos.z) -
                 (ps->dead_flag ? 0 : PHEIGHT) + PHEIGHT;
         }
-        else if ((s->statnum == STAT_DEFAULT && s->picnum != CRANEPOLE) || s->statnum == STAT_PLAYER ||
-                 s->statnum == STAT_STANDABLE || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC || s->statnum == STAT_ACTOR)
+        else if ((pSprite->statnum == STAT_DEFAULT && pSprite->picnum != CRANEPOLE) || pSprite->statnum == STAT_PLAYER ||
+                 pSprite->statnum == STAT_STANDABLE || pSprite->statnum == STAT_PROJECTILE || pSprite->statnum == STAT_MISC || pSprite->statnum == STAT_ACTOR)
         {
-            t->x -= mulscale16(65536-smoothratio,s->x-actor[i].bpos.x);
-            t->y -= mulscale16(65536-smoothratio,s->y-actor[i].bpos.y);
-            t->z -= mulscale16(65536-smoothratio,s->z-actor[i].bpos.z);
+            t->x -= mulscale16(65536-smoothratio,pSprite->x-actor[i].bpos.x);
+            t->y -= mulscale16(65536-smoothratio,pSprite->y-actor[i].bpos.y);
+            t->z -= mulscale16(65536-smoothratio,pSprite->z-actor[i].bpos.z);
         }
 
-        const int32_t sect = s->sectnum;
+        const int32_t sect = pSprite->sectnum;
 
         curframe = AC_CURFRAME(actor[i].t_data);
 #if !defined LUNATIC
@@ -3660,12 +3660,12 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         startframe = actor[i].ac.startframe;
         viewtype = actor[i].ac.viewtype;
 #endif
-        switchpic = s->picnum;
+        switchpic = pSprite->picnum;
         // Some special cases because dynamictostatic system can't handle
         // addition to constants.
-        if ((s->picnum >= SCRAP6) && (s->picnum<=SCRAP6+7))
+        if ((pSprite->picnum >= SCRAP6) && (pSprite->picnum<=SCRAP6+7))
             switchpic = SCRAP5;
-        else if ((s->picnum==MONEY+1) || (s->picnum==MAIL+1) || (s->picnum==PAPER+1))
+        else if ((pSprite->picnum==MONEY+1) || (pSprite->picnum==MAIL+1) || (pSprite->picnum==PAPER+1))
             switchpic--;
 
         switch (DYNAMICTILEMAP(switchpic))
@@ -3687,7 +3687,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             //case MAIL+1__STATIC:
         case PAPER__STATIC:
             //case PAPER+1__STATIC:
-            if (ud.lockout && s->pal == 2)
+            if (ud.lockout && pSprite->pal == 2)
             {
                 t->xrepeat = t->yrepeat = 0;
                 continue;
@@ -3698,35 +3698,28 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         case FORCESPHERE__STATIC:
             if (t->statnum == STAT_MISC)
             {
-                int16_t sqa,sqb;
-
-                sqa =
-                    getangle(
-                        sprite[s->owner].x-g_player[screenpeek].ps->pos.x,
-                        sprite[s->owner].y-g_player[screenpeek].ps->pos.y);
-                sqb =
-                    getangle(
-                        sprite[s->owner].x-t->x,
-                        sprite[s->owner].y-t->y);
+                int16_t const sqa = getangle(sprite[pSprite->owner].x - g_player[screenpeek].ps->pos.x,
+                                       sprite[pSprite->owner].y - g_player[screenpeek].ps->pos.y);
+                int16_t const sqb = getangle(sprite[pSprite->owner].x - t->x, sprite[pSprite->owner].y - t->y);
 
                 if (klabs(G_GetAngleDelta(sqa,sqb)) > 512)
-                    if (ldist(&sprite[s->owner],(const spritetype *)t) < ldist(&sprite[g_player[screenpeek].ps->i],&sprite[s->owner]))
+                    if (ldist(&sprite[pSprite->owner],(const spritetype *)t) < ldist(&sprite[g_player[screenpeek].ps->i],&sprite[pSprite->owner]))
                         t->xrepeat = t->yrepeat = 0;
             }
             continue;
         case BURNING__STATIC:
         case BURNING2__STATIC:
-            if (sprite[s->owner].statnum == STAT_PLAYER)
+            if (sprite[pSprite->owner].statnum == STAT_PLAYER)
             {
-                const int32_t snum = P_Get(s->owner);
+                int const playerNum = P_Get(pSprite->owner);
 
-                if (display_mirror == 0 && snum == screenpeek && g_player[snum].ps->over_shoulder_on == 0)
+                if (display_mirror == 0 && playerNum == screenpeek && g_player[playerNum].ps->over_shoulder_on == 0)
                     t->xrepeat = 0;
                 else
                 {
-                    t->ang = getangle(ourx-t->x, oury-t->y);
-                    t->x = sprite[s->owner].x + (sintable[(t->ang+512)&2047]>>10);
-                    t->y = sprite[s->owner].y + (sintable[t->ang&2047]>>10);
+                    t->ang = getangle(ourx - t->x, oury - t->y);
+                    t->x   = sprite[pSprite->owner].x + (sintable[(t->ang + 512) & 2047] >> 10);
+                    t->y   = sprite[pSprite->owner].y + (sintable[t->ang & 2047] >> 10);
                 }
             }
             break;
@@ -3740,8 +3733,8 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
         {
-            const int viewscrShift = G_GetViewscreenSizeShift(t);
-            const int viewscrTile = TILE_VIEWSCR-viewscrShift;
+            int const viewscrShift = G_GetViewscreenSizeShift(t);
+            int const viewscrTile = TILE_VIEWSCR-viewscrShift;
 
             if (g_curViewscreen >= 0 && actor[OW(i)].t_data[0] == 1)
             {
@@ -3794,7 +3787,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 break;
             }
 #endif
-            k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury), 0);
+            k = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), 0);
             t->picnum = RPG+k;
             break;
 
@@ -3806,7 +3799,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 break;
             }
 #endif
-            k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury), 0);
+            k = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), 0);
 
             // RECON_T4
             if (klabs(curframe) > 64)
@@ -3817,31 +3810,31 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             break;
 
         case APLAYER__STATIC:
-            p = P_GetP((const spritetype *)s);
+            playerNum = P_GetP(pSprite);
 
             if (t->pal == 1) t->z -= (18<<8);
 
-            if (g_player[p].ps->over_shoulder_on > 0 && g_player[p].ps->newowner < 0)
+            if (g_player[playerNum].ps->over_shoulder_on > 0 && g_player[playerNum].ps->newowner < 0)
             {
-                t->ang = g_player[p].ps->ang +
-                    mulscale16((((g_player[p].ps->ang+1024 - g_player[p].ps->oang)&2047)-1024),
+                t->ang = g_player[playerNum].ps->ang +
+                    mulscale16((((g_player[playerNum].ps->ang+1024 - g_player[playerNum].ps->oang)&2047)-1024),
                                smoothratio);
 #ifdef USE_OPENGL
                 if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
                 {
                     static int32_t targetang = 0;
 
-                    if (g_player[p].sync->extbits&(1<<1))
+                    if (g_player[playerNum].inputBits->extbits&(1<<1))
                     {
-                        if (g_player[p].sync->extbits&(1<<2))targetang += 16;
-                        else if (g_player[p].sync->extbits&(1<<3)) targetang -= 16;
+                        if (g_player[playerNum].inputBits->extbits&(1<<2))targetang += 16;
+                        else if (g_player[playerNum].inputBits->extbits&(1<<3)) targetang -= 16;
                         else if (targetang > 0) targetang -= targetang>>2;
                         else if (targetang < 0) targetang += (-targetang)>>2;
                     }
                     else
                     {
-                        if (g_player[p].sync->extbits&(1<<2))targetang -= 16;
-                        else if (g_player[p].sync->extbits&(1<<3)) targetang += 16;
+                        if (g_player[playerNum].inputBits->extbits&(1<<2))targetang -= 16;
+                        else if (g_player[playerNum].inputBits->extbits&(1<<3)) targetang += 16;
                         else if (targetang > 0) targetang -= targetang>>2;
                         else if (targetang < 0) targetang += (-targetang)>>2;
                     }
@@ -3854,13 +3847,13 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     t->cstat |= 2;
             }
 
-            if ((g_netServer || ud.multimode > 1) && (display_mirror || screenpeek != p || s->owner == -1))
+            if ((g_netServer || ud.multimode > 1) && (display_mirror || screenpeek != playerNum || pSprite->owner == -1))
             {
-                if (ud.showweapons && sprite[g_player[p].ps->i].extra > 0 && g_player[p].ps->curr_weapon > 0
+                if (ud.showweapons && sprite[g_player[playerNum].ps->i].extra > 0 && g_player[playerNum].ps->curr_weapon > 0
                         && spritesortcnt < MAXSPRITESONSCREEN)
                 {
                     uspritetype *const newt = &tsprite[spritesortcnt];
-                    int32_t curweap = g_player[p].ps->curr_weapon;
+                    int32_t curweap = g_player[playerNum].ps->curr_weapon;
 
                     Bmemcpy(newt, t, sizeof(spritetype));
 
@@ -3874,10 +3867,10 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
                     newt->picnum = (curweap==GROW_WEAPON ? GROWSPRITEICON : WeaponPickupSprites[curweap]);
 
-                    if (s->owner >= 0)
-                        newt->z = g_player[p].ps->pos.z-ZOFFSET4;
+                    if (pSprite->owner >= 0)
+                        newt->z = g_player[playerNum].ps->pos.z-ZOFFSET4;
                     else
-                        newt->z = s->z-(51<<8);
+                        newt->z = pSprite->z-(51<<8);
 
                     if (newt->picnum == HEAVYHBOMB)
                         newt->xrepeat = newt->yrepeat = 10;
@@ -3887,63 +3880,61 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     spritesortcnt++;
                 }
 
-                if (g_player[p].sync->extbits & (1<<7) && !ud.pause_on && spritesortcnt<MAXSPRITESONSCREEN)
+                if (g_player[playerNum].inputBits->extbits & (1<<7) && !ud.pause_on && spritesortcnt<MAXSPRITESONSCREEN)
                 {
-                    uspritetype *const newt = &tsprite[spritesortcnt];
+                    uspritetype *const tSpawned = t;
 
-                    Bmemcpy(newt, t, sizeof(spritetype));
+                    tSpawned->statnum = TSPR_TEMP;
+                    tSpawned->yrepeat = (t->yrepeat >> 3);
 
-                    newt->statnum = TSPR_TEMP;
+                    if (tSpawned->yrepeat < 4)
+                        tSpawned->yrepeat = 4;
 
-                    newt->yrepeat = (t->yrepeat>>3);
-                    if (newt->yrepeat < 4) newt->yrepeat = 4;
+                    tSpawned->cstat  = 0;
+                    tSpawned->picnum = RESPAWNMARKERGREEN;
 
-                    newt->cstat = 0;
-                    newt->picnum = RESPAWNMARKERGREEN;
+                    tSpawned->z = (pSprite->owner >= 0)
+                                  ? g_player[playerNum].ps->pos.z - (20 << 8)
+                                  : tSpawned->z = pSprite->z - (96 << 8);
 
-                    if (s->owner >= 0)
-                        newt->z = g_player[p].ps->pos.z-(20<<8);
-                    else
-                        newt->z = s->z-(96<<8);
-
-                    newt->xrepeat = newt->yrepeat = 32;
-                    newt->pal = 20;
+                    tSpawned->xrepeat = tSpawned->yrepeat = 32;
+                    tSpawned->pal = 20;
 
                     spritesortcnt++;
                 }
             }
 
-            if (s->owner == -1)
+            if (pSprite->owner == -1)
             {
 #ifdef USE_OPENGL
-                if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     k = 0;
                     t->cstat &= ~4;
                 }
                 else
 #endif
-                    k = getofs_viewtype5(s, t, oura, 0);
+                    k = getofs_viewtype5(pSprite, t, oura, 0);
 
-                if (sector[s->sectnum].lotag == ST_2_UNDERWATER) k += 1795-1405;
-                else if ((actor[i].floorz-s->z) > (64<<8)) k += 60;
+                if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER) k += 1795-1405;
+                else if ((actor[i].floorz-pSprite->z) > (64<<8)) k += 60;
 
                 t->picnum += k;
-                t->pal = g_player[p].ps->palookup;
+                t->pal = g_player[playerNum].ps->palookup;
 
                 goto PALONLY;
             }
 
-            if (g_player[p].ps->on_crane == -1 && (sector[s->sectnum].lotag&0x7ff) != 1)  // ST_1_ABOVE_WATER ?
+            if (g_player[playerNum].ps->on_crane == -1 && (sector[pSprite->sectnum].lotag&0x7ff) != 1)  // ST_1_ABOVE_WATER ?
             {
-                l = s->z-actor[g_player[p].ps->i].floorz+(3<<8);
+                l = pSprite->z-actor[g_player[playerNum].ps->i].floorz+(3<<8);
                 // SET_SPRITE_NOT_TSPRITE
-                if (l > 1024 && s->yrepeat > 32 && s->extra > 0)
-                    s->yoffset = (int8_t)tabledivide32_noinline(l, s->yrepeat<<2);
-                else s->yoffset=0;
+                if (l > 1024 && pSprite->yrepeat > 32 && pSprite->extra > 0)
+                    pSprite->yoffset = (int8_t)tabledivide32_noinline(l, pSprite->yrepeat<<2);
+                else pSprite->yoffset=0;
             }
 
-            if (g_player[p].ps->newowner > -1)
+            if (g_player[playerNum].ps->newowner > -1)
             {
                 // Display APLAYER sprites with action PSTAND when viewed through
                 // a camera.  Not implemented for Lunatic.
@@ -3956,9 +3947,11 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 curframe = 0;
             }
 
-            if (ud.camerasprite == -1 && g_player[p].ps->newowner == -1)
-                if (s->owner >= 0 && display_mirror == 0 && g_player[p].ps->over_shoulder_on == 0)
-                    if ((!g_netServer && ud.multimode < 2) || ((g_netServer || ud.multimode > 1) && p == screenpeek))
+            if (ud.camerasprite == -1 && g_player[playerNum].ps->newowner == -1)
+            {
+                if (pSprite->owner >= 0 && display_mirror == 0 && g_player[playerNum].ps->over_shoulder_on == 0)
+                {
+                    if ((!g_netServer && ud.multimode < 2) || ((g_netServer || ud.multimode > 1) && playerNum == screenpeek))
                     {
                         if (getrendermode() == REND_POLYMER)
                             t->cstat |= 16384;
@@ -3970,25 +3963,27 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                         }
 
 #ifdef USE_OPENGL
-                        if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                        if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                         {
                             k = 0;
                             t->cstat &= ~4;
                         }
                         else
 #endif
-                            k = getofs_viewtype5(s, t, oura, 0);
+                            k = getofs_viewtype5(pSprite, t, oura, 0);
 
                         if (sector[t->sectnum].lotag == ST_2_UNDERWATER) k += 1795-1405;
-                        else if ((actor[i].floorz-s->z) > (64<<8)) k += 60;
+                        else if ((actor[i].floorz-pSprite->z) > (64<<8)) k += 60;
 
                         t->picnum += k;
-                        t->pal = g_player[p].ps->palookup;
+                        t->pal = g_player[playerNum].ps->palookup;
                     }
+                }
+            }
 PALONLY:
             G_MaybeTakeOnFloorPal(t, sect);
 
-            if (s->owner == -1) continue;
+            if (pSprite->owner == -1) continue;
 
             if (t->z > actor[i].floorz && t->xrepeat < 32)
                 t->z = actor[i].floorz;
@@ -4023,8 +4018,8 @@ PALONLY:
         case SCRAP3__STATIC:
         case SCRAP4__STATIC:
         case SCRAP5__STATIC:
-            if (actor[i].picnum == BLIMP && t->picnum == SCRAP1 && s->yvel >= 0)
-                t->picnum = s->yvel < MAXUSERTILES ? s->yvel : 0;
+            if (actor[i].picnum == BLIMP && t->picnum == SCRAP1 && pSprite->yvel >= 0)
+                t->picnum = pSprite->yvel < MAXUSERTILES ? pSprite->yvel : 0;
             else t->picnum += T1(i);
             t->shade -= 6;
 
@@ -4042,7 +4037,7 @@ PALONLY:
             break;
         }
 
-        if (G_HaveActor(s->picnum))
+        if (G_HaveActor(pSprite->picnum))
         {
 #if !defined LUNATIC
             if ((unsigned)scrofs_action + 2 >= (unsigned)g_scriptSize)
@@ -4054,7 +4049,7 @@ PALONLY:
 #endif
 
 #ifdef USE_OPENGL
-            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(s->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 k = 0;
                 t->cstat &= ~4;
@@ -4064,12 +4059,12 @@ PALONLY:
                 switch (l)
                 {
                 case 2:
-                    k = (((s->ang+3072+128-oura)&2047)>>8)&1;
+                    k = (((pSprite->ang+3072+128-oura)&2047)>>8)&1;
                     break;
 
                 case 3:
                 case 4:
-                    k = (((s->ang+3072+128-oura)&2047)>>7)&7;
+                    k = (((pSprite->ang+3072+128-oura)&2047)>>7)&7;
                     if (k > 3)
                     {
                         t->cstat |= 4;
@@ -4080,18 +4075,18 @@ PALONLY:
 
                 case 5:
                 case -5:
-                    k = getofs_viewtype5(s, t, getangle(s->x-ourx, s->y-oury), l<0);
+                    k = getofs_viewtype5(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), l<0);
                     break;
                 case 7:
                 case -7:
-                    k = getofs_viewtype7(s, t, getangle(s->x-ourx, s->y-oury), l<0);
+                    k = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), l<0);
                     break;
                 case 8:
                 case -8:
                     if (l > 0)
-                        k = (((s->ang+3072+128-oura)&2047)>>8)&7;
+                        k = (((pSprite->ang+3072+128-oura)&2047)>>8)&7;
                     else
-                        k = (((oura+3072+128-s->ang)&2047)>>8)&7;
+                        k = (((oura+3072+128-pSprite->ang)&2047)>>8)&7;
                     t->cstat &= ~4;
                     break;
                 default:
@@ -4128,15 +4123,15 @@ skip:
         // player has nightvision on.  We should pass stuff like "from which player is this view
         // supposed to be" as parameters ("drawing context") instead of relying on globals.
         if (g_player[screenpeek].ps->inv_amount[GET_HEATS] > 0 && g_player[screenpeek].ps->heat_on &&
-                (A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || s->picnum == APLAYER || s->statnum == STAT_DUMMYPLAYER))
+                (A_CheckEnemySprite(pSprite) || A_CheckSpriteFlags(t->owner,SFLAG_NVG) || pSprite->picnum == APLAYER || pSprite->statnum == STAT_DUMMYPLAYER))
         {
             t->pal = 6;
             t->shade = 0;
         }
 
         // Fake floor shadow, implemented by inserting a new tsprite.
-        if (s->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(s) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (s->picnum == APLAYER && s->owner >= 0))
-            if (t->statnum != TSPR_TEMP && s->picnum != EXPLOSION2 && s->picnum != HANGLIGHT && s->picnum != DOMELITE && s->picnum != HOTMEAT)
+        if (pSprite->statnum == STAT_DUMMYPLAYER || A_CheckEnemySprite(pSprite) || A_CheckSpriteFlags(t->owner,SFLAG_SHADOW) || (pSprite->picnum == APLAYER && pSprite->owner >= 0))
+            if (t->statnum != TSPR_TEMP && pSprite->picnum != EXPLOSION2 && pSprite->picnum != HANGLIGHT && pSprite->picnum != DOMELITE && pSprite->picnum != HOTMEAT)
             {
                 if (actor[i].dispicnum < 0)
                 {
@@ -4154,15 +4149,12 @@ skip:
 
                 if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != REND_POLYMER)
                 {
-                    int32_t daz;
+                    int32_t daz = ((sector[sect].lotag & 0xff) > 2 || pSprite->statnum == STAT_PROJECTILE ||
+                                   pSprite->statnum == STAT_MISC || pSprite->picnum == DRONE || pSprite->picnum == COMMANDER)
+                                  ? sector[sect].floorz
+                                  : daz = actor[i].floorz;
 
-                    if ((sector[sect].lotag&0xff) > 2 || s->statnum == STAT_PROJECTILE || s->statnum == STAT_MISC
-                        || s->picnum == DRONE || s->picnum == COMMANDER)
-                        daz = sector[sect].floorz;
-                    else
-                        daz = actor[i].floorz;
-
-                    if ((s->z-daz) < ZOFFSET3 && g_player[screenpeek].ps->pos.z < daz)
+                    if ((pSprite->z-daz) < ZOFFSET3 && g_player[screenpeek].ps->pos.z < daz)
                     {
                         uspritetype *const newt = &tsprite[spritesortcnt];
 
@@ -4206,11 +4198,11 @@ skip:
                 }
             }
 
-        switch (DYNAMICTILEMAP(s->picnum))
+        switch (DYNAMICTILEMAP(pSprite->picnum))
         {
         case LASERLINE__STATIC:
             if (sector[t->sectnum].lotag == ST_2_UNDERWATER) t->pal = 8;
-            t->z = sprite[s->owner].z-(3<<8);
+            t->z = sprite[pSprite->owner].z-(3<<8);
             if (g_tripbombLaserMode == 2 && g_player[screenpeek].ps->heat_on == 0)
                 t->yrepeat = 0;
         case EXPLOSION2__STATIC:
@@ -4237,7 +4229,7 @@ skip:
             t->cstat |= 128;
         case BURNING__STATIC:
         case BURNING2__STATIC:
-            if (sprite[s->owner].picnum != TREE1 && sprite[s->owner].picnum != TREE2)
+            if (sprite[pSprite->owner].picnum != TREE1 && sprite[pSprite->owner].picnum != TREE2)
                 t->z = actor[t->owner].floorz;
             t->shade = -127;
         case SMALLSMOKE__STATIC:
@@ -4246,11 +4238,11 @@ skip:
         case COOLEXPLOSION1__STATIC:
             t->shade = -127;
             t->cstat |= 8192+1024;
-            t->picnum += (s->shade>>1);
+            t->picnum += (pSprite->shade>>1);
             break;
         case PLAYERONWATER__STATIC:
 #ifdef USE_OPENGL
-            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 k = 0;
                 t->cstat &= ~4;
@@ -4259,8 +4251,8 @@ skip:
 #endif
                 k = getofs_viewtype5(t, t, oura, 0);
 
-            t->picnum = s->picnum+k+((T1(i)<4)*5);
-            t->shade = sprite[s->owner].shade;
+            t->picnum = pSprite->picnum+k+((T1(i)<4)*5);
+            t->shade = sprite[pSprite->owner].shade;
 
             break;
 
@@ -4269,7 +4261,7 @@ skip:
             t->picnum = WATERSPLASH2+T2(i);
             break;
         case SHELL__STATIC:
-            t->picnum = s->picnum+(T1(i)&1);
+            t->picnum = pSprite->picnum+(T1(i)&1);
         case SHOTGUNSHELL__STATIC:
             t->cstat |= 12;
             if (T1(i) > 2) t->cstat &= ~16;
@@ -4278,27 +4270,27 @@ skip:
         case FRAMEEFFECT1_13__STATIC:
             if (PLUTOPAK) break;
         case FRAMEEFFECT1__STATIC:
-            if (s->owner >= 0 && sprite[s->owner].statnum < MAXSTATUS)
+            if (pSprite->owner >= 0 && sprite[pSprite->owner].statnum < MAXSTATUS)
             {
-                if (sprite[s->owner].picnum == APLAYER)
+                if (sprite[pSprite->owner].picnum == APLAYER)
                     if (ud.camerasprite == -1)
-                        if (screenpeek == P_Get(s->owner) && display_mirror == 0)
+                        if (screenpeek == P_Get(pSprite->owner) && display_mirror == 0)
                         {
                             t->owner = -1;
                             break;
                         }
-                if ((sprite[s->owner].cstat&32768) == 0)
+                if ((sprite[pSprite->owner].cstat&32768) == 0)
                 {
-                    if (!actor[s->owner].dispicnum)
+                    if (!actor[pSprite->owner].dispicnum)
                         t->picnum = actor[i].t_data[1];
-                    else t->picnum = actor[s->owner].dispicnum;
+                    else t->picnum = actor[pSprite->owner].dispicnum;
 
                     if (!G_MaybeTakeOnFloorPal(t, sect))
-                        t->pal = sprite[s->owner].pal;
+                        t->pal = sprite[pSprite->owner].pal;
 
-                    t->shade = sprite[s->owner].shade;
-                    t->ang = sprite[s->owner].ang;
-                    t->cstat = 2|sprite[s->owner].cstat;
+                    t->shade = sprite[pSprite->owner].shade;
+                    t->ang = sprite[pSprite->owner].ang;
+                    t->cstat = 2|sprite[pSprite->owner].cstat;
                 }
             }
             break;
@@ -4306,14 +4298,14 @@ skip:
         case CAMERA1__STATIC:
         case RAT__STATIC:
 #ifdef USE_OPENGL
-            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(s->picnum,s->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
             }
 #endif
             k = getofs_viewtype5(t, t, oura, 0);
-            t->picnum = s->picnum+k;
+            t->picnum = pSprite->picnum+k;
             break;
         }
 
@@ -5463,7 +5455,7 @@ static void G_Cleanup(void)
     for (i=MAXPLAYERS-1; i>=0; i--)
     {
         Bfree(g_player[i].ps);
-        Bfree(g_player[i].sync);
+        Bfree(g_player[i].inputBits);
     }
 
     for (i=MAXSOUNDS-1; i>=0; i--)
@@ -6028,8 +6020,8 @@ void G_MaybeAllocPlayer(int32_t pnum)
 {
     if (g_player[pnum].ps == NULL)
         g_player[pnum].ps = (DukePlayer_t *)Xcalloc(1, sizeof(DukePlayer_t));
-    if (g_player[pnum].sync == NULL)
-        g_player[pnum].sync = (input_t *)Xcalloc(1, sizeof(input_t));
+    if (g_player[pnum].inputBits == NULL)
+        g_player[pnum].inputBits = (input_t *)Xcalloc(1, sizeof(input_t));
 
 #ifdef LUNATIC
     g_player_ps[pnum] = g_player[pnum].ps;
@@ -6602,12 +6594,12 @@ MAIN_LOOP_RESTART:
                 P_GetInput(myconnectindex);
             }
 
-            avg.fvel += loc.fvel;
-            avg.svel += loc.svel;
-            avg.avel += loc.avel;
-            avg.horz += loc.horz;
-            avg.bits |= loc.bits;
-            avg.extbits |= loc.extbits;
+            avg.fvel += localInput.fvel;
+            avg.svel += localInput.svel;
+            avg.avel += localInput.avel;
+            avg.horz += localInput.horz;
+            avg.bits |= localInput.bits;
+            avg.extbits |= localInput.extbits;
 
             Bmemcpy(&inputfifo[0][myconnectindex], &avg, sizeof(input_t));
             Bmemset(&avg, 0, sizeof(input_t));
@@ -6794,7 +6786,7 @@ int32_t G_DoMoveThings(void)
         randomseed = ticrandomseed;
 
     for (TRAVERSE_CONNECT(i))
-        Bmemcpy(g_player[i].sync, &inputfifo[(g_netServer && myconnectindex == i)][i],
+        Bmemcpy(g_player[i].inputBits, &inputfifo[(g_netServer && myconnectindex == i)][i],
                 sizeof(input_t));
 
     G_UpdateInterpolations();
@@ -6830,7 +6822,7 @@ int32_t G_DoMoveThings(void)
 
     for (TRAVERSE_CONNECT(i))
     {
-        if (g_player[i].sync->extbits&(1<<6))
+        if (g_player[i].inputBits->extbits&(1<<6))
         {
             g_player[i].ps->team = g_player[i].pteam;
             if (GametypeFlags[ud.coop] & GAMETYPE_TDM)

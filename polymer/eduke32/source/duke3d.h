@@ -150,21 +150,21 @@ EDUKE32_STATIC_ASSERT(7 <= MAXTILES-MAXUSERTILES);
 # include "lunatic_game.h"
 #endif
 
-static inline int32_t G_HaveActor(int32_t actortile)
+static inline int32_t G_HaveActor(int spriteNum)
 {
 #ifdef LUNATIC
-    return El_HaveActor(actortile);
+    return El_HaveActor(spriteNum);
 #else
-    return g_tile[actortile].execPtr!=NULL;
+    return g_tile[spriteNum].execPtr!=NULL;
 #endif
 }
 
-static inline int32_t G_InitialActorStrength(int32_t actortile)
+static inline int32_t G_DefaultActorHealth(int spriteNum)
 {
 #ifdef LUNATIC
-    return g_elActors[actortile].strength;
+    return g_elActors[spriteNum].strength;
 #else
-    return G_HaveActor(actortile) ? g_tile[actortile].execPtr[0] : 0;
+    return G_HaveActor(spriteNum) ? g_tile[spriteNum].execPtr[0] : 0;
 #endif
 }
 

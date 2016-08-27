@@ -293,7 +293,7 @@ void G_DemoRecord(void)
 
     for (TRAVERSE_CONNECT(i))
     {
-        Bmemcpy(&recsync[ud.reccnt], g_player[i].sync, sizeof(input_t));
+        Bmemcpy(&recsync[ud.reccnt], g_player[i].inputBits, sizeof(input_t));
         ud.reccnt++;
     }
 

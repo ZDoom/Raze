@@ -878,7 +878,7 @@ void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap)
 #else
 static void P_AddWeaponAmmoCommon(DukePlayer_t *pPlayer, int weaponNum, int nAmount)
 {
-    P_AddAmmo(weaponNum, pPlayer, nAmount);
+    P_AddAmmo(pPlayer, weaponNum, nAmount);
 
     if (PWEAPON(vm.playerNum, pPlayer->curr_weapon, WorksLike) == KNEE_WEAPON && (pPlayer->gotweapon & (1 << weaponNum)))
         P_AddWeaponMaybeSwitch(pPlayer, weaponNum);
@@ -3604,7 +3604,7 @@ nullquote:
             int const moveFlags  = *(++insptr);
             int       nResult    = 0;
             int const playerXVel = sprite[pPlayer->i].xvel;
-            int const syncBits   = g_player[vm.playerNum].sync->bits;
+            int const syncBits   = g_player[vm.playerNum].inputBits->bits;
 
             if (((moveFlags & pducking) && pPlayer->on_ground && TEST_SYNC_KEY(syncBits, SK_CROUCH)) ||
                 ((moveFlags & pfalling) && pPlayer->jumping_counter == 0 && !pPlayer->on_ground && pPlayer->vel.z > 2048) ||
@@ -3700,7 +3700,7 @@ nullquote:
             continue;
 
         case CON_IFHITSPACE:
-            VM_CONDITIONAL(TEST_SYNC_KEY(g_player[vm.playerNum].sync->bits, SK_OPEN));
+            VM_CONDITIONAL(TEST_SYNC_KEY(g_player[vm.playerNum].inputBits->bits, SK_OPEN));
             continue;
 
         case CON_IFOUTSIDE:

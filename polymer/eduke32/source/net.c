@@ -828,9 +828,9 @@ void Net_ReceiveNewPlayer(uint8_t *pbuf, int32_t packbufleng)
         {
             g_player[pbuf[4]].ps = (DukePlayer_t *) Xcalloc(1,sizeof(DukePlayer_t));
         }
-        if (!g_player[pbuf[4]].sync)
+        if (!g_player[pbuf[4]].inputBits)
         {
-            g_player[pbuf[4]].sync = (input_t *) Xcalloc(1,sizeof(input_t));
+            g_player[pbuf[4]].inputBits = (input_t *) Xcalloc(1,sizeof(input_t));
         }
     }
 
