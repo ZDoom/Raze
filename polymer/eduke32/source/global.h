@@ -39,7 +39,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "build.h"
 
-G_EXTERN int32_t g_numInterpolations;
+G_EXTERN int32_t g_interpolationCnt;
 G_EXTERN int32_t g_interpolationLock;
 G_EXTERN int32_t oldipos[MAXINTERPOLATIONS];
 G_EXTERN int32_t *curipos[MAXINTERPOLATIONS];
@@ -73,7 +73,7 @@ G_EXTERN char *apStrings[MAXQUOTES],*apXStrings[MAXQUOTES];
 G_EXTERN char *label;
 G_EXTERN int32_t g_musicIndex;
 G_EXTERN char g_loadFromGroupOnly;
-G_EXTERN char g_numSkills;
+G_EXTERN char g_skillCnt;
 G_EXTERN char pus,pub;
 G_EXTERN char ready2send;
 #define MAXPLAYERNAME 32
@@ -83,41 +83,61 @@ G_EXTERN char tempbuf[MAXSECTORS<<1],packbuf[PACKBUF_SIZE],menutextbuf[128],buf[
 #define TYPEBUFSIZE 141
 G_EXTERN char typebuf[TYPEBUFSIZE];
 
-G_EXTERN input_t avg;
+
 G_EXTERN input_t localInput;
 G_EXTERN input_t recsync[RECSYNCBUFSIZ];
-G_EXTERN int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
-G_EXTERN int16_t animatesect[MAXANIMATES];
-G_EXTERN int16_t g_curViewscreen;
-G_EXTERN int16_t cyclers[MAXCYCLERS][6],g_numCyclers;
-G_EXTERN int16_t g_globalRandom;
-G_EXTERN int16_t g_mirrorWall[64],g_mirrorSector[64],g_mirrorCount;
-G_EXTERN int16_t g_numAnimWalls;
-G_EXTERN int16_t g_numClouds,clouds[256],cloudx,cloudy;
-G_EXTERN int32_t *animateptr[MAXANIMATES];
-G_EXTERN int32_t animategoal[MAXANIMATES],animatevel[MAXANIMATES],g_animateCount;
-G_EXTERN int32_t cloudtotalclock;
-G_EXTERN int32_t g_currentFrameRate;
-G_EXTERN int32_t g_damageCameras,g_freezerSelfDamage;
-G_EXTERN int32_t g_doQuickSave;
-G_EXTERN uint16_t g_earthquakeTime;
-G_EXTERN int32_t g_gameQuit;
-G_EXTERN int32_t g_impactDamage,g_maxPlayerHealth;
-G_EXTERN int32_t g_musicSize;
-G_EXTERN int32_t g_numLabels,g_numDefaultLabels;
-G_EXTERN int32_t g_scriptDebug;
-G_EXTERN int32_t g_showShareware;
-G_EXTERN int8_t g_numPlayerSprites;
-G_EXTERN int32_t g_tripbombLaserMode;
-G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
-G_EXTERN int32_t neartaghitdist,lockclock,g_startArmorAmount;
-G_EXTERN int32_t playerswhenstarted;
-G_EXTERN int32_t screenpeek;
+
+G_EXTERN int g_animWallCnt;
+G_EXTERN int g_animateCnt;
+G_EXTERN int g_cloudCnt;
+G_EXTERN int g_curViewscreen;
+G_EXTERN int g_frameRate;
+G_EXTERN int g_cyclerCnt;
+G_EXTERN int g_damageCameras;
+G_EXTERN int g_defaultLabelCnt;
+G_EXTERN int g_doQuickSave;
+G_EXTERN int g_earthquakeTime;
+G_EXTERN int g_freezerSelfDamage;
+G_EXTERN int g_gameQuit;
+G_EXTERN int g_globalRandom;
+G_EXTERN int g_impactDamage;
+G_EXTERN int g_labelCnt;
+G_EXTERN int g_maxPlayerHealth;
+G_EXTERN int g_mirrorCount;
+G_EXTERN int g_mostConcurrentPlayers;
+G_EXTERN int g_musicSize;
+G_EXTERN int g_playerSpawnCnt;
+G_EXTERN int g_scriptDebug;
+G_EXTERN int g_showShareware;
+G_EXTERN int g_spriteDeleteQueuePos;
+G_EXTERN int g_startArmorAmount;
+G_EXTERN int g_tripbombLaserMode;
+G_EXTERN int screenpeek;
+
+G_EXTERN int16_t g_animateSect[MAXANIMATES];
+G_EXTERN int32_t *g_animatePtr[MAXANIMATES];
+G_EXTERN int32_t g_animateGoal[MAXANIMATES];
+G_EXTERN int32_t g_animateVel[MAXANIMATES];
+
+G_EXTERN int16_t g_cloudSect[256];
+G_EXTERN int16_t g_cloudX;
+G_EXTERN int16_t g_cloudY;
+G_EXTERN int32_t g_cloudClock;
+
+G_EXTERN int16_t SpriteDeletionQueue[1024];
+G_EXTERN int16_t g_cyclers[MAXCYCLERS][6];
+G_EXTERN int16_t g_mirrorSector[64];
+G_EXTERN int16_t g_mirrorWall[64];
+G_EXTERN int32_t *labelcode;
+G_EXTERN int32_t *labeltype;
+G_EXTERN int32_t lockclock;
 G_EXTERN int32_t ototalclock;
-G_EXTERN intptr_t *g_scriptPtr;
-G_EXTERN int32_t *labelcode,*labeltype;
+
 G_EXTERN intptr_t *apScript;
-G_EXTERN map_t aMapInfo[(MAXVOLUMES+1)*MAXLEVELS];  // +1 volume for "intro", "briefing" and "loading" music
+G_EXTERN intptr_t *g_scriptPtr;
+
+G_EXTERN map_t g_mapInfo[(MAXVOLUMES + 1) * MAXLEVELS];  // +1 volume for "intro", "briefing" and "loading" music
+G_EXTERN vec2_t g_origins[MAXANIMPOINTS];
 
 // XXX: I think this pragma pack is meaningless here.
 // MSDN (https://msdn.microsoft.com/en-us/library/2e70t5y1%28VS.80%29.aspx) says:
@@ -134,43 +154,46 @@ G_EXTERN playerspawn_t g_playerSpawnPoints[MAXPLAYERS];
 G_EXTERN input_t inputfifo[MOVEFIFOSIZ][MAXPLAYERS];
 #pragma pack(pop)
 
+G_EXTERN char g_soundlocks[MAXSOUNDS];
+G_EXTERN int  g_noEnemies;
+G_EXTERN int  g_restorePalette;
+G_EXTERN int  g_screenCapture;
 G_EXTERN projectile_t SpriteProjectile[MAXSPRITES];
 G_EXTERN sound_t g_sounds[MAXSOUNDS];
 G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;
-G_EXTERN char   g_soundlocks[MAXSOUNDS];
-G_EXTERN int32_t g_restorePalette;
-G_EXTERN int32_t g_screenCapture;
-G_EXTERN int32_t g_noEnemies;
 
 #ifndef global_c_
+extern char CheatKeys[2];
+extern char g_gametypeNames[MAXGAMETYPES][33];
+extern char g_setupFileName[BMAX_PATH];
+extern char g_skillNames[MAXSKILLS][33];
+extern char g_volumeNames[MAXVOLUMES][33];
+
+extern int g_actorRespawnTime;
+extern int g_bouncemineRadius;
+extern int g_deleteQueueSize;
+extern int g_gametypeCnt;
+extern int g_itemRespawnTime;
+extern int g_lastSaveSlot;
+extern int g_morterRadius;
+extern int g_numFreezeBounces;
+extern int g_pipebombRadius;
+extern int g_playerFriction;
+extern int g_rpgRadius;
+extern int g_scriptSize;
+extern int g_seenineRadius;
+extern int g_shrinkerRadius;
+extern int g_spriteGravity;
+extern int g_timerTicsPerSecond;
+extern int g_tripbombRadius;
+extern int g_volumeCnt;
+
+extern int16_t g_blimpSpawnItems[15];
+extern int32_t g_gametypeFlags[MAXGAMETYPES];
+extern int32_t g_volumeFlags[MAXVOLUMES];
+
 extern const char *s_buildDate;
-extern int32_t     g_spriteGravity;
-extern int16_t     g_deleteQueueSize;
-extern char        EpisodeNames[MAXVOLUMES][33];
-extern int32_t     EpisodeFlags[MAXVOLUMES];
-extern char        SkillNames[MAXSKILLS][33];
-extern char        GametypeNames[MAXGAMETYPES][33];
-extern int32_t     GametypeFlags[MAXGAMETYPES];
-extern char        g_numGametypes;
-extern char        g_numVolumes;
-extern int32_t     g_timerTicsPerSecond;
-extern int32_t     g_actorRespawnTime;
-extern int32_t     g_itemRespawnTime;
-extern int32_t     g_scriptSize;
-extern int16_t     BlimpSpawnSprites[15];
-extern int32_t     g_playerFriction;
-extern int32_t     g_numFreezeBounces;
-extern int32_t     g_lastSaveSlot;
-extern int32_t     g_rpgBlastRadius;
-extern int32_t     g_pipebombBlastRadius;
-extern int32_t     g_tripbombBlastRadius;
-extern int32_t     g_shrinkerBlastRadius;
-extern int32_t     g_morterBlastRadius;
-extern int32_t     g_bouncemineBlastRadius;
-extern int32_t     g_seenineBlastRadius;
-extern char        CheatKeys[2];
-extern char        setupfilename[BMAX_PATH];
 #endif
 
 enum
@@ -190,12 +213,12 @@ EXTERN_INLINE_HEADER void G_RestoreInterpolations(void);
 
 EXTERN_INLINE void G_UpdateInterpolations(void)  //Stick at beginning of G_DoMoveThings
 {
-    for (bssize_t i=g_numInterpolations-1; i>=0; i--) oldipos[i] = *curipos[i];
+    for (bssize_t i=g_interpolationCnt-1; i>=0; i--) oldipos[i] = *curipos[i];
 }
 
 EXTERN_INLINE void G_RestoreInterpolations(void)  //Stick at end of drawscreen
 {
-    int32_t i=g_numInterpolations-1;
+    int32_t i=g_interpolationCnt-1;
 
     if (--g_interpolationLock)
         return;

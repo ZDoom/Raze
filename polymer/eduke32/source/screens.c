@@ -177,10 +177,10 @@ static void G_ShowScores(void)
 {
     int32_t t, i;
 
-    if (playerswhenstarted > 1 && (GametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
+    if (g_mostConcurrentPlayers > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
         gametext(160, SCORESHEETOFFSET+58+2, "Multiplayer Totals", 0, 2+8+16);
-        gametext(160, SCORESHEETOFFSET+58+10, aMapInfo[G_LastMapInfoIndex()].name, 0, 2+8+16);
+        gametext(160, SCORESHEETOFFSET+58+10, g_mapInfo[G_LastMapInfoIndex()].name, 0, 2+8+16);
 
         t = 0;
         minitext(70, SCORESHEETOFFSET+80, "Name", 8, 2+8+16+ROTATESPRITE_MAX);
@@ -188,7 +188,7 @@ static void G_ShowScores(void)
         minitext(200, SCORESHEETOFFSET+80, "Deaths", 8, 2+8+16+ROTATESPRITE_MAX);
         minitext(235, SCORESHEETOFFSET+80, "Ping", 8, 2+8+16+ROTATESPRITE_MAX);
 
-        for (i=playerswhenstarted-1; i>=0; i--)
+        for (i=g_mostConcurrentPlayers-1; i>=0; i--)
         {
             if (!g_player[i].playerquitflag)
                 continue;
@@ -292,18 +292,18 @@ static inline void G_MoveClouds(void)
 {
     int32_t i;
 
-    if (totalclock <= cloudtotalclock && totalclock >= (cloudtotalclock-7))
+    if (totalclock <= g_cloudClock && totalclock >= (g_cloudClock-7))
         return;
 
-    cloudtotalclock = totalclock+6;
+    g_cloudClock = totalclock+6;
 
-    cloudx += sintable[(g_player[screenpeek].ps->ang+512)&2047]>>9;
-    cloudy += sintable[g_player[screenpeek].ps->ang&2047]>>9;
+    g_cloudX += sintable[(g_player[screenpeek].ps->ang+512)&2047]>>9;
+    g_cloudY += sintable[g_player[screenpeek].ps->ang&2047]>>9;
 
-    for (i=g_numClouds-1; i>=0; i--)
+    for (i=g_cloudCnt-1; i>=0; i--)
     {
-        sector[clouds[i]].ceilingxpanning = cloudx>>6;
-        sector[clouds[i]].ceilingypanning = cloudy>>6;
+        sector[g_cloudSect[i]].ceilingxpanning = g_cloudX>>6;
+        sector[g_cloudSect[i]].ceilingypanning = g_cloudY>>6;
     }
 }
 
@@ -616,7 +616,7 @@ static void G_PrintCoords(int32_t snum)
     const DukePlayer_t *ps = g_player[snum].ps;
     const int32_t sectnum = ps->cursectnum;
 
-    if ((GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+    if ((g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
     {
         if (ud.multimode > 4)
             y = 32;
@@ -821,7 +821,7 @@ static void G_PrintFPS(void)
 
         if (thisSec - LastSec)
         {
-            g_currentFrameRate = LastCount = tabledivide32_noinline(FrameCount, thisSec - LastSec);
+            g_frameRate = LastCount = tabledivide32_noinline(FrameCount, thisSec - LastSec);
             LastSec = thisSec;
             FrameCount = 0;
 
@@ -1046,8 +1046,8 @@ void G_DisplayRest(int32_t smoothratio)
             if (ud.overhead_on == 2)
             {
                 const int32_t a = (ud.screen_size > 0) ? 147 : 179;
-                minitext(5, a+6, EpisodeNames[ud.volume_number], 0, 2+8+16+256);
-                minitext(5, a+6+6, aMapInfo[ud.volume_number*MAXLEVELS + ud.level_number].name, 0, 2+8+16+256);
+                minitext(5, a+6, g_volumeNames[ud.volume_number], 0, 2+8+16+256);
+                minitext(5, a+6+6, g_mapInfo[ud.volume_number*MAXLEVELS + ud.level_number].name, 0, 2+8+16+256);
             }
         }
     }
@@ -1077,11 +1077,11 @@ void G_DisplayRest(int32_t smoothratio)
         else if (g_levelTextTime < 5)
             bits |= 1;
 
-        if (aMapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
+        if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
         {
             if (currentboardfilename[0] != 0 && ud.volume_number == 0 && ud.level_number == 7)
                 menutext_(160, 90+16+8, -g_levelTextTime+22/*quotepulseshade*/, 0, currentboardfilename, bits);
-            else menutext_(160, 90+16+8, -g_levelTextTime+22/*quotepulseshade*/, 0, aMapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, bits);
+            else menutext_(160, 90+16+8, -g_levelTextTime+22/*quotepulseshade*/, 0, g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, bits);
         }
     }
 
@@ -1221,7 +1221,7 @@ void G_DisplayRest(int32_t smoothratio)
     {
         Bsprintf(tempbuf, "%s^00 has called a vote for map", g_player[voting].user_name);
         gametext(160, 40, tempbuf, 0, 2+8+16);
-        Bsprintf(tempbuf, "%s (E%dL%d)", aMapInfo[vote_episode*MAXLEVELS + vote_map].name, vote_episode+1, vote_map+1);
+        Bsprintf(tempbuf, "%s (E%dL%d)", g_mapInfo[vote_episode*MAXLEVELS + vote_map].name, vote_episode+1, vote_map+1);
         gametext(160, 48, tempbuf, 0, 2+8+16);
         gametext(160, 70, "Press F1 to Accept, F2 to Decline", 0, 2+8+16);
     }
@@ -1451,7 +1451,7 @@ void G_DisplayLogo(void)
         if (logoflags & LOGO_PLAYMUSIC)
         {
             g_musicIndex = MUS_INTRO;
-            S_PlayMusic(aMapInfo[g_musicIndex].musicfn);
+            S_PlayMusic(g_mapInfo[g_musicIndex].musicfn);
         }
 
         if (!NAM)
@@ -1971,18 +1971,18 @@ static void G_DisplayMPResultsScreen(void)
     if (PLUTOPAK)   // JBF 20030804
         rotatesprite_fs((260)<<16, 36<<16, 65536L, 0, PLUTOPAKSPRITE+2, 0, 0, 2+8);
     gametext(160, 58+2, "Multiplayer Totals", 0, 2+8+16);
-    gametext(160, 58+10, aMapInfo[G_LastMapInfoIndex()].name, 0, 2+8+16);
+    gametext(160, 58+10, g_mapInfo[G_LastMapInfoIndex()].name, 0, 2+8+16);
 
     gametext(160, 165, "Press any key or button to continue", quotepulseshade, 2+8+16);
 
     minitext(23, 80, "   Name                                         Kills", 8, 2+8+16+128);
-    for (i=0; i<playerswhenstarted; i++)
+    for (i=0; i<g_mostConcurrentPlayers; i++)
     {
         Bsprintf(tempbuf, "%-4d", i+1);
         minitext(92+(i*23), 80, tempbuf, 3, 2+8+16+128);
     }
 
-    for (i=0; i<playerswhenstarted; i++)
+    for (i=0; i<g_mostConcurrentPlayers; i++)
     {
         int32_t xfragtotal = 0;
         Bsprintf(tempbuf, "%d", i+1);
@@ -1990,7 +1990,7 @@ static void G_DisplayMPResultsScreen(void)
         minitext(30, 90+t, tempbuf, 0, 2+8+16+128);
         minitext(38, 90+t, g_player[i].user_name, g_player[i].ps->palookup, 2+8+16+128);
 
-        for (y=0; y<playerswhenstarted; y++)
+        for (y=0; y<g_mostConcurrentPlayers; y++)
         {
             if (i == y)
             {
@@ -2012,10 +2012,10 @@ static void G_DisplayMPResultsScreen(void)
         t += 7;
     }
 
-    for (y=0; y<playerswhenstarted; y++)
+    for (y=0; y<g_mostConcurrentPlayers; y++)
     {
         int32_t yfragtotal = 0;
-        for (i=0; i<playerswhenstarted; i++)
+        for (i=0; i<g_mostConcurrentPlayers; i++)
         {
             if (i == y)
                 yfragtotal += g_player[i].ps->fraggedself;
@@ -2037,11 +2037,11 @@ static int32_t G_PrintTime_ClockPad(void)
     clockpad = max(clockpad, ij);
     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
     {
-        for (ii=aMapInfo[G_LastMapInfoIndex()].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
+        for (ii=g_mapInfo[G_LastMapInfoIndex()].partime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
         clockpad = max(clockpad, ij);
-        if (!NAM_WW2GI && aMapInfo[G_LastMapInfoIndex()].designertime)
+        if (!NAM_WW2GI && g_mapInfo[G_LastMapInfoIndex()].designertime)
         {
-            for (ii=aMapInfo[G_LastMapInfoIndex()].designertime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
+            for (ii=g_mapInfo[G_LastMapInfoIndex()].designertime/(REALGAMETICSPERSEC*60), ij=1; ii>9; ii/=10, ij++) { }
             clockpad = max(clockpad, ij);
         }
     }
@@ -2070,13 +2070,13 @@ const char* G_PrintParTime(void)
 {
     if (ud.last_level < 1)
         return "<invalid>";
-    return G_PrintTime2(aMapInfo[G_LastMapInfoIndex()].partime);
+    return G_PrintTime2(g_mapInfo[G_LastMapInfoIndex()].partime);
 }
 const char* G_PrintDesignerTime(void)
 {
     if (ud.last_level < 1)
         return "<invalid>";
-    return G_PrintTime2(aMapInfo[G_LastMapInfoIndex()].designertime);
+    return G_PrintTime2(g_mapInfo[G_LastMapInfoIndex()].designertime);
 }
 const char* G_PrintBestTime(void)
 {
@@ -2103,9 +2103,9 @@ void G_BonusScreen(int32_t bonusonly)
     }
     else
     {
-        lastmapname = aMapInfo[G_LastMapInfoIndex()].name;
+        lastmapname = g_mapInfo[G_LastMapInfoIndex()].name;
         if (!lastmapname) // this isn't right but it's better than no name at all
-            lastmapname = aMapInfo[G_LastMapInfoIndex()].name;
+            lastmapname = g_mapInfo[G_LastMapInfoIndex()].name;
     }
 
 
@@ -2133,7 +2133,7 @@ void G_BonusScreen(int32_t bonusonly)
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
-    if (playerswhenstarted > 1 && (GametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
+    if (g_mostConcurrentPlayers > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
         clearallviews(0);
         G_DisplayMPResultsScreen();
@@ -2269,12 +2269,12 @@ void G_BonusScreen(int32_t bonusonly)
                 yy+=10;
                 if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                 {
-                    if (aMapInfo[G_LastMapInfoIndex()].partime)
+                    if (g_mapInfo[G_LastMapInfoIndex()].partime)
                     {
                         gametext(10, yy+9, "Par Time:", 0, 2+8+16);
                         yy+=10;
                     }
-                    if (!NAM_WW2GI && !DUKEBETA && aMapInfo[G_LastMapInfoIndex()].designertime)
+                    if (!NAM_WW2GI && !DUKEBETA && g_mapInfo[G_LastMapInfoIndex()].designertime)
                     {
                         // EDuke 2.0 / NAM source suggests "Green Beret's Time:"
                         gametext(10, yy+9, "3D Realms' Time:", 0, 2+8+16);
@@ -2313,13 +2313,13 @@ void G_BonusScreen(int32_t bonusonly)
 
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                     {
-                        if (aMapInfo[G_LastMapInfoIndex()].partime)
+                        if (g_mapInfo[G_LastMapInfoIndex()].partime)
                         {
                             G_PrintParTime();
                             gametext((320>>2)+71, yy+9, tempbuf, 0, 2+8+16);
                             yy+=10;
                         }
-                        if (!NAM_WW2GI && !DUKEBETA && aMapInfo[G_LastMapInfoIndex()].designertime)
+                        if (!NAM_WW2GI && !DUKEBETA && g_mapInfo[G_LastMapInfoIndex()].designertime)
                         {
                             G_PrintDesignerTime();
                             gametext((320>>2)+71, yy+9, tempbuf, 0, 2+8+16);

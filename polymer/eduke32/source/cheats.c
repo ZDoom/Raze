@@ -153,8 +153,8 @@ void G_SetupCheats(void)
         Bstrcpy(CheatStrings[24], "2debug");
         Bstrcpy(CheatStrings[26], "2cgs");
 
-        Bstrcpy(GametypeNames[0], "GI Match (Spawn)");
-        Bstrcpy(GametypeNames[2], "GI Match (No Spawn)");
+        Bstrcpy(g_gametypeNames[0], "GI Match (Spawn)");
+        Bstrcpy(g_gametypeNames[2], "GI Match (No Spawn)");
 }
     else if (NAM)
     {
@@ -185,8 +185,8 @@ void G_SetupCheats(void)
         Bstrcpy(CheatStrings[24], "adebug");
         Bstrcpy(CheatStrings[26], "acgs");
 
-        Bstrcpy(GametypeNames[0], "GruntMatch (Spawn)");
-        Bstrcpy(GametypeNames[2], "GruntMatch (No Spawn)");
+        Bstrcpy(g_gametypeNames[0], "GruntMatch (Spawn)");
+        Bstrcpy(g_gametypeNames[2], "GruntMatch (No Spawn)");
     }
 }
 
@@ -472,8 +472,8 @@ void G_DoCheats(void)
                             volnume--;
                             levnume--;
 
-                            if ((VOLUMEONE && volnume > 0) || volnume > g_numVolumes-1 ||
-                                levnume >= MAXLEVELS || aMapInfo[volnume *MAXLEVELS+levnume].filename == NULL)
+                            if ((VOLUMEONE && volnume > 0) || volnume > g_volumeCnt-1 ||
+                                levnume >= MAXLEVELS || g_mapInfo[volnume *MAXLEVELS+levnume].filename == NULL)
                             {
                                 end_cheat(pPlayer);
                                 return;

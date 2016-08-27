@@ -273,7 +273,7 @@ void G_GameExit(const char *msg)
 
     if (!g_quickExit)
     {
-        if (playerswhenstarted > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
+        if (g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
             setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
@@ -404,7 +404,7 @@ static void G_OROR_DupeSprites(const spritetype *sp)
     int32_t k;
     const spritetype *refsp;
 
-    if ((unsigned)sp->yvel >= (unsigned)playerswhenstarted)
+    if ((unsigned)sp->yvel >= (unsigned)g_mostConcurrentPlayers)
         return;
 
     refsp = &sprite[sp->yvel];
@@ -2220,7 +2220,7 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->cstat   = 32768;
 
             changespritestat(newSprite, ((!g_netServer && ud.multimode < 2)
-                                         || ((GametypeFlags[ud.coop] & GAMETYPE_COOPSPAWN) / GAMETYPE_COOPSPAWN) != pSprite->lotag)
+                                         || ((g_gametypeFlags[ud.coop] & GAMETYPE_COOPSPAWN) / GAMETYPE_COOPSPAWN) != pSprite->lotag)
                                         ? STAT_MISC
                                         : STAT_PLAYER);
             break;
@@ -4405,11 +4405,11 @@ extern int G_StartRTS(int lumpNum, int localPlayer)
 void G_StartMusic(void)
 {
     int const levelNum = g_musicIndex;
-    Bassert(aMapInfo[levelNum].musicfn != NULL);
+    Bassert(g_mapInfo[levelNum].musicfn != NULL);
 
-    S_PlayMusic(aMapInfo[levelNum].musicfn);
+    S_PlayMusic(g_mapInfo[levelNum].musicfn);
 
-    Bsnprintf(apStrings[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", aMapInfo[levelNum].musicfn);
+    Bsnprintf(apStrings[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", g_mapInfo[levelNum].musicfn);
     P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
 }
 
@@ -4638,7 +4638,7 @@ void G_HandleLocalKeys(void)
                         if (g_musicIndex >= maxi)
                             g_musicIndex = 0;
                     }
-                    while (aMapInfo[g_musicIndex].musicfn == NULL);
+                    while (g_mapInfo[g_musicIndex].musicfn == NULL);
 
                     G_StartMusic();
 
@@ -4785,7 +4785,7 @@ FAKE_F3:
 
         if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicToggle)
         {
-            map_t *const pMapInfo    = &aMapInfo[g_musicIndex];
+            map_t *const pMapInfo    = &g_mapInfo[g_musicIndex];
             char *const  musicString = apStrings[QUOTE_MUSIC];
 
             KB_ClearKeyDown(sc_F5);
@@ -4824,7 +4824,7 @@ FAKE_F3:
                 // dirty hack... char 127 in last position indicates an auto-filled name
                 if (ud.savegame[g_lastSaveSlot][MAXSAVEGAMENAME-2] == 127)
                 {
-                    Bstrncpy(&ud.savegame[g_lastSaveSlot][0], aMapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
+                    Bstrncpy(&ud.savegame[g_lastSaveSlot][0], g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
                     ud.savegame[g_lastSaveSlot][MAXSAVEGAMENAME-2] = 127;
                 }
 
@@ -5017,7 +5017,7 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
             return -1;
     }
 
-    return S_DefineAudioIfSupported(&aMapInfo[sel].musicfn, name);
+    return S_DefineAudioIfSupported(&g_mapInfo[sel].musicfn, name);
 }
 
 static int32_t parsedefinitions_game(scriptfile *script, int32_t preload);
@@ -5448,9 +5448,9 @@ static void G_Cleanup(void)
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
     {
-        Bfree(aMapInfo[i].name);
-        Bfree(aMapInfo[i].filename);
-        Bfree(aMapInfo[i].musicfn);
+        Bfree(g_mapInfo[i].name);
+        Bfree(g_mapInfo[i].filename);
+        Bfree(g_mapInfo[i].musicfn);
 
         G_FreeMapState(i);
     }
@@ -5545,18 +5545,18 @@ static void G_CompileScripts(void)
     if (g_loadFromGroupOnly) // g_loadFromGroupOnly is true only when compiling fails and internal defaults are utilized
         C_Compile(G_ConFile());
 
-    if ((uint32_t)g_numLabels > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
+    if ((uint32_t)g_labelCnt > MAXSPRITES*sizeof(spritetype)/64)   // see the arithmetic above for why
         G_GameExit("Error: too many labels defined!");
 
     {
         char *newlabel;
         int32_t *newlabelcode;
 
-        newlabel     = (char *)Xmalloc(g_numLabels<<6);
-        newlabelcode = (int32_t *)Xmalloc(g_numLabels*sizeof(int32_t));
+        newlabel     = (char *)Xmalloc(g_labelCnt<<6);
+        newlabelcode = (int32_t *)Xmalloc(g_labelCnt*sizeof(int32_t));
 
-        Bmemcpy(newlabel, label, g_numLabels*64);
-        Bmemcpy(newlabelcode, labelcode, g_numLabels*sizeof(int32_t));
+        Bmemcpy(newlabel, label, g_labelCnt*64);
+        Bmemcpy(newlabelcode, labelcode, g_labelCnt*sizeof(int32_t));
 
         label = newlabel;
         labelcode = newlabelcode;
@@ -5573,9 +5573,9 @@ static void G_CompileScripts(void)
 
 static inline void G_CheckGametype(void)
 {
-    ud.m_coop = clamp(ud.m_coop, 0, g_numGametypes-1);
-    initprintf("%s\n",GametypeNames[ud.m_coop]);
-    if (GametypeFlags[ud.m_coop] & GAMETYPE_ITEMRESPAWN)
+    ud.m_coop = clamp(ud.m_coop, 0, g_gametypeCnt-1);
+    initprintf("%s\n",g_gametypeNames[ud.m_coop]);
+    if (g_gametypeFlags[ud.m_coop] & GAMETYPE_ITEMRESPAWN)
         ud.m_respawn_items = ud.m_respawn_inventory = 1;
 }
 
@@ -6101,7 +6101,7 @@ int app_main(int argc, char const * const * argv)
     if (!g_useCwd)
         G_AddSearchPaths();
 
-    g_numSkills = 4;
+    g_skillCnt = 4;
     ud.multimode = 1;
 
     // This needs to happen before G_CheckCommandLine() because G_GameExit()
@@ -6181,8 +6181,8 @@ int app_main(int argc, char const * const * argv)
         Bexit(2);
     }
 
-    if (Bstrcmp(setupfilename, SETUPFILENAME))
-        initprintf("Using config file \"%s\".\n",setupfilename);
+    if (Bstrcmp(g_setupFileName, SETUPFILENAME))
+        initprintf("Using config file \"%s\".\n",g_setupFileName);
 
     G_ScanGroups();
 
@@ -6238,7 +6238,7 @@ int app_main(int argc, char const * const * argv)
     }
 #endif
     numplayers = 1;
-    playerswhenstarted = ud.multimode;  // Lunatic needs this (player[] bound)
+    g_mostConcurrentPlayers = ud.multimode;  // Lunatic needs this (player[] bound)
 
     if (!g_fakeMultiMode)
     {
@@ -6319,7 +6319,7 @@ int app_main(int argc, char const * const * argv)
         }
     }
 
-    playerswhenstarted = ud.multimode;  // XXX: redundant?
+    g_mostConcurrentPlayers = ud.multimode;  // XXX: redundant?
     ud.last_level      = 0;
 
     // the point of this block is to avoid overwriting the default in the cfg while asserting our selection
@@ -6389,10 +6389,10 @@ int app_main(int argc, char const * const * argv)
 
     system_getcvars();
 
-    char *const setupFileName = Xstrdup(setupfilename);
+    char *const setupFileName = Xstrdup(g_setupFileName);
     char *const p             = strtok(setupFileName, ".");
 
-    if (!Bstrcmp(setupfilename, SETUPFILENAME))
+    if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
         Bsprintf(tempbuf, "settings.cfg");
     else
         Bsprintf(tempbuf, "%s_settings.cfg", p);
@@ -6531,7 +6531,7 @@ MAIN_LOOP_RESTART:
     P_SetupMiscInputSettings();
     g_player[myconnectindex].pteam = ud.team;
 
-    if (GametypeFlags[ud.coop] & GAMETYPE_TDM)
+    if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
         g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_GetTeamPalette(g_player[myconnectindex].pteam);
     else
     {
@@ -6601,15 +6601,7 @@ MAIN_LOOP_RESTART:
                 P_GetInput(myconnectindex);
             }
 
-            avg.fvel += localInput.fvel;
-            avg.svel += localInput.svel;
-            avg.avel += localInput.avel;
-            avg.horz += localInput.horz;
-            avg.bits |= localInput.bits;
-            avg.extbits |= localInput.extbits;
-
-            Bmemcpy(&inputfifo[0][myconnectindex], &avg, sizeof(input_t));
-            Bmemset(&avg, 0, sizeof(input_t));
+            Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
 
             do
             {
@@ -6827,13 +6819,13 @@ int G_DoMoveThings(void)
         if (g_player[i].inputBits->extbits&(1<<6))
         {
             g_player[i].ps->team = g_player[i].pteam;
-            if (GametypeFlags[ud.coop] & GAMETYPE_TDM)
+            if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
             {
                 actor[g_player[i].ps->i].picnum = APLAYERTOP;
                 P_QuickKill(g_player[i].ps);
             }
         }
-        if (GametypeFlags[ud.coop] & GAMETYPE_TDM)
+        if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
             g_player[i].ps->palookup = g_player[i].pcolor = G_GetTeamPalette(g_player[i].ps->team);
 
         if (sprite[g_player[i].ps->i].pal != 1)

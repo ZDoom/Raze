@@ -1290,21 +1290,21 @@ void G_InitDynamicTiles(void)
         DynamicTileMap[g_dynTileList[i].staticval] = g_dynTileList[i].staticval;
 #endif
 
-    BlimpSpawnSprites[0] = RPGSPRITE;
-    BlimpSpawnSprites[1] = CHAINGUNSPRITE;
-    BlimpSpawnSprites[2] = DEVISTATORAMMO;
-    BlimpSpawnSprites[3] = RPGAMMO;
-    BlimpSpawnSprites[4] = RPGAMMO;
-    BlimpSpawnSprites[5] = JETPACK;
-    BlimpSpawnSprites[6] = SHIELD;
-    BlimpSpawnSprites[7] = FIRSTAID;
-    BlimpSpawnSprites[8] = STEROIDS;
-    BlimpSpawnSprites[9] = RPGAMMO;
-    BlimpSpawnSprites[10] = RPGAMMO;
-    BlimpSpawnSprites[11] = RPGSPRITE;
-    BlimpSpawnSprites[12] = RPGAMMO;
-    BlimpSpawnSprites[13] = FREEZESPRITE;
-    BlimpSpawnSprites[14] = FREEZEAMMO;
+    g_blimpSpawnItems[0] = RPGSPRITE;
+    g_blimpSpawnItems[1] = CHAINGUNSPRITE;
+    g_blimpSpawnItems[2] = DEVISTATORAMMO;
+    g_blimpSpawnItems[3] = RPGAMMO;
+    g_blimpSpawnItems[4] = RPGAMMO;
+    g_blimpSpawnItems[5] = JETPACK;
+    g_blimpSpawnItems[6] = SHIELD;
+    g_blimpSpawnItems[7] = FIRSTAID;
+    g_blimpSpawnItems[8] = STEROIDS;
+    g_blimpSpawnItems[9] = RPGAMMO;
+    g_blimpSpawnItems[10] = RPGAMMO;
+    g_blimpSpawnItems[11] = RPGSPRITE;
+    g_blimpSpawnItems[12] = RPGAMMO;
+    g_blimpSpawnItems[13] = FREEZESPRITE;
+    g_blimpSpawnItems[14] = FREEZEAMMO;
 
     WeaponPickupSprites[0] = KNEE;
     WeaponPickupSprites[1] = FIRSTGUNSPRITE;

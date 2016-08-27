@@ -27,21 +27,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // PRIMITIVE
 
-static int32_t g_haltSoundHack = 0;
+static int g_haltSoundHack = 0;
 
-int32_t S_FindMusicSFX(int32_t sn, int32_t *sndptr)
+int S_FindMusicSFX(int sectNum, int32_t *sndptr)
 {
-    int32_t i;
-
-    for (SPRITES_OF_SECT(sn, i))
+    for (bssize_t SPRITES_OF_SECT(sectNum, spriteNum))
     {
-        const int32_t snd = sprite[i].lotag;
+        const int32_t snd = sprite[spriteNum].lotag;
         EDUKE32_STATIC_ASSERT(MAXSOUNDS >= 1000);
 
-        if (PN(i) == MUSICANDSFX && (unsigned)snd < 1000)  // XXX: in other places, 999
+        if (PN(spriteNum) == MUSICANDSFX && (unsigned)snd < 1000)  // XXX: in other places, 999
         {
             *sndptr = snd;
-            return i;
+            return spriteNum;
         }
     }
 
@@ -50,383 +48,395 @@ int32_t S_FindMusicSFX(int32_t sn, int32_t *sndptr)
 }
 
 // this function activates a sector's MUSICANDSFX sprite
-int32_t A_CallSound(int32_t sn, int32_t whatsprite)
+int A_CallSound(int sectNum, int spriteNum)
 {
-    int32_t i, snd;
-
     if (g_haltSoundHack)
     {
         g_haltSoundHack = 0;
         return -1;
     }
 
-    i = S_FindMusicSFX(sn, &snd);
+    int32_t   soundNum;
+    int const SFXsprite = S_FindMusicSFX(sectNum, &soundNum);
 
-    if (i >= 0)
+    if (SFXsprite >= 0)
     {
-        if (whatsprite == -1)
-            whatsprite = i;
+        if (spriteNum == -1)
+            spriteNum = SFXsprite;
 
-        if (T1(i) == 0)
+        if (T1(SFXsprite) == 0)
         {
-            if ((g_sounds[snd].m & SF_GLOBAL) == 0)
+            if ((g_sounds[soundNum].m & SF_GLOBAL) == 0)
             {
-                if (snd)
+                if (soundNum)
                 {
-                    A_PlaySound(snd, whatsprite);
-                    if (SHT(i) && snd != SHT(i) && SHT(i) < MAXSOUNDS)
-                        S_StopEnvSound(SHT(i),T6(i));
-                    T6(i) = whatsprite;
+                    A_PlaySound(soundNum, spriteNum);
+
+                    if (SHT(SFXsprite) && soundNum != SHT(SFXsprite) && SHT(SFXsprite) < MAXSOUNDS)
+                        S_StopEnvSound(SHT(SFXsprite),T6(SFXsprite));
+
+                    T6(SFXsprite) = spriteNum;
                 }
 
-                if ((sector[SECT(i)].lotag&0xff) != ST_22_SPLITTING_DOOR)
-                    T1(i) = 1;
+                if ((sector[SECT(SFXsprite)].lotag&0xff) != ST_22_SPLITTING_DOOR)
+                    T1(SFXsprite) = 1;
             }
         }
-        else if (SHT(i) < MAXSOUNDS)
+        else if (SHT(SFXsprite) < MAXSOUNDS)
         {
-            if (SHT(i))
-                A_PlaySound(SHT(i), whatsprite);
-            if ((g_sounds[snd].m & SF_LOOP) || (SHT(i) && SHT(i) != snd))
-                S_StopEnvSound(snd, T6(i));
-            T6(i) = whatsprite;
-            T1(i) = 0;
+            if (SHT(SFXsprite))
+                A_PlaySound(SHT(SFXsprite), spriteNum);
+
+            if ((g_sounds[soundNum].m & SF_LOOP) || (SHT(SFXsprite) && SHT(SFXsprite) != soundNum))
+                S_StopEnvSound(soundNum, T6(SFXsprite));
+
+            T6(SFXsprite) = spriteNum;
+            T1(SFXsprite) = 0;
         }
 
-        return snd;
+        return soundNum;
     }
 
     return -1;
 }
 
-int32_t G_CheckActivatorMotion(int32_t lotag)
+int G_CheckActivatorMotion(int lotag)
 {
-    int32_t i = headspritestat[STAT_ACTIVATOR], j;
-    spritetype *s;
+    int spriteNum = headspritestat[STAT_ACTIVATOR];
 
-    while (i >= 0)
+    while (spriteNum >= 0)
     {
-        if (sprite[i].lotag == lotag)
+        if (sprite[spriteNum].lotag == lotag)
         {
-            s = &sprite[i];
+            spritetype *const pSprite = &sprite[spriteNum];
 
-            for (j = g_animateCount-1; j >= 0; j--)
-                if (s->sectnum == animatesect[j])
+            for (bssize_t j = g_animateCnt - 1; j >= 0; j--)
+                if (pSprite->sectnum == g_animateSect[j])
                     return 1;
 
-            j = headspritestat[STAT_EFFECTOR];
-            while (j >= 0)
-            {
-                if (s->sectnum == sprite[j].sectnum)
-                    switch (sprite[j].lotag)
-                    {
-                    case SE_11_SWINGING_DOOR:
-                    case SE_30_TWO_WAY_TRAIN:
-                        if (actor[j].t_data[4])
-                            return 1;
-                        break;
-                    case SE_20_STRETCH_BRIDGE:
-                    case SE_31_FLOOR_RISE_FALL:
-                    case SE_32_CEILING_RISE_FALL:
-                    case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
-                        if (actor[j].t_data[0])
-                            return 1;
-                        break;
-                    }
+            int sectorEffector = headspritestat[STAT_EFFECTOR];
 
-                j = nextspritestat[j];
+            while (sectorEffector >= 0)
+            {
+                if (pSprite->sectnum == sprite[sectorEffector].sectnum)
+                {
+                    switch (sprite[sectorEffector].lotag)
+                    {
+                        case SE_11_SWINGING_DOOR:
+                        case SE_30_TWO_WAY_TRAIN:
+                            if (actor[sectorEffector].t_data[4])
+                                return 1;
+                            break;
+                        case SE_20_STRETCH_BRIDGE:
+                        case SE_31_FLOOR_RISE_FALL:
+                        case SE_32_CEILING_RISE_FALL:
+                        case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
+                            if (actor[sectorEffector].t_data[0])
+                                return 1;
+                            break;
+                    }
+                }
+
+                sectorEffector = nextspritestat[sectorEffector];
             }
         }
-        i = nextspritestat[i];
+        spriteNum = nextspritestat[spriteNum];
     }
     return 0;
 }
 
-int32_t CheckDoorTile(int32_t dapic)
+int CheckDoorTile(int tileNum)
 {
-    switch (DYNAMICTILEMAP(dapic))
+    switch (DYNAMICTILEMAP(tileNum))
     {
-    case DOORTILE1__STATIC:
-    case DOORTILE2__STATIC:
-    case DOORTILE3__STATIC:
-    case DOORTILE4__STATIC:
-    case DOORTILE5__STATIC:
-    case DOORTILE6__STATIC:
-    case DOORTILE7__STATIC:
-    case DOORTILE8__STATIC:
-    case DOORTILE9__STATIC:
-    case DOORTILE10__STATIC:
-    case DOORTILE11__STATIC:
-    case DOORTILE12__STATIC:
-    case DOORTILE14__STATIC:
-    case DOORTILE15__STATIC:
-    case DOORTILE16__STATIC:
-    case DOORTILE17__STATIC:
-    case DOORTILE18__STATIC:
-    case DOORTILE19__STATIC:
-    case DOORTILE20__STATIC:
-    case DOORTILE21__STATIC:
-    case DOORTILE22__STATIC:
-    case DOORTILE23__STATIC:
-        return 1;
+        case DOORTILE1__STATIC:
+        case DOORTILE2__STATIC:
+        case DOORTILE3__STATIC:
+        case DOORTILE4__STATIC:
+        case DOORTILE5__STATIC:
+        case DOORTILE6__STATIC:
+        case DOORTILE7__STATIC:
+        case DOORTILE8__STATIC:
+        case DOORTILE9__STATIC:
+        case DOORTILE10__STATIC:
+        case DOORTILE11__STATIC:
+        case DOORTILE12__STATIC:
+        case DOORTILE14__STATIC:
+        case DOORTILE15__STATIC:
+        case DOORTILE16__STATIC:
+        case DOORTILE17__STATIC:
+        case DOORTILE18__STATIC:
+        case DOORTILE19__STATIC:
+        case DOORTILE20__STATIC:
+        case DOORTILE21__STATIC:
+        case DOORTILE22__STATIC:
+        case DOORTILE23__STATIC:
+            return 1;
     }
     return 0;
 }
 
-int32_t isanunderoperator(int32_t lotag)
+int isanunderoperator(int lotag)
 {
-    switch (lotag&0xff)
+    switch (lotag & 0xff)
     {
-    case ST_15_WARP_ELEVATOR:
-    case ST_16_PLATFORM_DOWN:
-    case ST_17_PLATFORM_UP:
-    case ST_18_ELEVATOR_DOWN:
-    case ST_19_ELEVATOR_UP:
-    case ST_22_SPLITTING_DOOR:
-    case ST_26_SPLITTING_ST_DOOR:
-        return 1;
+        case ST_15_WARP_ELEVATOR:
+        case ST_16_PLATFORM_DOWN:
+        case ST_17_PLATFORM_UP:
+        case ST_18_ELEVATOR_DOWN:
+        case ST_19_ELEVATOR_UP:
+        case ST_22_SPLITTING_DOOR:
+        case ST_26_SPLITTING_ST_DOOR:
+            return 1;
     }
     return 0;
 }
 
-int32_t isanearoperator(int32_t lotag)
+int isanearoperator(int lotag)
 {
-    switch (lotag&0xff)
+    switch (lotag & 0xff)
     {
-    case ST_9_SLIDING_ST_DOOR:
-    case ST_15_WARP_ELEVATOR:
-    case ST_16_PLATFORM_DOWN:
-    case ST_17_PLATFORM_UP:
-    case ST_18_ELEVATOR_DOWN:
-    case ST_19_ELEVATOR_UP:
-    case ST_20_CEILING_DOOR:
-    case ST_21_FLOOR_DOOR:
-    case ST_22_SPLITTING_DOOR:
-    case ST_23_SWINGING_DOOR:
-    case ST_25_SLIDING_DOOR:
-    case ST_26_SPLITTING_ST_DOOR:
-    case ST_29_TEETH_DOOR://Toothed door
-        return 1;
+        case ST_9_SLIDING_ST_DOOR:
+        case ST_15_WARP_ELEVATOR:
+        case ST_16_PLATFORM_DOWN:
+        case ST_17_PLATFORM_UP:
+        case ST_18_ELEVATOR_DOWN:
+        case ST_19_ELEVATOR_UP:
+        case ST_20_CEILING_DOOR:
+        case ST_21_FLOOR_DOOR:
+        case ST_22_SPLITTING_DOOR:
+        case ST_23_SWINGING_DOOR:
+        case ST_25_SLIDING_DOOR:
+        case ST_26_SPLITTING_ST_DOOR:
+        case ST_29_TEETH_DOOR:
+            return 1;
     }
     return 0;
 }
 
-static inline int32_t A_FP_ManhattanDist(const DukePlayer_t *ps, const spritetype *s)
+static inline int32_t A_FP_ManhattanDist(const DukePlayer_t *pPlayer, const spritetype *pSprite)
 {
-    return klabs(ps->opos.x-s->x)
-        + klabs(ps->opos.y-s->y)
-        + ((klabs(ps->opos.z-s->z+(28<<8)))>>4);
+    return klabs(pPlayer->opos.x - pSprite->x)
+           + klabs(pPlayer->opos.y - pSprite->y)
+           + ((klabs(pPlayer->opos.z - pSprite->z + (28 << 8))) >> 4);
 }
 
-int32_t __fastcall A_FindPlayer(const spritetype *s, int32_t *d)
+int __fastcall A_FindPlayer(const spritetype *pSprite, int32_t *dist)
 {
     if (!g_netServer && ud.multimode < 2)
     {
-        DukePlayer_t *const myps = g_player[myconnectindex].ps;
+        DukePlayer_t *const pPlayer = g_player[myconnectindex].ps;
 
-        if (d)
-            *d = A_FP_ManhattanDist(myps, s);
+        if (dist)
+            *dist = A_FP_ManhattanDist(pPlayer, pSprite);
+
         return myconnectindex;
     }
 
+    int     closestPlayer     = 0;
+    int32_t closestPlayerDist = INT32_MAX;
+
+    for (bssize_t TRAVERSE_CONNECT(j))
     {
-        int32_t j;
-        int32_t closest_player=0, closest=INT32_MAX;
+        DukePlayer_t *const pPlayer    = g_player[j].ps;
+        int32_t             playerDist = A_FP_ManhattanDist(pPlayer, pSprite);
 
-        for (TRAVERSE_CONNECT(j))
+        if (playerDist < closestPlayerDist && sprite[pPlayer->i].extra > 0)
         {
-            DukePlayer_t *const ps = g_player[j].ps;
-            int32_t x = A_FP_ManhattanDist(ps, s);
-
-            if (x < closest && sprite[ps->i].extra > 0)
-            {
-                closest_player = j;
-                closest = x;
-            }
+            closestPlayer     = j;
+            closestPlayerDist = playerDist;
         }
-
-        if (d)
-            *d = closest;
-        return closest_player;
     }
+
+    if (dist)
+        *dist = closestPlayerDist;
+
+    return closestPlayer;
 }
 
 void G_DoSectorAnimations(void)
 {
-    int32_t i, j, a, p, v, dasect;
-
-    for (i=g_animateCount-1; i>=0; i--)
+    for (bssize_t animNum=g_animateCnt-1; animNum>=0; animNum--)
     {
-        a = *animateptr[i];
-        v = animatevel[i]*TICSPERFRAME;
-        dasect = animatesect[i];
+        int       animPos  = *g_animatePtr[animNum];
+        int const animVel  = g_animateVel[animNum] * TICSPERFRAME;
+        int const animSect = g_animateSect[animNum];
 
-        if (a == animategoal[i])
+        if (animPos == g_animateGoal[animNum])
         {
-            G_StopInterpolation(animateptr[i]);
+            G_StopInterpolation(g_animatePtr[animNum]);
 
             // This fixes a bug where wall or floor sprites contained in
             // elevator sectors (ST 16-19) would jitter vertically after the
             // elevator had stopped.
-            if (animateptr[i] == &sector[animatesect[i]].floorz)
-                for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
+            if (g_animatePtr[animNum] == &sector[g_animateSect[animNum]].floorz)
+            {
+                for (bssize_t j=headspritesect[animSect]; j>=0; j=nextspritesect[j])
+                {
                     if (sprite[j].statnum != STAT_EFFECTOR)
                         actor[j].bpos.z = sprite[j].z;
+                }
+            }
 
-            g_animateCount--;
-            animateptr[i] = animateptr[g_animateCount];
-            animategoal[i] = animategoal[g_animateCount];
-            animatevel[i] = animatevel[g_animateCount];
-            animatesect[i] = animatesect[g_animateCount];
-            if (sector[animatesect[i]].lotag == ST_18_ELEVATOR_DOWN || sector[animatesect[i]].lotag == ST_19_ELEVATOR_UP)
-                if (animateptr[i] == &sector[animatesect[i]].ceilingz)
-                    continue;
+            g_animateCnt--;
 
-            if ((sector[dasect].lotag&0xff) != ST_22_SPLITTING_DOOR)
-                A_CallSound(dasect,-1);
+            g_animatePtr[animNum]  = g_animatePtr[g_animateCnt];
+            g_animateGoal[animNum] = g_animateGoal[g_animateCnt];
+            g_animateVel[animNum]  = g_animateVel[g_animateCnt];
+            g_animateSect[animNum] = g_animateSect[g_animateCnt];
+
+            if ((sector[g_animateSect[animNum]].lotag == ST_18_ELEVATOR_DOWN || sector[g_animateSect[animNum]].lotag == ST_19_ELEVATOR_UP)
+                && (g_animatePtr[animNum] == &sector[g_animateSect[animNum]].ceilingz))
+                continue;
+
+            if ((sector[animSect].lotag&0xff) != ST_22_SPLITTING_DOOR)
+                A_CallSound(animSect,-1);
 
             continue;
         }
 
-        if (v > 0)
-            a = min(a+v, animategoal[i]);
-        else
-            a = max(a+v, animategoal[i]);
+        animPos = (animVel > 0) ? min(animPos + animVel, g_animateGoal[animNum])
+                                : max(animPos + animVel, g_animateGoal[animNum]);
 
-        if (animateptr[i] == &sector[animatesect[i]].floorz)
+        if (g_animatePtr[animNum] == &sector[g_animateSect[animNum]].floorz)
         {
-            for (TRAVERSE_CONNECT(p))
-                if (g_player[p].ps->cursectnum == dasect)
-                    if ((sector[dasect].floorz-g_player[p].ps->pos.z) < (64<<8))
-                        if (sprite[g_player[p].ps->i].owner >= 0)
-                        {
-                            g_player[p].ps->pos.z += v;
-                            g_player[p].ps->vel.z = 0;
-/*
-                            if (p == myconnectindex)
-                            {
-                                my.z += v;
-                                myvel.z = 0;
-                            }
-*/
-                        }
+            for (bssize_t TRAVERSE_CONNECT(playerNum))
+            {
+                if ((g_player[playerNum].ps->cursectnum == animSect)
+                    && ((sector[animSect].floorz - g_player[playerNum].ps->pos.z) < (64 << 8))
+                    && (sprite[g_player[playerNum].ps->i].owner >= 0))
+                {
+                    g_player[playerNum].ps->pos.z += animVel;
+                    g_player[playerNum].ps->vel.z = 0;
+                    /*
+                                                if (p == myconnectindex)
+                                                {
+                                                    my.z += v;
+                                                    myvel.z = 0;
+                                                }
+                    */
+                }
+            }
 
-            for (j=headspritesect[dasect]; j>=0; j=nextspritesect[j])
+            for (bssize_t j=headspritesect[animSect]; j>=0; j=nextspritesect[j])
+            {
                 if (sprite[j].statnum != STAT_EFFECTOR)
                 {
                     actor[j].bpos.z = sprite[j].z;
-                    sprite[j].z += v;
-                    actor[j].floorz = sector[dasect].floorz+v;
+                    sprite[j].z += animVel;
+                    actor[j].floorz = sector[animSect].floorz+animVel;
                 }
+            }
         }
 
-        *animateptr[i] = a;
+        *g_animatePtr[animNum] = animPos;
     }
 }
 
-int32_t GetAnimationGoal(const int32_t *animptr)
+int GetAnimationGoal(const int32_t *animPtr)
 {
-    int32_t i=0;
-
-    for (; i<g_animateCount; i++)
-        if (animptr == animateptr[i])
+    for (bssize_t i = 0; i < g_animateCnt; i++)
+        if (animPtr == g_animatePtr[i])
             return i;
     return -1;
 }
 
-int32_t SetAnimation(int32_t animsect,int32_t *animptr, int32_t thegoal, int32_t thevel)
+int SetAnimation(int sectNum, int32_t *animPtr, int goalVal, int animVel)
 {
-    int32_t i = 0, j = g_animateCount;
-
-    if (g_animateCount >= MAXANIMATES)
+    if (g_animateCnt >= MAXANIMATES)
         return -1;
 
-    for (; i<g_animateCount; i++)
-        if (animptr == animateptr[i])
+    int animNum = g_animateCnt;
+
+    for (bssize_t i = 0; i < g_animateCnt; i++)
+    {
+        if (animPtr == g_animatePtr[i])
         {
-            j = i;
+            animNum = i;
             break;
         }
+    }
 
-    animatesect[j] = animsect;
-    animateptr[j] = animptr;
-    animategoal[j] = thegoal;
-    animatevel[j] = (thegoal >= *animptr) ? thevel : -thevel;
+    g_animateSect[animNum] = sectNum;
+    g_animatePtr[animNum]  = animPtr;
+    g_animateGoal[animNum] = goalVal;
+    g_animateVel[animNum]  = (goalVal >= *animPtr) ? animVel : -animVel;
 
-    if (j == g_animateCount)
-        g_animateCount++;
+    if (animNum == g_animateCnt)
+        g_animateCnt++;
 
-    G_SetInterpolation(animptr);
+    G_SetInterpolation(animPtr);
 
-    return j;
+    return animNum;
 }
 
-static void G_SetupCamTile(int32_t i, int32_t wn, int32_t smoothratio)
+static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
 {
-    vec3_t cam = G_GetCameraPosition(i, smoothratio);
+    vec3_t const camera     = G_GetCameraPosition(spriteNum, smoothRatio);
+    int const    saveMirror = display_mirror;
 
-    const int32_t mir = display_mirror;
     //if (waloff[wn] == 0) loadtile(wn);
-    setviewtotile(wn, tilesiz[wn].y, tilesiz[wn].x);
+    setviewtotile(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
 
     yax_preparedrawrooms();
-    drawrooms(cam.x, cam.y, cam.z, SA(i), 100+sprite[i].shade, SECT(i));
-    yax_drawrooms(G_DoSpriteAnimations, SECT(i), 0, smoothratio);
+    drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
+    yax_drawrooms(G_DoSpriteAnimations, SECT(spriteNum), 0, smoothRatio);
 
     display_mirror = 3;
-    G_DoSpriteAnimations(cam.x, cam.y, SA(i), smoothratio);
-    display_mirror = mir;
+    G_DoSpriteAnimations(camera.x, camera.y, SA(spriteNum), smoothRatio);
+    display_mirror = saveMirror;
     drawmasks();
 
     setviewback();
-    squarerotatetile(wn);
-    invalidatetile(wn, -1, 255);
+    squarerotatetile(tileNum);
+    invalidatetile(tileNum, -1, 255);
 }
 
-void G_AnimateCamSprite(int32_t smoothratio)
+void G_AnimateCamSprite(int smoothRatio)
 {
-    const int32_t i = g_curViewscreen;
-
 #ifdef DEBUG_VALGRIND_NO_SMC
     return;
 #endif
+
     if (g_curViewscreen < 0)
         return;
 
-    if (totalclock >= T1(i) + ud.camera_time)
+    int const spriteNum = g_curViewscreen;
+
+    if (totalclock >= T1(spriteNum) + ud.camera_time)
     {
-        const DukePlayer_t *const ps = g_player[screenpeek].ps;
+        DukePlayer_t const *const pPlayer = g_player[screenpeek].ps;
 
-        if (ps->newowner >= 0)
-            OW(i) = ps->newowner;
+        if (pPlayer->newowner >= 0)
+            OW(spriteNum) = pPlayer->newowner;
 
-        if (OW(i) >= 0 && dist(&sprite[ps->i], &sprite[i]) < VIEWSCREEN_ACTIVE_DISTANCE)
+        if (OW(spriteNum) >= 0 && dist(&sprite[pPlayer->i], &sprite[spriteNum]) < VIEWSCREEN_ACTIVE_DISTANCE)
         {
-            const int viewscrShift = G_GetViewscreenSizeShift((const uspritetype *)&sprite[i]);
-            const int viewscrTile = TILE_VIEWSCR-viewscrShift;
+            int const viewscrShift = G_GetViewscreenSizeShift((const uspritetype *)&sprite[spriteNum]);
+            int const viewscrTile  = TILE_VIEWSCR - viewscrShift;
 
             if (waloff[viewscrTile] == 0)
-                allocatepermanenttile(viewscrTile, tilesiz[PN(i)].x<<viewscrShift, tilesiz[PN(i)].y<<viewscrShift);
+                allocatepermanenttile(viewscrTile, tilesiz[PN(spriteNum)].x << viewscrShift, tilesiz[PN(spriteNum)].y << viewscrShift);
             else
                 walock[viewscrTile] = 255;
 
-            G_SetupCamTile(OW(i), viewscrTile, smoothratio);
+            G_SetupCamTile(OW(spriteNum), viewscrTile, smoothRatio);
 #ifdef POLYMER
             // Force texture update on viewscreen sprite in Polymer!
             if (getrendermode() == REND_POLYMER)
-                polymer_invalidatesprite(i);
+                polymer_invalidatesprite(spriteNum);
 #endif
         }
 
-        T1(i) = totalclock;
+        T1(spriteNum) = totalclock;
     }
 }
 
 void G_AnimateWalls(void)
 {
-    for (bssize_t p = g_numAnimWalls-1; p>=0; p--)
+    for (bssize_t animwallNum = g_animWallCnt-1; animwallNum>=0; animwallNum--)
     {
-        int const wallNum = animwall[p].wallnum;
+        int const wallNum = animwall[animwallNum].wallnum;
 
         switch (DYNAMICTILEMAP(wall[wallNum].picnum))
         {
@@ -449,17 +459,16 @@ void G_AnimateWalls(void)
         case SCREENBREAK19__STATIC:
             if ((krand()&255) < 16)
             {
-                animwall[p].tag = wall[wallNum].picnum;
+                animwall[animwallNum].tag = wall[wallNum].picnum;
                 wall[wallNum].picnum = SCREENBREAK6;
             }
-
             continue;
 
         case SCREENBREAK6__STATIC:
         case SCREENBREAK7__STATIC:
         case SCREENBREAK8__STATIC:
-            if (animwall[p].tag >= 0 && wall[wallNum].extra != FEMPIC2 && wall[wallNum].extra != FEMPIC3)
-                wall[wallNum].picnum = animwall[p].tag;
+            if (animwall[animwallNum].tag >= 0 && wall[wallNum].extra != FEMPIC2 && wall[wallNum].extra != FEMPIC3)
+                wall[wallNum].picnum = animwall[animwallNum].tag;
             else
             {
                 wall[wallNum].picnum++;
@@ -471,7 +480,7 @@ void G_AnimateWalls(void)
 
         if ((wall[wallNum].cstat&16) && G_GetForcefieldPicnum(wallNum)==W_FORCEFIELD)
         {
-            int const wallTag = animwall[p].tag;
+            int const wallTag = animwall[animwallNum].tag;
 
             if (wall[wallNum].cstat&254)
             {
@@ -481,19 +490,18 @@ void G_AnimateWalls(void)
                 if (wall[wallNum].extra == 1)
                 {
                     wall[wallNum].extra = 0;
-                    animwall[p].tag     = 0;
+                    animwall[animwallNum].tag     = 0;
                 }
-                else
-                    animwall[p].tag+=128;
+                else animwall[animwallNum].tag += 128;
 
-                if (animwall[p].tag < (128<<4))
+                if (animwall[animwallNum].tag < (128 << 4))
                 {
-                    wall[wallNum].overpicnum = (animwall[p].tag & 128) ? W_FORCEFIELD : W_FORCEFIELD + 1;
+                    wall[wallNum].overpicnum = (animwall[animwallNum].tag & 128) ? W_FORCEFIELD : W_FORCEFIELD + 1;
                 }
                 else
                 {
                     if ((krand()&255) < 32)
-                        animwall[p].tag = 128<<(krand()&3);
+                        animwall[animwallNum].tag = 128<<(krand()&3);
                     else wall[wallNum].overpicnum = W_FORCEFIELD+1;
                 }
             }
@@ -501,27 +509,27 @@ void G_AnimateWalls(void)
     }
 }
 
-int32_t G_ActivateWarpElevators(int32_t s, int32_t d) //Parm = sectoreffectornum
+int G_ActivateWarpElevators(int spriteNum, int warpDir)
 {
-    int32_t i;
-    const int32_t sn = sprite[s].sectnum;
+    bssize_t i;
+    int const sectNum = sprite[spriteNum].sectnum;
 
     for (SPRITES_OF(STAT_EFFECTOR, i))
-        if (SLT(i) == SE_17_WARP_ELEVATOR && SHT(i) == sprite[s].hitag)
+        if (SLT(i) == SE_17_WARP_ELEVATOR && SHT(i) == sprite[spriteNum].hitag)
         {
-            if (klabs(sector[sn].floorz - actor[s].t_data[2]) > SP(i) ||
-                    sector[SECT(i)].hitag == sector[sn].hitag - d)
+            if (klabs(sector[sectNum].floorz - actor[spriteNum].t_data[2]) > SP(i) ||
+                    sector[SECT(i)].hitag == sector[sectNum].hitag - warpDir)
                 break;
         }
 
     if (i == -1)
         return 1; // No find
 
-    A_PlaySound(d ? ELEVATOR_ON : ELEVATOR_OFF, s);
+    A_PlaySound(warpDir ? ELEVATOR_ON : ELEVATOR_OFF, spriteNum);
 
     for (SPRITES_OF(STAT_EFFECTOR, i))
-        if (SLT(i) == SE_17_WARP_ELEVATOR && SHT(i) == sprite[s].hitag)
-            T1(i) = T2(i) = d; //Make all check warp
+        if (SLT(i) == SE_17_WARP_ELEVATOR && SHT(i) == sprite[spriteNum].hitag)
+            T1(i) = T2(i) = warpDir; //Make all check warp
 
     return 0;
 }
@@ -574,32 +582,29 @@ void G_OperateSectors(int sectNum, int spriteNum)
 
     case ST_9_SLIDING_ST_DOOR:
     {
-        int32_t wallfind[2];
-
-        const int32_t startwall = pSector->wallptr;
-        const int32_t endwall = startwall+pSector->wallnum-1;
-
-        const int32_t sp = pSector->extra>>4;
+        int const startWall = pSector->wallptr;
+        int const endWall   = startWall + pSector->wallnum - 1;
+        int const doorSpeed = pSector->extra >> 4;
 
         //first find center point by averaging all points
 
         vec2_t vect = { 0, 0 };
 
-        for (i = startwall; i <= endwall; i++)
+        for (i = startWall; i <= endWall; i++)
         {
             vect.x += wall[i].x;
             vect.y += wall[i].y;
         }
 
-        vect.x = tabledivide32_noinline(vect.x, (endwall-startwall+1));
-        vect.y = tabledivide32_noinline(vect.y, (endwall-startwall+1));
+        vect.x = tabledivide32_noinline(vect.x, (endWall-startWall+1));
+        vect.y = tabledivide32_noinline(vect.y, (endWall-startWall+1));
 
         //find any points with either same x or same y coordinate
         //  as center (dax, day) - should be 2 points found.
-        wallfind[0] = -1;
-        wallfind[1] = -1;
 
-        for (i = startwall; i <= endwall; i++)
+        int wallfind[2] = { -1, -1 };
+
+        for (i = startWall; i <= endWall; i++)
         {
             if (wall[i].x == vect.x || wall[i].y == vect.y)
             {
@@ -615,54 +620,54 @@ void G_OperateSectors(int sectNum, int spriteNum)
 
         for (j=0; j<2; j++)
         {
-            int const nFoundWall = wallfind[j];
+            int const foundWall = wallfind[j];
 
-            i = nFoundWall - 1;
+            i = foundWall - 1;
 
-            if (i < startwall)
-                i = endwall;
+            if (i < startWall)
+                i = endWall;
 
-            vec2_t vect2 = { ((wall[i].x + wall[wall[nFoundWall].point2].x) >> 1) - wall[nFoundWall].x,
-                            ((wall[i].y + wall[wall[nFoundWall].point2].y) >> 1) - wall[nFoundWall].y };
+            vec2_t vect2 = { ((wall[i].x + wall[wall[foundWall].point2].x) >> 1) - wall[foundWall].x,
+                             ((wall[i].y + wall[wall[foundWall].point2].y) >> 1) - wall[foundWall].y };
 
-            if (wall[nFoundWall].x == vect.x && wall[nFoundWall].y == vect.y)
+            if (wall[foundWall].x == vect.x && wall[foundWall].y == vect.y)
             {
                 //find what direction door should open by averaging the
                 //  2 neighboring points of wallfind[0] & wallfind[1].
                 if (vect2.x != 0)
                 {
-                    vect2.x = wall[wall[wall[nFoundWall].point2].point2].x;
-                    vect2.x -= wall[wall[nFoundWall].point2].x;
-                    SetAnimation(sectNum,&wall[nFoundWall].x,wall[nFoundWall].x+vect2.x,sp);
-                    SetAnimation(sectNum,&wall[i].x,wall[i].x+vect2.x,sp);
-                    SetAnimation(sectNum,&wall[wall[nFoundWall].point2].x,wall[wall[nFoundWall].point2].x+vect2.x,sp);
-                    A_CallSound(sectNum,spriteNum);
+                    vect2.x = wall[wall[wall[foundWall].point2].point2].x;
+                    vect2.x -= wall[wall[foundWall].point2].x;
+                    SetAnimation(sectNum, &wall[foundWall].x, wall[foundWall].x + vect2.x, doorSpeed);
+                    SetAnimation(sectNum, &wall[i].x, wall[i].x + vect2.x, doorSpeed);
+                    SetAnimation(sectNum, &wall[wall[foundWall].point2].x, wall[wall[foundWall].point2].x + vect2.x, doorSpeed);
+                    A_CallSound(sectNum, spriteNum);
                 }
                 else if (vect2.y != 0)
                 {
-                    vect2.y = wall[wall[wall[nFoundWall].point2].point2].y;
-                    vect2.y -= wall[wall[nFoundWall].point2].y;
-                    SetAnimation(sectNum,&wall[nFoundWall].y,wall[nFoundWall].y+vect2.y,sp);
-                    SetAnimation(sectNum,&wall[i].y,wall[i].y+vect2.y,sp);
-                    SetAnimation(sectNum,&wall[wall[nFoundWall].point2].y,wall[wall[nFoundWall].point2].y+vect2.y,sp);
-                    A_CallSound(sectNum,spriteNum);
+                    vect2.y = wall[wall[wall[foundWall].point2].point2].y;
+                    vect2.y -= wall[wall[foundWall].point2].y;
+                    SetAnimation(sectNum, &wall[foundWall].y, wall[foundWall].y + vect2.y, doorSpeed);
+                    SetAnimation(sectNum, &wall[i].y, wall[i].y + vect2.y, doorSpeed);
+                    SetAnimation(sectNum, &wall[wall[foundWall].point2].y, wall[wall[foundWall].point2].y + vect2.y, doorSpeed);
+                    A_CallSound(sectNum, spriteNum);
                 }
             }
             else
             {
                 if (vect2.x != 0)
                 {
-                    SetAnimation(sectNum,&wall[nFoundWall].x,vect.x,sp);
-                    SetAnimation(sectNum,&wall[i].x,vect.x+vect2.x,sp);
-                    SetAnimation(sectNum,&wall[wall[nFoundWall].point2].x,vect.x+vect2.x,sp);
-                    A_CallSound(sectNum,spriteNum);
+                    SetAnimation(sectNum, &wall[foundWall].x, vect.x, doorSpeed);
+                    SetAnimation(sectNum, &wall[i].x, vect.x + vect2.x, doorSpeed);
+                    SetAnimation(sectNum, &wall[wall[foundWall].point2].x, vect.x + vect2.x, doorSpeed);
+                    A_CallSound(sectNum, spriteNum);
                 }
                 else if (vect2.y != 0)
                 {
-                    SetAnimation(sectNum,&wall[nFoundWall].y,vect.y,sp);
-                    SetAnimation(sectNum,&wall[i].y,vect.y+vect2.y,sp);
-                    SetAnimation(sectNum,&wall[wall[nFoundWall].point2].y,vect.y+vect2.y,sp);
-                    A_CallSound(sectNum,spriteNum);
+                    SetAnimation(sectNum, &wall[foundWall].y, vect.y, doorSpeed);
+                    SetAnimation(sectNum, &wall[i].y, vect.y + vect2.y, doorSpeed);
+                    SetAnimation(sectNum, &wall[wall[foundWall].point2].y, vect.y + vect2.y, doorSpeed);
+                    A_CallSound(sectNum, spriteNum);
                 }
             }
         }
@@ -740,11 +745,11 @@ void G_OperateSectors(int sectNum, int spriteNum)
 
             j = sector[i].floorz;
 
-            int const nSectorExtra = pSector->extra;
-            int const nZdiff       = pSector->ceilingz - pSector->floorz;
+            int const sectorExtra = pSector->extra;
+            int const zDiff       = pSector->ceilingz - pSector->floorz;
 
-            SetAnimation(sectNum, &pSector->floorz, j, nSectorExtra);
-            SetAnimation(sectNum, &pSector->ceilingz, j + nZdiff, nSectorExtra);
+            SetAnimation(sectNum, &pSector->floorz, j, sectorExtra);
+            SetAnimation(sectNum, &pSector->ceilingz, j + zDiff, sectorExtra);
             A_CallSound(sectNum, spriteNum);
         }
         return;
@@ -829,9 +834,9 @@ REDODOOR:
         i = GetAnimationGoal(&pSector->floorz);
         if (i >= 0)
         {
-            if (animategoal[sectNum] == pSector->ceilingz)
-                animategoal[i] = sector[nextsectorneighborz(sectNum,pSector->ceilingz,1,1)].floorz;
-            else animategoal[i] = pSector->ceilingz;
+            if (g_animateGoal[sectNum] == pSector->ceilingz)
+                g_animateGoal[i] = sector[nextsectorneighborz(sectNum,pSector->ceilingz,1,1)].floorz;
+            else g_animateGoal[i] = pSector->ceilingz;
         }
         else
         {
@@ -850,24 +855,25 @@ REDODOOR:
 
         if (pSector->lotag&0x8000)
         {
-            int32_t q = (pSector->ceilingz+pSector->floorz)>>1;
+            // WTF?
+            int const q = (pSector->ceilingz + pSector->floorz) >> 1;
             j = SetAnimation(sectNum, &pSector->floorz, q, pSector->extra);
             j = SetAnimation(sectNum, &pSector->ceilingz, q, pSector->extra);
         }
         else
         {
-            int32_t fneigh = nextsectorneighborz(sectNum, pSector->floorz, 1, 1);
-            int32_t cneigh = nextsectorneighborz(sectNum, pSector->ceilingz, -1, -1);
+            int const floorNeighbor   = nextsectorneighborz(sectNum, pSector->floorz, 1, 1);
+            int const ceilingNeighbor = nextsectorneighborz(sectNum, pSector->ceilingz, -1, -1);
 
-            if (fneigh>=0 && cneigh>=0)
+            if (floorNeighbor>=0 && ceilingNeighbor>=0)
             {
-                j = SetAnimation(sectNum, &pSector->floorz, sector[fneigh].floorz, pSector->extra);
-                j = SetAnimation(sectNum, &pSector->ceilingz, sector[cneigh].ceilingz, pSector->extra);
+                j = SetAnimation(sectNum, &pSector->floorz, sector[floorNeighbor].floorz, pSector->extra);
+                j = SetAnimation(sectNum, &pSector->ceilingz, sector[ceilingNeighbor].ceilingz, pSector->extra);
             }
             else
             {
                 OSD_Printf("WARNING: ST22: null sector: floor neighbor=%d, ceiling neighbor=%d!\n",
-                           fneigh, cneigh);
+                           floorNeighbor, ceilingNeighbor);
                 pSector->lotag ^= 0x8000;
             }
         }
@@ -895,14 +901,15 @@ REDODOOR:
                 return;
             }    // JBF
 
-            int const nTag = sector[SECT(i)].lotag&0x8000;
+            int const tag = sector[SECT(i)].lotag&0x8000;
 
             if (j >= 0)
             {
-                int32_t playedsnd = 0;
+                int soundPlayed = 0;
 
                 for (SPRITES_OF(STAT_EFFECTOR, i))
-                    if (nTag == (sector[SECT(i)].lotag&0x8000) && SLT(i) == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT(i) && !T5(i))
+                {
+                    if (tag == (sector[SECT(i)].lotag&0x8000) && SLT(i) == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT(i) && !T5(i))
                     {
                         if (sector[SECT(i)].lotag&0x8000) sector[SECT(i)].lotag &= 0x7fff;
                         else sector[SECT(i)].lotag |= 0x8000;
@@ -910,12 +917,13 @@ REDODOOR:
                         T5(i) = 1;
                         T4(i) = -T4(i);
 
-                        if (!playedsnd)
+                        if (!soundPlayed)
                         {
                             A_CallSound(sectNum, i);
-                            playedsnd = 1;
+                            soundPlayed = 1;
                         }
                     }
+                }
             }
         }
         return;
@@ -987,23 +995,21 @@ REDODOOR:
     }
 }
 
-void G_OperateRespawns(int32_t low)
+void G_OperateRespawns(int lotag)
 {
-    int32_t i, nexti;
-
-    for (SPRITES_OF_STAT_SAFE(STAT_FX, i, nexti))
+    for (bssize_t nextSprite, SPRITES_OF_STAT_SAFE(STAT_FX, spriteNum, nextSprite))
     {
-        spritetype *respr = &sprite[i];
+        spritetype * const pSprite = &sprite[spriteNum];
 
-        if (respr->lotag == low && respr->picnum == RESPAWN)
+        if (pSprite->lotag == lotag && pSprite->picnum == RESPAWN)
         {
-            if (!ud.monsters_off || !A_CheckEnemyTile(respr->hitag))
+            if (!ud.monsters_off || !A_CheckEnemyTile(pSprite->hitag))
             {
-                int32_t j = A_Spawn(i, TRANSPORTERSTAR);
+                int const j = A_Spawn(spriteNum, TRANSPORTERSTAR);
                 sprite[j].z -= ZOFFSET5;
 
                 // Just a way to killit (see G_MoveFX(): RESPAWN__STATIC)
-                respr->extra = 66-12;
+                pSprite->extra = 66-12;
             }
         }
     }
@@ -1011,73 +1017,74 @@ void G_OperateRespawns(int32_t low)
 
 void G_OperateActivators(int lotag, int playerNum)
 {
-    int32_t i, nexti, j, k;
-
-    for (i=g_numCyclers-1; i>=0; i--)
+    for (bssize_t spriteNum=g_cyclerCnt-1; spriteNum>=0; spriteNum--)
     {
-        int16_t *const pCycler = &cyclers[i][0];
+        int16_t *const pCycler = &g_cyclers[spriteNum][0];
 
         if (pCycler[4] == lotag)
         {
-            pCycler[5] = !pCycler[5];
+            pCycler[5]                      = !pCycler[5];
+            sector[pCycler[0]].floorshade   = pCycler[3];
+            sector[pCycler[0]].ceilingshade = pCycler[3];
+            walltype *pWall                 = &wall[sector[pCycler[0]].wallptr];
 
-            sector[pCycler[0]].floorshade = sector[pCycler[0]].ceilingshade = pCycler[3];
-
-            walltype *pWall = &wall[sector[pCycler[0]].wallptr];
-
-            for (j = sector[pCycler[0]].wallnum; j > 0; j--, pWall++)
+            for (bsize_t j = sector[pCycler[0]].wallnum; j > 0; j--, pWall++)
                 pWall->shade = pCycler[3];
         }
     }
 
-    k = -1;
+    int soundPlayed = -1;
 
-    for (SPRITES_OF_STAT_SAFE(STAT_ACTIVATOR, i, nexti))
+    for (bssize_t nextSprite, SPRITES_OF_STAT_SAFE(STAT_ACTIVATOR, spriteNum, nextSprite))
     {
-        if (sprite[i].lotag == lotag)
+        if (sprite[spriteNum].lotag == lotag)
         {
-            if (sprite[i].picnum == ACTIVATORLOCKED)
+            if (sprite[spriteNum].picnum == ACTIVATORLOCKED)
             {
-                sector[SECT(i)].lotag ^= 16384;
+                sector[SECT(spriteNum)].lotag ^= 16384;
 
                 if (playerNum >= 0 && playerNum < ud.multimode)
-                    P_DoQuote((sector[SECT(i)].lotag & 16384) ? QUOTE_LOCKED : QUOTE_UNLOCKED, g_player[playerNum].ps);
+                    P_DoQuote((sector[SECT(spriteNum)].lotag & 16384) ? QUOTE_LOCKED : QUOTE_UNLOCKED, g_player[playerNum].ps);
             }
             else
             {
-                switch (SHT(i))
+                switch (SHT(spriteNum))
                 {
                     case 1:
-                        if (sector[SECT(i)].floorz != sector[SECT(i)].ceilingz)
+                        if (sector[SECT(spriteNum)].floorz != sector[SECT(spriteNum)].ceilingz)
                             continue;
                         break;
                     case 2:
-                        if (sector[SECT(i)].floorz == sector[SECT(i)].ceilingz)
+                        if (sector[SECT(spriteNum)].floorz == sector[SECT(spriteNum)].ceilingz)
                             continue;
                         break;
                 }
 
                 // ST_2_UNDERWATER
-                if (sector[sprite[i].sectnum].lotag < 3)
+                if (sector[sprite[spriteNum].sectnum].lotag < 3)
                 {
-                    for (SPRITES_OF_SECT(sprite[i].sectnum, j))
-                        if (sprite[j].statnum == STAT_EFFECTOR)
-                            switch (sprite[j].lotag)
+                    for (bssize_t SPRITES_OF_SECT(sprite[spriteNum].sectnum, foundSprite))
+                    {
+                        if (sprite[foundSprite].statnum == STAT_EFFECTOR)
+                        {
+                            switch (sprite[foundSprite].lotag)
                             {
                                 case SE_36_PROJ_SHOOTER:
                                 case SE_31_FLOOR_RISE_FALL:
                                 case SE_32_CEILING_RISE_FALL:
                                 case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
-                                    actor[j].t_data[0] = 1 - actor[j].t_data[0];
-                                    A_CallSound(SECT(i), j);
+                                    actor[foundSprite].t_data[0] = 1 - actor[foundSprite].t_data[0];
+                                    A_CallSound(SECT(spriteNum), foundSprite);
                                     break;
                             }
+                        }
+                    }
                 }
 
-                if (k == -1 && (sector[SECT(i)].lotag&0xff) == ST_22_SPLITTING_DOOR)
-                    k = A_CallSound(SECT(i),i);
+                if (soundPlayed == -1 && (sector[SECT(spriteNum)].lotag&0xff) == ST_22_SPLITTING_DOOR)
+                    soundPlayed = A_CallSound(SECT(spriteNum),spriteNum);
 
-                G_OperateSectors(SECT(i),i);
+                G_OperateSectors(SECT(spriteNum),spriteNum);
             }
         }
     }
@@ -1094,7 +1101,7 @@ void G_OperateMasterSwitches(int lotag)
 
 void G_OperateForceFields(int spriteNum, int wallTag)
 {
-    for (bssize_t animwallNum = 0; animwallNum < g_numAnimWalls; ++animwallNum)
+    for (bssize_t animwallNum = 0; animwallNum < g_animWallCnt; ++animwallNum)
     {
         int const wallNum = animwall[animwallNum].wallnum;
 
@@ -1213,11 +1220,11 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
 
     //    initprintf("P_ActivateSwitch called picnum=%i switchissprite=%i\n",picnum,switchissprite);
 
-    int nBasePicnum   = G_GetBaseSwitch(nSwitchPicnum);
-    int nCorrectDips  = 1;
-    int nNumDips      = 0;
+    int basePicnum   = G_GetBaseSwitch(nSwitchPicnum);
+    int correctDips  = 1;
+    int numDips      = 0;
 
-    switch (DYNAMICTILEMAP(nBasePicnum))
+    switch (DYNAMICTILEMAP(basePicnum))
     {
     case DIPSWITCH_LIKE_CASES:
         break;
@@ -1270,23 +1277,23 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
         {
             // Put the tile number into a variable so later switches don't
             // trigger on the result of changes:
-            int const nSpritePicnum = PN(spriteNum);
+            int const spritePic = PN(spriteNum);
 
-            if (nSpritePicnum >= MULTISWITCH && nSpritePicnum <= MULTISWITCH+3)
+            if (spritePic >= MULTISWITCH && spritePic <= MULTISWITCH+3)
             {
                 sprite[spriteNum].picnum++;
                 if (sprite[spriteNum].picnum > MULTISWITCH+3)
                     sprite[spriteNum].picnum = MULTISWITCH;
             }
 
-            switch (DYNAMICTILEMAP(nSpritePicnum))
+            switch (DYNAMICTILEMAP(spritePic))
             {
             case DIPSWITCH_LIKE_CASES:
                 if (switchType == SWITCH_SPRITE && wallOrSprite == spriteNum)
                     PN(spriteNum)++;
                 else if (SHT(spriteNum) == 0)
-                    nCorrectDips++;
-                nNumDips++;
+                    correctDips++;
+                numDips++;
                 break;
 
             case ACCESSSWITCH_CASES:
@@ -1295,17 +1302,17 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
                 break;
 
             default:
-                if (nSpritePicnum <= 0)  // oob safety
+                if (spritePic <= 0)  // oob safety
                     break;
 
-                switch (DYNAMICTILEMAP(nSpritePicnum - 1))
+                switch (DYNAMICTILEMAP(spritePic - 1))
                 {
                     case DIPSWITCH_LIKE_CASES:
                         if (switchType == SWITCH_SPRITE && wallOrSprite == spriteNum)
                             PN(spriteNum)--;
                         else if (SHT(spriteNum) == 1)
-                            nCorrectDips++;
-                        nNumDips++;
+                            correctDips++;
+                        numDips++;
                         break;
 
                     case REST_SWITCH_CASES:
@@ -1334,8 +1341,8 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
                     if (switchType == SWITCH_WALL && wallNum == wallOrSprite)
                         wall[wallNum].picnum++;
                     else if (wall[wallNum].hitag == 0)
-                        nCorrectDips++;
-                    nNumDips++;
+                        correctDips++;
+                    numDips++;
                     break;
 
                 case ACCESSSWITCH_CASES:
@@ -1353,8 +1360,8 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
                             if (switchType == SWITCH_WALL && wallNum == wallOrSprite)
                                 wall[wallNum].picnum--;
                             else if (wall[wallNum].hitag == 1)
-                                nCorrectDips++;
-                            nNumDips++;
+                                correctDips++;
+                            numDips++;
                             break;
 
                         case REST_SWITCH_CASES:
@@ -1372,9 +1379,9 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
         return 1;
     }
 
-    nBasePicnum = G_GetBaseSwitch(nSwitchPicnum);
+    basePicnum = G_GetBaseSwitch(nSwitchPicnum);
 
-    switch (DYNAMICTILEMAP(nBasePicnum))
+    switch (DYNAMICTILEMAP(basePicnum))
     {
         default:
             if (CheckDoorTile(nSwitchPicnum) == 0)
@@ -1386,7 +1393,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
                 S_PlaySound3D((nSwitchPicnum == ALIENSWITCH || nSwitchPicnum == ALIENSWITCH + 1) ? ALIEN_SWITCH1 : SWITCH_ON,
                               (switchType == SWITCH_SPRITE) ? wallOrSprite : g_player[playerNum].ps->i, &davector);
 
-                if (nNumDips != nCorrectDips)
+                if (numDips != correctDips)
                     break;
 
                 S_PlaySound3D(END_OF_LEVEL_WARN, g_player[playerNum].ps->i, &davector);
@@ -1452,16 +1459,16 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
 
 void G_ActivateBySector(int sectNum, int spriteNum)
 {
-    int nActivatedSectors = 0;
+    int activatedSectors = 0;
 
     for (bssize_t SPRITES_OF_SECT(sectNum, i))
         if (PN(i) == ACTIVATOR)
         {
             G_OperateActivators(SLT(i),-1);
-            ++nActivatedSectors;
+            ++activatedSectors;
         }
 
-    if (!nActivatedSectors)
+    if (!activatedSectors)
         G_OperateSectors(sectNum, spriteNum);
 }
 
@@ -1531,18 +1538,18 @@ void A_DamageWall(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
                 if (sectNum < 0)
                     return;
 
-                int nXrepeat = 32;
-                int nYrepeat = 32;
+                int xRepeat = 32;
+                int yRepeat = 32;
 
                 if (weaponNum == -1)
-                    nXrepeat = nYrepeat = 8;
+                    xRepeat = yRepeat = 8;
                 else if (weaponNum == CHAINGUN)
                 {
-                    nXrepeat = 16 + sprite[spriteNum].xrepeat;
-                    nYrepeat = 16 + sprite[spriteNum].yrepeat;
+                    xRepeat = 16 + sprite[spriteNum].xrepeat;
+                    yRepeat = 16 + sprite[spriteNum].yrepeat;
                 }
 
-                int const i = A_InsertSprite(sectNum, vPos->x, vPos->y, vPos->z, FORCERIPPLE, -127, nXrepeat, nYrepeat, 0,
+                int const i = A_InsertSprite(sectNum, vPos->x, vPos->y, vPos->z, FORCERIPPLE, -127, xRepeat, yRepeat, 0,
                                    0, 0, spriteNum, 5);
 
                 CS(i) |= 18 + 128;
@@ -1724,21 +1731,21 @@ void A_DamageWall(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
             if (sectNum < 0)
                 return;
 
-            int nDarkestWall = 0;
+            int darkestWall = 0;
 
             pWall = &wall[sector[sectNum].wallptr];
 
             for (bssize_t i = sector[sectNum].wallnum; i > 0; i--, pWall++)
-                if (pWall->shade > nDarkestWall)
-                    nDarkestWall = pWall->shade;
+                if (pWall->shade > darkestWall)
+                    darkestWall = pWall->shade;
 
-            int const nRand = krand() & 1;
+            int const random = krand() & 1;
 
             for (bssize_t SPRITES_OF(STAT_EFFECTOR, i))
                 if (SHT(i) == wall[wallNum].lotag && SLT(i) == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
                 {
-                    T3(i) = nRand;
-                    T4(i) = nDarkestWall;
+                    T3(i) = random;
+                    T4(i) = darkestWall;
                     T5(i) = 1;
                 }
 
@@ -2316,11 +2323,11 @@ void G_AlignWarpElevators(void)
 }
 
 
-static int32_t P_CheckDetonatorSpecialCase(DukePlayer_t *const pPlayer, int32_t weaponNum)
+static int P_CheckDetonatorSpecialCase(DukePlayer_t *const pPlayer, int weaponNum)
 {
     if (weaponNum == HANDBOMB_WEAPON && pPlayer->ammo_amount[HANDBOMB_WEAPON] == 0)
     {
-        int32_t spriteNum = headspritestat[STAT_ACTOR];
+        int spriteNum = headspritestat[STAT_ACTOR];
 
         while (spriteNum >= 0)
         {
@@ -2334,7 +2341,7 @@ static int32_t P_CheckDetonatorSpecialCase(DukePlayer_t *const pPlayer, int32_t 
     return 0;
 }
 
-void P_HandleSharedKeys(int32_t playerNum)
+void P_HandleSharedKeys(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
@@ -2474,7 +2481,7 @@ void P_HandleSharedKeys(int32_t playerNum)
         {
             pPlayer->invdisptime = GAMETICSPERSEC*2;
 
-            int const nInventoryRight = !!(TEST_SYNC_KEY(playerBits, SK_INV_RIGHT));
+            int const inventoryRight = !!(TEST_SYNC_KEY(playerBits, SK_INV_RIGHT));
 
             if (pPlayer->refresh_inventory) pPlayer->refresh_inventory = 0;
             int32_t inventoryIcon = pPlayer->inven_icon;
@@ -2495,7 +2502,7 @@ CHECKINV1:
                     case ICON_HEATS:
                         if (pPlayer->inv_amount[icon_to_inv[inventoryIcon]] > 0 && i > 1)
                             break;
-                        if (nInventoryRight)
+                        if (inventoryRight)
                             inventoryIcon++;
                         else
                             inventoryIcon--;
@@ -2504,12 +2511,12 @@ CHECKINV1:
                     case ICON_FIRSTAID:
                         if (pPlayer->inv_amount[GET_FIRSTAID] > 0 && i > 1)
                             break;
-                        inventoryIcon = nInventoryRight ? 2 : 7;
+                        inventoryIcon = inventoryRight ? 2 : 7;
                         goto CHECKINV1;
                     case ICON_BOOTS:
                         if (pPlayer->inv_amount[GET_BOOTS] > 0 && i > 1)
                             break;
-                        inventoryIcon = nInventoryRight ? 1 : 6;
+                        inventoryIcon = inventoryRight ? 1 : 6;
                         goto CHECKINV1;
                 }
             }
@@ -2823,7 +2830,7 @@ CHECKINV1:
     }
 }
 
-int32_t A_CheckHitSprite(int32_t spriteNum, int16_t *hitSprite)
+int A_CheckHitSprite(int spriteNum, int16_t *hitSprite)
 {
     hitdata_t hitData;
     int32_t   zOffset = 0;
@@ -2847,7 +2854,7 @@ int32_t A_CheckHitSprite(int32_t spriteNum, int16_t *hitSprite)
     return FindDistance2D(hitData.pos.x-SX(spriteNum),hitData.pos.y-SY(spriteNum));
 }
 
-static int32_t P_FindWall(DukePlayer_t *pPlayer, int16_t *hitWall)
+static int P_FindWall(DukePlayer_t *pPlayer, int *hitWall)
 {
     hitdata_t hitData;
 
@@ -2863,7 +2870,7 @@ static int32_t P_FindWall(DukePlayer_t *pPlayer, int16_t *hitWall)
 }
 
 // returns 1 if sprite i should not be considered by neartag
-static int32_t our_neartag_blacklist(int32_t spriteNum)
+static int our_neartag_blacklist(int spriteNum)
 {
     return sprite[spriteNum].picnum >= SECTOREFFECTOR__STATIC && sprite[spriteNum].picnum <= GPSPEED__STATIC;
 }
@@ -2905,7 +2912,7 @@ void P_CheckSectors(int playerNum)
             default:
                 if (pSector->lotag >= 10000 && pSector->lotag < 16383)
                 {
-                    if (playerNum == screenpeek || (GametypeFlags[ud.coop] & GAMETYPE_COOPSOUND))
+                    if (playerNum == screenpeek || (g_gametypeFlags[ud.coop] & GAMETYPE_COOPSOUND))
                         A_PlaySound(pSector->lotag - 10000, pPlayer->i);
                     pSector->lotag = 0;
                 }
@@ -2940,10 +2947,10 @@ void P_CheckSectors(int playerNum)
         pPlayer->toggle_key_flag = 0;
     else if (!pPlayer->toggle_key_flag)
     {
-        int16_t hitscanwall;
+        int foundWall;
 
-        int16_t neartagsector, neartagwall, neartagsprite;
-        int32_t neartaghitdist;
+        int16_t nearSector, nearWall, nearSprite;
+        int32_t nearDist;
 
         if (TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_ESCAPE))
         {
@@ -2952,92 +2959,91 @@ void P_CheckSectors(int playerNum)
             return;
         }
 
-        neartagsprite = -1;
+        nearSprite = -1;
         pPlayer->toggle_key_flag = 1;
-        hitscanwall = -1;
+        foundWall = -1;
 
-        int wallDist = P_FindWall(pPlayer,&hitscanwall);
+        int wallDist = P_FindWall(pPlayer, &foundWall);
 
-        if (hitscanwall >= 0 && wallDist < 1280 && wall[hitscanwall].overpicnum == MIRROR)
-            if (wall[hitscanwall].lotag > 0 && !A_CheckSoundPlaying(pPlayer->i,wall[hitscanwall].lotag) && playerNum == screenpeek)
+        if (foundWall >= 0 && wallDist < 1280 && wall[foundWall].overpicnum == MIRROR)
+            if (wall[foundWall].lotag > 0 && !A_CheckSoundPlaying(pPlayer->i,wall[foundWall].lotag) && playerNum == screenpeek)
             {
-                A_PlaySound(wall[hitscanwall].lotag,pPlayer->i);
+                A_PlaySound(wall[foundWall].lotag,pPlayer->i);
                 return;
             }
 
-        if (hitscanwall >= 0 && (wall[hitscanwall].cstat&16))
-            if (wall[hitscanwall].lotag)
+        if (foundWall >= 0 && (wall[foundWall].cstat&16))
+            if (wall[foundWall].lotag)
                 return;
 
         if (pPlayer->newowner >= 0)
-            neartag(pPlayer->opos.x,pPlayer->opos.y,pPlayer->opos.z,sprite[pPlayer->i].sectnum,pPlayer->oang,&neartagsector,
-                    &neartagwall,&neartagsprite,&neartaghitdist, 1280, 1, our_neartag_blacklist);
+            neartag(pPlayer->opos.x, pPlayer->opos.y, pPlayer->opos.z, sprite[pPlayer->i].sectnum, pPlayer->oang, &nearSector,
+                &nearWall, &nearSprite, &nearDist, 1280, 1, our_neartag_blacklist);
         else
         {
-            neartag(pPlayer->pos.x,pPlayer->pos.y,pPlayer->pos.z,sprite[pPlayer->i].sectnum,pPlayer->oang,&neartagsector,
-                    &neartagwall,&neartagsprite,&neartaghitdist, 1280, 1, our_neartag_blacklist);
-            if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-                neartag(pPlayer->pos.x,pPlayer->pos.y,pPlayer->pos.z+ZOFFSET3,sprite[pPlayer->i].sectnum,pPlayer->oang,&neartagsector,
-                        &neartagwall,&neartagsprite,&neartaghitdist, 1280, 1, our_neartag_blacklist);
-            if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-                neartag(pPlayer->pos.x,pPlayer->pos.y,pPlayer->pos.z+ZOFFSET2,sprite[pPlayer->i].sectnum,pPlayer->oang,&neartagsector,
-                        &neartagwall,&neartagsprite,&neartaghitdist, 1280, 1, our_neartag_blacklist);
-            if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
+            neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z, sprite[pPlayer->i].sectnum, pPlayer->oang, &nearSector,
+                &nearWall, &nearSprite, &nearDist, 1280, 1, our_neartag_blacklist);
+            if (nearSprite == -1 && nearWall == -1 && nearSector == -1)
+                neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z+ZOFFSET3, sprite[pPlayer->i].sectnum, pPlayer->oang, &nearSector,
+                    &nearWall, &nearSprite, &nearDist, 1280, 1, our_neartag_blacklist);
+            if (nearSprite == -1 && nearWall == -1 && nearSector == -1)
+                neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z+ZOFFSET2, sprite[pPlayer->i].sectnum, pPlayer->oang, &nearSector,
+                    &nearWall, &nearSprite, &nearDist, 1280, 1, our_neartag_blacklist);
+            if (nearSprite == -1 && nearWall == -1 && nearSector == -1)
             {
-                neartag(pPlayer->pos.x,pPlayer->pos.y,pPlayer->pos.z+ZOFFSET2,sprite[pPlayer->i].sectnum,pPlayer->oang,&neartagsector,
-                        &neartagwall,&neartagsprite,&neartaghitdist, 1280, 3, our_neartag_blacklist);
-                if (neartagsprite >= 0)
+                neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z+ZOFFSET2, sprite[pPlayer->i].sectnum, pPlayer->oang, &nearSector,
+                    &nearWall, &nearSprite, &nearDist, 1280, 3, our_neartag_blacklist);
+                if (nearSprite >= 0)
                 {
-                    switch (DYNAMICTILEMAP(sprite[neartagsprite].picnum))
+                    switch (DYNAMICTILEMAP(sprite[nearSprite].picnum))
                     {
-                    case FEM1__STATIC:
-                    case FEM2__STATIC:
-                    case FEM3__STATIC:
-                    case FEM4__STATIC:
-                    case FEM5__STATIC:
-                    case FEM6__STATIC:
-                    case FEM7__STATIC:
-                    case FEM8__STATIC:
-                    case FEM9__STATIC:
-                    case FEM10__STATIC:
-                    case PODFEM1__STATIC:
-                    case NAKED1__STATIC:
-                    case STATUE__STATIC:
-                    case TOUGHGAL__STATIC:
-                        return;
+                        case FEM1__STATIC:
+                        case FEM2__STATIC:
+                        case FEM3__STATIC:
+                        case FEM4__STATIC:
+                        case FEM5__STATIC:
+                        case FEM6__STATIC:
+                        case FEM7__STATIC:
+                        case FEM8__STATIC:
+                        case FEM9__STATIC:
+                        case FEM10__STATIC:
+                        case PODFEM1__STATIC:
+                        case NAKED1__STATIC:
+                        case STATUE__STATIC:
+                        case TOUGHGAL__STATIC: return;
                     }
                 }
 
-                neartagsprite = -1;
-                neartagwall = -1;
-                neartagsector = -1;
+                nearSprite = -1;
+                nearWall   = -1;
+                nearSector = -1;
             }
         }
 
-        if (pPlayer->newowner == -1 && neartagsprite == -1 && neartagsector == -1 && neartagwall == -1)
+        if (pPlayer->newowner == -1 && nearSprite == -1 && nearSector == -1 && nearWall == -1)
         {
             if (isanunderoperator(sector[sprite[pPlayer->i].sectnum].lotag))
-                neartagsector = sprite[pPlayer->i].sectnum;
+                nearSector = sprite[pPlayer->i].sectnum;
         }
 
-        if (neartagsector >= 0 && (sector[neartagsector].lotag&16384))
+        if (nearSector >= 0 && (sector[nearSector].lotag&16384))
             return;
 
-        if (neartagsprite == -1 && neartagwall == -1)
+        if (nearSprite == -1 && nearWall == -1)
         {
             if (pPlayer->cursectnum >= 0 && sector[pPlayer->cursectnum].lotag == 2)
             {
-                if (A_CheckHitSprite(pPlayer->i, &neartagsprite) > 1280)
-                    neartagsprite = -1;
+                if (A_CheckHitSprite(pPlayer->i, &nearSprite) > 1280)
+                    nearSprite = -1;
             }
         }
 
-        if (neartagsprite >= 0)
+        if (nearSprite >= 0)
         {
-            if (P_ActivateSwitch(playerNum, neartagsprite, 1))
+            if (P_ActivateSwitch(playerNum, nearSprite, 1))
                 return;
 
-            switch (DYNAMICTILEMAP(sprite[neartagsprite].picnum))
+            switch (DYNAMICTILEMAP(sprite[nearSprite].picnum))
             {
             case TOILET__STATIC:
             case STALL__STATIC:
@@ -3063,19 +3069,19 @@ void P_CheckSectors(int playerNum)
                     else if (sprite[pPlayer->i].extra < pPlayer->max_player_health)
                         sprite[pPlayer->i].extra = pPlayer->max_player_health;
                 }
-                else if (!A_CheckSoundPlaying(neartagsprite,FLUSH_TOILET))
-                    A_PlaySound(FLUSH_TOILET,neartagsprite);
+                else if (!A_CheckSoundPlaying(nearSprite,FLUSH_TOILET))
+                    A_PlaySound(FLUSH_TOILET,nearSprite);
                 return;
 
             case NUKEBUTTON__STATIC:
             {
-                int16_t wallNum;
+                int wallNum;
 
                 P_FindWall(pPlayer, &wallNum);
 
                 if (wallNum >= 0 && wall[wallNum].overpicnum == 0)
                 {
-                    if (actor[neartagsprite].t_data[0] == 0)
+                    if (actor[nearSprite].t_data[0] == 0)
                     {
                         if (ud.noexits && (g_netServer || ud.multimode > 1))
                         {
@@ -3085,10 +3091,10 @@ void P_CheckSectors(int playerNum)
                         }
                         else
                         {
-                            actor[neartagsprite].t_data[0] = 1;
-                            sprite[neartagsprite].owner    = pPlayer->i;
+                            actor[nearSprite].t_data[0] = 1;
+                            sprite[nearSprite].owner    = pPlayer->i;
                             ud.secretlevel =
-                            (pPlayer->buttonpalette = sprite[neartagsprite].pal) ? sprite[neartagsprite].lotag : 0;
+                            (pPlayer->buttonpalette = sprite[nearSprite].pal) ? sprite[nearSprite].lotag : 0;
                         }
                     }
                 }
@@ -3096,10 +3102,10 @@ void P_CheckSectors(int playerNum)
             }
 
             case WATERFOUNTAIN__STATIC:
-                if (actor[neartagsprite].t_data[0] != 1)
+                if (actor[nearSprite].t_data[0] != 1)
                 {
-                    actor[neartagsprite].t_data[0] = 1;
-                    sprite[neartagsprite].owner    = pPlayer->i;
+                    actor[nearSprite].t_data[0] = 1;
+                    sprite[nearSprite].owner    = pPlayer->i;
 
                     if (sprite[pPlayer->i].extra < pPlayer->max_player_health)
                     {
@@ -3121,13 +3127,13 @@ void P_CheckSectors(int playerNum)
                 // Try to find a camera sprite for the viewscreen.
                 for (bssize_t SPRITES_OF(STAT_ACTOR, spriteNum))
                 {
-                    if (PN(spriteNum) == CAMERA1 && SP(spriteNum) == 0 && sprite[neartagsprite].hitag == SLT(spriteNum))
+                    if (PN(spriteNum) == CAMERA1 && SP(spriteNum) == 0 && sprite[nearSprite].hitag == SLT(spriteNum))
                     {
-                        sprite[spriteNum].yvel      = 1;  // Using this camera
-                        A_PlaySound(MONITOR_ACTIVE,pPlayer->i);
-                        sprite[neartagsprite].owner = spriteNum;
-                        sprite[neartagsprite].yvel  = 1;  // VIEWSCREEN_YVEL
-                        g_curViewscreen             = neartagsprite;
+                        sprite[spriteNum].yvel   = 1;  // Using this camera
+                        A_PlaySound(MONITOR_ACTIVE, pPlayer->i);
+                        sprite[nearSprite].owner = spriteNum;
+                        sprite[nearSprite].yvel  = 1;  // VIEWSCREEN_YVEL
+                        g_curViewscreen          = nearSprite;
 
                         int const playerSectnum = pPlayer->cursectnum;
                         pPlayer->cursectnum     = SECT(spriteNum);
@@ -3155,7 +3161,7 @@ void P_CheckSectors(int playerNum)
             return;
         }
 
-        if (neartagwall == -1 && neartagsector == -1 && neartagsprite == -1)
+        if (nearWall == -1 && nearSector == -1 && nearSprite == -1)
         {
             if (klabs(A_GetHitscanRange(pPlayer->i)) < 512)
             {
@@ -3164,12 +3170,12 @@ void P_CheckSectors(int playerNum)
             }
         }
 
-        if (neartagwall >= 0)
+        if (nearWall >= 0)
         {
-            if (wall[neartagwall].lotag > 0 && CheckDoorTile(wall[neartagwall].picnum))
+            if (wall[nearWall].lotag > 0 && CheckDoorTile(wall[nearWall].picnum))
             {
-                if (hitscanwall == neartagwall || hitscanwall == -1)
-                    P_ActivateSwitch(playerNum,neartagwall,0);
+                if (foundWall == nearWall || foundWall == -1)
+                    P_ActivateSwitch(playerNum,nearWall,0);
                 return;
             }
             else if (pPlayer->newowner >= 0)
@@ -3179,16 +3185,16 @@ void P_CheckSectors(int playerNum)
             }
         }
 
-        if (neartagsector >= 0 && (sector[neartagsector].lotag&16384) == 0 &&
-                isanearoperator(sector[neartagsector].lotag))
+        if (nearSector >= 0 && (sector[nearSector].lotag&16384) == 0 &&
+                isanearoperator(sector[nearSector].lotag))
         {
-            for (bssize_t SPRITES_OF_SECT(neartagsector, spriteNum))
+            for (bssize_t SPRITES_OF_SECT(nearSector, spriteNum))
             {
                 if (PN(spriteNum) == ACTIVATOR || PN(spriteNum) == MASTERSWITCH)
                     return;
             }
 
-            G_OperateSectors(neartagsector,pPlayer->i);
+            G_OperateSectors(nearSector,pPlayer->i);
         }
         else if ((sector[sprite[pPlayer->i].sectnum].lotag&16384) == 0)
         {
@@ -3202,7 +3208,7 @@ void P_CheckSectors(int playerNum)
 
                 G_OperateSectors(sprite[pPlayer->i].sectnum,pPlayer->i);
             }
-            else P_ActivateSwitch(playerNum,neartagwall,0);
+            else P_ActivateSwitch(playerNum,nearWall,0);
         }
     }
 }

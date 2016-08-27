@@ -161,8 +161,8 @@ int32_t __fastcall VM_GetUserdef(register int32_t labelNum)
             labelNum = 0;
 #endif
             break;
-        case USERDEFS_GAMETYPEFLAGS: labelNum = GametypeFlags[ud.coop]; break;
-        case USERDEFS_M_GAMETYPEFLAGS: labelNum = GametypeFlags[ud.m_coop]; break;
+        case USERDEFS_GAMETYPEFLAGS: labelNum = g_gametypeFlags[ud.coop]; break;
+        case USERDEFS_M_GAMETYPEFLAGS: labelNum = g_gametypeFlags[ud.m_coop]; break;
         case USERDEFS_GLOBALFLAGS: labelNum = globalflags; break;
         case USERDEFS_GLOBALGAMEFLAGS: labelNum = duke3d_globalflags; break;
         case USERDEFS_VM_PLAYER: labelNum = vm.playerNum; break;
@@ -390,7 +390,7 @@ void __fastcall VM_SetActiveProjectile(register int32_t const spriteNum, registe
 
 int32_t __fastcall VM_GetPlayer(register int32_t const playerNum, register int32_t labelNum, register int32_t const lParm2)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)playerswhenstarted))
+    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
     {
         CON_ERRPRINTF("tried to get %s on invalid target player (%d) from spr %d\n",
                       PlayerLabels[labelNum].name,playerNum,vm.spriteNum);
@@ -575,7 +575,7 @@ int32_t __fastcall VM_GetPlayer(register int32_t const playerNum, register int32
 void __fastcall VM_SetPlayer(register int32_t const playerNum, register int32_t const labelNum, register int32_t const lParm2, register int32_t const iSet)
 {
 
-    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)playerswhenstarted))
+    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
     {
         CON_ERRPRINTF("tried to set %s on invalid target player (%d) from spr %d\n",
                       PlayerLabels[labelNum].name,playerNum,vm.spriteNum);
@@ -769,7 +769,7 @@ void __fastcall VM_SetPlayer(register int32_t const playerNum, register int32_t 
 
 int32_t __fastcall VM_GetPlayerInput(register int32_t const playerNum, register int32_t labelNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)playerswhenstarted))
+    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
     {
         CON_ERRPRINTF("VM_GetPlayerInput: invalid target player (%d) %d\n", playerNum,vm.spriteNum);
         return -1;
@@ -793,7 +793,7 @@ int32_t __fastcall VM_GetPlayerInput(register int32_t const playerNum, register 
 
 void __fastcall VM_SetPlayerInput(register int32_t const playerNum, register int32_t const labelNum, register int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)playerswhenstarted))
+    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
     {
         CON_ERRPRINTF("VM_SetPlayerInput: invalid target player (%d) %d\n", playerNum,vm.spriteNum);
         return;

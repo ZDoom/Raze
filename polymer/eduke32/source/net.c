@@ -145,7 +145,7 @@ void Net_SyncPlayer(ENetEvent *event)
 
     if (i == -1)
     {
-        i = playerswhenstarted++;
+        i = g_mostConcurrentPlayers++;
     }
 
     event->peer->data = (void *)(intptr_t)i;
@@ -154,12 +154,12 @@ void Net_SyncPlayer(ENetEvent *event)
     g_player[i].playerquitflag = 1;
     //g_player[i].revision = g_netMapRevision;
 
-    for (j=0; j<playerswhenstarted-1; j++)
+    for (j=0; j<g_mostConcurrentPlayers-1; j++)
     {
         connectpoint2[j] = j+1;
     }
 
-    connectpoint2[playerswhenstarted-1] = -1;
+    connectpoint2[g_mostConcurrentPlayers-1] = -1;
 
     G_MaybeAllocPlayer(i);
 
@@ -324,7 +324,7 @@ void Net_Disconnect(void)
                 break;
 
             case ENET_EVENT_TYPE_DISCONNECT:
-                numplayers = playerswhenstarted = ud.multimode = 1;
+                numplayers = g_mostConcurrentPlayers = ud.multimode = 1;
                 myconnectindex = screenpeek = 0;
                 G_BackToMenu();
                 break;
@@ -367,7 +367,7 @@ void Net_Disconnect(void)
 void Net_ReceiveDisconnect(ENetEvent *event)
 {
     g_netDisconnect = 1;
-    numplayers = playerswhenstarted = ud.multimode = 1;
+    numplayers = g_mostConcurrentPlayers = ud.multimode = 1;
     myconnectindex = screenpeek = 0;
     G_BackToMenu();
 
@@ -506,7 +506,7 @@ void Net_HandleClientPackets(void)
             packbuf[1] = playeridx;
             packbuf[2] = numplayers;
             packbuf[3] = ud.multimode;
-            packbuf[4] = playerswhenstarted;
+            packbuf[4] = g_mostConcurrentPlayers;
             packbuf[5] = myconnectindex;
 
             enet_host_broadcast(g_netServer, CHAN_GAMESTATE,
@@ -654,7 +654,7 @@ void Net_ParseServerPacket(ENetEvent *event)
             P_RemovePlayer(pbuf[1]);
         numplayers = pbuf[2];
         ud.multimode = pbuf[3];
-        playerswhenstarted = pbuf[4];
+        g_mostConcurrentPlayers = pbuf[4];
         break;
 
     case PACKET_PLAYER_SPAWN:
@@ -790,7 +790,7 @@ void Net_SendNewPlayer(int32_t newplayerindex)
 {
     packbuf[0] = PACKET_NUM_PLAYERS;
     packbuf[1] = numplayers;
-    packbuf[2] = playerswhenstarted;
+    packbuf[2] = g_mostConcurrentPlayers;
     packbuf[3] = ud.multimode;
     packbuf[4] = newplayerindex;
     packbuf[5] = g_networkMode;
@@ -805,7 +805,7 @@ void Net_ReceiveNewPlayer(uint8_t *pbuf, int32_t packbufleng)
     UNREFERENCED_PARAMETER(packbufleng); // remove when this variable is used
 
     numplayers = pbuf[1];
-    playerswhenstarted = pbuf[2];
+    g_mostConcurrentPlayers = pbuf[2];
     ud.multimode = pbuf[3];
     if (pbuf[4]) // ID of new player
     {
@@ -826,12 +826,12 @@ void Net_ReceiveNewPlayer(uint8_t *pbuf, int32_t packbufleng)
         g_networkMode = NET_DEDICATED_CLIENT;
     }
 
-    for (i=0; i<playerswhenstarted-1; i++)
+    for (i=0; i<g_mostConcurrentPlayers-1; i++)
     {
         connectpoint2[i] = i+1;
     }
 
-    connectpoint2[playerswhenstarted-1] = -1;
+    connectpoint2[g_mostConcurrentPlayers-1] = -1;
 
     S_PlaySound(DUKE_GETWEAPON2);
 
@@ -2066,7 +2066,7 @@ void Net_ReceiveMapVoteInitiate(uint8_t *pbuf)
 
     Bsprintf(tempbuf,"%s^00 has called a vote to change map to %s (E%dL%d)",
              g_player[voting].user_name,
-             aMapInfo[(uint8_t)(vote_episode*MAXLEVELS + vote_map)].name,
+             g_mapInfo[(uint8_t)(vote_episode*MAXLEVELS + vote_map)].name,
              vote_episode+1,vote_map+1);
     G_AddUserQuote(tempbuf);
 

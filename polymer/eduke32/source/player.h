@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 #endif
 
-extern int32_t playerswhenstarted;
+extern int32_t g_mostConcurrentPlayers;
 
 #define MOVEFIFOSIZ                 2
 
@@ -248,8 +248,6 @@ typedef struct
     int32_t FlashColor;  // Muzzle flash color
 } weapondata_t;
 
-extern int8_t             g_numPlayerSprites;
-
 #ifdef LUNATIC
 # define PWEAPON(Player, Weapon, Wmember) (g_playerWeapon[Player][Weapon].Wmember)
 extern weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
@@ -383,7 +381,7 @@ static inline int P_GetP(const void *pSprite)
     return 0;
 #else
     int playerNum = ((const uspritetype *)pSprite)->yvel;
-    if ((unsigned)playerNum >= (unsigned)playerswhenstarted)
+    if ((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers)
         playerNum = 0;
     return playerNum;
 #endif

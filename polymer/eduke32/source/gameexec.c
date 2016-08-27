@@ -193,7 +193,7 @@ FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const spriteNum, in
         vm.pData = dummy_t;
     }
 
-    if ((unsigned)playerNum >= (unsigned)playerswhenstarted)
+    if ((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers)
         vm.pPlayer = g_player[0].ps;
 
     VM_Execute(1);
@@ -1083,11 +1083,11 @@ int G_StartTrack(int levelNum)
     {
         int trackNum = MAXLEVELS*ud.volume_number + levelNum;
 
-        if (aMapInfo[trackNum].musicfn != NULL)
+        if (g_mapInfo[trackNum].musicfn != NULL)
         {
             // Only set g_musicIndex on success.
             g_musicIndex = trackNum;
-            S_PlayMusic(aMapInfo[trackNum].musicfn);
+            S_PlayMusic(g_mapInfo[trackNum].musicfn);
 
             return 0;
         }
@@ -1451,7 +1451,7 @@ skip_check:
         case CON_IFGOTWEAPONCE:
             insptr++;
 
-            if ((GametypeFlags[ud.coop]&GAMETYPE_WEAPSTAY) && (g_netServer || ud.multimode > 1))
+            if ((g_gametypeFlags[ud.coop]&GAMETYPE_WEAPSTAY) && (g_netServer || ud.multimode > 1))
             {
                 if (*insptr == 0)
                 {
@@ -1639,7 +1639,7 @@ skip_check:
                 insptr++;
                 continue;
             }
-            if (vm.playerNum == screenpeek || (GametypeFlags[ud.coop]&GAMETYPE_COOPSOUND)
+            if (vm.playerNum == screenpeek || (g_gametypeFlags[ud.coop]&GAMETYPE_COOPSOUND)
 #ifdef SPLITSCREEN_MOD_HACKS
                 || (g_fakeMultiMode==2)
 #endif
@@ -1888,7 +1888,7 @@ skip_check:
                 int const nTag      = Gv_GetVarX(*insptr++);
                 int const playerNum = (*insptr++ == g_thisActorVarID) ? vm.playerNum : Gv_GetVarX(*(insptr-1));
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)playerswhenstarted))
+                if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
                 {
                     CON_ERRPRINTF("Invalid player %d\n", playerNum);
                     break;
@@ -2214,14 +2214,14 @@ skip_check:
                         int32_t levelNum = ud.volume_number*MAXLEVELS + ud.level_number;
                         const char *pName;
 
-                        if (EDUKE32_PREDICT_FALSE((unsigned)levelNum >= ARRAY_SIZE(aMapInfo)))
+                        if (EDUKE32_PREDICT_FALSE((unsigned)levelNum >= ARRAY_SIZE(g_mapInfo)))
                         {
                             CON_ERRPRINTF("out of bounds map number (vol=%d, lev=%d)\n",
                                           ud.volume_number, ud.level_number);
                             break;
                         }
 
-                        pName = j == STR_MAPNAME ? aMapInfo[levelNum].name : aMapInfo[levelNum].filename;
+                        pName = j == STR_MAPNAME ? g_mapInfo[levelNum].name : g_mapInfo[levelNum].filename;
 
                         if (EDUKE32_PREDICT_FALSE(pName == NULL))
                         {
@@ -2231,11 +2231,11 @@ skip_check:
                             break;
                         }
 
-                        Bstrcpy(apStrings[i], j==STR_MAPNAME ? aMapInfo[levelNum].name : aMapInfo[levelNum].filename);
+                        Bstrcpy(apStrings[i], j==STR_MAPNAME ? g_mapInfo[levelNum].name : g_mapInfo[levelNum].filename);
                         break;
                     }
                     case STR_PLAYERNAME:
-                        if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= (unsigned)playerswhenstarted))
+                        if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= (unsigned)g_mostConcurrentPlayers))
                         {
                             CON_ERRPRINTF("Invalid player ID %d\n", vm.playerNum);
                             break;
@@ -2247,7 +2247,7 @@ skip_check:
                         Bstrcpy(apStrings[i],tempbuf);
                         break;
                     case STR_GAMETYPE:
-                        Bstrcpy(apStrings[i],GametypeNames[ud.coop]);
+                        Bstrcpy(apStrings[i],g_gametypeNames[ud.coop]);
                         break;
                     case STR_VOLUMENAME:
                         if (EDUKE32_PREDICT_FALSE((unsigned)ud.volume_number >= MAXVOLUMES))
@@ -2255,7 +2255,7 @@ skip_check:
                             CON_ERRPRINTF("invalid volume (%d)\n", ud.volume_number);
                             break;
                         }
-                        Bstrcpy(apStrings[i],EpisodeNames[ud.volume_number]);
+                        Bstrcpy(apStrings[i],g_volumeNames[ud.volume_number]);
                         break;
                     case STR_YOURTIME:
                         Bstrcpy(apStrings[i],G_PrintYourTime());
@@ -3435,7 +3435,7 @@ nullquote:
                                        krand() & 2047, (krand() & 127) + 32, -(krand() & 2047), vm.spriteNum, 5);
 
                         sprite[spriteNum].yvel =
-                        (vm.pSprite->picnum == BLIMP && debrisTile == SCRAP1) ? BlimpSpawnSprites[cnt % 14] : -1;
+                        (vm.pSprite->picnum == BLIMP && debrisTile == SCRAP1) ? g_blimpSpawnItems[cnt % 14] : -1;
                         sprite[spriteNum].pal      = vm.pSprite->pal;
                     }
                 insptr++;
@@ -3783,7 +3783,7 @@ nullquote:
 
         case CON_PALFROM:
             insptr++;
-            if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= (unsigned)playerswhenstarted))
+            if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= (unsigned)g_mostConcurrentPlayers))
             {
                 CON_ERRPRINTF("invalid player ID %d\n", vm.playerNum);
                 insptr += 4;
@@ -3976,13 +3976,13 @@ finish_qsprintf:
                         continue;  // out of switch
                     }
                 }
-                Bsprintf(szBuf,"CONLOGVAR: L=%d %s ",g_errorLineNum, aGameVars[lVarID].szLabel);
-                strcpy(g_szBuf,szBuf);
+                Bsprintf(tempbuf,"CONLOGVAR: L=%d %s ",g_errorLineNum, aGameVars[lVarID].szLabel);
+                Bstrcpy(tempbuf,szBuf);
 
                 if (aGameVars[lVarID].flags & GAMEVAR_READONLY)
                 {
                     Bsprintf(szBuf," (read-only)");
-                    strcat(g_szBuf,szBuf);
+                    Bstrcat(tempbuf,szBuf);
                 }
                 if (aGameVars[lVarID].flags & GAMEVAR_PERPLAYER)
                 {
@@ -3996,10 +3996,10 @@ finish_qsprintf:
                 {
                     Bsprintf(szBuf," (Global)");
                 }
-                Bstrcat(g_szBuf,szBuf);
-                Bsprintf(szBuf," =%d\n", Gv_GetVarX(lVarID)*m);
-                Bstrcat(g_szBuf,szBuf);
-                OSD_Printf(OSDTEXT_GREEN "%s",g_szBuf);
+                Bstrcat(tempbuf, szBuf);
+                Bsprintf(szBuf, " =%d\n", Gv_GetVarX(lVarID) * m);
+                Bstrcat(tempbuf, szBuf);
+                OSD_Printf(OSDTEXT_GREEN "%s", tempbuf);
                 insptr++;
                 continue;
             }
@@ -4428,7 +4428,7 @@ finish_qsprintf:
                 int const lVar1   = *insptr++;
                 int const lVar2   = *insptr++;
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)playerswhenstarted))
+                if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
                 {
                     CON_ERRPRINTF("invalid player ID %d\n", playerNum);
 
@@ -4520,7 +4520,7 @@ finish_qsprintf:
             tw = (*insptr != g_thisActorVarID) ? Gv_GetVarX(*insptr) : vm.playerNum;
             insptr++;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= (unsigned)playerswhenstarted))
+            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= (unsigned)g_mostConcurrentPlayers))
             {
                 CON_ERRPRINTF("Invalid player ID %d\n", tw);
                 continue;
@@ -4534,7 +4534,7 @@ finish_qsprintf:
             tw = (*insptr != g_thisActorVarID) ? Gv_GetVarX(*insptr) : vm.playerNum;
             insptr++;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= (unsigned)playerswhenstarted))
+            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= (unsigned)g_mostConcurrentPlayers))
             {
                 CON_ERRPRINTF("Invalid player ID %d\n", tw);
                 continue;
@@ -5559,7 +5559,7 @@ finish_qsprintf:
                 if (cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - ZOFFSET6, vm.pSprite->sectnum, pPlayer->pos.x,
                            pPlayer->pos.y, pPlayer->pos.z + ZOFFSET2, sprite[pPlayer->i].sectnum))
                 {
-                    int32_t numPlayers = playerswhenstarted - 1;
+                    int32_t numPlayers = g_mostConcurrentPlayers - 1;
 
                     for (; numPlayers >= 0; --numPlayers)
                     {
@@ -5921,8 +5921,8 @@ void A_Execute(int spriteNum, int playerNum, int32_t playerDist)
 
 void G_SaveMapState(void)
 {
-    int32_t      levelNum = ud.volume_number * MAXLEVELS + ud.level_number;
-    map_t *const pMapInfo = &aMapInfo[levelNum];
+    int const    levelNum = ud.volume_number * MAXLEVELS + ud.level_number;
+    map_t *const pMapInfo = &g_mapInfo[levelNum];
 
     if (pMapInfo->savedstate == NULL)
     {
@@ -5965,10 +5965,10 @@ void G_SaveMapState(void)
 #endif
     Bmemcpy(&save->actor[0],&actor[0],sizeof(actor_t)*MAXSPRITES);
 
-    Bmemcpy(&save->g_numCyclers,&g_numCyclers,sizeof(g_numCyclers));
-    Bmemcpy(&save->cyclers[0],&cyclers[0],sizeof(cyclers));
+    Bmemcpy(&save->g_cyclerCnt,&g_cyclerCnt,sizeof(g_cyclerCnt));
+    Bmemcpy(&save->g_cyclers[0],&g_cyclers[0],sizeof(g_cyclers));
     Bmemcpy(&save->g_playerSpawnPoints[0],&g_playerSpawnPoints[0],sizeof(g_playerSpawnPoints));
-    Bmemcpy(&save->g_numAnimWalls,&g_numAnimWalls,sizeof(g_numAnimWalls));
+    Bmemcpy(&save->g_animWallCnt,&g_animWallCnt,sizeof(g_animWallCnt));
     Bmemcpy(&save->SpriteDeletionQueue[0],&SpriteDeletionQueue[0],sizeof(SpriteDeletionQueue));
     Bmemcpy(&save->g_spriteDeleteQueuePos,&g_spriteDeleteQueuePos,sizeof(g_spriteDeleteQueuePos));
     Bmemcpy(&save->animwall[0],&animwall[0],sizeof(animwall));
@@ -5977,25 +5977,25 @@ void G_SaveMapState(void)
     Bmemcpy(&save->g_mirrorSector[0],&g_mirrorSector[0],sizeof(g_mirrorSector));
     Bmemcpy(&save->g_mirrorCount,&g_mirrorCount,sizeof(g_mirrorCount));
     Bmemcpy(&save->show2dsector[0],&show2dsector[0],sizeof(show2dsector));
-    Bmemcpy(&save->g_numClouds,&g_numClouds,sizeof(g_numClouds));
-    Bmemcpy(&save->clouds[0],&clouds[0],sizeof(clouds));
-    Bmemcpy(&save->cloudx,&cloudx,sizeof(cloudx));
-    Bmemcpy(&save->cloudy,&cloudy,sizeof(cloudy));
+    Bmemcpy(&save->g_cloudCnt,&g_cloudCnt,sizeof(g_cloudCnt));
+    Bmemcpy(&save->g_cloudSect[0],&g_cloudSect[0],sizeof(g_cloudSect));
+    Bmemcpy(&save->g_cloudX,&g_cloudX,sizeof(g_cloudX));
+    Bmemcpy(&save->g_cloudY,&g_cloudY,sizeof(g_cloudY));
     Bmemcpy(&save->pskyidx,&g_pskyidx,sizeof(g_pskyidx));
-    Bmemcpy(&save->animategoal[0],&animategoal[0],sizeof(animategoal));
-    Bmemcpy(&save->animatevel[0],&animatevel[0],sizeof(animatevel));
-    Bmemcpy(&save->g_animateCount,&g_animateCount,sizeof(g_animateCount));
-    Bmemcpy(&save->animatesect[0],&animatesect[0],sizeof(animatesect));
+    Bmemcpy(&save->g_animateGoal[0],&g_animateGoal[0],sizeof(g_animateGoal));
+    Bmemcpy(&save->g_animateVel[0],&g_animateVel[0],sizeof(g_animateVel));
+    Bmemcpy(&save->g_animateCnt,&g_animateCnt,sizeof(g_animateCnt));
+    Bmemcpy(&save->g_animateSect[0],&g_animateSect[0],sizeof(g_animateSect));
 
-    G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_FWD);
-    Bmemcpy(&save->animateptr[0],&animateptr[0],sizeof(animateptr));
-    G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_BACK);
+    G_Util_PtrToIdx(g_animatePtr, g_animateCnt, sector, P2I_FWD);
+    Bmemcpy(&save->g_animatePtr[0],&g_animatePtr[0],sizeof(g_animatePtr));
+    G_Util_PtrToIdx(g_animatePtr, g_animateCnt, sector, P2I_BACK);
 
     {
-        EDUKE32_STATIC_ASSERT(sizeof(save->animateptr) == sizeof(animateptr));
+        EDUKE32_STATIC_ASSERT(sizeof(save->g_animatePtr) == sizeof(g_animatePtr));
     }
 
-    Bmemcpy(&save->g_numPlayerSprites,&g_numPlayerSprites,sizeof(g_numPlayerSprites));
+    Bmemcpy(&save->g_playerSpawnCnt,&g_playerSpawnCnt,sizeof(g_playerSpawnCnt));
     Bmemcpy(&save->g_earthquakeTime,&g_earthquakeTime,sizeof(g_earthquakeTime));
     Bmemcpy(&save->lockclock,&lockclock,sizeof(lockclock));
     Bmemcpy(&save->randomseed,&randomseed,sizeof(randomseed));
@@ -6060,14 +6060,14 @@ void G_SaveMapState(void)
 
 void G_RestoreMapState(void)
 {
-    int32_t     levelNum    = ud.volume_number * MAXLEVELS + ud.level_number;
-    mapstate_t *pSavedState = aMapInfo[levelNum].savedstate;
+    int const   levelNum    = ud.volume_number * MAXLEVELS + ud.level_number;
+    mapstate_t *pSavedState = g_mapInfo[levelNum].savedstate;
 
     if (pSavedState != NULL)
     {
         int playerHealth[MAXPLAYERS];
 
-        for (bssize_t i=0; i<playerswhenstarted; i++)
+        for (bssize_t i=0; i<g_mostConcurrentPlayers; i++)
             playerHealth[i] = sprite[g_player[i].ps->i].extra;
 
         pub = NUMPAGES;
@@ -6108,10 +6108,10 @@ void G_RestoreMapState(void)
 #endif
         Bmemcpy(&actor[0],&pSavedState->actor[0],sizeof(actor_t)*MAXSPRITES);
 
-        Bmemcpy(&g_numCyclers,&pSavedState->g_numCyclers,sizeof(g_numCyclers));
-        Bmemcpy(&cyclers[0],&pSavedState->cyclers[0],sizeof(cyclers));
+        Bmemcpy(&g_cyclerCnt,&pSavedState->g_cyclerCnt,sizeof(g_cyclerCnt));
+        Bmemcpy(&g_cyclers[0],&pSavedState->g_cyclers[0],sizeof(g_cyclers));
         Bmemcpy(&g_playerSpawnPoints[0],&pSavedState->g_playerSpawnPoints[0],sizeof(g_playerSpawnPoints));
-        Bmemcpy(&g_numAnimWalls,&pSavedState->g_numAnimWalls,sizeof(g_numAnimWalls));
+        Bmemcpy(&g_animWallCnt,&pSavedState->g_animWallCnt,sizeof(g_animWallCnt));
         Bmemcpy(&SpriteDeletionQueue[0],&pSavedState->SpriteDeletionQueue[0],sizeof(SpriteDeletionQueue));
         Bmemcpy(&g_spriteDeleteQueuePos,&pSavedState->g_spriteDeleteQueuePos,sizeof(g_spriteDeleteQueuePos));
         Bmemcpy(&animwall[0],&pSavedState->animwall[0],sizeof(animwall));
@@ -6120,20 +6120,20 @@ void G_RestoreMapState(void)
         Bmemcpy(&g_mirrorSector[0],&pSavedState->g_mirrorSector[0],sizeof(g_mirrorSector));
         Bmemcpy(&g_mirrorCount,&pSavedState->g_mirrorCount,sizeof(g_mirrorCount));
         Bmemcpy(&show2dsector[0],&pSavedState->show2dsector[0],sizeof(show2dsector));
-        Bmemcpy(&g_numClouds,&pSavedState->g_numClouds,sizeof(g_numClouds));
-        Bmemcpy(&clouds[0],&pSavedState->clouds[0],sizeof(clouds));
-        Bmemcpy(&cloudx,&pSavedState->cloudx,sizeof(cloudx));
-        Bmemcpy(&cloudy,&pSavedState->cloudy,sizeof(cloudy));
+        Bmemcpy(&g_cloudCnt,&pSavedState->g_cloudCnt,sizeof(g_cloudCnt));
+        Bmemcpy(&g_cloudSect[0],&pSavedState->g_cloudSect[0],sizeof(g_cloudSect));
+        Bmemcpy(&g_cloudX,&pSavedState->g_cloudX,sizeof(g_cloudX));
+        Bmemcpy(&g_cloudY,&pSavedState->g_cloudY,sizeof(g_cloudY));
         Bmemcpy(&g_pskyidx,&pSavedState->pskyidx,sizeof(g_pskyidx));
-        Bmemcpy(&animategoal[0],&pSavedState->animategoal[0],sizeof(animategoal));
-        Bmemcpy(&animatevel[0],&pSavedState->animatevel[0],sizeof(animatevel));
-        Bmemcpy(&g_animateCount,&pSavedState->g_animateCount,sizeof(g_animateCount));
-        Bmemcpy(&animatesect[0],&pSavedState->animatesect[0],sizeof(animatesect));
+        Bmemcpy(&g_animateGoal[0],&pSavedState->g_animateGoal[0],sizeof(g_animateGoal));
+        Bmemcpy(&g_animateVel[0],&pSavedState->g_animateVel[0],sizeof(g_animateVel));
+        Bmemcpy(&g_animateCnt,&pSavedState->g_animateCnt,sizeof(g_animateCnt));
+        Bmemcpy(&g_animateSect[0],&pSavedState->g_animateSect[0],sizeof(g_animateSect));
 
-        Bmemcpy(&animateptr[0],&pSavedState->animateptr[0],sizeof(animateptr));
-        G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_BACK);
+        Bmemcpy(&g_animatePtr[0],&pSavedState->g_animatePtr[0],sizeof(g_animatePtr));
+        G_Util_PtrToIdx(g_animatePtr, g_animateCnt, sector, P2I_BACK);
 
-        Bmemcpy(&g_numPlayerSprites,&pSavedState->g_numPlayerSprites,sizeof(g_numPlayerSprites));
+        Bmemcpy(&g_playerSpawnCnt,&pSavedState->g_playerSpawnCnt,sizeof(g_playerSpawnCnt));
         Bmemcpy(&g_earthquakeTime,&pSavedState->g_earthquakeTime,sizeof(g_earthquakeTime));
         Bmemcpy(&lockclock,&pSavedState->lockclock,sizeof(lockclock));
         Bmemcpy(&randomseed,&pSavedState->randomseed,sizeof(randomseed));
@@ -6193,7 +6193,7 @@ void G_RestoreMapState(void)
             g_player[snum].ps->i = i;
         }
 
-        for (bssize_t i=0; i<playerswhenstarted; i++)
+        for (bssize_t i=0; i<g_mostConcurrentPlayers; i++)
             sprite[g_player[i].ps->i].extra = playerHealth[i];
 
         if (g_player[myconnectindex].ps->over_shoulder_on != 0)
@@ -6207,7 +6207,7 @@ void G_RestoreMapState(void)
 
         if (ud.lockout)
         {
-            for (bssize_t x=g_numAnimWalls-1; x>=0; x--)
+            for (bssize_t x=g_animWallCnt-1; x>=0; x--)
                 switch (DYNAMICTILEMAP(wall[animwall[x].wallnum].picnum))
                 {
                 case FEMPIC1__STATIC:

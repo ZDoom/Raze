@@ -46,20 +46,20 @@ typedef struct {
 typedef struct {
     // this needs to have a copy of everything related to the map/actor state
     // see savegame.c
-    int32_t animategoal[MAXANIMATES], animatevel[MAXANIMATES], g_animateCount;
-    intptr_t animateptr[MAXANIMATES];
+    int32_t g_animateGoal[MAXANIMATES], g_animateVel[MAXANIMATES], g_animateCnt;
+    intptr_t g_animatePtr[MAXANIMATES];
     int32_t lockclock;
     vec2_t origins[MAXANIMPOINTS];
     int32_t randomseed, g_globalRandom;
     int32_t pskyidx;
 
     int16_t SpriteDeletionQueue[1024],g_spriteDeleteQueuePos;
-    int16_t animatesect[MAXANIMATES];
-    int16_t cyclers[MAXCYCLERS][6];
+    int16_t g_animateSect[MAXANIMATES];
+    int16_t g_cyclers[MAXCYCLERS][6];
     int16_t g_mirrorWall[64], g_mirrorSector[64], g_mirrorCount;
-    int16_t g_numAnimWalls;
-    int16_t g_numClouds,clouds[256],cloudx,cloudy;
-    int16_t g_numCyclers;
+    int16_t g_animWallCnt;
+    int16_t g_cloudCnt,g_cloudSect[256],g_cloudX,g_cloudY;
+    int16_t g_cyclerCnt;
 
     int32_t numsprites;
     int16_t tailspritefree;
@@ -73,7 +73,7 @@ typedef struct {
     int16_t prevspritestat[MAXSPRITES];
 
     uint16_t g_earthquakeTime;
-    int8_t g_numPlayerSprites;
+    int8_t g_playerSpawnCnt;
 
     uint8_t show2dsector[(MAXSECTORS+7)>>3];
 
@@ -111,32 +111,32 @@ typedef struct {
 //extern map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
 void G_ActivateBySector(int32_t sect,int32_t j);
-int32_t S_FindMusicSFX(int32_t sn, int32_t *sndptr);
-int32_t A_CallSound(int32_t sn,int32_t whatsprite);
-int32_t A_CheckHitSprite(int32_t i,int16_t *hitsp);
+int S_FindMusicSFX(int sectNum, int32_t *sndptr);
+int A_CallSound(int sectNum,int spriteNum);
+int A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
 void A_DamageObject(int32_t i,int32_t sn);
 void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith);
-int32_t __fastcall A_FindPlayer(const spritetype *s,int32_t *d);
+int __fastcall A_FindPlayer(const spritetype *pSprite,int32_t *dist);
 void G_AlignWarpElevators(void);
-int32_t CheckDoorTile(int32_t dapic);
-void G_AnimateCamSprite(int32_t smoothratio);
+int CheckDoorTile(int tileNum);
+void G_AnimateCamSprite(int smoothRatio);
 void G_AnimateWalls(void);
-int32_t G_ActivateWarpElevators(int32_t s,int32_t d);
-int32_t G_CheckActivatorMotion(int32_t lotag);
+int G_ActivateWarpElevators(int s,int d);
+int G_CheckActivatorMotion(int lotag);
 void G_DoSectorAnimations(void);
 void G_OperateActivators(int nTag, int playerNum);
 void G_OperateForceFields(int spriteNum,int wallTag);
 void G_OperateMasterSwitches(int nTag);
-void G_OperateRespawns(int32_t low);
-extern void G_OperateSectors(int sectNum,int spriteNum);
-void P_HandleSharedKeys(int32_t snum);
-int32_t GetAnimationGoal(const int32_t *animptr);
-int32_t isanearoperator(int32_t lotag);
-int32_t isanunderoperator(int32_t lotag);
+void G_OperateRespawns(int lotag);
+void G_OperateSectors(int sectNum,int spriteNum);
+void P_HandleSharedKeys(int playerNum);
+int GetAnimationGoal(const int32_t *animPtr);
+int isanearoperator(int lotag);
+int isanunderoperator(int lotag);
 int P_ActivateSwitch(int playerNum, int nObject, int nSwitchType);
 void P_CheckSectors(int32_t snum);
 int Sect_DamageCeilingOrFloor(int nDmgFloor, int const nSectnum);
-int32_t SetAnimation(int32_t animsect,int32_t *animptr,int32_t thegoal,int32_t thevel);
+int SetAnimation(int sectNum,int32_t *animPtr,int goalVal,int animVel);
 
 #define FORCEFIELD_CSTAT (64+16+4+1)
 

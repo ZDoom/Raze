@@ -580,7 +580,7 @@ void G_DrawStatusBar(int32_t snum)
 
     if (getrendermode() >= REND_POLYMOST) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
 
-    if ((g_netServer || ud.multimode > 1) && ((GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR) || g_fakeMultiMode))
+    if ((g_netServer || ud.multimode > 1) && ((g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR) || g_fakeMultiMode))
     {
         if (pus)
             G_DrawFrags();
@@ -921,11 +921,11 @@ void G_DrawStatusBar(int32_t snum)
     if (u == -1)
     {
         G_PatchStatusBar(0, 0, 320, 200);
-        if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+        if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
             rotatesprite_fs(sbarx(277+1), sbary(SBY+7-1), sb16, 0, KILLSICON, 0, 0, 10+16);
     }
 
-    if ((g_netServer || ud.multimode > 1) && (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
+    if ((g_netServer || ud.multimode > 1) && (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR))
     {
         if (u&32768)
         {
@@ -1030,7 +1030,7 @@ void G_DrawBackground(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat == 2)
     {
-        if (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
+        if (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
         {
             if ((g_netServer || ud.multimode > 1)) y1 += scale(ydim, 8, 200);
             if (ud.multimode > 4) y1 += scale(ydim, 8, 200);
@@ -1112,7 +1112,7 @@ void G_DrawBackground(void)
     if (ud.screen_size > 8)
     {
         y = 0;
-        if (GametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
+        if (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
         {
             if ((g_netServer || ud.multimode > 1)) y += 8;
             if (ud.multimode > 4) y += 8;

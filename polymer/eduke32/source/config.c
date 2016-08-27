@@ -521,20 +521,20 @@ int32_t CONFIG_ReadSetup(void)
 
     pathsearchmode = 1;
 #ifndef EDUKE32_TOUCH_DEVICES
-    if (SafeFileExists(setupfilename) && ud.config.scripthandle < 0)  // JBF 20031211
-        ud.config.scripthandle = SCRIPT_Load(setupfilename);
+    if (SafeFileExists(g_setupFileName) && ud.config.scripthandle < 0)  // JBF 20031211
+        ud.config.scripthandle = SCRIPT_Load(g_setupFileName);
     else if (SafeFileExists(SETUPFILENAME) && ud.config.scripthandle < 0)
     {
         int32_t i;
         i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
-                   "Import configuration data from \"%s\"?",setupfilename,SETUPFILENAME);
+                   "Import configuration data from \"%s\"?",g_setupFileName,SETUPFILENAME);
         if (i) ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
     }
     else if (SafeFileExists("duke3d.cfg") && ud.config.scripthandle < 0)
     {
         int32_t i;
         i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
-                   "Import configuration data from \"duke3d.cfg\"?",setupfilename);
+                   "Import configuration data from \"duke3d.cfg\"?",g_setupFileName);
         if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");
     }
 #endif
@@ -637,10 +637,10 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
 {
     int32_t i;
     BFILE *fp;
-    char *ptr = Xstrdup(setupfilename);
+    char *ptr = Xstrdup(g_setupFileName);
     char tempbuf[128];
 
-    if (!Bstrcmp(setupfilename, SETUPFILENAME))
+    if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
         Bsprintf(tempbuf, "settings.cfg");
     else Bsprintf(tempbuf, "%s_settings.cfg", strtok(ptr, "."));
 
@@ -673,7 +673,7 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
 
         Bfclose(fp);
 
-        if (!Bstrcmp(setupfilename, SETUPFILENAME))
+        if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
             OSD_Printf("Wrote settings.cfg\n");
         else OSD_Printf("Wrote %s_settings.cfg\n",ptr);
 
@@ -681,7 +681,7 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
         return;
     }
 
-    if (!Bstrcmp(setupfilename, SETUPFILENAME))
+    if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
         OSD_Printf("Error writing settings.cfg: %s\n", strerror(errno));
     else OSD_Printf("Error writing %s_settings.cfg: %s\n",ptr,strerror(errno));
 
@@ -695,7 +695,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     if (!ud.config.setupread) return;
 
     if (ud.config.scripthandle < 0)
-        ud.config.scripthandle = SCRIPT_Init(setupfilename);
+        ud.config.scripthandle = SCRIPT_Init(g_setupFileName);
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Misc", "Executions",++ud.executions,FALSE,FALSE);
 
@@ -723,9 +723,9 @@ void CONFIG_WriteSetup(uint32_t flags)
     // exit early after only updating the values that can be changed from the startup window
     if (flags & 1)
     {
-        SCRIPT_Save(ud.config.scripthandle, setupfilename);
+        SCRIPT_Save(ud.config.scripthandle, g_setupFileName);
         SCRIPT_Free(ud.config.scripthandle);
-        OSD_Printf("Updated %s\n",setupfilename);
+        OSD_Printf("Updated %s\n",g_setupFileName);
 
         return;
     }
@@ -862,12 +862,12 @@ void CONFIG_WriteSetup(uint32_t flags)
         SCRIPT_PutString(ud.config.scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
     }
 
-    SCRIPT_Save(ud.config.scripthandle, setupfilename);
+    SCRIPT_Save(ud.config.scripthandle, g_setupFileName);
 
     if ((flags & 2) == 0)
         SCRIPT_Free(ud.config.scripthandle);
 
-    OSD_Printf("Wrote %s\n",setupfilename);
+    OSD_Printf("Wrote %s\n",g_setupFileName);
     CONFIG_WriteSettings();
     Bfflush(NULL);
 }
@@ -916,7 +916,7 @@ int32_t CONFIG_GetMapBestTime(char const * const mapname, uint8_t const * const 
 
 int32_t CONFIG_SetMapBestTime(uint8_t const * const mapmd4, int32_t const tm)
 {
-    if (ud.config.scripthandle < 0) ud.config.scripthandle = SCRIPT_Init(setupfilename);
+    if (ud.config.scripthandle < 0) ud.config.scripthandle = SCRIPT_Init(g_setupFileName);
     if (ud.config.scripthandle < 0) return -1;
 
     char m[37];

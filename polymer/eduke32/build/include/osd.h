@@ -246,7 +246,7 @@ void OSD_ResizeDisplay(int32_t w,int32_t h);
 void OSD_CaptureInput(int32_t cap);
 
 // sets the console version string
-void OSD_SetVersion(const char *version, int32_t shade, int32_t pal);
+void OSD_SetVersion(const char *gameVersion, int osdShade, int osdPal);
 
 // shows or hides the onscreen display
 void OSD_ShowDisplay(int32_t onf);

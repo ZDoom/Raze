@@ -1436,20 +1436,20 @@ void M_Init(void)
 
     // prepare episodes
     k = 0;
-    for (i = 0; i < g_numVolumes; ++i)
+    for (i = 0; i < g_volumeCnt; ++i)
     {
-        if (EpisodeNames[i][0])
+        if (g_volumeNames[i][0])
         {
-            if (!(EpisodeFlags[i] & EF_HIDEFROMSP))
+            if (!(g_volumeFlags[i] & EF_HIDEFROMSP))
             {
                 MEL_EPISODE[i] = &ME_EPISODE[i];
                 ME_EPISODE[i] = ME_EPISODE_TEMPLATE;
-                ME_EPISODE[i].name = EpisodeNames[i];
+                ME_EPISODE[i].name = g_volumeNames[i];
             }
 
             // if (!(EpisodeFlags[i] & EF_HIDEFROMMP))
             {
-                MEOSN_NetEpisodes[k] = EpisodeNames[i];
+                MEOSN_NetEpisodes[k] = g_volumeNames[i];
                 MEOSV_NetEpisodes[k] = i;
 
                 k++;
@@ -1460,48 +1460,48 @@ void M_Init(void)
         MEOS_NETOPTIONS_LEVEL[i] = MEOS_NETOPTIONS_LEVEL_TEMPLATE;
         for (j = 0; j < MAXLEVELS; ++j)
         {
-            MEOSN_NetLevels[i][j] = aMapInfo[MAXLEVELS*i+j].name;
-            if (aMapInfo[i*MAXLEVELS+j].filename != NULL)
+            MEOSN_NetLevels[i][j] = g_mapInfo[MAXLEVELS*i+j].name;
+            if (g_mapInfo[i*MAXLEVELS+j].filename != NULL)
                 MEOS_NETOPTIONS_LEVEL[i].numOptions = j+1;
         }
         MEOS_NETOPTIONS_LEVEL[i].optionNames = MEOSN_NetLevels[i];
     }
-    M_EPISODE.numEntries = g_numVolumes+2;
-    MEL_EPISODE[g_numVolumes] = &ME_Space4;
-    MEL_EPISODE[g_numVolumes+1] = &ME_EPISODE_USERMAP;
+    M_EPISODE.numEntries = g_volumeCnt+2;
+    MEL_EPISODE[g_volumeCnt] = &ME_Space4;
+    MEL_EPISODE[g_volumeCnt+1] = &ME_EPISODE_USERMAP;
     MEOS_NETOPTIONS_EPISODE.numOptions = k + 1;
     MEOSN_NetEpisodes[k] = MenuUserMap;
     MEOSV_NetEpisodes[k] = MAXVOLUMES;
     NetEpisode = MEOSV_NetEpisodes[0];
-    MMF_Top_Episode.pos.y = (48-(g_numVolumes*2))<<16;
-    if (g_numSkills == 0)
+    MMF_Top_Episode.pos.y = (48-(g_volumeCnt*2))<<16;
+    if (g_skillCnt == 0)
         MEO_EPISODE.linkID = MENU_NULL;
 
     // prepare skills
     k = -1;
-    for (i = 0; i < g_numSkills && SkillNames[i][0]; ++i)
+    for (i = 0; i < g_skillCnt && g_skillNames[i][0]; ++i)
     {
         MEL_SKILL[i] = &ME_SKILL[i];
         ME_SKILL[i] = ME_SKILL_TEMPLATE;
-        ME_SKILL[i].name = SkillNames[i];
+        ME_SKILL[i].name = g_skillNames[i];
 
-        MEOSN_NetSkills[i] = SkillNames[i];
+        MEOSN_NetSkills[i] = g_skillNames[i];
 
         k = i;
     }
     ++k;
-    M_SKILL.numEntries = g_numSkills; // k;
-    MEOS_NETOPTIONS_MONSTERS.numOptions = g_numSkills + 1; // k+1;
-    MEOSN_NetSkills[g_numSkills] = MenuSkillNone;
-    MMF_Top_Skill.pos.y = (58 + (4-g_numSkills)*6)<<16;
+    M_SKILL.numEntries = g_skillCnt; // k;
+    MEOS_NETOPTIONS_MONSTERS.numOptions = g_skillCnt + 1; // k+1;
+    MEOSN_NetSkills[g_skillCnt] = MenuSkillNone;
+    MMF_Top_Skill.pos.y = (58 + (4-g_skillCnt)*6)<<16;
     M_SKILL.currentEntry = 1;
 
     // prepare multiplayer gametypes
     k = -1;
     for (i = 0; i < MAXGAMETYPES; ++i)
-        if (GametypeNames[i][0])
+        if (g_gametypeNames[i][0])
         {
-            MEOSN_NetGametypes[i] = GametypeNames[i];
+            MEOSN_NetGametypes[i] = g_gametypeNames[i];
             k = i;
         }
     ++k;
@@ -1623,7 +1623,7 @@ void M_Init(void)
     if (VOLUMEONE)
     {
         // blue out episodes beyond the first
-        for (i = 1; i < g_numVolumes; ++i)
+        for (i = 1; i < g_volumeCnt; ++i)
         {
             if (MEL_EPISODE[i])
             {
@@ -1631,7 +1631,7 @@ void M_Init(void)
                 ME_EPISODE[i].entry = &MEO_EPISODE_SHAREWARE;
             }
         }
-        M_EPISODE.numEntries = g_numVolumes; // remove User Map (and spacer)
+        M_EPISODE.numEntries = g_volumeCnt; // remove User Map (and spacer)
         MEOS_NETOPTIONS_EPISODE.numOptions = 1;
         MenuEntry_DisableOnCondition(&ME_NETOPTIONS_EPISODE, 1);
     }
@@ -1762,8 +1762,8 @@ static void M_PreMenu(MenuID_t cm)
             MEL_NETOPTIONS[2] = &ME_NETOPTIONS_LEVEL;
             MEO_NETOPTIONS_LEVEL.options = &MEOS_NETOPTIONS_LEVEL[MEOSV_NetEpisodes[MEO_NETOPTIONS_EPISODE.currentOption]];
         }
-        MEL_NETOPTIONS[4] = (GametypeFlags[ud.m_coop] & GAMETYPE_MARKEROPTION) ? &ME_NETOPTIONS_MARKERS : &ME_NETOPTIONS_MARKERS_DISABLED;
-        MEL_NETOPTIONS[5] = (GametypeFlags[ud.m_coop] & (GAMETYPE_PLAYERSFRIENDLY|GAMETYPE_TDM)) ? &ME_NETOPTIONS_FRFIRE : &ME_NETOPTIONS_MAPEXITS;
+        MEL_NETOPTIONS[4] = (g_gametypeFlags[ud.m_coop] & GAMETYPE_MARKEROPTION) ? &ME_NETOPTIONS_MARKERS : &ME_NETOPTIONS_MARKERS_DISABLED;
+        MEL_NETOPTIONS[5] = (g_gametypeFlags[ud.m_coop] & (GAMETYPE_PLAYERSFRIENDLY|GAMETYPE_TDM)) ? &ME_NETOPTIONS_FRFIRE : &ME_NETOPTIONS_MAPEXITS;
         break;
 
     case MENU_OPTIONS:
@@ -1924,12 +1924,12 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             mminitext(origin.x + (90<<16), origin.y + ((90+8+8+8+8)<<16), "Friendly Fire", 2);
         mminitext(origin.x + (90<<16), origin.y + ((90+8+8+8+8+8)<<16), "User Map", 2);
 
-        mminitext(origin.x + ((90+60)<<16), origin.y + (90<<16), GametypeNames[ud.m_coop], 0);
+        mminitext(origin.x + ((90+60)<<16), origin.y + (90<<16), g_gametypeNames[ud.m_coop], 0);
 
-        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8)<<16), EpisodeNames[ud.m_volume_number], 0);
-        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8)<<16), aMapInfo[MAXLEVELS*ud.m_volume_number+ud.m_level_number].name, 0);
+        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8)<<16), g_volumeNames[ud.m_volume_number], 0);
+        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8)<<16), g_mapInfo[MAXLEVELS*ud.m_volume_number+ud.m_level_number].name, 0);
         if (ud.m_monsters_off == 0 || ud.m_player_skill > 0)
-            mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), SkillNames[ud.m_player_skill], 0);
+            mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), g_skillNames[ud.m_player_skill], 0);
         else mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), "None", 0);
         if (ud.m_coop == 0)
         {
@@ -2029,8 +2029,8 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             }
 
             {
-                const char *name = aMapInfo[(savehead.volnum*MAXLEVELS) + savehead.levnum].name;
-                Bsprintf(tempbuf, "%s / %s", name ? name : "^10unnamed^0", SkillNames[savehead.skill-1]);
+                const char *name = g_mapInfo[(savehead.volnum*MAXLEVELS) + savehead.levnum].name;
+                Bsprintf(tempbuf, "%s / %s", name ? name : "^10unnamed^0", g_skillNames[savehead.skill-1]);
             }
 
             mgametextcenter(origin.x, origin.y + (168<<16), tempbuf);
@@ -2083,7 +2083,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             mgametextcenter(origin.x, origin.y + (156<<16), tempbuf);
         }
 
-        Bsprintf(tempbuf,"%s / %s",aMapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
+        Bsprintf(tempbuf,"%s / %s",g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, g_skillNames[ud.player_skill-1]);
         mgametextcenter(origin.x, origin.y + (168<<16), tempbuf);
         if (ud.volume_number == 0 && ud.level_number == 7)
             mgametextcenter(origin.x, origin.y + (180<<16), currentboardfilename);
@@ -2104,7 +2104,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         if (g_oldverSavegame[M_LOAD.currentEntry])
         {
             mgametextcenter(origin.x, origin.y + (90<<16), "Start new game:");
-            Bsprintf(tempbuf,"%s / %s",aMapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
+            Bsprintf(tempbuf,"%s / %s",g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, g_skillNames[ud.player_skill-1]);
             mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
         }
         else
@@ -2566,8 +2566,8 @@ static int32_t M_Cheat_Warp(char const * const numbers)
     osdcmd_cheatsinfo_stat.volume--;
     osdcmd_cheatsinfo_stat.level--;
 
-    if ((VOLUMEONE && osdcmd_cheatsinfo_stat.volume > 0) || osdcmd_cheatsinfo_stat.volume > g_numVolumes-1 ||
-            osdcmd_cheatsinfo_stat.level >= MAXLEVELS || aMapInfo[osdcmd_cheatsinfo_stat.volume *MAXLEVELS+osdcmd_cheatsinfo_stat.level].filename == NULL)
+    if ((VOLUMEONE && osdcmd_cheatsinfo_stat.volume > 0) || osdcmd_cheatsinfo_stat.volume > g_volumeCnt-1 ||
+            osdcmd_cheatsinfo_stat.level >= MAXLEVELS || g_mapInfo[osdcmd_cheatsinfo_stat.volume *MAXLEVELS+osdcmd_cheatsinfo_stat.level].filename == NULL)
         return 1;
 
     osdcmd_cheatsinfo_stat.cheatnum = CHEAT_SCOTTY;
@@ -2604,7 +2604,7 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
             ud.m_volume_number = M_EPISODE.currentEntry;
             ud.m_level_number = 0;
 
-            if (g_numSkills == 0)
+            if (g_skillCnt == 0)
                 M_StartGameWithoutSkill();
         }
         break;
@@ -2844,20 +2844,20 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         CONTROL_MapAnalogAxis(M_JOYSTICKAXES.currentEntry, newOption, controldevice_joystick);
     else if (entry == &ME_NETOPTIONS_EPISODE)
     {
-        if ((unsigned)newOption < g_numVolumes)
+        if (newOption < g_volumeCnt)
             ud.m_volume_number = newOption;
     }
     else if (entry == &ME_NETOPTIONS_MONSTERS)
     {
-        ud.m_monsters_off = (newOption == g_numSkills);
-        if (newOption < g_numSkills)
+        ud.m_monsters_off = (newOption == g_skillCnt);
+        if (newOption < g_skillCnt)
             ud.m_player_skill = newOption;
     }
     else if (entry == &ME_ADULTMODE)
     {
         if (newOption)
         {
-            for (x=0; x<g_numAnimWalls; x++)
+            for (x=0; x<g_animWallCnt; x++)
                 switch (DYNAMICTILEMAP(wall[animwall[x].wallnum].picnum))
                 {
                 case FEMPIC1__STATIC:
@@ -3064,7 +3064,7 @@ static int32_t M_MenuEntryStringSubmit(MenuEntry_t *entry, char *input)
             save_xxh == XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], MAXSAVEGAMENAME-3, 0xDEADBEEF)))
 #endif
         {
-            Bstrncpy(&ud.savegame[M_SAVE.currentEntry][0], aMapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME-3);
+            Bstrncpy(&ud.savegame[M_SAVE.currentEntry][0], g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME-3);
             ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] = 127;
             returnvar = -1;
         }
@@ -3128,7 +3128,7 @@ static int32_t M_MenuEntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
     else if (entry == &ME_SOUND_DUKETALK)
         return ud.config.VoiceToggle & 1;
     else if (entry == &ME_NETOPTIONS_MONSTERS)
-        return (ud.m_monsters_off ? g_numSkills : ud.m_player_skill);
+        return (ud.m_monsters_off ? g_skillCnt : ud.m_player_skill);
 
     return currentValue;
 }
@@ -3237,7 +3237,7 @@ static void M_MenuTextFormSubmit(char *input)
             Bstrcpy(&ud.pwlockout[0], input);
         else if (Bstrcmp(input, &ud.pwlockout[0]) == 0)
         {
-            for (bssize_t x=0; x<g_numAnimWalls; x++)
+            for (bssize_t x=0; x<g_animWallCnt; x++)
                 if ((unsigned) animwall[x].wallnum < (unsigned)numwalls && wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                         wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
                         wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
@@ -3402,7 +3402,7 @@ static void M_MenuFileSelect(int32_t input)
             ud.m_volume_number = 0;
             ud.m_level_number = 7;
 
-            if (g_numSkills > 0)
+            if (g_skillCnt > 0)
                 M_ChangeMenuAnimate(MENU_SKILL, MA_Advance);
             else
                 M_StartGameWithoutSkill();

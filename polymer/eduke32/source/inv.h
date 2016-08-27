@@ -22,7 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
-enum dukeinv_t {
+enum dukeinv_t
+{
     GET_STEROIDS,  // 0
     GET_SHIELD,
     GET_SCUBA,
@@ -38,7 +39,8 @@ enum dukeinv_t {
 };
 
 // these are not in the same order as the above, and it can't be changed for compat reasons. lame!
-enum dukeinvicon_t {
+enum dukeinvicon_t
+{
     ICON_NONE,  // 0
     ICON_FIRSTAID,
     ICON_STEROIDS,
@@ -56,7 +58,8 @@ static int const icon_to_inv[ICON_MAX] = { GET_FIRSTAID, GET_FIRSTAID, GET_STERO
 static int const inv_to_icon[GET_MAX] = { ICON_STEROIDS, ICON_NONE,  ICON_SCUBA, ICON_HOLODUKE, ICON_JETPACK, ICON_NONE,
                                           ICON_NONE,     ICON_HEATS, ICON_NONE,  ICON_FIRSTAID, ICON_BOOTS };
 
-enum dukeweapon_t {
+enum dukeweapon_t
+{
     KNEE_WEAPON,  // 0
     PISTOL_WEAPON,
     SHOTGUN_WEAPON,

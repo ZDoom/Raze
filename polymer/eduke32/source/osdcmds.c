@@ -76,14 +76,14 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
 
     if (!VOLUMEONE)
     {
-        if (volume > g_numVolumes)
+        if (volume > g_volumeCnt)
         {
-            OSD_Printf("changelevel: invalid volume number (range 1-%d)\n",g_numVolumes);
+            OSD_Printf("changelevel: invalid volume number (range 1-%d)\n",g_volumeCnt);
             return OSDCMD_OK;
         }
     }
 
-    if (level > MAXLEVELS || aMapInfo[volume *MAXLEVELS+level].filename == NULL)
+    if (level > MAXLEVELS || g_mapInfo[volume *MAXLEVELS+level].filename == NULL)
     {
         OSD_Printf("changelevel: invalid level number\n");
         return OSDCMD_SHOWHELP;
@@ -141,15 +141,16 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
         // out-of-game behave like a menu command
         osdcmd_cheatsinfo_stat.cheatnum = -1;
 
-        ud.m_volume_number = volume;
-        ud.m_level_number = level;
+        ud.m_volume_number     = volume;
+        ud.m_level_number      = level;
 
-        ud.m_monsters_off = ud.monsters_off = 0;
+        ud.m_monsters_off      = 0;
+        ud.monsters_off        = 0;
 
-        ud.m_respawn_items = 0;
+        ud.m_respawn_items     = 0;
         ud.m_respawn_inventory = 0;
 
-        ud.multimode = 1;
+        ud.multimode           = 1;
 
         G_NewGame_EnterLevel();
     }
@@ -386,7 +387,7 @@ static int32_t osdcmd_music(const osdfuncparm_t *parm)
             return OSDCMD_OK;
         }
 
-        if (aMapInfo[sel].musicfn != NULL)
+        if (g_mapInfo[sel].musicfn != NULL)
         {
             g_musicIndex = sel;
             G_StartMusic();
@@ -517,7 +518,7 @@ static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
         {
             int32_t i;
 #ifdef LUNATIC
-            i = g_numLabels;
+            i = g_labelCnt;
             picnum = El_GetLabelValue(parm->parms[0]);
             if (picnum != INT32_MIN)
                 i = !i;
@@ -526,7 +527,7 @@ static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
 
             for (j=0; j<2; j++)
             {
-                for (i=0; i<g_numLabels; i++)
+                for (i=0; i<g_labelCnt; i++)
                 {
                     if ((j == 0 && !Bstrcmp(label+(i<<6),     parm->parms[0])) ||
                         (j == 1 && !Bstrcasecmp(label+(i<<6), parm->parms[0])))
@@ -536,11 +537,11 @@ static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
                     }
                 }
 
-                if (i < g_numLabels)
+                if (i < g_labelCnt)
                     break;
             }
 #endif
-            if (i==g_numLabels)
+            if (i==g_labelCnt)
             {
                 OSD_Printf("spawn: Invalid tile label given\n");
                 return OSDCMD_OK;

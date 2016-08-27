@@ -100,7 +100,7 @@ void G_ResetInterpolations(void)
 {
     int32_t k, i;
 
-    g_numInterpolations = 0;
+    g_interpolationCnt = 0;
 
     k = headspritestat[STAT_EFFECTOR];
     while (k >= 0)
@@ -134,9 +134,9 @@ void G_ResetInterpolations(void)
         k = nextspritestat[k];
     }
 
-    for (i=g_numInterpolations-1; i>=0; i--) bakipos[i] = *curipos[i];
-    for (i = g_animateCount-1; i>=0; i--)
-        G_SetInterpolation(animateptr[i]);
+    for (i=g_interpolationCnt-1; i>=0; i--) bakipos[i] = *curipos[i];
+    for (i = g_animateCnt-1; i>=0; i--)
+        G_SetInterpolation(g_animatePtr[i]);
 }
 
 void ReadSaveGameHeaders(void)
@@ -300,8 +300,8 @@ int32_t G_LoadPlayer(int32_t spot)
 
     if (boardfilename[0])
         Bstrcpy(currentboardfilename, boardfilename);
-    else if (aMapInfo[mapIdx].filename)
-        Bstrcpy(currentboardfilename, aMapInfo[mapIdx].filename);
+    else if (g_mapInfo[mapIdx].filename)
+        Bstrcpy(currentboardfilename, g_mapInfo[mapIdx].filename);
 
     if (currentboardfilename[0])
     {
@@ -996,7 +996,7 @@ static const dataspec_t svgm_udnetw[] =
 {
     { DS_STRING, (void *)svgm_udnetw_string, 0, 1 },
     { 0, &ud.multimode, sizeof(ud.multimode), 1 },
-    { 0, &g_numPlayerSprites, sizeof(g_numPlayerSprites), 1 },
+    { 0, &g_playerSpawnCnt, sizeof(g_playerSpawnCnt), 1 },
     { 0, &g_playerSpawnPoints, sizeof(g_playerSpawnPoints), 1 },
 
     { DS_NOCHK, &ud.volume_number, sizeof(ud.volume_number), 1 },
@@ -1074,10 +1074,10 @@ static const dataspec_t svgm_secwsp[] =
 #endif
     { 0, &DynamicTileMap[0], sizeof(DynamicTileMap[0]), MAXTILES },  // NOCHK?
     { 0, &DynamicSoundMap[0], sizeof(DynamicSoundMap[0]), MAXSOUNDS },  // NOCHK?
-    { DS_NOCHK, &g_numCyclers, sizeof(g_numCyclers), 1 },
-    { DS_CNT(g_numCyclers), &cyclers[0][0], sizeof(cyclers[0]), (intptr_t)&g_numCyclers },
-    { DS_NOCHK, &g_numAnimWalls, sizeof(g_numAnimWalls), 1 },
-    { DS_CNT(g_numAnimWalls), &animwall, sizeof(animwall[0]), (intptr_t)&g_numAnimWalls },
+    { DS_NOCHK, &g_cyclerCnt, sizeof(g_cyclerCnt), 1 },
+    { DS_CNT(g_cyclerCnt), &g_cyclers[0][0], sizeof(g_cyclers[0]), (intptr_t)&g_cyclerCnt },
+    { DS_NOCHK, &g_animWallCnt, sizeof(g_animWallCnt), 1 },
+    { DS_CNT(g_animWallCnt), &animwall, sizeof(animwall[0]), (intptr_t)&g_animWallCnt },
     { DS_NOCHK, &g_mirrorCount, sizeof(g_mirrorCount), 1 },
     { DS_NOCHK, &g_mirrorWall[0], sizeof(g_mirrorWall[0]), ARRAY_SIZE(g_mirrorWall) },
     { DS_NOCHK, &g_mirrorSector[0], sizeof(g_mirrorSector[0]), ARRAY_SIZE(g_mirrorSector) },
@@ -1125,12 +1125,12 @@ static char svgm_end_string [] = "savegame_end";
 static const dataspec_t svgm_anmisc[] =
 {
     { DS_STRING, (void *)svgm_anmisc_string, 0, 1 },
-    { 0, &g_animateCount, sizeof(g_animateCount), 1 },
-    { 0, &animatesect[0], sizeof(animatesect[0]), MAXANIMATES },
-    { 0, &animategoal[0], sizeof(animategoal[0]), MAXANIMATES },
-    { 0, &animatevel[0], sizeof(animatevel[0]), MAXANIMATES },
+    { 0, &g_animateCnt, sizeof(g_animateCnt), 1 },
+    { 0, &g_animateSect[0], sizeof(g_animateSect[0]), MAXANIMATES },
+    { 0, &g_animateGoal[0], sizeof(g_animateGoal[0]), MAXANIMATES },
+    { 0, &g_animateVel[0], sizeof(g_animateVel[0]), MAXANIMATES },
     { DS_SAVEFN, (void *)&sv_preanimateptrsave, 0, 1 },
-    { 0, &animateptr[0], sizeof(animateptr[0]), MAXANIMATES },
+    { 0, &g_animatePtr[0], sizeof(g_animatePtr[0]), MAXANIMATES },
     { DS_SAVEFN|DS_LOADFN , (void *)&sv_postanimateptr, 0, 1 },
     { 0, &g_curViewscreen, sizeof(g_curViewscreen), 1 },
     { 0, &g_origins[0], sizeof(g_origins[0]), ARRAY_SIZE(g_origins) },
@@ -1138,10 +1138,10 @@ static const dataspec_t svgm_anmisc[] =
     { DS_NOCHK, &g_deleteQueueSize, sizeof(g_deleteQueueSize), 1 },
     { DS_CNT(g_deleteQueueSize), &SpriteDeletionQueue[0], sizeof(int16_t), (intptr_t)&g_deleteQueueSize },
     { 0, &show2dsector[0], sizeof(uint8_t), MAXSECTORS>>3 },
-    { DS_NOCHK, &g_numClouds, sizeof(g_numClouds), 1 },
-    { 0, &clouds[0], sizeof(clouds), 1 },
-    { 0, &cloudx, sizeof(cloudx), 1 },
-    { 0, &cloudy, sizeof(cloudy), 1 },
+    { DS_NOCHK, &g_cloudCnt, sizeof(g_cloudCnt), 1 },
+    { 0, &g_cloudSect[0], sizeof(g_cloudSect), 1 },
+    { 0, &g_cloudX, sizeof(g_cloudX), 1 },
+    { 0, &g_cloudY, sizeof(g_cloudY), 1 },
     { 0, &g_pskyidx, sizeof(g_pskyidx), 1 },  // DS_NOCHK?
     { 0, &g_earthquakeTime, sizeof(g_earthquakeTime), 1 },
 
@@ -1325,8 +1325,8 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
         // savegame
         Bstrncpyz(h.savename, ud.savegame[spot], sizeof(h.savename));
 #ifdef __ANDROID__
-        Bstrncpyz(h.volname, EpisodeNames[ud.volume_number], sizeof(h.volname));
-        Bstrncpyz(h.skillname, SkillNames[ud.player_skill], sizeof(h.skillname));
+        Bstrncpyz(h.volname, g_volumeNames[ud.volume_number], sizeof(h.volname));
+        Bstrncpyz(h.skillname, g_skillNames[ud.player_skill], sizeof(h.skillname));
 #endif
     }
     else
@@ -1703,11 +1703,11 @@ static void sv_postactordata()
 
 static void sv_preanimateptrsave()
 {
-    G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_FWD);
+    G_Util_PtrToIdx(g_animatePtr, g_animateCnt, sector, P2I_FWD);
 }
 static void sv_postanimateptr()
 {
-    G_Util_PtrToIdx(animateptr, g_animateCount, sector, P2I_BACK);
+    G_Util_PtrToIdx(g_animatePtr, g_animateCnt, sector, P2I_BACK);
 }
 static void sv_prequote()
 {
@@ -2120,13 +2120,13 @@ static void postloadplayer(int32_t savegamep)
 
         if (ud.config.MusicToggle)
         {
-            if (aMapInfo[musicIdx].musicfn != NULL &&
+            if (g_mapInfo[musicIdx].musicfn != NULL &&
                 (musicIdx != g_musicIndex /* || MapInfo[MUS_LOADING].musicfn */))
             {
                 S_StopMusic();
 
                 g_musicIndex = musicIdx;
-                S_PlayMusic(aMapInfo[g_musicIndex].musicfn);
+                S_PlayMusic(g_mapInfo[g_musicIndex].musicfn);
             }
 
             S_PauseMusic(0);
@@ -2162,7 +2162,7 @@ static void postloadplayer(int32_t savegamep)
     {
         if (ud.lockout)
         {
-            for (i=0; i<g_numAnimWalls; i++)
+            for (i=0; i<g_animWallCnt; i++)
                 switch (DYNAMICTILEMAP(wall[animwall[i].wallnum].picnum))
                 {
                 case FEMPIC1__STATIC:

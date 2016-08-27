@@ -168,13 +168,13 @@ void S_RestartMusic(void)
 {
     if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
     {
-        if (aMapInfo[g_musicIndex].musicfn != NULL)
-            S_PlayMusic(aMapInfo[g_musicIndex].musicfn);
+        if (g_mapInfo[g_musicIndex].musicfn != NULL)
+            S_PlayMusic(g_mapInfo[g_musicIndex].musicfn);
     }
-    else if (aMapInfo[MUS_INTRO].musicfn != 0 && (G_GetLogoFlags() & LOGO_PLAYMUSIC))
+    else if (g_mapInfo[MUS_INTRO].musicfn != 0 && (G_GetLogoFlags() & LOGO_PLAYMUSIC))
     {
         g_musicIndex = MUS_INTRO;
-        S_PlayMusic(aMapInfo[MUS_INTRO].musicfn);
+        S_PlayMusic(g_mapInfo[MUS_INTRO].musicfn);
     }
 }
 

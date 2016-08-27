@@ -270,7 +270,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 {
                     if (argc > i+1)
                     {
-                        Bstrcpy(setupfilename, argv[i+1]);
+                        Bstrcpy(g_setupFileName, argv[i+1]);
                         i++;
                     }
                     i++;

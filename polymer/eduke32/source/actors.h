@@ -297,36 +297,36 @@ enum pflags_t
     PROJECTILE_TYPE_MASK         = PROJECTILE_HITSCAN | PROJECTILE_RPG | PROJECTILE_KNEE | PROJECTILE_BLOOD,
 };
 
-extern tiledata_t       g_tile[MAXTILES];
-extern actor_t          actor[MAXSPRITES];
-extern int32_t          block_deletesprite;
-extern int32_t          g_noEnemies;
-extern int32_t          otherp;
-extern int32_t          ticrandomseed;
-extern projectile_t     SpriteProjectile[MAXSPRITES];
+extern tiledata_t   g_tile[MAXTILES];
+extern actor_t      actor[MAXSPRITES];
+extern int32_t      block_deletesprite;
+extern int32_t      g_noEnemies;
+extern int32_t      otherp;
+extern int32_t      ticrandomseed;
+extern projectile_t SpriteProjectile[MAXSPRITES];
 
 
-void    A_AddToDeleteQueue(int32_t i);
-int32_t A_CheckNoSE7Water(uspritetype const * const pSprite, int32_t sectNum, int32_t sectLotag, int32_t *pOther);
-int32_t A_CheckSwitchTile(int32_t i);
-void    A_DeleteSprite(int spriteNum);
-void    A_DoGuts(int32_t sp, int32_t gtype, int32_t n);
-void    A_DoGutsDir(int32_t sp, int32_t gtype, int32_t n);
-int A_IncurDamage(int spriteNum);
-void    A_MoveCyclers(void);
-void    A_MoveDummyPlayers(void);
-void    A_MoveSector(int i);
-void    A_PlayAlertSound(int32_t i);
-void    A_RadiusDamage(int32_t i, int32_t r, int32_t hp1, int32_t hp2, int32_t hp3, int32_t hp4);
-void    A_SpawnMultiple(int32_t sp, int32_t pic, int32_t n);
+int  A_CheckNoSE7Water(uspritetype const *const pSprite, int sectNum, int sectLotag, int32_t *pOther);
+int  A_CheckSwitchTile(int spriteNum);
+int  A_IncurDamage(int spriteNum);
+void A_AddToDeleteQueue(int spriteNum);
+void A_DeleteSprite(int spriteNum);
+void A_DoGuts(int spriteNum, int tileNum, int spawnCnt);
+void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt);
+void A_MoveCyclers(void);
+void A_MoveDummyPlayers(void);
+void A_MoveSector(int i);
+void A_PlayAlertSound(int spriteNum);
+void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3, int dmg4);
+void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt);
 
-void    G_AddGameLight(int32_t radius, int32_t srcsprite, int32_t zoffset, int32_t range, int32_t color, int32_t priority);
-void    G_ClearCameraView(DukePlayer_t *ps);
-void    G_DoInterpolations(int32_t smoothratio);
-void    G_MoveWorld(void);
-void    G_RefreshLights(void);
-int32_t G_SetInterpolation(int32_t *const posptr);
-void    G_StopInterpolation(int32_t *const posptr);
+int  G_SetInterpolation(int32_t *const posptr);
+void G_AddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange, int lightColor, int lightPrio);
+void G_ClearCameraView(DukePlayer_t *ps);
+void G_DoInterpolations(int smoothRatio);
+void G_MoveWorld(void);
+void G_RefreshLights(void);
+void G_StopInterpolation(int32_t *const posptr);
 
 // PK 20110701: changed input argument: int32_t i (== sprite, whose sectnum...) --> sectnum directly
 void                Sect_ToggleInterpolation(int sectnum, int doset);
