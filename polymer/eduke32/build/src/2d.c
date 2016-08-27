@@ -707,8 +707,8 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
             yinc = 2048>>gride;
         }
 
-        xp2 = xp1 = ((posxe+(1024>>gride))&(((int64_t) (-1))<<(11-gride)));
-        yp2 = yp1 = ((posye+(1024>>gride))&(((int64_t) (-1))<<(11-gride)));
+        xp2 = xp1 = ((posxe + (1024 >> gride)) & -(((int64_t)(1)) << (11 - gride)));
+        yp2 = yp1 = ((posye + (1024 >> gride)) & -(((int64_t)(1)) << (11 - gride)));
 
         do
         {

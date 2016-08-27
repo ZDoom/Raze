@@ -41,7 +41,7 @@ extern int32_t __cdecl mmxoverlay();
 extern int32_t __cdecl sethlinesizes(int32_t,int32_t,int32_t);
 extern int32_t __cdecl setpalookupaddress(char *);
 extern int32_t __cdecl setuphlineasm4(int32_t,int32_t);
-extern int32_t __cdecl hlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
+extern int32_t __cdecl hlineasm4(ssize_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl setuprhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl rhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);
 extern int32_t __cdecl setuprmhlineasm4(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t);

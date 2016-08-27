@@ -377,7 +377,7 @@ static inline int P_GetP(const void *pSprite)
     // NOTE: In the no-netcode build, there's no point to pass player indices
     // at all since there is ever only one player. However, merely returning 0
     // would mean making this build less strict than the normal one.
-    Bassert(pSprite->yvel == 0);
+    Bassert(((const uspritetype *)pSprite)->yvel == 0);
     return 0;
 #else
     int playerNum = ((const uspritetype *)pSprite)->yvel;

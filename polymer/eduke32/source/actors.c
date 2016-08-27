@@ -5580,7 +5580,7 @@ static void MaybeTrainKillPlayer(const spritetype *pSprite, int setOPos)
 
             if ((playerSectnum == -1 && ud.noclip == 0) || (playerSectnum == pSprite->sectnum && pPlayer->cursectnum != pSprite->sectnum))
             {
-                *(vec2_t *)pPlayer = *(vec2_t *)pSprite;
+                *(vec2_t *)pPlayer = *(vec2_t const *)pSprite;
 
                 if (setOPos)
                     *(vec2_t *)&pPlayer->opos = *(vec2_t *)pPlayer;

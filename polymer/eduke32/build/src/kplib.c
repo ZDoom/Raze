@@ -1843,12 +1843,17 @@ static int32_t ktgarend(const char *header, int32_t fleng,
     }
     else pixbyte = colbyte;
 
-    switch (pixbyte) //For PNGOUT
+    switch (pixbyte)  // For PNGOUT
     {
-    case 1: kcoltype = 0; bitdepth = 8; palcol[0] = B_LITTLE32(0xff000000);
-        for (i=1; i<256; i++) palcol[i] = palcol[i-1]+B_LITTLE32(0x10101); break;
-    case 2: case 3: kcoltype = 2; break;
-    case 4: kcoltype = 6; break;
+        case 1:
+            kcoltype  = 0;
+            bitdepth  = 8;
+            palcol[0] = B_LITTLE32(0xff000000);
+            for (i = 1; i < 256; i++) palcol[i] = palcol[i - 1] + B_LITTLE32(0x10101);
+            break;
+        case 2:
+        case 3: kcoltype = 2; break;
+        case 4: kcoltype = 6; break;
     }
 
     if (!(header[17]&16)) { x0 = 0;      x1 = xsiz; xi = 1; }
@@ -1979,9 +1984,9 @@ static int32_t kbmprend(const char *buf, int32_t fleng,
         palcol[0] = 24-(palcol[0]+palcol[3]);
         palcol[1] = 16-(palcol[1]+palcol[4]);
         palcol[2] =  8-(palcol[2]+palcol[5]);
-        palcol[3] = ((-1<<(24-palcol[3]))&0x00ff0000);
-        palcol[4] = ((-1<<(16-palcol[4]))&0x0000ff00);
-        palcol[5] = ((-1<<(8-palcol[5]))&0x000000ff);
+        palcol[3] = (-(1<<(24-palcol[3]))&0x00ff0000);
+        palcol[4] = (-(1<<(16-palcol[4]))&0x0000ff00);
+        palcol[5] = (-(1<<(8-palcol[5]))&0x000000ff);
     }
 
     cptrinc = (((xsiz*cdim+31)>>3)&~3); cptr = &buf[rastoff];
