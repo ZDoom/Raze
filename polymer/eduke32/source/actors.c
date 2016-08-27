@@ -450,7 +450,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     // Handle horizontal movement first.
     pSprite->z = newZ;
     int returnValue =
-    clipmove((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, 4 << 8, 4 << 8, clipType);
+    clipmove((vec3_t *)pSprite, &newSectnum, change->x << 13, change->y << 13, clipDist, ZOFFSET6, ZOFFSET6, clipType);
     pSprite->z = oldZ;
 
     if (isEnemy)
@@ -3774,10 +3774,10 @@ ACTOR_STATIC void G_MoveActors(void)
                     if (sprite[j].picnum == POCKET && ldist(&sprite[j],pSprite) < 52)
                         KILLIT(spriteNum);
 
-                j = clipmove((vec3_t *)pSprite,&pSprite->sectnum,
-                             (((pSprite->xvel*(sintable[(pSprite->ang+512)&2047]))>>14)*TICSPERFRAME)<<11,
-                             (((pSprite->xvel*(sintable[pSprite->ang&2047]))>>14)*TICSPERFRAME)<<11,
-                             24L,(4<<8),(4<<8),CLIPMASK1);
+                j = clipmove((vec3_t *)pSprite, &pSprite->sectnum,
+                             (((pSprite->xvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14) * TICSPERFRAME) << 11,
+                             (((pSprite->xvel * (sintable[pSprite->ang & 2047])) >> 14) * TICSPERFRAME) << 11, 24L, ZOFFSET6, ZOFFSET6,
+                             CLIPMASK1);
 
                 if (j&49152)
                 {

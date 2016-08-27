@@ -5556,7 +5556,7 @@ finish_qsprintf:
         case CON_PSTOMP:
             insptr++;
             if (pPlayer->knee_incs == 0 && sprite[pPlayer->i].xrepeat >= 40)
-                if (cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - (4 << 8), vm.pSprite->sectnum, pPlayer->pos.x,
+                if (cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - ZOFFSET6, vm.pSprite->sectnum, pPlayer->pos.x,
                            pPlayer->pos.y, pPlayer->pos.z + ZOFFSET2, sprite[pPlayer->i].sectnum))
                 {
                     int32_t numPlayers = playerswhenstarted - 1;

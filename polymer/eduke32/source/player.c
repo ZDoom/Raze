@@ -37,8 +37,8 @@ static int32_t g_snum;
 
 extern int32_t g_levelTextTime, ticrandomseed;
 
-int32_t g_numObituaries = 0;
-int32_t g_numSelfObituaries = 0;
+int g_numObituaries = 0;
+int g_numSelfObituaries = 0;
 
 void P_UpdateScreenPal(DukePlayer_t * const pPlayer)
 {
@@ -105,7 +105,7 @@ void P_QuickKill(DukePlayer_t * const pPlayer)
         A_DoGuts(pPlayer->i,JIBS6,8);
 }
 
-static void A_DoWaterTracers(int32_t x1,int32_t y1,int32_t z1,int32_t x2,int32_t y2,int32_t z2,int32_t n)
+static void A_DoWaterTracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
 {
     if ((klabs(x1-x2)+klabs(y1-y2)) < 3084)
         return;
@@ -137,12 +137,12 @@ static inline projectile_t *Proj_GetProjectile(int tile)
     return ((unsigned)tile < MAXTILES && g_tile[tile].proj) ? g_tile[tile].proj : &DefaultProjectile;
 }
 
-static void A_HitscanProjTrail(const vec3_t *startPos, const vec3_t *endPos, int32_t projAngle, int32_t tileNum, int16_t sectNum)
+static void A_HitscanProjTrail(const vec3_t *startPos, const vec3_t *endPos, int projAng, int tileNum, int16_t sectNum)
 {
     const projectile_t *const pProj = Proj_GetProjectile(tileNum);
 
-    vec3_t        spawnPos = { startPos->x + tabledivide32_noinline(sintable[(348 + projAngle + 512) & 2047], pProj->offset),
-                               startPos->y + tabledivide32_noinline(sintable[(projAngle + 348) & 2047], pProj->offset),
+    vec3_t        spawnPos = { startPos->x + tabledivide32_noinline(sintable[(348 + projAng + 512) & 2047], pProj->offset),
+                               startPos->y + tabledivide32_noinline(sintable[(projAng + 348) & 2047], pProj->offset),
                                startPos->z + 1024 + (pProj->toffset << 8) };
 
     int32_t      n         = ((FindDistance2D(spawnPos.x - endPos->x, spawnPos.y - endPos->y)) >> 8) + 1;
@@ -163,25 +163,25 @@ static void A_HitscanProjTrail(const vec3_t *startPos, const vec3_t *endPos, int
         spawnPos.y += increment.y;
         spawnPos.z += increment.z;
 
-        updatesectorz(spawnPos.x,spawnPos.y,spawnPos.z,&sectNum);
+        updatesectorz(spawnPos.x, spawnPos.y, spawnPos.z, &sectNum);
 
         if (sectNum < 0)
             break;
 
-        getzsofslope(sectNum,spawnPos.x,spawnPos.y,&n,&j);
+        getzsofslope(sectNum, spawnPos.x, spawnPos.y, &n, &j);
 
         if (spawnPos.z > j || spawnPos.z < n)
             break;
 
         j = A_InsertSprite(sectNum, spawnPos.x, spawnPos.y, spawnPos.z, pProj->trail, -32,
-                           pProj->txrepeat, pProj->tyrepeat, projAngle, 0, 0, g_player[0].ps->i, 0);
+                           pProj->txrepeat, pProj->tyrepeat, projAng, 0, 0, g_player[0].ps->i, 0);
         changespritestat(j, STAT_ACTOR);
     }
 }
 
-int32_t A_GetHitscanRange(int32_t spriteNum)
+int32_t A_GetHitscanRange(int spriteNum)
 {
-    int32_t   zOffset = (PN(spriteNum) == APLAYER) ? PHEIGHT : 0;
+    int const zOffset = (PN(spriteNum) == APLAYER) ? PHEIGHT : 0;
     hitdata_t hitData;
 
     SZ(spriteNum) -= zOffset;
@@ -192,9 +192,9 @@ int32_t A_GetHitscanRange(int32_t spriteNum)
     return (FindDistance2D(hitData.pos.x - SX(spriteNum), hitData.pos.y - SY(spriteNum)));
 }
 
-static int32_t A_FindTargetSprite(const spritetype *pSprite, int32_t projAngle, int32_t projecTile)
+static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projecTile)
 {
-    static const int32_t aimstats[] = {
+    static int const aimstats[] = {
         STAT_PLAYER, STAT_DUMMYPLAYER, STAT_ACTOR, STAT_ZOMBIEACTOR
     };
 
@@ -234,8 +234,8 @@ static int32_t A_FindTargetSprite(const spritetype *pSprite, int32_t projAngle, 
     int const gotFreezer =
     (pSprite->picnum == APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
 
-    vec2_t const d1 = { sintable[(spriteAng + 512 - projAngle) & 2047], sintable[(spriteAng - projAngle) & 2047] };
-    vec2_t const d2 = { sintable[(spriteAng + 512 + projAngle) & 2047], sintable[(spriteAng + projAngle) & 2047] };
+    vec2_t const d1 = { sintable[(spriteAng + 512 - projAng) & 2047], sintable[(spriteAng - projAng) & 2047] };
+    vec2_t const d2 = { sintable[(spriteAng + 512 + projAng) & 2047], sintable[(spriteAng + projAng) & 2047] };
     vec2_t const d3 = { sintable[(spriteAng + 512) & 2047], sintable[spriteAng & 2047] };
 
     int lastDist     = INT32_MAX;
@@ -301,17 +301,17 @@ static int32_t A_FindTargetSprite(const spritetype *pSprite, int32_t projAngle, 
     return returnSprite;
 }
 
-static void A_SetHitData(int32_t spriteNum, const hitdata_t *hitData)
+static void A_SetHitData(int spriteNum, const hitdata_t *hitData)
 {
     actor[spriteNum].t_data[6] = hitData->wall;
     actor[spriteNum].t_data[7] = hitData->sect;
     actor[spriteNum].t_data[8] = hitData->sprite;
 }
 
-static int32_t CheckShootSwitchTile(int32_t picnum)
+static int CheckShootSwitchTile(int tileNum)
 {
-    return picnum == DIPSWITCH || picnum == DIPSWITCH + 1 || picnum == DIPSWITCH2 || picnum == DIPSWITCH2 + 1 ||
-           picnum == DIPSWITCH3 || picnum == DIPSWITCH3 + 1 || picnum == HANDSWITCH || picnum == HANDSWITCH + 1;
+    return tileNum == DIPSWITCH || tileNum == DIPSWITCH + 1 || tileNum == DIPSWITCH2 || tileNum == DIPSWITCH2 + 1 ||
+           tileNum == DIPSWITCH3 || tileNum == DIPSWITCH3 + 1 || tileNum == HANDSWITCH || tileNum == HANDSWITCH + 1;
 }
 
 static int32_t safeldist(int32_t spriteNum, const void *pSprite)
@@ -323,10 +323,10 @@ static int32_t safeldist(int32_t spriteNum, const void *pSprite)
 // flags:
 //  1: do sprite center adjustment (cen-=(8<<8)) for GREENSLIME or ROTATEGUN
 //  2: do auto getangle only if not RECON (if clear, do unconditionally)
-static int32_t GetAutoAimAngle(int32_t spriteNum, int32_t playerNum, int32_t projecTile, int32_t zAdjust, int32_t aimFlags,
-                               const vec3_t *startPos, int32_t projVel, int32_t *pZvel, int16_t *pAngle)
+static int GetAutoAimAng(int spriteNum, int playerNum, int projecTile, int zAdjust, int aimFlags,
+                               const vec3_t *startPos, int projVel, int32_t *pZvel, int *pAng)
 {
-    int32_t returnSprite = -1;
+    int returnSprite = -1;
 
     Bassert((unsigned)playerNum < MAXPLAYERS);
 
@@ -339,9 +339,9 @@ static int32_t GetAutoAimAngle(int32_t spriteNum, int32_t playerNum, int32_t pro
     VM_OnEvent(EVENT_GETAUTOAIMANGLE, spriteNum, playerNum);
 
 #ifdef LUNATIC
-    int32_t aimang = g_player[playerNum].ps->autoaimang;
+    int aimang = g_player[playerNum].ps->autoaimang;
 #else
-    int32_t aimang = Gv_GetVar(g_aimAngleVarID, spriteNum, playerNum);
+    int aimang = Gv_GetVar(g_aimAngleVarID, spriteNum, playerNum);
 #endif
     if (aimang > 0)
         returnSprite = A_FindTargetSprite(&sprite[spriteNum], aimang, projecTile);
@@ -349,7 +349,7 @@ static int32_t GetAutoAimAngle(int32_t spriteNum, int32_t playerNum, int32_t pro
     if (returnSprite >= 0)
     {
         const uspritetype *const pSprite = (uspritetype *)&sprite[returnSprite];
-        int32_t                  zCenter = 2 * (pSprite->yrepeat * tilesiz[pSprite->picnum].y) + zAdjust;
+        int                      zCenter = 2 * (pSprite->yrepeat * tilesiz[pSprite->picnum].y) + zAdjust;
 
         if (aimFlags &&
             ((pSprite->picnum >= GREENSLIME && pSprite->picnum <= GREENSLIME + 7) || pSprite->picnum == ROTATEGUN))
@@ -359,26 +359,29 @@ static int32_t GetAutoAimAngle(int32_t spriteNum, int32_t playerNum, int32_t pro
         *pZvel         = tabledivide32_noinline((pSprite->z - startPos->z - zCenter) * projVel, spriteDist);
 
         if (!(aimFlags&2) || sprite[returnSprite].picnum != RECON)
-            *pAngle = getangle(pSprite->x-startPos->x, pSprite->y-startPos->y);
+            *pAng = getangle(pSprite->x-startPos->x, pSprite->y-startPos->y);
     }
 
     return returnSprite;
 }
 
-static void Proj_MaybeSpawn(int32_t k, int32_t projecTile, const hitdata_t *hitData)
+static void Proj_MaybeSpawn(int spriteNum, int projecTile, const hitdata_t *hitData)
 {
     // atwith < 0 is for hard-coded projectiles
     projectile_t *const pProj      = Proj_GetProjectile(projecTile);
-    int32_t             projSpawns = projecTile < 0 ? -projecTile : pProj->spawns;
+    int                 spawnTile  = projecTile < 0 ? -projecTile : pProj->spawns;
 
-    if (projSpawns >= 0)
+    if (spawnTile >= 0)
     {
-        int32_t spawned = A_Spawn(k, projSpawns);
+        int spawned = A_Spawn(spriteNum, spawnTile);
 
         if (projecTile >= 0)
         {
-            if (pProj->sxrepeat > 4) sprite[spawned].xrepeat = pProj->sxrepeat;
-            if (pProj->syrepeat > 4) sprite[spawned].yrepeat = pProj->syrepeat;
+            if (pProj->sxrepeat > 4)
+                sprite[spawned].xrepeat = pProj->sxrepeat;
+
+            if (pProj->syrepeat > 4)
+                sprite[spawned].yrepeat = pProj->syrepeat;
         }
 
         A_SetHitData(spawned, hitData);
@@ -386,25 +389,24 @@ static void Proj_MaybeSpawn(int32_t k, int32_t projecTile, const hitdata_t *hitD
 }
 
 // <extra>: damage that this shotspark does
-static int32_t Proj_InsertShotspark(const hitdata_t *hitData, int32_t spriteNum, int32_t projecTile,
-                                    int32_t sparkRepeat, int32_t sparkAngle, int32_t extra)
+static int Proj_InsertShotspark(const hitdata_t *hitData, int spriteNum, int projecTile, int sparkSize, int sparkAng, int damage)
 {
-    int32_t spawned = A_InsertSprite(hitData->sect, hitData->pos.x, hitData->pos.y, hitData->pos.z, SHOTSPARK1, -15,
-                                     sparkRepeat, sparkRepeat, sparkAngle, 0, 0, spriteNum, 4);
+    int returnSprite = A_InsertSprite(hitData->sect, hitData->pos.x, hitData->pos.y, hitData->pos.z, SHOTSPARK1, -15,
+                                     sparkSize, sparkSize, sparkAng, 0, 0, spriteNum, 4);
 
-    sprite[spawned].extra = extra;
-    sprite[spawned].yvel  = projecTile;  // This is a hack to allow you to detect which weapon spawned a SHOTSPARK1
+    sprite[returnSprite].extra = damage;
+    sprite[returnSprite].yvel  = projecTile;  // This is a hack to allow you to detect which weapon spawned a SHOTSPARK1
 
-    A_SetHitData(spawned, hitData);
+    A_SetHitData(returnSprite, hitData);
 
-    return spawned;
+    return returnSprite;
 }
 
-int32_t Proj_GetDamage(projectile_t const * pProj)
+int Proj_GetDamage(projectile_t const *pProj)
 {
     Bassert(pProj);
 
-    int32_t damage = pProj->extra;
+    int damage = pProj->extra;
 
     if (pProj->extra_rand > 0)
         damage += (krand() % pProj->extra_rand);
@@ -412,441 +414,427 @@ int32_t Proj_GetDamage(projectile_t const * pProj)
     return damage;
 }
 
-static void Proj_MaybeAddSpread(int32_t not_accurate_p, int32_t *zvel, int16_t *sa,
-                                int32_t zRange, int32_t angRange)
+static void Proj_MaybeAddSpread(int doSpread, int32_t *zvel, int *shootAng, int zRange, int angRange)
 {
-    if (not_accurate_p)
+    if (doSpread)
     {
         // Ranges <= 1 mean no spread at all. A range of 1 calls krand() though.
         if (zRange > 0)
-            *zvel += zRange/2 - krand()%zRange;
+            *zvel += (zRange >> 1) - krand() % zRange;
+
         if (angRange > 0)
-            *sa += angRange/2 - krand()%angRange;
+            *shootAng += (angRange >> 1) - krand() % angRange;
     }
 }
 
+static int g_overrideShootZvel = 0;  // a boolean
+static int g_shootZvel;  // the actual zvel if the above is !=0
 
-static int32_t g_overrideShootZvel = 0;  // a boolean
-static int32_t g_shootZvel;  // the actual zvel if the above is !=0
-
-static int32_t A_GetShootZvel(int32_t defaultzvel)
+static int A_GetShootZvel(int defaultZvel)
 {
-    return g_overrideShootZvel ? g_shootZvel : defaultzvel;
+    return g_overrideShootZvel ? g_shootZvel : defaultZvel;
 }
 
 // Prepare hitscan weapon fired from player p.
-static void P_PreFireHitscan(int32_t i, int32_t p, int32_t atwith,
-                             vec3_t *srcvect, int32_t *zvel, int16_t *sa,
-                             int32_t accurate_autoaim_p,
-                             int32_t not_accurate_p)
+static void P_PreFireHitscan(int spriteNum, int playerNum, int projecTile, vec3_t *srcVect, int32_t *zvel, int *shootAng,
+                             int accurateAim, int doSpread)
 {
-    int32_t angRange=32;
-    int32_t zRange=256;
+    int angRange  = 32;
+    int zRange    = 256;
+    int aimSprite = GetAutoAimAng(spriteNum, playerNum, projecTile, 5 << 8, 0 + 1, srcVect, 256, zvel, shootAng);
 
-    int32_t j = GetAutoAimAngle(i, p, atwith, 5<<8, 0+1, srcvect, 256, zvel, sa);
-    DukePlayer_t *const ps = g_player[p].ps;
-
-#ifdef LUNATIC
-    ps->angrange = angRange;
-    ps->zrange = zRange;
-#else
-    Gv_SetVar(g_angRangeVarID,angRange, i,p);
-    Gv_SetVar(g_zRangeVarID,zRange,i,p);
-#endif
-
-    VM_OnEvent(EVENT_GETSHOTRANGE, i, p);
+    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
 #ifdef LUNATIC
-    angRange = ps->angrange;
-    zRange = ps->zrange;
+    pPlayer->angrange = angRange;
+    pPlayer->zrange = zRange;
 #else
-    angRange=Gv_GetVar(g_angRangeVarID,i,p);
-    zRange=Gv_GetVar(g_zRangeVarID,i,p);
+    Gv_SetVar(g_angRangeVarID,angRange, spriteNum,playerNum);
+    Gv_SetVar(g_zRangeVarID,zRange,spriteNum,playerNum);
 #endif
 
-    if (accurate_autoaim_p)
+    VM_OnEvent(EVENT_GETSHOTRANGE, spriteNum, playerNum);
+
+#ifdef LUNATIC
+    angRange = pPlayer->angrange;
+    zRange   = pPlayer->zrange;
+#else
+    angRange = Gv_GetVar(g_angRangeVarID, spriteNum, playerNum);
+    zRange   = Gv_GetVar(g_zRangeVarID, spriteNum, playerNum);
+#endif
+
+    if (accurateAim)
     {
-        if (!ps->auto_aim)
+        if (!pPlayer->auto_aim)
         {
-            hitdata_t hit;
+            hitdata_t hitData;
 
-            *zvel = A_GetShootZvel((100-ps->horiz-ps->horizoff)<<5);
+            *zvel = A_GetShootZvel((100-pPlayer->horiz-pPlayer->horizoff)<<5);
 
-            hitscan(srcvect, sprite[i].sectnum, sintable[(*sa+512)&2047], sintable[*sa&2047],
-                    *zvel<<6,&hit,CLIPMASK1);
+            hitscan(srcVect, sprite[spriteNum].sectnum, sintable[(*shootAng + 512) & 2047],
+                    sintable[*shootAng & 2047], *zvel << 6, &hitData, CLIPMASK1);
 
-            if (hit.sprite != -1)
+            if (hitData.sprite != -1)
             {
-                const int32_t hitstatnumsbitmap =
-                    ((1<<STAT_ACTOR) | (1<<STAT_ZOMBIEACTOR) | (1<<STAT_PLAYER) | (1<<STAT_DUMMYPLAYER));
-                const int32_t st = sprite[hit.sprite].statnum;
+                int const statNumMap = ((1 << STAT_ACTOR) | (1 << STAT_ZOMBIEACTOR) | (1 << STAT_PLAYER) | (1 << STAT_DUMMYPLAYER));
+                int const statNum    = sprite[hitData.sprite].statnum;
 
-                if (st>=0 && st<=30 && (hitstatnumsbitmap&(1<<st)))
-                    j = hit.sprite;
+                if (statNum >= 0 && statNum <= 30 && (statNumMap & (1 << statNum)))
+                    aimSprite = hitData.sprite;
             }
         }
 
-        if (j == -1)
+        if (aimSprite == -1)
         {
-            *zvel = (100-ps->horiz-ps->horizoff)<<5;
-            Proj_MaybeAddSpread(not_accurate_p, zvel, sa, zRange, angRange);
+            *zvel = (100-pPlayer->horiz-pPlayer->horizoff)<<5;
+            Proj_MaybeAddSpread(doSpread, zvel, shootAng, zRange, angRange);
         }
     }
     else
     {
-        if (j == -1)  // no target
-            *zvel = (100-ps->horiz-ps->horizoff)<<5;
-        Proj_MaybeAddSpread(not_accurate_p, zvel, sa, zRange, angRange);
+        if (aimSprite == -1)  // no target
+            *zvel = (100-pPlayer->horiz-pPlayer->horizoff)<<5;
+        Proj_MaybeAddSpread(doSpread, zvel, shootAng, zRange, angRange);
     }
 
-    srcvect->z -= (2<<8);
+    srcVect->z -= (2<<8);
 }
 
 // Hitscan weapon fired from actor (sprite s);
-static void A_PreFireHitscan(const spritetype *s, vec3_t *srcvect, int32_t *zvel, int16_t *sa,
-                             int32_t not_accurate_p)
+static void A_PreFireHitscan(const spritetype *pSprite, vec3_t *srcVect, int32_t *zvel, int *shootAng, int doSpread)
 {
-    const int32_t j = A_FindPlayer(s, NULL);
-    const DukePlayer_t *targetps = g_player[j].ps;
+    int const           playerNum  = A_FindPlayer(pSprite, NULL);
+    const DukePlayer_t *pPlayer    = g_player[playerNum].ps;
+    int const           playerDist = safeldist(pPlayer->i, pSprite);
 
-    const int32_t d = safeldist(targetps->i, s);
-    *zvel = tabledivide32_noinline((targetps->pos.z-srcvect->z)<<8, d);
+    *zvel = tabledivide32_noinline((pPlayer->pos.z - srcVect->z) << 8, playerDist);
 
-    srcvect->z -= (4<<8);
+    srcVect->z -= ZOFFSET6;
 
-    if (s->picnum != BOSS1)
+    if (pSprite->picnum != BOSS1)
     {
-        Proj_MaybeAddSpread(not_accurate_p, zvel, sa, 256, 64);
+        Proj_MaybeAddSpread(doSpread, zvel, shootAng, 256, 64);
     }
     else
     {
-        *sa = getangle(targetps->pos.x-srcvect->x, targetps->pos.y-srcvect->y);
+        *shootAng = getangle(pPlayer->pos.x-srcVect->x, pPlayer->pos.y-srcVect->y);
 
-        Proj_MaybeAddSpread(not_accurate_p, zvel, sa, 256, 128);
+        Proj_MaybeAddSpread(doSpread, zvel, shootAng, 256, 128);
     }
 }
 
-static int32_t Proj_DoHitscan(int32_t i, int32_t cstatmask,
-                              const vec3_t *srcvect, int32_t zvel, int16_t sa,
-                              hitdata_t *hit)
+static int Proj_DoHitscan(int spriteNum, int32_t cstatmask, const vec3_t *srcVect, int zvel, int shootAng, hitdata_t *hitData)
 {
-    spritetype *const s = &sprite[i];
+    spritetype *const pSprite = &sprite[spriteNum];
 
-    s->cstat &= ~cstatmask;
-
+    pSprite->cstat &= ~cstatmask;
     zvel = A_GetShootZvel(zvel);
+    hitscan(srcVect, pSprite->sectnum, sintable[(shootAng + 512) & 2047], sintable[shootAng & 2047], zvel << 6, hitData, CLIPMASK1);
+    pSprite->cstat |= cstatmask;
 
-    hitscan(srcvect, s->sectnum,
-            sintable[(sa+512)&2047],
-            sintable[sa&2047],
-            zvel<<6, hit, CLIPMASK1);
-
-    s->cstat |= cstatmask;
-
-    return (hit->sect < 0);
+    return (hitData->sect < 0);
 }
 
-static void Proj_DoRandDecalSize(int32_t spritenum, int32_t atwith)
+static void Proj_DoRandDecalSize(int spriteNum, int projecTile)
 {
-    const projectile_t *const proj = Proj_GetProjectile(atwith);
+    const projectile_t *const proj    = Proj_GetProjectile(projecTile);
+    spritetype *const         pSprite = &sprite[spriteNum];
 
     if (proj->workslike & PROJECTILE_RANDDECALSIZE)
     {
-        int32_t wh = (krand()&proj->xrepeat);
-        if (wh < proj->yrepeat)
-            wh = proj->yrepeat;
-        sprite[spritenum].xrepeat = wh;
-        sprite[spritenum].yrepeat = wh;
+        int projSize = (krand() & proj->xrepeat);
+
+        if (projSize < proj->yrepeat)
+            projSize = proj->yrepeat;
+
+        pSprite->xrepeat = projSize;
+        pSprite->yrepeat = projSize;
     }
     else
     {
-        sprite[spritenum].xrepeat = proj->xrepeat;
-        sprite[spritenum].yrepeat = proj->yrepeat;
+        pSprite->xrepeat = proj->xrepeat;
+        pSprite->yrepeat = proj->yrepeat;
     }
 }
 
-static int32_t SectorContainsSE13(int32_t sectnum)
+static int SectorContainsSE13(int sectNum)
 {
-    int32_t i;
-    if (sectnum >= 0)
-        for (SPRITES_OF_SECT(sectnum, i))
+    if (sectNum >= 0)
+    {
+        for (int SPRITES_OF_SECT(sectNum, i))
+        {
             if (sprite[i].statnum == STAT_EFFECTOR && sprite[i].lotag == SE_13_EXPLOSIVE)
                 return 1;
+        }
+    }
     return 0;
 }
 
 // Maybe handle bit 2 (swap wall bottoms).
 // (in that case walltype *hitwal may be stale)
-static inline void HandleHitWall(hitdata_t *hit)
+static inline void HandleHitWall(hitdata_t *hitData)
 {
-    uwalltype const * const hitwal = (uwalltype *)&wall[hit->wall];
+    uwalltype const * const hitWall = (uwalltype *)&wall[hitData->wall];
 
-    if ((hitwal->cstat&2) && redwallp(hitwal))
-        if (hit->pos.z >= sector[hitwal->nextsector].floorz)
-            hit->wall = hitwal->nextwall;
+    if ((hitWall->cstat & 2) && redwallp(hitWall) && (hitData->pos.z >= sector[hitWall->nextsector].floorz))
+        hitData->wall = hitWall->nextwall;
 }
 
 // Maybe damage a ceiling or floor as the consequence of projectile impact.
 // Returns 1 if projectile hit a parallaxed ceiling.
 // NOTE: Compare with Proj_MaybeDamageCF() in actors.c
-static int32_t Proj_MaybeDamageCF2(int32_t zvel, int32_t hitsect)
+static int Proj_MaybeDamageCF2(int zvel, int hitSect)
 {
+    Bassert(hitSect >= 0);
+
     if (zvel < 0)
     {
-        Bassert(hitsect >= 0);
-
-        if (sector[hitsect].ceilingstat&1)
+        if (sector[hitSect].ceilingstat&1)
             return 1;
 
-        Sect_DamageCeilingOrFloor(0, hitsect);
+        Sect_DamageCeilingOrFloor(0, hitSect);
     }
     else if (zvel > 0)
     {
-        Bassert(hitsect >= 0);
-
-        if (sector[hitsect].floorstat&1)
+        if (sector[hitSect].floorstat&1)
         {
             // Keep original Duke3D behavior: pass projectiles through
             // parallaxed ceilings, but NOT through such floors.
             return 0;
         }
 
-        Sect_DamageCeilingOrFloor(1, hitsect);
+        Sect_DamageCeilingOrFloor(1, hitSect);
     }
 
     return 0;
 }
 
 // Finish shooting hitscan weapon from player <p>. <k> is the inserted SHOTSPARK1.
-// * <spawnatimpacttile> is passed to Proj_MaybeSpawn()
-// * <decaltile> and <damagewalltile> are for wall impact
-// * <damagewalltile> is passed to A_DamageWall()
-// * <flags> is for decals upon wall impact:
+// * <spawnObject> is passed to Proj_MaybeSpawn()
+// * <decalTile> and <wallDamage> are for wall impact
+// * <wallDamage> is passed to A_DamageWall()
+// * <decalFlags> is for decals upon wall impact:
 //    1: handle random decal size (tile <atwith>)
 //    2: set cstat to wall-aligned + random x/y flip
 //
 // TODO: maybe split into 3 cases (hit neither wall nor sprite, hit sprite, hit wall)?
-static int32_t P_PostFireHitscan(int32_t p, int32_t k, hitdata_t *hit, int32_t i, int32_t atwith, int32_t zvel,
-                                 int32_t spawnatimpacttile, int32_t decaltile, int32_t damagewalltile,
-                                 int32_t flags)
+static int P_PostFireHitscan(int playerNum, int spriteNum, hitdata_t *hitData, int spriteOwner, int projecTile, int zvel,
+                             int spawnTile, int decalTile, int wallDamage, int decalFlags)
 {
-    if (hit->wall == -1 && hit->sprite == -1)
+    if (hitData->wall == -1 && hitData->sprite == -1)
     {
-        if (Proj_MaybeDamageCF2(zvel, hit->sect))
+        if (Proj_MaybeDamageCF2(zvel, hitData->sect))
         {
-            sprite[k].xrepeat = 0;
-            sprite[k].yrepeat = 0;
+            sprite[spriteNum].xrepeat = 0;
+            sprite[spriteNum].yrepeat = 0;
             return -1;
         }
 
-        Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+        Proj_MaybeSpawn(spriteNum, spawnTile, hitData);
     }
-    else if (hit->sprite >= 0)
+    else if (hitData->sprite >= 0)
     {
-        A_DamageObject(hit->sprite, k);
+        A_DamageObject(hitData->sprite, spriteNum);
 
-        if (sprite[hit->sprite].picnum == APLAYER &&
+        if (sprite[hitData->sprite].picnum == APLAYER &&
             (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
-                               g_player[P_Get(hit->sprite)].ps->team != g_player[P_Get(i)].ps->team)))
+                               g_player[P_Get(hitData->sprite)].ps->team != g_player[P_Get(spriteOwner)].ps->team)))
         {
-            int32_t l = A_Spawn(k, JIBS6);
-            sprite[k].xrepeat = sprite[k].yrepeat = 0;
-            sprite[l].z += (4<<8);
-            sprite[l].xvel = 16;
-            sprite[l].xrepeat = sprite[l].yrepeat = 24;
-            sprite[l].ang += 64-(krand()&127);
+            int jibSprite = A_Spawn(spriteNum, JIBS6);
+
+            sprite[spriteNum].xrepeat = sprite[spriteNum].yrepeat = 0;
+            sprite[jibSprite].z += ZOFFSET6;
+            sprite[jibSprite].xvel    = 16;
+            sprite[jibSprite].xrepeat = sprite[jibSprite].yrepeat = 24;
+            sprite[jibSprite].ang += 64 - (krand() & 127);
         }
         else
         {
-            Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+            Proj_MaybeSpawn(spriteNum, spawnTile, hitData);
         }
 
-        if (p >= 0 && CheckShootSwitchTile(sprite[hit->sprite].picnum))
+        if (playerNum >= 0 && CheckShootSwitchTile(sprite[hitData->sprite].picnum))
         {
-            P_ActivateSwitch(p, hit->sprite, 1);
+            P_ActivateSwitch(playerNum, hitData->sprite, 1);
             return -1;
         }
     }
-    else if (hit->wall >= 0)
+    else if (hitData->wall >= 0)
     {
-        uwalltype const * const hitwal = (uwalltype *)&wall[hit->wall];
+        uwalltype const * const hitWall = (uwalltype *)&wall[hitData->wall];
 
-        Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+        Proj_MaybeSpawn(spriteNum, spawnTile, hitData);
 
-        if (CheckDoorTile(hitwal->picnum) == 1)
+        if (CheckDoorTile(hitWall->picnum) == 1)
             goto SKIPBULLETHOLE;
 
-        if (p >= 0 && CheckShootSwitchTile(hitwal->picnum))
+        if (playerNum >= 0 && CheckShootSwitchTile(hitWall->picnum))
         {
-            P_ActivateSwitch(p, hit->wall, 0);
+            P_ActivateSwitch(playerNum, hitData->wall, 0);
             return -1;
         }
 
-        if (hitwal->hitag != 0 || (hitwal->nextwall >= 0 && wall[hitwal->nextwall].hitag != 0))
+        if (hitWall->hitag != 0 || (hitWall->nextwall >= 0 && wall[hitWall->nextwall].hitag != 0))
             goto SKIPBULLETHOLE;
 
-        if (hit->sect >= 0 && sector[hit->sect].lotag == 0)
-            if (hitwal->overpicnum != BIGFORCE && (hitwal->cstat&16) == 0)
-                if ((hitwal->nextsector >= 0 && sector[hitwal->nextsector].lotag == 0) ||
-                    (hitwal->nextsector == -1 && sector[hit->sect].lotag == 0))
-                {
-                    int32_t l;
+        if ((hitData->sect >= 0 && sector[hitData->sect].lotag == 0) &&
+            (hitWall->overpicnum != BIGFORCE && (hitWall->cstat & 16) == 0) &&
+            ((hitWall->nextsector >= 0 && sector[hitWall->nextsector].lotag == 0) || (hitWall->nextsector == -1 && sector[hitData->sect].lotag == 0)))
+        {
+            int decalSprite;
 
-                    if (SectorContainsSE13(hitwal->nextsector))
-                        goto SKIPBULLETHOLE;
+            if (SectorContainsSE13(hitWall->nextsector))
+                goto SKIPBULLETHOLE;
 
-                    for (SPRITES_OF(STAT_MISC, l))
-                        if (sprite[l].picnum == decaltile)
-                            if (dist(&sprite[l],&sprite[k]) < (12+(krand()&7)))
-                                goto SKIPBULLETHOLE;
+            for (SPRITES_OF(STAT_MISC, decalSprite))
+                if (sprite[decalSprite].picnum == decalTile && dist(&sprite[decalSprite], &sprite[spriteNum]) < (12 + (krand() & 7)))
+                    goto SKIPBULLETHOLE;
 
-                    if (decaltile >= 0)
-                    {
-                        l = A_Spawn(k, decaltile);
+            if (decalTile >= 0)
+            {
+                decalSprite = A_Spawn(spriteNum, decalTile);
 
-                        A_SetHitData(l, hit);
+                A_SetHitData(decalSprite, hitData);
 
-                        if (!A_CheckSpriteFlags(l, SFLAG_DECAL))
-                            actor[l].flags |= SFLAG_DECAL;
+                if (!A_CheckSpriteFlags(decalSprite, SFLAG_DECAL))
+                    actor[decalSprite].flags |= SFLAG_DECAL;
 
-                        sprite[l].ang = (getangle(hitwal->x - wall[hitwal->point2].x,
-                            hitwal->y - wall[hitwal->point2].y) + 1536) & 2047;
+                sprite[decalSprite].ang
+                = (getangle(hitWall->x - wall[hitWall->point2].x, hitWall->y - wall[hitWall->point2].y) + 1536) & 2047;
 
-                        if (flags & 1)
-                            Proj_DoRandDecalSize(l, atwith);
+                if (decalFlags & 1)
+                    Proj_DoRandDecalSize(decalSprite, projecTile);
 
-                        if (flags&2)
-                            sprite[l].cstat = 16+(krand()&(8+4));
+                if (decalFlags & 2)
+                    sprite[decalSprite].cstat = 16 + (krand() & (8 + 4));
 
-                        A_SetSprite(l, CLIPMASK0);
+                A_SetSprite(decalSprite, CLIPMASK0);
 
-                        // BULLETHOLE already adds itself to the deletion queue in
-                        // A_Spawn(). However, some other tiles do as well.
-                        if (decaltile != BULLETHOLE)
-                            A_AddToDeleteQueue(l);
-                    }
-                }
+                // BULLETHOLE already adds itself to the deletion queue in
+                // A_Spawn(). However, some other tiles do as well.
+                if (decalTile != BULLETHOLE)
+                    A_AddToDeleteQueue(decalSprite);
+            }
+        }
 
 SKIPBULLETHOLE:
-        HandleHitWall(hit);
+        HandleHitWall(hitData);
 
-        A_DamageWall(k, hit->wall, &hit->pos, damagewalltile);
+        A_DamageWall(spriteNum, hitData->wall, &hitData->pos, wallDamage);
     }
 
     return 0;
 }
 
 // Finish shooting hitscan weapon from actor (sprite <i>).
-static int32_t A_PostFireHitscan(const hitdata_t *hit, int32_t i, int32_t atwith, int32_t zvel, int32_t sa, int32_t extra,
-                                 int32_t spawnatimpacttile, int32_t damagewalltile)
+static int A_PostFireHitscan(const hitdata_t *hitData, int spriteNum, int projecTile, int zvel, int shootAng, int extra,
+                             int spawnTile, int wallDamage)
 {
-    int32_t k = Proj_InsertShotspark(hit, i, atwith, 24, sa, extra);
+    int returnSprite = Proj_InsertShotspark(hitData, spriteNum, projecTile, 24, shootAng, extra);
 
-    if (hit->sprite >= 0)
+    if (hitData->sprite >= 0)
     {
-        A_DamageObject(hit->sprite, k);
+        A_DamageObject(hitData->sprite, returnSprite);
 
-        if (sprite[hit->sprite].picnum != APLAYER)
-            Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+        if (sprite[hitData->sprite].picnum != APLAYER)
+            Proj_MaybeSpawn(returnSprite, spawnTile, hitData);
         else
-            sprite[k].xrepeat = sprite[k].yrepeat = 0;
+            sprite[returnSprite].xrepeat = sprite[returnSprite].yrepeat = 0;
     }
-    else if (hit->wall >= 0)
+    else if (hitData->wall >= 0)
     {
-        A_DamageWall(k, hit->wall, &hit->pos, damagewalltile);
-        Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+        A_DamageWall(returnSprite, hitData->wall, &hitData->pos, wallDamage);
+        Proj_MaybeSpawn(returnSprite, spawnTile, hitData);
     }
     else
     {
-        if (Proj_MaybeDamageCF2(zvel, hit->sect))
+        if (Proj_MaybeDamageCF2(zvel, hitData->sect))
         {
-            sprite[k].xrepeat = 0;
-            sprite[k].yrepeat = 0;
+            sprite[returnSprite].xrepeat = 0;
+            sprite[returnSprite].yrepeat = 0;
         }
-        else Proj_MaybeSpawn(k, spawnatimpacttile, hit);
+        else Proj_MaybeSpawn(returnSprite, spawnTile, hitData);
     }
 
-    return k;
+    return returnSprite;
 }
 
 // Common "spawn blood?" predicate.
 // minzdiff: minimal "step" height for blood to be spawned
-static int32_t Proj_CheckBlood(const vec3_t *srcvect, const hitdata_t *hit,
-                               int32_t projrange, int32_t minzdiff)
+static int Proj_CheckBlood(vec3_t const *const srcVect, hitdata_t const *const hitData, int bloodRange, int minZdiff)
 {
-    if (hit->wall < 0 || hit->sect < 0)
+    if (hitData->wall < 0 || hitData->sect < 0)
         return 0;
 
-    uwalltype const * const hitwal = (uwalltype *)&wall[hit->wall];
+    uwalltype const *const hitWall = (uwalltype *)&wall[hitData->wall];
 
-    if (FindDistance2D(srcvect->x-hit->pos.x, srcvect->y-hit->pos.y) < projrange)
-        if (hitwal->overpicnum != BIGFORCE && (hitwal->cstat&16) == 0)
-            if (sector[hit->sect].lotag == 0)
-                if (hitwal->nextsector < 0 ||
-                    (sector[hitwal->nextsector].lotag == 0 && sector[hit->sect].lotag == 0 &&
-                    sector[hit->sect].floorz-sector[hitwal->nextsector].floorz > minzdiff))
-                    return 1;
+    if ((FindDistance2D(srcVect->x - hitData->pos.x, srcVect->y - hitData->pos.y) < bloodRange)
+        && (hitWall->overpicnum != BIGFORCE && (hitWall->cstat & 16) == 0)
+        && (sector[hitData->sect].lotag == 0)
+        && (hitWall->nextsector < 0 || (sector[hitWall->nextsector].lotag == 0 && sector[hitData->sect].lotag == 0
+                                        && sector[hitData->sect].floorz - sector[hitWall->nextsector].floorz > minZdiff)))
+        return 1;
 
     return 0;
 }
 
-static void Proj_HandleKnee(hitdata_t *hit, int32_t i, int32_t p, int32_t atwith, int32_t sa,
-                            const projectile_t *proj, int32_t inserttile,
-                            int32_t addrandextra, int32_t spawnatimpacttile, int32_t soundnum)
+static void Proj_HandleKnee(hitdata_t *hitData, int spriteNum, int playerNum, int projecTile, int shootAng,
+                            const projectile_t *proj, int inserttile,
+                            int randomDamage, int spawnTile, int soundNum)
 {
-    const DukePlayer_t *const ps = p >= 0 ? g_player[p].ps : NULL;
+    const DukePlayer_t *const pPlayer = playerNum >= 0 ? g_player[playerNum].ps : NULL;
 
-    int32_t j = A_InsertSprite(hit->sect,hit->pos.x,hit->pos.y,hit->pos.z,
-                               inserttile,-15,0,0,sa,32,0,i,4);
+    int kneeSprite = A_InsertSprite(hitData->sect,hitData->pos.x,hitData->pos.y,hitData->pos.z,
+                                    inserttile,-15,0,0,shootAng,32,0,spriteNum,4);
 
     if (proj != NULL)
     {
         // Custom projectiles.
-        SpriteProjectile[j].workslike = Proj_GetProjectile(sprite[j].picnum)->workslike;
-        sprite[j].extra = proj->extra;
+        SpriteProjectile[kneeSprite].workslike = Proj_GetProjectile(sprite[kneeSprite].picnum)->workslike;
+        sprite[kneeSprite].extra = proj->extra;
     }
 
-    if (addrandextra > 0)
-        sprite[j].extra += (krand()&addrandextra);
+    if (randomDamage > 0)
+        sprite[kneeSprite].extra += (krand()&randomDamage);
 
-    if (p >= 0)
+    if (playerNum >= 0)
     {
-        if (spawnatimpacttile >= 0)
+        if (spawnTile >= 0)
         {
-            int32_t k = A_Spawn(j, spawnatimpacttile);
+            int k = A_Spawn(kneeSprite, spawnTile);
             sprite[k].z -= ZOFFSET3;
-            A_SetHitData(k, hit);
+            A_SetHitData(k, hitData);
         }
 
-        if (soundnum >= 0)
-            A_PlaySound(soundnum, j);
+        if (soundNum >= 0)
+            A_PlaySound(soundNum, kneeSprite);
     }
 
-    if (p >= 0 && ps->inv_amount[GET_STEROIDS] > 0 && ps->inv_amount[GET_STEROIDS] < 400)
-        sprite[j].extra += (ps->max_player_health>>2);
+    if (playerNum >= 0 && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
+        sprite[kneeSprite].extra += (pPlayer->max_player_health>>2);
 
-    if (hit->sprite >= 0 && sprite[hit->sprite].picnum != ACCESSSWITCH && sprite[hit->sprite].picnum != ACCESSSWITCH2)
+    if (hitData->sprite >= 0 && sprite[hitData->sprite].picnum != ACCESSSWITCH && sprite[hitData->sprite].picnum != ACCESSSWITCH2)
     {
-        A_DamageObject(hit->sprite, j);
-        if (p >= 0)
-            P_ActivateSwitch(p, hit->sprite,1);
+        A_DamageObject(hitData->sprite, kneeSprite);
+        if (playerNum >= 0)
+            P_ActivateSwitch(playerNum, hitData->sprite,1);
     }
-    else if (hit->wall >= 0)
+    else if (hitData->wall >= 0)
     {
-        HandleHitWall(hit);
+        HandleHitWall(hitData);
 
-        if (wall[hit->wall].picnum != ACCESSSWITCH && wall[hit->wall].picnum != ACCESSSWITCH2)
+        if (wall[hitData->wall].picnum != ACCESSSWITCH && wall[hitData->wall].picnum != ACCESSSWITCH2)
         {
-            A_DamageWall(j, hit->wall, &hit->pos, atwith);
-            if (p >= 0)
-                P_ActivateSwitch(p, hit->wall,0);
+            A_DamageWall(kneeSprite, hitData->wall, &hitData->pos, projecTile);
+            if (playerNum >= 0)
+                P_ActivateSwitch(playerNum, hitData->wall,0);
         }
     }
 }
 
 #define MinibossScale(i, s) (((s)*sprite[i].yrepeat)/80)
 
-static int32_t A_ShootCustom(const int32_t spriteNum, const int32_t projecTile, int16_t shootAngle, vec3_t * const startPos)
+static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng, vec3_t * const startPos)
 {
     /* Custom projectiles */
     hitdata_t           hitData;
@@ -882,19 +870,19 @@ static int32_t A_ShootCustom(const int32_t spriteNum, const int32_t projecTile, 
             pSprite->shade = pProj->shade;
 
         if (playerNum >= 0)
-            P_PreFireHitscan(spriteNum, playerNum, projecTile, startPos, &zvel, &shootAngle,
+            P_PreFireHitscan(spriteNum, playerNum, projecTile, startPos, &zvel, &shootAng,
                              pProj->workslike & PROJECTILE_ACCURATE_AUTOAIM, !(pProj->workslike & PROJECTILE_ACCURATE));
         else
-            A_PreFireHitscan(pSprite, startPos, &zvel, &shootAngle, !(pProj->workslike & PROJECTILE_ACCURATE));
+            A_PreFireHitscan(pSprite, startPos, &zvel, &shootAng, !(pProj->workslike & PROJECTILE_ACCURATE));
 
-        if (Proj_DoHitscan(spriteNum, (pProj->cstat >= 0) ? pProj->cstat : 256 + 1, startPos, zvel, shootAngle, &hitData))
+        if (Proj_DoHitscan(spriteNum, (pProj->cstat >= 0) ? pProj->cstat : 256 + 1, startPos, zvel, shootAng, &hitData))
             return -1;
 
         if (pProj->range > 0 && klabs(startPos->x - hitData.pos.x) + klabs(startPos->y - hitData.pos.y) > pProj->range)
             return -1;
 
         if (pProj->trail >= 0)
-            A_HitscanProjTrail(startPos, &hitData.pos, shootAngle, projecTile, pSprite->sectnum);
+            A_HitscanProjTrail(startPos, &hitData.pos, shootAng, projecTile, pSprite->sectnum);
 
         if (pProj->workslike & PROJECTILE_WATERBUBBLES)
         {
@@ -905,7 +893,7 @@ static int32_t A_ShootCustom(const int32_t spriteNum, const int32_t projecTile, 
 
         if (playerNum >= 0)
         {
-            otherSprite = Proj_InsertShotspark(&hitData, spriteNum, projecTile, 10, shootAngle, Proj_GetDamage(pProj));
+            otherSprite = Proj_InsertShotspark(&hitData, spriteNum, projecTile, 10, shootAng, Proj_GetDamage(pProj));
 
             if (P_PostFireHitscan(playerNum, otherSprite, &hitData, spriteNum, projecTile, zvel, projecTile, pProj->decal,
                                   projecTile, 1 + 2) < 0)
@@ -914,7 +902,7 @@ static int32_t A_ShootCustom(const int32_t spriteNum, const int32_t projecTile, 
         else
         {
             otherSprite =
-            A_PostFireHitscan(&hitData, spriteNum, projecTile, zvel, shootAngle, Proj_GetDamage(pProj), projecTile, projecTile);
+            A_PostFireHitscan(&hitData, spriteNum, projecTile, zvel, shootAng, Proj_GetDamage(pProj), projecTile, projecTile);
         }
 
         if ((krand() & 255) < 4 && pProj->isound >= 0)
@@ -929,7 +917,7 @@ static int32_t A_ShootCustom(const int32_t spriteNum, const int32_t projecTile, 
         if (playerNum >= 0)
         {
             // NOTE: j is a SPRITE_INDEX
-            otherSprite = GetAutoAimAngle(spriteNum, playerNum, projecTile, 8<<8, 0+2, startPos, pProj->vel, &zvel, &shootAngle);
+            otherSprite = GetAutoAimAng(spriteNum, playerNum, projecTile, 8<<8, 0+2, startPos, pProj->vel, &zvel, &shootAng);
 
             if (otherSprite < 0)
                 zvel = (100-pPlayer->horiz-pPlayer->horizoff)*(pProj->vel/8);
@@ -944,13 +932,13 @@ static int32_t A_ShootCustom(const int32_t spriteNum, const int32_t projecTile, 
                 int const otherPlayer     = A_FindPlayer(pSprite, NULL);
                 int const otherPlayerDist = safeldist(g_player[otherPlayer].ps->i, pSprite);
 
-                shootAngle = getangle(g_player[otherPlayer].ps->opos.x - startPos->x,
+                shootAng = getangle(g_player[otherPlayer].ps->opos.x - startPos->x,
                                       g_player[otherPlayer].ps->opos.y - startPos->y);
 
                 zvel = tabledivide32_noinline((g_player[otherPlayer].ps->opos.z - startPos->z) * pProj->vel, otherPlayerDist);
 
                 if (A_CheckEnemySprite(pSprite) && (AC_MOVFLAGS(pSprite, &actor[spriteNum]) & face_player_smart))
-                    shootAngle = pSprite->ang + (krand() & 31) - 16;
+                    shootAng = pSprite->ang + (krand() & 31) - 16;
             }
         }
 
@@ -962,9 +950,9 @@ static int32_t A_ShootCustom(const int32_t spriteNum, const int32_t projecTile, 
 
             zvel = A_GetShootZvel(zvel);
             otherSprite = A_InsertSprite(pSprite->sectnum,
-                startPos->x + tabledivide32_noinline(sintable[(348 + shootAngle + 512) & 2047], pProj->offset),
-                startPos->y + tabledivide32_noinline(sintable[(shootAngle + 348) & 2047], pProj->offset),
-                startPos->z - (1 << 8), projecTile, 0, 14, 14, shootAngle, pProj->vel, zvel, spriteNum, 4);
+                startPos->x + tabledivide32_noinline(sintable[(348 + shootAng + 512) & 2047], pProj->offset),
+                startPos->y + tabledivide32_noinline(sintable[(shootAng + 348) & 2047], pProj->offset),
+                startPos->z - (1 << 8), projecTile, 0, 14, 14, shootAng, pProj->vel, zvel, spriteNum, 4);
 
 
             if (pProj->workslike & PROJECTILE_RPG_IMPACT)
@@ -993,17 +981,17 @@ static int32_t A_ShootCustom(const int32_t spriteNum, const int32_t projecTile, 
         {
             zvel = (100 - pPlayer->horiz - pPlayer->horizoff) << 5;
             startPos->z += (6 << 8);
-            shootAngle += 15;
+            shootAng += 15;
         }
         else if (!(pProj->workslike & PROJECTILE_NOAIM))
         {
             int32_t playerDist;
             otherSprite = g_player[A_FindPlayer(pSprite, &playerDist)].ps->i;
             zvel = tabledivide32_noinline((sprite[otherSprite].z - startPos->z) << 8, playerDist + 1);
-            shootAngle = getangle(sprite[otherSprite].x - startPos->x, sprite[otherSprite].y - startPos->y);
+            shootAng = getangle(sprite[otherSprite].x - startPos->x, sprite[otherSprite].y - startPos->y);
         }
 
-        Proj_DoHitscan(spriteNum, 0, startPos, zvel, shootAngle, &hitData);
+        Proj_DoHitscan(spriteNum, 0, startPos, zvel, shootAng, &hitData);
 
         if (hitData.sect < 0) return -1;
 
@@ -1013,19 +1001,20 @@ static int32_t A_ShootCustom(const int32_t spriteNum, const int32_t projecTile, 
         if (pProj->range > 0 && klabs(startPos->x - hitData.pos.x) + klabs(startPos->y - hitData.pos.y) > pProj->range)
             return -1;
 
-        Proj_HandleKnee(&hitData, spriteNum, playerNum, projecTile, shootAngle,
-            pProj, projecTile,
-            pProj->extra_rand,
-            pProj->spawns, pProj->sound);
+        Proj_HandleKnee(&hitData, spriteNum, playerNum, projecTile, shootAng,
+                        pProj, projecTile, pProj->extra_rand, pProj->spawns, pProj->sound);
 
         return -1;
 
     case PROJECTILE_BLOOD:
-        shootAngle += 64 - (krand() & 127);
-        if (playerNum < 0) shootAngle += 1024;
+        shootAng += 64 - (krand() & 127);
+
+        if (playerNum < 0)
+            shootAng += 1024;
+
         zvel = 1024 - (krand() & 2047);
 
-        Proj_DoHitscan(spriteNum, 0, startPos, zvel, shootAngle, &hitData);
+        Proj_DoHitscan(spriteNum, 0, startPos, zvel, shootAng, &hitData);
 
         if (pProj->range == 0)
             pProj->range = 1024;
@@ -1085,7 +1074,7 @@ static int32_t A_ShootCustom(const int32_t spriteNum, const int32_t projecTile, 
     }
 }
 
-static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngle, vec3_t startPos,
+static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec3_t startPos,
                                 spritetype *pSprite, int const playerNum, DukePlayer_t * const pPlayer)
 {
     hitdata_t hitData;
@@ -1099,9 +1088,9 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
         case BLOODSPLAT2__STATIC:
         case BLOODSPLAT3__STATIC:
         case BLOODSPLAT4__STATIC:
-            shootAngle += 64 - (krand() & 127);
+            shootAng += 64 - (krand() & 127);
             if (playerNum < 0)
-                shootAngle += 1024;
+                shootAng += 1024;
             Zvel = 1024 - (krand() & 2047);
         // fall-through
         case KNEE__STATIC:
@@ -1111,18 +1100,18 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
                 {
                     Zvel = (100 - pPlayer->horiz - pPlayer->horizoff) << 5;
                     startPos.z += (6 << 8);
-                    shootAngle += 15;
+                    shootAng += 15;
                 }
                 else
                 {
                     int32_t   playerDist;
                     int const playerSprite = g_player[A_FindPlayer(pSprite, &playerDist)].ps->i;
                     Zvel                   = tabledivide32_noinline((sprite[playerSprite].z - startPos.z) << 8, playerDist + 1);
-                    shootAngle             = getangle(sprite[playerSprite].x - startPos.x, sprite[playerSprite].y - startPos.y);
+                    shootAng             = getangle(sprite[playerSprite].x - startPos.x, sprite[playerSprite].y - startPos.y);
                 }
             }
 
-            Proj_DoHitscan(spriteNum, 0, &startPos, Zvel, shootAngle, &hitData);
+            Proj_DoHitscan(spriteNum, 0, &startPos, Zvel, shootAng, &hitData);
 
             if (projecTile >= BLOODSPLAT1 && projecTile <= BLOODSPLAT4)
             {
@@ -1157,7 +1146,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
                 break;
 
             if (klabs(startPos.x - hitData.pos.x) + klabs(startPos.y - hitData.pos.y) < 1024)
-                Proj_HandleKnee(&hitData, spriteNum, playerNum, projecTile, shootAngle, NULL, KNEE, 7, SMALLSMOKE, KICK_HIT);
+                Proj_HandleKnee(&hitData, spriteNum, playerNum, projecTile, shootAng, NULL, KNEE, 7, SMALLSMOKE, KICK_HIT);
             break;
 
         case SHOTSPARK1__STATIC:
@@ -1168,12 +1157,12 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
                 pSprite->shade = -96;
 
             if (playerNum >= 0)
-                P_PreFireHitscan(spriteNum, playerNum, projecTile, &startPos, &Zvel, &shootAngle,
+                P_PreFireHitscan(spriteNum, playerNum, projecTile, &startPos, &Zvel, &shootAng,
                     projecTile == SHOTSPARK1__STATIC && !NAM_WW2GI, 1);
             else
-                A_PreFireHitscan(pSprite, &startPos, &Zvel, &shootAngle, 1);
+                A_PreFireHitscan(pSprite, &startPos, &Zvel, &shootAng, 1);
 
-            if (Proj_DoHitscan(spriteNum, 256 + 1, &startPos, Zvel, shootAngle, &hitData))
+            if (Proj_DoHitscan(spriteNum, 256 + 1, &startPos, Zvel, shootAng, &hitData))
                 return -1;
 
             if ((krand() & 15) == 0 && sector[hitData.sect].lotag == ST_2_UNDERWATER)
@@ -1183,14 +1172,14 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
 
             if (playerNum >= 0)
             {
-                spawnedSprite = Proj_InsertShotspark(&hitData, spriteNum, projecTile, 10, shootAngle, G_DefaultActorHealth(projecTile) + (krand() % 6));
+                spawnedSprite = Proj_InsertShotspark(&hitData, spriteNum, projecTile, 10, shootAng, G_DefaultActorHealth(projecTile) + (krand() % 6));
 
                 if (P_PostFireHitscan(playerNum, spawnedSprite, &hitData, spriteNum, projecTile, Zvel, -SMALLSMOKE, BULLETHOLE, SHOTSPARK1, 0) < 0)
                     return -1;
             }
             else
             {
-                spawnedSprite = A_PostFireHitscan(&hitData, spriteNum, projecTile, Zvel, shootAngle, G_DefaultActorHealth(projecTile), -SMALLSMOKE,
+                spawnedSprite = A_PostFireHitscan(&hitData, spriteNum, projecTile, Zvel, shootAng, G_DefaultActorHealth(projecTile), -SMALLSMOKE,
                     SHOTSPARK1);
             }
 
@@ -1203,15 +1192,15 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
         case GROWSPARK__STATIC:
         {
             if (playerNum >= 0)
-                P_PreFireHitscan(spriteNum, playerNum, projecTile, &startPos, &Zvel, &shootAngle, 1, 1);
+                P_PreFireHitscan(spriteNum, playerNum, projecTile, &startPos, &Zvel, &shootAng, 1, 1);
             else
-                A_PreFireHitscan(pSprite, &startPos, &Zvel, &shootAngle, 1);
+                A_PreFireHitscan(pSprite, &startPos, &Zvel, &shootAng, 1);
 
-            if (Proj_DoHitscan(spriteNum, 256 + 1, &startPos, Zvel, shootAngle, &hitData))
+            if (Proj_DoHitscan(spriteNum, 256 + 1, &startPos, Zvel, shootAng, &hitData))
                 return -1;
 
             int const otherSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, GROWSPARK, -16, 28, 28,
-                                                   shootAngle, 0, 0, spriteNum, 1);
+                                                   shootAng, 0, 0, spriteNum, 1);
 
             sprite[otherSprite].pal = 2;
             sprite[otherSprite].cstat |= 130;
@@ -1252,29 +1241,29 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
 
             if (playerNum >= 0)
             {
-                if (GetAutoAimAngle(spriteNum, playerNum, projecTile, -ZOFFSET4, 0, &startPos, vel, &Zvel, &shootAngle) < 0)
+                if (GetAutoAimAng(spriteNum, playerNum, projecTile, -ZOFFSET4, 0, &startPos, vel, &Zvel, &shootAng) < 0)
                     Zvel = (100 - pPlayer->horiz - pPlayer->horizoff) * 98;
             }
             else
             {
                 int const otherPlayer = A_FindPlayer(pSprite, NULL);
-                shootAngle           += 16 - (krand() & 31);
+                shootAng           += 16 - (krand() & 31);
                 hitData.pos.x         = safeldist(g_player[otherPlayer].ps->i, pSprite);
                 Zvel                  = tabledivide32_noinline((g_player[otherPlayer].ps->opos.z - startPos.z + (3 << 8)) * vel, hitData.pos.x);
             }
 
             Zvel = A_GetShootZvel(Zvel);
 
-            int tsiz = (playerNum >= 0) ? 7 : 18;
+            int spriteSize = (playerNum >= 0) ? 7 : 18;
 
             if (projecTile == SPIT)
             {
-                tsiz = 18;
+                spriteSize = 18;
                 startPos.z -= (10 << 8);
             }
 
-            int const returnSprite = A_InsertSprite(spriteSectnum, startPos.x, startPos.y, startPos.z, projecTile, -127, tsiz, tsiz,
-                                                    shootAngle, vel, Zvel, spriteNum, 4);
+            int const returnSprite = A_InsertSprite(spriteSectnum, startPos.x, startPos.y, startPos.z, projecTile, -127, spriteSize, spriteSize,
+                                                    shootAng, vel, Zvel, spriteNum, 4);
 
             sprite[returnSprite].extra += (krand() & 7);
 
@@ -1295,7 +1284,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
             sprite[returnSprite].cstat    = 128;
             sprite[returnSprite].clipdist = 4;
 
-            shootAngle = pSprite->ang + 32 - (krand() & 63);
+            shootAng = pSprite->ang + 32 - (krand() & 63);
             Zvel += 512 - (krand() & 1023);
 
             return returnSprite;
@@ -1315,7 +1304,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
             if (playerNum >= 0)
             {
                 // NOTE: j is a SPRITE_INDEX
-                j = GetAutoAimAngle(spriteNum, playerNum, projecTile, 8 << 8, 0 + 2, &startPos, vel, &Zvel, &shootAngle);
+                j = GetAutoAimAng(spriteNum, playerNum, projecTile, 8 << 8, 0 + 2, &startPos, vel, &Zvel, &shootAng);
 
                 if (j < 0)
                     Zvel = (100 - pPlayer->horiz - pPlayer->horizoff) * 81;
@@ -1327,7 +1316,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
             {
                 // NOTE: j is a player index
                 j          = A_FindPlayer(pSprite, NULL);
-                shootAngle = getangle(g_player[j].ps->opos.x - startPos.x, g_player[j].ps->opos.y - startPos.y);
+                shootAng = getangle(g_player[j].ps->opos.x - startPos.x, g_player[j].ps->opos.y - startPos.y);
                 if (PN(spriteNum) == BOSS3)
                     startPos.z -= MinibossScale(spriteNum, ZOFFSET5);
                 else if (PN(spriteNum) == BOSS2)
@@ -1339,16 +1328,16 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
                 Zvel = tabledivide32_noinline((g_player[j].ps->opos.z - startPos.z) * vel, safeldist(g_player[j].ps->i, pSprite));
 
                 if (A_CheckEnemySprite(pSprite) && (AC_MOVFLAGS(pSprite, &actor[spriteNum]) & face_player_smart))
-                    shootAngle = pSprite->ang + (krand() & 31) - 16;
+                    shootAng = pSprite->ang + (krand() & 31) - 16;
             }
 
             if (numplayers > 1 && g_netClient)
                 return -1;
 
             Zvel                   = A_GetShootZvel(Zvel);
-            int const returnSprite = A_InsertSprite(spriteSectnum, startPos.x + (sintable[(348 + shootAngle + 512) & 2047] / 448),
-                                                    startPos.y + (sintable[(shootAngle + 348) & 2047] / 448), startPos.z - (1 << 8),
-                                                    projecTile, 0, 14, 14, shootAngle, vel, Zvel, spriteNum, 4);
+            int const returnSprite = A_InsertSprite(spriteSectnum, startPos.x + (sintable[(348 + shootAng + 512) & 2047] / 448),
+                                                    startPos.y + (sintable[(shootAng + 348) & 2047] / 448), startPos.z - (1 << 8),
+                                                    projecTile, 0, 14, 14, shootAng, vel, Zvel, spriteNum, 4);
             spritetype *const pReturn = &sprite[returnSprite];
 
             pReturn->extra += (krand() & 7);
@@ -1368,14 +1357,14 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
                 {
                     if (krand() & 1)
                     {
-                        pReturn->x -= MinibossScale(spriteNum, sintable[shootAngle & 2047] >> 6);
-                        pReturn->y -= MinibossScale(spriteNum, sintable[(shootAngle + 1024 + 512) & 2047] >> 6);
+                        pReturn->x -= MinibossScale(spriteNum, sintable[shootAng & 2047] >> 6);
+                        pReturn->y -= MinibossScale(spriteNum, sintable[(shootAng + 1024 + 512) & 2047] >> 6);
                         pReturn->ang -= MinibossScale(spriteNum, 8);
                     }
                     else
                     {
-                        pReturn->x += MinibossScale(spriteNum, sintable[shootAngle & 2047] >> 6);
-                        pReturn->y += MinibossScale(spriteNum, sintable[(shootAngle + 1024 + 512) & 2047] >> 6);
+                        pReturn->x += MinibossScale(spriteNum, sintable[shootAng & 2047] >> 6);
+                        pReturn->y += MinibossScale(spriteNum, sintable[(shootAng + 1024 + 512) & 2047] >> 6);
                         pReturn->ang += MinibossScale(spriteNum, 4);
                     }
                     pReturn->xrepeat = MinibossScale(spriteNum, 42);
@@ -1383,8 +1372,8 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
                 }
                 else if (PN(spriteNum) == BOSS2)
                 {
-                    pReturn->x -= MinibossScale(spriteNum, sintable[shootAngle & 2047] / 56);
-                    pReturn->y -= MinibossScale(spriteNum, sintable[(shootAngle + 1024 + 512) & 2047] / 56);
+                    pReturn->x -= MinibossScale(spriteNum, sintable[shootAng & 2047] / 56);
+                    pReturn->y -= MinibossScale(spriteNum, sintable[(shootAng + 1024 + 512) & 2047] / 56);
                     pReturn->ang -= MinibossScale(spriteNum, 8) + (krand() & 255) - 128;
                     pReturn->xrepeat = 24;
                     pReturn->yrepeat = 24;
@@ -1404,13 +1393,13 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
 
                 if (g_player[playerNum].ps->hbomb_hold_delay)
                 {
-                    pReturn->x -= sintable[shootAngle & 2047] / 644;
-                    pReturn->y -= sintable[(shootAngle + 1024 + 512) & 2047] / 644;
+                    pReturn->x -= sintable[shootAng & 2047] / 644;
+                    pReturn->y -= sintable[(shootAng + 1024 + 512) & 2047] / 644;
                 }
                 else
                 {
-                    pReturn->x += sintable[shootAngle & 2047] >> 8;
-                    pReturn->y += sintable[(shootAngle + 1024 + 512) & 2047] >> 8;
+                    pReturn->x += sintable[shootAng & 2047] >> 8;
+                    pReturn->y += sintable[(shootAng + 1024 + 512) & 2047] >> 8;
                 }
                 pReturn->xrepeat >>= 1;
                 pReturn->yrepeat >>= 1;
@@ -1428,7 +1417,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
             Zvel                  = (playerNum >= 0) ? (100 - pPlayer->horiz - pPlayer->horizoff) * 32 : 0;
 
             startPos.z -= zOffset;
-            Proj_DoHitscan(spriteNum, 0, &startPos, Zvel, shootAngle, &hitData);
+            Proj_DoHitscan(spriteNum, 0, &startPos, Zvel, shootAng, &hitData);
             startPos.z += zOffset;
 
             int placeMine = 0;
@@ -1460,7 +1449,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
                                                                             g_player[playerNum].ps->i, playerNum);
 #endif
                 int const spawnedSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, TRIPBOMB, -16, 4, 5,
-                                                         shootAngle, 0, 0, spriteNum, 6);
+                                                         shootAng, 0, 0, spriteNum, 6);
                 if (lTripBombControl & TRIPBOMB_TIMER)
                 {
 #ifdef LUNATIC
@@ -1512,9 +1501,9 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
             vel  = playerDist >> 4;
             Zvel = A_GetShootZvel(Zvel);
 
-            A_InsertSprite(spriteSectnum, startPos.x + (sintable[(512 + shootAngle + 512) & 2047] >> 8),
-                           startPos.y + (sintable[(shootAngle + 512) & 2047] >> 8), startPos.z + (6 << 8), projecTile, -64, 32, 32,
-                           shootAngle, vel, Zvel, spriteNum, 1);
+            A_InsertSprite(spriteSectnum, startPos.x + (sintable[(512 + shootAng + 512) & 2047] >> 8),
+                           startPos.y + (sintable[(shootAng + 512) & 2047] >> 8), startPos.z + (6 << 8), projecTile, -64, 32, 32,
+                           shootAng, vel, Zvel, spriteNum, 1);
             break;
         }
 
@@ -1525,7 +1514,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
 
             if (playerNum >= 0)
             {
-                if (GetAutoAimAngle(spriteNum, playerNum, projecTile, 4 << 8, 0, &startPos, 768, &Zvel, &shootAngle) < 0)
+                if (GetAutoAimAng(spriteNum, playerNum, projecTile, ZOFFSET6, 0, &startPos, 768, &Zvel, &shootAng) < 0)
                     Zvel = (100 - pPlayer->horiz - pPlayer->horizoff) * 98;
             }
             else if (pSprite->statnum != STAT_EFFECTOR)
@@ -1538,9 +1527,9 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
                 Zvel = 0;
 
             Zvel                   = A_GetShootZvel(Zvel);
-            int const returnSprite = A_InsertSprite(spriteSectnum, startPos.x + (sintable[(512 + shootAngle + 512) & 2047] >> 12),
-                                                    startPos.y + (sintable[(shootAngle + 512) & 2047] >> 12), startPos.z + (2 << 8),
-                                                    SHRINKSPARK, -16, 28, 28, shootAngle, 768, Zvel, spriteNum, 4);
+            int const returnSprite = A_InsertSprite(spriteSectnum, startPos.x + (sintable[(512 + shootAng + 512) & 2047] >> 12),
+                                                    startPos.y + (sintable[(shootAng + 512) & 2047] >> 12), startPos.z + (2 << 8),
+                                                    SHRINKSPARK, -16, 28, 28, shootAng, 768, Zvel, spriteNum, 4);
             sprite[returnSprite].cstat    = 128;
             sprite[returnSprite].clipdist = 32;
 
@@ -1551,12 +1540,12 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int16_t shootAngl
     return -1;
 }
 
-int32_t A_ShootWithZvel(int32_t spriteNum, int32_t projecTile, int32_t forceZvel)
+int A_ShootWithZvel(int spriteNum, int projecTile, int forceZvel)
 {
     Bassert(projecTile >= 0);
 
     spritetype *const   pSprite   = &sprite[spriteNum];
-    const int32_t       playerNum = (pSprite->picnum == APLAYER) ? P_GetP(pSprite) : -1;
+    int const           playerNum = (pSprite->picnum == APLAYER) ? P_GetP(pSprite) : -1;
     DukePlayer_t *const pPlayer   = playerNum >= 0 ? g_player[playerNum].ps : NULL;
 
     if (forceZvel != SHOOT_HARDCODED_ZVEL)
@@ -1567,21 +1556,21 @@ int32_t A_ShootWithZvel(int32_t spriteNum, int32_t projecTile, int32_t forceZvel
     else
         g_overrideShootZvel = 0;
 
-    int    shootAngle;
+    int    shootAng;
     vec3_t startPos;
 
     if (pSprite->picnum == APLAYER)
     {
         startPos            = *(vec3_t *)pPlayer;
-        startPos.z          += pPlayer->pyoff + (4 << 8);
-        shootAngle          = pPlayer->ang;
+        startPos.z          += pPlayer->pyoff + ZOFFSET6;
+        shootAng          = pPlayer->ang;
         pPlayer->crack_time = 777;
     }
     else
     {
-        shootAngle = pSprite->ang;
+        shootAng = pSprite->ang;
         startPos   = *(vec3_t *)pSprite;
-        startPos.z -= (((pSprite->yrepeat * tilesiz[pSprite->picnum].y)<<1) - (4<<8));
+        startPos.z -= (((pSprite->yrepeat * tilesiz[pSprite->picnum].y)<<1) - ZOFFSET6);
 
         if (pSprite->picnum != ROTATEGUN)
         {
@@ -1589,8 +1578,8 @@ int32_t A_ShootWithZvel(int32_t spriteNum, int32_t projecTile, int32_t forceZvel
 
             if (A_CheckEnemySprite(pSprite) && PN(spriteNum) != COMMANDER)
             {
-                startPos.x += (sintable[(shootAngle+1024+96)&2047]>>7);
-                startPos.y += (sintable[(shootAngle+512+96)&2047]>>7);
+                startPos.x += (sintable[(shootAng+1024+96)&2047]>>7);
+                startPos.y += (sintable[(shootAng+512+96)&2047]>>7);
             }
         }
 
@@ -1621,8 +1610,8 @@ int32_t A_ShootWithZvel(int32_t spriteNum, int32_t projecTile, int32_t forceZvel
     }
 
     return A_CheckSpriteTileFlags(projecTile, SFLAG_PROJECTILE)
-           ? A_ShootCustom(spriteNum, projecTile, shootAngle, &startPos)
-           : A_ShootHardcoded(spriteNum, projecTile, shootAngle, startPos, pSprite, playerNum, pPlayer);
+           ? A_ShootCustom(spriteNum, projecTile, shootAng, &startPos)
+           : A_ShootHardcoded(spriteNum, projecTile, shootAng, startPos, pSprite, playerNum, pPlayer);
 }
 
 
@@ -1643,12 +1632,12 @@ static void P_DisplaySpit(void)
 
     for (int i=0; i < pPlayer->numloogs; i++)
     {
-        int const rotAngle = klabs(sintable[((loogCounter + i) << 5) & 2047]) >> 5;
+        int const rotAng = klabs(sintable[((loogCounter + i) << 5) & 2047]) >> 5;
         int const rotZoom  = 4096 + ((loogCounter + i) << 9);
         int const rotX     = (-g_player[screenpeek].inputBits->avel >> 1) + (sintable[((loogCounter + i) << 6) & 2047] >> 10);
 
         rotatesprite_fs((pPlayer->loogiex[i] + rotX) << 16, (200 + pPlayer->loogiey[i] - rotY) << 16, rotZoom - (i << 8),
-                        256 - rotAngle, LOOGIE, 0, 0, 2);
+                        256 - rotAng, LOOGIE, 0, 0, 2);
     }
 }
 
@@ -1822,7 +1811,7 @@ static inline void G_DrawWeaponTileWithID(int uniqueID, int weaponX, int weaponY
 
 static int P_DisplayKnee(int kneeShade)
 {
-    static const int8_t       knee_y[] = { 0, -8, -16, -32, -64, -84, -108, -108, -108, -72, -32, -8 };
+    static int8_t const       knee_y[] = { 0, -8, -16, -32, -64, -84, -108, -108, -108, -72, -32, -8 };
     const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
     if (ps->knee_incs == 0)
@@ -1859,7 +1848,7 @@ static int P_DisplayKnuckles(int knuckleShade)
     if (pPlayer->knuckle_incs == 0)
         return 0;
 
-    static const int8_t knuckleFrames[] = { 0, 1, 2, 2, 3, 3, 3, 2, 2, 1, 0 };
+    static int8_t const knuckleFrames[] = { 0, 1, 2, 2, 3, 3, 3, 2, 2, 1, 0 };
 
     switch (VM_OnEvent(EVENT_DISPLAYKNUCKLES, pPlayer->i, screenpeek))
     {
@@ -1998,7 +1987,7 @@ void P_DisplayScuba(void)
     }
 }
 
-static const int8_t access_tip_y [] ={
+static int8_t const access_tip_y [] ={
     0, -8, -16, -32, -64, -84, -108, -108, -108, -108, -108, -108, -108, -108, -108, -108, -96, -72, -64, -32, -16,
     /* EDuke32: */ 0, 16, 32, 48,
     // At y coord 64, the hand is already not shown.
@@ -2206,8 +2195,8 @@ void P_DisplayWeapon(void)
             if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek)||(currentWeapon == KNEE_WEAPON && *weaponFrame == 0))
                 goto enddisplayweapon;
 
-            const int doanim = !(sprite[pPlayer->i].pal == 1 || ud.pause_on || g_player[myconnectindex].ps->gm&MODE_MENU);
-            const int hla = pPlayer->look_ang >> 1;
+            int const doAnim      = !(sprite[pPlayer->i].pal == 1 || ud.pause_on || g_player[myconnectindex].ps->gm & MODE_MENU);
+            int const halfLookAng = pPlayer->look_ang >> 1;
 
             int weaponPal = P_GetHudPal(pPlayer);
 
@@ -2219,10 +2208,10 @@ void P_DisplayWeapon(void)
 
                 guniqhudid = currentWeapon;
                 if (*weaponFrame < 5 || *weaponFrame > 9)
-                    G_DrawTileScaled(weaponX + 220 - hla, weaponY + 250 - weaponYOffset, KNEE,
+                    G_DrawTileScaled(weaponX + 220 - halfLookAng, weaponY + 250 - weaponYOffset, KNEE,
                                      weaponShade, weaponBits, weaponPal);
                 else
-                    G_DrawTileScaled(weaponX + 160 - hla, weaponY + 214 - weaponYOffset, KNEE + 1,
+                    G_DrawTileScaled(weaponX + 160 - halfLookAng, weaponY + 214 - weaponYOffset, KNEE + 1,
                                      weaponShade, weaponBits, weaponPal);
                 guniqhudid = 0;
                 break;
@@ -2234,13 +2223,13 @@ void P_DisplayWeapon(void)
                 if ((*weaponFrame) > 6)
                     weaponY += ((*weaponFrame) << 3);
                 else if ((*weaponFrame) < 4)
-                    G_DrawWeaponTileWithID(currentWeapon << 2, weaponX + 142 - hla,
+                    G_DrawWeaponTileWithID(currentWeapon << 2, weaponX + 142 - halfLookAng,
                                            weaponY + 234 - weaponYOffset, HANDHOLDINGLASER + 3, weaponShade, weaponBits, weaponPal, 0);
 
-                G_DrawWeaponTileWithID(currentWeapon, weaponX + 130 - hla, weaponY + 249 - weaponYOffset,
+                G_DrawWeaponTileWithID(currentWeapon, weaponX + 130 - halfLookAng, weaponY + 249 - weaponYOffset,
                                        HANDHOLDINGLASER + ((*weaponFrame) >> 2), weaponShade, weaponBits, weaponPal, 0);
 
-                G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 152 - hla,
+                G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 152 - halfLookAng,
                                        weaponY + 249 - weaponYOffset, HANDHOLDINGLASER + ((*weaponFrame) >> 2), weaponShade, weaponBits | 4,
                                        weaponPal, 0);
                 break;
@@ -2276,17 +2265,17 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame > 0)
                         weaponYOffset -= sintable[(*weaponFrame)<<7]>>12;
 
-                    if (*weaponFrame > 0 && doanim)
+                    if (*weaponFrame > 0 && doAnim)
                         weaponX += 1-(krand()&3);
 
                     if (*weaponFrame == 0)
                     {
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - hla, weaponY + 202 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
                                                SHOTGUN, weaponShade, weaponBits, weaponPal, 0);
                     }
                     else if (*weaponFrame <= totalTime)
                     {
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - hla, weaponY + 202 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
                                                SHOTGUN + 1, weaponShade, weaponBits, weaponPal, 0);
                     }
                     // else we are in 'reload time'
@@ -2296,7 +2285,7 @@ void P_DisplayWeapon(void)
                                          ? 10 * ((*weaponFrame) - totalTime)    // D
                                          : 10 * (reloadTime - (*weaponFrame));  // U
 
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - hla, weaponY + 202 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
                                                SHOTGUN, weaponShade, weaponBits, weaponPal, 0);
                     }
 
@@ -2307,13 +2296,13 @@ void P_DisplayWeapon(void)
                 {
                     case 1:
                     case 2:
-                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 168 - hla, weaponY + 201 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 168 - halfLookAng, weaponY + 201 - weaponYOffset,
                                                SHOTGUN + 2, -128, weaponBits, weaponPal, 0);
                     case 0:
                     case 6:
                     case 7:
                     case 8:
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - hla, weaponY + 202 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
                                                SHOTGUN, weaponShade, weaponBits, weaponPal, 0);
                         break;
 
@@ -2322,21 +2311,21 @@ void P_DisplayWeapon(void)
                         weaponYOffset -= 40;
                         weaponX += 20;
 
-                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 178 - hla, weaponY + 194 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 178 - halfLookAng, weaponY + 194 - weaponYOffset,
                                                SHOTGUN + 1 + ((*(weaponFrame)-1) >> 1), -128, weaponBits, weaponPal, 0);
                     case 5:
                     case 9:
                     case 10:
                     case 11:
                     case 12:
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 158 - hla, weaponY + 220 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 158 - halfLookAng, weaponY + 220 - weaponYOffset,
                                                SHOTGUN + 3, weaponShade, weaponBits, weaponPal, 0);
                         break;
 
                     case 13:
                     case 14:
                     case 15:
-                        G_DrawWeaponTileWithID(currentWeapon, 32 + weaponX + 166 - hla, weaponY + 210 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, 32 + weaponX + 166 - halfLookAng, weaponY + 210 - weaponYOffset,
                                                SHOTGUN + 4, weaponShade, weaponBits, weaponPal, 0);
                         break;
 
@@ -2348,7 +2337,7 @@ void P_DisplayWeapon(void)
                     case 25:
                     case 26:
                     case 27:
-                        G_DrawWeaponTileWithID(currentWeapon, 64 + weaponX + 170 - hla, weaponY + 196 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, 64 + weaponX + 170 - halfLookAng, weaponY + 196 - weaponYOffset,
                                                SHOTGUN + 5, weaponShade, weaponBits, weaponPal, 0);
                         break;
 
@@ -2356,7 +2345,7 @@ void P_DisplayWeapon(void)
                     case 21:
                     case 22:
                     case 23:
-                        G_DrawWeaponTileWithID(currentWeapon, 64 + weaponX + 176 - hla, weaponY + 196 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, 64 + weaponX + 176 - halfLookAng, weaponY + 196 - weaponYOffset,
                                                SHOTGUN + 6, weaponShade, weaponBits, weaponPal, 0);
                         break;
 
@@ -2364,7 +2353,7 @@ void P_DisplayWeapon(void)
                     case 28:
                     case 29:
                     case 30:
-                        G_DrawWeaponTileWithID(currentWeapon, 32 + weaponX + 156 - hla, weaponY + 206 - weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, 32 + weaponX + 156 - halfLookAng, weaponY + 206 - weaponYOffset,
                                                SHOTGUN + 4, weaponShade, weaponBits, weaponPal, 0);
                         break;
                 }
@@ -2375,7 +2364,7 @@ void P_DisplayWeapon(void)
                 {
                     weaponYOffset -= sintable[(*weaponFrame)<<7]>>12;
 
-                    if (doanim)
+                    if (doAnim)
                         weaponX += 1-(rand()&3);
                 }
 
@@ -2386,12 +2375,12 @@ void P_DisplayWeapon(void)
 
                     if (*weaponFrame == 0)
                     {
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - hla,weaponY+233-weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - halfLookAng,weaponY+233-weaponYOffset,
                             CHAINGUN+1,weaponShade,weaponBits,weaponPal,0);
                     }
                     else if (*weaponFrame <= totalTime)
                     {
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - hla,weaponY+243-weaponYOffset,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng,weaponY+243-weaponYOffset,
                             CHAINGUN+2,weaponShade,weaponBits,weaponPal,0);
                     }
                     // else we are in 'reload time'
@@ -2413,7 +2402,7 @@ void P_DisplayWeapon(void)
                             int const weaponOffset = 80 - 10 * (totalTime + iFifths - (*weaponFrame));
                             weaponYOffset += weaponOffset;
                             weaponX += weaponOffset;
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - hla, weaponY + 260 - weaponYOffset, CHAINGUN - 17,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 17,
                                                    weaponShade, weaponBits, weaponPal, 0);
                         }
                         else if (*weaponFrame < (iFifths * 2 + totalTime))
@@ -2421,7 +2410,7 @@ void P_DisplayWeapon(void)
                             // second segment
                             weaponYOffset += 80; // D
                             weaponX += 80;
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - hla, weaponY + 260 - weaponYOffset, CHAINGUN - 18,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 18,
                                                    weaponShade, weaponBits, weaponPal, 0);
                         }
                         else if (*weaponFrame < (iFifths * 3 + totalTime))
@@ -2430,7 +2419,7 @@ void P_DisplayWeapon(void)
                             // up
                             weaponYOffset += 80;
                             weaponX += 80;
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - hla, weaponY + 260 - weaponYOffset, CHAINGUN - 19,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 19,
                                                    weaponShade, weaponBits, weaponPal, 0);
                         }
                         else if (*weaponFrame < (iFifths * 4 + totalTime))
@@ -2439,7 +2428,7 @@ void P_DisplayWeapon(void)
                             // down
                             weaponYOffset += 80; // D
                             weaponX += 80;
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - hla, weaponY + 260 - weaponYOffset, CHAINGUN - 18,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 18,
                                                    weaponShade, weaponBits, weaponPal, 0);
                         }
                         else
@@ -2448,7 +2437,7 @@ void P_DisplayWeapon(void)
                             int const weaponOffset = 10 * (reloadTime - (*weaponFrame));
                             weaponYOffset += weaponOffset; // U
                             weaponX += weaponOffset;
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - hla, weaponY + 260 - weaponYOffset, CHAINGUN - 17,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 17,
                                                    weaponShade, weaponBits, weaponPal, 0);
                         }
                     }
@@ -2467,11 +2456,11 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame > PWEAPON(screenpeek, CHAINGUN_WEAPON, FireDelay) &&
                         *weaponFrame < PWEAPON(screenpeek, CHAINGUN_WEAPON, TotalTime))
                     {
-                        int randomOffset = doanim ? rand()&7 : 0;
+                        int randomOffset = doAnim ? rand()&7 : 0;
                         G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 140 - (pPlayer->look_ang >> 1),
                                                randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
                                                CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal, 0);
-                        if (doanim) randomOffset = rand()&7;
+                        if (doAnim) randomOffset = rand()&7;
                         G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 184 - (pPlayer->look_ang >> 1),
                                                randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
                                                CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal, 0);
@@ -2479,7 +2468,7 @@ void P_DisplayWeapon(void)
 
                     if (*weaponFrame < PWEAPON(screenpeek, CHAINGUN_WEAPON, TotalTime)-4)
                     {
-                        int const randomOffset = doanim ? rand()&7 : 0;
+                        int const randomOffset = doAnim ? rand()&7 : 0;
                         G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 162 - (pPlayer->look_ang >> 1),
                             randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
                                                CHAINGUN + 5 + ((*weaponFrame - 2) / 5), weaponShade, weaponBits, weaponPal, 0);
@@ -2601,7 +2590,7 @@ void P_DisplayWeapon(void)
                         weaponYOffset += 10;
                     }
 
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 190 - hla, weaponY + 260 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 190 - halfLookAng, weaponY + 260 - weaponYOffset,
                                            HANDTHROW + pipebombFrames[(*weaponFrame)], weaponShade, weaponBits, weaponPal, 0);
                 }
                 break;
@@ -2614,7 +2603,7 @@ void P_DisplayWeapon(void)
                         break;
 
                     weaponX = -48;
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 150 - hla, weaponY + 258 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 150 - halfLookAng, weaponY + 258 - weaponYOffset,
                                            HANDREMOTE + remoteFrames[(*weaponFrame)], weaponShade, weaponBits, weaponPal, 0);
                 }
                 break;
@@ -2633,16 +2622,16 @@ void P_DisplayWeapon(void)
 
                             if (pPlayer->ammo_amount[pPlayer->curr_weapon] & 1)
                             {
-                                G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - hla, weaponY + 240 - weaponYOffset,
+                                G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset,
                                                        DEVISTATOR, weaponShade, weaponBits | 4, weaponPal, 0);
-                                G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - hla, weaponY + 238 - weaponYOffset,
+                                G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset,
                                                        DEVISTATOR + tileOffset, -32, weaponBits, weaponPal, 0);
                             }
                             else
                             {
-                                G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - hla, weaponY + 240 - weaponYOffset,
+                                G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset,
                                                        DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal, 0);
-                                G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - hla, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                                G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
                                                        weaponShade, weaponBits, weaponPal, 0);
                             }
                         }
@@ -2653,17 +2642,17 @@ void P_DisplayWeapon(void)
                                              ? ((*weaponFrame) - totalTime)
                                              : (reloadTime - (*weaponFrame));
 
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - hla, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
                                                    weaponShade, weaponBits, weaponPal, 0);
-                            G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - hla, weaponY + 240 - weaponYOffset, DEVISTATOR,
+                            G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
                                                    weaponShade, weaponBits | 4, weaponPal, 0);
                         }
                     }
                     else
                     {
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - hla, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
                                                weaponShade, weaponBits, weaponPal, 0);
-                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - hla, weaponY + 240 - weaponYOffset, DEVISTATOR,
+                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
                                                weaponShade, weaponBits | 4, weaponPal, 0);
                     }
                     break;
@@ -2680,26 +2669,26 @@ void P_DisplayWeapon(void)
 
                     if (pPlayer->hbomb_hold_delay)
                     {
-                        G_DrawWeaponTileWithID(currentWeapon, (devastatorFrames[*weaponFrame] >> 1) + weaponX + 268 - hla,
+                        G_DrawWeaponTileWithID(currentWeapon, (devastatorFrames[*weaponFrame] >> 1) + weaponX + 268 - halfLookAng,
                                                devastatorFrames[*weaponFrame] + weaponY + 238 - weaponYOffset,
                                                DEVISTATOR + tileOffset, -32, weaponBits, weaponPal, 0);
-                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - hla, weaponY + 240 - weaponYOffset, DEVISTATOR,
+                        G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
                                                weaponShade, weaponBits | 4, weaponPal, 0);
                     }
                     else
                     {
-                        G_DrawWeaponTileWithID(currentWeapon << 1, -(devastatorFrames[*weaponFrame] >> 1) + weaponX + 30 - hla,
+                        G_DrawWeaponTileWithID(currentWeapon << 1, -(devastatorFrames[*weaponFrame] >> 1) + weaponX + 30 - halfLookAng,
                                                devastatorFrames[*weaponFrame] + weaponY + 240 - weaponYOffset,
                                                DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal, 0);
-                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - hla, weaponY + 238 - weaponYOffset, DEVISTATOR,
+                        G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
                                                weaponShade, weaponBits, weaponPal, 0);
                     }
                 }
                 else
                 {
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - hla, weaponY + 238 - weaponYOffset, DEVISTATOR, weaponShade,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR, weaponShade,
                                            weaponBits, weaponPal, 0);
-                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - hla, weaponY + 240 - weaponYOffset, DEVISTATOR,
+                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
                                            weaponShade, weaponBits | 4, weaponPal, 0);
                 }
                 break;
@@ -2715,7 +2704,7 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame % 6 >= ARRAY_SIZE(freezerFrames))
                         break;
 
-                    if (doanim)
+                    if (doAnim)
                     {
                         weaponX += rand() & 3;
                         weaponY += rand() & 3;
@@ -2743,15 +2732,15 @@ void P_DisplayWeapon(void)
                         // the 'at rest' display
                         if (currentWeapon == GROW_WEAPON)
                         {
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - hla, weaponY + 240 - weaponYOffset, SHRINKER - 2,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER - 2,
                                                    weaponShade, weaponBits, weaponPal, 0);
                             break;
                         }
                         else if (pPlayer->ammo_amount[currentWeapon] > 0)
                         {
-                            G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - hla, weaponY + 240 - weaponYOffset, SHRINKER + 2,
+                            G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER + 2,
                                                    16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits, 0, 1);
-                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - hla, weaponY + 240 - weaponYOffset, SHRINKER,
+                            G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER,
                                                    weaponShade, weaponBits, weaponPal, 0);
                             break;
                         }
@@ -2759,7 +2748,7 @@ void P_DisplayWeapon(void)
                     else
                     {
                         // the 'active' display.
-                        if (doanim)
+                        if (doAnim)
                         {
                             weaponX += rand() & 3;
                             weaponYOffset += rand() & 3;
@@ -2784,10 +2773,10 @@ void P_DisplayWeapon(void)
                             weaponYOffset -= 10 * (reloadTime - (*weaponFrame)); // U
                     }
 
-                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - hla, weaponY + 240 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
                                            SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0, 1);
 
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - hla, weaponY + 240 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
                                            SHRINKER + (currentWeapon == GROW_WEAPON ? -1 : 1), weaponShade, weaponBits, weaponPal, 0);
 
                     break;
@@ -2795,23 +2784,23 @@ void P_DisplayWeapon(void)
 
                 if ((*weaponFrame) < PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime) && (*weaponFrame) > 0)
                 {
-                    if (doanim)
+                    if (doAnim)
                     {
                         weaponX += rand() & 3;
                         weaponYOffset += (rand() & 3);
                     }
 
-                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - hla, weaponY + 240 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
                                            SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0, 1);
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - hla, weaponY + 240 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
                                            currentWeapon == GROW_WEAPON ? SHRINKER - 1 : SHRINKER + 1, weaponShade, weaponBits, weaponPal, 0);
                 }
                 else
                 {
-                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - hla, weaponY + 240 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
                                            SHRINKER + 2, 16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits,
                                            currentWeapon == GROW_WEAPON ? 2 : 0, 1);
-                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - hla, weaponY + 240 - weaponYOffset,
+                    G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
                                            currentWeapon == GROW_WEAPON ? SHRINKER - 2 : SHRINKER, weaponShade, weaponBits, weaponPal, 0);
                 }
                 break;
@@ -3748,7 +3737,7 @@ static void P_ProcessWeapon(int playerNum)
 {
     DukePlayer_t *const pPlayer      = g_player[playerNum].ps;
     uint8_t *const      weaponFrame  = &pPlayer->kickback_pic;
-    const int32_t       playerShrunk = (sprite[pPlayer->i].yrepeat < 32);
+    int const           playerShrunk = (sprite[pPlayer->i].yrepeat < 32);
     uint32_t            playerBits   = g_player[playerNum].inputBits->bits;
 
     switch (pPlayer->weapon_pos)
@@ -4633,7 +4622,7 @@ void P_ProcessInput(int playerNum)
         {
             int const slopeZ = getflorzofslope(pPlayer->cursectnum, adjustedPlayer.x, adjustedPlayer.y);
             if ((pPlayer->cursectnum == curSectNum) ||
-                (klabs(getflorzofslope(curSectNum, adjustedPlayer.x, adjustedPlayer.y) - slopeZ) <= (4 << 8)))
+                (klabs(getflorzofslope(curSectNum, adjustedPlayer.x, adjustedPlayer.y) - slopeZ) <= ZOFFSET6))
                 pPlayer->horizoff += mulscale16(trueFloorZ - slopeZ, 160);
         }
     }
@@ -4678,10 +4667,10 @@ void P_ProcessInput(int playerNum)
             // TX: I think this is what makes the player slide off enemies... might
             // be a good sprite flag to add later.
             // Helix: there's also SLIDE_ABOVE_ENEMY.
-            int spriteAngle = getangle(sprite[spriteNum].x - pPlayer->pos.x,
+            int spriteAng = getangle(sprite[spriteNum].x - pPlayer->pos.x,
                                        sprite[spriteNum].y - pPlayer->pos.y);
-            pPlayer->vel.x -= sintable[(spriteAngle + 512) & 2047] << 4;
-            pPlayer->vel.y -= sintable[spriteAngle & 2047] << 4;
+            pPlayer->vel.x -= sintable[(spriteAng + 512) & 2047] << 4;
+            pPlayer->vel.y -= sintable[spriteAng & 2047] << 4;
         }
     }
 
@@ -5062,13 +5051,13 @@ void P_ProcessInput(int playerNum)
 
         pPlayer->pos.z += pPlayer->vel.z;
 
-        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != sector[pPlayer->cursectnum].ceilingz) && pPlayer->pos.z < (ceilZ+(4<<8)))
+        if ((sectorLotag != ST_2_UNDERWATER || ceilZ != sector[pPlayer->cursectnum].ceilingz) && pPlayer->pos.z < (ceilZ+ZOFFSET6))
         {
             pPlayer->jumping_counter = 0;
             if (pPlayer->vel.z < 0)
                 pPlayer->vel.x = pPlayer->vel.y = 0;
             pPlayer->vel.z = 128;
-            pPlayer->pos.z = ceilZ+(4<<8);
+            pPlayer->pos.z = ceilZ+ZOFFSET6;
         }
     }
 

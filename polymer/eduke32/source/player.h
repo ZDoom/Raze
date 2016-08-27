@@ -315,38 +315,38 @@ extern int32_t          ticrandomseed;
 
 #define SHOOT_HARDCODED_ZVEL INT32_MIN
 
-int32_t     A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel);
-static inline int32_t A_Shoot(int32_t i, int32_t atwith)
+int A_ShootWithZvel(int spriteNum, int projecTile, int forceZvel);
+static inline int A_Shoot(int spriteNum, int projecTile)
 {
-    return A_ShootWithZvel(i, atwith, SHOOT_HARDCODED_ZVEL);
+    return A_ShootWithZvel(spriteNum, projecTile, SHOOT_HARDCODED_ZVEL);
 }
 
-static inline void P_PalFrom(DukePlayer_t *p, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
+static inline void P_PalFrom(DukePlayer_t *pPlayer, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
 {
 #ifdef LUNATIC
     // Compare with defs.ilua: player[]:_palfrom().
-    if (p->pals.f == 0 || p->palsfadeprio <= 0)
+    if (pPlayer->pals.f == 0 || pPlayer->palsfadeprio <= 0)
 #endif
     {
-        p->pals.f = f;
-        p->pals.r = r;
-        p->pals.g = g;
-        p->pals.b = b;
+        pPlayer->pals.f = f;
+        pPlayer->pals.r = r;
+        pPlayer->pals.g = g;
+        pPlayer->pals.b = b;
 #ifdef LUNATIC
-        p->palsfadespeed = p->palsfadenext = 0;
+        pPlayer->palsfadespeed = pPlayer->palsfadenext = 0;
 #endif
     }
 }
 
 int32_t A_GetHitscanRange(int spriteNum);
 void    P_GetInput(int playerNum);
-void P_AddAmmo(DukePlayer_t *pPlayer, int weaponNum, int addAmount);
-void    P_AddWeapon(DukePlayer_t *pPlayer,int weaponNum, int switchWeapon);
+void    P_AddAmmo(DukePlayer_t *pPlayer, int weaponNum, int addAmount);
+void    P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum, int switchWeapon);
 void    P_CheckWeapon(DukePlayer_t *pPlayer);
 void    P_DisplayScuba(void);
 void    P_DisplayWeapon(void);
 void    P_DropWeapon(int playerNum);
-int P_FindOtherPlayer(int playerNum, int32_t *d);
+int     P_FindOtherPlayer(int playerNum, int32_t *d);
 void    P_FragPlayer(int playerNum);
 void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
 void    P_ProcessInput(int playerNum);
@@ -354,10 +354,10 @@ void    P_QuickKill(DukePlayer_t *pPlayer);
 void    P_SelectNextInvItem(DukePlayer_t *pPlayer);
 void    P_UpdateScreenPal(DukePlayer_t *pPlayer);
 void    P_EndLevel(void);
-void    P_CheckWeaponI(int32_t playerNum);
+void    P_CheckWeaponI(int playerNum);
 int     P_GetHudPal(const DukePlayer_t *pPlayer);
 
-int32_t Proj_GetDamage(projectile_t const * pProj);
+int Proj_GetDamage(projectile_t const *pProj);
 
 #if !defined LUNATIC
 void P_SetWeaponGamevars(int playerNum, const DukePlayer_t *pPlayer);

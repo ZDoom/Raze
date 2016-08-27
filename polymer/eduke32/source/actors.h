@@ -36,6 +36,7 @@ extern "C" {
 #define ZOFFSET3            (8<<8)
 #define ZOFFSET4            (12<<8)
 #define ZOFFSET5            (32<<8)
+#define ZOFFSET6            (4<<8)
 
 #define ACTOR_MAXFALLINGZVEL 6144
 #define ACTOR_ONWATER_ADDZ (24<<8)

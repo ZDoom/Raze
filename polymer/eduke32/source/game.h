@@ -292,7 +292,7 @@ int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,
                        uint8_t s_yr, int16_t s_a, int16_t s_ve, int16_t s_zv, int16_t s_ow, int16_t s_ss);
 int32_t A_Spawn(int32_t j,int32_t pn);
-int32_t G_DoMoveThings(void);
+int G_DoMoveThings(void);
 //int32_t G_EndOfLevel(void);
 
 #ifdef YAX_ENABLE

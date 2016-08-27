@@ -352,7 +352,7 @@ static int32_t SetTweakTracebackMsg_CF(lua_State *L)
 extern "C" {
 #endif
 extern void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap);
-extern void P_CheckWeaponI(int32_t snum);
+void P_CheckWeaponI(int playerNum);
 extern int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel);
 extern int32_t A_Spawn(int32_t j, int32_t pn);
 extern void VM_FallSprite(int32_t i);

@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-extern int32_t app_main(int32_t argc, char const * const * argv);
+extern int app_main(int argc, char const * const * argv);
 extern const char* AppProperName;
 extern const char* AppTechnicalName;
 

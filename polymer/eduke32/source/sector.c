@@ -2226,7 +2226,7 @@ void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
                         if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
                         {
                             int const newSprite       = A_Spawn(damageSrc, JIBS6);
-                            sprite[newSprite].z      += (4 << 8);
+                            sprite[newSprite].z      += ZOFFSET6;
                             if (sprite[damageSrc].pal == 6)
                                 sprite[newSprite].pal = 6;
                             sprite[newSprite].xvel    = 16;

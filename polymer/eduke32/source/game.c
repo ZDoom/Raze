@@ -680,12 +680,12 @@ static void G_ReadGLFrame(void)
 }
 #endif
 
-void G_DrawRooms(int32_t snum, int32_t smoothratio)
+void G_DrawRooms(int playerNum, int smoothRatio)
 {
-    int32_t i, dont_draw;
-    DukePlayer_t *const p = g_player[snum].ps;
+    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
-    int32_t tmpyx=yxaspect, tmpvr=viewingrange;
+    int yxAspect     = yxaspect;
+    int viewingRange = viewingrange;
 
     if (g_networkMode == NET_DEDICATED_SERVER) return;
 
@@ -700,9 +700,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         pub = 0;
     }
 
-    VM_OnEvent(EVENT_DISPLAYSTART, p->i, snum);
+    VM_OnEvent(EVENT_DISPLAYSTART, pPlayer->i, playerNum);
 
-    if (ud.overhead_on == 2 || ud.show_help || (p->cursectnum == -1 && getrendermode() != REND_CLASSIC))
+    if (ud.overhead_on == 2 || ud.show_help || (pPlayer->cursectnum == -1 && getrendermode() != REND_CLASSIC))
         return;
 
     if (r_usenewaspect)
@@ -711,78 +711,73 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         setaspect_new();
     }
 
-    if (ud.pause_on || p->on_crane > -1)
-        smoothratio = 65536;
+    if (ud.pause_on || pPlayer->on_crane > -1)
+        smoothRatio = 65536;
     else
-        smoothratio = calc_smoothratio(totalclock, ototalclock);
+        smoothRatio = calc_smoothratio(totalclock, ototalclock);
 
-    {
-        int32_t vis = p->visibility;
-        g_visibility = (vis <= 0) ? 0 : (int32_t)(vis * (numplayers > 1 ? 1.f : r_ambientlightrecip));
-    }
+    int const playerVis = pPlayer->visibility;
+    g_visibility        = (playerVis <= 0) ? 0 : (int32_t)(playerVis * (numplayers > 1 ? 1.f : r_ambientlightrecip));
 
-    CAMERA(sect) = p->cursectnum;
+    CAMERA(sect) = pPlayer->cursectnum;
 
-    G_DoInterpolations(smoothratio);
-    G_AnimateCamSprite(smoothratio);
+    G_DoInterpolations(smoothRatio);
+    G_AnimateCamSprite(smoothRatio);
 
     if (ud.camerasprite >= 0)
     {
-        spritetype *const s = &sprite[ud.camerasprite];
+        spritetype *const pSprite = &sprite[ud.camerasprite];
 
         // XXX: what?
-        if (s->yvel < 0) s->yvel = -100;
-        else if (s->yvel > 199) s->yvel = 300;
+        if (pSprite->yvel < 0) pSprite->yvel = -100;
+        else if (pSprite->yvel > 199) pSprite->yvel = 300;
 
         CAMERA(ang) = actor[ud.camerasprite].tempang +
-            mulscale16(((s->ang+1024-actor[ud.camerasprite].tempang)&2047)-1024, smoothratio);
+            mulscale16(((pSprite->ang+1024-actor[ud.camerasprite].tempang)&2047)-1024, smoothRatio);
 
-        dont_draw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERA, p->i, snum, 0);
+        int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERA, pPlayer->i, playerNum, 0);
 
-        if (dont_draw != 1)  // event return values other than 0 and 1 are reserved
+        if (noDraw != 1)  // event return values other than 0 and 1 are reserved
         {
-            if (EDUKE32_PREDICT_FALSE(dont_draw != 0))
+            if (EDUKE32_PREDICT_FALSE(noDraw != 0))
                 OSD_Printf(OSD_ERROR "ERROR: EVENT_DISPLAYROOMSCAMERA return value must be 0 or 1, "
                            "other values are reserved.\n");
 
 #ifdef LEGACY_ROR
-            G_SE40(smoothratio);
+            G_SE40(smoothRatio);
 #endif
 #ifdef POLYMER
             if (getrendermode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, s->x, s->y, CAMERA(ang), smoothratio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, CAMERA(ang), smoothRatio);
 #endif
             yax_preparedrawrooms();
-            drawrooms(s->x,s->y,s->z-(4<<8),CAMERA(ang),s->yvel,s->sectnum);
-            yax_drawrooms(G_DoSpriteAnimations, s->sectnum, 0, smoothratio);
-            G_DoSpriteAnimations(s->x,s->y,CAMERA(ang),smoothratio);
+            drawrooms(pSprite->x,pSprite->y,pSprite->z-ZOFFSET6,CAMERA(ang),pSprite->yvel,pSprite->sectnum);
+            yax_drawrooms(G_DoSpriteAnimations, pSprite->sectnum, 0, smoothRatio);
+            G_DoSpriteAnimations(pSprite->x,pSprite->y,CAMERA(ang),smoothRatio);
             drawmasks();
         }
     }
     else
     {
-        int32_t j,fz,cz;
+        int32_t floorZ, ceilZ;
         int32_t tiltcx, tiltcy, tiltcs=0;    // JBF 20030807
 
-        const int32_t vr = divscale22(1,sprite[p->i].yrepeat+28);
-        int32_t software_screen_tilting =
-            (getrendermode() == REND_CLASSIC && ((ud.screen_tilting && p->rotscrnang
+        int       pixelDoubling = 0;
+        int const vr            = divscale22(1, sprite[pPlayer->i].yrepeat + 28);
+        int       screenTilting = (getrendermode() == REND_CLASSIC && ((ud.screen_tilting && pPlayer->rotscrnang
 #ifdef SPLITSCREEN_MOD_HACKS
-            && !g_fakeMultiMode
+                                                                  && !g_fakeMultiMode
 #endif
-            )));
-        int32_t pixelDoubling = 0;
+                                                                  )));
 
         if (!r_usenewaspect)
-        {
             setaspect(vr, yxaspect);
-        }
         else
         {
-            tmpvr = vr;
-            tmpyx = tabledivide32_noinline(65536*ydim*8, xdim*5);
+            viewingRange = vr;
+            yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
 
-            setaspect(mulscale16(tmpvr,viewingrange), yxaspect);
+            setaspect(mulscale16(viewingRange,viewingrange), yxaspect);
         }
 
         if (g_screenCapture)
@@ -794,23 +789,21 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             if (getrendermode() == REND_CLASSIC)
                 setviewtotile(TILE_SAVESHOT, 200, 320);
         }
-        else if (software_screen_tilting)
+        else if (screenTilting)
         {
             int32_t oviewingrange = viewingrange;  // save it from setaspect()
-            const int16_t tang = (ud.screen_tilting) ? p->rotscrnang : 0;
+            const int16_t tang = (ud.screen_tilting) ? pPlayer->rotscrnang : 0;
 
             if (tang == 1024)
-            {
-                software_screen_tilting = 2;
-            }
+                screenTilting = 2;
             else
             {
                 // Maximum possible allocation size passed to allocache() below
                 // since there is no equivalent of free() for allocache().
 #if MAXYDIM >= 640
-                const int maxtiltallocsiz = 640*640;
+                int const maxTiltSize = 640*640;
 #else
-                const int maxtiltallocsiz = 320*320;
+                int const maxTiltSize = 320*320;
 #endif
                 // To render a tilted screen in high quality, we need at least
                 // 640 pixels of *Y* dimension.
@@ -843,25 +836,23 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                     tiltcy = 200;
                 }
 
-                {
-                    // If the view is rotated (not 0 or 180 degrees modulo 360 degrees),
-                    // we render onto a square tile and display a portion of that
-                    // rotated on-screen later on.
-                    const int32_t viewtilexsiz = (tang&1023) ? tiltcx : tiltcy;
-                    const int32_t viewtileysiz = tiltcx;
+                // If the view is rotated (not 0 or 180 degrees modulo 360 degrees),
+                // we render onto a square tile and display a portion of that
+                // rotated on-screen later on.
+                const int32_t viewtilexsiz = (tang&1023) ? tiltcx : tiltcy;
+                const int32_t viewtileysiz = tiltcx;
 
-                    walock[TILE_TILT] = 255;
-                    if (waloff[TILE_TILT] == 0)
-                        allocache(&waloff[TILE_TILT], maxtiltallocsiz, &walock[TILE_TILT]);
+                walock[TILE_TILT] = 255;
+                if (waloff[TILE_TILT] == 0)
+                    allocache(&waloff[TILE_TILT], maxTiltSize, &walock[TILE_TILT]);
 
-                    setviewtotile(TILE_TILT, viewtilexsiz, viewtileysiz);
-                }
+                setviewtotile(TILE_TILT, viewtilexsiz, viewtileysiz);
 
                 if ((tang&1023) == 512)
                 {
                     //Block off unscreen section of 90ø tilted screen
-                    j = tiltcx-(60*tiltcs);
-                    for (i=(60*tiltcs)-1; i>=0; i--)
+                    int const j = tiltcx-(60*tiltcs);
+                    for (int i=(60*tiltcs)-1; i>=0; i--)
                     {
                         startumost[i] = 1;
                         startumost[i+j] = 1;
@@ -870,16 +861,18 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                     }
                 }
 
-                i = (tang&511);
-                if (i > 256)
-                    i = 512-i;
-                i = sintable[i+512]*8 + sintable[i]*5;
+                int vRange = (tang & 511);
 
-//                setaspect(i>>1, yxaspect);
-                setaspect(mulscale16(oviewingrange,i>>1), yxaspect);
+                if (vRange > 256)
+                    vRange = 512 - vRange;
 
-                tmpvr = i>>1;
-                tmpyx = tabledivide32_noinline(65536*ydim*8, xdim*5);
+                vRange = sintable[vRange + 512] * 8 + sintable[vRange] * 5;
+
+                //                setaspect(i>>1, yxaspect);
+                setaspect(mulscale16(oviewingrange, vRange >> 1), yxaspect);
+
+                viewingRange = vRange >> 1;
+                yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
             }
         }
         else if (getrendermode() >= REND_POLYMOST && (ud.screen_tilting
@@ -889,9 +882,9 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         ))
         {
 #ifdef USE_OPENGL
-            setrollangle(p->orotscrnang + mulscale16(((p->rotscrnang - p->orotscrnang + 1024)&2047)-1024, smoothratio));
+            setrollangle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
 #endif
-            p->orotscrnang = p->rotscrnang; // JBF: save it for next time
+            pPlayer->orotscrnang = pPlayer->rotscrnang;
         }
         else if (!ud.detail && getrendermode()==REND_CLASSIC)
         {
@@ -900,79 +893,80 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             G_UpdateScreenArea();
         }
 
-        if (p->newowner < 0)
+        if (pPlayer->newowner < 0)
         {
-            vec3_t cam = { p->opos.x+mulscale16(p->pos.x-p->opos.x, smoothratio),
-                           p->opos.y+mulscale16(p->pos.y-p->opos.y, smoothratio),
-                           p->opos.z+mulscale16(p->pos.z-p->opos.z, smoothratio)
-                         };
+            vec3_t const camVect = { pPlayer->opos.x + mulscale16(pPlayer->pos.x - pPlayer->opos.x, smoothRatio),
+                                     pPlayer->opos.y + mulscale16(pPlayer->pos.y - pPlayer->opos.y, smoothRatio),
+                                     pPlayer->opos.z + mulscale16(pPlayer->pos.z - pPlayer->opos.z, smoothRatio) };
 
-            Bmemcpy(&CAMERA(pos), &cam, sizeof(vec3_t));
-            CAMERA(ang) = p->oang + mulscale16(((p->ang+1024-p->oang)&2047)-1024, smoothratio);
-            CAMERA(ang) += p->look_ang;
-            CAMERA(horiz) = p->ohoriz+p->ohorizoff
-                + mulscale16((p->horiz+p->horizoff-p->ohoriz-p->ohorizoff), smoothratio);
+            CAMERA(pos) = camVect;
+            CAMERA(ang) = pPlayer->oang + mulscale16(((pPlayer->ang + 1024 - pPlayer->oang) & 2047) - 1024, smoothRatio);
+            CAMERA(ang) += pPlayer->look_ang;
+            CAMERA(horiz) = pPlayer->ohoriz + pPlayer->ohorizoff
+                            + mulscale16((pPlayer->horiz + pPlayer->horizoff - pPlayer->ohoriz - pPlayer->ohorizoff), smoothRatio);
 
             if (ud.viewbob)
             {
-                int32_t addz = (p->opyoff + mulscale16(p->pyoff-p->opyoff, smoothratio));
-                if (p->over_shoulder_on)
-                    addz >>= 3;
+                int zAdd = (pPlayer->opyoff + mulscale16(pPlayer->pyoff-pPlayer->opyoff, smoothRatio));
 
-                CAMERA(pos.z) += addz;
+                if (pPlayer->over_shoulder_on)
+                    zAdd >>= 3;
+
+                CAMERA(pos.z) += zAdd;
             }
 
-            if (p->over_shoulder_on)
+            if (pPlayer->over_shoulder_on)
             {
                 CAMERA(pos.z) -= 3072;
-                if (G_DoThirdPerson(p, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(horiz)) < 0)
+
+                if (G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(horiz)) < 0)
                 {
                     CAMERA(pos.z) += 3072;
-                    G_DoThirdPerson(p, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(horiz));
+                    G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(horiz));
                 }
             }
         }
         else
         {
-            vec3_t cam = G_GetCameraPosition(p->newowner, smoothratio);
+            vec3_t const camVect = G_GetCameraPosition(pPlayer->newowner, smoothRatio);
 
             // looking through viewscreen
-            Bmemcpy(&CAMERA(pos), &cam, sizeof(vec3_t));
-            CAMERA(ang) = p->ang + p->look_ang;
-            CAMERA(horiz) = 100+sprite[p->newowner].shade;
-            CAMERA(sect) = sprite[p->newowner].sectnum;
+            CAMERA(pos)   = camVect;
+            CAMERA(ang)   = pPlayer->ang + pPlayer->look_ang;
+            CAMERA(horiz) = 100 + sprite[pPlayer->newowner].shade;
+            CAMERA(sect)  = sprite[pPlayer->newowner].sectnum;
         }
 
-        cz = actor[p->i].ceilingz;
-        fz = actor[p->i].floorz;
+        ceilZ  = actor[pPlayer->i].ceilingz;
+        floorZ = actor[pPlayer->i].floorz;
 
-        if (g_earthquakeTime > 0 && p->on_ground == 1)
+        if (g_earthquakeTime > 0 && pPlayer->on_ground == 1)
         {
-            CAMERA(pos.z) += 256-(((g_earthquakeTime)&1)<<9);
-            CAMERA(ang) += (2-((g_earthquakeTime)&2))<<2;
+            CAMERA(pos.z) += 256 - (((g_earthquakeTime)&1) << 9);
+            CAMERA(ang)   += (2 - ((g_earthquakeTime)&2)) << 2;
         }
 
-        if (sprite[p->i].pal == 1)
+        if (sprite[pPlayer->i].pal == 1)
             CAMERA(pos.z) -= (18<<8);
 
-        if (p->newowner < 0 && p->spritebridge == 0)
+        if (pPlayer->newowner < 0 && pPlayer->spritebridge == 0)
         {
             // NOTE: when shrunk, p->pos.z can be below the floor.  This puts the
             // camera into the sector again then.
 
-            if (CAMERA(pos.z) < (p->truecz + (4<<8)))
-                CAMERA(pos.z) = cz + (4<<8);
-            else if (CAMERA(pos.z) > (p->truefz - (4<<8)))
-                CAMERA(pos.z) = fz - (4<<8);
+            if (CAMERA(pos.z) < (pPlayer->truecz + ZOFFSET6))
+                CAMERA(pos.z) = ceilZ + ZOFFSET6;
+            else if (CAMERA(pos.z) > (pPlayer->truefz - ZOFFSET6))
+                CAMERA(pos.z) = floorZ - ZOFFSET6;
         }
 
         while (CAMERA(sect) >= 0)  // if, really
         {
-            getzsofslope(CAMERA(sect),CAMERA(pos.x),CAMERA(pos.y),&cz,&fz);
+            getzsofslope(CAMERA(sect),CAMERA(pos.x),CAMERA(pos.y),&ceilZ,&floorZ);
 #ifdef YAX_ENABLE
             if (yax_getbunch(CAMERA(sect), YAX_CEILING) >= 0)
             {
-                if (CAMERA(pos.z) < cz)
+                if (CAMERA(pos.z) < ceilZ)
                 {
                     updatesectorz(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), &CAMERA(sect));
                     break;  // since CAMERA(sect) might have been updated to -1
@@ -982,30 +976,30 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
             }
             else
 #endif
-                if (CAMERA(pos.z) < cz+(4<<8))
-                    CAMERA(pos.z) = cz+(4<<8);
+                if (CAMERA(pos.z) < ceilZ+ZOFFSET6)
+                    CAMERA(pos.z) = ceilZ+ZOFFSET6;
 
 #ifdef YAX_ENABLE
             if (yax_getbunch(CAMERA(sect), YAX_FLOOR) >= 0)
             {
-                if (CAMERA(pos.z) > fz)
+                if (CAMERA(pos.z) > floorZ)
                     updatesectorz(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), &CAMERA(sect));
             }
             else
 #endif
-                if (CAMERA(pos.z) > fz-(4<<8))
-                    CAMERA(pos.z) = fz-(4<<8);
+                if (CAMERA(pos.z) > floorZ-ZOFFSET6)
+                    CAMERA(pos.z) = floorZ-ZOFFSET6;
 
             break;
         }
 
         // NOTE: might be rendering off-screen here, so CON commands that draw stuff
         //  like showview must cope with that situation or bail out!
-        dont_draw = VM_OnEventWithReturn(EVENT_DISPLAYROOMS, p->i, snum, 0);
+        int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMS, pPlayer->i, playerNum, 0);
 
         CAMERA(horiz) = clamp(CAMERA(horiz), HORIZ_MIN, HORIZ_MAX);
 
-        if (dont_draw != 1)  // event return values other than 0 and 1 are reserved
+        if (noDraw != 1)  // event return values other than 0 and 1 are reserved
         {
 /*
             if (EDUKE32_PREDICT_FALSE(dont_draw != 0))
@@ -1013,13 +1007,13 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                            "other values are reserved.\n");
 */
 
-            G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(ang), CAMERA(horiz), smoothratio);
+            G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(ang), CAMERA(horiz), smoothRatio);
 #ifdef LEGACY_ROR
-            G_SE40(smoothratio);
+            G_SE40(smoothRatio);
 #endif
 #ifdef POLYMER
             if (getrendermode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothratio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothRatio);
 #endif
             // for G_PrintCoords
             dr_viewingrange = viewingrange;
@@ -1029,12 +1023,12 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 #else
             yax_preparedrawrooms();
             drawrooms(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(ang),CAMERA(horiz),CAMERA(sect));
-            yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothratio);
+            yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothRatio);
 #ifdef LEGACY_ROR
             if ((unsigned)ror_sprite < MAXSPRITES && drawing_ror == 1)  // viewing from bottom
                 G_OROR_DupeSprites(&sprite[ror_sprite]);
 #endif
-            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothratio);
+            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothRatio);
 #ifdef LEGACY_ROR
             drawing_ror = 0;
 #endif
@@ -1056,11 +1050,11 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 G_ReadGLFrame();
 #endif
         }
-        else if (software_screen_tilting)
+        else if (screenTilting)
         {
-            const int16_t tang = (ud.screen_tilting) ? p->rotscrnang : 0;
+            const int16_t tang = (ud.screen_tilting) ? pPlayer->rotscrnang : 0;
 
-            if (software_screen_tilting == 2)  // tang == 1024
+            if (screenTilting == 2)  // tang == 1024
             {
                 begindrawing();
                 {
@@ -1088,13 +1082,15 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
                 setviewback();
                 picanm[TILE_TILT].xofs = picanm[TILE_TILT].yofs = 0;
 
-                i = (tang&511);
-                if (i > 256)
-                    i = 512-i;
-                i = sintable[i+512]*8 + sintable[i]*5;
-                i >>= tiltcs; // JBF 20030807
+                int tiltZoom = (tang&511);
 
-                rotatesprite_win(160<<16,100<<16,i,tang+512,TILE_TILT,0,0,4+2+64+1024);
+                if (tiltZoom > 256)
+                    tiltZoom = 512 - tiltZoom;
+
+                tiltZoom = sintable[tiltZoom + 512] * 8 + sintable[tiltZoom] * 5;
+                tiltZoom >>= tiltcs;  // JBF 20030807
+
+                rotatesprite_win(160 << 16, 100 << 16, tiltZoom, tang + 512, TILE_TILT, 0, 0, 4 + 2 + 64 + 1024);
                 walock[TILE_TILT] = 199;
             }
         }
@@ -1139,7 +1135,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
         // Totalclock count of last step of p->visibility converging towards
         // ud.const_visibility.
         static int32_t lastvist;
-        const int32_t visdif = ud.const_visibility-p->visibility;
+        const int32_t visdif = ud.const_visibility-pPlayer->visibility;
 
         // Check if totalclock was cleared (e.g. restarted game).
         if (totalclock < lastvist)
@@ -1154,11 +1150,11 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
 
             if (klabs(visinc) == 0)
             {
-                p->visibility = ud.const_visibility;
+                pPlayer->visibility = ud.const_visibility;
                 break;
             }
 
-            p->visibility += visinc;
+            pPlayer->visibility += visinc;
             lastvist = totalclock;
         }
     }
@@ -1166,7 +1162,7 @@ void G_DrawRooms(int32_t snum, int32_t smoothratio)
     if (r_usenewaspect)
     {
         newaspect_enable = 0;
-        setaspect(tmpvr, tmpyx);
+        setaspect(viewingRange, yxAspect);
     }
 }
 
@@ -2310,7 +2306,7 @@ int A_Spawn(int spriteNum, int tileNum)
             }
             else if (spriteNum == -1)
             {
-                pSprite->z += (4<<8);
+                pSprite->z += ZOFFSET6;
                 T1(newSprite) = pSprite->z;
                 T2(newSprite) = krand()&127;
             }
@@ -3778,7 +3774,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             break;
 
         case ATOMICHEALTH__STATIC:
-            t->z -= (4<<8);
+            t->z -= ZOFFSET6;
             break;
         case CRYSTALAMMO__STATIC:
             t->shade = (sintable[(totalclock<<4)&2047]>>10);
@@ -5026,13 +5022,13 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
 
 static int32_t parsedefinitions_game(scriptfile *script, int32_t preload);
 
-static void parsedefinitions_game_include(const char *fn, scriptfile *script, const char *cmdtokptr, const int32_t preload)
+static void parsedefinitions_game_include(const char *fileName, scriptfile *pScript, const char *cmdtokptr, int const firstPass)
 {
-    scriptfile *included = scriptfile_fromfile(fn);
+    scriptfile *included = scriptfile_fromfile(fileName);
 
     if (!included)
     {
-        if (!Bstrcasecmp(cmdtokptr,"null") || script == NULL) // this is a bit overboard to prevent unused parameter warnings
+        if (!Bstrcasecmp(cmdtokptr,"null") || pScript == NULL) // this is a bit overboard to prevent unused parameter warnings
             {
            // initprintf("Warning: Failed including %s as module\n", fn);
             }
@@ -5046,7 +5042,7 @@ static void parsedefinitions_game_include(const char *fn, scriptfile *script, co
     }
     else
     {
-        parsedefinitions_game(included, preload);
+        parsedefinitions_game(included, firstPass);
         scriptfile_close(included);
     }
 }
@@ -5935,7 +5931,7 @@ void G_BackToMenu(void)
     G_UpdateAppTitle();
 }
 
-static int32_t G_EndOfLevel(void)
+static int G_EndOfLevel(void)
 {
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);
     P_UpdateScreenPal(g_player[myconnectindex].ps);
@@ -5992,7 +5988,6 @@ static int32_t G_EndOfLevel(void)
 
     Net_WaitForServer();
     return 1;
-
 }
 
 void app_crashhandler(void)
@@ -6045,10 +6040,8 @@ void G_MaybeAllocPlayer(int32_t pnum)
 EDUKE32_STATIC_ASSERT(sizeof(actor_t)==128);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
-int32_t app_main(int32_t argc, char const * const * argv)
+int app_main(int argc, char const * const * argv)
 {
-    int32_t i = 0, j;
-
 #ifndef NETCODE_DISABLE
     if (enet_initialize() != 0)
         initprintf("An error occurred while initializing ENet.\n");
@@ -6066,10 +6059,8 @@ int32_t app_main(int32_t argc, char const * const * argv)
     backgroundidle = 0;
 
 #ifdef DEBUGGINGAIDS
-    {
-        extern int32_t (*check_filename_casing_fn)(void);
-        check_filename_casing_fn = check_filename_casing;
-    }
+    extern int32_t (*check_filename_casing_fn)(void);
+    check_filename_casing_fn = check_filename_casing;
 #endif
 #endif
 
@@ -6093,16 +6084,14 @@ int32_t app_main(int32_t argc, char const * const * argv)
 #endif
     OSD_SetLogFile("eduke32.log");
 
-    OSD_SetFunctions(
-        GAME_drawosdchar,
-        GAME_drawosdstr,
-        GAME_drawosdcursor,
-        GAME_getcolumnwidth,
-        GAME_getrowheight,
-        GAME_clearbackground,
-        BGetTime,
-        GAME_onshowosd
-    );
+    OSD_SetFunctions(GAME_drawosdchar,
+                     GAME_drawosdstr,
+                     GAME_drawosdcursor,
+                     GAME_getcolumnwidth,
+                     GAME_getrowheight,
+                     GAME_clearbackground,
+                     BGetTime,
+                     GAME_onshowosd);
 
     wm_setapptitle(APPNAME);
 
@@ -6131,7 +6120,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
 
     // used with binds for fast function lookup
     hash_init(&h_gamefuncs);
-    for (i=NUMGAMEFUNCTIONS-1; i>=0; i--)
+    for (int i=NUMGAMEFUNCTIONS-1; i>=0; i--)
     {
         char *str = Bstrtolower(Xstrdup(gamefunctions[i]));
         hash_add(&h_gamefuncs,gamefunctions[i],i,0);
@@ -6139,7 +6128,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
         Bfree(str);
     }
 
-    i = CONFIG_ReadSetup();
+    int const readSetup = CONFIG_ReadSetup();
 
 #ifdef _WIN32
 
@@ -6163,14 +6152,14 @@ int32_t app_main(int32_t argc, char const * const * argv)
                                  "Browse to http://www.eduke32.com now?"))
                     {
                         SHELLEXECUTEINFOA sinfo;
-                        char const *p = "http://www.eduke32.com";
+                        char const *      p = "http://www.eduke32.com";
 
                         Bmemset(&sinfo, 0, sizeof(sinfo));
-                        sinfo.cbSize = sizeof(sinfo);
-                        sinfo.fMask = SEE_MASK_CLASSNAME;
-                        sinfo.lpVerb = "open";
-                        sinfo.lpFile = p;
-                        sinfo.nShow = SW_SHOWNORMAL;
+                        sinfo.cbSize  = sizeof(sinfo);
+                        sinfo.fMask   = SEE_MASK_CLASSNAME;
+                        sinfo.lpVerb  = "open";
+                        sinfo.lpFile  = p;
+                        sinfo.nShow   = SW_SHOWNORMAL;
                         sinfo.lpClass = "http";
 
                         if (!ShellExecuteExA(&sinfo))
@@ -6198,7 +6187,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
     G_ScanGroups();
 
 #ifdef STARTUP_SETUP_WINDOW
-    if (i < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_EDUKE32 || ud.config.ForceSetup)) || g_commandSetup)
+    if (readSetup < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_EDUKE32 || ud.config.ForceSetup)) || g_commandSetup)
     {
         if (quitevent || !startwin_run())
         {
@@ -6221,12 +6210,12 @@ int32_t app_main(int32_t argc, char const * const * argv)
         g_Shareware = 1;
     else
     {
-        i = kopen4load("DUKESW.BIN",1); // JBF 20030810
+        int const kFile = kopen4load("DUKESW.BIN",1); // JBF 20030810
 
-        if (i != -1)
+        if (kFile != -1)
         {
             g_Shareware = 1;
-            kclose(i);
+            kclose(kFile);
         }
     }
 
@@ -6257,11 +6246,11 @@ int32_t app_main(int32_t argc, char const * const * argv)
     }
     else
     {
-        for (i=0; i<ud.multimode-1; i++)
+        for (int i=0; i<ud.multimode-1; i++)
             connectpoint2[i] = i+1;
         connectpoint2[ud.multimode-1] = -1;
 
-        for (i=1; i<ud.multimode; i++)
+        for (int i=1; i<ud.multimode; i++)
             g_player[i].playerquitflag = 1;
     }
 
@@ -6269,7 +6258,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
 
     // NOTE: Allocating the DukePlayer_t structs has to be before compiling scripts,
     // because in Lunatic, the {pipe,trip}bomb* members are initialized.
-    for (i=0; i<MAXPLAYERS; i++)
+    for (int i=0; i<MAXPLAYERS; i++)
         G_MaybeAllocPlayer(i);
 
     G_Startup(); // a bunch of stuff including compiling cons
@@ -6278,8 +6267,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
 
     g_player[myconnectindex].ps->palette = BASEPAL;
 
-    i = 1;
-    for (j=numplayers; j<ud.multimode; j++)
+    for (int i=1, j=numplayers; j<ud.multimode; j++)
     {
         Bsprintf(g_player[j].user_name,"PLAYER %d",j+1);
         g_player[j].ps->team = g_player[j].pteam = i;
@@ -6301,7 +6289,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
         loaddefinitions_game(defsfile, FALSE);
     }
 
-    for (i=0; i < g_defModulesNum; ++i)
+    for (int i=0; i < g_defModulesNum; ++i)
         Bfree(g_defModules[i]);
     DO_FREE_AND_NULL(g_defModules);
     g_defModulesNum = 0;
@@ -6378,15 +6366,16 @@ int32_t app_main(int32_t argc, char const * const * argv)
         CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
 
         // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-        for (i=0; i<joynumaxes; i++)
+        for (int i=0; i<joynumaxes; i++)
             setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
     }
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
-    if ((i = clipmapinfo_load()) > 0)
-        initprintf("There was an error loading the sprite clipping map (status %d).\n", i);
+    int const clipMapError = clipmapinfo_load();
+    if (clipMapError > 0)
+        initprintf("There was an error loading the sprite clipping map (status %d).\n", clipMapError);
 
-    for (i=0; i < g_clipMapFilesNum; ++i)
+    for (int i=0; i < g_clipMapFilesNum; ++i)
         Bfree(g_clipMapFiles[i]);
     DO_FREE_AND_NULL(g_clipMapFiles);
     g_clipMapFilesNum = 0;
@@ -6395,7 +6384,7 @@ int32_t app_main(int32_t argc, char const * const * argv)
     // check if the minifont will support lowercase letters (3136-3161)
     // there is room for them in tiles012.art between "[\]^_." and "{|}~"
     minitext_lowercase = 1;
-    for (i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
+    for (int i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
         minitext_lowercase &= tile_exists(i);
 
     system_getcvars();
@@ -6500,7 +6489,7 @@ MAIN_LOOP_RESTART:
                 ud.m_respawn_monsters = 1;
             else ud.m_respawn_monsters = 0;
 
-            for (TRAVERSE_CONNECT(i))
+            for (int TRAVERSE_CONNECT(i))
             {
                 P_ResetWeapons(i);
                 P_ResetInventory(i);
@@ -6550,7 +6539,7 @@ MAIN_LOOP_RESTART:
 
     do //main loop
     {
-        static uint32_t nextrender = 0, framewaiting = 0;
+        static uint32_t nextRender = 0, frameWaiting = 0;
         uint32_t j;
 
         if (handleevents() && quitevent)
@@ -6619,15 +6608,13 @@ MAIN_LOOP_RESTART:
 
             do
             {
-                int32_t clockbeforetic;
-
                 sampletimer();
 
                 if (ready2send == 0) break;
 
                 ototalclock += TICSPERFRAME;
 
-                clockbeforetic = totalclock;
+                int const prevClock = totalclock;
 
                 if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
                         (g_player[myconnectindex].ps->gm&MODE_GAME))
@@ -6643,7 +6630,7 @@ MAIN_LOOP_RESTART:
 
                 sampletimer();
 
-                if (totalclock - clockbeforetic >= TICSPERFRAME)
+                if (totalclock - prevClock >= TICSPERFRAME)
                 {
                     // computing a tic takes longer than a tic, so we're slowing
                     // the game down. rather than tightly spinning here, go draw
@@ -6660,8 +6647,8 @@ MAIN_LOOP_RESTART:
         {
             switch (G_EndOfLevel())
             {
-            case 1: continue;
-            case 2: goto MAIN_LOOP_RESTART;
+                case 1: continue;
+                case 2: goto MAIN_LOOP_RESTART;
             }
         }
 
@@ -6671,33 +6658,34 @@ MAIN_LOOP_RESTART:
             goto skipframe;
         }
 
-        if (framewaiting)
+        if (frameWaiting)
         {
-            framewaiting--;
+            frameWaiting--;
             nextpage();
         }
 
         j = getticks();
 
-        if (r_maxfps == 0 || j >= nextrender)
+        if (r_maxfps == 0 || j >= nextRender)
         {
-            if (j > nextrender+g_frameDelay)
-                nextrender = j;
+            if (j > nextRender + g_frameDelay)
+                nextRender = j;
 
-            nextrender += g_frameDelay;
+            nextRender += g_frameDelay;
 
-            if ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm&MODE_MENU)) ||
-                    (g_netServer || ud.multimode > 1) || ud.recstat == 2)
-                i = calc_smoothratio(totalclock, ototalclock);
-            else
-                i = 65536;
+            int const smoothRatio
+            = ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm & MODE_MENU))
+               || (g_netServer || ud.multimode > 1)
+               || ud.recstat == 2)
+              ? calc_smoothratio(totalclock, ototalclock)
+              : 65536;
 
-            G_DrawRooms(screenpeek,i);
+            G_DrawRooms(screenpeek, smoothRatio);
             if (getrendermode() >= REND_POLYMOST)
                 G_DrawBackground();
-            G_DisplayRest(i);
+            G_DisplayRest(smoothRatio);
 
-            framewaiting++;
+            frameWaiting++;
         }
 
 skipframe:
@@ -6717,10 +6705,8 @@ GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
     return G_DoMoveThings();
 }
 
-int32_t G_DoMoveThings(void)
+int G_DoMoveThings(void)
 {
-    int32_t i;
-
     ud.camerasprite = -1;
     lockclock += TICSPERFRAME;
 
@@ -6730,7 +6716,7 @@ int32_t G_DoMoveThings(void)
     if (g_RTSPlaying > 0)
         g_RTSPlaying--;
 
-    for (i=0; i<MAXUSERQUOTES; i++)
+    for (int i=0; i<MAXUSERQUOTES; i++)
         if (user_quote_time[i])
         {
             user_quote_time[i]--;
@@ -6746,38 +6732,36 @@ int32_t G_DoMoveThings(void)
 #endif
         )
     {
-        hitdata_t hit;
-        DukePlayer_t *const p = g_player[screenpeek].ps;
+        hitdata_t hitData;
+        DukePlayer_t *const pPlayer = g_player[screenpeek].ps;
 
-        for (i=0; i<ud.multimode; i++)
+        for (int TRAVERSE_CONNECT(i))
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
-        hitscan((vec3_t *)p,p->cursectnum,
-                sintable[(p->ang+512)&2047],
-                sintable[p->ang&2047],
-                (100-p->horiz-p->horizoff)<<11,&hit,0xffff0030);
+        hitscan((vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(pPlayer->ang + 512) & 2047], sintable[pPlayer->ang & 2047],
+                (100 - pPlayer->horiz - pPlayer->horizoff) << 11, &hitData, 0xffff0030);
 
-        for (i=0; i<ud.multimode; i++)
+        for (int TRAVERSE_CONNECT(i))
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
-        if ((hit.sprite >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) &&
-                sprite[hit.sprite].picnum == APLAYER)
+        if ((hitData.sprite >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) &&
+                sprite[hitData.sprite].picnum == APLAYER)
         {
-            const int32_t snum = P_Get(hit.sprite);
+            int const playerNum = P_Get(hitData.sprite);
 
-            if (snum != screenpeek && g_player[snum].ps->dead_flag == 0)
+            if (playerNum != screenpeek && g_player[playerNum].ps->dead_flag == 0)
             {
-                if (p->fta == 0 || p->ftq == QUOTE_RESERVED3)
+                if (pPlayer->fta == 0 || pPlayer->ftq == QUOTE_RESERVED3)
                 {
-                    if (ldist(&sprite[p->i], &sprite[hit.sprite]) < 9216)
+                    if (ldist(&sprite[pPlayer->i], &sprite[hitData.sprite]) < 9216)
                     {
-                        Bsprintf(apStrings[QUOTE_RESERVED3], "%s", &g_player[snum].user_name[0]);
-                        p->fta = 12, p->ftq = QUOTE_RESERVED3;
+                        Bsprintf(apStrings[QUOTE_RESERVED3], "%s", &g_player[playerNum].user_name[0]);
+                        pPlayer->fta = 12, pPlayer->ftq = QUOTE_RESERVED3;
                     }
                 }
-                else if (p->fta > 2) p->fta -= 3;
+                else if (pPlayer->fta > 2) pPlayer->fta -= 3;
             }
         }
     }
@@ -6798,9 +6782,8 @@ int32_t G_DoMoveThings(void)
     if (g_netServer || g_netClient)
         randomseed = ticrandomseed;
 
-    for (TRAVERSE_CONNECT(i))
-        Bmemcpy(g_player[i].inputBits, &inputfifo[(g_netServer && myconnectindex == i)][i],
-                sizeof(input_t));
+    for (int TRAVERSE_CONNECT(i))
+        Bmemcpy(g_player[i].inputBits, &inputfifo[(g_netServer && myconnectindex == i)][i], sizeof(input_t));
 
     G_UpdateInterpolations();
 
@@ -6833,7 +6816,7 @@ int32_t G_DoMoveThings(void)
         A_MoveDummyPlayers();//ST 13
     }
 
-    for (TRAVERSE_CONNECT(i))
+    for (int TRAVERSE_CONNECT(i))
     {
         if (g_player[i].inputBits->extbits&(1<<6))
         {
@@ -6884,48 +6867,29 @@ int32_t G_DoMoveThings(void)
     return 0;
 }
 
-
-
-#if 0
-void vglass(int32_t x,int32_t y,short a,short wn,short n)
+void A_SpawnWallGlass(int spriteNum,int wallNum,int glassCnt)
 {
-    int32_t z, zincs;
-    short sect;
-
-    sect = wall[wn].nextsector;
-    if (sect == -1) return;
-    zincs = (sector[sect].floorz-sector[sect].ceilingz) / n;
-
-    for (z = sector[sect].ceilingz; z < sector[sect].floorz; z += zincs)
-        A_InsertSprite(sect,x,y,z-(krand()&8191),GLASSPIECES+(z&(krand()%3)),-32,36,36,a+128-(krand()&255),16+(krand()&31),0,-1,5);
-}
-#endif
-
-void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n)
-{
-    int32_t j, xv, yv, z, x1, y1;
-    int16_t sect;
-    int32_t a;
-
-    sect = -1;
-
-    if (wallnum < 0)
+    if (wallNum < 0)
     {
-        for (j=n-1; j >= 0 ; j--)
+        for (int j = glassCnt - 1; j >= 0; --j)
         {
-            a = SA(i)-256+(krand()&511)+1024;
-            A_InsertSprite(SECT(i),SX(i),SY(i),SZ(i),GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),1024-(krand()&1023),i,5);
+            int const a = SA(spriteNum) - 256 + (krand() & 511) + 1024;
+            A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum), GLASSPIECES + (j % 3), -32, 36, 36, a,
+                           32 + (krand() & 63), 1024 - (krand() & 1023), spriteNum, 5);
         }
         return;
     }
 
-    j = n+1;
+    int32_t j, xv, yv, z, x1, y1;
+    int32_t a;
 
-    x1 = wall[wallnum].x;
-    y1 = wall[wallnum].y;
+    j = glassCnt+1;
 
-    xv = wall[wall[wallnum].point2].x-x1;
-    yv = wall[wall[wallnum].point2].y-y1;
+    x1 = wall[wallNum].x;
+    y1 = wall[wallNum].y;
+
+    xv = wall[wall[wallNum].point2].x-x1;
+    yv = wall[wall[wallNum].point2].y-y1;
 
     x1 -= ksgn(yv);
     y1 += ksgn(xv);
@@ -6933,7 +6897,9 @@ void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n)
     xv = tabledivide32_noinline(xv, j);
     yv = tabledivide32_noinline(yv, j);
 
-    for (j=n; j>0; j--)
+    int16_t sect = -1;
+
+    for (j=glassCnt; j>0; j--)
     {
         x1 += xv;
         y1 += yv;
@@ -6943,9 +6909,9 @@ void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n)
         {
             z = sector[sect].floorz-(krand()&(klabs(sector[sect].ceilingz-sector[sect].floorz)));
             if (z < -ZOFFSET5 || z > ZOFFSET5)
-                z = SZ(i)-ZOFFSET5+(krand()&((64<<8)-1));
-            a = SA(i)-1024;
-            A_InsertSprite(SECT(i),x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),-(krand()&1023),i,5);
+                z = SZ(spriteNum)-ZOFFSET5+(krand()&((64<<8)-1));
+            a = SA(spriteNum)-1024;
+            A_InsertSprite(SECT(spriteNum),x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),-(krand()&1023),spriteNum,5);
         }
     }
 }

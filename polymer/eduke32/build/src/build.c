@@ -571,7 +571,7 @@ static void M32_FatalEngineError(void)
     exit(2);
 }
 
-int32_t app_main(int32_t argc, char const * const * argv)
+int app_main(int argc, char const * const * argv)
 {
 #ifdef STARTUP_SETUP_WINDOW
     char cmdsetup = 0;

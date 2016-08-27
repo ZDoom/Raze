@@ -191,28 +191,28 @@ void G_SetupCheats(void)
 }
 
 
-static void doinvcheat(int32_t invidx, int32_t defaultnum, int32_t event)
+static void doinvcheat(DukePlayer_t * const pPlayer, int32_t invidx, int32_t defaultnum, int32_t event)
 {
-    defaultnum = VM_OnEventWithReturn(event, g_player[myconnectindex].ps->i, myconnectindex, defaultnum);
+    defaultnum = VM_OnEventWithReturn(event, pPlayer->i, myconnectindex, defaultnum);
     if (defaultnum >= 0)
-        g_player[myconnectindex].ps->inv_amount[invidx] = defaultnum;
+        pPlayer->inv_amount[invidx] = defaultnum;
 }
 
-static void G_CheatGetInv(void)
+static void G_CheatGetInv(DukePlayer_t *pPlayer)
 {
-    doinvcheat(GET_STEROIDS, 400, EVENT_CHEATGETSTEROIDS);
-    doinvcheat(GET_HEATS, 1200, EVENT_CHEATGETHEAT);
-    doinvcheat(GET_BOOTS, 200, EVENT_CHEATGETBOOT);
-    doinvcheat(GET_SHIELD, 100, EVENT_CHEATGETSHIELD);
-    doinvcheat(GET_SCUBA, 6400, EVENT_CHEATGETSCUBA);
-    doinvcheat(GET_HOLODUKE, 2400, EVENT_CHEATGETHOLODUKE);
-    doinvcheat(GET_JETPACK, 1600, EVENT_CHEATGETJETPACK);
-    doinvcheat(GET_FIRSTAID, g_player[myconnectindex].ps->max_player_health, EVENT_CHEATGETFIRSTAID);
+    doinvcheat(pPlayer, GET_STEROIDS, 400, EVENT_CHEATGETSTEROIDS);
+    doinvcheat(pPlayer, GET_HEATS, 1200, EVENT_CHEATGETHEAT);
+    doinvcheat(pPlayer, GET_BOOTS, 200, EVENT_CHEATGETBOOT);
+    doinvcheat(pPlayer, GET_SHIELD, 100, EVENT_CHEATGETSHIELD);
+    doinvcheat(pPlayer, GET_SCUBA, 6400, EVENT_CHEATGETSCUBA);
+    doinvcheat(pPlayer, GET_HOLODUKE, 2400, EVENT_CHEATGETHOLODUKE);
+    doinvcheat(pPlayer, GET_JETPACK, 1600, EVENT_CHEATGETJETPACK);
+    doinvcheat(pPlayer, GET_FIRSTAID, pPlayer->max_player_health, EVENT_CHEATGETFIRSTAID);
 }
 
-static void end_cheat(void)
+static void end_cheat(DukePlayer_t * const pPlayer)
 {
-    g_player[myconnectindex].ps->cheat_phase = 0;
+    pPlayer->cheat_phase = 0;
     KB_FlushKeyboardQueue();
 }
 
@@ -221,26 +221,28 @@ static int8_t cheatbuf[MAXCHEATLEN];
 
 void G_DoCheats(void)
 {
-    int32_t ch, i, j, k=0, weapon;
-    static int32_t vol1inited=0;
-    char consolecheat = 0;  // JBF 20030914
+    DukePlayer_t * const pPlayer = g_player[myconnectindex].ps;
+    int consoleCheat = 0;
+    int cheatNum;
 
     if (osdcmd_cheatsinfo_stat.cheatnum != -1)
     {
         if (ud.player_skill == 4)
         {
-            P_DoQuote(QUOTE_CHEATS_DISABLED, g_player[myconnectindex].ps);
+            P_DoQuote(QUOTE_CHEATS_DISABLED, pPlayer);
             osdcmd_cheatsinfo_stat.cheatnum = -1;
             return;
         }
 
         // JBF 20030914
-        k = osdcmd_cheatsinfo_stat.cheatnum;
+        cheatNum = osdcmd_cheatsinfo_stat.cheatnum;
         osdcmd_cheatsinfo_stat.cheatnum = -1;
-        consolecheat = 1;
+        consoleCheat = 1;
     }
 
-    if (VOLUMEONE && !vol1inited)
+    static int volumeOne = 0;
+
+    if (VOLUMEONE && !volumeOne)
     {
         // change "scotty###" to "scotty##"
         uint32_t const warpend = Bstrlen(CheatStrings[2]);
@@ -248,25 +250,25 @@ void G_DoCheats(void)
             CheatStrings[2][warpend-1] = '\0';
 
         Bstrcpy(CheatStrings[6], "<RESERVED>");
-        vol1inited = 1;
+        volumeOne = 1;
     }
 
-    if (consolecheat && numplayers < 2 && ud.recstat == 0)
+    if (consoleCheat && numplayers < 2 && ud.recstat == 0)
         goto FOUNDCHEAT;
 
-    if (g_player[myconnectindex].ps->gm & (MODE_TYPE|MODE_MENU))
+    if (pPlayer->gm & (MODE_TYPE|MODE_MENU))
         return;
 
-    if (g_player[myconnectindex].ps->cheat_phase == 1)
+    if (pPlayer->cheat_phase == 1)
     {
         while (KB_KeyWaiting())
         {
-            ch = Btolower(KB_GetCh());
+            int const ch = Btolower(KB_GetCh());
 
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {
-                g_player[myconnectindex].ps->cheat_phase = 0;
-                //                P_DoQuote(QUOTE_46,g_player[myconnectindex].ps);
+                pPlayer->cheat_phase = 0;
+                //                P_DoQuote(QUOTE_46,pPlayer);
                 return;
             }
 
@@ -277,59 +279,58 @@ void G_DoCheats(void)
             cheatbuf[cheatbuflen] = 0;
             //            KB_ClearKeysDown();
 
-            for (k=0; k < NUMCHEATCODES; k++)
+            for (cheatNum=0; cheatNum < NUMCHEATCODES; cheatNum++)
             {
-                for (j = 0; j<cheatbuflen; j++)
+                for (int j = 0; j<cheatbuflen; j++)
                 {
-                    if (cheatbuf[j] == CheatStrings[k][j] || (CheatStrings[k][j] == '#' && ch >= '0' && ch <= '9'))
+                    if (cheatbuf[j] == CheatStrings[cheatNum][j] || (CheatStrings[cheatNum][j] == '#' && ch >= '0' && ch <= '9'))
                     {
-                        if (CheatStrings[k][j+1] == 0) goto FOUNDCHEAT;
+                        if (CheatStrings[cheatNum][j+1] == 0) goto FOUNDCHEAT;
                         if (j == cheatbuflen-1) return;
                     }
                     else break;
                 }
             }
 
-            g_player[myconnectindex].ps->cheat_phase = 0;
+            pPlayer->cheat_phase = 0;
             return;
 
-        FOUNDCHEAT:
+        FOUNDCHEAT:;
 
-            i = VM_OnEventWithReturn(EVENT_ACTIVATECHEAT, g_player[myconnectindex].ps->i, myconnectindex, k);
-            if (k != CHEAT_COMEGETSOME) // Users are not allowed to interfere with TX's debugging cheat.
-                k = i;
+            int i = VM_OnEventWithReturn(EVENT_ACTIVATECHEAT, pPlayer->i, myconnectindex, cheatNum);
+            if (cheatNum != CHEAT_COMEGETSOME) // Users are not allowed to interfere with TX's debugging cheat.
+                cheatNum = i;
 
             {
-                switch (k)
+                switch (cheatNum)
                 {
                 case CHEAT_WEAPONS:
-                    j = 0;
+                {
+                    int const weaponLimit = (VOLUMEONE) ? 6 : 0;
 
-                    if (VOLUMEONE)
-                        j = 6;
-
-                    for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS-j; weapon++)
+                    for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
                     {
-                        P_AddAmmo(g_player[myconnectindex].ps, weapon, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
-                        g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
+                        P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
+                        pPlayer->gotweapon |= (1<<weaponNum);
                     }
 
-                    P_DoQuote(QUOTE_CHEAT_ALL_WEAPONS, g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_ALL_WEAPONS, pPlayer);
 
-                    end_cheat();
+                    end_cheat(pPlayer);
+                }
                     return;
 
                 case CHEAT_INVENTORY:
-                    G_CheatGetInv();
-                    P_DoQuote(QUOTE_CHEAT_ALL_INV, g_player[myconnectindex].ps);
-                    end_cheat();
+                    G_CheatGetInv(pPlayer);
+                    P_DoQuote(QUOTE_CHEAT_ALL_INV, pPlayer);
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_KEYS:
-                    g_player[myconnectindex].ps->got_access =  7;
+                    pPlayer->got_access =  7;
                     KB_FlushKeyboardQueue();
-                    P_DoQuote(QUOTE_CHEAT_ALL_KEYS, g_player[myconnectindex].ps);
-                    end_cheat();
+                    P_DoQuote(QUOTE_CHEAT_ALL_KEYS, pPlayer);
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_DEBUG:
@@ -340,24 +341,24 @@ void G_DoCheats(void)
                     G_AddUserQuote(tempbuf);
                     Bsprintf(tempbuf, "Map dumped to debug.map");
                     G_AddUserQuote(tempbuf);
-                    end_cheat();
+                    end_cheat(pPlayer);
                     break;
 
                 case CHEAT_CLIP:
                     ud.noclip = !ud.noclip;
-                    P_DoQuote(QUOTE_CHEAT_NOCLIP-!ud.noclip, g_player[myconnectindex].ps);
-                    end_cheat();
+                    P_DoQuote(QUOTE_CHEAT_NOCLIP-!ud.noclip, pPlayer);
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_RESERVED2:
-                    g_player[myconnectindex].ps->player_par = 0;
-                    g_player[myconnectindex].ps->gm = MODE_EOL;
-                    end_cheat();
+                    pPlayer->player_par = 0;
+                    pPlayer->gm = MODE_EOL;
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_ALLEN:
-                    P_DoQuote(QUOTE_CHEAT_ALLEN, g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
+                    P_DoQuote(QUOTE_CHEAT_ALLEN, pPlayer);
+                    pPlayer->cheat_phase = 0;
                     KB_ClearKeyDown(sc_N);
                     return;
 
@@ -365,7 +366,7 @@ void G_DoCheats(void)
                 case CHEAT_KROZ:
                 case CHEAT_COMEGETSOME:
                 {
-                    const int32_t pi = g_player[myconnectindex].ps->i;
+                    const int32_t pi = pPlayer->i;
 
                     ud.god = 1-ud.god;
 
@@ -384,75 +385,74 @@ void G_DoCheats(void)
 
                         sprite[pi].hitag = 0;
                         sprite[pi].lotag = 0;
-                        sprite[pi].pal = g_player[myconnectindex].ps->palookup;
+                        sprite[pi].pal = pPlayer->palookup;
 
-                        if (k != CHEAT_COMEGETSOME)
+                        if (cheatNum != CHEAT_COMEGETSOME)
                         {
-                            P_DoQuote(QUOTE_CHEAT_GODMODE_ON, g_player[myconnectindex].ps);
+                            P_DoQuote(QUOTE_CHEAT_GODMODE_ON, pPlayer);
                         }
                         else
                         {
                             Bstrcpy(apStrings[QUOTE_RESERVED4], "Come Get Some!");
 
                             S_PlaySound(DUKE_GETWEAPON2);
-                            P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-                            G_CheatGetInv();
+                            P_DoQuote(QUOTE_RESERVED4, pPlayer);
+                            G_CheatGetInv(pPlayer);
 
-                            for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
-                                g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
+                            for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
+                                pPlayer->gotweapon |= (1<<weaponNum);
 
-                            for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS; weapon++)
-                                P_AddAmmo(g_player[myconnectindex].ps, weapon, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
+                            for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS; weaponNum++)
+                                P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
 
-                            g_player[myconnectindex].ps->got_access = 7;
+                            pPlayer->got_access = 7;
                         }
                     }
                     else
                     {
-                        sprite[pi].extra = g_player[myconnectindex].ps->max_player_health;
+                        sprite[pi].extra = pPlayer->max_player_health;
                         actor[pi].extra = -1;
-                        g_player[myconnectindex].ps->last_extra = g_player[myconnectindex].ps->max_player_health;
-                        P_DoQuote(QUOTE_CHEAT_GODMODE_OFF, g_player[myconnectindex].ps);
+                        pPlayer->last_extra = pPlayer->max_player_health;
+                        P_DoQuote(QUOTE_CHEAT_GODMODE_OFF, pPlayer);
                     }
 
-                    sprite[pi].extra = g_player[myconnectindex].ps->max_player_health;
+                    sprite[pi].extra = pPlayer->max_player_health;
                     actor[pi].extra = 0;
 
-                    if (k != CHEAT_COMEGETSOME)
-                        g_player[myconnectindex].ps->dead_flag = 0;
+                    if (cheatNum != CHEAT_COMEGETSOME)
+                        pPlayer->dead_flag = 0;
 
-                    end_cheat();
+                    end_cheat(pPlayer);
                     return;
                 }
 
                 case CHEAT_STUFF:
-                    j = 0;
+                {
+                    int const weaponLimit = (VOLUMEONE) ? 6 : 0;
 
-                    if (VOLUMEONE)
-                        j = 6;
+                    for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
+                        pPlayer->gotweapon |= (1<<weaponNum);
 
-                    for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS-j; weapon++)
-                        g_player[myconnectindex].ps->gotweapon |= (1<<weapon);
+                    for (int weaponNum = PISTOL_WEAPON; weaponNum < MAX_WEAPONS-weaponLimit; weaponNum++)
+                        P_AddAmmo(pPlayer, weaponNum, pPlayer->max_ammo_amount[weaponNum]);
 
-                    for (weapon = PISTOL_WEAPON; weapon < MAX_WEAPONS-j; weapon++)
-                        P_AddAmmo(g_player[myconnectindex].ps, weapon, g_player[myconnectindex].ps->max_ammo_amount[weapon]);
+                    G_CheatGetInv(pPlayer);
+                    pPlayer->got_access = 7;
+                    P_DoQuote(QUOTE_CHEAT_EVERYTHING, pPlayer);
 
-                    G_CheatGetInv();
-                    g_player[myconnectindex].ps->got_access = 7;
-                    P_DoQuote(QUOTE_CHEAT_EVERYTHING, g_player[myconnectindex].ps);
+                    //                    P_DoQuote(QUOTE_21,pPlayer);
+                    pPlayer->inven_icon = ICON_FIRSTAID;
 
-                    //                    P_DoQuote(QUOTE_21,g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->inven_icon = ICON_FIRSTAID;
-
-                    end_cheat();
+                    end_cheat(pPlayer);
                     return;
+                }
 
                 case CHEAT_SCOTTY:
                 case CHEAT_SKILL:
-                    if (k == CHEAT_SCOTTY)
+                    if (cheatNum == CHEAT_SCOTTY)
                     {
-                        i = Bstrlen(CheatStrings[k])-3+VOLUMEONE;
-                        if (!consolecheat)
+                        i = Bstrlen(CheatStrings[cheatNum])-3+VOLUMEONE;
+                        if (!consoleCheat)
                         {
                             // JBF 20030914
                             int16_t volnume, levnume;
@@ -473,7 +473,7 @@ void G_DoCheats(void)
                             if ((VOLUMEONE && volnume > 0) || volnume > g_numVolumes-1 ||
                                 levnume >= MAXLEVELS || aMapInfo[volnume *MAXLEVELS+levnume].filename == NULL)
                             {
-                                end_cheat();
+                                end_cheat(pPlayer);
                                 return;
                             }
 
@@ -489,9 +489,9 @@ void G_DoCheats(void)
                     }
                     else
                     {
-                        if (!consolecheat)
+                        if (!consoleCheat)
                         {
-                            i = Bstrlen(CheatStrings[k])-1;
+                            i = Bstrlen(CheatStrings[cheatNum])-1;
                             ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
                         }
                         else
@@ -501,9 +501,9 @@ void G_DoCheats(void)
                     }
                     /*if (numplayers > 1 && g_netServer)
                     Net_NewGame(ud.m_volume_number,ud.m_level_number);
-                    else*/ g_player[myconnectindex].ps->gm |= MODE_RESTART;
+                    else*/ pPlayer->gm |= MODE_RESTART;
 
-                    end_cheat();
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_COORDS:
@@ -512,25 +512,20 @@ void G_DoCheats(void)
 #else
                     if (++ud.coords >= 2) ud.coords = 0;
 #endif
-                    end_cheat();
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_VIEW:
-                    if (g_player[myconnectindex].ps->over_shoulder_on)
-                        g_player[myconnectindex].ps->over_shoulder_on = 0;
-                    else
-                    {
-                        g_player[myconnectindex].ps->over_shoulder_on = 1;
-                        CAMERADIST = 0;
-                        CAMERACLOCK = totalclock;
-                    }
-                    //                    P_DoQuote(QUOTE_CHEATS_DISABLED,g_player[myconnectindex].ps);
-                    end_cheat();
+                    pPlayer->over_shoulder_on ^= 1;
+                    CAMERADIST = 0;
+                    CAMERACLOCK = totalclock;
+                    //                    P_DoQuote(QUOTE_CHEATS_DISABLED,pPlayer);
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_TIME:
-                    //                    P_DoQuote(QUOTE_21,g_player[myconnectindex].ps);
-                    end_cheat();
+                    //                    P_DoQuote(QUOTE_21,pPlayer);
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_UNLOCK:
@@ -538,32 +533,32 @@ void G_DoCheats(void)
 
                     for (i=numsectors-1; i>=0; i--) //Unlock
                     {
-                        j = sector[i].lotag;
-                        if (j == -1 || j == 32767) continue;
-                        if ((j & 0x7fff) > 2)
+                        int const lotag = sector[i].lotag;
+                        if (lotag == -1 || lotag == 32767) continue;
+                        if ((lotag & 0x7fff) > 2)
                         {
-                            if (j&(0xffff-16384))
+                            if (lotag&(0xffff-16384))
                                 sector[i].lotag &= (0xffff-16384);
-                            G_OperateSectors(i, g_player[myconnectindex].ps->i);
+                            G_OperateSectors(i, pPlayer->i);
                         }
                     }
-                    G_OperateForceFields(g_player[myconnectindex].ps->i, -1);
+                    G_OperateForceFields(pPlayer->i, -1);
 
-                    P_DoQuote(QUOTE_CHEAT_UNLOCK, g_player[myconnectindex].ps);
-                    end_cheat();
+                    P_DoQuote(QUOTE_CHEAT_UNLOCK, pPlayer);
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_CASHMAN:
                     ud.cashman = 1-ud.cashman;
                     KB_ClearKeyDown(sc_N);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
+                    pPlayer->cheat_phase = 0;
                     return;
 
                 case CHEAT_ITEMS:
-                    G_CheatGetInv();
-                    g_player[myconnectindex].ps->got_access = 7;
-                    P_DoQuote(QUOTE_CHEAT_EVERYTHING, g_player[myconnectindex].ps);
-                    end_cheat();
+                    G_CheatGetInv(pPlayer);
+                    pPlayer->got_access = 7;
+                    P_DoQuote(QUOTE_CHEAT_EVERYTHING, pPlayer);
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_SHOWMAP: // SHOW ALL OF THE MAP TOGGLE;
@@ -573,43 +568,43 @@ void G_DoCheats(void)
                         show2dsector[i] = ud.showallmap*255;
 
                     P_DoQuote(ud.showallmap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_OFF,
-                        g_player[myconnectindex].ps);
+                        pPlayer);
 
-                    end_cheat();
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_TODD:
                     if (NAM)
                     {
                         Bstrcpy(apStrings[QUOTE_RESERVED4], g_NAMMattCheatQuote);
-                        P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+                        P_DoQuote(QUOTE_RESERVED4, pPlayer);
                     }
                     else
                     {
-                        P_DoQuote(QUOTE_CHEAT_TODD, g_player[myconnectindex].ps);
+                        P_DoQuote(QUOTE_CHEAT_TODD, pPlayer);
                     }
 
-                    end_cheat();
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_RATE:
                     if (ud.tickrate++ > 2)
                         ud.tickrate = 0;
 
-                    end_cheat();
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_BETA:
-                    P_DoQuote(QUOTE_CHEAT_BETA, g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_CHEAT_BETA, pPlayer);
                     KB_ClearKeyDown(sc_H);
-                    end_cheat();
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_HYPER:
-                    g_player[myconnectindex].ps->inv_amount[GET_STEROIDS] = 399;
-                    g_player[myconnectindex].ps->inv_amount[GET_HEATS] = 1200;
-                    P_DoQuote(QUOTE_CHEAT_STEROIDS, g_player[myconnectindex].ps);
-                    end_cheat();
+                    pPlayer->inv_amount[GET_STEROIDS] = 399;
+                    pPlayer->inv_amount[GET_HEATS] = 1200;
+                    P_DoQuote(QUOTE_CHEAT_STEROIDS, pPlayer);
+                    end_cheat(pPlayer);
                     return;
 
                 case CHEAT_MONSTERS:
@@ -620,22 +615,22 @@ void G_DoCheats(void)
                         g_noEnemies = 0;
 
                     Bsprintf(apStrings[QUOTE_RESERVED4], "Monsters: %s", s[g_noEnemies]);
-                    P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_RESERVED4, pPlayer);
 
-                    end_cheat();
+                    end_cheat(pPlayer);
                     return;
                 }
 
                 case CHEAT_RESERVED:
                 case CHEAT_RESERVED3:
                     ud.eog = 1;
-                    g_player[myconnectindex].ps->player_par = 0;
-                    g_player[myconnectindex].ps->gm |= MODE_EOL;
+                    pPlayer->player_par = 0;
+                    pPlayer->gm |= MODE_EOL;
                     KB_FlushKeyboardQueue();
                     return;
 
                 default:
-                    end_cheat();
+                    end_cheat(pPlayer);
                     return;
                 }
             }
@@ -645,34 +640,34 @@ void G_DoCheats(void)
     {
         if (KB_KeyPressed((uint8_t) CheatKeys[0]))
         {
-            if (g_player[myconnectindex].ps->cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
+            if (pPlayer->cheat_phase >= 0 && numplayers < 2 && ud.recstat == 0)
             {
                 if (CheatKeys[0] == CheatKeys[1])
                     KB_ClearKeyDown((uint8_t) CheatKeys[0]);
-                g_player[myconnectindex].ps->cheat_phase = -1;
+                pPlayer->cheat_phase = -1;
             }
         }
 
         if (KB_KeyPressed((uint8_t) CheatKeys[1]))
         {
-            if (g_player[myconnectindex].ps->cheat_phase == -1)
+            if (pPlayer->cheat_phase == -1)
             {
                 if (ud.player_skill == 4)
                 {
-                    P_DoQuote(QUOTE_CHEATS_DISABLED, g_player[myconnectindex].ps);
-                    g_player[myconnectindex].ps->cheat_phase = 0;
+                    P_DoQuote(QUOTE_CHEATS_DISABLED, pPlayer);
+                    pPlayer->cheat_phase = 0;
                 }
                 else
                 {
-                    g_player[myconnectindex].ps->cheat_phase = 1;
-                    //                    P_DoQuote(QUOTE_25,g_player[myconnectindex].ps);
+                    pPlayer->cheat_phase = 1;
+                    //                    P_DoQuote(QUOTE_25,pPlayer);
                     cheatbuflen = 0;
                 }
                 KB_FlushKeyboardQueue();
             }
-            else if (g_player[myconnectindex].ps->cheat_phase != 0)
+            else if (pPlayer->cheat_phase != 0)
             {
-                g_player[myconnectindex].ps->cheat_phase = 0;
+                pPlayer->cheat_phase = 0;
                 KB_ClearKeyDown((uint8_t) CheatKeys[0]);
                 KB_ClearKeyDown((uint8_t) CheatKeys[1]);
             }
