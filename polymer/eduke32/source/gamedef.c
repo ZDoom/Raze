@@ -63,7 +63,7 @@ static int32_t C_ParseCommand(int32_t loop);
 static int32_t C_SetScriptSize(int32_t size);
 #endif
 
-int32_t g_numQuoteRedefinitions = 0;
+int32_t g_numXStrings = 0;
 
 #ifdef LUNATIC
 weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
@@ -1322,7 +1322,7 @@ static int32_t g_ifElseAborted;
 
 static int32_t C_SetScriptSize(int32_t newsize)
 {
-    intptr_t const oscript = (intptr_t)script;
+    intptr_t const oscript = (intptr_t)apScript;
     intptr_t *newscript;
     intptr_t i, j;
     int32_t osize = g_scriptSize;
@@ -1335,23 +1335,23 @@ static int32_t C_SetScriptSize(int32_t newsize)
     {
         if (BITPTR_IS_POINTER(i))
         {
-            if (EDUKE32_PREDICT_FALSE((intptr_t)script[i] < (intptr_t)&script[0] || (intptr_t)script[i] >= (intptr_t)&script[g_scriptSize]))
+            if (EDUKE32_PREDICT_FALSE((intptr_t)apScript[i] < (intptr_t)&apScript[0] || (intptr_t)apScript[i] >= (intptr_t)&apScript[g_scriptSize]))
             {
                 g_numCompilerErrors++;
                 initprintf("Internal compiler error at %" PRIdPTR " (0x%" PRIxPTR ")\n",i,i);
-                VM_ScriptInfo(&script[i], 16);
+                VM_ScriptInfo(&apScript[i], 16);
             }
 
             scriptptrs[i] = 1;
-            script[i] -= (intptr_t)&script[0];
+            apScript[i] -= (intptr_t)&apScript[0];
         }
         else scriptptrs[i] = 0;
     }
 
-    G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
-    G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
+    G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
+    G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
 
-    newscript = (intptr_t *)Xrealloc(script, newsize * sizeof(intptr_t));
+    newscript = (intptr_t *)Xrealloc(apScript, newsize * sizeof(intptr_t));
     newbitptr = (char *)Xcalloc(1,(((newsize+7)>>3)+1) * sizeof(uint8_t));
 
     if (newsize >= osize)
@@ -1364,27 +1364,27 @@ static int32_t C_SetScriptSize(int32_t newsize)
 
     Bfree(bitptr);
     bitptr = newbitptr;
-    if (script != newscript)
+    if (apScript != newscript)
     {
-        initprintf("Relocating compiled code from to 0x%" PRIxPTR " to 0x%" PRIxPTR "\n", (intptr_t)script, (intptr_t)newscript);
-        script = newscript;
+        initprintf("Relocating compiled code from to 0x%" PRIxPTR " to 0x%" PRIxPTR "\n", (intptr_t)apScript, (intptr_t)newscript);
+        apScript = newscript;
     }
 
     g_scriptSize = newsize;
-    g_scriptPtr = script + (intptr_t)g_scriptPtr - oscript;
+    g_scriptPtr = apScript + (intptr_t)g_scriptPtr - oscript;
 
     if (g_caseScriptPtr)
-        g_caseScriptPtr = script + (intptr_t)g_caseScriptPtr - oscript;
+        g_caseScriptPtr = apScript + (intptr_t)g_caseScriptPtr - oscript;
 
     for (i=(((newsize>=osize)?osize:newsize))-1; i>=0; i--)
         if (scriptptrs[i])
         {
-            j = (intptr_t)script[i]+(intptr_t)&script[0];
-            script[i] = j;
+            j = (intptr_t)apScript[i]+(intptr_t)&apScript[0];
+            apScript[i] = j;
         }
 
-    G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_BACK_NON0);
-    G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_BACK_NON0);
+    G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
+    G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
 
     Bfree(scriptptrs);
     return 0;
@@ -1473,7 +1473,7 @@ static int32_t C_SkipComments(void)
                 continue;
             }
         case 0: // EOF
-            return ((g_scriptPtr-script) > (g_scriptSize-32)) ? C_SetScriptSize(g_scriptSize<<1) : 0;
+            return ((g_scriptPtr-apScript) > (g_scriptSize-32)) ? C_SetScriptSize(g_scriptSize<<1) : 0;
         }
     }
     while (1);
@@ -1576,7 +1576,7 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
             *g_scriptPtr = i + (IFELSE_MAGIC<<12);
         else *g_scriptPtr = i + (g_lineNumber<<12);
 
-        BITPTR_CLEAR(g_scriptPtr-script);
+        BITPTR_CLEAR(g_scriptPtr-apScript);
         textptr += l;
         g_scriptPtr++;
 
@@ -1653,7 +1653,7 @@ static void C_GetNextVarType(int32_t type)
 
     if (!type && !g_labelsOnly && (isdigit(*textptr) || ((*textptr == '-') && (isdigit(*(textptr+1))))))
     {
-        BITPTR_CLEAR(g_scriptPtr-script);
+        BITPTR_CLEAR(g_scriptPtr-apScript);
 
         *g_scriptPtr++ = MAXGAMEVARS;
 
@@ -1666,7 +1666,7 @@ static void C_GetNextVarType(int32_t type)
             initprintf("%s:%d: debug: constant %ld in place of gamevar.\n",
                        g_szScriptFileName,g_lineNumber,(long)*g_scriptPtr);
 
-        BITPTR_CLEAR(g_scriptPtr-script);
+        BITPTR_CLEAR(g_scriptPtr-apScript);
         g_scriptPtr++;
 #if 1
         while (!ispecial(*textptr) && *textptr != ']') textptr++;
@@ -1704,7 +1704,7 @@ static void C_GetNextVarType(int32_t type)
     C_SkipComments(); //skip comments and whitespace
     if (*textptr == '[')     //read of array as a gamevar
     {
-        int32_t lLabelID = -1;
+        int32_t labelNum = -1;
 
         f |= (MAXGAMEVARS<<2);
         textptr++;
@@ -1712,7 +1712,7 @@ static void C_GetNextVarType(int32_t type)
         if (i < 0)
         {
             i=GetDefID(label+(g_numLabels<<6));
-            if ((unsigned) (i - g_iStructVarIDs) >= NUMQUICKSTRUCTS)
+            if ((unsigned) (i - g_structVarIDs) >= NUMQUICKSTRUCTS)
                 i = -1;
 
             if (EDUKE32_PREDICT_FALSE(i < 0))
@@ -1725,10 +1725,10 @@ static void C_GetNextVarType(int32_t type)
             f |= (MAXGAMEVARS<<3);
         }
 
-        BITPTR_CLEAR(g_scriptPtr-script);
+        BITPTR_CLEAR(g_scriptPtr-apScript);
         *g_scriptPtr++=(i|f);
 
-        if ((f & (MAXGAMEVARS<<3)) && i - g_iStructVarIDs == STRUCT_USERDEF)
+        if ((f & (MAXGAMEVARS<<3)) && i - g_structVarIDs == STRUCT_USERDEF)
         {
             // userdef doesn't really have an array index
             while (*textptr != ']')
@@ -1741,15 +1741,15 @@ static void C_GetNextVarType(int32_t type)
                 textptr++;
             }
 
-            BITPTR_CLEAR(g_scriptPtr-script);
+            BITPTR_CLEAR(g_scriptPtr-apScript);
             *g_scriptPtr++ = 0; // help out the VM by inserting a dummy index
         }
         else
         {
             if (*textptr == ']')
             {
-                BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++ = g_iThisActorID;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++ = g_thisActorVarID;
             }
             else
                 C_GetNextVarType(0);
@@ -1797,96 +1797,96 @@ static void C_GetNextVarType(int32_t type)
             C_GetNextLabelName();
             /*initprintf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));*/
 
-            switch (i - g_iStructVarIDs)
+            switch (i - g_structVarIDs)
             {
             case STRUCT_SPRITE:
-                lLabelID=C_GetLabelNameOffset(&h_actor,Bstrtolower(label+(g_numLabels<<6)));
+                labelNum=C_GetLabelNameOffset(&h_actor,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_SECTOR:
-                lLabelID=C_GetLabelNameOffset(&h_sector,Bstrtolower(label+(g_numLabels<<6)));
+                labelNum=C_GetLabelNameOffset(&h_sector,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_WALL:
-                lLabelID=C_GetLabelNameOffset(&h_wall,Bstrtolower(label+(g_numLabels<<6)));
+                labelNum=C_GetLabelNameOffset(&h_wall,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_PLAYER:
-                lLabelID=C_GetLabelNameOffset(&h_player,Bstrtolower(label+(g_numLabels<<6)));
+                labelNum=C_GetLabelNameOffset(&h_player,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_ACTORVAR:
             case STRUCT_PLAYERVAR:
-                lLabelID=GetDefID(label+(g_numLabels<<6));
+                labelNum=GetDefID(label+(g_numLabels<<6));
                 break;
             case STRUCT_TSPR:
-                lLabelID=C_GetLabelNameOffset(&h_tsprite,Bstrtolower(label+(g_numLabels<<6)));
+                labelNum=C_GetLabelNameOffset(&h_tsprite,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_PROJECTILE:
             case STRUCT_THISPROJECTILE:
-                lLabelID=C_GetLabelNameOffset(&h_projectile,Bstrtolower(label+(g_numLabels<<6)));
+                labelNum=C_GetLabelNameOffset(&h_projectile,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_USERDEF:
-                lLabelID=C_GetLabelNameOffset(&h_userdef,Bstrtolower(label+(g_numLabels<<6)));
+                labelNum=C_GetLabelNameOffset(&h_userdef,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_INPUT:
-                lLabelID=C_GetLabelNameOffset(&h_input,Bstrtolower(label+(g_numLabels<<6)));
+                labelNum=C_GetLabelNameOffset(&h_input,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_TILEDATA:
-                lLabelID=C_GetLabelNameOffset(&h_tiledata,Bstrtolower(label+(g_numLabels<<6)));
+                labelNum=C_GetLabelNameOffset(&h_tiledata,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             case STRUCT_PALDATA:
-                lLabelID=C_GetLabelNameOffset(&h_paldata,Bstrtolower(label+(g_numLabels<<6)));
+                labelNum=C_GetLabelNameOffset(&h_paldata,Bstrtolower(label+(g_numLabels<<6)));
                 break;
             }
 
-            if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
+            if (EDUKE32_PREDICT_FALSE(labelNum == -1))
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_NOTAMEMBER);
                 return;
             }
 
-            BITPTR_CLEAR(g_scriptPtr-script);
+            BITPTR_CLEAR(g_scriptPtr-apScript);
 
-            switch (i - g_iStructVarIDs)
+            switch (i - g_structVarIDs)
             {
             case STRUCT_SPRITE:
-                *g_scriptPtr++=ActorLabels[lLabelID].lId;
+                *g_scriptPtr++=ActorLabels[labelNum].lId;
 
-                if (ActorLabels[lLabelID].flags & LABEL_HASPARM2)
+                if (ActorLabels[labelNum].flags & LABEL_HASPARM2)
                     C_GetNextVarType(0);
                 break;
             case STRUCT_SECTOR:
-                *g_scriptPtr++=SectorLabels[lLabelID].lId;
+                *g_scriptPtr++=SectorLabels[labelNum].lId;
                 break;
             case STRUCT_WALL:
-                *g_scriptPtr++=WallLabels[lLabelID].lId;
+                *g_scriptPtr++=WallLabels[labelNum].lId;
                 break;
             case STRUCT_PLAYER:
-                *g_scriptPtr++=PlayerLabels[lLabelID].lId;
+                *g_scriptPtr++=PlayerLabels[labelNum].lId;
 
-                if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2)
+                if (PlayerLabels[labelNum].flags & LABEL_HASPARM2)
                     C_GetNextVarType(0);
                 break;
             case STRUCT_ACTORVAR:
             case STRUCT_PLAYERVAR:
-                *g_scriptPtr++=lLabelID;
+                *g_scriptPtr++=labelNum;
                 break;
             case STRUCT_TSPR:
-                *g_scriptPtr++=TsprLabels[lLabelID].lId;
+                *g_scriptPtr++=TsprLabels[labelNum].lId;
                 break;
             case STRUCT_PROJECTILE:
             case STRUCT_THISPROJECTILE:
-                *g_scriptPtr++=ProjectileLabels[lLabelID].lId;
+                *g_scriptPtr++=ProjectileLabels[labelNum].lId;
                 break;
             case STRUCT_USERDEF:
-                *g_scriptPtr++=UserdefsLabels[lLabelID].lId;
+                *g_scriptPtr++=UserdefsLabels[labelNum].lId;
                 break;
             case STRUCT_INPUT:
-                *g_scriptPtr++=InputLabels[lLabelID].lId;
+                *g_scriptPtr++=InputLabels[labelNum].lId;
                 break;
             case STRUCT_TILEDATA:
-                *g_scriptPtr++=TileDataLabels[lLabelID].lId;
+                *g_scriptPtr++=TileDataLabels[labelNum].lId;
                 break;
             case STRUCT_PALDATA:
-                *g_scriptPtr++=PalDataLabels[lLabelID].lId;
+                *g_scriptPtr++=PalDataLabels[labelNum].lId;
                 break;
             }
         }
@@ -1907,9 +1907,9 @@ static void C_GetNextVarType(int32_t type)
                 {
                     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug)
                         initprintf("%s:%d: debug: label `%s' in place of gamevar.\n",g_szScriptFileName,g_lineNumber,label+(i<<6));
-                    BITPTR_CLEAR(g_scriptPtr-script);
+                    BITPTR_CLEAR(g_scriptPtr-apScript);
                     *g_scriptPtr++ = MAXGAMEVARS;
-                    BITPTR_CLEAR(g_scriptPtr-script);
+                    BITPTR_CLEAR(g_scriptPtr-apScript);
                     *g_scriptPtr++ = labelcode[i];
                     return;
                 }
@@ -1924,13 +1924,13 @@ static void C_GetNextVarType(int32_t type)
         return;
 
     }
-    if (EDUKE32_PREDICT_FALSE(type == GAMEVAR_READONLY && aGameVars[i].nFlags & GAMEVAR_READONLY))
+    if (EDUKE32_PREDICT_FALSE(type == GAMEVAR_READONLY && aGameVars[i].flags & GAMEVAR_READONLY))
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_VARREADONLY);
         return;
     }
-    else if (EDUKE32_PREDICT_FALSE(aGameVars[i].nFlags & type))
+    else if (EDUKE32_PREDICT_FALSE(aGameVars[i].flags & type))
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_VARTYPEMISMATCH);
@@ -1940,7 +1940,7 @@ static void C_GetNextVarType(int32_t type)
     if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
         initprintf("%s:%d: debug: gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
 
-    BITPTR_CLEAR(g_scriptPtr-script);
+    BITPTR_CLEAR(g_scriptPtr-apScript);
     *g_scriptPtr++=(i|f);
 }
 
@@ -1997,14 +1997,14 @@ static int32_t C_GetNextValue(int32_t type)
                 Bfree(gl);
             }
 
-            BITPTR_CLEAR(g_scriptPtr-script);
+            BITPTR_CLEAR(g_scriptPtr-apScript);
             *(g_scriptPtr++) = labelcode[i];
 
             textptr += l;
             return labeltype[i];
         }
 
-        BITPTR_CLEAR(g_scriptPtr-script);
+        BITPTR_CLEAR(g_scriptPtr-apScript);
         *(g_scriptPtr++) = 0;
         textptr += l;
         char *el = C_GetLabelType(type);
@@ -2021,7 +2021,7 @@ static int32_t C_GetNextValue(int32_t type)
     {
         C_ReportError(ERROR_PARAMUNDEFINED);
         g_numCompilerErrors++;
-        BITPTR_CLEAR(g_scriptPtr-script);
+        BITPTR_CLEAR(g_scriptPtr-apScript);
         *g_scriptPtr = 0;
         g_scriptPtr++;
         textptr+=l;
@@ -2049,7 +2049,7 @@ static int32_t C_GetNextValue(int32_t type)
     }
     while (i > 0);
 
-    BITPTR_CLEAR(g_scriptPtr-script);
+    BITPTR_CLEAR(g_scriptPtr-apScript);
 
     if (tolower(textptr[1])=='x')
         *g_scriptPtr = parse_hex_constant(textptr+2);
@@ -2082,8 +2082,8 @@ static int32_t C_GetStructureIndexes(int32_t const labelsonly, hashtable_t const
 
     if (*textptr == ']')
     {
-        BITPTR_CLEAR(g_scriptPtr-script);
-        *g_scriptPtr++ = g_iThisActorID;
+        BITPTR_CLEAR(g_scriptPtr-apScript);
+        *g_scriptPtr++ = g_thisActorVarID;
     }
     else
     {
@@ -2112,16 +2112,16 @@ static int32_t C_GetStructureIndexes(int32_t const labelsonly, hashtable_t const
 
     C_GetNextLabelName();
 
-    int32_t const lLabelID = C_GetLabelNameOffset(table, Bstrtolower(label + (g_numLabels << 6)));
+    int32_t const labelNum = C_GetLabelNameOffset(table, Bstrtolower(label + (g_numLabels << 6)));
 
-    if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
+    if (EDUKE32_PREDICT_FALSE(labelNum == -1))
     {
         g_numCompilerErrors++;
         C_ReportError(ERROR_NOTAMEMBER);
         return -1;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
 static inline int32_t C_IntPow2(int32_t const v)
@@ -2152,7 +2152,7 @@ static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
     case CON_ENDEVENT:
     case CON_ENDS:
     case CON_ELSE:
-        g_scriptPtr = lastScriptPtr + &script[0];
+        g_scriptPtr = lastScriptPtr + &apScript[0];
         g_ifElseAborted = 1;
         C_ReportError(-1);
         g_numCompilerWarnings++;
@@ -2181,7 +2181,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
     {
         C_ReportError(-1);
         g_numCompilerWarnings++;
-        g_scriptPtr = lastScriptPtr + &script[0];
+        g_scriptPtr = lastScriptPtr + &apScript[0];
         initprintf("%s:%d: warning: empty `%s' branch\n",g_szScriptFileName,g_lineNumber,
                    keyw[*(g_scriptPtr) & VM_INSTMASK]);
         *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
@@ -2194,8 +2194,8 @@ static int32_t C_CountCaseStatements()
 {
     char *temptextptr = textptr;
     int32_t temp_ScriptLineNumber = g_lineNumber;
-    intptr_t scriptoffset = (unsigned)(g_scriptPtr-script);
-    intptr_t caseoffset = (unsigned)(g_caseScriptPtr-script);
+    intptr_t scriptoffset = (unsigned)(g_scriptPtr-apScript);
+    intptr_t caseoffset = (unsigned)(g_caseScriptPtr-apScript);
 //    int32_t i;
 
     g_numCases=0;
@@ -2207,13 +2207,13 @@ static int32_t C_CountCaseStatements()
     g_checkingSwitch++;
 
     textptr=temptextptr;
-    g_scriptPtr = (intptr_t *)(script+scriptoffset);
+    g_scriptPtr = (intptr_t *)(apScript+scriptoffset);
 
     g_lineNumber = temp_ScriptLineNumber;
 
     int32_t const lCount=g_numCases;
     g_numCases=0;
-    g_caseScriptPtr = (intptr_t *)(script+caseoffset);
+    g_caseScriptPtr = (intptr_t *)(apScript+caseoffset);
     g_numCases = 0;
     return lCount;
 }
@@ -2336,8 +2336,8 @@ void G_DoGameStartup(const int32_t *params)
 
         if (g_scriptVersion == 14)
         {
-            g_spriteDeleteQueueSize = params[j++];
-            g_spriteDeleteQueueSize = clamp(g_spriteDeleteQueueSize, 0, 1024);
+            g_deleteQueueSize = params[j++];
+            g_deleteQueueSize = clamp(g_deleteQueueSize, 0, 1024);
 
             g_tripbombLaserMode = params[j++];
         }
@@ -2349,7 +2349,7 @@ void C_DefineMusic(int32_t vol, int32_t lev, const char *fn)
     Bassert((unsigned)vol < MAXVOLUMES+1);
     Bassert((unsigned)lev < MAXLEVELS);
 
-    map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
+    map_t *const map = &aMapInfo[(MAXLEVELS*vol)+lev];
 
     Bfree(map->musicfn);
     map->musicfn = dup_filename(fn);
@@ -2384,7 +2384,7 @@ void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
 void C_DefineQuote(int32_t qnum, const char *qstr)
 {
     C_AllocQuote(qnum);
-    Bstrncpyz(ScriptQuotes[qnum], qstr, MAXQUOTELEN);
+    Bstrncpyz(apStrings[qnum], qstr, MAXQUOTELEN);
 }
 
 void C_DefineVolumeName(int32_t vol, const char *name)
@@ -2409,7 +2409,7 @@ void C_DefineLevelName(int32_t vol, int32_t lev, const char *fn,
     Bassert((unsigned)lev < MAXLEVELS);
 
     {
-        map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
+        map_t *const map = &aMapInfo[(MAXLEVELS*vol)+lev];
 
         Bfree(map->filename);
         map->filename = dup_filename(fn);
@@ -2492,7 +2492,7 @@ void C_UndefineLevel(int32_t vol, int32_t lev)
     Bassert((unsigned)vol < MAXVOLUMES);
     Bassert((unsigned)lev < MAXLEVELS);
 
-    map_t *const map = &MapInfo[(MAXLEVELS*vol)+lev];
+    map_t *const map = &aMapInfo[(MAXLEVELS*vol)+lev];
 
     DO_FREE_AND_NULL(map->filename);
     DO_FREE_AND_NULL(map->name);
@@ -2612,9 +2612,9 @@ int32_t C_AllocQuote(int32_t qnum)
 {
     Bassert((unsigned)qnum < MAXQUOTES);
 
-    if (ScriptQuotes[qnum] == NULL)
+    if (apStrings[qnum] == NULL)
     {
-        ScriptQuotes[qnum] = (char *)Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
+        apStrings[qnum] = (char *)Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
         return 1;
     }
 
@@ -2627,13 +2627,13 @@ static void C_ReplaceQuoteSubstring(const size_t q, char const * const query, ch
     size_t querylength = Bstrlen(query);
 
     for (int i = MAXQUOTELEN - querylength - 2; i >= 0; i--)
-        if (Bstrncmp(&ScriptQuotes[q][i], query, querylength) == 0)
+        if (Bstrncmp(&apStrings[q][i], query, querylength) == 0)
         {
             Bmemset(tempbuf, 0, sizeof(tempbuf));
-            Bstrncpy(tempbuf, ScriptQuotes[q], i);
+            Bstrncpy(tempbuf, apStrings[q], i);
             Bstrcat(tempbuf, replacement);
-            Bstrcat(tempbuf, &ScriptQuotes[q][i + querylength]);
-            Bstrncpy(ScriptQuotes[q], tempbuf, MAXQUOTELEN - 1);
+            Bstrcat(tempbuf, &apStrings[q][i + querylength]);
+            Bstrncpy(apStrings[q], tempbuf, MAXQUOTELEN - 1);
             i = MAXQUOTELEN - querylength - 2;
         }
 }
@@ -2644,10 +2644,10 @@ void C_InitQuotes(void)
     for (int i = 0; i < 128; i++) C_AllocQuote(i);
 
 #ifdef EDUKE32_TOUCH_DEVICES
-    ScriptQuotes[QUOTE_DEAD] = 0;
+    apStrings[QUOTE_DEAD] = 0;
 #else
     char const * const replacement_USE = "USE";
-    if (!Bstrstr(ScriptQuotes[QUOTE_DEAD], replacement_USE))
+    if (!Bstrstr(apStrings[QUOTE_DEAD], replacement_USE))
     {
         C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", replacement_USE);
         C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", replacement_USE);
@@ -2725,14 +2725,14 @@ void C_InitQuotes(void)
     for (int i = g_numObituaries - 1; i >= 0; i--)
     {
         if (C_AllocQuote(i + OBITQUOTEINDEX))
-            Bstrcpy(ScriptQuotes[i + OBITQUOTEINDEX], PlayerObituaries[i]);
+            Bstrcpy(apStrings[i + OBITQUOTEINDEX], PlayerObituaries[i]);
     }
 
     g_numSelfObituaries = ARRAY_SIZE(PlayerSelfObituaries);
     for (int i = g_numSelfObituaries - 1; i >= 0; i--)
     {
         if (C_AllocQuote(i + SUICIDEQUOTEINDEX))
-            Bstrcpy(ScriptQuotes[i + SUICIDEQUOTEINDEX], PlayerSelfObituaries[i]);
+            Bstrcpy(apStrings[i + SUICIDEQUOTEINDEX], PlayerSelfObituaries[i]);
     }
 }
 
@@ -2808,7 +2808,7 @@ static inline void C_BitOrNextValue(int32_t *valptr)
 
 static inline void C_FinishBitOr(int32_t value)
 {
-    BITPTR_CLEAR(g_scriptPtr-script);
+    BITPTR_CLEAR(g_scriptPtr-apScript);
     *g_scriptPtr = value;
     g_scriptPtr++;
 }
@@ -2817,9 +2817,9 @@ static void C_FillEventBreakStackWithJump(intptr_t *breakPtr, intptr_t destinati
 {
     while (breakPtr)
     {
-        breakPtr = script + (intptr_t)breakPtr;
+        breakPtr = apScript + (intptr_t)breakPtr;
         intptr_t const tempPtr = *breakPtr;
-        BITPTR_CLEAR(breakPtr-script);
+        BITPTR_CLEAR(breakPtr-apScript);
         *breakPtr = destination;
         breakPtr = (intptr_t *)tempPtr;
     }
@@ -2859,7 +2859,7 @@ static int32_t C_ParseCommand(int32_t loop)
 DO_DEFSTATE:
                 C_GetNextLabelName();
                 g_scriptPtr--;
-                labelcode[g_numLabels] = g_scriptPtr-script;
+                labelcode[g_numLabels] = g_scriptPtr-apScript;
                 labeltype[g_numLabels] = LABEL_STATE;
 
                 g_processingState = 1;
@@ -2902,16 +2902,16 @@ DO_DEFSTATE:
                 g_numCompilerWarnings++;
                 Bfree(gl);
                 *(g_scriptPtr-1) = CON_NULLOP; // get rid of the state, leaving a nullop to satisfy if conditions
-                BITPTR_CLEAR(g_scriptPtr-script-1);
+                BITPTR_CLEAR(g_scriptPtr-apScript-1);
                 continue;  // valid label name, but wrong type
             }
 
             if (!(g_numCompilerErrors || g_numCompilerWarnings) && g_scriptDebug > 1)
                 initprintf("%s:%d: debug: state label `%s'.\n", g_szScriptFileName, g_lineNumber, label+(j<<6));
-            *g_scriptPtr = (intptr_t) (script+labelcode[j]);
+            *g_scriptPtr = (intptr_t) (apScript+labelcode[j]);
 
             // 'state' type labels are always script addresses, as far as I can see
-            BITPTR_SET(g_scriptPtr-script);
+            BITPTR_SET(g_scriptPtr-apScript);
 
             g_scriptPtr++;
             continue;
@@ -2954,13 +2954,13 @@ DO_DEFSTATE:
         case CON_GETTHISPROJECTILE:
         case CON_GETPROJECTILE:
             {
-                int32_t const lLabelID = C_GetStructureIndexes(tw == CON_SETTHISPROJECTILE || tw == CON_GETTHISPROJECTILE, &h_projectile);
+                int32_t const labelNum = C_GetStructureIndexes(tw == CON_SETTHISPROJECTILE || tw == CON_GETTHISPROJECTILE, &h_projectile);
 
-                if (lLabelID == -1)
+                if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=ProjectileLabels[lLabelID].lId;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=ProjectileLabels[labelNum].lId;
 
                 switch (tw)
                 {
@@ -3102,7 +3102,7 @@ DO_DEFSTATE:
 
             while (j>-1)
             {
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++ = 0;
                 j--;
             }
@@ -3114,7 +3114,7 @@ DO_DEFSTATE:
                 if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
                 {
                     C_ReportError(-1);
-                    BITPTR_CLEAR(g_scriptPtr-script-1);
+                    BITPTR_CLEAR(g_scriptPtr-apScript-1);
                     *(g_scriptPtr-1) = 0;
                     initprintf("%s:%d: warning: expected a move, found a constant.\n",g_szScriptFileName,g_lineNumber);
                     g_numCompilerWarnings++;
@@ -3154,7 +3154,7 @@ DO_DEFSTATE:
                 {
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
                     labeltype[g_numLabels] = LABEL_MOVE;
-                    labelcode[g_numLabels++] = g_scriptPtr-script;
+                    labelcode[g_numLabels++] = g_scriptPtr-apScript;
                 }
 
                 for (j=1; j>=0; j--)
@@ -3165,7 +3165,7 @@ DO_DEFSTATE:
 
                 for (k=j; k>=0; k--)
                 {
-                    BITPTR_CLEAR(g_scriptPtr-script);
+                    BITPTR_CLEAR(g_scriptPtr-apScript);
                     *g_scriptPtr = 0;
                     g_scriptPtr++;
                 }
@@ -3277,7 +3277,7 @@ DO_DEFSTATE:
                 {
                     labeltype[g_numLabels] = LABEL_AI;
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
-                    labelcode[g_numLabels++] = g_scriptPtr-script;
+                    labelcode[g_numLabels++] = g_scriptPtr-apScript;
                 }
 
                 for (j=0; j<3; j++)
@@ -3291,7 +3291,7 @@ DO_DEFSTATE:
                             (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
                         {
                             C_ReportError(-1);
-                            BITPTR_CLEAR(g_scriptPtr-script-1);
+                            BITPTR_CLEAR(g_scriptPtr-apScript-1);
                             *(g_scriptPtr-1) = 0;
                             initprintf("%s:%d: warning: expected a move, found a constant.\n",g_szScriptFileName,g_lineNumber);
                             g_numCompilerWarnings++;
@@ -3312,7 +3312,7 @@ DO_DEFSTATE:
 
                 for (k=j; k<3; k++)
                 {
-                    BITPTR_CLEAR(g_scriptPtr-script);
+                    BITPTR_CLEAR(g_scriptPtr-apScript);
                     *g_scriptPtr = 0;
                     g_scriptPtr++;
                 }
@@ -3353,7 +3353,7 @@ DO_DEFSTATE:
                 else
                 {
                     labeltype[g_numLabels] = LABEL_ACTION;
-                    labelcode[g_numLabels] = g_scriptPtr-script;
+                    labelcode[g_numLabels] = g_scriptPtr-apScript;
                     hash_add(&h_labels,label+(g_numLabels<<6),g_numLabels,0);
                     g_numLabels++;
                 }
@@ -3365,7 +3365,7 @@ DO_DEFSTATE:
                 }
                 for (k=j; k>=0; k--)
                 {
-                    BITPTR_CLEAR(g_scriptPtr-script);
+                    BITPTR_CLEAR(g_scriptPtr-apScript);
                     *(g_scriptPtr++) = 0;
                 }
             }
@@ -3382,7 +3382,7 @@ DO_DEFSTATE:
 
             g_numBraces = 0;
             g_scriptPtr--;
-            g_parsingActorPtr = g_scriptPtr - script;
+            g_parsingActorPtr = g_scriptPtr - apScript;
 
             if (tw == CON_USERACTOR)
             {
@@ -3427,12 +3427,12 @@ DO_DEFSTATE:
 
             if (tw == CON_EVENTLOADACTOR)
             {
-                g_tile[*g_scriptPtr].loadPtr = script + g_parsingActorPtr;
+                g_tile[*g_scriptPtr].loadPtr = apScript + g_parsingActorPtr;
                 g_checkingIfElse = 0;
                 continue;
             }
 
-            g_tile[*g_scriptPtr].execPtr = script + g_parsingActorPtr;
+            g_tile[*g_scriptPtr].execPtr = apScript + g_parsingActorPtr;
 
             if (tw == CON_USERACTOR)
             {
@@ -3449,7 +3449,7 @@ DO_DEFSTATE:
             for (j=0; j<4; j++)
             {
                 BITPTR_CLEAR(g_parsingActorPtr+j);
-                *((script+j)+g_parsingActorPtr) = 0;
+                *((apScript+j)+g_parsingActorPtr) = 0;
                 if (j == 3)
                 {
                     j = 0;
@@ -3465,7 +3465,7 @@ DO_DEFSTATE:
                     {
                         for (i=4-j; i; i--)
                         {
-                            BITPTR_CLEAR(g_scriptPtr-script);
+                            BITPTR_CLEAR(g_scriptPtr-apScript);
                             *(g_scriptPtr++) = 0;
                         }
                         break;
@@ -3484,17 +3484,17 @@ DO_DEFSTATE:
                         if (EDUKE32_PREDICT_FALSE((C_GetNextValue(LABEL_MOVE|LABEL_DEFINE) == 0) && (*(g_scriptPtr-1) != 0) && (*(g_scriptPtr-1) != 1)))
                         {
                             C_ReportError(-1);
-                            BITPTR_CLEAR(g_scriptPtr-script-1);
+                            BITPTR_CLEAR(g_scriptPtr-apScript-1);
                             *(g_scriptPtr-1) = 0;
                             initprintf("%s:%d: warning: expected a move, found a constant.\n",g_szScriptFileName,g_lineNumber);
                             g_numCompilerWarnings++;
                         }
                         break;
                     }
-                    if (*(g_scriptPtr-1) >= (intptr_t)&script[0] && *(g_scriptPtr-1) < (intptr_t)&script[g_scriptSize])
+                    if (*(g_scriptPtr-1) >= (intptr_t)&apScript[0] && *(g_scriptPtr-1) < (intptr_t)&apScript[g_scriptSize])
                         BITPTR_SET(g_parsingActorPtr+j);
                     else BITPTR_CLEAR(g_parsingActorPtr+j);
-                    *((script+j)+g_parsingActorPtr) = *(g_scriptPtr-1);
+                    *((apScript+j)+g_parsingActorPtr) = *(g_scriptPtr-1);
                 }
             }
             g_checkingIfElse = 0;
@@ -3510,7 +3510,7 @@ DO_DEFSTATE:
 
             g_numBraces = 0;
             g_scriptPtr--;
-            g_parsingEventPtr = g_parsingActorPtr = g_scriptPtr - script;
+            g_parsingEventPtr = g_parsingActorPtr = g_scriptPtr - apScript;
 
             C_SkipComments();
             j = 0;
@@ -3535,24 +3535,24 @@ DO_DEFSTATE:
                 continue;
             }
             // if event has already been declared then store previous script location
-            if (!apScriptGameEvent[j])
+            if (!apScriptEvents[j])
             {
-                apScriptGameEvent[j] = g_parsingEventPtr;
+                apScriptEvents[j] = g_parsingEventPtr;
             }
             else if (tw == CON_ONEVENT)
             {
-                previous_event = apScriptGameEvent[j];
-                apScriptGameEvent[j] = g_parsingEventPtr;
+                previous_event = apScriptEvents[j];
+                apScriptEvents[j] = g_parsingEventPtr;
             }
             else // if (tw == CON_APPENDEVENT)
             {
-                intptr_t *previous_event_end = script + apScriptGameEventEnd[j];
-                BITPTR_CLEAR(previous_event_end-script);
+                intptr_t *previous_event_end = apScript + apScriptGameEventEnd[j];
+                BITPTR_CLEAR(previous_event_end-apScript);
                 *(previous_event_end++) = CON_JUMP | (g_lineNumber << 12);
-                BITPTR_CLEAR(previous_event_end-script);
+                BITPTR_CLEAR(previous_event_end-apScript);
                 *(previous_event_end++) = MAXGAMEVARS;
                 C_FillEventBreakStackWithJump((intptr_t *)*previous_event_end, g_parsingEventPtr);
-                BITPTR_CLEAR(previous_event_end-script);
+                BITPTR_CLEAR(previous_event_end-apScript);
                 *(previous_event_end++) = g_parsingEventPtr;
             }
 
@@ -3666,7 +3666,7 @@ DO_DEFSTATE:
                     continue;
                 }
 
-                intptr_t const lastScriptPtr = g_scriptPtr - script - 1;
+                intptr_t const lastScriptPtr = g_scriptPtr - apScript - 1;
 
                 g_ifElseAborted = 0;
                 g_checkingIfElse--;
@@ -3674,7 +3674,7 @@ DO_DEFSTATE:
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                intptr_t const offset = (unsigned) (g_scriptPtr-script);
+                intptr_t const offset = (unsigned) (g_scriptPtr-apScript);
 
                 g_scriptPtr++; //Leave a spot for the fail location
 
@@ -3683,9 +3683,9 @@ DO_DEFSTATE:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                intptr_t *tempscrptr = (intptr_t *) script+offset;
+                intptr_t *tempscrptr = (intptr_t *) apScript+offset;
                 *tempscrptr = (intptr_t) g_scriptPtr;
-                BITPTR_SET(tempscrptr-script);
+                BITPTR_SET(tempscrptr-apScript);
 
                 continue;
             }
@@ -3693,13 +3693,13 @@ DO_DEFSTATE:
         case CON_SETSECTOR:
         case CON_GETSECTOR:
             {
-                int32_t const lLabelID = C_GetStructureIndexes(1, &h_sector);
+                int32_t const labelNum = C_GetStructureIndexes(1, &h_sector);
 
-                if (lLabelID == -1)
+                if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=SectorLabels[lLabelID].lId;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=SectorLabels[labelNum].lId;
 
                 C_GetNextVarType((tw == CON_GETSECTOR) ? GAMEVAR_READONLY : 0);
                 continue;
@@ -3763,13 +3763,13 @@ DO_DEFSTATE:
         case CON_SETWALL:
         case CON_GETWALL:
             {
-                int32_t const lLabelID = C_GetStructureIndexes(1, &h_wall);
+                int32_t const labelNum = C_GetStructureIndexes(1, &h_wall);
 
-                if (lLabelID == -1)
+                if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=WallLabels[lLabelID].lId;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=WallLabels[labelNum].lId;
 
                 C_GetNextVarType((tw == CON_GETWALL) ? GAMEVAR_READONLY : 0);
                 continue;
@@ -3778,15 +3778,15 @@ DO_DEFSTATE:
         case CON_SETPLAYER:
         case CON_GETPLAYER:
             {
-                int32_t const lLabelID = C_GetStructureIndexes(1, &h_player);
+                int32_t const labelNum = C_GetStructureIndexes(1, &h_player);
 
-                if (lLabelID == -1)
+                if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=PlayerLabels[lLabelID].lId;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=PlayerLabels[labelNum].lId;
 
-                if (PlayerLabels[lLabelID].flags & LABEL_HASPARM2)
+                if (PlayerLabels[labelNum].flags & LABEL_HASPARM2)
                     C_GetNextVar();
 
                 C_GetNextVarType((tw == CON_GETPLAYER) ? GAMEVAR_READONLY : 0);
@@ -3796,13 +3796,13 @@ DO_DEFSTATE:
         case CON_SETINPUT:
         case CON_GETINPUT:
             {
-                int32_t const lLabelID = C_GetStructureIndexes(1, &h_input);
+                int32_t const labelNum = C_GetStructureIndexes(1, &h_input);
 
-                if (lLabelID == -1)
+                if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=InputLabels[lLabelID].lId;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=InputLabels[labelNum].lId;
 
                 C_GetNextVarType(tw == CON_GETINPUT ? GAMEVAR_READONLY : 0);
                 continue;
@@ -3829,16 +3829,16 @@ DO_DEFSTATE:
                 textptr++;
                 C_GetNextLabelName();
 
-                int32_t const lLabelID=C_GetLabelNameID(UserdefsLabels,&h_userdef,Bstrtolower(label+(g_numLabels<<6)));
+                int32_t const labelNum=C_GetLabelNameID(UserdefsLabels,&h_userdef,Bstrtolower(label+(g_numLabels<<6)));
 
-                if (EDUKE32_PREDICT_FALSE(lLabelID == -1))
+                if (EDUKE32_PREDICT_FALSE(labelNum == -1))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_NOTAMEMBER);
                     continue;
                 }
-                BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=lLabelID;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=labelNum;
 
                 C_GetNextVarType((tw == CON_GETUSERDEF) ? GAMEVAR_READONLY : 0);
                 continue;
@@ -3855,7 +3855,7 @@ DO_DEFSTATE:
                 if (C_GetStructureIndexes(1, NULL) == -1)
                     continue;
 
-                if (g_scriptPtr[-1] == g_iThisActorID) // convert to "setvarvar"
+                if (g_scriptPtr[-1] == g_thisActorVarID) // convert to "setvarvar"
                 {
                     g_scriptPtr--;
                     g_scriptPtr[-1]=CON_SETVARVAR;
@@ -3894,7 +3894,7 @@ DO_DEFSTATE:
                     C_ReportError(ERROR_NOTAGAMEVAR);
                     continue;
                 }
-                if (EDUKE32_PREDICT_FALSE(aGameVars[i].nFlags & GAMEVAR_READONLY))
+                if (EDUKE32_PREDICT_FALSE(aGameVars[i].flags & GAMEVAR_READONLY))
                 {
                     g_numCompilerErrors++;
                     C_ReportError(ERROR_VARREADONLY);
@@ -3904,7 +3904,7 @@ DO_DEFSTATE:
                 switch (tw)
                 {
                 case CON_SETACTORVAR:
-                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].nFlags & GAMEVAR_PERACTOR)))
+                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].flags & GAMEVAR_PERACTOR)))
                         {
                             g_numCompilerErrors++;
                             C_ReportError(-1);
@@ -3913,7 +3913,7 @@ DO_DEFSTATE:
                         }
                         break;
                 case CON_SETPLAYERVAR:
-                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].nFlags & GAMEVAR_PERPLAYER)))
+                        if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].flags & GAMEVAR_PERPLAYER)))
                         {
                             g_numCompilerErrors++;
                             C_ReportError(-1);
@@ -3923,7 +3923,7 @@ DO_DEFSTATE:
                         break;
                 }
 
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++=i; // the ID of the DEF (offset into array...)
 
                 switch (tw)
@@ -3942,15 +3942,15 @@ DO_DEFSTATE:
         case CON_SETACTOR:
         case CON_GETACTOR:
             {
-                int32_t const lLabelID = C_GetStructureIndexes(1, &h_actor);
+                int32_t const labelNum = C_GetStructureIndexes(1, &h_actor);
 
-                if (lLabelID == -1)
+                if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=ActorLabels[lLabelID].lId;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=ActorLabels[labelNum].lId;
 
-                if (ActorLabels[lLabelID].flags & LABEL_HASPARM2)
+                if (ActorLabels[labelNum].flags & LABEL_HASPARM2)
                     C_GetNextVar();
 
                 C_GetNextVarType((tw == CON_GETACTOR) ? GAMEVAR_READONLY : 0);
@@ -3968,13 +3968,13 @@ DO_DEFSTATE:
                     g_numCompilerWarnings++;
                 }
 #endif
-                int32_t const lLabelID = C_GetStructureIndexes(1, &h_tsprite);
+                int32_t const labelNum = C_GetStructureIndexes(1, &h_tsprite);
 
-                if (lLabelID == -1)
+                if (labelNum == -1)
                     continue;
 
-                BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=TsprLabels[lLabelID].lId;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=TsprLabels[labelNum].lId;
 
                 C_GetNextVarType((tw == CON_GETTSPR) ? GAMEVAR_READONLY : 0);
                 continue;
@@ -4192,7 +4192,7 @@ DO_DEFSTATE:
                 return 1;
             }
 
-            BITPTR_CLEAR(g_scriptPtr-script);
+            BITPTR_CLEAR(g_scriptPtr-apScript);
             *g_scriptPtr++=i;
 
             C_GetNextValue(LABEL_DEFINE);
@@ -4207,7 +4207,7 @@ DO_DEFSTATE:
                 C_ReportError(ERROR_NOTAGAMEARRAY);
                 return 1;
             }
-            BITPTR_CLEAR(g_scriptPtr-script);
+            BITPTR_CLEAR(g_scriptPtr-apScript);
             *g_scriptPtr++=i;
             C_SkipComments();// skip comments and whitespace
             if (EDUKE32_PREDICT_FALSE(*textptr != '['))
@@ -4236,10 +4236,10 @@ DO_DEFSTATE:
                 return 1;
             }
 
-            BITPTR_CLEAR(g_scriptPtr-script);
+            BITPTR_CLEAR(g_scriptPtr-apScript);
             *g_scriptPtr++=i;
 
-            if (EDUKE32_PREDICT_FALSE(aGameArrays[i].nFlags & GAMEARRAY_READONLY))
+            if (EDUKE32_PREDICT_FALSE(aGameArrays[i].flags & GAMEARRAY_READONLY))
             {
                 C_ReportError(ERROR_ARRAYREADONLY);
                 g_numCompilerErrors++;
@@ -4277,9 +4277,9 @@ DO_DEFSTATE:
                 return 1;
             }
 
-            BITPTR_CLEAR(g_scriptPtr-script);
+            BITPTR_CLEAR(g_scriptPtr-apScript);
             *g_scriptPtr++ = i;
-            if (tw==CON_RESIZEARRAY && (aGameArrays[i].nFlags & GAMEARRAY_TYPE_MASK))
+            if (tw==CON_RESIZEARRAY && (aGameArrays[i].flags & GAMEARRAY_TYPE_MASK))
             {
                 C_ReportError(-1);
                 initprintf("can't resize system array `%s'.", label+(g_numLabels<<6));
@@ -4496,7 +4496,7 @@ DO_DEFSTATE:
         case CON_WHILEVARVARL:
             {
                 intptr_t offset;
-                intptr_t lastScriptPtr = g_scriptPtr - &script[0] - 1;
+                intptr_t lastScriptPtr = g_scriptPtr - &apScript[0] - 1;
 
                 g_ifElseAborted = 0;
 
@@ -4505,7 +4505,7 @@ DO_DEFSTATE:
                 if (C_CheckMalformedBranch(lastScriptPtr))
                     continue;
 
-                offset = (unsigned)(g_scriptPtr-script);
+                offset = (unsigned)(g_scriptPtr-apScript);
                 g_scriptPtr++; // Leave a spot for the fail location
 
                 C_ParseCommand(0);
@@ -4513,9 +4513,9 @@ DO_DEFSTATE:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                intptr_t *tempscrptr = (intptr_t *)script+offset;
+                intptr_t *tempscrptr = (intptr_t *)apScript+offset;
                 *tempscrptr = (intptr_t) g_scriptPtr;
-                BITPTR_SET(tempscrptr-script);
+                BITPTR_SET(tempscrptr-apScript);
 
                 if (tw != CON_WHILEVARVARN)
                 {
@@ -4546,7 +4546,7 @@ DO_DEFSTATE:
         case CON_WHILEVARN:
         case CON_WHILEVARL:
             {
-                intptr_t lastScriptPtr = (g_scriptPtr-script-1);
+                intptr_t lastScriptPtr = (g_scriptPtr-apScript-1);
 
                 g_ifElseAborted = 0;
                 // get the ID of the DEF
@@ -4557,7 +4557,7 @@ DO_DEFSTATE:
                     continue;
 
                 intptr_t *tempscrptr = g_scriptPtr;
-                intptr_t offset = (unsigned)(tempscrptr-script);
+                intptr_t offset = (unsigned)(tempscrptr-apScript);
                 g_scriptPtr++; //Leave a spot for the fail location
 
                 C_ParseCommand(0);
@@ -4565,9 +4565,9 @@ DO_DEFSTATE:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                tempscrptr = (intptr_t *)script+offset;
+                tempscrptr = (intptr_t *)apScript+offset;
                 *tempscrptr = (intptr_t) g_scriptPtr;
-                BITPTR_SET(tempscrptr-script);
+                BITPTR_SET(tempscrptr-apScript);
 
                 if (tw != CON_WHILEVARN && tw != CON_WHILEVARL)
                 {
@@ -4597,13 +4597,13 @@ DO_DEFSTATE:
             if (how >= ITER_SPRITESOFSECTOR)
                 C_GetNextVar();
 
-            intptr_t offset = g_scriptPtr-script;
+            intptr_t offset = g_scriptPtr-apScript;
             g_scriptPtr++; //Leave a spot for the location to jump to after completion
 
             C_ParseCommand(0);
 
-            intptr_t *tscrptr = (intptr_t *) script+offset;
-            *tscrptr = (g_scriptPtr-script)-offset;  // relative offset
+            intptr_t *tscrptr = (intptr_t *) apScript+offset;
+            *tscrptr = (g_scriptPtr-apScript)-offset;  // relative offset
             continue;
         }
 
@@ -4780,13 +4780,13 @@ DO_DEFSTATE:
                 C_GetNextVar();
 
                 intptr_t *tempscrptr= g_scriptPtr;
-                tempoffset = (unsigned)(tempscrptr-script);
-                BITPTR_CLEAR(g_scriptPtr-script);
+                tempoffset = (unsigned)(tempscrptr-apScript);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++=0; // leave spot for end location (for after processing)
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++=0; // count of case statements
                 g_caseScriptPtr=g_scriptPtr;        // the first case's pointer.
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++=0; // leave spot for 'default' location (null if none)
 
 //                temptextptr=textptr;
@@ -4797,7 +4797,7 @@ DO_DEFSTATE:
                 g_scriptPtr+=j*2;
                 C_SkipComments();
                 g_scriptPtr-=j*2; // allocate buffer for the table
-                tempscrptr = (intptr_t *)(script+tempoffset);
+                tempscrptr = (intptr_t *)(apScript+tempoffset);
 
                 //AddLog(g_szBuf);
 
@@ -4819,16 +4819,16 @@ DO_DEFSTATE:
                 while (j--)
                 {
                     // leave room for statements
-                    BITPTR_CLEAR(g_scriptPtr-script);
+                    BITPTR_CLEAR(g_scriptPtr-apScript);
                     *g_scriptPtr++=0; // value check
-                    BITPTR_CLEAR(g_scriptPtr-script);
+                    BITPTR_CLEAR(g_scriptPtr-apScript);
                     *g_scriptPtr++=0; // code offset
                     C_SkipComments();
                 }
 
                 g_numCases=0;
                 C_ParseCommand(1);
-                tempscrptr = (intptr_t *)(script+tempoffset);
+                tempscrptr = (intptr_t *)(apScript+tempoffset);
 
                 //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr);
                 //AddLog(g_szBuf);
@@ -4854,7 +4854,7 @@ DO_DEFSTATE:
                             }
                     }
                     //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
-                    tempscrptr[0]= (intptr_t)g_scriptPtr - (intptr_t)&script[0];    // save 'end' location
+                    tempscrptr[0]= (intptr_t)g_scriptPtr - (intptr_t)&apScript[0];    // save 'end' location
                     //            BITPTR_POINTER_SET(tempscrptr-script);
                 }
                 else
@@ -4922,7 +4922,7 @@ repeatcase:
                             C_ReportError(-1);
                             initprintf("%s:%d: error: multiple `default' statements found in switch\n", g_szScriptFileName, g_lineNumber);
                         }
-                        g_caseScriptPtr[0]=(intptr_t) (g_scriptPtr-&script[0]);   // save offset
+                        g_caseScriptPtr[0]=(intptr_t) (g_scriptPtr-&apScript[0]);   // save offset
                     }
                     else
                     {
@@ -4934,7 +4934,7 @@ repeatcase:
                                 break;
                             }
                         g_caseScriptPtr[g_numCases++]=j;
-                        g_caseScriptPtr[g_numCases]=(intptr_t) ((intptr_t *) g_scriptPtr-&script[0]);
+                        g_caseScriptPtr[g_numCases]=(intptr_t) ((intptr_t *) g_scriptPtr-&apScript[0]);
                     }
                 }
 
@@ -4948,7 +4948,7 @@ repeatcase:
                     goto repeatcase;
                 }
 
-                tempoffset = (unsigned)(tempscrptr-script);
+                tempoffset = (unsigned)(tempscrptr-apScript);
 
                 while (C_ParseCommand(0) == 0)
                 {
@@ -4957,7 +4957,7 @@ repeatcase:
                     if (j == CON_CASE || j == CON_DEFAULT)
                     {
                         C_GetNextKeyword();    // eat keyword
-                        tempscrptr = (intptr_t *)(script+tempoffset);
+                        tempscrptr = (intptr_t *)(apScript+tempoffset);
                         tw = j;
                         goto repeatcase;
                     }
@@ -5042,7 +5042,7 @@ repeatcase:
         case CON_IFCUTSCENE:
             {
                 intptr_t offset;
-                intptr_t lastScriptPtr = (g_scriptPtr-&script[0]-1);
+                intptr_t lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
 
                 g_ifElseAborted = 0;
 
@@ -5088,7 +5088,7 @@ repeatcase:
                     continue;
 
                 intptr_t *tempscrptr = g_scriptPtr;
-                offset = (unsigned)(tempscrptr-script);
+                offset = (unsigned)(tempscrptr-apScript);
 
                 g_scriptPtr++; //Leave a spot for the fail location
 
@@ -5097,9 +5097,9 @@ repeatcase:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                tempscrptr = (intptr_t *)script+offset;
+                tempscrptr = (intptr_t *)apScript+offset;
                 *tempscrptr = (intptr_t) g_scriptPtr;
-                BITPTR_SET(tempscrptr-script);
+                BITPTR_SET(tempscrptr-apScript);
 
                 j = C_GetKeyword();
 
@@ -5132,7 +5132,7 @@ repeatcase:
         case CON_IFNOSOUNDS:
             {
                 intptr_t offset;
-                intptr_t lastScriptPtr = (g_scriptPtr-&script[0]-1);
+                intptr_t lastScriptPtr = (g_scriptPtr-&apScript[0]-1);
 
                 g_ifElseAborted = 0;
 
@@ -5140,7 +5140,7 @@ repeatcase:
                     continue;
 
                 intptr_t *tempscrptr = g_scriptPtr;
-                offset = (unsigned)(tempscrptr-script);
+                offset = (unsigned)(tempscrptr-apScript);
 
                 g_scriptPtr++; //Leave a spot for the fail location
 
@@ -5149,9 +5149,9 @@ repeatcase:
                 if (C_CheckEmptyBranch(tw, lastScriptPtr))
                     continue;
 
-                tempscrptr = (intptr_t *)script+offset;
+                tempscrptr = (intptr_t *)apScript+offset;
                 *tempscrptr = (intptr_t) g_scriptPtr;
-                BITPTR_SET(tempscrptr-script);
+                BITPTR_SET(tempscrptr-apScript);
 
                 j = C_GetKeyword();
 
@@ -5581,16 +5581,16 @@ repeatcase:
 
             Bcorrectfilename(tempbuf,0);
 
-            if (MapInfo[j *MAXLEVELS+k].filename == NULL)
-                MapInfo[j *MAXLEVELS+k].filename = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
-            else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].filename))
-                MapInfo[j *MAXLEVELS+k].filename = (char *)Xrealloc(MapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
+            if (aMapInfo[j *MAXLEVELS+k].filename == NULL)
+                aMapInfo[j *MAXLEVELS+k].filename = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
+            else if ((Bstrlen(tempbuf)+1) > sizeof(aMapInfo[j*MAXLEVELS+k].filename))
+                aMapInfo[j *MAXLEVELS+k].filename = (char *)Xrealloc(aMapInfo[j*MAXLEVELS+k].filename,(Bstrlen(tempbuf)+1));
 
-            Bstrcpy(MapInfo[j*MAXLEVELS+k].filename,tempbuf);
+            Bstrcpy(aMapInfo[j*MAXLEVELS+k].filename,tempbuf);
 
             C_SkipComments();
 
-            MapInfo[j *MAXLEVELS+k].partime =
+            aMapInfo[j *MAXLEVELS+k].partime =
                 (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
                 (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
@@ -5600,7 +5600,7 @@ repeatcase:
             // cheap hack, 0.99 doesn't have the 3D Realms time
             if (*(textptr+2) == ':')
             {
-                MapInfo[j *MAXLEVELS+k].designertime =
+                aMapInfo[j *MAXLEVELS+k].designertime =
                     (((*(textptr+0)-'0')*10+(*(textptr+1)-'0'))*REALGAMETICSPERSEC*60)+
                     (((*(textptr+3)-'0')*10+(*(textptr+4)-'0'))*REALGAMETICSPERSEC);
 
@@ -5627,14 +5627,14 @@ repeatcase:
 
             tempbuf[i] = '\0';
 
-            if (MapInfo[j*MAXLEVELS+k].name == NULL)
-                MapInfo[j*MAXLEVELS+k].name = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
-            else if ((Bstrlen(tempbuf)+1) > sizeof(MapInfo[j*MAXLEVELS+k].name))
-                MapInfo[j *MAXLEVELS+k].name = (char *)Xrealloc(MapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
+            if (aMapInfo[j*MAXLEVELS+k].name == NULL)
+                aMapInfo[j*MAXLEVELS+k].name = (char *)Xcalloc(Bstrlen(tempbuf)+1,sizeof(uint8_t));
+            else if ((Bstrlen(tempbuf)+1) > sizeof(aMapInfo[j*MAXLEVELS+k].name))
+                aMapInfo[j *MAXLEVELS+k].name = (char *)Xrealloc(aMapInfo[j*MAXLEVELS+k].name,(Bstrlen(tempbuf)+1));
 
             /*         initprintf("level name string len: %d\n",Bstrlen(tempbuf)); */
 
-            Bstrcpy(MapInfo[j*MAXLEVELS+k].name,tempbuf);
+            Bstrcpy(aMapInfo[j*MAXLEVELS+k].name,tempbuf);
 
             continue;
 
@@ -5668,8 +5668,8 @@ repeatcase:
 
             if (tw == CON_REDEFINEQUOTE)
             {
-                if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
-                    ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = (char *)Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
+                if (apXStrings[g_numXStrings] == NULL)
+                    apXStrings[g_numXStrings] = (char *)Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
             }
 
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
@@ -5684,9 +5684,9 @@ repeatcase:
                 }
                 */
                 if (tw == CON_DEFINEQUOTE)
-                    *(ScriptQuotes[k]+i) = *textptr;
+                    *(apStrings[k]+i) = *textptr;
                 else
-                    *(ScriptQuoteRedefinitions[g_numQuoteRedefinitions]+i) = *textptr;
+                    *(apXStrings[g_numXStrings]+i) = *textptr;
                 textptr++,i++;
                 if (EDUKE32_PREDICT_FALSE(i >= MAXQUOTELEN-1))
                 {
@@ -5700,14 +5700,14 @@ repeatcase:
             if (tw == CON_DEFINEQUOTE)
             {
                 if ((unsigned)k < MAXQUOTES)
-                    *(ScriptQuotes[k]+i) = '\0';
+                    *(apStrings[k]+i) = '\0';
             }
             else
             {
-                *(ScriptQuoteRedefinitions[g_numQuoteRedefinitions]+i) = '\0';
-                BITPTR_CLEAR(g_scriptPtr-script);
-                *g_scriptPtr++=g_numQuoteRedefinitions;
-                g_numQuoteRedefinitions++;
+                *(apXStrings[g_numXStrings]+i) = '\0';
+                BITPTR_CLEAR(g_scriptPtr-apScript);
+                *g_scriptPtr++=g_numXStrings;
+                g_numXStrings++;
             }
             continue;
 
@@ -5848,13 +5848,13 @@ repeatcase:
             if (previous_event)
             {
                 g_scriptPtr--;
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = CON_JUMP | (g_lineNumber << 12);
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = MAXGAMEVARS;
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = previous_event;
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
 
                 C_FillEventBreakStackWithJump((intptr_t *)g_parsingEventBreakPtr, previous_event);
@@ -5864,12 +5864,12 @@ repeatcase:
             else
             {
                 // pad space for the next potential appendevent
-                apScriptGameEventEnd[g_currentEvent] = (g_scriptPtr-1)-script;
-                BITPTR_CLEAR(g_scriptPtr-script);
+                apScriptGameEventEnd[g_currentEvent] = (g_scriptPtr-1)-apScript;
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = g_parsingEventBreakPtr;
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = CON_ENDEVENT | (g_lineNumber << 12);
             }
 
@@ -5921,13 +5921,13 @@ repeatcase:
             else if (g_parsingEventPtr)
             {
                 g_scriptPtr--;
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = CON_JUMP | (g_lineNumber << 12);
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *(g_scriptPtr++) = MAXGAMEVARS;
-                BITPTR_CLEAR(g_scriptPtr-script);
+                BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr = g_parsingEventBreakPtr;
-                g_parsingEventBreakPtr = g_scriptPtr++ - script;
+                g_parsingEventBreakPtr = g_scriptPtr++ - apScript;
             }
             continue;
 
@@ -6229,14 +6229,14 @@ void C_PrintStats(void)
             MAXSPRITES * sizeof(spritetype)/(1<<6)),
         g_gameVarCount, MAXGAMEVARS, g_gameArrayCount, MAXGAMEARRAYS);
 
-    if (g_numQuoteRedefinitions)
-        initprintf("%d strings, ", g_numQuoteRedefinitions);
+    if (g_numXStrings)
+        initprintf("%d strings, ", g_numXStrings);
 
     int i, j;
 
     for (i=MAXQUOTES-1, j=0; i>=0; i--)
     {
-        if (ScriptQuotes[i])
+        if (apStrings[i])
             j++;
     }
 
@@ -6244,7 +6244,7 @@ void C_PrintStats(void)
 
     for (i=MAXGAMEEVENTS-1, j=0; i>=0; i--)
     {
-        if (apScriptGameEvent[i])
+        if (apScriptEvents[i])
             j++;
     }
     if (j) initprintf("%d events, ", j);
@@ -6263,7 +6263,7 @@ void C_Compile(const char *filenam)
 {
     int32_t i;
 
-    Bmemset(apScriptGameEvent, 0, sizeof(apScriptGameEvent));
+    Bmemset(apScriptEvents, 0, sizeof(apScriptEvents));
     Bmemset(apScriptGameEventEnd, 0, sizeof(apScriptGameEventEnd));
 
     for (i=MAXTILES-1; i>=0; i--)
@@ -6313,14 +6313,14 @@ void C_Compile(const char *filenam)
     kread(fp,(char *)textptr,fs);
     kclose(fp);
 
-    Bfree(script);
+    Bfree(apScript);
 
-    script = (intptr_t *)Xcalloc(1,g_scriptSize * sizeof(intptr_t));
+    apScript = (intptr_t *)Xcalloc(1,g_scriptSize * sizeof(intptr_t));
     bitptr = (char *)Xcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
 //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
     g_numLabels = g_numDefaultLabels = 0;
-    g_scriptPtr = script+3;  // move permits constants 0 and 1; moveptr[1] would be script[2] (reachable?)
+    g_scriptPtr = apScript+3;  // move permits constants 0 and 1; moveptr[1] would be script[2] (reachable?)
     g_numCompilerWarnings = 0;
     g_numCompilerErrors = 0;
     g_lineNumber = 1;
@@ -6389,14 +6389,14 @@ void C_Compile(const char *filenam)
     {
         for (i = 0; i < MAXEVENTS; ++i)
         {
-            intptr_t *eventEnd = script + apScriptGameEventEnd[i];
+            intptr_t *eventEnd = apScript + apScriptGameEventEnd[i];
             if (eventEnd)
             {
                 // C_FillEventBreakStackWithEndEvent
                 intptr_t *breakPtr = (intptr_t*)*(eventEnd + 2);
                 while (breakPtr)
                 {
-                    breakPtr = script + (intptr_t)breakPtr;
+                    breakPtr = apScript + (intptr_t)breakPtr;
                     *(breakPtr-2) = CON_ENDEVENT | (g_lineNumber << 12);
                     breakPtr = (intptr_t*)*breakPtr;
                 }
@@ -6405,10 +6405,10 @@ void C_Compile(const char *filenam)
 
         g_totalLines += g_lineNumber;
 
-        C_SetScriptSize(g_scriptPtr-script+8);
+        C_SetScriptSize(g_scriptPtr-apScript+8);
 
         initprintf("Script compiled in %dms, %ld bytes%s\n", getticks() - startcompiletime,
-                   (unsigned long)(g_scriptPtr-script), C_ScriptVersionString(g_scriptVersion));
+                   (unsigned long)(g_scriptPtr-apScript), C_ScriptVersionString(g_scriptVersion));
 
         for (i=0; (unsigned)i < ARRAY_SIZE(tables_free); i++)
             hash_free(tables_free[i]);

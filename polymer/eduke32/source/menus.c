@@ -1460,8 +1460,8 @@ void M_Init(void)
         MEOS_NETOPTIONS_LEVEL[i] = MEOS_NETOPTIONS_LEVEL_TEMPLATE;
         for (j = 0; j < MAXLEVELS; ++j)
         {
-            MEOSN_NetLevels[i][j] = MapInfo[MAXLEVELS*i+j].name;
-            if (MapInfo[i*MAXLEVELS+j].filename != NULL)
+            MEOSN_NetLevels[i][j] = aMapInfo[MAXLEVELS*i+j].name;
+            if (aMapInfo[i*MAXLEVELS+j].filename != NULL)
                 MEOS_NETOPTIONS_LEVEL[i].numOptions = j+1;
         }
         MEOS_NETOPTIONS_LEVEL[i].optionNames = MEOSN_NetLevels[i];
@@ -1830,9 +1830,9 @@ static void M_PreMenu(MenuID_t cm)
         // refresh display names of quote cheats
         if (!DUKEBETA)
         {
-            ME_CheatCodes[CHEATFUNC_QUOTEBETA].name = ScriptQuotes[QUOTE_CHEAT_BETA];
-            ME_CheatCodes[CHEATFUNC_QUOTETODD].name = NAM ? g_NAMMattCheatQuote : ScriptQuotes[QUOTE_CHEAT_TODD];
-            ME_CheatCodes[CHEATFUNC_QUOTEALLEN].name = ScriptQuotes[QUOTE_CHEAT_ALLEN];
+            ME_CheatCodes[CHEATFUNC_QUOTEBETA].name = apStrings[QUOTE_CHEAT_BETA];
+            ME_CheatCodes[CHEATFUNC_QUOTETODD].name = NAM ? g_NAMMattCheatQuote : apStrings[QUOTE_CHEAT_TODD];
+            ME_CheatCodes[CHEATFUNC_QUOTEALLEN].name = apStrings[QUOTE_CHEAT_ALLEN];
         }
 
         MenuEntry_DisableOnCondition(&ME_ENTERCHEAT, (cl_cheatmask == UINT32_MAX));
@@ -1927,7 +1927,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         mminitext(origin.x + ((90+60)<<16), origin.y + (90<<16), GametypeNames[ud.m_coop], 0);
 
         mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8)<<16), EpisodeNames[ud.m_volume_number], 0);
-        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8)<<16), MapInfo[MAXLEVELS*ud.m_volume_number+ud.m_level_number].name, 0);
+        mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8)<<16), aMapInfo[MAXLEVELS*ud.m_volume_number+ud.m_level_number].name, 0);
         if (ud.m_monsters_off == 0 || ud.m_player_skill > 0)
             mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), SkillNames[ud.m_player_skill], 0);
         else mminitext(origin.x + ((90+60)<<16), origin.y + ((90+8+8+8)<<16), "None", 0);
@@ -2029,7 +2029,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             }
 
             {
-                const char *name = MapInfo[(savehead.volnum*MAXLEVELS) + savehead.levnum].name;
+                const char *name = aMapInfo[(savehead.volnum*MAXLEVELS) + savehead.levnum].name;
                 Bsprintf(tempbuf, "%s / %s", name ? name : "^10unnamed^0", SkillNames[savehead.skill-1]);
             }
 
@@ -2083,7 +2083,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             mgametextcenter(origin.x, origin.y + (156<<16), tempbuf);
         }
 
-        Bsprintf(tempbuf,"%s / %s",MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
+        Bsprintf(tempbuf,"%s / %s",aMapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
         mgametextcenter(origin.x, origin.y + (168<<16), tempbuf);
         if (ud.volume_number == 0 && ud.level_number == 7)
             mgametextcenter(origin.x, origin.y + (180<<16), currentboardfilename);
@@ -2104,7 +2104,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         if (g_oldverSavegame[M_LOAD.currentEntry])
         {
             mgametextcenter(origin.x, origin.y + (90<<16), "Start new game:");
-            Bsprintf(tempbuf,"%s / %s",MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
+            Bsprintf(tempbuf,"%s / %s",aMapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, SkillNames[ud.player_skill-1]);
             mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
         }
         else
@@ -2567,7 +2567,7 @@ static int32_t M_Cheat_Warp(char const * const numbers)
     osdcmd_cheatsinfo_stat.level--;
 
     if ((VOLUMEONE && osdcmd_cheatsinfo_stat.volume > 0) || osdcmd_cheatsinfo_stat.volume > g_numVolumes-1 ||
-            osdcmd_cheatsinfo_stat.level >= MAXLEVELS || MapInfo[osdcmd_cheatsinfo_stat.volume *MAXLEVELS+osdcmd_cheatsinfo_stat.level].filename == NULL)
+            osdcmd_cheatsinfo_stat.level >= MAXLEVELS || aMapInfo[osdcmd_cheatsinfo_stat.volume *MAXLEVELS+osdcmd_cheatsinfo_stat.level].filename == NULL)
         return 1;
 
     osdcmd_cheatsinfo_stat.cheatnum = CHEAT_SCOTTY;
@@ -3064,7 +3064,7 @@ static int32_t M_MenuEntryStringSubmit(MenuEntry_t *entry, char *input)
             save_xxh == XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], MAXSAVEGAMENAME-3, 0xDEADBEEF)))
 #endif
         {
-            Bstrncpy(&ud.savegame[M_SAVE.currentEntry][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME-3);
+            Bstrncpy(&ud.savegame[M_SAVE.currentEntry][0], aMapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME-3);
             ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] = 127;
             returnvar = -1;
         }

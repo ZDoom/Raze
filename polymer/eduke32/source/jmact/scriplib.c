@@ -73,17 +73,17 @@ void SCRIPT_Delete(int32_t scripthandle)
 
     if (!SC(scripthandle)) return;
 
-    if (SCRIPT(scripthandle,script))
+    if (SCRIPT(scripthandle,apScript))
     {
-        while (SCRIPT(scripthandle,script)->nextsection != SCRIPT(scripthandle,script))
+        while (SCRIPT(scripthandle,apScript)->nextsection != SCRIPT(scripthandle,apScript))
         {
-            s = SCRIPT(scripthandle,script)->nextsection;
-            SCRIPT_FreeSection(SCRIPT(scripthandle,script));
-            Bfree(SCRIPT(scripthandle,script));
-            SCRIPT(scripthandle,script) = s;
+            s = SCRIPT(scripthandle,apScript)->nextsection;
+            SCRIPT_FreeSection(SCRIPT(scripthandle,apScript));
+            Bfree(SCRIPT(scripthandle,apScript));
+            SCRIPT(scripthandle,apScript) = s;
         }
 
-        Bfree(SCRIPT(scripthandle,script));
+        Bfree(SCRIPT(scripthandle,apScript));
     }
 
     Bfree(SC(scripthandle));
@@ -138,9 +138,9 @@ ScriptSectionType * SCRIPT_SectionExists(int32_t scripthandle, const char * sect
     if (scripthandle < 0 || scripthandle >= MAXSCRIPTFILES) return NULL;
     if (!sectionname) return NULL;
     if (!SC(scripthandle)) return NULL;
-    if (!SCRIPT(scripthandle,script)) return NULL;
+    if (!SCRIPT(scripthandle,apScript)) return NULL;
 
-    for (s = SCRIPT(scripthandle,script); ls != s; ls=s,s=s->nextsection)
+    for (s = SCRIPT(scripthandle,apScript); ls != s; ls=s,s=s->nextsection)
         if (!Bstrcasecmp(s->name, sectionname)) return s;
 
     return NULL;
@@ -159,13 +159,13 @@ ScriptSectionType * SCRIPT_AddSection(int32_t scripthandle, const char * section
 
     AllocSection(s);
     s->name = Bstrdup(sectionname);
-    if (!SCRIPT(scripthandle,script))
+    if (!SCRIPT(scripthandle,apScript))
     {
-        SCRIPT(scripthandle,script) = s;
+        SCRIPT(scripthandle,apScript) = s;
     }
     else
     {
-        s2 = SCRIPT(scripthandle,script);
+        s2 = SCRIPT(scripthandle,apScript);
         while (s2->nextsection != s2) s2=s2->nextsection;
         s2->nextsection = s;
         s->prevsection = s2;
@@ -503,9 +503,9 @@ int32_t SCRIPT_NumberSections(int32_t scripthandle)
     ScriptSectionType *s,*ls=NULL;
 
     if (!SC(scripthandle)) return 0;
-    if (!SCRIPT(scripthandle,script)) return 0;
+    if (!SCRIPT(scripthandle,apScript)) return 0;
 
-    for (s = SCRIPT(scripthandle,script); ls != s; ls=s,s=s->nextsection) c++;
+    for (s = SCRIPT(scripthandle,apScript); ls != s; ls=s,s=s->nextsection) c++;
 
     return c;
 }
@@ -515,9 +515,9 @@ char const * SCRIPT_Section(int32_t scripthandle, int32_t which)
     ScriptSectionType *s,*ls=NULL;
 
     if (!SC(scripthandle)) return "";
-    if (!SCRIPT(scripthandle,script)) return "";
+    if (!SCRIPT(scripthandle,apScript)) return "";
 
-    for (s = SCRIPT(scripthandle,script); which>0 && ls != s; ls=s, s=s->nextsection, which--) ;
+    for (s = SCRIPT(scripthandle,apScript); which>0 && ls != s; ls=s, s=s->nextsection, which--) ;
 
     return s->name;
 }
@@ -529,7 +529,7 @@ int32_t SCRIPT_NumberEntries(int32_t scripthandle, char const * sectionname)
     int32_t c=0;
 
     if (!SC(scripthandle)) return 0;
-    if (!SCRIPT(scripthandle,script)) return 0;
+    if (!SCRIPT(scripthandle,apScript)) return 0;
 
     s = SCRIPT_SectionExists(scripthandle, sectionname);
     if (!s) return 0;
@@ -544,7 +544,7 @@ char const * SCRIPT_Entry(int32_t scripthandle, char const * sectionname, int32_
     ScriptEntryType *e,*le=NULL;
 
     if (!SC(scripthandle)) return 0;
-    if (!SCRIPT(scripthandle,script)) return 0;
+    if (!SCRIPT(scripthandle,apScript)) return 0;
 
     s = SCRIPT_SectionExists(scripthandle, sectionname);
     if (!s) return "";
@@ -559,7 +559,7 @@ char const * SCRIPT_GetRaw(int32_t scripthandle, char const * sectionname, char 
     ScriptEntryType *e;
 
     if (!SC(scripthandle)) return 0;
-    if (!SCRIPT(scripthandle,script)) return 0;
+    if (!SCRIPT(scripthandle,apScript)) return 0;
 
     s = SCRIPT_SectionExists(scripthandle, sectionname);
     e = SCRIPT_EntryExists(s, entryname);
@@ -654,7 +654,7 @@ int32_t SCRIPT_GetStringPtr(int32_t scripthandle, char const * sectionname, char
     char *p;
 
     if (!SC(scripthandle)) return 1;
-    if (!SCRIPT(scripthandle,script)) return 1;
+    if (!SCRIPT(scripthandle,apScript)) return 1;
 
     s = SCRIPT_SectionExists(scripthandle, sectionname);
     e = SCRIPT_EntryExists(s, entryname);
@@ -681,7 +681,7 @@ int32_t SCRIPT_GetDoubleString(int32_t scripthandle, const char * sectionname, c
     char *p;
 
     if (!SC(scripthandle)) return 1;
-    if (!SCRIPT(scripthandle,script)) return 1;
+    if (!SCRIPT(scripthandle,apScript)) return 1;
 
     s = SCRIPT_SectionExists(scripthandle, sectionname);
     e = SCRIPT_EntryExists(s, entryname);
@@ -712,7 +712,7 @@ int32_t SCRIPT_GetNumber(int32_t scripthandle, const char * sectionname, const c
     char *p;
 
     if (!SC(scripthandle)) return 1;
-    if (!SCRIPT(scripthandle,script)) return 1;
+    if (!SCRIPT(scripthandle,apScript)) return 1;
 
     s = SCRIPT_SectionExists(scripthandle, sectionname);
     e = SCRIPT_EntryExists(s, entryname);
@@ -743,7 +743,7 @@ int32_t SCRIPT_GetBoolean(int32_t scripthandle, char const * sectionname, char c
     ScriptEntryType *e;
 
     if (!SC(scripthandle)) return 1;
-    if (!SCRIPT(scripthandle,script)) return 1;
+    if (!SCRIPT(scripthandle,apScript)) return 1;
 
     s = SCRIPT_SectionExists(scripthandle, sectionname);
     e = SCRIPT_EntryExists(s, entryname);

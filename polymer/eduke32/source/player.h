@@ -356,12 +356,14 @@ void        P_UpdateScreenPal(DukePlayer_t *p);
 void        P_EndLevel(void);
 
 void P_CheckWeaponI(int32_t snum);
-int32_t P_GetHudPal(const DukePlayer_t *p);
+int P_GetHudPal(const DukePlayer_t *p);
+
+int32_t Proj_GetDamage(projectile_t const * pProj);
 
 #if !defined LUNATIC
-void        P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p);
+void P_SetWeaponGamevars(int snum, const DukePlayer_t *p);
 #else
-static inline void P_SetWeaponGamevars(int32_t snum, const DukePlayer_t *p)
+void P_SetWeaponGamevars(int snum, const DukePlayer_t *p)
 {
     UNREFERENCED_PARAMETER(snum);
     UNREFERENCED_PARAMETER(p);

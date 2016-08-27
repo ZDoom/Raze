@@ -30,7 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define WIN_IS_PRESSED ( KB_KeyPressed( sc_RightWin ) || KB_KeyPressed( sc_LeftWin ) )
 #define ALT_IS_PRESSED ( KB_KeyPressed( sc_RightAlt ) || KB_KeyPressed( sc_LeftAlt ) )
 #define SHIFTS_IS_PRESSED ( KB_KeyPressed( sc_RightShift ) || KB_KeyPressed( sc_LeftShift ) )
-#define RANDOMSCRAP A_InsertSprite(s->sectnum,s->x+(krand()&255)-128,s->y+(krand()&255)-128,s->z-(8<<8)-(krand()&8191),\
+#define RANDOMSCRAP(s, i) A_InsertSprite(s->sectnum,s->x+(krand()&255)-128,s->y+(krand()&255)-128,s->z-ZOFFSET3-(krand()&8191),\
     SCRAP6+(krand()&15),-8,48,48,krand()&2047,(krand()&63)+64,-512-(krand()&2047),i,5)
 
 #define GTFLAGS(x) (GametypeFlags[ud.coop] & x)
@@ -182,36 +182,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define CSTAT_SPRITE_BREAKABLE (CSTAT_SPRITE_BLOCK_HITSCAN)
 
-#define SP  sprite[i].yvel
-#define SX  sprite[i].x
-#define SY  sprite[i].y
-#define SZ  sprite[i].z
-#define SS  sprite[i].shade
-#define PN  sprite[i].picnum
-#define SA  sprite[i].ang
+#define SP(i)  sprite[i].yvel
+#define SX(i)  sprite[i].x
+#define SY(i)  sprite[i].y
+#define SZ(i)  sprite[i].z
+#define SS(i)  sprite[i].shade
+#define PN(i)  sprite[i].picnum
+#define SA(i)  sprite[i].ang
 //#define SV  sprite[i].xvel
 //#define ZV  sprite[i].zvel
 //#define RX  sprite[i].xrepeat
 //#define RY  sprite[i].yrepeat
-#define OW  sprite[i].owner
-#define CS  sprite[i].cstat
-#define SH  sprite[i].extra
+#define OW(i)  sprite[i].owner
+#define CS(i)  sprite[i].cstat
+#define SH(i)  sprite[i].extra
 //#define CX  sprite[i].xoffset
 //#define CY  sprite[i].yoffset
 //#define CD  sprite[i].clipdist
 //#define PL  sprite[i].pal
-#define SLT  sprite[i].lotag
-#define SHT  sprite[i].hitag
-#define SECT sprite[i].sectnum
+#define SLT(i)  sprite[i].lotag
+#define SHT(i)  sprite[i].hitag
+#define SECT(i) sprite[i].sectnum
 
-#define T1  actor[i].t_data[0]
-#define T2  actor[i].t_data[1]
-#define T3  actor[i].t_data[2]
-#define T4  actor[i].t_data[3]
-#define T5  actor[i].t_data[4]
-#define T6  actor[i].t_data[5]
-#define T7  actor[i].t_data[6]
-#define T8  actor[i].t_data[7]
-#define T9  actor[i].t_data[8]
+#define T1(i)  actor[i].t_data[0]
+#define T2(i)  actor[i].t_data[1]
+#define T3(i)  actor[i].t_data[2]
+#define T4(i)  actor[i].t_data[3]
+#define T5(i)  actor[i].t_data[4]
+#define T6(i)  actor[i].t_data[5]
 
 #endif

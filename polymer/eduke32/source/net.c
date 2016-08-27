@@ -112,7 +112,7 @@ static void P_RemovePlayer(int32_t p)
             voting = -1;
         }
 
-        Bstrcpy(ScriptQuotes[QUOTE_RESERVED2],recbuf);
+        Bstrcpy(apStrings[QUOTE_RESERVED2],recbuf);
         g_player[myconnectindex].ps->ftq = QUOTE_RESERVED2;
         g_player[myconnectindex].ps->fta = 180;
     }
@@ -2079,7 +2079,7 @@ void Net_ReceiveMapVoteInitiate(uint8_t *pbuf)
 
     Bsprintf(tempbuf,"%s^00 has called a vote to change map to %s (E%dL%d)",
              g_player[voting].user_name,
-             MapInfo[(uint8_t)(vote_episode*MAXLEVELS + vote_map)].name,
+             aMapInfo[(uint8_t)(vote_episode*MAXLEVELS + vote_map)].name,
              vote_episode+1,vote_map+1);
     G_AddUserQuote(tempbuf);
 

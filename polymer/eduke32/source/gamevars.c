@@ -27,33 +27,33 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifdef LUNATIC
 int32_t g_noResetVars;
-LUNATIC_CB void (*A_ResetVars)(int32_t iActor);
+LUNATIC_CB void (*A_ResetVars)(int32_t spriteNum);
 #else
 
-gamevar_t aGameVars[MAXGAMEVARS];
+gamevar_t   aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
-int32_t g_gameVarCount=0;
-int32_t g_gameArrayCount=0;
+int32_t     g_gameVarCount   = 0;
+int32_t     g_gameArrayCount = 0;
 
 // pointers to weapon gamevar data
-intptr_t *aplWeaponClip[MAX_WEAPONS];       // number of items in magazine
-intptr_t *aplWeaponReload[MAX_WEAPONS];     // delay to reload (include fire)
+intptr_t *aplWeaponClip[MAX_WEAPONS];           // number of items in magazine
+intptr_t *aplWeaponReload[MAX_WEAPONS];         // delay to reload (include fire)
 intptr_t *aplWeaponFireDelay[MAX_WEAPONS];      // delay to fire
 intptr_t *aplWeaponHoldDelay[MAX_WEAPONS];      // delay after release fire button to fire (0 for none)
 intptr_t *aplWeaponTotalTime[MAX_WEAPONS];      // The total time the weapon is cycling before next fire.
-intptr_t *aplWeaponFlags[MAX_WEAPONS];      // Flags for weapon
-intptr_t *aplWeaponShoots[MAX_WEAPONS];     // what the weapon shoots
+intptr_t *aplWeaponFlags[MAX_WEAPONS];          // Flags for weapon
+intptr_t *aplWeaponShoots[MAX_WEAPONS];         // what the weapon shoots
 intptr_t *aplWeaponSpawnTime[MAX_WEAPONS];      // the frame at which to spawn an item
-intptr_t *aplWeaponSpawn[MAX_WEAPONS];      // the item to spawn
+intptr_t *aplWeaponSpawn[MAX_WEAPONS];          // the item to spawn
 intptr_t *aplWeaponShotsPerBurst[MAX_WEAPONS];  // number of shots per 'burst' (one ammo per 'burst')
 intptr_t *aplWeaponWorksLike[MAX_WEAPONS];      // What original the weapon works like
 intptr_t *aplWeaponInitialSound[MAX_WEAPONS];   // Sound made when weapon starts firing. zero for no sound
 intptr_t *aplWeaponFireSound[MAX_WEAPONS];      // Sound made when firing (each time for automatic)
 intptr_t *aplWeaponSound2Time[MAX_WEAPONS];     // Alternate sound time
 intptr_t *aplWeaponSound2Sound[MAX_WEAPONS];    // Alternate sound sound ID
-intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];    // Sound of magazine being removed
-intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];    // Sound of magazine being inserted
-intptr_t *aplWeaponSelectSound[MAX_WEAPONS];     // Sound of weapon being selected
+intptr_t *aplWeaponReloadSound1[MAX_WEAPONS];   // Sound of magazine being removed
+intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];   // Sound of magazine being inserted
+intptr_t *aplWeaponSelectSound[MAX_WEAPONS];    // Sound of weapon being selected
 intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
 
 # include "gamestructures.c"
@@ -64,30 +64,30 @@ intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
 // Returns: old g_gameVarCount | (g_gameArrayCount<<16).
 static int32_t Gv_Free(void)
 {
-    for (int32_t i=0; i<g_gameVarCount; i++)
+    for (int i=0; i<g_gameVarCount; ++i)
     {
-        if (aGameVars[i].nFlags & GAMEVAR_USER_MASK)
+        if (aGameVars[i].flags & GAMEVAR_USER_MASK)
             ALIGNED_FREE_AND_NULL(aGameVars[i].pValues);
 
-        aGameVars[i].nFlags |= GAMEVAR_RESET;
+        aGameVars[i].flags |= GAMEVAR_RESET;
     }
 
-    for (int32_t i=0; i<g_gameArrayCount; i++)
+    for (int i=0; i<g_gameArrayCount; ++i)
     {
-        if (aGameArrays[i].nFlags & GAMEARRAY_NORMAL)
+        if (aGameArrays[i].flags & GAMEARRAY_NORMAL)
             ALIGNED_FREE_AND_NULL(aGameArrays[i].pValues);
 
-        aGameArrays[i].nFlags |= GAMEARRAY_RESET;
+        aGameArrays[i].flags |= GAMEARRAY_RESET;
     }
 
     EDUKE32_STATIC_ASSERT(MAXGAMEVARS < 32768);
-    int32_t ret = g_gameVarCount | (g_gameArrayCount<<16);
+    int const varCount = g_gameVarCount | (g_gameArrayCount << 16);
     g_gameVarCount = g_gameArrayCount = 0;
 
     hash_init(&h_gamevars);
     hash_init(&h_arrays);
 
-    return ret;
+    return varCount;
 }
 
 // Calls Gv_Free() and in addition frees the labels of all game variables and
@@ -95,27 +95,25 @@ static int32_t Gv_Free(void)
 // Only call this function ONCE...
 static void Gv_Clear(void)
 {
-    int32_t n = Gv_Free();
-    int32_t gameVarCount = n&65535, gameArrayCount = n>>16;
+    int       gameVarCount   = Gv_Free();
+    int const gameArrayCount = gameVarCount >> 16;
+    gameVarCount &= 65535;
 
     // Now, only do work that Gv_Free() hasn't done.
-    for (int32_t i=0; i<gameVarCount; i++)
+    for (int i=0; i<gameVarCount; ++i)
         DO_FREE_AND_NULL(aGameVars[i].szLabel);
 
-    for (int32_t i=0; i<gameArrayCount; i++)
+    for (int i=0; i<gameArrayCount; i++)
         DO_FREE_AND_NULL(aGameArrays[i].szLabel);
 }
 
-int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
+int32_t Gv_ReadSave(int32_t kFile)
 {
     char savedstate[MAXVOLUMES*MAXLEVELS];
     char tbuf[12];
 
-    if (newbehav)
-    {
-        if (kread(fil, tbuf, 12)!=12) goto corrupt;
-        if (Bmemcmp(tbuf, "BEG: EDuke32", 12)) { OSD_Printf("BEG ERR\n"); return 2; }
-    }
+    if (kread(kFile, tbuf, 12)!=12) goto corrupt;
+    if (Bmemcmp(tbuf, "BEG: EDuke32", 12)) { OSD_Printf("BEG ERR\n"); return 2; }
 
     Bmemset(&savedstate,0,sizeof(savedstate));
 
@@ -126,12 +124,12 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
 
-    if (kdfread(&g_gameVarCount,sizeof(g_gameVarCount),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_gameVarCount,sizeof(g_gameVarCount),1,kFile) != 1) goto corrupt;
     for (int i=0; i<g_gameVarCount; i++)
     {
         char *const olabel = aGameVars[i].szLabel;
 
-        if (kdfread(&aGameVars[i], sizeof(gamevar_t), 1, fil) != 1)
+        if (kdfread(&aGameVars[i], sizeof(gamevar_t), 1, kFile) != 1)
             goto corrupt;
 
         if (olabel == NULL)
@@ -139,19 +137,19 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         else
             aGameVars[i].szLabel = olabel;
 
-        if (kdfread(aGameVars[i].szLabel, MAXVARLABEL, 1, fil) != 1)
+        if (kdfread(aGameVars[i].szLabel, MAXVARLABEL, 1, kFile) != 1)
             goto corrupt;
         hash_add(&h_gamevars, aGameVars[i].szLabel,i, 1);
 
-        if (aGameVars[i].nFlags & GAMEVAR_PERPLAYER)
+        if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
         {
             aGameVars[i].pValues = (intptr_t*)Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
-            if (kdfread(aGameVars[i].pValues,sizeof(intptr_t) * MAXPLAYERS, 1, fil) != 1) goto corrupt;
+            if (kdfread(aGameVars[i].pValues,sizeof(intptr_t) * MAXPLAYERS, 1, kFile) != 1) goto corrupt;
         }
-        else if (aGameVars[i].nFlags & GAMEVAR_PERACTOR)
+        else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
         {
             aGameVars[i].pValues = (intptr_t*)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-            if (kdfread(&aGameVars[i].pValues[0],sizeof(intptr_t), MAXSPRITES, fil) != MAXSPRITES) goto corrupt;
+            if (kdfread(&aGameVars[i].pValues[0],sizeof(intptr_t), MAXSPRITES, kFile) != MAXSPRITES) goto corrupt;
         }
     }
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
@@ -163,16 +161,16 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
     //  AddLog(g_szBuf);
     Gv_RefreshPointers();
 
-    if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,fil) != 1) goto corrupt;
+    if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,kFile) != 1) goto corrupt;
     for (int i=0; i<g_gameArrayCount; i++)
     {
-        if (aGameArrays[i].nFlags&GAMEARRAY_READONLY)
+        if (aGameArrays[i].flags&GAMEARRAY_READONLY)
             continue;
 
         char *const olabel = aGameArrays[i].szLabel;
 
         // read for .size and .dwFlags (the rest are pointers):
-        if (kdfread(&aGameArrays[i], sizeof(gamearray_t), 1, fil) != 1)
+        if (kdfread(&aGameArrays[i], sizeof(gamearray_t), 1, kFile) != 1)
             goto corrupt;
 
         if (olabel == NULL)
@@ -180,7 +178,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         else
             aGameArrays[i].szLabel = olabel;
 
-        if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil) != 1)
+        if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, kFile) != 1)
             goto corrupt;
         hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
 
@@ -188,7 +186,7 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         if (asize != 0)
         {
             aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, asize * GAR_ELTSZ);
-            if (kdfread(aGameArrays[i].pValues, GAR_ELTSZ * aGameArrays[i].size, 1, fil) < 1) goto corrupt;
+            if (kdfread(aGameArrays[i].pValues, GAR_ELTSZ * aGameArrays[i].size, 1, kFile) < 1) goto corrupt;
         }
         else
             aGameArrays[i].pValues = NULL;
@@ -196,34 +194,34 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
-    if (kdfread(apScriptGameEvent,sizeof(apScriptGameEvent),1,fil) != 1) goto corrupt;
+    if (kdfread(apScriptEvents,sizeof(apScriptEvents),1,kFile) != 1) goto corrupt;
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
 
-    if (kdfread(&savedstate[0],sizeof(savedstate),1,fil) != 1) goto corrupt;
+    if (kdfread(&savedstate[0],sizeof(savedstate),1,kFile) != 1) goto corrupt;
 
     for (int i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
     {
         if (savedstate[i])
         {
-            if (MapInfo[i].savedstate == NULL)
-                MapInfo[i].savedstate = (mapstate_t *)Xaligned_alloc(16, sizeof(mapstate_t));
-            if (kdfread(MapInfo[i].savedstate,sizeof(mapstate_t),1,fil) != sizeof(mapstate_t)) goto corrupt;
+            if (aMapInfo[i].savedstate == NULL)
+                aMapInfo[i].savedstate = (mapstate_t *)Xaligned_alloc(16, sizeof(mapstate_t));
+            if (kdfread(aMapInfo[i].savedstate,sizeof(mapstate_t),1,kFile) != sizeof(mapstate_t)) goto corrupt;
             for (int j=0; j<g_gameVarCount; j++)
             {
-                if (aGameVars[j].nFlags & GAMEVAR_NORESET) continue;
-                if (aGameVars[j].nFlags & GAMEVAR_PERPLAYER)
+                if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
+                if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
                 {
 //                    if (!MapInfo[i].savedstate->vars[j])
-                    MapInfo[i].savedstate->vars[j] = (intptr_t *)Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
-                    if (kdfread(&MapInfo[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, fil) != 1) goto corrupt;
+                    aMapInfo[i].savedstate->vars[j] = (intptr_t *)Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
+                    if (kdfread(&aMapInfo[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, kFile) != 1) goto corrupt;
                 }
-                else if (aGameVars[j].nFlags & GAMEVAR_PERACTOR)
+                else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
                 {
 //                    if (!MapInfo[i].savedstate->vars[j])
-                    MapInfo[i].savedstate->vars[j] = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-                    if (kdfread(&MapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, fil) != MAXSPRITES) goto corrupt;
+                    aMapInfo[i].savedstate->vars[j] = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
+                    if (kdfread(&aMapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, kFile) != MAXSPRITES) goto corrupt;
                 }
             }
         }
@@ -233,20 +231,8 @@ int32_t Gv_ReadSave(int32_t fil, int32_t newbehav)
         }
     }
 
-    if (!newbehav)
-    {
-        intptr_t l;
-
-        if (kdfread(&l,sizeof(l),1,fil) != 1) goto corrupt;
-        if (kdfread(g_szBuf,l,1,fil) != 1) goto corrupt;
-        g_szBuf[l]=0;
-        OSD_Printf("%s\n",g_szBuf);
-    }
-    else
-    {
-        if (kread(fil, tbuf, 12)!=12) goto corrupt;
-        if (Bmemcmp(tbuf, "EOF: EDuke32", 12)) { OSD_Printf("EOF ERR\n"); return 2; }
-    }
+    if (kread(kFile, tbuf, 12)!=12) goto corrupt;
+    if (Bmemcmp(tbuf, "EOF: EDuke32", 12)) { OSD_Printf("EOF ERR\n"); return 2; }
 
 # if 0
     {
@@ -266,15 +252,14 @@ corrupt:
     return 1;
 }
 
-void Gv_WriteSave(FILE *fil, int32_t newbehav)
+void Gv_WriteSave(FILE *fil)
 {
     char savedstate[MAXVOLUMES*MAXLEVELS];
 
     Bmemset(&savedstate,0,sizeof(savedstate));
 
     //   AddLog("Saving Game Vars to File");
-    if (newbehav)
-        fwrite("BEG: EDuke32", 12, 1, fil);
+    fwrite("BEG: EDuke32", 12, 1, fil);
 
     dfwrite(&g_gameVarCount,sizeof(g_gameVarCount),1,fil);
 
@@ -283,13 +268,13 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
         dfwrite(&(aGameVars[i]),sizeof(gamevar_t),1,fil);
         dfwrite(aGameVars[i].szLabel,sizeof(uint8_t) * MAXVARLABEL, 1, fil);
 
-        if (aGameVars[i].nFlags & GAMEVAR_PERPLAYER)
+        if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
         {
             //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(int32_t) * MAXPLAYERS);
             //AddLog(g_szBuf);
             dfwrite(aGameVars[i].pValues,sizeof(intptr_t) * MAXPLAYERS, 1, fil);
         }
-        else if (aGameVars[i].nFlags & GAMEVAR_PERACTOR)
+        else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
         {
             //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(int32_t) * MAXSPRITES);
             //AddLog(g_szBuf);
@@ -301,7 +286,7 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
 
     for (int i=0; i<g_gameArrayCount; i++)
     {
-        if (aGameArrays[i].nFlags&GAMEARRAY_READONLY)
+        if (aGameArrays[i].flags&GAMEARRAY_READONLY)
             continue;
 
         // write for .size and .dwFlags (the rest are pointers):
@@ -311,79 +296,67 @@ void Gv_WriteSave(FILE *fil, int32_t newbehav)
         dfwrite(aGameArrays[i].pValues, GAR_ELTSZ * aGameArrays[i].size, 1, fil);
     }
 
-    dfwrite(apScriptGameEvent,sizeof(apScriptGameEvent),1,fil);
+    dfwrite(apScriptEvents,sizeof(apScriptEvents),1,fil);
 
     for (int i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
-        if (MapInfo[i].savedstate != NULL)
+        if (aMapInfo[i].savedstate != NULL)
             savedstate[i] = 1;
 
     dfwrite(&savedstate[0],sizeof(savedstate),1,fil);
 
     for (int i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
-        if (MapInfo[i].savedstate)
+        if (aMapInfo[i].savedstate)
         {
-            dfwrite(MapInfo[i].savedstate,sizeof(mapstate_t),1,fil);
+            dfwrite(aMapInfo[i].savedstate,sizeof(mapstate_t),1,fil);
             for (int j=0; j<g_gameVarCount; j++)
             {
-                if (aGameVars[j].nFlags & GAMEVAR_NORESET) continue;
-                if (aGameVars[j].nFlags & GAMEVAR_PERPLAYER)
+                if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
+                if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
                 {
-                    dfwrite(&MapInfo[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, fil);
+                    dfwrite(&aMapInfo[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, fil);
                 }
-                else if (aGameVars[j].nFlags & GAMEVAR_PERACTOR)
+                else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
                 {
-                    dfwrite(&MapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, fil);
+                    dfwrite(&aMapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, fil);
                 }
             }
         }
 
-    if (!newbehav)
-    {
-        intptr_t l;
-
-        Bsprintf(g_szBuf,"EOF: EDuke32");
-        l=Bstrlen(g_szBuf);
-        dfwrite(&l,sizeof(l),1,fil);
-        dfwrite(g_szBuf,l,1,fil);
-    }
-    else
-        fwrite("EOF: EDuke32", 12, 1, fil);
+    fwrite("EOF: EDuke32", 12, 1, fil);
 }
 
 void Gv_DumpValues(void)
 {
-    int32_t i;
-
     OSD_Printf("// Current Game Definitions\n\n");
 
-    for (i=0; i<g_gameVarCount; i++)
+    for (int i=0; i<g_gameVarCount; i++)
     {
         OSD_Printf("gamevar %s ",aGameVars[i].szLabel);
 
-        if (aGameVars[i].nFlags & (GAMEVAR_INTPTR))
-            OSD_Printf("%d",*((int32_t *)aGameVars[i].nValue));
-        else if (aGameVars[i].nFlags & (GAMEVAR_SHORTPTR))
-            OSD_Printf("%d",*((int16_t *)aGameVars[i].nValue));
-        else if (aGameVars[i].nFlags & (GAMEVAR_CHARPTR))
-            OSD_Printf("%d",*((char *)aGameVars[i].nValue));
+        if (aGameVars[i].flags & (GAMEVAR_INTPTR))
+            OSD_Printf("%d",*((int32_t *)aGameVars[i].global));
+        else if (aGameVars[i].flags & (GAMEVAR_SHORTPTR))
+            OSD_Printf("%d",*((int16_t *)aGameVars[i].global));
+        else if (aGameVars[i].flags & (GAMEVAR_CHARPTR))
+            OSD_Printf("%d",*((char *)aGameVars[i].global));
         else
-            OSD_Printf("%" PRIdPTR "",aGameVars[i].nValue);
+            OSD_Printf("%" PRIdPTR "",aGameVars[i].global);
 
-        if (aGameVars[i].nFlags & (GAMEVAR_PERPLAYER))
+        if (aGameVars[i].flags & (GAMEVAR_PERPLAYER))
             OSD_Printf(" GAMEVAR_PERPLAYER");
-        else if (aGameVars[i].nFlags & (GAMEVAR_PERACTOR))
+        else if (aGameVars[i].flags & (GAMEVAR_PERACTOR))
             OSD_Printf(" GAMEVAR_PERACTOR");
         else
-            OSD_Printf(" %" PRIdPTR,aGameVars[i].nFlags/* & (GAMEVAR_USER_MASK)*/);
+            OSD_Printf(" %" PRIdPTR,aGameVars[i].flags/* & (GAMEVAR_USER_MASK)*/);
 
         OSD_Printf(" // ");
-        if (aGameVars[i].nFlags & (GAMEVAR_SYSTEM))
+        if (aGameVars[i].flags & (GAMEVAR_SYSTEM))
             OSD_Printf(" (system)");
-        if (aGameVars[i].nFlags & (GAMEVAR_PTR_MASK))
+        if (aGameVars[i].flags & (GAMEVAR_PTR_MASK))
             OSD_Printf(" (pointer)");
-        if (aGameVars[i].nFlags & (GAMEVAR_READONLY))
+        if (aGameVars[i].flags & (GAMEVAR_READONLY))
             OSD_Printf(" (read only)");
-        if (aGameVars[i].nFlags & (GAMEVAR_SPECIAL))
+        if (aGameVars[i].flags & (GAMEVAR_SPECIAL))
             OSD_Printf(" (special)");
         OSD_Printf("\n");
     }
@@ -401,18 +374,18 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
     {
         if (aGameVars[i].szLabel != NULL)
             Gv_NewVar(aGameVars[i].szLabel,
-                      aGameVars[i].nFlags & GAMEVAR_NODEFAULT ? aGameVars[i].nValue : aGameVars[i].nDefault,
-                      aGameVars[i].nFlags);
+                      aGameVars[i].flags & GAMEVAR_NODEFAULT ? aGameVars[i].global : aGameVars[i].defaultValue,
+                      aGameVars[i].flags);
     }
 
     for (int i=0; i<MAXGAMEARRAYS; i++)
     {
-        if (aGameArrays[i].szLabel != NULL && (aGameArrays[i].nFlags & GAMEARRAY_RESET))
-            Gv_NewArray(aGameArrays[i].szLabel,aGameArrays[i].pValues,aGameArrays[i].size,aGameArrays[i].nFlags);
+        if (aGameArrays[i].szLabel != NULL && (aGameArrays[i].flags & GAMEARRAY_RESET))
+            Gv_NewArray(aGameArrays[i].szLabel,aGameArrays[i].pValues,aGameArrays[i].size,aGameArrays[i].flags);
     }
 }
 
-int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t dwFlags)
+int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint32_t nFlags)
 {
     int32_t i;
 
@@ -433,13 +406,13 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     }
     i = hash_find(&h_arrays,pszLabel);
 
-    if (EDUKE32_PREDICT_FALSE(i >=0 && !(aGameArrays[i].nFlags & GAMEARRAY_RESET)))
+    if (EDUKE32_PREDICT_FALSE(i >=0 && !(aGameArrays[i].flags & GAMEARRAY_RESET)))
     {
         // found it it's a duplicate in error
 
         g_numCompilerWarnings++;
 
-        if (aGameArrays[i].nFlags&GAMEARRAY_TYPE_MASK)
+        if (aGameArrays[i].flags&GAMEARRAY_TYPE_MASK)
         {
             C_ReportError(-1);
             initprintf("ignored redefining system array `%s'.", pszLabel);
@@ -458,22 +431,22 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
 
-    if (!(dwFlags & GAMEARRAY_TYPE_MASK))
+    if (!(nFlags & GAMEARRAY_TYPE_MASK))
     {
         Baligned_free(aGameArrays[i].pValues);
-        if (asize != 0)
+        if (arraySize != 0)
         {
-            aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, asize * GAR_ELTSZ);
-            Bmemset(aGameArrays[i].pValues, 0, asize * GAR_ELTSZ);
+            aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, arraySize * GAR_ELTSZ);
+            Bmemset(aGameArrays[i].pValues, 0, arraySize * GAR_ELTSZ);
         }
         else
             aGameArrays[i].pValues = NULL;
     }
     else
-        aGameArrays[i].pValues=(intptr_t *)arrayptr;
+        aGameArrays[i].pValues=(intptr_t *)pArray;
 
-    aGameArrays[i].size=asize;
-    aGameArrays[i].nFlags = dwFlags & ~GAMEARRAY_RESET;
+    aGameArrays[i].size   = arraySize;
+    aGameArrays[i].flags = nFlags & ~GAMEARRAY_RESET;
 
     g_gameArrayCount++;
     hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
@@ -483,8 +456,6 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32
 
 int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
 {
-    int32_t i, j;
-
     //Bsprintf(g_szBuf,"Gv_NewVar(%s, %d, %X)",pszLabel, lValue, dwFlags);
     //AddLog(g_szBuf);
 
@@ -504,18 +475,18 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         return 0;
     }
 
-    i = hash_find(&h_gamevars,pszLabel);
+    int gV = hash_find(&h_gamevars,pszLabel);
 
-    if (i >= 0 && !(aGameVars[i].nFlags & GAMEVAR_RESET))
+    if (gV >= 0 && !(aGameVars[gV].flags & GAMEVAR_RESET))
     {
         // found it...
-        if (EDUKE32_PREDICT_FALSE(aGameVars[i].nFlags & (GAMEVAR_PTR_MASK)))
+        if (EDUKE32_PREDICT_FALSE(aGameVars[gV].flags & (GAMEVAR_PTR_MASK)))
         {
             C_ReportError(-1);
             initprintf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
             return 0;
         }
-        else if (EDUKE32_PREDICT_FALSE(!(aGameVars[i].nFlags & GAMEVAR_SYSTEM)))
+        else if (EDUKE32_PREDICT_FALSE(!(aGameVars[gV].flags & GAMEVAR_SYSTEM)))
         {
             // it's a duplicate in error
             g_numCompilerWarnings++;
@@ -524,201 +495,201 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         }
     }
 
-    if (i == -1)
-        i = g_gameVarCount;
+    if (gV == -1)
+        gV = g_gameVarCount;
 
     // If it's a user gamevar...
-    if ((aGameVars[i].nFlags & GAMEVAR_SYSTEM) == 0)
+    if ((aGameVars[gV].flags & GAMEVAR_SYSTEM) == 0)
     {
         // Allocate and set its label
-        if (aGameVars[i].szLabel == NULL)
-            aGameVars[i].szLabel = (char *)Xcalloc(MAXVARLABEL,sizeof(uint8_t));
+        if (aGameVars[gV].szLabel == NULL)
+            aGameVars[gV].szLabel = (char *)Xcalloc(MAXVARLABEL,sizeof(uint8_t));
 
-        if (aGameVars[i].szLabel != pszLabel)
-            Bstrcpy(aGameVars[i].szLabel,pszLabel);
+        if (aGameVars[gV].szLabel != pszLabel)
+            Bstrcpy(aGameVars[gV].szLabel,pszLabel);
 
         // and the flags
-        aGameVars[i].nFlags=dwFlags;
+        aGameVars[gV].flags=dwFlags;
 
         // only free if per-{actor,player}
-        if (aGameVars[i].nFlags & GAMEVAR_USER_MASK)
-            ALIGNED_FREE_AND_NULL(aGameVars[i].pValues);
+        if (aGameVars[gV].flags & GAMEVAR_USER_MASK)
+            ALIGNED_FREE_AND_NULL(aGameVars[gV].pValues);
     }
 
     // if existing is system, they only get to change default value....
-    aGameVars[i].nDefault = lValue;
-    aGameVars[i].nFlags &= ~GAMEVAR_RESET;
+    aGameVars[gV].defaultValue = lValue;
+    aGameVars[gV].flags &= ~GAMEVAR_RESET;
 
-    if (i == g_gameVarCount)
+    if (gV == g_gameVarCount)
     {
         // we're adding a new one.
-        hash_add(&h_gamevars, aGameVars[i].szLabel, g_gameVarCount++, 0);
+        hash_add(&h_gamevars, aGameVars[gV].szLabel, g_gameVarCount++, 0);
     }
 
     // Set initial values. (Or, override values for system gamevars.)
-    if (aGameVars[i].nFlags & GAMEVAR_PERPLAYER)
+    if (aGameVars[gV].flags & GAMEVAR_PERPLAYER)
     {
-        if (!aGameVars[i].pValues)
+        if (!aGameVars[gV].pValues)
         {
-            aGameVars[i].pValues = (intptr_t *) Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
-            Bmemset(aGameVars[i].pValues, 0, MAXPLAYERS * sizeof(intptr_t));
+            aGameVars[gV].pValues = (intptr_t *) Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
+            Bmemset(aGameVars[gV].pValues, 0, MAXPLAYERS * sizeof(intptr_t));
         }
-        for (j=MAXPLAYERS-1; j>=0; j--)
-            aGameVars[i].pValues[j]=lValue;
+        for (int j=MAXPLAYERS-1; j>=0; --j)
+            aGameVars[gV].pValues[j]=lValue;
     }
-    else if (aGameVars[i].nFlags & GAMEVAR_PERACTOR)
+    else if (aGameVars[gV].flags & GAMEVAR_PERACTOR)
     {
-        if (!aGameVars[i].pValues)
+        if (!aGameVars[gV].pValues)
         {
-            aGameVars[i].pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-            Bmemset(aGameVars[i].pValues, 0, MAXSPRITES * sizeof(intptr_t));
+            aGameVars[gV].pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
+            Bmemset(aGameVars[gV].pValues, 0, MAXSPRITES * sizeof(intptr_t));
         }
-        for (j=MAXSPRITES-1; j>=0; j--)
-            aGameVars[i].pValues[j]=lValue;
+        for (int j=MAXSPRITES-1; j>=0; --j)
+            aGameVars[gV].pValues[j]=lValue;
     }
-    else aGameVars[i].nValue = lValue;
+    else aGameVars[gV].global = lValue;
 
     return 1;
 }
 
 static int32_t Gv_GetVarIndex(const char *szGameLabel)
 {
-    int32_t i = hash_find(&h_gamevars,szGameLabel);
+    int32_t gV = hash_find(&h_gamevars,szGameLabel);
 
-    if (EDUKE32_PREDICT_FALSE(i == -1))
+    if (EDUKE32_PREDICT_FALSE(gV == -1))
     {
         OSD_Printf(OSD_ERROR "Gv_GetVarIndex(): INTERNAL ERROR: couldn't find gamevar %s!\n",szGameLabel);
         return 0;
     }
 
-    return i;
+    return gV;
 }
 
 int32_t __fastcall Gv_GetGameArrayValue(int const id, int index)
 {
-    if (aGameArrays[id].nFlags & GAMEARRAY_STRIDE2)
+    if (aGameArrays[id].flags & GAMEARRAY_STRIDE2)
         index <<= 1;
 
-    int rv = -1;
+    int returnValue = -1;
 
-    switch (aGameArrays[id].nFlags & GAMEARRAY_TYPE_MASK)
+    switch (aGameArrays[id].flags & GAMEARRAY_TYPE_MASK)
     {
-        case 0:                 rv = (aGameArrays[id].pValues)[index]; break;
-        case GAMEARRAY_OFINT:   rv = ((int32_t *)aGameArrays[id].pValues)[index]; break;
-        case GAMEARRAY_OFSHORT: rv = ((int16_t *)aGameArrays[id].pValues)[index]; break;
-        case GAMEARRAY_OFCHAR:  rv = ((uint8_t *)aGameArrays[id].pValues)[index]; break;
+        case 0:                 returnValue = (aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_OFINT:   returnValue = ((int32_t *)aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_OFSHORT: returnValue = ((int16_t *)aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_OFCHAR:  returnValue = ((uint8_t *)aGameArrays[id].pValues)[index]; break;
     }
 
-    return rv;
+    return returnValue;
 }
 
-int32_t __fastcall Gv_GetVar(int nGameVar, int nSprite, int nPlayer)
+int32_t __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
 {
-    if (nGameVar == g_iThisActorID)
-        return nSprite;
+    if (gameVar == g_thisActorVarID)
+        return spriteNum;
 
-    if (nGameVar == MAXGAMEVARS)
+    if (gameVar == MAXGAMEVARS)
         return *insptr++;
 
-    int nNegative = !!(nGameVar & (MAXGAMEVARS << 1));
+    int nNegative = !!(gameVar & (MAXGAMEVARS << 1));
 
-    if (EDUKE32_PREDICT_FALSE((nGameVar & ~(MAXGAMEVARS << 1)) >= g_gameVarCount))
+    if (EDUKE32_PREDICT_FALSE((gameVar & ~(MAXGAMEVARS << 1)) >= g_gameVarCount))
         goto nastyhacks;
 
-    nGameVar &= (MAXGAMEVARS - 1);
+    gameVar &= (MAXGAMEVARS - 1);
 
     int nReturn, nFlags;
-    nFlags = aGameVars[nGameVar].nFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK);
+    nFlags = aGameVars[gameVar].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK);
 
     if (nFlags == GAMEVAR_PERACTOR)
     {
-        if (EDUKE32_PREDICT_FALSE((unsigned) nSprite >= MAXSPRITES)) goto badindex;
-        nReturn = aGameVars[nGameVar].pValues[nSprite];
+        if (EDUKE32_PREDICT_FALSE((unsigned) spriteNum >= MAXSPRITES)) goto badindex;
+        nReturn = aGameVars[gameVar].pValues[spriteNum];
     }
-    else if (!nFlags) nReturn = aGameVars[nGameVar].nValue;
+    else if (!nFlags) nReturn = aGameVars[gameVar].global;
     else if (nFlags == GAMEVAR_PERPLAYER)
     {
-        if (EDUKE32_PREDICT_FALSE((unsigned) nPlayer >= MAXPLAYERS))
+        if (EDUKE32_PREDICT_FALSE((unsigned) playerNum >= MAXPLAYERS))
         {
-            nSprite = nPlayer;
+            spriteNum = playerNum;
             goto badindex;
         }
-        nReturn = aGameVars[nGameVar].pValues[nPlayer];
+        nReturn = aGameVars[gameVar].pValues[playerNum];
     }
     else switch (nFlags)
     {
-        case GAMEVAR_INTPTR: nReturn   = *(int32_t *)aGameVars[nGameVar].nValue; break;
-        case GAMEVAR_SHORTPTR: nReturn = *(int16_t *)aGameVars[nGameVar].nValue; break;
-        case GAMEVAR_CHARPTR: nReturn  = *(char *)aGameVars[nGameVar].nValue; break;
+        case GAMEVAR_INTPTR: nReturn   = *(int32_t *)aGameVars[gameVar].global; break;
+        case GAMEVAR_SHORTPTR: nReturn = *(int16_t *)aGameVars[gameVar].global; break;
+        case GAMEVAR_CHARPTR: nReturn  = *(char *)aGameVars[gameVar].global; break;
         default: EDUKE32_UNREACHABLE_SECTION(nReturn = 0; break);
     }
 
     return (nReturn ^ -nNegative) + nNegative;
 
 nastyhacks:
-    if (nGameVar & (MAXGAMEVARS << 2))  // array
+    if (gameVar & (MAXGAMEVARS << 2))  // array
     {
-        nGameVar &= (MAXGAMEVARS - 1);  // ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
+        gameVar &= (MAXGAMEVARS - 1);  // ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
 
-        int nArrayIndex = Gv_GetVar(*insptr++, nSprite, nPlayer);
+        int nArrayIndex = Gv_GetVar(*insptr++, spriteNum, playerNum);
 
-        if (EDUKE32_PREDICT_FALSE((unsigned)nArrayIndex >= (unsigned)aGameArrays[nGameVar].size))
+        if (EDUKE32_PREDICT_FALSE((unsigned)nArrayIndex >= (unsigned)aGameArrays[gameVar].size))
         {
-            nSprite = nArrayIndex;
+            spriteNum = nArrayIndex;
             goto badarrayindex;
         }
 
-        nReturn = Gv_GetGameArrayValue(nGameVar, nArrayIndex);
+        nReturn = Gv_GetGameArrayValue(gameVar, nArrayIndex);
     }
-    else if (nGameVar&(MAXGAMEVARS<<3)) // struct shortcut vars
+    else if (gameVar&(MAXGAMEVARS<<3)) // struct shortcut vars
     {
-        int nArrayIndexVar = *insptr++;
-        int nArrayIndex = Gv_GetVar(nArrayIndexVar, nSprite, nPlayer);
+        int arrayIndexVar = *insptr++;
+        int arrayIndex = Gv_GetVar(arrayIndexVar, spriteNum, playerNum);
 
-        nGameVar &= (MAXGAMEVARS - 1);
+        gameVar &= (MAXGAMEVARS - 1);
 
-        switch (nGameVar - g_iStructVarIDs)
+        switch (gameVar - g_structVarIDs)
         {
         case STRUCT_SPRITE:
         {
             int const label = *insptr++;
 
-            nArrayIndexVar = (EDUKE32_PREDICT_FALSE(ActorLabels[label].flags & LABEL_HASPARM2)) ?
-                        Gv_GetVar(*insptr++, nSprite, nPlayer) : 0;
+            arrayIndexVar = (EDUKE32_PREDICT_FALSE(ActorLabels[label].flags & LABEL_HASPARM2)) ?
+                        Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXSPRITES))
+            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
             {
-                nSprite = nArrayIndex;
+                spriteNum = arrayIndex;
                 goto badindex;
             }
 
-            nReturn = VM_GetSprite(nArrayIndex, label, nArrayIndexVar);
+            nReturn = VM_GetSprite(arrayIndex, label, arrayIndexVar);
             break;
         }
         case STRUCT_TSPR:
         {
             int const label = *insptr++;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXSPRITES))
+            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
             {
-                nSprite = nArrayIndex;
+                spriteNum = arrayIndex;
                 goto badindex;
             }
 
-            nReturn = VM_GetTsprite(nArrayIndex, label);
+            nReturn = VM_GetTsprite(arrayIndex, label);
             break;
         }
         case STRUCT_THISPROJECTILE:
         {
             int const label = *insptr++;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXSPRITES))
+            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
             {
-                nSprite = nArrayIndex;
+                spriteNum = arrayIndex;
                 goto badindex;
             }
 
-            nReturn = VM_GetActiveProjectile(nArrayIndex, label);
+            nReturn = VM_GetActiveProjectile(arrayIndex, label);
             break;
         }
 
@@ -726,26 +697,26 @@ nastyhacks:
         {
             int const label = *insptr++;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXTILES))
+            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXTILES))
             {
-                nSprite = nArrayIndex;
+                spriteNum = arrayIndex;
                 goto badindex;
             }
 
-            nReturn = VM_GetProjectile(nArrayIndex, label);
+            nReturn = VM_GetProjectile(arrayIndex, label);
             break;
         }
         case STRUCT_TILEDATA:
         {
             int const label = *insptr++;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXTILES))
+            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXTILES))
             {
-                nSprite = nArrayIndex;
+                spriteNum = arrayIndex;
                 goto badindex;
             }
 
-            nReturn = VM_GetTileData(nArrayIndex, label);
+            nReturn = VM_GetTileData(arrayIndex, label);
             break;
         }
 
@@ -753,13 +724,13 @@ nastyhacks:
         {
             int const label = *insptr++;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXPALOOKUPS))
+            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPALOOKUPS))
             {
-                nSprite = nArrayIndex;
+                spriteNum = arrayIndex;
                 goto badindex;
             }
 
-            nReturn = VM_GetPalData(nArrayIndex, label);
+            nReturn = VM_GetPalData(arrayIndex, label);
             break;
         }
 
@@ -767,60 +738,60 @@ nastyhacks:
         {
             int const label = *insptr++;
 
-            if (nArrayIndexVar == g_iThisActorID) nArrayIndex = vm.g_p;
+            if (arrayIndexVar == g_thisActorVarID) arrayIndex = vm.playerNum;
 
-            nArrayIndexVar = (EDUKE32_PREDICT_FALSE(PlayerLabels[label].flags & LABEL_HASPARM2)) ?
-                Gv_GetVar(*insptr++, nSprite, nPlayer) : 0;
+            arrayIndexVar = (EDUKE32_PREDICT_FALSE(PlayerLabels[label].flags & LABEL_HASPARM2)) ?
+                Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXPLAYERS))
+            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPLAYERS))
             {
-                nSprite = nArrayIndex;
+                spriteNum = arrayIndex;
                 goto badindex;
             }
 
-            nReturn = VM_GetPlayer(nArrayIndex, label, nArrayIndexVar);
+            nReturn = VM_GetPlayer(arrayIndex, label, arrayIndexVar);
             break;
         }
         case STRUCT_INPUT:
         {
             int const label = *insptr++;
 
-            if (nArrayIndexVar == g_iThisActorID) nArrayIndex = vm.g_p;
+            if (arrayIndexVar == g_thisActorVarID) arrayIndex = vm.playerNum;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXPLAYERS))
+            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPLAYERS))
             {
-                nSprite = nArrayIndex;
+                spriteNum = arrayIndex;
                 goto badindex;
             }
 
-            nReturn = VM_GetPlayerInput(nArrayIndex, label);
+            nReturn = VM_GetPlayerInput(arrayIndex, label);
             break;
         }
 
         case STRUCT_ACTORVAR:
         case STRUCT_PLAYERVAR:
-            nReturn = Gv_GetVar(*insptr++, nArrayIndex, nPlayer);
+            nReturn = Gv_GetVar(*insptr++, arrayIndex, playerNum);
             break;
 
         case STRUCT_SECTOR:
-            if (nArrayIndexVar == g_iThisActorID) nArrayIndex = sprite[vm.g_i].sectnum;
-            if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXSECTORS))
+            if (arrayIndexVar == g_thisActorVarID) arrayIndex = sprite[vm.spriteNum].sectnum;
+            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSECTORS))
             {
-                nSprite = nArrayIndex;
+                spriteNum = arrayIndex;
                 insptr++;
                 goto badindex;
             }
-            nReturn = VM_GetSector(nArrayIndex, *insptr++);
+            nReturn = VM_GetSector(arrayIndex, *insptr++);
             break;
 
         case STRUCT_WALL:
-            if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXWALLS))
+            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXWALLS))
             {
-                nSprite = nArrayIndex;
+                spriteNum = arrayIndex;
                 insptr++;
                 goto badindex;
             }
-            nReturn = VM_GetWall(nArrayIndex, *insptr++);
+            nReturn = VM_GetWall(arrayIndex, *insptr++);
             break;
 
         case STRUCT_USERDEF:
@@ -833,59 +804,59 @@ nastyhacks:
     }
     else
     {
-        CON_ERRPRINTF("Gv_GetVar(): invalid gamevar ID (%d)\n", nGameVar);
+        CON_ERRPRINTF("Gv_GetVar(): invalid gamevar ID (%d)\n", gameVar);
         return -1;
     }
 
     return (nReturn ^ -nNegative) + nNegative;
 
 badarrayindex:
-    CON_ERRPRINTF("Gv_GetVar(): invalid array index (%s[%d])\n", aGameArrays[nGameVar].szLabel,nSprite);
+    CON_ERRPRINTF("Gv_GetVar(): invalid array index (%s[%d])\n", aGameArrays[gameVar].szLabel,spriteNum);
     return -1;
 
 badindex:
-    CON_ERRPRINTF("Gv_GetVar(): invalid index %d for \"%s\"\n", nSprite, aGameVars[nGameVar].szLabel);
+    CON_ERRPRINTF("Gv_GetVar(): invalid index %d for \"%s\"\n", spriteNum, aGameVars[gameVar].szLabel);
     return -1;
 }
 
-void __fastcall Gv_SetVar(int const nGameVar, int32_t const nValue, int const nSprite, int const nPlayer)
+void __fastcall Gv_SetVar(int const gameVar, int32_t const nValue, int const spriteNum, int const playerNum)
 {
-    int const nFlags = aGameVars[nGameVar].nFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
+    int const nFlags = aGameVars[gameVar].flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
 
-    if (EDUKE32_PREDICT_FALSE((unsigned)nGameVar >= (unsigned)g_gameVarCount)) goto badvarid;
+    if (EDUKE32_PREDICT_FALSE((unsigned)gameVar >= (unsigned)g_gameVarCount)) goto badvarid;
 
-    if (!nFlags) aGameVars[nGameVar].nValue=nValue;
+    if (!nFlags) aGameVars[gameVar].global=nValue;
     else if (nFlags == GAMEVAR_PERPLAYER)
     {
-        if (EDUKE32_PREDICT_FALSE((unsigned) nPlayer > MAXPLAYERS-1)) goto badindex;
+        if (EDUKE32_PREDICT_FALSE((unsigned) playerNum > MAXPLAYERS-1)) goto badindex;
         // for the current player
-        aGameVars[nGameVar].pValues[nPlayer]=nValue;
+        aGameVars[gameVar].pValues[playerNum]=nValue;
     }
     else if (nFlags == GAMEVAR_PERACTOR)
     {
-        if (EDUKE32_PREDICT_FALSE((unsigned) nSprite > MAXSPRITES-1)) goto badindex;
-        aGameVars[nGameVar].pValues[nSprite]=nValue;
+        if (EDUKE32_PREDICT_FALSE((unsigned) spriteNum > MAXSPRITES-1)) goto badindex;
+        aGameVars[gameVar].pValues[spriteNum]=nValue;
     }
     else
     {
         switch (nFlags)
         {
-            case GAMEVAR_INTPTR: *((int32_t *)aGameVars[nGameVar].nValue)   = (int32_t)nValue; break;
-            case GAMEVAR_SHORTPTR: *((int16_t *)aGameVars[nGameVar].nValue) = (int16_t)nValue; break;
-            case GAMEVAR_CHARPTR: *((uint8_t *)aGameVars[nGameVar].nValue)  = (uint8_t)nValue; break;
+            case GAMEVAR_INTPTR: *((int32_t *)aGameVars[gameVar].global)   = (int32_t)nValue; break;
+            case GAMEVAR_SHORTPTR: *((int16_t *)aGameVars[gameVar].global) = (int16_t)nValue; break;
+            case GAMEVAR_CHARPTR: *((uint8_t *)aGameVars[gameVar].global)  = (uint8_t)nValue; break;
         }
     }
     return;
 
 badvarid:
     CON_ERRPRINTF("Gv_SetVar(): invalid gamevar (%d) from sprite %d (%d), player %d\n",
-                  nGameVar,vm.g_i,TrackerCast(sprite[vm.g_i].picnum),vm.g_p);
+                  gameVar,vm.spriteNum,TrackerCast(sprite[vm.spriteNum].picnum),vm.playerNum);
     return;
 
 badindex:
     CON_ERRPRINTF("Gv_SetVar(): invalid index (%d) for gamevar %s from sprite %d, player %d\n",
-               aGameVars[nGameVar].nFlags & GAMEVAR_PERACTOR ? nSprite : nPlayer,
-               aGameVars[nGameVar].szLabel,vm.g_i,vm.g_p);
+               aGameVars[gameVar].flags & GAMEVAR_PERACTOR ? spriteNum : playerNum,
+               aGameVars[gameVar].szLabel,vm.spriteNum,vm.playerNum);
 }
 
 enum
@@ -911,176 +882,176 @@ static const char *gvxerrs[] = {
     "Gv_GetVarX(): invalid pal ID",
 };
 
-int32_t __fastcall Gv_GetSpecialVarX(int nGameVar)
+int32_t __fastcall Gv_GetSpecialVarX(int gameVar)
 {
     int nReturn = -1;
 
-    if (nGameVar & (MAXGAMEVARS << 2))  // array
+    if (gameVar & (MAXGAMEVARS << 2))  // array
     {
         int const nArrayIndex = Gv_GetVarX(*insptr++);
 
-        nGameVar &= (MAXGAMEVARS - 1);  // ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
+        gameVar &= (MAXGAMEVARS - 1);  // ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
 
         int const nArraySize =
-        (aGameArrays[nGameVar].nFlags & GAMEARRAY_VARSIZE) ? Gv_GetVarX(aGameArrays[nGameVar].size) : aGameArrays[nGameVar].size;
+        (aGameArrays[gameVar].flags & GAMEARRAY_VARSIZE) ? Gv_GetVarX(aGameArrays[gameVar].size) : aGameArrays[gameVar].size;
 
         if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= (unsigned) nArraySize))
         {
-            CON_ERRPRINTF("%s %s[%d]\n", gvxerrs[GVX_BADINDEX], aGameArrays[nGameVar].szLabel, nArrayIndex);
+            CON_ERRPRINTF("%s %s[%d]\n", gvxerrs[GVX_BADINDEX], aGameArrays[gameVar].szLabel, nArrayIndex);
             return -1;
         }
 
-        nReturn = Gv_GetGameArrayValue(nGameVar, nArrayIndex);
+        nReturn = Gv_GetGameArrayValue(gameVar, nArrayIndex);
     }
-    else if (nGameVar & (MAXGAMEVARS << 3))  // struct shortcut vars
+    else if (gameVar & (MAXGAMEVARS << 3))  // struct shortcut vars
     {
         int nArrayIndexVar = *insptr++;
         int nArrayIndex = Gv_GetVarX(nArrayIndexVar);
 
-        switch ((nGameVar & (MAXGAMEVARS - 1)) - g_iStructVarIDs)
+        switch ((gameVar & (MAXGAMEVARS - 1)) - g_structVarIDs)
         {
             case STRUCT_SPRITE:
             {
-                int const nLabel = *insptr++;
+                int const labelNum = *insptr++;
 
-                nArrayIndexVar = (EDUKE32_PREDICT_FALSE(ActorLabels[nLabel].flags & LABEL_HASPARM2)) ?
+                nArrayIndexVar = (EDUKE32_PREDICT_FALSE(ActorLabels[labelNum].flags & LABEL_HASPARM2)) ?
                     Gv_GetVarX(*insptr++) : 0;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXSPRITES))
                 {
-                    nGameVar = nArrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], nGameVar);
+                    gameVar = nArrayIndex;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], gameVar);
                     return -1;
                 }
 
-                nReturn = VM_GetSprite(nArrayIndex, nLabel, nArrayIndexVar);
+                nReturn = VM_GetSprite(nArrayIndex, labelNum, nArrayIndexVar);
                 break;
             }
             case STRUCT_TSPR:
             {
-                int const nLabel = *insptr++;
+                int const labelNum = *insptr++;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXSPRITES))
                 {
-                    nGameVar = nArrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], nGameVar);
+                    gameVar = nArrayIndex;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], gameVar);
                     return -1;
                 }
 
-                nReturn = VM_GetTsprite(nArrayIndex, nLabel);
+                nReturn = VM_GetTsprite(nArrayIndex, labelNum);
                 break;
             }
             case STRUCT_THISPROJECTILE:
             {
-                int const nLabel = *insptr++;
+                int const labelNum = *insptr++;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXSPRITES))
                 {
-                    nGameVar = nArrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], nGameVar);
+                    gameVar = nArrayIndex;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], gameVar);
                     return -1;
                 }
 
-                nReturn = VM_GetActiveProjectile(nArrayIndex, nLabel);
+                nReturn = VM_GetActiveProjectile(nArrayIndex, labelNum);
                 break;
             }
 
             case STRUCT_PROJECTILE:
             {
-                int const nLabel = *insptr++;
+                int const labelNum = *insptr++;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXTILES))
                 {
-                    nGameVar = nArrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADTILE], nGameVar);
+                    gameVar = nArrayIndex;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADTILE], gameVar);
                     return -1;
                 }
 
-                nReturn = VM_GetProjectile(nArrayIndex, nLabel);
+                nReturn = VM_GetProjectile(nArrayIndex, labelNum);
                 break;
             }
             case STRUCT_TILEDATA:
             {
-                int const nLabel = *insptr++;
+                int const labelNum = *insptr++;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXTILES))
                 {
-                    nGameVar = nArrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADTILE], nGameVar);
+                    gameVar = nArrayIndex;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADTILE], gameVar);
                     return -1;
                 }
 
-                nReturn = VM_GetTileData(nArrayIndex, nLabel);
+                nReturn = VM_GetTileData(nArrayIndex, labelNum);
                 break;
             }
 
             case STRUCT_PALDATA:
             {
-                int const nLabel = *insptr++;
+                int const labelNum = *insptr++;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXPALOOKUPS))
                 {
-                    nGameVar = nArrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPAL], nGameVar);
+                    gameVar = nArrayIndex;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPAL], gameVar);
                     return -1;
                 }
 
-                nReturn = VM_GetPalData(nArrayIndex, nLabel);
+                nReturn = VM_GetPalData(nArrayIndex, labelNum);
                 break;
             }
 
             case STRUCT_PLAYER:
             {
-                int const nLabel = *insptr++;
+                int const labelNum = *insptr++;
 
-                if (nArrayIndexVar == g_iThisActorID)
-                    nArrayIndex = vm.g_p;
+                if (nArrayIndexVar == g_thisActorVarID)
+                    nArrayIndex = vm.playerNum;
 
-                nArrayIndexVar = (EDUKE32_PREDICT_FALSE(PlayerLabels[nLabel].flags & LABEL_HASPARM2)) ?
+                nArrayIndexVar = (EDUKE32_PREDICT_FALSE(PlayerLabels[labelNum].flags & LABEL_HASPARM2)) ?
                     Gv_GetVarX(*insptr++) : 0;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXPLAYERS))
                 {
-                    nGameVar = nArrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], nGameVar);
+                    gameVar = nArrayIndex;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], gameVar);
                     return -1;
                 }
 
-                nReturn = VM_GetPlayer(nArrayIndex, nLabel, nArrayIndexVar);
+                nReturn = VM_GetPlayer(nArrayIndex, labelNum, nArrayIndexVar);
                 break;
             }
             case STRUCT_INPUT:
             {
-                int const nLabel = *insptr++;
+                int const labelNum = *insptr++;
 
-                if (nArrayIndexVar == g_iThisActorID)
-                    nArrayIndex = vm.g_p;
+                if (nArrayIndexVar == g_thisActorVarID)
+                    nArrayIndex = vm.playerNum;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXPLAYERS))
                 {
-                    nGameVar = nArrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], nGameVar);
+                    gameVar = nArrayIndex;
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], gameVar);
                     return -1;
                 }
 
-                nReturn = VM_GetPlayerInput(nArrayIndex, nLabel);
+                nReturn = VM_GetPlayerInput(nArrayIndex, labelNum);
                 break;
             }
 
             case STRUCT_ACTORVAR:
             case STRUCT_PLAYERVAR:
-                nReturn = Gv_GetVar(*insptr++, nArrayIndex, vm.g_p);
+                nReturn = Gv_GetVar(*insptr++, nArrayIndex, vm.playerNum);
                 break;
 
             case STRUCT_SECTOR:
-                if (nArrayIndexVar == g_iThisActorID)
-                    nArrayIndex = sprite[vm.g_i].sectnum;
+                if (nArrayIndexVar == g_thisActorVarID)
+                    nArrayIndex = sprite[vm.spriteNum].sectnum;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXSECTORS))
                 {
-                    nGameVar = nArrayIndex;
+                    gameVar = nArrayIndex;
                     insptr++;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSECTOR], nGameVar);
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSECTOR], gameVar);
                     return -1;
                 }
                 nReturn = VM_GetSector(nArrayIndex, *insptr++);
@@ -1089,9 +1060,9 @@ int32_t __fastcall Gv_GetSpecialVarX(int nGameVar)
             case STRUCT_WALL:
                 if (EDUKE32_PREDICT_FALSE((unsigned) nArrayIndex >= MAXWALLS))
                 {
-                    nGameVar = nArrayIndex;
+                    gameVar = nArrayIndex;
                     insptr++;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADWALL], nGameVar);
+                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADWALL], gameVar);
                     return -1;
                 }
                 nReturn = VM_GetWall(nArrayIndex, *insptr++);
@@ -1108,46 +1079,46 @@ int32_t __fastcall Gv_GetSpecialVarX(int nGameVar)
     return nReturn;
 }
 
-int32_t __fastcall Gv_GetVarX(int nGameVar)
+int32_t __fastcall Gv_GetVarX(int gameVar)
 {
-    if (nGameVar == g_iThisActorID)
-        return vm.g_i;
+    if (gameVar == g_thisActorVarID)
+        return vm.spriteNum;
 
-    if (nGameVar == MAXGAMEVARS)
+    if (gameVar == MAXGAMEVARS)
         return *insptr++;
 
-    int const nNegative = !!(nGameVar & (MAXGAMEVARS << 1));
+    int const nNegative = !!(gameVar & (MAXGAMEVARS << 1));
     int nReturn = -1;
 
-    if (EDUKE32_PREDICT_FALSE(nGameVar >= g_gameVarCount && nNegative == 0))
-        nReturn = Gv_GetSpecialVarX(nGameVar);
+    if (EDUKE32_PREDICT_FALSE(gameVar >= g_gameVarCount && nNegative == 0))
+        nReturn = Gv_GetSpecialVarX(gameVar);
     else
     {
-        nGameVar &= MAXGAMEVARS-1;
+        gameVar &= MAXGAMEVARS-1;
 
-        int const nFlags = aGameVars[nGameVar].nFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
+        int const nFlags = aGameVars[gameVar].flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
 
-        if (!nFlags) nReturn = aGameVars[nGameVar].nValue;
+        if (!nFlags) nReturn = aGameVars[gameVar].global;
         else if (nFlags == GAMEVAR_PERPLAYER)
         {
-            if (EDUKE32_PREDICT_FALSE((unsigned) vm.g_p >= MAXPLAYERS))
+            if (EDUKE32_PREDICT_FALSE((unsigned) vm.playerNum >= MAXPLAYERS))
                 goto perr;
-            nReturn = aGameVars[nGameVar].pValues[vm.g_p];
+            nReturn = aGameVars[gameVar].pValues[vm.playerNum];
         }
         else if (nFlags == GAMEVAR_PERACTOR)
-            nReturn = aGameVars[nGameVar].pValues[vm.g_i];
+            nReturn = aGameVars[gameVar].pValues[vm.spriteNum];
         else switch (nFlags)
         {
-            case GAMEVAR_INTPTR: nReturn   = (*((int32_t *)aGameVars[nGameVar].nValue)); break;
-            case GAMEVAR_SHORTPTR: nReturn = (*((int16_t *)aGameVars[nGameVar].nValue)); break;
-            case GAMEVAR_CHARPTR: nReturn  = (*((uint8_t *)aGameVars[nGameVar].nValue)); break;
+            case GAMEVAR_INTPTR: nReturn   = (*((int32_t *)aGameVars[gameVar].global)); break;
+            case GAMEVAR_SHORTPTR: nReturn = (*((int16_t *)aGameVars[gameVar].global)); break;
+            case GAMEVAR_CHARPTR: nReturn  = (*((uint8_t *)aGameVars[gameVar].global)); break;
         }
     }
 
     return (nReturn ^ -nNegative) + nNegative;
 
 perr:
-    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], vm.g_p);
+    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], vm.playerNum);
     return -1;
 }
 
@@ -1155,48 +1126,48 @@ void __fastcall Gv_GetManyVars(int const count, int32_t * const rv)
 {
     for (int j = 0; j < count; ++j)
     {
-        int nGameVar = *insptr++;
+        int gameVar = *insptr++;
 
-        if (nGameVar == g_iThisActorID)
+        if (gameVar == g_thisActorVarID)
         {
-            rv[j] = vm.g_i;
+            rv[j] = vm.spriteNum;
             continue;
         }
 
-        if (nGameVar == MAXGAMEVARS)
+        if (gameVar == MAXGAMEVARS)
         {
             rv[j] = *insptr++;
             continue;
         }
 
-        int const nNegative = !!(nGameVar & (MAXGAMEVARS << 1));
+        int const nNegative = !!(gameVar & (MAXGAMEVARS << 1));
 
-        if (EDUKE32_PREDICT_FALSE(nGameVar >= g_gameVarCount && nNegative == 0))
+        if (EDUKE32_PREDICT_FALSE(gameVar >= g_gameVarCount && nNegative == 0))
         {
-            rv[j] = Gv_GetSpecialVarX(nGameVar);
+            rv[j] = Gv_GetSpecialVarX(gameVar);
             continue;
         }
 
-        nGameVar &= MAXGAMEVARS - 1;
+        gameVar &= MAXGAMEVARS - 1;
 
-        int const nFlags = aGameVars[nGameVar].nFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK);
-        int       nValue = aGameVars[nGameVar].nValue;
+        int const nFlags = aGameVars[gameVar].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK);
+        int       nValue = aGameVars[gameVar].global;
 
         if (nFlags == GAMEVAR_PERPLAYER)
         {
-            if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_p >= MAXPLAYERS))
+            if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= MAXPLAYERS))
                 goto perr;
-            nValue = aGameVars[nGameVar].pValues[vm.g_p];
+            nValue = aGameVars[gameVar].pValues[vm.playerNum];
         }
         else if (nFlags == GAMEVAR_PERACTOR)
-            nValue = aGameVars[nGameVar].pValues[vm.g_i];
+            nValue = aGameVars[gameVar].pValues[vm.spriteNum];
         else
         {
             switch (nFlags)
             {
-                case GAMEVAR_INTPTR: nValue   = (*((int32_t *)aGameVars[nGameVar].nValue)); break;
-                case GAMEVAR_SHORTPTR: nValue = (*((int16_t *)aGameVars[nGameVar].nValue)); break;
-                case GAMEVAR_CHARPTR: nValue  = (*((uint8_t *)aGameVars[nGameVar].nValue)); break;
+                case GAMEVAR_INTPTR: nValue   = (*((int32_t *)aGameVars[gameVar].global)); break;
+                case GAMEVAR_SHORTPTR: nValue = (*((int16_t *)aGameVars[gameVar].global)); break;
+                case GAMEVAR_CHARPTR: nValue  = (*((uint8_t *)aGameVars[gameVar].global)); break;
             }
         }
 
@@ -1204,61 +1175,61 @@ void __fastcall Gv_GetManyVars(int const count, int32_t * const rv)
         continue;
 
     perr:
-        CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], vm.g_p);
+        CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], vm.playerNum);
     }
 }
 
-void __fastcall Gv_SetVarX(int const nGameVar, int32_t const nValue)
+void __fastcall Gv_SetVarX(int const gameVar, int32_t const nValue)
 {
-    int const nFlags = aGameVars[nGameVar].nFlags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
+    int const nFlags = aGameVars[gameVar].flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK);
 
-    if (!nFlags) aGameVars[nGameVar].nValue = nValue;
+    if (!nFlags) aGameVars[gameVar].global = nValue;
     else if (nFlags == GAMEVAR_PERPLAYER)
     {
-        if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_p >= MAXPLAYERS)) goto badindex;
-        aGameVars[nGameVar].pValues[vm.g_p] = nValue;
+        if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum >= MAXPLAYERS)) goto badindex;
+        aGameVars[gameVar].pValues[vm.playerNum] = nValue;
     }
     else if (nFlags == GAMEVAR_PERACTOR)
     {
-        if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_i >= MAXSPRITES)) goto badindex;
-        aGameVars[nGameVar].pValues[vm.g_i] = nValue;
+        if (EDUKE32_PREDICT_FALSE((unsigned)vm.spriteNum >= MAXSPRITES)) goto badindex;
+        aGameVars[gameVar].pValues[vm.spriteNum] = nValue;
     }
     else switch (nFlags)
     {
-        case GAMEVAR_INTPTR: *((int32_t *)aGameVars[nGameVar].nValue)   = (int32_t)nValue; break;
-        case GAMEVAR_SHORTPTR: *((int16_t *)aGameVars[nGameVar].nValue) = (int16_t)nValue; break;
-        case GAMEVAR_CHARPTR: *((uint8_t *)aGameVars[nGameVar].nValue)  = (uint8_t)nValue; break;
+        case GAMEVAR_INTPTR: *((int32_t *)aGameVars[gameVar].global)   = (int32_t)nValue; break;
+        case GAMEVAR_SHORTPTR: *((int16_t *)aGameVars[gameVar].global) = (int16_t)nValue; break;
+        case GAMEVAR_CHARPTR: *((uint8_t *)aGameVars[gameVar].global)  = (uint8_t)nValue; break;
     }
 
     return;
 
 badindex:
     CON_ERRPRINTF("Gv_SetVar(): invalid index (%d) for gamevar %s\n",
-               aGameVars[nGameVar].nFlags & GAMEVAR_PERACTOR ? vm.g_i : vm.g_p,
-               aGameVars[nGameVar].szLabel);
+               aGameVars[gameVar].flags & GAMEVAR_PERACTOR ? vm.spriteNum : vm.playerNum,
+               aGameVars[gameVar].szLabel);
 }
 
-int32_t Gv_GetVarByLabel(const char *szGameLabel, int32_t const nDefault, int const nSprite, int const nPlayer)
+int32_t Gv_GetVarByLabel(const char *szGameLabel, int32_t const nDefault, int const spriteNum, int const playerNum)
 {
-    int const nGameVar = hash_find(&h_gamevars, szGameLabel);
-    return EDUKE32_PREDICT_FALSE(nGameVar < 0) ? nDefault : Gv_GetVar(nGameVar, nSprite, nPlayer);
+    int const gameVar = hash_find(&h_gamevars, szGameLabel);
+    return EDUKE32_PREDICT_FALSE(gameVar < 0) ? nDefault : Gv_GetVar(gameVar, spriteNum, playerNum);
 }
 
 static intptr_t *Gv_GetVarDataPtr(const char *szGameLabel)
 {
-    int const nGameVar = hash_find(&h_gamevars, szGameLabel);
+    int const gameVar = hash_find(&h_gamevars, szGameLabel);
 
-    if (EDUKE32_PREDICT_FALSE(nGameVar < 0))
+    if (EDUKE32_PREDICT_FALSE(gameVar < 0))
         return NULL;
 
-    if (aGameVars[nGameVar].nFlags & (GAMEVAR_PERACTOR | GAMEVAR_PERPLAYER))
+    if (aGameVars[gameVar].flags & (GAMEVAR_PERACTOR | GAMEVAR_PERPLAYER))
     {
-        if (EDUKE32_PREDICT_FALSE(!aGameVars[nGameVar].pValues))
+        if (EDUKE32_PREDICT_FALSE(!aGameVars[gameVar].pValues))
             CON_ERRPRINTF("Gv_GetVarDataPtr(): INTERNAL ERROR: NULL array !!!\n");
-        return aGameVars[nGameVar].pValues;
+        return aGameVars[gameVar].pValues;
     }
 
-    return &(aGameVars[nGameVar].nValue);
+    return &(aGameVars[gameVar].global);
 }
 #endif  // !defined LUNATIC
 
@@ -1270,69 +1241,69 @@ void Gv_ResetSystemDefaults(void)
 
     //AddLog("ResetWeaponDefaults");
 
-    for (int nWeapon = 0; nWeapon < MAX_WEAPONS; ++nWeapon)
+    for (int weaponNum = 0; weaponNum < MAX_WEAPONS; ++weaponNum)
     {
-        for (int nPlayer = 0; nPlayer < MAXPLAYERS; ++nPlayer)
+        for (int playerNum = 0; playerNum < MAXPLAYERS; ++playerNum)
         {
-            Bsprintf(aszBuf, "WEAPON%d_CLIP", nWeapon);
-            aplWeaponClip[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_RELOAD", nWeapon);
-            aplWeaponReload[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_FIREDELAY", nWeapon);
-            aplWeaponFireDelay[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_TOTALTIME", nWeapon);
-            aplWeaponTotalTime[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_HOLDDELAY", nWeapon);
-            aplWeaponHoldDelay[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_FLAGS", nWeapon);
-            aplWeaponFlags[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_SHOOTS", nWeapon);
-            aplWeaponShoots[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            if ((unsigned)aplWeaponShoots[nWeapon][nPlayer] >= MAXTILES)
-                aplWeaponShoots[nWeapon][nPlayer] = 0;
-            Bsprintf(aszBuf, "WEAPON%d_SPAWNTIME", nWeapon);
-            aplWeaponSpawnTime[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_SPAWN", nWeapon);
-            aplWeaponSpawn[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", nWeapon);
-            aplWeaponShotsPerBurst[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_WORKSLIKE", nWeapon);
-            aplWeaponWorksLike[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_INITIALSOUND", nWeapon);
-            aplWeaponInitialSound[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_FIRESOUND", nWeapon);
-            aplWeaponFireSound[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_SOUND2TIME", nWeapon);
-            aplWeaponSound2Time[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_SOUND2SOUND", nWeapon);
-            aplWeaponSound2Sound[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_RELOADSOUND1", nWeapon);
-            aplWeaponReloadSound1[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_RELOADSOUND2", nWeapon);
-            aplWeaponReloadSound2[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_SELECTSOUND", nWeapon);
-            aplWeaponSelectSound[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
-            Bsprintf(aszBuf, "WEAPON%d_FLASHCOLOR", nWeapon);
-            aplWeaponFlashColor[nWeapon][nPlayer] = Gv_GetVarByLabel(aszBuf, 0, -1, nPlayer);
+            Bsprintf(aszBuf, "WEAPON%d_CLIP", weaponNum);
+            aplWeaponClip[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_RELOAD", weaponNum);
+            aplWeaponReload[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_FIREDELAY", weaponNum);
+            aplWeaponFireDelay[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_TOTALTIME", weaponNum);
+            aplWeaponTotalTime[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_HOLDDELAY", weaponNum);
+            aplWeaponHoldDelay[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_FLAGS", weaponNum);
+            aplWeaponFlags[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_SHOOTS", weaponNum);
+            aplWeaponShoots[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            if ((unsigned)aplWeaponShoots[weaponNum][playerNum] >= MAXTILES)
+                aplWeaponShoots[weaponNum][playerNum] = 0;
+            Bsprintf(aszBuf, "WEAPON%d_SPAWNTIME", weaponNum);
+            aplWeaponSpawnTime[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_SPAWN", weaponNum);
+            aplWeaponSpawn[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", weaponNum);
+            aplWeaponShotsPerBurst[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_WORKSLIKE", weaponNum);
+            aplWeaponWorksLike[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_INITIALSOUND", weaponNum);
+            aplWeaponInitialSound[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_FIRESOUND", weaponNum);
+            aplWeaponFireSound[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_SOUND2TIME", weaponNum);
+            aplWeaponSound2Time[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_SOUND2SOUND", weaponNum);
+            aplWeaponSound2Sound[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_RELOADSOUND1", weaponNum);
+            aplWeaponReloadSound1[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_RELOADSOUND2", weaponNum);
+            aplWeaponReloadSound2[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_SELECTSOUND", weaponNum);
+            aplWeaponSelectSound[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
+            Bsprintf(aszBuf, "WEAPON%d_FLASHCOLOR", weaponNum);
+            aplWeaponFlashColor[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
         }
     }
 
-    g_iReturnVarID    = Gv_GetVarIndex("RETURN");
-    g_iWeaponVarID    = Gv_GetVarIndex("WEAPON");
-    g_iWorksLikeVarID = Gv_GetVarIndex("WORKSLIKE");
-    g_iZRangeVarID    = Gv_GetVarIndex("ZRANGE");
-    g_iAngRangeVarID  = Gv_GetVarIndex("ANGRANGE");
-    g_iAimAngleVarID  = Gv_GetVarIndex("AUTOAIMANGLE");
-    g_iLoTagID        = Gv_GetVarIndex("LOTAG");
-    g_iHiTagID        = Gv_GetVarIndex("HITAG");
-    g_iTextureID      = Gv_GetVarIndex("TEXTURE");
-    g_iThisActorID    = Gv_GetVarIndex("THISACTOR");
-    g_iStructVarIDs   = Gv_GetVarIndex("sprite");
+    g_returnVarID    = Gv_GetVarIndex("RETURN");
+    g_weaponVarID    = Gv_GetVarIndex("WEAPON");
+    g_worksLikeVarID = Gv_GetVarIndex("WORKSLIKE");
+    g_zRangeVarID    = Gv_GetVarIndex("ZRANGE");
+    g_angRangeVarID  = Gv_GetVarIndex("ANGRANGE");
+    g_aimAngleVarID  = Gv_GetVarIndex("AUTOAIMANGLE");
+    g_lotagVarID        = Gv_GetVarIndex("LOTAG");
+    g_hitagVarID        = Gv_GetVarIndex("HITAG");
+    g_textureVarID      = Gv_GetVarIndex("TEXTURE");
+    g_thisActorVarID    = Gv_GetVarIndex("THISACTOR");
+    g_structVarIDs   = Gv_GetVarIndex("sprite");
 #endif
 
-    for (int nWeapon = 0; nWeapon <= MAXTILES - 1; nWeapon++)
-        if (g_tile[nWeapon].defproj)
-            *g_tile[nWeapon].proj = *g_tile[nWeapon].defproj;
+    for (int weaponNum = 0; weaponNum <= MAXTILES - 1; weaponNum++)
+        if (g_tile[weaponNum].defproj)
+            *g_tile[weaponNum].proj = *g_tile[weaponNum].defproj;
 
     //AddLog("EOF:ResetWeaponDefaults");
 }
@@ -1736,7 +1707,7 @@ void Gv_Init(void)
 {
 #if !defined LUNATIC
     // already initialized
-    if (aGameVars[0].nFlags)
+    if (aGameVars[0].flags)
         return;
 
     Gv_Clear();
@@ -1814,87 +1785,87 @@ void Gv_InitWeaponPointers(void)
 
 void Gv_RefreshPointers(void)
 {
-    aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].nValue = (intptr_t)&ud.respawn_monsters;
-    aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].nValue = (intptr_t)&ud.respawn_items;
-    aGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].nValue = (intptr_t)&ud.respawn_inventory;
-    aGameVars[Gv_GetVarIndex("MONSTERS_OFF")].nValue = (intptr_t)&ud.monsters_off;
-    aGameVars[Gv_GetVarIndex("MARKER")].nValue = (intptr_t)&ud.marker;
-    aGameVars[Gv_GetVarIndex("FFIRE")].nValue = (intptr_t)&ud.ffire;
-    aGameVars[Gv_GetVarIndex("LEVEL")].nValue = (intptr_t)&ud.level_number;
-    aGameVars[Gv_GetVarIndex("VOLUME")].nValue = (intptr_t)&ud.volume_number;
+    aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].global = (intptr_t)&ud.respawn_monsters;
+    aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].global = (intptr_t)&ud.respawn_items;
+    aGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].global = (intptr_t)&ud.respawn_inventory;
+    aGameVars[Gv_GetVarIndex("MONSTERS_OFF")].global = (intptr_t)&ud.monsters_off;
+    aGameVars[Gv_GetVarIndex("MARKER")].global = (intptr_t)&ud.marker;
+    aGameVars[Gv_GetVarIndex("FFIRE")].global = (intptr_t)&ud.ffire;
+    aGameVars[Gv_GetVarIndex("LEVEL")].global = (intptr_t)&ud.level_number;
+    aGameVars[Gv_GetVarIndex("VOLUME")].global = (intptr_t)&ud.volume_number;
 
-    aGameVars[Gv_GetVarIndex("COOP")].nValue = (intptr_t)&ud.coop;
-    aGameVars[Gv_GetVarIndex("MULTIMODE")].nValue = (intptr_t)&ud.multimode;
+    aGameVars[Gv_GetVarIndex("COOP")].global = (intptr_t)&ud.coop;
+    aGameVars[Gv_GetVarIndex("MULTIMODE")].global = (intptr_t)&ud.multimode;
 
-    aGameVars[Gv_GetVarIndex("myconnectindex")].nValue = (intptr_t)&myconnectindex;
-    aGameVars[Gv_GetVarIndex("screenpeek")].nValue = (intptr_t)&screenpeek;
-    aGameVars[Gv_GetVarIndex("currentweapon")].nValue = (intptr_t)&hudweap.cur;
-    aGameVars[Gv_GetVarIndex("gs")].nValue = (intptr_t)&hudweap.shade;
-    aGameVars[Gv_GetVarIndex("looking_arc")].nValue = (intptr_t)&hudweap.lookhoriz;
-    aGameVars[Gv_GetVarIndex("gun_pos")].nValue = (intptr_t)&hudweap.gunposy;
-    aGameVars[Gv_GetVarIndex("weapon_xoffset")].nValue = (intptr_t)&hudweap.gunposx;
-    aGameVars[Gv_GetVarIndex("weaponcount")].nValue = (intptr_t)&hudweap.count;
-    aGameVars[Gv_GetVarIndex("looking_angSR1")].nValue = (intptr_t)&hudweap.lookhalfang;
-    aGameVars[Gv_GetVarIndex("xdim")].nValue = (intptr_t)&xdim;
-    aGameVars[Gv_GetVarIndex("ydim")].nValue = (intptr_t)&ydim;
-    aGameVars[Gv_GetVarIndex("windowx1")].nValue = (intptr_t)&windowxy1.x;
-    aGameVars[Gv_GetVarIndex("windowx2")].nValue = (intptr_t)&windowxy2.x;
-    aGameVars[Gv_GetVarIndex("windowy1")].nValue = (intptr_t)&windowxy1.y;
-    aGameVars[Gv_GetVarIndex("windowy2")].nValue = (intptr_t)&windowxy2.y;
-    aGameVars[Gv_GetVarIndex("totalclock")].nValue = (intptr_t)&totalclock;
-    aGameVars[Gv_GetVarIndex("lastvisinc")].nValue = (intptr_t)&lastvisinc;
-    aGameVars[Gv_GetVarIndex("numsectors")].nValue = (intptr_t)&numsectors;
-    aGameVars[Gv_GetVarIndex("numplayers")].nValue = (intptr_t)&numplayers;
-    aGameVars[Gv_GetVarIndex("current_menu")].nValue = (intptr_t)&g_currentMenu;
-    aGameVars[Gv_GetVarIndex("viewingrange")].nValue = (intptr_t)&viewingrange;
-    aGameVars[Gv_GetVarIndex("yxaspect")].nValue = (intptr_t)&yxaspect;
-    aGameVars[Gv_GetVarIndex("gravitationalconstant")].nValue = (intptr_t)&g_spriteGravity;
-    aGameVars[Gv_GetVarIndex("gametype_flags")].nValue = (intptr_t)&GametypeFlags[ud.coop];
-    aGameVars[Gv_GetVarIndex("framerate")].nValue = (intptr_t)&g_currentFrameRate;
+    aGameVars[Gv_GetVarIndex("myconnectindex")].global = (intptr_t)&myconnectindex;
+    aGameVars[Gv_GetVarIndex("screenpeek")].global = (intptr_t)&screenpeek;
+    aGameVars[Gv_GetVarIndex("currentweapon")].global = (intptr_t)&hudweap.cur;
+    aGameVars[Gv_GetVarIndex("gs")].global = (intptr_t)&hudweap.shade;
+    aGameVars[Gv_GetVarIndex("looking_arc")].global = (intptr_t)&hudweap.lookhoriz;
+    aGameVars[Gv_GetVarIndex("gun_pos")].global = (intptr_t)&hudweap.gunposy;
+    aGameVars[Gv_GetVarIndex("weapon_xoffset")].global = (intptr_t)&hudweap.gunposx;
+    aGameVars[Gv_GetVarIndex("weaponcount")].global = (intptr_t)&hudweap.count;
+    aGameVars[Gv_GetVarIndex("looking_angSR1")].global = (intptr_t)&hudweap.lookhalfang;
+    aGameVars[Gv_GetVarIndex("xdim")].global = (intptr_t)&xdim;
+    aGameVars[Gv_GetVarIndex("ydim")].global = (intptr_t)&ydim;
+    aGameVars[Gv_GetVarIndex("windowx1")].global = (intptr_t)&windowxy1.x;
+    aGameVars[Gv_GetVarIndex("windowx2")].global = (intptr_t)&windowxy2.x;
+    aGameVars[Gv_GetVarIndex("windowy1")].global = (intptr_t)&windowxy1.y;
+    aGameVars[Gv_GetVarIndex("windowy2")].global = (intptr_t)&windowxy2.y;
+    aGameVars[Gv_GetVarIndex("totalclock")].global = (intptr_t)&totalclock;
+    aGameVars[Gv_GetVarIndex("lastvisinc")].global = (intptr_t)&lastvisinc;
+    aGameVars[Gv_GetVarIndex("numsectors")].global = (intptr_t)&numsectors;
+    aGameVars[Gv_GetVarIndex("numplayers")].global = (intptr_t)&numplayers;
+    aGameVars[Gv_GetVarIndex("current_menu")].global = (intptr_t)&g_currentMenu;
+    aGameVars[Gv_GetVarIndex("viewingrange")].global = (intptr_t)&viewingrange;
+    aGameVars[Gv_GetVarIndex("yxaspect")].global = (intptr_t)&yxaspect;
+    aGameVars[Gv_GetVarIndex("gravitationalconstant")].global = (intptr_t)&g_spriteGravity;
+    aGameVars[Gv_GetVarIndex("gametype_flags")].global = (intptr_t)&GametypeFlags[ud.coop];
+    aGameVars[Gv_GetVarIndex("framerate")].global = (intptr_t)&g_currentFrameRate;
 
-    aGameVars[Gv_GetVarIndex("camerax")].nValue = (intptr_t)&ud.camerapos.x;
-    aGameVars[Gv_GetVarIndex("cameray")].nValue = (intptr_t)&ud.camerapos.y;
-    aGameVars[Gv_GetVarIndex("cameraz")].nValue = (intptr_t)&ud.camerapos.z;
-    aGameVars[Gv_GetVarIndex("cameraang")].nValue = (intptr_t)&ud.cameraang;
-    aGameVars[Gv_GetVarIndex("camerahoriz")].nValue = (intptr_t)&ud.camerahoriz;
-    aGameVars[Gv_GetVarIndex("camerasect")].nValue = (intptr_t)&ud.camerasect;
-    aGameVars[Gv_GetVarIndex("cameradist")].nValue = (intptr_t)&g_cameraDistance;
-    aGameVars[Gv_GetVarIndex("cameraclock")].nValue = (intptr_t)&g_cameraClock;
+    aGameVars[Gv_GetVarIndex("camerax")].global = (intptr_t)&ud.camerapos.x;
+    aGameVars[Gv_GetVarIndex("cameray")].global = (intptr_t)&ud.camerapos.y;
+    aGameVars[Gv_GetVarIndex("cameraz")].global = (intptr_t)&ud.camerapos.z;
+    aGameVars[Gv_GetVarIndex("cameraang")].global = (intptr_t)&ud.cameraang;
+    aGameVars[Gv_GetVarIndex("camerahoriz")].global = (intptr_t)&ud.camerahoriz;
+    aGameVars[Gv_GetVarIndex("camerasect")].global = (intptr_t)&ud.camerasect;
+    aGameVars[Gv_GetVarIndex("cameradist")].global = (intptr_t)&g_cameraDistance;
+    aGameVars[Gv_GetVarIndex("cameraclock")].global = (intptr_t)&g_cameraClock;
 
-    aGameVars[Gv_GetVarIndex("myx")].nValue = (intptr_t)&my.x;
-    aGameVars[Gv_GetVarIndex("myy")].nValue = (intptr_t)&my.y;
-    aGameVars[Gv_GetVarIndex("myz")].nValue = (intptr_t)&my.z;
-    aGameVars[Gv_GetVarIndex("omyx")].nValue = (intptr_t)&omy.x;
-    aGameVars[Gv_GetVarIndex("omyy")].nValue = (intptr_t)&omy.y;
-    aGameVars[Gv_GetVarIndex("omyz")].nValue = (intptr_t)&omy.z;
-    aGameVars[Gv_GetVarIndex("myvelx")].nValue = (intptr_t)&myvel.x;
-    aGameVars[Gv_GetVarIndex("myvely")].nValue = (intptr_t)&myvel.y;
-    aGameVars[Gv_GetVarIndex("myvelz")].nValue = (intptr_t)&myvel.z;
+    aGameVars[Gv_GetVarIndex("myx")].global = (intptr_t)&my.x;
+    aGameVars[Gv_GetVarIndex("myy")].global = (intptr_t)&my.y;
+    aGameVars[Gv_GetVarIndex("myz")].global = (intptr_t)&my.z;
+    aGameVars[Gv_GetVarIndex("omyx")].global = (intptr_t)&omy.x;
+    aGameVars[Gv_GetVarIndex("omyy")].global = (intptr_t)&omy.y;
+    aGameVars[Gv_GetVarIndex("omyz")].global = (intptr_t)&omy.z;
+    aGameVars[Gv_GetVarIndex("myvelx")].global = (intptr_t)&myvel.x;
+    aGameVars[Gv_GetVarIndex("myvely")].global = (intptr_t)&myvel.y;
+    aGameVars[Gv_GetVarIndex("myvelz")].global = (intptr_t)&myvel.z;
 
-    aGameVars[Gv_GetVarIndex("myhoriz")].nValue = (intptr_t)&myhoriz;
-    aGameVars[Gv_GetVarIndex("myhorizoff")].nValue = (intptr_t)&myhorizoff;
-    aGameVars[Gv_GetVarIndex("omyhoriz")].nValue = (intptr_t)&omyhoriz;
-    aGameVars[Gv_GetVarIndex("omyhorizoff")].nValue = (intptr_t)&omyhorizoff;
-    aGameVars[Gv_GetVarIndex("myang")].nValue = (intptr_t)&myang;
-    aGameVars[Gv_GetVarIndex("omyang")].nValue = (intptr_t)&omyang;
-    aGameVars[Gv_GetVarIndex("mycursectnum")].nValue = (intptr_t)&mycursectnum;
-    aGameVars[Gv_GetVarIndex("myjumpingcounter")].nValue = (intptr_t)&myjumpingcounter;
+    aGameVars[Gv_GetVarIndex("myhoriz")].global = (intptr_t)&myhoriz;
+    aGameVars[Gv_GetVarIndex("myhorizoff")].global = (intptr_t)&myhorizoff;
+    aGameVars[Gv_GetVarIndex("omyhoriz")].global = (intptr_t)&omyhoriz;
+    aGameVars[Gv_GetVarIndex("omyhorizoff")].global = (intptr_t)&omyhorizoff;
+    aGameVars[Gv_GetVarIndex("myang")].global = (intptr_t)&myang;
+    aGameVars[Gv_GetVarIndex("omyang")].global = (intptr_t)&omyang;
+    aGameVars[Gv_GetVarIndex("mycursectnum")].global = (intptr_t)&mycursectnum;
+    aGameVars[Gv_GetVarIndex("myjumpingcounter")].global = (intptr_t)&myjumpingcounter;
 
-    aGameVars[Gv_GetVarIndex("myjumpingtoggle")].nValue = (intptr_t)&myjumpingtoggle;
-    aGameVars[Gv_GetVarIndex("myonground")].nValue = (intptr_t)&myonground;
-    aGameVars[Gv_GetVarIndex("myhardlanding")].nValue = (intptr_t)&myhardlanding;
-    aGameVars[Gv_GetVarIndex("myreturntocenter")].nValue = (intptr_t)&myreturntocenter;
+    aGameVars[Gv_GetVarIndex("myjumpingtoggle")].global = (intptr_t)&myjumpingtoggle;
+    aGameVars[Gv_GetVarIndex("myonground")].global = (intptr_t)&myonground;
+    aGameVars[Gv_GetVarIndex("myhardlanding")].global = (intptr_t)&myhardlanding;
+    aGameVars[Gv_GetVarIndex("myreturntocenter")].global = (intptr_t)&myreturntocenter;
 
-    aGameVars[Gv_GetVarIndex("display_mirror")].nValue = (intptr_t)&display_mirror;
-    aGameVars[Gv_GetVarIndex("randomseed")].nValue = (intptr_t)&randomseed;
+    aGameVars[Gv_GetVarIndex("display_mirror")].global = (intptr_t)&display_mirror;
+    aGameVars[Gv_GetVarIndex("randomseed")].global = (intptr_t)&randomseed;
 
-    aGameVars[Gv_GetVarIndex("NUMWALLS")].nValue = (intptr_t)&numwalls;
-    aGameVars[Gv_GetVarIndex("NUMSECTORS")].nValue = (intptr_t)&numsectors;
-    aGameVars[Gv_GetVarIndex("Numsprites")].nValue = (intptr_t)&Numsprites;
+    aGameVars[Gv_GetVarIndex("NUMWALLS")].global = (intptr_t)&numwalls;
+    aGameVars[Gv_GetVarIndex("NUMSECTORS")].global = (intptr_t)&numsectors;
+    aGameVars[Gv_GetVarIndex("Numsprites")].global = (intptr_t)&Numsprites;
 
-    aGameVars[Gv_GetVarIndex("lastsavepos")].nValue = (intptr_t)&g_lastSaveSlot;
+    aGameVars[Gv_GetVarIndex("lastsavepos")].global = (intptr_t)&g_lastSaveSlot;
 # ifdef USE_OPENGL
-    aGameVars[Gv_GetVarIndex("rendmode")].nValue = (intptr_t)&rendmode;
+    aGameVars[Gv_GetVarIndex("rendmode")].global = (intptr_t)&rendmode;
 # endif
 }
 #endif

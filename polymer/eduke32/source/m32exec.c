@@ -66,11 +66,11 @@ void X_Disasm(ofstype beg, int32_t size)
 {
     instype *p;
 
-    if (!script) return;
+    if (!apScript) return;
     if (beg<0 || beg+size>g_scriptSize) return;
 
     initprintf("beg=%d, size=%d:  ", beg, size);
-    for (p=script+beg; p<script+beg+size; p++)
+    for (p=apScript+beg; p<apScript+beg+size; p++)
     {
         if (*p>>12 && (*p&0xFFF)<CON_END)
             initprintf("%s ", keyw[*p&0xFFF]);
@@ -83,23 +83,23 @@ void X_Disasm(ofstype beg, int32_t size)
 
 void VM_ScriptInfo(void)
 {
-    if (script)
+    if (apScript)
     {
         instype *p;
         if (insptr)
-            for (p=max(insptr-20,script); p<min(insptr+20, script+g_scriptSize); p++)
+            for (p=max(insptr-20,apScript); p<min(insptr+20, apScript+g_scriptSize); p++)
             {
                 if (p==insptr) initprintf("<<");
 
                 if (*p>>12 && (*p&0xFFF)<CON_END)
-                    initprintf("\n%5d: L%5d:  %s ",(int32_t)(p-script),(int32_t)(*p>>12),keyw[*p&0xFFF]);
+                    initprintf("\n%5d: L%5d:  %s ",(int32_t)(p-apScript),(int32_t)(*p>>12),keyw[*p&0xFFF]);
                 else initprintf(" %d",*p);
 
                 if (p==insptr) initprintf(">>");
             }
         initprintf(" \n");
-        if (vm.g_i >= 0)
-            initprintf("current sprite: %d\n",vm.g_i);
+        if (vm.spriteNum >= 0)
+            initprintf("current sprite: %d\n",vm.spriteNum);
         if (g_tw>=0 && g_tw<CON_END)
             initprintf("g_errorLineNum: %d, g_tw: %s\n",g_errorLineNum,keyw[g_tw]);
         else
@@ -124,7 +124,7 @@ void M32_PostScriptExec(void)
     }
 }
 
-void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
+void VM_OnEvent(register int32_t iEventID, register int32_t spriteNum)
 {
     if (iEventID < 0 || iEventID >= MAXEVENTS)
     {
@@ -155,15 +155,15 @@ void VM_OnEvent(register int32_t iEventID, register int32_t iActor)
 
         Bmemcpy(&vm_backup, &vm, sizeof(vmstate_t));
 
-        vm.g_i = iActor;    // current sprite ID
-        if (vm.g_i >= 0)
-            vm.g_sp = (uspritetype *)&sprite[vm.g_i];
+        vm.spriteNum = spriteNum;    // current sprite ID
+        if (vm.spriteNum >= 0)
+            vm.pSprite = &sprite[vm.spriteNum];
 
         vm.g_st = 1+iEventID;
 
         vm.flags = 0;
 
-        insptr = script + aEventOffsets[iEventID];
+        insptr = apScript + aEventOffsets[iEventID];
 
         aGameArrays[M32_LOCAL_ARRAY_ID].vals = localvars;
         VM_Execute(0);
@@ -239,46 +239,46 @@ static int X_DoSort(const void *lv, const void *rv)
 }
 
 // in interactive execution, allow the current sprite index to be the aimed-at sprite (in 3d mode)
-#define X_ERROR_INVALIDCI()                                                                                            \
-    if ((vm.g_i < 0 || vm.g_i >= MAXSPRITES) &&                                                                        \
-        (vm.g_st != 0 || searchstat != 3 || (vm.g_i = searchwall, vm.g_sp = (uspritetype *)&sprite[vm.g_i], 0)))       \
-    {                                                                                                                  \
-        M32_ERROR("Current sprite index invalid!");                                                                    \
-        continue;                                                                                                      \
+#define X_ERROR_INVALIDCI()                                                                                                 \
+    if ((vm.spriteNum < 0 || vm.spriteNum >= MAXSPRITES) &&                                                                 \
+        (vm.g_st != 0 || searchstat != 3 || (vm.spriteNum = searchwall, vm.pSprite = &sprite[vm.spriteNum], 0)))            \
+    {                                                                                                                       \
+        M32_ERROR("Current sprite index invalid!");                                                                         \
+        continue;                                                                                                           \
     }
 
-#define X_ERROR_INVALIDSPRI(dasprite)                                   \
-    if (dasprite < 0 || dasprite>=MAXSPRITES)                           \
-    {                                                                   \
-        M32_ERROR("Invalid sprite index %d!",  dasprite); \
-        continue;                                                       \
+#define X_ERROR_INVALIDSPRI(dasprite)                                                                                       \
+    if (dasprite < 0 || dasprite >= MAXSPRITES)                                                                             \
+    {                                                                                                                       \
+        M32_ERROR("Invalid sprite index %d!", dasprite);                                                                    \
+        continue;                                                                                                           \
     }
 
-#define X_ERROR_INVALIDSECT(dasect)                                     \
-    if (dasect < 0 || dasect>=numsectors)                               \
-    {                                                                   \
-        M32_ERROR("Invalid sector index %d!",  dasect); \
-        continue;                                                       \
+#define X_ERROR_INVALIDSECT(dasect)                                                                                         \
+    if (dasect < 0 || dasect >= numsectors)                                                                                 \
+    {                                                                                                                       \
+        M32_ERROR("Invalid sector index %d!", dasect);                                                                      \
+        continue;                                                                                                           \
     }
 
-#define X_ERROR_INVALIDSP()                                                                                            \
-    if (!vm.g_sp && (vm.g_st != 0 || searchstat != 3 || (vm.g_sp = (uspritetype *)&sprite[searchwall], 0)))            \
-    {                                                                                                                  \
-        M32_ERROR("Current sprite invalid!");                                                                          \
-        continue;                                                                                                      \
+#define X_ERROR_INVALIDSP()                                                                                                 \
+    if (!vm.pSprite && (vm.g_st != 0 || searchstat != 3 || (vm.pSprite = &sprite[searchwall], 0)))                          \
+    {                                                                                                                       \
+        M32_ERROR("Current sprite invalid!");                                                                               \
+        continue;                                                                                                           \
     }
 
-#define X_ERROR_INVALIDQUOTE(q, array)                                  \
-    if (q<0 || q>=MAXQUOTES)                                            \
-    {                                                                   \
-        M32_ERROR("Invalid quote number %d!",  q); \
-        continue;                                                       \
-    }                                                                   \
-    else if (array[q] == NULL)                                          \
-    {                                                                   \
-        M32_ERROR("Null quote %d!",  q); \
-        continue;                                                       \
-    }                                                                   \
+#define X_ERROR_INVALIDQUOTE(q, array)                                                                                      \
+    if (q < 0 || q >= MAXQUOTES)                                                                                            \
+    {                                                                                                                       \
+        M32_ERROR("Invalid quote number %d!", q);                                                                           \
+        continue;                                                                                                           \
+    }                                                                                                                       \
+    else if (array[q] == NULL)                                                                                              \
+    {                                                                                                                       \
+        M32_ERROR("Null quote %d!", q);                                                                                     \
+        continue;                                                                                                           \
+    }
 
 static char *GetMaybeInlineQuote(int32_t quotei)
 {
@@ -291,10 +291,10 @@ static char *GetMaybeInlineQuote(int32_t quotei)
     else
     {
         quotei = Gv_GetVarX(quotei);
-        do { X_ERROR_INVALIDQUOTE(quotei, ScriptQuotes) } while (0);
+        do { X_ERROR_INVALIDQUOTE(quotei, apStrings) } while (0);
         if (vm.flags&VMFLAG_ERROR)
             return NULL;
-        quotetext = ScriptQuotes[quotei];
+        quotetext = apStrings[quotei];
     }
 
     return quotetext;
@@ -351,7 +351,7 @@ skip_check:
             if (statesinfo[stateidx].numlocals > 0)
                 Bmemset(localvars, 0, statesinfo[stateidx].numlocals*sizeof(int32_t));
 
-            insptr = script + statesinfo[stateidx].ofs;
+            insptr = apScript + statesinfo[stateidx].ofs;
             vm.g_st = 1+MAXEVENTS+stateidx;
             aGameArrays[M32_LOCAL_ARRAY_ID].vals = localvars;
             VM_Execute(0);
@@ -453,7 +453,7 @@ skip_check:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, insptr-script);
+                Gv_SetVarX(j, insptr-apScript);
             }
             continue;
 
@@ -461,12 +461,12 @@ skip_check:
             insptr++;
             {
                 int32_t j = Gv_GetVarX(*insptr++);
-                if (j<0 || j>=(g_scriptPtr-script))
+                if (j<0 || j>=(g_scriptPtr-apScript))
                 {
                     M32_ERROR("script index out of bounds (%d)",  j);
                     continue;
                 }
-                insptr = (instype *)(j+script);
+                insptr = (instype *)(j+apScript);
             }
             continue;
 
@@ -1206,7 +1206,7 @@ skip_check:
                             if (sectbitmap[ns>>3]&(1<<(ns&7)))
                                 continue;
                             vm.g_st = 1+MAXEVENTS+state;
-                            insptr = script + statesinfo[state].ofs;
+                            insptr = apScript + statesinfo[state].ofs;
                             g_iReturnVar = ns;
                             VM_Execute(0);
                             if (g_iReturnVar)
@@ -1255,7 +1255,7 @@ skip_check:
                 }
                 else
                 {
-                    x_sortingstateptr = script + statesinfo[state].ofs;
+                    x_sortingstateptr = apScript + statesinfo[state].ofs;
                     vm.g_st = 1+MAXEVENTS+state;
                     qsort(gar->vals, count, sizeof(int32_t), X_DoSort);
                     vm.g_st = o_g_st;
@@ -1270,8 +1270,8 @@ skip_check:
                 const int32_t var = *insptr++, how = *insptr++;
                 const int32_t parm2 = how<=ITER_DRAWNSPRITES ? 0 : Gv_GetVarX(*insptr++);
                 instype *const end = insptr + *insptr, *const beg = ++insptr;
-                const int32_t vm_i_bak = vm.g_i;
-                uspritetype *const vm_sp_bak = vm.g_sp;
+                const int32_t vm_i_bak = vm.spriteNum;
+                uspritetype *const vm_sp_bak = vm.pUSprite;
 
                 if (vm.flags&VMFLAG_ERROR)
                     continue;
@@ -1284,8 +1284,8 @@ skip_check:
                         if (sprite[jj].statnum == MAXSTATUS)
                             continue;
                         Gv_SetVarX(var, jj);
-                        vm.g_i = jj;
-                        vm.g_sp = (uspritetype *)&sprite[jj];
+                        vm.spriteNum = jj;
+                        vm.pSprite = &sprite[jj];
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1330,8 +1330,8 @@ skip_check:
                         {
                             jj &= (MAXSPRITES-1);
                             Gv_SetVarX(var, jj);
-                            vm.g_i = jj;
-                            vm.g_sp = (uspritetype *)&sprite[jj];
+                            vm.spriteNum = jj;
+                            vm.pSprite = &sprite[jj];
                             insptr = beg;
                             VM_Execute(1);
                         }
@@ -1367,7 +1367,7 @@ skip_check:
 
                     for (int ii=0; ii<spritesortcnt && !vm.flags; ii++)
                     {
-                        vm.g_sp = lastSpritePtr;
+                        vm.pUSprite = lastSpritePtr;
                         Bmemcpy(lastSpritePtr, &tsprite[ii], sizeof(uspritetype));
 
                         Gv_SetVarX(var, ii);
@@ -1388,8 +1388,8 @@ skip_check:
                     for (int jj=headspritesect[parm2]; jj>=0 && !vm.flags; jj=nextspritesect[jj])
                     {
                         Gv_SetVarX(var, jj);
-                        vm.g_i = jj;
-                        vm.g_sp = (uspritetype *)&sprite[jj];
+                        vm.spriteNum = jj;
+                        vm.pSprite = &sprite[jj];
                         insptr = beg;
                         VM_Execute(1);
                     }
@@ -1437,10 +1437,10 @@ badindex:
                     vm.flags |= VMFLAG_ERROR;
                     continue;
                 }
-                vm.g_i = vm_i_bak;
-                vm.g_sp = vm_sp_bak;
-                vm.flags &= ~VMFLAG_BREAK;
-                insptr = end;
+                vm.spriteNum = vm_i_bak;
+                vm.pUSprite  = vm_sp_bak;
+                vm.flags     &= ~VMFLAG_BREAK;
+                insptr       = end;
             }
             continue;
 
@@ -1564,7 +1564,7 @@ badindex:
         case CON_IFSPRITEPAL:
             insptr++;
             X_ERROR_INVALIDSP();
-            VM_DoConditional(vm.g_sp->pal == Gv_GetVarX(*insptr));
+            VM_DoConditional(vm.pSprite->pal == Gv_GetVarX(*insptr));
             continue;
 
         case CON_IFHIGHLIGHTED:
@@ -1590,7 +1590,7 @@ badindex:
             {
                 int32_t j;
                 X_ERROR_INVALIDSP();
-                j = klabs(G_GetAngleDelta(ang, vm.g_sp->ang));
+                j = klabs(G_GetAngleDelta(ang, vm.pSprite->ang));
                 VM_DoConditional(j <= Gv_GetVarX(*insptr));
             }
             continue;
@@ -1601,18 +1601,18 @@ badindex:
             int32_t j = 0;
 
             X_ERROR_INVALIDSP();
-            s1 = vm.g_sp->sectnum;
-            updatesector(vm.g_sp->x+108,vm.g_sp->y+108,&s1);
-            if (s1 == vm.g_sp->sectnum)
+            s1 = vm.pSprite->sectnum;
+            updatesector(vm.pSprite->x+108,vm.pSprite->y+108,&s1);
+            if (s1 == vm.pSprite->sectnum)
             {
-                updatesector(vm.g_sp->x-108,vm.g_sp->y-108,&s1);
-                if (s1 == vm.g_sp->sectnum)
+                updatesector(vm.pSprite->x-108,vm.pSprite->y-108,&s1);
+                if (s1 == vm.pSprite->sectnum)
                 {
-                    updatesector(vm.g_sp->x+108,vm.g_sp->y-108,&s1);
-                    if (s1 == vm.g_sp->sectnum)
+                    updatesector(vm.pSprite->x+108,vm.pSprite->y-108,&s1);
+                    if (s1 == vm.pSprite->sectnum)
                     {
-                        updatesector(vm.g_sp->x-108,vm.g_sp->y+108,&s1);
-                        if (s1 == vm.g_sp->sectnum)
+                        updatesector(vm.pSprite->x-108,vm.pSprite->y+108,&s1);
+                        if (s1 == vm.pSprite->sectnum)
                             j = 1;
                     }
                 }
@@ -1626,7 +1626,7 @@ badindex:
             int32_t j;
 
             X_ERROR_INVALIDSP();
-            j = cansee(vm.g_sp->x,vm.g_sp->y,vm.g_sp->z/*-((krand()&41)<<8)*/,vm.g_sp->sectnum,
+            j = cansee(vm.pSprite->x,vm.pSprite->y,vm.pSprite->z/*-((krand()&41)<<8)*/,vm.pSprite->sectnum,
                        pos.x, pos.y, pos.z /*-((krand()&41)<<8)*/, cursectnum);
             VM_DoConditional(j);
         }
@@ -1634,18 +1634,18 @@ badindex:
 
         case CON_IFONWATER:
             X_ERROR_INVALIDSP();
-            VM_DoConditional(sector[vm.g_sp->sectnum].lotag == 1 && klabs(vm.g_sp->z-sector[vm.g_sp->sectnum].floorz) < (32<<8));
+            VM_DoConditional(sector[vm.pSprite->sectnum].lotag == 1 && klabs(vm.pSprite->z-sector[vm.pSprite->sectnum].floorz) < (32<<8));
             continue;
 
         case CON_IFINWATER:
             X_ERROR_INVALIDSP();
-            VM_DoConditional(sector[vm.g_sp->sectnum].lotag == 2);
+            VM_DoConditional(sector[vm.pSprite->sectnum].lotag == 2);
             continue;
 
         case CON_IFACTOR:
             insptr++;
             X_ERROR_INVALIDSP();
-            VM_DoConditional(vm.g_sp->picnum == Gv_GetVarX(*insptr));
+            VM_DoConditional(vm.pSprite->picnum == Gv_GetVarX(*insptr));
             continue;
 
         case CON_IFINSIDE:
@@ -1666,14 +1666,14 @@ badindex:
 
         case CON_IFOUTSIDE:
             X_ERROR_INVALIDSP();
-            VM_DoConditional(sector[vm.g_sp->sectnum].ceilingstat&1);
+            VM_DoConditional(sector[vm.pSprite->sectnum].ceilingstat&1);
             continue;
 
         case CON_IFPDISTL:
             insptr++;
             {
                 X_ERROR_INVALIDSP();
-                VM_DoConditional(dist((spritetype *)&pos, vm.g_sp) < Gv_GetVarX(*insptr));
+                VM_DoConditional(dist((spritetype *)&pos, vm.pSprite) < Gv_GetVarX(*insptr));
             }
             continue;
 
@@ -1681,7 +1681,7 @@ badindex:
             insptr++;
             {
                 X_ERROR_INVALIDSP();
-                VM_DoConditional(dist((spritetype *)&pos, vm.g_sp) > Gv_GetVarX(*insptr));
+                VM_DoConditional(dist((spritetype *)&pos, vm.pSprite) > Gv_GetVarX(*insptr));
             }
             continue;
 // ^^^
@@ -1700,8 +1700,8 @@ badindex:
                 }
 
                 ret = insertsprite(dasectnum, 0);
-                vm.g_i = ret;
-                vm.g_sp = (uspritetype *)&sprite[ret];
+                vm.spriteNum = ret;
+                vm.pSprite = &sprite[ret];
             }
             continue;
 
@@ -1735,15 +1735,15 @@ badindex:
                     }
 
                     Bmemcpy(&sprite[nspritenum], &sprite[ospritenum], sizeof(spritetype));
-                    vm.g_i = nspritenum;
-                    vm.g_sp = (uspritetype *)&sprite[nspritenum];
+                    vm.spriteNum = nspritenum;
+                    vm.pSprite = &sprite[nspritenum];
                 }
                 else
                 {
                     Bmemcpy(&tsprite[spritesortcnt], &sprite[ospritenum], sizeof(spritetype));
                     tsprite[spritesortcnt].owner = ospritenum;
-                    vm.g_i = -1;
-                    vm.g_sp = &tsprite[spritesortcnt];
+                    vm.spriteNum = -1;
+                    vm.pUSprite = &tsprite[spritesortcnt];
                     spritesortcnt++;
                 }
             }
@@ -2036,7 +2036,7 @@ badindex:
                 int16_t w;
 
                 X_ERROR_INVALIDCI();
-                w=sprite[vm.g_i].sectnum;
+                w=sprite[vm.spriteNum].sectnum;
 
                 if (tw==CON_UPDATESECTOR) updatesector(x,y,&w);
                 else updatesectorz(x,y,z,&w);
@@ -2401,15 +2401,15 @@ badindex:
             insptr++;
             {
                 int32_t q = *insptr++, i = *insptr++;
-                X_ERROR_INVALIDQUOTE(q, ScriptQuotes);
-                X_ERROR_INVALIDQUOTE(i, ScriptQuoteRedefinitions);
-                Bstrcpy(ScriptQuotes[q],ScriptQuoteRedefinitions[i]);
+                X_ERROR_INVALIDQUOTE(q, apStrings);
+                X_ERROR_INVALIDQUOTE(i, apXStrings);
+                Bstrcpy(apStrings[q],apXStrings[i]);
                 continue;
             }
 
             insptr++;
-            X_ERROR_INVALIDQUOTE(*insptr, ScriptQuotes);
-            OSD_Printf("%s", ScriptQuotes[*insptr++]);
+            X_ERROR_INVALIDQUOTE(*insptr, apStrings);
+            OSD_Printf("%s", apStrings[*insptr++]);
             continue;
 
         case CON_GETNUMBER16:  /* deprecated */
@@ -2548,12 +2548,12 @@ badindex:
                 if (vm.flags&VMFLAG_ERROR)
                     continue;
 
-                X_ERROR_INVALIDQUOTE(q1, ScriptQuotes);
+                X_ERROR_INVALIDQUOTE(q1, apStrings);
 
                 {
                     int32_t st = Gv_GetVarX(*insptr++);
                     int32_t ln = Gv_GetVarX(*insptr++);
-                    char *s1 = ScriptQuotes[q1];
+                    char *s1 = apStrings[q1];
                     const char *s2 = q2text;
 
                     while (*s2 && st--) s2++;
@@ -2580,18 +2580,18 @@ badindex:
                 if (vm.flags&VMFLAG_ERROR)
                     continue;
 
-                X_ERROR_INVALIDQUOTE(i, ScriptQuotes);
+                X_ERROR_INVALIDQUOTE(i, apStrings);
 
                 switch (tw)
                 {
                 case CON_QSTRCAT:
-                    Bstrncat(ScriptQuotes[i], quotetext, (MAXQUOTELEN-1)-Bstrlen(ScriptQuotes[i]));
+                    Bstrncat(apStrings[i], quotetext, (MAXQUOTELEN-1)-Bstrlen(apStrings[i]));
                     break;
                 case CON_QSTRNCAT:
-                    Bstrncat(ScriptQuotes[i], quotetext, Gv_GetVarX(*insptr++));
+                    Bstrncat(apStrings[i], quotetext, Gv_GetVarX(*insptr++));
                     break;
                 case CON_QSTRCPY:
-                    Bstrcpy(ScriptQuotes[i], quotetext);
+                    Bstrcpy(apStrings[i], quotetext);
                     break;
                 }
                 continue;
@@ -2605,7 +2605,7 @@ badindex:
                 if (vm.flags&VMFLAG_ERROR)
                     continue;
 
-                X_ERROR_INVALIDQUOTE(dq, ScriptQuotes);
+                X_ERROR_INVALIDQUOTE(dq, apStrings);
 
                 {
                     int32_t arg[32], numvals=0, i=0, j=0, k=0;
@@ -2670,10 +2670,10 @@ badindex:
 
                             case 's':
                             {
-                                if (arg[i]>=0 && arg[i]<MAXQUOTES && ScriptQuotes[arg[i]])
+                                if (arg[i]>=0 && arg[i]<MAXQUOTES && apStrings[arg[i]])
                                 {
-                                    int32_t ii = Bstrlen(ScriptQuotes[arg[i]]);
-                                    Bmemcpy(&tmpbuf[j], ScriptQuotes[arg[i]], ii);
+                                    int32_t ii = Bstrlen(apStrings[arg[i]]);
+                                    Bmemcpy(&tmpbuf[j], apStrings[arg[i]], ii);
                                     j += ii;
                                 }
                                 k++;
@@ -2690,8 +2690,8 @@ dodefault:
                     while (k < len && j < MAXQUOTELEN);
 
                     tmpbuf[j] = '\0';
-                    Bmemcpy(ScriptQuotes[dq], tmpbuf, MAXQUOTELEN);
-                    ScriptQuotes[dq][MAXQUOTELEN-1] = '\0';
+                    Bmemcpy(apStrings[dq], tmpbuf, MAXQUOTELEN);
+                    apStrings[dq][MAXQUOTELEN-1] = '\0';
                     continue;
                 }
             }
@@ -2723,7 +2723,7 @@ dodefault:
                     {
                         while (j>=0)
                         {
-                            if (sprite[j].picnum == lType && j != vm.g_i && dist(&sprite[vm.g_i], &sprite[j]) < lMaxDist)
+                            if (sprite[j].picnum == lType && j != vm.spriteNum && dist(&sprite[vm.spriteNum], &sprite[j]) < lMaxDist)
                             {
                                 lFound=j;
                                 j = MAXSPRITES;
@@ -2738,7 +2738,7 @@ dodefault:
 
                     while (j>=0)
                     {
-                        if (sprite[j].picnum == lType && j != vm.g_i && ldist(&sprite[vm.g_i], &sprite[j]) < lMaxDist)
+                        if (sprite[j].picnum == lType && j != vm.spriteNum && ldist(&sprite[vm.spriteNum], &sprite[j]) < lMaxDist)
                         {
                             lFound=j;
                             j = MAXSPRITES;
@@ -2777,12 +2777,12 @@ dodefault:
                     if (j == -1) continue;
                     do
                     {
-                        if (sprite[j].picnum == lType && j != vm.g_i)
+                        if (sprite[j].picnum == lType && j != vm.spriteNum)
                         {
-                            lTemp=ldist(&sprite[vm.g_i], &sprite[j]);
+                            lTemp=ldist(&sprite[vm.spriteNum], &sprite[j]);
                             if (lTemp < lMaxDist)
                             {
-                                lTemp2=klabs(sprite[vm.g_i].z-sprite[j].z);
+                                lTemp2=klabs(sprite[vm.spriteNum].z-sprite[j].z);
                                 if (lTemp2 < lMaxZDist)
                                 {
                                     lFound=j;
@@ -2832,88 +2832,88 @@ dodefault:
             insptr++;
             newcurspritei = Gv_GetVarX(*insptr++);
             X_ERROR_INVALIDSPRI(newcurspritei);
-            vm.g_i = newcurspritei;
-            vm.g_sp = (uspritetype *)&sprite[vm.g_i];
+            vm.spriteNum = newcurspritei;
+            vm.pSprite = &sprite[vm.spriteNum];
             continue;
         }
 
         case CON_SIZEAT:
             insptr += 3;
             X_ERROR_INVALIDSP();
-            vm.g_sp->xrepeat = (uint8_t) Gv_GetVarX(*(insptr-2));
-            vm.g_sp->yrepeat = (uint8_t) Gv_GetVarX(*(insptr-1));
-            if (vm.g_i != -1) spritechanged[vm.g_i]++;
+            vm.pSprite->xrepeat = (uint8_t) Gv_GetVarX(*(insptr-2));
+            vm.pSprite->yrepeat = (uint8_t) Gv_GetVarX(*(insptr-1));
+            if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
             continue;
 
         case CON_CSTAT:
             insptr += 2;
             X_ERROR_INVALIDSP();
-            vm.g_sp->cstat = (int16_t) *(insptr-1);
-            if (vm.g_i != -1) spritechanged[vm.g_i]++;
+            vm.pSprite->cstat = (int16_t) *(insptr-1);
+            if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
             continue;
 
         case CON_CSTATOR:
             insptr += 2;
             X_ERROR_INVALIDSP();
-            vm.g_sp->cstat |= (int16_t) Gv_GetVarX(*(insptr-1));
-            if (vm.g_i != -1) spritechanged[vm.g_i]++;
+            vm.pSprite->cstat |= (int16_t) Gv_GetVarX(*(insptr-1));
+            if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
             continue;
 
         case CON_CLIPDIST:
             insptr += 2;
             X_ERROR_INVALIDSP();
-            vm.g_sp->clipdist = (uint8_t) Gv_GetVarX(*(insptr-1));
-            if (vm.g_i != -1) spritechanged[vm.g_i]++;
+            vm.pSprite->clipdist = (uint8_t) Gv_GetVarX(*(insptr-1));
+            if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
             continue;
 
         case CON_SPRITEPAL:
             insptr += 2;
             X_ERROR_INVALIDSP();
-            vm.g_sp->pal = Gv_GetVarX(*(insptr-1));
-            if (vm.g_i != -1) spritechanged[vm.g_i]++;
+            vm.pSprite->pal = Gv_GetVarX(*(insptr-1));
+            if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
             continue;
 
         case CON_CACTOR:
             insptr += 2;
             X_ERROR_INVALIDSP();
-            vm.g_sp->picnum = Gv_GetVarX(*(insptr-1));
-            if (vm.g_i != -1) spritechanged[vm.g_i]++;
+            vm.pSprite->picnum = Gv_GetVarX(*(insptr-1));
+            if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
             continue;
 
         case CON_SPGETLOTAG:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_LOTAG_VAR_ID, vm.g_sp->lotag);
+            Gv_SetVarX(M32_LOTAG_VAR_ID, vm.pSprite->lotag);
             continue;
 
         case CON_SPGETHITAG:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_HITAG_VAR_ID, vm.g_sp->hitag);
+            Gv_SetVarX(M32_HITAG_VAR_ID, vm.pSprite->hitag);
             continue;
 
         case CON_SECTGETLOTAG:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_LOTAG_VAR_ID, sector[vm.g_sp->sectnum].lotag);
+            Gv_SetVarX(M32_LOTAG_VAR_ID, sector[vm.pSprite->sectnum].lotag);
             continue;
 
         case CON_SECTGETHITAG:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_HITAG_VAR_ID, sector[vm.g_sp->sectnum].hitag);
+            Gv_SetVarX(M32_HITAG_VAR_ID, sector[vm.pSprite->sectnum].hitag);
             continue;
 
         case CON_GETTEXTUREFLOOR:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_TEXTURE_VAR_ID, sector[vm.g_sp->sectnum].floorpicnum);
+            Gv_SetVarX(M32_TEXTURE_VAR_ID, sector[vm.pSprite->sectnum].floorpicnum);
             continue;
 
         case CON_GETTEXTURECEILING:
             insptr++;
             X_ERROR_INVALIDSP();
-            Gv_SetVarX(M32_TEXTURE_VAR_ID, sector[vm.g_sp->sectnum].ceilingpicnum);
+            Gv_SetVarX(M32_TEXTURE_VAR_ID, sector[vm.pSprite->sectnum].ceilingpicnum);
             continue;
 // ^^^
         case CON_DRAWLINE16:
@@ -3019,12 +3019,12 @@ dodefault:
                     insptr++;
                     continue;
                 }
-                VM_DoConditional(S_CheckSoundPlaying(vm.g_i,j));
+                VM_DoConditional(S_CheckSoundPlaying(vm.spriteNum,j));
             }
             continue;
 
         case CON_IFNOSOUNDS:
-            VM_DoConditional(S_SoundsPlaying(vm.g_i) < 0);
+            VM_DoConditional(S_SoundsPlaying(vm.spriteNum) < 0);
         continue;
 
         case CON_IFIN3DMODE:
@@ -3077,18 +3077,18 @@ dodefault:
                 switch (tw)
                 {
                 case CON_SOUNDONCEVAR:
-                    if (!S_CheckSoundPlaying(vm.g_i,j))
-                        A_PlaySound((int16_t)j,vm.g_i);
+                    if (!S_CheckSoundPlaying(vm.spriteNum,j))
+                        A_PlaySound((int16_t)j,vm.spriteNum);
                     break;
                 case CON_GLOBALSOUNDVAR:
                     A_PlaySound((int16_t)j,-1);
                     break;
                 case CON_STOPSOUNDVAR:
-                    if (S_CheckSoundPlaying(vm.g_i,j))
+                    if (S_CheckSoundPlaying(vm.spriteNum,j))
                         S_StopSound((int16_t)j);
                     break;
                 case CON_SOUNDVAR:
-                    A_PlaySound((int16_t)j,vm.g_i);
+                    A_PlaySound((int16_t)j,vm.spriteNum);
                     break;
                 }
             }

@@ -1218,17 +1218,17 @@ void G_DumpDebugInfo(void)
                 TrackerCast(sprite[j].x),TrackerCast(sprite[j].y),TrackerCast(sprite[j].z),TrackerCast(sprite[j].picnum));
             for (i=0; i<g_gameVarCount; i++)
             {
-                if (aGameVars[i].nFlags & (GAMEVAR_PERACTOR))
+                if (aGameVars[i].flags & (GAMEVAR_PERACTOR))
                 {
-                    if (aGameVars[i].pValues[j] != aGameVars[i].nDefault)
+                    if (aGameVars[i].pValues[j] != aGameVars[i].defaultValue)
                     {
                         OSD_Printf("gamevar %s ",aGameVars[i].szLabel);
                         OSD_Printf("%" PRIdPTR "",aGameVars[i].pValues[j]);
                         OSD_Printf(" GAMEVAR_PERACTOR");
-                        if (aGameVars[i].nFlags != GAMEVAR_PERACTOR)
+                        if (aGameVars[i].flags != GAMEVAR_PERACTOR)
                         {
                             OSD_Printf(" // ");
-                            if (aGameVars[i].nFlags & (GAMEVAR_SYSTEM))
+                            if (aGameVars[i].flags & (GAMEVAR_SYSTEM))
                             {
                                 OSD_Printf(" (system)");
                             }
@@ -1255,12 +1255,12 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
 #if !defined LUNATIC
     if (g_tile[tilenum].execPtr)
     {
-        SH = *(g_tile[tilenum].execPtr);
+        SH(i) = *(g_tile[tilenum].execPtr);
         AC_ACTION_ID(actor[i].t_data) = *(g_tile[tilenum].execPtr+1);
         AC_MOVE_ID(actor[i].t_data) = *(g_tile[tilenum].execPtr+2);
 
-        if (set_movflag_uncond || SHT == 0)  // AC_MOVFLAGS
-            SHT = *(g_tile[tilenum].execPtr+3);
+        if (set_movflag_uncond || SHT(i) == 0)  // AC_MOVFLAGS
+            SHT(i) = *(g_tile[tilenum].execPtr+3);
 
         return 1;
     }
@@ -1271,7 +1271,7 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
         const el_actor_t *a = &g_elActors[tilenum];
         uint16_t *movflagsptr = &AC_MOVFLAGS(&sprite[i], &actor[i]);
 
-        SH = a->strength;
+        SH(i) = a->strength;
         AC_ACTION_ID(actor[i].t_data) = a->act.id;
         AC_MOVE_ID(actor[i].t_data) = a->mov.id;
         Bmemcpy(&actor[i].ac, &a->act.ac, sizeof(struct action));
@@ -1405,58 +1405,58 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         Bmemset(&actor[i], 0, sizeof(actor_t));
         Bmemcpy(&actor[i].bpos, &sprite[i], sizeof(vec3_t));
 
-        actor[i].picnum = PN;
+        actor[i].picnum = PN(i);
 
-        if (PN == SECTOREFFECTOR && SLT == 50)
-            actor[i].picnum = OW;
+        if (PN(i) == SECTOREFFECTOR && SLT(i) == 50)
+            actor[i].picnum = OW(i);
 
-        OW = actor[i].owner = i;
+        OW(i) = actor[i].owner = i;
 
-        actor[i].floorz = sector[SECT].floorz;
-        actor[i].ceilingz = sector[SECT].ceilingz;
+        actor[i].floorz = sector[SECT(i)].floorz;
+        actor[i].ceilingz = sector[SECT(i)].ceilingz;
 
         actor[i].actorstayput = actor[i].lightId = actor[i].extra = -1;
 
-        if ((CS&48) && PN != SPEAKER && PN != LETTER && PN != DUCK && PN != TARGET && PN != TRIPBOMB && PN != VIEWSCREEN && PN != VIEWSCREEN2)
-            if (!(PN >= CRACK1 && PN <= CRACK4))
+        if ((CS(i)&48) && PN(i) != SPEAKER && PN(i) != LETTER && PN(i) != DUCK && PN(i) != TARGET && PN(i) != TRIPBOMB && PN(i) != VIEWSCREEN && PN(i) != VIEWSCREEN2)
+            if (!(PN(i) >= CRACK1 && PN(i) <= CRACK4))
             {
-                if (SS == 127)
+                if (SS(i) == 127)
                     goto SPAWN_END;
 
-                if (A_CheckSwitchTile(i) && (CS&16))
+                if (A_CheckSwitchTile(i) && (CS(i)&16))
                 {
-                    if (sprite[i].pal && PN != ACCESSSWITCH && PN != ACCESSSWITCH2)
+                    if (sprite[i].pal && PN(i) != ACCESSSWITCH && PN(i) != ACCESSSWITCH2)
                     {
                         if (((!g_netServer && ud.multimode < 2)) || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_DMSWITCHES)))
                         {
                             sprite[i].xrepeat = sprite[i].yrepeat = 0;
-                            SLT = SHT = 0;
+                            SLT(i) = SHT(i) = 0;
                             sprite[i].cstat = 32768;
                             goto SPAWN_END;
                         }
                     }
 
-                    CS |= 257;
+                    CS(i) |= 257;
 
-                    if (sprite[i].pal && PN != ACCESSSWITCH && PN != ACCESSSWITCH2)
+                    if (sprite[i].pal && PN(i) != ACCESSSWITCH && PN(i) != ACCESSSWITCH2)
                         sprite[i].pal = 0;
                     goto SPAWN_END;
                 }
 
-                if (SHT)
+                if (SHT(i))
                 {
                     changespritestat(i, STAT_FALLER);
-                    CS |=  257;
-                    SH = g_impactDamage;
+                    CS(i) |=  257;
+                    SH(i) = g_impactDamage;
                     goto SPAWN_END;
                 }
             }
 
-        if (CS&1)
-            CS |= 256;
+        if (CS(i)&1)
+            CS(i) |= 256;
 
         if (!G_InitActor(i, sprite[i].picnum, 0))
-            T2 = T5 = 0;  // AC_MOVE_ID, AC_ACTION_ID
+            T2(i) = T5(i) = 0;  // AC_MOVE_ID, AC_ACTION_ID
     }
 
     sp = &sprite[i];
@@ -1466,8 +1466,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
     if ((sp->picnum >= BOLT1 && sp->picnum <= BOLT1+3) ||
             (sp->picnum >= SIDEBOLT1 && sp->picnum <= SIDEBOLT1+3))
     {
-        T1 = sp->xrepeat;
-        T2 = sp->yrepeat;
+        T1(i) = sp->xrepeat;
+        T2(i) = sp->yrepeat;
         sp->yvel = 0;
         changespritestat(i, STAT_STANDABLE);
     }
@@ -1567,11 +1567,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             {
                 if (sector[sprite[j].sectnum].lotag == ST_2_UNDERWATER)
                 {
-                    sp->z = getceilzofslope(SECT,SX,SY)+(16<<8);
+                    sp->z = getceilzofslope(SECT(i),SX(i),SY(i))+(16<<8);
                     sp->cstat |= 8;
                 }
                 else if (sector[sprite[j].sectnum].lotag == ST_1_ABOVE_WATER)
-                    sp->z = getflorzofslope(SECT,SX,SY);
+                    sp->z = getflorzofslope(SECT(i),SX(i),SY(i));
             }
 
             if (sector[sect].floorpicnum == FLOORSLIME ||
@@ -1657,7 +1657,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             {
                 sp->xrepeat = sprite[j].xrepeat;
                 sp->yrepeat = sprite[j].yrepeat;
-                T2 = sprite[j].picnum;
+                T2(i) = sprite[j].picnum;
             }
             else sp->xrepeat = sp->yrepeat = 0;
 
@@ -1752,7 +1752,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
         }
 
-        if (sector[SECT].lotag == ST_1_ABOVE_WATER)
+        if (sector[SECT(i)].lotag == ST_1_ABOVE_WATER)
         {
             changespritestat(i, STAT_MISC);
             break;
@@ -2047,8 +2047,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case SPOTLITE__STATIC:
-            T1 = sp->x;
-            T2 = sp->y;
+            T1(i) = sp->x;
+            T2(i) = sp->y;
             break;
         case BULLETHOLE__STATIC:
             sp->xrepeat = sp->yrepeat = 3;
@@ -2087,7 +2087,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
                     a = ps->ang-(krand()&63)+8;  //Fine tune
 
-                    T1 = krand()&1;
+                    T1(i) = krand()&1;
                     sp->z = (3<<8) + ps->pyoff + ps->pos.z - ((ps->horizoff + ps->horiz-100)<<4);
                     if (sp->picnum == SHOTGUNSHELL)
                         sp->z += (3<<8);
@@ -2174,8 +2174,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             if (j >= 0)
             {
                 int32_t z = getflorzofslope(sp->sectnum,sp->x,sp->y);
-                if (sp->z > z-(12<<8))
-                    sp->z = z-(12<<8);
+                if (sp->z > z-ZOFFSET4)
+                    sp->z = z-ZOFFSET4;
             }
 
             changespritestat(i, STAT_MISC);
@@ -2223,7 +2223,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             sp->picnum += 2;
             sp->z = sector[sect].ceilingz+(48<<8);
-            T5 = tempwallptr;
+            T5(i) = tempwallptr;
 
             g_origins[tempwallptr] = *(vec2_t *) sp;
             g_origins[tempwallptr+2].x = sp->z;
@@ -2231,11 +2231,11 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             s = headspritestat[STAT_DEFAULT];
             while (s >= 0)
             {
-                if (sprite[s].picnum == CRANEPOLE && SHT == (sprite[s].hitag))
+                if (sprite[s].picnum == CRANEPOLE && SHT(i) == (sprite[s].hitag))
                 {
                     g_origins[tempwallptr+2].y = s;
 
-                    T2 = sprite[s].sectnum;
+                    T2(i) = sprite[s].sectnum;
 
                     sprite[s].xrepeat = 48;
                     sprite[s].yrepeat = 128;
@@ -2279,8 +2279,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             else if (j == -1)
             {
                 sp->z += (4<<8);
-                T1 = sp->z;
-                T2 = krand()&127;
+                T1(i) = sp->z;
+                T2(i) = krand()&127;
             }
         case WATERDRIPSPLASH__STATIC:
             sp->xrepeat = sp->yrepeat = 24;
@@ -2292,7 +2292,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             changespritestat(i, STAT_STANDABLE);
             break;
         case TOUCHPLATE__STATIC:
-            T3 = sector[sect].floorz;
+            T3(i) = sector[sect].floorz;
             if (sector[sect].lotag != ST_1_ABOVE_WATER && sector[sect].lotag != ST_2_UNDERWATER)
                 sector[sect].floorz = sp->z;
             if (sp->pal && (g_netServer || ud.multimode > 1))
@@ -2502,7 +2502,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
         case REACTOR2__STATIC:
         case REACTOR__STATIC:
             sp->extra = g_impactDamage;
-            CS |= 257;
+            CS(i) |= 257;
             if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
             {
                 sp->xrepeat = sp->yrepeat = 0;
@@ -2510,7 +2510,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
             }
             sp->pal = 0;
-            SS = -17;
+            SS(i) = -17;
 
             changespritestat(i, STAT_ZOMBIEACTOR);
             break;
@@ -2522,7 +2522,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             sp->xrepeat = sp->yrepeat = 9;
             sp->yvel = 4;
-            CS |= 257;
+            CS(i) |= 257;
 
             if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
             {
@@ -2531,7 +2531,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
             }
             sp->pal = 0;
-            SS = -17;
+            SS(i) = -17;
 
             changespritestat(i, STAT_ZOMBIEACTOR);
             break;
@@ -2552,7 +2552,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
             }
             sp->extra = 130;
-            CS |= 256; // Make it hitable
+            CS(i) |= 256; // Make it hitable
 
             if ((!g_netServer && ud.multimode < 2) && sp->pal != 0)
             {
@@ -2561,7 +2561,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
             }
             sp->pal = 0;
-            SS = -17;
+            SS(i) = -17;
 
             changespritestat(i, STAT_ZOMBIEACTOR);
             break;
@@ -2650,14 +2650,14 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             break;
 
         case WATERFOUNTAIN__STATIC:
-            SLT = 1;
+            SLT(i) = 1;
 
         case TREE1__STATIC:
         case TREE2__STATIC:
         case TIRE__STATIC:
         case CONE__STATIC:
         case BOX__STATIC:
-            CS = 257; // Make it hitable
+            CS(i) = 257; // Make it hitable
             sprite[i].extra = 1;
             changespritestat(i, STAT_STANDABLE);
             break;
@@ -2734,7 +2734,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             switch (sp->lotag)
             {
             case SE_28_LIGHTNING:
-                T6 = 65;// Delay for lightning
+                T6(i) = 65;// Delay for lightning
                 break;
             case SE_7_TELEPORT: // Transporters!!!!
             case SE_23_ONE_WAY_TELEPORT:// XPTR END
@@ -2742,33 +2742,33 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 {
                     for (j=0; j<MAXSPRITES; j++)
                         if (sprite[j].statnum < MAXSTATUS && sprite[j].picnum == SECTOREFFECTOR &&
-                                (sprite[j].lotag == SE_7_TELEPORT || sprite[j].lotag == SE_23_ONE_WAY_TELEPORT) && i != j && sprite[j].hitag == SHT)
+                                (sprite[j].lotag == SE_7_TELEPORT || sprite[j].lotag == SE_23_ONE_WAY_TELEPORT) && i != j && sprite[j].hitag == SHT(i))
                         {
-                            OW = j;
+                            OW(i) = j;
                             break;
                         }
                 }
-                else OW = i;
+                else OW(i) = i;
 
-                T5 = (sector[sect].floorz == SZ);  // ONFLOORZ
+                T5(i) = (sector[sect].floorz == SZ(i));  // ONFLOORZ
                 sp->cstat = 0;
                 changespritestat(i, STAT_TRANSPORT);
                 goto SPAWN_END;
             case SE_1_PIVOT:
                 sp->owner = -1;
-                T1 = 1;
+                T1(i) = 1;
                 break;
             case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
 
                 if (sp->ang == 512)
                 {
-                    T2 = sector[sect].ceilingz;
+                    T2(i) = sector[sect].ceilingz;
                     if (sp->pal)
                         sector[sect].ceilingz = sp->z;
                 }
                 else
                 {
-                    T2 = sector[sect].floorz;
+                    T2(i) = sector[sect].floorz;
                     if (sp->pal)
                         sector[sect].floorz = sp->z;
                 }
@@ -2780,8 +2780,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->owner = -1;
                 break;
             case SE_25_PISTON: // Pistons
-                T4 = sector[sect].ceilingz;
-                T5 = 1;
+                T4(i) = sector[sect].ceilingz;
+                T5(i) = 1;
                 sector[sect].ceilingz = sp->z;
                 G_SetInterpolation(&sector[sect].ceilingz);
                 break;
@@ -2797,16 +2797,16 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 break;
             case SE_12_LIGHT_SWITCH:
 
-                T2 = sector[sect].floorshade;
-                T3 = sector[sect].ceilingshade;
+                T2(i) = sector[sect].floorshade;
+                T3(i) = sector[sect].ceilingshade;
                 break;
 
             case SE_13_EXPLOSIVE:
 
-                T1 = sector[sect].ceilingz;
-                T2 = sector[sect].floorz;
+                T1(i) = sector[sect].ceilingz;
+                T2(i) = sector[sect].floorz;
 
-                if (klabs(T1-sp->z) < klabs(T2-sp->z))
+                if (klabs(T1(i)-sp->z) < klabs(T2(i)-sp->z))
                     sp->owner = 1;
                 else sp->owner = 0;
 
@@ -2845,12 +2845,12 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 if (sector[sect].ceilingstat&1)
                 {
                     sector[sect].ceilingstat ^= 1;
-                    T4 = 1;
+                    T4(i) = 1;
 
                     if (!sp->owner && sp->ang==512)
                     {
                         sector[sect].ceilingstat ^= 1;
-                        T4 = 0;
+                        T4(i) = 0;
                     }
 
                     sector[sect].ceilingshade =
@@ -2880,16 +2880,16 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             case SE_17_WARP_ELEVATOR:
 
-                T3 = sector[sect].floorz; //Stopping loc
+                T3(i) = sector[sect].floorz; //Stopping loc
 
                 j = nextsectorneighborz(sect,sector[sect].floorz,-1,-1);
 
                 if (EDUKE32_PREDICT_TRUE(j >= 0))
-                    T4 = sector[j].ceilingz;
+                    T4(i) = sector[j].ceilingz;
                 else
                 {
                     // use elevator sector's ceiling as heuristic
-                    T4 = sector[sect].ceilingz;
+                    T4(i) = sector[sect].ceilingz;
 
                     OSD_Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector's ceilingz to "
                                "determine when to warp. Sector %d adjacent to a door?\n", i, sect);
@@ -2898,7 +2898,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 j = nextsectorneighborz(sect,sector[sect].ceilingz,1,1);
 
                 if (EDUKE32_PREDICT_TRUE(j >= 0))
-                    T5 = sector[j].floorz;
+                    T5(i) = sector[j].floorz;
                 else
                 {
                     // XXX: we should return to the menu for this and similar failures
@@ -2942,7 +2942,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     }
                 }
 
-                T2 = clostest;
+                T2(i) = clostest;
 
                 q = INT32_MAX;
 
@@ -2952,21 +2952,21 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     y = wall[s].y;
 
                     d = FindDistance2D(sp->x-x,sp->y-y);
-                    if (d < q && s != T2)
+                    if (d < q && s != T2(i))
                     {
                         q = d;
                         clostest = s;
                     }
                 }
 
-                T3 = clostest;
+                T3(i) = clostest;
             }
 
             break;
 
             case SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT:
 
-                T4=sector[sect].floorshade;
+                T4(i)=sector[sect].floorshade;
 
                 sector[sect].floorshade = sp->shade;
                 sector[sect].ceilingshade = sp->shade;
@@ -2990,7 +2990,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             case SE_31_FLOOR_RISE_FALL:
             {
-                T2 = sector[sect].floorz;
+                T2(i) = sector[sect].floorz;
                 //    T3 = sp->hitag;
                 if (sp->ang != 1536)
                 {
@@ -3011,8 +3011,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             case SE_32_CEILING_RISE_FALL:
             {
-                T2 = sector[sect].ceilingz;
-                T3 = sp->hitag;
+                T2(i) = sector[sect].ceilingz;
+                T3(i) = sp->hitag;
                 if (sp->ang != 1536)
                 {
                     sector[sect].ceilingz = sp->z;
@@ -3032,7 +3032,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
 
             case SE_4_RANDOM_LIGHTS: //Flashing lights
 
-                T3 = sector[sect].floorshade;
+                T3(i) = sector[sect].floorshade;
 
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
@@ -3041,8 +3041,8 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 sp->owner |= sector[sect].floorpal;
 
                 for (s=startwall; s<endwall; s++)
-                    if (wall[s].shade > T4)
-                        T4 = wall[s].shade;
+                    if (wall[s].shade > T4(i))
+                        T4(i) = wall[s].shade;
 
                 break;
 
@@ -3053,22 +3053,22 @@ int32_t A_Spawn(int32_t j, int32_t pn)
             case SE_8_UP_OPEN_DOOR_LIGHTS:
                 //First, get the ceiling-floor shade
 
-                T1 = sector[sect].floorshade;
-                T2 = sector[sect].ceilingshade;
+                T1(i) = sector[sect].floorshade;
+                T2(i) = sector[sect].ceilingshade;
 
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
 
                 for (s=startwall; s<endwall; s++)
-                    if (wall[s].shade > T3)
-                        T3 = wall[s].shade;
+                    if (wall[s].shade > T3(i))
+                        T3(i) = wall[s].shade;
 
-                T4 = 1; //Take Out;
+                T4(i) = 1; //Take Out;
 
                 break;
 
             case SE_11_SWINGING_DOOR://Pivitor rotater
-                T4 = (sp->ang > 1024) ? 2 : -2;
+                T4(i) = (sp->ang > 1024) ? 2 : -2;
                 /* fall-through */
             case SE_0_ROTATING_SECTOR:
             case SE_2_EARTHQUAKE://Earthquakemakers
@@ -3084,7 +3084,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     if (sector[sect].lotag == ST_30_ROTATE_RISE_BRIDGE)
                     {
                         sprite[i].clipdist = (sp->pal) ? 1 : 0;
-                        T4 = sector[sect].floorz;
+                        T4(i) = sector[sect].floorz;
                         sector[sect].hitag = i;
                     }
 
@@ -3116,7 +3116,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 startwall = sector[sect].wallptr;
                 endwall = startwall+sector[sect].wallnum;
 
-                T2 = tempwallptr;
+                T2(i) = tempwallptr;
                 for (s=startwall; s<endwall; s++)
                 {
                     g_origins[tempwallptr].x = wall[s].x-sp->x;
@@ -3191,19 +3191,19 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                     }
 
                     sp->owner = -1;
-                    T1 = s;
+                    T1(i) = s;
 
                     if (sp->lotag != SE_30_TWO_WAY_TRAIN)
-                        T4 = sp->hitag;
+                        T4(i) = sp->hitag;
                 }
 
                 else if (sp->lotag == SE_16_REACTOR)
-                    T4 = sector[sect].ceilingz;
+                    T4(i) = sector[sect].ceilingz;
 
                 else if (sp->lotag == SE_26)
                 {
-                    T4 = sp->x;
-                    T5 = sp->y;
+                    T4(i) = sp->x;
+                    T5(i) = sp->y;
                     if (sp->shade==sector[sect].floorshade) //UP
                         sp->zvel = -256;
                     else
@@ -3213,7 +3213,7 @@ int32_t A_Spawn(int32_t j, int32_t pn)
                 }
                 else if (sp->lotag == SE_2_EARTHQUAKE)
                 {
-                    T6 = sector[sp->sectnum].floorheinum;
+                    T6(i) = sector[sp->sectnum].floorheinum;
                     sector[sp->sectnum].floorheinum = 0;
                 }
             }
@@ -3743,7 +3743,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             const int viewscrShift = G_GetViewscreenSizeShift(t);
             const int viewscrTile = TILE_VIEWSCR-viewscrShift;
 
-            if (g_curViewscreen >= 0 && actor[OW].t_data[0] == 1)
+            if (g_curViewscreen >= 0 && actor[OW(i)].t_data[0] == 1)
             {
                 t->picnum = STATIC;
                 t->cstat |= (rand()&12);
@@ -3875,7 +3875,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     newt->picnum = (curweap==GROW_WEAPON ? GROWSPRITEICON : WeaponPickupSprites[curweap]);
 
                     if (s->owner >= 0)
-                        newt->z = g_player[p].ps->pos.z-(12<<8);
+                        newt->z = g_player[p].ps->pos.z-ZOFFSET4;
                     else
                         newt->z = s->z-(51<<8);
 
@@ -4025,7 +4025,7 @@ PALONLY:
         case SCRAP5__STATIC:
             if (actor[i].picnum == BLIMP && t->picnum == SCRAP1 && s->yvel >= 0)
                 t->picnum = s->yvel < MAXUSERTILES ? s->yvel : 0;
-            else t->picnum += T1;
+            else t->picnum += T1(i);
             t->shade -= 6;
 
             G_MaybeTakeOnFloorPal(t, sect);
@@ -4048,7 +4048,7 @@ PALONLY:
             if ((unsigned)scrofs_action + 2 >= (unsigned)g_scriptSize)
                 goto skip;
 
-            l = script[scrofs_action + 2];
+            l = apScript[scrofs_action + 2];
 #else
             l = viewtype;
 #endif
@@ -4102,7 +4102,7 @@ PALONLY:
             l = klabs(l);
 
 #if !defined LUNATIC
-            t->picnum += k + script[scrofs_action] + l*curframe;
+            t->picnum += k + apScript[scrofs_action] + l*curframe;
 #else
             t->picnum += k + startframe + l*curframe;
 #endif
@@ -4162,7 +4162,7 @@ skip:
                     else
                         daz = actor[i].floorz;
 
-                    if ((s->z-daz) < (8<<8) && g_player[screenpeek].ps->pos.z < daz)
+                    if ((s->z-daz) < ZOFFSET3 && g_player[screenpeek].ps->pos.z < daz)
                     {
                         uspritetype *const newt = &tsprite[spritesortcnt];
 
@@ -4259,21 +4259,21 @@ skip:
 #endif
                 k = getofs_viewtype5(t, t, oura, 0);
 
-            t->picnum = s->picnum+k+((T1<4)*5);
+            t->picnum = s->picnum+k+((T1(i)<4)*5);
             t->shade = sprite[s->owner].shade;
 
             break;
 
         case WATERSPLASH2__STATIC:
             // WATERSPLASH_T2
-            t->picnum = WATERSPLASH2+T2;
+            t->picnum = WATERSPLASH2+T2(i);
             break;
         case SHELL__STATIC:
-            t->picnum = s->picnum+(T1&1);
+            t->picnum = s->picnum+(T1(i)&1);
         case SHOTGUNSHELL__STATIC:
             t->cstat |= 12;
-            if (T1 > 2) t->cstat &= ~16;
-            else if (T1 > 1) t->cstat &= ~4;
+            if (T1(i) > 2) t->cstat &= ~16;
+            else if (T1(i) > 1) t->cstat &= ~4;
             break;
         case FRAMEEFFECT1_13__STATIC:
             if (PLUTOPAK) break;
@@ -4383,12 +4383,12 @@ int32_t G_StartRTS(int32_t i, int localp)
 void G_StartMusic(void)
 {
     const int32_t i = g_musicIndex;
-    Bassert(MapInfo[i].musicfn != NULL);
+    Bassert(aMapInfo[i].musicfn != NULL);
 
     {
-        S_PlayMusic(MapInfo[i].musicfn);
+        S_PlayMusic(aMapInfo[i].musicfn);
 
-        Bsnprintf(ScriptQuotes[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", MapInfo[i].musicfn);
+        Bsnprintf(apStrings[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", aMapInfo[i].musicfn);
         P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
     }
 }
@@ -4619,7 +4619,7 @@ void G_HandleLocalKeys(void)
                         if (g_musicIndex >= maxi)
                             g_musicIndex = 0;
                     }
-                    while (MapInfo[g_musicIndex].musicfn == NULL);
+                    while (aMapInfo[g_musicIndex].musicfn == NULL);
 
                     G_StartMusic();
 
@@ -4788,8 +4788,8 @@ FAKE_F3:
 
         if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicToggle)
         {
-            map_t *map = &MapInfo[g_musicIndex];
-            char *const qmusic = ScriptQuotes[QUOTE_MUSIC];
+            map_t *map = &aMapInfo[g_musicIndex];
+            char *const qmusic = apStrings[QUOTE_MUSIC];
 
             KB_ClearKeyDown(sc_F5);
 
@@ -4825,7 +4825,7 @@ FAKE_F3:
                 // dirty hack... char 127 in last position indicates an auto-filled name
                 if (ud.savegame[g_lastSaveSlot][MAXSAVEGAMENAME-2] == 127)
                 {
-                    Bstrncpy(&ud.savegame[g_lastSaveSlot][0], MapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
+                    Bstrncpy(&ud.savegame[g_lastSaveSlot][0], aMapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
                     ud.savegame[g_lastSaveSlot][MAXSAVEGAMENAME-2] = 127;
                 }
 
@@ -5020,7 +5020,7 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
             return -1;
     }
 
-    return S_DefineAudioIfSupported(&MapInfo[sel].musicfn, name);
+    return S_DefineAudioIfSupported(&aMapInfo[sel].musicfn, name);
 }
 
 static int32_t parsedefinitions_game(scriptfile *script, int32_t preload);
@@ -5447,17 +5447,17 @@ static void G_Cleanup(void)
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
     {
-        Bfree(MapInfo[i].name);
-        Bfree(MapInfo[i].filename);
-        Bfree(MapInfo[i].musicfn);
+        Bfree(aMapInfo[i].name);
+        Bfree(aMapInfo[i].filename);
+        Bfree(aMapInfo[i].musicfn);
 
         G_FreeMapState(i);
     }
 
     for (i=MAXQUOTES-1; i>=0; i--)
     {
-        Bfree(ScriptQuotes[i]);
-        Bfree(ScriptQuoteRedefinitions[i]);
+        Bfree(apStrings[i]);
+        Bfree(apXStrings[i]);
     }
 
     for (i=MAXPLAYERS-1; i>=0; i--)
@@ -5473,7 +5473,7 @@ static void G_Cleanup(void)
 #if !defined LUNATIC
     if (label != (char *)&sprite[0]) Bfree(label);
     if (labelcode != (int32_t *)&sector[0]) Bfree(labelcode);
-    Bfree(script);
+    Bfree(apScript);
     Bfree(bitptr);
 
 //    Bfree(MusicPtr);
@@ -6768,7 +6768,7 @@ int32_t G_DoMoveThings(void)
                 {
                     if (ldist(&sprite[p->i], &sprite[hit.sprite]) < 9216)
                     {
-                        Bsprintf(ScriptQuotes[QUOTE_RESERVED3], "%s", &g_player[snum].user_name[0]);
+                        Bsprintf(apStrings[QUOTE_RESERVED3], "%s", &g_player[snum].user_name[0]);
                         p->fta = 12, p->ftq = QUOTE_RESERVED3;
                     }
                 }
@@ -6908,8 +6908,8 @@ void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n)
     {
         for (j=n-1; j >= 0 ; j--)
         {
-            a = SA-256+(krand()&511)+1024;
-            A_InsertSprite(SECT,SX,SY,SZ,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),1024-(krand()&1023),i,5);
+            a = SA(i)-256+(krand()&511)+1024;
+            A_InsertSprite(SECT(i),SX(i),SY(i),SZ(i),GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),1024-(krand()&1023),i,5);
         }
         return;
     }
@@ -6938,9 +6938,9 @@ void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n)
         {
             z = sector[sect].floorz-(krand()&(klabs(sector[sect].ceilingz-sector[sect].floorz)));
             if (z < -(32<<8) || z > (32<<8))
-                z = SZ-(32<<8)+(krand()&((64<<8)-1));
-            a = SA-1024;
-            A_InsertSprite(SECT,x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),-(krand()&1023),i,5);
+                z = SZ(i)-(32<<8)+(krand()&((64<<8)-1));
+            a = SA(i)-1024;
+            A_InsertSprite(SECT(i),x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),-(krand()&1023),i,5);
         }
     }
 }
@@ -6949,7 +6949,7 @@ void A_SpawnGlass(int32_t i,int32_t n)
 {
     for (; n>0; n--)
     {
-        int32_t k = A_InsertSprite(SECT,SX,SY,SZ-((krand()&16)<<8),GLASSPIECES+(n%3),
+        int32_t k = A_InsertSprite(SECT(i),SX(i),SY(i),SZ(i)-((krand()&16)<<8),GLASSPIECES+(n%3),
                                    krand()&15,36,36,krand()&2047,32+(krand()&63),-512-(krand()&2047),i,5);
         sprite[k].pal = sprite[i].pal;
     }
@@ -6991,7 +6991,7 @@ void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n)
         for (j=n-1; j >= 0 ; j--)
         {
             a = krand()&2047;
-            k = A_InsertSprite(SECT,SX,SY,SZ-(krand()&(63<<8)),GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),1024-(krand()&2047),i,5);
+            k = A_InsertSprite(SECT(i),SX(i),SY(i),SZ(i)-(krand()&(63<<8)),GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),1024-(krand()&2047),i,5);
             sprite[k].pal = krand()&15;
         }
         return;
@@ -7012,9 +7012,9 @@ void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n)
         updatesector(x1,y1,&sect);
         z = sector[sect].floorz-(krand()&(klabs(sector[sect].ceilingz-sector[sect].floorz)));
         if (z < -(32<<8) || z > (32<<8))
-            z = SZ-(32<<8)+(krand()&((64<<8)-1));
-        a = SA-1024;
-        k = A_InsertSprite(SECT,x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),-(krand()&2047),i,5);
+            z = SZ(i)-(32<<8)+(krand()&((64<<8)-1));
+        a = SA(i)-1024;
+        k = A_InsertSprite(SECT(i),x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),-(krand()&2047),i,5);
         sprite[k].pal = krand()&7;
     }
 }

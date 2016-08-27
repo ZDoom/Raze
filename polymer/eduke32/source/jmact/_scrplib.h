@@ -83,7 +83,7 @@ typedef struct scriptsection
 
 typedef struct
    {
-   ScriptSectionType * script;
+   ScriptSectionType * apScript;
    ScriptSectionType * lastsection;
    ScriptLineType * scriptlines;
    char scriptfilename[128];

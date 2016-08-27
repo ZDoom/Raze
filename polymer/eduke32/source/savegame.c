@@ -301,8 +301,8 @@ int32_t G_LoadPlayer(int32_t spot)
 
     if (boardfilename[0])
         Bstrcpy(currentboardfilename, boardfilename);
-    else if (MapInfo[mapIdx].filename)
-        Bstrcpy(currentboardfilename, MapInfo[mapIdx].filename);
+    else if (aMapInfo[mapIdx].filename)
+        Bstrcpy(currentboardfilename, aMapInfo[mapIdx].filename);
 
     if (currentboardfilename[0])
     {
@@ -448,10 +448,10 @@ int32_t G_SavePlayer(int32_t spot)
     {
 #ifdef LUNATIC
         if (!g_savedOK)
-            Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "^10Failed Saving Game");
+            Bstrcpy(apStrings[QUOTE_RESERVED4], "^10Failed Saving Game");
         else
 #endif
-            Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Game Saved");
+            Bstrcpy(apStrings[QUOTE_RESERVED4], "Game Saved");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
     }
 
@@ -468,7 +468,7 @@ void G_LoadPlayerMaybeMulti(int32_t slot)
 {
     if (g_netServer || ud.multimode > 1)
     {
-        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Loading Not Yet Supported");
+        Bstrcpy(apStrings[QUOTE_RESERVED4], "Multiplayer Loading Not Yet Supported");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
 //        G_LoadPlayer(-1-g_lastSaveSlot);
@@ -490,7 +490,7 @@ void G_SavePlayerMaybeMulti(int32_t slot)
 
     if (g_netServer || ud.multimode > 1)
     {
-        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
+        Bstrcpy(apStrings[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 //        G_SavePlayer(-1-slot);
     }
@@ -1107,7 +1107,7 @@ static const dataspec_t svgm_script[] =
     { DS_LOADFN, (void *) &sv_postprojectileload, 0, 1 },
 #if !defined LUNATIC
     { DS_LOADFN|DS_NOCHK, (void *)&sv_prescriptload_once, 0, 1 },
-    { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &script, sizeof(script[0]), (intptr_t)&g_scriptSize },
+    { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &apScript, sizeof(apScript[0]), (intptr_t)&g_scriptSize },
 //    { DS_NOCHK, &apScriptGameEvent[0], sizeof(apScriptGameEvent[0]), MAXGAMEEVENTS },
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_postscript_once, 0, 1 },
 #endif
@@ -1136,8 +1136,8 @@ static const dataspec_t svgm_anmisc[] =
     { 0, &g_curViewscreen, sizeof(g_curViewscreen), 1 },
     { 0, &g_origins[0], sizeof(g_origins[0]), ARRAY_SIZE(g_origins) },
     { 0, &g_spriteDeleteQueuePos, sizeof(g_spriteDeleteQueuePos), 1 },
-    { DS_NOCHK, &g_spriteDeleteQueueSize, sizeof(g_spriteDeleteQueueSize), 1 },
-    { DS_CNT(g_spriteDeleteQueueSize), &SpriteDeletionQueue[0], sizeof(int16_t), (intptr_t)&g_spriteDeleteQueueSize },
+    { DS_NOCHK, &g_deleteQueueSize, sizeof(g_deleteQueueSize), 1 },
+    { DS_CNT(g_deleteQueueSize), &SpriteDeletionQueue[0], sizeof(int16_t), (intptr_t)&g_deleteQueueSize },
     { 0, &show2dsector[0], sizeof(uint8_t), MAXSECTORS>>3 },
     { DS_NOCHK, &g_numClouds, sizeof(g_numClouds), 1 },
     { 0, &clouds[0], sizeof(clouds), 1 },
@@ -1152,10 +1152,10 @@ static const dataspec_t svgm_anmisc[] =
     { DS_DYNAMIC, &savegame_quotes, MAXQUOTELEN, MAXQUOTES },
     { DS_LOADFN, (void *)&sv_quoteload, 0, 1 },
 
-    { DS_NOCHK, &g_numQuoteRedefinitions, sizeof(g_numQuoteRedefinitions), 1 },
+    { DS_NOCHK, &g_numXStrings, sizeof(g_numXStrings), 1 },
     { DS_NOCHK|DS_SAVEFN|DS_LOADFN, (void *)&sv_prequoteredef, 0, 1 },
     { DS_NOCHK|DS_SAVEFN, (void *)&sv_quoteredefsave, 0, 1 },  // quote redefinitions replace quotes at runtime, but cannot be changed after CON compilation
-    { DS_NOCHK|DS_DYNAMIC|DS_CNT(g_numQuoteRedefinitions), &savegame_quoteredefs, MAXQUOTELEN, (intptr_t)&g_numQuoteRedefinitions },
+    { DS_NOCHK|DS_DYNAMIC|DS_CNT(g_numXStrings), &savegame_quoteredefs, MAXQUOTELEN, (intptr_t)&g_numXStrings },
     { DS_NOCHK|DS_LOADFN, (void *)&sv_quoteredefload, 0, 1 },
     { DS_NOCHK|DS_SAVEFN|DS_LOADFN, (void *)&sv_postquoteredef, 0, 1 },
 #ifdef LUNATIC
@@ -1196,10 +1196,10 @@ static void sv_makevarspec()
     int32_t i, j, numsavedvars=0, numsavedarrays=0, per;
 
     for (i=0; i<g_gameVarCount; i++)
-        numsavedvars += (aGameVars[i].nFlags&SV_SKIPMASK) ? 0 : 1;
+        numsavedvars += (aGameVars[i].flags&SV_SKIPMASK) ? 0 : 1;
 
     for (i=0; i<g_gameArrayCount; i++)
-        numsavedarrays += !(aGameArrays[i].nFlags & GAMEARRAY_READONLY);  // SYSTEM_GAMEARRAY
+        numsavedarrays += !(aGameArrays[i].flags & GAMEARRAY_READONLY);  // SYSTEM_GAMEARRAY
 
     Bfree(svgm_vars);
     svgm_vars = (dataspec_gv_t *)Xmalloc((numsavedvars+numsavedarrays+2)*sizeof(dataspec_gv_t));
@@ -1211,13 +1211,13 @@ static void sv_makevarspec()
     j=1;
     for (i=0; i<g_gameVarCount; i++)
     {
-        if (aGameVars[i].nFlags&SV_SKIPMASK)
+        if (aGameVars[i].flags&SV_SKIPMASK)
             continue;
 
-        per = aGameVars[i].nFlags&GAMEVAR_USER_MASK;
+        per = aGameVars[i].flags&GAMEVAR_USER_MASK;
 
         svgm_vars[j].flags = 0;
-        svgm_vars[j].ptr = (per==0) ? &aGameVars[i].nValue : aGameVars[i].pValues;
+        svgm_vars[j].ptr = (per==0) ? &aGameVars[i].global : aGameVars[i].pValues;
         svgm_vars[j].size = sizeof(intptr_t);
         svgm_vars[j].cnt = (per==0) ? 1 : (per==GAMEVAR_PERPLAYER ? MAXPLAYERS : MAXSPRITES);
         j++;
@@ -1228,7 +1228,7 @@ static void sv_makevarspec()
         // We must not update read-only SYSTEM_GAMEARRAY gamearrays: besides
         // being questionable by itself, sizeof(...) may be e.g. 4 whereas the
         // actual element type is int16_t (such as tilesizx[]/tilesizy[]).
-        if (aGameArrays[i].nFlags & GAMEARRAY_READONLY)
+        if (aGameArrays[i].flags & GAMEARRAY_READONLY)
             continue;
 
         intptr_t * const plValues = aGameArrays[i].pValues;
@@ -1657,26 +1657,26 @@ static void sv_prescriptsave_once()
     int32_t i;
     for (i=0; i<g_scriptSize; i++)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
-            script[i] = (intptr_t *)script[i] - script;
+            apScript[i] = (intptr_t *)apScript[i] - apScript;
 
-   G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
-   G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_FWD_NON0);
+   G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
+   G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
 }
 static void sv_prescriptload_once()
 {
-    Bfree(script);
-    script = (intptr_t *)Xmalloc(g_scriptSize * sizeof(script[0]));
+    Bfree(apScript);
+    apScript = (intptr_t *)Xmalloc(g_scriptSize * sizeof(apScript[0]));
 }
 static void sv_postscript_once()
 {
     int32_t i;
 
-   G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), script, P2I_BACK_NON0);
-   G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), script, P2I_BACK_NON0);
+   G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
+   G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
 
     for (i=0; i<g_scriptSize; i++)
         if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
-            script[i] = (intptr_t)(script + script[i]);
+            apScript[i] = (intptr_t)(apScript + apScript[i]);
 }
 #endif
 
@@ -1723,10 +1723,10 @@ static void sv_quotesave()
     int32_t i;
     Bmemset(savegame_quotedef, 0, sizeof(savegame_quotedef));
     for (i=0; i<MAXQUOTES; i++)
-        if (ScriptQuotes[i])
+        if (apStrings[i])
         {
             savegame_quotedef[i>>3] |= 1<<(i&7);
-            Bmemcpy(savegame_quotes[i], ScriptQuotes[i], MAXQUOTELEN);
+            Bmemcpy(savegame_quotes[i], apStrings[i], MAXQUOTELEN);
         }
 }
 static void sv_quoteload()
@@ -1737,7 +1737,7 @@ static void sv_quoteload()
         if (savegame_quotedef[i>>3]&(1<<(i&7)))
         {
             C_AllocQuote(i);
-            Bmemcpy(ScriptQuotes[i], savegame_quotes[i], MAXQUOTELEN);
+            Bmemcpy(apStrings[i], savegame_quotes[i], MAXQUOTELEN);
         }
     }
 }
@@ -1808,24 +1808,24 @@ static void sv_postprojectileload()
 static void sv_prequoteredef()
 {
     // "+1" needed for dfwrite which doesn't handle the src==NULL && cnt==0 case
-    void *ptr = Xcalloc(g_numQuoteRedefinitions+1, MAXQUOTELEN);
+    void *ptr = Xcalloc(g_numXStrings+1, MAXQUOTELEN);
     savegame_quoteredefs = (char(*)[MAXQUOTELEN])ptr;
 }
 static void sv_quoteredefsave()
 {
     int32_t i;
-    for (i=0; i<g_numQuoteRedefinitions; i++)
-        if (ScriptQuoteRedefinitions[i])
-            Bmemcpy(savegame_quoteredefs[i], ScriptQuoteRedefinitions[i], MAXQUOTELEN);
+    for (i=0; i<g_numXStrings; i++)
+        if (apXStrings[i])
+            Bmemcpy(savegame_quoteredefs[i], apXStrings[i], MAXQUOTELEN);
 }
 static void sv_quoteredefload()
 {
     int32_t i;
-    for (i=0; i<g_numQuoteRedefinitions; i++)
+    for (i=0; i<g_numXStrings; i++)
     {
-        if (!ScriptQuoteRedefinitions[i])
-            ScriptQuoteRedefinitions[i] = (char *)Xcalloc(1,MAXQUOTELEN);
-        Bmemcpy(ScriptQuoteRedefinitions[i], savegame_quoteredefs[i], MAXQUOTELEN);
+        if (!apXStrings[i])
+            apXStrings[i] = (char *)Xcalloc(1,MAXQUOTELEN);
+        Bmemcpy(apXStrings[i], savegame_quoteredefs[i], MAXQUOTELEN);
     }
 }
 static void sv_postquoteredef()
@@ -1930,7 +1930,7 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
     PRINTSIZE("animisc");
 
 #if !defined LUNATIC
-    Gv_WriteSave(fil, 1);  // gamevars
+    Gv_WriteSave(fil);  // gamevars
     mem=writespecdata((const dataspec_t *)svgm_vars, 0, mem);
     PRINTSIZE("vars");
 #endif
@@ -2024,7 +2024,7 @@ static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
     PRINTSIZE("animisc");
 
 #if !defined LUNATIC
-    if (Gv_ReadSave(fil, 1)) return -7;
+    if (Gv_ReadSave(fil)) return -7;
 
     if (mem)
     {
@@ -2121,13 +2121,13 @@ static void postloadplayer(int32_t savegamep)
 
         if (ud.config.MusicToggle)
         {
-            if (MapInfo[musicIdx].musicfn != NULL &&
+            if (aMapInfo[musicIdx].musicfn != NULL &&
                 (musicIdx != g_musicIndex /* || MapInfo[MUS_LOADING].musicfn */))
             {
                 S_StopMusic();
 
                 g_musicIndex = musicIdx;
-                S_PlayMusic(MapInfo[g_musicIndex].musicfn);
+                S_PlayMusic(aMapInfo[g_musicIndex].musicfn);
             }
 
             S_PauseMusic(0);
@@ -2150,8 +2150,8 @@ static void postloadplayer(int32_t savegamep)
         for (SPRITES_OF(STAT_FX, i))
             if (sprite[i].picnum == MUSICANDSFX)
             {
-                T2 = ud.config.SoundToggle;
-                T1 = 0;
+                T2(i) = ud.config.SoundToggle;
+                T1(i) = 0;
             }
 
         G_UpdateScreenArea();

@@ -1118,7 +1118,7 @@ void G_PrintGameQuotes(int32_t snum)
     if (ps->fta <= 1)
         return;
 
-    if (EDUKE32_PREDICT_FALSE(ScriptQuotes[ps->ftq] == NULL))
+    if (EDUKE32_PREDICT_FALSE(apStrings[ps->ftq] == NULL))
     {
         OSD_Printf(OSD_ERROR "%s %d null quote %d\n", __FILE__, __LINE__, ps->ftq);
         return;
@@ -1175,7 +1175,7 @@ void G_PrintGameQuotes(int32_t snum)
     }
 #endif
 
-    gametextpalbits(160, k, ScriptQuotes[ps->ftq], ftapulseshade, pal, 2 + 8 + 16, texta(ps->fta));
+    gametextpalbits(160, k, apStrings[ps->ftq], ftapulseshade, pal, 2 + 8 + 16, texta(ps->fta));
 }
 
 void P_DoQuote(int32_t q, DukePlayer_t *p)
@@ -1191,7 +1191,7 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
         q &= ~MAXQUOTES;
     }
 
-    if (EDUKE32_PREDICT_FALSE(ScriptQuotes[q] == NULL))
+    if (EDUKE32_PREDICT_FALSE(apStrings[q] == NULL))
     {
         OSD_Printf(OSD_ERROR "%s %d null quote %d\n", __FILE__, __LINE__, q);
         return;
@@ -1205,10 +1205,10 @@ void P_DoQuote(int32_t q, DukePlayer_t *p)
     if (p->ftq != q)
     {
         if (p == g_player[screenpeek].ps
-            && Bstrcmp(ScriptQuotes[q], "")) // avoid printing blank quotes
+            && Bstrcmp(apStrings[q], "")) // avoid printing blank quotes
         {
-            if (cq) OSD_Printf(OSDTEXT_BLUE "%s\n", ScriptQuotes[q]);
-            else OSD_Printf("%s\n", ScriptQuotes[q]);
+            if (cq) OSD_Printf(OSDTEXT_BLUE "%s\n", apStrings[q]);
+            else OSD_Printf("%s\n", apStrings[q]);
         }
 
         p->ftq = q;

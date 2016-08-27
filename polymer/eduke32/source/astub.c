@@ -264,21 +264,21 @@ static void copy_prlight_colors(_prlight *mylightptr, int32_t i)
 
 static void addprlight_common1(_prlight *mylightptr, int32_t i)
 {
-    mylightptr->sector = SECT;
+    mylightptr->sector = SECT(i);
     Bmemcpy(mylightptr, &sprite[i], sizeof(vec3_t));
-    mylightptr->range = SHT;
+    mylightptr->range = SHT(i);
     copy_prlight_colors(mylightptr, i);
-    mylightptr->angle = SA;
-    mylightptr->horiz = SH;
+    mylightptr->angle = SA(i);
+    mylightptr->horiz = SH(i);
     mylightptr->minshade = sprite[i].xoffset;
     mylightptr->maxshade = sprite[i].yoffset;
 
     // overridden for spot lights
     mylightptr->radius = mylightptr->faderadius = mylightptr->tilenum = 0;
 
-    if (CS & 2)
+    if (CS(i) & 2)
     {
-        if (CS & 512)
+        if (CS(i) & 512)
             mylightptr->priority = PR_LIGHT_PRIO_LOW;
         else
             mylightptr->priority = PR_LIGHT_PRIO_HIGH;
@@ -286,7 +286,7 @@ static void addprlight_common1(_prlight *mylightptr, int32_t i)
     else
         mylightptr->priority = PR_LIGHT_PRIO_MAX;
 
-    mylightptr->publicflags.negative = !!(CS & 128);
+    mylightptr->publicflags.negative = !!(CS(i) & 128);
 
     spritelightid[i] = polymer_addlight(mylightptr);
     if (spritelightid[i] >= 0)
@@ -2483,8 +2483,8 @@ static int32_t SelectAllTiles(int32_t iCurrentTile)
     return iCurrentTile;
 }
 
-static int32_t OnGotoTile(int32_t iTile);
-static int32_t OnSelectTile(int32_t iTile);
+static int32_t OnGotoTile(int32_t tileNum);
+static int32_t OnSelectTile(int32_t tileNum);
 static int32_t OnSaveTileGroup();
 static int32_t loadtilegroups(const char *fn);
 static int32_t s_Zoom = INITIAL_ZOOM;
@@ -2533,7 +2533,7 @@ static int32_t m32gettile(int32_t idInitialTile)
     int32_t gap, temp, zoomsz;
     int32_t nXTiles, nYTiles, nDisplayedTiles;
     int32_t i;
-    int32_t iTile, iTopLeftTile, iLastTile;
+    int32_t tileNum, iTopLeftTile, iLastTile;
     int32_t idSelectedTile;
     int32_t scrollmode;
     int32_t mousedx, mousedy, mtile, omousex=searchx, omousey=searchy, moffset=0;
@@ -2574,7 +2574,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         localartlookup[i] = i;
     }
 
-    iLastTile = iTile = idSelectedTile = idInitialTile;
+    iLastTile = tileNum = idSelectedTile = idInitialTile;
 
     switch (searchstat)
     {
@@ -2631,10 +2631,10 @@ static int32_t m32gettile(int32_t idInitialTile)
                 localartlookup[temp] = localartlookup[temp+gap];
                 localartlookup[temp+gap] = tempint;
 
-                if (iTile == temp)
-                    iTile = temp + gap;
-                else if (iTile == temp + gap)
-                    iTile = temp;
+                if (tileNum == temp)
+                    tileNum = temp + gap;
+                else if (tileNum == temp + gap)
+                    tileNum = temp;
 
                 temp -= gap;
             }
@@ -2665,20 +2665,20 @@ static int32_t m32gettile(int32_t idInitialTile)
             localartfreq[i] = 0; // Terrible bodge : zero tilefreq's not displayed in tile view. Still, when in Rome ... :-)
         }
 
-        iTile = idInitialTile;
+        tileNum = idInitialTile;
     }
 
     //
     //
     //
 
-    iTopLeftTile = iTile - (iTile % nXTiles);
+    iTopLeftTile = tileNum - (tileNum % nXTiles);
     iTopLeftTile = clamp(iTopLeftTile, 0, MAXTILES-nDisplayedTiles);
 
     zoomsz = ZoomToThumbSize[s_Zoom];
 
-    searchx = ((iTile-iTopLeftTile)%nXTiles)*zoomsz + zoomsz/2;
-    searchy = ((iTile-iTopLeftTile)/nXTiles)*zoomsz + zoomsz/2;
+    searchx = ((tileNum-iTopLeftTile)%nXTiles)*zoomsz + zoomsz/2;
+    searchy = ((tileNum-iTopLeftTile)/nXTiles)*zoomsz + zoomsz/2;
 
     ////////////////////////////////
     // Start of key handling code //
@@ -2689,9 +2689,9 @@ static int32_t m32gettile(int32_t idInitialTile)
         int32_t ret;
         zoomsz = ZoomToThumbSize[s_Zoom];
 
-        ret = DrawTiles(iTopLeftTile, (iTile >= localartlookupnum) ? localartlookupnum-1 : iTile,
+        ret = DrawTiles(iTopLeftTile, (tileNum >= localartlookupnum) ? localartlookupnum-1 : tileNum,
                         nXTiles, nYTiles, zoomsz, moffset,
-                        (tilesel_showerr && (iTile==iLastTile || (tilesel_showerr=0))));
+                        (tilesel_showerr && (tileNum==iLastTile || (tilesel_showerr=0))));
 
         if (ret==0)
         {
@@ -2703,7 +2703,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         }
         getmousevalues(&mousedx,&mousedy,&bstatus);
 
-        iLastTile = iTile;
+        iLastTile = tileNum;
 
         searchx += mousedx;
         searchy += mousedy;
@@ -2750,11 +2750,11 @@ static int32_t m32gettile(int32_t idInitialTile)
             iTopLeftTile += (nXTiles*scrollamount);
         }
 
-        mtile = iTile = searchx/zoomsz + ((searchy-moffset)/zoomsz)*nXTiles + iTopLeftTile;
-        while (iTile >= iTopLeftTile + nDisplayedTiles)
+        mtile = tileNum = searchx/zoomsz + ((searchy-moffset)/zoomsz)*nXTiles + iTopLeftTile;
+        while (tileNum >= iTopLeftTile + nDisplayedTiles)
         {
-            iTile -= nXTiles;
-            mtile = iTile;
+            tileNum -= nXTiles;
+            mtile = tileNum;
         }
 
         // These two lines are so obvious I don't need to comment them ...;-)
@@ -2788,8 +2788,8 @@ static int32_t m32gettile(int32_t idInitialTile)
 
             zoomsz = ZoomToThumbSize[s_Zoom];
 
-            if (iTile >= localartlookupnum)
-                iTile = localartlookupnum-1;
+            if (tileNum >= localartlookupnum)
+                tileNum = localartlookupnum-1;
 
             // Calculate new num of tiles to display
             nXTiles = xdim / zoomsz;
@@ -2801,82 +2801,82 @@ static int32_t m32gettile(int32_t idInitialTile)
 
             // Determine if the top-left displayed tile needs to
             //   alter in order to display selected tile
-            iTopLeftTile = iTile - (iTile % nXTiles);
+            iTopLeftTile = tileNum - (tileNum % nXTiles);
             iTopLeftTile = clamp(iTopLeftTile, 0, MAXTILES - nDisplayedTiles);
 
             // scroll window so mouse points the same tile as it was before zooming
-            iTopLeftTile -= searchx/zoomsz + ((searchy-moffset)/zoomsz)*nXTiles + iTopLeftTile-iTile;
+            iTopLeftTile -= searchx/zoomsz + ((searchy-moffset)/zoomsz)*nXTiles + iTopLeftTile-tileNum;
         }
 
         if (PRESSED_KEYSC(LEFT))
         {
             if (eitherCTRL)  // same as HOME, for consistency with CTRL-UP/DOWN
-                iTile = (iTile/nXTiles)*nXTiles;
+                tileNum = (tileNum/nXTiles)*nXTiles;
             else
-                iTile--;
+                tileNum--;
         }
 
         if (PRESSED_KEYSC(RIGHT))
         {
             if (eitherCTRL)  // same as END, for consistency with CTRL-UP/DOWN
-                iTile = ((iTile+nXTiles)/nXTiles)*nXTiles - 1;
+                tileNum = ((tileNum+nXTiles)/nXTiles)*nXTiles - 1;
             else
-                iTile++;
+                tileNum++;
         }
 
         if (PRESSED_KEYSC(UP))
         {
             if (eitherCTRL)
-                while (iTile-nXTiles >= iTopLeftTile)
-                    iTile -= nXTiles;
+                while (tileNum-nXTiles >= iTopLeftTile)
+                    tileNum -= nXTiles;
             else
-                iTile -= nXTiles;
+                tileNum -= nXTiles;
         }
 
         if (PRESSED_KEYSC(DOWN))
         {
             if (eitherCTRL)
-                while (iTile+nXTiles < iTopLeftTile + nDisplayedTiles)
-                    iTile += nXTiles;
+                while (tileNum+nXTiles < iTopLeftTile + nDisplayedTiles)
+                    tileNum += nXTiles;
             else
-                iTile += nXTiles;
+                tileNum += nXTiles;
         }
 
         if (PRESSED_KEYSC(PGUP))
         {
             if (eitherCTRL)
-                iTile = 0;
+                tileNum = 0;
             else
-                iTile -= nDisplayedTiles;
+                tileNum -= nDisplayedTiles;
         }
 
         if (PRESSED_KEYSC(PGDN))
         {
             if (eitherCTRL)
-                iTile = localartlookupnum-1;
+                tileNum = localartlookupnum-1;
             else
-                iTile += nDisplayedTiles;
+                tileNum += nDisplayedTiles;
         }
 
         if (PRESSED_KEYSC(HOME))
         {
             if (eitherCTRL)
-                iTile = iTopLeftTile;
+                tileNum = iTopLeftTile;
             else
-                iTile = (iTile/nXTiles)*nXTiles;
+                tileNum = (tileNum/nXTiles)*nXTiles;
         }
 
         if (PRESSED_KEYSC(END))
         {
             if (eitherCTRL)
-                iTile = iTopLeftTile + nDisplayedTiles - 1;
+                tileNum = iTopLeftTile + nDisplayedTiles - 1;
             else
-                iTile = ((iTile+nXTiles)/nXTiles)*nXTiles - 1;
+                tileNum = ((tileNum+nXTiles)/nXTiles)*nXTiles - 1;
         }
 
         // 'V'  KEYPRESS
         if (PRESSED_KEYSC(V))
-            iTile = SelectAllTiles(iTile);
+            tileNum = SelectAllTiles(tileNum);
 
         // 'G'  KEYPRESS - Goto frame
         if (PRESSED_KEYSC(G))
@@ -2885,43 +2885,43 @@ static int32_t m32gettile(int32_t idInitialTile)
             {
                 if (OnSaveTileGroup() == 0)
                 {
-//                    iTile = SelectAllTiles(iTile);
+//                    tileNum = SelectAllTiles(tileNum);
                     Bmemset(tilemarked, 0, sizeof(tilemarked));
                     mark_lastk = -1;
                     noTilesMarked = 1;
                 }
             }
             else
-                iTile = OnGotoTile(iTile);
+                tileNum = OnGotoTile(tileNum);
         }
 
         // 'U'  KEYPRESS : go straight to user defined art
         if (PRESSED_KEYSC(U))
         {
-            SelectAllTiles(iTile);
-            iTile = FIRST_USER_ART_TILE;
+            SelectAllTiles(tileNum);
+            tileNum = FIRST_USER_ART_TILE;
         }
 
         // 'A'  KEYPRESS : Go straight to start of Atomic edition's art
         if (PRESSED_KEYSC(A))
         {
-            SelectAllTiles(iTile);
-            iTile = FIRST_ATOMIC_TILE;
+            SelectAllTiles(tileNum);
+            tileNum = FIRST_ATOMIC_TILE;
         }
 
         // 'E'  KEYPRESS : Go straight to start of extended art
         if (PRESSED_KEYSC(E))
         {
-            SelectAllTiles(iTile);
+            SelectAllTiles(tileNum);
 
-            if (iTile == FIRST_EXTENDED_TILE)
-                iTile = SECOND_EXTENDED_TILE;
-            else iTile = FIRST_EXTENDED_TILE;
+            if (tileNum == FIRST_EXTENDED_TILE)
+                tileNum = SECOND_EXTENDED_TILE;
+            else tileNum = FIRST_EXTENDED_TILE;
         }
 
         // 'T' KEYPRESS = Select from pre-defined tileset
         if (PRESSED_KEYSC(T))
-            iTile = OnSelectTile(iTile);
+            tileNum = OnSelectTile(tileNum);
 
         if (PRESSED_KEYSC(Z))
             s_TileZoom = !s_TileZoom;
@@ -2929,7 +2929,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         //
         // Ensure tilenum is within valid range
         //
-        iTile = clamp(iTile, 0, min(MAXTILES-1, localartlookupnum+nDisplayedTiles-1));
+        tileNum = clamp(tileNum, 0, min(MAXTILES-1, localartlookupnum+nDisplayedTiles-1));
 
         // 'S' KEYPRESS: search for named tile
         if (PRESSED_KEYSC(S))
@@ -2943,7 +2943,7 @@ static int32_t m32gettile(int32_t idInitialTile)
                 int32_t i, i0, slen=Bstrlen(searchstr)-1;
 
                 Bstrncpyz(laststr, searchstr, 25);
-                i0 = localartlookup[iTile];
+                i0 = localartlookup[tileNum];
 
                 Bmemcpy(buf[0], laststr, 25);
                 Bstrupr(buf[0]);
@@ -2958,7 +2958,7 @@ static int32_t m32gettile(int32_t idInitialTile)
                         (searchstr[0]!='^' && Bstrstr(buf[1], buf[0])))
                     {
                         SelectAllTiles(i);
-                        iTile = i;
+                        tileNum = i;
                         break;
                     }
                 }
@@ -2971,10 +2971,10 @@ static int32_t m32gettile(int32_t idInitialTile)
         //	Adjust top-left to ensure tilenum is within displayed range of tiles
         //
 
-        while (iTile < iTopLeftTile - (moffset<0)?nXTiles:0)
+        while (tileNum < iTopLeftTile - (moffset<0)?nXTiles:0)
             iTopLeftTile -= nXTiles;
 
-        while (iTile >= iTopLeftTile + nDisplayedTiles)
+        while (tileNum >= iTopLeftTile + nDisplayedTiles)
             iTopLeftTile += nXTiles;
 
         iTopLeftTile = clamp(iTopLeftTile, 0, MAXTILES - nDisplayedTiles);
@@ -2983,7 +2983,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         // SPACE keypress: mark/unmark selected tile
         if (PRESSED_KEYSC(SPACE))
         {
-            if (iTile < localartlookupnum && IsValidTile(localartlookup[iTile]))
+            if (tileNum < localartlookupnum && IsValidTile(localartlookup[tileNum]))
             {
                 if (keystatus[KEYSC_LCTRL] && keystatus[KEYSC_RSHIFT])
                 {
@@ -2993,7 +2993,7 @@ static int32_t m32gettile(int32_t idInitialTile)
                 }
                 else
                 {
-                    int32_t k=iTile, kend, dir;
+                    int32_t k=tileNum, kend, dir;
 
                     if (noTilesMarked)
                     {
@@ -3031,10 +3031,10 @@ static int32_t m32gettile(int32_t idInitialTile)
         }
         else
         {
-            if (iTile < localartlookupnum)
+            if (tileNum < localartlookupnum)
             {
                 // Convert tile num from index to actual tile num
-                idSelectedTile = localartlookup[iTile];
+                idSelectedTile = localartlookup[tileNum];
 
                 // Check : if invalid tile selected, return original tile num
                 if (!IsValidTile(idSelectedTile))
@@ -3045,10 +3045,10 @@ static int32_t m32gettile(int32_t idInitialTile)
                 idSelectedTile = idInitialTile;
             }
         }
-        if (mtile!=iTile) // if changed by keyboard, update mouse cursor
+        if (mtile!=tileNum) // if changed by keyboard, update mouse cursor
         {
-            searchx = ((iTile-iTopLeftTile)%nXTiles) * zoomsz + zoomsz/2;
-            searchy = ((iTile-iTopLeftTile)/nXTiles) * zoomsz + zoomsz/2 + moffset;
+            searchx = ((tileNum-iTopLeftTile)%nXTiles) * zoomsz + zoomsz/2;
+            searchy = ((tileNum-iTopLeftTile)/nXTiles) * zoomsz + zoomsz/2 + moffset;
         }
     }
 
@@ -3223,10 +3223,10 @@ static int32_t OnSaveTileGroup(void)
 }
 
 
-static int32_t OnGotoTile(int32_t iTile)
+static int32_t OnGotoTile(int32_t tileNum)
 {
     //Automatically press 'V'
-    iTile = SelectAllTiles(iTile);
+    tileNum = SelectAllTiles(tileNum);
 
     return getnumber256("Goto tile: ", 0, MAXTILES-1, 0+2+16);
 }
@@ -3253,7 +3253,7 @@ static int32_t LoadTileSet(const int32_t idCurrentTile, const int32_t *pIds, con
     return iNewTile;
 }
 
-static int32_t OnSelectTile(int32_t iTile)
+static int32_t OnSelectTile(int32_t tileNum)
 {
     int32_t bDone = 0;
     int32_t i;
@@ -3262,10 +3262,10 @@ static int32_t OnSelectTile(int32_t iTile)
     if (tile_groups <= 0)
     {
         TMPERRMSG_PRINT("No tile groups loaded. Check for existence of `%s'.", default_tiles_cfg);
-        return iTile;
+        return tileNum;
     }
 
-    SelectAllTiles(iTile);
+    SelectAllTiles(tileNum);
 
     bflushchars();
 
@@ -3316,7 +3316,7 @@ static int32_t OnSelectTile(int32_t iTile)
             if (s_TileGroups[i].pIds != NULL && s_TileGroups[i].key1)
                 if (ch == s_TileGroups[i].key1 || ch == s_TileGroups[i].key2)
                 {
-                    iTile = LoadTileSet(iTile, s_TileGroups[i].pIds, s_TileGroups[i].nIds);
+                    tileNum = LoadTileSet(tileNum, s_TileGroups[i].pIds, s_TileGroups[i].nIds);
                     bDone = 1;
                 }
         }
@@ -3326,7 +3326,7 @@ static int32_t OnSelectTile(int32_t iTile)
 
     clearkeys();
 
-    return iTile;
+    return tileNum;
 }
 
 static const char *GetTilePixels(int32_t idTile)
@@ -3387,7 +3387,7 @@ static void classic_drawtilescreen(int32_t x, int32_t y, int32_t idTile, int32_t
 
 static void tilescreen_drawbox(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles,
                                int32_t TileDim, int32_t offset,
-                               int32_t iTile, int32_t idTile)
+                               int32_t tileNum, int32_t idTile)
 {
     int32_t marked = (IsValidTile(idTile) && tilemarked[idTile>>3]&(1<<(idTile&7)));
 
@@ -3395,10 +3395,10 @@ static void tilescreen_drawbox(int32_t iTopLeft, int32_t iSelected, int32_t nXTi
     // Draw white box around currently selected tile or marked tile
     // p1=(x1, y1), p2=(x1+TileDim-1, y1+TileDim-1)
     //
-    if (iTile == iSelected || marked)
+    if (tileNum == iSelected || marked)
     {
-        int32_t x1 = ((iTile-iTopLeft) % nXTiles)*TileDim;
-        int32_t y1 = ((iTile - ((iTile-iTopLeft) % nXTiles) - iTopLeft)/nXTiles)*TileDim + offset;
+        int32_t x1 = ((tileNum-iTopLeft) % nXTiles)*TileDim;
+        int32_t y1 = ((tileNum - ((tileNum-iTopLeft) % nXTiles) - iTopLeft)/nXTiles)*TileDim + offset;
         int32_t x2 = x1+TileDim-1;
         int32_t y2 = y1+TileDim-1, oydim16=ydim16;
 
@@ -3416,7 +3416,7 @@ static void tilescreen_drawbox(int32_t iTopLeft, int32_t iSelected, int32_t nXTi
             // box
             int32_t xx[] = {x1, x1, x2, x2, x1};
             int32_t yy[] = {y1, y2, y2, y1, y1};
-            plotlines2d(xx, yy, 5, iTile==iSelected ? whitecol : markedcol);
+            plotlines2d(xx, yy, 5, tileNum==iSelected ? whitecol : markedcol);
         }
 
         // cross
@@ -3486,7 +3486,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
                          int32_t TileDim, int32_t offset, int32_t showmsg)
 {
     int32_t XTile, YTile;
-    int32_t iTile, idTile;
+    int32_t tileNum, idTile;
     int32_t i, x, y;
     const char *pRawPixels;
     char szT[128];
@@ -3519,15 +3519,15 @@ restart:
     {
         for (XTile = 0; XTile < nXTiles; XTile++)
         {
-            iTile = iTopLeft + XTile + (YTile * nXTiles);
+            tileNum = iTopLeft + XTile + (YTile * nXTiles);
 
-            if (iTile < 0 || iTile >= localartlookupnum)
+            if (tileNum < 0 || tileNum >= localartlookupnum)
                 continue;
 #ifdef USE_OPENGL
             usehitile = (runi || !lazyselector);
 #endif
 
-            idTile = localartlookup[ iTile ];
+            idTile = localartlookup[ tileNum ];
             if (loadedhitile[idTile>>3]&(1<<(idTile&7)))
             {
                 if (runi==1)
@@ -3552,14 +3552,14 @@ restart:
 #endif
                     classic_drawtilescreen(x, y, idTile, TileDim, pRawPixels);
 
-                if (localartfreq[iTile] != 0 && y >= 0 && y <= ydim-20)
+                if (localartfreq[tileNum] != 0 && y >= 0 && y <= ydim-20)
                 {
-                    Bsprintf(szT, "%d", localartfreq[iTile]);
+                    Bsprintf(szT, "%d", localartfreq[tileNum]);
                     printext256(x, y, whitecol, -1, szT, 1);
                 }
             }
 
-            tilescreen_drawbox(iTopLeft, iSelected, nXTiles, TileDim, offset, iTile, idTile);
+            tilescreen_drawbox(iTopLeft, iSelected, nXTiles, TileDim, offset, tileNum, idTile);
 
             if (runi==1 && lazyselector)
             {
@@ -8995,7 +8995,7 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
     if (parm->numparms==0)
         return OSDCMD_SHOWHELP;
 
-    oscrofs = (g_scriptPtr-script);
+    oscrofs = (g_scriptPtr-apScript);
 
     ofs = 2*(parm->numparms>0);  // true if "do" command
     slen = Bstrlen(parm->raw+ofs);
@@ -9032,15 +9032,15 @@ static int32_t osdcmd_do(const osdfuncparm_t *parm)
         g_numSavedConstants = onumconstants;
 
         *g_scriptPtr = CON_RETURN + (g_lineNumber<<12);
-        g_scriptPtr = script + oscrofs;
+        g_scriptPtr = apScript + oscrofs;
 
-        insptr = script + oscrofs;
+        insptr = apScript + oscrofs;
         Bmemcpy(&vm, &vm_default, sizeof(vmstate_t));
 
         if (in3dmode() && AIMING_AT_SPRITE)
         {
-            vm.g_i = searchwall;
-            vm.g_sp = (uspritetype *)&sprite[vm.g_i];
+            vm.spriteNum = searchwall;
+            vm.pSprite   = &sprite[vm.spriteNum];
         }
 
         // If OSD is down, that would interfere with user input, so don't consider
@@ -10166,16 +10166,16 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                     spritelightptr[i]->sector = sprite[i].sectnum;
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
-                                if (SHT != spritelightptr[i]->range)
+                                if (SHT(i) != spritelightptr[i]->range)
                                 {
-                                    spritelightptr[i]->range = SHT;
+                                    spritelightptr[i]->range = SHT(i);
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
                                 if (check_prlight_colors(i))
                                     copy_prlight_colors(spritelightptr[i], i);
-                                if ((int)!!(CS & 128) != spritelightptr[i]->publicflags.negative)
+                                if ((int)!!(CS(i) & 128) != spritelightptr[i]->publicflags.negative)
                                 {
-                                    spritelightptr[i]->publicflags.negative = !!(CS & 128);
+                                    spritelightptr[i]->publicflags.negative = !!(CS(i) & 128);
                                 }
                             }
                         }
@@ -10189,10 +10189,10 @@ void ExtPreCheckKeys(void) // just before drawrooms
 #pragma pack(push,1)
                                 _prlight mylight;
 #pragma pack(pop)
-                                mylight.radius = (256-(SS+128))<<1;
+                                mylight.radius = (256-(SS(i)+128))<<1;
                                 mylight.faderadius = (int16_t)(mylight.radius * 0.75f);
-                                mylight.tilenum = OW;
-                                mylight.publicflags.emitshadow = !(CS & 64);
+                                mylight.tilenum = OW(i);
+                                mylight.publicflags.emitshadow = !(CS(i) & 64);
 
                                 addprlight_common1(&mylight, i);
                             }
@@ -10204,38 +10204,38 @@ void ExtPreCheckKeys(void) // just before drawrooms
                                     spritelightptr[i]->sector = sprite[i].sectnum;
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
-                                if (SHT != spritelightptr[i]->range)
+                                if (SHT(i) != spritelightptr[i]->range)
                                 {
-                                    spritelightptr[i]->range = SHT;
+                                    spritelightptr[i]->range = SHT(i);
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
                                 if (check_prlight_colors(i))
                                     copy_prlight_colors(spritelightptr[i], i);
-                                if (((256-(SS+128))<<1) != spritelightptr[i]->radius)
+                                if (((256-(SS(i)+128))<<1) != spritelightptr[i]->radius)
                                 {
-                                    spritelightptr[i]->radius = (256-(SS+128))<<1;
+                                    spritelightptr[i]->radius = (256-(SS(i)+128))<<1;
                                     spritelightptr[i]->faderadius = (int16_t)(spritelightptr[i]->radius * 0.75f);
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
-                                if (SA != spritelightptr[i]->angle)
+                                if (SA(i) != spritelightptr[i]->angle)
                                 {
-                                    spritelightptr[i]->angle = SA;
+                                    spritelightptr[i]->angle = SA(i);
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
-                                if (SH != spritelightptr[i]->horiz)
+                                if (SH(i) != spritelightptr[i]->horiz)
                                 {
-                                    spritelightptr[i]->horiz = SH;
+                                    spritelightptr[i]->horiz = SH(i);
                                     spritelightptr[i]->flags.invalidate = 1;
                                 }
-                                if ((int)!(CS & 64) != spritelightptr[i]->publicflags.emitshadow)
+                                if ((int)!(CS(i) & 64) != spritelightptr[i]->publicflags.emitshadow)
                                 {
-                                    spritelightptr[i]->publicflags.emitshadow = !(CS & 64);
+                                    spritelightptr[i]->publicflags.emitshadow = !(CS(i) & 64);
                                 }
-                                if ((int)!!(CS & 128) != spritelightptr[i]->publicflags.negative)
+                                if ((int)!!(CS(i) & 128) != spritelightptr[i]->publicflags.negative)
                                 {
-                                    spritelightptr[i]->publicflags.negative = !!(CS & 128);
+                                    spritelightptr[i]->publicflags.negative = !!(CS(i) & 128);
                                 }
-                                spritelightptr[i]->tilenum = OW;
+                                spritelightptr[i]->tilenum = OW(i);
                             }
                         }
                     }

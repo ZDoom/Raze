@@ -38,7 +38,7 @@ int32_t S_FindMusicSFX(int32_t sn, int32_t *sndptr)
         const int32_t snd = sprite[i].lotag;
         EDUKE32_STATIC_ASSERT(MAXSOUNDS >= 1000);
 
-        if (PN == MUSICANDSFX && (unsigned)snd < 1000)  // XXX: in other places, 999
+        if (PN(i) == MUSICANDSFX && (unsigned)snd < 1000)  // XXX: in other places, 999
         {
             *sndptr = snd;
             return i;
@@ -67,30 +67,30 @@ int32_t A_CallSound(int32_t sn, int32_t whatsprite)
         if (whatsprite == -1)
             whatsprite = i;
 
-        if (T1 == 0)
+        if (T1(i) == 0)
         {
             if ((g_sounds[snd].m & SF_GLOBAL) == 0)
             {
                 if (snd)
                 {
                     A_PlaySound(snd, whatsprite);
-                    if (SHT && snd != SHT && SHT < MAXSOUNDS)
-                        S_StopEnvSound(SHT,T6);
-                    T6 = whatsprite;
+                    if (SHT(i) && snd != SHT(i) && SHT(i) < MAXSOUNDS)
+                        S_StopEnvSound(SHT(i),T6(i));
+                    T6(i) = whatsprite;
                 }
 
-                if ((sector[SECT].lotag&0xff) != ST_22_SPLITTING_DOOR)
-                    T1 = 1;
+                if ((sector[SECT(i)].lotag&0xff) != ST_22_SPLITTING_DOOR)
+                    T1(i) = 1;
             }
         }
-        else if (SHT < MAXSOUNDS)
+        else if (SHT(i) < MAXSOUNDS)
         {
-            if (SHT)
-                A_PlaySound(SHT, whatsprite);
-            if ((g_sounds[snd].m & SF_LOOP) || (SHT && SHT != snd))
-                S_StopEnvSound(snd, T6);
-            T6 = whatsprite;
-            T1 = 0;
+            if (SHT(i))
+                A_PlaySound(SHT(i), whatsprite);
+            if ((g_sounds[snd].m & SF_LOOP) || (SHT(i) && SHT(i) != snd))
+                S_StopEnvSound(snd, T6(i));
+            T6(i) = whatsprite;
+            T1(i) = 0;
         }
 
         return snd;
@@ -368,11 +368,11 @@ static void G_SetupCamTile(int32_t i, int32_t wn, int32_t smoothratio)
     setviewtotile(wn, tilesiz[wn].y, tilesiz[wn].x);
 
     yax_preparedrawrooms();
-    drawrooms(cam.x, cam.y, cam.z, SA, 100+sprite[i].shade, SECT);
-    yax_drawrooms(G_DoSpriteAnimations, SECT, 0, smoothratio);
+    drawrooms(cam.x, cam.y, cam.z, SA(i), 100+sprite[i].shade, SECT(i));
+    yax_drawrooms(G_DoSpriteAnimations, SECT(i), 0, smoothratio);
 
     display_mirror = 3;
-    G_DoSpriteAnimations(cam.x, cam.y, SA, smoothratio);
+    G_DoSpriteAnimations(cam.x, cam.y, SA(i), smoothratio);
     display_mirror = mir;
     drawmasks();
 
@@ -391,24 +391,24 @@ void G_AnimateCamSprite(int32_t smoothratio)
     if (g_curViewscreen < 0)
         return;
 
-    if (totalclock >= T1 + ud.camera_time)
+    if (totalclock >= T1(i) + ud.camera_time)
     {
         const DukePlayer_t *const ps = g_player[screenpeek].ps;
 
         if (ps->newowner >= 0)
-            OW = ps->newowner;
+            OW(i) = ps->newowner;
 
-        if (OW >= 0 && dist(&sprite[ps->i], &sprite[i]) < VIEWSCREEN_ACTIVE_DISTANCE)
+        if (OW(i) >= 0 && dist(&sprite[ps->i], &sprite[i]) < VIEWSCREEN_ACTIVE_DISTANCE)
         {
             const int viewscrShift = G_GetViewscreenSizeShift((const uspritetype *)&sprite[i]);
             const int viewscrTile = TILE_VIEWSCR-viewscrShift;
 
             if (waloff[viewscrTile] == 0)
-                allocatepermanenttile(viewscrTile, tilesiz[PN].x<<viewscrShift, tilesiz[PN].y<<viewscrShift);
+                allocatepermanenttile(viewscrTile, tilesiz[PN(i)].x<<viewscrShift, tilesiz[PN(i)].y<<viewscrShift);
             else
                 walock[viewscrTile] = 255;
 
-            G_SetupCamTile(OW, viewscrTile, smoothratio);
+            G_SetupCamTile(OW(i), viewscrTile, smoothratio);
 #ifdef POLYMER
             // Force texture update on viewscreen sprite in Polymer!
             if (getrendermode() == REND_POLYMER)
@@ -416,7 +416,7 @@ void G_AnimateCamSprite(int32_t smoothratio)
 #endif
         }
 
-        T1 = totalclock;
+        T1(i) = totalclock;
     }
 }
 
@@ -511,10 +511,10 @@ int32_t G_ActivateWarpElevators(int32_t s, int32_t d) //Parm = sectoreffectornum
     const int32_t sn = sprite[s].sectnum;
 
     for (SPRITES_OF(STAT_EFFECTOR, i))
-        if (SLT == SE_17_WARP_ELEVATOR && SHT == sprite[s].hitag)
+        if (SLT(i) == SE_17_WARP_ELEVATOR && SHT(i) == sprite[s].hitag)
         {
-            if (klabs(sector[sn].floorz - actor[s].t_data[2]) > SP ||
-                    sector[SECT].hitag == sector[sn].hitag - d)
+            if (klabs(sector[sn].floorz - actor[s].t_data[2]) > SP(i) ||
+                    sector[SECT(i)].hitag == sector[sn].hitag - d)
                 break;
         }
 
@@ -524,40 +524,40 @@ int32_t G_ActivateWarpElevators(int32_t s, int32_t d) //Parm = sectoreffectornum
     A_PlaySound(d ? ELEVATOR_ON : ELEVATOR_OFF, s);
 
     for (SPRITES_OF(STAT_EFFECTOR, i))
-        if (SLT == SE_17_WARP_ELEVATOR && SHT == sprite[s].hitag)
-            T1 = T2 = d; //Make all check warp
+        if (SLT(i) == SE_17_WARP_ELEVATOR && SHT(i) == sprite[s].hitag)
+            T1(i) = T2(i) = d; //Make all check warp
 
     return 0;
 }
 
-void G_OperateSectors(int32_t nSector, int32_t nSprite)
+void G_OperateSectors(int32_t sectNum, int32_t spriteNum)
 {
     int32_t j=0;
     int32_t i;
-    sectortype *const pSector = &sector[nSector];
+    sectortype *const pSector = &sector[sectNum];
 
     switch (pSector->lotag&(0xffff-49152))
     {
     case ST_30_ROTATE_RISE_BRIDGE:
-        j = sector[nSector].hitag;
+        j = sector[sectNum].hitag;
 
         if (E_SpriteIsValid(j))
         {
             if (actor[j].tempang == 0 || actor[j].tempang == 256)
-                A_CallSound(nSector,nSprite);
+                A_CallSound(sectNum,spriteNum);
             sprite[j].extra = (sprite[j].extra == 1) ? 3 : 1;
         }
         break;
 
     case ST_31_TWO_WAY_TRAIN:
-        j = sector[nSector].hitag;
+        j = sector[sectNum].hitag;
 
         if (E_SpriteIsValid(j))
         {
             if (actor[j].t_data[4] == 0)
                 actor[j].t_data[4] = 1;
 
-            A_CallSound(nSector,nSprite);
+            A_CallSound(sectNum,spriteNum);
         }
         break;
 
@@ -567,10 +567,10 @@ void G_OperateSectors(int32_t nSector, int32_t nSprite)
             g_haltSoundHack = 1;
             pSector->lotag &= 0xff00;
             pSector->lotag |= ST_22_SPLITTING_DOOR;
-            G_OperateSectors(nSector,nSprite);
+            G_OperateSectors(sectNum,spriteNum);
             pSector->lotag &= 0xff00;
             pSector->lotag |= ST_9_SLIDING_ST_DOOR;
-            G_OperateSectors(nSector,nSprite);
+            G_OperateSectors(sectNum,spriteNum);
             pSector->lotag &= 0xff00;
             pSector->lotag |= ST_26_SPLITTING_ST_DOOR;
         }
@@ -637,36 +637,36 @@ void G_OperateSectors(int32_t nSector, int32_t nSprite)
                 {
                     vect2.x = wall[wall[wall[nFoundWall].point2].point2].x;
                     vect2.x -= wall[wall[nFoundWall].point2].x;
-                    SetAnimation(nSector,&wall[nFoundWall].x,wall[nFoundWall].x+vect2.x,sp);
-                    SetAnimation(nSector,&wall[i].x,wall[i].x+vect2.x,sp);
-                    SetAnimation(nSector,&wall[wall[nFoundWall].point2].x,wall[wall[nFoundWall].point2].x+vect2.x,sp);
-                    A_CallSound(nSector,nSprite);
+                    SetAnimation(sectNum,&wall[nFoundWall].x,wall[nFoundWall].x+vect2.x,sp);
+                    SetAnimation(sectNum,&wall[i].x,wall[i].x+vect2.x,sp);
+                    SetAnimation(sectNum,&wall[wall[nFoundWall].point2].x,wall[wall[nFoundWall].point2].x+vect2.x,sp);
+                    A_CallSound(sectNum,spriteNum);
                 }
                 else if (vect2.y != 0)
                 {
                     vect2.y = wall[wall[wall[nFoundWall].point2].point2].y;
                     vect2.y -= wall[wall[nFoundWall].point2].y;
-                    SetAnimation(nSector,&wall[nFoundWall].y,wall[nFoundWall].y+vect2.y,sp);
-                    SetAnimation(nSector,&wall[i].y,wall[i].y+vect2.y,sp);
-                    SetAnimation(nSector,&wall[wall[nFoundWall].point2].y,wall[wall[nFoundWall].point2].y+vect2.y,sp);
-                    A_CallSound(nSector,nSprite);
+                    SetAnimation(sectNum,&wall[nFoundWall].y,wall[nFoundWall].y+vect2.y,sp);
+                    SetAnimation(sectNum,&wall[i].y,wall[i].y+vect2.y,sp);
+                    SetAnimation(sectNum,&wall[wall[nFoundWall].point2].y,wall[wall[nFoundWall].point2].y+vect2.y,sp);
+                    A_CallSound(sectNum,spriteNum);
                 }
             }
             else
             {
                 if (vect2.x != 0)
                 {
-                    SetAnimation(nSector,&wall[nFoundWall].x,vect.x,sp);
-                    SetAnimation(nSector,&wall[i].x,vect.x+vect2.x,sp);
-                    SetAnimation(nSector,&wall[wall[nFoundWall].point2].x,vect.x+vect2.x,sp);
-                    A_CallSound(nSector,nSprite);
+                    SetAnimation(sectNum,&wall[nFoundWall].x,vect.x,sp);
+                    SetAnimation(sectNum,&wall[i].x,vect.x+vect2.x,sp);
+                    SetAnimation(sectNum,&wall[wall[nFoundWall].point2].x,vect.x+vect2.x,sp);
+                    A_CallSound(sectNum,spriteNum);
                 }
                 else if (vect2.y != 0)
                 {
-                    SetAnimation(nSector,&wall[nFoundWall].y,vect.y,sp);
-                    SetAnimation(nSector,&wall[i].y,vect.y+vect2.y,sp);
-                    SetAnimation(nSector,&wall[wall[nFoundWall].point2].y,vect.y+vect2.y,sp);
-                    A_CallSound(nSector,nSprite);
+                    SetAnimation(sectNum,&wall[nFoundWall].y,vect.y,sp);
+                    SetAnimation(sectNum,&wall[i].y,vect.y+vect2.y,sp);
+                    SetAnimation(sectNum,&wall[wall[nFoundWall].point2].y,vect.y+vect2.y,sp);
+                    A_CallSound(sectNum,spriteNum);
                 }
             }
         }
@@ -675,17 +675,17 @@ void G_OperateSectors(int32_t nSector, int32_t nSprite)
 
     case ST_15_WARP_ELEVATOR://Warping elevators
 
-        if (sprite[nSprite].picnum != APLAYER)
+        if (sprite[spriteNum].picnum != APLAYER)
             return;
 
-        for (SPRITES_OF_SECT(nSector, i))
-            if (PN==SECTOREFFECTOR && SLT == SE_17_WARP_ELEVATOR)
+        for (SPRITES_OF_SECT(sectNum, i))
+            if (PN(i)==SECTOREFFECTOR && SLT(i) == SE_17_WARP_ELEVATOR)
                 break;
 
         if (i < 0)
             return;
 
-        if (sprite[nSprite].sectnum == nSector)
+        if (sprite[spriteNum].sectnum == sectNum)
         {
             if (G_ActivateWarpElevators(i,-1))
                 G_ActivateWarpElevators(i,1);
@@ -694,7 +694,7 @@ void G_OperateSectors(int32_t nSector, int32_t nSprite)
         }
         else
         {
-            if (pSector->floorz > SZ)
+            if (pSector->floorz > SZ(i))
                 G_ActivateWarpElevators(i,-1);
             else
                 G_ActivateWarpElevators(i,1);
@@ -709,20 +709,20 @@ void G_OperateSectors(int32_t nSector, int32_t nSprite)
 
         if (i == -1)
         {
-            i = nextsectorneighborz(nSector,pSector->floorz,1,1);
+            i = nextsectorneighborz(sectNum,pSector->floorz,1,1);
             if (i == -1)
             {
-                i = nextsectorneighborz(nSector,pSector->floorz,1,-1);
+                i = nextsectorneighborz(sectNum,pSector->floorz,1,-1);
                 if (i == -1) return;
                 j = sector[i].floorz;
-                SetAnimation(nSector,&pSector->floorz,j,pSector->extra);
+                SetAnimation(sectNum,&pSector->floorz,j,pSector->extra);
             }
             else
             {
                 j = sector[i].floorz;
-                SetAnimation(nSector,&pSector->floorz,j,pSector->extra);
+                SetAnimation(sectNum,&pSector->floorz,j,pSector->extra);
             }
-            A_CallSound(nSector,nSprite);
+            A_CallSound(sectNum,spriteNum);
         }
 
         return;
@@ -734,10 +734,10 @@ void G_OperateSectors(int32_t nSector, int32_t nSprite)
 
         if (i==-1)
         {
-            i = nextsectorneighborz(nSector, pSector->floorz, 1, -1);
+            i = nextsectorneighborz(sectNum, pSector->floorz, 1, -1);
 
             if (i == -1)
-                i = nextsectorneighborz(nSector, pSector->floorz, 1, 1);
+                i = nextsectorneighborz(sectNum, pSector->floorz, 1, 1);
 
             if (i == -1)
                 return;
@@ -747,31 +747,31 @@ void G_OperateSectors(int32_t nSector, int32_t nSprite)
             int const nSectorExtra = pSector->extra;
             int const nZdiff       = pSector->ceilingz - pSector->floorz;
 
-            SetAnimation(nSector, &pSector->floorz, j, nSectorExtra);
-            SetAnimation(nSector, &pSector->ceilingz, j + nZdiff, nSectorExtra);
-            A_CallSound(nSector, nSprite);
+            SetAnimation(sectNum, &pSector->floorz, j, nSectorExtra);
+            SetAnimation(sectNum, &pSector->ceilingz, j + nZdiff, nSectorExtra);
+            A_CallSound(sectNum, spriteNum);
         }
         return;
 
     case ST_29_TEETH_DOOR:
 
         for (SPRITES_OF(STAT_EFFECTOR, i))
-            if (SLT == SE_22_TEETH_DOOR && SHT == pSector->hitag)
+            if (SLT(i) == SE_22_TEETH_DOOR && SHT(i) == pSector->hitag)
             {
-                sector[SECT].extra = -sector[SECT].extra;
+                sector[SECT(i)].extra = -sector[SECT(i)].extra;
 
-                T1 = nSector;
-                T2 = 1;
+                T1(i) = sectNum;
+                T2(i) = 1;
             }
 
-        A_CallSound(nSector, nSprite);
+        A_CallSound(sectNum, spriteNum);
 
         pSector->lotag ^= 0x8000;
 
         if (pSector->lotag&0x8000)
         {
-            j = nextsectorneighborz(nSector,pSector->ceilingz,-1,-1);
-            if (j == -1) j = nextsectorneighborz(nSector,pSector->ceilingz,1,1);
+            j = nextsectorneighborz(sectNum,pSector->ceilingz,-1,-1);
+            if (j == -1) j = nextsectorneighborz(sectNum,pSector->ceilingz,1,1);
             if (j == -1)
             {
                 OSD_Printf("WARNING: ST29: null sector!\n");
@@ -781,8 +781,8 @@ void G_OperateSectors(int32_t nSector, int32_t nSprite)
         }
         else
         {
-            j = nextsectorneighborz(nSector,pSector->ceilingz,1,1);
-            if (j == -1) j = nextsectorneighborz(nSector,pSector->ceilingz,-1,-1);
+            j = nextsectorneighborz(sectNum,pSector->ceilingz,1,1);
+            if (j == -1) j = nextsectorneighborz(sectNum,pSector->ceilingz,-1,-1);
             if (j == -1)
             {
                 OSD_Printf("WARNING: ST29: null sector!\n");
@@ -791,7 +791,7 @@ void G_OperateSectors(int32_t nSector, int32_t nSprite)
             j = sector[j].floorz;
         }
 
-        SetAnimation(nSector,&pSector->ceilingz,j,pSector->extra);
+        SetAnimation(sectNum,&pSector->ceilingz,j,pSector->extra);
 
         return;
 
@@ -800,10 +800,10 @@ REDODOOR:
 
         if (pSector->lotag&0x8000)
         {
-            for (SPRITES_OF_SECT(nSector, i))
-                if (sprite[i].statnum == STAT_EFFECTOR && SLT==SE_9_DOWN_OPEN_DOOR_LIGHTS)
+            for (SPRITES_OF_SECT(sectNum, i))
+                if (sprite[i].statnum == STAT_EFFECTOR && SLT(i)==SE_9_DOWN_OPEN_DOOR_LIGHTS)
                 {
-                    j = SZ;
+                    j = SZ(i);
                     break;
                 }
 
@@ -812,7 +812,7 @@ REDODOOR:
         }
         else
         {
-            j = nextsectorneighborz(nSector,pSector->ceilingz,-1,-1);
+            j = nextsectorneighborz(sectNum,pSector->ceilingz,-1,-1);
 
             if (j >= 0) j = sector[j].ceilingz;
             else
@@ -824,8 +824,8 @@ REDODOOR:
 
         pSector->lotag ^= 0x8000;
 
-        SetAnimation(nSector,&pSector->ceilingz,j,pSector->extra);
-        A_CallSound(nSector,nSprite);
+        SetAnimation(sectNum,&pSector->ceilingz,j,pSector->extra);
+        A_CallSound(sectNum,spriteNum);
 
         return;
 
@@ -833,20 +833,20 @@ REDODOOR:
         i = GetAnimationGoal(&pSector->floorz);
         if (i >= 0)
         {
-            if (animategoal[nSector] == pSector->ceilingz)
-                animategoal[i] = sector[nextsectorneighborz(nSector,pSector->ceilingz,1,1)].floorz;
+            if (animategoal[sectNum] == pSector->ceilingz)
+                animategoal[i] = sector[nextsectorneighborz(sectNum,pSector->ceilingz,1,1)].floorz;
             else animategoal[i] = pSector->ceilingz;
         }
         else
         {
             if (pSector->ceilingz == pSector->floorz)
-                j = sector[nextsectorneighborz(nSector,pSector->ceilingz,1,1)].floorz;
+                j = sector[nextsectorneighborz(sectNum,pSector->ceilingz,1,1)].floorz;
             else j = pSector->ceilingz;
 
             pSector->lotag ^= 0x8000;
 
-            if (SetAnimation(nSector,&pSector->floorz,j,pSector->extra) >= 0)
-                A_CallSound(nSector,nSprite);
+            if (SetAnimation(sectNum,&pSector->floorz,j,pSector->extra) >= 0)
+                A_CallSound(sectNum,spriteNum);
         }
         return;
 
@@ -855,18 +855,18 @@ REDODOOR:
         if (pSector->lotag&0x8000)
         {
             int32_t q = (pSector->ceilingz+pSector->floorz)>>1;
-            j = SetAnimation(nSector, &pSector->floorz, q, pSector->extra);
-            j = SetAnimation(nSector, &pSector->ceilingz, q, pSector->extra);
+            j = SetAnimation(sectNum, &pSector->floorz, q, pSector->extra);
+            j = SetAnimation(sectNum, &pSector->ceilingz, q, pSector->extra);
         }
         else
         {
-            int32_t fneigh = nextsectorneighborz(nSector, pSector->floorz, 1, 1);
-            int32_t cneigh = nextsectorneighborz(nSector, pSector->ceilingz, -1, -1);
+            int32_t fneigh = nextsectorneighborz(sectNum, pSector->floorz, 1, 1);
+            int32_t cneigh = nextsectorneighborz(sectNum, pSector->ceilingz, -1, -1);
 
             if (fneigh>=0 && cneigh>=0)
             {
-                j = SetAnimation(nSector, &pSector->floorz, sector[fneigh].floorz, pSector->extra);
-                j = SetAnimation(nSector, &pSector->ceilingz, sector[cneigh].ceilingz, pSector->extra);
+                j = SetAnimation(sectNum, &pSector->floorz, sector[fneigh].floorz, pSector->extra);
+                j = SetAnimation(sectNum, &pSector->ceilingz, sector[cneigh].ceilingz, pSector->extra);
             }
             else
             {
@@ -878,7 +878,7 @@ REDODOOR:
 
         pSector->lotag ^= 0x8000;
 
-        A_CallSound(nSector,nSprite);
+        A_CallSound(sectNum,spriteNum);
 
         return;
 
@@ -887,7 +887,7 @@ REDODOOR:
             j = -1;
 
             for (SPRITES_OF(STAT_EFFECTOR, i))
-                if (SLT == SE_11_SWINGING_DOOR && SECT == nSector && !T5)
+                if (SLT(i) == SE_11_SWINGING_DOOR && SECT(i) == sectNum && !T5(i))
                 {
                     j = i;
                     break;
@@ -899,24 +899,24 @@ REDODOOR:
                 return;
             }    // JBF
 
-            int const nTag = sector[SECT].lotag&0x8000;
+            int const nTag = sector[SECT(i)].lotag&0x8000;
 
             if (j >= 0)
             {
                 int32_t playedsnd = 0;
 
                 for (SPRITES_OF(STAT_EFFECTOR, i))
-                    if (nTag == (sector[SECT].lotag&0x8000) && SLT == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT && !T5)
+                    if (nTag == (sector[SECT(i)].lotag&0x8000) && SLT(i) == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT(i) && !T5(i))
                     {
-                        if (sector[SECT].lotag&0x8000) sector[SECT].lotag &= 0x7fff;
-                        else sector[SECT].lotag |= 0x8000;
+                        if (sector[SECT(i)].lotag&0x8000) sector[SECT(i)].lotag &= 0x7fff;
+                        else sector[SECT(i)].lotag |= 0x8000;
 
-                        T5 = 1;
-                        T4 = -T4;
+                        T5(i) = 1;
+                        T4(i) = -T4(i);
 
                         if (!playedsnd)
                         {
-                            A_CallSound(nSector, i);
+                            A_CallSound(sectNum, i);
                             playedsnd = 1;
                         }
                     }
@@ -927,25 +927,25 @@ REDODOOR:
     case ST_25_SLIDING_DOOR: //Subway type sliding doors
 
         for (SPRITES_OF(STAT_EFFECTOR, j))
-            if (sprite[j].lotag == SE_15_SLIDING_DOOR && sprite[j].sectnum == nSector)
+            if (sprite[j].lotag == SE_15_SLIDING_DOOR && sprite[j].sectnum == sectNum)
                 break; //Found the sectoreffector.
 
         if (j < 0)
             return;
 
         for (SPRITES_OF(STAT_EFFECTOR, i))
-            if (SHT==sprite[j].hitag)
+            if (SHT(i)==sprite[j].hitag)
             {
-                if (SLT == SE_15_SLIDING_DOOR)
+                if (SLT(i) == SE_15_SLIDING_DOOR)
                 {
-                    sector[SECT].lotag ^= 0x8000; // Toggle the open or close
-                    SA += 1024;
+                    sector[SECT(i)].lotag ^= 0x8000; // Toggle the open or close
+                    SA(i) += 1024;
 
-                    if (T5)
-                        A_CallSound(SECT,i);
-                    A_CallSound(SECT,i);
+                    if (T5(i))
+                        A_CallSound(SECT(i),i);
+                    A_CallSound(SECT(i),i);
 
-                    T5 = (sector[SECT].lotag&0x8000) ? 1 : 2;
+                    T5(i) = (sector[SECT(i)].lotag&0x8000) ? 1 : 2;
                 }
             }
 
@@ -954,13 +954,13 @@ REDODOOR:
     case ST_27_STRETCH_BRIDGE:  //Extended bridge
 
         for (SPRITES_OF(STAT_EFFECTOR, j))
-            if ((sprite[j].lotag&0xff)==SE_20_STRETCH_BRIDGE && sprite[j].sectnum == nSector)  //Bridge
+            if ((sprite[j].lotag&0xff)==SE_20_STRETCH_BRIDGE && sprite[j].sectnum == sectNum)  //Bridge
             {
-                sector[nSector].lotag ^= 0x8000;
+                sector[sectNum].lotag ^= 0x8000;
                 // Highest bit now set means we're opening.
 
-                actor[j].t_data[0] = (sector[nSector].lotag&0x8000) ? 1 : 2;
-                A_CallSound(nSector,nSprite);
+                actor[j].t_data[0] = (sector[sectNum].lotag&0x8000) ? 1 : 2;
+                A_CallSound(sectNum,spriteNum);
                 break;
             }
 
@@ -969,7 +969,7 @@ REDODOOR:
     case ST_28_DROP_FLOOR:
         //activate the rest of them
 
-        for (SPRITES_OF_SECT(nSector, j))
+        for (SPRITES_OF_SECT(sectNum, j))
             if (sprite[j].statnum==STAT_EFFECTOR && (sprite[j].lotag&0xff)==SE_21_DROP_FLOOR)
                 break;
 
@@ -984,7 +984,7 @@ REDODOOR:
                     actor[l].t_data[0] = 1;
             }
 
-            A_CallSound(nSector,nSprite);
+            A_CallSound(sectNum,spriteNum);
         }
 
         return;
@@ -1013,7 +1013,7 @@ void G_OperateRespawns(int32_t low)
     }
 }
 
-void G_OperateActivators(int nTag, int nPlayer)
+void G_OperateActivators(int nTag, int playerNum)
 {
     int32_t i, nexti, j, k;
 
@@ -1042,21 +1042,21 @@ void G_OperateActivators(int nTag, int nPlayer)
         {
             if (sprite[i].picnum == ACTIVATORLOCKED)
             {
-                sector[SECT].lotag ^= 16384;
+                sector[SECT(i)].lotag ^= 16384;
 
-                if (nPlayer >= 0 && nPlayer < ud.multimode)
-                    P_DoQuote((sector[SECT].lotag & 16384) ? QUOTE_LOCKED : QUOTE_UNLOCKED, g_player[nPlayer].ps);
+                if (playerNum >= 0 && playerNum < ud.multimode)
+                    P_DoQuote((sector[SECT(i)].lotag & 16384) ? QUOTE_LOCKED : QUOTE_UNLOCKED, g_player[playerNum].ps);
             }
             else
             {
-                switch (SHT)
+                switch (SHT(i))
                 {
                     case 1:
-                        if (sector[SECT].floorz != sector[SECT].ceilingz)
+                        if (sector[SECT(i)].floorz != sector[SECT(i)].ceilingz)
                             continue;
                         break;
                     case 2:
-                        if (sector[SECT].floorz == sector[SECT].ceilingz)
+                        if (sector[SECT(i)].floorz == sector[SECT(i)].ceilingz)
                             continue;
                         break;
                 }
@@ -1073,15 +1073,15 @@ void G_OperateActivators(int nTag, int nPlayer)
                                 case SE_32_CEILING_RISE_FALL:
                                 case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
                                     actor[j].t_data[0] = 1 - actor[j].t_data[0];
-                                    A_CallSound(SECT, j);
+                                    A_CallSound(SECT(i), j);
                                     break;
                             }
                 }
 
-                if (k == -1 && (sector[SECT].lotag&0xff) == ST_22_SPLITTING_DOOR)
-                    k = A_CallSound(SECT,i);
+                if (k == -1 && (sector[SECT(i)].lotag&0xff) == ST_22_SPLITTING_DOOR)
+                    k = A_CallSound(SECT(i),i);
 
-                G_OperateSectors(SECT,i);
+                G_OperateSectors(SECT(i),i);
             }
         }
     }
@@ -1092,127 +1092,127 @@ void G_OperateActivators(int nTag, int nPlayer)
 void G_OperateMasterSwitches(int nTag)
 {
     for (int SPRITES_OF(STAT_STANDABLE, i))
-        if (PN == MASTERSWITCH && SLT == nTag && SP == 0)
-            SP = 1;
+        if (PN(i) == MASTERSWITCH && SLT(i) == nTag && SP(i) == 0)
+            SP(i) = 1;
 }
 
-void G_OperateForceFields(int32_t s, int32_t low)
+void G_OperateForceFields(int32_t spriteNum, int32_t wallTag)
 {
-    for (int nAnim = 0; nAnim < g_numAnimWalls; ++nAnim)
+    for (int animwallNum = 0; animwallNum < g_numAnimWalls; ++animwallNum)
     {
-        int const nWall = animwall[nAnim].wallnum;
+        int const wallNum = animwall[animwallNum].wallnum;
 
-        if ((low == wall[nWall].lotag || low == -1) || G_GetForcefieldPicnum(nWall) == W_FORCEFIELD ||
-            (wall[nWall].overpicnum == BIGFORCE))
+        if ((wallTag == wall[wallNum].lotag || wallTag == -1) || G_GetForcefieldPicnum(wallNum) == W_FORCEFIELD ||
+            (wall[wallNum].overpicnum == BIGFORCE))
         {
-            animwall[nAnim].tag = 0;
+            animwall[animwallNum].tag = 0;
 
-            if (wall[nWall].cstat)
+            if (wall[wallNum].cstat)
             {
-                wall[nWall].cstat = 0;
+                wall[wallNum].cstat = 0;
 
-                if (s >= 0 && sprite[s].picnum == SECTOREFFECTOR && sprite[s].lotag == SE_30_TWO_WAY_TRAIN)
-                    wall[nWall].lotag = 0;
+                if (spriteNum >= 0 && sprite[spriteNum].picnum == SECTOREFFECTOR && sprite[spriteNum].lotag == SE_30_TWO_WAY_TRAIN)
+                    wall[wallNum].lotag = 0;
             }
             else
-                wall[nWall].cstat = FORCEFIELD_CSTAT;
+                wall[wallNum].cstat = FORCEFIELD_CSTAT;
         }
     }
 }
 
 // List of switches that function like dip (combination lock) switches.
-#define DIPSWITCH_LIKE_CASES \
-         DIPSWITCH__STATIC: \
-    case TECHSWITCH__STATIC: \
+#define DIPSWITCH_LIKE_CASES                                                                                                \
+    DIPSWITCH__STATIC:                                                                                                      \
+    case TECHSWITCH__STATIC:                                                                                                \
     case ALIENSWITCH__STATIC
 
 // List of access switches.
-#define ACCESSSWITCH_CASES \
-         ACCESSSWITCH__STATIC: \
+#define ACCESSSWITCH_CASES                                                                                                  \
+    ACCESSSWITCH__STATIC:                                                                                                   \
     case ACCESSSWITCH2__STATIC
 
 // List of switches that don't fit the two preceding categories, and are not
 // the MULTISWITCH. 13 cases.
-#define REST_SWITCH_CASES \
-         DIPSWITCH2__STATIC: \
-    case DIPSWITCH3__STATIC: \
-    case FRANKENSTINESWITCH__STATIC: \
-    case HANDSWITCH__STATIC: \
-    case LIGHTSWITCH2__STATIC: \
-    case LIGHTSWITCH__STATIC: \
-    case LOCKSWITCH1__STATIC: \
-    case POWERSWITCH1__STATIC: \
-    case POWERSWITCH2__STATIC: \
-    case PULLSWITCH__STATIC: \
-    case SLOTDOOR__STATIC: \
-    case SPACEDOORSWITCH__STATIC: \
+#define REST_SWITCH_CASES                                                                                                   \
+    DIPSWITCH2__STATIC:                                                                                                     \
+    case DIPSWITCH3__STATIC:                                                                                                \
+    case FRANKENSTINESWITCH__STATIC:                                                                                        \
+    case HANDSWITCH__STATIC:                                                                                                \
+    case LIGHTSWITCH2__STATIC:                                                                                              \
+    case LIGHTSWITCH__STATIC:                                                                                               \
+    case LOCKSWITCH1__STATIC:                                                                                               \
+    case POWERSWITCH1__STATIC:                                                                                              \
+    case POWERSWITCH2__STATIC:                                                                                              \
+    case PULLSWITCH__STATIC:                                                                                                \
+    case SLOTDOOR__STATIC:                                                                                                  \
+    case SPACEDOORSWITCH__STATIC:                                                                                           \
     case SPACELIGHTSWITCH__STATIC
 
 // Returns:
 //  0: is not a dipswitch-like switch
 //  1: is one, off
 //  2: is one, on
-static int G_IsLikeDipswitch(int nPicnum)
+static int G_IsLikeDipswitch(int switchPic)
 {
     for (int i=0; i<2; i++)
-        if (nPicnum == DIPSWITCH+i || nPicnum == TECHSWITCH+i || nPicnum == ALIENSWITCH+i)
+        if (switchPic == DIPSWITCH+i || switchPic == TECHSWITCH+i || switchPic == ALIENSWITCH+i)
             return 1+i;
 
     return 0;
 }
 
 // Get base (unpressed) tile number for switch.
-static int G_GetBaseSwitch(int nPicnum)
+static int G_GetBaseSwitch(int switchPic)
 {
-    if (nPicnum > MULTISWITCH && nPicnum <= MULTISWITCH+3)
+    if (switchPic > MULTISWITCH && switchPic <= MULTISWITCH+3)
         return MULTISWITCH;
 
-    return (nPicnum == DIPSWITCH + 1      || nPicnum == DIPSWITCH2 + 1   || nPicnum == DIPSWITCH3 + 1 ||
-        nPicnum == TECHSWITCH + 1         || nPicnum == ALIENSWITCH + 1  || nPicnum == PULLSWITCH + 1 ||
-        nPicnum == HANDSWITCH + 1         || nPicnum == SLOTDOOR + 1     || nPicnum == SPACEDOORSWITCH + 1 ||
-        nPicnum == SPACELIGHTSWITCH + 1   || nPicnum == LIGHTSWITCH + 1  || nPicnum == LIGHTSWITCH2 + 1 ||
-        nPicnum == FRANKENSTINESWITCH + 1 || nPicnum == POWERSWITCH1 + 1 || nPicnum == POWERSWITCH2 + 1 ||
-        nPicnum == LOCKSWITCH1 + 1) ?
-        nPicnum-1 : nPicnum;
+    return (switchPic == DIPSWITCH + 1      || switchPic == DIPSWITCH2 + 1   || switchPic == DIPSWITCH3 + 1 ||
+        switchPic == TECHSWITCH + 1         || switchPic == ALIENSWITCH + 1  || switchPic == PULLSWITCH + 1 ||
+        switchPic == HANDSWITCH + 1         || switchPic == SLOTDOOR + 1     || switchPic == SPACEDOORSWITCH + 1 ||
+        switchPic == SPACELIGHTSWITCH + 1   || switchPic == LIGHTSWITCH + 1  || switchPic == LIGHTSWITCH2 + 1 ||
+        switchPic == FRANKENSTINESWITCH + 1 || switchPic == POWERSWITCH1 + 1 || switchPic == POWERSWITCH2 + 1 ||
+        switchPic == LOCKSWITCH1 + 1) ?
+        switchPic-1 : switchPic;
 }
 
 enum { SWITCH_WALL, SWITCH_SPRITE };
 
-int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
+int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
 {
-    if (nObject < 0)
+    if (wallOrSprite < 0)
         return 0;
 
     int lotag, hitag, nSwitchPicnum, nSwitchPal;
     vec3_t davector;
 
-    if (nSwitchType == SWITCH_SPRITE) // A wall sprite
+    if (switchType == SWITCH_SPRITE) // A wall sprite
     {
-        if (actor[nObject].lasttransport == totalclock)
+        if (actor[wallOrSprite].lasttransport == totalclock)
             return 0;
 
-        actor[nObject].lasttransport = totalclock;
+        actor[wallOrSprite].lasttransport = totalclock;
 
-        if (sprite[nObject].lotag == 0)
+        if (sprite[wallOrSprite].lotag == 0)
             return 0;
 
-        lotag         = sprite[nObject].lotag;
-        hitag         = sprite[nObject].hitag;
-        davector      = *(vec3_t *)&sprite[nObject];
-        nSwitchPicnum = sprite[nObject].picnum;
-        nSwitchPal    = sprite[nObject].pal;
+        lotag         = sprite[wallOrSprite].lotag;
+        hitag         = sprite[wallOrSprite].hitag;
+        davector      = *(vec3_t *)&sprite[wallOrSprite];
+        nSwitchPicnum = sprite[wallOrSprite].picnum;
+        nSwitchPal    = sprite[wallOrSprite].pal;
     }
     else
     {
-        if (wall[nObject].lotag == 0)
+        if (wall[wallOrSprite].lotag == 0)
             return 0;
 
-        lotag         = wall[nObject].lotag;
-        hitag         = wall[nObject].hitag;
-        davector      = *(vec3_t *)&wall[nObject];
-        davector.z    = g_player[nPlayer].ps->pos.z;
-        nSwitchPicnum = wall[nObject].picnum;
-        nSwitchPal    = wall[nObject].pal;
+        lotag         = wall[wallOrSprite].lotag;
+        hitag         = wall[wallOrSprite].hitag;
+        davector      = *(vec3_t *)&wall[wallOrSprite];
+        davector.z    = g_player[playerNum].ps->pos.z;
+        nSwitchPicnum = wall[wallOrSprite].picnum;
+        nSwitchPal    = wall[wallOrSprite].pal;
     }
 
     //    initprintf("P_ActivateSwitch called picnum=%i switchissprite=%i\n",picnum,switchissprite);
@@ -1227,7 +1227,7 @@ int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
         break;
 
     case ACCESSSWITCH_CASES:
-        if (g_player[nPlayer].ps->access_incs == 0)
+        if (g_player[playerNum].ps->access_incs == 0)
         {
             static const int32_t key_switchpal[3]  = { 0, 21, 23 };
             static const int32_t need_key_quote[3] = { QUOTE_NEED_BLUE_KEY, QUOTE_NEED_RED_KEY, QUOTE_NEED_YELLOW_KEY };
@@ -1236,21 +1236,21 @@ int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
             {
                 if (nSwitchPal == key_switchpal[nKeyPal])
                 {
-                    if (g_player[nPlayer].ps->got_access & (1 << nKeyPal))
-                        g_player[nPlayer].ps->access_incs = 1;
+                    if (g_player[playerNum].ps->got_access & (1 << nKeyPal))
+                        g_player[playerNum].ps->access_incs = 1;
                     else
-                        P_DoQuote(need_key_quote[nKeyPal], g_player[nPlayer].ps);
+                        P_DoQuote(need_key_quote[nKeyPal], g_player[playerNum].ps);
 
                     break;
                 }
             }
 
-            if (g_player[nPlayer].ps->access_incs == 1)
+            if (g_player[playerNum].ps->access_incs == 1)
             {
-                if (nSwitchType == SWITCH_WALL)
-                    g_player[nPlayer].ps->access_wallnum = nObject;
+                if (switchType == SWITCH_WALL)
+                    g_player[playerNum].ps->access_wallnum = wallOrSprite;
                 else
-                    g_player[nPlayer].ps->access_spritenum = nObject;
+                    g_player[playerNum].ps->access_spritenum = wallOrSprite;
             }
 
             return 0;
@@ -1268,34 +1268,34 @@ int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
         break;
     }
 
-    for (int SPRITES_OF(STAT_DEFAULT, i))
+    for (int SPRITES_OF(STAT_DEFAULT, spriteNum))
     {
-        if (lotag == SLT)
+        if (lotag == SLT(spriteNum))
         {
             // Put the tile number into a variable so later switches don't
             // trigger on the result of changes:
-            int const nSpritePicnum = PN;
+            int const nSpritePicnum = PN(spriteNum);
 
             if (nSpritePicnum >= MULTISWITCH && nSpritePicnum <= MULTISWITCH+3)
             {
-                sprite[i].picnum++;
-                if (sprite[i].picnum > MULTISWITCH+3)
-                    sprite[i].picnum = MULTISWITCH;
+                sprite[spriteNum].picnum++;
+                if (sprite[spriteNum].picnum > MULTISWITCH+3)
+                    sprite[spriteNum].picnum = MULTISWITCH;
             }
 
             switch (DYNAMICTILEMAP(nSpritePicnum))
             {
             case DIPSWITCH_LIKE_CASES:
-                if (nSwitchType == SWITCH_SPRITE && nObject == i)
-                    PN++;
-                else if (SHT == 0)
+                if (switchType == SWITCH_SPRITE && wallOrSprite == spriteNum)
+                    PN(spriteNum)++;
+                else if (SHT(spriteNum) == 0)
                     nCorrectDips++;
                 nNumDips++;
                 break;
 
             case ACCESSSWITCH_CASES:
             case REST_SWITCH_CASES:
-                sprite[i].picnum++;
+                sprite[spriteNum].picnum++;
                 break;
 
             default:
@@ -1305,15 +1305,15 @@ int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
                 switch (DYNAMICTILEMAP(nSpritePicnum - 1))
                 {
                     case DIPSWITCH_LIKE_CASES:
-                        if (nSwitchType == SWITCH_SPRITE && nObject == i)
-                            PN--;
-                        else if (SHT == 1)
+                        if (switchType == SWITCH_SPRITE && wallOrSprite == spriteNum)
+                            PN(spriteNum)--;
+                        else if (SHT(spriteNum) == 1)
                             nCorrectDips++;
                         nNumDips++;
                         break;
 
                     case REST_SWITCH_CASES:
-                        sprite[i].picnum--;
+                        sprite[spriteNum].picnum--;
                         break;
                 }
                 break;
@@ -1335,7 +1335,7 @@ int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
             switch (DYNAMICTILEMAP(wall[nWall].picnum))
             {
                 case DIPSWITCH_LIKE_CASES:
-                    if (nSwitchType == SWITCH_WALL && nWall == nObject)
+                    if (switchType == SWITCH_WALL && nWall == wallOrSprite)
                         wall[nWall].picnum++;
                     else if (wall[nWall].hitag == 0)
                         nCorrectDips++;
@@ -1354,7 +1354,7 @@ int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
                     switch (DYNAMICTILEMAP(wall[nWall].picnum - 1))
                     {
                         case DIPSWITCH_LIKE_CASES:
-                            if (nSwitchType == SWITCH_WALL && nWall == nObject)
+                            if (switchType == SWITCH_WALL && nWall == wallOrSprite)
                                 wall[nWall].picnum--;
                             else if (wall[nWall].hitag == 1)
                                 nCorrectDips++;
@@ -1388,12 +1388,12 @@ int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
             if (G_IsLikeDipswitch(nSwitchPicnum))
             {
                 S_PlaySound3D((nSwitchPicnum == ALIENSWITCH || nSwitchPicnum == ALIENSWITCH + 1) ? ALIEN_SWITCH1 : SWITCH_ON,
-                              (nSwitchType == SWITCH_SPRITE) ? nObject : g_player[nPlayer].ps->i, &davector);
+                              (switchType == SWITCH_SPRITE) ? wallOrSprite : g_player[playerNum].ps->i, &davector);
 
                 if (nNumDips != nCorrectDips)
                     break;
 
-                S_PlaySound3D(END_OF_LEVEL_WARN, g_player[nPlayer].ps->i, &davector);
+                S_PlaySound3D(END_OF_LEVEL_WARN, g_player[playerNum].ps->i, &davector);
             }
         /* fall-through */
         case ACCESSSWITCH_CASES:
@@ -1403,24 +1403,24 @@ int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
             if (nSwitchPicnum >= MULTISWITCH && nSwitchPicnum <= MULTISWITCH + 3)
                 lotag += nSwitchPicnum - MULTISWITCH;
 
-            for (int SPRITES_OF(STAT_EFFECTOR, nSprite))
+            for (int SPRITES_OF(STAT_EFFECTOR, spriteNum))
             {
-                if (sprite[nSprite].hitag == lotag)
+                if (sprite[spriteNum].hitag == lotag)
                 {
-                    switch (sprite[nSprite].lotag)
+                    switch (sprite[spriteNum].lotag)
                     {
                         case SE_12_LIGHT_SWITCH:
-                            sector[sprite[nSprite].sectnum].floorpal = 0;
-                            actor[nSprite].t_data[0]++;
-                            if (actor[nSprite].t_data[0] == 2)
-                                actor[nSprite].t_data[0]++;
+                            sector[sprite[spriteNum].sectnum].floorpal = 0;
+                            actor[spriteNum].t_data[0]++;
+                            if (actor[spriteNum].t_data[0] == 2)
+                                actor[spriteNum].t_data[0]++;
                             break;
 
                         case SE_24_CONVEYOR:
                         case SE_34:
                         case SE_25_PISTON:
-                            actor[nSprite].t_data[4] = !actor[nSprite].t_data[4];
-                            P_DoQuote(actor[nSprite].t_data[4] ? QUOTE_DEACTIVATED : QUOTE_ACTIVATED, g_player[nPlayer].ps);
+                            actor[spriteNum].t_data[4] = !actor[spriteNum].t_data[4];
+                            P_DoQuote(actor[spriteNum].t_data[4] ? QUOTE_DEACTIVATED : QUOTE_ACTIVATED, g_player[playerNum].ps);
                             break;
 
                         case SE_21_DROP_FLOOR:
@@ -1430,21 +1430,21 @@ int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
                 }
             }
 
-            G_OperateActivators(lotag, nPlayer);
-            G_OperateForceFields(g_player[nPlayer].ps->i, lotag);
+            G_OperateActivators(lotag, playerNum);
+            G_OperateForceFields(g_player[playerNum].ps->i, lotag);
             G_OperateMasterSwitches(lotag);
 
             if (G_IsLikeDipswitch(nSwitchPicnum))
                 return 1;
 
             if (!hitag && CheckDoorTile(nSwitchPicnum) == 0)
-                S_PlaySound3D(SWITCH_ON, (nSwitchType == SWITCH_SPRITE) ? nObject : g_player[nPlayer].ps->i, &davector);
+                S_PlaySound3D(SWITCH_ON, (switchType == SWITCH_SPRITE) ? wallOrSprite : g_player[playerNum].ps->i, &davector);
             else if (hitag)
             {
-                if (nSwitchType == SWITCH_SPRITE && (g_sounds[hitag].m & SF_TALK) == 0)
-                    S_PlaySound3D(hitag, nObject, &davector);
+                if (switchType == SWITCH_SPRITE && (g_sounds[hitag].m & SF_TALK) == 0)
+                    S_PlaySound3D(hitag, wallOrSprite, &davector);
                 else
-                    A_PlaySound(hitag, g_player[nPlayer].ps->i);
+                    A_PlaySound(hitag, g_player[playerNum].ps->i);
             }
 
             return 1;
@@ -1454,52 +1454,51 @@ int P_ActivateSwitch(int nPlayer, int nObject, int nSwitchType)
     return 0;
 }
 
-void G_ActivateBySector(int nSector, int nSprite)
+void G_ActivateBySector(int sectNum, int spriteNum)
 {
     int nActivatedSectors = 0;
 
-    for (int SPRITES_OF_SECT(nSector, i))
-        if (PN == ACTIVATOR)
+    for (int SPRITES_OF_SECT(sectNum, i))
+        if (PN(i) == ACTIVATOR)
         {
-            G_OperateActivators(SLT,-1);
+            G_OperateActivators(SLT(i),-1);
             ++nActivatedSectors;
         }
 
     if (!nActivatedSectors)
-        G_OperateSectors(nSector, nSprite);
+        G_OperateSectors(sectNum, spriteNum);
 }
 
-static void G_BreakWall(int nPicnum, int nSprite, int nWall)
+static void G_BreakWall(int nPicnum, int spriteNum, int nWall)
 {
     wall[nWall].picnum = nPicnum;
-    A_PlaySound(VENT_BUST,nSprite);
-    A_PlaySound(GLASS_HEAVYBREAK,nSprite);
-    A_SpawnWallGlass(nSprite,nWall,10);
+    A_PlaySound(VENT_BUST,spriteNum);
+    A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
+    A_SpawnWallGlass(spriteNum,nWall,10);
 }
 
-void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
+void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
 {
-    int16_t nSectnum = -1;
-    int32_t i;
+    int16_t sectNum = -1;
     walltype *pWall = &wall[nWall];
 
     if (pWall->overpicnum == MIRROR && pWall->pal != 4 &&
-        A_CheckSpriteFlags(nSprite, SFLAG_PROJECTILE) &&
-        (SpriteProjectile[nSprite].workslike & PROJECTILE_RPG))
+        A_CheckSpriteFlags(spriteNum, SFLAG_PROJECTILE) &&
+        (SpriteProjectile[spriteNum].workslike & PROJECTILE_RPG))
     {
         if (pWall->nextwall == -1 || wall[pWall->nextwall].pal != 4)
         {
-            A_SpawnWallGlass(nSprite, nWall, 70);
+            A_SpawnWallGlass(spriteNum, nWall, 70);
             pWall->cstat &= ~16;
             pWall->overpicnum = MIRRORBROKE;
-            A_PlaySound(GLASS_HEAVYBREAK, nSprite);
+            A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
             return;
         }
     }
 
     if (pWall->overpicnum == MIRROR && pWall->pal != 4)
     {
-        switch (DYNAMICTILEMAP(nWeapon))
+        switch (DYNAMICTILEMAP(weaponNum))
         {
             case HEAVYHBOMB__STATIC:
             case RADIUSEXPLOSION__STATIC:
@@ -1510,10 +1509,10 @@ void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
             case EXPLODINGBARREL__STATIC:
                 if (pWall->nextwall == -1 || wall[pWall->nextwall].pal != 4)
                 {
-                    A_SpawnWallGlass(nSprite, nWall, 70);
+                    A_SpawnWallGlass(spriteNum, nWall, 70);
                     pWall->cstat &= ~16;
                     pWall->overpicnum = MIRRORBROKE;
-                    A_PlaySound(GLASS_HEAVYBREAK, nSprite);
+                    A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
                     return;
                 }
         }
@@ -1532,26 +1531,26 @@ void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
             /* fall-through */
             case BIGFORCE__STATIC:
             {
-                updatesector(vPos->x, vPos->y, &nSectnum);
-                if (nSectnum < 0)
+                updatesector(vPos->x, vPos->y, &sectNum);
+                if (sectNum < 0)
                     return;
 
                 int nXrepeat = 32;
                 int nYrepeat = 32;
 
-                if (nWeapon == -1)
+                if (weaponNum == -1)
                     nXrepeat = nYrepeat = 8;
-                else if (nWeapon == CHAINGUN)
+                else if (weaponNum == CHAINGUN)
                 {
-                    nXrepeat = 16 + sprite[nSprite].xrepeat;
-                    nYrepeat = 16 + sprite[nSprite].yrepeat;
+                    nXrepeat = 16 + sprite[spriteNum].xrepeat;
+                    nYrepeat = 16 + sprite[spriteNum].yrepeat;
                 }
 
-                i = A_InsertSprite(nSectnum, vPos->x, vPos->y, vPos->z, FORCERIPPLE, -127, nXrepeat, nYrepeat, 0,
-                                   0, 0, nSprite, 5);
+                int const i = A_InsertSprite(sectNum, vPos->x, vPos->y, vPos->z, FORCERIPPLE, -127, nXrepeat, nYrepeat, 0,
+                                   0, 0, spriteNum, 5);
 
-                CS |= 18 + 128;
-                SA = getangle(pWall->x - wall[pWall->point2].x, pWall->y - wall[pWall->point2].y) - 512;
+                CS(i) |= 18 + 128;
+                SA(i) = getangle(pWall->x - wall[pWall->point2].x, pWall->y - wall[pWall->point2].y) - 512;
 
                 A_PlaySound(SOMETHINGHITFORCE, i);
             }
@@ -1565,39 +1564,41 @@ void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
                     wall[pWall->nextwall].overpicnum = FANSPRITEBROKE;
                     wall[pWall->nextwall].cstat &= 65535 - 65;
                 }
-                A_PlaySound(VENT_BUST, nSprite);
-                A_PlaySound(GLASS_BREAKING, nSprite);
+                A_PlaySound(VENT_BUST, spriteNum);
+                A_PlaySound(GLASS_BREAKING, spriteNum);
                 return;
 
             case GLASS__STATIC:
-                updatesector(vPos->x, vPos->y, &nSectnum);
-                if (nSectnum < 0)
+                updatesector(vPos->x, vPos->y, &sectNum);
+                if (sectNum < 0)
                     return;
                 pWall->overpicnum = GLASS2;
-                A_SpawnWallGlass(nSprite, nWall, 10);
+                A_SpawnWallGlass(spriteNum, nWall, 10);
                 pWall->cstat = 0;
 
                 if (pWall->nextwall >= 0)
                     wall[pWall->nextwall].cstat = 0;
 
-                i = A_InsertSprite(nSectnum, vPos->x, vPos->y, vPos->z, SECTOREFFECTOR, 0, 0, 0,
-                                   g_player[0].ps->ang, 0, 0, nSprite, 3);
-                SLT = 128;
-                T2  = 5;
-                T3  = nWall;
-                A_PlaySound(GLASS_BREAKING, i);
+                {
+                    int const i = A_InsertSprite(sectNum, vPos->x, vPos->y, vPos->z, SECTOREFFECTOR, 0, 0, 0,
+                        g_player[0].ps->ang, 0, 0, spriteNum, 3);
+                    SLT(i) = 128;
+                    T2(i)  = 5;
+                    T3(i)  = nWall;
+                    A_PlaySound(GLASS_BREAKING, i);
+                }
                 return;
 
             case STAINGLASS1__STATIC:
-                updatesector(vPos->x, vPos->y, &nSectnum);
-                if (nSectnum < 0)
+                updatesector(vPos->x, vPos->y, &sectNum);
+                if (sectNum < 0)
                     return;
-                A_SpawnRandomGlass(nSprite, nWall, 80);
+                A_SpawnRandomGlass(spriteNum, nWall, 80);
                 pWall->cstat = 0;
                 if (pWall->nextwall >= 0)
                     wall[pWall->nextwall].cstat = 0;
-                A_PlaySound(VENT_BUST, nSprite);
-                A_PlaySound(GLASS_BREAKING, nSprite);
+                A_PlaySound(VENT_BUST, spriteNum);
+                A_PlaySound(GLASS_BREAKING, spriteNum);
                 return;
         }
             }
@@ -1606,8 +1607,8 @@ void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
     {
         case COLAMACHINE__STATIC:
         case VENDMACHINE__STATIC:
-            G_BreakWall(pWall->picnum + 2, nSprite, nWall);
-            A_PlaySound(VENT_BUST, nSprite);
+            G_BreakWall(pWall->picnum + 2, spriteNum, nWall);
+            A_PlaySound(VENT_BUST, spriteNum);
             return;
 
         case OJ__STATIC:
@@ -1636,9 +1637,9 @@ void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
         case SCREENBREAK18__STATIC:
         case SCREENBREAK19__STATIC:
         case BORNTOBEWILDSCREEN__STATIC:
-            A_SpawnWallGlass(nSprite, nWall, 30);
+            A_SpawnWallGlass(spriteNum, nWall, 30);
             pWall->picnum = W_SCREENBREAK + (krand() % 3);
-            A_PlaySound(GLASS_HEAVYBREAK, nSprite);
+            A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
             return;
 
         case W_TECHWALL5__STATIC:
@@ -1646,15 +1647,15 @@ void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
         case W_TECHWALL7__STATIC:
         case W_TECHWALL8__STATIC:
         case W_TECHWALL9__STATIC:
-            G_BreakWall(pWall->picnum + 1, nSprite, nWall);
+            G_BreakWall(pWall->picnum + 1, spriteNum, nWall);
             return;
 
         case W_MILKSHELF__STATIC:
-            G_BreakWall(W_MILKSHELFBROKE, nSprite, nWall);
+            G_BreakWall(W_MILKSHELFBROKE, spriteNum, nWall);
             return;
 
         case W_TECHWALL10__STATIC:
-            G_BreakWall(W_HITTECHWALL10, nSprite, nWall);
+            G_BreakWall(W_HITTECHWALL10, spriteNum, nWall);
             return;
 
         case W_TECHWALL1__STATIC:
@@ -1662,33 +1663,33 @@ void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
         case W_TECHWALL12__STATIC:
         case W_TECHWALL13__STATIC:
         case W_TECHWALL14__STATIC:
-            G_BreakWall(W_HITTECHWALL1, nSprite, nWall);
+            G_BreakWall(W_HITTECHWALL1, spriteNum, nWall);
             return;
 
         case W_TECHWALL15__STATIC:
-            G_BreakWall(W_HITTECHWALL15, nSprite, nWall);
+            G_BreakWall(W_HITTECHWALL15, spriteNum, nWall);
             return;
 
         case W_TECHWALL16__STATIC:
-            G_BreakWall(W_HITTECHWALL16, nSprite, nWall);
+            G_BreakWall(W_HITTECHWALL16, spriteNum, nWall);
             return;
 
         case W_TECHWALL2__STATIC:
-            G_BreakWall(W_HITTECHWALL2, nSprite, nWall);
+            G_BreakWall(W_HITTECHWALL2, spriteNum, nWall);
             return;
 
         case W_TECHWALL3__STATIC:
-            G_BreakWall(W_HITTECHWALL3, nSprite, nWall);
+            G_BreakWall(W_HITTECHWALL3, spriteNum, nWall);
             return;
 
         case W_TECHWALL4__STATIC:
-            G_BreakWall(W_HITTECHWALL4, nSprite, nWall);
+            G_BreakWall(W_HITTECHWALL4, spriteNum, nWall);
             return;
 
         case ATM__STATIC:
             pWall->picnum = ATMBROKE;
-            A_SpawnMultiple(nSprite, MONEY, 1 + (krand() & 7));
-            A_PlaySound(GLASS_HEAVYBREAK, nSprite);
+            A_SpawnMultiple(spriteNum, MONEY, 1 + (krand() & 7));
+            A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
             break;
 
         case WALLLIGHT1__STATIC:
@@ -1698,8 +1699,8 @@ void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
         case TECHLIGHT2__STATIC:
         case TECHLIGHT4__STATIC:
         {
-            A_PlaySound(rnd(128) ? GLASS_HEAVYBREAK : GLASS_BREAKING, nSprite);
-            A_SpawnWallGlass(nSprite, nWall, 30);
+            A_PlaySound(rnd(128) ? GLASS_HEAVYBREAK : GLASS_BREAKING, spriteNum);
+            A_SpawnWallGlass(spriteNum, nWall, 30);
 
             if (pWall->picnum == WALLLIGHT1)
                 pWall->picnum = WALLLIGHTBUST1;
@@ -1722,27 +1723,27 @@ void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
             if (pWall->lotag == 0)
                 return;
 
-            nSectnum = pWall->nextsector;
+            sectNum = pWall->nextsector;
 
-            if (nSectnum < 0)
+            if (sectNum < 0)
                 return;
 
             int nDarkestWall = 0;
 
-            pWall = &wall[sector[nSectnum].wallptr];
+            pWall = &wall[sector[sectNum].wallptr];
 
-            for (i = sector[nSectnum].wallnum; i > 0; i--, pWall++)
+            for (int i = sector[sectNum].wallnum; i > 0; i--, pWall++)
                 if (pWall->shade > nDarkestWall)
                     nDarkestWall = pWall->shade;
 
             int const nRand = krand() & 1;
 
-            for (SPRITES_OF(STAT_EFFECTOR, i))
-                if (SHT == wall[nWall].lotag && SLT == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
+            for (int SPRITES_OF(STAT_EFFECTOR, i))
+                if (SHT(i) == wall[nWall].lotag && SLT(i) == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
                 {
-                    T3 = nRand;
-                    T4 = nDarkestWall;
-                    T5 = 1;
+                    T3(i) = nRand;
+                    T4(i) = nDarkestWall;
+                    T5(i) = 1;
                 }
 
             break;
@@ -1751,19 +1752,19 @@ void A_DamageWall(int nSprite, int nWall, const vec3_t *vPos, int nWeapon)
 }
 
 // NOTE: return value never examined in any of the callers.
-int Sect_DamageCeilingOrFloor(int nDmgFloor, int const nSectnum)
+int Sect_DamageCeilingOrFloor(int damageFloor, int const sectNum)
 {
-    int const RETURN_in = nDmgFloor ? 131072+nSectnum : 65536+nSectnum;
     // NOTE: pass RETURN in the dist argument, too.
-    int32_t const nReturn = VM_OnEventWithBoth(EVENT_DAMAGEHPLANE, g_player[screenpeek].ps->i, screenpeek,
-                             RETURN_in, RETURN_in);
+    int const     RETURN_in = damageFloor ? 131072 + sectNum : 65536 + sectNum;
+    int32_t const returnValue =
+    VM_OnEventWithBoth(EVENT_DAMAGEHPLANE, g_player[screenpeek].ps->i, screenpeek, RETURN_in, RETURN_in);
 
-    if (nReturn < 0)
+    if (returnValue < 0)
         return 0;
 
-    int16_t * const pPicnum = nDmgFloor ? &sector[nSectnum].floorpicnum : &sector[nSectnum].ceilingpicnum;
+    int16_t * const pPicnum = damageFloor ? &sector[sectNum].floorpicnum : &sector[sectNum].ceilingpicnum;
 
-    if (nReturn == (1<<20))
+    if (returnValue == (1<<20))
     {
         // Execute the hard-coded stuff without changing picnum (expected to
         // have been done by the event).
@@ -1776,21 +1777,21 @@ int Sect_DamageCeilingOrFloor(int nDmgFloor, int const nSectnum)
         case WALLLIGHT2__STATIC: *pPicnum                       = WALLLIGHTBUST2; goto GLASSBREAK_CODE;
         case WALLLIGHT3__STATIC: *pPicnum                       = WALLLIGHTBUST3; goto GLASSBREAK_CODE;
         case WALLLIGHT4__STATIC: *pPicnum                       = WALLLIGHTBUST4; goto GLASSBREAK_CODE;
-        case TECHLIGHT2__STATIC: sector[nSectnum].ceilingpicnum = TECHLIGHTBUST2; goto GLASSBREAK_CODE;
-        case TECHLIGHT4__STATIC: sector[nSectnum].ceilingpicnum = TECHLIGHTBUST4;
+        case TECHLIGHT2__STATIC: sector[sectNum].ceilingpicnum = TECHLIGHTBUST2; goto GLASSBREAK_CODE;
+        case TECHLIGHT4__STATIC: sector[sectNum].ceilingpicnum = TECHLIGHTBUST4;
 
         GLASSBREAK_CODE:
-            A_SpawnCeilingGlass(g_player[myconnectindex].ps->i, nSectnum, 10);
+            A_SpawnCeilingGlass(g_player[myconnectindex].ps->i, sectNum, 10);
             A_PlaySound(GLASS_BREAKING, g_player[screenpeek].ps->i);
 
-            if (sector[nSectnum].hitag == 0)
+            if (sector[sectNum].hitag == 0)
             {
-                for (int SPRITES_OF_SECT(nSectnum, i))
+                for (int SPRITES_OF_SECT(sectNum, i))
                 {
-                    if (PN == SECTOREFFECTOR && SLT == SE_12_LIGHT_SWITCH)
+                    if (PN(i) == SECTOREFFECTOR && SLT(i) == SE_12_LIGHT_SWITCH)
                     {
                         for (int SPRITES_OF(STAT_EFFECTOR, j))
-                            if (sprite[j].hitag == SHT)
+                            if (sprite[j].hitag == SHT(i))
                                 actor[j].t_data[3] = 1;
                         break;
                     }
@@ -1801,10 +1802,10 @@ int Sect_DamageCeilingOrFloor(int nDmgFloor, int const nSectnum)
 
             for (int SPRITES_OF(STAT_EFFECTOR, i))
             {
-                if (SHT == sector[nSectnum].hitag && SLT == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
+                if (SHT(i) == sector[sectNum].hitag && SLT(i) == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
                 {
-                    T3 = j;
-                    T5 = 1;
+                    T3(i) = j;
+                    T5(i) = 1;
                 }
             }
 
@@ -1815,55 +1816,54 @@ int Sect_DamageCeilingOrFloor(int nDmgFloor, int const nSectnum)
 }
 
 // hard coded props... :(
-void A_DamageObject(int32_t i,int32_t sn)
+void A_DamageObject(int32_t spriteNum, int32_t damageSrc)
 {
-    int16_t j;
-    int32_t k, rpg=0;
-    spritetype *s;
+    int32_t isRPG=0;
+    spritetype *pSprite;
 
     if (g_netClient)
     {
         return;
     }
 
-    i &= (MAXSPRITES-1);
+    spriteNum &= (MAXSPRITES-1);
 
-    if (A_CheckSpriteFlags(sn,SFLAG_PROJECTILE))
-        if (SpriteProjectile[sn].workslike & PROJECTILE_RPG)
-            rpg = 1;
+    if (A_CheckSpriteFlags(damageSrc,SFLAG_PROJECTILE))
+        if (SpriteProjectile[damageSrc].workslike & PROJECTILE_RPG)
+            isRPG = 1;
 
-    switch (DYNAMICTILEMAP(PN))
+    switch (DYNAMICTILEMAP(PN(spriteNum)))
     {
     case OCEANSPRITE1__STATIC:
     case OCEANSPRITE2__STATIC:
     case OCEANSPRITE3__STATIC:
     case OCEANSPRITE4__STATIC:
     case OCEANSPRITE5__STATIC:
-        A_Spawn(i,SMALLSMOKE);
-        A_DeleteSprite(i);
+        A_Spawn(spriteNum,SMALLSMOKE);
+        A_DeleteSprite(spriteNum);
         break;
 
     case QUEBALL__STATIC:
     case STRIPEBALL__STATIC:
-        if (sprite[sn].picnum == QUEBALL || sprite[sn].picnum == STRIPEBALL)
+        if (sprite[damageSrc].picnum == QUEBALL || sprite[damageSrc].picnum == STRIPEBALL)
         {
-            sprite[sn].xvel = (sprite[i].xvel>>1)+(sprite[i].xvel>>2);
-            sprite[sn].ang -= (SA<<1)+1024;
-            SA = getangle(SX-sprite[sn].x,SY-sprite[sn].y)-512;
-            if (S_CheckSoundPlaying(i,POOLBALLHIT) < 2)
-                A_PlaySound(POOLBALLHIT,i);
+            sprite[damageSrc].xvel = (sprite[spriteNum].xvel>>1)+(sprite[spriteNum].xvel>>2);
+            sprite[damageSrc].ang -= (SA(spriteNum)<<1)+1024;
+            SA(spriteNum) = getangle(SX(spriteNum)-sprite[damageSrc].x,SY(spriteNum)-sprite[damageSrc].y)-512;
+            if (S_CheckSoundPlaying(spriteNum,POOLBALLHIT) < 2)
+                A_PlaySound(POOLBALLHIT,spriteNum);
         }
         else
         {
             if (krand()&3)
             {
-                sprite[i].xvel = 164;
-                sprite[i].ang = sprite[sn].ang;
+                sprite[spriteNum].xvel = 164;
+                sprite[spriteNum].ang = sprite[damageSrc].ang;
             }
             else
             {
-                A_SpawnWallGlass(i,-1,3);
-                A_DeleteSprite(i);
+                A_SpawnWallGlass(spriteNum,-1,3);
+                A_DeleteSprite(spriteNum);
             }
         }
         break;
@@ -1874,25 +1874,25 @@ void A_DamageObject(int32_t i,int32_t sn)
     case CONE__STATIC:
     case BOX__STATIC:
     {
-        if (rpg == 1)
-            if (T1 == 0)
+        if (isRPG == 1)
+            if (T1(spriteNum) == 0)
             {
-                CS &= ~257;
-                T1 = 1;
-                A_Spawn(i,BURNING);
+                CS(spriteNum) &= ~257;
+                T1(spriteNum) = 1;
+                A_Spawn(spriteNum,BURNING);
             }
-        switch (DYNAMICTILEMAP(sprite[sn].picnum))
+        switch (DYNAMICTILEMAP(sprite[damageSrc].picnum))
         {
         case RADIUSEXPLOSION__STATIC:
         case RPG__STATIC:
         case FIRELASER__STATIC:
         case HYDRENT__STATIC:
         case HEAVYHBOMB__STATIC:
-            if (T1 == 0)
+            if (T1(spriteNum) == 0)
             {
-                CS &= ~257;
-                T1 = 1;
-                A_Spawn(i,BURNING);
+                CS(spriteNum) &= ~257;
+                T1(spriteNum) = 1;
+                A_Spawn(spriteNum,BURNING);
             }
             break;
         }
@@ -1901,29 +1901,33 @@ void A_DamageObject(int32_t i,int32_t sn)
 
     case CACTUS__STATIC:
     {
-        if (rpg == 1)
-            for (k=64; k>0; k--)
+        if (isRPG == 1)
+            for (int k=64; k>0; k--)
             {
-                j = A_InsertSprite(SECT,SX,SY,SZ-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
-                sprite[j].pal = 8;
+                int newSprite =
+                A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48,
+                               krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[spriteNum].zvel >> 2), spriteNum, 5);
+                sprite[newSprite].pal = 8;
             }
         //        case CACTUSBROKE:
-        switch (DYNAMICTILEMAP(sprite[sn].picnum))
+        switch (DYNAMICTILEMAP(sprite[damageSrc].picnum))
         {
         case RADIUSEXPLOSION__STATIC:
         case RPG__STATIC:
         case FIRELASER__STATIC:
         case HYDRENT__STATIC:
         case HEAVYHBOMB__STATIC:
-            for (k=64; k>0; k--)
+            for (int k=64; k>0; k--)
             {
-                j = A_InsertSprite(SECT,SX,SY,SZ-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
-                sprite[j].pal = 8;
+                int newSprite =
+                A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (krand() % (48 << 8)), SCRAP3 + (krand() & 3), -8, 48, 48,
+                               krand() & 2047, (krand() & 63) + 64, -(krand() & 4095) - (sprite[spriteNum].zvel >> 2), spriteNum, 5);
+                sprite[newSprite].pal = 8;
             }
 
-            if (PN == CACTUS)
-                PN = CACTUSBROKE;
-            CS &= ~257;
+            if (PN(spriteNum) == CACTUS)
+                PN(spriteNum) = CACTUSBROKE;
+            CS(spriteNum) &= ~257;
             //       else A_DeleteSprite(i);
             break;
         }
@@ -1932,43 +1936,43 @@ void A_DamageObject(int32_t i,int32_t sn)
 
     case HANGLIGHT__STATIC:
     case GENERICPOLE2__STATIC:
-        for (k=6; k>0; k--)
-            A_InsertSprite(SECT,SX,SY,SZ-(8<<8),SCRAP1+(krand()&15),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
-        A_PlaySound(GLASS_HEAVYBREAK,i);
-        A_DeleteSprite(i);
+        for (int k=6; k>0; k--)
+            A_InsertSprite(SECT(spriteNum),SX(spriteNum),SY(spriteNum),SZ(spriteNum)-ZOFFSET3,SCRAP1+(krand()&15),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[spriteNum].zvel>>2),spriteNum,5);
+        A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
+        A_DeleteSprite(spriteNum);
         break;
 
     case FANSPRITE__STATIC:
-        PN = FANSPRITEBROKE;
-        CS &= (65535-257);
-        if (sector[SECT].floorpicnum == FANSHADOW)
-            sector[SECT].floorpicnum = FANSHADOWBROKE;
+        PN(spriteNum) = FANSPRITEBROKE;
+        CS(spriteNum) &= (65535-257);
+        if (sector[SECT(spriteNum)].floorpicnum == FANSHADOW)
+            sector[SECT(spriteNum)].floorpicnum = FANSHADOWBROKE;
 
-        A_PlaySound(GLASS_HEAVYBREAK,i);
-        s = &sprite[i];
-        for (j=16; j>0; j--)
-            RANDOMSCRAP;
+        A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
+        pSprite = &sprite[spriteNum];
+        for (int j=16; j>0; j--)
+            RANDOMSCRAP(pSprite, spriteNum);
 
         break;
 
     case WATERFOUNTAIN__STATIC:
         //    case WATERFOUNTAIN+1:
         //    case WATERFOUNTAIN+2:
-        PN = WATERFOUNTAINBROKE;
-        A_Spawn(i,TOILETWATER);
+        PN(spriteNum) = WATERFOUNTAINBROKE;
+        A_Spawn(spriteNum,TOILETWATER);
         break;
 
     case SATELITE__STATIC:
     case FUELPOD__STATIC:
     case SOLARPANNEL__STATIC:
     case ANTENNA__STATIC:
-        if (sprite[sn].extra != G_InitialActorStrength(SHOTSPARK1))
+        if (sprite[damageSrc].extra != G_InitialActorStrength(SHOTSPARK1))
         {
-            for (j=15; j>0; j--)
-                A_InsertSprite(SECT,SX,SY,sector[SECT].floorz-(12<<8)-(j<<9),SCRAP1+(krand()&15),-8,64,64,
-                               krand()&2047,(krand()&127)+64,-(krand()&511)-256,i,5);
-            A_Spawn(i,EXPLOSION2);
-            A_DeleteSprite(i);
+            for (int j=15; j>0; j--)
+                A_InsertSprite(SECT(spriteNum),SX(spriteNum),SY(spriteNum),sector[SECT(spriteNum)].floorz-ZOFFSET4-(j<<9),SCRAP1+(krand()&15),-8,64,64,
+                               krand()&2047,(krand()&127)+64,-(krand()&511)-256,spriteNum,5);
+            A_Spawn(spriteNum,EXPLOSION2);
+            A_DeleteSprite(spriteNum);
         }
         break;
 
@@ -2000,114 +2004,114 @@ void A_DamageObject(int32_t i,int32_t sn)
     case VASE__STATIC:
     case STATUEFLASH__STATIC:
     case STATUE__STATIC:
-        if (PN == BOTTLE10)
-            A_SpawnMultiple(i, MONEY, 4+(krand()&3));
-        else if (PN == STATUE || PN == STATUEFLASH)
+        if (PN(spriteNum) == BOTTLE10)
+            A_SpawnMultiple(spriteNum, MONEY, 4+(krand()&3));
+        else if (PN(spriteNum) == STATUE || PN(spriteNum) == STATUEFLASH)
         {
-            A_SpawnRandomGlass(i,-1,40);
-            A_PlaySound(GLASS_HEAVYBREAK,i);
+            A_SpawnRandomGlass(spriteNum,-1,40);
+            A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         }
-        else if (PN == VASE)
-            A_SpawnWallGlass(i,-1,40);
+        else if (PN(spriteNum) == VASE)
+            A_SpawnWallGlass(spriteNum,-1,40);
 
-        A_PlaySound(GLASS_BREAKING,i);
-        SA = krand()&2047;
-        A_SpawnWallGlass(i,-1,8);
-        A_DeleteSprite(i);
+        A_PlaySound(GLASS_BREAKING,spriteNum);
+        SA(spriteNum) = krand()&2047;
+        A_SpawnWallGlass(spriteNum,-1,8);
+        A_DeleteSprite(spriteNum);
         break;
 
     case FETUS__STATIC:
-        PN = FETUSBROKE;
-        A_PlaySound(GLASS_BREAKING,i);
-        A_SpawnWallGlass(i,-1,10);
+        PN(spriteNum) = FETUSBROKE;
+        A_PlaySound(GLASS_BREAKING,spriteNum);
+        A_SpawnWallGlass(spriteNum,-1,10);
         break;
 
     case FETUSBROKE__STATIC:
-        for (j=48; j>0; j--)
+        for (int j=48; j>0; j--)
         {
-            A_Shoot(i,BLOODSPLAT1);
-            SA += 333;
+            A_Shoot(spriteNum,BLOODSPLAT1);
+            SA(spriteNum) += 333;
         }
-        A_PlaySound(GLASS_HEAVYBREAK,i);
-        A_PlaySound(SQUISHED,i);
+        A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
+        A_PlaySound(SQUISHED,spriteNum);
         /* fall-through */
     case BOTTLE7__STATIC:
-        A_PlaySound(GLASS_BREAKING,i);
-        A_SpawnWallGlass(i,-1,10);
-        A_DeleteSprite(i);
+        A_PlaySound(GLASS_BREAKING,spriteNum);
+        A_SpawnWallGlass(spriteNum,-1,10);
+        A_DeleteSprite(spriteNum);
         break;
 
     case HYDROPLANT__STATIC:
-        PN = BROKEHYDROPLANT;
-        A_PlaySound(GLASS_BREAKING,i);
-        A_SpawnWallGlass(i,-1,10);
+        PN(spriteNum) = BROKEHYDROPLANT;
+        A_PlaySound(GLASS_BREAKING,spriteNum);
+        A_SpawnWallGlass(spriteNum,-1,10);
         break;
 
     case FORCESPHERE__STATIC:
-        sprite[i].xrepeat = 0;
-        actor[OW].t_data[0] = 32;
-        actor[OW].t_data[1] = !actor[OW].t_data[1];
-        actor[OW].t_data[2] ++;
-        A_Spawn(i,EXPLOSION2);
+        sprite[spriteNum].xrepeat = 0;
+        actor[OW(spriteNum)].t_data[0] = 32;
+        actor[OW(spriteNum)].t_data[1] = !actor[OW(spriteNum)].t_data[1];
+        actor[OW(spriteNum)].t_data[2] ++;
+        A_Spawn(spriteNum,EXPLOSION2);
         break;
 
     case BROKEHYDROPLANT__STATIC:
-        A_PlaySound(GLASS_BREAKING,i);
-        A_SpawnWallGlass(i,-1,5);
-        A_DeleteSprite(i);
+        A_PlaySound(GLASS_BREAKING,spriteNum);
+        A_SpawnWallGlass(spriteNum,-1,5);
+        A_DeleteSprite(spriteNum);
         break;
 
     case TOILET__STATIC:
-        PN = TOILETBROKE;
-        CS |= (krand()&1)<<2;
-        CS &= ~257;
-        A_Spawn(i,TOILETWATER);
-        A_PlaySound(GLASS_BREAKING,i);
+        PN(spriteNum) = TOILETBROKE;
+        CS(spriteNum) |= (krand()&1)<<2;
+        CS(spriteNum) &= ~257;
+        A_Spawn(spriteNum,TOILETWATER);
+        A_PlaySound(GLASS_BREAKING,spriteNum);
         break;
 
     case STALL__STATIC:
-        PN = STALLBROKE;
-        CS |= (krand()&1)<<2;
-        CS &= ~257;
-        A_Spawn(i,TOILETWATER);
-        A_PlaySound(GLASS_HEAVYBREAK,i);
+        PN(spriteNum) = STALLBROKE;
+        CS(spriteNum) |= (krand()&1)<<2;
+        CS(spriteNum) &= ~257;
+        A_Spawn(spriteNum,TOILETWATER);
+        A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         break;
 
     case HYDRENT__STATIC:
-        PN = BROKEFIREHYDRENT;
-        A_Spawn(i,TOILETWATER);
+        PN(spriteNum) = BROKEFIREHYDRENT;
+        A_Spawn(spriteNum,TOILETWATER);
 
         //            for(k=0;k<5;k++)
         //          {
         //            j = A_InsertSprite(SECT,SX,SY,SZ-(krand()%(48<<8)),SCRAP3+(krand()&3),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[i].zvel>>2),i,5);
         //          sprite[j].pal = 2;
         //    }
-        A_PlaySound(GLASS_HEAVYBREAK,i);
+        A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         break;
 
     case GRATE1__STATIC:
-        PN = BGRATE1;
-        CS &= (65535-256-1);
-        A_PlaySound(VENT_BUST,i);
+        PN(spriteNum) = BGRATE1;
+        CS(spriteNum) &= (65535-256-1);
+        A_PlaySound(VENT_BUST,spriteNum);
         break;
 
     case CIRCLEPANNEL__STATIC:
-        PN = CIRCLEPANNELBROKE;
-        CS &= (65535-256-1);
-        A_PlaySound(VENT_BUST,i);
+        PN(spriteNum) = CIRCLEPANNELBROKE;
+        CS(spriteNum) &= (65535-256-1);
+        A_PlaySound(VENT_BUST,spriteNum);
         break;
 
     case PANNEL1__STATIC:
     case PANNEL2__STATIC:
-        PN = BPANNEL1;
-        CS &= (65535-256-1);
-        A_PlaySound(VENT_BUST,i);
+        PN(spriteNum) = BPANNEL1;
+        CS(spriteNum) &= (65535-256-1);
+        A_PlaySound(VENT_BUST,spriteNum);
         break;
 
     case PANNEL3__STATIC:
-        PN = BPANNEL3;
-        CS &= (65535-256-1);
-        A_PlaySound(VENT_BUST,i);
+        PN(spriteNum) = BPANNEL3;
+        CS(spriteNum) &= (65535-256-1);
+        A_PlaySound(VENT_BUST,spriteNum);
         break;
 
     case PIPE1__STATIC:
@@ -2116,72 +2120,74 @@ void A_DamageObject(int32_t i,int32_t sn)
     case PIPE4__STATIC:
     case PIPE5__STATIC:
     case PIPE6__STATIC:
-        switch (DYNAMICTILEMAP(PN))
+    {
+        switch (DYNAMICTILEMAP(PN(spriteNum)))
         {
         case PIPE1__STATIC:
-            PN=PIPE1B;
+            PN(spriteNum)=PIPE1B;
             break;
         case PIPE2__STATIC:
-            PN=PIPE2B;
+            PN(spriteNum)=PIPE2B;
             break;
         case PIPE3__STATIC:
-            PN=PIPE3B;
+            PN(spriteNum)=PIPE3B;
             break;
         case PIPE4__STATIC:
-            PN=PIPE4B;
+            PN(spriteNum)=PIPE4B;
             break;
         case PIPE5__STATIC:
-            PN=PIPE5B;
+            PN(spriteNum)=PIPE5B;
             break;
         case PIPE6__STATIC:
-            PN=PIPE6B;
+            PN(spriteNum)=PIPE6B;
             break;
         }
 
-        j = A_Spawn(i,STEAM);
-        sprite[j].z = sector[SECT].floorz-(32<<8);
+        int newSprite = A_Spawn(spriteNum, STEAM);
+        sprite[newSprite].z = sector[SECT(spriteNum)].floorz-(32<<8);
         break;
+    }
 
     case MONK__STATIC:
     case LUKE__STATIC:
     case INDY__STATIC:
     case JURYGUY__STATIC:
-        A_PlaySound(SLT,i);
-        A_Spawn(i,SHT);
+        A_PlaySound(SLT(spriteNum),spriteNum);
+        A_Spawn(spriteNum,SHT(spriteNum));
         /* fall-through */
     case SPACEMARINE__STATIC:
-        sprite[i].extra -= sprite[sn].extra;
-        if (sprite[i].extra > 0) break;
-        SA = krand()&2047;
-        A_Shoot(i,BLOODSPLAT1);
-        SA = krand()&2047;
-        A_Shoot(i,BLOODSPLAT2);
-        SA = krand()&2047;
-        A_Shoot(i,BLOODSPLAT3);
-        SA = krand()&2047;
-        A_Shoot(i,BLOODSPLAT4);
-        SA = krand()&2047;
-        A_Shoot(i,BLOODSPLAT1);
-        SA = krand()&2047;
-        A_Shoot(i,BLOODSPLAT2);
-        SA = krand()&2047;
-        A_Shoot(i,BLOODSPLAT3);
-        SA = krand()&2047;
-        A_Shoot(i,BLOODSPLAT4);
-        A_DoGuts(i,JIBS1,1);
-        A_DoGuts(i,JIBS2,2);
-        A_DoGuts(i,JIBS3,3);
-        A_DoGuts(i,JIBS4,4);
-        A_DoGuts(i,JIBS5,1);
-        A_DoGuts(i,JIBS3,6);
+        sprite[spriteNum].extra -= sprite[damageSrc].extra;
+        if (sprite[spriteNum].extra > 0) break;
+        SA(spriteNum) = krand()&2047;
+        A_Shoot(spriteNum,BLOODSPLAT1);
+        SA(spriteNum) = krand()&2047;
+        A_Shoot(spriteNum,BLOODSPLAT2);
+        SA(spriteNum) = krand()&2047;
+        A_Shoot(spriteNum,BLOODSPLAT3);
+        SA(spriteNum) = krand()&2047;
+        A_Shoot(spriteNum,BLOODSPLAT4);
+        SA(spriteNum) = krand()&2047;
+        A_Shoot(spriteNum,BLOODSPLAT1);
+        SA(spriteNum) = krand()&2047;
+        A_Shoot(spriteNum,BLOODSPLAT2);
+        SA(spriteNum) = krand()&2047;
+        A_Shoot(spriteNum,BLOODSPLAT3);
+        SA(spriteNum) = krand()&2047;
+        A_Shoot(spriteNum,BLOODSPLAT4);
+        A_DoGuts(spriteNum,JIBS1,1);
+        A_DoGuts(spriteNum,JIBS2,2);
+        A_DoGuts(spriteNum,JIBS3,3);
+        A_DoGuts(spriteNum,JIBS4,4);
+        A_DoGuts(spriteNum,JIBS5,1);
+        A_DoGuts(spriteNum,JIBS3,6);
         S_PlaySound(SQUISHED);
-        A_DeleteSprite(i);
+        A_DeleteSprite(spriteNum);
         break;
 
     case CHAIR1__STATIC:
     case CHAIR2__STATIC:
-        PN = BROKENCHAIR;
-        CS = 0;
+        PN(spriteNum) = BROKENCHAIR;
+        CS(spriteNum) = 0;
         break;
 
     case CHAIR3__STATIC:
@@ -2194,100 +2200,100 @@ void A_DamageObject(int32_t i,int32_t sn)
     case POT2__STATIC:
     case POT3__STATIC:
     case TRIPODCAMERA__STATIC:
-        A_PlaySound(GLASS_HEAVYBREAK,i);
-        s = &sprite[i];
-        for (j=16; j>0; j--)
-            RANDOMSCRAP;
-        A_DeleteSprite(i);
+        A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
+        pSprite = &sprite[spriteNum];
+        for (int j=16; j>0; j--)
+            RANDOMSCRAP(pSprite, spriteNum);
+        A_DeleteSprite(spriteNum);
         break;
 
     case PLAYERONWATER__STATIC:
-        i = OW;
+        spriteNum = OW(spriteNum);
         /* fall-through */
     default:
-        if ((sprite[i].cstat&16) && SHT == 0 && SLT == 0 && sprite[i].statnum == STAT_DEFAULT)
+        if ((sprite[spriteNum].cstat&16) && SHT(spriteNum) == 0 && SLT(spriteNum) == 0 && sprite[spriteNum].statnum == STAT_DEFAULT)
             break;
 
-        if ((sprite[sn].picnum == FREEZEBLAST || sprite[sn].owner != i) && sprite[i].statnum != STAT_PROJECTILE)
+        if ((sprite[damageSrc].picnum == FREEZEBLAST || sprite[damageSrc].owner != spriteNum) && sprite[spriteNum].statnum != STAT_PROJECTILE)
         {
-            if (A_CheckEnemySprite(&sprite[i]) == 1)
+            if (A_CheckEnemySprite(&sprite[spriteNum]) == 1)
             {
-                if (sprite[sn].picnum == RPG)
-                    sprite[sn].extra <<= 1;
+                if (sprite[damageSrc].picnum == RPG)
+                    sprite[damageSrc].extra <<= 1;
 
-                if ((PN != DRONE) && (PN != ROTATEGUN) && (PN != COMMANDER) && (PN < GREENSLIME || PN > GREENSLIME+7))
-                    if (sprite[sn].picnum != FREEZEBLAST)
-                        if (!A_CheckSpriteFlags(i, SFLAG_BADGUY) || A_CheckSpriteFlags(i, SFLAG_HURTSPAWNBLOOD))
+                if ((PN(spriteNum) != DRONE) && (PN(spriteNum) != ROTATEGUN) && (PN(spriteNum) != COMMANDER) && (PN(spriteNum) < GREENSLIME || PN(spriteNum) > GREENSLIME+7))
+                    if (sprite[damageSrc].picnum != FREEZEBLAST)
+                        if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
                         {
-                            j = A_Spawn(sn,JIBS6);
-                            if (sprite[sn].pal == 6)
-                                sprite[j].pal = 6;
-                            sprite[j].z += (4<<8);
-                            sprite[j].xvel = 16;
-                            sprite[j].xrepeat = sprite[j].yrepeat = 24;
-                            sprite[j].ang += 32-(krand()&63);
+                            int const newSprite       = A_Spawn(damageSrc, JIBS6);
+                            sprite[newSprite].z      += (4 << 8);
+                            if (sprite[damageSrc].pal == 6)
+                                sprite[newSprite].pal = 6;
+                            sprite[newSprite].xvel    = 16;
+                            sprite[newSprite].xrepeat = sprite[newSprite].yrepeat = 24;
+                            sprite[newSprite].ang    += 32 - (krand() & 63);
                         }
 
-                j = sprite[sn].owner;
+                int const damageOwner = sprite[damageSrc].owner;
 
-                if (j >= 0 && sprite[j].picnum == APLAYER && PN != ROTATEGUN && PN != DRONE)
-                    if (g_player[P_Get(j)].ps->curr_weapon == SHOTGUN_WEAPON)
-                        if (!A_CheckSpriteFlags(i, SFLAG_BADGUY) || A_CheckSpriteFlags(i, SFLAG_HURTSPAWNBLOOD))
+                if (damageOwner >= 0 && sprite[damageOwner].picnum == APLAYER && PN(spriteNum) != ROTATEGUN && PN(spriteNum) != DRONE)
+                    if (g_player[P_Get(damageOwner)].ps->curr_weapon == SHOTGUN_WEAPON)
+                        if (!A_CheckSpriteFlags(spriteNum, SFLAG_BADGUY) || A_CheckSpriteFlags(spriteNum, SFLAG_HURTSPAWNBLOOD))
                         {
-                            A_Shoot(i,BLOODSPLAT3);
-                            A_Shoot(i,BLOODSPLAT1);
-                            A_Shoot(i,BLOODSPLAT2);
-                            A_Shoot(i,BLOODSPLAT4);
+                            A_Shoot(spriteNum, BLOODSPLAT3);
+                            A_Shoot(spriteNum, BLOODSPLAT1);
+                            A_Shoot(spriteNum, BLOODSPLAT2);
+                            A_Shoot(spriteNum, BLOODSPLAT4);
                         }
 
-                if (!A_CheckSpriteFlags(i, SFLAG_NODAMAGEPUSH))
+                if (!A_CheckSpriteFlags(spriteNum, SFLAG_NODAMAGEPUSH))
                 {
-                    if (sprite[i].extra > 0)
+                    if (sprite[spriteNum].extra > 0)
                     {
-                        if ((sprite[i].cstat&48) == 0)
-                            SA = (sprite[sn].ang+1024)&2047;
-                        sprite[i].xvel = -(sprite[sn].extra<<2);
-                        j = SECT;
-                        pushmove((vec3_t *)&sprite[i],&j,128L,(4L<<8),(4L<<8),CLIPMASK0);
-                        if (j != SECT && (unsigned)j < MAXSECTORS)
-                            changespritesect(i,j);
+                        if ((sprite[spriteNum].cstat & 48) == 0)
+                            SA(spriteNum)          = (sprite[damageSrc].ang + 1024) & 2047;
+                        sprite[spriteNum].xvel  = -(sprite[damageSrc].extra << 2);
+                        int16_t sectNum = SECT(spriteNum);
+                        pushmove((vec3_t *)&sprite[spriteNum], &sectNum, 128L, (4L << 8), (4L << 8), CLIPMASK0);
+                        if (sectNum != SECT(spriteNum) && (unsigned)sectNum < MAXSECTORS)
+                            changespritesect(spriteNum, sectNum);
                     }
                 }
 
-                if (sprite[i].statnum == STAT_ZOMBIEACTOR)
+                if (sprite[spriteNum].statnum == STAT_ZOMBIEACTOR)
                 {
-                    changespritestat(i, STAT_ACTOR);
-                    actor[i].timetosleep = SLEEPTIME;
+                    changespritestat(spriteNum, STAT_ACTOR);
+                    actor[spriteNum].timetosleep = SLEEPTIME;
                 }
 
-                if ((sprite[i].xrepeat < 24 || PN == SHARK) && sprite[sn].picnum == SHRINKSPARK)
+                if ((sprite[spriteNum].xrepeat < 24 || PN(spriteNum) == SHARK) && sprite[damageSrc].picnum == SHRINKSPARK)
                     return;
             }
 
-            if (sprite[i].statnum != STAT_ZOMBIEACTOR)
+            if (sprite[spriteNum].statnum != STAT_ZOMBIEACTOR)
             {
-                if (sprite[sn].picnum == FREEZEBLAST && ((PN == APLAYER && sprite[i].pal == 1) || (g_freezerSelfDamage == 0 && sprite[sn].owner == i)))
+                if (sprite[damageSrc].picnum == FREEZEBLAST && ((PN(spriteNum) == APLAYER && sprite[spriteNum].pal == 1) || (g_freezerSelfDamage == 0 && sprite[damageSrc].owner == spriteNum)))
                     return;
 
-                actor[i].picnum = sprite[sn].picnum;
-                actor[i].extra += sprite[sn].extra;
-                actor[i].ang = sprite[sn].ang;
-                actor[i].owner = sprite[sn].owner;
+                actor[spriteNum].picnum = sprite[damageSrc].picnum;
+                actor[spriteNum].extra += sprite[damageSrc].extra;
+                actor[spriteNum].ang    = sprite[damageSrc].ang;
+                actor[spriteNum].owner  = sprite[damageSrc].owner;
             }
 
-            if (sprite[i].statnum == STAT_PLAYER)
+            if (sprite[spriteNum].statnum == STAT_PLAYER)
             {
-                DukePlayer_t *ps = g_player[P_Get(i)].ps;
+                DukePlayer_t *ps = g_player[P_Get(spriteNum)].ps;
 
                 if (ps->newowner >= 0)
                     G_ClearCameraView(ps);
 
-                if (sprite[i].xrepeat < 24 && sprite[sn].picnum == SHRINKSPARK)
+                if (sprite[spriteNum].xrepeat < 24 && sprite[damageSrc].picnum == SHRINKSPARK)
                     return;
 
-                if (sprite[actor[i].owner].picnum != APLAYER)
+                if (sprite[actor[spriteNum].owner].picnum != APLAYER)
                     if (ud.player_skill >= 3)
-                        sprite[sn].extra += (sprite[sn].extra>>1);
+                        sprite[damageSrc].extra += (sprite[damageSrc].extra>>1);
             }
         }
 
@@ -2297,18 +2303,16 @@ void A_DamageObject(int32_t i,int32_t sn)
 
 void G_AlignWarpElevators(void)
 {
-    int32_t i, j;
-
-    for (SPRITES_OF(STAT_EFFECTOR, i))
+    for (int SPRITES_OF(STAT_EFFECTOR, i))
     {
-        if (SLT == SE_17_WARP_ELEVATOR && SS > 16)
+        if (SLT(i) == SE_17_WARP_ELEVATOR && SS(i) > 16)
         {
-            for (SPRITES_OF(STAT_EFFECTOR, j))
+            for (int SPRITES_OF(STAT_EFFECTOR, j))
             {
-                if (i != j && sprite[j].lotag == SE_17_WARP_ELEVATOR && SHT == sprite[j].hitag)
+                if (i != j && sprite[j].lotag == SE_17_WARP_ELEVATOR && SHT(i) == sprite[j].hitag)
                 {
-                    sector[sprite[j].sectnum].floorz = sector[SECT].floorz;
-                    sector[sprite[j].sectnum].ceilingz = sector[SECT].ceilingz;
+                    sector[sprite[j].sectnum].floorz   = sector[SECT(i)].floorz;
+                    sector[sprite[j].sectnum].ceilingz = sector[SECT(i)].ceilingz;
                 }
             }
         }
@@ -2316,30 +2320,31 @@ void G_AlignWarpElevators(void)
 }
 
 
-static int32_t P_CheckDetonatorSpecialCase(DukePlayer_t *const p, int32_t weapid)
+static int32_t P_CheckDetonatorSpecialCase(DukePlayer_t *const pPlayer, int32_t weaponNum)
 {
-    if (weapid == HANDBOMB_WEAPON && p->ammo_amount[HANDBOMB_WEAPON] == 0)
+    if (weaponNum == HANDBOMB_WEAPON && pPlayer->ammo_amount[HANDBOMB_WEAPON] == 0)
     {
-        int32_t k = headspritestat[STAT_ACTOR];
-        while (k >= 0)
+        int32_t spriteNum = headspritestat[STAT_ACTOR];
+
+        while (spriteNum >= 0)
         {
-            if (sprite[k].picnum == HEAVYHBOMB && sprite[k].owner == p->i)
+            if (sprite[spriteNum].picnum == HEAVYHBOMB && sprite[spriteNum].owner == pPlayer->i)
                 return 1;
 
-            k = nextspritestat[k];
+            spriteNum = nextspritestat[spriteNum];
         }
     }
 
     return 0;
 }
 
-void P_HandleSharedKeys(int32_t nPlayer)
+void P_HandleSharedKeys(int32_t playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[nPlayer].ps;
+    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
     if (pPlayer->cheat_phase == 1) return;
 
-    uint32_t nPlayerBits = g_player[nPlayer].sync->bits, j;
+    uint32_t playerBits = g_player[playerNum].sync->bits, weaponNum;
 
     // 1<<0  =  jump
     // 1<<1  =  crouch
@@ -2371,16 +2376,16 @@ void P_HandleSharedKeys(int32_t nPlayer)
     // 1<<30 = !inventory
     // 1<<31 = !escape
 
-    int const nAimMode = pPlayer->aim_mode;
+    int const aimMode = pPlayer->aim_mode;
 
-    pPlayer->aim_mode = (nPlayerBits>>SK_AIMMODE)&1;
-    if (pPlayer->aim_mode < nAimMode)
+    pPlayer->aim_mode = (playerBits>>SK_AIMMODE)&1;
+    if (pPlayer->aim_mode < aimMode)
         pPlayer->return_to_center = 9;
 
-    if (TEST_SYNC_KEY(nPlayerBits, SK_QUICK_KICK) && pPlayer->quick_kick == 0)
-        if (PWEAPON(nPlayer, pPlayer->curr_weapon, WorksLike) != KNEE_WEAPON || pPlayer->kickback_pic == 0)
+    if (TEST_SYNC_KEY(playerBits, SK_QUICK_KICK) && pPlayer->quick_kick == 0)
+        if (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) != KNEE_WEAPON || pPlayer->kickback_pic == 0)
         {
-            if (VM_OnEvent(EVENT_QUICKKICK,g_player[nPlayer].ps->i,nPlayer) == 0)
+            if (VM_OnEvent(EVENT_QUICKKICK,g_player[playerNum].ps->i,playerNum) == 0)
             {
                 pPlayer->quick_kick = 14;
                 if (pPlayer->fta == 0 || pPlayer->ftq == 80)
@@ -2388,16 +2393,16 @@ void P_HandleSharedKeys(int32_t nPlayer)
             }
         }
 
-    j = nPlayerBits & ((15u<<SK_WEAPON_BITS)|BIT(SK_STEROIDS)|BIT(SK_NIGHTVISION)|BIT(SK_MEDKIT)|BIT(SK_QUICK_KICK)| \
+    weaponNum = playerBits & ((15u<<SK_WEAPON_BITS)|BIT(SK_STEROIDS)|BIT(SK_NIGHTVISION)|BIT(SK_MEDKIT)|BIT(SK_QUICK_KICK)| \
                    BIT(SK_HOLSTER)|BIT(SK_INV_LEFT)|BIT(SK_PAUSE)|BIT(SK_HOLODUKE)|BIT(SK_JETPACK)|BIT(SK_INV_RIGHT)| \
                    BIT(SK_TURNAROUND)|BIT(SK_OPEN)|BIT(SK_INVENTORY)|BIT(SK_ESCAPE));
-    nPlayerBits = j & ~pPlayer->interface_toggle_flag;
-    pPlayer->interface_toggle_flag |= nPlayerBits | ((nPlayerBits&0xf00)?0xf00:0);
-    pPlayer->interface_toggle_flag &= j | ((j&0xf00)?0xf00:0);
+    playerBits = weaponNum & ~pPlayer->interface_toggle_flag;
+    pPlayer->interface_toggle_flag |= playerBits | ((playerBits&0xf00)?0xf00:0);
+    pPlayer->interface_toggle_flag &= weaponNum | ((weaponNum&0xf00)?0xf00:0);
 
-    if (nPlayerBits && TEST_SYNC_KEY(nPlayerBits, SK_MULTIFLAG) == 0)
+    if (playerBits && TEST_SYNC_KEY(playerBits, SK_MULTIFLAG) == 0)
     {
-        if (TEST_SYNC_KEY(nPlayerBits, SK_PAUSE))
+        if (TEST_SYNC_KEY(playerBits, SK_PAUSE))
         {
             KB_ClearKeyDown(sc_Pause);
             if (ud.pause_on)
@@ -2423,24 +2428,24 @@ void P_HandleSharedKeys(int32_t nPlayer)
 
         if (sprite[pPlayer->i].extra <= 0) return;		// if dead...
 
-        if (TEST_SYNC_KEY(nPlayerBits, SK_INVENTORY) && pPlayer->newowner == -1)	// inventory button generates event for selected item
+        if (TEST_SYNC_KEY(playerBits, SK_INVENTORY) && pPlayer->newowner == -1)	// inventory button generates event for selected item
         {
-            if (VM_OnEvent(EVENT_INVENTORY,g_player[nPlayer].ps->i,nPlayer) == 0)
+            if (VM_OnEvent(EVENT_INVENTORY,g_player[playerNum].ps->i,playerNum) == 0)
             {
                 switch (pPlayer->inven_icon)
                 {
-                    case ICON_JETPACK: nPlayerBits |= BIT(SK_JETPACK); break;
-                    case ICON_HOLODUKE: nPlayerBits |= BIT(SK_HOLODUKE); break;
-                    case ICON_HEATS: nPlayerBits |= BIT(SK_NIGHTVISION); break;
-                    case ICON_FIRSTAID: nPlayerBits |= BIT(SK_MEDKIT); break;
-                    case ICON_STEROIDS: nPlayerBits |= BIT(SK_STEROIDS); break;
+                    case ICON_JETPACK: playerBits |= BIT(SK_JETPACK); break;
+                    case ICON_HOLODUKE: playerBits |= BIT(SK_HOLODUKE); break;
+                    case ICON_HEATS: playerBits |= BIT(SK_NIGHTVISION); break;
+                    case ICON_FIRSTAID: playerBits |= BIT(SK_MEDKIT); break;
+                    case ICON_STEROIDS: playerBits |= BIT(SK_STEROIDS); break;
                 }
             }
         }
 
-        if (TEST_SYNC_KEY(nPlayerBits, SK_NIGHTVISION))
+        if (TEST_SYNC_KEY(playerBits, SK_NIGHTVISION))
         {
-            if (VM_OnEvent(EVENT_USENIGHTVISION,g_player[nPlayer].ps->i,nPlayer) == 0
+            if (VM_OnEvent(EVENT_USENIGHTVISION,g_player[playerNum].ps->i,playerNum) == 0
                     &&  pPlayer->inv_amount[GET_HEATS] > 0)
             {
                 pPlayer->heat_on = !pPlayer->heat_on;
@@ -2451,9 +2456,9 @@ void P_HandleSharedKeys(int32_t nPlayer)
             }
         }
 
-        if (TEST_SYNC_KEY(nPlayerBits, SK_STEROIDS))
+        if (TEST_SYNC_KEY(playerBits, SK_STEROIDS))
         {
-            if (VM_OnEvent(EVENT_USESTEROIDS,g_player[nPlayer].ps->i,nPlayer) == 0)
+            if (VM_OnEvent(EVENT_USESTEROIDS,g_player[playerNum].ps->i,playerNum) == 0)
             {
                 if (pPlayer->inv_amount[GET_STEROIDS] == 400)
                 {
@@ -2467,16 +2472,16 @@ void P_HandleSharedKeys(int32_t nPlayer)
             return;		// is there significance to returning?
         }
         if (pPlayer->refresh_inventory)
-            nPlayerBits |= BIT(SK_INV_LEFT);   // emulate move left...
+            playerBits |= BIT(SK_INV_LEFT);   // emulate move left...
 
-        if (pPlayer->newowner == -1 && (TEST_SYNC_KEY(nPlayerBits, SK_INV_LEFT) || TEST_SYNC_KEY(nPlayerBits, SK_INV_RIGHT)))
+        if (pPlayer->newowner == -1 && (TEST_SYNC_KEY(playerBits, SK_INV_LEFT) || TEST_SYNC_KEY(playerBits, SK_INV_RIGHT)))
         {
             pPlayer->invdisptime = GAMETICSPERSEC*2;
 
-            int const nInventoryRight = !!(TEST_SYNC_KEY(nPlayerBits, SK_INV_RIGHT));
+            int const nInventoryRight = !!(TEST_SYNC_KEY(playerBits, SK_INV_RIGHT));
 
             if (pPlayer->refresh_inventory) pPlayer->refresh_inventory = 0;
-            int32_t nInventory = pPlayer->inven_icon;
+            int32_t inventoryIcon = pPlayer->inven_icon;
 
             int i = 0;
 
@@ -2485,74 +2490,74 @@ CHECKINV1:
             {
                 i++;
 
-                switch (nInventory)
+                switch (inventoryIcon)
                 {
                     case ICON_JETPACK:
                     case ICON_SCUBA:
                     case ICON_STEROIDS:
                     case ICON_HOLODUKE:
                     case ICON_HEATS:
-                        if (pPlayer->inv_amount[icon_to_inv[nInventory]] > 0 && i > 1)
+                        if (pPlayer->inv_amount[icon_to_inv[inventoryIcon]] > 0 && i > 1)
                             break;
                         if (nInventoryRight)
-                            nInventory++;
+                            inventoryIcon++;
                         else
-                            nInventory--;
+                            inventoryIcon--;
                         goto CHECKINV1;
                     case ICON_NONE:
                     case ICON_FIRSTAID:
                         if (pPlayer->inv_amount[GET_FIRSTAID] > 0 && i > 1)
                             break;
-                        nInventory = nInventoryRight ? 2 : 7;
+                        inventoryIcon = nInventoryRight ? 2 : 7;
                         goto CHECKINV1;
                     case ICON_BOOTS:
                         if (pPlayer->inv_amount[GET_BOOTS] > 0 && i > 1)
                             break;
-                        nInventory = nInventoryRight ? 1 : 6;
+                        inventoryIcon = nInventoryRight ? 1 : 6;
                         goto CHECKINV1;
                 }
             }
-            else nInventory = 0;
+            else inventoryIcon = 0;
 
-            if (TEST_SYNC_KEY(nPlayerBits, SK_INV_LEFT))   // Inventory_Left
+            if (TEST_SYNC_KEY(playerBits, SK_INV_LEFT))   // Inventory_Left
             {
                 /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
-                nInventory = VM_OnEventWithReturn(EVENT_INVENTORYLEFT,g_player[nPlayer].ps->i,nPlayer, nInventory);
+                inventoryIcon = VM_OnEventWithReturn(EVENT_INVENTORYLEFT,g_player[playerNum].ps->i,playerNum, inventoryIcon);
             }
-            else if (TEST_SYNC_KEY(nPlayerBits, SK_INV_RIGHT))   // Inventory_Right
+            else if (TEST_SYNC_KEY(playerBits, SK_INV_RIGHT))   // Inventory_Right
             {
                 /*Gv_SetVar(g_iReturnVarID,dainv,g_player[snum].ps->i,snum);*/
-                nInventory = VM_OnEventWithReturn(EVENT_INVENTORYRIGHT,g_player[nPlayer].ps->i,nPlayer, nInventory);
+                inventoryIcon = VM_OnEventWithReturn(EVENT_INVENTORYRIGHT,g_player[playerNum].ps->i,playerNum, inventoryIcon);
             }
 
-            if (nInventory >= 1)
+            if (inventoryIcon >= 1)
             {
-                pPlayer->inven_icon = nInventory;
+                pPlayer->inven_icon = inventoryIcon;
 
-                if (nInventory || pPlayer->inv_amount[GET_FIRSTAID])
+                if (inventoryIcon || pPlayer->inv_amount[GET_FIRSTAID])
                 {
                     static const int32_t i[8] = { QUOTE_MEDKIT, QUOTE_STEROIDS, QUOTE_HOLODUKE,
                         QUOTE_JETPACK, QUOTE_NVG, QUOTE_SCUBA, QUOTE_BOOTS, 0 };
-                    if (nInventory>=1 && nInventory<=9)
-                        P_DoQuote(i[nInventory-1], pPlayer);
+                    if (inventoryIcon>=1 && inventoryIcon<=9)
+                        P_DoQuote(i[inventoryIcon-1], pPlayer);
                 }
             }
         }
 
-        j = ((nPlayerBits&(15<<SK_WEAPON_BITS))>>SK_WEAPON_BITS) - 1;
+        weaponNum = ((playerBits&(15<<SK_WEAPON_BITS))>>SK_WEAPON_BITS) - 1;
 
-        switch ((int32_t)j)
+        switch ((int32_t)weaponNum)
         {
         case -1:
             break;
         default:
-            j = VM_OnEventWithReturn(EVENT_WEAPKEY1+j,pPlayer->i,nPlayer, j);
+            weaponNum = VM_OnEventWithReturn(EVENT_WEAPKEY1+weaponNum,pPlayer->i,playerNum, weaponNum);
             break;
         case 10:
-            j = VM_OnEventWithReturn(EVENT_PREVIOUSWEAPON,pPlayer->i,nPlayer, j);
+            weaponNum = VM_OnEventWithReturn(EVENT_PREVIOUSWEAPON,pPlayer->i,playerNum, weaponNum);
             break;
         case 11:
-            j = VM_OnEventWithReturn(EVENT_NEXTWEAPON,pPlayer->i,nPlayer, j);
+            weaponNum = VM_OnEventWithReturn(EVENT_NEXTWEAPON,pPlayer->i,playerNum, weaponNum);
             break;
         }
 
@@ -2562,115 +2567,115 @@ CHECKINV1:
         // a bit inconsistent in checking "j".
 
         if (pPlayer->reloading == 1)
-            j = -1;
-        else if ((uint32_t)j < MAX_WEAPONS && pPlayer->kickback_pic == 1 && pPlayer->weapon_pos == 1)
+            weaponNum = -1;
+        else if ((uint32_t)weaponNum < MAX_WEAPONS && pPlayer->kickback_pic == 1 && pPlayer->weapon_pos == 1)
         {
-            pPlayer->wantweaponfire = j;
+            pPlayer->wantweaponfire = weaponNum;
             pPlayer->kickback_pic = 0;
         }
 
-        if ((int32_t)j != -1 && pPlayer->last_pissed_time <= (GAMETICSPERSEC * 218) && pPlayer->show_empty_weapon == 0 &&
+        if ((int32_t)weaponNum != -1 && pPlayer->last_pissed_time <= (GAMETICSPERSEC * 218) && pPlayer->show_empty_weapon == 0 &&
             pPlayer->kickback_pic == 0 && pPlayer->quick_kick == 0 && sprite[pPlayer->i].xrepeat > 32 && pPlayer->access_incs == 0 &&
             pPlayer->knee_incs == 0)
         {
             //            if(  ( p->weapon_pos == 0 || ( p->holster_weapon && p->weapon_pos == WEAPON_POS_LOWER ) ))
             {
-                if (j == 10 || j == 11)
+                if (weaponNum == 10 || weaponNum == 11)
                 {
-                    int nWeapon = pPlayer->curr_weapon;
+                    int currentWeapon = pPlayer->curr_weapon;
 
-                    j = (j == 10 ? -1 : 1);  // JBF: prev (-1) or next (1) weapon choice
-                    int i = nWeapon;
+                    weaponNum = (weaponNum == 10 ? -1 : 1);  // JBF: prev (-1) or next (1) weapon choice
+                    int i = currentWeapon;
 
-                    while ((nWeapon >= 0 && nWeapon < 11) || (PLUTOPAK && nWeapon == GROW_WEAPON))
+                    while ((currentWeapon >= 0 && currentWeapon < 11) || (PLUTOPAK && currentWeapon == GROW_WEAPON))
                     {
                         // this accounts for the expander when handling next/previous
 
-                        switch (nWeapon)
+                        switch (currentWeapon)
                         {
                             case DEVISTATOR_WEAPON:
-                                if ((int32_t) j == -1)
+                                if ((int32_t) weaponNum == -1)
                                 {
                                     if (PLUTOPAK)
-                                        nWeapon = GROW_WEAPON;
+                                        currentWeapon = GROW_WEAPON;
                                     else
-                                        nWeapon--;
+                                        currentWeapon--;
                                 }
                                 else
-                                    nWeapon++;
+                                    currentWeapon++;
                                 break;
 
                             case GROW_WEAPON:
-                                nWeapon = ((int32_t) j == -1) ? SHRINKER_WEAPON : DEVISTATOR_WEAPON;
+                                currentWeapon = ((int32_t) weaponNum == -1) ? SHRINKER_WEAPON : DEVISTATOR_WEAPON;
                                 break;
 
                             case SHRINKER_WEAPON:
-                                if ((int32_t)j == 1)
+                                if ((int32_t)weaponNum == 1)
                                 {
                                     if (PLUTOPAK)
-                                        nWeapon = GROW_WEAPON;
+                                        currentWeapon = GROW_WEAPON;
                                     else
-                                        nWeapon++;
+                                        currentWeapon++;
                                 }
                                 else
-                                    nWeapon--;
+                                    currentWeapon--;
                                 break;
 
                             case HANDREMOTE_WEAPON:
-                                i = nWeapon = HANDBOMB_WEAPON;
+                                i = currentWeapon = HANDBOMB_WEAPON;
                             default:
-                                nWeapon += j;
+                                currentWeapon += weaponNum;
                                 break;
                         }
 
-                        if (nWeapon == -1) nWeapon = FREEZE_WEAPON;
-                        else if (nWeapon == 10) nWeapon = KNEE_WEAPON;
+                        if (currentWeapon == -1) currentWeapon = FREEZE_WEAPON;
+                        else if (currentWeapon == 10) currentWeapon = KNEE_WEAPON;
 
-                        if (((pPlayer->gotweapon & (1<<nWeapon)) && pPlayer->ammo_amount[nWeapon] > 0) || P_CheckDetonatorSpecialCase(pPlayer, nWeapon))
+                        if (((pPlayer->gotweapon & (1<<currentWeapon)) && pPlayer->ammo_amount[currentWeapon] > 0) || P_CheckDetonatorSpecialCase(pPlayer, currentWeapon))
                         {
-                            j = nWeapon;
+                            weaponNum = currentWeapon;
                             break;
                         }
 
-                        if (i == nWeapon) // absolutely no weapons, so use foot
+                        if (i == currentWeapon) // absolutely no weapons, so use foot
                         {
-                            j = KNEE_WEAPON;
+                            weaponNum = KNEE_WEAPON;
                             break;
                         }
                     }
 
-                    if (j == SHRINKER_WEAPON)
+                    if (weaponNum == SHRINKER_WEAPON)
                         pPlayer->subweapon &= ~(1 << GROW_WEAPON);
-                    else if (j == GROW_WEAPON)
+                    else if (weaponNum == GROW_WEAPON)
                         pPlayer->subweapon |= (1<<GROW_WEAPON);
                 }
 
-                P_SetWeaponGamevars(nPlayer, pPlayer);
+                P_SetWeaponGamevars(playerNum, pPlayer);
 
-                j = VM_OnEventWithReturn(EVENT_SELECTWEAPON,pPlayer->i,nPlayer, j);
+                weaponNum = VM_OnEventWithReturn(EVENT_SELECTWEAPON,pPlayer->i,playerNum, weaponNum);
 
                 // XXX: any signifcance to "<= MAX_WEAPONS" instead of "<"?
-                if ((int32_t)j != -1 && j <= MAX_WEAPONS)
+                if ((int32_t)weaponNum != -1 && weaponNum <= MAX_WEAPONS)
                 {
-                    if (P_CheckDetonatorSpecialCase(pPlayer, j))
+                    if (P_CheckDetonatorSpecialCase(pPlayer, weaponNum))
                     {
                         pPlayer->gotweapon |= (1<<HANDBOMB_WEAPON);
-                        j = HANDREMOTE_WEAPON;
+                        weaponNum = HANDREMOTE_WEAPON;
                     }
 
-                    if (j == SHRINKER_WEAPON && PLUTOPAK)   // JBF 20040116: so we don't select the grower with v1.3d
+                    if (weaponNum == SHRINKER_WEAPON && PLUTOPAK)   // JBF 20040116: so we don't select the grower with v1.3d
                     {
-                        if (screenpeek == nPlayer) pus = NUMPAGES;
+                        if (screenpeek == playerNum) pus = NUMPAGES;
 
                         if (pPlayer->curr_weapon != GROW_WEAPON && pPlayer->curr_weapon != SHRINKER_WEAPON)
                         {
                             if (pPlayer->ammo_amount[GROW_WEAPON] > 0)
                             {
                                 if ((pPlayer->subweapon&(1<<GROW_WEAPON)) == (1<<GROW_WEAPON))
-                                    j = GROW_WEAPON;
+                                    weaponNum = GROW_WEAPON;
                                 else if (pPlayer->ammo_amount[SHRINKER_WEAPON] == 0)
                                 {
-                                    j = GROW_WEAPON;
+                                    weaponNum = GROW_WEAPON;
                                     pPlayer->subweapon |= (1<<GROW_WEAPON);
                                 }
                             }
@@ -2680,7 +2685,7 @@ CHECKINV1:
                         else if (pPlayer->curr_weapon == SHRINKER_WEAPON)
                         {
                             pPlayer->subweapon |= (1<<GROW_WEAPON);
-                            j = GROW_WEAPON;
+                            weaponNum = GROW_WEAPON;
                         }
                         else
                             pPlayer->subweapon &= ~(1<<GROW_WEAPON);
@@ -2688,11 +2693,11 @@ CHECKINV1:
 
                     if (pPlayer->holster_weapon)
                     {
-                        nPlayerBits |= BIT(SK_HOLSTER);
+                        playerBits |= BIT(SK_HOLSTER);
                         pPlayer->weapon_pos = WEAPON_POS_LOWER;
                     }
-                    else if ((uint32_t)j < MAX_WEAPONS && (pPlayer->gotweapon & (1<<j)) && (uint32_t)pPlayer->curr_weapon != j)
-                        switch (j)
+                    else if ((uint32_t)weaponNum < MAX_WEAPONS && (pPlayer->gotweapon & (1<<weaponNum)) && (uint32_t)pPlayer->curr_weapon != weaponNum)
+                        switch (weaponNum)
                         {
                         case PISTOL_WEAPON:
                         case SHOTGUN_WEAPON:
@@ -2702,30 +2707,30 @@ CHECKINV1:
                         case FREEZE_WEAPON:
                         case GROW_WEAPON:
                         case SHRINKER_WEAPON:
-                            if (pPlayer->ammo_amount[j] == 0 && pPlayer->show_empty_weapon == 0)
+                            if (pPlayer->ammo_amount[weaponNum] == 0 && pPlayer->show_empty_weapon == 0)
                             {
                                 pPlayer->last_full_weapon = pPlayer->curr_weapon;
                                 pPlayer->show_empty_weapon = 32;
                             }
                         case KNEE_WEAPON:
                         case HANDREMOTE_WEAPON:
-                            P_AddWeapon(pPlayer, j, 1);
+                            P_AddWeapon(pPlayer, weaponNum, 1);
                             break;
                         case HANDBOMB_WEAPON:
                         case TRIPBOMB_WEAPON:
-                            if (pPlayer->ammo_amount[j] > 0 && (pPlayer->gotweapon & (1<<j)))
-                                P_AddWeapon(pPlayer, j, 1);
+                            if (pPlayer->ammo_amount[weaponNum] > 0 && (pPlayer->gotweapon & (1<<weaponNum)))
+                                P_AddWeapon(pPlayer, weaponNum, 1);
                             break;
                         }
                 }
             }
         }
 
-        if (TEST_SYNC_KEY(nPlayerBits, SK_HOLODUKE) && (pPlayer->newowner == -1 || pPlayer->holoduke_on != -1))
+        if (TEST_SYNC_KEY(playerBits, SK_HOLODUKE) && (pPlayer->newowner == -1 || pPlayer->holoduke_on != -1))
         {
             if (pPlayer->holoduke_on == -1)
             {
-                if (VM_OnEvent(EVENT_HOLODUKEON,g_player[nPlayer].ps->i,nPlayer) == 0)
+                if (VM_OnEvent(EVENT_HOLODUKEON,g_player[playerNum].ps->i,playerNum) == 0)
                 {
                     if (pPlayer->inv_amount[GET_HOLODUKE] > 0)
                     {
@@ -2736,8 +2741,8 @@ CHECKINV1:
                             int const i = A_InsertSprite(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y,
                                 pPlayer->pos.z+(30<<8), APLAYER, -64, 0, 0, pPlayer->ang, 0, 0, -1, 10);
                             pPlayer->holoduke_on = i;
-                            T4 = T5 = 0;
-                            sprite[i].yvel = nPlayer;
+                            T4(i) = T5(i) = 0;
+                            sprite[i].yvel = playerNum;
                             sprite[i].extra = 0;
                             P_DoQuote(QUOTE_HOLODUKE_ON,pPlayer);
                             A_PlaySound(TELEPORTER,pPlayer->holoduke_on);
@@ -2748,7 +2753,7 @@ CHECKINV1:
             }
             else
             {
-                if (VM_OnEvent(EVENT_HOLODUKEOFF,g_player[nPlayer].ps->i,nPlayer) == 0)
+                if (VM_OnEvent(EVENT_HOLODUKEOFF,g_player[playerNum].ps->i,playerNum) == 0)
                 {
                     A_PlaySound(TELEPORTER,pPlayer->holoduke_on);
                     pPlayer->holoduke_on = -1;
@@ -2757,17 +2762,17 @@ CHECKINV1:
             }
         }
 
-        if (TEST_SYNC_KEY(nPlayerBits, SK_MEDKIT))
+        if (TEST_SYNC_KEY(playerBits, SK_MEDKIT))
         {
-            if (VM_OnEvent(EVENT_USEMEDKIT,g_player[nPlayer].ps->i,nPlayer) == 0)
+            if (VM_OnEvent(EVENT_USEMEDKIT,g_player[playerNum].ps->i,playerNum) == 0)
             {
                 if (pPlayer->inv_amount[GET_FIRSTAID] > 0 && sprite[pPlayer->i].extra < pPlayer->max_player_health)
                 {
-                    j = pPlayer->max_player_health-sprite[pPlayer->i].extra;
+                    int healthDiff = pPlayer->max_player_health-sprite[pPlayer->i].extra;
 
-                    if ((uint32_t)pPlayer->inv_amount[GET_FIRSTAID] > j)
+                    if (pPlayer->inv_amount[GET_FIRSTAID] > healthDiff)
                     {
-                        pPlayer->inv_amount[GET_FIRSTAID] -= j;
+                        pPlayer->inv_amount[GET_FIRSTAID] -= healthDiff;
                         sprite[pPlayer->i].extra = pPlayer->max_player_health;
                         pPlayer->inven_icon = ICON_FIRSTAID;
                     }
@@ -2782,9 +2787,9 @@ CHECKINV1:
             }
         }
 
-        if ((pPlayer->newowner == -1 || pPlayer->jetpack_on) && TEST_SYNC_KEY(nPlayerBits, SK_JETPACK))
+        if ((pPlayer->newowner == -1 || pPlayer->jetpack_on) && TEST_SYNC_KEY(playerBits, SK_JETPACK))
         {
-            if (VM_OnEvent(EVENT_USEJETPACK,g_player[nPlayer].ps->i,nPlayer) == 0)
+            if (VM_OnEvent(EVENT_USEJETPACK,g_player[playerNum].ps->i,playerNum) == 0)
             {
                 if (pPlayer->inv_amount[GET_JETPACK] > 0)
                 {
@@ -2816,57 +2821,55 @@ CHECKINV1:
             }
         }
 
-        if (TEST_SYNC_KEY(nPlayerBits, SK_TURNAROUND) && pPlayer->one_eighty_count == 0)
-            if (VM_OnEvent(EVENT_TURNAROUND,pPlayer->i,nPlayer) == 0)
+        if (TEST_SYNC_KEY(playerBits, SK_TURNAROUND) && pPlayer->one_eighty_count == 0)
+            if (VM_OnEvent(EVENT_TURNAROUND,pPlayer->i,playerNum) == 0)
                 pPlayer->one_eighty_count = -1024;
     }
 }
 
-int32_t A_CheckHitSprite(int32_t i, int16_t *hitsp)
+int32_t A_CheckHitSprite(int32_t spriteNum, int16_t *hitSprite)
 {
-    hitdata_t hit;
-    int32_t zoff = 0;
+    hitdata_t hitData;
+    int32_t   zOffset = 0;
 
-    if (A_CheckEnemySprite( &sprite[i]))
-        zoff = (42<<8);
-    else if (PN == APLAYER)
-        zoff = (39<<8);
+    if (A_CheckEnemySprite(&sprite[spriteNum]))
+        zOffset = (42 << 8);
+    else if (PN(spriteNum) == APLAYER)
+        zOffset = (39 << 8);
 
-    SZ -= zoff;
-    hitscan((const vec3_t *)&sprite[i],SECT,
-            sintable[(SA+512)&2047],
-            sintable[SA&2047],
-            0,&hit,CLIPMASK1);
-    SZ += zoff;
+    SZ(spriteNum) -= zOffset;
+    hitscan((const vec3_t *)&sprite[spriteNum], SECT(spriteNum), sintable[(SA(spriteNum) + 512) & 2047],
+            sintable[SA(spriteNum) & 2047], 0, &hitData, CLIPMASK1);
+    SZ(spriteNum) += zOffset;
 
-    if (hitsp)
-        *hitsp = hit.sprite;
+    if (hitSprite)
+        *hitSprite = hitData.sprite;
 
-    if (hit.wall >= 0 && (wall[hit.wall].cstat&16) && A_CheckEnemySprite( &sprite[i]))
+    if (hitData.wall >= 0 && (wall[hitData.wall].cstat&16) && A_CheckEnemySprite( &sprite[spriteNum]))
         return 1<<30;
 
-    return FindDistance2D(hit.pos.x-SX,hit.pos.y-SY);
+    return FindDistance2D(hitData.pos.x-SX(spriteNum),hitData.pos.y-SY(spriteNum));
 }
 
-static int32_t P_FindWall(DukePlayer_t *pPlayer, int16_t *pHitWall)
+static int32_t P_FindWall(DukePlayer_t *pPlayer, int16_t *hitWall)
 {
-    hitdata_t hit;
+    hitdata_t hitData;
 
     hitscan((const vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(pPlayer->ang + 512) & 2047],
-            sintable[pPlayer->ang & 2047], 0, &hit, CLIPMASK0);
+            sintable[pPlayer->ang & 2047], 0, &hitData, CLIPMASK0);
 
-    *pHitWall = hit.wall;
+    *hitWall = hitData.wall;
 
-    if (hit.wall < 0)
+    if (hitData.wall < 0)
         return INT32_MAX;
 
-    return FindDistance2D(hit.pos.x - pPlayer->pos.x, hit.pos.y - pPlayer->pos.y);
+    return FindDistance2D(hitData.pos.x - pPlayer->pos.x, hitData.pos.y - pPlayer->pos.y);
 }
 
 // returns 1 if sprite i should not be considered by neartag
-static int32_t our_neartag_blacklist(int32_t i)
+static int32_t our_neartag_blacklist(int32_t spriteNum)
 {
-    return sprite[i].picnum >= SECTOREFFECTOR__STATIC && sprite[i].picnum <= GPSPEED__STATIC;
+    return sprite[spriteNum].picnum >= SECTOREFFECTOR__STATIC && sprite[spriteNum].picnum <= GPSPEED__STATIC;
 }
 
 static void G_ClearCameras(DukePlayer_t *p)
@@ -2877,64 +2880,67 @@ static void G_ClearCameras(DukePlayer_t *p)
         I_EscapeTriggerClear();
 }
 
-void P_CheckSectors(int nPlayer)
+void P_CheckSectors(int playerNum)
 {
-    DukePlayer_t *const pPlayer = g_player[nPlayer].ps;
+    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
     if (pPlayer->cursectnum > -1)
-        switch (sector[pPlayer->cursectnum].lotag)
+    {
+        sectortype *const pSector = &sector[pPlayer->cursectnum];
+        switch (pSector->lotag)
         {
-        case 32767:
-            sector[pPlayer->cursectnum].lotag = 0;
-            P_DoQuote(QUOTE_FOUND_SECRET,pPlayer);
-            pPlayer->secret_rooms++;
-            return;
+            case 32767:
+                pSector->lotag = 0;
+                P_DoQuote(QUOTE_FOUND_SECRET, pPlayer);
+                pPlayer->secret_rooms++;
+                return;
 
-        case UINT16_MAX:
-            sector[pPlayer->cursectnum].lotag = 0;
-            P_EndLevel();
-            return;
+            case UINT16_MAX:
+                pSector->lotag = 0;
+                P_EndLevel();
+                return;
 
-        case UINT16_MAX-1:
-            sector[pPlayer->cursectnum].lotag = 0;
-            pPlayer->timebeforeexit = GAMETICSPERSEC*8;
-            pPlayer->customexitsound = sector[pPlayer->cursectnum].hitag;
-            return;
+            case UINT16_MAX-1:
+                pSector->lotag           = 0;
+                pPlayer->timebeforeexit  = GAMETICSPERSEC * 8;
+                pPlayer->customexitsound = pSector->hitag;
+                return;
 
-        default:
-            if (sector[pPlayer->cursectnum].lotag >= 10000 && sector[pPlayer->cursectnum].lotag < 16383)
-            {
-                if (nPlayer == screenpeek || (GametypeFlags[ud.coop]&GAMETYPE_COOPSOUND))
-                    A_PlaySound(sector[pPlayer->cursectnum].lotag-10000,pPlayer->i);
-                sector[pPlayer->cursectnum].lotag = 0;
-            }
-            break;
+            default:
+                if (pSector->lotag >= 10000 && pSector->lotag < 16383)
+                {
+                    if (playerNum == screenpeek || (GametypeFlags[ud.coop] & GAMETYPE_COOPSOUND))
+                        A_PlaySound(pSector->lotag - 10000, pPlayer->i);
+                    pSector->lotag = 0;
+                }
+                break;
         }
+    }
 
     //After this point the the player effects the map with space
 
     if (pPlayer->gm &MODE_TYPE || sprite[pPlayer->i].extra <= 0)
         return;
 
-    if (TEST_SYNC_KEY(g_player[nPlayer].sync->bits, SK_OPEN))
+    if (TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_OPEN))
     {
-        if (VM_OnEvent(EVENT_USE, pPlayer->i, nPlayer) != 0)
-            g_player[nPlayer].sync->bits &= ~BIT(SK_OPEN);
+        if (VM_OnEvent(EVENT_USE, pPlayer->i, playerNum) != 0)
+            g_player[playerNum].sync->bits &= ~BIT(SK_OPEN);
     }
 
-    if (ud.cashman && TEST_SYNC_KEY(g_player[nPlayer].sync->bits, SK_OPEN))
+    if (ud.cashman && TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_OPEN))
         A_SpawnMultiple(pPlayer->i, MONEY, 2);
 
     if (pPlayer->newowner >= 0)
     {
-        if (klabs(g_player[nPlayer].sync->svel) > 768 || klabs(g_player[nPlayer].sync->fvel) > 768)
+        if (klabs(g_player[playerNum].sync->svel) > 768 || klabs(g_player[playerNum].sync->fvel) > 768)
         {
             G_ClearCameras(pPlayer);
             return;
         }
     }
 
-    if (!TEST_SYNC_KEY(g_player[nPlayer].sync->bits, SK_OPEN) && !TEST_SYNC_KEY(g_player[nPlayer].sync->bits, SK_ESCAPE))
+    if (!TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_OPEN) && !TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_ESCAPE))
         pPlayer->toggle_key_flag = 0;
     else if (!pPlayer->toggle_key_flag)
     {
@@ -2943,7 +2949,7 @@ void P_CheckSectors(int nPlayer)
         int16_t neartagsector, neartagwall, neartagsprite;
         int32_t neartaghitdist;
 
-        if (TEST_SYNC_KEY(g_player[nPlayer].sync->bits, SK_ESCAPE))
+        if (TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_ESCAPE))
         {
             if (pPlayer->newowner >= 0)
                 G_ClearCameras(pPlayer);
@@ -2954,10 +2960,10 @@ void P_CheckSectors(int nPlayer)
         pPlayer->toggle_key_flag = 1;
         hitscanwall = -1;
 
-        int32_t i = P_FindWall(pPlayer,&hitscanwall);
+        int wallDist = P_FindWall(pPlayer,&hitscanwall);
 
-        if (hitscanwall >= 0 && i < 1280 && wall[hitscanwall].overpicnum == MIRROR)
-            if (wall[hitscanwall].lotag > 0 && !A_CheckSoundPlaying(pPlayer->i,wall[hitscanwall].lotag) && nPlayer == screenpeek)
+        if (hitscanwall >= 0 && wallDist < 1280 && wall[hitscanwall].overpicnum == MIRROR)
+            if (wall[hitscanwall].lotag > 0 && !A_CheckSoundPlaying(pPlayer->i,wall[hitscanwall].lotag) && playerNum == screenpeek)
             {
                 A_PlaySound(wall[hitscanwall].lotag,pPlayer->i);
                 return;
@@ -2975,7 +2981,7 @@ void P_CheckSectors(int nPlayer)
             neartag(pPlayer->pos.x,pPlayer->pos.y,pPlayer->pos.z,sprite[pPlayer->i].sectnum,pPlayer->oang,&neartagsector,
                     &neartagwall,&neartagsprite,&neartaghitdist, 1280, 1, our_neartag_blacklist);
             if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
-                neartag(pPlayer->pos.x,pPlayer->pos.y,pPlayer->pos.z+(8<<8),sprite[pPlayer->i].sectnum,pPlayer->oang,&neartagsector,
+                neartag(pPlayer->pos.x,pPlayer->pos.y,pPlayer->pos.z+ZOFFSET3,sprite[pPlayer->i].sectnum,pPlayer->oang,&neartagsector,
                         &neartagwall,&neartagsprite,&neartaghitdist, 1280, 1, our_neartag_blacklist);
             if (neartagsprite == -1 && neartagwall == -1 && neartagsector == -1)
                 neartag(pPlayer->pos.x,pPlayer->pos.y,pPlayer->pos.z+ZOFFSET2,sprite[pPlayer->i].sectnum,pPlayer->oang,&neartagsector,
@@ -3013,23 +3019,26 @@ void P_CheckSectors(int nPlayer)
         }
 
         if (pPlayer->newowner == -1 && neartagsprite == -1 && neartagsector == -1 && neartagwall == -1)
+        {
             if (isanunderoperator(sector[sprite[pPlayer->i].sectnum].lotag))
                 neartagsector = sprite[pPlayer->i].sectnum;
+        }
 
         if (neartagsector >= 0 && (sector[neartagsector].lotag&16384))
             return;
 
         if (neartagsprite == -1 && neartagwall == -1)
+        {
             if (pPlayer->cursectnum >= 0 && sector[pPlayer->cursectnum].lotag == 2)
             {
-                int32_t oldz = A_CheckHitSprite(pPlayer->i,&neartagsprite);
-                if (oldz > 1280)
+                if (A_CheckHitSprite(pPlayer->i, &neartagsprite) > 1280)
                     neartagsprite = -1;
             }
+        }
 
         if (neartagsprite >= 0)
         {
-            if (P_ActivateSwitch(nPlayer, neartagsprite, 1))
+            if (P_ActivateSwitch(playerNum, neartagsprite, 1))
                 return;
 
             switch (DYNAMICTILEMAP(sprite[neartagsprite].picnum))
@@ -3038,18 +3047,21 @@ void P_CheckSectors(int nPlayer)
             case STALL__STATIC:
                 if (pPlayer->last_pissed_time == 0)
                 {
-                    if (ud.lockout == 0) A_PlaySound(DUKE_URINATE,pPlayer->i);
+                    if (ud.lockout == 0)
+                        A_PlaySound(DUKE_URINATE, pPlayer->i);
 
-                    pPlayer->last_pissed_time = GAMETICSPERSEC*220;
-                    pPlayer->transporter_hold = 29*2;
+                    pPlayer->last_pissed_time = GAMETICSPERSEC * 220;
+                    pPlayer->transporter_hold = 29 * 2;
+
                     if (pPlayer->holster_weapon == 0)
                     {
                         pPlayer->holster_weapon = 1;
-                        pPlayer->weapon_pos = -1;
+                        pPlayer->weapon_pos     = -1;
                     }
-                    if (sprite[pPlayer->i].extra <= (pPlayer->max_player_health-(pPlayer->max_player_health/10)))
+
+                    if (sprite[pPlayer->i].extra <= (pPlayer->max_player_health - (pPlayer->max_player_health / 10)))
                     {
-                        sprite[pPlayer->i].extra += pPlayer->max_player_health/10;
+                        sprite[pPlayer->i].extra += pPlayer->max_player_health / 10;
                         pPlayer->last_extra = sprite[pPlayer->i].extra;
                     }
                     else if (sprite[pPlayer->i].extra < pPlayer->max_player_health)
@@ -3061,27 +3073,29 @@ void P_CheckSectors(int nPlayer)
 
             case NUKEBUTTON__STATIC:
             {
-                int16_t j;
+                int16_t wallNum;
 
-                P_FindWall(pPlayer, &j);
+                P_FindWall(pPlayer, &wallNum);
 
-                if (j >= 0 && wall[j].overpicnum == 0)
+                if (wallNum >= 0 && wall[wallNum].overpicnum == 0)
+                {
                     if (actor[neartagsprite].t_data[0] == 0)
                     {
                         if (ud.noexits && (g_netServer || ud.multimode > 1))
                         {
                             // NUKEBUTTON frags the player
                             actor[pPlayer->i].picnum = NUKEBUTTON;
-                            actor[pPlayer->i].extra = 250;
+                            actor[pPlayer->i].extra  = 250;
                         }
                         else
                         {
                             actor[neartagsprite].t_data[0] = 1;
-                            sprite[neartagsprite].owner = pPlayer->i;
+                            sprite[neartagsprite].owner    = pPlayer->i;
                             ud.secretlevel =
-                                (pPlayer->buttonpalette = sprite[neartagsprite].pal) ? sprite[neartagsprite].lotag : 0;
+                            (pPlayer->buttonpalette = sprite[neartagsprite].pal) ? sprite[neartagsprite].lotag : 0;
                         }
                     }
+                }
                 return;
             }
 
@@ -3089,7 +3103,7 @@ void P_CheckSectors(int nPlayer)
                 if (actor[neartagsprite].t_data[0] != 1)
                 {
                     actor[neartagsprite].t_data[0] = 1;
-                    sprite[neartagsprite].owner = pPlayer->i;
+                    sprite[neartagsprite].owner    = pPlayer->i;
 
                     if (sprite[pPlayer->i].extra < pPlayer->max_player_health)
                     {
@@ -3100,7 +3114,7 @@ void P_CheckSectors(int nPlayer)
                 return;
 
             case PLUG__STATIC:
-                A_PlaySound(SHORT_CIRCUIT,pPlayer->i);
+                A_PlaySound(SHORT_CIRCUIT, pPlayer->i);
                 sprite[pPlayer->i].extra -= 2+(krand()&3);
 
                 P_PalFrom(pPlayer, 32, 48,48,64);
@@ -3109,27 +3123,22 @@ void P_CheckSectors(int nPlayer)
             case VIEWSCREEN__STATIC:
             case VIEWSCREEN2__STATIC:
                 // Try to find a camera sprite for the viewscreen.
-                for (SPRITES_OF(STAT_ACTOR, i))
+                for (int SPRITES_OF(STAT_ACTOR, spriteNum))
                 {
-                    if (PN == CAMERA1 && SP == 0 && sprite[neartagsprite].hitag == SLT)
+                    if (PN(spriteNum) == CAMERA1 && SP(spriteNum) == 0 && sprite[neartagsprite].hitag == SLT(spriteNum))
                     {
-                        sprite[i].yvel = 1;  // Using this camera
+                        sprite[spriteNum].yvel      = 1;  // Using this camera
                         A_PlaySound(MONITOR_ACTIVE,pPlayer->i);
+                        sprite[neartagsprite].owner = spriteNum;
+                        sprite[neartagsprite].yvel  = 1;  // VIEWSCREEN_YVEL
+                        g_curViewscreen             = neartagsprite;
 
-                        sprite[neartagsprite].owner = i;
-                        sprite[neartagsprite].yvel = 1;  // VIEWSCREEN_YVEL
-                        g_curViewscreen = neartagsprite;
+                        int const playerSectnum = pPlayer->cursectnum;
+                        pPlayer->cursectnum     = SECT(spriteNum);
+                        pPlayer->cursectnum     = playerSectnum;
+                        pPlayer->newowner       = spriteNum;
 
-                        {
-                            int32_t j = pPlayer->cursectnum;
-                            pPlayer->cursectnum = SECT;
-                            P_UpdateScreenPal(pPlayer);
-                            pPlayer->cursectnum = j;
-                        }
-
-                        // parallaxtype = 2;
-                        pPlayer->newowner = i;
-
+                        P_UpdateScreenPal(pPlayer);
                         P_UpdatePosWhenViewingCam(pPlayer);
 
                         return;
@@ -3141,7 +3150,7 @@ void P_CheckSectors(int nPlayer)
             }  // switch
         }
 
-        if (TEST_SYNC_KEY(g_player[nPlayer].sync->bits, SK_OPEN) == 0)
+        if (TEST_SYNC_KEY(g_player[playerNum].sync->bits, SK_OPEN) == 0)
             return;
 
         if (pPlayer->newowner >= 0)
@@ -3151,20 +3160,20 @@ void P_CheckSectors(int nPlayer)
         }
 
         if (neartagwall == -1 && neartagsector == -1 && neartagsprite == -1)
+        {
             if (klabs(A_GetHitscanRange(pPlayer->i)) < 512)
             {
-                if ((krand()&255) < 16)
-                    A_PlaySound(DUKE_SEARCH2,pPlayer->i);
-                else A_PlaySound(DUKE_SEARCH,pPlayer->i);
+                A_PlaySound(((krand()&255) < 16) ? DUKE_SEARCH2 : DUKE_SEARCH, pPlayer->i);
                 return;
             }
+        }
 
         if (neartagwall >= 0)
         {
             if (wall[neartagwall].lotag > 0 && CheckDoorTile(wall[neartagwall].picnum))
             {
                 if (hitscanwall == neartagwall || hitscanwall == -1)
-                    P_ActivateSwitch(nPlayer,neartagwall,0);
+                    P_ActivateSwitch(playerNum,neartagwall,0);
                 return;
             }
             else if (pPlayer->newowner >= 0)
@@ -3177,10 +3186,9 @@ void P_CheckSectors(int nPlayer)
         if (neartagsector >= 0 && (sector[neartagsector].lotag&16384) == 0 &&
                 isanearoperator(sector[neartagsector].lotag))
         {
-            int32_t i;
-            for (SPRITES_OF_SECT(neartagsector, i))
+            for (int SPRITES_OF_SECT(neartagsector, spriteNum))
             {
-                if (PN == ACTIVATOR || PN == MASTERSWITCH)
+                if (PN(spriteNum) == ACTIVATOR || PN(spriteNum) == MASTERSWITCH)
                     return;
             }
 
@@ -3190,15 +3198,15 @@ void P_CheckSectors(int nPlayer)
         {
             if (isanunderoperator(sector[sprite[pPlayer->i].sectnum].lotag))
             {
-                for (SPRITES_OF_SECT(sprite[pPlayer->i].sectnum, i))
+                for (int SPRITES_OF_SECT(sprite[pPlayer->i].sectnum, spriteNum))
                 {
-                    if (PN == ACTIVATOR || PN == MASTERSWITCH)
+                    if (PN(spriteNum) == ACTIVATOR || PN(spriteNum) == MASTERSWITCH)
                         return;
                 }
 
                 G_OperateSectors(sprite[pPlayer->i].sectnum,pPlayer->i);
             }
-            else P_ActivateSwitch(nPlayer,neartagwall,0);
+            else P_ActivateSwitch(playerNum,neartagwall,0);
         }
     }
 }

@@ -33,6 +33,8 @@ extern "C" {
 #define SLEEPTIME           1536
 #define ZOFFSET             (1<<8)
 #define ZOFFSET2            (16<<8)
+#define ZOFFSET3            (8<<8)
+#define ZOFFSET4            (12<<8)
 
 #define ACTOR_MAXFALLINGZVEL 6144
 #define ACTOR_ONWATER_ADDZ (24<<8)
@@ -302,9 +304,9 @@ extern projectile_t     SpriteProjectile[MAXSPRITES];
 
 
 void    A_AddToDeleteQueue(int32_t i);
-int32_t A_CheckNoSE7Water(const spritetype *s, int32_t sectnum, int32_t slotag, int32_t *othersectptr);
+int32_t A_CheckNoSE7Water(uspritetype const * const pSprite, int32_t sectNum, int32_t sectLotag, int32_t *pOther);
 int32_t A_CheckSwitchTile(int32_t i);
-void    A_DeleteSprite(int32_t s);
+void    A_DeleteSprite(int spriteNum);
 void    A_DoGuts(int32_t sp, int32_t gtype, int32_t n);
 void    A_DoGutsDir(int32_t sp, int32_t gtype, int32_t n);
 int32_t A_IncurDamage(int32_t sn);
@@ -395,7 +397,7 @@ EXTERN_INLINE int32_t G_CheckForSpaceFloor(int32_t sectnum)
 
 EXTERN_INLINE int A_CheckEnemySprite(void const * const pSprite)
 {
-    return A_CheckEnemyTile(((uspritetype *) pSprite)->picnum);
+    return A_CheckEnemyTile(((uspritetype const *) pSprite)->picnum);
 }
 
 #endif

@@ -392,7 +392,7 @@ void G_DoCheats(void)
                         }
                         else
                         {
-                            Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "Come Get Some!");
+                            Bstrcpy(apStrings[QUOTE_RESERVED4], "Come Get Some!");
 
                             S_PlaySound(DUKE_GETWEAPON2);
                             P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
@@ -471,7 +471,7 @@ void G_DoCheats(void)
                             levnume--;
 
                             if ((VOLUMEONE && volnume > 0) || volnume > g_numVolumes-1 ||
-                                levnume >= MAXLEVELS || MapInfo[volnume *MAXLEVELS+levnume].filename == NULL)
+                                levnume >= MAXLEVELS || aMapInfo[volnume *MAXLEVELS+levnume].filename == NULL)
                             {
                                 end_cheat();
                                 return;
@@ -581,7 +581,7 @@ void G_DoCheats(void)
                 case CHEAT_TODD:
                     if (NAM)
                     {
-                        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], g_NAMMattCheatQuote);
+                        Bstrcpy(apStrings[QUOTE_RESERVED4], g_NAMMattCheatQuote);
                         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
                     }
                     else
@@ -619,7 +619,7 @@ void G_DoCheats(void)
                     if (++g_noEnemies == 3)
                         g_noEnemies = 0;
 
-                    Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "Monsters: %s", s[g_noEnemies]);
+                    Bsprintf(apStrings[QUOTE_RESERVED4], "Monsters: %s", s[g_noEnemies]);
                     P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
                     end_cheat();

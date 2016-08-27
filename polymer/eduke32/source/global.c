@@ -35,7 +35,7 @@ extern "C" {
 // JBF: g_spriteGravity modified to default to Atomic ed. default when using 1.3d CONs
 int32_t g_spriteGravity=176;
 
-int16_t g_spriteDeleteQueueSize = 64;
+int16_t g_deleteQueueSize = 64;
 
 char EpisodeNames[MAXVOLUMES][33] = { "L.A. Meltdown", "Lunar Apocalypse", "Shrapnel City" };
 int32_t EpisodeFlags[MAXVOLUMES]; // all initialize to zero

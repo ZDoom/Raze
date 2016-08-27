@@ -76,11 +76,11 @@ enum GamearrayFlags_t
 typedef struct
 {
     union {
-        intptr_t  nValue;
+        intptr_t  global;
         intptr_t *pValues;  // array of values when 'per-player', or 'per-actor'
     };
-    intptr_t  nDefault;
-    uintptr_t nFlags;
+    intptr_t  defaultValue;
+    uintptr_t flags;
     char *    szLabel;
 } gamevar_t;
 
@@ -89,7 +89,7 @@ typedef struct
     char *    szLabel;
     intptr_t *pValues;  // array of values
     intptr_t  size;
-    intptr_t  nFlags;
+    uintptr_t flags;
 } gamearray_t;
 #pragma pack(pop)
 
@@ -101,23 +101,23 @@ extern int32_t     g_gameVarCount;
 extern int32_t     g_gameArrayCount;
 
 int32_t __fastcall Gv_GetGameArrayValue(int const id, int index);
-int32_t __fastcall Gv_GetVar(int id, int nSprite, int nPlayer);
-void __fastcall Gv_SetVar(int const id, int32_t const lValue, int const nSprite, int const nPlayer);
+int32_t __fastcall Gv_GetVar(int id, int spriteNum, int playerNum);
+void __fastcall Gv_SetVar(int const id, int32_t const lValue, int const spriteNum, int const playerNum);
 int32_t __fastcall Gv_GetVarX(int id);
 void __fastcall Gv_GetManyVars(int const count, int32_t * const rv);
 void __fastcall Gv_SetVarX(int const id, int32_t const lValue);
 
-int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t const lDefault,int32_t const iActor,int32_t const iPlayer);
+int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t const lDefault,int32_t const spriteNum,int32_t const playerNum);
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 
-FORCE_INLINE void A_ResetVars(int const nSprite)
+FORCE_INLINE void A_ResetVars(int const spriteNum)
 {
     for (int i = 0; i < g_gameVarCount; ++i)
     {
-        if ((aGameVars[i].nFlags & (GAMEVAR_PERACTOR | GAMEVAR_NODEFAULT)) != GAMEVAR_PERACTOR)
+        if ((aGameVars[i].flags & (GAMEVAR_PERACTOR | GAMEVAR_NODEFAULT)) != GAMEVAR_PERACTOR)
             continue;
-        aGameVars[i].pValues[nSprite] = aGameVars[i].nDefault;
+        aGameVars[i].pValues[spriteNum] = aGameVars[i].defaultValue;
     }
 }
 
@@ -125,11 +125,11 @@ void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
 void Gv_ResetVars(void);
-int32_t Gv_ReadSave(int32_t fil,int32_t newbehav);
-void Gv_WriteSave(FILE *fil,int32_t newbehav);
+int32_t Gv_ReadSave(int32_t kFile);
+void Gv_WriteSave(FILE *fil);
 #else
 extern int32_t g_noResetVars;
-extern LUNATIC_CB void (*A_ResetVars)(int32_t iActor);
+extern LUNATIC_CB void (*A_ResetVars)(int32_t spriteNum);
 #endif
 
 void Gv_ResetSystemDefaults(void);
@@ -137,62 +137,62 @@ void Gv_Init(void);
 void Gv_FinalizeWeaponDefaults(void);
 
 #if !defined LUNATIC
-#define VM_GAMEVAR_OPERATOR(func, operator)                                                                                      \
-    FORCE_INLINE void __fastcall func(int const id, int32_t const nValue)                                                        \
-    {                                                                                                                            \
-        switch (aGameVars[id].nFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))                                                   \
-        {                                                                                                                        \
-            default: aGameVars[id].nValue operator nValue; break;                                                                \
-            case GAMEVAR_PERPLAYER:                                                                                              \
-                if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_p > MAXPLAYERS - 1))                                                    \
-                    break;                                                                                                       \
-                aGameVars[id].pValues[vm.g_p] operator nValue;                                                                   \
-                break;                                                                                                           \
-            case GAMEVAR_PERACTOR:                                                                                               \
-                if (EDUKE32_PREDICT_FALSE((unsigned)vm.g_i > MAXSPRITES - 1))                                                    \
-                    break;                                                                                                       \
-                aGameVars[id].pValues[vm.g_i] operator nValue;                                                                   \
-                break;                                                                                                           \
-            case GAMEVAR_INTPTR: *((int32_t *)aGameVars[id].nValue) operator(int32_t) nValue; break;                             \
-            case GAMEVAR_SHORTPTR: *((int16_t *)aGameVars[id].nValue) operator(int16_t) nValue; break;                           \
-            case GAMEVAR_CHARPTR: *((uint8_t *)aGameVars[id].nValue) operator(uint8_t) nValue; break;                            \
-        }                                                                                                                        \
+#define VM_GAMEVAR_OPERATOR(func, operator)                                                                                 \
+    FORCE_INLINE void __fastcall func(int const id, int32_t const operand)                                                  \
+    {                                                                                                                       \
+        switch (aGameVars[id].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))                                               \
+        {                                                                                                                   \
+            default: aGameVars[id].global operator operand; break;                                                          \
+            case GAMEVAR_PERPLAYER:                                                                                         \
+                if (EDUKE32_PREDICT_FALSE((unsigned)vm.playerNum > MAXPLAYERS - 1))                                         \
+                    break;                                                                                                  \
+                aGameVars[id].pValues[vm.playerNum] operator operand;                                                       \
+                break;                                                                                                      \
+            case GAMEVAR_PERACTOR:                                                                                          \
+                if (EDUKE32_PREDICT_FALSE((unsigned)vm.spriteNum > MAXSPRITES - 1))                                         \
+                    break;                                                                                                  \
+                aGameVars[id].pValues[vm.spriteNum] operator operand;                                                       \
+                break;                                                                                                      \
+            case GAMEVAR_INTPTR: *((int32_t *)aGameVars[id].global) operator(int32_t) operand; break;                       \
+            case GAMEVAR_SHORTPTR: *((int16_t *)aGameVars[id].global) operator(int16_t) operand; break;                     \
+            case GAMEVAR_CHARPTR: *((uint8_t *)aGameVars[id].global) operator(uint8_t) operand; break;                      \
+        }                                                                                                                   \
     }
 
 #if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
-FORCE_INLINE void __fastcall Gv_DivVar(int const id, int32_t const nValue)
+FORCE_INLINE void __fastcall Gv_DivVar(int const id, int32_t const operand)
 {
-    if (EDUKE32_PREDICT_FALSE((aGameVars[id].nFlags & GAMEVAR_PERPLAYER && (unsigned) vm.g_p > MAXPLAYERS - 1) ||
-        (aGameVars[id].nFlags & GAMEVAR_PERACTOR && (unsigned) vm.g_i > MAXSPRITES - 1)))
+    if (EDUKE32_PREDICT_FALSE((aGameVars[id].flags & GAMEVAR_PERPLAYER && (unsigned) vm.playerNum > MAXPLAYERS - 1) ||
+        (aGameVars[id].flags & GAMEVAR_PERACTOR && (unsigned) vm.spriteNum > MAXSPRITES - 1)))
         return;
 
     static libdivide_s32_t sdiv;
-    static int32_t nLastValue;
-    libdivide_s32_t *dptr = ((unsigned) nValue < DIVTABLESIZE) ? (libdivide_s32_t *) &divtable32[nValue] : &sdiv;
-    intptr_t *iptr = &aGameVars[id].nValue;
+    static int32_t lastValue;
+    libdivide_s32_t *dptr = ((unsigned) operand < DIVTABLESIZE) ? (libdivide_s32_t *) &divtable32[operand] : &sdiv;
+    intptr_t *iptr = &aGameVars[id].global;
 
-    if (nValue == nLastValue || dptr != &sdiv)
+    if (operand == lastValue || dptr != &sdiv)
         goto skip;
 
-    sdiv = libdivide_s32_gen((nLastValue = nValue));
+    sdiv = libdivide_s32_gen((lastValue = operand));
 
 skip:
-    switch (aGameVars[id].nFlags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))
+    switch (aGameVars[id].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))
     {
-        case GAMEVAR_PERPLAYER: iptr = &aGameVars[id].pValues[vm.g_p];
+        case GAMEVAR_PERPLAYER: iptr = &aGameVars[id].pValues[vm.playerNum];
         default: break;
-        case GAMEVAR_PERACTOR: iptr = &aGameVars[id].pValues[vm.g_i]; break;
+        case GAMEVAR_PERACTOR: iptr = &aGameVars[id].pValues[vm.spriteNum]; break;
         case GAMEVAR_INTPTR:
-            *((int32_t *)aGameVars[id].nValue) =
-            (int32_t)libdivide_s32_do(*((int32_t *)aGameVars[id].nValue), dptr);
+            *((int32_t *)aGameVars[id].global) =
+            (int32_t)libdivide_s32_do(*((int32_t *)aGameVars[id].global), dptr);
             return;
         case GAMEVAR_SHORTPTR:
-            *((int16_t *)aGameVars[id].nValue) =
-            (int16_t)libdivide_s32_do(*((int16_t *)aGameVars[id].nValue), dptr);
+            *((int16_t *)aGameVars[id].global) =
+            (int16_t)libdivide_s32_do(*((int16_t *)aGameVars[id].global), dptr);
             return;
         case GAMEVAR_CHARPTR:
-            *((uint8_t *)aGameVars[id].nValue) =
-            (uint8_t)libdivide_s32_do(*((uint8_t *)aGameVars[id].nValue), dptr);
+            *((uint8_t *)aGameVars[id].global) =
+            (uint8_t)libdivide_s32_do(*((uint8_t *)aGameVars[id].global), dptr);
             return;
     }
 

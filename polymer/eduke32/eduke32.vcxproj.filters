@@ -540,6 +540,9 @@
     <ClInclude Include="source\jaudiolib\include\multivoc.h">
       <Filter>jaudiolib\headers</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\m32script.h">
+      <Filter>eduke32\headers\editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">

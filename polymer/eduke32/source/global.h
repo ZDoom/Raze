@@ -69,7 +69,7 @@ G_EXTERN actor_t actor[MAXSPRITES];
 // g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game
 G_EXTERN tiledata_t g_tile[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
-G_EXTERN char *ScriptQuotes[MAXQUOTES],*ScriptQuoteRedefinitions[MAXQUOTES];
+G_EXTERN char *apStrings[MAXQUOTES],*apXStrings[MAXQUOTES];
 G_EXTERN char *label;
 G_EXTERN int32_t g_musicIndex;
 G_EXTERN char g_loadFromGroupOnly;
@@ -83,6 +83,7 @@ G_EXTERN char szPlayerName[MAXPLAYERNAME];
 G_EXTERN char tempbuf[MAXSECTORS<<1],packbuf[PACKBUF_SIZE],menutextbuf[128],buf[1024];
 #define TYPEBUFSIZE 141
 G_EXTERN char typebuf[TYPEBUFSIZE];
+
 G_EXTERN input_t avg;
 G_EXTERN input_t loc;
 G_EXTERN input_t recsync[RECSYNCBUFSIZ];
@@ -119,8 +120,8 @@ G_EXTERN int32_t startofdynamicinterpolations;
 G_EXTERN int32_t ototalclock;
 G_EXTERN intptr_t *g_scriptPtr;
 G_EXTERN int32_t *labelcode,*labeltype;
-G_EXTERN intptr_t *script;
-G_EXTERN map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS];  // +1 volume for "intro", "briefing" and "loading" music
+G_EXTERN intptr_t *apScript;
+G_EXTERN map_t aMapInfo[(MAXVOLUMES+1)*MAXLEVELS];  // +1 volume for "intro", "briefing" and "loading" music
 
 // XXX: I think this pragma pack is meaningless here.
 // MSDN (https://msdn.microsoft.com/en-us/library/2e70t5y1%28VS.80%29.aspx) says:
@@ -142,39 +143,39 @@ G_EXTERN sound_t g_sounds[MAXSOUNDS];
 G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;
 G_EXTERN vec3_t my,omy,myvel;
-G_EXTERN char g_soundlocks[MAXSOUNDS];
+G_EXTERN char   g_soundlocks[MAXSOUNDS];
 G_EXTERN int32_t g_restorePalette;
 G_EXTERN int32_t g_screenCapture;
 G_EXTERN int32_t g_noEnemies;
 
 #ifndef global_c_
 extern const char *s_buildDate;
-extern int32_t g_spriteGravity;
-extern int16_t g_spriteDeleteQueueSize;
-extern char EpisodeNames[MAXVOLUMES][33];
-extern int32_t EpisodeFlags[MAXVOLUMES];
-extern char SkillNames[MAXSKILLS][33];
-extern char GametypeNames[MAXGAMETYPES][33];
-extern int32_t GametypeFlags[MAXGAMETYPES];
-extern char g_numGametypes;
-extern char g_numVolumes;
-extern int32_t g_timerTicsPerSecond;
-extern int32_t g_actorRespawnTime;
-extern int32_t g_itemRespawnTime;
-extern int32_t g_scriptSize;
-extern int16_t BlimpSpawnSprites[15];
-extern int32_t g_playerFriction;
-extern int32_t g_numFreezeBounces;
-extern int32_t g_lastSaveSlot;
-extern int32_t g_rpgBlastRadius;
-extern int32_t g_pipebombBlastRadius;
-extern int32_t g_tripbombBlastRadius;
-extern int32_t g_shrinkerBlastRadius;
-extern int32_t g_morterBlastRadius;
-extern int32_t g_bouncemineBlastRadius;
-extern int32_t g_seenineBlastRadius;
-extern char CheatKeys[2];
-extern char setupfilename[BMAX_PATH];
+extern int32_t     g_spriteGravity;
+extern int16_t     g_deleteQueueSize;
+extern char        EpisodeNames[MAXVOLUMES][33];
+extern int32_t     EpisodeFlags[MAXVOLUMES];
+extern char        SkillNames[MAXSKILLS][33];
+extern char        GametypeNames[MAXGAMETYPES][33];
+extern int32_t     GametypeFlags[MAXGAMETYPES];
+extern char        g_numGametypes;
+extern char        g_numVolumes;
+extern int32_t     g_timerTicsPerSecond;
+extern int32_t     g_actorRespawnTime;
+extern int32_t     g_itemRespawnTime;
+extern int32_t     g_scriptSize;
+extern int16_t     BlimpSpawnSprites[15];
+extern int32_t     g_playerFriction;
+extern int32_t     g_numFreezeBounces;
+extern int32_t     g_lastSaveSlot;
+extern int32_t     g_rpgBlastRadius;
+extern int32_t     g_pipebombBlastRadius;
+extern int32_t     g_tripbombBlastRadius;
+extern int32_t     g_shrinkerBlastRadius;
+extern int32_t     g_morterBlastRadius;
+extern int32_t     g_bouncemineBlastRadius;
+extern int32_t     g_seenineBlastRadius;
+extern char        CheatKeys[2];
+extern char        setupfilename[BMAX_PATH];
 #endif
 
 enum

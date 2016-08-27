@@ -38,7 +38,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 /// This file is #included into other files, so don't define variables here!
 
 
-static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t labelNum, int32_t lVar2)
 {
     int32_t lValue;
     int32_t i = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar1) : lVar1;
@@ -48,22 +48,22 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
 
     if (how&ACCESS_SET)
     {
-        if (!m32_script_expertmode && (WallLabels[lLabelID].flags & 1))
+        if (!m32_script_expertmode && (WallLabels[labelNum].flags & 1))
             goto readonly;
 
         lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
 
         asksave = 1;
 
-        if (!m32_script_expertmode && (WallLabels[lLabelID].min != 0 || WallLabels[lLabelID].max != 0))
+        if (!m32_script_expertmode && (WallLabels[labelNum].min != 0 || WallLabels[labelNum].max != 0))
         {
-            if (lValue < WallLabels[lLabelID].min)
-                lValue = WallLabels[lLabelID].min;
-            if (lValue > WallLabels[lLabelID].max)
-                lValue = WallLabels[lLabelID].max;
+            if (lValue < WallLabels[labelNum].min)
+                lValue = WallLabels[labelNum].min;
+            if (lValue > WallLabels[labelNum].max)
+                lValue = WallLabels[labelNum].max;
         }
 
-        switch (lLabelID)
+        switch (labelNum)
         {
         case WALL_X: wall[i].x=lValue; break;
         case WALL_Y: wall[i].y=lValue; break;
@@ -109,7 +109,7 @@ static int32_t __fastcall VM_AccessWall(int32_t how, int32_t lVar1, int32_t lLab
     }
     else
     {
-        switch (lLabelID)
+        switch (labelNum)
         {
         case WALL_X: lValue=wall[i].x; break;
         case WALL_Y: lValue=wall[i].y; break;
@@ -142,21 +142,21 @@ badwall:
     M32_ERROR("Invalid wall %d", i);
     return -1;
 readonly:
-    M32_ERROR("Wall structure member `%s' is read-only.", WallLabels[lLabelID].name);
+    M32_ERROR("Wall structure member `%s' is read-only.", WallLabels[labelNum].name);
     return -1;
 #ifdef YAX_ENABLE__COMPAT
 yax_readonly:
     M32_ERROR("Wall structure member `%s' is read-only because it is used for TROR",
-              WallLabels[lLabelID].name);
+              WallLabels[labelNum].name);
     return -1;
 #endif
 }
 
 // how: bitfield: 1=set? 2=vars?
-static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t labelNum, int32_t lVar2)
 {
     int32_t lValue;
-    int32_t i = (how&ACCESS_USEVARS) ? sprite[vm.g_i].sectnum : lVar1;
+    int32_t i = (how&ACCESS_USEVARS) ? sprite[vm.spriteNum].sectnum : lVar1;
 
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
         i = Gv_GetVarX(lVar1);
@@ -166,22 +166,22 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
 
     if (how&ACCESS_SET)
     {
-        if (!m32_script_expertmode && (SectorLabels[lLabelID].flags & 1))
+        if (!m32_script_expertmode && (SectorLabels[labelNum].flags & 1))
             goto readonly;
 
         lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
 
         asksave = 1;
 
-        if (!m32_script_expertmode && (SectorLabels[lLabelID].min != 0 || SectorLabels[lLabelID].max != 0))
+        if (!m32_script_expertmode && (SectorLabels[labelNum].min != 0 || SectorLabels[labelNum].max != 0))
         {
-            if (lValue < SectorLabels[lLabelID].min)
-                lValue = SectorLabels[lLabelID].min;
-            if (lValue > SectorLabels[lLabelID].max)
-                lValue = SectorLabels[lLabelID].max;
+            if (lValue < SectorLabels[labelNum].min)
+                lValue = SectorLabels[labelNum].min;
+            if (lValue > SectorLabels[labelNum].max)
+                lValue = SectorLabels[labelNum].max;
         }
 
-        switch (lLabelID)
+        switch (labelNum)
         {
         case SECTOR_WALLPTR: sector[i].wallptr=lValue; break;
         case SECTOR_WALLNUM: sector[i].wallnum=lValue; break;
@@ -232,7 +232,7 @@ static int32_t __fastcall VM_AccessSector(int32_t how, int32_t lVar1, int32_t lL
     }
     else
     {
-        switch (lLabelID)
+        switch (labelNum)
         {
         case SECTOR_WALLPTR: lValue=sector[i].wallptr; break;
         case SECTOR_WALLNUM: lValue=sector[i].wallnum; break;
@@ -271,15 +271,15 @@ badsector:
     M32_ERROR("Invalid sector %d", i);
     return -1;
 readonly:
-    M32_ERROR("Sector structure member `%s' is read-only.", SectorLabels[lLabelID].name);
+    M32_ERROR("Sector structure member `%s' is read-only.", SectorLabels[labelNum].name);
     return -1;
 }
 
 // how: bitfield: 1=set? 2=vars?
-static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t labelNum, int32_t lVar2)
 {
     int32_t lValue;
-    register int32_t i = (how&ACCESS_USEVARS) ? vm.g_i : lVar1;
+    register int32_t i = (how&ACCESS_USEVARS) ? vm.spriteNum : lVar1;
 
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
         i = Gv_GetVarX(lVar1);
@@ -289,22 +289,22 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lL
 
     if (how&ACCESS_SET)
     {
-        if (!m32_script_expertmode && (SpriteLabels[lLabelID].flags & 1))
+        if (!m32_script_expertmode && (SpriteLabels[labelNum].flags & 1))
             goto readonly;
 
         lValue = (how&ACCESS_USEVARS) ? Gv_GetVarX(lVar2) : lVar2;
 
         asksave = 1;
 
-        if (!m32_script_expertmode && (SpriteLabels[lLabelID].min != 0 || SpriteLabels[lLabelID].max != 0))
+        if (!m32_script_expertmode && (SpriteLabels[labelNum].min != 0 || SpriteLabels[labelNum].max != 0))
         {
-            if (lValue < SpriteLabels[lLabelID].min)
-                lValue = SpriteLabels[lLabelID].min;
-            if (lValue > SpriteLabels[lLabelID].max)
-                lValue = SpriteLabels[lLabelID].max;
+            if (lValue < SpriteLabels[labelNum].min)
+                lValue = SpriteLabels[labelNum].min;
+            if (lValue > SpriteLabels[labelNum].max)
+                lValue = SpriteLabels[labelNum].max;
         }
 
-        switch (lLabelID)
+        switch (labelNum)
         {
         case SPRITE_X: sprite[i].x=lValue; break;
         case SPRITE_Y: sprite[i].y=lValue; break;
@@ -341,7 +341,7 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lL
     }
     else
     {
-        switch (lLabelID)
+        switch (labelNum)
         {
         case SPRITE_X: lValue=sprite[i].x; break;
         case SPRITE_Y: lValue=sprite[i].y; break;
@@ -376,20 +376,20 @@ static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t lL
         return lValue;
     }
 badsprite:
-    M32_ERROR("tried to set %s on invalid target sprite (%d)", SpriteLabels[lLabelID].name, i);
+    M32_ERROR("tried to set %s on invalid target sprite (%d)", SpriteLabels[labelNum].name, i);
     return -1;
 readonly:
-    M32_ERROR("sprite structure member `%s' is read-only.", SpriteLabels[lLabelID].name);
+    M32_ERROR("sprite structure member `%s' is read-only.", SpriteLabels[labelNum].name);
     return -1;
 }
 
 // how: bitfield: 1=set? 2=vars? 4=use spriteext[].tspr? (otherwise use tsprite[])
-static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t lLabelID, int32_t lVar2)
+static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t labelNum, int32_t lVar2)
 {
-    int32_t lightp = (lLabelID >= LIGHT_X);
-    int32_t i = (how&ACCESS_USEVARS) ? vm.g_i : lVar1;
+    int32_t lightp = (labelNum >= LIGHT_X);
+    int32_t i = (how&ACCESS_USEVARS) ? vm.spriteNum : lVar1;
     uspritetype *datspr = NULL;
-    const memberlabel_t *dalabel = lightp ? &LightLabels[lLabelID-LIGHT_X] : &SpriteLabels[lLabelID];
+    const memberlabel_t *dalabel = lightp ? &LightLabels[labelNum-LIGHT_X] : &SpriteLabels[labelNum];
 
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
         i = Gv_GetVarX(lVar1);
@@ -423,7 +423,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
                 return -1;
             }
 
-            if (lLabelID != LIGHT_ACTIVE && !prlights[i].flags.active)
+            if (labelNum != LIGHT_ACTIVE && !prlights[i].flags.active)
             {
                 M32_ERROR("light with index %d is inactive!", i);
                 return -1;
@@ -452,7 +452,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
                 lValue = damax;
         }
 
-        switch (lLabelID)
+        switch (labelNum)
         {
         case SPRITE_X: datspr->x=lValue; break;
         case SPRITE_Y: datspr->y=lValue; break;
@@ -510,7 +510,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
     {
         int32_t lValue;
 
-        switch (lLabelID)
+        switch (labelNum)
         {
         case SPRITE_X: lValue=datspr->x; break;
         case SPRITE_Y: lValue=datspr->y; break;

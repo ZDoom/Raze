@@ -124,6 +124,7 @@
     <ClInclude Include="build\include\kplib.h" />
     <ClInclude Include="build\include\libdivide.h" />
     <ClInclude Include="build\include\lzwnew.h" />
+    <ClInclude Include="build\include\m32script.h" />
     <ClInclude Include="build\include\md4.h" />
     <ClInclude Include="build\include\mdsprite.h" />
     <ClInclude Include="build\include\mmulti.h" />

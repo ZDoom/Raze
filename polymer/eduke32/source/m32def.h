@@ -107,12 +107,15 @@ enum miscvmflags
 };
 
 typedef struct {
-    int32_t g_i;
+    int32_t spriteNum;
     // VM state: either ==0 (top-level), >=1 and < MAXEVENTS+1 (event),
     // or >= MAXEVENTS+1 and < MAXEVENTS+1+g_stateCount (state)
     int32_t g_st;
-    uspritetype *g_sp;
-    uint32_t flags; //g_errorFlag, g_returnFlag;
+    union {
+        spritetype * pSprite;
+        uspritetype *pUSprite;
+    };
+    uint32_t flags;  // g_errorFlag, g_returnFlag;
 
     // 1:updatehighlight, 2:updatehighlightsector, 4:interactive (from menu)?
     uint32_t miscflags;

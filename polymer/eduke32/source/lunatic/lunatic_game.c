@@ -364,7 +364,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
                               uint8_t s_xr,uint8_t s_yr,int16_t s_a,int16_t s_ve,int16_t s_zv,int16_t s_ow,int16_t s_ss);
 extern void A_AddToDeleteQueue(int32_t i);
 extern int32_t A_PlaySound(uint32_t num, int32_t i);
-extern void A_DeleteSprite(int32_t s);
+void A_DeleteSprite(int spriteNum);
 extern void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sect,
                        int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp);
 extern void G_GameExit(const char *msg);
@@ -575,7 +575,7 @@ static int32_t SetActor_CF(lua_State *L)
 //////////////////////////////
 
 static int32_t call_regd_function3(lua_State *L, void *keyaddr,
-                                   int32_t iActor, int32_t iPlayer, int32_t lDist)
+                                   int32_t spriteNum, int32_t playerNum, int32_t lDist)
 {
 #if !defined NDEBUG
     const int32_t top = lua_gettop(L);
@@ -586,8 +586,8 @@ static int32_t call_regd_function3(lua_State *L, void *keyaddr,
     lua_pushlightuserdata(L, keyaddr);
     lua_gettable(L, LUA_REGISTRYINDEX);
 
-    lua_pushinteger(L, iActor);
-    lua_pushinteger(L, iPlayer);
+    lua_pushinteger(L, spriteNum);
+    lua_pushinteger(L, playerNum);
     lua_pushinteger(L, lDist);
 
     // -- call it! --
@@ -611,7 +611,7 @@ static void El_EventErrorPrint(const char *errmsg)
                EventNames[g_eventIdx], errmsg);
 }
 
-int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t *iReturn)
+int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t spriteNum, int32_t playerNum, int32_t lDist, int32_t *iReturn)
 {
     // XXX: estate must be the one where the events were registered...
     //      make a global?
@@ -623,7 +623,7 @@ int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t 
     g_RETURN = *iReturn;
 
     g_elCallDepth++;
-    i = call_regd_function3(L, &g_elEvents[eventidx], iActor, iPlayer, lDist);
+    i = call_regd_function3(L, &g_elEvents[eventidx], spriteNum, playerNum, lDist);
     g_elCallDepth--;
 
     *iReturn = g_RETURN;
@@ -646,19 +646,19 @@ static void El_ActorErrorPrint(const char *errmsg)
                g_actorTile, g_iActor, errmsg);
 }
 
-int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t iPlayer, int32_t lDist)
+int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t spriteNum, int32_t playerNum, int32_t lDist)
 {
     lua_State *const L = estate->L;
     int32_t i;
 
     g_elCallDepth++;
-    i = call_regd_function3(L, &g_elActors[actortile], iActor, iPlayer, lDist);
+    i = call_regd_function3(L, &g_elActors[actortile], spriteNum, playerNum, lDist);
     g_elCallDepth--;
 
     if (i != 0)
     {
         g_actorTile = actortile;
-        g_iActor = iActor;
+        g_iActor = spriteNum;
         return L_HandleError(L, i, &El_ActorErrorPrint);
     }
 

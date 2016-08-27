@@ -28,16 +28,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //#include "osd.h"
 #include "keys.h"
 
-char g_szScriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
-static char g_szCurrentBlockName[BMAX_PATH] = "(none)", g_szLastBlockName[BMAX_PATH] = "NULL";
+char        g_szScriptFileName[BMAX_PATH]   = "(none)";  // file we're currently compiling
+static char g_szCurrentBlockName[BMAX_PATH] = "(none)";
+static char g_szLastBlockName[BMAX_PATH]    = "NULL";
 
 ////// compiler state vvv
-static const char *textptr, *start_textptr, *g_curkwptr;
-static int32_t def_tw;
-int32_t g_totalLines, g_lineNumber;
-int32_t g_numCompilerErrors, g_numCompilerWarnings;
-
-int32_t g_didDefineSomething;
+static char const *textptr;
+static char const *start_textptr;
+static char const *g_curkwptr;
+static int32_t     def_tw;
+int32_t            g_totalLines;
+int32_t            g_lineNumber;
+int32_t            g_numCompilerErrors;
+int32_t            g_numCompilerWarnings;
+int32_t            g_didDefineSomething;
 
 typedef struct
 {
@@ -61,42 +65,46 @@ static compilerstate_t cs;
 static compilerstate_t cs_default = {-1, -1, NULL, -1, -1, 0, 0, NULL, NULL, 0, 0, 0, 0};
 ////// -------------------
 
-instype *script = NULL;
-instype *g_scriptPtr;
-int32_t g_scriptSize = 65536;
-
-int32_t *constants, constants_allocsize=1024;
-int32_t g_numSavedConstants=0;
-static int32_t g_wasConstant=0;
-
-char *label;
-int32_t *labelval;
-uint8_t *labeltype;
-int32_t g_numLabels=0, g_numDefaultLabels=0;
-static int32_t label_allocsize = 512;
-
-int32_t g_stateCount = 0;
-statesinfo_t *statesinfo = NULL;
-static int32_t statesinfo_allocsize = 512;
+instype *      apScript = NULL;
+instype *      g_scriptPtr;
+int32_t        g_scriptSize = 65536;
+int32_t *      constants;
+int32_t        constants_allocsize = 1024;
+int32_t        g_numSavedConstants = 0;
+static int32_t g_wasConstant       = 0;
+char *         label;
+int32_t *      labelval;
+uint8_t *      labeltype;
+int32_t        g_numLabels             = 0;
+int32_t        g_numDefaultLabels      = 0;
+static int32_t label_allocsize         = 512;
+int32_t        g_stateCount            = 0;
+statesinfo_t * statesinfo              = NULL;
+static int32_t statesinfo_allocsize    = 512;
 static int32_t interactive_compilation = 0;
 
 static char tempbuf[2048];
-static char tlabel[MAXLABELLEN], tlabel2[MAXLABELLEN];
+static char tlabel[MAXLABELLEN];
+static char tlabel2[MAXLABELLEN];
 
-int32_t g_iReturnVar=0;
-int32_t m32_sortvar1, m32_sortvar2;
+int32_t g_iReturnVar = 0;
 
-char *ScriptQuotes[MAXQUOTES+1], *ScriptQuoteRedefinitions[MAXQUOTES+1];
-int32_t g_numQuoteRedefinitions = 0;
+int32_t m32_sortvar1;
+int32_t m32_sortvar2;
 
-ofstype aEventOffsets[MAXEVENTS];
-int32_t aEventSizes[MAXEVENTS];
-uint16_t aEventNumLocals[MAXEVENTS];
+char *  apStrings[MAXQUOTES + 1];
+char *  apXStrings[MAXQUOTES + 1];
+int32_t g_numXStrings = 0;
 
-gamevar_t aGameVars[MAXGAMEVARS];
+ofstype     aEventOffsets[MAXEVENTS];
+int32_t     aEventSizes[MAXEVENTS];
+uint16_t    aEventNumLocals[MAXEVENTS];
+gamevar_t   aGameVars[MAXGAMEVARS];
 gamearray_t aGameArrays[MAXGAMEARRAYS];
-int32_t g_gameVarCount=0, g_systemVarCount=0;
-int32_t g_gameArrayCount=0, g_systemArrayCount=0;
+int32_t     g_gameVarCount     = 0;
+int32_t     g_systemVarCount   = 0;
+int32_t     g_gameArrayCount   = 0;
+int32_t     g_systemArrayCount = 0;
 
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
@@ -611,9 +619,9 @@ static void C_InitHashes()
 // returns:  0:success, 1:failure
 static int32_t C_SetScriptSize(int32_t size)
 {
-    ofstype oscriptOfs = (unsigned)(g_scriptPtr-script);
-    ofstype ocaseScriptOfs = (unsigned)(cs.caseScriptPtr-script);
-    ofstype ocaseCodeOfs = (unsigned)(cs.caseCodePtr-script);
+    ofstype oscriptOfs = (unsigned)(g_scriptPtr-apScript);
+    ofstype ocaseScriptOfs = (unsigned)(cs.caseScriptPtr-apScript);
+    ofstype ocaseCodeOfs = (unsigned)(cs.caseCodePtr-apScript);
 
     instype *newscript;
     int32_t osize = g_scriptSize;
@@ -625,24 +633,24 @@ static int32_t C_SetScriptSize(int32_t size)
     g_scriptSize = size;
     initprintf("Resizing code buffer to %d*%d bytes\n", g_scriptSize, (int32_t)sizeof(instype));
 
-    newscript = (instype *)Xrealloc(script, g_scriptSize * sizeof(instype));
+    newscript = (instype *)Xrealloc(apScript, g_scriptSize * sizeof(instype));
 
     if (size >= osize)
         Bmemset(&newscript[osize], 0, (size-osize) * sizeof(instype));
 
-    if (script != newscript)
+    if (apScript != newscript)
     {
-        initprintf("Relocating compiled code from to 0x%" PRIxPTR " to 0x%" PRIxPTR "\n", (intptr_t)script, (intptr_t)newscript);
-        script = newscript;
+        initprintf("Relocating compiled code from to 0x%" PRIxPTR " to 0x%" PRIxPTR "\n", (intptr_t)apScript, (intptr_t)newscript);
+        apScript = newscript;
     }
 
-    g_scriptPtr = (instype *)(script+oscriptOfs);
+    g_scriptPtr = (instype *)(apScript+oscriptOfs);
 //    initprintf("script: %d, \n",script); initprintf("offset: %d\n",(unsigned)(g_scriptPtr-script));
 
     if (cs.caseScriptPtr != NULL)
-        cs.caseScriptPtr = (instype *)(script+ocaseScriptOfs);
+        cs.caseScriptPtr = (instype *)(apScript+ocaseScriptOfs);
     if (cs.caseCodePtr != NULL)
-        cs.caseCodePtr = (instype *)(script+ocaseCodeOfs);
+        cs.caseCodePtr = (instype *)(apScript+ocaseCodeOfs);
 
     return 0;
 }
@@ -703,7 +711,7 @@ static int32_t C_SkipComments(void)
     // Be sure to have enough space allocated for the command to be parsed next.
     // Currently, the commands that potentially need the most space are
     // various string handling function that accept inline strings.
-    if ((unsigned)(g_scriptPtr-script) > (unsigned)(g_scriptSize - max(40, MAXQUOTELEN/sizeof(instype)+8)))
+    if ((unsigned)(g_scriptPtr-apScript) > (unsigned)(g_scriptSize - max(40, MAXQUOTELEN/sizeof(instype)+8)))
         return C_SetScriptSize(g_scriptSize<<1);
 
     return 0;
@@ -1032,7 +1040,7 @@ static void C_GetNextVarType(int32_t type)
     {
         // current sprite shortcut access
 
-        int32_t lLabelID;
+        int32_t labelNum;
 
         flags = M32_FLAG_STRUCT;
         if (*textptr=='-')
@@ -1045,16 +1053,16 @@ static void C_GetNextVarType(int32_t type)
         /// now pointing at 'xxx'
 
         C_GetNextLabelName(0);
-        lLabelID = C_GetLabelNameID(SpriteLabels, &h_sprite, Bstrtolower(tlabel));
+        labelNum = C_GetLabelNameID(SpriteLabels, &h_sprite, Bstrtolower(tlabel));
 
-        if (lLabelID == -1)
+        if (labelNum == -1)
         {
             g_numCompilerErrors++;
             C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
             return;
         }
 
-        *g_scriptPtr++ = ((M32_THISACTOR_VAR_ID<<16) | flags | (lLabelID<<2) | M32_SPRITE_VAR_ID);
+        *g_scriptPtr++ = ((M32_THISACTOR_VAR_ID<<16) | flags | (labelNum<<2) | M32_SPRITE_VAR_ID);
 
         return;
     }
@@ -1091,7 +1099,7 @@ static void C_GetNextVarType(int32_t type)
 
     if (*textptr == '[')  //read of array as a gamevar
     {
-        int32_t lLabelID = -1, aridx;
+        int32_t labelNum = -1, aridx;
         int32_t lightp = 0;
 
         textptr++;
@@ -1218,16 +1226,16 @@ static void C_GetNextVarType(int32_t type)
 
             /*initprintf("found xxx label of \"%s\"\n",   label+(g_numLabels*MAXLABELLEN));*/
             if (lightp)
-                lLabelID = C_GetLabelNameID(LightLabels, &h_light, Bstrtolower(tlabel));
+                labelNum = C_GetLabelNameID(LightLabels, &h_light, Bstrtolower(tlabel));
             else if (id==M32_SPRITE_VAR_ID || id==M32_TSPRITE_VAR_ID)
-                lLabelID = C_GetLabelNameID(SpriteLabels, &h_sprite, Bstrtolower(tlabel));
+                labelNum = C_GetLabelNameID(SpriteLabels, &h_sprite, Bstrtolower(tlabel));
             else if (id==M32_SECTOR_VAR_ID)
-                lLabelID = C_GetLabelNameID(SectorLabels, &h_sector, Bstrtolower(tlabel));
+                labelNum = C_GetLabelNameID(SectorLabels, &h_sector, Bstrtolower(tlabel));
             else if (id==M32_WALL_VAR_ID)
-                lLabelID = C_GetLabelNameID(WallLabels, &h_wall, Bstrtolower(tlabel));
-            //printf("LabelID is %d\n",lLabelID);
+                labelNum = C_GetLabelNameID(WallLabels, &h_wall, Bstrtolower(tlabel));
+            //printf("LabelID is %d\n",labelNum);
 
-            if (lLabelID == -1)
+            if (labelNum == -1)
             {
                 g_numCompilerErrors++;
                 C_ReportError(ERROR_SYMBOLNOTRECOGNIZED);
@@ -1235,9 +1243,9 @@ static void C_GetNextVarType(int32_t type)
             }
 
             if ((aridx & M32_BITS_MASK) == M32_FLAG_CONSTANTINDEX)
-                *g_scriptPtr++ = (aridx | flags | (lLabelID<<2) | id);
+                *g_scriptPtr++ = (aridx | flags | (labelNum<<2) | id);
             else  // simple or local gamevar
-                *g_scriptPtr++ = (aridx<<16 | flags | (lLabelID<<2) | id);
+                *g_scriptPtr++ = (aridx<<16 | flags | (labelNum<<2) | id);
         }
 
         return;
@@ -1537,7 +1545,7 @@ static int32_t C_CheckMalformedBranch(ofstype lastScriptOfs)
     case CON_ENDEVENT:
     case CON_ENDS:
     case CON_ELSE:
-        g_scriptPtr = script + lastScriptOfs;
+        g_scriptPtr = apScript + lastScriptOfs;
         cs.ifElseAborted = 1;
         C_CUSTOMWARNING("malformed `%s' branch", keyw[*g_scriptPtr & 0xFFF]);
         return 1;
@@ -1559,7 +1567,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, ofstype lastScriptOfs)
 
     if (cs.ifElseAborted)
     {
-        g_scriptPtr = script + lastScriptOfs;
+        g_scriptPtr = apScript + lastScriptOfs;
         C_CUSTOMWARNING("empty `%s' branch", keyw[*g_scriptPtr & 0xFFF]);
         *g_scriptPtr = (CON_NULLOP + (IFELSE_MAGIC<<12));
         return 1;
@@ -1574,8 +1582,8 @@ static int32_t C_CountCaseStatements()
     int32_t lCount;
     const char *temptextptr = textptr;
     int32_t temp_ScriptLineNumber = g_lineNumber;
-    ofstype scriptoffset = (unsigned)(g_scriptPtr-script);
-    ofstype caseoffset = (unsigned)(cs.caseScriptPtr-script);
+    ofstype scriptoffset = (unsigned)(g_scriptPtr-apScript);
+    ofstype caseoffset = (unsigned)(cs.caseScriptPtr-apScript);
 
     cs.numCases=0;
     cs.caseScriptPtr=NULL;
@@ -1590,13 +1598,13 @@ static int32_t C_CountCaseStatements()
     cs.checkingSwitch++;
 
     textptr = temptextptr;
-    g_scriptPtr = (instype *)(script+scriptoffset);
+    g_scriptPtr = (instype *)(apScript+scriptoffset);
 
     g_lineNumber = temp_ScriptLineNumber;
 
     lCount = cs.numCases;
     cs.numCases = 0;
-    cs.caseScriptPtr = (instype *)(script+caseoffset);
+    cs.caseScriptPtr = (instype *)(apScript+caseoffset);
     return lCount;
 }
 
@@ -1786,7 +1794,7 @@ static int32_t C_ParseCommand(void)
             }
 
 
-            cs.currentStateOfs = (g_scriptPtr-script);
+            cs.currentStateOfs = (g_scriptPtr-apScript);
 
             j = hash_find(&h_states, tlabel);
             if (j>=0)  // only redefining
@@ -1866,7 +1874,7 @@ static int32_t C_ParseCommand(void)
 
         if (g_numCompilerErrors)
         {
-            g_scriptPtr = script+cs.currentStateOfs;
+            g_scriptPtr = apScript+cs.currentStateOfs;
             cs.currentStateOfs = -1;
             cs.currentStateIdx = -1;
             Bsprintf(g_szCurrentBlockName,"(none)");
@@ -1878,7 +1886,7 @@ static int32_t C_ParseCommand(void)
         if (cs.currentStateIdx == g_stateCount)  // we were defining a new state
         {
             statesinfo[j].ofs = cs.currentStateOfs;
-            statesinfo[j].codesize = (g_scriptPtr-script) - cs.currentStateOfs;
+            statesinfo[j].codesize = (g_scriptPtr-apScript) - cs.currentStateOfs;
 
             g_stateCount++;
 
@@ -1890,7 +1898,7 @@ static int32_t C_ParseCommand(void)
             int32_t oofs = statesinfo[j].ofs;
             int32_t nofs = cs.currentStateOfs;
             int32_t osize = statesinfo[j].codesize;
-            int32_t nsize = (g_scriptPtr-script) - nofs;
+            int32_t nsize = (g_scriptPtr-apScript) - nofs;
 
             if (nsize == osize)
             {
@@ -1898,8 +1906,8 @@ static int32_t C_ParseCommand(void)
 
                 for (ii=0; ii<nsize; ii++)
                 {
-                    ow = *(script+oofs+ii);
-                    nw = *(script+nofs+ii);
+                    ow = *(apScript+oofs+ii);
+                    nw = *(apScript+nofs+ii);
                     if (ow != nw)
                     {
                         int32_t ld = (nw>>12) - (ow>>12);
@@ -1918,7 +1926,7 @@ static int32_t C_ParseCommand(void)
                 }
 
                 if (equal!=2)
-                    Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
+                    Bmemcpy(apScript+oofs, apScript+nofs, nsize*sizeof(instype));
                 if (equal==0)
                     initprintf("  Redefined State %3d `%s'.\n", j, g_szCurrentBlockName);
 //                        initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
@@ -1926,9 +1934,9 @@ static int32_t C_ParseCommand(void)
             else
             {
                 int32_t ii;
-                uint32_t movedcodesize = g_scriptPtr - (script+oofs+osize);
+                uint32_t movedcodesize = g_scriptPtr - (apScript+oofs+osize);
 
-                Bmemmove(script+oofs, script+oofs+osize, movedcodesize*sizeof(instype));
+                Bmemmove(apScript+oofs, apScript+oofs+osize, movedcodesize*sizeof(instype));
 
                 for (ii=0; ii<g_stateCount; ii++)
                 {
@@ -2051,7 +2059,7 @@ static int32_t C_ParseCommand(void)
 
         cs.currentEvent = j;
         aEventNumLocals[j] = 0;
-        cs.parsingEventOfs = g_scriptPtr-script;
+        cs.parsingEventOfs = g_scriptPtr-apScript;
         //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr); AddLog(g_szBuf);
 
         if (j<0 || j >= MAXEVENTS)
@@ -2086,7 +2094,7 @@ static int32_t C_ParseCommand(void)
 
         if (g_numCompilerErrors)
         {
-            g_scriptPtr = script+cs.parsingEventOfs;
+            g_scriptPtr = apScript+cs.parsingEventOfs;
             cs.parsingEventOfs = -1;
             cs.currentEvent = -1;
             Bsprintf(g_szCurrentBlockName, "(none)");
@@ -2097,7 +2105,7 @@ static int32_t C_ParseCommand(void)
         if (aEventOffsets[j] >= 0)  // if event was previously declared, overwrite it
         {
             int32_t oofs = aEventOffsets[j], nofs = cs.parsingEventOfs;
-            int32_t osize = aEventSizes[j], nsize = (g_scriptPtr-script) - nofs;
+            int32_t osize = aEventSizes[j], nsize = (g_scriptPtr-apScript) - nofs;
 
             if (osize == nsize)
             {
@@ -2105,8 +2113,8 @@ static int32_t C_ParseCommand(void)
 
                 for (ii=0; ii<nsize; ii++)
                 {
-                    ow = *(script+oofs+ii);
-                    nw = *(script+nofs+ii);
+                    ow = *(apScript+oofs+ii);
+                    nw = *(apScript+nofs+ii);
                     if (ow != nw)
                     {
                         int32_t ld = (nw>>12) - (ow>>12);
@@ -2125,7 +2133,7 @@ static int32_t C_ParseCommand(void)
                 }
 
                 if (equal!=2)
-                    Bmemcpy(script+oofs, script+nofs, nsize*sizeof(instype));
+                    Bmemcpy(apScript+oofs, apScript+nofs, nsize*sizeof(instype));
                 if (equal==0)
                     initprintf("  Redefined Event %3d `%s'.\n", j, g_szCurrentBlockName);
 //                        initprintf("    oo:%d os:%d, no:%d ns:%d\n", oofs, osize, nofs, nsize);
@@ -2133,9 +2141,9 @@ static int32_t C_ParseCommand(void)
             else
             {
                 int32_t ii;
-                uint32_t movedcodesize = g_scriptPtr - (script+oofs + osize);
+                uint32_t movedcodesize = g_scriptPtr - (apScript+oofs + osize);
 
-                Bmemmove(script+oofs, script+oofs + osize, movedcodesize*sizeof(instype));
+                Bmemmove(apScript+oofs, apScript+oofs + osize, movedcodesize*sizeof(instype));
 
                 for (ii=0; ii<g_stateCount; ii++)
                 {
@@ -2157,7 +2165,7 @@ static int32_t C_ParseCommand(void)
         else  // event defined for the first time
         {
             aEventOffsets[j] = cs.parsingEventOfs;
-            aEventSizes[j] = (g_scriptPtr-script) - cs.parsingEventOfs;
+            aEventSizes[j] = (g_scriptPtr-apScript) - cs.parsingEventOfs;
 
             initprintf("  Defined Event %3d `%s'.\n", j, g_szCurrentBlockName);
 //            initprintf("    o:%d s:%d\n", aEventOffsets[j], aEventSizes[j]);
@@ -2178,7 +2186,7 @@ static int32_t C_ParseCommand(void)
         if (cs.checkingIfElse)
         {
             ofstype offset;
-            ofstype lastScriptOfs = (g_scriptPtr-script) - 1;
+            ofstype lastScriptOfs = (g_scriptPtr-apScript) - 1;
             instype *tscrptr;
 
             cs.ifElseAborted = 0;
@@ -2187,7 +2195,7 @@ static int32_t C_ParseCommand(void)
             if (C_CheckMalformedBranch(lastScriptOfs))
                 return 0;
 
-            offset = (unsigned)(g_scriptPtr-script);
+            offset = (unsigned)(g_scriptPtr-apScript);
 
             g_scriptPtr++; //Leave a spot for the fail location
             C_ParseCommand();
@@ -2195,8 +2203,8 @@ static int32_t C_ParseCommand(void)
             if (C_CheckEmptyBranch(tw, lastScriptOfs))
                 return 0;
 
-            tscrptr = (instype *)script+offset;
-            *tscrptr = (ofstype)(g_scriptPtr-script)-offset;   // relative offset
+            tscrptr = (instype *)apScript+offset;
+            *tscrptr = (ofstype)(g_scriptPtr-apScript)-offset;   // relative offset
         }
         else
         {
@@ -2241,7 +2249,7 @@ static int32_t C_ParseCommand(void)
 
         C_GetNextVar();  // Get The ID of the DEF
 
-        tempoffset = (unsigned)(g_scriptPtr-script);
+        tempoffset = (unsigned)(g_scriptPtr-apScript);
 
         *g_scriptPtr++ = 0; // leave spot for end location (for after processing)
         *g_scriptPtr++ = 0; // count of case statements
@@ -2259,7 +2267,7 @@ static int32_t C_ParseCommand(void)
         C_SkipComments();
         g_scriptPtr -= j*2; // allocate buffer for the table
 
-        tempscrptr = (instype *)(script+tempoffset);
+        tempscrptr = (instype *)(apScript+tempoffset);
         //        if (cs.checkingSwitch>1) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=",__FILE__,__LINE__, cs.checkingSwitch);  AddLog(g_szBuf);
         if (j<0)
             return 1;
@@ -2283,7 +2291,7 @@ static int32_t C_ParseCommand(void)
             //Bsprintf(g_szBuf,"SWITCH2: '%.22s'",textptr); AddLog(g_szBuf);
         }
 
-        tempscrptr = (instype *)(script+tempoffset);
+        tempscrptr = (instype *)(apScript+tempoffset);
         //Bsprintf(g_szBuf,"SWITCHXX: '%.22s'",textptr); AddLog(g_szBuf);
         // done processing switch.  clean up.
         //        if (cs.checkingSwitch < 1) Bsprintf(g_szBuf,"ERROR::%s %d: cs.checkingSwitch=%d",__FILE__,__LINE__, cs.checkingSwitch); AddLog(g_szBuf);
@@ -2364,7 +2372,7 @@ repeatcase:
             goto repeatcase;
         }
         //Bsprintf(g_szBuf,"case4: '%.12s'",textptr); AddLog(g_szBuf);
-        tempoffset = (unsigned)(tempscrptr-script);
+        tempoffset = (unsigned)(tempscrptr-apScript);
         while (C_ParseCommand() == 0)
         {
             //Bsprintf(g_szBuf,"case5 '%.25s'",textptr); AddLog(g_szBuf);
@@ -2373,11 +2381,11 @@ repeatcase:
             {
                 //AddLog("Found Repeat Case");
                 C_GetNextKeyword();    // eat 'case'
-                tempscrptr = (instype *)(script+tempoffset);
+                tempscrptr = (instype *)(apScript+tempoffset);
                 goto repeatcase;
             }
         }
-        tempscrptr = (instype *)(script+tempoffset);
+        tempscrptr = (instype *)(apScript+tempoffset);
         //AddLog("End Case");
         return 0;
         //      break;
@@ -2854,13 +2862,13 @@ repeatcase:
         if (how >= ITER_SPRITESOFSECTOR)
             C_GetNextVar();
 
-        offset = g_scriptPtr-script;
+        offset = g_scriptPtr-apScript;
         g_scriptPtr++; //Leave a spot for the location to jump to after completion
 
         C_ParseCommand();
 
-        tscrptr = (instype *)script+offset;
-        *tscrptr = (g_scriptPtr-script)-offset;  // relative offset
+        tscrptr = (instype *)apScript+offset;
+        *tscrptr = (g_scriptPtr-apScript)-offset;  // relative offset
         return 0;
     }
 
@@ -2930,7 +2938,7 @@ repeatcase:
     case CON_IFINTERACTIVE:
     {
         ofstype offset;
-        ofstype lastScriptOfs = (g_scriptPtr-script-1);
+        ofstype lastScriptOfs = (g_scriptPtr-apScript-1);
         instype *tscrptr;
 
         cs.ifElseAborted = 0;
@@ -2989,7 +2997,7 @@ repeatcase:
         if (C_CheckMalformedBranch(lastScriptOfs))
             return 0;
 
-        offset = (g_scriptPtr-script);
+        offset = (g_scriptPtr-apScript);
         g_scriptPtr++; //Leave a spot for the fail location
 
         C_ParseCommand();
@@ -2997,8 +3005,8 @@ repeatcase:
         if (C_CheckEmptyBranch(tw, lastScriptOfs))
             return 0;
 
-        tscrptr = (instype *)script+offset;
-        *tscrptr = (g_scriptPtr-script)-offset;  // relative offset
+        tscrptr = (instype *)apScript+offset;
+        *tscrptr = (g_scriptPtr-apScript)-offset;  // relative offset
 
         if (tw != CON_WHILEVARN && tw != CON_WHILEVARVARN)
         {
@@ -3182,8 +3190,8 @@ repeatcase:
             k = MAXQUOTES;
         }
 
-        if (ScriptQuotes[k] == NULL)
-            ScriptQuotes[k] = (char *)Xcalloc(MAXQUOTELEN, sizeof(uint8_t));
+        if (apStrings[k] == NULL)
+            apStrings[k] = (char *)Xcalloc(MAXQUOTELEN, sizeof(uint8_t));
 
         if (tw == CON_DEFINEQUOTE)
             g_scriptPtr--;
@@ -3193,8 +3201,8 @@ repeatcase:
 
         if (tw == CON_REDEFINEQUOTE)
         {
-            if (ScriptQuoteRedefinitions[g_numQuoteRedefinitions] == NULL)
-                ScriptQuoteRedefinitions[g_numQuoteRedefinitions] = (char *)Xcalloc(MAXQUOTELEN, sizeof(uint8_t));
+            if (apXStrings[g_numXStrings] == NULL)
+                apXStrings[g_numXStrings] = (char *)Xcalloc(MAXQUOTELEN, sizeof(uint8_t));
         }
 
         i = 0;
@@ -3208,9 +3216,9 @@ repeatcase:
 //                break;
 //            }
             if (tw == CON_DEFINEQUOTE)
-                *(ScriptQuotes[k]+i) = *textptr;
+                *(apStrings[k]+i) = *textptr;
             else
-                *(ScriptQuoteRedefinitions[g_numQuoteRedefinitions]+i) = *textptr;
+                *(apXStrings[g_numXStrings]+i) = *textptr;
 
             textptr++;
             i++;
@@ -3225,12 +3233,12 @@ repeatcase:
         }
 
         if (tw == CON_DEFINEQUOTE)
-            *(ScriptQuotes[k]+i) = '\0';
+            *(apStrings[k]+i) = '\0';
         else
         {
-            *(ScriptQuoteRedefinitions[g_numQuoteRedefinitions]+i) = '\0';
-            *g_scriptPtr++ = g_numQuoteRedefinitions;
-            g_numQuoteRedefinitions++;
+            *(apXStrings[g_numXStrings]+i) = '\0';
+            *g_scriptPtr++ = g_numXStrings;
+            g_numXStrings++;
         }
         return 0;
 
@@ -3612,7 +3620,7 @@ void C_CompilationInfo(void)
     int32_t j, k=0;
     initprintf(" \n");
     initprintf("Compiled code info: (size=%ld*%d bytes)\n",
-               (unsigned long)(g_scriptPtr-script), (int32_t)sizeof(instype));
+               (unsigned long)(g_scriptPtr-apScript), (int32_t)sizeof(instype));
     initprintf("  %d/%d user labels, %d/65536 indirect constants,\n",
                g_numLabels-g_numDefaultLabels, 65536-g_numDefaultLabels,
                g_numSavedConstants);
@@ -3625,10 +3633,10 @@ void C_CompilationInfo(void)
     initprintf("  %d states, %d/%d defined events\n", g_stateCount, k,MAXEVENTS);
 
     for (k=0, j=MAXQUOTES-1; j>=0; j--)
-        if (ScriptQuotes[j])
+        if (apStrings[j])
             k++;
-    if (k || g_numQuoteRedefinitions)
-        initprintf("  %d/%d quotes, %d/%d quote redefinitions\n", k,MAXQUOTES, g_numQuoteRedefinitions,MAXQUOTES);
+    if (k || g_numXStrings)
+        initprintf("  %d/%d quotes, %d/%d quote redefinitions\n", k,MAXQUOTES, g_numXStrings,MAXQUOTES);
 }
 
 EDUKE32_STATIC_ASSERT(ARRAY_SIZE(keyw)-1 == CON_END);
@@ -3666,9 +3674,9 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
         Gv_Init();
         C_AddDefaultDefinitions();
 
-        script = (instype *)Xcalloc(g_scriptSize, sizeof(instype));
+        apScript = (instype *)Xcalloc(g_scriptSize, sizeof(instype));
 
-        g_scriptPtr = script+1;
+        g_scriptPtr = apScript+1;
 
         firstime = 0;
     }

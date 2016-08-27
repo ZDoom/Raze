@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 typedef int32_t instype;
 typedef int32_t ofstype;
 
-extern char *ScriptQuotes[MAXQUOTES+1], *ScriptQuoteRedefinitions[MAXQUOTES+1];
+extern char *apStrings[MAXQUOTES+1], *apXStrings[MAXQUOTES+1];
 extern int32_t g_numQuoteRedefinitions;
 
 extern int32_t VM_Execute(int32_t once);
@@ -58,7 +58,7 @@ extern void SetGamePalette(int32_t);
 extern int32_t *constants, constants_allocsize;
 extern int32_t g_numSavedConstants;
 
-extern instype *script ,*insptr;
+extern instype *apScript ,*insptr;
 extern int32_t *labelval;
 extern uint8_t *labeltype;
 extern int32_t g_numLabels, g_numDefaultLabels;

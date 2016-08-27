@@ -141,7 +141,6 @@ static int32_t _MIDI_InterpretControllerInfo(track *Track, int32_t TimeSet, int3
 static int32_t _MIDI_SendControlChange(int32_t channel, int32_t c1, int32_t c2);
 static void _MIDI_SetChannelVolume(int32_t channel, int32_t volume);
 static void _MIDI_SendChannelVolumes(void);
-static int32_t _MIDI_ProcessNextTick(void);
 static void _MIDI_InitEMIDI(void);
 
 #endif

@@ -168,13 +168,13 @@ void S_RestartMusic(void)
 {
     if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
     {
-        if (MapInfo[g_musicIndex].musicfn != NULL)
-            S_PlayMusic(MapInfo[g_musicIndex].musicfn);
+        if (aMapInfo[g_musicIndex].musicfn != NULL)
+            S_PlayMusic(aMapInfo[g_musicIndex].musicfn);
     }
-    else if (MapInfo[MUS_INTRO].musicfn != 0 && (G_GetLogoFlags() & LOGO_PLAYMUSIC))
+    else if (aMapInfo[MUS_INTRO].musicfn != 0 && (G_GetLogoFlags() & LOGO_PLAYMUSIC))
     {
         g_musicIndex = MUS_INTRO;
-        S_PlayMusic(MapInfo[MUS_INTRO].musicfn);
+        S_PlayMusic(aMapInfo[MUS_INTRO].musicfn);
     }
 }
 
@@ -441,7 +441,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
     int32_t sndang = 0, sndist = 0;
     int32_t explosion = 0;
 
-    if (PN == APLAYER && P_Get(i) == screenpeek)
+    if (PN(i) == APLAYER && P_Get(i) == screenpeek)
         goto sound_further_processing;
 
     sndang = S_GetAngle(camang, cam, pos);
@@ -453,7 +453,7 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
         // HACK for splitscreen mod: take the min of sound distances
         // to 1st and 2nd player.
 
-        if (PN == APLAYER && P_Get(i) == 1)
+        if (PN(i) == APLAYER && P_Get(i) == 1)
         {
             sndist = sndang = 0;
             goto sound_further_processing;
@@ -476,16 +476,16 @@ static int32_t S_CalcDistAndAng(int32_t i, int32_t num, int32_t camsect, int32_t
     }
 #endif
 
-    if ((g_sounds[num].m & SF_GLOBAL) == 0 && S_IsAmbientSFX(i) && (sector[SECT].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
-        sndist = divscale14(sndist, SHT+1);
+    if ((g_sounds[num].m & SF_GLOBAL) == 0 && S_IsAmbientSFX(i) && (sector[SECT(i)].lotag&0xff) < 9)  // ST_9_SLIDING_ST_DOOR
+        sndist = divscale14(sndist, SHT(i)+1);
 
 sound_further_processing:
     sndist += g_sounds[num].vo;
     if (sndist < 0)
         sndist = 0;
 
-    if (camsect > -1 && sndist && PN != MUSICANDSFX &&
-            !cansee(cam->x,cam->y,cam->z-(24<<8),camsect, SX,SY,SZ-(24<<8),SECT))
+    if (camsect > -1 && sndist && PN(i) != MUSICANDSFX &&
+            !cansee(cam->x,cam->y,cam->z-(24<<8),camsect, SX(i),SY(i),SZ(i)-(24<<8),SECT(i)))
         sndist += sndist>>5;
 
     switch (DYNAMICSOUNDMAP(num))
@@ -549,7 +549,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     // Duke talk
     if (g_sounds[num].m & SF_TALK)
     {
-        if ((g_netServer || ud.multimode > 1) && PN == APLAYER && P_Get(i) != screenpeek) // other player sound
+        if ((g_netServer || ud.multimode > 1) && PN(i) == APLAYER && P_Get(i) != screenpeek) // other player sound
         {
             if (!(ud.config.VoiceToggle&4))
                 return -1;
@@ -587,7 +587,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     }
     else
     {
-        if (sndist > 32767 && PN != MUSICANDSFX && (g_sounds[num].m & (SF_LOOP|SF_MSFX)) == 0)
+        if (sndist > 32767 && PN(i) != MUSICANDSFX && (g_sounds[num].m & (SF_LOOP|SF_MSFX)) == 0)
             return -1;
 
         if (peekps->cursectnum > -1 && sector[peekps->cursectnum].lotag == ST_2_UNDERWATER
@@ -595,7 +595,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             pitch = -768;
     }
 
-    if (g_sounds[num].num > 0 && PN != MUSICANDSFX)
+    if (g_sounds[num].num > 0 && PN(i) != MUSICANDSFX)
         S_StopEnvSound(num, i);
 
     if (g_sounds[num].ptr == 0)

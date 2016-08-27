@@ -40,15 +40,20 @@ extern "C" {
 
 #define VM_INSTMASK 0xfff
 
-#define C_CUSTOMERROR(Text, ...) do { \
-    C_ReportError(-1);                                                  \
-    initprintf("%s:%d: error: " Text "\n", g_szScriptFileName, g_lineNumber, ## __VA_ARGS__); \
-    g_numCompilerErrors++; \
+#define C_CUSTOMERROR(Text, ...)                                                                                            \
+    do                                                                                                                      \
+    {                                                                                                                       \
+        C_ReportError(-1);                                                                                                  \
+        initprintf("%s:%d: error: " Text "\n", g_szScriptFileName, g_lineNumber, ##__VA_ARGS__);                            \
+        g_numCompilerErrors++;                                                                                              \
     } while (0)
-#define C_CUSTOMWARNING(Text, ...) do { \
-    C_ReportError(-1);                                                  \
-    initprintf("%s:%d: warning: " Text "\n", g_szScriptFileName, g_lineNumber, ## __VA_ARGS__); \
-    g_numCompilerWarnings++; \
+
+#define C_CUSTOMWARNING(Text, ...)                                                                                          \
+    do                                                                                                                      \
+    {                                                                                                                       \
+        C_ReportError(-1);                                                                                                  \
+        initprintf("%s:%d: warning: " Text "\n", g_szScriptFileName, g_lineNumber, ##__VA_ARGS__);                          \
+        g_numCompilerWarnings++;                                                                                            \
     } while (0)
 
 #if !defined LUNATIC
@@ -63,19 +68,20 @@ extern hashtable_t h_gamevars;
 extern hashtable_t h_arrays;
 extern hashtable_t h_labels;
 
-extern int32_t g_iReturnVarID;      // var ID of "RETURN"
-extern int32_t g_iWeaponVarID;      // var ID of "WEAPON"
-extern int32_t g_iWorksLikeVarID;   // var ID of "WORKSLIKE"
-extern int32_t g_iZRangeVarID;      // var ID of "ZRANGE"
-extern int32_t g_iAngRangeVarID;    // var ID of "ANGRANGE"
-extern int32_t g_iAimAngleVarID;    // var ID of "AUTOAIMANGLE"
-extern int32_t g_iLoTagID;          // var ID of "LOTAG"
-extern int32_t g_iHiTagID;          // var ID of "HITAG"
-extern int32_t g_iTextureID;        // var ID of "TEXTURE"
-extern int32_t g_iThisActorID;      // var ID of "THISACTOR"
+extern int32_t g_returnVarID;     // var ID of "RETURN"
+extern int32_t g_weaponVarID;     // var ID of "WEAPON"
+extern int32_t g_worksLikeVarID;  // var ID of "WORKSLIKE"
+extern int32_t g_zRangeVarID;     // var ID of "ZRANGE"
+extern int32_t g_angRangeVarID;   // var ID of "ANGRANGE"
+extern int32_t g_aimAngleVarID;   // var ID of "AUTOAIMANGLE"
+extern int32_t g_lotagVarID;      // var ID of "LOTAG"
+extern int32_t g_hitagVarID;      // var ID of "HITAG"
+extern int32_t g_textureVarID;    // var ID of "TEXTURE"
+extern int32_t g_thisActorVarID;  // var ID of "THISACTOR"
 
 // KEEPINSYNC gamevars.c: "special vars for struct access"
-enum QuickStructureAccess_t {
+enum QuickStructureAccess_t
+{
     STRUCT_SPRITE,
     STRUCT_SECTOR,
     STRUCT_WALL,
@@ -92,20 +98,20 @@ enum QuickStructureAccess_t {
     NUMQUICKSTRUCTS,
 };
 
-extern int32_t g_iStructVarIDs;
+extern int32_t g_structVarIDs;
 
-extern intptr_t apScriptGameEvent[MAXGAMEEVENTS];
+extern intptr_t apScriptEvents[MAXGAMEEVENTS];
 #endif
 
-extern int32_t otherp;
-extern char CheatStrings[][MAXCHEATLEN];
+extern int32_t        otherp;
+extern char           CheatStrings[][MAXCHEATLEN];
 extern const uint32_t CheatFunctionFlags[];
-extern const uint8_t CheatFunctionIDs[];
-extern char g_szScriptFileName[BMAX_PATH];
-extern int32_t g_totalLines,g_lineNumber;
-extern int32_t g_numCompilerErrors,g_numCompilerWarnings,g_numQuoteRedefinitions;
-extern int32_t g_scriptVersion;
-extern char g_szBuf[1024];
+extern const uint8_t  CheatFunctionIDs[];
+extern char           g_szScriptFileName[BMAX_PATH];
+extern int32_t        g_totalLines, g_lineNumber;
+extern int32_t        g_numCompilerErrors, g_numCompilerWarnings, g_numXStrings;
+extern int32_t        g_scriptVersion;
+extern char           g_szBuf[1024];
 
 extern const char *EventNames[];  // MAXEVENTS
 
@@ -142,11 +148,19 @@ void C_InitProjectiles(void);
 extern int32_t g_numProjectiles;
 
 typedef struct {
-    int g_i, g_p, g_x;
-    int32_t *g_t;
-    spritetype *g_sp;
-    DukePlayer_t *g_pp;
-    int g_flags;
+    int spriteNum;
+    int playerNum;
+    int playerDist;
+    int flags;
+
+    union {
+        spritetype * pSprite;
+        uspritetype *pUSprite;
+    };
+
+    int32_t *     pData;
+    DukePlayer_t *pPlayer;
+
 } vmstate_t;
 
 extern vmstate_t vm;

@@ -24,160 +24,160 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // I got a 3-4 fps gain by inlining these...
 
 #ifndef gamevars_c_
-int32_t __fastcall VM_GetUserdef(register int32_t lLabelID);
-void __fastcall VM_SetUserdef(register int32_t const lLabelID, register int32_t const iSet);
-int32_t __fastcall VM_GetActiveProjectile(register int32_t const iActor, register int32_t lLabelID);
-void __fastcall VM_SetActiveProjectile(register int32_t const iActor, register int32_t const lLabelID, register int32_t const iSet);
-int32_t __fastcall VM_GetPlayer(register int32_t const iPlayer, register int32_t lLabelID, register int32_t const lParm2);
-void __fastcall VM_SetPlayer(register int32_t const iPlayer, register int32_t const lLabelID, register int32_t const lParm2, register int32_t const iSet);
-int32_t __fastcall VM_GetPlayerInput(register int32_t const iPlayer, register int32_t lLabelID);
-void __fastcall VM_SetPlayerInput(register int32_t const iPlayer, register int32_t const lLabelID, register int32_t const iSet);
-int32_t __fastcall VM_GetWall(register int32_t const iWall, register int32_t lLabelID);
-void __fastcall VM_SetWall(register int32_t const iWall, register int32_t const lLabelID, register int32_t const iSet);
-int32_t __fastcall VM_GetSector(register int32_t const iSector, register int32_t lLabelID);
-void __fastcall VM_SetSector(register int32_t const iSector, register int32_t const lLabelID, register int32_t iSet);
-int32_t __fastcall VM_GetSprite(register int32_t const iActor, register int32_t lLabelID, register int32_t const lParm2);
-void __fastcall VM_SetSprite(register int32_t const iActor, register int32_t const lLabelID, register int32_t const lParm2, register int32_t const iSet);
-int32_t __fastcall VM_GetTsprite(register int32_t const iActor, register int32_t lLabelID);
-void __fastcall VM_SetTsprite(register int32_t const iActor, register int32_t const lLabelID, register int32_t const iSet);
-int32_t __fastcall VM_GetProjectile(register int32_t const iTile, register int32_t lLabelID);
-void __fastcall VM_SetProjectile(register int32_t const iTile, register int32_t const lLabelID, register int32_t const iSet);
-int32_t __fastcall VM_GetTileData(register int32_t const iTile, register int32_t lLabelID);
-int32_t __fastcall VM_GetPalData(register int32_t const iPal, register int32_t lLabelID);
+int32_t __fastcall VM_GetUserdef(register int32_t labelNum);
+void __fastcall VM_SetUserdef(register int32_t const labelNum, register int32_t const iSet);
+int32_t __fastcall VM_GetActiveProjectile(register int32_t const spriteNum, register int32_t labelNum);
+void __fastcall VM_SetActiveProjectile(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const iSet);
+int32_t __fastcall VM_GetPlayer(register int32_t const playerNum, register int32_t labelNum, register int32_t const lParm2);
+void __fastcall VM_SetPlayer(register int32_t const playerNum, register int32_t const labelNum, register int32_t const lParm2, register int32_t const iSet);
+int32_t __fastcall VM_GetPlayerInput(register int32_t const playerNum, register int32_t labelNum);
+void __fastcall VM_SetPlayerInput(register int32_t const playerNum, register int32_t const labelNum, register int32_t const iSet);
+int32_t __fastcall VM_GetWall(register int32_t const wallNum, register int32_t labelNum);
+void __fastcall VM_SetWall(register int32_t const wallNum, register int32_t const labelNum, register int32_t const iSet);
+int32_t __fastcall VM_GetSector(register int32_t const sectNum, register int32_t labelNum);
+void __fastcall VM_SetSector(register int32_t const sectNum, register int32_t const labelNum, register int32_t iSet);
+int32_t __fastcall VM_GetSprite(register int32_t const spriteNum, register int32_t labelNum, register int32_t const lParm2);
+void __fastcall VM_SetSprite(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const lParm2, register int32_t const iSet);
+int32_t __fastcall VM_GetTsprite(register int32_t const spriteNum, register int32_t labelNum);
+void __fastcall VM_SetTsprite(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const iSet);
+int32_t __fastcall VM_GetProjectile(register int32_t const tileNum, register int32_t labelNum);
+void __fastcall VM_SetProjectile(register int32_t const tileNum, register int32_t const labelNum, register int32_t const iSet);
+int32_t __fastcall VM_GetTileData(register int32_t const tileNum, register int32_t labelNum);
+int32_t __fastcall VM_GetPalData(register int32_t const palNum, register int32_t labelNum);
 #else
-int32_t __fastcall VM_GetUserdef(register int32_t lLabelID)
+int32_t __fastcall VM_GetUserdef(register int32_t labelNum)
 {
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case USERDEFS_GOD: lLabelID = ud.god; break;
-        case USERDEFS_WARP_ON: lLabelID = ud.warp_on; break;
-        case USERDEFS_CASHMAN: lLabelID = ud.cashman; break;
-        case USERDEFS_EOG: lLabelID = ud.eog; break;
-        case USERDEFS_SHOWALLMAP: lLabelID = ud.showallmap; break;
-        case USERDEFS_SHOW_HELP: lLabelID = ud.show_help; break;
-        case USERDEFS_SCROLLMODE: lLabelID = ud.scrollmode; break;
-        case USERDEFS_CLIPPING: lLabelID = ud.noclip; break;
-        //  case USERDEFS_USER_NAME: lLabelID= ud.user_name[MAXPLAYERS][32]; break;
-        //  case USERDEFS_RIDECULE: lLabelID= ud.ridecule; break;
-        //  case USERDEFS_SAVEGAME: lLabelID= ud.savegame; break;
-        //  case USERDEFS_PWLOCKOUT: lLabelID= ud.pwlockout; break;
-        //  case USERDEFS_RTSNAME: lLabelID= ud.rtsname; break;
-        case USERDEFS_OVERHEAD_ON: lLabelID = ud.overhead_on; break;
-        case USERDEFS_LAST_OVERHEAD: lLabelID = ud.last_overhead; break;
-        case USERDEFS_SHOWWEAPONS: lLabelID = ud.showweapons; break;
-        case USERDEFS_PAUSE_ON: lLabelID = ud.pause_on; break;
-        case USERDEFS_FROM_BONUS: lLabelID = ud.from_bonus; break;
-        case USERDEFS_CAMERASPRITE: lLabelID = ud.camerasprite; break;
-        case USERDEFS_LAST_CAMSPRITE: lLabelID = ud.last_camsprite; break;
-        case USERDEFS_LAST_LEVEL: lLabelID = ud.last_level; break;
-        case USERDEFS_SECRETLEVEL: lLabelID = ud.secretlevel; break;
-        case USERDEFS_CONST_VISIBILITY: lLabelID = ud.const_visibility; break;
-        case USERDEFS_UW_FRAMERATE: lLabelID = ud.uw_framerate; break;
-        case USERDEFS_CAMERA_TIME: lLabelID = ud.camera_time; break;
-        case USERDEFS_FOLFVEL: lLabelID = ud.folfvel; break;
-        case USERDEFS_FOLAVEL: lLabelID = ud.folavel; break;
-        case USERDEFS_FOLX: lLabelID = ud.folx; break;
-        case USERDEFS_FOLY: lLabelID = ud.foly; break;
-        case USERDEFS_FOLA: lLabelID = ud.fola; break;
-        case USERDEFS_RECCNT: lLabelID = ud.reccnt; break;
-        case USERDEFS_ENTERED_NAME: lLabelID = ud.entered_name; break;
-        case USERDEFS_SCREEN_TILTING: lLabelID = ud.screen_tilting; break;
-        case USERDEFS_SHADOWS: lLabelID = ud.shadows; break;
-        case USERDEFS_FTA_ON: lLabelID = ud.fta_on; break;
-        case USERDEFS_EXECUTIONS: lLabelID = ud.executions; break;
-        case USERDEFS_AUTO_RUN: lLabelID = ud.auto_run; break;
-        case USERDEFS_COORDS: lLabelID = ud.coords; break;
-        case USERDEFS_TICKRATE: lLabelID = ud.tickrate; break;
-        case USERDEFS_M_COOP: lLabelID = ud.m_coop; break;
-        case USERDEFS_COOP: lLabelID = ud.coop; break;
-        case USERDEFS_SCREEN_SIZE: lLabelID = ud.screen_size; break;
-        case USERDEFS_LOCKOUT: lLabelID = ud.lockout; break;
-        case USERDEFS_CROSSHAIR: lLabelID = ud.crosshair; break;
-        case USERDEFS_PLAYERAI: lLabelID = ud.playerai; break;
-        case USERDEFS_RESPAWN_MONSTERS: lLabelID = ud.respawn_monsters; break;
-        case USERDEFS_RESPAWN_ITEMS: lLabelID = ud.respawn_items; break;
-        case USERDEFS_RESPAWN_INVENTORY: lLabelID = ud.respawn_inventory; break;
-        case USERDEFS_RECSTAT: lLabelID = ud.recstat; break;
-        case USERDEFS_MONSTERS_OFF: lLabelID = ud.monsters_off; break;
-        case USERDEFS_BRIGHTNESS: lLabelID = ud.brightness; break;
-        case USERDEFS_M_RESPAWN_ITEMS: lLabelID = ud.m_respawn_items; break;
-        case USERDEFS_M_RESPAWN_MONSTERS: lLabelID = ud.m_respawn_monsters; break;
-        case USERDEFS_M_RESPAWN_INVENTORY: lLabelID = ud.m_respawn_inventory; break;
-        case USERDEFS_M_RECSTAT: lLabelID = ud.m_recstat; break;
-        case USERDEFS_M_MONSTERS_OFF: lLabelID = ud.m_monsters_off; break;
-        case USERDEFS_DETAIL: lLabelID = ud.detail; break;
-        case USERDEFS_M_FFIRE: lLabelID = ud.m_ffire; break;
-        case USERDEFS_FFIRE: lLabelID = ud.ffire; break;
-        case USERDEFS_M_PLAYER_SKILL: lLabelID = ud.m_player_skill; break;
-        case USERDEFS_M_LEVEL_NUMBER: lLabelID = ud.m_level_number; break;
-        case USERDEFS_M_VOLUME_NUMBER: lLabelID = ud.m_volume_number; break;
-        case USERDEFS_MULTIMODE: lLabelID = ud.multimode; break;
-        case USERDEFS_PLAYER_SKILL: lLabelID = ud.player_skill; break;
-        case USERDEFS_LEVEL_NUMBER: lLabelID = ud.level_number; break;
-        case USERDEFS_VOLUME_NUMBER: lLabelID = ud.volume_number; break;
-        case USERDEFS_M_MARKER: lLabelID = ud.m_marker; break;
-        case USERDEFS_MARKER: lLabelID = ud.marker; break;
-        case USERDEFS_MOUSEFLIP: lLabelID = ud.mouseflip; break;
-        case USERDEFS_STATUSBARSCALE: lLabelID = ud.statusbarscale; break;
-        case USERDEFS_DRAWWEAPON: lLabelID = ud.drawweapon; break;
-        case USERDEFS_MOUSEAIMING: lLabelID = ud.mouseaiming; break;
-        case USERDEFS_WEAPONSWITCH: lLabelID = ud.weaponswitch; break;
-        case USERDEFS_DEMOCAMS: lLabelID = ud.democams; break;
-        case USERDEFS_COLOR: lLabelID = ud.color; break;
-        case USERDEFS_MSGDISPTIME: lLabelID = ud.msgdisptime; break;
-        case USERDEFS_STATUSBARMODE: lLabelID = ud.statusbarmode; break;
-        case USERDEFS_M_NOEXITS: lLabelID = ud.m_noexits; break;
-        case USERDEFS_NOEXITS: lLabelID = ud.noexits; break;
-        case USERDEFS_AUTOVOTE: lLabelID = ud.autovote; break;
-        case USERDEFS_AUTOMSG: lLabelID = ud.automsg; break;
-        case USERDEFS_IDPLAYERS: lLabelID = ud.idplayers; break;
-        case USERDEFS_TEAM: lLabelID = ud.team; break;
-        case USERDEFS_VIEWBOB: lLabelID = ud.viewbob; break;
-        case USERDEFS_WEAPONSWAY: lLabelID = ud.weaponsway; break;
-        case USERDEFS_ANGLEINTERPOLATION: lLabelID = ud.angleinterpolation; break;
-        case USERDEFS_OBITUARIES: lLabelID = ud.obituaries; break;
-        case USERDEFS_LEVELSTATS: lLabelID = ud.levelstats; break;
-        case USERDEFS_CROSSHAIRSCALE: lLabelID = ud.crosshairscale; break;
-        case USERDEFS_ALTHUD: lLabelID = ud.althud; break;
-        case USERDEFS_DISPLAY_BONUS_SCREEN: lLabelID = ud.display_bonus_screen; break;
-        case USERDEFS_SHOW_LEVEL_TEXT: lLabelID = ud.show_level_text; break;
-        case USERDEFS_WEAPONSCALE: lLabelID = ud.weaponscale; break;
-        case USERDEFS_TEXTSCALE: lLabelID = ud.textscale; break;
-        case USERDEFS_RUNKEY_MODE: lLabelID = ud.runkey_mode; break;
-        case USERDEFS_M_ORIGIN_X: lLabelID = ud.m_origin.x; break;
-        case USERDEFS_M_ORIGIN_Y: lLabelID = ud.m_origin.y; break;
-        case USERDEFS_PLAYERBEST: lLabelID = ud.playerbest; break;
-        case USERDEFS_MUSICTOGGLE: lLabelID = ud.config.MusicToggle; break;
-        case USERDEFS_USEVOXELS: lLabelID = usevoxels; break;
+        case USERDEFS_GOD: labelNum = ud.god; break;
+        case USERDEFS_WARP_ON: labelNum = ud.warp_on; break;
+        case USERDEFS_CASHMAN: labelNum = ud.cashman; break;
+        case USERDEFS_EOG: labelNum = ud.eog; break;
+        case USERDEFS_SHOWALLMAP: labelNum = ud.showallmap; break;
+        case USERDEFS_SHOW_HELP: labelNum = ud.show_help; break;
+        case USERDEFS_SCROLLMODE: labelNum = ud.scrollmode; break;
+        case USERDEFS_CLIPPING: labelNum = ud.noclip; break;
+        //  case USERDEFS_USER_NAME: labelNum= ud.user_name[MAXPLAYERS][32]; break;
+        //  case USERDEFS_RIDECULE: labelNum= ud.ridecule; break;
+        //  case USERDEFS_SAVEGAME: labelNum= ud.savegame; break;
+        //  case USERDEFS_PWLOCKOUT: labelNum= ud.pwlockout; break;
+        //  case USERDEFS_RTSNAME: labelNum= ud.rtsname; break;
+        case USERDEFS_OVERHEAD_ON: labelNum = ud.overhead_on; break;
+        case USERDEFS_LAST_OVERHEAD: labelNum = ud.last_overhead; break;
+        case USERDEFS_SHOWWEAPONS: labelNum = ud.showweapons; break;
+        case USERDEFS_PAUSE_ON: labelNum = ud.pause_on; break;
+        case USERDEFS_FROM_BONUS: labelNum = ud.from_bonus; break;
+        case USERDEFS_CAMERASPRITE: labelNum = ud.camerasprite; break;
+        case USERDEFS_LAST_CAMSPRITE: labelNum = ud.last_camsprite; break;
+        case USERDEFS_LAST_LEVEL: labelNum = ud.last_level; break;
+        case USERDEFS_SECRETLEVEL: labelNum = ud.secretlevel; break;
+        case USERDEFS_CONST_VISIBILITY: labelNum = ud.const_visibility; break;
+        case USERDEFS_UW_FRAMERATE: labelNum = ud.uw_framerate; break;
+        case USERDEFS_CAMERA_TIME: labelNum = ud.camera_time; break;
+        case USERDEFS_FOLFVEL: labelNum = ud.folfvel; break;
+        case USERDEFS_FOLAVEL: labelNum = ud.folavel; break;
+        case USERDEFS_FOLX: labelNum = ud.folx; break;
+        case USERDEFS_FOLY: labelNum = ud.foly; break;
+        case USERDEFS_FOLA: labelNum = ud.fola; break;
+        case USERDEFS_RECCNT: labelNum = ud.reccnt; break;
+        case USERDEFS_ENTERED_NAME: labelNum = ud.entered_name; break;
+        case USERDEFS_SCREEN_TILTING: labelNum = ud.screen_tilting; break;
+        case USERDEFS_SHADOWS: labelNum = ud.shadows; break;
+        case USERDEFS_FTA_ON: labelNum = ud.fta_on; break;
+        case USERDEFS_EXECUTIONS: labelNum = ud.executions; break;
+        case USERDEFS_AUTO_RUN: labelNum = ud.auto_run; break;
+        case USERDEFS_COORDS: labelNum = ud.coords; break;
+        case USERDEFS_TICKRATE: labelNum = ud.tickrate; break;
+        case USERDEFS_M_COOP: labelNum = ud.m_coop; break;
+        case USERDEFS_COOP: labelNum = ud.coop; break;
+        case USERDEFS_SCREEN_SIZE: labelNum = ud.screen_size; break;
+        case USERDEFS_LOCKOUT: labelNum = ud.lockout; break;
+        case USERDEFS_CROSSHAIR: labelNum = ud.crosshair; break;
+        case USERDEFS_PLAYERAI: labelNum = ud.playerai; break;
+        case USERDEFS_RESPAWN_MONSTERS: labelNum = ud.respawn_monsters; break;
+        case USERDEFS_RESPAWN_ITEMS: labelNum = ud.respawn_items; break;
+        case USERDEFS_RESPAWN_INVENTORY: labelNum = ud.respawn_inventory; break;
+        case USERDEFS_RECSTAT: labelNum = ud.recstat; break;
+        case USERDEFS_MONSTERS_OFF: labelNum = ud.monsters_off; break;
+        case USERDEFS_BRIGHTNESS: labelNum = ud.brightness; break;
+        case USERDEFS_M_RESPAWN_ITEMS: labelNum = ud.m_respawn_items; break;
+        case USERDEFS_M_RESPAWN_MONSTERS: labelNum = ud.m_respawn_monsters; break;
+        case USERDEFS_M_RESPAWN_INVENTORY: labelNum = ud.m_respawn_inventory; break;
+        case USERDEFS_M_RECSTAT: labelNum = ud.m_recstat; break;
+        case USERDEFS_M_MONSTERS_OFF: labelNum = ud.m_monsters_off; break;
+        case USERDEFS_DETAIL: labelNum = ud.detail; break;
+        case USERDEFS_M_FFIRE: labelNum = ud.m_ffire; break;
+        case USERDEFS_FFIRE: labelNum = ud.ffire; break;
+        case USERDEFS_M_PLAYER_SKILL: labelNum = ud.m_player_skill; break;
+        case USERDEFS_M_LEVEL_NUMBER: labelNum = ud.m_level_number; break;
+        case USERDEFS_M_VOLUME_NUMBER: labelNum = ud.m_volume_number; break;
+        case USERDEFS_MULTIMODE: labelNum = ud.multimode; break;
+        case USERDEFS_PLAYER_SKILL: labelNum = ud.player_skill; break;
+        case USERDEFS_LEVEL_NUMBER: labelNum = ud.level_number; break;
+        case USERDEFS_VOLUME_NUMBER: labelNum = ud.volume_number; break;
+        case USERDEFS_M_MARKER: labelNum = ud.m_marker; break;
+        case USERDEFS_MARKER: labelNum = ud.marker; break;
+        case USERDEFS_MOUSEFLIP: labelNum = ud.mouseflip; break;
+        case USERDEFS_STATUSBARSCALE: labelNum = ud.statusbarscale; break;
+        case USERDEFS_DRAWWEAPON: labelNum = ud.drawweapon; break;
+        case USERDEFS_MOUSEAIMING: labelNum = ud.mouseaiming; break;
+        case USERDEFS_WEAPONSWITCH: labelNum = ud.weaponswitch; break;
+        case USERDEFS_DEMOCAMS: labelNum = ud.democams; break;
+        case USERDEFS_COLOR: labelNum = ud.color; break;
+        case USERDEFS_MSGDISPTIME: labelNum = ud.msgdisptime; break;
+        case USERDEFS_STATUSBARMODE: labelNum = ud.statusbarmode; break;
+        case USERDEFS_M_NOEXITS: labelNum = ud.m_noexits; break;
+        case USERDEFS_NOEXITS: labelNum = ud.noexits; break;
+        case USERDEFS_AUTOVOTE: labelNum = ud.autovote; break;
+        case USERDEFS_AUTOMSG: labelNum = ud.automsg; break;
+        case USERDEFS_IDPLAYERS: labelNum = ud.idplayers; break;
+        case USERDEFS_TEAM: labelNum = ud.team; break;
+        case USERDEFS_VIEWBOB: labelNum = ud.viewbob; break;
+        case USERDEFS_WEAPONSWAY: labelNum = ud.weaponsway; break;
+        case USERDEFS_ANGLEINTERPOLATION: labelNum = ud.angleinterpolation; break;
+        case USERDEFS_OBITUARIES: labelNum = ud.obituaries; break;
+        case USERDEFS_LEVELSTATS: labelNum = ud.levelstats; break;
+        case USERDEFS_CROSSHAIRSCALE: labelNum = ud.crosshairscale; break;
+        case USERDEFS_ALTHUD: labelNum = ud.althud; break;
+        case USERDEFS_DISPLAY_BONUS_SCREEN: labelNum = ud.display_bonus_screen; break;
+        case USERDEFS_SHOW_LEVEL_TEXT: labelNum = ud.show_level_text; break;
+        case USERDEFS_WEAPONSCALE: labelNum = ud.weaponscale; break;
+        case USERDEFS_TEXTSCALE: labelNum = ud.textscale; break;
+        case USERDEFS_RUNKEY_MODE: labelNum = ud.runkey_mode; break;
+        case USERDEFS_M_ORIGIN_X: labelNum = ud.m_origin.x; break;
+        case USERDEFS_M_ORIGIN_Y: labelNum = ud.m_origin.y; break;
+        case USERDEFS_PLAYERBEST: labelNum = ud.playerbest; break;
+        case USERDEFS_MUSICTOGGLE: labelNum = ud.config.MusicToggle; break;
+        case USERDEFS_USEVOXELS: labelNum = usevoxels; break;
         case USERDEFS_USEHIGHTILE:
 #ifdef USE_OPENGL
-            lLabelID = usehightile;
+            labelNum = usehightile;
             break;
 #endif
         case USERDEFS_USEMODELS:
 #ifdef USE_OPENGL
-            lLabelID = usemodels;
+            labelNum = usemodels;
 #else
-            lLabelID = 0;
+            labelNum = 0;
 #endif
             break;
-        case USERDEFS_GAMETYPEFLAGS: lLabelID = GametypeFlags[ud.coop]; break;
-        case USERDEFS_M_GAMETYPEFLAGS: lLabelID = GametypeFlags[ud.m_coop]; break;
-        case USERDEFS_GLOBALFLAGS: lLabelID = globalflags; break;
-        case USERDEFS_GLOBALGAMEFLAGS: lLabelID = duke3d_globalflags; break;
-        case USERDEFS_VM_PLAYER: lLabelID = vm.g_p; break;
-        case USERDEFS_VM_SPRITE: lLabelID = vm.g_i; break;
-        case USERDEFS_VM_DISTANCE: lLabelID = vm.g_x; break;
-        case USERDEFS_SOUNDTOGGLE: lLabelID = ud.config.SoundToggle; break;
-        default: lLabelID = -1; break;
+        case USERDEFS_GAMETYPEFLAGS: labelNum = GametypeFlags[ud.coop]; break;
+        case USERDEFS_M_GAMETYPEFLAGS: labelNum = GametypeFlags[ud.m_coop]; break;
+        case USERDEFS_GLOBALFLAGS: labelNum = globalflags; break;
+        case USERDEFS_GLOBALGAMEFLAGS: labelNum = duke3d_globalflags; break;
+        case USERDEFS_VM_PLAYER: labelNum = vm.playerNum; break;
+        case USERDEFS_VM_SPRITE: labelNum = vm.spriteNum; break;
+        case USERDEFS_VM_DISTANCE: labelNum = vm.playerDist; break;
+        case USERDEFS_SOUNDTOGGLE: labelNum = ud.config.SoundToggle; break;
+        default: labelNum = -1; break;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
-void __fastcall VM_SetUserdef(register int32_t const lLabelID, register int32_t const iSet)
+void __fastcall VM_SetUserdef(register int32_t const labelNum, register int32_t const iSet)
 {
-    switch (lLabelID)
+    switch (labelNum)
     {
         case USERDEFS_GOD: ud.god = iSet; break;
         case USERDEFS_WARP_ON: ud.warp_on = iSet; break;
@@ -285,74 +285,74 @@ void __fastcall VM_SetUserdef(register int32_t const lLabelID, register int32_t 
         case USERDEFS_M_ORIGIN_Y: ud.m_origin.y = iSet; break;
         case USERDEFS_GLOBALFLAGS: globalflags = iSet; break;
         case USERDEFS_GLOBALGAMEFLAGS: duke3d_globalflags = iSet; break;
-        case USERDEFS_VM_PLAYER: vm.g_p = iSet; vm.g_pp = g_player[iSet].ps; break;
-        case USERDEFS_VM_SPRITE: vm.g_i = iSet; vm.g_sp = &sprite[iSet]; vm.g_t = &actor[iSet].t_data[0]; break;
-        case USERDEFS_VM_DISTANCE: vm.g_x = iSet; break;
+        case USERDEFS_VM_PLAYER: vm.playerNum = iSet; vm.pPlayer = g_player[iSet].ps; break;
+        case USERDEFS_VM_SPRITE: vm.spriteNum = iSet; vm.pSprite = &sprite[iSet]; vm.pData = &actor[iSet].t_data[0]; break;
+        case USERDEFS_VM_DISTANCE: vm.playerDist = iSet; break;
         default: break;
     }
 }
 
-int32_t __fastcall VM_GetActiveProjectile(register int32_t const iActor, register int32_t lLabelID)
+int32_t __fastcall VM_GetActiveProjectile(register int32_t const spriteNum, register int32_t labelNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
         CON_ERRPRINTF("tried to get %s on invalid target projectile (%d) %d %d\n",
-                     ProjectileLabels[lLabelID].name,iActor,vm.g_i,TrackerCast(vm.g_sp->picnum));
+                     ProjectileLabels[labelNum].name,spriteNum,vm.spriteNum,TrackerCast(vm.pSprite->picnum));
         return -1;
     }
 
-    projectile_t * const p = &SpriteProjectile[iActor];
+    projectile_t * const p = &SpriteProjectile[spriteNum];
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case PROJ_WORKSLIKE: lLabelID = p->workslike; break;
-        case PROJ_SPAWNS: lLabelID = p->spawns; break;
-        case PROJ_SXREPEAT: lLabelID = p->sxrepeat; break;
-        case PROJ_SYREPEAT: lLabelID = p->syrepeat; break;
-        case PROJ_SOUND: lLabelID = p->sound; break;
-        case PROJ_ISOUND: lLabelID = p->isound; break;
-        case PROJ_VEL: lLabelID = p->vel; break;
-        case PROJ_EXTRA: lLabelID = p->extra; break;
-        case PROJ_DECAL: lLabelID = p->decal; break;
-        case PROJ_TRAIL: lLabelID = p->trail; break;
-        case PROJ_TXREPEAT: lLabelID = p->txrepeat; break;
-        case PROJ_TYREPEAT: lLabelID = p->tyrepeat; break;
-        case PROJ_TOFFSET: lLabelID = p->toffset; break;
-        case PROJ_TNUM: lLabelID = p->tnum; break;
-        case PROJ_DROP: lLabelID = p->drop; break;
-        case PROJ_CSTAT: lLabelID = p->cstat; break;
-        case PROJ_CLIPDIST: lLabelID = p->clipdist; break;
-        case PROJ_SHADE: lLabelID = p->shade; break;
-        case PROJ_XREPEAT: lLabelID = p->xrepeat; break;
-        case PROJ_YREPEAT: lLabelID = p->yrepeat; break;
-        case PROJ_PAL: lLabelID = p->pal; break;
-        case PROJ_EXTRA_RAND: lLabelID = p->extra_rand; break;
-        case PROJ_HITRADIUS: lLabelID = p->hitradius; break;
-        case PROJ_MOVECNT: lLabelID = p->movecnt; break;
-        case PROJ_OFFSET: lLabelID = p->offset; break;
-        case PROJ_BOUNCES: lLabelID = p->bounces; break;
-        case PROJ_BSOUND: lLabelID = p->bsound; break;
-        case PROJ_RANGE: lLabelID = p->range; break;
-        case PROJ_FLASH_COLOR: lLabelID = p->flashcolor; break;
-        case PROJ_USERDATA: lLabelID = p->userdata; break;
-        default: lLabelID = -1; break;
+        case PROJ_WORKSLIKE: labelNum = p->workslike; break;
+        case PROJ_SPAWNS: labelNum = p->spawns; break;
+        case PROJ_SXREPEAT: labelNum = p->sxrepeat; break;
+        case PROJ_SYREPEAT: labelNum = p->syrepeat; break;
+        case PROJ_SOUND: labelNum = p->sound; break;
+        case PROJ_ISOUND: labelNum = p->isound; break;
+        case PROJ_VEL: labelNum = p->vel; break;
+        case PROJ_EXTRA: labelNum = p->extra; break;
+        case PROJ_DECAL: labelNum = p->decal; break;
+        case PROJ_TRAIL: labelNum = p->trail; break;
+        case PROJ_TXREPEAT: labelNum = p->txrepeat; break;
+        case PROJ_TYREPEAT: labelNum = p->tyrepeat; break;
+        case PROJ_TOFFSET: labelNum = p->toffset; break;
+        case PROJ_TNUM: labelNum = p->tnum; break;
+        case PROJ_DROP: labelNum = p->drop; break;
+        case PROJ_CSTAT: labelNum = p->cstat; break;
+        case PROJ_CLIPDIST: labelNum = p->clipdist; break;
+        case PROJ_SHADE: labelNum = p->shade; break;
+        case PROJ_XREPEAT: labelNum = p->xrepeat; break;
+        case PROJ_YREPEAT: labelNum = p->yrepeat; break;
+        case PROJ_PAL: labelNum = p->pal; break;
+        case PROJ_EXTRA_RAND: labelNum = p->extra_rand; break;
+        case PROJ_HITRADIUS: labelNum = p->hitradius; break;
+        case PROJ_MOVECNT: labelNum = p->movecnt; break;
+        case PROJ_OFFSET: labelNum = p->offset; break;
+        case PROJ_BOUNCES: labelNum = p->bounces; break;
+        case PROJ_BSOUND: labelNum = p->bsound; break;
+        case PROJ_RANGE: labelNum = p->range; break;
+        case PROJ_FLASH_COLOR: labelNum = p->flashcolor; break;
+        case PROJ_USERDATA: labelNum = p->userdata; break;
+        default: labelNum = -1; break;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
-void __fastcall VM_SetActiveProjectile(register int32_t const iActor, register int32_t const lLabelID, register int32_t const iSet)
+void __fastcall VM_SetActiveProjectile(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
         CON_ERRPRINTF("tried to set %s on invalid target projectile (%d) %d %d\n",
-                     ProjectileLabels[lLabelID].name,iActor,vm.g_i,TrackerCast(vm.g_sp->picnum));
+                     ProjectileLabels[labelNum].name,spriteNum,vm.spriteNum,TrackerCast(vm.pSprite->picnum));
         return;
     }
 
-    projectile_t * const p = &SpriteProjectile[iActor];
+    projectile_t * const p = &SpriteProjectile[spriteNum];
 
-    switch (lLabelID)
+    switch (labelNum)
     {
         case PROJ_WORKSLIKE: p->workslike = iSet; break;
         case PROJ_SPAWNS: p->spawns = iSet; break;
@@ -388,211 +388,211 @@ void __fastcall VM_SetActiveProjectile(register int32_t const iActor, register i
     }
 }
 
-int32_t __fastcall VM_GetPlayer(register int32_t const iPlayer, register int32_t lLabelID, register int32_t const lParm2)
+int32_t __fastcall VM_GetPlayer(register int32_t const playerNum, register int32_t labelNum, register int32_t const lParm2)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
+    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)playerswhenstarted))
     {
         CON_ERRPRINTF("tried to get %s on invalid target player (%d) from spr %d\n",
-                      PlayerLabels[lLabelID].name,iPlayer,vm.g_i);
+                      PlayerLabels[labelNum].name,playerNum,vm.spriteNum);
         return -1;
     }
 
-    if (EDUKE32_PREDICT_FALSE(PlayerLabels[lLabelID].flags & LABEL_HASPARM2 &&
-        (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2))
+    if (EDUKE32_PREDICT_FALSE(PlayerLabels[labelNum].flags & LABEL_HASPARM2 &&
+        (unsigned)lParm2 >= (unsigned)PlayerLabels[labelNum].maxParm2))
     {
         CON_ERRPRINTF("tried to get invalid %s position %d on player (%d) from spr %d\n",
-                      PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
+                      PlayerLabels[labelNum].name,lParm2,playerNum,vm.spriteNum);
         return -1;
     }
 
-    DukePlayer_t *const ps = g_player[iPlayer].ps;
+    DukePlayer_t *const ps = g_player[playerNum].ps;
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case PLAYER_ZOOM: lLabelID = ps->zoom; break;
-        case PLAYER_EXITX: lLabelID = ps->exitx; break;
-        case PLAYER_EXITY: lLabelID = ps->exity; break;
-        case PLAYER_LOOGIEX: lLabelID = ps->loogiex[lParm2]; break;
-        case PLAYER_LOOGIEY: lLabelID = ps->loogiey[lParm2]; break;
-        case PLAYER_NUMLOOGS: lLabelID = ps->numloogs; break;
-        case PLAYER_LOOGCNT: lLabelID = ps->loogcnt; break;
-        case PLAYER_POSX: lLabelID = ps->pos.x; break;
-        case PLAYER_POSY: lLabelID = ps->pos.y; break;
-        case PLAYER_POSZ: lLabelID = ps->pos.z; break;
-        case PLAYER_HORIZ: lLabelID = ps->horiz; break;
-        case PLAYER_OHORIZ: lLabelID = ps->ohoriz; break;
-        case PLAYER_OHORIZOFF: lLabelID = ps->ohorizoff; break;
-        case PLAYER_INVDISPTIME: lLabelID = ps->invdisptime; break;
-        case PLAYER_BOBPOSX: lLabelID = ps->bobpos.x; break;
-        case PLAYER_BOBPOSY: lLabelID = ps->bobpos.y; break;
-        case PLAYER_OPOSX: lLabelID = ps->opos.x; break;
-        case PLAYER_OPOSY: lLabelID = ps->opos.y; break;
-        case PLAYER_OPOSZ: lLabelID = ps->opos.z; break;
-        case PLAYER_PYOFF: lLabelID = ps->pyoff; break;
-        case PLAYER_OPYOFF: lLabelID = ps->opyoff; break;
-        case PLAYER_POSXV: lLabelID = ps->vel.x; break;
-        case PLAYER_POSYV: lLabelID = ps->vel.y; break;
-        case PLAYER_POSZV: lLabelID = ps->vel.z; break;
-        case PLAYER_LAST_PISSED_TIME: lLabelID = ps->last_pissed_time; break;
-        case PLAYER_TRUEFZ: lLabelID = ps->truefz; break;
-        case PLAYER_TRUECZ: lLabelID = ps->truecz; break;
-        case PLAYER_PLAYER_PAR: lLabelID = ps->player_par; break;
-        case PLAYER_VISIBILITY: lLabelID = ps->visibility; break;
-        case PLAYER_BOBCOUNTER: lLabelID = ps->bobcounter; break;
-        case PLAYER_WEAPON_SWAY: lLabelID = ps->weapon_sway; break;
-        case PLAYER_PALS_TIME: lLabelID = ps->pals.f; break;
-        case PLAYER_RANDOMFLAMEX: lLabelID = ps->randomflamex; break;
-        case PLAYER_CRACK_TIME: lLabelID = ps->crack_time; break;
-        case PLAYER_AIM_MODE: lLabelID = ps->aim_mode; break;
-        case PLAYER_ANG: lLabelID = ps->ang; break;
-        case PLAYER_OANG: lLabelID = ps->oang; break;
-        case PLAYER_ANGVEL: lLabelID = ps->angvel; break;
-        case PLAYER_CURSECTNUM: lLabelID = ps->cursectnum; break;
-        case PLAYER_LOOK_ANG: lLabelID = ps->look_ang; break;
-        case PLAYER_LAST_EXTRA: lLabelID = ps->last_extra; break;
-        case PLAYER_SUBWEAPON: lLabelID = ps->subweapon; break;
-        case PLAYER_AMMO_AMOUNT: lLabelID = ps->ammo_amount[lParm2]; break;
-        case PLAYER_WACKEDBYACTOR: lLabelID = ps->wackedbyactor; break;
-        case PLAYER_FRAG: lLabelID = ps->frag; break;
-        case PLAYER_FRAGGEDSELF: lLabelID = ps->fraggedself; break;
-        case PLAYER_CURR_WEAPON: lLabelID = ps->curr_weapon; break;
-        case PLAYER_LAST_WEAPON: lLabelID = ps->last_weapon; break;
-        case PLAYER_TIPINCS: lLabelID = ps->tipincs; break;
-        case PLAYER_HORIZOFF: lLabelID = ps->horizoff; break;
-        case PLAYER_WANTWEAPONFIRE: lLabelID = ps->wantweaponfire; break;
-        case PLAYER_HOLODUKE_AMOUNT: lLabelID = ps->inv_amount[GET_HOLODUKE]; break;
-        case PLAYER_NEWOWNER: lLabelID = ps->newowner; break;
-        case PLAYER_HURT_DELAY: lLabelID = ps->hurt_delay; break;
-        case PLAYER_HBOMB_HOLD_DELAY: lLabelID = ps->hbomb_hold_delay; break;
-        case PLAYER_JUMPING_COUNTER: lLabelID = ps->jumping_counter; break;
-        case PLAYER_AIRLEFT: lLabelID = ps->airleft; break;
-        case PLAYER_KNEE_INCS: lLabelID = ps->knee_incs; break;
-        case PLAYER_ACCESS_INCS: lLabelID = ps->access_incs; break;
-        case PLAYER_FTA: lLabelID = ps->fta; break;
-        case PLAYER_FTQ: lLabelID = ps->ftq; break;
-        case PLAYER_ACCESS_WALLNUM: lLabelID = ps->access_wallnum; break;
-        case PLAYER_ACCESS_SPRITENUM: lLabelID = ps->access_spritenum; break;
-        case PLAYER_KICKBACK_PIC: lLabelID = ps->kickback_pic; break;
-        case PLAYER_GOT_ACCESS: lLabelID = ps->got_access; break;
-        case PLAYER_WEAPON_ANG: lLabelID = ps->weapon_ang; break;
-        case PLAYER_FIRSTAID_AMOUNT: lLabelID = ps->inv_amount[GET_FIRSTAID]; break;
-        case PLAYER_SOMETHINGONPLAYER: lLabelID = ps->somethingonplayer; break;
-        case PLAYER_ON_CRANE: lLabelID = ps->on_crane; break;
-        case PLAYER_I: lLabelID = ps->i; break;
-        case PLAYER_ONE_PARALLAX_SECTNUM: lLabelID = ps->one_parallax_sectnum; break;
-        case PLAYER_OVER_SHOULDER_ON: lLabelID = ps->over_shoulder_on; break;
-        case PLAYER_RANDOM_CLUB_FRAME: lLabelID = ps->random_club_frame; break;
-        case PLAYER_FIST_INCS: lLabelID = ps->fist_incs; break;
-        case PLAYER_ONE_EIGHTY_COUNT: lLabelID = ps->one_eighty_count; break;
-        case PLAYER_CHEAT_PHASE: lLabelID = ps->cheat_phase; break;
-        case PLAYER_DUMMYPLAYERSPRITE: lLabelID = ps->dummyplayersprite; break;
-        case PLAYER_EXTRA_EXTRA8: lLabelID = ps->extra_extra8; break;
-        case PLAYER_QUICK_KICK: lLabelID = ps->quick_kick; break;
-        case PLAYER_HEAT_AMOUNT: lLabelID = ps->inv_amount[GET_HEATS]; break;
-        case PLAYER_ACTORSQU: lLabelID = ps->actorsqu; break;
-        case PLAYER_TIMEBEFOREEXIT: lLabelID = ps->timebeforeexit; break;
-        case PLAYER_CUSTOMEXITSOUND: lLabelID = ps->customexitsound; break;
-        case PLAYER_WEAPRECS: lLabelID = ps->weaprecs[lParm2]; break;
-        case PLAYER_WEAPRECCNT: lLabelID = ps->weapreccnt; break;
-        case PLAYER_INTERFACE_TOGGLE_FLAG: lLabelID = ps->interface_toggle_flag; break;
-        case PLAYER_ROTSCRNANG: lLabelID = ps->rotscrnang; break;
-        case PLAYER_DEAD_FLAG: lLabelID = ps->dead_flag; break;
-        case PLAYER_SHOW_EMPTY_WEAPON: lLabelID = ps->show_empty_weapon; break;
-        case PLAYER_SCUBA_AMOUNT: lLabelID = ps->inv_amount[GET_SCUBA]; break;
-        case PLAYER_JETPACK_AMOUNT: lLabelID = ps->inv_amount[GET_JETPACK]; break;
-        case PLAYER_STEROIDS_AMOUNT: lLabelID = ps->inv_amount[GET_STEROIDS]; break;
-        case PLAYER_SHIELD_AMOUNT: lLabelID = ps->inv_amount[GET_SHIELD]; break;
-        case PLAYER_HOLODUKE_ON: lLabelID = ps->holoduke_on; break;
-        case PLAYER_PYCOUNT: lLabelID = ps->pycount; break;
-        case PLAYER_WEAPON_POS: lLabelID = ps->weapon_pos; break;
-        case PLAYER_FRAG_PS: lLabelID = ps->frag_ps; break;
-        case PLAYER_TRANSPORTER_HOLD: lLabelID = ps->transporter_hold; break;
-        case PLAYER_LAST_FULL_WEAPON: lLabelID = ps->last_full_weapon; break;
-        case PLAYER_FOOTPRINTSHADE: lLabelID = ps->footprintshade; break;
-        case PLAYER_BOOT_AMOUNT: lLabelID = ps->inv_amount[GET_BOOTS]; break;
-        case PLAYER_SCREAM_VOICE: lLabelID = ps->scream_voice; break;
-        case PLAYER_GM: lLabelID = ps->gm; break;
-        case PLAYER_ON_WARPING_SECTOR: lLabelID = ps->on_warping_sector; break;
-        case PLAYER_FOOTPRINTCOUNT: lLabelID = ps->footprintcount; break;
-        case PLAYER_HBOMB_ON: lLabelID = ps->hbomb_on; break;
-        case PLAYER_JUMPING_TOGGLE: lLabelID = ps->jumping_toggle; break;
-        case PLAYER_RAPID_FIRE_HOLD: lLabelID = ps->rapid_fire_hold; break;
-        case PLAYER_ON_GROUND: lLabelID = ps->on_ground; break;
-        case PLAYER_INVEN_ICON: lLabelID = ps->inven_icon; break;
-        case PLAYER_BUTTONPALETTE: lLabelID = ps->buttonpalette; break;
-        case PLAYER_JETPACK_ON: lLabelID = ps->jetpack_on; break;
-        case PLAYER_SPRITEBRIDGE: lLabelID = ps->spritebridge; break;
-        case PLAYER_LASTRANDOMSPOT: lLabelID = ps->lastrandomspot; break;
-        case PLAYER_SCUBA_ON: lLabelID = ps->scuba_on; break;
-        case PLAYER_FOOTPRINTPAL: lLabelID = ps->footprintpal; break;
-        case PLAYER_HEAT_ON: lLabelID = ps->heat_on; break;
-        case PLAYER_HOLSTER_WEAPON: lLabelID = ps->holster_weapon; break;
-        case PLAYER_FALLING_COUNTER: lLabelID = ps->falling_counter; break;
-        case PLAYER_GOTWEAPON: lLabelID = (ps->gotweapon & (1 << lParm2)) != 0; break;
-        case PLAYER_REFRESH_INVENTORY: lLabelID = ps->refresh_inventory; break;
-        case PLAYER_PALETTE: lLabelID = ps->palette; break;
-        case PLAYER_TOGGLE_KEY_FLAG: lLabelID = ps->toggle_key_flag; break;
-        case PLAYER_KNUCKLE_INCS: lLabelID = ps->knuckle_incs; break;
-        case PLAYER_WALKING_SND_TOGGLE: lLabelID = ps->walking_snd_toggle; break;
-        case PLAYER_PALOOKUP: lLabelID = ps->palookup; break;
-        case PLAYER_HARD_LANDING: lLabelID = ps->hard_landing; break;
-        case PLAYER_MAX_SECRET_ROOMS: lLabelID = ps->max_secret_rooms; break;
-        case PLAYER_SECRET_ROOMS: lLabelID = ps->secret_rooms; break;
+        case PLAYER_ZOOM: labelNum = ps->zoom; break;
+        case PLAYER_EXITX: labelNum = ps->exitx; break;
+        case PLAYER_EXITY: labelNum = ps->exity; break;
+        case PLAYER_LOOGIEX: labelNum = ps->loogiex[lParm2]; break;
+        case PLAYER_LOOGIEY: labelNum = ps->loogiey[lParm2]; break;
+        case PLAYER_NUMLOOGS: labelNum = ps->numloogs; break;
+        case PLAYER_LOOGCNT: labelNum = ps->loogcnt; break;
+        case PLAYER_POSX: labelNum = ps->pos.x; break;
+        case PLAYER_POSY: labelNum = ps->pos.y; break;
+        case PLAYER_POSZ: labelNum = ps->pos.z; break;
+        case PLAYER_HORIZ: labelNum = ps->horiz; break;
+        case PLAYER_OHORIZ: labelNum = ps->ohoriz; break;
+        case PLAYER_OHORIZOFF: labelNum = ps->ohorizoff; break;
+        case PLAYER_INVDISPTIME: labelNum = ps->invdisptime; break;
+        case PLAYER_BOBPOSX: labelNum = ps->bobpos.x; break;
+        case PLAYER_BOBPOSY: labelNum = ps->bobpos.y; break;
+        case PLAYER_OPOSX: labelNum = ps->opos.x; break;
+        case PLAYER_OPOSY: labelNum = ps->opos.y; break;
+        case PLAYER_OPOSZ: labelNum = ps->opos.z; break;
+        case PLAYER_PYOFF: labelNum = ps->pyoff; break;
+        case PLAYER_OPYOFF: labelNum = ps->opyoff; break;
+        case PLAYER_POSXV: labelNum = ps->vel.x; break;
+        case PLAYER_POSYV: labelNum = ps->vel.y; break;
+        case PLAYER_POSZV: labelNum = ps->vel.z; break;
+        case PLAYER_LAST_PISSED_TIME: labelNum = ps->last_pissed_time; break;
+        case PLAYER_TRUEFZ: labelNum = ps->truefz; break;
+        case PLAYER_TRUECZ: labelNum = ps->truecz; break;
+        case PLAYER_PLAYER_PAR: labelNum = ps->player_par; break;
+        case PLAYER_VISIBILITY: labelNum = ps->visibility; break;
+        case PLAYER_BOBCOUNTER: labelNum = ps->bobcounter; break;
+        case PLAYER_WEAPON_SWAY: labelNum = ps->weapon_sway; break;
+        case PLAYER_PALS_TIME: labelNum = ps->pals.f; break;
+        case PLAYER_RANDOMFLAMEX: labelNum = ps->randomflamex; break;
+        case PLAYER_CRACK_TIME: labelNum = ps->crack_time; break;
+        case PLAYER_AIM_MODE: labelNum = ps->aim_mode; break;
+        case PLAYER_ANG: labelNum = ps->ang; break;
+        case PLAYER_OANG: labelNum = ps->oang; break;
+        case PLAYER_ANGVEL: labelNum = ps->angvel; break;
+        case PLAYER_CURSECTNUM: labelNum = ps->cursectnum; break;
+        case PLAYER_LOOK_ANG: labelNum = ps->look_ang; break;
+        case PLAYER_LAST_EXTRA: labelNum = ps->last_extra; break;
+        case PLAYER_SUBWEAPON: labelNum = ps->subweapon; break;
+        case PLAYER_AMMO_AMOUNT: labelNum = ps->ammo_amount[lParm2]; break;
+        case PLAYER_WACKEDBYACTOR: labelNum = ps->wackedbyactor; break;
+        case PLAYER_FRAG: labelNum = ps->frag; break;
+        case PLAYER_FRAGGEDSELF: labelNum = ps->fraggedself; break;
+        case PLAYER_CURR_WEAPON: labelNum = ps->curr_weapon; break;
+        case PLAYER_LAST_WEAPON: labelNum = ps->last_weapon; break;
+        case PLAYER_TIPINCS: labelNum = ps->tipincs; break;
+        case PLAYER_HORIZOFF: labelNum = ps->horizoff; break;
+        case PLAYER_WANTWEAPONFIRE: labelNum = ps->wantweaponfire; break;
+        case PLAYER_HOLODUKE_AMOUNT: labelNum = ps->inv_amount[GET_HOLODUKE]; break;
+        case PLAYER_NEWOWNER: labelNum = ps->newowner; break;
+        case PLAYER_HURT_DELAY: labelNum = ps->hurt_delay; break;
+        case PLAYER_HBOMB_HOLD_DELAY: labelNum = ps->hbomb_hold_delay; break;
+        case PLAYER_JUMPING_COUNTER: labelNum = ps->jumping_counter; break;
+        case PLAYER_AIRLEFT: labelNum = ps->airleft; break;
+        case PLAYER_KNEE_INCS: labelNum = ps->knee_incs; break;
+        case PLAYER_ACCESS_INCS: labelNum = ps->access_incs; break;
+        case PLAYER_FTA: labelNum = ps->fta; break;
+        case PLAYER_FTQ: labelNum = ps->ftq; break;
+        case PLAYER_ACCESS_WALLNUM: labelNum = ps->access_wallnum; break;
+        case PLAYER_ACCESS_SPRITENUM: labelNum = ps->access_spritenum; break;
+        case PLAYER_KICKBACK_PIC: labelNum = ps->kickback_pic; break;
+        case PLAYER_GOT_ACCESS: labelNum = ps->got_access; break;
+        case PLAYER_WEAPON_ANG: labelNum = ps->weapon_ang; break;
+        case PLAYER_FIRSTAID_AMOUNT: labelNum = ps->inv_amount[GET_FIRSTAID]; break;
+        case PLAYER_SOMETHINGONPLAYER: labelNum = ps->somethingonplayer; break;
+        case PLAYER_ON_CRANE: labelNum = ps->on_crane; break;
+        case PLAYER_I: labelNum = ps->i; break;
+        case PLAYER_ONE_PARALLAX_SECTNUM: labelNum = ps->one_parallax_sectnum; break;
+        case PLAYER_OVER_SHOULDER_ON: labelNum = ps->over_shoulder_on; break;
+        case PLAYER_RANDOM_CLUB_FRAME: labelNum = ps->random_club_frame; break;
+        case PLAYER_FIST_INCS: labelNum = ps->fist_incs; break;
+        case PLAYER_ONE_EIGHTY_COUNT: labelNum = ps->one_eighty_count; break;
+        case PLAYER_CHEAT_PHASE: labelNum = ps->cheat_phase; break;
+        case PLAYER_DUMMYPLAYERSPRITE: labelNum = ps->dummyplayersprite; break;
+        case PLAYER_EXTRA_EXTRA8: labelNum = ps->extra_extra8; break;
+        case PLAYER_QUICK_KICK: labelNum = ps->quick_kick; break;
+        case PLAYER_HEAT_AMOUNT: labelNum = ps->inv_amount[GET_HEATS]; break;
+        case PLAYER_ACTORSQU: labelNum = ps->actorsqu; break;
+        case PLAYER_TIMEBEFOREEXIT: labelNum = ps->timebeforeexit; break;
+        case PLAYER_CUSTOMEXITSOUND: labelNum = ps->customexitsound; break;
+        case PLAYER_WEAPRECS: labelNum = ps->weaprecs[lParm2]; break;
+        case PLAYER_WEAPRECCNT: labelNum = ps->weapreccnt; break;
+        case PLAYER_INTERFACE_TOGGLE_FLAG: labelNum = ps->interface_toggle_flag; break;
+        case PLAYER_ROTSCRNANG: labelNum = ps->rotscrnang; break;
+        case PLAYER_DEAD_FLAG: labelNum = ps->dead_flag; break;
+        case PLAYER_SHOW_EMPTY_WEAPON: labelNum = ps->show_empty_weapon; break;
+        case PLAYER_SCUBA_AMOUNT: labelNum = ps->inv_amount[GET_SCUBA]; break;
+        case PLAYER_JETPACK_AMOUNT: labelNum = ps->inv_amount[GET_JETPACK]; break;
+        case PLAYER_STEROIDS_AMOUNT: labelNum = ps->inv_amount[GET_STEROIDS]; break;
+        case PLAYER_SHIELD_AMOUNT: labelNum = ps->inv_amount[GET_SHIELD]; break;
+        case PLAYER_HOLODUKE_ON: labelNum = ps->holoduke_on; break;
+        case PLAYER_PYCOUNT: labelNum = ps->pycount; break;
+        case PLAYER_WEAPON_POS: labelNum = ps->weapon_pos; break;
+        case PLAYER_FRAG_PS: labelNum = ps->frag_ps; break;
+        case PLAYER_TRANSPORTER_HOLD: labelNum = ps->transporter_hold; break;
+        case PLAYER_LAST_FULL_WEAPON: labelNum = ps->last_full_weapon; break;
+        case PLAYER_FOOTPRINTSHADE: labelNum = ps->footprintshade; break;
+        case PLAYER_BOOT_AMOUNT: labelNum = ps->inv_amount[GET_BOOTS]; break;
+        case PLAYER_SCREAM_VOICE: labelNum = ps->scream_voice; break;
+        case PLAYER_GM: labelNum = ps->gm; break;
+        case PLAYER_ON_WARPING_SECTOR: labelNum = ps->on_warping_sector; break;
+        case PLAYER_FOOTPRINTCOUNT: labelNum = ps->footprintcount; break;
+        case PLAYER_HBOMB_ON: labelNum = ps->hbomb_on; break;
+        case PLAYER_JUMPING_TOGGLE: labelNum = ps->jumping_toggle; break;
+        case PLAYER_RAPID_FIRE_HOLD: labelNum = ps->rapid_fire_hold; break;
+        case PLAYER_ON_GROUND: labelNum = ps->on_ground; break;
+        case PLAYER_INVEN_ICON: labelNum = ps->inven_icon; break;
+        case PLAYER_BUTTONPALETTE: labelNum = ps->buttonpalette; break;
+        case PLAYER_JETPACK_ON: labelNum = ps->jetpack_on; break;
+        case PLAYER_SPRITEBRIDGE: labelNum = ps->spritebridge; break;
+        case PLAYER_LASTRANDOMSPOT: labelNum = ps->lastrandomspot; break;
+        case PLAYER_SCUBA_ON: labelNum = ps->scuba_on; break;
+        case PLAYER_FOOTPRINTPAL: labelNum = ps->footprintpal; break;
+        case PLAYER_HEAT_ON: labelNum = ps->heat_on; break;
+        case PLAYER_HOLSTER_WEAPON: labelNum = ps->holster_weapon; break;
+        case PLAYER_FALLING_COUNTER: labelNum = ps->falling_counter; break;
+        case PLAYER_GOTWEAPON: labelNum = (ps->gotweapon & (1 << lParm2)) != 0; break;
+        case PLAYER_REFRESH_INVENTORY: labelNum = ps->refresh_inventory; break;
+        case PLAYER_PALETTE: labelNum = ps->palette; break;
+        case PLAYER_TOGGLE_KEY_FLAG: labelNum = ps->toggle_key_flag; break;
+        case PLAYER_KNUCKLE_INCS: labelNum = ps->knuckle_incs; break;
+        case PLAYER_WALKING_SND_TOGGLE: labelNum = ps->walking_snd_toggle; break;
+        case PLAYER_PALOOKUP: labelNum = ps->palookup; break;
+        case PLAYER_HARD_LANDING: labelNum = ps->hard_landing; break;
+        case PLAYER_MAX_SECRET_ROOMS: labelNum = ps->max_secret_rooms; break;
+        case PLAYER_SECRET_ROOMS: labelNum = ps->secret_rooms; break;
         case PLAYER_PALS:
             switch (lParm2)
             {
-                case 0: lLabelID = ps->pals.r; break;
-                case 1: lLabelID = ps->pals.g; break;
-                case 2: lLabelID = ps->pals.b; break;
-                default: lLabelID = -1; break;
+                case 0: labelNum = ps->pals.r; break;
+                case 1: labelNum = ps->pals.g; break;
+                case 2: labelNum = ps->pals.b; break;
+                default: labelNum = -1; break;
             }
             break;
-        case PLAYER_MAX_ACTORS_KILLED: lLabelID = ps->max_actors_killed; break;
-        case PLAYER_ACTORS_KILLED: lLabelID = ps->actors_killed; break;
-        case PLAYER_RETURN_TO_CENTER: lLabelID = ps->return_to_center; break;
-        case PLAYER_RUNSPEED: lLabelID = ps->runspeed; break;
-        case PLAYER_SBS: lLabelID = ps->sbs; break;
-        case PLAYER_RELOADING: lLabelID = ps->reloading; break;
-        case PLAYER_AUTO_AIM: lLabelID = ps->auto_aim; break;
-        case PLAYER_MOVEMENT_LOCK: lLabelID = ps->movement_lock; break;
-        case PLAYER_SOUND_PITCH: lLabelID = ps->sound_pitch; break;
-        case PLAYER_WEAPONSWITCH: lLabelID = ps->weaponswitch; break;
-        case PLAYER_TEAM: lLabelID = ps->team; break;
-        case PLAYER_MAX_PLAYER_HEALTH: lLabelID = ps->max_player_health; break;
-        case PLAYER_MAX_SHIELD_AMOUNT: lLabelID = ps->max_shield_amount; break;
-        case PLAYER_MAX_AMMO_AMOUNT: lLabelID = ps->max_ammo_amount[lParm2]; break;
-        case PLAYER_LAST_QUICK_KICK: lLabelID = ps->last_quick_kick; break;
-        case PLAYER_AUTOSTEP: lLabelID = ps->autostep; break;
-        case PLAYER_AUTOSTEP_SBW: lLabelID = ps->autostep_sbw; break;
-        case PLAYER_HUDPAL: lLabelID = P_GetHudPal(ps); break;
-        case PLAYER_INDEX: lLabelID = iPlayer; break;
-        default: lLabelID = -1; break;
+        case PLAYER_MAX_ACTORS_KILLED: labelNum = ps->max_actors_killed; break;
+        case PLAYER_ACTORS_KILLED: labelNum = ps->actors_killed; break;
+        case PLAYER_RETURN_TO_CENTER: labelNum = ps->return_to_center; break;
+        case PLAYER_RUNSPEED: labelNum = ps->runspeed; break;
+        case PLAYER_SBS: labelNum = ps->sbs; break;
+        case PLAYER_RELOADING: labelNum = ps->reloading; break;
+        case PLAYER_AUTO_AIM: labelNum = ps->auto_aim; break;
+        case PLAYER_MOVEMENT_LOCK: labelNum = ps->movement_lock; break;
+        case PLAYER_SOUND_PITCH: labelNum = ps->sound_pitch; break;
+        case PLAYER_WEAPONSWITCH: labelNum = ps->weaponswitch; break;
+        case PLAYER_TEAM: labelNum = ps->team; break;
+        case PLAYER_MAX_PLAYER_HEALTH: labelNum = ps->max_player_health; break;
+        case PLAYER_MAX_SHIELD_AMOUNT: labelNum = ps->max_shield_amount; break;
+        case PLAYER_MAX_AMMO_AMOUNT: labelNum = ps->max_ammo_amount[lParm2]; break;
+        case PLAYER_LAST_QUICK_KICK: labelNum = ps->last_quick_kick; break;
+        case PLAYER_AUTOSTEP: labelNum = ps->autostep; break;
+        case PLAYER_AUTOSTEP_SBW: labelNum = ps->autostep_sbw; break;
+        case PLAYER_HUDPAL: labelNum = P_GetHudPal(ps); break;
+        case PLAYER_INDEX: labelNum = playerNum; break;
+        default: labelNum = -1; break;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
-void __fastcall VM_SetPlayer(register int32_t const iPlayer, register int32_t const lLabelID, register int32_t const lParm2, register int32_t const iSet)
+void __fastcall VM_SetPlayer(register int32_t const playerNum, register int32_t const labelNum, register int32_t const lParm2, register int32_t const iSet)
 {
 
-    if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
+    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)playerswhenstarted))
     {
         CON_ERRPRINTF("tried to set %s on invalid target player (%d) from spr %d\n",
-                      PlayerLabels[lLabelID].name,iPlayer,vm.g_i);
+                      PlayerLabels[labelNum].name,playerNum,vm.spriteNum);
         return;
     }
 
-    if (EDUKE32_PREDICT_FALSE(PlayerLabels[lLabelID].flags & LABEL_HASPARM2 &&
-                              (unsigned)lParm2 >= (unsigned)PlayerLabels[lLabelID].maxParm2))
+    if (EDUKE32_PREDICT_FALSE(PlayerLabels[labelNum].flags & LABEL_HASPARM2 &&
+                              (unsigned)lParm2 >= (unsigned)PlayerLabels[labelNum].maxParm2))
     {
         CON_ERRPRINTF("tried to set invalid %s position %d on player (%d) from spr %d\n",
-                      PlayerLabels[lLabelID].name,lParm2,iPlayer,vm.g_i);
+                      PlayerLabels[labelNum].name,lParm2,playerNum,vm.spriteNum);
         return;
     }
 
-    DukePlayer_t * const ps = g_player[iPlayer].ps;
+    DukePlayer_t * const ps = g_player[playerNum].ps;
 
-    switch (lLabelID)
+    switch (labelNum)
     {
         case PLAYER_ZOOM: ps->zoom = iSet; break;
         case PLAYER_EXITX: ps->exitx = iSet; break;
@@ -698,9 +698,9 @@ void __fastcall VM_SetPlayer(register int32_t const iPlayer, register int32_t co
         case PLAYER_SCREAM_VOICE: ps->scream_voice = iSet; break;
         case PLAYER_GM:
             if (!(ps->gm & MODE_MENU) && (iSet & MODE_MENU))
-                M_OpenMenu(iPlayer);
+                M_OpenMenu(playerNum);
             else if ((ps->gm & MODE_MENU) && !(iSet & MODE_MENU))
-                M_CloseMenu(iPlayer);
+                M_CloseMenu(playerNum);
             ps->gm = iSet;
             break;
         case PLAYER_ON_WARPING_SECTOR: ps->on_warping_sector = iSet; break;
@@ -767,41 +767,41 @@ void __fastcall VM_SetPlayer(register int32_t const iPlayer, register int32_t co
     }
 }
 
-int32_t __fastcall VM_GetPlayerInput(register int32_t const iPlayer, register int32_t lLabelID)
+int32_t __fastcall VM_GetPlayerInput(register int32_t const playerNum, register int32_t labelNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
+    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)playerswhenstarted))
     {
-        CON_ERRPRINTF("VM_GetPlayerInput: invalid target player (%d) %d\n", iPlayer,vm.g_i);
+        CON_ERRPRINTF("VM_GetPlayerInput: invalid target player (%d) %d\n", playerNum,vm.spriteNum);
         return -1;
     }
 
-    input_t * const i = g_player[iPlayer].sync;
+    input_t * const i = g_player[playerNum].sync;
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case INPUT_AVEL: lLabelID = i->avel; break;
-        case INPUT_HORZ: lLabelID = i->horz; break;
-        case INPUT_FVEL: lLabelID = i->fvel; break;
-        case INPUT_SVEL: lLabelID = i->svel; break;
-        case INPUT_BITS: lLabelID = i->bits; break;
-        case INPUT_EXTBITS: lLabelID = i->extbits; break;
-        default: lLabelID = -1; break;
+        case INPUT_AVEL: labelNum = i->avel; break;
+        case INPUT_HORZ: labelNum = i->horz; break;
+        case INPUT_FVEL: labelNum = i->fvel; break;
+        case INPUT_SVEL: labelNum = i->svel; break;
+        case INPUT_BITS: labelNum = i->bits; break;
+        case INPUT_EXTBITS: labelNum = i->extbits; break;
+        default: labelNum = -1; break;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
-void __fastcall VM_SetPlayerInput(register int32_t const iPlayer, register int32_t const lLabelID, register int32_t const iSet)
+void __fastcall VM_SetPlayerInput(register int32_t const playerNum, register int32_t const labelNum, register int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iPlayer >= (unsigned)playerswhenstarted))
+    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)playerswhenstarted))
     {
-        CON_ERRPRINTF("VM_SetPlayerInput: invalid target player (%d) %d\n", iPlayer,vm.g_i);
+        CON_ERRPRINTF("VM_SetPlayerInput: invalid target player (%d) %d\n", playerNum,vm.spriteNum);
         return;
     }
 
-    input_t * const i = g_player[iPlayer].sync;
+    input_t * const i = g_player[playerNum].sync;
 
-    switch (lLabelID)
+    switch (labelNum)
     {
         case INPUT_AVEL: i->avel = iSet; break;
         case INPUT_HORZ: i->horz = iSet; break;
@@ -815,54 +815,54 @@ void __fastcall VM_SetPlayerInput(register int32_t const iPlayer, register int32
 
 
 
-int32_t __fastcall VM_GetWall(register int32_t const iWall, register int32_t lLabelID)
+int32_t __fastcall VM_GetWall(register int32_t const wallNum, register int32_t labelNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iWall >= (unsigned)numwalls))
+    if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
     {
-        CON_ERRPRINTF("VM_GetWall: Invalid wall %d\n", iWall);
+        CON_ERRPRINTF("VM_GetWall: Invalid wall %d\n", wallNum);
         return -1;
     }
 
-    walltype * const w = &wall[iWall];
+    walltype * const w = &wall[wallNum];
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case WALL_X: lLabelID = w->x; break;
-        case WALL_Y: lLabelID = w->y; break;
-        case WALL_POINT2: lLabelID = w->point2; break;
-        case WALL_NEXTWALL: lLabelID = w->nextwall; break;
-        case WALL_NEXTSECTOR: lLabelID = w->nextsector; break;
-        case WALL_CSTAT: lLabelID = w->cstat; break;
-        case WALL_PICNUM: lLabelID = w->picnum; break;
-        case WALL_OVERPICNUM: lLabelID = w->overpicnum; break;
-        case WALL_SHADE: lLabelID = w->shade; break;
-        case WALL_PAL: lLabelID = w->pal; break;
-        case WALL_XREPEAT: lLabelID = w->xrepeat; break;
-        case WALL_YREPEAT: lLabelID = w->yrepeat; break;
-        case WALL_XPANNING: lLabelID = w->xpanning; break;
-        case WALL_YPANNING: lLabelID = w->ypanning; break;
-        case WALL_LOTAG: lLabelID = (int16_t)w->lotag; break;
-        case WALL_HITAG: lLabelID = (int16_t)w->hitag; break;
-        case WALL_ULOTAG: lLabelID = w->lotag; break;
-        case WALL_UHITAG: lLabelID = w->hitag; break;
-        case WALL_EXTRA: lLabelID = w->extra; break;
-        default: lLabelID = -1;
+        case WALL_X: labelNum = w->x; break;
+        case WALL_Y: labelNum = w->y; break;
+        case WALL_POINT2: labelNum = w->point2; break;
+        case WALL_NEXTWALL: labelNum = w->nextwall; break;
+        case WALL_NEXTSECTOR: labelNum = w->nextsector; break;
+        case WALL_CSTAT: labelNum = w->cstat; break;
+        case WALL_PICNUM: labelNum = w->picnum; break;
+        case WALL_OVERPICNUM: labelNum = w->overpicnum; break;
+        case WALL_SHADE: labelNum = w->shade; break;
+        case WALL_PAL: labelNum = w->pal; break;
+        case WALL_XREPEAT: labelNum = w->xrepeat; break;
+        case WALL_YREPEAT: labelNum = w->yrepeat; break;
+        case WALL_XPANNING: labelNum = w->xpanning; break;
+        case WALL_YPANNING: labelNum = w->ypanning; break;
+        case WALL_LOTAG: labelNum = (int16_t)w->lotag; break;
+        case WALL_HITAG: labelNum = (int16_t)w->hitag; break;
+        case WALL_ULOTAG: labelNum = w->lotag; break;
+        case WALL_UHITAG: labelNum = w->hitag; break;
+        case WALL_EXTRA: labelNum = w->extra; break;
+        default: labelNum = -1;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
-void __fastcall VM_SetWall(register int32_t const iWall, register int32_t const lLabelID, register int32_t const iSet)
+void __fastcall VM_SetWall(register int32_t const wallNum, register int32_t const labelNum, register int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iWall >= (unsigned)numwalls))
+    if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
     {
-        CON_ERRPRINTF("VM_SetWall: Invalid wall %d\n", iWall);
+        CON_ERRPRINTF("VM_SetWall: Invalid wall %d\n", wallNum);
         return;
     }
 
-    walltype * const w = &wall[iWall];
+    walltype * const w = &wall[wallNum];
 
-    switch (lLabelID)
+    switch (labelNum)
     {
         case WALL_X: w->x = iSet; break;
         case WALL_Y: w->y = iSet; break;
@@ -888,75 +888,75 @@ void __fastcall VM_SetWall(register int32_t const iWall, register int32_t const 
     return;
 }
 
-int32_t __fastcall VM_GetSector(register int32_t const iSector, register int32_t lLabelID)
+int32_t __fastcall VM_GetSector(register int32_t const sectNum, register int32_t labelNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iSector >= (unsigned)numsectors))
+    if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
     {
-        CON_ERRPRINTF("VM_GetSector: Invalid sector %d\n", iSector);
+        CON_ERRPRINTF("VM_GetSector: Invalid sector %d\n", sectNum);
         return -1;
     }
 
-    sectortype * const s = &sector[iSector];
+    sectortype * const s = &sector[sectNum];
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case SECTOR_WALLPTR: lLabelID = s->wallptr; break;
-        case SECTOR_WALLNUM: lLabelID = s->wallnum; break;
+        case SECTOR_WALLPTR: labelNum = s->wallptr; break;
+        case SECTOR_WALLNUM: labelNum = s->wallnum; break;
 
-        case SECTOR_CEILINGZ: lLabelID = s->ceilingz; break;
-        case SECTOR_CEILINGZVEL: lLabelID = (GetAnimationGoal(&s->ceilingz) == -1) ? 0 : s->extra; break;
-        case SECTOR_CEILINGZGOAL: lLabelID = GetAnimationGoal(&s->ceilingz); break;
+        case SECTOR_CEILINGZ: labelNum = s->ceilingz; break;
+        case SECTOR_CEILINGZVEL: labelNum = (GetAnimationGoal(&s->ceilingz) == -1) ? 0 : s->extra; break;
+        case SECTOR_CEILINGZGOAL: labelNum = GetAnimationGoal(&s->ceilingz); break;
 
-        case SECTOR_FLOORZ: lLabelID = s->floorz; break;
-        case SECTOR_FLOORZVEL: lLabelID = (GetAnimationGoal(&s->floorz) == -1) ? 0 : s->extra; break;
-        case SECTOR_FLOORZGOAL: lLabelID = GetAnimationGoal(&s->floorz); break;
+        case SECTOR_FLOORZ: labelNum = s->floorz; break;
+        case SECTOR_FLOORZVEL: labelNum = (GetAnimationGoal(&s->floorz) == -1) ? 0 : s->extra; break;
+        case SECTOR_FLOORZGOAL: labelNum = GetAnimationGoal(&s->floorz); break;
 
-        case SECTOR_CEILINGSTAT: lLabelID = s->ceilingstat; break;
-        case SECTOR_FLOORSTAT: lLabelID = s->floorstat; break;
-        case SECTOR_CEILINGPICNUM: lLabelID = s->ceilingpicnum; break;
-        case SECTOR_CEILINGSLOPE: lLabelID = s->ceilingheinum; break;
-        case SECTOR_CEILINGSHADE: lLabelID = s->ceilingshade; break;
-        case SECTOR_CEILINGPAL: lLabelID = s->ceilingpal; break;
-        case SECTOR_CEILINGXPANNING: lLabelID = s->ceilingxpanning; break;
-        case SECTOR_CEILINGYPANNING: lLabelID = s->ceilingypanning; break;
-        case SECTOR_FLOORPICNUM: lLabelID = s->floorpicnum; break;
-        case SECTOR_FLOORSLOPE: lLabelID = s->floorheinum; break;
-        case SECTOR_FLOORSHADE: lLabelID = s->floorshade; break;
-        case SECTOR_FLOORPAL: lLabelID = s->floorpal; break;
-        case SECTOR_FLOORXPANNING: lLabelID = s->floorxpanning; break;
-        case SECTOR_FLOORYPANNING: lLabelID = s->floorypanning; break;
-        case SECTOR_VISIBILITY: lLabelID = s->visibility; break;
-        case SECTOR_FOGPAL: lLabelID = s->fogpal; break;
-        case SECTOR_LOTAG: lLabelID = (int16_t)s->lotag; break;
-        case SECTOR_HITAG: lLabelID = (int16_t)s->hitag; break;
-        case SECTOR_ULOTAG: lLabelID = s->lotag; break;
-        case SECTOR_UHITAG: lLabelID = s->hitag; break;
-        case SECTOR_EXTRA: lLabelID = s->extra; break;
+        case SECTOR_CEILINGSTAT: labelNum = s->ceilingstat; break;
+        case SECTOR_FLOORSTAT: labelNum = s->floorstat; break;
+        case SECTOR_CEILINGPICNUM: labelNum = s->ceilingpicnum; break;
+        case SECTOR_CEILINGSLOPE: labelNum = s->ceilingheinum; break;
+        case SECTOR_CEILINGSHADE: labelNum = s->ceilingshade; break;
+        case SECTOR_CEILINGPAL: labelNum = s->ceilingpal; break;
+        case SECTOR_CEILINGXPANNING: labelNum = s->ceilingxpanning; break;
+        case SECTOR_CEILINGYPANNING: labelNum = s->ceilingypanning; break;
+        case SECTOR_FLOORPICNUM: labelNum = s->floorpicnum; break;
+        case SECTOR_FLOORSLOPE: labelNum = s->floorheinum; break;
+        case SECTOR_FLOORSHADE: labelNum = s->floorshade; break;
+        case SECTOR_FLOORPAL: labelNum = s->floorpal; break;
+        case SECTOR_FLOORXPANNING: labelNum = s->floorxpanning; break;
+        case SECTOR_FLOORYPANNING: labelNum = s->floorypanning; break;
+        case SECTOR_VISIBILITY: labelNum = s->visibility; break;
+        case SECTOR_FOGPAL: labelNum = s->fogpal; break;
+        case SECTOR_LOTAG: labelNum = (int16_t)s->lotag; break;
+        case SECTOR_HITAG: labelNum = (int16_t)s->hitag; break;
+        case SECTOR_ULOTAG: labelNum = s->lotag; break;
+        case SECTOR_UHITAG: labelNum = s->hitag; break;
+        case SECTOR_EXTRA: labelNum = s->extra; break;
         case SECTOR_CEILINGBUNCH:
         case SECTOR_FLOORBUNCH:
 #ifdef YAX_ENABLE
-            lLabelID = yax_getbunch(iSector, lLabelID == SECTOR_FLOORBUNCH);
+            labelNum = yax_getbunch(sectNum, labelNum == SECTOR_FLOORBUNCH);
 #else
-            lLabelID = -1;
+            labelNum = -1;
 #endif
             break;
-        default: lLabelID = -1; break;
+        default: labelNum = -1; break;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
-void __fastcall VM_SetSector(register int32_t const iSector, register int32_t const lLabelID, register int32_t iSet)
+void __fastcall VM_SetSector(register int32_t const sectNum, register int32_t const labelNum, register int32_t iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iSector >= (unsigned)numsectors))
+    if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
     {
-        CON_ERRPRINTF("VM_SetSector: Invalid sector %d\n", iSector);
+        CON_ERRPRINTF("VM_SetSector: Invalid sector %d\n", sectNum);
         return;
     }
 
-    sectortype * const s = &sector[iSector];
+    sectortype * const s = &sector[sectNum];
 
-    switch (lLabelID)
+    switch (labelNum)
     {
         case SECTOR_WALLPTR: s->wallptr = iSet; break;
         case SECTOR_WALLNUM: s->wallnum = iSet; break;
@@ -965,14 +965,14 @@ void __fastcall VM_SetSector(register int32_t const iSector, register int32_t co
         case SECTOR_CEILINGZVEL: s->extra = iSet;
             if ((iSet = GetAnimationGoal(&s->ceilingz)) != -1)
         case SECTOR_CEILINGZGOAL:
-            SetAnimation(iSector, &s->ceilingz, iSet, s->extra);
+            SetAnimation(sectNum, &s->ceilingz, iSet, s->extra);
             break;
 
         case SECTOR_FLOORZ: s->floorz = iSet; break;
         case SECTOR_FLOORZVEL: s->extra = iSet;
             if ((iSet = GetAnimationGoal(&s->floorz)) != -1)
         case SECTOR_FLOORZGOAL:
-            SetAnimation(iSector, &s->floorz, iSet, s->extra);
+            SetAnimation(sectNum, &s->floorz, iSet, s->extra);
             break;
 
         case SECTOR_CEILINGSTAT: s->ceilingstat = iSet; break;
@@ -1002,172 +1002,172 @@ void __fastcall VM_SetSector(register int32_t const iSector, register int32_t co
     }
 }
 
-void __fastcall VM_SetSprite(register int32_t const iActor, register int32_t const lLabelID, register int32_t const lParm2, register int32_t const iSet)
+void __fastcall VM_SetSprite(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const lParm2, register int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
         CON_ERRPRINTF("tried to set %s on invalid target sprite (%d) from spr %d pic %d\n",
-                      ActorLabels[lLabelID].name,iActor,vm.g_i,TrackerCast(vm.g_sp->picnum));
+                      ActorLabels[labelNum].name,spriteNum,vm.spriteNum,TrackerCast(vm.pSprite->picnum));
         return;
     }
 
-    if (EDUKE32_PREDICT_FALSE(ActorLabels[lLabelID].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2))
+    if (EDUKE32_PREDICT_FALSE(ActorLabels[labelNum].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[labelNum].maxParm2))
     {
         CON_ERRPRINTF("tried to set invalid %s position %d on sprite (%d) from spr %d\n",
-                      ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
+                      ActorLabels[labelNum].name,lParm2,spriteNum,vm.spriteNum);
         return;
     }
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case ACTOR_X: sprite[iActor].x = iSet; break;
-        case ACTOR_Y: sprite[iActor].y = iSet; break;
-        case ACTOR_Z: sprite[iActor].z = iSet; break;
-        case ACTOR_CSTAT: sprite[iActor].cstat = iSet; break;
-        case ACTOR_PICNUM: sprite[iActor].picnum = iSet; break;
-        case ACTOR_SHADE: sprite[iActor].shade = iSet; break;
-        case ACTOR_PAL: sprite[iActor].pal = iSet; break;
-        case ACTOR_CLIPDIST: sprite[iActor].clipdist = iSet; break;
-        case ACTOR_DETAIL: sprite[iActor].blend = iSet; break;
-        case ACTOR_XREPEAT: sprite[iActor].xrepeat = iSet; break;
-        case ACTOR_YREPEAT: sprite[iActor].yrepeat = iSet; break;
-        case ACTOR_XOFFSET: sprite[iActor].xoffset = iSet; break;
-        case ACTOR_YOFFSET: sprite[iActor].yoffset = iSet; break;
-        case ACTOR_SECTNUM: changespritesect(iActor, iSet); break;
-        case ACTOR_STATNUM: changespritestat(iActor, iSet); break;
-        case ACTOR_ANG: sprite[iActor].ang = iSet; break;
-        case ACTOR_OWNER: sprite[iActor].owner = iSet; break;
-        case ACTOR_XVEL: sprite[iActor].xvel = iSet; break;
-        case ACTOR_YVEL: sprite[iActor].yvel = iSet; break;
-        case ACTOR_ZVEL: sprite[iActor].zvel = iSet; break;
-        case ACTOR_LOTAG: sprite[iActor].lotag = (int16_t)iSet; break;
-        case ACTOR_HITAG: sprite[iActor].hitag = (int16_t)iSet; break;
-        case ACTOR_ULOTAG: sprite[iActor].lotag = iSet; break;
-        case ACTOR_UHITAG: sprite[iActor].hitag = iSet; break;
-        case ACTOR_EXTRA: sprite[iActor].extra = iSet; break;
-        case ACTOR_HTCGG: actor[iActor].cgg = iSet; break;
-        case ACTOR_HTPICNUM: actor[iActor].picnum = iSet; break;
-        case ACTOR_HTANG: actor[iActor].ang = iSet; break;
-        case ACTOR_HTEXTRA: actor[iActor].extra = iSet; break;
-        case ACTOR_HTOWNER: actor[iActor].owner = iSet; break;
-        case ACTOR_HTMOVFLAG: actor[iActor].movflag = iSet; break;
-        case ACTOR_HTTEMPANG: actor[iActor].tempang = iSet; break;
-        case ACTOR_HTACTORSTAYPUT: actor[iActor].actorstayput = iSet; break;
-        case ACTOR_HTDISPICNUM: actor[iActor].dispicnum = iSet; break;
-        case ACTOR_HTTIMETOSLEEP: actor[iActor].timetosleep = iSet; break;
-        case ACTOR_HTFLOORZ: actor[iActor].floorz = iSet; break;
-        case ACTOR_HTCEILINGZ: actor[iActor].ceilingz = iSet; break;
-        case ACTOR_HTLASTVX: actor[iActor].lastvx = iSet; break;
-        case ACTOR_HTLASTVY: actor[iActor].lastvy = iSet; break;
-        case ACTOR_HTBPOSX: actor[iActor].bpos.x = iSet; break;
-        case ACTOR_HTBPOSY: actor[iActor].bpos.y = iSet; break;
-        case ACTOR_HTBPOSZ: actor[iActor].bpos.z = iSet; break;
-        case ACTOR_HTG_T: actor[iActor].t_data[lParm2] = iSet; break;
-        case ACTOR_ANGOFF: spriteext[iActor].angoff = iSet; break;
-        case ACTOR_PITCH: spriteext[iActor].pitch = iSet; break;
-        case ACTOR_ROLL: spriteext[iActor].roll = iSet; break;
-        case ACTOR_MDXOFF: spriteext[iActor].offset.x = iSet; break;
-        case ACTOR_MDYOFF: spriteext[iActor].offset.y = iSet; break;
-        case ACTOR_MDZOFF: spriteext[iActor].offset.z = iSet; break;
-        case ACTOR_MDFLAGS: spriteext[iActor].flags = iSet; break;
-        case ACTOR_XPANNING: spriteext[iActor].xpanning = iSet; break;
-        case ACTOR_YPANNING: spriteext[iActor].ypanning = iSet; break;
-        case ACTOR_HTFLAGS: actor[iActor].flags = iSet; break;
-        case ACTOR_ALPHA: spriteext[iActor].alpha = (float)iSet * (1.f / 255.0f); break;
+        case ACTOR_X: sprite[spriteNum].x = iSet; break;
+        case ACTOR_Y: sprite[spriteNum].y = iSet; break;
+        case ACTOR_Z: sprite[spriteNum].z = iSet; break;
+        case ACTOR_CSTAT: sprite[spriteNum].cstat = iSet; break;
+        case ACTOR_PICNUM: sprite[spriteNum].picnum = iSet; break;
+        case ACTOR_SHADE: sprite[spriteNum].shade = iSet; break;
+        case ACTOR_PAL: sprite[spriteNum].pal = iSet; break;
+        case ACTOR_CLIPDIST: sprite[spriteNum].clipdist = iSet; break;
+        case ACTOR_DETAIL: sprite[spriteNum].blend = iSet; break;
+        case ACTOR_XREPEAT: sprite[spriteNum].xrepeat = iSet; break;
+        case ACTOR_YREPEAT: sprite[spriteNum].yrepeat = iSet; break;
+        case ACTOR_XOFFSET: sprite[spriteNum].xoffset = iSet; break;
+        case ACTOR_YOFFSET: sprite[spriteNum].yoffset = iSet; break;
+        case ACTOR_SECTNUM: changespritesect(spriteNum, iSet); break;
+        case ACTOR_STATNUM: changespritestat(spriteNum, iSet); break;
+        case ACTOR_ANG: sprite[spriteNum].ang = iSet; break;
+        case ACTOR_OWNER: sprite[spriteNum].owner = iSet; break;
+        case ACTOR_XVEL: sprite[spriteNum].xvel = iSet; break;
+        case ACTOR_YVEL: sprite[spriteNum].yvel = iSet; break;
+        case ACTOR_ZVEL: sprite[spriteNum].zvel = iSet; break;
+        case ACTOR_LOTAG: sprite[spriteNum].lotag = (int16_t)iSet; break;
+        case ACTOR_HITAG: sprite[spriteNum].hitag = (int16_t)iSet; break;
+        case ACTOR_ULOTAG: sprite[spriteNum].lotag = iSet; break;
+        case ACTOR_UHITAG: sprite[spriteNum].hitag = iSet; break;
+        case ACTOR_EXTRA: sprite[spriteNum].extra = iSet; break;
+        case ACTOR_HTCGG: actor[spriteNum].cgg = iSet; break;
+        case ACTOR_HTPICNUM: actor[spriteNum].picnum = iSet; break;
+        case ACTOR_HTANG: actor[spriteNum].ang = iSet; break;
+        case ACTOR_HTEXTRA: actor[spriteNum].extra = iSet; break;
+        case ACTOR_HTOWNER: actor[spriteNum].owner = iSet; break;
+        case ACTOR_HTMOVFLAG: actor[spriteNum].movflag = iSet; break;
+        case ACTOR_HTTEMPANG: actor[spriteNum].tempang = iSet; break;
+        case ACTOR_HTACTORSTAYPUT: actor[spriteNum].actorstayput = iSet; break;
+        case ACTOR_HTDISPICNUM: actor[spriteNum].dispicnum = iSet; break;
+        case ACTOR_HTTIMETOSLEEP: actor[spriteNum].timetosleep = iSet; break;
+        case ACTOR_HTFLOORZ: actor[spriteNum].floorz = iSet; break;
+        case ACTOR_HTCEILINGZ: actor[spriteNum].ceilingz = iSet; break;
+        case ACTOR_HTLASTVX: actor[spriteNum].lastvx = iSet; break;
+        case ACTOR_HTLASTVY: actor[spriteNum].lastvy = iSet; break;
+        case ACTOR_HTBPOSX: actor[spriteNum].bpos.x = iSet; break;
+        case ACTOR_HTBPOSY: actor[spriteNum].bpos.y = iSet; break;
+        case ACTOR_HTBPOSZ: actor[spriteNum].bpos.z = iSet; break;
+        case ACTOR_HTG_T: actor[spriteNum].t_data[lParm2] = iSet; break;
+        case ACTOR_ANGOFF: spriteext[spriteNum].angoff = iSet; break;
+        case ACTOR_PITCH: spriteext[spriteNum].pitch = iSet; break;
+        case ACTOR_ROLL: spriteext[spriteNum].roll = iSet; break;
+        case ACTOR_MDXOFF: spriteext[spriteNum].offset.x = iSet; break;
+        case ACTOR_MDYOFF: spriteext[spriteNum].offset.y = iSet; break;
+        case ACTOR_MDZOFF: spriteext[spriteNum].offset.z = iSet; break;
+        case ACTOR_MDFLAGS: spriteext[spriteNum].flags = iSet; break;
+        case ACTOR_XPANNING: spriteext[spriteNum].xpanning = iSet; break;
+        case ACTOR_YPANNING: spriteext[spriteNum].ypanning = iSet; break;
+        case ACTOR_HTFLAGS: actor[spriteNum].flags = iSet; break;
+        case ACTOR_ALPHA: spriteext[spriteNum].alpha = (float)iSet * (1.f / 255.0f); break;
         default: break;
     }
 }
 
 
-int32_t __fastcall VM_GetSprite(register int32_t const iActor, register int32_t lLabelID, register int32_t const lParm2)
+int32_t __fastcall VM_GetSprite(register int32_t const spriteNum, register int32_t labelNum, register int32_t const lParm2)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
         CON_ERRPRINTF("tried to get %s on invalid target sprite (%d) from spr %d pic %d\n",
-                      ActorLabels[lLabelID].name,iActor,vm.g_i,TrackerCast(vm.g_sp->picnum));
+                      ActorLabels[labelNum].name,spriteNum,vm.spriteNum,TrackerCast(vm.pSprite->picnum));
         return -1;
     }
 
-    if (EDUKE32_PREDICT_FALSE(ActorLabels[lLabelID].flags & LABEL_HASPARM2 &&
-        (unsigned)lParm2 >= (unsigned)ActorLabels[lLabelID].maxParm2))
+    if (EDUKE32_PREDICT_FALSE(ActorLabels[labelNum].flags & LABEL_HASPARM2 &&
+        (unsigned)lParm2 >= (unsigned)ActorLabels[labelNum].maxParm2))
     {
         CON_ERRPRINTF("tried to get invalid %s position %d on sprite (%d) from spr %d\n",
-                      ActorLabels[lLabelID].name,lParm2,iActor,vm.g_i);
+                      ActorLabels[labelNum].name,lParm2,spriteNum,vm.spriteNum);
         return -1;
     }
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case ACTOR_X: lLabelID = sprite[iActor].x; break;
-        case ACTOR_Y: lLabelID = sprite[iActor].y; break;
-        case ACTOR_Z: lLabelID = sprite[iActor].z; break;
-        case ACTOR_CSTAT: lLabelID = sprite[iActor].cstat; break;
-        case ACTOR_PICNUM: lLabelID = sprite[iActor].picnum; break;
-        case ACTOR_SHADE: lLabelID = sprite[iActor].shade; break;
-        case ACTOR_PAL: lLabelID = sprite[iActor].pal; break;
-        case ACTOR_CLIPDIST: lLabelID = sprite[iActor].clipdist; break;
-        case ACTOR_DETAIL: lLabelID = sprite[iActor].blend; break;
-        case ACTOR_XREPEAT: lLabelID = sprite[iActor].xrepeat; break;
-        case ACTOR_YREPEAT: lLabelID = sprite[iActor].yrepeat; break;
-        case ACTOR_XOFFSET: lLabelID = sprite[iActor].xoffset; break;
-        case ACTOR_YOFFSET: lLabelID = sprite[iActor].yoffset; break;
-        case ACTOR_SECTNUM: lLabelID = sprite[iActor].sectnum; break;
-        case ACTOR_STATNUM: lLabelID = sprite[iActor].statnum; break;
-        case ACTOR_ANG: lLabelID = sprite[iActor].ang; break;
-        case ACTOR_OWNER: lLabelID = sprite[iActor].owner; break;
-        case ACTOR_XVEL: lLabelID = sprite[iActor].xvel; break;
-        case ACTOR_YVEL: lLabelID = sprite[iActor].yvel; break;
-        case ACTOR_ZVEL: lLabelID = sprite[iActor].zvel; break;
-        case ACTOR_LOTAG: lLabelID = (int16_t)sprite[iActor].lotag; break;
-        case ACTOR_HITAG: lLabelID = (int16_t)sprite[iActor].hitag; break;
-        case ACTOR_ULOTAG: lLabelID = sprite[iActor].lotag; break;
-        case ACTOR_UHITAG: lLabelID = sprite[iActor].hitag; break;
-        case ACTOR_EXTRA: lLabelID = sprite[iActor].extra; break;
-        case ACTOR_HTCGG: lLabelID = actor[iActor].cgg; break;
-        case ACTOR_HTPICNUM: lLabelID = actor[iActor].picnum; break;
-        case ACTOR_HTANG: lLabelID = actor[iActor].ang; break;
-        case ACTOR_HTEXTRA: lLabelID = actor[iActor].extra; break;
-        case ACTOR_HTOWNER: lLabelID = actor[iActor].owner; break;
-        case ACTOR_HTMOVFLAG: lLabelID = actor[iActor].movflag; break;
-        case ACTOR_HTTEMPANG: lLabelID = actor[iActor].tempang; break;
-        case ACTOR_HTACTORSTAYPUT: lLabelID = actor[iActor].actorstayput; break;
-        case ACTOR_HTDISPICNUM: lLabelID = actor[iActor].dispicnum; break;
-        case ACTOR_HTTIMETOSLEEP: lLabelID = actor[iActor].timetosleep; break;
-        case ACTOR_HTFLOORZ: lLabelID = actor[iActor].floorz; break;
-        case ACTOR_HTCEILINGZ: lLabelID = actor[iActor].ceilingz; break;
-        case ACTOR_HTLASTVX: lLabelID = actor[iActor].lastvx; break;
-        case ACTOR_HTLASTVY: lLabelID = actor[iActor].lastvy; break;
-        case ACTOR_HTBPOSX: lLabelID = actor[iActor].bpos.x; break;
-        case ACTOR_HTBPOSY: lLabelID = actor[iActor].bpos.y; break;
-        case ACTOR_HTBPOSZ: lLabelID = actor[iActor].bpos.z; break;
-        case ACTOR_HTG_T: lLabelID = actor[iActor].t_data[lParm2]; break;
-        case ACTOR_ANGOFF: lLabelID = spriteext[iActor].angoff; break;
-        case ACTOR_PITCH: lLabelID = spriteext[iActor].pitch; break;
-        case ACTOR_ROLL: lLabelID = spriteext[iActor].roll; break;
-        case ACTOR_MDXOFF: lLabelID = spriteext[iActor].offset.x; break;
-        case ACTOR_MDYOFF: lLabelID = spriteext[iActor].offset.y; break;
-        case ACTOR_MDZOFF: lLabelID = spriteext[iActor].offset.z; break;
-        case ACTOR_MDFLAGS: lLabelID = spriteext[iActor].flags; break;
-        case ACTOR_XPANNING: lLabelID = spriteext[iActor].xpanning; break;
-        case ACTOR_YPANNING: lLabelID = spriteext[iActor].ypanning; break;
-        case ACTOR_HTFLAGS: lLabelID = actor[iActor].flags; break;
-        case ACTOR_ALPHA: lLabelID = (uint8_t)(spriteext[iActor].alpha * 255.0f); break;
-        case ACTOR_ISVALID: lLabelID = (sprite[iActor].statnum != MAXSTATUS); break;
-        default: lLabelID = -1; break;
+        case ACTOR_X: labelNum = sprite[spriteNum].x; break;
+        case ACTOR_Y: labelNum = sprite[spriteNum].y; break;
+        case ACTOR_Z: labelNum = sprite[spriteNum].z; break;
+        case ACTOR_CSTAT: labelNum = sprite[spriteNum].cstat; break;
+        case ACTOR_PICNUM: labelNum = sprite[spriteNum].picnum; break;
+        case ACTOR_SHADE: labelNum = sprite[spriteNum].shade; break;
+        case ACTOR_PAL: labelNum = sprite[spriteNum].pal; break;
+        case ACTOR_CLIPDIST: labelNum = sprite[spriteNum].clipdist; break;
+        case ACTOR_DETAIL: labelNum = sprite[spriteNum].blend; break;
+        case ACTOR_XREPEAT: labelNum = sprite[spriteNum].xrepeat; break;
+        case ACTOR_YREPEAT: labelNum = sprite[spriteNum].yrepeat; break;
+        case ACTOR_XOFFSET: labelNum = sprite[spriteNum].xoffset; break;
+        case ACTOR_YOFFSET: labelNum = sprite[spriteNum].yoffset; break;
+        case ACTOR_SECTNUM: labelNum = sprite[spriteNum].sectnum; break;
+        case ACTOR_STATNUM: labelNum = sprite[spriteNum].statnum; break;
+        case ACTOR_ANG: labelNum = sprite[spriteNum].ang; break;
+        case ACTOR_OWNER: labelNum = sprite[spriteNum].owner; break;
+        case ACTOR_XVEL: labelNum = sprite[spriteNum].xvel; break;
+        case ACTOR_YVEL: labelNum = sprite[spriteNum].yvel; break;
+        case ACTOR_ZVEL: labelNum = sprite[spriteNum].zvel; break;
+        case ACTOR_LOTAG: labelNum = (int16_t)sprite[spriteNum].lotag; break;
+        case ACTOR_HITAG: labelNum = (int16_t)sprite[spriteNum].hitag; break;
+        case ACTOR_ULOTAG: labelNum = sprite[spriteNum].lotag; break;
+        case ACTOR_UHITAG: labelNum = sprite[spriteNum].hitag; break;
+        case ACTOR_EXTRA: labelNum = sprite[spriteNum].extra; break;
+        case ACTOR_HTCGG: labelNum = actor[spriteNum].cgg; break;
+        case ACTOR_HTPICNUM: labelNum = actor[spriteNum].picnum; break;
+        case ACTOR_HTANG: labelNum = actor[spriteNum].ang; break;
+        case ACTOR_HTEXTRA: labelNum = actor[spriteNum].extra; break;
+        case ACTOR_HTOWNER: labelNum = actor[spriteNum].owner; break;
+        case ACTOR_HTMOVFLAG: labelNum = actor[spriteNum].movflag; break;
+        case ACTOR_HTTEMPANG: labelNum = actor[spriteNum].tempang; break;
+        case ACTOR_HTACTORSTAYPUT: labelNum = actor[spriteNum].actorstayput; break;
+        case ACTOR_HTDISPICNUM: labelNum = actor[spriteNum].dispicnum; break;
+        case ACTOR_HTTIMETOSLEEP: labelNum = actor[spriteNum].timetosleep; break;
+        case ACTOR_HTFLOORZ: labelNum = actor[spriteNum].floorz; break;
+        case ACTOR_HTCEILINGZ: labelNum = actor[spriteNum].ceilingz; break;
+        case ACTOR_HTLASTVX: labelNum = actor[spriteNum].lastvx; break;
+        case ACTOR_HTLASTVY: labelNum = actor[spriteNum].lastvy; break;
+        case ACTOR_HTBPOSX: labelNum = actor[spriteNum].bpos.x; break;
+        case ACTOR_HTBPOSY: labelNum = actor[spriteNum].bpos.y; break;
+        case ACTOR_HTBPOSZ: labelNum = actor[spriteNum].bpos.z; break;
+        case ACTOR_HTG_T: labelNum = actor[spriteNum].t_data[lParm2]; break;
+        case ACTOR_ANGOFF: labelNum = spriteext[spriteNum].angoff; break;
+        case ACTOR_PITCH: labelNum = spriteext[spriteNum].pitch; break;
+        case ACTOR_ROLL: labelNum = spriteext[spriteNum].roll; break;
+        case ACTOR_MDXOFF: labelNum = spriteext[spriteNum].offset.x; break;
+        case ACTOR_MDYOFF: labelNum = spriteext[spriteNum].offset.y; break;
+        case ACTOR_MDZOFF: labelNum = spriteext[spriteNum].offset.z; break;
+        case ACTOR_MDFLAGS: labelNum = spriteext[spriteNum].flags; break;
+        case ACTOR_XPANNING: labelNum = spriteext[spriteNum].xpanning; break;
+        case ACTOR_YPANNING: labelNum = spriteext[spriteNum].ypanning; break;
+        case ACTOR_HTFLAGS: labelNum = actor[spriteNum].flags; break;
+        case ACTOR_ALPHA: labelNum = (uint8_t)(spriteext[spriteNum].alpha * 255.0f); break;
+        case ACTOR_ISVALID: labelNum = (sprite[spriteNum].statnum != MAXSTATUS); break;
+        default: labelNum = -1; break;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
-int32_t __fastcall VM_GetTsprite(register int32_t const iActor, register int32_t lLabelID)
+int32_t __fastcall VM_GetTsprite(register int32_t const spriteNum, register int32_t labelNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
-        CON_ERRPRINTF("VM_GetTsprite: invalid target sprite (%d) %d %d\n", iActor, vm.g_i, TrackerCast(vm.g_sp->picnum));
+        CON_ERRPRINTF("VM_GetTsprite: invalid target sprite (%d) %d %d\n", spriteNum, vm.spriteNum, TrackerCast(vm.pSprite->picnum));
         return -1;
     }
 
-    uspritetype * const tspr = spriteext[iActor].tspr;
+    uspritetype * const tspr = spriteext[spriteNum].tspr;
 
     if (EDUKE32_PREDICT_FALSE(!tspr))
     {
@@ -1175,48 +1175,48 @@ int32_t __fastcall VM_GetTsprite(register int32_t const iActor, register int32_t
         return -1;
     }
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case ACTOR_X: lLabelID = tspr->x; break;
-        case ACTOR_Y: lLabelID = tspr->y; break;
-        case ACTOR_Z: lLabelID = tspr->z; break;
-        case ACTOR_CSTAT: lLabelID = tspr->cstat; break;
-        case ACTOR_PICNUM: lLabelID = tspr->picnum; break;
-        case ACTOR_SHADE: lLabelID = tspr->shade; break;
-        case ACTOR_PAL: lLabelID = tspr->pal; break;
-        case ACTOR_CLIPDIST: lLabelID = tspr->clipdist; break;
-        case ACTOR_DETAIL: lLabelID = tspr->blend; break;
-        case ACTOR_XREPEAT: lLabelID = tspr->xrepeat; break;
-        case ACTOR_YREPEAT: lLabelID = tspr->yrepeat; break;
-        case ACTOR_XOFFSET: lLabelID = tspr->xoffset; break;
-        case ACTOR_YOFFSET: lLabelID = tspr->yoffset; break;
-        case ACTOR_SECTNUM: lLabelID = tspr->sectnum; break;
-        case ACTOR_STATNUM: lLabelID = tspr->statnum; break;
-        case ACTOR_ANG: lLabelID = tspr->ang; break;
-        case ACTOR_OWNER: lLabelID = tspr->owner; break;
-        case ACTOR_XVEL: lLabelID = tspr->xvel; break;
-        case ACTOR_YVEL: lLabelID = tspr->yvel; break;
-        case ACTOR_ZVEL: lLabelID = tspr->zvel; break;
-        case ACTOR_LOTAG: lLabelID = (int16_t) tspr->lotag; break;
-        case ACTOR_HITAG: lLabelID = (int16_t) tspr->hitag; break;
-        case ACTOR_ULOTAG: lLabelID = tspr->lotag; break;
-        case ACTOR_UHITAG: lLabelID = tspr->hitag; break;
-        case ACTOR_EXTRA: lLabelID = tspr->extra; break;
-        default: lLabelID = -1; break;
+        case ACTOR_X: labelNum = tspr->x; break;
+        case ACTOR_Y: labelNum = tspr->y; break;
+        case ACTOR_Z: labelNum = tspr->z; break;
+        case ACTOR_CSTAT: labelNum = tspr->cstat; break;
+        case ACTOR_PICNUM: labelNum = tspr->picnum; break;
+        case ACTOR_SHADE: labelNum = tspr->shade; break;
+        case ACTOR_PAL: labelNum = tspr->pal; break;
+        case ACTOR_CLIPDIST: labelNum = tspr->clipdist; break;
+        case ACTOR_DETAIL: labelNum = tspr->blend; break;
+        case ACTOR_XREPEAT: labelNum = tspr->xrepeat; break;
+        case ACTOR_YREPEAT: labelNum = tspr->yrepeat; break;
+        case ACTOR_XOFFSET: labelNum = tspr->xoffset; break;
+        case ACTOR_YOFFSET: labelNum = tspr->yoffset; break;
+        case ACTOR_SECTNUM: labelNum = tspr->sectnum; break;
+        case ACTOR_STATNUM: labelNum = tspr->statnum; break;
+        case ACTOR_ANG: labelNum = tspr->ang; break;
+        case ACTOR_OWNER: labelNum = tspr->owner; break;
+        case ACTOR_XVEL: labelNum = tspr->xvel; break;
+        case ACTOR_YVEL: labelNum = tspr->yvel; break;
+        case ACTOR_ZVEL: labelNum = tspr->zvel; break;
+        case ACTOR_LOTAG: labelNum = (int16_t) tspr->lotag; break;
+        case ACTOR_HITAG: labelNum = (int16_t) tspr->hitag; break;
+        case ACTOR_ULOTAG: labelNum = tspr->lotag; break;
+        case ACTOR_UHITAG: labelNum = tspr->hitag; break;
+        case ACTOR_EXTRA: labelNum = tspr->extra; break;
+        default: labelNum = -1; break;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
-void __fastcall VM_SetTsprite(register int32_t const iActor, register int32_t const lLabelID, register int32_t const iSet)
+void __fastcall VM_SetTsprite(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iActor >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
-        CON_ERRPRINTF("VM_SetTsprite: invalid target sprite (%d) %d %d\n", iActor, vm.g_i, TrackerCast(vm.g_sp->picnum));
+        CON_ERRPRINTF("VM_SetTsprite: invalid target sprite (%d) %d %d\n", spriteNum, vm.spriteNum, TrackerCast(vm.pSprite->picnum));
         return;
     }
 
-    uspritetype * const tspr = spriteext[iActor].tspr;
+    uspritetype * const tspr = spriteext[spriteNum].tspr;
 
     if (EDUKE32_PREDICT_FALSE(!tspr))
     {
@@ -1224,7 +1224,7 @@ void __fastcall VM_SetTsprite(register int32_t const iActor, register int32_t co
         return;
     }
 
-    switch (lLabelID)
+    switch (labelNum)
     {
         case ACTOR_X: tspr->x = iSet; break;
         case ACTOR_Y: tspr->y = iSet; break;
@@ -1254,77 +1254,77 @@ void __fastcall VM_SetTsprite(register int32_t const iActor, register int32_t co
     }
 }
 
-int32_t __fastcall VM_GetProjectile(register int32_t const iTile, register int32_t lLabelID)
+int32_t __fastcall VM_GetProjectile(register int32_t const tileNum, register int32_t labelNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iTile >= MAXTILES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)tileNum >= MAXTILES))
     {
-        CON_ERRPRINTF("VM_GetProjectile: invalid projectile (%d)\n", iTile);
+        CON_ERRPRINTF("VM_GetProjectile: invalid projectile (%d)\n", tileNum);
         return -1;
     }
 
-    projectile_t * const proj = g_tile[iTile].proj;
+    projectile_t * const proj = g_tile[tileNum].proj;
 
     if (EDUKE32_PREDICT_FALSE(!proj))
     {
-        CON_ERRPRINTF("VM_GetProjectile: no projectile defined for tile %d\n", iTile);
+        CON_ERRPRINTF("VM_GetProjectile: no projectile defined for tile %d\n", tileNum);
         return -1;
     }
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case PROJ_WORKSLIKE: lLabelID = proj->workslike; break;
-        case PROJ_SPAWNS: lLabelID = proj->spawns; break;
-        case PROJ_SXREPEAT: lLabelID = proj->sxrepeat; break;
-        case PROJ_SYREPEAT: lLabelID = proj->syrepeat; break;
-        case PROJ_SOUND: lLabelID = proj->sound; break;
-        case PROJ_ISOUND: lLabelID = proj->isound; break;
-        case PROJ_VEL: lLabelID = proj->vel; break;
-        case PROJ_EXTRA: lLabelID = proj->extra; break;
-        case PROJ_DECAL: lLabelID = proj->decal; break;
-        case PROJ_TRAIL: lLabelID = proj->trail; break;
-        case PROJ_TXREPEAT: lLabelID = proj->txrepeat; break;
-        case PROJ_TYREPEAT: lLabelID = proj->tyrepeat; break;
-        case PROJ_TOFFSET: lLabelID = proj->toffset; break;
-        case PROJ_TNUM: lLabelID = proj->tnum; break;
-        case PROJ_DROP: lLabelID = proj->drop; break;
-        case PROJ_CSTAT: lLabelID = proj->cstat; break;
-        case PROJ_CLIPDIST: lLabelID = proj->clipdist; break;
-        case PROJ_SHADE: lLabelID = proj->shade; break;
-        case PROJ_XREPEAT: lLabelID = proj->xrepeat; break;
-        case PROJ_YREPEAT: lLabelID = proj->yrepeat; break;
-        case PROJ_PAL: lLabelID = proj->pal; break;
-        case PROJ_EXTRA_RAND: lLabelID = proj->extra_rand; break;
-        case PROJ_HITRADIUS: lLabelID = proj->hitradius; break;
-        case PROJ_MOVECNT: lLabelID = proj->movecnt; break;
-        case PROJ_OFFSET: lLabelID = proj->offset; break;
-        case PROJ_BOUNCES: lLabelID = proj->bounces; break;
-        case PROJ_BSOUND: lLabelID = proj->bsound; break;
-        case PROJ_RANGE: lLabelID = proj->range; break;
-        case PROJ_FLASH_COLOR: lLabelID = proj->flashcolor; break;
-        case PROJ_USERDATA: lLabelID = proj->userdata; break;
-        default: lLabelID = -1; break;
+        case PROJ_WORKSLIKE: labelNum = proj->workslike; break;
+        case PROJ_SPAWNS: labelNum = proj->spawns; break;
+        case PROJ_SXREPEAT: labelNum = proj->sxrepeat; break;
+        case PROJ_SYREPEAT: labelNum = proj->syrepeat; break;
+        case PROJ_SOUND: labelNum = proj->sound; break;
+        case PROJ_ISOUND: labelNum = proj->isound; break;
+        case PROJ_VEL: labelNum = proj->vel; break;
+        case PROJ_EXTRA: labelNum = proj->extra; break;
+        case PROJ_DECAL: labelNum = proj->decal; break;
+        case PROJ_TRAIL: labelNum = proj->trail; break;
+        case PROJ_TXREPEAT: labelNum = proj->txrepeat; break;
+        case PROJ_TYREPEAT: labelNum = proj->tyrepeat; break;
+        case PROJ_TOFFSET: labelNum = proj->toffset; break;
+        case PROJ_TNUM: labelNum = proj->tnum; break;
+        case PROJ_DROP: labelNum = proj->drop; break;
+        case PROJ_CSTAT: labelNum = proj->cstat; break;
+        case PROJ_CLIPDIST: labelNum = proj->clipdist; break;
+        case PROJ_SHADE: labelNum = proj->shade; break;
+        case PROJ_XREPEAT: labelNum = proj->xrepeat; break;
+        case PROJ_YREPEAT: labelNum = proj->yrepeat; break;
+        case PROJ_PAL: labelNum = proj->pal; break;
+        case PROJ_EXTRA_RAND: labelNum = proj->extra_rand; break;
+        case PROJ_HITRADIUS: labelNum = proj->hitradius; break;
+        case PROJ_MOVECNT: labelNum = proj->movecnt; break;
+        case PROJ_OFFSET: labelNum = proj->offset; break;
+        case PROJ_BOUNCES: labelNum = proj->bounces; break;
+        case PROJ_BSOUND: labelNum = proj->bsound; break;
+        case PROJ_RANGE: labelNum = proj->range; break;
+        case PROJ_FLASH_COLOR: labelNum = proj->flashcolor; break;
+        case PROJ_USERDATA: labelNum = proj->userdata; break;
+        default: labelNum = -1; break;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
-void __fastcall VM_SetProjectile(register int32_t const iTile, register int32_t const lLabelID, register int32_t const iSet)
+void __fastcall VM_SetProjectile(register int32_t const tileNum, register int32_t const labelNum, register int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iTile >= MAXTILES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)tileNum >= MAXTILES))
     {
-        CON_ERRPRINTF("VM_SetProjectile: invalid projectile (%d)\n", iTile);
+        CON_ERRPRINTF("VM_SetProjectile: invalid projectile (%d)\n", tileNum);
         return;
     }
 
-    projectile_t * const proj = g_tile[iTile].proj;
+    projectile_t * const proj = g_tile[tileNum].proj;
 
     if (EDUKE32_PREDICT_FALSE(!proj))
     {
-        CON_ERRPRINTF("VM_SetProjectile: no projectile defined for tile %d\n", iTile);
+        CON_ERRPRINTF("VM_SetProjectile: no projectile defined for tile %d\n", tileNum);
         return;
     }
 
-    switch (lLabelID)
+    switch (labelNum)
     {
         case PROJ_WORKSLIKE: proj->workslike = iSet; break;
         case PROJ_SPAWNS: proj->spawns = iSet; break;
@@ -1359,49 +1359,49 @@ void __fastcall VM_SetProjectile(register int32_t const iTile, register int32_t 
     }
 }
 
-int32_t __fastcall VM_GetTileData(register int32_t const iTile, register int32_t lLabelID)
+int32_t __fastcall VM_GetTileData(register int32_t const tileNum, register int32_t labelNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iTile >= MAXTILES))
+    if (EDUKE32_PREDICT_FALSE((unsigned)tileNum >= MAXTILES))
     {
-        CON_ERRPRINTF("VM_GetTileData: invalid tile (%d)\n", iTile);
+        CON_ERRPRINTF("VM_GetTileData: invalid tile (%d)\n", tileNum);
         return -1;
     }
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case TILEDATA_XSIZE: lLabelID = tilesiz[iTile].x; break;
-        case TILEDATA_YSIZE: lLabelID = tilesiz[iTile].y; break;
+        case TILEDATA_XSIZE: labelNum = tilesiz[tileNum].x; break;
+        case TILEDATA_YSIZE: labelNum = tilesiz[tileNum].y; break;
 
-        case TILEDATA_ANIMFRAMES: lLabelID = picanm[iTile].num; break;
-        case TILEDATA_XOFFSET: lLabelID = picanm[iTile].xofs; break;
-        case TILEDATA_YOFFSET: lLabelID = picanm[iTile].yofs; break;
-        case TILEDATA_ANIMSPEED: lLabelID = picanm[iTile].sf & PICANM_ANIMSPEED_MASK; break;
-        case TILEDATA_ANIMTYPE: lLabelID = (picanm[iTile].sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT; break;
+        case TILEDATA_ANIMFRAMES: labelNum = picanm[tileNum].num; break;
+        case TILEDATA_XOFFSET: labelNum = picanm[tileNum].xofs; break;
+        case TILEDATA_YOFFSET: labelNum = picanm[tileNum].yofs; break;
+        case TILEDATA_ANIMSPEED: labelNum = picanm[tileNum].sf & PICANM_ANIMSPEED_MASK; break;
+        case TILEDATA_ANIMTYPE: labelNum = (picanm[tileNum].sf & PICANM_ANIMTYPE_MASK) >> PICANM_ANIMTYPE_SHIFT; break;
 
-        case TILEDATA_GAMEFLAGS: lLabelID = g_tile[iTile].flags; break;
+        case TILEDATA_GAMEFLAGS: labelNum = g_tile[tileNum].flags; break;
 
-        default: lLabelID = -1; break;
+        default: labelNum = -1; break;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
-int32_t __fastcall VM_GetPalData(register int32_t const iPal, register int32_t lLabelID)
+int32_t __fastcall VM_GetPalData(register int32_t const palNum, register int32_t labelNum)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)iPal >= MAXPALOOKUPS))
+    if (EDUKE32_PREDICT_FALSE((unsigned)palNum >= MAXPALOOKUPS))
     {
-        CON_ERRPRINTF("VM_GetPalData: invalid pal (%d)\n", iPal);
+        CON_ERRPRINTF("VM_GetPalData: invalid pal (%d)\n", palNum);
         return -1;
     }
 
-    switch (lLabelID)
+    switch (labelNum)
     {
-        case PALDATA_NOFLOORPAL: lLabelID = g_noFloorPal[iPal]; break;
+        case PALDATA_NOFLOORPAL: labelNum = g_noFloorPal[palNum]; break;
 
-        default: lLabelID = -1; break;
+        default: labelNum = -1; break;
     }
 
-    return lLabelID;
+    return labelNum;
 }
 
 #endif

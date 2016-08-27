@@ -187,8 +187,8 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     sndist = FindDistance3D((cx-pos->x),(cy-pos->y),(cz-pos->z));
 
-    if (i >= 0 && (g_sounds[num].m & SF_GLOBAL) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
-        sndist = divscale14(sndist,(SHT+1));
+    if (i >= 0 && (g_sounds[num].m & SF_GLOBAL) == 0 && PN(i) == MUSICANDSFX && SLT(i) < 999 && (sector[SECT(i)].lotag&0xff) < 9)
+        sndist = divscale14(sndist,(SHT(i)+1));
 
     pitchs = g_sounds[num].ps;
     pitche = g_sounds[num].pe;
@@ -204,7 +204,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
 
     sndist += g_sounds[num].vo;
     if (sndist < 0) sndist = 0;
-    if (cs > -1 && sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,SX,SY,SZ-(24<<8),SECT))
+    if (cs > -1 && sndist && PN(i) != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,SX(i),SY(i),SZ(i)-(24<<8),SECT(i)))
         sndist += sndist>>5;
     /*
         switch (num)
@@ -221,12 +221,12 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     */
     if (cursectnum > -1 && sector[cursectnum].lotag == 2 && (g_sounds[num].m & SF_TALK) == 0)
         pitch = -768;
-    if (sndist > 31444 && PN != MUSICANDSFX)
+    if (sndist > 31444 && PN(i) != MUSICANDSFX)
         return -1;
 //        break;
 //    }
 
-    if (g_sounds[num].num > 0 && PN != MUSICANDSFX)
+    if (g_sounds[num].num > 0 && PN(i) != MUSICANDSFX)
     {
         if (g_sounds[num].SoundOwner[0].ow == i) S_StopSound(num);
         else if (g_sounds[num].num > 1) S_StopSound(num);
@@ -399,16 +399,16 @@ void S_Update(void)
             sndang = 2048 + ca - getangle(cx-sx,cy-sy);
             sndang &= 2047;
             sndist = FindDistance3D((cx-sx),(cy-sy),(cz-sz));
-            if (i >= 0 && (g_sounds[j].m & SF_GLOBAL) == 0 && PN == MUSICANDSFX && SLT < 999 && (sector[SECT].lotag&0xff) < 9)
-                sndist = divscale14(sndist,(SHT+1));
+            if (i >= 0 && (g_sounds[j].m & SF_GLOBAL) == 0 && PN(i) == MUSICANDSFX && SLT(i) < 999 && (sector[SECT(i)].lotag&0xff) < 9)
+                sndist = divscale14(sndist,(SHT(i)+1));
 
             sndist += g_sounds[j].vo;
             if (sndist < 0) sndist = 0;
 
-            if (cs > -1 && sndist && PN != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT))
+            if (cs > -1 && sndist && PN(i) != MUSICANDSFX && !cansee(cx,cy,cz-(24<<8),cs,sx,sy,sz-(24<<8),SECT(i)))
                 sndist += sndist>>5;
 
-            if (PN == MUSICANDSFX && SLT < 999)
+            if (PN(i) == MUSICANDSFX && SLT(i) < 999)
                 g_numEnvSoundsPlaying++;
             /*
                         switch (j)
@@ -420,7 +420,7 @@ void S_Update(void)
                             break;
                         default:
             */
-            if (sndist > 31444 && PN != MUSICANDSFX)
+            if (sndist > 31444 && PN(i) != MUSICANDSFX)
             {
                 S_StopSound(j);
                 continue;

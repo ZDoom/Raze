@@ -40,8 +40,8 @@ void El_DisplayErrors(void);
 int32_t El_CreateState(L_State *estate, const char *name);
 void El_DestroyState(L_State *estate);
 
-int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t iActor, int32_t iPlayer, int32_t lDist, int32_t *iReturn);
-int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t iActor, int32_t iPlayer, int32_t lDist);
+int32_t El_CallEvent(L_State *estate, int32_t eventidx, int32_t spriteNum, int32_t playerNum, int32_t lDist, int32_t *iReturn);
+int32_t El_CallActor(L_State *estate, int32_t actortile, int32_t spriteNum, int32_t playerNum, int32_t lDist);
 
 extern int8_t el_addNewErrors;  // add new errors to display?
 void El_OnError(const char *str);

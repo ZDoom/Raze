@@ -137,7 +137,7 @@ void G_OpenDemoWrite(void)
 {
 #ifdef LUNATIC
     // TODO: Currently, we can't diff gamevars in Lunatic...
-    Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "DEMOS UNSUPPORTED IN LUNATIC BUILD");
+    Bstrcpy(apStrings[QUOTE_RESERVED4], "DEMOS UNSUPPORTED IN LUNATIC BUILD");
     P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
     ud.recstat = ud.m_recstat = 0;
     return;
@@ -153,7 +153,7 @@ void G_OpenDemoWrite(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) && g_player[myconnectindex].ps->dead_flag)
     {
-        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "CANNOT START DEMO RECORDING WHEN DEAD!");
+        Bstrcpy(apStrings[QUOTE_RESERVED4], "CANNOT START DEMO RECORDING WHEN DEAD!");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
         ud.recstat = ud.m_recstat = 0;
         return;
@@ -162,8 +162,8 @@ void G_OpenDemoWrite(void)
     if (demorec_diffs_cvar && !demorec_force_cvar)
         for (i=1; i<g_scriptSize-2; i++)
         {
-            intptr_t w=script[i];
-            if ((w&0x0fff)==CON_RESIZEARRAY && (w>>12) && script[i+1]>=0 && script[i+1]<g_gameArrayCount)
+            intptr_t w=apScript[i];
+            if ((w&0x0fff)==CON_RESIZEARRAY && (w>>12) && apScript[i+1]>=0 && apScript[i+1]<g_gameArrayCount)
             {
                 OSD_Printf("\nThe CON code possibly contains a RESIZEARRAY command.\n");
                 OSD_Printf("Gamearrays that change their size during the game are unsupported by\n");
@@ -171,7 +171,7 @@ void G_OpenDemoWrite(void)
                 OSD_Printf("contain a RESIZEARRAY command, you can force recording with the\n");
                 OSD_Printf("`demorec_force' cvar. Alternatively, you can disable diff recording\n");
                 OSD_Printf("with the `demorec_diffs' cvar.\n\n");
-                Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD.");
+                Bstrcpy(apStrings[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD.");
                 P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
                 ud.recstat = ud.m_recstat = 0;
                 return;
@@ -209,7 +209,7 @@ void G_OpenDemoWrite(void)
     {
         MAYBE_FCLOSE_AND_NULL(g_demo_filePtr);
 error_wopen_demo:
-        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
+        Bstrcpy(apStrings[QUOTE_RESERVED4], "FAILED STARTING DEMO RECORDING. SEE OSD FOR DETAILS.");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
         ud.recstat = ud.m_recstat = 0;
         return;
@@ -220,7 +220,7 @@ error_wopen_demo:
     demo_synccompress = demorec_synccompress_cvar;
     demorec_difftics = demorec_difftics_cvar;
 
-    Bsprintf(ScriptQuotes[QUOTE_RESERVED4], "DEMO %d RECORDING STARTED", demonum-1);
+    Bsprintf(apStrings[QUOTE_RESERVED4], "DEMO %d RECORDING STARTED", demonum-1);
     P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
     ud.reccnt = 0;
@@ -321,7 +321,7 @@ void G_CloseDemoWrite(void)
 
         sv_freemem();
 
-        Bstrcpy(ScriptQuotes[QUOTE_RESERVED4], "DEMO RECORDING STOPPED");
+        Bstrcpy(apStrings[QUOTE_RESERVED4], "DEMO RECORDING STOPPED");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
     }
 #if KRANDDEBUG

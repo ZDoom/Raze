@@ -83,7 +83,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
         }
     }
 
-    if (level > MAXLEVELS || MapInfo[volume *MAXLEVELS+level].filename == NULL)
+    if (level > MAXLEVELS || aMapInfo[volume *MAXLEVELS+level].filename == NULL)
     {
         OSD_Printf("changelevel: invalid level number\n");
         return OSDCMD_SHOWHELP;
@@ -386,7 +386,7 @@ static int32_t osdcmd_music(const osdfuncparm_t *parm)
             return OSDCMD_OK;
         }
 
-        if (MapInfo[sel].musicfn != NULL)
+        if (aMapInfo[sel].musicfn != NULL)
         {
             g_musicIndex = sel;
             G_StartMusic();

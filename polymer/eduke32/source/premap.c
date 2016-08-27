@@ -75,10 +75,10 @@ static void G_CacheSpriteNum(int32_t i)
 
     maxc = 1;
 
-    for (j = PN; j <= g_tile[PN].cacherange; j++)
+    for (j = PN(i); j <= g_tile[PN(i)].cacherange; j++)
         tloadtile(j,1);
 
-    switch (DYNAMICTILEMAP(PN))
+    switch (DYNAMICTILEMAP(PN(i)))
     {
     case HYDRENT__STATIC:
         tloadtile(BROKEFIREHYDRENT,1);
@@ -201,7 +201,7 @@ static void G_CacheSpriteNum(int32_t i)
 
     }
 
-    for (j = PN; j < (PN+maxc); j++) tloadtile(j,1);
+    for (j = PN(i); j < (PN(i)+maxc); j++) tloadtile(j,1);
 }
 
 static void G_PrecacheSprites(void)
@@ -353,8 +353,8 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         else
         {
             menutext(160,90,0,0,"Loading");
-            if (MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
-                menutext(160,90+16+8,0,0,MapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
+            if (aMapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
+                menutext(160,90+16+8,0,0,aMapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name);
         }
 
 #ifndef EDUKE32_TOUCH_DEVICES
@@ -426,10 +426,10 @@ void G_CacheMapData(void)
     S_PauseMusic(1);
 #endif
 
-    if (MapInfo[MUS_LOADING].musicfn)
+    if (aMapInfo[MUS_LOADING].musicfn)
     {
         S_StopMusic();
-        S_PlayMusic(MapInfo[MUS_LOADING].musicfn);
+        S_PlayMusic(aMapInfo[MUS_LOADING].musicfn);
     }
 
 #if defined EDUKE32_TOUCH_DEVICES && defined USE_OPENGL
@@ -884,7 +884,7 @@ static void resetprestat(int32_t snum,int32_t g)
     int32_t i;
 
     g_spriteDeleteQueuePos = 0;
-    for (i=0; i<g_spriteDeleteQueueSize; i++) SpriteDeletionQueue[i] = -1;
+    for (i=0; i<g_deleteQueueSize; i++) SpriteDeletionQueue[i] = -1;
 
     p->hbomb_on          = 0;
     p->cheat_phase       = 0;
@@ -1091,14 +1091,14 @@ static void prelevel(char g)
         VM_OnEvent(EVENT_LOADACTOR, i, -1);
         if (G_CheckExitSprite(i))
         {
-            g_player[0].ps->exitx = SX;
-            g_player[0].ps->exity = SY;
+            g_player[0].ps->exitx = SX(i);
+            g_player[0].ps->exity = SY(i);
         }
-        else switch (DYNAMICTILEMAP(PN))
+        else switch (DYNAMICTILEMAP(PN(i)))
             {
             case GPSPEED__STATIC:
                 // DELETE_AFTER_LOADACTOR. Must not change statnum.
-                sector[SECT].extra = SLT;
+                sector[SECT(i)].extra = SLT(i);
                 break;
 
             case CYCLER__STATIC:
@@ -1108,12 +1108,12 @@ static void prelevel(char g)
                     Bsprintf(tempbuf,"\nToo many cycling sectors (%d max).",MAXCYCLERS);
                     G_GameExit(tempbuf);
                 }
-                cyclers[g_numCyclers][0] = SECT;
-                cyclers[g_numCyclers][1] = SLT;
-                cyclers[g_numCyclers][2] = SS;
-                cyclers[g_numCyclers][3] = sector[SECT].floorshade;
-                cyclers[g_numCyclers][4] = SHT;
-                cyclers[g_numCyclers][5] = (SA == 1536);
+                cyclers[g_numCyclers][0] = SECT(i);
+                cyclers[g_numCyclers][1] = SLT(i);
+                cyclers[g_numCyclers][2] = SS(i);
+                cyclers[g_numCyclers][3] = sector[SECT(i)].floorshade;
+                cyclers[g_numCyclers][4] = SHT(i);
+                cyclers[g_numCyclers][5] = (SA(i) == 1536);
                 g_numCyclers++;
                 break;
 
@@ -1134,7 +1134,7 @@ static void prelevel(char g)
     // the LOADACTOR events. DELETE_AFTER_LOADACTOR.
     for (SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nexti))
         if (!G_CheckExitSprite(i))
-            switch (DYNAMICTILEMAP(PN))
+            switch (DYNAMICTILEMAP(PN(i)))
             {
             case GPSPEED__STATIC:
             case CYCLER__STATIC:
@@ -1144,13 +1144,13 @@ static void prelevel(char g)
 
     for (i = 0; i < MAXSPRITES; i++)
     {
-        if (sprite[i].statnum < MAXSTATUS && (PN != SECTOREFFECTOR || SLT != SE_14_SUBWAY_CAR))
+        if (sprite[i].statnum < MAXSTATUS && (PN(i) != SECTOREFFECTOR || SLT(i) != SE_14_SUBWAY_CAR))
             A_Spawn(-1, i);
     }
 
     for (i = 0; i < MAXSPRITES; i++)
     {
-        if (sprite[i].statnum < MAXSTATUS && PN == SECTOREFFECTOR && SLT == SE_14_SUBWAY_CAR)
+        if (sprite[i].statnum < MAXSTATUS && PN(i) == SECTOREFFECTOR && SLT(i) == SE_14_SUBWAY_CAR)
             A_Spawn(-1, i);
     }
 
@@ -1160,11 +1160,11 @@ static void prelevel(char g)
     {
         int32_t ii;
 
-        if (PN <= 0)  // oob safety for switch below
+        if (PN(i) <= 0)  // oob safety for switch below
             continue;
 
         for (ii=0; ii<2; ii++)
-            switch (DYNAMICTILEMAP(PN-1+ii))
+            switch (DYNAMICTILEMAP(PN(i)-1+ii))
             {
             case DIPSWITCH__STATIC:
             case DIPSWITCH2__STATIC:
@@ -1380,7 +1380,7 @@ void G_NewGame(int32_t vn, int32_t ln, int32_t sk)
     if (ln == 0 && vn == 3 && (!g_netServer && ud.multimode < 2) && ud.lockout == 0
             && (G_GetLogoFlags() & LOGO_NOE4CUTSCENE)==0)
     {
-        S_PlayMusic(MapInfo[MUS_BRIEFING].musicfn);
+        S_PlayMusic(aMapInfo[MUS_BRIEFING].musicfn);
 
         flushperms();
         setview(0,0,xdim-1,ydim-1);
@@ -1439,7 +1439,7 @@ end_vol4a:
     Gv_ResetSystemDefaults();
 
     for (i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
-        ALIGNED_FREE_AND_NULL(MapInfo[i].savedstate);
+        ALIGNED_FREE_AND_NULL(aMapInfo[i].savedstate);
 
     if (ud.m_coop != 1)
     {
@@ -1680,10 +1680,10 @@ int32_t G_FindLevelByFile(const char *fn)
         const int voloff = volume * MAXLEVELS;
         for (int level = 0; level < MAXLEVELS; level++)
         {
-            if (MapInfo[voloff + level].filename == NULL)
+            if (aMapInfo[voloff + level].filename == NULL)
                 continue;
 
-            if (!Bstrcasecmp(fn, MapInfo[voloff + level].filename))
+            if (!Bstrcasecmp(fn, aMapInfo[voloff + level].filename))
                 return voloff + level;
         }
     }
@@ -1776,12 +1776,12 @@ void G_SetupFilenameBasedMusic(char *levnamebuf, const char *boardfilename, int3
         if ((fil = kopen4loadfrommod(levnamebuf, 0)) != -1)
         {
             kclose(fil);
-            realloc_copy(&MapInfo[level_number].musicfn, levnamebuf);
+            realloc_copy(&aMapInfo[level_number].musicfn, levnamebuf);
             return;
         }
     }
 
-    realloc_copy(&MapInfo[level_number].musicfn, "dethtoll.mid");
+    realloc_copy(&aMapInfo[level_number].musicfn, "dethtoll.mid");
 }
 
 static inline int G_HaveUserMap(void)
@@ -1841,14 +1841,14 @@ int32_t G_EnterLevel(int32_t g)
 
     mii = (ud.volume_number*MAXLEVELS)+ud.level_number;
 
-    if (MapInfo[mii].name == NULL || MapInfo[mii].filename == NULL)
+    if (aMapInfo[mii].name == NULL || aMapInfo[mii].filename == NULL)
     {
         if (G_HaveUserMap())
         {
-            if (MapInfo[mii].filename == NULL)
-                MapInfo[mii].filename = (char *)Xcalloc(BMAX_PATH, sizeof(uint8_t));
-            if (MapInfo[mii].name == NULL)
-                MapInfo[mii].name = Xstrdup("User Map");
+            if (aMapInfo[mii].filename == NULL)
+                aMapInfo[mii].filename = (char *)Xcalloc(BMAX_PATH, sizeof(uint8_t));
+            if (aMapInfo[mii].name == NULL)
+                aMapInfo[mii].name = Xstrdup("User Map");
         }
         else
         {
@@ -1876,9 +1876,9 @@ int32_t G_EnterLevel(int32_t g)
     else
     {
         if (g_gameNamePtr)
-            Bsprintf(apptitle,"%s - %s - " APPNAME,MapInfo[mii].name,g_gameNamePtr);
+            Bsprintf(apptitle,"%s - %s - " APPNAME,aMapInfo[mii].name,g_gameNamePtr);
         else
-            Bsprintf(apptitle,"%s - " APPNAME,MapInfo[mii].name);
+            Bsprintf(apptitle,"%s - " APPNAME,aMapInfo[mii].name);
     }
 
     Bstrcpy(tempbuf,apptitle);
@@ -1899,15 +1899,15 @@ int32_t G_EnterLevel(int32_t g)
             G_LoadMapHack(levname, boardfilename);
             G_SetupFilenameBasedMusic(levname, boardfilename, ud.m_level_number);
         }
-        else if (loadboard(MapInfo[mii].filename, VOLUMEONE, &ps->pos, &ps->ang, &ps->cursectnum) < 0)
+        else if (loadboard(aMapInfo[mii].filename, VOLUMEONE, &ps->pos, &ps->ang, &ps->cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n",
-                       MapInfo[mii].filename);
+                       aMapInfo[mii].filename);
             return 1;
         }
         else
         {
-            G_LoadMapHack(levname, MapInfo[mii].filename);
+            G_LoadMapHack(levname, aMapInfo[mii].filename);
         }
     }
 
@@ -1922,7 +1922,7 @@ int32_t G_EnterLevel(int32_t g)
     G_AlignWarpElevators();
     resetpspritevars(g);
 
-    ud.playerbest = CONFIG_GetMapBestTime(G_HaveUserMap() ? boardfilename : MapInfo[mii].filename, g_loadedMapHack.md4);
+    ud.playerbest = CONFIG_GetMapBestTime(G_HaveUserMap() ? boardfilename : aMapInfo[mii].filename, g_loadedMapHack.md4);
 
     G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     G_CacheMapData();
@@ -1931,8 +1931,8 @@ int32_t G_EnterLevel(int32_t g)
     if (ud.recstat != 2)
     {
         g_musicIndex = mii;
-        if (MapInfo[g_musicIndex].musicfn != NULL)
-            S_PlayMusic(MapInfo[g_musicIndex].musicfn);
+        if (aMapInfo[g_musicIndex].musicfn != NULL)
+            S_PlayMusic(aMapInfo[g_musicIndex].musicfn);
     }
 
     if (g & (MODE_GAME|MODE_EOL))
@@ -2014,7 +2014,7 @@ int32_t G_EnterLevel(int32_t g)
     }
 
     OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
-               MapInfo[mii].name);
+               aMapInfo[mii].name);
 
     g_restorePalette = -1;
 
@@ -2029,7 +2029,7 @@ int32_t G_EnterLevel(int32_t g)
 
 void G_FreeMapState(int32_t mapnum)
 {
-    map_t *mapinfo = &MapInfo[mapnum];
+    map_t *mapinfo = &aMapInfo[mapnum];
 #if !defined LUNATIC
     int32_t j;
 #endif
@@ -2039,8 +2039,8 @@ void G_FreeMapState(int32_t mapnum)
 #if !defined LUNATIC
     for (j=0; j<g_gameVarCount; j++)
     {
-        if (aGameVars[j].nFlags & GAMEVAR_NORESET) continue;
-        if (aGameVars[j].nFlags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
+        if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
+        if (aGameVars[j].flags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
             Baligned_free(mapinfo->savedstate->vars[j]);
     }
 #else

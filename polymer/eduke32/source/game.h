@@ -98,7 +98,7 @@ enum LogoFlags_t {
     LOGO_NODUKETEAMPIC     = 0x00100000,
 };
 
-void A_DeleteSprite(int32_t s);
+void A_DeleteSprite(int spriteNum);
 
 static inline int32_t G_GetLogoFlags(void)
 {
@@ -366,7 +366,7 @@ static inline int32_t G_GetTeamPalette(int32_t team)
     return pal[team];
 }
 
-#define A_CheckSpriteFlags(iActor, iType) (((g_tile[sprite[iActor].picnum].flags^actor[iActor].flags) & iType) != 0)
+#define A_CheckSpriteFlags(spriteNum, iType) (((g_tile[sprite[spriteNum].picnum].flags^actor[spriteNum].flags) & iType) != 0)
 // (unsigned)iPicnum check: AMC TC Rusty Nails, bayonet MG alt. fire, iPicnum == -1 (via aplWeaponShoots)
 #define A_CheckSpriteTileFlags(iPicnum, iType) (((unsigned)iPicnum < MAXTILES) && (g_tile[iPicnum].flags & iType) != 0)
 #define S_StopSound(num) S_StopEnvSound(num, -1)
