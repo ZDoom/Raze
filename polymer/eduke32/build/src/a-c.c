@@ -63,6 +63,8 @@ void setpalookupaddress(char *paladdr) { ghlinepal = paladdr; }
 void setuphlineasm4(int32_t bxinc, int32_t byinc) { gbxinc = bxinc; gbyinc = byinc; }
 void hlineasm4(bssize_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by, uint32_t bx, intptr_t p)
 {
+    Bassert(gbuf);
+
     if (!skiploadincs) { gbxinc = asm1; gbyinc = asm2; }
 
     const char *const A_C_RESTRICT palptr = &ghlinepal[paloffs];
@@ -75,7 +77,7 @@ void hlineasm4(bssize_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by,
 #ifdef CLASSIC_SLICE_BY_4
     for (; cnt>=4; cnt-=4, pp-=4)
     {
-#if 0
+#if 1
         *pp = palptr[buf[((bx>>log32.x)<<log.y)+(by>>log32.y)]];
         *(pp-1) = palptr[buf[(((bx-inc.x)>>log32.x)<<log.y)+((by-inc.y)>>log32.y)]];
         *(pp-2) = palptr[buf[(((bx-(inc.x<<1))>>log32.x)<<log.y)+((by-(inc.y<<1))>>log32.y)]];

@@ -2639,11 +2639,11 @@ static int32_t setup_globals_cf1(const usectortype *sec, int32_t pal, int32_t zd
 
     globalpicnum = picnum;
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
+    DO_TILE_ANIM(globalpicnum, 0);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return 1;
-    DO_TILE_ANIM(globalpicnum, 0);
-
     if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+
     globalbufplc = waloff[globalpicnum];
 
     globalshade = shade;
@@ -8699,9 +8699,9 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             }
             globalpicnum = sec->floorpicnum;
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
+            DO_TILE_ANIM(globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
-            DO_TILE_ANIM(globalpicnum, s);
             if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
             globalbufplc = waloff[globalpicnum];
             globalshade = max(min(sec->floorshade,numshades-1),0);
@@ -8824,9 +8824,9 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             globalpicnum = spr->picnum;
             globalpal = spr->pal; // GL needs this, software doesn't
             if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
+            DO_TILE_ANIM(globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
-            DO_TILE_ANIM(globalpicnum, s);
             if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
             globalbufplc = waloff[globalpicnum];
 
