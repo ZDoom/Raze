@@ -48,6 +48,7 @@ ANDROID_SRC = \
     source/android/in_android.c
 
 BUILD_SRC = \
+    build/src/2d.c \
     build/src/a-c.c \
     build/src/baselayer.c \
     build/src/cache1d.c \
@@ -55,8 +56,10 @@ BUILD_SRC = \
     build/src/common.c \
     build/src/crc32.c \
     build/src/defs.c \
+    build/src/clip.c \
     build/src/colmatch.c \
     build/src/engine.c \
+    build/src/hash.c \
     build/src/glbuild.c \
     build/src/polymost.c \
     build/src/mdsprite.c \
@@ -75,7 +78,11 @@ BUILD_SRC = \
     build/src/mutex.c \
     build/src/xxhash.c \
     build/src/voxmodel.c \
-    build/src/sdlayer.c
+    build/src/sdlayer.c \
+    build/src/screenshot.c \
+    build/src/tiles.c \
+    build/src/mhk.c \
+    build/src/palette.c
 
 JMACT_SRC = \
     source/jmact/file_lib.c \

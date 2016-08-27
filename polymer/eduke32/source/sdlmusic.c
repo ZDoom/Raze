@@ -92,29 +92,8 @@ const char *MUSIC_ErrorString(int32_t ErrorNumber)
     case MUSIC_Ok:
         return "OK; no error.";
 
-    case MUSIC_ASSVersion:
-        return "Incorrect sound library version.";
-
-    case MUSIC_SoundCardError:
-        return "General sound card error.";
-
-    case MUSIC_InvalidCard:
-        return "Invalid sound card.";
-
     case MUSIC_MidiError:
         return "MIDI error.";
-
-    case MUSIC_MPU401Error:
-        return "MPU401 error.";
-
-    case MUSIC_TaskManError:
-        return "Task Manager error.";
-
-        //case MUSIC_FMNotDetected:
-        //    return "FM not detected error.";
-
-    case MUSIC_DPMI_Error:
-        return "DPMI error.";
 
     default:
         return "Unknown error.";
