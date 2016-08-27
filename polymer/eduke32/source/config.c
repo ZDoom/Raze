@@ -585,7 +585,7 @@ int32_t CONFIG_ReadSetup(void)
         }
 // #endif
 
-        if (g_grpNamePtr == NULL && g_usingAddon == 0)
+        if (g_grpNamePtr == NULL && g_addonNum == 0)
         {
             SCRIPT_GetStringPtr(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr);
             if (g_grpNamePtr && !Bstrlen(g_grpNamePtr))
@@ -712,7 +712,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode",ud.config.ScreenMode,FALSE,FALSE);    // JBF 20031206
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",ud.config.ScreenWidth,FALSE,FALSE);  // JBF 20031206
 
-    if (g_grpNamePtr && !g_usingAddon)
+    if (g_grpNamePtr && !g_addonNum)
         SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",g_grpNamePtr);
 
     // XXX: should be "if compiled without startup GUI"

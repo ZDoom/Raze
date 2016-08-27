@@ -47,7 +47,7 @@ extern int32_t g_currentEventExec;
 void A_LoadActor(int32_t spriteNum);
 #endif
 
-void A_Execute(int32_t spriteNum, int32_t playerNum, int32_t lDist);
+void A_Execute(int spriteNum, int playerNum, int32_t playerDist);
 void A_Fall(int spriteNum);
 int32_t A_FurthestVisiblePoint(int32_t spriteNum,uspritetype * const ts,int32_t *dax,int32_t *day);
 int32_t A_GetFurthestAngle(int spriteNum,int angDiv);

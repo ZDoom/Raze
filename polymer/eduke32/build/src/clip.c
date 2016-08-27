@@ -361,8 +361,8 @@ int32_t clipmapinfo_load(void)
                     sector[k].CM_YREPEAT = sprite[i].yrepeat;
                     sector[k].CM_XOFFSET = sprite[i].xoffset;
                     sector[k].CM_YOFFSET = sprite[i].yoffset;
-                    sector[k].CM_CSTAT = sprite[i].cstat;
-                    sector[k].CM_ANG = sprite[i].ang;
+                    sector[k].CM_CSTAT   = sprite[i].cstat;
+                    sector[k].CM_ANG     = sprite[i].ang;
                 }
 
                 // backup floor and ceiling z
@@ -504,17 +504,15 @@ int32_t clipmapinfo_load(void)
 }
 
 
-int32_t clipshape_idx_for_sprite(uspritetype const * const curspr, int32_t curidx)
+int clipshape_idx_for_sprite(uspritetype const * const curspr, int curidx)
 {
-    if (curidx < 0)  // per-sprite init
-        curidx = pictoidx[curspr->picnum];
-    else
-        curidx = clipinfo[curidx].next;
+     // per-sprite init
+     curidx = (curidx < 0) ? pictoidx[curspr->picnum] : clipinfo[curidx].next;
 
-    while (curidx>=0 && (curspr->cstat&32) != (sector[sectq[clipinfo[curidx].qbeg]].CM_CSTAT&32))
-        curidx = clipinfo[curidx].next;
+     while (curidx >= 0 && (curspr->cstat & 32) != (sector[sectq[clipinfo[curidx].qbeg]].CM_CSTAT & 32))
+         curidx = clipinfo[curidx].next;
 
-    return curidx;
+     return curidx;
 }
 #else
 int32_t clipshape_idx_for_sprite(uspritetype const * const curspr, int32_t curidx)
@@ -533,62 +531,64 @@ int32_t clipmoveboxtracenum = 3;
 //
 // clipinsidebox
 //
-int32_t clipinsidebox(vec2_t *vect, int16_t wallnum, int32_t walldist)
+int clipinsidebox(vec2_t *vect, int wallnum, int walldist)
 {
-    int32_t const r = walldist<<1;
-    uwalltype const *wal = (uwalltype *) &wall[wallnum];
-    vec2_t const v1 ={ wal->x + walldist - vect->x, wal->y + walldist - vect->y };
-    wal = (uwalltype *) &wall[wal->point2];
-    vec2_t v2 ={ wal->x + walldist - vect->x, wal->y + walldist - vect->y };
+    int const        r   = walldist << 1;
+    uwalltype const *wal = (uwalltype *)&wall[wallnum];
+    vec2_t const     v1  = { wal->x + walldist - vect->x, wal->y + walldist - vect->y };
+    wal                  = (uwalltype *)&wall[wal->point2];
+    vec2_t v2            = { wal->x + walldist - vect->x, wal->y + walldist - vect->y };
 
-    if (((v1.x < 0) && (v2.x < 0)) || ((v1.y < 0) && (v2.y < 0)) ||
-        ((v1.x >= r) && (v2.x >= r)) || ((v1.y >= r) && (v2.y >= r)))
+    if (((v1.x < 0) && (v2.x < 0)) || ((v1.y < 0) && (v2.y < 0)) || ((v1.x >= r) && (v2.x >= r)) || ((v1.y >= r) && (v2.y >= r)))
         return 0;
 
     v2.x -= v1.x; v2.y -= v1.y;
 
-    if (v2.x*(walldist-v1.y) >= v2.y*(walldist-v1.x))  //Front
+    if (v2.x * (walldist - v1.y) >= v2.y * (walldist - v1.x))  // Front
     {
         v2.x *= ((v2.x > 0) ? (0 - v1.y) : (r - v1.y));
-        v2.y *= ((v2.y > 0) ? (r-v1.x) : (0-v1.x));
+        v2.y *= ((v2.y > 0) ? (r - v1.x) : (0 - v1.x));
         return v2.x < v2.y;
     }
 
-    v2.x *= ((v2.x > 0) ? (r-v1.y) : (0-v1.y));
-    v2.y *= ((v2.y > 0) ? (0-v1.x) : (r-v1.x));
-    return (v2.x >= v2.y)<<1;
+    v2.x *= ((v2.x > 0) ? (r - v1.y) : (0 - v1.y));
+    v2.y *= ((v2.y > 0) ? (0 - v1.x) : (r - v1.x));
+    return (v2.x >= v2.y) << 1;
 }
 
 
 //
 // clipinsideboxline
 //
-int32_t clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t walldist)
+int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist)
 {
-    int32_t const r = walldist<<1;
+    int const r = walldist << 1;
 
-    x1 += walldist-x; x2 += walldist-x;
+    x1 += walldist - x;
+    x2 += walldist - x;
 
     if (((x1 < 0) && (x2 < 0)) || ((x1 >= r) && (x2 >= r)))
         return 0;
 
-    y1 += walldist-y; y2 += walldist-y;
+    y1 += walldist - y;
+    y2 += walldist - y;
 
     if (((y1 < 0) && (y2 < 0)) || ((y1 >= r) && (y2 >= r)))
         return 0;
 
-    x2 -= x1; y2 -= y1;
+    x2 -= x1;
+    y2 -= y1;
 
-    if (x2*(walldist-y1) >= y2*(walldist-x1))  //Front
+    if (x2 * (walldist - y1) >= y2 * (walldist - x1))  // Front
     {
-        x2 *= ((x2 > 0) ? (0-y1) : (r-y1));
-        y2 *= ((y2 > 0) ? (r-x1) : (0-x1));
+        x2 *= ((x2 > 0) ? (0 - y1) : (r - y1));
+        y2 *= ((y2 > 0) ? (r - x1) : (0 - x1));
         return x2 < y2;
     }
 
-    x2 *= ((x2 > 0) ? (r-y1) : (0-y1));
-    y2 *= ((y2 > 0) ? (0-x1) : (r-x1));
-    return (x2 >= y2)<<1;
+    x2 *= ((x2 > 0) ? (r - y1) : (0 - y1));
+    y2 *= ((y2 > 0) ? (0 - x1) : (r - x1));
+    return (x2 >= y2) << 1;
 }
 
 

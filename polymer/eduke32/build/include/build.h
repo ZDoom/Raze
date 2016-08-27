@@ -1189,7 +1189,7 @@ FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
 
-int32_t clipshape_idx_for_sprite(uspritetype const * const curspr, int32_t curidx);
+int clipshape_idx_for_sprite(uspritetype const * const curspr, int curidx);
 
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);

@@ -1736,119 +1736,122 @@ void Gv_InitWeaponPointers(void)
 
     for (bssize_t i=(MAX_WEAPONS-1); i>=0; i--)
     {
-        Bsprintf(aszBuf,"WEAPON%zd_CLIP",i);
-        aplWeaponClip[i]=Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_CLIP", i);
+        aplWeaponClip[i] = Gv_GetVarDataPtr(aszBuf);
+
         if (!aplWeaponClip[i])
         {
-            initprintf("ERROR: NULL weapon!  WTF?!\n");
+            initprintf("ERROR: NULL weapon!  WTF?! %s\n", aszBuf);
             // Bexit(0);
             G_Shutdown();
         }
-        Bsprintf(aszBuf,"WEAPON%zd_RELOAD",i);
-        aplWeaponReload[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_FIREDELAY",i);
-        aplWeaponFireDelay[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_TOTALTIME",i);
-        aplWeaponTotalTime[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_HOLDDELAY",i);
-        aplWeaponHoldDelay[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_FLAGS",i);
-        aplWeaponFlags[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_SHOOTS",i);
-        aplWeaponShoots[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_SPAWNTIME",i);
-        aplWeaponSpawnTime[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_SPAWN",i);
-        aplWeaponSpawn[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_SHOTSPERBURST",i);
-        aplWeaponShotsPerBurst[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_WORKSLIKE",i);
-        aplWeaponWorksLike[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_INITIALSOUND",i);
-        aplWeaponInitialSound[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_FIRESOUND",i);
-        aplWeaponFireSound[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_SOUND2TIME",i);
-        aplWeaponSound2Time[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_SOUND2SOUND",i);
-        aplWeaponSound2Sound[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_RELOADSOUND1",i);
-        aplWeaponReloadSound1[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_RELOADSOUND2",i);
-        aplWeaponReloadSound2[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_SELECTSOUND",i);
-        aplWeaponSelectSound[i]=Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf,"WEAPON%zd_FLASHCOLOR",i);
-        aplWeaponFlashColor[i]=Gv_GetVarDataPtr(aszBuf);
+
+        Bsprintf(aszBuf, "WEAPON%zd_RELOAD", i);
+        aplWeaponReload[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_FIREDELAY", i);
+        aplWeaponFireDelay[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_TOTALTIME", i);
+        aplWeaponTotalTime[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_HOLDDELAY", i);
+        aplWeaponHoldDelay[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_FLAGS", i);
+        aplWeaponFlags[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_SHOOTS", i);
+        aplWeaponShoots[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_SPAWNTIME", i);
+        aplWeaponSpawnTime[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_SPAWN", i);
+        aplWeaponSpawn[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_SHOTSPERBURST", i);
+        aplWeaponShotsPerBurst[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_WORKSLIKE", i);
+        aplWeaponWorksLike[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_INITIALSOUND", i);
+        aplWeaponInitialSound[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_FIRESOUND", i);
+        aplWeaponFireSound[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_SOUND2TIME", i);
+        aplWeaponSound2Time[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_SOUND2SOUND", i);
+        aplWeaponSound2Sound[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_RELOADSOUND1", i);
+        aplWeaponReloadSound1[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_RELOADSOUND2", i);
+        aplWeaponReloadSound2[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_SELECTSOUND", i);
+        aplWeaponSelectSound[i] = Gv_GetVarDataPtr(aszBuf);
+        Bsprintf(aszBuf, "WEAPON%zd_FLASHCOLOR", i);
+        aplWeaponFlashColor[i] = Gv_GetVarDataPtr(aszBuf);
     }
 }
 
 void Gv_RefreshPointers(void)
 {
-    aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].global = (intptr_t)&ud.respawn_monsters;
-    aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].global = (intptr_t)&ud.respawn_items;
+    aGameVars[Gv_GetVarIndex("RESPAWN_MONSTERS")].global  = (intptr_t)&ud.respawn_monsters;
+    aGameVars[Gv_GetVarIndex("RESPAWN_ITEMS")].global     = (intptr_t)&ud.respawn_items;
     aGameVars[Gv_GetVarIndex("RESPAWN_INVENTORY")].global = (intptr_t)&ud.respawn_inventory;
-    aGameVars[Gv_GetVarIndex("MONSTERS_OFF")].global = (intptr_t)&ud.monsters_off;
-    aGameVars[Gv_GetVarIndex("MARKER")].global = (intptr_t)&ud.marker;
-    aGameVars[Gv_GetVarIndex("FFIRE")].global = (intptr_t)&ud.ffire;
-    aGameVars[Gv_GetVarIndex("LEVEL")].global = (intptr_t)&ud.level_number;
-    aGameVars[Gv_GetVarIndex("VOLUME")].global = (intptr_t)&ud.volume_number;
+    aGameVars[Gv_GetVarIndex("MONSTERS_OFF")].global      = (intptr_t)&ud.monsters_off;
+    aGameVars[Gv_GetVarIndex("MARKER")].global            = (intptr_t)&ud.marker;
+    aGameVars[Gv_GetVarIndex("FFIRE")].global             = (intptr_t)&ud.ffire;
+    aGameVars[Gv_GetVarIndex("LEVEL")].global             = (intptr_t)&ud.level_number;
+    aGameVars[Gv_GetVarIndex("VOLUME")].global            = (intptr_t)&ud.volume_number;
 
-    aGameVars[Gv_GetVarIndex("COOP")].global = (intptr_t)&ud.coop;
+    aGameVars[Gv_GetVarIndex("COOP")].global      = (intptr_t)&ud.coop;
     aGameVars[Gv_GetVarIndex("MULTIMODE")].global = (intptr_t)&ud.multimode;
 
     aGameVars[Gv_GetVarIndex("myconnectindex")].global = (intptr_t)&myconnectindex;
-    aGameVars[Gv_GetVarIndex("screenpeek")].global = (intptr_t)&screenpeek;
-    aGameVars[Gv_GetVarIndex("currentweapon")].global = (intptr_t)&hudweap.cur;
-    aGameVars[Gv_GetVarIndex("gs")].global = (intptr_t)&hudweap.shade;
-    aGameVars[Gv_GetVarIndex("looking_arc")].global = (intptr_t)&hudweap.lookhoriz;
-    aGameVars[Gv_GetVarIndex("gun_pos")].global = (intptr_t)&hudweap.gunposy;
+    aGameVars[Gv_GetVarIndex("screenpeek")].global     = (intptr_t)&screenpeek;
+    aGameVars[Gv_GetVarIndex("currentweapon")].global  = (intptr_t)&hudweap.cur;
+    aGameVars[Gv_GetVarIndex("gs")].global             = (intptr_t)&hudweap.shade;
+    aGameVars[Gv_GetVarIndex("looking_arc")].global    = (intptr_t)&hudweap.lookhoriz;
+    aGameVars[Gv_GetVarIndex("gun_pos")].global        = (intptr_t)&hudweap.gunposy;
     aGameVars[Gv_GetVarIndex("weapon_xoffset")].global = (intptr_t)&hudweap.gunposx;
-    aGameVars[Gv_GetVarIndex("weaponcount")].global = (intptr_t)&hudweap.count;
+    aGameVars[Gv_GetVarIndex("weaponcount")].global    = (intptr_t)&hudweap.count;
     aGameVars[Gv_GetVarIndex("looking_angSR1")].global = (intptr_t)&hudweap.lookhalfang;
-    aGameVars[Gv_GetVarIndex("xdim")].global = (intptr_t)&xdim;
-    aGameVars[Gv_GetVarIndex("ydim")].global = (intptr_t)&ydim;
-    aGameVars[Gv_GetVarIndex("windowx1")].global = (intptr_t)&windowxy1.x;
-    aGameVars[Gv_GetVarIndex("windowx2")].global = (intptr_t)&windowxy2.x;
-    aGameVars[Gv_GetVarIndex("windowy1")].global = (intptr_t)&windowxy1.y;
-    aGameVars[Gv_GetVarIndex("windowy2")].global = (intptr_t)&windowxy2.y;
-    aGameVars[Gv_GetVarIndex("totalclock")].global = (intptr_t)&totalclock;
-    aGameVars[Gv_GetVarIndex("lastvisinc")].global = (intptr_t)&lastvisinc;
-    aGameVars[Gv_GetVarIndex("numsectors")].global = (intptr_t)&numsectors;
-    aGameVars[Gv_GetVarIndex("numplayers")].global = (intptr_t)&numplayers;
-    aGameVars[Gv_GetVarIndex("current_menu")].global = (intptr_t)&g_currentMenu;
-    aGameVars[Gv_GetVarIndex("viewingrange")].global = (intptr_t)&viewingrange;
-    aGameVars[Gv_GetVarIndex("yxaspect")].global = (intptr_t)&yxaspect;
-    aGameVars[Gv_GetVarIndex("gravitationalconstant")].global = (intptr_t)&g_spriteGravity;
+    aGameVars[Gv_GetVarIndex("xdim")].global           = (intptr_t)&xdim;
+    aGameVars[Gv_GetVarIndex("ydim")].global           = (intptr_t)&ydim;
+    aGameVars[Gv_GetVarIndex("windowx1")].global       = (intptr_t)&windowxy1.x;
+    aGameVars[Gv_GetVarIndex("windowx2")].global       = (intptr_t)&windowxy2.x;
+    aGameVars[Gv_GetVarIndex("windowy1")].global       = (intptr_t)&windowxy1.y;
+    aGameVars[Gv_GetVarIndex("windowy2")].global       = (intptr_t)&windowxy2.y;
+    aGameVars[Gv_GetVarIndex("totalclock")].global     = (intptr_t)&totalclock;
+    aGameVars[Gv_GetVarIndex("lastvisinc")].global     = (intptr_t)&lastvisinc;
+    aGameVars[Gv_GetVarIndex("numsectors")].global     = (intptr_t)&numsectors;
+    aGameVars[Gv_GetVarIndex("numplayers")].global     = (intptr_t)&numplayers;
+    aGameVars[Gv_GetVarIndex("current_menu")].global   = (intptr_t)&g_currentMenu;
+    aGameVars[Gv_GetVarIndex("viewingrange")].global   = (intptr_t)&viewingrange;
+    aGameVars[Gv_GetVarIndex("yxaspect")].global       = (intptr_t)&yxaspect;
     aGameVars[Gv_GetVarIndex("gametype_flags")].global = (intptr_t)&GametypeFlags[ud.coop];
-    aGameVars[Gv_GetVarIndex("framerate")].global = (intptr_t)&g_currentFrameRate;
+    aGameVars[Gv_GetVarIndex("framerate")].global      = (intptr_t)&g_currentFrameRate;
 
-    aGameVars[Gv_GetVarIndex("camerax")].global = (intptr_t)&ud.camerapos.x;
-    aGameVars[Gv_GetVarIndex("cameray")].global = (intptr_t)&ud.camerapos.y;
-    aGameVars[Gv_GetVarIndex("cameraz")].global = (intptr_t)&ud.camerapos.z;
-    aGameVars[Gv_GetVarIndex("cameraang")].global = (intptr_t)&ud.cameraang;
+    aGameVars[Gv_GetVarIndex("gravitationalconstant")].global = (intptr_t)&g_spriteGravity;
+
+    aGameVars[Gv_GetVarIndex("camerax")].global     = (intptr_t)&ud.camerapos.x;
+    aGameVars[Gv_GetVarIndex("cameray")].global     = (intptr_t)&ud.camerapos.y;
+    aGameVars[Gv_GetVarIndex("cameraz")].global     = (intptr_t)&ud.camerapos.z;
+    aGameVars[Gv_GetVarIndex("cameraang")].global   = (intptr_t)&ud.cameraang;
     aGameVars[Gv_GetVarIndex("camerahoriz")].global = (intptr_t)&ud.camerahoriz;
-    aGameVars[Gv_GetVarIndex("camerasect")].global = (intptr_t)&ud.camerasect;
-    aGameVars[Gv_GetVarIndex("cameradist")].global = (intptr_t)&g_cameraDistance;
+    aGameVars[Gv_GetVarIndex("camerasect")].global  = (intptr_t)&ud.camerasect;
+    aGameVars[Gv_GetVarIndex("cameradist")].global  = (intptr_t)&g_cameraDistance;
     aGameVars[Gv_GetVarIndex("cameraclock")].global = (intptr_t)&g_cameraClock;
 
-    aGameVars[Gv_GetVarIndex("myx")].global = (intptr_t)&my.x;
-    aGameVars[Gv_GetVarIndex("myy")].global = (intptr_t)&my.y;
-    aGameVars[Gv_GetVarIndex("myz")].global = (intptr_t)&my.z;
-    aGameVars[Gv_GetVarIndex("omyx")].global = (intptr_t)&omy.x;
-    aGameVars[Gv_GetVarIndex("omyy")].global = (intptr_t)&omy.y;
-    aGameVars[Gv_GetVarIndex("omyz")].global = (intptr_t)&omy.z;
+    aGameVars[Gv_GetVarIndex("myx")].global    = (intptr_t)&my.x;
+    aGameVars[Gv_GetVarIndex("myy")].global    = (intptr_t)&my.y;
+    aGameVars[Gv_GetVarIndex("myz")].global    = (intptr_t)&my.z;
+    aGameVars[Gv_GetVarIndex("omyx")].global   = (intptr_t)&omy.x;
+    aGameVars[Gv_GetVarIndex("omyy")].global   = (intptr_t)&omy.y;
+    aGameVars[Gv_GetVarIndex("omyz")].global   = (intptr_t)&omy.z;
     aGameVars[Gv_GetVarIndex("myvelx")].global = (intptr_t)&myvel.x;
     aGameVars[Gv_GetVarIndex("myvely")].global = (intptr_t)&myvel.y;
     aGameVars[Gv_GetVarIndex("myvelz")].global = (intptr_t)&myvel.z;
 
-    aGameVars[Gv_GetVarIndex("myhoriz")].global = (intptr_t)&myhoriz;
-    aGameVars[Gv_GetVarIndex("myhorizoff")].global = (intptr_t)&myhorizoff;
-    aGameVars[Gv_GetVarIndex("omyhoriz")].global = (intptr_t)&omyhoriz;
-    aGameVars[Gv_GetVarIndex("omyhorizoff")].global = (intptr_t)&omyhorizoff;
-    aGameVars[Gv_GetVarIndex("myang")].global = (intptr_t)&myang;
-    aGameVars[Gv_GetVarIndex("omyang")].global = (intptr_t)&omyang;
-    aGameVars[Gv_GetVarIndex("mycursectnum")].global = (intptr_t)&mycursectnum;
+    aGameVars[Gv_GetVarIndex("myhoriz")].global          = (intptr_t)&myhoriz;
+    aGameVars[Gv_GetVarIndex("myhorizoff")].global       = (intptr_t)&myhorizoff;
+    aGameVars[Gv_GetVarIndex("omyhoriz")].global         = (intptr_t)&omyhoriz;
+    aGameVars[Gv_GetVarIndex("omyhorizoff")].global      = (intptr_t)&omyhorizoff;
+    aGameVars[Gv_GetVarIndex("myang")].global            = (intptr_t)&myang;
+    aGameVars[Gv_GetVarIndex("omyang")].global           = (intptr_t)&omyang;
+    aGameVars[Gv_GetVarIndex("mycursectnum")].global     = (intptr_t)&mycursectnum;
     aGameVars[Gv_GetVarIndex("myjumpingcounter")].global = (intptr_t)&myjumpingcounter;
 
     aGameVars[Gv_GetVarIndex("myjumpingtoggle")].global = (intptr_t)&myjumpingtoggle;

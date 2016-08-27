@@ -51,7 +51,6 @@ typedef struct
 
 extern mapinfo_t origmapinfo, clipmapinfo;
 
-
 extern void clipmapinfo_init();
 extern int32_t quickloadboard;
 extern int16_t *sectq;
@@ -73,8 +72,8 @@ extern int16_t clipnum;
 extern int32_t clipsectnum, origclipsectnum, clipspritenum;
 extern int16_t clipsectorlist[MAXCLIPNUM], origclipsectorlist[MAXCLIPNUM];
 
-int32_t clipinsidebox(vec2_t *vect, int16_t wallnum, int32_t walldist);
-int32_t clipinsideboxline(int32_t x, int32_t y, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t walldist);
+int clipinsidebox(vec2_t *vect, int wallnum, int walldist);
+int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist);
 
 extern int32_t clipmoveboxtracenum;
 

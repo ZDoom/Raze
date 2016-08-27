@@ -229,11 +229,11 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 {
                     if (argc > i+1)
                     {
-                        g_usingAddon = Batoi(argv[i+1]);
+                        g_addonNum = Batoi(argv[i+1]);
 
-                        if (g_usingAddon > ADDON_NONE && g_usingAddon < NUMADDONS)
+                        if (g_addonNum > ADDON_NONE && g_addonNum < NUMADDONS)
                             g_noSetup = 1;
-                        else g_usingAddon = ADDON_NONE;
+                        else g_addonNum = ADDON_NONE;
 
                         i++;
                     }
@@ -512,7 +512,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 }
                 if (!Bstrcasecmp(c+1, "usecwd"))
                 {
-                    usecwd = 1;
+                    g_useCwd = 1;
                     i++;
                     continue;
                 }

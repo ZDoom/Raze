@@ -1321,48 +1321,48 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
         }
     }
 
-    for (bssize_t nWall=numwalls-1; nWall>=0; nWall--)
+    for (bssize_t wallNum=numwalls-1; wallNum>=0; wallNum--)
     {
-        if (lotag == wall[nWall].lotag)
+        if (lotag == wall[wallNum].lotag)
         {
-            if (wall[nWall].picnum >= MULTISWITCH && wall[nWall].picnum <= MULTISWITCH+3)
+            if (wall[wallNum].picnum >= MULTISWITCH && wall[wallNum].picnum <= MULTISWITCH+3)
             {
-                wall[nWall].picnum++;
-                if (wall[nWall].picnum > MULTISWITCH+3)
-                    wall[nWall].picnum = MULTISWITCH;
+                wall[wallNum].picnum++;
+                if (wall[wallNum].picnum > MULTISWITCH+3)
+                    wall[wallNum].picnum = MULTISWITCH;
             }
 
-            switch (DYNAMICTILEMAP(wall[nWall].picnum))
+            switch (DYNAMICTILEMAP(wall[wallNum].picnum))
             {
                 case DIPSWITCH_LIKE_CASES:
-                    if (switchType == SWITCH_WALL && nWall == wallOrSprite)
-                        wall[nWall].picnum++;
-                    else if (wall[nWall].hitag == 0)
+                    if (switchType == SWITCH_WALL && wallNum == wallOrSprite)
+                        wall[wallNum].picnum++;
+                    else if (wall[wallNum].hitag == 0)
                         nCorrectDips++;
                     nNumDips++;
                     break;
 
                 case ACCESSSWITCH_CASES:
                 case REST_SWITCH_CASES:
-                    wall[nWall].picnum++;
+                    wall[wallNum].picnum++;
                     break;
 
                 default:
-                    if (wall[nWall].picnum <= 0)  // oob safety
+                    if (wall[wallNum].picnum <= 0)  // oob safety
                         break;
 
-                    switch (DYNAMICTILEMAP(wall[nWall].picnum - 1))
+                    switch (DYNAMICTILEMAP(wall[wallNum].picnum - 1))
                     {
                         case DIPSWITCH_LIKE_CASES:
-                            if (switchType == SWITCH_WALL && nWall == wallOrSprite)
-                                wall[nWall].picnum--;
-                            else if (wall[nWall].hitag == 1)
+                            if (switchType == SWITCH_WALL && wallNum == wallOrSprite)
+                                wall[wallNum].picnum--;
+                            else if (wall[wallNum].hitag == 1)
                                 nCorrectDips++;
                             nNumDips++;
                             break;
 
                         case REST_SWITCH_CASES:
-                            wall[nWall].picnum--;
+                            wall[wallNum].picnum--;
                             break;
                     }
                     break;
@@ -1469,18 +1469,18 @@ void G_ActivateBySector(int sectNum, int spriteNum)
         G_OperateSectors(sectNum, spriteNum);
 }
 
-static void G_BreakWall(int nPicnum, int spriteNum, int nWall)
+static void G_BreakWall(int tileNum, int spriteNum, int wallNum)
 {
-    wall[nWall].picnum = nPicnum;
+    wall[wallNum].picnum = tileNum;
     A_PlaySound(VENT_BUST,spriteNum);
     A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
-    A_SpawnWallGlass(spriteNum,nWall,10);
+    A_SpawnWallGlass(spriteNum,wallNum,10);
 }
 
-void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
+void A_DamageWall(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
 {
     int16_t sectNum = -1;
-    walltype *pWall = &wall[nWall];
+    walltype *pWall = &wall[wallNum];
 
     if (pWall->overpicnum == MIRROR && pWall->pal != 4 &&
         A_CheckSpriteFlags(spriteNum, SFLAG_PROJECTILE) &&
@@ -1488,7 +1488,7 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
     {
         if (pWall->nextwall == -1 || wall[pWall->nextwall].pal != 4)
         {
-            A_SpawnWallGlass(spriteNum, nWall, 70);
+            A_SpawnWallGlass(spriteNum, wallNum, 70);
             pWall->cstat &= ~16;
             pWall->overpicnum = MIRRORBROKE;
             A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
@@ -1509,7 +1509,7 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
             case EXPLODINGBARREL__STATIC:
                 if (pWall->nextwall == -1 || wall[pWall->nextwall].pal != 4)
                 {
-                    A_SpawnWallGlass(spriteNum, nWall, 70);
+                    A_SpawnWallGlass(spriteNum, wallNum, 70);
                     pWall->cstat &= ~16;
                     pWall->overpicnum = MIRRORBROKE;
                     A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
@@ -1522,7 +1522,7 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
         (sector[pWall->nextsector].floorz > vPos->z) &&
         (sector[pWall->nextsector].floorz != sector[pWall->nextsector].ceilingz))
     {
-        int const nSwitchPicnum = G_GetForcefieldPicnum(nWall);
+        int const nSwitchPicnum = G_GetForcefieldPicnum(wallNum);
 
         switch (DYNAMICTILEMAP(nSwitchPicnum))
         {
@@ -1573,7 +1573,7 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
                 if (sectNum < 0)
                     return;
                 pWall->overpicnum = GLASS2;
-                A_SpawnWallGlass(spriteNum, nWall, 10);
+                A_SpawnWallGlass(spriteNum, wallNum, 10);
                 pWall->cstat = 0;
 
                 if (pWall->nextwall >= 0)
@@ -1584,7 +1584,7 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
                         g_player[0].ps->ang, 0, 0, spriteNum, 3);
                     SLT(i) = 128;
                     T2(i)  = 5;
-                    T3(i)  = nWall;
+                    T3(i)  = wallNum;
                     A_PlaySound(GLASS_BREAKING, i);
                 }
                 return;
@@ -1593,7 +1593,7 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
                 updatesector(vPos->x, vPos->y, &sectNum);
                 if (sectNum < 0)
                     return;
-                A_SpawnRandomGlass(spriteNum, nWall, 80);
+                A_SpawnRandomGlass(spriteNum, wallNum, 80);
                 pWall->cstat = 0;
                 if (pWall->nextwall >= 0)
                     wall[pWall->nextwall].cstat = 0;
@@ -1607,7 +1607,7 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
     {
         case COLAMACHINE__STATIC:
         case VENDMACHINE__STATIC:
-            G_BreakWall(pWall->picnum + 2, spriteNum, nWall);
+            G_BreakWall(pWall->picnum + 2, spriteNum, wallNum);
             A_PlaySound(VENT_BUST, spriteNum);
             return;
 
@@ -1637,7 +1637,7 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
         case SCREENBREAK18__STATIC:
         case SCREENBREAK19__STATIC:
         case BORNTOBEWILDSCREEN__STATIC:
-            A_SpawnWallGlass(spriteNum, nWall, 30);
+            A_SpawnWallGlass(spriteNum, wallNum, 30);
             pWall->picnum = W_SCREENBREAK + (krand() % 3);
             A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
             return;
@@ -1647,15 +1647,15 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
         case W_TECHWALL7__STATIC:
         case W_TECHWALL8__STATIC:
         case W_TECHWALL9__STATIC:
-            G_BreakWall(pWall->picnum + 1, spriteNum, nWall);
+            G_BreakWall(pWall->picnum + 1, spriteNum, wallNum);
             return;
 
         case W_MILKSHELF__STATIC:
-            G_BreakWall(W_MILKSHELFBROKE, spriteNum, nWall);
+            G_BreakWall(W_MILKSHELFBROKE, spriteNum, wallNum);
             return;
 
         case W_TECHWALL10__STATIC:
-            G_BreakWall(W_HITTECHWALL10, spriteNum, nWall);
+            G_BreakWall(W_HITTECHWALL10, spriteNum, wallNum);
             return;
 
         case W_TECHWALL1__STATIC:
@@ -1663,27 +1663,27 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
         case W_TECHWALL12__STATIC:
         case W_TECHWALL13__STATIC:
         case W_TECHWALL14__STATIC:
-            G_BreakWall(W_HITTECHWALL1, spriteNum, nWall);
+            G_BreakWall(W_HITTECHWALL1, spriteNum, wallNum);
             return;
 
         case W_TECHWALL15__STATIC:
-            G_BreakWall(W_HITTECHWALL15, spriteNum, nWall);
+            G_BreakWall(W_HITTECHWALL15, spriteNum, wallNum);
             return;
 
         case W_TECHWALL16__STATIC:
-            G_BreakWall(W_HITTECHWALL16, spriteNum, nWall);
+            G_BreakWall(W_HITTECHWALL16, spriteNum, wallNum);
             return;
 
         case W_TECHWALL2__STATIC:
-            G_BreakWall(W_HITTECHWALL2, spriteNum, nWall);
+            G_BreakWall(W_HITTECHWALL2, spriteNum, wallNum);
             return;
 
         case W_TECHWALL3__STATIC:
-            G_BreakWall(W_HITTECHWALL3, spriteNum, nWall);
+            G_BreakWall(W_HITTECHWALL3, spriteNum, wallNum);
             return;
 
         case W_TECHWALL4__STATIC:
-            G_BreakWall(W_HITTECHWALL4, spriteNum, nWall);
+            G_BreakWall(W_HITTECHWALL4, spriteNum, wallNum);
             return;
 
         case ATM__STATIC:
@@ -1700,7 +1700,7 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
         case TECHLIGHT4__STATIC:
         {
             A_PlaySound(rnd(128) ? GLASS_HEAVYBREAK : GLASS_BREAKING, spriteNum);
-            A_SpawnWallGlass(spriteNum, nWall, 30);
+            A_SpawnWallGlass(spriteNum, wallNum, 30);
 
             if (pWall->picnum == WALLLIGHT1)
                 pWall->picnum = WALLLIGHTBUST1;
@@ -1739,7 +1739,7 @@ void A_DamageWall(int spriteNum, int nWall, const vec3_t *vPos, int weaponNum)
             int const nRand = krand() & 1;
 
             for (bssize_t SPRITES_OF(STAT_EFFECTOR, i))
-                if (SHT(i) == wall[nWall].lotag && SLT(i) == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
+                if (SHT(i) == wall[wallNum].lotag && SLT(i) == SE_3_RANDOM_LIGHTS_AFTER_SHOT_OUT)
                 {
                     T3(i) = nRand;
                     T4(i) = nDarkestWall;

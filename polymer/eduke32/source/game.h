@@ -306,9 +306,9 @@ void El_CreateGameState(void);
 #endif
 void G_PostCreateGameState(void);
 
-void A_SpawnCeilingGlass(int32_t i,int32_t sectnum,int32_t n);
-void A_SpawnGlass(int32_t i,int32_t n);
-void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n);
+void A_SpawnCeilingGlass(int spriteNum,int sectNum,int glassCnt);
+void A_SpawnGlass(int spriteNum,int glassCnt);
+void A_SpawnRandomGlass(int spriteNum,int wallNum,int glassCnt);
 void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n);
 void G_AddUserQuote(const char *daquote);
 void G_BackToMenu(void);

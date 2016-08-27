@@ -6069,7 +6069,7 @@ int app_main(int argc, char const * const * argv)
     OSD_SetParameters(0,0, 0,12, 2,12);
 
 #ifdef __APPLE__
-    if (!usecwd)
+    if (!g_useCwd)
     {
     	char cwd[BMAX_PATH];
         char *homedir = Bgethomedir();
@@ -6098,7 +6098,7 @@ int app_main(int argc, char const * const * argv)
     initprintf(HEAD2 " %s %s\n", s_buildRev, s_buildInfo);
     initprintf("Compiled %s\n", s_buildTimestamp);
 
-    if (!usecwd)
+    if (!g_useCwd)
         G_AddSearchPaths();
 
     g_numSkills = 4;
@@ -6203,7 +6203,7 @@ int app_main(int argc, char const * const * argv)
 
     G_SetupCheats();
 
-    if (!usecwd)
+    if (!g_useCwd)
         G_CleanupSearchPaths();
 
     if (SHAREWARE)
@@ -6289,8 +6289,8 @@ int app_main(int argc, char const * const * argv)
         loaddefinitions_game(defsfile, FALSE);
     }
 
-    for (bssize_t i=0; i < g_defModulesNum; ++i)
-        Bfree(g_defModules[i]);
+    for (bssize_t i = 0; i < g_defModulesNum; ++i) Bfree(g_defModules[i]);
+
     DO_FREE_AND_NULL(g_defModules);
     g_defModulesNum = 0;
 
@@ -6303,9 +6303,9 @@ int app_main(int argc, char const * const * argv)
 
     if (numplayers == 1 && boardfilename[0] != 0)
     {
-        ud.m_level_number = 7;
+        ud.m_level_number  = 7;
         ud.m_volume_number = 0;
-        ud.warp_on = 1;
+        ud.warp_on         = 1;
     }
 
     // getnames();
@@ -6320,7 +6320,7 @@ int app_main(int argc, char const * const * argv)
     }
 
     playerswhenstarted = ud.multimode;  // XXX: redundant?
-    ud.last_level = 0;
+    ud.last_level      = 0;
 
     // the point of this block is to avoid overwriting the default in the cfg while asserting our selection
     if (g_rtsNamePtr == NULL &&
@@ -6363,7 +6363,7 @@ int app_main(int argc, char const * const * argv)
         CONFIG_SetupJoystick();
 
         CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
-        CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
+        CONTROL_MouseEnabled    = (ud.config.UseMouse && CONTROL_MousePresent);
 
         // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
         for (bssize_t i=0; i<joynumaxes; i++)
@@ -6389,7 +6389,8 @@ int app_main(int argc, char const * const * argv)
 
     system_getcvars();
 
-    char *ptr = Xstrdup(setupfilename), *p = strtok(ptr, ".");
+    char *const setupFileName = Xstrdup(setupfilename);
+    char *const p             = strtok(setupFileName, ".");
 
     if (!Bstrcmp(setupfilename, SETUPFILENAME))
         Bsprintf(tempbuf, "settings.cfg");
@@ -6397,40 +6398,44 @@ int app_main(int argc, char const * const * argv)
         Bsprintf(tempbuf, "%s_settings.cfg", p);
 
     OSD_Exec(tempbuf);
-    Bfree(ptr);
+    Bfree(setupFileName);
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
         if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
         {
-            int32_t i = 0;
-            int32_t j = 0;
-            int32_t xres[] = {ud.config.ScreenWidth,800,640,320};
-            int32_t yres[] = {ud.config.ScreenHeight,600,480,240};
+            vec2_t const res[] = {
+                { ud.config.ScreenWidth, ud.config.ScreenHeight }, { 800, 600 }, { 640, 480 }, { 320, 240 },
+            };
+
 #ifdef USE_OPENGL
-            int32_t bpp[] = {32,16,8};
+            int const bpp[] = { 32, 16, 8 };
 #else
-            int32_t bpp[] = {8};
+            int const bpp[] = { 8 };
 #endif
 
-            initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n",
-                       ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.config.ScreenMode?"fullscreen":"windowed");
+            initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n", ud.config.ScreenWidth, ud.config.ScreenHeight,
+                       ud.config.ScreenBPP, ud.config.ScreenMode ? "fullscreen" : "windowed");
 
-            while (setgamemode(0,xres[i],yres[i],bpp[j]) < 0)
+            int resIdx = 0;
+            int bppIdx = 0;
+
+            while (setgamemode(0, res[resIdx].x, res[resIdx].y, bpp[bppIdx]) < 0)
             {
-                initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n",xres[i],yres[i],bpp[j]);
+                initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n", res[resIdx].x, res[resIdx].y,
+                           bpp[bppIdx]);
 
-                if (++j == ARRAY_SIZE(bpp))
+                if (++bppIdx == ARRAY_SIZE(bpp))
                 {
-                    if (++i == ARRAY_SIZE(xres))
+                    if (++resIdx == ARRAY_SIZE(res))
                         G_GameExit("Unable to set failsafe video mode!");
-                    j = 0;
+                    bppIdx = 0;
                 }
             }
 
-            ud.config.ScreenWidth = xres[i];
-            ud.config.ScreenHeight = yres[i];
-            ud.config.ScreenBPP = bpp[j];
+            ud.config.ScreenWidth  = res[resIdx].x;
+            ud.config.ScreenHeight = res[resIdx].y;
+            ud.config.ScreenBPP    = bpp[bppIdx];
         }
 
         setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
@@ -6540,7 +6545,7 @@ MAIN_LOOP_RESTART:
     do //main loop
     {
         static uint32_t nextRender = 0, frameWaiting = 0;
-        uint32_t j;
+        uint32_t frameTime;
 
         if (handleevents() && quitevent)
         {
@@ -6552,7 +6557,7 @@ MAIN_LOOP_RESTART:
         Net_GetPackets();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
-        CONTROL_BindsEnabled = g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO);
+        CONTROL_BindsEnabled = !!(g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO));
 
 #ifndef _WIN32
         // stdin -> OSD input for dedicated server
@@ -6614,7 +6619,7 @@ MAIN_LOOP_RESTART:
 
                 ototalclock += TICSPERFRAME;
 
-                int const prevClock = totalclock;
+                int const moveClock = totalclock;
 
                 if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
                         (g_player[myconnectindex].ps->gm&MODE_GAME))
@@ -6630,7 +6635,7 @@ MAIN_LOOP_RESTART:
 
                 sampletimer();
 
-                if (totalclock - prevClock >= TICSPERFRAME)
+                if (totalclock - moveClock >= TICSPERFRAME)
                 {
                     // computing a tic takes longer than a tic, so we're slowing
                     // the game down. rather than tightly spinning here, go draw
@@ -6664,12 +6669,12 @@ MAIN_LOOP_RESTART:
             nextpage();
         }
 
-        j = getticks();
+        frameTime = getticks();
 
-        if (r_maxfps == 0 || j >= nextRender)
+        if (r_maxfps == 0 || frameTime >= nextRender)
         {
-            if (j > nextRender + g_frameDelay)
-                nextRender = j;
+            if (frameTime > nextRender + g_frameDelay)
+                nextRender = frameTime;
 
             nextRender += g_frameDelay;
 
@@ -6698,7 +6703,7 @@ skipframe:
     return 0;  // not reached (duh)
 }
 
-GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
+GAME_STATIC GAME_INLINE int G_MoveLoop()
 {
     Net_GetPackets();
 
@@ -6868,7 +6873,7 @@ int G_DoMoveThings(void)
     return 0;
 }
 
-void A_SpawnWallGlass(int spriteNum,int wallNum,int glassCnt)
+void A_SpawnWallGlass(int spriteNum, int wallNum, int glassCnt)
 {
     if (wallNum < 0)
     {
@@ -6881,113 +6886,102 @@ void A_SpawnWallGlass(int spriteNum,int wallNum,int glassCnt)
         return;
     }
 
-    int32_t j, xv, yv, z, x1, y1;
-    int32_t a;
+    vec2_t v1 = { wall[wallNum].x, wall[wallNum].y };
+    vec2_t v  = { wall[wall[wallNum].point2].x - v1.x, wall[wall[wallNum].point2].y - v1.y };
 
-    j = glassCnt+1;
+    v1.x -= ksgn(v.y);
+    v1.y += ksgn(v.x);
 
-    x1 = wall[wallNum].x;
-    y1 = wall[wallNum].y;
-
-    xv = wall[wall[wallNum].point2].x-x1;
-    yv = wall[wall[wallNum].point2].y-y1;
-
-    x1 -= ksgn(yv);
-    y1 += ksgn(xv);
-
-    xv = tabledivide32_noinline(xv, j);
-    yv = tabledivide32_noinline(yv, j);
+    v.x = tabledivide32_noinline(v.x, glassCnt+1);
+    v.y = tabledivide32_noinline(v.y, glassCnt+1);
 
     int16_t sect = -1;
 
-    for (j=glassCnt; j>0; j--)
+    for (bsize_t j = glassCnt; j > 0; --j)
     {
-        x1 += xv;
-        y1 += yv;
+        v1.x += v.x;
+        v1.y += v.y;
 
-        updatesector(x1,y1,&sect);
+        updatesector(v1.x,v1.y,&sect);
         if (sect >= 0)
         {
-            z = sector[sect].floorz-(krand()&(klabs(sector[sect].ceilingz-sector[sect].floorz)));
+            int z = sector[sect].floorz - (krand() & (klabs(sector[sect].ceilingz - sector[sect].floorz)));
+
             if (z < -ZOFFSET5 || z > ZOFFSET5)
-                z = SZ(spriteNum)-ZOFFSET5+(krand()&((64<<8)-1));
-            a = SA(spriteNum)-1024;
-            A_InsertSprite(SECT(spriteNum),x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),-(krand()&1023),spriteNum,5);
+                z = SZ(spriteNum) - ZOFFSET5 + (krand() & ((64 << 8) - 1));
+
+            A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, GLASSPIECES + (j % 3), -32, 36, 36, SA(spriteNum) - 1024, 32 + (krand() & 63),
+                           -(krand() & 1023), spriteNum, 5);
         }
     }
 }
 
-void A_SpawnGlass(int32_t i,int32_t n)
+void A_SpawnGlass(int spriteNum, int glassCnt)
 {
-    for (; n>0; n--)
+    for (; glassCnt>0; glassCnt--)
     {
-        int32_t k = A_InsertSprite(SECT(i),SX(i),SY(i),SZ(i)-((krand()&16)<<8),GLASSPIECES+(n%3),
-                                   krand()&15,36,36,krand()&2047,32+(krand()&63),-512-(krand()&2047),i,5);
-        sprite[k].pal = sprite[i].pal;
+        int const k
+        = A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum) - ((krand() & 16) << 8), GLASSPIECES + (glassCnt % 3),
+                         krand() & 15, 36, 36, krand() & 2047, 32 + (krand() & 63), -512 - (krand() & 2047), spriteNum, 5);
+        sprite[k].pal = sprite[spriteNum].pal;
     }
 }
 
-void A_SpawnCeilingGlass(int32_t i,int32_t sectnum,int32_t n)
+void A_SpawnCeilingGlass(int spriteNum, int sectNum, int glassCnt)
 {
-    int32_t j, xv, yv, z, x1, y1, a,s;
-    int32_t startwall = sector[sectnum].wallptr;
-    int32_t endwall = startwall+sector[sectnum].wallnum;
+    int const startWall = sector[sectNum].wallptr;
+    int const endWall = startWall+sector[sectNum].wallnum;
 
-    for (s=startwall; s<(endwall-1); s++)
+    for (bssize_t wallNum = startWall; wallNum < (endWall - 1); wallNum++)
     {
-        x1 = wall[s].x;
-        y1 = wall[s].y;
+        vec2_t v1 = { wall[wallNum].x, wall[wallNum].y };
+        vec2_t v  = { tabledivide32_noinline(wall[wallNum + 1].x - v1.x, glassCnt + 1),
+                     tabledivide32_noinline(wall[wallNum + 1].y - v1.y, glassCnt + 1) };
 
-        xv = tabledivide32_noinline(wall[s+1].x-x1, n+1);
-        yv = tabledivide32_noinline(wall[s+1].y-y1, n+1);
-
-        for (j=n; j>0; j--)
+        for (bsize_t j = glassCnt; j > 0; j--)
         {
-            x1 += xv;
-            y1 += yv;
-            a = krand()&2047;
-            z = sector[sectnum].ceilingz+((krand()&15)<<8);
-            A_InsertSprite(sectnum,x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,(krand()&31),0,i,5);
+            v1.x += v.x;
+            v1.y += v.y;
+            A_InsertSprite(sectNum, v1.x, v1.y, sector[sectNum].ceilingz + ((krand() & 15) << 8), GLASSPIECES + (j % 3), -32, 36, 36,
+                           krand() & 2047, (krand() & 31), 0, spriteNum, 5);
         }
     }
 }
 
-void A_SpawnRandomGlass(int32_t i,int32_t wallnum,int32_t n)
+void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
 {
-    int32_t j, xv, yv, z, x1, y1;
-    int16_t sect = -1;
-    int32_t a, k;
-
-    if (wallnum < 0)
+    if (wallNum < 0)
     {
-        for (j=n-1; j >= 0 ; j--)
+        for (bssize_t j = glassCnt - 1; j >= 0; j--)
         {
-            a = krand()&2047;
-            k = A_InsertSprite(SECT(i),SX(i),SY(i),SZ(i)-(krand()&(63<<8)),GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),1024-(krand()&2047),i,5);
-            sprite[k].pal = krand()&15;
+            int const k
+            = A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum) - (krand() & (63 << 8)), GLASSPIECES + (j % 3),
+                             -32, 36, 36, krand() & 2047, 32 + (krand() & 63), 1024 - (krand() & 2047), spriteNum, 5);
+            sprite[k].pal = krand() & 15;
         }
         return;
     }
 
-    j = n+1;
-    x1 = wall[wallnum].x;
-    y1 = wall[wallnum].y;
+    vec2_t v1 = { wall[wallNum].x, wall[wallNum].y };
+    vec2_t v  = { tabledivide32_noinline(wall[wall[wallNum].point2].x - wall[wallNum].x, glassCnt + 1),
+                 tabledivide32_noinline(wall[wall[wallNum].point2].y - wall[wallNum].y, glassCnt + 1) };
+    int16_t sectNum = sprite[spriteNum].sectnum;
 
-    xv = tabledivide32_noinline(wall[wall[wallnum].point2].x-wall[wallnum].x, j);
-    yv = tabledivide32_noinline(wall[wall[wallnum].point2].y-wall[wallnum].y, j);
-
-    for (j=n; j>0; j--)
+    for (bsize_t j = glassCnt; j > 0; j--)
     {
-        x1 += xv;
-        y1 += yv;
+        v1.x += v.x;
+        v1.y += v.y;
 
-        updatesector(x1,y1,&sect);
-        z = sector[sect].floorz-(krand()&(klabs(sector[sect].ceilingz-sector[sect].floorz)));
+        updatesector(v1.x, v1.y, &sectNum);
+
+        int z = sector[sectNum].floorz - (krand() & (klabs(sector[sectNum].ceilingz - sector[sectNum].floorz)));
+
         if (z < -ZOFFSET5 || z > ZOFFSET5)
-            z = SZ(i)-ZOFFSET5+(krand()&((64<<8)-1));
-        a = SA(i)-1024;
-        k = A_InsertSprite(SECT(i),x1,y1,z,GLASSPIECES+(j%3),-32,36,36,a,32+(krand()&63),-(krand()&2047),i,5);
-        sprite[k].pal = krand()&7;
+            z       = SZ(spriteNum) - ZOFFSET5 + (krand() & ((64 << 8) - 1));
+
+        int const k = A_InsertSprite(SECT(spriteNum), v1.x, v1.y, z, GLASSPIECES + (j % 3), -32, 36, 36, SA(spriteNum) - 1024,
+                                     32 + (krand() & 63), -(krand() & 2047), spriteNum, 5);
+        sprite[k].pal = krand() & 7;
     }
 }
 

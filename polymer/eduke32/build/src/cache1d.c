@@ -739,7 +739,7 @@ static void initgroupfile_crc32(int32_t handle)
     Bfree(buf);
 }
 
-int32_t initgroupfile(const char *filename)
+int initgroupfile(const char *filename)
 {
     char buf[70];
 

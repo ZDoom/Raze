@@ -261,9 +261,11 @@ void G_DoCheats(void)
 
     if (pPlayer->cheat_phase == 1)
     {
+        int ch;
+
         while (KB_KeyWaiting())
         {
-            int const ch = Btolower(KB_GetCh());
+            ch = Btolower(KB_GetCh());
 
             if (!((ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9')))
             {

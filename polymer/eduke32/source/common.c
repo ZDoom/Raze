@@ -26,8 +26,7 @@
 struct grpfile_t const *g_selectedGrp;
 
 int32_t g_gameType = GAMEFLAG_DUKE;
-
-int32_t g_usingAddon = 0;
+int     g_addonNum = 0;
 
 // g_gameNamePtr can point to one of: grpfiles[].name (string literal), string
 // literal, malloc'd block (XXX: possible leak)
@@ -35,9 +34,9 @@ const char *g_gameNamePtr = NULL;
 
 // grp/con handling
 
-static const char *defaultgamegrp[GAMECOUNT] = { "DUKE3D.GRP", "NAM.GRP", "NAPALM.GRP", "WW2GI.GRP" };
-static const char *defaultdeffilename[GAMECOUNT] = { "duke3d.def", "nam.def", "napalm.def", "ww2gi.def" };
-static const char *defaultconfilename = "GAME.CON";
+static const char *defaultgamegrp[GAMECOUNT]         = { "DUKE3D.GRP", "NAM.GRP", "NAPALM.GRP", "WW2GI.GRP" };
+static const char *defaultdeffilename[GAMECOUNT]     = { "duke3d.def", "nam.def", "napalm.def", "ww2gi.def" };
+static const char *defaultconfilename                = "GAME.CON";
 static const char *defaultgameconfilename[GAMECOUNT] = { "EDUKE.CON", "NAM.CON", "NAPALM.CON", "WW2GI.CON" };
 
 // g_grpNamePtr can ONLY point to a malloc'd block (length BMAX_PATH)
@@ -125,81 +124,72 @@ const char *G_DefaultConFile(void)
 
 const char *G_GrpFile(void)
 {
-    if (g_grpNamePtr == NULL)
-        return G_DefaultGrpFile();
-    else
-        return g_grpNamePtr;
+    return (g_grpNamePtr == NULL) ? G_DefaultGrpFile() : g_grpNamePtr;
 }
 
 const char *G_DefFile(void)
 {
-    if (g_defNamePtr == NULL)
-        return G_DefaultDefFile();
-    else
-        return g_defNamePtr;
+    return (g_defNamePtr == NULL) ? G_DefaultDefFile() : g_defNamePtr;
 }
 
 const char *G_ConFile(void)
 {
-    if (g_scriptNamePtr == NULL)
-        return G_DefaultConFile();
-    else
-        return g_scriptNamePtr;
+    return (g_scriptNamePtr == NULL) ? G_DefaultConFile() : g_scriptNamePtr;
 }
 
 //////////
 
 // Set up new-style multi-psky handling.
-void G_InitMultiPsky(int32_t const CLOUDYOCEAN__DYN, int32_t const MOONSKY1__DYN, int32_t const BIGORBIT1__DYN, int32_t const LA__DYN)
+void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN)
 {
     // When adding other multi-skies, take care that the tileofs[] values are
     // <= PSKYOFF_MAX. (It can be increased up to MAXPSKYTILES, but should be
     // set as tight as possible.)
 
     // The default sky properties (all others are implicitly zero):
-    psky_t * const defaultsky = E_DefinePsky(DEFAULTPSKY);
-    defaultsky->lognumtiles = 3;
-    defaultsky->horizfrac = 32768;
+    psky_t *sky      = E_DefinePsky(DEFAULTPSKY);
+    sky->lognumtiles = 3;
+    sky->horizfrac   = 32768;
 
     // CLOUDYOCEAN
     // Aligns with the drawn scene horizon because it has one itself.
-    psky_t * const oceansky = E_DefinePsky(CLOUDYOCEAN__DYN);
-    oceansky->lognumtiles = 3;
-    oceansky->horizfrac = 65536;
+    sky              = E_DefinePsky(CLOUDYOCEAN__DYN);
+    sky->lognumtiles = 3;
+    sky->horizfrac   = 65536;
 
     // MOONSKY1
     //        earth          mountain   mountain         sun
-    psky_t * const moonsky = E_DefinePsky(MOONSKY1__DYN);
-    moonsky->lognumtiles = 3;
-    moonsky->horizfrac = 32768;
-    moonsky->tileofs[6] = 1;
-    moonsky->tileofs[1] = 2;
-    moonsky->tileofs[4] = 2;
-    moonsky->tileofs[2] = 3;
+    sky              = E_DefinePsky(MOONSKY1__DYN);
+    sky->lognumtiles = 3;
+    sky->horizfrac   = 32768;
+    sky->tileofs[6]  = 1;
+    sky->tileofs[1]  = 2;
+    sky->tileofs[4]  = 2;
+    sky->tileofs[2]  = 3;
 
     // BIGORBIT1   // orbit
     //       earth1         2           3           moon/sun
-    psky_t * const spacesky = E_DefinePsky(BIGORBIT1__DYN);
-    spacesky->lognumtiles = 3;
-    spacesky->horizfrac = 32768;
-    spacesky->tileofs[5] = 1;
-    spacesky->tileofs[6] = 2;
-    spacesky->tileofs[7] = 3;
-    spacesky->tileofs[2] = 4;
+    sky              = E_DefinePsky(BIGORBIT1__DYN);
+    sky->lognumtiles = 3;
+    sky->horizfrac   = 32768;
+    sky->tileofs[5]  = 1;
+    sky->tileofs[6]  = 2;
+    sky->tileofs[7]  = 3;
+    sky->tileofs[2]  = 4;
 
     // LA // la city
     //       earth1         2           3           moon/sun
-    psky_t * const citysky = E_DefinePsky(LA__DYN);
-    citysky->lognumtiles = 3;
-    citysky->horizfrac = 16384+1024;
-    citysky->tileofs[0] = 1;
-    citysky->tileofs[1] = 2;
-    citysky->tileofs[2] = 1;
-    citysky->tileofs[3] = 3;
-    citysky->tileofs[4] = 4;
-    citysky->tileofs[5] = 0;
-    citysky->tileofs[6] = 2;
-    citysky->tileofs[7] = 3;
+    sky              = E_DefinePsky(LA__DYN);
+    sky->lognumtiles = 3;
+    sky->horizfrac   = 16384 + 1024;
+    sky->tileofs[0]  = 1;
+    sky->tileofs[1]  = 2;
+    sky->tileofs[2]  = 1;
+    sky->tileofs[3]  = 3;
+    sky->tileofs[4]  = 4;
+    sky->tileofs[5]  = 0;
+    sky->tileofs[6]  = 2;
+    sky->tileofs[7]  = 3;
 
 #if 0
     // This assertion should hold. See note above.
@@ -211,21 +201,21 @@ void G_InitMultiPsky(int32_t const CLOUDYOCEAN__DYN, int32_t const MOONSKY1__DYN
 
 void G_SetupGlobalPsky(void)
 {
-    int32_t i, mskyidx=0;
+    int skyIdx = 0;
 
     // NOTE: Loop must be running backwards for the same behavior as the game
     // (greatest sector index with matching parallaxed sky takes precedence).
-    for (i=numsectors-1; i>=0; i--)
+    for (bssize_t i = numsectors - 1; i >= 0; i--)
     {
         if (sector[i].ceilingstat & 1)
         {
-            mskyidx = getpskyidx(sector[i].ceilingpicnum);
-            if (mskyidx > 0)
+            skyIdx = getpskyidx(sector[i].ceilingpicnum);
+            if (skyIdx > 0)
                 break;
         }
     }
 
-    g_pskyidx = mskyidx;
+    g_pskyidx = skyIdx;
 }
 
 //////////
@@ -233,31 +223,27 @@ void G_SetupGlobalPsky(void)
 static char g_rootDir[BMAX_PATH];
 char g_modDir[BMAX_PATH] = "/";
 
-int32_t kopen4loadfrommod(const char *filename, char searchfirst)
+int kopen4loadfrommod(const char *fileName, char searchfirst)
 {
-    int32_t r=-1;
+    int kFile = -1;
 
-    if (g_modDir[0]!='/' || g_modDir[1]!=0)
+    if (g_modDir[0] != '/' || g_modDir[1] != 0)
     {
-        static char fn[BMAX_PATH];
-
-        Bsnprintf(fn, sizeof(fn), "%s/%s",g_modDir,filename);
-        r = kopen4load(fn,searchfirst);
+        static char staticFileName[BMAX_PATH];
+        Bsnprintf(staticFileName, sizeof(staticFileName), "%s/%s", g_modDir, fileName);
+        kFile = kopen4load(staticFileName, searchfirst);
     }
 
-    if (r < 0)
-        r = kopen4load(filename,searchfirst);
-
-    return r;
+    return (kFile < 0) ? kopen4load(fileName, searchfirst) : kFile;
 }
 
-int32_t usecwd;
+int g_useCwd;
 static void G_LoadAddon(void);
 int32_t g_groupFileHandle;
 
 void G_ExtPreInit(int32_t argc,char const * const * argv)
 {
-    usecwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
+    g_useCwd = G_CheckCmdSwitch(argc, argv, "-usecwd");
 
 #ifdef _WIN32
     GetModuleFileName(NULL,g_rootDir,BMAX_PATH);
@@ -305,7 +291,7 @@ void G_ExtInit(void)
 #if defined(_WIN32)
     if (!access("user_profiles_enabled", F_OK))
 #else
-    if (usecwd == 0 && access("user_profiles_disabled", F_OK))
+    if (g_useCwd == 0 && access("user_profiles_disabled", F_OK))
 #endif
     {
         char *homedir;
@@ -420,7 +406,7 @@ void G_LoadGroups(int32_t autoload)
 #endif
     }
 
-    if (g_usingAddon)
+    if (g_addonNum)
         G_LoadAddon();
 
     const char *grpfile;
@@ -524,7 +510,7 @@ static void G_LoadAddon(void)
 {
     int32_t crc = 0;  // compiler-happy
 
-    switch (g_usingAddon)
+    switch (g_addonNum)
     {
     case ADDON_DUKEDC:
         crc = DUKEDC_CRC;

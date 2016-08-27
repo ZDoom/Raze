@@ -442,7 +442,7 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
                 if (faketile[i>>3] & pow2char[i&7] || walock[i] >= 200)
                 {
                     initprintf("loadpics: per-map ART file \"%s\": "
-                        "tile %d has dummytile or is locked\n", fn, i);
+                        "tile %zd has dummytile or is locked\n", fn, i);
                     kclose(fil);
                     return -3;
                 }

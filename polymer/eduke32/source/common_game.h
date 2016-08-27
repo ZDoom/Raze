@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-extern int32_t usecwd;
+extern int g_useCwd;
 
 #define GAMEFLAG_DUKE       0x00000001
 #define GAMEFLAG_NAM        0x00000002
@@ -27,8 +27,7 @@ extern int32_t usecwd;
 extern struct grpfile_t const *g_selectedGrp;
 
 extern int32_t g_gameType;
-
-extern int32_t g_usingAddon;
+extern int     g_addonNum;
 
 #define DUKE                (g_gameType & GAMEFLAG_DUKE)
 #define NAM                 (g_gameType & GAMEFLAG_NAM)
@@ -99,13 +98,13 @@ extern int32_t g_groupFileHandle;
 
 //////////
 
-extern void G_InitMultiPsky(int32_t CLOUDYOCEAN__DYN, int32_t MOONSKY1__DYN, int32_t BIGORBIT1__DYN, int32_t LA__DYN);
+extern void G_InitMultiPsky(int CLOUDYOCEAN__DYN, int MOONSKY1__DYN, int BIGORBIT1__DYN, int LA__DYN);
 extern void G_SetupGlobalPsky(void);
 
 //////////
 
 extern char g_modDir[BMAX_PATH];
-extern int32_t kopen4loadfrommod(const char *filename, char searchfirst);
+extern int kopen4loadfrommod(const char *filename, char searchfirst);
 extern void G_AddSearchPaths(void);
 extern void G_CleanupSearchPaths(void);
 

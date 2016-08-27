@@ -8082,10 +8082,10 @@ static void G_CheckCommandLine(int32_t argc, char const * const * argv)
             {
                 if (argc > i+1)
                 {
-                    g_usingAddon = Batoi(argv[i+1]);
+                    g_addonNum = Batoi(argv[i+1]);
 
-                    if (!(g_usingAddon > ADDON_NONE && g_usingAddon < NUMADDONS))
-                        g_usingAddon = ADDON_NONE;
+                    if (!(g_addonNum > ADDON_NONE && g_addonNum < NUMADDONS))
+                        g_addonNum = ADDON_NONE;
 
                     COPYARG(i);
                     COPYARG(i+1);
@@ -8295,7 +8295,7 @@ static void G_CheckCommandLine(int32_t argc, char const * const * argv)
             }
             if (!Bstrcasecmp(c+1,"usecwd"))
             {
-                usecwd = 1;
+                g_useCwd = 1;
                 COPYARG(i);
                 i++;
                 continue;
@@ -9945,7 +9945,7 @@ int32_t ExtInit(void)
 
     set_memerr_handler(&M32_HandleMemErr);
 
-    if (!usecwd)
+    if (!g_useCwd)
         G_AddSearchPaths();
 
     G_ExtInit();
@@ -9999,7 +9999,7 @@ int32_t ExtPostStartupWindow(void)
 {
     G_LoadGroups(!NoAutoLoad);
 
-    if (!usecwd)
+    if (!g_useCwd)
         G_CleanupSearchPaths();
 
     if (initengine())

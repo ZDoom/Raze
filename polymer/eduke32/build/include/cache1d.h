@@ -34,7 +34,7 @@ int32_t     openfrompath(const char *fn, int32_t flags, int32_t mode);
 BFILE  *fopenfrompath(const char *fn, const char *mode);
 
 extern int32_t numgroupfiles;
-int32_t	initgroupfile(const char *filename);
+int initgroupfile(const char *filename);
 void	uninitgroupfile(void);
 int32_t	kopen4load(const char *filename, char searchfirst);	// searchfirst: 0 = anywhere, 1 = first group, 2 = any group
 int32_t	kread(int32_t handle, void *buffer, int32_t leng);

@@ -2483,18 +2483,18 @@ nullquote:
         case CON_DRAGPOINT:
             insptr++;
             {
-                int const nWall = Gv_GetVarX(*insptr++);
+                int const wallNum = Gv_GetVarX(*insptr++);
                 vec2_t n;
 
                 Gv_GetManyVars(2, (int32_t *)&n);
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)nWall >= (unsigned)numwalls))
+                if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
                 {
-                    CON_ERRPRINTF("Invalid wall %d\n", nWall);
+                    CON_ERRPRINTF("Invalid wall %d\n", wallNum);
                     continue;
                 }
 
-                dragpoint(nWall, n.x, n.y, 0);
+                dragpoint(wallNum, n.x, n.y, 0);
                 continue;
             }
 
@@ -2595,7 +2595,7 @@ nullquote:
         case CON_QSPAWNVAR:
             insptr++;
             {
-                int const nPicnum = Gv_GetVarX(*insptr++);
+                int const tileNum = Gv_GetVarX(*insptr++);
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
                 {
@@ -2603,7 +2603,7 @@ nullquote:
                     continue;
                 }
 
-                int const spriteNum = A_Spawn(vm.spriteNum, nPicnum);
+                int const spriteNum = A_Spawn(vm.spriteNum, tileNum);
 
                 switch (tw)
                 {
@@ -5772,10 +5772,10 @@ void A_LoadActor(int32_t spriteNum)
 #endif
 
 // NORECURSE
-void A_Execute(int32_t spriteNum, int32_t playerNum, int32_t lDist)
+void A_Execute(int spriteNum, int playerNum, int32_t playerDist)
 {
     vmstate_t tempvm = {
-        spriteNum, playerNum, lDist, 0, &sprite[spriteNum], &actor[spriteNum].t_data[0], g_player[playerNum].ps
+        spriteNum, playerNum, playerDist, 0, &sprite[spriteNum], &actor[spriteNum].t_data[0], g_player[playerNum].ps
     };
     vm = tempvm;
 
@@ -5842,7 +5842,7 @@ void A_Execute(int32_t spriteNum, int32_t playerNum, int32_t lDist)
     {
         double t = gethiticks();
 
-        killit = (El_CallActor(&g_ElState, picnum, spriteNum, playerNum, lDist)==1);
+        killit = (El_CallActor(&g_ElState, picnum, spriteNum, playerNum, playerDist)==1);
 
         t = gethiticks()-t;
         g_actorTotalMs[picnum] += t;
