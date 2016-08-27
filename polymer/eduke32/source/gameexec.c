@@ -4009,10 +4009,10 @@ finish_qsprintf:
             {
                 tw = *insptr++;
 
-                int const     labelNum = *insptr++;
-                int const     lVar2    = *insptr++;
-                int const     sectNum  = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : sprite[vm.spriteNum].sectnum;
-                int32_t const nValue   = Gv_GetVarX(lVar2);
+                int const labelNum = *insptr++;
+                int const lVar2    = *insptr++;
+                int const sectNum  = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : sprite[vm.spriteNum].sectnum;
+                int const nValue   = Gv_GetVarX(lVar2);
 
                 VM_SetSector(sectNum, labelNum, nValue);
                 continue;
@@ -4424,9 +4424,9 @@ finish_qsprintf:
         case CON_GETPLAYERVAR:
             insptr++;
             {
-                int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr-1)) : vm.playerNum;
-                int const lVar1   = *insptr++;
-                int const lVar2   = *insptr++;
+                int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.playerNum;
+                int const lVar1     = *insptr++;
+                int const lVar2     = *insptr++;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
                 {
@@ -4454,9 +4454,9 @@ finish_qsprintf:
             {
                 tw = *insptr++;
 
-                int const spriteNum   = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
-                int const labelNum = *insptr++;
-                int const lParm2   = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
+                int const spriteNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
+                int const labelNum  = *insptr++;
+                int const lParm2    = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
 
                 VM_SetSprite(spriteNum, labelNum, lParm2, Gv_GetVarX(*insptr++));
                 continue;
@@ -4467,9 +4467,9 @@ finish_qsprintf:
             {
                 tw = *insptr++;
 
-                int const spriteNum   = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
-                int const labelNum = *insptr++;
-                int const lParm2   = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
+                int const spriteNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
+                int const labelNum  = *insptr++;
+                int const lParm2    = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
 
                 Gv_SetVarX(*insptr++, VM_GetSprite(spriteNum, labelNum, lParm2));
                 continue;
@@ -4480,8 +4480,8 @@ finish_qsprintf:
             {
                 tw = *insptr++;
 
-                int const spriteNum   = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
-                int const labelNum = *insptr++;
+                int const spriteNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
+                int const labelNum  = *insptr++;
 
                 VM_SetTsprite(spriteNum, labelNum, Gv_GetVarX(*insptr++));
                 continue;
@@ -4492,8 +4492,8 @@ finish_qsprintf:
             {
                 tw = *insptr++;
 
-                int const spriteNum   = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
-                int const labelNum = *insptr++;
+                int const spriteNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
+                int const labelNum  = *insptr++;
 
                 Gv_SetVarX(*insptr++, VM_GetTsprite(spriteNum, labelNum));
                 continue;
@@ -4707,10 +4707,10 @@ finish_qsprintf:
 //                    OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
 //                               aGameArrays[j].szLabel, aGameArrays[j].size, newSize);
 
-                    intptr_t * const tmpar = oldSize != 0 ? (intptr_t *)Xmalloc(GAR_ELTSZ * oldSize) : NULL;
+                    intptr_t * const pArray = oldSize != 0 ? (intptr_t *)Xmalloc(GAR_ELTSZ * oldSize) : NULL;
 
                     if (oldSize != 0)
-                        memcpy(tmpar, aGameArrays[tw].pValues, GAR_ELTSZ * oldSize);
+                        Bmemcpy(pArray, aGameArrays[tw].pValues, GAR_ELTSZ * oldSize);
 
                     Baligned_free(aGameArrays[tw].pValues);
 
@@ -4718,10 +4718,12 @@ finish_qsprintf:
                     aGameArrays[tw].size = newSize;
 
                     if (oldSize != 0)
-                        memcpy(aGameArrays[tw].pValues, tmpar, GAR_ELTSZ * min(oldSize, newSize));
+                        Bmemcpy(aGameArrays[tw].pValues, pArray, GAR_ELTSZ * min(oldSize, newSize));
 
                     if (newSize > oldSize)
-                        memset(&aGameArrays[tw].pValues[oldSize], 0, GAR_ELTSZ * (newSize - oldSize));
+                        Bmemset(&aGameArrays[tw].pValues[oldSize], 0, GAR_ELTSZ * (newSize - oldSize));
+
+                    Bfree(pArray);
                 }
                 continue;
             }
