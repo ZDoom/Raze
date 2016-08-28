@@ -24,11 +24,11 @@ struct simple_array
         memset(data, 0, sizeof(data));
     }
 
-    T operator [](int i) const
+    T operator [](size_t i) const
     {
         return data[i];
     }
-    T & operator [](int i)
+    T & operator [](size_t i)
     {
         return data[i];
     }
