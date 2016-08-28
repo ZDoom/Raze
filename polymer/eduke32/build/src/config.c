@@ -268,11 +268,13 @@ int32_t loadsetup(const char *fn)
         while (*p)
         {
             if (!sscanf(p,"%x",&v1))break;
-            if ((p=strchr(p,'-'))==0)break; p++;
+            if ((p=strchr(p,'-'))==0)break;
+            p++;
             if (!sscanf(p,"%x",&v2))break;
             keyremap[v1]=v2;
             initprintf("Remap %X key to %X\n",v1,v2);
-            if ((p=strchr(p,','))==0)break; p++;
+            if ((p=strchr(p,','))==0)break;
+            p++;
         }
     }
 
