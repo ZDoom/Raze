@@ -701,7 +701,7 @@ int app_main(int argc, char const * const * argv)
     // must be after loadpics(), which inits BUILD's cache
 
     i = MAXTILES-1;
-    if (tilesiz[i].x==0 && tilesiz[i].x==0)
+    if (tilesiz[i].x==0 && tilesiz[i].y==0)
     {
         static char R[8*16] = { //
             0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0,
