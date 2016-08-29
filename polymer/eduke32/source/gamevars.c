@@ -1240,49 +1240,49 @@ void Gv_ResetSystemDefaults(void)
 
     //AddLog("ResetWeaponDefaults");
 
-    for (bssize_t weaponNum = 0; weaponNum < MAX_WEAPONS; ++weaponNum)
+    for (int weaponNum = 0; weaponNum < MAX_WEAPONS; ++weaponNum)
     {
         for (bssize_t playerNum = 0; playerNum < MAXPLAYERS; ++playerNum)
         {
-            Bsprintf(aszBuf, "WEAPON%zd_CLIP", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_CLIP", weaponNum);
             aplWeaponClip[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_RELOAD", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_RELOAD", weaponNum);
             aplWeaponReload[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_FIREDELAY", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_FIREDELAY", weaponNum);
             aplWeaponFireDelay[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_TOTALTIME", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_TOTALTIME", weaponNum);
             aplWeaponTotalTime[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_HOLDDELAY", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_HOLDDELAY", weaponNum);
             aplWeaponHoldDelay[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_FLAGS", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_FLAGS", weaponNum);
             aplWeaponFlags[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_SHOOTS", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_SHOOTS", weaponNum);
             aplWeaponShoots[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
             if ((unsigned)aplWeaponShoots[weaponNum][playerNum] >= MAXTILES)
                 aplWeaponShoots[weaponNum][playerNum] = 0;
-            Bsprintf(aszBuf, "WEAPON%zd_SPAWNTIME", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_SPAWNTIME", weaponNum);
             aplWeaponSpawnTime[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_SPAWN", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_SPAWN", weaponNum);
             aplWeaponSpawn[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_SHOTSPERBURST", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", weaponNum);
             aplWeaponShotsPerBurst[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_WORKSLIKE", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_WORKSLIKE", weaponNum);
             aplWeaponWorksLike[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_INITIALSOUND", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_INITIALSOUND", weaponNum);
             aplWeaponInitialSound[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_FIRESOUND", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_FIRESOUND", weaponNum);
             aplWeaponFireSound[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_SOUND2TIME", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_SOUND2TIME", weaponNum);
             aplWeaponSound2Time[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_SOUND2SOUND", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_SOUND2SOUND", weaponNum);
             aplWeaponSound2Sound[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_RELOADSOUND1", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_RELOADSOUND1", weaponNum);
             aplWeaponReloadSound1[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_RELOADSOUND2", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_RELOADSOUND2", weaponNum);
             aplWeaponReloadSound2[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_SELECTSOUND", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_SELECTSOUND", weaponNum);
             aplWeaponSelectSound[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
-            Bsprintf(aszBuf, "WEAPON%zd_FLASHCOLOR", weaponNum);
+            Bsprintf(aszBuf, "WEAPON%d_FLASHCOLOR", weaponNum);
             aplWeaponFlashColor[weaponNum][playerNum] = Gv_GetVarByLabel(aszBuf, 0, -1, playerNum);
         }
     }
@@ -1457,7 +1457,7 @@ static int32_t G_StaticToDynamicSound(int32_t const sound)
 } while (0)
 #else
 # define ADDWEAPONVAR(Weapidx, Membname) do { \
-    Bsprintf(aszBuf, "WEAPON%zd_" #Membname, Weapidx); \
+    Bsprintf(aszBuf, "WEAPON%d_" #Membname, Weapidx); \
     Bstrupr(aszBuf); \
     Gv_NewVar(aszBuf, weapondefaults[Weapidx].Membname, GAMEVAR_PERPLAYER | GAMEVAR_SYSTEM); \
 } while (0)
@@ -1534,7 +1534,7 @@ static void Gv_AddSystemVars(void)
         weapondefaults[GROW_WEAPON].FireSound = 0;
     }
 
-    for (bssize_t i=0; i<MAX_WEAPONS; i++)
+    for (int i=0; i<MAX_WEAPONS; i++)
     {
         ADDWEAPONVAR(i, WorksLike);
         ADDWEAPONVAR(i, Clip);
@@ -1557,7 +1557,7 @@ static void Gv_AddSystemVars(void)
         ADDWEAPONVAR(i, FlashColor);
     }
 #ifdef LUNATIC
-    for (bssize_t i=0; i<MAXPLAYERS; i++)
+    for (int i=0; i<MAXPLAYERS; i++)
     {
         DukePlayer_t *ps = g_player[i].ps;
 
@@ -1709,9 +1709,9 @@ void Gv_InitWeaponPointers(void)
 
     //AddLog("Gv_InitWeaponPointers");
 
-    for (bssize_t i=(MAX_WEAPONS-1); i>=0; i--)
+    for (int i=(MAX_WEAPONS-1); i>=0; i--)
     {
-        Bsprintf(aszBuf, "WEAPON%zd_CLIP", i);
+        Bsprintf(aszBuf, "WEAPON%d_CLIP", i);
         aplWeaponClip[i] = Gv_GetVarDataPtr(aszBuf);
 
         if (!aplWeaponClip[i])
@@ -1721,41 +1721,41 @@ void Gv_InitWeaponPointers(void)
             G_Shutdown();
         }
 
-        Bsprintf(aszBuf, "WEAPON%zd_RELOAD", i);
+        Bsprintf(aszBuf, "WEAPON%d_RELOAD", i);
         aplWeaponReload[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_FIREDELAY", i);
+        Bsprintf(aszBuf, "WEAPON%d_FIREDELAY", i);
         aplWeaponFireDelay[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_TOTALTIME", i);
+        Bsprintf(aszBuf, "WEAPON%d_TOTALTIME", i);
         aplWeaponTotalTime[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_HOLDDELAY", i);
+        Bsprintf(aszBuf, "WEAPON%d_HOLDDELAY", i);
         aplWeaponHoldDelay[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_FLAGS", i);
+        Bsprintf(aszBuf, "WEAPON%d_FLAGS", i);
         aplWeaponFlags[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_SHOOTS", i);
+        Bsprintf(aszBuf, "WEAPON%d_SHOOTS", i);
         aplWeaponShoots[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_SPAWNTIME", i);
+        Bsprintf(aszBuf, "WEAPON%d_SPAWNTIME", i);
         aplWeaponSpawnTime[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_SPAWN", i);
+        Bsprintf(aszBuf, "WEAPON%d_SPAWN", i);
         aplWeaponSpawn[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_SHOTSPERBURST", i);
+        Bsprintf(aszBuf, "WEAPON%d_SHOTSPERBURST", i);
         aplWeaponShotsPerBurst[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_WORKSLIKE", i);
+        Bsprintf(aszBuf, "WEAPON%d_WORKSLIKE", i);
         aplWeaponWorksLike[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_INITIALSOUND", i);
+        Bsprintf(aszBuf, "WEAPON%d_INITIALSOUND", i);
         aplWeaponInitialSound[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_FIRESOUND", i);
+        Bsprintf(aszBuf, "WEAPON%d_FIRESOUND", i);
         aplWeaponFireSound[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_SOUND2TIME", i);
+        Bsprintf(aszBuf, "WEAPON%d_SOUND2TIME", i);
         aplWeaponSound2Time[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_SOUND2SOUND", i);
+        Bsprintf(aszBuf, "WEAPON%d_SOUND2SOUND", i);
         aplWeaponSound2Sound[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_RELOADSOUND1", i);
+        Bsprintf(aszBuf, "WEAPON%d_RELOADSOUND1", i);
         aplWeaponReloadSound1[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_RELOADSOUND2", i);
+        Bsprintf(aszBuf, "WEAPON%d_RELOADSOUND2", i);
         aplWeaponReloadSound2[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_SELECTSOUND", i);
+        Bsprintf(aszBuf, "WEAPON%d_SELECTSOUND", i);
         aplWeaponSelectSound[i] = Gv_GetVarDataPtr(aszBuf);
-        Bsprintf(aszBuf, "WEAPON%zd_FLASHCOLOR", i);
+        Bsprintf(aszBuf, "WEAPON%d_FLASHCOLOR", i);
         aplWeaponFlashColor[i] = Gv_GetVarDataPtr(aszBuf);
     }
 }

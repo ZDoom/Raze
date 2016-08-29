@@ -767,14 +767,14 @@ void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset)
     if ((unsigned)num > (unsigned)g_maxSoundPos || g_sounds[num].num <= 0)
         return;
 
-    for (bssize_t j=0; j<MAXSOUNDINSTANCES; ++j)
+    for (int j=0; j<MAXSOUNDINSTANCES; ++j)
     {
-        int32_t voice = g_sounds[num].SoundOwner[j].voice;
+        int const voice = g_sounds[num].SoundOwner[j].voice;
 
         if ((i == -1 && voice > FX_Ok) || (i != -1 && g_sounds[num].SoundOwner[j].ow == i))
         {
             if (EDUKE32_PREDICT_FALSE(i >= 0 && voice <= FX_Ok))
-                initprintf(OSD_ERROR "S_ChangeSoundPitch(): bad voice %d for sound ID %d index %zd!\n", voice, num, j);
+                initprintf(OSD_ERROR "S_ChangeSoundPitch(): bad voice %d for sound ID %d index %d!\n", voice, num, j);
             else if (voice > FX_Ok && FX_SoundActive(voice))
                 FX_SetPitch(voice, pitchoffset);
             break;

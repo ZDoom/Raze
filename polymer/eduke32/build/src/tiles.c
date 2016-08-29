@@ -435,14 +435,14 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
         {
             // Check whether we can evict existing tiles to make place for
             // per-map ART ones.
-            for (bssize_t i=local.tilestart; i<=local.tileend; i++)
+            for (int i=local.tilestart; i<=local.tileend; i++)
             {
                 // Tiles having dummytile replacements or those that are
                 // cache1d-locked can't be replaced.
                 if (faketile[i>>3] & pow2char[i&7] || walock[i] >= 200)
                 {
                     initprintf("loadpics: per-map ART file \"%s\": "
-                        "tile %zd has dummytile or is locked\n", fn, i);
+                        "tile %d has dummytile or is locked\n", fn, i);
                     kclose(fil);
                     return -3;
                 }

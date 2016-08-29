@@ -6267,9 +6267,9 @@ int app_main(int argc, char const * const * argv)
 
     g_player[myconnectindex].ps->palette = BASEPAL;
 
-    for (bssize_t i=1, j=numplayers; j<ud.multimode; j++)
+    for (int i=1, j=numplayers; j<ud.multimode; j++)
     {
-        Bsprintf(g_player[j].user_name,"PLAYER %zd",j+1);
+        Bsprintf(g_player[j].user_name,"PLAYER %d",j+1);
         g_player[j].ps->team = g_player[j].pteam = i;
         g_player[j].ps->weaponswitch = 3;
         g_player[j].ps->auto_aim = 0;
