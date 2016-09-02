@@ -296,7 +296,7 @@ static const _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n"
         "  eyeVec = normalize(tangentSpaceEyeVec);\n"
         "\n"
-        "  for (bssize_t i = 0; i < 4; i++) {\n"
+        "  for (int i = 0; i < 4; i++) {\n"
         "    normalStep = texture2D(normalMap, commonTexCoord.st);\n"
         "    biasedHeight = normalStep.a * normalBias.x - normalBias.y;\n"
         "    commonTexCoord += (biasedHeight - commonTexCoord.z) * normalStep.z * eyeVec;\n"
