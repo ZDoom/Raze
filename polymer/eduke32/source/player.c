@@ -4273,7 +4273,7 @@ void P_EndLevel(void)
     }
     else
     {
-        ud.level_number   = (++ud.level_number >= MAXLEVELS) ? ud.level_number : 0;
+        ud.level_number   = (++ud.level_number < MAXLEVELS) ? ud.level_number : 0;
         ud.m_level_number = ud.level_number;
     }
 }
