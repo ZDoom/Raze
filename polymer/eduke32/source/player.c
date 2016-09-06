@@ -249,7 +249,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
         for (bssize_t spriteNum=headspritestat[aimstats[k]]; spriteNum >= 0; spriteNum=nextspritestat[spriteNum])
         {
             if ((sprite[spriteNum].xrepeat > 0 && sprite[spriteNum].extra >= 0 &&
-                 (sprite[spriteNum].cstat & (257 + 32768)) == 257) ||
+                 (sprite[spriteNum].cstat & (257 + 32768)) == 257) &&
                 (A_CheckEnemySprite(&sprite[spriteNum]) || k < 2))
             {
                 if (A_CheckEnemySprite(&sprite[spriteNum]) || PN(spriteNum) == APLAYER || PN(spriteNum) == SHARK)
@@ -259,9 +259,9 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                          (GTFLAGS(GAMETYPE_TDM) && g_player[P_Get(spriteNum)].ps->team == g_player[playerNum].ps->team)))
                         continue;
 
-                    if ((gotShrinker && sprite[spriteNum].xrepeat < 30) || PN(spriteNum) == SHARK ||
-                        !(PN(spriteNum) >= GREENSLIME && PN(spriteNum) <= GREENSLIME + 7) ||
-                        (gotFreezer && sprite[spriteNum].pal == 1))
+                    if ((gotShrinker && sprite[spriteNum].xrepeat < 30)
+                        && (PN(spriteNum) == SHARK || (!(PN(spriteNum) >= GREENSLIME && PN(spriteNum) <= GREENSLIME + 7)))
+                        || (gotFreezer && sprite[spriteNum].pal == 1))
                         continue;
                 }
 
