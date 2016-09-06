@@ -106,6 +106,7 @@ enum actionparams
     ACTION_VIEWTYPE,
     ACTION_INCVAL,
     ACTION_DELAY,
+    ACTION_FLAGS,
     ACTION_PARAM_COUNT,
 };
 
@@ -116,6 +117,7 @@ struct action
     // can be initialized by passing a table with numeric indices (con.action).
     int16_t startframe, numframes;
     int16_t viewtype, incval, delay;
+    uint16_t flags;
 };
 
 struct move

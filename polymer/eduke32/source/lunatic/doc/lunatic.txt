@@ -1898,7 +1898,7 @@ The value to add the actor's _current frame_ on each frame advance. May be --1,
 0, or 1.
 // In the wild, sometimes other values, too.
 
-[[action_delay]] `[5] delay`::
+[[action_delay]] `[5] delay` (default: 0)::
 Roughly, the number of <<totalclock,`gv.totalclock`>> time units (120 per
 second) after which a frame is advanced, at a granularity of one game tic (30
 per second, corresponding to a `delay` difference of 4).footnote:[The reason
@@ -1906,6 +1906,8 @@ for the granularity is due to the implementation: each execution of an actor's
 code increments its hidden ``action tics'' counter by four (= 120/30).]
 
 // TODO: the above can be more precise. State in terms of floor(delay/4).
+
+`[6] flags` (default: 0)::
 
 .Equivalent `action` definitions
 ==========

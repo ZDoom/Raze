@@ -1961,8 +1961,8 @@ local Couter = {
     move = sp1 * tok.identifier * (sp1 * tok.define)^-2  -- hvel, vvel
         / function(...) Define.composite(LABEL.MOVE, ...) end,
 
-    -- startframe, numframes, viewtype, incval, delay:
-    action = sp1 * tok.identifier * (sp1 * tok.define)^-5 -- ACTION_PARAM_COUNT
+    -- startframe, numframes, viewtype, incval, delay, flags:
+    action = sp1 * tok.identifier * (sp1 * tok.define)^-6 -- ACTION_PARAM_COUNT
         / function(...) Define.composite(LABEL.ACTION, ...) end,
 
     -- action, move, flags...:

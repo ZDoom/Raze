@@ -135,6 +135,7 @@ ffi.cdef[[
 struct action {
     int16_t startframe, numframes;
     int16_t viewtype, incval, delay;
+    uint16_t flags;
 };
 
 struct move {
