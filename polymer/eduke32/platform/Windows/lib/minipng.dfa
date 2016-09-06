@@ -53,3 +53,7 @@ option USER_MEM on
 option WRITE_TEXT on
 option STDIO on
 option INFO_IMAGE on
+
+# Custom:
+
+option WRITE_tRNS on
