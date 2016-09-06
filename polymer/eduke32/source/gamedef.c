@@ -3357,7 +3357,7 @@ DO_DEFSTATE:
                     g_labelCnt++;
                 }
 
-                for (j=4; j>=0; j--)
+                for (j=ACTION_PARAM_COUNT-1; j>=0; j--)
                 {
                     if (C_GetKeyword() != -1) break;
                     C_GetNextValue(LABEL_DEFINE);

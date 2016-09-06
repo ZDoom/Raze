@@ -99,6 +99,16 @@ enum uactortypes_t
 #define AC_ACTION_ID(t) ((t)[4])
 #define AC_AI_ID(t) ((t)[5])  /* the ID of the actor's current ai */
 
+enum actionparams
+{
+    ACTION_STARTFRAME = 0,
+    ACTION_NUMFRAMES,
+    ACTION_VIEWTYPE,
+    ACTION_INCVAL,
+    ACTION_DELAY,
+    ACTION_PARAM_COUNT,
+};
+
 #ifdef LUNATIC
 struct action
 {

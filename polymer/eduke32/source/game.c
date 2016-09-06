@@ -4073,10 +4073,10 @@ PALONLY:
         if (G_HaveActor(pSprite->picnum))
         {
 #if !defined LUNATIC
-            if ((unsigned)scrofs_action + 2 >= (unsigned)g_scriptSize)
+            if ((unsigned)scrofs_action + ACTION_VIEWTYPE >= (unsigned)g_scriptSize)
                 goto skip;
 
-            l = apScript[scrofs_action + 2];
+            l = apScript[scrofs_action + ACTION_VIEWTYPE];
 #else
             l = viewtype;
 #endif
@@ -4128,7 +4128,7 @@ PALONLY:
             l = klabs(l);
 
 #if !defined LUNATIC
-            t->picnum += frameOffset + apScript[scrofs_action] + l*curframe;
+            t->picnum += frameOffset + apScript[scrofs_action + ACTION_STARTFRAME] + l*curframe;
 #else
             t->picnum += frameOffset + startframe + l*curframe;
 #endif

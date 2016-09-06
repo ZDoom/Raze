@@ -5776,16 +5776,16 @@ void A_LoadActor(int32_t spriteNum)
 void VM_UpdateAnim(int spriteNum, int32_t *pData)
 {
 #if !defined LUNATIC
-    intptr_t const actionofs = AC_ACTION_ID(pData);
-    intptr_t const *actionptr = (actionofs != 0 && actionofs + 4u < (unsigned) g_scriptSize) ? &apScript[actionofs] : NULL;
+    size_t const actionofs = AC_ACTION_ID(pData);
+    intptr_t const *actionptr = (actionofs != 0 && actionofs + (ACTION_PARAM_COUNT-1) < (unsigned) g_scriptSize) ? &apScript[actionofs] : NULL;
 
     if (actionptr != NULL)
 #endif
     {
 #if !defined LUNATIC
-        int const action_frames = actionptr[1];
-        int const action_incval = actionptr[3];
-        int const action_delay  = actionptr[4];
+        int const action_frames = actionptr[ACTION_NUMFRAMES];
+        int const action_incval = actionptr[ACTION_INCVAL];
+        int const action_delay  = actionptr[ACTION_DELAY];
 #else
         int const action_frames = actor[spriteNum].ac.numframes;
         int const action_incval = actor[spriteNum].ac.incval;
