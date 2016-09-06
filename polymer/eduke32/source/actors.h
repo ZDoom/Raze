@@ -110,6 +110,11 @@ enum actionparams
     ACTION_PARAM_COUNT,
 };
 
+enum actionflags
+{
+    AF_VIEWPOINT = 1u<<0u,
+};
+
 #ifdef LUNATIC
 struct action
 {

@@ -4077,8 +4077,10 @@ PALONLY:
                 goto skip;
 
             l = apScript[scrofs_action + ACTION_VIEWTYPE];
+            uint16_t const action_flags = apScript[scrofs_action + ACTION_FLAGS];
 #else
             l = viewtype;
+            uint16_t const action_flags = actor[i].ac.flags;
 #endif
 
 #ifdef USE_OPENGL
@@ -4092,19 +4094,26 @@ PALONLY:
                 switch (l)
                 {
                 case 2:
-                    frameOffset = (((pSprite->ang+3072+128-oura)&2047)>>8)&1;
+                {
+                    int const viewAng = (action_flags & AF_VIEWPOINT) ? getangle(pSprite->x-ourx, pSprite->y-oury) : oura;
+                    frameOffset = (((pSprite->ang + 3072 + 128 - viewAng) & 2047) >> 8) & 1;
                     break;
+                }
 
                 case 3:
                 case 4:
-                    frameOffset = (((pSprite->ang+3072+128-oura)&2047)>>7)&7;
+                {
+                    int const viewAng = (action_flags & AF_VIEWPOINT) ? getangle(pSprite->x-ourx, pSprite->y-oury) : oura;
+                    frameOffset = (((pSprite->ang + 3072 + 128 - viewAng) & 2047) >> 7) & 7;
                     if (frameOffset > 3)
                     {
                         t->cstat |= 4;
-                        frameOffset = 7-frameOffset;
+                        frameOffset = 7 - frameOffset;
                     }
-                    else t->cstat &= ~4;
+                    else
+                        t->cstat &= ~4;
                     break;
+                }
 
                 case 5:
                 case -5:
@@ -4116,10 +4125,13 @@ PALONLY:
                     break;
                 case 8:
                 case -8:
-                    frameOffset = (l > 0) ? (((pSprite->ang + 3072 + 128 - oura) & 2047) >> 8) & 7
-                                : (((oura + 3072 + 128 - pSprite->ang) & 2047) >> 8) & 7;
+                {
+                    int const viewAng = (action_flags & AF_VIEWPOINT) ? getangle(pSprite->x-ourx, pSprite->y-oury) : oura;
+                    int const angDiff = l > 0 ? pSprite->ang - viewAng : viewAng - pSprite->ang;
+                    frameOffset = (((angDiff + 3072 + 128) & 2047) >> 8) & 7;
                     t->cstat &= ~4;
                     break;
+                }
                 default:
                     frameOffset = 0;
                     break;
