@@ -355,7 +355,7 @@ int32_t A_GetFurthestAngle(int spriteNum, int angDiv)
     return furthest_angle&2047;
 }
 
-int32_t A_FurthestVisiblePoint(int32_t spriteNum, uspritetype * const pSprite, int32_t *dax, int32_t *day)
+int A_FurthestVisiblePoint(int spriteNum, uspritetype * const ts, int32_t *dax, int32_t *day)
 {
     if (AC_COUNT(actor[spriteNum].t_data)&63)
         return -1;
@@ -366,17 +366,17 @@ int32_t A_FurthestVisiblePoint(int32_t spriteNum, uspritetype * const pSprite, i
     int const angincs = 128;
 //    ((!g_netServer && ud.multimode < 2) && ud.player_skill < 3) ? 2048 / 2 : tabledivide32_noinline(2048, 1 + (krand() & 1));
 
-    for (bssize_t j = pSprite->ang; j < (2048 + pSprite->ang); j += (angincs /*-(krand()&511)*/))
+    for (bssize_t j = ts->ang; j < (2048 + ts->ang); j += (angincs /*-(krand()&511)*/))
     {
-        pSprite->z -= ZOFFSET2;
-        hitscan((const vec3_t *)pSprite, pSprite->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047],
+        ts->z -= ZOFFSET2;
+        hitscan((const vec3_t *)ts, ts->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047],
                 16384 - (krand() & 32767), &hit, CLIPMASK1);
-        pSprite->z += ZOFFSET2;
+        ts->z += ZOFFSET2;
 
         if (hit.sect < 0)
             continue;
 
-        int const d  = FindDistance2D(hit.pos.x - pSprite->x, hit.pos.y - pSprite->y);
+        int const d  = FindDistance2D(hit.pos.x - ts->x, hit.pos.y - ts->y);
         int const da = FindDistance2D(hit.pos.x - pnSprite->x, hit.pos.y - pnSprite->y);
 
         if (d < da)
@@ -394,10 +394,10 @@ int32_t A_FurthestVisiblePoint(int32_t spriteNum, uspritetype * const pSprite, i
     return -1;
 }
 
-static void VM_GetZRange(int32_t spriteNum, int32_t *ceilhit, int32_t *florhit, int wallDist)
+static void VM_GetZRange(int spriteNum, int32_t *ceilhit, int32_t *florhit, int wallDist)
 {
     uspritetype *const pSprite = (uspritetype *)&sprite[spriteNum];
-    int const ocstat = pSprite->cstat;
+    int const          ocstat  = pSprite->cstat;
 
     pSprite->cstat = 0;
     pSprite->z -= ZOFFSET;
@@ -411,7 +411,7 @@ static void VM_GetZRange(int32_t spriteNum, int32_t *ceilhit, int32_t *florhit, 
     pSprite->cstat = ocstat;
 }
 
-void A_GetZLimits(int32_t spriteNum)
+void A_GetZLimits(int spriteNum)
 {
     spritetype *const pSprite = &sprite[spriteNum];
     int32_t           ceilhit, florhit;
@@ -540,23 +540,23 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t moveFlags)
         int       angDiff;
         int       goalAng;
         int const spriteAngle    = vm.pSprite->ang;
-        int32_t   holoDukeSprite = vm.pPlayer->holoduke_on;
+        int       holoDukeSprite = vm.pPlayer->holoduke_on;
 
         // NOTE: looks like 'owner' is set to target sprite ID...
 
-        if (holoDukeSprite >= 0 &&
-            cansee(sprite[holoDukeSprite].x, sprite[holoDukeSprite].y, sprite[holoDukeSprite].z,
-                   sprite[holoDukeSprite].sectnum, vm.pSprite->x, vm.pSprite->y, vm.pSprite->z, vm.pSprite->sectnum))
-            vm.pSprite->owner  = holoDukeSprite;
-        else vm.pSprite->owner = vm.pPlayer->i;
+        vm.pSprite->owner
+        = (holoDukeSprite >= 0 && cansee(sprite[holoDukeSprite].x, sprite[holoDukeSprite].y, sprite[holoDukeSprite].z,
+                                         sprite[holoDukeSprite].sectnum, vm.pSprite->x, vm.pSprite->y, vm.pSprite->z, vm.pSprite->sectnum))
+          ? holoDukeSprite
+          : vm.pPlayer->i;
 
         goalAng = (sprite[vm.pSprite->owner].picnum == APLAYER)
-                   ? getangle(actor[vm.spriteNum].lastvx - vm.pSprite->x, actor[vm.spriteNum].lastvy - vm.pSprite->y)
-                   : getangle(sprite[vm.pSprite->owner].x - vm.pSprite->x, sprite[vm.pSprite->owner].y - vm.pSprite->y);
+                  ? getangle(actor[vm.spriteNum].lastvx - vm.pSprite->x, actor[vm.spriteNum].lastvy - vm.pSprite->y)
+                  : getangle(sprite[vm.pSprite->owner].x - vm.pSprite->x, sprite[vm.pSprite->owner].y - vm.pSprite->y);
 
         if (vm.pSprite->xvel && vm.pSprite->picnum != DRONE)
         {
-            angDiff = G_GetAngleDelta(spriteAngle,goalAng);
+            angDiff = G_GetAngleDelta(spriteAngle, goalAng);
 
             if (elapsedTics < 2)
             {
@@ -5807,7 +5807,7 @@ void VM_UpdateAnim(int spriteNum, int32_t *pData)
 }
 
 // NORECURSE
-void A_Execute(int spriteNum, int playerNum, int32_t playerDist)
+void A_Execute(int spriteNum, int playerNum, int playerDist)
 {
     vmstate_t tempvm = {
         spriteNum, playerNum, playerDist, 0, &sprite[spriteNum], &actor[spriteNum].t_data[0], g_player[playerNum].ps
