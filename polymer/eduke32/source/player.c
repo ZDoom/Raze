@@ -2069,28 +2069,6 @@ static int P_DisplayAccess(int accessShade)
 
 static int32_t fistPos;
 
-void P_WW2GIDisplayWeapon(DukePlayer_t * const pPlayer, int weaponNum, int *weaponYOffset)
-{
-    const uint8_t *const weaponFrame = &pPlayer->kickback_pic;
-
-    switch (weaponNum)
-    {
-    case RPG_WEAPON:
-    {
-        int const totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
-        if (*weaponFrame >= totalTime)
-        {
-            int const reloadTime = PWEAPON(screenpeek, pPlayer->curr_weapon, Reload);
-
-            *weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
-                ? 10 * ((*weaponFrame) - totalTime)                     // down
-                : *weaponYOffset -= 10 * (reloadTime - (*weaponFrame));  // up
-        }
-    }
-    break;
-    }
-}
-
 void P_DisplayWeapon(void)
 {
     DukePlayer_t *const  pPlayer     = g_player[screenpeek].ps;
@@ -2247,7 +2225,17 @@ void P_DisplayWeapon(void)
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset,
                             RPGGUN + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal, 0);
                     else if (WW2GI)
-                        P_WW2GIDisplayWeapon(pPlayer, currentWeapon, &weaponYOffset);
+                    {
+                        int const totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
+                        if (*weaponFrame >= totalTime)
+                        {
+                            int const reloadTime = PWEAPON(screenpeek, pPlayer->curr_weapon, Reload);
+
+                            weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
+                                              ? 10 * ((*weaponFrame) - totalTime)   // down
+                                              : 10 * (reloadTime - (*weaponFrame)); // up
+                        }
+                    }
                 }
 
                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset, RPGGUN, weaponShade,
