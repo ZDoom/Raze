@@ -8423,11 +8423,11 @@ killsprite:
         while (i)
         {
             i--;
-            if (tspriteptr[i] != NULL && ((tspriteptr[i]->cstat & 1024) != 1024
-#ifdef POLYMER
-                || getrendermode() == REND_POLYMER
+            if (tspriteptr[i] != NULL
+#ifdef USE_OPENGL
+                && (!(tspriteptr[i]->cstat & 1024) || getrendermode() != REND_POLYMOST)
 #endif
-                ))
+               )
             {
                 vec2f_t spr;
                 const uspritetype *tspr = tspriteptr[i];
@@ -8499,10 +8499,7 @@ killsprite:
                     {
                         debugmask_add(i | 32768, tspr->owner);
                         drawsprite(i);
-#ifdef POLYMER
-                        if (tspr->cstat & 1024 && getrendermode() == REND_POLYMER)
-                            continue;
-#endif
+
                         tspriteptr[i] = NULL;
                     }
                 }
@@ -8518,36 +8515,37 @@ killsprite:
     while (i)
     {
         i--;
-        if (tspriteptr[i] != NULL && ((tspriteptr[i]->cstat & 1024) != 1024
-#ifdef POLYMER
-            || getrendermode() == REND_POLYMER
+        if (tspriteptr[i] != NULL
+#ifdef USE_OPENGL
+            && (!(tspriteptr[i]->cstat & 1024) || getrendermode() != REND_POLYMOST)
 #endif
-            ))
+           )
         {
             debugmask_add(i | 32768, tspriteptr[i]->owner);
             drawsprite(i);
+
             tspriteptr[i] = NULL;
         }
     }
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
-        bglDepthMask(GL_FALSE);
-#endif
-
-    while (spritesortcnt)
+    if (getrendermode() == REND_POLYMOST)
     {
-        spritesortcnt--;
-        if (tspriteptr[spritesortcnt] != NULL && (tspriteptr[spritesortcnt]->cstat & 1024))
-        {
-            drawsprite(spritesortcnt);
-            tspriteptr[spritesortcnt] = NULL;
-        }
-    }
+        bglDepthMask(GL_FALSE);
 
-#ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+        while (spritesortcnt)
+        {
+            spritesortcnt--;
+            if (tspriteptr[spritesortcnt] != NULL)
+            {
+                Bassert(tspriteptr[spritesortcnt]->cstat & 1024);
+                drawsprite(spritesortcnt);
+                tspriteptr[spritesortcnt] = NULL;
+            }
+        }
+
         bglDepthMask(GL_TRUE);
+    }
 #endif
 
 #ifdef POLYMER
