@@ -8547,6 +8547,7 @@ killsprite:
         bglDepthMask(GL_TRUE);
     }
 #endif
+    spritesortcnt = 0;
 
 #ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
