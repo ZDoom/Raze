@@ -1651,12 +1651,11 @@ static int get_screen_coords(const vec2_t p1, const vec2_t p2,
 //
 static void scansector(int16_t startsectnum)
 {
-    int32_t sectorbordercnt;
-
     if (startsectnum < 0)
         return;
 
-    sectorborder[0] = startsectnum, sectorbordercnt = 1;
+    sectorborder[0] = startsectnum;
+    int32_t sectorbordercnt = 1;
 
     do
     {
@@ -1669,16 +1668,15 @@ static void scansector(int16_t startsectnum)
         {
             const uspritetype *const spr = (uspritetype *)&sprite[i];
 
-            if (((spr->cstat&0x8000) == 0 || showinvisibility) &&
-                    spr->xrepeat > 0 && spr->yrepeat > 0)
-            {
-                int32_t xs = spr->x-globalposx, ys = spr->y-globalposy;
+            if (((spr->cstat & 0x8000) && !showinvisibility) || spr->xrepeat == 0 || spr->yrepeat == 0)
+                continue;
 
-                if ((spr->cstat&48) || ((coord_t)xs*cosglobalang+(coord_t)ys*singlobalang > 0))
-                    if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-xs, sintable[spr->ang&2047],-ys) > 0)
-                        if (engine_addtsprite(i, sectnum))
-                            break;
-            }
+            vec2_t const s = { spr->x-globalposx, spr->y-globalposy };
+
+            if ((spr->cstat&48) || ((coord_t)s.x*cosglobalang+(coord_t)s.y*singlobalang > 0))
+                if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-s.x, sintable[spr->ang&2047],-s.y) > 0)
+                    if (engine_addtsprite(i, sectnum))
+                        break;
         }
 
         gotsector[sectnum>>3] |= pow2char[sectnum&7];
