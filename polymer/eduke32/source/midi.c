@@ -218,11 +218,11 @@ static void _MIDI_MetaEvent(track *Track)
             _MIDI_BeatsPerMeasure = (int32_t)*Track->pos;
             int32_t denominator = (int32_t) * (Track->pos + 1);
 
-            do
+            while (denominator > 0)
             {
                 _MIDI_TimeBase += _MIDI_TimeBase;
                 denominator--;
-            } while (denominator > 0);
+            }
 
             _MIDI_TicksPerBeat = tabledivide32_noinline(_MIDI_Division * 4, _MIDI_TimeBase);
             break;
@@ -397,6 +397,8 @@ static void _MIDI_ServiceRoutine(void)
     track *Track = _MIDI_TrackPtr;
     int32_t tracknum = 0;
     int32_t TimeSet = FALSE;
+    int32_t c1 = 0;
+    int32_t c2 = 0;
 
     while (tracknum < _MIDI_NumTracks)
     {
@@ -429,8 +431,6 @@ static void _MIDI_ServiceRoutine(void)
 
             int const channel = GET_MIDI_CHANNEL(event);
             int const command = GET_MIDI_COMMAND(event);
-            int32_t c1 = 0;
-            int32_t c2 = 0;
 
             if (_MIDI_CommandLengths[ command ] > 0)
             {

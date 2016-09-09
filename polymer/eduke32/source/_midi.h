@@ -70,9 +70,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MIDI_MONO_MODE_ON          0x7E
 #define MIDI_SYSTEM_RESET          0xFF
 
-#define GET_NEXT_EVENT( track, data ) \
-   ( data ) = *( track )->pos; \
-   ( track )->pos += 1
+#define GET_NEXT_EVENT( track, data ) do { \
+    ( data ) = *( track )->pos; \
+    ( track )->pos += 1; \
+} while (0)
 
 #define GET_MIDI_CHANNEL( event )       ( ( event ) & 0xf )
 #define GET_MIDI_COMMAND( event )       ( ( event ) >> 4 )
