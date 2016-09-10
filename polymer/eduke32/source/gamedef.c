@@ -3015,6 +3015,7 @@ DO_DEFSTATE:
             continue;
 
         case CON_GAMEARRAY:
+        {
             if (EDUKE32_PREDICT_FALSE(isdigit(*textptr) || (*textptr == '-')))
             {
                 C_GetNextLabelName();
@@ -3042,10 +3043,22 @@ DO_DEFSTATE:
             }
 
             C_GetNextValue(LABEL_DEFINE);
-            Gv_NewArray(label+(g_labelCnt<<6),NULL,*(g_scriptPtr-1), GAMEARRAY_NORMAL);
+
+            char const * const arrayName = label+(g_labelCnt<<6);
+            int arrayFlags = GAMEARRAY_NORMAL;
+
+            if (C_GetKeyword() == -1)
+            {
+                C_GetNextValue(LABEL_DEFINE);
+                arrayFlags = GAMEARRAY_NORMAL | *(g_scriptPtr-1);
+                g_scriptPtr--;
+            }
+
+            Gv_NewArray(arrayName, NULL, *(g_scriptPtr-1), arrayFlags);
 
             g_scriptPtr -= 2; // no need to save in script...
             continue;
+        }
 
         case CON_DEFINE:
             {
@@ -6178,6 +6191,8 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("PROJ_WORKSLIKE",PROJ_WORKSLIKE,LABEL_DEFINE);
     C_AddDefinition("PROJ_XREPEAT",PROJ_XREPEAT,LABEL_DEFINE);
     C_AddDefinition("PROJ_YREPEAT",PROJ_YREPEAT,LABEL_DEFINE);
+
+    C_AddDefinition("GAMEARRAY_RESTORE", GAMEARRAY_RESTORE, LABEL_DEFINE);
 }
 #endif
 
