@@ -7926,33 +7926,38 @@ end_insert_points:
 
             if (eitherCTRL)  //Ctrl
             {
-                int skip = 0;
-nextmap:
-//				bad = 0;
-                i = menuselect_auto(keystatus[0x2a] ? 0:1, skip); // LShift: prev map
-                if (i < 0)
-                {
-                    if (i == -1)
-                        message("No more map files.");
-                    else if (i == -2)
-                        message("No .MAP files found.");
-                }
+                if (asksave)
+                    message("You have unsaved changes.");
                 else
                 {
-                    if (LoadBoard(NULL, 4))
+                    int skip = 0;
+                nextmap:
+                    //				bad = 0;
+                    i = menuselect_auto(keystatus[0x2a] ? 0 : 1, skip); // LShift: prev map
+                    if (i < 0)
                     {
-                        skip = 2;
-                        goto nextmap;
+                        if (i == -1)
+                            message("No more map files.");
+                        else if (i == -2)
+                            message("No .MAP files found.");
                     }
+                    else
+                    {
+                        if (LoadBoard(NULL, 4))
+                        {
+                            skip = 2;
+                            goto nextmap;
+                        }
 
-                    RESET_EDITOR_VARS();
-                    oposz = pos.z;
+                        RESET_EDITOR_VARS();
+                        oposz = pos.z;
+                    }
+                    showframe(1);
+                    keystatus[0x1c] = 0;
+
+                    keystatus[0x2d]=keystatus[0x13]=0;
+
                 }
-                showframe(1);
-                keystatus[0x1c] = 0;
-
-                keystatus[0x2d]=keystatus[0x13]=0;
-
             }
         }
 // ^^^ PK ------------------------------------
@@ -8516,6 +8521,7 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     startpos = pos;      //this is same
     startang = ang;
     startsectnum = cursectnum;
+    asksave = 0;
 
     return 0;
 }
