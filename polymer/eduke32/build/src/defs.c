@@ -3491,7 +3491,8 @@ int32_t loaddefinitionsfile(const char *fn)
     DO_FREE_AND_NULL(faketilebuffer);
     faketilebuffersiz = 0;
 
-    qsort(usermaphacks, num_usermaphacks, sizeof(usermaphack_t), compare_usermaphacks);
+    if (usermaphacks != NULL)
+        qsort(usermaphacks, num_usermaphacks, sizeof(usermaphack_t), compare_usermaphacks);
 
     if (!script) return -1;
 

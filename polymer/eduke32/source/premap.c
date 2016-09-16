@@ -1711,7 +1711,7 @@ static void G_LoadMapHack(char *outbuf, const char *filename)
 
     append_ext_UNSAFE(outbuf, ".mhk");
 
-    if (G_TryMapHack(outbuf))
+    if (G_TryMapHack(outbuf) && usermaphacks != NULL)
     {
         usermaphack_t *pMapInfo = (usermaphack_t*)bsearch(
             &g_loadedMapHack, usermaphacks, num_usermaphacks, sizeof(usermaphack_t),
