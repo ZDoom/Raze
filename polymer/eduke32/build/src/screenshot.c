@@ -58,11 +58,11 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
 # endif
     png_structp png_ptr;
     png_infop info_ptr;
-    png_colorp palette = NULL;
-    png_textp text = NULL;
+    png_colorp volatile palette = NULL;
+    png_textp volatile text = NULL;
 
-    png_bytep buf = NULL;
-    png_bytepp rowptrs = NULL;
+    png_bytep volatile buf = NULL;
+    png_bytepp volatile rowptrs = NULL;
 
     char fn[32];  // careful...
 
