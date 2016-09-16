@@ -4860,10 +4860,9 @@ FAKE_F3:
         {
             KB_ClearKeyDown(sc_F8);
 
-            ud.fta_on     = !ud.fta_on;
-            int const fta = ud.fta_on;
+            int const fta = !ud.fta_on;
             ud.fta_on     = 1;
-            P_DoQuote(ud.fta_on ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, g_player[myconnectindex].ps);
+            P_DoQuote(fta ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, g_player[myconnectindex].ps);
             ud.fta_on     = fta;
         }
 
