@@ -259,8 +259,8 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                          (GTFLAGS(GAMETYPE_TDM) && g_player[P_Get(spriteNum)].ps->team == g_player[playerNum].ps->team)))
                         continue;
 
-                    if ((gotShrinker && sprite[spriteNum].xrepeat < 30)
-                        && (PN(spriteNum) == SHARK || (!(PN(spriteNum) >= GREENSLIME && PN(spriteNum) <= GREENSLIME + 7)))
+                    if ((gotShrinker && sprite[spriteNum].xrepeat < 30
+                        && (PN(spriteNum) == SHARK || !(PN(spriteNum) >= GREENSLIME && PN(spriteNum) <= GREENSLIME + 7)))
                         || (gotFreezer && sprite[spriteNum].pal == 1))
                         continue;
                 }
