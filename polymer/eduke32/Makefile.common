@@ -67,6 +67,9 @@ CLANG_POTENTIAL_VERSION := $(shell $(CCFULLPATH) --version)
 
 ifeq ($(findstring clang,$(CC)),clang)
     override CLANG=1
+    CLANGNAME:=$(CC)
+else
+    CLANGNAME:=clang
 endif
 # detect clang symlinked as gcc, as in OS X
 ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
@@ -74,12 +77,12 @@ ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
 endif
 
 ifneq (0,$(CLANG))
-    override CC=clang -x c
-    override CXX=clang -x c++
-    override COBJC=clang -x objective-c
-    override COBJCXX=clang -x objective-c++
-    override L_CC=clang
-    override L_CXX=clang
+    override CC=$(CLANGNAME) -x c
+    override CXX=$(CLANGNAME) -x c++
+    override COBJC=$(CLANGNAME) -x objective-c
+    override COBJCXX=$(CLANGNAME) -x objective-c++
+    override L_CC=$(CLANGNAME)
+    override L_CXX=$(CLANGNAME)
 endif
 
 # GCC version, for conditional selection of flags.
