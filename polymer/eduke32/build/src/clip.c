@@ -1,4 +1,5 @@
 #include "build.h"
+#include "baselayer.h"
 #include "engine_priv.h"
 
 int16_t clipnum;

@@ -1,6 +1,7 @@
 
 #include "compat.h"
 #include "build.h"
+#include "baselayer.h"
 #include "engine_priv.h"
 #include "cache1d.h"
 #include "lz4.h"
