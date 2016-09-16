@@ -48,7 +48,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define BIT(shift)     (1u<<(shift))
 
-#define TEST_SYNC_KEY(bits, sync_num) TEST(bits, BIT(sync_num))
+#define TEST_SYNC_KEY(bits, sync_num) (!!TEST((bits), BIT(sync_num)))
 
 #define AFLAMABLE(X) (X==BOX||X==TREE1||X==TREE2||X==TIRE||X==CONE)
 #define rnd(X) ((krand()>>8)>=(255-(X)))
