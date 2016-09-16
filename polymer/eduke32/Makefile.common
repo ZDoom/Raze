@@ -321,7 +321,7 @@ ifeq ($(PLATFORM),WINDOWS)
     WINLIB?=/$(BITS)
 else ifeq ($(PLATFORM),WII)
     IMPLICIT_ARCH=ppc
-else
+else ifeq ($(PLATFORM),DARWIN)
     ifeq (1,$(BUILD32_ON_64))
         ifeq ($(ARCH),)
             override ARCH:=-arch i386
