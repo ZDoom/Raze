@@ -92,49 +92,79 @@ static inline void RI_ProcessKeyboard(const RAWKEYBOARD *rkbd)
     switch (VKey)
     {
     case VK_SHIFT:
-        if (rkbd->Flags & RI_KEY_E0) VKey = VK_RSHIFT, key = sc_RightShift; break;
+        if (rkbd->Flags & RI_KEY_E0)
+            VKey = VK_RSHIFT, key = sc_RightShift;
+        break;
     case VK_CONTROL:
-        if (rkbd->Flags & RI_KEY_E0) VKey = VK_RCONTROL, key = sc_RightControl; break;
+        if (rkbd->Flags & RI_KEY_E0)
+            VKey = VK_RCONTROL, key = sc_RightControl;
+        break;
     case VK_MENU:
-        if (rkbd->Flags & RI_KEY_E0) VKey = VK_RMENU, key = sc_RightAlt; break;
+        if (rkbd->Flags & RI_KEY_E0)
+            VKey = VK_RMENU, key = sc_RightAlt;
+        break;
     case VK_UP:
     case VK_NUMPAD8:
-        if (rkbd->Flags & RI_KEY_E0) VKey = VK_UP, key = sc_UpArrow;
-        else VKey = VK_NUMPAD8, key = sc_kpad_8; break;
+        if (rkbd->Flags & RI_KEY_E0)
+            VKey = VK_UP, key = sc_UpArrow;
+        else
+            VKey = VK_NUMPAD8, key = sc_kpad_8;
+        break;
     case VK_DOWN:
     case VK_NUMPAD2:
-        if (rkbd->Flags & RI_KEY_E0) VKey = VK_DOWN, key = sc_DownArrow;
-        else VKey = VK_NUMPAD2, key = sc_kpad_2; break;
+        if (rkbd->Flags & RI_KEY_E0)
+            VKey = VK_DOWN, key = sc_DownArrow;
+        else
+            VKey = VK_NUMPAD2, key = sc_kpad_2;
+        break;
     case VK_LEFT:
     case VK_NUMPAD4:
-        if (rkbd->Flags & RI_KEY_E0) VKey = VK_LEFT, key = sc_LeftArrow;
-        else VKey = VK_NUMPAD4, key = sc_kpad_4; break;
+        if (rkbd->Flags & RI_KEY_E0)
+            VKey = VK_LEFT, key = sc_LeftArrow;
+        else
+            VKey = VK_NUMPAD4, key = sc_kpad_4;
+        break;
     case VK_RIGHT:
     case VK_NUMPAD6:
-        if (rkbd->Flags & RI_KEY_E0) VKey = VK_RIGHT, key = sc_RightArrow;
-        else VKey = VK_NUMPAD6, key = sc_kpad_6; break;
+        if (rkbd->Flags & RI_KEY_E0)
+            VKey = VK_RIGHT, key = sc_RightArrow;
+        else
+            VKey = VK_NUMPAD6, key = sc_kpad_6;
+        break;
     case VK_DIVIDE:
-//        if (rkbd->Flags & RI_KEY_E0) key = sc_Slash;
-//        else
+#if 0
+        if (rkbd->Flags & RI_KEY_E0)
+            key = sc_Slash;
+        else
+#endif
         key = sc_kpad_Slash;
         break;
     case VK_INSERT:
-        key = sc_Insert; break;
+        key = sc_Insert;
+        break;
     case VK_HOME:
-        key = sc_Home; break;
+        key = sc_Home;
+        break;
     case VK_DELETE:
-        key = sc_Delete; break;
+        key = sc_Delete;
+        break;
     case VK_END:
-        key = sc_End; break;
+        key = sc_End;
+        break;
     case VK_PRIOR:
-        key = sc_PgUp; break;
+        key = sc_PgUp;
+        break;
     case VK_NEXT:
-        key = sc_PgDn; break;
+        key = sc_PgDn;
+        break;
     case VK_RETURN:
-        if (rkbd->Flags & RI_KEY_E0) key = sc_kpad_Enter; break;
+        if (rkbd->Flags & RI_KEY_E0)
+            key = sc_kpad_Enter;
+        break;
     case VK_PAUSE:
         KeyboardState[VKey] = 1 - (rkbd->Flags & RI_KEY_BREAK);
-        if (rkbd->Flags & RI_KEY_BREAK) return;
+        if (rkbd->Flags & RI_KEY_BREAK)
+            return;
 
         SetKey(sc_Pause, 1);
 
