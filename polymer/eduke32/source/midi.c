@@ -593,7 +593,7 @@ void MIDI_ContinueSong(void)
 
 void MIDI_PauseSong(void)
 {
-    if (_MIDI_SongLoaded)
+    if (!_MIDI_SongLoaded)
         return;
 
     _MIDI_SongActive = FALSE;
