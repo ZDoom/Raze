@@ -19,7 +19,7 @@ int16_t capturecount = 0;
 
 static int32_t screencapture_common1(char *fn, const char *ext, BFILE** filptr)
 {
-    int32_t i;
+    bssize_t i;
 
     do      // JBF 2004022: So we don't overwrite existing screenshots
     {
@@ -49,7 +49,6 @@ static int32_t screencapture_common1(char *fn, const char *ext, BFILE** filptr)
 // PNG screenshots -- adapted from libpng example.c
 static int32_t screencapture_png(const char *filename, char inverseit, const char *versionstr)
 {
-    int32_t i;
     BFILE *fp;
 # ifdef USE_OPENGL
 #  define HICOLOR (getrendermode() >= REND_POLYMOST && in3dmode())
@@ -64,12 +63,14 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
     png_bytep volatile buf = NULL;
     png_bytepp volatile rowptrs = NULL;
 
+    bssize_t const s_xdim = xdim, s_ydim = ydim;
+
     char fn[32];  // careful...
 
     Bstrcpy(fn, filename);
-    i = screencapture_common1(fn, "png", &fp);
-    if (i)
-        return i;
+    int32_t const retval = screencapture_common1(fn, "png", &fp);
+    if (retval)
+        return retval;
 
     /* Create and initialize the png_struct with default error handling. */
     png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -121,11 +122,23 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
 
     if (palette)
     {
-        for (i=0; i<256; i++)
+        if (inverseit)
         {
-            palette[i].red = inverseit ? 255-curpalettefaded[i].r : curpalettefaded[i].r;
-            palette[i].green = inverseit ? 255-curpalettefaded[i].g : curpalettefaded[i].g;
-            palette[i].blue = inverseit ? 255-curpalettefaded[i].b : curpalettefaded[i].b;
+            for (bssize_t i = 0; i < 256; ++i)
+            {
+                palette[i].red = 255 - curpalettefaded[i].r;
+                palette[i].green = 255 - curpalettefaded[i].g;
+                palette[i].blue = 255 - curpalettefaded[i].b;
+            }
+        }
+        else
+        {
+            for (bssize_t i = 0; i < 256; ++i)
+            {
+                palette[i].red = curpalettefaded[i].r;
+                palette[i].green = curpalettefaded[i].g;
+                palette[i].blue = curpalettefaded[i].b;
+            }
         }
 
         png_set_PLTE(png_ptr, info_ptr, palette, 256);
@@ -168,12 +181,12 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
 
     if (!palette)
     {
-        for (i=0; i<ydim; i++)
-            rowptrs[i] = &buf[3*xdim*(ydim-i-1)];
+        for (bssize_t i = 0; i < s_ydim; ++i)
+            rowptrs[i] = &buf[3*s_xdim*(s_ydim-i-1)];
     }
     else
     {
-        for (i=0; i<ydim; i++)
+        for (bssize_t i = 0; i < s_ydim; ++i)
             rowptrs[i] = &buf[ylookup[i]];
     }
     png_set_rows(png_ptr, info_ptr, rowptrs);
