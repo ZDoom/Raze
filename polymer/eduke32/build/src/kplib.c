@@ -56,7 +56,11 @@ static __inline int32_t _lrotl(int32_t i, int sh) { return (i >> (-sh)) | (i << 
 #define _fileno fileno
 #else
 #include <io.h>
+#ifdef __clang__
+#include <emmintrin.h>
+#else
 #include <intrin.h>
+#endif
 #endif
 
 #if defined(_WIN32)
