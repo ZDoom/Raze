@@ -1,5 +1,6 @@
 #include "compat.h"
 #include "build.h"
+#include "engine_priv.h"
 #include "baselayer.h"
 #include "colmatch.h"
 #include "cache1d.h"
@@ -264,9 +265,8 @@ uint32_t PaletteIndexFullbrights[8];
 
 static void E_PostLoadPalette(void)
 {
-#ifdef USE_OPENGL
     globalpal = 0;
-#endif
+
     globalpalwritten = palookup[0];
     setpalookupaddress(globalpalwritten);
 
