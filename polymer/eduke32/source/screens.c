@@ -1102,7 +1102,6 @@ void G_DisplayRest(int32_t smoothratio)
         {
             I_EscapeTriggerClear();
             S_PauseSounds(1);
-            S_MenuSound();
 
             M_OpenMenu(myconnectindex);
 
@@ -1111,6 +1110,8 @@ void G_DisplayRest(int32_t smoothratio)
             if (g_player[myconnectindex].ps->gm&MODE_GAME) M_ChangeMenu(MENU_MAIN_INGAME);
             else M_ChangeMenu(MENU_MAIN);
             screenpeek = myconnectindex;
+
+            S_MenuSound();
         }
     }
 
