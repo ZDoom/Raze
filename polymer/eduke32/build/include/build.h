@@ -1277,7 +1277,7 @@ extern int32_t glusetexcompr;
 extern int32_t gltexfiltermode;
 
 enum {
-    TEXFILTER_OFF = 2, // GL_NEAREST_MIPMAP_NEAREST
+    TEXFILTER_OFF = 0, // GL_NEAREST
     TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
 };
 
