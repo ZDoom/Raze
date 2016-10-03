@@ -1094,7 +1094,8 @@ void G_DisplayRest(int32_t smoothratio)
             I_EscapeTriggerClear();
             S_PlaySound(EXITMENUSOUND);
             M_ChangeMenu(MENU_CLOSE);
-            S_PauseSounds(0);
+            if (!ud.pause_on)
+                S_PauseSounds(0);
         }
         else if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU &&
             g_player[myconnectindex].ps->newowner == -1 &&
