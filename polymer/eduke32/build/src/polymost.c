@@ -5087,7 +5087,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
                 fov = pr_hudfov;
 #endif
             if (fov != -1)
-                f = 1.f/tanf(((float)fov * 2.56f) * ((.5f * (float)PI) * (1.0f/2048.f)));
+                f = 1.f/tanf(((float)fov * 2.56f) * ((.5f * fPI) * (1.0f/2048.f)));
 
             m[0][0] = f*fydimen; m[0][2] = 1.f;
             m[1][1] = f*fxdimen; m[1][2] = 1.f;

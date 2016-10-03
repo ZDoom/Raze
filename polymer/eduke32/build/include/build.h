@@ -26,6 +26,7 @@ enum rendmode_t {
 };
 
 #define PI 3.14159265358979323846
+#define fPI 3.14159265358979323846f
 
 #define MAXSECTORSV8 4096
 #define MAXWALLSV8 16384

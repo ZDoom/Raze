@@ -912,7 +912,7 @@ void                polymer_uninit(void)
 void                polymer_setaspect(int32_t ang)
 {
     float           aspect;
-    float fang = (float)ang * atanf((float)viewingrange/65536.0f)/(PI/4);
+    float fang = (float)ang * atanf(fviewingrange*(1.f/65536.f)) * (4.f/fPI);
 
     if (pr_customaspect != 0.0f)
         aspect = pr_customaspect;
@@ -922,7 +922,7 @@ void                polymer_setaspect(int32_t ang)
 
     bglMatrixMode(GL_PROJECTION);
     bglLoadIdentity();
-    bgluPerspective(fang / (2048.0f / 360.0f), aspect, 0.01f, 100.0f);
+    bgluPerspective(fang * (360.f/2048.f), aspect, 0.01f, 100.0f);
 }
 
 void                polymer_glinit(void)
@@ -1086,8 +1086,8 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     // fogcalc needs this
     gvisibility = ((float)globalvisibility)*FOGSCALE;
 
-    ang = (float)(daang) / (2048.0f / 360.0f);
-    horizang = (float)(-getangle(128, dahoriz-100)) / (2048.0f / 360.0f);
+    ang = (float)(daang) * (360.f/2048.f);
+    horizang = (float)(-getangle(128, dahoriz-100)) * (360.f/2048.f);
     tiltang = (gtang * 90.0f);
 
     pos[0] = (float)daposy;
@@ -1235,10 +1235,10 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     set_globalang(daang);
 
     // polymost globals used by polymost_dorotatesprite
-    gcosang = ((float)cosglobalang)/262144.f;
-    gsinang = ((float)singlobalang)/262144.f;
-    gcosang2 = gcosang*((float)viewingrange)/65536.f;
-    gsinang2 = gsinang*((float)viewingrange)/65536.f;
+    gcosang = fcosglobalang*(1./262144.f);
+    gsinang = fsinglobalang*(1./262144.f);
+    gcosang2 = gcosang*fviewingrange*(1./65536.f);
+    gsinang2 = gsinang*fviewingrange*(1./65536.f);
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
     enddrawing();
@@ -1883,9 +1883,9 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
                         float pos[3], sqdist;
                         int32_t oldoverridematerial;
 
-                        pos[0] = (float)globalposy;
-                        pos[1] = -(float)(globalposz) / 16.0f;
-                        pos[2] = -(float)globalposx;
+                        pos[0] = fglobalposy;
+                        pos[1] = fglobalposz * (-1.f/16.f);
+                        pos[2] = -fglobalposx;
 
                         sqdist = prwalls[sec->wallptr + i]->mask.plane[0] * pos[0] +
                                  prwalls[sec->wallptr + i]->mask.plane[1] * pos[1] +
@@ -3983,7 +3983,7 @@ void                polymer_updatesprite(int32_t snum)
     switch (tspr->cstat & SPR_ALIGN_MASK)
     {
     case 0:
-        ang = (float)((viewangle) & 2047) / (2048.0f / 360.0f);
+        ang = (float)((viewangle) & 2047) * (360.f/2048.f);
 
         bglTranslatef(spos[0], spos[1], spos[2]);
         bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
@@ -3992,7 +3992,7 @@ void                polymer_updatesprite(int32_t snum)
         bglScalef((float)(xsize), (float)(ysize), 1.0f);
         break;
     case SPR_WALL:
-        ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
+        ang = (float)((tspr->ang + 1024) & 2047) * (360.f/2048.f);
 
         bglTranslatef(spos[0], spos[1], spos[2]);
         bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
@@ -4000,7 +4000,7 @@ void                polymer_updatesprite(int32_t snum)
         bglScalef((float)(xsize), (float)(ysize), 1.0f);
         break;
     case SPR_FLOOR:
-        ang = (float)((tspr->ang + 1024) & 2047) / (2048.0f / 360.0f);
+        ang = (float)((tspr->ang + 1024) & 2047) * (360.f/2048.f);
 
         bglTranslatef(spos[0], spos[1], spos[2]);
         bglRotatef(-ang, 0.0f, 1.0f, 0.0f);
@@ -4129,9 +4129,9 @@ void         polymer_drawsky(int16_t tilenum, char palnum, int8_t shade)
     float           pos[3];
     pthtyp*         pth;
 
-    pos[0] = (float)globalposy;
-    pos[1] = -(float)(globalposz) / 16.0f;
-    pos[2] = -(float)globalposx;
+    pos[0] = fglobalposy;
+    pos[1] = fglobalposz * (-1.f/16.f);
+    pos[2] = -fglobalposx;
 
     bglPushMatrix();
     bglLoadIdentity();
@@ -4359,18 +4359,18 @@ static void         polymer_drawmdsprite(uspritetype *tspr)
     if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
         float       x, y, z;
 
-        spos[0] = (float)globalposy;
-        spos[1] = -(float)(globalposz) / 16.0f;
-        spos[2] = -(float)globalposx;
+        spos[0] = fglobalposy;
+        spos[1] = fglobalposz * (-1.f/16.f);
+        spos[2] = -fglobalposx;
 
         // The coordinates are actually floats disguised as int in this case
         memcpy(&x, &tspr->x, sizeof(float));
         memcpy(&y, &tspr->y, sizeof(float));
         memcpy(&z, &tspr->z, sizeof(float));
 
-        spos2[0] = (float)y - globalposy;
-        spos2[1] = -(float)(z - globalposz) / 16.0f;
-        spos2[2] = -(float)(x - globalposx);
+        spos2[0] = y - globalposy;
+        spos2[1] = (z - fglobalposz) * (-1.f/16.f);
+        spos2[2] = fglobalposx - x;
     } else {
         spos[0] = (float)tspr->y;
         spos[1] = -(float)(tspr->z) / 16.0f;
@@ -4379,7 +4379,7 @@ static void         polymer_drawmdsprite(uspritetype *tspr)
         spos2[0] = spos2[1] = spos2[2] = 0.0f;
     }
 
-    ang = (float)((tspr->ang+spriteext[tspr->owner].angoff) & 2047) / (2048.0f / 360.0f);
+    ang = (float)((tspr->ang+spriteext[tspr->owner].angoff) & 2047) * (360.f/2048.f);
     ang -= 90.0f;
     if (((tspr->cstat>>4) & 3) == 2)
         ang -= 90.0f;
@@ -4398,15 +4398,15 @@ static void         polymer_drawmdsprite(uspritetype *tspr)
     if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
         float playerang, radplayerang, cosminusradplayerang, sinminusradplayerang, hudzoom;
 
-        playerang = (globalang & 2047) / (2048.0f / 360.0f) - 90.0f;
-        radplayerang = (globalang & 2047) * 2.0f * PI / 2048.0f;
+        playerang = (globalang & 2047) * (360.f/2048.f) - 90.0f;
+        radplayerang = (globalang & 2047) * (2.0f * fPI / 2048.0f);
         cosminusradplayerang = cos(-radplayerang);
         sinminusradplayerang = sin(-radplayerang);
         hudzoom = 65536.0 / spriteext[tspr->owner].offset.z;
 
         bglTranslatef(spos[0], spos[1], spos[2]);
         bglRotatef(horizang, -cosminusradplayerang, 0.0f, sinminusradplayerang);
-        bglRotatef(spriteext[tspr->owner].roll / (2048.0f / 360.0f), sinminusradplayerang, 0.0f, cosminusradplayerang);
+        bglRotatef(spriteext[tspr->owner].roll * (360.f/2048.f), sinminusradplayerang, 0.0f, cosminusradplayerang);
         bglRotatef(-playerang, 0.0f, 1.0f, 0.0f);
         bglScalef(hudzoom, 1.0f, 1.0f);
         bglRotatef(playerang, 0.0f, 1.0f, 0.0f);
@@ -4454,8 +4454,8 @@ static void         polymer_drawmdsprite(uspritetype *tspr)
     {
         float       pitchang, rollang, offsets[3];
 
-        pitchang = (float)(spriteext[tspr->owner].pitch) / (2048.0f / 360.0f);
-        rollang = (float)(spriteext[tspr->owner].roll) / (2048.0f / 360.0f);
+        pitchang = (float)(spriteext[tspr->owner].pitch) * (360.f/2048.f);
+        rollang = (float)(spriteext[tspr->owner].roll) * (360.f/2048.f);
 
         offsets[0] = -spriteext[tspr->owner].offset.x / (scale * tspr->xrepeat);
         offsets[1] = -spriteext[tspr->owner].offset.y / (scale * tspr->xrepeat);
@@ -5183,9 +5183,9 @@ static int32_t      polymer_bindmaterial(const _prmaterial *material, int16_t* l
     {
         float pos[3], bias[2];
 
-        pos[0] = (float)globalposy;
-        pos[1] = -(float)(globalposz) / 16.0f;
-        pos[2] = -(float)globalposx;
+        pos[0] = fglobalposy;
+        pos[1] = fglobalposz * (-1.f/16.f);
+        pos[2] = -fglobalposx;
 
         bglActiveTextureARB(texunit + GL_TEXTURE0_ARB);
         bglBindTexture(GL_TEXTURE_2D, material->normalmap);
@@ -5913,14 +5913,14 @@ static void         polymer_processspotlight(_prlight* light)
     lightpos[2] = -(float)light->x;
 
     // calculate the spot light transformations and matrices
-    radius = (float)(light->radius) / (2048.0f / 360.0f);
-    ang = (float)(light->angle) / (2048.0f / 360.0f);
-    horizang = (float)(-getangle(128, light->horiz-100)) / (2048.0f / 360.0f);
+    radius = (float)(light->radius) * (360.f/2048.f);
+    ang = (float)(light->angle) * (360.f/2048.f);
+    horizang = (float)(-getangle(128, light->horiz-100)) * (360.f/2048.f);
 
     bglMatrixMode(GL_PROJECTION);
     bglPushMatrix();
     bglLoadIdentity();
-    bgluPerspective(radius * 2, 1, 0.1f, light->range / 1000.0f);
+    bgluPerspective(radius * 2, 1, 0.1f, light->range * (1.f/1000.f));
     bglGetFloatv(GL_PROJECTION_MATRIX, light->proj);
     bglPopMatrix();
 

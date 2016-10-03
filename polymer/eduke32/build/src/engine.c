@@ -7128,7 +7128,7 @@ static inline void calcbritable(void)
     }
 }
 
-#define BANG2RAD ((float)PI * (1.f/1024.f))
+#define BANG2RAD (fPI * (1.f/1024.f))
 
 static int32_t loadtables(void)
 {
@@ -13022,7 +13022,7 @@ int32_t setrendermode(int32_t renderer)
 #ifdef USE_OPENGL
 void setrollangle(int32_t rolla)
 {
-    gtang = (float)rolla * ((float)PI * (1.f/1024.f));
+    gtang = (float)rolla * (fPI * (1.f/1024.f));
 }
 #endif
 

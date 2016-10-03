@@ -1788,7 +1788,7 @@ static int32_t mdtrig_init = 0;
 static void init_mdtrig_arrays(void)
 {
     int32_t i;
-    static const float acc = ((2.f * (float)PI) * (1.f/255.f));
+    static const float acc = ((2.f * fPI) * (1.f/255.f));
     float ang = 0.f;
 
     for (i=0; i<256; i++)
