@@ -3887,6 +3887,8 @@ void polymost_drawrooms()
             bglColorMask(1,0,0,1);
             globalposx += singlobalang>>10;
             globalposy -= cosglobalang>>10;
+            fglobalposx = (float) globalposx;
+            fglobalposy = (float) globalposy;
         }
         else
         {
@@ -3894,19 +3896,18 @@ void polymost_drawrooms()
             bglColorMask(0,1,1,1);
             globalposx -= singlobalang>>10;
             globalposy += cosglobalang>>10;
+            fglobalposx = (float) globalposx;
+            fglobalposy = (float) globalposy;
         }
     }
 #endif
 
     //Polymost supports true look up/down :) Here, we convert horizon to angle.
     //gchang&gshang are cos&sin of this angle (respectively)
-    fviewingrange = (float) viewingrange;
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
     gxyaspect = ((float)xyaspect*fviewingrange)*(5.f/(65536.f*262144.f));
     gviewxrange = fviewingrange * fxdimen * (1.f/(32768.f*1024.f));
-    fcosglobalang = (float) cosglobalang;
     gcosang = fcosglobalang*(1.0f/262144.f);
-    fsinglobalang = (float) singlobalang;
     gsinang = fsinglobalang*(1.0f/262144.f);
     gcosang2 = gcosang * (fviewingrange * (1.0f/65536.f));
     gsinang2 = gsinang * (fviewingrange * (1.0f/65536.f));
@@ -4979,6 +4980,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     int const ogpal    = globalpal;    globalpal    = (int32_t) ((uint8_t) dapalnum);
     float const ogxyaspect = gxyaspect; gxyaspect = 1.f;
     int const oldviewingrange = viewingrange; viewingrange = 65536;
+    float const oldfviewingrange = fviewingrange; fviewingrange = 65536.f;
 
     vec1 = hud->add;
 
@@ -5164,6 +5166,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     if (!nofog) bglEnable(GL_FOG);
 
     viewingrange = oldviewingrange;
+    fviewingrange = oldfviewingrange;
     gxyaspect = ogxyaspect;
     globalshade  = ogshade;
     globalpal    = ogpal;

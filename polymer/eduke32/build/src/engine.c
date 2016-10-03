@@ -7845,6 +7845,10 @@ void set_globalang(int16_t ang)
     globalang = ang&2047;
     cosglobalang = sintable[(globalang+512)&2047];
     singlobalang = sintable[globalang&2047];
+#ifdef USE_OPENGL
+    fcosglobalang = (float) cosglobalang;
+    fsinglobalang = (float) singlobalang;
+#endif
     cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
     sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
 }
@@ -9785,11 +9789,12 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     else if (dabpp == 8 && j > 8) rendmode = REND_CLASSIC;
 #endif
 
-    xdim = daxdim; ydim = daydim;
+    xdim = daxdim;
+    ydim = daydim;
 
 #ifdef USE_OPENGL
-    fxdim = (float) xdim;
-    fydim = (float) ydim;
+    fxdim = (float) daxdim;
+    fydim = (float) daydim;
 #endif
 
     initsmost();
@@ -11979,6 +11984,9 @@ void setaspect(int32_t daxrange, int32_t daaspect)
 {
     viewingrange = daxrange;
     viewingrangerecip = divscale32(1,daxrange);
+#ifdef USE_OPENGL
+    fviewingrange = (float) daxrange;
+#endif
 
     yxaspect = daaspect;
     xyaspect = divscale32(1,yxaspect);
@@ -12619,6 +12627,11 @@ void qsetmodeany(int32_t daxdim, int32_t daydim)
 
         xdim = xres;
         ydim = yres;
+
+#ifdef USE_OPENGL
+        fxdim = (float) xres;
+        fydim = (float) yres;
+#endif
 
         initsmost();
 
