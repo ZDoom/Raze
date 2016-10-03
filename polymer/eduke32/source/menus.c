@@ -479,13 +479,6 @@ static MenuEntry_t ME_DISPLAYSETUP_PIXELDOUBLING = MAKE_MENUENTRY( "Pixel Doubli
 static MenuOption_t MEO_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &r_usenewaspect);
 static MenuEntry_t ME_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUENTRY( "Widescreen:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ASPECTRATIO, Option );
 #endif
-#ifdef POLYMER
-static char const *MEOSN_DISPLAYSETUP_ASPECTRATIO_POLYMER[] = { "Auto", "4:3", "16:10", "5:3", "16:9", "1.85:1", "2.39:1", };
-static double MEOSV_DISPLAYSETUP_ASPECTRATIO_POLYMER[] = { 0., 1.33, 1.6, 1.66, 1.78, 1.85, 2.39, };
-static MenuOptionSet_t MEOS_DISPLAYSETUP_ASPECTRATIO_POLYMER = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_ASPECTRATIO_POLYMER, NULL, 0x1 );
-static MenuOption_t MEO_DISPLAYSETUP_ASPECTRATIO_POLYMER = MAKE_MENUOPTION(&MF_Redfont, &MEOS_DISPLAYSETUP_ASPECTRATIO_POLYMER, NULL);
-static MenuEntry_t ME_DISPLAYSETUP_ASPECTRATIO_POLYMER = MAKE_MENUENTRY( "Aspect ratio:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ASPECTRATIO_POLYMER, Option );
-#endif
 
 
 #ifdef USE_OPENGL
@@ -673,7 +666,6 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL_POLYMER[] = {
     &ME_DISPLAYSETUP_COLORCORR,
 #ifndef DROIDMENU
     &ME_DISPLAYSETUP_VIDEOSETUP,
-    &ME_DISPLAYSETUP_ASPECTRATIO_POLYMER,
 #endif
     &ME_DISPLAYSETUP_TEXFILTER,
 #ifndef DROIDMENU
@@ -2793,12 +2785,6 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
             break;
         }
     }
-#ifdef POLYMER
-    else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO_POLYMER)
-    {
-        pr_customaspect = MEOSV_DISPLAYSETUP_ASPECTRATIO_POLYMER[newOption];
-    }
-#endif
     else if (entry == &ME_SOUND)
     {
         if (newOption == 0)
@@ -3094,10 +3080,6 @@ static int32_t M_MenuEntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
 {
     if (entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP)
         return (ud.weaponswitch & 1) ? ((ud.weaponswitch & 4) ? 2 : 1) : 0;
-#ifdef POLYMER
-    else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO_POLYMER)
-        return clamp(currentValue, 0, ARRAY_SIZE(MEOSV_DISPLAYSETUP_ASPECTRATIO_POLYMER)-1);
-#endif
     else if (entry == &ME_SOUND_DUKETALK)
         return ud.config.VoiceToggle & 1;
     else if (entry == &ME_NETOPTIONS_MONSTERS)
