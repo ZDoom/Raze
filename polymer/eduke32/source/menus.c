@@ -476,11 +476,7 @@ static MenuEntry_t ME_DISPLAYSETUP_PIXELDOUBLING = MAKE_MENUENTRY( "Pixel Doubli
 
 
 #ifndef DROIDMENU
-#ifdef USE_OPENGL
-static MenuOption_t MEO_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, NULL);
-#else
 static MenuOption_t MEO_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &r_usenewaspect);
-#endif
 static MenuEntry_t ME_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUENTRY( "Widescreen:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ASPECTRATIO, Option );
 #endif
 #ifdef POLYMER
@@ -494,9 +490,9 @@ static MenuEntry_t ME_DISPLAYSETUP_ASPECTRATIO_POLYMER = MAKE_MENUENTRY( "Aspect
 
 #ifdef USE_OPENGL
 static char const *MEOSN_DISPLAYSETUP_TEXFILTER[] = { "Classic", "Filtered" };
-static MenuOptionSet_t MEOS_DISPLAYSETUP_TEXFILTER = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_TEXFILTER, NULL, 0x2 );
-int32_t menufiltermode;
-static MenuOption_t MEO_DISPLAYSETUP_TEXFILTER = MAKE_MENUOPTION( &MF_Redfont, &MEOS_DISPLAYSETUP_TEXFILTER, &menufiltermode );
+static int32_t MEOSV_DISPLAYSETUP_TEXFILTER[] = { TEXFILTER_OFF, TEXFILTER_ON };
+static MenuOptionSet_t MEOS_DISPLAYSETUP_TEXFILTER = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_TEXFILTER, MEOSV_DISPLAYSETUP_TEXFILTER, 0x2 );
+static MenuOption_t MEO_DISPLAYSETUP_TEXFILTER = MAKE_MENUOPTION( &MF_Redfont, &MEOS_DISPLAYSETUP_TEXFILTER, &gltexfiltermode );
 static MenuEntry_t ME_DISPLAYSETUP_TEXFILTER = MAKE_MENUENTRY( "Texture Mode:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_TEXFILTER, Option );
 
 static char const *MEOSN_DISPLAYSETUP_ANISOTROPY[] = { "None", "2x", "4x", "8x", "16x", };
@@ -2797,24 +2793,11 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
             break;
         }
     }
-#ifdef USE_OPENGL
-    else if (entry == &ME_DISPLAYSETUP_TEXFILTER)
-    {
-        gltexfiltermode = newOption ? TEXFILTER_ON : TEXFILTER_OFF;
-        gltexapplyprops();
-    }
-#ifndef DROIDMENU
-    else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO)
-    {
-        r_usenewaspect = newOption & 1;
-    }
-#endif
 #ifdef POLYMER
     else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO_POLYMER)
     {
         pr_customaspect = MEOSV_DISPLAYSETUP_ASPECTRATIO_POLYMER[newOption];
     }
-#endif
 #endif
     else if (entry == &ME_SOUND)
     {
@@ -2938,7 +2921,7 @@ static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
         entry == &ME_PLAYER_TEAM)
         G_UpdatePlayerFromMenu();
 #ifdef USE_OPENGL
-    else if (entry == &ME_DISPLAYSETUP_ANISOTROPY)
+    else if (entry == &ME_DISPLAYSETUP_ANISOTROPY || entry == &ME_DISPLAYSETUP_TEXFILTER)
         gltexapplyprops();
     else if (entry == &ME_RENDERERSETUP_TEXQUALITY)
     {
@@ -3111,19 +3094,9 @@ static int32_t M_MenuEntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
 {
     if (entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP)
         return (ud.weaponswitch & 1) ? ((ud.weaponswitch & 4) ? 2 : 1) : 0;
-#ifdef USE_OPENGL
-/*
-    else if (entry == &ME_DISPLAYSETUP_TEXFILTER)
-        return gltexfiltermode;
-*/
-#ifndef DROIDMENU
-    else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO)
-        return r_usenewaspect;
-#endif
 #ifdef POLYMER
     else if (entry == &ME_DISPLAYSETUP_ASPECTRATIO_POLYMER)
         return clamp(currentValue, 0, ARRAY_SIZE(MEOSV_DISPLAYSETUP_ASPECTRATIO_POLYMER)-1);
-#endif
 #endif
     else if (entry == &ME_SOUND_DUKETALK)
         return ud.config.VoiceToggle & 1;
