@@ -4724,19 +4724,17 @@ static void setup_globals_sprite1(const uspritetype *tspr, const usectortype *se
 
 static uint8_t falpha_to_blend(float alpha, int32_t *cstatptr, int32_t transbit1, int32_t transbit2)
 {
-    int32_t cstat = *cstatptr;
-
-    if (cstat&transbit1)
-        alpha = 1.0f - (1.0f - alpha) * ((cstat&transbit2) ? (1.f/3.f) : (2.f/3.f));
-
-    cstat |= transbit1;
-    cstat &= ~transbit2;
+    int32_t cstat = *cstatptr | transbit1;
 
     int32_t blendidx = max(1, Blrintf(alpha * (2*numalphatabs)));  // [1 .. 2*numalphatabs-1]
     if (blendidx > numalphatabs)
     {
         blendidx = 2*numalphatabs - blendidx;
         cstat |= transbit2;
+    }
+    else
+    {
+        cstat &= ~transbit2;
     }
     // blendidx now in [1 .. numalphatabs]
 
@@ -4776,7 +4774,7 @@ static void drawsprite_classic(int32_t snum)
 
     DO_TILE_ANIM(tspr->picnum, spritenum+32768);
 
-    if (alpha > 0.0f)
+    if (!(cstat&2) && alpha > 0.0f)
     {
         if (alpha >= 1.0f)
             return;
@@ -4787,15 +4785,12 @@ static void drawsprite_classic(int32_t snum)
         }
         else if (alpha >= 1.f/3.f)
         {
-            cstat &= ~512;
-
-            if ((cstat&2) && alpha >= 0.5f) // this covers the multiplicative aspect used in the Polymodes
-                cstat |= 512;
-
             cstat |= 2;
 
             if (alpha >= 2.f/3.f)
                 cstat |= 512;
+            else
+                cstat &= ~512;
         }
 
         tspr->cstat = cstat;
@@ -6624,7 +6619,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
     palookupoffs = FP_OFF(palookup[dapalnum]) + (getpalookup(0, dashade)<<8);
 
     // Alpha handling
-    if (daalpha > 0)
+    if (!(dastat&RS_TRANS1) && daalpha > 0)
     {
         if (daalpha == 255)
             return;
@@ -6635,15 +6630,12 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         }
         else if (daalpha > 84)
         {
-            dastat &= ~RS_TRANS2;
-
-            if ((dastat & RS_TRANS1) && daalpha > 127) // this covers the multiplicative aspect used in the Polymodes
-                dastat |= RS_TRANS2;
-
             dastat |= RS_TRANS1;
 
             if (daalpha > 168)
                 dastat |= RS_TRANS2;
+            else
+                dastat &= ~RS_TRANS2;
         }
     }
 
