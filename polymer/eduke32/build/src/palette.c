@@ -596,7 +596,7 @@ void removebasepal(int32_t const id)
 // 16: don't reset palfade*
 void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 {
-    int32_t i, j, nohwgamma;
+    int32_t i, j;
     const uint8_t *dapal;
 
 #ifdef USE_OPENGL
@@ -624,8 +624,8 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
         //            vid_gamma = 1.0 + ((float)curbrightness / 10.0);
     }
 
-    nohwgamma = setgamma();
-    j = nohwgamma ? curbrightness : 0;
+    setgamma();
+    j = !gammabrightness ? curbrightness : 0;
 
     for (i=0; i<256; i++)
     {
@@ -669,7 +669,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
 
         // XXX: no-HW-gamma OpenGL platforms will exhibit bad performance with
         // simultaneous basepal and tint changes?
-        const int32_t doinvalidate = (paldidchange || (palsumdidchange && nohwgamma));
+        const int32_t doinvalidate = (paldidchange || (palsumdidchange && !gammabrightness));
 
         if (!(flags&2) && doinvalidate)
             gltexinvalidatetype(INVALIDATE_ALL);
@@ -693,9 +693,8 @@ palette_t getpal(int32_t col)
 {
     if (!gammabrightness)
     {
-        palette_t p ={ britable[curbrightness][curpalette[col].b],
-            britable[curbrightness][curpalette[col].g],
-            britable[curbrightness][curpalette[col].r], 0 };
+        palette_t const p = { britable[curbrightness][curpalette[col].r], britable[curbrightness][curpalette[col].g],
+                              britable[curbrightness][curpalette[col].b], 0 };
         return p;
     }
 

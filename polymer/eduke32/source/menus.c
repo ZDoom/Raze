@@ -471,6 +471,8 @@ static MenuEntry_t ME_VIDEOSETUP_APPLY = MAKE_MENUENTRY( "Apply Changes", &MF_Re
 
 static MenuLink_t MEO_DISPLAYSETUP_COLORCORR = { MENU_COLCORR, MA_Advance, };
 static MenuEntry_t ME_DISPLAYSETUP_COLORCORR = MAKE_MENUENTRY( "Color Correction", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_COLORCORR, Link );
+
+
 static MenuOption_t MEO_DISPLAYSETUP_PIXELDOUBLING = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OnOff, &ud.detail );
 static MenuEntry_t ME_DISPLAYSETUP_PIXELDOUBLING = MAKE_MENUENTRY( "Pixel Doubling:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_PIXELDOUBLING, Option );
 
@@ -976,7 +978,7 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] ={
 #ifdef DROIDMENU
 static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &vid_gamma, &MF_Bluefont, 1.f, 2.5f, 0.f, 39, 1 );
 #else
-static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &vid_gamma, &MF_Bluefont, 0.2f, 4.f, 0.f, 39, 1 );
+static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &vid_gamma, &MF_Bluefont, 0.3f, 4.f, 0.f, 38, 1 );
 #endif
 static MenuEntry_t ME_COLCORR_GAMMA = MAKE_MENUENTRY( "Gamma:", &MF_Redfont, &MEF_ColorCorrect, &MEO_COLCORR_GAMMA, RangeFloat );
 static MenuRangeFloat_t MEO_COLCORR_CONTRAST = MAKE_MENURANGE( &vid_contrast, &MF_Bluefont, 0.1f, 2.7f, 0.f, 53, 1 );
@@ -1770,6 +1772,12 @@ static void M_PreMenu(MenuID_t cm)
     case MENU_SAVE:
         for (i = 0; i < MAXSAVEGAMES; ++i)
             MEO_SAVE[i].font = (g_oldverSavegame[i] && MEO_SAVE[i].editfield == NULL) ? &MF_MinifontDarkGray : &MF_MinifontRed;
+        break;
+
+    case MENU_COLCORR:
+    case MENU_COLCORR_INGAME:
+        MenuEntry_DisableOnCondition(&ME_COLCORR_CONTRAST, !gammabrightness);
+        MenuEntry_DisableOnCondition(&ME_COLCORR_BRIGHTNESS, !gammabrightness);
         break;
 
     case MENU_CHEATS:
