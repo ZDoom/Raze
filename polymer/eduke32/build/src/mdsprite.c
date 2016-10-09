@@ -2399,38 +2399,36 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
 
             if (m->usesalpha)
             {
-                vec3f_t fp, fp1, fp2, vlt0, vlt1, vlt2;
-
-                for (i=s->numtris-1; i>=0; i--)
+                for (i=0; i<=s->numtris-1; ++i)
                 {
-                    vlt0 = vertlist[s->tris[i].i[0]];
-                    vlt1 = vertlist[s->tris[i].i[1]];
-                    vlt2 = vertlist[s->tris[i].i[2]];
+                    vec3f_t const vlt[3] = { vertlist[s->tris[i].i[0]], vertlist[s->tris[i].i[1]], vertlist[s->tris[i].i[2]] };
 
                     // Matrix multiplication - ugly but clear
-                    fp.x = (vlt0.x * mat[0]) + (vlt0.y * mat[4]) + (vlt0.z * mat[8]) + mat[12];
-                    fp.y = (vlt0.x * mat[1]) + (vlt0.y * mat[5]) + (vlt0.z * mat[9]) + mat[13];
-                    fp.z = (vlt0.x * mat[2]) + (vlt0.y * mat[6]) + (vlt0.z * mat[10]) + mat[14];
+                    vec3f_t const fp[3] = { { (vlt[0].x * mat[0]) + (vlt[0].y * mat[4]) + (vlt[0].z * mat[8]) + mat[12],
+                                              (vlt[0].x * mat[1]) + (vlt[0].y * mat[5]) + (vlt[0].z * mat[9]) + mat[13],
+                                              (vlt[0].x * mat[2]) + (vlt[0].y * mat[6]) + (vlt[0].z * mat[10]) + mat[14] },
 
-                    fp1.x = (vlt1.x * mat[0]) + (vlt1.y * mat[4]) + (vlt1.z * mat[8]) + mat[12];
-                    fp1.y = (vlt1.x * mat[1]) + (vlt1.y * mat[5]) + (vlt1.z * mat[9]) + mat[13];
-                    fp1.z = (vlt1.x * mat[2]) + (vlt1.y * mat[6]) + (vlt1.z * mat[10]) + mat[14];
+                                            { (vlt[1].x * mat[0]) + (vlt[1].y * mat[4]) + (vlt[1].z * mat[8]) + mat[12],
+                                              (vlt[1].x * mat[1]) + (vlt[1].y * mat[5]) + (vlt[1].z * mat[9]) + mat[13],
+                                              (vlt[1].x * mat[2]) + (vlt[1].y * mat[6]) + (vlt[1].z * mat[10]) + mat[14] },
 
-                    fp2.x = (vlt2.x * mat[0]) + (vlt2.y * mat[4]) + (vlt2.z * mat[8]) + mat[12];
-                    fp2.y = (vlt2.x * mat[1]) + (vlt2.y * mat[5]) + (vlt2.z * mat[9]) + mat[13];
-                    fp2.z = (vlt2.x * mat[2]) + (vlt2.y * mat[6]) + (vlt2.z * mat[10]) + mat[14];
+                                            { (vlt[2].x * mat[0]) + (vlt[2].y * mat[4]) + (vlt[2].z * mat[8]) + mat[12],
+                                              (vlt[2].x * mat[1]) + (vlt[2].y * mat[5]) + (vlt[2].z * mat[9]) + mat[13],
+                                              (vlt[2].x * mat[2]) + (vlt[2].y * mat[6]) + (vlt[2].z * mat[10]) + mat[14] } };
 
-                    f = (fp.x * fp.x) + (fp.y * fp.y) + (fp.z * fp.z);
+                    f = (fp[0].x * fp[0].x) + (fp[0].y * fp[0].y) + (fp[0].z * fp[0].z);
+                    g = (fp[1].x * fp[1].x) + (fp[1].y * fp[1].y) + (fp[1].z * fp[1].z);
 
-                    g = (fp1.x * fp1.x) + (fp1.y * fp1.y) + (fp1.z * fp1.z);
                     if (f > g)
                         f = g;
-                    g = (fp2.x * fp2.x) + (fp2.y * fp2.y) + (fp2.z * fp2.z);
+
+                    g = (fp[2].x * fp[2].x) + (fp[2].y * fp[2].y) + (fp[2].z * fp[2].z);
+
                     if (f > g)
                         f = g;
 
                     m->maxdepths[i] = f;
-                    m->indexes[i] = i;
+                    m->indexes[i]   = i;
                 }
 
                 // dichotomic recursive sorting - about 100x less iterations than bubblesort
