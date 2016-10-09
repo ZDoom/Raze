@@ -125,7 +125,17 @@ int32_t r_downsizevar = -1;
 static float fogresult, fogresult2;
 coltypef fogcol, fogtable[MAXPALOOKUPS];
 
-static const float float_trans[4] = { 1.0f, 1.0f, 2.f/3.f, 1.f/3.f };
+static float float_trans(uint32_t maskprops, uint8_t blend)
+{
+    switch (maskprops)
+    {
+    case DAMETH_TRANS1:
+    case DAMETH_TRANS2:
+        return glblend[blend].def[maskprops-2].alpha;
+    default:
+        return 1.0f;
+    }
+}
 
 char ptempbuf[MAXWALLSB<<1];
 
@@ -1623,6 +1633,7 @@ void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
 // drawpoly's hack globals
 static int32_t pow2xsplit = 0, skyclamphack = 0;
 static float drawpoly_alpha = 0.f;
+static uint8_t drawpoly_blend = 0;
 
 static inline pthtyp *our_texcache_fetch(int32_t dameth)
 {
@@ -1837,7 +1848,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         pc[0] = pc[1] = pc[2] = getshadefactor(globalshade);
 
     // spriteext full alpha control
-    pc[3] = float_trans[method & DAMETH_MASKPROPS] * (1.f - drawpoly_alpha);
+    pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
+
+    handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
 
     if (pth)
     {
@@ -2042,6 +2055,8 @@ do                                                                              
     bglLoadIdentity();
     bglMatrixMode(GL_MODELVIEW);
 
+    bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     if (getrendermode() != REND_POLYMOST)
         return;
 
@@ -2157,6 +2172,7 @@ static void polymost_domost(float x0, float y0, float x1, float y1)
     float const slop = (dm1.y - dm0.y) / (dm1.x - dm0.x);
 
     drawpoly_alpha = 0.f;
+    drawpoly_blend = 0;
 
     vec2f_t n0, n1;
     float spx[4];
@@ -2737,6 +2753,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
 
     pow2xsplit = 0;
     drawpoly_alpha = 0.f;
+    drawpoly_blend = 0;
 
     calc_and_apply_fog(globalpicnum, fogpal_shade(sec, global_cf_shade), sec->visibility,
         POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
@@ -2831,6 +2848,7 @@ static inline int polymost_getclosestpointonwall(vec2_t const * const pos, int32
 static void polymost_drawalls(int32_t const bunch)
 {
     drawpoly_alpha = 0.f;
+    drawpoly_blend = 0;
 
     int32_t const sectnum = thesector[bunchfirst[bunch]];
     usectortype const * const sec = (usectortype *)&sector[sectnum];
@@ -4245,6 +4263,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     pow2xsplit = 0;
     skyclamphack = 0;
     drawpoly_alpha = 0.f;
+    drawpoly_blend = 0;
     polymost_drawpoly(dpxy, n, method);
 }
 
@@ -4365,7 +4384,10 @@ void polymost_drawsprite(int32_t snum)
     if (tspr->cstat & 2)
         method = DAMETH_CLAMPED | ((tspr->cstat & 512) ? DAMETH_TRANS2 : DAMETH_TRANS1);
 
+    handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
+
     drawpoly_alpha = spriteext[spritenum].alpha;
+    drawpoly_blend = tspr->blend;
 
     sec = (usectortype *)&sector[tspr->sectnum];
 
@@ -4952,7 +4974,7 @@ EDUKE32_STATIC_ASSERT((int)RS_YFLIP == (int)HUDFLAG_FLIPPED);
 //cx1,...     clip window (actual screen coords)
 
 void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-    int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, int32_t uniqid)
+    int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend, int32_t uniqid)
 {
     float d, cosang, sinang, cosang2, sinang2;
     float m[4][4];
@@ -5124,6 +5146,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     }
 
     spriteext[tspr.owner].alpha = daalpha * (1.0f / 255.0f);
+    tspr.blend = dablend;
 
     bglDisable(GL_FOG);
 
@@ -5177,12 +5200,12 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 }
 
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
-                             int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha,
+                             int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                              int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2, int32_t uniqid)
 {
     if (usemodels && tile2model[picnum].hudmem[(dastat&4)>>2])
     {
-        polymost_dorotatespritemodel(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, uniqid);
+        polymost_dorotatespritemodel(sx, sy, z, a, picnum, dashade, dapalnum, dastat, daalpha, dablend, uniqid);
         return;
     }
 
@@ -5251,6 +5274,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
             method |= DAMETH_MASK;
     }
 
+    handle_blend(!!(dastat & RS_TRANS1), dablend, !!(dastat & RS_TRANS2));
+
 #ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
     {
@@ -5264,6 +5289,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 #endif
 
     drawpoly_alpha = daalpha * (1.0f / 255.0f);
+    drawpoly_blend = dablend;
 
     vec2_t const siz = tilesiz[globalpicnum];
     vec2_t ofs ={ 0, 0 };
@@ -5595,10 +5621,12 @@ void polymost_fillpolygon(int32_t npoints)
 
     float const f = getshadefactor(globalshade);
 
-    if (((globalorientation>>7)&3) > 1)
+    uint8_t const maskprops = (globalorientation>>7)&DAMETH_MASKPROPS;
+    handle_blend(maskprops > DAMETH_MASK, 0, maskprops == DAMETH_TRANS2);
+    if (maskprops > DAMETH_MASK)
     {
         bglEnable(GL_BLEND);
-        bglColor4f(f, f, f, float_trans[(globalorientation>>7)&3]);
+        bglColor4f(f, f, f, float_trans(maskprops, 0));
     }
     else
     {

@@ -112,6 +112,12 @@ enum scripttoken_t
     T_NUMALPHATABS,
     T_UNDEF,
     T_UNDEFBASEPALETTERANGE, T_UNDEFPALOOKUPRANGE, T_UNDEFBLENDTABLERANGE,
+    T_GLBLEND, T_FORWARD, T_REVERSE, T_BOTH, T_SRC, T_DST, T_ALPHA,
+    T_ZERO, T_ONE,
+    T_SRC_COLOR, T_ONE_MINUS_SRC_COLOR,
+    T_SRC_ALPHA, T_ONE_MINUS_SRC_ALPHA,
+    T_DST_ALPHA, T_ONE_MINUS_DST_ALPHA,
+    T_DST_COLOR, T_ONE_MINUS_DST_COLOR,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -3214,6 +3220,7 @@ static int32_t defsparser(scriptfile *script)
             static const tokenlist subtokens[] =
             {
                 { "raw",         T_RAW },
+                { "glblend",     T_GLBLEND },
                 { "copy",        T_COPY },
                 { "undef",       T_UNDEF },
             };
@@ -3343,6 +3350,10 @@ static int32_t defsparser(scriptfile *script)
 
                     setblendtab(id, sourcetable);
                     didLoadTransluc = 1;
+
+#ifdef USE_OPENGL
+                    glblend[id] = glblend[source];
+#endif
                     break;
                 }
                 case T_UNDEF:
@@ -3352,7 +3363,128 @@ static int32_t defsparser(scriptfile *script)
                     didLoadTransluc = 0;
                     if (id == 0)
                         paletteloaded &= ~PALETTE_TRANSLUC;
+
+#ifdef USE_OPENGL
+                    glblend[id] = defaultglblend;
+#endif
                     break;
+                }
+                case T_GLBLEND:
+                {
+                    char *glblendblockend;
+
+                    static const tokenlist glblendtokens[] =
+                    {
+                        { "forward",     T_FORWARD },
+                        { "reverse",     T_REVERSE },
+                        { "both",        T_BOTH },
+                    };
+
+                    if (scriptfile_getbraces(script,&glblendblockend))
+                        break;
+
+#ifdef USE_OPENGL
+                    glblend_t * const glb = glblend + id;
+                    *glb = nullglblend;
+#endif
+
+                    while (script->textptr < glblendblockend)
+                    {
+                        int32_t glblendtoken = getatoken(script,glblendtokens,ARRAY_SIZE(glblendtokens));
+                        switch (glblendtoken)
+                        {
+                        case T_FORWARD:
+                        case T_REVERSE:
+                        case T_BOTH:
+                        {
+                            char *glblenddefblockend;
+
+                            static const tokenlist glblenddeftokens[] =
+                            {
+                                { "src",         T_SRC },
+                                { "sfactor",     T_SRC },
+                                { "top",         T_SRC },
+
+                                { "dst",         T_DST },
+                                { "dfactor",     T_DST },
+                                { "bottom",      T_DST },
+
+                                { "alpha",       T_ALPHA },
+                            };
+
+                            if (scriptfile_getbraces(script,&glblenddefblockend))
+                                break;
+
+#ifdef USE_OPENGL
+                            glblenddef_t * const glbdef = glb->def + (glblendtoken == T_REVERSE);
+#endif
+
+                            while (script->textptr < glblenddefblockend)
+                            {
+                                int32_t glblenddeftoken = getatoken(script,glblenddeftokens,ARRAY_SIZE(glblenddeftokens));
+                                switch (glblenddeftoken)
+                                {
+                                case T_SRC:
+                                case T_DST:
+                                {
+                                    static const tokenlist glBlendFuncTokens[] =
+                                    {
+                                        { "ZERO", T_ZERO },
+                                        { "ONE", T_ONE },
+                                        { "SRC_COLOR", T_SRC_COLOR },
+                                        { "ONE_MINUS_SRC_COLOR", T_ONE_MINUS_SRC_COLOR },
+                                        { "SRC_ALPHA", T_SRC_ALPHA },
+                                        { "ONE_MINUS_SRC_ALPHA", T_ONE_MINUS_SRC_ALPHA },
+                                        { "DST_ALPHA", T_DST_ALPHA },
+                                        { "ONE_MINUS_DST_ALPHA", T_ONE_MINUS_DST_ALPHA },
+                                        { "DST_COLOR", T_DST_COLOR },
+                                        { "ONE_MINUS_DST_COLOR", T_ONE_MINUS_DST_COLOR },
+                                    };
+
+                                    int32_t factortoken = getatoken(script,glBlendFuncTokens,ARRAY_SIZE(glBlendFuncTokens));
+
+#ifdef USE_OPENGL
+                                    uint8_t * const factor = glblenddeftoken == T_SRC ? &glbdef->src : &glbdef->dst;
+                                    switch (factortoken)
+                                    {
+                                        case T_ZERO: *factor = BLENDFACTOR_ZERO; break;
+                                        case T_ONE: *factor = BLENDFACTOR_ONE; break;
+                                        case T_SRC_COLOR: *factor = BLENDFACTOR_SRC_COLOR; break;
+                                        case T_ONE_MINUS_SRC_COLOR: *factor = BLENDFACTOR_ONE_MINUS_SRC_COLOR; break;
+                                        case T_SRC_ALPHA: *factor = BLENDFACTOR_SRC_ALPHA; break;
+                                        case T_ONE_MINUS_SRC_ALPHA: *factor = BLENDFACTOR_ONE_MINUS_SRC_ALPHA; break;
+                                        case T_DST_ALPHA: *factor = BLENDFACTOR_DST_ALPHA; break;
+                                        case T_ONE_MINUS_DST_ALPHA: *factor = BLENDFACTOR_ONE_MINUS_DST_ALPHA; break;
+                                        case T_DST_COLOR: *factor = BLENDFACTOR_DST_COLOR; break;
+                                        case T_ONE_MINUS_DST_COLOR: *factor = BLENDFACTOR_ONE_MINUS_DST_COLOR; break;
+                                    }
+#else
+                                    UNREFERENCED_PARAMETER(factortoken);
+#endif
+
+                                    break;
+                                }
+                                case T_ALPHA:
+                                {
+                                    double tempalpha;
+                                    scriptfile_getdouble(script,&tempalpha);
+#ifdef USE_OPENGL
+                                    glbdef->alpha = (float)tempalpha;
+#endif
+                                    break;
+                                }
+                                }
+                            }
+
+#ifdef USE_OPENGL
+                            if (glblendtoken == T_BOTH)
+                                glb->def[1] = *glbdef;
+#endif
+
+                            break;
+                        }
+                        }
+                    }
                 }
                 default:
                     break;
@@ -3373,6 +3505,17 @@ static int32_t defsparser(scriptfile *script)
             switch (value)
             {
                 case 0: /*case 1:*/ case 2: case 4: case 8: case 16: case 32: case 64: case 128:
+#ifdef USE_OPENGL
+                    for (int32_t a = 1, value2 = value*2; a <= value; ++a)
+                    {
+                        float finv2value = 0.5f/(float)value;
+
+                        glblend_t * const glb = glblend + a;
+                        *glb = defaultglblend;
+                        glb->def[0].alpha = (float)(value2-a) * finv2value;
+                        glb->def[1].alpha = (float)a * finv2value;
+                    }
+#endif
                     numalphatabs = value;
                     break;
                 default:

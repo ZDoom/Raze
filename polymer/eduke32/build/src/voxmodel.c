@@ -978,8 +978,10 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
         (float)(numshades-min(max((globalshade * shadescale)+m->shadeoff, 0), numshades)) / (float)numshades;
     hictinting_apply(pc, globalpal);
 
-    pc[3] = (tspr->cstat&2) ? !(tspr->cstat&512) ? (2.f/3.f) : (1.f/3.f) : 1.0f;
+    pc[3] = (tspr->cstat&2) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;
     pc[3] *= 1.0f - spriteext[tspr->owner].alpha;
+
+    handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
     if ((tspr->cstat&2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f)
         bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);

@@ -2202,8 +2202,10 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     if (have_basepal_tint())
         hictinting_apply(pc, MAXPALOOKUPS-1);
 
-    pc[3] = (tspr->cstat&2) ? !(tspr->cstat&512) ? (2.f/3.f) : (1.f/3.f) : 1.0f;
+    pc[3] = (tspr->cstat&2) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;
     pc[3] *= 1.0f - sext->alpha;
+
+    handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
     if (m->usesalpha) //Sprites with alpha in texture
     {

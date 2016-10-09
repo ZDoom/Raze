@@ -107,6 +107,11 @@ void loadpalette(void)
     initfastcolorlookup_scale(30, 59, 11);
     initfastcolorlookup_gridvectors();
 
+#ifdef USE_OPENGL
+    for (size_t x = 0; x < MAXBLENDTABS; ++x)
+        glblend[x] = defaultglblend;
+#endif
+
     int32_t fil;
     if ((fil = kopen4load("palette.dat", 0)) == -1)
         return;
@@ -462,6 +467,51 @@ void removeblendtab(int32_t const blend)
 const char *(getblendtab) (int32_t blend)
 {
     return blendtable[blend];
+}
+#endif
+
+#ifdef USE_OPENGL
+glblend_t const nullglblend =
+{
+    {
+        { 1.f, BLENDFACTOR_ONE, BLENDFACTOR_ZERO, 0 },
+        { 1.f, BLENDFACTOR_ONE, BLENDFACTOR_ZERO, 0 },
+    },
+};
+glblend_t const defaultglblend =
+{
+    {
+        { 2.f/3.f, BLENDFACTOR_SRC_ALPHA, BLENDFACTOR_ONE_MINUS_SRC_ALPHA, 0 },
+        { 1.f/3.f, BLENDFACTOR_SRC_ALPHA, BLENDFACTOR_ONE_MINUS_SRC_ALPHA, 0 },
+    },
+};
+
+glblend_t glblend[MAXBLENDTABS];
+
+void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
+{
+    static GLenum const blendFuncTokens[NUMBLENDFACTORS] =
+    {
+        GL_ZERO,
+        GL_ONE,
+        GL_SRC_COLOR,
+        GL_ONE_MINUS_SRC_COLOR,
+        GL_SRC_ALPHA,
+        GL_ONE_MINUS_SRC_ALPHA,
+        GL_DST_ALPHA,
+        GL_ONE_MINUS_DST_ALPHA,
+        GL_DST_COLOR,
+        GL_ONE_MINUS_DST_COLOR,
+    };
+
+    if (!enable)
+    {
+        bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        return;
+    }
+
+    glblenddef_t const * const glbdef = glblend[blend].def + def;
+    bglBlendFunc(blendFuncTokens[glbdef->src], blendFuncTokens[glbdef->dst]);
 }
 #endif
 

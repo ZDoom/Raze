@@ -71,6 +71,37 @@ static inline void bricolor(palette_t *wpptr, int32_t dacol)
         wpptr->b = britable[curbrightness][curpalette[dacol].b];
     }
 }
+
+enum
+{
+    BLENDFACTOR_ZERO = 0,
+    BLENDFACTOR_ONE,
+    BLENDFACTOR_SRC_COLOR,
+    BLENDFACTOR_ONE_MINUS_SRC_COLOR,
+    BLENDFACTOR_SRC_ALPHA,
+    BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+    BLENDFACTOR_DST_ALPHA,
+    BLENDFACTOR_ONE_MINUS_DST_ALPHA,
+    BLENDFACTOR_DST_COLOR,
+    BLENDFACTOR_ONE_MINUS_DST_COLOR,
+    NUMBLENDFACTORS,
+};
+
+typedef struct glblenddef_
+{
+    float alpha;
+    uint8_t src, dst, flags;
+} glblenddef_t;
+
+typedef struct glblend_
+{
+    glblenddef_t def[2];
+} glblend_t;
+
+extern glblend_t const nullglblend, defaultglblend;
+extern glblend_t glblend[MAXBLENDTABS];
+
+extern void handle_blend(uint8_t enable, uint8_t blend, uint8_t def);
 #endif
 
 #ifdef __cplusplus
