@@ -6145,52 +6145,52 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("SFLAG_GREENSLIMEFOOD", SFLAG_GREENSLIMEFOOD, LABEL_DEFINE);
     C_AddDefinition("SFLAG_REALCLIPDIST", SFLAG_REALCLIPDIST, LABEL_DEFINE);
 
-    C_AddDefinition("STR_MAPNAME",STR_MAPNAME,LABEL_DEFINE);
-    C_AddDefinition("STR_MAPFILENAME",STR_MAPFILENAME,LABEL_DEFINE);
-    C_AddDefinition("STR_PLAYERNAME",STR_PLAYERNAME,LABEL_DEFINE);
-    C_AddDefinition("STR_VERSION",STR_VERSION,LABEL_DEFINE);
-    C_AddDefinition("STR_GAMETYPE",STR_GAMETYPE,LABEL_DEFINE);
-    C_AddDefinition("STR_VOLUMENAME",STR_VOLUMENAME,LABEL_DEFINE);
-    C_AddDefinition("STR_YOURTIME",STR_YOURTIME,LABEL_DEFINE);
-    C_AddDefinition("STR_PARTIME",STR_PARTIME,LABEL_DEFINE);
-    C_AddDefinition("STR_DESIGNERTIME",STR_DESIGNERTIME,LABEL_DEFINE);
-    C_AddDefinition("STR_BESTTIME",STR_BESTTIME,LABEL_DEFINE);
+    C_AddDefinition("STR_MAPNAME", STR_MAPNAME, LABEL_DEFINE);
+    C_AddDefinition("STR_MAPFILENAME", STR_MAPFILENAME, LABEL_DEFINE);
+    C_AddDefinition("STR_PLAYERNAME", STR_PLAYERNAME, LABEL_DEFINE);
+    C_AddDefinition("STR_VERSION", STR_VERSION, LABEL_DEFINE);
+    C_AddDefinition("STR_GAMETYPE", STR_GAMETYPE, LABEL_DEFINE);
+    C_AddDefinition("STR_VOLUMENAME", STR_VOLUMENAME, LABEL_DEFINE);
+    C_AddDefinition("STR_YOURTIME", STR_YOURTIME, LABEL_DEFINE);
+    C_AddDefinition("STR_PARTIME", STR_PARTIME, LABEL_DEFINE);
+    C_AddDefinition("STR_DESIGNERTIME", STR_DESIGNERTIME, LABEL_DEFINE);
+    C_AddDefinition("STR_BESTTIME", STR_BESTTIME, LABEL_DEFINE);
 
-    C_AddDefinition("NO",0,LABEL_DEFINE|LABEL_ACTION|LABEL_AI|LABEL_MOVE);
+    C_AddDefinition("NO", 0, LABEL_DEFINE | LABEL_ACTION | LABEL_AI | LABEL_MOVE);
     C_AddDefinition("MAXSTATUS", MAXSTATUS, LABEL_DEFINE);
     C_AddDefinition("MAXSPRITES", MAXSPRITES, LABEL_DEFINE);
     C_AddDefinition("MAX_WEAPONS", MAX_WEAPONS, LABEL_DEFINE);
 
-    C_AddDefinition("PROJ_BOUNCES",PROJ_BOUNCES,LABEL_DEFINE);
-    C_AddDefinition("PROJ_BSOUND",PROJ_BSOUND,LABEL_DEFINE);
-    C_AddDefinition("PROJ_CLIPDIST",PROJ_CLIPDIST,LABEL_DEFINE);
-    C_AddDefinition("PROJ_CSTAT",PROJ_CSTAT,LABEL_DEFINE);
-    C_AddDefinition("PROJ_DECAL",PROJ_DECAL,LABEL_DEFINE);
-    C_AddDefinition("PROJ_DROP",PROJ_DROP,LABEL_DEFINE);
-    C_AddDefinition("PROJ_EXTRA",PROJ_EXTRA,LABEL_DEFINE);
-    C_AddDefinition("PROJ_EXTRA_RAND",PROJ_EXTRA_RAND,LABEL_DEFINE);
-    C_AddDefinition("PROJ_FLASH_COLOR",PROJ_FLASH_COLOR,LABEL_DEFINE);
-    C_AddDefinition("PROJ_HITRADIUS",PROJ_HITRADIUS,LABEL_DEFINE);
-    C_AddDefinition("PROJ_ISOUND",PROJ_ISOUND,LABEL_DEFINE);
-    C_AddDefinition("PROJ_OFFSET",PROJ_OFFSET,LABEL_DEFINE);
-    C_AddDefinition("PROJ_PAL",PROJ_PAL,LABEL_DEFINE);
-    C_AddDefinition("PROJ_RANGE",PROJ_RANGE,LABEL_DEFINE);
-    C_AddDefinition("PROJ_SHADE",PROJ_SHADE,LABEL_DEFINE);
-    C_AddDefinition("PROJ_SOUND",PROJ_SOUND,LABEL_DEFINE);
-    C_AddDefinition("PROJ_SPAWNS",PROJ_SPAWNS,LABEL_DEFINE);
-    C_AddDefinition("PROJ_SXREPEAT",PROJ_SXREPEAT,LABEL_DEFINE);
-    C_AddDefinition("PROJ_SYREPEAT",PROJ_SYREPEAT,LABEL_DEFINE);
-    C_AddDefinition("PROJ_TNUM",PROJ_TNUM,LABEL_DEFINE);
-    C_AddDefinition("PROJ_TOFFSET",PROJ_TOFFSET,LABEL_DEFINE);
-    C_AddDefinition("PROJ_TRAIL",PROJ_TRAIL,LABEL_DEFINE);
-    C_AddDefinition("PROJ_TXREPEAT",PROJ_TXREPEAT,LABEL_DEFINE);
-    C_AddDefinition("PROJ_TYREPEAT",PROJ_TYREPEAT,LABEL_DEFINE);
-    C_AddDefinition("PROJ_USERDATA",PROJ_USERDATA,LABEL_DEFINE);
-    C_AddDefinition("PROJ_VEL_MULT",PROJ_MOVECNT,LABEL_DEFINE);
-    C_AddDefinition("PROJ_VEL",PROJ_VEL,LABEL_DEFINE);
-    C_AddDefinition("PROJ_WORKSLIKE",PROJ_WORKSLIKE,LABEL_DEFINE);
-    C_AddDefinition("PROJ_XREPEAT",PROJ_XREPEAT,LABEL_DEFINE);
-    C_AddDefinition("PROJ_YREPEAT",PROJ_YREPEAT,LABEL_DEFINE);
+    C_AddDefinition("PROJ_BOUNCES", PROJ_BOUNCES, LABEL_DEFINE);
+    C_AddDefinition("PROJ_BSOUND", PROJ_BSOUND, LABEL_DEFINE);
+    C_AddDefinition("PROJ_CLIPDIST", PROJ_CLIPDIST, LABEL_DEFINE);
+    C_AddDefinition("PROJ_CSTAT", PROJ_CSTAT, LABEL_DEFINE);
+    C_AddDefinition("PROJ_DECAL", PROJ_DECAL, LABEL_DEFINE);
+    C_AddDefinition("PROJ_DROP", PROJ_DROP, LABEL_DEFINE);
+    C_AddDefinition("PROJ_EXTRA", PROJ_EXTRA, LABEL_DEFINE);
+    C_AddDefinition("PROJ_EXTRA_RAND", PROJ_EXTRA_RAND, LABEL_DEFINE);
+    C_AddDefinition("PROJ_FLASH_COLOR", PROJ_FLASH_COLOR, LABEL_DEFINE);
+    C_AddDefinition("PROJ_HITRADIUS", PROJ_HITRADIUS, LABEL_DEFINE);
+    C_AddDefinition("PROJ_ISOUND", PROJ_ISOUND, LABEL_DEFINE);
+    C_AddDefinition("PROJ_OFFSET", PROJ_OFFSET, LABEL_DEFINE);
+    C_AddDefinition("PROJ_PAL", PROJ_PAL, LABEL_DEFINE);
+    C_AddDefinition("PROJ_RANGE", PROJ_RANGE, LABEL_DEFINE);
+    C_AddDefinition("PROJ_SHADE", PROJ_SHADE, LABEL_DEFINE);
+    C_AddDefinition("PROJ_SOUND", PROJ_SOUND, LABEL_DEFINE);
+    C_AddDefinition("PROJ_SPAWNS", PROJ_SPAWNS, LABEL_DEFINE);
+    C_AddDefinition("PROJ_SXREPEAT", PROJ_SXREPEAT, LABEL_DEFINE);
+    C_AddDefinition("PROJ_SYREPEAT", PROJ_SYREPEAT, LABEL_DEFINE);
+    C_AddDefinition("PROJ_TNUM", PROJ_TNUM, LABEL_DEFINE);
+    C_AddDefinition("PROJ_TOFFSET", PROJ_TOFFSET, LABEL_DEFINE);
+    C_AddDefinition("PROJ_TRAIL", PROJ_TRAIL, LABEL_DEFINE);
+    C_AddDefinition("PROJ_TXREPEAT", PROJ_TXREPEAT, LABEL_DEFINE);
+    C_AddDefinition("PROJ_TYREPEAT", PROJ_TYREPEAT, LABEL_DEFINE);
+    C_AddDefinition("PROJ_USERDATA", PROJ_USERDATA, LABEL_DEFINE);
+    C_AddDefinition("PROJ_VEL_MULT", PROJ_MOVECNT, LABEL_DEFINE);
+    C_AddDefinition("PROJ_VEL", PROJ_VEL, LABEL_DEFINE);
+    C_AddDefinition("PROJ_WORKSLIKE", PROJ_WORKSLIKE, LABEL_DEFINE);
+    C_AddDefinition("PROJ_XREPEAT", PROJ_XREPEAT, LABEL_DEFINE);
+    C_AddDefinition("PROJ_YREPEAT", PROJ_YREPEAT, LABEL_DEFINE);
 
     C_AddDefinition("GAMEARRAY_RESTORE", GAMEARRAY_RESTORE, LABEL_DEFINE);
 }
@@ -6287,7 +6287,7 @@ void C_PrintStats(void)
     initprintf("\n");
 }
 
-void C_Compile(const char *filenam)
+void C_Compile(const char *fileName)
 {
     int32_t i;
 
@@ -6298,14 +6298,12 @@ void C_Compile(const char *filenam)
         Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
 
     C_InitHashes();
-
     Gv_Init();
-
     C_InitProjectiles();
 
-    int32_t fp = kopen4loadfrommod(filenam,g_loadFromGroupOnly);
+    int kFile = kopen4loadfrommod(fileName,g_loadFromGroupOnly);
 
-    if (fp == -1) // JBF: was 0
+    if (kFile == -1) // JBF: was 0
     {
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
@@ -6318,7 +6316,7 @@ void C_Compile(const char *filenam)
         }
         else
         {
-            Bsprintf(tempbuf,"CON file `%s' missing.", filenam);
+            Bsprintf(tempbuf,"CON file `%s' missing.", fileName);
             G_GameExit(tempbuf);
         }
 
@@ -6326,37 +6324,38 @@ void C_Compile(const char *filenam)
         return; //Not there
     }
 
-    int32_t const fs = kfilelength(fp);
+    int const kFileLen = kfilelength(kFile);
 
-    initprintf("Compiling: %s (%d bytes)\n",filenam,fs);
+    initprintf("Compiling: %s (%d bytes)\n", fileName, kFileLen);
 
     flushlogwindow = 0;
 
     uint32_t const startcompiletime = getticks();
 
-    char * mptr = (char *)Xmalloc(fs+1);
-    mptr[fs] = 0;
+    char * mptr = (char *)Xmalloc(kFileLen+1);
+    mptr[kFileLen] = 0;
 
     textptr = (char *) mptr;
-    kread(fp,(char *)textptr,fs);
-    kclose(fp);
+    kread(kFile,(char *)textptr,kFileLen);
+    kclose(kFile);
 
     Bfree(apScript);
 
-    apScript = (intptr_t *)Xcalloc(1,g_scriptSize * sizeof(intptr_t));
-    bitptr = (char *)Xcalloc(1,(((g_scriptSize+7)>>3)+1) * sizeof(uint8_t));
-//    initprintf("script: %d, bitptr: %d\n",script,bitptr);
+    apScript = (intptr_t *)Xcalloc(1, g_scriptSize * sizeof(intptr_t));
+    bitptr   = (char *)Xcalloc(1, (((g_scriptSize + 7) >> 3) + 1) * sizeof(uint8_t));
+    //    initprintf("script: %d, bitptr: %d\n",script,bitptr);
 
-    g_labelCnt = g_defaultLabelCnt = 0;
-    g_scriptPtr = apScript+3;  // move permits constants 0 and 1; moveptr[1] would be script[2] (reachable?)
-    g_warningCnt = 0;
-    g_errorCnt = 0;
-    g_lineNumber = 1;
-    g_totalLines = 0;
+    g_labelCnt        = 0;
+    g_defaultLabelCnt = 0;
+    g_scriptPtr       = apScript + 3;  // move permits constants 0 and 1; moveptr[1] would be script[2] (reachable?)
+    g_warningCnt      = 0;
+    g_errorCnt        = 0;
+    g_lineNumber      = 1;
+    g_totalLines      = 0;
 
     C_AddDefaultDefinitions();
 
-    Bstrcpy(g_scriptFileName, filenam);
+    Bstrcpy(g_scriptFileName, fileName);
 
     C_ParseCommand(1);
 
@@ -6382,73 +6381,43 @@ void C_Compile(const char *filenam)
 
     if (g_errorCnt)
     {
-        if (g_loadFromGroupOnly)
-        {
-            Bsprintf(buf,"Error compiling CON files.");
-            G_GameExit(buf);
-        }
-        else
-        {
-            if (g_groupFileHandle != -1 && g_loadFromGroupOnly == 0)
-            {
-//                initprintf("Error(s) found in file `%s'.  Do you want to use the INTERNAL DEFAULTS (y/N)?\n",filenam);
-
-                i=wm_ynbox("CON File Compilation Error", "Error(s) found in file `%s'. Do you want to use the "
-                           "INTERNAL DEFAULTS?",filenam);
-                if (i) i = 'y';
-                if (i == 'y' || i == 'Y')
-                {
-                    initprintf(" Yes\n");
-                    g_loadFromGroupOnly = 1;
-                    return;
-                }
-                else
-                {
-# if (defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2)))
-                    while (!quitevent) // keep the window open so people can copy CON errors out of it
-                        handleevents();
-# endif
-                    G_GameExit("");
-                }
-            }
-        }
+        Bsprintf(buf, "Error compiling CON files.");
+        G_GameExit(buf);
     }
-    else
+
+    for (i = 0; i < MAXEVENTS; ++i)
     {
-        for (i = 0; i < MAXEVENTS; ++i)
+        intptr_t *eventEnd = apScript + apScriptGameEventEnd[i];
+        if (eventEnd)
         {
-            intptr_t *eventEnd = apScript + apScriptGameEventEnd[i];
-            if (eventEnd)
+            // C_FillEventBreakStackWithEndEvent
+            intptr_t *breakPtr = (intptr_t*)*(eventEnd + 2);
+            while (breakPtr)
             {
-                // C_FillEventBreakStackWithEndEvent
-                intptr_t *breakPtr = (intptr_t*)*(eventEnd + 2);
-                while (breakPtr)
-                {
-                    breakPtr = apScript + (intptr_t)breakPtr;
-                    *(breakPtr-2) = CON_ENDEVENT | (g_lineNumber << 12);
-                    breakPtr = (intptr_t*)*breakPtr;
-                }
+                breakPtr = apScript + (intptr_t)breakPtr;
+                *(breakPtr-2) = CON_ENDEVENT | (g_lineNumber << 12);
+                breakPtr = (intptr_t*)*breakPtr;
             }
         }
-
-        g_totalLines += g_lineNumber;
-
-        C_SetScriptSize(g_scriptPtr-apScript+8);
-
-        initprintf("Script compiled in %dms, %ld bytes%s\n", getticks() - startcompiletime,
-                   (unsigned long)(g_scriptPtr-apScript), C_ScriptVersionString(g_scriptVersion));
-
-        for (i=0; (unsigned)i < ARRAY_SIZE(tables_free); i++)
-            hash_free(tables_free[i]);
-
-        freehashnames();
-        freesoundhashnames();
-
-        if (g_scriptDebug)
-            C_PrintStats();
-
-        C_InitQuotes();
     }
+
+    g_totalLines += g_lineNumber;
+
+    C_SetScriptSize(g_scriptPtr-apScript+8);
+
+    initprintf("Script compiled in %dms, %ld bytes%s\n", getticks() - startcompiletime,
+                (unsigned long)(g_scriptPtr-apScript), C_ScriptVersionString(g_scriptVersion));
+
+    for (i=0; (unsigned)i < ARRAY_SIZE(tables_free); i++)
+        hash_free(tables_free[i]);
+
+    freehashnames();
+    freesoundhashnames();
+
+    if (g_scriptDebug)
+        C_PrintStats();
+
+    C_InitQuotes();
 }
 
 void C_ReportError(int32_t iError)
