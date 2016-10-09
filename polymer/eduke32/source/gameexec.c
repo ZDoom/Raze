@@ -3936,7 +3936,7 @@ finish_qsprintf:
                         {
                             OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n", keyw[g_tw], g_errorLineNum,
                                        aGameArrays[lVarID].szLabel, index,
-                                       (int32_t)(m*Gv_GetGameArrayValue(lVarID, index)));
+                                       (int32_t)(m*Gv_GetArrayValue(lVarID, index)));
                             continue;
                         }
                         else
@@ -4678,7 +4678,7 @@ finish_qsprintf:
                 int *const pArray    = (int32_t *)Xmalloc(sizeof(int32_t) * arraySize);
 
                 for (bssize_t k = 0; k < arraySize; k++)
-                    pArray[k] = Gv_GetGameArrayValue(arrayNum, k);
+                    pArray[k] = Gv_GetArrayValue(arrayNum, k);
 
                 fwrite(pArray, 1, sizeof(int32_t) * arraySize, fil);
                 Bfree(pArray);
@@ -6267,12 +6267,9 @@ int32_t VM_CheckSquished2(int32_t i, int32_t snum)
 LUNATIC_EXTERN void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum, int32_t shade,
                                        int32_t orientation, int32_t p)
 {
-    int32_t rotAngle = 0;
-
     orientation &= (ROTATESPRITE_MAX-1);
 
-    if (orientation&4)
-        rotAngle = 1024;
+    int const rotAngle = (orientation&4) ? 1024 : 0;
 
     if (!(orientation&ROTATESPRITE_FULL16))
     {

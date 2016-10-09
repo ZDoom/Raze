@@ -100,7 +100,7 @@ extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t     g_gameVarCount;
 extern int32_t     g_gameArrayCount;
 
-int32_t __fastcall Gv_GetGameArrayValue(int const id, int index);
+int32_t __fastcall Gv_GetArrayValue(int const id, int index);
 int32_t __fastcall Gv_GetVar(int id, int spriteNum, int playerNum);
 void __fastcall Gv_SetVar(int const id, int32_t const lValue, int const spriteNum, int const playerNum);
 int32_t __fastcall Gv_GetVarX(int id);

@@ -554,7 +554,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
 
 static int Gv_GetVarIndex(const char *szGameLabel)
 {
-    int gameVar = hash_find(&h_gamevars,szGameLabel);
+    int const gameVar = hash_find(&h_gamevars,szGameLabel);
 
     if (EDUKE32_PREDICT_FALSE(gameVar == -1))
     {
@@ -565,7 +565,7 @@ static int Gv_GetVarIndex(const char *szGameLabel)
     return gameVar;
 }
 
-int __fastcall Gv_GetGameArrayValue(int const id, int index)
+int __fastcall Gv_GetArrayValue(int const id, int index)
 {
     if (aGameArrays[id].flags & GAMEARRAY_STRIDE2)
         index <<= 1;
@@ -594,7 +594,7 @@ int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
     int invertResult = !!(gameVar & (MAXGAMEVARS << 1));
 
     if (EDUKE32_PREDICT_FALSE((gameVar & ~(MAXGAMEVARS << 1)) >= g_gameVarCount))
-        goto nastyhacks;
+        goto special;
 
     gameVar &= (MAXGAMEVARS - 1);
 
@@ -626,7 +626,7 @@ int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
 
     return (returnValue ^ -invertResult) + invertResult;
 
-nastyhacks:
+special:
     if (gameVar & (MAXGAMEVARS << 2))  // array
     {
         gameVar &= (MAXGAMEVARS - 1);  // ~((MAXGAMEVARS<<2)|(MAXGAMEVARS<<1));
@@ -639,7 +639,7 @@ nastyhacks:
             goto badarrayindex;
         }
 
-        returnValue = Gv_GetGameArrayValue(gameVar, arrayIndex);
+        returnValue = Gv_GetArrayValue(gameVar, arrayIndex);
     }
     else if (gameVar&(MAXGAMEVARS<<3)) // struct shortcut vars
     {
@@ -901,7 +901,7 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
             return -1;
         }
 
-        returnValue = Gv_GetGameArrayValue(gameVar, arrayIndex);
+        returnValue = Gv_GetArrayValue(gameVar, arrayIndex);
     }
     else if (gameVar & (MAXGAMEVARS << 3))  // struct shortcut vars
     {
@@ -919,8 +919,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
                 {
                     gameVar = arrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], gameVar);
-                    return -1;
+                    returnValue = GVX_BADSPRITE;
+                    goto badindex;
                 }
 
                 returnValue = VM_GetSprite(arrayIndex, labelNum, arrayIndexVar);
@@ -933,8 +933,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
                 {
                     gameVar = arrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], gameVar);
-                    return -1;
+                    returnValue = GVX_BADSPRITE;
+                    goto badindex;
                 }
 
                 returnValue = VM_GetTsprite(arrayIndex, labelNum);
@@ -947,8 +947,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
                 {
                     gameVar = arrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSPRITE], gameVar);
-                    return -1;
+                    returnValue = GVX_BADSPRITE;
+                    goto badindex;
                 }
 
                 returnValue = VM_GetActiveProjectile(arrayIndex, labelNum);
@@ -962,8 +962,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXTILES))
                 {
                     gameVar = arrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADTILE], gameVar);
-                    return -1;
+                    returnValue = GVX_BADTILE;
+                    goto badindex;
                 }
 
                 returnValue = VM_GetProjectile(arrayIndex, labelNum);
@@ -976,8 +976,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXTILES))
                 {
                     gameVar = arrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADTILE], gameVar);
-                    return -1;
+                    returnValue = GVX_BADTILE;
+                    goto badindex;
                 }
 
                 returnValue = VM_GetTileData(arrayIndex, labelNum);
@@ -991,8 +991,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPALOOKUPS))
                 {
                     gameVar = arrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPAL], gameVar);
-                    return -1;
+                    returnValue = GVX_BADPAL;
+                    goto badindex;
                 }
 
                 returnValue = VM_GetPalData(arrayIndex, labelNum);
@@ -1012,8 +1012,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPLAYERS))
                 {
                     gameVar = arrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], gameVar);
-                    return -1;
+                    returnValue = GVX_BADPLAYER;
+                    goto badindex;
                 }
 
                 returnValue = VM_GetPlayer(arrayIndex, labelNum, arrayIndexVar);
@@ -1029,8 +1029,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPLAYERS))
                 {
                     gameVar = arrayIndex;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADPLAYER], gameVar);
-                    return -1;
+                    returnValue = GVX_BADPLAYER;
+                    goto badindex;
                 }
 
                 returnValue = VM_GetPlayerInput(arrayIndex, labelNum);
@@ -1050,8 +1050,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 {
                     gameVar = arrayIndex;
                     insptr++;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADSECTOR], gameVar);
-                    return -1;
+                    returnValue = GVX_BADSECTOR;
+                    goto badindex;
                 }
                 returnValue = VM_GetSector(arrayIndex, *insptr++);
                 break;
@@ -1061,8 +1061,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 {
                     gameVar = arrayIndex;
                     insptr++;
-                    CON_ERRPRINTF("%s %d\n", gvxerrs[GVX_BADWALL], gameVar);
-                    return -1;
+                    returnValue = GVX_BADWALL;
+                    goto badindex;
                 }
                 returnValue = VM_GetWall(arrayIndex, *insptr++);
                 break;
@@ -1076,6 +1076,10 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
     }
 
     return returnValue;
+
+badindex:
+    CON_ERRPRINTF("%s %d\n", gvxerrs[returnValue], gameVar);
+    return -1;
 }
 
 int __fastcall Gv_GetVarX(int gameVar)
@@ -1293,10 +1297,10 @@ void Gv_ResetSystemDefaults(void)
     g_zRangeVarID    = Gv_GetVarIndex("ZRANGE");
     g_angRangeVarID  = Gv_GetVarIndex("ANGRANGE");
     g_aimAngleVarID  = Gv_GetVarIndex("AUTOAIMANGLE");
-    g_lotagVarID        = Gv_GetVarIndex("LOTAG");
-    g_hitagVarID        = Gv_GetVarIndex("HITAG");
-    g_textureVarID      = Gv_GetVarIndex("TEXTURE");
-    g_thisActorVarID    = Gv_GetVarIndex("THISACTOR");
+    g_lotagVarID     = Gv_GetVarIndex("LOTAG");
+    g_hitagVarID     = Gv_GetVarIndex("HITAG");
+    g_textureVarID   = Gv_GetVarIndex("TEXTURE");
+    g_thisActorVarID = Gv_GetVarIndex("THISACTOR");
     g_structVarIDs   = Gv_GetVarIndex("sprite");
 #endif
 
