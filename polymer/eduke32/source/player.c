@@ -5303,7 +5303,7 @@ HORIZONLY:;
         if (VM_OnEvent(EVENT_LOOKUP,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            pPlayer->horiz += 12<<(TEST_SYNC_KEY(playerBits, SK_RUN));
+            pPlayer->horiz += 12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN));
             centerHoriz++;
         }
     }
@@ -5313,7 +5313,7 @@ HORIZONLY:;
         if (VM_OnEvent(EVENT_LOOKDOWN,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            pPlayer->horiz -= 12<<(TEST_SYNC_KEY(playerBits, SK_RUN));
+            pPlayer->horiz -= 12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN));
             centerHoriz++;
         }
     }
@@ -5322,7 +5322,7 @@ HORIZONLY:;
     {
         if (VM_OnEvent(EVENT_AIMUP,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->horiz += 6<<(TEST_SYNC_KEY(playerBits, SK_RUN));
+            pPlayer->horiz += 6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN));
             centerHoriz++;
         }
     }
@@ -5331,7 +5331,7 @@ HORIZONLY:;
     {
         if (VM_OnEvent(EVENT_AIMDOWN,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->horiz -= 6<<(TEST_SYNC_KEY(playerBits, SK_RUN));
+            pPlayer->horiz -= 6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN));
             centerHoriz++;
         }
     }
