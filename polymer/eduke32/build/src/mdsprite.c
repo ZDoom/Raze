@@ -2202,9 +2202,9 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     if (have_basepal_tint())
         hictinting_apply(pc, MAXPALOOKUPS-1);
 
-    if (tspr->cstat&2) { if (!(tspr->cstat&512)) pc[3] = 0.66f; else pc[3] = 0.33f; }
-    else pc[3] = 1.0f;
+    pc[3] = (tspr->cstat&2) ? !(tspr->cstat&512) ? (2.f/3.f) : (1.f/3.f) : 1.0f;
     pc[3] *= 1.0f - sext->alpha;
+
     if (m->usesalpha) //Sprites with alpha in texture
     {
         //      bglEnable(GL_BLEND);// bglBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -2220,7 +2220,8 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     }
     else
     {
-        if ((tspr->cstat&2) || sext->alpha > 0.f || pc[3] < 1.0f) bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
+        if ((tspr->cstat&2) || sext->alpha > 0.f || pc[3] < 1.0f)
+            bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
     }
     bglColor4f(pc[0],pc[1],pc[2],pc[3]);
     //if (MFLAGS_NOCONV(m))

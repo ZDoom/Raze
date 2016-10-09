@@ -4724,15 +4724,15 @@ static void setup_globals_sprite1(const uspritetype *tspr, const usectortype *se
 
 static uint8_t falpha_to_blend(float alpha, int32_t *cstatptr, int32_t transbit1, int32_t transbit2)
 {
-    int32_t blendidx, cstat = *cstatptr;
+    int32_t cstat = *cstatptr;
 
     if (cstat&transbit1)
-        alpha = 1.0f - (1.0f - alpha) * ((cstat&transbit2) ? 0.33f : 0.66f);
+        alpha = 1.0f - (1.0f - alpha) * ((cstat&transbit2) ? (1.f/3.f) : (2.f/3.f));
 
     cstat |= transbit1;
     cstat &= ~transbit2;
 
-    blendidx = max(1, (int32_t)(alpha * (2*numalphatabs)));  // [1 .. 2*numalphatabs-1]
+    int32_t blendidx = max(1, Blrintf(alpha * (2*numalphatabs)));  // [1 .. 2*numalphatabs-1]
     if (blendidx > numalphatabs)
     {
         blendidx = 2*numalphatabs - blendidx;
@@ -4784,20 +4784,21 @@ static void drawsprite_classic(int32_t snum)
         if (numalphatabs != 0)
         {
             blendidx = falpha_to_blend(alpha, &cstat, 2, 512);
-            tspr->cstat = cstat;
         }
-        else if (alpha >= 0.33f)
+        else if (alpha >= 1.f/3.f)
         {
+            cstat &= ~512;
+
             if ((cstat&2) && alpha >= 0.5f) // this covers the multiplicative aspect used in the Polymodes
                 cstat |= 512;
 
             cstat |= 2;
 
-            if (alpha >= 0.66f)
+            if (alpha >= 2.f/3.f)
                 cstat |= 512;
-
-            tspr->cstat = cstat;
         }
+
+        tspr->cstat = cstat;
     }
 
     tilenum = tspr->picnum;
@@ -6634,6 +6635,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         }
         else if (daalpha > 84)
         {
+            dastat &= ~RS_TRANS2;
+
             if ((dastat & RS_TRANS1) && daalpha > 127) // this covers the multiplicative aspect used in the Polymodes
                 dastat |= RS_TRANS2;
 

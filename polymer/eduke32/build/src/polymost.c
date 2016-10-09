@@ -125,7 +125,7 @@ int32_t r_downsizevar = -1;
 static float fogresult, fogresult2;
 coltypef fogcol, fogtable[MAXPALOOKUPS];
 
-static const float float_trans[4] = { 1.0f, 1.0f, 0.66f, 0.33f };
+static const float float_trans[4] = { 1.0f, 1.0f, 2.f/3.f, 1.f/3.f };
 
 char ptempbuf[MAXWALLSB<<1];
 
