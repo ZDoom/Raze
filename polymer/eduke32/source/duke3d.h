@@ -47,7 +47,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define HEAD2               APPNAME
 
 #define VOLUMEALL           (g_Shareware == 0)
-#define PLUTOPAK            (g_scriptVersion == 14)
+#define PLUTOPAK            (g_scriptVersion >= 14)
 #define VOLUMEONE           (g_Shareware == 1)
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2

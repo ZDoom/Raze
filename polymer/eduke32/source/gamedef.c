@@ -2301,7 +2301,7 @@ void G_DoGameStartup(const int32_t *params)
     if (g_scriptVersion >= 11)
         g_playerFriction = params[j++];
 
-    if (g_scriptVersion == 14)
+    if (g_scriptVersion >= 14)
         g_spriteGravity = params[j++];
 
     if (g_scriptVersion >= 11)
@@ -2328,14 +2328,14 @@ void G_DoGameStartup(const int32_t *params)
     {
         g_player[0].ps->max_ammo_amount[FREEZE_WEAPON] = params[j++];
 
-        if (g_scriptVersion == 14)
+        if (g_scriptVersion >= 14)
             g_player[0].ps->max_ammo_amount[GROW_WEAPON] = params[j++];
 
         g_damageCameras     = params[j++];
         g_numFreezeBounces  = params[j++];
         g_freezerSelfDamage = params[j++];
 
-        if (g_scriptVersion == 14)
+        if (g_scriptVersion >= 14)
         {
             g_deleteQueueSize   = clamp(params[j++], 0, 1024);
             g_tripbombLaserMode = params[j++];
