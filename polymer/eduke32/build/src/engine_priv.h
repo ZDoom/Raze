@@ -441,8 +441,8 @@ FORCE_INLINE void setgotpic(int32_t tilenume)
 #endif
 
 // Get properties of parallaxed sky to draw.
-// Returns: pointer to tile offset array. Sets-by-pointer the other two.
-static inline const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t *dapskybits)
+// Returns: pointer to tile offset array. Sets-by-pointer the other three.
+FORCE_INLINE const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t *dapskybits, int32_t *dapyoffs)
 {
     psky_t const * const psky = &multipsky[getpskyidx(picnum)];
 
@@ -450,6 +450,8 @@ static inline const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t 
         *dapskybits = (pskybits_override == -1 ? psky->lognumtiles : pskybits_override);
     if (dapyscale)
         *dapyscale = (parallaxyscale_override == 0 ? psky->horizfrac : parallaxyscale_override);
+    if (dapyoffs)
+        *dapyoffs = psky->yoffs + parallaxyoffs_override;
 
     return psky->tileofs;
 }

@@ -3577,9 +3577,6 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     int32_t j, k, l, m, n, x, z, wallnum, nextsectnum, globalhorizbak;
     int16_t *topptr, *botptr;
 
-    int32_t dapyscale, dapskybits;
-    const int8_t *dapskyoff;
-
     int32_t logtilesizy, tsizy;
 
     UNREFERENCED_PARAMETER(dax1);
@@ -3623,7 +3620,9 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
     if (tsizy==0)
         return;
 
-    dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits);
+
+    int32_t dapyscale, dapskybits, dapyoffs;
+    int8_t const * const dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs);
 
     globalshiftval = logtilesizy;
 
@@ -3637,14 +3636,14 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
         globaltilesizy = tsizy;
         globalyscale = 65536 / tsizy;
         globalshiftval = 0;
-        globalzd = divscale32(((tsizy>>1)+parallaxyoffs_override/*+g_psky.yoffs*/), tsizy) + ((uint32_t)globalypanning<<24);
+        globalzd = divscale32(((tsizy>>1)+dapyoffs), tsizy) + ((uint32_t)globalypanning<<24);
     }
     else
 #endif
     {
         globalshiftval = 32-globalshiftval;
         globalyscale = (8<<(globalshiftval-19));
-        globalzd = (((tsizy>>1)+parallaxyoffs_override/*+g_psky.yoffs*/)<<globalshiftval) + ((uint32_t)globalypanning<<24);
+        globalzd = (((tsizy>>1)+dapyoffs)<<globalshiftval) + ((uint32_t)globalypanning<<24);
     }
 
     //if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
