@@ -4725,7 +4725,7 @@ static size_t falpha_to_blend(float alpha, int32_t *cstatptr, uint8_t *blendptr,
 {
     int32_t cstat = *cstatptr | transbit1;
 
-    int32_t const twonumalphatabs = 2*numalphatabs;
+    int32_t const twonumalphatabs = 2*numalphatabs + (numalphatabs&1);
     int32_t blendidx = Blrintf(alpha * twonumalphatabs);
     if (blendidx > numalphatabs)
     {

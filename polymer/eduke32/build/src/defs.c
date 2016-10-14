@@ -3504,11 +3504,12 @@ static int32_t defsparser(scriptfile *script)
 
             switch (value)
             {
-                case 0: /*case 1:*/ case 2: case 4: case 8: case 16: case 32: case 64: case 128:
+                case 1: case 3: case 7: case 15: case 31: case 63: case 127:
+                case 2: case 4: case 8: case 16: case 32: case 64: case 128:
 #ifdef USE_OPENGL
-                    for (int32_t a = 1, value2 = value*2; a <= value; ++a)
+                    for (int32_t a = 1, value2 = value*2 + (value&1); a <= value; ++a)
                     {
-                        float finv2value = 0.5f/(float)value;
+                        float finv2value = 1.f/(float)value2;
 
                         glblend_t * const glb = glblend + a;
                         *glb = defaultglblend;
@@ -3516,6 +3517,7 @@ static int32_t defsparser(scriptfile *script)
                         glb->def[1].alpha = (float)a * finv2value;
                     }
 #endif
+                case 0:
                     numalphatabs = value;
                     break;
                 default:
