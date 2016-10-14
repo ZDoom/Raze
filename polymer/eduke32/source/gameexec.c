@@ -3981,7 +3981,6 @@ finish_qsprintf:
                     }
                 }
                 Bsprintf(tempbuf,"CONLOGVAR: L=%d %s ",g_errorLineNum, aGameVars[lVarID].szLabel);
-                Bstrcpy(tempbuf,szBuf);
 
                 if (aGameVars[lVarID].flags & GAMEVAR_READONLY)
                 {
