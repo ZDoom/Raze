@@ -6013,16 +6013,16 @@ repeatcase:
 
         case CON_GAMESTARTUP:
             {
-                int32_t params[30];
+                int32_t params[31];
 
                 g_scriptPtr--;
-                for (j = 0; j < 30; j++)
+                for (j = 0; j < 31; j++)
                 {
                     C_GetNextValue(LABEL_DEFINE);
                     g_scriptPtr--;
                     params[j] = *g_scriptPtr;
 
-                    if (j != 12 && j != 21 && j != 25) continue;
+                    if (j != 12 && j != 21 && j != 25 && j != 29) continue;
 
                     if (C_GetKeyword() != -1)
                     {
@@ -6032,10 +6032,12 @@ repeatcase:
                             g_scriptVersion = 11;
                         else if (j == 25)
                             g_scriptVersion = 13;
+                        else if (j == 29)
+                            g_scriptVersion = 14;
                         break;
                     }
                     else
-                        g_scriptVersion = 14;
+                        g_scriptVersion = 16;
                 }
 
                 /*
