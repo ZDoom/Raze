@@ -83,17 +83,26 @@ static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
             const size_t field = value - entry;
             value += 1;
 
-            for (uint8_t loopTagCount = 0; loopTagCount < loopStartTagCount && vc_loopstart == NULL; ++loopTagCount)
-                if (strncasecmp(entry, loopStartTags[loopTagCount], field) == 0)
+            for (size_t t = 0; t < loopStartTagCount && vc_loopstart == NULL; ++t)
+            {
+                char const * const tag = loopStartTags[t];
+                if (field == strlen(tag) && strncasecmp(entry, tag, field) == 0)
                     vc_loopstart = value;
+            }
 
-            for (uint8_t loopTagCount = 0; loopTagCount < loopEndTagCount && vc_loopend == NULL; ++loopTagCount)
-                if (strncasecmp(entry, loopEndTags[loopTagCount], field) == 0)
+            for (size_t t = 0; t < loopEndTagCount && vc_loopend == NULL; ++t)
+            {
+                char const * const tag = loopEndTags[t];
+                if (field == strlen(tag) && strncasecmp(entry, tag, field) == 0)
                     vc_loopend = value;
+            }
 
-            for (uint8_t loopTagCount = 0; loopTagCount < loopLengthTagCount && vc_looplength == NULL; ++loopTagCount)
-                if (strncasecmp(entry, loopLengthTags[loopTagCount], field) == 0)
+            for (size_t t = 0; t < loopLengthTagCount && vc_looplength == NULL; ++t)
+            {
+                char const * const tag = loopLengthTags[t];
+                if (field == strlen(tag) && strncasecmp(entry, tag, field) == 0)
                     vc_looplength = value;
+            }
         }
     }
 

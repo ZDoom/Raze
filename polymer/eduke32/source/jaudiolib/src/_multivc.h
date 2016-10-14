@@ -194,7 +194,7 @@ extern const int16_t *MV_RightVolume;
 extern int32_t MV_SampleSize;
 extern int32_t MV_RightChannelOffset;
 
-#define loopStartTagCount 2
+#define loopStartTagCount 3
 extern const char *loopStartTags[loopStartTagCount];
 #define loopEndTagCount 2
 extern const char *loopEndTags[loopEndTagCount];

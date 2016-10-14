@@ -1014,6 +1014,6 @@ int32_t MV_Shutdown(void)
 
 void MV_SetPrintf(void (*function)(const char *, ...)) { MV_Printf = function; }
 
-const char *loopStartTags[loopStartTagCount] = { "LOOP_START", "LOOPSTART" };
+const char *loopStartTags[loopStartTagCount] = { "LOOP_START", "LOOPSTART", "LOOP" };
 const char *loopEndTags[loopEndTagCount] = { "LOOP_END", "LOOPEND" };
 const char *loopLengthTags[loopLengthTagCount] = { "LOOP_LENGTH", "LOOPLENGTH" };

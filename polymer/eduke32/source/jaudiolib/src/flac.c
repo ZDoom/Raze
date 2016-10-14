@@ -553,7 +553,6 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t lo
                     if (tags->type == FLAC__METADATA_TYPE_VORBIS_COMMENT)
                     {
                         FLAC__uint32 comment;
-                        uint8_t loopTagCount;
                         for (comment = 0; comment < tags->data.vorbis_comment.num_comments; ++comment)
                         {
                             const char *entry = (const char *)tags->data.vorbis_comment.comments[comment].entry;
@@ -563,20 +562,26 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t lo
                                 const size_t field = value - entry;
                                 value += 1;
 
-                                for (loopTagCount = 0; loopTagCount < loopStartTagCount && vc_loopstart == NULL;
-                                     ++loopTagCount)
-                                    if (strncasecmp(entry, loopStartTags[loopTagCount], field) == 0)
+                                for (size_t t = 0; t < loopStartTagCount && vc_loopstart == NULL; ++t)
+                                {
+                                    char const * const tag = loopStartTags[t];
+                                    if (field == strlen(tag) && strncasecmp(entry, tag, field) == 0)
                                         vc_loopstart = strdup(value);
+                                }
 
-                                for (loopTagCount = 0; loopTagCount < loopEndTagCount && vc_loopend == NULL;
-                                     ++loopTagCount)
-                                    if (strncasecmp(entry, loopEndTags[loopTagCount], field) == 0)
+                                for (size_t t = 0; t < loopEndTagCount && vc_loopend == NULL; ++t)
+                                {
+                                    char const * const tag = loopEndTags[t];
+                                    if (field == strlen(tag) && strncasecmp(entry, tag, field) == 0)
                                         vc_loopend = strdup(value);
+                                }
 
-                                for (loopTagCount = 0; loopTagCount < loopLengthTagCount && vc_looplength == NULL;
-                                     ++loopTagCount)
-                                    if (strncasecmp(entry, loopLengthTags[loopTagCount], field) == 0)
+                                for (size_t t = 0; t < loopLengthTagCount && vc_looplength == NULL; ++t)
+                                {
+                                    char const * const tag = loopLengthTags[t];
+                                    if (field == strlen(tag) && strncasecmp(entry, tag, field) == 0)
                                         vc_looplength = strdup(value);
+                                }
                             }
                         }
                     }
