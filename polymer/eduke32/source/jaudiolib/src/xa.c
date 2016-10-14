@@ -419,7 +419,7 @@ int32_t MV_PlayXA3D
    right = MV_PanTable[ angle ][ volume ].right;
    mid   = max( 0, 255 - distance );
 
-   status = MV_PlayXA(ptr, ptrlength, pitchoffset, loophow, -1, mid, left, right, priority, callbackval);
+   status = MV_PlayXA(ptr, ptrlength, loophow, -1, pitchoffset, mid, left, right, priority, callbackval);
 
    return status;
 }
