@@ -4721,25 +4721,30 @@ static void setup_globals_sprite1(const uspritetype *tspr, const usectortype *se
 // drawsprite (internal)
 //
 
-
-static uint8_t falpha_to_blend(float alpha, int32_t *cstatptr, int32_t transbit1, int32_t transbit2)
+static size_t falpha_to_blend(float alpha, int32_t *cstatptr, uint8_t *blendptr, int32_t transbit1, int32_t transbit2)
 {
     int32_t cstat = *cstatptr | transbit1;
 
-    int32_t blendidx = max(1, Blrintf(alpha * (2*numalphatabs)));  // [1 .. 2*numalphatabs-1]
+    int32_t const twonumalphatabs = 2*numalphatabs;
+    int32_t blendidx = Blrintf(alpha * twonumalphatabs);
     if (blendidx > numalphatabs)
     {
-        blendidx = 2*numalphatabs - blendidx;
+        blendidx = twonumalphatabs - blendidx;
         cstat |= transbit2;
     }
     else
     {
         cstat &= ~transbit2;
     }
+
+    if (blendidx < 1)
+        return cstat&transbit2;
+
     // blendidx now in [1 .. numalphatabs]
 
     *cstatptr = cstat;
-    return blendidx;
+    *blendptr = blendidx;
+    return 0;
 }
 
 FORCE_INLINE int32_t mulscale_triple30(int32_t a, int32_t b, int32_t c)
@@ -4781,7 +4786,8 @@ static void drawsprite_classic(int32_t snum)
 
         if (numalphatabs != 0)
         {
-            blendidx = falpha_to_blend(alpha, &cstat, 2, 512);
+            if (falpha_to_blend(alpha, &cstat, &blendidx, 2, 512))
+                return;
         }
         else if (alpha >= 1.f/3.f)
         {
@@ -6626,7 +6632,8 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
         if (numalphatabs != 0)
         {
-            dablend = falpha_to_blend((float)daalpha / 255.0f, &dastat, RS_TRANS1, RS_TRANS2);
+            if (falpha_to_blend((float)daalpha / 255.0f, &dastat, &dablend, RS_TRANS1, RS_TRANS2))
+                return;
         }
         else if (daalpha > 84)
         {
