@@ -576,6 +576,7 @@ const char *keyw[] =
     "for",                      // 396
     "nextsectorneighborz",      // 397
     "clamp",                    // 398
+    "ifplaybackon",             // 399
     "<null>"
 };
 #endif
@@ -5156,6 +5157,7 @@ repeatcase:
         case CON_IFAWAYFROMWALL:
         case CON_IFCANSEETARGET:
         case CON_IFNOSOUNDS:
+        case CON_IFPLAYBACKON:
             {
                 intptr_t offset;
                 intptr_t lastScriptPtr = (g_scriptPtr-&apScript[0]-1);

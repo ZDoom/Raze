@@ -3719,6 +3719,10 @@ nullquote:
             VM_CONDITIONAL(g_netServer != NULL);
             continue;
 
+        case CON_IFPLAYBACKON:
+            VM_CONDITIONAL(0);
+            continue;
+
         case CON_OPERATE:
             insptr++;
             if (sector[vm.pSprite->sectnum].lotag == 0)
