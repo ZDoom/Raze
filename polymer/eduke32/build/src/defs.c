@@ -2655,7 +2655,7 @@ static int32_t defsparser(scriptfile *script)
             static const tokenlist subtokens[] =
             {
                 { "horizfrac",       T_HORIZFRAC },
-                // XXX: yoffs?
+                { "yoffset",         T_YOFFSET },
                 { "lognumtiles",     T_LOGNUMTILES },
                 { "tile",            T_TILE },
                 { "panel",           T_TILE },
@@ -2685,6 +2685,14 @@ static int32_t defsparser(scriptfile *script)
                     scriptfile_getsymbol(script,&horizfrac);
 
                     newpsky->horizfrac = horizfrac;
+                    break;
+                }
+                case T_YOFFSET:
+                {
+                    int32_t yoffset;
+                    scriptfile_getsymbol(script,&yoffset);
+
+                    newpsky->yoffs = yoffset;
                     break;
                 }
                 case T_LOGNUMTILES:
