@@ -33,7 +33,7 @@ int32_t hud_glowingquotes = 1;
 
 // alpha increments of 8 --> 256 / 8 = 32 --> round up to power of 2 --> 32 --> divide by 2 --> 16 alphatabs required
 #define ftapulseshade                                                                                                  \
-    ((hud_glowingquotes && ((getrendermode() == REND_CLASSIC && numalphatabs < 16) || ps->fta >= FTAOPAQUETIME)) ?     \
+    ((hud_glowingquotes && ((getrendermode() == REND_CLASSIC && numalphatabs < 15) || ps->fta >= FTAOPAQUETIME)) ?     \
      (sintable[((uint32_t)ps->fta << 7) & 2047] >> 11) :                                                               \
      (sintable[((uint32_t)FTAOPAQUETIME << 7) & 2047] >> 11))
 
@@ -1033,7 +1033,7 @@ static inline int32_t texto(int32_t t)
 
 static inline int32_t texta(int32_t t)
 {
-    if (getrendermode() == REND_CLASSIC && numalphatabs < 16)
+    if (getrendermode() == REND_CLASSIC && numalphatabs < 15)
     {
         if (t > 4) return 0;
         if (t > 2) return 85;
