@@ -276,10 +276,18 @@ void wm_setapptitle(const char *name)
     if (appicon && sdl_surface)
         SDL_WM_SetIcon(appicon, 0);
 #else
-    SDL_SetWindowTitle(sdl_window, apptitle);
+    if (sdl_window)
+    {
+        SDL_SetWindowTitle(sdl_window, apptitle);
 
-    if (appicon)
-        SDL_SetWindowIcon(sdl_window, appicon);
+        if (appicon)
+        {
+#if defined _WIN32
+        if (!EDUKE32_SDL_LINKED_PREREQ(linked, 2, 0, 5))
+#endif
+            SDL_SetWindowIcon(sdl_window, appicon);
+        }
+    }
 #endif
 
     startwin_settitle(apptitle);
