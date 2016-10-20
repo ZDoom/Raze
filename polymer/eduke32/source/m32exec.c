@@ -973,6 +973,15 @@ skip_check:
                 Gv_SetVarX(var1, divscale(var2, var3, var4));
                 continue;
             }
+        case CON_SCALEVAR:
+            insptr++;
+            {
+                int32_t var1 = *insptr++, var2 = Gv_GetVarX(*insptr++);
+                int32_t var3 = Gv_GetVarX(*insptr++), var4 = Gv_GetVarX(*insptr++);
+
+                Gv_SetVarX(var1, scale(var2, var3, var4));
+                continue;
+            }
 
 // *** if & while
         case CON_IFVARVARAND:

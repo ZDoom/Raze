@@ -2567,6 +2567,28 @@ nullquote:
                 continue;
             }
 
+        case CON_DIVSCALE:
+            insptr++;
+            {
+                int const out = *insptr++;
+                vec3_t in;
+
+                Gv_GetManyVars(3, (int32_t *)&in);
+                Gv_SetVarX(out, divscale(in.x, in.y, in.z));
+                continue;
+            }
+
+        case CON_SCALEVAR:
+            insptr++;
+            {
+                int const out = *insptr++;
+                vec3_t in;
+
+                Gv_GetManyVars(3, (int32_t *)&in);
+                Gv_SetVarX(out, scale(in.x, in.y, in.z));
+                continue;
+            }
+
         case CON_INITTIMER:
             insptr++;
             G_InitTimer(Gv_GetVarX(*insptr++));

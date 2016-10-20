@@ -244,6 +244,7 @@ const char *keyw[] =
     "sqrt",
     "mulscale",
     "divscale",
+    "scalevar",
     "dist",
     "ldist",
     "calchypotenuse",
@@ -2820,6 +2821,7 @@ repeatcase:
 
     case CON_MULSCALE:
     case CON_DIVSCALE:
+    case CON_SCALEVAR:
         C_GetNextVarType(GV_WRITABLE);
         C_GetManyVars(3);
         return 0;

@@ -577,6 +577,8 @@ const char *keyw[] =
     "nextsectorneighborz",      // 397
     "clamp",                    // 398
     "ifplaybackon",             // 399
+    "divscale",                 // 400
+    "scalevar",                 // 401
     "<null>"
 };
 #endif
@@ -4315,6 +4317,8 @@ DO_DEFSTATE:
         case CON_GETINCANGLE:
         case CON_GETANGLE:
         case CON_MULSCALE:
+        case CON_DIVSCALE:
+        case CON_SCALEVAR:
         case CON_SETASPECT:
             // get the ID of the DEF
             switch (tw)
@@ -4324,6 +4328,8 @@ DO_DEFSTATE:
             case CON_GETANGLE:
             case CON_GETINCANGLE:
             case CON_MULSCALE:
+            case CON_DIVSCALE:
+            case CON_SCALEVAR:
                 C_GetNextVarType(GAMEVAR_READONLY);
                 break;
             default:
@@ -4345,6 +4351,8 @@ DO_DEFSTATE:
                 C_GetNextVar();
                 break;
             case CON_MULSCALE:
+            case CON_DIVSCALE:
+            case CON_SCALEVAR:
                 C_GetManyVars(2);
                 break;
             }

@@ -372,6 +372,7 @@ enum ScriptKeywords_t
     CON_SQRT,
     CON_MULSCALE,
     CON_DIVSCALE,
+    CON_SCALEVAR,
     CON_DIST,
     CON_LDIST,
     CON_CALCHYPOTENUSE,
