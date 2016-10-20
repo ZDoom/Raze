@@ -49,6 +49,8 @@
 # define SDL_DISABLE_8BIT_BUFFER
 #endif
 
+static SDL_version linked;
+
 #if !defined STARTUP_SETUP_WINDOW
 int32_t startwin_open(void) { return 0; }
 int32_t startwin_close(void) { return 0; }
@@ -508,7 +510,6 @@ int32_t sdlayer_checkversion(void);
 int32_t sdlayer_checkversion(void)
 {
     SDL_version compiled;
-    SDL_version linked;
 
     SDL_GetVersion(&linked);
     SDL_VERSION(&compiled);

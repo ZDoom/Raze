@@ -9,6 +9,8 @@
 #include "compat.h"
 #include "baselayer.h"
 
+#define EDUKE32_SDL_LINKED_PREREQ(x, a, b, c) ((x).major > (a) || ((x).major == (a) && ((x).minor > (b) || ((x).minor == (b) && (x).patch >= (c)))))
+
 extern int32_t maxrefreshfreq;
 
 #ifdef _WIN32
