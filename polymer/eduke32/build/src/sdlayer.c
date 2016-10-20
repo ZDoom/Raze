@@ -409,6 +409,11 @@ int32_t main(int32_t argc, char *argv[])
     }
 #endif
 
+#if defined _WIN32 && defined SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING
+    // Thread naming interferes with debugging using MinGW-w64's GDB.
+    SDL_SetHint(SDL_HINT_WINDOWS_DISABLE_THREAD_NAMING, "1");
+#endif
+
     int32_t r;
 
 #ifdef USE_OPENGL
