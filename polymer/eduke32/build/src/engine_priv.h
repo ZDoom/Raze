@@ -61,31 +61,6 @@ extern uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[409
         }
     }
 
-    static inline int32_t msqrtasm(int32_t c)
-    {
-        _asm
-        {
-            push ebx
-            mov ecx, c
-            mov eax, 0x40000000
-            mov ebx, 0x20000000
-            begit:
-            cmp ecx, eax
-                jl skip
-                sub ecx, eax
-                lea eax, [eax+ebx*4]
-                skip :
-                sub eax, ebx
-                shr eax, 1
-                shr ebx, 2
-                jnz begit
-                cmp ecx, eax
-                sbb eax, -1
-                shr eax, 1
-                pop ebx
-        }
-    }
-
     static inline int32_t getclipmask(int32_t a, int32_t b, int32_t c, int32_t d)
     {
         _asm
@@ -154,28 +129,6 @@ extern uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[409
         : "=a" (__r) : "a" (__a) : "ebx", "ecx", "cc"); \
      __r; })
 
-    // edx is blown by this code somehow?!
-#define msqrtasm(c) \
-    ({ int32_t __r, __c=(c); \
-       __asm__ __volatile__ ( \
-        "movl $0x40000000, %%eax\n\t" \
-        "movl $0x20000000, %%ebx\n\t" \
-        "0:\n\t" \
-        "cmpl %%eax, %%ecx\n\t" \
-        "jl 1f\n\t" \
-        "subl %%eax, %%ecx\n\t" \
-        "leal (%%eax,%%ebx,4), %%eax\n\t" \
-        "1:\n\t" \
-        "subl %%ebx, %%eax\n\t" \
-        "shrl $1, %%eax\n\t" \
-        "shrl $2, %%ebx\n\t" \
-        "jnz 0b\n\t" \
-        "cmpl %%eax, %%ecx\n\t" \
-        "sbbl $-1, %%eax\n\t" \
-        "shrl $1, %%eax" \
-        : "=a" (__r) : "c" (__c) : "edx","ebx", "cc"); \
-     __r; })
-
 #define getclipmask(a,b,c,d) \
     ({ int32_t __a=(a), __b=(b), __c=(c), __d=(d); \
        __asm__ __volatile__ ("sarl $31, %%eax; addl %%ebx, %%ebx; adcl %%eax, %%eax; " \
@@ -226,29 +179,6 @@ extern uint16_t ATTRIBUTE((used)) sqrtable[4096], ATTRIBUTE((used)) shlookup[409
         a = (a&0xffff0000)|(sqrtable[a]);	// mov ax, word ptr sqrtable[eax*2]
         a >>= ((c&0xff00) >> 8);		// mov cl, ch
                                         // shr eax, cl
-        return a;
-    }
-
-    static inline int32_t msqrtasm(uint32_t c)
-    {
-        uint32_t a, b;
-
-        a = 0x40000000l;		// mov eax, 0x40000000
-        b = 0x20000000l;		// mov ebx, 0x20000000
-        do  				// begit:
-        {
-            if (c >= a)  		// cmp ecx, eax	 /  jl skip
-            {
-                c -= a;		// sub ecx, eax
-                a += b*4;	// lea eax, [eax+ebx*4]
-            }			// skip:
-            a -= b;			// sub eax, ebx
-            a >>= 1;		// shr eax, 1
-            b >>= 2;		// shr ebx, 2
-        } while (b);			// jnz begit
-        if (c >= a)			// cmp ecx, eax
-            a++;			// sbb eax, -1
-        a >>= 1;			// shr eax, 1
         return a;
     }
 

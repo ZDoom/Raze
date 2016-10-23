@@ -7013,6 +7013,27 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         }*/
 }
 
+static uint32_t msqrtasm(uint32_t c)
+{
+    uint32_t a = 0x40000000l, b = 0x20000000l;
+
+    do
+    {
+        if (c >= a)
+        {
+            c -= a;
+            a += b*4;
+        }
+        a -= b;
+        a >>= 1;
+        b >>= 2;
+    } while (b);
+
+    if (c >= a)
+        a++;
+
+    return a >> 1;
+}
 
 //
 // initksqrt (internal)
