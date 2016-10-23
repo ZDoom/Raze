@@ -194,7 +194,7 @@ int32_t scriptfile_getlinum(const scriptfile *sf, const char *ptr)
 
     for (stp=1; stp+stp<sf->linenum; stp+=stp) { } //stp = highest power of 2 less than sf->linenum
     for (i=0; stp; stp>>=1)
-        if ((i+stp < sf->linenum) && (sf->lineoffs[i+stp] < ind)) i += stp;
+        if ((i+stp-1 < sf->linenum) && (sf->lineoffs[i+stp-1] < ind)) i += stp;
     return i+1; //i = index to highest lineoffs which is less than ind; convert to 1-based line numbers
 }
 
