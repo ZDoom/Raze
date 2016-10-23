@@ -2057,7 +2057,7 @@ static int32_t C_GetNextValue(int32_t type)
 
     BITPTR_CLEAR(g_scriptPtr-apScript);
 
-    if (tolower(textptr[1])=='x')
+    if (textptr[0] == '0' && tolower(textptr[1])=='x')
         *g_scriptPtr = parse_hex_constant(textptr+2);
     else
         *g_scriptPtr = parse_decimal_number();
