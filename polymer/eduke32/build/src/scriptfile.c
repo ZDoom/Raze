@@ -351,7 +351,7 @@ int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val)
 {
     if (Bstrlen(name) > 2)
     {
-        if (tolower(name[1]) == 'x')  // hex constants
+        if (name[0] == '0' && tolower(name[1]) == 'x')  // hex constants
         {
             int64_t x;
             sscanf(name + 2, "%" PRIx64 "", &x);
