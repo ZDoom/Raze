@@ -28,6 +28,8 @@ struct glfiltermodes {
 #define NUMGLFILTERMODES 6
 extern struct glfiltermodes glfiltermodes[NUMGLFILTERMODES];
 
+extern void Polymost_prepare_loadboard(void);
+
 //void phex(char v, char *s);
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
 void polymost_drawsprite(int32_t snum);

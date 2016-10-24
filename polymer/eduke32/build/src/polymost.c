@@ -4278,6 +4278,11 @@ typedef struct
 
 wallspriteinfo_t wsprinfo[MAXSPRITES];
 
+void Polymost_prepare_loadboard(void)
+{
+    Bmemset(wsprinfo, 0, sizeof(wsprinfo));
+}
+
 static inline int32_t polymost_findwall(uspritetype const * const tspr, vec2_t const * const tsiz, int32_t * rd)
 {
     int32_t dist = 4, closest = -1;

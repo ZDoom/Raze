@@ -8937,6 +8937,11 @@ static void prepare_loadboard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_
     Bmemset(spritechanged, 0, sizeof(spritechanged));
     Bmemset(wallchanged, 0, sizeof(wallchanged));
 
+#ifdef USE_OPENGL
+    if (getrendermode() == REND_POLYMOST)
+        Polymost_prepare_loadboard();
+#endif
+
     if (!have_maptext())
     {
         kread(fil,&dapos->x,4); dapos->x = B_LITTLE32(dapos->x);
