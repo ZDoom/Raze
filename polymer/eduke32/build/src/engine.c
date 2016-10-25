@@ -9991,6 +9991,33 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
     return 0;
 }
 
+void vox_undefine(int32_t const tile)
+{
+    ssize_t voxindex = tiletovox[tile];
+    if (voxindex < 0)
+        return;
+
+#ifdef USE_OPENGL
+    if (voxmodels[voxindex])
+    {
+        voxfree(voxmodels[voxindex]);
+        voxmodels[voxindex] = NULL;
+    }
+    DO_FREE_AND_NULL(voxfilenames[voxindex]);
+#endif
+
+    for (ssize_t j = 0; j < MAXVOXMIPS; ++j)
+    {
+        // CACHE1D_FREE
+        voxlock[voxindex][j] = 1;
+        voxoff[voxindex][j] = 0;
+    }
+    voxscale[voxindex] = 65536;
+    tiletovox[tile] = -1;
+
+    // TODO: nextvoxid
+}
+
 //
 // inside
 //

@@ -1029,6 +1029,7 @@ void E_LoadTileIntoBuffer(int16_t tilenume, int32_t dasiz, char *buffer);
 void E_RenderArtDataIntoBuffer(palette_t * pic, uint8_t const * buf, int32_t bufsizx, int32_t sizx, int32_t sizy);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
+void vox_undefine(int32_t const);
 intptr_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   makepalookup(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
