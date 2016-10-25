@@ -214,6 +214,15 @@ void E_UndefineTile(int32_t const tile)
     faketile[tile>>3] &= ~pow2char[tile&7];
 
     Bmemset(&picanm[tile], 0, sizeof(picanm_t));
+
+    vox_undefine(tile);
+
+#ifdef USE_OPENGL
+    for (ssize_t i=MAXPALOOKUPS-1; i>=0; --i)
+        hicclearsubst(tile, i);
+
+    md_undefinetile(tile);
+#endif
 }
 
 static void set_picsiz(int32_t picnum)
