@@ -1614,8 +1614,8 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             /* HACK: changing SDL GL attribs only works before surface creation,
                so we have to create a new surface in a different format first
                to force the surface we WANT to be recreated instead of reused. */
-            sdl_window = SDL_CreateWindow("", windowpos ? windowx : SDL_WINDOWPOS_CENTERED,
-                                          windowpos ? windowy : SDL_WINDOWPOS_CENTERED, x, y,
+            sdl_window = SDL_CreateWindow("", windowpos ? windowx : (int)SDL_WINDOWPOS_CENTERED,
+                                          windowpos ? windowy : (int)SDL_WINDOWPOS_CENTERED, x, y,
                                           ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0) | SDL_WINDOW_OPENGL);
 
             if (sdl_window)
@@ -1641,8 +1641,8 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #endif  // defined USE_OPENGL
     {
         // init
-        sdl_window = SDL_CreateWindow("", windowpos ? windowx : SDL_WINDOWPOS_CENTERED,
-                                      windowpos ? windowy : SDL_WINDOWPOS_CENTERED, x, y,
+        sdl_window = SDL_CreateWindow("", windowpos ? windowx : (int)SDL_WINDOWPOS_CENTERED,
+                                      windowpos ? windowy : (int)SDL_WINDOWPOS_CENTERED, x, y,
                                       ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
         if (!sdl_window)
             SDL2_VIDEO_ERR("SDL_CreateWindow");
