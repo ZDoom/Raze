@@ -324,18 +324,9 @@ ifeq ($(PLATFORM),WINDOWS)
     WINLIB?=/$(BITS)
 else ifeq ($(PLATFORM),WII)
     IMPLICIT_ARCH=ppc
-else ifeq ($(PLATFORM),DARWIN)
-    ifeq (1,$(BUILD32_ON_64))
-        ifeq ($(ARCH),)
-            override ARCH:=-arch i386
-        endif
-    endif
-
+else
     ifneq ($(ARCH),)
         override ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(strip $(ARCH)))))
-        ifneq ($(findstring -arch,$(ARCH)),-arch)
-            override ARCH := -arch $(ARCH)
-        endif
         IMPLICIT_ARCH=$(ARCH)
     else
         IMPLICIT_ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(strip $(shell uname -m)))))
@@ -367,8 +358,17 @@ ifeq ($(PLATFORM),DARWIN)
         W_STRICT_OVERFLOW :=
     endif
 
+    ifneq ($(ARCH),)
+        ifneq ($(findstring -arch,$(ARCH)),-arch)
+            override ARCH := -arch $(ARCH)
+        endif
+    endif
+
     ifeq (1,$(BUILD32_ON_64))
         COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
+        ifeq ($(ARCH),)
+            override ARCH:=-arch i386
+        endif
     else
         ifeq ($(findstring ppc,$(IMPLICIT_ARCH)),ppc)
             COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
