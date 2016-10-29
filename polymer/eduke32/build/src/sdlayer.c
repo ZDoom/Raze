@@ -905,7 +905,7 @@ void uninitmouse(void)
 
 static inline char grabmouse_low(char a)
 {
-#if !defined EDUKE32_TOUCH_DEVICES && (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
+#if !defined EDUKE32_TOUCH_DEVICES
     /* FIXME: Maybe it's better to make sure that grabmouse_low
        is called only when a window is ready?                */
     if (sdl_window)
@@ -925,7 +925,7 @@ void grabmouse(char a)
 {
     if (appactive && moustat)
     {
-#if !defined EDUKE32_TOUCH_DEVICES && (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__)
+#if !defined EDUKE32_TOUCH_DEVICES
         if ((a != mousegrab) && !grabmouse_low(a))
 #endif
             mousegrab = a;
@@ -1980,13 +1980,11 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                 {
                     mousex += ev->motion.xrel;
                     mousey += ev->motion.yrel;
-#if !defined DEBUGGINGAIDS || MY_DEVELOPER_ID == 805120924
 # if SDL_MAJOR_VERSION==1
                     SDL_WarpMouse(xdim>>1, ydim>>1);
 # else
                     SDL_WarpMouseInWindow(sdl_window, xdim>>1, ydim>>1);
 # endif
-#endif
                 }
             }
             break;

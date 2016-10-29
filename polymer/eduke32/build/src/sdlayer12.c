@@ -192,7 +192,7 @@ const char *getjoyname(int32_t what, int32_t num)
 
 static inline char grabmouse_low(char a)
 {
-#if (!defined DEBUGGINGAIDS || defined _WIN32 || defined __APPLE__) && !defined GEKKO
+#if !defined GEKKO
     SDL_ShowCursor(a ? SDL_DISABLE : SDL_ENABLE);
     return (SDL_WM_GrabInput(a ? SDL_GRAB_ON : SDL_GRAB_OFF) != (a ? SDL_GRAB_ON : SDL_GRAB_OFF));
 #else
@@ -565,10 +565,8 @@ int32_t handleevents_pollsdl(void)
                 if (ev.active.state & SDL_APPINPUTFOCUS)
                 {
                     appactive = ev.active.gain;
-#if !defined DEBUGGINGAIDS
                     if (mousegrab && moustat)
                         grabmouse_low(!!appactive);
-#endif
 # ifdef _WIN32
                     if (backgroundidle)
                         SetPriorityClass(GetCurrentProcess(),
