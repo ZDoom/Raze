@@ -466,6 +466,13 @@ static MenuOptionSet_t MEOS_VIDEOSETUP_VSYNC = MAKE_MENUOPTIONSET(MEOSN_VIDEOSET
 static MenuOption_t MEO_VIDEOSETUP_VSYNC = MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_VSYNC, &newvsync);
 static MenuEntry_t ME_VIDEOSETUP_VSYNC = MAKE_MENUENTRY("VSync:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_VSYNC, Option);
 
+static char const *MEOSN_VIDEOSETUP_FRAMELIMIT [] ={ "None", "30 fps", "60 fps", "120 fps", "144 fps", };
+static int32_t MEOSV_VIDEOSETUP_FRAMELIMIT [] ={ 0, 30, 60, 120, 144 };
+static MenuOptionSet_t MEOS_VIDEOSETUP_FRAMELIMIT = MAKE_MENUOPTIONSET(MEOSN_VIDEOSETUP_FRAMELIMIT, MEOSV_VIDEOSETUP_FRAMELIMIT, 0x2);
+static MenuOption_t MEO_VIDEOSETUP_FRAMELIMIT= MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_FRAMELIMIT, &r_maxfps);
+static MenuEntry_t ME_VIDEOSETUP_FRAMELIMIT = MAKE_MENUENTRY("Framerate limit:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_FRAMELIMIT, Option);
+
+
 static MenuEntry_t ME_VIDEOSETUP_APPLY = MAKE_MENUENTRY( "Apply Changes", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_NULL, Link );
 
 
@@ -630,6 +637,7 @@ static MenuEntry_t *MEL_VIDEOSETUP[] = {
 #endif
     &ME_VIDEOSETUP_FULLSCREEN,
     &ME_VIDEOSETUP_VSYNC,
+    &ME_VIDEOSETUP_FRAMELIMIT,
     &ME_Space6,
     &ME_VIDEOSETUP_APPLY,
 };
@@ -2870,6 +2878,10 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
                 return -1;
             }
         }
+    }
+    else if (entry == &ME_VIDEOSETUP_FRAMELIMIT)
+    {
+        g_frameDelay = newOption ? Blrintf(1000.f/(float) newOption) : 0;
     }
 
     switch (g_currentMenu)

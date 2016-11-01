@@ -207,7 +207,7 @@ void CONFIG_SetDefaults(void)
     ud.crosshairscale = 50;
     ud.obituaries = 1;
     ud.democams = 1;
-    ud.detail = 1;
+    ud.detail = 0;
     ud.drawweapon = 1;
     ud.idplayers = 1;
     ud.levelstats = 0;

@@ -119,7 +119,7 @@ int32_t hud_showmapname = 1;
 
 int32_t g_levelTextTime = 0;
 
-int32_t r_maxfps = 0;
+int32_t r_maxfps = 60;
 uint32_t g_frameDelay = 0;
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
@@ -886,7 +886,7 @@ void G_DrawRooms(int playerNum, int smoothRatio)
 #endif
             pPlayer->orotscrnang = pPlayer->rotscrnang;
         }
-        else if (!ud.detail && getrendermode()==REND_CLASSIC)
+        else if (ud.detail && getrendermode()==REND_CLASSIC)
         {
             pixelDoubling = 1;
             g_halveScreenArea = 1;
