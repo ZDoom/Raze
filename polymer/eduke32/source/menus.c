@@ -3870,11 +3870,6 @@ static int32_t Menu_FindOptionBinarySearch(MenuOption_t *object, const int32_t q
     return Menu_FindOptionBinarySearch(object, query, searchstart, searchend);
 }
 
-static int32_t Menu_MouseWithinBounds(vec2_t const * const pos, const int32_t x, const int32_t y, const int32_t width, const int32_t height)
-{
-    return pos->x >= x && pos->x < x + width && pos->y >= y && pos->y < y + height;
-}
-
 static int32_t Menu_MouseOutsideBounds(vec2_t const * const pos, const int32_t x, const int32_t y, const int32_t width, const int32_t height)
 {
     return pos->x < x || pos->x >= x + width || pos->y < y || pos->y >= y + height;
@@ -3900,14 +3895,14 @@ static void Menu_RunScrollbar(Menu_t *cm, MenuMenuFormat_t const * const format,
             const int32_t scrollregiony = scrolly + scrolltilehalfheight;
 
             // region between the y-midline of the arrow at the extremes scrolls proportionally
-            if (Menu_MouseWithinBounds(&m_mousepos, scrollx, scrollregiony, scrollwidth, scrollregionheight))
+            if (!Menu_MouseOutsideBounds(&m_mousepos, scrollx, scrollregiony, scrollwidth, scrollregionheight))
             {
                 *scrollPos = scale(m_mousepos.y - scrollregiony, scrollPosMax, scrollregionheight);
 
                 m_mousecaught = 1;
             }
             // region outside the y-midlines clamps to the extremes
-            else if (Menu_MouseWithinBounds(&m_mousepos, scrollx, scrolly, scrollwidth, scrollheight))
+            else if (!Menu_MouseOutsideBounds(&m_mousepos, scrollx, scrolly, scrollwidth, scrollheight))
             {
                 if (m_mousepos.y > scrolly + scrollheight/2)
                     *scrollPos = scrollPosMax;
@@ -4079,7 +4074,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                 case Spacer:
                     break;
                 case Dummy:
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
                         if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
@@ -4089,7 +4084,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                     }
                     break;
                 case Link:
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
                         if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
@@ -4097,7 +4092,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->yline))
+                        if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->yline))
                         {
                             menu->currentEntry = e;
                             Menu_RunInput_Menu_MovementVerify(menu);
@@ -4134,7 +4129,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                     else
                         optiontextx -= optiontextsize.x;
 
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
                         if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
@@ -4142,7 +4137,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->yline))
+                        if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->yline))
                         {
                             menu->currentEntry = e;
                             Menu_RunInput_Menu_MovementVerify(menu);
@@ -4177,7 +4172,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         columnx[1] -= column0textsize.x;
                     }
 
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
                         if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
@@ -4185,14 +4180,14 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
-                        if (Menu_MouseWithinBounds(&m_mousepos, columnx[1], mousey, column1textsize.x, object->font->yline))
+                        if (!Menu_MouseOutsideBounds(&m_mousepos, columnx[1], mousey, column1textsize.x, object->font->yline))
                         {
                             if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[1], mousey, column1textsize.x, object->font->yline)))
                             {
                                 menu->currentColumn = 1;
                             }
 
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->yline))
+                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->yline))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
@@ -4208,14 +4203,14 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 m_mousecaught = 1;
                             }
                         }
-                        else if (Menu_MouseWithinBounds(&m_mousepos, columnx[0], mousey, column0textsize.x, object->font->yline))
+                        else if (!Menu_MouseOutsideBounds(&m_mousepos, columnx[0], mousey, column0textsize.x, object->font->yline))
                         {
                             if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[0], mousey, column0textsize.x, object->font->yline)))
                             {
                                 menu->currentColumn = 0;
                             }
 
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->yline))
+                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->yline))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
@@ -4288,7 +4283,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
                     }
 
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
                         if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
@@ -4308,14 +4303,14 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 break;
 
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
-                            if (Menu_MouseWithinBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
+                            if (!Menu_MouseOutsideBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
                             {
                                 Menu_RunInput_EntryRangeInt32_MovementArbitrary(entry, object, Blrintf((float)((object->max - object->min) * (m_mousepos.x - slideregionx)) / slideregionwidth + object->min));
 
                                 m_mousecaught = 1;
                             }
                             // region outside the x-midlines clamps to the extremes
-                            else if (Menu_MouseWithinBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
+                            else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
                             {
                                 if (m_mousepos.x > slideregionx + slideregionwidth/2)
                                     Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, object->max);
@@ -4383,7 +4378,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
                     }
 
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
                         if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
@@ -4403,14 +4398,14 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 break;
 
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
-                            if (Menu_MouseWithinBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
+                            if (!Menu_MouseOutsideBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
                             {
                                 Menu_RunInput_EntryRangeFloat_MovementArbitrary(entry, object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
 
                                 m_mousecaught = 1;
                             }
                             // region outside the x-midlines clamps to the extremes
-                            else if (Menu_MouseWithinBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
+                            else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
                             {
                                 if (m_mousepos.x > slideregionx + slideregionwidth/2)
                                     Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, object->max);
@@ -4478,7 +4473,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
                     }
 
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
                         if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
@@ -4498,14 +4493,14 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 break;
 
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
-                            if (Menu_MouseWithinBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
+                            if (!Menu_MouseOutsideBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
                             {
                                 Menu_RunInput_EntryRangeDouble_MovementArbitrary(/*entry, */object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
 
                                 m_mousecaught = 1;
                             }
                             // region outside the x-midlines clamps to the extremes
-                            else if (Menu_MouseWithinBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
+                            else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
                             {
                                 if (m_mousepos.x > slideregionx + slideregionwidth/2)
                                     Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, object->max);
@@ -4549,7 +4544,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                     else
                         stringx -= dim.x;
 
-                    if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, h)))
+                    if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, h)))
                     {
                         if (state != 1 && Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, h))
                         {
@@ -4558,7 +4553,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         }
 
 #ifndef EDUKE32_TOUCH_DEVICES
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, h) && Menu_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
+                        if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, h) && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
 #endif
                         {
                             if (entry == currentry && object->editfield != NULL)
@@ -4678,14 +4673,14 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
             const int32_t mousey = origin.y + y_upper + y - object->options->scrollPos;
             const int32_t mousewidth = object->options->entryFormat->width == 0 ? textsize.x : klabs(object->options->entryFormat->width);
 
-            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, object->options->font->yline)))
+            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, object->options->font->yline)))
             {
                 if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, object->options->font->yline)))
                 {
                     object->options->currentEntry = e;
                 }
 
-                if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, object->options->font->yline))
+                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, object->options->font->yline))
                 {
                     object->options->currentEntry = e;
 
@@ -4744,7 +4739,7 @@ static int32_t Menu_RunInput_MouseReturn(void)
 
     const int32_t MouseReturnRegionX = x_widescreen_left();
 
-    if (Menu_MouseWithinBounds(&m_mousepos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16))
+    if (!Menu_MouseOutsideBounds(&m_mousepos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16))
     {
 #if !defined EDUKE32_TOUCH_DEVICES
         Menu_RunInput_MouseReturn_status = 1;
@@ -4752,7 +4747,7 @@ static int32_t Menu_RunInput_MouseReturn(void)
         Menu_RunInput_MouseReturn_status = (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held);
 #endif
 
-        return !m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16);
+        return !m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16);
     }
 
     Menu_RunInput_MouseReturn_status = 0;
@@ -4931,7 +4926,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
                             vec2_t textdim = Menu_Text(mousex, mousey, object->font[i], tempbuf, status, ydim_upper, ydim_lower);
 
-                            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, textdim.x, object->font[i]->yline)))
+                            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, textdim.x, object->font[i]->yline)))
                             {
                                 if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, textdim.x, object->font[i]->yline)))
                                 {
@@ -4941,7 +4936,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                                     Menu_RunInput_FileSelect_MovementVerify(object);
                                 }
 
-                                if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, mousex, mousey, textdim.x, object->font[i]->yline))
+                                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, textdim.x, object->font[i]->yline))
                                 {
                                     object->findhigh[i] = dir;
                                     object->currentList = i;
