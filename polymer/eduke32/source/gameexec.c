@@ -1024,10 +1024,10 @@ static int32_t VM_ResetPlayer(int playerNum, int32_t vmFlags, int32_t resetFlags
     {
         if (g_lastSaveSlot >= 0 && ud.recstat != 2 && !(resetFlags & 1))
         {
-            M_OpenMenu(playerNum);
+            Menu_Open(playerNum);
             KB_ClearKeyDown(sc_Space);
             I_AdvanceTriggerClear();
-            M_ChangeMenu(MENU_RESETPLAYER);
+            Menu_Change(MENU_RESETPLAYER);
         }
         else g_player[playerNum].ps->gm = MODE_RESTART;
 #if !defined LUNATIC
@@ -2741,7 +2741,7 @@ nullquote:
 
         case CON_CMENU:
             insptr++;
-            M_ChangeMenu(Gv_GetVarX(*insptr++));
+            Menu_Change(Gv_GetVarX(*insptr++));
             continue;
 
         case CON_SOUNDVAR:

@@ -698,9 +698,9 @@ void __fastcall VM_SetPlayer(register int32_t const playerNum, register int32_t 
         case PLAYER_SCREAM_VOICE: ps->scream_voice = iSet; break;
         case PLAYER_GM:
             if (!(ps->gm & MODE_MENU) && (iSet & MODE_MENU))
-                M_OpenMenu(playerNum);
+                Menu_Open(playerNum);
             else if ((ps->gm & MODE_MENU) && !(iSet & MODE_MENU))
-                M_CloseMenu(playerNum);
+                Menu_Close(playerNum);
             ps->gm = iSet;
             break;
         case PLAYER_ON_WARPING_SECTOR: ps->on_warping_sector = iSet; break;

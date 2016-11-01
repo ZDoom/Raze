@@ -1093,7 +1093,7 @@ void G_DisplayRest(int32_t smoothratio)
         {
             I_EscapeTriggerClear();
             S_PlaySound(EXITMENUSOUND);
-            M_ChangeMenu(MENU_CLOSE);
+            Menu_Change(MENU_CLOSE);
             if (!ud.pause_on)
                 S_PauseSounds(0);
         }
@@ -1104,12 +1104,12 @@ void G_DisplayRest(int32_t smoothratio)
             I_EscapeTriggerClear();
             S_PauseSounds(1);
 
-            M_OpenMenu(myconnectindex);
+            Menu_Open(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2) ready2send = 0;
 
-            if (g_player[myconnectindex].ps->gm&MODE_GAME) M_ChangeMenu(MENU_MAIN_INGAME);
-            else M_ChangeMenu(MENU_MAIN);
+            if (g_player[myconnectindex].ps->gm&MODE_GAME) Menu_Change(MENU_MAIN_INGAME);
+            else Menu_Change(MENU_MAIN);
             screenpeek = myconnectindex;
 
             S_MenuSound();

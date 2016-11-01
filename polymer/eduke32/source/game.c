@@ -4718,9 +4718,9 @@ void G_HandleLocalKeys(void)
         {
             KB_ClearKeyDown(sc_F1);
 
-            M_ChangeMenu(MENU_STORY);
+            Menu_Change(MENU_STORY);
             S_PauseSounds(1);
-            M_OpenMenu(myconnectindex);
+            Menu_Open(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2))
             {
@@ -4743,14 +4743,14 @@ FAKE_F2:
                     return;
                 }
 
-                M_ChangeMenu(MENU_SAVE);
+                Menu_Change(MENU_SAVE);
 
                 g_screenCapture = 1;
                 G_DrawRooms(myconnectindex,65536);
                 g_screenCapture = 0;
 
                 S_PauseSounds(1);
-                M_OpenMenu(myconnectindex);
+                Menu_Open(myconnectindex);
 
                 if ((!g_netServer && ud.multimode < 2))
                 {
@@ -4765,9 +4765,9 @@ FAKE_F2:
                 KB_ClearKeyDown(sc_F3);
 
 FAKE_F3:
-                M_ChangeMenu(MENU_LOAD);
+                Menu_Change(MENU_LOAD);
                 S_PauseSounds(1);
-                M_OpenMenu(myconnectindex);
+                Menu_Open(myconnectindex);
 
                 if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
                 {
@@ -4784,7 +4784,7 @@ FAKE_F3:
             KB_ClearKeyDown(sc_F4);
 
             S_PauseSounds(1);
-            M_OpenMenu(myconnectindex);
+            Menu_Open(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
@@ -4792,7 +4792,7 @@ FAKE_F3:
                 totalclock = ototalclock;
             }
 
-            M_ChangeMenu(MENU_SOUND_INGAME);
+            Menu_Change(MENU_SOUND_INGAME);
         }
 
         if (KB_UnBoundKeyPressed(sc_F5) && ud.config.MusicToggle)
@@ -4887,9 +4887,9 @@ FAKE_F3:
         {
             KB_ClearKeyDown(sc_F10);
 
-            M_ChangeMenu(MENU_QUIT_INGAME);
+            Menu_Change(MENU_QUIT_INGAME);
             S_PauseSounds(1);
-            M_OpenMenu(myconnectindex);
+            Menu_Open(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
@@ -4902,9 +4902,9 @@ FAKE_F3:
         {
             KB_ClearKeyDown(sc_F11);
 
-            M_ChangeMenu(MENU_COLCORR_INGAME);
+            Menu_Change(MENU_COLCORR_INGAME);
             S_PauseSounds(1);
-            M_OpenMenu(myconnectindex);
+            Menu_Open(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
             {
@@ -5934,8 +5934,8 @@ void G_BackToMenu(void)
     if (ud.recstat == 1) G_CloseDemoWrite();
     ud.warp_on = 0;
     g_player[myconnectindex].ps->gm = 0;
-    M_OpenMenu(myconnectindex);
-    M_ChangeMenu(MENU_MAIN);
+    Menu_Open(myconnectindex);
+    Menu_Change(MENU_MAIN);
     KB_FlushKeyboardQueue();
     G_UpdateAppTitle();
 }
@@ -5971,8 +5971,8 @@ static int G_EndOfLevel(void)
                 if (!VOLUMEALL)
                     G_DoOrderScreen();
                 g_player[myconnectindex].ps->gm = 0;
-                M_OpenMenu(myconnectindex);
-                M_ChangeMenu(MENU_MAIN);
+                Menu_Open(myconnectindex);
+                Menu_Change(MENU_MAIN);
                 return 2;
             }
             else
@@ -6458,7 +6458,7 @@ int app_main(int argc, char const * const * argv)
 
     OSD_Exec("autoexec.cfg");
 
-    M_Init();
+    Menu_Init();
 
     if (ud.warp_on > 1 && (!g_netServer && ud.multimode < 2))
     {
@@ -6486,7 +6486,7 @@ MAIN_LOOP_RESTART:
 
     g_player[myconnectindex].ps->fta = 0;
 
-    M_ChangeMenu(MENU_MAIN);
+    Menu_Change(MENU_MAIN);
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {

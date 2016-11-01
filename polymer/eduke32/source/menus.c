@@ -123,17 +123,17 @@ int32_t menutext_(int32_t x, int32_t y, int32_t s, int32_t p, char const *t, int
 static savehead_t savehead;
 #pragma pack(pop)
 
-static void M_DrawBackground(const vec2_t origin)
+static void Menu_DrawBackground(const vec2_t origin)
 {
     rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (100<<16), 65536L,0,MENUSCREEN,16,0,10+64);
 }
 
-static void M_DrawTopBar(const vec2_t origin)
+static void Menu_DrawTopBar(const vec2_t origin)
 {
     rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (19<<16), 65536L,0,MENUBAR,16,0,10);
 }
 
-static void M_DrawTopBarCaption(const char *caption, const vec2_t origin)
+static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
 {
     char *s = Bstrdup(caption), p = Bstrlen(caption)-1;
     if (s[p] == ':') s[p] = 0;
@@ -1398,7 +1398,7 @@ static void MenuEntry_DisableOnCondition(MenuEntry_t * const entry, const int32_
 This function prepares data after ART and CON have been processed.
 It also initializes some data in loops rather than statically at compile time.
 */
-void M_Init(void)
+void Menu_Init(void)
 {
     int32_t i, j, k;
 
@@ -1642,16 +1642,16 @@ void M_Init(void)
     }
 }
 
-static void M_RunMenu(Menu_t *cm, vec2_t origin);
+static void Menu_Run(Menu_t *cm, vec2_t origin);
 
 
 
 /*
-At present, no true difference is planned between M_PreMenu() and M_PreMenuDraw().
+At present, no true difference is planned between Menu_Pre() and Menu_PreDraw().
 They are separate for purposes of organization.
 */
 
-static void M_PreMenu(MenuID_t cm)
+static void Menu_Pre(MenuID_t cm)
 {
     int32_t i;
     DukePlayer_t *ps = g_player[myconnectindex].ps;
@@ -1850,7 +1850,7 @@ static void M_PreMenu(MenuID_t cm)
 }
 
 
-static void M_PreMenuDrawBackground(MenuID_t cm, const vec2_t origin)
+static void Menu_PreDrawBackground(MenuID_t cm, const vec2_t origin)
 {
     switch (cm)
     {
@@ -1858,7 +1858,7 @@ static void M_PreMenuDrawBackground(MenuID_t cm, const vec2_t origin)
     case MENU_CREDITS2:
     case MENU_CREDITS3:
         if (!VOLUMEALL || !PLUTOPAK)
-            M_DrawBackground(origin);
+            Menu_DrawBackground(origin);
         else
             rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (100<<16), 65536L,0,2504+cm-MENU_CREDITS,0,0,10+64);
         break;
@@ -1867,7 +1867,7 @@ static void M_PreMenuDrawBackground(MenuID_t cm, const vec2_t origin)
     case MENU_SAVE:
     case MENU_CREDITS4:
     case MENU_CREDITS5:
-        M_DrawBackground(origin);
+        Menu_DrawBackground(origin);
         break;
 
     case MENU_STORY:
@@ -1881,7 +1881,7 @@ static void M_PreMenuDrawBackground(MenuID_t cm, const vec2_t origin)
 }
 
 
-static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
+static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 {
     int32_t i, j, l = 0, m;
 
@@ -2424,7 +2424,7 @@ static void M_PreMenuDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
 
 
-static void M_PreMenuInput(MenuEntry_t *entry)
+static void Menu_PreInput(MenuEntry_t *entry)
 {
     switch (g_currentMenu)
     {
@@ -2448,7 +2448,7 @@ static void M_PreMenuInput(MenuEntry_t *entry)
     }
 }
 
-static void M_PreMenuOptionListDraw(MenuEntry_t *entry, const vec2_t origin)
+static void Menu_PreOptionListDraw(MenuEntry_t *entry, const vec2_t origin)
 {
     switch (g_currentMenu)
     {
@@ -2467,7 +2467,7 @@ static void M_PreMenuOptionListDraw(MenuEntry_t *entry, const vec2_t origin)
     }
 }
 
-static int32_t M_PreMenuCustom2ColScreen(MenuEntry_t *entry)
+static int32_t Menu_PreCustom2ColScreen(MenuEntry_t *entry)
 {
     if (g_currentMenu == MENU_KEYBOARDKEYS)
     {
@@ -2495,7 +2495,7 @@ static int32_t M_PreMenuCustom2ColScreen(MenuEntry_t *entry)
     return 0;
 }
 
-static void M_PreMenuCustom2ColScreenDraw(MenuEntry_t *entry, const vec2_t origin)
+static void Menu_PreCustom2ColScreenDraw(MenuEntry_t *entry, const vec2_t origin)
 {
     if (g_currentMenu == MENU_KEYBOARDKEYS)
     {
@@ -2506,7 +2506,7 @@ static void M_PreMenuCustom2ColScreenDraw(MenuEntry_t *entry, const vec2_t origi
     }
 }
 
-static void M_MenuEntryFocus(/*MenuEntry_t *entry*/)
+static void Menu_EntryFocus(/*MenuEntry_t *entry*/)
 {
     switch (g_currentMenu)
     {
@@ -2522,7 +2522,7 @@ static void M_MenuEntryFocus(/*MenuEntry_t *entry*/)
     }
 }
 
-static void M_StartGameWithoutSkill(void)
+static void Menu_StartGameWithoutSkill(void)
 {
     ud.m_player_skill = M_SKILL.currentEntry+1;
 
@@ -2540,7 +2540,7 @@ static void M_StartGameWithoutSkill(void)
     G_NewGame_EnterLevel();
 }
 
-static void M_Cheat(int32_t cheatID)
+static void Menu_DoCheat(int32_t cheatID)
 {
     if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
         return;
@@ -2548,7 +2548,7 @@ static void M_Cheat(int32_t cheatID)
     osdcmd_cheatsinfo_stat.cheatnum = cheatID;
 }
 
-static int32_t M_Cheat_Warp(char const * const numbers)
+static int32_t Menu_Cheat_Warp(char const * const numbers)
 {
     if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
         return 0;
@@ -2579,7 +2579,7 @@ static int32_t M_Cheat_Warp(char const * const numbers)
     return 0;
 }
 
-static int32_t M_Cheat_Skill(char const * const number)
+static int32_t Menu_Cheat_Skill(char const * const number)
 {
     if (numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME))
         return 0;
@@ -2598,7 +2598,7 @@ static int32_t M_Cheat_Skill(char const * const number)
 Functions where a "newValue" or similar is passed are run *before* the linked variable is actually changed.
 That way you can compare the new and old values and potentially block the change.
 */
-static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
+static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 {
     switch (g_currentMenu)
     {
@@ -2609,7 +2609,7 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
             ud.m_level_number = 0;
 
             if (g_skillCnt == 0)
-                M_StartGameWithoutSkill();
+                Menu_StartGameWithoutSkill();
         }
         break;
 
@@ -2671,7 +2671,7 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
             case CHEATFUNC_SKILL:
                 break;
             default:
-                M_Cheat(CheatFunctionIDs[cheatFuncID]);
+                Menu_DoCheat(CheatFunctionIDs[cheatFuncID]);
                 break;
         }
         break;
@@ -2768,12 +2768,12 @@ static void M_MenuEntryLinkActivate(MenuEntry_t *entry)
         else if (voting == -1)
         {
             Net_SendMapVoteInitiate();
-            M_ChangeMenu(MENU_NETWAITVOTES);
+            Menu_Change(MENU_NETWAITVOTES);
         }
     }
 }
 
-static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
+static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
 {
     int32_t x;
     DukePlayer_t *ps = g_player[myconnectindex].ps;
@@ -2855,7 +2855,7 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
                 }
 
             ud.pwlockout[0] = 0;
-            M_ChangeMenu(MENU_ADULTPASSWORD);
+            Menu_Change(MENU_ADULTPASSWORD);
 //            return -1;
         }
         else
@@ -2874,7 +2874,7 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
             }
             else
             {
-                M_ChangeMenu(MENU_ADULTPASSWORD);
+                Menu_Change(MENU_ADULTPASSWORD);
                 return -1;
             }
         }
@@ -2914,7 +2914,7 @@ static int32_t M_MenuEntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     return 0;
 }
 
-static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
+static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
 {
 #ifdef USE_OPENGL
     int domodechange = 0;
@@ -2953,7 +2953,7 @@ static void M_MenuEntryOptionDidModify(MenuEntry_t *entry)
 #endif
 }
 
-static void M_MenuCustom2ColScreen(/*MenuEntry_t *entry*/)
+static void Menu_Custom2ColScreen(/*MenuEntry_t *entry*/)
 {
     if (g_currentMenu == MENU_KEYBOARDKEYS)
     {
@@ -2962,7 +2962,7 @@ static void M_MenuCustom2ColScreen(/*MenuEntry_t *entry*/)
     }
 }
 
-static int32_t M_MenuEntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
+static int32_t Menu_EntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
 {
     if (entry == &ME_SCREENSETUP_SCREENSIZE)
         G_SetViewportShrink(newValue - vpsize);
@@ -2989,7 +2989,7 @@ static int32_t M_MenuEntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
     return 0;
 }
 
-static int32_t M_MenuEntryRangeFloatModify(MenuEntry_t *entry, float newValue)
+static int32_t Menu_EntryRangeFloatModify(MenuEntry_t *entry, float newValue)
 {
     if (entry == &ME_COLCORR_AMBIENT)
         r_ambientlightrecip = 1.f/newValue;
@@ -2997,7 +2997,7 @@ static int32_t M_MenuEntryRangeFloatModify(MenuEntry_t *entry, float newValue)
     return 0;
 }
 
-static int32_t M_MenuEntryRangeFloatDidModify(MenuEntry_t *entry)
+static int32_t Menu_EntryRangeFloatDidModify(MenuEntry_t *entry)
 {
     if (entry == &ME_COLCORR_GAMMA)
     {
@@ -3012,7 +3012,7 @@ static int32_t M_MenuEntryRangeFloatDidModify(MenuEntry_t *entry)
     return 0;
 }
 
-static int32_t M_MenuEntryRangeDoubleModify(void /*MenuEntry_t *entry, double newValue*/)
+static int32_t Menu_EntryRangeDoubleModify(void /*MenuEntry_t *entry, double newValue*/)
 {
 
     return 0;
@@ -3020,7 +3020,7 @@ static int32_t M_MenuEntryRangeDoubleModify(void /*MenuEntry_t *entry, double ne
 
 static uint32_t save_xxh = 0;
 
-static void M_MenuEntryStringActivate(/*MenuEntry_t *entry*/)
+static void Menu_EntryStringActivate(/*MenuEntry_t *entry*/)
 {
     switch (g_currentMenu)
     {
@@ -3028,7 +3028,7 @@ static void M_MenuEntryStringActivate(/*MenuEntry_t *entry*/)
         if (!save_xxh)
             save_xxh = XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], 19, 0xDEADBEEF);
         if (ud.savegame[M_SAVE.currentEntry][0])
-            M_ChangeMenu(MENU_SAVEVERIFY);
+            Menu_Change(MENU_SAVEVERIFY);
         break;
 
     default:
@@ -3036,7 +3036,7 @@ static void M_MenuEntryStringActivate(/*MenuEntry_t *entry*/)
     }
 }
 
-static int32_t M_MenuEntryStringSubmit(MenuEntry_t *entry, char *input)
+static int32_t Menu_EntryStringSubmit(MenuEntry_t *entry, char *input)
 {
     MenuString_t *object = (MenuString_t*)entry->entry;
     int32_t returnvar = 0;
@@ -3068,7 +3068,7 @@ static int32_t M_MenuEntryStringSubmit(MenuEntry_t *entry, char *input)
         g_lastSaveSlot = M_SAVE.currentEntry;
         g_player[myconnectindex].ps->gm = MODE_GAME;
 
-        M_ChangeMenu(MENU_CLOSE);
+        Menu_Change(MENU_CLOSE);
         save_xxh = 0;
         break;
 
@@ -3079,7 +3079,7 @@ static int32_t M_MenuEntryStringSubmit(MenuEntry_t *entry, char *input)
     return returnvar;
 }
 
-static void M_MenuEntryStringCancel(/*MenuEntry_t *entry*/)
+static void Menu_EntryStringCancel(/*MenuEntry_t *entry*/)
 {
     switch (g_currentMenu)
     {
@@ -3096,7 +3096,7 @@ static void M_MenuEntryStringCancel(/*MenuEntry_t *entry*/)
 /*
 This is polled when the menu code is populating the screen but for some reason doesn't have the data.
 */
-static int32_t M_MenuEntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
+static int32_t Menu_EntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
 {
     if (entry == &ME_GAMESETUP_WEAPSWITCH_PICKUP)
         return (ud.weaponswitch & 1) ? ((ud.weaponswitch & 4) ? 2 : 1) : 0;
@@ -3108,7 +3108,7 @@ static int32_t M_MenuEntryOptionSource(MenuEntry_t *entry, int32_t currentValue)
     return currentValue;
 }
 
-static void M_MenuVerify(int32_t input)
+static void Menu_Verify(int32_t input)
 {
     switch (g_currentMenu)
     {
@@ -3130,7 +3130,7 @@ static void M_MenuVerify(int32_t input)
                 return;
             }
 
-            M_ChangeMenu(MENU_CLOSE);
+            Menu_Change(MENU_CLOSE);
         }
         break;
 
@@ -3142,7 +3142,7 @@ static void M_MenuVerify(int32_t input)
             KB_FlushKeyboardQueue();
             KB_ClearKeysDown();
 
-            M_ChangeMenu(MENU_CLOSE);
+            Menu_Change(MENU_CLOSE);
 
             G_LoadPlayerMaybeMulti(g_lastSaveSlot);
         }
@@ -3186,7 +3186,7 @@ static void M_MenuVerify(int32_t input)
     }
 }
 
-static int M_CheatStringMatch(char const * input, char const * cheat)
+static int Menu_CheatStringMatch(char const * input, char const * cheat)
 {
     while (*cheat || *input)
     {
@@ -3203,7 +3203,7 @@ static int M_CheatStringMatch(char const * input, char const * cheat)
     return 1;
 }
 
-static void M_MenuTextFormSubmit(char *input)
+static void Menu_TextFormSubmit(char *input)
 {
     switch (g_currentMenu)
     {
@@ -3222,7 +3222,7 @@ static void M_MenuTextFormSubmit(char *input)
         }
 
         S_PlaySound(PISTOL_BODYHIT);
-        M_ChangeMenu(MENU_GAMESETUP);
+        Menu_Change(MENU_GAMESETUP);
         break;
 
     case MENU_CHEATENTRY:
@@ -3237,7 +3237,7 @@ static void M_MenuTextFormSubmit(char *input)
         if (inputlength > 2 && tempbuf[0] == scantoasc[CheatKeys[0]] && tempbuf[1] == scantoasc[CheatKeys[1]])
         {
             for (size_t i = 0; i < NUMCHEATS; i++)
-                if (M_CheatStringMatch(tempbuf+2, CheatStrings[i]))
+                if (Menu_CheatStringMatch(tempbuf+2, CheatStrings[i]))
                 {
                     cheatID = i;
                     break;
@@ -3258,7 +3258,7 @@ static void M_MenuTextFormSubmit(char *input)
                     break;
                 }
 
-                M_Cheat_Warp(input + (numberpos - CheatStrings[CHEAT_SCOTTY]) + 2);
+                Menu_Cheat_Warp(input + (numberpos - CheatStrings[CHEAT_SCOTTY]) + 2);
                 if (g_player[myconnectindex].ps->gm&MODE_MENU)
                     S_PlaySound(DUKE_GET);
                 break;
@@ -3272,13 +3272,13 @@ static void M_MenuTextFormSubmit(char *input)
                     break;
                 }
 
-                M_Cheat_Skill(input + (numberpos - CheatStrings[CHEAT_SKILL]) + 2);
+                Menu_Cheat_Skill(input + (numberpos - CheatStrings[CHEAT_SKILL]) + 2);
                 if (g_player[myconnectindex].ps->gm&MODE_MENU)
                     S_PlaySound(DUKE_GET);
                 break;
             }
             default:
-                M_Cheat(cheatID);
+                Menu_DoCheat(cheatID);
                 S_PlaySound(DUKE_GET);
                 break;
         }
@@ -3293,20 +3293,20 @@ static void M_MenuTextFormSubmit(char *input)
             cl_cheatmask = ~0;
         }
 
-        M_ChangeMenu(MENU_CHEATS);
+        Menu_Change(MENU_CHEATS);
         break;
     }
 
     case MENU_CHEAT_WARP:
-        if (M_Cheat_Warp(input))
+        if (Menu_Cheat_Warp(input))
             S_PlaySound(KICK_HIT);
-        M_ChangeMenu(MENU_CHEATS);
+        Menu_Change(MENU_CHEATS);
         break;
 
     case MENU_CHEAT_SKILL:
-        if (M_Cheat_Skill(input))
+        if (Menu_Cheat_Skill(input))
             S_PlaySound(KICK_HIT);
-        M_ChangeMenu(MENU_CHEATS);
+        Menu_Change(MENU_CHEATS);
         break;
 
     default:
@@ -3337,7 +3337,7 @@ void klistbookends(CACHE1D_FIND_REC *start)
     }
 }
 
-static void M_MenuFileSelectInit(MenuFileSelect_t *object)
+static void Menu_FileSelectInit(MenuFileSelect_t *object)
 {
     size_t i;
 
@@ -3364,7 +3364,7 @@ static void M_MenuFileSelectInit(MenuFileSelect_t *object)
     KB_FlushKeyboardQueue();
 }
 
-static void M_MenuFileSelect(int32_t input)
+static void Menu_FileSelect(int32_t input)
 {
     switch (g_currentMenu)
     {
@@ -3378,9 +3378,9 @@ static void M_MenuFileSelect(int32_t input)
             ud.m_level_number = 7;
 
             if (g_skillCnt > 0)
-                M_ChangeMenuAnimate(MENU_SKILL, MA_Advance);
+                Menu_AnimateChange(MENU_SKILL, MA_Advance);
             else
-                M_StartGameWithoutSkill();
+                Menu_StartGameWithoutSkill();
         }
         break;
 
@@ -3393,7 +3393,7 @@ static void M_MenuFileSelect(int32_t input)
 
 
 
-static Menu_t* M_FindMenuBinarySearch(MenuID_t query, size_t searchstart, size_t searchend)
+static Menu_t* Menu_BinarySearch(MenuID_t query, size_t searchstart, size_t searchend)
 {
     const size_t thissearch = (searchstart + searchend) / 2;
     const MenuID_t difference = query - Menus[thissearch].menuID;
@@ -3415,37 +3415,37 @@ static Menu_t* M_FindMenuBinarySearch(MenuID_t query, size_t searchstart, size_t
         searchend = thissearch - 1;
     }
 
-    return M_FindMenuBinarySearch(query, searchstart, searchend);
+    return Menu_BinarySearch(query, searchstart, searchend);
 }
 
-static Menu_t* M_FindMenu(MenuID_t query)
+static Menu_t* Menu_Find(MenuID_t query)
 {
     if ((unsigned) query > (unsigned) Menus[numMenus-1].menuID)
         return NULL;
 
-    return M_FindMenuBinarySearch(query, 0, numMenus-1);
+    return Menu_BinarySearch(query, 0, numMenus-1);
 }
 
 MenuAnimation_t m_animation;
 
-int32_t M_Anim_SinOutRight(MenuAnimation_t *animdata)
+int32_t Menu_Anim_SinOutRight(MenuAnimation_t *animdata)
 {
     return sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] - 16384;
 }
-int32_t M_Anim_SinInRight(MenuAnimation_t *animdata)
+int32_t Menu_Anim_SinInRight(MenuAnimation_t *animdata)
 {
     return sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] + 16384;
 }
-int32_t M_Anim_SinOutLeft(MenuAnimation_t *animdata)
+int32_t Menu_Anim_SinOutLeft(MenuAnimation_t *animdata)
 {
     return -sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] + 16384;
 }
-int32_t M_Anim_SinInLeft(MenuAnimation_t *animdata)
+int32_t Menu_Anim_SinInLeft(MenuAnimation_t *animdata)
 {
     return -sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] - 16384;
 }
 
-void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype)
+void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype)
 {
     switch (animtype)
     {
@@ -3453,15 +3453,15 @@ void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype)
         {
             Menu_t * const previousMenu = m_currentMenu;
 
-            if (!M_ChangeMenu(cm))
+            if (!Menu_Change(cm))
             {
-                m_animation.out = M_Anim_SinOutRight;
-                m_animation.in = M_Anim_SinInRight;
-                m_animation.start = totalclock;
+                m_animation.out    = Menu_Anim_SinOutRight;
+                m_animation.in     = Menu_Anim_SinInRight;
+                m_animation.start  = totalclock;
                 m_animation.length = 30;
 
                 m_animation.previous = previousMenu;
-                m_animation.current = m_currentMenu;
+                m_animation.current  = m_currentMenu;
             }
 
             break;
@@ -3470,28 +3470,28 @@ void M_ChangeMenuAnimate(int32_t cm, MenuAnimationType_t animtype)
         {
             Menu_t * const previousMenu = m_currentMenu;
 
-            if (!M_ChangeMenu(cm))
+            if (!Menu_Change(cm))
             {
-                m_animation.out = M_Anim_SinOutLeft;
-                m_animation.in = M_Anim_SinInLeft;
-                m_animation.start = totalclock;
+                m_animation.out    = Menu_Anim_SinOutLeft;
+                m_animation.in     = Menu_Anim_SinInLeft;
+                m_animation.start  = totalclock;
                 m_animation.length = 30;
 
                 m_animation.previous = previousMenu;
-                m_animation.current = m_currentMenu;
+                m_animation.current  = m_currentMenu;
             }
 
             break;
         }
         default:
-            m_animation.start = 0;
+            m_animation.start  = 0;
             m_animation.length = 0;
-            M_ChangeMenu(cm);
+            Menu_Change(cm);
             break;
     }
 }
 
-int M_ChangeMenu(MenuID_t cm)
+int Menu_Change(MenuID_t cm)
 {
     Menu_t *search;
     int32_t i;
@@ -3504,13 +3504,13 @@ int M_ChangeMenu(MenuID_t cm)
         g_currentMenu = g_previousMenu;
     }
     else if (cm == MENU_CLOSE)
-        M_CloseMenu(myconnectindex);
+        Menu_Close(myconnectindex);
     else if (cm >= 0)
     {
         if ((g_player[myconnectindex].ps->gm&MODE_GAME) && cm == MENU_MAIN)
             cm = MENU_MAIN_INGAME;
 
-        search = M_FindMenu(cm);
+        search = Menu_Find(cm);
 
         if (search == NULL)
             return 0; // intentional, so that users don't use any random value as "don't change"
@@ -3584,7 +3584,7 @@ int M_ChangeMenu(MenuID_t cm)
         WithSDL2_StartTextInput();
     }
     else if (m_currentMenu->type == FileSelect)
-        M_MenuFileSelectInit((MenuFileSelect_t*)m_currentMenu->object);
+        Menu_FileSelectInit((MenuFileSelect_t*)m_currentMenu->object);
     else if (m_currentMenu->type == Menu)
     {
         MenuMenu_t *menu = (MenuMenu_t*)m_currentMenu->object;
@@ -3601,10 +3601,10 @@ int M_ChangeMenu(MenuID_t cm)
             if (menu->currentEntry >= menu->numEntries)
                 menu->currentEntry = 0;
             if (menu->currentEntry == i)
-                G_GameExit("M_ChangeMenu: Attempted to change to a menu with no entries.");
+                G_GameExit("Menu_Change: Attempted to change to a menu with no entries.");
         }
 
-        M_MenuEntryFocus(/*currentry*/);
+        Menu_EntryFocus(/*currentry*/);
     }
 
     return 0;
@@ -3631,7 +3631,7 @@ void G_CheckPlayerColor(int32_t *color, int32_t prev_color)
 }
 
 
-int32_t M_DetermineMenuSpecialState(MenuEntry_t *entry)
+int32_t Menu_DetermineSpecialState(MenuEntry_t *entry)
 {
     if (entry == NULL)
         return 0;
@@ -3655,7 +3655,7 @@ int32_t M_DetermineMenuSpecialState(MenuEntry_t *entry)
     return 0;
 }
 
-int32_t M_IsTextInput(Menu_t *cm)
+int32_t Menu_IsTextInput(Menu_t *cm)
 {
     switch (m_currentMenu->type)
     {
@@ -3672,7 +3672,7 @@ int32_t M_IsTextInput(Menu_t *cm)
         {
             MenuMenu_t *menu = (MenuMenu_t*)cm->object;
             MenuEntry_t *entry = menu->entrylist[menu->currentEntry];
-            return M_DetermineMenuSpecialState(entry);
+            return Menu_DetermineSpecialState(entry);
         }
             break;
     }
@@ -3680,7 +3680,7 @@ int32_t M_IsTextInput(Menu_t *cm)
     return 0;
 }
 
-static inline int32_t M_BlackTranslucentBackgroundOK(MenuID_t cm)
+static inline int32_t Menu_BlackTranslucentBackgroundOK(MenuID_t cm)
 {
     switch (cm)
     {
@@ -3696,7 +3696,7 @@ static inline int32_t M_BlackTranslucentBackgroundOK(MenuID_t cm)
     return 1;
 }
 
-static inline int32_t M_UpdateScreenOK(MenuID_t cm)
+static inline int32_t Menu_UpdateScreenOK(MenuID_t cm)
 {
     switch (cm)
     {
@@ -3728,7 +3728,7 @@ int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 int32_t m_mousecaught;
 static vec2_t m_prevmousepos, m_mousepos, m_mousedownpos;
 
-void M_OpenMenu(size_t playerID)
+void Menu_Open(size_t playerID)
 {
     g_player[playerID].ps->gm |= MODE_MENU;
 
@@ -3742,7 +3742,7 @@ void M_OpenMenu(size_t playerID)
     AppGrabMouse(0);
 }
 
-void M_CloseMenu(size_t playerID)
+void Menu_Close(size_t playerID)
 {
     if (g_player[playerID].ps->gm & MODE_GAME)
     {
@@ -3785,7 +3785,7 @@ static int32_t ydim_from_200_16(int32_t y)
     return scale(y, ydim, 200<<16);
 }
 
-static void M_BlackRectangle(int32_t x, int32_t y, int32_t width, int32_t height, int32_t orientation)
+static void Menu_BlackRectangle(int32_t x, int32_t y, int32_t width, int32_t height, int32_t orientation)
 {
     const int32_t xscale = scale(65536, width, tilesiz[0].x<<16), yscale = scale(65536, height, tilesiz[0].y<<16);
 
@@ -3802,7 +3802,7 @@ enum MenuTextFlags_t
     MT_Literal  = 1<<5,
 };
 
-static void M_ShadePal(const MenuFont_t *font, uint8_t status, int32_t *s, int32_t *p)
+static void Menu_ShadePal(const MenuFont_t *font, uint8_t status, int32_t *s, int32_t *p)
 {
     *s = (status & MT_Selected) ? (sintable[(totalclock<<5)&2047]>>12) : font->shade_deselected;
     *p = (status & MT_Disabled) ? font->pal_disabled : font->pal;
@@ -3813,7 +3813,7 @@ FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, ydim_upper, xdim-1, ydim_lower);
 }
 
-static vec2_t M_MenuText(int32_t x, int32_t y, const MenuFont_t *font, const char *t, uint8_t status, int32_t ydim_upper, int32_t ydim_lower)
+static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t *font, const char *t, uint8_t status, int32_t ydim_upper, int32_t ydim_lower)
 {
     int32_t s, p, ybetween = font->ybetween;
     int32_t f = font->textflags;
@@ -3829,13 +3829,13 @@ static vec2_t M_MenuText(int32_t x, int32_t y, const MenuFont_t *font, const cha
     if (status & MT_Literal)
         f |= TEXT_LITERALESCAPE;
 
-    M_ShadePal(font, status, &s, &p);
+    Menu_ShadePal(font, status, &s, &p);
 
     return G_ScreenText(font->tilenum, x, y, 65536, 0, 0, t, s, p, 2|8|16|ROTATESPRITE_FULL16, 0, font->xspace, font->yline, font->xbetween, ybetween, f, 0, ydim_upper, xdim-1, ydim_lower);
 }
 
 #if 0
-static vec2_t M_MenuTextSize(int32_t x, int32_t y, const MenuFont_t *font, const char *t, uint8_t status)
+static vec2_t Menu_TextSize(int32_t x, int32_t y, const MenuFont_t *font, const char *t, uint8_t status)
 {
     int32_t f = font->textflags;
     if (status & MT_Literal)
@@ -3845,7 +3845,7 @@ static vec2_t M_MenuTextSize(int32_t x, int32_t y, const MenuFont_t *font, const
 }
 #endif
 
-static int32_t M_FindOptionBinarySearch(MenuOption_t *object, const int32_t query, size_t searchstart, size_t searchend)
+static int32_t Menu_FindOptionBinarySearch(MenuOption_t *object, const int32_t query, size_t searchstart, size_t searchend)
 {
     const size_t thissearch = (searchstart + searchend) / 2;
     const int32_t difference = ((object->options->optionValues == NULL && query < 0) ? object->options->numOptions-1 : query) - ((object->options->optionValues == NULL) ? (int32_t) thissearch : object->options->optionValues[thissearch]);
@@ -3867,20 +3867,20 @@ static int32_t M_FindOptionBinarySearch(MenuOption_t *object, const int32_t quer
         searchend = thissearch - 1;
     }
 
-    return M_FindOptionBinarySearch(object, query, searchstart, searchend);
+    return Menu_FindOptionBinarySearch(object, query, searchstart, searchend);
 }
 
-static int32_t M_MouseWithinBounds(vec2_t const * const pos, const int32_t x, const int32_t y, const int32_t width, const int32_t height)
+static int32_t Menu_MouseWithinBounds(vec2_t const * const pos, const int32_t x, const int32_t y, const int32_t width, const int32_t height)
 {
     return pos->x >= x && pos->x < x + width && pos->y >= y && pos->y < y + height;
 }
 
-static int32_t M_MouseOutsideBounds(vec2_t const * const pos, const int32_t x, const int32_t y, const int32_t width, const int32_t height)
+static int32_t Menu_MouseOutsideBounds(vec2_t const * const pos, const int32_t x, const int32_t y, const int32_t width, const int32_t height)
 {
     return pos->x < x || pos->x >= x + width || pos->y < y || pos->y >= y + height;
 }
 
-static void M_RunMenu_Scrollbar(Menu_t *cm, MenuMenuFormat_t const * const format, const int32_t totalextent, int32_t * const scrollPos, const int32_t rightedge, const vec2_t origin)
+static void Menu_RunScrollbar(Menu_t *cm, MenuMenuFormat_t const * const format, const int32_t totalextent, int32_t * const scrollPos, const int32_t rightedge, const vec2_t origin)
 {
     if (totalextent > klabs(format->bottomcutoff))
     {
@@ -3890,7 +3890,7 @@ static void M_RunMenu_Scrollbar(Menu_t *cm, MenuMenuFormat_t const * const forma
         const int32_t scrollregionheight = scrollheight - (tilesiz[SELECTDIR].y<<16);
         const int32_t scrollPosMax = totalextent - klabs(format->bottomcutoff);
 
-        M_BlackRectangle(scrollx, scrolly, scrollwidth, scrollheight, 1|32);
+        Menu_BlackRectangle(scrollx, scrolly, scrollwidth, scrollheight, 1|32);
 
         rotatesprite_fs(scrollx, scrolly + scale(scrollregionheight, *scrollPos, scrollPosMax), 65536, 0, SELECTDIR, 0, 0, 26);
 
@@ -3900,14 +3900,14 @@ static void M_RunMenu_Scrollbar(Menu_t *cm, MenuMenuFormat_t const * const forma
             const int32_t scrollregiony = scrolly + scrolltilehalfheight;
 
             // region between the y-midline of the arrow at the extremes scrolls proportionally
-            if (M_MouseWithinBounds(&m_mousepos, scrollx, scrollregiony, scrollwidth, scrollregionheight))
+            if (Menu_MouseWithinBounds(&m_mousepos, scrollx, scrollregiony, scrollwidth, scrollregionheight))
             {
                 *scrollPos = scale(m_mousepos.y - scrollregiony, scrollPosMax, scrollregionheight);
 
                 m_mousecaught = 1;
             }
             // region outside the y-midlines clamps to the extremes
-            else if (M_MouseWithinBounds(&m_mousepos, scrollx, scrolly, scrollwidth, scrollheight))
+            else if (Menu_MouseWithinBounds(&m_mousepos, scrollx, scrolly, scrollwidth, scrollheight))
             {
                 if (m_mousepos.y > scrolly + scrollheight/2)
                     *scrollPos = scrollPosMax;
@@ -3933,33 +3933,33 @@ typedef enum MenuMovement_t
     MM_Swap = 80,
 } MenuMovement_t;
 
-static MenuEntry_t *M_RunMenuInput_MenuMenu_MovementVerify(MenuMenu_t *menu);
-static MenuEntry_t *M_RunMenuInput_MenuMenu_Movement(MenuMenu_t *menu, MenuMovement_t direction);
-static void M_RunMenuInput_MenuEntryLink_Activate(MenuEntry_t *entry);
-static void M_RunMenuInput_MenuEntryOptionList_MovementVerify(MenuOption_t *object);
-static void M_RunMenuInput_MenuEntryOptionList_Movement(MenuOption_t *object, MenuMovement_t direction);
-static int32_t M_RunMenuInput_MenuEntryOption_Modify(MenuEntry_t *entry, MenuOption_t *object, int32_t newValueIndex);
-static int32_t M_RunMenuInput_MenuEntryOption_Movement(MenuEntry_t *entry, MenuOption_t *object, MenuMovement_t direction);
-static int32_t M_RunMenuInput_MenuEntryOption_Activate(MenuEntry_t *entry, MenuOption_t *object);
-static int32_t M_RunMenuInput_MenuEntryOptionList_Activate(MenuEntry_t *entry, MenuOption_t *object);
-static void M_RunMenuInput_MenuEntryCustom2Col_Activate(MenuEntry_t *entry);
-static void M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue);
-static void M_RunMenuInput_MenuEntryRangeInt32_MovementArbitrary(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue);
-static void M_RunMenuInput_MenuEntryRangeInt32_Movement(MenuEntry_t *entry, MenuRangeInt32_t *object, MenuMovement_t direction);
-static void M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue);
-static void M_RunMenuInput_MenuEntryRangeFloat_MovementArbitrary(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue);
-static void M_RunMenuInput_MenuEntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction);
-static void M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue);
-static void M_RunMenuInput_MenuEntryRangeDouble_MovementArbitrary(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue);
-static void M_RunMenuInput_MenuEntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction);
-static void M_RunMenuInput_MenuEntryString_Activate(MenuEntry_t *entry);
-static void M_RunMenuInput_MenuEntryString_Submit(MenuEntry_t *entry, MenuString_t *object);
-static void M_RunMenuInput_MenuEntryString_Cancel(/*MenuEntry_t *entry, */MenuString_t *object);
-static void M_RunMenuInput_FileSelect_MovementVerify(MenuFileSelect_t *object);
-static void M_RunMenuInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMovement_t direction);
-static void M_RunMenuInput_FileSelect_Select(MenuFileSelect_t *object);
+static MenuEntry_t *Menu_RunInput_Menu_MovementVerify(MenuMenu_t *menu);
+static MenuEntry_t *Menu_RunInput_Menu_Movement(MenuMenu_t *menu, MenuMovement_t direction);
+static void Menu_RunInput_EntryLink_Activate(MenuEntry_t *entry);
+static void Menu_RunInput_EntryOptionList_MovementVerify(MenuOption_t *object);
+static void Menu_RunInput_EntryOptionList_Movement(MenuOption_t *object, MenuMovement_t direction);
+static int32_t Menu_RunInput_EntryOption_Modify(MenuEntry_t *entry, MenuOption_t *object, int32_t newValueIndex);
+static int32_t Menu_RunInput_EntryOption_Movement(MenuEntry_t *entry, MenuOption_t *object, MenuMovement_t direction);
+static int32_t Menu_RunInput_EntryOption_Activate(MenuEntry_t *entry, MenuOption_t *object);
+static int32_t Menu_RunInput_EntryOptionList_Activate(MenuEntry_t *entry, MenuOption_t *object);
+static void Menu_RunInput_EntryCustom2Col_Activate(MenuEntry_t *entry);
+static void Menu_RunInput_EntryRangeInt32_MovementVerify(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue);
+static void Menu_RunInput_EntryRangeInt32_MovementArbitrary(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue);
+static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRangeInt32_t *object, MenuMovement_t direction);
+static void Menu_RunInput_EntryRangeFloat_MovementVerify(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue);
+static void Menu_RunInput_EntryRangeFloat_MovementArbitrary(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue);
+static void Menu_RunInput_EntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction);
+static void Menu_RunInput_EntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue);
+static void Menu_RunInput_EntryRangeDouble_MovementArbitrary(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue);
+static void Menu_RunInput_EntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction);
+static void Menu_RunInput_EntryString_Activate(MenuEntry_t *entry);
+static void Menu_RunInput_EntryString_Submit(MenuEntry_t *entry, MenuString_t *object);
+static void Menu_RunInput_EntryString_Cancel(/*MenuEntry_t *entry, */MenuString_t *object);
+static void Menu_RunInput_FileSelect_MovementVerify(MenuFileSelect_t *object);
+static void Menu_RunInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMovement_t direction);
+static void Menu_RunInput_FileSelect_Select(MenuFileSelect_t *object);
 
-static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *currentry, int32_t state, const vec2_t origin)
+static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *currentry, int32_t state, const vec2_t origin)
 {
     const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
 
@@ -4043,7 +4043,7 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
             const int32_t dodraw = entry->type != Spacer && 0 <= y - menu->scrollPos + entry->font->yline && y - menu->scrollPos <= klabs(menu->format->bottomcutoff) - menu->format->pos.y;
 
             if (dodraw)
-                textsize = M_MenuText(origin.x + x, origin.y + y_upper + y - menu->scrollPos, entry->font, entry->name, status, ydim_upper, ydim_lower);
+                textsize = Menu_Text(origin.x + x, origin.y + y_upper + y - menu->scrollPos, entry->font, entry->name, status, ydim_upper, ydim_lower);
 
             height = entry->type == Spacer ? ((MenuSpacer_t*)entry->entry)->height : entry->font->yline; // max(textsize.y, entry->font->yline); // bluefont Q ruins this
 
@@ -4079,33 +4079,33 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                 case Spacer:
                     break;
                 case Dummy:
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
-                        if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
                         }
                     }
                     break;
                 case Link:
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
-                        if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->yline))
+                        if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->yline))
                         {
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
 
                             if (entry->flags & Disabled)
                                 break;
 
-                            M_RunMenuInput_MenuEntryLink_Activate(entry);
+                            Menu_RunInput_EntryLink_Activate(entry);
 
                             if (g_player[myconnectindex].ps->gm&MODE_MENU) // for skill selection
                                 S_PlaySound(PISTOL_BODYHIT);
@@ -4117,7 +4117,7 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                 case Option:
                 {
                     MenuOption_t *object = (MenuOption_t*)entry->entry;
-                    int32_t currentOption = M_FindOptionBinarySearch(object, object->data == NULL ? M_MenuEntryOptionSource(entry, object->currentOption) : *object->data, 0, object->options->numOptions);
+                    int32_t currentOption = Menu_FindOptionBinarySearch(object, object->data == NULL ? Menu_EntryOptionSource(entry, object->currentOption) : *object->data, 0, object->options->numOptions);
 
                     if (currentOption >= 0)
                         object->currentOption = currentOption;
@@ -4125,7 +4125,7 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                     int32_t optiontextx = origin.x + x;
                     const int32_t optiontexty = origin.y + y_upper + y - menu->scrollPos;
 
-                    const vec2_t optiontextsize = M_MenuText(optiontextx, optiontexty + (height>>1), object->font,
+                    const vec2_t optiontextsize = Menu_Text(optiontextx, optiontexty + (height>>1), object->font,
                         currentOption < 0 ? MenuCustom : currentOption < object->options->numOptions ? object->options->optionNames[currentOption] : NULL,
                         status, ydim_upper, ydim_lower);
 
@@ -4134,23 +4134,23 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                     else
                         optiontextx -= optiontextsize.x;
 
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
-                        if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->yline))
+                        if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->yline))
                         {
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
 
                             if (entry->flags & Disabled)
                                 break;
 
-                            M_RunMenuInput_MenuEntryOption_Activate(entry, object);
+                            Menu_RunInput_EntryOption_Activate(entry, object);
 
                             S_PlaySound(PISTOL_BODYHIT);
 
@@ -4166,8 +4166,8 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                     int32_t columnx[2] = { origin.x + x - ((status & MT_XRight) ? object->columnWidth : 0), origin.x + x + ((status & MT_XRight) ? 0 : object->columnWidth) };
                     const int32_t columny = origin.y + y_upper + y - menu->scrollPos;
 
-                    const vec2_t column0textsize = M_MenuText(columnx[0], columny + (height>>1), object->font, object->key[*object->column[0]], menu->currentColumn == 0 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
-                    const vec2_t column1textsize = M_MenuText(columnx[1], columny + (height>>1), object->font, object->key[*object->column[1]], menu->currentColumn == 1 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
+                    const vec2_t column0textsize = Menu_Text(columnx[0], columny + (height>>1), object->font, object->key[*object->column[0]], menu->currentColumn == 0 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
+                    const vec2_t column1textsize = Menu_Text(columnx[1], columny + (height>>1), object->font, object->key[*object->column[1]], menu->currentColumn == 1 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
 
                     if (entry->format->width > 0)
                         mousewidth += object->columnWidth + column1textsize.x;
@@ -4177,54 +4177,54 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                         columnx[1] -= column0textsize.x;
                     }
 
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
-                        if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
-                        if (M_MouseWithinBounds(&m_mousepos, columnx[1], mousey, column1textsize.x, object->font->yline))
+                        if (Menu_MouseWithinBounds(&m_mousepos, columnx[1], mousey, column1textsize.x, object->font->yline))
                         {
-                            if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, columnx[1], mousey, column1textsize.x, object->font->yline)))
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[1], mousey, column1textsize.x, object->font->yline)))
                             {
                                 menu->currentColumn = 1;
                             }
 
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->yline))
+                            if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->yline))
                             {
                                 menu->currentEntry = e;
-                                M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                                Menu_RunInput_Menu_MovementVerify(menu);
                                 menu->currentColumn = 1;
 
                                 if (entry->flags & Disabled)
                                     break;
 
-                                M_RunMenuInput_MenuEntryCustom2Col_Activate(entry);
+                                Menu_RunInput_EntryCustom2Col_Activate(entry);
 
                                 S_PlaySound(PISTOL_BODYHIT);
 
                                 m_mousecaught = 1;
                             }
                         }
-                        else if (M_MouseWithinBounds(&m_mousepos, columnx[0], mousey, column0textsize.x, object->font->yline))
+                        else if (Menu_MouseWithinBounds(&m_mousepos, columnx[0], mousey, column0textsize.x, object->font->yline))
                         {
-                            if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, columnx[0], mousey, column0textsize.x, object->font->yline)))
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[0], mousey, column0textsize.x, object->font->yline)))
                             {
                                 menu->currentColumn = 0;
                             }
 
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->yline))
+                            if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->yline))
                             {
                                 menu->currentEntry = e;
-                                M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                                Menu_RunInput_Menu_MovementVerify(menu);
                                 menu->currentColumn = 0;
 
                                 if (entry->flags & Disabled)
                                     break;
 
-                                M_RunMenuInput_MenuEntryCustom2Col_Activate(entry);
+                                Menu_RunInput_EntryCustom2Col_Activate(entry);
 
                                 S_PlaySound(PISTOL_BODYHIT);
 
@@ -4240,7 +4240,7 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
 
                     int32_t s, p;
                     const int32_t z = entry->format->cursorScale;
-                    M_ShadePal(object->font, status, &s, &p);
+                    Menu_ShadePal(object->font, status, &s, &p);
 
                     const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
                     const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
@@ -4285,15 +4285,15 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                                 break;
                         }
 
-                        M_MenuText(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
+                        Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
                     }
 
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
-                        if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
                         if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
@@ -4302,25 +4302,25 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             const int32_t slideregionx = slidebarx + slidepointhalfwidth;
 
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
 
                             if (entry->flags & Disabled)
                                 break;
 
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
-                            if (M_MouseWithinBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
+                            if (Menu_MouseWithinBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
                             {
-                                M_RunMenuInput_MenuEntryRangeInt32_MovementArbitrary(entry, object, Blrintf((float)((object->max - object->min) * (m_mousepos.x - slideregionx)) / slideregionwidth + object->min));
+                                Menu_RunInput_EntryRangeInt32_MovementArbitrary(entry, object, Blrintf((float)((object->max - object->min) * (m_mousepos.x - slideregionx)) / slideregionwidth + object->min));
 
                                 m_mousecaught = 1;
                             }
                             // region outside the x-midlines clamps to the extremes
-                            else if (M_MouseWithinBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
+                            else if (Menu_MouseWithinBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
                             {
                                 if (m_mousepos.x > slideregionx + slideregionwidth/2)
-                                    M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(entry, object, object->max);
+                                    Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, object->max);
                                 else
-                                    M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(entry, object, object->min);
+                                    Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, object->min);
 
                                 m_mousecaught = 1;
                             }
@@ -4335,7 +4335,7 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
 
                     int32_t s, p;
                     const int32_t z = entry->format->cursorScale;
-                    M_ShadePal(object->font, status, &s, &p);
+                    Menu_ShadePal(object->font, status, &s, &p);
 
                     const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
                     const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
@@ -4380,15 +4380,15 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                                 break;
                         }
 
-                        M_MenuText(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
+                        Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
                     }
 
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
-                        if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
                         if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
@@ -4397,25 +4397,25 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             const int32_t slideregionx = slidebarx + slidepointhalfwidth;
 
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
 
                             if (entry->flags & Disabled)
                                 break;
 
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
-                            if (M_MouseWithinBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
+                            if (Menu_MouseWithinBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
                             {
-                                M_RunMenuInput_MenuEntryRangeFloat_MovementArbitrary(entry, object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
+                                Menu_RunInput_EntryRangeFloat_MovementArbitrary(entry, object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
 
                                 m_mousecaught = 1;
                             }
                             // region outside the x-midlines clamps to the extremes
-                            else if (M_MouseWithinBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
+                            else if (Menu_MouseWithinBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
                             {
                                 if (m_mousepos.x > slideregionx + slideregionwidth/2)
-                                    M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(entry, object, object->max);
+                                    Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, object->max);
                                 else
-                                    M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(entry, object, object->min);
+                                    Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, object->min);
 
                                 m_mousecaught = 1;
                             }
@@ -4430,7 +4430,7 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
 
                     int32_t s, p;
                     const int32_t z = entry->format->cursorScale;
-                    M_ShadePal(object->font, status, &s, &p);
+                    Menu_ShadePal(object->font, status, &s, &p);
 
                     const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
                     const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
@@ -4475,15 +4475,15 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                                 break;
                         }
 
-                        M_MenuText(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
+                        Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
                     }
 
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                     {
-                        if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                         {
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
                         if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
@@ -4492,25 +4492,25 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             const int32_t slideregionx = slidebarx + slidepointhalfwidth;
 
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
 
                             if (entry->flags & Disabled)
                                 break;
 
                             // region between the x-midline of the slidepoint at the extremes slides proportionally
-                            if (M_MouseWithinBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
+                            if (Menu_MouseWithinBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
                             {
-                                M_RunMenuInput_MenuEntryRangeDouble_MovementArbitrary(/*entry, */object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
+                                Menu_RunInput_EntryRangeDouble_MovementArbitrary(/*entry, */object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
 
                                 m_mousecaught = 1;
                             }
                             // region outside the x-midlines clamps to the extremes
-                            else if (M_MouseWithinBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
+                            else if (Menu_MouseWithinBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
                             {
                                 if (m_mousepos.x > slideregionx + slideregionwidth/2)
-                                    M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*entry, */object, object->max);
+                                    Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, object->max);
                                 else
-                                    M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*entry, */object, object->min);
+                                    Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, object->min);
 
                                 m_mousecaught = 1;
                             }
@@ -4530,14 +4530,14 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
 
                     if (entry == currentry && object->editfield != NULL)
                     {
-                        dim = M_MenuText(origin.x + stringx, stringy, object->font, object->editfield, status | MT_Literal, ydim_upper, ydim_lower);
+                        dim = Menu_Text(origin.x + stringx, stringy, object->font, object->editfield, status | MT_Literal, ydim_upper, ydim_lower);
                         h = max(dim.y, entry->font->yline);
 
                         rotatesprite_ybounds(origin.x + x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, h, tilesiz[SPINNINGNUKEICON].y<<16), stringy, scale(65536, h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10, ydim_upper, ydim_lower);
                     }
                     else
                     {
-                        dim = M_MenuText(origin.x + stringx, stringy, object->font, object->variable, status, ydim_upper, ydim_lower);
+                        dim = Menu_Text(origin.x + stringx, stringy, object->font, object->variable, status, ydim_upper, ydim_lower);
                         h = max(dim.y, entry->font->yline);
                     }
 
@@ -4549,21 +4549,21 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                     else
                         stringx -= dim.x;
 
-                    if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, h)))
+                    if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, h)))
                     {
-                        if (state != 1 && M_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, h))
+                        if (state != 1 && Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, h))
                         {
                             menu->currentEntry = e;
-                            M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                            Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
 #ifndef EDUKE32_TOUCH_DEVICES
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, h) && M_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
+                        if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, h) && Menu_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
 #endif
                         {
                             if (entry == currentry && object->editfield != NULL)
                             {
-                                M_RunMenuInput_MenuEntryString_Submit(entry, object);
+                                Menu_RunInput_EntryString_Submit(entry, object);
 
                                 S_PlaySound(PISTOL_BODYHIT);
 
@@ -4572,12 +4572,12 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
                             else if (state != 1)
                             {
                                 menu->currentEntry = e;
-                                M_RunMenuInput_MenuMenu_MovementVerify(menu);
+                                Menu_RunInput_Menu_MovementVerify(menu);
 
                                 if (entry->flags & Disabled)
                                     break;
 
-                                M_RunMenuInput_MenuEntryString_Activate(entry);
+                                Menu_RunInput_EntryString_Activate(entry);
 
                                 S_PlaySound(PISTOL_BODYHIT);
 
@@ -4596,13 +4596,13 @@ static int32_t M_RunMenu_MenuMenu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *cur
         }
 
         // draw indicators if applicable
-        M_RunMenu_Scrollbar(cm, menu->format, y_upper + totalHeight, &menu->scrollPos, 320<<16, origin);
+        Menu_RunScrollbar(cm, menu->format, y_upper + totalHeight, &menu->scrollPos, 320<<16, origin);
     }
 
     return totalHeight;
 }
 
-static void M_RunMenu_MenuOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *object, const vec2_t origin)
+static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *object, const vec2_t origin)
 {
     const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
     int32_t e, y = 0;
@@ -4653,7 +4653,7 @@ static void M_RunMenu_MenuOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_
         const int32_t dodraw = 0 <= y - object->options->scrollPos + object->options->font->yline && y - object->options->scrollPos <= object->options->menuFormat->bottomcutoff - object->options->menuFormat->pos.y;
 
         if (dodraw)
-            textsize = M_MenuText(origin.x + x, origin.y + y_upper + y - object->options->scrollPos, object->options->font, object->options->optionNames[e], status, ydim_upper, ydim_lower);
+            textsize = Menu_Text(origin.x + x, origin.y + y_upper + y - object->options->scrollPos, object->options->font, object->options->optionNames[e], status, ydim_upper, ydim_lower);
 
         height = object->options->font->yline; // max(textsize.y, object->options->font->yline);
 
@@ -4678,18 +4678,18 @@ static void M_RunMenu_MenuOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_
             const int32_t mousey = origin.y + y_upper + y - object->options->scrollPos;
             const int32_t mousewidth = object->options->entryFormat->width == 0 ? textsize.x : klabs(object->options->entryFormat->width);
 
-            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && M_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, object->options->font->yline)))
+            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, mousewidth, object->options->font->yline)))
             {
-                if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, object->options->font->yline)))
+                if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, object->options->font->yline)))
                 {
                     object->options->currentEntry = e;
                 }
 
-                if (!m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, object->options->font->yline))
+                if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, mousex, mousey, mousewidth, object->options->font->yline))
                 {
                     object->options->currentEntry = e;
 
-                    if (!M_RunMenuInput_MenuEntryOptionList_Activate(entry, object))
+                    if (!Menu_RunInput_EntryOptionList_Activate(entry, object))
                         S_PlaySound(PISTOL_BODYHIT);
 
                     m_mousecaught = 1;
@@ -4703,17 +4703,17 @@ static void M_RunMenu_MenuOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_
     }
 
     // draw indicators if applicable
-    M_RunMenu_Scrollbar(cm, object->options->menuFormat, y_upper + totalHeight, &object->options->scrollPos, 320<<16, origin);
+    Menu_RunScrollbar(cm, object->options->menuFormat, y_upper + totalHeight, &object->options->scrollPos, 320<<16, origin);
 }
 
-static int32_t M_RunMenuInput_MouseAdvance(void)
+static int32_t Menu_RunInput_MouseAdvance(void)
 {
     return MOUSEACTIVECONDITIONAL(!m_mousecaught && mousepressstate == Mouse_Released);
 }
 
-static int32_t M_RunMenuInput_MouseReturn_status;
+static int32_t Menu_RunInput_MouseReturn_status;
 
-static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
+static void Menu_Run_MouseReturn(Menu_t *cm, const vec2_t origin)
 {
 #if !defined EDUKE32_TOUCH_DEVICES
     if (!MOUSEACTIVECONDITION)
@@ -4724,17 +4724,17 @@ static void M_RunMenu_MouseReturn(Menu_t *cm, const vec2_t origin)
         return;
 
     rotatesprite_(origin.x + (tilesiz[SELECTDIR].y << 16), 0, 65536, 512, SELECTDIR,
-                  M_RunMenuInput_MouseReturn_status ? 4 - (sintable[(totalclock << 4) & 2047] >> 11) : 6, 0,
+                  Menu_RunInput_MouseReturn_status ? 4 - (sintable[(totalclock << 4) & 2047] >> 11) : 6, 0,
                   2 | 8 | 16 | RS_ALIGN_L, MOUSEALPHA, 0, xdim_from_320_16(origin.x + x_widescreen_left()), 0,
                   xdim_from_320_16(origin.x + x_widescreen_left() + (tilesiz[SELECTDIR].y << 15)), ydim - 1);
 }
 
-static int32_t M_RunMenuInput_MouseReturn(void)
+static int32_t Menu_RunInput_MouseReturn(void)
 {
 #if !defined EDUKE32_TOUCH_DEVICES
     if (!MOUSEACTIVECONDITION)
     {
-        M_RunMenuInput_MouseReturn_status = 0;
+        Menu_RunInput_MouseReturn_status = 0;
         return 0;
     }
 #endif
@@ -4744,23 +4744,23 @@ static int32_t M_RunMenuInput_MouseReturn(void)
 
     const int32_t MouseReturnRegionX = x_widescreen_left();
 
-    if (M_MouseWithinBounds(&m_mousepos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16))
+    if (Menu_MouseWithinBounds(&m_mousepos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16))
     {
 #if !defined EDUKE32_TOUCH_DEVICES
-        M_RunMenuInput_MouseReturn_status = 1;
+        Menu_RunInput_MouseReturn_status = 1;
 #else
-        M_RunMenuInput_MouseReturn_status = (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held);
+        Menu_RunInput_MouseReturn_status = (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held);
 #endif
 
-        return !m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousedownpos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16);
+        return !m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16);
     }
 
-    M_RunMenuInput_MouseReturn_status = 0;
+    Menu_RunInput_MouseReturn_status = 0;
 
     return 0;
 }
 
-static void M_RunMenu_AbbreviateNameIntoBuffer(const char* name, int32_t entrylength)
+static void Menu_Run_AbbreviateNameIntoBuffer(const char* name, int32_t entrylength)
 {
     int32_t len = Bstrlen(name);
     Bstrncpy(tempbuf, name, len);
@@ -4774,7 +4774,7 @@ static void M_RunMenu_AbbreviateNameIntoBuffer(const char* name, int32_t entryle
     tempbuf[len] = 0;
 }
 
-static void M_RunMenuRecurse(MenuID_t cm, const vec2_t origin)
+static void Menu_Recurse(MenuID_t cm, const vec2_t origin)
 {
     switch (cm)
     {
@@ -4784,18 +4784,18 @@ static void M_RunMenuRecurse(MenuID_t cm, const vec2_t origin)
     case MENU_CHEATENTRY:
     case MENU_CHEAT_WARP:
     case MENU_CHEAT_SKILL:
-        M_RunMenu(m_previousMenu, origin);
+        Menu_Run(m_previousMenu, origin);
         break;
     default:
         break;
     }
 }
 
-static void M_RunMenu(Menu_t *cm, const vec2_t origin)
+static void Menu_Run(Menu_t *cm, const vec2_t origin)
 {
     const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
 
-    M_RunMenuRecurse(cm->menuID, origin);
+    Menu_Recurse(cm->menuID, origin);
 
     switch (cm->type)
     {
@@ -4803,11 +4803,11 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
         {
             MenuVerify_t *object = (MenuVerify_t*)cm->object;
 
-            M_PreMenu(cm->menuID);
+            Menu_Pre(cm->menuID);
 
-            M_PreMenuDrawBackground(cm->menuID, origin);
+            Menu_PreDrawBackground(cm->menuID, origin);
 
-            M_PreMenuDraw(cm->menuID, NULL, origin);
+            Menu_PreDraw(cm->menuID, NULL, origin);
 
             rotatesprite_fs(origin.x + object->cursorpos.x, origin.y + object->cursorpos.y, 65536, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
 
@@ -4818,11 +4818,11 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
         {
             MenuMessage_t *object = (MenuMessage_t*)cm->object;
 
-            M_PreMenu(cm->menuID);
+            Menu_Pre(cm->menuID);
 
-            M_PreMenuDrawBackground(cm->menuID, origin);
+            Menu_PreDrawBackground(cm->menuID, origin);
 
-            M_PreMenuDraw(cm->menuID, NULL, origin);
+            Menu_PreDraw(cm->menuID, NULL, origin);
 
             rotatesprite_fs(origin.x + object->cursorpos.x, origin.y + object->cursorpos.y, 65536, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
 
@@ -4833,11 +4833,11 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
         {
             MenuTextForm_t *object = (MenuTextForm_t*)cm->object;
 
-            M_PreMenu(cm->menuID);
+            Menu_Pre(cm->menuID);
 
-            M_PreMenuDrawBackground(cm->menuID, origin);
+            Menu_PreDrawBackground(cm->menuID, origin);
 
-            M_BlackRectangle(origin.x + (60<<16), origin.y + (86<<16), 200<<16, 28<<16, 0);
+            Menu_BlackRectangle(origin.x + (60<<16), origin.y + (86<<16), 200<<16, 28<<16, 0);
 
             G_ScreenText(STARTALPHANUM, origin.x + (160<<16), origin.y + (98<<16), 65536, 0, 0, object->instructions, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, mgametext_xbetween, 1<<16, TEXT_XCENTER|TEXT_YBOTTOM, 0, 0, xdim-1, ydim-1);
 
@@ -4855,7 +4855,7 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
 
             const vec2_t textreturn = G_ScreenText(STARTALPHANUM, origin.x + (160<<16), origin.y + (102<<16), 65536, 0, 0, displaytext, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, mgametext_xbetween, 1<<16, TEXT_XCENTER, 0, 0, xdim-1, ydim-1);
 
-            M_PreMenuDraw(cm->menuID, NULL, origin);
+            Menu_PreDraw(cm->menuID, NULL, origin);
 
             rotatesprite_fs(origin.x + (168<<16) + (textreturn.x>>1), origin.y + (106<<16), 32768, 0, SPINNINGNUKEICON + ((totalclock >> 3) % 7), cursorShade, 0, 2 | 8);
 
@@ -4868,20 +4868,20 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
             const int32_t MenuFileSelect_scrollbar_rightedge[2] = { 160<<16, 284<<16 };
             int32_t i, selected = 0;
 
-            M_PreMenu(cm->menuID);
+            Menu_Pre(cm->menuID);
 
-            M_PreMenuDrawBackground(cm->menuID, origin);
+            Menu_PreDrawBackground(cm->menuID, origin);
 
             if (object->title != NoTitle)
-                M_DrawTopBar(origin);
+                Menu_DrawTopBar(origin);
 
 
             // black translucent background underneath file lists
-            M_BlackRectangle(origin.x + (36<<16), origin.y + (42<<16), 248<<16, 123<<16, 1|32);
+            Menu_BlackRectangle(origin.x + (36<<16), origin.y + (42<<16), 248<<16, 123<<16, 1|32);
 
             // path
             Bsnprintf(tempbuf, sizeof(tempbuf), "Path: %s", object->destination);
-            M_MenuText(origin.x + object->format[0]->pos.x, origin.y + (32<<16), &MF_Bluefont, tempbuf, 0, 0, ydim-1);
+            Menu_Text(origin.x + object->format[0]->pos.x, origin.y + (32<<16), &MF_Bluefont, tempbuf, 0, 0, ydim-1);
 
             for (i = 0; i < 2; ++i)
             {
@@ -4919,7 +4919,7 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
 
                         // pal = dir->source==CACHE1D_SOURCE_ZIP ? 8 : 2
 
-                        M_RunMenu_AbbreviateNameIntoBuffer(dir->name, USERMAPENTRYLENGTH);
+                        Menu_Run_AbbreviateNameIntoBuffer(dir->name, USERMAPENTRYLENGTH);
 
                         const int32_t thisx = object->format[i]->pos.x;
                         const int32_t thisy = y - object->scrollPos[i];
@@ -4929,24 +4929,24 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
                             const int32_t mousex = origin.x + thisx;
                             const int32_t mousey = origin.y + y_upper + thisy;
 
-                            vec2_t textdim = M_MenuText(mousex, mousey, object->font[i], tempbuf, status, ydim_upper, ydim_lower);
+                            vec2_t textdim = Menu_Text(mousex, mousey, object->font[i], tempbuf, status, ydim_upper, ydim_lower);
 
-                            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && M_MouseWithinBounds(&m_mousepos, mousex, mousey, textdim.x, object->font[i]->yline)))
+                            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && Menu_MouseWithinBounds(&m_mousepos, mousex, mousey, textdim.x, object->font[i]->yline)))
                             {
-                                if (MOUSEWATCHPOINTCONDITIONAL(M_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, textdim.x, object->font[i]->yline)))
+                                if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, textdim.x, object->font[i]->yline)))
                                 {
                                     object->findhigh[i] = dir;
                                     object->currentList = i;
 
-                                    M_RunMenuInput_FileSelect_MovementVerify(object);
+                                    Menu_RunInput_FileSelect_MovementVerify(object);
                                 }
 
-                                if (!m_mousecaught && mousepressstate == Mouse_Released && M_MouseWithinBounds(&m_mousedownpos, mousex, mousey, textdim.x, object->font[i]->yline))
+                                if (!m_mousecaught && mousepressstate == Mouse_Released && Menu_MouseWithinBounds(&m_mousedownpos, mousex, mousey, textdim.x, object->font[i]->yline))
                                 {
                                     object->findhigh[i] = dir;
                                     object->currentList = i;
 
-                                    M_RunMenuInput_FileSelect_MovementVerify(object);
+                                    Menu_RunInput_FileSelect_MovementVerify(object);
 
                                     m_mousecaught = 1;
                                     selected = 1;
@@ -4957,18 +4957,18 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
                         y += object->font[i]->yline + object->marginBottom[i];
                     }
 
-                    M_RunMenu_Scrollbar(cm, object->format[i], y_upper + totalHeight, &object->scrollPos[i], MenuFileSelect_scrollbar_rightedge[i], origin);
+                    Menu_RunScrollbar(cm, object->format[i], y_upper + totalHeight, &object->scrollPos[i], MenuFileSelect_scrollbar_rightedge[i], origin);
                 }
             }
 
-            M_PreMenuDraw(cm->menuID, NULL, origin);
+            Menu_PreDraw(cm->menuID, NULL, origin);
 
             if (object->title != NoTitle)
-                M_DrawTopBarCaption(object->title, origin);
+                Menu_DrawTopBarCaption(object->title, origin);
 
             if (selected)
             {
-                M_RunMenuInput_FileSelect_Select(object);
+                Menu_RunInput_FileSelect_Select(object);
 
                 S_PlaySound(PISTOL_BODYHIT);
 
@@ -4982,17 +4982,17 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
         {
             MenuPanel_t *object = (MenuPanel_t*)cm->object;
 
-            M_PreMenu(cm->menuID);
+            Menu_Pre(cm->menuID);
 
-            M_PreMenuDrawBackground(cm->menuID, origin);
-
-            if (object->title != NoTitle)
-                M_DrawTopBar(origin);
-
-            M_PreMenuDraw(cm->menuID, NULL, origin);
+            Menu_PreDrawBackground(cm->menuID, origin);
 
             if (object->title != NoTitle)
-                M_DrawTopBarCaption(object->title, origin);
+                Menu_DrawTopBar(origin);
+
+            Menu_PreDraw(cm->menuID, NULL, origin);
+
+            if (object->title != NoTitle)
+                Menu_DrawTopBarCaption(object->title, origin);
 
             break;
         }
@@ -5004,51 +5004,51 @@ static void M_RunMenu(Menu_t *cm, const vec2_t origin)
             MenuMenu_t *menu = (MenuMenu_t*)cm->object;
             MenuEntry_t *currentry = menu->entrylist[menu->currentEntry];
 
-            state = M_DetermineMenuSpecialState(currentry);
+            state = Menu_DetermineSpecialState(currentry);
 
             if (state != 2)
             {
-                M_PreMenu(cm->menuID);
+                Menu_Pre(cm->menuID);
 
-                M_PreMenuDrawBackground(cm->menuID, origin);
+                Menu_PreDrawBackground(cm->menuID, origin);
 
                 if (menu->title != NoTitle)
-                    M_DrawTopBar(origin);
+                    Menu_DrawTopBar(origin);
 
-                M_PreMenuDraw(cm->menuID, currentry, origin);
+                Menu_PreDraw(cm->menuID, currentry, origin);
 
-                M_RunMenu_MenuMenu(cm, menu, currentry, state, origin);
+                M_RunMenu_Menu(cm, menu, currentry, state, origin);
             }
             else
             {
-                M_PreMenuDrawBackground(cm->menuID, origin);
+                Menu_PreDrawBackground(cm->menuID, origin);
 
                 if (menu->title != NoTitle)
-                    M_DrawTopBar(origin);
+                    Menu_DrawTopBar(origin);
 
                 if (currentry->type == Option)
                 {
                     if (currentry->name)
-                        M_DrawTopBarCaption(currentry->name, origin);
+                        Menu_DrawTopBarCaption(currentry->name, origin);
 
-                    M_PreMenuOptionListDraw(currentry, origin);
+                    Menu_PreOptionListDraw(currentry, origin);
 
-                    M_RunMenu_MenuOptionList(cm, currentry, (MenuOption_t*)currentry->entry, origin);
+                    Menu_RunOptionList(cm, currentry, (MenuOption_t*)currentry->entry, origin);
                 }
                 else if (currentry->type == Custom2Col)
                 {
-                    M_PreMenuCustom2ColScreenDraw(currentry, origin);
+                    Menu_PreCustom2ColScreenDraw(currentry, origin);
                 }
             }
 
             if ((currentry->type != Option || state != 2) && menu->title != NoTitle)
-                M_DrawTopBarCaption(menu->title, origin);
+                Menu_DrawTopBarCaption(menu->title, origin);
 
             break;
         }
     }
 
-    M_RunMenu_MouseReturn(cm, origin);
+    Menu_Run_MouseReturn(cm, origin);
 }
 
 /*
@@ -5056,11 +5056,11 @@ Note: When menus are exposed to scripting, care will need to be taken so that
 a user cannot define an empty MenuEntryList, or one containing only spacers,
 or else this function will recurse infinitely.
 */
-static MenuEntry_t *M_RunMenuInput_MenuMenu_MovementVerify(MenuMenu_t *menu)
+static MenuEntry_t *Menu_RunInput_Menu_MovementVerify(MenuMenu_t *menu)
 {
     MenuEntry_t *currentry = menu->entrylist[menu->currentEntry];
 
-    M_MenuEntryFocus(/*currentry*/);
+    Menu_EntryFocus(/*currentry*/);
 
     if (currentry->ybottom - menu->scrollPos > klabs(menu->format->bottomcutoff))
         menu->scrollPos = currentry->ybottom - klabs(menu->format->bottomcutoff);
@@ -5070,7 +5070,7 @@ static MenuEntry_t *M_RunMenuInput_MenuMenu_MovementVerify(MenuMenu_t *menu)
     return currentry;
 }
 
-static MenuEntry_t *M_RunMenuInput_MenuMenu_Movement(MenuMenu_t *menu, MenuMovement_t direction)
+static MenuEntry_t *Menu_RunInput_Menu_Movement(MenuMenu_t *menu, MenuMovement_t direction)
 {
     switch (direction)
     {
@@ -5081,7 +5081,7 @@ static MenuEntry_t *M_RunMenuInput_MenuMenu_Movement(MenuMenu_t *menu, MenuMovem
                 {
                     --menu->currentEntry;
                     if (menu->currentEntry < 0)
-                        return M_RunMenuInput_MenuMenu_Movement(menu, MM_End);
+                        return Menu_RunInput_Menu_Movement(menu, MM_End);
                 }
                 while (!menu->entrylist[menu->currentEntry] || menu->entrylist[menu->currentEntry]->type == Spacer);
             break;
@@ -5093,7 +5093,7 @@ static MenuEntry_t *M_RunMenuInput_MenuMenu_Movement(MenuMenu_t *menu, MenuMovem
                 {
                     ++menu->currentEntry;
                     if (menu->currentEntry >= menu->numEntries)
-                        return M_RunMenuInput_MenuMenu_Movement(menu, MM_Home);
+                        return Menu_RunInput_Menu_Movement(menu, MM_Home);
                 }
                 while (!menu->entrylist[menu->currentEntry] || menu->entrylist[menu->currentEntry]->type == Spacer);
             break;
@@ -5106,19 +5106,19 @@ static MenuEntry_t *M_RunMenuInput_MenuMenu_Movement(MenuMenu_t *menu, MenuMovem
             break;
     }
 
-    return M_RunMenuInput_MenuMenu_MovementVerify(menu);
+    return Menu_RunInput_Menu_MovementVerify(menu);
 }
 
-static void M_RunMenuInput_MenuEntryLink_Activate(MenuEntry_t *entry)
+static void Menu_RunInput_EntryLink_Activate(MenuEntry_t *entry)
 {
     MenuLink_t *link = (MenuLink_t*)entry->entry;
 
-    M_MenuEntryLinkActivate(entry);
+    Menu_EntryLinkActivate(entry);
 
-    M_ChangeMenuAnimate(link->linkID, link->animation);
+    Menu_AnimateChange(link->linkID, link->animation);
 }
 
-static void M_RunMenuInput_MenuEntryOptionList_MovementVerify(MenuOption_t *object)
+static void Menu_RunInput_EntryOptionList_MovementVerify(MenuOption_t *object)
 {
     const int32_t listytop = object->options->menuFormat->pos.y;
     // assumes height == font->yline!
@@ -5132,7 +5132,7 @@ static void M_RunMenuInput_MenuEntryOptionList_MovementVerify(MenuOption_t *obje
         object->options->scrollPos = ytop - listytop;
 }
 
-static void M_RunMenuInput_MenuEntryOptionList_Movement(MenuOption_t *object, MenuMovement_t direction)
+static void Menu_RunInput_EntryOptionList_Movement(MenuOption_t *object, MenuMovement_t direction)
 {
     switch (direction)
     {
@@ -5156,20 +5156,20 @@ static void M_RunMenuInput_MenuEntryOptionList_Movement(MenuOption_t *object, Me
             break;
     }
 
-    M_RunMenuInput_MenuEntryOptionList_MovementVerify(object);
+    Menu_RunInput_EntryOptionList_MovementVerify(object);
 }
 
-static int32_t M_RunMenuInput_MenuEntryOption_Modify(MenuEntry_t *entry, MenuOption_t *object, int32_t newValueIndex)
+static int32_t Menu_RunInput_EntryOption_Modify(MenuEntry_t *entry, MenuOption_t *object, int32_t newValueIndex)
 {
     int32_t newValue = (object->options->optionValues == NULL) ? newValueIndex : object->options->optionValues[newValueIndex];
-    if (!M_MenuEntryOptionModify(entry, newValue))
+    if (!Menu_EntryOptionModify(entry, newValue))
     {
         object->currentOption = newValueIndex;
 
         if ((int32_t*)object->data != NULL) // NULL implies the functions will handle it
             *((int32_t*)object->data) = newValue;
 
-        M_MenuEntryOptionDidModify(entry);
+        Menu_EntryOptionDidModify(entry);
 
         return 0;
     }
@@ -5177,7 +5177,7 @@ static int32_t M_RunMenuInput_MenuEntryOption_Modify(MenuEntry_t *entry, MenuOpt
     return -1;
 }
 
-static int32_t M_RunMenuInput_MenuEntryOption_Movement(MenuEntry_t *entry, MenuOption_t *object, MenuMovement_t direction)
+static int32_t Menu_RunInput_EntryOption_Movement(MenuEntry_t *entry, MenuOption_t *object, MenuMovement_t direction)
 {
     int32_t newValueIndex = object->currentOption;
 
@@ -5203,25 +5203,25 @@ static int32_t M_RunMenuInput_MenuEntryOption_Movement(MenuEntry_t *entry, MenuO
             break;
     }
 
-    return M_RunMenuInput_MenuEntryOption_Modify(entry, object, newValueIndex);
+    return Menu_RunInput_EntryOption_Modify(entry, object, newValueIndex);
 }
 
-static int32_t M_RunMenuInput_MenuEntryOption_Activate(MenuEntry_t *entry, MenuOption_t *object)
+static int32_t Menu_RunInput_EntryOption_Activate(MenuEntry_t *entry, MenuOption_t *object)
 {
     if (object->options->features & 2)
-        return M_RunMenuInput_MenuEntryOption_Movement(entry, object, MM_Right);
+        return Menu_RunInput_EntryOption_Movement(entry, object, MM_Right);
     else
     {
         object->options->currentEntry = object->currentOption >= 0 ? object->currentOption : 0;
-        M_RunMenuInput_MenuEntryOptionList_MovementVerify(object);
+        Menu_RunInput_EntryOptionList_MovementVerify(object);
 
         return 0;
     }
 }
 
-static int32_t M_RunMenuInput_MenuEntryOptionList_Activate(MenuEntry_t *entry, MenuOption_t *object)
+static int32_t Menu_RunInput_EntryOptionList_Activate(MenuEntry_t *entry, MenuOption_t *object)
 {
-    if (!M_RunMenuInput_MenuEntryOption_Modify(entry, object, object->options->currentEntry))
+    if (!Menu_RunInput_EntryOption_Modify(entry, object, object->options->currentEntry))
     {
         object->options->currentEntry = -1;
 
@@ -5231,22 +5231,22 @@ static int32_t M_RunMenuInput_MenuEntryOptionList_Activate(MenuEntry_t *entry, M
     return -1;
 }
 
-static void M_RunMenuInput_MenuEntryCustom2Col_Activate(MenuEntry_t *entry)
+static void Menu_RunInput_EntryCustom2Col_Activate(MenuEntry_t *entry)
 {
     MenuCustom2Col_t *object = (MenuCustom2Col_t*)entry->entry;
 
-    M_MenuCustom2ColScreen(/*entry*/);
+    Menu_Custom2ColScreen(/*entry*/);
 
     object->screenOpen = 1;
 }
 
-static void M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue)
+static void Menu_RunInput_EntryRangeInt32_MovementVerify(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue)
 {
-    if (!M_MenuEntryRangeInt32Modify(entry, newValue))
+    if (!Menu_EntryRangeInt32Modify(entry, newValue))
         *object->variable = newValue;
 }
 
-static void M_RunMenuInput_MenuEntryRangeInt32_MovementArbitrary(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue)
+static void Menu_RunInput_EntryRangeInt32_MovementArbitrary(MenuEntry_t *entry, MenuRangeInt32_t *object, int32_t newValue)
 {
     if (object->flags & EnforceIntervals)
     {
@@ -5256,10 +5256,10 @@ static void M_RunMenuInput_MenuEntryRangeInt32_MovementArbitrary(MenuEntry_t *en
         newValue = Blrintf(interval * newValueIndex + object->min);
     }
 
-    M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(entry, object, newValue);
+    Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, newValue);
 }
 
-static void M_RunMenuInput_MenuEntryRangeInt32_Movement(MenuEntry_t *entry, MenuRangeInt32_t *object, MenuMovement_t direction)
+static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRangeInt32_t *object, MenuMovement_t direction)
 {
     const float interval = ((float) (object->max - object->min)) / (object->steps - 1);
     const float currentPos = (float) (*object->variable - object->min) / interval;
@@ -5290,19 +5290,19 @@ static void M_RunMenuInput_MenuEntryRangeInt32_Movement(MenuEntry_t *entry, Menu
             break;
     }
 
-    M_RunMenuInput_MenuEntryRangeInt32_MovementVerify(entry, object, Blrintf(interval * newValueIndex + object->min));
+    Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, Blrintf(interval * newValueIndex + object->min));
 }
 
-static void M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue)
+static void Menu_RunInput_EntryRangeFloat_MovementVerify(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue)
 {
-    if (!M_MenuEntryRangeFloatModify(entry, newValue))
+    if (!Menu_EntryRangeFloatModify(entry, newValue))
     {
         *object->variable = newValue;
-        M_MenuEntryRangeFloatDidModify(entry);
+        Menu_EntryRangeFloatDidModify(entry);
     }
 }
 
-static void M_RunMenuInput_MenuEntryRangeFloat_MovementArbitrary(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue)
+static void Menu_RunInput_EntryRangeFloat_MovementArbitrary(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue)
 {
     if (object->flags & EnforceIntervals)
     {
@@ -5312,10 +5312,10 @@ static void M_RunMenuInput_MenuEntryRangeFloat_MovementArbitrary(MenuEntry_t *en
         newValue = interval * newValueIndex + object->min;
     }
 
-    M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(entry, object, newValue);
+    Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, newValue);
 }
 
-static void M_RunMenuInput_MenuEntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction)
+static void Menu_RunInput_EntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction)
 {
     const float interval = (object->max - object->min) / (object->steps - 1);
     const float currentPos = (*object->variable - object->min) / interval;
@@ -5346,16 +5346,16 @@ static void M_RunMenuInput_MenuEntryRangeFloat_Movement(MenuEntry_t *entry, Menu
             break;
     }
 
-    M_RunMenuInput_MenuEntryRangeFloat_MovementVerify(entry, object, interval * newValueIndex + object->min);
+    Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, interval * newValueIndex + object->min);
 }
 
-static void M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue)
+static void Menu_RunInput_EntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue)
 {
-    if (!M_MenuEntryRangeDoubleModify(/*entry, newValue*/))
+    if (!Menu_EntryRangeDoubleModify(/*entry, newValue*/))
         *object->variable = newValue;
 }
 
-static void M_RunMenuInput_MenuEntryRangeDouble_MovementArbitrary(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue)
+static void Menu_RunInput_EntryRangeDouble_MovementArbitrary(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue)
 {
     if (object->flags & EnforceIntervals)
     {
@@ -5365,10 +5365,10 @@ static void M_RunMenuInput_MenuEntryRangeDouble_MovementArbitrary(/*MenuEntry_t 
         newValue = interval * newValueIndex + object->min;
     }
 
-    M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*entry, */object, newValue);
+    Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, newValue);
 }
 
-static void M_RunMenuInput_MenuEntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction)
+static void Menu_RunInput_EntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction)
 {
     const double interval = (object->max - object->min) / (object->steps - 1);
     const double currentPos = (*object->variable - object->min) / interval;
@@ -5399,10 +5399,10 @@ static void M_RunMenuInput_MenuEntryRangeDouble_Movement(/*MenuEntry_t *entry, *
             break;
     }
 
-    M_RunMenuInput_MenuEntryRangeDouble_MovementVerify(/*entry, */object, interval * newValueIndex + object->min);
+    Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, interval * newValueIndex + object->min);
 }
 
-static void M_RunMenuInput_MenuEntryString_Activate(MenuEntry_t *entry)
+static void Menu_RunInput_EntryString_Activate(MenuEntry_t *entry)
 {
     MenuString_t *object = (MenuString_t*)entry->entry;
 
@@ -5413,28 +5413,28 @@ static void M_RunMenuInput_MenuEntryString_Activate(MenuEntry_t *entry)
     if (object->maxlength > TYPEBUFSIZE)
         object->maxlength = TYPEBUFSIZE;
 
-    M_MenuEntryStringActivate(/*entry*/);
+    Menu_EntryStringActivate(/*entry*/);
     WithSDL2_StartTextInput();
 }
 
-static void M_RunMenuInput_MenuEntryString_Submit(MenuEntry_t *entry, MenuString_t *object)
+static void Menu_RunInput_EntryString_Submit(MenuEntry_t *entry, MenuString_t *object)
 {
-    if (!M_MenuEntryStringSubmit(entry, object->editfield))
+    if (!Menu_EntryStringSubmit(entry, object->editfield))
         Bstrncpy(object->variable, object->editfield, object->maxlength);
 
     object->editfield = NULL;
     WithSDL2_StopTextInput();
 }
 
-static void M_RunMenuInput_MenuEntryString_Cancel(/*MenuEntry_t *entry, */MenuString_t *object)
+static void Menu_RunInput_EntryString_Cancel(/*MenuEntry_t *entry, */MenuString_t *object)
 {
-    M_MenuEntryStringCancel(/*entry*/);
+    Menu_EntryStringCancel(/*entry*/);
 
     object->editfield = NULL;
     WithSDL2_StopTextInput();
 }
 
-static void M_RunMenuInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
+static void Menu_RunInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
 {
     const int32_t listytop = object->format[object->currentList]->pos.y;
     const int32_t listybottom = klabs(object->format[object->currentList]->bottomcutoff);
@@ -5447,7 +5447,7 @@ static void M_RunMenuInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
         object->scrollPos[object->currentList] = ytop - listytop;
 }
 
-static void M_RunMenuInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMovement_t direction)
+static void Menu_RunInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMovement_t direction)
 {
     switch (direction)
     {
@@ -5483,10 +5483,10 @@ static void M_RunMenuInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMov
             break;
     }
 
-    M_RunMenuInput_FileSelect_MovementVerify(object);
+    Menu_RunInput_FileSelect_MovementVerify(object);
 }
 
-static void M_RunMenuInput_FileSelect_Select(MenuFileSelect_t *object)
+static void Menu_RunInput_FileSelect_Select(MenuFileSelect_t *object)
 {
     if (!object->findhigh[object->currentList])
         return;
@@ -5498,15 +5498,15 @@ static void M_RunMenuInput_FileSelect_Select(MenuFileSelect_t *object)
         Bstrcat(object->destination, "/");
         Bcorrectfilename(object->destination, 1);
 
-        M_MenuFileSelectInit(object);
+        Menu_FileSelectInit(object);
     }
     else
     {
-        M_MenuFileSelect(1);
+        Menu_FileSelect(1);
     }
 }
 
-static void M_RunMenuInput(Menu_t *cm)
+static void Menu_RunInput(Menu_t *cm)
 {
     switch (cm->type)
     {
@@ -5514,29 +5514,29 @@ static void M_RunMenuInput(Menu_t *cm)
         {
             MenuPanel_t *panel = (MenuPanel_t*)cm->object;
 
-            if (I_ReturnTrigger() || M_RunMenuInput_MouseReturn())
+            if (I_ReturnTrigger() || Menu_RunInput_MouseReturn())
             {
                 I_ReturnTriggerClear();
                 m_mousecaught = 1;
 
                 S_PlaySound(EXITMENUSOUND);
 
-                M_ChangeMenuAnimate(cm->parentID, cm->parentAnimation);
+                Menu_AnimateChange(cm->parentID, cm->parentAnimation);
             }
             else if (I_PanelUp())
             {
                 I_PanelUpClear();
 
                 S_PlaySound(KICK_HIT);
-                M_ChangeMenuAnimate(panel->previousID, panel->previousAnimation);
+                Menu_AnimateChange(panel->previousID, panel->previousAnimation);
             }
-            else if (I_PanelDown() || M_RunMenuInput_MouseAdvance())
+            else if (I_PanelDown() || Menu_RunInput_MouseAdvance())
             {
                 I_PanelDownClear();
                 m_mousecaught = 1;
 
                 S_PlaySound(KICK_HIT);
-                M_ChangeMenuAnimate(panel->nextID, panel->nextAnimation);
+                Menu_AnimateChange(panel->nextID, panel->nextAnimation);
             }
             break;
         }
@@ -5546,7 +5546,7 @@ static void M_RunMenuInput(Menu_t *cm)
             MenuTextForm_t *object = (MenuTextForm_t*)cm->object;
             int32_t hitstate = I_EnterText(object->input, object->maxlength, 0);
 
-            if (hitstate == -1 || M_RunMenuInput_MouseReturn())
+            if (hitstate == -1 || Menu_RunInput_MouseReturn())
             {
                 m_mousecaught = 1;
 
@@ -5554,14 +5554,14 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 object->input = NULL;
 
-                M_ChangeMenuAnimate(cm->parentID, cm->parentAnimation);
+                Menu_AnimateChange(cm->parentID, cm->parentAnimation);
                 WithSDL2_StopTextInput();
             }
-            else if (hitstate == 1 || M_RunMenuInput_MouseAdvance())
+            else if (hitstate == 1 || Menu_RunInput_MouseAdvance())
             {
                 m_mousecaught = 1;
 
-                M_MenuTextFormSubmit(object->input);
+                Menu_TextFormSubmit(object->input);
 
                 object->input = NULL;
                 WithSDL2_StopTextInput();
@@ -5573,7 +5573,7 @@ static void M_RunMenuInput(Menu_t *cm)
         {
             MenuFileSelect_t *object = (MenuFileSelect_t*)cm->object;
 
-            if (I_ReturnTrigger() || M_RunMenuInput_MouseReturn())
+            if (I_ReturnTrigger() || Menu_RunInput_MouseReturn())
             {
                 I_ReturnTriggerClear();
                 m_mousecaught = 1;
@@ -5582,15 +5582,15 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 object->destination[0] = 0;
 
-                M_MenuFileSelect(0);
+                Menu_FileSelect(0);
 
-                M_ChangeMenuAnimate(cm->parentID, MA_Return);
+                Menu_AnimateChange(cm->parentID, MA_Return);
             }
             else if (I_AdvanceTrigger())
             {
                 I_AdvanceTriggerClear();
 
-                M_RunMenuInput_FileSelect_Select(object);
+                Menu_RunInput_FileSelect_Select(object);
 
                 S_PlaySound(PISTOL_BODYHIT);
             }
@@ -5598,7 +5598,7 @@ static void M_RunMenuInput(Menu_t *cm)
             {
                 KB_ClearKeyDown(sc_Home);
 
-                M_RunMenuInput_FileSelect_Movement(object, MM_Home);
+                Menu_RunInput_FileSelect_Movement(object, MM_Home);
 
                 S_PlaySound(KICK_HIT);
             }
@@ -5606,7 +5606,7 @@ static void M_RunMenuInput(Menu_t *cm)
             {
                 KB_ClearKeyDown(sc_End);
 
-                M_RunMenuInput_FileSelect_Movement(object, MM_End);
+                Menu_RunInput_FileSelect_Movement(object, MM_End);
 
                 S_PlaySound(KICK_HIT);
             }
@@ -5628,7 +5628,7 @@ static void M_RunMenuInput(Menu_t *cm)
                 {
                     object->findhigh[object->currentList] = seeker;
 
-                    M_RunMenuInput_FileSelect_MovementVerify(object);
+                    Menu_RunInput_FileSelect_MovementVerify(object);
 
                     S_PlaySound(KICK_HIT);
                 }
@@ -5651,7 +5651,7 @@ static void M_RunMenuInput(Menu_t *cm)
                 {
                     object->findhigh[object->currentList] = seeker;
 
-                    M_RunMenuInput_FileSelect_MovementVerify(object);
+                    Menu_RunInput_FileSelect_MovementVerify(object);
 
                     S_PlaySound(KICK_HIT);
                 }
@@ -5663,7 +5663,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 if ((object->currentList ? object->fnlist.numdirs : object->fnlist.numfiles) > 0)
                 {
-                    M_RunMenuInput_FileSelect_Movement(object, MM_Swap);
+                    Menu_RunInput_FileSelect_Movement(object, MM_Swap);
 
                     S_PlaySound(KICK_HIT);
                 }
@@ -5672,7 +5672,7 @@ static void M_RunMenuInput(Menu_t *cm)
             {
                 I_MenuUpClear();
 
-                M_RunMenuInput_FileSelect_Movement(object, MM_Up);
+                Menu_RunInput_FileSelect_Movement(object, MM_Up);
 
                 S_PlaySound(KICK_HIT);
             }
@@ -5680,7 +5680,7 @@ static void M_RunMenuInput(Menu_t *cm)
             {
                 I_MenuDownClear();
 
-                M_RunMenuInput_FileSelect_Movement(object, MM_Down);
+                Menu_RunInput_FileSelect_Movement(object, MM_Down);
 
                 S_PlaySound(KICK_HIT);
             }
@@ -5707,26 +5707,26 @@ static void M_RunMenuInput(Menu_t *cm)
                     {
                         object->findhigh[object->currentList] = seeker;
 
-                        M_RunMenuInput_FileSelect_MovementVerify(object);
+                        Menu_RunInput_FileSelect_MovementVerify(object);
 
                         S_PlaySound(KICK_HIT);
                     }
                 }
             }
 
-            M_PreMenuInput(NULL);
+            Menu_PreInput(NULL);
             break;
         }
 
         case Message:
-            if (I_ReturnTrigger() || M_RunMenuInput_MouseReturn())
+            if (I_ReturnTrigger() || Menu_RunInput_MouseReturn())
             {
                 I_ReturnTriggerClear();
                 m_mousecaught = 1;
 
                 S_PlaySound(EXITMENUSOUND);
 
-                M_ChangeMenuAnimate(cm->parentID, cm->parentAnimation);
+                Menu_AnimateChange(cm->parentID, cm->parentAnimation);
             }
 
             if (I_CheckAllInput())
@@ -5737,27 +5737,27 @@ static void M_RunMenuInput(Menu_t *cm)
 
                 S_PlaySound(EXITMENUSOUND);
 
-                M_ChangeMenuAnimate(message->linkID, message->animation);
+                Menu_AnimateChange(message->linkID, message->animation);
             }
 
-            M_PreMenuInput(NULL);
+            Menu_PreInput(NULL);
             break;
 
         case Verify:
-            if (I_ReturnTrigger() || KB_KeyPressed(sc_N) || M_RunMenuInput_MouseReturn())
+            if (I_ReturnTrigger() || KB_KeyPressed(sc_N) || Menu_RunInput_MouseReturn())
             {
                 I_ReturnTriggerClear();
                 KB_ClearKeyDown(sc_N);
                 m_mousecaught = 1;
 
-                M_MenuVerify(0);
+                Menu_Verify(0);
 
-                M_ChangeMenuAnimate(cm->parentID, cm->parentAnimation);
+                Menu_AnimateChange(cm->parentID, cm->parentAnimation);
 
                 S_PlaySound(EXITMENUSOUND);
             }
 
-            if (I_AdvanceTrigger() || KB_KeyPressed(sc_Y) || M_RunMenuInput_MouseAdvance())
+            if (I_AdvanceTrigger() || KB_KeyPressed(sc_Y) || Menu_RunInput_MouseAdvance())
             {
                 MenuVerify_t *verify = (MenuVerify_t*)cm->object;
 
@@ -5765,14 +5765,14 @@ static void M_RunMenuInput(Menu_t *cm)
                 KB_ClearKeyDown(sc_Y);
                 m_mousecaught = 1;
 
-                M_MenuVerify(1);
+                Menu_Verify(1);
 
-                M_ChangeMenuAnimate(verify->linkID, verify->animation);
+                Menu_AnimateChange(verify->linkID, verify->animation);
 
                 S_PlaySound(PISTOL_BODYHIT);
             }
 
-            M_PreMenuInput(NULL);
+            Menu_PreInput(NULL);
             break;
 
         case Menu:
@@ -5782,7 +5782,7 @@ static void M_RunMenuInput(Menu_t *cm)
             MenuMenu_t *menu = (MenuMenu_t*)cm->object;
             MenuEntry_t *currentry = menu->entrylist[menu->currentEntry];
 
-            state = M_DetermineMenuSpecialState(currentry);
+            state = Menu_DetermineSpecialState(currentry);
 
             if (state == 0)
             {
@@ -5799,7 +5799,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_AdvanceTriggerClear();
 
-                            M_RunMenuInput_MenuEntryLink_Activate(currentry);
+                            Menu_RunInput_EntryLink_Activate(currentry);
 
                             if (g_player[myconnectindex].ps->gm&MODE_MENU) // for skill selection
                                 S_PlaySound(PISTOL_BODYHIT);
@@ -5816,7 +5816,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_AdvanceTriggerClear();
 
-                            M_RunMenuInput_MenuEntryOption_Activate(currentry, object);
+                            Menu_RunInput_EntryOption_Activate(currentry, object);
 
                             S_PlaySound(PISTOL_BODYHIT);
                         }
@@ -5824,7 +5824,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_MenuRightClear();
 
-                            M_RunMenuInput_MenuEntryOption_Movement(currentry, object, MM_Right);
+                            Menu_RunInput_EntryOption_Movement(currentry, object, MM_Right);
 
                             S_PlaySound(PISTOL_BODYHIT);
                         }
@@ -5832,7 +5832,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_MenuLeftClear();
 
-                            M_RunMenuInput_MenuEntryOption_Movement(currentry, object, MM_Left);
+                            Menu_RunInput_EntryOption_Movement(currentry, object, MM_Left);
 
                             S_PlaySound(PISTOL_BODYHIT);
                         }
@@ -5844,7 +5844,7 @@ static void M_RunMenuInput(Menu_t *cm)
                             I_MenuLeftClear();
                             I_MenuRightClear();
 
-                            M_RunMenuInput_MenuMenu_Movement(menu, MM_Swap);
+                            Menu_RunInput_Menu_Movement(menu, MM_Swap);
 
                             S_PlaySound(KICK_HIT);
                         }
@@ -5856,7 +5856,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_AdvanceTriggerClear();
 
-                            M_RunMenuInput_MenuEntryCustom2Col_Activate(currentry);
+                            Menu_RunInput_EntryCustom2Col_Activate(currentry);
 
                             S_PlaySound(PISTOL_BODYHIT);
                         }
@@ -5872,7 +5872,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_SliderLeftClear();
 
-                            M_RunMenuInput_MenuEntryRangeInt32_Movement(currentry, object, MM_Left);
+                            Menu_RunInput_EntryRangeInt32_Movement(currentry, object, MM_Left);
 
                             S_PlaySound(KICK_HIT);
                         }
@@ -5880,7 +5880,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_SliderRightClear();
 
-                            M_RunMenuInput_MenuEntryRangeInt32_Movement(currentry, object, MM_Right);
+                            Menu_RunInput_EntryRangeInt32_Movement(currentry, object, MM_Right);
 
                             S_PlaySound(KICK_HIT);
                         }
@@ -5897,7 +5897,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_SliderLeftClear();
 
-                            M_RunMenuInput_MenuEntryRangeFloat_Movement(currentry, object, MM_Left);
+                            Menu_RunInput_EntryRangeFloat_Movement(currentry, object, MM_Left);
 
                             S_PlaySound(KICK_HIT);
                         }
@@ -5905,7 +5905,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_SliderRightClear();
 
-                            M_RunMenuInput_MenuEntryRangeFloat_Movement(currentry, object, MM_Right);
+                            Menu_RunInput_EntryRangeFloat_Movement(currentry, object, MM_Right);
 
                             S_PlaySound(KICK_HIT);
                         }
@@ -5922,7 +5922,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_SliderLeftClear();
 
-                            M_RunMenuInput_MenuEntryRangeDouble_Movement(/*currentry, */object, MM_Left);
+                            Menu_RunInput_EntryRangeDouble_Movement(/*currentry, */object, MM_Left);
 
                             S_PlaySound(KICK_HIT);
                         }
@@ -5930,7 +5930,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_SliderRightClear();
 
-                            M_RunMenuInput_MenuEntryRangeDouble_Movement(/*currentry, */object, MM_Right);
+                            Menu_RunInput_EntryRangeDouble_Movement(/*currentry, */object, MM_Right);
 
                             S_PlaySound(KICK_HIT);
                         }
@@ -5946,7 +5946,7 @@ static void M_RunMenuInput(Menu_t *cm)
                         {
                             I_AdvanceTriggerClear();
 
-                            M_RunMenuInput_MenuEntryString_Activate(currentry);
+                            Menu_RunInput_EntryString_Activate(currentry);
 
                             S_PlaySound(PISTOL_BODYHIT);
                         }
@@ -5955,7 +5955,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     }
                 }
 
-                if (I_ReturnTrigger() || I_EscapeTrigger() || M_RunMenuInput_MouseReturn())
+                if (I_ReturnTrigger() || I_EscapeTrigger() || Menu_RunInput_MouseReturn())
                 {
                     I_ReturnTriggerClear();
                     I_EscapeTriggerClear();
@@ -5963,7 +5963,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     S_PlaySound(EXITMENUSOUND);
 
-                    M_ChangeMenuAnimate(cm->parentID, cm->parentAnimation);
+                    Menu_AnimateChange(cm->parentID, cm->parentAnimation);
                 }
                 else if (KB_KeyPressed(sc_Home))
                 {
@@ -5971,7 +5971,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     S_PlaySound(KICK_HIT);
 
-                    currentry = M_RunMenuInput_MenuMenu_Movement(menu, MM_Home);
+                    currentry = Menu_RunInput_Menu_Movement(menu, MM_Home);
                 }
                 else if (KB_KeyPressed(sc_End))
                 {
@@ -5979,7 +5979,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     S_PlaySound(KICK_HIT);
 
-                    currentry = M_RunMenuInput_MenuMenu_Movement(menu, MM_End);
+                    currentry = Menu_RunInput_Menu_Movement(menu, MM_End);
                 }
                 else if (I_MenuUp())
                 {
@@ -5987,7 +5987,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     S_PlaySound(KICK_HIT);
 
-                    currentry = M_RunMenuInput_MenuMenu_Movement(menu, MM_Up);
+                    currentry = Menu_RunInput_Menu_Movement(menu, MM_Up);
                 }
                 else if (I_MenuDown())
                 {
@@ -5995,11 +5995,11 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     S_PlaySound(KICK_HIT);
 
-                    currentry = M_RunMenuInput_MenuMenu_Movement(menu, MM_Down);
+                    currentry = Menu_RunInput_Menu_Movement(menu, MM_Down);
                 }
 
                 if (currentry != NULL && !(currentry->flags & Disabled))
-                    M_PreMenuInput(currentry);
+                    Menu_PreInput(currentry);
             }
             else if (state == 1)
             {
@@ -6009,17 +6009,17 @@ static void M_RunMenuInput(Menu_t *cm)
 
                     int32_t hitstate = I_EnterText(object->editfield, object->maxlength, object->flags);
 
-                    if (hitstate == -1 || M_RunMenuInput_MouseReturn())
+                    if (hitstate == -1 || Menu_RunInput_MouseReturn())
                     {
                         m_mousecaught = 1;
 
-                        M_RunMenuInput_MenuEntryString_Cancel(/*currentry, */object);
+                        Menu_RunInput_EntryString_Cancel(/*currentry, */object);
 
                         S_PlaySound(EXITMENUSOUND);
                     }
                     else if (hitstate == 1)
                     {
-                        M_RunMenuInput_MenuEntryString_Submit(currentry, object);
+                        Menu_RunInput_EntryString_Submit(currentry, object);
 
                         S_PlaySound(PISTOL_BODYHIT);
                     }
@@ -6031,7 +6031,7 @@ static void M_RunMenuInput(Menu_t *cm)
                 {
                     MenuOption_t *object = (MenuOption_t*)currentry->entry;
 
-                    if (I_ReturnTrigger() || M_RunMenuInput_MouseReturn())
+                    if (I_ReturnTrigger() || Menu_RunInput_MouseReturn())
                     {
                         I_ReturnTriggerClear();
                         m_mousecaught = 1;
@@ -6044,7 +6044,7 @@ static void M_RunMenuInput(Menu_t *cm)
                     {
                         I_AdvanceTriggerClear();
 
-                        if (!M_RunMenuInput_MenuEntryOptionList_Activate(currentry, object))
+                        if (!Menu_RunInput_EntryOptionList_Activate(currentry, object))
                             S_PlaySound(PISTOL_BODYHIT);
                     }
                     else if (KB_KeyPressed(sc_Home))
@@ -6053,7 +6053,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                         S_PlaySound(KICK_HIT);
 
-                        M_RunMenuInput_MenuEntryOptionList_Movement(object, MM_Home);
+                        Menu_RunInput_EntryOptionList_Movement(object, MM_Home);
                     }
                     else if (KB_KeyPressed(sc_End))
                     {
@@ -6061,7 +6061,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                         S_PlaySound(KICK_HIT);
 
-                        M_RunMenuInput_MenuEntryOptionList_Movement(object, MM_End);
+                        Menu_RunInput_EntryOptionList_Movement(object, MM_End);
                     }
                     else if (I_MenuUp())
                     {
@@ -6069,7 +6069,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                         S_PlaySound(KICK_HIT);
 
-                        M_RunMenuInput_MenuEntryOptionList_Movement(object, MM_Up);
+                        Menu_RunInput_EntryOptionList_Movement(object, MM_Up);
                     }
                     else if (I_MenuDown())
                     {
@@ -6077,12 +6077,12 @@ static void M_RunMenuInput(Menu_t *cm)
 
                         S_PlaySound(KICK_HIT);
 
-                        M_RunMenuInput_MenuEntryOptionList_Movement(object, MM_Down);
+                        Menu_RunInput_EntryOptionList_Movement(object, MM_Down);
                     }
                 }
                 else if (currentry->type == Custom2Col)
                 {
-                    if (I_EscapeTrigger() || M_RunMenuInput_MouseReturn())
+                    if (I_EscapeTrigger() || Menu_RunInput_MouseReturn())
                     {
                         I_EscapeTriggerClear();
                         m_mousecaught = 1;
@@ -6091,7 +6091,7 @@ static void M_RunMenuInput(Menu_t *cm)
 
                         ((MenuCustom2Col_t*)currentry->entry)->screenOpen = 0;
                     }
-                    else if (M_PreMenuCustom2ColScreen(currentry))
+                    else if (Menu_PreCustom2ColScreen(currentry))
                         ((MenuCustom2Col_t*)currentry->entry)->screenOpen = 0;
                 }
             }
@@ -6101,7 +6101,7 @@ static void M_RunMenuInput(Menu_t *cm)
     }
 }
 
-// This function MUST NOT RECURSE. That is why M_RunMenu is separate.
+// This function MUST NOT RECURSE. That is why Menu_Run is separate.
 void M_DisplayMenus(void)
 {
     vec2_t origin = { 0, 0 }, previousOrigin = { 0, 0 };
@@ -6114,22 +6114,22 @@ void M_DisplayMenus(void)
         return;
     }
 
-    if (!M_IsTextInput(m_currentMenu) && KB_KeyPressed(sc_Q))
-        M_ChangeMenuAnimate(MENU_QUIT, MA_Advance);
+    if (!Menu_IsTextInput(m_currentMenu) && KB_KeyPressed(sc_Q))
+        Menu_AnimateChange(MENU_QUIT, MA_Advance);
 
     int32_t mousestatus = readmouseabsxy(&m_mousepos, &mouseabs);
     if (mousestatus && mousepressstate == Mouse_Pressed)
         m_mousedownpos = m_mousepos;
 
-    M_RunMenuInput(m_currentMenu);
+    Menu_RunInput(m_currentMenu);
 
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     // g_player[myconnectindex].ps->fta = 0;
 
-    if (((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && M_BlackTranslucentBackgroundOK(g_currentMenu))
+    if (((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && Menu_BlackTranslucentBackgroundOK(g_currentMenu))
         fade_screen_black(1);
 
-    if (M_UpdateScreenOK(g_currentMenu))
+    if (Menu_UpdateScreenOK(g_currentMenu))
         G_UpdateScreenArea();
 
 #if !defined EDUKE32_TOUCH_DEVICES
@@ -6157,11 +6157,11 @@ void M_DisplayMenus(void)
     // Display the menu, with a transition animation if applicable.
     if (totalclock < m_animation.start + m_animation.length)
     {
-        M_RunMenu(m_animation.previous, previousOrigin);
-        M_RunMenu(m_animation.current, origin);
+        Menu_Run(m_animation.previous, previousOrigin);
+        Menu_Run(m_animation.current, origin);
     }
     else
-        M_RunMenu(m_currentMenu, origin);
+        Menu_Run(m_currentMenu, origin);
 
 #if !defined EDUKE32_TOUCH_DEVICES
     if (m_menuchange_watchpoint >= 3)

@@ -55,9 +55,9 @@ static int32_t demo_synccompress=1, demorec_seeds=1, demo_hasseeds;
 static void Demo_RestoreModes(int32_t menu)
 {
     if (menu)
-        M_OpenMenu(myconnectindex);
+        Menu_Open(myconnectindex);
     else
-        M_CloseMenu(myconnectindex);
+        Menu_Close(myconnectindex);
 
     g_player[myconnectindex].ps->gm &= ~MODE_GAME;
     g_player[myconnectindex].ps->gm |= MODE_DEMO;
@@ -565,7 +565,7 @@ RECHECK:
     {
         FX_StopAllSounds();
         S_ClearSoundLocks();
-        M_OpenMenu(myconnectindex);
+        Menu_Open(myconnectindex);
     }
 
     ready2send = 0;
@@ -706,7 +706,7 @@ RECHECK:
 corrupt:
                         OSD_Printf(OSD_ERROR "Demo %d is corrupt (code %d).\n", g_whichDemo-1, corruptcode);
 nextdemo:
-                        M_OpenMenu(myconnectindex);
+                        Menu_Open(myconnectindex);
 nextdemo_nomenu:
                         foundemo = 0;
                         ud.reccnt = 0;
@@ -922,8 +922,8 @@ nextdemo_nomenu:
             I_EscapeTriggerClear();
             FX_StopAllSounds();
             S_ClearSoundLocks();
-            M_OpenMenu(myconnectindex);
-            M_ChangeMenu(MENU_MAIN);
+            Menu_Open(myconnectindex);
+            Menu_Change(MENU_MAIN);
             S_MenuSound();
         }
 
@@ -939,7 +939,7 @@ nextdemo_nomenu:
             if ((g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
             {
                 g_player[myconnectindex].ps->gm = 0;
-                M_OpenMenu(myconnectindex);
+                Menu_Open(myconnectindex);
             }
         }
         else
@@ -947,7 +947,7 @@ nextdemo_nomenu:
             if (ud.recstat != 2)
                 M_DisplayMenus();
 
-            if ((g_netServer || ud.multimode > 1)  && !M_IsTextInput(m_currentMenu))
+            if ((g_netServer || ud.multimode > 1)  && !Menu_IsTextInput(m_currentMenu))
             {
                 ControlInfo noshareinfo;
                 CONTROL_GetInput(&noshareinfo);

@@ -124,7 +124,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
                 ud.m_noexits = 0;
 
             M_OpenMenu(myconnectindex);
-            M_ChangeMenu(MENU_NETWAITVOTES);
+            Menu_Change(MENU_NETWAITVOTES);
         }
 		*/
         return OSDCMD_OK;
@@ -261,7 +261,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
                 ud.m_noexits = 0;
 
             M_OpenMenu(myconnectindex);
-            M_ChangeMenu(MENU_NETWAITVOTES);
+            Menu_Change(MENU_NETWAITVOTES);
         }
 		*/
         return OSDCMD_OK;
@@ -722,7 +722,7 @@ static int32_t osdcmd_cmenu(const osdfuncparm_t *parm)
     }
     else
     {
-        M_ChangeMenu(Batol(parm->parms[0]));
+        Menu_Change(Batol(parm->parms[0]));
     }
 
     return OSDCMD_OK;

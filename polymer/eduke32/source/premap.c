@@ -1411,7 +1411,7 @@ end_vol4a:
     pPlayer->zoom = 768;
 #endif
     pPlayer->gm = 0;
-    M_CloseMenu(0);
+    Menu_Close(0);
 
 #if !defined LUNATIC
     //AddLog("Newgame");
@@ -1917,7 +1917,7 @@ int G_EnterLevel(int gameMode)
         for (TRAVERSE_CONNECT(i))
         {
             g_player[i].ps->gm = MODE_GAME;
-            M_CloseMenu(i);
+            Menu_Close(i);
         }
     }
     else if (gameMode & MODE_RESTART)
