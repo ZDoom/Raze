@@ -138,6 +138,7 @@ int32_t tempsectornum = -1;  // for auto ceiling/floor alignment
 int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
 uint32_t temppal, tempvis, tempxrepeat, tempyrepeat, tempxpanning=0, tempypanning=0;
 int32_t tempshade, tempxvel, tempyvel, tempzvel;
+int32_t tempstatnum=0, tempblend=0;
 char somethingintab = 255;
 
 // Only valid when highlightsectorcnt>0 and no structural

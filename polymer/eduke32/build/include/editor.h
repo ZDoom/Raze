@@ -67,6 +67,7 @@ extern int32_t tempsectornum;
 extern int32_t temppicnum, tempcstat, templotag, temphitag, tempextra;
 extern uint32_t temppal, tempvis, tempxrepeat, tempyrepeat, tempxpanning, tempypanning;
 extern int32_t tempshade, tempxvel, tempyvel, tempzvel;
+extern int32_t tempstatnum, tempblend;
 extern char somethingintab;
 
 extern char names[MAXTILES][25];

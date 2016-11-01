@@ -3632,10 +3632,14 @@ restart:
 
 static char const *tileinfo_colorstr = "";
 
-static void tileinfo_doprint(int32_t x, int32_t y, char *buf, const char *label, int32_t value, int32_t pos)
+static void tileinfo_doprint(int32_t x, int32_t y, char *buf, const char *label, int32_t value, int32_t value2, int32_t pos)
 {
     int32_t small = (xdimgame<=640), i = ydimgame>>6;
-    Bsprintf(buf,"%s:%s%4d", label, tileinfo_colorstr, value);
+
+    if (value2)
+        Bsprintf(buf, "%s:%s%4d, %d", label, tileinfo_colorstr, value, value2);
+    else Bsprintf(buf,"%s:%s%4d", label, tileinfo_colorstr, value);
+
     printext256(x+2, y+2+i*pos, 0, -1, buf, small);
     printext256(x, y+i*pos, whitecol, -1, buf, small);
 }
@@ -3644,7 +3648,7 @@ static void tileinfo_doprint(int32_t x, int32_t y, char *buf, const char *label,
 //        2:draw asterisk for extra
 //        4:print bottom-swapped wall members colored
 static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,int32_t shade,int32_t pal,int32_t cstat,
-                         int32_t lotag,int32_t hitag,int32_t extra, uint32_t flags)
+                         int32_t lotag,int32_t hitag,int32_t extra, int32_t blend, int32_t statnum, uint32_t flags)
 {
     char buf[64];
     int32_t small = (xdimgame<=640);
@@ -3680,14 +3684,25 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
         tileinfo_colorstr = tempbuf;
     }
 
-    tileinfo_doprint(x, y, buf, "Pic", picnum, 1);
-    tileinfo_doprint(x, y, buf, "Shd", shade, 2);
-    tileinfo_doprint(x, y, buf, "Pal", pal, 3);
-    tileinfo_doprint(x, y, buf, "Cst", cstat, 4);
+    tileinfo_doprint(x, y, buf, "Pic", picnum, 0, 1);
+
+    if (blend)
+    {
+        Bsprintf(tempbuf, "^%d", editorcolors[14]);
+        tileinfo_colorstr = tempbuf;
+    }
+
+    tileinfo_doprint(x, y, buf, "Shd", shade, blend, 2);
+
+    if (!(flags & 4))
+        tileinfo_colorstr = "";
+
+    tileinfo_doprint(x, y, buf, "Pal", pal, 0, 3);
+    tileinfo_doprint(x, y, buf, "Cst", cstat, 0, 4);
     tileinfo_colorstr = "";
-    tileinfo_doprint(x, y, buf, (flags&1)?"Lo*":"Lot", lotag, 5);
-    tileinfo_doprint(x, y, buf, "Hit", hitag, 6);
-    tileinfo_doprint(x, y, buf, (flags&2)?"Ex*":"Ext", extra, 7);
+    tileinfo_doprint(x, y, buf, (flags&1)?"Lo*":"Lot", lotag, 0, 5);
+    tileinfo_doprint(x, y, buf, "Hit", hitag, 0, 6);
+    tileinfo_doprint(x, y, buf, (flags&2)?"Ex*":"Ext", extra, statnum, 7);
 
     enddrawing();
 }
@@ -4293,7 +4308,7 @@ static void Keys3d(void)
             }
         }
 #endif
-        drawtileinfo("Clipboard",3,124,temppicnum,tempshade,temppal,tempcstat,templotag,temphitag,tempextra,0);
+        drawtileinfo("Clipboard",3,124,temppicnum,tempshade,temppal,tempcstat,templotag,temphitag,tempextra,tempblend,tempstatnum,0);
     }// end if usedcount
 
     if (searchsector > -1 && searchsector < numsectors)
@@ -4321,7 +4336,7 @@ static void Keys3d(void)
                 drawtileinfo("Selected", WIND1X,WIND1Y,
                              AIMING_AT_WALL ? wall[w].picnum : wall[w].overpicnum,
                              wall[w].shade, wall[w].pal, wall[w].cstat,
-                             wall[searchwall].lotag, wall[searchwall].hitag, wall[searchwall].extra, flags);
+                             wall[searchwall].lotag, wall[searchwall].hitag, wall[searchwall].extra, 0, 0, flags);
 
                 dist = wallength(searchwall);
 
@@ -4358,7 +4373,7 @@ static void Keys3d(void)
             case SEARCH_FLOOR:
                 drawtileinfo("Selected", WIND1X, WIND1Y, AIMED_CEILINGFLOOR(picnum), AIMED_CEILINGFLOOR(shade),
                              AIMED_CEILINGFLOOR(pal), AIMED_CEILINGFLOOR(stat),
-                             sector[searchsector].lotag, sector[searchsector].hitag, sector[searchsector].extra,0);
+                             sector[searchsector].lotag, sector[searchsector].hitag, sector[searchsector].extra,0,0,0);
 
                 {
                     int32_t xp=AIMED_CEILINGFLOOR(xpanning), yp=AIMED_CEILINGFLOOR(ypanning);
@@ -4385,7 +4400,7 @@ static void Keys3d(void)
             case SEARCH_SPRITE:
                 drawtileinfo("Selected", WIND1X, WIND1Y, sprite[searchwall].picnum, sprite[searchwall].shade,
                              sprite[searchwall].pal, sprite[searchwall].cstat, sprite[searchwall].lotag,
-                             sprite[searchwall].hitag, sprite[searchwall].extra,0);
+                             sprite[searchwall].hitag, sprite[searchwall].extra,sprite[searchwall].blend, sprite[searchwall].statnum, 0);
 
                 Bsprintf(lines[num++], "Repeat:  %d,%d",
                     TrackerCast(sprite[searchwall].xrepeat), TrackerCast(sprite[searchwall].yrepeat));
@@ -6336,6 +6351,9 @@ static void Keys3d(void)
                 templenrepquot = getlenbyrep(wallength(searchwall), tempxrepeat);
 
                 tempsectornum = sectorofwall(searchwall);
+
+                tempstatnum = 0;
+                tempblend = 0;
             }
             else if (AIMING_AT_CEILING_OR_FLOOR)
             {
@@ -6354,6 +6372,9 @@ static void Keys3d(void)
                 tempcstat = AIMED_CEILINGFLOOR(stat) & ~YAX_BIT;
 #endif
                 tempsectornum = searchsector;
+
+                tempstatnum = 0;
+                tempblend = 0;
             }
             else if (AIMING_AT_SPRITE)
             {
@@ -6364,6 +6385,9 @@ static void Keys3d(void)
                 tempxvel = sprite[searchwall].xvel;
                 tempyvel = sprite[searchwall].yvel;
                 tempzvel = sprite[searchwall].zvel;
+
+                tempstatnum = sprite[searchwall].statnum;
+                tempblend = sprite[searchwall].blend;
 
                 tempsectornum = -1;
             }
@@ -6778,6 +6802,8 @@ paste_ceiling_or_floor:
                     sprite[searchwall].xvel = tempxvel;
                     sprite[searchwall].yvel = tempyvel;
                     sprite[searchwall].zvel = tempzvel;
+                    changespritestat(searchwall, tempstatnum);
+                    sprite[searchwall].blend = tempblend;
                 }
                 else
                     correct_sprite_yoffset(searchwall);
