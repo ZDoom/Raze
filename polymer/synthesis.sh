@@ -8,8 +8,8 @@ top=/var/www/synthesis/eduke32
 lockfile=$top/synthesis_building
 source=eduke32
 output=/var/www/dukeworld.duke4.net/eduke32/synthesis
-make=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='i686-w64-mingw32-' CC='i686-w64-mingw32-gcc-4.8.0' AS='nasm' SDLCONFIG='' PRETTY_OUTPUT=0 )
-make64=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='x86_64-w64-mingw32-' CC='x86_64-w64-mingw32-gcc-4.8.0' AS='nasm' SDLCONFIG='' PRETTY_OUTPUT=0 )
+make=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='i686-w64-mingw32-' CC='i686-w64-mingw32-gcc-5.4-win32' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='')
+make64=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='x86_64-w64-mingw32-' CC='x86_64-w64-mingw32-gcc-5.4-win32' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='')
 clean=veryclean
 
 # the following file paths are relative to $source
