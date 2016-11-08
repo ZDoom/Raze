@@ -133,6 +133,11 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
                     fmt = FMT_WAV;
                     break;
             }
+            if (MV_IdentifyXMP(ptr, length))
+            {
+                fmt = FMT_XMP;
+                break;
+            }
             break;
     }
 
@@ -142,10 +147,10 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
 int32_t FX_Play(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
                           int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
 {
-    EDUKE32_STATIC_ASSERT(FMT_MAX == 7);
+    static int32_t(*const func[])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, uint32_t) =
+    { NULL, NULL, MV_PlayVOC, MV_PlayWAV, MV_PlayVorbis, MV_PlayFLAC, MV_PlayXA, MV_PlayXMP };
 
-    static int32_t(*const func[FMT_MAX])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, int32_t, uint32_t) =
-    { NULL, NULL, MV_PlayVOC, MV_PlayWAV, MV_PlayVorbis, MV_PlayFLAC, MV_PlayXA };
+    EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
 
     wavefmt_t const fmt = FX_DetectFormat(ptr, length);
 
@@ -164,10 +169,10 @@ int32_t FX_Play(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, 
 int32_t FX_Play3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
                       int32_t priority, uint32_t callbackval)
 {
-    EDUKE32_STATIC_ASSERT(FMT_MAX == 7);
+    static int32_t (*const func[])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, uint32_t) =
+    { NULL, NULL, MV_PlayVOC3D, MV_PlayWAV3D, MV_PlayVorbis3D, MV_PlayFLAC3D, MV_PlayXA3D, MV_PlayXMP3D };
 
-    static int32_t (*const func[FMT_MAX])(char *, uint32_t, int32_t, int32_t, int32_t, int32_t, int32_t, uint32_t) =
-    { NULL, NULL, MV_PlayVOC3D, MV_PlayWAV3D, MV_PlayVorbis3D, MV_PlayFLAC3D, MV_PlayXA3D };
+    EDUKE32_STATIC_ASSERT(FMT_MAX == ARRAY_SIZE(func));
 
     wavefmt_t const fmt = FX_DetectFormat(ptr, length);
 

@@ -87,6 +87,7 @@ typedef enum
     FMT_VORBIS,
     FMT_FLAC,
     FMT_XA,
+    FMT_XMP,
     FMT_MAX
 } wavefmt_t;
 
@@ -146,6 +147,12 @@ int32_t MV_PlayXA3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchof
                     int32_t priority, uint32_t callbackval);
 int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
                   int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
+int32_t MV_PlayXMP3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
+                    int32_t priority, uint32_t callbackval);
+int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
+                  int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
+
+int MV_IdentifyXMP(char const *ptr, uint32_t length);
 
 int32_t MV_GetPosition(int32_t handle, int32_t *position);
 int32_t MV_SetPosition(int32_t handle, int32_t position);

@@ -169,10 +169,13 @@ int32_t MV_GetFLACPosition(VoiceNode *voice);
 void MV_SetFLACPosition(VoiceNode *voice, int32_t position);
 int32_t MV_GetXAPosition(VoiceNode *voice);
 void MV_SetXAPosition(VoiceNode *voice, int32_t position);
+int32_t MV_GetXMPPosition(VoiceNode *voice);
+void MV_SetXMPPosition(VoiceNode *voice, int32_t position);
 
 void MV_ReleaseVorbisVoice(VoiceNode *voice);
 void MV_ReleaseFLACVoice(VoiceNode *voice);
 void MV_ReleaseXAVoice(VoiceNode *voice);
+void MV_ReleaseXMPVoice(VoiceNode *voice);
 
 // implemented in mix.c
 void MV_Mix16BitMono(uint32_t position, uint32_t rate, const char *start, uint32_t length);

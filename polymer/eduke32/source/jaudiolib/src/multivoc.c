@@ -229,6 +229,9 @@ static void MV_StopVoice(VoiceNode *voice)
         case FMT_FLAC: MV_ReleaseFLACVoice(voice); break;
 #endif
         case FMT_XA: MV_ReleaseXAVoice(voice); break;
+#ifdef HAVE_XMP
+        case FMT_XMP: MV_ReleaseXMPVoice(voice); break;
+#endif
         default: break;
     }
 
@@ -328,6 +331,9 @@ static void MV_ServiceVoc(void)
                 case FMT_FLAC: MV_ReleaseFLACVoice(voice); break;
 #endif
                 case FMT_XA: MV_ReleaseXAVoice(voice); break;
+#ifdef HAVE_XMP
+                case FMT_XMP: MV_ReleaseXMPVoice(voice); break;
+#endif
                 default: break;
             }
 
@@ -691,6 +697,9 @@ int32_t MV_GetPosition(int32_t handle, int32_t *position)
         case FMT_FLAC: *position = MV_GetFLACPosition(voice); break;
 #endif
         case FMT_XA: *position = MV_GetXAPosition(voice); break;
+#ifdef HAVE_XMP
+        case FMT_XMP: *position = MV_GetXMPPosition(voice); break;
+#endif
         default: break;
     }
 
@@ -715,6 +724,9 @@ int32_t MV_SetPosition(int32_t handle, int32_t position)
         case FMT_FLAC: MV_SetFLACPosition(voice, position); break;
 #endif
         case FMT_XA: MV_SetXAPosition(voice, position); break;
+#ifdef HAVE_XMP
+        case FMT_XMP: MV_SetXMPPosition(voice, position); break;
+#endif
         default: break;
     }
 

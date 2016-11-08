@@ -181,6 +181,11 @@ USE_LIBPNG ?= 1
 USE_LIBVPX ?= 1
 HAVE_VORBIS ?= 1
 HAVE_FLAC ?= 1
+ifeq ($(PLATFORM),WINDOWS)
+    HAVE_XMP ?= 1
+else
+    HAVE_XMP ?= 0
+endif
 NETCODE ?= 1
 
 LUNATIC ?= 0
@@ -424,6 +429,7 @@ ifeq ($(PLATFORM),WII)
     override USE_LIBVPX = 0
     override NETCODE = 0
     override HAVE_FLAC = 0
+    override HAVE_XMP = 0
 endif
 ifeq ($(PLATFORM),GCW)
     override USE_LIBVPX = 0
@@ -653,6 +659,9 @@ ifneq (0,$(HAVE_VORBIS))
 endif
 ifneq (0,$(HAVE_FLAC))
     COMPILERFLAGS+= -DHAVE_FLAC
+endif
+ifneq (0,$(HAVE_XMP))
+    COMPILERFLAGS+= -DHAVE_XMP
 endif
 ifneq (0,$(EFENCE))
     LIBS+= -lefence

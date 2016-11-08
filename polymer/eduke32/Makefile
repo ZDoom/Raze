@@ -163,6 +163,7 @@ AUDIOLIB_OBJS = \
     vorbis \
     flac \
     xa \
+    xmp \
     driver_nosound \
 
 AUDIOLIB_ROOT=$(DUKE3D_SRC)/jaudiolib
@@ -471,16 +472,25 @@ ifneq (0,$(LUNATIC))
 endif
 
 ifeq ($(SUBPLATFORM),LINUX)
+    ifneq (0,$(HAVE_XMP))
+        LIBS += -lxmp-lite
+    endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg
 endif
 
 ifeq ($(PLATFORM),BSD)
+    ifneq (0,$(HAVE_XMP))
+        LIBS += -lxmp-lite
+    endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lexecinfo
 endif
 
 ifeq ($(PLATFORM),DARWIN)
     # LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Apple/lib
 
+    ifneq (0,$(HAVE_XMP))
+        LIBS += -lxmp-lite
+    endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lm \
             -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
             -Wl,-framework,CoreMIDI -Wl,-framework,AudioUnit \
@@ -495,6 +505,9 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
+    ifneq (0,$(HAVE_XMP))
+        LIBS += -lxmp-lite
+    endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg
     LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Windows/lib$(WINLIB)
     DUKE3D_GAME_OBJS+= gameres winbits startwin.game
