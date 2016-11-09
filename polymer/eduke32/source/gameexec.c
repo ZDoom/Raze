@@ -5962,9 +5962,9 @@ void G_SaveMapState(void)
     if (save == NULL)
         return;
 
-    Bmemcpy(&save->numwalls,&numwalls,sizeof(numwalls));
+    save->numwalls = numwalls;
     Bmemcpy(&save->wall[0],&wall[0],sizeof(walltype)*MAXWALLS);
-    Bmemcpy(&save->numsectors,&numsectors,sizeof(numsectors));
+    save->numsectors = numsectors;
     Bmemcpy(&save->sector[0],&sector[0],sizeof(sectortype)*MAXSECTORS);
     Bmemcpy(&save->sprite[0],&sprite[0],sizeof(spritetype)*MAXSPRITES);
 
@@ -5984,7 +5984,7 @@ void G_SaveMapState(void)
     Bmemcpy(&save->prevspritestat[0],&prevspritestat[0],sizeof(prevspritestat));
     Bmemcpy(&save->nextspritestat[0],&nextspritestat[0],sizeof(nextspritestat));
 #ifdef YAX_ENABLE
-    Bmemcpy(&save->numyaxbunches, &numyaxbunches, sizeof(numyaxbunches));
+    save->numyaxbunches = numyaxbunches;
 # if !defined NEW_MAP_FORMAT
     Bmemcpy(save->yax_bunchnum, yax_bunchnum, sizeof(yax_bunchnum));
     Bmemcpy(save->yax_nextwall, yax_nextwall, sizeof(yax_nextwall));
@@ -5992,26 +5992,26 @@ void G_SaveMapState(void)
 #endif
     Bmemcpy(&save->actor[0],&actor[0],sizeof(actor_t)*MAXSPRITES);
 
-    Bmemcpy(&save->g_cyclerCnt,&g_cyclerCnt,sizeof(g_cyclerCnt));
+    save->g_cyclerCnt = g_cyclerCnt;
     Bmemcpy(&save->g_cyclers[0],&g_cyclers[0],sizeof(g_cyclers));
     Bmemcpy(&save->g_playerSpawnPoints[0],&g_playerSpawnPoints[0],sizeof(g_playerSpawnPoints));
-    Bmemcpy(&save->g_animWallCnt,&g_animWallCnt,sizeof(g_animWallCnt));
+    save->g_animWallCnt = g_animWallCnt;
     Bmemcpy(&save->SpriteDeletionQueue[0],&SpriteDeletionQueue[0],sizeof(SpriteDeletionQueue));
-    Bmemcpy(&save->g_spriteDeleteQueuePos,&g_spriteDeleteQueuePos,sizeof(g_spriteDeleteQueuePos));
+    save->g_spriteDeleteQueuePos = g_spriteDeleteQueuePos;
     Bmemcpy(&save->animwall[0],&animwall[0],sizeof(animwall));
     Bmemcpy(&save->origins[0],&g_origins[0],sizeof(g_origins));
     Bmemcpy(&save->g_mirrorWall[0],&g_mirrorWall[0],sizeof(g_mirrorWall));
     Bmemcpy(&save->g_mirrorSector[0],&g_mirrorSector[0],sizeof(g_mirrorSector));
-    Bmemcpy(&save->g_mirrorCount,&g_mirrorCount,sizeof(g_mirrorCount));
+    save->g_mirrorCount = g_mirrorCount;
     Bmemcpy(&save->show2dsector[0],&show2dsector[0],sizeof(show2dsector));
-    Bmemcpy(&save->g_cloudCnt,&g_cloudCnt,sizeof(g_cloudCnt));
+    save->g_cloudCnt = g_cloudCnt;
     Bmemcpy(&save->g_cloudSect[0],&g_cloudSect[0],sizeof(g_cloudSect));
-    Bmemcpy(&save->g_cloudX,&g_cloudX,sizeof(g_cloudX));
-    Bmemcpy(&save->g_cloudY,&g_cloudY,sizeof(g_cloudY));
-    Bmemcpy(&save->pskyidx,&g_pskyidx,sizeof(g_pskyidx));
+    save->g_cloudX = g_cloudX;
+    save->g_cloudY = g_cloudY;
+    save->pskyidx = g_pskyidx;
     Bmemcpy(&save->g_animateGoal[0],&g_animateGoal[0],sizeof(g_animateGoal));
     Bmemcpy(&save->g_animateVel[0],&g_animateVel[0],sizeof(g_animateVel));
-    Bmemcpy(&save->g_animateCnt,&g_animateCnt,sizeof(g_animateCnt));
+    save->g_animateCnt = g_animateCnt;
     Bmemcpy(&save->g_animateSect[0],&g_animateSect[0],sizeof(g_animateSect));
 
     G_Util_PtrToIdx(g_animatePtr, g_animateCnt, sector, P2I_FWD);
@@ -6022,11 +6022,11 @@ void G_SaveMapState(void)
         EDUKE32_STATIC_ASSERT(sizeof(save->g_animatePtr) == sizeof(g_animatePtr));
     }
 
-    Bmemcpy(&save->g_playerSpawnCnt,&g_playerSpawnCnt,sizeof(g_playerSpawnCnt));
-    Bmemcpy(&save->g_earthquakeTime,&g_earthquakeTime,sizeof(g_earthquakeTime));
-    Bmemcpy(&save->lockclock,&lockclock,sizeof(lockclock));
-    Bmemcpy(&save->randomseed,&randomseed,sizeof(randomseed));
-    Bmemcpy(&save->g_globalRandom,&g_globalRandom,sizeof(g_globalRandom));
+    save->g_playerSpawnCnt = g_playerSpawnCnt;
+    save->g_earthquakeTime = g_earthquakeTime;
+    save->lockclock        = lockclock;
+    save->randomseed       = randomseed;
+    save->g_globalRandom   = g_globalRandom;
 
 #if !defined LUNATIC
     for (bssize_t i=g_gameVarCount-1; i>=0; i--)
@@ -6101,9 +6101,9 @@ void G_RestoreMapState(void)
         pus = NUMPAGES;
         G_UpdateScreenArea();
 
-        Bmemcpy(&numwalls,&pSavedState->numwalls,sizeof(numwalls));
+        numwalls = pSavedState->numwalls;
         Bmemcpy(&wall[0],&pSavedState->wall[0],sizeof(walltype)*MAXWALLS);
-        Bmemcpy(&numsectors,&pSavedState->numsectors,sizeof(numsectors));
+        numsectors = pSavedState->numsectors;
         Bmemcpy(&sector[0],&pSavedState->sector[0],sizeof(sectortype)*MAXSECTORS);
         Bmemcpy(&sprite[0],&pSavedState->sprite[0],sizeof(spritetype)*MAXSPRITES);
         Bmemcpy(&spriteext[0],&pSavedState->spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
@@ -6127,7 +6127,7 @@ void G_RestoreMapState(void)
         Bmemcpy(&prevspritestat[0],&pSavedState->prevspritestat[0],sizeof(prevspritestat));
         Bmemcpy(&nextspritestat[0],&pSavedState->nextspritestat[0],sizeof(nextspritestat));
 #ifdef YAX_ENABLE
-        Bmemcpy(&numyaxbunches, &pSavedState->numyaxbunches, sizeof(numyaxbunches));
+        numyaxbunches = pSavedState->numyaxbunches;
 # if !defined NEW_MAP_FORMAT
         Bmemcpy(yax_bunchnum, pSavedState->yax_bunchnum, sizeof(yax_bunchnum));
         Bmemcpy(yax_nextwall, pSavedState->yax_nextwall, sizeof(yax_nextwall));
@@ -6135,36 +6135,37 @@ void G_RestoreMapState(void)
 #endif
         Bmemcpy(&actor[0],&pSavedState->actor[0],sizeof(actor_t)*MAXSPRITES);
 
-        Bmemcpy(&g_cyclerCnt,&pSavedState->g_cyclerCnt,sizeof(g_cyclerCnt));
+        g_cyclerCnt = pSavedState->g_cyclerCnt;
         Bmemcpy(&g_cyclers[0],&pSavedState->g_cyclers[0],sizeof(g_cyclers));
         Bmemcpy(&g_playerSpawnPoints[0],&pSavedState->g_playerSpawnPoints[0],sizeof(g_playerSpawnPoints));
-        Bmemcpy(&g_animWallCnt,&pSavedState->g_animWallCnt,sizeof(g_animWallCnt));
+        g_animWallCnt = pSavedState->g_animWallCnt;
         Bmemcpy(&SpriteDeletionQueue[0],&pSavedState->SpriteDeletionQueue[0],sizeof(SpriteDeletionQueue));
-        Bmemcpy(&g_spriteDeleteQueuePos,&pSavedState->g_spriteDeleteQueuePos,sizeof(g_spriteDeleteQueuePos));
+        g_spriteDeleteQueuePos = pSavedState->g_spriteDeleteQueuePos;
         Bmemcpy(&animwall[0],&pSavedState->animwall[0],sizeof(animwall));
         Bmemcpy(&g_origins[0],&pSavedState->origins[0],sizeof(g_origins));
         Bmemcpy(&g_mirrorWall[0],&pSavedState->g_mirrorWall[0],sizeof(g_mirrorWall));
         Bmemcpy(&g_mirrorSector[0],&pSavedState->g_mirrorSector[0],sizeof(g_mirrorSector));
-        Bmemcpy(&g_mirrorCount,&pSavedState->g_mirrorCount,sizeof(g_mirrorCount));
+        g_mirrorCount = pSavedState->g_mirrorCount;
         Bmemcpy(&show2dsector[0],&pSavedState->show2dsector[0],sizeof(show2dsector));
-        Bmemcpy(&g_cloudCnt,&pSavedState->g_cloudCnt,sizeof(g_cloudCnt));
+        g_cloudCnt = pSavedState->g_cloudCnt;
         Bmemcpy(&g_cloudSect[0],&pSavedState->g_cloudSect[0],sizeof(g_cloudSect));
-        Bmemcpy(&g_cloudX,&pSavedState->g_cloudX,sizeof(g_cloudX));
-        Bmemcpy(&g_cloudY,&pSavedState->g_cloudY,sizeof(g_cloudY));
-        Bmemcpy(&g_pskyidx,&pSavedState->pskyidx,sizeof(g_pskyidx));
+        g_cloudX = pSavedState->g_cloudX;
+        g_cloudY = pSavedState->g_cloudY;
+        g_pskyidx = pSavedState->pskyidx;
         Bmemcpy(&g_animateGoal[0],&pSavedState->g_animateGoal[0],sizeof(g_animateGoal));
         Bmemcpy(&g_animateVel[0],&pSavedState->g_animateVel[0],sizeof(g_animateVel));
-        Bmemcpy(&g_animateCnt,&pSavedState->g_animateCnt,sizeof(g_animateCnt));
+        g_animateCnt = pSavedState->g_animateCnt;
         Bmemcpy(&g_animateSect[0],&pSavedState->g_animateSect[0],sizeof(g_animateSect));
 
         Bmemcpy(&g_animatePtr[0],&pSavedState->g_animatePtr[0],sizeof(g_animatePtr));
         G_Util_PtrToIdx(g_animatePtr, g_animateCnt, sector, P2I_BACK);
 
-        Bmemcpy(&g_playerSpawnCnt,&pSavedState->g_playerSpawnCnt,sizeof(g_playerSpawnCnt));
-        Bmemcpy(&g_earthquakeTime,&pSavedState->g_earthquakeTime,sizeof(g_earthquakeTime));
-        Bmemcpy(&lockclock,&pSavedState->lockclock,sizeof(lockclock));
-        Bmemcpy(&randomseed,&pSavedState->randomseed,sizeof(randomseed));
-        Bmemcpy(&g_globalRandom,&pSavedState->g_globalRandom,sizeof(g_globalRandom));
+        g_playerSpawnCnt = pSavedState->g_playerSpawnCnt;
+        g_earthquakeTime = pSavedState->g_earthquakeTime;
+        lockclock = pSavedState->lockclock;
+        randomseed = pSavedState->randomseed;
+        g_globalRandom = pSavedState->g_globalRandom;
+
 #if !defined LUNATIC
         for (bssize_t i=g_gameVarCount-1; i>=0; i--)
         {
