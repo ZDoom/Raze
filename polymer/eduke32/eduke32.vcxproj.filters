@@ -543,6 +543,9 @@
     <ClInclude Include="build\include\m32script.h">
       <Filter>eduke32\headers\editor</Filter>
     </ClInclude>
+    <ClInclude Include="build\include\renderlayer.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="build\src\a-c.c">

@@ -510,8 +510,12 @@ ifeq ($(PLATFORM),WINDOWS)
     endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg
     LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Windows/lib$(WINLIB)
-    DUKE3D_GAME_OBJS+= gameres winbits startwin.game
-    DUKE3D_EDITOR_OBJS+= buildres
+    ifeq ($(STARTUP_WINDOW),1)
+        DUKE3D_GAME_OBJS+= gameres winbits startwin.game
+        DUKE3D_EDITOR_OBJS+= buildres 
+    else
+        DUKE3D_GAME_OBJS+= winbits
+    endif
     ifeq ($(MIXERTYPE),WIN)
         LIBS+= -ldsound
         MIDI_OBJS=music midi mpu401

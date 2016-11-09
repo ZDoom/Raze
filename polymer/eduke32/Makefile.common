@@ -187,6 +187,7 @@ else
     HAVE_XMP ?= 0
 endif
 NETCODE ?= 1
+STARTUP_WINDOW ?= 1
 
 LUNATIC ?= 0
 USE_LUAJIT_2_1 ?= 0
@@ -652,6 +653,10 @@ ifneq (0,$(USE_LIBPNG))
 endif
 ifneq (0,$(USE_LIBVPX))
     COMPILERFLAGS+= -DUSE_LIBVPX
+endif
+
+ifneq (0,$(STARTUP_WINDOW))
+    COMPILERFLAGS+= -DSTARTUP_WINDOW
 endif
 
 ifneq (0,$(HAVE_VORBIS))

@@ -143,6 +143,7 @@
     <ClInclude Include="build\include\prlights.h" />
     <ClInclude Include="build\include\lz4.h" />
     <ClInclude Include="build\include\rawinput.h" />
+    <ClInclude Include="build\include\renderlayer.h" />
     <ClInclude Include="build\include\scriptfile.h" />
     <ClInclude Include="build\include\sdlayer.h" />
     <ClInclude Include="build\include\sdl_inc.h" />

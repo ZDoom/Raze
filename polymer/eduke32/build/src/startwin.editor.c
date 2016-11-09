@@ -3,6 +3,10 @@
 #endif
 
 #include "compat.h"
+#include "renderlayer.h"
+
+#ifdef STARTUP_SETUP_WINDOW
+
 #include "build.h"
 #include "editor.h"
 #include "winlayer.h"
@@ -490,3 +494,4 @@ int32_t startwin_run(void)
     return done;
 }
 
+#endif // STARTUP_SETUP_WINDOW

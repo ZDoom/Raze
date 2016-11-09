@@ -24,12 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #error Only for Windows
 #endif
 
+#include "compat.h"
+#include "renderlayer.h"
+
+#ifdef STARTUP_SETUP_WINDOW
+
 #include "duke3d.h"
 #include "sounds.h"
 
 #include "build.h"
-#include "renderlayer.h"
-#include "compat.h"
 
 #include "grpscan.h"
 
@@ -799,3 +802,4 @@ int32_t startwin_run(void)
     return done;
 }
 
+#endif // STARTUP_SETUP_WINDOW
