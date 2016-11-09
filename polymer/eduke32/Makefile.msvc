@@ -75,7 +75,7 @@ flags_cl=$(flags_cl) /arch:SSE
 flags_link=/RELEASE /LTCG # /LIBPATH:$(WDKROOT)\lib\wxp\i386 /LIBPATH:$(WDKROOT)\lib\Crt\i386
 !endif
 
-ENGINEOPTS=/DUSE_OPENGL /DPOLYMER /DSTARTUP_WINDOW /DUSE_LIBPNG /DUSE_LIBVPX /DHAVE_VORBIS #/DHAVE_FLAC
+ENGINEOPTS=/DUSE_OPENGL /DPOLYMER /DSTARTUP_WINDOW /DUSE_LIBPNG /DUSE_LIBVPX /DHAVE_VORBIS /DHAVE_XMP
 
 !ifdef CPLUSPLUS
 ENGINEOPTS=$(ENGINEOPTS) /TP
@@ -98,7 +98,7 @@ ENET_CFLAGS=/I$(ENET_INC) /I$(ENET_SRC)
 AUDIOLIB_CFLAGS=/I$(AUDIOLIB_INC) /I$(AUDIOLIB_SRC)
 
 LIBS=user32.lib gdi32.lib shell32.lib winmm.lib ws2_32.lib comctl32.lib shlwapi.lib oleaut32.lib ole32.lib imm32.lib version.lib \
-     libogg.a libvorbis.a libvorbisfile.a libvpx.a libpng_mini.a libz_mini.a \
+     libogg.a libvorbis.a libvorbisfile.a libxmp-lite.a libvpx.a libpng_mini.a libz_mini.a \
      dxguid.lib dsound.lib advapi32.lib libcompat-to-msvc.a
 
 !if ("$(RENDERTYPE)"=="SDL")
@@ -188,6 +188,7 @@ AUDIOLIB_OBJS=$(AUDIOLIB_OBJ)\drivers.$o \
 	$(AUDIOLIB_OBJ)\vorbis.$o \
 	$(AUDIOLIB_OBJ)\flac.$o \
 	$(AUDIOLIB_OBJ)\xa.$o \
+	$(AUDIOLIB_OBJ)\xmp.$o \
 	$(AUDIOLIB_OBJ)\driver_nosound.$o
 
 MACT_OBJS=$(DUKE3D_OBJ)\file_lib.$o \
