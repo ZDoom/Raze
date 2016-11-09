@@ -84,7 +84,7 @@ struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
     {"GL_LINEAR_MIPMAP_LINEAR",GL_LINEAR_MIPMAP_LINEAR,GL_LINEAR}
 };
 
-int32_t glanisotropy = 1;            // 0 = maximum supported by card
+int32_t glanisotropy = 0;            // 0 = maximum supported by card
 int32_t gltexfiltermode = TEXFILTER_OFF;
 
 #ifdef EDUKE32_GLES
