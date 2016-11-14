@@ -8184,11 +8184,15 @@ void A_PlayAlertSound(int spriteNum)
 int A_CheckSwitchTile(int spriteNum)
 {
     // picnum 0 would oob in the switch below,
+
+    if (PN(spriteNum) <= 0)
+        return 0;
+
     // MULTISWITCH has 4 states so deal with it separately,
     // ACCESSSWITCH and ACCESSSWITCH2 are only active in one state so deal with
     // them separately.
 
-    if ((PN(spriteNum) <= 0) || (PN(spriteNum) >= MULTISWITCH && PN(spriteNum) <= MULTISWITCH + 3) || (PN(spriteNum) == ACCESSSWITCH || PN(spriteNum) == ACCESSSWITCH2))
+    if ((PN(spriteNum) >= MULTISWITCH && PN(spriteNum) <= MULTISWITCH + 3) || (PN(spriteNum) == ACCESSSWITCH || PN(spriteNum) == ACCESSSWITCH2))
         return 1;
 
     // Loop to catch both states of switches.
