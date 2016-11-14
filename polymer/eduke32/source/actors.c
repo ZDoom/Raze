@@ -886,26 +886,26 @@ ACTOR_STATIC void G_MoveZombieActors(void)
 
     while (spriteNum >= 0)
     {
-        int const         nextSprite = nextspritestat[spriteNum];
-        int32_t           playerDist;
-        spritetype *const pSprite   = &sprite[spriteNum];
-        int const         playerNum = A_FindPlayer(pSprite, &playerDist);
+        int const           nextSprite = nextspritestat[spriteNum];
+        int32_t             playerDist;
+        spritetype *const   pSprite   = &sprite[spriteNum];
+        int const           playerNum = A_FindPlayer(pSprite, &playerDist);
+        DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
 
-        if (sprite[g_player[playerNum].ps->i].extra > 0)
+        if (sprite[pPlayer->i].extra > 0)
         {
             if (playerDist < 30000)
             {
                 actor[spriteNum].timetosleep++;
                 if (actor[spriteNum].timetosleep >= (playerDist>>8))
                 {
-                    if (A_CheckEnemySprite(pSprite))
+                    if (pPlayer->newowner == -1 && A_CheckEnemySprite(pSprite))
                     {
-                        vec3_t const p = { g_player[playerNum].ps->pos.x + 64 - (krand() & 127),
-                                           g_player[playerNum].ps->pos.y + 64 - (krand() & 127),
-                                           g_player[playerNum].ps->pos.z - (krand() % ZOFFSET5)
-                        };
+                        vec3_t const p = { pPlayer->pos.x + 64 - (krand() & 127),
+                                           pPlayer->pos.y + 64 - (krand() & 127),
+                                           pPlayer->pos.z - (krand() % ZOFFSET5) };
 
-                        int16_t pSectnum = g_player[playerNum].ps->cursectnum;
+                        int16_t pSectnum = pPlayer->cursectnum;
 
                         updatesector(p.x, p.y, &pSectnum);
 
@@ -932,8 +932,8 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                         j = cansee(s.x, s.y, s.z, sectNum, p.x, p.y, p.z, pSectnum);
                     }
                     else
-                        j = cansee(pSprite->x, pSprite->y, pSprite->z - ((krand() & 31) << 8), pSprite->sectnum, g_player[playerNum].ps->pos.x,
-                                   g_player[playerNum].ps->pos.y, g_player[playerNum].ps->pos.z - ((krand() & 31) << 8), g_player[playerNum].ps->cursectnum);
+                        j = cansee(pSprite->x, pSprite->y, pSprite->z - ((krand() & 31) << 8), pSprite->sectnum, pPlayer->opos.x,
+                            pPlayer->opos.y, pPlayer->opos.z - ((krand() & 31) << 8), pPlayer->cursectnum);
 
                     if (j)
                     {
@@ -953,7 +953,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
                             case NUKEBARRELDENTED__STATIC:
                             case NUKEBARRELLEAKED__STATIC:
                             case TRIPBOMB__STATIC:
-                                pSprite->shade = (sector[pSprite->sectnum].ceilingstat & 1 && A_CheckSpriteFlags(spriteNum, SFLAG_NOSHADE) == 0)
+                                pSprite->shade = ((sector[pSprite->sectnum].ceilingstat & 1) && A_CheckSpriteFlags(spriteNum, SFLAG_NOSHADE) == 0)
                                                 ? sector[pSprite->sectnum].ceilingshade
                                                 : sector[pSprite->sectnum].floorshade;
                                 actor[spriteNum].timetosleep = 0;
