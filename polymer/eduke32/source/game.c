@@ -120,7 +120,7 @@ int32_t hud_showmapname = 1;
 int32_t g_levelTextTime = 0;
 
 int32_t r_maxfps = 60;
-uint32_t g_frameDelay = 0;
+uint32_t g_frameDelay = 17;
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
