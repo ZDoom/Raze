@@ -32,7 +32,6 @@ extern char textfont[2048], smalltextfont[2048];
 int32_t rendmode=0;
 int32_t usemodels=1;
 int32_t usehightile=1;
-int32_t vsync=0;
 
 #include <math.h> //<-important!
 #include <float.h>
@@ -5955,7 +5954,7 @@ static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
     if (r == OSDCMD_OK)
     {
         if (!Bstrcasecmp(parm->name, "r_swapinterval"))
-            setvsync(vsync);
+            vsync = setvsync(vsync);
         else if (!Bstrcasecmp(parm->name, "r_downsize"))
         {
             if (r_downsizevar == -1)

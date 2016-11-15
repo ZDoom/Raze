@@ -103,8 +103,8 @@ static uint16_t sysgamma[3][256];
 #ifdef USE_OPENGL
 // OpenGL stuff
 char nogl=0;
-static int32_t vsync_render=0;
 #endif
+static int sdl_vsync=0;
 int32_t maxrefreshfreq=0;
 
 // last gamma, contrast, brightness
@@ -499,18 +499,48 @@ int32_t main(int32_t argc, char *argv[])
     return r;
 }
 
-#ifdef USE_OPENGL
-void setvsync(int32_t sync);
-#if SDL_MAJOR_VERSION != 1
-void setvsync(int32_t sync)
-{
-    if (vsync_render == sync) return;
-    vsync_render = sync;
 
+int setvsync(int newSync);
+#if SDL_MAJOR_VERSION != 1
+int setvsync(int newSync)
+{
+    if (sdl_vsync == newSync)
+        return newSync;
+
+#ifdef USE_OPENGL
     if (sdl_context)
-        SDL_GL_SetSwapInterval(vsync_render);
-}
+    {
+        int result = SDL_GL_SetSwapInterval(newSync);
+
+        if (result == -1)
+        {
+            if (newSync == -1)
+            {
+                newSync = 1;
+                result = SDL_GL_SetSwapInterval(newSync);
+            }
+
+            if (result == -1)
+            {
+                newSync = 0;
+                OSD_Printf("Unable to enable VSync!\n");
+            }
+        }
+
+        sdl_vsync = newSync;
+    }
+    else
 #endif
+    {
+        sdl_vsync = newSync;
+
+        resetvideomode();
+        if (setgamemode(fullscreen, xdim, ydim, bpp))
+            OSD_Printf("restartvid: Reset failed...\n");
+    }
+
+    return sdl_vsync;
+}
 #endif
 
 int32_t sdlayer_checkversion(void);
@@ -625,9 +655,7 @@ void uninitsystem(void)
 //
 void system_getcvars(void)
 {
-#ifdef USE_OPENGL
-    setvsync(vsync);
-#endif
+    vsync = setvsync(vsync);
 }
 
 //
@@ -1523,7 +1551,9 @@ static void sdl_trycreaterenderer_fail(char const * const failurepoint)
 
 static void sdl_trycreaterenderer(int32_t const x, int32_t const y)
 {
-    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, 0);
+    int const flags = SDL_RENDERER_ACCELERATED | (sdl_vsync ? SDL_RENDERER_PRESENTVSYNC : 0);
+
+    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
     if (!sdl_renderer)
     {
         sdl_trycreaterenderer_fail("SDL_CreateRenderer");
@@ -1628,7 +1658,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 return -1;
             }
 
-            SDL_GL_SetSwapInterval(vsync_render);
+            SDL_GL_SetSwapInterval(sdl_vsync);
 
             setrefreshrate();
 

@@ -1743,16 +1743,16 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
 #ifdef USE_OPENGL
-void setvsync(int32_t sync)
+int setvsync(int newSync)
 {
     if (!glinfo.vsync)
     {
         vsync_render = 0;
         return;
     }
-    vsync_render = sync;
+    vsync_render = newSync;
 # ifdef USE_GLEXT
-    bwglSwapIntervalEXT(sync);
+    bwglSwapIntervalEXT(newSync);
 # endif
 }
 

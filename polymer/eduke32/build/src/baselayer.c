@@ -257,6 +257,8 @@ void makeasmwriteable(void)
 #endif
 }
 
+int32_t vsync=0;
+
 #ifdef USE_OPENGL
 extern int32_t nofog;
 
