@@ -4204,6 +4204,8 @@ ACTOR_STATIC void G_MoveActors(void)
                     if (damageTile == FREEZEBLAST)
                         goto next_sprite;
 
+                    pPlayer->actors_killed++;
+
                     for (bssize_t j = 16; j >= 0; --j)
                     {
                         int32_t newSprite = A_InsertSprite(SECT(spriteNum), SX(spriteNum), SY(spriteNum), SZ(spriteNum),
@@ -4333,8 +4335,6 @@ ACTOR_STATIC void G_MoveActors(void)
             {
                 A_PlaySound(SLIM_DYING,spriteNum);
 
-                pPlayer->actors_killed++;
-
                 if (pPlayer->somethingonplayer == spriteNum)
                     pPlayer->somethingonplayer = -1;
 
@@ -4345,6 +4345,8 @@ ACTOR_STATIC void G_MoveActors(void)
                     pData[3] = 0;
                     goto next_sprite;
                 }
+
+                pPlayer->actors_killed++;
 
                 if ((krand()&255) < 32)
                 {
