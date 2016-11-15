@@ -1793,6 +1793,7 @@ int G_EnterLevel(int gameMode)
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
+        S_PauseSounds(0);
         FX_StopAllSounds();
         S_ClearSoundLocks();
         FX_SetReverb(0);
