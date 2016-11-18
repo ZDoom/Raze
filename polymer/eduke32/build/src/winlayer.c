@@ -7,6 +7,25 @@
 #define WIN32_LEAN_AND_MEAN
 #define CINTERFACE
 
+#include <windows.h>
+#include <math.h>
+#include <malloc.h>
+
+#include "build.h"
+#include "winlayer.h"
+#include "rawinput.h"
+#include "mutex.h"
+
+#include "winbits.h"
+#include "engine_priv.h"
+
+#include "dx/ddraw.h"
+#include "dx/dinput.h"
+
+#ifdef _MSC_VER
+#include <crtdbg.h>
+#endif
+
 // bug in the dx headers
 #if defined (_MSC_VER) || !defined(__cplusplus)
 #define bDIPROP_BUFFERSIZE       MAKEDIPROP(1)
@@ -28,54 +47,18 @@
 # define bREFIID                  &
 #endif
 
-#include <malloc.h>
-
-#ifdef _MSC_VER
-#include <InitGuid.h>
-#endif
-
-#include <windows.h>
-#include "dx/ddraw.h"
-#include "dx/dinput.h"
 #ifndef DIK_PAUSE
 # define DIK_PAUSE 0xC5
 #endif
 
-#include <math.h>  // pow
-
-#ifdef __cplusplus
-#include <algorithm>
-#endif
-
-#ifdef _MSC_VER
-#include <crtdbg.h>
-#endif
-
 #include "dxdidf.h"	// comment this out if c_dfDI* is being reported as multiply defined
+
 #define __STDC_FORMAT_MACROS
 #ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
 #endif
-#include <stdlib.h>
+
 #include <signal.h>
-#include <stdarg.h>
-
-#ifdef USE_OPENGL
-#include "glbuild.h"
-#endif
-
-#include "compat.h"
-#include "winlayer.h"
-#include "baselayer.h"
-#include "pragmas.h"
-#include "build.h"
-#include "a.h"
-#include "osd.h"
-#include "rawinput.h"
-#include "mutex.h"
-
-#include "winbits.h"
-#include "engine_priv.h"
 
 // undefine to restrict windowed resolutions to conventional sizes
 #define ANY_WINDOWED_SIZE
@@ -1748,12 +1731,14 @@ int setvsync(int newSync)
     if (!glinfo.vsync)
     {
         vsync_render = 0;
-        return;
+        return 0;
     }
     vsync_render = newSync;
 # ifdef USE_GLEXT
     bwglSwapIntervalEXT(newSync);
 # endif
+
+    return newSync;
 }
 
 static void cdsenummodes(void)
@@ -2001,6 +1986,10 @@ void showframe(int32_t w)
         BitBlt(hDC, 0, 0, xres, yres, hDCSection, 0, 0, SRCCOPY);
         return;
     }
+/*
+    else
+        IDirectDraw_WaitForVerticalBlank(lpDD, DDWAITVB_BLOCKBEGIN, NULL);
+*/
 
     if (!w && (IDirectDrawSurface_GetBltStatus(lpDDSBack, DDGBS_CANBLT) == DDERR_WASSTILLDRAWING ||
                IDirectDrawSurface_GetFlipStatus(lpDDSPrimary, DDGFS_CANFLIP) == DDERR_WASSTILLDRAWING))
