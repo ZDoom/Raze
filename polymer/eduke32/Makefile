@@ -116,7 +116,9 @@ ifeq ($(RENDERTYPE),SDL)
         ifeq ($(LINKED_GTK),0)
             ENGINE_OBJS+= dynamicgtk
         endif
-        ENGINE_EDITOR_OBJS+= startgtk.editor
+        ifeq ($(STARTUP_WINDOW),1)
+            ENGINE_EDITOR_OBJS+= startgtk.editor
+        endif
     endif
 endif
 ifeq ($(RENDERTYPE),WIN)
@@ -527,7 +529,7 @@ ifeq ($(PLATFORM),WII)
 endif
 
 ifeq ($(RENDERTYPE),SDL)
-    ifeq (1,$(HAVE_GTK2))
+    ifeq (11,$(HAVE_GTK2)$(STARTUP_WINDOW))
         DUKE3D_GAME_OBJS+= game_banner startgtk.game
         DUKE3D_EDITOR_OBJS+= build_banner
     endif
