@@ -102,7 +102,9 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 ifeq ($(PLATFORM),WINDOWS)
     ENGINE_OBJS+= winbits
-    ENGINE_EDITOR_OBJS+= startwin.editor
+    ifeq ($(STARTUP_WINDOW),1)
+        ENGINE_EDITOR_OBJS+= startwin.editor
+    endif
 endif
 ifeq ($(PLATFORM),WII)
     ENGINE_OBJS+= wiibits
@@ -512,11 +514,10 @@ ifeq ($(PLATFORM),WINDOWS)
     endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg
     LIBDIRS += -L$(AUDIOLIB_ROOT)/third-party/Windows/lib$(WINLIB)
+    DUKE3D_GAME_OBJS+= gameres winbits
+    DUKE3D_EDITOR_OBJS+= buildres
     ifeq ($(STARTUP_WINDOW),1)
-        DUKE3D_GAME_OBJS+= gameres winbits startwin.game
-        DUKE3D_EDITOR_OBJS+= buildres 
-    else
-        DUKE3D_GAME_OBJS+= winbits
+        DUKE3D_GAME_OBJS+= startwin.game
     endif
     ifeq ($(MIXERTYPE),WIN)
         LIBS+= -ldsound
