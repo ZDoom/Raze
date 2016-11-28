@@ -91,7 +91,7 @@ ifneq (0,$(LUNATIC))
 endif
 ifeq ($(PLATFORM),DARWIN)
     ENGINE_OBJS += osxbits
-    ifneq (0,$(OSX_STARTUPWINDOW))
+    ifeq ($(STARTUP_WINDOW),1)
         ENGINE_EDITOR_OBJS += startosx.editor
     endif
     ifeq ($(SDL_TARGET),1)
@@ -315,7 +315,7 @@ ifeq ($(PLATFORM),WINDOWS)
 endif
 
 ifeq ($(PLATFORM),DARWIN)
-    ifneq (0,$(OSX_STARTUPWINDOW))
+    ifeq ($(STARTUP_WINDOW),1)
         KENBUILD_GAME_OBJS += StartupWinController.game
     endif
 endif
@@ -499,7 +499,7 @@ ifeq ($(PLATFORM),DARWIN)
         LIBS += -Wl,-framework,QuickTime -lm
     endif
 
-    ifneq (0,$(OSX_STARTUPWINDOW))
+    ifeq ($(STARTUP_WINDOW),1)
         DUKE3D_GAME_OBJS += GrpFile.game GameListSource.game startosx.game
     endif
 endif

@@ -8026,7 +8026,7 @@ static void G_ShowParameterHelp(void)
 #endif
               "-namesfile [file.h]\t\tLoad a custom NAMES.H for tile names\n"
               "-nocheck\t\t\tDisables map pointer checking when saving (default)\n"  // kept for script compat
-#if defined _WIN32 || (defined RENDERTYPESDL && ((defined __APPLE__ && defined OSX_STARTUPWINDOW) || defined HAVE_GTK2))
+#ifdef STARTUP_SETUP_WINDOW
               "-setup\t\t\tDisplays the configuration dialog\n"
 #endif
               "-usecwd\t\t\tRead game data and configuration file from working directory\n"

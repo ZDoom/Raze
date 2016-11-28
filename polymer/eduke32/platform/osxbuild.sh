@@ -233,7 +233,7 @@ function dobuildem()  # build EDuke32 and Mapster32
 }
 
 # A little factoring:
-commonargs="OSX_STARTUPWINDOW=1 WITHOUT_GTK=1"
+commonargs="WITHOUT_GTK=1"
 if [ $buildppc == 1 ] || [ `expr $darwinversion = 9` == 1 ]; then
     commonargs="$commonargs DARWIN9=1"
 fi

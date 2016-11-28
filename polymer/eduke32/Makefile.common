@@ -163,8 +163,6 @@ SYNTHESIS ?= 0
 # Mac OS X Frameworks location
 # Like above, use absolute paths.
 APPLE_FRAMEWORKS ?=/Library/Frameworks
-# Without the resource files packaged in the .app bundle, the startupwindow produces errors, so give it an off switch.
-OSX_STARTUPWINDOW ?= 1
 
 # Engine options
 #  USE_OPENGL     - enables basic OpenGL Polymost renderer
@@ -379,9 +377,6 @@ ifeq ($(PLATFORM),DARWIN)
         ifeq ($(findstring ppc,$(IMPLICIT_ARCH)),ppc)
             COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
         endif
-    endif
-    ifneq (0,$(OSX_STARTUPWINDOW))
-        COMPILERFLAGS+= -DOSX_STARTUPWINDOW
     endif
 endif
 
