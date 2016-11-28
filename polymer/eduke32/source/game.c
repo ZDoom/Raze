@@ -6137,7 +6137,10 @@ int app_main(int argc, char const * const * argv)
         Bfree(str);
     }
 
-    int const readSetup = CONFIG_ReadSetup();
+#ifdef STARTUP_SETUP_WINDOW
+    int const readSetup =
+#endif
+    CONFIG_ReadSetup();
 
 #ifdef _WIN32
 
