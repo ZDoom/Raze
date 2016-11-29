@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "osdfuncs.h"
 #include "demo.h"
+#include "mdsprite.h"
 
 #ifdef __ANDROID__
 #include "android.h"
@@ -1169,7 +1170,6 @@ void G_DisplayRest(int32_t smoothratio)
 #endif
 
 #ifdef USE_OPENGL
-    extern int32_t mdpause;
     mdpause = (ud.pause_on || (ud.recstat==2 && (g_demo_paused && g_demo_goalCnt==0)) || (g_player[myconnectindex].ps->gm&MODE_MENU && numplayers < 2));
 #endif
 
