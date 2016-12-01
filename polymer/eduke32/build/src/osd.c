@@ -129,7 +129,7 @@ int32_t OSD_RegisterCvar(const cvar_t *cvar)
     return 0;
 }
 
-static int32_t OSD_CvarModified(const osdcvar_t *cvar)
+static int OSD_CvarModified(const osdcvar_t *cvar)
 {
     if (!osd)
         return 0;
@@ -140,26 +140,7 @@ static int32_t OSD_CvarModified(const osdcvar_t *cvar)
         return 0;
     }
 
-    int rv = 0;
-
-    switch (cvar->c.type & (CVAR_BOOL|CVAR_INT|CVAR_UINT|CVAR_FLOAT|CVAR_DOUBLE|CVAR_STRING))
-    {
-    case CVAR_BOOL:
-    case CVAR_INT:
-        rv = (cvar->dval.i != *(int32_t *)cvar->c.vptr); break;
-    case CVAR_UINT:
-        rv = (cvar->dval.uint != *(uint32_t *)cvar->c.vptr); break;
-    case CVAR_FLOAT:
-        rv = (cvar->dval.f != *(float *)cvar->c.vptr); break;
-    case CVAR_DOUBLE:
-        rv = (cvar->dval.d != *(double *)cvar->c.vptr); break;
-    case CVAR_STRING:
-        rv = 1; break;
-    default:
-        EDUKE32_UNREACHABLE_SECTION(break);
-    }
-
-    return rv;
+    return (cvar->c.type & CVAR_MODIFIED) == CVAR_MODIFIED;
 }
 
 // color code format is as follows:
@@ -710,6 +691,8 @@ static int32_t _internal_osdfunc_toggle(const osdfuncparm_t *parm)
     }
 
     *(int32_t *)osd->cvars[i].c.vptr = 1 - *(int32_t *)osd->cvars[i].c.vptr;
+    osd->cvars[i].c.type |= CVAR_MODIFIED;
+
     return OSDCMD_OK;
 }
 
@@ -2070,7 +2053,10 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
                 OSD_Printf("%s value out of range\n",osd->cvars[i].c.name);
                 return OSDCMD_OK;
             }
+
             *(float *)osd->cvars[i].c.vptr = val;
+            osd->cvars[i].c.type |= CVAR_MODIFIED;
+
             if (!OSD_ParsingScript())
                 OSD_Printf("%s %f",osd->cvars[i].c.name,val);
         }
@@ -2091,7 +2077,10 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
                 OSD_Printf("%s value out of range\n",osd->cvars[i].c.name);
                 return OSDCMD_OK;
             }
+
             *(double *)osd->cvars[i].c.vptr = val;
+            osd->cvars[i].c.type |= CVAR_MODIFIED;
+
             if (!OSD_ParsingScript())
                 OSD_Printf("%s %f",osd->cvars[i].c.name,val);
         }
@@ -2113,7 +2102,10 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
                 OSD_Printf("%s value out of range\n",osd->cvars[i].c.name);
                 return OSDCMD_OK;
             }
+
             *(int32_t *)osd->cvars[i].c.vptr = val;
+            osd->cvars[i].c.type |= CVAR_MODIFIED;
+
             if (!OSD_ParsingScript())
                 OSD_Printf("%s %d",osd->cvars[i].c.name,val);
         }
@@ -2135,6 +2127,7 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
             }
 
             *(uint32_t *) osd->cvars[i].c.vptr = val;
+            osd->cvars[i].c.type |= CVAR_MODIFIED;
 
             if (!OSD_ParsingScript())
                 OSD_Printf("%s %d", osd->cvars[i].c.name, val);
@@ -2150,6 +2143,9 @@ int32_t osdcmd_cvar_set(const osdfuncparm_t *parm)
 
             Bstrncpy((char *)osd->cvars[i].c.vptr, parm->parms[0], osd->cvars[i].c.max-1);
             ((char *)osd->cvars[i].c.vptr)[osd->cvars[i].c.max-1] = 0;
+
+            osd->cvars[i].c.type |= CVAR_MODIFIED;
+
             if (!OSD_ParsingScript())
                 OSD_Printf("%s %s",osd->cvars[i].c.name,(char *)osd->cvars[i].c.vptr);
         }

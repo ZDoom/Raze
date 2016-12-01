@@ -32,19 +32,20 @@ const char *OSD_StripColors(char *out, const char *in);
 
 enum cvartype_t
 {
-    CVAR_FLOAT       = 0x00000001,
-    CVAR_INT         = 0x00000002,
-    CVAR_UINT        = 0x00000004,
-    CVAR_BOOL        = 0x00000008,
-    CVAR_STRING      = 0x00000010,
-    CVAR_DOUBLE      = 0x00000020,
-    CVAR_LOCKED      = 0x00000040,
-    CVAR_MULTI       = 0x00000080,
-    CVAR_NOSAVE      = 0x00000100,
-    CVAR_FUNCPTR     = 0x00000200,
-    CVAR_RESTARTVID  = 0x00000400,
-    CVAR_INVALIDATEALL  = 0x00000800,
+    CVAR_FLOAT         = 0x00000001,
+    CVAR_INT           = 0x00000002,
+    CVAR_UINT          = 0x00000004,
+    CVAR_BOOL          = 0x00000008,
+    CVAR_STRING        = 0x00000010,
+    CVAR_DOUBLE        = 0x00000020,
+    CVAR_LOCKED        = 0x00000040,
+    CVAR_MULTI         = 0x00000080,
+    CVAR_NOSAVE        = 0x00000100,
+    CVAR_FUNCPTR       = 0x00000200,
+    CVAR_RESTARTVID    = 0x00000400,
+    CVAR_INVALIDATEALL = 0x00000800,
     CVAR_INVALIDATEART = 0x00001000,
+    CVAR_MODIFIED      = 0x00002000,
 };
 
 typedef struct _symbol
