@@ -4170,7 +4170,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     int method = DAMETH_MASK | DAMETH_WALL;
 
     if (wal->cstat & 128)
-        method = DAMETH_WALL | ((wal->cstat & 512)) ? DAMETH_TRANS2 : DAMETH_TRANS1;
+        method = DAMETH_WALL | (((wal->cstat & 512)) ? DAMETH_TRANS2 : DAMETH_TRANS1);
 
     calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
