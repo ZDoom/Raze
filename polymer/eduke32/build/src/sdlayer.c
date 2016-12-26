@@ -1927,7 +1927,9 @@ int32_t setgamma(void)
         if (i != INT32_MIN)
             initprintf("Unable to set gamma: SDL_SetWindowGammaRamp failed: %s\n", SDL_GetError());
 */
+#endif
 
+#ifndef EDUKE32_GLES
 #if SDL_MAJOR_VERSION == 1
         SDL_SetGammaRamp(&sysgamma[0][0], &sysgamma[1][0], &sysgamma[2][0]);
 #else
