@@ -281,21 +281,21 @@ void Win_GetOriginalLayoutName(void)
 
 void Win_SetKeyboardLayoutUS(int const toggle)
 {
-    if (toggle)
-    {
-        static int done = 0;
+    static int currentstate;
 
-        if (!done)
+    if (toggle != currentstate)
+    {
+        if (toggle)
         {
             // 00000409 is "American English"
             switchlayout("00000409");
-
-            done = 1;
+            currentstate = toggle;
         }
-    }
-    else if (OriginalLayoutName[0])
-    {
-        switchlayout(OriginalLayoutName);
+        else if (OriginalLayoutName[0])
+        {
+            switchlayout(OriginalLayoutName);
+            currentstate = toggle;
+        }
     }
 }
 
