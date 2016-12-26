@@ -106,7 +106,7 @@ static uint16_t sysgamma[3][256];
 // OpenGL stuff
 char nogl=0;
 #endif
-static int vsync_renderlayer;
+static int32_t vsync_renderlayer;
 int32_t maxrefreshfreq=0;
 
 // last gamma, contrast, brightness
@@ -503,7 +503,7 @@ int32_t main(int32_t argc, char *argv[])
 
 
 #if SDL_MAJOR_VERSION != 1
-int setvsync(int newSync)
+int32_t setvsync(int32_t newSync)
 {
     if (vsync_renderlayer == newSync)
         return newSync;

@@ -55,7 +55,7 @@ HWND win_gethwnd(void)
 }
 #endif
 
-int setvsync(int newSync)
+int32_t setvsync(int32_t newSync)
 {
     if (vsync_renderlayer == newSync)
         return newSync;

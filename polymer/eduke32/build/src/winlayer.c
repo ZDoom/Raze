@@ -1721,7 +1721,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
-int setvsync(int newSync)
+int32_t setvsync(int32_t newSync)
 {
 #ifdef USE_OPENGL
     if (!glinfo.vsync)
