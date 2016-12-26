@@ -1765,7 +1765,10 @@ int Sect_DamageCeilingOrFloor(int damageFloor, int const sectNum)
     if (returnValue < 0)
         return 0;
 
-    int16_t * const pPicnum = damageFloor ? &sector[sectNum].floorpicnum : &sector[sectNum].ceilingpicnum;
+    if (damageFloor)
+        return 0;
+
+    int16_t * const pPicnum = &sector[sectNum].ceilingpicnum;
 
     if (returnValue == (1<<20))
     {
@@ -1776,12 +1779,12 @@ int Sect_DamageCeilingOrFloor(int damageFloor, int const sectNum)
 
     switch (DYNAMICTILEMAP(*pPicnum))
     {
-        case WALLLIGHT1__STATIC: *pPicnum                       = WALLLIGHTBUST1; goto GLASSBREAK_CODE;
-        case WALLLIGHT2__STATIC: *pPicnum                       = WALLLIGHTBUST2; goto GLASSBREAK_CODE;
-        case WALLLIGHT3__STATIC: *pPicnum                       = WALLLIGHTBUST3; goto GLASSBREAK_CODE;
-        case WALLLIGHT4__STATIC: *pPicnum                       = WALLLIGHTBUST4; goto GLASSBREAK_CODE;
-        case TECHLIGHT2__STATIC: sector[sectNum].ceilingpicnum = TECHLIGHTBUST2; goto GLASSBREAK_CODE;
-        case TECHLIGHT4__STATIC: sector[sectNum].ceilingpicnum = TECHLIGHTBUST4;
+        case WALLLIGHT1__STATIC: *pPicnum = WALLLIGHTBUST1; goto GLASSBREAK_CODE;
+        case WALLLIGHT2__STATIC: *pPicnum = WALLLIGHTBUST2; goto GLASSBREAK_CODE;
+        case WALLLIGHT3__STATIC: *pPicnum = WALLLIGHTBUST3; goto GLASSBREAK_CODE;
+        case WALLLIGHT4__STATIC: *pPicnum = WALLLIGHTBUST4; goto GLASSBREAK_CODE;
+        case TECHLIGHT2__STATIC: *pPicnum = TECHLIGHTBUST2; goto GLASSBREAK_CODE;
+        case TECHLIGHT4__STATIC: *pPicnum = TECHLIGHTBUST4;
 
         GLASSBREAK_CODE:
             A_SpawnCeilingGlass(g_player[myconnectindex].ps->i, sectNum, 10);
