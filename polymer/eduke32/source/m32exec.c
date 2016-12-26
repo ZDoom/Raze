@@ -2416,11 +2416,6 @@ badindex:
                 continue;
             }
 
-            insptr++;
-            X_ERROR_INVALIDQUOTE(*insptr, apStrings);
-            OSD_Printf("%s", apStrings[*insptr++]);
-            continue;
-
         case CON_GETNUMBER16:  /* deprecated */
         case CON_GETNUMBER256:  /* deprecated */
         case CON_GETNUMBERFROMUSER:

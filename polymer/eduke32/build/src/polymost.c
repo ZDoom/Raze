@@ -974,8 +974,9 @@ static int32_t tile_is_sky(int32_t tilenum)
 {
     return return (tilenum >= 78 /*CLOUDYOCEAN*/ && tilenum <= 99 /*REDSKY2*/);
 }
+# define clamp_if_tile_is_sky(x, y) (tile_is_sky(x) ? (y) : GL_REPEAT)
 #else
-# define tile_is_sky(x) (0)
+# define clamp_if_tile_is_sky(x, y) (GL_REPEAT)
 #endif
 
 static void polymost_setuptexture(const int32_t dameth, int filter)
@@ -1004,7 +1005,7 @@ static void polymost_setuptexture(const int32_t dameth, int filter)
 
     if (!(dameth & DAMETH_CLAMPED))
     {
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, !tile_is_sky(dapic) ? GL_REPEAT : clamp_mode);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_if_tile_is_sky(dapic, clamp_mode));
         bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     }
     else

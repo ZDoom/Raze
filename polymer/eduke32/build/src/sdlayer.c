@@ -193,12 +193,13 @@ int32_t wm_msgbox(const char *name, const char *fmt, ...)
 #elif defined GEKKO
     puts(buf);
     return 0;
-#endif
+#else
     puts(buf);
     puts("   (press Return or Enter to continue)");
     getchar();
 
     return 0;
+#endif
 }
 
 #if SDL_MAJOR_VERSION != 1

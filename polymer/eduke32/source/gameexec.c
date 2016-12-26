@@ -2804,7 +2804,6 @@ nullquote:
                 P_SetGamePalette(pPlayer, tw, 2 + 16);
                 continue;
             }
-            continue;
 
         case CON_GUNIQHUDID:
             insptr++;

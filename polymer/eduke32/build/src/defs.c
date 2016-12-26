@@ -2446,7 +2446,7 @@ static int32_t defsparser(scriptfile *script)
         case T_UNDEFMODELOF:
         {
             int32_t r0;
-#ifdef USE_OPENGL
+#if defined USE_OPENGL && 0
             int32_t mid;
 #endif
 
@@ -2459,7 +2459,7 @@ static int32_t defsparser(scriptfile *script)
             initprintf("Warning: undefmodelof: currently non-functional.\n");
             break;
 
-#ifdef USE_OPENGL
+#if defined USE_OPENGL && 0
             mid = md_tilehasmodel(r0,0);
             if (mid < 0) break;
 

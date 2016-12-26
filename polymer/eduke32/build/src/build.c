@@ -8007,9 +8007,7 @@ CANCEL:
                 {
                     bad = 0;
 
-                    if (!ask_if_sure("Are you sure you want to start a new board? (Y/N)", 0))
-                        break;
-                    else
+                    if (ask_if_sure("Are you sure you want to start a new board? (Y/N)", 0))
                     {
                         int32_t bakstat=-1;
                         mapinfofull_t bakmap;
@@ -8051,11 +8049,9 @@ CANCEL:
 
                         CheckMapCorruption(4, 0);
 
-                        break;
                     }
 
-                    // printmessage16("");
-                    showframe(1);
+                    break;
                 }
                 else if (ch == 'l' || ch == 'L')  //L
                 {

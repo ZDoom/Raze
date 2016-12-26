@@ -6705,7 +6705,6 @@ skipframe:
     }
     while (1);
 
-    G_GameExit(" ");
     return 0;  // not reached (duh)
 }
 

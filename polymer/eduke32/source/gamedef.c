@@ -1470,7 +1470,7 @@ static int32_t C_SkipComments(void)
                 g_errorCnt++;
                 continue;
             }
-            continue;
+            break;
 
         default:
             if (ispecial(*textptr))

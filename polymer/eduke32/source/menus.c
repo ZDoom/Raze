@@ -4694,11 +4694,10 @@ static int32_t Menu_RunInput_MouseAdvance(void)
 
 static int32_t Menu_RunInput_MouseReturn_status;
 
+#if !defined EDUKE32_TOUCH_DEVICES
 static void Menu_Run_MouseReturn(Menu_t *cm, const vec2_t origin)
 {
-#if !defined EDUKE32_TOUCH_DEVICES
     if (!MOUSEACTIVECONDITION)
-#endif
         return;
 
     if (cm->menuID == MENU_MAIN)
@@ -4709,6 +4708,7 @@ static void Menu_Run_MouseReturn(Menu_t *cm, const vec2_t origin)
                   2 | 8 | 16 | RS_ALIGN_L, MOUSEALPHA, 0, xdim_from_320_16(origin.x + x_widescreen_left()), 0,
                   xdim_from_320_16(origin.x + x_widescreen_left() + (tilesiz[SELECTDIR].y << 15)), ydim - 1);
 }
+#endif
 
 static int32_t Menu_RunInput_MouseReturn(void)
 {
@@ -5029,7 +5029,9 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
         }
     }
 
+#if !defined EDUKE32_TOUCH_DEVICES
     Menu_Run_MouseReturn(cm, origin);
+#endif
 }
 
 /*
