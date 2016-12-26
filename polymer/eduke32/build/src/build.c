@@ -692,7 +692,7 @@ int app_main(int argc, char const * const * argv)
     DO_FREE_AND_NULL(g_defModules);
     g_defModulesNum = 0;
 
-    if (E_PostInitTables())
+    if (E_PostInit())
         M32_FatalEngineError();
 
     CallExtPostInit();

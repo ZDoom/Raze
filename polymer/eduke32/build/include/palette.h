@@ -39,7 +39,7 @@ extern int32_t globalblend;
 extern uint32_t g_lastpalettesum;
 extern palette_t getpal(int32_t col);
 extern void loadpalette(void);
-extern int32_t E_PostInitTables(void);
+extern void E_PostLoadPalette(void);
 extern void setup_blend(int32_t blend, int32_t doreverse);
 extern uint8_t basepalreset;
 extern int32_t curbrightness, gammabrightness;

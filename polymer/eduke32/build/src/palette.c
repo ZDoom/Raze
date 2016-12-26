@@ -268,7 +268,7 @@ void loadpalette(void)
 
 uint32_t PaletteIndexFullbrights[8];
 
-static void E_PostLoadPalette(void)
+void E_PostLoadPalette(void)
 {
     globalpal = 0;
 
@@ -317,24 +317,6 @@ static void E_PostLoadPalette(void)
     PostLoad_NotFullbright:
         continue; // should be optimized out
     }
-}
-
-//
-// E_PostInitTables
-//
-
-int32_t E_PostInitTables(void)
-{
-    if (!(paletteloaded & PALETTE_MAIN))
-        return E_FatalError("No palette found.");
-    if (!(paletteloaded & PALETTE_SHADE))
-        return E_FatalError("No shade table found.");
-    if (!(paletteloaded & PALETTE_TRANSLUC))
-        return E_FatalError("No translucency table found.");
-
-    E_PostLoadPalette();
-
-    return 0;
 }
 
 void E_ReplaceTransparentColorWithBlack(void)

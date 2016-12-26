@@ -7754,6 +7754,23 @@ int32_t initengine(void)
 }
 
 //
+// E_PostInit
+//
+int32_t E_PostInit(void)
+{
+    if (!(paletteloaded & PALETTE_MAIN))
+        return E_FatalError("No palette found.");
+    if (!(paletteloaded & PALETTE_SHADE))
+        return E_FatalError("No shade table found.");
+    if (!(paletteloaded & PALETTE_TRANSLUC))
+        return E_FatalError("No translucency table found.");
+
+    E_PostLoadPalette();
+
+    return 0;
+}
+
+//
 // uninitengine
 //
 void uninitengine(void)
