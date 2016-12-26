@@ -1,89 +1,482 @@
+
 #import <Cocoa/Cocoa.h>
 
+#include "compat.h"
 #include "baselayer.h"
+#include "build.h"
+#include "editor.h"
+
+static CGRect CGRectChangeXY(CGRect const rect, CGFloat const x, CGFloat const y)
+{
+    return CGRectMake(x, y, rect.size.width, rect.size.height);
+}
+static CGRect CGSizeAddXY(CGSize const size, CGFloat const x, CGFloat const y)
+{
+    return CGRectMake(x, y, size.width, size.height);
+}
+#if 0
+static CGFloat CGRightEdge(CGRect rect)
+{
+    return rect.origin.x + rect.size.width;
+}
+static CGFloat CGTopEdge(CGRect rect)
+{
+    return rect.origin.y + rect.size.height;
+}
+#endif
+
+static void setFontToSmall(id control)
+{
+    [control setFont:[NSFont fontWithDescriptor:[[control font] fontDescriptor] size:[NSFont smallSystemFontSize]]];
+}
+
+static void setControlToSmall(id control)
+{
+#ifdef MAC_OS_X_VERSION_10_12
+    [control setControlSize:NSControlSizeSmall];
+#else
+    [control setControlSize:NSSmallControlSize];
+#endif
+}
+
+static NSTextField * makeLabel(NSString * labelText)
+{
+    NSTextField *textField = [[NSTextField alloc] init];
+    setFontToSmall(textField);
+    setControlToSmall([textField cell]);
+    [textField setStringValue:labelText];
+    [textField setBezeled:NO];
+    [textField setDrawsBackground:NO];
+    [textField setEditable:NO];
+    [textField setSelectable:NO];
+    [textField sizeToFit];
+    return textField;
+}
+
+static NSButton * makeCheckbox(NSString * labelText)
+{
+    NSButton *checkbox = [[NSButton alloc] init];
+    setFontToSmall(checkbox);
+    setControlToSmall([checkbox cell]);
+    [checkbox setTitle:labelText];
+    [checkbox setButtonType:NSSwitchButton];
+    [checkbox sizeToFit];
+    return checkbox;
+}
+
+static NSPopUpButton * makeComboBox(void)
+{
+    NSPopUpButton *comboBox = [[NSPopUpButton alloc] init];
+    [comboBox setPullsDown:NO];
+    setFontToSmall(comboBox);
+    setControlToSmall([comboBox cell]);
+    [comboBox setBezelStyle:NSRoundedBezelStyle];
+    [comboBox setPreferredEdge:NSMaxYEdge];
+    [[comboBox cell] setArrowPosition:NSPopUpArrowAtCenter];
+    [comboBox sizeToFit];
+    return comboBox;
+}
 
 static id nsapp;
 
-@interface StartupWinController : NSWindowController
-{
-    IBOutlet NSButton *alwaysShowButton;
-    IBOutlet NSButton *fullscreenButton;
-    IBOutlet NSTextView *messagesView;
-    IBOutlet NSTabView *tabView;
-    IBOutlet NSComboBox *videoModeCbox;
+static struct {
+    int fullscreen;
+    int xdim2d, ydim2d;
+    int xdim3d, ydim3d, bpp3d;
+    int forcesetup;
+} settings;
 
-    IBOutlet NSButton *cancelButton;
-    IBOutlet NSButton *startButton;
+@interface StartupWindow : NSWindow <NSWindowDelegate>
+{
+    NSMutableArray *modeslist2d;
+    NSMutableArray *modeslist3d;
+
+    NSButton *alwaysShowButton;
+    NSButton *fullscreenButton;
+    NSTextView *messagesView;
+    NSTabView *tabView;
+    NSTabViewItem *tabViewItemSetup;
+    NSTabViewItem *tabViewItemMessageLog;
+    NSPopUpButton *videoMode2DPUButton;
+    NSPopUpButton *videoMode3DPUButton;
+
+    NSButton *cancelButton;
+    NSButton *startButton;
 }
 
-- (IBAction)alwaysShowClicked:(id)sender;
-- (IBAction)fullscreenClicked:(id)sender;
+- (StartupWindow *)init;
 
-- (IBAction)cancel:(id)sender;
-- (IBAction)start:(id)sender;
+- (void)dealloc;
+- (void)populateVideoModes:(BOOL)firstTime;
+
+- (void)fullscreenClicked:(id)sender;
+
+- (void)cancel:(id)sender;
+- (void)start:(id)sender;
 
 - (void)setupRunMode;
 - (void)setupMessagesMode;
+
 - (void)putsMessage:(NSString *)str;
-- (void)setTitle:(NSString *)str;
+
 @end
 
-@implementation StartupWinController
+@implementation StartupWindow : NSWindow
 
-- (IBAction)alwaysShowClicked:(id)sender
+- (StartupWindow *)init
 {
-    UNREFERENCED_PARAMETER(sender);
+    NSUInteger const style = NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask;
+    CGRect const windowFrame = CGRectMake(0, 0, 480, 280);
+    self = [super initWithContentRect:windowFrame styleMask:style backing:NSBackingStoreBuffered defer:NO];
+
+    if (self)
+    {
+        // window properties
+        [self setDelegate:self];
+        [self setReleasedWhenClosed:NO];
+#if defined MAC_OS_X_VERSION_10_6 && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+        [self setPreventsApplicationTerminationWhenModal:NO];
+#else
+        SEL selector = @selector(setPreventsApplicationTerminationWhenModal:);
+        if ([self respondsToSelector:selector])
+        {
+            BOOL argument = NO;
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
+            [invocation setSelector:selector];
+            [invocation setTarget:self];
+            [invocation setArgument:&argument atIndex:2];
+            [invocation invoke];
+            [invocation release];
+        }
+#endif
+#if defined MAC_OS_X_VERSION_10_3 && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3
+        [self setContentMinSize:[[self contentView] frame].size];
+#else
+        [self setMinSize:[NSWindow frameRectForContentRect:[[self contentView] frame] styleMask:[self styleMask]].size];
+#endif
+
+
+        // image on the left
+        CGRect const imageFrame = CGRectMake(0, 0, 100, 280);
+        NSImageView * imageView = [[NSImageView alloc] initWithFrame:imageFrame];
+#ifdef MAC_OS_X_VERSION_10_5
+        [imageView setImageScaling:NSImageScaleNone];
+#else
+        [imageView setImageScaling:NSScaleNone];
+#endif
+        [imageView setImage:[NSImage imageNamed:@"build"]];
+        [[self contentView] addSubview:imageView];
+        [imageView setAutoresizingMask:NSViewMaxXMargin | NSViewHeightSizable];
+
+
+        // buttons
+        CGFloat const buttonWidth = 80;
+        CGFloat const buttonHeight = 32;
+
+        CGRect const startButtonFrame = CGRectMake(windowFrame.size.width - buttonWidth, 0, buttonWidth, buttonHeight);
+        startButton = [[NSButton alloc] initWithFrame:startButtonFrame];
+        [[self contentView] addSubview:startButton];
+        [startButton setTitle:@"Start"];
+        [startButton setTarget:self];
+        [startButton setAction:@selector(start:)];
+        [startButton setBezelStyle:NSRoundedBezelStyle];
+        [startButton setKeyEquivalent:@"\r"];
+        [startButton setAutoresizingMask:NSViewMinXMargin | NSViewMaxYMargin];
+
+        CGRect const cancelButtonFrame = CGRectMake(startButtonFrame.origin.x - buttonWidth, 0, buttonWidth, buttonHeight);
+        cancelButton = [[NSButton alloc] initWithFrame:cancelButtonFrame];
+        [[self contentView] addSubview:cancelButton];
+        [cancelButton setTitle:@"Cancel"];
+        [cancelButton setTarget:self];
+        [cancelButton setAction:@selector(cancel:)];
+        [cancelButton setBezelStyle:NSRoundedBezelStyle];
+        [cancelButton setAutoresizingMask:NSViewMinXMargin | NSViewMaxYMargin];
+
+
+        // tab frame
+        CGRect const tabViewFrame = CGRectMake(imageFrame.size.width, buttonHeight, windowFrame.size.width - imageFrame.size.width, windowFrame.size.height - buttonHeight - 5);
+        tabView = [[NSTabView alloc] initWithFrame:tabViewFrame];
+        [[self contentView] addSubview:tabView];
+        setFontToSmall(tabView);
+        setControlToSmall(tabView);
+        [tabView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+
+
+        // setup tab
+
+        tabViewItemSetup = [[NSTabViewItem alloc] init];
+        [tabView addTabViewItem:tabViewItemSetup];
+        [tabViewItemSetup setLabel:@"Setup"];
+        CGRect const tabViewItemSetupFrame = [[tabViewItemSetup view] frame];
+
+
+        // always show checkbox
+        alwaysShowButton = makeCheckbox(@"Always show this window at startup");
+        [[tabViewItemSetup view] addSubview:alwaysShowButton];
+        CGSize const alwaysShowButtonSize = [alwaysShowButton frame].size;
+        CGRect const alwaysShowButtonFrame = CGSizeAddXY(alwaysShowButtonSize, tabViewItemSetupFrame.size.width - alwaysShowButtonSize.width, 0);
+        [alwaysShowButton setFrame:alwaysShowButtonFrame];
+        [alwaysShowButton setAutoresizingMask:NSViewMinXMargin | NSViewMaxYMargin];
+
+
+        // video mode selectors and labels
+        NSTextField * label2DVideoMode = makeLabel(@"2D Video mode:");
+        [[tabViewItemSetup view] addSubview:label2DVideoMode];
+        CGSize const label2DVideoModeSize = [label2DVideoMode frame].size;
+        [label2DVideoMode setAutoresizingMask:NSViewMaxXMargin | NSViewMinYMargin];
+
+        NSTextField * label3DVideoMode = makeLabel(@"3D Video mode:");
+        [[tabViewItemSetup view] addSubview:label3DVideoMode];
+        CGSize const label3DVideoModeSize = [label3DVideoMode frame].size;
+        [label3DVideoMode setAutoresizingMask:NSViewMaxXMargin | NSViewMinYMargin];
+
+        fullscreenButton = makeCheckbox(@"Fullscreen");
+        [[tabViewItemSetup view] addSubview:fullscreenButton];
+        CGSize const fullscreenButtonSize = [fullscreenButton frame].size;
+        [fullscreenButton setAction:@selector(fullscreenClicked:)];
+        [fullscreenButton setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin];
+
+        CGFloat const labelsVideoModeRightEdge = max(label2DVideoModeSize.width, label3DVideoModeSize.width);
+
+        videoMode2DPUButton = makeComboBox();
+        [[tabViewItemSetup view] addSubview:videoMode2DPUButton];
+        CGSize const videoMode2DPUButtonSize = [videoMode2DPUButton frame].size;
+        CGFloat const videoMode2DButtonX = labelsVideoModeRightEdge;
+        CGRect const videoMode2DPUButtonFrame = CGRectMake(videoMode2DButtonX, tabViewItemSetupFrame.size.height - videoMode2DPUButtonSize.height, tabViewItemSetupFrame.size.width - videoMode2DButtonX - fullscreenButtonSize.width, videoMode2DPUButtonSize.height);
+        [videoMode2DPUButton setFrame:videoMode2DPUButtonFrame];
+        [videoMode2DPUButton setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
+
+        videoMode3DPUButton = makeComboBox();
+        [[tabViewItemSetup view] addSubview:videoMode3DPUButton];
+        CGSize const videoMode3DPUButtonSize = [videoMode3DPUButton frame].size;
+        CGFloat const videoMode3DButtonX = labelsVideoModeRightEdge;
+        CGRect const videoMode3DPUButtonFrame = CGRectMake(videoMode3DButtonX, videoMode2DPUButtonFrame.origin.y - videoMode3DPUButtonSize.height, tabViewItemSetupFrame.size.width - videoMode3DButtonX - fullscreenButtonSize.width, videoMode3DPUButtonSize.height);
+        [videoMode3DPUButton setFrame:videoMode3DPUButtonFrame];
+        [videoMode3DPUButton setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
+
+        CGRect const label2DVideoModeFrame = CGSizeAddXY(label2DVideoModeSize, 0, videoMode2DPUButtonFrame.origin.y + rintf((videoMode2DPUButtonSize.height - label2DVideoModeSize.height) * 0.5f) + 1);
+        [label2DVideoMode setFrame:label2DVideoModeFrame];
+
+        CGRect const label3DVideoModeFrame = CGSizeAddXY(label3DVideoModeSize, 0, videoMode3DPUButtonFrame.origin.y + rintf((videoMode3DPUButtonSize.height - label3DVideoModeSize.height) * 0.5f) + 1);
+        [label3DVideoMode setFrame:label3DVideoModeFrame];
+
+        CGRect const fullscreenButtonFrame = CGSizeAddXY(fullscreenButtonSize, tabViewItemSetupFrame.size.width - fullscreenButtonSize.width, videoMode3DPUButtonFrame.origin.y + rintf((videoMode3DPUButtonSize.height - fullscreenButtonSize.height) * 0.5f) + 1);
+        [fullscreenButton setFrame:fullscreenButtonFrame];
+
+
+        // message log tab
+
+        tabViewItemMessageLog = [[NSTabViewItem alloc] init];
+        [tabView addTabViewItem:tabViewItemMessageLog];
+        [tabViewItemMessageLog setLabel:@"Message Log"];
+        CGRect const tabViewItemMessageLogFrame = [[tabViewItemMessageLog view] frame];
+
+
+        // message log
+        NSScrollView * messagesScrollView = [[NSScrollView alloc] initWithFrame:CGRectChangeXY(tabViewItemMessageLogFrame, 0, 0)];
+        [[tabViewItemMessageLog view] addSubview:messagesScrollView];
+        [messagesScrollView setBorderType:NSBezelBorder];
+        [messagesScrollView setHasVerticalScroller:YES];
+        [messagesScrollView setHasHorizontalScroller:NO];
+        setControlToSmall([[messagesScrollView verticalScroller] cell]);
+        NSSize const messagesScrollViewContentSize = [messagesScrollView contentSize];
+        [messagesScrollView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+
+        messagesView = [[NSTextView alloc] initWithFrame:CGRectMake(0, 0, messagesScrollViewContentSize.width, messagesScrollViewContentSize.height)];
+        [messagesScrollView setDocumentView:messagesView];
+        [messagesView setEditable:NO];
+        [messagesView setRichText:NO];
+        setFontToSmall(messagesView);
+        [messagesView setMinSize:CGSizeMake(0.0, messagesScrollViewContentSize.height)];
+        [messagesView setMaxSize:CGSizeMake(FLT_MAX, FLT_MAX)];
+        [messagesView setVerticallyResizable:YES];
+        [messagesView setHorizontallyResizable:NO];
+        [messagesView setAutoresizingMask:NSViewWidthSizable];
+
+        [[messagesView textContainer] setContainerSize:CGSizeMake(messagesScrollViewContentSize.width, FLT_MAX)];
+        [[messagesView textContainer] setWidthTracksTextView:YES];
+    }
+
+    return self;
 }
 
-- (IBAction)fullscreenClicked:(id)sender
+- (BOOL)canBecomeKeyWindow
+{
+    return YES;
+}
+
+- (BOOL)canBecomeMainWindow
+{
+    return YES;
+}
+
+- (BOOL) windowShouldClose:(id)sender
 {
     UNREFERENCED_PARAMETER(sender);
 
-    // XXX: recalculate the video modes list to take into account the fullscreen status
+    [nsapp abortModal];
+
+    return YES;
 }
 
-- (IBAction)cancel:(id)sender
+- (void)dealloc
+{
+    [modeslist3d release];
+    [super dealloc];
+}
+
+- (void)populateVideoModes:(BOOL)firstTime
+{
+    int i, mode3d, fullscreen = ([fullscreenButton state] == NSOnState);
+    int mode2d, idx2d = -1;
+    int idx3d = -1;
+    int xdim2d = 0, ydim2d = 0;
+    int const bpp2d = 8;
+    int xdim = 0, ydim = 0, bpp = 0;
+
+    if (firstTime) {
+        xdim2d = settings.xdim2d;
+        ydim2d = settings.ydim2d;
+        xdim = settings.xdim3d;
+        ydim = settings.ydim3d;
+        bpp  = settings.bpp3d;
+    } else {
+        mode2d = [[modeslist2d objectAtIndex:[videoMode2DPUButton indexOfSelectedItem]] intValue];
+        if (mode2d >= 0) {
+            xdim2d = validmode[mode2d].xdim;
+            ydim2d = validmode[mode2d].ydim;
+        }
+
+        mode3d = [[modeslist3d objectAtIndex:[videoMode3DPUButton indexOfSelectedItem]] intValue];
+        if (mode3d >= 0) {
+            xdim = validmode[mode3d].xdim;
+            ydim = validmode[mode3d].ydim;
+            bpp = validmode[mode3d].bpp;
+        }
+    }
+
+
+    mode2d = checkvideomode(&xdim2d, &ydim2d, bpp2d, fullscreen, 1);
+
+    [modeslist2d release];
+    [videoMode2DPUButton removeAllItems];
+
+    modeslist2d = [[NSMutableArray alloc] init];
+
+    for (i = 0; i < validmodecnt; i++) {
+        if (fullscreen == validmode[i].fs) {
+            if (i == mode2d) idx2d = [modeslist2d count];
+            [modeslist2d addObject:[NSNumber numberWithInt:i]];
+            [videoMode2DPUButton addItemWithTitle:[NSString stringWithFormat:@"%d %C %d",
+                                                   validmode[i].xdim, 0xd7, validmode[i].ydim]];
+        }
+    }
+
+    if (idx2d >= 0) [videoMode2DPUButton selectItemAtIndex:idx2d];
+
+
+    mode3d = checkvideomode(&xdim, &ydim, bpp, fullscreen, 1);
+    if (mode3d < 0) {
+        int i, cd[] = { 32, 24, 16, 15, 8, 0 };
+        for (i=0; cd[i]; ) { if (cd[i] >= bpp) i++; else break; }
+        for ( ; cd[i]; i++) {
+            mode3d = checkvideomode(&xdim, &ydim, cd[i], fullscreen, 1);
+            if (mode3d < 0) continue;
+            break;
+        }
+    }
+
+    [modeslist3d release];
+    [videoMode3DPUButton removeAllItems];
+
+    modeslist3d = [[NSMutableArray alloc] init];
+
+    for (i = 0; i < validmodecnt; i++) {
+        if (fullscreen == validmode[i].fs) {
+            if (i == mode3d) idx3d = [modeslist3d count];
+            [modeslist3d addObject:[NSNumber numberWithInt:i]];
+            [videoMode3DPUButton addItemWithTitle:[NSString stringWithFormat:@"%d %C %d %d-bpp",
+                                                   validmode[i].xdim, 0xd7, validmode[i].ydim, validmode[i].bpp]];
+        }
+    }
+
+    if (idx3d >= 0) [videoMode3DPUButton selectItemAtIndex:idx3d];
+}
+
+- (void)fullscreenClicked:(id)sender
+{
+    UNREFERENCED_PARAMETER(sender);
+
+    [self populateVideoModes:NO];
+}
+
+- (void)cancel:(id)sender
 {
     UNREFERENCED_PARAMETER(sender);
 
     [nsapp abortModal];
 }
 
-- (IBAction)start:(id)sender
+- (void)start:(id)sender
 {
     UNREFERENCED_PARAMETER(sender);
 
-    // XXX: write the states of the form controls to their respective homes
+    int mode2d = [[modeslist2d objectAtIndex:[videoMode2DPUButton indexOfSelectedItem]] intValue];
+    if (mode2d >= 0) {
+        settings.xdim2d = validmode[mode2d].xdim;
+        settings.ydim2d = validmode[mode2d].ydim;
+        settings.fullscreen = validmode[mode2d].fs;
+    }
+
+    int mode = [[modeslist3d objectAtIndex:[videoMode3DPUButton indexOfSelectedItem]] intValue];
+    if (mode >= 0) {
+        settings.xdim3d = validmode[mode].xdim;
+        settings.ydim3d = validmode[mode].ydim;
+        settings.bpp3d = validmode[mode].bpp;
+        settings.fullscreen = validmode[mode].fs;
+    }
+
+    settings.forcesetup = [alwaysShowButton state] == NSOnState;
+
     [nsapp stopModal];
 }
 
 - (void)setupRunMode
 {
-    // XXX: populate the lists and set everything up to represent the current options
+    getvalidmodes();
+
+    [fullscreenButton setState: (settings.fullscreen ? NSOnState : NSOffState)];
+    [alwaysShowButton setState: (settings.forcesetup ? NSOnState : NSOffState)];
+    [self populateVideoModes:YES];
 
     // enable all the controls on the Configuration page
-    NSEnumerator *enumerator = [[[[tabView tabViewItemAtIndex:0] view] subviews] objectEnumerator];
+    NSEnumerator *enumerator = [[[tabViewItemSetup view] subviews] objectEnumerator];
     NSControl *control;
     while ((control = [enumerator nextObject]))
-        [control setEnabled:true];
+    {
+        if ([control respondsToSelector:@selector(setEnabled:)])
+            [control setEnabled:true];
+    }
 
     [cancelButton setEnabled:true];
     [startButton setEnabled:true];
 
-    [tabView selectTabViewItemAtIndex:0];
+    [tabView selectTabViewItem:tabViewItemSetup];
+    [NSCursor unhide]; // Why should I need to do this?
 }
 
 - (void)setupMessagesMode
 {
-    [tabView selectTabViewItemAtIndex:1];
+    [tabView selectTabViewItem:tabViewItemMessageLog];
 
     // disable all the controls on the Configuration page except "always show", so the
     // user can enable it if they want to while waiting for something else to happen
-    NSEnumerator *enumerator = [[[[tabView tabViewItemAtIndex:0] view] subviews] objectEnumerator];
+    NSEnumerator *enumerator = [[[tabViewItemSetup view] subviews] objectEnumerator];
     NSControl *control;
-    while ((control = [enumerator nextObject])) {
-        if (control == alwaysShowButton) continue;
-        [control setEnabled:false];
+    while ((control = [enumerator nextObject]))
+    {
+        if (control != alwaysShowButton && [control respondsToSelector:@selector(setEnabled:)])
+            [control setEnabled:false];
     }
 
     [cancelButton setEnabled:false];
@@ -112,25 +505,21 @@ static id nsapp;
     }
 }
 
-- (void)setTitle:(NSString *)str
-{
-    [[self window] setTitle:str];
-}
-
 @end
 
-static StartupWinController *startwin = nil;
+static StartupWindow *startwin = nil;
 
 int startwin_open(void)
 {
+    // fix for "ld: absolute address to symbol _NSApp in a different linkage unit not supported"
+    // (OS X 10.6) when building for PPC
     nsapp = [NSApplication sharedApplication];
 
     if (startwin != nil) return 1;
 
-    startwin = [[StartupWinController alloc] initWithWindowNibName:@"startwin.editor"];
+    startwin = [[StartupWindow alloc] init];
     if (startwin == nil) return -1;
 
-    [startwin showWindow:nil];
     [startwin setupMessagesMode];
 
     return 0;
@@ -141,6 +530,7 @@ int startwin_close(void)
     if (startwin == nil) return 1;
 
     [startwin close];
+    [startwin release];
     startwin = nil;
 
     return 0;
@@ -153,7 +543,7 @@ int startwin_puts(const char *s)
     if (!s) return -1;
     if (startwin == nil) return 1;
 
-    ns = [[NSString alloc] initWithUTF8String:s];
+    ns = [NSString stringWithUTF8String:s];
     [startwin putsMessage:ns];
     [ns release];
 
@@ -167,7 +557,7 @@ int startwin_settitle(const char *s)
     if (!s) return -1;
     if (startwin == nil) return 1;
 
-    ns = [[NSString alloc] initWithUTF8String:s];
+    ns = [NSString stringWithUTF8String:s];
     [startwin setTitle:ns];
     [ns release];
 
@@ -178,9 +568,10 @@ int startwin_idle(void *v)
 {
     UNREFERENCED_PARAMETER(v);
 
-    if (startwin) [[startwin window] displayIfNeeded];
+    if (startwin) [startwin displayIfNeeded];
     return 0;
 }
+
 
 int startwin_run(void)
 {
@@ -188,9 +579,17 @@ int startwin_run(void)
 
     if (startwin == nil) return 0;
 
+    settings.fullscreen = fullscreen;
+    settings.xdim2d = xdim2d;
+    settings.ydim2d = ydim2d;
+    settings.xdim3d = xdimgame;
+    settings.ydim3d = ydimgame;
+    settings.bpp3d = bppgame;
+    settings.forcesetup = forcesetup;
+
     [startwin setupRunMode];
 
-    switch ([nsapp runModalForWindow:[startwin window]]) {
+    switch ([nsapp runModalForWindow:startwin]) {
 #ifdef MAC_OS_X_VERSION_10_9
         case NSModalResponseStop: retval = 1; break;
         case NSModalResponseAbort: retval = 0; break;
@@ -202,6 +601,16 @@ int startwin_run(void)
     }
 
     [startwin setupMessagesMode];
+
+    if (retval) {
+        fullscreen = settings.fullscreen;
+        xdim2d = settings.xdim2d;
+        ydim2d = settings.ydim2d;
+        xdimgame = settings.xdim3d;
+        ydimgame = settings.ydim3d;
+        bppgame = settings.bpp3d;
+        forcesetup = settings.forcesetup;
+    }
 
     return retval;
 }

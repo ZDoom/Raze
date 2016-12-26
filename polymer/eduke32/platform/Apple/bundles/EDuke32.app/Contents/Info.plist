@@ -34,8 +34,6 @@
 	<string>public.app-category.action-games</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright Voidpoint, LLC</string>
-	<key>NSMainNibFile</key>
-	<string>game.osxmain</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>

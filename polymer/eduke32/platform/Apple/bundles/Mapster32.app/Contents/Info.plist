@@ -32,8 +32,6 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright Voidpoint, LLC</string>
-	<key>NSMainNibFile</key>
-	<string>build.osxmain</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
