@@ -104,7 +104,7 @@ static uint16_t sysgamma[3][256];
 // OpenGL stuff
 char nogl=0;
 #endif
-static int sdl_vsync=0;
+static int vsync_renderlayer;
 int32_t maxrefreshfreq=0;
 
 // last gamma, contrast, brightness
@@ -504,7 +504,7 @@ int setvsync(int newSync);
 #if SDL_MAJOR_VERSION != 1
 int setvsync(int newSync)
 {
-    if (sdl_vsync == newSync)
+    if (vsync_renderlayer == newSync)
         return newSync;
 
 #ifdef USE_OPENGL
@@ -527,19 +527,19 @@ int setvsync(int newSync)
             }
         }
 
-        sdl_vsync = newSync;
+        vsync_renderlayer = newSync;
     }
     else
 #endif
     {
-        sdl_vsync = newSync;
+        vsync_renderlayer = newSync;
 
         resetvideomode();
         if (setgamemode(fullscreen, xdim, ydim, bpp))
             OSD_Printf("restartvid: Reset failed...\n");
     }
 
-    return sdl_vsync;
+    return vsync_renderlayer;
 }
 #endif
 
@@ -1551,7 +1551,7 @@ static void sdl_trycreaterenderer_fail(char const * const failurepoint)
 
 static void sdl_trycreaterenderer(int32_t const x, int32_t const y)
 {
-    int const flags = SDL_RENDERER_ACCELERATED | (sdl_vsync ? SDL_RENDERER_PRESENTVSYNC : 0);
+    int const flags = SDL_RENDERER_ACCELERATED | (vsync_renderlayer ? SDL_RENDERER_PRESENTVSYNC : 0);
 
     sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
     if (!sdl_renderer)
@@ -1658,7 +1658,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 return -1;
             }
 
-            SDL_GL_SetSwapInterval(sdl_vsync);
+            SDL_GL_SetSwapInterval(vsync_renderlayer);
 
             setrefreshrate();
 

@@ -58,16 +58,16 @@ HWND win_gethwnd(void)
 #ifdef USE_OPENGL
 int setvsync(int newSync)
 {
-    if (sdl_vsync == newSync)
+    if (vsync_renderlayer == newSync)
         return newSync;
 
-    sdl_vsync = newSync;
+    vsync_renderlayer = newSync;
 
     resetvideomode();
     if (setgamemode(fullscreen, xdim, ydim, bpp))
         OSD_Printf("restartvid: Reset failed...\n");
 
-    return sdl_vsync;
+    return vsync_renderlayer;
 }
 #endif
 
@@ -394,7 +394,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             { SDL_GL_MULTISAMPLESAMPLES, glmultisample },
             { SDL_GL_STENCIL_SIZE, 1 },
             { SDL_GL_ACCELERATED_VISUAL, 1 },
-            { SDL_GL_SWAP_CONTROL, sdl_vsync },
+            { SDL_GL_SWAP_CONTROL, vsync_renderlayer },
         };
 
         do
@@ -404,7 +404,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             /* HACK: changing SDL GL attribs only works before surface creation,
                so we have to create a new surface in a different format first
                to force the surface we WANT to be recreated instead of reused. */
-            if (sdl_vsync != ovsync)
+            if (vsync_renderlayer != ovsync)
             {
                 if (sdl_surface)
                 {
@@ -413,7 +413,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                     SDL_SetVideoMode(1, 1, 8, SDL_NOFRAME | SURFACE_FLAGS | ((fs & 1) ? SDL_FULLSCREEN : 0));
                     SDL_FreeSurface(sdl_surface);
                 }
-                ovsync = sdl_vsync;
+                ovsync = vsync_renderlayer;
             }
             sdl_surface = SDL_SetVideoMode(x, y, c, SDL_OPENGL | ((fs & 1) ? SDL_FULLSCREEN : 0));
             if (!sdl_surface)

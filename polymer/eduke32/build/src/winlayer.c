@@ -131,7 +131,7 @@ int32_t bytesperline=0;
 int32_t lockcount=0;
 int32_t glcolourdepth=32;
 #ifdef USE_OPENGL
-static int32_t vsync_render=0;
+static int32_t vsync_renderlayer;
 #endif
 uint32_t maxrefreshfreq=60;
 intptr_t frameplace=0;
@@ -1698,7 +1698,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     }
 
 #if defined USE_OPENGL && defined USE_GLEXT
-    if (hGLWindow && glinfo.vsync) bwglSwapIntervalEXT(vsync_render);
+    if (hGLWindow && glinfo.vsync) bwglSwapIntervalEXT(vsync_renderlayer);
 #endif
     if (inp) AcquireInputDevices(1);
     modechange=1;
@@ -1730,10 +1730,10 @@ int setvsync(int newSync)
 {
     if (!glinfo.vsync)
     {
-        vsync_render = 0;
+        vsync_renderlayer = 0;
         return 0;
     }
-    vsync_render = newSync;
+    vsync_renderlayer = newSync;
 # ifdef USE_GLEXT
     bwglSwapIntervalEXT(newSync);
 # endif
