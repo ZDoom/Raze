@@ -79,6 +79,8 @@ static NSPopUpButton * makeComboBox(void)
 
 static id nsapp;
 
+static int retval = -1;
+
 static struct {
     int fullscreen;
     int xdim2d, ydim2d;
@@ -134,21 +136,6 @@ static struct {
         // window properties
         [self setDelegate:self];
         [self setReleasedWhenClosed:NO];
-#if defined MAC_OS_X_VERSION_10_6 && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
-        [self setPreventsApplicationTerminationWhenModal:NO];
-#else
-        SEL selector = @selector(setPreventsApplicationTerminationWhenModal:);
-        if ([self respondsToSelector:selector])
-        {
-            BOOL argument = NO;
-            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:selector]];
-            [invocation setSelector:selector];
-            [invocation setTarget:self];
-            [invocation setArgument:&argument atIndex:2];
-            [invocation invoke];
-            [invocation release];
-        }
-#endif
 #if defined MAC_OS_X_VERSION_10_3 && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_3
         [self setContentMinSize:[[self contentView] frame].size];
 #else
@@ -314,7 +301,7 @@ static struct {
 {
     UNREFERENCED_PARAMETER(sender);
 
-    [nsapp abortModal];
+    retval = 0;
 
     return YES;
 }
@@ -414,7 +401,7 @@ static struct {
 {
     UNREFERENCED_PARAMETER(sender);
 
-    [nsapp abortModal];
+    retval = 0;
 }
 
 - (void)start:(id)sender
@@ -438,7 +425,7 @@ static struct {
 
     settings.forcesetup = [alwaysShowButton state] == NSOnState;
 
-    [nsapp stopModal];
+    retval = 1;
 }
 
 - (void)setupRunMode
@@ -575,8 +562,6 @@ int startwin_idle(void *v)
 
 int startwin_run(void)
 {
-    int retval;
-
     if (startwin == nil) return 0;
 
     settings.fullscreen = fullscreen;
@@ -589,16 +574,18 @@ int startwin_run(void)
 
     [startwin setupRunMode];
 
-    switch ([nsapp runModalForWindow:startwin]) {
-#ifdef MAC_OS_X_VERSION_10_9
-        case NSModalResponseStop: retval = 1; break;
-        case NSModalResponseAbort: retval = 0; break;
-#else
-        case NSRunStoppedResponse: retval = 1; break;
-        case NSRunAbortedResponse: retval = 0; break;
-#endif
-        default: retval = -1;
+    [nsapp finishLaunching];
+
+    [startwin center];
+    [startwin makeKeyAndOrderFront:nil];
+
+    do
+    {
+        NSEvent *event = [nsapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantFuture] inMode:NSDefaultRunLoopMode dequeue:YES];
+        [nsapp sendEvent:event];
+        [nsapp updateWindows];
     }
+    while (retval == -1);
 
     [startwin setupMessagesMode];
 
