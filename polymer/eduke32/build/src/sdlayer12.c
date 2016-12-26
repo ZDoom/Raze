@@ -55,7 +55,6 @@ HWND win_gethwnd(void)
 }
 #endif
 
-#ifdef USE_OPENGL
 int setvsync(int newSync)
 {
     if (vsync_renderlayer == newSync)
@@ -67,9 +66,8 @@ int setvsync(int newSync)
     if (setgamemode(fullscreen, xdim, ydim, bpp))
         OSD_Printf("restartvid: Reset failed...\n");
 
-    return vsync_renderlayer;
+    return newSync;
 }
-#endif
 
 int32_t sdlayer_checkversion(void)
 {

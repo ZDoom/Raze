@@ -130,9 +130,7 @@ int32_t bpp=0;
 int32_t bytesperline=0;
 int32_t lockcount=0;
 int32_t glcolourdepth=32;
-#ifdef USE_OPENGL
 static int32_t vsync_renderlayer;
-#endif
 uint32_t maxrefreshfreq=60;
 intptr_t frameplace=0;
 char modechange=1;
@@ -589,9 +587,7 @@ void uninitsystem(void)
 //
 void system_getcvars(void)
 {
-#ifdef USE_OPENGL
-    setvsync(vsync);
-#endif
+    vsync = setvsync(vsync);
 }
 
 
@@ -1725,22 +1721,25 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
-#ifdef USE_OPENGL
 int setvsync(int newSync)
 {
+#ifdef USE_OPENGL
     if (!glinfo.vsync)
     {
         vsync_renderlayer = 0;
         return 0;
     }
-    vsync_renderlayer = newSync;
 # ifdef USE_GLEXT
     bwglSwapIntervalEXT(newSync);
 # endif
+#endif
+
+    vsync_renderlayer = newSync;
 
     return newSync;
 }
 
+#ifdef USE_OPENGL
 static void cdsenummodes(void)
 {
     DEVMODE dm;

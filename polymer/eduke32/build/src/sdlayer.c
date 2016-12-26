@@ -500,7 +500,6 @@ int32_t main(int32_t argc, char *argv[])
 }
 
 
-int setvsync(int newSync);
 #if SDL_MAJOR_VERSION != 1
 int setvsync(int newSync)
 {
@@ -539,7 +538,7 @@ int setvsync(int newSync)
             OSD_Printf("restartvid: Reset failed...\n");
     }
 
-    return vsync_renderlayer;
+    return newSync;
 }
 #endif
 
