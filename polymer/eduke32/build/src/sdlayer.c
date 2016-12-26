@@ -49,7 +49,9 @@
 # define SDL_DISABLE_8BIT_BUFFER
 #endif
 
+#if SDL_MAJOR_VERSION != 1
 static SDL_version linked;
+#endif
 
 #if !defined STARTUP_SETUP_WINDOW
 int32_t startwin_open(void) { return 0; }
