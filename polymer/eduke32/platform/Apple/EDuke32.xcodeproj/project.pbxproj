@@ -80,7 +80,6 @@
 		0008E93B19F1AC540091588D /* mutex.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8BA19F1AC530091588D /* mutex.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E93C19F1AC540091588D /* osd.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8BB19F1AC530091588D /* osd.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E93D19F1AC540091588D /* osxbits.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8BC19F1AC530091588D /* osxbits.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		0008E93E19F1AC540091588D /* osxmain.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8BD19F1AC530091588D /* osxmain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E93F19F1AC540091588D /* polymer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8BE19F1AC530091588D /* polymer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E94019F1AC540091588D /* polymost.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8BF19F1AC530091588D /* polymost.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0008E94119F1AC540091588D /* pragmas.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8C019F1AC530091588D /* pragmas.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -284,7 +283,6 @@
 		001382B519F361B60007DA6C /* osd.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8BB19F1AC530091588D /* osd.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382B619F361B60007DA6C /* polymer.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8BE19F1AC530091588D /* polymer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382B719F361B60007DA6C /* m32script.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8B419F1AC530091588D /* m32script.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		001382B819F361B60007DA6C /* osxmain.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8BD19F1AC530091588D /* osxmain.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382B919F361B60007DA6C /* texcache.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8CF19F1AC530091588D /* texcache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382BA19F361B60007DA6C /* build.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8A319F1AC530091588D /* build.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		001382BB19F361B60007DA6C /* prlights.h in Headers */ = {isa = PBXBuildFile; fileRef = 0008E8C519F1AC530091588D /* prlights.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -609,7 +607,6 @@
 		0008E8BA19F1AC530091588D /* mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mutex.h; path = ../../build/include/mutex.h; sourceTree = SOURCE_ROOT; };
 		0008E8BB19F1AC530091588D /* osd.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = osd.h; path = ../../build/include/osd.h; sourceTree = SOURCE_ROOT; };
 		0008E8BC19F1AC530091588D /* osxbits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = osxbits.h; path = ../../build/include/osxbits.h; sourceTree = SOURCE_ROOT; };
-		0008E8BD19F1AC530091588D /* osxmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = osxmain.h; path = ../../build/include/osxmain.h; sourceTree = SOURCE_ROOT; };
 		0008E8BE19F1AC530091588D /* polymer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = polymer.h; path = ../../build/include/polymer.h; sourceTree = SOURCE_ROOT; };
 		0008E8BF19F1AC530091588D /* polymost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = polymost.h; path = ../../build/include/polymost.h; sourceTree = SOURCE_ROOT; };
 		0008E8C019F1AC530091588D /* pragmas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pragmas.h; path = ../../build/include/pragmas.h; sourceTree = SOURCE_ROOT; };
@@ -1290,7 +1287,6 @@
 				0008E8BA19F1AC530091588D /* mutex.h */,
 				0008E8BB19F1AC530091588D /* osd.h */,
 				0008E8BC19F1AC530091588D /* osxbits.h */,
-				0008E8BD19F1AC530091588D /* osxmain.h */,
 				2044C9831E089F2500A8C543 /* palette.h */,
 				0008E8BE19F1AC530091588D /* polymer.h */,
 				0008E8BF19F1AC530091588D /* polymost.h */,
@@ -1499,7 +1495,6 @@
 				0008E93C19F1AC540091588D /* osd.h in Headers */,
 				0008E93F19F1AC540091588D /* polymer.h in Headers */,
 				0008E93619F1AC540091588D /* m32script.h in Headers */,
-				0008E93E19F1AC540091588D /* osxmain.h in Headers */,
 				0008E95019F1AC540091588D /* texcache.h in Headers */,
 				0008EA0C19F1ADE70091588D /* build.h in Headers */,
 				0008E94619F1AC540091588D /* prlights.h in Headers */,
@@ -1603,7 +1598,6 @@
 				001382B519F361B60007DA6C /* osd.h in Headers */,
 				001382B619F361B60007DA6C /* polymer.h in Headers */,
 				001382B719F361B60007DA6C /* m32script.h in Headers */,
-				001382B819F361B60007DA6C /* osxmain.h in Headers */,
 				001382B919F361B60007DA6C /* texcache.h in Headers */,
 				20FD1D491C44E4BE00C2E553 /* colmatch.h in Headers */,
 				001382BA19F361B60007DA6C /* build.h in Headers */,

@@ -138,9 +138,6 @@
     <ClInclude Include="build\include\osxbits.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\osxmain.h">
-      <Filter>build\headers</Filter>
-    </ClInclude>
     <ClInclude Include="build\include\polymer.h">
       <Filter>build\headers</Filter>
     </ClInclude>

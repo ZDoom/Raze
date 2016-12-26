@@ -131,7 +131,6 @@
     <ClInclude Include="build\include\mutex.h" />
     <ClInclude Include="build\include\osd.h" />
     <ClInclude Include="build\include\osxbits.h" />
-    <ClInclude Include="build\include\osxmain.h" />
     <ClInclude Include="build\include\palette.h" />
     <ClInclude Include="build\include\polymer.h" />
     <ClInclude Include="build\include\polymost.h" />
