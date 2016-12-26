@@ -589,6 +589,13 @@ int startwin_open(void)
 
     [startwin setupMessagesMode];
 
+    [nsapp finishLaunching];
+
+    [startwin center];
+    [startwin makeKeyAndOrderFront:nil];
+
+    CreateApplicationMenus();
+
     return 0;
 }
 
@@ -635,7 +642,20 @@ int startwin_idle(void *v)
 {
     UNREFERENCED_PARAMETER(v);
 
-    if (startwin) [startwin displayIfNeeded];
+    if (startwin)
+    {
+        NSEvent *event;
+        do
+        {
+            event = [nsapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate date] inMode:NSDefaultRunLoopMode dequeue:YES];
+            [nsapp sendEvent:event];
+        }
+        while (event != nil);
+
+        [startwin displayIfNeeded];
+        [nsapp updateWindows];
+    }
+
     return 0;
 }
 
@@ -653,13 +673,6 @@ int startwin_run(void)
 
     [startwin setupRunMode];
 
-    [nsapp finishLaunching];
-
-    [startwin center];
-    [startwin makeKeyAndOrderFront:nil];
-
-    CreateApplicationMenus();
-
     do
     {
         NSEvent *event = [nsapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantFuture] inMode:NSDefaultRunLoopMode dequeue:YES];
@@ -669,6 +682,7 @@ int startwin_run(void)
     while (retval == -1);
 
     [startwin setupMessagesMode];
+    [nsapp updateWindows];
 
     if (retval) {
         ud.config.ScreenMode = settings.fullscreen;
