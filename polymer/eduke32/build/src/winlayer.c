@@ -143,7 +143,6 @@ char quitevent=0;
 char appactive=1;
 char realfs=0;
 char regrabmouse=0;
-char defaultlayoutname[KL_NAMELENGTH];
 int32_t inputchecked = 0;
 
 //-------------------------------------------------------------------------------------------------
@@ -709,27 +708,15 @@ int32_t handleevents(void)
 }
 
 
-void switchlayout(char const * layout)
-{
-    char layoutname[KL_NAMELENGTH];
-
-    GetKeyboardLayoutName(layoutname);
-
-    if (!Bstrcmp(layoutname, layout))
-        return;
-
-    initprintf("Switching keyboard layout from %s to %s\n", layoutname, layout);
-    LoadKeyboardLayout(layout, KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
-}
-
-
 //
 // initinput() -- init input system
 //
 int32_t initinput(void)
 {
     int32_t i;
-    static int32_t readlayout=0;
+
+    Win_GetOriginalLayoutName();
+    Win_SetKeyboardLayoutUS(1);
 
     moustat=0;
     memset(keystatus, 0, sizeof(keystatus));
@@ -745,18 +732,6 @@ int32_t initinput(void)
     inputdevices = 1|2;
     joyisgamepad = joynumaxes = joynumbuttons = joynumhats=0;
 
-    // 00000409 is "American English"
-
-    if (!readlayout)
-    {
-        GetKeyboardLayoutName(defaultlayoutname);
-
-        if (Bstrcmp(defaultlayoutname, "00000409"))
-            switchlayout("00000409");
-
-        readlayout = 1;
-    }
-
     GetKeyNames();
     InitDirectInput();
 
@@ -769,8 +744,7 @@ int32_t initinput(void)
 //
 void uninitinput(void)
 {
-    if (defaultlayoutname[0])
-        switchlayout(defaultlayoutname);
+    Win_SetKeyboardLayoutUS(0);
 
     uninitmouse();
     UninitDirectInput();

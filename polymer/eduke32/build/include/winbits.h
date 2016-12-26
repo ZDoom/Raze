@@ -23,6 +23,9 @@ extern void win_setvideomode(int32_t c);
 extern void win_uninit(void);
 extern void win_close(void);
 
+extern void Win_GetOriginalLayoutName(void);
+extern void Win_SetKeyboardLayoutUS(int);
+
 extern void ShowErrorBox(const char *m);
 
 extern LPTSTR GetWindowsErrorMsg(DWORD code);

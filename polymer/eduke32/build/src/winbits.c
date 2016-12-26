@@ -257,6 +257,49 @@ void win_close(void)
 }
 
 
+// Keyboard layout switching
+
+static void switchlayout(char const * layout)
+{
+    char layoutname[KL_NAMELENGTH];
+
+    GetKeyboardLayoutName(layoutname);
+
+    if (!Bstrcmp(layoutname, layout))
+        return;
+
+    initprintf("Switching keyboard layout from %s to %s\n", layoutname, layout);
+    LoadKeyboardLayout(layout, KLF_ACTIVATE|KLF_SETFORPROCESS|KLF_SUBSTITUTE_OK);
+}
+
+static char OriginalLayoutName[KL_NAMELENGTH];
+
+void Win_GetOriginalLayoutName(void)
+{
+    GetKeyboardLayoutName(OriginalLayoutName);
+}
+
+void Win_SetKeyboardLayoutUS(int const toggle)
+{
+    if (toggle)
+    {
+        static int done = 0;
+
+        if (!done)
+        {
+            // 00000409 is "American English"
+            switchlayout("00000409");
+
+            done = 1;
+        }
+    }
+    else if (OriginalLayoutName[0])
+    {
+        switchlayout(OriginalLayoutName);
+    }
+}
+
+
 //
 // ShowErrorBox() -- shows an error message box
 //
