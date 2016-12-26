@@ -2626,9 +2626,9 @@ void P_DisplayWeapon(void)
                         // else we are in 'reload time'
                         else
                         {
-                            weaponYOffset -= 10 * (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
-                                             ? ((*weaponFrame) - totalTime)
-                                             : (reloadTime - (*weaponFrame));
+                            weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
+                                             ? 10 * ((*weaponFrame) - totalTime)
+                                             : 10 * (reloadTime - (*weaponFrame));
 
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
                                                    weaponShade, weaponBits, weaponPal, 0);
@@ -2755,10 +2755,9 @@ void P_DisplayWeapon(void)
                             }
                         }
                         // else we are in 'reload time'
-                        else if (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
-                            weaponYOffset -= (currentWeapon == GROW_WEAPON ? 5 : 10) * ((*weaponFrame) - totalTime); // D
-                        else
-                            weaponYOffset -= 10 * (reloadTime - (*weaponFrame)); // U
+                        weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
+                                         ? (currentWeapon == GROW_WEAPON ? 5 : 10) * ((*weaponFrame) - totalTime) // D
+                                         : 10 * (reloadTime - (*weaponFrame)); // U
                     }
 
                     G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
