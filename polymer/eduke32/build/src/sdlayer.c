@@ -2208,6 +2208,57 @@ int32_t handleevents_pollsdl(void)
                     if (OSD_HandleChar(keyvalue))
                         keyascfifo_insert(keyvalue);
                 }
+                else if (ev.key.type == SDL_KEYDOWN && (unsigned)ev.key.keysym.sym <= 0x7Fu &&
+                         ev.key.keysym.sym != scantoasc[OSD_OSDKey()] && !keyascfifo_isfull() &&
+                         !SDL_IsTextInputActive())
+                {
+                    /*
+                    Necessary for Duke 3D's method of entering cheats to work without showing IMEs.
+                    SDL_TEXTINPUT is preferable overall, but with bitmap fonts it has no advantage.
+                    */
+                    char keyvalue = ev.key.keysym.sym;
+
+                    if ('a' <= keyvalue && keyvalue <= 'z')
+                    {
+                        if (!!(ev.key.keysym.mod & KMOD_SHIFT) ^ !!(ev.key.keysym.mod & KMOD_CAPS))
+                            keyvalue -= 'a'-'A';
+                    }
+                    else if (ev.key.keysym.mod & KMOD_SHIFT)
+                    {
+                        switch (keyvalue)
+                        {
+                            case '\'': keyvalue = '"'; break;
+
+                            case ',': keyvalue = '<'; break;
+                            case '-': keyvalue = '_'; break;
+                            case '.': keyvalue = '>'; break;
+                            case '/': keyvalue = '?'; break;
+                            case '0': keyvalue = ')'; break;
+                            case '1': keyvalue = '!'; break;
+                            case '2': keyvalue = '@'; break;
+                            case '3': keyvalue = '#'; break;
+                            case '4': keyvalue = '$'; break;
+                            case '5': keyvalue = '%'; break;
+                            case '6': keyvalue = '^'; break;
+                            case '7': keyvalue = '&'; break;
+                            case '8': keyvalue = '*'; break;
+                            case '9': keyvalue = '('; break;
+
+                            case ';': keyvalue = ':'; break;
+
+                            case '=': keyvalue = '+'; break;
+
+                            case '[': keyvalue = '{'; break;
+                            case '\\': keyvalue = '|'; break;
+                            case ']': keyvalue = '}'; break;
+
+                            case '`': keyvalue = '~'; break;
+                        }
+                    }
+
+                    if (OSD_HandleChar(keyvalue))
+                        keyascfifo_insert(keyvalue);
+                }
 
                 // initprintf("SDL2: got key %d, %d, %u\n", ev.key.keysym.scancode, code, ev.key.type);
 
