@@ -7352,7 +7352,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
         {
             int32_t p, nextj;
 
-            pSprite->xvel = 32;
+            pSprite->xvel = pSector->extra != 0 ? pSector->extra : 32;
             l = (pSprite->xvel*sintable[(pSprite->ang+512)&2047])>>14;
             x = (pSprite->xvel*sintable[pSprite->ang&2047])>>14;
 
