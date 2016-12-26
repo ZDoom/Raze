@@ -2904,12 +2904,6 @@ nullquote:
                     continue;
                 }
 
-                if (EDUKE32_PREDICT_FALSE(pos.x < -(320<<16) || pos.x >= (640<<16) || pos.y < -(200<<16) || pos.y >= (400<<16)))
-                {
-                    CON_ERRPRINTF("invalid coordinates: %d, %d\n", pos.x, pos.y);
-                    continue;
-                }
-
                 int32_t blendidx = 0;
 
                 NEG_ALPHA_TO_BLEND(alpha, blendidx, orientation);

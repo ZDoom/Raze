@@ -2999,8 +2999,6 @@ dodefault:
                     y<<=16;
                 }
 
-                // NOTE: Unlike CON, no error on large x/y.
-
                 orientation &= (ROTATESPRITE_MAX-1);
 
                 rotatesprite_(x,y,z,a,tilenum,shade,pal,2|orientation,alpha,0,x1,y1,x2,y2);

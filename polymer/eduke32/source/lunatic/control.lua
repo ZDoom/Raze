@@ -402,15 +402,6 @@ function _rotspr(x, y, zoom, ang, tilenum, shade, pal, orientation,
         y = 65536*y
     end
 
-    -- XXX: This is the same as the check in gameexec.c, but ideally we'd want
-    -- rotatesprite to accept all coordinates and simply draw nothing if the
-    -- tile's bounding rectange is beyond the screen.
-    -- XXX: Currently, classic rotatesprite() is not correct with some large
-    -- zoom values.
-    if (not (x >= -320*65536 and x < 640*65536) or not (y >= -200*65536 and y < 400*65536)) then
-        error(format("invalid coordinates (%.03f, %.03f)", x, y), 2)
-    end
-
     local blendidx = 0
     if (alpha < 0) then
         -- See NEG_ALPHA_TO_BLEND.
