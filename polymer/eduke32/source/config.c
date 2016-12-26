@@ -666,7 +666,7 @@ void CONFIG_WriteSettings(void) // save binds and aliases to <cfgname>_settings.
 
         OSD_WriteAliases(fp);
 
-        if (g_crosshairSum && g_crosshairSum != DefaultCrosshairColors.r+(DefaultCrosshairColors.g<<1)+(DefaultCrosshairColors.b<<2))
+        if (g_crosshairSum != -1 && g_crosshairSum != DefaultCrosshairColors.r+(DefaultCrosshairColors.g<<8)+(DefaultCrosshairColors.b<<16))
             Bfprintf(fp, "crosshaircolor %d %d %d\n", CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
 
         OSD_WriteCvars(fp);

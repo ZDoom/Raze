@@ -833,7 +833,7 @@ void onvideomodechange(int32_t newmode)
 
     setbrightness(ud.brightness>>2, palid, 0);
     g_restorePalette = -1;
-    g_crosshairSum = 0;
+    g_crosshairSum = -1;
 }
 
 static int32_t osdcmd_name(const osdfuncparm_t *parm)
