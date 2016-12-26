@@ -86,6 +86,79 @@ static NSPopUpButton * makeComboBox(void)
 
 static id nsapp;
 
+/* setAppleMenu disappeared from the headers in 10.4 */
+@interface NSApplication(NSAppleMenu)
+- (void)setAppleMenu:(NSMenu *)menu;
+@end
+
+static NSString * GetApplicationName(void)
+{
+    NSString *appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];
+    if (!appName)
+        appName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleName"];
+    if (![appName length])
+        appName = [[NSProcessInfo processInfo] processName];
+
+    return appName;
+}
+
+static void CreateApplicationMenus(void)
+{
+    NSString *appName;
+    NSString *title;
+    NSMenu *rootMenu;
+    NSMenu *serviceMenu;
+    NSMenuItem *menuItem;
+
+    NSMenu *mainMenu = [[NSMenu alloc] init];
+
+    /* Create the application menu */
+    appName = GetApplicationName();
+    rootMenu = [[NSMenu alloc] init];
+
+    /* Put menu into the menubar */
+    menuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
+    [menuItem setSubmenu:rootMenu];
+    [mainMenu addItem:menuItem];
+    [menuItem release];
+
+    /* Add menu items */
+    title = [@"About " stringByAppendingString:appName];
+    [rootMenu addItemWithTitle:title action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
+
+    [rootMenu addItem:[NSMenuItem separatorItem]];
+
+    serviceMenu = [[NSMenu alloc] init];
+    menuItem = (NSMenuItem *)[rootMenu addItemWithTitle:@"Services" action:nil keyEquivalent:@""];
+    [menuItem setSubmenu:serviceMenu];
+
+    [nsapp setServicesMenu:serviceMenu];
+    [serviceMenu release];
+
+    [rootMenu addItem:[NSMenuItem separatorItem]];
+
+    title = [@"Hide " stringByAppendingString:appName];
+    [rootMenu addItemWithTitle:title action:@selector(hide:) keyEquivalent:@"h"];
+
+    menuItem = (NSMenuItem *)[rootMenu addItemWithTitle:@"Hide Others" action:@selector(hideOtherApplications:) keyEquivalent:@"h"];
+    [menuItem setKeyEquivalentModifierMask:(NSAlternateKeyMask|NSCommandKeyMask)];
+
+    [rootMenu addItemWithTitle:@"Show All" action:@selector(unhideAllApplications:) keyEquivalent:@""];
+
+    [rootMenu addItem:[NSMenuItem separatorItem]];
+
+    title = [@"Quit " stringByAppendingString:appName];
+    [rootMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@"q"];
+
+    /* Create the main menu bar */
+    [nsapp setMainMenu:mainMenu];
+    [mainMenu release];  /* we're done with it, let NSApp own it. */
+
+    /* Tell the application object that this is now the application menu */
+    [nsapp setAppleMenu:rootMenu];
+    [rootMenu release];
+}
+
 static int retval = -1;
 
 static struct {
@@ -584,6 +657,8 @@ int startwin_run(void)
 
     [startwin center];
     [startwin makeKeyAndOrderFront:nil];
+
+    CreateApplicationMenus();
 
     do
     {
