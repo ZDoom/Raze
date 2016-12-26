@@ -406,6 +406,18 @@
 		2038AEA01A8F12B60093B7B2 /* animsounds.c in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9E1A8F12B60093B7B2 /* animsounds.c */; };
 		2038AEA11A8F12B60093B7B2 /* animsounds.c in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9E1A8F12B60093B7B2 /* animsounds.c */; };
 		2038AEA31A8F137E0093B7B2 /* DUKE.RTS in Resources */ = {isa = PBXBuildFile; fileRef = 2038AEA21A8F137E0093B7B2 /* DUKE.RTS */; };
+		2044C9841E089F2500A8C543 /* palette.h in Headers */ = {isa = PBXBuildFile; fileRef = 2044C9831E089F2500A8C543 /* palette.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2044C9851E089F2500A8C543 /* palette.h in Headers */ = {isa = PBXBuildFile; fileRef = 2044C9831E089F2500A8C543 /* palette.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		2044C98A1E08A66B00A8C543 /* palette.c in Sources */ = {isa = PBXBuildFile; fileRef = 2044C9891E08A66B00A8C543 /* palette.c */; };
+		2044C98B1E08A66B00A8C543 /* palette.c in Sources */ = {isa = PBXBuildFile; fileRef = 2044C9891E08A66B00A8C543 /* palette.c */; };
+		2044C98D1E08A69700A8C543 /* clip.c in Sources */ = {isa = PBXBuildFile; fileRef = 2044C98C1E08A69700A8C543 /* clip.c */; };
+		2044C98E1E08A69700A8C543 /* clip.c in Sources */ = {isa = PBXBuildFile; fileRef = 2044C98C1E08A69700A8C543 /* clip.c */; };
+		2044C9901E08A6BC00A8C543 /* screenshot.c in Sources */ = {isa = PBXBuildFile; fileRef = 2044C98F1E08A6BC00A8C543 /* screenshot.c */; };
+		2044C9911E08A6BC00A8C543 /* screenshot.c in Sources */ = {isa = PBXBuildFile; fileRef = 2044C98F1E08A6BC00A8C543 /* screenshot.c */; };
+		2044C9991E08A72200A8C543 /* mhk.c in Sources */ = {isa = PBXBuildFile; fileRef = 2044C9981E08A72200A8C543 /* mhk.c */; };
+		2044C99A1E08A72200A8C543 /* mhk.c in Sources */ = {isa = PBXBuildFile; fileRef = 2044C9981E08A72200A8C543 /* mhk.c */; };
+		2044C99C1E08A74100A8C543 /* tiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 2044C99B1E08A74100A8C543 /* tiles.c */; };
+		2044C99D1E08A74100A8C543 /* tiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 2044C99B1E08A74100A8C543 /* tiles.c */; };
 		204D6B5F1C98973F001FA505 /* Math.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 204D6B571C98973F001FA505 /* Math.hpp */; };
 		204D6B601C98973F001FA505 /* ProcessCommon.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 204D6B581C98973F001FA505 /* ProcessCommon.hpp */; };
 		204D6B611C98973F001FA505 /* ProcessRGB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 204D6B591C98973F001FA505 /* ProcessRGB.cpp */; };
@@ -422,6 +434,18 @@
 		20C2146F1B02C1D800917E58 /* build.png in Resources */ = {isa = PBXBuildFile; fileRef = 20C2146E1B02C1D800917E58 /* build.png */; };
 		20CA2FA71BB2456E001231BF /* drivers.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CA2FA61BB2456E001231BF /* drivers.h */; };
 		20CA2FA81BB2456E001231BF /* drivers.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CA2FA61BB2456E001231BF /* drivers.h */; };
+		20CEFB121E08A86B0077879C /* 2d.c in Sources */ = {isa = PBXBuildFile; fileRef = 20CEFB111E08A86B0077879C /* 2d.c */; };
+		20CEFB131E08A86B0077879C /* 2d.c in Sources */ = {isa = PBXBuildFile; fileRef = 20CEFB111E08A86B0077879C /* 2d.c */; };
+		20CEFB181E08A8830077879C /* hash.c in Sources */ = {isa = PBXBuildFile; fileRef = 20CEFB171E08A8830077879C /* hash.c */; };
+		20CEFB191E08A8830077879C /* hash.c in Sources */ = {isa = PBXBuildFile; fileRef = 20CEFB171E08A8830077879C /* hash.c */; };
+		20CEFB1B1E08A8CB0077879C /* xmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 20CEFB1A1E08A8CB0077879C /* xmp.c */; };
+		20CEFB1C1E08A8CB0077879C /* xmp.c in Sources */ = {isa = PBXBuildFile; fileRef = 20CEFB1A1E08A8CB0077879C /* xmp.c */; };
+		20CEFB1E1E08A8FD0077879C /* hash.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CEFB1D1E08A8FD0077879C /* hash.h */; };
+		20CEFB1F1E08A8FD0077879C /* hash.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CEFB1D1E08A8FD0077879C /* hash.h */; };
+		20CEFB211E08A9130077879C /* buildtypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CEFB201E08A9130077879C /* buildtypes.h */; };
+		20CEFB221E08A9130077879C /* buildtypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CEFB201E08A9130077879C /* buildtypes.h */; };
+		20CEFB241E08A91D0077879C /* clip.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CEFB231E08A91D0077879C /* clip.h */; };
+		20CEFB251E08A91D0077879C /* clip.h in Headers */ = {isa = PBXBuildFile; fileRef = 20CEFB231E08A91D0077879C /* clip.h */; };
 		20E16CE11C7022C300EE8446 /* cmdline.c in Sources */ = {isa = PBXBuildFile; fileRef = 20E16CDF1C7022C300EE8446 /* cmdline.c */; };
 		20E16CE21C7022C300EE8446 /* cmdline.c in Sources */ = {isa = PBXBuildFile; fileRef = 20E16CDF1C7022C300EE8446 /* cmdline.c */; };
 		20E16CE81C7022DE00EE8446 /* screens.c in Sources */ = {isa = PBXBuildFile; fileRef = 20E16CE61C7022DE00EE8446 /* screens.c */; };
@@ -543,7 +567,7 @@
 		0008E6E119F1AAFF0091588D /* mix.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mix.c; path = ../../source/jaudiolib/src/mix.c; sourceTree = SOURCE_ROOT; };
 		0008E6E219F1AAFF0091588D /* mixst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mixst.c; path = ../../source/jaudiolib/src/mixst.c; sourceTree = SOURCE_ROOT; };
 		0008E6E319F1AAFF0091588D /* multivoc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = multivoc.c; path = ../../source/jaudiolib/src/multivoc.c; sourceTree = SOURCE_ROOT; };
-		0008E6E419F1AAFF0091588D /* multivoc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = multivoc.h; path = ../../source/jaudiolib/src/multivoc.h; sourceTree = SOURCE_ROOT; };
+		0008E6E419F1AAFF0091588D /* multivoc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = multivoc.h; path = ../../source/jaudiolib/include/multivoc.h; sourceTree = SOURCE_ROOT; };
 		0008E6E519F1AAFF0091588D /* pitch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pitch.c; path = ../../source/jaudiolib/src/pitch.c; sourceTree = SOURCE_ROOT; };
 		0008E6E619F1AAFF0091588D /* pitch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pitch.h; path = ../../source/jaudiolib/src/pitch.h; sourceTree = SOURCE_ROOT; };
 		0008E6E719F1AAFF0091588D /* vorbis.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vorbis.c; path = ../../source/jaudiolib/src/vorbis.c; sourceTree = SOURCE_ROOT; };
@@ -788,6 +812,12 @@
 		2038AE9E1A8F12B60093B7B2 /* animsounds.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = animsounds.c; path = ../../source/animsounds.c; sourceTree = SOURCE_ROOT; };
 		2038AE9F1A8F12B60093B7B2 /* animsounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = animsounds.h; path = ../../source/animsounds.h; sourceTree = SOURCE_ROOT; };
 		2038AEA21A8F137E0093B7B2 /* DUKE.RTS */ = {isa = PBXFileReference; lastKnownFileType = file; name = DUKE.RTS; path = ../../../../../DUKE.RTS; sourceTree = SOURCE_ROOT; };
+		2044C9831E089F2500A8C543 /* palette.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = palette.h; path = ../../build/include/palette.h; sourceTree = SOURCE_ROOT; };
+		2044C9891E08A66B00A8C543 /* palette.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = palette.c; path = ../../build/src/palette.c; sourceTree = SOURCE_ROOT; };
+		2044C98C1E08A69700A8C543 /* clip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = clip.c; path = ../../build/src/clip.c; sourceTree = SOURCE_ROOT; };
+		2044C98F1E08A6BC00A8C543 /* screenshot.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = screenshot.c; path = ../../build/src/screenshot.c; sourceTree = SOURCE_ROOT; };
+		2044C9981E08A72200A8C543 /* mhk.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mhk.c; path = ../../build/src/mhk.c; sourceTree = SOURCE_ROOT; };
+		2044C99B1E08A74100A8C543 /* tiles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = tiles.c; path = ../../build/src/tiles.c; sourceTree = SOURCE_ROOT; };
 		204D6B4F1C9896B0001FA505 /* inv.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = inv.h; path = ../../source/inv.h; sourceTree = SOURCE_ROOT; };
 		204D6B571C98973F001FA505 /* Math.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Math.hpp; path = ../../source/android/etcpak/Math.hpp; sourceTree = SOURCE_ROOT; };
 		204D6B581C98973F001FA505 /* ProcessCommon.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ProcessCommon.hpp; path = ../../source/android/etcpak/ProcessCommon.hpp; sourceTree = SOURCE_ROOT; };
@@ -804,6 +834,12 @@
 		20C214691B02C19800917E58 /* game.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = game.png; path = bundles/EDuke32.app/Contents/Resources/game.png; sourceTree = SOURCE_ROOT; };
 		20C2146E1B02C1D800917E58 /* build.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = build.png; path = bundles/Mapster32.app/Contents/Resources/build.png; sourceTree = SOURCE_ROOT; };
 		20CA2FA61BB2456E001231BF /* drivers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = drivers.h; path = ../../source/jaudiolib/include/drivers.h; sourceTree = SOURCE_ROOT; };
+		20CEFB111E08A86B0077879C /* 2d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 2d.c; path = ../../build/src/2d.c; sourceTree = SOURCE_ROOT; };
+		20CEFB171E08A8830077879C /* hash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hash.c; path = ../../build/src/hash.c; sourceTree = SOURCE_ROOT; };
+		20CEFB1A1E08A8CB0077879C /* xmp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = xmp.c; path = ../../source/jaudiolib/src/xmp.c; sourceTree = SOURCE_ROOT; };
+		20CEFB1D1E08A8FD0077879C /* hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hash.h; path = ../../build/include/hash.h; sourceTree = SOURCE_ROOT; };
+		20CEFB201E08A9130077879C /* buildtypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = buildtypes.h; path = ../../build/include/buildtypes.h; sourceTree = SOURCE_ROOT; };
+		20CEFB231E08A91D0077879C /* clip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = clip.h; path = ../../build/include/clip.h; sourceTree = SOURCE_ROOT; };
 		20E16CDF1C7022C300EE8446 /* cmdline.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cmdline.c; path = ../../source/cmdline.c; sourceTree = SOURCE_ROOT; };
 		20E16CE01C7022C300EE8446 /* cmdline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cmdline.h; path = ../../source/cmdline.h; sourceTree = SOURCE_ROOT; };
 		20E16CE61C7022DE00EE8446 /* screens.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = screens.c; path = ../../source/screens.c; sourceTree = SOURCE_ROOT; };
@@ -1189,6 +1225,7 @@
 			children = (
 				20CA2FA61BB2456E001231BF /* drivers.h */,
 				0008E6CF19F1AAFE0091588D /* fx_man.h */,
+				0008E6E419F1AAFF0091588D /* multivoc.h */,
 				0008E6D019F1AAFE0091588D /* music.h */,
 			);
 			name = include;
@@ -1211,11 +1248,11 @@
 				0008E6E119F1AAFF0091588D /* mix.c */,
 				0008E6E219F1AAFF0091588D /* mixst.c */,
 				0008E6E319F1AAFF0091588D /* multivoc.c */,
-				0008E6E419F1AAFF0091588D /* multivoc.h */,
 				0008E6E519F1AAFF0091588D /* pitch.c */,
 				0008E6E619F1AAFF0091588D /* pitch.h */,
 				0008E6E719F1AAFF0091588D /* vorbis.c */,
 				0008E6E819F1AAFF0091588D /* xa.c */,
+				20CEFB1A1E08A8CB0077879C /* xmp.c */,
 			);
 			name = src;
 			path = ../../source/jaudiolib/src;
@@ -1227,7 +1264,9 @@
 				0008E8A119F1AC530091588D /* a.h */,
 				0008E8A219F1AC530091588D /* baselayer.h */,
 				0008E8A319F1AC530091588D /* build.h */,
+				20CEFB201E08A9130077879C /* buildtypes.h */,
 				0008E8A419F1AC530091588D /* cache1d.h */,
+				20CEFB231E08A91D0077879C /* clip.h */,
 				20FD1D471C44E4BE00C2E553 /* colmatch.h */,
 				0008E8A519F1AC530091588D /* common.h */,
 				0008E8A619F1AC530091588D /* compat.h */,
@@ -1237,6 +1276,7 @@
 				0008E8AB19F1AC530091588D /* editor.h */,
 				0008E8AC19F1AC530091588D /* glbuild.h */,
 				0008E8AD19F1AC530091588D /* glext.h */,
+				20CEFB1D1E08A8FD0077879C /* hash.h */,
 				0008E8AF19F1AC530091588D /* hightile.h */,
 				206B3A051B074F3000E5DBD0 /* jwzgles.h */,
 				206B3A061B074F3000E5DBD0 /* jwzglesI.h */,
@@ -1251,6 +1291,7 @@
 				0008E8BB19F1AC530091588D /* osd.h */,
 				0008E8BC19F1AC530091588D /* osxbits.h */,
 				0008E8BD19F1AC530091588D /* osxmain.h */,
+				2044C9831E089F2500A8C543 /* palette.h */,
 				0008E8BE19F1AC530091588D /* polymer.h */,
 				0008E8BF19F1AC530091588D /* polymost.h */,
 				0008E8C019F1AC530091588D /* pragmas.h */,
@@ -1279,6 +1320,7 @@
 			isa = PBXGroup;
 			children = (
 				204D6B541C98973F001FA505 /* etcpak */,
+				20CEFB111E08A86B0077879C /* 2d.c */,
 				00970E3319F207F000873EB9 /* a-c.c */,
 				20C2146E1B02C1D800917E58 /* build.png */,
 				0008EA2419F1AF220091588D /* build.osxmain.nib */,
@@ -1286,6 +1328,7 @@
 				0008E8DC19F1AC530091588D /* baselayer.c */,
 				0008E8DD19F1AC530091588D /* build.c */,
 				0008E8DE19F1AC530091588D /* cache1d.c */,
+				2044C98C1E08A69700A8C543 /* clip.c */,
 				20FD1D501C44E4E700C2E553 /* colmatch.c */,
 				0008E8DF19F1AC530091588D /* common.c */,
 				0008E8E019F1AC530091588D /* compat.c */,
@@ -1297,19 +1340,23 @@
 				0008E8E719F1AC540091588D /* engine_oldmap.h */,
 				0008E8E819F1AC540091588D /* engine_priv.h */,
 				0008E8E919F1AC540091588D /* glbuild.c */,
+				20CEFB171E08A8830077879C /* hash.c */,
 				0008E8EB19F1AC540091588D /* hightile.c */,
 				206B3A0B1B074F6400E5DBD0 /* jwzgles.c */,
 				0008E8EC19F1AC540091588D /* kplib.c */,
 				0008E8EE19F1AC540091588D /* lz4.c */,
 				2038AE9B1A8F126C0093B7B2 /* md4.c */,
 				0008E8F019F1AC540091588D /* mdsprite.c */,
+				2044C9981E08A72200A8C543 /* mhk.c */,
 				0008E8F619F1AC540091588D /* mmulti_null.c */,
 				0008E8F719F1AC540091588D /* mutex.c */,
 				0008E8F819F1AC540091588D /* osd.c */,
 				0008E8F919F1AC540091588D /* osxbits.m */,
+				2044C9891E08A66B00A8C543 /* palette.c */,
 				0008E8FA19F1AC540091588D /* polymer.c */,
 				0008E8FB19F1AC540091588D /* polymost.c */,
 				0008E8FC19F1AC540091588D /* pragmas.c */,
+				2044C98F1E08A6BC00A8C543 /* screenshot.c */,
 				0008E8FE19F1AC540091588D /* scriptfile.c */,
 				0008E8FF19F1AC540091588D /* sdlayer.c */,
 				0008E90019F1AC540091588D /* sdlkeytrans.c */,
@@ -1317,6 +1364,7 @@
 				0008E90419F1AC540091588D /* startosx.editor.m */,
 				0008E90619F1AC540091588D /* texcache.c */,
 				0008E90719F1AC540091588D /* textfont.c */,
+				2044C99B1E08A74100A8C543 /* tiles.c */,
 				0008E91F19F1AC540091588D /* voxmodel.c */,
 				0008E92219F1AC540091588D /* xxhash.c */,
 			);
@@ -1439,12 +1487,14 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				20CEFB241E08A91D0077879C /* clip.h in Headers */,
 				0008E96519F1AC540091588D /* engine_priv.h in Headers */,
 				0008E92919F1AC540091588D /* crc32.h in Headers */,
 				0008E94919F1AC540091588D /* scancodes.h in Headers */,
 				0008E93D19F1AC540091588D /* osxbits.h in Headers */,
 				0008E93B19F1AC540091588D /* mutex.h in Headers */,
 				0008E94B19F1AC540091588D /* sdl_inc.h in Headers */,
+				2044C9841E089F2500A8C543 /* palette.h in Headers */,
 				0008E92819F1AC540091588D /* compat.h in Headers */,
 				0008E93C19F1AC540091588D /* osd.h in Headers */,
 				0008E93F19F1AC540091588D /* polymer.h in Headers */,
@@ -1470,6 +1520,7 @@
 				0008E92B19F1AC540091588D /* dxtfilter.h in Headers */,
 				0008E93219F1AC540091588D /* kplib.h in Headers */,
 				0008E93419F1AC540091588D /* lz4.h in Headers */,
+				20CEFB1E1E08A8FD0077879C /* hash.h in Headers */,
 				0008E92A19F1AC540091588D /* dxdidf.h in Headers */,
 				0008E92419F1AC540091588D /* baselayer.h in Headers */,
 				0008E94A19F1AC540091588D /* scriptfile.h in Headers */,
@@ -1481,6 +1532,7 @@
 				0008E95619F1AC540091588D /* xxhash.h in Headers */,
 				0008E94319F1AC540091588D /* pragmas_ppc.h in Headers */,
 				0008E94019F1AC540091588D /* polymost.h in Headers */,
+				20CEFB211E08A9130077879C /* buildtypes.h in Headers */,
 				0008E94D19F1AC540091588D /* sdlayer.h in Headers */,
 				2038AE961A8F122D0093B7B2 /* libdivide.h in Headers */,
 				0008E92619F1AC540091588D /* cache1d.h in Headers */,
@@ -1544,6 +1596,7 @@
 				001382AF19F361B60007DA6C /* crc32.h in Headers */,
 				001382B019F361B60007DA6C /* scancodes.h in Headers */,
 				001382B119F361B60007DA6C /* osxbits.h in Headers */,
+				20CEFB251E08A91D0077879C /* clip.h in Headers */,
 				001382B219F361B60007DA6C /* mutex.h in Headers */,
 				001382B319F361B60007DA6C /* sdl_inc.h in Headers */,
 				001382B419F361B60007DA6C /* compat.h in Headers */,
@@ -1556,6 +1609,7 @@
 				001382BA19F361B60007DA6C /* build.h in Headers */,
 				001382BB19F361B60007DA6C /* prlights.h in Headers */,
 				001382BC19F361B60007DA6C /* renderlayer.h in Headers */,
+				20CEFB1F1E08A8FD0077879C /* hash.h in Headers */,
 				001382BD19F361B60007DA6C /* engine_oldmap.h in Headers */,
 				001382BE19F361B60007DA6C /* pragmas_x86_gcc.h in Headers */,
 				001382BF19F361B60007DA6C /* a.h in Headers */,
@@ -1572,6 +1626,7 @@
 				001382C719F361B60007DA6C /* rawinput.h in Headers */,
 				001382C819F361B60007DA6C /* common.h in Headers */,
 				204D6B621C98973F001FA505 /* ProcessRGB.hpp in Headers */,
+				20CEFB221E08A9130077879C /* buildtypes.h in Headers */,
 				001382C919F361B60007DA6C /* pragmas_arm.h in Headers */,
 				001382CA19F361B60007DA6C /* dxtfilter.h in Headers */,
 				001382CB19F361B60007DA6C /* kplib.h in Headers */,
@@ -1594,6 +1649,7 @@
 				001382D919F361B60007DA6C /* cache1d.h in Headers */,
 				204D6B641C98973F001FA505 /* Tables.hpp in Headers */,
 				001382DA19F361B60007DA6C /* mmulti.h in Headers */,
+				2044C9851E089F2500A8C543 /* palette.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1986,21 +2042,27 @@
 				0008E96919F1AC540091588D /* kplib.c in Sources */,
 				0008E96319F1AC540091588D /* engine.c in Sources */,
 				0008E99519F1AC540091588D /* voxmodel.c in Sources */,
+				2044C98A1E08A66B00A8C543 /* palette.c in Sources */,
 				0008E97819F1AC540091588D /* pragmas.c in Sources */,
 				0008E95C19F1AC540091588D /* common.c in Sources */,
 				0008E97319F1AC540091588D /* mutex.c in Sources */,
 				2038AE9C1A8F126C0093B7B2 /* md4.c in Sources */,
 				0008E97519F1AC540091588D /* osxbits.m in Sources */,
+				20CEFB121E08A86B0077879C /* 2d.c in Sources */,
 				0008E95F19F1AC540091588D /* crc32.c in Sources */,
+				20CEFB181E08A8830077879C /* hash.c in Sources */,
 				0008E98219F1AC540091588D /* texcache.c in Sources */,
 				0008E95B19F1AC540091588D /* cache1d.c in Sources */,
 				0008E97E19F1AC540091588D /* smalltextfont.c in Sources */,
 				0008E97619F1AC540091588D /* polymer.c in Sources */,
 				0008E97219F1AC540091588D /* mmulti_null.c in Sources */,
+				2044C9991E08A72200A8C543 /* mhk.c in Sources */,
+				2044C9901E08A6BC00A8C543 /* screenshot.c in Sources */,
 				00970E3419F207F000873EB9 /* a-c.c in Sources */,
 				0008E98319F1AC540091588D /* textfont.c in Sources */,
 				0008E96D19F1AC540091588D /* mdsprite.c in Sources */,
 				0008E96019F1AC540091588D /* defs.c in Sources */,
+				2044C99C1E08A74100A8C543 /* tiles.c in Sources */,
 				0008E95919F1AC540091588D /* baselayer.c in Sources */,
 				0008E99819F1AC540091588D /* xxhash.c in Sources */,
 				0008E97A19F1AC540091588D /* scriptfile.c in Sources */,
@@ -2011,6 +2073,7 @@
 				0008E97419F1AC540091588D /* osd.c in Sources */,
 				20FD1D511C44E4E700C2E553 /* colmatch.c in Sources */,
 				0008E96619F1AC540091588D /* glbuild.c in Sources */,
+				2044C98D1E08A69700A8C543 /* clip.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2037,6 +2100,7 @@
 				0008E6F519F1AAFF0091588D /* flac.c in Sources */,
 				0008E6FB19F1AAFF0091588D /* mixst.c in Sources */,
 				0008E70119F1AAFF0091588D /* xa.c in Sources */,
+				20CEFB1B1E08A8CB0077879C /* xmp.c in Sources */,
 				0008E6FC19F1AAFF0091588D /* multivoc.c in Sources */,
 				0008E6FE19F1AAFF0091588D /* pitch.c in Sources */,
 				0008E6F119F1AAFF0091588D /* driver_sdl.c in Sources */,
@@ -2113,10 +2177,13 @@
 				0013828F19F361B60007DA6C /* voxmodel.c in Sources */,
 				0013829119F361B60007DA6C /* pragmas.c in Sources */,
 				206B3A0C1B074F6400E5DBD0 /* jwzgles.c in Sources */,
+				20CEFB131E08A86B0077879C /* 2d.c in Sources */,
 				0013829219F361B60007DA6C /* common.c in Sources */,
+				2044C98B1E08A66B00A8C543 /* palette.c in Sources */,
 				0013829319F361B60007DA6C /* mutex.c in Sources */,
 				0013829519F361B60007DA6C /* crc32.c in Sources */,
 				20FD1D521C44E4E700C2E553 /* colmatch.c in Sources */,
+				20CEFB191E08A8830077879C /* hash.c in Sources */,
 				0013829719F361B60007DA6C /* texcache.c in Sources */,
 				0013829819F361B60007DA6C /* cache1d.c in Sources */,
 				0013829919F361B60007DA6C /* smalltextfont.c in Sources */,
@@ -2128,14 +2195,18 @@
 				204D6B611C98973F001FA505 /* ProcessRGB.cpp in Sources */,
 				0013829E19F361B60007DA6C /* mdsprite.c in Sources */,
 				0013829F19F361B60007DA6C /* defs.c in Sources */,
+				2044C9911E08A6BC00A8C543 /* screenshot.c in Sources */,
 				204D6B631C98973F001FA505 /* Tables.cpp in Sources */,
 				001382A019F361B60007DA6C /* baselayer.c in Sources */,
+				2044C98E1E08A69700A8C543 /* clip.c in Sources */,
 				001382A119F361B60007DA6C /* xxhash.c in Sources */,
+				2044C99A1E08A72200A8C543 /* mhk.c in Sources */,
 				001382A219F361B60007DA6C /* scriptfile.c in Sources */,
 				001382A319F361B60007DA6C /* polymost.c in Sources */,
 				001382A419F361B60007DA6C /* hightile.c in Sources */,
 				001382A519F361B60007DA6C /* dxtfilter.c in Sources */,
 				001382A619F361B60007DA6C /* lz4.c in Sources */,
+				2044C99D1E08A74100A8C543 /* tiles.c in Sources */,
 				001382A719F361B60007DA6C /* osd.c in Sources */,
 				001382A819F361B60007DA6C /* glbuild.c in Sources */,
 			);
@@ -2164,6 +2235,7 @@
 				001382FD19F361BB0007DA6C /* flac.c in Sources */,
 				00CAC13319F4E0EA00317AE6 /* driver_sdl.c in Sources */,
 				001382FE19F361BB0007DA6C /* mixst.c in Sources */,
+				20CEFB1C1E08A8CB0077879C /* xmp.c in Sources */,
 				001382FF19F361BB0007DA6C /* xa.c in Sources */,
 				0013830019F361BB0007DA6C /* multivoc.c in Sources */,
 				0013830119F361BB0007DA6C /* pitch.c in Sources */,
