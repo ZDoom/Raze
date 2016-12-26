@@ -6,20 +6,20 @@
 #include "build.h"
 #include "editor.h"
 
-static CGRect CGRectChangeXY(CGRect const rect, CGFloat const x, CGFloat const y)
+static NSRect NSRectChangeXY(NSRect const rect, CGFloat const x, CGFloat const y)
 {
-    return CGRectMake(x, y, rect.size.width, rect.size.height);
+    return NSMakeRect(x, y, rect.size.width, rect.size.height);
 }
-static CGRect CGSizeAddXY(CGSize const size, CGFloat const x, CGFloat const y)
+static NSRect NSSizeAddXY(NSSize const size, CGFloat const x, CGFloat const y)
 {
-    return CGRectMake(x, y, size.width, size.height);
+    return NSMakeRect(x, y, size.width, size.height);
 }
 #if 0
-static CGFloat CGRightEdge(CGRect rect)
+static CGFloat NSRightEdge(NSRect rect)
 {
     return rect.origin.x + rect.size.width;
 }
-static CGFloat CGTopEdge(CGRect rect)
+static CGFloat NSTopEdge(NSRect rect)
 {
     return rect.origin.y + rect.size.height;
 }
@@ -201,7 +201,7 @@ static struct {
 - (StartupWindow *)init
 {
     NSUInteger const style = NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask;
-    CGRect const windowFrame = CGRectMake(0, 0, 480, 280);
+    NSRect const windowFrame = NSMakeRect(0, 0, 480, 280);
     self = [super initWithContentRect:windowFrame styleMask:style backing:NSBackingStoreBuffered defer:NO];
 
     if (self)
@@ -217,7 +217,7 @@ static struct {
 
 
         // image on the left
-        CGRect const imageFrame = CGRectMake(0, 0, 100, 280);
+        NSRect const imageFrame = NSMakeRect(0, 0, 100, 280);
         NSImageView * imageView = [[NSImageView alloc] initWithFrame:imageFrame];
 #ifdef MAC_OS_X_VERSION_10_5
         [imageView setImageScaling:NSImageScaleNone];
@@ -233,7 +233,7 @@ static struct {
         CGFloat const buttonWidth = 80;
         CGFloat const buttonHeight = 32;
 
-        CGRect const startButtonFrame = CGRectMake(windowFrame.size.width - buttonWidth, 0, buttonWidth, buttonHeight);
+        NSRect const startButtonFrame = NSMakeRect(windowFrame.size.width - buttonWidth, 0, buttonWidth, buttonHeight);
         startButton = [[NSButton alloc] initWithFrame:startButtonFrame];
         [[self contentView] addSubview:startButton];
         [startButton setTitle:@"Start"];
@@ -243,7 +243,7 @@ static struct {
         [startButton setKeyEquivalent:@"\r"];
         [startButton setAutoresizingMask:NSViewMinXMargin | NSViewMaxYMargin];
 
-        CGRect const cancelButtonFrame = CGRectMake(startButtonFrame.origin.x - buttonWidth, 0, buttonWidth, buttonHeight);
+        NSRect const cancelButtonFrame = NSMakeRect(startButtonFrame.origin.x - buttonWidth, 0, buttonWidth, buttonHeight);
         cancelButton = [[NSButton alloc] initWithFrame:cancelButtonFrame];
         [[self contentView] addSubview:cancelButton];
         [cancelButton setTitle:@"Cancel"];
@@ -254,7 +254,7 @@ static struct {
 
 
         // tab frame
-        CGRect const tabViewFrame = CGRectMake(imageFrame.size.width, buttonHeight, windowFrame.size.width - imageFrame.size.width, windowFrame.size.height - buttonHeight - 5);
+        NSRect const tabViewFrame = NSMakeRect(imageFrame.size.width, buttonHeight, windowFrame.size.width - imageFrame.size.width, windowFrame.size.height - buttonHeight - 5);
         tabView = [[NSTabView alloc] initWithFrame:tabViewFrame];
         [[self contentView] addSubview:tabView];
         setFontToSmall(tabView);
@@ -267,14 +267,14 @@ static struct {
         tabViewItemSetup = [[NSTabViewItem alloc] init];
         [tabView addTabViewItem:tabViewItemSetup];
         [tabViewItemSetup setLabel:@"Setup"];
-        CGRect const tabViewItemSetupFrame = [[tabViewItemSetup view] frame];
+        NSRect const tabViewItemSetupFrame = [[tabViewItemSetup view] frame];
 
 
         // always show checkbox
         alwaysShowButton = makeCheckbox(@"Always show this window at startup");
         [[tabViewItemSetup view] addSubview:alwaysShowButton];
-        CGSize const alwaysShowButtonSize = [alwaysShowButton frame].size;
-        CGRect const alwaysShowButtonFrame = CGSizeAddXY(alwaysShowButtonSize, tabViewItemSetupFrame.size.width - alwaysShowButtonSize.width, 0);
+        NSSize const alwaysShowButtonSize = [alwaysShowButton frame].size;
+        NSRect const alwaysShowButtonFrame = NSSizeAddXY(alwaysShowButtonSize, tabViewItemSetupFrame.size.width - alwaysShowButtonSize.width, 0);
         [alwaysShowButton setFrame:alwaysShowButtonFrame];
         [alwaysShowButton setAutoresizingMask:NSViewMinXMargin | NSViewMaxYMargin];
 
@@ -282,17 +282,17 @@ static struct {
         // video mode selectors and labels
         NSTextField * label2DVideoMode = makeLabel(@"2D Video mode:");
         [[tabViewItemSetup view] addSubview:label2DVideoMode];
-        CGSize const label2DVideoModeSize = [label2DVideoMode frame].size;
+        NSSize const label2DVideoModeSize = [label2DVideoMode frame].size;
         [label2DVideoMode setAutoresizingMask:NSViewMaxXMargin | NSViewMinYMargin];
 
         NSTextField * label3DVideoMode = makeLabel(@"3D Video mode:");
         [[tabViewItemSetup view] addSubview:label3DVideoMode];
-        CGSize const label3DVideoModeSize = [label3DVideoMode frame].size;
+        NSSize const label3DVideoModeSize = [label3DVideoMode frame].size;
         [label3DVideoMode setAutoresizingMask:NSViewMaxXMargin | NSViewMinYMargin];
 
         fullscreenButton = makeCheckbox(@"Fullscreen");
         [[tabViewItemSetup view] addSubview:fullscreenButton];
-        CGSize const fullscreenButtonSize = [fullscreenButton frame].size;
+        NSSize const fullscreenButtonSize = [fullscreenButton frame].size;
         [fullscreenButton setAction:@selector(fullscreenClicked:)];
         [fullscreenButton setAutoresizingMask:NSViewMinXMargin | NSViewMinYMargin];
 
@@ -300,27 +300,27 @@ static struct {
 
         videoMode2DPUButton = makeComboBox();
         [[tabViewItemSetup view] addSubview:videoMode2DPUButton];
-        CGSize const videoMode2DPUButtonSize = [videoMode2DPUButton frame].size;
+        NSSize const videoMode2DPUButtonSize = [videoMode2DPUButton frame].size;
         CGFloat const videoMode2DButtonX = labelsVideoModeRightEdge;
-        CGRect const videoMode2DPUButtonFrame = CGRectMake(videoMode2DButtonX, tabViewItemSetupFrame.size.height - videoMode2DPUButtonSize.height, tabViewItemSetupFrame.size.width - videoMode2DButtonX - fullscreenButtonSize.width, videoMode2DPUButtonSize.height);
+        NSRect const videoMode2DPUButtonFrame = NSMakeRect(videoMode2DButtonX, tabViewItemSetupFrame.size.height - videoMode2DPUButtonSize.height, tabViewItemSetupFrame.size.width - videoMode2DButtonX - fullscreenButtonSize.width, videoMode2DPUButtonSize.height);
         [videoMode2DPUButton setFrame:videoMode2DPUButtonFrame];
         [videoMode2DPUButton setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
 
         videoMode3DPUButton = makeComboBox();
         [[tabViewItemSetup view] addSubview:videoMode3DPUButton];
-        CGSize const videoMode3DPUButtonSize = [videoMode3DPUButton frame].size;
+        NSSize const videoMode3DPUButtonSize = [videoMode3DPUButton frame].size;
         CGFloat const videoMode3DButtonX = labelsVideoModeRightEdge;
-        CGRect const videoMode3DPUButtonFrame = CGRectMake(videoMode3DButtonX, videoMode2DPUButtonFrame.origin.y - videoMode3DPUButtonSize.height, tabViewItemSetupFrame.size.width - videoMode3DButtonX - fullscreenButtonSize.width, videoMode3DPUButtonSize.height);
+        NSRect const videoMode3DPUButtonFrame = NSMakeRect(videoMode3DButtonX, videoMode2DPUButtonFrame.origin.y - videoMode3DPUButtonSize.height, tabViewItemSetupFrame.size.width - videoMode3DButtonX - fullscreenButtonSize.width, videoMode3DPUButtonSize.height);
         [videoMode3DPUButton setFrame:videoMode3DPUButtonFrame];
         [videoMode3DPUButton setAutoresizingMask:NSViewWidthSizable | NSViewMinYMargin];
 
-        CGRect const label2DVideoModeFrame = CGSizeAddXY(label2DVideoModeSize, 0, videoMode2DPUButtonFrame.origin.y + rintf((videoMode2DPUButtonSize.height - label2DVideoModeSize.height) * 0.5f) + 1);
+        NSRect const label2DVideoModeFrame = NSSizeAddXY(label2DVideoModeSize, 0, videoMode2DPUButtonFrame.origin.y + rintf((videoMode2DPUButtonSize.height - label2DVideoModeSize.height) * 0.5f) + 1);
         [label2DVideoMode setFrame:label2DVideoModeFrame];
 
-        CGRect const label3DVideoModeFrame = CGSizeAddXY(label3DVideoModeSize, 0, videoMode3DPUButtonFrame.origin.y + rintf((videoMode3DPUButtonSize.height - label3DVideoModeSize.height) * 0.5f) + 1);
+        NSRect const label3DVideoModeFrame = NSSizeAddXY(label3DVideoModeSize, 0, videoMode3DPUButtonFrame.origin.y + rintf((videoMode3DPUButtonSize.height - label3DVideoModeSize.height) * 0.5f) + 1);
         [label3DVideoMode setFrame:label3DVideoModeFrame];
 
-        CGRect const fullscreenButtonFrame = CGSizeAddXY(fullscreenButtonSize, tabViewItemSetupFrame.size.width - fullscreenButtonSize.width, videoMode3DPUButtonFrame.origin.y + rintf((videoMode3DPUButtonSize.height - fullscreenButtonSize.height) * 0.5f) + 1);
+        NSRect const fullscreenButtonFrame = NSSizeAddXY(fullscreenButtonSize, tabViewItemSetupFrame.size.width - fullscreenButtonSize.width, videoMode3DPUButtonFrame.origin.y + rintf((videoMode3DPUButtonSize.height - fullscreenButtonSize.height) * 0.5f) + 1);
         [fullscreenButton setFrame:fullscreenButtonFrame];
 
 
@@ -329,11 +329,11 @@ static struct {
         tabViewItemMessageLog = [[NSTabViewItem alloc] init];
         [tabView addTabViewItem:tabViewItemMessageLog];
         [tabViewItemMessageLog setLabel:@"Message Log"];
-        CGRect const tabViewItemMessageLogFrame = [[tabViewItemMessageLog view] frame];
+        NSRect const tabViewItemMessageLogFrame = [[tabViewItemMessageLog view] frame];
 
 
         // message log
-        NSScrollView * messagesScrollView = [[NSScrollView alloc] initWithFrame:CGRectChangeXY(tabViewItemMessageLogFrame, 0, 0)];
+        NSScrollView * messagesScrollView = [[NSScrollView alloc] initWithFrame:NSRectChangeXY(tabViewItemMessageLogFrame, 0, 0)];
         [[tabViewItemMessageLog view] addSubview:messagesScrollView];
         [messagesScrollView setBorderType:NSBezelBorder];
         [messagesScrollView setHasVerticalScroller:YES];
@@ -342,18 +342,18 @@ static struct {
         NSSize const messagesScrollViewContentSize = [messagesScrollView contentSize];
         [messagesScrollView setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
 
-        messagesView = [[NSTextView alloc] initWithFrame:CGRectMake(0, 0, messagesScrollViewContentSize.width, messagesScrollViewContentSize.height)];
+        messagesView = [[NSTextView alloc] initWithFrame:NSMakeRect(0, 0, messagesScrollViewContentSize.width, messagesScrollViewContentSize.height)];
         [messagesScrollView setDocumentView:messagesView];
         [messagesView setEditable:NO];
         [messagesView setRichText:NO];
         setFontToSmall(messagesView);
-        [messagesView setMinSize:CGSizeMake(0.0, messagesScrollViewContentSize.height)];
-        [messagesView setMaxSize:CGSizeMake(FLT_MAX, FLT_MAX)];
+        [messagesView setMinSize:NSMakeSize(0.0, messagesScrollViewContentSize.height)];
+        [messagesView setMaxSize:NSMakeSize(FLT_MAX, FLT_MAX)];
         [messagesView setVerticallyResizable:YES];
         [messagesView setHorizontallyResizable:NO];
         [messagesView setAutoresizingMask:NSViewWidthSizable];
 
-        [[messagesView textContainer] setContainerSize:CGSizeMake(messagesScrollViewContentSize.width, FLT_MAX)];
+        [[messagesView textContainer] setContainerSize:NSMakeSize(messagesScrollViewContentSize.width, FLT_MAX)];
         [[messagesView textContainer] setWidthTracksTextView:YES];
     }
 
