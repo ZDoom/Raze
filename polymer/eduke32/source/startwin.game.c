@@ -322,18 +322,18 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
                 {
                     switch (i)
                     {
-                    case 0:
+                    case INPUT_KB:
                         settings.usemouse = settings.usejoy = 0;
                         break;
-                    case 1:
+                    case INPUT_MOUSE:
                         settings.usemouse = 1;
                         settings.usejoy = 0;
                         break;
-                    case 2:
+                    case INPUT_JOYSTICK:
                         settings.usemouse = 0;
                         settings.usejoy = 1;
                         break;
-                    case 3:
+                    case INPUT_ALL:
                         settings.usemouse = settings.usejoy = 1;
                         break;
                     }
