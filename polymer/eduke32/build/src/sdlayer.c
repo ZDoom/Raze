@@ -597,6 +597,10 @@ int32_t initsystem(void)
 #endif
     }
 
+#if SDL_MAJOR_VERSION > 1
+    SDL_StopTextInput();
+#endif
+
     atexit(uninitsystem);
 
     frameplace = 0;
