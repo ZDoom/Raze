@@ -16,7 +16,7 @@ int32_t gtkenabled = 0;
 
 static GdkPixbuf *appicon = NULL;
 
-int32_t gtkbuild_msgbox(const char *name, const char *msg)
+int gtkbuild_msgbox(const char *name, const char *msg)
 {
     GtkWidget *dialog;
 
@@ -34,7 +34,7 @@ int32_t gtkbuild_msgbox(const char *name, const char *msg)
     return 1;
 }
 
-int32_t gtkbuild_ynbox(const char *name, const char *msg)
+int gtkbuild_ynbox(const char *name, const char *msg)
 {
     int32_t r;
     GtkWidget *dialog;

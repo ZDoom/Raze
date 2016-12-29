@@ -2,43 +2,6 @@
 
 #include <SDL/SDL_events.h>
 
-int32_t wm_ynbox(const char *name, const char *fmt, ...)
-{
-    char buf[2048];
-    char c;
-    va_list va;
-
-    UNREFERENCED_PARAMETER(name);
-
-    va_start(va, fmt);
-    vsprintf(buf, fmt, va);
-    va_end(va);
-
-#if defined __APPLE__
-    return osx_ynbox(name, buf);
-#elif defined HAVE_GTK2
-    {
-        int32_t r = gtkbuild_ynbox(name, buf);
-        if (r >= 0)
-            return r;
-    }
-#elif defined _WIN32
-    return (MessageBox(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL) == IDYES);
-#elif defined GEKKO
-    puts(buf);
-    puts("Assuming yes...");
-    return 1;
-#endif
-
-    // NOTE: this is dead code for most #ifdef cases above.
-    puts(buf);
-    puts("   (type 'Y' or 'N', and press Return or Enter to continue)");
-    do c = getchar(); while (c != 'Y' && c != 'y' && c != 'N' && c != 'n');
-    if (c == 'Y' || c == 'y') return 1;
-
-    return 0;
-}
-
 #ifdef _WIN32
 HWND win_gethwnd(void)
 {

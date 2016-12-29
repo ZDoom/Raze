@@ -170,39 +170,39 @@ int32_t wm_msgbox(const char *name, const char *fmt, ...)
 
 #if defined EDUKE32_OSX
     return osx_msgbox(name, buf);
-#elif defined HAVE_GTK2
-    if (gtkbuild_msgbox(name, buf) >= 0) return 1;
 #elif defined _WIN32
     MessageBox(win_gethwnd(),buf,name,MB_OK|MB_TASKMODAL);
     return 0;
 #elif defined EDUKE32_TOUCH_DEVICES
     initprintf("wm_msgbox called. Message: %s: %s",name,buf);
     return 0;
-#elif SDL_MAJOR_VERSION==2
-# if !defined _WIN32
-    // Replace all tab chars with spaces because the hand-rolled SDL message
-    // box diplays the former as N/L instead of whitespace.
-    {
-        size_t i;
-        for (i=0; i<sizeof(buf); i++)
-            if (buf[i] == '\t')
-                buf[i] = ' ';
-    }
-# endif
-    return SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, name, buf, NULL);
 #elif defined GEKKO
     puts(buf);
     return 0;
 #else
+# if defined HAVE_GTK2
+    if (gtkbuild_msgbox(name, buf) >= 0)
+        return 0;
+# endif
+# if SDL_MAJOR_VERSION > 1
+#  if !defined _WIN32
+    // Replace all tab chars with spaces because the hand-rolled SDL message
+    // box diplays the former as N/L instead of whitespace.
+    for (size_t i=0; i<sizeof(buf); i++)
+        if (buf[i] == '\t')
+            buf[i] = ' ';
+#  endif
+    return SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, name, buf, NULL);
+# else
     puts(buf);
     puts("   (press Return or Enter to continue)");
     getchar();
 
     return 0;
+# endif
 #endif
 }
 
-#if SDL_MAJOR_VERSION != 1
 int32_t wm_ynbox(const char *name, const char *fmt, ...)
 {
     char buf[2048];
@@ -211,56 +211,65 @@ int32_t wm_ynbox(const char *name, const char *fmt, ...)
     UNREFERENCED_PARAMETER(name);
 
     va_start(va,fmt);
-    vsprintf(buf,fmt,va);
+    vsnprintf(buf,sizeof(buf),fmt,va);
     va_end(va);
 
 #if defined EDUKE32_OSX
     return osx_ynbox(name, buf);
-#elif defined HAVE_GTK2
-    {
-        int32_t r = gtkbuild_ynbox(name, buf);
-
-        return r >= 0 ? r : 0;
-    }
 #elif defined _WIN32
     return (MessageBox(win_gethwnd(),buf,name,MB_YESNO|MB_ICONQUESTION|MB_TASKMODAL) == IDYES);
 #elif defined EDUKE32_TOUCH_DEVICES
     initprintf("wm_ynbox called, this is bad! Message: %s: %s",name,buf);
     initprintf("Returning false..");
     return 0;
+#elif defined GEKKO
+    puts(buf);
+    puts("Assuming yes...");
+    return 1;
 #else
-    {
-        int32_t r = -1;
+# if defined HAVE_GTK2
+    int ret = gtkbuild_ynbox(name, buf);
+    if (ret >= 0)
+        return ret;
+# endif
+# if SDL_MAJOR_VERSION > 1
+    int r = -1;
 
-        const SDL_MessageBoxButtonData buttons[] = {
-            {
-                SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT,
-                0,
-                "No"
-            },{
-                SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT,
-                1,
-                "Yes"
-            },
-        };
+    const SDL_MessageBoxButtonData buttons[] = {
+        {
+            SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT,
+            0,
+            "No"
+        },{
+            SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT,
+            1,
+            "Yes"
+        },
+    };
 
-        SDL_MessageBoxData data = {
-            SDL_MESSAGEBOX_INFORMATION,
-            NULL, /* no parent window */
-            name,
-            buf,
-            2,
-            buttons,
-            NULL /* Default color scheme */
-        };
+    SDL_MessageBoxData data = {
+        SDL_MESSAGEBOX_INFORMATION,
+        NULL, /* no parent window */
+        name,
+        buf,
+        2,
+        buttons,
+        NULL /* Default color scheme */
+    };
 
-        SDL_ShowMessageBox(&data, &r);
+    SDL_ShowMessageBox(&data, &r);
 
-        return r;
-    }
+    return r;
+# else
+    char c;
+
+    puts(buf);
+    puts("   (type 'Y' or 'N', and press Return or Enter to continue)");
+    do c = getchar(); while (c != 'Y' && c != 'y' && c != 'N' && c != 'n');
+    return c == 'Y' || c == 'y';
+# endif
 #endif
 }
-#endif
 
 void wm_setapptitle(const char *name)
 {

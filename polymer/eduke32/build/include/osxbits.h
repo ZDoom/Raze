@@ -6,8 +6,8 @@
 extern "C" {
 #endif
 
-int32_t osx_msgbox(const char *name, const char *msg);
-int32_t osx_ynbox(const char *name, const char *msg);
+int osx_msgbox(const char *name, const char *msg);
+int osx_ynbox(const char *name, const char *msg);
 
 char *osx_gethomedir(void);
 char *osx_getsupportdir(int32_t local);
