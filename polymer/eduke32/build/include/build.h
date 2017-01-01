@@ -560,7 +560,7 @@ typedef struct {
 } usermaphack_t;
 
 extern usermaphack_t g_loadedMapHack;
-extern int32_t compare_usermaphacks(const void *, const void *);
+extern int compare_usermaphacks(const void *, const void *);
 extern usermaphack_t *usermaphacks;
 extern int32_t num_usermaphacks;
 

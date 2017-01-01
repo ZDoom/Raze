@@ -63,7 +63,7 @@ static void print_centered(const int32_t width, const char *part1, const char *p
 
 void wii_open(void)
 {
-    vec2_t ConsoleExtent;
+    struct { int x, y; } ConsoleExtent;
 
     L2Enhance();
     CON_EnableGecko(1, 1);

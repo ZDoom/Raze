@@ -172,7 +172,7 @@ static size_t read_vorbis(void *ptr, size_t size, size_t nmemb, void *datasource
 }
 
 
-static int32_t seek_vorbis(void *datasource, ogg_int64_t offset, int32_t whence)
+static int seek_vorbis(void *datasource, ogg_int64_t offset, int whence)
 {
     vorbis_data *vorb = (vorbis_data *)datasource;
 
@@ -191,7 +191,7 @@ static int32_t seek_vorbis(void *datasource, ogg_int64_t offset, int32_t whence)
     return vorb->pos;
 }
 
-static int32_t close_vorbis(void *datasource)
+static int close_vorbis(void *datasource)
 {
     UNREFERENCED_PARAMETER(datasource);
     return 0;
@@ -229,7 +229,7 @@ Controls playback of OggVorbis data
 
 static playbackstatus MV_GetNextVorbisBlock(VoiceNode *voice)
 {
-    int32_t bitstream;
+    int bitstream;
 
     voice->Playing = TRUE;
 

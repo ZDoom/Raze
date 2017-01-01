@@ -19,12 +19,12 @@
  */
 
 
-int NoSoundDrv_GetError(void);
-const char *NoSoundDrv_ErrorString( int ErrorNumber );
-int NoSoundDrv_PCM_Init(int *mixrate, int *numchannels, void * initdata);
+int32_t NoSoundDrv_GetError(void);
+const char *NoSoundDrv_ErrorString( int32_t ErrorNumber );
+int32_t NoSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata);
 void NoSoundDrv_PCM_Shutdown(void);
-int NoSoundDrv_PCM_BeginPlayback(char *BufferStart, int BufferSize,
-              int NumDivisions, void ( *CallBackFunc )( void ) );
+int32_t NoSoundDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
+              int32_t NumDivisions, void ( *CallBackFunc )( void ) );
 void NoSoundDrv_PCM_StopPlayback(void);
 void NoSoundDrv_PCM_Lock(void);
 void NoSoundDrv_PCM_Unlock(void);

@@ -296,7 +296,7 @@ static void divcommon(int32_t *ap, int32_t *bp)
 //
 // WinMain() -- main Windows entry point
 //
-int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int32_t nCmdShow)
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 {
     int32_t r;
 #ifdef USE_OPENGL

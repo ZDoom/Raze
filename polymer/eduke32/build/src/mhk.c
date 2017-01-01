@@ -6,7 +6,7 @@
 
 usermaphack_t g_loadedMapHack;  // used only for the MD4 part
 
-int32_t compare_usermaphacks(const void *a, const void *b)
+int compare_usermaphacks(const void *a, const void *b)
 {
     return Bmemcmp(((usermaphack_t const *) a)->md4, ((usermaphack_t const *) b)->md4, 16);
 }

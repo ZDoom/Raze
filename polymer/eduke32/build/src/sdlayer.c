@@ -414,14 +414,14 @@ void eduke32_exit_return(int retval)
 #endif
 
 #ifdef _WIN32
-int32_t WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int32_t nCmdShow)
+int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nCmdShow)
 #elif defined __ANDROID__
 # ifdef __cplusplus
 extern "C" int eduke32_android_main(int argc, char const *argv[]);
 # endif
 int eduke32_android_main(int argc, char const *argv[])
 #else
-int32_t main(int32_t argc, char *argv[])
+int main(int argc, char *argv[])
 #endif
 {
 #ifdef __ANDROID__

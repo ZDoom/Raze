@@ -60,7 +60,7 @@ static uint8_t *DummyBuffer = NULL;
 static int32_t InterruptsDisabled = 0;
 static SDL_mutex *EffectFence;
 
-static void fillData(int32_t chan, void *ptr, int32_t remaining, void *udata)
+static void fillData(int chan, void *ptr, int remaining, void *udata)
 {
 	int32_t len;
 	char *sptr;
@@ -172,7 +172,9 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata)
     }
 
 
-    if (Mix_QuerySpec(mixrate, &fmt, numchannels))
+    int intmixrate = *mixrate;
+    int intnumchannels = *numchannels;
+    if (Mix_QuerySpec(&intmixrate, &fmt, &intnumchannels))
     {
         if (fmt == AUDIO_U8 || fmt == AUDIO_S8)
         {
@@ -180,6 +182,8 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata)
             return SDLErr_Error;
         }
     }
+    *mixrate = intmixrate;
+    *numchannels = intnumchannels;
 
     //Mix_SetPostMix(fillData, NULL);
 
