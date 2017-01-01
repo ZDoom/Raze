@@ -110,12 +110,12 @@ typedef struct {
 
 //extern map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
-void G_ActivateBySector(int32_t sect,int32_t j);
-int S_FindMusicSFX(int sectNum, int32_t *sndptr);
+void G_ActivateBySector(int sect,int j);
+int S_FindMusicSFX(int sectNum, int *sndptr);
 int A_CallSound(int sectNum,int spriteNum);
 int A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
 void A_DamageObject(int32_t i,int32_t sn);
-void A_DamageWall(int32_t spr,int32_t dawallnum,const vec3_t *pos,int32_t atwith);
+void A_DamageWall(int spr,int dawallnum,const vec3_t *pos,int atwith);
 int __fastcall A_FindPlayer(const spritetype *pSprite,int32_t *dist);
 void G_AlignWarpElevators(void);
 int CheckDoorTile(int tileNum);
@@ -134,7 +134,7 @@ int GetAnimationGoal(const int32_t *animPtr);
 int isanearoperator(int lotag);
 int isanunderoperator(int lotag);
 int P_ActivateSwitch(int playerNum, int nObject, int nSwitchType);
-void P_CheckSectors(int32_t snum);
+void P_CheckSectors(int snum);
 int Sect_DamageCeilingOrFloor(int nDmgFloor, int const nSectnum);
 int SetAnimation(int sectNum,int32_t *animPtr,int goalVal,int animVel);
 

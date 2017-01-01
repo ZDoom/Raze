@@ -291,7 +291,7 @@ extern user_defs ud;
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,
                        uint8_t s_yr, int16_t s_a, int16_t s_ve, int16_t s_zv, int16_t s_ow, int16_t s_ss);
-int32_t A_Spawn(int32_t j,int32_t pn);
+int A_Spawn(int j,int pn);
 int G_DoMoveThings(void);
 //int32_t G_EndOfLevel(void);
 
@@ -309,7 +309,7 @@ void G_PostCreateGameState(void);
 void A_SpawnCeilingGlass(int spriteNum,int sectNum,int glassCnt);
 void A_SpawnGlass(int spriteNum,int glassCnt);
 void A_SpawnRandomGlass(int spriteNum,int wallNum,int glassCnt);
-void A_SpawnWallGlass(int32_t i,int32_t wallnum,int32_t n);
+void A_SpawnWallGlass(int i,int wallnum,int n);
 void G_AddUserQuote(const char *daquote);
 void G_BackToMenu(void);
 void G_DumpDebugInfo(void);

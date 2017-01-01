@@ -9354,7 +9354,7 @@ static int32_t parsegroupfiles(scriptfile *script)
     return 0;
 }
 
-int32_t loaddefinitions_game(const char *fn, int32_t preload)
+int loaddefinitions_game(const char *fn, int32_t preload)
 {
     scriptfile *script;
     int32_t i;

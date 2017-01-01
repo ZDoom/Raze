@@ -680,7 +680,7 @@ static void G_ReadGLFrame(void)
 }
 #endif
 
-void G_DrawRooms(int playerNum, int smoothRatio)
+void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
@@ -5031,7 +5031,7 @@ static int32_t S_DefineMusic(const char *ID, const char *name)
     return S_DefineAudioIfSupported(&g_mapInfo[sel].musicfn, name);
 }
 
-static int32_t parsedefinitions_game(scriptfile *script, int32_t preload);
+static int parsedefinitions_game(scriptfile *, int);
 
 static void parsedefinitions_game_include(const char *fileName, scriptfile *pScript, const char *cmdtokptr, int const firstPass)
 {
@@ -5704,7 +5704,7 @@ void G_PostCreateGameState(void)
     A_InitEnemyFlags();
 }
 
-static void G_HandleMemErr(int lineNum, const char *fileName, const char *funcName)
+static void G_HandleMemErr(int32_t lineNum, const char *fileName, const char *funcName)
 {
     static char msg[128];
     Bsnprintf(msg, sizeof(msg), "Out of memory in %s:%d (%s)\n", fileName, lineNum, funcName);
@@ -6708,7 +6708,7 @@ skipframe:
     return 0;  // not reached (duh)
 }
 
-GAME_STATIC GAME_INLINE int G_MoveLoop()
+GAME_STATIC GAME_INLINE int32_t G_MoveLoop()
 {
     Net_GetPackets();
 

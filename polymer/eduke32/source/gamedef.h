@@ -58,7 +58,7 @@ extern "C" {
 
 #if !defined LUNATIC
 extern intptr_t const * insptr;
-extern void VM_ScriptInfo(intptr_t const *ptr, int32_t range);
+extern void VM_ScriptInfo(intptr_t const *ptr, int range);
 #endif
 
 extern hashtable_t h_gamefuncs;
@@ -109,12 +109,12 @@ extern char g_scriptFileName[BMAX_PATH];
 extern const uint32_t CheatFunctionFlags[];
 extern const uint8_t  CheatFunctionIDs[];
 
-extern int g_errorCnt;
-extern int g_lineNumber;
-extern int g_numXStrings;
-extern int g_scriptVersion;
-extern int g_totalLines;
-extern int g_warningCnt;
+extern int32_t g_errorCnt;
+extern int32_t g_lineNumber;
+extern int32_t g_numXStrings;
+extern int32_t g_scriptVersion;
+extern int32_t g_totalLines;
+extern int32_t g_warningCnt;
 
 extern int32_t otherp;
 

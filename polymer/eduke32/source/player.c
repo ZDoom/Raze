@@ -37,8 +37,8 @@ static int32_t g_snum;
 
 extern int32_t g_levelTextTime, ticrandomseed;
 
-int g_numObituaries = 0;
-int g_numSelfObituaries = 0;
+int32_t g_numObituaries = 0;
+int32_t g_numSelfObituaries = 0;
 
 void P_UpdateScreenPal(DukePlayer_t * const pPlayer)
 {

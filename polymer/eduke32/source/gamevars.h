@@ -100,14 +100,14 @@ extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t     g_gameVarCount;
 extern int32_t     g_gameArrayCount;
 
-int32_t __fastcall Gv_GetArrayValue(int const id, int index);
-int32_t __fastcall Gv_GetVar(int id, int spriteNum, int playerNum);
-void __fastcall Gv_SetVar(int const id, int32_t const lValue, int const spriteNum, int const playerNum);
-int32_t __fastcall Gv_GetVarX(int id);
+int __fastcall Gv_GetArrayValue(int const id, int index);
+int __fastcall Gv_GetVar(int id, int spriteNum, int playerNum);
+void __fastcall Gv_SetVar(int const id, int const lValue, int const spriteNum, int const playerNum);
+int __fastcall Gv_GetVarX(int id);
 void __fastcall Gv_GetManyVars(int const count, int32_t * const rv);
-void __fastcall Gv_SetVarX(int const id, int32_t const lValue);
+void __fastcall Gv_SetVarX(int const id, int const lValue);
 
-int32_t Gv_GetVarByLabel(const char *szGameLabel,int32_t const lDefault,int32_t const spriteNum,int32_t const playerNum);
+int Gv_GetVarByLabel(const char *szGameLabel,int const lDefault,int const spriteNum,int const playerNum);
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 

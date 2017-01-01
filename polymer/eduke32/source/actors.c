@@ -1162,9 +1162,9 @@ next_sprite:
 }
 
 
-static int32_t P_Submerge(int32_t j, int32_t p, DukePlayer_t *ps, int32_t sect, int32_t othersect);
-static int32_t P_Emerge(int32_t j, int32_t p, DukePlayer_t *ps, int32_t sect, int32_t othersect);
-static void P_FinishWaterChange(int32_t j, DukePlayer_t *ps, int32_t sectlotag, int32_t ow, int32_t newsectnum);
+static int P_Submerge(int, int, DukePlayer_t *, int, int);
+static int P_Emerge(int, int, DukePlayer_t *, int, int);
+static void P_FinishWaterChange(int, DukePlayer_t *, int, int, int);
 
 ACTOR_STATIC void G_MovePlayers(void)
 {
@@ -2632,7 +2632,7 @@ static void A_DoProjectileEffects(int spriteNum, const vec3_t *davect, int radiu
     A_RadiusDamage(spriteNum, pProj->hitradius, x >> 2, x >> 1, x - (x >> 2), x);
 }
 
-static void G_WeaponHitCeilingOrFloor(int32_t i, spritetype *s, int32_t *j)
+static void G_WeaponHitCeilingOrFloor(int32_t i, spritetype *s, int *j)
 {
     if (actor[i].flags & SFLAG_DIDNOSE7WATER)
     {

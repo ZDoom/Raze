@@ -1937,7 +1937,7 @@ int32_t OSD_RegisterFunction(const char *name, const char *help, int32_t (*func)
 //
 // OSD_SetVersionString()
 //
-void OSD_SetVersion(const char *version, int32_t shade, int32_t pal)
+void OSD_SetVersion(const char *version, int shade, int pal)
 {
     osdstr_t *v = &osd->verstr;
     DO_FREE_AND_NULL(v->buf);

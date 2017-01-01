@@ -354,7 +354,7 @@ extern "C" {
 extern void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap);
 void P_CheckWeaponI(int playerNum);
 extern int32_t A_ShootWithZvel(int32_t i, int32_t atwith, int32_t override_zvel);
-extern int32_t A_Spawn(int32_t j, int32_t pn);
+extern int A_Spawn(int j, int pn);
 extern void VM_FallSprite(int32_t i);
 extern int32_t VM_ResetPlayer2(int32_t snum, int32_t flags);
 extern void A_RadiusDamage(int32_t i, int32_t r, int32_t, int32_t, int32_t, int32_t);

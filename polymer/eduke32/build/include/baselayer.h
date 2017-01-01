@@ -87,7 +87,7 @@ struct glinfo_t {
 
 extern struct glinfo_t glinfo;
 #endif
-extern int setvsync(int newSync);
+extern int32_t setvsync(int32_t newSync);
 extern char inputdevices;
 
 // keys

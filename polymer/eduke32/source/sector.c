@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 static int g_haltSoundHack = 0;
 
-int S_FindMusicSFX(int sectNum, int32_t *sndptr)
+int S_FindMusicSFX(int sectNum, int *sndptr)
 {
     for (bssize_t SPRITES_OF_SECT(sectNum, spriteNum))
     {
@@ -56,7 +56,7 @@ int A_CallSound(int sectNum, int spriteNum)
         return -1;
     }
 
-    int32_t   soundNum;
+    int soundNum;
     int const SFXsprite = S_FindMusicSFX(sectNum, &soundNum);
 
     if (SFXsprite >= 0)
@@ -2873,7 +2873,7 @@ static int P_FindWall(DukePlayer_t *pPlayer, int *hitWall)
 }
 
 // returns 1 if sprite i should not be considered by neartag
-static int our_neartag_blacklist(int spriteNum)
+static int32_t our_neartag_blacklist(int32_t spriteNum)
 {
     return sprite[spriteNum].picnum >= SECTOREFFECTOR__STATIC && sprite[spriteNum].picnum <= GPSPEED__STATIC;
 }

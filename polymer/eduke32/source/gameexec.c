@@ -1169,7 +1169,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sec
 #if !defined LUNATIC
 GAMEEXEC_STATIC void VM_Execute(int loop)
 {
-    int tw = *insptr;
+    int32_t tw = *insptr;
     DukePlayer_t * const pPlayer = vm.pPlayer;
 
     // jump directly into the loop, saving us from the checks during the first iteration
@@ -4693,7 +4693,7 @@ finish_qsprintf:
                 }
 
                 int const  arraySize = aGameArrays[arrayNum].size;
-                int *const pArray    = (int32_t *)Xmalloc(sizeof(int32_t) * arraySize);
+                int32_t * const pArray = (int32_t *)Xmalloc(sizeof(int32_t) * arraySize);
 
                 for (bssize_t k = 0; k < arraySize; k++)
                     pArray[k] = Gv_GetArrayValue(arrayNum, k);
