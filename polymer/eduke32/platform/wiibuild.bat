@@ -2,7 +2,7 @@
 setlocal ENABLEEXTENSIONS DISABLEDELAYEDEXPANSION
 
 set targets=eduke32 mapster32
-set PATH=C:\devkitPro\devkitPPC\bin;C:\MinGW\bin;C:\MinGW\msys\1.0\bin;C:\devkitPro\msys\bin;%PATH%
+set PATH=C:\devkitPro\devkitPPC\bin;C:\devkitPro\msys\bin;%PATH%
 set DEVKITPPC=C:/devkitPro/devkitPPC
 set DEVKITPRO=C:/devkitPro
 
@@ -18,10 +18,10 @@ if "%rev%"=="" set vc=none
 if "%rev%"=="" set rev=XXXX
 
 :: Get the current date:
-for /f "delims=" %%G in ('"C:\MinGW\msys\1.0\bin\date.exe" +%%Y%%m%%d') do @set currentdate=%%G
+for /f "delims=" %%G in ('"C:\devkitPro\msys\bin\date.exe" +%%Y%%m%%d') do @set currentdate=%%G
 
 :: Build:
-set commandline=make PLATFORM=WII %* STRIP=""
+set commandline=mingw32-make PLATFORM=WII %* STRIP=""
 echo %commandline%
 %commandline%
 
