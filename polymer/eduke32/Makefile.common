@@ -261,7 +261,7 @@ ifndef LTO
     endif
 endif
 
-COMMONFLAGS=$(ARCH)
+COMMONFLAGS=
 COMPILERFLAGS=
 
 ifeq ($(PACKAGE_REPOSITORY),0)
@@ -378,6 +378,8 @@ ifeq ($(PLATFORM),DARWIN)
             COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
         endif
     endif
+
+    COMMONFLAGS += $(ARCH)
 endif
 
 
