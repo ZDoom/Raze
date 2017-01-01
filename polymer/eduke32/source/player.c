@@ -2849,7 +2849,7 @@ void P_GetInput(int playerNum)
         }
     }
 
-    int const aimMode = (g_myAimMode) ? analog_lookingupanddown : ud.config.MouseAnalogueAxes[1];
+    int32_t const aimMode = (g_myAimMode) ? (int32_t)analog_lookingupanddown : ud.config.MouseAnalogueAxes[1];
 
     if (aimMode != mouseyaxismode)
     {
