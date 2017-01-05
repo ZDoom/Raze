@@ -8,18 +8,12 @@
 #ifdef UNTRACKED_STRUCTS
 
 #define StructTracker(tracker, type) type
-
-#define WALLTYPE uwalltype
-#define SECTORTYPE usectortype
-#define SPRITETYPE uspritetype
+#define StructName(name) u ## name
 
 #else
 
 #define StructTracker Tracker
-
-#define WALLTYPE walltypev7
-#define SECTORTYPE sectortypev7
-#define SPRITETYPE spritetype
+#define StructName(name) name
 
 #endif
 
@@ -58,7 +52,7 @@ typedef struct
     StructTracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
     StructTracker(Sector, uint16_t) lotag, hitag;
     StructTracker(Sector, int16_t) extra;
-} SECTORTYPE;
+} StructName(sectortypev7);
 
 //cstat:
 //   bit 0: 1 = Blocking wall (use with clipmove, getzrange)         "B"
@@ -85,7 +79,7 @@ typedef struct
     StructTracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
     StructTracker(Wall, uint16_t) lotag, hitag;
     StructTracker(Wall, int16_t) extra;
-} WALLTYPE;
+} StructName(walltypev7);
 
 //cstat:
 //   bit 0: 1 = Blocking sprite (use with clipmove, getzrange)       "B"
@@ -122,10 +116,11 @@ typedef struct
     StructTracker(Sprite, int16_t) ang, owner, xvel, yvel, zvel;
     StructTracker(Sprite, uint16_t) lotag, hitag;
     StructTracker(Sprite, int16_t) extra;
-} SPRITETYPE;
+} StructName(spritetype);
 
 //////////////////// END Version 7 map format ////////////////
 
 #undef StructTracker
+#undef StructName
 
 #endif // buildtypes_h__
