@@ -3799,8 +3799,8 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
             C_CompilationInfo();
         }
 ///        for (i=MAXQUOTES-1; i>=0; i--)
-///            if (ScriptQuotes[i] == NULL)
-///                ScriptQuotes[i] = Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
+///            if (apStrings[i] == NULL)
+///                apStrings[i] = Xcalloc(MAXQUOTELEN,sizeof(uint8_t));
     }
 
     if (g_numCompilerErrors)

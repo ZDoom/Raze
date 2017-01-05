@@ -662,7 +662,7 @@ struct
     const int16_t staticval;
 } g_dynTileList[], g_dynSoundList[];
 
-char *ScriptQuotes[];
+char *apStrings[];
 
 const int32_t playerswhenstarted;
 int16_t g_spriteDeleteQueueSize;

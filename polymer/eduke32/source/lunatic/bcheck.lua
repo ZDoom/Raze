@@ -105,7 +105,7 @@ function bcheck.quote_idx(qnum, onlyidx)
         error("invalid quote number "..qnum, 3)
     end
 
-    local cstr = ffiC.ScriptQuotes[qnum]
+    local cstr = ffiC.apStrings[qnum]
     if (onlyidx) then
         return cstr
     end
