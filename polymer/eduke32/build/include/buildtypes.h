@@ -120,6 +120,49 @@ typedef struct
 
 //////////////////// END Version 7 map format ////////////////
 
+//////////////////// Lunatic new-generation map format ////////////////////
+
+// 44 bytes
+typedef struct
+{
+    StructTracker(Sector, int16_t) wallptr, wallnum;
+
+    StructTracker(Sector, int16_t) ceilingpicnum, ceilingheinum, ceilingbunch;
+    StructTracker(Sector, uint16_t) ceilingstat;
+    StructTracker(Sector, int32_t) ceilingz;
+    StructTracker(Sector, int8_t) ceilingshade;
+    StructTracker(Sector, uint8_t) ceilingpal, /*CM_FLOORZ:*/ ceilingxpanning, ceilingypanning;
+
+    StructTracker(Sector, int16_t) floorpicnum, floorheinum, floorbunch;
+    StructTracker(Sector, uint16_t) floorstat;
+    StructTracker(Sector, int32_t) floorz;
+    StructTracker(Sector, int8_t) floorshade;
+    StructTracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
+
+    StructTracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
+    StructTracker(Sector, uint16_t) lotag, hitag;
+    StructTracker(Sector, int16_t) extra;
+} StructName(sectortypevx);
+
+// 38 bytes
+typedef struct
+{
+    StructTracker(Wall, int32_t) x, y;
+    StructTracker(Wall, int16_t) point2, nextwall, nextsector;
+    StructTracker(Wall, int16_t) upwall, dnwall;
+    StructTracker(Wall, uint16_t) cstat;
+    StructTracker(Wall, int16_t) picnum, overpicnum;
+    StructTracker(Wall, int8_t) shade;
+    StructTracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
+    StructTracker(Wall, uint16_t) lotag, hitag;
+    StructTracker(Wall, int16_t) extra;
+    StructTracker(Wall, uint8_t) blend, filler_;
+} StructName(walltypevx);
+
+// NOTE: spritetype is currently the same for V7/8/9 and VX in-memory map formats.
+
+//////////////////// END Lunatic new-generation map format ////////////////
+
 #undef StructTracker
 #undef StructName
 

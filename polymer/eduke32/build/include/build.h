@@ -300,45 +300,32 @@ enum {
     SPR_ALIGN_MASK = 32+16,
 };
 
-#if !defined NEW_MAP_FORMAT
 #include "buildtypes.h"
 #define UNTRACKED_STRUCTS
 #undef buildtypes_h__
 #include "buildtypes.h"
 #undef UNTRACKED_STRUCTS
+
+#if !defined NEW_MAP_FORMAT
+typedef sectortypev7 sectortype;
+typedef usectortypev7 usectortype;
+
+typedef walltypev7 walltype;
+typedef uwalltypev7 uwalltype;
+#else
+typedef sectortypevx sectortype;
+typedef usectortypevx usectortype;
+
+typedef walltypevx walltype;
+typedef uwalltypevx uwalltype;
 #endif
 
 #ifdef NEW_MAP_FORMAT
-//////////////////// Lunatic new-generation map format ////////////////////
-
-#include "buildtypes.h"
-
-// 44 bytes
-typedef struct
-{
-    Tracker(Sector, int16_t) wallptr, wallnum;
-
-    Tracker(Sector, int16_t) ceilingpicnum, ceilingheinum, ceilingbunch;
-    Tracker(Sector, uint16_t) ceilingstat;
-    Tracker(Sector, int32_t) ceilingz;
-    Tracker(Sector, int8_t) ceilingshade;
-    Tracker(Sector, uint8_t) ceilingpal, /*CM_FLOORZ:*/ ceilingxpanning, ceilingypanning;
-
-    Tracker(Sector, int16_t) floorpicnum, floorheinum, floorbunch;
-    Tracker(Sector, uint16_t) floorstat;
-    Tracker(Sector, int32_t) floorz;
-    Tracker(Sector, int8_t) floorshade;
-    Tracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
-
-    Tracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
-    Tracker(Sector, uint16_t) lotag, hitag;
-    Tracker(Sector, int16_t) extra;
-} sectortypevx;
 
 # define SECTORVX_SZ1 offsetof(sectortypevx, ceilingpicnum)
 # define SECTORVX_SZ4 sizeof(sectortypevx)-offsetof(sectortypevx, visibility)
 
-static inline void copy_v7_from_vx_sector(sectortypev7 *v7sec, const sectortypevx *vxsec)
+static inline void copy_v7_from_vx_sector(usectortypev7 *v7sec, const sectortypevx *vxsec)
 {
     /* [wallptr..wallnum] */
     Bmemcpy(v7sec, vxsec, SECTORVX_SZ1);
@@ -375,7 +362,7 @@ static inline void copy_v7_from_vx_sector(sectortypev7 *v7sec, const sectortypev
 static inline void inplace_vx_from_v7_sector(sectortypevx *vxsec)
 {
     const sectortypev7 *v7sec = (sectortypev7 *)vxsec;
-    sectortypev7 bakv7sec;
+    usectortypev7 bakv7sec;
 
     // Can't do this in-place since the members were rearranged.
     Bmemcpy(&bakv7sec, v7sec, sizeof(sectortypev7));
@@ -434,24 +421,9 @@ static inline void inplace_vx_tweak_sector(sectortypevx *vxsec, int32_t yaxp)
 # undef SECTORVX_SZ1
 # undef SECTORVX_SZ4
 
-// 38 bytes
-typedef struct
-{
-    Tracker(Wall, int32_t) x, y;
-    Tracker(Wall, int16_t) point2, nextwall, nextsector;
-    Tracker(Wall, int16_t) upwall, dnwall;
-    Tracker(Wall, uint16_t) cstat;
-    Tracker(Wall, int16_t) picnum, overpicnum;
-    Tracker(Wall, int8_t) shade;
-    Tracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
-    Tracker(Wall, uint16_t) lotag, hitag;
-    Tracker(Wall, int16_t) extra;
-    Tracker(Wall, uint8_t) blend, filler_;
-} walltypevx;
-
 # define WALLVX_SZ2 offsetof(walltypevx, blend)-offsetof(walltypevx, cstat)
 
-static inline void copy_v7_from_vx_wall(walltypev7 *v7wal, const walltypevx *vxwal)
+static inline void copy_v7_from_vx_wall(uwalltypev7 *v7wal, const walltypevx *vxwal)
 {
     /* [x..nextsector] */
     Bmemcpy(v7wal, vxwal, offsetof(walltypevx, upwall));
@@ -497,18 +469,6 @@ static inline void inplace_vx_tweak_wall(walltypevx *vxwal, int32_t yaxp)
 
 # undef WALLVX_SZ2
 
-// NOTE: spritetype is currently the same for V7/8/9 and VX in-memory map formats.
-
-typedef sectortypevx sectortype;
-typedef walltypevx walltype;
-
-typedef sectortype usectortype;
-typedef walltype uwalltype;
-typedef spritetype uspritetype;
-//////////////////// END Lunatic new-generation map format ////////////////
-#else
-typedef sectortypev7 sectortype;
-typedef walltypev7 walltype;
 #endif
 
 #include "clip.h"

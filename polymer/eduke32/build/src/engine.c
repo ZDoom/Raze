@@ -9595,8 +9595,8 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 
     while (1)  // if, really
     {
-        sectortypev7 *const tsect = (sectortypev7 *)Xmalloc(sizeof(sectortypev7) * numsectors);
-        walltypev7 *twall;
+        usectortypev7 *const tsect = (usectortypev7 *)Xmalloc(sizeof(usectortypev7) * numsectors);
+        uwalltypev7 *twall;
 
 #ifdef NEW_MAP_FORMAT
         for (i=0; i<numsectors; i++)
@@ -9607,7 +9607,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 
         for (i=0; i<numsectors; i++)
         {
-            sectortypev7 *const sec = &tsect[i];
+            usectortypev7 *const sec = &tsect[i];
 
             sec->wallptr       = B_LITTLE16(sec->wallptr);
             sec->wallnum       = B_LITTLE16(sec->wallnum);
@@ -9641,7 +9641,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
         ts = B_LITTLE16(numwalls);
         Bwrite(fil,&ts,2);
 
-        twall = (walltypev7 *)Xmalloc(sizeof(walltypev7) * numwalls);
+        twall = (uwalltypev7 *)Xmalloc(sizeof(uwalltypev7) * numwalls);
 
 #ifdef NEW_MAP_FORMAT
         for (i=0; i<numwalls; i++)
@@ -9652,7 +9652,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 
         for (i=0; i<numwalls; i++)
         {
-            walltypev7 *const wal = &twall[i];
+            uwalltypev7 *const wal = &twall[i];
 
             wal->x          = B_LITTLE32(wal->x);
             wal->y          = B_LITTLE32(wal->y);
