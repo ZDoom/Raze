@@ -246,10 +246,6 @@ ifneq ($(LUNATIC),0)
     # FIXME: Lunatic builds with LTO don't start up properly as the required
     # symbol names are apparently not exported.
     override LTO=0
-
-    ifneq ($(CPLUSPLUS),0)
-        $(error "Lunatic C++ build not supported")
-    endif
 endif
 
 ifndef LTO

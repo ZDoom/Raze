@@ -171,8 +171,8 @@ then
 
     if [ -n "$BUILD_LUNATIC" ]; then
         # clean the tree and build
-        echo "${make[@]}" LUNATIC=1 CPLUSPLUS=0 $clean all
-        "${make[@]}" LUNATIC=1 CPLUSPLUS=0 $clean all
+        echo "${make[@]}" LUNATIC=1 $clean all
+        "${make[@]}" LUNATIC=1 $clean all
 
         # make sure all the targets were produced
         verifytargets
@@ -190,8 +190,8 @@ then
 
     if [ -n "$BUILD_LUNATIC" ]; then
         # clean the tree and build
-        echo "${make64[@]}" LUNATIC=1 CPLUSPLUS=0 $clean all
-        "${make64[@]}" LUNATIC=1 CPLUSPLUS=0 $clean all
+        echo "${make64[@]}" LUNATIC=1 $clean all
+        "${make64[@]}" LUNATIC=1 $clean all
 
         # make sure all the targets were produced
         verifytargets
