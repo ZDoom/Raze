@@ -179,7 +179,7 @@ apStrings;
 screenpeek;
 hudweap;
 playerswhenstarted;
-g_spriteDeleteQueueSize;
+g_deleteQueueSize;
 g_blimpSpawnItems;
 g_scriptVersion;
 g_frameRate;

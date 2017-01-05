@@ -334,7 +334,7 @@ function spawn(tilenum, parentspritenum, addtodelqueue)
     check_tile_idx(tilenum)
     check_sprite_idx(parentspritenum)
 
-    if (addtodelqueue and ffiC.g_spriteDeleteQueueSize == 0) then
+    if (addtodelqueue and ffiC.g_deleteQueueSize == 0) then
         return -1
     end
 

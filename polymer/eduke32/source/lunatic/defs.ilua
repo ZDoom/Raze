@@ -665,7 +665,7 @@ struct
 char *apStrings[];
 
 const int32_t playerswhenstarted;
-int16_t g_spriteDeleteQueueSize;
+int16_t g_deleteQueueSize;
 int16_t g_blimpSpawnItems[15];
 int32_t g_scriptVersion;
 const int32_t g_frameRate;
