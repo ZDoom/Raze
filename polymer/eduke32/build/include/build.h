@@ -308,8 +308,6 @@ enum {
 #undef UNTRACKED_STRUCTS
 #endif
 
-#include "clip.h"
-
 #ifdef NEW_MAP_FORMAT
 //////////////////// Lunatic new-generation map format ////////////////////
 
@@ -512,6 +510,8 @@ typedef spritetype uspritetype;
 typedef sectortypev7 sectortype;
 typedef walltypev7 walltype;
 #endif
+
+#include "clip.h"
 
 typedef struct {
     uint32_t mdanimtims;
