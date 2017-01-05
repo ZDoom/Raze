@@ -155,7 +155,7 @@ typedef struct
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
 
 #ifdef LUNATIC
-    // total: 16b
+    // total: 18b
     struct move   mv;
     struct action ac;
     // Gets incremented by TICSPERFRAME on each A_Execute() call:

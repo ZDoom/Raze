@@ -6046,7 +6046,8 @@ void G_MaybeAllocPlayer(int32_t pnum)
 #endif
 }
 
-EDUKE32_STATIC_ASSERT(sizeof(actor_t)==128);
+// TODO: reorder (net)actor_t to eliminate slop and update assertion
+// EDUKE32_STATIC_ASSERT(sizeof(actor_t)==128);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
 int app_main(int argc, char const * const * argv)
