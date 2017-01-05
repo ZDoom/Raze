@@ -1544,7 +1544,7 @@ static void resetpspritevars(char gameMode)
             s->xoffset = 0;
             s->clipdist = 64;
 
-//            if (j < playerswhenstarted)
+//            if (j < g_mostConcurrentPlayers)
             {
                 if ((gameMode&MODE_EOL) != MODE_EOL || g_player[j].ps->last_extra == 0)
                 {

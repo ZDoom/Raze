@@ -178,7 +178,7 @@ apStrings;
 
 screenpeek;
 hudweap;
-playerswhenstarted;
+g_mostConcurrentPlayers;
 g_deleteQueueSize;
 g_blimpSpawnItems;
 g_scriptVersion;

@@ -1159,7 +1159,7 @@ function _pstomp(ps, i)
     if (ps.knee_incs == 0 and sprite[ps.i].xrepeat >= 40) then
         local spr = sprite[i]
         if (cansee(spr^(4*256), spr.sectnum, ps.pos^(-16*256), sprite[ps.i].sectnum)) then
-            for j=ffiC.playerswhenstarted-1,0 do
+            for j=ffiC.g_mostConcurrentPlayers-1,0 do
                 if (player[j].actorsqu == i) then
                     return
                 end

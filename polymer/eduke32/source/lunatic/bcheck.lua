@@ -59,7 +59,7 @@ end
 local con_lang = require("con_lang")
 
 function bcheck.player_idx(snum)
-    if (not (snum >= 0 and snum < ffiC.playerswhenstarted)) then
+    if (not (snum >= 0 and snum < ffiC.g_mostConcurrentPlayers)) then
         error("invalid player number "..snum, 3)
     end
 end

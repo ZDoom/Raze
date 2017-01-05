@@ -664,7 +664,7 @@ struct
 
 char *apStrings[];
 
-const int32_t playerswhenstarted;
+const int32_t g_mostConcurrentPlayers;
 int16_t g_deleteQueueSize;
 int16_t g_blimpSpawnItems[15];
 int32_t g_scriptVersion;
@@ -845,7 +845,7 @@ local ivec3 = xmath.ivec3
 do
     -- player.all() iterator
     local function iter_allplayers(_nil, pli)
-        if (pli+1 < ffiC.playerswhenstarted) then
+        if (pli+1 < ffiC.g_mostConcurrentPlayers) then
             return pli+1
         end
     end
@@ -976,7 +976,7 @@ do
 end
 
 -- XXX: error message will say "g_player_ps"
-player = setmtonce({}, defs_c.GenStructMetatable("g_player_ps", "playerswhenstarted", player_static_members))
+player = setmtonce({}, defs_c.GenStructMetatable("g_player_ps", "g_mostConcurrentPlayers", player_static_members))
 
 -- needed by "control"
 actor = setmtonce({}, defs_c.GenStructMetatable("actor", "MAXSPRITES", actor_static_members))
