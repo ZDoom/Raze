@@ -668,7 +668,7 @@ const int32_t playerswhenstarted;
 int16_t g_spriteDeleteQueueSize;
 int16_t g_blimpSpawnItems[15];
 int32_t g_scriptVersion;
-const int32_t g_currentFrameRate;
+const int32_t g_frameRate;
 const int32_t g_currentMenu;
 uint16_t g_earthquakeTime;
 uint32_t g_moveThingsCount;
@@ -1573,7 +1573,7 @@ function gv_access._get_viewingrange()
 end
 
 function gv_access._currentFramerate()
-    return ffiC.g_currentFrameRate
+    return ffiC.g_frameRate
 end
 
 function gv_access._currentMenu()

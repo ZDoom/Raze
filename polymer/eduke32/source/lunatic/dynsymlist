@@ -182,7 +182,7 @@ playerswhenstarted;
 g_spriteDeleteQueueSize;
 g_blimpSpawnItems;
 g_scriptVersion;
-g_currentFrameRate;
+g_frameRate;
 g_currentMenu;
 g_earthquakeTime;
 g_moveThingsCount;
