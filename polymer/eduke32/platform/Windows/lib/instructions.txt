@@ -113,15 +113,13 @@ Download the binary of yasm (http://yasm.tortall.net/) for your host system arch
 The build environment needs pr.exe (https://mingw-lib.googlecode.com/files/coreutils-5.97-MSYS-1.0.11-snapshot.tar.bz2).
 ### Download ###
   * Instructions: http://www.webmproject.org/code/
+  * Stable: http://downloads.webmproject.org/releases/webm/
   * Git: https://chromium.googlesource.com/webm/libvpx
-### Modifications ###
-If the configure scripts do not recognize your 64-bit compiler, you may need to run the following:
-    git apply "libvpx with MinGW-w64.patch"
 ### Build ###
-    sh ./configure --disable-vp8-encoder --disable-vp9-encoder --disable-multithread --disable-spatial-resampling --as=yasm && make
+    sh ./configure --disable-vp8-encoder --disable-vp9-encoder --disable-multithread --disable-spatial-resampling --as=yasm && make libvpx.a
 ### Desired Results ###
-  * headers: vpx/vp8.h vpx/vp8dx.h vpx/vpx_codec.h vpx/vpx_codec_impl_bottom.h vpx/vpx_codec_impl_top.h vpx/vpx_decoder.h vpx/vpx_decoder_compat.h vpx/vpx_image.h vpx/vpx_integer.h
-  * libraries: libvpx.a libvpx_g.a
+  * headers: vpx/vp8.h vpx/vp8dx.h vpx/vpx_codec.h vpx/vpx_decoder.h vpx/vpx_frame_buffer.h vpx/vpx_image.h vpx/vpx_integer.h
+  * libraries: libvpx.a
 
 
 SDL
