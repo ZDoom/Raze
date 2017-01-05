@@ -191,16 +191,15 @@ if [ `expr $darwinversion \> 10` == 1 ]; then
 fi
 
 # Detect versioning systems and pull the revision number:
-rev=$(svn info 2> /dev/null | grep Revision | awk '{ print $2 }')
+export VC_REV=$(svn info 2> /dev/null | grep Revision | awk '{ print $2 }')
 vc=svn
-if [ -z "$rev" ]; then
+if [ -z "$VC_REV" ]; then
     vc=git
-    rev=$(git log | grep 'git-svn-id:' | head -n 1 | sed -E 's/.*\@([0-9]+).*/\1/')
-    echo "Detected git repository, revision r$rev"
+    export VC_REV=$(git svn info 2> /dev/null | grep Revision | awk '{ print $2 }')
 fi
 
-if [ -z "$rev" ]; then
-    rev=unknown
+if [ -z "$VC_REV" ]; then
+    export VC_REV=Unknown
     vc=none
 fi
 
@@ -410,7 +409,7 @@ if [ $success == 1 ]; then
 
     # Output README.OSX:
     let "darwinversion -= 4"
-    echo "This archive was produced from revision $rev by the osxbuild.sh script." > README.OSX
+    echo "This archive was produced from revision ${VC_REV} by the osxbuild.sh script." > README.OSX
     echo "Built on: Mac OS X 10.$darwinversion" >> README.OSX
     echo "EDuke32 home: http://www.eduke32.com" >> README.OSX
     echo "OS X build discussion on Duke4.net: http://forums.duke4.net/topic/4242-building-eduke-on-mac-os-x/" >> README.OSX
@@ -423,18 +422,18 @@ if [ $success == 1 ]; then
         lastrevision=$(ls -A1 eduke32-osx* | tail -n1 | cut -d- -f3 | cut -d. -f1)
 
         if [ -z $lastrevision ]; then
-            let lastrevision=rev-1
-        elif [ $lastrevision -lt $rev ]; then
+            let lastrevision=VC_REV-1
+        elif [ $lastrevision -lt $VC_REV ]; then
             let lastrevision+=1
         else
-            let lastrevision=rev-1
+            let lastrevision=VC_REV-1
         fi
     fi
 
     echo "Using r$lastrevision as last revision for change log"
 
     if [ "$vc" == "svn" ]; then
-        svn log -r $rev:$lastrevision > Changelog.txt
+        svn log -r $VC_REV:$lastrevision > Changelog.txt
     elif [ "$vc" == "git" ]; then
         commitid=$(git log --grep="git-svn-id: .*@$lastrevision" -n 1 | grep -E '^commit ' | head -n 1 | awk '{print $2}')
         # Get the commit messages and strip the email addresses
@@ -443,7 +442,7 @@ if [ $success == 1 ]; then
 
     # Package
     if [ $pack == 1 ]; then
-        arfilename="eduke32-osx-$rev.zip"
+        arfilename="eduke32-osx-${VC_REV}.zip"
         echo "Packing distribution into $arfilename"
         rm -f "$arfilename"
         zip -r -y "$arfilename" * -x "*.svn*" "*.git*" "*.dll"
