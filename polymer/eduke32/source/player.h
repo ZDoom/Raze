@@ -360,7 +360,7 @@ int Proj_GetDamage(projectile_t const *pProj);
 #if !defined LUNATIC
 void P_SetWeaponGamevars(int playerNum, const DukePlayer_t *pPlayer);
 #else
-void P_SetWeaponGamevars(int playerNum, const DukePlayer_t *pPlayer)
+static inline void P_SetWeaponGamevars(int playerNum, const DukePlayer_t *pPlayer)
 {
     UNREFERENCED_PARAMETER(playerNum);
     UNREFERENCED_PARAMETER(pPlayer);
