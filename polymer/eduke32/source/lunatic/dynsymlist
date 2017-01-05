@@ -129,7 +129,7 @@ g_modDir;
 g_elSessionVar;
 
 MapInfo;
-EpisodeNames;
+g_volumeNames;
 
 kopen4loadfrommod;
 

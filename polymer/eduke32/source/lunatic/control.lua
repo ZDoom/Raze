@@ -930,7 +930,7 @@ function _qgetsysstr(qdst, what, pli)
     elseif (what == ffiC.STR_VOLUMENAME) then
         local vol = ffiC.ud.volume_number
         bcheck.volume_idx(vol)
-        ffi.copy(dst, ffiC.EpisodeNames[vol], ffi.sizeof(ffiC.EpisodeNames[0]))
+        ffi.copy(dst, ffiC.g_volumeNames[vol], ffi.sizeof(ffiC.g_volumeNames[0]))
     elseif (what == ffiC.STR_YOURTIME) then
         ffi.copy(dst, ffi.string(ffiC.G_PrintYourTime()))
     elseif (what == ffiC.STR_PARTIME) then
