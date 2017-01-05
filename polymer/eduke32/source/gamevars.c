@@ -213,13 +213,13 @@ int Gv_ReadSave(int32_t kFile)
                 if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
                 if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
                 {
-//                    if (!MapInfo[i].savedstate->vars[j])
+//                    if (!g_mapInfo[i].savedstate->vars[j])
                     g_mapInfo[i].savedstate->vars[j] = (intptr_t *)Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
                     if (kdfread(&g_mapInfo[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, kFile) != 1) goto corrupt;
                 }
                 else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
                 {
-//                    if (!MapInfo[i].savedstate->vars[j])
+//                    if (!g_mapInfo[i].savedstate->vars[j])
                     g_mapInfo[i].savedstate->vars[j] = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
                     if (kdfread(&g_mapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, kFile) != MAXSPRITES) goto corrupt;
                 }

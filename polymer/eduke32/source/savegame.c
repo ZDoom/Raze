@@ -2121,7 +2121,7 @@ static void postloadplayer(int32_t savegamep)
         if (ud.config.MusicToggle)
         {
             if (g_mapInfo[musicIdx].musicfn != NULL &&
-                (musicIdx != g_musicIndex /* || MapInfo[MUS_LOADING].musicfn */))
+                (musicIdx != g_musicIndex /* || g_mapInfo[MUS_LOADING].musicfn */))
             {
                 S_StopMusic();
 

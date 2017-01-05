@@ -908,12 +908,12 @@ function _qgetsysstr(qdst, what, pli)
     local dst = bcheck.quote_idx(qdst)
 
     local idx = ffiC.ud.volume_number*con_lang.MAXLEVELS + ffiC.ud.level_number
-    local MAXIDX = ffi.sizeof(ffiC.MapInfo) / ffi.sizeof(ffiC.MapInfo[0])
+    local MAXIDX = ffi.sizeof(ffiC.g_mapInfo) / ffi.sizeof(ffiC.g_mapInfo[0])
     local mapnamep = (what == ffiC.STR_MAPNAME)
 
     if (mapnamep or what == ffiC.STR_MAPFILENAME) then
         assert(not (idx >= MAXIDX+0ULL))
-        local src = mapnamep and ffiC.MapInfo[idx].name or ffiC.MapInfo[idx].filename
+        local src = mapnamep and ffiC.g_mapInfo[idx].name or ffiC.g_mapInfo[idx].filename
         if (src == nil) then
             error(format("attempted access to %s of non-existent map (vol=%d, lev=%d)",
                          mapnamep and "name" or "file name",

@@ -108,7 +108,7 @@ typedef struct {
     mapstate_t *savedstate;
 } map_t;
 
-//extern map_t MapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
+//extern map_t g_mapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
 void G_ActivateBySector(int sect,int j);
 int S_FindMusicSFX(int sectNum, int *sndptr);

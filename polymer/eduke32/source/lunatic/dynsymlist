@@ -128,7 +128,7 @@ g_elModules;
 g_modDir;
 g_elSessionVar;
 
-MapInfo;
+g_mapInfo;
 g_volumeNames;
 
 kopen4loadfrommod;
