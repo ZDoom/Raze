@@ -63,7 +63,7 @@ However, Git HEAD is highly recommended.
   * Stable: https://www.xiph.org/downloads/
   * Git: git://git.xiph.org/flac.git
 ### Build ###
-    make -f Makefile.lite libFLAC CUSTOM_CFLAGS="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe"
+    make -f Makefile.lite libFLAC
 ### Desired Results ###
   * headers: FLAC/all.h FLAC/assert.h FLAC/callback.h FLAC/export.h FLAC/format.h FLAC/metadata.h FLAC/ordinals.h FLAC/stream_decoder.h FLAC/stream_encoder.h
   * libraries: libFLAC.a
@@ -78,7 +78,6 @@ Download: zlib-<version>.tar.xz
 ### Modifications ###
   * Modify win32/Makefile.gcc as follows:
       * CFLAGS: change -O3 to -O2 for stability and possibly performance benefits.
-      * CFLAGS: add: -fno-stack-check -fno-stack-protector -mno-stack-arg-probe
 ### Build ###
     make -f win32/Makefile.gcc
     ar rcs libz_mini.a crc32.o deflate.o adler32.o zutil.o trees.o
@@ -97,7 +96,6 @@ Download libpng-<version>.tar.xz
 ### Modifications ###
   * Modify scripts/Makefile.gcc as follows:
       * Ensure ZLIBINC and ZLIBLIB point to the directory of zlib from above, or, rename your zlib directory so that, relative to the libpng directory, it is "../zlib". You will get a compile-time error if this is omitted or done incorrectly.
-      * CFLAGS: add: -fno-stack-check -fno-stack-protector -mno-stack-arg-probe
   * Copy the file "minipng.dfa" to the root of the libpng data.
 ### Build ###
     make -f scripts/pnglibconf.mak DFA_XTRA=./minipng.dfa CPP="gcc -E"
@@ -120,7 +118,7 @@ The build environment needs pr.exe (https://mingw-lib.googlecode.com/files/coreu
 If the configure scripts do not recognize your 64-bit compiler, you may need to run the following:
     git apply "libvpx with MinGW-w64.patch"
 ### Build ###
-    sh ./configure --disable-vp8-encoder --disable-vp9-encoder --disable-multithread --disable-spatial-resampling --as=yasm --extra-cflags="-fno-stack-check -fno-stack-protector -mno-stack-arg-probe" && make
+    sh ./configure --disable-vp8-encoder --disable-vp9-encoder --disable-multithread --disable-spatial-resampling --as=yasm && make
 ### Desired Results ###
   * headers: vpx/vp8.h vpx/vp8dx.h vpx/vpx_codec.h vpx/vpx_codec_impl_bottom.h vpx/vpx_codec_impl_top.h vpx/vpx_decoder.h vpx/vpx_decoder_compat.h vpx/vpx_image.h vpx/vpx_integer.h
   * libraries: libvpx.a libvpx_g.a
