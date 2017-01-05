@@ -1867,7 +1867,7 @@ end
 
 function _stopallsounds(pli)
     if (ffiC.screenpeek==pli) then
-        ffiC.FX_StopAllSounds()
+        ffiC.S_StopAllSounds()
     end
 end
 

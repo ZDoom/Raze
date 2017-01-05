@@ -374,6 +374,12 @@ void S_StopEnvSound(int32_t num,int32_t i)
         }
 }
 
+// Do not remove this or make it inline.
+void S_StopAllSounds(void)
+{
+    FX_StopAllSounds();
+}
+
 void S_Update(void)
 {
     int32_t sndist, sx, sy, sz, cx, cy, cz;

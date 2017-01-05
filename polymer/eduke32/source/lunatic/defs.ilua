@@ -699,7 +699,7 @@ const char *KB_ScanCodeToString(uint8_t scancode);
 int32_t A_CheckAnySoundPlaying(int32_t i);
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num);
 void S_StopEnvSound(int32_t num, int32_t i);
-int32_t FX_StopAllSounds(void);
+void S_StopAllSounds(void);
 void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset);
 int32_t S_GetMusicPosition(void);
 void S_SetMusicPosition(int32_t position);

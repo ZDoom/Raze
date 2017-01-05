@@ -27,7 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m32def.h"
 
 #include "sounds_mapster32.h"
-#include "fx_man.h"
 
 #include "osd.h"
 #include "keys.h"
@@ -3098,7 +3097,7 @@ dodefault:
 
         case CON_STOPALLSOUNDS:
             insptr++;
-            FX_StopAllSounds();
+            S_StopAllSounds();
             continue;
 
         default:

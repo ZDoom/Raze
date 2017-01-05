@@ -672,12 +672,7 @@ int32_t A_PlaySound(uint32_t num, int32_t i) {
 void S_StopSound(int32_t num) {
     UNREFERENCED_PARAMETER(num);
 };
-#ifdef __cplusplus
-extern "C"
-#endif
-int32_t FX_StopAllSounds(void) {
-    return 0;
-};
+void S_StopAllSounds(void) { }
 
 //Just thought you might want my getnumber16 code
 /*

@@ -57,6 +57,7 @@ void S_PlaySound(int32_t);
 int32_t A_PlaySound(uint32_t num, int32_t i);
 void S_StopSound(int32_t num);
 void S_StopEnvSound(int32_t num,int32_t i);
+void S_StopAllSounds(void);
 void S_Update(void);
 int32_t A_CheckSoundPlaying(int32_t i, int32_t num);
 int32_t S_CheckSoundPlaying(int32_t i, int32_t num);

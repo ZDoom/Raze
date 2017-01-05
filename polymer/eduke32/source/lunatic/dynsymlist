@@ -230,7 +230,7 @@ KB_ScanCodeToString;
 A_CheckAnySoundPlaying;
 S_CheckSoundPlaying;
 S_StopEnvSound;
-FX_StopAllSounds;
+S_StopAllSounds;
 S_ChangeSoundPitch;
 S_GetMusicPosition;
 S_SetMusicPosition;
