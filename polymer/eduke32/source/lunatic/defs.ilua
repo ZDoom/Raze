@@ -692,7 +692,7 @@ void G_GetTimeDate(int32_t *vals);
 int32_t G_ToggleWallInterpolation(int32_t w, int32_t doset);
 int32_t G_StartTrack(int32_t level);
 int32_t VM_CheckSquished2(int32_t i, int32_t snum);
-void M_ChangeMenu(int32_t cm);
+void Menu_Change(int32_t cm);
 
 const char *KB_ScanCodeToString(uint8_t scancode);
 
@@ -1581,7 +1581,7 @@ function gv_access._currentMenu()
 end
 
 function gv_access._changeMenu(cm)
-    ffiC.M_ChangeMenu(cm)
+    ffiC.Menu_Change(cm)
 end
 
 function gv_access._set_guniqhudid(id)

@@ -223,7 +223,7 @@ G_GetTimeDate;
 G_ToggleWallInterpolation;
 G_StartTrack;
 VM_CheckSquished2;
-M_ChangeMenu;
+Menu_Change;
 
 KB_ScanCodeToString;
 
