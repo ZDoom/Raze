@@ -2184,7 +2184,7 @@ void tagcode(void)
                             //swingangopendir is -1 if forwards, 1 is backwards
                             l = (swingangopendir[i] > 0);
                             for (k=l+3; k>=l; k--)
-                                if (clipinsidebox(pos[p].x,pos[p].y,swingwall[i][k],128L) != 0)
+                                if (clipinsidebox((vec2_t *)&pos[p],swingwall[i][k],128L) != 0)
                                 {
                                     good = 0;
                                     break;
