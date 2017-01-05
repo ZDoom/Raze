@@ -689,7 +689,6 @@ intptr_t allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 //
 // copytilepiece
 //
-#if 0
 void copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz,
     int32_t tilenume2, int32_t sx2, int32_t sy2)
 {
@@ -726,7 +725,6 @@ void copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, in
         }
     }
 }
-#endif
 
 void Buninitart(void)
 {
