@@ -108,10 +108,10 @@ void SetCrosshair(void)
 {
     int wdx,wdy,x,y;
 
-    wdx = ((windowx2-windowx1)/2);
-    wdy = ((windowy2-windowy1)/2);
-    x = windowx1 + wdx;
-    y = windowy1 + wdy;
+    wdx = ((windowxy2.x-windowxy1.x)/2);
+    wdy = ((windowxy2.y-windowxy1.y)/2);
+    x = windowxy1.x + wdx;
+    y = windowxy1.y + wdy;
 
     CrosshairX = x / (xdim/320.0);
     CrosshairY = y / (ydim/200.0);
@@ -197,12 +197,12 @@ SetFragBar(PLAYERp pp)
     //num_frag_bars = ((numplayers-1)/4)+1;
     num_frag_bars = ((OrigCommPlayers-1)/4)+1;
 
-    for (i = windowx1; i <= windowx2; i++)
+    for (i = windowxy1.x; i <= windowxy2.x; i++)
     {
         y = (tilesiz[FRAG_BAR].y * num_frag_bars) - (2 * (num_frag_bars-1));
         y = y * (ydim/200.0);
 
-        if (windowy1 < y)
+        if (windowxy1.y < y)
             startumost[i] = y;
     }
 
@@ -286,10 +286,10 @@ BorderShade(PLAYERp pp, SWBOOL refresh)
     PANEL_SPRITEp psp;
     uint8_t lines;
 
-    wx1 = windowx1 - 1;
-    wy1 = windowy1 - 1;
-    wx2 = windowx2 + 1;
-    wy2 = windowy2 + 1;
+    wx1 = windowxy1.x - 1;
+    wy1 = windowxy1.y - 1;
+    wx2 = windowxy2.x + 1;
+    wy2 = windowxy2.y + 1;
 
     for (lines = 0; lines < 4; lines++)
     {
@@ -356,31 +356,31 @@ void DrawBorder(PLAYERp pp, short x, short y, short x2, short y2)
             k = i + tilesiz[BORDER_TILE].x;
             l = j + tilesiz[BORDER_TILE].y;
 
-            if (RectOverlap(i, j, k, l, x, y, windowx1-1, y2))
+            if (RectOverlap(i, j, k, l, x, y, windowxy1.x-1, y2))
             {
                 // draw top box of the border
-                pSpawnFullScreenSpriteBox(pp, ID_BORDER_TOP, BORDER_TILE, PRI_BACK, i, j, x, y, windowx1-1, y2);
+                pSpawnFullScreenSpriteBox(pp, ID_BORDER_TOP, BORDER_TILE, PRI_BACK, i, j, x, y, windowxy1.x-1, y2);
                 count++;
             }
 
-            if (RectOverlap(i, j, k, l, windowx2+1, y, x2, y2))
+            if (RectOverlap(i, j, k, l, windowxy2.x+1, y, x2, y2))
             {
                 // draw bottom box of the border
-                pSpawnFullScreenSpriteBox(pp, ID_BORDER_BOTTOM, BORDER_TILE, PRI_BACK, i, j, windowx2+1, y, x2, y2);
+                pSpawnFullScreenSpriteBox(pp, ID_BORDER_BOTTOM, BORDER_TILE, PRI_BACK, i, j, windowxy2.x+1, y, x2, y2);
                 count++;
             }
 
-            if (RectOverlap(i, j, k, l, windowx1, y, windowx2, windowy1-1))
+            if (RectOverlap(i, j, k, l, windowxy1.x, y, windowxy2.x, windowxy1.y-1))
             {
                 // draw left box of the border
-                pSpawnFullScreenSpriteBox(pp, ID_BORDER_LEFT, BORDER_TILE, PRI_BACK, i, j, windowx1, y, windowx2, windowy1-1);
+                pSpawnFullScreenSpriteBox(pp, ID_BORDER_LEFT, BORDER_TILE, PRI_BACK, i, j, windowxy1.x, y, windowxy2.x, windowxy1.y-1);
                 count++;
             }
 
-            if (RectOverlap(i, j, k, l, windowx1, windowy2+1, windowx2, y2))
+            if (RectOverlap(i, j, k, l, windowxy1.x, windowxy2.y+1, windowxy2.x, y2))
             {
                 // draw right box of the border
-                pSpawnFullScreenSpriteBox(pp, ID_BORDER_RIGHT, BORDER_TILE, PRI_BACK, i, j, windowx1, windowy2+1, windowx2, y2);
+                pSpawnFullScreenSpriteBox(pp, ID_BORDER_RIGHT, BORDER_TILE, PRI_BACK, i, j, windowxy1.x, windowxy2.y+1, windowxy2.x, y2);
                 count++;
             }
         }
@@ -441,7 +441,7 @@ void BorderSetView(PLAYERp UNUSED(pp), int *Xdim, int *Ydim, int *ScreenSize)
         y2+=2;
     }
 
-    // global windowx1, windowx2, windowy1, windowy2 coords set here
+    // global windowxy1, windowxy2 coords set here
     setview(x, y, x2, y2);
     SetCrosshair();
 }

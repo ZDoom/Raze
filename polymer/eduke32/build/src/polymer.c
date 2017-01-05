@@ -1079,7 +1079,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     begindrawing();
 
     // TODO: support for screen resizing
-    // frameoffset = frameplace + windowy1*bytesperline + windowx1;
+    // frameoffset = frameplace + windowxy1.y*bytesperline + windowxy1.x;
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
 

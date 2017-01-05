@@ -3884,20 +3884,20 @@ void drawscreen(short snum, int dasmoothratio)
                     }
                     drawmasks();
                     if ((numgrabbers[i] > 0) || (nummissiles[i] > 0) || (numbombs[i] > 0))
-                        rotatesprite(160<<16,184L<<16,65536,0,GUNONBOTTOM,sector[cursectnum[i]].floorshade,0,2,windowx1,windowy1,windowx2,windowy2);
+                        rotatesprite(160<<16,184L<<16,65536,0,GUNONBOTTOM,sector[cursectnum[i]].floorshade,0,2,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
 
                     if (lockclock < 384)
                     {
                         if (lockclock < 128)
-                            rotatesprite(320<<15,200<<15,lockclock<<9,lockclock<<4,DEMOSIGN,(128-lockclock)>>2,0,1+2,windowx1,windowy1,windowx2,windowy2);
+                            rotatesprite(320<<15,200<<15,lockclock<<9,lockclock<<4,DEMOSIGN,(128-lockclock)>>2,0,1+2,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
                         else if (lockclock < 256)
-                            rotatesprite(320<<15,200<<15,65536,0,DEMOSIGN,0,0,2,windowx1,windowy1,windowx2,windowy2);
+                            rotatesprite(320<<15,200<<15,65536,0,DEMOSIGN,0,0,2,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
                         else
-                            rotatesprite(320<<15,200<<15,(384-lockclock)<<9,lockclock<<4,DEMOSIGN,(lockclock-256)>>2,0,1+2,windowx1,windowy1,windowx2,windowy2);
+                            rotatesprite(320<<15,200<<15,(384-lockclock)<<9,lockclock<<4,DEMOSIGN,(lockclock-256)>>2,0,1+2,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
                     }
 
                     if (health[i] <= 0)
-                        rotatesprite(320<<15,200<<15,(-health[i])<<11,(-health[i])<<5,NO,0,0,2,windowx1,windowy1,windowx2,windowy2);
+                        rotatesprite(320<<15,200<<15,(-health[i])<<11,(-health[i])<<5,NO,0,0,2,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
                 }
         }
         else
@@ -3962,9 +3962,9 @@ void drawscreen(short snum, int dasmoothratio)
                 //Temp horizon
                 if (getrendermode() == 0)
                 {
-                    l = scale(choriz-100,windowx2-windowx1,320)+((windowy1+windowy2)>>1);
+                    l = scale(choriz-100,windowxy2.x-windowxy1.x,320)+((windowxy1.y+windowxy2.y)>>1);
                     begindrawing();   //{{{
-                    for (y1=windowy1,y2=windowy2; y1<y2; y1++,y2--)
+                    for (y1=windowxy1.y,y2=windowxy2.y; y1<y2; y1++,y2--)
                     {
                         ptr = (char *)(frameplace+ylookup[y1]);
                         ptr2 = (char *)(frameplace+ylookup[y2]);
@@ -3979,15 +3979,15 @@ void drawscreen(short snum, int dasmoothratio)
 
                         //ptr2 += j;
 
-                        //for(x1=windowx1;x1<=windowx2;x1++)
+                        //for(x1=windowxy1.x;x1<=windowxy2.x;x1++)
                         //	{ ch = ptr[x1]; ptr[x1] = ptr3[ptr2[x1]]; ptr2[x1] = ptr4[ch]; }
 
-                        ox1 = windowx1-min(j,0);
-                        ox2 = windowx2-max(j,0);
+                        ox1 = windowxy1.x-min(j,0);
+                        ox2 = windowxy2.x-max(j,0);
 
-                        for (x1=windowx1; x1<ox1; x1++)
+                        for (x1=windowxy1.x; x1<ox1; x1++)
                         { ch = ptr[x1]; ptr[x1] = ptr3[ptr2[x1]]; ptr2[x1] = ptr4[ch]; }
-                        for (x1=ox2+1; x1<=windowx2; x1++)
+                        for (x1=ox2+1; x1<=windowxy2.x; x1++)
                         { ch = ptr[x1]; ptr[x1] = ptr3[ptr2[x1]]; ptr2[x1] = ptr4[ch]; }
 
                         ptr2 += j;
@@ -4059,7 +4059,7 @@ void drawscreen(short snum, int dasmoothratio)
                     i = (tiltlock&511); if (i > 256) i = 512-i;
                     i = sintable[i+512]*8 + sintable[i]*5L;
                     if (detailmode == 0) i >>= 1;
-                    rotatesprite(320<<15,200<<15,i,tiltlock+512,TILE_TILT,0,0,2+4+64,windowx1,windowy1,windowx2,windowy2);
+                    rotatesprite(320<<15,200<<15,i,tiltlock+512,TILE_TILT,0,0,2+4+64,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
                     walock[TILE_TILT] = 1;
                 }
             }
@@ -4067,19 +4067,19 @@ void drawscreen(short snum, int dasmoothratio)
             if (((numgrabbers[screenpeek] > 0) || (nummissiles[screenpeek] > 0) || (numbombs[screenpeek] > 0)) && (cameradist < 0))
             {
                 //Reset startdmost to bottom of screen
-                if ((windowx1 == 0) && (windowx2 == 319) && (yxaspect == 65536) && (tiltlock == 0))
+                if ((windowxy1.x == 0) && (windowxy2.x == 319) && (yxaspect == 65536) && (tiltlock == 0))
                 {
-                    x1 = 160L-(tilesiz[GUNONBOTTOM].x>>1); y1 = windowy2+1;
+                    x1 = 160L-(tilesiz[GUNONBOTTOM].x>>1); y1 = windowxy2.y+1;
                     for (i=0; i<tilesiz[GUNONBOTTOM].x; i++)
                         startdmost[i+x1] = y1;
                 }
-                rotatesprite(160<<16,184L<<16,65536,0,GUNONBOTTOM,sector[cursectnum[screenpeek]].floorshade,0,2,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite(160<<16,184L<<16,65536,0,GUNONBOTTOM,sector[cursectnum[screenpeek]].floorshade,0,2,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
             }
 
 #if 0
             if (cachecount != 0)
             {
-                rotatesprite((320-16)<<16,16<<16,32768,0,BUILDDISK,0,0,2+64,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite((320-16)<<16,16<<16,32768,0,BUILDDISK,0,0,2+64,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
                 cachecount = 0;
             }
 #endif
@@ -4087,15 +4087,15 @@ void drawscreen(short snum, int dasmoothratio)
             if (lockclock < 384)
             {
                 if (lockclock < 128)
-                    rotatesprite(320<<15,200<<15,lockclock<<9,lockclock<<4,DEMOSIGN,(128-lockclock)>>2,0,1+2,windowx1,windowy1,windowx2,windowy2);
+                    rotatesprite(320<<15,200<<15,lockclock<<9,lockclock<<4,DEMOSIGN,(128-lockclock)>>2,0,1+2,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
                 else if (lockclock < 256)
-                    rotatesprite(320<<15,200<<15,65536,0,DEMOSIGN,0,0,2,windowx1,windowy1,windowx2,windowy2);
+                    rotatesprite(320<<15,200<<15,65536,0,DEMOSIGN,0,0,2,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
                 else
-                    rotatesprite(320<<15,200<<15,(384-lockclock)<<9,lockclock<<4,DEMOSIGN,(lockclock-256)>>2,0,1+2,windowx1,windowy1,windowx2,windowy2);
+                    rotatesprite(320<<15,200<<15,(384-lockclock)<<9,lockclock<<4,DEMOSIGN,(lockclock-256)>>2,0,1+2,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
             }
 
             if (health[screenpeek] <= 0)
-                rotatesprite(320<<15,200<<15,(-health[screenpeek])<<11,(-health[screenpeek])<<5,NO,0,0,2,windowx1,windowy1,windowx2,windowy2);
+                rotatesprite(320<<15,200<<15,(-health[screenpeek])<<11,(-health[screenpeek])<<5,NO,0,0,2,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
         }
     }
 
@@ -6038,7 +6038,7 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
                         {
                             daang = (spr->ang-cang)&2047;
                             if (j == playersprite[screenpeek]) { x1 = 0; y1 = 0; daang = 0; }
-                            rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),mulscale16(czoom*spr->yrepeat,yxaspect),daang,spr->picnum,spr->shade,spr->pal,(spr->cstat&2)>>1,windowx1,windowy1,windowx2,windowy2);
+                            rotatesprite((x1<<4)+(xdim<<15),(y1<<4)+(ydim<<15),mulscale16(czoom*spr->yrepeat,yxaspect),daang,spr->picnum,spr->shade,spr->pal,(spr->cstat&2)>>1,windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
                         }
                     }
                     break;

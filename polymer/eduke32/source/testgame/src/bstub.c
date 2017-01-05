@@ -345,8 +345,8 @@ void ExtCheckKeys(void)
             dy = mulscale14(dy,daaspect);
             sinang = mulscale14(sinang,daviewingrange);
             cosang = mulscale14(cosang,daaspect);
-            p = ylookup[windowy1]+frameplace+windowx2+1;
-            for (y=windowy1; y<=windowy2; y++)
+            p = ylookup[windowxy1.y]+frameplace+windowxy2.x+1;
+            for (y=windowxy1.y; y<=windowxy2.y; y++)
             {
                 i = divscale16(tsizyup15,dx);
                 stretchhline(0,(xdim>>1)*i+tsizyup15,xdim>>2,i,mulscale32(i,dy)*tsizy+bufplc,p);

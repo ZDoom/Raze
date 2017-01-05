@@ -1378,8 +1378,8 @@ void PrintLocationInfo(PLAYERp pp)
 {
 #define Y_STEP 7
 #define AVERAGEFRAMES 16
-    int x = windowx1+2;
-    int y = windowy1+2;
+    int x = windowxy1.x+2;
+    int y = windowxy1.y+2;
     static int frameval[AVERAGEFRAMES], framecnt = 0;
     int i;
 
@@ -1421,8 +1421,8 @@ void SecretInfo(PLAYERp pp)
 {
 #define Y_STEP 7
 #define AVERAGEFRAMES 16
-    int x = windowx1+2;
-    int y = windowy1+2+8;
+    int x = windowxy1.x+2;
+    int y = windowxy1.y+2+8;
     extern short LevelSecrets,TotalKillable;
 
     if (CommEnabled || numplayers > 1)
@@ -1444,8 +1444,8 @@ void SecretInfo(PLAYERp pp)
 void PrintSpriteInfo(PLAYERp pp)
 {
 #define Y_STEP 7
-    int x = windowx1+2;
-    int y = windowy1+2;
+    int x = windowxy1.x+2;
+    int y = windowxy1.y+2;
     SPRITEp sp;
     USERp u;
 
@@ -1843,8 +1843,8 @@ void DrawCrosshair(PLAYERp pp)
 
             if (dxy.x == 0) return;
 
-            wdx = windowx1 + ((windowx2-windowx1)/2);
-            wdy = windowy1 + ((windowy2-windowy1)/2);
+            wdx = windowxy1.x + ((windowxy2.x-windowxy1.x)/2);
+            wdy = windowxy1.y + ((windowxy2.y-windowxy1.y)/2);
 
             x = (dxy.y * wdx << 8) / dxy.x + (wdx << 8);
             y = (dz * wdx << 8) / dxy.x + (wdy << 8);

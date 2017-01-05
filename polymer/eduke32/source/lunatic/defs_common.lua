@@ -385,7 +385,7 @@ const int32_t numyaxbunches;  // XXX
 const int32_t totalclock;
 int32_t randomseed;  // DEPRECATED
 const int32_t xdim, ydim;
-const int32_t windowx1, windowy1, windowx2, windowy2;
+const vec2_t windowxy1, windowxy2;
 ]]
 
 decl[[

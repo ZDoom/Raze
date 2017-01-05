@@ -8422,8 +8422,8 @@ killsprite:
         int32_t yp = (zs<<1);
         int32_t zp = xs*cosglobalang+ys*singlobalang;
 
-        xs = ((double)xp*(halfxdimen<<12)/zp)+((halfxdimen+windowx1)<<12);
-        ys = ((double)yp*(xdimenscale<<12)/zp)+((globalhoriz+windowy1)<<12);
+        xs = ((double)xp*(halfxdimen<<12)/zp)+((halfxdimen+windowxy1.x)<<12);
+        ys = ((double)yp*(xdimenscale<<12)/zp)+((globalhoriz+windowxy1.y)<<12);
 
         if (xs >= INT32_MIN && xs <= INT32_MAX && ys >= INT32_MIN && ys <= INT32_MAX)
         {
@@ -12409,7 +12409,7 @@ void completemirror(void)
     intptr_t p = frameplace + ylookup[windowxy1.y+mirrorsy1] + windowxy1.x+mirrorsx1;
 
     // Offset (wrt p) of a mirror line's left corner in the destination:
-    // p+destof == frameplace + ylookup[...] + windowx2-mirrorsx2
+    // p+destof == frameplace + ylookup[...] + windowxy2.x-mirrorsx2
     int const destofs = windowxy2.x-mirrorsx2-windowxy1.x-mirrorsx1;
 
     for (bssize_t y=0; y<height; y++)

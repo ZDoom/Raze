@@ -512,7 +512,8 @@ drawroomstotile(int daposx, int daposy, int daposz,
 
     int i, j, k, bakchainnumpages, bakvidoption;
     intptr_t bakframeplace;
-    int bakwindowx1, bakwindowy1, bakwindowx2, bakwindowy2, xsiz, ysiz;
+    vec2_t bakwindowxy1, bakwindowxy2;
+    int xsiz, ysiz;
     char *ptr1, *ptr2;
 
     // DRAWROOMS TO TILE BACKUP&SET CODE
@@ -528,10 +529,8 @@ drawroomstotile(int daposx, int daposy, int daposz,
         loadtile(tilenume);
     bakframeplace = frameplace;
     frameplace = waloff[tilenume];
-    bakwindowx1 = windowx1;
-    bakwindowy1 = windowy1;
-    bakwindowx2 = windowx2;
-    bakwindowy2 = windowy2;
+    bakwindowxy1 = windowxy1;
+    bakwindowxy2 = windowxy2;
     setview(0, 0, xsiz - 1, ysiz - 1);
     setvlinebpl(xsiz);
     j = 0;
@@ -573,7 +572,7 @@ drawroomstotile(int daposx, int daposy, int daposz,
     }
 
     // DRAWROOMS TO TILE RESTORE CODE
-    setview(bakwindowx1, bakwindowy1, bakwindowx2, bakwindowy2);
+    setview(bakwindowxy1.x, bakwindowxy1.y, bakwindowxy2.x, bakwindowxy2.y);
     // chainnumpages = bakchainnumpages;
     numpages = bakchainnumpages;
     vidoption = bakvidoption;

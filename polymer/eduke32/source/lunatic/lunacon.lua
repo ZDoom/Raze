@@ -380,10 +380,10 @@ local function new_initial_gvartab()
 
         xdim = RO "_gv.xdim",
         ydim = RO "_gv.ydim",
-        windowx1 = RO "_gv.windowx1",
-        windowy1 = RO "_gv.windowy1",
-        windowx2 = RO "_gv.windowx2",
-        windowy2 = RO "_gv.windowy2",
+        windowx1 = RO "_gv.windowxy1.x",
+        windowy1 = RO "_gv.windowxy1.y",
+        windowx2 = RO "_gv.windowxy2.x",
+        windowy2 = RO "_gv.windowxy2.y",
 
         yxaspect = RO "_gv._get_yxaspect()",
         viewingrange = RO "_gv._get_viewingrange()",

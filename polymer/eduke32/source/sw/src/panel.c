@@ -7553,10 +7553,10 @@ pDisplaySprites(PLAYERp pp)
         }
         else
         {
-            x1 = windowx1;
-            y1 = windowy1;
-            x2 = windowx2;
-            y2 = windowy2;
+            x1 = windowxy1.x;
+            y1 = windowxy1.y;
+            x2 = windowxy2.x;
+            y2 = windowxy2.y;
         }
 
         if ((psp->State && TEST(psp->State->flags, psf_Xflip)) || TEST(psp->flags, PANF_XFLIP))

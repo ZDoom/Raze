@@ -5664,10 +5664,10 @@ SHOWSPRITE:
                                 if (sprisplayer)
                                 {
                                     if (gNet.MultiGameType != MULTI_GAME_COMMBAT || j == Player[screenpeek].PlayerSprite)
-                                        rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), mulscale(czoom * (spr->yrepeat), yxaspect, 16), daang, 1196+pspr_ndx[myconnectindex], spr->shade, spr->pal, (spr->cstat & 2) >> 1, windowx1, windowy1, windowx2, windowy2);
+                                        rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), mulscale(czoom * (spr->yrepeat), yxaspect, 16), daang, 1196+pspr_ndx[myconnectindex], spr->shade, spr->pal, (spr->cstat & 2) >> 1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
                                 }
                                 else
-                                    rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), mulscale(czoom * (spr->yrepeat), yxaspect, 16), daang, spr->picnum, spr->shade, spr->pal, (spr->cstat & 2) >> 1, windowx1, windowy1, windowx2, windowy2);
+                                    rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), mulscale(czoom * (spr->yrepeat), yxaspect, 16), daang, spr->picnum, spr->shade, spr->pal, (spr->cstat & 2) >> 1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
                             }
                         }
                     }

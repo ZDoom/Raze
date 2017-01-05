@@ -24,10 +24,8 @@ totalclock;
 randomseed;
 xdim;
 ydim;
-windowx1;
-windowy1;
-windowx2;
-windowy2;
+windowxy1;
+windowxy2;
 yxaspect;
 viewingrange;
 
