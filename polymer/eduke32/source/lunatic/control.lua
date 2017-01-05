@@ -1121,8 +1121,8 @@ function _debris(i, dtile, n)
         local jj = insertsprite{ dtile+picofs, pos, spr.sectnum, 5, i,
                                  shade=spr.shade, xrepeat=32+krandand(15), yrepeat=32+krandand(15),
                                  ang=krandand(2047), xvel=32+krandand(127), zvel=-krandand(2047) }
-        -- NOTE: BlimpSpawnSprites[14] (its array size is 15) will never be chosen
-        sprite[jj]:set_yvel(isblimpscrap and ffiC.BlimpSpawnSprites[math.mod(jj, 14)] or -1)
+        -- NOTE: g_blimpSpawnItems[14] (its array size is 15) will never be chosen
+        sprite[jj]:set_yvel(isblimpscrap and ffiC.g_blimpSpawnItems[math.mod(jj, 14)] or -1)
         sprite[jj].pal = spr.pal
     end
 end

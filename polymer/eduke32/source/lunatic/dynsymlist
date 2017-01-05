@@ -180,7 +180,7 @@ screenpeek;
 hudweap;
 playerswhenstarted;
 g_spriteDeleteQueueSize;
-BlimpSpawnSprites;
+g_blimpSpawnItems;
 g_scriptVersion;
 g_currentFrameRate;
 g_currentMenu;
