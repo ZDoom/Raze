@@ -25,7 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern void G_DoCheats(void);
 extern void G_SetupCheats(void);
 
-extern char CheatStrings [][MAXCHEATLEN];
 extern char const * const g_NAMMattCheatQuote;
 
 // Cheats
@@ -61,6 +60,8 @@ enum cheatindex_t
     CHEAT_COMEGETSOME,
     NUMCHEATS,
 };
+
+extern char CheatStrings[NUMCHEATS][MAXCHEATLEN];
 
 // KEEPINSYNC game.c: uint8_t CheatFunctionIDs[]
 // KEEPINSYNC menus.c: MenuEntry_t ME_CheatCodes[]

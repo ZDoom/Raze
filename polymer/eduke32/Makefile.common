@@ -171,6 +171,8 @@ APPLE_FRAMEWORKS ?=/Library/Frameworks
 #  LINKED_GTK     - enables compile-time linkage to GTK
 #
 APPNAME ?= EDuke32
+APPBASENAME ?= eduke32
+STANDALONE ?= 0
 POLYMER = 1
 USE_OPENGL = 1
 NOASM = 0
@@ -669,6 +671,9 @@ endif
 ifneq (0,$(DMALLOC))
     LIBS+= -ldmalloc
     COMPILERFLAGS+= -DDMALLOC
+endif
+ifneq (0,$(STANDALONE))
+    COMPILERFLAGS+= -DEDUKE32_STANDALONE
 endif
 
 COMPILERFLAGS+= -DAPPNAME=\"$(APPNAME)\"

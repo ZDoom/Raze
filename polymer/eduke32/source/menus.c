@@ -2196,6 +2196,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_CREDITS:
     case MENU_CREDITS2:
     case MENU_CREDITS3:
+#ifndef EDUKE32_STANDALONE
         if (!VOLUMEALL || !PLUTOPAK)
         {
             switch (cm)
@@ -2317,6 +2318,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             }
         }
         break;
+#endif
     case MENU_CREDITS4:   // JBF 20031220
         l = 7;
 

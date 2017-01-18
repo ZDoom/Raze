@@ -6214,10 +6214,11 @@ int app_main(int argc, char const * const * argv)
     G_LoadGroups(!g_noAutoLoad && !ud.config.NoAutoLoad);
 //    flushlogwindow = 1;
 
-    G_SetupCheats();
-
     if (!g_useCwd)
         G_CleanupSearchPaths();
+
+#ifndef EDUKE32_STANDALONE
+    G_SetupCheats();
 
     if (SHAREWARE)
         g_Shareware = 1;
@@ -6231,6 +6232,7 @@ int app_main(int argc, char const * const * argv)
             kclose(kFile);
         }
     }
+#endif
 
     // gotta set the proper title after we compile the CONs if this is the full version
 

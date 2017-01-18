@@ -25,8 +25,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheats.h"
 
 // KEEPINSYNC game.h: enum cheatindex_t
-char CheatStrings [][MAXCHEATLEN] =
+char CheatStrings [NUMCHEATS][MAXCHEATLEN] =
 {
+#ifndef EDUKE32_STANDALONE
     "cornholio",    // 0
     "stuff",        // 1
     "scotty###",    // 2
@@ -54,9 +55,10 @@ char CheatStrings [][MAXCHEATLEN] =
     "debug",        // 24
     "<RESERVED>",   // 25
     "cgs",          // 26
+#endif
 };
 
-const uint32_t CheatFunctionFlags [] =
+const uint32_t CheatFunctionFlags [NUMCHEATS] =
 {
     1 << CHEATFUNC_GOD,
     1 << CHEATFUNC_GIVEEVERYTHING,
@@ -89,7 +91,7 @@ const uint32_t CheatFunctionFlags [] =
 
 // KEEPINSYNC game.h: enum CheatCodeFunctions
 // KEEPINSYNC menus.c: MenuEntry_t ME_CheatCodes[]
-const uint8_t CheatFunctionIDs [] =
+const uint8_t CheatFunctionIDs[NUMCHEATS] =
 {
     CHEAT_CASHMAN,
     CHEAT_CORNHOLIO,
@@ -116,6 +118,7 @@ const uint8_t CheatFunctionIDs [] =
 
 char const * const g_NAMMattCheatQuote = "Matt Saettler.  matts@saettler.com";
 
+#ifndef EDUKE32_STANDALONE
 void G_SetupCheats(void)
 {
     // KEEPINSYNC: NAM_WW2GI_CHEATS
@@ -189,7 +192,7 @@ void G_SetupCheats(void)
         Bstrcpy(g_gametypeNames[2], "GruntMatch (No Spawn)");
     }
 }
-
+#endif
 
 static void doinvcheat(DukePlayer_t * const pPlayer, int32_t invidx, int32_t defaultnum, int32_t event)
 {
