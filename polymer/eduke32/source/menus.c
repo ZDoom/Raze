@@ -763,6 +763,11 @@ static MenuLink_t MEO_MOUSESETUP_BTNS = { MENU_MOUSEBTNS, MA_Advance, };
 static MenuEntry_t ME_MOUSESETUP_BTNS = MAKE_MENUENTRY( "Button assignment", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_BTNS, Link );
 static MenuRangeFloat_t MEO_MOUSESETUP_SENSITIVITY = MAKE_MENURANGE( &CONTROL_MouseSensitivity, &MF_Redfont, .5f, 16.f, 0.f, 32, 1 );
 static MenuEntry_t ME_MOUSESETUP_SENSITIVITY = MAKE_MENUENTRY( "Sensitivity:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_SENSITIVITY, RangeFloat );
+
+static char const *MEOSN_MOUSESETUP_AIM_TYPE [] ={ "Toggle", "Hold" };
+static MenuOptionSet_t MEOS_MOUSESETUP_AIM_TYPE = MAKE_MENUOPTIONSET(MEOSN_MOUSESETUP_AIM_TYPE, NULL, 0x2);
+static MenuOption_t MEO_MOUSESETUP_MOUSEAIMINGTYPE = MAKE_MENUOPTION(&MF_Redfont, &MEOS_MOUSESETUP_AIM_TYPE, &ud.mouseaiming);
+static MenuEntry_t ME_MOUSESETUP_MOUSEAIMINGTYPE = MAKE_MENUENTRY("Aiming type:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_MOUSEAIMINGTYPE, Option);
 static MenuOption_t MEO_MOUSESETUP_MOUSEAIMING = MAKE_MENUOPTION( &MF_Redfont, &MEOS_NoYes, &g_myAimMode );
 static MenuEntry_t ME_MOUSESETUP_MOUSEAIMING = MAKE_MENUENTRY( "Vertical aiming:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_MOUSEAIMING, Option );
 static MenuOption_t MEO_MOUSESETUP_INVERT = MAKE_MENUOPTION( &MF_Redfont, &MEOS_YesNo, &ud.mouseflip );
@@ -776,6 +781,7 @@ static MenuEntry_t *MEL_MOUSESETUP[] = {
     &ME_MOUSESETUP_SENSITIVITY,
     &ME_MOUSESETUP_BTNS,
     &ME_Space2,
+    &ME_MOUSESETUP_MOUSEAIMINGTYPE,
     &ME_MOUSESETUP_MOUSEAIMING,
     &ME_MOUSESETUP_INVERT,
     &ME_MOUSESETUP_SMOOTH,
@@ -1954,17 +1960,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         mgametextcenter(origin.x, origin.y + (156<<16), "Up/Down = Select Action\n"
                                                         "Left/Right = Select List\n"
                                                         "Enter = Modify   Delete = Clear");
-        break;
-
-    case MENU_MOUSESETUP:
-        if (entry == &ME_MOUSESETUP_MOUSEAIMING)
-        {
-            if (entry->flags & Disabled)
-            {
-                mgametextcenter(origin.x, origin.y + (167<<16), "Set mouse aim type to toggle on/off\n"
-                                                                "in the Player Setup menu to enable");
-            }
-        }
         break;
 
     case MENU_MOUSEBTNS:
