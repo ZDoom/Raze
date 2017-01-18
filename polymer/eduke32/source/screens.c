@@ -1534,7 +1534,7 @@ void G_DisplayLogo(void)
             totalclock = 0;
 
             while (
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
                 totalclock < (860+120) &&
 #endif
                 !I_CheckAllInput())

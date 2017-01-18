@@ -205,7 +205,7 @@ static MenuEntryFormat_t MEF_CenterMenu =       { 7<<16,      0,        0, 110<<
 static MenuEntryFormat_t MEF_BigOptions =       { 4<<16,      0,  190<<16,  20<<16, 65536 };
 static MenuEntryFormat_t MEF_BigOptions_Apply = { 4<<16, 16<<16,  190<<16,  20<<16, 65536 };
 static MenuEntryFormat_t MEF_BigOptionsRt =     { 4<<16,      0,-(260<<16), 20<<16, 65536 };
-#if defined USE_OPENGL || !defined DROIDMENU
+#if defined USE_OPENGL || !defined EDUKE32_ANDROID_MENU
 static MenuEntryFormat_t MEF_SmallOptions =     { 1<<16,      0,  216<<16,  10<<16, 32768 };
 #endif
 static MenuEntryFormat_t MEF_BigCheats =        { 3<<16,      0,-(260<<16), 20<<16, 65536 };
@@ -274,7 +274,7 @@ static MenuEntry_t ME_ ## EntryName = MAKE_MENUENTRY( Title, &MF_Redfont, &Forma
 
 
 MAKE_MENU_TOP_ENTRYLINK( "New Game", MEF_MainMenu, MAIN_NEWGAME, MENU_EPISODE );
-#ifdef DROIDMENU
+#ifdef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Resume Game", MEF_MainMenu, MAIN_RESUMEGAME, MENU_CLOSE );
 #endif
 MAKE_MENU_TOP_ENTRYLINK( "New Game", MEF_MainMenu, MAIN_NEWGAME_INGAME, MENU_NEWVERIFY );
@@ -282,13 +282,13 @@ static MenuLink_t MEO_MAIN_NEWGAME_NETWORK = { MENU_NETWORK, MA_Advance, };
 MAKE_MENU_TOP_ENTRYLINK( "Save Game", MEF_MainMenu, MAIN_SAVEGAME, MENU_SAVE );
 MAKE_MENU_TOP_ENTRYLINK( "Load Game", MEF_MainMenu, MAIN_LOADGAME, MENU_LOAD );
 MAKE_MENU_TOP_ENTRYLINK( "Options", MEF_MainMenu, MAIN_OPTIONS, MENU_OPTIONS );
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Help", MEF_MainMenu, MAIN_HELP, MENU_STORY );
 MAKE_MENU_TOP_ENTRYLINK( "Credits", MEF_MainMenu, MAIN_CREDITS, MENU_CREDITS );
 #endif
 MAKE_MENU_TOP_ENTRYLINK( "End Game", MEF_MainMenu, MAIN_QUITTOTITLE, MENU_QUITTOTITLE );
 MAKE_MENU_TOP_ENTRYLINK( "Quit", MEF_MainMenu, MAIN_QUIT, MENU_QUIT );
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Quit Game", MEF_MainMenu, MAIN_QUITGAME, MENU_QUIT );
 #endif
 
@@ -296,7 +296,7 @@ static MenuEntry_t *MEL_MAIN[] = {
     &ME_MAIN_NEWGAME,
     &ME_MAIN_LOADGAME,
     &ME_MAIN_OPTIONS,
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_MAIN_HELP,
     &ME_MAIN_CREDITS,
 #endif
@@ -304,7 +304,7 @@ static MenuEntry_t *MEL_MAIN[] = {
 };
 
 static MenuEntry_t *MEL_MAIN_INGAME[] = {
-#ifdef DROIDMENU
+#ifdef EDUKE32_SIMPLE_MENU
     &ME_MAIN_RESUMEGAME,
 #else
     &ME_MAIN_NEWGAME_INGAME,
@@ -312,7 +312,7 @@ static MenuEntry_t *MEL_MAIN_INGAME[] = {
     &ME_MAIN_SAVEGAME,
     &ME_MAIN_LOADGAME,
     &ME_MAIN_OPTIONS,
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_MAIN_HELP,
     &ME_MAIN_QUITTOTITLE,
     &ME_MAIN_QUITGAME,
@@ -334,18 +334,18 @@ static MenuEntry_t ME_SKILL_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_C
 static MenuEntry_t ME_SKILL[MAXSKILLS];
 static MenuEntry_t *MEL_SKILL[MAXSKILLS];
 
-#if defined STARTUP_SETUP_WINDOW && !defined DROIDMENU
+#if defined STARTUP_SETUP_WINDOW && !defined EDUKE32_SIMPLE_MENU
 static MenuOption_t MEO_GAMESETUP_STARTWIN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.config.ForceSetup );
 static MenuEntry_t ME_GAMESETUP_STARTWIN = MAKE_MENUENTRY( "Startup window:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_STARTWIN, Option );
 #endif
 
 static char const *MEOSN_GAMESETUP_AIM_AUTO[] = { "None", "Regular", "Bullets only",
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 "Extra wide"
 #endif
 };
 static int32_t MEOSV_GAMESETUP_AIM_AUTO[] = { 0, 1, 2,
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 3,
 #endif
 };
@@ -374,7 +374,7 @@ static MenuEntry_t ME_ADULTMODE = MAKE_MENUENTRY( "Parental lock:", &MF_Redfont,
 // static MenuLink_t MEO_ADULTMODE_PASSWORD = { MENU_ADULTPASSWORD, MA_None, };
 // static MenuEntry_t ME_ADULTMODE_PASSWORD = MAKE_MENUENTRY( "Enter Password", &MF_Redfont, &, &MEO_ADULTMODE_PASSWORD, Link );
 
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 static MenuOption_t MEO_GAMESETUP_CROUCHLOCK = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &droidinput.toggleCrouch);
 static MenuEntry_t ME_GAMESETUP_CROUCHLOCK = MAKE_MENUENTRY("Crouch lock:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_CROUCHLOCK, Option);
 
@@ -387,12 +387,12 @@ static MenuEntry_t ME_GAMESETUP_CHEATS = MAKE_MENUENTRY( "Cheats", &MF_Redfont, 
 
 static MenuEntry_t *MEL_GAMESETUP[] = {
     &ME_ADULTMODE,
-#if defined STARTUP_SETUP_WINDOW && !defined DROIDMENU
+#if defined STARTUP_SETUP_WINDOW && !defined EDUKE32_SIMPLE_MENU
     &ME_GAMESETUP_STARTWIN,
 #endif
     &ME_GAMESETUP_AIM_AUTO,
     &ME_GAMESETUP_WEAPSWITCH_PICKUP,
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
     &ME_GAMESETUP_QUICKSWITCH,
     &ME_GAMESETUP_CROUCHLOCK,
 #else
@@ -408,13 +408,13 @@ MAKE_MENU_TOP_ENTRYLINK( "Game Setup", MEF_CenterMenu, OPTIONS_GAMESETUP, MENU_G
 MAKE_MENU_TOP_ENTRYLINK( "Sound Setup", MEF_CenterMenu, OPTIONS_SOUNDSETUP, MENU_SOUND );
 MAKE_MENU_TOP_ENTRYLINK( "Display Setup", MEF_CenterMenu, OPTIONS_DISPLAYSETUP, MENU_DISPLAYSETUP );
 MAKE_MENU_TOP_ENTRYLINK( "Player Setup", MEF_CenterMenu, OPTIONS_PLAYERSETUP, MENU_PLAYER );
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Control Setup", MEF_CenterMenu, OPTIONS_CONTROLS, MENU_CONTROLS );
 MAKE_MENU_TOP_ENTRYLINK( "Keyboard Setup", MEF_CenterMenu, OPTIONS_KEYBOARDSETUP, MENU_KEYBOARDSETUP );
 MAKE_MENU_TOP_ENTRYLINK( "Mouse Setup", MEF_CenterMenu, OPTIONS_MOUSESETUP, MENU_MOUSESETUP );
 #endif
 MAKE_MENU_TOP_ENTRYLINK( "Joystick Setup", MEF_CenterMenu, OPTIONS_JOYSTICKSETUP, MENU_JOYSTICKSETUP );
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_CenterMenu, OPTIONS_TOUCHSETUP, MENU_TOUCHSETUP );
 #endif
 
@@ -484,7 +484,7 @@ static MenuOption_t MEO_DISPLAYSETUP_PIXELDOUBLING = MAKE_MENUOPTION( &MF_Redfon
 static MenuEntry_t ME_DISPLAYSETUP_PIXELDOUBLING = MAKE_MENUENTRY( "Pixel Doubling:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_PIXELDOUBLING, Option );
 
 
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
 static MenuOption_t MEO_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &r_usenewaspect);
 static MenuEntry_t ME_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUENTRY( "Widescreen:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ASPECTRATIO, Option );
 #endif
@@ -503,7 +503,7 @@ static MenuOptionSet_t MEOS_DISPLAYSETUP_ANISOTROPY = MAKE_MENUOPTIONSET( MEOSN_
 static MenuOption_t MEO_DISPLAYSETUP_ANISOTROPY = MAKE_MENUOPTION(&MF_Redfont, &MEOS_DISPLAYSETUP_ANISOTROPY, &glanisotropy);
 static MenuEntry_t ME_DISPLAYSETUP_ANISOTROPY = MAKE_MENUENTRY( "Anisotropy:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ANISOTROPY, Option );
 
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 static MenuOption_t MEO_DISPLAYSETUP_HIDEDPAD = MAKE_MENUOPTION(&MF_Redfont, &MEOS_NoYes, &droidinput.hideStick);
 static MenuEntry_t ME_DISPLAYSETUP_HIDEDPAD = MAKE_MENUENTRY("Hide touch d-pad:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_HIDEDPAD, Option);
 
@@ -531,13 +531,13 @@ static MenuOption_t MEO_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUOPTION(&MF_Red
 static MenuEntry_t ME_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUENTRY( "Game messages:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_SHOWPICKUPMESSAGES, Option );
 
 static char const *MEOSN_SCREENSETUP_NEWSTATUSBAR[] = { "Classic", "New",
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 "On top",
 #endif
 };
 
 static int32_t MEOSV_SCREENSETUP_NEWSTATUSBAR[] = { 0, 1,
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 2,
 #endif
 };
@@ -556,7 +556,7 @@ static MenuLink_t MEO_DISPLAYSETUP_SCREENSETUP = { MENU_SCREENSETUP, MA_Advance,
 static MenuEntry_t ME_DISPLAYSETUP_SCREENSETUP = MAKE_MENUENTRY( "Status and crosshair", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_SCREENSETUP, Link );
 
 
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
 #ifdef USE_OPENGL
 static MenuLink_t MEO_DISPLAYSETUP_ADVANCED_GL_POLYMOST = { MENU_POLYMOST, MA_Advance, };
 static MenuEntry_t ME_DISPLAYSETUP_ADVANCED_GL_POLYMOST = MAKE_MENUENTRY( "Polymost setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ADVANCED_GL_POLYMOST, Link );
@@ -566,7 +566,9 @@ static MenuLink_t MEO_DISPLAYSETUP_ADVANCED_GL_POLYMER ={ MENU_POLYMER, MA_Advan
 static MenuEntry_t ME_DISPLAYSETUP_ADVANCED_GL_POLYMER = MAKE_MENUENTRY("Polymer setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ADVANCED_GL_POLYMER, Link);
 #endif
 #endif
+#endif
 
+#ifndef EDUKE32_ANDROID_MENU
 static MenuLink_t MEO_DISPLAYSETUP_VIDEOSETUP = { MENU_VIDEOSETUP, MA_Advance, };
 static MenuEntry_t ME_DISPLAYSETUP_VIDEOSETUP = MAKE_MENUENTRY( "Video mode", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_VIDEOSETUP, Link );
 #endif
@@ -608,8 +610,10 @@ static MenuEntry_t *MEL_OPTIONS[] = {
     &ME_OPTIONS_GAMESETUP,
     &ME_OPTIONS_SOUNDSETUP,
     &ME_OPTIONS_DISPLAYSETUP,
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_OPTIONS_PLAYERSETUP,
+#endif
     &ME_OPTIONS_CONTROLS,
 #else
     &ME_OPTIONS_TOUCHSETUP,
@@ -617,7 +621,7 @@ static MenuEntry_t *MEL_OPTIONS[] = {
 };
 
 static MenuEntry_t *MEL_CONTROLS[] = {
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
     &ME_OPTIONS_KEYBOARDSETUP,
     &ME_OPTIONS_MOUSESETUP,
     &ME_OPTIONS_JOYSTICKSETUP,
@@ -644,7 +648,7 @@ static MenuEntry_t *MEL_VIDEOSETUP[] = {
 static MenuEntry_t *MEL_DISPLAYSETUP[] = {
     &ME_DISPLAYSETUP_SCREENSETUP,
     &ME_DISPLAYSETUP_COLORCORR,
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
     &ME_DISPLAYSETUP_VIDEOSETUP,
     &ME_DISPLAYSETUP_ASPECTRATIO,
 #endif
@@ -655,17 +659,18 @@ static MenuEntry_t *MEL_DISPLAYSETUP[] = {
 static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
     &ME_DISPLAYSETUP_SCREENSETUP,
     &ME_DISPLAYSETUP_COLORCORR,
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
     &ME_DISPLAYSETUP_VIDEOSETUP,
     &ME_DISPLAYSETUP_ASPECTRATIO,
 #endif
     &ME_DISPLAYSETUP_TEXFILTER,
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
     &ME_DISPLAYSETUP_HIDEDPAD,
     &ME_DISPLAYSETUP_TOUCHALPHA,
-#endif
-#ifndef DROIDMENU
+#else
     &ME_DISPLAYSETUP_ANISOTROPY,
+#endif
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_DISPLAYSETUP_ADVANCED_GL_POLYMOST,
 #endif
 };
@@ -674,12 +679,12 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
 static MenuEntry_t *MEL_DISPLAYSETUP_GL_POLYMER[] = {
     &ME_DISPLAYSETUP_SCREENSETUP,
     &ME_DISPLAYSETUP_COLORCORR,
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
     &ME_DISPLAYSETUP_VIDEOSETUP,
 #endif
     &ME_DISPLAYSETUP_TEXFILTER,
-#ifndef DROIDMENU
     &ME_DISPLAYSETUP_ANISOTROPY,
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_DISPLAYSETUP_ADVANCED_GL_POLYMER,
 #endif
 };
@@ -777,7 +782,7 @@ static MenuEntry_t *MEL_MOUSESETUP[] = {
     &ME_MOUSESETUP_ADVANCED,
 };
 
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 static MenuRangeFloat_t MEO_TOUCHSETUP_SENSITIVITY_MOVE = MAKE_MENURANGE(&droidinput.forward_sens, &MF_Redfont, 1.f, 9.f, 0.f, 17, 1 + EnforceIntervals);
 static MenuEntry_t ME_TOUCHSETUP_SENSITIVITY_MOVE = MAKE_MENUENTRY("Running:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_TOUCHSETUP_SENSITIVITY_MOVE, RangeFloat);
 
@@ -983,7 +988,7 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] ={
 #endif
 #endif
 
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &vid_gamma, &MF_Bluefont, 1.f, 2.5f, 0.f, 39, 1 );
 #else
 static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &vid_gamma, &MF_Bluefont, 0.3f, 4.f, 0.f, 38, 1 );
@@ -994,7 +999,7 @@ static MenuEntry_t ME_COLCORR_CONTRAST = MAKE_MENUENTRY( "Contrast:", &MF_Redfon
 static MenuRangeFloat_t MEO_COLCORR_BRIGHTNESS = MAKE_MENURANGE( &vid_brightness, &MF_Bluefont, -0.8f, 0.8f, 0.f, 33, 1 );
 static MenuEntry_t ME_COLCORR_BRIGHTNESS = MAKE_MENUENTRY( "Brightness:", &MF_Redfont, &MEF_ColorCorrect, &MEO_COLCORR_BRIGHTNESS, RangeFloat );
 static MenuEntry_t ME_COLCORR_RESET = MAKE_MENUENTRY( "Reset To Defaults", &MF_Redfont, &MEF_ColorCorrect, &MEO_NULL, Link );
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 #define MINVIS 1.f
 #else
 #define MINVIS 0.125f
@@ -1004,7 +1009,7 @@ static MenuEntry_t ME_COLCORR_AMBIENT = MAKE_MENUENTRY( "Visibility:", &MF_Redfo
 
 static MenuEntry_t *MEL_COLCORR[] = {
     &ME_COLCORR_GAMMA,
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
     &ME_COLCORR_CONTRAST,
     &ME_COLCORR_BRIGHTNESS,
 #endif
@@ -1014,7 +1019,7 @@ static MenuEntry_t *MEL_COLCORR[] = {
 };
 
 static MenuEntry_t *MEL_SCREENSETUP[] = {
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_SCREENSETUP_SCREENSIZE,
 #endif
 
@@ -1060,7 +1065,11 @@ static MenuRangeInt32_t MEO_SOUND_VOLUME_MUSIC = MAKE_MENURANGE( &ud.config.Musi
 static MenuEntry_t ME_SOUND_VOLUME_MUSIC = MAKE_MENUENTRY( "Music:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_VOLUME_MUSIC, RangeInt32 );
 
 static MenuOption_t MEO_SOUND_DUKETALK = MAKE_MENUOPTION(&MF_Redfont, &MEOS_NoYes, NULL);
+#ifndef EDUKE32_STANDALONE
 static MenuEntry_t ME_SOUND_DUKETALK = MAKE_MENUENTRY( "Duke talk:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_DUKETALK, Option );
+#else
+static MenuEntry_t ME_SOUND_DUKETALK = MAKE_MENUENTRY("Player speech:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_DUKETALK, Option);
+#endif
 
 static char const *MEOSN_SOUND_SAMPLINGRATE[] = { "22050Hz", "44100Hz", "48000Hz", };
 static int32_t MEOSV_SOUND_SAMPLINGRATE[] = { 22050, 44100, 48000, };
@@ -1073,7 +1082,7 @@ static MenuEntry_t ME_SOUND_NUMVOICES = MAKE_MENUENTRY( "Voices:", &MF_Redfont, 
 
 static MenuEntry_t ME_SOUND_RESTART = MAKE_MENUENTRY( "Restart sound system", &MF_Redfont, &MEF_BigOptionsRt, &MEO_NULL, Link );
 
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
 static MenuLink_t MEO_ADVSOUND = { MENU_ADVSOUND, MA_Advance, };
 static MenuEntry_t ME_SOUND_ADVSOUND = MAKE_MENUENTRY( "Advanced", &MF_Redfont, &MEF_BigOptionsRt, &MEO_ADVSOUND, Link );
 #endif
@@ -1085,7 +1094,7 @@ static MenuEntry_t *MEL_SOUND[] = {
     &ME_SOUND_VOLUME_EFFECTS,
     &ME_SOUND_VOLUME_MUSIC,
     &ME_SOUND_DUKETALK,
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_SOUND_ADVSOUND,
 #endif
 };
@@ -1119,7 +1128,7 @@ static char const *MEOSN_PLAYER_TEAM[] = { "Blue", "Red", "Green", "Gray", };
 static MenuOptionSet_t MEOS_PLAYER_TEAM = MAKE_MENUOPTIONSET( MEOSN_PLAYER_TEAM, NULL, 0x2 );
 static MenuOption_t MEO_PLAYER_TEAM = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_PLAYER_TEAM, &ud.team );
 static MenuEntry_t ME_PLAYER_TEAM = MAKE_MENUENTRY( "Team", &MF_BluefontRed, &MEF_PlayerNarrow, &MEO_PLAYER_TEAM, Option );
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
 static MenuLink_t MEO_PLAYER_MACROS = { MENU_MACROS, MA_Advance, };
 static MenuEntry_t ME_PLAYER_MACROS = MAKE_MENUENTRY( "Multiplayer macros", &MF_BluefontRed, &MEF_SmallOptions, &MEO_PLAYER_MACROS, Link );
 #endif
@@ -1130,7 +1139,7 @@ static MenuEntry_t *MEL_PLAYER[] = {
     &ME_PLAYER_COLOR,
     &ME_Space4,
     &ME_PLAYER_TEAM,
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_Space8,
     &ME_PLAYER_MACROS,
 #endif
@@ -1226,7 +1235,7 @@ static MenuMenu_t M_KEYBOARDSETUP = MAKE_MENUMENU( "Keyboard Setup", &MMF_Top_Op
 static MenuMenu_t M_CONTROLS = MAKE_MENUMENU( "Control Setup", &MMF_Top_Options, MEL_CONTROLS );
 static MenuMenu_t M_CHEATS = MAKE_MENUMENU( "Cheats", &MMF_SmallOptions, MEL_CHEATS );
 static MenuMenu_t M_MOUSESETUP = MAKE_MENUMENU( "Mouse Setup", &MMF_BigOptions, MEL_MOUSESETUP );
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
 static MenuMenu_t M_TOUCHSETUP = MAKE_MENUMENU( "Touch Setup", &MMF_Top_Options, MEL_TOUCHSETUP );
 static MenuMenu_t M_TOUCHSENS = MAKE_MENUMENU( "Sensitivity", &MMF_BigOptions, MEL_TOUCHSENS);
 static MenuPanel_t M_TOUCHBUTTONS ={ "Button Setup", MENU_TOUCHSETUP, MA_Return, MENU_TOUCHSETUP, MA_Advance, };
@@ -1258,7 +1267,7 @@ static MenuMenu_t M_NETHOST = MAKE_MENUMENU( "Host Network Game", &MMF_SmallOpti
 static MenuMenu_t M_NETOPTIONS = MAKE_MENUMENU( "Net Game Options", &MMF_NetSetup, MEL_NETOPTIONS );
 static MenuMenu_t M_NETJOIN = MAKE_MENUMENU( "Join Network Game", &MMF_SmallOptionsNarrow, MEL_NETJOIN );
 
-#ifdef DROIDMENU
+#ifdef EDUKE32_SIMPLE_MENU
 static MenuPanel_t M_STORY = { NoTitle, MENU_STORY, MA_Return, MENU_STORY, MA_Advance, };
 #else
 static MenuPanel_t M_STORY = { NoTitle, MENU_F1HELP, MA_Return, MENU_F1HELP, MA_Advance, };
@@ -1269,12 +1278,8 @@ static const char* MenuCredits = "Credits";
 static MenuPanel_t M_CREDITS = { NoTitle, MENU_CREDITS5, MA_Return, MENU_CREDITS2, MA_Advance, };
 static MenuPanel_t M_CREDITS2 = { NoTitle, MENU_CREDITS, MA_Return, MENU_CREDITS3, MA_Advance, };
 static MenuPanel_t M_CREDITS3 = { NoTitle, MENU_CREDITS2, MA_Return, MENU_CREDITS4, MA_Advance, };
-#ifdef DROIDMENU
-static MenuPanel_t M_CREDITS4 = { "Hail to the King", MENU_CREDITS3, MA_Return, MENU_CREDITS5, MA_Advance, };
-#else
-static MenuPanel_t M_CREDITS4 = { "About EDuke32", MENU_CREDITS3, MA_Return, MENU_CREDITS5, MA_Advance, };
-#endif
-static MenuPanel_t M_CREDITS5 = { "About EDuke32", MENU_CREDITS4, MA_Return, MENU_CREDITS, MA_Advance, };
+static MenuPanel_t M_CREDITS4 = { "About " APPNAME, MENU_CREDITS3, MA_Return, MENU_CREDITS5, MA_Advance, };
+static MenuPanel_t M_CREDITS5 = { "About " APPNAME, MENU_CREDITS4, MA_Return, MENU_CREDITS, MA_Advance, };
 
 #define CURSOR_CENTER_2LINE { MENU_MARGIN_CENTER<<16, 120<<16, }
 #define CURSOR_CENTER_3LINE { MENU_MARGIN_CENTER<<16, 129<<16, }
@@ -1319,7 +1324,7 @@ static Menu_t Menus[] = {
     { &M_MOUSEBTNS, MENU_MOUSEBTNS, MENU_MOUSESETUP, MA_Return, Menu },
     { &M_MOUSEADVANCED, MENU_MOUSEADVANCED, MENU_MOUSESETUP, MA_Return, Menu },
     { &M_JOYSTICKAXIS, MENU_JOYSTICKAXIS, MENU_JOYSTICKAXES, MA_Return, Menu },
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
     { &M_TOUCHSETUP, MENU_TOUCHSETUP, MENU_OPTIONS, MA_Return, Menu },
     { &M_TOUCHSENS, MENU_TOUCHSENS, MENU_TOUCHSETUP, MA_Return, Menu },
     { &M_TOUCHBUTTONS, MENU_TOUCHBUTTONS, MENU_TOUCHSETUP, MA_Return, Panel },
@@ -1991,7 +1996,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         Bsprintf(tempbuf,"\"%s\"",ud.savegame[g_lastSaveSlot]);
         mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
 
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
         mgametextcenter(origin.x, origin.y + ((99+9)<<16), "(Y/N)");
 #endif
         break;
@@ -2014,7 +2019,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                 mmenutext(origin.x + (53<<16), origin.y + (70<<16), "Previous");
                 mmenutext(origin.x + (58<<16), origin.y + (90<<16), "Version");
 
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
                 Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
                          savehead.bytever, 8*savehead.ptrsize);
                 mgametext(origin.x + (31<<16), origin.y + (104<<16), tempbuf);
@@ -2069,7 +2074,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             mmenutext(origin.x + (53<<16), origin.y + (70<<16), "Previous");
             mmenutext(origin.x + (58<<16), origin.y + (90<<16), "Version");
 
-#ifndef DROIDMENU
+#ifndef EDUKE32_SIMPLE_MENU
             Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
                      savehead.bytever, 8*savehead.ptrsize);
             mgametext(origin.x + (31<<16), origin.y + (104<<16), tempbuf);
@@ -2091,7 +2096,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             mgametextcenter(origin.x, origin.y + (180<<16), currentboardfilename);
         break;
 
-#ifdef DROIDMENU
+#ifdef EDUKE32_ANDROID_MENU
     case MENU_SKILL:
     {
         static const char *s[] = { "EASY - Few enemies, and lots of stuff.", "MEDIUM - Normal difficulty.", "HARD - For experienced players.", "EXPERTS - Lots of enemies, plus they respawn!" };
@@ -2115,7 +2120,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             Bsprintf(tempbuf, "\"%s\"", ud.savegame[M_LOAD.currentEntry]);
             mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
         }
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
         mgametextcenter(origin.x, origin.y + ((99+9)<<16), "(Y/N)");
 #endif
         break;
@@ -2123,7 +2128,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_SAVEVERIFY:
         fade_screen_black(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Overwrite previous saved game?");
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
         mgametextcenter(origin.x, origin.y + ((90+9)<<16), "(Y/N)");
 #endif
         break;
@@ -2131,7 +2136,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_NEWVERIFY:
         fade_screen_black(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Abort this game?");
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
         mgametextcenter(origin.x, origin.y + ((90+9)<<16), "(Y/N)");
 #endif
         break;
@@ -2140,7 +2145,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_QUIT_INGAME:
         fade_screen_black(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Are you sure you want to quit?");
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
         mgametextcenter(origin.x, origin.y + (99<<16), "(Y/N)");
 #endif
         break;
@@ -2148,7 +2153,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_QUITTOTITLE:
         fade_screen_black(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "End game and return to title screen?");
-#ifndef DROIDMENU
+#ifndef EDUKE32_ANDROID_MENU
         mgametextcenter(origin.x, origin.y + (99<<16), "(Y/N)");
 #endif
         break;
@@ -2164,6 +2169,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         mgametextcenter(origin.x, origin.y + (90<<16), "Waiting for votes");
         break;
 
+#ifndef EDUKE32_STANDALONE
     case MENU_BUYDUKE:
         mgametextcenter(origin.x, origin.y + (33<<16), "You are playing the shareware\n"
                                                        "version of Duke Nukem 3D.  While\n"
@@ -2174,25 +2180,9 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                                                        "the complete version and get\n"
                                                        "the final three episodes.");
 
-#ifndef DROIDMENU
-        mgametextcenter(origin.x, origin.y + (112<<16), "Please visit Steam and purchase\n"
-                                                        "Duke Nukem 3D: Megaton Edition\n"
-                                                        "to upgrade to the full registered\n"
-                                                        "version of Duke Nukem 3D.");
-#else
-# if defined EDUKE32_IOS
-        mgametextcenter(origin.x, origin.y + (121<<16), "Please visit the App Store\n"
-                                                        "to upgrade to the full registered\n"
-                                                        "version of Duke Nukem 3D.");
-# else
-        mgametextcenter(origin.x, origin.y + (121<<16), "Please visit the Play Store\n"
-                                                        "to upgrade to the full registered\n"
-                                                        "version of Duke Nukem 3D.");
-# endif
-#endif
         mgametextcenter(origin.x, origin.y + ((148+16)<<16), "Press any key or button...");
         break;
-
+#endif
     case MENU_CREDITS:
     case MENU_CREDITS2:
     case MENU_CREDITS3:
@@ -2306,7 +2296,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                 mgametextcenter(origin.x, origin.y + ((50+9+9+9)<<16), "Duke Nukem 3D");
                 mgametextcenter(origin.x, origin.y + ((50+9+9+9+9)<<16), "(C) 1996, 2014 3D Realms Entertainment");
 
-#ifndef DROIDMENU
+#if !defined(EDUKE32_ANDROID_MENU) && !defined(EDUKE32_STANDALONE)
                 if (VOLUMEONE)
                 {
                     mgametextcenter(origin.x, origin.y + (106<<16), "Please read LICENSE.DOC for shareware\n"
@@ -2325,7 +2315,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         mgametextcenter(origin.x, origin.y + ((50-l)<<16), "Production, design, and programming");
         creditsminitext(origin.x + (160<<16), origin.y + ((50+10-l)<<16), "Richard \"TerminX\" Gobeille", 8);
 
-#if !defined(POLYMER) || defined(DROIDMENU)
+#if !defined(POLYMER) || defined(EDUKE32_SIMPLE_MENU)
         mgametextcenter(origin.x, origin.y + ((70-l)<<16), "Rendering and support programming");
 #else
         mgametextcenter(origin.x, origin.y + ((70-l)<<16), "Polymer Rendering System by");

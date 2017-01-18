@@ -6143,7 +6143,7 @@ int app_main(int argc, char const * const * argv)
 #endif
     CONFIG_ReadSetup();
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined (EDUKE32_STANDALONE)
 
 //    initprintf("build %d\n",(uint8_t)Batoi(BUILDDATE));
 

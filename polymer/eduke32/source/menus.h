@@ -30,10 +30,11 @@ extern "C" {
 #endif
 
 #if defined EDUKE32_TOUCH_DEVICES
-# define DROIDMENU
+# define EDUKE32_SIMPLE_MENU
+# define EDUKE32_ANDROID_MENU
 #endif
 
-// #define DROIDMENU
+// #define EDUKE32_SIMPLE_MENU
 
 enum MenuIndex_t {
     MENU_NULL           = INT32_MIN, // sentinel for "do nothing"

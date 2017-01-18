@@ -189,6 +189,7 @@ else
 endif
 NETCODE ?= 1
 STARTUP_WINDOW ?= 1
+SIMPLE_MENU ?= 0
 
 LUNATIC ?= 0
 USE_LUAJIT_2_1 ?= 0
@@ -653,6 +654,10 @@ endif
 
 ifneq (0,$(STARTUP_WINDOW))
     COMPILERFLAGS+= -DSTARTUP_WINDOW
+endif
+
+ifneq (0,$(SIMPLE_MENU))
+    COMPILERFLAGS+= -DEDUKE32_SIMPLE_MENU
 endif
 
 ifneq (0,$(HAVE_VORBIS))
