@@ -362,6 +362,9 @@ void G_ScanGroups(void)
             break;
         }
     }
+
+    if (g_selectedGrp == NULL)
+        g_selectedGrp = foundgrps;
 }
 
 static int32_t G_TryLoadingGrp(char const * const grpfile)
