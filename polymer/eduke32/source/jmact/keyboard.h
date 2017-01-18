@@ -36,71 +36,48 @@ extern "C" {
 #include "baselayer.h"	// for the keyboard stuff
 #include "scancodes.h"
 
-/*
-=============================================================================
-
-                                    DEFINES
-
-=============================================================================
-*/
-
 typedef uint8_t kb_scancode;
 
 #define MAXKEYBOARDSCAN  256
 
-
-/*
-=============================================================================
-
-                               GLOBAL VARIABLES
-
-=============================================================================
-*/
-
-//extern byte  KB_KeyDown[ MAXKEYBOARDSCAN ];   // Keyboard state array
 #define KB_KeyDown keystatus
 extern kb_scancode KB_LastScan;
 
-
-/*
-=============================================================================
-
-                                    MACROS
-
-=============================================================================
-*/
-
-#define KB_GetLastScanCode()    ( KB_LastScan )
-
-#define KB_SetLastScanCode( scancode ) { KB_LastScan = ( scancode ); }
-
-#define KB_ClearLastScanCode() { KB_SetLastScanCode( sc_None ); }
-
-#define KB_KeyPressed( scan )  ( keystatus[ ( scan ) ] != 0 )
-
-#define KB_ClearKeyDown( scan ) { keystatus[ ( scan ) ] = FALSE; }
-
-#define KB_UnBoundKeyPressed( scan )  ( keystatus[ ( scan ) ] != 0 && !CONTROL_KeyBinds[scan].cmdstr)
-
+#define KB_GetLastScanCode() (KB_LastScan)
+#define KB_SetLastScanCode(scancode)                                                                                                       \
+    {                                                                                                                                      \
+        KB_LastScan = (scancode);                                                                                                          \
+    }
+#define KB_ClearLastScanCode()                                                                                                             \
+    {                                                                                                                                      \
+        KB_SetLastScanCode(sc_None);                                                                                                       \
+    }
+#define KB_KeyPressed(scan) (keystatus[(scan)] != 0)
+#define KB_ClearKeyDown(scan)                                                                                                              \
+    {                                                                                                                                      \
+        keystatus[(scan)] = FALSE;                                                                                                         \
+    }
+#define KB_UnBoundKeyPressed(scan) (keystatus[(scan)] != 0 && !CONTROL_KeyBinds[scan].cmdstr)
 #define KB_GetCh bgetchar
-
 #define KB_KeyWaiting bkbhit
-
 #define KB_FlushKeyboardQueue bflushchars
 
-/*
-=============================================================================
+static inline void KB_ClearKeysDown(void)
+{
+    KB_LastScan = 0;
+    Bmemset(keystatus, 0, sizeof(keystatus));
+}
 
-                              FUNCTION PROTOTYPES
+static inline void KB_KeyEvent(int32_t scancode, int32_t keypressed)
+{
+    if (keypressed)
+        KB_LastScan = scancode;
+}
 
-=============================================================================
-*/
-
-void    KB_ClearKeysDown( void );      // Clears all keys down flags.
+static inline void KB_Startup(void) { setkeypresscallback(KB_KeyEvent); }
+static inline void KB_Shutdown(void) { setkeypresscallback((void (*)(int32_t, int32_t))NULL); }
 const char *  KB_ScanCodeToString( kb_scancode scancode ); // convert scancode into a string
 kb_scancode KB_StringToScanCode( const char * string );  // convert a string into a scancode
-void    KB_Startup( void );
-void    KB_Shutdown( void );
 
 #ifdef __cplusplus
 }
