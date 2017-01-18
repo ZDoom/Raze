@@ -312,7 +312,7 @@ void G_ExtInit(void)
         {
             Bsnprintf(cwd,sizeof(cwd),"%s/"
 #if defined(_WIN32)
-                      APPNAME " Settings"
+                      "EDuke32 Settings"
 #elif defined(GEKKO)
                       "apps/eduke32"
 #else
