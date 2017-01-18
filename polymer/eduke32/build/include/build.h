@@ -1244,7 +1244,6 @@ enum {
     TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
 };
 
-extern int32_t glredbluemode;
 extern int32_t glusetexcache, glusememcache;
 extern int32_t glmultisample, glnvmultisamplehint;
 extern int32_t glprojectionhacks;

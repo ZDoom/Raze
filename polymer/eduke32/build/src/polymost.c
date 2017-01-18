@@ -68,11 +68,6 @@ static int32_t preview_mouseaim=1;  // when 1, displays a CROSSHAIR tsprite at t
 
 static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 
-#ifdef REDBLUEMODE
-int32_t glredbluemode = 0;
-static int32_t lastglredbluemode = 0, redblueclearcnt = 0;
-#endif
-
 struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 {
     {"GL_NEAREST",GL_NEAREST,GL_NEAREST},
@@ -540,19 +535,6 @@ static float get_projhack_ratio(void)
 
 static void resizeglcheck(void)
 {
-#ifdef REDBLUEMODE
-    if (glredbluemode < lastglredbluemode)
-    {
-        glox1 = -1;
-        bglColorMask(1,1,1,1);
-    }
-    else if (glredbluemode != lastglredbluemode)
-    {
-        redblueclearcnt = 0;
-    }
-    lastglredbluemode = glredbluemode;
-#endif
-
 #ifndef EDUKE32_GLES
     //FUK
     if (lastglpolygonmode != r_polygonmode)
@@ -3893,33 +3875,6 @@ void polymost_drawrooms()
     bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
 
-    //Enable this for OpenGL red-blue glasses mode :)
-#ifdef REDBLUEMODE
-    if (glredbluemode)
-    {
-        static int32_t grbfcnt = 0; grbfcnt++;
-        if (redblueclearcnt < numpages) { redblueclearcnt++; bglColorMask(1,1,1,1); bglClear(GL_COLOR_BUFFER_BIT); }
-        if (grbfcnt&1)
-        {
-            bglViewport(windowxy1.x-16,yres-(windowxy2.y+1),windowxy2.x-(windowxy1.x-16)+1,windowxy2.y-windowxy1.y+1);
-            bglColorMask(1,0,0,1);
-            globalposx += singlobalang>>10;
-            globalposy -= cosglobalang>>10;
-            fglobalposx = (float) globalposx;
-            fglobalposy = (float) globalposy;
-        }
-        else
-        {
-            bglViewport(windowxy1.x,yres-(windowxy2.y+1),windowxy2.x+16-windowxy1.x+1,windowxy2.y-windowxy1.y+1);
-            bglColorMask(0,1,1,1);
-            globalposx -= singlobalang>>10;
-            globalposy += cosglobalang>>10;
-            fglobalposx = (float) globalposx;
-            fglobalposy = (float) globalposy;
-        }
-    }
-#endif
-
     //Polymost supports true look up/down :) Here, we convert horizon to angle.
     //gchang&gshang are cos&sin of this angle (respectively)
     gyxscale = ((float)xdimenscale)*(1.0f/131072.f);
@@ -6014,9 +5969,6 @@ void polymost_initosdfuncs(void)
 #endif
         { "r_texcompr","enable/disable OpenGL texture compression: 0: off  1: hightile only  2: ART and hightile",(void *) &glusetexcompr, CVAR_INT, 0, 2 },
 
-#ifdef REDBLUEMODE
-        { "r_redbluemode","enable/disable experimental OpenGL red-blue glasses mode",(void *) &glredbluemode, CVAR_BOOL, 0, 1 },
-#endif
         { "r_shadescale","multiplier for shading",(void *) &shadescale, CVAR_FLOAT, 0, 10 },
         { "r_shadescale_unbounded","enable/disable allowance of complete blackness",(void *) &shadescale_unbounded, CVAR_BOOL, 0, 1 },
         { "r_swapinterval","sets the GL swap interval (VSync)",(void *) &vsync, CVAR_INT|CVAR_FUNCPTR, -1, 1 },
