@@ -47,11 +47,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     #define APPNAME             "EDuke32"
 #endif
 
-#define HEAD2               APPNAME
+#ifndef APPBASENAME
+    #define APPBASENAME         "eduke32"
+#endif
 
-#define VOLUMEALL           (g_Shareware == 0)
-#define PLUTOPAK            (g_scriptVersion >= 14)
-#define VOLUMEONE           (g_Shareware == 1)
+#define HEAD2                   APPNAME
+
+#ifdef EDUKE32_STANDALONE
+    #define VOLUMEALL           (1)
+    #define PLUTOPAK            (1)
+    #define VOLUMEONE           (0)
+#else
+    #define VOLUMEALL           (g_Shareware == 0)
+    #define PLUTOPAK            (g_scriptVersion >= 14)
+    #define VOLUMEONE           (g_Shareware == 1)
+#endif
 
 // increase by 3, because atomic GRP adds 1, and Shareware adds 2
 #ifdef LUNATIC

@@ -6092,7 +6092,7 @@ int app_main(int argc, char const * const * argv)
     }
     else
 #endif
-    OSD_SetLogFile("eduke32.log");
+    OSD_SetLogFile(APPBASENAME ".log");
 
     OSD_SetFunctions(GAME_drawosdchar,
                      GAME_drawosdstr,
