@@ -125,7 +125,6 @@ $(DUKE3D_OBJ)/animlib.$o: $(MACT_ROOT)/animlib.c $(MACT_ROOT)/animlib.h $(ENGINE
 $(DUKE3D_OBJ)/file_lib.$o: $(MACT_ROOT)/file_lib.c $(MACT_ROOT)/file_lib.h
 $(DUKE3D_OBJ)/control.$o: $(MACT_ROOT)/control.c $(MACT_ROOT)/control.h $(MACT_ROOT)/keyboard.h $(MACT_ROOT)/mouse.h $(MACT_ROOT)/joystick.h $(ENGINE_INC)/baselayer.h
 $(DUKE3D_OBJ)/keyboard.$o: $(MACT_ROOT)/keyboard.c $(MACT_ROOT)/keyboard.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h
-$(DUKE3D_OBJ)/mouse.$o: $(MACT_ROOT)/mouse.c $(MACT_ROOT)/mouse.h $(ENGINE_INC)/baselayer.h
 $(DUKE3D_OBJ)/joystick.$o: $(MACT_ROOT)/joystick.c $(MACT_ROOT)/joystick.h $(ENGINE_INC)/baselayer.h
 $(DUKE3D_OBJ)/scriplib.$o: $(MACT_ROOT)/scriplib.c $(MACT_ROOT)/scriplib.h $(MACT_ROOT)/_scrplib.h $(ENGINE_INC)/compat.h
 

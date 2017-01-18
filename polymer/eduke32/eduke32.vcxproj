@@ -384,7 +384,6 @@
     <ClCompile Include="source\jmact\control.c" />
     <ClCompile Include="source\jmact\file_lib.c" />
     <ClCompile Include="source\jmact\keyboard.c" />
-    <ClCompile Include="source\jmact\mouse.c" />
     <ClCompile Include="source\jmact\scriplib.c" />
     <ClCompile Include="source\enet\src\callbacks.c" />
     <ClCompile Include="source\enet\src\host.c" />

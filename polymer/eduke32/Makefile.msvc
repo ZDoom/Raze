@@ -194,7 +194,6 @@ AUDIOLIB_OBJS=$(AUDIOLIB_OBJ)\drivers.$o \
 MACT_OBJS=$(DUKE3D_OBJ)\file_lib.$o \
 	$(DUKE3D_OBJ)\control.$o \
 	$(DUKE3D_OBJ)\keyboard.$o \
-	$(DUKE3D_OBJ)\mouse.$o \
 	$(DUKE3D_OBJ)\joystick.$o \
 	$(DUKE3D_OBJ)\scriplib.$o
 

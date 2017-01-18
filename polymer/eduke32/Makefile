@@ -144,7 +144,6 @@ MACT_OBJS = \
     file_lib \
     control \
     keyboard \
-    mouse \
     joystick \
     scriplib \
     animlib \

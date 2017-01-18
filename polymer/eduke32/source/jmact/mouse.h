@@ -33,24 +33,43 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 extern "C" {
 #endif
 
-#define LEFT_MOUSE   1
-#define RIGHT_MOUSE  2
-#define MIDDLE_MOUSE 4
-#define THUMB_MOUSE  8
-#define WHEELUP_MOUSE 16
-#define WHEELDOWN_MOUSE	32
-#define LEFT_MOUSE_PRESSED( button ) ( ( ( button ) & LEFT_MOUSE ) != 0 )
-#define RIGHT_MOUSE_PRESSED( button ) ( ( ( button ) & RIGHT_MOUSE ) != 0 )
-#define MIDDLE_MOUSE_PRESSED( button ) ( ( ( button ) & MIDDLE_MOUSE ) != 0 )
+#define LEFT_MOUSE      1
+#define RIGHT_MOUSE     2
+#define MIDDLE_MOUSE    4
+#define THUMB_MOUSE     8
+#define WHEELUP_MOUSE   16
+#define WHEELDOWN_MOUSE 32
 
-int32_t Mouse_Init( void );
-void    MOUSE_Shutdown( void );
-//void    MOUSE_ShowCursor( void );
-//void    MOUSE_HideCursor( void );
-int32_t MOUSE_GetButtons( void );
-#define	MOUSE_ClearButton(b) (mouseb &= ~b)
+#define LEFT_MOUSE_PRESSED(button)      (((button)&LEFT_MOUSE) != 0)
+#define RIGHT_MOUSE_PRESSED(button)     (((button)&RIGHT_MOUSE) != 0)
+#define MIDDLE_MOUSE_PRESSED(button)    (((button)&MIDDLE_MOUSE) != 0)
+
+#include "baselayer.h"
+
+static inline int32_t Mouse_Init(void)
+{
+    initmouse();
+    return ((inputdevices & 2) == 2);
+}
+
+
+static inline void MOUSE_Shutdown(void) { uninitmouse(); }
+
+#if 0
+static inline void MOUSE_ShowCursor(void) {}
+static inline void MOUSE_HideCursor(void) {}
+#endif
+
+static inline int32_t MOUSE_GetButtons(void)
+{
+    int32_t buttons;
+    readmousebstatus(&buttons);
+    return buttons;
+}
+
+#define MOUSE_ClearButton(b) (mouseb &= ~b)
 #define MOUSE_ClearAllButtons() mouseb = 0
-#define MOUSE_GetDelta(x, y) readmousexy(x,y)
+#define MOUSE_GetDelta(x, y) readmousexy(x, y)
 
 #ifdef __cplusplus
 }

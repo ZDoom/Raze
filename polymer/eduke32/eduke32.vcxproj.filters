@@ -758,9 +758,6 @@
     <ClCompile Include="source\jmact\keyboard.c">
       <Filter>jmact\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jmact\mouse.c">
-      <Filter>jmact\source</Filter>
-    </ClCompile>
     <ClCompile Include="source\jmact\scriplib.c">
       <Filter>jmact\source</Filter>
     </ClCompile>
