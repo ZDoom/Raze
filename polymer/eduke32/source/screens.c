@@ -788,7 +788,7 @@ static void G_PrintFPS(void)
         int32_t thisSec = ms/1000;
         int32_t x = (xdim <= 640);
 
-        if (ud.tickrate)
+        if (ud.showfps)
         {
             int32_t chars = Bsprintf(tempbuf, "%d ms (%3u fps)", howlong, LastCount);
 
@@ -796,7 +796,7 @@ static void G_PrintFPS(void)
             printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+1+FPS_YOFFSET,
                 FPS_COLOR(LastCount < LOW_FPS), -1, tempbuf, x);
 
-            if (ud.tickrate > 1)
+            if (ud.showfps > 1)
             {
                 chars = Bsprintf(tempbuf, "max fps: %3u", MaxFrames);
 

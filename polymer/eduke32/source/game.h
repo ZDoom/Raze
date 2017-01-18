@@ -143,7 +143,7 @@ typedef struct {
     int32_t team, viewbob, weaponsway, althud, weaponscale, textscale;
 
     int32_t entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
-    int32_t coords,tickrate,levelstats,m_coop,coop,screen_size,lockout,crosshair;
+    int32_t coords,showfps,levelstats,m_coop,coop,screen_size,lockout,crosshair;
     int32_t playerai,angleinterpolation,obituaries;
 
     int32_t respawn_monsters,respawn_items,respawn_inventory,recstat,monsters_off,brightness;

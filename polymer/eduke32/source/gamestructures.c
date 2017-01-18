@@ -87,7 +87,7 @@ int32_t __fastcall VM_GetUserdef(register int32_t labelNum)
         case USERDEFS_EXECUTIONS: labelNum = ud.executions; break;
         case USERDEFS_AUTO_RUN: labelNum = ud.auto_run; break;
         case USERDEFS_COORDS: labelNum = ud.coords; break;
-        case USERDEFS_TICKRATE: labelNum = ud.tickrate; break;
+        case USERDEFS_TICKRATE: labelNum = ud.showfps; break;
         case USERDEFS_M_COOP: labelNum = ud.m_coop; break;
         case USERDEFS_COOP: labelNum = ud.coop; break;
         case USERDEFS_SCREEN_SIZE: labelNum = ud.screen_size; break;
@@ -217,7 +217,7 @@ void __fastcall VM_SetUserdef(register int32_t const labelNum, register int32_t 
         case USERDEFS_EXECUTIONS: ud.executions = iSet; break;
         case USERDEFS_AUTO_RUN: ud.auto_run = iSet; break;
         case USERDEFS_COORDS: ud.coords = iSet; break;
-        case USERDEFS_TICKRATE: ud.tickrate = iSet; break;
+        case USERDEFS_TICKRATE: ud.showfps = iSet; break;
         case USERDEFS_M_COOP: ud.m_coop = iSet; break;
         case USERDEFS_COOP: ud.coop = iSet; break;
         case USERDEFS_SCREEN_SIZE:
