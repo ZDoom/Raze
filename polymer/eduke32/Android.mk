@@ -139,6 +139,7 @@ JAUDIO_SRC = \
     source/jaudiolib/src/vorbis.c \
     source/jaudiolib/src/flac.c \
     source/jaudiolib/src/xa.c \
+    source/jaudiolib/src/xmp.c \
     source/jaudiolib/src/driver_nosound.c \
     source/jaudiolib/src/driver_sdl.c
 
