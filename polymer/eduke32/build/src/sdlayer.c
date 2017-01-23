@@ -2186,7 +2186,7 @@ int32_t handleevents_pollsdl(void)
                     if (OSD_HandleChar(keyvalue))
                         keyascfifo_insert(keyvalue);
                 }
-                else if (ev.key.type == SDL_KEYDOWN && (unsigned)ev.key.keysym.sym <= 0x7Fu &&
+                else if (ev.key.type == SDL_KEYDOWN &&
                          ev.key.keysym.sym != scantoasc[OSD_OSDKey()] && !keyascfifo_isfull() &&
                          !SDL_IsTextInputActive())
                 {
@@ -2194,7 +2194,7 @@ int32_t handleevents_pollsdl(void)
                     Necessary for Duke 3D's method of entering cheats to work without showing IMEs.
                     SDL_TEXTINPUT is preferable overall, but with bitmap fonts it has no advantage.
                     */
-                    char keyvalue = ev.key.keysym.sym;
+                    SDL_Keycode keyvalue = ev.key.keysym.sym;
 
                     if ('a' <= keyvalue && keyvalue <= 'z')
                     {
@@ -2233,9 +2233,38 @@ int32_t handleevents_pollsdl(void)
                             case '`': keyvalue = '~'; break;
                         }
                     }
+                    else if (ev.key.keysym.mod & KMOD_NUM) // && !(ev.key.keysym.mod & KMOD_SHIFT)
+                    {
+                        switch (keyvalue)
+                        {
+                            case SDLK_KP_1: keyvalue = '1'; break;
+                            case SDLK_KP_2: keyvalue = '2'; break;
+                            case SDLK_KP_3: keyvalue = '3'; break;
+                            case SDLK_KP_4: keyvalue = '4'; break;
+                            case SDLK_KP_5: keyvalue = '5'; break;
+                            case SDLK_KP_6: keyvalue = '6'; break;
+                            case SDLK_KP_7: keyvalue = '7'; break;
+                            case SDLK_KP_8: keyvalue = '8'; break;
+                            case SDLK_KP_9: keyvalue = '9'; break;
+                            case SDLK_KP_0: keyvalue = '0'; break;
+                            case SDLK_KP_PERIOD: keyvalue = '.'; break;
+                            case SDLK_KP_COMMA: keyvalue = ','; break;
+                        }
+                    }
 
-                    if (OSD_HandleChar(keyvalue))
-                        keyascfifo_insert(keyvalue);
+                    switch (keyvalue)
+                    {
+                        case SDLK_KP_DIVIDE: keyvalue = '/'; break;
+                        case SDLK_KP_MULTIPLY: keyvalue = '*'; break;
+                        case SDLK_KP_MINUS: keyvalue = '-'; break;
+                        case SDLK_KP_PLUS: keyvalue = '+'; break;
+                    }
+
+                    if ((unsigned)keyvalue <= 0x7Fu)
+                    {
+                        if (OSD_HandleChar(keyvalue))
+                            keyascfifo_insert(keyvalue);
+                    }
                 }
 
                 // initprintf("SDL2: got key %d, %d, %u\n", ev.key.keysym.scancode, code, ev.key.type);
