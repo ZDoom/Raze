@@ -1558,8 +1558,6 @@ ends
 
 onevent EVENT_DISPLAYWEAPON // P_DisplayWeapon
 
-    setvar RETURN -1
-
     getplayer[THISACTOR].weapon_pos weapon_pos
     getuserdef[THISACTOR].weaponscale weaponscale
     getplayer[THISACTOR].i playerid
@@ -1621,6 +1619,8 @@ onevent EVENT_DISPLAYWEAPON // P_DisplayWeapon
             divvar hud_scale 100
             rotatesprite hud_x hud_y hud_scale 0 hud_tilenum 0 0 2 windowx1 windowy1 windowx2 windowy2
         }
+
+        setvar RETURN -1
     }
 
     ifvarn hud_temp 1 break // If we are not displaying the actual HUD weapons, stop processing.
@@ -1707,4 +1707,6 @@ onevent EVENT_DISPLAYWEAPON // P_DisplayWeapon
         setvar hud_angle 0
         guniqhudid 0
     }
+
+    setvar RETURN -1
 endevent
