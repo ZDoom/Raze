@@ -170,8 +170,8 @@ APPLE_FRAMEWORKS ?=/Library/Frameworks
 #  NOASM          - disables the use of inline assembly pragmas
 #  LINKED_GTK     - enables compile-time linkage to GTK
 #
-APPNAME ?= EDuke32
-APPBASENAME ?= eduke32
+APPNAME=
+APPBASENAME=
 STANDALONE ?= 0
 POLYMER = 1
 USE_OPENGL = 1
@@ -681,7 +681,12 @@ ifneq (0,$(STANDALONE))
     COMPILERFLAGS+= -DEDUKE32_STANDALONE
 endif
 
-COMPILERFLAGS+= -DAPPNAME=\"$(APPNAME)\" -DAPPBASENAME=\"$(APPBASENAME)\"
+ifneq (,$(APPNAME))
+    COMPILERFLAGS+= -DAPPNAME=\"$(APPNAME)\"
+endif
+ifneq (,$(APPBASENAME))
+    COMPILERFLAGS+= -DAPPBASENAME=\"$(APPBASENAME)\"
+endif
 
 # may be overridden
 EXESUFFIX=
