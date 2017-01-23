@@ -104,8 +104,8 @@ int32_t RTS_AddFile(char *filename)
         kclose(handle);
         return -1;
     }
-    header.numlumps = IntelLong(header.numlumps);
-    header.infotableofs = IntelLong(header.infotableofs);
+    header.numlumps = B_LITTLE32(header.numlumps);
+    header.infotableofs = B_LITTLE32(header.infotableofs);
     length = header.numlumps*sizeof(filelump_t);
     fileinfo = fileinfoo = malloc(length);
     if (!fileinfo)
@@ -135,8 +135,8 @@ int32_t RTS_AddFile(char *filename)
     for (i=startlump; i<numlumps; i++,lump_p++, fileinfo++)
     {
         lump_p->handle = handle;
-        lump_p->position = IntelLong(fileinfo->filepos);
-        lump_p->size = IntelLong(fileinfo->size);
+        lump_p->position = B_LITTLE32(fileinfo->filepos);
+        lump_p->size = B_LITTLE32(fileinfo->size);
         strncpy(lump_p->name, fileinfo->name, 8);
     }
 
@@ -168,13 +168,13 @@ void RTS_Init(char *filename)
     if (RTS_AddFile(filename)) return;
 
     if (!numlumps) return;
-//      Error ("RTS_Init: no files found");
+//      buildprintf ("RTS_Init: no files found");
 
     //
     // set up caching
     //
     length = (numlumps) * sizeof(*lumpcache);
-    lumpcache = SafeMalloc(length);
+    lumpcache = Xmalloc(length);
     memset(lumpcache,0,length);
 }
 
@@ -199,13 +199,13 @@ void RTS_Shutdown(void)
         {
             if (lumpcache[i])
             {
-                SafeFree(lumpcache[i]);
+                Bfree(lumpcache[i]);
             }
         }
 #endif
-        SafeFree(lumpcache);
+        Bfree(lumpcache);
     }
-    if (lumpinfo) SafeFree(lumpinfo);
+    if (lumpinfo) Bfree(lumpinfo);
 
     numlumps = 0;
     lumpinfo = NULL;
@@ -240,7 +240,7 @@ int32_t RTS_SoundLength(int32_t lump)
 {
     lump++;
     if (lump >= numlumps)
-        Error("RTS_SoundLength: %i >= numlumps",lump);
+        buildprintf("RTS_SoundLength: %i >= numlumps",lump);
     return lumpinfo[lump].size;
 }
 
@@ -256,7 +256,7 @@ char *RTS_GetSoundName(int32_t i)
 {
     i++;
     if (i>=numlumps)
-        Error("RTS_GetSoundName: %i >= numlumps",i);
+        buildprintf("RTS_GetSoundName: %i >= numlumps",i);
     return &(lumpinfo[i].name[0]);
 }
 
@@ -274,9 +274,9 @@ void RTS_ReadLump(int32_t lump, void *dest)
     lumpinfo_t *l;
 
     if (lump >= numlumps)
-        Error("RTS_ReadLump: %i >= numlumps",lump);
+        buildprintf("RTS_ReadLump: %i >= numlumps",lump);
     if (lump < 0)
-        Error("RTS_ReadLump: %i < 0",lump);
+        buildprintf("RTS_ReadLump: %i < 0",lump);
     l = lumpinfo+lump;
     klseek(l->handle, l->position, SEEK_SET);
     kread(l->handle,dest,l->size);
@@ -297,7 +297,7 @@ void *RTS_GetSound(int32_t lump)
 {
     lump++;
     if ((uint16_t)lump >= (uint16_t)numlumps)
-        Error("RTS_GetSound: %i >= %i\n",lump,numlumps);
+        buildprintf("RTS_GetSound: %i >= %i\n",lump,numlumps);
 
     if (lumpcache[lump] == NULL)
     {
@@ -326,15 +326,15 @@ void *RTS_GetSound(int32_t lump)
 {
     lump++;
     if ((uint16_t)lump >= numlumps)
-        Error("RTS_GetSound: %i >= numlumps",lump);
+        buildprintf("RTS_GetSound: %i >= numlumps",lump);
 
     else if (lump < 0)
-        Error("RTS_GetSound: %i < 0\n",lump);
+        buildprintf("RTS_GetSound: %i < 0\n",lump);
 
     if (lumpcache[lump] == NULL)
     {
         // read the lump in
-        lumpcache[lump] = SafeMalloc(RTS_SoundLength(lump-1));
+        lumpcache[lump] = Xmalloc(RTS_SoundLength(lump-1));
         RTS_ReadLump(lump, lumpcache[lump]);
     }
     return lumpcache[lump];
