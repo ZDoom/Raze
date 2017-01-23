@@ -78,17 +78,20 @@ state G_DrawTileScaled
     setvarvar hud_int_angle hud_angle
     setvarvar hud_int_orientation hud_orientation
 
-    setvar hud_int_temp 192 // xoff
+    shiftvarl hud_int_x 16
+    shiftvarl hud_int_y 16
+
+    setvar hud_int_temp 12582912 // 192<<16
 
     switch currentweapon
         case DEVISTATOR_WEAPON
         case TRIPBOMB_WEAPON
-            setvar hud_int_temp 160
+            setvar hud_int_temp 10485760 // 160<<16
             break
         default
             ifvarand hud_orientation 262144
             {
-                setvar hud_int_temp 160
+                setvar hud_int_temp 10485760 // 160<<16
                 xorvar hud_int_orientation 262144
             }
             break
@@ -102,11 +105,11 @@ state G_DrawTileScaled
         ifvarn usemodels 0
             ifhasmodel hud_tilenum hud_pal
             {
-                setvar hud_int_temp2 224
+                setvar hud_int_temp2 14680064 // 224<<16
                 mulvarvar hud_int_temp2 weaponscale
                 divvar hud_int_temp2 100
 
-                addvar hud_int_y 224
+                addvar hud_int_y 14680064 // 224<<16
                 subvarvar hud_int_y hud_int_temp2
             }
     */
@@ -121,7 +124,7 @@ state G_DrawTileScaled
 
     mulvarvar hud_int_y weaponscale
     divvar hud_int_y 100
-    setvar hud_int_temp 200
+    setvar hud_int_temp 13107200 // 200<<16
     setvarvar hud_int_temp2 hud_int_temp
     mulvarvar hud_int_temp2 weaponscale
     divvar hud_int_temp2 100
@@ -131,7 +134,7 @@ state G_DrawTileScaled
     mulvarvar hud_int_scale weaponscale
     divvar hud_int_scale 100
 
-    orvar hud_int_orientation 2
+    orvar hud_int_orientation 2050 // 2|2048
 
     rotatesprite hud_int_x hud_int_y hud_int_scale hud_int_angle hud_tilenum hud_shade hud_pal hud_int_orientation windowx1 windowy1 windowx2 windowy2
 ends
