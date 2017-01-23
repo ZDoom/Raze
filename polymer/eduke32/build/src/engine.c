@@ -10097,7 +10097,7 @@ int32_t inside(int32_t x, int32_t y, int16_t sectnum)
     return -1;
 }
 
-int32_t __fastcall getangle(int32_t xvect, int32_t yvect)
+int32_t LUNATIC_FASTCALL getangle(int32_t xvect, int32_t yvect)
 {
     int32_t rv;
 

@@ -500,7 +500,7 @@ double gethiticks(void);
 
 int32_t krand(void);
 int32_t ksqrt(uint32_t num);
-int32_t __fastcall getangle(int32_t xvect, int32_t yvect);
+int32_t getangle(int32_t xvect, int32_t yvect);
 int32_t Mulscale(int32_t a, int32_t b, int32_t sh);
 ]]
 
