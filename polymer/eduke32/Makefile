@@ -675,6 +675,7 @@ ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
 endif
 .PHONY: all duke3d test sw veryclean clean cleanduke3d cleantest cleansw cleanutils utils dxutils sdlutils printutils printsdlutils printdxutils rev $(DUKE3D_OBJ)/rev.$o
+.SUFFIXES:
 
 # TARGETS
 
