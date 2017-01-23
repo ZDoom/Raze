@@ -155,11 +155,13 @@ FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
 // GCC Inline Assembler version (ARM)
 #include "pragmas_arm.h"
 
-#else
+#endif
 
 //
 // Generic C
 //
+
+#ifndef pragmas_have_mulscale
 
 #define EDUKE32_SCALER_PRAGMA(a)                                                                                       \
     FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }                \
@@ -172,6 +174,9 @@ EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 
 #undef EDUKE32_SCALER_PRAGMA
 
+#endif
+
+#ifndef pragmas_have_swaps
 FORCE_INLINE void swapchar(void *a, void *b)
 {
     char const t = *(char *)b;
@@ -213,34 +218,56 @@ FORCE_INLINE void swap64bit(void *a, void *b)
     *(uint64_t *)b = *(uint64_t *)a;
     *(uint64_t *)a = t;
 }
+#endif
 
 FORCE_INLINE char readpixel(void *s) { return *(char *)s; }
 FORCE_INLINE void drawpixel(void *s, char a) { *(char *)s = a; }
 
+#ifndef pragmas_have_klabs
 FORCE_INLINE int32_t klabs(int32_t a)
 {
     const uint32_t m = a >> (sizeof(uint32_t) * CHAR_BIT - 1);
     return (a ^ m) - m;
 }
+#endif
+#ifndef pragmas_have_ksgn
 FORCE_INLINE int32_t ksgn(int32_t a) { return (a > 0) - (a < 0); }
+#endif
 
+#ifndef pragmas_have_mulscale
 FORCE_INLINE int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
 FORCE_INLINE int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx)
 {
     return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(ecx));
 }
+#endif
 
+#ifndef pragmas_have_qinterpolatedown16
 void qinterpolatedown16(intptr_t bufptr, int32_t num, int32_t val, int32_t add);
 void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t add);
+#endif
 
+#ifndef pragmas_have_clearbuf
 void clearbuf(void *d, int32_t c, int32_t a);
+#endif
+#ifndef pragmas_have_copybuf
 void copybuf(const void *s, void *d, int32_t c);
+#endif
+#ifndef pragmas_have_swaps
 void swapbuf4(void *a, void *b, int32_t c);
+#endif
 
+#ifndef pragmas_have_clearbufbyte
 void clearbufbyte(void *D, int32_t c, int32_t a);
+#endif
+#ifndef pragmas_have_copybufbyte
 void copybufbyte(const void *S, void *D, int32_t c);
+#endif
+#ifndef pragmas_have_copybufreverse
 void copybufreverse(const void *S, void *D, int32_t c);
+#endif
 
+#ifndef pragmas_have_krecipasm
 static inline int32_t krecipasm(int32_t i)
 {
     // Ken did this
@@ -248,7 +275,6 @@ static inline int32_t krecipasm(int32_t i)
     i = *(int32_t const *)&f;
     return ((reciptable[(i >> 12) & 2047] >> (((i - 0x3f800000) >> 23) & 31)) ^ (i >> 31));
 }
-
 #endif
 
 #undef qw

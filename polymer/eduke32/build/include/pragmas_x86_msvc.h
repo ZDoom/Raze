@@ -8,6 +8,8 @@
 #ifndef pragmas_x86_h_
 #define pragmas_x86_h_
 
+#define pragmas_have_mulscale
+
 static __inline int32_t mulscale(int32_t a, int32_t d, int32_t c)
 {
     _asm {
@@ -82,8 +84,7 @@ static __inline int32_t dmulscale32(int32_t a, int32_t d, int32_t S, int32_t D)
     }
 }
 
-static __inline char readpixel(void *s) { return *(char *)s; }
-static __inline void drawpixel(void *s, char a) { *(char *)s = a; }
+#define pragmas_have_clearbuf
 
 static __inline void clearbuf(void *d, int32_t c, int32_t a)
 {
@@ -94,6 +95,8 @@ static __inline void clearbuf(void *d, int32_t c, int32_t a)
             rep stosd
     }
 }
+
+#define pragmas_have_clearbufbyte
 
 static __inline void clearbufbyte(void *d, int32_t c, int32_t a)
 {
@@ -135,6 +138,8 @@ static __inline void clearbufbyte(void *d, int32_t c, int32_t a)
     }
 }
 
+#define pragmas_have_copybuf
+
 static __inline void copybuf(const void *s, void *d, int32_t c)
 {
     _asm {
@@ -144,6 +149,8 @@ static __inline void copybuf(const void *s, void *d, int32_t c)
             rep movsd
     }
 }
+
+#define pragmas_have_copybufbyte
 
 static __inline void copybufbyte(const void *s, void *d, int32_t c)
 {
@@ -185,6 +192,8 @@ static __inline void copybufbyte(const void *s, void *d, int32_t c)
     }
 }
 
+#define pragmas_have_copybufreverse
+
 static __inline void copybufreverse(const void *s, void *d, int32_t c)
 {
     _asm {
@@ -219,6 +228,8 @@ static __inline void copybufreverse(const void *s, void *d, int32_t c)
         endloop :
     }
 }
+
+#define pragmas_have_qinterpolatedown16
 
 static __inline void qinterpolatedown16(int32_t a, int32_t c, int32_t d, int32_t s)
 {
@@ -292,6 +303,8 @@ static __inline void qinterpolatedown16short(int32_t a, int32_t c, int32_t d, in
     }
 }
 
+#define pragmas_have_klabs
+
 static __inline int32_t klabs(int32_t a)
 {
     _asm {
@@ -303,6 +316,8 @@ static __inline int32_t klabs(int32_t a)
     }
 }
 
+#define pragmas_have_ksgn
+
 static __inline int32_t ksgn(int32_t b)
 {
     _asm {
@@ -313,6 +328,8 @@ static __inline int32_t ksgn(int32_t b)
             adc al, 0
     }
 }
+
+#define pragmas_have_swaps
 
 static __inline void swapchar(void *a, void *b)
 {
@@ -405,6 +422,8 @@ static __inline void swapchar2(void *a, void *b, int32_t s)
             mov[eax], dx
     }
 }
+
+#define pragmas_have_krecipasm
 
 //0x007ff000 is (11<<13), 0x3f800000 is (127<<23)
 static inline int32_t krecipasm(int32_t a)

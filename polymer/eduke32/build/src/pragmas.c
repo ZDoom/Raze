@@ -41,6 +41,8 @@ int32_t dmval;
 
 #define ASM __asm__ __volatile__
 
+#define pragmas_have_clearbufbyte
+
 void clearbufbyte(void *D, int32_t c, int32_t a)
 {
     ASM(
@@ -81,6 +83,8 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
             : "ebx", "memory", "cc"
         );
 }
+
+#define pragmas_have_copybufbyte
 
 void copybufbyte(const void *S, void *D, int32_t c)
 {
@@ -123,6 +127,8 @@ void copybufbyte(const void *S, void *D, int32_t c)
         );
 }
 
+#define pragmas_have_copybufreverse
+
 void copybufreverse(const void *S, void *D, int32_t c)
 {
     ASM(
@@ -164,6 +170,8 @@ void copybufreverse(const void *S, void *D, int32_t c)
 //
 
 #elif defined(__GNUC__) && defined(GEKKO)
+
+#define pragmas_have_clearbufbyte
 
 void clearbufbyte(void *d, int32_t c, int32_t a)
 {
@@ -232,12 +240,13 @@ void clearbufbyte(void *d, int32_t c, int32_t a)
         );
 }
 
-#else
+#endif
 
 //
 // Generic C version
 //
 
+#ifndef pragmas_have_qinterpolatedown16
 void qinterpolatedown16(intptr_t bufptr, int32_t num, int32_t val, int32_t add)
 {
     int32_t *lptr = (int32_t *)bufptr;
@@ -257,7 +266,9 @@ void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t 
         val += add;
     }
 }
+#endif
 
+#ifndef pragmas_have_clearbuf
 void clearbuf(void *d, int32_t c, int32_t a)
 {
     int32_t *p = (int32_t *)d;
@@ -273,7 +284,9 @@ void clearbuf(void *d, int32_t c, int32_t a)
     while (c--)
         *p++ = a;
 }
+#endif
 
+#ifndef pragmas_have_copybuf
 void copybuf(const void *s, void *d, int32_t c)
 {
     const int32_t *p = (const int32_t *)s;
@@ -282,7 +295,9 @@ void copybuf(const void *s, void *d, int32_t c)
     while (c--)
         *q++ = *p++;
 }
+#endif
 
+#ifndef pragmas_have_swaps
 void swapbuf4(void *a, void *b, int32_t c)
 {
     int32_t *p = (int32_t *)a, *q = (int32_t *)b;
@@ -295,7 +310,9 @@ void swapbuf4(void *a, void *b, int32_t c)
         *(p++) = x;
     }
 }
+#endif
 
+#ifndef pragmas_have_clearbufbyte
 void clearbufbyte(void *D, int32_t c, int32_t a)
 {
     // Cringe City
@@ -309,7 +326,9 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
         z=(z+1)&3;
     }
 }
+#endif
 
+#ifndef pragmas_have_copybufbyte
 void copybufbyte(const void *s, void *d, int32_t c)
 {
     const char *src = (const char *)s;
@@ -318,6 +337,7 @@ void copybufbyte(const void *s, void *d, int32_t c)
     while (c--)
         *dst++ = *src++;
 }
+#endif
 
 
 // copybufreverse() is a special case: use the assembly version for GCC on x86
@@ -362,7 +382,7 @@ void copybufreverse(const void *S, void *D, int32_t c)
             : "eax", "memory", "cc"
         );
 }
-#else
+#elif !defined pragmas_have_copybufreverse
 void copybufreverse(const void *s, void *d, int32_t c)
 {
     const char *src = (const char *)s;
@@ -371,7 +391,4 @@ void copybufreverse(const void *s, void *d, int32_t c)
     while (c--)
         *dst++ = *src--;
 }
-#endif
-
-
 #endif

@@ -4,6 +4,8 @@
 #ifndef pragmas_ppc_h_
 #define pragmas_ppc_h_
 
+#define pragmas_have_mulscale
+
 #define EDUKE32_SCALER_PRAGMA(x) \
 static inline int32_t mulscale##x(int32_t a, int32_t d) \
 { \
@@ -104,73 +106,7 @@ static inline int32_t dmulscale32(int32_t a, int32_t d, int32_t S, int32_t D)
     return sumhi;
 }
 
-static inline char readpixel(void *d)
-{
-    return *(char*) d;
-}
-
-static inline void drawpixel(void *d, char a)
-{
-    *(char*) d = a;
-}
-
-void clearbufbyte(void *d, int32_t c, int32_t a);
-
-static inline void clearbuf(void *d, int32_t c, int32_t a)
-{
-    int32_t *p = (int32_t*) d;
-    if (a==0) {
-        clearbufbyte(d, c<<2, 0);
-        return;
-    }
-    while (c--) {
-        *p++ = a;
-    }
-}
-
-static inline void copybuf(void *s, void *d, int32_t c)
-{
-    int32_t *p = (int32_t*) s, *q = (int32_t*) d;
-    while (c--) {
-        *q++ = *p++;
-    }
-}
-
-static inline void copybufbyte(void *s, void *d, int32_t c)
-{
-    uint8_t *src = (uint8_t*) s, *dst = (uint8_t*) d;
-    while (c--) {
-        *dst++ = *src++;
-    }
-}
-
-static inline void copybufreverse(void *s, void *d, int32_t c)
-{
-    uint8_t *src = (uint8_t*) s, *dst = (uint8_t*) d;
-    while (c--) {
-        *dst++ = *src--;
-    }
-}
-
-static inline void qinterpolatedown16(intptr_t bufptr, int32_t num, int32_t val, int32_t add)
-{
-    int i;
-    int32_t *lptr = (int32_t *) bufptr;
-    for (i=0; i<num; i++) {
-        lptr[i] = (val>>16);
-        val += add;
-    }
-}
-
-static inline void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t add)
-{
-    int i;
-    int16_t *sptr = (int16_t *) bufptr;
-    for (i=0; i<num; i++) {
-        sptr[i] = (val>>16);
-        val += add;
-    }
-}
+#define pragmas_have_klabs
 
 static inline int32_t klabs(int32_t a)
 {
@@ -186,6 +122,8 @@ static inline int32_t klabs(int32_t a)
     return a;
 }
 
+#define pragmas_have_ksgn
+
 static inline int32_t ksgn(int32_t a)
 {
     int32_t s, t;
@@ -199,62 +137,6 @@ static inline int32_t ksgn(int32_t a)
         : "xer"
         );
     return s;
-}
-
-static inline void swapchar(void *a, void *b)
-{
-    char t = *(char*) a;
-    *(char*) a = *(char*) b;
-    *(char*) b = t;
-}
-
-static inline void swapchar2(void *a, void *b, int32_t s)
-{
-    swapchar(a, b);
-    swapchar((char*) a+1, (char*) b+s);
-}
-
-static inline void swapshort(void *a, void *b)
-{
-    int16_t t = *(int16_t*) a;
-    *(int16_t*) a = *(int16_t*) b;
-    *(int16_t*) b = t;
-}
-
-static inline void swaplong(void *a, void *b)
-{
-    int32_t t = *(int32_t*) a;
-    *(int32_t*) a = *(int32_t*) b;
-    *(int32_t*) b = t;
-}
-
-static inline void swapfloat(void *a, void *b)
-{
-    float t = *(float*) a;
-    *(float*) a = *(float*) b;
-    *(float*) b = t;
-}
-
-static inline void swapdouble(void *a, void *b)
-{
-    double const t = *((double *) b);
-    *((double *) b) = *((double *) a);
-    *((double *) a) = t;
-}
-
-static inline void swap64bit(void *a, void *b)
-{
-    uint64_t t = *(uint64_t*) a;
-    *(uint64_t*) a = *(uint64_t*) b;
-    *(uint64_t*) b = t;
-}
-
-static inline int32_t krecipasm(int32_t i)
-{
-    // Ken did this
-    float const f = (float const)i;
-    i = *(int32_t const *)&f;
-    return ((reciptable[(i>>12)&2047]>>(((i-0x3f800000)>>23)&31))^(i>>31));
 }
 
 #endif // pragmas_ppc_h_
