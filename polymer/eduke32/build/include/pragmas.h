@@ -162,10 +162,10 @@ FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
 //
 
 #define EDUKE32_SCALER_PRAGMA(a)                                                                                       \
-    FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * qw(edx)) >> by(a)); }            \
+    FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }                \
     FORCE_INLINE int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                              \
     {                                                                                                                  \
-        return dw(((qw(eax) * qw(edx)) + (qw(esi) * qw(edi))) >> by(a));                                               \
+        return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(a));                                                       \
     }
 
 EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
@@ -174,9 +174,9 @@ EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 
 FORCE_INLINE void swapchar(void *a, void *b)
 {
-    char const t = *((char *)b);
-    *((char *)b) = *((char *)a);
-    *((char *)a) = t;
+    char const t = *(char *)b;
+    *(char *)b = *(char *)a;
+    *(char *)a = t;
 }
 FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
 {
@@ -185,37 +185,37 @@ FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
 }
 FORCE_INLINE void swapshort(void *a, void *b)
 {
-    int16_t const t = *((int16_t *)b);
-    *((int16_t *)b) = *((int16_t *)a);
-    *((int16_t *)a) = t;
+    int16_t const t = *(int16_t *)b;
+    *(int16_t *)b = *(int16_t *)a;
+    *(int16_t *)a = t;
 }
 FORCE_INLINE void swaplong(void *a, void *b)
 {
-    int32_t const t = *((int32_t *)b);
-    *((int32_t *)b) = *((int32_t *)a);
-    *((int32_t *)a) = t;
+    int32_t const t = *(int32_t *)b;
+    *(int32_t *)b = *(int32_t *)a;
+    *(int32_t *)a = t;
 }
 FORCE_INLINE void swapfloat(void *a, void *b)
 {
-    float const t = *((float *)b);
-    *((float *)b) = *((float *)a);
-    *((float *)a) = t;
+    float const t = *(float *)b;
+    *(float *)b = *(float *)a;
+    *(float *)a = t;
 }
 FORCE_INLINE void swapdouble(void *a, void *b)
 {
-    double const t = *((double *) b);
-    *((double *) b) = *((double *) a);
-    *((double *) a) = t;
+    double const t = *(double *)b;
+    *(double *)b = *(double *)a;
+    *(double *)a = t;
 }
 FORCE_INLINE void swap64bit(void *a, void *b)
 {
-    uint64_t const t = *((uint64_t *)b);
-    *((uint64_t *)b) = *((uint64_t *)a);
-    *((uint64_t *)a) = t;
+    uint64_t const t = *(uint64_t *)b;
+    *(uint64_t *)b = *(uint64_t *)a;
+    *(uint64_t *)a = t;
 }
 
-FORCE_INLINE char readpixel(void *s) { return (*((char *)(s))); }
-FORCE_INLINE void drawpixel(void *s, char a) { *((char *)(s)) = a; }
+FORCE_INLINE char readpixel(void *s) { return *(char *)s; }
+FORCE_INLINE void drawpixel(void *s, char a) { *(char *)s = a; }
 
 FORCE_INLINE int32_t klabs(int32_t a)
 {

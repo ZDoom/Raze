@@ -240,23 +240,38 @@ void clearbufbyte(void *d, int32_t c, int32_t a)
 
 void qinterpolatedown16(intptr_t bufptr, int32_t num, int32_t val, int32_t add)
 {
-    // gee, I wonder who could have provided this...
-    int32_t i, *lptr = (int32_t *)bufptr;
-    for (i=0; i<num; i++) { lptr[i] = (val>>16); val += add; }
+    int32_t *lptr = (int32_t *)bufptr;
+    for (size_t i = 0, i_end = num; i < i_end; ++i)
+    {
+        lptr[i] = val>>16;
+        val += add;
+    }
 }
 
 void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t add)
 {
-    // ...maybe the same person who provided this too?
-    int32_t i; int16_t *sptr = (int16_t *)bufptr;
-    for (i=0; i<num; i++) { sptr[i] = (int16_t)(val>>16); val += add; }
+    int16_t *sptr = (int16_t *)bufptr;
+    for (size_t i = 0, i_end = num; i < i_end; ++i)
+    {
+        sptr[i] = val>>16;
+        val += add;
+    }
 }
 
 void clearbuf(void *d, int32_t c, int32_t a)
 {
     int32_t *p = (int32_t *)d;
 
-    while ((c--) > 0) *(p++) = a;
+#if 0
+    if (a == 0)
+    {
+        clearbufbyte(d, c<<2, 0);
+        return;
+    }
+#endif
+
+    while (c--)
+        *p++ = a;
 }
 
 void copybuf(const void *s, void *d, int32_t c)
@@ -264,7 +279,8 @@ void copybuf(const void *s, void *d, int32_t c)
     const int32_t *p = (const int32_t *)s;
     int32_t *q = (int32_t *)d;
 
-    while ((c--) > 0) *(q++) = *(p++);
+    while (c--)
+        *q++ = *p++;
 }
 
 void swapbuf4(void *a, void *b, int32_t c)
@@ -294,12 +310,13 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
     }
 }
 
-void copybufbyte(const void *S, void *D, int32_t c)
+void copybufbyte(const void *s, void *d, int32_t c)
 {
-    const char *p = (const char *)S;
-    char *q = (char *)D;
+    const char *src = (const char *)s;
+    char *dst = (char *)d;
 
-    while ((c--) > 0) *(q++) = *(p++);
+    while (c--)
+        *dst++ = *src++;
 }
 
 
@@ -346,12 +363,13 @@ void copybufreverse(const void *S, void *D, int32_t c)
         );
 }
 #else
-void copybufreverse(const void *S, void *D, int32_t c)
+void copybufreverse(const void *s, void *d, int32_t c)
 {
-    const char *p = (const char *)S;
-    char *q = (char *)D;
+    const char *src = (const char *)s;
+    char *dst = (char *)d;
 
-    while ((c--) > 0) *(q++) = *(p--);
+    while (c--)
+        *dst++ = *src--;
 }
 #endif
 
