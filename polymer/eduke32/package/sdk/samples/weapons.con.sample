@@ -242,7 +242,6 @@ state draw_shrunk_fists // Shrunk Running Fists
     }
     // common calculations continued
     setvarvar hud_temp2 hud_fistsign
-    andvar hud_temp2 2047
     sin hud_temp2 hud_temp2
     setvarvar hud_temp4 hud_temp2
     shiftvarr hud_temp2 10
@@ -455,7 +454,6 @@ state draw_rpg // RPG_WEAPON:
     setvarvar hud_temp weaponcount
     shiftvarl hud_temp 7
     addvar hud_temp 768
-    andvar hud_temp 2047
     sin hud_temp hud_temp
     shiftvarr hud_temp 11
 
@@ -1430,7 +1428,6 @@ state draw_expander // GROW_WEAPON:
         addvar hud_tilenum 2
 
         getplayer[THISACTOR].random_club_frame hud_shade
-        andvar hud_shade 2047
         sin hud_shade hud_shade
         shiftvarr hud_shade 10
         mulvar hud_shade -1
@@ -1532,7 +1529,6 @@ state draw_shrinker // SHRINKER_WEAPON:
         addvar hud_tilenum 2
 
         getplayer[THISACTOR].random_club_frame hud_shade
-        andvar hud_shade 2047
         sin hud_shade hud_shade
         shiftvarr hud_shade 10
         mulvar hud_shade -1
