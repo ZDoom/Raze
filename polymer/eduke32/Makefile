@@ -258,6 +258,7 @@ UTILS= \
     mkpalette \
     unpackssi \
     bsuite \
+    map2stl \
 
 GAMEUTILS= \
     ivfrate \
