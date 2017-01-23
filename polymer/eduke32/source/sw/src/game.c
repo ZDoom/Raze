@@ -1704,8 +1704,8 @@ LogoLevel(void)
     int fin;
     unsigned char backup_pal[256*3];
     unsigned char pal[PAL_SIZE];
-    unsigned char tempbuf[256];
-    unsigned char *palook_bak = palookup[0];
+    char tempbuf[256];
+    char *palook_bak = palookup[0];
     UserInput uinfo = { FALSE, FALSE, dir_None };
     int i;
 
@@ -1977,8 +1977,8 @@ TitleLevel(void)
     int fin;
     unsigned char backup_pal[256*3];
     unsigned char pal[PAL_SIZE];
-    unsigned char tempbuf[256];
-    unsigned char *palook_bak = palookup[0];
+    char tempbuf[256];
+    char *palook_bak = palookup[0];
     int i;
 
     for (i = 0; i < 256; i++)

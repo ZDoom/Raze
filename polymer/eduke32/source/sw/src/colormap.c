@@ -30,7 +30,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 #include "game.h"
 
 short f_c = 3;
-static unsigned char tempbuf[256];
+static char tempbuf[256];
 unsigned char DefaultPalette[256 * 32];
 #if 1
 void

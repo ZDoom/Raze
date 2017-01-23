@@ -265,8 +265,8 @@ playanm(short anim_num)
     int i, j, k, length = 0, numframes = 0;
     int32_t handle = -1;
     unsigned char ANIMvesapal[4*256];
-    unsigned char tempbuf[256];
-    unsigned char *palook_bak = palookup[0];
+    char tempbuf[256];
+    char *palook_bak = palookup[0];
     UserInput uinfo = { FALSE, FALSE, dir_None };
 
     ANIMnum = anim_num;
