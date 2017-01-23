@@ -355,15 +355,15 @@ state draw_kick // KNEE_WEAPON:
         ifvarg weaponcount 4
             ifvarl weaponcount 10
             {
-            addvar hud_x 160
+                addvar hud_x 160
 
-            addvar hud_y 214
+                addvar hud_y 214
 
-            addvar hud_tilenum 1
+                addvar hud_tilenum 1
 
-            state G_DrawTileScaled
+                state G_DrawTileScaled
 
-            setvar hud_temp3 1
+                setvar hud_temp3 1
             }
 
         ifvare hud_temp3 0
@@ -1614,7 +1614,7 @@ onevent EVENT_DISPLAYWEAPON // P_DisplayWeapon
         endswitch
 
         ifvarn hud_tilenum -1
-            {
+        {
             setvar hud_x 160
             setvarvar hud_y weapon_pos
             mulvarvar hud_y weapon_pos
@@ -1624,7 +1624,7 @@ onevent EVENT_DISPLAYWEAPON // P_DisplayWeapon
             mulvarvar hud_scale hud_temp2
             divvar hud_scale 100
             rotatesprite hud_x hud_y hud_scale 0 hud_tilenum 0 0 2 windowx1 windowy1 windowx2 windowy2
-            }
+        }
     }
 
     ifvarn hud_temp 1 break // If we are not displaying the actual HUD weapons, stop processing.
