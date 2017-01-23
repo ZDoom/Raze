@@ -1702,18 +1702,18 @@ static void G_DrawTileScaled(int drawX, int drawY, int tileNum, int drawShade, i
     int32_t wy[2] = { windowxy1.y, windowxy2.y };
 
     int drawYOffset = 0;
-    int drawXOffset = 192;
+    int drawXOffset = 192<<16;
 
     switch (hudweap.cur)
     {
         case DEVISTATOR_WEAPON:
         case TRIPBOMB_WEAPON:
-            drawXOffset = 160;
+            drawXOffset = 160<<16;
             break;
         default:
             if (drawBits & DRAWEAP_CENTER)
             {
-                drawXOffset = 160;
+                drawXOffset = 160<<16;
                 drawBits &= ~DRAWEAP_CENTER;
             }
             break;
@@ -1746,10 +1746,10 @@ static void G_DrawTileScaled(int drawX, int drawY, int tileNum, int drawShade, i
 
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(tileNum,drawPal) >= 0)
-        drawY += (224-weapsc(224));
+        drawYOffset += (224<<16)-weapsc(224<<16);
 #endif
-    rotatesprite(weapsc(drawX<<16) + ((drawXOffset-weapsc(drawXOffset))<<16),
-                 weapsc((drawY<<16) + g_dts_yadd) + ((200-weapsc(200))<<16) + drawYOffset,
+    rotatesprite(weapsc(drawX<<16) + (drawXOffset-weapsc(drawXOffset)),
+                 weapsc((drawY<<16) + g_dts_yadd) + ((200<<16)-weapsc(200<<16)) + drawYOffset,
                  weapsc(65536L),drawAng,tileNum,drawShade,drawPal,(2|drawBits),
                  wx[0],wy[0], wx[1],wy[1]);
 }
