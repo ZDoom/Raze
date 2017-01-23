@@ -355,11 +355,11 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
             ZeroMemory(&tab, sizeof(tab));
             tab.mask = TCIF_TEXT;
-            static char textConfiguration[] = TEXT("Configuration")
+            static char textConfiguration[] = TEXT("Configuration");
             tab.pszText = textConfiguration;
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
-            static char textGame[] = TEXT("Game")
+            static char textGame[] = TEXT("Game");
             tab.pszText = textGame;
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_GAME, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
