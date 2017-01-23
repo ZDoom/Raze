@@ -411,7 +411,7 @@ int DoRotatorMove(short SpriteNum)
         vec2_t const orig = { r->origx[ndx], r->origy[ndx] };
         rotatepoint(*(vec2_t *)&pivot->x, orig, r->pos, &nxy);
 
-        dragpoint(w, nx, ny, 0);
+        dragpoint(w, nxy.x, nxy.y, 0);
         ndx++;
     }
 

@@ -28,7 +28,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 int MultiClipMove(PLAYERp pp, int z, int floor_dist);
 short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist);
-int testquadinsect(int *point_num, int *qx, int *qy, short sectnum);
+int testquadinsect(int *point_num, vec2_t const * q, short sectnum);
 int RectClipMove(PLAYERp pp, int *qx, int *qy);
 int testpointinquad(int x, int y, int *qx, int *qy);
 //short RectClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist, int *qx, int *qy);

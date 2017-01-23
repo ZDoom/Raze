@@ -403,7 +403,7 @@ short MultiClipTurn(PLAYERp pp, short new_ang, int z, int floor_dist)
     return TRUE;
 }
 
-int testquadinsect(int *point_num, int qx[], int qy[], short sectnum)
+int testquadinsect(int *point_num, vec2_t const * q, short sectnum)
 {
     int i,next_i;
 
@@ -411,7 +411,7 @@ int testquadinsect(int *point_num, int qx[], int qy[], short sectnum)
 
     for (i=0; i < 4; i++)
     {
-        if (!inside(qx[i], qy[i], sectnum))
+        if (!inside(q[i].x, q[i].y, sectnum))
         {
             ////DSPRINTF(ds,"inside %ld failed",i);
             //MONO_PRINT(ds);
@@ -425,10 +425,10 @@ int testquadinsect(int *point_num, int qx[], int qy[], short sectnum)
     for (i=0; i<4; i++)
     {
         next_i = MOD4(i+1);
-        if (!cansee(qx[i], qy[i],0x3fffffff, sectnum,
-                    qx[next_i], qy[next_i],0x3fffffff, sectnum))
+        if (!cansee(q[i].x, q[i].y,0x3fffffff, sectnum,
+                    q[next_i].x, q[next_i].y,0x3fffffff, sectnum))
         {
-            DSPRINTF(ds,"cansee %ld failed, x1 %d, y1 %d, x2 %d, y2 %d, sectnum %d",i, qx[i], qy[i], qx[next_i], qy[next_i], sectnum);
+            DSPRINTF(ds,"cansee %ld failed, x1 %d, y1 %d, x2 %d, y2 %d, sectnum %d",i, q[i].x, q[i].y, q[next_i].x, q[next_i].y, sectnum);
             MONO_PRINT(ds);
 
             return FALSE;
@@ -446,18 +446,19 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     SECTOR_OBJECTp sop = pp->sop;
     WALLp wp;
     int count=0;
-    int i, x[4], y[4];
+    int i;
+    vec2_t xy[4];
     short startwall,endwall;
     int point_num;
 
     for (i = 0; i < 4; i++)
     {
-        x[i] = qx[i] + (pp->xvect>>14);
-        y[i] = qy[i] + (pp->yvect>>14);
+        xy[i].x = qx[i] + (pp->xvect>>14);
+        xy[i].y = qy[i] + (pp->yvect>>14);
     }
 
     //Given the 4 points: x[4], y[4]
-    if (testquadinsect(&point_num, x, y, pp->cursectnum))
+    if (testquadinsect(&point_num, xy, pp->cursectnum))
     {
         pp->posx += (pp->xvect>>14);
         pp->posy += (pp->yvect>>14);
@@ -471,10 +472,10 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     {
         for (i = 0; i < 4; i++)
         {
-            x[i] = qx[i] - (pp->yvect>>15);
-            y[i] = qy[i] + (pp->xvect>>15);
+            xy[i].x = qx[i] - (pp->yvect>>15);
+            xy[i].y = qy[i] + (pp->xvect>>15);
         }
-        if (testquadinsect(&point_num, x, y, pp->cursectnum))
+        if (testquadinsect(&point_num, xy, pp->cursectnum))
         {
             pp->posx -= (pp->yvect>>15);
             pp->posy += (pp->xvect>>15);
@@ -487,10 +488,10 @@ int RectClipMove(PLAYERp pp, int *qx, int *qy)
     {
         for (i = 0; i < 4; i++)
         {
-            x[i] = qx[i] + (pp->yvect>>15);
-            y[i] = qy[i] - (pp->xvect>>15);
+            xy[i].x = qx[i] + (pp->yvect>>15);
+            xy[i].y = qy[i] - (pp->xvect>>15);
         }
-        if (testquadinsect(&point_num, x, y, pp->cursectnum))
+        if (testquadinsect(&point_num, xy, pp->cursectnum))
         {
             pp->posx += (pp->yvect>>15);
             pp->posy -= (pp->xvect>>15);
@@ -543,7 +544,7 @@ short RectClipTurn(PLAYERp pp, short new_ang, int *qx, int *qy, int *ox, int *oy
     }
 
     //Given the 4 points: x[4], y[4]
-    if (testquadinsect(&point_num, x, y, pp->cursectnum))
+    if (testquadinsect(&point_num, xy, pp->cursectnum))
     {
         // move to new pos
         for (i = 0; i < 4; i++)
