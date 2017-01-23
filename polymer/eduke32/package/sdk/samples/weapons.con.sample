@@ -392,7 +392,7 @@ state draw_tripbomb // TRIPBOMB_WEAPON:
     else ifvarl weaponcount 4
     {
         setvarvar hud_temp currentweapon
-        shiftvarl currentweapon 2
+        shiftvarl hud_temp 2
         guniqhudid hud_temp
 
         addvar hud_x 142
