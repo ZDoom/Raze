@@ -45,6 +45,11 @@ gamevar hud_temp4 0 1
 // The following temporary gamevars are internal to the G_Draw subroutines.
 gamevar hud_int_temp 0 1
 gamevar hud_int_temp2 0 1
+gamevar hud_int_x 0 1
+gamevar hud_int_y 0 1
+gamevar hud_int_scale 0 1
+gamevar hud_int_angle 0 1
+gamevar hud_int_orientation 0 1
 
 gamevar weapon_pos 0 1
 gamevar weaponscale 0 1
@@ -55,21 +60,24 @@ gamevar playerid 0 1
 // preliminary functions
 
 state G_DrawTilePal
-    ifvarand hud_orientation 4
-        addvar hud_angle 1024
-
-    orvar hud_orientation 2
-
-    rotatesprite hud_x hud_y hud_scale hud_angle hud_tilenum hud_shade hud_pal hud_orientation windowx1 windowy1 windowx2 windowy2
-
-    ifvarand hud_orientation 2
-        xorvar hud_orientation 2
+    setvarvar hud_int_angle hud_angle
+    setvarvar hud_int_orientation hud_orientation
 
     ifvarand hud_orientation 4
-        subvar hud_angle 1024
+        addvar hud_int_angle 1024
+
+    orvar hud_int_orientation 2
+
+    rotatesprite hud_x hud_y hud_scale hud_int_angle hud_tilenum hud_shade hud_pal hud_int_orientation windowx1 windowy1 windowx2 windowy2
 ends
 
 state G_DrawTileScaled
+    setvarvar hud_int_x hud_x
+    setvarvar hud_int_y hud_y
+    setvarvar hud_int_scale hud_scale
+    setvarvar hud_int_angle hud_angle
+    setvarvar hud_int_orientation hud_orientation
+
     setvar hud_int_temp 192 // xoff
 
     switch currentweapon
@@ -81,13 +89,13 @@ state G_DrawTileScaled
             ifvarand hud_orientation 262144
             {
                 setvar hud_int_temp 160
-                xorvar hud_orientation 262144
+                xorvar hud_int_orientation 262144
             }
             break
     endswitch
 
     ifvarand hud_orientation 4
-        addvar hud_angle 1024
+        addvar hud_int_angle 1024
 
     /*
     ifvarg rendermode 2
@@ -98,41 +106,34 @@ state G_DrawTileScaled
                 mulvarvar hud_int_temp2 weaponscale
                 divvar hud_int_temp2 100
 
-                addvar hud_y 224
-                subvarvar hud_y hud_int_temp2
+                addvar hud_int_y 224
+                subvarvar hud_int_y hud_int_temp2
             }
     */
 
-    mulvarvar hud_x weaponscale
-    divvar hud_x 100
+    mulvarvar hud_int_x weaponscale
+    divvar hud_int_x 100
     setvarvar hud_int_temp2 hud_int_temp
     mulvarvar hud_int_temp2 weaponscale
     divvar hud_int_temp2 100
     subvarvar hud_int_temp hud_int_temp2
-    addvarvar hud_x hud_int_temp
+    addvarvar hud_int_x hud_int_temp
 
-    mulvarvar hud_y weaponscale
-    divvar hud_y 100
+    mulvarvar hud_int_y weaponscale
+    divvar hud_int_y 100
     setvar hud_int_temp 200
     setvarvar hud_int_temp2 hud_int_temp
     mulvarvar hud_int_temp2 weaponscale
     divvar hud_int_temp2 100
     subvarvar hud_int_temp hud_int_temp2
-    addvarvar hud_y hud_int_temp
+    addvarvar hud_int_y hud_int_temp
 
-    // setvar hud_scale 65536 // do this elsewhere; leave it open for modification
-    mulvarvar hud_scale weaponscale
-    divvar hud_scale 100
+    mulvarvar hud_int_scale weaponscale
+    divvar hud_int_scale 100
 
-    orvar hud_orientation 2
+    orvar hud_int_orientation 2
 
-    rotatesprite hud_x hud_y hud_scale hud_angle hud_tilenum hud_shade hud_pal hud_orientation windowx1 windowy1 windowx2 windowy2
-
-    ifvarand hud_orientation 2
-        xorvar hud_orientation 2
-
-    ifvarand hud_orientation 4
-        subvar hud_angle 1024
+    rotatesprite hud_int_x hud_int_y hud_int_scale hud_int_angle hud_tilenum hud_shade hud_pal hud_int_orientation windowx1 windowy1 windowx2 windowy2
 ends
 
 state G_DrawWeaponTile
