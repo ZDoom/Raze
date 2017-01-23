@@ -64,8 +64,8 @@ int main(const int32_t argc, const char **argv)
 {
     int opt = 0, d3dpal = 0, k = 0;
     int16_t i = 1;
-    char *filename = NULL; // This is only a pointer. Do not strcpy to it.
-    char *c = NULL;
+    char const * filename = NULL; // This is only a pointer. Do not strcpy to it.
+    char const * c = NULL;
 
     Bprintf("%s\n%s\n\n", APP_NAME, APP_CPRT);
 
@@ -77,7 +77,7 @@ int main(const int32_t argc, const char **argv)
 
         while (i < argc)
         {
-            c = (char *)argv[i];
+            c = (char const *)argv[i];
             if ((*c == '-')
 #ifdef _WIN32
                     || (*c == '/')
@@ -88,7 +88,7 @@ int main(const int32_t argc, const char **argv)
                 if (!Bstrcasecmp(c,"f"))
                 {
                     if (argc > i+1)
-                        filename = (char *)argv[++i];
+                        filename = (char const *)argv[++i];
                     ++i;
                     continue;
                 }
@@ -131,12 +131,12 @@ int main(const int32_t argc, const char **argv)
             {
                 case 1: // Duke-specific palettes
                 case 2:
-                    filename = (char*)pal_deffn[d3dpal];
+                    filename = (char const *)pal_deffn[d3dpal];
                     break;
 
                 case 3: // game palette
                 case 4:
-                    filename = (char*)pal_deffn[0];
+                    filename = (char const *)pal_deffn[0];
                     break;
             }
 
