@@ -53,7 +53,6 @@ int writeicon(FILE *fp, struct icon *ico)
 int main(int argc, char **argv)
 {
     struct icon icon;
-    int32_t bpl = 0;
     int i;
     unsigned char *maskp, bm, *pp;
 
@@ -64,15 +63,9 @@ int main(int argc, char **argv)
 
     memset(&icon, 0, sizeof(icon));
 
-    kpzload(argv[1], (intptr_t*)&icon.pixels, (int32_t*)&bpl, (int32_t*)&icon.width, (int32_t*)&icon.height);
+    kpzload(argv[1], (intptr_t*)&icon.pixels, &icon.width, &icon.height);
     if (!icon.pixels) {
         Bfprintf(stderr, "Failure loading %s\n", argv[1]);
-        return 1;
-    }
-
-    if (bpl != icon.width * 4) {
-        Bfprintf(stderr, "bpl != icon.width * 4\n");
-        Bfree(icon.pixels);
         return 1;
     }
 
