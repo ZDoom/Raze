@@ -244,7 +244,7 @@ unsigned char *LoadAnm(short anim_num)
             return NULL;
         length = kfilelength(handle);
 
-        allocache((void **) &anm_ptr[anim_num], length + sizeof(anim_t), &walock[ANIM_TILE(ANIMnum)]);
+        allocache((intptr_t *) &anm_ptr[anim_num], length + sizeof(anim_t), &walock[ANIM_TILE(ANIMnum)]);
         animbuf = (unsigned char *)((intptr_t)anm_ptr[anim_num] + sizeof(anim_t));
 
         kread(handle, animbuf, length);

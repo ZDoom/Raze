@@ -43,14 +43,14 @@ void *ReAllocMem(void *ptr, int size);
 void FreeMem(void *ptr);
 
 extern char ds[];
-unsigned char lumplockbyte[11];
+char lumplockbyte[11];
 
 //=============
 // STATICS
 //=============
 
 static int32_t numlumps = 0;
-static void  **lumpcache = NULL;
+static intptr_t *lumpcache = NULL;
 static lumpinfo_t *lumpinfo = NULL;              // location of each lump on disk
 
 /*
@@ -269,7 +269,7 @@ char *RTS_GetSoundName(int32_t i)
 =
 ====================
 */
-void RTS_ReadLump(int32_t lump, void *dest)
+void RTS_ReadLump(int32_t lump, intptr_t dest)
 {
     lumpinfo_t *l;
 
@@ -279,7 +279,7 @@ void RTS_ReadLump(int32_t lump, void *dest)
         buildprintf("RTS_ReadLump: %i < 0",lump);
     l = lumpinfo+lump;
     klseek(l->handle, l->position, SEEK_SET);
-    kread(l->handle,dest,l->size);
+    kread(l->handle,(void *)dest,l->size);
 }
 
 #if 1
@@ -299,7 +299,7 @@ void *RTS_GetSound(int32_t lump)
     if ((uint16_t)lump >= (uint16_t)numlumps)
         buildprintf("RTS_GetSound: %i >= %i\n",lump,numlumps);
 
-    if (lumpcache[lump] == NULL)
+    if (lumpcache[lump] == (intptr_t)NULL)
     {
         lumplockbyte[lump] = CACHE_LOCK_START;
         allocache(&lumpcache[lump],(int)RTS_SoundLength(lump-1),&lumplockbyte[lump]);
@@ -312,7 +312,7 @@ void *RTS_GetSound(int32_t lump)
         else
             lumplockbyte[lump]++;
     }
-    return lumpcache[lump];
+    return (void *)lumpcache[lump];
 }
 #else
 /*
@@ -337,6 +337,6 @@ void *RTS_GetSound(int32_t lump)
         lumpcache[lump] = Xmalloc(RTS_SoundLength(lump-1));
         RTS_ReadLump(lump, lumpcache[lump]);
     }
-    return lumpcache[lump];
+    return (void *)lumpcache[lump];
 }
 #endif

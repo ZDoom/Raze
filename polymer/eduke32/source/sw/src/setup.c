@@ -382,7 +382,7 @@ void main()
             {
                 uint8_t *ptr;
                 KB_ClearKeyDown(sc_F1+i);
-                ptr = RTS_GetSound(i);
+                ptr = (uint8_t *)RTS_GetSound(i);
                 FX_PlayVOC(ptr, 0, 255, 255, 255, 255, 0);
             }
         }
