@@ -472,7 +472,7 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
 
                     if (LoadSong(waveformtrack))
                     {
-                        SongVoice = FX_PlayLoopedAuto(SongPtr, SongLength, 0, 0, 0,
+                        SongVoice = FX_Play(SongPtr, SongLength, 0, 0, 0,
                                                       255, 255, 255, FX_MUSIC_PRIORITY, MUSIC_ID);
                         if (SongVoice > FX_Ok)
                         {
@@ -508,7 +508,7 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
     }
     else
     {
-        SongVoice = FX_PlayLoopedAuto(SongPtr, SongLength, 0, 0, 0,
+        SongVoice = FX_Play(SongPtr, SongLength, 0, 0, 0,
                                       255, 255, 255, FX_MUSIC_PRIORITY, MUSIC_ID);
         if (SongVoice > FX_Ok)
         {
@@ -1020,7 +1020,7 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
 
         if (sound_dist < 255 || (flags & v3df_init))
         {
-            voice = FX_PlayLoopedAuto((char *)vp->data, vp->datalen, 0, 0,
+            voice = FX_Play((char *)vp->data, vp->datalen, 0, 0,
                                       pitch, loopvol, loopvol, loopvol, priority, num);
         }
         else
@@ -1031,13 +1031,13 @@ PlaySound(int num, int *x, int *y, int *z, Voc3D_Flags flags)
     //if(!flags & v3df_init)  // If not initing sound, play it
     if (tx==0 && ty==0 && tz==0)     // It's a non-inlevel sound
     {
-        voice = FX_PlayAuto((char *)vp->data, vp->datalen, pitch, 255, 255, 255, priority, num);
+        voice = FX_Play((char *)vp->data, vp->datalen, -1, -1, pitch, 255, 255, 255, priority, num);
     }
     else     // It's a 3d sound
     {
         if (sound_dist < 255)
         {
-            voice = FX_PlayAuto3D((char *)vp->data, vp->datalen, FX_ONESHOT, pitch, angle, sound_dist, priority, num);
+            voice = FX_Play3D((char *)vp->data, vp->datalen, FX_ONESHOT, pitch, angle, sound_dist, priority, num);
         }
         else
             voice = -1;
@@ -1076,7 +1076,7 @@ void PlaySoundRTS(int rts_num)
 
     ASSERT(rtsptr);
 
-    voice = FX_PlayAuto3D(rtsptr, RTS_SoundLength(rts_num - 1), FX_ONESHOT, 0, 0, 0, 255, -rts_num);
+    voice = FX_Play3D(rtsptr, RTS_SoundLength(rts_num - 1), FX_ONESHOT, 0, 0, 0, 255, -rts_num);
 
     if (voice <= FX_Ok)
     {
@@ -1165,21 +1165,12 @@ SoundStartup(void)
 {
     int32_t status;
     void *initdata = 0;
-    int fxdevicetype;
 
     // if they chose None lets return
     if (FXDevice < 0)
     {
         gs.FxOn = FALSE;
         return;
-    }
-    else if (FXDevice == 0)
-    {
-        fxdevicetype = ASS_AutoDetect;
-    }
-    else
-    {
-        fxdevicetype = FXDevice - 1;
     }
 
 #ifdef MIXERTYPEWIN
@@ -1188,7 +1179,7 @@ SoundStartup(void)
 
     //gs.FxOn = TRUE;
 
-    status = FX_Init(fxdevicetype, NumVoices, NumChannels, NumBits, MixRate, initdata);
+    status = FX_Init(NumVoices, NumChannels, MixRate, initdata);
     if (status == FX_Ok)
     {
         FxInitialized = TRUE;
@@ -1202,13 +1193,7 @@ SoundStartup(void)
         buildprintf("Sound error: %s\n",FX_ErrorString(FX_Error));
     }
 
-    status = FX_SetCallBack(SoundCallBack);
-
-    if (status != FX_Ok)
-    {
-        buildprintf("Sound error: %s\n",FX_ErrorString(FX_Error));
-    }
-
+    FX_SetCallBack(SoundCallBack);
 }
 
 /*
@@ -1249,6 +1234,7 @@ SoundShutdown(void)
 ===================
 */
 
+#if 0
 void loadtmb(void)
 {
     char tmb[8000];
@@ -1258,35 +1244,23 @@ void loadtmb(void)
     if (fil == -1)
         return;
 
-    l = min(kfilelength(fil), sizeof(tmb));
+    l = min((size_t)kfilelength(fil), sizeof(tmb));
     kread(fil,tmb,l);
     MUSIC_RegisterTimbreBank(tmb);
     kclose(fil);
 }
+#endif
 
 void MusicStartup(void)
 {
-    int32_t status;
-    int devicetype;
-
     // if they chose None lets return
     if (MusicDevice < 0)
     {
         gs.MusicOn = FALSE;
         return;
     }
-    else if (MusicDevice == 0)
-    {
-        devicetype = ASS_AutoDetect;
-    }
-    else
-    {
-        devicetype = MusicDevice - 1;
-    }
 
-    status = MUSIC_Init(devicetype, 0);
-
-    if (status == MUSIC_Ok)
+    if (MUSIC_Init(0, 0) == MUSIC_Ok || MUSIC_Init(1, 0) == MUSIC_Ok)
     {
         MusicInitialized = TRUE;
         MUSIC_SetVolume(gs.MusicVolume);
@@ -1297,8 +1271,10 @@ void MusicStartup(void)
         gs.MusicOn = FALSE;
     }
 
+#if 0
     if (MusicInitialized)
         loadtmb();
+#endif
 }
 
 void COVER_SetReverb(int amt)
