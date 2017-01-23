@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "compat.h"
 
-char *WhatGUID(const GUID *guid)
+char const * WhatGUID(const GUID *guid)
 {
     if (guid == &GUID_XAxis) return "&GUID_XAxis";
     if (guid == &GUID_YAxis) return "&GUID_YAxis";

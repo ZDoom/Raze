@@ -69,7 +69,7 @@ int main(void)
             continue;
         }
         else {
-            char *format;
+            char const * format;
             char flags[4] = "", flagsc = 0;
             switch (mip.format) {
                 case GL_COMPRESSED_RGB_S3TC_DXT1_EXT: format = "RGB DXT1"; break;

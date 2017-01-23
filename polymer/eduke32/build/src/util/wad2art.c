@@ -107,7 +107,7 @@ void savenames(void)
     }
 }
 
-void showart (char *part)
+void showart (char const * part)
 {
     char yoff;
     short xsiz, ysiz;

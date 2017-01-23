@@ -897,7 +897,7 @@ void setsectorfield(int i, int fieldnum, int newval)
     }
 }
 
-int getwadindex(char *nam)
+int getwadindex(char const * nam)
 {
     int i, j;
 

@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     unsigned char rgbout[3];
     int idx, step, rampnum;
     FILE* fh;
-    char *outfile = "palette.dat";
+    char const * outfile = "palette.dat";
 
     memset(palette,0,sizeof(palette));
 

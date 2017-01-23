@@ -6,7 +6,6 @@
 #include "compat.h"
 
 #define DEFAULT_OUTPUT_FILE "enumdisplay.txt"
-char *outputfile = DEFAULT_OUTPUT_FILE;
 
 HMODULE      hDDrawDLL = NULL;
 LPDIRECTDRAW lpDD      = NULL;
@@ -88,6 +87,8 @@ void UninitDirectDraw(void)
 
 int main(int argc, char **argv)
 {
+    char const * outputfile = DEFAULT_OUTPUT_FILE;
+
     int i;
 
     DEVMODE devmode;

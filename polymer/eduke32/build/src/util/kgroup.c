@@ -21,7 +21,7 @@ static char filespec[MAXFILES][128], filelist[MAXFILES][16];
 static int fileleng[MAXFILES];
 
 
-static char *matchstr = "*.*";
+static char const * matchstr = "*.*";
 int checkmatch(const struct Bdirent *a)
 {
     if (a->mode & BS_IFDIR) return 0;    // is a directory
@@ -46,7 +46,8 @@ void findfiles(const char *dafilespec)
 {
     struct Bdirent *name;
     int daspeclen;
-    char daspec[128], *dir;
+    char daspec[128];
+    char const * dir;
     BDIR *di;
 
     strcpy(daspec,dafilespec);
