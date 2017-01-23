@@ -198,8 +198,8 @@ USE_LUAJIT_2_1 ?= 0
 USE_ASM64 ?= 0
 
 ifeq (0,$(USE_OPENGL))
-    POLYMER = 0
-    USE_LIBVPX = 0
+    override POLYMER = 0
+    override USE_LIBVPX = 0
 endif
 
 # Debugging/Build options
