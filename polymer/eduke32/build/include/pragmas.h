@@ -168,7 +168,11 @@ FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
     FORCE_INLINE int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                              \
     {                                                                                                                  \
         return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(a));                                                       \
-    }
+    }                                                                                                                  \
+    FORCE_INLINE int32_t tmulscale##a(int32_t eax, int32_t edx, int32_t ebx, int32_t ecx, int32_t esi, int32_t edi)    \
+    {                                                                                                                  \
+        return dw(((qw(eax) * edx) + (qw(ebx) * ecx) + (qw(esi) * edi)) >> by(a));                         \
+    }                                                                                                                  \
 
 EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 

@@ -37,7 +37,29 @@ static inline int32_t dmulscale##x(int32_t a, int32_t d, int32_t S, int32_t D) \
 		: "xer" \
 	); \
 	return sumlo; \
-}
+} \
+static inline int32_t tmulscale##x(int32_t a, int32_t d, int32_t b, int32_t c, int32_t S, int32_t D) \
+{ \
+    int32_t mulhi, mullo, sumhi, sumlo; \
+    __asm__( \
+        " mullw  %0, %4, %5\n" \
+        " mulhw  %1, %4, %5\n" \
+        " mullw  %2, %6, %7\n" \
+        " mulhw  %3, %6, %7\n" \
+        " addc   %0, %0, %2\n" \
+        " adde   %1, %1, %3\n" \
+        " mullw  %2, %8, %9\n" \
+        " mulhw  %3, %8, %9\n" \
+        " addc   %0, %0, %2\n" \
+        " adde   %1, %1, %3\n" \
+        " srwi   %0, %0, %10\n" \
+        " insrwi %0, %1, %10, 0\n" \
+        : "=&r"(sumlo), "=&r"(sumhi), "=&r"(mullo), "=&r"(mulhi) \
+        : "r"(a), "r"(d), "r"(b), "r"(c), "r"(S), "r"(D), "i"(x) \
+        : "xer" \
+        ); \
+    return sumlo; \
+} \
 
 EDUKE32_GENERATE_PRAGMAS
 #undef EDUKE32_SCALER_PRAGMA
@@ -103,6 +125,27 @@ static inline int32_t dmulscale32(int32_t a, int32_t d, int32_t S, int32_t D)
         : "r"(a), "r"(d), "r"(S), "r"(D)
         : "xer"
         );
+    return sumhi;
+}
+
+static inline int32_t tmulscale32(int32_t a, int32_t d, int32_t b, int32_t c, int32_t S, int32_t D)
+{
+    int32_t mulhi, mullo, sumhi, sumlo;
+    __asm__(
+        " mullw  %0, %4, %5\n"
+        " mulhw  %1, %4, %5\n"
+        " mullw  %2, %6, %7\n"
+        " mulhw  %3, %6, %7\n"
+        " addc   %0, %0, %2\n"
+        " adde   %1, %1, %3\n"
+        " mullw  %2, %8, %9\n"
+        " mulhw  %3, %8, %9\n"
+        " addc   %0, %0, %2\n"
+        " adde   %1, %1, %3\n"
+        : "=&r"(sumlo), "=&r"(sumhi), "=&r"(mullo), "=&r"(mulhi)
+        : "r"(a), "r"(d), "r"(b), "r"(c), "r"(S), "r"(D)
+        : "xer"
+    );
     return sumhi;
 }
 
