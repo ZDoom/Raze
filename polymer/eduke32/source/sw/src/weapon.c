@@ -4112,7 +4112,7 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
     SPRITEp sp = &sprite[SpriteNum];
     SPRITEp np;
     USERp nu, u;
-    short i,new;
+    short i,New;
 
 
     // state, id, num, zlevel, min_jspeed, max_jspeed, min_vel, max_vel,
@@ -4278,10 +4278,10 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
 
         for (i = 0; i < p->num; i++)
         {
-            new = SpawnSprite(STAT_SKIP4, p->id, p->state, sp->sectnum,
+            New = SpawnSprite(STAT_SKIP4, p->id, p->state, sp->sectnum,
                               hit_x, hit_y, hit_z, hit_ang, 0);
-            np = &sprite[new];
-            nu = User[new];
+            np = &sprite[New];
+            nu = User[New];
 
             switch (nu->ID)
             {
@@ -4338,7 +4338,7 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
             nu->jump_speed += RANDOM_RANGE(p->max_jspeed - p->min_jspeed);
             nu->jump_speed = -nu->jump_speed;
 
-            //setspritez(new, (vec3_t *)np);
+            //setspritez(New, (vec3_t *)np);
             nu->xchange = MOVEx(np->xvel, np->ang);
             nu->ychange = MOVEy(np->xvel, np->ang);
 
@@ -4348,7 +4348,7 @@ SpawnBlood(short SpriteNum, short Weapon, short hit_ang, int hit_x, int hit_y, i
 
             SET(u->Flags, SPR_BOUNCE);
 
-            DoBeginJump(new);
+            DoBeginJump(New);
         }
     }
 
@@ -9195,15 +9195,15 @@ DoGrenade(int16_t Weapon)
     {
         SPRITEp np;
         USERp nu;
-        short new;
+        short New;
 
-        new = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
+        New = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
-        SetOwner(Weapon, new);
+        SetOwner(Weapon, New);
         np->shade = -40;
         np->xrepeat = 40;
         np->yrepeat = 40;
@@ -9217,7 +9217,7 @@ DoGrenade(int16_t Weapon)
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        ScaleSpriteVector(new, 22000);
+        ScaleSpriteVector(New, 22000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -9870,7 +9870,7 @@ DoTracer(int16_t Weapon)
     USERp u = User[Weapon];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
     short spawn_count = 0;
     short i;
 
@@ -9902,7 +9902,7 @@ DoEMP(int16_t Weapon)
     USERp u = User[Weapon];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
     short spawn_count = 0;
     short i;
 
@@ -9999,7 +9999,7 @@ DoTankShell(int16_t Weapon)
     USERp u = User[Weapon];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
     short spawn_count = 0;
     short i;
 
@@ -10031,7 +10031,7 @@ DoTracerStart(int16_t Weapon)
     USERp u = User[Weapon];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
     short spawn_count = 0;
     short i;
 
@@ -10059,7 +10059,7 @@ DoLaser(int16_t Weapon)
     USERp u = User[Weapon];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
     short spawn_count = 0;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
@@ -10083,10 +10083,10 @@ DoLaser(int16_t Weapon)
         spawn_count++;
         if (spawn_count < 256)
         {
-            new = SpawnSprite(STAT_MISSILE, PUFF, s_LaserPuff, sp->sectnum,
+            New = SpawnSprite(STAT_MISSILE, PUFF, s_LaserPuff, sp->sectnum,
                               sp->x, sp->y, sp->z, sp->ang, 0);
-            np = &sprite[new];
-            nu = User[new];
+            np = &sprite[New];
+            nu = User[New];
 
             np->shade = -40;
             np->xrepeat = 16;
@@ -10137,7 +10137,7 @@ DoRail(int16_t Weapon)
     short NewWeapon;
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
     short spawn_count = 0;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
@@ -10187,18 +10187,18 @@ DoRail(int16_t Weapon)
         spawn_count++;
         if (spawn_count < 128)
         {
-            new = SpawnSprite(STAT_MISSILE, PUFF, &s_RailPuff[0][0], sp->sectnum,
+            New = SpawnSprite(STAT_MISSILE, PUFF, &s_RailPuff[0][0], sp->sectnum,
                               sp->x, sp->y, sp->z, sp->ang, 20);
 
-            np = &sprite[new];
-            nu = User[new];
+            np = &sprite[New];
+            nu = User[New];
 
             np->xvel += (RANDOM_RANGE(140)-RANDOM_RANGE(140));
             np->yvel += (RANDOM_RANGE(140)-RANDOM_RANGE(140));
             np->zvel += (RANDOM_RANGE(140)-RANDOM_RANGE(140));
 
             nu->RotNum = 5;
-            NewStateGroup(new, sg_RailPuff);
+            NewStateGroup(New, sg_RailPuff);
 
             np->shade = -40;
             np->xrepeat = 10;
@@ -10213,7 +10213,7 @@ DoRail(int16_t Weapon)
             nu->ychange = u->ychange;
             nu->zchange = u->zchange;
 
-            ScaleSpriteVector(new, 1500);
+            ScaleSpriteVector(New, 1500);
 
             if (TEST(u->Flags, SPR_UNDERWATER))
                 SET(nu->Flags, SPR_UNDERWATER);
@@ -10229,7 +10229,7 @@ DoRailStart(int16_t Weapon)
     int32_t dax, day, daz;
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
@@ -10309,15 +10309,15 @@ DoRocket(int16_t Weapon)
     {
         SPRITEp np;
         USERp nu;
-        short new;
+        short New;
 
-        new = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
+        New = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
                           u->ox, u->oy, u->oz, sp->ang, 100);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
-        SetOwner(Weapon, new);
+        SetOwner(Weapon, New);
         np->shade = -40;
         np->xrepeat = 40;
         np->yrepeat = 40;
@@ -10331,7 +10331,7 @@ DoRocket(int16_t Weapon)
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        ScaleSpriteVector(new, 20000);
+        ScaleSpriteVector(New, 20000);
 
         //nu->zchange -= Z(8);
 
@@ -10349,7 +10349,7 @@ DoMicroMini(int16_t Weapon)
     USERp u = User[Weapon];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
     short spawn_count = 0;
     short i;
 
@@ -10418,7 +10418,7 @@ DoMicro(int16_t Weapon)
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
     int32_t dax, day, daz;
-    short new;
+    short New;
 
     if (SW_SHAREWARE) return FALSE; // JBF: verify
 
@@ -10437,13 +10437,13 @@ DoMicro(int16_t Weapon)
         SPRITEp np;
         USERp nu;
 
-        new = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
+        New = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
-        SetOwner(sp->owner, new);
+        SetOwner(sp->owner, New);
         np->shade = -40;
         np->xrepeat = 20;
         np->yrepeat = 20;
@@ -10458,7 +10458,7 @@ DoMicro(int16_t Weapon)
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        ScaleSpriteVector(new, 20000);
+        ScaleSpriteVector(New, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -10466,7 +10466,7 @@ DoMicro(int16_t Weapon)
         // last smoke
         if ((u->WaitTics -= MISSILEMOVETICS) <= 0)
         {
-            setspritez(new, (vec3_t *)np);
+            setspritez(New, (vec3_t *)np);
             NewStateGroup(Weapon, &sg_MicroMini[0]);
             sp->xrepeat = sp->yrepeat = 10;
             RESET(sp->cstat, CSTAT_SPRITE_INVISIBLE);
@@ -10824,7 +10824,7 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
     USERp eu = User[enemy];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
 
     if (TEST(u->Flags, SPR_UNDERWATER))
         return -1;
@@ -10882,15 +10882,15 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
         }
     }
 
-    new = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sectnum,
+    New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
-    np = &sprite[new];
-    nu = User[new];
+    np = &sprite[New];
+    nu = User[New];
 
     np->hitag = LUMINOUS; //Always full brightness
 
     if (enemy >= 0)
-        eu->flame = new;
+        eu->flame = New;
 
     np->xrepeat = 16;
     np->yrepeat = 16;
@@ -10912,7 +10912,7 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
         nu->Counter = 48; // max flame size
     }
 
-    SetOwner(sp->owner, new);
+    SetOwner(sp->owner, New);
     np->shade = -40;
     np->pal = nu->spal = u->spal;
     SET(np->cstat, CSTAT_SPRITE_YCENTER);
@@ -10923,27 +10923,27 @@ SpawnFireballFlames(int16_t SpriteNum, int16_t enemy)
 
     if (enemy >= 0)
     {
-        SetAttach(enemy, new);
+        SetAttach(enemy, New);
     }
     else
     {
         if (TestDontStickSector(np->sectnum))
         {
-            KillSprite(new);
+            KillSprite(New);
             return -1;
         }
 
         nu->floor_dist = nu->ceiling_dist = 0;
 
-        DoFindGround(new);
+        DoFindGround(New);
         nu->jump_speed = 0;
-        DoBeginJump(new);
+        DoBeginJump(New);
     }
 
     PlaySound(DIGI_FIRE1,&np->x,&np->y,&np->z,v3df_dontpan|v3df_doppler);
-    Set3DSoundOwner(new);
+    Set3DSoundOwner(New);
 
-    return new;
+    return New;
 }
 
 
@@ -10956,12 +10956,12 @@ SpawnBreakFlames(int16_t SpriteNum, int16_t enemy)
     USERp eu = User[enemy];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
 
-    new = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, sp->sectnum,
+    New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES+1, s_BreakFlames, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
-    np = &sprite[new];
-    nu = User[new];
+    np = &sprite[New];
+    nu = User[New];
 
     np->hitag = LUMINOUS; //Always full brightness
 
@@ -10969,7 +10969,7 @@ SpawnBreakFlames(int16_t SpriteNum, int16_t enemy)
     np->yrepeat = 16;
     nu->Counter = 48; // max flame size
 
-    //SetOwner(sp->owner, new);
+    //SetOwner(sp->owner, New);
     np->shade = -40;
     if (u)
         np->pal = nu->spal = u->spal;
@@ -10980,14 +10980,14 @@ SpawnBreakFlames(int16_t SpriteNum, int16_t enemy)
 
     nu->floor_dist = nu->ceiling_dist = 0;
 
-    DoFindGround(new);
+    DoFindGround(New);
     nu->jump_speed = 0;
-    DoBeginJump(new);
+    DoBeginJump(New);
 
     PlaySound(DIGI_FIRE1,&np->x,&np->y,&np->z,v3df_dontpan|v3df_doppler);
-    Set3DSoundOwner(new);
+    Set3DSoundOwner(New);
 
-    return new;
+    return New;
 }
 
 
@@ -10998,12 +10998,12 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
     USERp u = User[SpriteNum];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
 
-    new = SpawnSprite(STAT_STATIC_FIRE, FIREBALL_FLAMES, NULL, sp->sectnum,
+    New = SpawnSprite(STAT_STATIC_FIRE, FIREBALL_FLAMES, NULL, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
-    np = &sprite[new];
-    nu = User[new];
+    np = &sprite[New];
+    nu = User[New];
 
     if (RANDOM_RANGE(1000) > 500)
         np->picnum = 3143;
@@ -11018,7 +11018,7 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
     np->yrepeat = 32;
     //nu->Counter = 48; // max flame size
 
-    //SetOwner(sp->owner, new);
+    //SetOwner(sp->owner, New);
     np->shade = -40;
     np->pal = nu->spal = u->spal;
     //SET(np->cstat, CSTAT_SPRITE_YCENTER);
@@ -11030,14 +11030,14 @@ SpawnBreakStaticFlames(int16_t SpriteNum)
 
     np->z = getflorzofslope(np->sectnum,np->x,np->y);
 
-    //DoFindGround(new);
+    //DoFindGround(New);
     //nu->jump_speed = 0;
-    //DoBeginJump(new);
+    //DoBeginJump(New);
 
     PlaySound(DIGI_FIRE1,&np->x,&np->y,&np->z,v3df_dontpan|v3df_doppler);
-    Set3DSoundOwner(new);
+    Set3DSoundOwner(New);
 
-    return new;
+    return New;
 }
 
 
@@ -12702,7 +12702,7 @@ DoMirv(int16_t Weapon)
 {
     SPRITEp sp = &sprite[Weapon], np;
     USERp u = User[Weapon], nu;
-    short new;
+    short New;
     int offset;
     int ox, oy, oz;
 
@@ -12758,18 +12758,18 @@ DoMirv(int16_t Weapon)
 
         for (i = 0; i < 2; i++)
         {
-            new = SpawnSprite(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], sp->sectnum,
+            New = SpawnSprite(STAT_MISSILE, MIRV_METEOR, &sg_MirvMeteor[0][0], sp->sectnum,
                               sp->x, sp->y, sp->z, NORM_ANGLE(sp->ang + angs[i]), 800);
 
-            np = &sprite[new];
-            nu = User[new];
+            np = &sprite[New];
+            nu = User[New];
 
             nu->RotNum = 5;
-            NewStateGroup(new, &sg_MirvMeteor[0]);
+            NewStateGroup(New, &sg_MirvMeteor[0]);
             nu->StateEnd = s_MirvMeteorExp;
 
             //np->owner = Weapon;
-            SetOwner(Weapon, new);
+            SetOwner(Weapon, New);
             np->shade = -40;
             np->xrepeat = 40;
             np->yrepeat = 40;
@@ -13382,7 +13382,7 @@ InitSerpRing(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP, np;
     USERp u = User[SpriteNum], nu;
-    short ang, ang_diff, ang_start, ang_finish, missiles, new;
+    short ang, ang_diff, ang_start, ang_finish, missiles, New;
     short max_missiles;
 
 #define SERP_RING_DIST 2800 // Was 3500
@@ -13403,14 +13403,14 @@ InitSerpRing(short SpriteNum)
 
     for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
     {
-        new = SpawnSprite(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], sp->sectnum, sp->x, sp->y, sp->z, ang, 0);
+        New = SpawnSprite(STAT_SKIP4, SKULL_SERP, &s_SkullRing[0][0], sp->sectnum, sp->x, sp->y, sp->z, ang, 0);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
         np->xvel = 500;
         //np->owner = SpriteNum;
-        SetOwner(SpriteNum, new);
+        SetOwner(SpriteNum, New);
         np->shade = -20;
         np->xrepeat = 64;
         np->yrepeat = 64;
@@ -13438,8 +13438,8 @@ InitSerpRing(short SpriteNum)
         nu->Rot = sg_SkullRing;
 
         // defaults do change the statnum
-        EnemyDefaults(new, NULL, NULL);
-        change_sprite_stat(new, STAT_SKIP4);
+        EnemyDefaults(New, NULL, NULL);
+        change_sprite_stat(New, STAT_SKIP4);
         RESET(np->extra, SPRX_PLAYER_OR_ENEMY);
 
         np->clipdist = (128+64) >> 2;
@@ -13458,7 +13458,7 @@ InitSerpRing2(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP, np;
     USERp u = User[SpriteNum], nu;
-    short ang, ang_diff, ang_start, ang_finish, missiles, new;
+    short ang, ang_diff, ang_start, ang_finish, missiles, New;
     short max_missiles;
     short i;
 
@@ -13482,13 +13482,13 @@ InitSerpRing2(short SpriteNum)
 
         for (missiles = 0, ang = ang_start; missiles < max_missiles; ang += ang_diff, missiles++)
         {
-            new = SpawnSprite(STAT_MISSILE_SKIP4, SKULL_SERP, &s_SkullRing[0][0], sp->sectnum, sp->x, sp->y, sp->z, ang, 0);
+            New = SpawnSprite(STAT_MISSILE_SKIP4, SKULL_SERP, &s_SkullRing[0][0], sp->sectnum, sp->x, sp->y, sp->z, ang, 0);
 
-            np = &sprite[new];
-            nu = User[new];
+            np = &sprite[New];
+            nu = User[New];
 
             //np->owner = SpriteNum;
-            SetOwner(SpriteNum, new);
+            SetOwner(SpriteNum, New);
             np->shade = -20;
             np->xrepeat = 64;
             np->yrepeat = 64;
@@ -13516,9 +13516,9 @@ InitSerpRing2(short SpriteNum)
             nu->Rot = sg_SkullRing;
 
             // defaults do change the statnum
-            EnemyDefaults(new, NULL, NULL);
+            EnemyDefaults(New, NULL, NULL);
             RESET(np->extra, SPRX_PLAYER_OR_ENEMY);
-            change_sprite_stat(new, STAT_MISSILE_SKIP4);
+            change_sprite_stat(New, STAT_MISSILE_SKIP4);
 
             np->clipdist = (128+64) >> 2;
             SET(nu->Flags, SPR_XFLIP_TOGGLE);
@@ -14291,7 +14291,7 @@ InitSumoSkull(short SpriteNum)
 {
     SPRITEp sp = User[SpriteNum]->SpriteP, np;
     USERp u = User[SpriteNum], nu;
-    short ang, ang_diff, ang_start, ang_finish, missiles, new;
+    short ang, ang_diff, ang_start, ang_finish, missiles, New;
     short max_missiles;
 
     extern STATE s_SkullExplode[];
@@ -14302,13 +14302,13 @@ InitSumoSkull(short SpriteNum)
 
     PlaySound(DIGI_SERPSUMMONHEADS, &sp->x, &sp->y, &sp->z, v3df_none);
 
-    new = SpawnSprite(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], sp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
+    New = SpawnSprite(STAT_ENEMY, SKULL_R0, &s_SkullWait[0][0], sp->sectnum, sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
-    np = &sprite[new];
-    nu = User[new];
+    np = &sprite[New];
+    nu = User[New];
 
     np->xvel = 500;
-    SetOwner(SpriteNum, new);
+    SetOwner(SpriteNum, New);
     np->shade = -20;
     np->xrepeat = 64;
     np->yrepeat = 64;
@@ -14331,8 +14331,8 @@ InitSumoSkull(short SpriteNum)
     nu->Health = 100;
 
     // defaults do change the statnum
-    EnemyDefaults(new, NULL, NULL);
-    //change_sprite_stat(new, STAT_SKIP4);
+    EnemyDefaults(New, NULL, NULL);
+    //change_sprite_stat(New, STAT_SKIP4);
     SET(np->extra, SPRX_PLAYER_OR_ENEMY);
 
     np->clipdist = (128+64) >> 2;
@@ -16432,7 +16432,7 @@ InitSerpSpell(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], np;
     USERp u = User[SpriteNum], nu;
     int dist;
-    short new, save_ang, i;
+    short New, save_ang, i;
     short oclipdist;
 
     static short lat_ang[] =
@@ -16449,20 +16449,20 @@ InitSerpSpell(short SpriteNum)
     {
         sp->ang = getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y);
 
-        new = SpawnSprite(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], sp->sectnum,
+        New = SpawnSprite(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 1500);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
         np->z = SPRITEp_TOS(sp);
 
         nu->RotNum = 5;
-        NewStateGroup(new, &sg_SerpMeteor[0]);
+        NewStateGroup(New, &sg_SerpMeteor[0]);
         nu->StateEnd = s_MirvMeteorExp;
 
         //np->owner = SpriteNum;
-        SetOwner(SpriteNum, new);
+        SetOwner(SpriteNum, New);
         np->shade = -40;
         PlaySound(DIGI_SERPMAGICLAUNCH, &sp->x, &sp->y, &sp->z, v3df_none);
         nu->spal = np->pal = 27; // Bright Green
@@ -16480,7 +16480,7 @@ InitSerpSpell(short SpriteNum)
         sp->clipdist = 1;
 
         np->ang = NORM_ANGLE(np->ang + lat_ang[i]);
-        HelpMissileLateral(new, 4200L);
+        HelpMissileLateral(New, 4200L);
         np->ang = NORM_ANGLE(np->ang - lat_ang[i]);
 
         // find the distance to the target (player)
@@ -16494,7 +16494,7 @@ InitSerpSpell(short SpriteNum)
         nu->ychange = MOVEy(np->xvel, np->ang);
         nu->zchange = np->zvel;
 
-        MissileSetPos(new, DoMirvMissile, 400);
+        MissileSetPos(New, DoMirvMissile, 400);
         sp->clipdist = oclipdist;
 
         if (TEST(u->Flags, SPR_UNDERWATER))
@@ -16549,7 +16549,7 @@ InitSerpMonstSpell(short SpriteNum)
     SPRITEp sp = &sprite[SpriteNum], np;
     USERp u = User[SpriteNum], nu;
     int dist;
-    short new, save_ang, i;
+    short New, save_ang, i;
     short oclipdist;
 
     static short lat_ang[] =
@@ -16568,21 +16568,21 @@ InitSerpMonstSpell(short SpriteNum)
     {
         sp->ang = getangle(u->tgt_sp->x - sp->x, u->tgt_sp->y - sp->y);
 
-        new = SpawnSprite(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], sp->sectnum,
+        New = SpawnSprite(STAT_MISSILE, SERP_METEOR, &sg_SerpMeteor[0][0], sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 500);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
         nu->spal = np->pal = 25; // Bright Red
         np->z = SPRITEp_TOS(sp);
 
         nu->RotNum = 5;
-        NewStateGroup(new, &sg_SerpMeteor[0]);
+        NewStateGroup(New, &sg_SerpMeteor[0]);
         //nu->StateEnd = s_MirvMeteorExp;
         nu->StateEnd = s_TeleportEffect2;
 
-        SetOwner(SpriteNum, new);
+        SetOwner(SpriteNum, New);
         np->shade = -40;
         np->xrepeat = 122;
         np->yrepeat = 116;
@@ -16599,7 +16599,7 @@ InitSerpMonstSpell(short SpriteNum)
         sp->clipdist = 1;
 
         np->ang = NORM_ANGLE(np->ang + lat_ang[i]);
-        HelpMissileLateral(new, 4200L);
+        HelpMissileLateral(New, 4200L);
         np->ang = NORM_ANGLE(np->ang - lat_ang[i]);
 
         // find the distance to the target (player)
@@ -16613,7 +16613,7 @@ InitSerpMonstSpell(short SpriteNum)
         nu->ychange = MOVEy(np->xvel, np->ang);
         nu->zchange = np->zvel;
 
-        MissileSetPos(new, DoMirvMissile, 400);
+        MissileSetPos(New, DoMirvMissile, 400);
         sp->clipdist = oclipdist;
 
         if (TEST(u->Flags, SPR_UNDERWATER))
@@ -17719,7 +17719,7 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, short hit_sect, short hit_wall, in
     USERp hu = User[hit_sprite];
     SPRITEp wp;
     USERp wu;
-    short new;
+    short New;
     short id;
 
     // hit a NPC or PC?
@@ -17737,9 +17737,9 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, short hit_sect, short hit_wall, in
 
         if (ID>0) id = ID;
 
-        new = SpawnSprite(STAT_MISSILE, id, s_UziSmoke, 0, hit_x, hit_y, hit_z, sp->ang, 0);
-        wp = &sprite[new];
-        wu = User[new];
+        New = SpawnSprite(STAT_MISSILE, id, s_UziSmoke, 0, hit_x, hit_y, hit_z, sp->ang, 0);
+        wp = &sprite[New];
+        wu = User[New];
         wp->shade = -40;
 
         if (hu->PlayerP)
@@ -17767,10 +17767,10 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, short hit_sect, short hit_wall, in
             break;
         }
 
-        SetOwner(sp - sprite, new);
+        SetOwner(sp - sprite, New);
         wp->ang = sp->ang;
 
-        setspritez(new, &hit_pos);
+        setspritez(New, &hit_pos);
         SET(wp->cstat, CSTAT_SPRITE_YCENTER);
         RESET(wp->cstat, CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -17791,7 +17791,7 @@ BulletHitSprite(SPRITEp sp, short hit_sprite, short hit_sect, short hit_wall, in
             }
         }
 
-        DoHitscanDamage(new, hit_sprite);
+        DoHitscanDamage(New, hit_sprite);
 
         return TRUE;
     }
@@ -20433,16 +20433,16 @@ SpawnVehicleSmoke(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum],np;
     USERp u = User[SpriteNum],nu;
-    short new;
+    short New;
 
     if (MoveSkip2 != 0)
         return FALSE;
 
-    new = SpawnSprite(STAT_MISSILE, PUFF, s_VehicleSmoke, sp->sectnum,
+    New = SpawnSprite(STAT_MISSILE, PUFF, s_VehicleSmoke, sp->sectnum,
                       sp->x, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
-    np = &sprite[new];
-    nu = User[new];
+    np = &sprite[New];
+    nu = User[New];
 
     nu->WaitTics = 1*120;
     np->shade = -40;
@@ -20470,13 +20470,13 @@ SpawnSmokePuff(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum],np;
     USERp u = User[SpriteNum],nu;
-    short new;
+    short New;
 
-    new = SpawnSprite(STAT_MISSILE, PUFF, s_WaterSmoke, sp->sectnum,
+    New = SpawnSprite(STAT_MISSILE, PUFF, s_WaterSmoke, sp->sectnum,
                       sp->x, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
-    np = &sprite[new];
-    nu = User[new];
+    np = &sprite[New];
+    nu = User[New];
 
     nu->WaitTics = 1*120;
     np->shade = -40;

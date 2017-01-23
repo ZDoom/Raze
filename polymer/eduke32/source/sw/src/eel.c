@@ -419,15 +419,15 @@ NewEel(short SpriteNum)
     USERp nu;
     SPRITEp np;
     ANIMATOR DoActorDecide;
-    short new;
+    short New;
 
 
-    new = SpawnSprite(STAT_ENEMY, EEL_RUN_R0, &s_EelBirth, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 50);
+    New = SpawnSprite(STAT_ENEMY, EEL_RUN_R0, &s_EelBirth, sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 50);
 
-    nu = User[new];
-    np = &sprite[new];
+    nu = User[New];
+    np = &sprite[New];
 
-    ChangeState(new, &s_EelBirth);
+    ChangeState(New, &s_EelBirth);
     nu->StateEnd = s_EelDie;
     nu->Rot = sg_EelRun;
     np->pal = nu->spal = u->spal;
@@ -436,7 +436,7 @@ NewEel(short SpriteNum)
 
     np->shade = sp->shade;
 
-    EelCommon(new);
+    EelCommon(New);
 
     return 0;
 }

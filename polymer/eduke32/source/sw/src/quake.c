@@ -53,11 +53,11 @@ extern SWBOOL GamePaused;
 
 short CopyQuakeSpotToOn(SPRITEp sp)
 {
-    short new;
+    short New;
     SPRITEp np;
 
-    new = COVERinsertsprite(sp->sectnum, STAT_QUAKE_SPOT);
-    np = &sprite[new];
+    New = COVERinsertsprite(sp->sectnum, STAT_QUAKE_SPOT);
+    np = &sprite[New];
 
     memcpy(np, sp, sizeof(SPRITE));
 
@@ -68,11 +68,11 @@ short CopyQuakeSpotToOn(SPRITEp sp)
     np->extra = 0;
     np->owner = -1;
 
-    change_sprite_stat(new, STAT_QUAKE_ON);
+    change_sprite_stat(New, STAT_QUAKE_ON);
 
     QUAKE_Duration(np) *= 120;
 
-    return new;
+    return New;
 }
 
 

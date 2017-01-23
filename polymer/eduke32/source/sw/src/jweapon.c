@@ -304,15 +304,15 @@ SpawnMidSplash(short SpriteNum)
     USERp u = User[SpriteNum];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
 
-    new = SpawnSprite(STAT_MISSILE, GOREDrip, s_GoreSplash, sp->sectnum,
+    New = SpawnSprite(STAT_MISSILE, GOREDrip, s_GoreSplash, sp->sectnum,
                       sp->x, sp->y, SPRITEp_MID(sp), sp->ang, 0);
 
-    np = &sprite[new];
-    nu = User[new];
+    np = &sprite[New];
+    nu = User[New];
 
-    //SetOwner(Weapon, new);
+    //SetOwner(Weapon, New);
     np->shade = -12;
     np->xrepeat = 70-RANDOM_RANGE(20);
     np->yrepeat = 70-RANDOM_RANGE(20);
@@ -340,15 +340,15 @@ SpawnFloorSplash(short SpriteNum)
     USERp u = User[SpriteNum];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
 
-    new = SpawnSprite(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, sp->sectnum,
+    New = SpawnSprite(STAT_MISSILE, GOREDrip, s_GoreFloorSplash, sp->sectnum,
                       sp->x, sp->y, sp->z, sp->ang, 0);
 
-    np = &sprite[new];
-    nu = User[new];
+    np = &sprite[New];
+    nu = User[New];
 
-    //SetOwner(Weapon, new);
+    //SetOwner(Weapon, New);
     np->shade = -12;
     np->xrepeat = 70-RANDOM_RANGE(20);
     np->yrepeat = 70-RANDOM_RANGE(20);
@@ -564,15 +564,15 @@ DoBloodSpray(int16_t Weapon)
     {
         SPRITEp np;
         USERp nu;
-        short new;
+        short New;
 
-        new = SpawnSprite(STAT_MISSILE, GOREDrip, s_BloodSpray, sp->sectnum,
+        New = SpawnSprite(STAT_MISSILE, GOREDrip, s_BloodSpray, sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
-        SetOwner(Weapon, new);
+        SetOwner(Weapon, New);
         np->shade = -12;
         np->xrepeat = 40-RANDOM_RANGE(30);
         np->yrepeat = 40-RANDOM_RANGE(30);
@@ -591,7 +591,7 @@ DoBloodSpray(int16_t Weapon)
         nu->ychange = u->ychange;
         nu->zchange = u->zchange;
 
-        ScaleSpriteVector(new, 20000);
+        ScaleSpriteVector(New, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -789,16 +789,16 @@ DoPhosphorus(int16_t Weapon)
     {
         SPRITEp np;
         USERp nu;
-        short new;
+        short New;
 
-        new = SpawnSprite(STAT_SKIP4, PUFF, s_PhosphorExp, sp->sectnum,
+        New = SpawnSprite(STAT_SKIP4, PUFF, s_PhosphorExp, sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
         np->hitag = LUMINOUS;           // Always full brightness
-        SetOwner(Weapon, new);
+        SetOwner(Weapon, New);
         np->shade = -40;
         np->xrepeat = 12 + RANDOM_RANGE(10);
         np->yrepeat = 12 + RANDOM_RANGE(10);
@@ -819,7 +819,7 @@ DoPhosphorus(int16_t Weapon)
 
         nu->spal = np->pal = PALETTE_PLAYER3;   // RED
 
-        ScaleSpriteVector(new, 20000);
+        ScaleSpriteVector(New, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -1042,15 +1042,15 @@ DoChemBomb(int16_t Weapon)
     {
         SPRITEp np;
         USERp nu;
-        short new;
+        short New;
 
-        new = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
+        New = SpawnSprite(STAT_MISSILE, PUFF, s_Puff, sp->sectnum,
                           sp->x, sp->y, sp->z, sp->ang, 100);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
-        SetOwner(Weapon, new);
+        SetOwner(Weapon, New);
         np->shade = -40;
         np->xrepeat = 40;
         np->yrepeat = 40;
@@ -1068,7 +1068,7 @@ DoChemBomb(int16_t Weapon)
 
         nu->spal = np->pal = PALETTE_PLAYER6;
 
-        ScaleSpriteVector(new, 20000);
+        ScaleSpriteVector(New, 20000);
 
         if (TEST(u->Flags, SPR_UNDERWATER))
             SET(nu->Flags, SPR_UNDERWATER);
@@ -1274,7 +1274,7 @@ SpawnRadiationCloud(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], np;
     USERp u = User[SpriteNum], nu;
-    short new;
+    short New;
 
 
     if (!MoveSkip4)
@@ -1300,13 +1300,13 @@ SpawnRadiationCloud(short SpriteNum)
     if (TEST(u->Flags, SPR_UNDERWATER))
         return -1;
 
-    new = SpawnSprite(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, sp->sectnum,
+    New = SpawnSprite(STAT_MISSILE, RADIATION_CLOUD, s_RadiationCloud, sp->sectnum,
                       sp->x, sp->y, sp->z - RANDOM_P2(Z(8)), sp->ang, 0);
 
-    np = &sprite[new];
-    nu = User[new];
+    np = &sprite[New];
+    nu = User[New];
 
-    SetOwner(sp->owner, new);
+    SetOwner(sp->owner, New);
     nu->WaitTics = 1 * 120;
     np->shade = -40;
     np->xrepeat = 32;
@@ -1731,7 +1731,7 @@ SpawnFlashBombOnActor(int16_t enemy)
     USERp eu = User[enemy];
     SPRITEp np;
     USERp nu;
-    short new;
+    short New;
 
 
     // Forget about burnable sprites
@@ -1779,13 +1779,13 @@ SpawnFlashBombOnActor(int16_t enemy)
         }
     }
 
-    new = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, ep->sectnum,
+    New = SpawnSprite(STAT_MISSILE, FIREBALL_FLAMES, s_FireballFlames, ep->sectnum,
                       ep->x, ep->y, ep->z, ep->ang, 0);
-    np = &sprite[new];
-    nu = User[new];
+    np = &sprite[New];
+    nu = User[New];
 
     if (enemy >= 0)
-        eu->flame = new;
+        eu->flame = New;
 
     np->xrepeat = 16;
     np->yrepeat = 16;
@@ -1805,10 +1805,10 @@ SpawnFlashBombOnActor(int16_t enemy)
 
     if (enemy >= 0)
     {
-        SetAttach(enemy, new);
+        SetAttach(enemy, New);
     }
 
-    return new;
+    return New;
 }
 
 //////////////////////////////////////////////

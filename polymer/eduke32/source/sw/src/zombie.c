@@ -776,7 +776,7 @@ SetupZombie(short SpriteNum)
 int
 SpawnZombie(PLAYERp pp, short Weapon)
 {
-    short new,i,nexti;
+    short New,i,nexti;
     SPRITEp np,sp;
     USERp nu,u;
     short owner;
@@ -788,20 +788,20 @@ SpawnZombie(PLAYERp pp, short Weapon)
 
     //Zombies++;
 
-    new = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->pang, 0);
-    np = &sprite[new];
-    nu = User[new];
+    New = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], pp->cursectnum, pp->posx, pp->posy, pp->posz, pp->pang, 0);
+    np = &sprite[New];
+    nu = User[New];
     np->sectnum = pp->cursectnum;
     np->owner = owner;
     np->pal = nu->spal = User[owner]->spal;
     np->ang = RANDOM_P2(2048);
-    SetupZombie(new);
+    SetupZombie(New);
     //np->shade = sprite[pp->PlayerSprite].shade;
     np->shade = -10;
     SET(nu->Flags2, SPR2_DONT_TARGET_OWNER);
     SET(np->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
-    DoActorPickClosePlayer(new);
+    DoActorPickClosePlayer(New);
     //nu->tgt_sp = pp->SpriteP; // Make it target last killed player initially
 
     // make immediately active
@@ -811,9 +811,9 @@ SpawnZombie(PLAYERp pp, short Weapon)
     RESET(nu->Flags, SPR_FALLING);
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(new);
+    DoActorZrange(New);
 
-    return new;
+    return New;
 }
 
 int
@@ -821,7 +821,7 @@ SpawnZombie2(short Weapon)
 {
     SPRITEp sp = &sprite[Weapon];
     USERp u = User[Weapon];
-    short new,i,nexti;
+    short New,i,nexti;
     SPRITEp np;
     USERp nu;
     short owner;
@@ -852,20 +852,20 @@ SpawnZombie2(short Weapon)
 
 
     //Zombies++;
-    new = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
-    np = &sprite[new];
-    nu = User[new];
+    New = SpawnSprite(STAT_ENEMY, ZOMBIE_RUN_R0, s_ZombieRun[0], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 0);
+    np = &sprite[New];
+    nu = User[New];
     nu->Counter3 = 0;
     np->owner = owner;
     np->pal = nu->spal = User[owner]->spal;
     np->ang = RANDOM_P2(2048);
-    SetupZombie(new);
+    SetupZombie(New);
     //np->shade = sprite[pp->PlayerSprite].shade;
     np->shade = -10;
     SET(nu->Flags2, SPR2_DONT_TARGET_OWNER);
     SET(np->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
-    DoActorPickClosePlayer(new);
+    DoActorPickClosePlayer(New);
     //nu->tgt_sp = pp->SpriteP; // Make it target last killed player initially
 
     // make immediately active
@@ -875,9 +875,9 @@ SpawnZombie2(short Weapon)
     RESET(nu->Flags, SPR_FALLING);
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(new);
+    DoActorZrange(New);
 
-    return new;
+    return New;
 }
 
 int

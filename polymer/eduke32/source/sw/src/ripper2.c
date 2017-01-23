@@ -1257,7 +1257,7 @@ void Ripper2Hatch(short Weapon)
 {
     SPRITEp wp = &sprite[Weapon];
 
-    short new,i;
+    short New,i;
     SPRITEp np;
     USERp nu;
 #define MAX_RIPPER2S 1
@@ -1268,8 +1268,8 @@ void Ripper2Hatch(short Weapon)
 
     for (i = 0; i < MAX_RIPPER2S; i++)
     {
-        new = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
-        np = &sprite[new];
+        New = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
+        np = &sprite[New];
         memset(np,0,sizeof(SPRITE));
         np->sectnum = wp->sectnum;
         np->statnum = STAT_DEFAULT;
@@ -1282,16 +1282,16 @@ void Ripper2Hatch(short Weapon)
         np->ang = rip_ang[i];
         np->pal = 0;
         np->shade = -10;
-        SetupRipper2(new);
-        nu = User[new];
+        SetupRipper2(New);
+        nu = User[New];
 
         // make immediately active
         SET(nu->Flags, SPR_ACTIVE);
 
-        NewStateGroup(new, nu->ActorActionSet->Jump);
+        NewStateGroup(New, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
-        DoActorSetSpeed(new, FAST_SPEED);
-        PickJumpMaxSpeed(new, -600);
+        DoActorSetSpeed(New, FAST_SPEED);
+        PickJumpMaxSpeed(New, -600);
 
         SET(nu->Flags, SPR_JUMPING);
         RESET(nu->Flags, SPR_FALLING);
@@ -1299,9 +1299,9 @@ void Ripper2Hatch(short Weapon)
         nu->jump_grav = 8;
 
         // if I didn't do this here they get stuck in the air sometimes
-        DoActorZrange(new);
+        DoActorZrange(New);
 
-        DoJump(new);
+        DoJump(New);
     }
 }
 

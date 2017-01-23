@@ -368,7 +368,7 @@ DoVoxelShadow(SPRITEp tspr)
 void
 DoShadows(uspritetype * tsp, int viewz)
 {
-    uspritetype * new = &tsprite[spritesortcnt];
+    uspritetype * New = &tsprite[spritesortcnt];
     USERp tu = User[tsp->owner];
     int ground_dist = 0;
     int view_dist = 0;
@@ -393,24 +393,24 @@ DoShadows(uspritetype * tsp, int viewz)
     }
 
     tsp->sectnum = sectnum;
-    memcpy(new, tsp, sizeof(SPRITE));
+    memcpy(New, tsp, sizeof(SPRITE));
     // shadow is ALWAYS draw last - status is priority
-    new->statnum = MAXSTATUS;
-    new->sectnum = sectnum;
+    New->statnum = MAXSTATUS;
+    New->sectnum = sectnum;
 
     if ((tsp->yrepeat >> 2) > 4)
     {
         yrepeat = (tsp->yrepeat >> 2) - (SPRITEp_SIZE_Y(tsp) / 64) * 2;
-        xrepeat = new->xrepeat;
+        xrepeat = New->xrepeat;
     }
     else
     {
-        yrepeat = new->yrepeat;
-        xrepeat = new->xrepeat;
+        yrepeat = New->yrepeat;
+        xrepeat = New->xrepeat;
     }
 
-    new->shade = 127;
-    SET(new->cstat, CSTAT_SPRITE_TRANSLUCENT);
+    New->shade = 127;
+    SET(New->cstat, CSTAT_SPRITE_TRANSLUCENT);
 
     loz = tu->loz;
     if (tu->lo_sp)
@@ -429,7 +429,7 @@ DoShadows(uspritetype * tsp, int viewz)
 #endif
 
     // need to find the ground here
-    new->z = loz;
+    New->z = loz;
 
     // if below or close to sprites z don't bother to draw it
     if ((viewz - loz) > -Z(8))
@@ -451,11 +451,11 @@ DoShadows(uspritetype * tsp, int viewz)
     xrepeat = min(xrepeat, 255);
     yrepeat = min(yrepeat, 255);
 
-    new->xrepeat = xrepeat;
-    new->yrepeat = yrepeat;
+    New->xrepeat = xrepeat;
+    New->yrepeat = yrepeat;
 
     // Check for voxel items and use a round generic pic if so
-    //DoVoxelShadow(new);
+    //DoVoxelShadow(New);
 
     spritesortcnt++;
 }
@@ -463,7 +463,7 @@ DoShadows(uspritetype * tsp, int viewz)
 void
 DoMotionBlur(uspritetype const * tsp)
 {
-    uspritetype * new;
+    uspritetype * New;
     USERp tu = User[tsp->owner];
     int nx,ny,nz = 0,dx,dy,dz;
     short i, ang;
@@ -534,20 +534,20 @@ DoMotionBlur(uspritetype const * tsp)
 
     for (i = 0; i < tu->motion_blur_num; i++)
     {
-        new = &tsprite[spritesortcnt];
-        memcpy(new, tsp, sizeof(SPRITE));
-        SET(new->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP);
+        New = &tsprite[spritesortcnt];
+        memcpy(New, tsp, sizeof(SPRITE));
+        SET(New->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP);
 
-        new->x += dx;
-        new->y += dy;
+        New->x += dx;
+        New->y += dy;
         dx += nx;
         dy += ny;
 
-        new->z += dz;
+        New->z += dz;
         dz += nz;
 
-        new->xrepeat = xrepeat;
-        new->yrepeat = yrepeat;
+        New->xrepeat = xrepeat;
+        New->yrepeat = yrepeat;
 
         xrepeat -= repeat_adj;
         yrepeat -= repeat_adj;
@@ -566,7 +566,7 @@ void SetVoxelSprite(SPRITEp sp, short pic)
 void WarpCopySprite(void)
 {
     SPRITEp sp1, sp2, sp;
-    uspritetype * new;
+    uspritetype * New;
     short sn, nsn;
     short sn2, nsn2;
     short spnum, next_spnum;
@@ -599,20 +599,20 @@ void WarpCopySprite(void)
                     if (sprite[spnum].picnum == ST1)
                         continue;
 
-                    new = &tsprite[spritesortcnt];
-                    memcpy(new, &sprite[spnum], sizeof(SPRITE));
+                    New = &tsprite[spritesortcnt];
+                    memcpy(New, &sprite[spnum], sizeof(SPRITE));
                     spritesortcnt++;
-                    new->owner = spnum;
-                    new->statnum = 0;
+                    New->owner = spnum;
+                    New->statnum = 0;
 
-                    xoff = sp1->x - new->x;
-                    yoff = sp1->y - new->y;
-                    zoff = sp1->z - new->z;
+                    xoff = sp1->x - New->x;
+                    yoff = sp1->y - New->y;
+                    zoff = sp1->z - New->z;
 
-                    new->x = sp2->x - xoff;
-                    new->y = sp2->y - yoff;
-                    new->z = sp2->z - zoff;
-                    new->sectnum = sp2->sectnum;
+                    New->x = sp2->x - xoff;
+                    New->y = sp2->y - yoff;
+                    New->z = sp2->z - zoff;
+                    New->sectnum = sp2->sectnum;
                 }
 
                 TRAVERSE_SPRITE_SECT(headspritesect[sect2], spnum, next_spnum)
@@ -623,20 +623,20 @@ void WarpCopySprite(void)
                     if (sprite[spnum].picnum == ST1)
                         continue;
 
-                    new = &tsprite[spritesortcnt];
-                    memcpy(new, &sprite[spnum], sizeof(SPRITE));
+                    New = &tsprite[spritesortcnt];
+                    memcpy(New, &sprite[spnum], sizeof(SPRITE));
                     spritesortcnt++;
-                    new->owner = spnum;
-                    new->statnum = 0;
+                    New->owner = spnum;
+                    New->statnum = 0;
 
-                    xoff = sp2->x - new->x;
-                    yoff = sp2->y - new->y;
-                    zoff = sp2->z - new->z;
+                    xoff = sp2->x - New->x;
+                    yoff = sp2->y - New->y;
+                    zoff = sp2->z - New->z;
 
-                    new->x = sp1->x - xoff;
-                    new->y = sp1->y - yoff;
-                    new->z = sp1->z - zoff;
-                    new->sectnum = sp1->sectnum;
+                    New->x = sp1->x - xoff;
+                    New->y = sp1->y - yoff;
+                    New->z = sp1->z - zoff;
+                    New->sectnum = sp1->sectnum;
                 }
             }
         }
@@ -2050,11 +2050,11 @@ PostDraw(void)
 
 int CopySprite(uspritetype const * tsp, short newsector)
 {
-    short new;
+    short New;
     SPRITEp sp;
 
-    new = COVERinsertsprite(newsector, STAT_FAF_COPY);
-    sp = &sprite[new];
+    New = COVERinsertsprite(newsector, STAT_FAF_COPY);
+    sp = &sprite[New];
 
     sp->x = tsp->x;
     sp->y = tsp->y;
@@ -2074,7 +2074,7 @@ int CopySprite(uspritetype const * tsp, short newsector)
 
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    return new;
+    return New;
 }
 
 int ConnectCopySprite(uspritetype const * tsp)
@@ -2120,7 +2120,7 @@ void PreDrawStackedWater(void)
     short i,nexti;
     SPRITEp sp,np;
     USERp u,nu;
-    short new;
+    short New;
     int smr4,smr2;
     int x,y,z;
     short ang;
@@ -2148,13 +2148,13 @@ void PreDrawStackedWater(void)
                 sp = &sprite[i];
                 u = User[i];
 
-                new = ConnectCopySprite((uspritetype const *)sp);
-                if (new >= 0)
+                New = ConnectCopySprite((uspritetype const *)sp);
+                if (New >= 0)
                 {
-                    np = &sprite[new];
+                    np = &sprite[New];
 
                     // spawn a user
-                    User[new] = nu = (USERp)CallocMem(sizeof(USER), 1);
+                    User[New] = nu = (USERp)CallocMem(sizeof(USER), 1);
                     ASSERT(nu != NULL);
 
                     nu->xchange = -989898;

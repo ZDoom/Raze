@@ -556,14 +556,14 @@ NewCoolg(short SpriteNum)
     USERp nu;
     SPRITEp np;
     ANIMATOR DoActorDecide;
-    short new;
+    short New;
 
-    new = SpawnSprite(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 50);
+    New = SpawnSprite(STAT_ENEMY, COOLG_RUN_R0, &s_CoolgBirth[0], sp->sectnum, sp->x, sp->y, sp->z, sp->ang, 50);
 
-    nu = User[new];
-    np = &sprite[new];
+    nu = User[New];
+    np = &sprite[New];
 
-    ChangeState(new, &s_CoolgBirth[0]);
+    ChangeState(New, &s_CoolgBirth[0]);
     nu->StateEnd = s_CoolgDie;
     nu->Rot = sg_CoolgRun;
     np->pal = nu->spal = u->spal;
@@ -576,36 +576,36 @@ NewCoolg(short SpriteNum)
 
     // special case
     TotalKillable++;
-    CoolgCommon(new);
+    CoolgCommon(New);
 
     return 0;
 }
 
 
 int
-DoCoolgBirth(short new)
+DoCoolgBirth(short New)
 {
     SPRITEp sp;
     USERp u;
     ANIMATOR DoActorDecide;
 
-    u = User[new];
-    sp = &sprite[new];
+    u = User[New];
+    sp = &sprite[New];
 
     u->Health = HEALTH_COOLIE_GHOST;
     u->Attrib = &CoolgAttrib;
-    DoActorSetSpeed(new, NORM_SPEED);
+    DoActorSetSpeed(New, NORM_SPEED);
 
-    ChangeState(new, s_CoolgRun[0]);
+    ChangeState(New, s_CoolgRun[0]);
     u->StateEnd = s_CoolgDie;
     u->Rot = sg_CoolgRun;
 
-    EnemyDefaults(new, &CoolgActionSet, &CoolgPersonality);
+    EnemyDefaults(New, &CoolgActionSet, &CoolgPersonality);
     // special case
     TotalKillable--;
 
     SET(u->Flags, SPR_NO_SCAREDZ|SPR_XFLIP_TOGGLE);
-    CoolgCommon(new);
+    CoolgCommon(New);
 
     return 0;
 }

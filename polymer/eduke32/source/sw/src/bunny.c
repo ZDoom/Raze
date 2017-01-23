@@ -1180,7 +1180,7 @@ void BunnyHatch(short Weapon)
     SPRITEp wp = &sprite[Weapon];
     USERp wu = User[Weapon];
 
-    short new,i;
+    short New,i;
     SPRITEp np;
     USERp nu;
 #define MAX_BUNNYS 1
@@ -1190,8 +1190,8 @@ void BunnyHatch(short Weapon)
 
     for (i = 0; i < MAX_BUNNYS; i++)
     {
-        new = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
-        np = &sprite[new];
+        New = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
+        np = &sprite[New];
         memset(np,0,sizeof(SPRITE));
         np->sectnum = wp->sectnum;
         np->statnum = STAT_DEFAULT;
@@ -1203,8 +1203,8 @@ void BunnyHatch(short Weapon)
         np->yrepeat = 24;
         np->ang = rip_ang[i];
         np->pal = 0;
-        SetupBunny(new);
-        nu = User[new];
+        SetupBunny(New);
+        nu = User[New];
         np->shade = wp->shade;
 
         // make immediately active
@@ -1223,21 +1223,21 @@ void BunnyHatch(short Weapon)
                 // Blood fountains
                 InitBloodSpray(Weapon,TRUE,-1);
 
-                if (SpawnShrap(Weapon, new))
+                if (SpawnShrap(Weapon, New))
                 {
                     SetSuicide(Weapon);
                 }
                 else
-                    DoActorDie(Weapon, new);
+                    DoActorDie(Weapon, New);
             }
         }
 
         nu->ShellNum = 0; // Not Pregnant right now
 
-        NewStateGroup(new, nu->ActorActionSet->Jump);
+        NewStateGroup(New, nu->ActorActionSet->Jump);
         nu->ActorActionFunc = DoActorMoveJump;
-        DoActorSetSpeed(new, FAST_SPEED);
-        PickJumpMaxSpeed(new, -600);
+        DoActorSetSpeed(New, FAST_SPEED);
+        PickJumpMaxSpeed(New, -600);
 
         SET(nu->Flags, SPR_JUMPING);
         RESET(nu->Flags, SPR_FALLING);
@@ -1245,9 +1245,9 @@ void BunnyHatch(short Weapon)
         nu->jump_grav = 8;
 
         // if I didn't do this here they get stuck in the air sometimes
-        DoActorZrange(new);
+        DoActorZrange(New);
 
-        DoActorJump(new);
+        DoActorJump(New);
     }
 }
 
@@ -1256,12 +1256,12 @@ int BunnyHatch2(short Weapon)
     SPRITEp wp = &sprite[Weapon];
     USERp wu = User[Weapon];
 
-    short new,i;
+    short New,i;
     SPRITEp np;
     USERp nu;
 
-    new = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
-    np = &sprite[new];
+    New = COVERinsertsprite(wp->sectnum, STAT_DEFAULT);
+    np = &sprite[New];
     memset(np,0,sizeof(SPRITE));
     np->sectnum = wp->sectnum;
     np->statnum = STAT_DEFAULT;
@@ -1273,8 +1273,8 @@ int BunnyHatch2(short Weapon)
     np->yrepeat = 24;
     np->ang = RANDOM_P2(2048);
     np->pal = 0;
-    SetupBunny(new);
-    nu = User[new];
+    SetupBunny(New);
+    nu = User[New];
     np->shade = wp->shade;
 
     // make immediately active
@@ -1292,12 +1292,12 @@ int BunnyHatch2(short Weapon)
 
     nu->ShellNum = 0; // Not Pregnant right now
 
-    NewStateGroup(new, nu->ActorActionSet->Jump);
+    NewStateGroup(New, nu->ActorActionSet->Jump);
     nu->ActorActionFunc = DoActorMoveJump;
-    DoActorSetSpeed(new, FAST_SPEED);
+    DoActorSetSpeed(New, FAST_SPEED);
     if (TEST_BOOL3(wp))
     {
-        PickJumpMaxSpeed(new, -600-RANDOM_RANGE(600));
+        PickJumpMaxSpeed(New, -600-RANDOM_RANGE(600));
         np->xrepeat = np->yrepeat = 64;
         np->xvel = 150 + RANDOM_RANGE(1000);
         nu->Health = 1; // Easy to pop. Like shootn' skeet.
@@ -1305,7 +1305,7 @@ int BunnyHatch2(short Weapon)
         np->ang += RANDOM_RANGE(128);
     }
     else
-        PickJumpMaxSpeed(new, -600);
+        PickJumpMaxSpeed(New, -600);
 
     SET(nu->Flags, SPR_JUMPING);
     RESET(nu->Flags, SPR_FALLING);
@@ -1316,11 +1316,11 @@ int BunnyHatch2(short Weapon)
     nu->active_range = 75000; // Set it far
 
     // if I didn't do this here they get stuck in the air sometimes
-    DoActorZrange(new);
+    DoActorZrange(New);
 
-    DoActorJump(new);
+    DoActorJump(New);
 
-    return new;
+    return New;
 }
 
 int

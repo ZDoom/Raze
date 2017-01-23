@@ -2935,7 +2935,7 @@ void
 DoSineWaveWall(void)
 {
     SINE_WALL *sw;
-    int new;
+    int New;
     short sw_num;
 
     for (sw_num = 0; sw_num < MAX_SINE_WAVE; sw_num++)
@@ -2947,15 +2947,15 @@ DoSineWaveWall(void)
 
             if (!sw->type)
             {
-                new = sw->orig_xy + ((sw->range * sintable[sw->sintable_ndx]) >> 14);
-                // wall[sw->wall].y = new;
-                dragpoint(sw->wall, wall[sw->wall].x, new, 0);
+                New = sw->orig_xy + ((sw->range * sintable[sw->sintable_ndx]) >> 14);
+                // wall[sw->wall].y = New;
+                dragpoint(sw->wall, wall[sw->wall].x, New, 0);
             }
             else
             {
-                new = sw->orig_xy + ((sw->range * sintable[sw->sintable_ndx]) >> 14);
-                // wall[sw->wall].x = new;
-                dragpoint(sw->wall, new, wall[sw->wall].y, 0);
+                New = sw->orig_xy + ((sw->range * sintable[sw->sintable_ndx]) >> 14);
+                // wall[sw->wall].x = New;
+                dragpoint(sw->wall, New, wall[sw->wall].y, 0);
             }
         }
     }

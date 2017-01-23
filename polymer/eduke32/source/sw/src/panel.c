@@ -2176,30 +2176,30 @@ pUziEjectUp(PANEL_SPRITEp gun)
 void
 pSpawnUziClip(PANEL_SPRITEp gun)
 {
-    PANEL_SPRITEp new;
+    PANEL_SPRITEp New;
 
     PlaySound(DIGI_REMOVECLIP, &gun->PlayerP->posx, &gun->PlayerP->posy,
               &gun->PlayerP->posz,v3df_follow|v3df_dontpan|v3df_doppler|v3df_follow);
 
     if (TEST(gun->flags, PANF_XFLIP))
     {
-        new = pSpawnSprite(gun->PlayerP, ps_UziClip, PRI_BACK, gun->x - UZI_CLIP_XOFF, gun->y + UZI_CLIP_YOFF);
-        SET(new->flags, PANF_XFLIP);
-        new->ang = NORM_ANGLE(1024 + 256 + 22);
-        new->ang = NORM_ANGLE(new->ang + 512);
+        New = pSpawnSprite(gun->PlayerP, ps_UziClip, PRI_BACK, gun->x - UZI_CLIP_XOFF, gun->y + UZI_CLIP_YOFF);
+        SET(New->flags, PANF_XFLIP);
+        New->ang = NORM_ANGLE(1024 + 256 + 22);
+        New->ang = NORM_ANGLE(New->ang + 512);
     }
     else
     {
-        new = pSpawnSprite(gun->PlayerP, ps_UziClip, PRI_BACK, gun->x + UZI_CLIP_XOFF, gun->y + UZI_CLIP_YOFF);
-        new->ang = NORM_ANGLE(1024 + 256 - 22);
+        New = pSpawnSprite(gun->PlayerP, ps_UziClip, PRI_BACK, gun->x + UZI_CLIP_XOFF, gun->y + UZI_CLIP_YOFF);
+        New->ang = NORM_ANGLE(1024 + 256 - 22);
     }
 
-    new->vel = 1050;
-    SET(new->flags, PANF_WEAPON_SPRITE);
+    New->vel = 1050;
+    SET(New->flags, PANF_WEAPON_SPRITE);
 
 
     // carry Eject sprite with clip
-    new->sibling = gun;
+    New->sibling = gun;
 }
 
 void
@@ -2341,15 +2341,15 @@ pUziDoneReload(PANEL_SPRITEp psp)
         // if 2 uzi's and the first one has been reloaded
         // kill the first one and make the second one the CurWeapon
         // Set uzi's back to previous state
-        PANEL_SPRITEp new;
+        PANEL_SPRITEp New;
 
 
         if (pp->WpnUziType > 2)
             pp->WpnUziType -= 3;
 
-        new = InitWeaponUziSecondaryReload(psp);
-        pp->Wpn[WPN_UZI] = new;
-        pp->CurWpn = new;
+        New = InitWeaponUziSecondaryReload(psp);
+        pp->Wpn[WPN_UZI] = New;
+        pp->CurWpn = New;
         pp->CurWpn->sibling = NULL;
 
         pKillSprite(psp);
@@ -2516,7 +2516,7 @@ InitWeaponUzi(PLAYERp pp)
 PANEL_SPRITEp
 InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
 {
-    PANEL_SPRITEp new;
+    PANEL_SPRITEp New;
     PLAYERp pp = uzi_orig->PlayerP;
 
 
@@ -2529,50 +2529,50 @@ InitWeaponUzi2(PANEL_SPRITEp uzi_orig)
     // Spawning a 2nd uzi, set weapon mode
     pp->WpnUziType = 0; // 0 is up, 1 is retract
 
-    new = pSpawnSprite(pp, ps_PresentUzi2, PRI_MID, 160 - UZI_XOFF, UZI_YOFF);
-    uzi_orig->sibling = new;
+    New = pSpawnSprite(pp, ps_PresentUzi2, PRI_MID, 160 - UZI_XOFF, UZI_YOFF);
+    uzi_orig->sibling = New;
 
-    new->y += tilesiz[new->picndx].y;
+    New->y += tilesiz[New->picndx].y;
 
-    // Set up the new Weapon variables
-    SET(new->flags, PANF_WEAPON_SPRITE);
-    new->ActionState = &ps_FireUzi2[1];
-    new->RetractState = ps_RetractUzi2;
-    new->PresentState = ps_PresentUzi2;
-    new->RestState = ps_FireUzi2;
-    pSetState(new, new->PresentState);
+    // Set up the New Weapon variables
+    SET(New->flags, PANF_WEAPON_SPRITE);
+    New->ActionState = &ps_FireUzi2[1];
+    New->RetractState = ps_RetractUzi2;
+    New->PresentState = ps_PresentUzi2;
+    New->RestState = ps_FireUzi2;
+    pSetState(New, New->PresentState);
 
-    new->sibling = uzi_orig;
-    SET(new->flags, PANF_SECONDARY);
-    pUziOverlays(new, CHAMBER_REST);
+    New->sibling = uzi_orig;
+    SET(New->flags, PANF_SECONDARY);
+    pUziOverlays(New, CHAMBER_REST);
 
-    return new;
+    return New;
 }
 
 PANEL_SPRITEp
 InitWeaponUziSecondaryReload(PANEL_SPRITEp uzi_orig)
 {
-    PANEL_SPRITEp new;
+    PANEL_SPRITEp New;
     PLAYERp pp = uzi_orig->PlayerP;
 
-    new = pSpawnSprite(pp, ps_PresentUzi, PRI_MID, 160 - UZI_XOFF, UZI_YOFF);
-    new->y += tilesiz[new->picndx].y;
+    New = pSpawnSprite(pp, ps_PresentUzi, PRI_MID, 160 - UZI_XOFF, UZI_YOFF);
+    New->y += tilesiz[New->picndx].y;
 
-    SET(new->flags, PANF_XFLIP);
+    SET(New->flags, PANF_XFLIP);
 
-    // Set up the new Weapon variables
-    SET(new->flags, PANF_WEAPON_SPRITE);
-    new->ActionState = ps_UziEject;
-    new->RetractState = ps_RetractUzi;
-    new->PresentState = ps_PresentUzi;
-    new->RestState = ps_UziEject;
-    // pSetState(new, new->PresentState);
-    pSetState(new, ps_PresentUziReload);
+    // Set up the New Weapon variables
+    SET(New->flags, PANF_WEAPON_SPRITE);
+    New->ActionState = ps_UziEject;
+    New->RetractState = ps_RetractUzi;
+    New->PresentState = ps_PresentUzi;
+    New->RestState = ps_UziEject;
+    // pSetState(New, New->PresentState);
+    pSetState(New, ps_PresentUziReload);
 
-    new->sibling = uzi_orig;
-    SET(new->flags, PANF_SECONDARY|PANF_RELOAD);
+    New->sibling = uzi_orig;
+    SET(New->flags, PANF_SECONDARY|PANF_RELOAD);
 
-    return new;
+    return New;
 }
 
 void

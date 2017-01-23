@@ -1002,12 +1002,12 @@ ActorTestSpawn(SPRITEp sp)
 {
     if (sp->statnum == STAT_DEFAULT && sp->lotag == TAG_SPAWN_ACTOR)
     {
-        short new;
+        short New;
         short SpriteNum = sp - sprite;
-        new = COVERinsertsprite(sp->sectnum, STAT_DEFAULT);
-        memcpy(&sprite[new], sp, sizeof(SPRITE));
-        change_sprite_stat(new, STAT_SPAWN_TRIGGER);
-        RESET(sprite[new].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
+        New = COVERinsertsprite(sp->sectnum, STAT_DEFAULT);
+        memcpy(&sprite[New], sp, sizeof(SPRITE));
+        change_sprite_stat(New, STAT_SPAWN_TRIGGER);
+        RESET(sprite[New].cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
         return FALSE;
     }
 
@@ -3855,7 +3855,7 @@ int ActorCoughItem(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum];
     USERp u = User[SpriteNum];
-    short new,choose;
+    short New,choose;
     SPRITEp np;
 
 
@@ -3863,9 +3863,9 @@ int ActorCoughItem(short SpriteNum)
     {
     case SAILORGIRL_R0:
         ASSERT(sp->sectnum >= 0);
-        new = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-        ASSERT(new >= 0);
-        np = &sprite[new];
+        New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
+        ASSERT(New >= 0);
+        np = &sprite[New];
         np->cstat = np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
@@ -3905,9 +3905,9 @@ int ActorCoughItem(short SpriteNum)
             return 0;
 
         ASSERT(sp->sectnum >= 0);
-        new = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-        ASSERT(new >= 0);
-        np = &sprite[new];
+        New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
+        ASSERT(New >= 0);
+        np = &sprite[New];
         np->cstat = np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
@@ -3934,9 +3934,9 @@ int ActorCoughItem(short SpriteNum)
             return 0;
 
         ASSERT(sp->sectnum >= 0);
-        new = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-        ASSERT(new >= 0);
-        np = &sprite[new];
+        New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
+        ASSERT(New >= 0);
+        np = &sprite[New];
         np->cstat = np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
@@ -3966,9 +3966,9 @@ int ActorCoughItem(short SpriteNum)
                 return 0;
 
             ASSERT(sp->sectnum >= 0);
-            new = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-            ASSERT(new >= 0);
-            np = &sprite[new];
+            New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
+            ASSERT(New >= 0);
+            np = &sprite[New];
             np->cstat = 0;
             np->extra = 0;
             np->x = sp->x;
@@ -4030,9 +4030,9 @@ int ActorCoughItem(short SpriteNum)
             return 0;
 
         ASSERT(sp->sectnum >= 0);
-        new = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-        ASSERT(new >= 0);
-        np = &sprite[new];
+        New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
+        ASSERT(New >= 0);
+        np = &sprite[New];
         np->cstat = np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
@@ -4089,9 +4089,9 @@ int ActorCoughItem(short SpriteNum)
     case PACHINKO4:
 
         ASSERT(sp->sectnum >= 0);
-        new = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
-        ASSERT(new >= 0);
-        np = &sprite[new];
+        New = COVERinsertsprite(sp->sectnum, STAT_SPAWN_ITEMS);
+        ASSERT(New >= 0);
+        np = &sprite[New];
         np->cstat = np->extra = 0;
         np->x = sp->x;
         np->y = sp->y;
@@ -5310,7 +5310,7 @@ KillGet(short SpriteNum)
     USERp u = User[SpriteNum],nu;
     SPRITEp sp = User[SpriteNum]->SpriteP,np;
 
-    short new;
+    short New;
 
     switch (gNet.MultiGameType)
     {
@@ -5334,11 +5334,11 @@ KillGet(short SpriteNum)
         if (!gNet.SpawnMarkers || sp->hitag == TAG_NORESPAWN_FLAG)  // No coin if it's a special flag
             break;
 
-        new = SpawnSprite(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
+        New = SpawnSprite(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
                           sp->x, sp->y, sp->z, 0, 0);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
         np->shade = -20;
         nu->WaitTics = u->WaitTics - 12;
@@ -5354,7 +5354,7 @@ KillGetAmmo(short SpriteNum)
     USERp u = User[SpriteNum],nu;
     SPRITEp sp = User[SpriteNum]->SpriteP,np;
 
-    short new;
+    short New;
 
     switch (gNet.MultiGameType)
     {
@@ -5386,11 +5386,11 @@ KillGetAmmo(short SpriteNum)
         if (!gNet.SpawnMarkers)
             break;
 
-        new = SpawnSprite(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
+        New = SpawnSprite(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
                           sp->x, sp->y, sp->z, 0, 0);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
         np->shade = -20;
         nu->WaitTics = u->WaitTics - 12;
@@ -5406,7 +5406,7 @@ KillGetWeapon(short SpriteNum)
     USERp u = User[SpriteNum],nu;
     SPRITEp sp = User[SpriteNum]->SpriteP,np;
 
-    short new;
+    short New;
 
     switch (gNet.MultiGameType)
     {
@@ -5446,11 +5446,11 @@ KillGetWeapon(short SpriteNum)
         if (!gNet.SpawnMarkers)
             break;
 
-        new = SpawnSprite(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
+        New = SpawnSprite(STAT_ITEM, Red_COIN, s_RedCoin, sp->sectnum,
                           sp->x, sp->y, sp->z, 0, 0);
 
-        np = &sprite[new];
-        nu = User[new];
+        np = &sprite[New];
+        nu = User[New];
 
         np->shade = -20;
         nu->WaitTics = u->WaitTics - 12;
@@ -5596,7 +5596,7 @@ DoGet(short SpriteNum)
     // For flag stuff
     USERp nu;
     SPRITEp np;
-    short new;
+    short New;
 
 
     // Invisiblility is only used for DeathMatch type games
@@ -6439,25 +6439,25 @@ KeyMain:
             PlaySound(DIGI_ITEM, &sp->x, &sp->y, &sp->z, v3df_dontpan);
 
             if (sp->hitag == TAG_NORESPAWN_FLAG)
-                new = SpawnSprite(STAT_ITEM, ICON_FLAG, s_CarryFlagNoDet, sp->sectnum,
+                New = SpawnSprite(STAT_ITEM, ICON_FLAG, s_CarryFlagNoDet, sp->sectnum,
                                   sp->x, sp->y, sp->z, 0, 0);
             else
-                new = SpawnSprite(STAT_ITEM, ICON_FLAG, s_CarryFlag, sp->sectnum,
+                New = SpawnSprite(STAT_ITEM, ICON_FLAG, s_CarryFlag, sp->sectnum,
                                   sp->x, sp->y, sp->z, 0, 0);
 
-            np = &sprite[new];
-            nu = User[new];
+            np = &sprite[New];
+            nu = User[New];
             np->shade = -20;
 
             // Attach flag to player
             nu->Counter = 0;
             RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
             SET(np->cstat, CSTAT_SPRITE_WALL);
-            SetAttach(pp->PlayerSprite, new);
+            SetAttach(pp->PlayerSprite, New);
             nu->sz = SPRITEp_MID(&sprite[pp->PlayerSprite]);  // Set mid way up who it hit
             nu->spal = np->pal = sp->pal;   // Set the palette of the flag
 
-            SetOwner(pp->PlayerSprite,new);  // Player now owns the flag
+            SetOwner(pp->PlayerSprite,New);  // Player now owns the flag
             nu->FlagOwner = SpriteNum;       // Tell carried flag who owns it
             KillGet(SpriteNum);  // Set up for flag respawning
             break;

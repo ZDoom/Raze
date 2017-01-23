@@ -324,13 +324,13 @@ int
 TrackClonePoint(short SpriteNum)
 {
     SPRITEp sp = &sprite[SpriteNum], np;
-    short new;
+    short New;
 
-    new = COVERinsertsprite(sp->sectnum, sp->statnum);
+    New = COVERinsertsprite(sp->sectnum, sp->statnum);
 
-    ASSERT(new != -1);
+    ASSERT(New != -1);
 
-    np = &sprite[new];
+    np = &sprite[New];
 
     np->cstat = np->extra = 0;
     np->x = sp->x;
@@ -340,7 +340,7 @@ TrackClonePoint(short SpriteNum)
     np->lotag = sp->lotag;
     np->hitag = sp->hitag;
 
-    return new;
+    return New;
 }
 
 void QuickJumpSetup(short stat, short lotag, short type)
@@ -593,7 +593,7 @@ TrackSetup(void)
     TRACKp t;
     SPRITEp nsp;
     short new_sprite1, new_sprite2;
-    TRACK_POINTp new;
+    TRACK_POINTp New;
     int size;
 
     // put points on track
@@ -678,10 +678,10 @@ TrackSetup(void)
         }
 
         size = (Track[ndx].NumPoints + 1) * sizeof(TRACK_POINT);
-        new = CallocMem(size, 1);
-        memcpy(new, Track[ndx].TrackPoint, size);
+        New = CallocMem(size, 1);
+        memcpy(New, Track[ndx].TrackPoint, size);
         FreeMem(Track[ndx].TrackPoint);
-        Track[ndx].TrackPoint = new;
+        Track[ndx].TrackPoint = New;
 
         ASSERT(Track[ndx].TrackPoint != NULL);
     }
@@ -1033,7 +1033,7 @@ SetupSectorObject(short sectnum, short tag)
     short object_num, ndx = 0, startwall, endwall, SpriteNum, NextSprite;
     int trash;
     short j, k;
-    short new;
+    short New;
     USERp u;
 
     tag -= (TAG_OBJECT_CENTER - 1);
@@ -1117,10 +1117,10 @@ SetupSectorObject(short sectnum, short tag)
         sop->track = HIGH_TAG(sectnum);
 
         // spawn a sprite to make it easier to integrate with sprite routines
-        new = SpawnSprite(STAT_SO_SP_CHILD, 0, NULL, sectnum,
+        New = SpawnSprite(STAT_SO_SP_CHILD, 0, NULL, sectnum,
                           sop->xmid, sop->ymid, sop->zmid, 0, 0);
-        sop->sp_child = &sprite[new];
-        u = User[new];
+        sop->sp_child = &sprite[New];
+        u = User[New];
         u->sop_parent = sop;
         SET(u->Flags2, SPR2_SPRITE_FAKE_BLOCK); // for damage test
 
