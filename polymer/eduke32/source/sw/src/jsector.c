@@ -917,7 +917,7 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 }
 
 void
-DoAutoSize(SPRITEp tspr)
+DoAutoSize(uspritetype * tspr)
 {
     short i;
 
@@ -1069,7 +1069,7 @@ DoAutoSize(SPRITEp tspr)
 short rotang = 0;
 
 void
-JAnalyzeSprites(SPRITEp tspr)
+JAnalyzeSprites(uspritetype * tspr)
 {
     int i, currsprite;
 

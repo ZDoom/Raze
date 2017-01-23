@@ -70,13 +70,13 @@ extern SWBOOL RedrawScreen;
 SWBOOL RedrawCompass=FALSE;
 extern int Follow_posx,Follow_posy;
 
-int ConnectCopySprite(SPRITEp tsp);
+int ConnectCopySprite(uspritetype const * tsp);
 void PreDrawStackedWater(void);
 void DrawCompass(PLAYERp pp);
 
 #if 1
 void
-ShadeSprite(SPRITEp tsp)
+ShadeSprite(uspritetype * tsp)
 {
     // set shade of sprite
     tsp->shade = sector[tsp->sectnum].floorshade - 25;
@@ -99,7 +99,7 @@ GetRotation(short tSpriteNum, int viewx, int viewy)
     short rotation;
     extern short screenpeek;
 
-    SPRITEp tsp = &tsprite[tSpriteNum];
+    uspritetype * tsp = &tsprite[tSpriteNum];
     USERp tu = User[tsp->owner];
     PLAYERp pp = Player + screenpeek;
     short angle2;
@@ -167,7 +167,7 @@ directions was not standardized.
 int
 SetActorRotation(short tSpriteNum, int viewx, int viewy)
 {
-    SPRITEp tsp = &tsprite[tSpriteNum];
+    uspritetype * tsp = &tsprite[tSpriteNum];
     USERp tu = User[tsp->owner];
     short StateOffset, Rotation;
 
@@ -228,7 +228,7 @@ SetActorRotation(short tSpriteNum, int viewx, int viewy)
 }
 
 int
-DoShadowFindGroundPoint(SPRITEp sp)
+DoShadowFindGroundPoint(uspritetype * sp)
 {
     // USES TSPRITE !!!!!
     USERp u = User[sp->owner];
@@ -366,9 +366,9 @@ DoVoxelShadow(SPRITEp tspr)
 #endif
 
 void
-DoShadows(SPRITEp tsp, int viewz)
+DoShadows(uspritetype * tsp, int viewz)
 {
-    SPRITEp new = &tsprite[spritesortcnt];
+    uspritetype * new = &tsprite[spritesortcnt];
     USERp tu = User[tsp->owner];
     int ground_dist = 0;
     int view_dist = 0;
@@ -461,9 +461,9 @@ DoShadows(SPRITEp tsp, int viewz)
 }
 
 void
-DoMotionBlur(SPRITEp tsp)
+DoMotionBlur(uspritetype const * tsp)
 {
-    SPRITEp new;
+    uspritetype * new;
     USERp tu = User[tsp->owner];
     int nx,ny,nz = 0,dx,dy,dz;
     short i, ang;
@@ -565,7 +565,8 @@ void SetVoxelSprite(SPRITEp sp, short pic)
 
 void WarpCopySprite(void)
 {
-    SPRITEp new, sp1, sp2, sp;
+    SPRITEp sp1, sp2, sp;
+    uspritetype * new;
     short sn, nsn;
     short sn2, nsn2;
     short spnum, next_spnum;
@@ -642,7 +643,7 @@ void WarpCopySprite(void)
     }
 }
 
-void DoStarView(SPRITEp tsp, USERp tu, int viewz)
+void DoStarView(uspritetype * tsp, USERp tu, int viewz)
 {
     extern STATE s_Star[], s_StarDown[];
     extern STATE s_StarStuck[], s_StarDownStuck[];
@@ -671,7 +672,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
     int tSpriteNum, j, k;
     short SpriteNum, pnum;
     int smr4, smr2;
-    SPRITEp tsp;
+    uspritetype * tsp;
     USERp tu;
     static int ang = 0;
     PLAYERp pp = Player + screenpeek;
@@ -973,7 +974,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
 }
 
 #if 1
-SPRITEp
+uspritetype *
 get_tsprite(short SpriteNum)
 {
     int tSpriteNum;
@@ -992,7 +993,7 @@ post_analyzesprites(void)
 {
     int tSpriteNum;
     short SpriteNum;
-    SPRITEp tsp;
+    uspritetype * tsp;
     USERp tu;
 
     for (tSpriteNum = spritesortcnt - 1; tSpriteNum >= 0; tSpriteNum--)
@@ -1006,10 +1007,8 @@ post_analyzesprites(void)
         {
             if (tu->ID == FIREBALL_FLAMES && tu->Attach >= 0)
             {
-                //SPRITEp atsp = &sprite[tu->Attach];
-                SPRITEp atsp;
-
-                atsp = get_tsprite(tu->Attach);
+                //uspritetype * const atsp = &sprite[tu->Attach];
+                uspritetype * const atsp = get_tsprite(tu->Attach);
 
                 if (!atsp)
                 {
@@ -2049,7 +2048,7 @@ PostDraw(void)
     }
 }
 
-int CopySprite(SPRITEp tsp, short newsector)
+int CopySprite(uspritetype const * tsp, short newsector)
 {
     short new;
     SPRITEp sp;
@@ -2078,7 +2077,7 @@ int CopySprite(SPRITEp tsp, short newsector)
     return new;
 }
 
-int ConnectCopySprite(SPRITEp tsp)
+int ConnectCopySprite(uspritetype const * tsp)
 {
     short newsector;
     int testz;
@@ -2149,7 +2148,7 @@ void PreDrawStackedWater(void)
                 sp = &sprite[i];
                 u = User[i];
 
-                new = ConnectCopySprite(sp);
+                new = ConnectCopySprite((uspritetype const *)sp);
                 if (new >= 0)
                 {
                     np = &sprite[new];

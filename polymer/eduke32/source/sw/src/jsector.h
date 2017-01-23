@@ -68,7 +68,7 @@ extern short floormirrorsector[MAXMIRRORS];
 extern SWBOOL mirrorinview;
 extern short NormalVisibility;
 
-void JAnalyzeSprites(SPRITEp tspr);
+void JAnalyzeSprites(uspritetype * tspr);
 void JS_DrawMirrors(PLAYERp pp,int tx,int ty,int tz,short tpang,int tphoriz);
 void JS_InitMirrors(void);
 void JS_InitLockouts(void);
