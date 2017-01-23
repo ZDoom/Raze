@@ -42,12 +42,9 @@ gamevar hud_temp2 0 1
 gamevar hud_temp3 0 1
 gamevar hud_temp4 0 1
 
-/*
-// The following temporary gamevars are named differently because they are used
-// in G_Draw[...] which would overwrite their values if used elsewhere.
-*/
-gamevar hud_G_Draw_temp 0 1
-gamevar hud_G_Draw_temp2 0 1
+// The following temporary gamevars are internal to the G_Draw subroutines.
+gamevar hud_int_temp 0 1
+gamevar hud_int_temp2 0 1
 
 gamevar weapon_pos 0 1
 gamevar weaponscale 0 1
@@ -73,17 +70,17 @@ state G_DrawTilePal
 ends
 
 state G_DrawTileScaled
-    setvar hud_G_Draw_temp 192 // xoff
+    setvar hud_int_temp 192 // xoff
 
     switch currentweapon
         case DEVISTATOR_WEAPON
         case TRIPBOMB_WEAPON
-            setvar hud_G_Draw_temp 160
+            setvar hud_int_temp 160
             break
         default
             ifvarand hud_orientation 262144
             {
-                setvar hud_G_Draw_temp 160
+                setvar hud_int_temp 160
                 xorvar hud_orientation 262144
             }
             break
@@ -97,31 +94,31 @@ state G_DrawTileScaled
         ifvarn usemodels 0
             ifhasmodel hud_tilenum hud_pal
             {
-                setvar hud_G_Draw_temp2 224
-                mulvarvar hud_G_Draw_temp2 weaponscale
-                divvar hud_G_Draw_temp2 100
+                setvar hud_int_temp2 224
+                mulvarvar hud_int_temp2 weaponscale
+                divvar hud_int_temp2 100
 
                 addvar hud_y 224
-                subvarvar hud_y hud_G_Draw_temp2
+                subvarvar hud_y hud_int_temp2
             }
     */
 
     mulvarvar hud_x weaponscale
     divvar hud_x 100
-    setvarvar hud_G_Draw_temp2 hud_G_Draw_temp
-    mulvarvar hud_G_Draw_temp2 weaponscale
-    divvar hud_G_Draw_temp2 100
-    subvarvar hud_G_Draw_temp hud_G_Draw_temp2
-    addvarvar hud_x hud_G_Draw_temp
+    setvarvar hud_int_temp2 hud_int_temp
+    mulvarvar hud_int_temp2 weaponscale
+    divvar hud_int_temp2 100
+    subvarvar hud_int_temp hud_int_temp2
+    addvarvar hud_x hud_int_temp
 
     mulvarvar hud_y weaponscale
     divvar hud_y 100
-    setvar hud_G_Draw_temp 200
-    setvarvar hud_G_Draw_temp2 hud_G_Draw_temp
-    mulvarvar hud_G_Draw_temp2 weaponscale
-    divvar hud_G_Draw_temp2 100
-    subvarvar hud_G_Draw_temp hud_G_Draw_temp2
-    addvarvar hud_y hud_G_Draw_temp
+    setvar hud_int_temp 200
+    setvarvar hud_int_temp2 hud_int_temp
+    mulvarvar hud_int_temp2 weaponscale
+    divvar hud_int_temp2 100
+    subvarvar hud_int_temp hud_int_temp2
+    addvarvar hud_y hud_int_temp
 
     // setvar hud_scale 65536 // do this elsewhere; leave it open for modification
     mulvarvar hud_scale weaponscale
@@ -142,22 +139,22 @@ state G_DrawWeaponTile
     // basic fading between player weapon shades
     ifvarvarn hud_shade hud_shadef
     {
-        setvar hud_G_Draw_temp 0
-        ifvare hud_pal 0 setvar hud_G_Draw_temp 1
-        ifvarvare hud_pal hud_palf setvar hud_G_Draw_temp 1
-        ifvare hud_G_Draw_temp 1
+        setvar hud_int_temp 0
+        ifvare hud_pal 0 setvar hud_int_temp 1
+        ifvarvare hud_pal hud_palf setvar hud_int_temp 1
+        ifvare hud_int_temp 1
         {
-            setvarvar hud_G_Draw_temp hud_shade
-            subvarvar hud_G_Draw_temp hud_shadef
-            setvarvar hud_G_Draw_temp2 hud_G_Draw_temp
-            shiftvarr hud_G_Draw_temp 2
-            addvarvar hud_shadef hud_G_Draw_temp
+            setvarvar hud_int_temp hud_shade
+            subvarvar hud_int_temp hud_shadef
+            setvarvar hud_int_temp2 hud_int_temp
+            shiftvarr hud_int_temp 2
+            addvarvar hud_shadef hud_int_temp
 
-            ifvare hud_G_Draw_temp 0
+            ifvare hud_int_temp 0
             {
-                shiftvarr hud_G_Draw_temp2 1
-                addvarvar hud_shadef hud_G_Draw_temp2
-                ifvare hud_G_Draw_temp2 0
+                shiftvarr hud_int_temp2 1
+                addvarvar hud_shadef hud_int_temp2
+                ifvare hud_int_temp2 0
                     setvarvar hud_shadef hud_shade
             }
         }
@@ -175,17 +172,17 @@ state G_DrawWeaponTile_crystal
     // basic fading between player weapon shades
     ifvarvarn hud_shade hud_shadef_crystal
     {
-        setvarvar hud_G_Draw_temp hud_shade
-        subvarvar hud_G_Draw_temp hud_shadef_crystal
-        setvarvar hud_G_Draw_temp2 hud_G_Draw_temp
-        shiftvarr hud_G_Draw_temp 2
-        addvarvar hud_shadef_crystal hud_G_Draw_temp
+        setvarvar hud_int_temp hud_shade
+        subvarvar hud_int_temp hud_shadef_crystal
+        setvarvar hud_int_temp2 hud_int_temp
+        shiftvarr hud_int_temp 2
+        addvarvar hud_shadef_crystal hud_int_temp
 
-        ifvare hud_G_Draw_temp 0
+        ifvare hud_int_temp 0
         {
-            shiftvarr hud_G_Draw_temp2 1
-            addvarvar hud_shadef_crystal hud_G_Draw_temp2
-            ifvare hud_G_Draw_temp2 0
+            shiftvarr hud_int_temp2 1
+            addvarvar hud_shadef_crystal hud_int_temp2
+            ifvare hud_int_temp2 0
                 setvarvar hud_shadef_crystal hud_shade
         }
     }
@@ -220,8 +217,8 @@ state determine_animation
     ifvarand player[THISACTOR].gm 1 // MODE_MENU
         orvar hud_temp 1
 
-    getactor[playerid].pal hud_G_Draw_temp
-    ifvare hud_G_Draw_temp 1
+    getactor[playerid].pal hud_int_temp
+    ifvare hud_int_temp 1
         orvar hud_temp 1
 ends
 
