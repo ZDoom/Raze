@@ -129,7 +129,7 @@ typedef struct {
 //  * char --> int8_t
 // Need to carefully think about implications!
 // TODO: rearrange this if the opportunity arises!
-// KEEPINSYNC lunatic/defs.ilua
+// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
     vec3_t pos, opos, vel, npos;
     vec2_t bobpos, fric;
@@ -206,7 +206,7 @@ typedef struct {
     int8_t padding_;
 } DukePlayer_t;
 
-// KEEPINSYNC lunatic/defs.ilua
+// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
     DukePlayer_t *ps;
     input_t *inputBits;
@@ -290,7 +290,7 @@ typedef struct {
     int32_t userdata; // 4b
 } projectile_t;
 
-// KEEPINSYNC lunatic/defs.ilua
+// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
     int32_t cur, count;  // "cur" is the only member that is *used*
     int32_t gunposx, lookhalfang;  // weapon_xoffset, ps->look_ang>>1
@@ -322,7 +322,7 @@ static inline int A_Shoot(int spriteNum, int projecTile)
 static inline void P_PalFrom(DukePlayer_t *pPlayer, uint8_t f, uint8_t r, uint8_t g, uint8_t b)
 {
 #ifdef LUNATIC
-    // Compare with defs.ilua: player[]:_palfrom().
+    // Compare with _defs_game.lua: player[]:_palfrom().
     if (pPlayer->pals.f == 0 || pPlayer->palsfadeprio <= 0)
 #endif
     {

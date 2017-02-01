@@ -9,7 +9,7 @@ local error = error
 local ipairs = ipairs
 local type = type
 
-local decl = assert(decl)  -- comes from above (defs.ilua or defs_m32.lua)
+local decl = assert(decl)  -- comes from above (_defs_game.lua or defs_m32.lua)
 
 local ismapster32 = (C.LUNATIC_CLIENT == C.LUNATIC_CLIENT_MAPSTER32)
 

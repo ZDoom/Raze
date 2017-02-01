@@ -3,7 +3,7 @@
 
 #include "Math.hpp"
 #include "ProcessCommon.hpp"
-#include "ProcessRGB.hpp"
+#include "ProcessRGB.h"
 #include "Tables.hpp"
 #include "Types.hpp"
 #include "Vector.hpp"

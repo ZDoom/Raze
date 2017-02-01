@@ -56,7 +56,7 @@ intptr_t *aplWeaponReloadSound2[MAX_WEAPONS];   // Sound of magazine being inser
 intptr_t *aplWeaponSelectSound[MAX_WEAPONS];    // Sound of weapon being selected
 intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
 
-# include "gamestructures.c"
+# include "gamestructures.cpp"
 
 // Frees the memory for the *values* of game variables and arrays. Resets their
 // counts to zero. Call this function as many times as needed.

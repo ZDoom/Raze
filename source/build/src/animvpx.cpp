@@ -16,9 +16,7 @@
 #include "baselayer.h"
 #include "build.h"
 #include "glbuild.h"
-
-#include "duke3d.h"
-#include "game.h"  // kopen4loadfrommod
+#include "cache1d.h"
 
 #undef UNUSED
 #define VPX_CODEC_DISABLE_COMPAT 1
@@ -62,8 +60,7 @@ int32_t animvpx_read_ivf_header(int32_t inhandle, animvpx_ivf_header_t *hdr)
     if (hdr->fpsnumer < 1000)
     {
         // NOTE: We got rid of the 1/(2*fps) correction from libvpx's vpxdec.c,
-        // users are encouraged to use the "ivfrate" utility from the source/
-        // directory instead.
+        // users are encouraged to use the "ivfrate" utility instead
 
         if (hdr->fpsdenom==0 || hdr->fpsnumer==0)
             return 5;  // "invalid framerate numerator or denominator"

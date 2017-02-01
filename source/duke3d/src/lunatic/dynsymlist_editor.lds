@@ -92,7 +92,7 @@ OSD_Printf;
 
 Bcrc32;
 
-luaJIT_BC_defs_m32;
+luaJIT_BC__defs_editor;
 luaJIT_BC_defs_common;
 luaJIT_BC_engine_maptext;
 luaJIT_BC_engine;

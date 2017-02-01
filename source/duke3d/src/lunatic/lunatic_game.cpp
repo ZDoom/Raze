@@ -1,5 +1,7 @@
 /* The Lunatic Interpreter, part of EDuke32. Game-side stuff. */
 
+#include "compat.h"
+
 #include <stdint.h>
 #include <stdlib.h>  // getenv
 #include <errno.h>

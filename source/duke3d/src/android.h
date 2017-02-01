@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef __ANDROID__
 #include "compat.h"
 #include "control.h"
-#include "android/in_android.h"
+#include "in_android.h"
 
 //extern int   android_sample_rate;
 

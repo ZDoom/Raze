@@ -114,7 +114,7 @@ static float lastvidgcb[3];
 
 //#define KEY_PRINT_DEBUG
 
-#include "sdlkeytrans.c"
+#include "sdlkeytrans.cpp"
 
 static SDL_Surface *appicon = NULL;
 #if !defined __APPLE__ && !defined EDUKE32_TOUCH_DEVICES
@@ -816,7 +816,7 @@ int32_t initinput(void)
             SDL_JoystickEventState(SDL_ENABLE);
             inputdevices |= 4;
 
-            // KEEPINSYNC source/gamedefs.h, source/jmact/_control.h
+            // KEEPINSYNC duke3d/src/gamedefs.h, mact/include/_control.h
             joynumaxes = min(9, SDL_JoystickNumAxes(joydev));
             joynumbuttons = min(32, SDL_JoystickNumButtons(joydev));
             joynumhats = min((36-joynumbuttons)/4,SDL_JoystickNumHats(joydev));
@@ -2399,5 +2399,5 @@ int32_t handleevents(void)
 }
 
 #if SDL_MAJOR_VERSION == 1
-#include "sdlayer12.c"
+#include "sdlayer12.cpp"
 #endif

@@ -36,112 +36,111 @@ endif
 LOCAL_CFLAGS    = $(COMMONFLAGS)
 LOCAL_CPPFLAGS  = $(COMMONFLAGS)
 
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/source $(LOCAL_PATH)/source/jmact $(LOCAL_PATH)/source/jaudiolib/include $(LOCAL_PATH)/source/enet/include $(LOCAL_PATH)/build/include
-LOCAL_C_INCLUDES += $(LOCAL_PATH)/source/android/etcpak
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/source/duke3d/src $(LOCAL_PATH)/source/mact/include $(LOCAL_PATH)/source/audiolib/include $(LOCAL_PATH)/source/enet/include $(LOCAL_PATH)/source/build/include
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/source/etcpak/include
 LOCAL_C_INCLUDES += $(TOP_DIR)/ $(TOP_DIR)/Libraries/liboggvorbis/include $(TOP_DIR)/Libraries/ $(TOP_DIR)/Libraries/SDL2/include $(TOP_DIR)/Libraries/SDL2_mixer/include $(TOP_DIR)/Libraries/TinyXML/include $(TOP_DIR)/TouchControls $(TOP_DIR)/Libraries/libvpx/include
 
 ANDROID_SRC = \
-    build/src/jwzgles.c \
+    source/build/src/jwzgles.c \
     platform/Android/Duke3d/jni/android-jni.cpp \
-    source/android/etcpak/ProcessRGB.cpp \
-    source/android/etcpak/Tables.cpp \
-    source/android/in_android.c
+    source/etcpak/src/ProcessRGB.cpp \
+    source/etcpak/src/Tables.cpp \
+    source/duke3d/src/in_android.cpp \
 
 BUILD_SRC = \
-    build/src/2d.c \
-    build/src/a-c.c \
-    build/src/baselayer.c \
-    build/src/cache1d.c \
-    build/src/compat.c \
-    build/src/common.c \
-    build/src/crc32.c \
-    build/src/defs.c \
-    build/src/clip.c \
-    build/src/colmatch.c \
-    build/src/engine.c \
-    build/src/hash.c \
-    build/src/glbuild.c \
-    build/src/polymost.c \
-    build/src/mdsprite.c \
-    build/src/texcache.c \
-    build/src/dxtfilter.c \
-    build/src/hightile.c \
-    build/src/textfont.c \
-    build/src/smalltextfont.c \
-    build/src/kplib.c \
-    build/src/mmulti_null.c \
-    build/src/lz4.c \
-    build/src/osd.c \
-    build/src/md4.c \
-    build/src/pragmas.c \
-    build/src/scriptfile.c \
-    build/src/mutex.c \
-    build/src/xxhash.c \
-    build/src/voxmodel.c \
-    build/src/sdlayer.c \
-    build/src/screenshot.c \
-    build/src/tiles.c \
-    build/src/mhk.c \
-    build/src/palette.c
+    source/build/src/2d.cpp \
+    source/build/src/a-c.cpp \
+    source/build/src/animvpx.cpp \
+    source/build/src/baselayer.cpp \
+    source/build/src/cache1d.cpp \
+    source/build/src/compat.cpp \
+    source/build/src/common.cpp \
+    source/build/src/crc32.cpp \
+    source/build/src/defs.cpp \
+    source/build/src/clip.cpp \
+    source/build/src/colmatch.cpp \
+    source/build/src/engine.cpp \
+    source/build/src/hash.cpp \
+    source/build/src/glbuild.cpp \
+    source/build/src/polymost.cpp \
+    source/build/src/mdsprite.cpp \
+    source/build/src/texcache.cpp \
+    source/build/src/dxtfilter.cpp \
+    source/build/src/hightile.cpp \
+    source/build/src/textfont.cpp \
+    source/build/src/smalltextfont.cpp \
+    source/build/src/kplib.cpp \
+    source/build/src/mmulti_null.cpp \
+    source/build/src/lz4.c \
+    source/build/src/osd.cpp \
+    source/build/src/md4.cpp \
+    source/build/src/pragmas.cpp \
+    source/build/src/scriptfile.cpp \
+    source/build/src/mutex.cpp \
+    source/build/src/xxhash.c \
+    source/build/src/voxmodel.cpp \
+    source/build/src/rev.cpp \
+    source/build/src/sdlayer.cpp \
+    source/build/src/screenshot.cpp \
+    source/build/src/tiles.cpp \
+    source/build/src/mhk.cpp \
+    source/build/src/palette.cpp \
 
-JMACT_SRC = \
-    source/jmact/file_lib.c \
-    source/jmact/control.c \
-    source/jmact/keyboard.c \
-    source/jmact/mouse.c \
-    source/jmact/joystick.c \
-    source/jmact/scriplib.c \
-    source/jmact/animlib.c
+MACT_SRC = \
+    source/mact/src/file_lib.cpp \
+    source/mact/src/control.cpp \
+    source/mact/src/keyboard.cpp \
+    source/mact/src/joystick.cpp \
+    source/mact/src/scriplib.cpp \
+    source/mact/src/animlib.cpp \
 
 GAME_SRC = \
-    source/game.c \
-    source/actors.c \
-    source/anim.c \
-    source/animsounds.c \
-    source/animvpx.c \
-    source/common.c \
-    source/config.c \
-    source/demo.c \
-    source/gamedef.c \
-    source/gameexec.c \
-    source/gamevars.c \
-    source/global.c \
-    source/input.c \
-    source/menus.c \
-    source/namesdyn.c \
-    source/net.c \
-    source/player.c \
-    source/premap.c \
-    source/savegame.c \
-    source/sector.c \
-    source/rts.c \
-    source/osdfuncs.c \
-    source/osdcmds.c \
-    source/grpscan.c \
-    source/sounds.c \
-    source/soundsdyn.c \
-    source/sdlmusic.c \
-    source/rev.c \
-    source/cmdline.c \
-    source/screens.c \
-    source/screentext.c \
-    source/cheats.c \
-    source/sbar.c
+    source/duke3d/src/game.cpp \
+    source/duke3d/src/actors.cpp \
+    source/duke3d/src/anim.cpp \
+    source/duke3d/src/animsounds.cpp \
+    source/duke3d/src/common.cpp \
+    source/duke3d/src/config.cpp \
+    source/duke3d/src/demo.cpp \
+    source/duke3d/src/gamedef.cpp \
+    source/duke3d/src/gameexec.cpp \
+    source/duke3d/src/gamevars.cpp \
+    source/duke3d/src/global.cpp \
+    source/duke3d/src/input.cpp \
+    source/duke3d/src/menus.cpp \
+    source/duke3d/src/namesdyn.cpp \
+    source/duke3d/src/net.cpp \
+    source/duke3d/src/player.cpp \
+    source/duke3d/src/premap.cpp \
+    source/duke3d/src/savegame.cpp \
+    source/duke3d/src/sector.cpp \
+    source/duke3d/src/rts.cpp \
+    source/duke3d/src/osdfuncs.cpp \
+    source/duke3d/src/osdcmds.cpp \
+    source/duke3d/src/grpscan.cpp \
+    source/duke3d/src/sounds.cpp \
+    source/duke3d/src/soundsdyn.cpp \
+    source/duke3d/src/sdlmusic.cpp \
+    source/duke3d/src/cmdline.cpp \
+    source/duke3d/src/screens.cpp \
+    source/duke3d/src/screentext.cpp \
+    source/duke3d/src/cheats.cpp \
+    source/duke3d/src/sbar.cpp \
 
-JAUDIO_SRC = \
-    source/jaudiolib/src/drivers.c \
-    source/jaudiolib/src/fx_man.c \
-    source/jaudiolib/src/multivoc.c \
-    source/jaudiolib/src/mix.c \
-    source/jaudiolib/src/mixst.c \
-    source/jaudiolib/src/pitch.c \
-    source/jaudiolib/src/formats.c \
-    source/jaudiolib/src/vorbis.c \
-    source/jaudiolib/src/flac.c \
-    source/jaudiolib/src/xa.c \
-    source/jaudiolib/src/xmp.c \
-    source/jaudiolib/src/driver_nosound.c \
-    source/jaudiolib/src/driver_sdl.c
+AUDIOLIB_SRC = \
+    source/audiolib/src/drivers.cpp \
+    source/audiolib/src/fx_man.cpp \
+    source/audiolib/src/multivoc.cpp \
+    source/audiolib/src/mix.cpp \
+    source/audiolib/src/mixst.cpp \
+    source/audiolib/src/pitch.cpp \
+    source/audiolib/src/formats.cpp \
+    source/audiolib/src/vorbis.cpp \
+    source/audiolib/src/flac.cpp \
+    source/audiolib/src/xa.cpp \
+    source/audiolib/src/xmp.cpp \
+    source/audiolib/src/driver_nosound.cpp \
+    source/audiolib/src/driver_sdl.cpp \
 
 ENET_SRC = \
     source/enet/src/callbacks.c \
@@ -151,9 +150,9 @@ ENET_SRC = \
     source/enet/src/peer.c \
     source/enet/src/protocol.c \
     source/enet/src/compress.c \
-    source/enet/src/unix.c
+    source/enet/src/unix.c \
 
-LOCAL_SRC_FILES         = $(ANDROID_SRC) $(JAUDIO_SRC) $(JMACT_SRC) $(GAME_SRC) $(BUILD_SRC)
+LOCAL_SRC_FILES         = $(ANDROID_SRC) $(AUDIOLIB_SRC) $(MACT_SRC) $(GAME_SRC) $(BUILD_SRC)
 
 LOCAL_LDLIBS            := -lGLESv1_CM -lEGL -ldl -llog
 LOCAL_STATIC_LIBRARIES  := touch

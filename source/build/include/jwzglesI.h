@@ -17,6 +17,10 @@
 #ifndef __JWZGLES_I_H__
 #define __JWZGLES_I_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef GL_VERSION_ES_CM_1_0  /* compiling against OpenGLES 1.x */
 
 /* These OpenGL 1.3 constants are not present in OpenGLES 1.
@@ -363,5 +367,9 @@ extern const GLubyte * jwzgles_glGetString(GLenum name);
 extern void jwzgles_glReadPixels (GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, GLvoid *pixels);
 extern void jwzgles_glCopyTexSubImage2D (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint x, GLint y, GLsizei width, GLsizei height);
 extern void jwzgles_glDrawElements( GLenum mode, GLsizei count, GLenum type, const GLvoid *indices );
+    
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __JWZGLES_I_H__ */

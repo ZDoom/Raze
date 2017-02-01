@@ -1,5 +1,5 @@
 
 struct sdlappicon {
-	int32_t width,height;
-	uint8_t *pixels;
+	Sint32 width,height;
+	Uint8 *pixels;
 };

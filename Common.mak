@@ -601,29 +601,19 @@ ifeq ($(PLATFORM),WINDOWS)
 endif
 
 ifneq ($(LUNATIC),0)
-    ifneq ($(CPLUSPLUS),0)
-        # FIXME: Lunatic C++ doesn't build because otherwise it doesn't find
-        # INT32_MIN and the like.
-        COMPILERFLAGS+= -D__STDC_LIMIT_MACROS
-    endif
-
-    COMPILERFLAGS+= -Isource/lunatic -DLUNATIC
+    COMPILERFLAGS+= -Isource/duke3d/src/lunatic -DLUNATIC
     ifneq ($(USE_LUAJIT_2_1),0)
         COMPILERFLAGS+= -DUSE_LUAJIT_2_1
     endif
 
-    # Determine size of defs.ilua bytecode once.
+    # Determine size of _defs*.lua bytecode once.
     ifndef DEFS_BC_SIZE
-        DEFS_BC_SIZE := $(shell $(LUAJIT) -bg -t h source/lunatic/defs.ilua -)
+        DEFS_BC_SIZE := $(shell $(LUAJIT) -bg -t h source/duke3d/src/lunatic/_defs_game.lua -)
         DEFS_BC_SIZE := $(word 3, $(DEFS_BC_SIZE))
-        # Pass it to the sub-makes, too.
-        export DEFS_BC_SIZE
     endif
-    # Determine size of defs_m32.ilua bytecode once.
     ifndef DEFS_M32_BC_SIZE
-        DEFS_M32_BC_SIZE := $(shell $(LUAJIT) -bg -t h source/lunatic/defs_m32.ilua -)
+        DEFS_M32_BC_SIZE := $(shell $(LUAJIT) -bg -t h source/duke3d/src/lunatic/_defs_editor.lua -)
         DEFS_M32_BC_SIZE := $(word 3, $(DEFS_M32_BC_SIZE))
-        export DEFS_M32_BC_SIZE
     endif
     COMPILERFLAGS+= -DLUNATIC_DEFS_BC_SIZE=$(DEFS_BC_SIZE) -DLUNATIC_DEFS_M32_BC_SIZE=$(DEFS_M32_BC_SIZE)
 
@@ -706,16 +696,9 @@ endif
 #     endif
 # endif
 
-# NOTE: If your setup doesn't have libstdc++, you can try using libsupc++.
-# Search for STDCPPLIB below and change it to -lsupc++.
-
 ifeq ($(SUBPLATFORM),LINUX)
     COMPILERFLAGS+= -DHAVE_INTTYPES
     GTKCOMPAT32=0
-
-    # On Linux, we don't need to specify libstdc++ manually, the linker will
-    # presumably take care for us.
-    STDCPPLIB:=
 
     ifeq ($(PLATFORM),GCW)
         override USE_OPENGL=0
@@ -764,7 +747,6 @@ ifeq ($(PLATFORM),DARWIN)
         COMPILERFLAGS+= -I/sw/include
     endif
 
-    STDCPPLIB:=-lstdc++
     COMPILERFLAGS    += -DHAVE_INTTYPES
     DLLSUFFIX=.dylib
     GTKCOMPAT32    = 0
@@ -805,7 +787,6 @@ ifeq ($(PLATFORM),WINDOWS)
         GUI_LIBS += -mwindows
     endif
     #-lshfolder
-    STDCPPLIB:=-lstdc++
 else
     RENDERTYPE?=SDL
     MIXERTYPE?=SDL
@@ -814,12 +795,9 @@ ifeq ($(PLATFORM),BSD)
     COMPILERFLAGS+= -I/usr/local/include
 
     COMPILERFLAGS+= -DHAVE_INTTYPES
-    STDCPPLIB:=-lstdc++
 endif
 ifeq ($(PLATFORM),BEOS)
     override NOASM=1
-
-    STDCPPLIB:=-lstdc++
 endif
 ifeq ($(PLATFORM),SKYOS)
     EXESUFFIX=.app
@@ -844,13 +822,11 @@ endif
 ifeq ($(PLATFORM),QNX)
     override USE_OPENGL=0
     override NOASM=1
-    STDCPPLIB:=-lstdc++
     LIBS+= -lsocket
 endif
 ifeq ($(PLATFORM),SUNOS)
     override USE_OPENGL=0
     override NOASM=1
-    STDCPPLIB:=-lstdc++
     LIBS+= -lsocket -lnsl
 endif
 ifeq ($(PLATFORM),SYLLABLE)
@@ -870,12 +846,6 @@ endif
 
 ifneq ($(EXESUFFIX_OVERRIDE),)
     EXESUFFIX=$(EXESUFFIX_OVERRIDE)
-endif
-
-ifneq (0,$(CLANG))
-    ifneq (,$(STDCPPLIB))
-        STDCPPLIB:=-Xlinker $(STDCPPLIB)
-    endif
 endif
 
 ifeq ($(RENDERTYPE),SDL)
@@ -1049,13 +1019,14 @@ ifneq (,$(VC_REV)$(VC_REV_CUSTOM))
     REVFLAG += -DREV="\"r$(VC_REV)$(VC_REV_CUSTOM)\""
 endif
 
-COMPILER=$(CC) $(CONLYFLAGS)
+COMPILER_C=$(CC) $(CONLYFLAGS)
+COMPILER_CXX=$(CXX) $(CXXONLYFLAGS)
 COMPILER_OBJC=$(COBJC) $(CONLYFLAGS)
-LINKER=$(L_CC) $(CONLYFLAGS)
+COMPILER_OBJCXX=$(COBJCXX) $(CXXONLYFLAGS)
+LINKER=$(L_CXX) $(CXXONLYFLAGS) $(L_CXXONLYFLAGS)
 ifneq ($(CPLUSPLUS),0)
-    COMPILER=$(CXX) $(CXXONLYFLAGS)
-    COMPILER_OBJC=$(COBJCXX) $(CXXONLYFLAGS)
-    LINKER=$(L_CXX) $(CXXONLYFLAGS) $(L_CXXONLYFLAGS)
+    COMPILER_C=$(COMPILER_CXX)
+    COMPILER_OBJC=$(COMPILER_OBJCXX)
 endif
 
 ifneq (,$(CUSTOMOPT))
@@ -1073,9 +1044,9 @@ endif
 
 ifeq ($(PRETTY_OUTPUT),1)
 RECIPE_IF = if
-BUILD_SETTINGS_COMPILER = \033[1;36mcompiler: \033[0;36m\"$(COMPILER) $(COMMONFLAGS) $(COMPILERFLAGS)\"
+BUILD_SETTINGS_COMPILER = \033[1;36mcompiler: \033[0;36m\"$(COMPILER_C) $(COMMONFLAGS) $(COMPILERFLAGS)\"
 BUILD_SETTINGS_ASSEMBLER = \033[1;36massembler: \033[0;36m\"$(AS) $(ASFLAGS)\"
-BUILD_SETTINGS_LINKER = \033[1;36mlinker: \033[0;36m\"$(LINKER) $(COMMONFLAGS) $(LINKERFLAGS) $(LIBDIRS) $(LIBS) $(STDCPPLIB)\"
+BUILD_SETTINGS_LINKER = \033[1;36mlinker: \033[0;36m\"$(LINKER) $(COMMONFLAGS) $(LINKERFLAGS) $(LIBDIRS) $(LIBS)\"
 ifeq (0,$(NOASM))
     BUILD_SETTINGS = printf "$(BUILD_SETTINGS_COMPILER)\n$(BUILD_SETTINGS_ASSEMBLER)\n$(BUILD_SETTINGS_LINKER)\033[0m\n"
 else

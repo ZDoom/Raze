@@ -31,7 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include <sys/stat.h>
 
-#include "android/in_android.h"
+#include "in_android.h"
 #ifndef __ANDROID__
 droidinput_t droidinput;
 #endif

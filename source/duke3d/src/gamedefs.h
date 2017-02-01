@@ -37,15 +37,15 @@ extern "C" {
 // config file name
 #define SETUPFILENAME APPBASENAME ".cfg"
 
-// KEEPINSYNC source/jmact/_control.h, build/src/sdlayer.c
+// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
 #define MAXJOYBUTTONS 32
 #define MAXJOYBUTTONSANDHATS (MAXJOYBUTTONS+4)
 
-// KEEPINSYNC source/jmact/_control.h, build/src/sdlayer.c
+// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
 #define MAXMOUSEAXES 2
 #define MAXMOUSEDIGITAL (MAXMOUSEAXES*2)
 
-// KEEPINSYNC source/jmact/_control.h, build/src/sdlayer.c
+// KEEPINSYNC mact/include/_control.h, build/src/sdlayer.cpp
 #define MAXJOYAXES 9
 #define MAXJOYDIGITAL (MAXJOYAXES*2)
 

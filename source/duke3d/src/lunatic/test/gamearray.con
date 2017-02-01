@@ -44,8 +44,7 @@ state error
 
     // This doesn't work in C-CON:
 //    setactor[-1].cstat 0
-    // source/lunatic/test/gamearray.con: In state `error':
-    // source/lunatic/test/gamearray.con:36: error: symbol `1' is not a game variable.
+    // error: symbol `1' is not a game variable.
 ends
 
 onevent EVENT_ENTERLEVEL

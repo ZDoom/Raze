@@ -100,8 +100,8 @@ char *dup_filename(const char *fn);
 int32_t maybe_append_ext(char *wbuf, int32_t wbufsiz, const char *fn, const char *ext);
 
 // Approximations to 2D and 3D Euclidean distances. Initial EDuke32 SVN import says
-// in jmact/mathutil.c: "Ken's reverse-engineering job".
-// Note that jmact/mathutil.c contains practically the same code, but where the
+// in mact/src/mathutil.c: "Ken's reverse-engineering job".
+// Note that mathutil.c contains practically the same code, but where the
 // individual x/y(/z) distances are passed instead.
 static inline int32_t sepldist(const int32_t dx, const int32_t dy)
 {

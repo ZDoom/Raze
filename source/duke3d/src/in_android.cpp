@@ -34,9 +34,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "anim.h"
 #include "player.h"
 
-#include "jmact/keyboard.h"
-#include "jmact/control.h"
-#include "jmact/_control.h"
+#include "keyboard.h"
+#include "control.h"
+#include "_control.h"
 
 #include "menus.h"
 

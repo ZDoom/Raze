@@ -73,7 +73,7 @@ int32_t g_structVarIDs   = -1;
 
 GAMEEXEC_STATIC void VM_Execute(int loop);
 
-# include "gamestructures.c"
+# include "gamestructures.cpp"
 #endif
 
 #define VM_CONDITIONAL(xxx)                                                                                            \

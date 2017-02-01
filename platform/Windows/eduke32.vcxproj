@@ -53,374 +53,372 @@
     <PlatformToolset>v140</PlatformToolset>
     <OutDir>.\</OutDir>
     <IntDir>.\</IntDir>
-    <NMakeIncludeSearchPath>$(NMakeIncludeSearchPath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;platform\windows\include</NMakeIncludeSearchPath>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc DEBUG=1 WINBITS=32</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=32</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f Makefile.msvc veryclean DEBUG=1 WINBITS=32</NMakeCleanCommandLine>
+    <NMakeIncludeSearchPath>$(NMakeIncludeSearchPath);..\..\source\build\include;..\..\source\mact\include;..\..\source\audiolib\include;..\..\source\enet\include;..\..\platform\windows\include</NMakeIncludeSearchPath>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak DEBUG=1 WINBITS=32</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=32</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=32</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f Makefile.msvc WINBITS=32</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f Makefile.msvc veryclean all WINBITS=32</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f Makefile.msvc veryclean WINBITS=32</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak WINBITS=32</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak veryclean all WINBITS=32</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak veryclean WINBITS=32</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f Makefile.msvc DEBUG=1 WINBITS=64</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=64</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f Makefile.msvc veryclean DEBUG=1 WINBITS=64</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak DEBUG=1 WINBITS=64</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=64</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=64</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">USE_OPENGL;POLYMER;NOASM</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f Makefile.msvc WINBITS=64</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f Makefile.msvc veryclean all WINBITS=64</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f Makefile.msvc veryclean WINBITS=64</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak WINBITS=64</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak veryclean all WINBITS=64</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak veryclean WINBITS=64</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">USE_OPENGL;POLYMER;NOASM</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f Makefile.msvc DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f Makefile.msvc veryclean DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f msvc.mak DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">USE_OPENGL;POLYMER;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f Makefile.msvc WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f Makefile.msvc veryclean all WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f Makefile.msvc veryclean WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f msvc.mak WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f msvc.mak veryclean all WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f msvc.mak veryclean WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">USE_OPENGL;POLYMER;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f Makefile.msvc DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f Makefile.msvc veryclean all DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f Makefile.msvc veryclean DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f msvc.mak DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">USE_OPENGL;POLYMER;NOASM;HAVE_INTTYPES;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f Makefile.msvc WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f Makefile.msvc veryclean all WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f Makefile.msvc veryclean WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f msvc.mak WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f msvc.mak veryclean all WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f msvc.mak veryclean WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">USE_OPENGL;POLYMER;NOASM;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\..\source\build\include;..\..\source\mact\include;..\..\source\audiolib\include;..\..\source\enet\include;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\..\source\build\include;..\..\source\mact\include;..\..\source\audiolib\include;..\..\source\enet\include;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\..\source\build\include;..\..\source\mact\include;..\..\source\audiolib\include;..\..\source\enet\include;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);build\include;source\jmact;source\jaudiolib\include;source\enet\include;</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\..\source\build\include;..\..\source\mact\include;..\..\source\audiolib\include;..\..\source\enet\include;</IncludePath>
   </PropertyGroup>
   <ItemGroup>
-    <ClInclude Include="build\include\a.h" />
-    <ClInclude Include="build\include\baselayer.h" />
-    <ClInclude Include="build\include\build.h" />
-    <ClInclude Include="build\include\buildtypes.h" />
-    <ClInclude Include="build\include\cache1d.h" />
-    <ClInclude Include="build\include\clip.h" />
-    <ClInclude Include="build\include\colmatch.h" />
-    <ClInclude Include="build\include\compat.h" />
-    <ClInclude Include="build\include\common.h" />
-    <ClInclude Include="build\include\crc32.h" />
-    <ClInclude Include="build\include\dxdidf.h" />
-    <ClInclude Include="build\include\dxtfilter.h" />
-    <ClInclude Include="build\include\dynamicgtk.h" />
-    <ClInclude Include="build\include\editor.h" />
-    <ClInclude Include="build\include\glbuild.h" />
-    <ClInclude Include="build\include\glext.h" />
-    <ClInclude Include="build\include\gtkbits.h" />
-    <ClInclude Include="build\include\hash.h" />
-    <ClInclude Include="build\include\hightile.h" />
-    <ClInclude Include="build\include\jwzgles.h" />
-    <ClInclude Include="build\include\jwzglesI.h" />
-    <ClInclude Include="build\include\kplib.h" />
-    <ClInclude Include="build\include\libdivide.h" />
-    <ClInclude Include="build\include\lzwnew.h" />
-    <ClInclude Include="build\include\m32script.h" />
-    <ClInclude Include="build\include\md4.h" />
-    <ClInclude Include="build\include\mdsprite.h" />
-    <ClInclude Include="build\include\mmulti.h" />
-    <ClInclude Include="build\include\mutex.h" />
-    <ClInclude Include="build\include\osd.h" />
-    <ClInclude Include="build\include\osxbits.h" />
-    <ClInclude Include="build\include\palette.h" />
-    <ClInclude Include="build\include\polymer.h" />
-    <ClInclude Include="build\include\polymost.h" />
-    <ClInclude Include="build\include\pragmas.h" />
-    <ClInclude Include="build\include\pragmas_arm.h" />
-    <ClInclude Include="build\include\pragmas_ppc.h" />
-    <ClInclude Include="build\include\pragmas_x86_gcc.h" />
-    <ClInclude Include="build\include\pragmas_x86_msvc.h" />
-    <ClInclude Include="build\include\prlights.h" />
-    <ClInclude Include="build\include\lz4.h" />
-    <ClInclude Include="build\include\rawinput.h" />
-    <ClInclude Include="build\include\renderlayer.h" />
-    <ClInclude Include="build\include\scriptfile.h" />
-    <ClInclude Include="build\include\sdlayer.h" />
-    <ClInclude Include="build\include\sdl_inc.h" />
-    <ClInclude Include="build\include\startwin.editor.h" />
-    <ClInclude Include="build\include\texcache.h" />
-    <ClInclude Include="build\include\tracker.hpp" />
-    <ClInclude Include="build\include\tracker_operator.hpp" />
-    <ClInclude Include="build\include\tracker_operators.hpp" />
-    <ClInclude Include="build\include\winbits.h" />
-    <ClInclude Include="build\include\winlayer.h" />
-    <ClInclude Include="build\include\msvc\inttypes.h" />
-    <ClInclude Include="build\include\msvc\stdint.h" />
-    <ClInclude Include="build\include\xxhash.h" />
-    <ClInclude Include="build\src\engine_priv.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\Button.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\ControlSuper.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\GLLines.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\GLRect.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\Mouse.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\PointF.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\RectF.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchControls.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchControlsConfig.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchJoy.h" />
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\WheelSelect.h" />
-    <ClInclude Include="source\actors.h" />
-    <ClInclude Include="source\android.h" />
-    <ClInclude Include="source\android\in_android.h" />
-    <ClInclude Include="source\anim.h" />
-    <ClInclude Include="source\animsounds.h" />
-    <ClInclude Include="source\animvpx.h" />
-    <ClInclude Include="source\cheats.h" />
-    <ClInclude Include="source\cmdline.h" />
-    <ClInclude Include="source\common_game.h" />
-    <ClInclude Include="source\demo.h" />
-    <ClInclude Include="source\events_defs.h" />
-    <ClInclude Include="source\game.h" />
-    <ClInclude Include="source\gameexec.h" />
-    <ClInclude Include="source\gamevars.h" />
-    <ClInclude Include="source\global.h" />
-    <ClInclude Include="source\input.h" />
-    <ClInclude Include="source\inv.h" />
-    <ClInclude Include="source\jaudiolib\include\drivers.h" />
-    <ClInclude Include="source\jaudiolib\include\multivoc.h" />
-    <ClInclude Include="source\lunatic\lunatic_game.h" />
-    <ClInclude Include="source\lunatic\lunatic_m32.h" />
-    <ClInclude Include="source\m32def.h" />
-    <ClInclude Include="source\menus.h" />
-    <ClInclude Include="source\mpu401.h" />
-    <ClInclude Include="source\net.h" />
-    <ClInclude Include="source\player.h" />
-    <ClInclude Include="source\premap.h" />
-    <ClInclude Include="source\quotes.h" />
-    <ClInclude Include="source\savegame.h" />
-    <ClInclude Include="source\sbar.h" />
-    <ClInclude Include="source\screens.h" />
-    <ClInclude Include="source\screentext.h" />
-    <ClInclude Include="source\sector.h" />
-    <ClInclude Include="source\_functio.h" />
-    <ClInclude Include="source\_midi.h" />
-    <ClInclude Include="source\_rts.h" />
-    <ClInclude Include="source\config.h" />
-    <ClInclude Include="source\duke3d.h" />
-    <ClInclude Include="source\function.h" />
-    <ClInclude Include="source\gamedef.h" />
-    <ClInclude Include="source\gamedefs.h" />
-    <ClInclude Include="source\grpscan.h" />
-    <ClInclude Include="source\keys.h" />
-    <ClInclude Include="source\macros.h" />
-    <ClInclude Include="source\mapster32.h" />
-    <ClInclude Include="source\mdump.h" />
-    <ClInclude Include="source\names.h" />
-    <ClInclude Include="source\namesdyn.h" />
-    <ClInclude Include="source\osdcmds.h" />
-    <ClInclude Include="source\osdfuncs.h" />
-    <ClInclude Include="source\rts.h" />
-    <ClInclude Include="source\soundefs.h" />
-    <ClInclude Include="source\sounds.h" />
-    <ClInclude Include="source\sounds_mapster32.h" />
-    <ClInclude Include="source\soundsdyn.h" />
-    <ClInclude Include="source\startwin.game.h" />
-    <ClInclude Include="source\jaudiolib\src\_multivc.h" />
-    <ClInclude Include="source\jaudiolib\src\driver_directsound.h" />
-    <ClInclude Include="source\jaudiolib\src\driver_nosound.h" />
-    <ClInclude Include="source\jaudiolib\src\driver_sdl.h" />
-    <ClInclude Include="source\jaudiolib\include\fx_man.h" />
-    <ClInclude Include="source\jaudiolib\src\linklist.h" />
-    <ClInclude Include="source\jaudiolib\include\music.h" />
-    <ClInclude Include="source\jaudiolib\src\pitch.h" />
-    <ClInclude Include="source\jmact\_control.h" />
-    <ClInclude Include="source\jmact\_scrplib.h" />
-    <ClInclude Include="source\jmact\animlib.h" />
-    <ClInclude Include="source\jmact\control.h" />
-    <ClInclude Include="source\jmact\file_lib.h" />
-    <ClInclude Include="source\jmact\keyboard.h" />
-    <ClInclude Include="source\jmact\mouse.h" />
-    <ClInclude Include="source\jmact\scriplib.h" />
-    <ClInclude Include="source\enet\include\enet\callbacks.h" />
-    <ClInclude Include="source\enet\include\enet\enet.h" />
-    <ClInclude Include="source\enet\include\enet\list.h" />
-    <ClInclude Include="source\enet\include\enet\protocol.h" />
-    <ClInclude Include="source\enet\include\enet\time.h" />
-    <ClInclude Include="source\enet\include\enet\types.h" />
-    <ClInclude Include="source\enet\include\enet\unix.h" />
-    <ClInclude Include="source\enet\include\enet\utility.h" />
-    <ClInclude Include="source\enet\include\enet\win32.h" />
+    <ClInclude Include="..\..\source\build\include\a.h" />
+    <ClInclude Include="..\..\source\build\include\animvpx.h" />
+    <ClInclude Include="..\..\source\build\include\baselayer.h" />
+    <ClInclude Include="..\..\source\build\include\build.h" />
+    <ClInclude Include="..\..\source\build\include\buildtypes.h" />
+    <ClInclude Include="..\..\source\build\include\cache1d.h" />
+    <ClInclude Include="..\..\source\build\include\clip.h" />
+    <ClInclude Include="..\..\source\build\include\colmatch.h" />
+    <ClInclude Include="..\..\source\build\include\compat.h" />
+    <ClInclude Include="..\..\source\build\include\common.h" />
+    <ClInclude Include="..\..\source\build\include\crc32.h" />
+    <ClInclude Include="..\..\source\build\include\dxdidf.h" />
+    <ClInclude Include="..\..\source\build\include\dxtfilter.h" />
+    <ClInclude Include="..\..\source\build\include\dynamicgtk.h" />
+    <ClInclude Include="..\..\source\build\include\editor.h" />
+    <ClInclude Include="..\..\source\build\include\glbuild.h" />
+    <ClInclude Include="..\..\source\build\include\glext.h" />
+    <ClInclude Include="..\..\source\build\include\gtkbits.h" />
+    <ClInclude Include="..\..\source\build\include\hash.h" />
+    <ClInclude Include="..\..\source\build\include\hightile.h" />
+    <ClInclude Include="..\..\source\build\include\jwzgles.h" />
+    <ClInclude Include="..\..\source\build\include\jwzglesI.h" />
+    <ClInclude Include="..\..\source\build\include\kplib.h" />
+    <ClInclude Include="..\..\source\build\include\libdivide.h" />
+    <ClInclude Include="..\..\source\build\include\lzwnew.h" />
+    <ClInclude Include="..\..\source\build\include\m32script.h" />
+    <ClInclude Include="..\..\source\build\include\md4.h" />
+    <ClInclude Include="..\..\source\build\include\mdsprite.h" />
+    <ClInclude Include="..\..\source\build\include\mmulti.h" />
+    <ClInclude Include="..\..\source\build\include\mutex.h" />
+    <ClInclude Include="..\..\source\build\include\osd.h" />
+    <ClInclude Include="..\..\source\build\include\osxbits.h" />
+    <ClInclude Include="..\..\source\build\include\palette.h" />
+    <ClInclude Include="..\..\source\build\include\polymer.h" />
+    <ClInclude Include="..\..\source\build\include\polymost.h" />
+    <ClInclude Include="..\..\source\build\include\pragmas.h" />
+    <ClInclude Include="..\..\source\build\include\pragmas_arm.h" />
+    <ClInclude Include="..\..\source\build\include\pragmas_ppc.h" />
+    <ClInclude Include="..\..\source\build\include\pragmas_x86_gcc.h" />
+    <ClInclude Include="..\..\source\build\include\pragmas_x86_msvc.h" />
+    <ClInclude Include="..\..\source\build\include\prlights.h" />
+    <ClInclude Include="..\..\source\build\include\lz4.h" />
+    <ClInclude Include="..\..\source\build\include\rawinput.h" />
+    <ClInclude Include="..\..\source\build\include\renderlayer.h" />
+    <ClInclude Include="..\..\source\build\include\scriptfile.h" />
+    <ClInclude Include="..\..\source\build\include\sdlayer.h" />
+    <ClInclude Include="..\..\source\build\include\sdl_inc.h" />
+    <ClInclude Include="..\..\source\build\include\startwin.editor.h" />
+    <ClInclude Include="..\..\source\build\include\texcache.h" />
+    <ClInclude Include="..\..\source\build\include\tracker.hpp" />
+    <ClInclude Include="..\..\source\build\include\tracker_operator.hpp" />
+    <ClInclude Include="..\..\source\build\include\tracker_operators.hpp" />
+    <ClInclude Include="..\..\source\build\include\winbits.h" />
+    <ClInclude Include="..\..\source\build\include\winlayer.h" />
+    <ClInclude Include="..\..\source\build\include\msvc\inttypes.h" />
+    <ClInclude Include="..\..\source\build\include\msvc\stdint.h" />
+    <ClInclude Include="..\..\source\build\include\xxhash.h" />
+    <ClInclude Include="..\..\source\build\src\engine_priv.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\Button.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\ControlSuper.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLLines.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLRect.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\Mouse.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\PointF.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\RectF.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControls.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControlsConfig.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchJoy.h" />
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\WheelSelect.h" />
+    <ClInclude Include="..\..\source\duke3d\src\actors.h" />
+    <ClInclude Include="..\..\source\duke3d\src\android.h" />
+    <ClInclude Include="..\..\source\duke3d\src\in_android.h" />
+    <ClInclude Include="..\..\source\duke3d\src\anim.h" />
+    <ClInclude Include="..\..\source\duke3d\src\animsounds.h" />
+    <ClInclude Include="..\..\source\duke3d\src\cheats.h" />
+    <ClInclude Include="..\..\source\duke3d\src\cmdline.h" />
+    <ClInclude Include="..\..\source\duke3d\src\common_game.h" />
+    <ClInclude Include="..\..\source\duke3d\src\demo.h" />
+    <ClInclude Include="..\..\source\duke3d\src\events_defs.h" />
+    <ClInclude Include="..\..\source\duke3d\src\game.h" />
+    <ClInclude Include="..\..\source\duke3d\src\gameexec.h" />
+    <ClInclude Include="..\..\source\duke3d\src\gamevars.h" />
+    <ClInclude Include="..\..\source\duke3d\src\global.h" />
+    <ClInclude Include="..\..\source\duke3d\src\input.h" />
+    <ClInclude Include="..\..\source\duke3d\src\inv.h" />
+    <ClInclude Include="..\..\source\audiolib\include\drivers.h" />
+    <ClInclude Include="..\..\source\audiolib\include\multivoc.h" />
+    <ClInclude Include="..\..\source\duke3d\src\lunatic\lunatic_game.h" />
+    <ClInclude Include="..\..\source\duke3d\src\lunatic\lunatic_editor.h" />
+    <ClInclude Include="..\..\source\duke3d\src\m32def.h" />
+    <ClInclude Include="..\..\source\duke3d\src\menus.h" />
+    <ClInclude Include="..\..\source\duke3d\src\mpu401.h" />
+    <ClInclude Include="..\..\source\duke3d\src\net.h" />
+    <ClInclude Include="..\..\source\duke3d\src\player.h" />
+    <ClInclude Include="..\..\source\duke3d\src\premap.h" />
+    <ClInclude Include="..\..\source\duke3d\src\quotes.h" />
+    <ClInclude Include="..\..\source\duke3d\src\savegame.h" />
+    <ClInclude Include="..\..\source\duke3d\src\sbar.h" />
+    <ClInclude Include="..\..\source\duke3d\src\screens.h" />
+    <ClInclude Include="..\..\source\duke3d\src\screentext.h" />
+    <ClInclude Include="..\..\source\duke3d\src\sector.h" />
+    <ClInclude Include="..\..\source\duke3d\src\_functio.h" />
+    <ClInclude Include="..\..\source\duke3d\src\_midi.h" />
+    <ClInclude Include="..\..\source\duke3d\src\_rts.h" />
+    <ClInclude Include="..\..\source\duke3d\src\config.h" />
+    <ClInclude Include="..\..\source\duke3d\src\duke3d.h" />
+    <ClInclude Include="..\..\source\duke3d\src\function.h" />
+    <ClInclude Include="..\..\source\duke3d\src\gamedef.h" />
+    <ClInclude Include="..\..\source\duke3d\src\gamedefs.h" />
+    <ClInclude Include="..\..\source\duke3d\src\grpscan.h" />
+    <ClInclude Include="..\..\source\duke3d\src\keys.h" />
+    <ClInclude Include="..\..\source\duke3d\src\macros.h" />
+    <ClInclude Include="..\..\source\duke3d\src\mapster32.h" />
+    <ClInclude Include="..\..\source\duke3d\src\mdump.h" />
+    <ClInclude Include="..\..\source\duke3d\src\names.h" />
+    <ClInclude Include="..\..\source\duke3d\src\namesdyn.h" />
+    <ClInclude Include="..\..\source\duke3d\src\osdcmds.h" />
+    <ClInclude Include="..\..\source\duke3d\src\osdfuncs.h" />
+    <ClInclude Include="..\..\source\duke3d\src\rts.h" />
+    <ClInclude Include="..\..\source\duke3d\src\soundefs.h" />
+    <ClInclude Include="..\..\source\duke3d\src\sounds.h" />
+    <ClInclude Include="..\..\source\duke3d\src\sounds_mapster32.h" />
+    <ClInclude Include="..\..\source\duke3d\src\soundsdyn.h" />
+    <ClInclude Include="..\..\source\duke3d\src\startwin.game.h" />
+    <ClInclude Include="..\..\source\audiolib\src\_multivc.h" />
+    <ClInclude Include="..\..\source\audiolib\src\driver_directsound.h" />
+    <ClInclude Include="..\..\source\audiolib\src\driver_nosound.h" />
+    <ClInclude Include="..\..\source\audiolib\src\driver_sdl.h" />
+    <ClInclude Include="..\..\source\audiolib\include\fx_man.h" />
+    <ClInclude Include="..\..\source\audiolib\src\linklist.h" />
+    <ClInclude Include="..\..\source\audiolib\include\music.h" />
+    <ClInclude Include="..\..\source\audiolib\src\pitch.h" />
+    <ClInclude Include="..\..\source\mact\include\_control.h" />
+    <ClInclude Include="..\..\source\mact\src\_scrplib.h" />
+    <ClInclude Include="..\..\source\mact\include\animlib.h" />
+    <ClInclude Include="..\..\source\mact\include\control.h" />
+    <ClInclude Include="..\..\source\mact\include\file_lib.h" />
+    <ClInclude Include="..\..\source\mact\include\keyboard.h" />
+    <ClInclude Include="..\..\source\mact\include\mouse.h" />
+    <ClInclude Include="..\..\source\mact\include\scriplib.h" />
+    <ClInclude Include="..\..\source\enet\include\enet\callbacks.h" />
+    <ClInclude Include="..\..\source\enet\include\enet\enet.h" />
+    <ClInclude Include="..\..\source\enet\include\enet\list.h" />
+    <ClInclude Include="..\..\source\enet\include\enet\protocol.h" />
+    <ClInclude Include="..\..\source\enet\include\enet\time.h" />
+    <ClInclude Include="..\..\source\enet\include\enet\types.h" />
+    <ClInclude Include="..\..\source\enet\include\enet\unix.h" />
+    <ClInclude Include="..\..\source\enet\include\enet\utility.h" />
+    <ClInclude Include="..\..\source\enet\include\enet\win32.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="build\src\2d.c" />
-    <ClCompile Include="build\src\a-c.c" />
-    <ClCompile Include="build\src\baselayer.c" />
-    <ClCompile Include="build\src\build.c" />
-    <ClCompile Include="build\src\cache1d.c" />
-    <ClCompile Include="build\src\clip.c" />
-    <ClCompile Include="build\src\colmatch.c" />
-    <ClCompile Include="build\src\common.c" />
-    <ClCompile Include="build\src\compat.c" />
-    <ClCompile Include="build\src\config.c" />
-    <ClCompile Include="build\src\crc32.c" />
-    <ClCompile Include="build\src\defs.c" />
-    <ClCompile Include="build\src\dxtfilter.c" />
-    <ClCompile Include="build\src\dynamicgtk.c" />
-    <ClCompile Include="build\src\engine.c" />
-    <ClCompile Include="build\src\glbuild.c" />
-    <ClCompile Include="build\src\gtkbits.c" />
-    <ClCompile Include="build\src\hash.c" />
-    <ClCompile Include="build\src\hightile.c" />
-    <ClCompile Include="build\src\jwzgles.c" />
-    <ClCompile Include="build\src\kplib.c" />
-    <ClCompile Include="build\src\lzwnew.c" />
-    <ClCompile Include="build\src\md4.c" />
-    <ClCompile Include="build\src\mdsprite.c" />
-    <ClCompile Include="build\src\mhk.c" />
-    <ClCompile Include="build\src\mutex.c" />
-    <ClCompile Include="build\src\osd.c" />
-    <ClCompile Include="build\src\palette.c" />
-    <ClCompile Include="build\src\polymer.c" />
-    <ClCompile Include="build\src\polymost.c" />
-    <ClCompile Include="build\src\pragmas.c" />
-    <ClCompile Include="build\src\lz4.c" />
-    <ClCompile Include="build\src\rawinput.c" />
-    <ClCompile Include="build\src\screenshot.c" />
-    <ClCompile Include="build\src\scriptfile.c" />
-    <ClCompile Include="build\src\sdlayer.c" />
-    <ClCompile Include="build\src\sdlayer12.c" />
-    <ClCompile Include="build\src\smalltextfont.c" />
-    <ClCompile Include="build\src\startgtk.editor.c" />
-    <ClCompile Include="build\src\startwin.editor.c" />
-    <ClCompile Include="build\src\texcache.c" />
-    <ClCompile Include="build\src\textfont.c" />
-    <ClCompile Include="build\src\tiles.c" />
-    <ClCompile Include="build\src\voxmodel.c" />
-    <ClCompile Include="build\src\winbits.c" />
-    <ClCompile Include="build\src\winlayer.c" />
-    <ClCompile Include="build\src\xxhash.c" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\Button.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\ControlSuper.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\GLLines.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\GLRect.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\Mouse.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\RectF.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\TouchControls.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\TouchJoy.cpp" />
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\WheelSelect.cpp" />
-    <ClCompile Include="source\actors.c" />
-    <ClCompile Include="source\android\android-jni.cpp" />
-    <ClCompile Include="source\android\in_android.c" />
-    <ClCompile Include="source\anim.c" />
-    <ClCompile Include="source\animsounds.c" />
-    <ClCompile Include="source\animvpx.c" />
-    <ClCompile Include="source\astub.c" />
-    <ClCompile Include="source\cheats.c" />
-    <ClCompile Include="source\cmdline.c" />
-    <ClCompile Include="source\config.c" />
-    <ClCompile Include="source\common.c" />
-    <ClCompile Include="source\demo.c" />
-    <ClCompile Include="source\enet\src\compress.c" />
-    <ClCompile Include="source\game.c" />
-    <ClCompile Include="source\gamedef.c" />
-    <ClCompile Include="source\gameexec.c" />
-    <ClCompile Include="source\gamestructures.c" />
-    <ClCompile Include="source\gamevars.c" />
-    <ClCompile Include="source\global.c" />
-    <ClCompile Include="source\grpscan.c" />
-    <ClCompile Include="source\input.c" />
-    <ClCompile Include="source\jaudiolib\src\flac.c" />
-    <ClCompile Include="source\jaudiolib\src\formats.c" />
-    <ClCompile Include="source\jaudiolib\src\xa.c" />
-    <ClCompile Include="source\lunatic\lunatic_game.c" />
-    <ClCompile Include="source\lunatic\lunatic_m32.c" />
-    <ClCompile Include="source\m32common.c" />
-    <ClCompile Include="source\m32def.c" />
-    <ClCompile Include="source\m32exec.c" />
-    <ClCompile Include="source\m32structures.c" />
-    <ClCompile Include="source\m32vars.c" />
-    <ClCompile Include="source\mdump.cpp" />
-    <ClCompile Include="source\menus.c" />
-    <ClCompile Include="source\midi.c" />
-    <ClCompile Include="source\mpu401.c" />
-    <ClCompile Include="source\music.c" />
-    <ClCompile Include="source\namesdyn.c" />
-    <ClCompile Include="source\net.c" />
-    <ClCompile Include="source\osdcmds.c" />
-    <ClCompile Include="source\osdfuncs.c" />
-    <ClCompile Include="source\player.c" />
-    <ClCompile Include="source\premap.c" />
-    <ClCompile Include="source\rts.c" />
-    <ClCompile Include="source\savegame.c" />
-    <ClCompile Include="source\sbar.c" />
-    <ClCompile Include="source\screens.c" />
-    <ClCompile Include="source\screentext.c" />
-    <ClCompile Include="source\sdlmusic.c" />
-    <ClCompile Include="source\sector.c" />
-    <ClCompile Include="source\sounds.c" />
-    <ClCompile Include="source\sounds_mapster32.c" />
-    <ClCompile Include="source\soundsdyn.c" />
-    <ClCompile Include="source\startgtk.game.c" />
-    <ClCompile Include="source\startwin.game.c" />
-    <ClCompile Include="source\winbits.c" />
-    <ClCompile Include="source\jaudiolib\src\driver_directsound.c" />
-    <ClCompile Include="source\jaudiolib\src\driver_nosound.c" />
-    <ClCompile Include="source\jaudiolib\src\driver_sdl.c" />
-    <ClCompile Include="source\jaudiolib\src\drivers.c" />
-    <ClCompile Include="source\jaudiolib\src\fx_man.c" />
-    <ClCompile Include="source\jaudiolib\src\mix.c" />
-    <ClCompile Include="source\jaudiolib\src\mixst.c" />
-    <ClCompile Include="source\jaudiolib\src\multivoc.c" />
-    <ClCompile Include="source\jaudiolib\src\pitch.c" />
-    <ClCompile Include="source\jaudiolib\src\vorbis.c" />
-    <ClCompile Include="source\jmact\animlib.c" />
-    <ClCompile Include="source\jmact\control.c" />
-    <ClCompile Include="source\jmact\file_lib.c" />
-    <ClCompile Include="source\jmact\keyboard.c" />
-    <ClCompile Include="source\jmact\scriplib.c" />
-    <ClCompile Include="source\enet\src\callbacks.c" />
-    <ClCompile Include="source\enet\src\host.c" />
-    <ClCompile Include="source\enet\src\list.c" />
-    <ClCompile Include="source\enet\src\packet.c" />
-    <ClCompile Include="source\enet\src\peer.c" />
-    <ClCompile Include="source\enet\src\protocol.c" />
-    <ClCompile Include="source\enet\src\unix.c" />
-    <ClCompile Include="source\enet\src\win32.c" />
+    <ClCompile Include="..\..\source\build\src\2d.cpp" />
+    <ClCompile Include="..\..\source\build\src\a-c.cpp" />
+    <ClCompile Include="..\..\source\build\src\animvpx.cpp" />
+    <ClCompile Include="..\..\source\build\src\baselayer.cpp" />
+    <ClCompile Include="..\..\source\build\src\build.cpp" />
+    <ClCompile Include="..\..\source\build\src\cache1d.cpp" />
+    <ClCompile Include="..\..\source\build\src\clip.cpp" />
+    <ClCompile Include="..\..\source\build\src\colmatch.cpp" />
+    <ClCompile Include="..\..\source\build\src\common.cpp" />
+    <ClCompile Include="..\..\source\build\src\compat.cpp" />
+    <ClCompile Include="..\..\source\build\src\config.cpp" />
+    <ClCompile Include="..\..\source\build\src\crc32.cpp" />
+    <ClCompile Include="..\..\source\build\src\defs.cpp" />
+    <ClCompile Include="..\..\source\build\src\dxtfilter.cpp" />
+    <ClCompile Include="..\..\source\build\src\dynamicgtk.cpp" />
+    <ClCompile Include="..\..\source\build\src\engine.cpp" />
+    <ClCompile Include="..\..\source\build\src\glbuild.cpp" />
+    <ClCompile Include="..\..\source\build\src\gtkbits.cpp" />
+    <ClCompile Include="..\..\source\build\src\hash.cpp" />
+    <ClCompile Include="..\..\source\build\src\hightile.cpp" />
+    <ClCompile Include="..\..\source\build\src\jwzgles.c" />
+    <ClCompile Include="..\..\source\build\src\kplib.cpp" />
+    <ClCompile Include="..\..\source\build\src\lzwnew.cpp" />
+    <ClCompile Include="..\..\source\build\src\md4.cpp" />
+    <ClCompile Include="..\..\source\build\src\mdsprite.cpp" />
+    <ClCompile Include="..\..\source\build\src\mhk.cpp" />
+    <ClCompile Include="..\..\source\build\src\mutex.cpp" />
+    <ClCompile Include="..\..\source\build\src\osd.cpp" />
+    <ClCompile Include="..\..\source\build\src\palette.cpp" />
+    <ClCompile Include="..\..\source\build\src\polymer.cpp" />
+    <ClCompile Include="..\..\source\build\src\polymost.cpp" />
+    <ClCompile Include="..\..\source\build\src\pragmas.cpp" />
+    <ClCompile Include="..\..\source\build\src\lz4.c" />
+    <ClCompile Include="..\..\source\build\src\rawinput.cpp" />
+    <ClCompile Include="..\..\source\build\src\screenshot.cpp" />
+    <ClCompile Include="..\..\source\build\src\scriptfile.cpp" />
+    <ClCompile Include="..\..\source\build\src\sdlayer.cpp" />
+    <ClCompile Include="..\..\source\build\src\sdlayer12.cpp" />
+    <ClCompile Include="..\..\source\build\src\smalltextfont.cpp" />
+    <ClCompile Include="..\..\source\build\src\startgtk.editor.cpp" />
+    <ClCompile Include="..\..\source\build\src\startwin.editor.cpp" />
+    <ClCompile Include="..\..\source\build\src\texcache.cpp" />
+    <ClCompile Include="..\..\source\build\src\textfont.cpp" />
+    <ClCompile Include="..\..\source\build\src\tiles.cpp" />
+    <ClCompile Include="..\..\source\build\src\voxmodel.cpp" />
+    <ClCompile Include="..\..\source\build\src\winbits.cpp" />
+    <ClCompile Include="..\..\source\build\src\winlayer.cpp" />
+    <ClCompile Include="..\..\source\build\src\xxhash.c" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\Button.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\ControlSuper.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLLines.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLRect.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\Mouse.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\RectF.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControls.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchJoy.cpp" />
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\WheelSelect.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\actors.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\in_android.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\anim.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\animsounds.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\astub.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\cheats.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\cmdline.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\config.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\common.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\demo.cpp" />
+    <ClCompile Include="..\..\source\enet\src\compress.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\game.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\gamedef.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\gameexec.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\gamestructures.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\gamevars.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\global.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\grpscan.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\input.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\flac.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\formats.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\xa.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\lunatic\lunatic_game.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\lunatic\lunatic_editor.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\m32common.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\m32def.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\m32exec.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\m32structures.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\m32vars.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\mdump.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\menus.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\midi.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\mpu401.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\music.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\namesdyn.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\net.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\osdcmds.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\osdfuncs.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\player.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\premap.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\rts.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\savegame.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\sbar.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\screens.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\screentext.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\sdlmusic.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\sector.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\sounds.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\sounds_mapster32.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\soundsdyn.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\startgtk.game.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\startwin.game.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\winbits.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\driver_directsound.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\driver_nosound.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\driver_sdl.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\drivers.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\fx_man.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\mix.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\mixst.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\multivoc.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\pitch.cpp" />
+    <ClCompile Include="..\..\source\audiolib\src\vorbis.cpp" />
+    <ClCompile Include="..\..\source\mact\src\animlib.cpp" />
+    <ClCompile Include="..\..\source\mact\src\control.cpp" />
+    <ClCompile Include="..\..\source\mact\src\file_lib.cpp" />
+    <ClCompile Include="..\..\source\mact\src\keyboard.cpp" />
+    <ClCompile Include="..\..\source\mact\src\scriplib.cpp" />
+    <ClCompile Include="..\..\source\enet\src\callbacks.c" />
+    <ClCompile Include="..\..\source\enet\src\host.c" />
+    <ClCompile Include="..\..\source\enet\src\list.c" />
+    <ClCompile Include="..\..\source\enet\src\packet.c" />
+    <ClCompile Include="..\..\source\enet\src\peer.c" />
+    <ClCompile Include="..\..\source\enet\src\protocol.c" />
+    <ClCompile Include="..\..\source\enet\src\unix.c" />
+    <ClCompile Include="..\..\source\enet\src\win32.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build\Makefile.msvc" />
-    <None Include="Makefile.msvc" />
-    <None Include="source\lunatic\bcarray.lua" />
-    <None Include="source\lunatic\bcheck.lua" />
-    <None Include="source\lunatic\bitar.lua" />
-    <None Include="source\lunatic\control.lua" />
-    <None Include="source\lunatic\con_lang.lua" />
-    <None Include="source\lunatic\defs.ilua" />
-    <None Include="source\lunatic\defs_common.lua" />
-    <None Include="source\lunatic\defs_m32.ilua" />
-    <None Include="source\lunatic\dis_x64.lua" />
-    <None Include="source\lunatic\dis_x86.lua" />
-    <None Include="source\lunatic\dump.lua" />
-    <None Include="source\lunatic\dynsymlist" />
-    <None Include="source\lunatic\dynsymlist_m32" />
-    <None Include="source\lunatic\engine_maptext.lua" />
-    <None Include="source\lunatic\listglobals.sh" />
-    <None Include="source\lunatic\lunacon.lua" />
-    <None Include="source\lunatic\profdemo.lua" />
-    <None Include="source\lunatic\randgen.lua" />
-    <None Include="source\lunatic\savegame.lua" />
-    <None Include="source\lunatic\stat.lua" />
-    <None Include="source\lunatic\strict.lua" />
-    <None Include="source\lunatic\test.lua" />
-    <None Include="source\lunatic\v.lua" />
-    <None Include="source\lunatic\xmath.lua" />
+    <None Include="msvc.mak" />
+    <None Include="..\..\source\duke3d\src\lunatic\bcarray.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\bcheck.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\bitar.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\control.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\con_lang.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\_defs_game.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\defs_common.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\_defs_editor.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\dis_x64.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\dis_x86.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\dump.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\dynsymlist_game.lds" />
+    <None Include="..\..\source\duke3d\src\lunatic\dynsymlist_editor.lds" />
+    <None Include="..\..\source\duke3d\src\lunatic\engine_maptext.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\listglobals.sh" />
+    <None Include="..\..\source\duke3d\src\lunatic\lunacon.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\profdemo.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\randgen.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\savegame.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\stat.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\strict.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\test.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\v.lua" />
+    <None Include="..\..\source\duke3d\src\lunatic\xmath.lua" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

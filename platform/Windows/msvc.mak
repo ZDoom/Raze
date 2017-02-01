@@ -1,29 +1,37 @@
 # EDuke32 Makefile for Microsoft NMake
 
-obj=obj
+root=..\..\
 
-ENGINE_ROOT=build
+obj=$(root)\obj
+source=$(root)\source
+
+ENGINE=build
+ENGINE_ROOT=$(source)\$(ENGINE)
 ENGINE_SRC=$(ENGINE_ROOT)\src
 ENGINE_INC=$(ENGINE_ROOT)\include
-ENGINE_OBJ=$(ENGINE_ROOT)\$(obj)
+ENGINE_OBJ=$(obj)\$(ENGINE)
 
-DUKE3D_SRC=source
-DUKE3D_OBJ=$(DUKE3D_SRC)\$(obj)
-DUKE3D_INC=$(DUKE3D_SRC)
-DUKE3D_RSRC=rsrc
+DUKE3D=duke3d
+DUKE3D_ROOT=$(source)\$(DUKE3D)
+DUKE3D_SRC=$(DUKE3D_ROOT)\src
+DUKE3D_OBJ=$(obj)\$(DUKE3D)
+DUKE3D_RSRC=$(DUKE3D_ROOT)\rsrc
 
-MACT_ROOT=$(DUKE3D_SRC)\jmact
-MACT_SRC=$(MACT_ROOT)
-MACT_INC=$(MACT_ROOT)
-MACT_OBJ=$(MACT_ROOT)\$(obj)
+MACT=mact
+MACT_ROOT=$(source)\$(MACT)
+MACT_SRC=$(MACT_ROOT)\src
+MACT_INC=$(MACT_ROOT)\include
+MACT_OBJ=$(obj)\$(MACT)
 
-AUDIOLIB_ROOT=$(DUKE3D_SRC)\jaudiolib
-AUDIOLIB_OBJ=$(AUDIOLIB_ROOT)\$(obj)
+AUDIOLIB=audiolib
+AUDIOLIB_ROOT=$(source)\$(AUDIOLIB)
+AUDIOLIB_OBJ=$(obj)\$(AUDIOLIB)
 AUDIOLIB_INC=$(AUDIOLIB_ROOT)\include
 AUDIOLIB_SRC=$(AUDIOLIB_ROOT)\src
 
-ENET_ROOT=$(DUKE3D_SRC)\enet
-ENET_OBJ=$(ENET_ROOT)\$(obj)
+ENET=enet
+ENET_ROOT=$(source)\$(ENET)
+ENET_OBJ=$(obj)\$(ENET)
 ENET_INC=$(ENET_ROOT)\include
 ENET_SRC=$(ENET_ROOT)\src
 
@@ -49,11 +57,8 @@ WINMACHINE=/MACHINE:X64
 !endif
 
 # the WDK allows us to link against msvcrt.dll instead of msvcrxxx.dll
-# this path should match build\Makefile.msvc
 # WDKROOT="H:\WinDDK\7600.16385.1"
-PLATFORM=platform\Windows
-AUDIOINC=source\jaudiolib\third-party\common
-AUDIOPLATFORM=source\jaudiolib\third-party\Windows
+PLATFORM=$(root)\platform\Windows
 
 !ifndef RENDERTYPE
 RENDERTYPE=WIN
@@ -90,9 +95,9 @@ AS=ml
 LINK=link /nologo /opt:ref
 MT=mt
 CFLAGS= /MT /J /nologo $(flags_cl)  \
-	/I$(DUKE3D_INC) /I$(ENGINE_INC)\msvc /I$(ENGINE_INC) /I$(MACT_ROOT) /I$(AUDIOLIB_ROOT)\include /I$(ENET_ROOT)\include \
+	/I$(DUKE3D_SRC) /I$(ENGINE_INC)\msvc /I$(ENGINE_INC) /I$(MACT_INC) /I$(AUDIOLIB_INC) /I$(ENET_INC) \
 	/W2 $(ENGINEOPTS) \
-	/I$(PLATFORM)\include /I$(AUDIOINC)\include /DRENDERTYPE$(RENDERTYPE)=1 /DMIXERTYPE$(MIXERTYPE)=1 /DSDL_USEFOLDER /DSDL_TARGET=2
+	/I$(PLATFORM)\include /DRENDERTYPE$(RENDERTYPE)=1 /DMIXERTYPE$(MIXERTYPE)=1 /DSDL_USEFOLDER /DSDL_TARGET=2
 
 ENET_CFLAGS=/I$(ENET_INC) /I$(ENET_SRC)
 AUDIOLIB_CFLAGS=/I$(AUDIOLIB_INC) /I$(AUDIOLIB_SRC)
@@ -129,6 +134,7 @@ ENGINE_OBJS= \
 !else
         $(ENGINE_OBJ)\a.$o \
 !endif
+	$(ENGINE_OBJ)\animvpx.$o \
 	$(ENGINE_OBJ)\baselayer.$o \
 	$(ENGINE_OBJ)\cache1d.$o \
 	$(ENGINE_OBJ)\common.$o \
@@ -158,6 +164,7 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\mmulti_null.$o \
 	$(ENGINE_OBJ)\osd.$o \
 	$(ENGINE_OBJ)\pragmas.$o \
+	$(ENGINE_OBJ)\rev.$o \
 	$(ENGINE_OBJ)\scriptfile.$o \
 	$(ENGINE_OBJ)\mutex.$o \
 	$(ENGINE_OBJ)\winbits.$o \
@@ -191,17 +198,17 @@ AUDIOLIB_OBJS=$(AUDIOLIB_OBJ)\drivers.$o \
 	$(AUDIOLIB_OBJ)\xmp.$o \
 	$(AUDIOLIB_OBJ)\driver_nosound.$o
 
-MACT_OBJS=$(DUKE3D_OBJ)\file_lib.$o \
-	$(DUKE3D_OBJ)\control.$o \
-	$(DUKE3D_OBJ)\keyboard.$o \
-	$(DUKE3D_OBJ)\joystick.$o \
-	$(DUKE3D_OBJ)\scriplib.$o
+MACT_OBJS=$(MACT_OBJ)\file_lib.$o \
+	$(MACT_OBJ)\control.$o \
+	$(MACT_OBJ)\keyboard.$o \
+	$(MACT_OBJ)\joystick.$o \
+	$(MACT_OBJ)\scriplib.$o \
+	$(MACT_OBJ)\animlib.$o
 
 DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
 	$(DUKE3D_OBJ)\actors.$o \
 	$(DUKE3D_OBJ)\anim.$o \
 	$(DUKE3D_OBJ)\animsounds.$o \
-	$(DUKE3D_OBJ)\animvpx.$o \
         $(DUKE3D_OBJ)\cheats.$o \
         $(DUKE3D_OBJ)\sbar.$o \
         $(DUKE3D_OBJ)\screentext.$o \
@@ -221,17 +228,14 @@ DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
 	$(DUKE3D_OBJ)\premap.$o \
 	$(DUKE3D_OBJ)\savegame.$o \
 	$(DUKE3D_OBJ)\sector.$o \
-	$(DUKE3D_OBJ)\rev.$o \
 	$(DUKE3D_OBJ)\rts.$o \
 	$(DUKE3D_OBJ)\config.$o \
-	$(DUKE3D_OBJ)\animlib.$o\
 	$(DUKE3D_OBJ)\osdfuncs.$o \
 	$(DUKE3D_OBJ)\osdcmds.$o \
 	$(DUKE3D_OBJ)\grpscan.$o \
 	$(DUKE3D_OBJ)\winbits.$o \
 	$(DUKE3D_OBJ)\gameres.$(res) \
 	$(DUKE3D_OBJ)\startwin.game.$o \
-	$(MACT_OBJS) \
 	$(DUKE3D_OBJ)\sounds.$o \
 	$(DUKE3D_OBJ)\soundsdyn.$o \
 !ifdef DEBUG
@@ -246,7 +250,6 @@ DUKE3D_EDITOR_OBJS=$(DUKE3D_OBJ)\astub.$o \
 	$(DUKE3D_OBJ)\m32vars.$o \
 	$(DUKE3D_OBJ)\m32exec.$o \
 	$(DUKE3D_OBJ)\sounds_mapster32.$o \
-	$(DUKE3D_OBJ)\rev.$o \
 	$(DUKE3D_OBJ)\buildres.$(res) \
 !ifdef DEBUG
 	$(DUKE3D_OBJ)\mdump.$o
@@ -277,6 +280,7 @@ DUKE3D_EDITOR_OBJS=$(DUKE3D_EDITOR_OBJS) $(MUSICOBJ)
 CHECKDIR_ENGINE=@if not exist "$(ENGINE_OBJ)" mkdir "$(ENGINE_OBJ)"
 CHECKDIR_DUKE3D=@if not exist "$(DUKE3D_OBJ)" mkdir "$(DUKE3D_OBJ)"
 CHECKDIR_ENET=@if not exist "$(ENET_OBJ)" mkdir "$(ENET_OBJ)"
+CHECKDIR_MACT=@if not exist "$(MACT_OBJ)" mkdir "$(MACT_OBJ)"
 CHECKDIR_AUDIOLIB=@if not exist "$(AUDIOLIB_OBJ)" mkdir "$(AUDIOLIB_OBJ)"
 
 
@@ -287,27 +291,11 @@ CHECKDIR_AUDIOLIB=@if not exist "$(AUDIOLIB_OBJ)" mkdir "$(AUDIOLIB_OBJ)"
 	$(CHECKDIR_ENGINE)
 	$(AS) /c $(ASFLAGS) /Fo$@ $<
 
-{$(ENGINE_SRC)\util}.c{$(ENGINE_OBJ)}.$o:
-	$(CHECKDIR_ENGINE)
-	$(CC) /c $(CFLAGS) /Fo$@ $<
-
-{$(ENGINE_SRC)\misc}.rc{$(ENGINE_OBJ)}.$(res):
-	$(CHECKDIR_ENGINE)
-	$(RC) /i$(ENGINE_INC)\ /fo$@ /r $<
-
-{$(ENGINE_SRC)}.c{$(ENGINE_OBJ)}.$o:
-	$(CHECKDIR_ENGINE)
-	$(CC) /c $(CFLAGS) /Fo$@ $<
-
-{$(ENGINE_SRC)}.cc{$(ENGINE_OBJ)}.$o:
-	$(CHECKDIR_ENGINE)
-	$(CC) /c $(CFLAGS) /Fo$@ $<
-
 {$(ENGINE_SRC)}.cpp{$(ENGINE_OBJ)}.$o:
 	$(CHECKDIR_ENGINE)
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(ENGINE_SRC)}.cxx{$(ENGINE_OBJ)}.$o:
+{$(ENGINE_SRC)}.c{$(ENGINE_OBJ)}.$o:
 	$(CHECKDIR_ENGINE)
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
@@ -315,24 +303,12 @@ CHECKDIR_AUDIOLIB=@if not exist "$(AUDIOLIB_OBJ)" mkdir "$(AUDIOLIB_OBJ)"
 	$(CHECKDIR_ENET)
 	$(CC) /c $(CFLAGS) $(ENET_CFLAGS) /Fo$@ $<
 
-{$(AUDIOLIB_SRC)}.c{$(AUDIOLIB_OBJ)}.$o:
+{$(AUDIOLIB_SRC)}.cpp{$(AUDIOLIB_OBJ)}.$o:
 	$(CHECKDIR_AUDIOLIB)
 	$(CC) /c $(CFLAGS) $(AUDIOLIB_CFLAGS) /Fo$@ $<
 
-{$(DUKE3D_SRC)\}.masm{$(DUKE3D_OBJ)\}.$o:
-	$(CHECKDIR_DUKE3D)
-	$(AS) /c $(ASFLAGS) /Fo$@ $<
-
-{$(MACT_ROOT)\}.c{$(DUKE3D_OBJ)\}.$o:
-	$(CHECKDIR_DUKE3D)
-	$(CC) /c $(CFLAGS) /Fo$@ $<
-
-{$(DUKE3D_SRC)\util}.c{$(DUKE3D_OBJ)\}.$o:
-	$(CHECKDIR_DUKE3D)
-	$(CC) /c $(CFLAGS) /Fo$@ $<
-
-{$(DUKE3D_SRC)\}.c{$(DUKE3D_OBJ)\}.$o:
-	$(CHECKDIR_DUKE3D)
+{$(MACT_SRC)\}.cpp{$(MACT_OBJ)\}.$o:
+	$(CHECKDIR_MACT)
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
 {$(DUKE3D_RSRC)\}.c{$(DUKE3D_OBJ)\}.$o:
@@ -343,7 +319,7 @@ CHECKDIR_AUDIOLIB=@if not exist "$(AUDIOLIB_OBJ)" mkdir "$(AUDIOLIB_OBJ)"
 	$(CHECKDIR_DUKE3D)
 	$(CC) /c $(CFLAGS) /Fo$@ $<
 
-{$(DUKE3D_SRC)\misc}.rc{$(DUKE3D_OBJ)\}.$(res):
+{$(DUKE3D_RSRC)\}.rc{$(DUKE3D_OBJ)\}.$(res):
 	$(CHECKDIR_DUKE3D)
 	$(RC) /i$(ENGINE_INC)\ /i$(DUKE3D_SRC)\ /i$(DUKE3D_RSRC)\ /DPOLYMER /fo$@ /r $<
 
@@ -351,16 +327,16 @@ CHECKDIR_AUDIOLIB=@if not exist "$(AUDIOLIB_OBJ)" mkdir "$(AUDIOLIB_OBJ)"
 # TARGETS
 all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
 
-eduke32$(EXESUFFIX): $(DUKE3D_OBJS) $(ENGINE_OBJS) $(AUDIOLIB_OBJS) $(ENET_OBJS)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) /LIBPATH:$(AUDIOPLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
+eduke32$(EXESUFFIX): $(DUKE3D_OBJS) $(ENGINE_OBJS) $(AUDIOLIB_OBJS) $(MACT_OBJS) $(ENET_OBJS)
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $(DUKE3D_RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 
 mapster32$(EXESUFFIX): $(DUKE3D_EDITOR_OBJS) $(ENGINE_OBJS) $(ENGINE_EDITOR_OBJS) $(AUDIOLIB_OBJS)
-	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) /LIBPATH:$(AUDIOPLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
+	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $(DUKE3D_RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 
-!include Makefile.deps
-!include $(ENGINE_ROOT)\Makefile.deps
+!include $(DUKE3D_ROOT)\Dependencies.mak
+!include $(ENGINE_ROOT)\Dependencies.mak
 
 # PHONIES
 

@@ -1,14 +1,18 @@
-#ifndef PROCESSRGB_HPP__
-#define PROCESSRGB_HPP__
+#ifndef PROCESSRGB_H_
+#define PROCESSRGB_H_
 
-#include "Types.hpp"
+#if !defined __cplusplus || __cplusplus < 201103L
+# include <stdint.h>
+#else
+# include <cstdint>
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-uint64 ProcessRGB( const uint8* src );
-uint64 ProcessRGB_ETC2( const uint8* src );
+uint64_t ProcessRGB( const uint8_t * src );
+uint64_t ProcessRGB_ETC2( const uint8_t * src );
 
 #ifdef __cplusplus
 }

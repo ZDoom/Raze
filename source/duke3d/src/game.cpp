@@ -5677,10 +5677,10 @@ void El_CreateGameState(void)
     }
     else
     {
-        extern const char luaJIT_BC_defs[];
+        extern const char luaJIT_BC__defs_game[];
 
-        if ((i = L_RunString(&g_ElState, luaJIT_BC_defs,
-                             LUNATIC_DEFS_BC_SIZE, "defs.ilua")))
+        if ((i = L_RunString(&g_ElState, luaJIT_BC__defs_game,
+                             LUNATIC_DEFS_BC_SIZE, "_defs_game.lua")))
         {
             initprintf("Lunatic: Error preparing global ELua state (code %d)\n", i);
             El_DestroyState(&g_ElState);
@@ -5752,7 +5752,7 @@ static void G_Startup(void)
     G_PostCreateGameState();
 #ifdef LUNATIC
     // NOTE: This is only effective for CON-defined EVENT_INIT. See EVENT_INIT
-    // not in defs.ilua.
+    // not in _defs_game.lua.
     VM_OnEvent(EVENT_INIT, -1, -1);
 #endif
     if (g_netServer || ud.multimode > 1) G_CheckGametype();

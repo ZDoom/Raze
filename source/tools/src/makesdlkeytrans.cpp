@@ -4,7 +4,7 @@
 #include <string.h>
 #include "sdl_inc.h"
 
-#include "sdlkeytrans.c"
+#include "sdlkeytrans.cpp"
 
 #undef main
 

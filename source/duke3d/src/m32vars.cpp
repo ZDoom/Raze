@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #define _m32vars_c_
-#include "m32structures.c"
+#include "m32structures.cpp"
 
 static void Gv_Clear(void)
 {

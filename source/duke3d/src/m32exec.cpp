@@ -58,7 +58,7 @@ instype *insptr;
 int32_t VM_Execute(int32_t once);
 static instype *x_sortingstateptr;
 
-//#include "m32structures.c"
+//#include "m32structures.cpp"
 
 #ifdef DEBUGGINGAIDS
 void X_Disasm(ofstype beg, int32_t size)

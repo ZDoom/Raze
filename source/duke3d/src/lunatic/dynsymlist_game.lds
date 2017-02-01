@@ -198,7 +198,7 @@ luaJIT_BC_control;
 luaJIT_BC_bcarray;
 luaJIT_BC_bcheck;
 luaJIT_BC_xmath;
-luaJIT_BC_defs;
+luaJIT_BC__defs_game;
 luaJIT_BC_v;
 luaJIT_BC_dump;
 luaJIT_BC_dis_x86;

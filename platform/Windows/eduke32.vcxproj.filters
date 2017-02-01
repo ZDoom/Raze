@@ -10,13 +10,13 @@
     <Filter Include="enet\headers">
       <UniqueIdentifier>{84e51a60-037b-40c6-933a-7001d46906ab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="jaudiolib">
+    <Filter Include="audiolib">
       <UniqueIdentifier>{eb6a8145-04f6-4b81-b8eb-508836cfdc91}</UniqueIdentifier>
     </Filter>
-    <Filter Include="jaudiolib\headers">
+    <Filter Include="audiolib\headers">
       <UniqueIdentifier>{7f1918c8-1b71-43db-b2af-aefaf13d21ac}</UniqueIdentifier>
     </Filter>
-    <Filter Include="jaudiolib\source">
+    <Filter Include="audiolib\source">
       <UniqueIdentifier>{447f3e7e-c01b-4ec3-8427-36441da24049}</UniqueIdentifier>
     </Filter>
     <Filter Include="build">
@@ -40,13 +40,13 @@
     <Filter Include="eduke32\headers">
       <UniqueIdentifier>{82d4000f-cd8c-4737-88dc-4ada5775a68e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="jmact">
+    <Filter Include="mact">
       <UniqueIdentifier>{65030203-c837-4739-a552-281c7535372f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="jmact\headers">
+    <Filter Include="mact\headers">
       <UniqueIdentifier>{607ab16a-c3a5-4dad-b6ba-3393e6309d23}</UniqueIdentifier>
     </Filter>
-    <Filter Include="jmact\source">
+    <Filter Include="mact\source">
       <UniqueIdentifier>{8a6aad55-a3bc-4e4f-a61d-4652c29d8b92}</UniqueIdentifier>
     </Filter>
     <Filter Include="eduke32\source\editor">
@@ -84,959 +84,953 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="build\include\a.h">
+    <ClInclude Include="..\..\source\build\include\a.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\baselayer.h">
+    <ClInclude Include="..\..\source\build\include\baselayer.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\build.h">
+    <ClInclude Include="..\..\source\build\include\build.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\cache1d.h">
+    <ClInclude Include="..\..\source\build\include\cache1d.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\compat.h">
+    <ClInclude Include="..\..\source\build\include\compat.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\crc32.h">
+    <ClInclude Include="..\..\source\build\include\crc32.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\dxdidf.h">
+    <ClInclude Include="..\..\source\build\include\dxdidf.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\dynamicgtk.h">
+    <ClInclude Include="..\..\source\build\include\dynamicgtk.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\editor.h">
+    <ClInclude Include="..\..\source\build\include\editor.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\glbuild.h">
+    <ClInclude Include="..\..\source\build\include\glbuild.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\glext.h">
+    <ClInclude Include="..\..\source\build\include\glext.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\gtkbits.h">
+    <ClInclude Include="..\..\source\build\include\gtkbits.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\kplib.h">
+    <ClInclude Include="..\..\source\build\include\kplib.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\lzwnew.h">
+    <ClInclude Include="..\..\source\build\include\lzwnew.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\mdsprite.h">
+    <ClInclude Include="..\..\source\build\include\mdsprite.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\mmulti.h">
+    <ClInclude Include="..\..\source\build\include\mmulti.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\osd.h">
+    <ClInclude Include="..\..\source\build\include\osd.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\osxbits.h">
+    <ClInclude Include="..\..\source\build\include\osxbits.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\polymer.h">
+    <ClInclude Include="..\..\source\build\include\polymer.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\polymost.h">
+    <ClInclude Include="..\..\source\build\include\polymost.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\pragmas.h">
+    <ClInclude Include="..\..\source\build\include\pragmas.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\lz4.h">
+    <ClInclude Include="..\..\source\build\include\lz4.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\scriptfile.h">
+    <ClInclude Include="..\..\source\build\include\scriptfile.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\sdlayer.h">
+    <ClInclude Include="..\..\source\build\include\sdlayer.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\startwin.editor.h">
+    <ClInclude Include="..\..\source\build\include\startwin.editor.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\winlayer.h">
+    <ClInclude Include="..\..\source\build\include\winlayer.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\msvc\inttypes.h">
+    <ClInclude Include="..\..\source\build\include\msvc\inttypes.h">
       <Filter>build\headers\MSVC</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\msvc\stdint.h">
+    <ClInclude Include="..\..\source\build\include\msvc\stdint.h">
       <Filter>build\headers\MSVC</Filter>
     </ClInclude>
-    <ClInclude Include="source\_functio.h">
+    <ClInclude Include="..\..\source\duke3d\src\_functio.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\_rts.h">
+    <ClInclude Include="..\..\source\duke3d\src\_rts.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\config.h">
+    <ClInclude Include="..\..\source\duke3d\src\config.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\duke3d.h">
+    <ClInclude Include="..\..\source\duke3d\src\duke3d.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\function.h">
+    <ClInclude Include="..\..\source\duke3d\src\function.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\gamedef.h">
+    <ClInclude Include="..\..\source\duke3d\src\gamedef.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\gamedefs.h">
+    <ClInclude Include="..\..\source\duke3d\src\gamedefs.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\grpscan.h">
+    <ClInclude Include="..\..\source\duke3d\src\grpscan.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\keys.h">
+    <ClInclude Include="..\..\source\duke3d\src\keys.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\macros.h">
+    <ClInclude Include="..\..\source\duke3d\src\macros.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\mdump.h">
+    <ClInclude Include="..\..\source\duke3d\src\mdump.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\names.h">
+    <ClInclude Include="..\..\source\duke3d\src\names.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\namesdyn.h">
+    <ClInclude Include="..\..\source\duke3d\src\namesdyn.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\osdcmds.h">
+    <ClInclude Include="..\..\source\duke3d\src\osdcmds.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\osdfuncs.h">
+    <ClInclude Include="..\..\source\duke3d\src\osdfuncs.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\rts.h">
+    <ClInclude Include="..\..\source\duke3d\src\rts.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\soundefs.h">
+    <ClInclude Include="..\..\source\duke3d\src\soundefs.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\sounds.h">
+    <ClInclude Include="..\..\source\duke3d\src\sounds.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\soundsdyn.h">
+    <ClInclude Include="..\..\source\duke3d\src\soundsdyn.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\startwin.game.h">
+    <ClInclude Include="..\..\source\duke3d\src\startwin.game.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\src\_multivc.h">
-      <Filter>jaudiolib\headers</Filter>
+    <ClInclude Include="..\..\source\audiolib\src\_multivc.h">
+      <Filter>audiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\src\driver_directsound.h">
-      <Filter>jaudiolib\headers</Filter>
+    <ClInclude Include="..\..\source\audiolib\src\driver_directsound.h">
+      <Filter>audiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\src\driver_nosound.h">
-      <Filter>jaudiolib\headers</Filter>
+    <ClInclude Include="..\..\source\audiolib\src\driver_nosound.h">
+      <Filter>audiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\src\driver_sdl.h">
-      <Filter>jaudiolib\headers</Filter>
+    <ClInclude Include="..\..\source\audiolib\src\driver_sdl.h">
+      <Filter>audiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\include\fx_man.h">
-      <Filter>jaudiolib\headers</Filter>
+    <ClInclude Include="..\..\source\audiolib\include\fx_man.h">
+      <Filter>audiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\src\linklist.h">
-      <Filter>jaudiolib\headers</Filter>
+    <ClInclude Include="..\..\source\audiolib\src\linklist.h">
+      <Filter>audiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\include\music.h">
-      <Filter>jaudiolib\headers</Filter>
+    <ClInclude Include="..\..\source\audiolib\include\music.h">
+      <Filter>audiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\src\pitch.h">
-      <Filter>jaudiolib\headers</Filter>
+    <ClInclude Include="..\..\source\audiolib\src\pitch.h">
+      <Filter>audiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jmact\_control.h">
-      <Filter>jmact\headers</Filter>
+    <ClInclude Include="..\..\source\mact\include\_control.h">
+      <Filter>mact\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jmact\_scrplib.h">
-      <Filter>jmact\headers</Filter>
+    <ClInclude Include="..\..\source\mact\src\_scrplib.h">
+      <Filter>mact\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jmact\animlib.h">
-      <Filter>jmact\headers</Filter>
+    <ClInclude Include="..\..\source\mact\include\animlib.h">
+      <Filter>mact\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jmact\control.h">
-      <Filter>jmact\headers</Filter>
+    <ClInclude Include="..\..\source\mact\include\control.h">
+      <Filter>mact\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jmact\file_lib.h">
-      <Filter>jmact\headers</Filter>
+    <ClInclude Include="..\..\source\mact\include\file_lib.h">
+      <Filter>mact\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jmact\keyboard.h">
-      <Filter>jmact\headers</Filter>
+    <ClInclude Include="..\..\source\mact\include\keyboard.h">
+      <Filter>mact\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jmact\mouse.h">
-      <Filter>jmact\headers</Filter>
+    <ClInclude Include="..\..\source\mact\include\mouse.h">
+      <Filter>mact\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jmact\scriplib.h">
-      <Filter>jmact\headers</Filter>
+    <ClInclude Include="..\..\source\mact\include\scriplib.h">
+      <Filter>mact\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\enet\include\enet\callbacks.h">
+    <ClInclude Include="..\..\source\enet\include\enet\callbacks.h">
       <Filter>enet\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\enet\include\enet\enet.h">
+    <ClInclude Include="..\..\source\enet\include\enet\enet.h">
       <Filter>enet\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\enet\include\enet\list.h">
+    <ClInclude Include="..\..\source\enet\include\enet\list.h">
       <Filter>enet\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\enet\include\enet\protocol.h">
+    <ClInclude Include="..\..\source\enet\include\enet\protocol.h">
       <Filter>enet\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\enet\include\enet\time.h">
+    <ClInclude Include="..\..\source\enet\include\enet\time.h">
       <Filter>enet\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\enet\include\enet\types.h">
+    <ClInclude Include="..\..\source\enet\include\enet\types.h">
       <Filter>enet\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\enet\include\enet\unix.h">
+    <ClInclude Include="..\..\source\enet\include\enet\unix.h">
       <Filter>enet\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\enet\include\enet\utility.h">
+    <ClInclude Include="..\..\source\enet\include\enet\utility.h">
       <Filter>enet\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\enet\include\enet\win32.h">
+    <ClInclude Include="..\..\source\enet\include\enet\win32.h">
       <Filter>enet\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\mutex.h">
+    <ClInclude Include="..\..\source\build\include\mutex.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\rawinput.h">
+    <ClInclude Include="..\..\source\build\include\rawinput.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\src\engine_priv.h">
+    <ClInclude Include="..\..\source\build\src\engine_priv.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\prlights.h">
+    <ClInclude Include="..\..\source\build\include\prlights.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\sector.h">
+    <ClInclude Include="..\..\source\duke3d\src\sector.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\gameexec.h">
+    <ClInclude Include="..\..\source\duke3d\src\gameexec.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\actors.h">
+    <ClInclude Include="..\..\source\duke3d\src\actors.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\player.h">
+    <ClInclude Include="..\..\source\duke3d\src\player.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\gamevars.h">
+    <ClInclude Include="..\..\source\duke3d\src\gamevars.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\net.h">
+    <ClInclude Include="..\..\source\duke3d\src\net.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\global.h">
+    <ClInclude Include="..\..\source\duke3d\src\global.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\game.h">
+    <ClInclude Include="..\..\source\duke3d\src\game.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\premap.h">
+    <ClInclude Include="..\..\source\duke3d\src\premap.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\menus.h">
+    <ClInclude Include="..\..\source\duke3d\src\menus.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\savegame.h">
+    <ClInclude Include="..\..\source\duke3d\src\savegame.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\anim.h">
+    <ClInclude Include="..\..\source\duke3d\src\anim.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\demo.h">
+    <ClInclude Include="..\..\source\duke3d\src\demo.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\events_defs.h">
+    <ClInclude Include="..\..\source\duke3d\src\events_defs.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\quotes.h">
+    <ClInclude Include="..\..\source\duke3d\src\quotes.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\m32def.h">
+    <ClInclude Include="..\..\source\duke3d\src\m32def.h">
       <Filter>eduke32\headers\editor</Filter>
     </ClInclude>
-    <ClInclude Include="source\mapster32.h">
+    <ClInclude Include="..\..\source\duke3d\src\mapster32.h">
       <Filter>eduke32\headers\editor</Filter>
     </ClInclude>
-    <ClInclude Include="source\sounds_mapster32.h">
+    <ClInclude Include="..\..\source\duke3d\src\sounds_mapster32.h">
       <Filter>eduke32\headers\editor</Filter>
     </ClInclude>
-    <ClInclude Include="source\input.h">
+    <ClInclude Include="..\..\source\duke3d\src\input.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\tracker_operator.hpp">
+    <ClInclude Include="..\..\source\build\include\tracker_operator.hpp">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\tracker_operators.hpp">
+    <ClInclude Include="..\..\source\build\include\tracker_operators.hpp">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\tracker.hpp">
+    <ClInclude Include="..\..\source\build\include\tracker.hpp">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\animvpx.h">
+    <ClInclude Include="..\..\source\build\include\animvpx.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\duke3d\src\common_game.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\common_game.h">
-      <Filter>eduke32\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="build\include\winbits.h">
+    <ClInclude Include="..\..\source\build\include\winbits.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\common.h">
+    <ClInclude Include="..\..\source\build\include\common.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\texcache.h">
+    <ClInclude Include="..\..\source\build\include\texcache.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\dxtfilter.h">
+    <ClInclude Include="..\..\source\build\include\dxtfilter.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\lunatic\lunatic_game.h">
+    <ClInclude Include="..\..\source\duke3d\src\lunatic\lunatic_game.h">
       <Filter>eduke32\source\lunatic\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\lunatic\lunatic_m32.h">
+    <ClInclude Include="..\..\source\duke3d\src\lunatic\lunatic_editor.h">
       <Filter>eduke32\source\lunatic\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\android\in_android.h">
+    <ClInclude Include="..\..\source\duke3d\src\in_android.h">
       <Filter>eduke32\headers\android</Filter>
     </ClInclude>
-    <ClInclude Include="source\android.h">
+    <ClInclude Include="..\..\source\duke3d\src\android.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\xxhash.h">
+    <ClInclude Include="..\..\source\build\include\xxhash.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\sdl_inc.h">
+    <ClInclude Include="..\..\source\build\include\sdl_inc.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\hightile.h">
+    <ClInclude Include="..\..\source\build\include\hightile.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\pragmas_ppc.h">
+    <ClInclude Include="..\..\source\build\include\pragmas_ppc.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\libdivide.h">
+    <ClInclude Include="..\..\source\build\include\libdivide.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\pragmas_arm.h">
+    <ClInclude Include="..\..\source\build\include\pragmas_arm.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\pragmas_x86_gcc.h">
+    <ClInclude Include="..\..\source\build\include\pragmas_x86_gcc.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\pragmas_x86_msvc.h">
+    <ClInclude Include="..\..\source\build\include\pragmas_x86_msvc.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\buildtypes.h">
+    <ClInclude Include="..\..\source\build\include\buildtypes.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\animsounds.h">
+    <ClInclude Include="..\..\source\duke3d\src\animsounds.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\Button.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\Button.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\ControlSuper.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\ControlSuper.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\GLLines.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLLines.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\GLRect.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLRect.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\Mouse.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\Mouse.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\PointF.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\PointF.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\RectF.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\RectF.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchControls.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControls.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchControlsConfig.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControlsConfig.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\TouchJoy.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchJoy.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="platform\Android\Duke3d\jni\TouchControls\WheelSelect.h">
+    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\WheelSelect.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\jwzgles.h">
+    <ClInclude Include="..\..\source\build\include\jwzgles.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\jwzglesI.h">
+    <ClInclude Include="..\..\source\build\include\jwzglesI.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\include\drivers.h">
-      <Filter>jaudiolib\headers</Filter>
+    <ClInclude Include="..\..\source\audiolib\include\drivers.h">
+      <Filter>audiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\md4.h">
+    <ClInclude Include="..\..\source\build\include\md4.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\mpu401.h">
+    <ClInclude Include="..\..\source\duke3d\src\mpu401.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\_midi.h">
+    <ClInclude Include="..\..\source\duke3d\src\_midi.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\cheats.h">
+    <ClInclude Include="..\..\source\duke3d\src\cheats.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\sbar.h">
-      <Filter>eduke32\source\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="source\screentext.h">
+    <ClInclude Include="..\..\source\duke3d\src\sbar.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\screens.h">
+    <ClInclude Include="..\..\source\duke3d\src\screentext.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\cmdline.h">
+    <ClInclude Include="..\..\source\duke3d\src\screens.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\inv.h">
+    <ClInclude Include="..\..\source\duke3d\src\cmdline.h">
       <Filter>eduke32\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\hash.h">
+    <ClInclude Include="..\..\source\duke3d\src\inv.h">
+      <Filter>eduke32\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\build\include\hash.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\palette.h">
+    <ClInclude Include="..\..\source\build\include\palette.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\colmatch.h">
+    <ClInclude Include="..\..\source\build\include\colmatch.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\clip.h">
+    <ClInclude Include="..\..\source\build\include\clip.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="source\jaudiolib\include\multivoc.h">
-      <Filter>jaudiolib\headers</Filter>
+    <ClInclude Include="..\..\source\audiolib\include\multivoc.h">
+      <Filter>audiolib\headers</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\m32script.h">
+    <ClInclude Include="..\..\source\build\include\m32script.h">
       <Filter>eduke32\headers\editor</Filter>
     </ClInclude>
-    <ClInclude Include="build\include\renderlayer.h">
+    <ClInclude Include="..\..\source\build\include\renderlayer.h">
       <Filter>build\headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="build\src\a-c.c">
+    <ClCompile Include="..\..\source\build\src\a-c.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\baselayer.c">
+    <ClCompile Include="..\..\source\build\src\baselayer.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\build.c">
+    <ClCompile Include="..\..\source\build\src\build.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\cache1d.c">
+    <ClCompile Include="..\..\source\build\src\cache1d.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\compat.c">
+    <ClCompile Include="..\..\source\build\src\compat.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\config.c">
+    <ClCompile Include="..\..\source\build\src\config.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\crc32.c">
+    <ClCompile Include="..\..\source\build\src\crc32.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\defs.c">
+    <ClCompile Include="..\..\source\build\src\defs.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\dynamicgtk.c">
+    <ClCompile Include="..\..\source\build\src\dynamicgtk.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\engine.c">
+    <ClCompile Include="..\..\source\build\src\engine.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\glbuild.c">
+    <ClCompile Include="..\..\source\build\src\glbuild.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\gtkbits.c">
+    <ClCompile Include="..\..\source\build\src\gtkbits.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\hightile.c">
+    <ClCompile Include="..\..\source\build\src\hightile.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\kplib.c">
+    <ClCompile Include="..\..\source\build\src\kplib.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\lzwnew.c">
+    <ClCompile Include="..\..\source\build\src\lzwnew.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\mdsprite.c">
+    <ClCompile Include="..\..\source\build\src\mdsprite.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\osd.c">
+    <ClCompile Include="..\..\source\build\src\osd.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\polymer.c">
+    <ClCompile Include="..\..\source\build\src\polymer.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\polymost.c">
+    <ClCompile Include="..\..\source\build\src\polymost.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\pragmas.c">
+    <ClCompile Include="..\..\source\build\src\pragmas.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\lz4.c">
+    <ClCompile Include="..\..\source\build\src\lz4.c">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\scriptfile.c">
+    <ClCompile Include="..\..\source\build\src\scriptfile.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\sdlayer.c">
+    <ClCompile Include="..\..\source\build\src\sdlayer.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\smalltextfont.c">
+    <ClCompile Include="..\..\source\build\src\smalltextfont.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\startgtk.editor.c">
+    <ClCompile Include="..\..\source\build\src\startgtk.editor.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\startwin.editor.c">
+    <ClCompile Include="..\..\source\build\src\startwin.editor.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\textfont.c">
+    <ClCompile Include="..\..\source\build\src\textfont.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\winlayer.c">
+    <ClCompile Include="..\..\source\build\src\winlayer.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\actors.c">
+    <ClCompile Include="..\..\source\duke3d\src\actors.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\anim.c">
+    <ClCompile Include="..\..\source\duke3d\src\anim.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\config.c">
+    <ClCompile Include="..\..\source\duke3d\src\config.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\game.c">
+    <ClCompile Include="..\..\source\duke3d\src\game.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\gamedef.c">
+    <ClCompile Include="..\..\source\duke3d\src\gamedef.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\gameexec.c">
+    <ClCompile Include="..\..\source\duke3d\src\gameexec.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\gamestructures.c">
+    <ClCompile Include="..\..\source\duke3d\src\gamestructures.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\gamevars.c">
+    <ClCompile Include="..\..\source\duke3d\src\gamevars.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\global.c">
+    <ClCompile Include="..\..\source\duke3d\src\global.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\grpscan.c">
+    <ClCompile Include="..\..\source\duke3d\src\grpscan.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\mdump.cpp">
+    <ClCompile Include="..\..\source\duke3d\src\mdump.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\menus.c">
+    <ClCompile Include="..\..\source\duke3d\src\menus.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\midi.c">
+    <ClCompile Include="..\..\source\duke3d\src\midi.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\mpu401.c">
+    <ClCompile Include="..\..\source\duke3d\src\mpu401.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\music.c">
+    <ClCompile Include="..\..\source\duke3d\src\music.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\namesdyn.c">
+    <ClCompile Include="..\..\source\duke3d\src\namesdyn.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\osdcmds.c">
+    <ClCompile Include="..\..\source\duke3d\src\osdcmds.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\osdfuncs.c">
+    <ClCompile Include="..\..\source\duke3d\src\osdfuncs.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\player.c">
+    <ClCompile Include="..\..\source\duke3d\src\player.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\premap.c">
+    <ClCompile Include="..\..\source\duke3d\src\premap.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\rts.c">
+    <ClCompile Include="..\..\source\duke3d\src\rts.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\savegame.c">
+    <ClCompile Include="..\..\source\duke3d\src\savegame.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\sdlmusic.c">
+    <ClCompile Include="..\..\source\duke3d\src\sdlmusic.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\sector.c">
+    <ClCompile Include="..\..\source\duke3d\src\sector.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\sounds.c">
+    <ClCompile Include="..\..\source\duke3d\src\sounds.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\soundsdyn.c">
+    <ClCompile Include="..\..\source\duke3d\src\soundsdyn.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\startgtk.game.c">
+    <ClCompile Include="..\..\source\duke3d\src\startgtk.game.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\startwin.game.c">
+    <ClCompile Include="..\..\source\duke3d\src\startwin.game.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\winbits.c">
+    <ClCompile Include="..\..\source\duke3d\src\winbits.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\driver_directsound.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\driver_directsound.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\driver_nosound.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\driver_nosound.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\driver_sdl.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\driver_sdl.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\drivers.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\drivers.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\fx_man.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\fx_man.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\mix.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\mix.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\mixst.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\mixst.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\multivoc.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\multivoc.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\pitch.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\pitch.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\vorbis.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\vorbis.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jmact\animlib.c">
-      <Filter>jmact\source</Filter>
+    <ClCompile Include="..\..\source\mact\src\animlib.cpp">
+      <Filter>mact\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jmact\control.c">
-      <Filter>jmact\source</Filter>
+    <ClCompile Include="..\..\source\mact\src\control.cpp">
+      <Filter>mact\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jmact\file_lib.c">
-      <Filter>jmact\source</Filter>
+    <ClCompile Include="..\..\source\mact\src\file_lib.cpp">
+      <Filter>mact\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jmact\keyboard.c">
-      <Filter>jmact\source</Filter>
+    <ClCompile Include="..\..\source\mact\src\keyboard.cpp">
+      <Filter>mact\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jmact\scriplib.c">
-      <Filter>jmact\source</Filter>
+    <ClCompile Include="..\..\source\mact\src\scriplib.cpp">
+      <Filter>mact\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\enet\src\callbacks.c">
+    <ClCompile Include="..\..\source\enet\src\callbacks.c">
       <Filter>enet\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\enet\src\host.c">
+    <ClCompile Include="..\..\source\enet\src\host.c">
       <Filter>enet\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\enet\src\list.c">
+    <ClCompile Include="..\..\source\enet\src\list.c">
       <Filter>enet\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\enet\src\packet.c">
+    <ClCompile Include="..\..\source\enet\src\packet.c">
       <Filter>enet\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\enet\src\peer.c">
+    <ClCompile Include="..\..\source\enet\src\peer.c">
       <Filter>enet\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\enet\src\protocol.c">
+    <ClCompile Include="..\..\source\enet\src\protocol.c">
       <Filter>enet\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\enet\src\unix.c">
+    <ClCompile Include="..\..\source\enet\src\unix.c">
       <Filter>enet\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\enet\src\win32.c">
+    <ClCompile Include="..\..\source\enet\src\win32.c">
       <Filter>enet\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\mutex.c">
+    <ClCompile Include="..\..\source\build\src\mutex.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\rawinput.c">
+    <ClCompile Include="..\..\source\build\src\rawinput.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\net.c">
+    <ClCompile Include="..\..\source\duke3d\src\net.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\demo.c">
+    <ClCompile Include="..\..\source\duke3d\src\demo.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\astub.c">
+    <ClCompile Include="..\..\source\duke3d\src\astub.cpp">
       <Filter>eduke32\source\editor</Filter>
     </ClCompile>
-    <ClCompile Include="source\m32def.c">
+    <ClCompile Include="..\..\source\duke3d\src\m32def.cpp">
       <Filter>eduke32\source\editor</Filter>
     </ClCompile>
-    <ClCompile Include="source\m32exec.c">
+    <ClCompile Include="..\..\source\duke3d\src\m32exec.cpp">
       <Filter>eduke32\source\editor</Filter>
     </ClCompile>
-    <ClCompile Include="source\m32structures.c">
+    <ClCompile Include="..\..\source\duke3d\src\m32structures.cpp">
       <Filter>eduke32\source\editor</Filter>
     </ClCompile>
-    <ClCompile Include="source\m32vars.c">
+    <ClCompile Include="..\..\source\duke3d\src\m32vars.cpp">
       <Filter>eduke32\source\editor</Filter>
     </ClCompile>
-    <ClCompile Include="source\sounds_mapster32.c">
+    <ClCompile Include="..\..\source\duke3d\src\sounds_mapster32.cpp">
       <Filter>eduke32\source\editor</Filter>
     </ClCompile>
-    <ClCompile Include="source\input.c">
+    <ClCompile Include="..\..\source\duke3d\src\input.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\animvpx.c">
-      <Filter>eduke32\source</Filter>
+    <ClCompile Include="..\..\source\build\src\animvpx.cpp">
+      <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\enet\src\compress.c">
+    <ClCompile Include="..\..\source\enet\src\compress.cpp">
       <Filter>enet\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\common.c">
+    <ClCompile Include="..\..\source\duke3d\src\common.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\winbits.c">
+    <ClCompile Include="..\..\source\build\src\winbits.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\texcache.c">
+    <ClCompile Include="..\..\source\build\src\texcache.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\dxtfilter.c">
+    <ClCompile Include="..\..\source\build\src\dxtfilter.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\lunatic\lunatic_game.c">
+    <ClCompile Include="..\..\source\duke3d\src\lunatic\lunatic_game.cpp">
       <Filter>eduke32\source\lunatic\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\lunatic\lunatic_m32.c">
+    <ClCompile Include="..\..\source\duke3d\src\lunatic\lunatic_editor.cpp">
       <Filter>eduke32\source\lunatic\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\android\android-jni.cpp">
+    <ClCompile Include="..\..\source\duke3d\src\in_android.cpp">
       <Filter>eduke32\source\android</Filter>
     </ClCompile>
-    <ClCompile Include="source\android\in_android.c">
-      <Filter>eduke32\source\android</Filter>
-    </ClCompile>
-    <ClCompile Include="build\src\xxhash.c">
+    <ClCompile Include="..\..\source\build\src\xxhash.c">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\m32common.c">
+    <ClCompile Include="..\..\source\duke3d\src\m32common.cpp">
       <Filter>eduke32\source\editor</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\sdlayer12.c">
+    <ClCompile Include="..\..\source\build\src\sdlayer12.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\animsounds.c">
+    <ClCompile Include="..\..\source\duke3d\src\animsounds.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\Button.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\Button.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\ControlSuper.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\ControlSuper.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\GLLines.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLLines.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\GLRect.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLRect.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\Mouse.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\Mouse.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\RectF.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\RectF.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\TouchControls.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControls.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\TouchJoy.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchJoy.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="platform\Android\Duke3d\jni\TouchControls\WheelSelect.cpp">
+    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\WheelSelect.cpp">
       <Filter>touchcontrols\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\voxmodel.c">
+    <ClCompile Include="..\..\source\build\src\voxmodel.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\jwzgles.c">
+    <ClCompile Include="..\..\source\build\src\jwzgles.c">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\flac.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\flac.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\formats.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\formats.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\jaudiolib\src\xa.c">
-      <Filter>jaudiolib\source</Filter>
+    <ClCompile Include="..\..\source\audiolib\src\xa.cpp">
+      <Filter>audiolib\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\colmatch.c">
+    <ClCompile Include="..\..\source\build\src\colmatch.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\common.c">
+    <ClCompile Include="..\..\source\build\src\common.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\md4.c">
+    <ClCompile Include="..\..\source\build\src\md4.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\cheats.c">
+    <ClCompile Include="..\..\source\duke3d\src\cheats.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\sbar.c">
+    <ClCompile Include="..\..\source\duke3d\src\sbar.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\screentext.c">
+    <ClCompile Include="..\..\source\duke3d\src\screentext.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\screens.c">
+    <ClCompile Include="..\..\source\duke3d\src\screens.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\cmdline.c">
+    <ClCompile Include="..\..\source\duke3d\src\cmdline.cpp">
       <Filter>eduke32\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\hash.c">
+    <ClCompile Include="..\..\source\build\src\hash.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\palette.c">
+    <ClCompile Include="..\..\source\build\src\palette.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\2d.c">
+    <ClCompile Include="..\..\source\build\src\2d.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\screenshot.c">
+    <ClCompile Include="..\..\source\build\src\screenshot.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\mhk.c">
+    <ClCompile Include="..\..\source\build\src\mhk.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\clip.c">
+    <ClCompile Include="..\..\source\build\src\clip.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="build\src\tiles.c">
+    <ClCompile Include="..\..\source\build\src\tiles.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Makefile.msvc">
+    <None Include="msvc.mak">
       <Filter>eduke32</Filter>
     </None>
-    <None Include="build\Makefile.msvc">
-      <Filter>build</Filter>
-    </None>
-    <None Include="source\lunatic\dynsymlist">
+    <None Include="..\..\source\duke3d\src\lunatic\dynsymlist_game.lds">
       <Filter>eduke32\source\lunatic</Filter>
     </None>
-    <None Include="source\lunatic\dynsymlist_m32">
+    <None Include="..\..\source\duke3d\src\lunatic\dynsymlist_editor.lds">
       <Filter>eduke32\source\lunatic</Filter>
     </None>
-    <None Include="source\lunatic\listglobals.sh">
+    <None Include="..\..\source\duke3d\src\lunatic\listglobals.sh">
       <Filter>eduke32\source\lunatic</Filter>
     </None>
-    <None Include="source\lunatic\bcarray.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\bcarray.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\bcheck.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\bcheck.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\bitar.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\bitar.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\con_lang.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\con_lang.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\control.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\control.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\defs.ilua">
+    <None Include="..\..\source\duke3d\src\lunatic\_defs_game.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\defs_common.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\defs_common.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\defs_m32.ilua">
+    <None Include="..\..\source\duke3d\src\lunatic\_defs_editor.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\dis_x64.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\dis_x64.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\dis_x86.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\dis_x86.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\dump.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\dump.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\engine_maptext.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\engine_maptext.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\lunacon.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\lunacon.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\profdemo.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\profdemo.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\randgen.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\randgen.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\savegame.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\savegame.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\strict.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\strict.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\stat.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\stat.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\test.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\test.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\v.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\v.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
-    <None Include="source\lunatic\xmath.lua">
+    <None Include="..\..\source\duke3d\src\lunatic\xmath.lua">
       <Filter>eduke32\source\lunatic\lua</Filter>
     </None>
   </ItemGroup>

@@ -1,9 +1,8 @@
 
-#include "compat.h"
-#include "sdlappicon.h"
 #include "sdl_inc.h"
+#include "sdlappicon.h"
 
-static uint8_t sdlappicon_pixels[] = {
+static Uint8 sdlappicon_pixels[] = {
 #if defined _WIN32 && SDL_MAJOR_VERSION==1
 # include "eduke32_icon_32px.c"
 #else

@@ -128,7 +128,7 @@ extern camera_t g_camera;
 # define CAMERACLOCK g_cameraClock
 #endif
 
-// KEEPINSYNC lunatic/defs.ilua
+// KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
 #if !defined LUNATIC
     vec3_t camerapos;
@@ -171,7 +171,7 @@ typedef struct {
         int32_t SmoothInput;
 
         // JBF 20031211: Store the input settings because
-        // (currently) jmact can't regurgitate them
+        // (currently) mact can't regurgitate them
         int32_t MouseFunctions[MAXMOUSEBUTTONS][2];
         int32_t MouseDigitalFunctions[MAXMOUSEAXES][2];
         int32_t MouseAnalogueAxes[MAXMOUSEAXES];

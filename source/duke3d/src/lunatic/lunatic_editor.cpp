@@ -6,7 +6,7 @@
 # include <luajit-2.0/lualib.h>
 #endif
 
-#include "lunatic_m32.h"
+#include "lunatic_editor.h"
 
 
 int Em_CreateState(L_State *estate)

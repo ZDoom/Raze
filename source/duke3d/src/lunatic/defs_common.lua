@@ -168,7 +168,7 @@ bitint_new_struct_type("uint8_t", "UBit8")
 bitint_new_struct_type("uint16_t", "UBit16")
 
 -- Converts a template struct definition to an internal, unrestricted one.
--- NOTE: "[^ ]*" for const decorations in defs.ilua.
+-- NOTE: "[^ ]*" for const decorations in _defs_game.lua.
 function strip_const(structstr)
     return (string.gsub(structstr, "const[^ ]* ", ""));
 end

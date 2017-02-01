@@ -57,7 +57,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "m32def.h"
 
 #ifdef LUNATIC
-# include "lunatic_m32.h"
+# include "lunatic_editor.h"
 #endif
 
 extern const char *s_buildRev;
@@ -10045,10 +10045,10 @@ int32_t ExtPostStartupWindow(void)
 #ifdef LUNATIC
     if (Em_CreateState(&g_EmState) == 0)
     {
-        extern const char luaJIT_BC_defs_m32[];
+        extern const char luaJIT_BC__defs_editor[];
 
-        int32_t i = L_RunString(&g_EmState, luaJIT_BC_defs_m32,
-                                LUNATIC_DEFS_M32_BC_SIZE, "defs_m32.ilua");
+        int32_t i = L_RunString(&g_EmState, luaJIT_BC__defs_editor,
+                                LUNATIC_DEFS_M32_BC_SIZE, "_defs_editor.lua");
         if (i != 0)
         {
             Em_DestroyState(&g_EmState);

@@ -1,9 +1,9 @@
 /* GIMP RGBA C-Source image dump (game_icon.c) */
 
-#include "compat.h"
+#include "sdl_inc.h"
 #include "sdlappicon.h"
 
-static uint8_t sdlappicon_pixels[] = {
+static Uint8 sdlappicon_pixels[] = {
   "\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0"
   "\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0"
   "\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0\230tL\0"

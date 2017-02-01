@@ -6,7 +6,7 @@ local ffiC = ffi.C
 local rawset = rawset
 
 local type = type
-local decl = decl  -- comes from above (defs.ilua)
+local decl = decl  -- comes from above (_defs_game.lua)
 
 local print = print  -- for commented out debug block in new() below
 

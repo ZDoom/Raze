@@ -4,17 +4,17 @@
 exe=.exe
 
 # some paths
-top=/var/www/synthesis/eduke32
+top=/var/www/synthesis
 lockfile=$top/synthesis_building
 source=eduke32
 output=/var/www/dukeworld.duke4.net/eduke32/synthesis
-make=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='i686-w64-mingw32-' CC='i686-w64-mingw32-gcc-5.4-win32' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='')
-make64=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='x86_64-w64-mingw32-' CC='x86_64-w64-mingw32-gcc-5.4-win32' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='')
+make=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='i686-w64-mingw32-' CC='i686-w64-mingw32-gcc-5.4-win32' CXX='i686-w64-mingw32-g++-5.4-win32' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='' )
+make64=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='x86_64-w64-mingw32-' CC='x86_64-w64-mingw32-gcc-5.4-win32' CXX='x86_64-w64-mingw32-g++-5.4-win32' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='' )
 clean=veryclean
 
-# the following file paths are relative to $source
+# the following file paths are relative to $source  
 targets=( eduke32$exe mapster32$exe )
-package=$top/$source/package/package
+package=$top/package
 not_src_packaged=( package/debug/win32/ebacktrace1.dll package/debug/win64/ebacktrace1-64.dll )
 
 # group that owns the resulting packages
@@ -106,9 +106,9 @@ function package_game_lunatic ()
 {
     # Package some Lunatic test and demo files.
     mkdir -p ./lunatic/test
-    cp $top/$source/source/lunatic/test.lua ./lunatic/
-    cp $top/$source/source/lunatic/test/test_{bitar,geom,rotspr}.lua ./lunatic/test/
-    cp $top/$source/source/lunatic/test/{damagehplane,delmusicsfx,helixspawner,shadexfog}.lua ./lunatic/test/
+    cp $top/$source/source/duke3d/src/lunatic/test.lua ./lunatic/
+    cp $top/$source/source/duke3d/src/lunatic/test/test_{bitar,geom,rotspr}.lua ./lunatic/test/
+    cp $top/$source/source/duke3d/src/lunatic/test/{damagehplane,delmusicsfx,helixspawner,shadexfog}.lua ./lunatic/test/
 }
 
 function package_execute ()

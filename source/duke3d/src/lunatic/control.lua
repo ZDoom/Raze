@@ -2291,7 +2291,7 @@ end
 --- More functions of the official API ---
 
 -- Non-local control flow. These ones call the original error(), not our
--- redefinition in defs.ilua.
+-- redefinition in _defs_game.lua.
 function longjmp()
     error(false)
 end
