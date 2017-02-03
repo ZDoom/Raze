@@ -6,7 +6,7 @@ exe=.exe
 # some paths
 top=/var/www/synthesis
 lockfile=$top/synthesis_building
-source=eduke32
+source=$top/eduke32
 output=/var/www/dukeworld.duke4.net/eduke32/synthesis
 make=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='i686-w64-mingw32-' CC='i686-w64-mingw32-gcc-5.4-win32' CXX='i686-w64-mingw32-g++-5.4-win32' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='' )
 make64=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='x86_64-w64-mingw32-' CC='x86_64-w64-mingw32-gcc-5.4-win32' CXX='x86_64-w64-mingw32-g++-5.4-win32' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='' )
@@ -40,7 +40,7 @@ else
     touch $lockfile
 fi
 
-cd $top
+cd $source
 
 # update the code repository and get the last revision number from SVN
 head=`svn update | tail -n1 | awk '{ print $NF }' | cut -d. -f1`
@@ -93,22 +93,22 @@ function package_start ()
 
     cd $package
 
-    cp -R $top/$source/package/common/* ./
-    cp -R $top/$source/package/sdk/* ./
+    cp -R $source/package/common/* ./
+    cp -R $source/package/sdk/* ./
 }
 
 function package_debug ()
 {
-    cp -R $top/$source/package/debug/${*}/* ./
+    cp -R $source/package/debug/${*}/* ./
 }
 
 function package_game_lunatic ()
 {
     # Package some Lunatic test and demo files.
     mkdir -p ./lunatic/test
-    cp $top/$source/source/duke3d/src/lunatic/test.lua ./lunatic/
-    cp $top/$source/source/duke3d/src/lunatic/test/test_{bitar,geom,rotspr}.lua ./lunatic/test/
-    cp $top/$source/source/duke3d/src/lunatic/test/{damagehplane,delmusicsfx,helixspawner,shadexfog}.lua ./lunatic/test/
+    cp $source/source/duke3d/src/lunatic/test.lua ./lunatic/
+    cp $source/source/duke3d/src/lunatic/test/test_{bitar,geom,rotspr}.lua ./lunatic/test/
+    cp $source/source/duke3d/src/lunatic/test/{damagehplane,delmusicsfx,helixspawner,shadexfog}.lua ./lunatic/test/
 }
 
 function package_execute ()
@@ -116,7 +116,7 @@ function package_execute ()
     echo 7zr a -mx9 -ms=on -t7z $output/$date-$head/${*}_$date-$head.7z *
     7zr a -mx9 -ms=on -t7z $output/$date-$head/${*}_$date-$head.7z *
 
-    cd $top/$source
+    cd $source
 
     rm -rf $package
 }
@@ -125,7 +125,7 @@ if [ $dobuild ]
 then
     echo "Launching a build..."
 
-    cd $top/$source
+    cd $source
 
     # get the date in the YYYYMMDD format (ex: 20091001)
     date=`date +%Y%m%d`
@@ -143,8 +143,8 @@ then
     # package
     package_start
     package_debug win32
-    mv -f $top/$source/eduke32$exe "$package/eduke32.debug$exe"
-    mv -f $top/$source/mapster32$exe "$package/mapster32.debug$exe"
+    mv -f $source/eduke32$exe "$package/eduke32.debug$exe"
+    mv -f $source/mapster32$exe "$package/mapster32.debug$exe"
     package_execute ${basename}_win32_debug
 
 
@@ -160,8 +160,8 @@ then
     # package
     package_start
     package_debug win64
-    mv -f $top/$source/eduke32$exe "$package/eduke32.debug$exe"
-    mv -f $top/$source/mapster32$exe "$package/mapster32.debug$exe"
+    mv -f $source/eduke32$exe "$package/eduke32.debug$exe"
+    mv -f $source/mapster32$exe "$package/mapster32.debug$exe"
     package_execute ${basename}_win64_debug
 
 
@@ -180,8 +180,8 @@ then
         # package
         package_start
         package_game_lunatic
-        mv -f $top/$source/eduke32$exe "$package/leduke32_PREVIEW$exe"
-        mv -f $top/$source/mapster32$exe "$package/lmapster32_PREVIEW$exe"
+        mv -f $source/eduke32$exe "$package/leduke32_PREVIEW$exe"
+        mv -f $source/mapster32$exe "$package/lmapster32_PREVIEW$exe"
         package_execute l${basename}_lunatic_PREVIEW_win32
     fi
 
@@ -199,8 +199,8 @@ then
         # package
         package_start
         package_game_lunatic
-        mv -f $top/$source/eduke32$exe "$package/leduke32_PREVIEW$exe"
-        mv -f $top/$source/mapster32$exe "$package/lmapster32_PREVIEW$exe"
+        mv -f $source/eduke32$exe "$package/leduke32_PREVIEW$exe"
+        mv -f $source/mapster32$exe "$package/lmapster32_PREVIEW$exe"
         package_execute l${basename}_lunatic_PREVIEW_win64
     fi
 
@@ -216,8 +216,8 @@ then
 
     # package
     package_start
-    mv -f $top/$source/eduke32$exe "$package/eduke32$exe"
-    mv -f $top/$source/mapster32$exe "$package/mapster32$exe"
+    mv -f $source/eduke32$exe "$package/eduke32$exe"
+    mv -f $source/mapster32$exe "$package/mapster32$exe"
     package_execute ${basename}_win32
 
 
@@ -232,8 +232,8 @@ then
 
     # package
     package_start
-    mv -f $top/$source/eduke32$exe "$package/eduke32$exe"
-    mv -f $top/$source/mapster32$exe "$package/mapster32$exe"
+    mv -f $source/eduke32$exe "$package/eduke32$exe"
+    mv -f $source/mapster32$exe "$package/mapster32$exe"
     package_execute ${basename}_win64
 
 
@@ -263,7 +263,7 @@ then
     tar cJf ${basename}_src_$date-$head.tar.xz ${basename}_$date-$head
     rm -r ${basename}_$date-$head
 
-    cd $top/$source
+    cd $source
 
     # output the changelog since last snapshot in the output directory
     if [ $lastrevision ]
