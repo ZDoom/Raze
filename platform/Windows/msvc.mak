@@ -284,6 +284,9 @@ CHECKDIR_MACT=@if not exist "$(MACT_OBJ)" mkdir "$(MACT_OBJ)"
 CHECKDIR_AUDIOLIB=@if not exist "$(AUDIOLIB_OBJ)" mkdir "$(AUDIOLIB_OBJ)"
 
 
+EDUKE32_TARGET=$(root)\eduke32$(EXESUFFIX)
+MAPSTER32_TARGET=$(root)\mapster32$(EXESUFFIX)
+
 # RULES
 .SUFFIXES: .masm
 
@@ -325,13 +328,15 @@ CHECKDIR_AUDIOLIB=@if not exist "$(AUDIOLIB_OBJ)" mkdir "$(AUDIOLIB_OBJ)"
 
 
 # TARGETS
-all: eduke32$(EXESUFFIX) mapster32$(EXESUFFIX)
 
-eduke32$(EXESUFFIX): $(DUKE3D_OBJS) $(ENGINE_OBJS) $(AUDIOLIB_OBJS) $(MACT_OBJS) $(ENET_OBJS)
+
+all: $(EDUKE32_TARGET) $(MAPSTER32_TARGET)
+
+$(EDUKE32_TARGET): $(DUKE3D_OBJS) $(ENGINE_OBJS) $(AUDIOLIB_OBJS) $(MACT_OBJS) $(ENET_OBJS)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $(DUKE3D_RSRC)\manifest.game.xml -hashupdate -outputresource:$@ -out:$@.manifest
 
-mapster32$(EXESUFFIX): $(DUKE3D_EDITOR_OBJS) $(ENGINE_OBJS) $(ENGINE_EDITOR_OBJS) $(AUDIOLIB_OBJS)
+$(MAPSTER32_TARGET): $(DUKE3D_EDITOR_OBJS) $(ENGINE_OBJS) $(ENGINE_EDITOR_OBJS) $(AUDIOLIB_OBJS)
 	$(LINK) /OUT:$@ /SUBSYSTEM:WINDOWS $(WINMACHINE) /LIBPATH:$(PLATFORM)\lib$(WINLIB) $(flags_link) /MAP $** $(LIBS)
 	$(MT) -manifest $(DUKE3D_RSRC)\manifest.build.xml -hashupdate -outputresource:$@ -out:$@.manifest
 
@@ -341,7 +346,6 @@ mapster32$(EXESUFFIX): $(DUKE3D_EDITOR_OBJS) $(ENGINE_OBJS) $(ENGINE_EDITOR_OBJS
 # PHONIES
 
 clean:
-	-del /Q eduke32$(EXESUFFIX) mapster32$(EXESUFFIX) $(DUKE3D_OBJS) $(DUKE3D_EDITOR_OBJS) *.pdb *.map *.manifest
+	-del /Q $(EDUKE32_TARGET) $(MAPSTER32_TARGET) $(DUKE3D_OBJS) $(DUKE3D_EDITOR_OBJS) $(ENGINE_OBJS) $(ENGINE_EDITOR_OBJS) $(ENET_OBJS) $(MACT_OBJS) $(AUDIOLIB_OBJS) *.pdb $(root)\*.pdb $(root)\*.map $(root)\*.manifest
 
 veryclean: clean
-	-del /Q $(ENGINE_OBJS) $(ENGINE_EDITOR_OBJS) $(ENET_OBJS) $(AUDIOLIB_OBJS)

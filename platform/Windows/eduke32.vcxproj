@@ -51,8 +51,8 @@
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <ConfigurationType>Makefile</ConfigurationType>
     <PlatformToolset>v140</PlatformToolset>
-    <OutDir>.\</OutDir>
-    <IntDir>.\</IntDir>
+    <OutDir>.\..\..\</OutDir>
+    <IntDir>.\..\..\</IntDir>
     <NMakeIncludeSearchPath>$(NMakeIncludeSearchPath);..\..\source\build\include;..\..\source\mact\include;..\..\source\audiolib\include;..\..\source\enet\include;..\..\platform\windows\include</NMakeIncludeSearchPath>
     <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak DEBUG=1 WINBITS=32</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=32</NMakeReBuildCommandLine>
