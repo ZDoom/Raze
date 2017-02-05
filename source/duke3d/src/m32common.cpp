@@ -604,7 +604,7 @@ static int32_t walls_have_equal_endpoints(int32_t w1, int32_t w2)
 static void correct_yax_nextwall(int32_t wallnum, int32_t bunchnum, int32_t cf, int32_t tryfixingp)
 {
     int32_t i, j, startwall, endwall;
-    int32_t nummatching=0, lastwall[2]={-1,-1};
+    int32_t nummatching=0, lastwall[2] = { -1, -1 };
 
     for (SECTORS_OF_BUNCH(bunchnum, !cf, i))
         for (WALLS_OF_SECTOR(i, j))

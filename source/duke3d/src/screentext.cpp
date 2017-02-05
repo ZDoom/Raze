@@ -168,10 +168,10 @@ vec2_t G_ScreenTextSize(const int32_t font,
     const int32_t f,
     int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
-    vec2_t size ={ 0, 0, }; // eventually the return value
-    vec2_t pos ={ 0, 0, }; // holds the coordinate position as we draw each character tile of the string
-    vec2_t extent ={ 0, 0, }; // holds the x-width of each character and the greatest y-height of each line
-    vec2_t offset ={ 0, 0, }; // temporary; holds the last movement made in both directions
+    vec2_t size = { 0, 0, }; // eventually the return value
+    vec2_t pos = { 0, 0, }; // holds the coordinate position as we draw each character tile of the string
+    vec2_t extent = { 0, 0, }; // holds the x-width of each character and the greatest y-height of each line
+    vec2_t offset = { 0, 0, }; // temporary; holds the last movement made in both directions
 
     int32_t tile;
     char t;
@@ -482,12 +482,12 @@ vec2_t G_ScreenText(const int32_t font,
     int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f,
     const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2)
 {
-    vec2_t size ={ 0, 0, }; // eventually the return value
-    vec2_t origin ={ 0, 0, }; // where to start, depending on the alignment
-    vec2_t pos ={ 0, 0, }; // holds the coordinate position as we draw each character tile of the string
-    vec2_t extent ={ 0, 0, }; // holds the x-width of each character and the greatest y-height of each line
-    const vec2_t Xdirection ={ sintable[(blockangle+512)&2047], sintable[blockangle&2047], };
-    const vec2_t Ydirection ={ sintable[(blockangle+1024)&2047], sintable[(blockangle+512)&2047], };
+    vec2_t size = { 0, 0, }; // eventually the return value
+    vec2_t origin = { 0, 0, }; // where to start, depending on the alignment
+    vec2_t pos = { 0, 0, }; // holds the coordinate position as we draw each character tile of the string
+    vec2_t extent = { 0, 0, }; // holds the x-width of each character and the greatest y-height of each line
+    const vec2_t Xdirection = { sintable[(blockangle+512)&2047], sintable[blockangle&2047], };
+    const vec2_t Ydirection = { sintable[(blockangle+1024)&2047], sintable[(blockangle+512)&2047], };
 
     int32_t blendidx=0, tile;
     char t;
@@ -643,7 +643,7 @@ vec2_t G_ScreenText(const int32_t font,
 
         default:
         {
-            vec2_t location ={ x, y, };
+            vec2_t location = { x, y, };
 
             G_AddCoordsFromRotation(&location, &Xdirection, origin.x);
             G_AddCoordsFromRotation(&location, &Ydirection, origin.y);
@@ -871,7 +871,7 @@ vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy,
     int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f,
     const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2)
 {
-    vec2_t size ={ 0, 0, }; // eventually the return value
+    vec2_t size = { 0, 0, }; // eventually the return value
 
     if (!(o & ROTATESPRITE_FULL16))
     {

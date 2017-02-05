@@ -250,7 +250,7 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
     //int32_t odx,ody;
     //int32_t ox1=x1,oy1=y1, ox2=x2,oy2=y2;
 
-    vec2_t d ={ x2-x1, y2-y1 };
+    vec2_t d = { x2-x1, y2-y1 };
 
     //odx=dx;
     //ody=dy;
@@ -580,7 +580,7 @@ int32_t scalescreeny(int32_t sy) { return (m32_sideview) ? mulscale14(sy, m32_si
 // return screen coordinates for BUILD coords x and y (relative to current position)
 void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome)
 {
-    vec2_t coord ={ x, y };
+    vec2_t coord = { x, y };
 
     if (m32_sideview)
         rotatepoint(zerovec, coord, m32_sideang, &coord);
@@ -609,7 +609,7 @@ int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz)
 
     dz = (((int64_t) dz * (int64_t) m32_sidecos)/(int64_t) m32_sidesin)>>4;
 
-    vec2_t v[2] ={ { 0, dz },{ *dx, *dy } };
+    vec2_t v[2] = { { 0, dz },{ *dx, *dy } };
 
     rotatepoint(zerovec, v[0], -m32_sideang, &v[1]);
 

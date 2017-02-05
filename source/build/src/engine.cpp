@@ -5742,7 +5742,7 @@ draw_as_face_sprite:
             int32_t const xspan = ((B_LITTLE32(longptr[0]) + B_LITTLE32(longptr[1])) >> 1);
             int32_t const yspan = B_LITTLE32(longptr[2]);
 
-            vec2_t const siz ={ mulscale_triple30(xdsiz, xv, xspan), mulscale_triple30(xdsiz, nyrepeat, yspan) };
+            vec2_t const siz = { mulscale_triple30(xdsiz, xv, xspan), mulscale_triple30(xdsiz, nyrepeat, yspan) };
 
             //Watch out for divscale overflow
             if (((xspan>>11) < siz.x) && (yspan < (siz.y>>1)))
@@ -8649,8 +8649,8 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     Bmemset(gotsector, 0, (numsectors+7)>>3);
 
-    vec2_t const c1 ={ (windowxy1.x<<12), (windowxy1.y<<12) };
-    vec2_t const c2 ={ ((windowxy2.x+1)<<12)-1, ((windowxy2.y+1)<<12)-1 };
+    vec2_t const c1 = { (windowxy1.x<<12), (windowxy1.y<<12) };
+    vec2_t const c2 = { ((windowxy2.x+1)<<12)-1, ((windowxy2.y+1)<<12)-1 };
 
     zoome <<= 8;
 
@@ -8710,7 +8710,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 #endif
             if ((i&0xf0) != 0xf0) continue;
 
-            vec2_t bak ={ rx1[0], mulscale16(ry1[0]-(ydim<<11),xyaspect)+(ydim<<11) };
+            vec2_t bak = { rx1[0], mulscale16(ry1[0]-(ydim<<11),xyaspect)+(ydim<<11) };
 
             if (i&0x0f)
             {
@@ -8820,7 +8820,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             const int32_t xspan = tilesiz[spr->picnum].x;
 
             int32_t npoints = 0;
-            vec2_t v1 ={ spr->x, spr->y }, v2, v3, v4;
+            vec2_t v1 = { spr->x, spr->y }, v2, v3, v4;
 
             get_floorspr_points(spr, 0, 0, &v1.x, &v2.x, &v3.x, &v4.x,
                                 &v1.y, &v2.y, &v3.y, &v4.y);

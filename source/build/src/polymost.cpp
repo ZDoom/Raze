@@ -2317,7 +2317,7 @@ skip: ;
                 case 3:
                 case 1:
                 {
-                    vec2f_t const dpxy[4] ={
+                    vec2f_t const dpxy[4] = {
                         { dx0, n0.y }, { dx1, n1.y }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] }
                     };
 
@@ -2340,7 +2340,7 @@ skip: ;
                 case 5:
                 case 2:
                 {
-                    vec2f_t const dpxy[3] ={ { dx0, vsp[i].fy[0] }, { dx1, n1.y }, { dx1, vsp[i].fy[1] } };
+                    vec2f_t const dpxy[3] = { { dx0, vsp[i].fy[0] }, { dx1, n1.y }, { dx1, vsp[i].fy[1] } };
 
                     vsp[i].fy[1] = n1.y;
                     vsp[i].ftag = gtag;
@@ -2349,7 +2349,7 @@ skip: ;
                     break;
                 case 0:
                 {
-                    vec2f_t const dpxy[4] ={ { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] } };
+                    vec2f_t const dpxy[4] = { { dx0, vsp[i].cy[0] }, { dx1, vsp[i].cy[1] }, { dx1, vsp[i].fy[1] }, { dx0, vsp[i].fy[0] } };
                     vsp[i].ctag = vsp[i].ftag = -1;
                     polymost_drawpoly(dpxy, 4, domostpolymethod);
                 }
@@ -2472,7 +2472,7 @@ void polymost_editorfunc(void)
                 int const ang = getangle(wall[hit->wall].x - POINT2(hit->wall).x, wall[hit->wall].y - POINT2(hit->wall).y);
                 tsp->ang = ang + 512;
 
-                vec2_t const offs ={ sintable[(ang + 1024) & 2047] >> 11,
+                vec2_t const offs = { sintable[(ang + 1024) & 2047] >> 11,
                     sintable[(ang + 512) & 2047] >> 11};
 
                 tsp->x -= offs.x;
@@ -4417,7 +4417,7 @@ void polymost_drawsprite(int32_t snum)
 
             float const foffs = TSPR_OFFSET(tspr);
 
-            vec2f_t const offs ={ (float) (sintable[(ang + 512) & 2047] >> 6) * foffs,
+            vec2f_t const offs = { (float) (sintable[(ang + 512) & 2047] >> 6) * foffs,
                 (float) (sintable[(ang) & 2047] >> 6) * foffs };
 
             vec2f_t s0 = { (float)(tspr->x - globalposx) + offs.x,
@@ -5252,7 +5252,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     drawpoly_blend = dablend;
 
     vec2_t const siz = tilesiz[globalpicnum];
-    vec2_t ofs ={ 0, 0 };
+    vec2_t ofs = { 0, 0 };
 
     if (!(dastat & RS_TOPLEFT))
     {

@@ -220,7 +220,7 @@ static int32_t screencapture_png(const char *filename, char inverseit, const cha
 static int32_t screencapture_tga(const char *filename, char inverseit)
 {
     int32_t i;
-    char *ptr, head[18] ={ 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
+    char *ptr, head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
     //char palette[4*256];
     char *fn = Xstrdup(filename);
 # ifdef USE_OPENGL

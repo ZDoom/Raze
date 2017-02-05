@@ -2206,7 +2206,7 @@ static void         polymer_emptybuckets(void)
     prcanbucket = 0;
 }
 
-static hashtable_t h_buckets      ={ 2048, NULL };
+static hashtable_t h_buckets      = { 2048, NULL };
 
 static _prbucket*   polymer_findbucket(int16_t tilenum, char pal)
 {

@@ -573,7 +573,7 @@ void G_DrawStatusBar(int32_t snum)
 
     if (item_icons[0] == 0)
     {
-        int32_t iicons[8] ={ -1, FIRSTAID_ICON, STEROIDS_ICON, HOLODUKE_ICON,
+        int32_t iicons[8] = { -1, FIRSTAID_ICON, STEROIDS_ICON, HOLODUKE_ICON,
             JETPACK_ICON, HEAT_ICON, AIRTANK_ICON, BOOT_ICON };
         Bmemcpy(item_icons, iicons, sizeof(item_icons));
     }
@@ -615,7 +615,7 @@ void G_DrawStatusBar(int32_t snum)
                 but we don't want to have to recreate the values in memory every time
                 the HUD is drawn */
 
-                int32_t asprites[MAX_WEAPONS] ={ -1, AMMO, SHOTGUNAMMO, BATTERYAMMO,
+                int32_t asprites[MAX_WEAPONS] = { -1, AMMO, SHOTGUNAMMO, BATTERYAMMO,
                     RPGAMMO, HBOMBAMMO, CRYSTALAMMO, DEVISTATORAMMO,
                     TRIPBOMBSPRITE, FREEZEAMMO+1, HBOMBAMMO, GROWAMMO
                 };
@@ -875,7 +875,7 @@ void G_DrawStatusBar(int32_t snum)
     }
 
     {
-        static const int32_t check_items [] ={
+        static const int32_t check_items [] = {
             GET_FIRSTAID, GET_STEROIDS, GET_HOLODUKE, GET_JETPACK,
             GET_HEATS, GET_SCUBA, GET_BOOTS
         };

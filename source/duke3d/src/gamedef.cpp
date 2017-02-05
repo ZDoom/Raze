@@ -1284,7 +1284,7 @@ static hashtable_t * const tables[] = {
     &h_iter
 };
 
-static hashtable_t * const tables_free [] ={
+static hashtable_t * const tables_free [] = {
     &h_labels, &h_keywords, &h_sector,  &h_wall,     &h_userdef,
     &h_projectile, &h_player, &h_input,  &h_actor,    &h_tsprite, &h_tiledata, &h_paldata,
     &h_iter

@@ -1987,7 +1987,7 @@ void P_DisplayScuba(void)
     }
 }
 
-static int8_t const access_tip_y [] ={
+static int8_t const access_tip_y [] = {
     0, -8, -16, -32, -64, -84, -108, -108, -108, -108, -108, -108, -108, -108, -108, -108, -96, -72, -64, -32, -16,
     /* EDuke32: */ 0, 16, 32, 48,
     // At y coord 64, the hand is already not shown.
@@ -2535,7 +2535,7 @@ void P_DisplayWeapon(void)
 
             case HANDBOMB_WEAPON:
                 {
-                    static uint8_t pipebombFrames [] ={ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
+                    static uint8_t pipebombFrames [] = { 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
 
                     if (*weaponFrame >= PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime) || *weaponFrame >= ARRAY_SIZE(pipebombFrames))
                         break;

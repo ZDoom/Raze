@@ -190,7 +190,7 @@ static uint8_t visited[MAXWALLS>>3];
 
 int32_t m32_2d3dmode = 0;
 int32_t m32_2d3dsize = 4;
-vec2_t m32_2d3d ={ 0xffff, 4 };
+vec2_t m32_2d3d = { 0xffff, 4 };
 
 typedef struct
 {
@@ -3357,7 +3357,7 @@ void overheadeditor(void)
     int16_t cursectorhighlight, sectorhighlightstat;
     int32_t prefixarg = 0, tsign;
     int32_t resetsynctics = 0, lasttick=getticks(), waitdelay=totalclock, lastdraw=getticks();
-    int32_t olen[2]={0,0}, dragwall[2] = {-1, -1};
+    int32_t olen[2] = {0, 0}, dragwall[2] = {-1, -1};
     int16_t linehighlight2 = -1;
 
     ovh.suckwall = -1;
@@ -3853,7 +3853,7 @@ void overheadeditor(void)
 #ifdef USE_OPENGL
                 int bakrendmode = rendmode;
 #endif
-                vec2_t bdim ={ xdim, ydim };
+                vec2_t bdim = { xdim, ydim };
 
                 xdim = xdim2d;
                 ydim = ydim2d;
@@ -3884,7 +3884,7 @@ void overheadeditor(void)
                     setview(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D);
                     clearview(-1);
 
-                    vec2_t osearch ={ searchx, searchy };
+                    vec2_t osearch = { searchx, searchy };
 
                     searchx -= m32_2d3d.x;
                     searchy -= m32_2d3d.y;

@@ -41,8 +41,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define quotepulseshade (sintable[((uint32_t)totalclock<<5)&2047]>>11)
 
-palette_t CrosshairColors ={ 255, 255, 255, 0 };
-palette_t DefaultCrosshairColors ={ 0, 0, 0, 0 };
+palette_t CrosshairColors = { 255, 255, 255, 0 };
+palette_t DefaultCrosshairColors = { 0, 0, 0, 0 };
 int32_t g_crosshairSum = -1;
 // yxaspect and viewingrange just before the 'main' drawrooms call
 int32_t dr_yxaspect, dr_viewingrange;
@@ -858,12 +858,12 @@ void G_DisplayRest(int32_t smoothratio)
     {
         if (pp->palette == WATERPAL)
         {
-            static const palette_t wp ={ 224, 192, 255, 0 };
+            static const palette_t wp = { 224, 192, 255, 0 };
             Bmemcpy(&hictinting[MAXPALOOKUPS-1], &wp, sizeof(palette_t));
         }
         else if (pp->palette == SLIMEPAL)
         {
-            static const palette_t sp ={ 208, 255, 192, 0 };
+            static const palette_t sp = { 208, 255, 192, 0 };
             Bmemcpy(&hictinting[MAXPALOOKUPS-1], &sp, sizeof(palette_t));
         }
         else
@@ -881,7 +881,7 @@ void G_DisplayRest(int32_t smoothratio)
         palaccum_add(&tint, &pp2->pals, pp2->pals.f);
 #endif
     {
-        static const palette_t loogiepal ={ 0, 63, 0, 0 };
+        static const palette_t loogiepal = { 0, 63, 0, 0 };
 
         palaccum_add(&tint, &loogiepal, pp->loogcnt>>1);
 #ifdef SPLITSCREEN_MOD_HACKS
@@ -1137,7 +1137,7 @@ void G_DisplayRest(int32_t smoothratio)
             if (a == 0)
                 a = CROSSHAIR;
 
-            vec2_t crosshairpos ={ 160<<16, 100<<16 };
+            vec2_t crosshairpos = { 160<<16, 100<<16 };
 
             rotatesprite_win(crosshairpos.x-(g_player[myconnectindex].ps->look_ang<<15), crosshairpos.y, scale(65536, ud.crosshairscale, 100),
                 0, a, 0, CROSSHAIR_PAL, 2+1);

@@ -460,14 +460,14 @@ static MenuOption_t MEO_VIDEOSETUP_FULLSCREEN = MAKE_MENUOPTION( &MF_Redfont, &M
 static MenuEntry_t ME_VIDEOSETUP_FULLSCREEN = MAKE_MENUENTRY( "Fullscreen:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_FULLSCREEN, Option );
 
 
-static char const *MEOSN_VIDEOSETUP_VSYNC [] ={ "Adaptive", "Off", "On", };
-static int32_t MEOSV_VIDEOSETUP_VSYNC [] ={ -1, 0, 1, };
+static char const *MEOSN_VIDEOSETUP_VSYNC [] = { "Adaptive", "Off", "On", };
+static int32_t MEOSV_VIDEOSETUP_VSYNC [] = { -1, 0, 1, };
 static MenuOptionSet_t MEOS_VIDEOSETUP_VSYNC = MAKE_MENUOPTIONSET(MEOSN_VIDEOSETUP_VSYNC, MEOSV_VIDEOSETUP_VSYNC, 0x2);
 static MenuOption_t MEO_VIDEOSETUP_VSYNC = MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_VSYNC, &newvsync);
 static MenuEntry_t ME_VIDEOSETUP_VSYNC = MAKE_MENUENTRY("VSync:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_VSYNC, Option);
 
-static char const *MEOSN_VIDEOSETUP_FRAMELIMIT [] ={ "None", "30 fps", "60 fps", "120 fps", "144 fps", };
-static int32_t MEOSV_VIDEOSETUP_FRAMELIMIT [] ={ 0, 30, 60, 120, 144 };
+static char const *MEOSN_VIDEOSETUP_FRAMELIMIT [] = { "None", "30 fps", "60 fps", "120 fps", "144 fps", };
+static int32_t MEOSV_VIDEOSETUP_FRAMELIMIT [] = { 0, 30, 60, 120, 144 };
 static MenuOptionSet_t MEOS_VIDEOSETUP_FRAMELIMIT = MAKE_MENUOPTIONSET(MEOSN_VIDEOSETUP_FRAMELIMIT, MEOSV_VIDEOSETUP_FRAMELIMIT, 0x2);
 static MenuOption_t MEO_VIDEOSETUP_FRAMELIMIT= MAKE_MENUOPTION(&MF_Redfont, &MEOS_VIDEOSETUP_FRAMELIMIT, &r_maxfps);
 static MenuEntry_t ME_VIDEOSETUP_FRAMELIMIT = MAKE_MENUENTRY("Framerate limit:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_VIDEOSETUP_FRAMELIMIT, Option);
@@ -562,7 +562,7 @@ static MenuLink_t MEO_DISPLAYSETUP_ADVANCED_GL_POLYMOST = { MENU_POLYMOST, MA_Ad
 static MenuEntry_t ME_DISPLAYSETUP_ADVANCED_GL_POLYMOST = MAKE_MENUENTRY( "Polymost setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ADVANCED_GL_POLYMOST, Link );
 
 #ifdef POLYMER
-static MenuLink_t MEO_DISPLAYSETUP_ADVANCED_GL_POLYMER ={ MENU_POLYMER, MA_Advance, };
+static MenuLink_t MEO_DISPLAYSETUP_ADVANCED_GL_POLYMER = { MENU_POLYMER, MA_Advance, };
 static MenuEntry_t ME_DISPLAYSETUP_ADVANCED_GL_POLYMER = MAKE_MENUENTRY("Polymer setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ADVANCED_GL_POLYMER, Link);
 #endif
 #endif
@@ -764,7 +764,7 @@ static MenuEntry_t ME_MOUSESETUP_BTNS = MAKE_MENUENTRY( "Button assignment", &MF
 static MenuRangeFloat_t MEO_MOUSESETUP_SENSITIVITY = MAKE_MENURANGE( &CONTROL_MouseSensitivity, &MF_Redfont, .5f, 16.f, 0.f, 32, 1 );
 static MenuEntry_t ME_MOUSESETUP_SENSITIVITY = MAKE_MENUENTRY( "Sensitivity:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_SENSITIVITY, RangeFloat );
 
-static char const *MEOSN_MOUSESETUP_AIM_TYPE [] ={ "Toggle", "Hold" };
+static char const *MEOSN_MOUSESETUP_AIM_TYPE [] = { "Toggle", "Hold" };
 static MenuOptionSet_t MEOS_MOUSESETUP_AIM_TYPE = MAKE_MENUOPTIONSET(MEOSN_MOUSESETUP_AIM_TYPE, NULL, 0x2);
 static MenuOption_t MEO_MOUSESETUP_MOUSEAIMINGTYPE = MAKE_MENUOPTION(&MF_Redfont, &MEOS_MOUSESETUP_AIM_TYPE, &ud.mouseaiming);
 static MenuEntry_t ME_MOUSESETUP_MOUSEAIMINGTYPE = MAKE_MENUENTRY("Aiming type:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_MOUSEAIMINGTYPE, Option);
@@ -807,12 +807,12 @@ static MenuEntry_t ME_TOUCHSETUP_INVERT = MAKE_MENUENTRY("Invert look:", &MF_Red
 MAKE_MENU_TOP_ENTRYLINK("Sensitivity", MEF_CenterMenu, TOUCHSENS, MENU_TOUCHSENS);
 MAKE_MENU_TOP_ENTRYLINK("Button Setup", MEF_CenterMenu, TOUCHBUTTONS, MENU_TOUCHBUTTONS);
 
-static MenuEntry_t *MEL_TOUCHSETUP [] ={
+static MenuEntry_t *MEL_TOUCHSETUP [] = {
     &ME_TOUCHSENS,
     &ME_TOUCHBUTTONS,
 };
 
-static MenuEntry_t *MEL_TOUCHSENS [] ={
+static MenuEntry_t *MEL_TOUCHSENS [] = {
     &ME_TOUCHSETUP_SENSITIVITY_MOVE,
     &ME_TOUCHSETUP_SENSITIVITY_STRAFE,
     &ME_TOUCHSETUP_SENSITIVITY_LOOK,
@@ -914,7 +914,7 @@ static MenuEntry_t *MEL_INTERNAL_JOYSTICKAXIS_DIGITAL[] = {
 static MenuOption_t MEO_RENDERERSETUP_HIGHTILE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &usehightile );
 static MenuEntry_t ME_RENDERERSETUP_HIGHTILE = MAKE_MENUENTRY( "Truecolor textures:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_HIGHTILE, Option );
 
-static char const *MEOSN_RENDERERSETUP_TEXQUALITY [] ={ "Full", "Half", "Barf", };
+static char const *MEOSN_RENDERERSETUP_TEXQUALITY [] = { "Full", "Half", "Barf", };
 static MenuOptionSet_t MEOS_RENDERERSETUP_TEXQUALITY = MAKE_MENUOPTIONSET(MEOSN_RENDERERSETUP_TEXQUALITY, NULL, 0x2);
 static MenuOption_t MEO_RENDERERSETUP_TEXQUALITY = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_RENDERERSETUP_TEXQUALITY, &r_downsize);
 static MenuEntry_t ME_RENDERERSETUP_TEXQUALITY = MAKE_MENUENTRY("GL texture quality:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_TEXQUALITY, Option);
@@ -939,7 +939,7 @@ static MenuEntry_t ME_RENDERERSETUP_MODELS = MAKE_MENUENTRY( "Use 3d models:", &
 #endif
 
 #ifdef POLYMER
-static char const *MEOSN_POLYMER_LIGHTS [] ={ "Off", "Full", "Map only", };
+static char const *MEOSN_POLYMER_LIGHTS [] = { "Off", "Full", "Map only", };
 static MenuOptionSet_t MEOS_POLYMER_LIGHTS = MAKE_MENUOPTIONSET(MEOSN_POLYMER_LIGHTS, NULL, 0x2);
 static MenuOption_t MEO_POLYMER_LIGHTS = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_POLYMER_LIGHTS, &pr_lighting);
 static MenuEntry_t ME_POLYMER_LIGHTS = MAKE_MENUENTRY("Dynamic lights:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_POLYMER_LIGHTS, Option);
@@ -972,7 +972,7 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMOST[] = {
 };
 
 #ifdef POLYMER
-static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] ={
+static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] = {
     &ME_RENDERERSETUP_HIGHTILE,
     &ME_RENDERERSETUP_TEXQUALITY,
     &ME_RENDERERSETUP_PRECACHE,
@@ -1244,7 +1244,7 @@ static MenuMenu_t M_MOUSESETUP = MAKE_MENUMENU( "Mouse Setup", &MMF_BigOptions, 
 #ifdef EDUKE32_ANDROID_MENU
 static MenuMenu_t M_TOUCHSETUP = MAKE_MENUMENU( "Touch Setup", &MMF_Top_Options, MEL_TOUCHSETUP );
 static MenuMenu_t M_TOUCHSENS = MAKE_MENUMENU( "Sensitivity", &MMF_BigOptions, MEL_TOUCHSENS);
-static MenuPanel_t M_TOUCHBUTTONS ={ "Button Setup", MENU_TOUCHSETUP, MA_Return, MENU_TOUCHSETUP, MA_Advance, };
+static MenuPanel_t M_TOUCHBUTTONS = { "Button Setup", MENU_TOUCHSETUP, MA_Return, MENU_TOUCHSETUP, MA_Advance, };
 #endif
 static MenuMenu_t M_JOYSTICKSETUP = MAKE_MENUMENU( "Joystick Setup", &MMF_Top_Joystick_Network, MEL_JOYSTICKSETUP );
 static MenuMenu_t M_JOYSTICKBTNS = MAKE_MENUMENU( "Joystick Buttons", &MMF_MouseJoySetupBtns, MEL_JOYSTICKBTNS );
@@ -2668,7 +2668,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 
     if (entry == &ME_VIDEOSETUP_APPLY)
     {
-        resolution_t p ={ xdim, ydim, fullscreen, bpp, 0 };
+        resolution_t p = { xdim, ydim, fullscreen, bpp, 0 };
         int32_t prend = getrendermode();
         int32_t pvsync = vsync;
 

@@ -670,7 +670,7 @@ void A_DoGuts(int spriteNum, int tileNum, int spawnCnt)
 void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt)
 {
     uspritetype const * const s = (uspritetype *)&sprite[spriteNum];
-    vec2_t repeat ={ 32, 32 };
+    vec2_t repeat = { 32, 32 };
 
     if (A_CheckEnemySprite(s) && s->xrepeat < 16)
         repeat.x = repeat.y = 8;
@@ -3035,7 +3035,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     sprite[newSprite].z += (1 << 8);
                 }
 
-                vec3_t const tmpvect ={ (spriteXvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14,
+                vec3_t const tmpvect = { (spriteXvel * (sintable[(pSprite->ang + 512) & 2047])) >> 14,
                                          (spriteXvel * (sintable[pSprite->ang & 2047])) >> 14, spriteZvel };
 
                 int moveSprite = A_MoveSprite(spriteNum, &tmpvect, (A_CheckSpriteFlags(spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK1));

@@ -69,9 +69,9 @@ void hlineasm4(bssize_t cnt, int32_t skiploadincs, int32_t paloffs, uint32_t by,
 
     const char *const A_C_RESTRICT palptr = &ghlinepal[paloffs];
     const char *const A_C_RESTRICT buf = gbuf;
-    const vec2_t inc ={ gbxinc, gbyinc };
-    const vec2_t log ={ glogx, glogy };
-    const vec2_t log32 ={ 32-log.x, 32-log.y };
+    const vec2_t inc = { gbxinc, gbyinc };
+    const vec2_t log = { glogx, glogy };
+    const vec2_t log32 = { 32-log.x, 32-log.y };
     char *pp = (char *)p;
 
 #ifdef CLASSIC_SLICE_BY_4

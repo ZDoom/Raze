@@ -8,7 +8,7 @@
 #include "a.h"
 #include "xxhash.h"
 
-uint8_t *basepaltable[MAXBASEPALS] ={ palette };
+uint8_t *basepaltable[MAXBASEPALS] = { palette };
 uint8_t basepalreset=1;
 uint8_t curbasepal;
 int32_t globalblend;
@@ -16,7 +16,7 @@ int32_t globalblend;
 uint32_t g_lastpalettesum = 0;
 palette_t curpalette[256];			// the current palette, unadjusted for brightness or tint
 palette_t curpalettefaded[256];		// the current palette, adjusted for brightness and tint (ie. what gets sent to the card)
-palette_t palfadergb ={ 0,0,0,0 };
+palette_t palfadergb = { 0, 0, 0, 0 };
 char palfadedelta = 0;
 uint8_t blackcol;
 
@@ -533,7 +533,7 @@ void makepalookup(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, ui
 {
     int32_t i, j;
 
-    static char idmap[256] ={ 1 };
+    static char idmap[256] = { 1 };
 
     if (paletteloaded == 0)
         return;

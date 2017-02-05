@@ -614,7 +614,7 @@ void G_DoCheats(void)
 
                 case CHEAT_MONSTERS:
                 {
-                    const char *s [] ={ "On", "Off", "On (2)" };
+                    const char *s [] = { "On", "Off", "On (2)" };
 
                     if (++g_noEnemies == 3)
                         g_noEnemies = 0;
