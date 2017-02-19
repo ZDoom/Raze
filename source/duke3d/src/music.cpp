@@ -32,14 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define FALSE (!TRUE)
 #endif
 
-#ifndef min
-#define min(a, b) (((a) < (b)) ? (a) : (b))
-#endif
-
-#ifndef max
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-#endif
-
 int32_t MUSIC_SoundDevice = -1;
 int32_t MUSIC_ErrorCode = MUSIC_Ok;
 

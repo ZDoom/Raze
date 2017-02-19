@@ -22,11 +22,7 @@
  * Stub driver for no output
  */
 
-#include "inttypes.h"
-
-#ifndef UNREFERENCED_PARAMETER
-# define UNREFERENCED_PARAMETER(x) x=x
-#endif
+#include "compat.h"
 
 
 int32_t NoSoundDrv_GetError(void)

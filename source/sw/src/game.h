@@ -681,7 +681,7 @@ int StdRandomRange(int range);
     )
 
 
-#define SIZ(array) (sizeof(array)/sizeof(array[0]))
+#define SIZ ARRAY_SIZE
 
 
 //

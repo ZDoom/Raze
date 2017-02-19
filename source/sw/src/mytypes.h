@@ -28,15 +28,7 @@ Prepared for public release: 03/28/2005 - Charlie Wiederhold, 3D Realms
 
 #define TYPES_H
 
-#ifndef FALSE
-#define FALSE   0
-#endif
-#ifndef TRUE
-#define TRUE    (!FALSE)
-#endif
-#ifndef NULL
-#define NULL 0
-#endif
+#include "compat.h"
 
 #define OFF     0
 #define ON     (!OFF)

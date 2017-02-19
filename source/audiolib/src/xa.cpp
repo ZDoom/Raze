@@ -21,14 +21,6 @@
 #define kNumOfSGs       18
 #define TTYWidth		80
 
-#ifndef max
-# define max(a,b) ( ((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-# define min(a,b) ( ((a) < (b)) ? (a) : (b))
-#endif
-
 /* ADPCM */
 #define XA_DATA_START   (0x44-48)
 

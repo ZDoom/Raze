@@ -31,51 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef MULTIVOC_H_
 #define MULTIVOC_H_
 
+#include "compat.h"
+
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#ifndef UNREFERENCED_PARAMETER
-#define UNREFERENCED_PARAMETER(x) x = x
-#endif
-
-#ifdef _MSC_VER
-#define inline __inline
-#endif
-
-#if defined __POWERPC__ || defined GEKKO
-static inline uint16_t SWAP16(uint16_t s) { return (s >> 8) | (s << 8); }
-static inline uint32_t SWAP32(uint32_t s)
-{
-    return (s >> 24) | (s << 24) | ((s & 0xff00) << 8) | ((s & 0xff0000) >> 8);
-}
-#define LITTLE16(s) SWAP16(s)
-#define LITTLE32(s) SWAP32(s)
-#else
-#define LITTLE16
-#define LITTLE32
-#endif
-
-#ifndef TRUE
-#define TRUE (1 == 1)
-#endif
-#ifndef FALSE
-#define FALSE (!TRUE)
-#endif
-
-#ifndef min
-#define min(x, y) ((x) < (y) ? (x) : (y))
-#endif
-#ifndef max
-#define max(x, y) ((x) > (y) ? (x) : (y))
-#endif
-
-#if defined(_MSC_VER)
-#define strcasecmp _stricmp
-#define strncasecmp _strnicmp
-#elif defined(__QNX__)
-#define strcasecmp stricmp
-#define strncasecmp strnicmp
 #endif
 
 typedef enum

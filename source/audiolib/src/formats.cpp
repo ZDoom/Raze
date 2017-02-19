@@ -115,7 +115,7 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
         else
             blocklength = 0;
         // would need one byte pad at end of alloc'd region:
-//        blocklength = LITTLE32(*(uint32_t *)(ptr + 1)) & 0x00ffffff;
+//        blocklength = B_LITTLE32(*(uint32_t *)(ptr + 1)) & 0x00ffffff;
 
         ptr += 4;
 
@@ -186,7 +186,7 @@ end_of_data:
             // Repeat begin
             if (voice->LoopEnd == NULL)
             {
-                voice->LoopCount = LITTLE16(*(uint16_t const *)ptr);
+                voice->LoopCount = B_LITTLE16(*(uint16_t const *)ptr);
                 voice->LoopStart = (char *)((intptr_t) ptr + blocklength);
             }
             ptr += blocklength;
@@ -216,7 +216,7 @@ end_of_data:
             // Extended block
             voice->bits  = 8;
             voice->channels = 1;
-            tc = LITTLE16(*(uint16_t const *)ptr);
+            tc = B_LITTLE16(*(uint16_t const *)ptr);
             packtype = *(ptr + 2);
             voicemode = *(ptr + 3);
             ptr += blocklength;
@@ -224,10 +224,10 @@ end_of_data:
 
         case 9 :
             // New sound data block
-            samplespeed = LITTLE32(*(uint32_t const *)ptr);
+            samplespeed = B_LITTLE32(*(uint32_t const *)ptr);
             BitsPerSample = (unsigned)*(ptr + 4);
             Channels = (unsigned)*(ptr + 5);
-            Format = (unsigned)LITTLE16(*(uint16_t const *)(ptr + 6));
+            Format = (unsigned)B_LITTLE16(*(uint16_t const *)(ptr + 6));
 
             if ((BitsPerSample == 8) && (Channels == 1 || Channels == 2) && (Format == VOC_8BIT))
             {
@@ -342,8 +342,8 @@ int32_t MV_PlayWAV(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
 
     riff_header   riff;
     memcpy(&riff, ptr, sizeof(riff_header));
-    riff.file_size   = LITTLE32(riff.file_size);
-    riff.format_size = LITTLE32(riff.format_size);
+    riff.file_size   = B_LITTLE32(riff.file_size);
+    riff.format_size = B_LITTLE32(riff.format_size);
 
     if ((memcmp(riff.RIFF, "RIFF", 4) != 0) || (memcmp(riff.WAVE, "WAVE", 4) != 0) || (memcmp(riff.fmt, "fmt ", 4) != 0))
     {
@@ -353,16 +353,16 @@ int32_t MV_PlayWAV(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
 
     format_header format;
     memcpy(&format, ptr + sizeof(riff_header), sizeof(format_header));
-    format.wFormatTag      = LITTLE16(format.wFormatTag);
-    format.nChannels       = LITTLE16(format.nChannels);
-    format.nSamplesPerSec  = LITTLE32(format.nSamplesPerSec);
-    format.nAvgBytesPerSec = LITTLE32(format.nAvgBytesPerSec);
-    format.nBlockAlign     = LITTLE16(format.nBlockAlign);
-    format.nBitsPerSample  = LITTLE16(format.nBitsPerSample);
+    format.wFormatTag      = B_LITTLE16(format.wFormatTag);
+    format.nChannels       = B_LITTLE16(format.nChannels);
+    format.nSamplesPerSec  = B_LITTLE32(format.nSamplesPerSec);
+    format.nAvgBytesPerSec = B_LITTLE32(format.nAvgBytesPerSec);
+    format.nBlockAlign     = B_LITTLE16(format.nBlockAlign);
+    format.nBitsPerSample  = B_LITTLE16(format.nBitsPerSample);
 
     data_header   data;
     memcpy(&data, ptr + sizeof(riff_header) + riff.format_size, sizeof(data_header));
-    data.size = LITTLE32(data.size);
+    data.size = B_LITTLE32(data.size);
 
     // Check if it's PCM data.
     if (format.wFormatTag != 1 || (format.nChannels != 1 && format.nChannels != 2) ||
@@ -476,7 +476,7 @@ int32_t MV_PlayVOC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     voice->bits        = 8;
     voice->channels    = 1;
     voice->GetSound    = MV_GetNextVOCBlock;
-    voice->NextBlock   = ptr + LITTLE16(*(uint16_t *)(ptr + 0x14));
+    voice->NextBlock   = ptr + B_LITTLE16(*(uint16_t *)(ptr + 0x14));
     voice->LoopCount   = 0;
     voice->BlockLength = 0;
     voice->PitchScale  = PITCH_GetScale(pitchoffset);

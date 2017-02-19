@@ -73,13 +73,6 @@
 #define EDUKE32_UNREACHABLE_SECTION(...) __VA_ARGS__
 #endif
 
-#ifndef min
-#define min(x,y) ((x) < (y) ? (x) : (y))
-#endif
-#ifndef max
-#define max(x,y) ((x) > (y) ? (x) : (y))
-#endif
-
 #if defined __FreeBSD__ || defined __NetBSD__ || defined __OpenBSD__ || defined __bsdi__ || defined __DragonFly__
 # define EDUKE32_BSD
 #endif

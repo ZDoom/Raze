@@ -106,7 +106,7 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
 
     wavefmt_t fmt = FMT_UNKNOWN;
 
-    switch (LITTLE32(*(int32_t const *)ptr))
+    switch (B_LITTLE32(*(int32_t const *)ptr))
     {
         case 'C' + ('r' << 8) + ('e' << 16) + ('a' << 24):  // Crea
             fmt = FMT_VOC;
@@ -115,7 +115,7 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
             fmt = FMT_VORBIS;
             break;
         case 'R' + ('I' << 8) + ('F' << 16) + ('F' << 24):  // RIFF
-            switch (LITTLE32(*(int32_t const *)(ptr + 8)))
+            switch (B_LITTLE32(*(int32_t const *)(ptr + 8)))
             {
                 case 'C' + ('D' << 8) + ('X' << 16) + ('A' << 24):  // CDXA
                     fmt = FMT_XA;
@@ -127,7 +127,7 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
             fmt = FMT_FLAC;
             break;
         default:
-            switch (LITTLE32(*(int32_t const *)(ptr + 8)))
+            switch (B_LITTLE32(*(int32_t const *)(ptr + 8)))
             {
                 case 'W' + ('A' << 8) + ('V' << 16) + ('E' << 24):  // WAVE
                     fmt = FMT_WAV;

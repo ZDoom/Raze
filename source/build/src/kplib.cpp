@@ -66,12 +66,6 @@ static __inline int32_t _lrotl(int32_t i, int sh) { return (i >> (-sh)) | (i << 
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif
-#if !defined(max)
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#endif
-#if !defined(min)
-#define min(a,b) (((a) < (b)) ? (a) : (b))
-#endif
 
 #if defined(__GNUC__)
 #undef _inline
