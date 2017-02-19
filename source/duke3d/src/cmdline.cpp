@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"
 #include "screens.h"
 #include "renderlayer.h"
+#include "cmdline.h"
 
 #ifdef LUNATIC
 char const * const * g_argv;

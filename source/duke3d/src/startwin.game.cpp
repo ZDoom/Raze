@@ -55,6 +55,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "game.h"
 
 #include "common_game.h"
+#include "cmdline.h"
 
 #define TAB_CONFIG 0
 // #define TAB_GAME 1
@@ -97,8 +98,6 @@ static inline int32_t getfilenames(char const *path)
 #define POPULATE_CONFIG 2
 #define POPULATE_GAME 4
 #define POPULATE_GAMEDIRS 8
-
-extern int32_t g_noSetup;
 
 #ifdef INPUT_MOUSE
 #undef INPUT_MOUSE
