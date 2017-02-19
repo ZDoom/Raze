@@ -281,8 +281,10 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
     OPTIMIZATIONS += $(DEBUGFLAG)
 endif
 
-CONLYFLAGS=-std=gnu99 -Wimplicit -Werror-implicit-function-declaration
-CXXONLYFLAGS= -fno-exceptions -fno-rtti
+CSTD:=-std=gnu99
+CONLYFLAGS=$(CSTD) -Wimplicit -Werror-implicit-function-declaration
+CXXSTD:=-std=gnu++03
+CXXONLYFLAGS=$(CXXSTD) -fno-exceptions -fno-rtti
 ASFORMAT=elf$(BITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
 LINKERFLAGS=
