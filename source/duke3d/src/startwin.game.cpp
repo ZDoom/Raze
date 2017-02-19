@@ -30,7 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifdef STARTUP_SETUP_WINDOW
 
 #include "duke3d.h"
-#include "sounds.h"
 
 #include "build.h"
 
@@ -54,8 +53,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define TAB_CONFIG 0
 // #define TAB_GAME 1
 #define TAB_MESSAGES 1
-
-static struct audioenumdrv *wavedevs = NULL;
 
 static struct
 {
@@ -187,37 +184,6 @@ static void PopulateForm(int32_t pgs)
 
     if (pgs & POPULATE_CONFIG)
     {
-#if 0
-        struct audioenumdev *d;
-        char *n;
-
-        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCSOUNDDRV);
-        (void)ComboBox_ResetContent(hwnd);
-        if (wavedevs)
-        {
-            d = wavedevs->devs;
-            for (i=0; wavedevs->drvs[i]; i++)
-            {
-                strcpy(buf, wavedevs->drvs[i]);
-                if (d->devs)
-                {
-                    strcat(buf, ":");
-                    n = buf + strlen(buf);
-                    for (j=0; d->devs[j]; j++)
-                    {
-                        strcpy(n, d->devs[j]);
-                        (void)ComboBox_AddString(hwnd, buf);
-                    }
-                }
-                else
-                {
-                    (void)ComboBox_AddString(hwnd, buf);
-                }
-                d = d->next;
-            }
-        }
-#endif
-
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
         Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCAUTOLOAD), (!(settings.flags & 4) ? BST_CHECKED : BST_UNCHECKED));
 
@@ -723,9 +689,6 @@ int32_t startwin_run(void)
 
     done = -1;
 
-#ifdef JFAUD
-    EnumAudioDevs(&wavedevs, NULL, NULL);
-#endif
     SetPage(TAB_CONFIG);
     EnableConfig(1);
 
@@ -784,19 +747,6 @@ int32_t startwin_run(void)
         if (g_noSetup == 0 && settings.gamedir != NULL)
             Bstrcpy(g_modDir,settings.gamedir);
         else Bsprintf(g_modDir,"/");
-    }
-
-    if (wavedevs)
-    {
-        struct audioenumdev *d, *e;
-        Bfree(wavedevs->drvs);
-        for (e=wavedevs->devs; e; e=d)
-        {
-            d = e->next;
-            Bfree(e->devs);
-            Bfree(e);
-        }
-        Bfree(wavedevs);
     }
 
     return done;
