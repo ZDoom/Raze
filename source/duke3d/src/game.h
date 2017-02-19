@@ -25,24 +25,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef game_h_
 #define game_h_
 
+#ifndef ONLY_USERDEFS
 #include "premap.h" // XXX
+#endif
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#ifndef ONLY_USERDEFS
 
 // Compile game-side legacy Room over Room code?
 #define LEGACY_ROR 1
 
 #define USERQUOTE_LEFTOFFSET    5
 #define USERQUOTE_RIGHTOFFSET   14
-
-#define MAXRIDECULE 10
-#define MAXRIDECULELENGTH 40
-#define MAXSAVEGAMES 10
-#define MAXSAVEGAMENAME 22
-#define MAXPWLOCKOUT 128
-#define MAXRTSNAME 128
 
 #if defined(GEKKO) || defined(__OPENDINGUX__)
 # define VIEWSCREENFACTOR 0
@@ -127,6 +124,15 @@ extern camera_t g_camera;
 # define CAMERADIST g_cameraDistance
 # define CAMERACLOCK g_cameraClock
 #endif
+
+#endif
+
+#define MAXRIDECULE 10
+#define MAXRIDECULELENGTH 40
+#define MAXSAVEGAMES 10
+#define MAXSAVEGAMENAME 22
+#define MAXPWLOCKOUT 128
+#define MAXRTSNAME 128
 
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
@@ -234,6 +240,9 @@ typedef struct {
     char wchoice[MAX_WEAPONS];
 } user_defs;
 
+extern user_defs ud;
+
+#ifndef ONLY_USERDEFS
 
 // this is checked against http://eduke32.com/VERSION
 extern const char *s_buildDate;
@@ -285,8 +294,6 @@ extern palette_t CrosshairColors;
 extern palette_t DefaultCrosshairColors;
 
 extern uint32_t g_frameDelay;
-
-extern user_defs ud;
 
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,
@@ -520,9 +527,13 @@ EXTERN_INLINE_HEADER void G_SetStatusBarScale(int32_t sc);
 
 EXTERN_INLINE_HEADER void SetIfGreater(int32_t *variable, int32_t potentialValue);
 
+#endif
+
 #ifdef __cplusplus
 }
 #endif
+
+#ifndef ONLY_USERDEFS
 
 #if defined game_c_ || !defined DISABLE_INLINING
 
@@ -539,6 +550,8 @@ EXTERN_INLINE void SetIfGreater(int32_t *variable, int32_t potentialValue)
     if (potentialValue > *variable)
         *variable = potentialValue;
 }
+
+#endif
 
 #endif
 

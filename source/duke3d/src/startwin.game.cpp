@@ -29,9 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifdef STARTUP_SETUP_WINDOW
 
-#include "duke3d.h"
-
 #include "build.h"
+#include "cache1d.h"
 
 #include "grpscan.h"
 
@@ -46,8 +45,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "startwin.game.h"
 
+// for ud
+#include "keyboard.h"
+#include "control.h"
+#include "_control.h"
+#include "function.h"
+#include "inv.h"
+#define ONLY_USERDEFS
 #include "game.h"
-#include "common.h"
+
 #include "common_game.h"
 
 #define TAB_CONFIG 0
