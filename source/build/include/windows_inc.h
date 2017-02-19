@@ -13,6 +13,10 @@
 # define WIN32_LEAN_AND_MEAN
 #endif
 
+#ifndef NOMINMAX
+# define NOMINMAX
+#endif
+
 #ifdef NEED_WINSOCK2_H
 # include <winsock2.h>
 # undef NEED_WINSOCK2_H
