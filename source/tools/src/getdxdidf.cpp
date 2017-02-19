@@ -1,13 +1,10 @@
 // compile with:
 // gcc -o getdxdidf.exe src\getdxdidf.c -Ic:\mingw32\dx6\include -Lc:\mingw32\dx6\lib -ldxguid -ldinput -mwindows
 
-#define WIN32_LEAN_AND_MEAN
-#define INITGUID
-#define DIRECTINPUT_VERSION 0x0700
-#include <windows.h>
-#include "dx/dinput.h"
-#include <stdio.h>
 #include "compat.h"
+
+#define NEED_DINPUT_H
+#include "windows_inc.h"
 
 char const * WhatGUID(const GUID *guid)
 {

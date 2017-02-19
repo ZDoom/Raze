@@ -29,10 +29,6 @@
 # endif
 # include "hightile.h"
 # include "polymost.h"
-# ifdef _WIN32
-#  define WIN32_LEAN_AND_MEAN
-#  include <windows.h>
-# endif
 #endif
 
 #include <math.h>  // pow

@@ -63,11 +63,6 @@ static __inline int32_t _lrotl(int32_t i, int sh) { return (i >> (-sh)) | (i << 
 #endif
 #endif
 
-#if defined(_WIN32)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-
 #ifndef O_BINARY
 #define O_BINARY 0
 #endif

@@ -1,4 +1,10 @@
 #include "compat.h"
+
+#ifdef _WIN32
+# define NEED_PROCESS_H
+# include "windows_inc.h"
+#endif
+
 #include "mutex.h"
 
 int32_t mutex_init(mutex_t *mutex)

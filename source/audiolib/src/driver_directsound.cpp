@@ -22,13 +22,10 @@
  * DirectSound output driver for MultiVoc
  */
 
-#define WIN32_LEAN_AND_MEAN
-#define DIRECTSOUND_VERSION  0x0800
-#define CINTERFACE
+#define NEED_MMSYSTEM_H
+#define NEED_DSOUND_H
+#include "windows_inc.h"
 
-#include <windows.h>
-#include <mmsystem.h>
-#include "dx/dsound.h"
 #include <stdlib.h>
 #include <stdio.h>
 

@@ -1,6 +1,11 @@
 #ifndef SDL_INC_H_
 #define SDL_INC_H_
 
+// include this before SDL does
+#ifdef _WIN32
+# include "windows_inc.h"
+#endif
+
 // Workaround for i686-MinGW-w64.
 #if defined __MINGW64_VERSION_MAJOR && !defined __MINGW64__
 # define __MINGW64_VERSION_MAJOR_BACKUP __MINGW64_VERSION_MAJOR

@@ -4,8 +4,7 @@
 #ifndef build_interface_layer_
 #define build_interface_layer_ WIN
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "windows_inc.h"
 
 extern uint32_t maxrefreshfreq;
 

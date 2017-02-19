@@ -1,15 +1,7 @@
-#define _WIN32_WINNT  0x0500
-#include <windows.h>
-#include <assert.h>
-#include <cstring>
-#if _MSC_VER < 1300
-#define DECLSPEC_DEPRECATED
-// VC6: change this path to your Platform SDK headers
-#include "M:\\dev7\\vs\\devtools\\common\\win32sdk\\include\\dbghelp.h"			// must be XP version of file
-#else
-// VC7: ships with updated headers
-#include "dbghelp.h"
-#endif
+
+#define NEED_DBGHELP_H
+#define NEED_MMSYSTEM_H
+#include "windows_inc.h"
 
 // based on dbghelp.h
 typedef BOOL (WINAPI *MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD dwPid, HANDLE hFile, MINIDUMP_TYPE DumpType,

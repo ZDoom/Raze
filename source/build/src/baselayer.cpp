@@ -153,10 +153,7 @@ void readjoybstatus(int32_t *b)
     *b = joyb;
 }
 
-#if defined _WIN32
-# define WIN32_LEAN_AND_MEAN
-# include <windows.h>
-#elif defined __linux || defined EDUKE32_BSD || defined __APPLE__
+#if defined __linux || defined EDUKE32_BSD || defined __APPLE__
 # include <sys/mman.h>
 #endif
 

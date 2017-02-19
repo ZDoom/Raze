@@ -4,7 +4,6 @@
 #define cache1d_h_
 
 #include "compat.h"
-#include "mutex.h"
 
 #ifdef __cplusplus
 extern "C" {

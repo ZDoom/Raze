@@ -22,15 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #ifdef _WIN32
 
-#define WIN32_LEAN_AND_MEAN
 #include "compat.h"
-#include <windows.h>
-#include <stdarg.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <shellapi.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
+
+#define NEED_SHELLAPI_H
+#define NEED_WINSOCK2_H
+#define NEED_WS2TCPIP_H
+#include "windows_inc.h"
 
 #include "renderlayer.h"
 

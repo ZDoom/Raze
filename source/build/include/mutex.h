@@ -4,8 +4,7 @@
 /* Mutual exclusion mechanism wrappers for the different platforms */
 
 #ifdef RENDERTYPEWIN
-# include <windows.h>
-# include <process.h>
+# include "windows_inc.h"
 #else
 # define SDL_MAIN_HANDLED
 # include "sdl_inc.h"

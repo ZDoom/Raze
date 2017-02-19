@@ -30,7 +30,8 @@
 #include "compat.h"
 #ifdef _WIN32
 // for FILENAME_CASE_CHECK
-# include <shellapi.h>
+# define NEED_SHELLAPI_H
+# include "windows_inc.h"
 #endif
 #include "cache1d.h"
 #include "pragmas.h"

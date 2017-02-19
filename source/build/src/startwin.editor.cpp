@@ -3,6 +3,11 @@
 #endif
 
 #include "compat.h"
+
+#define NEED_WINDOWSX_H
+#define NEED_COMMCTRL_H
+#include "windows_inc.h"
+
 #include "renderlayer.h"
 
 #ifdef STARTUP_SETUP_WINDOW
@@ -10,15 +15,6 @@
 #include "build.h"
 #include "editor.h"
 #include "winlayer.h"
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <windowsx.h>
-#ifndef _WIN32_IE
-#define _WIN32_IE 0x0300
-#endif
-#include <commctrl.h>
-#include <stdio.h>
 
 #include "startwin.editor.h"
 

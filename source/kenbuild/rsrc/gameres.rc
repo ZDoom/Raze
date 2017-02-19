@@ -1,5 +1,5 @@
-#include <windows.h>
-#include <commctrl.h>
+#define NEED_COMMCTRL_H
+#include "windows_inc.h"
 #include "startwin.game.h"
 
 RSRC_ICON ICON "game_icon.ico"

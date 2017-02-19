@@ -28,6 +28,7 @@
 # define __has_extension __has_feature // Compatibility with pre-3.0 compilers.
 #endif
 
+// XXX: only to avoid warning C4005: macro redefinition in winnt.h
 #if !defined(_MSC_VER) || _MSC_FULL_VER < 180031101
 #ifdef UNREFERENCED_PARAMETER
 #undef UNREFERENCED_PARAMETER
@@ -87,9 +88,9 @@
 # include <malloc.h>
 #endif
 
-#ifdef _WIN32
-# define WIN32_LEAN_AND_MEAN
-# include <windows.h>
+// XXX: see UNREFERENCED_PARAMETER
+#if defined _MSC_VER && _MSC_FULL_VER >= 180031101
+# include "windows_inc.h"
 #endif
 
 #ifdef __APPLE__

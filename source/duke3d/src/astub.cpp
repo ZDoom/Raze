@@ -64,12 +64,6 @@ extern const char *s_buildRev;
 extern const char *s_buildTimestamp;
 extern const char *s_buildInfo;
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <shellapi.h>
-#endif
-
 #include <signal.h>
 
 // Workaround for namespace pollution in <sys/stat.h> introduced in MinGW 4.8.

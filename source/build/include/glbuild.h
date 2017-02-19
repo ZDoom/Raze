@@ -11,9 +11,9 @@
 # define USE_GLEXT
 #endif
 
+// include this before glext does
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+# include "windows_inc.h"
 #endif
 
 // Tell gl.h to not include glext.h, we'll include our own copy in a minute

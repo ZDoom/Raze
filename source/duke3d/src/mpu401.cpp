@@ -36,9 +36,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "pragmas.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <mmsystem.h>
+#define NEED_MMSYSTEM_H
+#include "windows_inc.h"
 
 static HMIDISTRM hmido = (HMIDISTRM)-1;
 static MIDIOUTCAPS midicaps;

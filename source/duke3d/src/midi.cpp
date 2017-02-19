@@ -41,8 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "compat.h"
 #include "pragmas.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#include "windows_inc.h"
 
 extern int32_t MUSIC_SoundDevice;
 

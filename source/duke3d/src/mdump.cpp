@@ -1,5 +1,12 @@
-#include <cstdio>
+
 #include "mdump.h"
+
+#include <assert.h>
+
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+
 #include <tchar.h>
 LPCSTR MiniDumper::m_szAppName;
 

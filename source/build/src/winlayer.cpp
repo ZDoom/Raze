@@ -1,55 +1,24 @@
 // Windows DIB/DirectDraw interface layer for the Build Engine
 // Originally by Jonathon Fowler (jf@jonof.id.au)
 
-#define DIRECTINPUT_VERSION 0x0700
-#define DIRECTDRAW_VERSION  0x0600
-#define _WIN32_WINNT 0x0501
-#define WIN32_LEAN_AND_MEAN
-#define CINTERFACE
-
-#include <windows.h>
 #include <math.h>
 #include <malloc.h>
 
 #include "build.h"
+
+#define NEED_DINPUT_H
+#define NEED_DDRAW_H
+#ifdef _MSC_VER
+# define NEED_CRTDBG_H
+#endif
+#include "windows_inc.h"
+
 #include "winlayer.h"
 #include "rawinput.h"
 #include "mutex.h"
 
 #include "winbits.h"
 #include "engine_priv.h"
-
-#include "dx/ddraw.h"
-#include "dx/dinput.h"
-
-#ifdef _MSC_VER
-#include <crtdbg.h>
-#endif
-
-// bug in the dx headers
-#if defined (_MSC_VER) || !defined(__cplusplus)
-#define bDIPROP_BUFFERSIZE       MAKEDIPROP(1)
-#define bDIPROP_DEADZONE         MAKEDIPROP(5)
-#define bDIPROP_SATURATION       MAKEDIPROP(6)
-#else
-#define bMAKEDIPROP(prop)        ((REFGUID)(prop))
-#define bDIPROP_BUFFERSIZE       bMAKEDIPROP(1)
-#define bDIPROP_DEADZONE         bMAKEDIPROP(5)
-#define bDIPROP_SATURATION       bMAKEDIPROP(6)
-#endif
-
-// wtf, Microsoft?
-#if defined (_MSC_VER) && defined(__cplusplus)
-# define bREFGUID                 (REFGUID)
-# define bREFIID                  (REFIID)
-#else
-# define bREFGUID                 &
-# define bREFIID                  &
-#endif
-
-#ifndef DIK_PAUSE
-# define DIK_PAUSE 0xC5
-#endif
 
 #include "dxdidf.h"	// comment this out if c_dfDI* is being reported as multiply defined
 

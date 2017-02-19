@@ -30,12 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "osd.h"
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <shellapi.h>
-#endif
-
 #define NUMKEYWORDS (int32_t)ARRAY_SIZE(keyw)
 #define NUMALTKEYWORDS (int32_t)ARRAY_SIZE(altkeyw)
 

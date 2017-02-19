@@ -23,6 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef netplay_h_
 #define netplay_h_
 
+#ifdef _WIN32
+// include this before enet does
+# define NEED_WINSOCK2_H
+# include "windows_inc.h"
+#endif
+
 #include "enet/enet.h"
 
 // net packet specification/compatibility version

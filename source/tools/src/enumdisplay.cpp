@@ -1,9 +1,8 @@
-#include <stdio.h>
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include "dx/ddraw.h"
 
 #include "compat.h"
+
+#define NEED_DDRAW_H
+#include "windows_inc.h"
 
 #define DEFAULT_OUTPUT_FILE "enumdisplay.txt"
 
