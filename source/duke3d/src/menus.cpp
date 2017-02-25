@@ -47,7 +47,7 @@ extern int32_t voting;
 
 #define USERMAPENTRYLENGTH 25
 
-FORCE_INLINE void WithSDL2_StartTextInput()
+static FORCE_INLINE void WithSDL2_StartTextInput()
 {
 #if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
 # if defined __ANDROID__
@@ -58,7 +58,7 @@ FORCE_INLINE void WithSDL2_StartTextInput()
 #endif
 }
 
-FORCE_INLINE void WithSDL2_StopTextInput()
+static FORCE_INLINE void WithSDL2_StopTextInput()
 {
 #if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
 # if defined __ANDROID__
@@ -3780,7 +3780,7 @@ static void Menu_ShadePal(const MenuFont_t *font, uint8_t status, int32_t *s, in
     *p = (status & MT_Disabled) ? font->pal_disabled : font->pal;
 }
 
-FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)
+static FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, ydim_upper, xdim-1, ydim_lower);
 }

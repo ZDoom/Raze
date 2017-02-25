@@ -134,7 +134,7 @@ intptr_t apScriptEvents[MAXGAMEEVENTS];
 
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
 #ifdef LUNATIC
-FORCE_INLINE int32_t VM_EventCommon_(int eventNum, int spriteNum, int playerNum, int playerDist, int32_t returnValue)
+static FORCE_INLINE int32_t VM_EventCommon_(int eventNum, int spriteNum, int playerNum, int playerDist, int32_t returnValue)
 {
     const double t = gethiticks();
     int32_t ret = El_CallEvent(&g_ElState, eventNum, spriteNum, playerNum, playerDist, &returnValue);
@@ -150,7 +150,7 @@ FORCE_INLINE int32_t VM_EventCommon_(int eventNum, int spriteNum, int playerNum,
     return returnValue;
 }
 #else
-FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const spriteNum, int const playerNum,
+static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const spriteNum, int const playerNum,
                                      int const playerDist, int32_t returnValue)
 {
     // this is initialized first thing because spriteNum, playerNum, lDist, etc are already right there on the stack

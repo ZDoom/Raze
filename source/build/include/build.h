@@ -171,7 +171,7 @@ extern int32_t r_tror_nomaskpass;
 // Moved below declarations of sector, wall, sprite.
 # else
 int16_t yax_getbunch(int16_t i, int16_t cf);
-FORCE_INLINE void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
+static FORCE_INLINE void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
 {
     *cb = yax_getbunch(i, YAX_CEILING);
     *fb = yax_getbunch(i, YAX_FLOOR);
@@ -186,7 +186,7 @@ int16_t yax_vnextsec(int16_t line, int16_t cf);
 void yax_update(int32_t resetstat);
 int32_t yax_getneighborsect(int32_t x, int32_t y, int32_t sectnum, int32_t cf);
 
-FORCE_INLINE int32_t yax_waltosecmask(int32_t walclipmask)
+static FORCE_INLINE int32_t yax_waltosecmask(int32_t walclipmask)
 {
     // blocking: walstat&1 --> secstat&512
     // hitscan: walstat&64 --> secstat&2048
@@ -243,9 +243,9 @@ enum {
 
 #ifdef __cplusplus
 
-FORCE_INLINE void sector_tracker_hook(uintptr_t address);
-FORCE_INLINE void wall_tracker_hook(uintptr_t address);
-FORCE_INLINE void sprite_tracker_hook(uintptr_t address);
+static FORCE_INLINE void sector_tracker_hook(uintptr_t address);
+static FORCE_INLINE void wall_tracker_hook(uintptr_t address);
+static FORCE_INLINE void sprite_tracker_hook(uintptr_t address);
 
 }
 
@@ -549,29 +549,29 @@ EXTERN uint32_t wallchanged[MAXWALLS + M32_FIXME_WALLS];
 EXTERN uint32_t spritechanged[MAXSPRITES];
 
 #ifdef NEW_MAP_FORMAT
-FORCE_INLINE int16_t yax_getbunch(int16_t i, int16_t cf)
+static FORCE_INLINE int16_t yax_getbunch(int16_t i, int16_t cf)
 {
     return cf ? sector[i].floorbunch : sector[i].ceilingbunch;
 }
 
-FORCE_INLINE void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
+static FORCE_INLINE void yax_getbunches(int16_t i, int16_t *cb, int16_t *fb)
 {
     *cb = yax_getbunch(i, YAX_CEILING);
     *fb = yax_getbunch(i, YAX_FLOOR);
 }
 
-FORCE_INLINE int16_t yax_getnextwall(int16_t wal, int16_t cf)
+static FORCE_INLINE int16_t yax_getnextwall(int16_t wal, int16_t cf)
 {
     return cf ? wall[wal].dnwall : wall[wal].upwall;
 }
 
-FORCE_INLINE void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
+static FORCE_INLINE void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenextwall)
 {
     YAX_NEXTWALL(wal, cf) = thenextwall;
 }
 #endif
 
-FORCE_INLINE void sector_tracker_hook(uintptr_t address)
+static FORCE_INLINE void sector_tracker_hook(uintptr_t address)
 {
     uintptr_t const usector = address - (uintptr_t)sector;
 
@@ -582,7 +582,7 @@ FORCE_INLINE void sector_tracker_hook(uintptr_t address)
     ++sectorchanged[usector / sizeof(sectortype)];
 }
 
-FORCE_INLINE void wall_tracker_hook(uintptr_t address)
+static FORCE_INLINE void wall_tracker_hook(uintptr_t address)
 {
     uintptr_t const uwall = address - (uintptr_t)wall;
 
@@ -593,7 +593,7 @@ FORCE_INLINE void wall_tracker_hook(uintptr_t address)
     ++wallchanged[uwall / sizeof(walltype)];
 }
 
-FORCE_INLINE void sprite_tracker_hook(uintptr_t address)
+static FORCE_INLINE void sprite_tracker_hook(uintptr_t address)
 {
     uintptr_t const usprite = address - (uintptr_t)sprite;
 
@@ -704,7 +704,7 @@ EXTERN psky_t * multipsky;
 // Mapping of multi-sky index to base sky tile number:
 EXTERN int32_t * multipskytile;
 
-FORCE_INLINE int32_t getpskyidx(int32_t picnum)
+static FORCE_INLINE int32_t getpskyidx(int32_t picnum)
 {
     int32_t j;
 
@@ -837,7 +837,7 @@ extern const char *engineerrstr;
 
 EXTERN int32_t editorzrange[2];
 
-FORCE_INLINE int32_t getrendermode(void)
+static FORCE_INLINE int32_t getrendermode(void)
 {
 #ifndef USE_OPENGL
     return REND_CLASSIC;
@@ -1042,26 +1042,26 @@ void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
 void   Buninitart(void);
 
 ////////// specialized rotatesprite wrappers for (very) often used cases //////////
-FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+static FORCE_INLINE void rotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                 int8_t dashade, char dapalnum, int32_t dastat,
                                 int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, cx1, cy1, cx2, cy2);
 }
 // Don't clip at all, i.e. the whole screen real estate is available:
-FORCE_INLINE void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+static FORCE_INLINE void rotatesprite_fs(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                    int8_t dashade, char dapalnum, int32_t dastat)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0,0,xdim-1,ydim-1);
 }
 
-FORCE_INLINE void rotatesprite_fs_alpha(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+static FORCE_INLINE void rotatesprite_fs_alpha(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                   int8_t dashade, char dapalnum, int32_t dastat, uint8_t alpha)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, alpha, 0, 0, 0, xdim-1, ydim-1);
 }
 
-FORCE_INLINE void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
+static FORCE_INLINE void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                                     int8_t dashade, char dapalnum, int32_t dastat)
 {
     rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, windowxy1.x,windowxy1.y,windowxy2.x,windowxy2.y);
@@ -1095,7 +1095,7 @@ int32_t checksectorpointer(int16_t i, int16_t sectnum);
 void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));
 
 #if !KRANDDEBUG && !defined LUNATIC
-FORCE_INLINE int32_t krand(void)
+static FORCE_INLINE int32_t krand(void)
 {
     randomseed = (randomseed * 1664525ul) + 221297ul;
     return ((uint32_t) randomseed)>>16;
@@ -1107,12 +1107,12 @@ int32_t    krand(void);
 int32_t   ksqrt(uint32_t num);
 int32_t   LUNATIC_FASTCALL getangle(int32_t xvect, int32_t yvect);
 
-FORCE_INLINE uint32_t uhypsq(int32_t dx, int32_t dy)
+static FORCE_INLINE uint32_t uhypsq(int32_t dx, int32_t dy)
 {
     return (uint32_t)dx*dx + (uint32_t)dy*dy;
 }
 
-FORCE_INLINE int32_t logapproach(int32_t val, int32_t targetval)
+static FORCE_INLINE int32_t logapproach(int32_t val, int32_t targetval)
 {
     int32_t dif = targetval - val;
     return (dif>>1) ? val + (dif>>1) : targetval;
@@ -1127,29 +1127,29 @@ int32_t   getflorzofslopeptr(const usectortype *sec, int32_t dax, int32_t day) A
 void   getzsofslopeptr(const usectortype *sec, int32_t dax, int32_t day,
                        int32_t *ceilz, int32_t *florz) ATTRIBUTE((nonnull(1,4,5)));
 
-FORCE_INLINE int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
+static FORCE_INLINE int32_t getceilzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     return getceilzofslopeptr((usectortype *)&sector[sectnum], dax, day);
 }
 
-FORCE_INLINE int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
+static FORCE_INLINE int32_t getflorzofslope(int16_t sectnum, int32_t dax, int32_t day)
 {
     return getflorzofslopeptr((usectortype *)&sector[sectnum], dax, day);
 }
 
-FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
+static FORCE_INLINE void getzsofslope(int16_t sectnum, int32_t dax, int32_t day, int32_t *ceilz, int32_t *florz)
 {
     getzsofslopeptr((usectortype *)&sector[sectnum], dax, day, ceilz, florz);
 }
 
 // Is <wal> a red wall in a safe fashion, i.e. only if consistency invariant
 // ".nextsector >= 0 iff .nextwall >= 0" holds.
-FORCE_INLINE int32_t redwallp(const uwalltype *wal)
+static FORCE_INLINE int32_t redwallp(const uwalltype *wal)
 {
     return (wal->nextwall >= 0 && wal->nextsector >= 0);
 }
 
-FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
+static FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
 {
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
@@ -1183,7 +1183,7 @@ int32_t   setsprite(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 int32_t   setspritez(int16_t spritenum, const vec3_t *) ATTRIBUTE((nonnull(2)));
 
 int32_t spriteheightofsptr(const uspritetype *spr, int32_t *height, int32_t alsotileyofs);
-FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
+static FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t alsotileyofs)
 {
     return spriteheightofsptr((uspritetype *)&sprite[i], height, alsotileyofs);
 }
@@ -1321,7 +1321,7 @@ typedef struct
 EXTERN int32_t mdinited;
 EXTERN tile2model_t tile2model[MAXTILES+EXTRATILES];
 
-FORCE_INLINE int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
+static FORCE_INLINE int32_t md_tilehasmodel(int32_t tilenume,int32_t pal)
 {
     return mdinited ? tile2model[Ptile2tile(tilenume,pal)].modelid : -1;
 }
@@ -1354,7 +1354,7 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
 # endif
 #endif
 
-FORCE_INLINE void push_nofog(void)
+static FORCE_INLINE void push_nofog(void)
 {
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
@@ -1364,7 +1364,7 @@ FORCE_INLINE void push_nofog(void)
 #endif
 }
 
-FORCE_INLINE void pop_nofog(void)
+static FORCE_INLINE void pop_nofog(void)
 {
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST && !nofog)

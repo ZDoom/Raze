@@ -157,12 +157,12 @@ const char *getjoyname(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=
 char bgetchar(void);
 #define bkbhit() (keyasciififoplc != keyasciififoend)
 
-FORCE_INLINE int keyascfifo_isfull(void)
+static FORCE_INLINE int keyascfifo_isfull(void)
 {
     return ((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc;
 }
 
-FORCE_INLINE void keyascfifo_insert(char code)
+static FORCE_INLINE void keyascfifo_insert(char code)
 {
     keyasciififo[keyasciififoend] = code;
     keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
@@ -186,7 +186,7 @@ int32_t inittimer(int32_t);
 void uninittimer(void);
 void sampletimer(void);
 #if defined RENDERTYPESDL && !defined LUNATIC
-FORCE_INLINE uint32_t getticks(void) { return (uint32_t)SDL_GetTicks(); }
+static FORCE_INLINE uint32_t getticks(void) { return (uint32_t)SDL_GetTicks(); }
 #else
 uint32_t getticks(void);
 #endif

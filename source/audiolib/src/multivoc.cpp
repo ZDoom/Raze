@@ -96,13 +96,13 @@ int32_t MV_ErrorCode = MV_NotInstalled;
 
 static int32_t lockdepth = 0;
 
-FORCE_INLINE void DisableInterrupts(void)
+static FORCE_INLINE void DisableInterrupts(void)
 {
     if (lockdepth++ <= 0)
         SoundDriver_Lock();
 }
 
-FORCE_INLINE void RestoreInterrupts(void)
+static FORCE_INLINE void RestoreInterrupts(void)
 {
     if (--lockdepth <= 0)
         SoundDriver_Unlock();

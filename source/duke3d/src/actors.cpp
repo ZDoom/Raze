@@ -97,7 +97,7 @@ void G_ClearCameraView(DukePlayer_t *ps)
 }
 
 // Manhattan distance between wall-point and sprite.
-FORCE_INLINE int32_t G_WallSpriteDist(uwalltype const * const wal, uspritetype const * const spr)
+static FORCE_INLINE int32_t G_WallSpriteDist(uwalltype const * const wal, uspritetype const * const spr)
 {
     return klabs(wal->x - spr->x) + klabs(wal->y - spr->y);
 }
@@ -995,7 +995,7 @@ ACTOR_STATIC void G_MoveZombieActors(void)
 }
 
 // stupid name, but it's what the function does.
-FORCE_INLINE int G_FindExplosionInSector(int sectnum)
+static FORCE_INLINE int G_FindExplosionInSector(int sectnum)
 {
     for (bssize_t SPRITES_OF(STAT_MISC, i))
         if (PN(i) == EXPLOSION2 && sectnum == SECT(i))
@@ -1004,7 +1004,7 @@ FORCE_INLINE int G_FindExplosionInSector(int sectnum)
     return -1;
 }
 
-FORCE_INLINE void P_Nudge(int playerNum, int spriteNum, int shiftLeft)
+static FORCE_INLINE void P_Nudge(int playerNum, int spriteNum, int shiftLeft)
 {
     g_player[playerNum].ps->vel.x += actor[spriteNum].extra * (sintable[(actor[spriteNum].ang + 512) & 2047]) << shiftLeft;
     g_player[playerNum].ps->vel.y += actor[spriteNum].extra * (sintable[actor[spriteNum].ang & 2047]) << shiftLeft;

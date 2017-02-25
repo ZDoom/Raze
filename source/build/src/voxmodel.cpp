@@ -362,7 +362,7 @@ static inline int32_t isolid(int32_t x, int32_t y, int32_t z)
     return vbit[z>>5] & (1<<SHIFTMOD32(z));
 }
 
-FORCE_INLINE int isair(int32_t i)
+static FORCE_INLINE int isair(int32_t i)
 {
     return !(vbit[i>>5] & (1<<SHIFTMOD32(i)));
 }

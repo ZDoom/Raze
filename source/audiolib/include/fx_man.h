@@ -74,7 +74,7 @@ int32_t FX_SetPrintf(void(*function)(const char *, ...));
 extern int32_t FX_ErrorCode;
 #define FX_SetErrorCode(status) FX_ErrorCode = (status);
 
-FORCE_INLINE int FX_CheckMVErr(int32_t status)
+static FORCE_INLINE int FX_CheckMVErr(int32_t status)
 {
     if (status != MV_Ok)
     {
@@ -85,34 +85,34 @@ FORCE_INLINE int FX_CheckMVErr(int32_t status)
     return status;
 }
 
-FORCE_INLINE void FX_SetCallBack(void(*function)(uint32_t)) { MV_SetCallBack(function); }
-FORCE_INLINE void FX_SetVolume(int32_t volume) { MV_SetVolume(volume); }
-FORCE_INLINE int32_t FX_GetVolume(void) { return MV_GetVolume(); }
-FORCE_INLINE void FX_SetReverseStereo(int32_t setting) { MV_SetReverseStereo(setting); }
-FORCE_INLINE int32_t FX_GetReverseStereo(void) { return MV_GetReverseStereo(); }
-FORCE_INLINE void FX_SetReverb(int32_t reverb) { MV_SetReverb(reverb); }
-FORCE_INLINE int32_t FX_GetMaxReverbDelay(void) { return MV_GetMaxReverbDelay(); }
-FORCE_INLINE int32_t FX_GetReverbDelay(void) { return MV_GetReverbDelay(); }
-FORCE_INLINE void FX_SetReverbDelay(int32_t delay) { MV_SetReverbDelay(delay); }
-FORCE_INLINE int32_t FX_VoiceAvailable(int32_t priority) { return MV_VoiceAvailable(priority); }
-FORCE_INLINE int32_t FX_PauseVoice(int32_t handle, int32_t pause) { return FX_CheckMVErr(MV_PauseVoice(handle, pause)); }
-FORCE_INLINE int32_t FX_GetPosition(int32_t handle, int32_t *position) { return FX_CheckMVErr(MV_GetPosition(handle, position)); }
-FORCE_INLINE int32_t FX_SetPosition(int32_t handle, int32_t position) { return FX_CheckMVErr(MV_SetPosition(handle, position)); }
-FORCE_INLINE int32_t FX_EndLooping(int32_t handle) { return FX_CheckMVErr(MV_EndLooping(handle)); }
-FORCE_INLINE int32_t FX_SetPan(int32_t handle, int32_t vol, int32_t left, int32_t right)
+static FORCE_INLINE void FX_SetCallBack(void(*function)(uint32_t)) { MV_SetCallBack(function); }
+static FORCE_INLINE void FX_SetVolume(int32_t volume) { MV_SetVolume(volume); }
+static FORCE_INLINE int32_t FX_GetVolume(void) { return MV_GetVolume(); }
+static FORCE_INLINE void FX_SetReverseStereo(int32_t setting) { MV_SetReverseStereo(setting); }
+static FORCE_INLINE int32_t FX_GetReverseStereo(void) { return MV_GetReverseStereo(); }
+static FORCE_INLINE void FX_SetReverb(int32_t reverb) { MV_SetReverb(reverb); }
+static FORCE_INLINE int32_t FX_GetMaxReverbDelay(void) { return MV_GetMaxReverbDelay(); }
+static FORCE_INLINE int32_t FX_GetReverbDelay(void) { return MV_GetReverbDelay(); }
+static FORCE_INLINE void FX_SetReverbDelay(int32_t delay) { MV_SetReverbDelay(delay); }
+static FORCE_INLINE int32_t FX_VoiceAvailable(int32_t priority) { return MV_VoiceAvailable(priority); }
+static FORCE_INLINE int32_t FX_PauseVoice(int32_t handle, int32_t pause) { return FX_CheckMVErr(MV_PauseVoice(handle, pause)); }
+static FORCE_INLINE int32_t FX_GetPosition(int32_t handle, int32_t *position) { return FX_CheckMVErr(MV_GetPosition(handle, position)); }
+static FORCE_INLINE int32_t FX_SetPosition(int32_t handle, int32_t position) { return FX_CheckMVErr(MV_SetPosition(handle, position)); }
+static FORCE_INLINE int32_t FX_EndLooping(int32_t handle) { return FX_CheckMVErr(MV_EndLooping(handle)); }
+static FORCE_INLINE int32_t FX_SetPan(int32_t handle, int32_t vol, int32_t left, int32_t right)
 {
     return FX_CheckMVErr(MV_SetPan(handle, vol, left, right));
 }
-FORCE_INLINE int32_t FX_SetPitch(int32_t handle, int32_t pitchoffset) { return FX_CheckMVErr(MV_SetPitch(handle, pitchoffset)); }
-FORCE_INLINE int32_t FX_SetFrequency(int32_t handle, int32_t frequency) { return FX_CheckMVErr(MV_SetFrequency(handle, frequency)); }
-FORCE_INLINE int32_t FX_Pan3D(int32_t handle, int32_t angle, int32_t distance)
+static FORCE_INLINE int32_t FX_SetPitch(int32_t handle, int32_t pitchoffset) { return FX_CheckMVErr(MV_SetPitch(handle, pitchoffset)); }
+static FORCE_INLINE int32_t FX_SetFrequency(int32_t handle, int32_t frequency) { return FX_CheckMVErr(MV_SetFrequency(handle, frequency)); }
+static FORCE_INLINE int32_t FX_Pan3D(int32_t handle, int32_t angle, int32_t distance)
 {
     return FX_CheckMVErr(MV_Pan3D(handle, angle, distance));
 }
-FORCE_INLINE int32_t FX_SoundActive(int32_t handle) { return MV_VoicePlaying(handle); }
-FORCE_INLINE int32_t FX_SoundsPlaying(void) { return MV_VoicesPlaying(); }
-FORCE_INLINE int32_t FX_StopSound(int32_t handle) { return FX_CheckMVErr(MV_Kill(handle)); }
-FORCE_INLINE int32_t FX_StopAllSounds(void) { return FX_CheckMVErr(MV_KillAllVoices()); }
+static FORCE_INLINE int32_t FX_SoundActive(int32_t handle) { return MV_VoicePlaying(handle); }
+static FORCE_INLINE int32_t FX_SoundsPlaying(void) { return MV_VoicesPlaying(); }
+static FORCE_INLINE int32_t FX_StopSound(int32_t handle) { return FX_CheckMVErr(MV_Kill(handle)); }
+static FORCE_INLINE int32_t FX_StopAllSounds(void) { return FX_CheckMVErr(MV_KillAllVoices()); }
 
 #ifdef __cplusplus
 }

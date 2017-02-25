@@ -71,7 +71,7 @@ int32_t VM_OnEventWithReturn_(int nEventID, int spriteNum, int playerNum, int32_
 int32_t VM_OnEventWithDist_(int nEventID, int spriteNum, int playerNum, int nDist);
 int32_t VM_OnEvent_(int nEventID, int spriteNum, int playerNum);
 
-FORCE_INLINE int VM_HaveEvent(int nEventID)
+static FORCE_INLINE int VM_HaveEvent(int nEventID)
 {
 #ifdef LUNATIC
     return L_IsInitialized(&g_ElState) && El_HaveEvent(nEventID);
@@ -80,22 +80,22 @@ FORCE_INLINE int VM_HaveEvent(int nEventID)
 #endif
 }
 
-FORCE_INLINE int32_t VM_OnEventWithBoth(int nEventID, int spriteNum, int playerNum, int nDist, int32_t nReturn)
+static FORCE_INLINE int32_t VM_OnEventWithBoth(int nEventID, int spriteNum, int playerNum, int nDist, int32_t nReturn)
 {
     return VM_HaveEvent(nEventID) ? VM_OnEventWithBoth_(nEventID, spriteNum, playerNum, nDist, nReturn) : nReturn;
 }
 
-FORCE_INLINE int32_t VM_OnEventWithReturn(int nEventID, int spriteNum, int playerNum, int nReturn)
+static FORCE_INLINE int32_t VM_OnEventWithReturn(int nEventID, int spriteNum, int playerNum, int nReturn)
 {
     return VM_HaveEvent(nEventID) ? VM_OnEventWithReturn_(nEventID, spriteNum, playerNum, nReturn) : nReturn;
 }
 
-FORCE_INLINE int32_t VM_OnEventWithDist(int nEventID, int spriteNum, int playerNum, int nDist)
+static FORCE_INLINE int32_t VM_OnEventWithDist(int nEventID, int spriteNum, int playerNum, int nDist)
 {
     return VM_HaveEvent(nEventID) ? VM_OnEventWithDist_(nEventID, spriteNum, playerNum, nDist) : 0;
 }
 
-FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNum)
+static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNum)
 {
     return VM_HaveEvent(nEventID) ? VM_OnEvent_(nEventID, spriteNum, playerNum) : 0;
 }

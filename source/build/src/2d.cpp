@@ -401,7 +401,7 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
     return 1;
 }
 
-FORCE_INLINE void drawline16mid(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
+static FORCE_INLINE void drawline16mid(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 {
     drawline16(halfxdim16+x1, midydim16+y1, halfxdim16+x2, midydim16+y2, col);
 }

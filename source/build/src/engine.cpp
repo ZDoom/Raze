@@ -327,7 +327,7 @@ uint8_t yax_gotsector[MAXSECTORS>>3];  // engine internal
 int16_t yax_bunchnum[MAXSECTORS][2];
 int16_t yax_nextwall[MAXWALLS][2];
 
-FORCE_INLINE int32_t yax_islockededge(int32_t line, int32_t cf)
+static FORCE_INLINE int32_t yax_islockededge(int32_t line, int32_t cf)
 {
     return !!(wall[line].cstat&(YAX_NEXTWALLBIT(cf)));
 }
@@ -348,7 +348,7 @@ int16_t yax_getbunch(int16_t i, int16_t cf)
 #  define YAX_BUNCHNUM(Sect, Cf) YAX_PTRBUNCHNUM(sector, Sect, Cf)
 
 #  if !defined NEW_MAP_FORMAT
-FORCE_INLINE int32_t yax_islockededge(int32_t line, int32_t cf)
+static FORCE_INLINE int32_t yax_islockededge(int32_t line, int32_t cf)
 {
     return (yax_getnextwall(line, cf) >= 0);
 }
@@ -2353,17 +2353,17 @@ static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
 typedef int64_t zint_t;
 
 // For drawvox()
-FORCE_INLINE zint_t mulscale16z(int32_t a, int32_t d)
+static FORCE_INLINE zint_t mulscale16z(int32_t a, int32_t d)
 {
     return ((zint_t)a * d)>>16;
 }
 
-FORCE_INLINE zint_t mulscale20z(int32_t a, int32_t d)
+static FORCE_INLINE zint_t mulscale20z(int32_t a, int32_t d)
 {
     return ((zint_t)a * d)>>20;
 }
 
-FORCE_INLINE zint_t dmulscale24z(int32_t a, int32_t d, int32_t S, int32_t D)
+static FORCE_INLINE zint_t dmulscale24z(int32_t a, int32_t d, int32_t S, int32_t D)
 {
     return (((zint_t)a * d) + ((zint_t)S * D)) >> 24;
 }
@@ -4740,7 +4740,7 @@ static size_t falpha_to_blend(float alpha, int32_t *cstatptr, uint8_t *blendptr,
     return 0;
 }
 
-FORCE_INLINE int32_t mulscale_triple30(int32_t a, int32_t b, int32_t c)
+static FORCE_INLINE int32_t mulscale_triple30(int32_t a, int32_t b, int32_t c)
 {
     return ((int64_t)a * b * c)>>30;
 }
@@ -8934,7 +8934,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
 //////////////////// LOADING AND SAVING ROUTINES ////////////////////
 
-FORCE_INLINE int32_t have_maptext(void)
+static FORCE_INLINE int32_t have_maptext(void)
 {
     return (mapversion >= 10);
 }

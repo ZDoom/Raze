@@ -270,7 +270,7 @@ int32_t animateoffs(int const tilenum);
     } while (0)
 #endif
 
-FORCE_INLINE int32_t bad_tspr(const uspritetype *tspr)
+static FORCE_INLINE int32_t bad_tspr(const uspritetype *tspr)
 {
     // NOTE: tspr->owner >= MAXSPRITES (could be model) has to be handled by
     // caller.
@@ -280,12 +280,12 @@ FORCE_INLINE int32_t bad_tspr(const uspritetype *tspr)
 //
 // getpalookup (internal)
 //
-FORCE_INLINE int32_t getpalookup(int32_t davis, int32_t dashade)
+static FORCE_INLINE int32_t getpalookup(int32_t davis, int32_t dashade)
 {
     return min(max(dashade + (davis >> 8), 0), numshades - 1);
 }
 
-FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(davis, globalshade) << 8; }
+static FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(davis, globalshade) << 8; }
 
 void dorotspr_handle_bit2(int32_t *sx, int32_t *sy, int32_t *z, int32_t dastat,
                           int32_t cx1_plus_cx2, int32_t cy1_plus_cy2,
@@ -303,7 +303,7 @@ extern int32_t yax_globalcf, yax_nomaskpass, yax_nomaskdidit;
 extern uint8_t haveymost[YAX_MAXBUNCHES>>3];
 extern uint8_t yax_gotsector[MAXSECTORS>>3];
 
-FORCE_INLINE int32_t yax_isislandwall(int32_t line, int32_t cf) { return (yax_vnextsec(line, cf) >= 0); }
+static FORCE_INLINE int32_t yax_isislandwall(int32_t line, int32_t cf) { return (yax_vnextsec(line, cf) >= 0); }
 #endif
 
 #ifdef YAX_DEBUG
@@ -362,7 +362,7 @@ skipit:
 
 #else	// __GNUC__ && __i386__
 
-FORCE_INLINE void setgotpic(int32_t tilenume)
+static FORCE_INLINE void setgotpic(int32_t tilenume)
 {
 	if (walock[tilenume] < 200) walock[tilenume] = 199;
 	gotpic[tilenume>>3] |= pow2char[tilenume&7];
@@ -372,7 +372,7 @@ FORCE_INLINE void setgotpic(int32_t tilenume)
 
 // Get properties of parallaxed sky to draw.
 // Returns: pointer to tile offset array. Sets-by-pointer the other three.
-FORCE_INLINE const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t *dapskybits, int32_t *dapyoffs)
+static FORCE_INLINE const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t *dapskybits, int32_t *dapyoffs)
 {
     psky_t const * const psky = &multipsky[getpskyidx(picnum)];
 
@@ -386,7 +386,7 @@ FORCE_INLINE const int8_t *getpsky(int32_t picnum, int32_t *dapyscale, int32_t *
     return psky->tileofs;
 }
 
-FORCE_INLINE void set_globalpos(int32_t const x, int32_t const y, int32_t const z)
+static FORCE_INLINE void set_globalpos(int32_t const x, int32_t const y, int32_t const z)
 {
     globalposx  = x, fglobalposx = (float)x;
     globalposy  = y, fglobalposy = (float)y;

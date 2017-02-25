@@ -85,7 +85,7 @@ skip:
     return libdivide_s32_do(n, dptr);
 }
 #else
-FORCE_INLINE uint32_t divideu32(uint32_t n, uint32_t d) { return n / d; }
+static FORCE_INLINE uint32_t divideu32(uint32_t n, uint32_t d) { return n / d; }
 
 static inline int32_t tabledivide64(int64_t n, int32_t d)
 {
@@ -113,7 +113,7 @@ static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx)
 #endif
 
 #define EDUKE32_SCALER_PRAGMA(a)                                                                                       \
-    FORCE_INLINE int32_t divscale##a(int32_t eax, int32_t ebx) { return divscale(eax, ebx, a); }
+    static FORCE_INLINE int32_t divscale##a(int32_t eax, int32_t ebx) { return divscale(eax, ebx, a); }
 EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 #undef EDUKE32_SCALER_PRAGMA
 
@@ -123,14 +123,14 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
     return dw(tabledivide64(numer, ecx));
 }
 
-FORCE_INLINE void swapptr(void *a, void *b)
+static FORCE_INLINE void swapptr(void *a, void *b)
 {
     intptr_t const t = *(intptr_t*) a;
     *(intptr_t*) a = *(intptr_t*) b;
     *(intptr_t*) b = t;
 }
 
-FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
+static FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
 
 #if defined(__GNUC__) && defined(GEKKO)
 
@@ -161,12 +161,12 @@ FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
 #ifndef pragmas_have_mulscale
 
 #define EDUKE32_SCALER_PRAGMA(a)                                                                                       \
-    FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }                \
-    FORCE_INLINE int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                              \
+    static FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }                \
+    static FORCE_INLINE int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                              \
     {                                                                                                                  \
         return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(a));                                                       \
     }                                                                                                                  \
-    FORCE_INLINE int32_t tmulscale##a(int32_t eax, int32_t edx, int32_t ebx, int32_t ecx, int32_t esi, int32_t edi)    \
+    static FORCE_INLINE int32_t tmulscale##a(int32_t eax, int32_t edx, int32_t ebx, int32_t ecx, int32_t esi, int32_t edi)    \
     {                                                                                                                  \
         return dw(((qw(eax) * edx) + (qw(ebx) * ecx) + (qw(esi) * edi)) >> by(a));                         \
     }                                                                                                                  \
@@ -178,42 +178,42 @@ EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 #endif
 
 #ifndef pragmas_have_swaps
-FORCE_INLINE void swapchar(void *a, void *b)
+static FORCE_INLINE void swapchar(void *a, void *b)
 {
     char const t = *(char *)b;
     *(char *)b = *(char *)a;
     *(char *)a = t;
 }
-FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
+static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
 {
     swapchar(a, b);
     swapchar((char *)a + 1, (char *)b + s);
 }
-FORCE_INLINE void swapshort(void *a, void *b)
+static FORCE_INLINE void swapshort(void *a, void *b)
 {
     int16_t const t = *(int16_t *)b;
     *(int16_t *)b = *(int16_t *)a;
     *(int16_t *)a = t;
 }
-FORCE_INLINE void swaplong(void *a, void *b)
+static FORCE_INLINE void swaplong(void *a, void *b)
 {
     int32_t const t = *(int32_t *)b;
     *(int32_t *)b = *(int32_t *)a;
     *(int32_t *)a = t;
 }
-FORCE_INLINE void swapfloat(void *a, void *b)
+static FORCE_INLINE void swapfloat(void *a, void *b)
 {
     float const t = *(float *)b;
     *(float *)b = *(float *)a;
     *(float *)a = t;
 }
-FORCE_INLINE void swapdouble(void *a, void *b)
+static FORCE_INLINE void swapdouble(void *a, void *b)
 {
     double const t = *(double *)b;
     *(double *)b = *(double *)a;
     *(double *)a = t;
 }
-FORCE_INLINE void swap64bit(void *a, void *b)
+static FORCE_INLINE void swap64bit(void *a, void *b)
 {
     uint64_t const t = *(uint64_t *)b;
     *(uint64_t *)b = *(uint64_t *)a;
@@ -221,23 +221,23 @@ FORCE_INLINE void swap64bit(void *a, void *b)
 }
 #endif
 
-FORCE_INLINE char readpixel(void *s) { return *(char *)s; }
-FORCE_INLINE void drawpixel(void *s, char a) { *(char *)s = a; }
+static FORCE_INLINE char readpixel(void *s) { return *(char *)s; }
+static FORCE_INLINE void drawpixel(void *s, char a) { *(char *)s = a; }
 
 #ifndef pragmas_have_klabs
-FORCE_INLINE int32_t klabs(int32_t a)
+static FORCE_INLINE int32_t klabs(int32_t a)
 {
     const uint32_t m = a >> (sizeof(uint32_t) * CHAR_BIT - 1);
     return (a ^ m) - m;
 }
 #endif
 #ifndef pragmas_have_ksgn
-FORCE_INLINE int32_t ksgn(int32_t a) { return (a > 0) - (a < 0); }
+static FORCE_INLINE int32_t ksgn(int32_t a) { return (a > 0) - (a < 0); }
 #endif
 
 #ifndef pragmas_have_mulscale
-FORCE_INLINE int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
-FORCE_INLINE int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx)
+static FORCE_INLINE int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
+static FORCE_INLINE int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx)
 {
     return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(ecx));
 }

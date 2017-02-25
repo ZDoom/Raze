@@ -111,7 +111,7 @@ int Gv_GetVarByLabel(const char *szGameLabel,int const lDefault,int const sprite
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 
-FORCE_INLINE void A_ResetVars(int const spriteNum)
+static FORCE_INLINE void A_ResetVars(int const spriteNum)
 {
     for (bssize_t i = 0; i < g_gameVarCount; ++i)
     {
@@ -138,7 +138,7 @@ void Gv_FinalizeWeaponDefaults(void);
 
 #if !defined LUNATIC
 #define VM_GAMEVAR_OPERATOR(func, operator)                                                                                 \
-    FORCE_INLINE void __fastcall func(int const id, int32_t const operand)                                                  \
+    static FORCE_INLINE void __fastcall func(int const id, int32_t const operand)                                                  \
     {                                                                                                                       \
         switch (aGameVars[id].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK))                                               \
         {                                                                                                                   \
@@ -160,7 +160,7 @@ void Gv_FinalizeWeaponDefaults(void);
     }
 
 #if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
-FORCE_INLINE void __fastcall Gv_DivVar(int const id, int32_t const operand)
+static FORCE_INLINE void __fastcall Gv_DivVar(int const id, int32_t const operand)
 {
     if (EDUKE32_PREDICT_FALSE((aGameVars[id].flags & GAMEVAR_PERPLAYER && (unsigned) vm.playerNum > MAXPLAYERS - 1) ||
         (aGameVars[id].flags & GAMEVAR_PERACTOR && (unsigned) vm.spriteNum > MAXSPRITES - 1)))
