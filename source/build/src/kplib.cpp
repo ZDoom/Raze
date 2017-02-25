@@ -36,11 +36,8 @@ credits.
 
 #if !defined(_WIN32)
 #include <dirent.h>
-# if !defined __INTEL_COMPILER
-typedef long long  __int64;
-# endif
-static __inline int32_t _lrotl(int32_t i, int sh) { return (i >> (-sh)) | (i << sh); }
-/*__inline*/ int32_t filelength(int h)
+static inline int32_t _lrotl(int32_t i, int sh) { return (i >> (-sh)) | (i << sh); }
+/*inline*/ int32_t filelength(int h)
 {
     struct stat st;
     if (fstat(h,&st) < 0) return -1;
@@ -54,15 +51,6 @@ static __inline int32_t _lrotl(int32_t i, int sh) { return (i >> (-sh)) | (i << 
 #else
 #include <intrin.h>
 #endif
-#endif
-
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
-
-#if defined(__GNUC__)
-#undef _inline
-#define _inline inline
 #endif
 
 //use GCC-specific extension to force symbol name to be something in particular to override underscoring.
@@ -160,7 +148,7 @@ static uint8_t qhufbit0[1<<LOGQHUFSIZ0], qhufbit1[1<<LOGQHUFSIZ1];
 
 #if defined(_MSC_VER) && !defined(NOASM)
 
-static _inline int32_t bitrev(int32_t b, int32_t c)
+static inline int32_t bitrev(int32_t b, int32_t c)
 {
     _asm
     {
@@ -233,9 +221,9 @@ static void suckbitsnextblock()
     filptr = &fakebuf[4]; bitpos -= 32;
 }
 
-static _inline int32_t peekbits(int32_t n) { return (B_LITTLE32(B_UNBUF32(&filptr[bitpos>>3]))>>(bitpos&7))&pow2mask[n]; }
-static _inline void suckbits(int32_t n) { bitpos += n; if (bitpos < 0) return; suckbitsnextblock(); }
-static _inline int32_t getbits(int32_t n) { int32_t i = peekbits(n); suckbits(n); return i; }
+static inline int32_t peekbits(int32_t n) { return (B_LITTLE32(B_UNBUF32(&filptr[bitpos>>3]))>>(bitpos&7))&pow2mask[n]; }
+static inline void suckbits(int32_t n) { bitpos += n; if (bitpos < 0) return; suckbitsnextblock(); }
+static inline int32_t getbits(int32_t n) { int32_t i = peekbits(n); suckbits(n); return i; }
 
 static int32_t hufgetsym(int32_t *hitab, int32_t *hbmax)
 {
@@ -402,7 +390,7 @@ static int32_t initpass()  //Interlaced images have 7 "passes", non-interlaced h
 
 #if defined(_MSC_VER) && !defined(NOASM)
 
-static _inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
+static inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
 {
     _asm
     {
@@ -429,7 +417,7 @@ static _inline int32_t Paeth686(int32_t a, int32_t b, int32_t c)
     }
 }
 
-static _inline void rgbhlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
+static inline void rgbhlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
 {
     _asm
     {
@@ -470,7 +458,7 @@ static _inline void rgbhlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
     }
 }
 
-static _inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
+static inline void pal8hlineasm(int32_t c, int32_t d, int32_t t, int32_t b)
 {
     _asm
     {
@@ -1001,7 +989,7 @@ static int32_t colclip[1024], colclipup8[1024], colclipup16[1024];
 
 #if defined(_MSC_VER) && !defined(NOASM)
 
-static _inline int32_t mulshr24(int32_t a, int32_t d)
+static inline int32_t mulshr24(int32_t a, int32_t d)
 {
     _asm
     {
@@ -1011,7 +999,7 @@ static _inline int32_t mulshr24(int32_t a, int32_t d)
     }
 }
 
-static _inline int32_t mulshr32(int32_t a, int32_t d)
+static inline int32_t mulshr32(int32_t a, int32_t d)
 {
     _asm
     {
@@ -1039,12 +1027,12 @@ static _inline int32_t mulshr32(int32_t a, int32_t d)
 
 static inline int32_t mulshr24(int32_t a, int32_t b)
 {
-    return (int32_t)((((__int64)a)*((__int64)b))>>24);
+    return (int32_t)((((int64_t)a)*((int64_t)b))>>24);
 }
 
 static inline int32_t mulshr32(int32_t a, int32_t b)
 {
-    return (int32_t)((((__int64)a)*((__int64)b))>>32);
+    return (int32_t)((((int64_t)a)*((int64_t)b))>>32);
 }
 
 #endif

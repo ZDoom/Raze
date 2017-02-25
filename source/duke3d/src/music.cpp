@@ -25,11 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "midi.h"
 #include "mpu401.h"
 
-#ifndef TRUE
-#define TRUE (1 == 1)
-#define FALSE (!TRUE)
-#endif
-
 int32_t MUSIC_SoundDevice = -1;
 int32_t MUSIC_ErrorCode = MUSIC_Ok;
 

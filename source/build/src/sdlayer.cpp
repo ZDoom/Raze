@@ -4,10 +4,6 @@
 //
 // Use SDL 1.2 or 2.0 from http://www.libsdl.org
 
-#define __STDC_FORMAT_MACROS
-#ifndef __STDC_LIMIT_MACROS
-#define __STDC_LIMIT_MACROS
-#endif
 #include "compat.h"
 #include <signal.h>
 #include "sdl_inc.h"

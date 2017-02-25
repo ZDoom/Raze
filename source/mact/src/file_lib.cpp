@@ -37,16 +37,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cache1d.h"
 #include "baselayer.h"
 
-#ifndef O_BINARY
-#define  O_BINARY 0
-#endif
-#ifndef O_TEXT
-#define  O_TEXT   0
-#endif
-#ifndef F_OK
-#define F_OK 0
-#endif
-
 #define MaxFiles 20
 static char *FileNames[MaxFiles];
 

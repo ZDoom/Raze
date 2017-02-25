@@ -81,21 +81,21 @@ static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
             for (size_t t = 0; t < loopStartTagCount && vc_loopstart == NULL; ++t)
             {
                 char const * const tag = loopStartTags[t];
-                if (field == strlen(tag) && strncasecmp(entry, tag, field) == 0)
+                if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                     vc_loopstart = value;
             }
 
             for (size_t t = 0; t < loopEndTagCount && vc_loopend == NULL; ++t)
             {
                 char const * const tag = loopEndTags[t];
-                if (field == strlen(tag) && strncasecmp(entry, tag, field) == 0)
+                if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                     vc_loopend = value;
             }
 
             for (size_t t = 0; t < loopLengthTagCount && vc_looplength == NULL; ++t)
             {
                 char const * const tag = loopLengthTags[t];
-                if (field == strlen(tag) && strncasecmp(entry, tag, field) == 0)
+                if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
                     vc_looplength = value;
             }
         }

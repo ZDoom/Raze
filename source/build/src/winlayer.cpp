@@ -21,11 +21,6 @@
 
 #include "dxdidf.h"	// comment this out if c_dfDI* is being reported as multiply defined
 
-#define __STDC_FORMAT_MACROS
-#ifndef __STDC_LIMIT_MACROS
-#define __STDC_LIMIT_MACROS
-#endif
-
 #include <signal.h>
 
 // undefine to restrict windowed resolutions to conventional sizes
