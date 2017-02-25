@@ -20,12 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include <stdio.h>
-#include <stdlib.h>
+#include "compat.h"
 #include "music.h"
 #include "midi.h"
 #include "mpu401.h"
-#include "compat.h"
 
 #ifndef TRUE
 #define TRUE (1 == 1)

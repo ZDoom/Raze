@@ -33,9 +33,6 @@ int32_t rendmode=0;
 int32_t usemodels=1;
 int32_t usehightile=1;
 
-#include <math.h> //<-important!
-#include <float.h>
-
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 4096 //<- careful!
 static vsptyp vsp[VSPMAX];

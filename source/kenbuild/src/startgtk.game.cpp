@@ -3,12 +3,7 @@
  * template.
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "compat.h"
 
 #include "gtkpixdata.h"
 #include <gdk-pixbuf/gdk-pixdata.h>

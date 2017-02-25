@@ -39,9 +39,7 @@
     NOTE: This program does not fall under BUILDLIC.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
+#include "compat.h"
 
 int main(int argc, char **argv)
 {

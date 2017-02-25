@@ -24,13 +24,7 @@
  * Raw, WAV, and VOC source support for MultiVoc
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#ifndef _MSC_VER
-#include <unistd.h>
-#endif
-#include <errno.h>
+#include "compat.h"
 #include "pitch.h"
 #include "multivoc.h"
 #include "_multivc.h"

@@ -26,8 +26,7 @@
 #define NEED_DSOUND_H
 #include "windows_inc.h"
 
-#include <stdlib.h>
-#include <stdio.h>
+#include "compat.h"
 
 #include "driver_directsound.h"
 #include "multivoc.h"

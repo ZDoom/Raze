@@ -22,9 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Stripped sounds.c for use in Mapster32, breaks all ties to game & music
 
-#include <stdio.h>
-#include <string.h>
-
 #include "compat.h"
 #include "baselayer.h"
 

@@ -9,8 +9,6 @@
 extern "C" {
 #endif
 
-#include <limits.h>
-
 #define EDUKE32_GENERATE_PRAGMAS                                                                                       \
     EDUKE32_SCALER_PRAGMA(1) EDUKE32_SCALER_PRAGMA(2) EDUKE32_SCALER_PRAGMA(3) EDUKE32_SCALER_PRAGMA(4)                \
     EDUKE32_SCALER_PRAGMA(5) EDUKE32_SCALER_PRAGMA(6) EDUKE32_SCALER_PRAGMA(7) EDUKE32_SCALER_PRAGMA(8)                \
@@ -105,7 +103,6 @@ extern int32_t tabledivide32_noinline(int32_t n, int32_t d);
 extern int32_t tabledivide64_noinline(int64_t n, int32_t d);
 
 #ifdef GEKKO
-#include <math.h>
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx) { return tabledivide64(ldexp(eax, ecx), ebx); }
 #else
 static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx)

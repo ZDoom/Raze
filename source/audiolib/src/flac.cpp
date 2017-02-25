@@ -22,6 +22,8 @@
  * FLAC source support for MultiVoc
  */
 
+#include "compat.h"
+
 #ifdef HAVE_FLAC
 
 #define FLAC__NO_DLL
@@ -32,13 +34,6 @@
 #include "FLAC/all.h"
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#ifndef _MSC_VER
-#include <unistd.h>
-#endif
-#include <errno.h>
 #include "pitch.h"
 #include "multivoc.h"
 #include "_multivc.h"
@@ -669,8 +664,6 @@ void MV_ReleaseFLACVoice(VoiceNode *voice)
     voice->rawdataptr = 0;
 }
 #else
-#include <stdlib.h>
-#include <stdio.h>
 #include "_multivc.h"
 
 int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,

@@ -1,9 +1,6 @@
 #include "compat.h"
 #include "glbuild.h"
 #include "baselayer.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 
 #if defined USE_OPENGL
 

@@ -4,11 +4,7 @@
  * Adapted and remixed from superxa2wav
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <stdint.h>
+#include "compat.h"
 #include "pitch.h"
 #include "multivoc.h"
 #include "_multivc.h"

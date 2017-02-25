@@ -31,8 +31,6 @@
 # include "polymost.h"
 #endif
 
-#include <math.h>  // pow
-
 #include "engine_priv.h"
 #include "palette.h"
 

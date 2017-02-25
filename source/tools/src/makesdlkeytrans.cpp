@@ -1,7 +1,6 @@
 // gcc b.c -Lc:/mingw32/lib -lmingw32 -lSDLmain -lSDL
 
-#include <stdio.h>
-#include <string.h>
+#include "compat.h"
 #include "sdl_inc.h"
 
 #include "sdlkeytrans.cpp"

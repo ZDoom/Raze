@@ -16,8 +16,6 @@
 #include "kplib.h"
 #include "palette.h"
 
-#include <math.h>
-
 
 //For loading/conversion only
 static vec3_t voxsiz;

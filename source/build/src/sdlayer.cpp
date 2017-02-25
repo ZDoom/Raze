@@ -8,11 +8,9 @@
 #ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS
 #endif
-#include <stdlib.h>
-#include <math.h>  // pow
+#include "compat.h"
 #include <signal.h>
 #include "sdl_inc.h"
-#include "compat.h"
 #include "renderlayer.h"
 #include "cache1d.h"
 //#include "pragmas.h"

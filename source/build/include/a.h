@@ -91,7 +91,6 @@ extern void __cdecl stretchhline(int32_t,int32_t,int32_t,int32_t,int32_t,int32_t
 #else // !defined(NOASM) && (defined(_MSC_VER) || (defined(__GNUC__) && defined(__i386__)))
 
 #define ENGINE_USING_A_C
-#include <stdint.h>
 
 #define prevlineasm1 vlineasm1
 

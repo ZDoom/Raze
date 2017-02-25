@@ -19,10 +19,6 @@
 */
 // DOS 16-bit real mode UI --> portable command line conversion by Hendricks266
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
 #include "compat.h"
 
 const char APP_NAME[] = "Build Game Customization Suite v0.2-EDuke32";

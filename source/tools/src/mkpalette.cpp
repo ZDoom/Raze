@@ -1,6 +1,4 @@
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+#include "compat.h"
 
 struct hsv {
     float h, s, v;

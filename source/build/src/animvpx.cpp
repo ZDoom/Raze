@@ -10,7 +10,7 @@
 #endif
 
 
-#include <stdint.h>
+#include "compat.h"
 
 #include "compat.h"
 #include "baselayer.h"

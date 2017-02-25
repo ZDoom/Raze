@@ -1,8 +1,5 @@
 
-#if (PNG_LIBPNG_VER > 10599)
-# include <string.h>
-#endif
-
+#include "compat.h"
 #include "build.h"
 #include "editor.h"
 

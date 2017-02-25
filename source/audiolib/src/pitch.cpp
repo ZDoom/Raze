@@ -28,8 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    (c) Copyright 1993 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
-#include <stdlib.h>
-#include <math.h>
+#include "compat.h"
 #include "pitch.h"
 
 #define MAXDETUNE 50

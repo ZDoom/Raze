@@ -32,16 +32,9 @@ credits.
 #include "compat.h"
 #include "baselayer.h"
 #include "kplib.h"
-#include <string.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include "pragmas.h"
 
 #if !defined(_WIN32)
-#include <unistd.h>
 #include <dirent.h>
 # if !defined __INTEL_COMPILER
 typedef long long  __int64;

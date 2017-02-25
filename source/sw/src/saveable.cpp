@@ -23,7 +23,6 @@
 
 #include "compat.h"
 #include "saveable.h"
-#include <stdlib.h>
 
 #define maxModules 35
 

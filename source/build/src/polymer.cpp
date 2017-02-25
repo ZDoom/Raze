@@ -2,7 +2,7 @@
 
 #if defined USE_OPENGL && defined POLYMER
 
-#include <math.h>
+#include "compat.h"
 
 #define POLYMER_C
 #include "polymer.h"

@@ -1,14 +1,5 @@
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-
-#include <fcntl.h>
-#include <unistd.h>
-
-#include <stdint.h>
-#define Bmemcmp memcmp
+#include "compat.h"
 #ifndef USE_OPENGL
 # define USE_OPENGL
 #endif

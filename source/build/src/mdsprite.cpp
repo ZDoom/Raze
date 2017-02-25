@@ -17,9 +17,6 @@
 #include "common.h"
 #include "palette.h"
 
-#include <math.h>
-#include <float.h>
-
 static int32_t curextra=MAXTILES;
 
 #define MIN_CACHETIME_PRINT 10

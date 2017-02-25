@@ -1,6 +1,6 @@
 // Windows layer-independent code
 
-#include <compat.h>
+#include "compat.h"
 
 #define WindowClass "buildapp"
 

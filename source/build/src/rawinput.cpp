@@ -1,7 +1,7 @@
 
 #include "windows_inc.h"
 
-#include <malloc.h>
+#include "compat.h"
 #include "rawinput.h"
 #include "winlayer.h"
 #include "scancodes.h"

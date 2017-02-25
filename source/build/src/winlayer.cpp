@@ -1,8 +1,7 @@
 // Windows DIB/DirectDraw interface layer for the Build Engine
 // Originally by Jonathon Fowler (jf@jonof.id.au)
 
-#include <math.h>
-#include <malloc.h>
+#include "compat.h"
 
 #include "build.h"
 

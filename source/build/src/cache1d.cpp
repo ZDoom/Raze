@@ -5,29 +5,16 @@
 // This file has been modified from Ken Silverman's original release
 // by Jonathon Fowler (jf@jonof.id.au)
 
+#include "compat.h"
 
 #ifdef CACHE1D_COMPRESS_ONLY
 // Standalone libcache1d.so containing only the compression/decompression
 // functions.
-# include <stdint.h>
-# include <stdio.h>
-# include <string.h>
-# include <stddef.h>
-# include <assert.h>
-
-# define BFILE FILE
 # define C1D_STATIC
-# define B_LITTLE16(x) (x)
-# define B_LITTLE32(x) (x)
-# define Bmemset memset
-# define Bmemcpy memcpy
-# define Bassert assert
-# define bsize_t size_t
 #else
 // cache1d.o for EDuke32
 # define C1D_STATIC static
 
-#include "compat.h"
 #ifdef _WIN32
 // for FILENAME_CASE_CHECK
 # define NEED_SHELLAPI_H

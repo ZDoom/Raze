@@ -30,9 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "compat.h"
 
-#include <stdio.h>
-#include <errno.h>
-
 #include "duke3d.h"
 #include "cache1d.h"
 
@@ -44,9 +41,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #if defined FORK_EXEC_MIDI  // fork/exec based external midi player
-#include <stdlib.h>
 #include <signal.h>
-#include <unistd.h>
 #include <sys/mman.h>
 #include <sys/wait.h>
 static char **external_midi_argv;

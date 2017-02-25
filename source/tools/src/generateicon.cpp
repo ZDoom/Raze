@@ -1,8 +1,6 @@
 
-#include <stdio.h>
-#include "inttypes.h"
-#include "kplib.h"
 #include "compat.h"
+#include "kplib.h"
 
 struct icon {
     int32_t width,height;

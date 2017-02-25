@@ -5,9 +5,6 @@
  */
 // Bstring and C++ STL --> C conversion by Hendricks266
 
-#include <stdio.h>
-#include <string.h>
-
 #include "compat.h"
 
 ////////// Bstring //////////

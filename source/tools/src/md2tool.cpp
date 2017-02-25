@@ -4,9 +4,6 @@
 #include "glbuild.h"
 #include "mdsprite.h"
 
-#include <stdio.h>
-#include <errno.h>
-
 
 static md2head_t head;
 

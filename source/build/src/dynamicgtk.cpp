@@ -1,6 +1,5 @@
+#include "compat.h"
 #include <dlfcn.h>
-#include <stdio.h>
-#include <string.h>
 
 #define dynamicgtkfoo__
 #include "dynamicgtk.h"

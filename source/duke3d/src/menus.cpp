@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#include "compat.h"
 #include "duke3d.h"
 #include "osdcmds.h"
 #include "savegame.h"
@@ -28,8 +29,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "input.h"
 #include "menus.h"
 #include "cheats.h"
-
-#include <sys/stat.h>
 
 #include "in_android.h"
 #ifndef __ANDROID__

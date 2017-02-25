@@ -38,9 +38,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "scriplib.h"
 #include "file_lib.h"
 #include "_scrplib.h"
-#include <string.h>
-#include <stdio.h>
-#include <ctype.h>
 
 static script_t *scriptfiles[MAXSCRIPTFILES];
 

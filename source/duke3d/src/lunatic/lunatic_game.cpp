@@ -2,11 +2,6 @@
 
 #include "compat.h"
 
-#include <stdint.h>
-#include <stdlib.h>  // getenv
-#include <errno.h>
-#include <string.h>  // strerror
-
 #ifdef __cplusplus
 extern "C" {
 #endif

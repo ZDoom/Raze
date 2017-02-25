@@ -301,6 +301,7 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 # include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
 #endif
 
+#include <limits.h>
 #include <stddef.h>
 #include <stdarg.h>
 #include <stdlib.h>
@@ -308,6 +309,7 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #include <string.h>
 
 #include <math.h>
+#include <float.h>
 
 #include <time.h>
 #include <ctype.h>
@@ -328,12 +330,9 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 
 #if defined(_WIN32)
 # include <io.h>
+# include <direct.h>
 #else
 # include <unistd.h>
-#endif
-
-#ifdef _MSC_VER
-# include <direct.h>
 #endif
 
 

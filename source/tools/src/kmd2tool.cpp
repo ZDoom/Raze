@@ -1,6 +1,4 @@
 
-#include <stdio.h>
-#include <math.h>
 #include "compat.h"
 
 typedef struct { float x, y, z; } point3d;

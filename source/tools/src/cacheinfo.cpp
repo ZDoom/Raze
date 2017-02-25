@@ -1,10 +1,7 @@
 // XXX: This program is not in sync with EDuke32 (e.g. texcacheheader type).
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <dirent.h>
-#include <sys/stat.h>
 #include "compat.h"
+#include <dirent.h>
 
 #define GL_COMPRESSED_RGB_S3TC_DXT1_EXT   0x83F0
 #define GL_COMPRESSED_RGBA_S3TC_DXT1_EXT  0x83F1

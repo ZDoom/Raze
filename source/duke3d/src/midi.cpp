@@ -31,8 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    (c) Copyright 1994 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
-#include <stdlib.h>
-#include <string.h>
+#include "compat.h"
 #include "standard.h"
 #include "music.h"
 #include "_midi.h"

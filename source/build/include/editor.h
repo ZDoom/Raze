@@ -5,8 +5,8 @@
 #ifndef editor_h_
 #define editor_h_
 
+#include "compat.h"
 #include "baselayer.h"
-#include <math.h>
 
 #ifdef __cplusplus
 extern "C" {

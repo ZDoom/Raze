@@ -7,7 +7,6 @@
 #ifdef _WIN32
 # define NEED_SHLOBJ_H
 # include "windows_inc.h"
-# include <direct.h>
 #elif __APPLE__
 # include "osxbits.h"
 #endif
