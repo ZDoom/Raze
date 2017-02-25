@@ -15,7 +15,8 @@
 #include "compat.h"
 
 #ifdef _WIN32
-# include <shlobj.h>
+# define NEED_SHLOBJ_H
+# include "windows_inc.h"
 # include <direct.h>
 #elif __APPLE__
 # include "osxbits.h"

@@ -10,9 +10,9 @@
 #include "grpscan.h"
 
 #ifdef _WIN32
+# define NEED_SHLWAPI_H
+# include "windows_inc.h"
 # include "winbits.h"
-# include <shlwapi.h>
-# include <winnt.h>
 # ifndef KEY_WOW64_32KEY
 #  define KEY_WOW64_32KEY 0x0200
 # endif

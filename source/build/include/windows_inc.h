@@ -39,6 +39,16 @@
 # undef NEED_SHELLAPI_H
 #endif
 
+#ifdef NEED_SHLWAPI_H
+# include <shlwapi.h>
+# undef NEED_SHLWAPI_H
+#endif
+
+#ifdef NEED_SHLOBJ_H
+# include <shlobj.h>
+# undef NEED_SHLOBJ_H
+#endif
+
 #ifdef NEED_WS2TCPIP_H
 # include <ws2tcpip.h>
 # undef NEED_WS2TCPIP_H
