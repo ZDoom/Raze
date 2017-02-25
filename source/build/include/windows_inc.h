@@ -17,6 +17,10 @@
 # define NOMINMAX
 #endif
 
+#ifdef UNREFERENCED_PARAMETER
+# undef UNREFERENCED_PARAMETER
+#endif
+
 #ifdef NEED_WINSOCK2_H
 # include <winsock2.h>
 # undef NEED_WINSOCK2_H
@@ -133,4 +137,8 @@
 #  include <dbghelp.h>
 # endif
 # undef NEED_DBGHELP_H
+#endif
+
+#ifndef UNREFERENCED_PARAMETER
+# define UNREFERENCED_PARAMETER(x) (x) = (x)
 #endif
