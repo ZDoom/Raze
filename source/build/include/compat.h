@@ -120,13 +120,20 @@
 #define EDUKE32_UNREACHABLE_SECTION(...) __VA_ARGS__
 #endif
 
-// Detection of __func__ or equivalent functionality, found in SDL_assert.h
-#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 supports __func__ as a standard. */
-# define EDUKE32_FUNCTION __func__
-#elif ((__GNUC__ >= 2) || defined(_MSC_VER))
+#if EDUKE32_GCC_PREREQ(2,0) || defined _MSC_VER
 # define EDUKE32_FUNCTION __FUNCTION__
+#elif (defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L) || (defined __cplusplus && __cplusplus >= 201103L)
+# define EDUKE32_FUNCTION __func__
 #else
 # define EDUKE32_FUNCTION "???"
+#endif
+
+#ifdef _MSC_VER
+# define EDUKE32_PRETTY_FUNCTION __FUNCSIG__
+#elif EDUKE32_GCC_PREREQ(2,0)
+# define EDUKE32_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#else
+# define EDUKE32_PRETTY_FUNCTION EDUKE32_FUNCTION
 #endif
 
 /* Static assertions, based on source found in LuaJIT's src/lj_def.h. */
