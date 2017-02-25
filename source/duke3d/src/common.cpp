@@ -1086,7 +1086,7 @@ static int32_t S_TryExtensionReplacements(char * const testfn, char const search
     }
 
     // ex: grabbag.mid --> grabbag.*
-    if (ismusic) // this conditional is a hack so that subway.voc does not upgrade to Megaton's music/subway.ogg
+    if (ismusic)
     {
         int32_t const fp = S_TryFormats(testfn, extension, searchfirst);
         if (fp >= 0)
@@ -1108,7 +1108,7 @@ int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
     // ex: ./grabbag.mid
     {
         Bstrcpy(testfn, fn);
-        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, 1);
+        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
         if (fp >= 0)
         {
             Bfree(testfn);
