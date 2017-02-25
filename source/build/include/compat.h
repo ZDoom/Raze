@@ -293,11 +293,11 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #ifndef __STDC_LIMIT_MACROS
 # define __STDC_LIMIT_MACROS
 #endif
-#if defined(HAVE_INTTYPES) || defined(__cplusplus)
+
+#if !defined _MSC_VER || defined __cplusplus
 # include <stdint.h>
 # include <inttypes.h>
-
-#elif defined(_MSC_VER)
+#else
 # include "msvc/inttypes.h" // from http://code.google.com/p/msinttypes/
 #endif
 

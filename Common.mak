@@ -699,7 +699,6 @@ endif
 # endif
 
 ifeq ($(SUBPLATFORM),LINUX)
-    COMPILERFLAGS+= -DHAVE_INTTYPES
     GTKCOMPAT32=0
 
     ifeq ($(PLATFORM),GCW)
@@ -749,7 +748,6 @@ ifeq ($(PLATFORM),DARWIN)
         COMPILERFLAGS+= -I/sw/include
     endif
 
-    COMPILERFLAGS    += -DHAVE_INTTYPES
     DLLSUFFIX=.dylib
     GTKCOMPAT32    = 0
     WITHOUT_GTK   ?= 1
@@ -763,7 +761,7 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    COMPILERFLAGS+= -DUNDERSCORES -DHAVE_INTTYPES -Iplatform/Windows/include
+    COMPILERFLAGS+= -DUNDERSCORES -Iplatform/Windows/include
     LINKERFLAGS+= -static-libgcc
     ifeq (0,$(CLANG))
         L_CXXONLYFLAGS += -static-libstdc++
@@ -795,8 +793,6 @@ else
 endif
 ifeq ($(PLATFORM),BSD)
     COMPILERFLAGS+= -I/usr/local/include
-
-    COMPILERFLAGS+= -DHAVE_INTTYPES
 endif
 ifeq ($(PLATFORM),BEOS)
     override NOASM=1
@@ -816,7 +812,7 @@ ifeq ($(PLATFORM),WII)
     override WITHOUT_GTK=1
     # -msdata=eabi
     COMMONFLAGS+= -g -mtune=750 -meabi -mhard-float
-    COMPILERFLAGS+= -DGEKKO -DHAVE_INTTYPES -D__POWERPC__ -I$(LIBOGC_INC) -I$(PORTLIBS)/include -Iplatform/Wii/include
+    COMPILERFLAGS+= -DGEKKO -D__POWERPC__ -I$(LIBOGC_INC) -I$(PORTLIBS)/include -Iplatform/Wii/include
     SDLCONFIG=
     SDL_TARGET=1
     LIBDIRS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib -Lplatform/Wii/lib
