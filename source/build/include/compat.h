@@ -156,30 +156,22 @@
 
 #include "libdivide.h"
 
-// Define this to rewrite all 'B' versions to library functions. This
-// is for platforms which give us a standard sort of C library so we
-// link directly. Platforms like PalmOS which don't have a standard C
-// library will need to wrap these functions with suitable emulations.
-#define compat_h_macrodef__
-
 #include <stdarg.h>
 #include <stddef.h>
 
-#ifdef compat_h_macrodef__
-# include <stdio.h>
-# include <string.h>
-# include <stdlib.h>
-# include <time.h>
-# include <fcntl.h>
-# include <ctype.h>
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <errno.h>
-# if defined(_WIN32)
-#  include <io.h>
-# else
-#  include <unistd.h>
-# endif
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include <fcntl.h>
+#include <ctype.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <errno.h>
+#if defined(_WIN32)
+# include <io.h>
+#else
+# include <unistd.h>
 #endif
 
 #include <assert.h>
@@ -505,68 +497,43 @@ FORCE_INLINE int32_t Blrintf(const float x)
 # define FP_OFF(__p) ((uintptr_t)(__p))
 #endif
 
-#ifdef compat_h_macrodef__
-
-# ifndef O_BINARY
-#  define O_BINARY 0
-# endif
-# ifndef O_TEXT
-#  define O_TEXT 0
-# endif
-
-# ifndef F_OK
-#  define F_OK 0
-# endif
-
-# define BO_BINARY O_BINARY
-# define BO_TEXT   O_TEXT
-# define BO_RDONLY O_RDONLY
-# define BO_WRONLY O_WRONLY
-# define BO_RDWR   O_RDWR
-# define BO_APPEND O_APPEND
-# define BO_CREAT  O_CREAT
-# define BO_TRUNC  O_TRUNC
-# define BS_IRGRP  S_IRGRP
-# define BS_IWGRP  S_IWGRP
-# define BS_IEXEC  S_IEXEC
-# ifdef __ANDROID__
-#  define BS_IWRITE S_IWUSR
-#  define BS_IREAD  S_IRUSR
-# else
-#  define BS_IWRITE S_IWRITE
-#  define BS_IREAD  S_IREAD
-# endif
-# define BS_IFIFO  S_IFIFO
-# define BS_IFCHR  S_IFCHR
-# define BS_IFBLK  S_IFBLK
-# define BS_IFDIR  S_IFDIR
-# define BS_IFREG  S_IFREG
-# define BSEEK_SET SEEK_SET
-# define BSEEK_CUR SEEK_CUR
-# define BSEEK_END SEEK_END
-#else
-# define BO_BINARY 0
-# define BO_TEXT   1
-# define BO_RDONLY 2
-# define BO_WRONLY 4
-# define BO_RDWR   6
-# define BO_APPEND 8
-# define BO_CREAT  16
-# define BO_TRUNC  32
-# define BS_IRGRP  0
-# define BS_IWGRP  0
-# define BS_IEXEC  1
-# define BS_IWRITE 2
-# define BS_IREAD  4
-# define BS_IFIFO  0x1000
-# define BS_IFCHR  0x2000
-# define BS_IFBLK  0x3000
-# define BS_IFDIR  0x4000
-# define BS_IFREG  0x8000
-# define BSEEK_SET 0
-# define BSEEK_CUR 1
-# define BSEEK_END 2
+#ifndef O_BINARY
+# define O_BINARY 0
 #endif
+#ifndef O_TEXT
+# define O_TEXT 0
+#endif
+
+#ifndef F_OK
+# define F_OK 0
+#endif
+
+#define BO_BINARY O_BINARY
+#define BO_TEXT   O_TEXT
+#define BO_RDONLY O_RDONLY
+#define BO_WRONLY O_WRONLY
+#define BO_RDWR   O_RDWR
+#define BO_APPEND O_APPEND
+#define BO_CREAT  O_CREAT
+#define BO_TRUNC  O_TRUNC
+#define BS_IRGRP  S_IRGRP
+#define BS_IWGRP  S_IWGRP
+#define BS_IEXEC  S_IEXEC
+#ifdef __ANDROID__
+# define BS_IWRITE S_IWUSR
+# define BS_IREAD  S_IRUSR
+#else
+# define BS_IWRITE S_IWRITE
+# define BS_IREAD  S_IREAD
+#endif
+#define BS_IFIFO  S_IFIFO
+#define BS_IFCHR  S_IFCHR
+#define BS_IFBLK  S_IFBLK
+#define BS_IFDIR  S_IFDIR
+#define BS_IFREG  S_IFREG
+#define BSEEK_SET SEEK_SET
+#define BSEEK_CUR SEEK_CUR
+#define BSEEK_END SEEK_END
 
 #ifdef UNDERSCORES
 # define ASMSYM(x) "_" x
@@ -631,15 +598,9 @@ int32_t Bclosedir(BDIR *dir);
 typedef intptr_t ssize_t;
 #endif
 
-#ifdef compat_h_macrodef__
-  typedef FILE BFILE;
-# define bsize_t size_t
-# define bssize_t ssize_t
-#else
-  typedef void          BFILE;
-  typedef uint32_t bsize_t;
-  typedef int32_t bssize_t;
-#endif
+typedef FILE BFILE;
+typedef size_t bsize_t;
+typedef ssize_t bssize_t;
 
 
 typedef struct {
@@ -681,174 +642,122 @@ FORCE_INLINE uint16_t system_15bit_rand(void) { return ((uint16_t)rand())&0x7fff
 #endif
 
 #if defined(_MSC_VER)
-// XXX: non-__compat_h_macrodef__ version?
 #define strtoll _strtoi64
 #endif
 
-#ifdef compat_h_macrodef__
-# define Bassert assert
-# define Brand rand
-# define Balloca alloca
-# define Bmalloc malloc
-# define Bcalloc calloc
-# define Brealloc realloc
-# define Bfree free
-# if defined(__cplusplus) && defined(_MSC_VER)
-#  define Bstrdup _strdup
-#  define Bchdir _chdir
-#  define Bgetcwd _getcwd
-# else
-#  define Bstrdup strdup
-#  define Bchdir chdir
-#  define Bgetcwd getcwd
-# endif
-# define Bopen open
-# define Bclose close
-# define Bwrite write
-# define Bread read
-# define Blseek lseek
-# if defined(__GNUC__)
-#  define Btell(h) lseek(h,0,SEEK_CUR)
-# else
-#  define Btell tell
-# endif
-# ifdef _MSC_VER
-#  define Bstat stat
-#  define Bfstat fstat
-# else
-#  define Bstat stat
-#  define Bfstat fstat
-# endif
-# define Bfileno fileno
-# define Bferror ferror
-# define Bfopen fopen
-# define Bfclose fclose
-# define Bfflush fflush
-# define Bfeof feof
-# define Bfgetc fgetc
-# define Brewind rewind
-# define Bfgets fgets
-# define Bfputc fputc
-# define Bfputs fputs
-# define Bfread fread
-# define Bfwrite fwrite
-# define Bfprintf fprintf
-# define Bfscanf fscanf
-# define Bfseek fseek
-# define Bftell ftell
-# define Bputs puts
-# define Bstrcpy strcpy
-# define Bstrncpy strncpy
-# define Bstrcmp strcmp
-# define Bstrncmp strncmp
-# if defined(_MSC_VER)
-#  define Bstrcasecmp _stricmp
-#  define Bstrncasecmp _strnicmp
-# elif defined(__QNX__)
-#  define Bstrcasecmp stricmp
-#  define Bstrncasecmp strnicmp
-# else
-#  define Bstrcasecmp strcasecmp
-#  define Bstrncasecmp strncasecmp
-# endif
-# if defined(_WIN32)
-#  define Bstrlwr strlwr
-#  define Bstrupr strupr
-#  define Bmkdir(s,x) mkdir(s)
-# else
-#  define Bmkdir mkdir
-# endif
-# define Bstrcat strcat
-# define Bstrncat strncat
-# define Bstrlen strlen
-# define Bstrchr strchr
-# define Bstrrchr strrchr
+#define Bassert assert
+#define Brand rand
+#define Balloca alloca
+#define Bmalloc malloc
+#define Bcalloc calloc
+#define Brealloc realloc
+#define Bfree free
+#if defined(__cplusplus) && defined(_MSC_VER)
+# define Bstrdup _strdup
+# define Bchdir _chdir
+# define Bgetcwd _getcwd
+#else
+# define Bstrdup strdup
+# define Bchdir chdir
+# define Bgetcwd getcwd
+#endif
+#define Bopen open
+#define Bclose close
+#define Bwrite write
+#define Bread read
+#define Blseek lseek
+#if defined(__GNUC__)
+# define Btell(h) lseek(h,0,SEEK_CUR)
+#else
+# define Btell tell
+#endif
+#ifdef _MSC_VER
+# define Bstat stat
+# define Bfstat fstat
+#else
+# define Bstat stat
+# define Bfstat fstat
+#endif
+#define Bfileno fileno
+#define Bferror ferror
+#define Bfopen fopen
+#define Bfclose fclose
+#define Bfflush fflush
+#define Bfeof feof
+#define Bfgetc fgetc
+#define Brewind rewind
+#define Bfgets fgets
+#define Bfputc fputc
+#define Bfputs fputs
+#define Bfread fread
+#define Bfwrite fwrite
+#define Bfprintf fprintf
+#define Bfscanf fscanf
+#define Bfseek fseek
+#define Bftell ftell
+#define Bputs puts
+#define Bstrcpy strcpy
+#define Bstrncpy strncpy
+#define Bstrcmp strcmp
+#define Bstrncmp strncmp
+#if defined(_MSC_VER)
+# define Bstrcasecmp _stricmp
+# define Bstrncasecmp _strnicmp
+#elif defined(__QNX__)
+# define Bstrcasecmp stricmp
+# define Bstrncasecmp strnicmp
+#else
+# define Bstrcasecmp strcasecmp
+# define Bstrncasecmp strncasecmp
+#endif
+#if defined(_WIN32)
+# define Bstrlwr strlwr
+# define Bstrupr strupr
+# define Bmkdir(s,x) mkdir(s)
+#else
+# define Bmkdir mkdir
+#endif
+#define Bstrcat strcat
+#define Bstrncat strncat
+#define Bstrlen strlen
+#define Bstrchr strchr
+#define Bstrrchr strrchr
 // XXX: different across 32- and 64-bit archs (e.g.
 // parsing the decimal representation of 0xffffffff,
 // 4294967295 -- long is signed, so strtol would
 // return LONG_MAX (== 0x7fffffff on 32-bit archs))
-# define Batoi(str) ((int32_t)strtol(str, NULL, 10))
-# define Batol(str) (strtol(str, NULL, 10))
-# define Batof(str) (strtod(str, NULL))
-# define Bstrtol strtol
-# define Bstrtoul strtoul
-# define Bstrtod strtod
-# define Bstrstr strstr
-# define Bislower islower
-# define Bisupper isupper
-# define Bisdigit isdigit
-# define Btoupper toupper
-# define Btolower tolower
-# define Bmemcpy memcpy
-# define Bmemmove memmove
-# define Bmemchr memchr
-# define Bmemset memset
-# define Bmemcmp memcmp
-# define Bscanf scanf
-# define Bprintf printf
-# define Bsscanf sscanf
-# define Bsprintf sprintf
-# ifdef _MSC_VER
-#  define Bsnprintf _snprintf
-#  define Bvsnprintf _vsnprintf
-# else
-#  define Bsnprintf snprintf
-#  define Bvsnprintf vsnprintf
-# endif
-# define Bvfprintf vfprintf
-# define Bgetenv getenv
-# define Btime() time(NULL)
-# define Butime utime
-
+#define Batoi(str) ((int32_t)strtol(str, NULL, 10))
+#define Batol(str) (strtol(str, NULL, 10))
+#define Batof(str) (strtod(str, NULL))
+#define Bstrtol strtol
+#define Bstrtoul strtoul
+#define Bstrtod strtod
+#define Bstrstr strstr
+#define Bislower islower
+#define Bisupper isupper
+#define Bisdigit isdigit
+#define Btoupper toupper
+#define Btolower tolower
+#define Bmemcpy memcpy
+#define Bmemmove memmove
+#define Bmemchr memchr
+#define Bmemset memset
+#define Bmemcmp memcmp
+#define Bscanf scanf
+#define Bprintf printf
+#define Bsscanf sscanf
+#define Bsprintf sprintf
+#ifdef _MSC_VER
+# define Bsnprintf _snprintf
+# define Bvsnprintf _vsnprintf
 #else
-
-void Bassert(int);
-int32_t Brand(void);
-void *Bmalloc(bsize_t size);
-void Bfree(void *ptr);
-int32_t Bopen(const char *pathname, int32_t flags, unsigned mode);
-int32_t Bclose(int32_t fd);
-bssize_t Bwrite(int32_t fd, const void *buf, bsize_t count);
-bssize_t Bread(int32_t fd, void *buf, bsize_t count);
-int32_t Blseek(int32_t fildes, int32_t offset, int32_t whence);
-BFILE *Bfopen(const char *path, const char *mode);
-int32_t Bfclose(BFILE *stream);
-int32_t Bfeof(BFILE *stream);
-int32_t Bfgetc(BFILE *stream);
-void Brewind(BFILE *stream);
-char *Bfgets(char *s, int32_t size, BFILE *stream);
-int32_t Bfputc(int32_t c, BFILE *stream);
-int32_t Bfputs(const char *s, BFILE *stream);
-bsize_t Bfread(void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream);
-bsize_t Bfwrite(const void *ptr, bsize_t size, bsize_t nmemb, BFILE *stream);
-char *Bstrdup(const char *s);
-char *Bstrcpy(char *dest, const char *src);
-char *Bstrncpy(char *dest, const char *src, bsize_t n);
-int32_t Bstrcmp(const char *s1, const char *s2);
-int32_t Bstrncmp(const char *s1, const char *s2, bsize_t n);
-int32_t Bstrcasecmp(const char *s1, const char *s2);
-int32_t Bstrncasecmp(const char *s1, const char *s2, bsize_t n);
-char *Bstrcat(char *dest, const char *src);
-char *Bstrncat(char *dest, const char *src, bsize_t n);
-bsize_t Bstrlen(const char *s);
-char *Bstrchr(const char *s, int32_t c);
-char *Bstrrchr(const char *s, int32_t c);
-int32_t Batoi(const char *nptr);
-int32_t Batol(const char *nptr);
-int32_t Bstrtol(const char *nptr, char **endptr, int32_t base);
-uint32_t Bstrtoul(const char *nptr, char **endptr, int32_t base);
-void *Bmemcpy(void *dest, const void *src, bsize_t n);
-void *Bmemmove(void *dest, const void *src, bsize_t n);
-void *Bmemchr(const void *s, int32_t c, bsize_t n);
-void *Bmemset(void *s, int32_t c, bsize_t n);
-int32_t Bmemcmp(const void *s1, const void *s2, bsize_t n);
-int32_t Bprintf(const char *format, ...) ATTRIBUTE((format(printf, 1, 2)));
-int32_t Bsprintf(char *str, const char *format, ...) ATTRIBUTE((format(printf, 2, 3)));
-int32_t Bsnprintf(char *str, bsize_t size, const char *format, ...) ATTRIBUTE((format(printf, 3, 4)));
-int32_t Bvsnprintf(char *str, bsize_t size, const char *format, va_list ap);
-char *Bgetcwd(char *buf, bsize_t size);
-char *Bgetenv(const char *name);
+# define Bsnprintf snprintf
+# define Bvsnprintf vsnprintf
 #endif
+#define Bvfprintf vfprintf
+#define Bgetenv getenv
+#define Btime() time(NULL)
+#define Butime utime
 
 char *Bgethomedir(void);
 char *Bgetappdir(void);
