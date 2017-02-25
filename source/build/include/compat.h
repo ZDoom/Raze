@@ -147,9 +147,6 @@
     extern void EDUKE32_ASSERT_NAME(__LINE__)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
 #endif
 
-#define ARRAY_SIZE(Ar) (sizeof(Ar)/sizeof((Ar)[0]))
-#define ARRAY_SSIZE(Ar) (signed)ARRAY_SIZE(Ar)
-
 #ifdef _MSC_VER
 # define longlong(x) x##i64
 #else
@@ -633,6 +630,35 @@ typedef struct {
 } vec3d_t;
 
 EDUKE32_STATIC_ASSERT(sizeof(vec3d_t) == sizeof(double) * 3);
+
+
+////////// Language tricks that depend on size_t //////////
+
+#if defined _MSC_VER
+# define ARRAY_SIZE(arr) _countof(arr)
+#elif defined __cplusplus && (__cplusplus >= 201103L || __has_feature(cxx_constexpr))
+template <typename T, size_t N>
+static FORCE_INLINE constexpr size_t ARRAY_SIZE(T const (&)[N]) noexcept
+{
+    return N;
+}
+#elif defined __cplusplus
+struct bad_arg_to_ARRAY_SIZE
+{
+   class Is_pointer; // incomplete
+   class Is_array {};
+   template <typename T>
+   static Is_pointer check_type(const T*, const T* const*);
+   static Is_array check_type(const void*, const void*);
+};
+# define ARRAY_SIZE(arr) ( \
+   0 * sizeof(reinterpret_cast<const ::bad_arg_to_ARRAY_SIZE*>(arr)) + \
+   0 * sizeof(::bad_arg_to_ARRAY_SIZE::check_type((arr), &(arr))) + \
+   sizeof(arr) / sizeof((arr)[0]) )
+#else
+# define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+#endif
+#define ARRAY_SSIZE(arr) (signed)ARRAY_SIZE(arr)
 
 
 ////////// Memory management //////////
