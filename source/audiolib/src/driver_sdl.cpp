@@ -45,7 +45,7 @@ enum {
 static int32_t ErrorCode = SDLErr_Ok;
 static int32_t Initialised = 0;
 static int32_t Playing = 0;
-// static int32_t StartedSDL = -1;
+static int32_t StartedSDL = -1;
 
 static char *MixBuffer = 0;
 static int32_t MixBufferSize = 0;
@@ -144,6 +144,7 @@ const char *SDLDrv_ErrorString( int32_t ErrorNumber )
 
 int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata)
 {
+    uint32_t inited;
     int32_t err = 0;
     int32_t chunksize;
     uint16_t fmt;
@@ -153,6 +154,22 @@ int32_t SDLDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * initdata)
 
     if (Initialised) {
         SDLDrv_PCM_Shutdown();
+    }
+
+    inited = SDL_WasInit(SDL_INIT_EVERYTHING);
+
+    if (inited == 0) {
+        // nothing was initialised
+        err = SDL_Init(SDL_INIT_AUDIO);
+        StartedSDL = 0;
+    } else if (!(inited & SDL_INIT_AUDIO)) {
+        err = SDL_InitSubSystem(SDL_INIT_AUDIO);
+        StartedSDL = 1;
+    }
+
+    if (err < 0) {
+        ErrorCode = SDLErr_InitSubSystem;
+        return SDLErr_Error;
     }
 
     chunksize = 512;
@@ -221,6 +238,13 @@ void SDLDrv_PCM_Shutdown(void)
 
     SDL_DestroyMutex(EffectFence);
 
+    if (StartedSDL > 0) {
+        SDL_QuitSubSystem(SDL_INIT_AUDIO);
+    } else if (StartedSDL == 0) {
+        SDL_Quit();
+    }
+
+    StartedSDL = -1;
     Initialised = 0;
 }
 
