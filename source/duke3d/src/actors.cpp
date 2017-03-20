@@ -2778,7 +2778,7 @@ ACTOR_STATIC void Proj_MoveCustom(int spriteNum)
             if (!projectileMoved && (unsigned)pSprite->owner < MAXSPRITES)
             {
                 backupCstat = sprite[pSprite->owner].cstat;
-                sprite[pSprite->owner].cstat &= (uint16_t)~CSTAT_SPRITE_BLOCK;
+                sprite[pSprite->owner].cstat &= (uint16_t)~CSTAT_SPRITE_BLOCK_HITSCAN;
             }
 
             do
