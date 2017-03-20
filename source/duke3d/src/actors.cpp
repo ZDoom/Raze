@@ -193,7 +193,7 @@ SKIPWALLCHECK:
     for (bssize_t stati=0; stati < ARRAY_SSIZE(statnumList); stati++)
     {
         int32_t otherSprite = headspritestat[statnumList[stati]];
-        
+
         while (otherSprite >= 0)
         {
             int const         nextOther = nextspritestat[otherSprite];
@@ -8249,13 +8249,9 @@ void G_RefreshLights(void)
 #endif
 }
 
-void G_MoveWorld(void)
+static void G_DoEventGame(int nEventID)
 {
-    extern double g_moveActorsTime;
-
-    VM_OnEvent(EVENT_PREWORLD, -1, -1);
-
-    if (VM_HaveEvent(EVENT_PREGAME))
+    if (VM_HaveEvent(nEventID))
     {
         int statNum = 0;
 
@@ -8275,13 +8271,22 @@ void G_MoveWorld(void)
 
                 int32_t   playerDist;
                 int const playerNum = A_FindPlayer(&sprite[spriteNum], &playerDist);
-                VM_OnEventWithDist_(EVENT_PREGAME, spriteNum, playerNum, playerDist);
+                VM_OnEventWithDist_(nEventID, spriteNum, playerNum, playerDist);
 
                 spriteNum = nextSprite;
             }
         }
         while (statNum < MAXSTATUS);
     }
+}
+
+void G_MoveWorld(void)
+{
+    extern double g_moveActorsTime;
+
+    VM_OnEvent(EVENT_PREWORLD, -1, -1);
+
+    G_DoEventGame(EVENT_PREGAME);
 
     G_MoveZombieActors();     //ST 2
     G_MoveWeapons();          //ST 4
@@ -8306,34 +8311,7 @@ void G_MoveWorld(void)
 
     VM_OnEvent(EVENT_WORLD, -1, -1);
 
-    if (VM_HaveEvent(EVENT_GAME))
-    {
-        int statNum = 0;
-
-        do
-        {
-            int spriteNum = headspritestat[statNum++];
-
-            while (spriteNum >= 0)
-            {
-
-                if (A_CheckSpriteFlags(spriteNum, SFLAG_NOEVENTCODE))
-                {
-                    spriteNum = nextspritestat[spriteNum];
-                    continue;
-                }
-
-                int32_t   playerDist;
-                int const nextSprite = nextspritestat[spriteNum];
-                int const playerNum  = A_FindPlayer(&sprite[spriteNum], &playerDist);
-
-                VM_OnEventWithDist_(EVENT_GAME, spriteNum, playerNum, playerDist);
-
-                spriteNum = nextSprite;
-            }
-        }
-        while (statNum < MAXSTATUS);
-    }
+    G_DoEventGame(EVENT_GAME);
 
     G_RefreshLights();
     G_DoSectorAnimations();
