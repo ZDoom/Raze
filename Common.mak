@@ -283,9 +283,9 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
     OPTIMIZATIONS += $(DEBUGFLAG)
 endif
 
-CSTD:=-std=gnu99
+CSTD:=-std=c99
 CONLYFLAGS=$(CSTD)
-CXXSTD:=-std=gnu++03
+CXXSTD:=-std=c++03
 CXXONLYFLAGS=$(CXXSTD) -fno-exceptions -fno-rtti
 ASFORMAT=elf$(BITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
