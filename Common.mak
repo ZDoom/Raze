@@ -78,12 +78,13 @@ ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
 endif
 
 ifneq (0,$(CLANG))
+    CLANGXXNAME:=$(subst clang,clang++,$(CLANGNAME))
     override CC=$(CLANGNAME) -x c
-    override CXX=$(CLANGNAME) -x c++
+    override CXX=$(CLANGXXNAME) -x c++
     override COBJC=$(CLANGNAME) -x objective-c
-    override COBJCXX=$(CLANGNAME) -x objective-c++
+    override COBJCXX=$(CLANGXXNAME) -x objective-c++
     override L_CC=$(CLANGNAME)
-    override L_CXX=$(CLANGNAME)
+    override L_CXX=$(CLANGXXNAME)
 endif
 
 # GCC version, for conditional selection of flags.
