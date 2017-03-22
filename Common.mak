@@ -7,7 +7,8 @@ PRETTY_OUTPUT ?= 1
 
 # Tools
 CROSS=
-ifneq ($(CROSS),)
+CROSS_SUFFIX=
+ifneq ($(CROSS)$(CROSS_SUFFIX),)
     undefine CC
     undefine CXX
     undefine AR
@@ -16,12 +17,12 @@ ifneq ($(CROSS),)
     undefine STRIP
 endif
 
-CC=$(CROSS)gcc
-CXX=$(CROSS)g++
-AR=$(CROSS)ar
-RC=$(CROSS)windres
-RANLIB=$(CROSS)ranlib
-STRIP=$(CROSS)strip
+CC=$(CROSS)gcc$(CROSS_SUFFIX)
+CXX=$(CROSS)g++$(CROSS_SUFFIX)
+AR=$(CROSS)ar$(CROSS_SUFFIX)
+RC=$(CROSS)windres$(CROSS_SUFFIX)
+RANLIB=$(CROSS)ranlib$(CROSS_SUFFIX)
+STRIP=$(CROSS)strip$(CROSS_SUFFIX)
 AS=nasm
 PKG_CONFIG=pkg-config
 
