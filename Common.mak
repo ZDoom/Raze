@@ -282,7 +282,7 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
 endif
 
 CSTD:=-std=gnu99
-CONLYFLAGS=$(CSTD) -Wimplicit -Werror-implicit-function-declaration
+CONLYFLAGS=$(CSTD)
 CXXSTD:=-std=gnu++03
 CXXONLYFLAGS=$(CXXSTD) -fno-exceptions -fno-rtti
 ASFORMAT=elf$(BITS)
@@ -545,6 +545,8 @@ CWARNS = -W -Wall \
     #-Waggregate-return \
     #-Wcast-align \
     #-Waddress
+
+CONLYWARNS = -Wimplicit -Werror-implicit-function-declaration
 
 ifneq (0,$(CLANG))
     CWARNS+= -Wno-unused-value -Wno-parentheses -Wno-unknown-warning-option
@@ -1017,9 +1019,9 @@ ifneq (,$(VC_REV)$(VC_REV_CUSTOM))
     REVFLAG += -DREV="\"r$(VC_REV)$(VC_REV_CUSTOM)\""
 endif
 
-COMPILER_C=$(CC) $(CONLYFLAGS) $(COMMONFLAGS) $(CWARNS) $(COMPILERFLAGS)
+COMPILER_C=$(CC) $(CONLYFLAGS) $(COMMONFLAGS) $(CWARNS) $(CONLYWARNS) $(COMPILERFLAGS)
 COMPILER_CXX=$(CXX) $(CXXONLYFLAGS) $(COMMONFLAGS) $(CWARNS) $(COMPILERFLAGS)
-COMPILER_OBJC=$(COBJC) $(CONLYFLAGS) $(COMMONFLAGS) $(CWARNS) $(COMPILERFLAGS)
+COMPILER_OBJC=$(COBJC) $(CONLYFLAGS) $(COMMONFLAGS) $(CWARNS) $(CONLYWARNS) $(COMPILERFLAGS)
 COMPILER_OBJCXX=$(COBJCXX) $(CXXONLYFLAGS) $(COMMONFLAGS) $(CWARNS) $(COMPILERFLAGS)
 LINKER=$(L_CXX) $(CXXONLYFLAGS) $(L_CXXONLYFLAGS) $(COMMONFLAGS) $(LINKERFLAGS)
 ifneq ($(CPLUSPLUS),0)
