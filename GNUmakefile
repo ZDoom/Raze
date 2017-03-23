@@ -433,6 +433,8 @@ DUKE3D_EDITOR_RSRC_OBJS =
 
 DUKE3D_GAME_MISCDEPS=
 DUKE3D_EDITOR_MISCDEPS=
+DUKE3D_GAME_ORDERONLYDEPS=
+DUKE3D_EDITOR_ORDERONLYDEPS=
 
 ## Lunatic devel
 LUNATIC_SRC = $(DUKE3D_SRC)/lunatic
@@ -508,8 +510,8 @@ ifneq (0,$(LUNATIC))
         DUKE3D_GAME_STRIPFLAGS+= -s $(DUKE3D_OBJ)/lunatic_dynsymlist_game_osx
         DUKE3D_EDITOR_STRIPFLAGS+= -s $(DUKE3D_OBJ)/lunatic_dynsymlist_editor_osx
 
-        DUKE3D_GAME_MISCDEPS+= $(DUKE3D_OBJ)/lunatic_dynsymlist_game_osx
-        DUKE3D_EDITOR_MISCDEPS+= $(DUKE3D_OBJ)/lunatic_dynsymlist_editor_osx
+        DUKE3D_GAME_ORDERONLYDEPS+= $(DUKE3D_OBJ)/lunatic_dynsymlist_game_osx
+        DUKE3D_EDITOR_ORDERONLYDEPS+= $(DUKE3D_OBJ)/lunatic_dynsymlist_editor_osx
         LINKERFLAGS+= -pagezero_size 10000 -image_base 100000000
     endif
     ifeq ($(PLATFORM),WINDOWS)
@@ -813,7 +815,7 @@ endif
 
 define BUILDRULE
 
-$$($1_$2)$$(EXESUFFIX): $$($1_$2_OBJS_TARGET) $$(COMMON_$2_OBJS_TARGET) $$(ENGINE_OBJS_EXP) $$($1_$2_MISCDEPS)
+$$($1_$2)$$(EXESUFFIX): $$($1_$2_OBJS_TARGET) $$(COMMON_$2_OBJS_TARGET) $$(ENGINE_OBJS_EXP) $$($1_$2_MISCDEPS) | $$($1_$2_ORDERONLYDEPS)
 	$$(LINK_STATUS)
 	$$(RECIPE_IF) $$(LINKER) -o $$@ $$^ $$(GUI_LIBS) $$($1_$2_LDFLAGS) $$(LIBDIRS) $$(LIBS) $$(RECIPE_RESULT_LINK)
 ifeq ($$(PLATFORM),WII)
