@@ -421,6 +421,7 @@ DUKE3D_GAME_MISCDEPS=
 DUKE3D_EDITOR_MISCDEPS=
 
 ## Lunatic devel
+LUNATIC_SRC = $(DUKE3D_SRC)/lunatic
 LUNATIC_LUA_PREFIX = luaJIT_BC_
 ifneq (0,$(LUNATIC))
     # Lunatic object base names. These are not used in targets directly.
@@ -491,8 +492,8 @@ ifneq (0,$(LUNATIC))
     endif
     ifeq ($(SUBPLATFORM),LINUX)
         override STRIP=
-        DUKE3D_GAME_LDFLAGS+= -Wl,--dynamic-list=$(DUKE3D_SRC)/lunatic/dynsymlist_game.lds
-        DUKE3D_EDITOR_LDFLAGS+= -Wl,--dynamic-list=$(DUKE3D_SRC)/lunatic/dynsymlist_editor.lds
+        DUKE3D_GAME_LDFLAGS+= -Wl,--dynamic-list=$(LUNATIC_SRC)/dynsymlist_game.lds
+        DUKE3D_EDITOR_LDFLAGS+= -Wl,--dynamic-list=$(LUNATIC_SRC)/dynsymlist_editor.lds
     endif
 endif
 
@@ -816,20 +817,20 @@ getdxdidf$(EXESUFFIX): $(TOOLS_OBJ)/getdxdidf.$o
 #### Lunatic
 
 # Create object files directly with luajit
-$(DUKE3D_OBJ)/$(LUNATIC_LUA_PREFIX)%.$o: $(DUKE3D_SRC)/lunatic/%.lua | $(DUKE3D_OBJ)
+$(DUKE3D_OBJ)/$(LUNATIC_LUA_PREFIX)%.$o: $(LUNATIC_SRC)/%.lua | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(LUAJIT) -bg $(LUAJIT_BCOPTS) $< $@ $(RECIPE_RESULT_COMPILE)
 
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/lunatic/%.cpp | $(DUKE3D_OBJ)
+$(DUKE3D_OBJ)/%.$o: $(LUNATIC_SRC)/%.cpp | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER_CXX) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
 # List of exported symbols, OS X
-$(DUKE3D_OBJ)/lunatic_%_osx: $(DUKE3D_SRC)/lunatic/%.lds | $(DUKE3D_OBJ)
+$(DUKE3D_OBJ)/lunatic_%_osx: $(LUNATIC_SRC)/%.lds | $(DUKE3D_OBJ)
 	sed 's/[{};]//g;s/[A-Za-z_][A-Za-z_0-9]*/_&/g' $< > $@
 
 # List of exported symbols, Windows
-$(DUKE3D_OBJ)/lunatic_%.def: $(DUKE3D_SRC)/lunatic/%.lds | $(DUKE3D_OBJ)
+$(DUKE3D_OBJ)/lunatic_%.def: $(LUNATIC_SRC)/%.lds | $(DUKE3D_OBJ)
 	echo EXPORTS > $@
 	sed 's/[{};]//g' $< >> $@
 
