@@ -66,7 +66,7 @@ CLANG?=0
 
 CLANG_POTENTIAL_VERSION := $(shell $(CCFULLPATH) --version)
 
-ifeq ($(findstring clang,$(CC)),clang)
+ifeq ($(findstring clang,$(CC) $(MAKECMDGOALS)),clang)
     override CLANG=1
     CLANGNAME:=$(CC)
 else
@@ -877,7 +877,7 @@ ifeq ($(RENDERTYPE),SDL)
             SDLCONFIG_CFLAGS := $(strip $(subst -Dmain=SDL_main,,$(shell $(SDLCONFIG) --cflags)))
             SDLCONFIG_LIBS := $(strip $(subst -mwindows,,$(shell $(SDLCONFIG) --libs)))
 
-            COMMONFLAGS += $(SDLCONFIG_CFLAGS)
+            COMPILERFLAGS += $(SDLCONFIG_CFLAGS)
             LIBS += $(SDLCONFIG_LIBS)
         else
             ifeq ($(SDL_TARGET),1)

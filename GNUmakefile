@@ -786,6 +786,7 @@ endif
     printtools \
     rev \
     $(ENGINE_OBJ)/rev.$o \
+    clang-tools \
 
 .SUFFIXES:
 .SECONDEXPANSION:
@@ -958,6 +959,9 @@ $(foreach i,$(COMPONENTS),$($i_OBJ)): | $(obj)
 
 
 ## PHONIES
+
+clang-tools: $(filter %.c %.cpp %.m %.mm,$(DUKE3D_GAME_SRCS_TARGET) $(DUKE3D_EDITOR_SRCS_TARGET) $(COMMON_EDITOR_SRCS_TARGET) $(ENGINE_SRCS))
+	echo $^ -- $(COMPILERFLAGS) $(foreach i,$(COMPONENTS),$($i_CFLAGS)) $(CWARNS)
 
 $(foreach i,$(GAMES),clean$($i)):
 	-rm -f $(foreach i,$(ROLES),$($($(subst clean,,$@))_$i)$(EXESUFFIX))
