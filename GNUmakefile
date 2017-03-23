@@ -291,6 +291,7 @@ TOOLS_OBJS_EXP:=$(addprefix $(TOOLS_OBJ)/,$(addsuffix .$o,$(TOOLS_OBJS))) $(addp
 # KenBuild (Test Game)
 
 KENBUILD=kenbuild
+kenbuild=KENBUILD
 
 KENBUILD_ROOT=$(source)/$(KENBUILD)
 KENBUILD_SRC=$(KENBUILD_ROOT)/src
@@ -342,6 +343,7 @@ KENBUILD_EDITOR_OBJS_EXP:=$(addprefix $(KENBUILD_OBJ)/,$(addsuffix .$o,$(KENBUIL
 # Duke Nukem 3D
 
 DUKE3D=duke3d
+duke3d=DUKE3D
 
 DUKE3D_CFLAGS=-I$(DUKE3D_SRC)
 
@@ -555,6 +557,7 @@ DUKE3D_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_EDIT
 # Shadow Warrior
 
 SW=sw
+sw=SW
 
 SW_ROOT=$(source)/$(SW)
 SW_SRC=$(SW_ROOT)/src
@@ -696,35 +699,26 @@ ROLES = \
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
 endif
-.PHONY: all duke3d test kenbuild sw veryclean clean cleanduke3d cleantest cleansw cleanutils utils printutils cleantools tools printtools rev $(ENGINE_OBJ)/rev.$o
+.PHONY: all $(foreach j,$(foreach i,$(GAMES),$($i)) test utils tools,$j clean$j) veryclean clean printutils printtools rev $(ENGINE_OBJ)/rev.$o
 .SUFFIXES:
+.SECONDEXPANSION:
+
 
 # TARGETS
 
 all: duke3d
 
-duke3d: start $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX)
-	@ls -l $(DUKE3D_GAME)$(EXESUFFIX)
-	@ls -l $(DUKE3D_EDITOR)$(EXESUFFIX)
-
-kenbuild: start $(KENBUILD_GAME)$(EXESUFFIX) $(KENBUILD_EDITOR)$(EXESUFFIX)
-	@ls -l $(KENBUILD_GAME)$(EXESUFFIX)
-	@ls -l $(KENBUILD_EDITOR)$(EXESUFFIX)
-
-sw: start $(SW_GAME)$(EXESUFFIX) $(SW_EDITOR)$(EXESUFFIX)
-	@ls -l $(SW_GAME)$(EXESUFFIX)
-	@ls -l $(SW_EDITOR)$(EXESUFFIX)
-
-ebacktrace: start $(EBACKTRACEDLL)
-	@ls -l $(EBACKTRACEDLL)
-
 start:
 	$(BUILD_STARTED)
 
-tools: $(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS))
+tools: $(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS)) | start
 	@ls -l $^
 
+$(foreach i,$(GAMES),$($i)): $$(foreach i,$(ROLES),$$($$($$@)_$$i)$(EXESUFFIX)) | start
+	@ls -l $^
 
+ebacktrace: $(EBACKTRACEDLL) | start
+	@ls -l $^
 
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
@@ -933,17 +927,11 @@ $(ENGINE_OBJ) $(TOOLS_OBJ) $(KENBUILD_OBJ) $(AUDIOLIB_OBJ) $(MACT_OBJ) $(DUKE3D_
 
 ## PHONIES
 
-cleanduke3d:
-	-rm -f $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_EDITOR)$(EXESUFFIX)
+$(foreach i,$(GAMES),clean$($i)):
+	-rm -f $(foreach i,$(ROLES),$($($(subst clean,,$@))_$i)$(EXESUFFIX))
 ifeq ($(PLATFORM),DARWIN)
-	-rm -rf "$(DUKE3D_GAME_PROPER).app" "$(DUKE3D_EDITOR_PROPER).app"
+	-rm -rf $(foreach i,$(ROLES),"$($($(subst clean,,$@))_$i_PROPER).app")
 endif
-
-cleantest:
-	-rm -f $(KENBUILD_GAME)$(EXESUFFIX) $(KENBUILD_EDITOR)$(EXESUFFIX)
-
-cleansw:
-	-rm -f $(SW_GAME)$(EXESUFFIX) $(SW_EDITOR)$(EXESUFFIX)
 
 cleantools:
 	-rm -f $(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS))
@@ -965,3 +953,4 @@ utils: tools
 printutils: printtools
 veryclean: clean
 cleanutils: cleantools
+cleantest: cleankenbuild
