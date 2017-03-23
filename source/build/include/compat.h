@@ -359,17 +359,6 @@ typedef ssize_t bssize_t;
 
 typedef FILE BFILE;
 
-#ifndef O_BINARY
-# define O_BINARY 0
-#endif
-#ifndef O_TEXT
-# define O_TEXT 0
-#endif
-
-#ifndef F_OK
-# define F_OK 0
-#endif
-
 #define BO_BINARY O_BINARY
 #define BO_TEXT   O_TEXT
 #define BO_RDONLY O_RDONLY
@@ -566,6 +555,17 @@ static FORCE_INLINE int32_t Blrintf(const float x)
 
 #ifdef _MSC_VER
 # define strtoll _strtoi64
+#endif
+
+#ifndef O_BINARY
+# define O_BINARY 0
+#endif
+#ifndef O_TEXT
+# define O_TEXT 0
+#endif
+
+#ifndef F_OK
+# define F_OK 0
 #endif
 
 #ifdef GEKKO
