@@ -424,6 +424,19 @@ DUKE3D_EDITOR_MISCDEPS=
 LUNATIC_SRC = $(DUKE3D_SRC)/lunatic
 LUNATIC_LUA_PREFIX = luaJIT_BC_
 ifneq (0,$(LUNATIC))
+    COMPILERFLAGS += -I$(LUNATIC_SRC) -DLUNATIC
+
+    # Determine size of _defs*.lua bytecode once.
+    ifndef DEFS_BC_SIZE
+        DEFS_BC_SIZE := $(shell $(LUAJIT) -bg -t h $(LUNATIC_SRC)/_defs_game.lua -)
+        DEFS_BC_SIZE := $(word 3, $(DEFS_BC_SIZE))
+    endif
+    ifndef DEFS_M32_BC_SIZE
+        DEFS_M32_BC_SIZE := $(shell $(LUAJIT) -bg -t h $(LUNATIC_SRC)/_defs_editor.lua -)
+        DEFS_M32_BC_SIZE := $(word 3, $(DEFS_M32_BC_SIZE))
+    endif
+    DUKE3D_CFLAGS += -DLUNATIC_DEFS_BC_SIZE=$(DEFS_BC_SIZE) -DLUNATIC_DEFS_M32_BC_SIZE=$(DEFS_M32_BC_SIZE)
+
     # Lunatic object base names. These are not used in targets directly.
     LUNATIC_LUA_OBJS = \
         defs_common.lua \

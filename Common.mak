@@ -593,7 +593,7 @@ endif
 
 #### Lunatic development
 # LuaJIT standalone interpreter executable:
-LUAJIT:=luajit
+LUAJIT=luajit$(EXESUFFIX)
 # Options to "luajit -b" for synthesis. Since it runs on Linux, we need to tell
 # the native LuaJIT to emit PE object files.
 ifeq ($(PLATFORM),WINDOWS)
@@ -607,21 +607,9 @@ ifeq ($(PLATFORM),WINDOWS)
 endif
 
 ifneq ($(LUNATIC),0)
-    COMPILERFLAGS+= -Isource/duke3d/src/lunatic -DLUNATIC
     ifneq ($(USE_LUAJIT_2_1),0)
         COMPILERFLAGS+= -DUSE_LUAJIT_2_1
     endif
-
-    # Determine size of _defs*.lua bytecode once.
-    ifndef DEFS_BC_SIZE
-        DEFS_BC_SIZE := $(shell $(LUAJIT) -bg -t h source/duke3d/src/lunatic/_defs_game.lua -)
-        DEFS_BC_SIZE := $(word 3, $(DEFS_BC_SIZE))
-    endif
-    ifndef DEFS_M32_BC_SIZE
-        DEFS_M32_BC_SIZE := $(shell $(LUAJIT) -bg -t h source/duke3d/src/lunatic/_defs_editor.lua -)
-        DEFS_M32_BC_SIZE := $(word 3, $(DEFS_M32_BC_SIZE))
-    endif
-    COMPILERFLAGS+= -DLUNATIC_DEFS_BC_SIZE=$(DEFS_BC_SIZE) -DLUNATIC_DEFS_M32_BC_SIZE=$(DEFS_M32_BC_SIZE)
 
     ifeq ($(PLATFORM),WINDOWS)
         LIBS+= -lluajit
