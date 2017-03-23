@@ -544,12 +544,12 @@ endif
 
 ## Construct file names of object files
 
-COMMON_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(COMMON_EDITOR_OBJS)))
+COMMON_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(COMMON_EDITOR_OBJS))) $(ENGINE_EDITOR_OBJS_EXP)
 
 MIDI_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(MIDI_OBJS)))
 
-DUKE3D_GAME_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_GAME_OBJS)))
-DUKE3D_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_EDITOR_OBJS)))
+DUKE3D_GAME_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_GAME_OBJS))) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP) $(ENET_TARGET)
+DUKE3D_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_EDITOR_OBJS))) $(AUDIOLIB_OBJS_EXP)
 
 
 # Shadow Warrior
@@ -665,8 +665,32 @@ ifeq ($(PLATFORM),WINDOWS)
     SW_EDITOR_OBJS+= buildres
 endif
 
-SW_GAME_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(SW_GAME_OBJS)))
-SW_EDITOR_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(SW_EDITOR_OBJS)))
+SW_GAME_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(SW_GAME_OBJS))) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP)
+SW_EDITOR_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(SW_EDITOR_OBJS))) $(AUDIOLIB_OBJS_EXP)
+
+
+### component definitions end
+### targets begin
+
+GAMES := \
+    KENBUILD \
+    DUKE3D \
+    SW \
+
+LIBRARIES := \
+    ENGINE \
+    AUDIOLIB \
+    MACT \
+    ENET \
+
+COMPONENTS = \
+    $(GAMES) \
+    $(LIBRARIES) \
+    TOOLS \
+
+ROLES = \
+    GAME \
+    EDITOR \
 
 
 ifeq ($(PRETTY_OUTPUT),1)
@@ -700,102 +724,42 @@ start:
 tools: $(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS))
 	@ls -l $^
 
+
+
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
-$(KENBUILD_GAME)$(DOLSUFFIX): $(KENBUILD_GAME)$(EXESUFFIX)
-$(KENBUILD_EDITOR)$(DOLSUFFIX): $(KENBUILD_EDITOR)$(EXESUFFIX)
-$(DUKE3D_GAME)$(DOLSUFFIX): $(DUKE3D_GAME)$(EXESUFFIX)
-$(DUKE3D_EDITOR)$(DOLSUFFIX): $(DUKE3D_EDITOR)$(EXESUFFIX)
-$(SW_GAME)$(DOLSUFFIX): $(SW_GAME)$(EXESUFFIX)
-$(SW_EDITOR)$(DOLSUFFIX): $(SW_EDITOR)$(EXESUFFIX)
+%$(DOLSUFFIX): %$(EXESUFFIX)
 endif
 endif
 
-$(KENBUILD_GAME)$(EXESUFFIX): $(KENBUILD_GAME_OBJS_EXP) $(ENGINE_OBJS_EXP)
-	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(GUI_LIBS) $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_LINK)
-ifeq ($(PLATFORM),WII)
-ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(KENBUILD_GAME)$(EXESUFFIX) $(KENBUILD_GAME)$(DOLSUFFIX)
+define BUILDRULE
+
+$$($1_$2)$$(EXESUFFIX): $$($1_$2_OBJS_EXP) $$(COMMON_$2_OBJS_EXP) $$(ENGINE_OBJS_EXP) $$($1_$2_MISCDEPS)
+	$$(LINK_STATUS)
+	$$(RECIPE_IF) $$(LINKER) -o $$@ $$^ $$(GUI_LIBS) $$($1_$2_LDFLAGS) $$(LIBDIRS) $$(LIBS) $$(RECIPE_RESULT_LINK)
+ifeq ($$(PLATFORM),WII)
+ifneq ($$(ELF2DOL),)
+	$$(ELF2DOL) $$@ $$($1_$2)$$(DOLSUFFIX)
 endif
 endif
-ifneq ($(STRIP),)
-	$(STRIP) $@
+ifneq ($$(STRIP),)
+	$$(STRIP) $$@ $$($1_$2_STRIPFLAGS)
+endif
+ifeq ($$(PLATFORM),DARWIN)
+	cp -RPf "platform/Apple/bundles/$$($1_$2_PROPER).app" "./"
+	mkdir -p "$$($1_$2_PROPER).app/Contents/MacOS"
+	cp -f "$$($1_$2)$$(EXESUFFIX)" "$$($1_$2_PROPER).app/Contents/MacOS/"
 endif
 
-$(KENBUILD_EDITOR)$(EXESUFFIX): $(KENBUILD_EDITOR_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP)
-	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(GUI_LIBS) $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_LINK)
-ifeq ($(PLATFORM),WII)
-ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(KENBUILD_EDITOR)$(EXESUFFIX) $(KENBUILD_EDITOR)$(DOLSUFFIX)
-endif
-endif
-ifneq ($(STRIP),)
-	$(STRIP) $@
-endif
+endef
 
-$(DUKE3D_GAME)$(EXESUFFIX): $(DUKE3D_GAME_OBJS_EXP) $(MIDI_OBJS_EXP) $(ENGINE_OBJS_EXP) $(MACT_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(ENET_TARGET) $(DUKE3D_GAME_MISCDEPS)
-	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(GUI_LIBS) $(DUKE3D_GAME_LDFLAGS) $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_LINK)
-ifeq ($(PLATFORM),WII)
-ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(DUKE3D_GAME)$(EXESUFFIX) $(DUKE3D_GAME)$(DOLSUFFIX)
-endif
-endif
-ifneq ($(STRIP),)
-	$(STRIP) $@ $(DUKE3D_GAME_STRIPFLAGS)
-endif
-ifeq ($(PLATFORM),DARWIN)
-	cp -RPf "platform/Apple/bundles/$(DUKE3D_GAME_PROPER).app" "./"
-	mkdir -p "$(DUKE3D_GAME_PROPER).app/Contents/MacOS"
-	cp -f "$(DUKE3D_GAME)$(EXESUFFIX)" "$(DUKE3D_GAME_PROPER).app/Contents/MacOS/"
-endif
+$(foreach i,$(GAMES),$(foreach j,$(ROLES),$(eval $(call BUILDRULE,$i,$j))))
 
-$(DUKE3D_EDITOR)$(EXESUFFIX): $(DUKE3D_EDITOR_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(DUKE3D_EDITOR_MISCDEPS)
-	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(GUI_LIBS) $(DUKE3D_EDITOR_LDFLAGS) $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_LINK)
-ifeq ($(PLATFORM),WII)
-ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(DUKE3D_EDITOR)$(EXESUFFIX) $(DUKE3D_EDITOR)$(DOLSUFFIX)
-endif
-endif
-ifneq ($(STRIP),)
-	$(STRIP) $@ $(DUKE3D_EDITOR_STRIPFLAGS)
-endif
-ifeq ($(PLATFORM),DARWIN)
-	cp -RPf "platform/Apple/bundles/$(DUKE3D_EDITOR_PROPER).app" "./"
-	mkdir -p "$(DUKE3D_EDITOR_PROPER).app/Contents/MacOS"
-	cp -f "$(DUKE3D_EDITOR)$(EXESUFFIX)" "$(DUKE3D_EDITOR_PROPER).app/Contents/MacOS/"
-endif
-
-$(SW_GAME)$(EXESUFFIX): $(SW_GAME_OBJS_EXP) $(MIDI_OBJS_EXP) $(ENGINE_OBJS_EXP) $(MACT_OBJS_EXP) $(AUDIOLIB_OBJS_EXP)
-	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(GUI_LIBS) $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_LINK)
-ifeq ($(PLATFORM),WII)
-ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(SW_GAME)$(EXESUFFIX) $(SW_GAME)$(DOLSUFFIX)
-endif
-endif
-ifneq ($(STRIP),)
-	$(STRIP) $@
-endif
-
-$(SW_EDITOR)$(EXESUFFIX): $(SW_EDITOR_OBJS_EXP) $(COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP) $(ENGINE_OBJS_EXP)
-	$(LINK_STATUS)
-	$(RECIPE_IF) $(LINKER) -o $@ $^ $(GUI_LIBS) $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_LINK)
-ifeq ($(PLATFORM),WII)
-ifneq ($(ELF2DOL),)
-	$(ELF2DOL) $(SW_EDITOR)$(EXESUFFIX) $(SW_EDITOR)$(DOLSUFFIX)
-endif
-endif
-ifneq ($(STRIP),)
-	$(STRIP) $@
-endif
 
 include $(ENGINE_ROOT)/Dependencies.mak
 include $(DUKE3D_ROOT)/Dependencies.mak
 include $(SW_ROOT)/Dependencies.mak
+
 
 # RULES
 
