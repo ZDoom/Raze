@@ -701,7 +701,16 @@ ROLES = \
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
 endif
-.PHONY: all $(foreach j,$(foreach i,$(GAMES),$($i)) test utils tools,$j clean$j) veryclean clean printutils printtools rev $(ENGINE_OBJ)/rev.$o
+.PHONY: \
+    all \
+    $(foreach j,$(foreach i,$(GAMES),$($i)) test utils tools,$j clean$j) \
+    veryclean \
+    clean \
+    printutils \
+    printtools \
+    rev \
+    $(ENGINE_OBJ)/rev.$o \
+
 .SUFFIXES:
 .SECONDEXPANSION:
 
