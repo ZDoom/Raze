@@ -410,38 +410,43 @@ DUKE3D_EDITOR_OBJS = \
 DUKE3D_GAME_MISCDEPS=
 DUKE3D_EDITOR_MISCDEPS=
 
-# Lunatic object base names. These are not used in targets directly.
-LUNATIC_OBJS = \
-    luaJIT_BC_defs_common \
-    luaJIT_BC_engine_maptext \
-    luaJIT_BC_engine \
-    luaJIT_BC_bcarray \
-    luaJIT_BC_bcheck \
-    luaJIT_BC_bitar \
-    luaJIT_BC_xmath \
-    luaJIT_BC_v \
-    luaJIT_BC_dump \
-    luaJIT_BC_dis_x86 \
-    luaJIT_BC_dis_x64 \
-
-LUNATIC_GAME_OBJS = \
-    luaJIT_BC__defs_game \
-    luaJIT_BC_con_lang \
-    luaJIT_BC_lunacon \
-    luaJIT_BC_randgen \
-    luaJIT_BC_stat \
-    luaJIT_BC_control \
-    luaJIT_BC_savegame \
-    luaJIT_BC_fs \
-
 ## Lunatic devel
+LUNATIC_LUA_PREFIX = luaJIT_BC_
 ifneq (0,$(LUNATIC))
+    # Lunatic object base names. These are not used in targets directly.
+    LUNATIC_LUA_OBJS = \
+        defs_common \
+        engine_maptext \
+        engine \
+        bcarray \
+        bcheck \
+        bitar \
+        xmath \
+        v \
+        dump \
+        dis_x86 \
+        dis_x64 \
+
+    LUNATIC_GAME_LUA_OBJS = \
+        _defs_game \
+        con_lang \
+        lunacon \
+        randgen \
+        stat \
+        control \
+        savegame \
+        fs \
+
+    LUNATIC_EDITOR_LUA_OBJS = \
+        _defs_editor \
+
+    LUNATIC_GAME_OBJS = \
+        lunatic_game \
+
+    LUNATIC_EDITOR_OBJS = \
+        lunatic_editor \
+
     # TODO: remove debugging modules from release build
-
-    DUKE3D_EDITOR_OBJS+= lunatic_editor $(LUNATIC_OBJS)
-    DUKE3D_GAME_OBJS+= lunatic_game $(LUNATIC_OBJS)
-
-    DUKE3D_EDITOR_OBJS+= luaJIT_BC__defs_editor
 
     ifneq ($(PLATFORM),WINDOWS)
         # On non-Windows, we expect to have liblpeg.a (or a symlink to it) in source/.
@@ -453,7 +458,6 @@ ifneq (0,$(LUNATIC))
         endif
     endif
     LIBS+= -llpeg
-    DUKE3D_GAME_OBJS+= $(LUNATIC_GAME_OBJS)
 
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
     # executable no matter what the debugging level
@@ -555,6 +559,10 @@ MIDI_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(MIDI_OBJS)))
 DUKE3D_GAME_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_GAME_OBJS))) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP) $(ENET_TARGET)
 DUKE3D_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(DUKE3D_EDITOR_OBJS))) $(AUDIOLIB_OBJS_EXP)
 
+ifneq (0,$(LUNATIC))
+    DUKE3D_GAME_OBJS_EXP+= $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(LUNATIC_GAME_OBJS) $(addprefix $(LUNATIC_LUA_PREFIX),$(LUNATIC_LUA_OBJS) $(LUNATIC_GAME_LUA_OBJS))))
+    DUKE3D_EDITOR_OBJS_EXP+= $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(LUNATIC_EDITOR_OBJS) $(addprefix $(LUNATIC_LUA_PREFIX),$(LUNATIC_LUA_OBJS) $(LUNATIC_EDITOR_LUA_OBJS))))
+endif
 
 # Shadow Warrior
 
@@ -791,7 +799,7 @@ getdxdidf$(EXESUFFIX): $(TOOLS_OBJ)/getdxdidf.$o
 #### Lunatic
 
 # Create object files directly with luajit
-$(DUKE3D_OBJ)/luaJIT_BC_%.$o: $(DUKE3D_SRC)/lunatic/%.lua | $(DUKE3D_OBJ)
+$(DUKE3D_OBJ)/$(LUNATIC_LUA_PREFIX)%.$o: $(DUKE3D_SRC)/lunatic/%.lua | $(DUKE3D_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(LUAJIT) -bg $(LUAJIT_BCOPTS) $< $@ $(RECIPE_RESULT_COMPILE)
 
