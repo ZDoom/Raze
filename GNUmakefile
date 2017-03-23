@@ -256,6 +256,8 @@ TOOLS_ROOT=$(source)/$(TOOLS)
 TOOLS_SRC=$(TOOLS_ROOT)/src
 TOOLS_OBJ=$(obj)/$(TOOLS)
 
+TOOLS_CFLAGS=$(ENGINE_CFLAGS)
+
 TOOLS_TARGETS= \
     kextract \
     kgroup \
@@ -776,6 +778,7 @@ getdxdidf$(EXESUFFIX): $(TOOLS_OBJ)/getdxdidf.$o
 	$(LINK_STATUS)
 	$(RECIPE_IF) $(LINKER) -o $@ $^ $(LIBDIRS) $(LIBS) -ldinput $(RECIPE_RESULT_LINK)
 
+
 #### Lunatic
 
 # Create object files directly with luajit
@@ -796,134 +799,78 @@ $(DUKE3D_OBJ)/lunatic_%.def: $(DUKE3D_SRC)/lunatic/%.lds | $(DUKE3D_OBJ)
 	echo EXPORTS > $@
 	sed 's/[{};]//g' $< >> $@
 
-####
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.nasm | $(ENGINE_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(AS) $(ASFLAGS) $< -o $@ $(RECIPE_RESULT_COMPILE)
+#### Main Rules
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.yasm | $(ENGINE_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(AS) $(ASFLAGS) $< -o $@ $(RECIPE_RESULT_COMPILE)
+define OBJECTRULES
+
+$$($1_OBJ)/%.$$o: $$($1_SRC)/%.nasm | $$($1_OBJ)
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(AS) $$(ASFLAGS) $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
+
+$$($1_OBJ)/%.$$o: $$($1_SRC)/%.yasm | $$($1_OBJ)
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(AS) $$(ASFLAGS) $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
+
+$$($1_OBJ)/%.$$o: $$($1_SRC)/%.c | $$($1_OBJ)
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(COMPILER_C) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
+
+$$($1_OBJ)/%.$$o: $$($1_SRC)/%.cpp | $$($1_OBJ)
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(COMPILER_CXX) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
+
+$$($1_OBJ)/%.$$o: $$($1_SRC)/%.m | $$($1_OBJ)
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(COMPILER_OBJC) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
+
+$$($1_OBJ)/%.$$o: $$($1_SRC)/%.mm | $$($1_OBJ)
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(COMPILER_OBJCXX) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
+
+# cosmetic stuff
+
+$$($1_OBJ)/%.$$o: $$($1_RSRC)/%.rc | $$($1_OBJ)
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(RC) -i $$< -o $$@ --include-dir=$$(ENGINE_INC) --include-dir=$$($1_SRC) --include-dir=$$($1_RSRC) -DPOLYMER=$$(POLYMER) $$(RECIPE_RESULT_COMPILE)
+
+$$($1_OBJ)/%.$$o: $$($1_RSRC)/%.c | $$($1_OBJ)
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(COMPILER_C) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
+
+$$($1_OBJ)/%.$$o: $$($1_OBJ)/%.c
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(COMPILER_C) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
+
+$$($1_OBJ)/%_banner.c: $$($1_RSRC)/%.bmp | $$($1_OBJ)
+	echo "#include \"gtkpixdata_shim.h\"" > $$@
+	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $$^ | sed 's/load_inc//' >> $$@
+
+endef
+
+$(foreach i,$(COMPONENTS),$(eval $(call OBJECTRULES,$i)))
+
+
+#### Other special cases
 
 # Comment out the following rule to debug a-c.o
 $(ENGINE_OBJ)/a-c.$o: $(ENGINE_SRC)/a-c.cpp | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(subst -O$(OPTLEVEL),-O2,$(subst $(CLANG_DEBUG_FLAGS),,$(COMPILER_CXX))) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.c | $(ENGINE_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_C) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.cpp | $(ENGINE_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_CXX) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
 $(ENGINE_OBJ)/rev.$o: $(ENGINE_SRC)/rev.cpp | $(ENGINE_OBJ)
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER_CXX) $(ENGINE_CFLAGS) $(REVFLAG) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.mm | $(ENGINE_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_OBJCXX) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-$(ENGINE_OBJ)/%.$o: $(ENGINE_SRC)/%.cpp | $(ENGINE_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_CXX) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(TOOLS_OBJ)/%.$o: $(TOOLS_SRC)/%.cpp | $(TOOLS_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_CXX) $(ENGINE_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(MACT_OBJ)/%.$o: $(MACT_SRC)/%.cpp | $(MACT_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_CXX) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(AUDIOLIB_OBJ)/%.o: $(AUDIOLIB_SRC)/%.cpp | $(AUDIOLIB_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_CXX) $(AUDIOLIB_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(ENET_OBJ)/%.o: $(ENET_SRC)/%.c $(ENET_INC)/enet/*.h | $(ENET_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_C) $(ENET_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(KENBUILD_OBJ)/%.$o: $(KENBUILD_SRC)/%.cpp | $(KENBUILD_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_CXX) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(KENBUILD_OBJ)/%.$o: $(KENBUILD_OBJ)/%.c
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_C) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(KENBUILD_OBJ)/%.$o: $(KENBUILD_SRC)/%.mm | $(KENBUILD_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_OBJCXX) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(KENBUILD_OBJ)/%.$o: $(KENBUILD_RSRC)/%.rc | $(KENBUILD_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(RC) -i $< -o $@ --include-dir=$(ENGINE_INC) --include-dir=$(KENBUILD_SRC) --include-dir=$(KENBUILD_RSRC) $(RECIPE_RESULT_COMPILE)
-
-$(KENBUILD_OBJ)/%.$o: $(KENBUILD_RSRC)/%.c | $(KENBUILD_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_C) $(KENBUILD_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(KENBUILD_OBJ)/%_banner.c: $(KENBUILD_RSRC)/%.bmp | $(KENBUILD_OBJ)
-	echo "#include \"gtkpixdata_shim.h\"" > $@
-	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
-
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/%.cpp | $(DUKE3D_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_CXX) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_OBJ)/%.c
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_C) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_SRC)/%.mm | $(DUKE3D_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_OBJCXX) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_RSRC)/%.rc | $(DUKE3D_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(RC) -i $< -o $@ --include-dir=$(ENGINE_INC) --include-dir=$(DUKE3D_SRC) --include-dir=$(DUKE3D_RSRC) -DPOLYMER=$(POLYMER) $(RECIPE_RESULT_COMPILE)
-
-$(DUKE3D_OBJ)/%.$o: $(DUKE3D_RSRC)/%.c | $(DUKE3D_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_C) $(DUKE3D_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(DUKE3D_OBJ)/%_banner.c: $(DUKE3D_RSRC)/%.bmp | $(DUKE3D_OBJ)
-	echo "#include \"gtkpixdata_shim.h\"" > $@
-	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
-
-$(SW_OBJ)/%.$o: $(SW_SRC)/%.cpp | $(SW_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_CXX) $(SW_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(SW_OBJ)/%.$o: $(SW_OBJ)/%.c
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_C) $(SW_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(SW_OBJ)/%.$o: $(SW_SRC)/%.mm | $(SW_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_OBJCXX) $(SW_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(SW_OBJ)/%.$o: $(SW_RSRC)/%.rc | $(SW_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(RC) -i $< -o $@ --include-dir=$(ENGINE_INC) --include-dir=$(SW_SRC) --include-dir=$(SW_RSRC) $(RECIPE_RESULT_COMPILE)
-
-$(SW_OBJ)/%.$o: $(SW_RSRC)/%.c | $(SW_OBJ)
-	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_C) $(SW_CFLAGS) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
-
-$(SW_OBJ)/%_banner.c: $(SW_RSRC)/%.bmp | $(SW_OBJ)
-	echo "#include \"gtkpixdata_shim.h\"" > $@
-	gdk-pixbuf-csource --extern --struct --raw --name=startbanner_pixdata $^ | sed 's/load_inc//' >> $@
+#### Directories
 
 $(obj):
 	-mkdir $@ $(DONT_PRINT) $(DONT_FAIL)
 
-$(ENGINE_OBJ) $(TOOLS_OBJ) $(KENBUILD_OBJ) $(AUDIOLIB_OBJ) $(MACT_OBJ) $(DUKE3D_OBJ) $(SW_OBJ) $(ENET_OBJ): | $(obj)
+$(foreach i,$(COMPONENTS),$($i_OBJ)): | $(obj)
 	-mkdir $@ $(DONT_PRINT) $(DONT_FAIL)
+
 
 ## PHONIES
 
