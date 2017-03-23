@@ -263,8 +263,8 @@ ifndef LTO
     endif
 endif
 
-COMMONFLAGS=
-COMPILERFLAGS=
+COMMONFLAGS =
+COMPILERFLAGS = -funsigned-char
 
 ifeq ($(PACKAGE_REPOSITORY),0)
     COMMONFLAGS += $(OPTIMIZATIONS)
@@ -582,7 +582,7 @@ else
     endif
 endif
 
-COMMONFLAGS+= -funsigned-char -fno-strict-aliasing $(F_JUMP_TABLES)
+COMMONFLAGS+= -fno-strict-aliasing $(F_JUMP_TABLES)
 
 COMPILERFLAGS+= -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
 
