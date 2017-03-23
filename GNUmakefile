@@ -16,6 +16,10 @@ o=o
 asm=nasm
 obj=obj
 
+define expandobjs
+$$(addprefix $1,$$(addsuffix .$$o,$$(basename $2)))
+endef
+
 COMPILERFLAGS += -I$(ENGINE_INC) -I$(MACT_INC) -I$(AUDIOLIB_INC) -I$(ENET_INC)
 
 
@@ -134,8 +138,8 @@ ifneq ($(USE_LIBVPX),0)
     ENGINE_OBJS+= animvpx.cpp
 endif
 
-ENGINE_OBJS_EXP:=$(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(basename $(ENGINE_OBJS))))
-ENGINE_EDITOR_OBJS_EXP:=$(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(basename $(ENGINE_EDITOR_OBJS))))
+ENGINE_OBJS_EXP:=$(call expandobjs,$(ENGINE_OBJ)/,$(ENGINE_OBJS))
+ENGINE_EDITOR_OBJS_EXP:=$(call expandobjs,$(ENGINE_OBJ)/,$(ENGINE_EDITOR_OBJS))
 
 
 # MACT
@@ -155,7 +159,7 @@ MACT_OBJS = \
     scriplib.cpp \
     animlib.cpp \
 
-MACT_OBJS_EXP:=$(addprefix $(MACT_OBJ)/,$(addsuffix .$o,$(basename $(MACT_OBJS))))
+MACT_OBJS_EXP:=$(call expandobjs,$(MACT_OBJ)/,$(MACT_OBJS))
 
 
 # AudioLib
@@ -198,7 +202,7 @@ ifeq ($(MIXERTYPE),SDL)
     AUDIOLIB_OBJS+= driver_sdl.cpp
 endif
 
-AUDIOLIB_OBJS_EXP:=$(addprefix $(AUDIOLIB_OBJ)/,$(addsuffix .$o,$(basename $(AUDIOLIB_OBJS))))
+AUDIOLIB_OBJS_EXP:=$(call expandobjs,$(AUDIOLIB_OBJ)/,$(AUDIOLIB_OBJS))
 
 
 # ENet
@@ -228,7 +232,7 @@ else
     ENET_CFLAGS += -DHAS_SOCKLEN_T
 endif
 
-ENET_OBJS_EXP:=$(addprefix $(ENET_OBJ)/,$(addsuffix .$o,$(basename $(ENET_OBJS))))
+ENET_OBJS_EXP:=$(call expandobjs,$(ENET_OBJ)/,$(ENET_OBJS))
 
 ifeq ($(NETCODE),0)
     ENET_TARGET=
@@ -287,7 +291,7 @@ ifeq ($(PLATFORM),DARWIN)
     TOOLS_OBJS += osxbits.mm
 endif
 
-TOOLS_OBJS_EXP:=$(addprefix $(TOOLS_OBJ)/,$(addsuffix .$o,$(basename $(TOOLS_OBJS)))) $(addprefix $(ENGINE_OBJ)/,$(addsuffix .$o,$(basename $(ENGINE_TOOLS_OBJS))))
+TOOLS_OBJS_EXP:=$(call expandobjs,$(TOOLS_OBJ)/,$(TOOLS_OBJS)) $(call expandobjs,$(ENGINE_OBJ)/,$(ENGINE_TOOLS_OBJS))
 
 
 # KenBuild (Test Game)
@@ -338,8 +342,8 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 endif
 
-KENBUILD_GAME_OBJS_EXP:=$(addprefix $(KENBUILD_OBJ)/,$(addsuffix .$o,$(basename $(KENBUILD_GAME_OBJS))))
-KENBUILD_EDITOR_OBJS_EXP:=$(addprefix $(KENBUILD_OBJ)/,$(addsuffix .$o,$(basename $(KENBUILD_EDITOR_OBJS))))
+KENBUILD_GAME_OBJS_EXP:=$(call expandobjs,$(KENBUILD_OBJ)/,$(KENBUILD_GAME_OBJS))
+KENBUILD_EDITOR_OBJS_EXP:=$(call expandobjs,$(KENBUILD_OBJ)/,$(KENBUILD_EDITOR_OBJS))
 
 
 # Duke Nukem 3D
@@ -552,16 +556,16 @@ endif
 
 ## Construct file names of object files
 
-COMMON_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(basename $(COMMON_EDITOR_OBJS)))) $(ENGINE_EDITOR_OBJS_EXP)
+COMMON_EDITOR_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(COMMON_EDITOR_OBJS)) $(ENGINE_EDITOR_OBJS_EXP)
 
-MIDI_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(basename $(MIDI_OBJS))))
+MIDI_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(MIDI_OBJS))
 
-DUKE3D_GAME_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(basename $(DUKE3D_GAME_OBJS)))) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP) $(ENET_TARGET)
-DUKE3D_EDITOR_OBJS_EXP:=$(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(basename $(DUKE3D_EDITOR_OBJS)))) $(AUDIOLIB_OBJS_EXP)
+DUKE3D_GAME_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(DUKE3D_GAME_OBJS)) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP) $(ENET_TARGET)
+DUKE3D_EDITOR_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(DUKE3D_EDITOR_OBJS)) $(AUDIOLIB_OBJS_EXP)
 
 ifneq (0,$(LUNATIC))
-    DUKE3D_GAME_OBJS_EXP+= $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(basename $(LUNATIC_GAME_OBJS) $(addprefix $(LUNATIC_LUA_PREFIX),$(LUNATIC_LUA_OBJS) $(LUNATIC_GAME_LUA_OBJS)))))
-    DUKE3D_EDITOR_OBJS_EXP+= $(addprefix $(DUKE3D_OBJ)/,$(addsuffix .$o,$(basename $(LUNATIC_EDITOR_OBJS) $(addprefix $(LUNATIC_LUA_PREFIX),$(LUNATIC_LUA_OBJS) $(LUNATIC_EDITOR_LUA_OBJS)))))
+    DUKE3D_GAME_OBJS_EXP+= $(call expandobjs,$(DUKE3D_OBJ)/,$(LUNATIC_GAME_OBJS) $(addprefix $(LUNATIC_LUA_PREFIX),$(LUNATIC_LUA_OBJS) $(LUNATIC_GAME_LUA_OBJS)))
+    DUKE3D_EDITOR_OBJS_EXP+= $(call expandobjs,$(DUKE3D_OBJ)/,$(LUNATIC_EDITOR_OBJS) $(addprefix $(LUNATIC_LUA_PREFIX),$(LUNATIC_LUA_OBJS) $(LUNATIC_EDITOR_LUA_OBJS)))
 endif
 
 # Shadow Warrior
@@ -678,8 +682,8 @@ ifeq ($(PLATFORM),WINDOWS)
     SW_EDITOR_OBJS+= buildres.rc
 endif
 
-SW_GAME_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(basename $(SW_GAME_OBJS)))) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP)
-SW_EDITOR_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(basename $(SW_EDITOR_OBJS)))) $(AUDIOLIB_OBJS_EXP)
+SW_GAME_OBJS_EXP:=$(call expandobjs,$(SW_OBJ)/,$(SW_GAME_OBJS)) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP)
+SW_EDITOR_OBJS_EXP:=$(call expandobjs,$(SW_OBJ)/,$(SW_EDITOR_OBJS)) $(AUDIOLIB_OBJS_EXP)
 
 
 ### component definitions end
