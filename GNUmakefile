@@ -274,12 +274,12 @@ TOOLS_TARGETS= \
     ivfrate \
     map2stl \
 
-DXTOOLS_TARGETS= \
-    enumdisplay \
-    getdxdidf \
-
-SDLTOOLS_TARGETS= \
-    makesdlkeytrans \
+ifeq ($(PLATFORM),WINDOWS)
+    TOOLS_TARGETS+= enumdisplay getdxdidf
+endif
+ifeq ($(RENDERTYPE),SDL)
+    TOOLS_TARGETS+= makesdlkeytrans
+endif
 
 ifeq ($(PLATFORM),DARWIN)
     TOOLS_OBJS += osxbits
@@ -672,7 +672,7 @@ SW_EDITOR_OBJS_EXP:=$(addprefix $(SW_OBJ)/,$(addsuffix .$o,$(SW_EDITOR_OBJS)))
 ifeq ($(PRETTY_OUTPUT),1)
 .SILENT:
 endif
-.PHONY: all duke3d test kenbuild sw veryclean clean cleanduke3d cleantest cleansw cleanutils utils dxutils sdlutils printutils printsdlutils printdxutils cleantools tools dxtools sdltools printtools printsdltools printdxtools rev $(ENGINE_OBJ)/rev.$o
+.PHONY: all duke3d test kenbuild sw veryclean clean cleanduke3d cleantest cleansw cleanutils utils printutils cleantools tools printtools rev $(ENGINE_OBJ)/rev.$o
 .SUFFIXES:
 
 # TARGETS
@@ -698,12 +698,6 @@ start:
 	$(BUILD_STARTED)
 
 tools: $(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS))
-	@ls -l $^
-
-dxtools: $(addsuffix $(EXESUFFIX),$(DXTOOLS_TARGETS))
-	@ls -l $^
-
-sdltools: $(addsuffix $(EXESUFFIX),$(SDLTOOLS_TARGETS))
 	@ls -l $^
 
 ifeq ($(PLATFORM),WII)
@@ -988,7 +982,7 @@ cleansw:
 	-rm -f $(SW_GAME)$(EXESUFFIX) $(SW_EDITOR)$(EXESUFFIX)
 
 cleantools:
-	-rm -f $(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS) $(DXTOOLS_TARGETS) $(SDLTOOLS_TARGETS))
+	-rm -f $(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS))
 
 clean: cleanduke3d cleantools
 	-rm -rf $(obj)/
@@ -997,12 +991,6 @@ clean: cleanduke3d cleantools
 printtools:
 	echo "$(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS))"
 
-printdxtools:
-	echo "$(addsuffix $(EXESUFFIX),$(DXTOOLS_TARGETS))"
-
-printsdltools:
-	echo "$(addsuffix $(EXESUFFIX),$(SDLTOOLS_TARGETS))"
-
 rev: $(ENGINE_OBJ)/rev.$o
 
 
@@ -1010,10 +998,6 @@ rev: $(ENGINE_OBJ)/rev.$o
 
 test: kenbuild
 utils: tools
-dxutils: dxtools
-sdlutils: sdltools
 printutils: printtools
-printdxutils: printdxtools
-printsdlutils: printsdltools
 veryclean: clean
 cleanutils: cleantools
