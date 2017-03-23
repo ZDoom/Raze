@@ -322,18 +322,23 @@ KENBUILD_EDITOR_OBJS = \
     bstub.cpp \
     common.cpp \
 
+KENBUILD_GAME_RSRC_OBJS =
+KENBUILD_EDITOR_RSRC_OBJS =
+
 ifeq ($(RENDERTYPE),SDL)
     ifeq (1,$(HAVE_GTK2))
-        KENBUILD_GAME_OBJS+= game_banner.c startgtk.game.cpp
-        KENBUILD_EDITOR_OBJS+= build_banner.c
+        KENBUILD_GAME_OBJS+= startgtk.game.cpp
+        KENBUILD_GAME_RSRC_OBJS+= game_banner.c
+        KENBUILD_EDITOR_RSRC_OBJS+= build_banner.c
     endif
 
-    KENBUILD_GAME_OBJS+= game_icon.c
-    KENBUILD_EDITOR_OBJS+= build_icon.c
+    KENBUILD_GAME_RSRC_OBJS+= game_icon.c
+    KENBUILD_EDITOR_RSRC_OBJS+= build_icon.c
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    KENBUILD_GAME_OBJS+= gameres.rc startwin.game.cpp
-    KENBUILD_EDITOR_OBJS+= buildres.rc
+    KENBUILD_GAME_OBJS+= startwin.game.cpp
+    KENBUILD_GAME_RSRC_OBJS+= gameres.rc
+    KENBUILD_EDITOR_RSRC_OBJS+= buildres.rc
 endif
 
 ifeq ($(PLATFORM),DARWIN)
@@ -342,8 +347,8 @@ ifeq ($(PLATFORM),DARWIN)
     endif
 endif
 
-KENBUILD_GAME_OBJS_EXP:=$(call expandobjs,$(KENBUILD_OBJ)/,$(KENBUILD_GAME_OBJS))
-KENBUILD_EDITOR_OBJS_EXP:=$(call expandobjs,$(KENBUILD_OBJ)/,$(KENBUILD_EDITOR_OBJS))
+KENBUILD_GAME_OBJS_EXP:=$(call expandobjs,$(KENBUILD_OBJ)/,$(KENBUILD_GAME_OBJS) $(KENBUILD_GAME_RSRC_OBJS))
+KENBUILD_EDITOR_OBJS_EXP:=$(call expandobjs,$(KENBUILD_OBJ)/,$(KENBUILD_EDITOR_OBJS) $(KENBUILD_EDITOR_RSRC_OBJS))
 
 
 # Duke Nukem 3D
@@ -410,6 +415,9 @@ DUKE3D_EDITOR_OBJS = \
     common.cpp \
     grpscan.cpp \
     sounds_mapster32.cpp \
+
+DUKE3D_GAME_RSRC_OBJS =
+DUKE3D_EDITOR_RSRC_OBJS =
 
 DUKE3D_GAME_MISCDEPS=
 DUKE3D_EDITOR_MISCDEPS=
@@ -526,8 +534,9 @@ ifeq ($(PLATFORM),WINDOWS)
         LIBS += -lxmp-lite
     endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg
-    DUKE3D_GAME_OBJS+= gameres.rc winbits.cpp
-    DUKE3D_EDITOR_OBJS+= buildres.rc
+    DUKE3D_GAME_OBJS+= winbits.cpp
+    DUKE3D_GAME_RSRC_OBJS+= gameres.rc
+    DUKE3D_EDITOR_RSRC_OBJS+= buildres.rc
     ifeq ($(STARTUP_WINDOW),1)
         DUKE3D_GAME_OBJS+= startwin.game.cpp
     endif
@@ -543,12 +552,13 @@ endif
 
 ifeq ($(RENDERTYPE),SDL)
     ifeq (11,$(HAVE_GTK2)$(STARTUP_WINDOW))
-        DUKE3D_GAME_OBJS+= game_banner.c startgtk.game.cpp
-        DUKE3D_EDITOR_OBJS+= build_banner.c
+        DUKE3D_GAME_OBJS+= startgtk.game.cpp
+        DUKE3D_GAME_RSRC_OBJS+= game_banner.c
+        DUKE3D_EDITOR_RSRC_OBJS+= build_banner.c
     endif
 
-    DUKE3D_GAME_OBJS+= game_icon.c
-    DUKE3D_EDITOR_OBJS+= build_icon.c
+    DUKE3D_GAME_RSRC_OBJS+= game_icon.c
+    DUKE3D_EDITOR_RSRC_OBJS+= build_icon.c
 endif
 ifeq ($(MIXERTYPE),SDL)
     MIDI_OBJS=sdlmusic.cpp
@@ -560,8 +570,8 @@ COMMON_EDITOR_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(COMMON_EDITOR_OBJS)) 
 
 MIDI_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(MIDI_OBJS))
 
-DUKE3D_GAME_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(DUKE3D_GAME_OBJS)) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP) $(ENET_TARGET)
-DUKE3D_EDITOR_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(DUKE3D_EDITOR_OBJS)) $(AUDIOLIB_OBJS_EXP)
+DUKE3D_GAME_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(DUKE3D_GAME_OBJS) $(DUKE3D_GAME_RSRC_OBJS)) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP) $(ENET_TARGET)
+DUKE3D_EDITOR_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(DUKE3D_EDITOR_OBJS) $(DUKE3D_EDITOR_RSRC_OBJS)) $(AUDIOLIB_OBJS_EXP)
 
 ifneq (0,$(LUNATIC))
     DUKE3D_GAME_OBJS_EXP+= $(call expandobjs,$(DUKE3D_OBJ)/,$(LUNATIC_GAME_OBJS) $(addprefix $(LUNATIC_LUA_PREFIX),$(LUNATIC_LUA_OBJS) $(LUNATIC_GAME_LUA_OBJS)))
@@ -668,22 +678,27 @@ SW_EDITOR_OBJS = \
     grpscan.cpp \
     common.cpp \
 
+SW_GAME_RSRC_OBJS =
+SW_EDITOR_RSRC_OBJS =
+
 ifeq ($(RENDERTYPE),SDL)
     ifeq (1,$(HAVE_GTK2))
-        SW_GAME_OBJS+= game_banner.c startgtk.game.cpp
-        SW_EDITOR_OBJS+= build_banner.c
+        SW_GAME_OBJS+= startgtk.game.cpp
+        SW_GAME_RSRC_OBJS+= game_banner.c
+        SW_EDITOR_RSRC_OBJS+= build_banner.c
     endif
 
-    SW_GAME_OBJS+= game_icon.c
-    SW_EDITOR_OBJS+= game_icon.c
+    SW_GAME_RSRC_OBJS+= game_icon.c
+    SW_EDITOR_RSRC_OBJS+= game_icon.c
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    SW_GAME_OBJS+= gameres.rc startwin.game.cpp
-    SW_EDITOR_OBJS+= buildres.rc
+    SW_GAME_OBJS+= startwin.game.cpp
+    SW_GAME_RSRC_OBJS+= gameres.rc
+    SW_EDITOR_RSRC_OBJS+= buildres.rc
 endif
 
-SW_GAME_OBJS_EXP:=$(call expandobjs,$(SW_OBJ)/,$(SW_GAME_OBJS)) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP)
-SW_EDITOR_OBJS_EXP:=$(call expandobjs,$(SW_OBJ)/,$(SW_EDITOR_OBJS)) $(AUDIOLIB_OBJS_EXP)
+SW_GAME_OBJS_EXP:=$(call expandobjs,$(SW_OBJ)/,$(SW_GAME_OBJS) $(SW_GAME_RSRC_OBJS)) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP)
+SW_EDITOR_OBJS_EXP:=$(call expandobjs,$(SW_OBJ)/,$(SW_EDITOR_OBJS) $(SW_EDITOR_RSRC_OBJS)) $(AUDIOLIB_OBJS_EXP)
 
 
 ### component definitions end
