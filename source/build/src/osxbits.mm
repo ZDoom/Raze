@@ -3,6 +3,22 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 
+#ifndef MAC_OS_X_VERSION_10_5
+# define NSImageScaleNone NSScaleNone
+#endif
+
+#ifndef MAC_OS_X_VERSION_10_12
+# define NSEventModifierFlagOption NSAlternateKeyMask
+# define NSEventModifierFlagCommand NSCommandKeyMask
+# define NSEventMaskAny NSAnyEventMask
+# define NSWindowStyleMaskTitled NSTitledWindowMask
+# define NSWindowStyleMaskClosable NSClosableWindowMask
+# define NSWindowStyleMaskMiniaturizable NSMiniaturizableWindowMask
+# define NSWindowStyleMaskResizable NSResizableWindowMask
+# define NSAlertStyleInformational NSInformationalAlertStyle
+# define NSControlSizeSmall NSSmallControlSize
+#endif
+
 #ifndef MAC_OS_VERSION_10_3
 # define MAC_OS_VERSION_10_3 1030
 #endif
@@ -15,7 +31,7 @@ int osx_msgbox(const char *name, const char *msg)
 	NSAlert *alert = [[NSAlert alloc] init];
 	[alert addButtonWithTitle: @"OK"];
 	[alert setInformativeText: mmsg];
-	[alert setAlertStyle: NSInformationalAlertStyle];
+	[alert setAlertStyle: NSAlertStyleInformational];
 
 	[alert runModal];
 
@@ -43,7 +59,7 @@ int osx_ynbox(const char *name, const char *msg)
 	[alert addButtonWithTitle:@"Yes"];
 	[alert addButtonWithTitle:@"No"];
 	[alert setInformativeText: mmsg];
-	[alert setAlertStyle: NSInformationalAlertStyle];
+	[alert setAlertStyle: NSAlertStyleInformational];
 
 	r = ([alert runModal] == NSAlertFirstButtonReturn);
 

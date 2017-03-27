@@ -13,6 +13,22 @@
 #import "GrpFile.game.h"
 #import "GameListSource.game.h"
 
+#ifndef MAC_OS_X_VERSION_10_5
+# define NSImageScaleNone NSScaleNone
+#endif
+
+#ifndef MAC_OS_X_VERSION_10_12
+# define NSEventModifierFlagOption NSAlternateKeyMask
+# define NSEventModifierFlagCommand NSCommandKeyMask
+# define NSEventMaskAny NSAnyEventMask
+# define NSWindowStyleMaskTitled NSTitledWindowMask
+# define NSWindowStyleMaskClosable NSClosableWindowMask
+# define NSWindowStyleMaskMiniaturizable NSMiniaturizableWindowMask
+# define NSWindowStyleMaskResizable NSResizableWindowMask
+# define NSAlertStyleInformational NSInformationalAlertStyle
+# define NSControlSizeSmall NSSmallControlSize
+#endif
+
 static NSRect NSRectChangeXY(NSRect const rect, CGFloat const x, CGFloat const y)
 {
     return NSMakeRect(x, y, rect.size.width, rect.size.height);
@@ -42,7 +58,7 @@ static void setControlToSmall(id control)
 #ifdef MAC_OS_X_VERSION_10_12
     [control setControlSize:NSControlSizeSmall];
 #else
-    [control setControlSize:NSSmallControlSize];
+    [control setControlSize:NSControlSizeSmall];
 #endif
 }
 
@@ -141,7 +157,7 @@ static void CreateApplicationMenus(void)
     [rootMenu addItemWithTitle:title action:@selector(hide:) keyEquivalent:@"h"];
 
     menuItem = (NSMenuItem *)[rootMenu addItemWithTitle:@"Hide Others" action:@selector(hideOtherApplications:) keyEquivalent:@"h"];
-    [menuItem setKeyEquivalentModifierMask:(NSAlternateKeyMask|NSCommandKeyMask)];
+    [menuItem setKeyEquivalentModifierMask:(NSEventModifierFlagOption|NSEventModifierFlagCommand)];
 
     [rootMenu addItemWithTitle:@"Show All" action:@selector(unhideAllApplications:) keyEquivalent:@""];
 
@@ -207,7 +223,7 @@ static struct {
 
 - (StartupWindow *)init
 {
-    NSUInteger const style = NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask | NSResizableWindowMask;
+    NSUInteger const style = NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable;
     NSRect const windowFrame = NSMakeRect(0, 0, 480, 280);
     self = [super initWithContentRect:windowFrame styleMask:style backing:NSBackingStoreBuffered defer:NO];
 
@@ -226,11 +242,7 @@ static struct {
         // image on the left
         NSRect const imageFrame = NSMakeRect(0, 0, 100, 280);
         NSImageView * imageView = [[NSImageView alloc] initWithFrame:imageFrame];
-#ifdef MAC_OS_X_VERSION_10_5
         [imageView setImageScaling:NSImageScaleNone];
-#else
-        [imageView setImageScaling:NSScaleNone];
-#endif
         [imageView setImage:[NSImage imageNamed:@"game"]];
         [[self contentView] addSubview:imageView];
         [imageView setAutoresizingMask:NSViewMaxXMargin | NSViewHeightSizable];
@@ -647,7 +659,7 @@ int startwin_idle(void *v)
         NSEvent *event;
         do
         {
-            event = [nsapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate date] inMode:NSDefaultRunLoopMode dequeue:YES];
+            event = [nsapp nextEventMatchingMask:NSEventMaskAny untilDate:[NSDate date] inMode:NSDefaultRunLoopMode dequeue:YES];
             [nsapp sendEvent:event];
         }
         while (event != nil);
@@ -675,7 +687,7 @@ int startwin_run(void)
 
     do
     {
-        NSEvent *event = [nsapp nextEventMatchingMask:NSAnyEventMask untilDate:[NSDate distantFuture] inMode:NSDefaultRunLoopMode dequeue:YES];
+        NSEvent *event = [nsapp nextEventMatchingMask:NSEventMaskAny untilDate:[NSDate distantFuture] inMode:NSDefaultRunLoopMode dequeue:YES];
         [nsapp sendEvent:event];
         [nsapp updateWindows];
     }
