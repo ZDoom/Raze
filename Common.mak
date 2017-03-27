@@ -287,6 +287,11 @@ CSTD:=-std=gnu99
 CONLYFLAGS=$(CSTD)
 CXXSTD:=-std=gnu++03
 CXXONLYFLAGS=$(CXXSTD) -fno-exceptions -fno-rtti
+ifneq (0,$(CLANG))
+    CSTD:=$(subst gnu,c,$(CSTD))
+    CXXSTD:=$(subst gnu,c,$(CXXSTD))
+endif
+
 ASFORMAT=elf$(BITS)
 ASFLAGS=-s -f $(ASFORMAT) #-g
 LINKERFLAGS=
