@@ -824,6 +824,13 @@ void G_AddSearchPaths(void)
     char buf[BMAX_PATH] = {0};
     DWORD bufsize;
 
+    // Duke Nukem 3D: 20th Anniversary World Tour (Steam)
+    bufsize = sizeof(buf);
+    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 434050", "InstallLocation", buf, &bufsize))
+    {
+        addsearchpath_user(buf, SEARCHPATH_REMOVE);
+    }
+
     // Duke Nukem 3D: Megaton Edition (Steam)
     bufsize = sizeof(buf);
     if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", buf, &bufsize))
