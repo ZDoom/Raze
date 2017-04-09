@@ -13,6 +13,9 @@
 # define NEED_SHLWAPI_H
 # include "windows_inc.h"
 # include "winbits.h"
+# ifndef KEY_WOW64_64KEY
+#  define KEY_WOW64_64KEY 0x0100
+# endif
 # ifndef KEY_WOW64_32KEY
 #  define KEY_WOW64_32KEY 0x0200
 # endif
@@ -509,18 +512,26 @@ void G_LoadGroups(int32_t autoload)
 #ifdef _WIN32
 static int G_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, DWORD * OutputSize)
 {
-    HKEY hkey;
-    LONG keygood = RegOpenKeyEx(HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ | KEY_WOW64_32KEY, &hkey);
     // KEY_WOW64_32KEY gets us around Wow6432Node on 64-bit builds
+    REGSAM const wow64keys[] = { KEY_WOW64_32KEY, KEY_WOW64_64KEY };
 
-    if (keygood != ERROR_SUCCESS)
-        return 0;
+    for (size_t k = 0; k < ARRAY_SIZE(wow64keys); ++k)
+    {
+        HKEY hkey;
+        LONG keygood = RegOpenKeyEx(HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ | wow64keys[k], &hkey);
 
-    LONG retval = SHGetValueA(hkey, SubKey, Value, NULL, Output, OutputSize);
+        if (keygood != ERROR_SUCCESS)
+            continue;
 
-    RegCloseKey(hkey);
+        LONG retval = SHGetValueA(hkey, SubKey, Value, NULL, Output, OutputSize);
 
-    return retval == ERROR_SUCCESS;
+        RegCloseKey(hkey);
+
+        if (retval == ERROR_SUCCESS)
+            return 1;
+    }
+
+    return 0;
 }
 #endif
 
