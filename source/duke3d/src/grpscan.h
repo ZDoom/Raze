@@ -34,6 +34,7 @@ extern "C" {
 #define DUKEKR_CRC  (int32_t)0xAA4F6A40
 #define DUKE15_CRC  (int32_t)0xFD3DCFF1
 #define DUKEPP_CRC  (int32_t)0xF514A6AC
+#define DUKEWT_CRC  (int32_t)0x982AFE4A
 #define DUKE099_CRC (int32_t)0x02F18900
 #define DUKE10_CRC  (int32_t)0xA28AA589
 #define DUKE11_CRC  (int32_t)0x912E1E8D

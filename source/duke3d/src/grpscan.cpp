@@ -43,6 +43,7 @@ static internalgrpinfo_t const internalgrpfiles[] =
     { "Duke Nukem 3D",                         DUKE13_CRC,  26524524, GAMEFLAG_DUKE,                         0, NULL, NULL},
     { "Duke Nukem 3D (South Korean Censored)", DUKEKR_CRC,  26385383, GAMEFLAG_DUKE,                         0, NULL, NULL},
     { "Duke Nukem 3D: Atomic Edition",         DUKE15_CRC,  44356548, GAMEFLAG_DUKE,                         0, NULL, NULL},
+    { "Duke Nukem 3D: Atomic Edition (WT)",    DUKEWT_CRC,  44356548, GAMEFLAG_DUKE,                         0, NULL, NULL},
     { "Duke Nukem 3D: Plutonium Pak",          DUKEPP_CRC,  44348015, GAMEFLAG_DUKE,                         0, NULL, NULL},
     { "Duke Nukem 3D Shareware 0.99",          DUKE099_CRC, 9690241,  GAMEFLAG_DUKE|GAMEFLAG_DUKEBETA,       0, NULL, NULL},
     { "Duke Nukem 3D Shareware 1.0",           DUKE10_CRC,  10429258, GAMEFLAG_DUKE|GAMEFLAG_SHAREWARE,      0, NULL, NULL},
