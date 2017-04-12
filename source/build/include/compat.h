@@ -32,6 +32,33 @@
 #endif
 
 
+////////// Language detection //////////
+
+#if defined __STDC__
+# if defined __STDC_VERSION__ && __STDC_VERSION__ >= 201112L
+#  define CSTD 2011
+# elif defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#  define CSTD 1999
+# elif defined __STDC_VERSION__ && __STDC_VERSION__ >= 199409L
+#  define CSTD 1994
+# else
+#  define CSTD 1989
+# endif
+#else
+# define CSTD 0
+#endif
+
+#if defined __cplusplus && __cplusplus >= 201402L
+# define CXXSTD 2014
+#elif defined __cplusplus && __cplusplus >= 201103L
+# define CXXSTD 2011
+#elif defined __cplusplus && __cplusplus >= 199711L
+# define CXXSTD 1998
+#else
+# define CXXSTD 0
+#endif
+
+
 ////////// Language and compiler feature polyfills //////////
 
 #ifdef __cplusplus
@@ -122,7 +149,7 @@
 
 #if EDUKE32_GCC_PREREQ(2,0) || defined _MSC_VER
 # define EDUKE32_FUNCTION __FUNCTION__
-#elif (defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L) || (defined __cplusplus && __cplusplus >= 201103L)
+#elif CSTD >= 1999 || CXXSTD >= 2011
 # define EDUKE32_FUNCTION __func__
 #else
 # define EDUKE32_FUNCTION "???"
