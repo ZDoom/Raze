@@ -190,6 +190,18 @@
 # define ASMSYM(x) x
 #endif
 
+#if defined __cplusplus && (__cplusplus >= 201103L || __has_feature(cxx_constexpr))
+# define HAVE_CONSTEXPR
+# define CONSTEXPR constexpr
+#else
+# define CONSTEXPR
+#endif
+
+#if CXXSTD >= 2014
+# define CONSTEXPR_CXX14 CONSTEXPR
+#else
+# define CONSTEXPR_CXX14
+#endif
 
 ////////// Platform detection //////////
 
@@ -663,7 +675,7 @@ EDUKE32_STATIC_ASSERT(sizeof(vec3d_t) == sizeof(double) * 3);
 
 #if defined _MSC_VER
 # define ARRAY_SIZE(arr) _countof(arr)
-#elif defined __cplusplus && (__cplusplus >= 201103L || __has_feature(cxx_constexpr))
+#elif defined HAVE_CONSTEXPR
 template <typename T, size_t N>
 static FORCE_INLINE constexpr size_t ARRAY_SIZE(T const (&)[N]) noexcept
 {
