@@ -285,7 +285,7 @@ endif
 
 CSTD:=-std=gnu99
 CONLYFLAGS=$(CSTD)
-CXXSTD:=-std=gnu++03
+CXXSTD:=-std=gnu++11
 CXXONLYFLAGS=$(CXXSTD) -fno-exceptions -fno-rtti
 ifneq (0,$(CLANG))
     CSTD:=$(subst gnu,c,$(CSTD))
