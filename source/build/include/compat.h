@@ -238,12 +238,10 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #  define B_LITTLE_ENDIAN 0
 #  define B_BIG_ENDIAN    1
 # endif
-# define B_USE_COMPAT_SWAP 1
 
 #elif defined(GEKKO) || defined(__ANDROID__)
 # define B_LITTLE_ENDIAN 0
 # define B_BIG_ENDIAN 1
-# define B_USE_COMPAT_SWAP 1
 
 #elif defined(__OpenBSD__)
 # include <machine/endian.h>
@@ -254,9 +252,6 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #  define B_LITTLE_ENDIAN 0
 #  define B_BIG_ENDIAN    1
 # endif
-# define B_SWAP64(x) __swap64(x)
-# define B_SWAP32(x) __swap32(x)
-# define B_SWAP16(x) __swap16(x)
 
 #elif defined EDUKE32_BSD
 # include <sys/endian.h>
@@ -267,9 +262,6 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #  define B_LITTLE_ENDIAN 0
 #  define B_BIG_ENDIAN    1
 # endif
-# define B_SWAP64(x) __bswap64(x)
-# define B_SWAP32(x) __bswap32(x)
-# define B_SWAP16(x) __bswap16(x)
 
 #elif defined(__APPLE__)
 # if defined(__LITTLE_ENDIAN__)
@@ -280,9 +272,6 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #  define B_BIG_ENDIAN    1
 # endif
 # include <libkern/OSByteOrder.h>
-# define B_SWAP64(x) OSSwapConstInt64(x)
-# define B_SWAP32(x) OSSwapConstInt32(x)
-# define B_SWAP16(x) OSSwapConstInt16(x)
 
 #elif defined(__BEOS__)
 # include <posix/endian.h>
@@ -293,7 +282,6 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #  define B_LITTLE_ENDIAN 0
 #  define B_BIG_ENDIAN    1
 # endif
-# define B_USE_COMPAT_SWAP 1
 
 #elif defined(__QNX__)
 # if defined __LITTLEENDIAN__
@@ -303,7 +291,6 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #  define B_LITTLE_ENDIAN 0
 #  define B_BIG_ENDIAN    1
 # endif
-# define B_USE_COMPAT_SWAP 1
 
 #elif defined(__sun)
 # if defined _LITTLE_ENDIAN
@@ -313,12 +300,10 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #  define B_LITTLE_ENDIAN 0
 #  define B_BIG_ENDIAN    1
 # endif
-# define B_USE_COMPAT_SWAP 1
 
 #elif defined(_WIN32) || defined(SKYOS) || defined(__SYLLABLE__)
 # define B_LITTLE_ENDIAN 1
 # define B_BIG_ENDIAN    0
-# define B_USE_COMPAT_SWAP 1
 #endif
 
 #if !defined(B_LITTLE_ENDIAN) || !defined(B_BIG_ENDIAN)
@@ -744,42 +729,39 @@ static FORCE_INLINE void *Baligned_alloc(const size_t alignment, const size_t si
 
 ////////// Data serialization //////////
 
-#if defined B_USE_COMPAT_SWAP
-static FORCE_INLINE uint16_t B_SWAP16(uint16_t s) { return (s >> 8) | (s << 8); }
+static FORCE_INLINE CONSTEXPR uint16_t B_SWAP16(uint16_t value)
+{
+    return
+        ((value & 0xFF00u) >> 8u) |
+        ((value & 0x00FFu) << 8u);
+}
 
-# if !defined NOASM && defined __i386__ && defined _MSC_VER
-static FORCE_INLINE uint32_t B_SWAP32(uint32_t a)
+static FORCE_INLINE CONSTEXPR uint32_t B_SWAP32(uint32_t value)
 {
-    _asm
-    {
-        mov eax, a
-        bswap eax
-    }
+    return
+        ((value & 0xFF000000u) >> 24u) |
+        ((value & 0x00FF0000u) >>  8u) |
+        ((value & 0x0000FF00u) <<  8u) |
+        ((value & 0x000000FFu) << 24u);
 }
-# elif !defined NOASM && defined __i386__ && defined __GNUC__
-static FORCE_INLINE uint32_t B_SWAP32(uint32_t a)
-{
-    __asm__ __volatile__("bswap %0" : "+r"(a) : : "cc");
-    return a;
-}
-# else
-static FORCE_INLINE uint32_t B_SWAP32(uint32_t l)
-{
-    return ((l >> 8) & 0xff00) | ((l & 0xff00) << 8) | (l << 24) | (l >> 24);
-}
-# endif
 
-static FORCE_INLINE uint64_t B_SWAP64(uint64_t l)
+static FORCE_INLINE CONSTEXPR uint64_t B_SWAP64(uint64_t value)
 {
-    return (l >> 56) | ((l >> 40) & 0xff00) | ((l >> 24) & 0xff0000) | ((l >> 8) & 0xff000000) |
-        ((l & 255) << 56) | ((l & 0xff00) << 40) | ((l & 0xff0000) << 24) | ((l & 0xff000000) << 8);
+    return
+      ((value & 0xFF00000000000000ULL) >> 56ULL) |
+      ((value & 0x00FF000000000000ULL) >> 40ULL) |
+      ((value & 0x0000FF0000000000ULL) >> 24ULL) |
+      ((value & 0x000000FF00000000ULL) >>  8ULL) |
+      ((value & 0x00000000FF000000ULL) <<  8ULL) |
+      ((value & 0x0000000000FF0000ULL) << 24ULL) |
+      ((value & 0x000000000000FF00ULL) << 40ULL) |
+      ((value & 0x00000000000000FFULL) << 56ULL);
 }
-#endif
 
 // The purpose of these functions, as opposed to macros, is to prevent them from being used as lvalues.
-static FORCE_INLINE uint16_t B_PASS16(uint16_t const x) { return x; }
-static FORCE_INLINE uint32_t B_PASS32(uint32_t const x) { return x; }
-static FORCE_INLINE uint64_t B_PASS64(uint64_t const x) { return x; }
+static FORCE_INLINE CONSTEXPR uint16_t B_PASS16(uint16_t const x) { return x; }
+static FORCE_INLINE CONSTEXPR uint32_t B_PASS32(uint32_t const x) { return x; }
+static FORCE_INLINE CONSTEXPR uint64_t B_PASS64(uint64_t const x) { return x; }
 
 #if B_LITTLE_ENDIAN == 1
 # define B_LITTLE64(x) B_PASS64(x)
