@@ -936,6 +936,25 @@ CLAMP_DECL int32_t clamp2(int32_t in, int32_t min, int32_t max) { return in >= m
 CLAMP_DECL float fclamp2(float in, float min, float max) { return in >= max ? max : (in <= min ? min : in); }
 
 
+////////// Mathematical operations //////////
+
+#ifdef __cplusplus
+
+template <size_t base, typename T>
+CONSTEXPR size_t logbase(T n)
+{
+    return n < static_cast<T>(base) ? 1 : 1 + logbase<base>(n / static_cast<T>(base));
+}
+// hackish version to work around the impossibility of representing abs(INT*_MIN)
+template <size_t base, typename T>
+CONSTEXPR size_t logbasenegative(T n)
+{
+    return n > static_cast<T>(-(native_t)base) ? 1 : 1 + logbase<base>(n / static_cast<T>(-(native_t)base));
+}
+
+#endif
+
+
 ////////// Utility functions //////////
 
 #if RAND_MAX == 32767
