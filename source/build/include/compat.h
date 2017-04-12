@@ -650,6 +650,33 @@ template<bool B, class T, class F>
 using conditional_t = typename std::conditional<B, T, F>::type;
 # endif
 
+template <size_t size>
+struct integers_of_size { };
+template <>
+struct integers_of_size<sizeof(int8_t)>
+{
+    typedef int8_t i;
+    typedef uint8_t u;
+};
+template <>
+struct integers_of_size<sizeof(int16_t)>
+{
+    typedef int16_t i;
+    typedef uint16_t u;
+};
+template <>
+struct integers_of_size<sizeof(int32_t)>
+{
+    typedef int32_t i;
+    typedef uint32_t u;
+};
+template <>
+struct integers_of_size<sizeof(int64_t)>
+{
+    typedef int64_t i;
+    typedef uint64_t u;
+};
+
 #endif
 
 
@@ -665,6 +692,15 @@ private:
     char dummy;
 };
 #endif
+
+#if CXXSTD >= 2011
+using native_t = typename integers_of_size<sizeof(size_t)>::i;
+using unative_t = typename integers_of_size<sizeof(size_t)>::u;
+#else
+typedef ssize_t native_t;
+typedef size_t unative_t;
+#endif
+EDUKE32_STATIC_ASSERT(sizeof(native_t) == sizeof(unative_t));
 
 typedef struct {
     int32_t x, y;
