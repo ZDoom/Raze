@@ -197,6 +197,12 @@
 # define CONSTEXPR
 #endif
 
+#if CXXSTD >= 2011
+# define FINAL final
+#else
+# define FINAL
+#endif
+
 #if CXXSTD >= 2014
 # define CONSTEXPR_CXX14 CONSTEXPR
 #else
@@ -345,6 +351,11 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 
 #include <assert.h>
 
+#ifdef __cplusplus
+# if CXXSTD >= 2011
+#  include <type_traits>
+# endif
+#endif
 
 ////////// Platform headers //////////
 
@@ -621,7 +632,39 @@ void eduke32_exit_return(int) ATTRIBUTE((noreturn));
 #endif
 
 
+////////// Metaprogramming structs //////////
+
+#ifdef __cplusplus
+
+# if CXXSTD >= 2011
+using std::is_integral;
+# endif
+
+# if CXXSTD >= 2014
+using std::enable_if_t;
+using std::conditional_t;
+# elif CXXSTD >= 2011
+template <bool B, class T = void>
+using enable_if_t = typename std::enable_if<B, T>::type;
+template<bool B, class T, class F>
+using conditional_t = typename std::conditional<B, T, F>::type;
+# endif
+
+#endif
+
+
 ////////// Typedefs //////////
+
+#ifdef __cplusplus
+// for use in SFINAE constructs in place of the pointer trick (to which 0 can unintentionally be implicitly cast)
+struct Dummy FINAL
+{
+    FORCE_INLINE CONSTEXPR Dummy() : dummy(0) { }
+
+private:
+    char dummy;
+};
+#endif
 
 typedef struct {
     int32_t x, y;
