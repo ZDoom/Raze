@@ -6314,11 +6314,14 @@ void C_Compile(const char *fileName)
         if (g_loadFromGroupOnly == 1 || numgroupfiles == 0)
         {
             char const *gf = G_GrpFile();
-
+#ifndef EDUKE32_STANDALONE
             Bsprintf(tempbuf,"Required game data was not found.  A valid copy of \"%s\" or other compatible data is needed to run EDuke32.\n\n"
                      "You can find \"%s\" in the \"DN3DINST\" or \"ATOMINST\" directory on your Duke Nukem 3D installation disc.\n\n"
                      "Please copy \"%s\" to your game directory and restart EDuke32!", gf, gf, gf);
             G_GameExit(tempbuf);
+#else
+            G_GameExit(" ");
+#endif
         }
         else
         {
