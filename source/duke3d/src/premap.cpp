@@ -1908,9 +1908,16 @@ int G_EnterLevel(int gameMode)
 
     if (ud.recstat != 2)
     {
+        int32_t const mpos = S_GetMusicPosition();
+
+        if (g_mapInfo[mii].musicfn != NULL)
+            S_PlayMusic(g_mapInfo[mii].musicfn);
+
+        if (g_mapInfo[g_musicIndex].musicfn != NULL && g_mapInfo[mii].musicfn != NULL
+            && !Bstrcmp(g_mapInfo[g_musicIndex].musicfn, g_mapInfo[mii].musicfn))
+            S_SetMusicPosition(mpos);
+
         g_musicIndex = mii;
-        if (g_mapInfo[g_musicIndex].musicfn != NULL)
-            S_PlayMusic(g_mapInfo[g_musicIndex].musicfn);
     }
 
     if (gameMode & (MODE_GAME|MODE_EOL))
