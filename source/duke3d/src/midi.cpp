@@ -32,7 +32,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 **********************************************************************/
 
 #include "compat.h"
-#include "standard.h"
+#include <stdlib.h>
+#include <string.h>
 #include "music.h"
 #include "_midi.h"
 #include "midi.h"
