@@ -40,6 +40,7 @@ extern "C" {
 #define DUKE11_CRC  (int32_t)0x912E1E8D
 #define DUKESW_CRC  (int32_t)0x983AD923
 #define DUKEMD_CRC  (int32_t)0xC5F71561
+#define DUKEMD2_CRC  (int32_t)0x73A15EE7
 #define DUKEDC13_CRC (int32_t)0xA9242158
 #define DUKEDCPP_CRC (int32_t)0xB79D997F
 #define DUKEDC_CRC  (int32_t)0xA8CF80DA
