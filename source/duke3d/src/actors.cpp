@@ -492,7 +492,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
 
     Bassert(newSectnum == pSprite->sectnum);
 
-    int doZUpdate = A_CheckNeedZUpdate(spriteNum, change->z, &newZ);
+    int const doZUpdate = change->z ? A_CheckNeedZUpdate(spriteNum, change->z, &newZ) : 0;
 
     // Update sprite's z positions and (for TROR) maybe the sector number.
     if (doZUpdate)
