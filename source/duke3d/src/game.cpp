@@ -205,7 +205,13 @@ void G_HandleSpecialKeys(void)
         Bsprintf(titlebuf,HEAD2 " %s",s_buildRev);
 
         KB_ClearKeyDown(sc_F12);
-        screencapture("duke0000.tga",0,titlebuf);
+        screencapture(
+#ifdef EDUKE32_STANDALONE
+            "duke0000.tga"
+#else
+            "scrn0000.tga"
+#endif
+            ,0,titlebuf);
         P_DoQuote(QUOTE_SCREEN_SAVED,g_player[myconnectindex].ps);
     }
 
