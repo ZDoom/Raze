@@ -872,7 +872,7 @@ REDODOOR:
             }
             else
             {
-                OSD_Printf("WARNING: ST22: null sector: floor neighbor=%d, ceiling neighbor=%d!\n",
+                OSD_Printf("WARNING: ST_22_SPLITTING_DOOR: null sector: floor neighbor=%d, ceiling neighbor=%d!\n",
                            floorNeighbor, ceilingNeighbor);
                 pSector->lotag ^= 0x8000;
             }
@@ -897,7 +897,7 @@ REDODOOR:
 
             if (i < 0)
             {
-                OSD_Printf("WARNING: SE23 i<0!\n");
+                OSD_Printf("WARNING: ST_23_SWINGING_DOOR without SE_11_SWINGING_DOOR!\n");
                 return;
             }    // JBF
 
