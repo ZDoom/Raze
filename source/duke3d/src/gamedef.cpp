@@ -2025,6 +2025,7 @@ static int32_t C_GetNextValue(int32_t type)
         *g_scriptPtr = 0;
         g_scriptPtr++;
         textptr+=l;
+        if (!l) textptr++;
         return -1; // error!
     }
 
