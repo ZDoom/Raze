@@ -4929,7 +4929,7 @@ repeatcase:
                 if (tw == CON_CASE)
                 {
                     g_numCases++;
-                    C_GetNextValue(LABEL_DEFINE);
+                    C_GetNextValue(LABEL_ANY);
                     j= *(--g_scriptPtr);
                 }
 
