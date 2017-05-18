@@ -37,7 +37,7 @@ extern "C" {
 
 // KEEPINSYNC lunatic/con_lang.lua
 #define MAXSOUNDS           4096
-#define MAXSOUNDINSTANCES   4
+#define MAXSOUNDINSTANCES   8
 #define LOUDESTVOLUME       150
 #define MUSIC_ID            -65536
 
