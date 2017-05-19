@@ -5540,6 +5540,15 @@ static void HandleSE31(int spriteNum, int setFloorZ, int spriteZ, int SEdir, int
         pData[0] = 0;
         pData[3] = pSprite->hitag;
 
+        for (bssize_t SPRITES_OF_SECT(pSprite->sectnum, j))
+        {
+            if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
+            {
+                actor[j].bpos.z = sprite[j].z;
+                actor[j].floorz = pSector->floorz;
+            }
+        }
+
         A_CallSound(pSprite->sectnum, spriteNum);
     }
     else
@@ -5560,7 +5569,8 @@ static void HandleSE31(int spriteNum, int setFloorZ, int spriteZ, int SEdir, int
 
             if (sprite[j].zvel == 0 && sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PROJECTILE)
             {
-                actor[j].bpos.z = sprite[j].z += zChange;
+                actor[j].bpos.z = sprite[j].z;
+                sprite[j].z += zChange;
                 actor[j].floorz = pSector->floorz;
             }
         }
