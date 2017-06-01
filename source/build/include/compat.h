@@ -687,8 +687,6 @@ struct integers_of_size<sizeof(int64_t)>
 struct Dummy FINAL
 {
     FORCE_INLINE CONSTEXPR Dummy() : dummy(0) { }
-
-private:
     char dummy;
 };
 #endif
