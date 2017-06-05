@@ -643,11 +643,17 @@ using std::is_integral;
 # if CXXSTD >= 2014
 using std::enable_if_t;
 using std::conditional_t;
+using std::make_signed_t;
+using std::make_unsigned_t;
 # elif CXXSTD >= 2011
 template <bool B, class T = void>
 using enable_if_t = typename std::enable_if<B, T>::type;
 template<bool B, class T, class F>
 using conditional_t = typename std::conditional<B, T, F>::type;
+template <typename T>
+using make_signed_t = typename std::make_signed<T>::type;
+template <typename T>
+using make_unsigned_t = typename std::make_unsigned<T>::type;
 # endif
 
 template <size_t size>
@@ -937,6 +943,25 @@ CLAMP_DECL float fclamp2(float in, float min, float max) { return in >= max ? ma
 ////////// Mathematical operations //////////
 
 #ifdef __cplusplus
+
+#if CXXSTD >= 2011
+template <typename T>
+struct DivResult
+{
+    T q; // quotient
+    T r; // remainder
+};
+template <typename T>
+FORCE_INLINE CONSTEXPR DivResult<T> divide(T lhs, T rhs)
+{
+    return DivResult<T>{(T)(lhs / rhs), (T)(lhs % rhs)};
+}
+template <native_t base, typename T>
+FORCE_INLINE CONSTEXPR DivResult<T> divrhs(T lhs)
+{
+    return divide(lhs, (T)base);
+}
+#endif
 
 template <size_t base, typename T>
 CONSTEXPR size_t logbase(T n)
