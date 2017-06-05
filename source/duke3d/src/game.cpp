@@ -1175,40 +1175,39 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 void G_DumpDebugInfo(void)
 {
 #if !defined LUNATIC
+    static char const s_WEAPON[] = "WEAPON";
     int32_t i,j,x;
     //    FILE * fp=fopen("condebug.log","w");
 
     VM_ScriptInfo(insptr, 64);
-    OSD_Printf("\n");
-
-    OSD_Printf("Current gamevar values:\n");
+    buildprint("\nCurrent gamevar values:\n");
 
     for (i=0; i<MAX_WEAPONS; i++)
     {
         for (j=0; j<numplayers; j++)
         {
-            OSD_Printf("Player %d\n\n",j);
-            OSD_Printf("WEAPON%d_CLIP %" PRIdPTR "\n", i, PWEAPON(j, i, Clip));
-            OSD_Printf("WEAPON%d_RELOAD %" PRIdPTR "\n", i, PWEAPON(j, i, Reload));
-            OSD_Printf("WEAPON%d_FIREDELAY %" PRIdPTR "\n", i, PWEAPON(j, i, FireDelay));
-            OSD_Printf("WEAPON%d_TOTALTIME %" PRIdPTR "\n", i, PWEAPON(j, i, TotalTime));
-            OSD_Printf("WEAPON%d_HOLDDELAY %" PRIdPTR "\n", i, PWEAPON(j, i, HoldDelay));
-            OSD_Printf("WEAPON%d_FLAGS %" PRIdPTR "\n", i, PWEAPON(j, i, Flags));
-            OSD_Printf("WEAPON%d_SHOOTS %" PRIdPTR "\n", i, PWEAPON(j, i, Shoots));
-            OSD_Printf("WEAPON%d_SPAWNTIME %" PRIdPTR "\n", i, PWEAPON(j, i, SpawnTime));
-            OSD_Printf("WEAPON%d_SPAWN %" PRIdPTR "\n", i, PWEAPON(j, i, Spawn));
-            OSD_Printf("WEAPON%d_SHOTSPERBURST %" PRIdPTR "\n", i, PWEAPON(j, i, ShotsPerBurst));
-            OSD_Printf("WEAPON%d_WORKSLIKE %" PRIdPTR "\n", i, PWEAPON(j, i, WorksLike));
-            OSD_Printf("WEAPON%d_INITIALSOUND %" PRIdPTR "\n", i, PWEAPON(j, i, InitialSound));
-            OSD_Printf("WEAPON%d_FIRESOUND %" PRIdPTR "\n", i, PWEAPON(j, i, FireSound));
-            OSD_Printf("WEAPON%d_SOUND2TIME %" PRIdPTR "\n", i, PWEAPON(j, i, Sound2Time));
-            OSD_Printf("WEAPON%d_SOUND2SOUND %" PRIdPTR "\n", i, PWEAPON(j, i, Sound2Sound));
-            OSD_Printf("WEAPON%d_RELOADSOUND1 %" PRIdPTR "\n", i, PWEAPON(j, i, ReloadSound1));
-            OSD_Printf("WEAPON%d_RELOADSOUND2 %" PRIdPTR "\n", i, PWEAPON(j, i, ReloadSound2));
-            OSD_Printf("WEAPON%d_SELECTSOUND %" PRIdPTR "\n", i, PWEAPON(j, i, SelectSound));
-            OSD_Printf("WEAPON%d_FLASHCOLOR %" PRIdPTR "\n", i, PWEAPON(j, i, FlashColor));
+            buildprint("Player ", j, "\n\n");
+            buildprint(s_WEAPON, i, "_CLIP ", PWEAPON(j, i, Clip), "\n");
+            buildprint(s_WEAPON, i, "_RELOAD ", PWEAPON(j, i, Reload), "\n");
+            buildprint(s_WEAPON, i, "_FIREDELAY ", PWEAPON(j, i, FireDelay), "\n");
+            buildprint(s_WEAPON, i, "_TOTALTIME ", PWEAPON(j, i, TotalTime), "\n");
+            buildprint(s_WEAPON, i, "_HOLDDELAY ", PWEAPON(j, i, HoldDelay), "\n");
+            buildprint(s_WEAPON, i, "_FLAGS ", PWEAPON(j, i, Flags), "\n");
+            buildprint(s_WEAPON, i, "_SHOOTS ", PWEAPON(j, i, Shoots), "\n");
+            buildprint(s_WEAPON, i, "_SPAWNTIME ", PWEAPON(j, i, SpawnTime), "\n");
+            buildprint(s_WEAPON, i, "_SPAWN ", PWEAPON(j, i, Spawn), "\n");
+            buildprint(s_WEAPON, i, "_SHOTSPERBURST ", PWEAPON(j, i, ShotsPerBurst), "\n");
+            buildprint(s_WEAPON, i, "_WORKSLIKE ", PWEAPON(j, i, WorksLike), "\n");
+            buildprint(s_WEAPON, i, "_INITIALSOUND ", PWEAPON(j, i, InitialSound), "\n");
+            buildprint(s_WEAPON, i, "_FIRESOUND ", PWEAPON(j, i, FireSound), "\n");
+            buildprint(s_WEAPON, i, "_SOUND2TIME ", PWEAPON(j, i, Sound2Time), "\n");
+            buildprint(s_WEAPON, i, "_SOUND2SOUND ", PWEAPON(j, i, Sound2Sound), "\n");
+            buildprint(s_WEAPON, i, "_RELOADSOUND1 ", PWEAPON(j, i, ReloadSound1), "\n");
+            buildprint(s_WEAPON, i, "_RELOADSOUND2 ", PWEAPON(j, i, ReloadSound2), "\n");
+            buildprint(s_WEAPON, i, "_SELECTSOUND ", PWEAPON(j, i, SelectSound), "\n");
+            buildprint(s_WEAPON, i, "_FLASHCOLOR ", PWEAPON(j, i, FlashColor), "\n");
         }
-        OSD_Printf("\n");
+        buildprint("\n");
     }
 
     for (x=0; x<MAXSTATUS; x++)
@@ -1216,30 +1215,28 @@ void G_DumpDebugInfo(void)
         j = headspritestat[x];
         while (j >= 0)
         {
-            OSD_Printf("Sprite %d (%d,%d,%d) (picnum: %d)\n",j,
-                TrackerCast(sprite[j].x),TrackerCast(sprite[j].y),TrackerCast(sprite[j].z),TrackerCast(sprite[j].picnum));
+            buildprint("Sprite ", j, " (", TrackerCast(sprite[j].x), ",", TrackerCast(sprite[j].y), ",", TrackerCast(sprite[j].z),
+                ") (picnum: ", TrackerCast(sprite[j].picnum), ")\n");
             for (i=0; i<g_gameVarCount; i++)
             {
                 if (aGameVars[i].flags & (GAMEVAR_PERACTOR))
                 {
                     if (aGameVars[i].pValues[j] != aGameVars[i].defaultValue)
                     {
-                        OSD_Printf("gamevar %s ",aGameVars[i].szLabel);
-                        OSD_Printf("%" PRIdPTR "",aGameVars[i].pValues[j]);
-                        OSD_Printf(" GAMEVAR_PERACTOR");
+                        buildprint("gamevar ", aGameVars[i].szLabel, " ", aGameVars[i].pValues[j], " GAMEVAR_PERACTOR");
                         if (aGameVars[i].flags != GAMEVAR_PERACTOR)
                         {
-                            OSD_Printf(" // ");
+                            buildprint(" // ");
                             if (aGameVars[i].flags & (GAMEVAR_SYSTEM))
                             {
-                                OSD_Printf(" (system)");
+                                buildprint(" (system)");
                             }
                         }
-                        OSD_Printf("\n");
+                        buildprint("\n");
                     }
                 }
             }
-            OSD_Printf("\n");
+            buildprint("\n");
             j = nextspritestat[j];
         }
     }

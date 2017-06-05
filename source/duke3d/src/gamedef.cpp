@@ -1338,7 +1338,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
             if (EDUKE32_PREDICT_FALSE((intptr_t)apScript[i] < (intptr_t)&apScript[0] || (intptr_t)apScript[i] >= (intptr_t)&apScript[g_scriptSize]))
             {
                 g_errorCnt++;
-                initprintf("Internal compiler error at %" PRIdPTR " (0x%" PRIxPTR ")\n",i,i);
+                buildprint("Internal compiler error at ", i, " (0x", hex(i), ")\n");
                 VM_ScriptInfo(&apScript[i], 16);
             }
 
@@ -1366,7 +1366,7 @@ static int32_t C_SetScriptSize(int32_t newsize)
     bitptr = newbitptr;
     if (apScript != newscript)
     {
-        initprintf("Relocating compiled code from to 0x%" PRIxPTR " to 0x%" PRIxPTR "\n", (intptr_t)apScript, (intptr_t)newscript);
+        buildprint("Relocating compiled code from to 0x", hex((intptr_t)apScript), " to 0x", hex((intptr_t)newscript), "\n");
         apScript = newscript;
     }
 
@@ -1637,8 +1637,7 @@ static int32_t parse_hex_constant(const char *hexnum)
 
     if (EDUKE32_PREDICT_FALSE(x > UINT32_MAX))
     {
-        initprintf("%s:%d: warning: number 0x%" PRIx64 " truncated to 32 bits.\n",
-                   g_scriptFileName,g_lineNumber, x);
+        initprintf(g_scriptFileName, ":", g_lineNumber, ": warning: number 0x", hex(x), " truncated to 32 bits.\n");
         g_warningCnt++;
     }
 

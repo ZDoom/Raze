@@ -1745,7 +1745,7 @@ skip_check:
 
         case CON_DEBUG:
             insptr++;
-            initprintf("%" PRIdPTR "\n",*insptr++);
+            buildprint(*insptr++, "\n");
             continue;
 
         case CON_ENDOFGAME:

@@ -327,40 +327,40 @@ void Gv_WriteSave(FILE *fil)
 
 void Gv_DumpValues(void)
 {
-    OSD_Printf("// Current Game Definitions\n\n");
+    buildprint("// Current Game Definitions\n\n");
 
     for (bssize_t i=0; i<g_gameVarCount; i++)
     {
-        OSD_Printf("gamevar %s ",aGameVars[i].szLabel);
+        buildprint("gamevar ", aGameVars[i].szLabel, " ");
 
         if (aGameVars[i].flags & (GAMEVAR_INTPTR))
-            OSD_Printf("%d",*((int32_t *)aGameVars[i].global));
+            buildprint(*(int32_t *)aGameVars[i].global);
         else if (aGameVars[i].flags & (GAMEVAR_SHORTPTR))
-            OSD_Printf("%d",*((int16_t *)aGameVars[i].global));
+            buildprint(*(int16_t *)aGameVars[i].global);
         else if (aGameVars[i].flags & (GAMEVAR_CHARPTR))
-            OSD_Printf("%d",*((char *)aGameVars[i].global));
+            buildprint(*(int8_t *)aGameVars[i].global);
         else
-            OSD_Printf("%" PRIdPTR "",aGameVars[i].global);
+            buildprint(aGameVars[i].global);
 
         if (aGameVars[i].flags & (GAMEVAR_PERPLAYER))
-            OSD_Printf(" GAMEVAR_PERPLAYER");
+            buildprint(" GAMEVAR_PERPLAYER");
         else if (aGameVars[i].flags & (GAMEVAR_PERACTOR))
-            OSD_Printf(" GAMEVAR_PERACTOR");
+            buildprint(" GAMEVAR_PERACTOR");
         else
-            OSD_Printf(" %" PRIdPTR,aGameVars[i].flags/* & (GAMEVAR_USER_MASK)*/);
+            buildprint(" ", aGameVars[i].flags/* & (GAMEVAR_USER_MASK)*/);
 
-        OSD_Printf(" // ");
+        buildprint(" // ");
         if (aGameVars[i].flags & (GAMEVAR_SYSTEM))
-            OSD_Printf(" (system)");
+            buildprint(" (system)");
         if (aGameVars[i].flags & (GAMEVAR_PTR_MASK))
-            OSD_Printf(" (pointer)");
+            buildprint(" (pointer)");
         if (aGameVars[i].flags & (GAMEVAR_READONLY))
-            OSD_Printf(" (read only)");
+            buildprint(" (read only)");
         if (aGameVars[i].flags & (GAMEVAR_SPECIAL))
-            OSD_Printf(" (special)");
-        OSD_Printf("\n");
+            buildprint(" (special)");
+        buildprint("\n");
     }
-    OSD_Printf("\n// end of game definitions\n");
+    buildprint("\n// end of game definitions\n");
 }
 
 // XXX: This function is very strange.

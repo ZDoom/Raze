@@ -451,7 +451,7 @@ void Net_HandleClientPackets(void)
         if (playeridx < 0 || playeridx >= MAXPLAYERS)
         {
             enet_peer_disconnect_later(event.peer, DISC_INVALID);
-            initprintf("Invalid player id (%" PRIdPTR ") from client.\n", playeridx);
+            buildprint("Invalid player id (", playeridx, ") from client.\n");
             continue;
         }
 
