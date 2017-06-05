@@ -279,7 +279,7 @@ readonly:
 static int32_t __fastcall VM_AccessSprite(int32_t how, int32_t lVar1, int32_t labelNum, int32_t lVar2)
 {
     int32_t lValue;
-    register int32_t i = (how&ACCESS_USEVARS) ? vm.spriteNum : lVar1;
+    int32_t i = (how&ACCESS_USEVARS) ? vm.spriteNum : lVar1;
 
     if ((how&ACCESS_USEVARS) && lVar1 != M32_THISACTOR_VAR_ID)
         i = Gv_GetVarX(lVar1);

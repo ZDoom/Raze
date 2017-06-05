@@ -24,28 +24,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // I got a 3-4 fps gain by inlining these...
 
 #ifndef gamevars_c_
-int32_t __fastcall VM_GetUserdef(register int32_t labelNum);
-void __fastcall VM_SetUserdef(register int32_t const labelNum, register int32_t const iSet);
-int32_t __fastcall VM_GetActiveProjectile(register int32_t const spriteNum, register int32_t labelNum);
-void __fastcall VM_SetActiveProjectile(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const iSet);
-int32_t __fastcall VM_GetPlayer(register int32_t const playerNum, register int32_t labelNum, register int32_t const lParm2);
-void __fastcall VM_SetPlayer(register int32_t const playerNum, register int32_t const labelNum, register int32_t const lParm2, register int32_t const iSet);
-int32_t __fastcall VM_GetPlayerInput(register int32_t const playerNum, register int32_t labelNum);
-void __fastcall VM_SetPlayerInput(register int32_t const playerNum, register int32_t const labelNum, register int32_t const iSet);
-int32_t __fastcall VM_GetWall(register int32_t const wallNum, register int32_t labelNum);
-void __fastcall VM_SetWall(register int32_t const wallNum, register int32_t const labelNum, register int32_t const iSet);
-int32_t __fastcall VM_GetSector(register int32_t const sectNum, register int32_t labelNum);
-void __fastcall VM_SetSector(register int32_t const sectNum, register int32_t const labelNum, register int32_t iSet);
-int32_t __fastcall VM_GetSprite(register int32_t const spriteNum, register int32_t labelNum, register int32_t const lParm2);
-void __fastcall VM_SetSprite(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const lParm2, register int32_t const iSet);
-int32_t __fastcall VM_GetTsprite(register int32_t const spriteNum, register int32_t labelNum);
-void __fastcall VM_SetTsprite(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const iSet);
-int32_t __fastcall VM_GetProjectile(register int32_t const tileNum, register int32_t labelNum);
-void __fastcall VM_SetProjectile(register int32_t const tileNum, register int32_t const labelNum, register int32_t const iSet);
-int32_t __fastcall VM_GetTileData(register int32_t const tileNum, register int32_t labelNum);
-int32_t __fastcall VM_GetPalData(register int32_t const palNum, register int32_t labelNum);
+int32_t __fastcall VM_GetUserdef(int32_t labelNum);
+void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet);
+int32_t __fastcall VM_GetActiveProjectile(int32_t const spriteNum, int32_t labelNum);
+void __fastcall VM_SetActiveProjectile(int32_t const spriteNum, int32_t const labelNum, int32_t const iSet);
+int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32_t const lParm2);
+void __fastcall VM_SetPlayer(int32_t const playerNum, int32_t const labelNum, int32_t const lParm2, int32_t const iSet);
+int32_t __fastcall VM_GetPlayerInput(int32_t const playerNum, int32_t labelNum);
+void __fastcall VM_SetPlayerInput(int32_t const playerNum, int32_t const labelNum, int32_t const iSet);
+int32_t __fastcall VM_GetWall(int32_t const wallNum, int32_t labelNum);
+void __fastcall VM_SetWall(int32_t const wallNum, int32_t const labelNum, int32_t const iSet);
+int32_t __fastcall VM_GetSector(int32_t const sectNum, int32_t labelNum);
+void __fastcall VM_SetSector(int32_t const sectNum, int32_t const labelNum, int32_t iSet);
+int32_t __fastcall VM_GetSprite(int32_t const spriteNum, int32_t labelNum, int32_t const lParm2);
+void __fastcall VM_SetSprite(int32_t const spriteNum, int32_t const labelNum, int32_t const lParm2, int32_t const iSet);
+int32_t __fastcall VM_GetTsprite(int32_t const spriteNum, int32_t labelNum);
+void __fastcall VM_SetTsprite(int32_t const spriteNum, int32_t const labelNum, int32_t const iSet);
+int32_t __fastcall VM_GetProjectile(int32_t const tileNum, int32_t labelNum);
+void __fastcall VM_SetProjectile(int32_t const tileNum, int32_t const labelNum, int32_t const iSet);
+int32_t __fastcall VM_GetTileData(int32_t const tileNum, int32_t labelNum);
+int32_t __fastcall VM_GetPalData(int32_t const palNum, int32_t labelNum);
 #else
-int32_t __fastcall VM_GetUserdef(register int32_t labelNum)
+int32_t __fastcall VM_GetUserdef(int32_t labelNum)
 {
     switch (labelNum)
     {
@@ -175,7 +175,7 @@ int32_t __fastcall VM_GetUserdef(register int32_t labelNum)
     return labelNum;
 }
 
-void __fastcall VM_SetUserdef(register int32_t const labelNum, register int32_t const iSet)
+void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
 {
     switch (labelNum)
     {
@@ -292,7 +292,7 @@ void __fastcall VM_SetUserdef(register int32_t const labelNum, register int32_t 
     }
 }
 
-int32_t __fastcall VM_GetActiveProjectile(register int32_t const spriteNum, register int32_t labelNum)
+int32_t __fastcall VM_GetActiveProjectile(int32_t const spriteNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
@@ -341,7 +341,7 @@ int32_t __fastcall VM_GetActiveProjectile(register int32_t const spriteNum, regi
     return labelNum;
 }
 
-void __fastcall VM_SetActiveProjectile(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const iSet)
+void __fastcall VM_SetActiveProjectile(int32_t const spriteNum, int32_t const labelNum, int32_t const iSet)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
@@ -388,7 +388,7 @@ void __fastcall VM_SetActiveProjectile(register int32_t const spriteNum, registe
     }
 }
 
-int32_t __fastcall VM_GetPlayer(register int32_t const playerNum, register int32_t labelNum, register int32_t const lParm2)
+int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32_t const lParm2)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
     {
@@ -572,7 +572,7 @@ int32_t __fastcall VM_GetPlayer(register int32_t const playerNum, register int32
     return labelNum;
 }
 
-void __fastcall VM_SetPlayer(register int32_t const playerNum, register int32_t const labelNum, register int32_t const lParm2, register int32_t const iSet)
+void __fastcall VM_SetPlayer(int32_t const playerNum, int32_t const labelNum, int32_t const lParm2, int32_t const iSet)
 {
 
     if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
@@ -767,7 +767,7 @@ void __fastcall VM_SetPlayer(register int32_t const playerNum, register int32_t 
     }
 }
 
-int32_t __fastcall VM_GetPlayerInput(register int32_t const playerNum, register int32_t labelNum)
+int32_t __fastcall VM_GetPlayerInput(int32_t const playerNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
     {
@@ -791,7 +791,7 @@ int32_t __fastcall VM_GetPlayerInput(register int32_t const playerNum, register 
     return labelNum;
 }
 
-void __fastcall VM_SetPlayerInput(register int32_t const playerNum, register int32_t const labelNum, register int32_t const iSet)
+void __fastcall VM_SetPlayerInput(int32_t const playerNum, int32_t const labelNum, int32_t const iSet)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
     {
@@ -815,7 +815,7 @@ void __fastcall VM_SetPlayerInput(register int32_t const playerNum, register int
 
 
 
-int32_t __fastcall VM_GetWall(register int32_t const wallNum, register int32_t labelNum)
+int32_t __fastcall VM_GetWall(int32_t const wallNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
     {
@@ -852,7 +852,7 @@ int32_t __fastcall VM_GetWall(register int32_t const wallNum, register int32_t l
     return labelNum;
 }
 
-void __fastcall VM_SetWall(register int32_t const wallNum, register int32_t const labelNum, register int32_t const iSet)
+void __fastcall VM_SetWall(int32_t const wallNum, int32_t const labelNum, int32_t const iSet)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
     {
@@ -888,7 +888,7 @@ void __fastcall VM_SetWall(register int32_t const wallNum, register int32_t cons
     return;
 }
 
-int32_t __fastcall VM_GetSector(register int32_t const sectNum, register int32_t labelNum)
+int32_t __fastcall VM_GetSector(int32_t const sectNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
     {
@@ -946,7 +946,7 @@ int32_t __fastcall VM_GetSector(register int32_t const sectNum, register int32_t
     return labelNum;
 }
 
-void __fastcall VM_SetSector(register int32_t const sectNum, register int32_t const labelNum, register int32_t iSet)
+void __fastcall VM_SetSector(int32_t const sectNum, int32_t const labelNum, int32_t iSet)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
     {
@@ -1002,7 +1002,7 @@ void __fastcall VM_SetSector(register int32_t const sectNum, register int32_t co
     }
 }
 
-void __fastcall VM_SetSprite(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const lParm2, register int32_t const iSet)
+void __fastcall VM_SetSprite(int32_t const spriteNum, int32_t const labelNum, int32_t const lParm2, int32_t const iSet)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
@@ -1079,7 +1079,7 @@ void __fastcall VM_SetSprite(register int32_t const spriteNum, register int32_t 
 }
 
 
-int32_t __fastcall VM_GetSprite(register int32_t const spriteNum, register int32_t labelNum, register int32_t const lParm2)
+int32_t __fastcall VM_GetSprite(int32_t const spriteNum, int32_t labelNum, int32_t const lParm2)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
@@ -1159,7 +1159,7 @@ int32_t __fastcall VM_GetSprite(register int32_t const spriteNum, register int32
     return labelNum;
 }
 
-int32_t __fastcall VM_GetTsprite(register int32_t const spriteNum, register int32_t labelNum)
+int32_t __fastcall VM_GetTsprite(int32_t const spriteNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
@@ -1208,7 +1208,7 @@ int32_t __fastcall VM_GetTsprite(register int32_t const spriteNum, register int3
     return labelNum;
 }
 
-void __fastcall VM_SetTsprite(register int32_t const spriteNum, register int32_t const labelNum, register int32_t const iSet)
+void __fastcall VM_SetTsprite(int32_t const spriteNum, int32_t const labelNum, int32_t const iSet)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
@@ -1254,7 +1254,7 @@ void __fastcall VM_SetTsprite(register int32_t const spriteNum, register int32_t
     }
 }
 
-int32_t __fastcall VM_GetProjectile(register int32_t const tileNum, register int32_t labelNum)
+int32_t __fastcall VM_GetProjectile(int32_t const tileNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)tileNum >= MAXTILES))
     {
@@ -1308,7 +1308,7 @@ int32_t __fastcall VM_GetProjectile(register int32_t const tileNum, register int
     return labelNum;
 }
 
-void __fastcall VM_SetProjectile(register int32_t const tileNum, register int32_t const labelNum, register int32_t const iSet)
+void __fastcall VM_SetProjectile(int32_t const tileNum, int32_t const labelNum, int32_t const iSet)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)tileNum >= MAXTILES))
     {
@@ -1359,7 +1359,7 @@ void __fastcall VM_SetProjectile(register int32_t const tileNum, register int32_
     }
 }
 
-int32_t __fastcall VM_GetTileData(register int32_t const tileNum, register int32_t labelNum)
+int32_t __fastcall VM_GetTileData(int32_t const tileNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)tileNum >= MAXTILES))
     {
@@ -1386,7 +1386,7 @@ int32_t __fastcall VM_GetTileData(register int32_t const tileNum, register int32
     return labelNum;
 }
 
-int32_t __fastcall VM_GetPalData(register int32_t const palNum, register int32_t labelNum)
+int32_t __fastcall VM_GetPalData(int32_t const palNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)palNum >= MAXPALOOKUPS))
     {

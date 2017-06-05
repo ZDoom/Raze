@@ -40,7 +40,7 @@ extern char *apStrings[MAXQUOTES+1], *apXStrings[MAXQUOTES+1];
 extern int32_t g_numQuoteRedefinitions;
 
 extern int32_t VM_Execute(int32_t once);
-extern void VM_OnEvent(register int32_t iEventID, register int32_t iActor);
+extern void VM_OnEvent(int32_t iEventID, int32_t iActor);
 
 extern void VM_ScriptInfo(void);
 extern void VM_Disasm(ofstype beg, int32_t size);
@@ -49,9 +49,9 @@ extern int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags
 extern int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_t dwFlags);
 extern void Gv_Init(void);
 
-extern int32_t __fastcall Gv_GetVarX(register int32_t id);
-extern void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue);
-extern int32_t __fastcall Gv_GetVarN(register int32_t id);  // 'N' for "no side-effects"... vars and locals only!
+extern int32_t __fastcall Gv_GetVarX(int32_t id);
+extern void __fastcall Gv_SetVarX(int32_t id, int32_t lValue);
+extern int32_t __fastcall Gv_GetVarN(int32_t id);  // 'N' for "no side-effects"... vars and locals only!
 
 extern void SetGamePalette(int32_t);
 

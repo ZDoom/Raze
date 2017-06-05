@@ -454,8 +454,8 @@ extern void __wrap_c_default_exceptionhandler(frame_context *pCtx);
 
 static void _cpu_print_stack(void *pc,void *lr,void *r1)
 {
-    register u32 i = 0;
-    register frame_rec_t l,p = (frame_rec_t)lr;
+    u32 i = 0;
+    frame_rec_t l,p = (frame_rec_t)lr;
 
     l = p;
     p = (frame_rec_t)r1;

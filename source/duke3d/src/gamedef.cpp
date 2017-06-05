@@ -2135,7 +2135,7 @@ static inline uint32_t C_Pow2IntLogBase2(int32_t const v)
                                  0xFF00FF00, 0xFFFF0000
                                 };
 
-    register uint32_t r = (v & b[0]) != 0;
+    uint32_t r = (v & b[0]) != 0;
 
     for (bssize_t i = 4; i > 0; i--)
         r |= ((v & b[i]) != 0) << i;

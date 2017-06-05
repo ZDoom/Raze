@@ -122,7 +122,7 @@ void M32_PostScriptExec(void)
     }
 }
 
-void VM_OnEvent(register int32_t iEventID, register int32_t spriteNum)
+void VM_OnEvent(int32_t iEventID, int32_t spriteNum)
 {
     if (iEventID < 0 || iEventID >= MAXEVENTS)
     {
@@ -201,7 +201,7 @@ static int32_t G_GetAngleDelta(int32_t a,int32_t na)
     return na-a;
 }
 
-static inline void __fastcall VM_DoConditional(register int32_t condition)
+static inline void __fastcall VM_DoConditional(int32_t condition)
 {
     if (condition)
     {
@@ -308,7 +308,7 @@ static int CheckArray(int aidx)
 
 int32_t VM_Execute(int32_t once)
 {
-    register int32_t tw = *insptr;
+    int32_t tw = *insptr;
 
     // jump directly into the loop, saving us from the checks during the first iteration
     goto skip_check;

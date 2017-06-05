@@ -214,7 +214,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     return 1;
 }
 
-int32_t __fastcall Gv_GetVarN(register int32_t id)  // 'N' for "no side-effects"... vars and locals only!
+int32_t __fastcall Gv_GetVarN(int32_t id)  // 'N' for "no side-effects"... vars and locals only!
 {
     if (id == M32_THISACTOR_VAR_ID)
         return vm.spriteNum;
@@ -255,9 +255,9 @@ int32_t __fastcall Gv_GetVarN(register int32_t id)  // 'N' for "no side-effects"
     }
 }
 
-int32_t __fastcall Gv_GetVarX(register int32_t id)
+int32_t __fastcall Gv_GetVarX(int32_t id)
 {
-    register int32_t negateResult = !!(id&M32_FLAG_NEGATE);
+    int32_t negateResult = !!(id&M32_FLAG_NEGATE);
 
     if (id == M32_THISACTOR_VAR_ID)
         return vm.spriteNum;
@@ -285,7 +285,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
     {
     case M32_FLAG_ARRAY:
     {
-        register int32_t index;
+        int32_t index;
 
         index = (int32_t)((id>>16)&0xffff);
         if (!(id&M32_FLAG_CONSTANTINDEX))
@@ -321,7 +321,7 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
     }
     case M32_FLAG_STRUCT:
     {
-        register int32_t index, memberid;
+        int32_t index, memberid;
 
         index = (id>>16)&0x7fff;
         if (!(id&M32_FLAG_CONSTANTINDEX))
@@ -381,13 +381,13 @@ int32_t __fastcall Gv_GetVarX(register int32_t id)
 }
 
 
-void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
+void __fastcall Gv_SetVarX(int32_t id, int32_t lValue)
 {
     switch (id&M32_VARTYPE_MASK)
     {
     case M32_FLAG_ARRAY:
     {
-        register int32_t index;
+        int32_t index;
 
         index = (id>>16)&0xffff;
         if (!(id&M32_FLAG_CONSTANTINDEX))
@@ -427,7 +427,7 @@ void __fastcall Gv_SetVarX(register int32_t id, register int32_t lValue)
     }
     case M32_FLAG_STRUCT:
     {
-        register int32_t index, memberid;
+        int32_t index, memberid;
 
         index = (id>>16)&0x7fff;
         if (!(id&M32_FLAG_CONSTANTINDEX))
