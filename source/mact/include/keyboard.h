@@ -29,12 +29,13 @@ Modifications for JonoF's port by Jonathon Fowler (jf@jonof.id.au)
 
 #ifndef keyboard_public_h_
 #define keyboard_public_h_
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #include "baselayer.h"	// for the keyboard stuff
 #include "scancodes.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef uint8_t kb_scancode;
 

@@ -270,8 +270,6 @@ static FORCE_INLINE void sprite_tracker_hook(uintptr_t address);
 #define Tracker(Container, Type) Container##Tracker<Type>
 #define TrackerCast(x) x.cast()
 
-extern "C" {
-
 #else
 
 #define Tracker(Container, Type) Type
@@ -474,6 +472,10 @@ static inline void inplace_vx_tweak_wall(walltypevx *vxwal, int32_t yaxp)
 #endif
 
 #include "clip.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct {
     uint32_t mdanimtims;
@@ -1344,6 +1346,10 @@ int32_t loaddefinitionsfile(const char *fn);
 // -2, board is dodgy
 int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 
+#ifdef __cplusplus
+}
+#endif
+
 #include "hash.h"
 
 #ifdef POLYMER
@@ -1352,6 +1358,10 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
 # ifdef USE_OPENGL
 #  include "polymost.h"
 # endif
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 static FORCE_INLINE void push_nofog(void)
