@@ -62,7 +62,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 extern const char *s_buildRev;
 extern const char *s_buildTimestamp;
-extern const char *s_buildInfo;
 
 #include <signal.h>
 
@@ -8443,9 +8442,8 @@ int32_t ExtPreInit(int32_t argc,char const * const * argv)
 
     OSD_SetLogFile("mapster32.log");
     OSD_SetVersion("Mapster32",0,2);
-    initprintf("Mapster32 %s %s\n", s_buildRev, s_buildInfo);
-    initprintf("Compiled %s\n", s_buildTimestamp);
-    //    initprintf("Copyright (c) 2008 EDuke32 team\n");
+    initprintf("Mapster32 %s\n", s_buildRev);
+    PrintBuildInfo();
 
     G_CheckCommandLine(argc,argv);
 

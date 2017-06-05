@@ -76,7 +76,7 @@ void wii_open(void)
 
     CON_GetMetrics(&ConsoleExtent.x, &ConsoleExtent.y);
     print_centered(ConsoleExtent.x, AppProperName, s_buildRev);
-    print_centered(ConsoleExtent.x, "Compiled", s_buildTimestamp);
+    print_centered(ConsoleExtent.x, "Built", s_buildTimestamp);
 
     VIDEO_WaitVSync();
     if (vmode->viTVMode&VI_NON_INTERLACE)

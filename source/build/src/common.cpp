@@ -8,22 +8,54 @@
 
 #include "common.h"
 
-const char* s_buildInfo =
-#ifdef BITNESS64
-        "(64-bit)"
+void PrintBuildInfo(void)
+{
+    buildprint(
+        "Built ", s_buildTimestamp, ", "
+
+#if defined __INTEL_COMPILER
+        "ICC ", __INTEL_COMPILER / 100, ".", __INTEL_COMPILER % 100, " " __INTEL_COMPILER_BUILD_DATE " (" __VERSION__ ")"
+#elif defined __clang__
+        "clang "
+# ifdef DEBUGGINGAIDS
+        __clang_version__
+# else
+        , __clang_major__, ".", __clang_minor__, ".", __clang_patchlevel__,
+# endif
+#elif defined _MSC_VER
+        "MSVC ",
+# if defined _MSC_FULL_VER
+            _MSC_FULL_VER / 10000000, ".", _MSC_FULL_VER % 10000000 / 100000, ".", _MSC_FULL_VER % 100000, ".", _MSC_BUILD,
+# else
+            _MSC_VER / 100, ".", _MSC_VER % 100,
+# endif
+#elif defined __GNUC__
+        "GCC "
+# ifdef DEBUGGINGAIDS
+            __VERSION__
+# else
+            , __GNUC__, ".", __GNUC_MINOR__,
+#  if defined __GNUC_PATCHLEVEL__
+            ".", __GNUC_PATCHLEVEL__,
+#  endif
+# endif
 #else
-        "(32-bit)"
+        "Unknown"
 #endif
-#if defined (_MSC_VER) || defined(__cplusplus)
-#ifdef _MSC_VER
-        " MSVC"
+        ", "
+#ifdef BITNESS64
+        "64"
+#else
+        "32"
 #endif
-#ifdef __cplusplus
-        " C++"
+        "-bit "
+#if B_BIG_ENDIAN == 1
+        "big-endian"
 #endif
-        " build"
-#endif
-;
+        "\n");
+
+    // TODO: architecture, OS, maybe build and feature settings
+}
 
 // def/clipmap handling
 

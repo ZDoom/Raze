@@ -6108,8 +6108,8 @@ int app_main(int argc, char const * const * argv)
 
     wm_setapptitle(APPNAME);
 
-    initprintf(HEAD2 " %s %s\n", s_buildRev, s_buildInfo);
-    initprintf("Compiled %s\n", s_buildTimestamp);
+    initprintf(HEAD2 " %s\n", s_buildRev);
+    PrintBuildInfo();
 
     if (!g_useCwd)
         G_AddSearchPaths();

@@ -93,8 +93,8 @@ int32_t ExtPreInit(int32_t argc,char const * const * argv)
 
     OSD_SetLogFile("testeditor.log");
     OSD_SetVersion(AppProperName,0,2);
-    initprintf("%s %s %s\n", AppProperName, s_buildRev, s_buildInfo);
-    initprintf("Compiled %s\n", s_buildTimestamp);
+    initprintf("%s %s\n", AppProperName, s_buildRev);
+    PrintBuildInfo();
 
     return 0;
 }

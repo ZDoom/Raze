@@ -467,8 +467,8 @@ int32_t app_main(int32_t argc, char const * const * argv)
     OSD_SetParameters(0,2, 0,0, 4,0);
 
     OSD_SetLogFile("testgame.log");
-    initprintf("%s %s %s\n", AppProperName, s_buildRev, s_buildInfo);
-    initprintf("Compiled %s\n", s_buildTimestamp);
+    initprintf("%s %s\n", AppProperName, s_buildRev);
+    PrintBuildInfo();
 
 #ifdef USE_OPENGL
     OSD_RegisterFunction("restartvid","restartvid: reinitialise the video mode",osdcmd_restartvid);
