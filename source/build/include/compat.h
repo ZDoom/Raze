@@ -31,6 +31,12 @@
 # define __has_extension __has_feature // Compatibility with pre-3.0 compilers.
 #endif
 
+#ifdef _MSC_VER
+# define EDUKE32_MSVC_PREREQ(major) ((major) <= (_MSC_VER))
+#else
+# define EDUKE32_MSVC_PREREQ(major) 0
+#endif
+
 
 ////////// Language detection //////////
 
@@ -190,14 +196,14 @@
 # define ASMSYM(x) x
 #endif
 
-#if defined __cplusplus && (__cplusplus >= 201103L || __has_feature(cxx_constexpr))
+#if defined __cplusplus && (__cplusplus >= 201103L || __has_feature(cxx_constexpr) || EDUKE32_MSVC_PREREQ(1900))
 # define HAVE_CONSTEXPR
 # define CONSTEXPR constexpr
 #else
 # define CONSTEXPR
 #endif
 
-#if CXXSTD >= 2011
+#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1700)
 # define FINAL final
 #else
 # define FINAL
@@ -352,7 +358,7 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #include <assert.h>
 
 #ifdef __cplusplus
-# if CXXSTD >= 2011
+# if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
 #  include <type_traits>
 # endif
 #endif
@@ -636,7 +642,7 @@ void eduke32_exit_return(int) ATTRIBUTE((noreturn));
 
 #ifdef __cplusplus
 
-# if CXXSTD >= 2011
+# if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
 using std::is_integral;
 # endif
 
@@ -645,7 +651,7 @@ using std::enable_if_t;
 using std::conditional_t;
 using std::make_signed_t;
 using std::make_unsigned_t;
-# elif CXXSTD >= 2011
+# elif CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
 template <bool B, class T = void>
 using enable_if_t = typename std::enable_if<B, T>::type;
 template<bool B, class T, class F>
@@ -697,7 +703,7 @@ struct Dummy FINAL
 };
 #endif
 
-#if CXXSTD >= 2011
+#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
 using native_t = typename integers_of_size<sizeof(size_t)>::i;
 using unative_t = typename integers_of_size<sizeof(size_t)>::u;
 #else
@@ -944,7 +950,7 @@ CLAMP_DECL float fclamp2(float in, float min, float max) { return in >= max ? ma
 
 #ifdef __cplusplus
 
-#if CXXSTD >= 2011
+#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
 template <typename T>
 struct DivResult
 {
