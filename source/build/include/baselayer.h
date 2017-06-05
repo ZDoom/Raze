@@ -249,5 +249,7 @@ void maybe_redirect_outputs(void);
 }
 #endif
 
+#include "print.h"
+
 #endif // baselayer_h_
 
