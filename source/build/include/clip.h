@@ -3,6 +3,10 @@
 #ifndef clip_h_
 #define clip_h_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAXCLIPNUM 1024
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
@@ -83,5 +87,9 @@ int32_t clipmovex(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect, i
     int32_t flordist, uint32_t cliptype, uint8_t noslidep) ATTRIBUTE((nonnull(1, 2)));
 int32_t pushmove(vec3_t *vect, int16_t *sectnum, int32_t walldist, int32_t ceildist, int32_t flordist,
     uint32_t cliptype) ATTRIBUTE((nonnull(1, 2)));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
