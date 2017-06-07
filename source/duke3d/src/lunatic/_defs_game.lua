@@ -2311,7 +2311,7 @@ local CON_MODULE_NAME = "_CON\0"
 
 -- Set up Lunatic gamevar serialization.
 do
-    local savegame = require("savegame")
+    local savegame = require("lunasave")
 
     -- Callback for: const char *(int32_t *slenptr, int32_t levelnum);
     ffiC.El_SerializeGamevars = function(slenptr, levelnum)

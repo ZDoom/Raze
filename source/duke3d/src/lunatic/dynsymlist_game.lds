@@ -203,7 +203,7 @@ luaJIT_BC_v;
 luaJIT_BC_dump;
 luaJIT_BC_dis_x86;
 luaJIT_BC_dis_x64;
-luaJIT_BC_savegame;
+luaJIT_BC_lunasave;
 luaJIT_BC_fs;
 
 rand_jkiss_u32;

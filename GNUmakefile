@@ -478,7 +478,7 @@ ifneq (0,$(LUNATIC))
         randgen.lua \
         stat.lua \
         control.lua \
-        savegame.lua \
+        lunasave.lua \
         fs.lua \
 
     LUNATIC_EDITOR_LUA_OBJS = \
