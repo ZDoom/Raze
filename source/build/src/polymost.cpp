@@ -4302,8 +4302,8 @@ int32_t polymost_lintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
     return rv;
 }
 
-#define TSPR_OFFSET_FACTOR .0002f
-#define TSPR_OFFSET(tspr) (TSPR_OFFSET_FACTOR + ((tspr->owner != -1 ? tspr->owner & 63 : 0) * TSPR_OFFSET_FACTOR))
+#define TSPR_OFFSET_FACTOR .000008f
+#define TSPR_OFFSET(tspr) ((TSPR_OFFSET_FACTOR + ((tspr->owner != -1 ? tspr->owner & 63 : 1) * TSPR_OFFSET_FACTOR)) * (sepdist(globalposx - tspr->x, globalposy - tspr->y, globalposz - tspr->z)>>3))
 
 void polymost_drawsprite(int32_t snum)
 {
