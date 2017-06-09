@@ -2684,18 +2684,18 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
 
         double py[3] = { ryp0 + (double)ghoriz, ryp1 + (double)ghoriz, oy2 + (double)ghoriz };
 
-        vec3f_t const duv[3] = {
-            { (float)(px[0] * xtex.d + py[0] * ytex.d + otex.d),
-              (float)(px[0] * xtex.u + py[0] * ytex.u + otex.u),
-              (float)(px[0] * xtex.v + py[0] * ytex.v + otex.v)
+        vec3d_t const duv[3] = {
+            { (px[0] * xtex.d + py[0] * ytex.d + otex.d),
+              (px[0] * xtex.u + py[0] * ytex.u + otex.u),
+              (px[0] * xtex.v + py[0] * ytex.v + otex.v)
             },
-            { (float)(px[1] * xtex.d + py[1] * ytex.d + otex.d),
-              (float)(px[1] * xtex.u + py[1] * ytex.u + otex.u),
-              (float)(px[1] * xtex.v + py[1] * ytex.v + otex.v)
+            { (px[1] * xtex.d + py[1] * ytex.d + otex.d),
+              (px[1] * xtex.u + py[1] * ytex.u + otex.u),
+              (px[1] * xtex.v + py[1] * ytex.v + otex.v)
             },
-            { (float)(px[2] * xtex.d + py[2] * ytex.d + otex.d),
-              (float)(px[2] * xtex.u + py[2] * ytex.u + otex.u),
-              (float)(px[2] * xtex.v + py[2] * ytex.v + otex.v)
+            { (px[2] * xtex.d + py[2] * ytex.d + otex.d),
+              (px[2] * xtex.u + py[2] * ytex.u + otex.u),
+              (px[2] * xtex.v + py[2] * ytex.v + otex.v)
             }
         };
 
