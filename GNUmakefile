@@ -30,6 +30,35 @@ endef
 
 COMPILERFLAGS += -I$(ENGINE_INC) -I$(MACT_INC) -I$(AUDIOLIB_INC) -I$(ENET_INC)
 
+##### External Library Definitions
+
+#### ENet
+
+ENET=enet
+
+ENET_OBJS = \
+    callbacks.c \
+    host.c \
+    list.c \
+    packet.c \
+    peer.c \
+    protocol.c \
+    compress.c \
+
+ENET_ROOT=$(source)/$(ENET)
+ENET_SRC=$(ENET_ROOT)/src
+ENET_INC=$(ENET_ROOT)/include
+ENET_OBJ=$(obj)/$(ENET)
+
+ENET_CFLAGS=
+
+ifeq ($(PLATFORM),WINDOWS)
+    ENET_OBJS += win32.c
+else
+    ENET_OBJS += unix.c
+    ENET_CFLAGS += -DHAS_SOCKLEN_T
+endif
+
 
 ##### Component Definitions
 
@@ -209,34 +238,6 @@ ifeq ($(MIXERTYPE),SDL)
         AUDIOLIB_CFLAGS+=`$(PKG_CONFIG) --cflags vorbis`
     endif
     AUDIOLIB_OBJS+= driver_sdl.cpp
-endif
-
-
-#### ENet
-
-ENET=enet
-
-ENET_OBJS = \
-    callbacks.c \
-    host.c \
-    list.c \
-    packet.c \
-    peer.c \
-    protocol.c \
-    compress.c \
-
-ENET_ROOT=$(source)/$(ENET)
-ENET_SRC=$(ENET_ROOT)/src
-ENET_INC=$(ENET_ROOT)/include
-ENET_OBJ=$(obj)/$(ENET)
-
-ENET_CFLAGS=
-
-ifeq ($(PLATFORM),WINDOWS)
-    ENET_OBJS += win32.c
-else
-    ENET_OBJS += unix.c
-    ENET_CFLAGS += -DHAS_SOCKLEN_T
 endif
 
 
