@@ -35,6 +35,7 @@
 static int mod_test(HIO_HANDLE *, char *, const int);
 static int mod_load(struct module_data *, HIO_HANDLE *, const int);
 
+extern const struct format_loader libxmp_loader_mod;
 const struct format_loader libxmp_loader_mod = {
 	"Protracker",
 	mod_test,

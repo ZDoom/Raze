@@ -82,6 +82,7 @@
 static int s3m_test(HIO_HANDLE *, char *, const int);
 static int s3m_load(struct module_data *, HIO_HANDLE *, const int);
 
+extern const struct format_loader libxmp_loader_s3m;
 const struct format_loader libxmp_loader_s3m = {
 	"Scream Tracker 3",
 	s3m_test,

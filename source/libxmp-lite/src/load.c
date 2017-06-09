@@ -51,7 +51,7 @@
 #endif
 
 
-extern struct format_loader *format_loader[];
+extern const struct format_loader *const format_loader[];
 
 void libxmp_load_prologue(struct context_data *);
 void libxmp_load_epilogue(struct context_data *);
