@@ -16,7 +16,7 @@
 #include <assert.h>
 #include <limits.h>
 
-#include "lua.h"
+#include "elua.h"
 
 
 #define VERSION         "1.0.1"

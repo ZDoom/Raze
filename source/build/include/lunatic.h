@@ -3,20 +3,7 @@
 #ifndef ENGINE_LUNATIC_H_
 #define ENGINE_LUNATIC_H_
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef USE_LUAJIT_2_1
-# include <luajit-2.1/lua.h>
-#else
-# include <luajit-2.0/lua.h>
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
+#include "elua.h"
 
 typedef struct
 {

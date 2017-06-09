@@ -8,8 +8,8 @@
 #include <string.h>
 
 
-#include "lua.h"
-#include "lauxlib.h"
+#include "elua.h"
+#include "elauxlib.h"
 
 #include "lptypes.h"
 #include "lpcap.h"
@@ -1288,6 +1288,9 @@ static struct luaL_Reg metareg[] = {
 };
 
 
+#ifdef __cplusplus
+extern "C"
+#endif
 int luaopen_lpeg (lua_State *L);
 int luaopen_lpeg (lua_State *L) {
   luaL_newmetatable(L, PATTERN_T);

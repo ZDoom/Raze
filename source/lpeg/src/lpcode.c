@@ -6,8 +6,8 @@
 #include <limits.h>
 
 
-#include "lua.h"
-#include "lauxlib.h"
+#include "elua.h"
+#include "elauxlib.h"
 
 #include "lptypes.h"
 #include "lpcode.h"

@@ -5,7 +5,7 @@
 #if !defined(lpcode_h)
 #define lpcode_h
 
-#include "lua.h"
+#include "elua.h"
 
 #include "lptypes.h"
 #include "lptree.h"

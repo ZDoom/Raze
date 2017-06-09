@@ -3,8 +3,8 @@
 ** Copyright 2007, Lua.org & PUC-Rio  (see 'lpeg.html' for license)
 */
 
-#include "lua.h"
-#include "lauxlib.h"
+#include "elua.h"
+#include "elauxlib.h"
 
 #include "lpcap.h"
 #include "lptypes.h"
