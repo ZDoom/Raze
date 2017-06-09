@@ -171,6 +171,36 @@ struct xmp_envelope {
 	short data[XMP_MAX_ENV_POINTS * 2];
 };
 
+struct xmp_subinstrument {
+    int vol;		/* Default volume */
+    int gvl;		/* Global volume */
+    int pan;		/* Pan */
+    int xpo;		/* Transpose */
+    int fin;		/* Finetune */
+    int vwf;		/* Vibrato waveform */
+    int vde;		/* Vibrato depth */
+    int vra;		/* Vibrato rate */
+    int vsw;		/* Vibrato sweep */
+    int rvv;		/* Random volume/pan variation (IT) */
+    int sid;		/* Sample number */
+#define XMP_INST_NNA_CUT	0x00
+#define XMP_INST_NNA_CONT	0x01
+#define XMP_INST_NNA_OFF	0x02
+#define XMP_INST_NNA_FADE	0x03
+    int nna;		/* New note action */
+#define XMP_INST_DCT_OFF	0x00
+#define XMP_INST_DCT_NOTE	0x01
+#define XMP_INST_DCT_SMP	0x02
+#define XMP_INST_DCT_INST	0x03
+    int dct;		/* Duplicate check type */
+#define XMP_INST_DCA_CUT	XMP_INST_NNA_CUT
+#define XMP_INST_DCA_OFF	XMP_INST_NNA_OFF
+#define XMP_INST_DCA_FADE	XMP_INST_NNA_FADE
+    int dca;		/* Duplicate check action */
+    int ifc;		/* Initial filter cutoff */
+    int ifr;		/* Initial filter resonance */
+};
+
 struct xmp_instrument {
 	char name[32];			/* Instrument name */
 	int vol;			/* Instrument volume */
@@ -185,35 +215,7 @@ struct xmp_instrument {
 		signed char xpo;	/* Instrument transpose for each key */
 	} map[XMP_MAX_KEYS];
 
-	struct xmp_subinstrument {
-		int vol;		/* Default volume */
-		int gvl;		/* Global volume */
-		int pan;		/* Pan */
-		int xpo;		/* Transpose */
-		int fin;		/* Finetune */
-		int vwf;		/* Vibrato waveform */
-		int vde;		/* Vibrato depth */
-		int vra;		/* Vibrato rate */
-		int vsw;		/* Vibrato sweep */
-		int rvv;		/* Random volume/pan variation (IT) */
-		int sid;		/* Sample number */
-#define XMP_INST_NNA_CUT	0x00
-#define XMP_INST_NNA_CONT	0x01
-#define XMP_INST_NNA_OFF	0x02
-#define XMP_INST_NNA_FADE	0x03
-		int nna;		/* New note action */
-#define XMP_INST_DCT_OFF	0x00
-#define XMP_INST_DCT_NOTE	0x01
-#define XMP_INST_DCT_SMP	0x02
-#define XMP_INST_DCT_INST	0x03
-		int dct;		/* Duplicate check type */
-#define XMP_INST_DCA_CUT	XMP_INST_NNA_CUT
-#define XMP_INST_DCA_OFF	XMP_INST_NNA_OFF
-#define XMP_INST_DCA_FADE	XMP_INST_NNA_FADE
-		int dca;		/* Duplicate check action */
-		int ifc;		/* Initial filter cutoff */
-		int ifr;		/* Initial filter resonance */
-	} *sub;
+    struct xmp_subinstrument *sub;
 
 	void *extra;			/* Extra fields */
 };
@@ -276,6 +278,19 @@ struct xmp_module_info {
 	struct xmp_sequence *seq_data;	/* Pointer to sequence data */
 };
 
+struct xmp_channel_info {	/* Current channel information */
+    unsigned int period;	/* Sample period (* 4096) */
+    unsigned int position;	/* Sample position */
+    short pitchbend;	/* Linear bend from base note*/
+    unsigned char note;	/* Current base note number */
+    unsigned char instrument; /* Current instrument number */
+    unsigned char sample;	/* Current sample number */
+    unsigned char volume;	/* Current volume */
+    unsigned char pan;	/* Current stereo pan */
+    unsigned char reserved;	/* Reserved */
+    struct xmp_event event;	/* Current track event */
+};
+
 struct xmp_frame_info {			/* Current frame information */
 	int pos;			/* Current position */
 	int pattern;			/* Current pattern */
@@ -296,18 +311,7 @@ struct xmp_frame_info {			/* Current frame information */
 	int virt_used;			/* Used virtual channels */
 	int sequence;			/* Current sequence */
 
-	struct xmp_channel_info {	/* Current channel information */
-		unsigned int period;	/* Sample period (* 4096) */
-		unsigned int position;	/* Sample position */
-		short pitchbend;	/* Linear bend from base note*/
-		unsigned char note;	/* Current base note number */
-		unsigned char instrument; /* Current instrument number */
-		unsigned char sample;	/* Current sample number */
-		unsigned char volume;	/* Current volume */
-		unsigned char pan;	/* Current stereo pan */
-		unsigned char reserved;	/* Reserved */
-		struct xmp_event event;	/* Current track event */
-	} channel_info[XMP_MAX_CHANNELS];
+	struct xmp_channel_info channel_info[XMP_MAX_CHANNELS];
 };
 
 
