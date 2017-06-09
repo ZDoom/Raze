@@ -277,11 +277,7 @@ USE_LIBPNG ?= 1
 USE_LIBVPX ?= 1
 HAVE_VORBIS ?= 1
 HAVE_FLAC ?= 1
-ifeq ($(PLATFORM),WINDOWS)
-    HAVE_XMP ?= 1
-else
-    HAVE_XMP ?= 0
-endif
+HAVE_XMP ?= 1
 RENDERTYPE=SDL
 MIXERTYPE=SDL
 SDL_TARGET ?= 2
@@ -322,7 +318,6 @@ else ifeq ($(PLATFORM),WII)
     override NETCODE = 0
     override HAVE_GTK2 = 0
     override HAVE_FLAC = 0
-    override HAVE_XMP = 0
     SDL_TARGET=1
 else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW QNX SUNOS SYLLABLE))
     override USE_OPENGL=0

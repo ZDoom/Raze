@@ -32,6 +32,45 @@ COMPILERFLAGS += -I$(ENGINE_INC) -I$(MACT_INC) -I$(AUDIOLIB_INC) -I$(ENET_INC)
 
 ##### External Library Definitions
 
+#### libxmp-lite
+
+LIBXMPLITE=libxmp-lite
+
+LIBXMPLITE_OBJS = \
+    control.c \
+    dataio.c \
+    effects.c \
+    filter.c \
+    format.c \
+    hio.c \
+    lfo.c \
+    load.c \
+    load_helpers.c \
+    memio.c \
+    mixer.c \
+    mix_all.c \
+    period.c \
+    player.c \
+    read_event.c \
+    scan.c \
+    smix.c \
+    virtual.c \
+    common.c \
+    itsex.c \
+    it_load.c \
+    mod_load.c \
+    s3m_load.c \
+    sample.c \
+    xm_load.c \
+
+LIBXMPLITE_ROOT=$(source)/$(LIBXMPLITE)
+LIBXMPLITE_SRC=$(LIBXMPLITE_ROOT)/src
+LIBXMPLITE_INC=$(LIBXMPLITE_ROOT)/include
+LIBXMPLITE_OBJ=$(obj)/$(LIBXMPLITE)
+
+LIBXMPLITE_CFLAGS=-DHAVE_ROUND -DLIBXMP_CORE_PLAYER -DBUILDING_STATIC -I$(LIBXMPLITE_INC)/libxmp-lite -Wno-unused-parameter -Wno-sign-compare
+
+
 #### LPeg
 
 LPEG=lpeg
@@ -257,6 +296,14 @@ ifeq ($(MIXERTYPE),SDL)
     AUDIOLIB_OBJS+= driver_sdl.cpp
 endif
 
+AUDIOLIB_CFLAGS=
+
+AUDIOLIB_DEPS=
+
+ifneq (0,$(HAVE_XMP))
+    AUDIOLIB_CFLAGS += -I$(LIBXMPLITE_INC)
+    AUDIOLIB_DEPS += LIBXMPLITE
+endif
 
 #### Tools
 
@@ -513,23 +560,14 @@ ifneq (0,$(LUNATIC))
 endif
 
 ifeq ($(SUBPLATFORM),LINUX)
-    ifneq (0,$(HAVE_XMP))
-        LIBS += -lxmp-lite
-    endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg
 endif
 
 ifeq ($(PLATFORM),BSD)
-    ifneq (0,$(HAVE_XMP))
-        LIBS += -lxmp-lite
-    endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lexecinfo
 endif
 
 ifeq ($(PLATFORM),DARWIN)
-    ifneq (0,$(HAVE_XMP))
-        LIBS += -lxmp-lite
-    endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg -lm \
             -Wl,-framework,Cocoa -Wl,-framework,Carbon -Wl,-framework,OpenGL \
             -Wl,-framework,CoreMIDI -Wl,-framework,AudioUnit \
@@ -544,9 +582,6 @@ ifeq ($(PLATFORM),DARWIN)
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
-    ifneq (0,$(HAVE_XMP))
-        LIBS += -lxmp-lite
-    endif
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg
     DUKE3D_GAME_OBJS+= winbits.cpp
     DUKE3D_GAME_RSRC_OBJS+= gameres.rc
@@ -726,6 +761,7 @@ LIBRARIES := \
     AUDIOLIB \
     MACT \
     ENET \
+    LIBXMPLITE \
     LPEG \
 
 COMPONENTS = \
