@@ -23,7 +23,9 @@ endef
 COMPILERFLAGS += -I$(ENGINE_INC) -I$(MACT_INC) -I$(AUDIOLIB_INC) -I$(ENET_INC)
 
 
-# EBacktrace
+##### Component Definitions
+
+#### EBacktrace
 
 ifndef EBACKTRACEDLL
     EBACKTRACEDLL = ebacktrace1.dll
@@ -33,7 +35,7 @@ ifndef EBACKTRACEDLL
 endif
 
 
-# BUILD Engine
+#### BUILD Engine
 
 ENGINE=build
 
@@ -141,7 +143,7 @@ ENGINE_OBJS_EXP:=$(call expandobjs,$(ENGINE_OBJ)/,$(ENGINE_OBJS))
 ENGINE_EDITOR_OBJS_EXP:=$(call expandobjs,$(ENGINE_OBJ)/,$(ENGINE_EDITOR_OBJS))
 
 
-# MACT
+#### MACT
 
 MACT=mact
 
@@ -162,7 +164,7 @@ MACT_SRCS:=$(addprefix $(MACT_SRC)/,$(MACT_OBJS))
 MACT_OBJS_EXP:=$(call expandobjs,$(MACT_OBJ)/,$(MACT_OBJS))
 
 
-# AudioLib
+#### AudioLib
 
 AUDIOLIB=audiolib
 
@@ -202,7 +204,7 @@ AUDIOLIB_SRCS:=$(addprefix $(AUDIOLIB_SRC)/,$(AUDIOLIB_OBJS))
 AUDIOLIB_OBJS_EXP:=$(call expandobjs,$(AUDIOLIB_OBJ)/,$(AUDIOLIB_OBJS))
 
 
-# ENet
+#### ENet
 
 ENET=enet
 
@@ -238,7 +240,7 @@ ifeq ($(NETCODE),0)
 endif
 
 
-# Tools
+#### Tools
 
 TOOLS=tools
 
@@ -292,7 +294,7 @@ TOOLS_SRCS:=$(addprefix $(TOOLS_SRC)/,$(TOOLS_OBJS)) $(addprefix $(ENGINE_SRC)/,
 TOOLS_OBJS_EXP:=$(call expandobjs,$(TOOLS_OBJ)/,$(TOOLS_OBJS)) $(call expandobjs,$(ENGINE_OBJ)/,$(ENGINE_TOOLS_OBJS))
 
 
-# KenBuild (Test Game)
+#### KenBuild (Test Game)
 
 KENBUILD=kenbuild
 kenbuild=KENBUILD
@@ -355,7 +357,7 @@ KENBUILD_GAME_OBJS_TARGET=$(KENBUILD_GAME_OBJS_EXP)
 KENBUILD_EDITOR_OBJS_TARGET=$(KENBUILD_EDITOR_OBJS_EXP)
 
 
-# Duke Nukem 3D
+#### Duke Nukem 3D
 
 DUKE3D=duke3d
 duke3d=DUKE3D
@@ -587,8 +589,6 @@ ifeq ($(MIXERTYPE),SDL)
     MIDI_OBJS=sdlmusic.cpp
 endif
 
-## Construct file names of object files
-
 COMMON_EDITOR_SRCS:=$(addprefix $(DUKE3D_SRC)/,$(COMMON_EDITOR_OBJS))
 COMMON_EDITOR_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(COMMON_EDITOR_OBJS))
 
@@ -615,7 +615,8 @@ DUKE3D_EDITOR_SRCS_TARGET=$(DUKE3D_EDITOR_SRCS) $(AUDIOLIB_SRCS)
 DUKE3D_GAME_OBJS_TARGET=$(DUKE3D_GAME_OBJS_EXP) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP) $(ENET_OBJS_EXP)
 DUKE3D_EDITOR_OBJS_TARGET=$(DUKE3D_EDITOR_OBJS_EXP) $(AUDIOLIB_OBJS_EXP)
 
-# Shadow Warrior
+
+#### Shadow Warrior
 
 SW=sw
 sw=SW
@@ -744,8 +745,7 @@ SW_GAME_OBJS_TARGET=$(SW_GAME_OBJS_EXP) $(MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(
 SW_EDITOR_OBJS_TARGET=$(SW_EDITOR_OBJS_EXP) $(AUDIOLIB_OBJS_EXP)
 
 
-### component definitions end
-### targets begin
+##### Recipes
 
 GAMES := \
     KENBUILD \
@@ -787,7 +787,7 @@ endif
 .SECONDEXPANSION:
 
 
-# TARGETS
+#### Targets
 
 all: duke3d
 
@@ -838,7 +838,7 @@ include $(DUKE3D_ROOT)/Dependencies.mak
 include $(SW_ROOT)/Dependencies.mak
 
 
-# RULES
+#### Rules
 
 $(EBACKTRACEDLL): platform/Windows/src/backtrace.c
 	$(COMPILE_STATUS)
@@ -860,7 +860,7 @@ getdxdidf$(EXESUFFIX): $(TOOLS_OBJ)/getdxdidf.$o
 	$(RECIPE_IF) $(LINKER) -o $@ $^ $(LIBDIRS) $(LIBS) -ldinput $(RECIPE_RESULT_LINK)
 
 
-#### Lunatic
+### Lunatic
 
 # Create object files directly with luajit
 $(DUKE3D_OBJ)/$(LUNATIC_LUA_PREFIX)%.$o: $(LUNATIC_SRC)/%.lua | $(DUKE3D_OBJ)
@@ -881,7 +881,7 @@ $(DUKE3D_OBJ)/lunatic_%.def: $(LUNATIC_SRC)/%.lds | $(DUKE3D_OBJ)
 	sed 's/[{};]//g' $< >> $@
 
 
-#### Main Rules
+### Main Rules
 
 define OBJECTRULES
 
@@ -909,7 +909,7 @@ $$($1_OBJ)/%.$$o: $$($1_SRC)/%.mm | $$($1_OBJ)
 	$$(COMPILE_STATUS)
 	$$(RECIPE_IF) $$(COMPILER_OBJCXX) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
 
-# cosmetic stuff
+## Cosmetic stuff
 
 $$($1_OBJ)/%.$$o: $$($1_RSRC)/%.rc | $$($1_OBJ)
 	$$(COMPILE_STATUS)
@@ -932,7 +932,7 @@ endef
 $(foreach i,$(COMPONENTS),$(eval $(call OBJECTRULES,$i)))
 
 
-#### Other special cases
+### Other special cases
 
 # Comment out the following rule to debug a-c.o
 $(ENGINE_OBJ)/a-c.$o: $(ENGINE_SRC)/a-c.cpp | $(ENGINE_OBJ)
@@ -944,7 +944,7 @@ $(ENGINE_OBJ)/rev.$o: $(ENGINE_SRC)/rev.cpp | $(ENGINE_OBJ)
 	$(RECIPE_IF) $(COMPILER_CXX) $(ENGINE_CFLAGS) $(REVFLAG) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
 
-#### Directories
+### Directories
 
 $(obj):
 	-mkdir $@ $(DONT_PRINT) $(DONT_FAIL)
@@ -953,7 +953,7 @@ $(foreach i,$(COMPONENTS),$($i_OBJ)): | $(obj)
 	-mkdir $@ $(DONT_PRINT) $(DONT_FAIL)
 
 
-## PHONIES
+### Phonies
 
 clang-tools: $(filter %.c %.cpp %.m %.mm,$(DUKE3D_GAME_SRCS_TARGET) $(DUKE3D_EDITOR_SRCS_TARGET) $(COMMON_EDITOR_SRCS_TARGET) $(ENGINE_SRCS))
 	echo $^ -- $(COMPILERFLAGS) $(foreach i,$(COMPONENTS),$($i_CFLAGS)) $(CWARNS)
@@ -977,7 +977,7 @@ printtools:
 rev: $(ENGINE_OBJ)/rev.$o
 
 
-# Compatibility
+### Compatibility
 
 test: kenbuild
 utils: tools
