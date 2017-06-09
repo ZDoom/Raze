@@ -4,18 +4,14 @@
 
 include Common.mak
 
-source=source
-DUKE3D=duke3d
-DUKE3D_ROOT=$(source)/$(DUKE3D)
-DUKE3D_SRC=$(DUKE3D_ROOT)/src
-DUKE3D_RSRC=$(DUKE3D_ROOT)/rsrc
-ENGINE_ROOT=$(source)/$(ENGINE)
-ENGINE_SRC=$(ENGINE_ROOT)/src
-ENGINE_INC=$(ENGINE_ROOT)/include
+### File Extensions
 o=o
-asm=nasm
+
+### Directories
+source=source
 obj=obj
 
+### Functions
 define expandobjs
 $$(addprefix $1,$$(addsuffix .$$o,$$(basename $2)))
 endef
@@ -41,6 +37,9 @@ ENGINE=build
 
 ENGINE_CFLAGS=-I$(ENGINE_SRC)
 
+ENGINE_ROOT=$(source)/$(ENGINE)
+ENGINE_SRC=$(ENGINE_ROOT)/src
+ENGINE_INC=$(ENGINE_ROOT)/include
 ENGINE_OBJ=$(obj)/$(ENGINE)
 
 ENGINE_OBJS = \
@@ -80,6 +79,14 @@ ENGINE_EDITOR_OBJS = \
     build.cpp \
     config.cpp \
     defs.cpp \
+
+ENGINE_TOOLS_OBJS = \
+    compat.cpp \
+    pragmas.cpp \
+    kplib.cpp \
+    cache1d.cpp \
+    crc32.cpp \
+    colmatch.cpp \
 
 ifeq (0,$(NOASM))
   ENGINE_OBJS+= a.nasm
@@ -247,14 +254,6 @@ TOOLS=tools
 TOOLS_OBJS = \
     compat_tools.cpp \
 
-ENGINE_TOOLS_OBJS = \
-    compat.cpp \
-    pragmas.cpp \
-    kplib.cpp \
-    cache1d.cpp \
-    crc32.cpp \
-    colmatch.cpp \
-
 TOOLS_ROOT=$(source)/$(TOOLS)
 TOOLS_SRC=$(TOOLS_ROOT)/src
 TOOLS_OBJ=$(obj)/$(TOOLS)
@@ -370,6 +369,9 @@ DUKE3D_EDITOR_LDFLAGS=
 DUKE3D_GAME_STRIPFLAGS=
 DUKE3D_EDITOR_STRIPFLAGS=
 
+DUKE3D_ROOT=$(source)/$(DUKE3D)
+DUKE3D_SRC=$(DUKE3D_ROOT)/src
+DUKE3D_RSRC=$(DUKE3D_ROOT)/rsrc
 DUKE3D_OBJ=$(obj)/$(DUKE3D)
 
 DUKE3D_GAME ?= eduke32
