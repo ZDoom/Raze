@@ -5836,7 +5836,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
-        case 6:
+        case SE_6_SUBWAY:
             k = pSector->extra;
 
             if (pData[4] > 0)
