@@ -5442,7 +5442,11 @@ void G_UpdateAppTitle(void)
 {
     if (g_gameNamePtr)
     {
+#ifdef EDUKE32_STANDALONE
+        Bstrcpy(tempbuf, g_gameNamePtr);
+#else
         Bsprintf(tempbuf, "%s - " APPNAME, g_gameNamePtr);
+#endif
         wm_setapptitle(tempbuf);
     }
     else

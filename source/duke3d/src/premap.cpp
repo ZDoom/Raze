@@ -1849,15 +1849,24 @@ int G_EnterLevel(int gameMode)
     if (G_HaveUserMap())
     {
         Bstrcpy(levelName, boardfilename);
+
         if (g_gameNamePtr)
-            Bsprintf(apptitle,"%s - %s - " APPNAME,levelName,g_gameNamePtr);
+#ifdef EDUKE32_STANDALONE
+            Bsprintf(apptitle,"%s - %s",levelName,g_gameNamePtr);
+#else
+            Bsprintf(apptitle, "%s - %s - " APPNAME, levelName, g_gameNamePtr);
+#endif
         else
             Bsprintf(apptitle,"%s - " APPNAME,levelName);
     }
     else
     {
         if (g_gameNamePtr)
-            Bsprintf(apptitle,"%s - %s - " APPNAME,g_mapInfo[mii].name,g_gameNamePtr);
+#ifdef EDUKE32_STANDALONE
+            Bsprintf(apptitle,"%s - %s",g_mapInfo[mii].name,g_gameNamePtr);
+#else
+            Bsprintf(apptitle, "%s - %s - " APPNAME, g_mapInfo[mii].name, g_gameNamePtr);
+#endif
         else
             Bsprintf(apptitle,"%s - " APPNAME,g_mapInfo[mii].name);
     }
@@ -1865,7 +1874,6 @@ int G_EnterLevel(int gameMode)
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
 
-    /***** Load the map *****/
     DukePlayer_t *const pPlayer = g_player[0].ps;
 
     if (!VOLUMEONE && G_HaveUserMap())
