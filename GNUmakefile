@@ -5,6 +5,7 @@
 include Common.mak
 
 ### File Extensions
+asm=nasm
 o=o
 
 ### Directories
