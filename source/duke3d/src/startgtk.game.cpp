@@ -24,12 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "gtkpixdata.h"
 
-#if defined(LINKED_GTK)
-#include <gtk/gtk.h>
-#include <gdk-pixbuf/gdk-pixdata.h>
-#else
 #include "dynamicgtk.h"
-#endif
 
 #include "duke3d.h"
 #include "grpscan.h"

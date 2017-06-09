@@ -12,8 +12,6 @@
 #error You need at least 2.4.0 version of GTK+
 #endif
 
-#if !defined(LINKED_GTK)
-
 #ifndef G_GNUC_NULL_TERMINATED
 /* this is a glib-2.8.x thing: */
 #define G_GNUC_NULL_TERMINATED
@@ -604,7 +602,5 @@ void dynamicgtk_uninit(void);
 #define g_utf8_collate dynamicgtksyms.g_utf8_collate
 
 #endif	/* __dynamicgtkfoo__ */
-
-#endif	/* LINKED_GTK */
 
 #endif	/* dynamicgtk_h_ */

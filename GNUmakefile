@@ -121,10 +121,7 @@ ifeq ($(RENDERTYPE),SDL)
     ENGINE_OBJS+= sdlayer.cpp
 
     ifeq (1,$(HAVE_GTK2))
-        ENGINE_OBJS+= gtkbits.cpp
-        ifeq ($(LINKED_GTK),0)
-            ENGINE_OBJS+= dynamicgtk.cpp
-        endif
+        ENGINE_OBJS+= gtkbits.cpp dynamicgtk.cpp
         ifeq ($(STARTUP_WINDOW),1)
             ENGINE_EDITOR_OBJS+= startgtk.editor.cpp
         endif
@@ -195,12 +192,8 @@ ifeq ($(PLATFORM),WINDOWS)
 endif
 
 ifeq ($(MIXERTYPE),SDL)
-    ifneq ($(PLATFORM),DARWIN)
-        ifneq ($(PLATFORM),WINDOWS)
-            ifneq ($(PLATFORM),WII)
-                AUDIOLIB_CFLAGS+=`$(PKG_CONFIG) --cflags vorbis`
-            endif
-        endif
+    ifeq (,$(filter $(PLATFORM),DARWIN WINDOWS WII))
+        AUDIOLIB_CFLAGS+=`$(PKG_CONFIG) --cflags vorbis`
     endif
     AUDIOLIB_OBJS+= driver_sdl.cpp
 endif
@@ -330,13 +323,12 @@ KENBUILD_EDITOR_OBJS = \
 KENBUILD_GAME_RSRC_OBJS =
 KENBUILD_EDITOR_RSRC_OBJS =
 
+ifeq (1,$(HAVE_GTK2))
+    KENBUILD_GAME_OBJS+= startgtk.game.cpp
+    KENBUILD_GAME_RSRC_OBJS+= game_banner.c
+    KENBUILD_EDITOR_RSRC_OBJS+= build_banner.c
+endif
 ifeq ($(RENDERTYPE),SDL)
-    ifeq (1,$(HAVE_GTK2))
-        KENBUILD_GAME_OBJS+= startgtk.game.cpp
-        KENBUILD_GAME_RSRC_OBJS+= game_banner.c
-        KENBUILD_EDITOR_RSRC_OBJS+= build_banner.c
-    endif
-
     KENBUILD_GAME_RSRC_OBJS+= game_icon.c
     KENBUILD_EDITOR_RSRC_OBJS+= build_icon.c
 endif
@@ -582,13 +574,12 @@ ifeq ($(PLATFORM),WII)
     LIBS += -lvorbisidec
 endif
 
+ifeq (11,$(HAVE_GTK2)$(STARTUP_WINDOW))
+    DUKE3D_GAME_OBJS+= startgtk.game.cpp
+    DUKE3D_GAME_RSRC_OBJS+= game_banner.c
+    DUKE3D_EDITOR_RSRC_OBJS+= build_banner.c
+endif
 ifeq ($(RENDERTYPE),SDL)
-    ifeq (11,$(HAVE_GTK2)$(STARTUP_WINDOW))
-        DUKE3D_GAME_OBJS+= startgtk.game.cpp
-        DUKE3D_GAME_RSRC_OBJS+= game_banner.c
-        DUKE3D_EDITOR_RSRC_OBJS+= build_banner.c
-    endif
-
     DUKE3D_GAME_RSRC_OBJS+= game_icon.c
     DUKE3D_EDITOR_RSRC_OBJS+= build_icon.c
 endif
@@ -727,13 +718,12 @@ SW_EDITOR_OBJS = \
 SW_GAME_RSRC_OBJS =
 SW_EDITOR_RSRC_OBJS =
 
+ifeq (1,$(HAVE_GTK2))
+    SW_GAME_OBJS+= startgtk.game.cpp
+    SW_GAME_RSRC_OBJS+= game_banner.c
+    SW_EDITOR_RSRC_OBJS+= build_banner.c
+endif
 ifeq ($(RENDERTYPE),SDL)
-    ifeq (1,$(HAVE_GTK2))
-        SW_GAME_OBJS+= startgtk.game.cpp
-        SW_GAME_RSRC_OBJS+= game_banner.c
-        SW_EDITOR_RSRC_OBJS+= build_banner.c
-    endif
-
     SW_GAME_RSRC_OBJS+= game_icon.c
     SW_EDITOR_RSRC_OBJS+= game_icon.c
 endif

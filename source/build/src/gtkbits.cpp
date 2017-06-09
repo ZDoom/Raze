@@ -55,14 +55,13 @@ extern struct sdlappicon sdlappicon;
 #endif
 void gtkbuild_init(int32_t *argc, char ***argv)
 {
-#ifndef LINKED_GTK
     gtkenabled = dynamicgtk_init();
     if (gtkenabled < 0)
     {
         gtkenabled = 0;
         return;
     }
-#endif
+
     gtkenabled = gtk_init_check(argc, argv);
     if (!gtkenabled) return;
 #ifdef RENDERTYPESDL
@@ -80,7 +79,6 @@ void gtkbuild_exit(int32_t r)
     {
         if (appicon) g_object_unref((gpointer)appicon);
     }
-#ifndef LINKED_GTK
+
     dynamicgtk_uninit();
-#endif
 }

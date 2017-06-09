@@ -2,109 +2,12 @@
 # OS package maintainers: Please try invoking make with PACKAGE_REPOSITORY=1 to see if that meets your needs before patching out our optimizations entirely.
 PACKAGE_REPOSITORY ?= 0
 
-# Use colored output. Disable for build system debugging.
-PRETTY_OUTPUT ?= 1
+# Are we running from synthesis?
+SYNTHESIS ?= 0
 
-# Tools
-CROSS=
-CROSS_SUFFIX=
-ifneq ($(CROSS)$(CROSS_SUFFIX),)
-    undefine CC
-    undefine CXX
-    undefine AR
-    undefine RC
-    undefine RANLIB
-    undefine STRIP
-endif
 
-CC=$(CROSS)gcc$(CROSS_SUFFIX)
-CXX=$(CROSS)g++$(CROSS_SUFFIX)
-AR=$(CROSS)ar$(CROSS_SUFFIX)
-RC=$(CROSS)windres$(CROSS_SUFFIX)
-RANLIB=$(CROSS)ranlib$(CROSS_SUFFIX)
-STRIP=$(CROSS)strip$(CROSS_SUFFIX)
-AS=nasm
-PKG_CONFIG=pkg-config
+##### Detect platform
 
-NULLSTREAM = /dev/null
-DONT_PRINT = > $(NULLSTREAM) 2>&1
-DONT_PRINT_STDERR = 2> $(NULLSTREAM)
-DONT_FAIL = ; exit 0
-
-# Override defaults that absolutely will not work.
-ifeq ($(CC),cc)
-    override CC=gcc
-endif
-ifeq ($(AS),as)
-    override AS=nasm
-endif
-
-COBJC=$(CC) -x objective-c
-COBJCXX=$(CXX) -x objective-c++
-L_CC=$(CC)
-L_CXX=$(CXX)
-
-CCFULLPATH=$(CC)
-
-ifeq ($(PLATFORM),WII)
-    ifeq ($(strip $(DEVKITPPC)),)
-        $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
-    endif
-
-    include $(DEVKITPPC)/wii_rules
-
-    CCFULLPATH=$(DEVKITPPC)/bin/$(CC)
-
-    CROSS=powerpc-eabi-
-    RANLIB=powerpc-eabi-ranlib
-    STRIP=powerpc-eabi-strip
-    ELF2DOL=elf2dol
-    DOLSUFFIX=.dol
-endif
-
-CLANG?=0
-
-CLANG_POTENTIAL_VERSION := $(shell $(CCFULLPATH) --version)
-
-ifeq ($(findstring clang,$(CC) $(MAKECMDGOALS)),clang)
-    override CLANG=1
-    CLANGNAME:=$(CC)
-else
-    CLANGNAME:=clang
-endif
-# detect clang symlinked as gcc, as in OS X
-ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
-    override CLANG=1
-endif
-
-ifneq (0,$(CLANG))
-    CLANGXXNAME:=$(subst clang,clang++,$(CLANGNAME))
-    override CC=$(CLANGNAME) -x c
-    override CXX=$(CLANGXXNAME) -x c++
-    override COBJC=$(CLANGNAME) -x objective-c
-    override COBJCXX=$(CLANGXXNAME) -x objective-c++
-    override L_CC=$(CLANGNAME)
-    override L_CXX=$(CLANGXXNAME)
-endif
-
-# GCC version, for conditional selection of flags.
-ifndef GCC_MAJOR
-    GCC_MAJOR    := $(shell $(CCFULLPATH) -dumpversion 2>&1 | cut -d'.' -f1)
-endif
-ifeq ($(GCC_MAJOR),)
-    GCC_MAJOR    := 4
-endif
-ifndef GCC_MINOR
-    GCC_MINOR    := $(shell $(CCFULLPATH) -dumpversion 2>&1 | cut -d'.' -f2)
-endif
-ifeq ($(GCC_MINOR),)
-    GCC_MINOR    := 8
-endif
-
-# Detect the platform if it wasn't explicitly given to us from
-# the outside world. This allows cross-compilation by overriding
-# CC and giving us PLATFORM specifically.
-#
 ifndef HOSTPLATFORM
     HOSTPLATFORM=UNKNOWN
     ifeq ($(findstring Windows,$(OS)),Windows)
@@ -140,178 +43,33 @@ endif
 
 ifndef SUBPLATFORM
     SUBPLATFORM=
-    ifeq ($(PLATFORM),LINUX)
-        SUBPLATFORM=LINUX
-    endif
-    ifeq ($(PLATFORM),DINGOO)
-        SUBPLATFORM=LINUX
-        CROSS=mipsel-linux-
-    endif
-    ifeq ($(PLATFORM),GCW)
-        SUBPLATFORM=LINUX
-        CROSS=mipsel-linux-
-    endif
-    ifeq ($(PLATFORM),CAANOO)
+    ifeq ($(PLATFORM),$(filter $(PLATFORM),LINUX DINGOO GCW CAANOO))
         SUBPLATFORM=LINUX
     endif
 endif
 
-# Binary suffix override:
-EXESUFFIX_OVERRIDE ?=
+ifeq ($(HOSTPLATFORM),DARWIN)
+    DARWINVERSION:=$(strip $(shell uname -r | cut -d . -f 1))
 
-# Are we running from synthesis?
-SYNTHESIS ?= 0
-
-# Mac OS X Frameworks location
-# Like above, use absolute paths.
-APPLE_FRAMEWORKS ?=/Library/Frameworks
-
-# Engine options
-#  USE_OPENGL     - enables basic OpenGL Polymost renderer
-#  POLYMER        - enables fancy Polymer renderer
-#  NOASM          - disables the use of inline assembly pragmas
-#  LINKED_GTK     - enables compile-time linkage to GTK
-#
-APPNAME=
-APPBASENAME=
-STANDALONE ?= 0
-POLYMER = 1
-USE_OPENGL = 1
-NOASM = 0
-LINKED_GTK = 0
-BUILD32_ON_64 ?= 0
-USE_LIBPNG ?= 1
-USE_LIBVPX ?= 1
-HAVE_VORBIS ?= 1
-HAVE_FLAC ?= 1
-ifeq ($(PLATFORM),WINDOWS)
-    HAVE_XMP ?= 1
-else
-    HAVE_XMP ?= 0
-endif
-NETCODE ?= 1
-STARTUP_WINDOW ?= 1
-SIMPLE_MENU ?= 0
-
-LUNATIC ?= 0
-USE_LUAJIT_2_1 ?= 0
-
-# EXPERIMENTAL, unfinished x86_64 assembly routines. DO NOT ENABLE.
-USE_ASM64 ?= 0
-
-ifeq (0,$(USE_OPENGL))
-    override POLYMER = 0
-    override USE_LIBVPX = 0
-endif
-
-# Debugging/Build options
-#  CPLUSPLUS - 1 = enable C++ building
-#  RELEASE - 1 = no debugging
-#  DEBUGANYWAY:
-#    1 = Include debug symbols even when generating release code.
-#    2 = Also enable sanitizers with Clang. On the C side, make 'sprite' etc. be real arrays.
-#  DISABLEINLINING - 1 = compile inline functions as extern __fastcall instead of static inline
-#  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
-#  MEMMAP - 1 = produce .memmap file when linking
-#  EFENCE  - 1 = compile with Electric Fence for malloc() debugging
-#  OPTLEVEL - 0..3 = GCC optimization strategy
-#  LTO - 1 = enable link-time optimization, for GCC 4.5 and up
-#
-CPLUSPLUS?=1
-RELEASE?=1
-DEBUGANYWAY?=0
-KRANDDEBUG?=0
-MEMMAP?=0
-DISABLEINLINING?=0
-EFENCE?=0
-DMALLOC?=0
-PROFILER?=0
-MUDFLAP?=0
-
-# Make allocache() a wrapper around malloc()? Useful for debugging
-# allocache()-allocated memory accesses with e.g. Valgrind.
-# For debugging with Valgrind + GDB, see
-# http://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver
-ALLOCACHE_AS_MALLOC?=0
-
-# Select the default optimization level for release and debug builds.
-ifeq ($(RELEASE),0)
-    OPTLEVEL?=0
-else
-    OPTLEVEL?=2
-endif
-
-ifeq ($(RELEASE),0)
-    override STRIP=
-endif
-ifneq ($(DEBUGANYWAY),0)
-    override STRIP=
-endif
-
-ifneq ($(LUNATIC),0)
-    # FIXME: Lunatic builds with LTO don't start up properly as the required
-    # symbol names are apparently not exported.
-    override LTO=0
-endif
-
-ifndef LTO
-    LTO=1
-    ifneq (0,$(CLANG))
-        ifeq ($(PLATFORM), WINDOWS)
-            LTO=0
-        endif
+    DARWIN9 ?= 0
+    DARWIN10 ?= 0
+    ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 10)))
+        override DARWIN9 := 1
+    endif
+    ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 11)))
+        override DARWIN10 := 1
     endif
 endif
 
-COMMONFLAGS =
-COMPILERFLAGS = -funsigned-char
 
-ifeq ($(PACKAGE_REPOSITORY),0)
-    COMMONFLAGS += $(OPTIMIZATIONS)
-endif
+##### Makefile meta-settings
 
-OPTIMIZATIONS=-O$(OPTLEVEL) $(OPTOPT)
+PRETTY_OUTPUT ?= 1
 
-DEBUGFLAG=-g
-ifeq (0,$(CLANG))
-    ifneq ($(PLATFORM),WII)
-        DEBUGFLAG=-ggdb -fno-omit-frame-pointer
-    endif
-endif
-ifneq ($(RELEASE)$(DEBUGANYWAY),10)
-    # debug build or DEBUGANYWAY=1 --> -g flag
-    OPTIMIZATIONS += $(DEBUGFLAG)
-endif
-
-CSTD:=-std=gnu99
-CONLYFLAGS=$(CSTD)
-CXXSTD:=-std=gnu++11
-CXXONLYFLAGS=$(CXXSTD) -fno-exceptions -fno-rtti
-ifneq (0,$(CLANG))
-    CSTD:=$(subst gnu,c,$(CSTD))
-    CXXSTD:=$(subst gnu,c,$(CXXSTD))
-endif
-
-ASFORMAT=elf$(BITS)
-ASFLAGS=-s -f $(ASFORMAT) #-g
-LINKERFLAGS=
-L_CXXONLYFLAGS=
-LIBS=-lm
-GUI_LIBS=
-LIBDIRS=
-
-ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
-    F_NO_STACK_PROTECTOR := -fno-stack-protector
-    # there are some link-time issues with stack protectors, so make it possible to override
-    F_STACK_PROTECTOR_ALL ?= -fstack-protector-all
-    ifeq (0,$(CLANG))
-        F_JUMP_TABLES := -fjump-tables
-    endif
-    M_TUNE_GENERIC := -mtune=generic
-    M_STACKREALIGN := -mstackrealign
-endif
-
-W_STRICT_OVERFLOW := -Wno-strict-overflow
+NULLSTREAM = /dev/null
+DONT_PRINT = > $(NULLSTREAM) 2>&1
+DONT_PRINT_STDERR = 2> $(NULLSTREAM)
+DONT_FAIL = ; exit 0
 
 ifeq ($(HOSTPLATFORM),WINDOWS)
 # MSYS2 lets you create files named NUL but has a /dev/null. Go figure.
@@ -320,7 +78,120 @@ ifeq ($(HOSTPLATFORM),WINDOWS)
     endif
 endif
 
-# Detect machine architecture
+
+##### Toolchain setup
+
+CROSS=
+CROSS_SUFFIX=
+ifneq ($(CROSS)$(CROSS_SUFFIX),)
+    undefine CC
+    undefine CXX
+    undefine AR
+    undefine RC
+    undefine RANLIB
+    undefine STRIP
+endif
+
+CC=$(CROSS)gcc$(CROSS_SUFFIX)
+CXX=$(CROSS)g++$(CROSS_SUFFIX)
+COBJC=$(CC) -x objective-c
+COBJCXX=$(CXX) -x objective-c++
+L_CC=$(CC)
+L_CXX=$(CXX)
+
+AR=$(CROSS)ar$(CROSS_SUFFIX)
+RC=$(CROSS)windres$(CROSS_SUFFIX)
+RANLIB=$(CROSS)ranlib$(CROSS_SUFFIX)
+STRIP=$(CROSS)strip$(CROSS_SUFFIX)
+
+AS=nasm
+
+# LuaJIT standalone interpreter executable:
+LUAJIT=luajit$(EXESUFFIX)
+
+PKG_CONFIG=pkg-config
+
+ELF2DOL=elf2dol
+
+# Override defaults that absolutely will not work.
+ifeq ($(CC),cc)
+    override CC=gcc
+endif
+ifeq ($(AS),as)
+    override AS=nasm
+endif
+
+CCFULLPATH=$(CC)
+
+ifeq ($(PLATFORM),WII)
+    ifeq ($(strip $(DEVKITPPC)),)
+        $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
+    endif
+
+    include $(DEVKITPPC)/wii_rules
+
+    CCFULLPATH=$(DEVKITPPC)/bin/$(CC)
+
+    CROSS=powerpc-eabi-
+    RANLIB=powerpc-eabi-ranlib
+    STRIP=powerpc-eabi-strip
+endif
+
+ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
+    CROSS=mipsel-linux-
+endif
+
+CLANG?=0
+ifeq ($(findstring clang,$(CC) $(MAKECMDGOALS)),clang)
+    override CLANG=1
+    CLANGNAME:=$(CC)
+else
+    CLANGNAME:=clang
+endif
+# detect clang symlinked as gcc, as in OS X
+CLANG_POTENTIAL_VERSION := $(shell $(CCFULLPATH) --version)
+ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
+    override CLANG=1
+endif
+
+ifneq (0,$(CLANG))
+    CLANGXXNAME:=$(subst clang,clang++,$(CLANGNAME))
+    override CC=$(CLANGNAME) -x c
+    override CXX=$(CLANGXXNAME) -x c++
+    override COBJC=$(CLANGNAME) -x objective-c
+    override COBJCXX=$(CLANGXXNAME) -x objective-c++
+    override L_CC=$(CLANGNAME)
+    override L_CXX=$(CLANGXXNAME)
+endif
+
+ifndef GCC_MAJOR
+    ifeq (0,$(CLANG))
+        GCC_MAJOR    := $(shell $(CCFULLPATH) -dumpversion 2>&1 | cut -d'.' -f1)
+    endif
+endif
+ifeq ($(GCC_MAJOR),)
+    GCC_MAJOR    := 4
+endif
+ifndef GCC_MINOR
+    ifeq (0,$(CLANG))
+        GCC_MINOR    := $(shell $(CCFULLPATH) -dumpversion 2>&1 | cut -d'.' -f2)
+    endif
+endif
+ifeq ($(GCC_MINOR),)
+    GCC_MINOR    := 8
+endif
+
+GCC_PREREQ_4 := 1
+ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \< 4)))
+    ifeq (0,$(CLANG))
+        GCC_PREREQ_4 := 0
+        $(error How do you still have an old GCC in $$(CURRENT_YEAR)?)
+    endif
+endif
+
+
+##### Detect machine architecture
+
 BITS=32
 
 ifeq ($(PLATFORM),WINDOWS)
@@ -333,8 +204,6 @@ ifeq ($(PLATFORM),WINDOWS)
         IMPLICIT_ARCH=x86_64
         BITS=64
     endif
-
-    WINLIB?=/$(BITS)
 else ifeq ($(PLATFORM),WII)
     IMPLICIT_ARCH=ppc
 else
@@ -350,57 +219,265 @@ else
     endif
 endif
 
+EXESUFFIX=
+DLLSUFFIX=.so
+DOLSUFFIX=.dol
 ifeq ($(PLATFORM),DARWIN)
-    ifndef DARWINVERSION
-        DARWINVERSION:=$(strip $(shell uname -r | cut -d . -f 1))
+    DLLSUFFIX=.dylib
+endif
+ifeq ($(PLATFORM),WII)
+    EXESUFFIX=.elf
+endif
+ifeq ($(PLATFORM),SKYOS)
+    EXESUFFIX=.app
+endif
+ifeq ($(PLATFORM),WINDOWS)
+    EXESUFFIX=.exe
+    DLLSUFFIX=.dll
+endif
+
+
+##### Toggles
+
+#  CPLUSPLUS - 1 = enable C++ building
+#  RELEASE - 1 = no debugging
+#  DEBUGANYWAY:
+#    1 = Include debug symbols even when generating release code.
+#    2 = Also enable sanitizers with Clang. On the C side, make 'sprite' etc. be real arrays.
+#  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
+#  MEMMAP - 1 = produce .memmap file when linking
+#  OPTLEVEL - 0..3 = GCC optimization strategy
+#  LTO - 1 = enable link-time optimization
+
+# Optional overrides for text
+APPNAME=
+APPBASENAME=
+
+# Build toggles
+RELEASE?=1
+NOASM = 0
+# EXPERIMENTAL, unfinished x86_64 assembly routines. DO NOT ENABLE.
+USE_ASM64 ?= 0
+MEMMAP?=0
+CPLUSPLUS?=1
+
+# Feature toggles
+STANDALONE ?= 0
+NETCODE ?= 1
+STARTUP_WINDOW ?= 1
+SIMPLE_MENU ?= 0
+POLYMER = 1
+USE_OPENGL = 1
+LUNATIC ?= 0
+USE_LUAJIT_2_1 ?= 0
+
+# Library toggles
+HAVE_GTK2 ?= 1
+USE_LIBPNG ?= 1
+USE_LIBVPX ?= 1
+HAVE_VORBIS ?= 1
+HAVE_FLAC ?= 1
+ifeq ($(PLATFORM),WINDOWS)
+    HAVE_XMP ?= 1
+else
+    HAVE_XMP ?= 0
+endif
+RENDERTYPE=SDL
+MIXERTYPE=SDL
+SDL_TARGET ?= 2
+
+# Debugging/Build options
+DEBUGANYWAY?=0
+KRANDDEBUG?=0
+PROFILER?=0
+# Make allocache() a wrapper around malloc()? Useful for debugging
+# allocache()-allocated memory accesses with e.g. Valgrind.
+# For debugging with Valgrind + GDB, see
+# http://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver
+ALLOCACHE_AS_MALLOC?=0
+
+
+##### Settings overrides and implicit cascades
+
+ifneq (0,$(KRANDDEBUG))
+    RELEASE=0
+endif
+ifneq (100,$(RELEASE)$(PROFILER)$(ALLOCACHE_AS_MALLOC))
+    # so that we have debug symbols
+    DEBUGANYWAY=1
+endif
+
+ifeq ($(PLATFORM),WINDOWS)
+    MIXERTYPE=WIN
+    ifneq ($(RENDERTYPE),SDL)
+        ifeq ($(MIXERTYPE),SDL)
+            override MIXERTYPE:=WIN
+        endif
+    endif
+    override HAVE_GTK2 = 0
+else ifeq ($(PLATFORM),DARWIN)
+    HAVE_GTK2 = 0
+else ifeq ($(PLATFORM),WII)
+    override USE_OPENGL=0
+    override NETCODE = 0
+    override HAVE_GTK2 = 0
+    override HAVE_FLAC = 0
+    override HAVE_XMP = 0
+    SDL_TARGET=1
+else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW QNX SUNOS SYLLABLE))
+    override USE_OPENGL=0
+    override NOASM=1
+else ifeq ($(PLATFORM),$(filter $(PLATFORM),BEOS SKYOS))
+    override NOASM=1
+endif
+
+ifneq (i386,$(strip $(IMPLICIT_ARCH)))
+    override NOASM=1
+endif
+
+ifeq (0,$(USE_OPENGL))
+    override POLYMER = 0
+    override USE_LIBVPX = 0
+endif
+
+ifeq ($(RELEASE),0)
+    override STRIP=
+endif
+ifneq ($(DEBUGANYWAY),0)
+    override STRIP=
+endif
+
+ifeq ($(RELEASE),0)
+    OPTLEVEL?=0
+    LTO=0
+else
+    OPTLEVEL?=2
+    LTO=1
+endif
+
+ifneq (0,$(CLANG))
+    ifeq ($(PLATFORM),WINDOWS)
+        LTO=0
+    endif
+endif
+ifneq ($(LUNATIC),0)
+    # FIXME: Lunatic builds with LTO don't start up properly as the required
+    # symbol names are apparently not exported.
+    override LTO=0
+endif
+ifeq (0,$(CLANG))
+    ifeq (0,$(GCC_PREREQ_4))
+        override LTO=0
+    endif
+    ifeq (1,$(strip $(shell expr $(GCC_MAJOR) = 4)))
+        ifeq ($(PLATFORM),WII)
+            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 8)))
+                override LTO=0
+            endif
+        else
+            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 6)))
+                override LTO=0
+            endif
+        endif
+    endif
+endif
+
+
+########## End Toggles, Begin Construction ##########
+
+
+##### Instantiate variables
+
+COMMONFLAGS =
+COMPILERFLAGS = -funsigned-char
+
+CSTD:=-std=gnu99
+CONLYFLAGS=$(CSTD)
+CXXSTD:=-std=gnu++11
+CXXONLYFLAGS=$(CXXSTD) -fno-exceptions -fno-rtti
+ifneq (0,$(CLANG))
+    CSTD:=$(subst gnu,c,$(CSTD))
+    CXXSTD:=$(subst gnu,c,$(CXXSTD))
+endif
+
+ASFLAGS=-s #-g
+
+LUAJIT_BCOPTS :=
+
+LINKERFLAGS=
+L_CXXONLYFLAGS=
+
+LIBS=
+GUI_LIBS=
+LIBDIRS=
+
+
+##### Mandatory platform parameters
+
+ASFORMAT=elf$(BITS)
+# Options to "luajit -b" for synthesis. Since it runs on Linux, we need to tell
+# the native LuaJIT to emit PE object files.
+ifeq ($(PLATFORM),WINDOWS)
+    LINKERFLAGS+= -static-libgcc
+    ifeq (0,$(CLANG))
+        L_CXXONLYFLAGS += -static-libstdc++
     endif
 
-    DARWIN9 ?= 0
-    DARWIN10 ?= 0
-    ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 10)))
-        override DARWIN9 := 1
-    endif
-    ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 11)))
-        override DARWIN10 := 1
+    ifeq (0,$(CLANG))
+        GUI_LIBS += -mwindows
     endif
 
-#    COMMONFLAGS    += -fno-leading-underscore
+    COMPILERFLAGS+= -DUNDERSCORES
+    ASFORMAT=win$(BITS)
+    ASFLAGS+= -DUNDERSCORES
 
-    ifeq (1,$(DARWIN9))
-        F_JUMP_TABLES :=
-        W_STRICT_OVERFLOW :=
+    ifneq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
+        LINKERFLAGS+= -Wl,--large-address-aware
     endif
+    LINKERFLAGS+= -Wl,--enable-auto-import
 
+    LUAJIT_BCOPTS := -o windows
+    ifeq (32,$(BITS))
+        LUAJIT_BCOPTS += -a x86
+    endif
+    ifeq (64,$(BITS))
+        LUAJIT_BCOPTS += -a x64
+    endif
+else ifeq ($(PLATFORM),DARWIN)
     ifneq ($(ARCH),)
         ifneq ($(findstring -arch,$(ARCH)),-arch)
             override ARCH := -arch $(ARCH)
         endif
     endif
-
-    ifeq (1,$(BUILD32_ON_64))
-        COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
-        ifeq ($(ARCH),)
-            override ARCH:=-arch i386
-        endif
-    else
-        ifeq ($(findstring ppc,$(IMPLICIT_ARCH)),ppc)
-            COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
-        endif
-    endif
-
     COMMONFLAGS += $(ARCH)
-endif
 
-
-ifneq (0,$(RELEASE))
-    # Debugging disabled
-    COMMONFLAGS += $(F_NO_STACK_PROTECTOR)
-else
-    # Debugging enabled
-    ifneq (0,$(KRANDDEBUG))
-        COMMONFLAGS += -fno-inline -fno-inline-functions -fno-inline-functions-called-once
+    ifneq ($(findstring x86_64,$(IMPLICIT_ARCH)),x86_64)
+        LINKERFLAGS += -read_only_relocs suppress
     endif
+
+    COMPILERFLAGS+= -DUNDERSCORES
+    ASFORMAT=macho
+    ASFLAGS+= -DUNDERSCORES
+
+    ifeq ($(findstring x86_64,$(IMPLICIT_ARCH)),x86_64)
+        ASFORMAT+=64
+    endif
+else ifeq ($(PLATFORM),WII)
+    LINKERFLAGS+= -mrvl -meabi -mhard-float -Wl,--gc-sections
+    # -msdata=eabi
+    COMPILERFLAGS+= -DGEKKO -D__POWERPC__ -I$(LIBOGC_INC)
+    LIBDIRS += -L$(LIBOGC_LIB)
+else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
+    COMPILERFLAGS += -D__OPENDINGUX__
+else ifeq ($(PLATFORM),SKYOS)
+    COMPILERFLAGS+= -DUNDERSCORES
 endif
+ASFLAGS += -f $(ASFORMAT)
+
+COMPILERFLAGS+= -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+
+
+##### Optimizations
 
 ifndef OPTOPT
     ifeq ($(findstring x86_64, $(IMPLICIT_ARCH)),x86_64)
@@ -417,39 +494,46 @@ ifndef OPTOPT
         ifeq ($(PLATFORM),DARWIN)
             OPTOPT=-march=nocona -mmmx -msse -msse2 -msse3
         else
-            OPTOPT=-march=pentium3 $(M_TUNE_GENERIC) -mmmx
-            # -msse2 -mfpmath=sse,387 -malign-double $(M_STACKREALIGN)
+            OPTOPT=-march=pentium3
+            ifneq (0,$(GCC_PREREQ_4))
+                OPTOPT += -mtune=generic
+                # -mstackrealign
+            endif
+            OPTOPT += -mmmx
+            # -msse2 -mfpmath=sse,387 -malign-double
         endif
+    endif
+    ifeq ($(PLATFORM),WII)
+        OPTOPT=-mtune=750
     endif
 endif
 
-ifneq (0,$(KRANDDEBUG))
-    RELEASE=0
+ifeq ($(PACKAGE_REPOSITORY),0)
+    COMMONFLAGS += -O$(OPTLEVEL) $(OPTOPT)
 endif
-ifneq (0,$(PROFILER))
-    # XXX: Why?
-    DEBUGANYWAY=1
+
+ifneq (0,$(LTO))
+    COMPILERFLAGS += -DUSING_LTO
+    COMMONFLAGS += -flto
 endif
 
 
-ifeq ($(PLATFORM),WII)
-    override USE_LIBVPX = 0
-    override NETCODE = 0
-    override HAVE_FLAC = 0
-    override HAVE_XMP = 0
-endif
-ifeq ($(PLATFORM),GCW)
-    override USE_LIBVPX = 0
-endif
-ifeq ($(PLATFORM),DINGOO)
-    override USE_LIBVPX = 0
-endif
+##### Debugging
 
-ifneq (0,$(USE_LIBVPX))
-    # On Windows, we link statically to libvpx
-    LIBS+= -lvpx
+ifneq ($(RELEASE)$(DEBUGANYWAY),10)
+    ifeq ($(PACKAGE_REPOSITORY),0)
+        COMMONFLAGS += -g
+        ifeq (0,$(CLANG))
+            ifneq ($(PLATFORM),WII)
+                COMMONFLAGS += -fno-omit-frame-pointer
+            endif
+        endif
+    endif
+    ifeq ($(SUBPLATFORM),LINUX)
+        # This option is needed to allow obtaining backtraces from within a program.
+        LIBS+=-rdynamic
+    endif
 endif
-
 
 ifneq ($(ALLOCACHE_AS_MALLOC),0)
     COMPILERFLAGS += -DDEBUG_ALLOCACHE_AS_MALLOC
@@ -463,71 +547,73 @@ CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overfl
 #CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),unsigned-integer-overflow
 #CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS) -fsanitize-undefined-trap-on-error
 
-ifneq (0,$(RELEASE))
-    ## Debugging disabled
-
-    ifeq (0,$(CLANG))
-        COMMONFLAGS += -funswitch-loops
-        ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \< 4)))
-            override LTO=0
-        endif
-        ifeq (1,$(strip $(shell expr $(GCC_MAJOR) = 4)))
-            ifeq ($(PLATFORM),WII)
-                ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 8)))
-                    override LTO=0
-                endif
-            else
-                ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 6)))
-                    override LTO=0
-                endif
-            endif
-        endif
-    endif
-
-    ifeq (0,$(DEBUGANYWAY))
-        COMMONFLAGS += -fomit-frame-pointer
-        COMPILERFLAGS += -DNDEBUG
-    else
-        # Our $(DEBUGANYWAY) -> DEBUGGINGAIDS #define
-        COMPILERFLAGS += -DDEBUGGINGAIDS=$(DEBUGANYWAY)
-        ifneq (0,$(CLANG))
-            ifeq (2,$(DEBUGANYWAY))
-                COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
-            endif
-        endif
-    endif
-
-    ifneq (0,$(LTO))
-        COMPILERFLAGS += -DUSING_LTO
-        COMMONFLAGS += -flto
-    endif
+ifeq (0,$(DEBUGANYWAY))
+    COMPILERFLAGS += -DNDEBUG
 else
-    ## Debugging enabled
-
-    # Our $(DEBUGANYWAY) -> DEBUGGINGAIDS #define
     COMPILERFLAGS += -DDEBUGGINGAIDS=$(DEBUGANYWAY)
     ifneq (0,$(CLANG))
         ifeq (2,$(DEBUGANYWAY))
             COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
         endif
     endif
+endif
 
-    ifeq ($(SUBPLATFORM),LINUX)
-        LIBS+=-rdynamic
+ifneq (0,$(KRANDDEBUG))
+    COMPILERFLAGS += -DKRANDDEBUG=1
+endif
+
+ifneq (0,$(PROFILER))
+    ifneq ($(PLATFORM),DARWIN)
+        LIBS+= -lprofiler
+    endif
+    COMMONFLAGS += -pg
+endif
+
+
+##### -f stuff
+
+ifneq (0,$(GCC_PREREQ_4))
+    F_NO_STACK_PROTECTOR := -fno-stack-protector
+    ifeq (0,$(CLANG))
+        F_JUMP_TABLES := -fjump-tables
+    endif
+endif
+
+ifeq ($(PLATFORM),DARWIN)
+    ifeq (1,$(DARWIN9))
+        F_JUMP_TABLES :=
+    endif
+    ifeq ($(findstring ppc,$(IMPLICIT_ARCH))$(findstring i386,$(IMPLICIT_ARCH)),)
+        F_NO_STACK_PROTECTOR :=
+    endif
+endif
+
+ifeq (0,$(RELEASE))
+    F_NO_STACK_PROTECTOR :=
+else
+    ifeq (0,$(CLANG))
+        COMMONFLAGS += -funswitch-loops
     endif
 
-    ifneq (0,$(MUDFLAP))
-        LIBS+= -lmudflapth
-        COMMONFLAGS += -fmudflapth
+    ifeq (0,$(DEBUGANYWAY))
+        COMMONFLAGS += -fomit-frame-pointer
     endif
-    ifneq (0,$(PROFILER))
-        ifneq ($(PLATFORM),DARWIN)
-            LIBS+= -lprofiler
-        endif
-        COMMONFLAGS += -pg
-    endif
-    ifneq (0,$(KRANDDEBUG))
-        COMPILERFLAGS += -DKRANDDEBUG=1
+endif
+
+ifneq (0,$(KRANDDEBUG))
+    COMMONFLAGS += -fno-inline -fno-inline-functions -fno-inline-functions-called-once
+endif
+
+COMMONFLAGS+= -fno-strict-aliasing $(F_JUMP_TABLES) $(F_NO_STACK_PROTECTOR)
+
+
+##### Warnings
+
+W_STRICT_OVERFLOW := -Wno-strict-overflow
+
+ifeq ($(PLATFORM),DARWIN)
+    ifneq (0,$(DARWIN9))
+        W_STRICT_OVERFLOW :=
     endif
 endif
 
@@ -558,7 +644,7 @@ CONLYWARNS = -Wimplicit -Werror-implicit-function-declaration
 ifneq (0,$(CLANG))
     CWARNS+= -Wno-unused-value -Wno-parentheses -Wno-unknown-warning-option
 else
-    ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \< 4)))
+    ifeq (0,$(GCC_PREREQ_4))
         W_GCC_4_5 :=
         W_GCC_4_4 :=
         ifeq (0,$(OPTLEVEL))
@@ -587,29 +673,79 @@ else
     endif
 endif
 
-COMMONFLAGS+= -fno-strict-aliasing $(F_JUMP_TABLES)
 
-COMPILERFLAGS+= -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+##### Features
+
+ifneq (,$(APPNAME))
+    COMPILERFLAGS+= -DAPPNAME=\"$(APPNAME)\"
+endif
+ifneq (,$(APPBASENAME))
+    COMPILERFLAGS+= -DAPPBASENAME=\"$(APPBASENAME)\"
+endif
+
+ifneq (0,$(NOASM))
+    COMPILERFLAGS+= -DNOASM
+endif
+ifneq (0,$(USE_ASM64))
+    COMPILERFLAGS+= -DUSE_ASM64
+endif
+ifneq (0,$(MEMMAP))
+    ifeq ($(PLATFORM),DARWIN)
+        LINKERFLAGS+=-Wl,-map -Wl,$@.memmap
+    else
+        LINKERFLAGS+=-Wl,-Map=$@.memmap
+    endif
+endif
+
+COMPILERFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 -DMIXERTYPE$(MIXERTYPE)=1
 
 ifeq (0,$(NETCODE))
     COMPILERFLAGS+= -DNETCODE_DISABLE
 endif
-
-
-#### Lunatic development
-# LuaJIT standalone interpreter executable:
-LUAJIT=luajit$(EXESUFFIX)
-# Options to "luajit -b" for synthesis. Since it runs on Linux, we need to tell
-# the native LuaJIT to emit PE object files.
-ifeq ($(PLATFORM),WINDOWS)
-    LUAJIT_BCOPTS := -o windows
-    ifeq (32,$(BITS))
-        LUAJIT_BCOPTS += -a x86
-    endif
-    ifeq (64,$(BITS))
-        LUAJIT_BCOPTS += -a x64
-    endif
+ifneq (0,$(STARTUP_WINDOW))
+    COMPILERFLAGS+= -DSTARTUP_WINDOW
 endif
+ifneq (0,$(SIMPLE_MENU))
+    COMPILERFLAGS+= -DEDUKE32_SIMPLE_MENU
+endif
+ifneq (0,$(STANDALONE))
+    COMPILERFLAGS+= -DEDUKE32_STANDALONE
+endif
+ifneq (0,$(USE_OPENGL))
+    COMPILERFLAGS+= -DUSE_OPENGL
+endif
+ifneq (0,$(POLYMER))
+    COMPILERFLAGS+= -DPOLYMER
+endif
+
+
+##### External library paths
+
+ifeq ($(PLATFORM),WINDOWS)
+    COMPILERFLAGS+= -Iplatform/Windows/include
+    LIBDIRS+= -Lplatform/Windows/lib/$(BITS)
+else ifeq ($(PLATFORM),DARWIN)
+    ifneq ($(shell port --version &>/dev/null; echo $$?),127)
+        LIBDIRS+= -L/opt/local/lib
+        COMPILERFLAGS+= -I/opt/local/include
+    endif
+    ifneq ($(shell brew --version &>/dev/null; echo $$?),127)
+        LIBDIRS+= -L/usr/local/lib
+        COMPILERFLAGS+= -I/usr/local/include
+    endif
+    ifneq ($(shell fink --version &>/dev/null; echo $$?),127)
+        LIBDIRS+= -L/sw/lib
+        COMPILERFLAGS+= -I/sw/include
+    endif
+else ifeq ($(PLATFORM),BSD)
+    COMPILERFLAGS+= -I/usr/local/include
+else ifeq ($(PLATFORM),WII)
+    COMPILERFLAGS+= -I$(PORTLIBS)/include -Iplatform/Wii/include
+    LIBDIRS += -L$(PORTLIBS)/lib -Lplatform/Wii/lib
+endif
+
+
+##### External libraries
 
 ifneq ($(LUNATIC),0)
     ifneq ($(USE_LUAJIT_2_1),0)
@@ -623,30 +759,19 @@ ifneq ($(LUNATIC),0)
     endif
 endif
 
-####
-
-ifneq (0,$(DISABLEINLINING))
-    COMPILERFLAGS+= -DDISABLE_INLINING
-endif
-
-# This should come from the environment:
-ifdef EDUKE32_MY_DEVELOPER_ID
-    COMPILERFLAGS+= -DMY_DEVELOPER_ID=$(EDUKE32_MY_DEVELOPER_ID)
-endif
-
 ifneq (0,$(USE_LIBPNG))
     COMPILERFLAGS+= -DUSE_LIBPNG
+    ifeq ($(PLATFORM),WINDOWS)
+        LIBS+= -lpng_mini -lz_mini
+    else ifeq ($(PLATFORM),DARWIN)
+        LIBS+= -lpng # -lz
+    else
+        LIBS+= -lpng -lz
+    endif
 endif
 ifneq (0,$(USE_LIBVPX))
     COMPILERFLAGS+= -DUSE_LIBVPX
-endif
-
-ifneq (0,$(STARTUP_WINDOW))
-    COMPILERFLAGS+= -DSTARTUP_WINDOW
-endif
-
-ifneq (0,$(SIMPLE_MENU))
-    COMPILERFLAGS+= -DEDUKE32_SIMPLE_MENU
+    LIBS+= -lvpx
 endif
 
 ifneq (0,$(HAVE_VORBIS))
@@ -658,197 +783,19 @@ endif
 ifneq (0,$(HAVE_XMP))
     COMPILERFLAGS+= -DHAVE_XMP
 endif
-ifneq (0,$(EFENCE))
-    LIBS+= -lefence
-    COMPILERFLAGS+= -DEFENCE
-endif
-ifneq (0,$(DMALLOC))
-    LIBS+= -ldmalloc
-    COMPILERFLAGS+= -DDMALLOC
-endif
-ifneq (0,$(STANDALONE))
-    COMPILERFLAGS+= -DEDUKE32_STANDALONE
-endif
-
-ifneq (,$(APPNAME))
-    COMPILERFLAGS+= -DAPPNAME=\"$(APPNAME)\"
-endif
-ifneq (,$(APPBASENAME))
-    COMPILERFLAGS+= -DAPPBASENAME=\"$(APPBASENAME)\"
-endif
-
-# may be overridden
-EXESUFFIX=
-DLLSUFFIX=.so
-
-
-SDL_TARGET ?= 2
-SDL_FRAMEWORK ?= 0
-
-ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 4)))
-    L_SSP := -lssp
-endif
-
-# ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \>= 5)))
-#     ifneq (0,$(LTO))
-#         COMMONFLAGS += -fno-lto-odr-type-merging
-#     endif
-# endif
-
-ifeq ($(SUBPLATFORM),LINUX)
-    GTKCOMPAT32=0
-
-    ifeq ($(PLATFORM),GCW)
-        override USE_OPENGL=0
-        override NOASM=1
-    endif
-    ifeq ($(PLATFORM),DINGOO)
-        override USE_OPENGL=0
-        override NOASM=1
-    endif
-
-    ifneq ($(findstring i386,$(IMPLICIT_ARCH)),i386)
-        ifeq (1,$(BUILD32_ON_64))
-            # On my 64bit Gentoo these are the 32bit emulation libs
-            LIBDIRS+= -L/emul/linux/x86/usr/lib
-            COMMONFLAGS+= -m32
-            # Override WITHOUT_GTK=0
-            GTKCOMPAT32=1
-        endif
-    endif
-
-    LIBS+= -lrt
-endif
-ifeq ($(PLATFORM),DARWIN)
-    COMPILERFLAGS+= -DUNDERSCORES
-    ASFORMAT=macho
-    ASFLAGS+= -DUNDERSCORES
-
-    ifeq ($(findstring x86_64,$(IMPLICIT_ARCH)),x86_64)
-        ASFORMAT+=64
-        override NOASM=1
-    endif
-
-    # LIBDIRS+= -Lplatform/Apple/lib
-    # COMPILERFLAGS+= -Iplatform/Apple/include
-
-    ifneq ($(shell port --version &>/dev/null; echo $$?),127)
-        LIBDIRS+= -L/opt/local/lib
-        COMPILERFLAGS+= -I/opt/local/include
-    endif
-    ifneq ($(shell brew --version &>/dev/null; echo $$?),127)
-        LIBDIRS+= -L/usr/local/lib
-        COMPILERFLAGS+= -I/usr/local/include
-    endif
-    ifneq ($(shell fink --version &>/dev/null; echo $$?),127)
-        LIBDIRS+= -L/sw/lib
-        COMPILERFLAGS+= -I/sw/include
-    endif
-
-    DLLSUFFIX=.dylib
-    GTKCOMPAT32    = 0
-    WITHOUT_GTK   ?= 1
-
-    ifeq (1,$(DARWIN9))
-        COMPILERFLAGS += -DDARWIN9
-    endif
-
-    ifneq ($(findstring x86_64,$(IMPLICIT_ARCH)),x86_64)
-        LINKERFLAGS += -read_only_relocs suppress
-    endif
-endif
-ifeq ($(PLATFORM),WINDOWS)
-    COMPILERFLAGS+= -DUNDERSCORES -Iplatform/Windows/include
-    LINKERFLAGS+= -static-libgcc
-    ifeq (0,$(CLANG))
-        L_CXXONLYFLAGS += -static-libstdc++
-    endif
-    ASFORMAT=win$(BITS)
-    ASFLAGS+= -DUNDERSCORES
-
-    # Windows types can be SDL or WIN
-    RENDERTYPE?=SDL
-    MIXERTYPE?=WIN
-    ifneq ($(RENDERTYPE),SDL)
-        ifeq ($(MIXERTYPE),SDL)
-            override MIXERTYPE:=WIN
-        endif
-    endif
-
-    WITHOUT_GTK?=1
-    EXESUFFIX=.exe
-    DLLSUFFIX=.dll
-    LIBDIRS+= -Lplatform/Windows/lib$(WINLIB)
-    LIBS+= -Wl,--enable-auto-import -lmingwex -lgdi32 -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
-    ifeq (0,$(CLANG))
-        GUI_LIBS += -mwindows
-    endif
-    #-lshfolder
-else
-    RENDERTYPE?=SDL
-    MIXERTYPE?=SDL
-endif
-ifeq ($(PLATFORM),BSD)
-    COMPILERFLAGS+= -I/usr/local/include
-endif
-ifeq ($(PLATFORM),BEOS)
-    override NOASM=1
-endif
-ifeq ($(PLATFORM),SKYOS)
-    EXESUFFIX=.app
-    override NOASM=1
-    COMPILERFLAGS+= -DUNDERSCORES -I/boot/programs/sdk/include/sdl
-    SDLCONFIG=
-    LIBS+= -lSDL -lnet
-endif
-ifeq ($(PLATFORM),WII)
-    EXESUFFIX=.elf
-    override USE_OPENGL=0
-    override POLYMER=0
-    override NOASM=1
-    override WITHOUT_GTK=1
-    # -msdata=eabi
-    COMMONFLAGS+= -g -mtune=750 -meabi -mhard-float
-    COMPILERFLAGS+= -DGEKKO -D__POWERPC__ -I$(LIBOGC_INC) -I$(PORTLIBS)/include -Iplatform/Wii/include
-    SDLCONFIG=
-    SDL_TARGET=1
-    LIBDIRS += -L$(LIBOGC_LIB) -L$(PORTLIBS)/lib -Lplatform/Wii/lib
-endif
-ifeq ($(PLATFORM),QNX)
-    override USE_OPENGL=0
-    override NOASM=1
-    LIBS+= -lsocket
-endif
-ifeq ($(PLATFORM),SUNOS)
-    override USE_OPENGL=0
-    override NOASM=1
-    LIBS+= -lsocket -lnsl
-endif
-ifeq ($(PLATFORM),SYLLABLE)
-    override USE_OPENGL=0
-    override NOASM=1
-endif
-ifeq ($(PLATFORM),GCW)
-    COMPILERFLAGS += -D__OPENDINGUX__
-endif
-ifeq ($(PLATFORM),DINGOO)
-    COMPILERFLAGS += -D__OPENDINGUX__
-endif
-
-ifneq ($(findstring i386,$(IMPLICIT_ARCH)),i386)
-    override NOASM=1
-endif
-
-ifneq ($(EXESUFFIX_OVERRIDE),)
-    EXESUFFIX=$(EXESUFFIX_OVERRIDE)
-endif
 
 ifeq ($(RENDERTYPE),SDL)
+    ifeq ($(PLATFORM),WII)
+        SDLCONFIG=
+    else ifeq ($(PLATFORM),SKYOS)
+        COMPILERFLAGS+= -I/boot/programs/sdk/include/sdl
+        SDLCONFIG=
+    endif
+
     ifeq ($(SDL_TARGET),2)
         SDLCONFIG ?= sdl2-config
         SDLNAME ?= SDL2
-    endif
-    ifeq ($(SDL_TARGET),1)
+    else ifeq ($(SDL_TARGET),1)
         SDLCONFIG ?= sdl-config
         SDLNAME ?= SDL
         ifeq (0,$(RELEASE))
@@ -864,8 +811,10 @@ ifeq ($(RENDERTYPE),SDL)
 
     COMPILERFLAGS += -DSDL_TARGET=$(SDL_TARGET)
 
+    SDL_FRAMEWORK ?= 0
     ifneq ($(SDL_FRAMEWORK),0)
         ifeq ($(PLATFORM),DARWIN)
+            APPLE_FRAMEWORKS ?=/Library/Frameworks
             LIBDIRS += -F$(APPLE_FRAMEWORKS)
             ifeq ($(MIXERTYPE),SDL)
                 COMPILERFLAGS += -I$(APPLE_FRAMEWORKS)/$(SDLNAME)_mixer.framework/Headers
@@ -892,113 +841,57 @@ ifeq ($(RENDERTYPE),SDL)
             LIBS+= -l$(SDLNAME)
         endif
     endif
+endif
 
-    ifeq (1,$(WITHOUT_GTK))
-        HAVE_GTK2=0
+ifneq (0,$(HAVE_GTK2))
+    ifneq (No,$(shell $(PKG_CONFIG) --exists gtk+-2.0 || echo No))
+        COMPILERFLAGS += -DHAVE_GTK2 $(shell $(PKG_CONFIG) --cflags gtk+-2.0)
     else
-        ifneq (No,$(shell $(PKG_CONFIG) --exists gtk+-2.0 || echo No))
-            HAVE_GTK2=1
-            # On my 64bit Gentoo box I have Cairo enabled which means the libs list includes
-            # -lpangocairo-1.0 and -lcairo, however the 32bit compatibility libraries don't
-            # include cairo, so we need to filter out those -l switches in order to link
-            ifneq ($(LINKED_GTK),0)
-                ifeq ($(GTKCOMPAT32),1)
-                    LIBS+= $(shell $(PKG_CONFIG) --libs gtk+-2.0 | sed 's/\s-l\(pango\)\{0,1\}cairo\S*\s/ /g')
-                else
-                    LIBS+= $(shell $(PKG_CONFIG) --libs gtk+-2.0)
-                endif
-            endif
-            COMPILERFLAGS += -DHAVE_GTK2 $(shell $(PKG_CONFIG) --cflags gtk+-2.0)
-        else
-            HAVE_GTK2=0
-        endif
-    endif
-
-    ifeq ($(PLATFORM),WINDOWS)
-        LIBS += -ldxguid_sdl -lmingw32 -lgdi32 -limm32 -lole32 -loleaut32 -lwinmm -lversion
+        override HAVE_GTK2=0
     endif
 endif
-ifeq ($(RENDERTYPE),WIN)
-    LIBS+= -ldxguid
-endif
-
-ifeq ($(PLATFORM),WII)
-    LIBS+= -laesnd_tueidj -lpng -lfat -lwiiuse -lbte -logc -lm -lwiikeyboard
-endif
-
-COMPILERFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 -DMIXERTYPE$(MIXERTYPE)=1
-
-ifneq (0,$(USE_OPENGL))
-    COMPILERFLAGS+= -DUSE_OPENGL
-endif
-ifneq (0,$(NOASM))
-    COMPILERFLAGS+= -DNOASM
-endif
-ifneq (0,$(USE_ASM64))
-    COMPILERFLAGS+= -DUSE_ASM64
-endif
-ifneq (0,$(LINKED_GTK))
-    COMPILERFLAGS+= -DLINKED_GTK
-endif
-
-ifneq (0,$(POLYMER))
- ifneq (0,$(USE_OPENGL))
-  COMPILERFLAGS+= -DPOLYMER
- endif
-endif
 
 
-ifneq ($(PLATFORM),WINDOWS)
-    ifneq ($(PLATFORM),WII)
-        ifneq ($(PLATFORM),BSD)
-            LIBS+= -ldl
-        endif
-        ifneq ($(PLATFORM),DARWIN)
-            LIBS+= -pthread
-        endif
-    endif
-endif
+##### System libraries
 
 ifeq ($(PLATFORM),WINDOWS)
-    ifneq ($(USE_LIBPNG),0)
-        LIBS+= -lpng_mini -lz_mini
+    ifneq (0,$(GCC_PREREQ_4))
+        L_SSP := -lssp
     endif
-else
-    ifeq ($(PLATFORM),DARWIN)
-        ifneq ($(USE_LIBPNG),0)
-            LIBS+= -lpng # -lz
-        endif
+    LIBS+= -lmingwex -lgdi32
+    ifeq ($(RENDERTYPE),WIN)
+        LIBS += -ldxguid
     else
-        ifneq ($(USE_LIBPNG),0)
-            LIBS+= -lpng -lz
-        endif
+        LIBS += -ldxguid_sdl -lmingw32 -limm32 -lole32 -loleaut32 -lversion
+    endif
+    LIBS += -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
+    # -lshfolder
+else ifeq ($(PLATFORM),SKYOS)
+    LIBS+= -lnet
+else ifeq ($(PLATFORM),QNX)
+    LIBS+= -lsocket
+else ifeq ($(PLATFORM),SUNOS)
+    LIBS+= -lsocket -lnsl
+else ifeq ($(PLATFORM),WII)
+    LIBS+= -laesnd_tueidj -lfat -lwiiuse -lbte -lwiikeyboard -logc
+else ifeq ($(SUBPLATFORM),LINUX)
+    LIBS+= -lrt
+endif
+
+ifeq (,$(filter $(PLATFORM),WINDOWS WII))
+    ifneq ($(PLATFORM),BSD)
+        LIBS+= -ldl
+    endif
+    ifneq ($(PLATFORM),DARWIN)
+        LIBS+= -pthread
     endif
 endif
 
+LIBS += -lm
 
-ifeq ($(PLATFORM),WINDOWS)
-    ifneq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
-        LINKERFLAGS+= -Wl,--large-address-aware
-    endif
-endif
 
-ifneq (0,$(MEMMAP))
-ifeq ($(PLATFORM),DARWIN)
-    LINKERFLAGS+=-Wl,-map -Wl,$@.memmap
-else
-    LINKERFLAGS+=-Wl,-Map=$@.memmap
-endif
-endif
+##### Detect version control revision, if applicable
 
-ifneq (0,$(PROFILER))
-    LINKERFLAGS+=-pg
-endif
-ifeq ($(PLATFORM),WII)
-    LINKERFLAGS+= -mrvl -meabi -mhard-float -Wl,--gc-sections
-    # -msdata=eabi
-endif
-
-# Detect version control revision, if applicable
 ifeq (,$(VC_REV))
     ifneq (,$(wildcard EDUKE32_REVISION))
         VC_REV    := $(shell cat EDUKE32_REVISION)
@@ -1011,8 +904,11 @@ ifeq (,$(VC_REV))
     VC_REV    := $(shell git svn info 2>&1 | grep Revision | cut -d' ' -f2)
 endif
 ifneq (,$(VC_REV)$(VC_REV_CUSTOM))
-    REVFLAG += -DREV="\"r$(VC_REV)$(VC_REV_CUSTOM)\""
+    REVFLAG := -DREV="\"r$(VC_REV)$(VC_REV_CUSTOM)\""
 endif
+
+
+##### Final assembly of commands
 
 COMPILER_C=$(CC) $(CONLYFLAGS) $(COMMONFLAGS) $(CWARNS) $(CONLYWARNS) $(COMPILERFLAGS) $(CUSTOMOPT)
 COMPILER_CXX=$(CXX) $(CXXONLYFLAGS) $(COMMONFLAGS) $(CWARNS) $(COMPILERFLAGS) $(CUSTOMOPT)
@@ -1024,6 +920,9 @@ ifneq ($(CPLUSPLUS),0)
     COMPILER_OBJC=$(COMPILER_OBJCXX)
 endif
 
+
+##### Allow standard environment variables to take precedence, to help package maintainers.
+
 ifneq (,$(CFLAGS))
     COMMONFLAGS+= $(CFLAGS)
 endif
@@ -1033,6 +932,9 @@ endif
 ifneq (,$(LDFLAGS))
     LINKERFLAGS+= $(LDFLAGS)
 endif
+
+
+##### Pretty-printing
 
 ifeq ($(PRETTY_OUTPUT),1)
 RECIPE_IF = if

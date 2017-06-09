@@ -381,15 +381,6 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 #endif
 
 
-////////// External library headers //////////
-
-#ifdef EFENCE
-# include <efence.h>
-#elif defined DMALLOC
-# include <dmalloc.h>
-#endif
-
-
 ////////// DEPRECATED: Standard library prefixing //////////
 
 #ifdef _MSC_VER
