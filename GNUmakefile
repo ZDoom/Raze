@@ -12,8 +12,20 @@ source=source
 obj=obj
 
 ### Functions
+define parent
+$(word 1,$(subst _, ,$1))
+endef
 define expandobjs
-$$(addprefix $1,$$(addsuffix .$$o,$$(basename $2)))
+$$(addprefix $$($$(call parent,$1)_OBJ)/,$$(addsuffix .$$o,$$(basename $$($1_OBJS) $$($1_RSRC_OBJS))))
+endef
+define expandsrcs
+$(addprefix $($(call parent,$1)_SRC)/,$($1_OBJS)) $(addprefix $($(call parent,$1)_RSRC)/,$($1_RSRC_OBJS))
+endef
+define expanddeps
+$(strip $1 $(foreach j,$1,$(call $0,$($j_DEPS))))
+endef
+define getdeps
+$(call expanddeps,$1_$2 $(COMMON_$2_DEPS) ENGINE)
 endef
 
 COMPILERFLAGS += -I$(ENGINE_INC) -I$(MACT_INC) -I$(AUDIOLIB_INC) -I$(ENET_INC)
@@ -144,11 +156,6 @@ ifneq ($(USE_LIBVPX),0)
     ENGINE_OBJS+= animvpx.cpp
 endif
 
-ENGINE_SRCS:=$(addprefix $(ENGINE_SRC)/,$(ENGINE_OBJS))
-ENGINE_EDITOR_SRCS:=$(addprefix $(ENGINE_SRC)/,$(ENGINE_EDITOR_OBJS))
-ENGINE_OBJS_EXP:=$(call expandobjs,$(ENGINE_OBJ)/,$(ENGINE_OBJS))
-ENGINE_EDITOR_OBJS_EXP:=$(call expandobjs,$(ENGINE_OBJ)/,$(ENGINE_EDITOR_OBJS))
-
 
 #### MACT
 
@@ -166,9 +173,6 @@ MACT_OBJS = \
     joystick.cpp \
     scriplib.cpp \
     animlib.cpp \
-
-MACT_SRCS:=$(addprefix $(MACT_SRC)/,$(MACT_OBJS))
-MACT_OBJS_EXP:=$(call expandobjs,$(MACT_OBJ)/,$(MACT_OBJS))
 
 
 #### AudioLib
@@ -207,9 +211,6 @@ ifeq ($(MIXERTYPE),SDL)
     AUDIOLIB_OBJS+= driver_sdl.cpp
 endif
 
-AUDIOLIB_SRCS:=$(addprefix $(AUDIOLIB_SRC)/,$(AUDIOLIB_OBJS))
-AUDIOLIB_OBJS_EXP:=$(call expandobjs,$(AUDIOLIB_OBJ)/,$(AUDIOLIB_OBJS))
-
 
 #### ENet
 
@@ -236,14 +237,6 @@ ifeq ($(PLATFORM),WINDOWS)
 else
     ENET_OBJS += unix.c
     ENET_CFLAGS += -DHAS_SOCKLEN_T
-endif
-
-ENET_SRCS:=$(addprefix $(ENET_SRC)/,$(ENET_OBJS))
-ENET_OBJS_EXP:=$(call expandobjs,$(ENET_OBJ)/,$(ENET_OBJS))
-
-ifeq ($(NETCODE),0)
-    override ENET_SRCS:=
-    override ENET_OBJS_EXP:=
 endif
 
 
@@ -289,8 +282,7 @@ ifeq ($(PLATFORM),DARWIN)
     TOOLS_OBJS += osxbits.mm
 endif
 
-TOOLS_SRCS:=$(addprefix $(TOOLS_SRC)/,$(TOOLS_OBJS)) $(addprefix $(ENGINE_SRC)/,$(ENGINE_TOOLS_OBJS))
-TOOLS_OBJS_EXP:=$(call expandobjs,$(TOOLS_OBJ)/,$(TOOLS_OBJS)) $(call expandobjs,$(ENGINE_OBJ)/,$(ENGINE_TOOLS_OBJS))
+TOOLS_DEPS=ENGINE_TOOLS
 
 
 #### KenBuild (Test Game)
@@ -344,16 +336,6 @@ ifeq ($(PLATFORM),DARWIN)
         KENBUILD_GAME_OBJS += StartupWinController.game.mm
     endif
 endif
-
-KENBUILD_GAME_SRCS:=$(addprefix $(KENBUILD_SRC)/,$(KENBUILD_GAME_OBJS))
-KENBUILD_EDITOR_SRCS:=$(addprefix $(KENBUILD_SRC)/,$(KENBUILD_EDITOR_OBJS))
-KENBUILD_GAME_OBJS_EXP:=$(call expandobjs,$(KENBUILD_OBJ)/,$(KENBUILD_GAME_OBJS) $(KENBUILD_GAME_RSRC_OBJS))
-KENBUILD_EDITOR_OBJS_EXP:=$(call expandobjs,$(KENBUILD_OBJ)/,$(KENBUILD_EDITOR_OBJS) $(KENBUILD_EDITOR_RSRC_OBJS))
-
-KENBUILD_GAME_SRCS_TARGET=$(KENBUILD_GAME_SRCS)
-KENBUILD_EDITOR_SRCS_TARGET=$(KENBUILD_EDITOR_SRCS)
-KENBUILD_GAME_OBJS_TARGET=$(KENBUILD_GAME_OBJS_EXP)
-KENBUILD_EDITOR_OBJS_TARGET=$(KENBUILD_EDITOR_OBJS_EXP)
 
 
 #### Duke Nukem 3D
@@ -455,7 +437,7 @@ ifneq (0,$(LUNATIC))
     DUKE3D_CFLAGS += -DLUNATIC_DEFS_BC_SIZE=$(DEFS_BC_SIZE) -DLUNATIC_DEFS_M32_BC_SIZE=$(DEFS_M32_BC_SIZE)
 
     # Lunatic object base names. These are not used in targets directly.
-    LUNATIC_LUA_OBJS = \
+    LUNATIC_OBJS = \
         defs_common.lua \
         engine_maptext.lua \
         engine.lua \
@@ -468,7 +450,8 @@ ifneq (0,$(LUNATIC))
         dis_x86.lua \
         dis_x64.lua \
 
-    LUNATIC_GAME_LUA_OBJS = \
+    LUNATIC_GAME_OBJS = \
+        lunatic_game.cpp \
         _defs_game.lua \
         con_lang.lua \
         lunacon.lua \
@@ -478,14 +461,9 @@ ifneq (0,$(LUNATIC))
         lunasave.lua \
         fs.lua \
 
-    LUNATIC_EDITOR_LUA_OBJS = \
-        _defs_editor.lua \
-
-    LUNATIC_GAME_OBJS = \
-        lunatic_game.cpp \
-
     LUNATIC_EDITOR_OBJS = \
         lunatic_editor.cpp \
+        _defs_editor.lua \
 
     # TODO: remove debugging modules from release build
 
@@ -592,31 +570,19 @@ ifeq ($(MIXERTYPE),SDL)
     DUKE3D_COMMON_MIDI_OBJS=sdlmusic.cpp
 endif
 
-DUKE3D_COMMON_EDITOR_SRCS:=$(addprefix $(DUKE3D_SRC)/,$(DUKE3D_COMMON_EDITOR_OBJS))
-DUKE3D_COMMON_EDITOR_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(DUKE3D_COMMON_EDITOR_OBJS))
+COMMON_EDITOR_DEPS=DUKE3D_COMMON_EDITOR ENGINE_EDITOR
 
-DUKE3D_COMMON_EDITOR_SRCS_TARGET=$(DUKE3D_COMMON_EDITOR_SRCS) $(ENGINE_EDITOR_SRCS)
-DUKE3D_COMMON_EDITOR_OBJS_TARGET=$(DUKE3D_COMMON_EDITOR_OBJS_EXP) $(ENGINE_EDITOR_OBJS_EXP)
+DUKE3D_GAME_DEPS=DUKE3D_COMMON_MIDI AUDIOLIB MACT
+DUKE3D_EDITOR_DEPS=AUDIOLIB
 
-DUKE3D_COMMON_MIDI_SRCS:=$(addprefix $(DUKE3D_SRC)/,$(DUKE3D_COMMON_MIDI_OBJS))
-DUKE3D_COMMON_MIDI_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(DUKE3D_COMMON_MIDI_OBJS))
-
-DUKE3D_GAME_SRCS:=$(addprefix $(DUKE3D_SRC)/,$(DUKE3D_GAME_OBJS))
-DUKE3D_EDITOR_SRCS:=$(addprefix $(DUKE3D_SRC)/,$(DUKE3D_EDITOR_OBJS))
-DUKE3D_GAME_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(DUKE3D_GAME_OBJS) $(DUKE3D_GAME_RSRC_OBJS))
-DUKE3D_EDITOR_OBJS_EXP:=$(call expandobjs,$(DUKE3D_OBJ)/,$(DUKE3D_EDITOR_OBJS) $(DUKE3D_EDITOR_RSRC_OBJS))
-
-ifneq (0,$(LUNATIC))
-    DUKE3D_GAME_SRCS+= $(addprefix $(LUNATIC_SRC)/,$(LUNATIC_GAME_OBJS) $(LUNATIC_LUA_OBJS) $(LUNATIC_GAME_LUA_OBJS))
-    DUKE3D_EDITOR_SRCS+= $(addprefix $(LUNATIC_SRC)/,$(LUNATIC_EDITOR_OBJS) $(LUNATIC_LUA_OBJS) $(LUNATIC_EDITOR_LUA_OBJS))
-    DUKE3D_GAME_OBJS_EXP+= $(call expandobjs,$(LUNATIC_OBJ)/,$(LUNATIC_GAME_OBJS) $(LUNATIC_LUA_OBJS) $(LUNATIC_GAME_LUA_OBJS))
-    DUKE3D_EDITOR_OBJS_EXP+= $(call expandobjs,$(LUNATIC_OBJ)/,$(LUNATIC_EDITOR_OBJS) $(LUNATIC_LUA_OBJS) $(LUNATIC_EDITOR_LUA_OBJS))
+ifneq (0,$(NETCODE))
+    DUKE3D_GAME_DEPS += ENET
 endif
 
-DUKE3D_GAME_SRCS_TARGET=$(DUKE3D_GAME_SRCS) $(DUKE3D_COMMON_MIDI_SRCS) $(AUDIOLIB_SRCS) $(MACT_SRCS) $(ENET_SRCS)
-DUKE3D_EDITOR_SRCS_TARGET=$(DUKE3D_EDITOR_SRCS) $(AUDIOLIB_SRCS)
-DUKE3D_GAME_OBJS_TARGET=$(DUKE3D_GAME_OBJS_EXP) $(DUKE3D_COMMON_MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP) $(ENET_OBJS_EXP)
-DUKE3D_EDITOR_OBJS_TARGET=$(DUKE3D_EDITOR_OBJS_EXP) $(AUDIOLIB_OBJS_EXP)
+ifneq (0,$(LUNATIC))
+    DUKE3D_GAME_DEPS += LUNATIC LUNATIC_GAME
+    DUKE3D_EDITOR_DEPS += LUNATIC LUNATIC_EDITOR
+endif
 
 
 #### Shadow Warrior
@@ -737,15 +703,8 @@ ifeq ($(PLATFORM),WINDOWS)
     SW_EDITOR_RSRC_OBJS+= buildres.rc
 endif
 
-SW_GAME_SRCS:=$(addprefix $(SW_SRC)/,$(SW_GAME_OBJS))
-SW_EDITOR_SRCS:=$(addprefix $(SW_SRC)/,$(SW_EDITOR_OBJS))
-SW_GAME_OBJS_EXP:=$(call expandobjs,$(SW_OBJ)/,$(SW_GAME_OBJS) $(SW_GAME_RSRC_OBJS))
-SW_EDITOR_OBJS_EXP:=$(call expandobjs,$(SW_OBJ)/,$(SW_EDITOR_OBJS) $(SW_EDITOR_RSRC_OBJS))
-
-SW_GAME_SRCS_TARGET=$(SW_GAME_SRCS) $(DUKE3D_COMMON_MIDI_SRCS) $(AUDIOLIB_SRCS) $(MACT_SRCS)
-SW_EDITOR_SRCS_TARGET=$(SW_EDITOR_SRCS) $(AUDIOLIB_SRCS)
-SW_GAME_OBJS_TARGET=$(SW_GAME_OBJS_EXP) $(DUKE3D_COMMON_MIDI_OBJS_EXP) $(AUDIOLIB_OBJS_EXP) $(MACT_OBJS_EXP)
-SW_EDITOR_OBJS_TARGET=$(SW_EDITOR_OBJS_EXP) $(AUDIOLIB_OBJS_EXP)
+SW_GAME_DEPS=DUKE3D_COMMON_MIDI AUDIOLIB MACT
+SW_EDITOR_DEPS=AUDIOLIB
 
 
 ##### Recipes
@@ -811,10 +770,9 @@ ifneq ($(ELF2DOL),)
 %$(DOLSUFFIX): %$(EXESUFFIX)
 endif
 endif
-
 define BUILDRULE
 
-$$($1_$2)$$(EXESUFFIX): $$($1_$2_OBJS_TARGET) $$(DUKE3D_COMMON_$2_OBJS_TARGET) $$(ENGINE_OBJS_EXP) $$($1_$2_MISCDEPS) | $$($1_$2_ORDERONLYDEPS)
+$$($1_$2)$$(EXESUFFIX): $$(foreach i,$(call getdeps,$1,$2),$$(call expandobjs,$$i)) $$($1_$2_MISCDEPS) | $$($1_$2_ORDERONLYDEPS)
 	$$(LINK_STATUS)
 	$$(RECIPE_IF) $$(LINKER) -o $$@ $$^ $$(GUI_LIBS) $$($1_$2_LDFLAGS) $$(LIBDIRS) $$(LIBS) $$(RECIPE_RESULT_LINK)
 ifeq ($$(PLATFORM),WII)
@@ -851,7 +809,7 @@ libcache1d$(DLLSUFFIX): $(ENGINE_SRC)/cache1d.cpp
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER_C) -DCACHE1D_COMPRESS_ONLY -shared -fPIC $< -o $@ $(RECIPE_RESULT_COMPILE)
 
-%$(EXESUFFIX): $(TOOLS_OBJ)/%.$o $(TOOLS_OBJS_EXP)
+%$(EXESUFFIX): $(TOOLS_OBJ)/%.$o $(foreach i,TOOLS $(TOOLS_DEPS),$(call expandobjs,$i))
 	$(LINK_STATUS)
 	$(RECIPE_IF) $(LINKER) -o $@ $^ $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_LINK)
 
@@ -958,8 +916,8 @@ $(foreach i,$(COMPONENTS),$($i_OBJ)): | $(obj)
 
 ### Phonies
 
-clang-tools: $(filter %.c %.cpp %.m %.mm,$(DUKE3D_GAME_SRCS_TARGET) $(DUKE3D_EDITOR_SRCS_TARGET) $(DUKE3D_COMMON_EDITOR_SRCS_TARGET) $(ENGINE_SRCS))
-	echo $^ -- $(COMPILERFLAGS) $(foreach i,$(COMPONENTS),$($i_CFLAGS)) $(CWARNS)
+clang-tools: $(filter %.c %.cpp,$(foreach i,$(call getdeps,DUKE3D,GAME),$(call expandsrcs,$i)))
+	echo $^ -- -x c++ $(CXXONLYFLAGS) $(COMPILERFLAGS) $(foreach i,$(COMPONENTS),$($i_CFLAGS)) $(CWARNS)
 
 $(foreach i,$(GAMES),clean$($i)):
 	-rm -f $(foreach i,$(ROLES),$($($(subst clean,,$@))_$i)$(EXESUFFIX))
