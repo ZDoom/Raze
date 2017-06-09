@@ -41,6 +41,7 @@ textures
 *.vcxproj.user
 *.psess
 *.vsp
+perl.exe.stackdump
 
 xcuserdata/
 project.xcworkspace/
