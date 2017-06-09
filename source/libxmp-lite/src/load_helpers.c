@@ -25,7 +25,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "common.h"
-#include "loaders/loader.h"
+#include "loader.h"
 
 
 #ifndef LIBXMP_CORE_PLAYER

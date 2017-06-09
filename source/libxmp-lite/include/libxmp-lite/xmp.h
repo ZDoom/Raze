@@ -329,7 +329,7 @@ EXPORT void        xmp_get_frame_info  (xmp_context, struct xmp_frame_info *);
 EXPORT void        xmp_end_player      (xmp_context);
 EXPORT void        xmp_inject_event    (xmp_context, int, struct xmp_event *);
 EXPORT void        xmp_get_module_info (xmp_context, struct xmp_module_info *);
-EXPORT char      **xmp_get_format_list (void);
+EXPORT const char**xmp_get_format_list (void);
 EXPORT int         xmp_next_position   (xmp_context);
 EXPORT int         xmp_prev_position   (xmp_context);
 EXPORT int         xmp_set_position    (xmp_context, int);

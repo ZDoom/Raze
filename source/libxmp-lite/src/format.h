@@ -11,7 +11,7 @@ struct format_loader {
 	int (*const loader)(struct module_data *, HIO_HANDLE *, const int);
 };
 
-char **format_list(void);
+const char **format_list(void);
 
 #ifndef LIBXMP_CORE_PLAYER
 

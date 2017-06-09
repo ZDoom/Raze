@@ -42,7 +42,7 @@ static inline ptrdiff_t CAN_READ(MFILE *m)
 int mgetc(MFILE *m)
 {
 	if (CAN_READ(m) >= 1)
-		return *(uint8 *)(m->start + m->pos++);
+		return *(const uint8 *)(m->start + m->pos++);
 	else
 		return EOF;
 }

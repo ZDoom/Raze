@@ -145,7 +145,10 @@ void __inline CLIB_DECL D_(const char *text, ...) { do {} while (0); }
 #define close _close
 #define unlink _unlink
 #endif
-#if defined(_WIN32) || defined(__WATCOMC__) /* in win32.c */
+#if defined(_MSC_VER)
+#define snprintf _snprintf
+#define vsnprintf _vsnprintf
+#elif defined(__WATCOMC__) /* in win32.c */
 int libxmp_vsnprintf(char *, size_t, const char *, va_list);
 int libxmp_snprintf (char *, size_t, const char *, ...);
 #define snprintf  libxmp_snprintf

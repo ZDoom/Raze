@@ -46,7 +46,7 @@ const struct format_loader *const format_loader[5] = {
 
 static const char *_farray[5] = { NULL };
 
-char **format_list()
+const char **format_list()
 {
 	int count, i;
 
@@ -58,5 +58,5 @@ char **format_list()
 		_farray[count] = NULL;
 	}
 
-	return (char **)_farray;
+	return _farray;
 }
