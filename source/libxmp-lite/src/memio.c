@@ -110,7 +110,7 @@ MFILE *mopen(const void *ptr, long size)
 	if (m == NULL)
 		return NULL;
 	
-	m->start = ptr;
+	m->start = (const unsigned char *)ptr;
 	m->pos = 0;
 	m->size = size;
 

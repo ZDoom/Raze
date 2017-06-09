@@ -346,25 +346,25 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 
 	switch (s->interp) {
 	case XMP_INTERP_NEAREST:
-		mixers = &nearest_mixers;
+		mixers = (mixer_set *)&nearest_mixers;
 		break;
 	case XMP_INTERP_LINEAR:
-		mixers = &linear_mixers;
+		mixers = (mixer_set *)&linear_mixers;
 		break;
 	case XMP_INTERP_SPLINE:
-		mixers = &spline_mixers;
+		mixers = (mixer_set *)&spline_mixers;
 		break;
 	default:
-		mixers = &linear_mixers;
+		mixers = (mixer_set *)&linear_mixers;
 	}
 
 #ifdef LIBXMP_PAULA_SIMULATOR
 	if (p->flags & XMP_FLAGS_A500) {
 		if (IS_AMIGA_MOD()) {
 			if (p->filter) {
-				mixers = &a500led_mixers;
+				mixers = (mixer_set *)&a500led_mixers;
 			} else {
-				mixers = &a500_mixers;
+				mixers = (mixer_set *)&a500_mixers;
 			}
 		}
 	}
@@ -803,11 +803,11 @@ int libxmp_mixer_on(struct context_data *ctx, int rate, int format, int c4rate)
 {
 	struct mixer_data *s = &ctx->s;
 
-	s->buffer = calloc(2, XMP_MAX_FRAMESIZE);
+	s->buffer = (char *)calloc(2, XMP_MAX_FRAMESIZE);
 	if (s->buffer == NULL)
 		goto err;
 
-	s->buf32 = calloc(sizeof(int), XMP_MAX_FRAMESIZE);
+	s->buf32 = (int32 *)calloc(sizeof(int32), XMP_MAX_FRAMESIZE);
 	if (s->buf32 == NULL)
 		goto err1;
 

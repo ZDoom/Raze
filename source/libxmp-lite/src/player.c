@@ -1541,13 +1541,13 @@ int xmp_start_player(xmp_context opaque, int rate, int format)
 	f->pbreak = 0;
 	f->rowdelay_set = 0;
 
-	f->loop = calloc(p->virt.virt_channels, sizeof(struct pattern_loop));
+	f->loop = (struct pattern_loop *)calloc(p->virt.virt_channels, sizeof(struct pattern_loop));
 	if (f->loop == NULL) {
 		ret = -XMP_ERROR_SYSTEM;
 		goto err;
 	}
 
-	p->xc_data = calloc(p->virt.virt_channels, sizeof(struct channel_data));
+	p->xc_data = (struct channel_data *)calloc(p->virt.virt_channels, sizeof(struct channel_data));
 	if (p->xc_data == NULL) {
 		ret = -XMP_ERROR_SYSTEM;
 		goto err1;
@@ -1747,7 +1747,7 @@ int xmp_play_buffer(xmp_context opaque, void *out_buffer, int size, int loop)
 			}
 
 			p->buffer_data.consumed = 0;
-			p->buffer_data.in_buffer = fi.buffer;
+			p->buffer_data.in_buffer = (char *)fi.buffer;
 			p->buffer_data.in_size = fi.buffer_size;
 		}
 

@@ -293,12 +293,12 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 
 	libxmp_copy_adjust(mod->name, sfh.name, 28);
 
-	pp_ins = calloc(2, sfh.insnum);
+	pp_ins = (uint16 *)calloc(2, sfh.insnum);
 	if (pp_ins == NULL) {
 		goto err;
 	}
 
-	pp_pat = calloc(2, sfh.patnum);
+	pp_pat = (uint16 *)calloc(2, sfh.patnum);
 	if (pp_pat == NULL) {
 		goto err2;
 	}
@@ -519,7 +519,7 @@ static int s3m_load(struct module_data *m, HIO_HANDLE * f, const int start)
 		struct xmp_sample *xxs = &mod->xxs[i];
 		struct xmp_subinstrument *sub;
 
-		xxi->sub = calloc(sizeof(struct xmp_subinstrument), 1);
+		xxi->sub = (struct xmp_subinstrument *)calloc(sizeof(struct xmp_subinstrument), 1);
 		if (xxi->sub == NULL) {
 			goto err3;
 		}

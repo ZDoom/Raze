@@ -100,7 +100,7 @@ static int load_xm_pattern(struct module_data *m, int num, int version, HIO_HAND
 
 	size = xph.datasize;
 
-	pat = patbuf = calloc(1, size);
+	pat = patbuf = (uint8 *)calloc(1, size);
 	if (patbuf == NULL) {
 		goto err;
 	}

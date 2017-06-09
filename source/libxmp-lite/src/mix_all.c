@@ -148,7 +148,7 @@
 
 #define VAR_NORM(x) \
     register int smp_in; \
-    x *sptr = vi->sptr; \
+    x *sptr = (x *)vi->sptr; \
     unsigned int pos = vi->pos; \
     int frac = (1 << SMIX_SHIFT) * (vi->pos - (int)vi->pos)
 

@@ -324,7 +324,7 @@ int libxmp_prepare_scan(struct context_data *ctx)
 		return 0;
 	}
 
-	m->scan_cnt = calloc(sizeof (char *), mod->len);
+	m->scan_cnt = (char **)calloc(sizeof (char *), mod->len);
 	if (m->scan_cnt == NULL)
 		return -XMP_ERROR_SYSTEM;
 
@@ -340,7 +340,7 @@ int libxmp_prepare_scan(struct context_data *ctx)
 		}
 
 		pat = pat_idx >= mod->pat ? NULL : mod->xxp[pat_idx];
-		m->scan_cnt[i] = calloc(1, pat && pat->rows ? pat->rows : 1);
+		m->scan_cnt[i] = (char *)calloc(1, pat && pat->rows ? pat->rows : 1);
 		if (m->scan_cnt[i] == NULL)
 			return -XMP_ERROR_SYSTEM;
 	}

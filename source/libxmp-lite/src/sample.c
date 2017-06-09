@@ -269,7 +269,7 @@ int libxmp_load_sample(struct module_data *m, HIO_HANDLE *f, int flags, struct x
 	}
 
 	/* add guard bytes before the buffer for higher order interpolation */
-	xxs->data = malloc(bytelen + extralen + unroll_extralen + 4);
+	xxs->data = (unsigned char *)malloc(bytelen + extralen + unroll_extralen + 4);
 	if (xxs->data == NULL) {
 		goto err;
 	}

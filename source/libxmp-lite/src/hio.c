@@ -305,7 +305,7 @@ HIO_HANDLE *hio_open(const void *path, const char *mode)
 	
 	h->error = 0;
 	h->type = HIO_HANDLE_TYPE_FILE;
-	h->handle.file = fopen(path, mode);
+	h->handle.file = fopen((const char *)path, mode);
 	if (h->handle.file == NULL)
 		goto err2;
 

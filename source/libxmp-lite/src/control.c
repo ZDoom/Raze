@@ -37,7 +37,7 @@ xmp_context xmp_create_context()
 {
 	struct context_data *ctx;
 
-	ctx = calloc(1, sizeof(struct context_data));
+	ctx = (struct context_data *)calloc(1, sizeof(struct context_data));
 	if (ctx == NULL) {
 		return NULL;
 	}
