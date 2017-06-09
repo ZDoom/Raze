@@ -105,30 +105,29 @@ void P_QuickKill(DukePlayer_t * const pPlayer)
         A_DoGuts(pPlayer->i,JIBS6,8);
 }
 
-static void A_DoWaterTracers(int x1, int y1, int z1, int x2, int y2, int z2, int n)
+static void A_DoWaterTracers(vec3_t startPos, vec3_t const *endPos, int n, int16_t sectNum)
 {
-    if ((klabs(x1-x2)+klabs(y1-y2)) < 3084)
+    if ((klabs(startPos.x - endPos->x) + klabs(startPos.y - endPos->y)) < 3084)
         return;
 
-    int16_t sectNum = -1;
-    vec3_t const  v = { tabledivide32_noinline(x2 - x1, n + 1), tabledivide32_noinline(y2 - y1, n + 1),
-                        tabledivide32_noinline(z2 - z1, n + 1) };
+    vec3_t const v_inc = { tabledivide32_noinline(endPos->x - startPos.x, n + 1), tabledivide32_noinline(endPos->y - startPos.y, n + 1),
+                           tabledivide32_noinline(endPos->z - startPos.z, n + 1) };
 
     for (bssize_t i=n; i>0; i--)
     {
-        x1 += v.x;
-        y1 += v.y;
-        z1 += v.z;
+        startPos.x += v_inc.x;
+        startPos.y += v_inc.y;
+        startPos.z += v_inc.z;
 
-        updatesector(x1, y1, &sectNum);
+        updatesector(startPos.x, startPos.y, &sectNum);
 
         if (sectNum < 0)
             break;
 
         if (sector[sectNum].lotag == ST_2_UNDERWATER)
-            A_InsertSprite(sectNum,x1,y1,z1,WATERBUBBLE,-32,4+(krand()&3),4+(krand()&3),krand()&2047,0,0,g_player[0].ps->i,5);
+            A_InsertSprite(sectNum,startPos.x,startPos.y,startPos.z,WATERBUBBLE,-32,4+(krand()&3),4+(krand()&3),krand()&2047,0,0,g_player[0].ps->i,5);
         else
-            A_InsertSprite(sectNum,x1,y1,z1,SMALLSMOKE,-32,14,14,0,0,0,g_player[0].ps->i,5);
+            A_InsertSprite(sectNum,startPos.x,startPos.y,startPos.z,SMALLSMOKE,-32,14,14,0,0,0,g_player[0].ps->i,5);
     }
 }
 
@@ -887,8 +886,7 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
         if (pProj->workslike & PROJECTILE_WATERBUBBLES)
         {
             if ((krand() & 15) == 0 && sector[hitData.sect].lotag == ST_2_UNDERWATER)
-                A_DoWaterTracers(hitData.pos.x, hitData.pos.y, hitData.pos.z, startPos->x, startPos->y, startPos->z,
-                                 8 - (ud.multimode >> 1));
+                A_DoWaterTracers(hitData.pos, startPos, 8 - (ud.multimode >> 1), pSprite->sectnum);
         }
 
         if (playerNum >= 0)
@@ -1166,7 +1164,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                 return -1;
 
             if ((krand() & 15) == 0 && sector[hitData.sect].lotag == ST_2_UNDERWATER)
-                A_DoWaterTracers(hitData.pos.x, hitData.pos.y, hitData.pos.z, startPos.x, startPos.y, startPos.z, 8 - (ud.multimode >> 1));
+                A_DoWaterTracers(hitData.pos, &startPos, 8 - (ud.multimode >> 1), pSprite->sectnum);
 
             int spawnedSprite;
 
