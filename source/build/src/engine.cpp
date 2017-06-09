@@ -3393,7 +3393,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 {
     int32_t i, l, x, y, dx, dy, wx, wy, y1, y2, daz;
     int32_t daslope, dasqr;
-    int32_t shoffs, shinc, m1, m2;
+    int32_t shoffs, m1, m2;
     intptr_t *mptr1, *mptr2, j;
 
     // Er, yes, they're not global anymore:
@@ -3515,12 +3515,14 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 
     l = (globalzd>>16);
 
-    shinc = mulscale16(globalz,xdimenscale);
-    if (shinc > 0) shoffs = (4<<15); else shoffs = ((16380-ydimen)<<15);    // JBF: was 2044
-    if (dastat == 0) y1 = umost[dax1]; else y1 = max(umost[dax1],dplc[dax1]);
+    int32_t const shinc = mulscale16(globalz,xdimenscale);
+
+    shoffs = (shinc > 0) ? (4 << 15) : ((16380 - ydimen) << 15);  // JBF: was 2044
+    y1     = (dastat == 0) ? umost[dax1] : max(umost[dax1], dplc[dax1]);
+
     m1 = mulscale16(y1,globalzd) + (globalzx>>6);
     //Avoid visibility overflow by crossing horizon
-    if (globalzd > 0) m1 += (globalzd>>16); else m1 -= (globalzd>>16);
+    m1 += klabs((int32_t) (globalzd>>16));
     m2 = m1+l;
     mptr1 = (intptr_t *)&slopalookup[y1+(shoffs>>15)]; mptr2 = mptr1+1;
 
@@ -8436,27 +8438,19 @@ killsprite:
     // Writing e.g. "while (maskwallcnt--)" is wrong!
     while (maskwallcnt)
     {
-        vec2f_t dot, dot2, middle;
         // PLAG: sorting stuff
-        _equation maskeq, p1eq, p2eq;
-
         const int32_t w = (getrendermode()==REND_POLYMER) ?
             maskwall[maskwallcnt-1] : thewall[maskwall[maskwallcnt-1]];
 
         maskwallcnt--;
 
-        dot.x = (float)wall[w].x;
-        dot.y = (float)wall[w].y;
-        dot2.x = (float)wall[wall[w].point2].x;
-        dot2.y = (float)wall[wall[w].point2].y;
+        vec2f_t dot    = { (float)wall[w].x, (float)wall[w].y };
+        vec2f_t dot2   = { (float)wall[wall[w].point2].x, (float)wall[wall[w].point2].y };
+        vec2f_t middle = { (dot.x + dot2.x) * .5f, (dot.y + dot2.y) * .5f };
 
-        maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
-
-        p1eq = equation(pos.x, pos.y, dot.x, dot.y);
-        p2eq = equation(pos.x, pos.y, dot2.x, dot2.y);
-
-        middle.x = (dot.x + dot2.x) * .5f;
-        middle.y = (dot.y + dot2.y) * .5f;
+        _equation maskeq = equation(dot.x, dot.y, dot2.x, dot2.y);
+        _equation p1eq   = equation(pos.x, pos.y, dot.x, dot.y);
+        _equation p2eq   = equation(pos.x, pos.y, dot2.x, dot2.y);
 
         i = spritesortcnt;
         while (i)
