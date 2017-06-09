@@ -32,6 +32,23 @@ COMPILERFLAGS += -I$(ENGINE_INC) -I$(MACT_INC) -I$(AUDIOLIB_INC) -I$(ENET_INC)
 
 ##### External Library Definitions
 
+#### LPeg
+
+LPEG=lpeg
+
+LPEG_OBJS = \
+    lpcap.c \
+    lpcode.c \
+    lpprint.c \
+    lptree.c \
+    lpvm.c \
+
+LPEG_ROOT=$(source)/$(LPEG)
+LPEG_SRC=$(LPEG_ROOT)/src
+LPEG_INC=$(LPEG_ROOT)/include
+LPEG_OBJ=$(obj)/$(LPEG)
+
+
 #### ENet
 
 ENET=enet
@@ -468,17 +485,6 @@ ifneq (0,$(LUNATIC))
 
     # TODO: remove debugging modules from release build
 
-    ifneq ($(PLATFORM),WINDOWS)
-        # On non-Windows, we expect to have liblpeg.a (or a symlink to it) in source/.
-        # On Windows, it will reside in platform/Windows/lib/32/ or lib/64/.
-        LIBDIRS+= -L$(source)
-        ifeq ($(realpath $(source)/liblpeg.a),)
-            # XXX: This cripples "make clean" etc. too, but IMO it's better than warning.
-            $(error "liblpeg.a not found in $(realpath $(source))")
-        endif
-    endif
-    LIBS+= -llpeg
-
     # now, take care of having the necessary symbols (sector, wall, etc.) in the
     # executable no matter what the debugging level
 
@@ -581,8 +587,8 @@ ifneq (0,$(NETCODE))
 endif
 
 ifneq (0,$(LUNATIC))
-    DUKE3D_GAME_DEPS += LUNATIC LUNATIC_GAME
-    DUKE3D_EDITOR_DEPS += LUNATIC LUNATIC_EDITOR
+    DUKE3D_GAME_DEPS += LUNATIC LUNATIC_GAME LPEG
+    DUKE3D_EDITOR_DEPS += LUNATIC LUNATIC_EDITOR LPEG
 endif
 
 
@@ -720,6 +726,7 @@ LIBRARIES := \
     AUDIOLIB \
     MACT \
     ENET \
+    LPEG \
 
 COMPONENTS = \
     $(GAMES) \
@@ -795,6 +802,7 @@ endef
 $(foreach i,$(GAMES),$(foreach j,$(ROLES),$(eval $(call BUILDRULE,$i,$j))))
 
 
+include $(LPEG_ROOT)/Dependencies.mak
 include $(ENGINE_ROOT)/Dependencies.mak
 include $(DUKE3D_ROOT)/Dependencies.mak
 include $(SW_ROOT)/Dependencies.mak
