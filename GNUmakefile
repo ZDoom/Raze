@@ -773,6 +773,7 @@ ifeq ($(PRETTY_OUTPUT),1)
 endif
 .PHONY: \
     all \
+    start \
     $(foreach j,$(foreach i,$(GAMES),$($i)) test utils tools,$j clean$j) \
     veryclean \
     clean \

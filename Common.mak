@@ -938,16 +938,7 @@ endif
 
 ifeq ($(PRETTY_OUTPUT),1)
 RECIPE_IF = if
-BUILD_SETTINGS_COMPILER = \033[1;36mcompiler: \033[0;36m\"$(COMPILER_C)\"
-BUILD_SETTINGS_ASSEMBLER = \033[1;36massembler: \033[0;36m\"$(AS) $(ASFLAGS)\"
-BUILD_SETTINGS_LINKER = \033[1;36mlinker: \033[0;36m\"$(LINKER) $(GUI_LIBS) $(LIBDIRS) $(LIBS)\"
-ifeq (0,$(NOASM))
-    BUILD_SETTINGS = printf "$(BUILD_SETTINGS_COMPILER)\n$(BUILD_SETTINGS_ASSEMBLER)\n$(BUILD_SETTINGS_LINKER)\033[0m\n"
-else
-    BUILD_SETTINGS = printf "$(BUILD_SETTINGS_COMPILER)\n$(BUILD_SETTINGS_LINKER)\033[0m\n"
-endif
-BUILD_STARTED = printf "\033[K\033[1;36mBuild started using:\033[0m\n"; $(BUILD_SETTINGS)
-BUILD_ECHOFLAGS = printf "\033[K\033[1;36mEnded compilation in this directory using:\n$(BUILD_SETTINGS_COMPILER)\033[0m\n"
+BUILD_STARTED = printf "\033[K\033[1;36mBuilding: \033[0;36m$(MAKE) $(MAKECMDGOALS) -$(MAKEFLAGS)\033[0m\n"
 COMPILE_STATUS = printf "\033[K\033[0mBuilding object \033[1m$@\033[0m...\033[0m\r"
 COMPILE_OK = printf "\033[K\033[0;32mBuilt object \033[1;32m$@\033[0;32m \033[0m\n"
 COMPILE_FAILED = printf "\033[K\033[0;31mFailed building \033[1;31m$@\033[0;31m from\033[0m \033[1;31m$<\033[0;31m!\033[0m\n"; exit 1
@@ -967,7 +958,6 @@ RECIPE_RESULT_LINK = ; then $(LINK_OK); else $(LINK_FAILED); fi
 else
 RECIPE_IF =
 BUILD_STARTED =
-BUILD_ECHOFLAGS =
 COMPILE_STATUS =
 COMPILE_OK = true
 COMPILE_FAILED = false; exit 1
