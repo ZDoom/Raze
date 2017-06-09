@@ -148,13 +148,13 @@ void ReadSaveGameHeaders(void)
 
     EDUKE32_STATIC_ASSERT(sizeof(h.savename) == sizeof(ud.savegame[0]));
 
-    Bstrcpy(fn, "dukesav0.esv");
+    Bstrcpy(fn, "save0.esv");
 
     for (i=0; i<MAXSAVEGAMES; i++)
     {
         int32_t k;
 
-        fn[7] = i + '0';
+        fn[4] = i + '0';
         fil = kopen4loadfrommod(fn, 0);
         if (fil == -1)
         {
@@ -185,8 +185,8 @@ int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh)
 
     Bassert(spot < MAXSAVEGAMES);
 
-    Bstrcpy(fn, "dukesav0.esv");
-    fn[7] = spot + '0';
+    Bstrcpy(fn, "save0.esv");
+    fn[4] = spot + '0';
 
     fil = kopen4loadfrommod(fn, 0);
     if (fil == -1)
@@ -239,8 +239,8 @@ int32_t G_LoadPlayer(int32_t spot)
 
     Bassert(spot < MAXSAVEGAMES);
 
-    Bstrcpy(fn, "dukesav0.esv");
-    fn[7] = spot + '0';
+    Bstrcpy(fn, "save0.esv");
+    fn[4] = spot + '0';
 
     fil = kopen4loadfrommod(fn, 0);
     if (fil == -1)
@@ -404,8 +404,8 @@ int32_t G_SavePlayer(int32_t spot)
 
     G_SaveTimers();
 
-    Bstrcpy(fn, "dukesav0.esv");
-    fn[7] = spot + '0';
+    Bstrcpy(fn, "save0.esv");
+    fn[4] = spot + '0';
 
 //    Bstrcpy(mpfn, "edukA_00.esv");
 
