@@ -17,10 +17,10 @@ define parent
 $(word 1,$(subst _, ,$1))
 endef
 define expandobjs
-$$(addprefix $$($$(call parent,$1)_OBJ)/,$$(addsuffix .$$o,$$(basename $$($1_OBJS) $$($1_RSRC_OBJS))))
+$$(addprefix $$($$(call parent,$1)_OBJ)/,$$(addsuffix .$$o,$$(basename $$($1_OBJS) $$($1_RSRC_OBJS) $$($1_GEN_OBJS))))
 endef
 define expandsrcs
-$(addprefix $($(call parent,$1)_SRC)/,$($1_OBJS)) $(addprefix $($(call parent,$1)_RSRC)/,$($1_RSRC_OBJS))
+$(addprefix $($(call parent,$1)_SRC)/,$($1_OBJS)) $(addprefix $($(call parent,$1)_RSRC)/,$($1_RSRC_OBJS)) $(addprefix $($(call parent,$1)_OBJ)/,$($1_GEN_OBJS))
 endef
 define expanddeps
 $(strip $1 $(foreach j,$1,$(call $0,$($j_DEPS))))
@@ -381,11 +381,13 @@ KENBUILD_EDITOR_OBJS = \
 
 KENBUILD_GAME_RSRC_OBJS =
 KENBUILD_EDITOR_RSRC_OBJS =
+KENBUILD_GAME_GEN_OBJS =
+KENBUILD_EDITOR_RSRC_OBJS =
 
 ifeq (1,$(HAVE_GTK2))
     KENBUILD_GAME_OBJS+= startgtk.game.cpp
-    KENBUILD_GAME_RSRC_OBJS+= game_banner.c
-    KENBUILD_EDITOR_RSRC_OBJS+= build_banner.c
+    KENBUILD_GAME_GEN_OBJS+= game_banner.c
+    KENBUILD_EDITOR_GEN_OBJS+= build_banner.c
 endif
 ifeq ($(RENDERTYPE),SDL)
     KENBUILD_GAME_RSRC_OBJS+= game_icon.c
@@ -478,6 +480,8 @@ DUKE3D_EDITOR_OBJS = \
 
 DUKE3D_GAME_RSRC_OBJS =
 DUKE3D_EDITOR_RSRC_OBJS =
+DUKE3D_GAME_GEN_OBJS =
+DUKE3D_EDITOR_GEN_OBJS =
 
 DUKE3D_GAME_MISCDEPS=
 DUKE3D_EDITOR_MISCDEPS=
@@ -602,8 +606,8 @@ endif
 
 ifeq (11,$(HAVE_GTK2)$(STARTUP_WINDOW))
     DUKE3D_GAME_OBJS+= startgtk.game.cpp
-    DUKE3D_GAME_RSRC_OBJS+= game_banner.c
-    DUKE3D_EDITOR_RSRC_OBJS+= build_banner.c
+    DUKE3D_GAME_GEN_OBJS+= game_banner.c
+    DUKE3D_EDITOR_GEN_OBJS+= build_banner.c
 endif
 ifeq ($(RENDERTYPE),SDL)
     DUKE3D_GAME_RSRC_OBJS+= game_icon.c
@@ -730,11 +734,13 @@ SW_EDITOR_OBJS = \
 
 SW_GAME_RSRC_OBJS =
 SW_EDITOR_RSRC_OBJS =
+SW_GAME_GEN_OBJS =
+SW_EDITOR_GEN_OBJS =
 
 ifeq (1,$(HAVE_GTK2))
     SW_GAME_OBJS+= startgtk.game.cpp
-    SW_GAME_RSRC_OBJS+= game_banner.c
-    SW_EDITOR_RSRC_OBJS+= build_banner.c
+    SW_GAME_GEN_OBJS+= game_banner.c
+    SW_EDITOR_GEN_OBJS+= build_banner.c
 endif
 ifeq ($(RENDERTYPE),SDL)
     SW_GAME_RSRC_OBJS+= game_icon.c
