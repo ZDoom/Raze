@@ -5723,6 +5723,18 @@ static void Keys3d(void)
         }
     }
 
+    if (keystatus[KEYSC_QUOTE] && PRESSED_KEYSC(B)) // ' B
+    {
+        if (AIMING_AT_SPRITE)
+        {
+            int8_t oblend = sprite[searchwall].blend;
+            Bsprintf(tempbuf, "%s blend: ", Typestr[searchstat]);
+            getnumberptr256(tempbuf, &sprite[searchwall].blend, sizeof(int8_t), 255, 0, NULL);
+            if (sprite[searchwall].blend != oblend)
+                asksave = 1;
+        }
+    }
+
     if (PRESSED_KEYSC(F2))  // F2
     {
         if (eitherCTRL || eitherSHIFT)
@@ -6582,6 +6594,8 @@ static void Keys3d(void)
                         if (somethingintab == SEARCH_CEILING || somethingintab == SEARCH_FLOOR)
                             k=1, sector[searchsector].visibility = tempvis;
                     }
+                    else if (AIMING_AT_SPRITE)
+                        sprite[searchwall].blend = tempblend;
 
                     message("Pasted shade+pal%s", k?"+visibility":"");
                     asksave = 1;

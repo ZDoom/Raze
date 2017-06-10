@@ -116,7 +116,7 @@ int32_t r_downsizevar = -1;
 static float fogresult, fogresult2;
 coltypef fogcol, fogtable[MAXPALOOKUPS];
 
-static float float_trans(uint32_t maskprops, uint8_t blend)
+static inline float float_trans(uint32_t maskprops, uint8_t blend)
 {
     switch (maskprops)
     {

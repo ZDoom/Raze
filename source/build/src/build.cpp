@@ -1077,6 +1077,7 @@ static void handle_sprite_in_clipboard(int32_t i)
             sprite[i].picnum = j;
         }
         sprite[i].shade = tempshade;
+        sprite[i].blend = tempblend;
         sprite[i].pal = temppal;
         sprite[i].xrepeat = max(tempxrepeat, 1);
         sprite[i].yrepeat = max(tempyrepeat, 1);
