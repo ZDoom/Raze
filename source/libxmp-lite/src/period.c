@@ -219,7 +219,7 @@ int libxmp_period_to_note(int p)
 		return 0;
 	}
 
-	return round(12.0 * log(PERIOD_BASE / p) / M_LN2) + 1;
+	return (int)round(12.0 * log(PERIOD_BASE / p) / M_LN2) + 1;
 }
 
 /* Get pitchbend from base note and amiga period */
@@ -234,14 +234,14 @@ int libxmp_period_to_bend(struct context_data *ctx, double p, int n, double adj)
 
 	switch (m->period_type) {
 	case PERIOD_LINEAR:
-		return 100 * (8 * (((240 - n) << 4) - p));
+		return (int) (100 * (8 * (((240 - n) << 4) - p)));
 	case PERIOD_CSPD:
 		d = libxmp_note_to_period(ctx, n, 0, adj);
-		return round(100.0 * (1536.0 / M_LN2) * log(p / d));
+		return (int) round(100.0 * (1536.0 / M_LN2) * log(p / d));
 	default:
 		/* Amiga */
 		d = libxmp_note_to_period(ctx, n, 0, adj);
-		return round(100.0 * (1536.0 / M_LN2) * log(d / p));
+		return (int) round(100.0 * (1536.0 / M_LN2) * log(d / p));
 	}
 }
 

@@ -90,7 +90,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
     bpm = mod->bpm;
 
     speed = mod->spd;
-    base_time = m->rrate;
+    base_time = (int) m->rrate;
 #ifndef LIBXMP_CORE_PLAYER
     st26_speed = 0;
 #endif
@@ -173,7 +173,7 @@ static int scan_module(struct context_data *ctx, int ep, int chain)
             info->gvl = gvl;
             info->bpm = bpm;
             info->speed = speed;
-            info->time = time + m->time_factor * frame_count * base_time / bpm;
+            info->time = (int) (time + m->time_factor * frame_count * base_time / bpm);
 #ifndef LIBXMP_CORE_PLAYER
             info->st26_speed = st26_speed;
 #endif
@@ -485,7 +485,7 @@ end_module:
     time -= start_time;
     frame_count += row_count * speed;
 
-    return (time + m->time_factor * frame_count * base_time / bpm);
+    return (int) (time + m->time_factor * frame_count * base_time / bpm);
 }
 
 int libxmp_get_sequence(struct context_data *ctx, int ord)

@@ -149,8 +149,8 @@
 #define VAR_NORM(x) \
     register int smp_in; \
     x *sptr = (x *)vi->sptr; \
-    unsigned int pos = vi->pos; \
-    int frac = (1 << SMIX_SHIFT) * (vi->pos - (int)vi->pos)
+    unsigned int pos = (unsigned int)vi->pos; \
+    int frac = (int)((1 << SMIX_SHIFT) * (vi->pos - (int)vi->pos))
 
 #define VAR_LINEAR_MONO(x) \
     VAR_NORM(x); \

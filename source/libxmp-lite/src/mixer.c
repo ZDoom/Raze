@@ -316,7 +316,7 @@ void libxmp_mixer_prepare(struct context_data *ctx)
 	struct mixer_data *s = &ctx->s;
 	int bytelen;
 
-	s->ticksize = s->freq * m->time_factor * m->rrate / p->bpm / 1000;
+	s->ticksize = (int)(s->freq * m->time_factor * m->rrate / p->bpm / 1000);
 
 	bytelen = s->ticksize * sizeof(int);
 	if (~s->format & XMP_FORMAT_MONO) {
@@ -393,7 +393,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 			continue;
 		}
 
-		vi->pos0 = vi->pos;
+		vi->pos0 = (int)vi->pos;
 
 		buf_pos = s->buf32;
 		if (vi->pan == PAN_SURROUND) {
@@ -406,7 +406,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 
 		if (vi->smp < mod->smp) {
 			xxs = &mod->xxs[vi->smp];
-			c5spd = m->xtra[vi->smp].c5spd;
+			c5spd = (int) m->xtra[vi->smp].c5spd;
 		} else {
 			xxs = &ctx->smix.xxs[vi->smp - mod->smp];
 			c5spd = m->c4rate;
@@ -465,7 +465,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 				samples = 0;
 				usmp = 1;
 			} else {
-				int s = ceil(((double)vi->end - vi->pos) / step);
+				int s = (int) ceil(((double)vi->end - vi->pos) / step);
 				/* ...inside the tick boundaries */
 				if (s > size) {
 					s = size;
@@ -523,7 +523,7 @@ void libxmp_mixer_softmixer(struct context_data *ctx)
 
 					if (mix_fn != NULL) {
 						mix_fn(vi, buf_pos, samples,
-							vol_l >> 8, vol_r >> 8, step * (1 << SMIX_SHIFT), rsize, delta_l, delta_r);
+							vol_l >> 8, vol_r >> 8, (int) step * (1 << SMIX_SHIFT), rsize, delta_l, delta_r);
 					}
 
 					buf_pos += mix_size;
