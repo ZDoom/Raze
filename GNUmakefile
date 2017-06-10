@@ -922,6 +922,10 @@ $$($1_OBJ)/%.$$o: $$($1_SRC)/%.mm | $$($1_OBJ)
 	$$(COMPILE_STATUS)
 	$$(RECIPE_IF) $$(COMPILER_OBJCXX) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
 
+$$($1_OBJ)/%.$$o: $$($1_OBJ)/%.c
+	$$(COMPILE_STATUS)
+	$$(RECIPE_IF) $$(COMPILER_C) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
+
 ## Cosmetic stuff
 
 $$($1_OBJ)/%.$$o: $$($1_RSRC)/%.rc | $$($1_OBJ)
@@ -929,10 +933,6 @@ $$($1_OBJ)/%.$$o: $$($1_RSRC)/%.rc | $$($1_OBJ)
 	$$(RECIPE_IF) $$(RC) -i $$< -o $$@ --include-dir=$$(ENGINE_INC) --include-dir=$$($1_SRC) --include-dir=$$($1_RSRC) -DPOLYMER=$$(POLYMER) $$(RECIPE_RESULT_COMPILE)
 
 $$($1_OBJ)/%.$$o: $$($1_RSRC)/%.c | $$($1_OBJ)
-	$$(COMPILE_STATUS)
-	$$(RECIPE_IF) $$(COMPILER_C) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
-
-$$($1_OBJ)/%.$$o: $$($1_OBJ)/%.c
 	$$(COMPILE_STATUS)
 	$$(RECIPE_IF) $$(COMPILER_C) $$($1_CFLAGS) -c $$< -o $$@ $$(RECIPE_RESULT_COMPILE)
 
