@@ -925,12 +925,12 @@ static void process_frequency(struct context_data *ctx, int chn, int act)
 
 	/* For xmp_get_frame_info() */
 	xc->info_pitchbend = linear_bend >> 7;
-	xc->info_period = (int) period * 4096;
+	xc->info_period = (int) (period * 4096);
 
 	if (IS_PERIOD_MODRNG()) {
 		CLAMP(xc->info_period,
-            (int) libxmp_note_to_period(ctx, MAX_NOTE_MOD, xc->finetune, 0) * 4096,
-            (int) libxmp_note_to_period(ctx, MIN_NOTE_MOD, xc->finetune, 0) * 4096);
+            (int) (libxmp_note_to_period(ctx, MAX_NOTE_MOD, xc->finetune, 0) * 4096),
+            (int) (libxmp_note_to_period(ctx, MIN_NOTE_MOD, xc->finetune, 0) * 4096));
 	} else if (xc->info_period < (1 << 12)) {
 		xc->info_period = (1 << 12);
 	}
@@ -1847,7 +1847,7 @@ void xmp_get_frame_info(xmp_context opaque, struct xmp_frame_info *info)
 	info->speed = p->speed;
 	info->bpm = p->bpm;
 	info->total_time = p->scan[p->sequence].time;
-	info->frame_time = (int) p->frame_time * 1000;
+	info->frame_time = (int) (p->frame_time * 1000);
 	info->time = (int) p->current_time;
 	info->buffer = s->buffer;
 
