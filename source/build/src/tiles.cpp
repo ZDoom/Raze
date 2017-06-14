@@ -186,9 +186,10 @@ void E_CreateDummyTile(int32_t const tile)
 
 void E_CreateFakeTile(int32_t const tile, int32_t tsiz, char const * const buffer)
 {
-    faketiledata[tile] = (char *) Xrealloc(faketiledata[tile], LZ4_compressBound(tsiz));
+    int const compressed_tsiz = LZ4_compressBound(tsiz);
+    faketiledata[tile] = (char *) Xrealloc(faketiledata[tile], compressed_tsiz);
 
-    if ((tsiz = LZ4_compress(buffer, faketiledata[tile], tsiz)) != -1)
+    if ((tsiz = LZ4_compress_default(buffer, faketiledata[tile], tsiz, compressed_tsiz)) != -1)
     {
         faketiledata[tile] = (char *) Xrealloc(faketiledata[tile], tsiz);
         faketile[tile>>3] |= pow2char[tile&7];

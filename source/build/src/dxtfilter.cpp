@@ -70,7 +70,7 @@ void dxt_handle_io(int32_t fil, int32_t len, void *midbuf, char *packbuf)
 
     if (glusetexcache == 2)
     {
-        cleng = LZ4_compress_limitedOutput((const char*)midbuf, packbuf, len, len);
+        cleng = LZ4_compress_default((const char*)midbuf, packbuf, len, len);
 
         if (cleng <= 0 || cleng > len-1)
         {

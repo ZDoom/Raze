@@ -1062,7 +1062,7 @@ void Net_SendMapUpdate(void)
         diffsize += tempMapDiff.numActors * sizeof(netactor_t);
         diffsize += tempMapDiff.numToDelete * sizeof(int32_t);
 
-        packetsize = LZ4_compress_limitedOutput((const char*)&tempMapDiff, (char*)&tempnetbuf[5], diffsize, tempnetbufsize - 5);
+        packetsize = LZ4_compress_default((const char*)&tempMapDiff, (char*)&tempnetbuf[5], diffsize, tempnetbufsize - 5);
 
         if (packetsize == 0)
             return;

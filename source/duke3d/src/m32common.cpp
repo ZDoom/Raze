@@ -356,10 +356,11 @@ static void create_compressed_block(int32_t idx, const void *srcdata, uint32_t s
     uint32_t j;
 
     // allocate
-    mapstate->sws[idx] = (char *)Xmalloc(4 + LZ4_compressBound(size));
+    int const compressed_size = LZ4_compressBound(size);
+    mapstate->sws[idx] = (char *)Xmalloc(4 + compressed_size);
 
     // compress & realloc
-    j = LZ4_compress((const char*)srcdata, mapstate->sws[idx]+4, size);
+    j = LZ4_compress_default((const char*)srcdata, mapstate->sws[idx]+4, size, compressed_size);
     mapstate->sws[idx] = (char *)Xrealloc(mapstate->sws[idx], 4 + j);
 
     // write refcount
