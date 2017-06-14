@@ -10,6 +10,7 @@
 #include "pragmas.h"
 #include "scancodes.h"
 #include "crc32.h"
+#define XXH_STATIC_LINKING_ONLY
 #include "xxhash.h"
 #include "common.h"
 #include "editor.h"
@@ -356,15 +357,15 @@ static int32_t _internal_osdfunc_fileinfo(const osdfuncparm_t *parm)
     klseek(i, 0, BSEEK_SET);
 
     int32_t xxhtime = getticks();
-    XXH32_CREATESTATE_STATIC(xxh);
-    XXH32_reset(xxh, 0x1337);
+    XXH32_state_t xxh;
+    XXH32_reset(&xxh, 0x1337);
     do
     {
         j = kread(i, buf, 256);
-        XXH32_update(xxh, (uint8_t *) buf, j);
+        XXH32_update(&xxh, (uint8_t *) buf, j);
     }
     while (j == 256);
-    uint32_t xxhash = XXH32_digest(xxh);
+    uint32_t xxhash = XXH32_digest(&xxh);
     xxhtime = getticks() - xxhtime;
 
     kclose(i);
