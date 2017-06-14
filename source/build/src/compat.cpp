@@ -2,6 +2,7 @@
  * Playing-field leveller for Build
  */
 
+#define LIBDIVIDE_BODY
 #include "compat.h"
 
 #ifdef _WIN32
@@ -646,7 +647,3 @@ int access(const char *pathname, int mode)
     return 0;
 }
 #endif
-
-#define LIBDIVIDE_BODY
-#include "libdivide.h"
-

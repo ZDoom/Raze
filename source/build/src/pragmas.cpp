@@ -10,8 +10,8 @@
 #include "compat.h"
 #include "pragmas.h"
 
-libdivide_s64pad_t divtable64[DIVTABLESIZE];
-libdivide_s32pad_t divtable32[DIVTABLESIZE];
+libdivide_s64_t divtable64[DIVTABLESIZE];
+libdivide_s32_t divtable32[DIVTABLESIZE];
 
 void initdivtables(void)
 {

@@ -39,8 +39,8 @@ extern int32_t reciptable[2048], fpuasm;
 #define LIBDIVIDE_ALWAYS
 #define DIVTABLESIZE 16384
 
-extern libdivide_s64pad_t divtable64[DIVTABLESIZE];
-extern libdivide_s32pad_t divtable32[DIVTABLESIZE];
+extern libdivide_s64_t divtable64[DIVTABLESIZE];
+extern libdivide_s32_t divtable32[DIVTABLESIZE];
 extern void initdivtables(void);
 
 #if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
