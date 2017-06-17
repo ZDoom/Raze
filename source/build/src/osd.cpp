@@ -1816,7 +1816,12 @@ int32_t OSD_Dispatch(const char *cmd)
 
         if ((symb = findexactsymbol(wp)) == NULL)
         {
-            if ((wp[0] != '/' || wp[1] != '/') && !m32_osd_tryscript) // cheap hack for comments in cfgs
+            static char const s_gamefunc_[] = "gamefunc_";
+            size_t const strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_)-1;
+            size_t const strlen_wp = Bstrlen(wp);
+            if ((wp[0] != '/' || wp[1] != '/') && // cheap hack for comments in cfgs
+                (strlen_gamefunc_ >= strlen_wp || Bstrncmp(wp, s_gamefunc_, strlen_gamefunc_)) &&
+                !m32_osd_tryscript)
             {
                 OSD_Printf(OSDTEXT_RED "\"%s\" is not a valid command or cvar\n", wp);
             }
