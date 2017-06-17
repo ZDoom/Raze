@@ -3836,7 +3836,13 @@ static vec2_t Menu_TextSize(int32_t x, int32_t y, const MenuFont_t *font, const 
 static int32_t Menu_FindOptionBinarySearch(MenuOption_t *object, const int32_t query, size_t searchstart, size_t searchend)
 {
     const size_t thissearch = (searchstart + searchend) / 2;
-    const int32_t difference = ((object->options->optionValues == NULL && query < 0) ? object->options->numOptions-1 : query) - ((object->options->optionValues == NULL) ? (int32_t) thissearch : object->options->optionValues[thissearch]);
+    const bool isIdentityMap = object->options->optionValues == NULL;
+
+    const int32_t destination = isIdentityMap ? (int32_t) thissearch : object->options->optionValues[thissearch];
+
+    const int32_t difference = query - destination;
+
+    Bassert(!isIdentityMap || query >= 0);
 
     if (difference == 0)
         return thissearch;
