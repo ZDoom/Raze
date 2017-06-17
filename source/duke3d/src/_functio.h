@@ -70,10 +70,17 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Inventory",
    "Inventory_Left",
    "Inventory_Right",
+#ifndef EDUKE32_STANDALONE
    "Holo_Duke",
    "Jetpack",
    "NightVision",
    "MedKit",
+#else
+   "",
+   "",
+   "",
+   "",
+#endif
    "TurnAround",
    "SendMessage",
    "Map",
@@ -86,12 +93,21 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "See_Coop_View",
    "Mouse_Aiming",
    "Toggle_Crosshair",
+#ifndef EDUKE32_STANDALONE
    "Steroids",
    "Quick_Kick",
+#else
+   "",
+   "",
+#endif
    "Next_Weapon",
    "Previous_Weapon",
    "Show_Console",
+#ifndef EDUKE32_STANDALONE
    "Show_DukeMatch_Scores",
+#else
+   "Show_Multiplayer_Scores",
+#endif
    "Dpad_Select",
    "Dpad_Aiming"
    };
