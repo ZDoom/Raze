@@ -114,24 +114,22 @@ const char *CONFIG_AnalogNumToName(int32_t func)
 
 void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
 {
-    int32_t f;
-
     Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
 
     CONTROL_ClearAllBinds();
 
-    for (size_t i=0; i < ARRAY_SIZE(keydefaults); i+=2)
+    for (size_t i=0; i < ARRAY_SIZE(gamefunctions); ++i)
     {
         if (gamefunctions[i][0] == '\0')
             continue;
 
-        f = CONFIG_FunctionNameToNum(gamefunctions[i>>1]);
-        if (f == -1) continue;
-        ud.config.KeyboardKeys[f][0] = KB_StringToScanCode(keyptr[i]);
-        ud.config.KeyboardKeys[f][1] = KB_StringToScanCode(keyptr[i+1]);
+        ud.config.KeyboardKeys[i][0] = KB_StringToScanCode(keyptr[i<<1]);
+        ud.config.KeyboardKeys[i][1] = KB_StringToScanCode(keyptr[(i<<1)+1]);
 
-        if (f == gamefunc_Show_Console) OSD_CaptureKey(ud.config.KeyboardKeys[f][0]);
-        else CONFIG_MapKey(f, ud.config.KeyboardKeys[f][0], 0, ud.config.KeyboardKeys[f][1], 0);
+        if (i == gamefunc_Show_Console)
+            OSD_CaptureKey(ud.config.KeyboardKeys[i][0]);
+        else
+            CONFIG_MapKey(i, ud.config.KeyboardKeys[i][0], 0, ud.config.KeyboardKeys[i][1], 0);
     }
 }
 
