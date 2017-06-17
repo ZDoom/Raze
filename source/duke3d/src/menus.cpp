@@ -77,6 +77,7 @@ static int32_t mgametext_xbetween = -(1<<16);
 #define mmenutext(x,y,t) G_ScreenText(BIGALPHANUM, x, (y) - (12<<16), 65536L, 0, 0, (const char *)OSD_StripColors(menutextbuf,t), 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1)
 #define mmenutextcenter(x,y,t) G_ScreenText(BIGALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), (y) - (12<<16), 65536L, 0, 0, (const char *)OSD_StripColors(menutextbuf,t), 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE|TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
 
+#ifndef EDUKE32_STANDALONE
 static void shadowminitext(int32_t x, int32_t y, const char *t, int32_t p)
 {
     int32_t f = 0;
@@ -86,6 +87,7 @@ static void shadowminitext(int32_t x, int32_t y, const char *t, int32_t p)
 
     G_ScreenTextShadow(1, 1, MINIFONT, x, y, 65536, 0, 0, t, 0, p, 2|8|16|ROTATESPRITE_FULL16, 0, 4<<16, 8<<16, 1<<16, 0, f, 0, 0, xdim-1, ydim-1);
 }
+#endif
 static void creditsminitext(int32_t x, int32_t y, const char *t, int32_t p)
 {
     int32_t f = TEXT_XCENTER;

@@ -509,7 +509,7 @@ void G_LoadGroups(int32_t autoload)
     pathsearchmode = bakpathsearchmode;
 }
 
-#ifdef _WIN32
+#if defined _WIN32 && !defined EDUKE32_STANDALONE
 static int G_ReadRegistryValue(char const * const SubKey, char const * const Value, char * const Output, DWORD * OutputSize)
 {
     // KEY_WOW64_32KEY gets us around Wow6432Node on 64-bit builds
