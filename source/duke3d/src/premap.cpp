@@ -422,13 +422,8 @@ void G_CacheMapData(void)
     if (ud.recstat == 2)
         return;
 
-#ifndef EDUKE32_TOUCH_DEVICES
-    S_PauseMusic(1);
-#endif
-
     if (g_mapInfo[MUS_LOADING].musicfn)
     {
-        S_StopMusic();
         S_PlayMusic(g_mapInfo[MUS_LOADING].musicfn);
     }
 
@@ -1916,14 +1911,12 @@ int G_EnterLevel(int gameMode)
 
     if (ud.recstat != 2)
     {
-        int32_t const mpos = S_GetMusicPosition();
-
-        if (g_mapInfo[mii].musicfn != NULL)
+        if (g_mapInfo[mii].musicfn != NULL &&
+                (g_mapInfo[g_musicIndex].musicfn == NULL ||
+                Bstrcmp(g_mapInfo[g_musicIndex].musicfn, g_mapInfo[mii].musicfn) ||
+                g_musicSize == 0 ||
+                ud.last_level == -1))
             S_PlayMusic(g_mapInfo[mii].musicfn);
-
-        if (g_mapInfo[g_musicIndex].musicfn != NULL && g_mapInfo[mii].musicfn != NULL
-            && !Bstrcmp(g_mapInfo[g_musicIndex].musicfn, g_mapInfo[mii].musicfn))
-            S_SetMusicPosition(mpos);
 
         g_musicIndex = mii;
     }
