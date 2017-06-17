@@ -573,6 +573,7 @@ const char *keyw[] =
     "ifplaybackon",             // 399
     "divscale",                 // 400
     "scalevar",                 // 401
+    "undefinegamefunc",         // 402
     "<null>"
 };
 #endif
@@ -5416,6 +5417,25 @@ repeatcase:
                 hash_add(&h_gamefuncs,str,j,0);
                 Bfree(str);
             }
+
+            continue;
+
+        case CON_UNDEFINEGAMEFUNC:
+            g_scriptPtr--;
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr--;
+            j = *g_scriptPtr;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > NUMGAMEFUNCTIONS-1))
+            {
+                initprintf("%s:%d: error: function number exceeds number of game functions.\n",
+                    g_scriptFileName,g_lineNumber);
+                g_errorCnt++;
+                C_NextLine();
+                continue;
+            }
+
+            gamefunctions[j][0] = '\0';
 
             continue;
 
