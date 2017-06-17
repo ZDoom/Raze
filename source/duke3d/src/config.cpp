@@ -114,18 +114,18 @@ const char *CONFIG_AnalogNumToName(int32_t func)
 
 void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
 {
-    int32_t i,f;
+    int32_t f;
 
     Bmemset(ud.config.KeyboardKeys, 0xff, sizeof(ud.config.KeyboardKeys));
 
     CONTROL_ClearAllBinds();
 
-    for (i=0; i < (int32_t)ARRAY_SIZE(keydefaults); i+=3)
+    for (size_t i=0; i < ARRAY_SIZE(keydefaults); i+=2)
     {
-        f = CONFIG_FunctionNameToNum(keyptr[i+0]);
+        f = CONFIG_FunctionNameToNum(gamefunctions[i>>1]);
         if (f == -1) continue;
-        ud.config.KeyboardKeys[f][0] = KB_StringToScanCode(keyptr[i+1]);
-        ud.config.KeyboardKeys[f][1] = KB_StringToScanCode(keyptr[i+2]);
+        ud.config.KeyboardKeys[f][0] = KB_StringToScanCode(keyptr[i]);
+        ud.config.KeyboardKeys[f][1] = KB_StringToScanCode(keyptr[i+1]);
 
         if (f == gamefunc_Show_Console) OSD_CaptureKey(ud.config.KeyboardKeys[f][0]);
         else CONFIG_MapKey(f, ud.config.KeyboardKeys[f][0], 0, ud.config.KeyboardKeys[f][1], 0);
@@ -262,7 +262,7 @@ void CONFIG_SetDefaults(void)
 
     // JBF 20031211
 
-    CONFIG_SetDefaultKeys((const char (*)[MAXGAMEFUNCLEN])keydefaults);
+    CONFIG_SetDefaultKeys(keydefaults);
 
     memset(ud.config.MouseFunctions, -1, sizeof(ud.config.MouseFunctions));
     for (i=0; i<MAXMOUSEBUTTONS; i++)

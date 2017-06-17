@@ -2727,7 +2727,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
     }
     else if (entry == &ME_KEYBOARDSETUP_RESET)
-        CONFIG_SetDefaultKeys((const char (*)[MAXGAMEFUNCLEN])keydefaults);
+        CONFIG_SetDefaultKeys(keydefaults);
     else if (entry == &ME_KEYBOARDSETUP_RESETCLASSIC)
         CONFIG_SetDefaultKeys(oldkeydefaults);
     else if (entry == &ME_NETHOST_LAUNCH)

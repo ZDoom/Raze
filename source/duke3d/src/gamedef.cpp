@@ -2424,7 +2424,6 @@ void C_DefineGameFuncName(int32_t idx, const char *name)
     assert((unsigned)idx < NUMGAMEFUNCTIONS);
 
     Bstrncpyz(gamefunctions[idx], name, MAXGAMEFUNCLEN);
-    Bstrncpyz(keydefaults[3*idx], name, MAXGAMEFUNCLEN);
 
     hash_add(&h_gamefuncs, gamefunctions[idx], idx, 0);
 }
@@ -5392,7 +5391,6 @@ repeatcase:
             while (*textptr != 0x0a && *textptr != 0x0d && *textptr != 0)
             {
                 gamefunctions[j][i] = *textptr;
-                keydefaults[j*3][i] = *textptr;
                 textptr++,i++;
                 if (EDUKE32_PREDICT_FALSE(*textptr != 0x0a && *textptr != 0x0d && ispecial(*textptr)))
                 {
@@ -5412,7 +5410,6 @@ repeatcase:
                 }
             }
             gamefunctions[j][i] = '\0';
-            keydefaults[j*3][i] = '\0';
             hash_add(&h_gamefuncs,gamefunctions[j],j,0);
             {
                 char *str = Bstrtolower(Xstrdup(gamefunctions[j]));
