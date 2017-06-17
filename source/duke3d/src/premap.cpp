@@ -1665,6 +1665,7 @@ int G_FindLevelByFile(const char *fileName)
     return MAXLEVELS * MAXVOLUMES;
 }
 
+#if 0
 static void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t ticwait, int32_t tc)
 {
     int32_t m = (step < 0) ? -1 : 1;
@@ -1688,6 +1689,7 @@ static void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t e
         G_DoLoadScreen(" ", tc);
     }
 }
+#endif
 
 static int G_TryMapHack(const char *mhkfile)
 {
@@ -1905,9 +1907,9 @@ int G_EnterLevel(int gameMode)
 
     ud.playerbest = CONFIG_GetMapBestTime(G_HaveUserMap() ? boardfilename : g_mapInfo[mii].filename, g_loadedMapHack.md4);
 
-    G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
+    // G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     G_CacheMapData();
-    G_FadeLoad(0,0,0, 0,252, 28, 4, -2);
+    // G_FadeLoad(0,0,0, 0,252, 28, 4, -2);
 
     if (ud.recstat != 2)
     {
