@@ -236,7 +236,8 @@ static MenuOptionSet_t MEOS_YesNo = MAKE_MENUOPTIONSET( MEOSN_YesNo, NULL, 0x3 )
 static char MenuGameFuncs[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN];
 static char const *MenuGameFuncNone = "  -None-";
 static char const *MEOSN_Gamefuncs[NUMGAMEFUNCTIONS+1];
-static MenuOptionSet_t MEOS_Gamefuncs = MAKE_MENUOPTIONSET( MEOSN_Gamefuncs, NULL, 0x1 );
+static int32_t MEOSV_Gamefuncs[NUMGAMEFUNCTIONS+1];
+static MenuOptionSet_t MEOS_Gamefuncs = MAKE_MENUOPTIONSET( MEOSN_Gamefuncs, MEOSV_Gamefuncs, 0x1 );
 
 
 
@@ -1426,6 +1427,9 @@ void Menu_Init(void)
     }
 
     // prepare gamefuncs and keys
+    MEOSN_Gamefuncs[0] = MenuGameFuncNone;
+    MEOSV_Gamefuncs[0] = -1;
+    k = 1;
     for (i = 0; i < NUMGAMEFUNCTIONS; ++i)
     {
         Bstrcpy(MenuGameFuncs[i], gamefunctions[i]);
@@ -1434,9 +1438,15 @@ void Menu_Init(void)
             if (MenuGameFuncs[i][j] == '_')
                 MenuGameFuncs[i][j] = ' ';
 
-        MEOSN_Gamefuncs[i] = MenuGameFuncs[i];
+        if (gamefunctions[i][0] != '\0')
+        {
+            MEOSN_Gamefuncs[k] = MenuGameFuncs[i];
+            MEOSV_Gamefuncs[k] = i;
+            ++k;
+        }
     }
-    MEOSN_Gamefuncs[NUMGAMEFUNCTIONS] = MenuGameFuncNone;
+    MEOS_Gamefuncs.numOptions = k;
+
     for (i = 0; i < NUMKEYS; ++i)
         MEOSN_Keys[i] = key_names[i];
     MEOSN_Keys[NUMKEYS-1] = MenuKeyNone;
@@ -1543,16 +1553,22 @@ void Menu_Init(void)
     }
 
     // prepare input
+    k = 0;
     for (i = 0; i < NUMGAMEFUNCTIONS; ++i)
     {
-        MEL_KEYBOARDSETUPFUNCS[i] = &ME_KEYBOARDSETUPFUNCS[i];
-        ME_KEYBOARDSETUPFUNCS[i] = ME_KEYBOARDSETUPFUNCS_TEMPLATE;
-        ME_KEYBOARDSETUPFUNCS[i].name = MenuGameFuncs[i];
-        ME_KEYBOARDSETUPFUNCS[i].entry = &MEO_KEYBOARDSETUPFUNCS[i];
-        MEO_KEYBOARDSETUPFUNCS[i] = MEO_KEYBOARDSETUPFUNCS_TEMPLATE;
-        MEO_KEYBOARDSETUPFUNCS[i].column[0] = &ud.config.KeyboardKeys[i][0];
-        MEO_KEYBOARDSETUPFUNCS[i].column[1] = &ud.config.KeyboardKeys[i][1];
+        if (MenuGameFuncs[i][0] == '\0')
+            continue;
+
+        MEL_KEYBOARDSETUPFUNCS[k] = &ME_KEYBOARDSETUPFUNCS[k];
+        ME_KEYBOARDSETUPFUNCS[k] = ME_KEYBOARDSETUPFUNCS_TEMPLATE;
+        ME_KEYBOARDSETUPFUNCS[k].name = MenuGameFuncs[i];
+        ME_KEYBOARDSETUPFUNCS[k].entry = &MEO_KEYBOARDSETUPFUNCS[k];
+        MEO_KEYBOARDSETUPFUNCS[k] = MEO_KEYBOARDSETUPFUNCS_TEMPLATE;
+        MEO_KEYBOARDSETUPFUNCS[k].column[0] = &ud.config.KeyboardKeys[i][0];
+        MEO_KEYBOARDSETUPFUNCS[k].column[1] = &ud.config.KeyboardKeys[i][1];
+        ++k;
     }
+    M_KEYBOARDKEYS.numEntries = k;
     for (i = 0; i < MENUMOUSEFUNCTIONS; ++i)
     {
         MEL_MOUSESETUPBTNS[i] = &ME_MOUSESETUPBTNS[i];

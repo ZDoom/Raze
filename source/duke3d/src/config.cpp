@@ -122,6 +122,9 @@ void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
 
     for (size_t i=0; i < ARRAY_SIZE(keydefaults); i+=2)
     {
+        if (gamefunctions[i][0] == '\0')
+            continue;
+
         f = CONFIG_FunctionNameToNum(gamefunctions[i>>1]);
         if (f == -1) continue;
         ud.config.KeyboardKeys[f][0] = KB_StringToScanCode(keyptr[i]);

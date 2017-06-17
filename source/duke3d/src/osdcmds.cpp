@@ -1700,6 +1700,9 @@ int32_t registerosdcommands(void)
         char *t;
         int32_t j;
 
+        if (gamefunctions[i][0] == '\0')
+            continue;
+
 //        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
 
         Bsprintf(tempbuf,"gamefunc_%s",gamefunctions[i]);

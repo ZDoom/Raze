@@ -6105,11 +6105,14 @@ static void C_AddDefaultDefinitions(void)
     {
         int32_t j;
 
-        if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
+        if (gamefunctions[i][0] == '\0')
+            continue;
 
-        Bsprintf(tempbuf,"GAMEFUNC_%s", gamefunctions[i]);
+        // if (!Bstrcmp(gamefunctions[i],"Show_Console")) continue;
 
-        for (j=Bstrlen(tempbuf); j>=0; j--)
+        j = Bsprintf(tempbuf,"GAMEFUNC_%s", gamefunctions[i]);
+
+        for (; j>=0; j--)
             tempbuf[j] = Btoupper(tempbuf[j]);
 
         C_AddDefinition(tempbuf, i, LABEL_DEFINE);
