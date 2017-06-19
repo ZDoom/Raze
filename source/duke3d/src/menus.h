@@ -303,6 +303,7 @@ typedef struct MenuSpacer_t
 enum MenuEntryFlags_t
 {
     MEF_Disabled = 1<<0,
+    MEF_LookDisabled = 1<<1,
 };
 
 typedef struct MenuEntry_t
