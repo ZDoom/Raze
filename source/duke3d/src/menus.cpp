@@ -1493,7 +1493,7 @@ void Menu_Init(void)
     MEOSN_NetEpisodes[k] = MenuUserMap;
     MEOSV_NetEpisodes[k] = MAXVOLUMES;
     NetEpisode = MEOSV_NetEpisodes[0];
-    MMF_Top_Episode.pos.y = (48-(g_volumeCnt*2))<<16;
+    MMF_Top_Episode.pos.y = (58 + (3-k)*6)<<16;
     if (g_skillCnt == 0)
         MEO_EPISODE.linkID = MENU_NULL;
 
