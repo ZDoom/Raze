@@ -171,7 +171,6 @@ they effectively stand in for curly braces as struct initializers.
 // common font types
 // tilenums are set after namesdyn runs
 static MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
-static MenuFont_t MF_RedfontBlue =      { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  1,  1 };
 static MenuFont_t MF_RedfontGreen =     { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  8,  1 };
 static MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 10, 16 };
@@ -1201,7 +1200,6 @@ static MenuOption_t MEO_NETOPTIONS_MONSTERS = MAKE_MENUOPTION( &MF_Bluefont, &ME
 static MenuEntry_t ME_NETOPTIONS_MONSTERS = MAKE_MENUENTRY( "Monsters", &MF_Redfont, &MEF_NetSetup, &MEO_NETOPTIONS_MONSTERS, Option );
 static MenuOption_t MEO_NETOPTIONS_MARKERS = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_OffOn, &ud.m_marker );
 static MenuEntry_t ME_NETOPTIONS_MARKERS = MAKE_MENUENTRY( "Markers", &MF_Redfont, &MEF_NetSetup, &MEO_NETOPTIONS_MARKERS, Option );
-static MenuEntry_t ME_NETOPTIONS_MARKERS_DISABLED = MAKE_MENUENTRY( "Markers", &MF_RedfontBlue, &MEF_NetSetup, NULL, Dummy );
 static MenuOption_t MEO_NETOPTIONS_MAPEXITS = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_OnOff, &ud.m_noexits );
 static MenuEntry_t ME_NETOPTIONS_MAPEXITS = MAKE_MENUENTRY( "Map Exits", &MF_Redfont, &MEF_NetSetup, &MEO_NETOPTIONS_MAPEXITS, Option );
 static MenuOption_t MEO_NETOPTIONS_FRFIRE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_OffOn, &ud.m_ffire );
@@ -1422,7 +1420,7 @@ void Menu_Init(void)
     int32_t i, j, k;
 
     // prepare menu fonts
-    MF_Redfont.tilenum = MF_RedfontBlue.tilenum = MF_RedfontGreen.tilenum = BIGALPHANUM;
+    MF_Redfont.tilenum = MF_RedfontGreen.tilenum = BIGALPHANUM;
     MF_Bluefont.tilenum = MF_BluefontRed.tilenum = STARTALPHANUM;
     if (NAM_WW2GI)
         mgametext_xbetween = MF_Bluefont.between.x = MF_BluefontRed.between.x = 0;
@@ -1659,8 +1657,8 @@ void Menu_Init(void)
         {
             if (MEL_EPISODE[i])
             {
-                ME_EPISODE[i].font = &MF_RedfontBlue;
                 ME_EPISODE[i].entry = &MEO_EPISODE_SHAREWARE;
+                ME_EPISODE[i].flags |= MEF_LookDisabled;
             }
         }
         M_EPISODE.numEntries = g_volumeCnt; // remove User Map (and spacer)
@@ -1792,7 +1790,16 @@ static void Menu_Pre(MenuID_t cm)
             MEL_NETOPTIONS[2] = &ME_NETOPTIONS_LEVEL;
             MEO_NETOPTIONS_LEVEL.options = &MEOS_NETOPTIONS_LEVEL[MEOSV_NetEpisodes[MEO_NETOPTIONS_EPISODE.currentOption]];
         }
-        MEL_NETOPTIONS[4] = (g_gametypeFlags[ud.m_coop] & GAMETYPE_MARKEROPTION) ? &ME_NETOPTIONS_MARKERS : &ME_NETOPTIONS_MARKERS_DISABLED;
+        if (!(g_gametypeFlags[ud.m_coop] & GAMETYPE_MARKEROPTION))
+        {
+            ME_NETOPTIONS_MARKERS.type = Dummy;
+            ME_NETOPTIONS_MARKERS.flags |= MEF_Disabled;
+        }
+        else
+        {
+            ME_NETOPTIONS_MARKERS.type = Option;
+            ME_NETOPTIONS_MARKERS.flags &= ~MEF_Disabled;
+        }
         MEL_NETOPTIONS[5] = (g_gametypeFlags[ud.m_coop] & (GAMETYPE_PLAYERSFRIENDLY|GAMETYPE_TDM)) ? &ME_NETOPTIONS_FRFIRE : &ME_NETOPTIONS_MAPEXITS;
         break;
 
