@@ -446,7 +446,6 @@ extern Menu_t *m_currentMenu;
 extern int32_t g_lastSaveSlot;
 extern int32_t g_quitDeadline;
 extern int32_t voting;
-int32_t menutext_(int32_t x,int32_t y,int32_t s,int32_t p,char const *t,int32_t bits);
 int Menu_Change(int32_t cm);
 void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype);
 int32_t Menu_IsTextInput(Menu_t *cm);

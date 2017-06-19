@@ -59,11 +59,13 @@ enum ScreenTextFlags_t {
 };
 
 extern int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t sb);
+extern void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_t f);
 extern int32_t textsc(int32_t sc);
 
 #define minitextshade(x, y, t, s, p, sb) minitext_(x,y,t,s,p,sb)
 #define minitext(x, y, t, p, sb) minitext_(x,y,t,0,p,sb)
-#define menutext(x,y,s,p,t) menutext_(x,y,s,p,OSD_StripColors(menutextbuf,t),10+16)
+#define menutext(x, y, t) menutext_((x), (y), 0, (t), 10|16, 0)
+#define menutext_center(y, t) menutext_(160<<16, (y)<<16, 0, (t), 10|16, TEXT_XCENTER)
 #define gametext(x,y,t,s,dabits) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536, 0)
 #define gametextscaled(x,y,t,s,dabits) G_PrintGameText(1,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536, 0)
 #define gametextpal(x,y,t,s,p) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536, 0)

@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "premap.h"
-#include "menus.h"  // menutext
 #include "prlights.h"
 #include "savegame.h"
 #ifdef LUNATIC
@@ -272,7 +271,7 @@ int32_t G_LoadPlayer(int32_t spot)
         pus = NUMPAGES;
         G_UpdateScreenArea();
         G_DrawBackground();
-        menutext(160,100, 0,0, "LOADING...");
+        menutext_center(100, "Loading...");
         nextpage();
     }
 

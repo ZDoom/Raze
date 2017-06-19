@@ -6483,7 +6483,7 @@ int app_main(int argc, char const * const * argv)
         //G_FadePalette(0,0,0,0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
         rotatesprite_fs(160<<16,100<<16,65536L,0,LOADSCREEN,0,0,2+8+64+BGSTRETCH);
-        menutext(160,105,0,0,"LOADING SAVED GAME...");
+        menutext_center(105,"Loading saved game...");
         nextpage();
 
         if (G_LoadPlayer(ud.warp_on-2))

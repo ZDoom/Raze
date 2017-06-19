@@ -1075,18 +1075,21 @@ void G_DisplayRest(int32_t smoothratio)
 
     if (ud.show_level_text && hud_showmapname && g_levelTextTime > 1)
     {
-        int32_t bits = 10+16;
+        int32_t o = 10|16;
 
         if (g_levelTextTime < 3)
-            bits |= 1+32;
+            o |= 1|32;
         else if (g_levelTextTime < 5)
-            bits |= 1;
+            o |= 1;
 
         if (g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name != NULL)
         {
-            if (currentboardfilename[0] != 0 && ud.volume_number == 0 && ud.level_number == 7)
-                menutext_(160, 90+16+8, -g_levelTextTime+22/*quotepulseshade*/, 0, currentboardfilename, bits);
-            else menutext_(160, 90+16+8, -g_levelTextTime+22/*quotepulseshade*/, 0, g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, bits);
+            char const * const fn = currentboardfilename[0] != 0 &&
+                ud.volume_number == 0 && ud.level_number == 7
+                    ? currentboardfilename
+                    : g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name;
+
+            menutext_(160<<16, (90+16+8)<<16, -g_levelTextTime+22/*quotepulseshade*/, fn, o, TEXT_XCENTER);
         }
     }
 
@@ -1164,7 +1167,7 @@ void G_DisplayRest(int32_t smoothratio)
 #endif
 
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
-        menutext(160, 100, 0, 0, "Game Paused");
+        menutext_center(100, "Game Paused");
 
     if (ud.coords)
         G_PrintCoords(screenpeek);
@@ -1851,11 +1854,11 @@ static void G_BonusCutscenes(void)
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
                                                                          //        G_FadePalette(0,0,0,252);
         clearallviews(0L);
-        menutext(160, 60, 0, 0, "Thanks to all our");
-        menutext(160, 60+16, 0, 0, "fans for giving");
-        menutext(160, 60+16+16, 0, 0, "us big heads.");
-        menutext(160, 70+16+16+16, 0, 0, "Look for a Duke Nukem 3D");
-        menutext(160, 70+16+16+16+16, 0, 0, "sequel soon.");
+        menutext_center(60, "Thanks to all our");
+        menutext_center(60+16, "fans for giving");
+        menutext_center(60+16+16, "us big heads.");
+        menutext_center(70+16+16+16, "Look for a Duke Nukem 3D");
+        menutext_center(70+16+16+16+16, "sequel soon.");
         nextpage();
 
         fadepal(0, 0, 0, 252, 0, -12);
@@ -2178,8 +2181,8 @@ void G_BonusScreen(int32_t bonusonly)
     rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BONUSSCREEN+gfx_offset, 0, 0, 2+8+64+128+BGSTRETCH);
 
     if (lastmapname)
-        menutext(160, 20-6, 0, 0, lastmapname);
-    menutext(160, 36-6, 0, 0, "Completed");
+        menutext_center(20-6, lastmapname);
+    menutext_center(36-6, "Completed");
 
     gametext(160, 192, "Press any key or button to continue", quotepulseshade, 2+8+16);
 
@@ -2261,8 +2264,8 @@ void G_BonusScreen(int32_t bonusonly)
             }
 
             if (lastmapname)
-                menutext(160, 20-6, 0, 0, lastmapname);
-            menutext(160, 36-6, 0, 0, "Completed");
+                menutext_center(20-6, lastmapname);
+            menutext_center(36-6, "Completed");
 
             gametext(160, 192, "Press any key or button to continue", quotepulseshade, 2+8+16);
 

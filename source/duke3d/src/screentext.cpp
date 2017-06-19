@@ -1007,6 +1007,11 @@ int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int
     return x;
 }
 
+void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_t f)
+{
+    G_ScreenText(BIGALPHANUM, x, y - (12<<16), 65536L, 0, 0, t, s, 0, o|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, f|TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
+}
+
 void G_AddUserQuote(const char *daquote)
 {
     int32_t i;
