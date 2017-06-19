@@ -3984,7 +3984,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                 ++numvalidentries;
 
                 // assumes height == font->get_yline()!
-                totalheight += entry->type == Spacer ? ((MenuSpacer_t*)entry->entry)->height : entry->font->get_yline();
+                totalheight += entry->type == Spacer ? entry->getSpacerHeight() : entry->font->get_yline();
             }
 
             calculatedentryspacing = (klabs(menu->format->bottomcutoff) - menu->format->pos.y - totalheight) / (numvalidentries > 1 ? numvalidentries - 1 : 1);
@@ -3998,7 +3998,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             if (entry == NULL)
                 continue;
 
-            int32_t const height = entry->type == Spacer ? ((MenuSpacer_t*)entry->entry)->height : entry->font->get_yline();
+            int32_t const height = entry->type == Spacer ? entry->getSpacerHeight() : entry->font->get_yline();
 
             y += height;
             totalHeight = y;
@@ -4042,7 +4042,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             if (dodraw)
                 textsize = Menu_Text(origin.x + x, origin.y + y_upper + y - menu->scrollPos, entry->font, entry->name, status, ydim_upper, ydim_lower);
 
-            height = entry->type == Spacer ? ((MenuSpacer_t*)entry->entry)->height : entry->font->get_yline(); // max(textsize.y, entry->font->get_yline()); // bluefont Q ruins this
+            height = entry->type == Spacer ? entry->getSpacerHeight() : entry->font->get_yline(); // max(textsize.y, entry->font->get_yline()); // bluefont Q ruins this
 
             if (entry->format->width < 0)
                 status |= MT_XRight;

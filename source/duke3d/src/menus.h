@@ -324,6 +324,11 @@ typedef struct MenuEntry_t
 
     int32_t getMarginBottom() const { return scale(format->marginBottom, font->zoom, 65536); }
     int32_t getIndent() const { return scale(format->indent, font->zoom, 65536); }
+    int32_t getSpacerHeight() const
+    {
+        Bassert(type == Spacer);
+        return scale(((MenuSpacer_t *)entry)->height, font->zoom, 65536);
+    }
 } MenuEntry_t;
 
 
