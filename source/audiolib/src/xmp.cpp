@@ -138,6 +138,7 @@ int32_t MV_PlayXMP(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
 
     if ((retval = xmp_load_module_from_memory(xmpd->context, ptr, ptrlength)) != 0)
     {
+        free(xmpd);
         MV_Printf("MV_PlayXMP: xmp_load_module_from_memory failed (%i)\n", retval);
         MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;

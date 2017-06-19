@@ -398,6 +398,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t 
 
    if (status < 0)
    {
+       free(vd);
        MV_Printf("MV_PlayVorbis: err %d\n", status);
        MV_SetErrorCode(MV_InvalidFile);
        return MV_Error;

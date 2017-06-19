@@ -462,6 +462,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t lo
                                          /*metadata_flac_stream*/ NULL, error_flac_stream,
                                          (void *)fd) != FLAC__STREAM_DECODER_INIT_STATUS_OK)
     {
+        free(fd);
         MV_Printf("MV_PlayFLAC: %s\n", FLAC__stream_decoder_get_resolved_state_string(fd->stream));
         MV_SetErrorCode(MV_InvalidFile);
         return MV_Error;
