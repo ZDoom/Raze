@@ -4062,510 +4062,38 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             entry->ybottom = (entry->ytop = y_upper + y) + height;
 
             if (dodraw)
-        {
-            const int32_t mousex = origin.x + entry->format->width == 0 ? x - textsize.x/2 : x;
-            const int32_t mousey = origin.y + y_upper + y - menu->scrollPos;
-            int32_t mousewidth = entry->format->width == 0 ? textsize.x : klabs(entry->format->width);
-
-            if (entry->name)
-                x += klabs(entry->format->width);
-
-            switch (entry->type)
             {
-                case Spacer:
-                    break;
-                case Dummy:
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
-                    {
-                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
-                        {
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-                        }
-                    }
-                    break;
-                case Link:
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
-                    {
-                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
-                        {
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-                        }
+                const int32_t mousex = origin.x + entry->format->width == 0 ? x - textsize.x/2 : x;
+                const int32_t mousey = origin.y + y_upper + y - menu->scrollPos;
+                int32_t mousewidth = entry->format->width == 0 ? textsize.x : klabs(entry->format->width);
 
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
-                        {
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
+                if (entry->name)
+                    x += klabs(entry->format->width);
 
-                            if (entry->flags & Disabled)
-                                break;
-
-                            Menu_RunInput_EntryLink_Activate(entry);
-
-                            if (g_player[myconnectindex].ps->gm&MODE_MENU) // for skill selection
-                                S_PlaySound(PISTOL_BODYHIT);
-
-                            m_mousecaught = 1;
-                        }
-                    }
-                    break;
-                case Option:
+                switch (entry->type)
                 {
-                    MenuOption_t *object = (MenuOption_t*)entry->entry;
-                    int32_t currentOption = Menu_FindOptionBinarySearch(object, object->data == NULL ? Menu_EntryOptionSource(entry, object->currentOption) : *object->data, 0, object->options->numOptions);
-
-                    if (currentOption >= 0)
-                        object->currentOption = currentOption;
-
-                    int32_t optiontextx = origin.x + x;
-                    const int32_t optiontexty = origin.y + y_upper + y - menu->scrollPos;
-
-                    const vec2_t optiontextsize = Menu_Text(optiontextx, optiontexty + (height>>1), object->font,
-                        currentOption < 0 ? MenuCustom : currentOption < object->options->numOptions ? object->options->optionNames[currentOption] : NULL,
-                        status, ydim_upper, ydim_lower);
-
-                    if (entry->format->width > 0)
-                        mousewidth += optiontextsize.x;
-                    else
-                        optiontextx -= optiontextsize.x;
-
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
-                    {
-                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                    case Spacer:
+                        break;
+                    case Dummy:
+                        if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                         {
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-                        }
-
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
-                        {
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-
-                            if (entry->flags & Disabled)
-                                break;
-
-                            Menu_RunInput_EntryOption_Activate(entry, object);
-
-                            S_PlaySound(PISTOL_BODYHIT);
-
-                            m_mousecaught = 1;
-                        }
-                    }
-
-                    break;
-                }
-                case Custom2Col:
-                {
-                    MenuCustom2Col_t *object = (MenuCustom2Col_t*)entry->entry;
-                    int32_t columnx[2] = { origin.x + x - ((status & MT_XRight) ? object->columnWidth : 0), origin.x + x + ((status & MT_XRight) ? 0 : object->columnWidth) };
-                    const int32_t columny = origin.y + y_upper + y - menu->scrollPos;
-
-                    const vec2_t column0textsize = Menu_Text(columnx[0], columny + (height>>1), object->font, object->key[*object->column[0]], menu->currentColumn == 0 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
-                    const vec2_t column1textsize = Menu_Text(columnx[1], columny + (height>>1), object->font, object->key[*object->column[1]], menu->currentColumn == 1 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
-
-                    if (entry->format->width > 0)
-                        mousewidth += object->columnWidth + column1textsize.x;
-                    else
-                    {
-                        columnx[0] -= column0textsize.x;
-                        columnx[1] -= column0textsize.x;
-                    }
-
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
-                    {
-                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
-                        {
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-                        }
-
-                        if (!Menu_MouseOutsideBounds(&m_mousepos, columnx[1], mousey, column1textsize.x, object->font->get_yline()))
-                        {
-                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[1], mousey, column1textsize.x, object->font->get_yline())))
-                            {
-                                menu->currentColumn = 1;
-                            }
-
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->get_yline()))
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
-                                menu->currentColumn = 1;
-
-                                if (entry->flags & Disabled)
-                                    break;
-
-                                Menu_RunInput_EntryCustom2Col_Activate(entry);
-
-                                S_PlaySound(PISTOL_BODYHIT);
-
-                                m_mousecaught = 1;
                             }
                         }
-                        else if (!Menu_MouseOutsideBounds(&m_mousepos, columnx[0], mousey, column0textsize.x, object->font->get_yline()))
+                        break;
+                    case Link:
+                        if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
                         {
-                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[0], mousey, column0textsize.x, object->font->get_yline())))
-                            {
-                                menu->currentColumn = 0;
-                            }
-
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->get_yline()))
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
-                                menu->currentColumn = 0;
-
-                                if (entry->flags & Disabled)
-                                    break;
-
-                                Menu_RunInput_EntryCustom2Col_Activate(entry);
-
-                                S_PlaySound(PISTOL_BODYHIT);
-
-                                m_mousecaught = 1;
                             }
-                        }
-                    }
-                    break;
-                }
-                case RangeInt32:
-                {
-                    MenuRangeInt32_t *object = (MenuRangeInt32_t*)entry->entry;
 
-                    int32_t s, p;
-                    const int32_t z = entry->format->cursorScale;
-                    Menu_ShadePal(object->font, status, &s, &p);
-
-                    const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
-                    const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
-
-                    if (status & MT_XRight)
-                        x -= slidebarwidth;
-                    else
-                        mousewidth += slidebarwidth;
-
-                    const int32_t slidebarx = origin.x + x;
-                    const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
-
-                    rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
-
-                    const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
-                    const int32_t slidepointx = slidebarx + (1<<16) + scale(slideregionwidth, *object->variable - object->min, object->max - object->min);
-                    const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
-
-                    rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
-
-                    if (object->flags & DisplayTypeMask)
-                    {
-                        status |= MT_XRight;
-
-                        if (object->onehundredpercent == 0)
-                            object->onehundredpercent = object->max;
-
-                        switch (object->flags & DisplayTypeMask)
-                        {
-                            case 1:
-                                Bsprintf(tempbuf, "%d", *object->variable);
-                                break;
-                            case 2:
-                            {
-                                int32_t v;
-                                v = Blrintf(((float) *object->variable * 100.f) / (float) object->onehundredpercent);
-                                Bsprintf(tempbuf, "%d%%", v);
-                                break;
-                            }
-                            case 3:
-                                Bsprintf(tempbuf, "%.2f", (double) *object->variable / (double) object->onehundredpercent);
-                                break;
-                        }
-
-                        Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
-                    }
-
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
-                    {
-                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
-                        {
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-                        }
-
-                        if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
-                        {
-                            const int32_t slidepointhalfwidth = scale((2+tilesiz[SLIDEBAR+1].x)<<15, z, 65536);
-                            const int32_t slideregionx = slidebarx + slidepointhalfwidth;
-
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-
-                            if (entry->flags & Disabled)
-                                break;
-
-                            // region between the x-midline of the slidepoint at the extremes slides proportionally
-                            if (!Menu_MouseOutsideBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
-                            {
-                                Menu_RunInput_EntryRangeInt32_MovementArbitrary(entry, object, Blrintf((float)((object->max - object->min) * (m_mousepos.x - slideregionx)) / slideregionwidth + object->min));
-
-                                m_mousecaught = 1;
-                            }
-                            // region outside the x-midlines clamps to the extremes
-                            else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
-                            {
-                                if (m_mousepos.x > slideregionx + slideregionwidth/2)
-                                    Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, object->max);
-                                else
-                                    Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, object->min);
-
-                                m_mousecaught = 1;
-                            }
-                        }
-                    }
-
-                    break;
-                }
-                case RangeFloat:
-                {
-                    MenuRangeFloat_t *object = (MenuRangeFloat_t*)entry->entry;
-
-                    int32_t s, p;
-                    const int32_t z = entry->format->cursorScale;
-                    Menu_ShadePal(object->font, status, &s, &p);
-
-                    const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
-                    const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
-
-                    if (status & MT_XRight)
-                        x -= slidebarwidth;
-                    else
-                        mousewidth += slidebarwidth;
-
-                    const int32_t slidebarx = origin.x + x;
-                    const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
-
-                    rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
-
-                    const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
-                    const int32_t slidepointx = slidebarx + (1<<16) + (int32_t)((float) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
-                    const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
-
-                    rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
-
-                    if (object->flags & DisplayTypeMask)
-                    {
-                        status |= MT_XRight;
-
-                        if (object->onehundredpercent == 0)
-                            object->onehundredpercent = 1.f;
-
-                        switch (object->flags & DisplayTypeMask)
-                        {
-                            case 1:
-                                Bsprintf(tempbuf, "%.2f", *object->variable);
-                                break;
-                            case 2:
-                            {
-                                int32_t v;
-                                v = Blrintf((*object->variable * 100.f) / object->onehundredpercent);
-                                Bsprintf(tempbuf, "%d%%", v);
-                                break;
-                            }
-                            case 3:
-                                Bsprintf(tempbuf, "%.2f", *object->variable / object->onehundredpercent);
-                                break;
-                        }
-
-                        Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
-                    }
-
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
-                    {
-                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
-                        {
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-                        }
-
-                        if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
-                        {
-                            const int32_t slidepointhalfwidth = scale((2+tilesiz[SLIDEBAR+1].x)<<15, z, 65536);
-                            const int32_t slideregionx = slidebarx + slidepointhalfwidth;
-
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-
-                            if (entry->flags & Disabled)
-                                break;
-
-                            // region between the x-midline of the slidepoint at the extremes slides proportionally
-                            if (!Menu_MouseOutsideBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
-                            {
-                                Menu_RunInput_EntryRangeFloat_MovementArbitrary(entry, object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
-
-                                m_mousecaught = 1;
-                            }
-                            // region outside the x-midlines clamps to the extremes
-                            else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
-                            {
-                                if (m_mousepos.x > slideregionx + slideregionwidth/2)
-                                    Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, object->max);
-                                else
-                                    Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, object->min);
-
-                                m_mousecaught = 1;
-                            }
-                        }
-                    }
-
-                    break;
-                }
-                case RangeDouble:
-                {
-                    MenuRangeDouble_t *object = (MenuRangeDouble_t*)entry->entry;
-
-                    int32_t s, p;
-                    const int32_t z = entry->format->cursorScale;
-                    Menu_ShadePal(object->font, status, &s, &p);
-
-                    const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
-                    const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
-
-                    if (status & MT_XRight)
-                        x -= slidebarwidth;
-                    else
-                        mousewidth += slidebarwidth;
-
-                    const int32_t slidebarx = origin.x + x;
-                    const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
-
-                    rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
-
-                    const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
-                    const int32_t slidepointx = slidebarx + (1<<16) + (int32_t)((double) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
-                    const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
-
-                    rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
-
-                    if (object->flags & DisplayTypeMask)
-                    {
-                        status |= MT_XRight;
-
-                        if (object->onehundredpercent == 0)
-                            object->onehundredpercent = 1.;
-
-                        switch (object->flags & DisplayTypeMask)
-                        {
-                            case 1:
-                                Bsprintf(tempbuf, "%.2f", *object->variable);
-                                break;
-                            case 2:
-                            {
-                                int32_t v;
-                                v = Blrintf((*object->variable * 100.) / object->onehundredpercent);
-                                Bsprintf(tempbuf, "%d%%", v);
-                                break;
-                            }
-                            case 3:
-                                Bsprintf(tempbuf, "%.2f", *object->variable / object->onehundredpercent);
-                                break;
-                        }
-
-                        Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
-                    }
-
-                    if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
-                    {
-                        if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
-                        {
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-                        }
-
-                        if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
-                        {
-                            const int32_t slidepointhalfwidth = scale((2+tilesiz[SLIDEBAR+1].x)<<15, z, 65536);
-                            const int32_t slideregionx = slidebarx + slidepointhalfwidth;
-
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-
-                            if (entry->flags & Disabled)
-                                break;
-
-                            // region between the x-midline of the slidepoint at the extremes slides proportionally
-                            if (!Menu_MouseOutsideBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
-                            {
-                                Menu_RunInput_EntryRangeDouble_MovementArbitrary(/*entry, */object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
-
-                                m_mousecaught = 1;
-                            }
-                            // region outside the x-midlines clamps to the extremes
-                            else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
-                            {
-                                if (m_mousepos.x > slideregionx + slideregionwidth/2)
-                                    Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, object->max);
-                                else
-                                    Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, object->min);
-
-                                m_mousecaught = 1;
-                            }
-                        }
-                    }
-
-                    break;
-                }
-                case String:
-                {
-                    MenuString_t *object = (MenuString_t*)entry->entry;
-
-                    vec2_t dim;
-                    int32_t stringx = x;
-                    const int32_t stringy = origin.y + y_upper + y + (height>>1) - menu->scrollPos;
-                    int32_t h;
-
-                    if (entry == currentry && object->editfield != NULL)
-                    {
-                        dim = Menu_Text(origin.x + stringx, stringy, object->font, object->editfield, status | MT_Literal, ydim_upper, ydim_lower);
-                        h = max(dim.y, entry->font->get_yline());
-
-                        rotatesprite_ybounds(origin.x + x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, h, tilesiz[SPINNINGNUKEICON].y<<16), stringy, scale(65536, h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10, ydim_upper, ydim_lower);
-                    }
-                    else
-                    {
-                        dim = Menu_Text(origin.x + stringx, stringy, object->font, object->variable, status, ydim_upper, ydim_lower);
-                        h = max(dim.y, entry->font->get_yline());
-                    }
-
-                    if (entry->format->width > 0)
-                    {
-                        if (entry->name)
-                            mousewidth += dim.x;
-                    }
-                    else
-                        stringx -= dim.x;
-
-                    if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, h)))
-                    {
-                        if (state != 1 && Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, h))
-                        {
-                            menu->currentEntry = e;
-                            Menu_RunInput_Menu_MovementVerify(menu);
-                        }
-
-#ifndef EDUKE32_TOUCH_DEVICES
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, h) && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
-#endif
-                        {
-                            if (entry == currentry && object->editfield != NULL)
-                            {
-                                Menu_RunInput_EntryString_Submit(entry, object);
-
-                                S_PlaySound(PISTOL_BODYHIT);
-
-                                m_mousecaught = 1;
-                            }
-                            else if (state != 1)
+                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
@@ -4573,19 +4101,492 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 if (entry->flags & Disabled)
                                     break;
 
-                                Menu_RunInput_EntryString_Activate(entry);
+                                Menu_RunInput_EntryLink_Activate(entry);
+
+                                if (g_player[myconnectindex].ps->gm&MODE_MENU) // for skill selection
+                                    S_PlaySound(PISTOL_BODYHIT);
+
+                                m_mousecaught = 1;
+                            }
+                        }
+                        break;
+                    case Option:
+                    {
+                        MenuOption_t *object = (MenuOption_t*)entry->entry;
+                        int32_t currentOption = Menu_FindOptionBinarySearch(object, object->data == NULL ? Menu_EntryOptionSource(entry, object->currentOption) : *object->data, 0, object->options->numOptions);
+
+                        if (currentOption >= 0)
+                            object->currentOption = currentOption;
+
+                        int32_t optiontextx = origin.x + x;
+                        const int32_t optiontexty = origin.y + y_upper + y - menu->scrollPos;
+
+                        const vec2_t optiontextsize = Menu_Text(optiontextx, optiontexty + (height>>1), object->font,
+                            currentOption < 0 ? MenuCustom : currentOption < object->options->numOptions ? object->options->optionNames[currentOption] : NULL,
+                            status, ydim_upper, ydim_lower);
+
+                        if (entry->format->width > 0)
+                            mousewidth += optiontextsize.x;
+                        else
+                            optiontextx -= optiontextsize.x;
+
+                        if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                        {
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                            {
+                                menu->currentEntry = e;
+                                Menu_RunInput_Menu_MovementVerify(menu);
+                            }
+
+                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
+                            {
+                                menu->currentEntry = e;
+                                Menu_RunInput_Menu_MovementVerify(menu);
+
+                                if (entry->flags & Disabled)
+                                    break;
+
+                                Menu_RunInput_EntryOption_Activate(entry, object);
 
                                 S_PlaySound(PISTOL_BODYHIT);
 
                                 m_mousecaught = 1;
                             }
                         }
-                    }
 
-                    break;
+                        break;
+                    }
+                    case Custom2Col:
+                    {
+                        MenuCustom2Col_t *object = (MenuCustom2Col_t*)entry->entry;
+                        int32_t columnx[2] = { origin.x + x - ((status & MT_XRight) ? object->columnWidth : 0), origin.x + x + ((status & MT_XRight) ? 0 : object->columnWidth) };
+                        const int32_t columny = origin.y + y_upper + y - menu->scrollPos;
+
+                        const vec2_t column0textsize = Menu_Text(columnx[0], columny + (height>>1), object->font, object->key[*object->column[0]], menu->currentColumn == 0 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
+                        const vec2_t column1textsize = Menu_Text(columnx[1], columny + (height>>1), object->font, object->key[*object->column[1]], menu->currentColumn == 1 ? status : (status & ~MT_Selected), ydim_upper, ydim_lower);
+
+                        if (entry->format->width > 0)
+                            mousewidth += object->columnWidth + column1textsize.x;
+                        else
+                        {
+                            columnx[0] -= column0textsize.x;
+                            columnx[1] -= column0textsize.x;
+                        }
+
+                        if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                        {
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                            {
+                                menu->currentEntry = e;
+                                Menu_RunInput_Menu_MovementVerify(menu);
+                            }
+
+                            if (!Menu_MouseOutsideBounds(&m_mousepos, columnx[1], mousey, column1textsize.x, object->font->get_yline()))
+                            {
+                                if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[1], mousey, column1textsize.x, object->font->get_yline())))
+                                {
+                                    menu->currentColumn = 1;
+                                }
+
+                                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->get_yline()))
+                                {
+                                    menu->currentEntry = e;
+                                    Menu_RunInput_Menu_MovementVerify(menu);
+                                    menu->currentColumn = 1;
+
+                                    if (entry->flags & Disabled)
+                                        break;
+
+                                    Menu_RunInput_EntryCustom2Col_Activate(entry);
+
+                                    S_PlaySound(PISTOL_BODYHIT);
+
+                                    m_mousecaught = 1;
+                                }
+                            }
+                            else if (!Menu_MouseOutsideBounds(&m_mousepos, columnx[0], mousey, column0textsize.x, object->font->get_yline()))
+                            {
+                                if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[0], mousey, column0textsize.x, object->font->get_yline())))
+                                {
+                                    menu->currentColumn = 0;
+                                }
+
+                                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->get_yline()))
+                                {
+                                    menu->currentEntry = e;
+                                    Menu_RunInput_Menu_MovementVerify(menu);
+                                    menu->currentColumn = 0;
+
+                                    if (entry->flags & Disabled)
+                                        break;
+
+                                    Menu_RunInput_EntryCustom2Col_Activate(entry);
+
+                                    S_PlaySound(PISTOL_BODYHIT);
+
+                                    m_mousecaught = 1;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                    case RangeInt32:
+                    {
+                        MenuRangeInt32_t *object = (MenuRangeInt32_t*)entry->entry;
+
+                        int32_t s, p;
+                        const int32_t z = entry->format->cursorScale;
+                        Menu_ShadePal(object->font, status, &s, &p);
+
+                        const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
+                        const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
+
+                        if (status & MT_XRight)
+                            x -= slidebarwidth;
+                        else
+                            mousewidth += slidebarwidth;
+
+                        const int32_t slidebarx = origin.x + x;
+                        const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
+
+                        rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+
+                        const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
+                        const int32_t slidepointx = slidebarx + (1<<16) + scale(slideregionwidth, *object->variable - object->min, object->max - object->min);
+                        const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
+
+                        rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+
+                        if (object->flags & DisplayTypeMask)
+                        {
+                            status |= MT_XRight;
+
+                            if (object->onehundredpercent == 0)
+                                object->onehundredpercent = object->max;
+
+                            switch (object->flags & DisplayTypeMask)
+                            {
+                                case 1:
+                                    Bsprintf(tempbuf, "%d", *object->variable);
+                                    break;
+                                case 2:
+                                {
+                                    int32_t v;
+                                    v = Blrintf(((float) *object->variable * 100.f) / (float) object->onehundredpercent);
+                                    Bsprintf(tempbuf, "%d%%", v);
+                                    break;
+                                }
+                                case 3:
+                                    Bsprintf(tempbuf, "%.2f", (double) *object->variable / (double) object->onehundredpercent);
+                                    break;
+                            }
+
+                            Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
+                        }
+
+                        if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                        {
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                            {
+                                menu->currentEntry = e;
+                                Menu_RunInput_Menu_MovementVerify(menu);
+                            }
+
+                            if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
+                            {
+                                const int32_t slidepointhalfwidth = scale((2+tilesiz[SLIDEBAR+1].x)<<15, z, 65536);
+                                const int32_t slideregionx = slidebarx + slidepointhalfwidth;
+
+                                menu->currentEntry = e;
+                                Menu_RunInput_Menu_MovementVerify(menu);
+
+                                if (entry->flags & Disabled)
+                                    break;
+
+                                // region between the x-midline of the slidepoint at the extremes slides proportionally
+                                if (!Menu_MouseOutsideBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
+                                {
+                                    Menu_RunInput_EntryRangeInt32_MovementArbitrary(entry, object, Blrintf((float)((object->max - object->min) * (m_mousepos.x - slideregionx)) / slideregionwidth + object->min));
+
+                                    m_mousecaught = 1;
+                                }
+                                // region outside the x-midlines clamps to the extremes
+                                else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
+                                {
+                                    if (m_mousepos.x > slideregionx + slideregionwidth/2)
+                                        Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, object->max);
+                                    else
+                                        Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, object->min);
+
+                                    m_mousecaught = 1;
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+                    case RangeFloat:
+                    {
+                        MenuRangeFloat_t *object = (MenuRangeFloat_t*)entry->entry;
+
+                        int32_t s, p;
+                        const int32_t z = entry->format->cursorScale;
+                        Menu_ShadePal(object->font, status, &s, &p);
+
+                        const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
+                        const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
+
+                        if (status & MT_XRight)
+                            x -= slidebarwidth;
+                        else
+                            mousewidth += slidebarwidth;
+
+                        const int32_t slidebarx = origin.x + x;
+                        const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
+
+                        rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+
+                        const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
+                        const int32_t slidepointx = slidebarx + (1<<16) + (int32_t)((float) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
+                        const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
+
+                        rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+
+                        if (object->flags & DisplayTypeMask)
+                        {
+                            status |= MT_XRight;
+
+                            if (object->onehundredpercent == 0)
+                                object->onehundredpercent = 1.f;
+
+                            switch (object->flags & DisplayTypeMask)
+                            {
+                                case 1:
+                                    Bsprintf(tempbuf, "%.2f", *object->variable);
+                                    break;
+                                case 2:
+                                {
+                                    int32_t v;
+                                    v = Blrintf((*object->variable * 100.f) / object->onehundredpercent);
+                                    Bsprintf(tempbuf, "%d%%", v);
+                                    break;
+                                }
+                                case 3:
+                                    Bsprintf(tempbuf, "%.2f", *object->variable / object->onehundredpercent);
+                                    break;
+                            }
+
+                            Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
+                        }
+
+                        if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                        {
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                            {
+                                menu->currentEntry = e;
+                                Menu_RunInput_Menu_MovementVerify(menu);
+                            }
+
+                            if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
+                            {
+                                const int32_t slidepointhalfwidth = scale((2+tilesiz[SLIDEBAR+1].x)<<15, z, 65536);
+                                const int32_t slideregionx = slidebarx + slidepointhalfwidth;
+
+                                menu->currentEntry = e;
+                                Menu_RunInput_Menu_MovementVerify(menu);
+
+                                if (entry->flags & Disabled)
+                                    break;
+
+                                // region between the x-midline of the slidepoint at the extremes slides proportionally
+                                if (!Menu_MouseOutsideBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
+                                {
+                                    Menu_RunInput_EntryRangeFloat_MovementArbitrary(entry, object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
+
+                                    m_mousecaught = 1;
+                                }
+                                // region outside the x-midlines clamps to the extremes
+                                else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
+                                {
+                                    if (m_mousepos.x > slideregionx + slideregionwidth/2)
+                                        Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, object->max);
+                                    else
+                                        Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, object->min);
+
+                                    m_mousecaught = 1;
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+                    case RangeDouble:
+                    {
+                        MenuRangeDouble_t *object = (MenuRangeDouble_t*)entry->entry;
+
+                        int32_t s, p;
+                        const int32_t z = entry->format->cursorScale;
+                        Menu_ShadePal(object->font, status, &s, &p);
+
+                        const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
+                        const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
+
+                        if (status & MT_XRight)
+                            x -= slidebarwidth;
+                        else
+                            mousewidth += slidebarwidth;
+
+                        const int32_t slidebarx = origin.x + x;
+                        const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
+
+                        rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+
+                        const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
+                        const int32_t slidepointx = slidebarx + (1<<16) + (int32_t)((double) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
+                        const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
+
+                        rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+
+                        if (object->flags & DisplayTypeMask)
+                        {
+                            status |= MT_XRight;
+
+                            if (object->onehundredpercent == 0)
+                                object->onehundredpercent = 1.;
+
+                            switch (object->flags & DisplayTypeMask)
+                            {
+                                case 1:
+                                    Bsprintf(tempbuf, "%.2f", *object->variable);
+                                    break;
+                                case 2:
+                                {
+                                    int32_t v;
+                                    v = Blrintf((*object->variable * 100.) / object->onehundredpercent);
+                                    Bsprintf(tempbuf, "%d%%", v);
+                                    break;
+                                }
+                                case 3:
+                                    Bsprintf(tempbuf, "%.2f", *object->variable / object->onehundredpercent);
+                                    break;
+                            }
+
+                            Menu_Text(origin.x + x - (4<<16), origin.y + y_upper + y + (height>>1) - menu->scrollPos, object->font, tempbuf, status, ydim_upper, ydim_lower);
+                        }
+
+                        if (MOUSEACTIVECONDITIONAL(state != 1 && cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, height)))
+                        {
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, height)))
+                            {
+                                menu->currentEntry = e;
+                                Menu_RunInput_Menu_MovementVerify(menu);
+                            }
+
+                            if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
+                            {
+                                const int32_t slidepointhalfwidth = scale((2+tilesiz[SLIDEBAR+1].x)<<15, z, 65536);
+                                const int32_t slideregionx = slidebarx + slidepointhalfwidth;
+
+                                menu->currentEntry = e;
+                                Menu_RunInput_Menu_MovementVerify(menu);
+
+                                if (entry->flags & Disabled)
+                                    break;
+
+                                // region between the x-midline of the slidepoint at the extremes slides proportionally
+                                if (!Menu_MouseOutsideBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
+                                {
+                                    Menu_RunInput_EntryRangeDouble_MovementArbitrary(/*entry, */object, (object->max - object->min) * (m_mousepos.x - slideregionx) / slideregionwidth + object->min);
+
+                                    m_mousecaught = 1;
+                                }
+                                // region outside the x-midlines clamps to the extremes
+                                else if (!Menu_MouseOutsideBounds(&m_mousepos, slidebarx, mousey, slidebarwidth, height))
+                                {
+                                    if (m_mousepos.x > slideregionx + slideregionwidth/2)
+                                        Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, object->max);
+                                    else
+                                        Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, object->min);
+
+                                    m_mousecaught = 1;
+                                }
+                            }
+                        }
+
+                        break;
+                    }
+                    case String:
+                    {
+                        MenuString_t *object = (MenuString_t*)entry->entry;
+
+                        vec2_t dim;
+                        int32_t stringx = x;
+                        const int32_t stringy = origin.y + y_upper + y + (height>>1) - menu->scrollPos;
+                        int32_t h;
+
+                        if (entry == currentry && object->editfield != NULL)
+                        {
+                            dim = Menu_Text(origin.x + stringx, stringy, object->font, object->editfield, status | MT_Literal, ydim_upper, ydim_lower);
+                            h = max(dim.y, entry->font->get_yline());
+
+                            rotatesprite_ybounds(origin.x + x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, h, tilesiz[SPINNINGNUKEICON].y<<16), stringy, scale(65536, h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10, ydim_upper, ydim_lower);
+                        }
+                        else
+                        {
+                            dim = Menu_Text(origin.x + stringx, stringy, object->font, object->variable, status, ydim_upper, ydim_lower);
+                            h = max(dim.y, entry->font->get_yline());
+                        }
+
+                        if (entry->format->width > 0)
+                        {
+                            if (entry->name)
+                                mousewidth += dim.x;
+                        }
+                        else
+                            stringx -= dim.x;
+
+                        if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, h)))
+                        {
+                            if (state != 1 && Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, h))
+                            {
+                                menu->currentEntry = e;
+                                Menu_RunInput_Menu_MovementVerify(menu);
+                            }
+
+    #ifndef EDUKE32_TOUCH_DEVICES
+                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, h) && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
+    #endif
+                            {
+                                if (entry == currentry && object->editfield != NULL)
+                                {
+                                    Menu_RunInput_EntryString_Submit(entry, object);
+
+                                    S_PlaySound(PISTOL_BODYHIT);
+
+                                    m_mousecaught = 1;
+                                }
+                                else if (state != 1)
+                                {
+                                    menu->currentEntry = e;
+                                    Menu_RunInput_Menu_MovementVerify(menu);
+
+                                    if (entry->flags & Disabled)
+                                        break;
+
+                                    Menu_RunInput_EntryString_Activate(entry);
+
+                                    S_PlaySound(PISTOL_BODYHIT);
+
+                                    m_mousecaught = 1;
+                                }
+                            }
+                        }
+
+                        break;
+                    }
                 }
             }
-        }
+
             // prepare for the next line
             y += height;
             y += (!calculatedentryspacing || calculatedentryspacing > entry->getMarginBottom()) ? entry->getMarginBottom() : calculatedentryspacing;
