@@ -186,6 +186,9 @@ typedef struct MenuOptionSet_t
 
     // appearance
     uint8_t features; // bit 1 = disable left/right arrows, bit 2 = disable list
+
+    int32_t getMarginBottom() const { return scale(entryFormat->marginBottom, font->zoom, 65536); }
+    int32_t getIndent() const { return scale(entryFormat->indent, font->zoom, 65536); }
 } MenuOptionSet_t;
 typedef struct MenuOption_t
 {
@@ -318,6 +321,9 @@ typedef struct MenuEntry_t
     // state
     int32_t flags;
     int32_t ytop, ybottom;
+
+    int32_t getMarginBottom() const { return scale(format->marginBottom, font->zoom, 65536); }
+    int32_t getIndent() const { return scale(format->indent, font->zoom, 65536); }
 } MenuEntry_t;
 
 
@@ -403,6 +409,8 @@ typedef struct MenuFileSelect_t
     // state
     fnlist_t fnlist;
     int32_t currentList;
+
+    int32_t getMarginBottom(size_t index) const { return scale(marginBottom[index], font[index]->zoom, 65536); }
 } MenuFileSelect_t;
 
 typedef struct Menu_t

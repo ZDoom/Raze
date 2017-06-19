@@ -3996,7 +3996,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
             y += height;
             totalHeight = y;
-            y += (!calculatedentryspacing || calculatedentryspacing > entry->format->marginBottom) ? entry->format->marginBottom : calculatedentryspacing;
+            y += (!calculatedentryspacing || calculatedentryspacing > entry->getMarginBottom()) ? entry->getMarginBottom() : calculatedentryspacing;
         }
         y = 0;
 
@@ -4022,7 +4022,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             if (entry == NULL)
                 continue;
 
-            x = menu->format->pos.x + entry->format->indent;
+            x = menu->format->pos.x + entry->getIndent();
 
             if (e == menu->currentEntry)
                 status |= MT_Selected;
@@ -4583,7 +4583,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
         }
             // prepare for the next line
             y += height;
-            y += (!calculatedentryspacing || calculatedentryspacing > entry->format->marginBottom) ? entry->format->marginBottom : calculatedentryspacing;
+            y += (!calculatedentryspacing || calculatedentryspacing > entry->getMarginBottom()) ? entry->getMarginBottom() : calculatedentryspacing;
         }
 
         // draw indicators if applicable
@@ -4599,7 +4599,7 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
     int32_t e, y = 0;
     const int32_t y_upper = object->options->menuFormat->pos.y;
     const int32_t y_lower = object->options->menuFormat->bottomcutoff;
-    int32_t calculatedentryspacing = object->options->entryFormat->marginBottom;
+    int32_t calculatedentryspacing = object->options->getMarginBottom();
 
     // assumes height == font->get_yline()!
     if (calculatedentryspacing < 0)
@@ -4888,7 +4888,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                     {
                         y += object->font[i]->get_yline();
                         totalHeight = y;
-                        y += object->marginBottom[i];
+                        y += object->getMarginBottom(i);
                     }
                     y = 0;
 
@@ -4945,7 +4945,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                             }
                         }
 
-                        y += object->font[i]->get_yline() + object->marginBottom[i];
+                        y += object->font[i]->get_yline() + object->getMarginBottom(i);
                     }
 
                     Menu_RunScrollbar(cm, object->format[i], y_upper + totalHeight, &object->scrollPos[i], MenuFileSelect_scrollbar_rightedge[i], origin);
@@ -5115,7 +5115,7 @@ static void Menu_RunInput_EntryOptionList_MovementVerify(MenuOption_t *object)
 {
     const int32_t listytop = object->options->menuFormat->pos.y;
     // assumes height == font->get_yline()!
-    const int32_t unitheight = object->options->entryFormat->marginBottom < 0 ? (-object->options->entryFormat->marginBottom - object->options->font->get_yline()) / object->options->numOptions : (object->options->font->get_yline() + object->options->entryFormat->marginBottom);
+    const int32_t unitheight = object->options->getMarginBottom() < 0 ? (-object->options->getMarginBottom() - object->options->font->get_yline()) / object->options->numOptions : (object->options->font->get_yline() + object->options->getMarginBottom());
     const int32_t ytop = listytop + object->options->currentEntry * unitheight;
     const int32_t ybottom = ytop + object->options->font->get_yline();
 
@@ -5431,7 +5431,7 @@ static void Menu_RunInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
 {
     const int32_t listytop = object->format[object->currentList]->pos.y;
     const int32_t listybottom = klabs(object->format[object->currentList]->bottomcutoff);
-    const int32_t ytop = listytop + object->findhigh[object->currentList]->type * (object->font[object->currentList]->get_yline() + object->marginBottom[object->currentList]);
+    const int32_t ytop = listytop + object->findhigh[object->currentList]->type * (object->font[object->currentList]->get_yline() + object->getMarginBottom(object->currentList));
     const int32_t ybottom = ytop + object->font[object->currentList]->get_yline();
 
     if (ybottom - object->scrollPos[object->currentList] > listybottom)
