@@ -119,12 +119,11 @@ typedef enum MenuAnimationType_t
 // a subset of screentext parameters, restricted because menus require accessibility
 typedef struct MenuFont_t
 {
-    int32_t tilenum;
-    int32_t shade_deselected; // selected entries are mandated to glow
-    int32_t pal, pal_disabled;
-    int32_t xspace, yline;
-    int32_t xbetween, ybetween;
+    vec2_t emptychar, between;
     int32_t textflags;
+    int16_t tilenum;
+    int8_t shade_deselected; // selected entries are mandated to glow
+    uint8_t pal, pal_disabled;
 } MenuFont_t;
 
 
