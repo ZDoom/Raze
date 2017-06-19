@@ -170,7 +170,6 @@ they effectively stand in for curly braces as struct initializers.
 
 // common font types
 // tilenums are set after namesdyn runs
-static MenuFont_t MF_Null =             { {     0,      0 }, {        0,     0 }, 65536, 0, -1, 10,  0,  0 };
 static MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
 static MenuFont_t MF_RedfontBlue =      { { 5<<16, 15<<16 }, {        0,     0 }, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  1,  1 };
 static MenuFont_t MF_RedfontGreen =     { { 5<<16, 15<<16 }, {        0,     0 }, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  8,  1 };
@@ -261,14 +260,21 @@ static const char* MenuCustom = "Custom";
 
 
 #define MAKE_SPACER( EntryName, Height ) \
-static MenuSpacer_t MEO_ ## EntryName = { Height };\
-static MenuEntry_t ME_ ## EntryName = MAKE_MENUENTRY( NULL, &MF_Null, &MEF_Null, &MEO_ ## EntryName, Spacer )
+static MenuSpacer_t MEO_ ## EntryName = { Height };
 
 MAKE_SPACER( Space2, 2<<16 ); // bigoptions
 MAKE_SPACER( Space4, 4<<16 ); // usermap, smalloptions, anything else non-top
 MAKE_SPACER( Space6, 6<<16 ); // videosetup
 MAKE_SPACER( Space8, 8<<16 ); // colcorr, redslide
 
+static MenuEntry_t ME_Space2_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_Null, &MEO_Space2, Spacer );
+static MenuEntry_t ME_Space4_Bluefont = MAKE_MENUENTRY( NULL, &MF_Bluefont, &MEF_Null, &MEO_Space4, Spacer );
+static MenuEntry_t ME_Space4_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_Null, &MEO_Space4, Spacer );
+static MenuEntry_t ME_Space6_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_Null, &MEO_Space6, Spacer );
+#ifndef EDUKE32_SIMPLE_MENU
+static MenuEntry_t ME_Space8_Bluefont = MAKE_MENUENTRY( NULL, &MF_Bluefont, &MEF_Null, &MEO_Space8, Spacer );
+#endif
+static MenuEntry_t ME_Space8_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_Null, &MEO_Space8, Spacer );
 
 #define MAKE_MENU_TOP_ENTRYLINK( Title, Format, EntryName, LinkID ) \
 static MenuLink_t MEO_ ## EntryName = { LinkID, MA_Advance, };\
@@ -644,7 +650,7 @@ static MenuEntry_t *MEL_VIDEOSETUP[] = {
     &ME_VIDEOSETUP_FULLSCREEN,
     &ME_VIDEOSETUP_VSYNC,
     &ME_VIDEOSETUP_FRAMELIMIT,
-    &ME_Space6,
+    &ME_Space6_Redfont,
     &ME_VIDEOSETUP_APPLY,
 };
 static MenuEntry_t *MEL_DISPLAYSETUP[] = {
@@ -782,7 +788,7 @@ static MenuEntry_t ME_MOUSESETUP_ADVANCED = MAKE_MENUENTRY( "Advanced setup", &M
 static MenuEntry_t *MEL_MOUSESETUP[] = {
     &ME_MOUSESETUP_SENSITIVITY,
     &ME_MOUSESETUP_BTNS,
-    &ME_Space2,
+    &ME_Space2_Redfont,
     &ME_MOUSESETUP_MOUSEAIMINGTYPE,
     &ME_MOUSESETUP_MOUSEAIMING,
     &ME_MOUSESETUP_INVERT,
@@ -819,7 +825,7 @@ static MenuEntry_t *MEL_TOUCHSENS [] = {
     &ME_TOUCHSETUP_SENSITIVITY_STRAFE,
     &ME_TOUCHSETUP_SENSITIVITY_LOOK,
     &ME_TOUCHSETUP_SENSITIVITY_TURN,
-    &ME_Space2,
+    &ME_Space2_Redfont,
     &ME_TOUCHSETUP_INVERT,
 };
 #endif
@@ -864,7 +870,7 @@ static MenuEntry_t ME_MOUSEADVANCED_DAXES_RIGHT = MAKE_MENUENTRY( "Digital Right
 static MenuEntry_t *MEL_MOUSEADVANCED[] = {
     &ME_MOUSEADVANCED_SCALEX,
     &ME_MOUSEADVANCED_SCALEY,
-    &ME_Space8,
+    &ME_Space8_Redfont,
     &ME_MOUSEADVANCED_DAXES_UP,
     &ME_MOUSEADVANCED_DAXES_DOWN,
     &ME_MOUSEADVANCED_DAXES_LEFT,
@@ -902,7 +908,7 @@ static MenuEntry_t *MEL_JOYSTICKAXIS[] = {
     &ME_JOYSTICKAXIS_SCALE,
     &ME_JOYSTICKAXIS_DEAD,
     &ME_JOYSTICKAXIS_SATU,
-    &ME_Space8,
+    &ME_Space8_Redfont,
     &ME_JOYSTICKAXIS_DIGITALNEGATIVE,
     &ME_JOYSTICKAXIS_DIGITALPOSITIVE,
 };
@@ -969,7 +975,7 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMOST[] = {
     &ME_RENDERERSETUP_DETAILTEX,
     &ME_RENDERERSETUP_GLOWTEX,
 # endif
-    &ME_Space4,
+    &ME_Space4_Bluefont,
     &ME_RENDERERSETUP_MODELS,
 };
 
@@ -985,9 +991,9 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] = {
     &ME_RENDERERSETUP_DETAILTEX,
     &ME_RENDERERSETUP_GLOWTEX,
 # endif
-    &ME_Space4,
+    &ME_Space4_Bluefont,
     &ME_RENDERERSETUP_MODELS,
-    &ME_Space4,
+    &ME_Space4_Bluefont,
     &ME_POLYMER_LIGHTS,
     &ME_POLYMER_LIGHTPASSES,
     &ME_POLYMER_SHADOWS,
@@ -1022,7 +1028,7 @@ static MenuEntry_t *MEL_COLCORR[] = {
     &ME_COLCORR_BRIGHTNESS,
 #endif
     &ME_COLCORR_AMBIENT,
-    &ME_Space8,
+    &ME_Space8_Redfont,
     &ME_COLCORR_RESET,
 };
 
@@ -1109,9 +1115,9 @@ static MenuEntry_t *MEL_SOUND[] = {
 
 static MenuEntry_t *MEL_ADVSOUND[] = {
     &ME_SOUND_SAMPLINGRATE,
-    &ME_Space2,
+    &ME_Space2_Redfont,
     &ME_SOUND_NUMVOICES,
-    &ME_Space2,
+    &ME_Space2_Redfont,
     &ME_SOUND_RESTART,
 };
 
@@ -1143,12 +1149,12 @@ static MenuEntry_t ME_PLAYER_MACROS = MAKE_MENUENTRY( "Multiplayer macros", &MF_
 
 static MenuEntry_t *MEL_PLAYER[] = {
     &ME_PLAYER_NAME,
-    &ME_Space4,
+    &ME_Space4_Bluefont,
     &ME_PLAYER_COLOR,
-    &ME_Space4,
+    &ME_Space4_Bluefont,
     &ME_PLAYER_TEAM,
 #ifndef EDUKE32_SIMPLE_MENU
-    &ME_Space8,
+    &ME_Space8_Bluefont,
     &ME_PLAYER_MACROS,
 #endif
 };
@@ -1487,7 +1493,7 @@ void Menu_Init(void)
         MEOS_NETOPTIONS_LEVEL[i].optionNames = MEOSN_NetLevels[i];
     }
     M_EPISODE.numEntries = g_volumeCnt+2;
-    MEL_EPISODE[g_volumeCnt] = &ME_Space4;
+    MEL_EPISODE[g_volumeCnt] = &ME_Space4_Redfont;
     MEL_EPISODE[g_volumeCnt+1] = &ME_EPISODE_USERMAP;
     MEOS_NETOPTIONS_EPISODE.numOptions = k + 1;
     MEOSN_NetEpisodes[k] = MenuUserMap;
