@@ -120,10 +120,13 @@ typedef enum MenuAnimationType_t
 typedef struct MenuFont_t
 {
     vec2_t emptychar, between;
+    int32_t zoom;
     int32_t textflags;
     int16_t tilenum;
     int8_t shade_deselected; // selected entries are mandated to glow
     uint8_t pal, pal_disabled;
+
+    int32_t get_yline() const { return scale(emptychar.y, zoom, 65536); }
 } MenuFont_t;
 
 

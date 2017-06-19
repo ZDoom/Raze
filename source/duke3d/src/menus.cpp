@@ -170,15 +170,15 @@ they effectively stand in for curly braces as struct initializers.
 
 // common font types
 // tilenums are set after namesdyn runs
-static MenuFont_t MF_Null =             { {     0,      0 }, {        0,     0 }, 0, -1, 10,  0,  0 };
-static MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
-static MenuFont_t MF_RedfontBlue =      { { 5<<16, 15<<16 }, {        0,     0 }, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  1,  1 };
-static MenuFont_t MF_RedfontGreen =     { { 5<<16, 15<<16 }, {        0,     0 }, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  8,  1 };
-static MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 0, -1, 10,  0, 16 };
-static MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 0, -1, 10, 10, 16 };
-static MenuFont_t MF_Minifont =         { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 0, -1, 10,  0, 16 };
-static MenuFont_t MF_MinifontRed =      { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 0, -1, 16, 21, 16 };
-static MenuFont_t MF_MinifontDarkGray = { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 0, -1, 10, 13, 16 };
+static MenuFont_t MF_Null =             { {     0,      0 }, {        0,     0 }, 65536, 0, -1, 10,  0,  0 };
+static MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
+static MenuFont_t MF_RedfontBlue =      { { 5<<16, 15<<16 }, {        0,     0 }, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  1,  1 };
+static MenuFont_t MF_RedfontGreen =     { { 5<<16, 15<<16 }, {        0,     0 }, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  8,  1 };
+static MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 0, -1, 10,  0, 16 };
+static MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 0, -1, 10, 10, 16 };
+static MenuFont_t MF_Minifont =         { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 0, -1, 10,  0, 16 };
+static MenuFont_t MF_MinifontRed =      { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 0, -1, 16, 21, 16 };
+static MenuFont_t MF_MinifontDarkGray = { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 0, -1, 10, 13, 16 };
 
 
 static MenuMenuFormat_t MMF_Top_Main =             { {  MENU_MARGIN_CENTER<<16, 55<<16, }, -(170<<16) };
@@ -3821,7 +3821,7 @@ static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t *font, const char
 
     Menu_ShadePal(font, status, &s, &p);
 
-    return G_ScreenText(font->tilenum, x, y, 65536, 0, 0, t, s, p, 2|8|16|ROTATESPRITE_FULL16, 0, font->emptychar.x, font->emptychar.y, font->between.x, ybetween, f, 0, ydim_upper, xdim-1, ydim_lower);
+    return G_ScreenText(font->tilenum, x, y, font->zoom, 0, 0, t, s, p, 2|8|16|ROTATESPRITE_FULL16, 0, font->emptychar.x, font->emptychar.y, font->between.x, ybetween, f, 0, ydim_upper, xdim-1, ydim_lower);
 }
 
 #if 0
@@ -3831,7 +3831,7 @@ static vec2_t Menu_TextSize(int32_t x, int32_t y, const MenuFont_t *font, const 
     if (status & MT_Literal)
         f |= TEXT_LITERALESCAPE;
 
-    return G_ScreenTextSize(font->tilenum, x, y, 65536, 0, t, 2|8|16|ROTATESPRITE_FULL16, font->emptychar.x, font->emptychar.y, font->between.x, font->between.y, f, 0, 0, xdim-1, ydim-1);
+    return G_ScreenTextSize(font->tilenum, x, y, font->zoom, 0, t, 2|8|16|ROTATESPRITE_FULL16, font->emptychar.x, font->emptychar.y, font->between.x, font->between.y, f, 0, 0, xdim-1, ydim-1);
 }
 #endif
 
@@ -3977,8 +3977,8 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                 ++numvalidentries;
 
-                // assumes height == font->emptychar.y!
-                totalheight += entry->type == Spacer ? ((MenuSpacer_t*)entry->entry)->height : entry->font->emptychar.y;
+                // assumes height == font->get_yline()!
+                totalheight += entry->type == Spacer ? ((MenuSpacer_t*)entry->entry)->height : entry->font->get_yline();
             }
 
             calculatedentryspacing = (klabs(menu->format->bottomcutoff) - menu->format->pos.y - totalheight) / (numvalidentries > 1 ? numvalidentries - 1 : 1);
@@ -3992,7 +3992,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             if (entry == NULL)
                 continue;
 
-            int32_t const height = entry->type == Spacer ? ((MenuSpacer_t*)entry->entry)->height : entry->font->emptychar.y;
+            int32_t const height = entry->type == Spacer ? ((MenuSpacer_t*)entry->entry)->height : entry->font->get_yline();
 
             y += height;
             totalHeight = y;
@@ -4031,12 +4031,12 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             if (entry->format->width == 0)
                 status |= MT_XCenter;
 
-            const int32_t dodraw = entry->type != Spacer && 0 <= y - menu->scrollPos + entry->font->emptychar.y && y - menu->scrollPos <= klabs(menu->format->bottomcutoff) - menu->format->pos.y;
+            const int32_t dodraw = entry->type != Spacer && 0 <= y - menu->scrollPos + entry->font->get_yline() && y - menu->scrollPos <= klabs(menu->format->bottomcutoff) - menu->format->pos.y;
 
             if (dodraw)
                 textsize = Menu_Text(origin.x + x, origin.y + y_upper + y - menu->scrollPos, entry->font, entry->name, status, ydim_upper, ydim_lower);
 
-            height = entry->type == Spacer ? ((MenuSpacer_t*)entry->entry)->height : entry->font->emptychar.y; // max(textsize.y, entry->font->emptychar.y); // bluefont Q ruins this
+            height = entry->type == Spacer ? ((MenuSpacer_t*)entry->entry)->height : entry->font->get_yline(); // max(textsize.y, entry->font->get_yline()); // bluefont Q ruins this
 
             if (entry->format->width < 0)
                 status |= MT_XRight;
@@ -4088,7 +4088,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->emptychar.y))
+                        if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
                         {
                             menu->currentEntry = e;
                             Menu_RunInput_Menu_MovementVerify(menu);
@@ -4133,7 +4133,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
-                        if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->emptychar.y))
+                        if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
                         {
                             menu->currentEntry = e;
                             Menu_RunInput_Menu_MovementVerify(menu);
@@ -4176,14 +4176,14 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             Menu_RunInput_Menu_MovementVerify(menu);
                         }
 
-                        if (!Menu_MouseOutsideBounds(&m_mousepos, columnx[1], mousey, column1textsize.x, object->font->emptychar.y))
+                        if (!Menu_MouseOutsideBounds(&m_mousepos, columnx[1], mousey, column1textsize.x, object->font->get_yline()))
                         {
-                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[1], mousey, column1textsize.x, object->font->emptychar.y)))
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[1], mousey, column1textsize.x, object->font->get_yline())))
                             {
                                 menu->currentColumn = 1;
                             }
 
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->emptychar.y))
+                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->get_yline()))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
@@ -4199,14 +4199,14 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 m_mousecaught = 1;
                             }
                         }
-                        else if (!Menu_MouseOutsideBounds(&m_mousepos, columnx[0], mousey, column0textsize.x, object->font->emptychar.y))
+                        else if (!Menu_MouseOutsideBounds(&m_mousepos, columnx[0], mousey, column0textsize.x, object->font->get_yline()))
                         {
-                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[0], mousey, column0textsize.x, object->font->emptychar.y)))
+                            if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, columnx[0], mousey, column0textsize.x, object->font->get_yline())))
                             {
                                 menu->currentColumn = 0;
                             }
 
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->emptychar.y))
+                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->get_yline()))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
@@ -4522,14 +4522,14 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                     if (entry == currentry && object->editfield != NULL)
                     {
                         dim = Menu_Text(origin.x + stringx, stringy, object->font, object->editfield, status | MT_Literal, ydim_upper, ydim_lower);
-                        h = max(dim.y, entry->font->emptychar.y);
+                        h = max(dim.y, entry->font->get_yline());
 
                         rotatesprite_ybounds(origin.x + x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, h, tilesiz[SPINNINGNUKEICON].y<<16), stringy, scale(65536, h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10, ydim_upper, ydim_lower);
                     }
                     else
                     {
                         dim = Menu_Text(origin.x + stringx, stringy, object->font, object->variable, status, ydim_upper, ydim_lower);
-                        h = max(dim.y, entry->font->emptychar.y);
+                        h = max(dim.y, entry->font->get_yline());
                     }
 
                     if (entry->format->width > 0)
@@ -4601,14 +4601,14 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
     const int32_t y_lower = object->options->menuFormat->bottomcutoff;
     int32_t calculatedentryspacing = object->options->entryFormat->marginBottom;
 
-    // assumes height == font->emptychar.y!
+    // assumes height == font->get_yline()!
     if (calculatedentryspacing < 0)
-        calculatedentryspacing = (-calculatedentryspacing - object->options->font->emptychar.y) / (object->options->numOptions - 1) - object->options->font->emptychar.y;
+        calculatedentryspacing = (-calculatedentryspacing - object->options->font->get_yline()) / (object->options->numOptions - 1) - object->options->font->get_yline();
 
     int32_t totalHeight = 0;
     for (e = 0; e < object->options->numOptions; ++e)
     {
-        int32_t const height = object->options->font->emptychar.y;
+        int32_t const height = object->options->font->get_yline();
 
         y += height;
         totalHeight = y;
@@ -4641,12 +4641,12 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
         if (object->options->entryFormat->width == 0)
             status |= MT_XCenter;
 
-        const int32_t dodraw = 0 <= y - object->options->scrollPos + object->options->font->emptychar.y && y - object->options->scrollPos <= object->options->menuFormat->bottomcutoff - object->options->menuFormat->pos.y;
+        const int32_t dodraw = 0 <= y - object->options->scrollPos + object->options->font->get_yline() && y - object->options->scrollPos <= object->options->menuFormat->bottomcutoff - object->options->menuFormat->pos.y;
 
         if (dodraw)
             textsize = Menu_Text(origin.x + x, origin.y + y_upper + y - object->options->scrollPos, object->options->font, object->options->optionNames[e], status, ydim_upper, ydim_lower);
 
-        height = object->options->font->emptychar.y; // max(textsize.y, object->options->font->emptychar.y);
+        height = object->options->font->get_yline(); // max(textsize.y, object->options->font->get_yline());
 
         if (object->options->entryFormat->width < 0)
             status |= MT_XRight;
@@ -4669,14 +4669,14 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
             const int32_t mousey = origin.y + y_upper + y - object->options->scrollPos;
             const int32_t mousewidth = object->options->entryFormat->width == 0 ? textsize.x : klabs(object->options->entryFormat->width);
 
-            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, object->options->font->emptychar.y)))
+            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, object->options->font->get_yline())))
             {
-                if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, object->options->font->emptychar.y)))
+                if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, mousewidth, object->options->font->get_yline())))
                 {
                     object->options->currentEntry = e;
                 }
 
-                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, object->options->font->emptychar.y))
+                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, object->options->font->get_yline()))
                 {
                     object->options->currentEntry = e;
 
@@ -4886,7 +4886,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                     int32_t totalHeight = 0;
                     for (dir = object->findhigh[i]->usera; dir; dir = dir->next)
                     {
-                        y += object->font[i]->emptychar.y;
+                        y += object->font[i]->get_yline();
                         totalHeight = y;
                         y += object->marginBottom[i];
                     }
@@ -4915,16 +4915,16 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                         const int32_t thisx = object->format[i]->pos.x;
                         const int32_t thisy = y - object->scrollPos[i];
 
-                        if (0 <= thisy + object->font[i]->emptychar.y && thisy <= klabs(object->format[i]->bottomcutoff) - object->format[i]->pos.y)
+                        if (0 <= thisy + object->font[i]->get_yline() && thisy <= klabs(object->format[i]->bottomcutoff) - object->format[i]->pos.y)
                         {
                             const int32_t mousex = origin.x + thisx;
                             const int32_t mousey = origin.y + y_upper + thisy;
 
                             vec2_t textdim = Menu_Text(mousex, mousey, object->font[i], tempbuf, status, ydim_upper, ydim_lower);
 
-                            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, textdim.x, object->font[i]->emptychar.y)))
+                            if (MOUSEACTIVECONDITIONAL(cm == m_currentMenu && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, textdim.x, object->font[i]->get_yline())))
                             {
-                                if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, textdim.x, object->font[i]->emptychar.y)))
+                                if (MOUSEWATCHPOINTCONDITIONAL(Menu_MouseOutsideBounds(&m_prevmousepos, mousex, mousey, textdim.x, object->font[i]->get_yline())))
                                 {
                                     object->findhigh[i] = dir;
                                     object->currentList = i;
@@ -4932,7 +4932,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                                     Menu_RunInput_FileSelect_MovementVerify(object);
                                 }
 
-                                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, textdim.x, object->font[i]->emptychar.y))
+                                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, textdim.x, object->font[i]->get_yline()))
                                 {
                                     object->findhigh[i] = dir;
                                     object->currentList = i;
@@ -4945,7 +4945,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                             }
                         }
 
-                        y += object->font[i]->emptychar.y + object->marginBottom[i];
+                        y += object->font[i]->get_yline() + object->marginBottom[i];
                     }
 
                     Menu_RunScrollbar(cm, object->format[i], y_upper + totalHeight, &object->scrollPos[i], MenuFileSelect_scrollbar_rightedge[i], origin);
@@ -5114,10 +5114,10 @@ static void Menu_RunInput_EntryLink_Activate(MenuEntry_t *entry)
 static void Menu_RunInput_EntryOptionList_MovementVerify(MenuOption_t *object)
 {
     const int32_t listytop = object->options->menuFormat->pos.y;
-    // assumes height == font->emptychar.y!
-    const int32_t unitheight = object->options->entryFormat->marginBottom < 0 ? (-object->options->entryFormat->marginBottom - object->options->font->emptychar.y) / object->options->numOptions : (object->options->font->emptychar.y + object->options->entryFormat->marginBottom);
+    // assumes height == font->get_yline()!
+    const int32_t unitheight = object->options->entryFormat->marginBottom < 0 ? (-object->options->entryFormat->marginBottom - object->options->font->get_yline()) / object->options->numOptions : (object->options->font->get_yline() + object->options->entryFormat->marginBottom);
     const int32_t ytop = listytop + object->options->currentEntry * unitheight;
-    const int32_t ybottom = ytop + object->options->font->emptychar.y;
+    const int32_t ybottom = ytop + object->options->font->get_yline();
 
     if (ybottom - object->options->scrollPos > object->options->menuFormat->bottomcutoff)
         object->options->scrollPos = ybottom - object->options->menuFormat->bottomcutoff;
@@ -5431,8 +5431,8 @@ static void Menu_RunInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
 {
     const int32_t listytop = object->format[object->currentList]->pos.y;
     const int32_t listybottom = klabs(object->format[object->currentList]->bottomcutoff);
-    const int32_t ytop = listytop + object->findhigh[object->currentList]->type * (object->font[object->currentList]->emptychar.y + object->marginBottom[object->currentList]);
-    const int32_t ybottom = ytop + object->font[object->currentList]->emptychar.y;
+    const int32_t ytop = listytop + object->findhigh[object->currentList]->type * (object->font[object->currentList]->get_yline() + object->marginBottom[object->currentList]);
+    const int32_t ybottom = ytop + object->font[object->currentList]->get_yline();
 
     if (ybottom - object->scrollPos[object->currentList] > listybottom)
         object->scrollPos[object->currentList] = ybottom - listybottom;
