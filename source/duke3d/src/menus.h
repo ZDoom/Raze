@@ -302,7 +302,7 @@ typedef struct MenuSpacer_t
 // For internal use only.
 enum MenuEntryFlags_t
 {
-    Disabled = 1,
+    MEF_Disabled = 1<<0,
 };
 
 typedef struct MenuEntry_t

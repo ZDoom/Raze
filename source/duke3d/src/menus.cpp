@@ -1408,9 +1408,9 @@ static MenuID_t g_previousMenu;
 static void MenuEntry_DisableOnCondition(MenuEntry_t * const entry, const int32_t condition)
 {
     if (condition)
-        entry->flags |= Disabled;
+        entry->flags |= MEF_Disabled;
     else
-        entry->flags &= ~Disabled;
+        entry->flags &= ~MEF_Disabled;
 }
 
 /*
@@ -3801,7 +3801,7 @@ enum MenuTextFlags_t
 static void Menu_ShadePal(const MenuFont_t *font, uint8_t status, int32_t *s, int32_t *p)
 {
     *s = (status & MT_Selected) ? (sintable[(totalclock<<5)&2047]>>12) : font->shade_deselected;
-    *p = (status & MT_Disabled) ? font->pal_disabled : font->pal;
+    *p = (status & (MT_Disabled)) ? font->pal_disabled : font->pal;
 }
 
 static FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)
@@ -4030,7 +4030,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             uint8_t status = 0;
             if (e == menu->currentEntry)
                 status |= MT_Selected;
-            if (entry->flags & Disabled)
+            if (entry->flags & MEF_Disabled)
                 status |= MT_Disabled;
             if (entry->format->width == 0)
                 status |= MT_XCenter;
@@ -4098,7 +4098,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
 
-                                if (entry->flags & Disabled)
+                                if (entry->flags & MEF_Disabled)
                                     break;
 
                                 Menu_RunInput_EntryLink_Activate(entry);
@@ -4143,7 +4143,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
 
-                                if (entry->flags & Disabled)
+                                if (entry->flags & MEF_Disabled)
                                     break;
 
                                 Menu_RunInput_EntryOption_Activate(entry, object);
@@ -4194,7 +4194,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     Menu_RunInput_Menu_MovementVerify(menu);
                                     menu->currentColumn = 1;
 
-                                    if (entry->flags & Disabled)
+                                    if (entry->flags & MEF_Disabled)
                                         break;
 
                                     Menu_RunInput_EntryCustom2Col_Activate(entry);
@@ -4217,7 +4217,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     Menu_RunInput_Menu_MovementVerify(menu);
                                     menu->currentColumn = 0;
 
-                                    if (entry->flags & Disabled)
+                                    if (entry->flags & MEF_Disabled)
                                         break;
 
                                     Menu_RunInput_EntryCustom2Col_Activate(entry);
@@ -4249,13 +4249,13 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         const int32_t slidebarx = origin.x + x;
                         const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
 
-                        rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+                        rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & MEF_Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
                         const int32_t slidepointx = slidebarx + (1<<16) + scale(slideregionwidth, *object->variable - object->min, object->max - object->min);
                         const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
 
-                        rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+                        rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & MEF_Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         if (object->flags & DisplayTypeMask)
                         {
@@ -4300,7 +4300,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
 
-                                if (entry->flags & Disabled)
+                                if (entry->flags & MEF_Disabled)
                                     break;
 
                                 // region between the x-midline of the slidepoint at the extremes slides proportionally
@@ -4344,13 +4344,13 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         const int32_t slidebarx = origin.x + x;
                         const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
 
-                        rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+                        rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & MEF_Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
                         const int32_t slidepointx = slidebarx + (1<<16) + (int32_t)((float) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
                         const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
 
-                        rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+                        rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & MEF_Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         if (object->flags & DisplayTypeMask)
                         {
@@ -4395,7 +4395,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
 
-                                if (entry->flags & Disabled)
+                                if (entry->flags & MEF_Disabled)
                                     break;
 
                                 // region between the x-midline of the slidepoint at the extremes slides proportionally
@@ -4439,13 +4439,13 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         const int32_t slidebarx = origin.x + x;
                         const int32_t slidebary = origin.y + y_upper + y + ((height - slidebarheight)>>1) - menu->scrollPos;
 
-                        rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+                        rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & MEF_Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
                         const int32_t slidepointx = slidebarx + (1<<16) + (int32_t)((double) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
                         const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
 
-                        rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
+                        rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & MEF_Disabled) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         if (object->flags & DisplayTypeMask)
                         {
@@ -4490,7 +4490,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
 
-                                if (entry->flags & Disabled)
+                                if (entry->flags & MEF_Disabled)
                                     break;
 
                                 // region between the x-midline of the slidepoint at the extremes slides proportionally
@@ -4570,7 +4570,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     menu->currentEntry = e;
                                     Menu_RunInput_Menu_MovementVerify(menu);
 
-                                    if (entry->flags & Disabled)
+                                    if (entry->flags & MEF_Disabled)
                                         break;
 
                                     Menu_RunInput_EntryString_Activate(entry);
@@ -5792,7 +5792,7 @@ static void Menu_RunInput(Menu_t *cm)
                     case Spacer:
                         break;
                     case Link:
-                        if (currentry->flags & Disabled)
+                        if (currentry->flags & MEF_Disabled)
                             break;
                         if (I_AdvanceTrigger())
                         {
@@ -5808,7 +5808,7 @@ static void Menu_RunInput(Menu_t *cm)
                     {
                         MenuOption_t *object = (MenuOption_t*)currentry->entry;
 
-                        if (currentry->flags & Disabled)
+                        if (currentry->flags & MEF_Disabled)
                             break;
 
                         if (I_AdvanceTrigger())
@@ -5848,7 +5848,7 @@ static void Menu_RunInput(Menu_t *cm)
                             S_PlaySound(KICK_HIT);
                         }
 
-                        if (currentry->flags & Disabled)
+                        if (currentry->flags & MEF_Disabled)
                             break;
 
                         if (I_AdvanceTrigger())
@@ -5864,7 +5864,7 @@ static void Menu_RunInput(Menu_t *cm)
                     {
                         MenuRangeInt32_t *object = (MenuRangeInt32_t*)currentry->entry;
 
-                        if (currentry->flags & Disabled)
+                        if (currentry->flags & MEF_Disabled)
                             break;
 
                         if (I_SliderLeft())
@@ -5889,7 +5889,7 @@ static void Menu_RunInput(Menu_t *cm)
                     {
                         MenuRangeFloat_t *object = (MenuRangeFloat_t*)currentry->entry;
 
-                        if (currentry->flags & Disabled)
+                        if (currentry->flags & MEF_Disabled)
                             break;
 
                         if (I_SliderLeft())
@@ -5914,7 +5914,7 @@ static void Menu_RunInput(Menu_t *cm)
                     {
                         MenuRangeDouble_t *object = (MenuRangeDouble_t*)currentry->entry;
 
-                        if (currentry->flags & Disabled)
+                        if (currentry->flags & MEF_Disabled)
                             break;
 
                         if (I_SliderLeft())
@@ -5938,7 +5938,7 @@ static void Menu_RunInput(Menu_t *cm)
 
                     case String:
                     {
-                        if (currentry->flags & Disabled)
+                        if (currentry->flags & MEF_Disabled)
                             break;
 
                         if (I_AdvanceTrigger())
@@ -5997,7 +5997,7 @@ static void Menu_RunInput(Menu_t *cm)
                     currentry = Menu_RunInput_Menu_Movement(menu, MM_Down);
                 }
 
-                if (currentry != NULL && !(currentry->flags & Disabled))
+                if (currentry != NULL && !(currentry->flags & MEF_Disabled))
                     Menu_PreInput(currentry);
             }
             else if (state == 1)
