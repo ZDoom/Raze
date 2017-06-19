@@ -109,7 +109,7 @@ static void Menu_DrawBackground(const vec2_t origin)
 
 static void Menu_DrawTopBar(const vec2_t origin)
 {
-    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (19<<16), 65536L,0,MENUBAR,16,0,10);
+    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (19<<16), MF_Redfont.cursorScale, 0,MENUBAR,16,0,10);
 }
 
 static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
@@ -148,7 +148,7 @@ they effectively stand in for curly braces as struct initializers.
 
 // common font types
 // tilenums are set after namesdyn runs
-static MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
+MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
 static MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 10, 16 };
 static MenuFont_t MF_Minifont =         { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };

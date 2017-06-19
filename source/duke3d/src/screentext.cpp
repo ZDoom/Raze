@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "duke3d.h"
 #include "compat.h"
 #include "sbar.h"
+#include "menus.h"
 
 int32_t quotebot, quotebotgoal;
 int32_t user_quote_time[MAXUSERQUOTES];
@@ -1009,7 +1010,7 @@ int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int
 
 void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_t f)
 {
-    G_ScreenText(BIGALPHANUM, x, y - (12<<16), 65536L, 0, 0, t, s, 0, o|ROTATESPRITE_FULL16, 0, 5<<16, 16<<16, 0, 0, f|TEXT_BIGALPHANUM|TEXT_UPPERCASE|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
+    G_ScreenText(MF_Redfont.tilenum, x, y - (12<<16), MF_Redfont.zoom, 0, 0, t, s, MF_Redfont.pal, o|ROTATESPRITE_FULL16, 0, MF_Redfont.emptychar.x, MF_Redfont.emptychar.y, MF_Redfont.between.x, MF_Redfont.between.y, f|MF_Redfont.textflags|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
 }
 
 void G_AddUserQuote(const char *daquote)
