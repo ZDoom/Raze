@@ -170,14 +170,14 @@ they effectively stand in for curly braces as struct initializers.
 
 // common font types
 // tilenums are set after namesdyn runs
-static MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
-static MenuFont_t MF_RedfontBlue =      { { 5<<16, 15<<16 }, {        0,     0 }, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  1,  1 };
-static MenuFont_t MF_RedfontGreen =     { { 5<<16, 15<<16 }, {        0,     0 }, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  8,  1 };
-static MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 0, -1, 10,  0, 16 };
-static MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 0, -1, 10, 10, 16 };
-static MenuFont_t MF_Minifont =         { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 0, -1, 10,  0, 16 };
-static MenuFont_t MF_MinifontRed =      { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 0, -1, 16, 21, 16 };
-static MenuFont_t MF_MinifontDarkGray = { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 0, -1, 10, 13, 16 };
+static MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
+static MenuFont_t MF_RedfontBlue =      { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  1,  1 };
+static MenuFont_t MF_RedfontGreen =     { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  8,  1 };
+static MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
+static MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 10, 16 };
+static MenuFont_t MF_Minifont =         { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
+static MenuFont_t MF_MinifontRed =      { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 16, 21, 16 };
+static MenuFont_t MF_MinifontDarkGray = { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 13, 16 };
 
 
 static MenuMenuFormat_t MMF_Top_Main =             { {  MENU_MARGIN_CENTER<<16, 55<<16, }, -(170<<16) };
@@ -199,25 +199,25 @@ static MenuMenuFormat_t MMF_NetSetup =             { {                  36<<16, 
 static MenuMenuFormat_t MMF_FileSelectLeft =       { {                  40<<16, 45<<16, },    162<<16 };
 static MenuMenuFormat_t MMF_FileSelectRight =      { {                 164<<16, 45<<16, },    162<<16 };
 
-static MenuEntryFormat_t MEF_Null =             {     0,      0,        0,  20<<16, 65536 };
-static MenuEntryFormat_t MEF_MainMenu =         { 4<<16,      0,        0, 110<<16, 65536 };
-static MenuEntryFormat_t MEF_CenterMenu =       { 7<<16,      0,        0, 110<<16, 65536 };
-static MenuEntryFormat_t MEF_BigOptions =       { 4<<16,      0,  190<<16,  20<<16, 65536 };
-static MenuEntryFormat_t MEF_BigOptions_Apply = { 4<<16, 16<<16,  190<<16,  20<<16, 65536 };
-static MenuEntryFormat_t MEF_BigOptionsRt =     { 4<<16,      0,-(260<<16), 20<<16, 65536 };
+static MenuEntryFormat_t MEF_Null =             {     0,      0,          0 };
+static MenuEntryFormat_t MEF_MainMenu =         { 4<<16,      0,          0 };
+static MenuEntryFormat_t MEF_CenterMenu =       { 7<<16,      0,          0 };
+static MenuEntryFormat_t MEF_BigOptions =       { 4<<16,      0,    190<<16 };
+static MenuEntryFormat_t MEF_BigOptions_Apply = { 4<<16, 16<<16,    190<<16 };
+static MenuEntryFormat_t MEF_BigOptionsRt =     { 4<<16,      0, -(260<<16) };
 #if defined USE_OPENGL || !defined EDUKE32_ANDROID_MENU
-static MenuEntryFormat_t MEF_SmallOptions =     { 1<<16,      0,  216<<16,  10<<16, 32768 };
+static MenuEntryFormat_t MEF_SmallOptions =     { 1<<16,      0,    216<<16 };
 #endif
-static MenuEntryFormat_t MEF_BigCheats =        { 3<<16,      0,-(260<<16), 20<<16, 65536 };
-static MenuEntryFormat_t MEF_Cheats =           { 2<<16,      0,-(260<<16), 10<<16, 32768 };
-static MenuEntryFormat_t MEF_PlayerNarrow =     { 1<<16,      0,   90<<16,  10<<16, 32768 };
-static MenuEntryFormat_t MEF_Macros =           { 2<<16,     -1,  268<<16,  10<<16, 32768 };
-static MenuEntryFormat_t MEF_VideoSetup =       { 4<<16,      0,  168<<16,  20<<16, 65536 };
-static MenuEntryFormat_t MEF_FuncList =         { 3<<16,      0,  100<<16,  10<<16, 32768 };
-static MenuEntryFormat_t MEF_ColorCorrect =     { 2<<16,      0,-(240<<16), 20<<16, 65536 };
-static MenuEntryFormat_t MEF_BigSliders =       { 2<<16,      0,  170<<16,  20<<16, 65536 };
-static MenuEntryFormat_t MEF_LoadSave =         { 7<<16,     -1,   78<<16,  20<<16, 65536 };
-static MenuEntryFormat_t MEF_NetSetup =         { 4<<16,      0,  112<<16,  20<<16, 65536 };
+static MenuEntryFormat_t MEF_BigCheats =        { 3<<16,      0, -(260<<16) };
+static MenuEntryFormat_t MEF_Cheats =           { 2<<16,      0, -(260<<16) };
+static MenuEntryFormat_t MEF_PlayerNarrow =     { 1<<16,      0,     90<<16 };
+static MenuEntryFormat_t MEF_Macros =           { 2<<16,     -1,    268<<16 };
+static MenuEntryFormat_t MEF_VideoSetup =       { 4<<16,      0,    168<<16 };
+static MenuEntryFormat_t MEF_FuncList =         { 3<<16,      0,    100<<16 };
+static MenuEntryFormat_t MEF_ColorCorrect =     { 2<<16,      0, -(240<<16) };
+static MenuEntryFormat_t MEF_BigSliders =       { 2<<16,      0,    170<<16 };
+static MenuEntryFormat_t MEF_LoadSave =         { 7<<16,     -1,     78<<16 };
+static MenuEntryFormat_t MEF_NetSetup =         { 4<<16,      0,    112<<16 };
 
 // common menu option sets
 #define MAKE_MENUOPTIONSET(optionNames, optionValues, features) { optionNames, optionValues, &MMF_FuncList, &MEF_FuncList, &MF_Minifont, ARRAY_SIZE(optionNames), -1, 0, features }
@@ -4051,11 +4051,11 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             {
                 if (status & MT_XCenter)
                 {
-                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + entry->format->cursorPosition, origin.y + y_upper + y + (height>>1) - menu->scrollPos, entry->format->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
-                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - entry->format->cursorPosition, origin.y + y_upper + y + (height>>1) - menu->scrollPos, entry->format->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
+                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + entry->font->cursorCenterPosition, origin.y + y_upper + y + (height>>1) - menu->scrollPos, entry->font->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
+                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - entry->font->cursorCenterPosition, origin.y + y_upper + y + (height>>1) - menu->scrollPos, entry->font->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
                 }
                 else
-                    rotatesprite_fs(origin.x + x - entry->format->cursorPosition, origin.y + y_upper + y + (height>>1) - menu->scrollPos, entry->format->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
+                    rotatesprite_fs(origin.x + x - entry->font->cursorLeftPosition, origin.y + y_upper + y + (height>>1) - menu->scrollPos, entry->font->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
             }
 
             // need this up here to avoid race conditions
@@ -4235,7 +4235,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         MenuRangeInt32_t *object = (MenuRangeInt32_t*)entry->entry;
 
                         int32_t s, p;
-                        const int32_t z = entry->format->cursorScale;
+                        const int32_t z = entry->font->cursorScale;
                         Menu_ShadePal(object->font, status, &s, &p);
 
                         const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
@@ -4330,7 +4330,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         MenuRangeFloat_t *object = (MenuRangeFloat_t*)entry->entry;
 
                         int32_t s, p;
-                        const int32_t z = entry->format->cursorScale;
+                        const int32_t z = entry->font->cursorScale;
                         Menu_ShadePal(object->font, status, &s, &p);
 
                         const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
@@ -4425,7 +4425,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         MenuRangeDouble_t *object = (MenuRangeDouble_t*)entry->entry;
 
                         int32_t s, p;
-                        const int32_t z = entry->format->cursorScale;
+                        const int32_t z = entry->font->cursorScale;
                         Menu_ShadePal(object->font, status, &s, &p);
 
                         const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
@@ -4662,11 +4662,11 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
         {
             if (status & MT_XCenter)
             {
-                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + object->options->entryFormat->cursorPosition, origin.y + y_upper + y + (height>>1) - object->options->scrollPos, object->options->entryFormat->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
-                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - object->options->entryFormat->cursorPosition, origin.y + y_upper + y + (height>>1) - object->options->scrollPos, object->options->entryFormat->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
+                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + object->options->font->cursorCenterPosition, origin.y + y_upper + y + (height>>1) - object->options->scrollPos, object->options->font->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
+                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - object->options->font->cursorCenterPosition, origin.y + y_upper + y + (height>>1) - object->options->scrollPos, object->options->font->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
             }
             else
-                rotatesprite_fs(origin.x + x - object->options->entryFormat->cursorPosition, origin.y + y_upper + y + (height>>1) - object->options->scrollPos, object->options->entryFormat->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
+                rotatesprite_fs(origin.x + x - object->options->font->cursorLeftPosition, origin.y + y_upper + y + (height>>1) - object->options->scrollPos, object->options->font->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
         }
 
         if (dodraw)

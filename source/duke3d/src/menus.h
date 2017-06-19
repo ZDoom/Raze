@@ -121,6 +121,7 @@ typedef struct MenuFont_t
 {
     vec2_t emptychar, between;
     int32_t zoom;
+    int32_t cursorLeftPosition, cursorCenterPosition, cursorScale;
     int32_t textflags;
     int16_t tilenum;
     int8_t shade_deselected; // selected entries are mandated to glow
@@ -149,8 +150,6 @@ typedef struct MenuEntryFormat_t
     int32_t marginBottom;
     int32_t indent;
     int32_t width; // 0: center, >0: width of the label column (left-aligned options), <0: -width of everything (right-aligned)
-
-    int32_t cursorPosition, cursorScale;
 } MenuEntryFormat_t;
 
 
