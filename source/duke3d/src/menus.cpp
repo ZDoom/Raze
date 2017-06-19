@@ -171,7 +171,6 @@ they effectively stand in for curly braces as struct initializers.
 // common font types
 // tilenums are set after namesdyn runs
 static MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
-static MenuFont_t MF_RedfontGreen =     { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  8,  1 };
 static MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 10, 16 };
 static MenuFont_t MF_Minifont =         { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
@@ -212,11 +211,13 @@ static MenuEntryFormat_t MEF_Cheats =           { 2<<16,      0, -(260<<16) };
 static MenuEntryFormat_t MEF_PlayerNarrow =     { 1<<16,      0,     90<<16 };
 static MenuEntryFormat_t MEF_Macros =           { 2<<16,     -1,    268<<16 };
 static MenuEntryFormat_t MEF_VideoSetup =       { 4<<16,      0,    168<<16 };
+static MenuEntryFormat_t MEF_VideoSetup_Apply = { 4<<16, 16<<16,    168<<16 };
 static MenuEntryFormat_t MEF_FuncList =         { 3<<16,      0,    100<<16 };
 static MenuEntryFormat_t MEF_ColorCorrect =     { 2<<16,      0, -(240<<16) };
 static MenuEntryFormat_t MEF_BigSliders =       { 2<<16,      0,    170<<16 };
 static MenuEntryFormat_t MEF_LoadSave =         { 7<<16,     -1,     78<<16 };
 static MenuEntryFormat_t MEF_NetSetup =         { 4<<16,      0,    112<<16 };
+static MenuEntryFormat_t MEF_NetSetup_Confirm = { 4<<16, 16<<16,    112<<16 };
 
 // common menu option sets
 #define MAKE_MENUOPTIONSET(optionNames, optionValues, features) { optionNames, optionValues, &MMF_FuncList, &MEF_FuncList, &MF_Minifont, ARRAY_SIZE(optionNames), -1, 0, features }
@@ -1204,7 +1205,7 @@ static MenuOption_t MEO_NETOPTIONS_MAPEXITS = MAKE_MENUOPTION( &MF_Bluefont, &ME
 static MenuEntry_t ME_NETOPTIONS_MAPEXITS = MAKE_MENUENTRY( "Map Exits", &MF_Redfont, &MEF_NetSetup, &MEO_NETOPTIONS_MAPEXITS, Option );
 static MenuOption_t MEO_NETOPTIONS_FRFIRE = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_OffOn, &ud.m_ffire );
 static MenuEntry_t ME_NETOPTIONS_FRFIRE = MAKE_MENUENTRY( "Fr. Fire", &MF_Redfont, &MEF_NetSetup, &MEO_NETOPTIONS_FRFIRE, Option );
-static MenuEntry_t ME_NETOPTIONS_ACCEPT = MAKE_MENUENTRY( "Accept", &MF_RedfontGreen, &MEF_NetSetup, &MEO_NULL, Link );
+static MenuEntry_t ME_NETOPTIONS_ACCEPT = MAKE_MENUENTRY( "Accept", &MF_Redfont, &MEF_NetSetup_Confirm, &MEO_NULL, Link );
 
 static MenuEntry_t *MEL_NETOPTIONS[] = {
     &ME_NETOPTIONS_GAMETYPE,
@@ -1223,7 +1224,7 @@ static MenuEntry_t ME_NETJOIN_SERVER = MAKE_MENUENTRY( "Server", &MF_Redfont, &M
 static char MenuPort[MAXPORTSTRINGLENGTH] = "19014";
 static MenuString_t MEO_NETJOIN_PORT = MAKE_MENUSTRING( MenuPort, &MF_Bluefont, MAXPORTSTRINGLENGTH, INPUT_NUMERIC );
 static MenuEntry_t ME_NETJOIN_PORT = MAKE_MENUENTRY( "Port", &MF_Redfont, &MEF_VideoSetup, &MEO_NETJOIN_PORT, String );
-static MenuEntry_t ME_NETJOIN_CONNECT = MAKE_MENUENTRY( "Connect", &MF_RedfontGreen, &MEF_VideoSetup, &MEO_NULL, Link );
+static MenuEntry_t ME_NETJOIN_CONNECT = MAKE_MENUENTRY( "Connect", &MF_Redfont, &MEF_VideoSetup_Apply, &MEO_NULL, Link );
 
 static MenuEntry_t *MEL_NETJOIN[] = {
     &ME_NETJOIN_SERVER,
@@ -1420,7 +1421,7 @@ void Menu_Init(void)
     int32_t i, j, k;
 
     // prepare menu fonts
-    MF_Redfont.tilenum = MF_RedfontGreen.tilenum = BIGALPHANUM;
+    MF_Redfont.tilenum = BIGALPHANUM;
     MF_Bluefont.tilenum = MF_BluefontRed.tilenum = STARTALPHANUM;
     if (NAM_WW2GI)
         mgametext_xbetween = MF_Bluefont.between.x = MF_BluefontRed.between.x = 0;
