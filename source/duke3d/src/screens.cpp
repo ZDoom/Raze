@@ -2312,7 +2312,7 @@ void G_BonusScreen(int32_t bonusonly)
                     if (g_player[myconnectindex].ps->player_par > 0)
                     {
                         G_PrintYourTime();
-                        gametext((320>>2)+71, yy+9, tempbuf);
+                        gametext_number((320>>2)+71, yy+9, tempbuf);
                         if (g_player[myconnectindex].ps->player_par < ud.playerbest)
                             gametext((320>>2)+89+(clockpad*24), yy+9, "New record!");
                     }
@@ -2325,13 +2325,13 @@ void G_BonusScreen(int32_t bonusonly)
                         if (g_mapInfo[G_LastMapInfoIndex()].partime)
                         {
                             G_PrintParTime();
-                            gametext((320>>2)+71, yy+9, tempbuf);
+                            gametext_number((320>>2)+71, yy+9, tempbuf);
                             yy+=10;
                         }
                         if (!NAM_WW2GI && !DUKEBETA && g_mapInfo[G_LastMapInfoIndex()].designertime)
                         {
                             G_PrintDesignerTime();
-                            gametext((320>>2)+71, yy+9, tempbuf);
+                            gametext_number((320>>2)+71, yy+9, tempbuf);
                             yy+=10;
                         }
                     }
@@ -2339,7 +2339,7 @@ void G_BonusScreen(int32_t bonusonly)
                     if (ud.playerbest > 0)
                     {
                         G_PrintBestTime();
-                        gametext((320>>2)+71, yy+9, tempbuf);
+                        gametext_number((320>>2)+71, yy+9, tempbuf);
                         yy+=10;
                     }
                 }
@@ -2369,7 +2369,7 @@ void G_BonusScreen(int32_t bonusonly)
                         S_PlaySound(PIPEBOMB_EXPLODE);
                     }
                     Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->actors_killed);
-                    gametext((320>>2)+70, yy+9, tempbuf);
+                    gametext_number((320>>2)+70, yy+9, tempbuf);
                     yy += 10;
                     if (ud.player_skill > 3)
                     {
@@ -2381,7 +2381,7 @@ void G_BonusScreen(int32_t bonusonly)
                         if ((g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed) < 0)
                             Bsprintf(tempbuf, "%-3d", 0);
                         else Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed);
-                        gametext((320>>2)+70, yy+9, tempbuf);
+                        gametext_number((320>>2)+70, yy+9, tempbuf);
                         yy += 10;
                     }
                 }
@@ -2405,7 +2405,7 @@ void G_BonusScreen(int32_t bonusonly)
                         S_PlaySound(PIPEBOMB_EXPLODE);
                     }
                     Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->secret_rooms);
-                    gametext((320>>2)+70, yy+9, tempbuf);
+                    gametext_number((320>>2)+70, yy+9, tempbuf);
                     yy += 10;
 #if 0
                     // Always overwritten.
@@ -2413,7 +2413,7 @@ void G_BonusScreen(int32_t bonusonly)
                         Bsprintf(tempbuf, "%-3d%%", (100*g_player[myconnectindex].ps->secret_rooms/g_player[myconnectindex].ps->max_secret_rooms));
 #endif
                     Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->max_secret_rooms-g_player[myconnectindex].ps->secret_rooms);
-                    gametext((320>>2)+70, yy+9, tempbuf);
+                    gametext_number((320>>2)+70, yy+9, tempbuf);
                     yy += 10;
                 }
             }

@@ -924,11 +924,11 @@ void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
 
 void gametext_(int32_t x, int32_t y, int32_t z, const char *t, int32_t s, int32_t p, int32_t o, int32_t a, int32_t f)
 {
-    G_ScreenText(STARTALPHANUM, x, y, z, 0, 0, t, s, p, o|2|8|16|ROTATESPRITE_FULL16, a, 5<<16, 8<<16, 0, 0, f|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
+    G_ScreenText(STARTALPHANUM, x, y, z, 0, 0, t, s, p, o|2|8|16|ROTATESPRITE_FULL16, a, 5<<16, 8<<16, 0, 0, f, 0, 0, xdim-1, ydim-1);
 }
 void gametext_simple(int32_t x, int32_t y, const char *t)
 {
-    G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, 0, 0, TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
+    G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, 0, 0, 0, 0, 0, xdim-1, ydim-1);
 }
 
 int32_t G_GameTextLen(int32_t x, const char *t)
@@ -938,7 +938,7 @@ int32_t G_GameTextLen(int32_t x, const char *t)
     if (t == NULL)
         return -1;
 
-    dim = G_ScreenTextSize(STARTALPHANUM, x, 0, textsc(65536L), 0, t, 2, 5, 8, 0, 0, TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
+    dim = G_ScreenTextSize(STARTALPHANUM, x, 0, textsc(65536L), 0, t, 2, 5, 8, 0, 0, 0, 0, 0, xdim-1, ydim-1);
 
     x += dim.x;
 

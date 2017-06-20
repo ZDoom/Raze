@@ -883,12 +883,12 @@ nextdemo_nomenu:
                     {
                         char buf[32];
                         Bsprintf(buf, "RC:%4d  TC:%5d", ud.reccnt, g_demo_cnt);
-                        gametext_center(100, buf);
+                        gametext_center_number(100, buf);
                     }
 #endif
                     j=g_demo_cnt/REALGAMETICSPERSEC;
                     Bsprintf(buf, "%02d:%02d", j/60, j%60);
-                    gametext_bits(18, 16, buf, 1024);
+                    gametext_widenumber(18, 16, buf);
 
                     rotatesprite(60<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,0,0,(xdim*95)/320,ydim-1);
                     rotatesprite(90<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,(xdim*95)/320,0,(xdim*125)/320,ydim-1);
@@ -900,7 +900,7 @@ nextdemo_nomenu:
 
                     j=(g_demo_totalCnt-g_demo_cnt)/REALGAMETICSPERSEC;
                     Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, g_demo_paused?"   ^15PAUSED":"");
-                    gametext_bits(194, 16, buf, 1024);
+                    gametext_widenumber(194, 16, buf);
                 }
             }
 

@@ -358,7 +358,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
 
 #ifndef EDUKE32_TOUCH_DEVICES
-        if (statustext) gametext_center(180, statustext);
+        if (statustext) gametext_center_number(180, statustext);
 #endif
 
         if (percent != -1)
@@ -404,7 +404,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
 
         menutext_center(105,"Loading...");
-        if (statustext) gametext_center(180, statustext);
+        if (statustext) gametext_center_number(180, statustext);
         VM_OnEventWithReturn(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, percent);
         nextpage();
     }
