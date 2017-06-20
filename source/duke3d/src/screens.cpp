@@ -1202,7 +1202,7 @@ void G_DisplayRest(int32_t smoothratio)
             (myps->player_par/REALGAMETICSPERSEC)%60,
             ((myps->player_par%REALGAMETICSPERSEC)*33)/10
             );
-        G_ScreenText(STARTALPHANUM, 2<<16, i-gtextsc(21<<16), gtextsc(65536), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, 8<<16, 0, TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
+        G_ScreenText(MF_BluefontGame.tilenum, 2<<16, i-gtextsc(21<<16), gtextsc(MF_BluefontGame.zoom), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, 8<<16, MF_BluefontGame.between.y, MF_BluefontGame.textflags|TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
 
         if (ud.player_skill > 3 || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_PLAYERSFRIENDLY)))
             Bsprintf(tempbuf, "K:^15%d", (ud.multimode>1 &&!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY)) ?
@@ -1218,12 +1218,12 @@ void G_DisplayRest(int32_t smoothratio)
                     myps->max_actors_killed>myps->actors_killed ?
                     myps->max_actors_killed : myps->actors_killed);
         }
-        G_ScreenText(STARTALPHANUM, 2<<16, i-gtextsc(14<<16), gtextsc(65536), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, 8<<16, 0, TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
+        G_ScreenText(MF_BluefontGame.tilenum, 2<<16, i-gtextsc(14<<16), gtextsc(MF_BluefontGame.zoom), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, 8<<16, MF_BluefontGame.between.y, MF_BluefontGame.textflags|TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
 
         if (myps->secret_rooms == myps->max_secret_rooms)
             Bsprintf(tempbuf, "S:%d/%d", myps->secret_rooms, myps->max_secret_rooms);
         else Bsprintf(tempbuf, "S:^15%d/%d", myps->secret_rooms, myps->max_secret_rooms);
-        G_ScreenText(STARTALPHANUM, 2<<16, i-gtextsc(7<<16), gtextsc(65536), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, 8<<16, 0, TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
+        G_ScreenText(MF_BluefontGame.tilenum, 2<<16, i-gtextsc(7<<16), gtextsc(MF_BluefontGame.zoom), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, 8<<16, MF_BluefontGame.between.y, MF_BluefontGame.textflags|TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
     }
 
     if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)

@@ -919,16 +919,16 @@ void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
     if (x == (160<<16))
         f |= TEXT_XCENTER;
 
-    G_ScreenText(tile, x, y, z, 0, 0, t, s, p, 2|o|ROTATESPRITE_FULL16, a, 5<<16, 8<<16, 0, 0, f, x1, y1, x2, y2);
+    G_ScreenText(tile, x, y, z, 0, 0, t, s, p, 2|o|ROTATESPRITE_FULL16, a, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|f, x1, y1, x2, y2);
 }
 
 void gametext_(int32_t x, int32_t y, int32_t z, const char *t, int32_t s, int32_t p, int32_t o, int32_t a, int32_t f)
 {
-    G_ScreenText(STARTALPHANUM, x, y, z, 0, 0, t, s, p, o|2|8|16|ROTATESPRITE_FULL16, a, 5<<16, 8<<16, 0, 0, f, 0, 0, xdim-1, ydim-1);
+    G_ScreenText(MF_BluefontGame.tilenum, x, y, z, 0, 0, t, s, p, o|2|8|16|ROTATESPRITE_FULL16, a, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|f, 0, 0, xdim-1, ydim-1);
 }
 void gametext_simple(int32_t x, int32_t y, const char *t)
 {
-    G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, 0, 0, 0, 0, 0, xdim-1, ydim-1);
+    G_ScreenText(MF_BluefontGame.tilenum, x, y, MF_BluefontGame.zoom, 0, 0, t, 0, MF_BluefontGame.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags, 0, 0, xdim-1, ydim-1);
 }
 
 int32_t G_GameTextLen(int32_t x, const char *t)
@@ -938,7 +938,7 @@ int32_t G_GameTextLen(int32_t x, const char *t)
     if (t == NULL)
         return -1;
 
-    dim = G_ScreenTextSize(STARTALPHANUM, x, 0, textsc(65536L), 0, t, 2, 5, 8, 0, 0, 0, 0, 0, xdim-1, ydim-1);
+    dim = G_ScreenTextSize(MF_BluefontGame.tilenum, x<<16, 0, textsc(MF_BluefontGame.zoom), 0, t, 2|8|16|ROTATESPRITE_FULL16, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags, 0, 0, xdim-1, ydim-1);
 
     x += dim.x;
 

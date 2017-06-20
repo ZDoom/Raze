@@ -1829,7 +1829,7 @@ void Net_SendMessage(void)
         i = textsc(5<<16);
 
         {
-            const vec2_t dim = G_ScreenTextSize(STARTALPHANUM, i, 0, textsc(65536), 0, typebuf, 8|16|ROTATESPRITE_FULL16, 5<<16, 7<<16, 0, 0, TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
+            const vec2_t dim = G_ScreenTextSize(MF_BluefontGame.tilenum, i, 0, textsc(MF_BluefontGame.zoom), 0, typebuf, 8|16|ROTATESPRITE_FULL16, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
 
             l = i + dim.x + scale(textsc((tilesiz[SPINNINGNUKEICON].x+2)<<13), ydim, 200);
         }
@@ -1838,7 +1838,7 @@ void Net_SendMessage(void)
             i -= (l - (xdim<<16));
 
         {
-            const vec2_t dim = G_ScreenText(STARTALPHANUM, i, j, textsc(65536), 0, 0, typebuf, 1, 0, 8|16|ROTATESPRITE_FULL16, 0, 5<<16, 7<<16, 0, 0, TEXT_YCENTER|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
+            const vec2_t dim = G_ScreenText(MF_BluefontGame.tilenum, i, j, textsc(MF_BluefontGame.zoom), 0, 0, typebuf, 1, MF_BluefontGame.pal, 8|16|ROTATESPRITE_FULL16, 0, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|TEXT_YCENTER|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
 
             i += dim.x + scale(textsc((tilesiz[SPINNINGNUKEICON].x+1)<<12), ydim, 200);
         }

@@ -69,10 +69,15 @@ static FORCE_INLINE void WithSDL2_StopTextInput()
 #endif
 }
 
-static int32_t mgametext_xbetween = -(1<<16);
+static void mgametext(int32_t x, int32_t y, char const * t)
+{
+    G_ScreenText(MF_Bluefont.tilenum, x, y, MF_Bluefont.zoom, 0, 0, t, 0, MF_Bluefont.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags, 0, 0, xdim-1, ydim-1);
+}
+static vec2_t mgametextcenter(int32_t x, int32_t y, char const * t, int32_t f = 0)
+{
+    return G_ScreenText(MF_Bluefont.tilenum, (MENU_MARGIN_CENTER<<16) + x, y, MF_Bluefont.zoom, 0, 0, t, 0, MF_Bluefont.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f|TEXT_XCENTER, 0, 0, xdim-1, ydim-1);
+}
 
-#define mgametext(x,y,t) G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, mgametext_xbetween, 0, 0, 0, 0, xdim-1, ydim-1)
-#define mgametextcenter(x,y,t) G_ScreenText(STARTALPHANUM, (MENU_MARGIN_CENTER<<16) + (x), y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, mgametext_xbetween, 1<<16, TEXT_XCENTER, 0, 0, xdim-1, ydim-1)
 #define mminitext(x,y,t,p) minitext_(x, y, t, 0, p, 2|8|16|ROTATESPRITE_FULL16)
 #define mmenutext menutext
 #define mmenutextcenter(x,y,t) menutext_((MENU_MARGIN_CENTER<<16) + (x), (y), 0, (t), 10|16, TEXT_XCENTER)
@@ -149,8 +154,9 @@ they effectively stand in for curly braces as struct initializers.
 // common font types
 // tilenums are set after namesdyn runs
 MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
-static MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
-static MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16),     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 10, 16 };
+MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16), 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
+MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16), 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 10, 16 };
+MenuFont_t MF_BluefontGame =     { { 5<<16,  7<<16 }, {        0,     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_Minifont =         { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_MinifontRed =      { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 16, 21, 16 };
 static MenuFont_t MF_MinifontDarkGray = { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 13, 16 };
@@ -1400,9 +1406,9 @@ void Menu_Init(void)
 
     // prepare menu fonts
     MF_Redfont.tilenum = BIGALPHANUM;
-    MF_Bluefont.tilenum = MF_BluefontRed.tilenum = STARTALPHANUM;
+    MF_Bluefont.tilenum = MF_BluefontRed.tilenum = MF_BluefontGame.tilenum = STARTALPHANUM;
     if (NAM_WW2GI)
-        mgametext_xbetween = MF_Bluefont.between.x = MF_BluefontRed.between.x = 0;
+        MF_Bluefont.between.x = MF_BluefontRed.between.x = 0;
     MF_Minifont.tilenum = MF_MinifontRed.tilenum = MF_MinifontDarkGray.tilenum = MINIFONT;
     if (!minitext_lowercase)
     {
@@ -4822,7 +4828,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
             Menu_BlackRectangle(origin.x + (60<<16), origin.y + (86<<16), 200<<16, 28<<16, 0);
 
-            G_ScreenText(STARTALPHANUM, origin.x + (160<<16), origin.y + (98<<16), 65536, 0, 0, object->instructions, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, mgametext_xbetween, 1<<16, TEXT_XCENTER|TEXT_YBOTTOM, 0, 0, xdim-1, ydim-1);
+            mgametextcenter(origin.x, origin.y + (98<<16), object->instructions, TEXT_YBOTTOM);
 
             const char *displaytext = object->input;
 
@@ -4836,7 +4842,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                 displaytext = tempbuf;
             }
 
-            const vec2_t textreturn = G_ScreenText(STARTALPHANUM, origin.x + (160<<16), origin.y + (102<<16), 65536, 0, 0, displaytext, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, mgametext_xbetween, 1<<16, TEXT_XCENTER, 0, 0, xdim-1, ydim-1);
+            const vec2_t textreturn = mgametextcenter(origin.x, origin.y + (102<<16), displaytext);
 
             Menu_PreDraw(cm->menuID, NULL, origin);
 

@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #pragma once
 
+#include "menus.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -69,15 +71,15 @@ extern int32_t textsc(int32_t sc);
 #define menutext(x, y, t) menutext_((x), (y), 0, (t), 10|16, 0)
 #define menutext_center(y, t) menutext_(160<<16, (y)<<16, 0, (t), 10|16, TEXT_XCENTER)
 #define gametext(x, y, t) gametext_simple((x)<<16, (y)<<16, (t))
-#define gametext_widenumber(x, y, t) gametext_((x)<<16, (y)<<16, 65536, (t), 0, 0, 1024, 0, TEXT_GAMETEXTNUMHACK)
-#define gametext_number(x, y, t) gametext_((x)<<16, (y)<<16, 65536, (t), 0, 0, 0, 0, TEXT_GAMETEXTNUMHACK)
-#define gametext_pal(x, y, t, p) gametext_((x)<<16, (y)<<16, 65536, (t), 0, (p), 0, 0, 0)
-#define gametext_center(y, t) gametext_(160<<16, (y)<<16, 65536, (t), 0, 0, 0, 0, TEXT_XCENTER)
-#define gametext_center_number(y, t) gametext_(160<<16, (y)<<16, 65536, (t), 0, 0, 0, 0, TEXT_XCENTER|TEXT_GAMETEXTNUMHACK)
-#define gametext_center_shade(y, t, s) gametext_(160<<16, (y)<<16, 65536, (t), (s), 0, 0, 0, TEXT_XCENTER)
-#define gametext_center_shade_pal(y, t, s, p) gametext_(160<<16, (y)<<16, 65536, (t), (s), (p), 0, 0, TEXT_XCENTER)
+#define gametext_widenumber(x, y, t) gametext_((x)<<16, (y)<<16, MF_BluefontGame.zoom, (t), 0, MF_BluefontGame.pal, 1024, 0, TEXT_GAMETEXTNUMHACK)
+#define gametext_number(x, y, t) gametext_((x)<<16, (y)<<16, MF_BluefontGame.zoom, (t), 0, MF_BluefontGame.pal, 0, 0, TEXT_GAMETEXTNUMHACK)
+#define gametext_pal(x, y, t, p) gametext_((x)<<16, (y)<<16, MF_BluefontGame.zoom, (t), 0, (p), 0, 0, 0)
+#define gametext_center(y, t) gametext_(160<<16, (y)<<16, MF_BluefontGame.zoom, (t), 0, MF_BluefontGame.pal, 0, 0, TEXT_XCENTER)
+#define gametext_center_number(y, t) gametext_(160<<16, (y)<<16, MF_BluefontGame.zoom, (t), 0, MF_BluefontGame.pal, 0, 0, TEXT_XCENTER|TEXT_GAMETEXTNUMHACK)
+#define gametext_center_shade(y, t, s) gametext_(160<<16, (y)<<16, MF_BluefontGame.zoom, (t), (s), MF_BluefontGame.pal, 0, 0, TEXT_XCENTER)
+#define gametext_center_shade_pal(y, t, s, p) gametext_(160<<16, (y)<<16, MF_BluefontGame.zoom, (t), (s), (p), 0, 0, TEXT_XCENTER)
 #define gametext_center_shade_pal_alpha(y, t, s, p, a) gametext_(160<<16, (y)<<16, 65536, (t), (s), (p), 0, (a), TEXT_XCENTER)
-#define mpgametext(y, t, s, o) gametext_(textsc(5<<16), (y)<<16, textsc(65536), (t), (s), 0, (o), 0, TEXT_LINEWRAP)
+#define mpgametext(y, t, s, o) gametext_(textsc(5<<16), (y)<<16, textsc(MF_BluefontGame.zoom), (t), (s), MF_BluefontGame.pal, (o), 0, TEXT_LINEWRAP)
 
 extern int32_t G_GameTextLen(int32_t x, const char *t);
 extern void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
