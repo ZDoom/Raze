@@ -169,6 +169,9 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_VM_SPRITE: labelNum = vm.spriteNum; break;
         case USERDEFS_VM_DISTANCE: labelNum = vm.playerDist; break;
         case USERDEFS_SOUNDTOGGLE: labelNum = ud.config.SoundToggle; break;
+        case USERDEFS_GAMETEXT_TRACKING: labelNum = MF_BluefontGame.between.x; break;
+        case USERDEFS_MGAMETEXT_TRACKING: labelNum = MF_Bluefont.between.x; break;
+        case USERDEFS_MENUTEXT_TRACKING: labelNum = MF_Redfont.between.x; break;
         default: labelNum = -1; break;
     }
 
@@ -288,6 +291,9 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_VM_PLAYER: vm.playerNum = iSet; vm.pPlayer = g_player[iSet].ps; break;
         case USERDEFS_VM_SPRITE: vm.spriteNum = iSet; vm.pSprite = &sprite[iSet]; vm.pData = &actor[iSet].t_data[0]; break;
         case USERDEFS_VM_DISTANCE: vm.playerDist = iSet; break;
+        case USERDEFS_GAMETEXT_TRACKING: MF_BluefontGame.between.x = iSet; break;
+        case USERDEFS_MGAMETEXT_TRACKING: MF_BluefontRed.between.x = MF_Bluefont.between.x = iSet; break;
+        case USERDEFS_MENUTEXT_TRACKING: MF_Redfont.between.x = iSet; break;
         default: break;
     }
 }

@@ -1184,6 +1184,9 @@ const memberlabel_t UserdefsLabels[]=
     { "vm_sprite", USERDEFS_VM_SPRITE, 0, 0 },
     { "vm_distance", USERDEFS_VM_DISTANCE, 0, 0 },
     { "soundtoggle", USERDEFS_SOUNDTOGGLE, 0, 0 },
+    { "gametext_tracking", USERDEFS_GAMETEXT_TRACKING, 0, 0 },
+    { "mgametext_tracking", USERDEFS_MGAMETEXT_TRACKING, 0, 0 },
+    { "menutext_tracking", USERDEFS_MENUTEXT_TRACKING, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
