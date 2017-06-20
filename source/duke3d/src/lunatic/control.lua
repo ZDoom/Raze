@@ -998,7 +998,7 @@ function _gametext(tilenum, x, y, qnum, shade, pal, orientation,
     orientation = text_check_common(tilenum, orientation)
     local cstr = bcheck.quote_idx(qnum)
 
-    ffiC.G_PrintGameText(0, tilenum, bit.arshift(x,1), y, cstr, shade, pal,
+    ffiC.G_PrintGameText(tilenum, bit.arshift(x,1), y, cstr, shade, pal,
                          orientation, cx1, cy1, cx2, cy2, zoom)
 end
 -- XXX: JIT-compiling FFI calls to G_PrintGameText crashes LuaJIT somewhere in

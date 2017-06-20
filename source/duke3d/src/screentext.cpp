@@ -900,19 +900,15 @@ vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy,
     return size;
 }
 
-// flags
-//  4: small font, wrap strings?
-int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x, int32_t y, const char *t,
-    int32_t s, int32_t p, int32_t o,
-    int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t z, int32_t a)
+void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
+                     int32_t s, int32_t p, int32_t o,
+                     int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                     int32_t z, int32_t a)
 {
-    vec2_t dim;
     int32_t f = TEXT_GAMETEXTNUMHACK;
-    int32_t xbetween = 0;
-    const int32_t orient = (hack & 4) || (hack & 1) ? (8|16|(o&1)|(o&32)) : (2|o);
 
     if (t == NULL)
-        return -1;
+        return;
 
     if (!(o & ROTATESPRITE_FULL16))
     {
@@ -920,34 +916,19 @@ int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x, int32_t y, const 
         y <<= 16;
     }
 
-    if (hack & 4)
-    {
-        x = textsc(x);
-        z = textsc(z);
-        f |= TEXT_LINEWRAP;
-    }
-
-    if (hack & 8)
-    {
-        f |= TEXT_XOFFSETZERO;
-        xbetween = 8;
-    }
-
-    // order is important, this bit comes after the rest
-    if ((hack & 2) && !NAM_WW2GI) // squishtext
-        --xbetween;
-
     if (x == (160<<16))
         f |= TEXT_XCENTER;
 
-    dim = G_ScreenText(tile, x, y, z, 0, 0, t, s, p, orient|ROTATESPRITE_FULL16, a, (5<<16), (8<<16), (xbetween<<16), 0, f, x1, y1, x2, y2);
+    G_ScreenText(tile, x, y, z, 0, 0, t, s, p, 2|o|ROTATESPRITE_FULL16, a, 5<<16, 8<<16, 0, 0, f, x1, y1, x2, y2);
+}
 
-    x += dim.x;
-
-    if (!(o & ROTATESPRITE_FULL16))
-        x >>= 16;
-
-    return x;
+void gametext_(int32_t x, int32_t y, int32_t z, const char *t, int32_t s, int32_t p, int32_t o, int32_t a, int32_t f)
+{
+    G_ScreenText(STARTALPHANUM, x, y, z, 0, 0, t, s, p, o|2|8|16|ROTATESPRITE_FULL16, a, 5<<16, 8<<16, 0, 0, f|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
+}
+void gametext_simple(int32_t x, int32_t y, const char *t)
+{
+    G_ScreenText(STARTALPHANUM, x, y, 65536, 0, 0, t, 0, 0, 2|8|16|ROTATESPRITE_FULL16, 0, 5<<16, 8<<16, 0, 0, TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
 }
 
 int32_t G_GameTextLen(int32_t x, const char *t)
@@ -1032,9 +1013,9 @@ void G_AddUserQuote(const char *daquote)
 // orientation flags depending on time that a quote has still to be displayed
 static inline int32_t texto(int32_t t)
 {
-    if (t > 4) return 2+8+16;
-    if (t > 2) return 2+8+16+1;
-    return 2+8+16+1+32;
+    if (t > 4) return 0;
+    if (t > 2) return 1;
+    return 1|32;
 }
 
 static inline int32_t texta(int32_t t)
@@ -1108,7 +1089,7 @@ void G_PrintGameQuotes(int32_t snum)
         mpgametext(j, user_quote[i], sh, texto(k));
         j += textsc(k > 4 ? 8 : (k<<1));
 
-        l = G_GameTextLen(USERQUOTE_LEFTOFFSET, OSD_StripColors(tempbuf, user_quote[i]));
+        l = G_GameTextLen(USERQUOTE_LEFTOFFSET, user_quote[i]);
         while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
         {
             l -= (ud.config.ScreenWidth-USERQUOTE_RIGHTOFFSET);
@@ -1181,7 +1162,7 @@ void G_PrintGameQuotes(int32_t snum)
     }
 #endif
 
-    gametextpalbits(160, k, apStrings[ps->ftq], ftapulseshade, pal, 2 + 8 + 16, texta(ps->fta));
+    gametext_center_shade_pal_alpha(k, apStrings[ps->ftq], ftapulseshade, pal, texta(ps->fta));
 }
 
 void P_DoQuote(int32_t q, DukePlayer_t *p)

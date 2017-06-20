@@ -2940,7 +2940,7 @@ nullquote:
                     continue;
                 }
 
-                G_PrintGameText(0, tilenum, pos.x >> 1, pos.y, apStrings[nQuote], shade, pal, orientation, bound1.x, bound1.y, bound2.x, bound2.y, z, 0);
+                G_PrintGameText(tilenum, pos.x >> 1, pos.y, apStrings[nQuote], shade, pal, orientation, bound1.x, bound1.y, bound2.x, bound2.y, z, 0);
                 continue;
             }
 

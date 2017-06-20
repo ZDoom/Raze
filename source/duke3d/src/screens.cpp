@@ -180,8 +180,8 @@ static void G_ShowScores(void)
 
     if (g_mostConcurrentPlayers > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
-        gametext(160, SCORESHEETOFFSET+58+2, "Multiplayer Totals", 0, 2+8+16);
-        gametext(160, SCORESHEETOFFSET+58+10, g_mapInfo[G_LastMapInfoIndex()].name, 0, 2+8+16);
+        gametext_center(SCORESHEETOFFSET+58+2, "Multiplayer Totals");
+        gametext_center(SCORESHEETOFFSET+58+10, g_mapInfo[G_LastMapInfoIndex()].name);
 
         t = 0;
         minitext(70, SCORESHEETOFFSET+80, "Name", 8, 2+8+16+ROTATESPRITE_MAX);
@@ -1229,10 +1229,10 @@ void G_DisplayRest(int32_t smoothratio)
     if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
     {
         Bsprintf(tempbuf, "%s^00 has called a vote for map", g_player[voting].user_name);
-        gametext(160, 40, tempbuf, 0, 2+8+16);
+        gametext_center(40, tempbuf);
         Bsprintf(tempbuf, "%s (E%dL%d)", g_mapInfo[vote_episode*MAXLEVELS + vote_map].name, vote_episode+1, vote_map+1);
-        gametext(160, 48, tempbuf, 0, 2+8+16);
-        gametext(160, 70, "Press F1 to Accept, F2 to Decline", 0, 2+8+16);
+        gametext_center(48, tempbuf);
+        gametext_center(70, "Press F1 to Accept, F2 to Decline");
     }
 
     if (BUTTON(gamefunc_Show_DukeMatch_Scores))
@@ -1979,10 +1979,10 @@ static void G_DisplayMPResultsScreen(void)
     rotatesprite_fs(160<<16, 34<<16, 65536L, 0, INGAMEDUKETHREEDEE, 0, 0, 10);
     if (PLUTOPAK)   // JBF 20030804
         rotatesprite_fs((260)<<16, 36<<16, 65536L, 0, PLUTOPAKSPRITE+2, 0, 0, 2+8);
-    gametext(160, 58+2, "Multiplayer Totals", 0, 2+8+16);
-    gametext(160, 58+10, g_mapInfo[G_LastMapInfoIndex()].name, 0, 2+8+16);
+    gametext_center(58+2, "Multiplayer Totals");
+    gametext_center(58+10, g_mapInfo[G_LastMapInfoIndex()].name);
 
-    gametext(160, 165, "Press any key or button to continue", quotepulseshade, 2+8+16);
+    gametext_center_shade(165, "Press any key or button to continue", quotepulseshade);
 
     minitext(23, 80, "   Name                                         Kills", 8, 2+8+16+128);
     for (i=0; i<g_mostConcurrentPlayers; i++)
@@ -2184,7 +2184,7 @@ void G_BonusScreen(int32_t bonusonly)
         menutext_center(20-6, lastmapname);
     menutext_center(36-6, "Completed");
 
-    gametext(160, 192, "Press any key or button to continue", quotepulseshade, 2+8+16);
+    gametext_center_shade(192, "Press any key or button to continue", quotepulseshade);
 
     if (ud.config.MusicToggle)
         S_PlaySound(BONUSMUSIC);
@@ -2267,33 +2267,33 @@ void G_BonusScreen(int32_t bonusonly)
                 menutext_center(20-6, lastmapname);
             menutext_center(36-6, "Completed");
 
-            gametext(160, 192, "Press any key or button to continue", quotepulseshade, 2+8+16);
+            gametext_center_shade(192, "Press any key or button to continue", quotepulseshade);
 
             if (totalclock > (60*3))
             {
                 yy = zz = 59;
 
-                gametext(10, yy+9, "Your Time:", 0, 2+8+16);
+                gametext(10, yy+9, "Your Time:");
 
                 yy+=10;
                 if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
                 {
                     if (g_mapInfo[G_LastMapInfoIndex()].partime)
                     {
-                        gametext(10, yy+9, "Par Time:", 0, 2+8+16);
+                        gametext(10, yy+9, "Par Time:");
                         yy+=10;
                     }
                     if (!NAM_WW2GI && !DUKEBETA && g_mapInfo[G_LastMapInfoIndex()].designertime)
                     {
                         // EDuke 2.0 / NAM source suggests "Green Beret's Time:"
-                        gametext(10, yy+9, "3D Realms' Time:", 0, 2+8+16);
+                        gametext(10, yy+9, "3D Realms' Time:");
                         yy+=10;
                     }
 
                 }
                 if (ud.playerbest > 0)
                 {
-                    gametext(10, yy+9, (g_player[myconnectindex].ps->player_par > 0 && g_player[myconnectindex].ps->player_par < ud.playerbest) ? "Prev Best Time:" : "Your Best Time:", 0, 2+8+16);
+                    gametext(10, yy+9, (g_player[myconnectindex].ps->player_par > 0 && g_player[myconnectindex].ps->player_par < ud.playerbest) ? "Prev Best Time:" : "Your Best Time:");
                     yy += 10;
                 }
 
@@ -2312,12 +2312,12 @@ void G_BonusScreen(int32_t bonusonly)
                     if (g_player[myconnectindex].ps->player_par > 0)
                     {
                         G_PrintYourTime();
-                        gametext((320>>2)+71, yy+9, tempbuf, 0, 2+8+16);
+                        gametext((320>>2)+71, yy+9, tempbuf);
                         if (g_player[myconnectindex].ps->player_par < ud.playerbest)
-                            gametext((320>>2)+89+(clockpad*24), yy+9, "New record!", 0, 2+8+16);
+                            gametext((320>>2)+89+(clockpad*24), yy+9, "New record!");
                     }
                     else
-                        gametextpalbits((320>>2)+71, yy+9, "Cheated!", 0, 2, 2+8+16, 0);
+                        gametext_pal((320>>2)+71, yy+9, "Cheated!", 2);
                     yy+=10;
 
                     if (!(ud.volume_number == 0 && ud.last_level-1 == 7 && boardfilename[0]))
@@ -2325,13 +2325,13 @@ void G_BonusScreen(int32_t bonusonly)
                         if (g_mapInfo[G_LastMapInfoIndex()].partime)
                         {
                             G_PrintParTime();
-                            gametext((320>>2)+71, yy+9, tempbuf, 0, 2+8+16);
+                            gametext((320>>2)+71, yy+9, tempbuf);
                             yy+=10;
                         }
                         if (!NAM_WW2GI && !DUKEBETA && g_mapInfo[G_LastMapInfoIndex()].designertime)
                         {
                             G_PrintDesignerTime();
-                            gametext((320>>2)+71, yy+9, tempbuf, 0, 2+8+16);
+                            gametext((320>>2)+71, yy+9, tempbuf);
                             yy+=10;
                         }
                     }
@@ -2339,7 +2339,7 @@ void G_BonusScreen(int32_t bonusonly)
                     if (ud.playerbest > 0)
                     {
                         G_PrintBestTime();
-                        gametext((320>>2)+71, yy+9, tempbuf, 0, 2+8+16);
+                        gametext((320>>2)+71, yy+9, tempbuf);
                         yy+=10;
                     }
                 }
@@ -2348,9 +2348,9 @@ void G_BonusScreen(int32_t bonusonly)
             zz = yy += 5;
             if (totalclock > (60*6))
             {
-                gametext(10, yy+9, "Enemies Killed:", 0, 2+8+16);
+                gametext(10, yy+9, "Enemies Killed:");
                 yy += 10;
-                gametext(10, yy+9, "Enemies Left:", 0, 2+8+16);
+                gametext(10, yy+9, "Enemies Left:");
                 yy += 10;
 
                 if (bonuscnt == 2)
@@ -2369,12 +2369,11 @@ void G_BonusScreen(int32_t bonusonly)
                         S_PlaySound(PIPEBOMB_EXPLODE);
                     }
                     Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->actors_killed);
-                    gametext((320>>2)+70, yy+9, tempbuf, 0, 2+8+16);
+                    gametext((320>>2)+70, yy+9, tempbuf);
                     yy += 10;
                     if (ud.player_skill > 3)
                     {
-                        Bsprintf(tempbuf, "N/A");
-                        gametext((320>>2)+70, yy+9, tempbuf, 0, 2+8+16);
+                        gametext((320>>2)+70, yy+9, "N/A");
                         yy += 10;
                     }
                     else
@@ -2382,7 +2381,7 @@ void G_BonusScreen(int32_t bonusonly)
                         if ((g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed) < 0)
                             Bsprintf(tempbuf, "%-3d", 0);
                         else Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->max_actors_killed-g_player[myconnectindex].ps->actors_killed);
-                        gametext((320>>2)+70, yy+9, tempbuf, 0, 2+8+16);
+                        gametext((320>>2)+70, yy+9, tempbuf);
                         yy += 10;
                     }
                 }
@@ -2391,9 +2390,9 @@ void G_BonusScreen(int32_t bonusonly)
             zz = yy += 5;
             if (totalclock > (60*9))
             {
-                gametext(10, yy+9, "Secrets Found:", 0, 2+8+16);
+                gametext(10, yy+9, "Secrets Found:");
                 yy += 10;
-                gametext(10, yy+9, "Secrets Missed:", 0, 2+8+16);
+                gametext(10, yy+9, "Secrets Missed:");
                 yy += 10;
                 if (bonuscnt == 4) bonuscnt++;
 
@@ -2406,12 +2405,15 @@ void G_BonusScreen(int32_t bonusonly)
                         S_PlaySound(PIPEBOMB_EXPLODE);
                     }
                     Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->secret_rooms);
-                    gametext((320>>2)+70, yy+9, tempbuf, 0, 2+8+16);
+                    gametext((320>>2)+70, yy+9, tempbuf);
                     yy += 10;
+#if 0
+                    // Always overwritten.
                     if (g_player[myconnectindex].ps->secret_rooms > 0)
                         Bsprintf(tempbuf, "%-3d%%", (100*g_player[myconnectindex].ps->secret_rooms/g_player[myconnectindex].ps->max_secret_rooms));
+#endif
                     Bsprintf(tempbuf, "%-3d", g_player[myconnectindex].ps->max_secret_rooms-g_player[myconnectindex].ps->secret_rooms);
-                    gametext((320>>2)+70, yy+9, tempbuf, 0, 2+8+16);
+                    gametext((320>>2)+70, yy+9, tempbuf);
                     yy += 10;
                 }
             }

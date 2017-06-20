@@ -707,9 +707,10 @@ void S_SetMusicPosition(int32_t position);
 int32_t minitext_(int32_t x,int32_t y,const char *t,int32_t s,int32_t p,int32_t sb);
 void G_DrawTXDigiNumZ(int32_t starttile, int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,
                       int32_t cs,int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t z);
-int32_t G_PrintGameText(int32_t f,  int32_t tile, int32_t x,  int32_t y,  const char *t,
-                        int32_t s,  int32_t p,    int32_t o,
-                        int32_t x1, int32_t y1,   int32_t x2, int32_t y2, int32_t z);
+void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
+                     int32_t s, int32_t p, int32_t o,
+                     int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                     int32_t z, int32_t a);
 vec2_t G_ScreenText(const int32_t font,
                     int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle,
                     const char *str, const int32_t shade, int32_t pal, int32_t o, int32_t alpha,

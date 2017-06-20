@@ -60,21 +60,28 @@ enum ScreenTextFlags_t {
 
 extern int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t sb);
 extern void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_t f);
+extern void gametext_(int32_t x, int32_t y, int32_t z, const char *t, int32_t s, int32_t p, int32_t o, int32_t a, int32_t f);
+extern void gametext_simple(int32_t x, int32_t y, const char *t);
 extern int32_t textsc(int32_t sc);
 
 #define minitextshade(x, y, t, s, p, sb) minitext_(x,y,t,s,p,sb)
 #define minitext(x, y, t, p, sb) minitext_(x,y,t,0,p,sb)
 #define menutext(x, y, t) menutext_((x), (y), 0, (t), 10|16, 0)
 #define menutext_center(y, t) menutext_(160<<16, (y)<<16, 0, (t), 10|16, TEXT_XCENTER)
-#define gametext(x,y,t,s,dabits) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536, 0)
-#define gametextscaled(x,y,t,s,dabits) G_PrintGameText(1,STARTALPHANUM, x,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536, 0)
-#define gametextpal(x,y,t,s,p) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,p,26,0, 0, xdim-1, ydim-1, 65536, 0)
-#define gametextpalbits(x,y,t,s,p,dabits,a) G_PrintGameText(0,STARTALPHANUM, x,y,t,s,p,dabits,0, 0, xdim-1, ydim-1, 65536, a)
-#define mpgametext(y, t, s, dabits) G_PrintGameText(4,STARTALPHANUM, 5,y,t,s,0,dabits,0, 0, xdim-1, ydim-1, 65536, 0);
+#define gametext(x, y, t) gametext_simple((x)<<16, (y)<<16, (t))
+#define gametext_bits(x, y, t, o) gametext_((x)<<16, (y)<<16, 65536, (t), 0, 0, (o), 0, 0)
+#define gametext_pal(x, y, t, p) gametext_((x)<<16, (y)<<16, 65536, (t), 0, (p), 0, 0, 0)
+#define gametext_center(y, t) gametext_(160<<16, (y)<<16, 65536, (t), 0, 0, 0, 0, TEXT_XCENTER)
+#define gametext_center_shade(y, t, s) gametext_(160<<16, (y)<<16, 65536, (t), (s), 0, 0, 0, TEXT_XCENTER)
+#define gametext_center_shade_pal(y, t, s, p) gametext_(160<<16, (y)<<16, 65536, (t), (s), (p), 0, 0, TEXT_XCENTER)
+#define gametext_center_shade_pal_alpha(y, t, s, p, a) gametext_(160<<16, (y)<<16, 65536, (t), (s), (p), 0, (a), TEXT_XCENTER)
+#define mpgametext(y, t, s, o) gametext_(textsc(5<<16), (y)<<16, textsc(65536), (t), (s), 0, (o), 0, TEXT_LINEWRAP)
 
 extern int32_t G_GameTextLen(int32_t x, const char *t);
-extern int32_t G_PrintGameText(int32_t hack, int32_t tile, int32_t x, int32_t y, const char *t, int32_t s, int32_t p,
-                        int32_t o, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t z, int32_t a);
+extern void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
+                            int32_t s, int32_t p, int32_t o,
+                            int32_t x1, int32_t y1, int32_t x2, int32_t y2,
+                            int32_t z, int32_t a);
 
 extern int32_t G_GetStringLineLength(const char *text, const char *end, const int32_t iter);
 extern int32_t G_GetStringNumLines(const char *text, const char *end, const int32_t iter);

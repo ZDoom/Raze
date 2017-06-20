@@ -348,7 +348,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
         {
             menutext_center(90,"Loading User Map");
-            gametextpal(160,90+10,boardfilename,14,2);
+            gametext_center_shade_pal(90+10, boardfilename, 14, 2);
         }
         else
         {
@@ -358,7 +358,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
 
 #ifndef EDUKE32_TOUCH_DEVICES
-        if (statustext) gametext(160,180,statustext,0,2+8+16);
+        if (statustext) gametext_center(180, statustext);
 #endif
 
         if (percent != -1)
@@ -404,7 +404,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
 
         menutext_center(105,"Loading...");
-        if (statustext) gametext(160,180,statustext,0,2+8+16);
+        if (statustext) gametext_center(180, statustext);
         VM_OnEventWithReturn(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, percent);
         nextpage();
     }

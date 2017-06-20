@@ -219,7 +219,7 @@ void Net_WaitForServer(void)
 
         display_betascreen();
 
-        gametext(160,170,"Waiting for server",14,2);
+        gametext_center_shade(170, "Waiting for server", 14);
         nextpage();
 
         packbuf[0] = PACKET_PLAYER_PING;
@@ -1743,7 +1743,7 @@ void Net_SendMessage(void)
                 else if (g_netClient) enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, j+2, 0));
                 G_AddUserQuote(recbuf);
                 quotebot += 8;
-                l = G_GameTextLen(USERQUOTE_LEFTOFFSET,OSD_StripColors(tempbuf,recbuf));
+                l = G_GameTextLen(USERQUOTE_LEFTOFFSET, recbuf);
                 while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
                 {
                     l -= (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET);
@@ -1757,7 +1757,7 @@ void Net_SendMessage(void)
         else if (g_chatPlayer == -1)
         {
             j = 50;
-            gametext(320>>1,j,"Send message to...",0,2+8+16);
+            gametext_center(j, "Send message to...");
             j += 8;
             for (TRAVERSE_CONNECT(i))
             {
@@ -1781,7 +1781,7 @@ void Net_SendMessage(void)
 
             if (ud.screen_size > 0) j = 200-45;
             else j = 200-8;
-            mpgametext(j,typebuf,0,2+8+16);
+            mpgametext(j, typebuf, 0, 0);
 
             if (KB_KeyWaiting())
             {

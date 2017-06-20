@@ -422,7 +422,7 @@ static void Demo_DisplayProfStatus(void)
     clearallviews(0);
     Bsnprintf(buf, sizeof(buf), "timing... %d/%d game tics (%d %%)",
               g_demo_cnt, g_demo_totalCnt, percent);
-    gametext(160,60, buf, 0, 2+8+16);
+    gametext_center(60, buf);
     nextpage();
 }
 
@@ -872,23 +872,23 @@ nextdemo_nomenu:
             if (!Demo_IsProfiling() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             {
                 if (demoplay_showsync && outofsync)
-                    gametext(160,100,"OUT OF SYNC",0,2+8+16);
+                    gametext_center(100, "OUT OF SYNC");
 
                 if (g_demo_showStats)
                 {
 #if 0
                     if (g_demo_cnt<tmpdifftime)
-                        gametext(160,100,"DIFF",0,2+8+16);
+                        gametext_center(100, "DIFF");
 
                     {
                         char buf[32];
                         Bsprintf(buf, "RC:%4d  TC:%5d", ud.reccnt, g_demo_cnt);
-                        gametext(160,100,buf,0,2+8+16);
+                        gametext_center(100, buf);
                     }
 #endif
                     j=g_demo_cnt/REALGAMETICSPERSEC;
                     Bsprintf(buf, "%02d:%02d", j/60, j%60);
-                    gametext(18,16,buf,0,2+8+16+1024);
+                    gametext_bits(18, 16, buf, 1024);
 
                     rotatesprite(60<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,0,0,(xdim*95)/320,ydim-1);
                     rotatesprite(90<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,(xdim*95)/320,0,(xdim*125)/320,ydim-1);
@@ -900,7 +900,7 @@ nextdemo_nomenu:
 
                     j=(g_demo_totalCnt-g_demo_cnt)/REALGAMETICSPERSEC;
                     Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, g_demo_paused?"   ^15PAUSED":"");
-                    gametext(194,16,buf,0,2+8+16+1024);
+                    gametext_bits(194, 16, buf, 1024);
                 }
             }
 
@@ -908,7 +908,7 @@ nextdemo_nomenu:
                 Net_GetPackets();
 
             if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
-                gametext(160,60,"Press F1 to Accept, F2 to Decline",0,2+8+16);
+                gametext_center(60, "Press F1 to Accept, F2 to Decline");
         }
 
         if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))
