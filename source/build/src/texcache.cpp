@@ -35,7 +35,7 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
     int32_t searchpalnum = dapalnum;
     polytintflags_t const tintflags = hictinting[dapalnum].f;
 
-    if (tintflags & HICTINT_USEONART)
+    if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
     {
         tintpalnum = dapalnum;
         if (!(tintflags & HICTINT_APPLYOVERPALSWAP))
@@ -107,7 +107,7 @@ pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int3
 pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth)
 {
     const int32_t j = dapicnum & (GLTEXCACHEADSIZ - 1);
-    hicreplctyp *si = usehightile ? hicfindsubst(dapicnum, dapalnum) : NULL;
+    hicreplctyp *si = usehightile ? hicfindsubst(dapicnum, dapalnum, hictinting[dapalnum].f & HICTINT_ALWAYSUSEART) : NULL;
 
     if (drawingskybox && usehightile)
         if ((si = hicfindskybox(dapicnum, dapalnum)) == NULL)

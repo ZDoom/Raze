@@ -4206,7 +4206,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
                     if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
                         hictinting_apply(glcolors[i], palnum);
                 }
-                else if (tintflags & HICTINT_USEONART)
+                else if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
                     hictinting_apply(glcolors[i], palnum);
             }
 
@@ -4298,7 +4298,7 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
                     if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
                         hictinting_apply(color, palnum);
                 }
-                else if (tintflags & HICTINT_USEONART)
+                else if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
                     hictinting_apply(color, palnum);
             }
 
@@ -4948,6 +4948,14 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     // Lazily fill in all the textures we need, move this to precaching later
     if (pr_artmapping && !(globalflags & GLOBAL_NO_GL_TILESHADES) && polymer_eligible_for_artmap(tilenum, pth))
     {
+        polytintflags_t const tintflags = hictinting[pal].f;
+
+        if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
+        {
+            if (!(tintflags & HICTINT_APPLYOVERPALSWAP))
+                pal = 0;
+        }
+
         if (!prartmaps[tilenum] || !prbasepalmaps[curbasepal] || !prlookups[pal])
             polymer_setupartmap(tilenum, pal);
 
@@ -5001,7 +5009,7 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
                 if (pth->palnum != pal || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
                     hictinting_apply_ub(material->diffusemodulation, pal);
             }
-            else if (tintflags & HICTINT_USEONART)
+            else if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
                 hictinting_apply_ub(material->diffusemodulation, pal);
         }
 

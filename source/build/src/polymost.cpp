@@ -440,7 +440,7 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
 {
     if (shade > 0 && getrendermode() == REND_POLYMOST && r_usetileshades == 1 &&
         !(globalflags & GLOBAL_NO_GL_TILESHADES) &&
-        (!usehightile || !hicfindsubst(tile, pal)) &&
+        (!usehightile || !hicfindsubst(tile, pal, hictinting[pal].f & HICTINT_ALWAYSUSEART)) &&
         (!usemodels || md_tilehasmodel(tile, pal) < 0))
         shade >>= 1;
 
@@ -1844,7 +1844,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
                 if (pth->palnum != globalpal || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
                     hictinting_apply(pc, globalpal);
             }
-            else if (tintflags & HICTINT_USEONART)
+            else if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
                 hictinting_apply(pc, globalpal);
         }
 

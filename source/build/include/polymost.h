@@ -68,7 +68,7 @@ extern int32_t globalpal;
 // Compare with polymer_eligible_for_artmap()
 static FORCE_INLINE int32_t eligible_for_tileshades(int32_t const picnum, int32_t const pal)
 {
-    return !usehightile || !hicfindsubst(picnum, pal);
+    return !usehightile || !hicfindsubst(picnum, pal, hictinting[pal].f & HICTINT_ALWAYSUSEART);
 }
 
 static inline float getshadefactor(int32_t const shade)
