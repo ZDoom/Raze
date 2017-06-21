@@ -4747,8 +4747,8 @@ void polymost_drawsprite(int32_t snum)
                 if ((globalorientation & 8) > 0)
                     off.y = -off.y;
 
-                vec2f_t const p0 = { (float)((tsiz.x >> 1) - off.x) * tspr->xrepeat,
-                                     (float)((tsiz.y >> 1) - off.y) * tspr->yrepeat },
+                vec2f_t const p0 = { (float)(((tsiz.x + 1) >> 1) - off.x) * tspr->xrepeat,
+                                     (float)(((tsiz.y + 1) >> 1) - off.y) * tspr->yrepeat },
                               p1 = { (float)((tsiz.x >> 1) + off.x) * tspr->xrepeat,
                                      (float)((tsiz.y >> 1) + off.y) * tspr->yrepeat };
 
