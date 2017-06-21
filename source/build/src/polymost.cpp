@@ -1374,9 +1374,10 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         char *cptr = britable[gammabrightness ? 0 : curbrightness];
 
-        int32_t r = (glinfo.bgra) ? hictinting[dapalnum].r : hictinting[dapalnum].b;
-        int32_t g = hictinting[dapalnum].g;
-        int32_t b = (glinfo.bgra) ? hictinting[dapalnum].b : hictinting[dapalnum].r;
+        polytint_t const & tint = hictinting[dapalnum];
+        int32_t r = (glinfo.bgra) ? tint.r : tint.b;
+        int32_t g = tint.g;
+        int32_t b = (glinfo.bgra) ? tint.b : tint.r;
 
         char al = 255;
         char onebitalpha = 1;
@@ -1835,14 +1836,15 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     if (pth)
     {
         // tinting
-        if (!(hictinting[globalpal].f & HICTINT_PRECOMPUTED))
+        polytintflags_t const tintflags = hictinting[globalpal].f;
+        if (!(tintflags & HICTINT_PRECOMPUTED))
         {
             if (pth->flags & PTH_HIGHTILE)
             {
-                if (pth->palnum != globalpal || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[globalpal].f & HICTINT_APPLYOVERALTPAL))
+                if (pth->palnum != globalpal || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
                     hictinting_apply(pc, globalpal);
             }
-            else if (hictinting[globalpal].f & HICTINT_USEONART)
+            else if (tintflags & HICTINT_USEONART)
                 hictinting_apply(pc, globalpal);
         }
 

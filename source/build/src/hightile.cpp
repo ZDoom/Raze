@@ -76,8 +76,9 @@ void hicinit(void)
 
     for (i=0; i<MAXPALOOKUPS; i++)  	// all tints should be 100%
     {
-        hictinting[i].r = hictinting[i].g = hictinting[i].b = 0xff;
-        hictinting[i].f = 0;
+        polytint_t & tint = hictinting[i];
+        tint.r = tint.g = tint.b = 0xff;
+        tint.f = 0;
     }
 
     if (hicinitcounter)
@@ -123,10 +124,11 @@ void hicsetpalettetint(int32_t palnum, char r, char g, char b, polytintflags_t e
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return;
     if (!hicinitcounter) hicinit();
 
-    hictinting[palnum].r = r;
-    hictinting[palnum].g = g;
-    hictinting[palnum].b = b;
-    hictinting[palnum].f = effect;
+    polytint_t & tint = hictinting[palnum];
+    tint.r = r;
+    tint.g = g;
+    tint.b = b;
+    tint.f = effect;
 }
 
 

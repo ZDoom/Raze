@@ -823,9 +823,10 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
         char *cptr = britable[gammabrightness ? 0 : curbrightness];
 
-        int32_t r = (glinfo.bgra) ? hictinting[pal].r : hictinting[pal].b;
-        int32_t g = hictinting[pal].g;
-        int32_t b = (glinfo.bgra) ? hictinting[pal].b : hictinting[pal].r;
+        polytint_t const & tint = hictinting[pal];
+        int32_t r = (glinfo.bgra) ? tint.r : tint.b;
+        int32_t g = tint.g;
+        int32_t b = (glinfo.bgra) ? tint.b : tint.r;
 
         char al = 255;
         char onebitalpha = 1;
@@ -2192,7 +2193,8 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
 
     // tinting
     pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
-    if (!(hictinting[globalpal].f & HICTINT_PRECOMPUTED))
+    polytintflags_t const tintflags = hictinting[globalpal].f;
+    if (!(tintflags & HICTINT_PRECOMPUTED))
     {
         if (!(m->flags&1))
             hictinting_apply(pc, globalpal);

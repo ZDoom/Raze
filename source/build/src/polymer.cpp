@@ -4198,14 +4198,15 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
         if (pth)
         {
             // tinting
-            if (!(hictinting[palnum].f & HICTINT_PRECOMPUTED))
+            polytintflags_t const tintflags = hictinting[palnum].f;
+            if (!(tintflags & HICTINT_PRECOMPUTED))
             {
                 if (pth->flags & PTH_HIGHTILE)
                 {
-                    if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
+                    if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
                         hictinting_apply(glcolors[i], palnum);
                 }
-                else if (hictinting[palnum].f & HICTINT_USEONART)
+                else if (tintflags & HICTINT_USEONART)
                     hictinting_apply(glcolors[i], palnum);
             }
 
@@ -4289,14 +4290,15 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
         if (pth)
         {
             // tinting
-            if (!(hictinting[palnum].f & HICTINT_PRECOMPUTED))
+            polytintflags_t const tintflags = hictinting[palnum].f;
+            if (!(tintflags & HICTINT_PRECOMPUTED))
             {
                 if (pth->flags & PTH_HIGHTILE)
                 {
-                    if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[palnum].f & HICTINT_APPLYOVERALTPAL))
+                    if (pth->palnum != palnum || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
                         hictinting_apply(color, palnum);
                 }
-                else if (hictinting[palnum].f & HICTINT_USEONART)
+                else if (tintflags & HICTINT_USEONART)
                     hictinting_apply(color, palnum);
             }
 
@@ -4517,7 +4519,8 @@ static void         polymer_drawmdsprite(uspritetype *tspr)
                     prhighpalookups[curbasepal][tspr->pal].map);
 
     // tinting
-    if (!usinghighpal && !(hictinting[tspr->pal].f & HICTINT_PRECOMPUTED))
+    polytintflags_t const tintflags = hictinting[tspr->pal].f;
+    if (!usinghighpal && !(tintflags & HICTINT_PRECOMPUTED))
     {
         if (!(m->flags&1))
             hictinting_apply_ub(color, tspr->pal);
@@ -4990,14 +4993,15 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
             (GLubyte)(getshadefactor(shade) * 0xFF);
 
         // tinting
-        if (!(hictinting[pal].f & HICTINT_PRECOMPUTED))
+        polytintflags_t const tintflags = hictinting[pal].f;
+        if (!(tintflags & HICTINT_PRECOMPUTED))
         {
             if (pth->flags & PTH_HIGHTILE)
             {
-                if (pth->palnum != pal || (pth->effects & HICTINT_IN_MEMORY) || (hictinting[pal].f & HICTINT_APPLYOVERALTPAL))
+                if (pth->palnum != pal || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
                     hictinting_apply_ub(material->diffusemodulation, pal);
             }
-            else if (hictinting[pal].f & HICTINT_USEONART)
+            else if (tintflags & HICTINT_USEONART)
                 hictinting_apply_ub(material->diffusemodulation, pal);
         }
 

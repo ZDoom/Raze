@@ -48,23 +48,26 @@ hicreplctyp * hicfindskybox(int picnum, int palnum);
 
 static inline int have_basepal_tint(void)
 {
-    return (hictinting[MAXPALOOKUPS-1].r != 255 ||
-            hictinting[MAXPALOOKUPS-1].g != 255 ||
-            hictinting[MAXPALOOKUPS-1].b != 255);
+    polytint_t const & tint = hictinting[MAXPALOOKUPS-1];
+    return (tint.r != 255 ||
+            tint.g != 255 ||
+            tint.b != 255);
 }
 
 static inline void hictinting_apply(float *color, int32_t palnum)
 {
-    color[0] *= (float)hictinting[palnum].r * (1.f/255.f);
-    color[1] *= (float)hictinting[palnum].g * (1.f/255.f);
-    color[2] *= (float)hictinting[palnum].b * (1.f/255.f);
+    polytint_t const & tint = hictinting[palnum];
+    color[0] *= (float)tint.r * (1.f/255.f);
+    color[1] *= (float)tint.g * (1.f/255.f);
+    color[2] *= (float)tint.b * (1.f/255.f);
 }
 
 static inline void hictinting_apply_ub(uint8_t *color, int32_t palnum)
 {
-    color[0] = (uint8_t)(color[0] * (float)hictinting[palnum].r * (1.f/255.f));
-    color[1] = (uint8_t)(color[1] * (float)hictinting[palnum].g * (1.f/255.f));
-    color[2] = (uint8_t)(color[2] * (float)hictinting[palnum].b * (1.f/255.f));
+    polytint_t const & tint = hictinting[palnum];
+    color[0] = (uint8_t)(color[0] * (float)tint.r * (1.f/255.f));
+    color[1] = (uint8_t)(color[1] * (float)tint.g * (1.f/255.f));
+    color[2] = (uint8_t)(color[2] * (float)tint.b * (1.f/255.f));
 }
 
 // texcacheheader cachead.flags bits

@@ -33,11 +33,12 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
     pthtyp *pth;
     int32_t tintpalnum = -1;
     int32_t searchpalnum = dapalnum;
+    polytintflags_t const tintflags = hictinting[dapalnum].f;
 
-    if (hictinting[dapalnum].f & HICTINT_USEONART)
+    if (tintflags & HICTINT_USEONART)
     {
         tintpalnum = dapalnum;
-        if (!(hictinting[dapalnum].f & HICTINT_APPLYOVERPALSWAP))
+        if (!(tintflags & HICTINT_APPLYOVERPALSWAP))
             searchpalnum = 0;
     }
 
@@ -127,14 +128,16 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
      *    effects are applied to the palette 0 texture if it exists
      */
 
-    const int32_t checktintpal = (hictinting[dapalnum].f & HICTINT_APPLYOVERALTPAL) ? 0 : si->palnum;
-    const int32_t checkcachepal = (hictinting[dapalnum].f & HICTINT_IN_MEMORY) || ((hictinting[dapalnum].f & HICTINT_APPLYOVERALTPAL) && si->palnum > 0) ? dapalnum : si->palnum;
+    polytintflags_t const tintflags = hictinting[dapalnum].f;
+
+    const int32_t checktintpal = (tintflags & HICTINT_APPLYOVERALTPAL) ? 0 : si->palnum;
+    const int32_t checkcachepal = (tintflags & HICTINT_IN_MEMORY) || ((tintflags & HICTINT_APPLYOVERALTPAL) && si->palnum > 0) ? dapalnum : si->palnum;
 
     // load a replacement
     for (pthtyp *pth = texcache.list[j]; pth; pth = pth->next)
     {
         if (pth->picnum == dapicnum && pth->palnum == checkcachepal &&
-            (checktintpal > 0 ? 1 : (pth->effects == hictinting[dapalnum].f)) &&
+            (checktintpal > 0 ? 1 : (pth->effects == tintflags)) &&
             (pth->flags & (PTH_CLAMPED | PTH_HIGHTILE | PTH_SKYBOX | PTH_NOTRANSFIX)) ==
                 (TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth) |
                  PTH_HIGHTILE | (drawingskybox > 0) * PTH_SKYBOX) &&
@@ -145,7 +148,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
                 pth->flags &= ~PTH_INVALIDATED;
 
                 int32_t tilestat = gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 0,
-                                        (checktintpal > 0) ? 0 : hictinting[dapalnum].f);  // reload tile
+                                        (checktintpal > 0) ? 0 : tintflags);  // reload tile
 
                 if (!tilestat)
                     continue;
@@ -166,7 +169,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
         return pth;
 
     int32_t tilestat =
-    gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (checktintpal > 0) ? 0 : hictinting[dapalnum].f);
+    gloadtile_hi(dapicnum, dapalnum, drawingskybox, si, dameth, pth, 1, (checktintpal > 0) ? 0 : tintflags);
 
     if (!tilestat)
     {
