@@ -167,8 +167,11 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
 
 #ifdef USE_OPENGL
     // XXX: this makes us also load all hightile textures tinted with the crosshair color!
-    Bmemcpy(&hictinting[CROSSHAIR_PAL], &CrosshairColors, sizeof(palette_t));
-    hictinting[CROSSHAIR_PAL].f = HICTINT_USEONART | HICTINT_GRAYSCALE;
+    polytint_t & crosshairtint = hictinting[CROSSHAIR_PAL];
+    crosshairtint.r = CrosshairColors.r;
+    crosshairtint.g = CrosshairColors.g;
+    crosshairtint.b = CrosshairColors.b;
+    crosshairtint.f = HICTINT_USEONART | HICTINT_GRAYSCALE;
 #endif
     invalidatetile(CROSSHAIR, -1, -1);
 }
@@ -856,21 +859,28 @@ void G_DisplayRest(int32_t smoothratio)
     // this takes care of fullscreen tint for OpenGL
     if (getrendermode() >= REND_POLYMOST)
     {
+        polytint_t & fstint = hictinting[MAXPALOOKUPS-1];
+
         if (pp->palette == WATERPAL)
         {
-            static const palette_t wp = { 224, 192, 255, 0 };
-            Bmemcpy(&hictinting[MAXPALOOKUPS-1], &wp, sizeof(palette_t));
+            fstint.r = 224;
+            fstint.g = 192;
+            fstint.b = 255;
+            fstint.f = 0;
         }
         else if (pp->palette == SLIMEPAL)
         {
-            static const palette_t sp = { 208, 255, 192, 0 };
-            Bmemcpy(&hictinting[MAXPALOOKUPS-1], &sp, sizeof(palette_t));
+            fstint.r = 208;
+            fstint.g = 255;
+            fstint.b = 192;
+            fstint.f = 0;
         }
         else
         {
-            hictinting[MAXPALOOKUPS-1].r = 255;
-            hictinting[MAXPALOOKUPS-1].g = 255;
-            hictinting[MAXPALOOKUPS-1].b = 255;
+            fstint.r = 255;
+            fstint.g = 255;
+            fstint.b = 255;
+            fstint.f = 0;
         }
     }
 #endif  // USE_OPENGL

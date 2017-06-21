@@ -18,7 +18,12 @@ typedef struct hicreplc_t {
     char palnum, flags;
 } hicreplctyp;
 
-extern palette_t hictinting[MAXPALOOKUPS];
+typedef struct {
+    polytintflags_t f;
+    uint8_t r, g, b;
+} polytint_t;
+
+extern polytint_t hictinting[MAXPALOOKUPS];
 extern hicreplctyp *hicreplc[MAXTILES];
 extern int32_t hicinitcounter;
 

@@ -224,9 +224,9 @@ typedef struct pthtyp_t
     int16_t         picnum;
 
     uint16_t        flags; // see pthtyp_flags
+    polytintflags_t effects;
     char            palnum;
     char            shade;
-    char            effects;
     char            skyface;
 } pthtyp;
 
@@ -240,7 +240,7 @@ EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_TRANS1) == 0);
 EDUKE32_STATIC_ASSERT(TO_PTH_NOTRANSFIX(DAMETH_MASKPROPS) == 0);
 
 extern void gloadtile_art(int32_t,int32_t,int32_t,int32_t,int32_t,pthtyp *,int32_t);
-extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,char);
+extern int32_t gloadtile_hi(int32_t,int32_t,int32_t,hicreplctyp *,int32_t,pthtyp *,int32_t,polytintflags_t);
 
 extern int32_t globalnoeffect;
 extern int32_t drawingskybox;

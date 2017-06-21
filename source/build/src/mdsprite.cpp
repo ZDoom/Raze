@@ -719,7 +719,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     }
     else
     {
-        char const effect = hicfxmask(pal);
+        polytintflags_t const effect = hicfxmask(pal);
 
         // CODEDUP: gloadtile_hi
 

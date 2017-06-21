@@ -13,7 +13,7 @@
 #include "baselayer.h"
 
 
-palette_t hictinting[MAXPALOOKUPS];
+polytint_t hictinting[MAXPALOOKUPS];
 
 hicreplctyp *hicreplc[MAXTILES];
 int32_t hicinitcounter = 0;
@@ -118,7 +118,7 @@ void hicinit(void)
 //   palette shifts on true-colour textures and only true-colour textures.
 //   effect bitset: 1 = greyscale, 2 = invert
 //
-void hicsetpalettetint(int32_t palnum, char r, char g, char b, char effect)
+void hicsetpalettetint(int32_t palnum, char r, char g, char b, polytintflags_t effect)
 {
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return;
     if (!hicinitcounter) hicinit();
@@ -282,7 +282,7 @@ int32_t hicclearsubst(int32_t picnum, int32_t palnum)
 
 #include "compat.h"
 
-void hicsetpalettetint(int32_t palnum, char r, char g, char b, char effect)
+void hicsetpalettetint(int32_t palnum, char r, char g, char b, polytintflags_t effect)
 {
     UNREFERENCED_PARAMETER(palnum);
     UNREFERENCED_PARAMETER(r);

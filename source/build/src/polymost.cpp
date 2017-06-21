@@ -1100,10 +1100,11 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
 
                     if (!fullbrightloadingpass && tintpalnum >= 0)
                     {
-                        uint8_t const r = hictinting[tintpalnum].r;
-                        uint8_t const g = hictinting[tintpalnum].g;
-                        uint8_t const b = hictinting[tintpalnum].b;
-                        uint8_t const effect = hictinting[tintpalnum].f;
+                        polytint_t const & tint = hictinting[tintpalnum];
+                        polytintflags_t const effect = tint.f;
+                        uint8_t const r = tint.r;
+                        uint8_t const g = tint.g;
+                        uint8_t const b = tint.b;
 
                         if (effect & HICTINT_GRAYSCALE)
                         {
@@ -1221,7 +1222,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
 }
 
 int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp *hicr,
-                            int32_t dameth, pthtyp *pth, int32_t doalloc, char effect)
+                            int32_t dameth, pthtyp *pth, int32_t doalloc, polytintflags_t effect)
 {
     if (!hicr) return -1;
 
