@@ -1755,7 +1755,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
         pthtyp *detailpth = NULL;
 
-        if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL) &&
+        if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL, 1) &&
             (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & ~DAMETH_MASKPROPS)) &&
             detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
         {
@@ -1779,7 +1779,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     {
         pthtyp *glowpth = NULL;
 
-        if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL) &&
+        if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL, 1) &&
             (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, (method & ~DAMETH_MASKPROPS) | DAMETH_MASK)) &&
             glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
             polymost_setupglowtexture(++texunits, glowpth ? glowpth->glpic : 0);

@@ -5015,7 +5015,7 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // PR_BIT_DIFFUSE_DETAIL_MAP
-    if (hicfindsubst(tilenum, DETAILPAL) && (pth = texcache_fetch(tilenum, DETAILPAL, 0, DAMETH_NOMASK)) &&
+    if (hicfindsubst(tilenum, DETAILPAL, 1) && (pth = texcache_fetch(tilenum, DETAILPAL, 0, DAMETH_NOMASK)) &&
         pth->hicr && (pth->hicr->palnum == DETAILPAL))
     {
         material->detailmap = pth->glpic;
@@ -5024,17 +5024,17 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     }
 
     // PR_BIT_GLOW_MAP
-    if (hicfindsubst(tilenum, GLOWPAL) && (pth = texcache_fetch(tilenum, GLOWPAL, 0, DAMETH_MASK)) &&
+    if (hicfindsubst(tilenum, GLOWPAL, 1) && (pth = texcache_fetch(tilenum, GLOWPAL, 0, DAMETH_MASK)) &&
         pth->hicr && (pth->hicr->palnum == GLOWPAL))
         material->glowmap = pth->glpic;
 
     // PR_BIT_SPECULAR_MAP
-    if (hicfindsubst(tilenum, SPECULARPAL) && (pth = texcache_fetch(tilenum, SPECULARPAL, 0, DAMETH_NOMASK)) &&
+    if (hicfindsubst(tilenum, SPECULARPAL, 1) && (pth = texcache_fetch(tilenum, SPECULARPAL, 0, DAMETH_NOMASK)) &&
         pth->hicr && (pth->hicr->palnum == SPECULARPAL))
         material->specmap = pth->glpic;
 
     // PR_BIT_NORMAL_MAP
-    if (hicfindsubst(tilenum, NORMALPAL) && (pth = texcache_fetch(tilenum, NORMALPAL, 0, DAMETH_NOMASK)) &&
+    if (hicfindsubst(tilenum, NORMALPAL, 1) && (pth = texcache_fetch(tilenum, NORMALPAL, 0, DAMETH_NOMASK)) &&
         pth->hicr && (pth->hicr->palnum == NORMALPAL))
     {
         material->normalmap = pth->glpic;

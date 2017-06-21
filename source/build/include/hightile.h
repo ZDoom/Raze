@@ -43,8 +43,8 @@ typedef struct texcachepic_t
     int border, depth;
 } texcachepicture;
 
-hicreplctyp * hicfindsubst(int picnum, int palnum);
-hicreplctyp * hicfindskybox(int picnum, int palnum);
+hicreplctyp * hicfindsubst(int picnum, int palnum, int nozero = 0);
+hicreplctyp * hicfindskybox(int picnum, int palnum, int nozero = 0);
 
 static inline int have_basepal_tint(void)
 {

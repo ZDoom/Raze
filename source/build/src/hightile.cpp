@@ -21,7 +21,7 @@ int32_t hicinitcounter = 0;
 //
 // find the index into hicreplc[] which contains the replacement tile particulars
 //
-hicreplctyp *hicfindsubst(int32_t picnum, int32_t palnum)
+hicreplctyp *hicfindsubst(int picnum, int palnum, int nozero)
 {
     if (!hicreplc[picnum] || !hicinitcounter) return NULL;
 
@@ -32,7 +32,7 @@ hicreplctyp *hicfindsubst(int32_t picnum, int32_t palnum)
             if (hr->palnum == palnum)
                 return hr;
 
-        if (!palnum || palnum >= (MAXPALOOKUPS - RESERVEDPALS))
+        if (!palnum || nozero)
             return NULL;
 
         palnum = 0;
@@ -45,7 +45,7 @@ hicreplctyp *hicfindsubst(int32_t picnum, int32_t palnum)
 // this is separate because it's not worth passing an extra parameter which is "0" in 99.9999% of cases
 // to the regular hicfindsubst() function
 //
-hicreplctyp *hicfindskybox(int32_t picnum, int32_t palnum)
+hicreplctyp *hicfindskybox(int picnum, int palnum, int nozero)
 {
     if (!hicreplc[picnum] || !hicinitcounter) return NULL;
 
@@ -56,7 +56,7 @@ hicreplctyp *hicfindskybox(int32_t picnum, int32_t palnum)
             if (hr->skybox && hr->palnum == palnum)
                 return hr;
 
-        if (!palnum || palnum >= (MAXPALOOKUPS - RESERVEDPALS))
+        if (!palnum || nozero)
             return NULL;
 
         palnum = 0;
