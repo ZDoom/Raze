@@ -44,7 +44,7 @@ typedef struct _mdskinmap_t
     uint8_t palette, flags, filler[2]; // Build palette number, flags the same as hicreplctyp
     int32_t skinnum, surfnum;   // Skin identifier, surface number
     char *fn;   // Skin filename
-    GLuint texid[HICEFFECTMASK+1];   // OpenGL texture numbers for effect variations
+    GLuint texid[HICTINT_MEMORY_COMBINATIONS];   // OpenGL texture numbers for effect variations
     struct _mdskinmap_t *next;
     float param, specpower, specfactor;
 } mdskinmap_t;

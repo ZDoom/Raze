@@ -126,7 +126,7 @@ void hicsetpalettetint(int32_t palnum, char r, char g, char b, char effect)
     hictinting[palnum].r = r;
     hictinting[palnum].g = g;
     hictinting[palnum].b = b;
-    hictinting[palnum].f = effect & HICEFFECTMASK;
+    hictinting[palnum].f = effect;
 }
 
 

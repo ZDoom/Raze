@@ -165,12 +165,12 @@ static void nullskintexids(GLuint texid)
             mdskinmap_t *sk;
             md2model_t *m2 = (md2model_t *)m;
 
-            for (j=0; j<m2->numskins*(HICEFFECTMASK+1); j++)
+            for (j=0; j < m2->numskins * HICTINT_MEMORY_COMBINATIONS; j++)
                 if (m2->texid[j] == texid)
                     m2->texid[j] = 0;
 
             for (sk=m2->skinmap; sk; sk=sk->next)
-                for (j=0; j<(HICEFFECTMASK+1); j++)
+                for (j=0; j < HICTINT_MEMORY_COMBINATIONS; j++)
                     if (sk->texid[j] == texid)
                         sk->texid[j] = 0;
         }
@@ -201,7 +201,7 @@ void clearskins(int32_t type)
             mdskinmap_t *sk;
             md2model_t *m2 = (md2model_t *)m;
 
-            for (j=0; j<m2->numskins*(HICEFFECTMASK+1); j++)
+            for (j=0; j < m2->numskins * HICTINT_MEMORY_COMBINATIONS; j++)
                 if (m2->texid[j])
                 {
                     GLuint otexid = m2->texid[j];
@@ -213,7 +213,7 @@ void clearskins(int32_t type)
                 }
 
             for (sk=m2->skinmap; sk; sk=sk->next)
-                for (j=0; j<(HICEFFECTMASK+1); j++)
+                for (j=0; j < HICTINT_MEMORY_COMBINATIONS; j++)
                     if (sk->texid[j])
                     {
                         GLuint otexid = sk->texid[j];
@@ -576,9 +576,13 @@ int32_t md_undefinemodel(int32_t modelid)
     return 0;
 }
 
-static inline int32_t hicfxmask(int32_t pal)
+static inline int32_t hicfxmask(size_t pal)
 {
-    return globalnoeffect ? 0 : (hictinting[pal].f & HICEFFECTMASK);
+    return globalnoeffect ? 0 : (hictinting[pal].f & HICTINT_IN_MEMORY);
+}
+static inline int32_t hicfxid(size_t pal)
+{
+    return globalnoeffect ? 0 : ((hictinting[pal].f & (HICTINT_GRAYSCALE|HICTINT_INVERT|HICTINT_COLORIZE)) | ((hictinting[pal].f & HICTINT_BLENDMASK)<<3));
 }
 
 static int32_t mdloadskin_notfound(char * const skinfile, char const * const fn)
@@ -618,7 +622,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         if (sk->palette == pal && sk->skinnum == number && sk->surfnum == surf)
         {
             skinfile = sk->fn;
-            texidx = &sk->texid[hicfxmask(pal)];
+            texidx = &sk->texid[hicfxid(pal)];
             Bstrncpyz(fn, skinfile, BMAX_PATH);
             //OSD_Printf("Using exact match skin (pal=%d,skinnum=%d,surfnum=%d) %s\n",pal,number,surf,skinfile);
             break;
@@ -640,7 +644,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         if (skzero)
         {
             skinfile = skzero->fn;
-            texidx = &skzero->texid[hicfxmask(pal)];
+            texidx = &skzero->texid[hicfxid(pal)];
             Bstrncpyz(fn, skinfile, BMAX_PATH);
             //OSD_Printf("Using def skin 0,0 as fallback, pal=%d\n", pal);
         }
@@ -654,7 +658,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
             // m->skinfn is undefined when md3model_t is cast to md2model_t --> crash
             skinfile = m->skinfn + number*64;
-            texidx = &m->texid[number*(HICEFFECTMASK+1) + hicfxmask(pal)];
+            texidx = &m->texid[number * HICTINT_MEMORY_COMBINATIONS + hicfxid(pal)];
             Bstrncpyz(fn, m->basepath, BMAX_PATH);
             if ((Bstrlen(fn) + Bstrlen(skinfile)) < BMAX_PATH)
                 Bstrcat(fn,skinfile);
@@ -673,9 +677,9 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
         for (i=0; i<nextmodelid; i++)
             for (skzero = ((md2model_t *)models[i])->skinmap; skzero; skzero = skzero->next)
-                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[hicfxmask(pal)])
+                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[hicfxid(pal)])
                 {
-                    int32_t f = hicfxmask(pal);
+                    size_t f = hicfxid(pal);
 
                     sk->texid[f] = skzero->texid[f];
                     return sk->texid[f];
@@ -1306,7 +1310,7 @@ static md2model_t *md2load(int32_t fil, const char *filnam)
             { Bfree(m->glcmds); Bfree(m->frames); Bfree(m); return 0; }
     }
 
-    m->texid = (GLuint *)Xcalloc(ournumskins, sizeof(GLuint) * (HICEFFECTMASK+1));
+    m->texid = (GLuint *)Xcalloc(ournumskins, sizeof(GLuint) * HICTINT_MEMORY_COMBINATIONS);
 
     maxmodelverts = max(maxmodelverts, m->numverts);
     maxmodeltris = max(maxmodeltris, head.numtris);

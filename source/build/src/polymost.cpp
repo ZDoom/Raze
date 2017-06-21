@@ -253,7 +253,7 @@ void gltexapplyprops(void)
         if (m->mdnum < 2)
             continue;
 
-        for (bssize_t j = 0; j < m->numskins * (HICEFFECTMASK + 1); j++)
+        for (bssize_t j = 0; j < m->numskins * HICTINT_MEMORY_COMBINATIONS; j++)
         {
             if (!m->texid[j])
                 continue;
@@ -261,7 +261,7 @@ void gltexapplyprops(void)
         }
 
         for (mdskinmap_t *sk = m->skinmap; sk; sk = sk->next)
-            for (bssize_t j = 0; j < (HICEFFECTMASK + 1); j++)
+            for (bssize_t j = 0; j < HICTINT_MEMORY_COMBINATIONS; j++)
             {
                 if (!sk->texid[j])
                     continue;
@@ -1257,7 +1257,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     char hasalpha;
     texcacheheader cachead;
     char texcacheid[BMAX_PATH];
-    texcache_calcid(texcacheid, fn, picfillen+(dapalnum<<8), DAMETH_NARROW_MASKPROPS(dameth), effect);
+    texcache_calcid(texcacheid, fn, picfillen+(dapalnum<<8), DAMETH_NARROW_MASKPROPS(dameth), effect & HICTINT_IN_MEMORY);
     int32_t gotcache = texcache_readtexheader(texcacheid, &cachead, 0);
     vec2_t siz = { 0, 0 }, tsiz = { 0, 0 };
 

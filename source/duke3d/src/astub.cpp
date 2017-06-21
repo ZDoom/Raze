@@ -8907,7 +8907,7 @@ static int32_t osdcmd_tint(const osdfuncparm_t *parm)
         p->r = atoi_safe(parm->parms[1]);
         p->g = (parm->numparms>=3) ? atoi_safe(parm->parms[2]) : 255;
         p->b = (parm->numparms>=4) ? atoi_safe(parm->parms[3]) : 255;
-        p->f = (parm->numparms>=5) ? atoi_safe(parm->parms[4])&HICEFFECTMASK : 0;
+        p->f = (parm->numparms>=5) ? atoi_safe(parm->parms[4]) : 0;
     }
     return OSDCMD_OK;
 }
