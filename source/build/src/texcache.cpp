@@ -82,7 +82,7 @@ pthtyp *texcache_fetchmulti(pthtyp *pth, hicreplctyp *si, int32_t dapicnum, int3
 
         for (pth2=texcache.list[i]; pth2; pth2=pth2->next)
         {
-            if (pth2->hicr && pth2->hicr->filename && filnamcmp(pth2->hicr->filename, si->filename) == 0)
+            if (pth2->hicr && pth2->hicr->filename && si->filename && filnamcmp(pth2->hicr->filename, si->filename) == 0)
             {
                 Bmemcpy(pth, pth2, sizeof(pthtyp));
                 pth->picnum = dapicnum;
