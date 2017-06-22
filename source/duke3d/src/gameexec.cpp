@@ -3479,30 +3479,22 @@ nullquote:
         case CON_SAVE:
             insptr++;
             {
-                g_lastSaveSlot = *insptr++;
+                int32_t const requestedSlot = *insptr++;
 
-                if ((unsigned)g_lastSaveSlot >= MAXSAVEGAMES)
+                if ((unsigned)requestedSlot >= MAXSAVEGAMES)
                     continue;
 
-                if (tw == CON_SAVE || ud.savegame[g_lastSaveSlot][0] == 0)
+                g_requestedSaveSlot = requestedSlot;
+
+                if (tw == CON_SAVE || ud.savegame[requestedSlot][0] == 0)
                 {
                     time_t     timeStruct = time(NULL);
                     struct tm *pTime      = localtime(&timeStruct);
 
-                    Bsnprintf(ud.savegame[g_lastSaveSlot], sizeof(ud.savegame[g_lastSaveSlot]),
-                              "Auto %.4d%.2d%.2d %.2d%.2d%.2d\n", pTime->tm_year + 1900, pTime->tm_mon + 1, pTime->tm_mday,
+                    Bsnprintf(ud.savegame[requestedSlot], sizeof(ud.savegame[requestedSlot]),
+                              "Auto %.4d%.2d%.2d %.2d%.2d%.2d", pTime->tm_year + 1900, pTime->tm_mon + 1, pTime->tm_mday,
                               pTime->tm_hour, pTime->tm_min, pTime->tm_sec);
                 }
-
-                OSD_Printf("Saving to slot %d\n",g_lastSaveSlot);
-
-                KB_FlushKeyboardQueue();
-
-                g_screenCapture = 1;
-                G_DrawRooms(myconnectindex,65536);
-                g_screenCapture = 0;
-
-                G_SavePlayerMaybeMulti(g_lastSaveSlot);
 
                 continue;
             }

@@ -60,6 +60,8 @@ int g_bouncemineRadius   = 2500;
 int g_deleteQueueSize    = 64;
 int g_itemRespawnTime    = 768;
 int g_lastSaveSlot       = -1;
+int32_t g_requestedSaveSlot = -1;
+
 int g_morterRadius       = 2500;
 int g_numFreezeBounces   = 3;
 int g_gametypeCnt       = 5;

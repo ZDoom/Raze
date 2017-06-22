@@ -6665,6 +6665,24 @@ MAIN_LOOP_RESTART:
             while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
         }
 
+        // handle CON_SAVE and CON_SAVENN
+        if (g_requestedSaveSlot != -1)
+        {
+            g_lastSaveSlot = g_requestedSaveSlot;
+
+            OSD_Printf("Saving to slot %d\n", g_requestedSaveSlot);
+
+            KB_FlushKeyboardQueue();
+
+            g_screenCapture = 1;
+            G_DrawRooms(myconnectindex, 65536);
+            g_screenCapture = 0;
+
+            G_SavePlayerMaybeMulti(g_requestedSaveSlot);
+
+            g_requestedSaveSlot = -1;
+        }
+
         G_DoCheats();
 
         if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
