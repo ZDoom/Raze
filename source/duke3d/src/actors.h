@@ -149,6 +149,7 @@ typedef struct { int32_t id; struct action ac; } con_action_t;
 # define AC_MOVFLAGS(spr, a) ((spr)->hitag)
 #endif
 
+#pragma pack(push, 1)
 // (+ 40 16 16 4 8 6 8 6 4 20)
 typedef struct
 {
@@ -171,10 +172,7 @@ typedef struct
 
     // NOTE: 'dispicnum' is updated locally, not in sync with the game!
     int16_t  actorstayput, dispicnum;
-#if !defined LUNATIC
-    // NOTE: shootzvel is not used any more.
-    int16_t shootzvel_;
-#else
+#ifdef LUNATIC
     // Movement flags, sprite[i].hitag in C-CON:
     uint16_t movflags;
 #endif
@@ -193,21 +191,20 @@ typedef struct
 #if UINTPTR_MAX == 0xffffffff
     /* 32-bit */
 # if !defined LUNATIC
-    int8_t filler[20];
+    int8_t filler[22];
 # else
     int8_t filler[4];
 # endif
 #else
     /* 64-bit */
 # if !defined LUNATIC
-    int8_t filler[16];
+    int8_t filler[18];
 # else
     /* no padding */
 #endif
 #endif
 } actor_t;
 
-#pragma pack(push, 1)
 // this struct needs to match the beginning of actor_t above
 typedef struct
 {
@@ -227,9 +224,7 @@ typedef struct
     int16_t movflag, tempang, timetosleep;     // 6b
 
     int16_t  actorstayput, dispicnum;
-#if !defined LUNATIC
-    int16_t  shootzvel_;
-#else
+#ifdef LUNATIC
     uint16_t movflags;
 #endif
     int16_t    cgg;
