@@ -165,7 +165,7 @@ typedef struct {
 
     int32_t *     pData;
     DukePlayer_t *pPlayer;
-
+    actor_t *     pActor;
 } vmstate_t;
 
 extern vmstate_t vm;

@@ -1263,8 +1263,8 @@ void Net_CopyToNet(int32_t i, netactor_t *netactor)
     netactor->timetosleep = actor[i].timetosleep;
     netactor->flags = actor[i].flags;
     netactor->floorz = actor[i].floorz;
-    netactor->lastvx = actor[i].lastvx;
-    netactor->lastvy = actor[i].lastvy;
+    netactor->lastv.x = actor[i].lastv.x;
+    netactor->lastv.y = actor[i].lastv.y;
     netactor->lasttransport = actor[i].lasttransport;
     netactor->actorstayput = actor[i].actorstayput;
     netactor->cgg = actor[i].cgg;
@@ -1303,8 +1303,8 @@ void Net_CopyFromNet(int32_t i, netactor_t *netactor)
     actor[i].timetosleep = netactor->timetosleep;
     actor[i].flags = netactor->flags;
     actor[i].floorz = netactor->floorz;
-    actor[i].lastvx = netactor->lastvx;
-    actor[i].lastvy = netactor->lastvy;
+    actor[i].lastv.x = netactor->lastv.x;
+    actor[i].lastv.y = netactor->lastv.y;
     actor[i].lasttransport = netactor->lasttransport;
     actor[i].actorstayput = netactor->actorstayput;
     actor[i].cgg = netactor->cgg;
@@ -1331,8 +1331,8 @@ int32_t Net_ActorsAreDifferent(netactor_t *actor1, netactor_t *actor2)
         //actor1->timetosleep	!= actor2->timetosleep ||
         actor1->flags			!= actor2->flags ||
         actor1->floorz			!= actor2->floorz ||
-        actor1->lastvx			!= actor2->lastvx ||
-        actor1->lastvy			!= actor2->lastvy ||
+        actor1->lastv.x			!= actor2->lastv.x ||
+        actor1->lastv.y			!= actor2->lastv.y ||
         actor1->lasttransport	!= actor2->lasttransport ||
         actor1->actorstayput	!= actor2->actorstayput ||
         //actor1->cgg			!= actor2->cgg ||

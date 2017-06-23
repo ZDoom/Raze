@@ -302,8 +302,7 @@ int32_t __fastcall VM_GetActiveProjectile(int32_t const spriteNum, int32_t label
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
-        CON_ERRPRINTF("tried to get %s on invalid target projectile (%d) %d %d\n",
-                     ProjectileLabels[labelNum].name,spriteNum,vm.spriteNum,TrackerCast(vm.pSprite->picnum));
+        CON_ERRPRINTF("%s invalid for projectile %d\n", ProjectileLabels[labelNum].name, spriteNum);
         return -1;
     }
 
@@ -351,8 +350,7 @@ void __fastcall VM_SetActiveProjectile(int32_t const spriteNum, int32_t const la
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
-        CON_ERRPRINTF("tried to set %s on invalid target projectile (%d) %d %d\n",
-                     ProjectileLabels[labelNum].name,spriteNum,vm.spriteNum,TrackerCast(vm.pSprite->picnum));
+        CON_ERRPRINTF("%s invalid for projectile %d\n", ProjectileLabels[labelNum].name, spriteNum);
         return;
     }
 
@@ -396,18 +394,10 @@ void __fastcall VM_SetActiveProjectile(int32_t const spriteNum, int32_t const la
 
 int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32_t const lParm2)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
+    if (EDUKE32_PREDICT_FALSE(((unsigned) playerNum >= (unsigned) g_mostConcurrentPlayers)
+        || (PlayerLabels[labelNum].flags & LABEL_HASPARM2 && (unsigned) lParm2 >= (unsigned) PlayerLabels[labelNum].maxParm2)))
     {
-        CON_ERRPRINTF("tried to get %s on invalid target player (%d) from spr %d\n",
-                      PlayerLabels[labelNum].name,playerNum,vm.spriteNum);
-        return -1;
-    }
-
-    if (EDUKE32_PREDICT_FALSE(PlayerLabels[labelNum].flags & LABEL_HASPARM2 &&
-        (unsigned)lParm2 >= (unsigned)PlayerLabels[labelNum].maxParm2))
-    {
-        CON_ERRPRINTF("tried to get invalid %s position %d on player (%d) from spr %d\n",
-                      PlayerLabels[labelNum].name,lParm2,playerNum,vm.spriteNum);
+        CON_ERRPRINTF("%s[%d] invalid for player %d\n", PlayerLabels[labelNum].name, lParm2, playerNum);
         return -1;
     }
 
@@ -551,7 +541,6 @@ int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32
                 case 0: labelNum = ps->pals.r; break;
                 case 1: labelNum = ps->pals.g; break;
                 case 2: labelNum = ps->pals.b; break;
-                default: labelNum = -1; break;
             }
             break;
         case PLAYER_MAX_ACTORS_KILLED: labelNum = ps->max_actors_killed; break;
@@ -581,19 +570,10 @@ int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32
 
 void __fastcall VM_SetPlayer(int32_t const playerNum, int32_t const labelNum, int32_t const lParm2, int32_t const iSet)
 {
-
-    if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
+    if (EDUKE32_PREDICT_FALSE(((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers)
+        || (PlayerLabels[labelNum].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)PlayerLabels[labelNum].maxParm2)))
     {
-        CON_ERRPRINTF("tried to set %s on invalid target player (%d) from spr %d\n",
-                      PlayerLabels[labelNum].name,playerNum,vm.spriteNum);
-        return;
-    }
-
-    if (EDUKE32_PREDICT_FALSE(PlayerLabels[labelNum].flags & LABEL_HASPARM2 &&
-                              (unsigned)lParm2 >= (unsigned)PlayerLabels[labelNum].maxParm2))
-    {
-        CON_ERRPRINTF("tried to set invalid %s position %d on player (%d) from spr %d\n",
-                      PlayerLabels[labelNum].name,lParm2,playerNum,vm.spriteNum);
+        CON_ERRPRINTF("%s[%d] invalid for player %d\n", PlayerLabels[labelNum].name, lParm2, playerNum);
         return;
     }
 
@@ -779,7 +759,7 @@ int32_t __fastcall VM_GetPlayerInput(int32_t const playerNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
     {
-        CON_ERRPRINTF("VM_GetPlayerInput: invalid target player (%d) %d\n", playerNum,vm.spriteNum);
+        CON_ERRPRINTF("invalid player %d\n", playerNum);
         return -1;
     }
 
@@ -803,7 +783,7 @@ void __fastcall VM_SetPlayerInput(int32_t const playerNum, int32_t const labelNu
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
     {
-        CON_ERRPRINTF("VM_SetPlayerInput: invalid target player (%d) %d\n", playerNum,vm.spriteNum);
+        CON_ERRPRINTF("invalid player %d\n", playerNum);
         return;
     }
 
@@ -827,33 +807,33 @@ int32_t __fastcall VM_GetWall(int32_t const wallNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
     {
-        CON_ERRPRINTF("VM_GetWall: Invalid wall %d\n", wallNum);
+        CON_ERRPRINTF("invalid wall %d\n", wallNum);
         return -1;
     }
 
-    walltype * const w = &wall[wallNum];
+    uwalltype const * const pWall = (uwalltype *)&wall[wallNum];
 
     switch (labelNum)
     {
-        case WALL_X: labelNum = w->x; break;
-        case WALL_Y: labelNum = w->y; break;
-        case WALL_POINT2: labelNum = w->point2; break;
-        case WALL_NEXTWALL: labelNum = w->nextwall; break;
-        case WALL_NEXTSECTOR: labelNum = w->nextsector; break;
-        case WALL_CSTAT: labelNum = w->cstat; break;
-        case WALL_PICNUM: labelNum = w->picnum; break;
-        case WALL_OVERPICNUM: labelNum = w->overpicnum; break;
-        case WALL_SHADE: labelNum = w->shade; break;
-        case WALL_PAL: labelNum = w->pal; break;
-        case WALL_XREPEAT: labelNum = w->xrepeat; break;
-        case WALL_YREPEAT: labelNum = w->yrepeat; break;
-        case WALL_XPANNING: labelNum = w->xpanning; break;
-        case WALL_YPANNING: labelNum = w->ypanning; break;
-        case WALL_LOTAG: labelNum = (int16_t)w->lotag; break;
-        case WALL_HITAG: labelNum = (int16_t)w->hitag; break;
-        case WALL_ULOTAG: labelNum = w->lotag; break;
-        case WALL_UHITAG: labelNum = w->hitag; break;
-        case WALL_EXTRA: labelNum = w->extra; break;
+        case WALL_X: labelNum = pWall->x; break;
+        case WALL_Y: labelNum = pWall->y; break;
+        case WALL_POINT2: labelNum = pWall->point2; break;
+        case WALL_NEXTWALL: labelNum = pWall->nextwall; break;
+        case WALL_NEXTSECTOR: labelNum = pWall->nextsector; break;
+        case WALL_CSTAT: labelNum = pWall->cstat; break;
+        case WALL_PICNUM: labelNum = pWall->picnum; break;
+        case WALL_OVERPICNUM: labelNum = pWall->overpicnum; break;
+        case WALL_SHADE: labelNum = pWall->shade; break;
+        case WALL_PAL: labelNum = pWall->pal; break;
+        case WALL_XREPEAT: labelNum = pWall->xrepeat; break;
+        case WALL_YREPEAT: labelNum = pWall->yrepeat; break;
+        case WALL_XPANNING: labelNum = pWall->xpanning; break;
+        case WALL_YPANNING: labelNum = pWall->ypanning; break;
+        case WALL_LOTAG: labelNum = (int16_t)pWall->lotag; break;
+        case WALL_HITAG: labelNum = (int16_t)pWall->hitag; break;
+        case WALL_ULOTAG: labelNum = pWall->lotag; break;
+        case WALL_UHITAG: labelNum = pWall->hitag; break;
+        case WALL_EXTRA: labelNum = pWall->extra; break;
         default: labelNum = -1;
     }
 
@@ -864,33 +844,33 @@ void __fastcall VM_SetWall(int32_t const wallNum, int32_t const labelNum, int32_
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
     {
-        CON_ERRPRINTF("VM_SetWall: Invalid wall %d\n", wallNum);
+        CON_ERRPRINTF("invalid wall %d\n", wallNum);
         return;
     }
 
-    walltype * const w = &wall[wallNum];
+    walltype * const pWall = &wall[wallNum];
 
     switch (labelNum)
     {
-        case WALL_X: w->x = iSet; break;
-        case WALL_Y: w->y = iSet; break;
-        case WALL_POINT2: w->point2 = iSet; break;
-        case WALL_NEXTWALL: w->nextwall = iSet; break;
-        case WALL_NEXTSECTOR: w->nextsector = iSet; break;
-        case WALL_CSTAT: w->cstat = iSet; break;
-        case WALL_PICNUM: w->picnum = iSet; break;
-        case WALL_OVERPICNUM: w->overpicnum = iSet; break;
-        case WALL_SHADE: w->shade = iSet; break;
-        case WALL_PAL: w->pal = iSet; break;
-        case WALL_XREPEAT: w->xrepeat = iSet; break;
-        case WALL_YREPEAT: w->yrepeat = iSet; break;
-        case WALL_XPANNING: w->xpanning = iSet; break;
-        case WALL_YPANNING: w->ypanning = iSet; break;
-        case WALL_LOTAG: w->lotag = (int16_t)iSet; break;
-        case WALL_HITAG: w->hitag = (int16_t)iSet; break;
-        case WALL_ULOTAG: w->lotag = iSet; break;
-        case WALL_UHITAG: w->hitag = iSet; break;
-        case WALL_EXTRA: w->extra = iSet; break;
+        case WALL_X: pWall->x = iSet; break;
+        case WALL_Y: pWall->y = iSet; break;
+        case WALL_POINT2: pWall->point2 = iSet; break;
+        case WALL_NEXTWALL: pWall->nextwall = iSet; break;
+        case WALL_NEXTSECTOR: pWall->nextsector = iSet; break;
+        case WALL_CSTAT: pWall->cstat = iSet; break;
+        case WALL_PICNUM: pWall->picnum = iSet; break;
+        case WALL_OVERPICNUM: pWall->overpicnum = iSet; break;
+        case WALL_SHADE: pWall->shade = iSet; break;
+        case WALL_PAL: pWall->pal = iSet; break;
+        case WALL_XREPEAT: pWall->xrepeat = iSet; break;
+        case WALL_YREPEAT: pWall->yrepeat = iSet; break;
+        case WALL_XPANNING: pWall->xpanning = iSet; break;
+        case WALL_YPANNING: pWall->ypanning = iSet; break;
+        case WALL_LOTAG: pWall->lotag = (int16_t)iSet; break;
+        case WALL_HITAG: pWall->hitag = (int16_t)iSet; break;
+        case WALL_ULOTAG: pWall->lotag = iSet; break;
+        case WALL_UHITAG: pWall->hitag = iSet; break;
+        case WALL_EXTRA: pWall->extra = iSet; break;
     }
 
     return;
@@ -900,46 +880,46 @@ int32_t __fastcall VM_GetSector(int32_t const sectNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
     {
-        CON_ERRPRINTF("VM_GetSector: Invalid sector %d\n", sectNum);
+        CON_ERRPRINTF("invalid sector %d\n", sectNum);
         return -1;
     }
 
-    sectortype * const s = &sector[sectNum];
+    usectortype const * const pSector = (usectortype *)&sector[sectNum];
 
     switch (labelNum)
     {
-        case SECTOR_WALLPTR: labelNum = s->wallptr; break;
-        case SECTOR_WALLNUM: labelNum = s->wallnum; break;
+        case SECTOR_WALLPTR: labelNum = pSector->wallptr; break;
+        case SECTOR_WALLNUM: labelNum = pSector->wallnum; break;
 
-        case SECTOR_CEILINGZ: labelNum = s->ceilingz; break;
-        case SECTOR_CEILINGZVEL: labelNum = (GetAnimationGoal(&s->ceilingz) == -1) ? 0 : s->extra; break;
-        case SECTOR_CEILINGZGOAL: labelNum = GetAnimationGoal(&s->ceilingz); break;
+        case SECTOR_CEILINGZ: labelNum = pSector->ceilingz; break;
+        case SECTOR_CEILINGZVEL: labelNum = (GetAnimationGoal(&pSector->ceilingz) == -1) ? 0 : pSector->extra; break;
+        case SECTOR_CEILINGZGOAL: labelNum = GetAnimationGoal(&pSector->ceilingz); break;
 
-        case SECTOR_FLOORZ: labelNum = s->floorz; break;
-        case SECTOR_FLOORZVEL: labelNum = (GetAnimationGoal(&s->floorz) == -1) ? 0 : s->extra; break;
-        case SECTOR_FLOORZGOAL: labelNum = GetAnimationGoal(&s->floorz); break;
+        case SECTOR_FLOORZ: labelNum = pSector->floorz; break;
+        case SECTOR_FLOORZVEL: labelNum = (GetAnimationGoal(&pSector->floorz) == -1) ? 0 : pSector->extra; break;
+        case SECTOR_FLOORZGOAL: labelNum = GetAnimationGoal(&pSector->floorz); break;
 
-        case SECTOR_CEILINGSTAT: labelNum = s->ceilingstat; break;
-        case SECTOR_FLOORSTAT: labelNum = s->floorstat; break;
-        case SECTOR_CEILINGPICNUM: labelNum = s->ceilingpicnum; break;
-        case SECTOR_CEILINGSLOPE: labelNum = s->ceilingheinum; break;
-        case SECTOR_CEILINGSHADE: labelNum = s->ceilingshade; break;
-        case SECTOR_CEILINGPAL: labelNum = s->ceilingpal; break;
-        case SECTOR_CEILINGXPANNING: labelNum = s->ceilingxpanning; break;
-        case SECTOR_CEILINGYPANNING: labelNum = s->ceilingypanning; break;
-        case SECTOR_FLOORPICNUM: labelNum = s->floorpicnum; break;
-        case SECTOR_FLOORSLOPE: labelNum = s->floorheinum; break;
-        case SECTOR_FLOORSHADE: labelNum = s->floorshade; break;
-        case SECTOR_FLOORPAL: labelNum = s->floorpal; break;
-        case SECTOR_FLOORXPANNING: labelNum = s->floorxpanning; break;
-        case SECTOR_FLOORYPANNING: labelNum = s->floorypanning; break;
-        case SECTOR_VISIBILITY: labelNum = s->visibility; break;
-        case SECTOR_FOGPAL: labelNum = s->fogpal; break;
-        case SECTOR_LOTAG: labelNum = (int16_t)s->lotag; break;
-        case SECTOR_HITAG: labelNum = (int16_t)s->hitag; break;
-        case SECTOR_ULOTAG: labelNum = s->lotag; break;
-        case SECTOR_UHITAG: labelNum = s->hitag; break;
-        case SECTOR_EXTRA: labelNum = s->extra; break;
+        case SECTOR_CEILINGSTAT: labelNum = pSector->ceilingstat; break;
+        case SECTOR_FLOORSTAT: labelNum = pSector->floorstat; break;
+        case SECTOR_CEILINGPICNUM: labelNum = pSector->ceilingpicnum; break;
+        case SECTOR_CEILINGSLOPE: labelNum = pSector->ceilingheinum; break;
+        case SECTOR_CEILINGSHADE: labelNum = pSector->ceilingshade; break;
+        case SECTOR_CEILINGPAL: labelNum = pSector->ceilingpal; break;
+        case SECTOR_CEILINGXPANNING: labelNum = pSector->ceilingxpanning; break;
+        case SECTOR_CEILINGYPANNING: labelNum = pSector->ceilingypanning; break;
+        case SECTOR_FLOORPICNUM: labelNum = pSector->floorpicnum; break;
+        case SECTOR_FLOORSLOPE: labelNum = pSector->floorheinum; break;
+        case SECTOR_FLOORSHADE: labelNum = pSector->floorshade; break;
+        case SECTOR_FLOORPAL: labelNum = pSector->floorpal; break;
+        case SECTOR_FLOORXPANNING: labelNum = pSector->floorxpanning; break;
+        case SECTOR_FLOORYPANNING: labelNum = pSector->floorypanning; break;
+        case SECTOR_VISIBILITY: labelNum = pSector->visibility; break;
+        case SECTOR_FOGPAL: labelNum = pSector->fogpal; break;
+        case SECTOR_LOTAG: labelNum = (int16_t)pSector->lotag; break;
+        case SECTOR_HITAG: labelNum = (int16_t)pSector->hitag; break;
+        case SECTOR_ULOTAG: labelNum = pSector->lotag; break;
+        case SECTOR_UHITAG: labelNum = pSector->hitag; break;
+        case SECTOR_EXTRA: labelNum = pSector->extra; break;
         case SECTOR_CEILINGBUNCH:
         case SECTOR_FLOORBUNCH:
 #ifdef YAX_ENABLE
@@ -958,52 +938,52 @@ void __fastcall VM_SetSector(int32_t const sectNum, int32_t const labelNum, int3
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
     {
-        CON_ERRPRINTF("VM_SetSector: Invalid sector %d\n", sectNum);
+        CON_ERRPRINTF("invalid sector %d\n", sectNum);
         return;
     }
 
-    sectortype * const s = &sector[sectNum];
+    sectortype * const pSector = &sector[sectNum];
 
     switch (labelNum)
     {
-        case SECTOR_WALLPTR: s->wallptr = iSet; break;
-        case SECTOR_WALLNUM: s->wallnum = iSet; break;
+        case SECTOR_WALLPTR: pSector->wallptr = iSet; break;
+        case SECTOR_WALLNUM: pSector->wallnum = iSet; break;
 
-        case SECTOR_CEILINGZ: s->ceilingz = iSet; break;
-        case SECTOR_CEILINGZVEL: s->extra = iSet;
-            if ((iSet = GetAnimationGoal(&s->ceilingz)) != -1)
+        case SECTOR_CEILINGZ: pSector->ceilingz = iSet; break;
+        case SECTOR_CEILINGZVEL: pSector->extra = iSet;
+            if ((iSet = GetAnimationGoal(&pSector->ceilingz)) != -1)
         case SECTOR_CEILINGZGOAL:
-            SetAnimation(sectNum, &s->ceilingz, iSet, s->extra);
+            SetAnimation(sectNum, &pSector->ceilingz, iSet, pSector->extra);
             break;
 
-        case SECTOR_FLOORZ: s->floorz = iSet; break;
-        case SECTOR_FLOORZVEL: s->extra = iSet;
-            if ((iSet = GetAnimationGoal(&s->floorz)) != -1)
+        case SECTOR_FLOORZ: pSector->floorz = iSet; break;
+        case SECTOR_FLOORZVEL: pSector->extra = iSet;
+            if ((iSet = GetAnimationGoal(&pSector->floorz)) != -1)
         case SECTOR_FLOORZGOAL:
-            SetAnimation(sectNum, &s->floorz, iSet, s->extra);
+            SetAnimation(sectNum, &pSector->floorz, iSet, pSector->extra);
             break;
 
-        case SECTOR_CEILINGSTAT: s->ceilingstat = iSet; break;
-        case SECTOR_FLOORSTAT: s->floorstat = iSet; break;
-        case SECTOR_CEILINGPICNUM: s->ceilingpicnum = iSet; break;
-        case SECTOR_CEILINGSLOPE: s->ceilingheinum = iSet; break;
-        case SECTOR_CEILINGSHADE: s->ceilingshade = iSet; break;
-        case SECTOR_CEILINGPAL: s->ceilingpal = iSet; break;
-        case SECTOR_CEILINGXPANNING: s->ceilingxpanning = iSet; break;
-        case SECTOR_CEILINGYPANNING: s->ceilingypanning = iSet; break;
-        case SECTOR_FLOORPICNUM: s->floorpicnum = iSet; break;
-        case SECTOR_FLOORSLOPE: s->floorheinum = iSet; break;
-        case SECTOR_FLOORSHADE: s->floorshade = iSet; break;
-        case SECTOR_FLOORPAL: s->floorpal = iSet; break;
-        case SECTOR_FLOORXPANNING: s->floorxpanning = iSet; break;
-        case SECTOR_FLOORYPANNING: s->floorypanning = iSet; break;
-        case SECTOR_VISIBILITY: s->visibility = iSet; break;
-        case SECTOR_FOGPAL: s->fogpal = iSet; break;
-        case SECTOR_LOTAG: s->lotag = (int16_t) iSet; break;
-        case SECTOR_HITAG: s->hitag = (int16_t) iSet; break;
-        case SECTOR_ULOTAG: s->lotag = iSet; break;
-        case SECTOR_UHITAG: s->hitag = iSet; break;
-        case SECTOR_EXTRA: s->extra = iSet; break;
+        case SECTOR_CEILINGSTAT: pSector->ceilingstat = iSet; break;
+        case SECTOR_FLOORSTAT: pSector->floorstat = iSet; break;
+        case SECTOR_CEILINGPICNUM: pSector->ceilingpicnum = iSet; break;
+        case SECTOR_CEILINGSLOPE: pSector->ceilingheinum = iSet; break;
+        case SECTOR_CEILINGSHADE: pSector->ceilingshade = iSet; break;
+        case SECTOR_CEILINGPAL: pSector->ceilingpal = iSet; break;
+        case SECTOR_CEILINGXPANNING: pSector->ceilingxpanning = iSet; break;
+        case SECTOR_CEILINGYPANNING: pSector->ceilingypanning = iSet; break;
+        case SECTOR_FLOORPICNUM: pSector->floorpicnum = iSet; break;
+        case SECTOR_FLOORSLOPE: pSector->floorheinum = iSet; break;
+        case SECTOR_FLOORSHADE: pSector->floorshade = iSet; break;
+        case SECTOR_FLOORPAL: pSector->floorpal = iSet; break;
+        case SECTOR_FLOORXPANNING: pSector->floorxpanning = iSet; break;
+        case SECTOR_FLOORYPANNING: pSector->floorypanning = iSet; break;
+        case SECTOR_VISIBILITY: pSector->visibility = iSet; break;
+        case SECTOR_FOGPAL: pSector->fogpal = iSet; break;
+        case SECTOR_LOTAG: pSector->lotag = (int16_t) iSet; break;
+        case SECTOR_HITAG: pSector->hitag = (int16_t) iSet; break;
+        case SECTOR_ULOTAG: pSector->lotag = iSet; break;
+        case SECTOR_UHITAG: pSector->hitag = iSet; break;
+        case SECTOR_EXTRA: pSector->extra = iSet; break;
         case SECTOR_CEILINGBUNCH:
         case SECTOR_FLOORBUNCH:
         default: break;
@@ -1012,17 +992,10 @@ void __fastcall VM_SetSector(int32_t const sectNum, int32_t const labelNum, int3
 
 void __fastcall VM_SetSprite(int32_t const spriteNum, int32_t const labelNum, int32_t const lParm2, int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE(((unsigned)spriteNum >= MAXSPRITES) ||
+        (ActorLabels[labelNum].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[labelNum].maxParm2)))
     {
-        CON_ERRPRINTF("tried to set %s on invalid target sprite (%d) from spr %d pic %d\n",
-                      ActorLabels[labelNum].name,spriteNum,vm.spriteNum,TrackerCast(vm.pSprite->picnum));
-        return;
-    }
-
-    if (EDUKE32_PREDICT_FALSE(ActorLabels[labelNum].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)ActorLabels[labelNum].maxParm2))
-    {
-        CON_ERRPRINTF("tried to set invalid %s position %d on sprite (%d) from spr %d\n",
-                      ActorLabels[labelNum].name,lParm2,spriteNum,vm.spriteNum);
+        CON_ERRPRINTF("%s[%d] invalid for sprite %d\n", ActorLabels[labelNum].name, lParm2, spriteNum);
         return;
     }
 
@@ -1065,8 +1038,8 @@ void __fastcall VM_SetSprite(int32_t const spriteNum, int32_t const labelNum, in
         case ACTOR_HTTIMETOSLEEP: actor[spriteNum].timetosleep = iSet; break;
         case ACTOR_HTFLOORZ: actor[spriteNum].floorz = iSet; break;
         case ACTOR_HTCEILINGZ: actor[spriteNum].ceilingz = iSet; break;
-        case ACTOR_HTLASTVX: actor[spriteNum].lastvx = iSet; break;
-        case ACTOR_HTLASTVY: actor[spriteNum].lastvy = iSet; break;
+        case ACTOR_HTLASTVX: actor[spriteNum].lastv.x = iSet; break;
+        case ACTOR_HTLASTVY: actor[spriteNum].lastv.y = iSet; break;
         case ACTOR_HTBPOSX: actor[spriteNum].bpos.x = iSet; break;
         case ACTOR_HTBPOSY: actor[spriteNum].bpos.y = iSet; break;
         case ACTOR_HTBPOSZ: actor[spriteNum].bpos.z = iSet; break;
@@ -1089,18 +1062,10 @@ void __fastcall VM_SetSprite(int32_t const spriteNum, int32_t const labelNum, in
 
 int32_t __fastcall VM_GetSprite(int32_t const spriteNum, int32_t labelNum, int32_t const lParm2)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE(((unsigned) spriteNum >= MAXSPRITES) ||
+        (ActorLabels[labelNum].flags & LABEL_HASPARM2 && (unsigned) lParm2 >= (unsigned) ActorLabels[labelNum].maxParm2)))
     {
-        CON_ERRPRINTF("tried to get %s on invalid target sprite (%d) from spr %d pic %d\n",
-                      ActorLabels[labelNum].name,spriteNum,vm.spriteNum,TrackerCast(vm.pSprite->picnum));
-        return -1;
-    }
-
-    if (EDUKE32_PREDICT_FALSE(ActorLabels[labelNum].flags & LABEL_HASPARM2 &&
-        (unsigned)lParm2 >= (unsigned)ActorLabels[labelNum].maxParm2))
-    {
-        CON_ERRPRINTF("tried to get invalid %s position %d on sprite (%d) from spr %d\n",
-                      ActorLabels[labelNum].name,lParm2,spriteNum,vm.spriteNum);
+        CON_ERRPRINTF("%s[%d] invalid for sprite %d\n", ActorLabels[labelNum].name, lParm2, spriteNum);
         return -1;
     }
 
@@ -1143,8 +1108,8 @@ int32_t __fastcall VM_GetSprite(int32_t const spriteNum, int32_t labelNum, int32
         case ACTOR_HTTIMETOSLEEP: labelNum = actor[spriteNum].timetosleep; break;
         case ACTOR_HTFLOORZ: labelNum = actor[spriteNum].floorz; break;
         case ACTOR_HTCEILINGZ: labelNum = actor[spriteNum].ceilingz; break;
-        case ACTOR_HTLASTVX: labelNum = actor[spriteNum].lastvx; break;
-        case ACTOR_HTLASTVY: labelNum = actor[spriteNum].lastvy; break;
+        case ACTOR_HTLASTVX: labelNum = actor[spriteNum].lastv.x; break;
+        case ACTOR_HTLASTVY: labelNum = actor[spriteNum].lastv.y; break;
         case ACTOR_HTBPOSX: labelNum = actor[spriteNum].bpos.x; break;
         case ACTOR_HTBPOSY: labelNum = actor[spriteNum].bpos.y; break;
         case ACTOR_HTBPOSZ: labelNum = actor[spriteNum].bpos.z; break;
@@ -1171,17 +1136,15 @@ int32_t __fastcall VM_GetTsprite(int32_t const spriteNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
     {
-        CON_ERRPRINTF("VM_GetTsprite: invalid target sprite (%d) %d %d\n", spriteNum, vm.spriteNum, TrackerCast(vm.pSprite->picnum));
+error:
+        CON_ERRPRINTF("invalid sprite %d or no tsprite\n", spriteNum);
         return -1;
     }
 
-    uspritetype * const tspr = spriteext[spriteNum].tspr;
+    uspritetype const * const tspr = spriteext[spriteNum].tspr;
 
     if (EDUKE32_PREDICT_FALSE(!tspr))
-    {
-        CON_ERRPRINTF("VM_GetTsprite: Internal bug, tsprite is unavailable\n");
-        return -1;
-    }
+        goto error;
 
     switch (labelNum)
     {
@@ -1218,19 +1181,17 @@ int32_t __fastcall VM_GetTsprite(int32_t const spriteNum, int32_t labelNum)
 
 void __fastcall VM_SetTsprite(int32_t const spriteNum, int32_t const labelNum, int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+    if (EDUKE32_PREDICT_FALSE((unsigned) spriteNum >= MAXSPRITES))
     {
-        CON_ERRPRINTF("VM_SetTsprite: invalid target sprite (%d) %d %d\n", spriteNum, vm.spriteNum, TrackerCast(vm.pSprite->picnum));
+error:
+        CON_ERRPRINTF("invalid sprite %d or no tsprite\n", spriteNum);
         return;
     }
 
     uspritetype * const tspr = spriteext[spriteNum].tspr;
 
     if (EDUKE32_PREDICT_FALSE(!tspr))
-    {
-        CON_ERRPRINTF("VM_SetTsprite: Internal bug, tsprite is unavailable\n");
-        return;
-    }
+        goto error;
 
     switch (labelNum)
     {
@@ -1266,17 +1227,15 @@ int32_t __fastcall VM_GetProjectile(int32_t const tileNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)tileNum >= MAXTILES))
     {
-        CON_ERRPRINTF("VM_GetProjectile: invalid projectile (%d)\n", tileNum);
+error:
+        CON_ERRPRINTF("invalid projectile %d\n", tileNum);
         return -1;
     }
 
-    projectile_t * const proj = g_tile[tileNum].proj;
+    projectile_t const * const proj = g_tile[tileNum].proj;
 
     if (EDUKE32_PREDICT_FALSE(!proj))
-    {
-        CON_ERRPRINTF("VM_GetProjectile: no projectile defined for tile %d\n", tileNum);
-        return -1;
-    }
+        goto error;
 
     switch (labelNum)
     {
@@ -1318,19 +1277,17 @@ int32_t __fastcall VM_GetProjectile(int32_t const tileNum, int32_t labelNum)
 
 void __fastcall VM_SetProjectile(int32_t const tileNum, int32_t const labelNum, int32_t const iSet)
 {
-    if (EDUKE32_PREDICT_FALSE((unsigned)tileNum >= MAXTILES))
+    if (EDUKE32_PREDICT_FALSE((unsigned) tileNum >= MAXTILES))
     {
-        CON_ERRPRINTF("VM_SetProjectile: invalid projectile (%d)\n", tileNum);
+error:
+        CON_ERRPRINTF("invalid projectile %d\n", tileNum);
         return;
     }
 
     projectile_t * const proj = g_tile[tileNum].proj;
 
     if (EDUKE32_PREDICT_FALSE(!proj))
-    {
-        CON_ERRPRINTF("VM_SetProjectile: no projectile defined for tile %d\n", tileNum);
-        return;
-    }
+        goto error;
 
     switch (labelNum)
     {
@@ -1371,7 +1328,7 @@ int32_t __fastcall VM_GetTileData(int32_t const tileNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)tileNum >= MAXTILES))
     {
-        CON_ERRPRINTF("VM_GetTileData: invalid tile (%d)\n", tileNum);
+        CON_ERRPRINTF("invalid tile %d\n", tileNum);
         return -1;
     }
 
@@ -1398,14 +1355,13 @@ int32_t __fastcall VM_GetPalData(int32_t const palNum, int32_t labelNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)palNum >= MAXPALOOKUPS))
     {
-        CON_ERRPRINTF("VM_GetPalData: invalid pal (%d)\n", palNum);
+        CON_ERRPRINTF("invalid palette %d\n", palNum);
         return -1;
     }
 
     switch (labelNum)
     {
         case PALDATA_NOFLOORPAL: labelNum = g_noFloorPal[palNum]; break;
-
         default: labelNum = -1; break;
     }
 

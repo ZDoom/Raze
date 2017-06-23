@@ -150,6 +150,17 @@ static FORCE_INLINE int32_t VM_EventCommon_(int eventNum, int spriteNum, int pla
     return returnValue;
 }
 #else
+// do not inline
+static void VM_DummySprite(void)
+{
+    static uspritetype dummy_sprite;
+    static actor_t dummy;
+
+    vm.pUSprite = &dummy_sprite;
+    vm.pActor = &dummy;
+    vm.pData = &dummy.t_data[0];
+}
+
 static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const spriteNum, int const playerNum,
                                      int const playerDist, int32_t returnValue)
 {
@@ -161,7 +172,8 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
                                0,
                                &sprite[(unsigned)spriteNum],
                                &actor[(unsigned)spriteNum].t_data[0],
-                               g_player[playerNum].ps };
+                               g_player[playerNum].ps, 
+                               &actor[(unsigned) spriteNum] };
 
     // since we're targeting C99 and C++ now, we can interweave these to avoid
     // having to load addresses for things twice
@@ -182,15 +194,9 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
 
     // check tempvm instead of vm... this way, we are not actually loading
     // FROM vm anywhere until VM_Execute() is called
-    if (EDUKE32_PREDICT_FALSE((unsigned)tempvm.spriteNum >= MAXSPRITES))
-    {
-        static uspritetype dummy_sprite;
-        static int32_t dummy_t[ARRAY_SIZE(actor[0].t_data)];
-
-        vm.pUSprite = &dummy_sprite;
-        vm.pData = dummy_t;
-    }
-
+    if (EDUKE32_PREDICT_FALSE((unsigned) tempvm.spriteNum >= MAXSPRITES))
+        VM_DummySprite();
+ 
     if ((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers)
         vm.pPlayer = g_player[0].ps;
 
@@ -271,8 +277,8 @@ static int32_t VM_CheckSquished(void)
 
     if (EDUKE32_PREDICT_FALSE(vm.pSprite->pal == 1)) // frozen
     {
-        actor[vm.spriteNum].picnum = SHOTSPARK1;
-        actor[vm.spriteNum].extra  = 1;
+        vm.pActor->picnum = SHOTSPARK1;
+        vm.pActor->extra  = 1;
         return 0;
     }
 
@@ -291,20 +297,20 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 }
 #endif
 
-int32_t A_Dodge(spritetype *pSprite)
+// wow, this function sucks
+static int32_t A_Dodge(spritetype * const pSprite)
 {
-    vec2_t const m    = *(vec2_t *)pSprite;
-    vec2_t const msin = { sintable[(pSprite->ang + 512) & 2047], sintable[pSprite->ang & 2047] };
-
     if (A_CheckEnemySprite(pSprite) && pSprite->extra <= 0)  // hack
         return 0;
+
+    vec2_t const msin = { sintable[(pSprite->ang + 512) & 2047], sintable[pSprite->ang & 2047] };
 
     for (bssize_t nexti, SPRITES_OF_STAT_SAFE(STAT_PROJECTILE, i, nexti)) //weapons list
     {
         if (OW(i) == i)
             continue;
 
-        vec2_t const b = { SX(i) - m.x, SY(i) - m.y };
+        vec2_t const b = { SX(i) - pSprite->x, SY(i) - pSprite->y };
         vec2_t const v = { sintable[(SA(i) + 512) & 2047], sintable[SA(i) & 2047] };
 
         if (((msin.x * b.x) + (msin.y * b.y) >= 0) && ((v.x * b.x) + (v.y * b.y) < 0))
@@ -327,12 +333,12 @@ int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv)
     if (pSprite->picnum != APLAYER && (AC_COUNT(actor[spriteNum].t_data)&63) > 2)
         return pSprite->ang + 1024;
 
-    int32_t   furthest_angle = 0;
-    int32_t   greatestd      = INT32_MIN;
-    int const angincs        = tabledivide32_noinline(2048, angDiv);
+    int32_t   furthestAngle = 0;
+    int32_t   greatestDist  = INT32_MIN;
+    int const angIncs       = tabledivide32_noinline(2048, angDiv);
     hitdata_t hit;
 
-    for (bssize_t j = pSprite->ang; j < (2048 + pSprite->ang); j += angincs)
+    for (bssize_t j = pSprite->ang; j < (2048 + pSprite->ang); j += angIncs)
     {
         pSprite->z -= ZOFFSET3;
         hitscan((const vec3_t *)pSprite, pSprite->sectnum,
@@ -341,19 +347,19 @@ int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv)
                 &hit, CLIPMASK1);
         pSprite->z += ZOFFSET3;
 
-        int const d = klabs(hit.pos.x-pSprite->x) + klabs(hit.pos.y-pSprite->y);
+        int const hitDist = klabs(hit.pos.x-pSprite->x) + klabs(hit.pos.y-pSprite->y);
 
-        if (d > greatestd)
+        if (hitDist > greatestDist)
         {
-            greatestd = d;
-            furthest_angle = j;
+            greatestDist = hitDist;
+            furthestAngle = j;
         }
     }
 
-    return furthest_angle&2047;
+    return furthestAngle&2047;
 }
 
-int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts, int32_t * const dax, int32_t * const day)
+int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts, vec2_t * const vect)
 {
     if (AC_COUNT(actor[spriteNum].t_data)&63)
         return -1;
@@ -382,8 +388,8 @@ int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts, int32_t 
             if (cansee(hit.pos.x, hit.pos.y, hit.pos.z, hit.sect,
                         pnSprite->x, pnSprite->y, pnSprite->z - ZOFFSET2, pnSprite->sectnum))
             {
-                *dax = hit.pos.x;
-                *day = hit.pos.y;
+                vect->x = hit.pos.x;
+                vect->y = hit.pos.y;
                 return hit.sect;
             }
         }
@@ -409,7 +415,7 @@ static void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t *
     pSprite->cstat = ocstat;
 }
 
-void A_GetZLimits(int spriteNum)
+void A_GetZLimits(int const spriteNum)
 {
     spritetype *const pSprite = &sprite[spriteNum];
     int32_t           ceilhit, florhit;
@@ -525,9 +531,9 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
     if (vm.pSprite->zvel < 648)
         vm.pSprite->zvel += ((moveptr[1]<<4) - vm.pSprite->zvel)/5;
 #else
-    vm.pSprite->xvel += (actor[vm.spriteNum].mv.hvel - vm.pSprite->xvel)/5;
+    vm.pSprite->xvel += (vm.pActor->mv.hvel - vm.pSprite->xvel)/5;
     if (vm.pSprite->zvel < 648)
-        vm.pSprite->zvel += ((actor[vm.spriteNum].mv.vvel<<4) - vm.pSprite->zvel)/5;
+        vm.pSprite->zvel += ((vm.pActor->mv.vvel<<4) - vm.pSprite->zvel)/5;
 #endif
 
     if (A_CheckEnemySprite(vm.pSprite) && vm.pSprite->extra <= 0) // hack
@@ -547,7 +553,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
           : vm.pPlayer->i;
 
         int const goalAng = (sprite[vm.pSprite->owner].picnum == APLAYER)
-                  ? getangle(actor[vm.spriteNum].lastvx - vm.pSprite->x, actor[vm.spriteNum].lastvy - vm.pSprite->y)
+                  ? getangle(vm.pActor->lastv.x - vm.pSprite->x, vm.pActor->lastv.y - vm.pSprite->y)
                   : getangle(sprite[vm.pSprite->owner].x - vm.pSprite->x, sprite[vm.pSprite->owner].y - vm.pSprite->y);
 
         if (vm.pSprite->xvel && vm.pSprite->picnum != DRONE)
@@ -558,10 +564,10 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
             {
                 if (klabs(angDiff) < 256)
                 {
-                    int const j = 128-(krand()&256);
-                    vm.pSprite->ang += j;
+                    int const angInc = 128-(krand()&256);
+                    vm.pSprite->ang += angInc;
                     if (A_GetHitscanRange(vm.spriteNum) < 844)
-                        vm.pSprite->ang -= j;
+                        vm.pSprite->ang -= angInc;
                 }
             }
             else if (elapsedTics > 18 && elapsedTics < GAMETICSPERSEC) // choose
@@ -653,10 +659,10 @@ GAMEEXEC_STATIC void VM_Move(void)
 
     if (AC_MOVE_ID(vm.pData) == 0 || movflags == 0)
     {
-        if (deadflag || (actor[vm.spriteNum].bpos.x != vm.pSprite->x) || (actor[vm.spriteNum].bpos.y != vm.pSprite->y))
+        if (deadflag || (vm.pActor->bpos.x != vm.pSprite->x) || (vm.pActor->bpos.y != vm.pSprite->y))
         {
-            actor[vm.spriteNum].bpos.x = vm.pSprite->x;
-            actor[vm.spriteNum].bpos.y = vm.pSprite->y;
+            vm.pActor->bpos.x = vm.pSprite->x;
+            vm.pActor->bpos.y = vm.pSprite->y;
             setsprite(vm.spriteNum, (vec3_t *)vm.pSprite);
         }
         return;
@@ -701,8 +707,8 @@ dead:
     if (movflags&geth) vm.pSprite->xvel += ((moveptr[0])-vm.pSprite->xvel)>>1;
     if (movflags&getv) vm.pSprite->zvel += ((moveptr[1]<<4)-vm.pSprite->zvel)>>1;
 #else
-    if (movflags&geth) vm.pSprite->xvel += (actor[vm.spriteNum].mv.hvel - vm.pSprite->xvel)>>1;
-    if (movflags&getv) vm.pSprite->zvel += (16*actor[vm.spriteNum].mv.vvel - vm.pSprite->zvel)>>1;
+    if (movflags&geth) vm.pSprite->xvel += (vm.pActor->mv.hvel - vm.pSprite->xvel)>>1;
+    if (movflags&getv) vm.pSprite->zvel += (16*vm.pActor->mv.vvel - vm.pSprite->zvel)>>1;
 #endif
 
     if (movflags&dodgebullet && !deadflag)
@@ -730,14 +736,14 @@ dead:
                     int32_t nSectorZ;
                     // NOTE: COMMANDER updates both actor[].floorz and
                     // .ceilingz regardless of its zvel.
-                    actor[vm.spriteNum].floorz = nSectorZ = VM_GetFlorZOfSlope();
+                    vm.pActor->floorz = nSectorZ = VM_GetFlorZOfSlope();
                     if (vm.pSprite->z > nSectorZ-ZOFFSET3)
                     {
                         vm.pSprite->z = nSectorZ-ZOFFSET3;
                         vm.pSprite->zvel = 0;
                     }
 
-                    actor[vm.spriteNum].ceilingz = nSectorZ = VM_GetCeilZOfSlope();
+                    vm.pActor->ceilingz = nSectorZ = VM_GetCeilZOfSlope();
                     if (vm.pSprite->z < nSectorZ+(80<<8))
                     {
                         vm.pSprite->z = nSectorZ+(80<<8);
@@ -750,13 +756,13 @@ dead:
                     // The DRONE updates either .floorz or .ceilingz, not both.
                     if (vm.pSprite->zvel > 0)
                     {
-                        actor[vm.spriteNum].floorz = nSectorZ = VM_GetFlorZOfSlope();
+                        vm.pActor->floorz = nSectorZ = VM_GetFlorZOfSlope();
                         if (vm.pSprite->z > nSectorZ-(30<<8))
                             vm.pSprite->z = nSectorZ-(30<<8);
                     }
                     else
                     {
-                        actor[vm.spriteNum].ceilingz = nSectorZ = VM_GetCeilZOfSlope();
+                        vm.pActor->ceilingz = nSectorZ = VM_GetCeilZOfSlope();
                         if (vm.pSprite->z < nSectorZ+(50<<8))
                         {
                             vm.pSprite->z = nSectorZ+(50<<8);
@@ -771,8 +777,8 @@ dead:
                 // .ceilingz here.
                 if (vm.pSprite->zvel > 0)
                 {
-                    if (vm.pSprite->z > actor[vm.spriteNum].floorz)
-                        vm.pSprite->z = actor[vm.spriteNum].floorz;
+                    if (vm.pSprite->z > vm.pActor->floorz)
+                        vm.pSprite->z = vm.pActor->floorz;
                     vm.pSprite->z += A_GetWaterZOffset(vm.spriteNum);
                 }
                 else if (vm.pSprite->zvel < 0)
@@ -817,13 +823,13 @@ dead:
             }
         }
         else if (vm.pSprite->picnum == APLAYER)
-            if (vm.pSprite->z < actor[vm.spriteNum].ceilingz+ZOFFSET5)
-                vm.pSprite->z = actor[vm.spriteNum].ceilingz+ZOFFSET5;
+            if (vm.pSprite->z < vm.pActor->ceilingz+ZOFFSET5)
+                vm.pSprite->z = vm.pActor->ceilingz+ZOFFSET5;
 
         vec3_t const vect = { (spriteXvel * (sintable[(angDiff + 512) & 2047])) >> 14,
                               (spriteXvel * (sintable[angDiff & 2047])) >> 14, vm.pSprite->zvel };
 
-        actor[vm.spriteNum].movflag = A_MoveSprite(vm.spriteNum, &vect, (A_CheckSpriteFlags(vm.spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK0));
+        vm.pActor->movflag = A_MoveSprite(vm.spriteNum, &vect, (A_CheckSpriteFlags(vm.spriteNum, SFLAG_NOCLIP) ? 0 : CLIPMASK0));
     }
 
     if (!badguyp)
@@ -1318,11 +1324,11 @@ skip_check:
                                vm.pSprite->sectnum, pPlayer->pos.x, pPlayer->pos.y,
                                pPlayer->pos.z/*-((krand()&41)<<8)*/, sprite[pPlayer->i].sectnum);
             VM_CONDITIONAL(tw);
-            if (tw) actor[vm.spriteNum].timetosleep = SLEEPTIME;
+            if (tw) vm.pActor->timetosleep = SLEEPTIME;
         continue;
 
         case CON_IFACTORNOTSTAYPUT:
-            VM_CONDITIONAL(actor[vm.spriteNum].actorstayput == -1);
+            VM_CONDITIONAL(vm.pActor->actorstayput == -1);
             continue;
 
         case CON_IFCANSEE:
@@ -1357,19 +1363,19 @@ skip_check:
                 // also modifies 'target' x&y if found..
 
                 tw = 1;
-                if (A_FurthestVisiblePoint(vm.spriteNum,pSprite,&actor[vm.spriteNum].lastvx,&actor[vm.spriteNum].lastvy) == -1)
+                if (A_FurthestVisiblePoint(vm.spriteNum,pSprite,&vm.pActor->lastv) == -1)
                     tw = 0;
             }
             else
             {
                 // else, they did see it.
                 // save where we were looking...
-                actor[vm.spriteNum].lastvx = pSprite->x;
-                actor[vm.spriteNum].lastvy = pSprite->y;
+                vm.pActor->lastv.x = pSprite->x;
+                vm.pActor->lastv.y = pSprite->y;
             }
 
             if (tw && (vm.pSprite->statnum == STAT_ACTOR || vm.pSprite->statnum == STAT_STANDABLE))
-                actor[vm.spriteNum].timetosleep = SLEEPTIME;
+                vm.pActor->timetosleep = SLEEPTIME;
 
             VM_CONDITIONAL(tw);
             continue;
@@ -1421,14 +1427,14 @@ skip_check:
 
         case CON_IFPDISTL:
             VM_CONDITIONAL(vm.playerDist < *(++insptr));
-            if (vm.playerDist > MAXSLEEPDIST && actor[vm.spriteNum].timetosleep == 0)
-                actor[vm.spriteNum].timetosleep = SLEEPTIME;
+            if (vm.playerDist > MAXSLEEPDIST && vm.pActor->timetosleep == 0)
+                vm.pActor->timetosleep = SLEEPTIME;
             continue;
 
         case CON_IFPDISTG:
             VM_CONDITIONAL(vm.playerDist > *(++insptr));
-            if (vm.playerDist > MAXSLEEPDIST && actor[vm.spriteNum].timetosleep == 0)
-                actor[vm.spriteNum].timetosleep = SLEEPTIME;
+            if (vm.playerDist > MAXSLEEPDIST && vm.pActor->timetosleep == 0)
+                vm.pActor->timetosleep = SLEEPTIME;
             continue;
 
         case CON_ADDSTRENGTH:
@@ -1474,9 +1480,9 @@ skip_check:
             {
                 if (vm.pSprite->pal == 1 && vm.pSprite->extra == 0) // hack for frozen
                     vm.pSprite->extra++;
-                vm.pSprite->pal = actor[vm.spriteNum].tempang;
+                vm.pSprite->pal = vm.pActor->tempang;
             }
-            actor[vm.spriteNum].tempang = 0;
+            vm.pActor->tempang = 0;
             continue;
 
         case CON_TOSSWEAPON:
@@ -1515,7 +1521,7 @@ skip_check:
             vm.pSprite->xrepeat += ksgn(tw);
 
             if ((vm.pSprite->picnum == APLAYER && vm.pSprite->yrepeat < 36) || *insptr < vm.pSprite->yrepeat ||
-                    ((vm.pSprite->yrepeat*(tilesiz[vm.pSprite->picnum].y+8))<<2) < (actor[vm.spriteNum].floorz - actor[vm.spriteNum].ceilingz))
+                    ((vm.pSprite->yrepeat*(tilesiz[vm.pSprite->picnum].y+8))<<2) < (vm.pActor->floorz - vm.pActor->ceilingz))
             {
                 tw = ((*insptr)-vm.pSprite->yrepeat)<<1;
                 if (klabs(tw)) vm.pSprite->yrepeat += ksgn(tw);
@@ -1706,7 +1712,7 @@ skip_check:
 
         case CON_SLEEPTIME:
             insptr++;
-            actor[vm.spriteNum].timetosleep = (int16_t)*insptr++;
+            vm.pActor->timetosleep = (int16_t)*insptr++;
             continue;
 
         case CON_PAPER:
@@ -1717,7 +1723,7 @@ skip_check:
         case CON_ADDKILLS:
             insptr++;
             pPlayer->actors_killed += *insptr++;
-            actor[vm.spriteNum].actorstayput = -1;
+            vm.pActor->actorstayput = -1;
             continue;
 
         case CON_LOTSOFGLASS:
@@ -2339,8 +2345,8 @@ nullquote:
                     actor_t * const pActor = &actor[spriteNum];
 
                     Bmemset(&pActor->t_data,  0, sizeof pActor->t_data);
-                    pActor->lastvx          = 0;
-                    pActor->lastvy          = 0;
+                    pActor->lastv.x          = 0;
+                    pActor->lastv.y          = 0;
                     pActor->timetosleep     = 0;
                     pActor->cgg             = 0;
                     pActor->movflag         = 0;
@@ -3415,7 +3421,7 @@ nullquote:
 
         case CON_IFWASWEAPON:
             insptr++;
-            VM_CONDITIONAL(actor[vm.spriteNum].picnum == *insptr);
+            VM_CONDITIONAL(vm.pActor->picnum == *insptr);
             continue;
 
         case CON_IFAI:
@@ -3662,7 +3668,7 @@ nullquote:
 
         case CON_IFSPAWNEDBY:
             insptr++;
-            VM_CONDITIONAL(actor[vm.spriteNum].picnum == *insptr);
+            VM_CONDITIONAL(vm.pActor->picnum == *insptr);
             continue;
 
         case CON_WACKPLAYER:
@@ -3708,7 +3714,7 @@ nullquote:
 
         case CON_IFGAPZL:
             insptr++;
-            VM_CONDITIONAL(((actor[vm.spriteNum].floorz - actor[vm.spriteNum].ceilingz) >> 8) < *insptr);
+            VM_CONDITIONAL(((vm.pActor->floorz - vm.pActor->ceilingz) >> 8) < *insptr);
             continue;
 
         case CON_IFHITSPACE:
@@ -3768,7 +3774,7 @@ nullquote:
         case CON_SPRITEPAL:
             insptr++;
             if (vm.pSprite->picnum != APLAYER)
-                actor[vm.spriteNum].tempang = vm.pSprite->pal;
+                vm.pActor->tempang = vm.pSprite->pal;
             vm.pSprite->pal = *insptr++;
             continue;
 
@@ -3789,12 +3795,12 @@ nullquote:
 
         case CON_IFFLOORDISTL:
             insptr++;
-            VM_CONDITIONAL((actor[vm.spriteNum].floorz - vm.pSprite->z) <= ((*insptr)<<8));
+            VM_CONDITIONAL((vm.pActor->floorz - vm.pSprite->z) <= ((*insptr)<<8));
             continue;
 
         case CON_IFCEILINGDISTL:
             insptr++;
-            VM_CONDITIONAL((vm.pSprite->z - actor[vm.spriteNum].ceilingz) <= ((*insptr)<<8));
+            VM_CONDITIONAL((vm.pSprite->z - vm.pActor->ceilingz) <= ((*insptr)<<8));
             continue;
 
         case CON_PALFROM:
@@ -4516,8 +4522,8 @@ finish_qsprintf:
 
         case CON_GETANGLETOTARGET:
             insptr++;
-            // Actor[vm.spriteNum].lastvx and lastvy are last known location of target.
-            Gv_SetVarX(*insptr++, getangle(actor[vm.spriteNum].lastvx-vm.pSprite->x,actor[vm.spriteNum].lastvy-vm.pSprite->y));
+            // vm.pActor->lastvx and lastvy are last known location of target.
+            Gv_SetVarX(*insptr++, getangle(vm.pActor->lastv.x-vm.pSprite->x,vm.pActor->lastv.y-vm.pSprite->y));
             continue;
 
         case CON_ANGOFFVAR:
@@ -5676,7 +5682,7 @@ finish_qsprintf:
             continue;
 
         case CON_IFNOTMOVING:
-            VM_CONDITIONAL((actor[vm.spriteNum].movflag&49152) > 16384);
+            VM_CONDITIONAL((vm.pActor->movflag&49152) > 16384);
             continue;
 
         case CON_RESPAWNHITAG:
@@ -5723,7 +5729,7 @@ finish_qsprintf:
 
         case CON_SPRITEFLAGS:
             insptr++;
-            actor[vm.spriteNum].flags = Gv_GetVarX(*insptr++);
+            vm.pActor->flags = Gv_GetVarX(*insptr++);
             continue;
 
         case CON_GETTICKS:
@@ -5825,7 +5831,7 @@ void VM_UpdateAnim(int spriteNum, int32_t *pData)
 void A_Execute(int spriteNum, int playerNum, int playerDist)
 {
     vmstate_t tempvm = {
-        spriteNum, playerNum, playerDist, 0, &sprite[spriteNum], &actor[spriteNum].t_data[0], g_player[playerNum].ps
+        spriteNum, playerNum, playerDist, 0, &sprite[spriteNum], &actor[spriteNum].t_data[0], g_player[playerNum].ps, &actor[spriteNum]
     };
     vm = tempvm;
 
@@ -5905,9 +5911,9 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
                 case NUKEBARRELLEAKED__STATIC:
                 case TRIPBOMB__STATIC:
                 case EGG__STATIC:
-                    if (actor[vm.spriteNum].timetosleep > 1)
-                        actor[vm.spriteNum].timetosleep--;
-                    else if (actor[vm.spriteNum].timetosleep == 1)
+                    if (vm.pActor->timetosleep > 1)
+                        vm.pActor->timetosleep--;
+                    else if (vm.pActor->timetosleep == 1)
                         changespritestat(vm.spriteNum, STAT_ZOMBIEACTOR);
                 default: break;
             }
@@ -5925,9 +5931,9 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
 
     if (A_CheckSpriteFlags(vm.spriteNum, SFLAG_USEACTIVATOR) && sector[vm.pSprite->sectnum].lotag & 16384)
         changespritestat(vm.spriteNum, STAT_ZOMBIEACTOR);
-    else if (actor[vm.spriteNum].timetosleep > 1)
-        actor[vm.spriteNum].timetosleep--;
-    else if (actor[vm.spriteNum].timetosleep == 1)
+    else if (vm.pActor->timetosleep > 1)
+        vm.pActor->timetosleep--;
+    else if (vm.pActor->timetosleep == 1)
     {
         // hack for 1.3D fire sprites
         if (EDUKE32_PREDICT_FALSE(g_scriptVersion == 13 && (vm.pSprite->picnum == FIRE || vm.pSprite->picnum == FIRE2)))

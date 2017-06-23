@@ -149,7 +149,6 @@ typedef struct { int32_t id; struct action ac; } con_action_t;
 # define AC_MOVFLAGS(spr, a) ((spr)->hitag)
 #endif
 
-#pragma pack(push, 1)
 // (+ 40 16 16 4 8 6 8 6 4 20)
 typedef struct
 {
@@ -165,46 +164,30 @@ typedef struct
 
     int32_t flags;                             // 4b
     vec3_t  bpos;                              // 12b
-    int32_t floorz, ceilingz, lastvx, lastvy;  // 16b
+    int32_t floorz, ceilingz;                  // 8b
+    vec2_t lastv;                              // 8b
     int32_t lasttransport;                     // 4b
     int16_t picnum, ang, extra, owner;         // 8b
     int16_t movflag, tempang, timetosleep;     // 6b
 
-    // NOTE: 'dispicnum' is updated locally, not in sync with the game!
-    int16_t  actorstayput, dispicnum;
+    int16_t actorstayput;
 #ifdef LUNATIC
     // Movement flags, sprite[i].hitag in C-CON:
     uint16_t movflags;
 #endif
-    int16_t cgg;
-    int16_t lightId, lightcount, lightmaxrange;  // 6b
+    uint8_t cgg, lightcount;
+    int16_t lightId, lightmaxrange;  // 4b
+    // NOTE: 'dispicnum' is updated every frame, not in sync with game tics!
+    int16_t dispicnum;
+
 #ifdef POLYMER
     _prlight *lightptr;  // 4b/8b
 #else
     void *   lightptr;
 #endif
-
-// pad struct to 128 bytes
-#if !defined UINTPTR_MAX
-# error Need UINTPTR_MAX define to select between 32- and 64-bit structs
-#endif
-#if UINTPTR_MAX == 0xffffffff
-    /* 32-bit */
-# if !defined LUNATIC
-    int8_t filler[22];
-# else
-    int8_t filler[4];
-# endif
-#else
-    /* 64-bit */
-# if !defined LUNATIC
-    int8_t filler[18];
-# else
-    /* no padding */
-#endif
-#endif
 } actor_t;
 
+#pragma pack(push, 1)
 // this struct needs to match the beginning of actor_t above
 typedef struct
 {
@@ -218,16 +201,18 @@ typedef struct
 
     int32_t flags;                             // 4b
     vec3_t  bpos;                              // 12b
-    int32_t floorz, ceilingz, lastvx, lastvy;  // 16b
+    int32_t floorz, ceilingz;                  // 8b
+    vec2_t lastv;                              // 8b
     int32_t lasttransport;                     // 4b
     int16_t picnum, ang, extra, owner;         // 8b
     int16_t movflag, tempang, timetosleep;     // 6b
 
-    int16_t  actorstayput, dispicnum;
+    int16_t actorstayput;
 #ifdef LUNATIC
     uint16_t movflags;
 #endif
-    int16_t    cgg;
+    uint8_t    cgg;
+
     spritetype sprite;
     int16_t    netIndex;
 } netactor_t;

@@ -49,9 +49,8 @@ void A_LoadActor(int32_t spriteNum);
 
 void A_Execute(int spriteNum, int playerNum, int playerDist);
 void A_Fall(int const spriteNum);
-int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts,int32_t * const dax,int32_t * const day);
 int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv);
-void A_GetZLimits(int spriteNum);
+void A_GetZLimits(int const spriteNum);
 int G_GetAngleDelta(int a, int na);
 void G_RestoreMapState();
 void G_SaveMapState();
@@ -106,7 +105,6 @@ static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNu
 
 void G_GetTimeDate(int32_t * const pValues);
 int G_StartTrack(int const levelNum);
-int32_t A_Dodge(spritetype *s);
 #ifdef LUNATIC
 void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sect,
                 int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp);

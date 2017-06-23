@@ -1912,7 +1912,7 @@ ACTOR_STATIC void G_MoveStandables(void)
 
                 x = A_CheckHitSprite(spriteNum, &m);
 
-                actor[spriteNum].lastvx = x;
+                actor[spriteNum].lastv.x = x;
 
                 pSprite->ang = l;
 
@@ -1984,7 +1984,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                 setsprite(spriteNum,(vec3_t *)pSprite);
 
 //                if( Actor[i].lastvx != x && lTripBombControl & TRIPBOMB_TRIPWIRE)
-                if (actor[spriteNum].lastvx != x && actor[spriteNum].t_data[6] != 1)
+                if (actor[spriteNum].lastv.x != x && actor[spriteNum].t_data[6] != 1)
                 {
                     actor[spriteNum].t_data[6] = 3;
                     T3(spriteNum) = 13;
@@ -5919,8 +5919,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if ((pSector->floorstat&1) == 0 && (pSector->ceilingstat&1) == 0)
                     {
-                        if (!S_CheckSoundPlaying(spriteNum,actor[spriteNum].lastvx))
-                            A_PlaySound(actor[spriteNum].lastvx,spriteNum);
+                        if (!S_CheckSoundPlaying(spriteNum,actor[spriteNum].lastv.x))
+                            A_PlaySound(actor[spriteNum].lastv.x,spriteNum);
                     }
                     else if (ud.monsters_off == 0 && pSector->floorpal == 0 && (pSector->floorstat&1) && rnd(8))
                     {
@@ -5935,7 +5935,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 if (pSprite->xvel <= 64 && (pSector->floorstat&1) == 0 && (pSector->ceilingstat&1) == 0)
-                    S_StopEnvSound(actor[spriteNum].lastvx,spriteNum);
+                    S_StopEnvSound(actor[spriteNum].lastv.x,spriteNum);
 
                 if ((pSector->floorz-pSector->ceilingz) < (108<<8))
                 {

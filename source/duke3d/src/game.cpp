@@ -3272,7 +3272,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     // XXX: uh.. what?
                     if (spriteNum == -1)
                         spriteNum = SUBWAY;
-                    actor[newSprite].lastvx = spriteNum;
+                    actor[newSprite].lastv.x = spriteNum;
                 case SE_30_TWO_WAY_TRAIN:
                     if (g_netServer || numplayers > 1)
                         break;
