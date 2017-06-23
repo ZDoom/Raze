@@ -497,31 +497,17 @@ int32_t tvlineasm1(int32_t vinc, intptr_t paloffs, bssize_t cnt, uint32_t vplc, 
 
     cnt++;
 
-    if (transm)
+    uint8_t const shift = transm<<3;
+
+    do
     {
-        do
-        {
-            ch = getpix(logy, buf, vplc);
-            if (ch != 255)
-                *pp = trans[(*pp)|(pal[ch]<<8)];
-            pp += ourbpl;
-            vplc += vinc;
-            saturate_vplc_trans(vplc, vinc);
-        }
-        while (--cnt);
+        ch = getpix(logy, buf, vplc);
+        if (ch != 255) *pp = trans[((*pp)<<(8-shift))|(pal[ch]<<shift)];
+        pp += ourbpl;
+        vplc += vinc;
+        saturate_vplc_trans(vplc, vinc);
     }
-    else
-    {
-        do
-        {
-            ch = getpix(logy, buf, vplc);
-            if (ch != 255) *pp = trans[((*pp)<<8)|pal[ch]];
-            pp += ourbpl;
-            vplc += vinc;
-            saturate_vplc_trans(vplc, vinc);
-        }
-        while (--cnt);
-    }
+    while (--cnt);
 
     return vplc;
 }
@@ -553,42 +539,23 @@ void tvlineasm2(uint32_t vplc2, int32_t vinc1, intptr_t bufplc1, intptr_t bufplc
 
     cnt++;
 
-    if (transm)
+    uint8_t const shift = transm<<3;
+
+    do
     {
-        do
-        {
-            ch = getpix(logy, buf1, vplc1);
-            if (ch != 255) pp[0] = gtrans[pp[0]|(gpal[ch]<<8)];
-            vplc1 += vinc1;
-            saturate_vplc_trans(vplc1, vinc1);
+        ch = getpix(logy, buf1, vplc1);
+        if (ch != 255) pp[0] = gtrans[(pp[0]<<(8-shift))|(gpal[ch]<<shift)];
+        vplc1 += vinc1;
+        saturate_vplc_trans(vplc1, vinc1);
 
-            ch = getpix(logy, buf2, vplc2);
-            if (ch != 255) pp[1] = gtrans[pp[1]|(gpal2[ch]<<8)];
-            vplc2 += vinc2;
-            saturate_vplc_trans(vplc2, vinc2);
+        ch = getpix(logy, buf2, vplc2);
+        if (ch != 255) pp[1] = gtrans[(pp[1]<<(8-shift))|(gpal2[ch]<<shift)];
+        vplc2 += vinc2;
+        saturate_vplc_trans(vplc2, vinc2);
 
-            pp += ourbpl;
-        }
-        while (--cnt > 0);
+        pp += ourbpl;
     }
-    else
-    {
-        do
-        {
-            ch = getpix(logy, buf1, vplc1);
-            if (ch != 255) pp[0] = gtrans[(pp[0]<<8)|gpal[ch]];
-            vplc1 += vinc1;
-            saturate_vplc_trans(vplc1, vinc1);
-
-            ch = getpix(logy, buf2, vplc2);
-            if (ch != 255) pp[1] = gtrans[(pp[1]<<8)|gpal2[ch]];
-            vplc2 += vinc2;
-            saturate_vplc_trans(vplc2, vinc2);
-
-            pp += ourbpl;
-        }
-        while (--cnt);
-    }
+    while (--cnt > 0);
 
     asm1 = vplc1;
     asm2 = vplc2;
@@ -638,30 +605,17 @@ void thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, int32_t junk, uint32_
     cntup16>>=16;
     cntup16++;
 
-    if (transmode)
+    uint8_t const shift = transmode<<3;
+
+    do
     {
-        do
-        {
-            ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
-            if (ch != 255) *((char *)p) = gtrans[(*((char *)p))|(gpal[ch]<<8)];
-            bx += xinc;
-            by += yinc;
-            p++;
-        }
-        while (--cntup16);
+        ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
+        if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<(8-shift))|(gpal[ch]<<shift)];
+        bx += xinc;
+        by += yinc;
+        p++;
     }
-    else
-    {
-        do
-        {
-            ch = gbuf[((bx>>(32-glogx))<<glogy)+(by>>(32-glogy))];
-            if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)|gpal[ch]];
-            bx += xinc;
-            by += yinc;
-            p++;
-        }
-        while (--cntup16);
-    }
+    while (--cntup16);
 }
 
 
@@ -720,27 +674,16 @@ void tspritevline(int32_t bx, int32_t by, bssize_t cnt, intptr_t bufplc, intptr_
     char ch;
 
     gbuf = (char *)bufplc;
-    if (transmode)
+
+    uint8_t const shift = transmode<<3;
+
+    for (; cnt>1; cnt--)
     {
-        for (; cnt>1; cnt--)
-        {
-            ch = gbuf[(bx>>16)*glogy+(by>>16)];
-            if (ch != 255) *((char *)p) =  gtrans[(*((char *)p))+(gpal[ch]<<8)];
-            bx += gbxinc;
-            by += gbyinc;
-            p += bpl;
-        }
-    }
-    else
-    {
-        for (; cnt>1; cnt--)
-        {
-            ch = gbuf[(bx>>16)*glogy+(by>>16)];
-            if (ch != 255) *((char *)p) = gtrans[((*((char *)p))<<8)+gpal[ch]];
-            bx += gbxinc;
-            by += gbyinc;
-            p += bpl;
-        }
+        ch = gbuf[(bx>>16)*glogy+(by>>16)];
+        if (ch != 255) *((char *)p) =  gtrans[((*((char *)p))<<(8-shift))+(gpal[ch]<<shift)];
+        bx += gbxinc;
+        by += gbyinc;
+        p += bpl;
     }
 }
 
