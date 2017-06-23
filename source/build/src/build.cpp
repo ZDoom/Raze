@@ -748,6 +748,9 @@ int app_main(int argc, char const * const * argv)
 
     mkonwinvalid();
 
+    // executed once per init
+    OSD_Exec("m32_autoexec.cfg");
+
     if (LoadBoard(boardfilename, 1))
         reset_default_mapstate();
 
@@ -776,9 +779,6 @@ int app_main(int argc, char const * const * argv)
             Bexit(0);
         }
 
-        // executed once per init, but after setgamemode so that OSD has the right width
-        OSD_Exec("m32_autoexec.cfg");
-
         system_getcvars();
 
         overheadeditor();
@@ -801,9 +801,6 @@ int app_main(int argc, char const * const * argv)
             Bprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
             Bexit(0);
         }
-
-        // executed once per init, but after setgamemode so that OSD has the right width
-        OSD_Exec("m32_autoexec.cfg");
 
         system_getcvars();
 
