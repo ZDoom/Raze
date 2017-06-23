@@ -583,6 +583,15 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
     return returnValue;
 }
 
+#define CHECK_INDEX(range)                                                                                                                 \
+    if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= range))                                                                              \
+    \
+{                                                                                                                                   \
+        spriteNum = arrayIndex;                                                                                                            \
+        goto badindex;                                                                                                                     \
+    \
+}
+
 int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
 {
     if (gameVar == g_thisActorVarID)
@@ -653,42 +662,23 @@ special:
         case STRUCT_SPRITE:
         {
             int const label = *insptr++;
-
             arrayIndexVar = (EDUKE32_PREDICT_FALSE(ActorLabels[label].flags & LABEL_HASPARM2)) ?
                         Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
-
-            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
-            {
-                spriteNum = arrayIndex;
-                goto badindex;
-            }
-
+            CHECK_INDEX(MAXSPRITES);
             returnValue = VM_GetSprite(arrayIndex, label, arrayIndexVar);
             break;
         }
         case STRUCT_TSPR:
         {
             int const label = *insptr++;
-
-            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
-            {
-                spriteNum = arrayIndex;
-                goto badindex;
-            }
-
+            CHECK_INDEX(MAXSPRITES);
             returnValue = VM_GetTsprite(arrayIndex, label);
             break;
         }
         case STRUCT_THISPROJECTILE:
         {
             int const label = *insptr++;
-
-            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
-            {
-                spriteNum = arrayIndex;
-                goto badindex;
-            }
-
+            CHECK_INDEX(MAXSPRITES);
             returnValue = VM_GetActiveProjectile(arrayIndex, label);
             break;
         }
@@ -696,26 +686,14 @@ special:
         case STRUCT_PROJECTILE:
         {
             int const label = *insptr++;
-
-            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXTILES))
-            {
-                spriteNum = arrayIndex;
-                goto badindex;
-            }
-
+            CHECK_INDEX(MAXTILES);
             returnValue = VM_GetProjectile(arrayIndex, label);
             break;
         }
         case STRUCT_TILEDATA:
         {
             int const label = *insptr++;
-
-            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXTILES))
-            {
-                spriteNum = arrayIndex;
-                goto badindex;
-            }
-
+            CHECK_INDEX(MAXTILES);
             returnValue = VM_GetTileData(arrayIndex, label);
             break;
         }
@@ -723,13 +701,7 @@ special:
         case STRUCT_PALDATA:
         {
             int const label = *insptr++;
-
-            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPALOOKUPS))
-            {
-                spriteNum = arrayIndex;
-                goto badindex;
-            }
-
+            CHECK_INDEX(MAXPALOOKUPS);
             returnValue = VM_GetPalData(arrayIndex, label);
             break;
         }
@@ -737,18 +709,10 @@ special:
         case STRUCT_PLAYER:
         {
             int const label = *insptr++;
-
             if (arrayIndexVar == g_thisActorVarID) arrayIndex = vm.playerNum;
-
             arrayIndexVar = (EDUKE32_PREDICT_FALSE(PlayerLabels[label].flags & LABEL_HASPARM2)) ?
                 Gv_GetVar(*insptr++, spriteNum, playerNum) : 0;
-
-            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPLAYERS))
-            {
-                spriteNum = arrayIndex;
-                goto badindex;
-            }
-
+            CHECK_INDEX(MAXPLAYERS);
             returnValue = VM_GetPlayer(arrayIndex, label, arrayIndexVar);
             break;
         }
@@ -757,13 +721,7 @@ special:
             int const label = *insptr++;
 
             if (arrayIndexVar == g_thisActorVarID) arrayIndex = vm.playerNum;
-
-            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPLAYERS))
-            {
-                spriteNum = arrayIndex;
-                goto badindex;
-            }
-
+            CHECK_INDEX(MAXPLAYERS);
             returnValue = VM_GetPlayerInput(arrayIndex, label);
             break;
         }
@@ -775,22 +733,12 @@ special:
 
         case STRUCT_SECTOR:
             if (arrayIndexVar == g_thisActorVarID) arrayIndex = sprite[vm.spriteNum].sectnum;
-            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSECTORS))
-            {
-                spriteNum = arrayIndex;
-                insptr++;
-                goto badindex;
-            }
+            CHECK_INDEX(MAXSECTORS);
             returnValue = VM_GetSector(arrayIndex, *insptr++);
             break;
 
         case STRUCT_WALL:
-            if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXWALLS))
-            {
-                spriteNum = arrayIndex;
-                insptr++;
-                goto badindex;
-            }
+            CHECK_INDEX(MAXWALLS);
             returnValue = VM_GetWall(arrayIndex, *insptr++);
             break;
 
@@ -818,6 +766,8 @@ badindex:
     CON_ERRPRINTF("Gv_GetVar(): invalid index %d for \"%s\"\n", spriteNum, aGameVars[gameVar].szLabel);
     return -1;
 }
+
+#undef CHECK_INDEX 
 
 void __fastcall Gv_SetVar(int const gameVar, int const newValue, int const spriteNum, int const playerNum)
 {
@@ -882,6 +832,17 @@ static const char *gvxerrs[] = {
     "Gv_GetVarX(): invalid pal ID",
 };
 
+#define CHECK_INDEX(arrayIndex, range, error)                                                                                              \
+    if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= range))                                                                              \
+    \
+{                                                                                                                                   \
+        gameVar     = arrayIndex;                                                                                                          \
+        returnValue = error;                                                                                                               \
+        goto badindex;                                                                                                                     \
+    \
+}
+
+
 int __fastcall Gv_GetSpecialVarX(int gameVar)
 {
     int returnValue = -1;
@@ -913,44 +874,22 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
             case STRUCT_SPRITE:
             {
                 int const labelNum = *insptr++;
-
                 arrayIndexVar = (EDUKE32_PREDICT_FALSE(ActorLabels[labelNum].flags & LABEL_HASPARM2)) ? Gv_GetVarX(*insptr++) : 0;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
-                {
-                    gameVar = arrayIndex;
-                    returnValue = GVX_BADSPRITE;
-                    goto badindex;
-                }
-
+                CHECK_INDEX(arrayIndex, MAXSPRITES, GVX_BADSPRITE);
                 returnValue = VM_GetSprite(arrayIndex, labelNum, arrayIndexVar);
                 break;
             }
             case STRUCT_TSPR:
             {
                 int const labelNum = *insptr++;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
-                {
-                    gameVar = arrayIndex;
-                    returnValue = GVX_BADSPRITE;
-                    goto badindex;
-                }
-
+                CHECK_INDEX(arrayIndex, MAXSPRITES, GVX_BADSPRITE);
                 returnValue = VM_GetTsprite(arrayIndex, labelNum);
                 break;
             }
             case STRUCT_THISPROJECTILE:
             {
                 int const labelNum = *insptr++;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSPRITES))
-                {
-                    gameVar = arrayIndex;
-                    returnValue = GVX_BADSPRITE;
-                    goto badindex;
-                }
-
+                CHECK_INDEX(arrayIndex, MAXSPRITES, GVX_BADSPRITE);
                 returnValue = VM_GetActiveProjectile(arrayIndex, labelNum);
                 break;
             }
@@ -958,28 +897,14 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
             case STRUCT_PROJECTILE:
             {
                 int const labelNum = *insptr++;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXTILES))
-                {
-                    gameVar = arrayIndex;
-                    returnValue = GVX_BADTILE;
-                    goto badindex;
-                }
-
+                CHECK_INDEX(arrayIndex, MAXTILES, GVX_BADTILE);
                 returnValue = VM_GetProjectile(arrayIndex, labelNum);
                 break;
             }
             case STRUCT_TILEDATA:
             {
                 int const labelNum = *insptr++;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXTILES))
-                {
-                    gameVar = arrayIndex;
-                    returnValue = GVX_BADTILE;
-                    goto badindex;
-                }
-
+                CHECK_INDEX(arrayIndex, MAXTILES, GVX_BADTILE);
                 returnValue = VM_GetTileData(arrayIndex, labelNum);
                 break;
             }
@@ -987,14 +912,7 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
             case STRUCT_PALDATA:
             {
                 int const labelNum = *insptr++;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPALOOKUPS))
-                {
-                    gameVar = arrayIndex;
-                    returnValue = GVX_BADPAL;
-                    goto badindex;
-                }
-
+                CHECK_INDEX(arrayIndex, MAXPALOOKUPS, GVX_BADPAL);
                 returnValue = VM_GetPalData(arrayIndex, labelNum);
                 break;
             }
@@ -1002,37 +920,20 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
             case STRUCT_PLAYER:
             {
                 int const labelNum = *insptr++;
-
                 if (arrayIndexVar == g_thisActorVarID)
                     arrayIndex = vm.playerNum;
-
                 arrayIndexVar = (EDUKE32_PREDICT_FALSE(PlayerLabels[labelNum].flags & LABEL_HASPARM2)) ?
                     Gv_GetVarX(*insptr++) : 0;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPLAYERS))
-                {
-                    gameVar = arrayIndex;
-                    returnValue = GVX_BADPLAYER;
-                    goto badindex;
-                }
-
+                CHECK_INDEX(arrayIndex, MAXPLAYERS, GVX_BADPLAYER);
                 returnValue = VM_GetPlayer(arrayIndex, labelNum, arrayIndexVar);
                 break;
             }
             case STRUCT_INPUT:
             {
                 int const labelNum = *insptr++;
-
                 if (arrayIndexVar == g_thisActorVarID)
                     arrayIndex = vm.playerNum;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXPLAYERS))
-                {
-                    gameVar = arrayIndex;
-                    returnValue = GVX_BADPLAYER;
-                    goto badindex;
-                }
-
+                CHECK_INDEX(arrayIndex, MAXPLAYERS, GVX_BADPLAYER); 
                 returnValue = VM_GetPlayerInput(arrayIndex, labelNum);
                 break;
             }
@@ -1045,25 +946,12 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
             case STRUCT_SECTOR:
                 if (arrayIndexVar == g_thisActorVarID)
                     arrayIndex = sprite[vm.spriteNum].sectnum;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXSECTORS))
-                {
-                    gameVar = arrayIndex;
-                    insptr++;
-                    returnValue = GVX_BADSECTOR;
-                    goto badindex;
-                }
+                CHECK_INDEX(arrayIndex, MAXSECTORS, GVX_BADSECTOR);
                 returnValue = VM_GetSector(arrayIndex, *insptr++);
                 break;
 
             case STRUCT_WALL:
-                if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= MAXWALLS))
-                {
-                    gameVar = arrayIndex;
-                    insptr++;
-                    returnValue = GVX_BADWALL;
-                    goto badindex;
-                }
+                CHECK_INDEX(arrayIndex, MAXWALLS, GVX_BADWALL);
                 returnValue = VM_GetWall(arrayIndex, *insptr++);
                 break;
 
@@ -1081,6 +969,8 @@ badindex:
     CON_ERRPRINTF("%s %d\n", gvxerrs[returnValue], gameVar);
     return -1;
 }
+
+#undef CHECK_INDEX
 
 int __fastcall Gv_GetVarX(int gameVar)
 {
