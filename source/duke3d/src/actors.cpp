@@ -1537,7 +1537,7 @@ ACTOR_STATIC void G_MoveFallers(void)
 
                 if ((sector[sectNum].floorz-pSprite->z) < ZOFFSET2)
                 {
-                    for (bsize_t x=0; x<1+(krand()&7); ++x)
+                    for (bssize_t x=0; x<1+(krand()&7); ++x)
                         RANDOMSCRAP(pSprite, spriteNum);
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
                 }
