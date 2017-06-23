@@ -168,7 +168,7 @@ typedef struct {
 
     int16_t orotscrnang, rotscrnang, dead_flag;   // JBF 20031220: added orotscrnang
     int16_t holoduke_on, pycount;
-    int16_t transporter_hold;
+    int16_t transporter_hold, clipdist;
 
     uint8_t max_secret_rooms, secret_rooms;
     // XXX: 255 values for frag(gedself) seems too small.
@@ -203,7 +203,7 @@ typedef struct {
     // anywhere (like with spritetype_t): g_player[i].ps->wa.idx == i.
     struct { int32_t idx; } wa;
 #endif
-    int8_t padding_;
+    int8_t padding_[3];
 } DukePlayer_t;
 
 // KEEPINSYNC lunatic/_defs_game.lua

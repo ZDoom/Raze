@@ -4491,7 +4491,7 @@ static void P_Dead(int const playerNum, int const sectorLotag, int const floorZ,
         }
 
         clipmove((vec3_t *) pPlayer, &pPlayer->cursectnum,
-            0, 0, 164L, (4L<<8), (4L<<8), CLIPMASK0);
+            0, 0, pPlayer->clipdist, (4L<<8), (4L<<8), CLIPMASK0);
         //                        p->bobcounter += 32;
     }
 
@@ -4574,7 +4574,7 @@ void P_ProcessInput(int playerNum)
     pPlayer->sbs          = 0;
 
     int32_t floorZ, ceilZ, highZhit, lowZhit;
-    getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, 163L, CLIPMASK0);
+    getzrange((vec3_t *)pPlayer, pPlayer->cursectnum, &ceilZ, &highZhit, &floorZ, &lowZhit, pPlayer->clipdist - 1, CLIPMASK0);
 
 #ifdef YAX_ENABLE
     getzsofslope_player(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y, &pPlayer->truecz, &pPlayer->truefz);
@@ -4628,17 +4628,17 @@ void P_ProcessInput(int playerNum)
         }
     }
 
-    int spriteNum = -1;
-
     if (lowZhit >= 0 && (lowZhit&49152) == 49152)
     {
-        spriteNum = lowZhit&(MAXSPRITES-1);
+        int spriteNum = lowZhit&(MAXSPRITES-1);
 
         if ((sprite[spriteNum].cstat&33) == 33 || (sprite[spriteNum].cstat&17) == 17 ||
                 clipshape_idx_for_sprite((uspritetype *)&sprite[spriteNum], -1) >= 0)
         {
             // EDuke32 extension: xvel of 1 makes a sprite be never regarded as a bridge.
-            if ((sprite[spriteNum].xvel&1) == 0)
+            if ((sprite[spriteNum].xvel & 1) == 0 &&
+                (sprite[spriteNum].z - ((tilesiz[sprite[spriteNum].picnum].y * sprite[spriteNum].yrepeat) << 2))
+                < (pSprite->z - (PHEIGHT - pPlayer->autostep)))
             {
                 sectorLotag             = 0;
                 pPlayer->footprintcount = 0;
@@ -4847,6 +4847,8 @@ void P_ProcessInput(int playerNum)
         {
             if (pPlayer->cursectnum >= 0 && (sector[pPlayer->cursectnum].floorstat & 2) != 2)
             {
+                int spriteNum = -1;
+
                 for (spriteNum = headspritesect[pPlayer->cursectnum]; spriteNum >= 0; spriteNum = nextspritesect[spriteNum])
                 {
                     if (sprite[spriteNum].picnum == FOOTPRINTS || sprite[spriteNum].picnum == FOOTPRINTS2 ||
@@ -5216,8 +5218,10 @@ HORIZONLY:;
             updatesectorz(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z, &pPlayer->cursectnum);
         }
 #endif
-        if ((spriteNum = clipmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->vel.x + (pPlayer->fric.x << 9),
-                                  pPlayer->vel.y + (pPlayer->fric.y << 9), 164L, (4L << 8), stepHeight, CLIPMASK0)))
+        int const spriteNum = clipmove((vec3_t *) pPlayer, &pPlayer->cursectnum, pPlayer->vel.x + (pPlayer->fric.x << 9),
+            pPlayer->vel.y + (pPlayer->fric.y << 9), pPlayer->clipdist, (4L << 8), stepHeight, CLIPMASK0);
+
+        if (spriteNum)
             P_CheckTouchDamage(pPlayer, spriteNum);
 
         pPlayer->fric.x = pPlayer->fric.y = 0;
@@ -5244,7 +5248,7 @@ HORIZONLY:;
     }
 
     pPlayer->pos.z += PHEIGHT;
-    setsprite(pPlayer->i, (vec3_t *)&pPlayer->pos.x);
+    setsprite(pPlayer->i, &pPlayer->pos);
     pPlayer->pos.z -= PHEIGHT;
 
     // ST_2_UNDERWATER
@@ -5270,7 +5274,7 @@ HORIZONLY:;
 
     if (pPlayer->cursectnum >= 0 && ud.noclip == 0)
     {
-        int const squishPlayer = (pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, 164L, (4L << 8), (4L << 8), CLIPMASK0) < 0 &&
+        int const squishPlayer = (pushmove((vec3_t *)pPlayer, &pPlayer->cursectnum, pPlayer->clipdist, (4L << 8), (4L << 8), CLIPMASK0) < 0 &&
                                  A_GetFurthestAngle(pPlayer->i, 8) < 512);
 
         if (squishPlayer || klabs(actor[pPlayer->i].floorz-actor[pPlayer->i].ceilingz) < (48<<8))

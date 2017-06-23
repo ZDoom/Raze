@@ -975,6 +975,7 @@ const memberlabel_t PlayerLabels[]=
     { "weapon_pos", PLAYER_WEAPON_POS, 0, 0 },
     { "frag_ps", PLAYER_FRAG_PS, 0, 0 },
     { "transporter_hold", PLAYER_TRANSPORTER_HOLD, 0, 0 },
+    { "clipdist", PLAYER_CLIPDIST, 0, 0 },
     { "last_full_weapon", PLAYER_LAST_FULL_WEAPON, 0, 0 },
     { "footprintshade", PLAYER_FOOTPRINTSHADE, 0, 0 },
     { "boot_amount", PLAYER_BOOT_AMOUNT, 0, 0 },

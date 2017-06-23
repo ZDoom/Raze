@@ -513,6 +513,7 @@ int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32
         case PLAYER_WEAPON_POS: labelNum = ps->weapon_pos; break;
         case PLAYER_FRAG_PS: labelNum = ps->frag_ps; break;
         case PLAYER_TRANSPORTER_HOLD: labelNum = ps->transporter_hold; break;
+        case PLAYER_CLIPDIST: labelNum = ps->clipdist; break;
         case PLAYER_LAST_FULL_WEAPON: labelNum = ps->last_full_weapon; break;
         case PLAYER_FOOTPRINTSHADE: labelNum = ps->footprintshade; break;
         case PLAYER_BOOT_AMOUNT: labelNum = ps->inv_amount[GET_BOOTS]; break;
@@ -698,6 +699,7 @@ void __fastcall VM_SetPlayer(int32_t const playerNum, int32_t const labelNum, in
         case PLAYER_WEAPON_POS: ps->weapon_pos = iSet; break;
         case PLAYER_FRAG_PS: ps->frag_ps = iSet; break;
         case PLAYER_TRANSPORTER_HOLD: ps->transporter_hold = iSet; break;
+        case PLAYER_CLIPDIST: ps->clipdist = iSet; break;
         case PLAYER_LAST_FULL_WEAPON: ps->last_full_weapon = iSet; break;
         case PLAYER_FOOTPRINTSHADE: ps->footprintshade = iSet; break;
         case PLAYER_BOOT_AMOUNT: ps->inv_amount[GET_BOOTS] = iSet; break;

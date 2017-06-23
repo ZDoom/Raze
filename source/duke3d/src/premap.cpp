@@ -767,6 +767,7 @@ void P_ResetStatus(int playerNum)
     pPlayer->crack_time        = 0;
     pPlayer->hbomb_hold_delay  = 0;
     pPlayer->transporter_hold  = 0;
+    pPlayer->clipdist          = 164;
     pPlayer->wantweaponfire    = -1;
     pPlayer->hurt_delay        = 0;
     pPlayer->footprintcount    = 0;
