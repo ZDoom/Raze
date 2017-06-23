@@ -7594,7 +7594,6 @@ static uspritetype tsprite_s[MAXSPRITESONSCREEN];
 
 int32_t preinitengine(void)
 {
-    char *e;
     if (initsystem()) Bexit(9);
 
     makeasmwriteable();
@@ -10145,8 +10144,8 @@ int32_t setsprite(int16_t spritenum, const vec3_t *newpos)
 {
     int16_t tempsectnum = sprite[spritenum].sectnum;
 
-    if ((void const *)newpos != (void *)&sprite[spritenum])
-        Bmemcpy(&sprite[spritenum], newpos, sizeof(vec3_t));
+    if ((void const *) newpos != (void *) &sprite[spritenum])
+        *(vec3_t *) &sprite[spritenum] = *newpos;
 
     updatesector(newpos->x,newpos->y,&tempsectnum);
 
@@ -10163,7 +10162,7 @@ int32_t setspritez(int16_t spritenum, const vec3_t *newpos)
     int16_t tempsectnum = sprite[spritenum].sectnum;
 
     if ((void const *)newpos != (void *)&sprite[spritenum])
-        Bmemcpy(&sprite[spritenum], newpos, sizeof(vec3_t));
+        *(vec3_t *) &sprite[spritenum] = *newpos;
 
     updatesectorz(newpos->x,newpos->y,newpos->z,&tempsectnum);
 
