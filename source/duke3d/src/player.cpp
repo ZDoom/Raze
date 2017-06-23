@@ -478,20 +478,18 @@ static void P_PreFireHitscan(int spriteNum, int playerNum, int projecTile, vec3_
                 int const statNumMap = ((1 << STAT_ACTOR) | (1 << STAT_ZOMBIEACTOR) | (1 << STAT_PLAYER) | (1 << STAT_DUMMYPLAYER));
                 int const statNum    = sprite[hitData.sprite].statnum;
 
-                if (statNum >= 0 && statNum <= 30 && (statNumMap & (1 << statNum)))
+                if ((unsigned)statNum <= 30 && (statNumMap & (1 << statNum)))
                     aimSprite = hitData.sprite;
             }
         }
 
         if (aimSprite == -1)
-        {
-            *zvel = (100-pPlayer->horiz-pPlayer->horizoff)<<5;
-            Proj_MaybeAddSpread(doSpread, zvel, shootAng, zRange, angRange);
-        }
+            goto notarget;
     }
     else
     {
         if (aimSprite == -1)  // no target
+notarget:
             *zvel = (100-pPlayer->horiz-pPlayer->horizoff)<<5;
         Proj_MaybeAddSpread(doSpread, zvel, shootAng, zRange, angRange);
     }
@@ -510,16 +508,10 @@ static void A_PreFireHitscan(const spritetype *pSprite, vec3_t *srcVect, int32_t
 
     srcVect->z -= ZOFFSET6;
 
-    if (pSprite->picnum != BOSS1)
-    {
-        Proj_MaybeAddSpread(doSpread, zvel, shootAng, 256, 64);
-    }
-    else
-    {
-        *shootAng = getangle(pPlayer->pos.x-srcVect->x, pPlayer->pos.y-srcVect->y);
+    if (pSprite->picnum == BOSS1)
+        *shootAng = getangle(pPlayer->pos.x - srcVect->x, pPlayer->pos.y - srcVect->y);
 
-        Proj_MaybeAddSpread(doSpread, zvel, shootAng, 256, 128);
-    }
+    Proj_MaybeAddSpread(doSpread, zvel, shootAng, 256, 128 >> (pSprite->picnum != BOSS1));
 }
 
 static int Proj_DoHitscan(int spriteNum, int32_t cstatmask, const vec3_t *srcVect, int zvel, int shootAng, hitdata_t *hitData)
@@ -534,21 +526,13 @@ static int Proj_DoHitscan(int spriteNum, int32_t cstatmask, const vec3_t *srcVec
     return (hitData->sect < 0);
 }
 
-static void Proj_DoRandDecalSize(int spriteNum, int projecTile)
+static void Proj_DoRandDecalSize(int const spriteNum, int const projecTile)
 {
     const projectile_t *const proj    = Proj_GetProjectile(projecTile);
     spritetype *const         pSprite = &sprite[spriteNum];
 
     if (proj->workslike & PROJECTILE_RANDDECALSIZE)
-    {
-        int projSize = (krand() & proj->xrepeat);
-
-        if (projSize < proj->yrepeat)
-            projSize = proj->yrepeat;
-
-        pSprite->xrepeat = projSize;
-        pSprite->yrepeat = projSize;
-    }
+        pSprite->xrepeat = pSprite->yrepeat = clamp((krand() & proj->xrepeat), pSprite->yrepeat, pSprite->xrepeat);
     else
     {
         pSprite->xrepeat = proj->xrepeat;
@@ -718,7 +702,6 @@ static int P_PostFireHitscan(int playerNum, int spriteNum, hitdata_t *hitData, i
 
 SKIPBULLETHOLE:
         HandleHitWall(hitData);
-
         A_DamageWall(spriteNum, hitData->wall, &hitData->pos, wallDamage);
     }
 
@@ -726,10 +709,10 @@ SKIPBULLETHOLE:
 }
 
 // Finish shooting hitscan weapon from actor (sprite <i>).
-static int A_PostFireHitscan(const hitdata_t *hitData, int spriteNum, int projecTile, int zvel, int shootAng, int extra,
-                             int spawnTile, int wallDamage)
+static int A_PostFireHitscan(const hitdata_t *hitData, int const spriteNum, int const projecTile, int const zvel, int const shootAng,
+                             int const extra, int const spawnTile, int const wallDamage)
 {
-    int returnSprite = Proj_InsertShotspark(hitData, spriteNum, projecTile, 24, shootAng, extra);
+    int const returnSprite = Proj_InsertShotspark(hitData, spriteNum, projecTile, 24, shootAng, extra);
 
     if (hitData->sprite >= 0)
     {
@@ -760,7 +743,7 @@ static int A_PostFireHitscan(const hitdata_t *hitData, int spriteNum, int projec
 
 // Common "spawn blood?" predicate.
 // minzdiff: minimal "step" height for blood to be spawned
-static int Proj_CheckBlood(vec3_t const *const srcVect, hitdata_t const *const hitData, int bloodRange, int minZdiff)
+static int Proj_CheckBlood(vec3_t const *const srcVect, hitdata_t const *const hitData, int const bloodRange, int const minZdiff)
 {
     if (hitData->wall < 0 || hitData->sect < 0)
         return 0;
@@ -777,9 +760,9 @@ static int Proj_CheckBlood(vec3_t const *const srcVect, hitdata_t const *const h
     return 0;
 }
 
-static void Proj_HandleKnee(hitdata_t *hitData, int spriteNum, int playerNum, int projecTile, int shootAng,
-                            const projectile_t *proj, int inserttile,
-                            int randomDamage, int spawnTile, int soundNum)
+static void Proj_HandleKnee(hitdata_t *const hitData, int const spriteNum, int const playerNum, int const projecTile, int const shootAng,
+                            const projectile_t *const proj, int const inserttile, int const randomDamage, int const spawnTile,
+                            int const soundNum)
 {
     const DukePlayer_t *const pPlayer = playerNum >= 0 ? g_player[playerNum].ps : NULL;
 
