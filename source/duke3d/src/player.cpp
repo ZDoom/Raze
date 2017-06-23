@@ -3248,7 +3248,7 @@ int16_t WeaponPickupSprites[MAX_WEAPONS] = { KNEE__STATIC, FIRSTGUNSPRITE__STATI
         TRIPBOMBSPRITE__STATIC, FREEZESPRITE__STATIC, HEAVYHBOMB__STATIC, SHRINKERSPRITE__STATIC
                                            };
 // this is used for player deaths
-void P_DropWeapon(int playerNum)
+void P_DropWeapon(int const playerNum)
 {
     const DukePlayer_t *const pPlayer       = g_player[playerNum].ps;
     int const                 currentWeapon = PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike);
@@ -3266,7 +3266,7 @@ void P_DropWeapon(int playerNum)
         }
 }
 
-void P_AddAmmo(DukePlayer_t *pPlayer, int weaponNum, int addAmount)
+void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addAmount)
 {
     pPlayer->ammo_amount[weaponNum] += addAmount;
 
@@ -3274,7 +3274,7 @@ void P_AddAmmo(DukePlayer_t *pPlayer, int weaponNum, int addAmount)
         pPlayer->ammo_amount[weaponNum] = pPlayer->max_ammo_amount[weaponNum];
 }
 
-static void P_AddWeaponNoSwitch(DukePlayer_t *p, int weaponNum)
+static void P_AddWeaponNoSwitch(DukePlayer_t * const p, int const weaponNum)
 {
     int const playerNum = P_Get(p->i);  // PASS_SNUM?
 
@@ -3293,7 +3293,7 @@ static void P_AddWeaponNoSwitch(DukePlayer_t *p, int weaponNum)
         A_PlaySound(PWEAPON(playerNum, weaponNum, SelectSound), p->i);
 }
 
-static void P_ChangeWeapon(DukePlayer_t *pPlayer, int weaponNum)
+static void P_ChangeWeapon(DukePlayer_t * const pPlayer, int const weaponNum)
 {
     int const    playerNum     = P_Get(pPlayer->i);  // PASS_SNUM?
     int8_t const currentWeapon = pPlayer->curr_weapon;

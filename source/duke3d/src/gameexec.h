@@ -48,9 +48,9 @@ void A_LoadActor(int32_t spriteNum);
 #endif
 
 void A_Execute(int spriteNum, int playerNum, int playerDist);
-void A_Fall(int spriteNum);
-int A_FurthestVisiblePoint(int spriteNum, uspritetype * const ts,int32_t *dax,int32_t *day);
-int32_t A_GetFurthestAngle(int spriteNum, int angDiv);
+void A_Fall(int const spriteNum);
+int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts,int32_t * const dax,int32_t * const day);
+int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv);
 void A_GetZLimits(int spriteNum);
 int G_GetAngleDelta(int a, int na);
 void G_RestoreMapState();
@@ -66,10 +66,10 @@ void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
     int32_t shade, int32_t orientation, int32_t p);
 #endif
 
-int32_t VM_OnEventWithBoth_(int nEventID, int spriteNum, int playerNum, int nDist, int32_t nReturn);
-int32_t VM_OnEventWithReturn_(int nEventID, int spriteNum, int playerNum, int32_t nReturn);
-int32_t VM_OnEventWithDist_(int nEventID, int spriteNum, int playerNum, int nDist);
-int32_t VM_OnEvent_(int nEventID, int spriteNum, int playerNum);
+int32_t VM_OnEventWithBoth_(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn);
+int32_t VM_OnEventWithReturn_(int const nEventID, int const spriteNum, int const playerNum, int32_t const nReturn);
+int32_t VM_OnEventWithDist_(int const nEventID, int const spriteNum, int const playerNum, int const nDist);
+int32_t VM_OnEvent_(int const nEventID, int const spriteNum, int const playerNum);
 
 static FORCE_INLINE int VM_HaveEvent(int nEventID)
 {
@@ -104,8 +104,8 @@ static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNu
     OSD_Printf("Line %d, %s: " Text, g_errorLineNum, keyw[g_tw], ## __VA_ARGS__); \
 } while (0)
 
-void G_GetTimeDate(int32_t *vals);
-int G_StartTrack(int levelNum);
+void G_GetTimeDate(int32_t * const pValues);
+int G_StartTrack(int const levelNum);
 int32_t A_Dodge(spritetype *s);
 #ifdef LUNATIC
 void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sect,

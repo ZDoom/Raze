@@ -118,7 +118,7 @@ void VM_ScriptInfo(intptr_t const *ptr, int range)
 }
 #endif
 
-static void VM_DeleteSprite(int spriteNum, int playerNum)
+static void VM_DeleteSprite(int const spriteNum, int const playerNum)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned) spriteNum >= MAXSPRITES))
         return;
@@ -182,12 +182,12 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
 
     // check tempvm instead of vm... this way, we are not actually loading
     // FROM vm anywhere until VM_Execute() is called
-    if ((unsigned)tempvm.spriteNum >= MAXSPRITES)
+    if (EDUKE32_PREDICT_FALSE((unsigned)tempvm.spriteNum >= MAXSPRITES))
     {
-        static spritetype dummy_sprite;
+        static uspritetype dummy_sprite;
         static int32_t dummy_t[ARRAY_SIZE(actor[0].t_data)];
 
-        vm.pSprite = &dummy_sprite;
+        vm.pUSprite = &dummy_sprite;
         vm.pData = dummy_t;
     }
 
@@ -216,24 +216,24 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
 // which are not only optimized further based on lDist or iReturn (or both) having values known at compile time,
 // but are called faster due to having less parameters
 
-int32_t VM_OnEventWithBoth_(int eventNum, int spriteNum, int playerNum, int playerDist, int32_t returnValue)
+int32_t VM_OnEventWithBoth_(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn)
 {
-    return VM_EventCommon_(eventNum, spriteNum, playerNum, playerDist, returnValue);
+    return VM_EventCommon_(nEventID, spriteNum, playerNum, nDist, nReturn);
 }
 
-int32_t VM_OnEventWithReturn_(int eventNum, int spriteNum, int playerNum, int32_t returnValue)
+int32_t VM_OnEventWithReturn_(int const nEventID, int const spriteNum, int const playerNum, int32_t const nReturn)
 {
-    return VM_EventCommon_(eventNum, spriteNum, playerNum, -1, returnValue);
+    return VM_EventCommon_(nEventID, spriteNum, playerNum, -1, nReturn);
 }
 
-int32_t VM_OnEventWithDist_(int eventNum, int spriteNum, int playerNum, int playerDist)
+int32_t VM_OnEventWithDist_(int const nEventID, int const spriteNum, int const playerNum, int const nDist)
 {
-    return VM_EventCommon_(eventNum, spriteNum, playerNum, playerDist, 0);
+    return VM_EventCommon_(nEventID, spriteNum, playerNum, nDist, 0);
 }
 
-int32_t VM_OnEvent_(int eventNum, int spriteNum, int playerNum)
+int32_t VM_OnEvent_(int const nEventID, int const spriteNum, int const playerNum)
 {
-    return VM_EventCommon_(eventNum, spriteNum, playerNum, -1, 0);
+    return VM_EventCommon_(nEventID, spriteNum, playerNum, -1, 0);
 }
 
 static int32_t VM_CheckSquished(void)
@@ -320,7 +320,7 @@ int32_t A_Dodge(spritetype *pSprite)
     return 0;
 }
 
-int32_t A_GetFurthestAngle(int spriteNum, int angDiv)
+int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv)
 {
     uspritetype *const pSprite = (uspritetype *)&sprite[spriteNum];
 
@@ -353,7 +353,7 @@ int32_t A_GetFurthestAngle(int spriteNum, int angDiv)
     return furthest_angle&2047;
 }
 
-int A_FurthestVisiblePoint(int spriteNum, uspritetype * const ts, int32_t *dax, int32_t *day)
+int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts, int32_t * const dax, int32_t * const day)
 {
     if (AC_COUNT(actor[spriteNum].t_data)&63)
         return -1;
@@ -392,7 +392,7 @@ int A_FurthestVisiblePoint(int spriteNum, uspritetype * const ts, int32_t *dax, 
     return -1;
 }
 
-static void VM_GetZRange(int spriteNum, int32_t *ceilhit, int32_t *florhit, int wallDist)
+static void VM_GetZRange(int const spriteNum, int32_t * const ceilhit, int32_t * const florhit, int const wallDist)
 {
     uspritetype *const pSprite = (uspritetype *)&sprite[spriteNum];
     int const          ocstat  = pSprite->cstat;
@@ -439,7 +439,7 @@ void A_GetZLimits(int spriteNum)
     }
 }
 
-void A_Fall(int spriteNum)
+void A_Fall(int const spriteNum)
 {
     spritetype *const pSprite = &sprite[spriteNum];
     int spriteGravity = g_spriteGravity;
@@ -505,7 +505,7 @@ int G_GetAngleDelta(int currAngle, int newAngle)
     return newAngle-currAngle;
 }
 
-GAMEEXEC_STATIC void VM_AlterAng(int32_t moveFlags)
+GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
 {
     int const elapsedTics = (AC_COUNT(vm.pData))&31;
 
@@ -536,9 +536,8 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t moveFlags)
     if (moveFlags&seekplayer)
     {
         int       angDiff;
-        int       goalAng;
         int const spriteAngle    = vm.pSprite->ang;
-        int       holoDukeSprite = vm.pPlayer->holoduke_on;
+        int const holoDukeSprite = vm.pPlayer->holoduke_on;
 
         // NOTE: looks like 'owner' is set to target sprite ID...
 
@@ -548,13 +547,13 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t moveFlags)
           ? holoDukeSprite
           : vm.pPlayer->i;
 
-        goalAng = (sprite[vm.pSprite->owner].picnum == APLAYER)
+        int const goalAng = (sprite[vm.pSprite->owner].picnum == APLAYER)
                   ? getangle(actor[vm.spriteNum].lastvx - vm.pSprite->x, actor[vm.spriteNum].lastvy - vm.pSprite->y)
                   : getangle(sprite[vm.pSprite->owner].x - vm.pSprite->x, sprite[vm.pSprite->owner].y - vm.pSprite->y);
 
         if (vm.pSprite->xvel && vm.pSprite->picnum != DRONE)
         {
-            angDiff = G_GetAngleDelta(spriteAngle, goalAng);
+            int const angDiff = G_GetAngleDelta(spriteAngle, goalAng);
 
             if (elapsedTics < 2)
             {
@@ -588,7 +587,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t moveFlags)
     }
 }
 
-static inline void VM_AddAngle(int shift, int goalAng)
+static inline void VM_AddAngle(int const shift, int const goalAng)
 {
     int angDiff = G_GetAngleDelta(vm.pSprite->ang, goalAng) >> shift;
 
@@ -598,7 +597,7 @@ static inline void VM_AddAngle(int shift, int goalAng)
     vm.pSprite->ang += angDiff;
 }
 
-static inline void VM_FacePlayer(int shift)
+static inline void VM_FacePlayer(int const shift)
 {
     VM_AddAngle(shift, (vm.pPlayer->newowner >= 0) ? getangle(vm.pPlayer->opos.x - vm.pSprite->x, vm.pPlayer->opos.y - vm.pSprite->y)
                                                  : getangle(vm.pPlayer->pos.x - vm.pSprite->x, vm.pPlayer->pos.y - vm.pSprite->y));
@@ -645,12 +644,9 @@ static int32_t A_GetWaterZOffset(int spritenum);
 
 GAMEEXEC_STATIC void VM_Move(void)
 {
-#if !defined LUNATIC
-    const intptr_t *moveptr;
-#endif
     // NOTE: commented out condition is dead since r3159 (making hi/lotag unsigned).
     // XXX: Does it break anything? Where are movflags with all bits set created?
-    const uint16_t *movflagsptr = &AC_MOVFLAGS(vm.pSprite, &actor[vm.spriteNum]);
+    const uint16_t * const movflagsptr = &AC_MOVFLAGS(vm.pSprite, &actor[vm.spriteNum]);
     int const movflags = /*(*movflagsptr==-1) ? 0 :*/ *movflagsptr;
     int const deadflag = (A_CheckEnemySprite(vm.pSprite) && vm.pSprite->extra <= 0);
 
@@ -701,7 +697,7 @@ dead:
         return;
     }
 
-    moveptr = apScript + AC_MOVE_ID(vm.pData);
+    intptr_t const * const moveptr = apScript + AC_MOVE_ID(vm.pData);
 
     if (movflags&geth) vm.pSprite->xvel += ((moveptr[0])-vm.pSprite->xvel)>>1;
     if (movflags&getv) vm.pSprite->zvel += ((moveptr[1]<<4)-vm.pSprite->zvel)>>1;
@@ -838,7 +834,7 @@ dead:
                                                                  : (sector[vm.pSprite->sectnum].floorshade - vm.pSprite->shade) >> 1;
 }
 
-static void P_AddWeaponMaybeSwitch(DukePlayer_t *ps, int weaponNum)
+static void P_AddWeaponMaybeSwitch(DukePlayer_t * const ps, int const weaponNum)
 {
     if ((ps->weaponswitch & (1|4)) == (1|4))
     {
@@ -874,7 +870,7 @@ void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap)
     P_AddWeaponMaybeSwitch(g_player[snum].ps, weap);
 }
 #else
-static void P_AddWeaponAmmoCommon(DukePlayer_t *pPlayer, int weaponNum, int nAmount)
+static void P_AddWeaponAmmoCommon(DukePlayer_t * const pPlayer, int const weaponNum, int const nAmount)
 {
     P_AddAmmo(pPlayer, weaponNum, nAmount);
 
@@ -882,7 +878,7 @@ static void P_AddWeaponAmmoCommon(DukePlayer_t *pPlayer, int weaponNum, int nAmo
         P_AddWeaponMaybeSwitch(pPlayer, weaponNum);
 }
 
-static int VM_AddWeapon(DukePlayer_t *pPlayer, int weaponNum, int nAmount)
+static int VM_AddWeapon(DukePlayer_t * const pPlayer, int const weaponNum, int const nAmount)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)weaponNum >= MAX_WEAPONS))
     {
@@ -917,7 +913,7 @@ static int32_t A_GetVerticalVel(actor_t const * const pActor)
 #endif
 }
 
-static int32_t A_GetWaterZOffset(int spriteNum)
+static int32_t A_GetWaterZOffset(int const spriteNum)
 {
     uspritetype const *const pSprite = (uspritetype *)&sprite[spriteNum];
     actor_t const *const     pActor  = &actor[spriteNum];
@@ -937,7 +933,7 @@ static int32_t A_GetWaterZOffset(int spriteNum)
     return 0;
 }
 
-static void VM_Fall(int spriteNum, spritetype *pSprite)
+static void VM_Fall(int const spriteNum, spritetype * const pSprite)
 {
     int spriteGravity = g_spriteGravity;
 
@@ -1015,7 +1011,7 @@ static void VM_Fall(int spriteNum, spritetype *pSprite)
     pSprite->zvel = 0;
 }
 
-static int32_t VM_ResetPlayer(int playerNum, int32_t vmFlags, int32_t resetFlags)
+static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t const resetFlags)
 {
     //AddLog("resetplayer");
     if (!g_netServer && ud.multimode < 2 && !(resetFlags & 2))
@@ -1057,7 +1053,7 @@ static int32_t VM_ResetPlayer(int playerNum, int32_t vmFlags, int32_t resetFlags
     return vmFlags;
 }
 
-void G_GetTimeDate(int32_t *pValues)
+void G_GetTimeDate(int32_t * const pValues)
 {
     time_t timeStruct;
     time(&timeStruct);
@@ -1075,7 +1071,7 @@ void G_GetTimeDate(int32_t *pValues)
     pValues[7] = pTime->tm_yday;
 }
 
-int G_StartTrack(int levelNum)
+int G_StartTrack(int const levelNum)
 {
     if ((unsigned)levelNum < MAXLEVELS)
     {
@@ -1978,12 +1974,14 @@ skip_check:
                 else if (EDUKE32_PREDICT_FALSE((unsigned)quoteNum >= MAXQUOTES || apStrings[quoteNum] == NULL))
                     CON_ERRPRINTF("invalid quote ID %d\n", quoteNum);
                 else
+                {
                     dim = G_ScreenTextSize(tileNum, vect.x, vect.y, vect.z, blockAngle, apStrings[quoteNum],
-                                           2 | orientation, offset.x, offset.y, between.x, between.y, f,
-                                           upperLeft.x, upperLeft.y, lowerRight.x, lowerRight.y);
+                        2 | orientation, offset.x, offset.y, between.x, between.y, f,
+                        upperLeft.x, upperLeft.y, lowerRight.x, lowerRight.y);
 
-                Gv_SetVarX(widthVar, dim.x);
-                Gv_SetVarX(heightVar, dim.y);
+                    Gv_SetVarX(widthVar, dim.x);
+                    Gv_SetVarX(heightVar, dim.y);
+                }
                 continue;
             }
 
@@ -2039,15 +2037,15 @@ skip_check:
             insptr++;
             {
                 int const gameVar   = *insptr++;
-                int const spriteNum = Gv_GetVarX(*insptr++);
+                int const sectNum = Gv_GetVarX(*insptr++);
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= (unsigned)numsectors))
+                if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("invalid sector %d\n", spriteNum);
+                    CON_ERRPRINTF("invalid sector %d\n", sectNum);
                     continue;
                 }
 
-                Gv_SetVarX(gameVar, headspritesect[spriteNum]);
+                Gv_SetVarX(gameVar, headspritesect[sectNum]);
                 continue;
             }
 
@@ -2175,7 +2173,6 @@ skip_check:
         case CON_QSTRCAT:
         case CON_QSTRCPY:
         case CON_QGETSYSSTR:
-        case CON_CHANGESPRITESECT:
             insptr++;
             {
                 int32_t i = Gv_GetVarX(*insptr++), j;
@@ -2284,24 +2281,35 @@ skip_check:
                     if (i != j)
                         Bstrcpy(apStrings[i],apStrings[j]);
                     break;
-                case CON_CHANGESPRITESECT:
-                    if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXSPRITES))
-                    {
-                        CON_ERRPRINTF("Invalid sprite %d\n", i);
-                        break;
-                    }
-                    else if (EDUKE32_PREDICT_FALSE((unsigned)j >= (unsigned)numsectors))
-                    {
-                        CON_ERRPRINTF("Invalid sector %d\n", j);
-                        break;
-                    }
-                    changespritesect(i,j);
-                    break;
                 default:
 nullquote:
                     CON_ERRPRINTF("null quote %d\n", apStrings[i] ? j : i);
                     break;
                 }
+                continue;
+            }
+
+        case CON_CHANGESPRITESECT:
+            insptr++;
+            {
+                int32_t const spriteNum = Gv_GetVarX(*insptr++);
+                int32_t       sectNum   = Gv_GetVarX(*insptr++);
+
+                if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+                {
+                    CON_ERRPRINTF("Invalid sprite: %d\n", spriteNum);
+                    continue;
+                }
+                if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= MAXSECTORS))
+                {
+                    CON_ERRPRINTF("Invalid sector: %d\n", sectNum);
+                    continue;
+                }
+
+                if (sprite[spriteNum].sectnum == sectNum)
+                    continue;
+
+                changespritesect(spriteNum, sectNum);
                 continue;
             }
 
