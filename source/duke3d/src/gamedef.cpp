@@ -6269,6 +6269,7 @@ static char const * C_ScriptVersionString(int32_t version)
 {
     switch (version)
     {
+#ifndef EDUKE32_STANDALONE
     case 9:
         return ", v0.99 compatibility mode";
     case 10:
@@ -6277,6 +6278,7 @@ static char const * C_ScriptVersionString(int32_t version)
         return ", v1.1 compatibility mode";
     case 13:
         return ", v1.3D compatibility mode";
+#endif
     default:
         return "";
     }
