@@ -5607,7 +5607,7 @@ static void MaybeTrainKillPlayer(const spritetype *pSprite, int setOPos)
 }
 
 // i: SE spritenum
-static void MaybeTrainKillEnemies(int spriteNum, int numGuts)
+static void MaybeTrainKillEnemies(int spriteNum)
 {
     int findSprite = headspritesect[sprite[OW(spriteNum)].sectnum];
 
@@ -5623,9 +5623,8 @@ static void MaybeTrainKillEnemies(int spriteNum, int numGuts)
 
             if (sectNum == sprite[spriteNum].sectnum)
             {
-                A_DoGutsDir(findSprite, JIBS6, numGuts);
-                A_PlaySound(SQUISHED, findSprite);
-                A_DeleteSprite(findSprite);
+                actor[findSprite].picnum = RADIUSEXPLOSION;
+                actor[findSprite].extra = g_impactDamage << 10;
             }
         }
 
@@ -6049,7 +6048,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     if (ud.noclip == 0 && pSprite->xvel >= 192)
                         MaybeTrainKillPlayer(pSprite, 1);
 
-                    MaybeTrainKillEnemies(spriteNum, 72);
+                    MaybeTrainKillEnemies(spriteNum);
                 }
             }
             else
@@ -6190,7 +6189,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     if (ud.noclip == 0)
                         MaybeTrainKillPlayer(pSprite, 1);
 
-                    MaybeTrainKillEnemies(spriteNum, 24);
+                    MaybeTrainKillEnemies(spriteNum);
                 }
             }
 
