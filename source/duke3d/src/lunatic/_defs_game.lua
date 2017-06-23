@@ -518,11 +518,11 @@ typedef struct {
     vec2_t m_origin;
     int32_t playerbest;
 
-    int32_t configversion;
+    int32_t configversion, bgstretch;
 
     int16_t pause_on,from_bonus;
     int16_t camerasprite,last_camsprite;
-    int16_t last_level,secretlevel, bgstretch;
+    int16_t last_level,secretlevel;
 
     struct {
         int32_t UseJoystick;
