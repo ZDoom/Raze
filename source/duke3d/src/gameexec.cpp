@@ -111,7 +111,7 @@ void VM_ScriptInfo(intptr_t const *ptr, int range)
     if (ptr == insptr)
     {
         if (vm.spriteNum)
-            initprintf("current actor: %d (%d)\n", vm.spriteNum, TrackerCast(vm.pSprite->picnum));
+            initprintf("current actor: %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
 
         initprintf("g_errorLineNum: %d, g_tw: %d\n", g_errorLineNum, g_tw);
     }
@@ -515,7 +515,7 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
 
     {
         AC_MOVE_ID(vm.pData) = 0;
-        OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.spriteNum, TrackerCast(vm.pSprite->picnum));
+        OSD_Printf(OSD_ERROR "bad moveptr for actor %d (%d)!\n", vm.spriteNum, vm.pUSprite->picnum);
         return;
     }
 
@@ -535,7 +535,6 @@ GAMEEXEC_STATIC void VM_AlterAng(int32_t const moveFlags)
 
     if (moveFlags&seekplayer)
     {
-        int       angDiff;
         int const spriteAngle    = vm.pSprite->ang;
         int const holoDukeSprite = vm.pPlayer->holoduke_on;
 
@@ -693,7 +692,7 @@ dead:
     if (EDUKE32_PREDICT_FALSE((unsigned)AC_MOVE_ID(vm.pData) >= (unsigned)g_scriptSize-1))
     {
         AC_MOVE_ID(vm.pData) = 0;
-        OSD_Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, TrackerCast(vm.pSprite->picnum));
+        OSD_Printf(OSD_ERROR "clearing bad moveptr for actor %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
         return;
     }
 
@@ -1490,7 +1489,7 @@ skip_check:
             insptr++;
             if (EDUKE32_PREDICT_FALSE(((unsigned)vm.pSprite->yvel >= MAXSOUNDS)))
             {
-                CON_ERRPRINTF("Invalid sound %d\n", TrackerCast(vm.pSprite->yvel));
+                CON_ERRPRINTF("Invalid sound %d\n", vm.pUSprite->yvel);
                 continue;
             }
             if (!S_CheckSoundPlaying(vm.spriteNum,vm.pSprite->yvel))
@@ -2627,7 +2626,7 @@ nullquote:
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.pSprite->sectnum));
+                    CON_ERRPRINTF("Invalid sector %d\n", vm.pUSprite->sectnum);
                     continue;
                 }
 
@@ -2657,7 +2656,7 @@ nullquote:
             {
                 if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.pSprite->sectnum));
+                    CON_ERRPRINTF("invalid sector %d\n", vm.pUSprite->sectnum);
                     insptr++;
                     continue;
                 }
@@ -2692,7 +2691,7 @@ nullquote:
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.pSprite->sectnum));
+                    CON_ERRPRINTF("Invalid sector %d\n", vm.pUSprite->sectnum);
                     insptr++;
                     continue;
                 }
@@ -2712,7 +2711,7 @@ nullquote:
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.pSprite->sectnum));
+                    CON_ERRPRINTF("Invalid sector %d\n", vm.pUSprite->sectnum);
                     continue;
                 }
 
@@ -2733,7 +2732,7 @@ nullquote:
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.pSprite->sectnum));
+                    CON_ERRPRINTF("Invalid sector %d\n", vm.pUSprite->sectnum);
                     continue;
                 }
 
@@ -3407,7 +3406,7 @@ nullquote:
             insptr++;
             if ((unsigned)vm.pSprite->sectnum >= MAXSECTORS)
             {
-                CON_ERRPRINTF("Invalid sector %d\n", TrackerCast(vm.pSprite->sectnum));
+                CON_ERRPRINTF("Invalid sector %d\n", vm.pUSprite->sectnum);
                 insptr++;
                 continue;
             }
