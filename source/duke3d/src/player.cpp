@@ -489,8 +489,11 @@ static void P_PreFireHitscan(int spriteNum, int playerNum, int projecTile, vec3_
     else
     {
         if (aimSprite == -1)  // no target
+        {
 notarget:
             *zvel = (100-pPlayer->horiz-pPlayer->horizoff)<<5;
+        }
+
         Proj_MaybeAddSpread(doSpread, zvel, shootAng, zRange, angRange);
     }
 
