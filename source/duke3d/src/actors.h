@@ -150,6 +150,7 @@ typedef struct { int32_t id; struct action ac; } con_action_t;
 #endif
 
 // (+ 40 16 16 4 8 6 8 6 4 20)
+#pragma pack(push, 1)
 typedef struct
 {
     int32_t t_data[10];  // 40b sometimes used to hold offsets to con code
@@ -166,28 +167,25 @@ typedef struct
     vec3_t  bpos;                              // 12b
     int32_t floorz, ceilingz;                  // 8b
     vec2_t lastv;                              // 8b
-    int32_t lasttransport;                     // 4b
     int16_t picnum, ang, extra, owner;         // 8b
     int16_t movflag, tempang, timetosleep;     // 6b
-
     int16_t actorstayput;
+
 #ifdef LUNATIC
     // Movement flags, sprite[i].hitag in C-CON:
     uint16_t movflags;
 #endif
-    uint8_t cgg, lightcount;
-    int16_t lightId, lightmaxrange;  // 4b
+    uint8_t cgg, lasttransport;
     // NOTE: 'dispicnum' is updated every frame, not in sync with game tics!
     int16_t dispicnum;
 
 #ifdef POLYMER
     _prlight *lightptr;  // 4b/8b
-#else
-    void *   lightptr;
+    int16_t lightId, lightmaxrange;  // 4b
+    uint8_t lightcount, filler[3];
 #endif
 } actor_t;
 
-#pragma pack(push, 1)
 // this struct needs to match the beginning of actor_t above
 typedef struct
 {
@@ -203,15 +201,14 @@ typedef struct
     vec3_t  bpos;                              // 12b
     int32_t floorz, ceilingz;                  // 8b
     vec2_t lastv;                              // 8b
-    int32_t lasttransport;                     // 4b
     int16_t picnum, ang, extra, owner;         // 8b
     int16_t movflag, tempang, timetosleep;     // 6b
-
     int16_t actorstayput;
+
 #ifdef LUNATIC
     uint16_t movflags;
 #endif
-    uint8_t    cgg;
+    uint8_t cgg, lasttransport;
 
     spritetype sprite;
     int16_t    netIndex;

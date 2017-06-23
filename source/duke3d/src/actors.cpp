@@ -309,12 +309,12 @@ next_sprite:
 // <fromunderp>: below->above change?
 static int32_t Proj_MaybeDoTransport(int32_t spriteNum, const uspritetype * const pSEffector, int32_t fromunderp, int32_t daz)
 {
-    if (totalclock <= actor[spriteNum].lasttransport)
+    if ((totalclock & (UINT8_MAX-1)) <= actor[spriteNum].lasttransport)
         return 0;
 
     spritetype *const        pSprite = &sprite[spriteNum];
     const uspritetype *const otherse = (uspritetype *)&sprite[pSEffector->owner];
-    actor[spriteNum].lasttransport   = totalclock + (TICSPERFRAME << 2);
+    actor[spriteNum].lasttransport   = (totalclock + (TICSPERFRAME << 2)) & (UINT8_MAX-1);
 
     pSprite->x += (otherse->x - pSEffector->x);
     pSprite->y += (otherse->y - pSEffector->y);
@@ -3483,7 +3483,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                 case STAT_FALLER:
                 case STAT_DUMMYPLAYER:
                 {
-                    if (totalclock > actor[sectSprite].lasttransport)
+                    if ((totalclock & (UINT8_MAX-1)) > actor[sectSprite].lasttransport)
                     {
                         int const zvel    = sprite[sectSprite].zvel;
                         int const absZvel = klabs(zvel);
@@ -3558,7 +3558,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                             A_SetSprite(newSprite, CLIPMASK0);
                                         }
 
-                                        actor[sectSprite].lasttransport = totalclock + (TICSPERFRAME << 2);
+                                        actor[sectSprite].lasttransport = (totalclock + (TICSPERFRAME << 2)) & (UINT8_MAX-1);
 
                                         sprite[sectSprite].x += sprite[OW(spriteNum)].x - SX(spriteNum);
                                         sprite[sectSprite].y += sprite[OW(spriteNum)].y - SY(spriteNum);
@@ -5664,7 +5664,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             j = pSprite->owner;
 
-            if (sprite[j].lotag == UINT16_MAX)
+            if (sprite[j].lotag == UINT8_MAX)
                 DELETE_SPRITE_AND_CONTINUE(spriteNum);
 
             q = pSector->extra>>3;

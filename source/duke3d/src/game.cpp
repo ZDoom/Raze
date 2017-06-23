@@ -1322,7 +1322,10 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
         actor[i].ceilingz = actor[s_ow].ceilingz;
     }
 
-    actor[i].actorstayput = actor[i].extra = actor[i].lightId = -1;
+    actor[i].actorstayput = actor[i].extra -1;
+#ifdef POLYMER
+    actor[i].lightId = -1;
+#endif
     actor[i].owner = s_ow;
 
     G_InitActor(i, s_pn, 1);
@@ -1415,7 +1418,10 @@ int A_Spawn(int spriteNum, int tileNum)
         actor[newSprite].floorz = sector[SECT(newSprite)].floorz;
         actor[newSprite].ceilingz = sector[SECT(newSprite)].ceilingz;
 
-        actor[newSprite].actorstayput = actor[newSprite].lightId = actor[newSprite].extra = -1;
+        actor[newSprite].actorstayput = actor[newSprite].extra = -1;
+#ifdef POLYMER
+        actor[newSprite].lightId = -1;
+#endif
 
         if ((CS(newSprite) & 48)
             && PN(newSprite) != SPEAKER
@@ -2156,11 +2162,13 @@ int A_Spawn(int spriteNum, int tileNum)
             break;
 
         case EXPLOSION2__STATIC:
+#ifdef POLYMER
             if (pSprite->yrepeat > 32)
             {
                 G_AddGameLight(0, newSprite, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 32768, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                 actor[newSprite].lightcount = 2;
             }
+#endif
         case EXPLOSION2BOT__STATIC:
         case BURNING__STATIC:
         case BURNING2__STATIC:
@@ -6081,7 +6089,7 @@ int G_FPSLimit(void)
 }
 
 // TODO: reorder (net)actor_t to eliminate slop and update assertion
-// EDUKE32_STATIC_ASSERT(sizeof(actor_t)==128);
+EDUKE32_STATIC_ASSERT(sizeof(actor_t)%4 == 0);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
 
 int app_main(int argc, char const * const * argv)

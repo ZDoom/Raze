@@ -1191,10 +1191,10 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
 
     if (switchType == SWITCH_SPRITE) // A wall sprite
     {
-        if (actor[wallOrSprite].lasttransport == totalclock)
+        if (actor[wallOrSprite].lasttransport == (totalclock & (UINT8_MAX-1)))
             return 0;
 
-        actor[wallOrSprite].lasttransport = totalclock;
+        actor[wallOrSprite].lasttransport = (totalclock & (UINT8_MAX-1));
 
         if (sprite[wallOrSprite].lotag == 0)
             return 0;

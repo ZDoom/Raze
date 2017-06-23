@@ -1680,24 +1680,24 @@ static void sv_postscript_once()
 
 static void sv_preactordatasave()
 {
-    int32_t i;
-
-    for (i=0; i<MAXSPRITES; i++)
+#ifdef POLYMER
+    for (bssize_t i=0; i<MAXSPRITES; i++)
     {
         actor[i].lightptr = NULL;
         actor[i].lightId = -1;
     }
+#endif
 }
 
 static void sv_postactordata()
 {
-    int32_t i;
-
-    for (i=0; i<MAXSPRITES; i++)
+#ifdef POLYMER
+    for (bssize_t i=0; i<MAXSPRITES; i++)
     {
         actor[i].lightptr = NULL;
         actor[i].lightId = -1;
     }
+#endif
 }
 
 static void sv_preanimateptrsave()
@@ -2217,24 +2217,7 @@ static void postloadplayer(int32_t savegamep)
     //9
     if (getrendermode() == REND_POLYMER)
         polymer_loadboard();
-#elif 0
-    if (getrendermode() == REND_POLYMER)
-    {
-        int32_t i = 0;
 
-        polymer_loadboard();
-        while (i < MAXSPRITES)
-        {
-            if (actor[i].lightptr)
-            {
-                polymer_deletelight(actor[i].lightId);
-                actor[i].lightptr = NULL;
-                actor[i].lightId = -1;
-            }
-            i++;
-        }
-    }
-#endif
     // this light pointer nulling needs to be outside the getrendermode check
     // because we might be loading the savegame using another renderer but
     // change to Polymer later
@@ -2243,6 +2226,7 @@ static void postloadplayer(int32_t savegamep)
         actor[i].lightptr = NULL;
         actor[i].lightId = -1;
     }
+#endif
 }
 
 ////////// END GENERIC SAVING/LOADING SYSTEM //////////
