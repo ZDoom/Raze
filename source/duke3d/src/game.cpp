@@ -1322,7 +1322,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
         actor[i].ceilingz = actor[s_ow].ceilingz;
     }
 
-    actor[i].actorstayput = actor[i].extra -1;
+    actor[i].actorstayput = actor[i].extra = -1;
 #ifdef POLYMER
     actor[i].lightId = -1;
 #endif
