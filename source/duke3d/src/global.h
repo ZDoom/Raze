@@ -65,12 +65,10 @@ enum DUKE3D_GLOBALFLAGS {
 };
 
 G_EXTERN DukeStatus_t sbar;
-#pragma pack(push,1)
 G_EXTERN actor_t actor[MAXSPRITES];
 // g_tile: tile-specific data THAT DOES NOT CHANGE during the course of a game
 G_EXTERN tiledata_t g_tile[MAXTILES];
 G_EXTERN animwalltype animwall[MAXANIMWALLS];
-#pragma pack(pop)
 G_EXTERN char *apStrings[MAXQUOTES],*apXStrings[MAXQUOTES];
 G_EXTERN char *label;
 G_EXTERN int32_t g_musicIndex;
