@@ -169,19 +169,19 @@ typedef struct
     vec2_t lastv;                              // 8b
     int16_t picnum, ang, extra, owner;         // 8b
     int16_t movflag, tempang, timetosleep;     // 6b
-    int16_t actorstayput;
+    int16_t actorstayput;                      // 2b
 
 #ifdef LUNATIC
     // Movement flags, sprite[i].hitag in C-CON:
     uint16_t movflags;
 #endif
-    uint8_t cgg, lasttransport;
+    uint8_t cgg, lasttransport;                // 2b
     // NOTE: 'dispicnum' is updated every frame, not in sync with game tics!
-    int16_t dispicnum;
+    int16_t dispicnum;                         // 2b
 
 #ifdef POLYMER
-    _prlight *lightptr;  // 4b/8b
     int16_t lightId, lightmaxrange;  // 4b
+    _prlight *lightptr;              // 4b/8b  aligned on 96 bytes
     uint8_t lightcount, filler[3];
 #endif
 } actor_t;
@@ -221,10 +221,10 @@ typedef struct
     intptr_t *execPtr;  // pointer to CON script for this tile, formerly actorscrptr
     intptr_t *loadPtr;  // pointer to load time CON script, formerly actorLoadEventScrPtr or something
 #endif
-    uint32_t      flags;       // formerly SpriteFlags, ActorType
-    int32_t       cacherange;  // formerly SpriteCache
     projectile_t *proj;
     projectile_t *defproj;
+    uint32_t      flags;       // formerly SpriteFlags, ActorType
+    int32_t       cacherange;  // formerly SpriteCache
 } tiledata_t;
 
 
@@ -302,7 +302,7 @@ extern projectile_t SpriteProjectile[MAXSPRITES];
 
 int  A_CheckNoSE7Water(uspritetype const *const pSprite, int sectNum, int sectLotag, int32_t *pOther);
 int  A_CheckSwitchTile(int spriteNum);
-int  A_IncurDamage(int spriteNum);
+int A_IncurDamage(int const spriteNum);
 void A_AddToDeleteQueue(int spriteNum);
 void A_DeleteSprite(int spriteNum);
 void A_DoGuts(int spriteNum, int tileNum, int spawnCnt);

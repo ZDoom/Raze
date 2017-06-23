@@ -501,7 +501,7 @@ notarget:
 }
 
 // Hitscan weapon fired from actor (sprite s);
-static void A_PreFireHitscan(const spritetype *pSprite, vec3_t *srcVect, int32_t *zvel, int *shootAng, int doSpread)
+static void A_PreFireHitscan(const spritetype *pSprite, vec3_t * const srcVect, int32_t * const zvel, int * const shootAng, int const doSpread)
 {
     int const           playerNum  = A_FindPlayer(pSprite, NULL);
     const DukePlayer_t *pPlayer    = g_player[playerNum].ps;
@@ -514,10 +514,10 @@ static void A_PreFireHitscan(const spritetype *pSprite, vec3_t *srcVect, int32_t
     if (pSprite->picnum == BOSS1)
         *shootAng = getangle(pPlayer->pos.x - srcVect->x, pPlayer->pos.y - srcVect->y);
 
-    Proj_MaybeAddSpread(doSpread, zvel, shootAng, 256, 128 >> (pSprite->picnum != BOSS1));
+    Proj_MaybeAddSpread(doSpread, zvel, shootAng, 256, 128 >> (uint8_t)(pSprite->picnum != BOSS1));
 }
 
-static int Proj_DoHitscan(int spriteNum, int32_t cstatmask, const vec3_t *srcVect, int zvel, int shootAng, hitdata_t *hitData)
+static int Proj_DoHitscan(int spriteNum, int32_t const cstatmask, const vec3_t * const srcVect, int zvel, int const shootAng, hitdata_t * const hitData)
 {
     spritetype *const pSprite = &sprite[spriteNum];
 
@@ -543,7 +543,7 @@ static void Proj_DoRandDecalSize(int const spriteNum, int const projecTile)
     }
 }
 
-static int SectorContainsSE13(int sectNum)
+static int SectorContainsSE13(int const sectNum)
 {
     if (sectNum >= 0)
     {
@@ -569,7 +569,7 @@ static inline void HandleHitWall(hitdata_t *hitData)
 // Maybe damage a ceiling or floor as the consequence of projectile impact.
 // Returns 1 if projectile hit a parallaxed ceiling.
 // NOTE: Compare with Proj_MaybeDamageCF() in actors.c
-static int Proj_MaybeDamageCF2(int zvel, int hitSect)
+static int Proj_MaybeDamageCF2(int const zvel, int const hitSect)
 {
     Bassert(hitSect >= 0);
 
@@ -604,8 +604,9 @@ static int Proj_MaybeDamageCF2(int zvel, int hitSect)
 //    2: set cstat to wall-aligned + random x/y flip
 //
 // TODO: maybe split into 3 cases (hit neither wall nor sprite, hit sprite, hit wall)?
-static int P_PostFireHitscan(int playerNum, int spriteNum, hitdata_t *hitData, int spriteOwner, int projecTile, int zvel,
-                             int spawnTile, int decalTile, int wallDamage, int decalFlags)
+static int P_PostFireHitscan(int const playerNum, int const spriteNum, hitdata_t *const hitData, int const spriteOwner,
+                             int const projecTile, int const zvel, int const spawnTile, int const decalTile, int const wallDamage,
+                             int const decalFlags)
 {
     if (hitData->wall == -1 && hitData->sprite == -1)
     {
@@ -1425,7 +1426,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
 
             if (placeMine == 1)
             {
-                int32_t lTripBombControl = (playerNum < 0) ? 0 :
+                int const tripBombMode = (playerNum < 0) ? 0 :
 #ifdef LUNATIC
                                                            g_player[playerNum].ps->tripbombControl;
 #else
@@ -1434,7 +1435,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
 #endif
                 int const spawnedSprite = A_InsertSprite(hitData.sect, hitData.pos.x, hitData.pos.y, hitData.pos.z, TRIPBOMB, -16, 4, 5,
                                                          shootAng, 0, 0, spriteNum, 6);
-                if (lTripBombControl & TRIPBOMB_TIMER)
+                if (tripBombMode & TRIPBOMB_TIMER)
                 {
 #ifdef LUNATIC
                     int32_t lLifetime    = g_player[playerNum].ps->tripbombLifetime;
@@ -1457,11 +1458,10 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                 A_SetSprite(spawnedSprite, CLIPMASK0);
                 sprite[spawnedSprite].cstat = 16;
 
-                {
-                    int32_t p2         = wall[hitData.wall].point2;
-                    int32_t a          = getangle(wall[hitData.wall].x - wall[p2].x, wall[hitData.wall].y - wall[p2].y) - 512;
-                    actor[spawnedSprite].t_data[5] = sprite[spawnedSprite].ang = a;
-                }
+                int const p2      = wall[hitData.wall].point2;
+                int const wallAng = getangle(wall[hitData.wall].x - wall[p2].x, wall[hitData.wall].y - wall[p2].y) - 512;
+
+                actor[spawnedSprite].t_data[5] = sprite[spawnedSprite].ang = wallAng;
 
                 return spawnedSprite;
             }
@@ -1524,7 +1524,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
     return -1;
 }
 
-int A_ShootWithZvel(int spriteNum, int projecTile, int forceZvel)
+int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZvel)
 {
     Bassert(projecTile >= 0);
 
