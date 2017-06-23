@@ -217,11 +217,13 @@ void Net_WaitForServer(void)
     {
         if (quitevent || keystatus[1]) G_GameExit("");
 
-        display_betascreen();
+        if (G_FPSLimit())
+        {
+            display_betascreen();
+            gametext_center_shade(170, "Waiting for server", 14);
+        }
 
-        gametext_center_shade(170, "Waiting for server", 14);
-        nextpage();
-
+        // XXX: this looks like something that should be rate limited...
         packbuf[0] = PACKET_PLAYER_PING;
         packbuf[1] = myconnectindex;
 

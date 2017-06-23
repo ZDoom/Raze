@@ -26,6 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "menus.h"
 #include "savegame.h"
 #include "input.h"
+#include "screens.h"
 
 char g_firstDemoFile[BMAX_PATH];
 
@@ -531,7 +532,6 @@ RECHECK:
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         G_DrawBackground();
         M_DisplayMenus();
-        //g_player[myconnectindex].ps->palette = palette;
         nextpage();
         fadepal(0,0,0, 252,0,-28);
         ud.reccnt = 0;
@@ -788,198 +788,180 @@ nextdemo_nomenu:
         if (Demo_IsProfiling())
             totalclock += TICSPERFRAME;
 
-        if (foundemo == 0)
+        if (G_FPSLimit())
         {
-            G_DrawBackground();
-#ifdef LUNATIC
-            El_DisplayErrors();
-#endif
-        }
-        else
-        {
-            static uint32_t nextrender = 0, framewaiting = 0;
-            uint32_t tt;
-
-            // NOTE: currently, no key/mouse events will be seen while
-            // demo-profiling because we need 'totalclock' for ourselves.
-            // And handleevents() -> sampletimer() would mess that up.
-            G_HandleLocalKeys();
-
-            if (framewaiting)
+            if (foundemo == 0)
             {
-                framewaiting--;
-                nextpage();
-            }
-
-            tt = getticks();
-
-            // Render one frame (potentially many if profiling)
-            if (Demo_IsProfiling())
-            {
-                int32_t i, num = g_demo_profile-1;
-
-                Bassert(totalclock-ototalclock==4);
-
-                for (i=0; i<num; i++)
-                {
-                    double t1 = gethiticks(), t2;
-
-//                    initprintf("t=%d, o=%d, t-o = %d\n", totalclock,
-//                               ototalclock, totalclock-ototalclock);
-
-                    // NOTE: G_DrawRooms() calculates smoothratio inside and
-                    // ignores the function argument, so we set totalclock
-                    // accordingly.
-                    j = (i<<16)/num;
-                    totalclock = ototalclock + (j>>16);
-
-                    G_DrawRooms(screenpeek,j);
-
-                    t2 = gethiticks();
-
-                    G_DisplayRest(j);
-
-                    Demo_RToc(t1, t2);
-                }
-
-                totalclock = ototalclock+4;
-
-                // draw status
-                Demo_DisplayProfStatus();
-
-                if (handleevents_peekkeys())
-                    Demo_StopProfiling();
-            }
-            else if (r_maxfps == 0 || tt >= nextrender)
-            {
-                if (tt > nextrender+g_frameDelay)
-                    nextrender = tt;
-
-                nextrender += g_frameDelay;
-
-                j = calc_smoothratio(totalclock, ototalclock);
-                if (g_demo_paused && g_demo_rewind)
-                    j = 65536-j;
-
-                G_DrawRooms(screenpeek,j);
-                G_DisplayRest(j);
-
-                framewaiting++;
+                G_DrawBackground();
+    #ifdef LUNATIC
+                El_DisplayErrors();
+    #endif
             }
             else
-                totalclocklock = totalclock;
-
-            if (!Demo_IsProfiling() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
             {
-                if (demoplay_showsync && outofsync)
-                    gametext_center(100, "OUT OF SYNC");
+                // NOTE: currently, no key/mouse events will be seen while
+                // demo-profiling because we need 'totalclock' for ourselves.
+                // And handleevents() -> sampletimer() would mess that up.
+                G_HandleLocalKeys();
 
-                if (g_demo_showStats)
+                // Render one frame (potentially many if profiling)
+                if (Demo_IsProfiling())
                 {
-#if 0
-                    if (g_demo_cnt<tmpdifftime)
-                        gametext_center(100, "DIFF");
+                    int32_t i, num = g_demo_profile-1;
 
+                    Bassert(totalclock-ototalclock==4);
+
+                    for (i=0; i<num; i++)
                     {
-                        char buf[32];
-                        Bsprintf(buf, "RC:%4d  TC:%5d", ud.reccnt, g_demo_cnt);
-                        gametext_center_number(100, buf);
+                        double t1 = gethiticks(), t2;
+
+                        //                    initprintf("t=%d, o=%d, t-o = %d\n", totalclock,
+                        //                               ototalclock, totalclock-ototalclock);
+
+                                            // NOTE: G_DrawRooms() calculates smoothratio inside and
+                                            // ignores the function argument, so we set totalclock
+                                            // accordingly.
+                        j = (i<<16)/num;
+                        totalclock = ototalclock + (j>>16);
+
+                        G_DrawRooms(screenpeek, j);
+
+                        t2 = gethiticks();
+
+                        G_DisplayRest(j);
+
+                        Demo_RToc(t1, t2);
                     }
-#endif
-                    j=g_demo_cnt/REALGAMETICSPERSEC;
-                    Bsprintf(buf, "%02d:%02d", j/60, j%60);
-                    gametext_widenumber(18, 16, buf);
 
-                    rotatesprite(60<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,0,0,(xdim*95)/320,ydim-1);
-                    rotatesprite(90<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,(xdim*95)/320,0,(xdim*125)/320,ydim-1);
-                    rotatesprite(120<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,(xdim*125)/320,0,(xdim*155)/320,ydim-1);
-                    rotatesprite(150<<16,16<<16,32768,0,SLIDEBAR,0,0,2+8+16+1024,(xdim*155)/320,0,xdim-1,ydim-1);
+                    totalclock = ototalclock+4;
 
-                    j = (182<<16) - (tabledivide32_noinline((120*(g_demo_totalCnt-g_demo_cnt))<<4, g_demo_totalCnt)<<12);
-                    rotatesprite_fs(j,(16<<16)+(1<<15),32768,0,SLIDEBAR+1,0,0,2+8+16+1024);
+                    // draw status
+                    Demo_DisplayProfStatus();
 
-                    j=(g_demo_totalCnt-g_demo_cnt)/REALGAMETICSPERSEC;
-                    Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, g_demo_paused?"   ^15PAUSED":"");
-                    gametext_widenumber(194, 16, buf);
+                    if (handleevents_peekkeys())
+                        Demo_StopProfiling();
                 }
-            }
-
-            if ((g_netServer || ud.multimode > 1) && g_player[myconnectindex].ps->gm)
-                Net_GetPackets();
-
-            if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
-                gametext_center(60, "Press F1 to Accept, F2 to Decline");
-        }
-
-        if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))
-        {
-            Demo_FinishProfile();
-            goto RECHECK;
-        }
-
-        if (I_EscapeTrigger() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && (g_player[myconnectindex].ps->gm&MODE_TYPE) == 0)
-        {
-            I_EscapeTriggerClear();
-            FX_StopAllSounds();
-            S_ClearSoundLocks();
-            Menu_Open(myconnectindex);
-            Menu_Change(MENU_MAIN);
-            S_MenuSound();
-        }
-
-        if (Demo_IsProfiling())
-        {
-            // Do nothing: sampletimer() is reached from M_DisplayMenus() ->
-            // Net_GetPackets() else.
-        }
-        else if (g_player[myconnectindex].ps->gm&MODE_TYPE)
-        {
-            Net_SendMessage();
-
-            if ((g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
-            {
-                g_player[myconnectindex].ps->gm = 0;
-                Menu_Open(myconnectindex);
-            }
-        }
-        else
-        {
-            if (ud.recstat != 2)
-                M_DisplayMenus();
-
-            if ((g_netServer || ud.multimode > 1)  && !Menu_IsTextInput(m_currentMenu))
-            {
-                ControlInfo noshareinfo;
-                CONTROL_GetInput(&noshareinfo);
-                if (BUTTON(gamefunc_SendMessage))
+                else 
                 {
-                    KB_FlushKeyboardQueue();
-                    CONTROL_ClearButton(gamefunc_SendMessage);
-                    g_player[myconnectindex].ps->gm = MODE_TYPE;
-                    typebuf[0] = 0;
+                    j = calc_smoothratio(totalclock, ototalclock);
+                    if (g_demo_paused && g_demo_rewind)
+                        j = 65536-j;
+
+                    G_DrawRooms(screenpeek, j);
+                    G_DisplayRest(j);
+
+                }
+//                    totalclocklock = totalclock;
+
+                if (!Demo_IsProfiling() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+                {
+                    if (demoplay_showsync && outofsync)
+                        gametext_center(100, "OUT OF SYNC");
+
+                    if (g_demo_showStats)
+                    {
+    #if 0
+                        if (g_demo_cnt<tmpdifftime)
+                            gametext_center(100, "DIFF");
+
+                        {
+                            char buf[32];
+                            Bsprintf(buf, "RC:%4d  TC:%5d", ud.reccnt, g_demo_cnt);
+                            gametext_center_number(100, buf);
+                        }
+    #endif
+                        j=g_demo_cnt/REALGAMETICSPERSEC;
+                        Bsprintf(buf, "%02d:%02d", j/60, j%60);
+                        gametext_widenumber(18, 16, buf);
+
+                        rotatesprite(60<<16, 16<<16, 32768, 0, SLIDEBAR, 0, 0, 2+8+16+1024, 0, 0, (xdim*95)/320, ydim-1);
+                        rotatesprite(90<<16, 16<<16, 32768, 0, SLIDEBAR, 0, 0, 2+8+16+1024, (xdim*95)/320, 0, (xdim*125)/320, ydim-1);
+                        rotatesprite(120<<16, 16<<16, 32768, 0, SLIDEBAR, 0, 0, 2+8+16+1024, (xdim*125)/320, 0, (xdim*155)/320, ydim-1);
+                        rotatesprite(150<<16, 16<<16, 32768, 0, SLIDEBAR, 0, 0, 2+8+16+1024, (xdim*155)/320, 0, xdim-1, ydim-1);
+
+                        j = (182<<16) - (tabledivide32_noinline((120*(g_demo_totalCnt-g_demo_cnt))<<4, g_demo_totalCnt)<<12);
+                        rotatesprite_fs(j, (16<<16)+(1<<15), 32768, 0, SLIDEBAR+1, 0, 0, 2+8+16+1024);
+
+                        j=(g_demo_totalCnt-g_demo_cnt)/REALGAMETICSPERSEC;
+                        Bsprintf(buf, "-%02d:%02d%s", j/60, j%60, g_demo_paused ? "   ^15PAUSED" : "");
+                        gametext_widenumber(194, 16, buf);
+                    }
+                }
+
+                if ((g_netServer || ud.multimode > 1) && g_player[myconnectindex].ps->gm)
+                    Net_GetPackets();
+
+                if (g_player[myconnectindex].gotvote == 0 && voting != -1 && voting != myconnectindex)
+                    gametext_center(60, "Press F1 to Accept, F2 to Decline");
+            }
+
+            if ((g_player[myconnectindex].ps->gm&MODE_MENU) && (g_player[myconnectindex].ps->gm&MODE_EOL))
+            {
+                Demo_FinishProfile();
+                goto RECHECK;
+            }
+
+            if (I_EscapeTrigger() && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && (g_player[myconnectindex].ps->gm&MODE_TYPE) == 0)
+            {
+                I_EscapeTriggerClear();
+                FX_StopAllSounds();
+                S_ClearSoundLocks();
+                Menu_Open(myconnectindex);
+                Menu_Change(MENU_MAIN);
+                S_MenuSound();
+            }
+
+            if (Demo_IsProfiling())
+            {
+                // Do nothing: sampletimer() is reached from M_DisplayMenus() ->
+                // Net_GetPackets() else.
+            }
+            else if (g_player[myconnectindex].ps->gm&MODE_TYPE)
+            {
+                Net_SendMessage();
+
+                if ((g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
+                {
+                    g_player[myconnectindex].ps->gm = 0;
+                    Menu_Open(myconnectindex);
                 }
             }
-        }
+            else
+            {
+                if (ud.recstat != 2)
+                    M_DisplayMenus();
 
-        if (!Demo_IsProfiling())
-            G_PrintGameQuotes(screenpeek);
+                if ((g_netServer || ud.multimode > 1)  && !Menu_IsTextInput(m_currentMenu))
+                {
+                    ControlInfo noshareinfo;
+                    CONTROL_GetInput(&noshareinfo);
+                    if (BUTTON(gamefunc_SendMessage))
+                    {
+                        KB_FlushKeyboardQueue();
+                        CONTROL_ClearButton(gamefunc_SendMessage);
+                        g_player[myconnectindex].ps->gm = MODE_TYPE;
+                        typebuf[0] = 0;
+                    }
+                }
+            }
 
-        if (ud.last_camsprite != ud.camerasprite)
-            ud.last_camsprite = ud.camerasprite;
+            if (!Demo_IsProfiling())
+                G_PrintGameQuotes(screenpeek);
 
-        if (VOLUMEONE)
-        {
-            if (ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
-                rotatesprite_fs((320-50)<<16,9<<16,65536L,0,BETAVERSION,0,0,2+8+16+128);
+            if (ud.last_camsprite != ud.camerasprite)
+                ud.last_camsprite = ud.camerasprite;
+
+            if (VOLUMEONE)
+            {
+                if (ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
+                    rotatesprite_fs((320-50)<<16, 9<<16, 65536L, 0, BETAVERSION, 0, 0, 2+8+16+128);
+            }
         }
 
         // NOTE: We must prevent handleevents() and Net_GetPackets() from
         // updating totalclock when profiling (both via sampletimer()):
         if (!Demo_IsProfiling())
             G_HandleAsync();
-
-        if (ud.recstat==0)
-            nextpage();
 
         if (g_player[myconnectindex].ps->gm == MODE_GAME)
         {

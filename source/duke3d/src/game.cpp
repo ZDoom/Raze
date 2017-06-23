@@ -6053,6 +6053,33 @@ void G_MaybeAllocPlayer(int32_t pnum)
 #endif
 }
 
+
+int G_FPSLimit(void)
+{
+    static uint32_t nextRender = 0, frameWaiting = 0;
+
+    if (frameWaiting)
+    {
+        frameWaiting--;
+        nextpage();
+    }
+
+    uint32_t frameTime = getticks();
+
+    if (r_maxfps == 0 || frameTime >= nextRender)
+    {
+        if (frameTime > nextRender + g_frameDelay)
+            nextRender = frameTime;
+
+        nextRender += g_frameDelay;
+        frameWaiting++;
+
+        return 1;
+    }
+
+    return 0;
+}
+
 // TODO: reorder (net)actor_t to eliminate slop and update assertion
 // EDUKE32_STATIC_ASSERT(sizeof(actor_t)==128);
 EDUKE32_STATIC_ASSERT(sizeof(DukePlayer_t)%4 == 0);
@@ -6571,9 +6598,6 @@ MAIN_LOOP_RESTART:
 
     do //main loop
     {
-        static uint32_t nextRender = 0, frameWaiting = 0;
-        uint32_t frameTime;
-
         if (handleevents() && quitevent)
         {
             KB_KeyDown[sc_Escape] = 1;
@@ -6700,21 +6724,8 @@ MAIN_LOOP_RESTART:
             goto skipframe;
         }
 
-        if (frameWaiting)
+        if (G_FPSLimit())
         {
-            frameWaiting--;
-            nextpage();
-        }
-
-        frameTime = getticks();
-
-        if (r_maxfps == 0 || frameTime >= nextRender)
-        {
-            if (frameTime > nextRender + g_frameDelay)
-                nextRender = frameTime;
-
-            nextRender += g_frameDelay;
-
             int const smoothRatio
             = ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm & MODE_MENU))
                || (g_netServer || ud.multimode > 1)
@@ -6726,8 +6737,6 @@ MAIN_LOOP_RESTART:
             if (getrendermode() >= REND_POLYMOST)
                 G_DrawBackground();
             G_DisplayRest(smoothRatio);
-
-            frameWaiting++;
         }
 
 skipframe:

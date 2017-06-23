@@ -3504,9 +3504,8 @@ nullquote:
                     time_t     timeStruct = time(NULL);
                     struct tm *pTime      = localtime(&timeStruct);
 
-                    Bsnprintf(ud.savegame[requestedSlot], sizeof(ud.savegame[requestedSlot]),
-                              "Auto %.4d%.2d%.2d %.2d%.2d%.2d", pTime->tm_year + 1900, pTime->tm_mon + 1, pTime->tm_mday,
-                              pTime->tm_hour, pTime->tm_min, pTime->tm_sec);
+                    strftime(ud.savegame[requestedSlot], sizeof(ud.savegame[requestedSlot]),
+                        "%d %b %Y %I:%M%p", pTime);
                 }
 
                 continue;

@@ -42,3 +42,5 @@ extern sprstat_t g_spriteStat;
 
 extern int32_t dr_yxaspect, dr_viewingrange;
 extern int32_t g_noLogoAnim, g_noLogo;
+
+extern void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e);
