@@ -772,46 +772,37 @@ static void G_ShowCacheLocks(void)
 
 static void G_PrintFPS(void)
 {
-    // adapted from ZDoom because I like it better than what we had
-    // applicable ZDoom code available under GPL from csDoom
-    static int32_t FrameCount = 0, LastCount = 0, LastSec = 0, LastMS = 0;
-    static int32_t MinFrames = INT32_MAX, MaxFrames = 0;
+    static int32_t frameCount = 0, lastFPS = 0, lastFrameTime = 0;
+    static int32_t minFPS = -1, maxFPS = 0;
 
-    int32_t ms = getticks();
-    int32_t howlong = ms - LastMS;
+    int32_t frameTime = getticks();
+    int32_t frameDelay = frameTime - lastFrameTime;
 
-    if (g_player[0].ps->player_par < 3)
+    if (frameDelay >= 0)
     {
-        MinFrames = INT32_MAX;
-        MaxFrames = 0;
-    }
-
-    if (howlong >= 0)
-    {
-        int32_t thisSec = ms/1000;
         int32_t x = (xdim <= 640);
 
         if (ud.showfps)
         {
-            int32_t chars = Bsprintf(tempbuf, "%d ms (%3u fps)", howlong, LastCount);
+            int32_t chars = Bsprintf(tempbuf, "%d ms (%3u fps)", frameDelay, lastFPS);
 
             printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+2+FPS_YOFFSET, 0, -1, tempbuf, x);
             printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+1+FPS_YOFFSET,
-                FPS_COLOR(LastCount < LOW_FPS), -1, tempbuf, x);
+                FPS_COLOR(lastFPS < LOW_FPS), -1, tempbuf, x);
 
             if (ud.showfps > 1)
             {
-                chars = Bsprintf(tempbuf, "max fps: %3u", MaxFrames);
+                chars = Bsprintf(tempbuf, "max fps: %3u", maxFPS);
 
                 printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+10+2+FPS_YOFFSET, 0, -1, tempbuf, x);
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+10+FPS_YOFFSET,
-                    FPS_COLOR(MaxFrames < LOW_FPS), -1, tempbuf, x);
+                    FPS_COLOR(maxFPS < LOW_FPS), -1, tempbuf, x);
 
-                chars = Bsprintf(tempbuf, "min fps: %3u", MinFrames);
+                chars = Bsprintf(tempbuf, "min fps: %3u", minFPS);
 
                 printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+20+2+FPS_YOFFSET, 0, -1, tempbuf, x);
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+20+FPS_YOFFSET,
-                    FPS_COLOR(MinFrames < LOW_FPS), -1, tempbuf, x);
+                    FPS_COLOR(minFPS < LOW_FPS), -1, tempbuf, x);
             }
 
             // lag meter
@@ -825,21 +816,31 @@ static void G_PrintFPS(void)
             }
         }
 
-        if (thisSec - LastSec)
-        {
-            g_frameRate = LastCount = tabledivide32_noinline(FrameCount, thisSec - LastSec);
-            LastSec = thisSec;
-            FrameCount = 0;
+        int32_t const thisSec = tabledivide32_noinline(frameTime, 1000);
+        int32_t const lastSec = tabledivide32_noinline(lastFrameTime, 1000);
 
-            if (!osdshown)
+        if (thisSec - lastSec)
+        {
+            g_frameRate = lastFPS = tabledivide32_noinline(frameCount, thisSec - lastSec);
+            frameCount = 0;
+
+            if (ud.showfps > 1)
             {
-                if (LastCount > MaxFrames) MaxFrames = LastCount;
-                if (LastCount < MinFrames) MinFrames = LastCount;
+                if (lastFPS > maxFPS) maxFPS = lastFPS;
+                if ((unsigned) lastFPS < (unsigned) minFPS) minFPS = lastFPS;
+                static int secondCounter;
+
+                if (++secondCounter == 3)
+                {
+                    maxFPS = (lastFPS + maxFPS) >> 1;
+                    minFPS = (lastFPS + minFPS) >> 1;
+                    secondCounter = 0;
+                }
             }
         }
-        FrameCount++;
+        frameCount++;
     }
-    LastMS = ms;
+    lastFrameTime = frameTime;
 }
 
 #undef FPS_COLOR
