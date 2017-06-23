@@ -4439,6 +4439,8 @@ void polymost_drawsprite(int32_t snum)
 
             if (tsiz.x & 1)
                 s0.x += ff.x * 0.5f;
+            if (globalorientation & 128 && tsiz.y & 1)
+                s0.y += ff.y * 0.5f;
 
             s0.x -= ff.x * (float) off.x;
             s0.y -= ff.y * (float) off.y;
