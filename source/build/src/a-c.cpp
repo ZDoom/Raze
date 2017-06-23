@@ -718,8 +718,6 @@ void stretchhline(intptr_t p0, int32_t u, bssize_t cnt, int32_t uinc, intptr_t r
 }
 #endif
 
-void mmxoverlay() { }
-
 #endif
 /*
  * vim:ts=4:

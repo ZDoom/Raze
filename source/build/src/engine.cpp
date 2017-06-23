@@ -124,7 +124,7 @@ static const int32_t nytoofar = DISTRECIPSIZ*16384ull - 1048576;
 static uint32_t *distrecip;
 
 static int32_t *lookups = NULL;
-static int32_t dommxoverlay = 1, beforedrawrooms = 1;
+static int32_t beforedrawrooms = 1;
 
 static int32_t oxdimen = -1, oviewingrange = -1, oxyaspect = -1;
 
@@ -7651,13 +7651,9 @@ int32_t preinitengine(void)
     spritesmooth = spritesmooth_s;
 #endif
 
-    if ((e = Bgetenv("BUILD_NOP6")) != NULL)
-        if (!Bstrcasecmp(e, "TRUE"))
-        {
-            Bprintf("Disabling P6 optimizations.\n");
-            dommxoverlay = 0;
-        }
-    if (dommxoverlay) mmxoverlay();
+#if !defined ENGINE_USING_A_C
+    mmxoverlay();
+#endif
 
     validmodecnt = 0;
     getvalidmodes();
