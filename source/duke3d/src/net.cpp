@@ -1695,10 +1695,10 @@ void Net_ReceiveClientUpdate(ENetEvent *event)
 
 void Net_SendMessage(void)
 {
-    int32_t hitstate, i, j, l;
 
     if (g_player[myconnectindex].ps->gm&MODE_SENDTOWHOM)
     {
+        int32_t i, j;
         if (g_chatPlayer != -1 || ud.multimode < 3)
         {
             tempbuf[0] = PACKET_MESSAGE;
@@ -1741,14 +1741,6 @@ void Net_SendMessage(void)
                 if (g_netServer) enet_host_broadcast(g_netServer, CHAN_CHAT, enet_packet_create(tempbuf, j+2, 0));
                 else if (g_netClient) enet_peer_send(g_netClientPeer, CHAN_CHAT, enet_packet_create(tempbuf, j+2, 0));
                 G_AddUserQuote(recbuf);
-                quotebot += 8;
-                l = G_GameTextLen(USERQUOTE_LEFTOFFSET, recbuf);
-                while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
-                {
-                    l -= (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET);
-                    quotebot += 8;
-                }
-                quotebotgoal = quotebot;
             }
             g_chatPlayer = -1;
             g_player[myconnectindex].ps->gm &= ~(MODE_TYPE|MODE_SENDTOWHOM);
@@ -1778,9 +1770,7 @@ void Net_SendMessage(void)
             minitext((320>>1)-40-4,j,"    ESC - Abort",0,2+8+16);
             j += 7;
 
-            if (ud.screen_size > 0) j = 200-45;
-            else j = 200-8;
-            mpgametext(j, typebuf, 0, 0);
+            mpgametext(mpgametext_x, ud.screen_size > 0 ? (200-45)<<16 : (200-8)<<16, typebuf, 0, 0, 0, 0);
 
             if (KB_KeyWaiting())
             {
@@ -1818,31 +1808,16 @@ void Net_SendMessage(void)
     }
     else
     {
-        hitstate = I_EnterText(typebuf, 120, 0);
+        int32_t const hitstate = I_EnterText(typebuf, 120, 0);
 
-        if (ud.screen_size > 1) j = (200-45)<<16;
-        else j = (200-8)<<16;
-        if (xdim >= 640 && ydim >= 480)
-            j = scale(j,ydim,200);
+        int32_t const y = ud.screen_size > 1 ? (200-58)<<16 : (200-35)<<16;
 
-        i = textsc(5<<16);
-
-        {
-            const vec2_t dim = G_ScreenTextSize(MF_BluefontGame.tilenum, i, 0, textsc(MF_BluefontGame.zoom), 0, typebuf, 8|16|ROTATESPRITE_FULL16, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
-
-            l = i + dim.x + scale(textsc((tilesiz[SPINNINGNUKEICON].x+2)<<13), ydim, 200);
-        }
-
-        if (l >= (xdim<<16))
-            i -= (l - (xdim<<16));
-
-        {
-            const vec2_t dim = G_ScreenText(MF_BluefontGame.tilenum, i, j, textsc(MF_BluefontGame.zoom), 0, 0, typebuf, 1, MF_BluefontGame.pal, 8|16|ROTATESPRITE_FULL16, 0, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|TEXT_YCENTER|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
-
-            i += dim.x + scale(textsc((tilesiz[SPINNINGNUKEICON].x+1)<<12), ydim, 200);
-        }
-
-        rotatesprite_fs(i, j, textsc(32768), 0, SPINNINGNUKEICON+((totalclock>>3)%7), 4-(sintable[(totalclock<<4)&2047]>>11), 0, 0);
+        int32_t const width = mpgametextsize(typebuf, TEXT_LITERALESCAPE).x;
+        int32_t const fullwidth = width + textsc((tilesiz[SPINNINGNUKEICON].x<<15)+(2<<16));
+        int32_t const text_x = fullwidth >= (320<<16) ? (320<<16) - fullwidth : mpgametext_x;
+        mpgametext(text_x, y, typebuf, 1, 2|8|16|ROTATESPRITE_FULL16, 0, TEXT_YCENTER|TEXT_LITERALESCAPE);
+        int32_t const cursor_x = text_x + width + textsc((tilesiz[SPINNINGNUKEICON].x<<14)+(1<<16));
+        rotatesprite_fs(cursor_x, y, textsc(32768), 0, SPINNINGNUKEICON+((totalclock>>3)%7), 4-(sintable[(totalclock<<4)&2047]>>11), 0, 2|8);
 
         if (hitstate == 1)
         {

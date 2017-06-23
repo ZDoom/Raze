@@ -276,8 +276,6 @@ extern int32_t g_quitDeadline;
 extern int32_t g_restorePalette;
 extern int32_t hud_glowingquotes;
 extern int32_t hud_showmapname;
-extern int32_t quotebot;
-extern int32_t quotebotgoal;
 extern int32_t r_maxfps;
 extern int32_t tempwallptr;
 extern int32_t ticrandomseed;

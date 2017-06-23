@@ -25,29 +25,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "sbar.h"
 #include "menus.h"
 
-int32_t quotebot, quotebotgoal;
-int32_t user_quote_time[MAXUSERQUOTES];
-static char user_quote[MAXUSERQUOTES][178];
-int32_t hud_glowingquotes = 1;
-
-#define FTAOPAQUETIME 30
-
-// alpha increments of 8 --> 256 / 8 = 32 --> round up to power of 2 --> 32 --> divide by 2 --> 16 alphatabs required
-#define ftapulseshade                                                                                                  \
-    ((hud_glowingquotes && ((getrendermode() == REND_CLASSIC && numalphatabs < 15) || ps->fta >= FTAOPAQUETIME)) ?     \
-     (sintable[((uint32_t)ps->fta << 7) & 2047] >> 11) :                                                               \
-     (sintable[((uint32_t)FTAOPAQUETIME << 7) & 2047] >> 11))
-
-int32_t textsc(int32_t sc)
-{
-    // prevent ridiculousness to a degree
-    if (xdim <= 320) return sc;
-    else if (xdim <= 640) return scale(sc, min(200, ud.textscale), 100);
-    else if (xdim <= 800) return scale(sc, min(300, ud.textscale), 100);
-    else if (xdim <= 1024) return scale(sc, min(350, ud.textscale), 100);
-    return scale(sc, ud.textscale, 100);
-}
-
 // get the string length until the next '\n'
 int32_t G_GetStringLineLength(const char *text, const char *end, const int32_t iter)
 {
@@ -922,27 +899,21 @@ void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
     G_ScreenText(tile, x, y, z, 0, 0, t, s, p, 2|o|ROTATESPRITE_FULL16, a, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|f, x1, y1, x2, y2);
 }
 
-void gametext_(int32_t x, int32_t y, int32_t z, const char *t, int32_t s, int32_t p, int32_t o, int32_t a, int32_t f)
+vec2_t gametext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t o, int32_t a, int32_t f)
 {
-    G_ScreenText(MF_BluefontGame.tilenum, x, y, z, 0, 0, t, s, p, o|2|8|16|ROTATESPRITE_FULL16, a, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|f, 0, 0, xdim-1, ydim-1);
+    return G_ScreenText(MF_BluefontGame.tilenum, x, y, MF_BluefontGame.zoom, 0, 0, t, s, p, o|2|8|16|ROTATESPRITE_FULL16, a, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|f, 0, 0, xdim-1, ydim-1);
 }
 void gametext_simple(int32_t x, int32_t y, const char *t)
 {
     G_ScreenText(MF_BluefontGame.tilenum, x, y, MF_BluefontGame.zoom, 0, 0, t, 0, MF_BluefontGame.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags, 0, 0, xdim-1, ydim-1);
 }
-
-int32_t G_GameTextLen(int32_t x, const char *t)
+vec2_t mpgametext(int32_t x, int32_t y, const char *t, int32_t s, int32_t o, int32_t a, int32_t f)
 {
-    vec2_t dim;
-
-    if (t == NULL)
-        return -1;
-
-    dim = G_ScreenTextSize(MF_BluefontGame.tilenum, x<<16, 0, textsc(MF_BluefontGame.zoom), 0, t, 2|8|16|ROTATESPRITE_FULL16, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags, 0, 0, xdim-1, ydim-1);
-
-    x += dim.x;
-
-    return x;
+    return G_ScreenText(MF_BluefontGame.tilenum, x, y, textsc(MF_BluefontGame.zoom), 0, 0, t, s, MF_BluefontGame.pal, o|2|8|16|ROTATESPRITE_FULL16, a, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|f, 0, 0, xdim-1, ydim-1);
+}
+vec2_t mpgametextsize(const char *t, int32_t f)
+{
+    return G_ScreenTextSize(MF_BluefontGame.tilenum, 0, 0, textsc(MF_BluefontGame.zoom), 0, t, 2|8|16|ROTATESPRITE_FULL16, MF_BluefontGame.emptychar.x, MF_BluefontGame.emptychar.y, MF_BluefontGame.between.x, MF_BluefontGame.between.y, MF_BluefontGame.textflags|f, 0, 0, xdim-1, ydim-1);
 }
 
 // minitext_yofs: in hud_scale-independent, (<<16)-scaled, 0-200-normalized y coords,
@@ -994,6 +965,11 @@ void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_
     G_ScreenText(MF_Redfont.tilenum, x, y - (12<<16), MF_Redfont.zoom, 0, 0, t, s, MF_Redfont.pal, o|ROTATESPRITE_FULL16, 0, MF_Redfont.emptychar.x, MF_Redfont.emptychar.y, MF_Redfont.between.x, MF_Redfont.between.y, f|MF_Redfont.textflags|TEXT_LITERALESCAPE, 0, 0, xdim-1, ydim-1);
 }
 
+
+
+int32_t user_quote_time[MAXUSERQUOTES];
+static char user_quote[MAXUSERQUOTES][178];
+
 void G_AddUserQuote(const char *daquote)
 {
     int32_t i;
@@ -1010,31 +986,45 @@ void G_AddUserQuote(const char *daquote)
     pub = NUMPAGES;
 }
 
+int32_t textsc(int32_t sc)
+{
+    return scale(sc, ud.textscale, 400);
+}
+
+int32_t hud_glowingquotes = 1;
+
+#define FTAOPAQUETIME 30
+
+// alpha increments of 8 --> 256 / 8 = 32 --> round up to power of 2 --> 32 --> divide by 2 --> 16 alphatabs required
+static inline int32_t textsh(uint32_t t)
+{
+    return (hud_glowingquotes && ((getrendermode() == REND_CLASSIC && numalphatabs < 15) || t >= FTAOPAQUETIME))
+        ? sintable[(t << 7) & 2047] >> 11
+        : (sintable[(FTAOPAQUETIME << 7) & 2047] >> 11);
+}
+
 // orientation flags depending on time that a quote has still to be displayed
 static inline int32_t texto(int32_t t)
 {
-    if (t > 4) return 0;
-    if (t > 2) return 1;
+    if (getrendermode() != REND_CLASSIC || numalphatabs >= 15 || t > 4)
+        return 0;
+
+    if (t > 2)
+        return 1;
+
     return 1|32;
 }
 
 static inline int32_t texta(int32_t t)
 {
     if (getrendermode() == REND_CLASSIC && numalphatabs < 15)
-    {
-        if (t > 4) return 0;
-        if (t > 2) return 85;
-        return 169;
-    }
+        return 0;
 
-    t = clamp(t<<3, 0, 255);
-    return 255 - t;
+    return 255 - clamp(t<<3, 0, 255);
 }
 
-static int32_t calc_ybase(int32_t begy)
+static FORCE_INLINE int32_t text_fragbarheight(void)
 {
-    int32_t k = begy;
-
     if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0
 #ifdef SPLITSCREEN_MOD_HACKS
         && !g_fakeMultiMode
@@ -1043,126 +1033,109 @@ static int32_t calc_ybase(int32_t begy)
     {
         int32_t i, j = 0;
 
-        k += 8;
         for (TRAVERSE_CONNECT(i))
             if (i > j)
                 j = i;
 
-        if (j >= 4 && j <= 8) k += 8;
-        else if (j > 8 && j <= 12) k += 16;
-        else if (j > 12) k += 24;
+        return ((j & ~3) + 4) << 17; // ((j / 4 + 1) * 8) << 16
     }
 
-    return k;
+    return 0;
+}
+
+static FORCE_INLINE int32_t text_ypos(void)
+{
+    if (ud.althud == 2)
+        return 32<<16;
+
+#ifdef GEKKO
+    return 16<<16;
+#elif defined EDUKE32_TOUCH_DEVICES
+    return 24<<16;
+#else
+    return 1<<16;
+#endif
 }
 
 // this handles both multiplayer and item pickup message type text
 // both are passed on to gametext
 void G_PrintGameQuotes(int32_t snum)
 {
-    int32_t i, j, k;
-
     const DukePlayer_t *const ps = g_player[snum].ps;
     const int32_t reserved_quote = (ps->ftq >= QUOTE_RESERVED && ps->ftq <= QUOTE_RESERVED3);
     // NOTE: QUOTE_RESERVED4 is not included.
 
-    k = calc_ybase(1);
+    int32_t const ybase = text_fragbarheight() + text_ypos();
+    int32_t height = 0;
+    int32_t k = ps->fta;
 
-    if (ps->fta > 1 && !reserved_quote)
+
+    // primary quote
+
+    do
     {
-        k += min(7, ps->fta);
-    }
+        if (k <= 1)
+            break;
 
-    j = scale(k, ydim, 200);
-
-    for (i=MAXUSERQUOTES-1; i>=0; i--)
-    {
-        int32_t sh, l;
-
-        if (user_quote_time[i] <= 0)
-            continue;
-
-        k = user_quote_time[i];
-
-        sh = hud_glowingquotes ? (sintable[((totalclock+(i<<2))<<5)&2047]>>11) : 0;
-
-        mpgametext(j, user_quote[i], sh, texto(k));
-        j += textsc(k > 4 ? 8 : (k<<1));
-
-        l = G_GameTextLen(USERQUOTE_LEFTOFFSET, user_quote[i]);
-        while (l > (ud.config.ScreenWidth - USERQUOTE_RIGHTOFFSET))
+        if (EDUKE32_PREDICT_FALSE(apStrings[ps->ftq] == NULL))
         {
-            l -= (ud.config.ScreenWidth-USERQUOTE_RIGHTOFFSET);
-            j += textsc(k > 4 ? 8 : (k<<1));
+            OSD_Printf(OSD_ERROR "%s %d null quote %d\n", __FILE__, __LINE__, ps->ftq);
+            break;
         }
-    }
 
-    if (klabs(quotebotgoal-quotebot) <= 16 && ud.screen_size <= 8)
-        quotebot += ksgn(quotebotgoal-quotebot);
-    else
-        quotebot = quotebotgoal;
-
-    if (ps->fta <= 1)
-        return;
-
-    if (EDUKE32_PREDICT_FALSE(apStrings[ps->ftq] == NULL))
-    {
-        OSD_Printf(OSD_ERROR "%s %d null quote %d\n", __FILE__, __LINE__, ps->ftq);
-        return;
-    }
-
-    k = calc_ybase(0);
-
-    if (k == 0)
-    {
+        int32_t y = ybase;
         if (reserved_quote)
         {
 #ifdef SPLITSCREEN_MOD_HACKS
             if (!g_fakeMultiMode)
-                k = 140;  // quotebot-8-4;
+                y = 140<<16;
             else
-                k = 50;
+                y = 70<<16;
 #else
-            k = 140;
+            y = 140<<16;
 #endif
         }
-        else
-        {
-            if (ud.althud == 2)
-                k = 32;
-            else
-#ifdef GEKKO
-                k = 16;
-#elif defined EDUKE32_TOUCH_DEVICES
-                k = 24;
-#else
-                k = 1;
-#endif
-        }
-    }
 
-    int32_t pal = 0;
+        int32_t pal = 0;
+        int32_t x = 160<<16;
 
 #ifdef SPLITSCREEN_MOD_HACKS
-    if (g_fakeMultiMode)
-    {
-        pal = g_player[snum].pcolor;
-
-        if (snum == 1)
+        if (g_fakeMultiMode)
         {
-            const int32_t sidebyside = (ud.screen_size != 0);
+            pal = g_player[snum].pcolor;
+            const int32_t sidebyside = ud.screen_size != 0;
 
-            // NOTE: setting gametext's x -= 80 doesn't do the expected thing.
-            // Needs looking into.
             if (sidebyside)
-                k += 9;
-            else
-                k += 101;
+                x = snum == 1 ? 240<<16 : 80<<16;
+            else if (snum == 1)
+                y += 100<<16;
         }
-    }
 #endif
 
-    gametext_center_shade_pal_alpha(k, apStrings[ps->ftq], ftapulseshade, pal, texta(ps->fta));
+        height = gametext_(x, y, apStrings[ps->ftq], textsh(k), pal, texto(k), texta(k), TEXT_XCENTER).y + (1<<16);
+    }
+    while (0);
+
+
+    // userquotes
+
+    int32_t y = ybase;
+
+    if (k > 1 && !reserved_quote)
+        y += k <= 8 ? (height * (k-1))>>3 : height;
+
+    for (size_t i = MAXUSERQUOTES-1; i < MAXUSERQUOTES; --i)
+    {
+        k = user_quote_time[i];
+
+        if (k <= 0)
+            continue;
+
+        // int32_t const sh = hud_glowingquotes ? sintable[((totalclock+(i<<2))<<5)&2047]>>11 : 0;
+
+        height = mpgametext(mpgametext_x, y, user_quote[i], textsh(k), texto(k), texta(k), TEXT_LINEWRAP).y + textsc(1<<16);
+        y += k <= 4 ? (height * (k-1))>>2 : height;
+    }
 }
 
 void P_DoQuote(int32_t q, DukePlayer_t *p)

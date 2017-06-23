@@ -30,7 +30,6 @@ extern "C" {
 
 #define MAXUSERQUOTES 6
 
-extern int32_t quotebot, quotebotgoal;
 extern int32_t user_quote_time[MAXUSERQUOTES];
 extern int32_t minitext_lowercase;
 extern int32_t minitext_yofs;
@@ -62,8 +61,11 @@ enum ScreenTextFlags_t {
 
 extern int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t sb);
 extern void menutext_(int32_t x, int32_t y, int32_t s, char const *t, int32_t o, int32_t f);
-extern void gametext_(int32_t x, int32_t y, int32_t z, const char *t, int32_t s, int32_t p, int32_t o, int32_t a, int32_t f);
+extern vec2_t gametext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t o, int32_t a, int32_t f);
 extern void gametext_simple(int32_t x, int32_t y, const char *t);
+#define mpgametext_x (5<<16)
+extern vec2_t mpgametext(int32_t x, int32_t y, char const * t, int32_t s, int32_t o, int32_t a, int32_t f);
+extern vec2_t mpgametextsize(char const * t, int32_t f);
 extern int32_t textsc(int32_t sc);
 
 #define minitextshade(x, y, t, s, p, sb) minitext_(x,y,t,s,p,sb)
@@ -71,17 +73,14 @@ extern int32_t textsc(int32_t sc);
 #define menutext(x, y, t) menutext_((x), (y), 0, (t), 10|16, 0)
 #define menutext_center(y, t) menutext_(160<<16, (y)<<16, 0, (t), 10|16, TEXT_XCENTER)
 #define gametext(x, y, t) gametext_simple((x)<<16, (y)<<16, (t))
-#define gametext_widenumber(x, y, t) gametext_((x)<<16, (y)<<16, MF_BluefontGame.zoom, (t), 0, MF_BluefontGame.pal, 1024, 0, TEXT_GAMETEXTNUMHACK)
-#define gametext_number(x, y, t) gametext_((x)<<16, (y)<<16, MF_BluefontGame.zoom, (t), 0, MF_BluefontGame.pal, 0, 0, TEXT_GAMETEXTNUMHACK)
-#define gametext_pal(x, y, t, p) gametext_((x)<<16, (y)<<16, MF_BluefontGame.zoom, (t), 0, (p), 0, 0, 0)
-#define gametext_center(y, t) gametext_(160<<16, (y)<<16, MF_BluefontGame.zoom, (t), 0, MF_BluefontGame.pal, 0, 0, TEXT_XCENTER)
-#define gametext_center_number(y, t) gametext_(160<<16, (y)<<16, MF_BluefontGame.zoom, (t), 0, MF_BluefontGame.pal, 0, 0, TEXT_XCENTER|TEXT_GAMETEXTNUMHACK)
-#define gametext_center_shade(y, t, s) gametext_(160<<16, (y)<<16, MF_BluefontGame.zoom, (t), (s), MF_BluefontGame.pal, 0, 0, TEXT_XCENTER)
-#define gametext_center_shade_pal(y, t, s, p) gametext_(160<<16, (y)<<16, MF_BluefontGame.zoom, (t), (s), (p), 0, 0, TEXT_XCENTER)
-#define gametext_center_shade_pal_alpha(y, t, s, p, a) gametext_(160<<16, (y)<<16, 65536, (t), (s), (p), 0, (a), TEXT_XCENTER)
-#define mpgametext(y, t, s, o) gametext_(textsc(5<<16), (y)<<16, textsc(MF_BluefontGame.zoom), (t), (s), MF_BluefontGame.pal, (o), 0, TEXT_LINEWRAP)
+#define gametext_widenumber(x, y, t) gametext_((x)<<16, (y)<<16, (t), 0, MF_BluefontGame.pal, 1024, 0, TEXT_GAMETEXTNUMHACK)
+#define gametext_number(x, y, t) gametext_((x)<<16, (y)<<16, (t), 0, MF_BluefontGame.pal, 0, 0, TEXT_GAMETEXTNUMHACK)
+#define gametext_pal(x, y, t, p) gametext_((x)<<16, (y)<<16, (t), 0, (p), 0, 0, 0)
+#define gametext_center(y, t) gametext_(160<<16, (y)<<16, (t), 0, MF_BluefontGame.pal, 0, 0, TEXT_XCENTER)
+#define gametext_center_number(y, t) gametext_(160<<16, (y)<<16, (t), 0, MF_BluefontGame.pal, 0, 0, TEXT_XCENTER|TEXT_GAMETEXTNUMHACK)
+#define gametext_center_shade(y, t, s) gametext_(160<<16, (y)<<16, (t), (s), MF_BluefontGame.pal, 0, 0, TEXT_XCENTER)
+#define gametext_center_shade_pal(y, t, s, p) gametext_(160<<16, (y)<<16, (t), (s), (p), 0, 0, TEXT_XCENTER)
 
-extern int32_t G_GameTextLen(int32_t x, const char *t);
 extern void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
                             int32_t s, int32_t p, int32_t o,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,

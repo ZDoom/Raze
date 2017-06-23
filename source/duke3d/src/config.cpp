@@ -242,7 +242,7 @@ void CONFIG_SetDefaults(void)
     ud.show_level_text = 1;
     ud.configversion = 0;
     ud.weaponscale = 100;
-    ud.textscale = 100;
+    ud.textscale = 200;
 
     ud.config.CheckForUpdates = 1;
 
