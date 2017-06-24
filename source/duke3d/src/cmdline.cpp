@@ -44,42 +44,46 @@ int32_t g_fakeMultiMode = 0;
 void G_ShowParameterHelp(void)
 {
     const char *s = "Usage: eduke32 [files] [options]\n"
-        "Example: eduke32 -q4 -a -m -tx -map nukeland.map\n\n"
-        "Files can be *.grp/zip/con/def/rts\n"
+        "Example: eduke32 -usecwd -cfg myconfig.cfg -map nukeland.map\n\n"
+        "Files can be of type [grp|zip|map|con|def]\n"
         "\n"
         "-cfg [file.cfg]\tUse an alternate configuration file\n"
 #ifdef HAVE_CLIPSHAPE_FEATURE
         "-clipmap [file.map]\tLoad an additional clipping map for use with clipshape\n"
 #endif
         "-connect [host]\tConnect to a multiplayer game\n"
-        "-c#\t\tUse MP mode #, 1 = Dukematch, 2 = Coop, 3 = Dukematch(no spawn)\n"
-        "-d [file.edm or demonum]\tPlay a demo\n"
+        "-c#\t\tMultiplayer mode #, 1 = DM, 2 = Co-op, 3 = DM(no spawn)\n"
+        "-d [file.edm or #]\tPlay a demo\n"
         "-g [file.grp]\tLoad additional game data\n"
         "-h [file.def]\tLoad an alternate definitions file\n"
-        "-j [dir]\t\tAdds a directory to EDuke32's search list\n"
-        "-l#\t\tWarp to level #, see -v\n"
-        "-map [file.map]\tLoads a map\n"
+        "-j [dir]\t\tAdd a directory to EDuke32's search list\n"
+        "-l#\t\tStart game on level #, see -v\n"
+        "-map [file.map]\tLoad an external map file\n"
         "-mh [file.def]\tInclude an additional definitions module\n"
         "-mx [file.con]\tInclude an additional CON script module\n"
-        "-m\t\tDisable monsters\n"
+        "-m\t\tDisable enemies\n"
+#ifndef EDUKE32_STANDALONE
         "-nam\t\tRun in NAM compatibility mode\n"
         "-napalm\t\tRun in NAPALM compatibility mode\n"
+#endif
         "-rts [file.rts]\tLoad a custom Remote Ridicule sound bank\n"
         "-r\t\tRecord demo\n"
-        "-s#\t\tSet skill level (1-4)\n"
-        "-server\t\tStart a multiplayer game for other players to join\n"
+        "-s#\t\tStart game on skill level #\n"
+        "-server\t\tStart a multiplayer server\n"
 #ifdef STARTUP_SETUP_WINDOW
-        "-setup/nosetup\tEnables/disables startup window\n"
+        "-setup/nosetup\tEnable or disable startup window\n"
 #endif
-        "-t#\t\tSet respawn mode: 1 = Monsters, 2 = Items, 3 = Inventory, x = All\n"
-        "-usecwd\t\tRead game data and configuration file from working directory\n"
+        "-t#\t\tRespawn mode: 1 = enemies, 2 = weapons, 3 = items, x = all\n"
+        "-usecwd\t\tRead data and configuration from current directory\n"
         "-u#########\tUser's favorite weapon order (default: 3425689071)\n"
-        "-v#\t\tWarp to volume #, see -l\n"
+        "-v#\t\tStart game on episode #, see -l\n"
+#ifndef EDUKE32_STANDALONE
         "-ww2gi\t\tRun in WWII GI compatibility mode\n"
+#endif
         "-x [game.con]\tLoad custom CON script\n"
         "-#\t\tLoad and run a game from slot # (0-9)\n"
         //              "\n-?/--help\tDisplay this help message and exit\n"
-        "\nSee eduke32 -debughelp for debug parameters"
+        "\nSee eduke32 -debughelp for additional parameters for debugging"
         ;
 #ifdef WM_MSGBOX_WINDOW
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
@@ -93,21 +97,24 @@ void G_ShowDebugHelp(void)
 {
     const char *s = "Usage: eduke32 [files] [options]\n"
         "\n"
+#if 0
         "-a\t\tUse fake player AI (fake multiplayer only)\n"
-        "-cachesize #\tSets cache size, in Kb\n"
-        "-game_dir [dir]\tDuke3d_w32 compatibility option, see -j\n"
-        "-gamegrp   \tSelects which file to use as main grp\n"
-        "-name [name]\tPlayer name in multiplay\n"
-        "-noautoload\tDisable loading content from autoload dir\n"
-#ifdef _WIN32
+#endif
+        "-cachesize #\tSet cache size in kB\n"
+        "-game_dir [dir]\tSpecify game data directory\n"
+        "-gamegrp   \tSelect main grp file\n"
+        "-name [name]\tPlayer name in multiplayer\n"
+        "-noautoload\tDisable loading from autoload directory\n"
+#if defined RENDERTYPEWIN
         "-nodinput\t\tDisable DirectInput (joystick) support\n"
 #endif
-        "-nologo\t\tSkip the logo anim\n"
-        "-ns/-nm\t\tDisable sound or music\n"
-        "-rotatesprite-no-widescreen\tpass bit 1024 to all CON rotatesprite calls\n"
-        "-q#\t\tFake multiplayer with # (2-8) players\n"
+        "-nologo\t\tSkip intro anim\n"
+        "-ns\t\tDisable sound\n"
+        "-nm\t\tDisable music\n"
+        "-q#\t\tFake multiplayer with # players\n"
         "-z#/-condebug\tEnable line-by-line CON compile debugging at level #\n"
         "-conversion YYYYMMDD\tSelects CON script version for compatibility with older mods\n"
+        "-rotatesprite-no-widescreen\tStretch screen drawing from scripts to fullscreen\n"
 #ifdef LUNATIC
         "-Lopts=<opt1>,<opt2>,...\n"
         "  Pass options to Lunatic, valid ones are:\n"
@@ -288,6 +295,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     i++;
                     continue;
                 }
+#ifndef EDUKE32_STANDALONE
                 if (!Bstrcasecmp(c+1, "nam"))
                 {
                     g_gameType = GAMEFLAG_NAM;
@@ -306,6 +314,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     i++;
                     continue;
                 }
+#endif
                 if (!Bstrcasecmp(c+1, "setup"))
                 {
                     g_commandSetup = TRUE;
