@@ -3420,19 +3420,19 @@ MenuAnimation_t m_animation;
 
 int32_t Menu_Anim_SinOutRight(MenuAnimation_t *animdata)
 {
-    return sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] - 16384;
+    return sintable[divscale10(totalclock - animdata->start, animdata->length) + 512] - 16384;
 }
 int32_t Menu_Anim_SinInRight(MenuAnimation_t *animdata)
 {
-    return sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] + 16384;
+    return sintable[divscale10(totalclock - animdata->start, animdata->length) + 512] + 16384;
 }
 int32_t Menu_Anim_SinOutLeft(MenuAnimation_t *animdata)
 {
-    return -sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] + 16384;
+    return -sintable[divscale10(totalclock - animdata->start, animdata->length) + 512] + 16384;
 }
 int32_t Menu_Anim_SinInLeft(MenuAnimation_t *animdata)
 {
-    return -sintable[scale(1024, totalclock - animdata->start, animdata->length) + 512] - 16384;
+    return -sintable[divscale10(totalclock - animdata->start, animdata->length) + 512] - 16384;
 }
 
 void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype)
@@ -3775,7 +3775,7 @@ static int32_t ydim_from_200_16(int32_t y)
 
 static void Menu_BlackRectangle(int32_t x, int32_t y, int32_t width, int32_t height, int32_t orientation)
 {
-    const int32_t xscale = scale(65536, width, tilesiz[0].x<<16), yscale = scale(65536, height, tilesiz[0].y<<16);
+    const int32_t xscale = divscale16(width, tilesiz[0].x<<16), yscale = divscale16(height, tilesiz[0].y<<16);
 
     rotatesprite_(x, y, max(xscale, yscale), 0, 0, 127, 4, (orientation&(1|32))|2|8|16, 0, 0, xdim_from_320_16(x), ydim_from_200_16(y), xdim_from_320_16(x + width), ydim_from_200_16(y + height));
 }
@@ -4521,7 +4521,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             dim = Menu_Text(origin.x + stringx, stringy, object->font, object->editfield, status | MT_Literal, ydim_upper, ydim_lower);
                             h = max(dim.y, entry->font->get_yline());
 
-                            rotatesprite_ybounds(origin.x + x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, h, tilesiz[SPINNINGNUKEICON].y<<16), stringy, scale(65536, h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10, ydim_upper, ydim_lower);
+                            rotatesprite_ybounds(origin.x + x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, h, tilesiz[SPINNINGNUKEICON].y<<16), stringy, divscale16(h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10, ydim_upper, ydim_lower);
                         }
                         else
                         {

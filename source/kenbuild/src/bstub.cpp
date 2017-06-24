@@ -258,7 +258,7 @@ void ExtPreCheckKeys(void)
         dy = dmulscale1(i,cosang,320,sinang);
         horizval2 = dy*(320>>1)/dx+1;
 
-        daviewingrange = scale(65536,16384*(xdim>>1),mindx-16);
+        daviewingrange = divscale30(xdim>>1, mindx-16);
         daaspect = scale(daviewingrange,scale(320,tilesiz[4094].x,tilesiz[4094].y),horizval2+6-horizval1);
         setaspect(daviewingrange,scale(daaspect,ydim*320,xdim*i));
         horiz = 100-divscale15(horizval1+horizval2,daviewingrange);
