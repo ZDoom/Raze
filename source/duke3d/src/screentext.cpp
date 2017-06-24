@@ -187,10 +187,10 @@ vec2_t G_ScreenTextSize(const int32_t font,
     // coordinate values should be shifted left by 16
 
     // handle zooming where applicable
-    xspace = scale(xspace, z, 65536);
-    yline = scale(yline, z, 65536);
-    xbetween = scale(xbetween, z, 65536);
-    ybetween = scale(ybetween, z, 65536);
+    xspace = mulscale16(xspace, z);
+    yline = mulscale16(yline, z);
+    xbetween = mulscale16(xbetween, z);
+    ybetween = mulscale16(ybetween, z);
     // size/width/height/spacing/offset values should be multiplied or scaled by $z, zoom (since 100% is 65536, the same as 1<<16)
 
     // loop through the string
@@ -449,8 +449,8 @@ vec2_t G_ScreenTextSize(const int32_t font,
 
 void G_AddCoordsFromRotation(vec2_t *coords, const vec2_t *unitDirection, const int32_t magnitude)
 {
-    coords->x += scale(magnitude, unitDirection->x, 16384);
-    coords->y += scale(magnitude, unitDirection->y, 16384);
+    coords->x += mulscale14(magnitude, unitDirection->x);
+    coords->y += mulscale14(magnitude, unitDirection->y);
 }
 
 // screentext
@@ -505,10 +505,10 @@ vec2_t G_ScreenText(const int32_t font,
     size = G_ScreenTextSize(font, x, y, z, blockangle, str, o | ROTATESPRITE_FULL16, xspace, yline, (f & TEXT_XJUSTIFY) ? 0 : xbetween, (f & TEXT_YJUSTIFY) ? 0 : ybetween, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY), x1, y1, x2, y2);
 
     // handle zooming where applicable
-    xspace = scale(xspace, z, 65536);
-    yline = scale(yline, z, 65536);
-    xbetween = scale(xbetween, z, 65536);
-    ybetween = scale(ybetween, z, 65536);
+    xspace = mulscale16(xspace, z);
+    yline = mulscale16(yline, z);
+    xbetween = mulscale16(xbetween, z);
+    ybetween = mulscale16(ybetween, z);
     // size/width/height/spacing/offset values should be multiplied or scaled by $z, zoom (since 100% is 65536, the same as 1<<16)
 
     // alignment
@@ -863,7 +863,7 @@ vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy,
         ybetween <<= 16;
     }
 
-    G_ScreenText(font, x + scale(sx, z, 65536), y + scale(sy, z, 65536), z, blockangle, charangle, str, 127, 4, o|ROTATESPRITE_FULL16, alpha, xspace, yline, xbetween, ybetween, f, x1, y1, x2, y2);
+    G_ScreenText(font, x + mulscale16(sx, z), y + mulscale16(sy, z), z, blockangle, charangle, str, 127, 4, o|ROTATESPRITE_FULL16, alpha, xspace, yline, xbetween, ybetween, f, x1, y1, x2, y2);
 
     size = G_ScreenText(font, x, y, z, blockangle, charangle, str, shade, pal, o|ROTATESPRITE_FULL16, alpha, xspace, yline, xbetween, ybetween, f, x1, y1, x2, y2);
 

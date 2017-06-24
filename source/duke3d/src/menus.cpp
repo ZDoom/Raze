@@ -4230,8 +4230,8 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         const int32_t z = entry->font->cursorScale;
                         Menu_ShadePal(object->font, status, &s, &p);
 
-                        const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
-                        const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
+                        const int32_t slidebarwidth = mulscale16(tilesiz[SLIDEBAR].x<<16, z);
+                        const int32_t slidebarheight = mulscale16(tilesiz[SLIDEBAR].y<<16, z);
 
                         if (status & MT_XRight)
                             x -= slidebarwidth;
@@ -4243,9 +4243,9 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                         rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & (MEF_Disabled|MEF_LookDisabled)) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
-                        const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
+                        const int32_t slideregionwidth = mulscale16((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z);
                         const int32_t slidepointx = slidebarx + (1<<16) + scale(slideregionwidth, *object->variable - object->min, object->max - object->min);
-                        const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
+                        const int32_t slidepointy = slidebary + mulscale16((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z);
 
                         rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & (MEF_Disabled|MEF_LookDisabled)) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
@@ -4286,7 +4286,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                             if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
                             {
-                                const int32_t slidepointhalfwidth = scale((2+tilesiz[SLIDEBAR+1].x)<<15, z, 65536);
+                                const int32_t slidepointhalfwidth = mulscale16((2+tilesiz[SLIDEBAR+1].x)<<15, z);
                                 const int32_t slideregionx = slidebarx + slidepointhalfwidth;
 
                                 menu->currentEntry = e;
@@ -4325,8 +4325,8 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         const int32_t z = entry->font->cursorScale;
                         Menu_ShadePal(object->font, status, &s, &p);
 
-                        const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
-                        const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
+                        const int32_t slidebarwidth = mulscale16(tilesiz[SLIDEBAR].x<<16, z);
+                        const int32_t slidebarheight = mulscale16(tilesiz[SLIDEBAR].y<<16, z);
 
                         if (status & MT_XRight)
                             x -= slidebarwidth;
@@ -4338,9 +4338,9 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                         rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & (MEF_Disabled|MEF_LookDisabled)) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
-                        const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
+                        const int32_t slideregionwidth = mulscale16((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z);
                         const int32_t slidepointx = slidebarx + (1<<16) + (int32_t)((float) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
-                        const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
+                        const int32_t slidepointy = slidebary + mulscale16((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z);
 
                         rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & (MEF_Disabled|MEF_LookDisabled)) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
@@ -4381,7 +4381,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                             if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
                             {
-                                const int32_t slidepointhalfwidth = scale((2+tilesiz[SLIDEBAR+1].x)<<15, z, 65536);
+                                const int32_t slidepointhalfwidth = mulscale16((2+tilesiz[SLIDEBAR+1].x)<<15, z);
                                 const int32_t slideregionx = slidebarx + slidepointhalfwidth;
 
                                 menu->currentEntry = e;
@@ -4420,8 +4420,8 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         const int32_t z = entry->font->cursorScale;
                         Menu_ShadePal(object->font, status, &s, &p);
 
-                        const int32_t slidebarwidth = scale(tilesiz[SLIDEBAR].x<<16, z, 65536);
-                        const int32_t slidebarheight = scale(tilesiz[SLIDEBAR].y<<16, z, 65536);
+                        const int32_t slidebarwidth = mulscale16(tilesiz[SLIDEBAR].x<<16, z);
+                        const int32_t slidebarheight = mulscale16(tilesiz[SLIDEBAR].y<<16, z);
 
                         if (status & MT_XRight)
                             x -= slidebarwidth;
@@ -4433,9 +4433,9 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                         rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & (MEF_Disabled|MEF_LookDisabled)) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
-                        const int32_t slideregionwidth = scale((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z, 65536);
+                        const int32_t slideregionwidth = mulscale16((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z);
                         const int32_t slidepointx = slidebarx + (1<<16) + (int32_t)((double) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
-                        const int32_t slidepointy = slidebary + scale((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z, 65536);
+                        const int32_t slidepointy = slidebary + mulscale16((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z);
 
                         rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & (MEF_Disabled|MEF_LookDisabled)) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
@@ -4476,7 +4476,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                             if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
                             {
-                                const int32_t slidepointhalfwidth = scale((2+tilesiz[SLIDEBAR+1].x)<<15, z, 65536);
+                                const int32_t slidepointhalfwidth = mulscale16((2+tilesiz[SLIDEBAR+1].x)<<15, z);
                                 const int32_t slideregionx = slidebarx + slidepointhalfwidth;
 
                                 menu->currentEntry = e;
@@ -6133,8 +6133,8 @@ void M_DisplayMenus(void)
     {
         const int32_t screenwidth = scale(240<<16, xdim, ydim);
 
-        origin.x = scale(screenwidth, m_animation.in(&m_animation), 32768);
-        previousOrigin.x = scale(screenwidth, m_animation.out(&m_animation), 32768);
+        origin.x = mulscale15(screenwidth, m_animation.in(&m_animation));
+        previousOrigin.x = mulscale15(screenwidth, m_animation.out(&m_animation));
 
         ud.m_origin = previousOrigin;
         VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENU, g_player[screenpeek].ps->i, screenpeek, m_animation.previous->menuID);
