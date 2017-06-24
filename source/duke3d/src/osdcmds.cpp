@@ -1411,6 +1411,7 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
     }
     else if (!Bstrcasecmp(parm->name, "r_maxfps"))
     {
+        if (r_maxfps != 0) r_maxfps = clamp(r_maxfps, 30, 1000);
         g_frameDelay = r_maxfps ? Blrintf(1000.f/(float)r_maxfps) : 0;
     }
     else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
