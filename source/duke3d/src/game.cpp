@@ -5983,8 +5983,10 @@ static int G_EndOfLevel(void)
             ud.eog = 0;
             if ((!g_netServer && ud.multimode < 2))
             {
+#ifndef EDUKE32_STANDALONE
                 if (!VOLUMEALL)
                     G_DoOrderScreen();
+#endif
                 g_player[myconnectindex].ps->gm = 0;
                 Menu_Open(myconnectindex);
                 Menu_Change(MENU_MAIN);

@@ -86,6 +86,8 @@ void Anim_Init(void)
 
     Anim_Setup("logo.anm", 9, logoanimsounds);
     Anim_Setup("3dr.anm", 10, NULL);
+
+#ifndef EDUKE32_STANDALONE
     Anim_Setup("vol4e1.anm", 10, endanimvol41);
     Anim_Setup("vol4e2.anm", 14, endanimvol42);
     Anim_Setup("vol4e3.anm", 10, endanimvol43);
@@ -96,6 +98,7 @@ void Anim_Init(void)
     Anim_Setup("radlogo.anm", 10, NULL);
     Anim_Setup("cineov2.anm", 18, endanimsounds);
     Anim_Setup("cineov3.anm", 10, endanimsounds);
+#endif
 }
 
 int32_t Anim_Play(const char *fn)

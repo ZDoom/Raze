@@ -51,6 +51,7 @@ int32_t g_noLogoAnim = 0;
 int32_t g_noLogo = 0;
 
 ////////// OFTEN-USED FEW-LINERS //////////
+#ifndef EDUKE32_STANDALONE
 static void G_HandleEventsWhileNoInput(void)
 {
     I_ClearAllInput();
@@ -77,6 +78,7 @@ static int32_t G_PlaySoundWhileNoInput(int32_t soundnum)
 
     return 0;
 }
+#endif
 //////////
 
 void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set)
@@ -1655,6 +1657,7 @@ void G_DisplayLogo(void)
     clearallviews(0L);
 }
 
+#ifndef EDUKE32_STANDALONE
 void G_DoOrderScreen(void)
 {
     int32_t i;
@@ -1988,6 +1991,7 @@ static void G_BonusCutscenes(void)
         break;
     }
 }
+#endif
 
 static void G_DisplayMPResultsScreen(void)
 {
@@ -2147,8 +2151,10 @@ void G_BonusScreen(int32_t bonusonly)
     FX_SetReverb(0L);
     CONTROL_BindsEnabled = 1; // so you can use your screenshot bind on the score screens
 
+#ifndef EDUKE32_STANDALONE
     if (!bonusonly)
         G_BonusCutscenes();
+#endif
 
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
     G_FadePalette(0, 0, 0, 252);   // JBF 20031228

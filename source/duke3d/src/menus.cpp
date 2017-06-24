@@ -2337,7 +2337,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         creditsminitext(origin.x + (160<<16), origin.y + ((90+7+10-l)<<16), "Evan \"Hendricks266\" Ramos", 8);
 
 
-        mgametextcenter(origin.x, origin.y + ((130+7-l)<<16), "Based on \"JFDuke3D\" by");
+        mgametextcenter(origin.x, origin.y + ((130+7-l)<<16), "Special thanks to");
         creditsminitext(origin.x + (160<<16), origin.y + ((130+7+10-l)<<16), "Jonathon \"JonoF\" Fowler", 8);
 
         mgametextcenter(origin.x, origin.y + ((150+7-l)<<16), "Uses BUILD Engine technology by");
