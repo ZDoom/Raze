@@ -248,8 +248,10 @@ void CONFIG_SetDefaults(void)
 
     if (g_rtsNamePtr == NULL)
         Bstrcpy(ud.rtsname, G_DefaultRtsFile());
-    Bstrcpy(szPlayerName, "Duke");
 
+    Bstrcpy(szPlayerName, "Player");
+
+#ifndef EDUKE32_STANDALONE
     Bstrcpy(ud.ridecule[0], "An inspiration for birth control.");
     Bstrcpy(ud.ridecule[1], "You're gonna die for that!");
     Bstrcpy(ud.ridecule[2], "It hurts to be you.");
@@ -260,6 +262,7 @@ void CONFIG_SetDefaults(void)
     Bstrcpy(ud.ridecule[7], "Ha ha ha... wasted!");
     Bstrcpy(ud.ridecule[8], "You suck!");
     Bstrcpy(ud.ridecule[9], "AARRRGHHHHH!!!");
+#endif
 
     // JBF 20031211
 
@@ -717,8 +720,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     if (g_grpNamePtr && !g_addonNum)
         SCRIPT_PutString(ud.config.scripthandle, "Setup","SelectedGRP",g_grpNamePtr);
 
-    // XXX: should be "if compiled without startup GUI"
-#if !defined __linux || defined HAVE_GTK2
+#ifdef STARTUP_SETUP_WINDOW
     if (g_noSetup == 0)
         SCRIPT_PutString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
 #endif
@@ -899,8 +901,8 @@ static void CONFIG_GetMD4EntryName(char m[], uint8_t const * const md4)
 
 int32_t CONFIG_GetMapBestTime(char const * const mapname, uint8_t const * const mapmd4)
 {
-    if (!ud.config.setupread) return -1;
-    if (ud.config.scripthandle < 0) return -1;
+    if (!ud.config.setupread || ud.config.scripthandle < 0)
+        return -1;
 
     char m[37];
     CONFIG_GetMD4EntryName(m, mapmd4);
