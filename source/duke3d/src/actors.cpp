@@ -6540,14 +6540,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                     for (SPRITES_OF(STAT_PLAYER, k))
                     {
-                        if (sprite[k].owner >= 0 && clipinsidebox((vec2_t *)&sprite[k], j, 144) == 1)
+                        if (sprite[k].owner >= 0 && clipinsidebox((vec2_t *)&sprite[k], j, pPlayer->clipdist << 1) == 1)
                         {
                             pData[5] = 8;  // Delay
-                            k        = (SP(spriteNum) >> 3) * pData[3];
-                            pData[2] -= k;
-                            pData[4] -= k;
-                            A_MoveSector(spriteNum);
-                            setsprite(spriteNum, (vec3_t *)pSprite);
                             goto next_sprite;
                         }
                     }

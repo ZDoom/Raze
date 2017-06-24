@@ -896,10 +896,7 @@ REDODOOR:
                 }
 
             if (i < 0)
-            {
-                OSD_Printf("WARNING: ST_23_SWINGING_DOOR without SE_11_SWINGING_DOOR!\n");
                 return;
-            }    // JBF
 
             int const tag = sector[SECT(i)].lotag&0x8000;
 
