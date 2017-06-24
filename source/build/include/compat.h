@@ -384,8 +384,9 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 ////////// DEPRECATED: Standard library prefixing //////////
 
 #ifdef _MSC_VER
-typedef intptr_t ssize_t;
+typedef int32_t ssize_t;
 #endif
+
 typedef size_t bsize_t;
 typedef ssize_t bssize_t;
 
