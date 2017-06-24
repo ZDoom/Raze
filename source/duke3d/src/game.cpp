@@ -206,7 +206,7 @@ void G_HandleSpecialKeys(void)
 
         KB_ClearKeyDown(sc_F12);
         screencapture(
-#ifdef EDUKE32_STANDALONE
+#ifndef EDUKE32_STANDALONE
             "duke0000.tga"
 #else
             "scrn0000.tga"

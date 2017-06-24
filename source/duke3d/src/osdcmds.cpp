@@ -1213,7 +1213,7 @@ static int32_t osdcmd_screenshot(const osdfuncparm_t *parm)
     UNREFERENCED_PARAMETER(parm);
 //    KB_ClearKeysDown();
     screencapture(
-#ifdef EDUKE32_STANDALONE
+#ifndef EDUKE32_STANDALONE
         "duke0000.tga"
 #else
         "scrn0000.tga"
