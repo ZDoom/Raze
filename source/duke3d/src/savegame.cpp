@@ -262,6 +262,8 @@ int32_t G_LoadPlayer(int32_t spot)
         return 1;
     }
 
+    VM_OnEvent(EVENT_PRELOADGAME, g_player[myconnectindex].ps->i, myconnectindex);
+
     // some setup first
     ud.multimode = h.numplayers;
 
@@ -458,6 +460,8 @@ int32_t G_SavePlayer(int32_t spot)
 
     G_RestoreTimers();
     ototalclock = totalclock;
+
+    VM_OnEvent(EVENT_POSTSAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
 
     return 0;
 }
