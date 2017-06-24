@@ -733,7 +733,7 @@ enum IterationTypes_t
 
 enum ScriptKeywords_t
 {
-    CON_DEFINELEVELNAME,    // 0
+    CON_ELSE,               // 0
     CON_ACTOR,              // 1
     CON_ADDAMMO,            // 2
     CON_IFRND,              // 3
@@ -743,7 +743,7 @@ enum ScriptKeywords_t
     CON_ACTION,             // 7
     CON_IFPDISTL,           // 8
     CON_IFPDISTG,           // 9
-    CON_ELSE,               // 10
+    CON_DEFINELEVELNAME,    // 10
     CON_STRENGTH,           // 11
     CON_BREAK,              // 12
     CON_SHOOT,              // 13

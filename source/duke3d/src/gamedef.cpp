@@ -171,7 +171,7 @@ const tokenmap_t altkeyw [] =
 
 const char *keyw[] =
 {
-    "definelevelname",          // 0  defines level name
+    "else",                     // 0  used with if checks
     "actor",                    // 1  defines an actor
     "addammo",                  // 2  adds ammo to a weapon
     "ifrnd",                    // 3  checks against a randomizer
@@ -181,7 +181,7 @@ const char *keyw[] =
     "action",                   // 7  defines an action if used outside a state or actor, otherwise triggers actor to perform action
     "ifpdistl",                 // 8  checks if player distance is less than value
     "ifpdistg",                 // 9  checks if player distance is more than value
-    "else",                     // 10 used with if checks
+    "definelevelname",          // 10 defines level name
     "strength",                 // 11 sets health
     "break",                    // 12 stops processing
     "shoot",                    // 13 shoots a projectile

@@ -999,33 +999,35 @@ void __fastcall VM_SetSprite(int32_t const spriteNum, int32_t const labelNum, in
         return;
     }
 
+    spritetype * const pSprite = &sprite[spriteNum];
+
     switch (labelNum)
     {
-        case ACTOR_X: sprite[spriteNum].x = iSet; break;
-        case ACTOR_Y: sprite[spriteNum].y = iSet; break;
-        case ACTOR_Z: sprite[spriteNum].z = iSet; break;
-        case ACTOR_CSTAT: sprite[spriteNum].cstat = iSet; break;
-        case ACTOR_PICNUM: sprite[spriteNum].picnum = iSet; break;
-        case ACTOR_SHADE: sprite[spriteNum].shade = iSet; break;
-        case ACTOR_PAL: sprite[spriteNum].pal = iSet; break;
-        case ACTOR_CLIPDIST: sprite[spriteNum].clipdist = iSet; break;
-        case ACTOR_DETAIL: sprite[spriteNum].blend = iSet; break;
-        case ACTOR_XREPEAT: sprite[spriteNum].xrepeat = iSet; break;
-        case ACTOR_YREPEAT: sprite[spriteNum].yrepeat = iSet; break;
-        case ACTOR_XOFFSET: sprite[spriteNum].xoffset = iSet; break;
-        case ACTOR_YOFFSET: sprite[spriteNum].yoffset = iSet; break;
+        case ACTOR_X: pSprite->x = iSet; break;
+        case ACTOR_Y: pSprite->y = iSet; break;
+        case ACTOR_Z: pSprite->z = iSet; break;
+        case ACTOR_CSTAT: pSprite->cstat = iSet; break;
+        case ACTOR_PICNUM: pSprite->picnum = iSet; break;
+        case ACTOR_SHADE: pSprite->shade = iSet; break;
+        case ACTOR_PAL: pSprite->pal = iSet; break;
+        case ACTOR_CLIPDIST: pSprite->clipdist = iSet; break;
+        case ACTOR_DETAIL: pSprite->blend = iSet; break;
+        case ACTOR_XREPEAT: pSprite->xrepeat = iSet; break;
+        case ACTOR_YREPEAT: pSprite->yrepeat = iSet; break;
+        case ACTOR_XOFFSET: pSprite->xoffset = iSet; break;
+        case ACTOR_YOFFSET: pSprite->yoffset = iSet; break;
         case ACTOR_SECTNUM: changespritesect(spriteNum, iSet); break;
         case ACTOR_STATNUM: changespritestat(spriteNum, iSet); break;
-        case ACTOR_ANG: sprite[spriteNum].ang = iSet; break;
-        case ACTOR_OWNER: sprite[spriteNum].owner = iSet; break;
-        case ACTOR_XVEL: sprite[spriteNum].xvel = iSet; break;
-        case ACTOR_YVEL: sprite[spriteNum].yvel = iSet; break;
-        case ACTOR_ZVEL: sprite[spriteNum].zvel = iSet; break;
-        case ACTOR_LOTAG: sprite[spriteNum].lotag = (int16_t)iSet; break;
-        case ACTOR_HITAG: sprite[spriteNum].hitag = (int16_t)iSet; break;
-        case ACTOR_ULOTAG: sprite[spriteNum].lotag = iSet; break;
-        case ACTOR_UHITAG: sprite[spriteNum].hitag = iSet; break;
-        case ACTOR_EXTRA: sprite[spriteNum].extra = iSet; break;
+        case ACTOR_ANG: pSprite->ang = iSet; break;
+        case ACTOR_OWNER: pSprite->owner = iSet; break;
+        case ACTOR_XVEL: pSprite->xvel = iSet; break;
+        case ACTOR_YVEL: pSprite->yvel = iSet; break;
+        case ACTOR_ZVEL: pSprite->zvel = iSet; break;
+        case ACTOR_LOTAG: pSprite->lotag = (int16_t)iSet; break;
+        case ACTOR_HITAG: pSprite->hitag = (int16_t)iSet; break;
+        case ACTOR_ULOTAG: pSprite->lotag = iSet; break;
+        case ACTOR_UHITAG: pSprite->hitag = iSet; break;
+        case ACTOR_EXTRA: pSprite->extra = iSet; break;
         case ACTOR_HTCGG: actor[spriteNum].cgg = iSet; break;
         case ACTOR_HTPICNUM: actor[spriteNum].picnum = iSet; break;
         case ACTOR_HTANG: actor[spriteNum].ang = iSet; break;
@@ -1069,33 +1071,35 @@ int32_t __fastcall VM_GetSprite(int32_t const spriteNum, int32_t labelNum, int32
         return -1;
     }
 
+    uspritetype const * const pSprite = (uspritetype *)&sprite[spriteNum];
+
     switch (labelNum)
     {
-        case ACTOR_X: labelNum = sprite[spriteNum].x; break;
-        case ACTOR_Y: labelNum = sprite[spriteNum].y; break;
-        case ACTOR_Z: labelNum = sprite[spriteNum].z; break;
-        case ACTOR_CSTAT: labelNum = sprite[spriteNum].cstat; break;
-        case ACTOR_PICNUM: labelNum = sprite[spriteNum].picnum; break;
-        case ACTOR_SHADE: labelNum = sprite[spriteNum].shade; break;
-        case ACTOR_PAL: labelNum = sprite[spriteNum].pal; break;
-        case ACTOR_CLIPDIST: labelNum = sprite[spriteNum].clipdist; break;
-        case ACTOR_DETAIL: labelNum = sprite[spriteNum].blend; break;
-        case ACTOR_XREPEAT: labelNum = sprite[spriteNum].xrepeat; break;
-        case ACTOR_YREPEAT: labelNum = sprite[spriteNum].yrepeat; break;
-        case ACTOR_XOFFSET: labelNum = sprite[spriteNum].xoffset; break;
-        case ACTOR_YOFFSET: labelNum = sprite[spriteNum].yoffset; break;
-        case ACTOR_SECTNUM: labelNum = sprite[spriteNum].sectnum; break;
-        case ACTOR_STATNUM: labelNum = sprite[spriteNum].statnum; break;
-        case ACTOR_ANG: labelNum = sprite[spriteNum].ang; break;
-        case ACTOR_OWNER: labelNum = sprite[spriteNum].owner; break;
-        case ACTOR_XVEL: labelNum = sprite[spriteNum].xvel; break;
-        case ACTOR_YVEL: labelNum = sprite[spriteNum].yvel; break;
-        case ACTOR_ZVEL: labelNum = sprite[spriteNum].zvel; break;
-        case ACTOR_LOTAG: labelNum = (int16_t)sprite[spriteNum].lotag; break;
-        case ACTOR_HITAG: labelNum = (int16_t)sprite[spriteNum].hitag; break;
-        case ACTOR_ULOTAG: labelNum = sprite[spriteNum].lotag; break;
-        case ACTOR_UHITAG: labelNum = sprite[spriteNum].hitag; break;
-        case ACTOR_EXTRA: labelNum = sprite[spriteNum].extra; break;
+        case ACTOR_X: labelNum = pSprite->x; break;
+        case ACTOR_Y: labelNum = pSprite->y; break;
+        case ACTOR_Z: labelNum = pSprite->z; break;
+        case ACTOR_CSTAT: labelNum = pSprite->cstat; break;
+        case ACTOR_PICNUM: labelNum = pSprite->picnum; break;
+        case ACTOR_SHADE: labelNum = pSprite->shade; break;
+        case ACTOR_PAL: labelNum = pSprite->pal; break;
+        case ACTOR_CLIPDIST: labelNum = pSprite->clipdist; break;
+        case ACTOR_DETAIL: labelNum = pSprite->blend; break;
+        case ACTOR_XREPEAT: labelNum = pSprite->xrepeat; break;
+        case ACTOR_YREPEAT: labelNum = pSprite->yrepeat; break;
+        case ACTOR_XOFFSET: labelNum = pSprite->xoffset; break;
+        case ACTOR_YOFFSET: labelNum = pSprite->yoffset; break;
+        case ACTOR_SECTNUM: labelNum = pSprite->sectnum; break;
+        case ACTOR_STATNUM: labelNum = pSprite->statnum; break;
+        case ACTOR_ANG: labelNum = pSprite->ang; break;
+        case ACTOR_OWNER: labelNum = pSprite->owner; break;
+        case ACTOR_XVEL: labelNum = pSprite->xvel; break;
+        case ACTOR_YVEL: labelNum = pSprite->yvel; break;
+        case ACTOR_ZVEL: labelNum = pSprite->zvel; break;
+        case ACTOR_LOTAG: labelNum = (int16_t)pSprite->lotag; break;
+        case ACTOR_HITAG: labelNum = (int16_t)pSprite->hitag; break;
+        case ACTOR_ULOTAG: labelNum = pSprite->lotag; break;
+        case ACTOR_UHITAG: labelNum = pSprite->hitag; break;
+        case ACTOR_EXTRA: labelNum = pSprite->extra; break;
         case ACTOR_HTCGG: labelNum = actor[spriteNum].cgg; break;
         case ACTOR_HTPICNUM: labelNum = actor[spriteNum].picnum; break;
         case ACTOR_HTANG: labelNum = actor[spriteNum].ang; break;

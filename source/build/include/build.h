@@ -573,7 +573,7 @@ static FORCE_INLINE void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenex
 }
 #endif
 
-static FORCE_INLINE void sector_tracker_hook(uintptr_t address)
+static FORCE_INLINE void sector_tracker_hook(uintptr_t const address)
 {
     uintptr_t const usector = address - (uintptr_t)sector;
 
@@ -584,7 +584,7 @@ static FORCE_INLINE void sector_tracker_hook(uintptr_t address)
     ++sectorchanged[usector / sizeof(sectortype)];
 }
 
-static FORCE_INLINE void wall_tracker_hook(uintptr_t address)
+static FORCE_INLINE void wall_tracker_hook(uintptr_t const address)
 {
     uintptr_t const uwall = address - (uintptr_t)wall;
 
@@ -595,7 +595,7 @@ static FORCE_INLINE void wall_tracker_hook(uintptr_t address)
     ++wallchanged[uwall / sizeof(walltype)];
 }
 
-static FORCE_INLINE void sprite_tracker_hook(uintptr_t address)
+static FORCE_INLINE void sprite_tracker_hook(uintptr_t const address)
 {
     uintptr_t const usprite = address - (uintptr_t)sprite;
 
