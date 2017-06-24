@@ -2310,8 +2310,8 @@ DoPlayerSlide(PLAYERp pp)
     if (pp->sop)
         return;
 
-    pp->slide_xvect  = mulscale(pp->slide_xvect, PLAYER_SLIDE_FRICTION,16);
-    pp->slide_yvect  = mulscale(pp->slide_yvect, PLAYER_SLIDE_FRICTION,16);
+    pp->slide_xvect  = mulscale16(pp->slide_xvect, PLAYER_SLIDE_FRICTION);
+    pp->slide_yvect  = mulscale16(pp->slide_yvect, PLAYER_SLIDE_FRICTION);
 
     if (labs(pp->slide_xvect) < 12800 && labs(pp->slide_yvect) < 12800)
         pp->slide_xvect = pp->slide_yvect = 0;
@@ -2507,11 +2507,11 @@ MoveScrollMode2D(PLAYERp pp)
     if (mfsvel > MAXSVEL)
         mfsvel = MAXSVEL;
 
-    momx = mulscale(mfvel, sintable[NORM_ANGLE(pp->pang + 512)], 9);
-    momy = mulscale(mfvel, sintable[NORM_ANGLE(pp->pang)], 9);
+    momx = mulscale9(mfvel, sintable[NORM_ANGLE(pp->pang + 512)]);
+    momy = mulscale9(mfvel, sintable[NORM_ANGLE(pp->pang)]);
 
-    momx += mulscale(mfsvel, sintable[NORM_ANGLE(pp->pang)], 9);
-    momy += mulscale(mfsvel, sintable[NORM_ANGLE(pp->pang + 1536)], 9);
+    momx += mulscale9(mfsvel, sintable[NORM_ANGLE(pp->pang)]);
+    momy += mulscale9(mfsvel, sintable[NORM_ANGLE(pp->pang + 1536)]);
 
     //mfvel = momx;
     //mfsvel = momy;
@@ -2611,8 +2611,8 @@ DoPlayerMove(PLAYERp pp)
         friction -= pp->WadeDepth * 100L;
     }
 
-    pp->xvect  = mulscale(pp->xvect,friction,16);
-    pp->yvect  = mulscale(pp->yvect,friction,16);
+    pp->xvect  = mulscale16(pp->xvect, friction);
+    pp->yvect  = mulscale16(pp->yvect, friction);
 
     if (TEST(pp->Flags, PF_FLYING))
     {
@@ -2875,8 +2875,8 @@ DoPlayerMoveBoat(PLAYERp pp)
         pp->xvect += ((pp->input.vel*synctics*2)<<6);
         pp->yvect += ((pp->input.svel*synctics*2)<<6);
 
-        pp->xvect  = mulscale(pp->xvect,BOAT_FRICTION,16);
-        pp->yvect  = mulscale(pp->yvect,BOAT_FRICTION,16);
+        pp->xvect  = mulscale16(pp->xvect, BOAT_FRICTION);
+        pp->yvect  = mulscale16(pp->yvect, BOAT_FRICTION);
 
         // does sliding/momentum
         pp->xvect = (pp->xvect + (pp->oxvect*5))/6;
@@ -3280,8 +3280,8 @@ DoPlayerMoveTank(PLAYERp pp)
         pp->xvect += ((pp->input.vel*synctics*2)<<6);
         pp->yvect += ((pp->input.svel*synctics*2)<<6);
 
-        pp->xvect  = mulscale(pp->xvect,TANK_FRICTION,16);
-        pp->yvect  = mulscale(pp->yvect,TANK_FRICTION,16);
+        pp->xvect  = mulscale16(pp->xvect, TANK_FRICTION);
+        pp->yvect  = mulscale16(pp->yvect, TANK_FRICTION);
 
         pp->xvect = (pp->xvect + (pp->oxvect*1))/2;
         pp->yvect = (pp->yvect + (pp->oyvect*1))/2;
@@ -3880,8 +3880,8 @@ DoPlayerClimb(PLAYERp pp)
 
     pp->xvect += ((pp->input.vel*synctics*2)<<6);
     pp->yvect += ((pp->input.svel*synctics*2)<<6);
-    pp->xvect  = mulscale(pp->xvect,PLAYER_CLIMB_FRICTION,16);
-    pp->yvect  = mulscale(pp->yvect,PLAYER_CLIMB_FRICTION,16);
+    pp->xvect  = mulscale16(pp->xvect, PLAYER_CLIMB_FRICTION);
+    pp->yvect  = mulscale16(pp->yvect, PLAYER_CLIMB_FRICTION);
     if (labs(pp->xvect) < 12800 && labs(pp->yvect) < 12800)
         pp->xvect = pp->yvect = 0;
 

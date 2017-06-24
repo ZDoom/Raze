@@ -581,8 +581,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             oy = 0;
             daang = 0;
         }
-        x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-        y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+        x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+        y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
         if (p == screenpeek || GTFLAGS(GAMETYPE_OTHERPLAYERSINMAP))
         {
@@ -592,7 +592,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                 i = APLAYERTOP;
 
             j = klabs(g_player[p].ps->truefz-g_player[p].ps->pos.z)>>8;
-            j = mulscale(czoom*(sprite[g_player[p].ps->i].yrepeat+j), yxaspect, 16);
+            j = mulscale16(czoom*(sprite[g_player[p].ps->i].yrepeat+j), yxaspect);
 
             if (j < 22000) j = 22000;
             else if (j >(65536<<1)) j = (65536<<1);

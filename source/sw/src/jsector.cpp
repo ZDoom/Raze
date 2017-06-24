@@ -689,10 +689,10 @@ JS_DrawMirrors(PLAYERp pp, int tx, int ty, int tz, short tpang, int tphoriz)
 
                 mirrorinview = TRUE;
 
-//                tx = pp->oposx + mulscale(pp->posx - pp->oposx, smoothratio, 16);
-//                ty = pp->oposy + mulscale(pp->posy - pp->oposy, smoothratio, 16);
-//                tz = pp->oposz + mulscale(pp->posz - pp->oposz, smoothratio, 16);
-//                tpang = pp->oang + mulscale(((pp->pang + 1024 - pp->oang) & 2047) - 1024, smoothratio, 16);
+//                tx = pp->oposx + mulscale16(pp->posx - pp->oposx, smoothratio);
+//                ty = pp->oposy + mulscale16(pp->posy - pp->oposy, smoothratio);
+//                tz = pp->oposz + mulscale16(pp->posz - pp->oposz, smoothratio);
+//                tpang = pp->oang + mulscale16(((pp->pang + 1024 - pp->oang) & 2047) - 1024, smoothratio);
 
 
                 dist = 0x7fffffff;

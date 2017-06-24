@@ -16208,12 +16208,12 @@ WallSpriteInsideSprite(SPRITEp wsp, SPRITEp sp)
     mid_dist = DIV2(xsiz) + xoff;
 
     // starting from the center find the first point
-    x1 -= mulscale(dax, mid_dist, 16);
+    x1 -= mulscale16(dax, mid_dist);
     // starting from the first point find the end point
-    x2 = x1 + mulscale(dax, xsiz, 16);
+    x2 = x1 + mulscale16(dax, xsiz);
 
-    y1 -= mulscale(day, mid_dist, 16);
-    y2 = y1 + mulscale(day, xsiz, 16);
+    y1 -= mulscale16(day, mid_dist);
+    y2 = y1 + mulscale16(day, xsiz);
 
     return clipinsideboxline(sp->x, sp->y, x1, y1, x2, y2, ((int) sp->clipdist) << 2);
 }

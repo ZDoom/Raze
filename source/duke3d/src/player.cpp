@@ -268,7 +268,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
 
                 if ((d1.y * vd.x <= d1.x * vd.y) && (d2.y * vd.x >= d2.x * vd.y))
                 {
-                    int const spriteDist = mulscale(d3.x, vd.x, 14) + mulscale(d3.y, vd.y, 14);
+                    int const spriteDist = mulscale14(d3.x, vd.x) + mulscale14(d3.y, vd.y);
 
                     if (spriteDist > 512 && spriteDist < lastDist)
                     {
@@ -1446,7 +1446,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                     = Gv_GetVarByLabel("STICKYBOMB_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, g_player[playerNum].ps->i, playerNum);
 #endif
                     // set timer.  blows up when at zero....
-                    actor[spawnedSprite].t_data[7] = lLifetime + mulscale(krand(), lLifetimeVar, 14) - lLifetimeVar;
+                    actor[spawnedSprite].t_data[7] = lLifetime + mulscale14(krand(), lLifetimeVar) - lLifetimeVar;
                     // TIMER_CONTROL
                     actor[spawnedSprite].t_data[6] = 1;
                 }
@@ -4012,7 +4012,7 @@ static void P_ProcessWeapon(int playerNum)
                         int pipeLifeVariance = Gv_GetVarByLabel("GRENADE_LIFETIME_VAR", NAM_GRENADE_LIFETIME_VAR, -1, playerNum);
 #endif
                         actor[pipeSpriteNum].t_data[7]= pipeLifeTime
-                                            + mulscale(krand(),pipeLifeVariance, 14)
+                                            + mulscale14(krand(), pipeLifeVariance)
                                             - pipeLifeVariance;
                         // TIMER_CONTROL
                         actor[pipeSpriteNum].t_data[6]=1;

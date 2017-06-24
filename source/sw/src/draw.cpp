@@ -737,9 +737,9 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                 {
                     if (tsp->statnum <= STAT_SKIP4_INTERP_END)
                     {
-                        tsp->x = tu->ox + mulscale(tsp->x - tu->ox, smr4, 18);
-                        tsp->y = tu->oy + mulscale(tsp->y - tu->oy, smr4, 18);
-                        tsp->z = tu->oz + mulscale(tsp->z - tu->oz, smr4, 18);
+                        tsp->x = tu->ox + mulscale18(tsp->x - tu->ox, smr4);
+                        tsp->y = tu->oy + mulscale18(tsp->y - tu->oy, smr4);
+                        tsp->z = tu->oz + mulscale18(tsp->z - tu->oz, smr4);
                     }
                 }
 
@@ -747,9 +747,9 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                 {
                     if (tsp->statnum <= STAT_SKIP2_INTERP_END)
                     {
-                        tsp->x = tu->ox + mulscale(tsp->x - tu->ox, smr2, 17);
-                        tsp->y = tu->oy + mulscale(tsp->y - tu->oy, smr2, 17);
-                        tsp->z = tu->oz + mulscale(tsp->z - tu->oz, smr2, 17);
+                        tsp->x = tu->ox + mulscale17(tsp->x - tu->ox, smr2);
+                        tsp->y = tu->oy + mulscale17(tsp->y - tu->oy, smr2);
+                        tsp->z = tu->oz + mulscale17(tsp->z - tu->oz, smr2);
                     }
                 }
             }
@@ -2328,11 +2328,11 @@ drawscreen(PLAYERp pp)
     else
         camerapp = pp;
 
-    tx = camerapp->oposx + mulscale(camerapp->posx - camerapp->oposx, smoothratio, 16);
-    ty = camerapp->oposy + mulscale(camerapp->posy - camerapp->oposy, smoothratio, 16);
-    tz = camerapp->oposz + mulscale(camerapp->posz - camerapp->oposz, smoothratio, 16);
-    tang = camerapp->oang + mulscale(((camerapp->pang + 1024 - camerapp->oang) & 2047) - 1024, smoothratio, 16);
-    thoriz = camerapp->ohoriz + mulscale(camerapp->horiz - camerapp->ohoriz, smoothratio, 16);
+    tx = camerapp->oposx + mulscale16(camerapp->posx - camerapp->oposx, smoothratio);
+    ty = camerapp->oposy + mulscale16(camerapp->posy - camerapp->oposy, smoothratio);
+    tz = camerapp->oposz + mulscale16(camerapp->posz - camerapp->oposz, smoothratio);
+    tang = camerapp->oang + mulscale16(((camerapp->pang + 1024 - camerapp->oang) & 2047) - 1024, smoothratio);
+    thoriz = camerapp->ohoriz + mulscale16(camerapp->horiz - camerapp->ohoriz, smoothratio);
     tsectnum = camerapp->cursectnum;
 
     //ASSERT(tsectnum >= 0 && tsectnum <= MAXSECTORS);

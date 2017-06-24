@@ -5247,11 +5247,11 @@ getinput(SW_PACKET *loc)
     if (angvel > MAXANGVEL)
         angvel = MAXANGVEL;
 
-    momx = mulscale(vel, sintable[NORM_ANGLE(newpp->pang + 512)], 9);
-    momy = mulscale(vel, sintable[NORM_ANGLE(newpp->pang)], 9);
+    momx = mulscale9(vel, sintable[NORM_ANGLE(newpp->pang + 512)]);
+    momy = mulscale9(vel, sintable[NORM_ANGLE(newpp->pang)]);
 
-    momx += mulscale(svel, sintable[NORM_ANGLE(newpp->pang)], 9);
-    momy += mulscale(svel, sintable[NORM_ANGLE(newpp->pang + 1536)], 9);
+    momx += mulscale9(svel, sintable[NORM_ANGLE(newpp->pang)]);
+    momy += mulscale9(svel, sintable[NORM_ANGLE(newpp->pang + 1536)]);
 
     loc->vel = momx;
     loc->svel = momy;
@@ -5515,8 +5515,8 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 
     xvect = sintable[(2048 - cang) & 2047] * czoom;
     yvect = sintable[(1536 - cang) & 2047] * czoom;
-    xvect2 = mulscale(xvect, yxaspect, 16);
-    yvect2 = mulscale(yvect, yxaspect, 16);
+    xvect2 = mulscale16(xvect, yxaspect);
+    yvect2 = mulscale16(yvect, yxaspect);
 
     // Draw red lines
     for (i = 0; i < numsectors; i++)
@@ -5562,14 +5562,14 @@ void drawoverheadmap(int cposx, int cposy, int czoom, short cang)
 
             ox = wal->x - cposx;
             oy = wal->y - cposy;
-            x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-            y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+            x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+            y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
             wal2 = &wall[wal->point2];
             ox = wal2->x - cposx;
             oy = wal2->y - cposy;
-            x2 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-            y2 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+            x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+            y2 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
             drawline256(x1 + (xdim << 11), y1 + (ydim << 11), x2 + (xdim << 11), y2 + (ydim << 11), col);
         }
@@ -5619,15 +5619,15 @@ SHOWSPRITE:
                     {
                         ox = sprx - cposx;
                         oy = spry - cposy;
-                        x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-                        y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+                        x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
                         if (dimensionmode == 5 && (gNet.MultiGameType != MULTI_GAME_COMMBAT || j == Player[screenpeek].PlayerSprite))
                         {
                             ox = (sintable[(spr->ang + 512) & 2047] >> 7);
                             oy = (sintable[(spr->ang) & 2047] >> 7);
-                            x2 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-                            y2 = mulscale(oy, xvect, 16) + mulscale(ox, yvect, 16);
+                            x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                            y2 = mulscale16(oy, xvect) + mulscale16(ox, yvect);
 
                             if (j == Player[screenpeek].PlayerSprite)
                             {
@@ -5635,8 +5635,8 @@ SHOWSPRITE:
                                 y2 = -(czoom << 5);
                             }
 
-                            x3 = mulscale(x2, yxaspect, 16);
-                            y3 = mulscale(y2, yxaspect, 16);
+                            x3 = mulscale16(x2, yxaspect);
+                            y3 = mulscale16(y2, yxaspect);
 
                             drawline256(x1 - x2 + (xdim << 11), y1 - y3 + (ydim << 11),
                                         x1 + x2 + (xdim << 11), y1 + y3 + (ydim << 11), col);
@@ -5664,10 +5664,10 @@ SHOWSPRITE:
                                 if (sprisplayer)
                                 {
                                     if (gNet.MultiGameType != MULTI_GAME_COMMBAT || j == Player[screenpeek].PlayerSprite)
-                                        rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), mulscale(czoom * (spr->yrepeat), yxaspect, 16), daang, 1196+pspr_ndx[myconnectindex], spr->shade, spr->pal, (spr->cstat & 2) >> 1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+                                        rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), mulscale16(czoom * (spr->yrepeat), yxaspect), daang, 1196+pspr_ndx[myconnectindex], spr->shade, spr->pal, (spr->cstat & 2) >> 1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
                                 }
                                 else
-                                    rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), mulscale(czoom * (spr->yrepeat), yxaspect, 16), daang, spr->picnum, spr->shade, spr->pal, (spr->cstat & 2) >> 1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
+                                    rotatesprite((x1 << 4) + (xdim << 15), (y1 << 4) + (ydim << 15), mulscale16(czoom * (spr->yrepeat), yxaspect), daang, spr->picnum, spr->shade, spr->pal, (spr->cstat & 2) >> 1, windowxy1.x, windowxy1.y, windowxy2.x, windowxy2.y);
                             }
                         }
                     }
@@ -5685,20 +5685,20 @@ SHOWSPRITE:
                     day = sintable[(k + 1536) & 2047] * l;
                     l = tilesiz[tilenum].x;
                     k = (l >> 1) + xoff;
-                    x1 -= mulscale(dax, k, 16);
-                    x2 = x1 + mulscale(dax, l, 16);
-                    y1 -= mulscale(day, k, 16);
-                    y2 = y1 + mulscale(day, l, 16);
+                    x1 -= mulscale16(dax, k);
+                    x2 = x1 + mulscale16(dax, l);
+                    y1 -= mulscale16(day, k);
+                    y2 = y1 + mulscale16(day, l);
 
                     ox = x1 - cposx;
                     oy = y1 - cposy;
-                    x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-                    y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+                    x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                    y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
                     ox = x2 - cposx;
                     oy = y2 - cposy;
-                    x2 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-                    y2 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+                    x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                    y2 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
                     drawline256(x1 + (xdim << 11), y1 + (ydim << 11),
                                 x2 + (xdim << 11), y2 + (ydim << 11), col);
@@ -5725,38 +5725,38 @@ SHOWSPRITE:
 
                         dax = ((xspan >> 1) + xoff) * xrepeat;
                         day = ((yspan >> 1) + yoff) * yrepeat;
-                        x1 = sprx + mulscale(sinang, dax, 16) + mulscale(cosang, day, 16);
-                        y1 = spry + mulscale(sinang, day, 16) - mulscale(cosang, dax, 16);
+                        x1 = sprx + mulscale16(sinang, dax) + mulscale16(cosang, day);
+                        y1 = spry + mulscale16(sinang, day) - mulscale16(cosang, dax);
                         l = xspan * xrepeat;
-                        x2 = x1 - mulscale(sinang, l, 16);
-                        y2 = y1 + mulscale(cosang, l, 16);
+                        x2 = x1 - mulscale16(sinang, l);
+                        y2 = y1 + mulscale16(cosang, l);
                         l = yspan * yrepeat;
-                        k = -mulscale(cosang, l, 16);
+                        k = -mulscale16(cosang, l);
                         x3 = x2 + k;
                         x4 = x1 + k;
-                        k = -mulscale(sinang, l, 16);
+                        k = -mulscale16(sinang, l);
                         y3 = y2 + k;
                         y4 = y1 + k;
 
                         ox = x1 - cposx;
                         oy = y1 - cposy;
-                        x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-                        y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+                        x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
                         ox = x2 - cposx;
                         oy = y2 - cposy;
-                        x2 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-                        y2 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+                        x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y2 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
                         ox = x3 - cposx;
                         oy = y3 - cposy;
-                        x3 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-                        y3 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+                        x3 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y3 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
                         ox = x4 - cposx;
                         oy = y4 - cposy;
-                        x4 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-                        y4 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+                        x4 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+                        y4 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
                         drawline256(x1 + (xdim << 11), y1 + (ydim << 11),
                                     x2 + (xdim << 11), y2 + (ydim << 11), col);
@@ -5796,14 +5796,14 @@ SHOWSPRITE:
 
             ox = wal->x - cposx;
             oy = wal->y - cposy;
-            x1 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-            y1 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+            x1 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+            y1 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
             wal2 = &wall[wal->point2];
             ox = wal2->x - cposx;
             oy = wal2->y - cposy;
-            x2 = mulscale(ox, xvect, 16) - mulscale(oy, yvect, 16);
-            y2 = mulscale(oy, xvect2, 16) + mulscale(ox, yvect2, 16);
+            x2 = mulscale16(ox, xvect) - mulscale16(oy, yvect);
+            y2 = mulscale16(oy, xvect2) + mulscale16(ox, yvect2);
 
             drawline256(x1 + (xdim << 11), y1 + (ydim << 11), x2 + (xdim << 11), y2 + (ydim << 11), 24);
         }

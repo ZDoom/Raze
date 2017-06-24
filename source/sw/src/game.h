@@ -494,8 +494,8 @@ int StdRandomRange(int range);
 
 // two vectors
 // can determin direction
-#define DOT_PRODUCT_2D(x1,y1,x2,y2) (mulscale((x1),(x2),16) + mulscale((y1),(y2),16))
-#define DOT_PRODUCT_3D(x1,y1,z1,x2,y2,z2) (mulscale((x1),(x2),16) + mulscale((y1),(y2),16) + mulscale((z1),(z2),16))
+#define DOT_PRODUCT_2D(x1,y1,x2,y2) (mulscale16((x1), (x2)) + mulscale16((y1), (y2)))
+#define DOT_PRODUCT_3D(x1,y1,z1,x2,y2,z2) (mulscale16((x1), (x2)) + mulscale16((y1), (y2)) + mulscale16((z1), (z2)))
 
 // just determine if the player is moving
 #define PLAYER_MOVING(pp) ((pp)->xvect|(pp)->yvect)
