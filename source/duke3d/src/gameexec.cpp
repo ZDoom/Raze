@@ -21,6 +21,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 //-------------------------------------------------------------------------
 
 #include "compat.h"
+#include "colmatch.h"
+
 #include "duke3d.h"
 
 #include "scriplib.h"
@@ -4896,6 +4898,36 @@ finish_qsprintf:
                 tw = *insptr++;
                 int32_t const rgb = Gv_GetVarX(*insptr++);
                 Gv_SetVarX(tw, getclosestcol_lim(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVarX(*insptr++)));
+            }
+            continue;
+
+        case CON_DRAWLINE256:
+            insptr++;
+            {
+                struct {
+                    vec2_t pos[2];
+                    int32_t index;
+                } v;
+
+                Gv_GetManyVars(sizeof(v)/sizeof(int32_t), (int32_t *)&v);
+
+                drawline256(v.pos[0].x, v.pos[0].y, v.pos[1].x, v.pos[1].y, v.index);
+            }
+            continue;
+
+        case CON_DRAWLINERGB:
+            insptr++;
+            {
+                struct {
+                    vec2_t pos[2];
+                    int32_t index, rgb;
+                } v;
+
+                Gv_GetManyVars(sizeof(v)/sizeof(int32_t), (int32_t *)&v);
+
+                palette_t const p = { (uint8_t)(v.rgb & 0xFF), (uint8_t)((v.rgb >> 8) & 0xFF), (uint8_t)((v.rgb >> 16) & 0xFF), (uint8_t)v.index };
+
+                drawlinergb(v.pos[0].x, v.pos[0].y, v.pos[1].x, v.pos[1].y, p);
             }
             continue;
 

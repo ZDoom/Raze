@@ -575,6 +575,8 @@ const char *keyw[] =
     "scalevar",                 // 401
     "undefinegamefunc",         // 402
     "getclosestcol",            // 403
+    "drawline256",              // 404
+    "drawlinergb",              // 405
     "<null>"
 };
 #endif
@@ -3607,7 +3609,12 @@ DO_DEFSTATE:
             continue;
 
         case CON_HITRADIUSVAR:
+        case CON_DRAWLINE256:
             C_GetManyVars(5);
+            continue;
+
+        case CON_DRAWLINERGB:
+            C_GetManyVars(6);
             continue;
 
         case CON_HITRADIUS:

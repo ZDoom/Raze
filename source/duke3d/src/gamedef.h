@@ -1137,6 +1137,8 @@ enum ScriptKeywords_t
     CON_SCALEVAR,           // 401
     CON_UNDEFINEGAMEFUNC,   // 402
     CON_GETCLOSESTCOL,      // 403
+    CON_DRAWLINE256,        // 404
+    CON_DRAWLINERGB,        // 405
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua
