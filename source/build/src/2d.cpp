@@ -121,46 +121,40 @@ char getpixel(int32_t x, int32_t y)
 //
 // drawline256
 //
-void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
+#ifdef USE_OPENGL
+static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
+{
+    //        setpolymost2dview();	// JBF 20040205: more efficient setup
+
+    bglViewport(0, 0, xres, yres);
+    bglMatrixMode(GL_PROJECTION);
+    bglLoadIdentity();
+    bglOrtho(0, xres, yres, 0, -1, 1);
+    if (getrendermode() == REND_POLYMER)
+    {
+        bglMatrixMode(GL_MODELVIEW);
+        bglLoadIdentity();
+    }
+
+    gloy1 = -1;
+    bglDisable(GL_ALPHA_TEST);
+    bglDisable(GL_DEPTH_TEST);
+    bglDisable(GL_TEXTURE_2D);
+    bglEnable(GL_BLEND);	// When using line antialiasing, this is needed
+
+    bglBegin(GL_LINES);
+    bglColor4ub(p.r, p.g, p.b, 255);
+    bglVertex2f((float) x1 * (1.f/4096.f), (float) y1 * (1.f/4096.f));
+    bglVertex2f((float) x2 * (1.f/4096.f), (float) y2 * (1.f/4096.f));
+
+    bglEnd();
+}
+#endif
+
+static void drawlinepixels(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 {
     int32_t dx, dy, i, j, inc, plc, daend;
     intptr_t p;
-
-    col = palookup[0][col];
-
-#ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
-    {
-        palette_t p = getpal(col);
-
-        //        setpolymost2dview();	// JBF 20040205: more efficient setup
-
-        bglViewport(0, 0, xres, yres);
-        bglMatrixMode(GL_PROJECTION);
-        bglLoadIdentity();
-        bglOrtho(0, xres, yres, 0, -1, 1);
-        if (getrendermode() == REND_POLYMER)
-        {
-            bglMatrixMode(GL_MODELVIEW);
-            bglLoadIdentity();
-        }
-
-        gloy1 = -1;
-        bglDisable(GL_ALPHA_TEST);
-        bglDisable(GL_DEPTH_TEST);
-        bglDisable(GL_TEXTURE_2D);
-        bglEnable(GL_BLEND);	// When using line antialiasing, this is needed
-
-        bglBegin(GL_LINES);
-        bglColor4ub(p.r, p.g, p.b, 255);
-        bglVertex2f((float) x1 * (1.f/4096.f), (float) y1 * (1.f/4096.f));
-        bglVertex2f((float) x2 * (1.f/4096.f), (float) y2 * (1.f/4096.f));
-
-        bglEnd();
-
-        return;
-    }
-#endif
 
     dx = x2-x1; dy = y2-y1;
     if (dx >= 0)
@@ -235,6 +229,38 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
         enddrawing();   //}}}
     }
 }
+
+void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
+{
+#ifdef USE_OPENGL
+    if (getrendermode() >= REND_POLYMOST)
+    {
+        drawlinegl(x1, y1, x2, y2, p);
+        return;
+    }
+#endif
+
+    char const col = palookup[0][p.f];
+    drawlinepixels(x1, y1, x2, y2, col);
+}
+
+void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
+{
+    col = palookup[0][col];
+
+#ifdef USE_OPENGL
+    if (getrendermode() >= REND_POLYMOST)
+    {
+        palette_t p = getpal(col);
+        p.f = col;
+        drawlinegl(x1, y1, x2, y2, p);
+        return;
+    }
+#endif
+
+    drawlinepixels(x1, y1, x2, y2, col);
+}
+
 
 //static void attach_here() {}
 
