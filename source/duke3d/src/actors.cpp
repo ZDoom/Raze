@@ -5547,8 +5547,9 @@ static void HandleSE31(int spriteNum, int setFloorZ, int spriteZ, int SEdir, int
 }
 
 // s: SE sprite
-static void MaybeTrainKillPlayer(const spritetype *pSprite, int setOPos)
+static void MaybeTrainKillPlayer(const spritetype *pSprite, int const setOPos)
 {
+    if (ud.noclip) return;
     for (bssize_t TRAVERSE_CONNECT(playerNum))
     {
         DukePlayer_t *const pPlayer = g_player[playerNum].ps;
@@ -5559,7 +5560,7 @@ static void MaybeTrainKillPlayer(const spritetype *pSprite, int setOPos)
 
             updatesector(pPlayer->pos.x, pPlayer->pos.y, &playerSectnum);
 
-            if ((playerSectnum == -1 && ud.noclip == 0) || (playerSectnum == pSprite->sectnum && pPlayer->cursectnum != pSprite->sectnum))
+            if (pPlayer->cursectnum != pSprite->sectnum && (playerSectnum == -1 || playerSectnum == pSprite->sectnum))
             {
                 *(vec2_t *)pPlayer = *(vec2_t const *)pSprite;
 
@@ -5576,11 +5577,11 @@ static void MaybeTrainKillPlayer(const spritetype *pSprite, int setOPos)
 }
 
 // i: SE spritenum
-static void MaybeTrainKillEnemies(int spriteNum)
+static void MaybeTrainKillEnemies(int const spriteNum)
 {
     int findSprite = headspritesect[sprite[OW(spriteNum)].sectnum];
 
-    while (findSprite >= 0)
+    do
     {
         int const nextSprite = nextspritesect[findSprite];
 
@@ -5590,15 +5591,17 @@ static void MaybeTrainKillEnemies(int spriteNum)
 
             updatesector(sprite[findSprite].x,sprite[findSprite].y,&sectNum);
 
-            if (sectNum == sprite[spriteNum].sectnum)
+            if (sectNum == sprite[spriteNum].sectnum || sectNum == -1)
             {
                 actor[findSprite].picnum = RADIUSEXPLOSION;
-                actor[findSprite].extra = g_impactDamage << 10;
+                actor[findSprite].extra  = g_impactDamage << 10;
+                actor[findSprite].owner  = spriteNum;
             }
         }
 
         findSprite = nextSprite;
     }
+    while (findSprite >= 0);
 }
 
 ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
