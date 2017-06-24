@@ -1059,7 +1059,9 @@ void G_DisplayRest(int32_t smoothratio)
 
             G_RestoreInterpolations();
 
-            if (ud.overhead_on == 2)
+            int32_t const textret = VM_OnEvent(EVENT_DISPLAYOVERHEADMAPTEXT, g_player[screenpeek].ps->i, screenpeek);
+
+            if (textret == 0 && ud.overhead_on == 2)
             {
                 const int32_t a = (ud.screen_size > 0) ? 147 : 179;
                 minitext(5, a+6, g_volumeNames[ud.volume_number], 0, 2+8+16+256);
