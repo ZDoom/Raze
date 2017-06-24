@@ -1632,7 +1632,7 @@ int32_t registerosdcommands(void)
         { "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR/*|CVAR_NOMULTI*/, 0, 5 },
 
         { "snd_ambience", "enables/disables ambient sounds", (void *)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 1 },
-        { "snd_duketalk", "enables/disables Duke's speech", (void *)&ud.config.VoiceToggle, CVAR_INT, 0, 5 },
+        { "snd_speech", "enables/disables player speech", (void *)&ud.config.VoiceToggle, CVAR_INT, 0, 5 },
         { "snd_enabled", "enables/disables sound effects", (void *)&ud.config.SoundToggle, CVAR_BOOL, 0, 1 },
         { "snd_mastervolume", "master volume for sound system", (void *)&ud.config.MasterVolume, CVAR_INT, 0, 255 },
         { "snd_fxvolume", "volume of sound effects", (void *)&ud.config.FXVolume, CVAR_INT, 1, 255 },
