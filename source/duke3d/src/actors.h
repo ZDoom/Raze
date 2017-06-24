@@ -161,6 +161,8 @@ typedef struct
     struct action ac;
     // Gets incremented by TICSPERFRAME on each A_Execute() call:
     uint16_t actiontics;
+    // Movement flags, sprite[i].hitag in C-CON:
+    uint16_t movflags;
 #endif
 
     int32_t flags;                             // 4b
@@ -171,10 +173,6 @@ typedef struct
     int16_t movflag, tempang, timetosleep;     // 6b
     int16_t actorstayput;                      // 2b
 
-#ifdef LUNATIC
-    // Movement flags, sprite[i].hitag in C-CON:
-    uint16_t movflags;
-#endif
     uint8_t cgg, lasttransport;                // 2b
     // NOTE: 'dispicnum' is updated every frame, not in sync with game tics!
     int16_t dispicnum;                         // 2b
@@ -195,6 +193,7 @@ typedef struct
     struct move   mv;
     struct action ac;
     uint16_t      actiontics;
+    uint16_t movflags;
 #endif
 
     int32_t flags;                             // 4b
@@ -205,9 +204,6 @@ typedef struct
     int16_t movflag, tempang, timetosleep;     // 6b
     int16_t actorstayput;
 
-#ifdef LUNATIC
-    uint16_t movflags;
-#endif
     uint8_t cgg, lasttransport;
 
     spritetype sprite;
@@ -340,12 +336,12 @@ int32_t G_ToggleWallInterpolation(int32_t w, int32_t doset);
 #endif
 
 extern int32_t A_MoveSpriteClipdist(int32_t spritenum, vec3_t const * const change, uint32_t cliptype, int32_t clipdist);
-ACTOR_INLINE_HEADER int A_CheckEnemyTile(int32_t pn);
-ACTOR_INLINE_HEADER int32_t A_SetSprite(int32_t i,uint32_t cliptype);
-ACTOR_INLINE_HEADER int32_t A_MoveSprite(int32_t spritenum, vec3_t const * const change, uint32_t cliptype);
+ACTOR_INLINE_HEADER int A_CheckEnemyTile(int const tileNum);
+ACTOR_INLINE_HEADER int A_SetSprite(int const spriteNum, uint32_t cliptype);
+ACTOR_INLINE_HEADER int32_t A_MoveSprite(int const spriteNum, vec3_t const * const change, uint32_t cliptype);
 
-EXTERN_INLINE_HEADER int32_t G_CheckForSpaceCeiling(int32_t sectnum);
-EXTERN_INLINE_HEADER int32_t G_CheckForSpaceFloor(int32_t sectnum);
+EXTERN_INLINE_HEADER int G_CheckForSpaceCeiling(int const sectnum);
+EXTERN_INLINE_HEADER int G_CheckForSpaceFloor(int const sectnum);
 
 EXTERN_INLINE_HEADER int A_CheckEnemySprite(void const * const s);
 
@@ -357,36 +353,34 @@ EXTERN_INLINE_HEADER int A_CheckEnemySprite(void const * const s);
 
 # if !KRANDDEBUG || (KRANDDEBUG && defined actors_c_)
 
-ACTOR_INLINE int A_CheckEnemyTile(int32_t pn)
+ACTOR_INLINE int A_CheckEnemyTile(int const tileNum)
 {
-    return ((g_tile[pn].flags & (SFLAG_HARDCODED_BADGUY | SFLAG_BADGUY)) != 0);
+    return ((g_tile[tileNum].flags & (SFLAG_HARDCODED_BADGUY | SFLAG_BADGUY)) != 0);
 }
 
-ACTOR_INLINE int32_t A_SetSprite(int32_t i,uint32_t cliptype)
+ACTOR_INLINE int A_SetSprite(int const spriteNum, uint32_t cliptype)
 {
-    vec3_t davect = {(sprite[i].xvel*(sintable[(sprite[i].ang+512)&2047]))>>14,
-                     (sprite[i].xvel*(sintable[sprite[i].ang&2047]))>>14,
-                     sprite[i].zvel
-                    };
-    return (A_MoveSprite(i,&davect,cliptype)==0);
+    vec3_t davect = { (sprite[spriteNum].xvel * (sintable[(sprite[spriteNum].ang + 512) & 2047])) >> 14,
+                      (sprite[spriteNum].xvel * (sintable[sprite[spriteNum].ang & 2047])) >> 14, sprite[spriteNum].zvel };
+    return (A_MoveSprite(spriteNum, &davect, cliptype) == 0);
 }
 
-ACTOR_INLINE int32_t A_MoveSprite(int32_t spritenum, vec3_t const * const change, uint32_t cliptype)
+ACTOR_INLINE int32_t A_MoveSprite(int const spriteNum, vec3_t const * const change, uint32_t cliptype)
 {
-    return A_MoveSpriteClipdist(spritenum, change, cliptype, -1);
+    return A_MoveSpriteClipdist(spriteNum, change, cliptype, -1);
 }
 
 # endif
 
 # include "namesdyn.h"
 
-EXTERN_INLINE int32_t G_CheckForSpaceCeiling(int32_t sectnum)
+EXTERN_INLINE int G_CheckForSpaceCeiling(int const sectnum)
 {
     return ((sector[sectnum].ceilingstat&1) && sector[sectnum].ceilingpal == 0 &&
             (sector[sectnum].ceilingpicnum==MOONSKY1 || sector[sectnum].ceilingpicnum==BIGORBIT1));
 }
 
-EXTERN_INLINE int32_t G_CheckForSpaceFloor(int32_t sectnum)
+EXTERN_INLINE int G_CheckForSpaceFloor(int const sectnum)
 {
     return ((sector[sectnum].floorstat&1) && sector[sectnum].ceilingpal == 0 &&
             (sector[sectnum].floorpicnum==MOONSKY1 || sector[sectnum].floorpicnum==BIGORBIT1));
