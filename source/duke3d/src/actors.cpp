@@ -5549,7 +5549,6 @@ static void HandleSE31(int spriteNum, int setFloorZ, int spriteZ, int SEdir, int
 // s: SE sprite
 static void MaybeTrainKillPlayer(const spritetype *pSprite, int const setOPos)
 {
-    if (ud.noclip) return;
     for (bssize_t TRAVERSE_CONNECT(playerNum))
     {
         DukePlayer_t *const pPlayer = g_player[playerNum].ps;
@@ -5706,9 +5705,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 if (actor[j].t_data[0] == 0) break;
                 if (actor[j].t_data[0] == 2) DELETE_SPRITE_AND_CONTINUE(spriteNum);
 
-                if (sprite[j].ang > 1024)
-                    l = -1;
-                else l = 1;
+                l = (sprite[j].ang > 1024) ? -1 : 1;
+
                 if (pData[3] == 0)
                     pData[3] = ldist(pSprite,&sprite[j]);
                 pSprite->xvel = pData[3];
@@ -5922,12 +5920,9 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
+                    // might happen when squished into void space
                     if (pPlayer->cursectnum < 0)
-                    {
-                        // might happen when squished into void space
-//                        initprintf("cursectnum < 0!\n");
                         break;
-                    }
 
                     if (sector[pPlayer->cursectnum].lotag != ST_2_UNDERWATER)
                     {
@@ -6095,8 +6090,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (pSprite->xvel)
             {
-                int32_t playerNum;
-
                 l = (pSprite->xvel*sintable[(pSprite->ang+512)&2047])>>14;
                 x = (pSprite->xvel*sintable[pSprite->ang&2047])>>14;
 
@@ -6104,7 +6097,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     if (ud.noclip == 0)
                         MaybeTrainKillPlayer(pSprite, 0);
 
-                for (TRAVERSE_CONNECT(playerNum))
+                for (int TRAVERSE_CONNECT(playerNum))
                 {
                     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
@@ -6540,7 +6533,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                     for (SPRITES_OF(STAT_PLAYER, k))
                     {
-                        if (sprite[k].owner >= 0 && clipinsidebox((vec2_t *)&sprite[k], j, pPlayer->clipdist << 1) == 1)
+                        if (sprite[k].owner >= 0 && clipinsidebox((vec2_t *)&sprite[k], j, pPlayer->clipdist + 40) == 1)
                         {
                             pData[5] = 8;  // Delay
                             goto next_sprite;
