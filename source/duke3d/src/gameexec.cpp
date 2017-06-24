@@ -4890,6 +4890,15 @@ finish_qsprintf:
             }
             continue;
 
+        case CON_GETCLOSESTCOL:
+            insptr++;
+            {
+                tw = *insptr++;
+                int32_t const rgb = Gv_GetVarX(*insptr++);
+                Gv_SetVarX(tw, getclosestcol_lim(rgb & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 16) & 0xFF, Gv_GetVarX(*insptr++)));
+            }
+            continue;
+
         case CON_INV:
             if ((aGameVars[*(insptr + 1)].flags & (GAMEVAR_USER_MASK | GAMEVAR_PTR_MASK)) == 0)
                 aGameVars[*(insptr + 1)].global = -aGameVars[*(insptr + 1)].global;

@@ -574,6 +574,7 @@ const char *keyw[] =
     "divscale",                 // 400
     "scalevar",                 // 401
     "undefinegamefunc",         // 402
+    "getclosestcol",            // 403
     "<null>"
 };
 #endif
@@ -4078,6 +4079,7 @@ DO_DEFSTATE:
             continue;
 
         case CON_CLAMP:
+        case CON_GETCLOSESTCOL:
             C_GetNextVarType(GAMEVAR_READONLY);
             C_GetManyVars(2);
             continue;
