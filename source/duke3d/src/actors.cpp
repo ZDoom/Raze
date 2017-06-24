@@ -5624,11 +5624,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
         }
 
         sectortype *const pSector     = &sector[pSprite->sectnum];
-        int const         sectorLotag = pSprite->lotag;
-        int const         sectorHitag = pSprite->hitag;
+        int const         spriteLotag = pSprite->lotag;
+        int const         spriteHitag = pSprite->hitag;
         int32_t *const    pData       = &actor[spriteNum].t_data[0];
 
-        switch (sectorLotag)
+        switch (spriteLotag)
         {
         case SE_0_ROTATING_SECTOR:
         {
@@ -5798,7 +5798,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 for (SPRITES_OF(STAT_EFFECTOR, j))
                 {
-                    if (sprite[j].lotag == SE_19_EXPLOSION_LOWERS_CEILING && sprite[j].hitag == sectorHitag)
+                    if (sprite[j].lotag == SE_19_EXPLOSION_LOWERS_CEILING && sprite[j].hitag == spriteHitag)
                     {
                         pData[0] = 0;
                         break;
@@ -5829,7 +5829,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             for (SPRITES_OF(STAT_EFFECTOR, j))
             {
-                if (sprite[j].lotag == SE_14_SUBWAY_CAR && sectorHitag == sprite[j].hitag && actor[j].t_data[0] == pData[0])
+                if (sprite[j].lotag == SE_14_SUBWAY_CAR && spriteHitag == sprite[j].hitag && actor[j].t_data[0] == pData[0])
                 {
                     sprite[j].xvel = pSprite->xvel;
                     //                        if( t[4] == 1 )
@@ -5864,7 +5864,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (j < 1024L)
             {
-                if (sectorLotag==SE_6_SUBWAY)
+                if (spriteLotag==SE_6_SUBWAY)
                     if (sprite[pSprite->owner].hitag&1)
                         pData[4]=pSector->extra; //Slow it down
                 pData[3]++;
@@ -6171,7 +6171,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
         case SE_2_EARTHQUAKE://Quakes
             if (pData[4] > 0 && pData[0] == 0)
             {
-                if (pData[4] < sectorHitag)
+                if (pData[4] < spriteHitag)
                     pData[4]++;
                 else pData[0] = 1;
             }
@@ -6241,7 +6241,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             //    if(t[5] > 0) { t[5]--; break; }
 
-            if ((tabledivide32_noinline(g_globalRandom, sectorHitag+1)&31) < 4 && !pData[2])
+            if ((tabledivide32_noinline(g_globalRandom, spriteHitag+1)&31) < 4 && !pData[2])
             {
                 //       t[5] = 4+(g_globalRandom&7);
                 pSector->ceilingpal = pSprite->owner >> 8;
@@ -6283,7 +6283,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             //  t[3]: max wall shade
             int lightFlag;
 
-            if ((tabledivide32_noinline(g_globalRandom, sectorHitag+1)&31) < 4)
+            if ((tabledivide32_noinline(g_globalRandom, spriteHitag+1)&31) < 4)
             {
                 pData[1]            = pSprite->shade + (g_globalRandom & 15);  // Got really bright
                 pData[0]            = pSprite->shade + (g_globalRandom & 15);
@@ -6437,12 +6437,12 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             {
                 int shadeInc = ((pSector->lotag & 0x8000) || actor[spriteNum].t_data[4]) ? -pData[3] : pData[3];
 
-                if (sectorLotag == SE_9_DOWN_OPEN_DOOR_LIGHTS)
+                if (spriteLotag == SE_9_DOWN_OPEN_DOOR_LIGHTS)
                     shadeInc = -shadeInc;
 
                 for (bssize_t SPRITES_OF(STAT_EFFECTOR, sectorEffector))
                 {
-                    if (sprite[sectorEffector].lotag == sectorLotag && sprite[sectorEffector].hitag == sectorHitag)
+                    if (sprite[sectorEffector].lotag == spriteLotag && sprite[sectorEffector].hitag == spriteHitag)
                     {
                         int const sectNum = sprite[sectorEffector].sectnum;
                         int const spriteShade = sprite[sectorEffector].shade;
@@ -6497,7 +6497,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 if (j == 1)
                 {
-                    if (pData[0] > sectorHitag)
+                    if (pData[0] > spriteHitag)
                         switch (sector[pSprite->sectnum].lotag)
                         {
                         case ST_20_CEILING_DOOR:
@@ -6847,7 +6847,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if (spriteNum != j && sprite[j].lotag == SE_17_WARP_ELEVATOR)
                         if (pSector->hitag-pData[0] == sector[sprite[j].sectnum].hitag
-                                && sectorHitag == sprite[j].hitag)
+                                && spriteHitag == sprite[j].hitag)
                             break;
                 }
 
@@ -7013,7 +7013,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                     for (SPRITES_OF(STAT_EFFECTOR, j))
                     {
-                        if (sprite[j].lotag == SE_0_ROTATING_SECTOR && sprite[j].hitag==sectorHitag)
+                        if (sprite[j].lotag == SE_0_ROTATING_SECTOR && sprite[j].hitag==spriteHitag)
                         {
                             sectortype *const pSector     = &sector[sprite[j].sectnum];
                             int const         ownerSector = sprite[sprite[j].owner].sectnum;
@@ -7041,7 +7041,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         switch (sprite[l].lotag & 0x7fff)
                         {
                         case SE_0_ROTATING_SECTOR:
-                            if (sprite[l].hitag == sectorHitag)
+                            if (sprite[l].hitag == spriteHitag)
                             {
                                 int const spriteOwner = sprite[l].owner;
                                 int const sectNum     = sprite[l].sectnum;
@@ -7057,7 +7057,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         case SE_12_LIGHT_SWITCH:
 //                        case SE_18_INCREMENTAL_SECTOR_RISE_FALL:
                         case SE_19_EXPLOSION_LOWERS_CEILING:
-                            if (sectorHitag == sprite[l].hitag)
+                            if (spriteHitag == sprite[l].hitag)
                                 if (actor[l].t_data[0] == 0)
                                 {
                                     actor[l].t_data[0] = 1;  // Shut them all on
@@ -7395,7 +7395,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 {
                     if (cansee(pSprite->x,pSprite->y,pSprite->z,SECT(spriteNum),ps->pos.x,ps->pos.y,ps->pos.z,ps->cursectnum))
                     {
-                        if (x < (int32_t)((unsigned)sectorHitag))
+                        if (x < (int32_t)((unsigned)spriteHitag))
                         {
                             ud.camerasprite = spriteNum;
                             pData[0] = 999;
