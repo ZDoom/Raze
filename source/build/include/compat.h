@@ -708,6 +708,10 @@ typedef struct {
 } vec2_t;
 
 typedef struct {
+    int16_t x, y;
+} vec2s_t;
+
+typedef struct {
     uint32_t x, y;
 } vec2u_t;
 

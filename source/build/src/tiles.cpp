@@ -20,7 +20,7 @@ static int32_t tilefileoffs[MAXTILES];
 // necessary (have per-map ART files).
 static uint8_t *g_bakTileFileNum;
 static int32_t *g_bakTileFileOffs;
-static vec2_t *g_bakTileSiz;
+static vec2s_t *g_bakTileSiz;
 static picanm_t *g_bakPicAnm;
 // NOTE: picsiz[] is not backed up, but recalculated when necessary.
 

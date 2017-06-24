@@ -200,7 +200,7 @@ static int32_t check_tile(const char *defcmd, int32_t tile, const scriptfile *sc
 
 static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t alphacut)
 {
-    const vec2_t siz = tilesiz[tile];
+    vec2s_t const siz = tilesiz[tile];
     int32_t i, j, tsiz = siz.x * siz.y;
 
     maybe_grow_buffer(&faketilebuffer, &faketilebuffersiz, tsiz);
@@ -223,7 +223,7 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
 
 static int32_t Defs_LoadTileIntoBuffer(int32_t const tile)
 {
-    vec2_t const siz = tilesiz[tile];
+    vec2s_t const siz = tilesiz[tile];
     int32_t const tsiz = siz.x * siz.y;
 
     if (EDUKE32_PREDICT_FALSE(tilesiz[tile].x <= 0 || tilesiz[tile].y <= 0))

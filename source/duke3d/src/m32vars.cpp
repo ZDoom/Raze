@@ -78,8 +78,6 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_
     ASSERT_IMPLIES(dwFlags&GAMEARRAY_TYPE_MASK,
                    g_gameArrayCount==0 || (dwFlags&(GAMEARRAY_READONLY|GAMEARRAY_WARN)));
 
-    ASSERT_IMPLIES(dwFlags&GAMEARRAY_STRIDE2, dwFlags&GAMEARRAY_OFINT);
-
     if (g_gameArrayCount >= MAXGAMEARRAYS)
     {
         C_CUSTOMERROR("too many arrays! (max: %d)", MAXGAMEARRAYS);
@@ -672,8 +670,8 @@ static void Gv_AddSystemVars(void)
     Gv_NewArray("nextsectbunchf", (void *)nextsectbunch[1], MAXSECTORS, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 #endif
     Gv_NewArray("editorcolors", (void *)editorcolors, 256, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
-    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFINT);
-    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFINT);
+    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
 //    Gv_NewArray("picsiz", (void *)picsiz, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
     Gv_NewArray("picanm", (void *)picanm, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFINT);
 

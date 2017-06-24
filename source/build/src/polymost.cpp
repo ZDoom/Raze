@@ -928,9 +928,8 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
         if (!nomiptransfix)
         {
             vec2_t const tsizzle = { (tsiz.x + (1 << j)-1) >> j, (tsiz.y + (1 << j)-1) >> j };
-            vec2_t const mnizzle = { siz3.x, siz3.y };
 
-            fixtransparency(pic, tsizzle, mnizzle, dameth);
+            fixtransparency(pic, tsizzle, siz3, dameth);
         }
 
         if (j >= miplevel)
@@ -998,7 +997,8 @@ static void polymost_setuptexture(const int32_t dameth, int filter)
 void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t dashade, int32_t dameth, pthtyp *pth, int32_t doalloc)
 {
     static int32_t fullbrightloadingpass = 0;
-    vec2_t siz = { 0, 0 }, tsiz = tilesiz[dapic];
+    vec2s_t const & tsizart = tilesiz[dapic];
+    vec2_t siz = { 0, 0 }, tsiz = { tsizart.x, tsizart.y };
     size_t const picdim = tsiz.x*tsiz.y;
     char hasalpha = 0, hasfullbright = 0;
     char npoty = 0;
@@ -1653,7 +1653,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     //Load texture (globalpicnum)
     setgotpic(globalpicnum);
-    vec2_t tsiz = tilesiz[globalpicnum];
+    vec2s_t const & tsizart = tilesiz[globalpicnum];
+    vec2_t tsiz = { tsizart.x, tsizart.y };
 
     if (!waloff[globalpicnum])
     {
@@ -4390,7 +4391,8 @@ void polymost_drawsprite(int32_t snum)
         pos.y -= (sintable[(tspr->ang) & 2047] >> 13);
     }
 
-    vec2_t tsiz = tilesiz[globalpicnum], oldsiz = tsiz;
+    vec2s_t const oldsiz = tilesiz[globalpicnum];
+    vec2_t tsiz = { oldsiz.x, oldsiz.y };
 
     if (usehightile && h_xsize[globalpicnum])
     {
@@ -4518,7 +4520,8 @@ void polymost_drawsprite(int32_t snum)
                     pxy[2].y = pxy[3].y = s0.y;
             }
 
-            tilesiz[globalpicnum] = tsiz;
+            tilesiz[globalpicnum].x = tsiz.x;
+            tilesiz[globalpicnum].y = tsiz.y;
             pow2xsplit = 0;
             polymost_drawpoly(pxy, 4, method);
 
@@ -4730,7 +4733,8 @@ void polymost_drawsprite(int32_t snum)
 
             vec2f_t const pxy[4] = { { sx0, sc0 }, { sx1, sc1 }, { sx1, sf1 }, { sx0, sf0 } };
 
-            tilesiz[globalpicnum] = tsiz;
+            tilesiz[globalpicnum].x = tsiz.x;
+            tilesiz[globalpicnum].y = tsiz.y;
             pow2xsplit = 0;
             polymost_drawpoly(pxy, 4, method);
 
@@ -4902,7 +4906,8 @@ void polymost_drawsprite(int32_t snum)
                     drawpoly_trepeat = 1;
                 }
 
-                tilesiz[globalpicnum] = tsiz;
+                tilesiz[globalpicnum].x = tsiz.x;
+                tilesiz[globalpicnum].y = tsiz.y;
                 pow2xsplit = 0;
 
                 polymost_drawpoly(pxy, npoints, method);
@@ -4981,8 +4986,8 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
         if (dastat & RS_TOPLEFT)
         {
-            vec2_t siz = tilesiz[picnum];
-            vec2_t off = { picanm[picnum].xofs + (siz.x >> 1), picanm[picnum].yofs + (siz.y >> 1) };
+            vec2s_t siz = tilesiz[picnum];
+            vec2s_t off = { (int16_t)((siz.x >> 1) + picanm[picnum].xofs), (int16_t)((siz.y >> 1) + picanm[picnum].yofs) };
 
             d = (float)z * (1.0f / (65536.f * 16384.f));
             cosang2 = cosang = (float)sintable[(a + 512) & 2047] * d;
@@ -4995,8 +5000,9 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
                 sinang2 *= d;
             }
 
-            f.x += -(float)off.x * cosang2 + (float)off.y * sinang2;
-            f.y += -(float)off.x * sinang - (float)off.y * cosang;
+            vec2f_t const foff = { (float)off.x, (float)off.y };
+            f.x += -foff.x * cosang2 + foff.y * sinang2;
+            f.y += -foff.x * sinang  - foff.y * cosang;
         }
 
         if (!(dastat & RS_AUTO))
@@ -5253,8 +5259,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     drawpoly_alpha = daalpha * (1.0f / 255.0f);
     drawpoly_blend = dablend;
 
-    vec2_t const siz = tilesiz[globalpicnum];
-    vec2_t ofs = { 0, 0 };
+    vec2s_t const siz = tilesiz[globalpicnum];
+    vec2s_t ofs = { 0, 0 };
 
     if (!(dastat & RS_TOPLEFT))
     {
@@ -5281,8 +5287,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         sinang2 *= d;
     }
 
-    float const cx = (float)sx * (1.0f / 65536.f) - (float)ofs.x * cosang2 + (float)ofs.y * sinang2;
-    float const cy = (float)sy * (1.0f / 65536.f) - (float)ofs.x * sinang - (float)ofs.y * cosang;
+    vec2f_t const fofs = { (float)ofs.x, (float)ofs.y };
+    float const cx = (float)sx * (1.0f / 65536.f) - fofs.x * cosang2 + fofs.y * sinang2;
+    float const cy = (float)sy * (1.0f / 65536.f) - fofs.x * sinang  - fofs.y * cosang;
 
     vec2f_t pxy[8] = { { cx, cy },
                        { cx + (float)siz.x * cosang2, cy + (float)siz.x * sinang },
