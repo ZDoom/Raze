@@ -522,7 +522,7 @@ int32_t CONFIG_ReadSetup(void)
     ud.config.setupread = 1;
 
     pathsearchmode = 1;
-#ifndef EDUKE32_TOUCH_DEVICES
+#if !defined(EDUKE32_TOUCH_DEVICES) && !defined(EDUKE32_STANDALONE)
     if (SafeFileExists(g_setupFileName) && ud.config.scripthandle < 0)  // JBF 20031211
         ud.config.scripthandle = SCRIPT_Load(g_setupFileName);
     else if (SafeFileExists(SETUPFILENAME) && ud.config.scripthandle < 0)
