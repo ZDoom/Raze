@@ -123,13 +123,6 @@ static inline int32_t scale(int32_t eax, int32_t edx, int32_t ecx)
     return dw(tabledivide64(numer, ecx));
 }
 
-static FORCE_INLINE void swapptr(void *a, void *b)
-{
-    intptr_t const t = *(intptr_t*) a;
-    *(intptr_t*) a = *(intptr_t*) b;
-    *(intptr_t*) b = t;
-}
-
 static FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
 
 #if defined(__GNUC__) && defined(GEKKO)
@@ -177,17 +170,41 @@ EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 
 #endif
 
+
+#ifdef __cplusplus
+}
+template <typename T>
+static FORCE_INLINE void swap(T * const a, T * const b)
+{
+    T const t = *a;
+    *a = *b;
+    *b = t;
+}
+#define swapptr swap
+extern "C" {
+#else
+static FORCE_INLINE void swapptr(void *a, void *b)
+{
+    intptr_t const t = *(intptr_t*) a;
+    *(intptr_t*) a = *(intptr_t*) b;
+    *(intptr_t*) b = t;
+}
+#endif
+
 #ifndef pragmas_have_swaps
+#ifdef __cplusplus
+#define swapchar swap
+#define swapshort swap
+#define swaplong swap
+#define swapfloat swap
+#define swapdouble swap
+#define swap64bit swap
+#else
 static FORCE_INLINE void swapchar(void *a, void *b)
 {
     char const t = *(char *)b;
     *(char *)b = *(char *)a;
     *(char *)a = t;
-}
-static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
-{
-    swapchar(a, b);
-    swapchar((char *)a + 1, (char *)b + s);
 }
 static FORCE_INLINE void swapshort(void *a, void *b)
 {
@@ -218,6 +235,12 @@ static FORCE_INLINE void swap64bit(void *a, void *b)
     uint64_t const t = *(uint64_t *)b;
     *(uint64_t *)b = *(uint64_t *)a;
     *(uint64_t *)a = t;
+}
+#endif
+static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
+{
+    swapchar((char *)a, (char *)b);
+    swapchar((char *)a + 1, (char *)b + s);
 }
 #endif
 

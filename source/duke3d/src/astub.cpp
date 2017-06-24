@@ -11381,7 +11381,7 @@ static void EditWallData(int16_t wallnum)
 
 static void EditSpriteData(int16_t spritenum)
 {
-    int32_t col=0, row=0, rowmax=4, i = -1;
+    int32_t col=0, row=0, rowmax=4;
     int32_t xpos = 8, ypos = ydim-STATUS2DSIZ+48;
 
     med_editval = 0;
@@ -11478,7 +11478,8 @@ static void EditSpriteData(int16_t spritenum)
                           sizeof(sprite[spritenum].z), BZ_MAX, 1); //2147483647L,-2147483648L
                 break;
             case 3:
-                i = sprite[spritenum].sectnum;
+            {
+                int16_t i = sprite[spritenum].sectnum;
                 handlemed(0, "Sectnum", "Sectnum", &sprite[spritenum].sectnum,
                           sizeof(sprite[spritenum].sectnum), numsectors-1, 0);
                 if (i != sprite[spritenum].sectnum)
@@ -11487,8 +11488,10 @@ static void EditSpriteData(int16_t spritenum)
                     changespritesect(spritenum,i);
                 }
                 break;
+            }
             case 4:
-                i = sprite[spritenum].statnum;
+            {
+                int16_t i = sprite[spritenum].statnum;
                 handlemed(0, "Statnum", "Statnum", &sprite[spritenum].statnum,
                           sizeof(sprite[spritenum].statnum), MAXSTATUS-1, 0);
                 if (i != sprite[spritenum].statnum)
@@ -11497,6 +11500,7 @@ static void EditSpriteData(int16_t spritenum)
                     changespritestat(spritenum,i);
                 }
                 break;
+            }
             }
         }
         break;
@@ -11522,7 +11526,7 @@ static void EditSpriteData(int16_t spritenum)
                 break;
             case 4:
             {
-                i = Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",
+                int32_t i = Bsprintf(med_disptext,"(X,Y)repeat: %d, %d",
                              TrackerCast(sprite[spritenum].xrepeat),
                              TrackerCast(sprite[spritenum].yrepeat));
                 for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
@@ -11539,7 +11543,7 @@ static void EditSpriteData(int16_t spritenum)
             break;
             case 5:
             {
-                i = Bsprintf(med_disptext,"(X,Y)offset: %d, %d",
+                int32_t i = Bsprintf(med_disptext,"(X,Y)offset: %d, %d",
                              TrackerCast(sprite[spritenum].xoffset),
                              TrackerCast(sprite[spritenum].yoffset));
                 for (; i < med_dispwidth; i++) med_disptext[i] = ' ';
