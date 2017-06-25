@@ -63,20 +63,20 @@ dukeanim_t *Anim_Find(const char *s)
     return (dukeanim_t *)(ptr == -1 ? NULL : (dukeanim_t *)ptr);
 }
 
-dukeanim_t * Anim_Setup(const char *fn, uint8_t fdelay, void (*sound_func)(int32_t))
+dukeanim_t * Anim_Create(char const * fn)
 {
-    dukeanim_t * anim = Anim_Find(fn);
-
-    if (!anim)
-        anim = (dukeanim_t *)Xcalloc(1, sizeof(dukeanim_t));
+    dukeanim_t * anim = (dukeanim_t *)Xcalloc(1, sizeof(dukeanim_t));
 
     hash_add(&h_dukeanim, fn, (intptr_t)anim, 0);
 
-    if (sound_func)
-        anim->sound_func = sound_func;
+    return anim;
+}
 
+static dukeanim_t * Anim_Setup(const char *fn, uint8_t fdelay, void (*sound_func)(int32_t))
+{
+    dukeanim_t * anim = Anim_Create(fn);
     anim->framedelay = fdelay;
-
+    anim->sound_func = sound_func;
     return anim;
 }
 

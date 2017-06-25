@@ -5206,25 +5206,31 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
             if (scriptfile_getbraces(pScript, &animEnd))
                 break;
 
-            int32_t frameDelay = 10;
-
-            while (pScript->textptr < animEnd)
-            {
-                switch (getatoken(pScript, animTokens, ARRAY_SIZE(animTokens)))
-                {
-                    case T_DELAY: scriptfile_getnumber(pScript, &frameDelay); break;
-                }
-            }
-
             if (!firstPass)
             {
                 dukeanim_t *animPtr = Anim_Find(fileName);
 
                 if (!animPtr)
-                    animPtr = Anim_Setup(fileName, frameDelay, NULL);
-                else
-                    animPtr->framedelay = frameDelay;
+                {
+                    animPtr = Anim_Create(fileName);
+                    animPtr->framedelay = 10;
+                }
+
+                int32_t temp;
+
+                while (pScript->textptr < animEnd)
+                {
+                    switch (getatoken(pScript, animTokens, ARRAY_SIZE(animTokens)))
+                    {
+                        case T_DELAY:
+                            scriptfile_getnumber(pScript, &temp);
+                            animPtr->framedelay = temp;
+                            break;
+                    }
+                }
             }
+            else
+                pScript->textptr = animEnd;
         }
         break;
         case T_ANIMSOUNDS:

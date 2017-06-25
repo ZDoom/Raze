@@ -38,7 +38,7 @@ typedef struct
 extern dukeanim_t * g_animPtr;
 extern hashtable_t h_dukeanim;
 extern dukeanim_t * Anim_Find(const char *s);
-extern dukeanim_t * Anim_Setup(const char *fn, uint8_t framerate, void (*sound_func)(int32_t));
+extern dukeanim_t * Anim_Create(const char *fn);
 int32_t Anim_Play(const char *fn);
 void Anim_Init(void);
 
