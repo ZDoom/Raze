@@ -5069,6 +5069,92 @@ static void parsedefinitions_game_include(const char *fileName, scriptfile *pScr
     }
 }
 
+static void parsedefinitions_game_animsounds(scriptfile *pScript, char * blockEnd, char const * fileName, dukeanim_t * animPtr)
+{
+    Bfree(animPtr->sounds);
+
+    size_t numPairs = 0, allocSize = 4;
+
+    animPtr->sounds = (animsound_t *)Xmalloc(allocSize * sizeof(animsound_t));
+    animPtr->numsounds = 0;
+
+    int defError = 1;
+    uint16_t lastFrameNum = 1;
+
+    while (pScript->textptr < blockEnd)
+    {
+        int32_t frameNum;
+        int32_t soundNum;
+
+        // HACK: we've reached the end of the list
+        //  (hack because it relies on knowledge of
+        //   how scriptfile_* preprocesses the text)
+        if (blockEnd - pScript->textptr == 1)
+            break;
+
+        // would produce error when it encounters the closing '}'
+        // without the above hack
+        if (scriptfile_getnumber(pScript, &frameNum))
+            break;
+
+        defError = 1;
+
+        if (scriptfile_getsymbol(pScript, &soundNum))
+            break;
+
+        // frame numbers start at 1 for us
+        if (frameNum <= 0)
+        {
+            initprintf("Error: frame number must be greater zero on line %s:%d\n", pScript->filename,
+                       scriptfile_getlinum(pScript, pScript->ltextptr));
+            break;
+        }
+
+        if (frameNum < lastFrameNum)
+        {
+            initprintf("Error: frame numbers must be in (not necessarily strictly)"
+                       " ascending order (line %s:%d)\n",
+                       pScript->filename, scriptfile_getlinum(pScript, pScript->ltextptr));
+            break;
+        }
+
+        lastFrameNum = frameNum;
+
+        if ((unsigned)soundNum >= MAXSOUNDS)
+        {
+            initprintf("Error: sound number #%d invalid on line %s:%d\n", soundNum, pScript->filename,
+                       scriptfile_getlinum(pScript, pScript->ltextptr));
+            break;
+        }
+
+        if (numPairs >= allocSize)
+        {
+            allocSize *= 2;
+            animPtr->sounds = (animsound_t *)Xrealloc(animPtr->sounds, allocSize * sizeof(animsound_t));
+        }
+
+        defError = 0;
+
+        animsound_t & sound = animPtr->sounds[numPairs];
+        sound.frame = frameNum;
+        sound.sound = soundNum;
+
+        ++numPairs;
+    }
+
+    if (!defError)
+    {
+        animPtr->numsounds = numPairs;
+        // initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
+        //           hardcoded_anim_tokens[animnum].text, numpairs);
+    }
+    else
+    {
+        DO_FREE_AND_NULL(animPtr->sounds);
+        initprintf("Failed defining sound sequence for anim \"%s\".\n", fileName);
+    }
+}
+
 static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 {
     int   token;
@@ -5100,6 +5186,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
     static const tokenlist animTokens [] =
     {
         { "delay", T_DELAY },
+        { "sounds", T_SOUND },
     };
 
     do
@@ -5226,6 +5313,14 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                             scriptfile_getnumber(pScript, &temp);
                             animPtr->framedelay = temp;
                             break;
+                        case T_SOUND:
+                        {
+                            char *animSoundsEnd = NULL;
+                            if (scriptfile_getbraces(pScript, &animSoundsEnd))
+                                break;
+                            parsedefinitions_game_animsounds(pScript, animSoundsEnd, fileName, animPtr);
+                            break;
+                        }
                     }
                 }
             }
@@ -5236,13 +5331,11 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         case T_ANIMSOUNDS:
         {
             char *tokenPtr     = pScript->ltextptr;
-            int   numPairs     = 0;
-            int   allocSize    = 4;
-            int   defError     = 1;
-            int   lastFrameNum = INT32_MIN;
             char *fileName     = NULL;
 
             scriptfile_getstring(pScript, &fileName);
+            if (!fileName)
+                break;
 
             char *animSoundsEnd = NULL;
 
@@ -5251,121 +5344,20 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
             if (firstPass)
             {
-                while (pScript->textptr < animSoundsEnd)
-                {
-                    int32_t dummy;
-
-                    // HACK: we've reached the end of the list
-                    //  (hack because it relies on knowledge of
-                    //   how scriptfile_* preprocesses the text)
-                    if (animSoundsEnd - pScript->textptr == 1)
-                        break;
-
-                    if (scriptfile_getnumber(pScript, &dummy))
-                        break;
-                }
-
+                pScript->textptr = animSoundsEnd;
                 break;
             }
 
-            dukeanim_t *animPtr = NULL;
+            dukeanim_t *animPtr = Anim_Find(fileName);
 
-            if (fileName)
+            if (!animPtr)
             {
-                animPtr = Anim_Find(fileName);
-
-                if (!animPtr)
-                {
-                    initprintf("Error: expected animation filename on line %s:%d\n",
-                        pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
-                    break;
-                }
-
-                if (animPtr->sounds)
-                {
-                    initprintf("Warning: overwriting already defined hi-anim %s's sounds on line %s:%d\n", fileName,
-                        pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
-                    Bfree(animPtr->sounds);
-                }
-
-                animPtr->sounds = (animsound_t *)Xmalloc(allocSize * sizeof(animsound_t));
-                animPtr->numsounds = 0;
-            }
-            else
+                initprintf("Error: expected animation filename on line %s:%d\n",
+                    pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
                 break;
-
-            while (pScript->textptr < animSoundsEnd)
-            {
-                int32_t frameNum;
-                int32_t soundNum;
-
-                // HACK: we've reached the end of the list
-                //  (hack because it relies on knowledge of
-                //   how scriptfile_* preprocesses the text)
-                if (animSoundsEnd - pScript->textptr == 1)
-                    break;
-
-                // would produce error when it encounters the closing '}'
-                // without the above hack
-                if (scriptfile_getnumber(pScript, &frameNum))
-                    break;
-
-                defError = 1;
-
-                if (scriptfile_getsymbol(pScript, &soundNum))
-                    break;
-
-                // frame numbers start at 1 for us
-                if (frameNum <= 0)
-                {
-                    initprintf("Error: frame number must be greater zero on line %s:%d\n", pScript->filename,
-                               scriptfile_getlinum(pScript, pScript->ltextptr));
-                    break;
-                }
-
-                if (frameNum < lastFrameNum)
-                {
-                    initprintf("Error: frame numbers must be in (not necessarily strictly)"
-                               " ascending order (line %s:%d)\n",
-                               pScript->filename, scriptfile_getlinum(pScript, pScript->ltextptr));
-                    break;
-                }
-
-                lastFrameNum = frameNum;
-
-                if ((unsigned)soundNum >= MAXSOUNDS)
-                {
-                    initprintf("Error: sound number #%d invalid on line %s:%d\n", soundNum, pScript->filename,
-                               scriptfile_getlinum(pScript, pScript->ltextptr));
-                    break;
-                }
-
-                if (numPairs >= allocSize)
-                {
-                    allocSize *= 2;
-                    animPtr->sounds = (animsound_t *)Xrealloc(animPtr->sounds, allocSize * sizeof(animsound_t));
-                }
-
-                defError = 0;
-
-                animsound_t & sound = animPtr->sounds[numPairs];
-                sound.frame = frameNum;
-                sound.sound = soundNum;
-
-                ++numPairs;
             }
 
-            if (!defError)
-            {
-                animPtr->numsounds = numPairs;
-                // initprintf("Defined sound sequence for hi-anim \"%s\" with %d frame/sound pairs\n",
-                //           hardcoded_anim_tokens[animnum].text, numpairs);
-            }
-            else
-            {
-                DO_FREE_AND_NULL(animPtr->sounds);
-                initprintf("Failed defining sound sequence for hi-anim \"%s\".\n", fileName);
-            }
+            parsedefinitions_game_animsounds(pScript, animSoundsEnd, fileName, animPtr);
         }
         break;
 
