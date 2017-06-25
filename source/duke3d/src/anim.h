@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef anim_h_
 #define anim_h_
 
-#define NUM_HARDCODED_ANIMS 12
-
 typedef struct
 {
     uint8_t* animbuf;

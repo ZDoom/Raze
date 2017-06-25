@@ -72,33 +72,40 @@ dukeanim_t * Anim_Create(char const * fn)
     return anim;
 }
 
-static dukeanim_t * Anim_Setup(const char *fn, uint8_t fdelay, void (*sound_func)(int32_t))
-{
-    dukeanim_t * anim = Anim_Create(fn);
-    anim->framedelay = fdelay;
-    anim->sound_func = sound_func;
-    return anim;
-}
-
 void Anim_Init(void)
 {
     hash_init(&h_dukeanim);
 
-    Anim_Setup("logo.anm", 9, logoanimsounds);
-    Anim_Setup("3dr.anm", 10, NULL);
+    struct defaultanm {
+        char const *fn;
+        void (*sound_func)(int32_t);
+        uint8_t fdelay;
+    };
 
+    static defaultanm const anms[] =
+    {
+        { "logo.anm", logoanimsounds, 9 },
+        { "3dr.anm", NULL, 10 },
 #ifndef EDUKE32_STANDALONE
-    Anim_Setup("vol4e1.anm", 10, endanimvol41);
-    Anim_Setup("vol4e2.anm", 14, endanimvol42);
-    Anim_Setup("vol4e3.anm", 10, endanimvol43);
-    Anim_Setup("vol41a.anm", 14, first4animsounds);
-    Anim_Setup("vol42a.anm", 18, intro4animsounds);
-    Anim_Setup("vol43a.anm", 10, intro42animsounds);
-    Anim_Setup("duketeam.anm", 10, NULL);
-    Anim_Setup("radlogo.anm", 10, NULL);
-    Anim_Setup("cineov2.anm", 18, endanimsounds);
-    Anim_Setup("cineov3.anm", 10, endanimsounds);
+        { "vol4e1.anm", endanimvol41, 10 },
+        { "vol4e2.anm", endanimvol42, 14 },
+        { "vol4e3.anm", endanimvol43, 10 },
+        { "vol41a.anm", first4animsounds, 14 },
+        { "vol42a.anm", intro4animsounds, 18 },
+        { "vol43a.anm", intro42animsounds, 10 },
+        { "duketeam.anm", NULL, 10 },
+        { "radlogo.anm", NULL, 10 },
+        { "cineov2.anm", endanimsounds, 18 },
+        { "cineov3.anm", endanimsounds, 10 },
 #endif
+    };
+
+    for (defaultanm const & anm : anms)
+    {
+        dukeanim_t * anim = Anim_Create(anm.fn);
+        anim->framedelay = anm.fdelay;
+        anim->sound_func = anm.sound_func;
+    }
 }
 
 int32_t Anim_Play(const char *fn)
