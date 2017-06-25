@@ -239,6 +239,7 @@ int32_t Anim_Play(const char *fn)
         if (!dot)
             break;
 
+        dukeanim_t const * origanim = anim;
         int32_t handle = -1;
         if (!Bstrcmp(dot, ".ivf"))
         {
@@ -289,7 +290,11 @@ int32_t Anim_Play(const char *fn)
             return 0;
         }
 
-        uint32_t msecsperframe = ((uint64_t)info.fpsdenom * 1000) / info.fpsnumer;
+
+        uint32_t const convnumer = 120 * info.fpsdenom;
+        uint32_t const convdenom = info.fpsnumer * origanim->framedelay;
+
+        uint32_t const msecsperframe = scale(info.fpsdenom, 1000, info.fpsnumer);
         uint32_t nextframetime = getticks();
         uint8_t *pic;
 
@@ -321,9 +326,23 @@ int32_t Anim_Play(const char *fn)
             framenum++;
             if (anim)
             {
-                while (soundidx < anim->numsounds && anim->sounds[soundidx].frame == framenum)
+                while (soundidx < anim->numsounds && anim->sounds[soundidx].frame <= framenum)
                 {
                     int16_t sound = anim->sounds[soundidx].sound;
+                    if (sound == -1)
+                        FX_StopAllSounds();
+                    else
+                        S_PlaySound(sound);
+
+                    soundidx++;
+                }
+            }
+            else
+            {
+                uint16_t convframenum = scale(framenum, convnumer, convdenom);
+                while (soundidx < origanim->numsounds && origanim->sounds[soundidx].frame <= convframenum)
+                {
+                    int16_t sound = origanim->sounds[soundidx].sound;
                     if (sound == -1)
                         FX_StopAllSounds();
                     else
@@ -463,7 +482,7 @@ int32_t Anim_Play(const char *fn)
 
         ototalclock += anim->framedelay;
 
-        while (soundidx < anim->numsounds && anim->sounds[soundidx].frame == (uint16_t)i)
+        while (soundidx < anim->numsounds && anim->sounds[soundidx].frame <= (uint16_t)i)
         {
             int16_t sound = anim->sounds[soundidx].sound;
             if (sound == -1)
