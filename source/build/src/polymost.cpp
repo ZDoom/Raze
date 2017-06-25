@@ -4130,6 +4130,16 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     if (wal->cstat & 128)
         method = DAMETH_WALL | (((wal->cstat & 512)) ? DAMETH_TRANS2 : DAMETH_TRANS1);
 
+#ifdef NEW_MAP_FORMAT
+    uint8_t const blend = wal->blend;
+#else
+    uint8_t const blend = 0;
+#endif
+    handle_blend(!!(wal->cstat & 128), blend, !!(wal->cstat & 512));
+
+    drawpoly_alpha = 0.f;
+    drawpoly_blend = blend;
+
     calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
 
     float const csy[4] = { ((float)(cz[0] - globalposz)) * ryp0 + ghoriz,
@@ -4219,8 +4229,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
 
     pow2xsplit = 0;
     skyclamphack = 0;
-    drawpoly_alpha = 0.f;
-    drawpoly_blend = 0;
+
     polymost_drawpoly(dpxy, n, method);
 }
 
