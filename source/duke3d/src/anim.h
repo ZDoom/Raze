@@ -31,7 +31,6 @@ typedef struct {
 typedef struct
 {
     uint8_t* animbuf;
-    void (*sound_func)(int32_t);
     animsound_t *sounds;
     uint16_t numsounds;
     uint8_t framedelay;

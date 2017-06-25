@@ -242,7 +242,6 @@ MACT_OBJS=$(MACT_OBJ)\file_lib.$o \
 DUKE3D_OBJS=$(DUKE3D_OBJ)\game.$o \
 	$(DUKE3D_OBJ)\actors.$o \
 	$(DUKE3D_OBJ)\anim.$o \
-	$(DUKE3D_OBJ)\animsounds.$o \
         $(DUKE3D_OBJ)\cheats.$o \
         $(DUKE3D_OBJ)\sbar.$o \
         $(DUKE3D_OBJ)\screentext.$o \

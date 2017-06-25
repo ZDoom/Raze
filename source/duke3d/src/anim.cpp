@@ -34,8 +34,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "animvpx.h"
 #endif
 
-#include "animsounds.h"
-
 // animsound_t.sound
 EDUKE32_STATIC_ASSERT(INT16_MAX >= MAXSOUNDS);
 
@@ -75,39 +73,146 @@ dukeanim_t * Anim_Create(char const * fn)
     return anim;
 }
 
+#ifdef DYNSOUNDREMAP_ENABLE
+static int32_t const StopAllSounds = -1;
+#else
+# define StopAllSounds -1
+#endif
+
 void Anim_Init(void)
 {
     hash_init(&h_dukeanim);
 
+
+    struct defaultanmsound {
+#ifdef DYNSOUNDREMAP_ENABLE
+        int32_t const & sound;
+#else
+        int16_t sound;
+#endif
+        uint8_t frame;
+    };
+
+    static defaultanmsound const cineov2[] =
+    {
+        { WIND_AMBIENCE, 1 },
+        { ENDSEQVOL2SND1, 26 },
+        { ENDSEQVOL2SND2, 36 },
+        { THUD, 54 },
+        { ENDSEQVOL2SND3, 62 },
+        { ENDSEQVOL2SND4, 75 },
+        { ENDSEQVOL2SND5, 81 },
+        { ENDSEQVOL2SND6, 115 },
+        { ENDSEQVOL2SND7, 124 },
+    };
+
+    static defaultanmsound const cineov3[] =
+    {
+        { WIND_REPEAT, 1 },
+        { DUKE_GRUNT, 98 },
+        { THUD, 82+20 },
+        { SQUISHED, 82+20 },
+        { ENDSEQVOL3SND3, 104+20 },
+        { ENDSEQVOL3SND2, 114+20 },
+        { PIPEBOMB_EXPLODE, 158 },
+    };
+
+    static defaultanmsound const logo[] =
+    {
+        { FLY_BY, 1 },
+        { PIPEBOMB_EXPLODE, 19 },
+    };
+
+    static defaultanmsound const vol42a[] =
+    {
+        { INTRO4_B, 1 },
+        { SHORT_CIRCUIT, 12 },
+        { INTRO4_5, 18 },
+        { SHORT_CIRCUIT, 34 },
+    };
+
+    static defaultanmsound const vol41a[] =
+    {
+        { INTRO4_1, 1 },
+        { INTRO4_3, 7 },
+        { INTRO4_2, 12 },
+        { INTRO4_4, 26 },
+    };
+
+    static defaultanmsound const vol43a[] =
+    {
+        { INTRO4_6, 10 },
+    };
+
+    static defaultanmsound const vol4e1[] =
+    {
+        { DUKE_UNDERWATER, 3 },
+        { VOL4ENDSND1, 35 },
+    };
+
+    static defaultanmsound const vol4e2[] =
+    {
+        { DUKE_UNDERWATER, 11 },
+        { VOL4ENDSND1, 20 },
+        { VOL4ENDSND2, 39 },
+        { StopAllSounds, 50 },
+    };
+
+    static defaultanmsound const vol4e3[] =
+    {
+        { BOSS4_DEADSPEECH, 1 },
+        { VOL4ENDSND1, 40 },
+        { DUKE_UNDERWATER, 40 },
+        { BIGBANG, 50 },
+    };
+
+
     struct defaultanm {
         char const *fn;
-        void (*sound_func)(int32_t);
+        defaultanmsound const *sounds;
+        uint8_t numsounds;
         uint8_t fdelay;
     };
 
+#define anmsnd(x) (x), ARRAY_SIZE(x)
     static defaultanm const anms[] =
     {
-        { "logo.anm", logoanimsounds, 9 },
-        { "3dr.anm", NULL, 10 },
+        { "logo.anm", anmsnd(logo), 9 },
+        { "3dr.anm", NULL, 0, 10 },
 #ifndef EDUKE32_STANDALONE
-        { "vol4e1.anm", endanimvol41, 10 },
-        { "vol4e2.anm", endanimvol42, 14 },
-        { "vol4e3.anm", endanimvol43, 10 },
-        { "vol41a.anm", first4animsounds, 14 },
-        { "vol42a.anm", intro4animsounds, 18 },
-        { "vol43a.anm", intro42animsounds, 10 },
-        { "duketeam.anm", NULL, 10 },
-        { "radlogo.anm", NULL, 10 },
-        { "cineov2.anm", endanimsounds, 18 },
-        { "cineov3.anm", endanimsounds, 10 },
+        { "vol4e1.anm", anmsnd(vol4e1), 10 },
+        { "vol4e2.anm", anmsnd(vol4e2), 14 },
+        { "vol4e3.anm", anmsnd(vol4e3), 10 },
+        { "vol41a.anm", anmsnd(vol41a), 14 },
+        { "vol42a.anm", anmsnd(vol42a), 18 },
+        { "vol43a.anm", anmsnd(vol43a), 10 },
+        { "duketeam.anm", NULL, 0, 10 },
+        { "radlogo.anm", NULL, 0, 10 },
+        { "cineov2.anm", anmsnd(cineov2), 18 },
+        { "cineov3.anm", anmsnd(cineov3), 10 },
 #endif
     };
+#undef anmsnd
 
     for (defaultanm const & anm : anms)
     {
         dukeanim_t * anim = Anim_Create(anm.fn);
         anim->framedelay = anm.fdelay;
-        anim->sound_func = anm.sound_func;
+
+        if (anm.numsounds)
+        {
+            anim->sounds = (animsound_t *)Xmalloc(anm.numsounds * sizeof(animsound_t));
+            size_t const numsounds = anm.numsounds;
+            for (size_t i = 0; i < numsounds; ++i)
+            {
+                defaultanmsound const & src = anm.sounds[i];
+                animsound_t & dst = anim->sounds[i];
+
+                dst.sound = src.sound;
+                dst.frame = src.frame;
+            }
+            anim->numsounds = numsounds;
+        }
     }
 }
 
@@ -337,9 +442,6 @@ int32_t Anim_Play(const char *fn)
         I_ClearAllInput();
 
         ototalclock += anim->framedelay;
-
-        if (!anim->numsounds && anim->sound_func)
-            anim->sound_func(i);
 
         while (soundidx < anim->numsounds && anim->sounds[soundidx].frame == (uint16_t)i)
         {

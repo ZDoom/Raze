@@ -177,7 +177,6 @@
     <ClInclude Include="..\..\source\duke3d\src\android.h" />
     <ClInclude Include="..\..\source\duke3d\src\in_android.h" />
     <ClInclude Include="..\..\source\duke3d\src\anim.h" />
-    <ClInclude Include="..\..\source\duke3d\src\animsounds.h" />
     <ClInclude Include="..\..\source\duke3d\src\cheats.h" />
     <ClInclude Include="..\..\source\duke3d\src\cmdline.h" />
     <ClInclude Include="..\..\source\duke3d\src\common_game.h" />
@@ -319,7 +318,6 @@
     <ClCompile Include="..\..\source\duke3d\src\actors.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\in_android.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\anim.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\animsounds.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\astub.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\cheats.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\cmdline.cpp" />

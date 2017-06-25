@@ -438,9 +438,6 @@
     <ClInclude Include="..\..\source\build\include\buildtypes.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\duke3d\src\animsounds.h">
-      <Filter>eduke32\headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\Button.h">
       <Filter>touchcontrols\headers</Filter>
     </ClInclude>
@@ -853,9 +850,6 @@
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\sdlayer12.cpp">
       <Filter>build\source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\source\duke3d\src\animsounds.cpp">
-      <Filter>eduke32\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\Button.cpp">
       <Filter>touchcontrols\source</Filter>

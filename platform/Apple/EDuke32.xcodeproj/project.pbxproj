@@ -395,8 +395,6 @@
 		2038AE9A1A8F12590093B7B2 /* md4.h in Headers */ = {isa = PBXBuildFile; fileRef = 2038AE981A8F12590093B7B2 /* md4.h */; };
 		2038AE9C1A8F126C0093B7B2 /* md4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9B1A8F126C0093B7B2 /* md4.cpp */; };
 		2038AE9D1A8F126C0093B7B2 /* md4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9B1A8F126C0093B7B2 /* md4.cpp */; };
-		2038AEA01A8F12B60093B7B2 /* animsounds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9E1A8F12B60093B7B2 /* animsounds.cpp */; };
-		2038AEA11A8F12B60093B7B2 /* animsounds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2038AE9E1A8F12B60093B7B2 /* animsounds.cpp */; };
 		2038AEA31A8F137E0093B7B2 /* DUKE.RTS in Resources */ = {isa = PBXBuildFile; fileRef = 2038AEA21A8F137E0093B7B2 /* DUKE.RTS */; };
 		2044C9841E089F2500A8C543 /* palette.h in Headers */ = {isa = PBXBuildFile; fileRef = 2044C9831E089F2500A8C543 /* palette.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2044C9851E089F2500A8C543 /* palette.h in Headers */ = {isa = PBXBuildFile; fileRef = 2044C9831E089F2500A8C543 /* palette.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -795,8 +793,6 @@
 		2038AE951A8F122D0093B7B2 /* libdivide.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = libdivide.h; path = ../../source/build/include/libdivide.h; sourceTree = SOURCE_ROOT; };
 		2038AE981A8F12590093B7B2 /* md4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = md4.h; path = ../../source/build/include/md4.h; sourceTree = SOURCE_ROOT; };
 		2038AE9B1A8F126C0093B7B2 /* md4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = md4.cpp; path = ../../source/build/src/md4.cpp; sourceTree = SOURCE_ROOT; };
-		2038AE9E1A8F12B60093B7B2 /* animsounds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = animsounds.cpp; path = ../../source/duke3d/src/animsounds.cpp; sourceTree = SOURCE_ROOT; };
-		2038AE9F1A8F12B60093B7B2 /* animsounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = animsounds.h; path = ../../source/duke3d/src/animsounds.h; sourceTree = SOURCE_ROOT; };
 		2038AEA21A8F137E0093B7B2 /* DUKE.RTS */ = {isa = PBXFileReference; lastKnownFileType = file; name = DUKE.RTS; path = ../../../DUKE.RTS; sourceTree = SOURCE_ROOT; };
 		2044C9831E089F2500A8C543 /* palette.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = palette.h; path = ../../source/build/include/palette.h; sourceTree = SOURCE_ROOT; };
 		2044C9891E08A66B00A8C543 /* palette.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = palette.cpp; path = ../../source/build/src/palette.cpp; sourceTree = SOURCE_ROOT; };
@@ -1085,8 +1081,6 @@
 				0008E99F19F1AD9B0091588D /* actors.h */,
 				0008E9A019F1AD9B0091588D /* anim.cpp */,
 				0008E9A119F1AD9B0091588D /* anim.h */,
-				2038AE9E1A8F12B60093B7B2 /* animsounds.cpp */,
-				2038AE9F1A8F12B60093B7B2 /* animsounds.h */,
 				20F712531C6C1A07006B68D0 /* cheats.cpp */,
 				20F712541C6C1A07006B68D0 /* cheats.h */,
 				20E16CDF1C7022C300EE8446 /* cmdline.cpp */,
@@ -1954,7 +1948,6 @@
 				0008E9EB19F1AD9B0091588D /* gamedef.cpp in Sources */,
 				20F7124D1C6C19E5006B68D0 /* screentext.cpp in Sources */,
 				0008EA0219F1AD9B0091588D /* soundsdyn.cpp in Sources */,
-				2038AEA01A8F12B60093B7B2 /* animsounds.cpp in Sources */,
 				0008E9EF19F1AD9B0091588D /* gamevars.cpp in Sources */,
 				0008E9EC19F1AD9B0091588D /* gameexec.cpp in Sources */,
 				20F712511C6C19F4006B68D0 /* sbar.cpp in Sources */,
@@ -2129,7 +2122,6 @@
 				000C489D19F35601006E6B52 /* demo.cpp in Sources */,
 				20F712561C6C1A07006B68D0 /* cheats.cpp in Sources */,
 				000C48A719F35601006E6B52 /* menus.cpp in Sources */,
-				2038AEA11A8F12B60093B7B2 /* animsounds.cpp in Sources */,
 				000C48A919F35601006E6B52 /* net.cpp in Sources */,
 				000C48A819F35601006E6B52 /* namesdyn.cpp in Sources */,
 				000C48B219F35601006E6B52 /* sector.cpp in Sources */,

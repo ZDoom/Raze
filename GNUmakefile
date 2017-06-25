@@ -451,7 +451,6 @@ DUKE3D_GAME_OBJS = \
     premap.cpp \
     sector.cpp \
     anim.cpp \
-    animsounds.cpp \
     common.cpp \
     config.cpp \
     demo.cpp \

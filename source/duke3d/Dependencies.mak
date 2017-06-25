@@ -38,8 +38,7 @@ game_defs_dep=$(DUKE3D_SRC)/lunatic/_defs_game.lua
 
 $(DUKE3D_OBJ)/game.$o: $(DUKE3D_SRC)/game.cpp $(game_defs_dep) $(MACT_INC)/scriplib.h $(duke3d_h) $(DUKE3D_SRC)/input.h $(DUKE3D_SRC)/osdfuncs.h $(DUKE3D_SRC)/osdcmds.h $(DUKE3D_SRC)/grpscan.h $(DUKE3D_SRC)/demo.h $(ENGINE_INC)/hightile.h
 $(DUKE3D_OBJ)/actors.$o: $(DUKE3D_SRC)/actors.cpp $(duke3d_h)
-$(DUKE3D_OBJ)/anim.$o: $(DUKE3D_SRC)/anim.cpp $(duke3d_h) $(DUKE3D_SRC)/input.h $(MACT_INC)/animlib.h $(ENGINE_INC)/animvpx.h $(DUKE3D_SRC)/animsounds.h
-$(DUKE3D_OBJ)/animsounds.$o: $(DUKE3D_SRC)/animsounds.cpp $(DUKE3D_SRC)/animsounds.h
+$(DUKE3D_OBJ)/anim.$o: $(DUKE3D_SRC)/anim.cpp $(duke3d_h) $(DUKE3D_SRC)/input.h $(MACT_INC)/animlib.h $(ENGINE_INC)/animvpx.h
 $(DUKE3D_OBJ)/cheats.$o: $(DUKE3D_SRC)/cheats.cpp $(DUKE3D_SRC)/cheats.h
 $(DUKE3D_OBJ)/cmdline.$o: $(DUKE3D_SRC)/cmdline.cpp $(DUKE3D_SRC)/cmdline.h
 $(DUKE3D_OBJ)/demo.$o: $(DUKE3D_SRC)/demo.cpp $(duke3d_h) $(DUKE3D_SRC)/input.h

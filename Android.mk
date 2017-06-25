@@ -98,7 +98,6 @@ GAME_SRC = \
     source/duke3d/src/game.cpp \
     source/duke3d/src/actors.cpp \
     source/duke3d/src/anim.cpp \
-    source/duke3d/src/animsounds.cpp \
     source/duke3d/src/common.cpp \
     source/duke3d/src/config.cpp \
     source/duke3d/src/demo.cpp \
