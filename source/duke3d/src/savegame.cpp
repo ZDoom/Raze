@@ -1072,6 +1072,9 @@ static const dataspec_t svgm_secwsp[] =
     { DS_SAVEFN, (void *)&sv_prespriteextsave, 0, 1 },
 #endif
     { DS_MAINAR, &spriteext, sizeof(spriteext_t), MAXSPRITES },
+#ifndef NEW_MAP_FORMAT
+    { DS_MAINAR, &wallext, sizeof(wallext_t), MAXWALLS },
+#endif
 #ifdef USE_OPENGL
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postspriteext, 0, 1 },
 #endif

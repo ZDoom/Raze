@@ -6014,6 +6014,9 @@ void G_SaveMapState(void)
         initprintf("Line %d: savemapstate called from EVENT_ANIMATESPRITES. WHY?\n", g_errorLineNum);
 #endif
     Bmemcpy(&save->spriteext[0],&spriteext[0],sizeof(spriteext_t)*MAXSPRITES);
+#ifndef NEW_MAP_FORMAT
+    Bmemcpy(&save->wallext[0],&wallext[0],sizeof(wallext_t)*MAXWALLS);
+#endif
 
     save->numsprites = Numsprites;
     save->tailspritefree = tailspritefree;
@@ -6143,6 +6146,9 @@ void G_RestoreMapState(void)
 
         numwalls = pSavedState->numwalls;
         Bmemcpy(&wall[0],&pSavedState->wall[0],sizeof(walltype)*MAXWALLS);
+#ifndef NEW_MAP_FORMAT
+        Bmemcpy(&wallext[0],&pSavedState->wallext[0],sizeof(wallext_t)*MAXWALLS);
+#endif
         numsectors = pSavedState->numsectors;
         Bmemcpy(&sector[0],&pSavedState->sector[0],sizeof(sectortype)*MAXSECTORS);
         Bmemcpy(&sprite[0],&pSavedState->sprite[0],sizeof(spritetype)*MAXSPRITES);

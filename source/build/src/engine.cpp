@@ -5910,7 +5910,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
 #ifdef NEW_MAP_FORMAT
             setup_blend(wal->blend, globalorientation&512);
 #else
-            setup_blend(0, globalorientation&512);
+            setup_blend(wallext[thewall[z]].blend, globalorientation&512);
 #endif
         transmaskwallscan(xb1[z],xb2[z], 0);
     }
@@ -7588,6 +7588,9 @@ static spriteext_t spriteext_s[MAXSPRITES+MAXUNIQHUDID];
 static spritesmooth_t spritesmooth_s[MAXSPRITES+MAXUNIQHUDID];
 static sectortype sector_s[MAXSECTORS + M32_FIXME_SECTORS];
 static walltype wall_s[MAXWALLS + M32_FIXME_WALLS];
+#ifndef NEW_MAP_FORMAT
+static wallext_t wallext_s[MAXWALLS];
+#endif
 static spritetype sprite_s[MAXSPRITES];
 static uspritetype tsprite_s[MAXSPRITESONSCREEN];
 #endif
@@ -7613,6 +7616,9 @@ int32_t preinitengine(void)
         {
             { (void **) &sector,           sizeof(sectortype)      *MAXSECTORS                },
             { (void **) &wall,             sizeof(walltype)        *MAXWALLS }, // +512: editor quirks. FIXME!
+# ifndef NEW_MAP_FORMAT
+            { (void **) &wallext,          sizeof(wallext_t)       *MAXWALLS                  },
+# endif
             { (void **) &sprite,           sizeof(spritetype)      *MAXSPRITES                },
             { (void **) &tsprite,          sizeof(spritetype)      *MAXSPRITESONSCREEN        },
             { (void **) &spriteext,        sizeof(spriteext_t)     *(MAXSPRITES+MAXUNIQHUDID) },
@@ -7644,6 +7650,9 @@ int32_t preinitengine(void)
 #elif !defined DEBUG_MAIN_ARRAYS
     sector = sector_s;
     wall = wall_s;
+# ifndef NEW_MAP_FORMAT
+    wallext = wallext_s;
+# endif
     sprite = sprite_s;
     tsprite = tsprite_s;
     spriteext = spriteext_s;
@@ -9010,6 +9019,9 @@ static int32_t finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int1
 #endif
     {
         Bmemset(spriteext, 0, sizeof(spriteext_t)*MAXSPRITES);
+#ifndef NEW_MAP_FORMAT
+        Bmemset(wallext, 0, sizeof(wallext_t)*MAXWALLS);
+#endif
 
 #ifdef USE_OPENGL
         Bmemset(spritesmooth, 0, sizeof(spritesmooth_t)*(MAXSPRITES+MAXUNIQHUDID));

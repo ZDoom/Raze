@@ -84,6 +84,9 @@ typedef struct {
     spriteext_t spriteext[MAXSPRITES];
     uspritetype sprite[MAXSPRITES];
     uwalltype wall[MAXWALLS];
+#ifndef NEW_MAP_FORMAT
+    wallext_t wallext[MAXWALLS];
+#endif
 #if !defined LUNATIC
     intptr_t *vars[MAXGAMEVARS];
     intptr_t *arrays[MAXGAMEARRAYS];

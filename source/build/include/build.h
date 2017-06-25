@@ -504,6 +504,12 @@ typedef struct {
     uint8_t filler[2];
 } spritesmooth_t;
 
+#ifndef NEW_MAP_FORMAT
+typedef struct {
+    uint8_t blend;
+} wallext_t;
+#endif
+
 #define SPREXT_NOTMD 1
 #define SPREXT_NOMDANIM 2
 #define SPREXT_AWAY1 4
@@ -531,6 +537,9 @@ extern int32_t num_usermaphacks;
 #if !defined DEBUG_MAIN_ARRAYS
 EXTERN spriteext_t *spriteext;
 EXTERN spritesmooth_t *spritesmooth;
+# ifndef NEW_MAP_FORMAT
+EXTERN wallext_t *wallext;
+# endif
 
 EXTERN sectortype *sector;
 EXTERN walltype *wall;
@@ -539,6 +548,9 @@ EXTERN uspritetype *tsprite;
 #else
 EXTERN spriteext_t spriteext[MAXSPRITES+MAXUNIQHUDID];
 EXTERN spritesmooth_t spritesmooth[MAXSPRITES+MAXUNIQHUDID];
+# ifndef NEW_MAP_FORMAT
+EXTERN wallext_t wallext[MAXWALLS];
+# endif
 
 EXTERN sectortype sector[MAXSECTORS + M32_FIXME_SECTORS];
 EXTERN walltype wall[MAXWALLS + M32_FIXME_WALLS];

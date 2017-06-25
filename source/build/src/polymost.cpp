@@ -4133,7 +4133,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
 #ifdef NEW_MAP_FORMAT
     uint8_t const blend = wal->blend;
 #else
-    uint8_t const blend = 0;
+    uint8_t const blend = wallext[thewall[z]].blend;
 #endif
     handle_blend(!!(wal->cstat & 128), blend, !!(wal->cstat & 512));
 
