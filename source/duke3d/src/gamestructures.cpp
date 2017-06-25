@@ -834,6 +834,13 @@ int32_t __fastcall VM_GetWall(int32_t const wallNum, int32_t labelNum)
         case WALL_ULOTAG: labelNum = pWall->lotag; break;
         case WALL_UHITAG: labelNum = pWall->hitag; break;
         case WALL_EXTRA: labelNum = pWall->extra; break;
+        case WALL_BLEND:
+#ifdef NEW_MAP_FORMAT
+            labelNum = pWall->blend;
+#else
+            labelNum = wallext[wallNum].blend;
+#endif
+            break;
         default: labelNum = -1;
     }
 
@@ -871,6 +878,13 @@ void __fastcall VM_SetWall(int32_t const wallNum, int32_t const labelNum, int32_
         case WALL_ULOTAG: pWall->lotag = iSet; break;
         case WALL_UHITAG: pWall->hitag = iSet; break;
         case WALL_EXTRA: pWall->extra = iSet; break;
+        case WALL_BLEND:
+#ifdef NEW_MAP_FORMAT
+            pWall->blend = iSet;
+#else
+            wallext[wallNum].blend = iSet;
+#endif
+            break;
     }
 
     return;

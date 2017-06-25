@@ -768,6 +768,7 @@ const memberlabel_t WallLabels[]=
     { "extra", WALL_EXTRA, 0, 0 },
     { "ulotag", WALL_ULOTAG, 0, 0 },
     { "uhitag", WALL_UHITAG, 0, 0 },
+    { "blend", WALL_BLEND, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 

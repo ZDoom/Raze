@@ -583,6 +583,7 @@ enum WallLabel_t
     WALL_EXTRA,
     WALL_ULOTAG,
     WALL_UHITAG,
+    WALL_BLEND,
     WALL_END
 };
 
