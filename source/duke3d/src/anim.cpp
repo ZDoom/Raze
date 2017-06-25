@@ -235,21 +235,38 @@ int32_t Anim_Play(const char *fn)
     uint16_t framenum = 0;
     while (getrendermode() >= REND_POLYMOST)  // if, really
     {
-        char vpxfn[BMAX_PATH];
-        Bstrncpyz(vpxfn, fn, BMAX_PATH);
-
-        char *dot = Bstrrchr(vpxfn, '.');
-        if (!dot || (dot - vpxfn) + 4 >= BMAX_PATH)
+        char *dot = Bstrrchr(fn, '.');
+        if (!dot)
             break;
 
-        dot[1] = 'i';
-        dot[2] = 'v';
-        dot[3] = 'f';
-        dot[4] = 0;
+        int32_t handle = -1;
+        if (!Bstrcmp(dot, ".ivf"))
+        {
+            handle = kopen4loadfrommod(fn, 0);
+            if (handle == -1)
+                break;
+        }
+        else
+        {
+            char vpxfn[BMAX_PATH];
+            Bstrncpyz(vpxfn, fn, BMAX_PATH);
 
-        int32_t handle = kopen4loadfrommod(vpxfn, 0);
-        if (handle == -1)
-            break;
+            ptrdiff_t dotpos = dot - fn;
+            if (dotpos + 4 >= BMAX_PATH)
+                break;
+
+            char *vpxfndot = vpxfn + dotpos;
+            vpxfndot[1] = 'i';
+            vpxfndot[2] = 'v';
+            vpxfndot[3] = 'f';
+            vpxfndot[4] = '\0';
+
+            handle = kopen4loadfrommod(vpxfn, 0);
+            if (handle == -1)
+                break;
+
+            anim = Anim_Find(vpxfn);
+        }
 
         animvpx_ivf_header_t info;
         i = animvpx_read_ivf_header(handle, &info);
@@ -302,15 +319,18 @@ int32_t Anim_Play(const char *fn)
 
             // after rendering the frame but before displaying: maybe play sound...
             framenum++;
-            while (soundidx < anim->numsounds && anim->sounds[soundidx].frame == framenum)
+            if (anim)
             {
-                int16_t sound = anim->sounds[soundidx].sound;
-                if (sound == -1)
-                    FX_StopAllSounds();
-                else
-                    S_PlaySound(sound);
+                while (soundidx < anim->numsounds && anim->sounds[soundidx].frame == framenum)
+                {
+                    int16_t sound = anim->sounds[soundidx].sound;
+                    if (sound == -1)
+                        FX_StopAllSounds();
+                    else
+                        S_PlaySound(sound);
 
-                soundidx++;
+                    soundidx++;
+                }
             }
 
             // this and showframe() instead of nextpage() are so that
