@@ -5286,11 +5286,13 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     initprintf("Warning: overwriting already defined hi-anim %s's sounds on line %s:%d\n", fileName,
                         pScript->filename, scriptfile_getlinum(pScript, tokenPtr));
                     Bfree(animPtr->sounds);
-                    animPtr->numsounds = 0;
                 }
 
-                animPtr->sounds = (uint16_t *) Xcalloc(allocSize, 2 * sizeof(uint16_t));
+                animPtr->sounds = (animsound_t *)Xmalloc(allocSize * sizeof(animsound_t));
+                animPtr->numsounds = 0;
             }
+            else
+                break;
 
             while (pScript->textptr < animSoundsEnd)
             {
@@ -5309,10 +5311,6 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                     break;
 
                 defError = 1;
-
-                // TODO: look carefully at whether this can be removed.
-                if (animPtr->sounds == NULL)  // Bcalloc check
-                    break;
 
                 if (scriptfile_getsymbol(pScript, &soundNum))
                     break;
@@ -5344,18 +5342,15 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
                 if (numPairs >= allocSize)
                 {
-                    void *newptr;
-
                     allocSize *= 2;
-                    newptr = Xrealloc(animPtr->sounds, allocSize * 2 * sizeof(uint16_t));
-
-                    animPtr->sounds = (uint16_t *)newptr;
+                    animPtr->sounds = (animsound_t *)Xrealloc(animPtr->sounds, allocSize * sizeof(animsound_t));
                 }
 
                 defError = 0;
 
-                animPtr->sounds[2 * numPairs]     = frameNum;
-                animPtr->sounds[2 * numPairs + 1] = soundNum;
+                animsound_t & sound = animPtr->sounds[numPairs];
+                sound.frame = frameNum;
+                sound.sound = soundNum;
 
                 ++numPairs;
             }

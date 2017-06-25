@@ -118,12 +118,13 @@ int32_t Anim_Play(const char *fn)
         return 0;
     }
 
-    int32_t framenum = 0, soundidx = 0;  // custom anim sounds
+    uint16_t soundidx = 0;  // custom anim sounds
     int32_t running = 1, i;
 
     I_ClearAllInput();
 
 #ifdef USE_LIBVPX
+    uint16_t framenum = 0;
     while (getrendermode() >= REND_POLYMOST)  // if, really
     {
         char vpxfn[BMAX_PATH];
@@ -193,9 +194,9 @@ int32_t Anim_Play(const char *fn)
 
             // after rendering the frame but before displaying: maybe play sound...
             framenum++;
-            while (soundidx < anim->numsounds && anim->sounds[soundidx << 1] == framenum)
+            while (soundidx < anim->numsounds && anim->sounds[soundidx].frame == framenum)
             {
-                S_PlaySound(anim->sounds[(soundidx << 1) + 1]);
+                S_PlaySound(anim->sounds[soundidx].sound);
                 soundidx++;
             }
 
@@ -332,13 +333,13 @@ int32_t Anim_Play(const char *fn)
         if (!anim->numsounds && anim->sound_func)
             anim->sound_func(i);
 
-        framenum = i++;
-
-        while (soundidx < anim->numsounds && anim->sounds[soundidx << 1] == framenum)
+        while (soundidx < anim->numsounds && anim->sounds[soundidx].frame == (uint16_t)i)
         {
-            S_PlaySound(anim->sounds[(soundidx << 1) + 1]);
+            S_PlaySound(anim->sounds[soundidx].sound);
             soundidx++;
         }
+
+        ++i;
     } while (i < numframes);
 
 end_anim_restore_gl:
