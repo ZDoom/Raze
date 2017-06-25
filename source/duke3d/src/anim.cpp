@@ -273,7 +273,7 @@ int32_t Anim_Play(const char *fn)
     gltexapplyprops();
 #endif
 
-    ototalclock = totalclock + 10;
+    ototalclock = totalclock;
 
     i = 1;
     int32_t frametime; frametime = 0;
