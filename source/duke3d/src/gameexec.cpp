@@ -300,7 +300,11 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 #endif
 
 // wow, this function sucks
-static int32_t A_Dodge(spritetype * const pSprite)
+#ifdef __cplusplus
+extern "C"
+#endif
+int32_t A_Dodge(spritetype * const);
+int32_t A_Dodge(spritetype * const pSprite)
 {
     if (A_CheckEnemySprite(pSprite) && pSprite->extra <= 0)  // hack
         return 0;
