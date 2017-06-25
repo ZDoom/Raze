@@ -6348,8 +6348,8 @@ int app_main(int argc, char const * const * argv)
     {
         uint32_t etime = getticks();
         initprintf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
-        loaddefinitions_game(defsfile, FALSE);
     }
+    loaddefinitions_game(defsfile, FALSE);
 
     for (bssize_t i = 0; i < g_defModulesNum; ++i) Bfree(g_defModules[i]);
 
