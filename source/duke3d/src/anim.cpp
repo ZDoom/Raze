@@ -36,6 +36,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "animsounds.h"
 
+// animsound_t.sound
+EDUKE32_STATIC_ASSERT(INT16_MAX >= MAXSOUNDS);
+
 hashtable_t h_dukeanim = { 8, NULL };
 dukeanim_t * g_animPtr;
 
@@ -196,7 +199,12 @@ int32_t Anim_Play(const char *fn)
             framenum++;
             while (soundidx < anim->numsounds && anim->sounds[soundidx].frame == framenum)
             {
-                S_PlaySound(anim->sounds[soundidx].sound);
+                int16_t sound = anim->sounds[soundidx].sound;
+                if (sound == -1)
+                    FX_StopAllSounds();
+                else
+                    S_PlaySound(sound);
+
                 soundidx++;
             }
 
@@ -335,7 +343,12 @@ int32_t Anim_Play(const char *fn)
 
         while (soundidx < anim->numsounds && anim->sounds[soundidx].frame == (uint16_t)i)
         {
-            S_PlaySound(anim->sounds[soundidx].sound);
+            int16_t sound = anim->sounds[soundidx].sound;
+            if (sound == -1)
+                FX_StopAllSounds();
+            else
+                S_PlaySound(sound);
+
             soundidx++;
         }
 

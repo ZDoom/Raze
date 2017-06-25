@@ -5120,7 +5120,7 @@ static void parsedefinitions_game_animsounds(scriptfile *pScript, char * blockEn
 
         lastFrameNum = frameNum;
 
-        if ((unsigned)soundNum >= MAXSOUNDS)
+        if ((unsigned)soundNum >= MAXSOUNDS && soundNum != -1)
         {
             initprintf("Error: sound number #%d invalid on line %s:%d\n", soundNum, pScript->filename,
                        scriptfile_getlinum(pScript, pScript->ltextptr));
