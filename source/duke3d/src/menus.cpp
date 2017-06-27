@@ -82,7 +82,6 @@ static vec2_t mgametextcenter(int32_t x, int32_t y, char const * t, int32_t f = 
 
 #define mminitext(x,y,t,p) minitext_(x, y, t, 0, p, 2|8|16|ROTATESPRITE_FULL16)
 #define mmenutext menutext
-#define mmenutextcenter(x,y,t) menutext_((MENU_MARGIN_CENTER<<16) + (x), (y), 0, (t), 10|16, TEXT_XCENTER)
 
 #ifndef EDUKE32_STANDALONE
 static void shadowminitext(int32_t x, int32_t y, const char *t, int32_t p)
@@ -123,7 +122,7 @@ static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
 {
     char *s = Bstrdup(caption), p = Bstrlen(caption)-1;
     if (s[p] == ':') s[p] = 0;
-    mmenutextcenter(origin.x, origin.y + (24<<16), s);
+    menutext_(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (24<<16) + (MF_Redfont.emptychar.y>>1), 0, s, 10|16, TEXT_XCENTER|TEXT_YCENTER);
     Bfree(s);
 }
 
@@ -185,9 +184,9 @@ static MenuMenuFormat_t MMF_FileSelectRight =      { {                 164<<16, 
 
 static MenuEntryFormat_t MEF_Null =             {     0,      0,          0 };
 static MenuEntryFormat_t MEF_MainMenu =         { 4<<16,      0,          0 };
+static MenuEntryFormat_t MEF_OptionsMenu =      { 7<<16,      0,          0 };
 static MenuEntryFormat_t MEF_CenterMenu =       { 7<<16,      0,          0 };
-static MenuEntryFormat_t MEF_BigOptions =       { 4<<16,      0,    190<<16 };
-static MenuEntryFormat_t MEF_BigOptions_Apply = { 4<<16, 16<<16,    190<<16 };
+static MenuEntryFormat_t MEF_BigOptions_Apply = { 4<<16, 16<<16, -(260<<16) };
 static MenuEntryFormat_t MEF_BigOptionsRt =     { 4<<16,      0, -(260<<16) };
 #if defined USE_OPENGL || !defined EDUKE32_ANDROID_MENU
 static MenuEntryFormat_t MEF_SmallOptions =     { 1<<16,      0,    216<<16 };
@@ -398,12 +397,13 @@ static MenuEntry_t *MEL_GAMESETUP[] = {
     &ME_GAMESETUP_CHEATS,
 };
 
-MAKE_MENU_TOP_ENTRYLINK( "Game Setup", MEF_CenterMenu, OPTIONS_GAMESETUP, MENU_GAMESETUP );
-MAKE_MENU_TOP_ENTRYLINK( "Sound Setup", MEF_CenterMenu, OPTIONS_SOUNDSETUP, MENU_SOUND );
-MAKE_MENU_TOP_ENTRYLINK( "Display Setup", MEF_CenterMenu, OPTIONS_DISPLAYSETUP, MENU_DISPLAYSETUP );
-MAKE_MENU_TOP_ENTRYLINK( "Player Setup", MEF_CenterMenu, OPTIONS_PLAYERSETUP, MENU_PLAYER );
+MAKE_MENU_TOP_ENTRYLINK( "Game Setup", MEF_OptionsMenu, OPTIONS_GAMESETUP, MENU_GAMESETUP );
+MAKE_MENU_TOP_ENTRYLINK( "Sound Setup", MEF_OptionsMenu, OPTIONS_SOUNDSETUP, MENU_SOUND );
+MAKE_MENU_TOP_ENTRYLINK( "Display Setup", MEF_OptionsMenu, OPTIONS_DISPLAYSETUP, MENU_DISPLAYSETUP );
+MAKE_MENU_TOP_ENTRYLINK( "Player Setup", MEF_OptionsMenu, OPTIONS_PLAYERSETUP, MENU_PLAYER );
 #ifndef EDUKE32_ANDROID_MENU
-MAKE_MENU_TOP_ENTRYLINK( "Control Setup", MEF_CenterMenu, OPTIONS_CONTROLS, MENU_CONTROLS );
+MAKE_MENU_TOP_ENTRYLINK( "Control Setup", MEF_OptionsMenu, OPTIONS_CONTROLS, MENU_CONTROLS );
+
 MAKE_MENU_TOP_ENTRYLINK( "Keyboard Setup", MEF_CenterMenu, OPTIONS_KEYBOARDSETUP, MENU_KEYBOARDSETUP );
 MAKE_MENU_TOP_ENTRYLINK( "Mouse Setup", MEF_CenterMenu, OPTIONS_MOUSESETUP, MENU_MOUSESETUP );
 #endif
@@ -508,21 +508,21 @@ static MenuEntry_t ME_DISPLAYSETUP_TOUCHALPHA = MAKE_MENUENTRY("UI opacity:", &M
 #endif
 
 static MenuOption_t MEO_SCREENSETUP_CROSSHAIR = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &ud.crosshair);
-static MenuEntry_t ME_SCREENSETUP_CROSSHAIR = MAKE_MENUENTRY( "Crosshair:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_CROSSHAIR, Option );
+static MenuEntry_t ME_SCREENSETUP_CROSSHAIR = MAKE_MENUENTRY( "Crosshair:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_CROSSHAIR, Option );
 static MenuRangeInt32_t MEO_SCREENSETUP_CROSSHAIRSIZE = MAKE_MENURANGE( &ud.crosshairscale, &MF_Redfont, 25, 100, 0, 16, 2 );
-static MenuEntry_t ME_SCREENSETUP_CROSSHAIRSIZE = MAKE_MENUENTRY( "Size:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_CROSSHAIRSIZE, RangeInt32 );
+static MenuEntry_t ME_SCREENSETUP_CROSSHAIRSIZE = MAKE_MENUENTRY( "Size:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_CROSSHAIRSIZE, RangeInt32 );
 
 static int32_t vpsize;
 static MenuRangeInt32_t MEO_SCREENSETUP_SCREENSIZE = MAKE_MENURANGE( &vpsize, &MF_Redfont, 12, 0, 0, 4, EnforceIntervals );
-static MenuEntry_t ME_SCREENSETUP_SCREENSIZE = MAKE_MENUENTRY( "Screen size:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_SCREENSIZE, RangeInt32 );
+static MenuEntry_t ME_SCREENSETUP_SCREENSIZE = MAKE_MENUENTRY( "Screen size:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_SCREENSIZE, RangeInt32 );
 static MenuRangeInt32_t MEO_SCREENSETUP_TEXTSIZE = MAKE_MENURANGE( &ud.textscale, &MF_Redfont, 100, 400, 0, 16, 2 );
-static MenuEntry_t ME_SCREENSETUP_TEXTSIZE = MAKE_MENUENTRY( "Size:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_TEXTSIZE, RangeInt32 );
+static MenuEntry_t ME_SCREENSETUP_TEXTSIZE = MAKE_MENUENTRY( "Size:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_TEXTSIZE, RangeInt32 );
 static MenuOption_t MEO_SCREENSETUP_LEVELSTATS = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &ud.levelstats);
-static MenuEntry_t ME_SCREENSETUP_LEVELSTATS = MAKE_MENUENTRY( "Level stats:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_LEVELSTATS, Option );
+static MenuEntry_t ME_SCREENSETUP_LEVELSTATS = MAKE_MENUENTRY( "Level stats:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_LEVELSTATS, Option );
 
 
 static MenuOption_t MEO_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &ud.fta_on);
-static MenuEntry_t ME_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUENTRY( "Game messages:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_SHOWPICKUPMESSAGES, Option );
+static MenuEntry_t ME_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUENTRY( "Game messages:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_SHOWPICKUPMESSAGES, Option );
 
 static char const *MEOSN_SCREENSETUP_NEWSTATUSBAR[] = { "Classic", "New",
 #ifdef EDUKE32_ANDROID_MENU
@@ -538,16 +538,16 @@ static int32_t MEOSV_SCREENSETUP_NEWSTATUSBAR[] = { 0, 1,
 
 static MenuOptionSet_t MEOS_SCREENSETUP_NEWSTATUSBAR = MAKE_MENUOPTIONSET( MEOSN_SCREENSETUP_NEWSTATUSBAR, MEOSV_SCREENSETUP_NEWSTATUSBAR, 0x2 );
 static MenuOption_t MEO_SCREENSETUP_NEWSTATUSBAR = MAKE_MENUOPTION(&MF_Redfont, &MEOS_SCREENSETUP_NEWSTATUSBAR, &ud.althud);
-static MenuEntry_t ME_SCREENSETUP_NEWSTATUSBAR = MAKE_MENUENTRY( "Status bar:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_NEWSTATUSBAR, Option );
+static MenuEntry_t ME_SCREENSETUP_NEWSTATUSBAR = MAKE_MENUENTRY( "Status bar:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_NEWSTATUSBAR, Option );
 
 
 
 static MenuRangeInt32_t MEO_SCREENSETUP_SBARSIZE = MAKE_MENURANGE( &ud.statusbarscale, &MF_Redfont, 36, 100, 0, 17, 2 );
-static MenuEntry_t ME_SCREENSETUP_SBARSIZE = MAKE_MENUENTRY( "Size:", &MF_Redfont, &MEF_BigOptions, &MEO_SCREENSETUP_SBARSIZE, RangeInt32 );
+static MenuEntry_t ME_SCREENSETUP_SBARSIZE = MAKE_MENUENTRY( "Size:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_SBARSIZE, RangeInt32 );
 
 
 static MenuLink_t MEO_DISPLAYSETUP_SCREENSETUP = { MENU_SCREENSETUP, MA_Advance, };
-static MenuEntry_t ME_DISPLAYSETUP_SCREENSETUP = MAKE_MENUENTRY( "Status and crosshair", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_SCREENSETUP, Link );
+static MenuEntry_t ME_DISPLAYSETUP_SCREENSETUP = MAKE_MENUENTRY( "HUD setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_SCREENSETUP, Link );
 
 
 #ifndef EDUKE32_SIMPLE_MENU
@@ -1253,7 +1253,7 @@ static MenuMenu_t M_RENDERERSETUP_POLYMER = MAKE_MENUMENU("Polymer Setup", &MMF_
 # endif
 #endif
 static MenuMenu_t M_COLCORR = MAKE_MENUMENU( "Color Correction", &MMF_ColorCorrect, MEL_COLCORR );
-static MenuMenu_t M_SCREENSETUP = MAKE_MENUMENU( "Status and crosshair", &MMF_BigOptions, MEL_SCREENSETUP );
+static MenuMenu_t M_SCREENSETUP = MAKE_MENUMENU( "HUD Setup", &MMF_BigOptions, MEL_SCREENSETUP );
 static MenuMenu_t M_DISPLAYSETUP = MAKE_MENUMENU( "Display Setup", &MMF_BigOptions, MEL_DISPLAYSETUP );
 static MenuMenu_t M_LOAD = MAKE_MENUMENU( "Load Game", &MMF_LoadSave, MEL_LOAD );
 static MenuMenu_t M_SAVE = MAKE_MENUMENU( "Save Game", &MMF_LoadSave, MEL_SAVE );
@@ -1376,10 +1376,11 @@ static Menu_t Menus[] = {
     { &M_NETJOIN, MENU_NETJOIN, MENU_NETWORK, MA_Return, Menu },
 };
 
-static const size_t numMenus = ARRAY_SIZE(Menus);
+static CONSTEXPR const size_t numMenus = ARRAY_SIZE(Menus);
 
 Menu_t *m_currentMenu = &Menus[0];
 static Menu_t *m_previousMenu = &Menus[0];
+static Menu_t * m_parentMenu;
 
 MenuID_t g_currentMenu;
 static MenuID_t g_previousMenu;
@@ -1631,10 +1632,27 @@ void Menu_Init(void)
     }
 
     // prepare sound setup
+#ifndef EDUKE32_STANDALONE
     if (WW2GI)
         ME_SOUND_DUKETALK.name = "GI talk:";
     else if (NAM)
         ME_SOUND_DUKETALK.name = "Grunt talk:";
+#endif
+
+    if (KXDWN)
+    {
+        MF_Redfont.between.x = 2<<16;
+        MF_Redfont.cursorScale = MF_Redfont.zoom = 32768;
+
+        MMF_Top_Main.pos.x = 40<<16;
+        MMF_Top_Main.pos.y = 130<<16;
+        MMF_Top_Main.bottomcutoff = 190<<16;
+        M_OPTIONS.format = &MMF_Top_Main;
+
+        MEF_MainMenu.width = MEF_OptionsMenu.width = -(160<<16);
+
+        M_OPTIONS.title = NoTitle;
+    }
 
     // prepare shareware
     if (VOLUMEONE)
@@ -3439,6 +3457,14 @@ int32_t Menu_Anim_SinInLeft(MenuAnimation_t *animdata)
 
 void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype)
 {
+    if (KXDWN)
+    {
+        m_animation.start  = 0;
+        m_animation.length = 0;
+        Menu_Change(cm);
+        return;
+    }
+
     switch (animtype)
     {
         case MA_Advance:
@@ -3514,6 +3540,18 @@ int Menu_Change(MenuID_t cm)
     }
     else
         return 1;
+
+    if (KXDWN)
+    {
+        Menu_t * parent = m_currentMenu, * result = NULL;
+
+        while (parent != NULL && parent->menuID != MENU_OPTIONS && parent->menuID != MENU_MAIN && parent->menuID != MENU_MAIN_INGAME)
+        {
+            result = parent = Menu_Find(parent->parentID);
+        }
+
+        m_parentMenu = result;
+    }
 
     switch (g_currentMenu)
     {
@@ -6119,7 +6157,7 @@ void M_DisplayMenus(void)
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     // g_player[myconnectindex].ps->fta = 0;
 
-    if (((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && Menu_BlackTranslucentBackgroundOK(g_currentMenu))
+    if (!KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && Menu_BlackTranslucentBackgroundOK(g_currentMenu))
         fade_screen_black(1);
 
     if (Menu_UpdateScreenOK(g_currentMenu))
@@ -6129,6 +6167,13 @@ void M_DisplayMenus(void)
     if (m_menuchange_watchpoint > 0)
         m_menuchange_watchpoint++;
 #endif
+
+    if (m_parentMenu)
+    {
+        ud.m_origin = origin;
+        VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENU, g_player[screenpeek].ps->i, screenpeek, m_parentMenu->menuID);
+        origin = ud.m_origin;
+    }
 
     // Determine animation values.
     if (totalclock < m_animation.start + m_animation.length)
@@ -6147,6 +6192,14 @@ void M_DisplayMenus(void)
     VM_OnEventWithReturn(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, g_currentMenu);
     origin = ud.m_origin;
 
+    if (m_parentMenu)
+    {
+        Menu_Run(m_parentMenu, origin);
+    }
+
+    if (KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2 || m_parentMenu != NULL) && Menu_BlackTranslucentBackgroundOK(g_currentMenu))
+        fade_screen_black(1);
+
     // Display the menu, with a transition animation if applicable.
     if (totalclock < m_animation.start + m_animation.length)
     {
@@ -6160,6 +6213,12 @@ void M_DisplayMenus(void)
     if (m_menuchange_watchpoint >= 3)
         m_menuchange_watchpoint = 0;
 #endif
+
+    if (m_parentMenu)
+    {
+        ud.m_origin = origin;
+        VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENUREST, g_player[screenpeek].ps->i, screenpeek, m_parentMenu->menuID);
+    }
 
     if (totalclock < m_animation.start + m_animation.length)
     {
