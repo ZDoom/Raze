@@ -87,7 +87,7 @@ void G_ShowParameterHelp(void)
         ;
 #ifdef WM_MSGBOX_WINDOW
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
-    wm_msgbox(tempbuf, "%s", s);
+    wm_msgbox(tempbuf, s);
 #else
     initprintf("%s\n", s);
 #endif
@@ -123,7 +123,7 @@ void G_ShowDebugHelp(void)
         ;
 #ifdef WM_MSGBOX_WINDOW
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
-    wm_msgbox(tempbuf, "%s", s);
+    wm_msgbox(tempbuf, s);
 #else
     initprintf("%s\n", s);
 #endif
