@@ -2460,10 +2460,9 @@ void G_BonusScreen(int32_t bonusonly)
             }
             else
                 break;
-        }
 
-        VM_OnEvent(EVENT_DISPLAYBONUSSCREEN, g_player[screenpeek].ps->i, screenpeek);
-        nextpage();
+            VM_OnEvent(EVENT_DISPLAYBONUSSCREEN, g_player[screenpeek].ps->i, screenpeek);
+        }
     } while (1);
 }
 
