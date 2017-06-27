@@ -395,7 +395,7 @@ int32_t Anim_Play(const char *fn)
 
     int32_t length = kfilelength(handle);
 
-    if (length == 0)
+    if (length <= 4)
     {
         OSD_Printf("Warning: skipping playback of empty ANM file \"%s\".\n", fn);
         goto end_anim;
@@ -413,9 +413,19 @@ int32_t Anim_Play(const char *fn)
     kread(handle, anim->animbuf, length);
     kclose(handle);
 
+    uint32_t firstfour;
+    Bmemcpy(&firstfour, anim->animbuf, 4);
+
+    // "DKIF" (.ivf)
+    if (firstfour == B_LITTLE32(0x46494B44))
+        goto end_anim;
+
     int32_t numframes;
 
-    if (ANIM_LoadAnim(anim->animbuf, length) < 0 || (numframes = ANIM_NumFrames()) <= 0)
+    // "LPF " (.anm)
+    if (firstfour != B_LITTLE32(0x2046504C) ||
+        ANIM_LoadAnim(anim->animbuf, length) < 0 ||
+        (numframes = ANIM_NumFrames()) <= 0)
     {
         // XXX: ANM_LoadAnim() still checks less than the bare minimum,
         // e.g. ANM file could still be too small and not contain any frames.
