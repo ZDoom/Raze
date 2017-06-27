@@ -5306,7 +5306,7 @@ draw_as_face_sprite:
 
         //Get top-left corner
         i = ((tspr->ang+2048-globalang)&2047);
-        int32_t cosang = sintable[(i+512)&2047]; 
+        int32_t cosang = sintable[(i+512)&2047];
         int32_t sinang = sintable[i];
         dax = ((xspan>>1)+off.x)*tspr->xrepeat;
         day = ((yspan>>1)+off.y)*tspr->yrepeat;
@@ -7783,7 +7783,7 @@ void uninitengine(void)
     polymer_uninit();
 # endif
 #endif
-    
+
     Buninitart();
 
     DO_FREE_AND_NULL(lookups);
@@ -12332,12 +12332,12 @@ void squarerotatetile(int16_t tilenume)
 
         ptr2 = ptr1 = (char *) (waloff[tilenume]+(i-2)*(siz+1));
         swapchar(--ptr1, (ptr2 -= siz));
-        
+
         for (j=((i-2)>>1)-1; j>=0; --j)
             swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
 
         ptr2 = ptr1 = (char *) (waloff[tilenume]+(i-3)*(siz+1));
-        
+
         for (j=((i-3)>>1)-1; j>=0; --j)
             swapchar2((ptr1 -= 2), (ptr2 -= (siz<<1)), siz);
     }

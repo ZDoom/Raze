@@ -1577,7 +1577,7 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
             case RPG__STATIC:
             case MORTER__STATIC:
                 {
-                    vec2_t const v = { ((sintable[(pSprite->ang + 512) & 2047]) >> 7), 
+                    vec2_t const v = { ((sintable[(pSprite->ang + 512) & 2047]) >> 7),
                                        ((sintable[(pSprite->ang) & 2047]) >> 7) };
 
                     pSprite->x += v.x;
@@ -2090,7 +2090,7 @@ void P_DisplayWeapon(void)
     weaponX -= 58 + pPlayer->weapon_ang;
     weaponYOffset -= (pPlayer->hard_landing << 3);
 
-    currentWeapon                  = PWEAPON(screenpeek, (pPlayer->last_weapon >= 0) ? pPlayer->last_weapon 
+    currentWeapon                  = PWEAPON(screenpeek, (pPlayer->last_weapon >= 0) ? pPlayer->last_weapon
                                                                           : pPlayer->curr_weapon, WorksLike);
     hudweap.gunposy     = weaponYOffset;
     hudweap.lookhoriz   = weaponY;

@@ -747,7 +747,7 @@ badindex:
     return -1;
 }
 
-#undef CHECK_INDEX 
+#undef CHECK_INDEX
 
 void __fastcall Gv_SetVar(int const gameVar, int const newValue, int const spriteNum, int const playerNum)
 {
@@ -895,7 +895,7 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
             case STRUCT_INPUT:
                 if (arrayIndexVar == g_thisActorVarID)
                     arrayIndex = vm.playerNum;
-                CHECK_INDEX(MAXPLAYERS, GVX_BADPLAYER); 
+                CHECK_INDEX(MAXPLAYERS, GVX_BADPLAYER);
                 returnValue = VM_GetPlayerInput(arrayIndex, labelNum);
                 break;
 

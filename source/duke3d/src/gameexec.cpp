@@ -174,7 +174,7 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
                                0,
                                &sprite[(unsigned)spriteNum],
                                &actor[(unsigned)spriteNum].t_data[0],
-                               g_player[playerNum].ps, 
+                               g_player[playerNum].ps,
                                &actor[(unsigned) spriteNum] };
 
     // since we're targeting C99 and C++ now, we can interweave these to avoid
@@ -198,7 +198,7 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
     // FROM vm anywhere until VM_Execute() is called
     if (EDUKE32_PREDICT_FALSE((unsigned) tempvm.spriteNum >= MAXSPRITES))
         VM_DummySprite();
- 
+
     if ((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers)
         vm.pPlayer = g_player[0].ps;
 
@@ -3186,7 +3186,7 @@ nullquote:
                     continue;
                 }
 
-                Gv_SetVarX(returnVar, 
+                Gv_SetVarX(returnVar,
                     clipmovex(&vec3, &sectNum, vec2.x, vec2.y, dist.w, dist.f, dist.c, clipMask, (tw == CON_CLIPMOVENOSLIDE)));
                 Gv_SetVarX(sectReturn, sectNum);
                 Gv_SetVarX(xReturn, vec3.x);

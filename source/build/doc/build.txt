@@ -392,7 +392,7 @@ Right mouse button = Moves the player's positions to the mouse cursor.
   ~' - This key (located just above the TAB key) allows you to center a
        sprite.  Simply use the arrow keys to get to the desired position.
    N - Name a tile.  Naming a tile simply changes the #define statement in
-       NAMES.H.  You should include NAMES.H when compiling so you can easily 
+       NAMES.H.  You should include NAMES.H when compiling so you can easily
        refer to sprites by name rather than by number.
    O - Optimize the size of an individual piece of artwork.  Use this for
        tiles with invisible pixels on the sides.
@@ -722,13 +722,13 @@ getangle(long xvect,long yvect);    returns (short)angle;
 lastwall(short point);
       Use this function as a reverse function of wall[].point2.  In order
    to save memory, my walls are only on a single linked list.
-   
+
 rotatepoint(long xpivot, long ypivot, long x, long y,
             short daang, long *x2, long *y2);
       This function is a very convenient and fast math helper function.
    Rotate points easily with this function without having to juggle your
-   cosines and sines.  Simply pass it: 
-       
+   cosines and sines.  Simply pass it:
+
        Input:   1. Pivot point     (xpivot,ypivot)
                 2. Original point  (x,y)
                 3. Angle to rotate (0 = nothing, 512 = 90ø CW, etc.)
@@ -833,13 +833,13 @@ copytilepiece(long walnume1, long x1, long y1, long xsiz, long ysiz,
 
 loadtile(short tilenume);
       This function will load the tile, tilenum, into the artwork cache.  A
-   tile is not in the cache if (waloff[tilenum] == -1).  If 
+   tile is not in the cache if (waloff[tilenum] == -1).  If
    (waloff[tilenum] >= 0) then it is in the cache, and you don't need to call
    this function.
 
 precache();
       This function will go through the tilenums of all sectors, walls, and
-   sprites and call loadtile() on them.  This function will not cache in some 
+   sprites and call loadtile() on them.  This function will not cache in some
    tiles of animations since their tilenums may not all be in the structures.
 
 hitscan(long xstart, long ystart, long zstart, short startsectnum,
@@ -3230,8 +3230,8 @@ spriteisdeletedskip:
                lossless to extract a tile from Editart!
 
           - ATTENTION PROGRAMMES!  Added 2 new parameters to getzrange for
-               returning the objects hit on top and bottom.  
-               (sectors / sprites)  See my updated documentation at the top 
+               returning the objects hit on top and bottom.
+               (sectors / sprites)  See my updated documentation at the top
                of this file.
 
           - Fixed clipping bugs with sprites near sector lines. (I hope)
@@ -3602,7 +3602,7 @@ spriteisdeletedskip:
           - Optimized floor sprites in assembler.  Transluscent floor sprites
                are a bit slower than normal floor sprites.
 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
-12/6/94   - Made a special 1-way mode for WALL and FLOOR sprites 
+12/6/94   - Made a special 1-way mode for WALL and FLOOR sprites
                (not FACE sprites).  In BUILD 3D mode, you can press '1' on
                a wall or floor sprite to make it only draw if you are on
                1 side of it.  This method of back-face culling will not only
@@ -3664,15 +3664,15 @@ spriteisdeletedskip:
                     ENJOY!!!
 
                 * char sprite[].xoffset, sprite[].yoffset - NOT SURE YET
-                      Some have asked for monster animations using the same 
-                   frame at 2 different times of an animation sequence having 
+                      Some have asked for monster animations using the same
+                   frame at 2 different times of an animation sequence having
                    different centers.
-                      These will be signed chars.  I'm not sure whether to 
-                   make these offsets as offsets to the centering information 
+                      These will be signed chars.  I'm not sure whether to
+                   make these offsets as offsets to the centering information
                    from Editart or just make them the absolute offsets where
                    Editart's data is the default offset.  I wonder if there's
                    a better way to do this without having to waste 8K.
-                
+
                 * Do I have your permission to remove nextsector2 and
                      nextwall2?  Anybody using them?  If so, can you use the
                      extra variable instead?  This will save 16K since both

@@ -5467,8 +5467,8 @@ static void Keys3d(void)
     else if ((bstatus&(2|1))==2)
         Bsprintf(tempbuf, "Z%s", keystatus[KEYSC_HOME] && keystatus[KEYSC_END]
                                  ? " 128"
-                                 : keystatus[KEYSC_HOME] 
-                                 ? " 256" 
+                                 : keystatus[KEYSC_HOME]
+                                 ? " 256"
                                  : keystatus[KEYSC_END]
                                  ? " 512"
                                  : "");

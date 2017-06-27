@@ -841,7 +841,7 @@ nextdemo_nomenu:
                     if (handleevents_peekkeys())
                         Demo_StopProfiling();
                 }
-                else 
+                else
                 {
                     j = calc_smoothratio(totalclock, ototalclock);
                     if (g_demo_paused && g_demo_rewind)

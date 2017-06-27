@@ -1195,7 +1195,7 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
     {
         if (keyDown)
         {
-            draw.scrolling = (osdrowscur == -1) ? 1 : 
+            draw.scrolling = (osdrowscur == -1) ? 1 :
                              (osdrowscur == draw.rows) ? -1 :
                              -draw.scrolling;
             osdrowscur += draw.scrolling;

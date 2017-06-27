@@ -12,7 +12,7 @@ make=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='i686-w64-mingw32-' CC='i686-w64-
 make64=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='x86_64-w64-mingw32-' CC='x86_64-w64-mingw32-gcc' CXX='x86_64-w64-mingw32-g++' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='' )
 clean=veryclean
 
-# the following file paths are relative to $source  
+# the following file paths are relative to $source
 targets=( eduke32$exe mapster32$exe )
 package=$top/package
 not_src_packaged=( package/debug/win32/ebacktrace1.dll package/debug/win64/ebacktrace1-64.dll )
