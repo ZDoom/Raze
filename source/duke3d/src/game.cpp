@@ -4124,6 +4124,17 @@ PALONLY:
                     frameOffset = getofs_viewtype<8>(angDiff);
                     t->cstat &= ~4;
                     break;
+                case 9:
+                    frameOffset = getofs_viewtype_mirrored<9>(t->cstat, angDiff);
+                    break;
+                case 12:
+                    frameOffset = getofs_viewtype<12>(angDiff);
+                    t->cstat &= ~4;
+                    break;
+                case 16:
+                    frameOffset = getofs_viewtype<16>(angDiff);
+                    t->cstat &= ~4;
+                    break;
                 default:
                     frameOffset = 0;
                     break;
