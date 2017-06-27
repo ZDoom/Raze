@@ -3421,7 +3421,7 @@ static int G_MaybeTakeOnFloorPal(uspritetype *pSprite, int sectNum)
 template <int rotations>
 static int getofs_viewtype(int angDiff)
 {
-    return ((angDiff + 3072 + (1024/rotations)) & 2047) / (2048/rotations);
+    return (((angDiff + 3072) & 2047) * rotations + 1024) >> 11;
 }
 
 template <int rotations>
