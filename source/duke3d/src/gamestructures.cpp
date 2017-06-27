@@ -289,7 +289,7 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_GLOBALFLAGS: globalflags = iSet; break;
         case USERDEFS_GLOBALGAMEFLAGS: duke3d_globalflags = iSet; break;
         case USERDEFS_VM_PLAYER: vm.playerNum = iSet; vm.pPlayer = g_player[iSet].ps; break;
-        case USERDEFS_VM_SPRITE: vm.spriteNum = iSet; vm.pSprite = &sprite[iSet]; vm.pData = &actor[iSet].t_data[0]; break;
+        case USERDEFS_VM_SPRITE: vm.spriteNum = iSet; vm.pSprite = &sprite[iSet]; vm.pActor = &actor[iSet];  vm.pData = &actor[iSet].t_data[0]; break;
         case USERDEFS_VM_DISTANCE: vm.playerDist = iSet; break;
         case USERDEFS_GAMETEXT_TRACKING: MF_BluefontGame.between.x = iSet; break;
         case USERDEFS_MGAMETEXT_TRACKING: MF_BluefontRed.between.x = MF_Bluefont.between.x = iSet; break;
