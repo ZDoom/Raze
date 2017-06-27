@@ -3418,37 +3418,30 @@ static int G_MaybeTakeOnFloorPal(uspritetype *pSprite, int sectNum)
     return 0;
 }
 
-static int32_t getofs_viewtype5(const uspritetype *pSprite, uspritetype *pTSprite, int viewAng, uint8_t invertp)
+template <int rotations>
+static int getofs_viewtype(int angDiff)
 {
-    int const angDiff     = invertp ? viewAng - pSprite->ang : pSprite->ang - viewAng;
-    int       frameOffset = (((angDiff + 3072 + 128) & 2047) >> 8) & 7;
+    return ((angDiff + 3072 + (1024/rotations)) & 2047) / (2048/rotations);
+}
 
-    if (frameOffset > 4)
+template <int rotations>
+static int viewtype_mirror(uint16_t & cstat, int frameOffset)
+{
+    if (frameOffset > rotations / 2)
     {
-        frameOffset = 8 - frameOffset;
-        pTSprite->cstat |= 4;
+        if (frameOffset < rotations)
+            cstat |= 4;
+        return rotations - frameOffset;
     }
-    else
-        pTSprite->cstat &= ~4;
 
+    cstat &= ~4;
     return frameOffset;
 }
 
-static int32_t getofs_viewtype7(const uspritetype *pSprite, uspritetype *pTSprite, int viewAng, uint8_t invertp)
+template <int mirrored_rotations>
+static int getofs_viewtype_mirrored(uint16_t & cstat, int angDiff)
 {
-    int angDiff     = invertp ? viewAng - pSprite->ang : pSprite->ang - viewAng;
-    int frameOffset = ((angDiff + 3072 + 85) & 2047) / 170;
-
-    if (frameOffset > 6)
-    {
-        if (frameOffset < 12)
-            pTSprite->cstat |= 4;
-        frameOffset = 12 - frameOffset;
-    }
-    else
-        pTSprite->cstat &= ~4;
-
-    return frameOffset;
+    return viewtype_mirror<mirrored_rotations*2-2>(cstat, getofs_viewtype<mirrored_rotations*2-2>(angDiff));
 }
 
 // XXX: this fucking sucks and needs to be replaced with a SFLAG
@@ -3610,7 +3603,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     break;
                 }
 #endif
-                frameOffset = getofs_viewtype5(t, t, oura, 0);
+                frameOffset = getofs_viewtype_mirrored<5>(t->cstat, t->ang - oura);
                 t->picnum = s->picnum+frameOffset;
                 break;
             case BLOODSPLAT1__STATIC:
@@ -3848,7 +3841,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 break;
             }
 #endif
-            frameOffset = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), 0);
+            frameOffset = getofs_viewtype_mirrored<7>(t->cstat, getangle(pSprite->x-ourx, pSprite->y-oury));
             t->picnum = RPG+frameOffset;
             break;
 
@@ -3860,7 +3853,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 break;
             }
 #endif
-            frameOffset = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), 0);
+            frameOffset = getofs_viewtype_mirrored<7>(t->cstat, getangle(pSprite->x-ourx, pSprite->y-oury));
 
             // RECON_T4
             if (klabs(curframe) > 64)
@@ -3959,7 +3952,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 }
                 else
 #endif
-                    frameOffset = getofs_viewtype5(pSprite, t, oura, 0);
+                    frameOffset = getofs_viewtype_mirrored<5>(t->cstat, pSprite->ang - oura);
 
                 if (sector[pSprite->sectnum].lotag == ST_2_UNDERWATER) frameOffset += 1795-1405;
                 else if ((actor[i].floorz-pSprite->z) > (64<<8)) frameOffset += 60;
@@ -4015,7 +4008,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                         }
                         else
 #endif
-                            frameOffset = getofs_viewtype5(pSprite, t, oura, 0);
+                            frameOffset = getofs_viewtype_mirrored<5>(t->cstat, pSprite->ang - oura);
 
                         if (sector[t->sectnum].lotag == ST_2_UNDERWATER) frameOffset += 1795-1405;
                         else if ((actor[i].floorz-pSprite->z) > (64<<8)) frameOffset += 60;
@@ -4095,6 +4088,9 @@ PALONLY:
             uint16_t const action_flags = actor[i].ac.flags;
 #endif
 
+            int const invertp = l < 0;
+            l = klabs(l);
+
 #ifdef USE_OPENGL
             if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
@@ -4103,53 +4099,36 @@ PALONLY:
             }
             else
 #endif
+            {
+                int const viewAng = ((l > 4 && l != 8) || action_flags & AF_VIEWPOINT) ? getangle(pSprite->x-ourx, pSprite->y-oury) : oura;
+                int const angDiff = invertp ? viewAng - pSprite->ang : pSprite->ang - viewAng;
+
                 switch (l)
                 {
                 case 2:
-                {
-                    int const viewAng = (action_flags & AF_VIEWPOINT) ? getangle(pSprite->x-ourx, pSprite->y-oury) : oura;
-                    frameOffset = (((pSprite->ang + 3072 + 128 - viewAng) & 2047) >> 8) & 1;
+                    frameOffset = getofs_viewtype<8>(angDiff) & 1;
                     break;
-                }
 
                 case 3:
                 case 4:
-                {
-                    int const viewAng = (action_flags & AF_VIEWPOINT) ? getangle(pSprite->x-ourx, pSprite->y-oury) : oura;
-                    frameOffset = (((pSprite->ang + 3072 + 128 - viewAng) & 2047) >> 7) & 7;
-                    if (frameOffset > 3)
-                    {
-                        t->cstat |= 4;
-                        frameOffset = 7 - frameOffset;
-                    }
-                    else
-                        t->cstat &= ~4;
+                    frameOffset = viewtype_mirror<7>(t->cstat, getofs_viewtype<16>(angDiff) & 7);
                     break;
-                }
 
                 case 5:
-                case -5:
-                    frameOffset = getofs_viewtype5(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), l<0);
+                    frameOffset = getofs_viewtype_mirrored<5>(t->cstat, angDiff);
                     break;
                 case 7:
-                case -7:
-                    frameOffset = getofs_viewtype7(pSprite, t, getangle(pSprite->x-ourx, pSprite->y-oury), l<0);
+                    frameOffset = getofs_viewtype_mirrored<7>(t->cstat, angDiff);
                     break;
                 case 8:
-                case -8:
-                {
-                    int const viewAng = (action_flags & AF_VIEWPOINT) ? getangle(pSprite->x-ourx, pSprite->y-oury) : oura;
-                    int const angDiff = l > 0 ? pSprite->ang - viewAng : viewAng - pSprite->ang;
-                    frameOffset = (((angDiff + 3072 + 128) & 2047) >> 8) & 7;
+                    frameOffset = getofs_viewtype<8>(angDiff);
                     t->cstat &= ~4;
                     break;
-                }
                 default:
                     frameOffset = 0;
                     break;
                 }
-
-            l = klabs(l);
+            }
 
 #if !defined LUNATIC
             t->picnum += frameOffset + apScript[scrofs_action + ACTION_STARTFRAME] + l*curframe;
@@ -4303,7 +4282,7 @@ skip:
             }
             else
 #endif
-                frameOffset = getofs_viewtype5(t, t, oura, 0);
+                frameOffset = getofs_viewtype_mirrored<5>(t->cstat, t->ang - oura);
 
             t->picnum = pSprite->picnum+frameOffset+((T1(i)<4)*5);
             t->shade = sprite[pSprite->owner].shade;
@@ -4358,7 +4337,7 @@ skip:
                 break;
             }
 #endif
-            frameOffset = getofs_viewtype5(t, t, oura, 0);
+            frameOffset = getofs_viewtype_mirrored<5>(t->cstat, t->ang - oura);
             t->picnum = pSprite->picnum+frameOffset;
             break;
         }
