@@ -69,10 +69,12 @@ static FORCE_INLINE void WithSDL2_StopTextInput()
 #endif
 }
 
+#ifndef EDUKE32_STANDALONE
 static void mgametext(int32_t x, int32_t y, char const * t)
 {
     G_ScreenText(MF_Bluefont.tilenum, x, y, MF_Bluefont.zoom, 0, 0, t, 0, MF_Bluefont.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags, 0, 0, xdim-1, ydim-1);
 }
+#endif
 static vec2_t mgametextcenter(int32_t x, int32_t y, char const * t, int32_t f = 0)
 {
     return G_ScreenText(MF_Bluefont.tilenum, (MENU_MARGIN_CENTER<<16) + x, y, MF_Bluefont.zoom, 0, 0, t, 0, MF_Bluefont.pal, 2|8|16|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, MF_Bluefont.between.x, MF_Bluefont.between.y, MF_Bluefont.textflags|f|TEXT_XCENTER, 0, 0, xdim-1, ydim-1);

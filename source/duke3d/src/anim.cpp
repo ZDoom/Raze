@@ -93,6 +93,13 @@ void Anim_Init(void)
         uint8_t frame;
     };
 
+    static defaultanmsound const logo[] =
+    {
+        { FLY_BY, 1 },
+        { PIPEBOMB_EXPLODE, 19 },
+    };
+
+#ifndef EDUKE32_STANDALONE
     static defaultanmsound const cineov2[] =
     {
         { WIND_AMBIENCE, 1 },
@@ -115,12 +122,6 @@ void Anim_Init(void)
         { ENDSEQVOL3SND3, 104+20 },
         { ENDSEQVOL3SND2, 114+20 },
         { PIPEBOMB_EXPLODE, 158 },
-    };
-
-    static defaultanmsound const logo[] =
-    {
-        { FLY_BY, 1 },
-        { PIPEBOMB_EXPLODE, 19 },
     };
 
     static defaultanmsound const vol42a[] =
@@ -165,7 +166,7 @@ void Anim_Init(void)
         { DUKE_UNDERWATER, 40 },
         { BIGBANG, 50 },
     };
-
+#endif
 
     struct defaultanm {
         char const *fn;
@@ -235,7 +236,7 @@ int32_t Anim_Play(const char *fn)
     uint16_t framenum = 0;
     while (getrendermode() >= REND_POLYMOST)  // if, really
     {
-        char *dot = Bstrrchr(fn, '.');
+        char const * dot = Bstrrchr(fn, '.');
         if (!dot)
             break;
 
