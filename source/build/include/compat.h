@@ -77,6 +77,14 @@
 # define UNREFERENCED_PARAMETER(x) (x) = (x)
 #endif
 
+#ifndef UNREFERENCED_CONST_PARAMETER
+# ifdef _MSC_VER
+#  define UNREFERENCED_CONST_PARAMETER(x) (x)
+# else
+#  define UNREFERENCED_CONST_PARAMETER(x)
+# endif
+#endif
+
 #ifdef __GNUC__
 # define UNUSED(x) UNUSED_ ## x __attribute__((unused))
 # define PRINTF_FORMAT(stringindex, firstargindex) __attribute__((format (printf, stringindex, firstargindex)))

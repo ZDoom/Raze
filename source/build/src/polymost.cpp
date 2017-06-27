@@ -5867,7 +5867,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 }
 
 // Console commands by JBF
-static int32_t gltexturemode(const osdfuncparm_t *parm)
+static int32_t gltexturemode(osdfuncparm_t const * const parm)
 {
     int32_t m;
     char *p;
@@ -5908,7 +5908,7 @@ static int32_t gltexturemode(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_cvar_set_polymost(const osdfuncparm_t *parm)
+static int32_t osdcmd_cvar_set_polymost(osdfuncparm_t const * const parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
 
@@ -5969,7 +5969,7 @@ void polymost_initosdfuncs(void)
 {
     uint32_t i;
 
-    cvar_t cvars_polymost[] =
+    static osdcvardata_t cvars_polymost[] =
     {
         { "r_animsmoothing","enable/disable model animation smoothing",(void *) &r_animsmoothing, CVAR_BOOL, 0, 1 },
         { "r_downsize","controls downsizing factor (quality) for hires textures",(void *) &r_downsize, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
@@ -6066,16 +6066,7 @@ void polymost_initosdfuncs(void)
     };
 
     for (i=0; i<ARRAY_SIZE(cvars_polymost); i++)
-    {
-        // can't do this: editstatus is set after this function
-//        if (editstatus==0 && !Bstrcmp(cvars_polymost[i].name, "r_preview_mouseaim"))
-//            continue;
-
-        if (OSD_RegisterCvar(&cvars_polymost[i])) continue;
-
-        OSD_RegisterFunction(cvars_polymost[i].name, cvars_polymost[i].desc,
-                             cvars_polymost[i].type & CVAR_FUNCPTR ? osdcmd_cvar_set_polymost : osdcmd_cvar_set);
-    }
+        OSD_RegisterCvar(&cvars_polymost[i], cvars_polymost[i].flags & CVAR_FUNCPTR ? osdcmd_cvar_set_polymost : osdcmd_cvar_set);
 }
 
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)

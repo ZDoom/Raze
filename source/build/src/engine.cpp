@@ -9061,13 +9061,13 @@ static void check_sprite(int32_t i)
 {
     if ((unsigned)sprite[i].statnum >= MAXSTATUS)
     {
-        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal statnum (%d) REMOVED.\n",
+        initprintf("%sMap error: sprite #%d (%d,%d) with illegal statnum (%d) REMOVED.\n", osd->draw.errorfmt,
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].statnum));
         remove_sprite(i);
     }
     else if ((unsigned)sprite[i].picnum >= MAXTILES)
     {
-        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal picnum (%d) REMOVED.\n",
+        initprintf("%sMap error: sprite #%d (%d,%d) with illegal picnum (%d) REMOVED.\n", osd->draw.errorfmt,
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), TrackerCast(sprite[i].sectnum));
         remove_sprite(i);
     }
@@ -9081,7 +9081,7 @@ static void check_sprite(int32_t i)
         if (sprite[i].sectnum < 0)
             remove_sprite(i);
 
-        initprintf(OSD_ERROR "Map error: sprite #%d (%d,%d) with illegal sector (%d) ",
+        initprintf("%sMap error: sprite #%d (%d,%d) with illegal sector (%d) ", osd->draw.errorfmt,
                    i, TrackerCast(sprite[i].x), TrackerCast(sprite[i].y), osectnum);
 
         if (sprite[i].statnum != MAXSTATUS)

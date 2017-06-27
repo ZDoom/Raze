@@ -272,9 +272,9 @@ void clearkeys(void)
 }
 
 #ifdef USE_OPENGL
-int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
+int32_t osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
 
     if (!in3dmode()) return OSDCMD_OK;
 
@@ -286,7 +286,7 @@ int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
 }
 #endif
 
-static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
+static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
 {
     int32_t newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen;
 #ifdef USE_OPENGL
@@ -642,8 +642,6 @@ int app_main(int argc, char const * const * argv)
         BGetTime,
         M32_OnShowOSD
     );
-
-    OSD_SetParameters(0,2, 0,0, 4,0);
 
     if (!getcwd(program_origcwd,BMAX_PATH))
         program_origcwd[0] = '\0';

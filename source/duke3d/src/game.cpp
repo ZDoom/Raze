@@ -6113,7 +6113,7 @@ int app_main(int argc, char const * const * argv)
 
     G_ExtPreInit(argc, argv);
 
-    OSD_SetParameters(0,0, 0,12, 2,12);
+    OSD_SetParameters(0,0, 0,12, 2,12, OSD_ERROR, OSDTEXT_RED);
 
 #ifdef __APPLE__
     if (!g_useCwd)

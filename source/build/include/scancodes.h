@@ -117,9 +117,19 @@
 
 // Ascii scan codes
 
-#define  asc_Enter       13
-#define  asc_Escape      27
-#define  asc_BackSpace   8
-#define  asc_Tab         9
-#define  asc_Space       32
-
+#define asc_Enter 13
+#define asc_Escape 27
+#define asc_Ctrl_A 1
+#define asc_Ctrl_B 2
+#define asc_Ctrl_C 3
+#define asc_Ctrl_E 5
+#define asc_Ctrl_F 6
+#define asc_BackSpace 8
+#define asc_Tab 9
+#define asc_Ctrl_K 11
+#define asc_Ctrl_L 12
+#define asc_Ctrl_N 14
+#define asc_Ctrl_P 16
+#define asc_Ctrl_U 21
+#define asc_Ctrl_W 23
+#define asc_Space 32

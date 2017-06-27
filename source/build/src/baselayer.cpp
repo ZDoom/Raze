@@ -324,9 +324,9 @@ int32_t flushlogwindow = 1;
 
 #ifdef USE_OPENGL
 // Used to register the game's / editor's osdcmd_vidmode() functions here.
-int32_t (*baselayer_osdcmd_vidmode_func)(const osdfuncparm_t *parm);
+int32_t (*baselayer_osdcmd_vidmode_func)(osdfuncparm_t const * const parm);
 
-static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
+static int32_t osdfunc_setrendermode(osdfuncparm_t const * const parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -388,7 +388,7 @@ static int32_t osdfunc_setrendermode(const osdfuncparm_t *parm)
 }
 #if defined(USE_OPENGL)
 #ifdef DEBUGGINGAIDS
-static int32_t osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
+static int32_t osdcmd_hicsetpalettetint(osdfuncparm_t const * const parm)
 {
     int32_t pal, cols[3], eff;
 
@@ -406,11 +406,11 @@ static int32_t osdcmd_hicsetpalettetint(const osdfuncparm_t *parm)
 }
 #endif
 
-int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
+int32_t osdcmd_glinfo(osdfuncparm_t const * const UNUSED(parm))
 {
     char *s,*t,*u,i;
 
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
 
     if (bpp == 8)
     {
@@ -500,7 +500,7 @@ int32_t osdcmd_glinfo(const osdfuncparm_t *parm)
 #endif
 #endif
 
-static int32_t osdcmd_cvar_set_baselayer(const osdfuncparm_t *parm)
+static int32_t osdcmd_cvar_set_baselayer(osdfuncparm_t const * const parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
 
@@ -526,7 +526,7 @@ int32_t baselayer_init(void)
 #else
 # define SCREENASPECT_CVAR_TYPE (CVAR_UINT)
 #endif
-    cvar_t cvars_engine[] =
+    static osdcvardata_t cvars_engine[] =
     {
         { "r_usenewaspect","enable/disable new screen aspect ratio determination code",(void *) &r_usenewaspect, CVAR_BOOL, 0, 1 },
         { "r_screenaspect","if using r_usenewaspect and in fullscreen, screen aspect ratio in the form XXYY, e.g. 1609 for 16:9",
@@ -550,13 +550,7 @@ int32_t baselayer_init(void)
     };
 
     for (i=0; i<ARRAY_SIZE(cvars_engine); i++)
-    {
-        if (OSD_RegisterCvar(&cvars_engine[i]))
-            continue;
-
-        OSD_RegisterFunction(cvars_engine[i].name, cvars_engine[i].desc,
-                             (cvars_engine[i].type & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
-    }
+        OSD_RegisterCvar(&cvars_engine[i], (cvars_engine[i].flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
 
 #ifdef USE_OPENGL
     OSD_RegisterFunction("setrendermode","setrendermode <number>: sets the engine's rendering mode.\n"

@@ -1439,8 +1439,8 @@ skip_check:
                     M32_ERROR("Unknown iteration type %d!", how);
                     continue;
 badindex:
-                    OSD_Printf(OSD_ERROR "Line %d, %s %s: index %d out of range!\n",g_errorLineNum,keyw[g_tw],
-                               iter_tokens[how].token, parm2);
+                    OSD_Printf("%sLine %d, %s %s: index %d out of range!\n", osd->draw.highlight,
+                        g_errorLineNum,keyw[g_tw], iter_tokens[how].token, parm2);
                     vm.flags |= VMFLAG_ERROR;
                     continue;
                 }

@@ -41,15 +41,15 @@ float r_ambientlight = 1.0, r_ambientlightrecip = 1.0;
 
 uint32_t cl_cheatmask;
 
-static inline int32_t osdcmd_quit(const osdfuncparm_t *parm)
+static inline int32_t osdcmd_quit(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
     OSD_ShowDisplay(0);
     G_GameQuit();
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
+static int32_t osdcmd_changelevel(osdfuncparm_t const * const parm)
 {
     int32_t volume=0,level;
     char *p;
@@ -91,7 +91,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
 
     if (numplayers > 1)
     {
-		/*
+        /*
         if (g_netServer)
             Net_NewGame(volume,level);
         else if (voting == -1)
@@ -126,7 +126,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
             M_OpenMenu(myconnectindex);
             Menu_Change(MENU_NETWAITVOTES);
         }
-		*/
+        */
         return OSDCMD_OK;
     }
     if (g_player[myconnectindex].ps->gm & MODE_GAME)
@@ -158,7 +158,7 @@ static int32_t osdcmd_changelevel(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_map(const osdfuncparm_t *parm)
+static int32_t osdcmd_map(osdfuncparm_t const * const parm)
 {
     int32_t i;
     char filename[BMAX_PATH];
@@ -222,7 +222,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
 
     if (numplayers > 1)
     {
-		/*
+        /*
         if (g_netServer)
         {
             Net_SendUserMapName();
@@ -263,7 +263,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
             M_OpenMenu(myconnectindex);
             Menu_Change(MENU_NETWAITVOTES);
         }
-		*/
+        */
         return OSDCMD_OK;
     }
 
@@ -300,7 +300,7 @@ static int32_t osdcmd_map(const osdfuncparm_t *parm)
 //    the variance of the run times MUST be taken into account (that is, the
 //    replaying must be performed multiple times for the old and new versions,
 //    etc.)
-static int32_t osdcmd_demo(const osdfuncparm_t *parm)
+static int32_t osdcmd_demo(osdfuncparm_t const * const parm)
 {
     if (numplayers > 1)
     {
@@ -327,9 +327,9 @@ static int32_t osdcmd_demo(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_god(const osdfuncparm_t *parm)
+static int32_t osdcmd_god(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
         osdcmd_cheatsinfo_stat.cheatnum = CHEAT_CORNHOLIO;
     else
@@ -338,9 +338,9 @@ static int32_t osdcmd_god(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_noclip(const osdfuncparm_t *parm)
+static int32_t osdcmd_noclip(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
 
     if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
     {
@@ -354,9 +354,9 @@ static int32_t osdcmd_noclip(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_restartsound(const osdfuncparm_t *parm)
+static int32_t osdcmd_restartsound(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
     S_SoundShutdown();
     S_MusicShutdown();
 
@@ -372,7 +372,7 @@ static int32_t osdcmd_restartsound(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_music(const osdfuncparm_t *parm)
+static int32_t osdcmd_music(osdfuncparm_t const * const parm)
 {
     if (parm->numparms == 1)
     {
@@ -403,9 +403,9 @@ static int32_t osdcmd_music(const osdfuncparm_t *parm)
     return OSDCMD_SHOWHELP;
 }
 
-int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
+int32_t osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
     resetvideomode();
     if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
         G_GameExit("restartvid: Reset failed...\n");
@@ -415,9 +415,9 @@ int32_t osdcmd_restartvid(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-int32_t osdcmd_restartmap(const osdfuncparm_t *parm)
+int32_t osdcmd_restartmap(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
 
     if (g_player[myconnectindex].ps->gm & MODE_GAME && ud.multimode == 1)
         g_player[myconnectindex].ps->gm = MODE_RESTART;
@@ -425,7 +425,7 @@ int32_t osdcmd_restartmap(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
+static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
 {
     int32_t newbpp = ud.config.ScreenBPP, newwidth = ud.config.ScreenWidth,
             newheight = ud.config.ScreenHeight, newfs = ud.config.ScreenMode;
@@ -478,7 +478,7 @@ static int32_t osdcmd_vidmode(const osdfuncparm_t *parm)
 LUNATIC_CB int32_t (*El_GetLabelValue)(const char *label);
 #endif
 
-static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
+static int32_t osdcmd_spawn(osdfuncparm_t const * const parm)
 {
     int32_t picnum = 0;
     uint16_t cstat=0;
@@ -576,7 +576,7 @@ static int32_t osdcmd_spawn(const osdfuncparm_t *parm)
 }
 
 #if !defined LUNATIC
-static int32_t osdcmd_setvar(const osdfuncparm_t *parm)
+static int32_t osdcmd_setvar(osdfuncparm_t const * const parm)
 {
     int32_t i, varval;
     char varname[256];
@@ -602,7 +602,7 @@ static int32_t osdcmd_setvar(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_addlogvar(const osdfuncparm_t *parm)
+static int32_t osdcmd_addlogvar(osdfuncparm_t const * const parm)
 {
     int32_t i;
     char varname[256];
@@ -622,7 +622,7 @@ static int32_t osdcmd_addlogvar(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_setactorvar(const osdfuncparm_t *parm)
+static int32_t osdcmd_setactorvar(osdfuncparm_t const * const parm)
 {
     int32_t i, varval, ID;
     char varname[256];
@@ -656,7 +656,7 @@ static int32_t osdcmd_setactorvar(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 #else
-static int32_t osdcmd_lua(const osdfuncparm_t *parm)
+static int32_t osdcmd_lua(osdfuncparm_t const * const parm)
 {
     // Should be used like
     // lua "lua code..."
@@ -690,7 +690,7 @@ static int32_t osdcmd_lua(const osdfuncparm_t *parm)
 }
 #endif
 
-static int32_t osdcmd_addpath(const osdfuncparm_t *parm)
+static int32_t osdcmd_addpath(osdfuncparm_t const * const parm)
 {
     char pathname[BMAX_PATH];
 
@@ -701,7 +701,7 @@ static int32_t osdcmd_addpath(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_initgroupfile(const osdfuncparm_t *parm)
+static int32_t osdcmd_initgroupfile(osdfuncparm_t const * const parm)
 {
     char file[BMAX_PATH];
 
@@ -712,7 +712,7 @@ static int32_t osdcmd_initgroupfile(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_cmenu(const osdfuncparm_t *parm)
+static int32_t osdcmd_cmenu(osdfuncparm_t const * const parm)
 {
     if (parm->numparms != 1) return OSDCMD_SHOWHELP;
     if (numplayers > 1)
@@ -731,7 +731,7 @@ static int32_t osdcmd_cmenu(const osdfuncparm_t *parm)
 extern void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b);
 extern palette_t CrosshairColors;
 
-static int32_t osdcmd_crosshaircolor(const osdfuncparm_t *parm)
+static int32_t osdcmd_crosshaircolor(osdfuncparm_t const * const parm)
 {
     int32_t r, g, b;
 
@@ -751,7 +751,7 @@ static int32_t osdcmd_crosshaircolor(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_give(const osdfuncparm_t *parm)
+static int32_t osdcmd_give(osdfuncparm_t const * const parm)
 {
     int32_t i;
 
@@ -836,7 +836,7 @@ void onvideomodechange(int32_t newmode)
     g_crosshairSum = -1;
 }
 
-static int32_t osdcmd_name(const osdfuncparm_t *parm)
+static int32_t osdcmd_name(osdfuncparm_t const * const parm)
 {
     char namebuf[32];
 
@@ -862,7 +862,7 @@ static int32_t osdcmd_name(const osdfuncparm_t *parm)
 }
 
 
-static int32_t osdcmd_button(const osdfuncparm_t *parm)
+static int32_t osdcmd_button(osdfuncparm_t const * const parm)
 {
     char const *p = parm->name+9;  // skip "gamefunc_"
 //    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
@@ -983,7 +983,7 @@ const char *const ConsoleButtons[] =
     "mwheeldn", "mouse5", "mouse6", "mouse7", "mouse8"
 };
 
-static int32_t osdcmd_bind(const osdfuncparm_t *parm)
+static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
 {
     int32_t i, j, repeat;
 
@@ -1133,11 +1133,11 @@ static int32_t osdcmd_bind(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_unbindall(const osdfuncparm_t *parm)
+static int32_t osdcmd_unbindall(osdfuncparm_t const * const UNUSED(parm))
 {
     int32_t i;
 
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
 
     for (i=0; i<MAXBOUNDKEYS; i++)
         CONTROL_FreeKeyBind(i);
@@ -1157,7 +1157,7 @@ static int32_t osdcmd_unbindall(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_unbind(const osdfuncparm_t *parm)
+static int32_t osdcmd_unbind(osdfuncparm_t const * const parm)
 {
     int32_t i;
 
@@ -1190,27 +1190,27 @@ static int32_t osdcmd_unbind(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_quicksave(const osdfuncparm_t *parm)
+static int32_t osdcmd_quicksave(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
         OSD_Printf("quicksave: not in a game.\n");
     else g_doQuickSave = 1;
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_quickload(const osdfuncparm_t *parm)
+static int32_t osdcmd_quickload(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
     if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
         OSD_Printf("quickload: not in a game.\n");
     else g_doQuickSave = 2;
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_screenshot(const osdfuncparm_t *parm)
+static int32_t osdcmd_screenshot(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
 //    KB_ClearKeysDown();
     screencapture(
 #ifndef EDUKE32_STANDALONE
@@ -1223,14 +1223,14 @@ static int32_t osdcmd_screenshot(const osdfuncparm_t *parm)
 }
 
 #if 0
-static int32_t osdcmd_savestate(const osdfuncparm_t *parm)
+static int32_t osdcmd_savestate(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_PARAMETER(parm);
     G_SaveMapState();
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_restorestate(const osdfuncparm_t *parm)
+static int32_t osdcmd_restorestate(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_PARAMETER(parm);
     G_RestoreMapState();
@@ -1239,7 +1239,7 @@ static int32_t osdcmd_restorestate(const osdfuncparm_t *parm)
 #endif
 
 #ifdef DEBUGGINGAIDS
-static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
+static int32_t osdcmd_inittimer(osdfuncparm_t const * const parm)
 {
     if (parm->numparms != 1)
     {
@@ -1254,14 +1254,14 @@ static int32_t osdcmd_inittimer(const osdfuncparm_t *parm)
 }
 #endif
 
-static int32_t osdcmd_disconnect(const osdfuncparm_t *parm)
+static int32_t osdcmd_disconnect(osdfuncparm_t const * const UNUSED(parm))
 {
-    UNREFERENCED_PARAMETER(parm);
+    UNREFERENCED_CONST_PARAMETER(parm);
     g_netDisconnect = 1;
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_connect(const osdfuncparm_t *parm)
+static int32_t osdcmd_connect(osdfuncparm_t const * const parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -1271,7 +1271,7 @@ static int32_t osdcmd_connect(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_password(const osdfuncparm_t *parm)
+static int32_t osdcmd_password(osdfuncparm_t const * const parm)
 {
     if (parm->numparms < 1)
     {
@@ -1284,7 +1284,7 @@ static int32_t osdcmd_password(const osdfuncparm_t *parm)
 }
 
 #if !defined NETCODE_DISABLE
-static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
+static int32_t osdcmd_listplayers(osdfuncparm_t const * const parm)
 {
     ENetPeer *currentPeer;
     char ipaddr[32];
@@ -1315,7 +1315,7 @@ static int32_t osdcmd_listplayers(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_kick(const osdfuncparm_t *parm)
+static int32_t osdcmd_kick(osdfuncparm_t const * const parm)
 {
     ENetPeer *currentPeer;
     uint32_t hexaddr;
@@ -1353,7 +1353,7 @@ static int32_t osdcmd_kick(const osdfuncparm_t *parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
+static int32_t osdcmd_kickban(osdfuncparm_t const * const parm)
 {
     ENetPeer *currentPeer;
     uint32_t hexaddr;
@@ -1398,7 +1398,7 @@ static int32_t osdcmd_kickban(const osdfuncparm_t *parm)
 }
 #endif
 
-static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
+static int32_t osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
 
@@ -1515,7 +1515,7 @@ static int32_t osdcmd_cvar_set_game(const osdfuncparm_t *parm)
     return r;
 }
 
-static int32_t osdcmd_cvar_set_multi(const osdfuncparm_t *parm)
+static int32_t osdcmd_cvar_set_multi(osdfuncparm_t const * const parm)
 {
     int32_t r = osdcmd_cvar_set_game(parm);
 
@@ -1530,7 +1530,7 @@ int32_t registerosdcommands(void)
 {
     uint32_t i;
 
-    cvar_t cvars_game[] =
+    static osdcvardata_t cvars_game[] =
     {
         { "crosshair", "enable/disable crosshair", (void *)&ud.crosshair, CVAR_BOOL, 0, 1 },
 
@@ -1632,7 +1632,6 @@ int32_t registerosdcommands(void)
         { "skill","changes the game skill setting", (void *)&ud.m_player_skill, CVAR_INT|CVAR_FUNCPTR/*|CVAR_NOMULTI*/, 0, 5 },
 
         { "snd_ambience", "enables/disables ambient sounds", (void *)&ud.config.AmbienceToggle, CVAR_BOOL, 0, 1 },
-        { "snd_speech", "enables/disables player speech", (void *)&ud.config.VoiceToggle, CVAR_INT, 0, 5 },
         { "snd_enabled", "enables/disables sound effects", (void *)&ud.config.SoundToggle, CVAR_BOOL, 0, 1 },
         { "snd_mastervolume", "master volume for sound system", (void *)&ud.config.MasterVolume, CVAR_INT, 0, 255 },
         { "snd_fxvolume", "volume of sound effects", (void *)&ud.config.FXVolume, CVAR_INT, 1, 255 },
@@ -1640,6 +1639,7 @@ int32_t registerosdcommands(void)
         { "snd_numchannels", "the number of sound channels", (void *)&ud.config.NumChannels, CVAR_INT, 0, 2 },
         { "snd_numvoices", "the number of concurrent sounds", (void *)&ud.config.NumVoices, CVAR_INT, 0, 256 },
         { "snd_reversestereo", "reverses the stereo channels", (void *)&ud.config.ReverseStereo, CVAR_BOOL, 0, 1 },
+        { "snd_speech", "enables/disables player speech", (void *)&ud.config.VoiceToggle, CVAR_INT, 0, 5 },
 
         { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 
@@ -1661,21 +1661,15 @@ int32_t registerosdcommands(void)
 
     for (i=0; i<ARRAY_SIZE(cvars_game); i++)
     {
-        if (OSD_RegisterCvar(&cvars_game[i]))
-            continue;
-
-        switch (cvars_game[i].type & (CVAR_FUNCPTR|CVAR_MULTI))
+        switch (cvars_game[i].flags & (CVAR_FUNCPTR|CVAR_MULTI))
         {
         case CVAR_FUNCPTR:
-            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].desc, osdcmd_cvar_set_game);
-            break;
+            OSD_RegisterCvar(&cvars_game[i], osdcmd_cvar_set_game); break;
         case CVAR_MULTI:
         case CVAR_FUNCPTR|CVAR_MULTI:
-            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].desc, osdcmd_cvar_set_multi);
-            break;
+            OSD_RegisterCvar(&cvars_game[i], osdcmd_cvar_set_multi); break;
         default:
-            OSD_RegisterFunction(cvars_game[i].name, cvars_game[i].desc, osdcmd_cvar_set);
-            break;
+            OSD_RegisterCvar(&cvars_game[i], osdcmd_cvar_set); break;
         }
     }
 

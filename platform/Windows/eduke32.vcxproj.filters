@@ -540,6 +540,9 @@
     <ClInclude Include="..\..\source\build\include\renderlayer.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\build\include\scancodes.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\build\src\a-c.cpp">

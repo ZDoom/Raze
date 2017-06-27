@@ -50,10 +50,10 @@ extern int32_t nofog;
 void calc_ylookup(int32_t bpl, int32_t lastyidx);
 
 #ifdef USE_OPENGL
-extern int32_t (*baselayer_osdcmd_vidmode_func)(const osdfuncparm_t *parm);
+extern int32_t (*baselayer_osdcmd_vidmode_func)(osdfuncparm_t const * const parm);
 
 void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f);
-extern int32_t osdcmd_glinfo(const osdfuncparm_t *parm);
+extern int32_t osdcmd_glinfo(osdfuncparm_t const * const parm);
 
 struct glinfo_t {
     const char *vendor;

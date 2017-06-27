@@ -224,18 +224,13 @@ void win_init(void)
 {
     uint32_t i;
 
-    cvar_t cvars_win[] =
+    static osdcvardata_t cvars_win[] =
     {
         { "r_togglecomposition","enable/disable toggle of desktop composition when initializing screen modes",(void *) &togglecomp, CVAR_BOOL, 0, 1 },
     };
 
     for (i=0; i<ARRAY_SIZE(cvars_win); i++)
-    {
-        if (OSD_RegisterCvar(&cvars_win[i]))
-            continue;
-
-        OSD_RegisterFunction(cvars_win[i].name, cvars_win[i].desc, osdcmd_cvar_set);
-    }
+        OSD_RegisterCvar(&cvars_win[i], osdcmd_cvar_set);
 
     win_printversion();
 }
