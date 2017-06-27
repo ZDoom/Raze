@@ -5810,16 +5810,17 @@ finish_qsprintf:
 // NORECURSE
 void A_LoadActor(int32_t spriteNum)
 {
-    vm.spriteNum  = spriteNum;           // Sprite ID
-    vm.pSprite = &sprite[spriteNum];  // Pointer to sprite structure
+    vm.spriteNum = spriteNum;           // Sprite ID
+    vm.pSprite   = &sprite[spriteNum];  // Pointer to sprite structure
+    vm.pActor    = &actor[spriteNum];
 
     if (g_tile[vm.pSprite->picnum].loadPtr == NULL)
         return;
 
-    vm.pData  = &actor[spriteNum].t_data[0];  // Sprite's 'extra' data
-    vm.playerNum  = -1;                        // Player ID
-    vm.playerDist  = -1;                        // Distance
-    vm.pPlayer = g_player[0].ps;
+    vm.pData      = &actor[spriteNum].t_data[0];  // Sprite's 'extra' data
+    vm.playerNum  = -1;                           // Player ID
+    vm.playerDist = -1;                           // Distance
+    vm.pPlayer    = g_player[0].ps;
 
     vm.flags &= ~(VM_RETURN | VM_KILL | VM_NOEXECUTE);
 
