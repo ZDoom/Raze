@@ -43,8 +43,8 @@ int32_t g_fakeMultiMode = 0;
 
 void G_ShowParameterHelp(void)
 {
-    const char *s = "Usage: eduke32 [files] [options]\n"
-        "Example: eduke32 -usecwd -cfg myconfig.cfg -map nukeland.map\n\n"
+    const char *s = "Usage: " APPBASENAME " [files] [options]\n"
+        "Example: " APPBASENAME " -usecwd -cfg myconfig.cfg -map nukeland.map\n\n"
         "Files can be of type [grp|zip|map|con|def]\n"
         "\n"
         "-cfg [file.cfg]\tUse an alternate configuration file\n"
@@ -95,7 +95,7 @@ void G_ShowParameterHelp(void)
 
 void G_ShowDebugHelp(void)
 {
-    const char *s = "Usage: eduke32 [files] [options]\n"
+    const char *s = "Usage: " APPBASENAME " [files] [options]\n"
         "\n"
 #if 0
         "-a\t\tUse fake player AI (fake multiplayer only)\n"
