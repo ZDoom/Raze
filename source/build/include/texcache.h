@@ -22,30 +22,33 @@ enum texcacherr_t
     TEXCACHEERRORS
 };
 
-struct texcacheitem_t
+typedef struct texcacheitem_
 {
-    char name[BMAX_PATH];
+    char    *name;
     int32_t offset;
     int32_t len;
-    struct texcacheitem_t *next;
-};
 
-typedef struct texcacheitem_t texcacheindex;
+    struct texcacheitem_ *next;
+} texcacheindex;
 
 typedef struct {
-    int32_t filehandle, filepos, numentries, iptrcnt;
-    FILE *index;
+    uint8_t *buf;
+    FILE *   index;
+
+    texcacheindex * first;
+    texcacheindex * current;
+    texcacheindex **entries;
+
     pthtyp *list[GLTEXCACHEADSIZ];
-    texcacheindex *firstindex, *currentindex, **iptrs;
+
     hashtable_t hashes;
-    struct {
-        uint8_t *ptr;
-        int32_t size;
-        // Set to 1 when we failed (re)allocating space for the memcache or failing to
-        // read into it (which would presumably generate followup errors spamming the
-        // log otherwise):
-        int32_t noalloc;
-    } memcache;
+
+    int32_t handle;
+    int32_t numentries;
+    int32_t entrybufsiz;
+    int32_t pos;
+
+    int32_t memsize;
 } globaltexcache;
 
 extern globaltexcache texcache;
@@ -56,16 +59,16 @@ extern int32_t texcache_enabled(void);
 extern void texcache_freeptrs(void);
 extern void texcache_syncmemcache(void);
 extern void texcache_init(void);
-extern int32_t texcache_loadoffsets(void);
-extern int32_t texcache_readdata(void *dest, int32_t len);
+int texcache_loadoffsets(void);
+int texcache_readdata(void *outBuf, int32_t len);
 extern pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int32_t dameth);
 extern int32_t texcache_loadskin(const texcacheheader *head, int32_t *doalloc, GLuint *glpic, vec2_t *siz);
 extern int32_t texcache_loadtile(const texcacheheader *head, int32_t *doalloc, pthtyp *pth);
 extern char const * texcache_calcid(char *cachefn, const char *fn, const int32_t len, const int32_t dameth, const char effect);
 extern void texcache_prewritetex(texcacheheader *head);
-extern void texcache_postwritetex(char const * const cachefn, int32_t const offset);
+void texcache_postwritetex(char const * const cacheid, int32_t const offset);
 extern void texcache_writetex_fromdriver(char const * cachefn, texcacheheader *head);
-extern int32_t texcache_readtexheader(char const * cachefn, texcacheheader *head, int32_t modelp);
+extern int texcache_readtexheader(char const * cacheid, texcacheheader *head, int32_t modelp);
 extern void texcache_openfiles(void);
 extern void texcache_setupmemcache(void);
 extern void texcache_checkgarbage(void);

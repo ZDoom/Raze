@@ -105,24 +105,24 @@ int32_t dedxt_handle_io(int32_t fil, int32_t j /* TODO: better name */,
 
     inbuf = (ispacked && cleng < j) ? packbuf : midbuf;
 
-    if (texcache.memcache.ptr && texcache.memcache.size >= texcache.filepos + cleng)
+    if (texcache.buf && texcache.memsize >= texcache.pos + cleng)
     {
         if (ispacked && cleng < j)
         {
-            if (LZ4_decompress_safe((const char *)texcache.memcache.ptr + texcache.filepos, (char*)midbuf, cleng, mbufsiz) <= 0)
+            if (LZ4_decompress_safe((const char *)texcache.buf + texcache.pos, (char*)midbuf, cleng, mbufsiz) <= 0)
             {
-                texcache.filepos += cleng;
+                texcache.pos += cleng;
                 return -1;
             }
         }
-        else Bmemcpy(inbuf, texcache.memcache.ptr + texcache.filepos, cleng);
+        else Bmemcpy(inbuf, texcache.buf + texcache.pos, cleng);
 
-        texcache.filepos += cleng;
+        texcache.pos += cleng;
     }
     else
     {
-        Blseek(fil, texcache.filepos, BSEEK_SET);
-        texcache.filepos += cleng;
+        Blseek(fil, texcache.pos, BSEEK_SET);
+        texcache.pos += cleng;
 
         if (Bread(fil, inbuf, cleng) < cleng)
             return -1;

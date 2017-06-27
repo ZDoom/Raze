@@ -15,6 +15,8 @@
 #include "lz4.h"
 #include "xxhash.h"
 
+#include "common_game.h"
+
 //////////////////// Key stuff ////////////////////
 
 #define eitherALT   (keystatus[KEYSC_LALT] || keystatus[KEYSC_RALT])
