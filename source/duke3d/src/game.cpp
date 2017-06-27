@@ -3437,12 +3437,13 @@ static int32_t getofs_viewtype5(const uspritetype *pSprite, uspritetype *pTSprit
 static int32_t getofs_viewtype7(const uspritetype *pSprite, uspritetype *pTSprite, int viewAng, uint8_t invertp)
 {
     int angDiff     = invertp ? viewAng - pSprite->ang : pSprite->ang - viewAng;
-    int frameOffset = ((angDiff + 3072 + 128) & 2047) / 170;
+    int frameOffset = ((angDiff + 3072 + 85) & 2047) / 170;
 
     if (frameOffset > 6)
     {
+        if (frameOffset < 12)
+            pTSprite->cstat |= 4;
         frameOffset = 12 - frameOffset;
-        pTSprite->cstat |= 4;
     }
     else
         pTSprite->cstat &= ~4;
