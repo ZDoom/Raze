@@ -13,19 +13,28 @@
 
 
 #define ISWS(x) ((x == ' ') || (x == '\t') || (x == '\r') || (x == '\n'))
-static void skipoverws(scriptfile *sf) { if ((sf->textptr < sf->eof) && (!sf->textptr[0])) sf->textptr++; }
-static void skipovertoken(scriptfile *sf) { while ((sf->textptr < sf->eof) && (sf->textptr[0])) sf->textptr++; }
+static inline void skipoverws(scriptfile *sf) { if ((sf->textptr < sf->eof) && (!sf->textptr[0])) sf->textptr++; }
+static inline void skipovertoken(scriptfile *sf) { while ((sf->textptr < sf->eof) && (sf->textptr[0])) sf->textptr++; }
 
 char *scriptfile_gettoken(scriptfile *sf)
 {
-    char *start;
+    if (scriptfile_eof(sf)) return NULL;
 
-    skipoverws(sf);
-    if (sf->textptr >= sf->eof) return NULL;
-
-    start = sf->ltextptr = sf->textptr;
+    char *start = sf->ltextptr = sf->textptr;
     skipovertoken(sf);
     return start;
+}
+
+
+static int scriptfile_eof_error(scriptfile *sf)
+{
+    if (scriptfile_eof(sf))
+    {
+        initprintf("Error on line %s:%d: unexpected eof\n", sf->filename, scriptfile_getlinum(sf, sf->textptr));
+        return -1;
+    }
+
+    return 0;
 }
 
 int32_t scriptfile_getstring(scriptfile *sf, char **retst)
@@ -41,14 +50,9 @@ int32_t scriptfile_getstring(scriptfile *sf, char **retst)
 
 int32_t scriptfile_getnumber(scriptfile *sf, int32_t *num)
 {
-    skipoverws(sf);
-    if (sf->textptr >= sf->eof)
-    {
-        initprintf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
-        return -1;
-    }
+    if (scriptfile_eof_error(sf)) return -1;
 
-    while ((sf->textptr[0] == '0') && (sf->textptr[1] >= '0') && (sf->textptr[1] <= '9'))
+    while ((sf->textptr[0] == '0') && isdigit(sf->textptr[1]))
         sf->textptr++; //hack to treat octal numbers like decimal
 
     sf->ltextptr = sf->textptr;
@@ -75,7 +79,7 @@ static double parsedouble(char *ptr, char **end)
     else if (*p == '+') p++;
     for (;; p++)
     {
-        if (*p >= '0' && *p <= '9')
+        if (isdigit(*p))
         {
             dig = *p - '0';
             if (beforedecimal) num = num * 10.0 + dig;
@@ -107,12 +111,8 @@ static double parsedouble(char *ptr, char **end)
 
 int32_t scriptfile_getdouble(scriptfile *sf, double *num)
 {
-    skipoverws(sf);
-    if (sf->textptr >= sf->eof)
-    {
-        initprintf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+    if (scriptfile_eof_error(sf))
         return -1;
-    }
 
     sf->ltextptr = sf->textptr;
 
@@ -130,21 +130,20 @@ int32_t scriptfile_getdouble(scriptfile *sf, double *num)
     return 0;
 }
 
-int32_t scriptfile_getsymbol(scriptfile *sf, int32_t *num)
+int scriptfile_getsymbol(scriptfile *sf, int32_t *num)
 {
-    char *t, *e;
-    int32_t v;
-
-    t = scriptfile_gettoken(sf);
+    char *t = scriptfile_gettoken(sf);
     if (!t) return -1;
 
-    v = Bstrtol(t, &e, 10);
+    char *  e;
+    int32_t v = Bstrtol(t, &e, 10);
+
     if (*e)
     {
         // looks like a string, so find it in the symbol table
         if (scriptfile_getsymbolvalue(t, num)) return 0;
-        initprintf("Error on line %s:%d: expecting symbol, got \"%s\"\n",sf->filename,scriptfile_getlinum(sf,sf->ltextptr),t);
-        return -2;   // not found
+        initprintf("Error on line %s:%d: expecting symbol, got \"%s\"\n", sf->filename, scriptfile_getlinum(sf, sf->ltextptr), t);
+        return -2;
     }
 
     *num = v;
@@ -153,29 +152,30 @@ int32_t scriptfile_getsymbol(scriptfile *sf, int32_t *num)
 
 int32_t scriptfile_getbraces(scriptfile *sf, char **braceend)
 {
-    int32_t bracecnt;
-    char *bracestart;
-
-    skipoverws(sf);
-    if (sf->textptr >= sf->eof)
-    {
-        initprintf("Error on line %s:%d: unexpected eof\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
+    if (scriptfile_eof_error(sf))
         return -1;
-    }
 
     if (sf->textptr[0] != '{')
     {
         initprintf("Error on line %s:%d: expecting '{'\n",sf->filename,scriptfile_getlinum(sf,sf->textptr));
         return -1;
     }
-    bracestart = ++sf->textptr; bracecnt = 1;
-    while (1)
+
+    char *bracestart = ++sf->textptr;
+    int   bracecnt   = 1;
+
+    do
     {
-        if (sf->textptr >= sf->eof) return 0;
-        if (sf->textptr[0] == '{') bracecnt++;
-        if (sf->textptr[0] == '}') { bracecnt--; if (!bracecnt) break; }
+        if (sf->textptr >= sf->eof)
+            return 0;
+        else if (sf->textptr[0] == '{')
+            bracecnt++;
+        else if (sf->textptr[0] == '}')
+            if (!(--bracecnt))
+                break;
         sf->textptr++;
-    }
+    } while (1);
+
     (*braceend) = sf->textptr;
     sf->textptr = bracestart;
     return 0;
@@ -206,9 +206,22 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
     for (i=0; i<flen; i++)
     {
         //detect all 4 types of carriage return (\r, \n, \r\n, \n\r :)
-        cr=0; if (tx[i] == '\r') { i += (tx[i+1] == '\n'); cr = 1; }
-        else if (tx[i] == '\n') { i += (tx[i+1] == '\r'); cr = 1; }
-        if (cr) { numcr++; continue; }
+        cr = 0;
+        if (tx[i] == '\r')
+        {
+            i += (tx[i + 1] == '\n');
+            cr = 1;
+        }
+        else if (tx[i] == '\n')
+        {
+            i += (tx[i + 1] == '\r');
+            cr = 1;
+        }
+        if (cr)
+        {
+            numcr++;
+            continue;
+        }
     }
 
     sf->linenum = numcr;
@@ -219,8 +232,17 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
     for (i=0; i<flen; i++)
     {
         //detect all 4 types of carriage return (\r, \n, \r\n, \n\r :)
-        cr=0; if (tx[i] == '\r') { i += (tx[i+1] == '\n'); cr = 1; }
-        else if (tx[i] == '\n') { i += (tx[i+1] == '\r'); cr = 1; }
+        cr = 0;
+        if (tx[i] == '\r')
+        {
+            i += (tx[i + 1] == '\n');
+            cr = 1;
+        }
+        else if (tx[i] == '\n')
+        {
+            i += (tx[i + 1] == '\r');
+            cr = 1;
+        }
         if (cr)
         {
             //Remember line numbers by storing the byte index at the start of each line
@@ -230,13 +252,29 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
             ws = 1; continue; //strip CR/LF
         }
 
-        if ((!inquote) && ((tx[i] == ' ') || (tx[i] == '\t'))) { ws = 1; continue; } //strip Space/Tab
-        if ((tx[i] == '/') && (tx[i+1] == '/') && (!cs)) cs = 1;
-        if ((tx[i] == '/') && (tx[i+1] == '*') && (!cs)) { ws = 1; cs = 2; }
-        if ((tx[i] == '*') && (tx[i+1] == '/') && (cs == 2)) { cs = 0; i++; continue; }
-        if (cs) continue;
+        if ((!inquote) && ((tx[i] == ' ') || (tx[i] == '\t')))
+        {
+            ws = 1;
+            continue;
+        }  // strip Space/Tab
+        if ((tx[i] == '/') && (tx[i + 1] == '/') && (!cs))
+            cs = 1;
+        if ((tx[i] == '/') && (tx[i + 1] == '*') && (!cs))
+        {
+            ws = 1;
+            cs = 2;
+        }
+        if ((tx[i] == '*') && (tx[i + 1] == '/') && (cs == 2))
+        {
+            cs = 0;
+            i++;
+            continue;
+        }
+        if (cs)
+            continue;
 
-        if (ws) { tx[nflen++] = 0; ws = 0; }
+        if (ws)
+            tx[nflen++] = ws = 0;
 
         //quotes inside strings: \"
         if ((tx[i] == '\\') && (tx[i+1] == '\"')) { i++; tx[nflen++] = '\"'; continue; }
@@ -262,23 +300,18 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
 
 scriptfile *scriptfile_fromfile(const char *fn)
 {
-    int32_t fp;
-    scriptfile *sf;
-    char *tx;
-    uint32_t flen;
+    int32_t fp = kopen4load(fn, 0);
+    if (fp < 0) return nullptr;
 
-    fp = kopen4load(fn,0);
-    if (fp<0) return NULL;
+    uint32_t flen = kfilelength(fp);
+    char *   tx   = (char *)Xmalloc(flen + 2);
 
-    flen = kfilelength(fp);
-    tx = (char *)Xmalloc(flen + 2);
-
-    sf = (scriptfile *)Xmalloc(sizeof(scriptfile));
+    scriptfile *sf = (scriptfile *)Xmalloc(sizeof(scriptfile));
 
     kread(fp, tx, flen);
-    tx[flen] = tx[flen+1] = 0;
-
     kclose(fp);
+
+    tx[flen] = tx[flen+1] = 0;
 
     scriptfile_preparse(sf,tx,flen);
     sf->filename = Xstrdup(fn);
@@ -288,17 +321,12 @@ scriptfile *scriptfile_fromfile(const char *fn)
 
 scriptfile *scriptfile_fromstring(const char *string)
 {
-    scriptfile *sf;
-    char *tx;
-    uint32_t flen;
+    if (!string) return nullptr;
 
-    if (!string) return NULL;
+    uint32_t flen = Bstrlen(string);
+    char *   tx   = (char *)Xmalloc(flen + 2);
 
-    flen = strlen(string);
-
-    tx = (char *)Xmalloc(flen + 2);
-
-    sf = (scriptfile *)Xmalloc(sizeof(scriptfile));
+    scriptfile *sf = (scriptfile *)Xmalloc(sizeof(scriptfile));
 
     Bmemcpy(tx, string, flen);
     tx[flen] = tx[flen+1] = 0;
@@ -318,11 +346,10 @@ void scriptfile_close(scriptfile *sf)
     Bfree(sf);
 }
 
-int32_t scriptfile_eof(scriptfile *sf)
+int scriptfile_eof(scriptfile *sf)
 {
     skipoverws(sf);
-    if (sf->textptr >= sf->eof) return 1;
-    return 0;
+    return !!(sf->textptr >= sf->eof);
 }
 
 #define SYMBTABSTARTSIZE 256
