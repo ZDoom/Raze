@@ -31,6 +31,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
    (c) Copyright 1994 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
+// This object is shared by all Build games with MIDI playback!
+
 #include "compat.h"
 #include "music.h"
 #include "_midi.h"

@@ -1,3 +1,4 @@
+// This object is shared by the editors of *all* Build games!
 
 #include "compat.h"
 #include "keys.h"
@@ -15,6 +16,7 @@
 #include "lz4.h"
 #include "xxhash.h"
 
+// XXX: This breaks editors for games other than Duke. The OSD needs a way to specify colors in abstract instead of concatenating palswap escape sequences.
 #include "common_game.h"
 
 //////////////////// Key stuff ////////////////////

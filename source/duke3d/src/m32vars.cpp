@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+// This object is shared by the editors of *all* Build games!
+
 #include "m32script.h"
 #include "m32def.h"
 #include "osd.h"

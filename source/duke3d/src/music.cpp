@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+// This object is shared by all Build games with MIDI playback!
+
 #include "compat.h"
 #include "music.h"
 #include "midi.h"

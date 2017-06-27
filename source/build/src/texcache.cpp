@@ -164,7 +164,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     pthtyp *pth = (pthtyp *)Xcalloc(1, sizeof(pthtyp));
 
     // possibly fetch an already loaded multitexture :_)
-    if (!drawingskybox && texcache_fetchmulti(pth, si, dapicnum, dameth))
+    if (dapalnum == DETAILPAL && texcache_fetchmulti(pth, si, dapicnum, dameth))
         return pth;
 
     int32_t tilestat =

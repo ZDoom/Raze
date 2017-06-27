@@ -26,6 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *   short. How strangely appropriate that seems.
  */
 
+// This object is shared by all Build games with MIDI playback!
+
 #define _NEED_SDLMIXER	1
 
 #include "compat.h"
