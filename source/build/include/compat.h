@@ -934,18 +934,24 @@ static FORCE_INLINE uint64_t B_UNBUF64(void const * const vbuf)
 #endif
 
 #define CLAMP_DECL static FORCE_INLINE WARN_UNUSED_RESULT
+
+#ifdef __cplusplus
+template <typename T, typename X, typename Y> CLAMP_DECL T clamp(T in, X min, Y max) { return in <= (T) min ? (T) min : (in >= (T) max ? (T) max : in); }
+template <typename T, typename X, typename Y> CLAMP_DECL T clamp2(T in, X min, Y max) { return in >= (T) max ? (T) max : (in <= (T) min ? (T) min : in); }
+# define fclamp clamp
+# define fclamp2 clamp2
+#else
 // Clamp <in> to [<min>..<max>]. The case in <= min is handled first.
 CLAMP_DECL int32_t clamp(int32_t in, int32_t min, int32_t max) { return in <= min ? min : (in >= max ? max : in); }
 CLAMP_DECL float fclamp(float in, float min, float max) { return in <= min ? min : (in >= max ? max : in); }
 // Clamp <in> to [<min>..<max>]. The case in >= max is handled first.
 CLAMP_DECL int32_t clamp2(int32_t in, int32_t min, int32_t max) { return in >= max ? max : (in <= min ? min : in); }
 CLAMP_DECL float fclamp2(float in, float min, float max) { return in >= max ? max : (in <= min ? min : in); }
-
+#endif
 
 ////////// Mathematical operations //////////
 
 #ifdef __cplusplus
-
 #if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
 template <typename T>
 struct DivResult
