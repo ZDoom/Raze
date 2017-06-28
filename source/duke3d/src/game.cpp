@@ -3841,7 +3841,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 break;
             }
 #endif
-            frameOffset = getofs_viewtype_mirrored<7>(t->cstat, getangle(pSprite->x-ourx, pSprite->y-oury));
+            frameOffset = getofs_viewtype_mirrored<7>(t->cstat, pSprite->ang - getangle(pSprite->x-ourx, pSprite->y-oury));
             t->picnum = RPG+frameOffset;
             break;
 
@@ -3853,7 +3853,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 break;
             }
 #endif
-            frameOffset = getofs_viewtype_mirrored<7>(t->cstat, getangle(pSprite->x-ourx, pSprite->y-oury));
+            frameOffset = getofs_viewtype_mirrored<7>(t->cstat, pSprite->ang - getangle(pSprite->x-ourx, pSprite->y-oury));
 
             // RECON_T4
             if (klabs(curframe) > 64)
