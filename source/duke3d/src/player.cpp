@@ -4622,9 +4622,9 @@ void P_ProcessInput(int playerNum)
                 clipshape_idx_for_sprite((uspritetype *)&sprite[spriteNum], -1) >= 0)
         {
             // EDuke32 extension: xvel of 1 makes a sprite be never regarded as a bridge.
-            if ((sprite[spriteNum].xvel & 1) == 0 &&
+            if ((sprite[spriteNum].xvel & 1) == 0 /*&&
                 (sprite[spriteNum].z - ((tilesiz[sprite[spriteNum].picnum].y * sprite[spriteNum].yrepeat) << 2))
-                < (pSprite->z - (PHEIGHT - pPlayer->autostep)))
+                < (pSprite->z - (PHEIGHT - pPlayer->autostep))*/)
             {
                 sectorLotag             = 0;
                 pPlayer->footprintcount = 0;
