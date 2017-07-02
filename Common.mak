@@ -413,7 +413,7 @@ ASFORMAT=elf$(BITS)
 # Options to "luajit -b" for synthesis. Since it runs on Linux, we need to tell
 # the native LuaJIT to emit PE object files.
 ifeq ($(PLATFORM),WINDOWS)
-    LINKERFLAGS+= -static-libgcc
+    LINKERFLAGS+= -static-libgcc -static
     ifeq (0,$(CLANG))
         L_CXXONLYFLAGS += -static-libstdc++
     endif
@@ -853,7 +853,7 @@ ifeq ($(PLATFORM),WINDOWS)
     ifneq (0,$(GCC_PREREQ_4))
         L_SSP := -lssp
     endif
-    LIBS+= -lmingwex -lgdi32
+    LIBS+= -lmingwex -lgdi32 -lpthread
     ifeq ($(RENDERTYPE),WIN)
         LIBS += -ldxguid
     else
