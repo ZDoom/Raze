@@ -2745,6 +2745,9 @@ void C_InitQuotes(void)
 
 LUNATIC_EXTERN void C_SetCfgName(const char *cfgname)
 {
+    if (Bstrcmp(g_setupFileName, cfgname) == 0) // no need to do anything if name is the same
+        return;
+
     char temp[BMAX_PATH];
     struct Bstat st;
 
