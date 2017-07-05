@@ -3436,6 +3436,14 @@ static Menu_t* Menu_Find(MenuID_t query)
     return Menu_BinarySearch(query, 0, numMenus-1);
 }
 
+static Menu_t* Menu_FindFiltered(MenuID_t query)
+{
+    if ((g_player[myconnectindex].ps->gm&MODE_GAME) && query == MENU_MAIN)
+        query = MENU_MAIN_INGAME;
+
+    return Menu_Find(query);
+}
+
 MenuAnimation_t m_animation;
 
 int32_t Menu_Anim_SinOutRight(MenuAnimation_t *animdata)
@@ -3525,10 +3533,7 @@ int Menu_Change(MenuID_t cm)
         Menu_Close(myconnectindex);
     else if (cm >= 0)
     {
-        if ((g_player[myconnectindex].ps->gm&MODE_GAME) && cm == MENU_MAIN)
-            cm = MENU_MAIN_INGAME;
-
-        search = Menu_Find(cm);
+        search = Menu_FindFiltered(cm);
 
         if (search == NULL)
             return 0; // intentional, so that users don't use any random value as "don't change"
@@ -3547,7 +3552,7 @@ int Menu_Change(MenuID_t cm)
 
         while (parent != NULL && parent->menuID != MENU_OPTIONS && parent->menuID != MENU_MAIN && parent->menuID != MENU_MAIN_INGAME)
         {
-            result = parent = Menu_Find(parent->parentID);
+            result = parent = Menu_FindFiltered(parent->parentID);
         }
 
         m_parentMenu = result;
