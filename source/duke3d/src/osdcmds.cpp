@@ -327,6 +327,19 @@ static int32_t osdcmd_demo(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
+static int32_t osdcmd_activatecheat(osdfuncparm_t const * const parm)
+{
+    if (parm->numparms != 1)
+        return OSDCMD_SHOWHELP;
+
+    if (numplayers == 1 && g_player[myconnectindex].ps->gm & MODE_GAME)
+        osdcmd_cheatsinfo_stat.cheatnum = Batoi(parm->parms[0]);
+    else
+        OSD_Printf("activatecheat: Not in a single-player game.\n");
+
+    return OSDCMD_OK;
+}
+
 static int32_t osdcmd_god(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -1710,6 +1723,7 @@ int32_t registerosdcommands(void)
 
     OSD_RegisterFunction("give","give <all|health|weapons|ammo|armor|keys|inventory>: gives requested item", osdcmd_give);
     OSD_RegisterFunction("god","god: toggles god mode", osdcmd_god);
+    OSD_RegisterFunction("activatecheat","activatecheat <id>: activates a cheat code", osdcmd_activatecheat);
 
     OSD_RegisterFunction("initgroupfile","initgroupfile <path>: adds a grp file into the game filesystem", osdcmd_initgroupfile);
 #ifdef DEBUGGINGAIDS
