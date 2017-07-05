@@ -56,7 +56,7 @@ void G_ShowParameterHelp(void)
         "-d [file.edm or #]\tPlay a demo\n"
         "-g [file.grp]\tLoad additional game data\n"
         "-h [file.def]\tLoad an alternate definitions file\n"
-        "-j [dir]\t\tAdd a directory to EDuke32's search list\n"
+        "-j [dir]\t\tAdd a directory to " APPNAME "'s search list\n"
         "-l#\t\tStart game on level #, see -v\n"
         "-map [file.map]\tLoad an external map file\n"
         "-mh [file.def]\tInclude an additional definitions module\n"
@@ -83,7 +83,7 @@ void G_ShowParameterHelp(void)
         "-x [game.con]\tLoad custom CON script\n"
         "-#\t\tLoad and run a game from slot # (0-9)\n"
         //              "\n-?/--help\tDisplay this help message and exit\n"
-        "\nSee eduke32 -debughelp for additional parameters for debugging"
+        "\nSee " APPBASENAME " -debughelp for additional parameters for debugging"
         ;
 #ifdef WM_MSGBOX_WINDOW
     Bsnprintf(tempbuf, sizeof(tempbuf), HEAD2 " %s", s_buildRev);
@@ -344,6 +344,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     i++;
                     continue;
                 }
+#ifndef NETCODE_DISABLE
                 if (!Bstrcasecmp(c+1, "net"))
                 {
                     G_GameExit("EDuke32 no longer supports legacy networking.\n\n"
@@ -353,6 +354,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                         "Other clients can then connect by typing \"connect [host]\" in the console.\n\n"
                         "EDuke32 will now close.");
                 }
+#endif
                 if (!Bstrcasecmp(c+1, "port"))
                 {
                     if (argc > i+1)
