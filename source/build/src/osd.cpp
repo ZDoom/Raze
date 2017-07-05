@@ -767,7 +767,7 @@ void OSD_SetFunctions(void (*drawchar)(int32_t, int32_t, char, int32_t, int32_t)
 // OSD_SetParameters() -- Sets the parameters for presenting the text
 //
 void OSD_SetParameters(int32_t promptShade, int32_t promptPal, int32_t editShade, int32_t editPal, int32_t textShade, int32_t textPal,
-                       char const * const errorStr, char const * const highlight)
+                       char const *const errorStr, char const *const highlight, uint32_t flags)
 {
     osddraw_t &draw = osd->draw;
 
@@ -779,6 +779,8 @@ void OSD_SetParameters(int32_t promptShade, int32_t promptPal, int32_t editShade
     draw.textpal     = textPal;
     draw.errorfmt    = errorStr;
     draw.highlight   = highlight;
+
+    osd->flags |= flags;
 }
 
 
@@ -1191,7 +1193,7 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
 
     osddraw_t &draw  = osd->draw;
 
-    if (scanCode == osd->keycode)
+    if (scanCode == osd->keycode && (keystatus[sc_LeftShift] || (osd->flags & OSD_CAPTURE) || (osd->flags & OSD_PROTECTED) != OSD_PROTECTED))
     {
         if (keyDown)
         {

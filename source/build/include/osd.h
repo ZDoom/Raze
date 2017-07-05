@@ -197,7 +197,8 @@ enum osdflags_t
     OSD_OVERTYPE    = 0x00000008,
     OSD_SHIFT       = 0x00000010,
     OSD_CTRL        = 0x00000020,
-    OSD_CAPS        = 0x00000040
+    OSD_CAPS        = 0x00000040,
+    OSD_PROTECTED   = 0x00000080,
 };
 
 #define OSD_ALIAS     (int32_t (*)(const osdfuncparm_t*))0x1337
@@ -242,7 +243,7 @@ void OSD_SetFunctions(void (*drawchar)(int32_t, int32_t, char, int32_t, int32_t)
 
 // sets the parameters for presenting the text
 void OSD_SetParameters(int32_t promptShade, int32_t promptPal, int32_t editShade, int32_t editPal, int32_t textShade, int32_t textPal,
-                       char const *const errorStr, char const *const highlight);
+                       char const *const errorStr, char const *const highlight, uint32_t flags);
 
 // sets the scancode for the key which activates the onscreen display
 void OSD_CaptureKey(uint8_t scanCode);

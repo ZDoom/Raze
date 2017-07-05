@@ -9974,7 +9974,7 @@ int32_t ExtInit(void)
 {
     int32_t rv = 0;
 
-    OSD_SetParameters(0, 2, 0, 0, 4, 0, OSD_ERROR, OSDTEXT_RED);
+    OSD_SetParameters(0, 2, 0, 0, 4, 0, OSD_ERROR, OSDTEXT_RED, 0);
 
     set_memerr_handler(&M32_HandleMemErr);
 
