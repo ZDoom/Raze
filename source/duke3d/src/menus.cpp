@@ -6157,7 +6157,9 @@ void M_DisplayMenus(void)
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     // g_player[myconnectindex].ps->fta = 0;
 
-    if (!KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && Menu_BlackTranslucentBackgroundOK(g_currentMenu))
+    int32_t const backgroundOK = Menu_BlackTranslucentBackgroundOK(g_currentMenu);
+
+    if (!KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && backgroundOK)
         fade_screen_black(1);
 
     if (Menu_UpdateScreenOK(g_currentMenu))
@@ -6192,12 +6194,12 @@ void M_DisplayMenus(void)
     VM_OnEventWithReturn(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, g_currentMenu);
     origin = ud.m_origin;
 
-    if (m_parentMenu)
+    if (m_parentMenu && backgroundOK)
     {
         Menu_Run(m_parentMenu, origin);
     }
 
-    if (KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2 || m_parentMenu != NULL) && Menu_BlackTranslucentBackgroundOK(g_currentMenu))
+    if (KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2 || m_parentMenu != NULL) && backgroundOK)
         fade_screen_black(1);
 
     // Display the menu, with a transition animation if applicable.
