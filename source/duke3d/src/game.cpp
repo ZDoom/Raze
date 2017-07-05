@@ -4715,7 +4715,7 @@ void G_HandleLocalKeys(void)
             typebuf[0] = 0;
         }
 
-        if (KB_UnBoundKeyPressed(sc_F1)/* || (ud.show_help && I_AdvanceTrigger())*/)
+        if (!KXDWN && (KB_UnBoundKeyPressed(sc_F1)/* || (ud.show_help && I_AdvanceTrigger())*/))
         {
             KB_ClearKeyDown(sc_F1);
 
