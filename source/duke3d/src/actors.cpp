@@ -3947,7 +3947,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     int const newSprite = A_Spawn(spriteNum, EXPLOSION2);
                     A_PlaySound(LASERTRIP_EXPLODE, newSprite);
                     A_Spawn(spriteNum, PIGCOP);
-                    g_player[myconnectindex].ps->actors_killed++;
+                    P_AddKills(g_player[myconnectindex].ps, 1);
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
                 }
 
@@ -4173,7 +4173,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     if (damageTile == FREEZEBLAST)
                         goto next_sprite;
 
-                    pPlayer->actors_killed++;
+                    P_AddKills(pPlayer, 1);
 
                     for (bssize_t j = 16; j >= 0; --j)
                     {
@@ -4234,7 +4234,7 @@ ACTOR_STATIC void G_MoveActors(void)
                             sprite[j].pal = 0;
                         }
 
-                        pPlayer->actors_killed++;
+                        P_AddKills(pPlayer, 1);
                         pData[0] = -3;
 
                         if (pPlayer->somethingonplayer == spriteNum)
@@ -4315,7 +4315,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     goto next_sprite;
                 }
 
-                pPlayer->actors_killed++;
+                P_AddKills(pPlayer, 1);
 
                 if ((krand()&255) < 32)
                 {

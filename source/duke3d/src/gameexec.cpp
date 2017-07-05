@@ -1728,7 +1728,7 @@ skip_check:
 
         case CON_ADDKILLS:
             insptr++;
-            pPlayer->actors_killed += *insptr++;
+            P_AddKills(pPlayer, *insptr++);
             vm.pActor->actorstayput = -1;
             continue;
 
@@ -5898,7 +5898,7 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
     if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= MAXSECTORS))
     {
         if (A_CheckEnemySprite(vm.pSprite))
-            vm.pPlayer->actors_killed++;
+            P_AddKills(vm.pPlayer, 1);
 
         A_DeleteSprite(vm.spriteNum);
         return;

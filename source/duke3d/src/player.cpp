@@ -40,6 +40,11 @@ extern int32_t g_levelTextTime, ticrandomseed;
 int32_t g_numObituaries = 0;
 int32_t g_numSelfObituaries = 0;
 
+void P_AddKills(DukePlayer_t * const pPlayer, uint16_t kills)
+{
+    pPlayer->actors_killed += kills;
+}
+
 void P_UpdateScreenPal(DukePlayer_t * const pPlayer)
 {
     int       inWater       = 0;
@@ -5408,7 +5413,7 @@ HORIZONLY:;
                     }
                     default:
                         if (A_CheckEnemySprite(&sprite[pPlayer->actorsqu]))
-                            pPlayer->actors_killed++;
+                            P_AddKills(pPlayer, 1);
                         A_DeleteSprite(pPlayer->actorsqu);
                         break;
                 }
