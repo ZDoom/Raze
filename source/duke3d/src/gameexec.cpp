@@ -911,6 +911,49 @@ static int VM_AddWeapon(DukePlayer_t * const pPlayer, int const weaponNum, int c
 
     return 0;
 }
+
+static void VM_AddInventory(DukePlayer_t * const pPlayer, int const itemNum, int const nAmount)
+{
+    switch (itemNum)
+    {
+    case GET_STEROIDS:
+    case GET_SCUBA:
+    case GET_HOLODUKE:
+    case GET_JETPACK:
+    case GET_HEATS:
+    case GET_FIRSTAID:
+    case GET_BOOTS:
+        pPlayer->inven_icon = inv_to_icon[itemNum];
+        pPlayer->inv_amount[itemNum] = nAmount;
+        break;
+
+    case GET_SHIELD:
+    {
+        int16_t & shield_amount = pPlayer->inv_amount[GET_SHIELD];
+        shield_amount = min(shield_amount + nAmount, pPlayer->max_shield_amount);
+        break;
+    }
+
+    case GET_ACCESS:
+        switch (vm.pSprite->pal)
+        {
+        case  0:
+            pPlayer->got_access |= 1;
+            break;
+        case 21:
+            pPlayer->got_access |= 2;
+            break;
+        case 23:
+            pPlayer->got_access |= 4;
+            break;
+        }
+        break;
+
+    default:
+        CON_ERRPRINTF("Invalid inventory ID %d\n", itemNum);
+        break;
+    }
+}
 #endif
 
 static int32_t A_GetVerticalVel(actor_t const * const pActor)
@@ -3563,50 +3606,12 @@ nullquote:
             continue;
 
         case CON_ADDINVENTORY:
-        {
             insptr += 2;
 
-            int const item = *(insptr-1);
+            VM_AddInventory(pPlayer, *(insptr-1), *insptr);
 
-            switch (item)
-            {
-            case GET_STEROIDS:
-            case GET_SCUBA:
-            case GET_HOLODUKE:
-            case GET_JETPACK:
-            case GET_HEATS:
-            case GET_FIRSTAID:
-            case GET_BOOTS:
-                pPlayer->inven_icon = inv_to_icon[item];
-                pPlayer->inv_amount[item] = *insptr;
-                break;
-
-            case GET_SHIELD:
-                pPlayer->inv_amount[GET_SHIELD] = min(pPlayer->inv_amount[GET_SHIELD] + *insptr, pPlayer->max_shield_amount);
-                break;
-
-            case GET_ACCESS:
-                switch (vm.pSprite->pal)
-                {
-                case  0:
-                    pPlayer->got_access |= 1;
-                    break;
-                case 21:
-                    pPlayer->got_access |= 2;
-                    break;
-                case 23:
-                    pPlayer->got_access |= 4;
-                    break;
-                }
-                break;
-
-            default:
-                CON_ERRPRINTF("Invalid inventory ID %d\n", item);
-                break;
-            }
             insptr++;
             continue;
-        }
 
         case CON_HITRADIUSVAR:
             insptr++;
