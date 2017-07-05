@@ -889,12 +889,12 @@ static void P_AddWeaponAmmoCommon(DukePlayer_t * const pPlayer, int const weapon
         P_AddWeaponMaybeSwitch(pPlayer, weaponNum);
 }
 
-static int VM_AddWeapon(DukePlayer_t * const pPlayer, int const weaponNum, int const nAmount)
+static void VM_AddWeapon(DukePlayer_t * const pPlayer, int const weaponNum, int const nAmount)
 {
     if (EDUKE32_PREDICT_FALSE((unsigned)weaponNum >= MAX_WEAPONS))
     {
         CON_ERRPRINTF("Invalid weapon ID %d\n", weaponNum);
-        return 1;
+        return;
     }
 
     if ((pPlayer->gotweapon & (1 << weaponNum)) == 0)
@@ -904,12 +904,27 @@ static int VM_AddWeapon(DukePlayer_t * const pPlayer, int const weaponNum, int c
     else if (pPlayer->ammo_amount[weaponNum] >= pPlayer->max_ammo_amount[weaponNum])
     {
         vm.flags |= VM_NOEXECUTE;
-        return 2;
+        return;
     }
 
     P_AddWeaponAmmoCommon(pPlayer, weaponNum, nAmount);
+}
 
-    return 0;
+static void VM_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const nAmount)
+{
+    if (EDUKE32_PREDICT_FALSE((unsigned)weaponNum >= MAX_WEAPONS))
+    {
+        CON_ERRPRINTF("Invalid weapon ID %d\n", weaponNum);
+        return;
+    }
+
+    if (pPlayer->ammo_amount[weaponNum] >= pPlayer->max_ammo_amount[weaponNum])
+    {
+        vm.flags |= VM_NOEXECUTE;
+        return;
+    }
+
+    P_AddWeaponAmmoCommon(pPlayer, weaponNum, nAmount);
 }
 
 static void VM_AddInventory(DukePlayer_t * const pPlayer, int const itemNum, int const nAmount)
@@ -1732,19 +1747,7 @@ skip_check:
                 int const weaponNum = *insptr++;
                 int const addAmount = *insptr++;
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)weaponNum >= MAX_WEAPONS))
-                {
-                    CON_ERRPRINTF("Invalid weapon ID %d\n", weaponNum);
-                    break;
-                }
-
-                if (pPlayer->ammo_amount[weaponNum] >= pPlayer->max_ammo_amount[weaponNum])
-                {
-                    vm.flags |= VM_NOEXECUTE;
-                    return;
-                }
-
-                P_AddWeaponAmmoCommon(pPlayer, weaponNum, addAmount);
+                VM_AddAmmo(pPlayer, weaponNum, addAmount);
 
                 continue;
             }
