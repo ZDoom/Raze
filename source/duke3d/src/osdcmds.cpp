@@ -1015,20 +1015,12 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
 
         OSD_Printf("Current key bindings:\n");
 
-        for (i=0; i<MAXBOUNDKEYS; i++)
+        for (i=0; i<MAXBOUNDKEYS+MAXMOUSEBUTTONS; i++)
             if (CONTROL_KeyIsBound(i))
             {
                 j++;
                 OSD_Printf("%-9s %s\"%s\"\n", CONTROL_KeyBinds[i].key, CONTROL_KeyBinds[i].repeat?"":"norepeat ",
                            CONTROL_KeyBinds[i].cmdstr);
-            }
-
-        for (i=0; i<MAXMOUSEBUTTONS; i++)
-            if (CONTROL_MouseIsBound(i))
-            {
-                j++;
-                OSD_Printf("%-9s %s\"%s\"\n", CONTROL_MouseBinds[i].key, CONTROL_MouseBinds[i].repeat?"":"norepeat ",
-                           CONTROL_MouseBinds[i].cmdstr);
             }
 
         if (j == 0)
@@ -1051,9 +1043,10 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
 
         if (parm->numparms < 2)
         {
-            if (CONTROL_MouseBinds[i].cmdstr && CONTROL_MouseBinds[i].key)
-                OSD_Printf("%-9s %s\"%s\"\n", ConsoleButtons[i], CONTROL_MouseBinds[i].repeat?"":"norepeat ",
-                CONTROL_MouseBinds[i].cmdstr);
+            if (CONTROL_KeyBinds[MAXBOUNDKEYS + i].cmdstr && CONTROL_KeyBinds[MAXBOUNDKEYS + i ].key)
+                OSD_Printf("%-9s %s\"%s\"\n", ConsoleButtons[i], CONTROL_KeyBinds[MAXBOUNDKEYS + i].repeat?"":"norepeat ",
+                CONTROL_KeyBinds[MAXBOUNDKEYS + i].cmdstr);
+            else OSD_Printf("%s is unbound\n", ConsoleButtons[i]);
             return OSDCMD_OK;
         }
 

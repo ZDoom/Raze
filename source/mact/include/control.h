@@ -186,8 +186,7 @@ typedef struct binding {
 } keybind;
 
 // Direct use DEPRECATED:
-extern keybind CONTROL_KeyBinds[MAXBOUNDKEYS], CONTROL_MouseBinds[MAXMOUSEBUTTONS];
-
+extern keybind CONTROL_KeyBinds[MAXBOUNDKEYS+MAXMOUSEBUTTONS];
 extern int32_t CONTROL_BindsEnabled;
 
 void CONTROL_ClearAllBinds(void);
@@ -199,11 +198,6 @@ void CONTROL_FreeMouseBind(int32_t i);
 static inline int32_t CONTROL_KeyIsBound(int32_t i)
 {
     return (CONTROL_KeyBinds[i].cmdstr && CONTROL_KeyBinds[i].key);
-}
-
-static inline int32_t CONTROL_MouseIsBound(int32_t i)
-{
-    return (CONTROL_MouseBinds[i].cmdstr && CONTROL_MouseBinds[i].key);
 }
 
 void CONTROL_ProcessBinds(void);

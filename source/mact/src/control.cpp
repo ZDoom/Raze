@@ -59,8 +59,7 @@ int32_t CONTROL_Started = FALSE;
 static int32_t CONTROL_DoubleClickSpeed;
 
 int32_t CONTROL_OSDInput[CONTROL_NUM_FLAGS];
-keybind CONTROL_KeyBinds[MAXBOUNDKEYS];
-keybind CONTROL_MouseBinds[MAXMOUSEBUTTONS];
+keybind CONTROL_KeyBinds[MAXBOUNDKEYS+MAXMOUSEBUTTONS];
 int32_t CONTROL_BindsEnabled = 0;
 int32_t CONTROL_SmoothMouse = 0;
 
@@ -83,7 +82,7 @@ void CONTROL_BindKey(int32_t i, const char *cmd, int32_t repeat, const char *key
 
 void CONTROL_BindMouse(int32_t i, const char *cmd, int32_t repeat, const char *keyname)
 {
-    BIND(CONTROL_MouseBinds[i], Bstrdup(cmd), repeat, keyname);
+    BIND(CONTROL_KeyBinds[MAXBOUNDKEYS + i], Bstrdup(cmd), repeat, keyname);
 }
 
 void CONTROL_FreeKeyBind(int32_t i)
@@ -93,7 +92,7 @@ void CONTROL_FreeKeyBind(int32_t i)
 
 void CONTROL_FreeMouseBind(int32_t i)
 {
-    BIND(CONTROL_MouseBinds[i], NULL, 0, NULL);
+    BIND(CONTROL_KeyBinds[MAXBOUNDKEYS + i], NULL, 0, NULL);
 }
 
 #ifndef __ANDROID__
@@ -708,7 +707,7 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
 
         do
         {
-            if (!CONTROL_MouseBinds[i].cmdstr)
+            if (!CONTROL_KeyBinds[MAXBOUNDKEYS + i].cmdstr)
             {
                 j = CONTROL_MouseButtonMapping[i].doubleclicked;
                 if (j != KEYUNDEFINED)
@@ -722,12 +721,12 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
             if (!CONTROL_BindsEnabled)
                 continue;
 
-            if (CONTROL_MouseBinds[i].cmdstr && CONTROL_MouseButtonState[i])
+            if (CONTROL_KeyBinds[MAXBOUNDKEYS + i].cmdstr && CONTROL_MouseButtonState[i])
             {
-                if (CONTROL_MouseBinds[i].repeat || (CONTROL_MouseBinds[i].laststate == 0))
-                    OSD_Dispatch(CONTROL_MouseBinds[i].cmdstr);
+                if (CONTROL_KeyBinds[MAXBOUNDKEYS + i].repeat || (CONTROL_KeyBinds[MAXBOUNDKEYS + i].laststate == 0))
+                    OSD_Dispatch(CONTROL_KeyBinds[MAXBOUNDKEYS + i].cmdstr);
             }
-            CONTROL_MouseBinds[i].laststate = CONTROL_MouseButtonState[i];
+            CONTROL_KeyBinds[MAXBOUNDKEYS + i].laststate = CONTROL_MouseButtonState[i];
         }
         while (i--);
     }
