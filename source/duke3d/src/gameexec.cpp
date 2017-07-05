@@ -2008,33 +2008,28 @@ skip_check:
         case CON_QSTRDIM:
             insptr++;
             {
-                vec2_t    dim       = { 0, 0, };
                 int const widthVar  = *insptr++;
                 int const heightVar = *insptr++;
-                int32_t   params[16];
 
-                Gv_GetManyVars(16, params);
+                struct {
+                    int32_t tileNum;
+                    vec3_t  vect;
+                    int32_t blockAngle, quoteNum, orientation;
+                    vec2_t  offset, between;
+                    int32_t f;
+                    vec2_t  bound[2];
+                } v;
+                Gv_FillWithVars(v);
 
-                int const tileNum     = params[0];
-                vec3_t    vect        = { params[1], params[2], params[3] };
-                int const blockAngle  = params[4];
-                int const quoteNum    = params[5];
-                int const orientation = params[6] & (ROTATESPRITE_MAX - 1);
-                vec2_t    offset      = { params[7], params[8] };
-                vec2_t    between     = { params[9], params[10] };
-                int const f           = params[11];
-                vec2_t    upperLeft   = { params[12], params[13] };
-                vec2_t    lowerRight  = { params[14], params[15] };
-
-                if (EDUKE32_PREDICT_FALSE(tileNum < 0 || tileNum + 255 >= MAXTILES))
-                    CON_ERRPRINTF("invalid base tilenum %d\n", tileNum);
-                else if (EDUKE32_PREDICT_FALSE((unsigned)quoteNum >= MAXQUOTES || apStrings[quoteNum] == NULL))
-                    CON_ERRPRINTF("invalid quote ID %d\n", quoteNum);
+                if (EDUKE32_PREDICT_FALSE(v.tileNum < 0 || v.tileNum + 127 >= MAXTILES))
+                    CON_ERRPRINTF("invalid base tilenum %d\n", v.tileNum);
+                else if (EDUKE32_PREDICT_FALSE((unsigned)v.quoteNum >= MAXQUOTES || apStrings[v.quoteNum] == NULL))
+                    CON_ERRPRINTF("invalid quote ID %d\n", v.quoteNum);
                 else
                 {
-                    dim = G_ScreenTextSize(tileNum, vect.x, vect.y, vect.z, blockAngle, apStrings[quoteNum],
-                        2 | orientation, offset.x, offset.y, between.x, between.y, f,
-                        upperLeft.x, upperLeft.y, lowerRight.x, lowerRight.y);
+                    vec2_t dim = G_ScreenTextSize(v.tileNum, v.vect.x, v.vect.y, v.vect.z, v.blockAngle, apStrings[v.quoteNum],
+                                                  2 | v.orientation, v.offset.x, v.offset.y, v.between.x, v.between.y, v.f,
+                                                  v.bound[0].x, v.bound[0].y, v.bound[1].x, v.bound[1].y);
 
                     Gv_SetVarX(widthVar, dim.x);
                     Gv_SetVarX(heightVar, dim.y);
@@ -2177,45 +2172,40 @@ skip_check:
         case CON_QSUBSTR:
             insptr++;
             {
-                int32_t params[4];
+                struct {
+                    int32_t outputQuote, inputQuote, quotePos, quoteLength;
+                } v;
+                Gv_FillWithVars(v);
 
-                Gv_GetManyVars(4, params);
-
-                int const outputQuote = params[0];
-                int const inputQuote  = params[1];
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)outputQuote>=MAXQUOTES || apStrings[outputQuote] == NULL))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.outputQuote>=MAXQUOTES || apStrings[v.outputQuote] == NULL))
                 {
-                    CON_ERRPRINTF("invalid quote ID %d\n", outputQuote);
+                    CON_ERRPRINTF("invalid quote ID %d\n", v.outputQuote);
                     continue;
                 }
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)inputQuote>=MAXQUOTES || apStrings[inputQuote] == NULL))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.inputQuote>=MAXQUOTES || apStrings[v.inputQuote] == NULL))
                 {
-                    CON_ERRPRINTF("invalid quote ID %d\n", inputQuote);
+                    CON_ERRPRINTF("invalid quote ID %d\n", v.inputQuote);
                     continue;
                 }
 
-                int quotePos    = params[2];
-                int quoteLength = params[3];
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)quotePos >= MAXQUOTELEN))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.quotePos >= MAXQUOTELEN))
                 {
-                    CON_ERRPRINTF("invalid start position %d\n", quotePos);
+                    CON_ERRPRINTF("invalid start position %d\n", v.quotePos);
                     continue;
                 }
 
-                if (EDUKE32_PREDICT_FALSE(quoteLength < 0))
+                if (EDUKE32_PREDICT_FALSE(v.quoteLength < 0))
                 {
-                    CON_ERRPRINTF("invalid length %d\n", quoteLength);
+                    CON_ERRPRINTF("invalid length %d\n", v.quoteLength);
                     continue;
                 }
 
-                char *      pOutput = apStrings[outputQuote];
-                char const *pInput  = apStrings[inputQuote];
+                char *      pOutput = apStrings[v.outputQuote];
+                char const *pInput  = apStrings[v.inputQuote];
 
-                while (*pInput && quotePos--) pInput++;
-                while ((*pOutput = *pInput) && quoteLength--)
+                while (*pInput && v.quotePos--) pInput++;
+                while ((*pOutput = *pInput) && v.quoteLength--)
                 {
                     pOutput++;
                     pInput++;
@@ -2459,27 +2449,25 @@ nullquote:
         case CON_MYOSPAL:
             insptr++;
             {
-                int32_t values[5];
-                Gv_GetManyVars(5, values);
-
-                vec2_t const pos         = *(vec2_t *)values;
-                int const    tilenum     = values[2];
-                int const    shade       = values[3];
-                int const    orientation = values[4];
+                struct {
+                    vec2_t pos;
+                    int32_t tilenum, shade, orientation;
+                } v;
+                Gv_FillWithVars(v);
 
                 switch (tw)
                 {
                     case CON_MYOS:
-                        VM_DrawTile(pos.x, pos.y, tilenum, shade, orientation);
+                        VM_DrawTile(v.pos.x, v.pos.y, v.tilenum, v.shade, v.orientation);
                         break;
                     case CON_MYOSPAL:
-                        VM_DrawTilePal(pos.x, pos.y, tilenum, shade, orientation, Gv_GetVarX(*insptr++));
+                        VM_DrawTilePal(v.pos.x, v.pos.y, v.tilenum, v.shade, v.orientation, Gv_GetVarX(*insptr++));
                         break;
                     case CON_MYOSX:
-                        VM_DrawTileSmall(pos.x, pos.y, tilenum, shade, orientation);
+                        VM_DrawTileSmall(v.pos.x, v.pos.y, v.tilenum, v.shade, v.orientation);
                         break;
                     case CON_MYOSPALX:
-                        VM_DrawTilePalSmall(pos.x, pos.y, tilenum, shade, orientation, Gv_GetVarX(*insptr++));
+                        VM_DrawTilePalSmall(v.pos.x, v.pos.y, v.tilenum, v.shade, v.orientation, Gv_GetVarX(*insptr++));
                         break;
                 }
                 continue;
@@ -2548,8 +2536,7 @@ nullquote:
             {
                 int const wallNum = Gv_GetVarX(*insptr++);
                 vec2_t n;
-
-                Gv_GetManyVars(2, (int32_t *)&n);
+                Gv_FillWithVars(n);
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
                 {
@@ -2566,8 +2553,7 @@ nullquote:
             {
                 int const out = *insptr++;
                 vec2_t in;
-
-                Gv_GetManyVars(2, (int32_t *) &in);
+                Gv_FillWithVars(in);
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)in.x >= MAXSPRITES || (unsigned)in.y >= MAXSPRITES))
                 {
@@ -2584,8 +2570,7 @@ nullquote:
             {
                 int const out = *insptr++;
                 vec2_t in;
-
-                Gv_GetManyVars(2, (int32_t *) &in);
+                Gv_FillWithVars(in);
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)in.x >= MAXSPRITES || (unsigned)in.y >= MAXSPRITES))
                 {
@@ -2602,8 +2587,7 @@ nullquote:
             {
                 int const out = *insptr++;
                 vec2_t in;
-
-                Gv_GetManyVars(2, (int32_t *)&in);
+                Gv_FillWithVars(in);
                 Gv_SetVarX(out, getangle(in.x, in.y));
                 continue;
             }
@@ -2613,8 +2597,7 @@ nullquote:
             {
                 int const out = *insptr++;
                 vec2_t in;
-
-                Gv_GetManyVars(2, (int32_t *)&in);
+                Gv_FillWithVars(in);
                 Gv_SetVarX(out, G_GetAngleDelta(in.x, in.y));
                 continue;
             }
@@ -2624,8 +2607,7 @@ nullquote:
             {
                 int const out = *insptr++;
                 vec3_t in;
-
-                Gv_GetManyVars(3, (int32_t *)&in);
+                Gv_FillWithVars(in);
                 Gv_SetVarX(out, mulscale(in.x, in.y, in.z));
                 continue;
             }
@@ -2635,8 +2617,7 @@ nullquote:
             {
                 int const out = *insptr++;
                 vec3_t in;
-
-                Gv_GetManyVars(3, (int32_t *)&in);
+                Gv_FillWithVars(in);
                 Gv_SetVarX(out, divscale(in.x, in.y, in.z));
                 continue;
             }
@@ -2646,8 +2627,7 @@ nullquote:
             {
                 int const out = *insptr++;
                 vec3_t in;
-
-                Gv_GetManyVars(3, (int32_t *)&in);
+                Gv_FillWithVars(in);
                 Gv_SetVarX(out, scale(in.x, in.y, in.z));
                 continue;
             }
@@ -2661,7 +2641,7 @@ nullquote:
             insptr++;
             {
                 int32_t params[4];
-                Gv_GetManyVars(4, params);
+                Gv_FillWithVars(params);
                 aGameVars[g_returnVarID].global = nextsectorneighborz(params[0], params[1], params[2], params[3]);
             }
             continue;
@@ -2908,28 +2888,26 @@ nullquote:
         case CON_SHOWVIEWUNBIASED:
             insptr++;
             {
-                vec3_t vec;
-                Gv_GetManyVars(3, (int32_t *)&vec);
+                struct {
+                    vec3_t vec;
+                    int32_t params[3];
+                    vec2_t scrn[2];
+                } v;
+                Gv_FillWithVars(v);
 
-                int32_t params[3];
-                Gv_GetManyVars(3, params);
-
-                vec2_t scrn[2];
-                Gv_GetManyVars(4, (int32_t *)scrn);
-
-                if (EDUKE32_PREDICT_FALSE(scrn[0].x < 0 || scrn[0].y < 0 || scrn[1].x >= 320 || scrn[1].y >= 200))
+                if (EDUKE32_PREDICT_FALSE(v.scrn[0].x < 0 || v.scrn[0].y < 0 || v.scrn[1].x >= 320 || v.scrn[1].y >= 200))
                 {
                     CON_ERRPRINTF("incorrect coordinates\n");
                     continue;
                 }
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)params[2] >= (unsigned)numsectors))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.params[2] >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", params[2]);
+                    CON_ERRPRINTF("Invalid sector %d\n", v.params[2]);
                     continue;
                 }
 
-                G_ShowView(vec, params[0], params[1], params[2], scrn[0].x, scrn[0].y, scrn[1].x, scrn[1].y, (tw != CON_SHOWVIEW));
+                G_ShowView(v.vec, v.params[0], v.params[1], v.params[2], v.scrn[0].x, v.scrn[0].y, v.scrn[1].x, v.scrn[1].y, (tw != CON_SHOWVIEW));
 
                 continue;
             }
@@ -2939,40 +2917,35 @@ nullquote:
         case CON_ROTATESPRITE:
             insptr++;
             {
-                int32_t params[8];
-
-                Gv_GetManyVars(8, params);
-
-                vec3_t    pos         = *(vec3_t *)params;
-                int const ang         = params[3];
-                int const tilenum     = params[4];
-                int const shade       = params[5];
-                int const pal         = params[6];
-                int       orientation = params[7] & (ROTATESPRITE_MAX - 1);
+                struct {
+                    vec3_t  pos;
+                    int32_t ang, tilenum, shade, pal, orientation;
+                } v;
+                Gv_FillWithVars(v);
 
                 int32_t alpha = (tw == CON_ROTATESPRITEA) ? Gv_GetVarX(*insptr++) : 0;
 
-                vec2_t scrn[2];
-                Gv_GetManyVars(4, (int32_t *) scrn);
+                vec2_t bound[2];
+                Gv_FillWithVars(bound);
 
-                if (tw != CON_ROTATESPRITE16 && !(orientation&ROTATESPRITE_FULL16))
+                if (tw != CON_ROTATESPRITE16 && !(v.orientation&ROTATESPRITE_FULL16))
                 {
-                    pos.x <<= 16;
-                    pos.y <<= 16;
+                    v.pos.x <<= 16;
+                    v.pos.y <<= 16;
                 }
 
-                if (EDUKE32_PREDICT_FALSE((unsigned) tilenum >= MAXTILES))
+                if (EDUKE32_PREDICT_FALSE((unsigned) v.tilenum >= MAXTILES))
                 {
-                    CON_ERRPRINTF("invalid tilenum %d\n", tilenum);
+                    CON_ERRPRINTF("invalid tilenum %d\n", v.tilenum);
                     continue;
                 }
 
                 int32_t blendidx = 0;
 
-                NEG_ALPHA_TO_BLEND(alpha, blendidx, orientation);
+                NEG_ALPHA_TO_BLEND(alpha, blendidx, v.orientation);
 
-                rotatesprite_(pos.x, pos.y, pos.z, ang, tilenum, shade, pal, 2 | orientation, alpha, blendidx,
-                              scrn[0].x, scrn[0].y, scrn[1].x, scrn[1].y);
+                rotatesprite_(v.pos.x, v.pos.y, v.pos.z, v.ang, v.tilenum, v.shade, v.pal, 2 | (v.orientation & (ROTATESPRITE_MAX - 1)),
+                              alpha, blendidx, bound[0].x, bound[0].y, bound[1].x, bound[1].y);
                 continue;
             }
 
@@ -2980,32 +2953,30 @@ nullquote:
         case CON_GAMETEXTZ:
             insptr++;
             {
-                int32_t params[11];
-                Gv_GetManyVars(11, params);
+                struct {
+                    int32_t tilenum;
+                    vec2_t  pos;
+                    int32_t nQuote, shade, pal, orientation;
+                    vec2_t  bound[2];
+                } v;
+                Gv_FillWithVars(v);
 
-                int const    tilenum     = params[0];
-                vec2_t const pos         = { params[1], params[2] };
-                int const    nQuote      = params[3];
-                int const    shade       = params[4];
-                int const    pal         = params[5];
-                int const    orientation = params[6] & (ROTATESPRITE_MAX - 1);
-                vec2_t const bound1      = *(vec2_t *)&params[7];
-                vec2_t const bound2      = *(vec2_t *)&params[9];
-                int32_t      z           = (tw == CON_GAMETEXTZ) ? Gv_GetVarX(*insptr++) : 65536;
+                int32_t const z = (tw == CON_GAMETEXTZ) ? Gv_GetVarX(*insptr++) : 65536;
 
-                if (EDUKE32_PREDICT_FALSE(tilenum < 0 || tilenum + 255 >= MAXTILES))
+                if (EDUKE32_PREDICT_FALSE(v.tilenum < 0 || v.tilenum + 127 >= MAXTILES))
                 {
-                    CON_ERRPRINTF("invalid base tilenum %d\n", tilenum);
+                    CON_ERRPRINTF("invalid base tilenum %d\n", v.tilenum);
                     continue;
                 }
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)nQuote >= MAXQUOTES || apStrings[nQuote] == NULL))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.nQuote >= MAXQUOTES || apStrings[v.nQuote] == NULL))
                 {
-                    CON_ERRPRINTF("invalid quote ID %d\n", nQuote);
+                    CON_ERRPRINTF("invalid quote ID %d\n", v.nQuote);
                     continue;
                 }
 
-                G_PrintGameText(tilenum, pos.x >> 1, pos.y, apStrings[nQuote], shade, pal, orientation, bound1.x, bound1.y, bound2.x, bound2.y, z, 0);
+                G_PrintGameText(v.tilenum, v.pos.x >> 1, v.pos.y, apStrings[v.nQuote], v.shade, v.pal, v.orientation & (ROTATESPRITE_MAX - 1),
+                                v.bound[0].x, v.bound[0].y, v.bound[1].x, v.bound[1].y, z, 0);
                 continue;
             }
 
@@ -3013,84 +2984,74 @@ nullquote:
         case CON_DIGITALNUMBERZ:
             insptr++;
             {
-                int32_t params[11];
-                Gv_GetManyVars(11, params);
+                struct {
+                    int32_t tilenum;
+                    vec2_t  pos;
+                    int32_t nQuote, shade, pal, orientation;
+                    vec2_t  bound[2];
+                } v;
+                Gv_FillWithVars(v);
 
-                int const    tilenum     = params[0];
-                vec2_t const pos         = { params[1], params[2] };
-                int const    q           = params[3];
-                int const    shade       = params[4];
-                int const    pal         = params[5];
-                int const    orientation = params[6] & (ROTATESPRITE_MAX - 1);
-                vec2_t const bound1      = *(vec2_t *)&params[7];
-                vec2_t const bound2      = *(vec2_t *)&params[9];
-                int32_t      nZoom       = (tw == CON_DIGITALNUMBERZ) ? Gv_GetVarX(*insptr++) : 65536;
+                int32_t const nZoom       = (tw == CON_DIGITALNUMBERZ) ? Gv_GetVarX(*insptr++) : 65536;
 
                 // NOTE: '-' not taken into account, but we have rotatesprite() bound check now anyway
-                if (EDUKE32_PREDICT_FALSE(tilenum < 0 || tilenum+9 >= MAXTILES))
+                if (EDUKE32_PREDICT_FALSE(v.tilenum < 0 || v.tilenum+9 >= MAXTILES))
                 {
-                    CON_ERRPRINTF("invalid base tilenum %d\n", tilenum);
+                    CON_ERRPRINTF("invalid base tilenum %d\n", v.tilenum);
                     continue;
                 }
 
-                G_DrawTXDigiNumZ(tilenum, pos.x, pos.y, q, shade, pal, orientation, bound1.x, bound1.y, bound2.x, bound2.y, nZoom);
+                G_DrawTXDigiNumZ(v.tilenum, v.pos.x, v.pos.y, v.nQuote, v.shade, v.pal, v.orientation & (ROTATESPRITE_MAX - 1),
+                                 v.bound[0].x, v.bound[0].y, v.bound[1].x, v.bound[1].y, nZoom);
                 continue;
             }
 
         case CON_MINITEXT:
             insptr++;
             {
-                int32_t params[5];
-                Gv_GetManyVars(5, params);
+                struct {
+                    vec2_t  pos;
+                    int32_t nQuote, shade, pal;
+                } v;
+                Gv_FillWithVars(v);
 
-                vec2_t const pos = { params[0], params[1] };
-                int const nQuote = params[2];
-                int const shade = params[3], pal = params[4];
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)nQuote >= MAXQUOTES || apStrings[nQuote] == NULL))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.nQuote >= MAXQUOTES || apStrings[v.nQuote] == NULL))
                 {
-                    CON_ERRPRINTF("invalid quote ID %d\n", nQuote);
+                    CON_ERRPRINTF("invalid quote ID %d\n", v.nQuote);
                     continue;
                 }
 
-                minitextshade(pos.x, pos.y, apStrings[nQuote], shade, pal, 2+8+16);
+                minitextshade(v.pos.x, v.pos.y, apStrings[v.nQuote], v.shade, v.pal, 2+8+16);
                 continue;
             }
 
         case CON_SCREENTEXT:
             insptr++;
             {
-                int32_t params[20];
-                Gv_GetManyVars(20, params);
+                struct {
+                    int32_t tilenum;
+                    vec3_t  v;
+                    int32_t blockangle, charangle, nQuote, shade, pal, orientation, alpha;
+                    vec2_t  spacing, between;
+                    int32_t nFlags;
+                    vec2_t  bound[2];
+                } v;
+                Gv_FillWithVars(v);
 
-                int const    tilenum     = params[0];
-                vec3_t const v           = *(vec3_t *)&params[1];
-                int const    blockangle  = params[4];
-                int const    charangle   = params[5];
-                int const    nQuote      = params[6];
-                int const    shade       = params[7];
-                int const    pal         = params[8];
-                int const    orientation = params[9] & (ROTATESPRITE_MAX - 1);
-                int const    alpha       = params[10];
-                vec2_t const spacing     = *(vec2_t *) &params[11];
-                vec2_t const between     = *(vec2_t *) &params[13];
-                int const    nFlags      = params[15];
-                vec2_t const scrn[2]     = { *(vec2_t *)&params[16], *(vec2_t *)&params[18] };
-
-                if (EDUKE32_PREDICT_FALSE(tilenum < 0 || tilenum+255 >= MAXTILES))
+                if (EDUKE32_PREDICT_FALSE(v.tilenum < 0 || v.tilenum+127 >= MAXTILES))
                 {
-                    CON_ERRPRINTF("invalid base tilenum %d\n", tilenum);
+                    CON_ERRPRINTF("invalid base tilenum %d\n", v.tilenum);
                     continue;
                 }
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)nQuote >= MAXQUOTES || apStrings[nQuote] == NULL))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.nQuote >= MAXQUOTES || apStrings[v.nQuote] == NULL))
                 {
-                    CON_ERRPRINTF("invalid quote ID %d\n", nQuote);
+                    CON_ERRPRINTF("invalid quote ID %d\n", v.nQuote);
                     continue;
                 }
 
-                G_ScreenText(tilenum, v.x, v.y, v.z, blockangle, charangle, apStrings[nQuote], shade, pal, 2 | orientation,
-                             alpha, spacing.x, spacing.y, between.x, between.y, nFlags, scrn[0].x, scrn[0].y, scrn[1].x, scrn[1].y);
+                G_ScreenText(v.tilenum, v.v.x, v.v.y, v.v.z, v.blockangle, v.charangle, apStrings[v.nQuote], v.shade, v.pal, 2 | (v.orientation & (ROTATESPRITE_MAX - 1)),
+                             v.alpha, v.spacing.x, v.spacing.y, v.between.x, v.between.y, v.nFlags, v.bound[0].x, v.bound[0].y, v.bound[1].x, v.bound[1].y);
                 continue;
             }
 
@@ -3102,26 +3063,31 @@ nullquote:
         case CON_GETZRANGE:
             insptr++;
             {
-                vec3_t vect;
-                Gv_GetManyVars(3, (int32_t *)&vect);
+                struct {
+                    vec3_t  vect;
+                    int32_t sectNum;
+                } v;
+                Gv_FillWithVars(v);
 
-                int const sectnum    = Gv_GetVarX(*insptr++);
                 int const ceilzvar   = *insptr++;
                 int const ceilhitvar = *insptr++;
                 int const florzvar   = *insptr++;
                 int const florhitvar = *insptr++;
-                int const walldist   = Gv_GetVarX(*insptr++);
-                int const clipmask   = Gv_GetVarX(*insptr++);
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)sectnum >= (unsigned)numsectors))
+                struct {
+                    int32_t walldist, clipmask;
+                } v2;
+                Gv_FillWithVars(v2);
+
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.sectNum >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", v.sectNum);
                     continue;
                 }
 
                 int32_t ceilz, ceilhit, florz, florhit;
 
-                getzrange(&vect, sectnum, &ceilz, &ceilhit, &florz, &florhit, walldist, clipmask);
+                getzrange(&v.vect, v.sectNum, &ceilz, &ceilhit, &florz, &florhit, v2.walldist, v2.clipmask);
                 Gv_SetVarX(ceilzvar, ceilz);
                 Gv_SetVarX(ceilhitvar, ceilhit);
                 Gv_SetVarX(florzvar, florz);
@@ -3155,7 +3121,7 @@ nullquote:
             {
                 int32_t returnVar = *insptr++;
                 vec2_t  da;
-                Gv_GetManyVars(2, (int32_t *)&da);
+                Gv_FillWithVars(da);
                 int64_t const hypsq = (int64_t)da.x*da.x + (int64_t)da.y*da.y;
 
                 Gv_SetVarX(returnVar, (hypsq > (int64_t) INT32_MAX)
@@ -3168,11 +3134,11 @@ nullquote:
         case CON_RAYINTERSECT:
             insptr++;
             {
-                vec3_t vec[2];
-                Gv_GetManyVars(6, (int32_t *)vec);
-
-                vec2_t vec2[2];
-                Gv_GetManyVars(4, (int32_t *)vec2);
+                struct {
+                    vec3_t vec[2];
+                    vec2_t vec2[2];
+                } v;
+                Gv_FillWithVars(v);
 
                 int const intxvar = *insptr++;
                 int const intyvar = *insptr++;
@@ -3180,10 +3146,16 @@ nullquote:
                 int const retvar  = *insptr++;
                 vec3_t    in;
                 int       ret = (tw == CON_LINEINTERSECT)
-                          ? lintersect(vec[0].x, vec[0].y, vec[0].z, vec[1].x, vec[1].y, vec[1].z, vec2[0].x, vec2[0].y,
-                                       vec2[1].x, vec2[1].y, &in.x, &in.y, &in.z)
-                          : rayintersect(vec[0].x, vec[0].y, vec[0].z, vec[1].x, vec[1].y, vec[1].z, vec2[0].x, vec2[0].y,
-                                         vec2[1].x, vec2[1].y, &in.x, &in.y, &in.z);
+                          ? lintersect(v.vec[0].x, v.vec[0].y, v.vec[0].z,
+                                       v.vec[1].x, v.vec[1].y, v.vec[1].z,
+                                       v.vec2[0].x, v.vec2[0].y,
+                                       v.vec2[1].x, v.vec2[1].y,
+                                       &in.x, &in.y, &in.z)
+                          : rayintersect(v.vec[0].x, v.vec[0].y, v.vec[0].z,
+                                         v.vec[1].x, v.vec[1].y, v.vec[1].z,
+                                         v.vec2[0].x, v.vec2[0].y,
+                                         v.vec2[1].x, v.vec2[1].y,
+                                         &in.x, &in.y, &in.z);
 
                 Gv_SetVarX(retvar, ret);
 
@@ -3211,19 +3183,19 @@ nullquote:
 
                 insptr -= 2;
 
-                vec3_t vec3;
-                Gv_GetManyVars(3, (int32_t *)&vec3);
+                typedef struct {
+                    vec3_t vec3;
+                    int32_t sectNum32;
+                    vec2_t vec2;
+                    vec3dist_t dist;
+                    int32_t clipMask;
+                } clipmoveparams_t;
 
-                int const sectReturn = *insptr++;
+                int32_t const sectReturn = insptr[offsetof(clipmoveparams_t, sectNum32)/sizeof(int32_t)];
 
-                vec2_t vec2;
-                Gv_GetManyVars(2, (int32_t *)&vec2);
-
-                vec3dist_t dist;
-                Gv_GetManyVars(3, (int32_t *)&dist);
-
-                int const clipMask = Gv_GetVarX(*insptr++);
-                int16_t   sectNum  = Gv_GetVarX(sectReturn);
+                clipmoveparams_t v;
+                Gv_FillWithVars(v);
+                int16_t sectNum = v.sectNum32;
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
                 {
@@ -3233,10 +3205,10 @@ nullquote:
                 }
 
                 Gv_SetVarX(returnVar,
-                    clipmovex(&vec3, &sectNum, vec2.x, vec2.y, dist.w, dist.f, dist.c, clipMask, (tw == CON_CLIPMOVENOSLIDE)));
-                Gv_SetVarX(sectReturn, sectNum);
-                Gv_SetVarX(xReturn, vec3.x);
-                Gv_SetVarX(yReturn, vec3.y);
+                    clipmovex(&v.vec3, &sectNum, v.vec2.x, v.vec2.y, v.dist.w, v.dist.f, v.dist.c, v.clipMask, (tw == CON_CLIPMOVENOSLIDE)));
+                Gv_SetVarX(sectReturn, v.sectNum32);
+                Gv_SetVarX(xReturn, v.vec3.x);
+                Gv_SetVarX(yReturn, v.vec3.y);
 
                 continue;
             }
@@ -3244,13 +3216,12 @@ nullquote:
         case CON_HITSCAN:
             insptr++;
             {
-                vec3_t vect;
-                Gv_GetManyVars(3, (int32_t *)&vect);
-
-                int const sectnum = Gv_GetVarX(*insptr++);
-
-                vec3_t v;
-                Gv_GetManyVars(3, (int32_t *) &v);
+                struct {
+                    vec3_t vect;
+                    int32_t sectnum;
+                    vec3_t v;
+                } v;
+                Gv_FillWithVars(v);
 
                 int const sectReturn   = *insptr++;
                 int const wallReturn   = *insptr++;
@@ -3260,14 +3231,14 @@ nullquote:
                 int const zReturn      = *insptr++;
                 int const clipType     = Gv_GetVarX(*insptr++);
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)sectnum >= (unsigned)numsectors))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.sectnum >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", sectnum);
+                    CON_ERRPRINTF("Invalid sector %d\n", v.sectnum);
                     continue;
                 }
 
                 hitdata_t hit;
-                hitscan((const vec3_t *)&vect, sectnum, v.x, v.y, v.z, &hit, clipType);
+                hitscan(&v.vect, v.sectnum, v.v.x, v.v.y, v.v.z, &hit, clipType);
 
                 Gv_SetVarX(sectReturn, hit.sect);
                 Gv_SetVarX(wallReturn, hit.wall);
@@ -3281,40 +3252,41 @@ nullquote:
         case CON_CANSEE:
             insptr++;
             {
-                vec3_t vec1;
-                Gv_GetManyVars(3, (int32_t *) &vec1);
+                struct {
+                    vec3_t  vec1;
+                    int32_t firstSector;
+                    vec3_t  vec2;
+                    int32_t secondSector;
+                } v;
+                Gv_FillWithVars(v);
 
-                int const firstSector = Gv_GetVarX(*insptr++);
-
-                vec3_t vec2;
-                Gv_GetManyVars(3, (int32_t *) &vec2);
-
-                int const secondSector = Gv_GetVarX(*insptr++);
                 int const returnVar    = *insptr++;
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)firstSector >= (unsigned)numsectors ||
-                                          (unsigned)secondSector >= (unsigned)numsectors))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.firstSector >= (unsigned)numsectors ||
+                                          (unsigned)v.secondSector >= (unsigned)numsectors))
                 {
                     CON_ERRPRINTF("Invalid sector\n");
                     Gv_SetVarX(returnVar, 0);
                 }
 
-                Gv_SetVarX(returnVar, cansee(vec1.x, vec1.y, vec1.z, firstSector, vec2.x, vec2.y, vec2.z, secondSector));
+                Gv_SetVarX(returnVar, cansee(v.vec1.x, v.vec1.y, v.vec1.z, v.firstSector, v.vec2.x, v.vec2.y, v.vec2.z, v.secondSector));
                 continue;
             }
 
         case CON_ROTATEPOINT:
             insptr++;
             {
-                vec2_t point[2];
-                Gv_GetManyVars(4, (int32_t *)point);
+                struct {
+                    vec2_t point[2];
+                    int32_t angle;
+                } v;
+                Gv_FillWithVars(v);
 
-                int const angle   = Gv_GetVarX(*insptr++);
                 int const xReturn = *insptr++;
                 int const yReturn = *insptr++;
                 vec2_t    result;
 
-                rotatepoint(point[0], point[1], angle, &result);
+                rotatepoint(v.point[0], v.point[1], v.angle, &result);
 
                 Gv_SetVarX(xReturn, result.x);
                 Gv_SetVarX(yReturn, result.y);
@@ -3332,28 +3304,33 @@ nullquote:
                 //                     int32_t neartagrange,      //Choose maximum distance to scan (scale: 1024=largest grid size)
                 //                     char tagsearch)         //1-lotag only, 2-hitag only, 3-lotag&hitag
 
-                vec3_t point;
-                Gv_GetManyVars(3, (int32_t *)&point);
-                int const sectNum      = Gv_GetVarX(*insptr++);
-                int const nAngle       = Gv_GetVarX(*insptr++);
+                struct {
+                    vec3_t  point;
+                    int32_t sectNum, nAngle;
+                } v;
+                Gv_FillWithVars(v);
+
                 int const sectReturn   = *insptr++;
                 int const wallReturn   = *insptr++;
                 int const spriteReturn = *insptr++;
                 int const distReturn   = *insptr++;
-                int const tagRange     = Gv_GetVarX(*insptr++);
-                int const tagSearch    = Gv_GetVarX(*insptr++);
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
+                struct {
+                    int32_t tagRange, tagSearch;
+                } v2;
+                Gv_FillWithVars(v2);
+
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.sectNum >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", sectNum);
+                    CON_ERRPRINTF("Invalid sector %d\n", v.sectNum);
                     continue;
                 }
 
                 int16_t neartagsector, neartagwall, neartagsprite;
                 int32_t neartaghitdist;
 
-                neartag(point.x, point.y, point.z, sectNum, nAngle, &neartagsector, &neartagwall, &neartagsprite,
-                        &neartaghitdist, tagRange, tagSearch, NULL);
+                neartag(v.point.x, v.point.y, v.point.z, v.sectNum, v.nAngle, &neartagsector, &neartagwall, &neartagsprite,
+                        &neartaghitdist, v2.tagRange, v2.tagSearch, NULL);
 
                 Gv_SetVarX(sectReturn, neartagsector);
                 Gv_SetVarX(wallReturn, neartagwall);
@@ -3377,38 +3354,39 @@ nullquote:
         case CON_MOVESPRITE:
             insptr++;
             {
-                int const spriteNum = Gv_GetVarX(*insptr++);
-                vec3_t    vect;
+                struct {
+                    int32_t spriteNum;
+                    vec3_t  vect;
+                    int32_t clipType;
+                } v;
+                Gv_FillWithVars(v);
 
-                Gv_GetManyVars(3, (int32_t *)&vect);
-
-                int const clipType = Gv_GetVarX(*insptr++);
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.spriteNum >= MAXSPRITES))
                 {
-                    CON_ERRPRINTF("invalid sprite ID %d\n", spriteNum);
+                    CON_ERRPRINTF("invalid sprite ID %d\n", v.spriteNum);
                     insptr++;
                     continue;
                 }
 
-                Gv_SetVarX(*insptr++, A_MoveSprite(spriteNum, &vect, clipType));
+                Gv_SetVarX(*insptr++, A_MoveSprite(v.spriteNum, &v.vect, v.clipType));
                 continue;
             }
 
         case CON_SETSPRITE:
             insptr++;
             {
-                int const spriteNum = Gv_GetVarX(*insptr++);
-                vec3_t    vect;
+                struct {
+                    int32_t spriteNum;
+                    vec3_t  vect;
+                } v;
+                Gv_FillWithVars(v);
 
-                Gv_GetManyVars(3, (int32_t *)&vect);
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum >= MAXSPRITES))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.spriteNum >= MAXSPRITES))
                 {
-                    CON_ERRPRINTF("invalid sprite ID %d\n", spriteNum);
+                    CON_ERRPRINTF("invalid sprite ID %d\n", v.spriteNum);
                     continue;
                 }
-                setsprite(spriteNum, &vect);
+                setsprite(v.spriteNum, &v.vect);
                 continue;
             }
 
@@ -3416,19 +3394,19 @@ nullquote:
         case CON_GETCEILZOFSLOPE:
             insptr++;
             {
-                int const sectNum = Gv_GetVarX(*insptr++);
-                vec2_t    vect;
-                Gv_GetManyVars(2, (int32_t *)&vect);
+                struct {
+                    int32_t sectNum;
+                    vec2_t  vect;
+                } v;
+                Gv_FillWithVars(v);
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)sectNum >= (unsigned)numsectors))
+                if (EDUKE32_PREDICT_FALSE((unsigned)v.sectNum >= (unsigned)numsectors))
                 {
-                    CON_ERRPRINTF("Invalid sector %d\n", sectNum);
+                    CON_ERRPRINTF("Invalid sector %d\n", v.sectNum);
                     insptr++;
                     continue;
                 }
-
-                Gv_SetVarX(*insptr++, (tw == CON_GETFLORZOFSLOPE) ? getflorzofslope(sectNum, vect.x, vect.y) :
-                                                                    getceilzofslope(sectNum, vect.x, vect.y));
+                Gv_SetVarX(*insptr++, (tw == CON_GETFLORZOFSLOPE ? getflorzofslope : getceilzofslope)(v.sectNum, v.vect.x, v.vect.y));
                 continue;
             }
 
@@ -3436,7 +3414,7 @@ nullquote:
             insptr++;
             {
                 vec2_t vect         = { 0, 0 };
-                Gv_GetManyVars(2, (int32_t *)&vect);
+                Gv_FillWithVars(vect);
 
                 int const returnVar = *insptr++;
                 int16_t   sectNum   = sprite[vm.spriteNum].sectnum;
@@ -3450,7 +3428,7 @@ nullquote:
             insptr++;
             {
                 vec3_t vect         = { 0, 0, 0 };
-                Gv_GetManyVars(3, (int32_t *)&vect);
+                Gv_FillWithVars(vect);
 
                 int const returnVar = *insptr++;
                 int16_t   sectNum   = sprite[vm.spriteNum].sectnum;
@@ -3620,7 +3598,7 @@ nullquote:
             insptr++;
             {
                 int32_t params[5];
-                Gv_GetManyVars(5, params);
+                Gv_FillWithVars(params);
                 A_RadiusDamage(vm.spriteNum, params[0], params[1], params[2], params[3], params[4]);
             }
             continue;
@@ -4921,7 +4899,7 @@ finish_qsprintf:
                     int32_t index;
                 } v;
 
-                Gv_GetManyVars(sizeof(v)/sizeof(int32_t), (int32_t *)&v);
+                Gv_FillWithVars(v);
 
                 drawline256(v.pos[0].x, v.pos[0].y, v.pos[1].x, v.pos[1].y, v.index);
             }
@@ -4935,7 +4913,7 @@ finish_qsprintf:
                     int32_t index, rgb;
                 } v;
 
-                Gv_GetManyVars(sizeof(v)/sizeof(int32_t), (int32_t *)&v);
+                Gv_FillWithVars(v);
 
                 palette_t const p = { (uint8_t)(v.rgb & 0xFF), (uint8_t)((v.rgb >> 8) & 0xFF), (uint8_t)((v.rgb >> 16) & 0xFF), (uint8_t)v.index };
 

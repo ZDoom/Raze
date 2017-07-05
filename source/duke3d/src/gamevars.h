@@ -107,6 +107,14 @@ int __fastcall Gv_GetVarX(int id);
 void __fastcall Gv_GetManyVars(int const count, int32_t * const rv);
 void __fastcall Gv_SetVarX(int const id, int const lValue);
 
+template <typename T>
+static FORCE_INLINE void Gv_FillWithVars(T & rv)
+{
+    EDUKE32_STATIC_ASSERT(sizeof(T) % sizeof(int32_t) == 0);
+    EDUKE32_STATIC_ASSERT(sizeof(T) > sizeof(int32_t));
+    Gv_GetManyVars(sizeof(T)/sizeof(int32_t), (int32_t *)&rv);
+}
+
 int Gv_GetVarByLabel(const char *szGameLabel,int const lDefault,int const spriteNum,int const playerNum);
 int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
