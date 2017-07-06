@@ -28,7 +28,7 @@ static HANDLE instanceflag = NULL;
 
 static OSVERSIONINFOEX osv;
 
-static int32_t togglecomp = 1;
+static int32_t togglecomp = 0;
 
 FARPROC pwinever;
 
