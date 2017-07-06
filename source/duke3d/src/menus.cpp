@@ -160,7 +160,7 @@ MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16), 1<<16 }, 65536
 MenuFont_t MF_BluefontGame =     { { 5<<16,  7<<16 }, {        0,     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_Minifont =         { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_MinifontRed =      { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 16, 21, 16 };
-static MenuFont_t MF_MinifontDarkGray = { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 13, 16 };
+static MenuFont_t MF_MinifontSave     = { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 13 };
 
 
 static MenuMenuFormat_t MMF_Top_Main =             { {  MENU_MARGIN_CENTER<<16, 55<<16, }, -(170<<16) };
@@ -265,19 +265,25 @@ static MenuEntry_t ME_Space8_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_N
 static MenuLink_t MEO_ ## EntryName = { LinkID, MA_Advance, };\
 static MenuEntry_t ME_ ## EntryName = MAKE_MENUENTRY( Title, &MF_Redfont, &Format, &MEO_ ## EntryName, Link )
 
+static char const s_NewGame[] = "New Game";
+static char const s_SaveGame[] = "Save Game";
+static char const s_LoadGame[] = "Load Game";
+static char const s_Continue[] = "Continue";
+static char const s_Options[] = "Options";
+static char const s_Credits[] = "Credits";
 
-MAKE_MENU_TOP_ENTRYLINK( "New Game", MEF_MainMenu, MAIN_NEWGAME, MENU_EPISODE );
+MAKE_MENU_TOP_ENTRYLINK( s_NewGame, MEF_MainMenu, MAIN_NEWGAME, MENU_EPISODE );
 #ifdef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Resume Game", MEF_MainMenu, MAIN_RESUMEGAME, MENU_CLOSE );
 #endif
-MAKE_MENU_TOP_ENTRYLINK( "New Game", MEF_MainMenu, MAIN_NEWGAME_INGAME, MENU_NEWVERIFY );
+MAKE_MENU_TOP_ENTRYLINK( s_NewGame, MEF_MainMenu, MAIN_NEWGAME_INGAME, MENU_NEWVERIFY );
 static MenuLink_t MEO_MAIN_NEWGAME_NETWORK = { MENU_NETWORK, MA_Advance, };
-MAKE_MENU_TOP_ENTRYLINK( "Save Game", MEF_MainMenu, MAIN_SAVEGAME, MENU_SAVE );
-MAKE_MENU_TOP_ENTRYLINK( "Load Game", MEF_MainMenu, MAIN_LOADGAME, MENU_LOAD );
-MAKE_MENU_TOP_ENTRYLINK( "Options", MEF_MainMenu, MAIN_OPTIONS, MENU_OPTIONS );
+MAKE_MENU_TOP_ENTRYLINK( s_SaveGame, MEF_MainMenu, MAIN_SAVEGAME, MENU_SAVE );
+MAKE_MENU_TOP_ENTRYLINK( s_LoadGame, MEF_MainMenu, MAIN_LOADGAME, MENU_LOAD );
+MAKE_MENU_TOP_ENTRYLINK( s_Options, MEF_MainMenu, MAIN_OPTIONS, MENU_OPTIONS );
 #ifndef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Help", MEF_MainMenu, MAIN_HELP, MENU_STORY );
-MAKE_MENU_TOP_ENTRYLINK( "Credits", MEF_MainMenu, MAIN_CREDITS, MENU_CREDITS );
+MAKE_MENU_TOP_ENTRYLINK( s_Credits, MEF_MainMenu, MAIN_CREDITS, MENU_CREDITS );
 #endif
 MAKE_MENU_TOP_ENTRYLINK( "End Game", MEF_MainMenu, MAIN_QUITTOTITLE, MENU_QUITTOTITLE );
 MAKE_MENU_TOP_ENTRYLINK( "Quit", MEF_MainMenu, MAIN_QUIT, MENU_QUIT );
@@ -1036,15 +1042,14 @@ static MenuEntry_t *MEL_SCREENSETUP[] = {
 };
 
 // Save and load will be filled in before every viewing of the save/load screen.
-static MenuLink_t MEO_LOAD = { MENU_NULL, MA_None, };
-static MenuLink_t MEO_LOAD_VALID = { MENU_LOADVERIFY, MA_None, };
-static MenuEntry_t ME_LOAD_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_MinifontRed, &MEF_LoadSave, &MEO_LOAD, Link );
+static MenuLink_t MEO_LOAD = { MENU_LOADVERIFY, MA_None, };
+static MenuEntry_t ME_LOAD_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_MinifontSave, &MEF_LoadSave, &MEO_LOAD, Link );
 static MenuEntry_t ME_LOAD[MAXSAVEGAMES];
 static MenuEntry_t *MEL_LOAD[MAXSAVEGAMES];
 
-static MenuString_t MEO_SAVE_TEMPLATE = MAKE_MENUSTRING( NULL, &MF_MinifontRed, MAXSAVEGAMENAME, 0 );
+static MenuString_t MEO_SAVE_TEMPLATE = MAKE_MENUSTRING( NULL, &MF_MinifontSave, MAXSAVEGAMENAME, 0 );
 static MenuString_t MEO_SAVE[MAXSAVEGAMES];
-static MenuEntry_t ME_SAVE_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_MinifontRed, &MEF_LoadSave, &MEO_SAVE_TEMPLATE, String );
+static MenuEntry_t ME_SAVE_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_MinifontSave, &MEF_LoadSave, &MEO_SAVE_TEMPLATE, String );
 static MenuEntry_t ME_SAVE[MAXSAVEGAMES];
 static MenuEntry_t *MEL_SAVE[MAXSAVEGAMES];
 
@@ -1228,7 +1233,7 @@ static MenuMenu_t M_MAIN_INGAME = MAKE_MENUMENU( NoTitle, &MMF_Top_Main, MEL_MAI
 static MenuMenu_t M_EPISODE = MAKE_MENUMENU( "Select An Episode", &MMF_Top_Episode, MEL_EPISODE );
 static MenuMenu_t M_SKILL = MAKE_MENUMENU( "Select Skill", &MMF_Top_Skill, MEL_SKILL );
 static MenuMenu_t M_GAMESETUP = MAKE_MENUMENU( "Game Setup", &MMF_BigOptions, MEL_GAMESETUP );
-static MenuMenu_t M_OPTIONS = MAKE_MENUMENU( "Options", &MMF_Top_Options, MEL_OPTIONS );
+static MenuMenu_t M_OPTIONS = MAKE_MENUMENU( s_Options, &MMF_Top_Options, MEL_OPTIONS );
 static MenuMenu_t M_VIDEOSETUP = MAKE_MENUMENU( "Video Mode", &MMF_BigOptions, MEL_VIDEOSETUP );
 static MenuMenu_t M_KEYBOARDSETUP = MAKE_MENUMENU( "Keyboard Setup", &MMF_Top_Options, MEL_KEYBOARDSETUP );
 static MenuMenu_t M_CONTROLS = MAKE_MENUMENU( "Control Setup", &MMF_Top_Options, MEL_CONTROLS );
@@ -1255,8 +1260,8 @@ static MenuMenu_t M_RENDERERSETUP_POLYMER = MAKE_MENUMENU("Polymer Setup", &MMF_
 static MenuMenu_t M_COLCORR = MAKE_MENUMENU( "Color Correction", &MMF_ColorCorrect, MEL_COLCORR );
 static MenuMenu_t M_SCREENSETUP = MAKE_MENUMENU( "HUD Setup", &MMF_BigOptions, MEL_SCREENSETUP );
 static MenuMenu_t M_DISPLAYSETUP = MAKE_MENUMENU( "Display Setup", &MMF_BigOptions, MEL_DISPLAYSETUP );
-static MenuMenu_t M_LOAD = MAKE_MENUMENU( "Load Game", &MMF_LoadSave, MEL_LOAD );
-static MenuMenu_t M_SAVE = MAKE_MENUMENU( "Save Game", &MMF_LoadSave, MEL_SAVE );
+static MenuMenu_t M_LOAD = MAKE_MENUMENU( s_LoadGame, &MMF_LoadSave, MEL_LOAD );
+static MenuMenu_t M_SAVE = MAKE_MENUMENU( s_SaveGame, &MMF_LoadSave, MEL_SAVE );
 static MenuMenu_t M_SOUND = MAKE_MENUMENU( "Sound Setup", &MMF_BigOptions, MEL_SOUND );
 static MenuMenu_t M_ADVSOUND = MAKE_MENUMENU( "Advanced Sound", &MMF_BigOptions, MEL_ADVSOUND );
 static MenuMenu_t M_NETWORK = MAKE_MENUMENU( "Network Game", &MMF_Top_Joystick_Network, MEL_NETWORK );
@@ -1273,7 +1278,6 @@ static MenuPanel_t M_STORY = { NoTitle, MENU_F1HELP, MA_Return, MENU_F1HELP, MA_
 #endif
 
 static MenuPanel_t M_F1HELP = { NoTitle, MENU_STORY, MA_Return, MENU_STORY, MA_Advance, };
-static const char* MenuCredits = "Credits";
 static MenuPanel_t M_CREDITS = { NoTitle, MENU_CREDITS5, MA_Return, MENU_CREDITS2, MA_Advance, };
 static MenuPanel_t M_CREDITS2 = { NoTitle, MENU_CREDITS, MA_Return, MENU_CREDITS3, MA_Advance, };
 static MenuPanel_t M_CREDITS3 = { NoTitle, MENU_CREDITS2, MA_Return, MENU_CREDITS4, MA_Advance, };
@@ -1398,6 +1402,13 @@ static void MenuEntry_DisableOnCondition(MenuEntry_t * const entry, const int32_
     else
         entry->flags &= ~MEF_Disabled;
 }
+static void MenuEntry_LookDisabledOnCondition(MenuEntry_t * const entry, const int32_t condition)
+{
+    if (condition)
+        entry->flags |= MEF_LookDisabled;
+    else
+        entry->flags &= ~MEF_LookDisabled;
+}
 
 /*
 This function prepares data after ART and CON have been processed.
@@ -1412,12 +1423,12 @@ void Menu_Init(void)
     MF_Bluefont.tilenum = MF_BluefontRed.tilenum = MF_BluefontGame.tilenum = STARTALPHANUM;
     if (NAM_WW2GI)
         MF_Bluefont.between.x = MF_BluefontRed.between.x = 0;
-    MF_Minifont.tilenum = MF_MinifontRed.tilenum = MF_MinifontDarkGray.tilenum = MINIFONT;
+    MF_Minifont.tilenum = MF_MinifontRed.tilenum = MF_MinifontSave.tilenum = MINIFONT;
     if (!minitext_lowercase)
     {
         MF_Minifont.textflags |= TEXT_UPPERCASE;
         MF_MinifontRed.textflags |= TEXT_UPPERCASE;
-        MF_MinifontDarkGray.textflags |= TEXT_UPPERCASE;
+        MF_MinifontSave.textflags |= TEXT_UPPERCASE;
     }
 
     // prepare gamefuncs and keys
@@ -1643,6 +1654,13 @@ void Menu_Init(void)
     {
         MF_Redfont.between.x = 2<<16;
         MF_Redfont.cursorScale = MF_Redfont.zoom = 32768;
+        MF_Bluefont.between.x = MF_BluefontRed.between.x = 0;
+        MF_Bluefont.emptychar.y = MF_BluefontRed.emptychar.y = MF_BluefontGame.emptychar.y = tilesiz[MF_Bluefont.tilenum].y<<16;
+        MF_Bluefont.zoom = MF_BluefontRed.zoom = MF_BluefontGame.zoom = 32768;
+
+        // hack; should swap out pointers
+        MF_Minifont = MF_Bluefont;
+        MF_MinifontRed = MF_BluefontRed;
 
         MMF_Top_Main.pos.x = 40<<16;
         MMF_Top_Main.pos.y = 130<<16;
@@ -1675,7 +1693,7 @@ void Menu_Init(void)
     if (!VOLUMEALL || !PLUTOPAK)
     {
         // prepare credits
-        M_CREDITS.title = M_CREDITS2.title = M_CREDITS3.title = MenuCredits;
+        M_CREDITS.title = M_CREDITS2.title = M_CREDITS3.title = s_Credits;
     }
 }
 
@@ -1811,19 +1829,6 @@ static void Menu_Pre(MenuID_t cm)
     case MENU_OPTIONS:
         MenuEntry_DisableOnCondition(&ME_OPTIONS_PLAYERSETUP, ud.recstat == 1);
         MenuEntry_DisableOnCondition(&ME_OPTIONS_JOYSTICKSETUP, CONTROL_JoyPresent == 0);
-        break;
-
-    case MENU_LOAD:
-        for (i = 0; i < MAXSAVEGAMES; ++i)
-        {
-            ME_LOAD[i].entry = (ud.savegame[i][0] /*&& !g_oldverSavegame[i]*/) ? &MEO_LOAD_VALID : &MEO_LOAD;
-            ME_LOAD[i].font = g_oldverSavegame[i] ? &MF_MinifontDarkGray : &MF_MinifontRed;
-        }
-        break;
-
-    case MENU_SAVE:
-        for (i = 0; i < MAXSAVEGAMES; ++i)
-            MEO_SAVE[i].font = (g_oldverSavegame[i] && MEO_SAVE[i].editfield == NULL) ? &MF_MinifontDarkGray : &MF_MinifontRed;
         break;
 
     case MENU_COLCORR:
@@ -3560,7 +3565,25 @@ int Menu_Change(MenuID_t cm)
 
     switch (g_currentMenu)
     {
+    case MENU_MAIN:
+        if (KXDWN)
+            ME_MAIN_LOADGAME.name = s_Continue;
+        break;
+
+    case MENU_MAIN_INGAME:
+        if (KXDWN)
+            ME_MAIN_LOADGAME.name = s_LoadGame;
+        break;
+
     case MENU_LOAD:
+        if (KXDWN)
+            M_LOAD.title = (g_player[myconnectindex].ps->gm & MODE_GAME) ? s_LoadGame : s_Continue;
+        for (i = 0; i < MAXSAVEGAMES; ++i)
+        {
+            MenuEntry_DisableOnCondition(&ME_LOAD[i], !ud.savegame[i][0] /*|| g_oldverSavegame[i]*/);
+            MenuEntry_LookDisabledOnCondition(&ME_LOAD[i], g_oldverSavegame[i]);
+        }
+
         if (g_lastSaveSlot >= 0 && g_previousMenu != MENU_LOADVERIFY)
             M_LOAD.currentEntry = g_lastSaveSlot;
         break;
@@ -3568,6 +3591,10 @@ int Menu_Change(MenuID_t cm)
     case MENU_SAVE:
         if (g_lastSaveSlot >= 0 && g_previousMenu != MENU_SAVEVERIFY)
             M_SAVE.currentEntry = g_lastSaveSlot;
+
+        for (i = 0; i < MAXSAVEGAMES; ++i)
+            MenuEntry_LookDisabledOnCondition(&ME_SAVE[i], g_oldverSavegame[i]);
+
         if (g_player[myconnectindex].ps->gm&MODE_GAME)
         {
             g_screenCapture = 1;
@@ -3838,7 +3865,7 @@ enum MenuTextFlags_t
 static void Menu_ShadePal(const MenuFont_t *font, uint8_t status, int32_t *s, int32_t *p)
 {
     *s = (status & MT_Selected) ? (sintable[(totalclock<<5)&2047]>>12) : font->shade_deselected;
-    *p = (status & (MT_Disabled)) ? font->pal_disabled : font->pal;
+    *p = (status & MT_Disabled) ? font->pal_disabled : font->pal;
 }
 
 static FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)
@@ -4563,7 +4590,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                         if (entry == currentry && object->editfield != NULL)
                         {
-                            dim = Menu_Text(origin.x + stringx, stringy, object->font, object->editfield, status | MT_Literal, ydim_upper, ydim_lower);
+                            dim = Menu_Text(origin.x + stringx, stringy, object->font, object->editfield, (status & ~MT_Disabled) | MT_Literal, ydim_upper, ydim_lower);
                             h = max(dim.y, entry->font->get_yline());
 
                             rotatesprite_ybounds(origin.x + x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, h, tilesiz[SPINNINGNUKEICON].y<<16), stringy, divscale16(h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10, ydim_upper, ydim_lower);
@@ -6164,6 +6191,8 @@ void M_DisplayMenus(void)
 
     int32_t const backgroundOK = Menu_BlackTranslucentBackgroundOK(g_currentMenu);
 
+    // need EVENT_DISPLAYMENUBACKGROUND here
+
     if (!KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && backgroundOK)
         fade_screen_black(1);
 
@@ -6204,6 +6233,7 @@ void M_DisplayMenus(void)
         Menu_Run(m_parentMenu, origin);
     }
 
+    // hack; need EVENT_DISPLAYMENUBACKGROUND above
     if (KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2 || m_parentMenu != NULL) && backgroundOK)
         fade_screen_black(1);
 
