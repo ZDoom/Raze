@@ -230,15 +230,27 @@ void G_DoCheats(void)
 
     if (osdcmd_cheatsinfo_stat.cheatnum != -1)
     {
+        cheatNum = osdcmd_cheatsinfo_stat.cheatnum;
+
         if (ud.player_skill == 4)
         {
-            P_DoQuote(QUOTE_CHEATS_DISABLED, pPlayer);
-            osdcmd_cheatsinfo_stat.cheatnum = -1;
-            return;
+            switch (cheatNum)
+            {
+            case CHEAT_DEBUG:
+            case CHEAT_COORDS:
+            case CHEAT_RATE:
+            case CHEAT_RESERVED:
+            case CHEAT_RESERVED2:
+            case CHEAT_RESERVED3:
+                break;
+            default:
+                P_DoQuote(QUOTE_CHEATS_DISABLED, pPlayer);
+                osdcmd_cheatsinfo_stat.cheatnum = -1;
+                return;
+            }
         }
 
         // JBF 20030914
-        cheatNum = osdcmd_cheatsinfo_stat.cheatnum;
         osdcmd_cheatsinfo_stat.cheatnum = -1;
         consoleCheat = 1;
     }
