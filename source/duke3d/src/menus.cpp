@@ -155,8 +155,8 @@ they effectively stand in for curly braces as struct initializers.
 // common font types
 // tilenums are set after namesdyn runs
 MenuFont_t MF_Redfont =          { { 5<<16, 15<<16 }, {        0,     0 }, 65536, 20<<16, 110<<16, 65536, TEXT_BIGALPHANUM | TEXT_UPPERCASE, -1, 10,  0,  1 };
-MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16), 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
-MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16), 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 10, 16 };
+MenuFont_t MF_Bluefont =         { { 5<<16,  7<<16 }, { -(1<<16), 2<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
+MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16), 2<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10, 10, 16 };
 MenuFont_t MF_BluefontGame =     { { 5<<16,  7<<16 }, {        0,     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_Minifont =         { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_MinifontRed =      { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 16, 21, 16 };
@@ -2026,14 +2026,12 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
     case MENU_RESETPLAYER:
         fade_screen_black(1);
-        mgametextcenter(origin.x, origin.y + (90<<16), "Load last game:");
-
-        Bsprintf(tempbuf,"\"%s\"",ud.savegame[g_lastSaveSlot]);
-        mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
-
+        Bsprintf(tempbuf, "Load last game:\n\"%s\""
 #ifndef EDUKE32_ANDROID_MENU
-        mgametextcenter(origin.x, origin.y + ((99+9)<<16), "(Y/N)");
+                          "\n(Y/N)"
 #endif
+        , ud.savegame[g_lastSaveSlot]);
+        mgametextcenter(origin.x, origin.y + (90<<16), tempbuf);
         break;
 
     case MENU_LOAD:
@@ -2145,52 +2143,59 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         fade_screen_black(1);
         if (g_oldverSavegame[M_LOAD.currentEntry])
         {
-            mgametextcenter(origin.x, origin.y + (90<<16), "Start new game:");
-            Bsprintf(tempbuf,"%s / %s",g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, g_skillNames[ud.player_skill-1]);
-            mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
+            Bsprintf(tempbuf, "Start new game:\n%s / %s"
+#ifndef EDUKE32_ANDROID_MENU
+                              "\n(Y/N)"
+#endif
+            , g_mapInfo[(ud.volume_number*MAXLEVELS) + ud.level_number].name, g_skillNames[ud.player_skill-1]);
+            mgametextcenter(origin.x, origin.y + (90<<16), tempbuf);
         }
         else
         {
-            mgametextcenter(origin.x, origin.y + (90<<16), "Load game:");
-            Bsprintf(tempbuf, "\"%s\"", ud.savegame[M_LOAD.currentEntry]);
-            mgametextcenter(origin.x, origin.y + (99<<16), tempbuf);
-        }
+            Bsprintf(tempbuf, "Load game:\n\"%s\""
 #ifndef EDUKE32_ANDROID_MENU
-        mgametextcenter(origin.x, origin.y + ((99+9)<<16), "(Y/N)");
+                              "\n(Y/N)"
 #endif
+            , ud.savegame[M_LOAD.currentEntry]);
+            mgametextcenter(origin.x, origin.y + (90<<16), tempbuf);
+        }
         break;
 
     case MENU_SAVEVERIFY:
         fade_screen_black(1);
-        mgametextcenter(origin.x, origin.y + (90<<16), "Overwrite previous saved game?");
+        mgametextcenter(origin.x, origin.y + (90<<16), "Overwrite previous saved game?"
 #ifndef EDUKE32_ANDROID_MENU
-        mgametextcenter(origin.x, origin.y + ((90+9)<<16), "(Y/N)");
+                                                       "\n(Y/N)"
 #endif
+        );
         break;
 
     case MENU_NEWVERIFY:
         fade_screen_black(1);
-        mgametextcenter(origin.x, origin.y + (90<<16), "Abort this game?");
+        mgametextcenter(origin.x, origin.y + (90<<16), "Abort this game?"
 #ifndef EDUKE32_ANDROID_MENU
-        mgametextcenter(origin.x, origin.y + ((90+9)<<16), "(Y/N)");
+                                                       "\n(Y/N)"
 #endif
+        );
         break;
 
     case MENU_QUIT:
     case MENU_QUIT_INGAME:
         fade_screen_black(1);
-        mgametextcenter(origin.x, origin.y + (90<<16), "Are you sure you want to quit?");
+        mgametextcenter(origin.x, origin.y + (90<<16), "Are you sure you want to quit?"
 #ifndef EDUKE32_ANDROID_MENU
-        mgametextcenter(origin.x, origin.y + (99<<16), "(Y/N)");
+                                                       "\n(Y/N)"
 #endif
+        );
         break;
 
     case MENU_QUITTOTITLE:
         fade_screen_black(1);
-        mgametextcenter(origin.x, origin.y + (90<<16), "End game and return to title screen?");
+        mgametextcenter(origin.x, origin.y + (90<<16), "End game and return to title screen?"
 #ifndef EDUKE32_ANDROID_MENU
-        mgametextcenter(origin.x, origin.y + (99<<16), "(Y/N)");
+                                                       "\n(Y/N)"
 #endif
+        );
         break;
 
     case MENU_NETWAITMASTER:
@@ -2325,11 +2330,11 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                 break;
 
             case MENU_CREDITS3:
-                mgametextcenter(origin.x, origin.y + (50<<16), "Duke Nukem 3D is a trademark of");
-                mgametextcenter(origin.x, origin.y + ((50+9)<<16), "3D Realms Entertainment");
-
-                mgametextcenter(origin.x, origin.y + ((50+9+9+9)<<16), "Duke Nukem 3D");
-                mgametextcenter(origin.x, origin.y + ((50+9+9+9+9)<<16), "(C) 1996, 2014 3D Realms Entertainment");
+                mgametextcenter(origin.x, origin.y + (50<<16), "Duke Nukem 3D is a trademark of\n"
+                                                               "3D Realms Entertainment"
+                                                               "\n"
+                                                               "Duke Nukem 3D\n"
+                                                               "(C) 1996, 2014 3D Realms Entertainment");
 
 #if !defined(EDUKE32_ANDROID_MENU) && !defined(EDUKE32_STANDALONE)
                 if (VOLUMEONE)
@@ -2524,10 +2529,12 @@ static void Menu_PreCustom2ColScreenDraw(MenuEntry_t *entry, const vec2_t origin
 {
     if (g_currentMenu == MENU_KEYBOARDKEYS)
     {
-        mgametextcenter(origin.x, origin.y + (90<<16), "Press the key to assign as");
-        Bsprintf(tempbuf,"%s for \"%s\"", M_KEYBOARDKEYS.currentColumn?"secondary":"primary", entry->name);
-        mgametextcenter(origin.x, origin.y + ((90+9)<<16), tempbuf);
-        mgametextcenter(origin.x, origin.y + ((90+9+9+9)<<16), "Press \"Escape\" To Cancel");
+        Bsprintf(tempbuf, "Press the key to assign as\n"
+                          "%s for \"%s\"\n"
+                          "\n"
+                          "Press \"Escape\" To Cancel"
+                          , M_KEYBOARDKEYS.currentColumn?"secondary":"primary", entry->name);
+        mgametextcenter(origin.x, origin.y + (90<<16), tempbuf);
     }
 }
 
@@ -3546,7 +3553,7 @@ int Menu_Change(MenuID_t cm)
         m_previousMenu = m_currentMenu;
         g_previousMenu = g_currentMenu;
         m_currentMenu = search;
-        g_currentMenu = cm;
+        g_currentMenu = search->menuID;
     }
     else
         return 1;
