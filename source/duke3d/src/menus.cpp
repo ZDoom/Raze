@@ -1010,16 +1010,19 @@ static MenuEntry_t ME_COLCORR_RESET = MAKE_MENUENTRY( "Reset To Defaults", &MF_R
 #else
 #define MINVIS 0.125f
 #endif
+#ifndef EDUKE32_SIMPLE_MENU
 static MenuRangeFloat_t MEO_COLCORR_AMBIENT = MAKE_MENURANGE( &r_ambientlight, &MF_Bluefont, MINVIS, 4.f, 0.f, 32, 1 );
 static MenuEntry_t ME_COLCORR_AMBIENT = MAKE_MENUENTRY( "Visibility:", &MF_Redfont, &MEF_ColorCorrect, &MEO_COLCORR_AMBIENT, RangeFloat );
-
+#endif
 static MenuEntry_t *MEL_COLCORR[] = {
     &ME_COLCORR_GAMMA,
 #ifndef EDUKE32_ANDROID_MENU
     &ME_COLCORR_CONTRAST,
     &ME_COLCORR_BRIGHTNESS,
 #endif
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_COLCORR_AMBIENT,
+#endif
     &ME_Space8_Redfont,
     &ME_COLCORR_RESET,
 };
@@ -1668,6 +1671,7 @@ void Menu_Init(void)
         M_OPTIONS.format = &MMF_Top_Main;
 
         MEF_MainMenu.width = MEF_OptionsMenu.width = -(160<<16);
+        MEF_MainMenu.marginBottom = 7<<16;
 
         M_OPTIONS.title = NoTitle;
     }
@@ -3013,8 +3017,13 @@ static int32_t Menu_EntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
 
 static int32_t Menu_EntryRangeFloatModify(MenuEntry_t *entry, float newValue)
 {
+#ifndef EDUKE32_SIMPLE_MENU
     if (entry == &ME_COLCORR_AMBIENT)
         r_ambientlightrecip = 1.f/newValue;
+#else
+    UNREFERENCED_PARAMETER(entry);
+    UNREFERENCED_PARAMETER(newValue);
+#endif
 
     return 0;
 }
@@ -3869,8 +3878,9 @@ enum MenuTextFlags_t
     MT_Literal  = 1<<5,
 };
 
-static void Menu_ShadePal(const MenuFont_t *font, uint8_t status, int32_t *s, int32_t *p)
+static void Menu_GetFmt(const MenuFont_t *font, uint8_t const status, int32_t *s, int32_t *p, int32_t *z)
 {
+    if (KXDWN) *z = (status & MT_Selected) ? *z + (*z >> 4) : *z;
     *s = (status & MT_Selected) ? (sintable[(totalclock<<5)&2047]>>12) : font->shade_deselected;
     *p = (status & MT_Disabled) ? font->pal_disabled : font->pal;
 }
@@ -3896,9 +3906,11 @@ static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t *font, const char
     if (status & MT_Literal)
         f |= TEXT_LITERALESCAPE;
 
-    Menu_ShadePal(font, status, &s, &p);
+    int32_t z = font->zoom;
 
-    return G_ScreenText(font->tilenum, x, y, font->zoom, 0, 0, t, s, p, 2|8|16|ROTATESPRITE_FULL16, 0, font->emptychar.x, font->emptychar.y, font->between.x, ybetween, f, 0, ydim_upper, xdim-1, ydim_lower);
+    Menu_GetFmt(font, status, &s, &p, &z);
+
+    return G_ScreenText(font->tilenum, x, y, z, 0, 0, t, s, p, 2|8|16|ROTATESPRITE_FULL16, 0, font->emptychar.x, font->emptychar.y, font->between.x, ybetween, f, 0, ydim_upper, xdim-1, ydim_lower);
 }
 
 #if 0
@@ -4306,8 +4318,8 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         MenuRangeInt32_t *object = (MenuRangeInt32_t*)entry->entry;
 
                         int32_t s, p;
-                        const int32_t z = entry->font->cursorScale;
-                        Menu_ShadePal(object->font, status, &s, &p);
+                        int32_t z = entry->font->cursorScale;
+                        Menu_GetFmt(object->font, status, &s, &p, &z);
 
                         const int32_t slidebarwidth = mulscale16(tilesiz[SLIDEBAR].x<<16, z);
                         const int32_t slidebarheight = mulscale16(tilesiz[SLIDEBAR].y<<16, z);
@@ -4401,8 +4413,8 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         MenuRangeFloat_t *object = (MenuRangeFloat_t*)entry->entry;
 
                         int32_t s, p;
-                        const int32_t z = entry->font->cursorScale;
-                        Menu_ShadePal(object->font, status, &s, &p);
+                        int32_t z = entry->font->cursorScale;
+                        Menu_GetFmt(object->font, status, &s, &p, &z);
 
                         const int32_t slidebarwidth = mulscale16(tilesiz[SLIDEBAR].x<<16, z);
                         const int32_t slidebarheight = mulscale16(tilesiz[SLIDEBAR].y<<16, z);
@@ -4496,8 +4508,8 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         MenuRangeDouble_t *object = (MenuRangeDouble_t*)entry->entry;
 
                         int32_t s, p;
-                        const int32_t z = entry->font->cursorScale;
-                        Menu_ShadePal(object->font, status, &s, &p);
+                        int32_t z = entry->font->cursorScale;
+                        Menu_GetFmt(object->font, status, &s, &p, &z);
 
                         const int32_t slidebarwidth = mulscale16(tilesiz[SLIDEBAR].x<<16, z);
                         const int32_t slidebarheight = mulscale16(tilesiz[SLIDEBAR].y<<16, z);
