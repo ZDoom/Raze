@@ -167,6 +167,9 @@ const tokenmap_t altkeyw [] =
 
     { "string", CON_DEFINEQUOTE },
     { "print", CON_QUOTE },
+
+    { "dc", CON_DEFINECHEAT },
+    { "ck", CON_CHEATKEYS },
 };
 
 const char *keyw[] =
