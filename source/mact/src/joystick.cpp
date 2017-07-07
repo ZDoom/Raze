@@ -37,11 +37,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "joystick.h"
 #include "baselayer.h"
 
+#include "keyboard.h"
+#include "_control.h"
+
 int32_t JOYSTICK_GetButtons(void)
 {
     int32_t buttons;
 
     readjoybstatus(&buttons);
+
+    if (joynumhats > 0)
+    {
+        int32_t hat = JOYSTICK_GetHat(0);
+        if (hat != 0)
+            buttons |= hat << min(MAXJOYBUTTONS, joynumbuttons);
+    }
 
     return buttons;
 }

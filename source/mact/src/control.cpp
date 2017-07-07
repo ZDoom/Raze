@@ -22,48 +22,61 @@
 #include "android.h"
 #endif
 
-int32_t CONTROL_JoyPresent = FALSE;
-int32_t CONTROL_JoystickEnabled = FALSE;
-int32_t CONTROL_MousePresent = FALSE;
-int32_t CONTROL_MouseEnabled = FALSE;
-uint64_t  CONTROL_ButtonState = 0;
-uint64_t  CONTROL_ButtonHeldState = 0;
+int32_t  CONTROL_JoyPresent      = FALSE;
+int32_t  CONTROL_JoystickEnabled = FALSE;
+int32_t  CONTROL_MousePresent    = FALSE;
+int32_t  CONTROL_MouseEnabled    = FALSE;
+uint64_t CONTROL_ButtonState     = 0;
+uint64_t CONTROL_ButtonHeldState = 0;
 
 // static int32_t CONTROL_UserInputDelay = -1;
-float  CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
-static int32_t CONTROL_NumMouseButtons = 0;
-static int32_t CONTROL_NumMouseAxes = 0;
-static int32_t CONTROL_NumJoyButtons = 0;
-static int32_t CONTROL_NumJoyAxes = 0;
-static controlflags       CONTROL_Flags[CONTROL_NUM_FLAGS];
-static controlbuttontype  CONTROL_MouseButtonMapping[MAXMOUSEBUTTONS],
-CONTROL_JoyButtonMapping[MAXJOYBUTTONS];
-//static controlkeymaptype  CONTROL_KeyMapping[CONTROL_NUM_FLAGS];
-static controlaxismaptype CONTROL_MouseAxesMap[MAXMOUSEAXES],	// maps physical axes onto virtual ones
-CONTROL_JoyAxesMap[MAXJOYAXES];
-static controlaxistype    CONTROL_MouseAxes[MAXMOUSEAXES],	// physical axes
-CONTROL_JoyAxes[MAXJOYAXES];
-static controlaxistype    CONTROL_LastMouseAxes[MAXMOUSEAXES],
-CONTROL_LastJoyAxes[MAXJOYAXES];
-static int32_t   CONTROL_MouseAxesScale[MAXMOUSEAXES],             CONTROL_JoyAxesScale[MAXJOYAXES];
+float          CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
+static int32_t CONTROL_NumMouseButtons  = 0;
+static int32_t CONTROL_NumMouseAxes     = 0;
+static int32_t CONTROL_NumJoyButtons    = 0;
+static int32_t CONTROL_NumJoyAxes       = 0;
+
+static controlflags      CONTROL_Flags[CONTROL_NUM_FLAGS];
+static controlbuttontype CONTROL_MouseButtonMapping[MAXMOUSEBUTTONS];
+static controlbuttontype CONTROL_JoyButtonMapping[MAXJOYBUTTONS];
+
+// static controlkeymaptype  CONTROL_KeyMapping[CONTROL_NUM_FLAGS];
+static controlaxismaptype CONTROL_MouseAxesMap[MAXMOUSEAXES];  // maps physical axes onto virtual ones
+static controlaxismaptype CONTROL_JoyAxesMap[MAXJOYAXES];
+
+static controlaxistype CONTROL_MouseAxes[MAXMOUSEAXES];  // physical axes
+static controlaxistype CONTROL_JoyAxes[MAXJOYAXES];
+static controlaxistype CONTROL_LastMouseAxes[MAXMOUSEAXES];
+static controlaxistype CONTROL_LastJoyAxes[MAXJOYAXES];
+
+static int32_t CONTROL_MouseAxesScale[MAXMOUSEAXES];
+static int32_t CONTROL_JoyAxesScale[MAXJOYAXES];
+
 #ifndef __ANDROID__
-static int32_t   CONTROL_MouseButtonState[MAXMOUSEBUTTONS],        CONTROL_JoyButtonState[MAXJOYBUTTONS];
-static int32_t   CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS],  CONTROL_JoyButtonClickedTime[MAXJOYBUTTONS];
-static int32_t CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedState[MAXJOYBUTTONS];
-static int32_t CONTROL_MouseButtonClicked[MAXMOUSEBUTTONS],      CONTROL_JoyButtonClicked[MAXJOYBUTTONS];
-static uint8_t CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS], CONTROL_JoyButtonClickedCount[MAXJOYBUTTONS];
+static int32_t CONTROL_MouseButtonState[MAXMOUSEBUTTONS];
+static int32_t CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS];
+static int32_t CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS];
+static int32_t CONTROL_MouseButtonClicked[MAXMOUSEBUTTONS];
+static uint8_t CONTROL_MouseButtonClickedCount[MAXMOUSEBUTTONS];
+
+static int32_t CONTROL_JoyButtonState[MAXJOYBUTTONS];
+static int32_t CONTROL_JoyButtonClickedTime[MAXJOYBUTTONS];
+static int32_t CONTROL_JoyButtonClickedState[MAXJOYBUTTONS];
+static int32_t CONTROL_JoyButtonClicked[MAXJOYBUTTONS];
+static uint8_t CONTROL_JoyButtonClickedCount[MAXJOYBUTTONS];
 #endif
+
 static int32_t(*ExtGetTime)(void);
 int32_t CONTROL_Started = FALSE;
 //static int32_t ticrate;
 static int32_t CONTROL_DoubleClickSpeed;
 
 int32_t CONTROL_OSDInput[CONTROL_NUM_FLAGS];
-keybind CONTROL_KeyBinds[MAXBOUNDKEYS+MAXMOUSEBUTTONS];
+keybind CONTROL_KeyBinds[MAXBOUNDKEYS + MAXMOUSEBUTTONS];
 int32_t CONTROL_BindsEnabled = 0;
-int32_t CONTROL_SmoothMouse = 0;
+int32_t CONTROL_SmoothMouse  = 0;
 
-#define CONTROL_CheckRange(which) ((uint32_t)which >= (uint32_t)CONTROL_NUM_FLAGS)
+#define CONTROL_CheckRange(which) ((unsigned)which >= (unsigned)CONTROL_NUM_FLAGS)
 #define BIND(x, s, r, k) do { Bfree(x.cmdstr); x.cmdstr = s; x.repeat = r; x.key = k; } while (0)
 
 void CONTROL_ClearAllBinds(void)
@@ -75,22 +88,22 @@ void CONTROL_ClearAllBinds(void)
         CONTROL_FreeMouseBind(i);
 }
 
-void CONTROL_BindKey(int32_t i, const char *cmd, int32_t repeat, const char *keyname)
+void CONTROL_BindKey(int i, char const * const cmd, int repeat, char const * const keyname)
 {
     BIND(CONTROL_KeyBinds[i], Bstrdup(cmd), repeat, keyname);
 }
 
-void CONTROL_BindMouse(int32_t i, const char *cmd, int32_t repeat, const char *keyname)
+void CONTROL_BindMouse(int i, char const * const cmd, int repeat, char const * const keyname)
 {
     BIND(CONTROL_KeyBinds[MAXBOUNDKEYS + i], Bstrdup(cmd), repeat, keyname);
 }
 
-void CONTROL_FreeKeyBind(int32_t i)
+void CONTROL_FreeKeyBind(int i)
 {
     BIND(CONTROL_KeyBinds[i], NULL, 0, NULL);
 }
 
-void CONTROL_FreeMouseBind(int32_t i)
+void CONTROL_FreeMouseBind(int i)
 {
     BIND(CONTROL_KeyBinds[MAXBOUNDKEYS + i], NULL, 0, NULL);
 }
@@ -130,19 +143,16 @@ static void CONTROL_SetFlag(int32_t which, int32_t active)
 {
     if (CONTROL_CheckRange(which)) return;
 
-    if (CONTROL_Flags[which].toggle == INSTANT_ONOFF)
+    controlflags &flags = CONTROL_Flags[which];
+
+    if (flags.toggle == INSTANT_ONOFF)
+        flags.active = active;
+    else if (active)
+        flags.buttonheld = FALSE;
+    else if (flags.buttonheld == FALSE)
     {
-        CONTROL_Flags[which].active = active;
-        return;
-    }
-    if (active)
-    {
-        CONTROL_Flags[which].buttonheld = FALSE;
-    }
-    else if (CONTROL_Flags[which].buttonheld == FALSE)
-    {
-        CONTROL_Flags[which].buttonheld = TRUE;
-        CONTROL_Flags[which].active = (CONTROL_Flags[which].active ? FALSE : TRUE);
+        flags.buttonheld = TRUE;
+        flags.active = (flags.active ? FALSE : TRUE);
     }
 }
 #endif
@@ -179,18 +189,20 @@ void CONTROL_ClearKeyboardFunction(int32_t which)
 }
 #endif
 
-void CONTROL_DefineFlag(int32_t which, int32_t toggle)
+void CONTROL_DefineFlag(int which, int toggle)
 {
     if (CONTROL_CheckRange(which)) return;
 
-    CONTROL_Flags[which].active     = FALSE;
-    CONTROL_Flags[which].used       = TRUE;
-    CONTROL_Flags[which].toggle     = toggle;
-    CONTROL_Flags[which].buttonheld = FALSE;
-    CONTROL_Flags[which].cleared    = 0;
+    controlflags &flags = CONTROL_Flags[which];
+
+    flags.active     = FALSE;
+    flags.used       = TRUE;
+    flags.toggle     = toggle;
+    flags.buttonheld = FALSE;
+    flags.cleared    = 0;
 }
 
-int32_t CONTROL_FlagActive(int32_t which)
+int CONTROL_FlagActive(int which)
 {
     if (CONTROL_CheckRange(which)) return FALSE;
 
@@ -247,7 +259,7 @@ void CONTROL_PrintAxes(void)
 }
 #endif
 
-void CONTROL_MapButton(int32_t whichfunction, int32_t whichbutton, int32_t doubleclicked, controldevice device)
+void CONTROL_MapButton(int whichfunction, int whichbutton, int doubleclicked, controldevice device)
 {
     controlbuttontype *set;
 
@@ -256,7 +268,7 @@ void CONTROL_MapButton(int32_t whichfunction, int32_t whichbutton, int32_t doubl
     switch (device)
     {
     case controldevice_mouse:
-        if ((uint32_t)whichbutton >= (uint32_t)MAXMOUSEBUTTONS)
+        if ((unsigned)whichbutton >= (unsigned)MAXMOUSEBUTTONS)
         {
             //Error("CONTROL_MapButton: button %d out of valid range for %d mouse buttons.",
             //		whichbutton, CONTROL_NumMouseButtons);
@@ -266,7 +278,7 @@ void CONTROL_MapButton(int32_t whichfunction, int32_t whichbutton, int32_t doubl
         break;
 
     case controldevice_joystick:
-        if ((uint32_t)whichbutton >= (uint32_t)MAXJOYBUTTONS)
+        if ((unsigned)whichbutton >= (unsigned)MAXJOYBUTTONS)
         {
             //Error("CONTROL_MapButton: button %d out of valid range for %d joystick buttons.",
             //		whichbutton, CONTROL_NumJoyButtons);
@@ -286,11 +298,11 @@ void CONTROL_MapButton(int32_t whichfunction, int32_t whichbutton, int32_t doubl
         set[whichbutton].singleclicked = whichfunction;
 }
 
-void CONTROL_MapAnalogAxis(int32_t whichaxis, int32_t whichanalog, controldevice device)
+void CONTROL_MapAnalogAxis(int whichaxis, int whichanalog, controldevice device)
 {
     controlaxismaptype *set;
 
-    if ((uint32_t)whichanalog >= (uint32_t)analog_maxtype)
+    if ((unsigned)whichanalog >= (unsigned)analog_maxtype)
     {
         //Error("CONTROL_MapAnalogAxis: analog function %d out of valid range for %d analog functions.",
         //		whichanalog, analog_maxtype);
@@ -300,7 +312,7 @@ void CONTROL_MapAnalogAxis(int32_t whichaxis, int32_t whichanalog, controldevice
     switch (device)
     {
     case controldevice_mouse:
-        if ((uint32_t)whichaxis >= (uint32_t)MAXMOUSEAXES)
+        if ((unsigned)whichaxis >= (unsigned)MAXMOUSEAXES)
         {
             //Error("CONTROL_MapAnalogAxis: axis %d out of valid range for %d mouse axes.",
             //		whichaxis, MAXMOUSEAXES);
@@ -311,7 +323,7 @@ void CONTROL_MapAnalogAxis(int32_t whichaxis, int32_t whichanalog, controldevice
         break;
 
     case controldevice_joystick:
-        if ((uint32_t)whichaxis >= (uint32_t)MAXJOYAXES)
+        if ((unsigned)whichaxis >= (unsigned)MAXJOYAXES)
         {
             //Error("CONTROL_MapAnalogAxis: axis %d out of valid range for %d joystick axes.",
             //		whichaxis, MAXJOYAXES);
@@ -336,7 +348,7 @@ void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldev
     switch (device)
     {
     case controldevice_mouse:
-        if ((uint32_t)whichaxis >= (uint32_t)MAXMOUSEAXES)
+        if ((unsigned) whichaxis >= (unsigned) MAXMOUSEAXES)
         {
             //Error("CONTROL_SetAnalogAxisScale: axis %d out of valid range for %d mouse axes.",
             //		whichaxis, MAXMOUSEAXES);
@@ -347,7 +359,7 @@ void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldev
         break;
 
     case controldevice_joystick:
-        if ((uint32_t)whichaxis >= (uint32_t)MAXJOYAXES)
+        if ((unsigned) whichaxis >= (unsigned) MAXJOYAXES)
         {
             //Error("CONTROL_SetAnalogAxisScale: axis %d out of valid range for %d joystick axes.",
             //		whichaxis, MAXJOYAXES);
@@ -374,7 +386,7 @@ void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t di
     switch (device)
     {
     case controldevice_mouse:
-        if ((uint32_t)whichaxis >= (uint32_t)MAXMOUSEAXES)
+        if ((unsigned) whichaxis >= (unsigned) MAXMOUSEAXES)
         {
             //Error("CONTROL_MapDigitalAxis: axis %d out of valid range for %d mouse axes.",
             //		whichaxis, MAXMOUSEAXES);
@@ -385,7 +397,7 @@ void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t di
         break;
 
     case controldevice_joystick:
-        if ((uint32_t)whichaxis >= (uint32_t)MAXJOYAXES)
+        if ((unsigned) whichaxis >= (unsigned) MAXJOYAXES)
         {
             //Error("CONTROL_MapDigitalAxis: axis %d out of valid range for %d joystick axes.",
             //		whichaxis, MAXJOYAXES);
@@ -506,16 +518,8 @@ static void CONTROL_GetDeviceButtons(void)
 
     if (CONTROL_JoystickEnabled)
     {
-        int32_t buttons = JOYSTICK_GetButtons();
-        if (joynumhats > 0)
-        {
-            int32_t hat = JOYSTICK_GetHat(0);
-            if (hat != 0)
-                buttons |= hat << min(MAXJOYBUTTONS,joynumbuttons);
-        }
-
         DoGetDeviceButtons(
-            buttons, t,
+            JOYSTICK_GetButtons(), t,
             CONTROL_NumJoyButtons,
             CONTROL_JoyButtonState,
             CONTROL_JoyButtonClickedTime,

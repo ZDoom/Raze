@@ -150,9 +150,9 @@ extern uint64_t   CONTROL_ButtonHeldState;
 //***************************************************************************
 
 //void CONTROL_MapKey( int32_t which, kb_scancode key1, kb_scancode key2 );
-void CONTROL_MapButton(int32_t whichfunction, int32_t whichbutton, int32_t doubleclicked, controldevice device);
-void CONTROL_DefineFlag( int32_t which, int32_t toggle );
-int32_t CONTROL_FlagActive( int32_t which );
+void CONTROL_MapButton(int whichfunction, int whichbutton, int doubleclicked, controldevice device);
+void CONTROL_DefineFlag( int which, int toggle );
+int CONTROL_FlagActive( int which );
 void CONTROL_ClearAssignments( void );
 // void CONTROL_GetFunctionInput( void );
 void CONTROL_GetInput( ControlInfo *info );
@@ -164,7 +164,7 @@ void CONTROL_Shutdown( void );
 void CONTROL_SetDoubleClickDelay(int32_t delay);
 int32_t CONTROL_GetDoubleClickDelay(void);
 
-void CONTROL_MapAnalogAxis(int32_t whichaxis, int32_t whichanalog, controldevice device);
+void CONTROL_MapAnalogAxis(int whichaxis, int whichanalog, controldevice device);
 void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t direction, controldevice device);
 void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldevice device);
 
@@ -190,10 +190,10 @@ extern keybind CONTROL_KeyBinds[MAXBOUNDKEYS+MAXMOUSEBUTTONS];
 extern int32_t CONTROL_BindsEnabled;
 
 void CONTROL_ClearAllBinds(void);
-void CONTROL_BindKey(int32_t i, const char *cmd, int32_t repeat, const char *keyname);
-void CONTROL_BindMouse(int32_t i, const char *cmd, int32_t repeat, const char *keyname);
-void CONTROL_FreeKeyBind(int32_t i);
-void CONTROL_FreeMouseBind(int32_t i);
+void CONTROL_BindKey(int i, char const * const cmd, int repeat, char const * const keyname);
+void CONTROL_BindMouse(int i, char const * const cmd, int repeat, char const * const keyname);
+void CONTROL_FreeKeyBind(int i);
+void CONTROL_FreeMouseBind(int i);
 
 static inline int32_t CONTROL_KeyIsBound(int32_t i)
 {
