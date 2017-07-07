@@ -996,7 +996,7 @@ void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
 
         int const invertResult = !!(gameVar & (MAXGAMEVARS << 1));
 
-        if (EDUKE32_PREDICT_FALSE(gameVar >= g_gameVarCount && invertResult == 0))
+        if (gameVar >= g_gameVarCount && invertResult == 0)
         {
             outBuf[j] = Gv_GetSpecialVarX(gameVar);
             continue;
