@@ -3609,6 +3609,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
 
     if ((unsigned)globalpicnum >= MAXTILES) globalpicnum = 0;
     DO_TILE_ANIM(globalpicnum, sectnum);
+    setgotpic(globalpicnum);
 
     logtilesizy = (picsiz[globalpicnum]>>4);
     tsizy = tilesiz[globalpicnum].y;
