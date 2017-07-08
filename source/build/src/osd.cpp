@@ -1617,7 +1617,7 @@ void OSD_Puts(const char *tmpstr)
     }
     else if (log.lines == log.cutoff)
     {
-        Bfputs("\nMaximal log size reached. Logging stopped.\nSet the \"osdlogcutoff\" console variable to a higher value if you need a longer log.\n", osdlog);
+        Bfputs("\nLog file full! Consider increasing \"osdlogcutoff\".\n", osdlog);
         log.lines = log.cutoff + 1;
     }
 
