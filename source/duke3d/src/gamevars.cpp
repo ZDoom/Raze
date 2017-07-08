@@ -387,7 +387,7 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
 
 int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint32_t nFlags)
 {
-    int32_t i;
+    Bassert(arraySize);
 
     if (EDUKE32_PREDICT_FALSE(g_gameArrayCount >= MAXGAMEARRAYS))
     {
@@ -404,7 +404,8 @@ int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint
         initprintf("%s:%d: error: array name `%s' exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,pszLabel, MAXARRAYLABEL);
         return 0;
     }
-    i = hash_find(&h_arrays,pszLabel);
+
+    int32_t i = hash_find(&h_arrays,pszLabel);
 
     if (EDUKE32_PREDICT_FALSE(i >=0 && !(aGameArrays[i].flags & GAMEARRAY_RESET)))
     {
@@ -431,21 +432,28 @@ int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
 
-    if (!(nFlags & GAMEARRAY_TYPE_MASK))
+    if (pArray == NULL)
     {
-        Baligned_free(aGameArrays[i].pValues);
-        if (arraySize != 0)
+        if (aGameArrays[i].flags & GAMEARRAY_ALLOCATED)
+            Baligned_free(aGameArrays[i].pValues);
+
+        int typeSize;
+
+        switch (aGameArrays[i].flags & (GAMEARRAY_UINT8 | GAMEARRAY_INT16 | GAMEARRAY_INT32))
         {
-            aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, arraySize * GAR_ELTSZ);
-            Bmemset(aGameArrays[i].pValues, 0, arraySize * GAR_ELTSZ);
+            case GAMEARRAY_UINT8: typeSize = sizeof(uint8_t); break;
+            case GAMEARRAY_INT16: typeSize = sizeof(uint16_t); break;
+            case GAMEARRAY_INT32: typeSize = sizeof(uint32_t); break;
+            default:              typeSize = sizeof(uintptr_t); break;
         }
-        else
-            aGameArrays[i].pValues = NULL;
+
+        aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, arraySize * typeSize);
+        Bmemset(aGameArrays[i].pValues, 0, arraySize * typeSize);
     }
     else
-        aGameArrays[i].pValues=(intptr_t *)pArray;
+        aGameArrays[i].pValues = (intptr_t *)pArray;
 
-    aGameArrays[i].size   = arraySize;
+    aGameArrays[i].size  = arraySize;
     aGameArrays[i].flags = nFlags & ~GAMEARRAY_RESET;
 
     g_gameArrayCount++;
@@ -574,10 +582,10 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
 
     switch (aGameArrays[id].flags & GAMEARRAY_TYPE_MASK)
     {
-        case 0:                 returnValue = (aGameArrays[id].pValues)[index]; break;
-        case GAMEARRAY_OFINT:   returnValue = ((int32_t *)aGameArrays[id].pValues)[index]; break;
-        case GAMEARRAY_OFSHORT: returnValue = ((int16_t *)aGameArrays[id].pValues)[index]; break;
-        case GAMEARRAY_OFCHAR:  returnValue = ((uint8_t *)aGameArrays[id].pValues)[index]; break;
+        case 0:               returnValue = (aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_INT32: returnValue = ((int32_t *)aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_INT16: returnValue = ((int16_t *)aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_UINT8: returnValue = ((uint8_t *)aGameArrays[id].pValues)[index]; break;
     }
 
     return returnValue;
@@ -1526,8 +1534,9 @@ static void Gv_AddSystemVars(void)
 # endif
 
     // SYSTEM_GAMEARRAY
-    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("walock", (void *) &walock[0], MAXTILES, GAMEARRAY_UINT8);
 #endif
 }
 

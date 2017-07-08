@@ -576,7 +576,7 @@ skip_check:
                 switch (sar->dwFlags & GAMEARRAY_TYPE_MASK)
                 {
                 case 0:
-                case GAMEARRAY_OFINT:
+                case GAMEARRAY_INT32:
                     if (sar->dwFlags & GAMEARRAY_STRIDE2)
                     {
                         for (; numelts>0; numelts--, sidx += 2)
@@ -588,11 +588,11 @@ skip_check:
                                 numelts * sizeof(int32_t));
                     }
                     break;
-                case GAMEARRAY_OFSHORT:
+                case GAMEARRAY_INT16:
                     for (; numelts>0; numelts--)
                         ((int32_t *)dar->vals)[didx++] = ((int16_t *)sar->vals)[sidx++];
                     break;
-                case GAMEARRAY_OFCHAR:
+                case GAMEARRAY_UINT8:
                     for (; numelts>0; numelts--)
                         ((int32_t *)dar->vals)[didx++] = ((uint8_t *)sar->vals)[sidx++];
                     break;

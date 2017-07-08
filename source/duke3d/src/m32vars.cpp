@@ -308,11 +308,11 @@ int32_t __fastcall Gv_GetVarX(int32_t id)
         switch (gar->dwFlags & GAMEARRAY_TYPE_MASK)
         {
         case 0:
-        case GAMEARRAY_OFINT:
+        case GAMEARRAY_INT32:
             return (((int32_t *)gar->vals)[index] ^ -negateResult) + negateResult;
-        case GAMEARRAY_OFSHORT:
+        case GAMEARRAY_INT16:
             return (((int16_t *)gar->vals)[index] ^ -negateResult) + negateResult;
-        case GAMEARRAY_OFCHAR:
+        case GAMEARRAY_UINT8:
             return (((uint8_t *)gar->vals)[index] ^ -negateResult) + negateResult;
         default:
             M32_ERROR("Gv_GetVarX() (array): WTF??");
@@ -410,13 +410,13 @@ void __fastcall Gv_SetVarX(int32_t id, int32_t lValue)
         switch (gar->dwFlags & GAMEARRAY_TYPE_MASK)
         {
         case 0:
-        case GAMEARRAY_OFINT:
+        case GAMEARRAY_INT32:
             ((int32_t *)gar->vals)[index] = lValue;
             return;
-        case GAMEARRAY_OFSHORT:
+        case GAMEARRAY_INT16:
             ((int16_t *)gar->vals)[index] = (int16_t)lValue;
             return;
-        case GAMEARRAY_OFCHAR:
+        case GAMEARRAY_UINT8:
             ((uint8_t *)gar->vals)[index] = (uint8_t)lValue;
             return;
         default:
@@ -652,38 +652,38 @@ static void Gv_AddSystemVars(void)
     g_systemVarCount = g_gameVarCount;
 
     // must be first!
-    Gv_NewArray(".LOCALS_BASE", NULL, 0, GAMEARRAY_OFINT);
+    Gv_NewArray(".LOCALS_BASE", NULL, 0, GAMEARRAY_INT32);
 
     Gv_NewArray("highlight", (void *)highlight, hlcnt_id,
-                GAMEARRAY_READONLY|GAMEARRAY_OFSHORT|GAMEARRAY_VARSIZE);
+                GAMEARRAY_READONLY|GAMEARRAY_INT16|GAMEARRAY_VARSIZE);
     Gv_NewArray("highlightsector", (void *)highlightsector, hlscnt_id,
-                GAMEARRAY_READONLY|GAMEARRAY_OFSHORT|GAMEARRAY_VARSIZE);
+                GAMEARRAY_READONLY|GAMEARRAY_INT16|GAMEARRAY_VARSIZE);
 
-    Gv_NewArray("hsect", (void *)headspritesect, MAXSECTORS+1, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("psect", (void *)prevspritesect, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("nsect", (void *)nextspritesect, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("hstat", (void *)headspritestat, MAXSTATUS+1, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("pstat", (void *)prevspritestat, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("nstat", (void *)nextspritestat, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("hsect", (void *)headspritesect, MAXSECTORS+1, GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("psect", (void *)prevspritesect, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("nsect", (void *)nextspritesect, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("hstat", (void *)headspritestat, MAXSTATUS+1, GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("pstat", (void *)prevspritestat, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("nstat", (void *)nextspritestat, MAXSPRITES, GAMEARRAY_READONLY|GAMEARRAY_INT16);
 #ifdef YAX_ENABLE
-    Gv_NewArray("headsectbunchc", (void *)headsectbunch[0], YAX_MAXBUNCHES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("nextsectbunchc", (void *)nextsectbunch[0], MAXSECTORS, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("headsectbunchf", (void *)headsectbunch[1], YAX_MAXBUNCHES, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("nextsectbunchf", (void *)nextsectbunch[1], MAXSECTORS, GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("headsectbunchc", (void *)headsectbunch[0], YAX_MAXBUNCHES, GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("nextsectbunchc", (void *)nextsectbunch[0], MAXSECTORS, GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("headsectbunchf", (void *)headsectbunch[1], YAX_MAXBUNCHES, GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("nextsectbunchf", (void *)nextsectbunch[1], MAXSECTORS, GAMEARRAY_READONLY|GAMEARRAY_INT16);
 #endif
-    Gv_NewArray("editorcolors", (void *)editorcolors, 256, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
-    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
-    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_OFSHORT);
+    Gv_NewArray("editorcolors", (void *)editorcolors, 256, GAMEARRAY_READONLY|GAMEARRAY_UINT8);
+    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
 //    Gv_NewArray("picsiz", (void *)picsiz, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
-    Gv_NewArray("picanm", (void *)picanm, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_OFINT);
+    Gv_NewArray("picanm", (void *)picanm, MAXTILES, GAMEARRAY_READONLY|GAMEARRAY_INT32);
 
-    Gv_NewArray("show2dsector", (void *)show2dsector, (MAXSECTORS+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
-    Gv_NewArray("show2dwall", (void *)show2dwall, (MAXWALLS+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
-    Gv_NewArray("show2dsprite", (void *)show2dsprite, (MAXSPRITES+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
+    Gv_NewArray("show2dsector", (void *)show2dsector, (MAXSECTORS+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_UINT8);
+    Gv_NewArray("show2dwall", (void *)show2dwall, (MAXWALLS+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_UINT8);
+    Gv_NewArray("show2dsprite", (void *)show2dsprite, (MAXSPRITES+7)>>3, GAMEARRAY_READONLY|GAMEARRAY_UINT8);
 
-    Gv_NewArray("keystatus", (void *)keystatus, 256, GAMEARRAY_WARN|GAMEARRAY_OFCHAR);
-    Gv_NewArray("alphakeys", (void *)alphakeys, sizeof(alphakeys), GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
-    Gv_NewArray("numberkeys", (void *)numberkeys, sizeof(numberkeys), GAMEARRAY_READONLY|GAMEARRAY_OFCHAR);
+    Gv_NewArray("keystatus", (void *)keystatus, 256, GAMEARRAY_WARN|GAMEARRAY_UINT8);
+    Gv_NewArray("alphakeys", (void *)alphakeys, sizeof(alphakeys), GAMEARRAY_READONLY|GAMEARRAY_UINT8);
+    Gv_NewArray("numberkeys", (void *)numberkeys, sizeof(numberkeys), GAMEARRAY_READONLY|GAMEARRAY_UINT8);
 
     g_systemArrayCount = g_gameArrayCount;
 }

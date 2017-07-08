@@ -4615,6 +4615,14 @@ finish_qsprintf:
                     continue;
                 }
 
+                switch (aGameArrays[tw].flags & GAMEARRAY_TYPE_MASK)
+                {
+                    case 0:                            aGameArrays[tw].pValues[arrayIndex] = newValue; break;
+                    case GAMEARRAY_INT32: ((int32_t *)aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
+                    case GAMEARRAY_INT16: ((int16_t *)aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
+                    case GAMEARRAY_UINT8: ((uint8_t *)aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
+                }
+
                 aGameArrays[tw].pValues[arrayIndex]=newValue;
                 continue;
             }
@@ -4804,7 +4812,7 @@ finish_qsprintf:
                         }
                         Bmemcpy(aGameArrays[destArray].pValues+destArrayIndex, aGameArrays[srcArray].pValues+srcArrayIndex, numElements*GAR_ELTSZ);
                         break;
-                    case GAMEARRAY_OFINT:
+                    case GAMEARRAY_INT32:
                         // From int32-sized array. Note that the CON array element
                         // type is intptr_t, so it is different-sized on 64-bit
                         // archs, but same-sized on 32-bit ones.
@@ -4823,7 +4831,7 @@ finish_qsprintf:
                             ((int32_t *)aGameArrays[srcArray].pValues)[srcArrayIndex++];
                         }
                         break;
-                    case GAMEARRAY_OFSHORT:
+                    case GAMEARRAY_INT16:
                         // From int16_t array. Always different-sized.
                         if (EDUKE32_PREDICT_FALSE(aGameArrays[srcArray].flags & GAMEARRAY_STRIDE2))
                         {
@@ -4840,7 +4848,7 @@ finish_qsprintf:
                             ((int16_t *)aGameArrays[srcArray].pValues)[srcArrayIndex++];
                         }
                         break;
-                    case GAMEARRAY_OFCHAR:
+                    case GAMEARRAY_UINT8:
                         // From char array. Always different-sized.
                         if (EDUKE32_PREDICT_FALSE(aGameArrays[srcArray].flags & GAMEARRAY_STRIDE2))
                         {
@@ -6083,11 +6091,11 @@ void G_SaveMapState(void)
 
         int size;
 
-        switch (aGameArrays[i].flags & (GAMEARRAY_OFCHAR | GAMEARRAY_OFSHORT | GAMEARRAY_OFINT))
+        switch (aGameArrays[i].flags & (GAMEARRAY_UINT8 | GAMEARRAY_INT16 | GAMEARRAY_INT32))
         {
-            case GAMEARRAY_OFCHAR: size  = sizeof(uint8_t); break;
-            case GAMEARRAY_OFSHORT: size = sizeof(uint16_t); break;
-            case GAMEARRAY_OFINT: size   = sizeof(uint32_t); break;
+            case GAMEARRAY_UINT8: size  = sizeof(uint8_t); break;
+            case GAMEARRAY_INT16: size = sizeof(uint16_t); break;
+            case GAMEARRAY_INT32: size   = sizeof(uint32_t); break;
             default: size                = sizeof(uintptr_t); break;
         }
 
@@ -6224,12 +6232,12 @@ void G_RestoreMapState(void)
 
             int size;
 
-            switch (aGameArrays[i].flags & (GAMEARRAY_OFCHAR | GAMEARRAY_OFSHORT | GAMEARRAY_OFINT))
+            switch (aGameArrays[i].flags & (GAMEARRAY_UINT8 | GAMEARRAY_INT16 | GAMEARRAY_INT32))
             {
-                case GAMEARRAY_OFCHAR: size  = sizeof(uint8_t); break;
-                case GAMEARRAY_OFSHORT: size = sizeof(uint16_t); break;
-                case GAMEARRAY_OFINT: size   = sizeof(uint32_t); break;
-                default: size                = sizeof(uintptr_t); break;
+                case GAMEARRAY_UINT8: size = sizeof(uint8_t); break;
+                case GAMEARRAY_INT16: size = sizeof(uint16_t); break;
+                case GAMEARRAY_INT32: size = sizeof(uint32_t); break;
+                default: size              = sizeof(uintptr_t); break;
             }
 
             Bmemcpy(&aGameArrays[i].pValues[0], &pSavedState->arrays[i][0], aGameArrays[i].size * size);
