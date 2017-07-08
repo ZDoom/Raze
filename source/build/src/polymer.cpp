@@ -3827,7 +3827,7 @@ static inline void  polymer_scansprites(int16_t sectnum, uspritetype* localtspri
         spr = &sprite[i];
         if ((((spr->cstat&0x8000) == 0) || (showinvisibility)) &&
                 (spr->xrepeat > 0) && (spr->yrepeat > 0) &&
-                (*localspritesortcnt < MAXSPRITESONSCREEN))
+                (*localspritesortcnt < maxspritesonscreen))
         {
             // this function's localtsprite is either the tsprite global or
             // polymer_drawroom's locattsprite, so no aliasing
@@ -4358,7 +4358,7 @@ static void         polymer_drawmdsprite(uspritetype *tspr)
         polymer_loadmodelvbos(m);
 
     // Hackish, but that means it's a model drawn by rotatesprite.
-    if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
+    if (tspriteptr[maxspritesonscreen] == tspr) {
         float       x, y, z;
 
         spos[0] = fglobalposy;
@@ -4397,7 +4397,7 @@ static void         polymer_drawmdsprite(uspritetype *tspr)
         scale *= m->bscale;
     }
 
-    if (tspriteptr[MAXSPRITESONSCREEN] == tspr) {
+    if (tspriteptr[maxspritesonscreen] == tspr) {
         float playerang, radplayerang, cosminusradplayerang, sinminusradplayerang, hudzoom;
 
         playerang = (globalang & 2047) * (360.f/2048.f) - 90.0f;

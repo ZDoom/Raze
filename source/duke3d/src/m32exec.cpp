@@ -1725,7 +1725,7 @@ badindex:
                     M32_ERROR("Tried to duplicate nonexistent sprite %d", ospritenum);
                 }
                 if ((tw==CON_DUPSPRITE && Numsprites >= MAXSPRITES) ||
-                        (tw==CON_DUPSPRITE && spritesortcnt >= MAXSPRITESONSCREEN))
+                        (tw==CON_DUPSPRITE && spritesortcnt >= maxspritesonscreen))
                 {
                     M32_ERROR("Maximum number of sprites reached.");
                 }

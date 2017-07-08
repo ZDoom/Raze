@@ -1198,6 +1198,7 @@ const memberlabel_t UserdefsLabels[]=
     { "gametext_tracking", USERDEFS_GAMETEXT_TRACKING, 0, 0 },
     { "mgametext_tracking", USERDEFS_MGAMETEXT_TRACKING, 0, 0 },
     { "menutext_tracking", USERDEFS_MENUTEXT_TRACKING, 0, 0 },
+    { "maxspritesonscreen", USERDEFS_MAXSPRITESONSCREEN, 0, 0 },
     { "", -1, 0, 0  }     // END OF LIST
 };
 
@@ -6244,6 +6245,8 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("PROJ_YREPEAT", PROJ_YREPEAT, LABEL_DEFINE);
 
     C_AddDefinition("GAMEARRAY_RESTORE", GAMEARRAY_RESTORE, LABEL_DEFINE);
+
+    C_AddDefinition("MAXSPRITESONSCREEN", MAXSPRITESONSCREEN, LABEL_DEFINE);
 }
 #endif
 

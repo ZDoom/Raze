@@ -417,7 +417,7 @@ static void G_OROR_DupeSprites(const spritetype *sp)
 
     for (SPRITES_OF_SECT(sp->sectnum, k))
     {
-        if (spritesortcnt >= MAXSPRITESONSCREEN)
+        if (spritesortcnt >= maxspritesonscreen)
             break;
 
         if (sprite[k].picnum != SECTOREFFECTOR && sprite[k].z >= sp->z)
@@ -3800,7 +3800,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             {
                 // this exposes a sprite sorting issue which needs to be debugged further...
 #if 0
-                if (spritesortcnt < MAXSPRITESONSCREEN)
+                if (spritesortcnt < maxspritesonscreen)
                 {
                     spritetype *const newt = &tsprite[spritesortcnt++];
 
@@ -3903,7 +3903,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             if ((g_netServer || ud.multimode > 1) && (display_mirror || screenpeek != playerNum || pSprite->owner == -1))
             {
                 if (ud.showweapons && sprite[g_player[playerNum].ps->i].extra > 0 && g_player[playerNum].ps->curr_weapon > 0
-                        && spritesortcnt < MAXSPRITESONSCREEN)
+                        && spritesortcnt < maxspritesonscreen)
                 {
                     uspritetype *const newTspr       = &tsprite[spritesortcnt];
                     int const          currentWeapon = g_player[playerNum].ps->curr_weapon;
@@ -3920,7 +3920,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     spritesortcnt++;
                 }
 
-                if (g_player[playerNum].inputBits->extbits & (1 << 7) && !ud.pause_on && spritesortcnt < MAXSPRITESONSCREEN)
+                if (g_player[playerNum].inputBits->extbits & (1 << 7) && !ud.pause_on && spritesortcnt < maxspritesonscreen)
                 {
                     uspritetype *const playerTyping = t;
 
@@ -4191,7 +4191,7 @@ skip:
                 if (actor[i].flags & SFLAG_NOFLOORSHADOW)
                     continue;
 
-                if (ud.shadows && spritesortcnt < (MAXSPRITESONSCREEN-2) && getrendermode() != REND_POLYMER)
+                if (ud.shadows && spritesortcnt < (maxspritesonscreen-2) && getrendermode() != REND_POLYMER)
                 {
                     int const shadowZ = ((sector[sect].lotag & 0xff) > 2 || pSprite->statnum == STAT_PROJECTILE ||
                                    pSprite->statnum == STAT_MISC || pSprite->picnum == DRONE || pSprite->picnum == COMMANDER)

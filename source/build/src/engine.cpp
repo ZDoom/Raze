@@ -838,7 +838,7 @@ static void yax_copytsprites()
             }
         }
 
-        if (spritesortcnt >= MAXSPRITESONSCREEN)
+        if (spritesortcnt >= maxspritesonscreen)
             break;
 
         Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(spritetype));
@@ -1492,7 +1492,7 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
         if (numyaxbunches==0)
         {
 #endif
-            if (spritesortcnt >= MAXSPRITESONSCREEN)
+            if (spritesortcnt >= maxspritesonscreen)
                 return 1;
 
             Bmemcpy(&tsprite[spritesortcnt], spr, sizeof(spritetype));
@@ -1507,7 +1507,7 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
     {
         int16_t *sortcnt = &yax_spritesortcnt[yax_globallev];
 
-        if (*sortcnt >= MAXSPRITESONSCREEN)
+        if (*sortcnt >= maxspritesonscreen)
             return 1;
 
         yax_tsprite[yax_globallev][*sortcnt] = z;
@@ -1535,7 +1535,7 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
         if (cb>=0 && spr->z+spzofs-spheight < sector[sectnum].ceilingz)
         {
             sortcnt = &yax_spritesortcnt[yax_globallev-1];
-            if (*sortcnt < MAXSPRITESONSCREEN)
+            if (*sortcnt < maxspritesonscreen)
             {
                 yax_tsprite[yax_globallev-1][*sortcnt] = z|MAXSPRITES;
                 (*sortcnt)++;
@@ -1544,7 +1544,7 @@ int32_t engine_addtsprite(int16_t z, int16_t sectnum)
         if (fb>=0 && spr->z+spzofs > sector[sectnum].floorz)
         {
             sortcnt = &yax_spritesortcnt[yax_globallev+1];
-            if (*sortcnt < MAXSPRITESONSCREEN)
+            if (*sortcnt < maxspritesonscreen)
             {
                 yax_tsprite[yax_globallev+1][*sortcnt] = z|(MAXSPRITES<<1);
                 (*sortcnt)++;
@@ -7731,6 +7731,8 @@ int32_t initengine(void)
     totalclock = 0;
     g_visibility = 512;
     parallaxvisibility = 512;
+
+    maxspritesonscreen = MAXSPRITESONSCREEN;
 
     loadpalette();
 

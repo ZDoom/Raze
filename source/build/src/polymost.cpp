@@ -2455,7 +2455,7 @@ void polymost_editorfunc(void)
 
         if (preview_mouseaim)
         {
-            if (spritesortcnt == MAXSPRITESONSCREEN)
+            if (spritesortcnt == maxspritesonscreen)
                 spritesortcnt--;
 
             uspritetype *tsp = &tsprite[spritesortcnt];
@@ -5134,7 +5134,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     {
         int32_t fov;
 
-        tspriteptr[MAXSPRITESONSCREEN] = &tspr;
+        tspriteptr[maxspritesonscreen] = &tspr;
 
         bglEnable(GL_ALPHA_TEST);
         bglEnable(GL_BLEND);
@@ -5152,7 +5152,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
         polymer_setaspect(fov);
 
-        polymer_drawsprite(MAXSPRITESONSCREEN);
+        polymer_drawsprite(maxspritesonscreen);
 
         polymer_setaspect(pr_fov);
 

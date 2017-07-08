@@ -675,7 +675,7 @@ EXTERN uint8_t paletteloaded;
 EXTERN char *blendtable[MAXBLENDTABS];
 EXTERN uint8_t whitecol, redcol;
 
-int32_t maxspritesonscreen;
+EXTERN int32_t maxspritesonscreen;
 
 enum {
     PALETTE_MAIN = 1<<0,
