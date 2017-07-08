@@ -6378,6 +6378,8 @@ int app_main(int argc, char const * const * argv)
         ud.last_level = (Bstrcpy(ud.rtsname, G_DefaultRtsFile()) == ud.rtsname);
     }
 
+    CONFIG_ReadSetup();
+
     RTS_Init(ud.rtsname);
 
     if (RTS_IsInitialized())

@@ -523,115 +523,114 @@ int32_t CONFIG_ReadSetup(void)
     CONFIG_SetDefaults();
 
     ud.config.setupread = 1;
-
     pathsearchmode = 1;
-    if (SafeFileExists(g_setupFileName) && ud.config.scripthandle < 0)  // JBF 20031211
-        ud.config.scripthandle = SCRIPT_Load(g_setupFileName);
+
+    if (ud.config.scripthandle < 0)
+    {
+        if (SafeFileExists(g_setupFileName))  // JBF 20031211
+            ud.config.scripthandle = SCRIPT_Load(g_setupFileName);
 #if !defined(EDUKE32_TOUCH_DEVICES) && !defined(EDUKE32_STANDALONE)
-    else if (SafeFileExists(SETUPFILENAME) && ud.config.scripthandle < 0)
-    {
-        int32_t i;
-        i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
-                   "Import configuration data from \"%s\"?",g_setupFileName,SETUPFILENAME);
-        if (i) ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
-    }
-    else if (SafeFileExists("duke3d.cfg") && ud.config.scripthandle < 0)
-    {
-        int32_t i;
-        i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
-                   "Import configuration data from \"duke3d.cfg\"?",g_setupFileName);
-        if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");
-    }
+        else if (SafeFileExists(SETUPFILENAME))
+        {
+            int32_t i;
+            i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
+                "Import configuration data from \"%s\"?", g_setupFileName, SETUPFILENAME);
+            if (i) ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
+        }
+        else if (SafeFileExists("duke3d.cfg"))
+        {
+            int32_t i;
+            i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
+                "Import configuration data from \"duke3d.cfg\"?", g_setupFileName);
+            if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");
+        }
 #endif
+    }
 
     pathsearchmode = 0;
 
-    if (ud.config.scripthandle < 0) return -1;
+    if (ud.config.scripthandle < 0)
+        return -1;
 
-    if (ud.config.scripthandle >= 0)
+    for (dummy = 0; dummy < MAXRIDECULE; dummy++)
     {
-        char dummybuf[64];
+        commmacro[13] = dummy+'0';
+        SCRIPT_GetString(ud.config.scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
+    }
 
-        for (dummy = 0; dummy < MAXRIDECULE; dummy++)
+    Bmemset(tempbuf, 0, sizeof(tempbuf));
+    SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
+
+    char nameBuf[64];
+
+    while (Bstrlen(OSD_StripColors(nameBuf, tempbuf)) > 10)
+        tempbuf[Bstrlen(tempbuf) - 1] = '\0';
+
+    Bstrncpyz(szPlayerName, tempbuf, sizeof(szPlayerName));
+
+    if (g_rtsNamePtr == NULL)
+        SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
+
+    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ConfigVersion", &ud.configversion);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup", &ud.config.ForceSetup);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", &ud.config.NoAutoLoad);
+
+    if (g_noSetup == 0 && g_modDir[0] == '/')
+    {
+        struct Bstat st;
+        SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
+
+        if (Bstat(g_modDir, &st))
         {
-            commmacro[13] = dummy+'0';
-            SCRIPT_GetString(ud.config.scripthandle, "Comm Setup",commmacro,&ud.ridecule[dummy][0]);
-        }
-
-        Bmemset(tempbuf, 0, sizeof(tempbuf));
-        SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","PlayerName",&tempbuf[0]);
-
-        while (Bstrlen(OSD_StripColors(dummybuf,tempbuf)) > 10)
-            tempbuf[Bstrlen(tempbuf)-1] = '\0';
-
-        Bstrncpyz(szPlayerName, tempbuf, sizeof(szPlayerName));
-
-        if (g_rtsNamePtr == NULL)
-            SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
-
-        SCRIPT_GetNumber(ud.config.scripthandle, "Setup","ConfigVersion",&ud.configversion);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Setup","ForceSetup",&ud.config.ForceSetup);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Setup","NoAutoLoad",&ud.config.NoAutoLoad);
-
-// #ifdef _WIN32
-        if (g_noSetup == 0 && g_modDir[0] == '/')
-        {
-            struct Bstat st;
-            SCRIPT_GetString(ud.config.scripthandle, "Setup","ModDir",&g_modDir[0]);
-
-            if (Bstat(g_modDir, &st))
+            if ((st.st_mode & S_IFDIR) != S_IFDIR)
             {
-                if ((st.st_mode & S_IFDIR) != S_IFDIR)
-                {
-                    initprintf("Invalid mod dir in cfg!\n");
-                    Bsprintf(g_modDir,"/");
-                }
+                initprintf("Invalid mod dir in cfg!\n");
+                Bsprintf(g_modDir,"/");
             }
         }
-// #endif
+    }
 
-        if (g_grpNamePtr == NULL && g_addonNum == 0)
-        {
-            SCRIPT_GetStringPtr(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr);
-            if (g_grpNamePtr && !Bstrlen(g_grpNamePtr))
-                g_grpNamePtr = dup_filename(G_DefaultGrpFile());
-        }
+    if (g_grpNamePtr == NULL && g_addonNum == 0)
+    {
+        SCRIPT_GetStringPtr(ud.config.scripthandle, "Setup","SelectedGRP",&g_grpNamePtr);
+        if (g_grpNamePtr && !Bstrlen(g_grpNamePtr))
+            g_grpNamePtr = dup_filename(G_DefaultGrpFile());
+    }
 
-        if (!NAM_WW2GI)
-        {
-            SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Out",&ud.lockout);
-            SCRIPT_GetString(ud.config.scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
-        }
+    if (!NAM_WW2GI)
+    {
+        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Out",&ud.lockout);
+        SCRIPT_GetString(ud.config.scripthandle, "Screen Setup","Password",&ud.pwlockout[0]);
+    }
 
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight",&ud.config.ScreenHeight);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode",&ud.config.ScreenMode);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",&ud.config.ScreenWidth);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight",&ud.config.ScreenHeight);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode",&ud.config.ScreenMode);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth",&ud.config.ScreenWidth);
 
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", (int32_t *)&windowpos);
-        windowx = -1;
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", (int32_t *)&windowx);
-        windowy = -1;
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", (int32_t *)&windowy);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", (int32_t *)&windowpos);
 
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", (int32_t *)&maxrefreshfreq);
+    windowx = -1;
+    windowy = -1;
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", (int32_t *)&windowx);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", (int32_t *)&windowy);
 
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.config.ScreenBPP);
-        if (ud.config.ScreenBPP < 8) ud.config.ScreenBPP = 32;
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", (int32_t *)&maxrefreshfreq);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.config.ScreenBPP);
+
+    if (ud.config.ScreenBPP < 8) ud.config.ScreenBPP = 32;
 
 #ifdef POLYMER
-        SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &dummy);
-        if (dummy > 0 && ud.config.ScreenBPP >= 16) glrendmode = REND_POLYMER;
-        else glrendmode = REND_POLYMOST;
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "Polymer", &dummy);
+    if (dummy > 0 && ud.config.ScreenBPP >= 16) glrendmode = REND_POLYMER;
+    else glrendmode = REND_POLYMOST;
 #endif
 
-        SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Misc", "Executions",&ud.executions);
 
 #ifdef _WIN32
-        SCRIPT_GetNumber(ud.config.scripthandle, "Updates", "CheckForUpdates", &ud.config.CheckForUpdates);
-        SCRIPT_GetNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", &ud.config.LastUpdateCheck);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Updates", "CheckForUpdates", &ud.config.CheckForUpdates);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", &ud.config.LastUpdateCheck);
 #endif
-
-    }
 
     ud.config.setupread = 1;
     return 0;
