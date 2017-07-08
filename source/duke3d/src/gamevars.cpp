@@ -1002,21 +1002,21 @@ void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
     {
         int gameVar = *insptr++;
 
-        if (gameVar == g_thisActorVarID)
-        {
-            outBuf[j] = vm.spriteNum;
-            continue;
-        }
-
         if (gameVar == MAXGAMEVARS)
         {
             outBuf[j] = *insptr++;
             continue;
         }
 
+        if (gameVar == g_thisActorVarID)
+        {
+            outBuf[j] = vm.spriteNum;
+            continue;
+        }
+
         int const invertResult = !!(gameVar & (MAXGAMEVARS << 1));
 
-        if (gameVar >= g_gameVarCount && invertResult == 0)
+        if (gameVar >= g_gameVarCount && !invertResult)
         {
             outBuf[j] = Gv_GetSpecialVarX(gameVar);
             continue;
@@ -1039,9 +1039,9 @@ void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
         {
             switch (varFlags)
             {
-                case GAMEVAR_INTPTR: value   = (*((int32_t *)aGameVars[gameVar].global)); break;
+                case GAMEVAR_INTPTR:   value = (*((int32_t *)aGameVars[gameVar].global)); break;
                 case GAMEVAR_SHORTPTR: value = (*((int16_t *)aGameVars[gameVar].global)); break;
-                case GAMEVAR_CHARPTR: value  = (*((uint8_t *)aGameVars[gameVar].global)); break;
+                case GAMEVAR_CHARPTR:  value = (*((uint8_t *)aGameVars[gameVar].global)); break;
             }
         }
 
