@@ -84,7 +84,7 @@ enum rendmode_t {
 #define MAXPLAYERS 16
 // Maximum number of component tiles in a multi-psky:
 #define MAXPSKYTILES 8
-#define MAXSPRITESONSCREEN 4096
+#define MAXSPRITESONSCREEN 2048
 #define MAXUNIQHUDID 256 //Extra slots so HUD models can store animation state without messing game sprites
 
 #define TSPR_TEMP 99
@@ -674,6 +674,8 @@ extern uint8_t *basepaltable[MAXBASEPALS];
 EXTERN uint8_t paletteloaded;
 EXTERN char *blendtable[MAXBLENDTABS];
 EXTERN uint8_t whitecol, redcol;
+
+int32_t maxspritesonscreen;
 
 enum {
     PALETTE_MAIN = 1<<0,
