@@ -4621,9 +4621,14 @@ finish_qsprintf:
                     case GAMEARRAY_INT32: ((int32_t *)aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
                     case GAMEARRAY_INT16: ((int16_t *)aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
                     case GAMEARRAY_UINT8: ((uint8_t *)aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
+                    case GAMEARRAY_BITMAP:
+                        if (newValue)
+                            ((uint8_t *)aGameArrays[tw].pValues)[arrayIndex >> 3] |= (1 << (arrayIndex & 7));
+                        else
+                            ((uint8_t *)aGameArrays[tw].pValues)[arrayIndex >> 3] &= ~(1 << (arrayIndex & 7));
+                        break;
                 }
 
-                aGameArrays[tw].pValues[arrayIndex]=newValue;
                 continue;
             }
 

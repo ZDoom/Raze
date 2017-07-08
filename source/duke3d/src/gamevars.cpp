@@ -132,10 +132,7 @@ int Gv_ReadSave(int32_t kFile)
         if (kdfread(&aGameVars[i], sizeof(gamevar_t), 1, kFile) != 1)
             goto corrupt;
 
-        if (olabel == NULL)
-            aGameVars[i].szLabel = (char *)Xmalloc(MAXVARLABEL * sizeof(uint8_t));
-        else
-            aGameVars[i].szLabel = olabel;
+        aGameVars[i].szLabel = (char *)Xrealloc(olabel, MAXVARLABEL * sizeof(uint8_t));
 
         if (kdfread(aGameVars[i].szLabel, MAXVARLABEL, 1, kFile) != 1)
             goto corrupt;
@@ -164,7 +161,7 @@ int Gv_ReadSave(int32_t kFile)
     if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,kFile) != 1) goto corrupt;
     for (bssize_t i=0; i<g_gameArrayCount; i++)
     {
-        if (aGameArrays[i].flags&GAMEARRAY_READONLY)
+        if (!(aGameArrays[i].flags & GAMEARRAY_ALLOCATED))
             continue;
 
         char *const olabel = aGameArrays[i].szLabel;
@@ -173,10 +170,7 @@ int Gv_ReadSave(int32_t kFile)
         if (kdfread(&aGameArrays[i], sizeof(gamearray_t), 1, kFile) != 1)
             goto corrupt;
 
-        if (olabel == NULL)
-            aGameArrays[i].szLabel = (char *)Xmalloc(MAXARRAYLABEL * sizeof(uint8_t));
-        else
-            aGameArrays[i].szLabel = olabel;
+        aGameArrays[i].szLabel = (char *) Xrealloc(olabel, MAXARRAYLABEL * sizeof(uint8_t));
 
         if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, kFile) != 1)
             goto corrupt;
@@ -286,7 +280,7 @@ void Gv_WriteSave(FILE *fil)
 
     for (bssize_t i=0; i<g_gameArrayCount; i++)
     {
-        if (aGameArrays[i].flags&GAMEARRAY_READONLY)
+        if (!(aGameArrays[i].flags & GAMEARRAY_ALLOCATED))
             continue;
 
         // write for .size and .dwFlags (the rest are pointers):
@@ -413,7 +407,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint
 
         g_warningCnt++;
 
-        if (aGameArrays[i].flags&GAMEARRAY_TYPE_MASK)
+        if (aGameArrays[i].flags & GAMEARRAY_TYPE_MASK)
         {
             C_ReportError(-1);
             initprintf("ignored redefining system array `%s'.", pszLabel);
@@ -586,6 +580,7 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
         case GAMEARRAY_INT32: returnValue = ((int32_t *)aGameArrays[id].pValues)[index]; break;
         case GAMEARRAY_INT16: returnValue = ((int16_t *)aGameArrays[id].pValues)[index]; break;
         case GAMEARRAY_UINT8: returnValue = ((uint8_t *)aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_BITMAP:returnValue = !!(((uint8_t *)aGameArrays[id].pValues)[index >> 3] & pow2char[index & 7]); break;
     }
 
     return returnValue;
@@ -1537,6 +1532,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
     Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
     Gv_NewArray("walock", (void *) &walock[0], MAXTILES, GAMEARRAY_UINT8);
+    Gv_NewArray("gotpic", (void *) &gotpic[0], MAXTILES, GAMEARRAY_BITMAP);
 #endif
 }
 
