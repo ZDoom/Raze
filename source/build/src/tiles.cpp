@@ -504,7 +504,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
 {
     Bstrncpyz(artfilename, filename, sizeof(artfilename));
 
-    Bmemset(&tilesiz[0], 0, sizeof(vec2_t) * MAXTILES);
+    Bmemset(&tilesiz[0], 0, sizeof(vec2s_t) * MAXTILES);
     Bmemset(picanm, 0, sizeof(picanm));
 
     //    artsize = 0;
