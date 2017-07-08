@@ -1956,8 +1956,8 @@ skip_check:
                 int const nSprite2 = Gv_GetVarX(*insptr++);
 
                 if (EDUKE32_PREDICT_FALSE((unsigned)nSprite1 >= MAXSPRITES || (unsigned)nSprite2 >= MAXSPRITES))
-                    CON_ERRPRINTF("invalid sprite %d\n", (unsigned)nSprite1 >= MAXSPRITES ? nSprite1 : nSprite2);
                 {
+                    CON_ERRPRINTF("invalid sprite %d\n", (unsigned)nSprite1 >= MAXSPRITES ? nSprite1 : nSprite2);
                     insptr++;
                     continue;
                 }
