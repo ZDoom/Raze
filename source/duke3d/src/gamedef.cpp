@@ -4313,7 +4313,7 @@ DO_DEFSTATE:
 
             BITPTR_CLEAR(g_scriptPtr-apScript);
             *g_scriptPtr++ = i;
-            if (tw==CON_RESIZEARRAY && (aGameArrays[i].flags & GAMEARRAY_TYPE_MASK))
+            if (tw==CON_RESIZEARRAY && (aGameArrays[i].flags & (GAMEARRAY_READONLY|GAMEARRAY_SYSTEM)))
             {
                 C_ReportError(-1);
                 initprintf("can't resize system array `%s'.", label+(g_labelCnt<<6));

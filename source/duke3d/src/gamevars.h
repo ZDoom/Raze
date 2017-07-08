@@ -71,6 +71,7 @@ enum GamearrayFlags_t
     GAMEARRAY_STRIDE2   = 0x00000100,
     GAMEARRAY_ALLOCATED = 0x00000200, // memory allocated for user array
     GAMEARRAY_BITMAP    = 0x00000400,
+    GAMEARRAY_SYSTEM    = 0x00000800,
 
     GAMEARRAY_TYPE_MASK = GAMEARRAY_UINT8 | GAMEARRAY_INT16 | GAMEARRAY_INT32 | GAMEARRAY_BITMAP,
 };
@@ -96,13 +97,12 @@ typedef struct
 } gamearray_t;
 #pragma pack(pop)
 
-# define GAR_ELTSZ (sizeof(aGameArrays[0].pValues[0]))
-
 extern gamevar_t   aGameVars[MAXGAMEVARS];
 extern gamearray_t aGameArrays[MAXGAMEARRAYS];
 extern int32_t     g_gameVarCount;
 extern int32_t     g_gameArrayCount;
 
+int __fastcall Gv_GetArrayElementSize(int const arrayIdx);
 int __fastcall Gv_GetArrayValue(int const id, int index);
 int __fastcall Gv_GetVar(int id, int spriteNum, int playerNum);
 void __fastcall Gv_SetVar(int const id, int const lValue, int const spriteNum, int const playerNum);

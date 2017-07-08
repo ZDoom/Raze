@@ -2041,15 +2041,15 @@ skip_check:
             insptr++;
             {
                 int const gameVar   = *insptr++;
-                int const spriteNum = Gv_GetVarX(*insptr++);
+                int const statNum = Gv_GetVarX(*insptr++);
 
-                if (EDUKE32_PREDICT_FALSE((unsigned)spriteNum > MAXSTATUS))
+                if (EDUKE32_PREDICT_FALSE((unsigned)statNum > MAXSTATUS))
                 {
-                    CON_ERRPRINTF("invalid status list %d\n", spriteNum);
+                    CON_ERRPRINTF("invalid status list %d\n", statNum);
                     continue;
                 }
 
-                Gv_SetVarX(gameVar, headspritestat[spriteNum]);
+                Gv_SetVarX(gameVar, headspritestat[statNum]);
                 continue;
             }
 
@@ -4632,7 +4632,6 @@ finish_qsprintf:
                 continue;
             }
 
-        case CON_WRITEARRAYTOFILE:
         case CON_READARRAYFROMFILE:
             insptr++;
             {
@@ -4645,41 +4644,68 @@ finish_qsprintf:
                     continue;
                 }
 
-                if (tw == CON_READARRAYFROMFILE)
+                int kFile = kopen4loadfrommod(apStrings[quoteFilename], 0);
+
+                if (kFile < 0)
+                    continue;
+
+                int numElements = kfilelength(kFile) / Gv_GetArrayElementSize(arrayNum);
+
+                if (numElements == 0)
                 {
-                    int32_t kFile = kopen4loadfrommod(apStrings[quoteFilename], 0);
+                    Baligned_free(aGameArrays[arrayNum].pValues);
+                    aGameArrays[arrayNum].pValues = NULL;
+                    aGameArrays[arrayNum].size    = numElements;
+                }
+                else if (numElements > 0)
+                {
+                    int const numBytes = numElements * Gv_GetArrayElementSize(arrayNum);
 
-                    if (kFile < 0)
-                        continue;
+                    Baligned_free(aGameArrays[arrayNum].pValues);
 
-                    int32_t numElements = kfilelength(kFile) / sizeof(int32_t);
+                    aGameArrays[arrayNum].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, numElements * Gv_GetArrayElementSize(arrayNum));
+                    aGameArrays[arrayNum].size    = numElements;
 
-                    if (numElements == 0)
+                    switch (aGameArrays[arrayNum].flags & GAMEARRAY_TYPE_MASK)
                     {
-                        Baligned_free(aGameArrays[arrayNum].pValues);
-                        aGameArrays[arrayNum].pValues = NULL;
-                        aGameArrays[arrayNum].size    = numElements;
-                    }
-                    else if (numElements > 0)
-                    {
-                        int const numBytes = numElements * sizeof(int32_t);
+                    case 0:
 #ifdef BITNESS64
-                        int32_t *pArray = (int32_t *)Xcalloc(numElements, sizeof(int32_t));
+                    {
+                        int32_t * const pArray = (int32_t *)Xcalloc(1, numBytes);
+
                         kread(kFile, pArray, numBytes);
-#endif
-                        Baligned_free(aGameArrays[arrayNum].pValues);
-                        aGameArrays[arrayNum].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, numElements * GAR_ELTSZ);
-                        aGameArrays[arrayNum].size    = numElements;
-#ifdef BITNESS64
-                        for (bssize_t i = 0; i < numElements; i++)
-                            aGameArrays[arrayNum].pValues[i] = pArray[i];  // int32_t --> int64_t
-                        Bfree(pArray);
-#else
-                        kread(kFile, aGameArrays[arrayNum].pValues, numBytes);
-#endif
-                    }
 
-                    kclose(kFile);
+                        for (bssize_t i = 0; i < numElements; i++)
+                            aGameArrays[arrayNum].pValues[i] = pArray[i];
+
+                        Bfree(pArray);
+                        break;
+                    }
+#endif
+                    case GAMEARRAY_INT32:
+                    case GAMEARRAY_INT16:
+                    case GAMEARRAY_UINT8:
+                        kread(kFile, aGameArrays[arrayNum].pValues, numBytes);
+                        break;
+                    case GAMEARRAY_BITMAP:
+                        kread(kFile, aGameArrays[arrayNum].pValues, (numElements + 7) >> 3);
+                        break;
+                    }
+                }
+
+                kclose(kFile);
+                continue;
+            }
+
+        case CON_WRITEARRAYTOFILE:
+            insptr++;
+            {
+                int const arrayNum      = *insptr++;
+                int const quoteFilename = *insptr++;
+
+                if (EDUKE32_PREDICT_FALSE(apStrings[quoteFilename] == NULL))
+                {
+                    CON_ERRPRINTF("null quote %d\n", quoteFilename);
                     continue;
                 }
 
@@ -4691,7 +4717,7 @@ finish_qsprintf:
                     continue;
                 }
 
-                FILE *const fil = fopen(temp, "wb");
+                FILE *const fil = Bfopen(temp, "wb");
 
                 if (EDUKE32_PREDICT_FALSE(fil == NULL))
                 {
@@ -4699,15 +4725,34 @@ finish_qsprintf:
                     continue;
                 }
 
-                int const  arraySize = aGameArrays[arrayNum].size;
-                int32_t * const pArray = (int32_t *)Xmalloc(sizeof(int32_t) * arraySize);
+                int const numElements = aGameArrays[arrayNum].size;
+                int const numBytes    = numElements * Gv_GetArrayElementSize(arrayNum);
 
-                for (bssize_t k = 0; k < arraySize; k++)
-                    pArray[k] = Gv_GetArrayValue(arrayNum, k);
+                switch (aGameArrays[arrayNum].flags & GAMEARRAY_TYPE_MASK)
+                {
+                case 0:
+#ifdef BITNESS64
+                {
+                    int32_t * const pArray = (int32_t *)Xmalloc(numBytes);
 
-                fwrite(pArray, 1, sizeof(int32_t) * arraySize, fil);
-                Bfree(pArray);
-                fclose(fil);
+                    for (bssize_t k = 0; k < numElements; k++)
+                        pArray[k] = Gv_GetArrayValue(arrayNum, k);
+
+                    Bfwrite(pArray, 1, numBytes, fil);
+                    Bfree(pArray);
+                    break;
+                }
+#endif
+                case GAMEARRAY_INT32:
+                case GAMEARRAY_INT16:
+                case GAMEARRAY_UINT8:
+                    Bfwrite(aGameArrays[arrayNum].pValues, 1, numBytes, fil);
+                    break;
+                case GAMEARRAY_BITMAP:
+                    Bfwrite(aGameArrays[arrayNum].pValues, 1, (numElements + 7) >> 3, fil);
+                }
+
+                Bfclose(fil);
 
                 continue;
             }
@@ -4732,21 +4777,22 @@ finish_qsprintf:
 //                    OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
 //                               aGameArrays[j].szLabel, aGameArrays[j].size, newSize);
 
-                    intptr_t * const pArray = oldSize != 0 ? (intptr_t *)Xmalloc(GAR_ELTSZ * oldSize) : NULL;
+                    int const eltSize = Gv_GetArrayElementSize(tw);
+                    intptr_t * const pArray = oldSize != 0 ? (intptr_t *)Xmalloc(eltSize * oldSize) : NULL;
 
                     if (oldSize != 0)
-                        Bmemcpy(pArray, aGameArrays[tw].pValues, GAR_ELTSZ * oldSize);
+                        Bmemcpy(pArray, aGameArrays[tw].pValues, eltSize * oldSize);
 
                     Baligned_free(aGameArrays[tw].pValues);
 
-                    aGameArrays[tw].pValues = newSize != 0 ? (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, GAR_ELTSZ * newSize) : NULL;
+                    aGameArrays[tw].pValues = newSize != 0 ? (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, eltSize * newSize) : NULL;
                     aGameArrays[tw].size = newSize;
 
                     if (oldSize != 0)
-                        Bmemcpy(aGameArrays[tw].pValues, pArray, GAR_ELTSZ * min(oldSize, newSize));
+                        Bmemcpy(aGameArrays[tw].pValues, pArray, eltSize * min(oldSize, newSize));
 
                     if (newSize > oldSize)
-                        Bmemset(&aGameArrays[tw].pValues[oldSize], 0, GAR_ELTSZ * (newSize - oldSize));
+                        Bmemset(&aGameArrays[tw].pValues[oldSize], 0, eltSize * (newSize - oldSize));
 
                     Bfree(pArray);
                 }
@@ -4761,28 +4807,6 @@ finish_qsprintf:
                 int const destArray      = *insptr++;
                 int       destArrayIndex = Gv_GetVarX(*insptr++);
                 int       numElements    = Gv_GetVarX(*insptr++);
-
-                tw = 0;
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)srcArray>=(unsigned)g_gameArrayCount))
-                {
-                    CON_ERRPRINTF("Invalid array %d!", srcArray);
-                    tw = 1;
-                }
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)destArray>=(unsigned)g_gameArrayCount))
-                {
-                    CON_ERRPRINTF("Invalid array %d!", destArray);
-                    tw = 1;
-                }
-
-                if (EDUKE32_PREDICT_FALSE(aGameArrays[destArray].flags & GAMEARRAY_READONLY))
-                {
-                    CON_ERRPRINTF("Array %d is read-only!", destArray);
-                    tw = 1;
-                }
-
-                if (EDUKE32_PREDICT_FALSE(tw)) continue; // dirty replacement for VMFLAG_ERROR
 
                 int const srcArraySize = (aGameArrays[srcArray].flags & GAMEARRAY_VARSIZE)
                                          ? Gv_GetVarX(aGameArrays[srcArray].size)
@@ -4802,75 +4826,36 @@ finish_qsprintf:
                     numElements = destArraySize - destArrayIndex;
 
                 // Switch depending on the source array type.
-                switch (aGameArrays[srcArray].flags & GAMEARRAY_TYPE_MASK)
+
+                int const srcInc = 1 << (int)!!(EDUKE32_PREDICT_FALSE(aGameArrays[srcArray].flags & GAMEARRAY_STRIDE2));
+                int const destInc = 1 << (int)!!(EDUKE32_PREDICT_FALSE(aGameArrays[destArray].flags & GAMEARRAY_STRIDE2));
+
+                // matching array types and no STRIDE2 flag
+                if ((aGameArrays[srcArray].flags & GAMEARRAY_TYPE_MASK) == (aGameArrays[destArray].flags & GAMEARRAY_TYPE_MASK) && (srcInc & destInc) == 1)
+                {
+                    Bmemcpy(aGameArrays[destArray].pValues + destArrayIndex, aGameArrays[srcArray].pValues + srcArrayIndex,
+                        numElements * Gv_GetArrayElementSize(srcArray));
+                }
+                else switch (aGameArrays[destArray].flags & GAMEARRAY_TYPE_MASK)
                 {
                     case 0:
-                        // CON array to CON array.
-                        if (EDUKE32_PREDICT_FALSE(aGameArrays[srcArray].flags & GAMEARRAY_STRIDE2))
-                        {
-                            for (; numElements>0; --numElements)
-                            {
-                                (aGameArrays[destArray].pValues)[destArrayIndex++] =
-                                ((int32_t *)aGameArrays[srcArray].pValues)[srcArrayIndex += 2];
-                            }
-                            break;
-                        }
-                        Bmemcpy(aGameArrays[destArray].pValues+destArrayIndex, aGameArrays[srcArray].pValues+srcArrayIndex, numElements*GAR_ELTSZ);
+                        for (; numElements > 0; --numElements)
+                            aGameArrays[destArray].pValues[destArrayIndex += destInc] = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
                         break;
                     case GAMEARRAY_INT32:
-                        // From int32-sized array. Note that the CON array element
-                        // type is intptr_t, so it is different-sized on 64-bit
-                        // archs, but same-sized on 32-bit ones.
-                        if (EDUKE32_PREDICT_FALSE(aGameArrays[srcArray].flags & GAMEARRAY_STRIDE2))
-                        {
-                            for (; numElements>0; --numElements)
-                            {
-                                (aGameArrays[destArray].pValues)[destArrayIndex++] =
-                                ((int32_t *)aGameArrays[srcArray].pValues)[srcArrayIndex += 2];
-                            }
-                            break;
-                        }
-                        for (; numElements>0; --numElements)
-                        {
-                            (aGameArrays[destArray].pValues)[destArrayIndex++] =
-                            ((int32_t *)aGameArrays[srcArray].pValues)[srcArrayIndex++];
-                        }
+                        for (; numElements > 0; --numElements)
+                            ((int32_t *)aGameArrays[destArray].pValues)[destArrayIndex += destInc] = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
                         break;
                     case GAMEARRAY_INT16:
-                        // From int16_t array. Always different-sized.
-                        if (EDUKE32_PREDICT_FALSE(aGameArrays[srcArray].flags & GAMEARRAY_STRIDE2))
-                        {
-                            for (; numElements>0; --numElements)
-                            {
-                                (aGameArrays[destArray].pValues)[destArrayIndex++] =
-                                ((int16_t *)aGameArrays[srcArray].pValues)[srcArrayIndex += 2];
-                            }
-                            break;
-                        }
-                        for (; numElements>0; --numElements)
-                        {
-                            (aGameArrays[destArray].pValues)[destArrayIndex++] =
-                            ((int16_t *)aGameArrays[srcArray].pValues)[srcArrayIndex++];
-                        }
+                        for (; numElements > 0; --numElements)
+                            ((int16_t *) aGameArrays[destArray].pValues)[destArrayIndex += destInc] = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
                         break;
                     case GAMEARRAY_UINT8:
-                        // From char array. Always different-sized.
-                        if (EDUKE32_PREDICT_FALSE(aGameArrays[srcArray].flags & GAMEARRAY_STRIDE2))
-                        {
-                            for (; numElements>0; --numElements)
-                            {
-                                (aGameArrays[destArray].pValues)[destArrayIndex++] =
-                                ((uint8_t *)aGameArrays[srcArray].pValues)[srcArrayIndex += 2];
-                            }
-                            break;
-                        }
-                        for (; numElements>0; --numElements)
-                        {
-                            (aGameArrays[destArray].pValues)[destArrayIndex++] =
-                            ((uint8_t *)aGameArrays[srcArray].pValues)[srcArrayIndex++];
-                        }
+                        for (; numElements > 0; --numElements)
+                            ((uint8_t *) aGameArrays[destArray].pValues)[destArrayIndex += destInc] = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
                         break;
                 }
+
                 continue;
             }
 

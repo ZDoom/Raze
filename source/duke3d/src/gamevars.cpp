@@ -179,8 +179,8 @@ int Gv_ReadSave(int32_t kFile)
         intptr_t const asize = aGameArrays[i].size;
         if (asize != 0)
         {
-            aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, asize * GAR_ELTSZ);
-            if (kdfread(aGameArrays[i].pValues, GAR_ELTSZ * aGameArrays[i].size, 1, kFile) < 1) goto corrupt;
+            aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, asize * Gv_GetArrayElementSize(i));
+            if (kdfread(aGameArrays[i].pValues, Gv_GetArrayElementSize(i) * aGameArrays[i].size, 1, kFile) < 1) goto corrupt;
         }
         else
             aGameArrays[i].pValues = NULL;
@@ -287,7 +287,7 @@ void Gv_WriteSave(FILE *fil)
         dfwrite(&aGameArrays[i],sizeof(gamearray_t),1,fil);
 
         dfwrite(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil);
-        dfwrite(aGameArrays[i].pValues, GAR_ELTSZ * aGameArrays[i].size, 1, fil);
+        dfwrite(aGameArrays[i].pValues, Gv_GetArrayElementSize(i) * aGameArrays[i].size, 1, fil);
     }
 
     dfwrite(apScriptEvents,sizeof(apScriptEvents),1,fil);
@@ -407,7 +407,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint
 
         g_warningCnt++;
 
-        if (aGameArrays[i].flags & GAMEARRAY_TYPE_MASK)
+        if (aGameArrays[i].flags & GAMEARRAY_SYSTEM)
         {
             C_ReportError(-1);
             initprintf("ignored redefining system array `%s'.", pszLabel);
@@ -421,31 +421,33 @@ int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint
     i = g_gameArrayCount;
 
     if (aGameArrays[i].szLabel == NULL)
-        aGameArrays[i].szLabel = (char *)Xcalloc(MAXVARLABEL,sizeof(uint8_t));
+        aGameArrays[i].szLabel = (char *)Xcalloc(MAXVARLABEL, sizeof(uint8_t));
 
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
 
-    if (pArray == NULL)
+    if (pArray)
+        aGameArrays[i].pValues = (intptr_t *)pArray;
+    else
     {
         if (aGameArrays[i].flags & GAMEARRAY_ALLOCATED)
             Baligned_free(aGameArrays[i].pValues);
 
-        int typeSize;
+        int typeSize = 0;
 
-        switch (aGameArrays[i].flags & (GAMEARRAY_UINT8 | GAMEARRAY_INT16 | GAMEARRAY_INT32))
+        switch (aGameArrays[i].flags & GAMEARRAY_TYPE_MASK)
         {
+            case 0:               typeSize = sizeof(uintptr_t); break;
             case GAMEARRAY_UINT8: typeSize = sizeof(uint8_t); break;
             case GAMEARRAY_INT16: typeSize = sizeof(uint16_t); break;
             case GAMEARRAY_INT32: typeSize = sizeof(uint32_t); break;
-            default:              typeSize = sizeof(uintptr_t); break;
         }
 
-        aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, arraySize * typeSize);
-        Bmemset(aGameArrays[i].pValues, 0, arraySize * typeSize);
+        int const allocSize = typeSize ? arraySize * typeSize : (arraySize + 7) >> 3;
+
+        aGameArrays[i].pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, allocSize);
+        Bmemset(aGameArrays[i].pValues, 0, allocSize);
     }
-    else
-        aGameArrays[i].pValues = (intptr_t *)pArray;
 
     aGameArrays[i].size  = arraySize;
     aGameArrays[i].flags = nFlags & ~GAMEARRAY_RESET;
@@ -565,6 +567,21 @@ static int Gv_GetVarIndex(const char *szGameLabel)
     }
 
     return gameVar;
+}
+
+int __fastcall Gv_GetArrayElementSize(int const arrayIdx)
+{
+    int typeSize = 0;
+
+    switch (aGameArrays[arrayIdx].flags & GAMEARRAY_TYPE_MASK)
+    {
+        case 0:               typeSize = sizeof(uintptr_t); break;
+        case GAMEARRAY_UINT8: typeSize = sizeof(uint8_t); break;
+        case GAMEARRAY_INT16: typeSize = sizeof(uint16_t); break;
+        case GAMEARRAY_INT32: typeSize = sizeof(uint32_t); break;
+    }
+
+    return typeSize;
 }
 
 int __fastcall Gv_GetArrayValue(int const id, int index)
@@ -1529,10 +1546,10 @@ static void Gv_AddSystemVars(void)
 # endif
 
     // SYSTEM_GAMEARRAY
-    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
-    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
-    Gv_NewArray("walock", (void *) &walock[0], MAXTILES, GAMEARRAY_UINT8);
-    Gv_NewArray("gotpic", (void *) &gotpic[0], MAXTILES, GAMEARRAY_BITMAP);
+    Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
+    Gv_NewArray("walock", (void *) &walock[0], MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_UINT8);
+    Gv_NewArray("gotpic", (void *) &gotpic[0], MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_BITMAP);
 #endif
 }
 
