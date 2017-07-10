@@ -30,6 +30,9 @@
 #ifndef __has_extension
 # define __has_extension __has_feature // Compatibility with pre-3.0 compilers.
 #endif
+#ifndef __has_cpp_attribute
+# define __has_cpp_attribute(x) 0
+#endif
 
 #ifdef _MSC_VER
 # define EDUKE32_MSVC_PREREQ(major) ((major) <= (_MSC_VER))
@@ -222,6 +225,17 @@
 #else
 # define CONSTEXPR_CXX14
 #endif
+
+#if __has_cpp_attribute(fallthrough)
+# define FALLTHROUGH [[fallthrough]]
+#elif __has_cpp_attribute(clang::fallthrough)
+# define FALLTHROUGH [[clang::fallthrough]]
+#elif __has_cpp_attribute(gnu::fallthrough)
+# define FALLTHROUGH [[gnu::fallthrough]]
+#else
+# define FALLTHROUGH
+#endif
+
 
 ////////// Platform detection //////////
 
