@@ -1561,22 +1561,23 @@ void Menu_Init(void)
     }
 
     // prepare input
-    k = 0;
     for (i = 0; i < NUMGAMEFUNCTIONS; ++i)
     {
         if (MenuGameFuncs[i][0] == '\0')
+        {
+            MEL_KEYBOARDSETUPFUNCS[i] = NULL;
             continue;
+        }
 
-        MEL_KEYBOARDSETUPFUNCS[k] = &ME_KEYBOARDSETUPFUNCS[k];
-        ME_KEYBOARDSETUPFUNCS[k] = ME_KEYBOARDSETUPFUNCS_TEMPLATE;
-        ME_KEYBOARDSETUPFUNCS[k].name = MenuGameFuncs[i];
-        ME_KEYBOARDSETUPFUNCS[k].entry = &MEO_KEYBOARDSETUPFUNCS[k];
-        MEO_KEYBOARDSETUPFUNCS[k] = MEO_KEYBOARDSETUPFUNCS_TEMPLATE;
-        MEO_KEYBOARDSETUPFUNCS[k].column[0] = &ud.config.KeyboardKeys[i][0];
-        MEO_KEYBOARDSETUPFUNCS[k].column[1] = &ud.config.KeyboardKeys[i][1];
-        ++k;
+        MEL_KEYBOARDSETUPFUNCS[i] = &ME_KEYBOARDSETUPFUNCS[i];
+        ME_KEYBOARDSETUPFUNCS[i] = ME_KEYBOARDSETUPFUNCS_TEMPLATE;
+        ME_KEYBOARDSETUPFUNCS[i].name = MenuGameFuncs[i];
+        ME_KEYBOARDSETUPFUNCS[i].entry = &MEO_KEYBOARDSETUPFUNCS[i];
+        MEO_KEYBOARDSETUPFUNCS[i] = MEO_KEYBOARDSETUPFUNCS_TEMPLATE;
+        MEO_KEYBOARDSETUPFUNCS[i].column[0] = &ud.config.KeyboardKeys[i][0];
+        MEO_KEYBOARDSETUPFUNCS[i].column[1] = &ud.config.KeyboardKeys[i][1];
     }
-    M_KEYBOARDKEYS.numEntries = k;
+    M_KEYBOARDKEYS.numEntries = NUMGAMEFUNCTIONS;
     for (i = 0; i < MENUMOUSEFUNCTIONS; ++i)
     {
         MEL_MOUSESETUPBTNS[i] = &ME_MOUSESETUPBTNS[i];
