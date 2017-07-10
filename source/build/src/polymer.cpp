@@ -1441,21 +1441,23 @@ void                polymer_postrotatesprite(void)
     polymer_unbindmaterial(rotatespritematerialbits);
 }
 
-static void         polymer_drawsearchplane(_prplane *plane, GLubyte *oldcolor, GLubyte modulation, GLubyte *data)
+static void         polymer_setupdiffusemodulation(_prplane *plane, GLubyte modulation, GLubyte *data)
 {
-    if (oldcolor)
-        Bmemcpy(oldcolor, plane->material.diffusemodulation, sizeof(GLubyte) * 4);
-
     plane->material.diffusemodulation[0] = modulation;
     plane->material.diffusemodulation[1] = ((GLubyte *) data)[0];
     plane->material.diffusemodulation[2] = ((GLubyte *) data)[1];
     plane->material.diffusemodulation[3] = 0xFF;
+}
+
+static void         polymer_drawsearchplane(_prplane *plane, GLubyte *oldcolor, GLubyte modulation, GLubyte *data)
+{
+    Bmemcpy(oldcolor, plane->material.diffusemodulation, sizeof(GLubyte) * 4);
+
+    polymer_setupdiffusemodulation(plane, modulation, data);
 
     polymer_drawplane(plane);
 
-    if (oldcolor)
-        Bmemcpy(plane->material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
-
+    Bmemcpy(plane->material.diffusemodulation, oldcolor, sizeof(GLubyte) * 4);
 }
 
 void                polymer_drawmaskwall(int32_t damaskwallcnt)
@@ -3909,7 +3911,7 @@ void                polymer_updatesprite(int32_t snum)
 
     if (searchit == 2)
     {
-        polymer_drawsearchplane(&s->plane, NULL, 0x03, (GLubyte *) &tspr->owner);
+        polymer_setupdiffusemodulation(&s->plane, 0x03, (GLubyte *) &tspr->owner);
         s->hash = 0xDEADBEEF;
     }
 
