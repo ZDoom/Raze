@@ -703,11 +703,15 @@ special:
             break;
 
         case STRUCT_TILEDATA:
+            if (arrayIndexVar == g_thisActorVarID)
+                arrayIndex = vm.pSprite->picnum;
             CHECK_INDEX(MAXTILES);
             returnValue = VM_GetTileData(arrayIndex, labelNum);
             break;
 
         case STRUCT_PALDATA:
+            if (arrayIndexVar == g_thisActorVarID)
+                arrayIndex = vm.pSprite->pal;
             CHECK_INDEX(MAXPALOOKUPS);
             returnValue = VM_GetPalData(arrayIndex, labelNum);
             break;
@@ -721,18 +725,21 @@ special:
             break;
 
         case STRUCT_INPUT:
-            if (arrayIndexVar == g_thisActorVarID) arrayIndex = vm.playerNum;
+            if (arrayIndexVar == g_thisActorVarID)
+                arrayIndex = vm.playerNum;
             CHECK_INDEX(MAXPLAYERS);
             returnValue = VM_GetPlayerInput(arrayIndex, labelNum);
             break;
 
         case STRUCT_ACTORVAR:
         case STRUCT_PLAYERVAR:
+            // no THISACTOR check here because we convert those cases to setvarvar
             returnValue = Gv_GetVar(labelNum, arrayIndex, playerNum);
             break;
 
         case STRUCT_SECTOR:
-            if (arrayIndexVar == g_thisActorVarID) arrayIndex = sprite[vm.spriteNum].sectnum;
+            if (arrayIndexVar == g_thisActorVarID)
+                arrayIndex = vm.pSprite->sectnum;
             CHECK_INDEX(MAXSECTORS);
             returnValue = VM_GetSector(arrayIndex, labelNum);
             break;
@@ -894,11 +901,15 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 break;
 
             case STRUCT_TILEDATA:
+                if (arrayIndexVar == g_thisActorVarID)
+                    arrayIndex = vm.pSprite->picnum;
                 CHECK_INDEX(MAXTILES, GVX_BADTILE);
                 returnValue = VM_GetTileData(arrayIndex, labelNum);
                 break;
 
             case STRUCT_PALDATA:
+                if (arrayIndexVar == g_thisActorVarID)
+                    arrayIndex = vm.pSprite->pal;
                 CHECK_INDEX(MAXPALOOKUPS, GVX_BADPAL);
                 returnValue = VM_GetPalData(arrayIndex, labelNum);
                 break;
@@ -921,12 +932,13 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
 
             case STRUCT_ACTORVAR:
             case STRUCT_PLAYERVAR:
+                // no THISACTOR check here because we convert those cases to setvarvar
                 returnValue = Gv_GetVar(labelNum, arrayIndex, vm.playerNum);
                 break;
 
             case STRUCT_SECTOR:
                 if (arrayIndexVar == g_thisActorVarID)
-                    arrayIndex = sprite[vm.spriteNum].sectnum;
+                    arrayIndex = vm.pSprite->sectnum;
                 CHECK_INDEX(MAXSECTORS, GVX_BADSECTOR);
                 returnValue = VM_GetSector(arrayIndex, labelNum);
                 break;
