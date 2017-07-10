@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "savegame.h"
 #include "common.h"
 #include "common_game.h"
+#include "cheats.h"
 
 #include "osd.h"
 
@@ -5798,7 +5799,7 @@ repeatcase:
             C_GetNextValue(LABEL_DEFINE);
             k = *(g_scriptPtr-1);
 
-            if (EDUKE32_PREDICT_FALSE(k > 25))
+            if (EDUKE32_PREDICT_FALSE((unsigned)k >= NUMCHEATS))
             {
                 initprintf("%s:%d: error: cheat redefinition attempts to redefine nonexistent cheat.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;

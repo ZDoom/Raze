@@ -314,9 +314,7 @@ void G_DoCheats(void)
 
         FOUNDCHEAT:;
 
-            int i = VM_OnEventWithReturn(EVENT_ACTIVATECHEAT, pPlayer->i, myconnectindex, cheatNum);
-            if (cheatNum != CHEAT_COMEGETSOME) // Users are not allowed to interfere with TX's debugging cheat.
-                cheatNum = i;
+            cheatNum = VM_OnEventWithReturn(EVENT_ACTIVATECHEAT, pPlayer->i, myconnectindex, cheatNum);
 
             {
                 switch (cheatNum)
@@ -468,7 +466,7 @@ void G_DoCheats(void)
                 case CHEAT_SKILL:
                     if (cheatNum == CHEAT_SCOTTY)
                     {
-                        i = Bstrlen(CheatStrings[cheatNum])-3+VOLUMEONE;
+                        size_t const i = Bstrlen(CheatStrings[cheatNum])-3+VOLUMEONE;
                         if (!consoleCheat)
                         {
                             // JBF 20030914
@@ -508,7 +506,7 @@ void G_DoCheats(void)
                     {
                         if (!consoleCheat)
                         {
-                            i = Bstrlen(CheatStrings[cheatNum])-1;
+                            size_t const i = Bstrlen(CheatStrings[cheatNum])-1;
                             ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
                         }
                         else
@@ -548,7 +546,7 @@ void G_DoCheats(void)
                 case CHEAT_UNLOCK:
                     if (VOLUMEONE) return;
 
-                    for (i=numsectors-1; i>=0; i--) //Unlock
+                    for (bssize_t i=numsectors-1; i>=0; i--) //Unlock
                     {
                         int const lotag = sector[i].lotag;
                         if (lotag == -1 || lotag == 32767) continue;
@@ -581,7 +579,7 @@ void G_DoCheats(void)
                 case CHEAT_SHOWMAP: // SHOW ALL OF THE MAP TOGGLE;
                     ud.showallmap = !ud.showallmap;
 
-                    for (i=0; i<(MAXSECTORS>>3); i++)
+                    for (bssize_t i=0; i<(MAXSECTORS>>3); i++)
                         show2dsector[i] = ud.showallmap*255;
 
                     P_DoQuote(ud.showallmap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_OFF,
