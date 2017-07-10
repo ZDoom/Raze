@@ -10,6 +10,10 @@
 #ifndef build_h_
 #define build_h_
 
+#if !defined __cplusplus || (__cplusplus < 201103L && !defined _MSC_VER)
+# error C++11 or greater is required.
+#endif
+
 #include "compat.h"
 #include "pragmas.h"
 #include "glbuild.h"
