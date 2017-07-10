@@ -1424,9 +1424,12 @@ void Menu_Init(void)
     // prepare menu fonts
     MF_Redfont.tilenum = BIGALPHANUM;
     MF_Bluefont.tilenum = MF_BluefontRed.tilenum = MF_BluefontGame.tilenum = STARTALPHANUM;
+    MF_Minifont.tilenum = MF_MinifontRed.tilenum = MF_MinifontSave.tilenum = MINIFONT;
+    MF_Redfont.emptychar.y = tilesiz[BIGALPHANUM].y<<16;
+    MF_Bluefont.emptychar.y = MF_BluefontRed.emptychar.y = MF_BluefontGame.emptychar.y = tilesiz[STARTALPHANUM].y<<16;
+    MF_Minifont.emptychar.y = MF_MinifontRed.emptychar.y = MF_MinifontSave.emptychar.y = tilesiz[MINIFONT].y<<16;
     if (NAM_WW2GI)
         MF_Bluefont.between.x = MF_BluefontRed.between.x = 0;
-    MF_Minifont.tilenum = MF_MinifontRed.tilenum = MF_MinifontSave.tilenum = MINIFONT;
     if (!minitext_lowercase)
     {
         MF_Minifont.textflags |= TEXT_UPPERCASE;
@@ -1659,7 +1662,6 @@ void Menu_Init(void)
         MF_Redfont.between.x = 2<<16;
         MF_Redfont.cursorScale = MF_Redfont.zoom = 32768;
         MF_Bluefont.between.x = MF_BluefontRed.between.x = 0;
-        MF_Bluefont.emptychar.y = MF_BluefontRed.emptychar.y = MF_BluefontGame.emptychar.y = tilesiz[MF_Bluefont.tilenum].y<<16;
         MF_Bluefont.zoom = MF_BluefontRed.zoom = MF_BluefontGame.zoom = 32768;
 
         // hack; should swap out pointers
@@ -4121,25 +4123,26 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
             const int32_t dodraw = entry->type != Spacer && 0 <= y - menu->scrollPos + entry->font->get_yline() && y - menu->scrollPos <= klabs(menu->format->bottomcutoff) - menu->format->pos.y;
 
+            int32_t const height = entry->getHeight(); // max(textsize.y, entry->font->get_yline()); // bluefont Q ruins this
+            status |= MT_YCenter;
+            int32_t const y_internal = origin.y + y_upper + y + (height>>1) - menu->scrollPos;
+
             vec2_t textsize;
             if (dodraw)
-                textsize = Menu_Text(origin.x + x, origin.y + y_upper + y - menu->scrollPos, entry->font, entry->name, status, ydim_upper, ydim_lower);
-
-            int32_t const height = entry->getHeight(); // max(textsize.y, entry->font->get_yline()); // bluefont Q ruins this
+                textsize = Menu_Text(origin.x + x, y_internal, entry->font, entry->name, status, ydim_upper, ydim_lower);
 
             if (entry->format->width < 0)
                 status |= MT_XRight;
-            status |= MT_YCenter;
 
             if (dodraw && (status & MT_Selected) && state != 1)
             {
                 if (status & MT_XCenter)
                 {
-                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + entry->font->cursorCenterPosition, origin.y + y_upper + y + (height>>1) - menu->scrollPos, entry->font->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
-                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - entry->font->cursorCenterPosition, origin.y + y_upper + y + (height>>1) - menu->scrollPos, entry->font->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
+                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + entry->font->cursorCenterPosition, y_internal, entry->font->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
+                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - entry->font->cursorCenterPosition, y_internal, entry->font->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
                 }
                 else
-                    rotatesprite_fs(origin.x + x - entry->font->cursorLeftPosition, origin.y + y_upper + y + (height>>1) - menu->scrollPos, entry->font->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
+                    rotatesprite_fs(origin.x + x - entry->font->cursorLeftPosition, y_internal, entry->font->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
             }
 
             // need this up here to avoid race conditions
@@ -4720,12 +4723,9 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
 
     for (e = 0; e < object->options->numOptions; ++e)
     {
+        int32_t const x = object->options->menuFormat->pos.x;
+
         uint8_t status = 0;
-        int32_t height, x;
-        vec2_t textsize;
-
-        x = object->options->menuFormat->pos.x;
-
         if (e == object->options->currentEntry)
             status |= MT_Selected;
         if (object->options->entryFormat->width == 0)
@@ -4733,24 +4733,26 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
 
         const int32_t dodraw = 0 <= y - object->options->scrollPos + object->options->font->get_yline() && y - object->options->scrollPos <= object->options->menuFormat->bottomcutoff - object->options->menuFormat->pos.y;
 
-        if (dodraw)
-            textsize = Menu_Text(origin.x + x, origin.y + y_upper + y - object->options->scrollPos, object->options->font, object->options->optionNames[e], status, ydim_upper, ydim_lower);
+        int32_t const height = object->options->font->get_yline(); // max(textsize.y, object->options->font->get_yline());
+        status |= MT_YCenter;
+        int32_t const y_internal = origin.y + y_upper + y + (height>>1) - object->options->scrollPos;
 
-        height = object->options->font->get_yline(); // max(textsize.y, object->options->font->get_yline());
+        vec2_t textsize;
+        if (dodraw)
+            textsize = Menu_Text(origin.x + x, y_internal, object->options->font, object->options->optionNames[e], status, ydim_upper, ydim_lower);
 
         if (object->options->entryFormat->width < 0)
             status |= MT_XRight;
-        status |= MT_YCenter;
 
         if (dodraw && (status & MT_Selected))
         {
             if (status & MT_XCenter)
             {
-                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + object->options->font->cursorCenterPosition, origin.y + y_upper + y + (height>>1) - object->options->scrollPos, object->options->font->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
-                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - object->options->font->cursorCenterPosition, origin.y + y_upper + y + (height>>1) - object->options->scrollPos, object->options->font->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
+                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + object->options->font->cursorCenterPosition, y_internal, object->options->font->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
+                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - object->options->font->cursorCenterPosition, y_internal, object->options->font->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
             }
             else
-                rotatesprite_fs(origin.x + x - object->options->font->cursorLeftPosition, origin.y + y_upper + y + (height>>1) - object->options->scrollPos, object->options->font->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
+                rotatesprite_fs(origin.x + x - object->options->font->cursorLeftPosition, y_internal, object->options->font->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
         }
 
         if (dodraw)
@@ -4962,7 +4964,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
             // path
             Bsnprintf(tempbuf, sizeof(tempbuf), "Path: %s", object->destination);
-            Menu_Text(origin.x + object->format[0]->pos.x, origin.y + (32<<16), &MF_Bluefont, tempbuf, 0, 0, ydim-1);
+            Menu_Text(origin.x + object->format[0]->pos.x, origin.y + (32<<16) + (MF_Bluefont.get_yline()>>1), &MF_Bluefont, tempbuf, MT_YCenter, 0, ydim-1);
 
             for (i = 0; i < 2; ++i)
             {
@@ -5005,10 +5007,14 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                         const int32_t thisx = object->format[i]->pos.x;
                         const int32_t thisy = y - object->scrollPos[i];
 
-                        if (0 <= thisy + object->font[i]->get_yline() && thisy <= klabs(object->format[i]->bottomcutoff) - object->format[i]->pos.y)
+                        int32_t const height = object->font[i]->get_yline();
+
+                        if (0 <= thisy + height && thisy <= klabs(object->format[i]->bottomcutoff) - object->format[i]->pos.y)
                         {
+                            status |= MT_YCenter;
+
                             const int32_t mousex = origin.x + thisx;
-                            const int32_t mousey = origin.y + y_upper + thisy;
+                            const int32_t mousey = origin.y + y_upper + thisy + (height>>1);
 
                             vec2_t textdim = Menu_Text(mousex, mousey, object->font[i], tempbuf, status, ydim_upper, ydim_lower);
 
