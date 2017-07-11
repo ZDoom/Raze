@@ -1190,8 +1190,8 @@ static uint8_t *svdiff;
 #include "gamedef.h"
 
 #if !defined LUNATIC
-# define SV_SKIPMASK (/*GAMEVAR_SYSTEM|*/GAMEVAR_READONLY|GAMEVAR_INTPTR|    \
-                      GAMEVAR_SHORTPTR|GAMEVAR_CHARPTR /*|GAMEVAR_NORESET*/ |GAMEVAR_SPECIAL)
+# define SV_SKIPMASK (/*GAMEVAR_SYSTEM|*/GAMEVAR_READONLY|GAMEVAR_INT32PTR|    \
+                      GAMEVAR_INT16PTR|GAMEVAR_UINT8PTR /*|GAMEVAR_NORESET*/ |GAMEVAR_SPECIAL)
 
 static char svgm_vars_string [] = "blK:vars";
 // setup gamevar data spec for snapshotting and diffing... gamevars must be loaded when called

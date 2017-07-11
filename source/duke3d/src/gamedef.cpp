@@ -2824,8 +2824,7 @@ static inline void C_BitOrNextValue(int32_t *valptr)
 static inline void C_FinishBitOr(int32_t value)
 {
     BITPTR_CLEAR(g_scriptPtr-apScript);
-    *g_scriptPtr = value;
-    g_scriptPtr++;
+    *g_scriptPtr++ = value;
 }
 
 static void C_FillEventBreakStackWithJump(intptr_t *breakPtr, intptr_t destination)
@@ -2991,6 +2990,7 @@ DO_DEFSTATE:
             }
 
         case CON_GAMEVAR:
+        {
             // syntax: gamevar <var1> <initial value> <flags>
             // defines var1 and sets initial value.
             // flags are used to define usage
@@ -3002,33 +3002,52 @@ DO_DEFSTATE:
                 g_errorCnt++;
                 C_ReportError(ERROR_SYNTAXERROR);
                 C_GetNextValue(LABEL_DEFINE);
-                C_GetNextValue(LABEL_DEFINE);
+                j = 0;
+                while (C_GetKeyword() == -1)
+                    C_BitOrNextValue(&j);
+                C_FinishBitOr(j);
                 g_scriptPtr -= 3; // we complete the process anyways just to skip past the fucked up section
                 continue;
             }
 
+            g_scriptPtr--;
+
             C_GetNextLabelName();
 
-            if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
+            if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords, label+(g_labelCnt<<6))>=0))
             {
                 g_warningCnt++;
                 C_ReportError(WARNING_VARMASKSKEYWORD);
                 hash_delete(&h_keywords, label+(g_labelCnt<<6));
             }
 
-            C_GetNextValue(LABEL_DEFINE); // get initial value
-            C_GetNextValue(LABEL_DEFINE); // get flags
+            int32_t defaultValue = 0;
+            int32_t varFlags     = 0;
 
-            if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr-1)&GAMEVAR_USER_MASK)==3))
+            if (C_GetKeyword() == -1)
             {
-                g_warningCnt++;
-                *(g_scriptPtr-1)^=GAMEVAR_PERPLAYER;
-                C_ReportError(WARNING_BADGAMEVAR);
+                C_GetNextValue(LABEL_DEFINE); // get initial value
+                defaultValue = *(--g_scriptPtr);
+
+                j = 0;
+
+                while (C_GetKeyword() == -1)
+                    C_BitOrNextValue(&j);
+
+                C_FinishBitOr(j);
+                varFlags = *(--g_scriptPtr);
+
+                if (EDUKE32_PREDICT_FALSE((*(g_scriptPtr)&GAMEVAR_USER_MASK)==(GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR)))
+                {
+                    g_warningCnt++;
+                    varFlags ^= GAMEVAR_PERPLAYER;
+                    C_ReportError(WARNING_BADGAMEVAR);
+                }
             }
 
-            Gv_NewVar(label+(g_labelCnt<<6), *(g_scriptPtr-2), (*(g_scriptPtr-1)) & (~GAMEVAR_DEFAULT));
-            g_scriptPtr -= 3;
+            Gv_NewVar(label+(g_labelCnt<<6), defaultValue, varFlags);
             continue;
+        }
 
         case CON_GAMEARRAY:
         {
@@ -3061,14 +3080,15 @@ DO_DEFSTATE:
             C_GetNextValue(LABEL_DEFINE);
 
             char const * const arrayName = label+(g_labelCnt<<6);
-            int arrayFlags = GAMEARRAY_NORMAL;
+            int arrayFlags = 0;
 
-            if (C_GetKeyword() == -1)
-            {
-                C_GetNextValue(LABEL_DEFINE);
-                arrayFlags = GAMEARRAY_NORMAL | *(g_scriptPtr-1);
-                g_scriptPtr--;
-            }
+            while (C_GetKeyword() == -1)
+                C_BitOrNextValue(&arrayFlags);
+
+            C_FinishBitOr(arrayFlags);
+
+            arrayFlags = *(g_scriptPtr-1);
+            g_scriptPtr--;
 
             Gv_NewArray(arrayName, NULL, *(g_scriptPtr-1), arrayFlags);
 
@@ -6245,7 +6265,16 @@ static void C_AddDefaultDefinitions(void)
     C_AddDefinition("PROJ_XREPEAT", PROJ_XREPEAT, LABEL_DEFINE);
     C_AddDefinition("PROJ_YREPEAT", PROJ_YREPEAT, LABEL_DEFINE);
 
+    C_AddDefinition("GAMEVAR_PERPLAYER", GAMEVAR_PERPLAYER, LABEL_DEFINE);
+    C_AddDefinition("GAMEVAR_PERACTOR", GAMEVAR_PERACTOR, LABEL_DEFINE);
+    C_AddDefinition("GAMEVAR_NODEFAULT", GAMEVAR_NODEFAULT, LABEL_DEFINE);
+    C_AddDefinition("GAMEVAR_NORESET", GAMEVAR_NORESET, LABEL_DEFINE);
+    C_AddDefinition("GAMEVAR_NOMULTI", GAMEVAR_NOMULTI, LABEL_DEFINE);
+
     C_AddDefinition("GAMEARRAY_RESTORE", GAMEARRAY_RESTORE, LABEL_DEFINE);
+    C_AddDefinition("GAMEARRAY_INT16", GAMEARRAY_INT16, LABEL_DEFINE);
+    C_AddDefinition("GAMEARRAY_UINT8", GAMEARRAY_UINT8, LABEL_DEFINE);
+    C_AddDefinition("GAMEARRAY_BOOLEAN", GAMEARRAY_BITMAP, LABEL_DEFINE);
 
     C_AddDefinition("MAXSPRITESONSCREEN", MAXSPRITESONSCREEN, LABEL_DEFINE);
 }
