@@ -4636,22 +4636,17 @@ finish_qsprintf:
                 if (kFile < 0)
                     continue;
 
-                int numElements = kfilelength(kFile) / Gv_GetArrayElementSize(arrayNum);
+                int const numElements = Gv_GetArrayElementSize(arrayNum) ? kfilelength(kFile) / Gv_GetArrayElementSize(arrayNum) : 1;
 
-                if (numElements == 0)
+                if (numElements > 0)
                 {
-                    Baligned_free(aGameArrays[arrayNum].pValues);
-                    aGameArrays[arrayNum].pValues = NULL;
-                    aGameArrays[arrayNum].size    = numElements;
-                }
-                else if (numElements > 0)
-                {
-                    int const numBytes = numElements * Gv_GetArrayElementSize(arrayNum);
+                    int numBytes = numElements * Gv_GetArrayElementSize(arrayNum);
 
                     Baligned_free(aGameArrays[arrayNum].pValues);
 
-                    aGameArrays[arrayNum].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, numElements * Gv_GetArrayElementSize(arrayNum));
-                    aGameArrays[arrayNum].size    = numElements;
+                    aGameArrays[arrayNum].size    = numBytes ? numElements : kfilelength(kFile);
+                    aGameArrays[arrayNum].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, Gv_GetArrayAllocSize(arrayNum));
+                    numBytes                      = Gv_GetArrayAllocSize(arrayNum);
 
                     switch (aGameArrays[arrayNum].flags & GAMEARRAY_TYPE_MASK)
                     {
@@ -4672,10 +4667,8 @@ finish_qsprintf:
                     case GAMEARRAY_INT32:
                     case GAMEARRAY_INT16:
                     case GAMEARRAY_UINT8:
-                        kread(kFile, aGameArrays[arrayNum].pValues, numBytes);
-                        break;
                     case GAMEARRAY_BITMAP:
-                        kread(kFile, aGameArrays[arrayNum].pValues, (numElements + 7) >> 3);
+                        kread(kFile, aGameArrays[arrayNum].pValues, numBytes);
                         break;
                     }
                 }
@@ -4713,7 +4706,7 @@ finish_qsprintf:
                 }
 
                 int const numElements = aGameArrays[arrayNum].size;
-                int const numBytes    = numElements * Gv_GetArrayElementSize(arrayNum);
+                int const numBytes    = Gv_GetArrayAllocSize(arrayNum);
 
                 switch (aGameArrays[arrayNum].flags & GAMEARRAY_TYPE_MASK)
                 {
@@ -4733,10 +4726,9 @@ finish_qsprintf:
                 case GAMEARRAY_INT32:
                 case GAMEARRAY_INT16:
                 case GAMEARRAY_UINT8:
+                case GAMEARRAY_BITMAP:
                     Bfwrite(aGameArrays[arrayNum].pValues, 1, numBytes, fil);
                     break;
-                case GAMEARRAY_BITMAP:
-                    Bfwrite(aGameArrays[arrayNum].pValues, 1, (numElements + 7) >> 3, fil);
                 }
 
                 Bfclose(fil);
@@ -6066,20 +6058,10 @@ void G_SaveMapState(void)
         if ((aGameArrays[i].flags & GAMEARRAY_RESTORE) == 0)
             continue;
 
-        int size;
-
-        switch (aGameArrays[i].flags & (GAMEARRAY_UINT8 | GAMEARRAY_INT16 | GAMEARRAY_INT32))
-        {
-            case GAMEARRAY_UINT8: size  = sizeof(uint8_t); break;
-            case GAMEARRAY_INT16: size = sizeof(uint16_t); break;
-            case GAMEARRAY_INT32: size   = sizeof(uint32_t); break;
-            default: size                = sizeof(uintptr_t); break;
-        }
-
         if (!save->arrays[i])
-            save->arrays[i] = (intptr_t *)Xaligned_alloc(16, aGameArrays[i].size * size);
+            save->arrays[i] = (intptr_t *)Xaligned_alloc(16, Gv_GetArrayAllocSize(i));
 
-        Bmemcpy(&save->arrays[i][0], &aGameArrays[i].pValues[0], aGameArrays[i].size * size);
+        Bmemcpy(&save->arrays[i][0], &aGameArrays[i].pValues[0], Gv_GetArrayAllocSize(i));
     }
 #else
     int32_t slen;
@@ -6207,17 +6189,7 @@ void G_RestoreMapState(void)
             if ((aGameArrays[i].flags & GAMEARRAY_RESTORE) == 0 || !pSavedState->arrays[i])
                 continue;
 
-            int size;
-
-            switch (aGameArrays[i].flags & (GAMEARRAY_UINT8 | GAMEARRAY_INT16 | GAMEARRAY_INT32))
-            {
-                case GAMEARRAY_UINT8: size = sizeof(uint8_t); break;
-                case GAMEARRAY_INT16: size = sizeof(uint16_t); break;
-                case GAMEARRAY_INT32: size = sizeof(uint32_t); break;
-                default: size              = sizeof(uintptr_t); break;
-            }
-
-            Bmemcpy(&aGameArrays[i].pValues[0], &pSavedState->arrays[i][0], aGameArrays[i].size * size);
+            Bmemcpy(&aGameArrays[i].pValues[0], &pSavedState->arrays[i][0], Gv_GetArrayAllocSize(i));
         }
 #else
         if (pSavedState->savecode)

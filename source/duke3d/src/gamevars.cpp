@@ -177,10 +177,11 @@ int Gv_ReadSave(int32_t kFile)
         hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
 
         intptr_t const asize = aGameArrays[i].size;
+
         if (asize != 0)
         {
-            aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, asize * Gv_GetArrayElementSize(i));
-            if (kdfread(aGameArrays[i].pValues, Gv_GetArrayElementSize(i) * aGameArrays[i].size, 1, kFile) < 1) goto corrupt;
+            aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, Gv_GetArrayAllocSize(i));
+            if (kdfread(aGameArrays[i].pValues, Gv_GetArrayAllocSize(i), 1, kFile) < 1) goto corrupt;
         }
         else
             aGameArrays[i].pValues = NULL;
@@ -287,7 +288,7 @@ void Gv_WriteSave(FILE *fil)
         dfwrite(&aGameArrays[i],sizeof(gamearray_t),1,fil);
 
         dfwrite(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil);
-        dfwrite(aGameArrays[i].pValues, Gv_GetArrayElementSize(i) * aGameArrays[i].size, 1, fil);
+        dfwrite(aGameArrays[i].pValues, Gv_GetArrayAllocSize(i), 1, fil);
     }
 
     dfwrite(apScriptEvents,sizeof(apScriptEvents),1,fil);
@@ -582,6 +583,14 @@ int __fastcall Gv_GetArrayElementSize(int const arrayIdx)
     }
 
     return typeSize;
+}
+
+int __fastcall Gv_GetArrayAllocSize(int const arrayIdx)
+{
+    if (aGameArrays[arrayIdx].flags & GAMEARRAY_BITMAP)
+        return (aGameArrays[arrayIdx].size + 7) >> 3;
+
+    return aGameArrays[arrayIdx].size * Gv_GetArrayElementSize(arrayIdx);
 }
 
 int __fastcall Gv_GetArrayValue(int const id, int index)

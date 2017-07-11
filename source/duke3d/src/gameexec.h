@@ -100,12 +100,12 @@ static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNu
 }
 
 #define CON_ERRPRINTF(Text, ...) do { \
-    OSD_Printf("Line %d, %s: %s", Text, g_errorLineNum, keyw[g_tw], ## __VA_ARGS__); \
+    OSD_Printf("Line %d, %s: " Text, g_errorLineNum, keyw[g_tw], ## __VA_ARGS__); \
 } while (0)
 
 #define CON_CRITICALERRPRINTF(Text, ...) do { \
-    OSD_Printf("Line %d, %s: %s", Text, g_errorLineNum, keyw[g_tw], ## __VA_ARGS__); \
-    wm_msgbox(APPNAME, "Line %d, %s: %s", Text, g_errorLineNum, keyw[g_tw], ## __VA_ARGS__); \
+    OSD_Printf("Line %d, %s: " Text, g_errorLineNum, keyw[g_tw], ## __VA_ARGS__); \
+    wm_msgbox(APPNAME, "Line %d, %s: " Text, g_errorLineNum, keyw[g_tw], ## __VA_ARGS__); \
 } while (0)
 
 void G_GetTimeDate(int32_t * const pValues);

@@ -103,6 +103,7 @@ extern int32_t     g_gameVarCount;
 extern int32_t     g_gameArrayCount;
 
 int __fastcall Gv_GetArrayElementSize(int const arrayIdx);
+int __fastcall Gv_GetArrayAllocSize(int const arrayIdx);
 int __fastcall Gv_GetArrayValue(int const id, int index);
 int __fastcall Gv_GetVar(int id, int spriteNum, int playerNum);
 void __fastcall Gv_SetVar(int const id, int const lValue, int const spriteNum, int const playerNum);
