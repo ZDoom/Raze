@@ -4,9 +4,10 @@
  * See the included license file "BUILDLIC.TXT" for license info.
  */
 
+#include "build.h"
+
 #ifdef USE_OPENGL
 
-#include "build.h"
 #include "compat.h"
 #include "kplib.h"
 #include "hightile.h"

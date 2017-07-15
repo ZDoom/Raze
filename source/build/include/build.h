@@ -1257,6 +1257,8 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
 void polymost_glreset(void);
 void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 
+typedef uint16_t polytintflags_t;
+
 #ifdef USE_OPENGL
 extern int32_t glanisotropy;
 extern int32_t glusetexcompr;
@@ -1295,7 +1297,6 @@ extern int32_t glrendmode;
 #endif
 
 void hicinit(void);
-typedef uint16_t polytintflags_t;
 void hicsetpalettetint(int32_t palnum, char r, char g, char b, polytintflags_t effect);
 // flags bitset: 1 = don't compress
 int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float alphacut,
