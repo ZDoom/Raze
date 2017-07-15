@@ -3082,7 +3082,7 @@ DO_DEFSTATE:
             C_GetNextValue(LABEL_DEFINE);
 
             char const * const arrayName = label+(g_labelCnt<<6);
-            int arrayFlags = 0;
+            int32_t arrayFlags = 0;
 
             while (C_GetKeyword() == -1)
                 C_BitOrNextValue(&arrayFlags);

@@ -55,26 +55,26 @@ int32_t g_gametypeFlags[MAXGAMETYPES] =
     2+/*4+*/8+16+16384+65536+131072
 };
 
-int g_actorRespawnTime   = 768;
-int g_bouncemineRadius   = 2500;
-int g_deleteQueueSize    = 64;
-int g_itemRespawnTime    = 768;
-int g_lastSaveSlot       = -1;
+int32_t g_actorRespawnTime   = 768;
+int32_t g_bouncemineRadius   = 2500;
+int32_t g_deleteQueueSize    = 64;
+int32_t g_itemRespawnTime    = 768;
+int32_t g_lastSaveSlot       = -1;
 int32_t g_requestedSaveSlot = -1;
 
-int g_morterRadius       = 2500;
-int g_numFreezeBounces   = 3;
-int g_gametypeCnt       = 5;
-int g_volumeCnt         = 3;
-int g_pipebombRadius     = 2500;
-int g_playerFriction     = 0xCFD0;
-int g_rpgRadius          = 1780;
-int g_scriptSize         = 1048576;
-int g_seenineRadius      = 2048;
-int g_shrinkerRadius     = 650;
-int g_spriteGravity      = 176;
-int g_timerTicsPerSecond = TICRATE;
-int g_tripbombRadius     = 3880;
+int32_t g_morterRadius       = 2500;
+int32_t g_numFreezeBounces   = 3;
+int32_t g_gametypeCnt       = 5;
+int32_t g_volumeCnt         = 3;
+int32_t g_pipebombRadius     = 2500;
+int32_t g_playerFriction     = 0xCFD0;
+int32_t g_rpgRadius          = 1780;
+int32_t g_scriptSize         = 1048576;
+int32_t g_seenineRadius      = 2048;
+int32_t g_shrinkerRadius     = 650;
+int32_t g_spriteGravity      = 176;
+int32_t g_timerTicsPerSecond = TICRATE;
+int32_t g_tripbombRadius     = 3880;
 
 int16_t g_blimpSpawnItems[15] =
 {
