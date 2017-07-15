@@ -3437,6 +3437,7 @@ nullquote:
             continue;
 
         case CON_IFWASWEAPON:
+        case CON_IFSPAWNEDBY:
             insptr++;
             VM_CONDITIONAL(vm.pActor->picnum == *insptr);
             continue;
@@ -3642,11 +3643,6 @@ nullquote:
         case CON_GUTS:
             A_DoGuts(vm.spriteNum,*(insptr+1),*(insptr+2));
             insptr += 3;
-            continue;
-
-        case CON_IFSPAWNEDBY:
-            insptr++;
-            VM_CONDITIONAL(vm.pActor->picnum == *insptr);
             continue;
 
         case CON_WACKPLAYER:
