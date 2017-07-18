@@ -599,7 +599,7 @@ ifneq (0,$(KRANDDEBUG))
     COMMONFLAGS += -fno-inline -fno-inline-functions -fno-inline-functions-called-once
 endif
 
-COMMONFLAGS+= -fno-strict-aliasing $(F_JUMP_TABLES) $(F_NO_STACK_PROTECTOR)
+COMMONFLAGS+= -fno-strict-aliasing -fno-threadsafe-statics $(F_JUMP_TABLES) $(F_NO_STACK_PROTECTOR)
 
 
 ##### Warnings
