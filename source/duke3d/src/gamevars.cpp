@@ -161,7 +161,7 @@ int Gv_ReadSave(int32_t kFile)
     if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,kFile) != 1) goto corrupt;
     for (bssize_t i=0; i<g_gameArrayCount; i++)
     {
-        if (!(aGameArrays[i].flags & GAMEARRAY_ALLOCATED))
+        if (aGameArrays[i].flags & GAMEARRAY_READONLY)
             continue;
 
         char *const olabel = aGameArrays[i].szLabel;
@@ -174,6 +174,7 @@ int Gv_ReadSave(int32_t kFile)
 
         if (kdfread(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, kFile) != 1)
             goto corrupt;
+
         hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
 
         intptr_t const asize = aGameArrays[i].size;
@@ -281,7 +282,7 @@ void Gv_WriteSave(FILE *fil)
 
     for (bssize_t i=0; i<g_gameArrayCount; i++)
     {
-        if (!(aGameArrays[i].flags & GAMEARRAY_ALLOCATED))
+        if (aGameArrays[i].flags & GAMEARRAY_READONLY)
             continue;
 
         // write for .size and .dwFlags (the rest are pointers):
@@ -368,28 +369,43 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
     for (bssize_t i=0; i<MAXGAMEVARS; i++)
     {
         if (aGameVars[i].szLabel != NULL)
-            Gv_NewVar(aGameVars[i].szLabel,
-                      aGameVars[i].flags & GAMEVAR_NODEFAULT ? aGameVars[i].global : aGameVars[i].defaultValue,
-                      aGameVars[i].flags);
+        Gv_NewVar(aGameVars[i].szLabel,
+                    aGameVars[i].flags & GAMEVAR_NODEFAULT ? aGameVars[i].global : aGameVars[i].defaultValue,
+                    aGameVars[i].flags);
     }
 
     for (bssize_t i=0; i<MAXGAMEARRAYS; i++)
     {
-        if (aGameArrays[i].szLabel != NULL && (aGameArrays[i].flags & GAMEARRAY_RESET))
+        if (aGameArrays[i].szLabel != NULL)
+        if (aGameArrays[i].flags & GAMEARRAY_RESET)
             Gv_NewArray(aGameArrays[i].szLabel,aGameArrays[i].pValues,aGameArrays[i].size,aGameArrays[i].flags);
     }
 }
 
-int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint32_t nFlags)
+int __fastcall Gv_GetArrayElementSize(int const arrayIdx)
 {
-    Bassert(arraySize);
+    int typeSize = 0;
+
+    switch (aGameArrays[arrayIdx].flags & GAMEARRAY_TYPE_MASK)
+    {
+        case 0:               typeSize = sizeof(uintptr_t); break;
+        case GAMEARRAY_INT8:  typeSize = sizeof(uint8_t); break;
+        case GAMEARRAY_INT16: typeSize = sizeof(uint16_t); break;
+    }
+
+    return typeSize;
+}
+
+void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t dwFlags)
+{
+    Bassert(asize);
 
     if (EDUKE32_PREDICT_FALSE(g_gameArrayCount >= MAXGAMEARRAYS))
     {
         g_errorCnt++;
         C_ReportError(-1);
         initprintf("%s:%d: error: too many arrays!\n",g_scriptFileName,g_lineNumber);
-        return 0;
+        return;
     }
 
     if (EDUKE32_PREDICT_FALSE(Bstrlen(pszLabel) > (MAXARRAYLABEL-1)))
@@ -397,7 +413,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint
         g_errorCnt++;
         C_ReportError(-1);
         initprintf("%s:%d: error: array name `%s' exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,pszLabel, MAXARRAYLABEL);
-        return 0;
+        return;
     }
 
     int32_t i = hash_find(&h_arrays,pszLabel);
@@ -416,7 +432,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint
         else
             C_ReportError(WARNING_DUPLICATEDEFINITION);
 
-        return 0;
+        return;
     }
 
     i = g_gameArrayCount;
@@ -427,39 +443,29 @@ int32_t Gv_NewArray(const char *pszLabel, void *pArray, intptr_t arraySize, uint
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
 
-    if (pArray)
-        aGameArrays[i].pValues = (intptr_t *)pArray;
+    if (arrayptr)
+        aGameArrays[i].pValues = (intptr_t *)arrayptr;
     else
     {
         if (aGameArrays[i].flags & GAMEARRAY_ALLOCATED)
             Baligned_free(aGameArrays[i].pValues);
 
-        int typeSize = 0;
+        int const typeSize  = Gv_GetArrayElementSize(i);
+        int const allocSize = typeSize ? asize * typeSize : (asize + 7) >> 3;
 
-        switch (aGameArrays[i].flags & GAMEARRAY_TYPE_MASK)
-        {
-            case 0:               typeSize = sizeof(uintptr_t); break;
-            case GAMEARRAY_UINT8: typeSize = sizeof(uint8_t); break;
-            case GAMEARRAY_INT16: typeSize = sizeof(uint16_t); break;
-            case GAMEARRAY_INT32: typeSize = sizeof(uint32_t); break;
-        }
-
-        int const allocSize = typeSize ? arraySize * typeSize : (arraySize + 7) >> 3;
-
+        aGameArrays[i].flags |= GAMEARRAY_ALLOCATED;
         aGameArrays[i].pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, allocSize);
         Bmemset(aGameArrays[i].pValues, 0, allocSize);
     }
 
-    aGameArrays[i].size  = arraySize;
-    aGameArrays[i].flags = nFlags & ~GAMEARRAY_RESET;
+    aGameArrays[i].size  = asize;
+    aGameArrays[i].flags = dwFlags & ~GAMEARRAY_RESET;
 
     g_gameArrayCount++;
     hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
-
-    return 1;
 }
 
-int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
+void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
 {
     //Bsprintf(g_szBuf,"Gv_NewVar(%s, %d, %X)",pszLabel, lValue, dwFlags);
     //AddLog(g_szBuf);
@@ -469,7 +475,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         g_errorCnt++;
         C_ReportError(-1);
         initprintf("%s:%d: error: too many gamevars!\n",g_scriptFileName,g_lineNumber);
-        return 0;
+        return;
     }
 
     if (EDUKE32_PREDICT_FALSE(Bstrlen(pszLabel) > (MAXVARLABEL-1)))
@@ -477,7 +483,7 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         g_errorCnt++;
         C_ReportError(-1);
         initprintf("%s:%d: error: variable name `%s' exceeds limit of %d characters.\n",g_scriptFileName,g_lineNumber,pszLabel, MAXVARLABEL);
-        return 0;
+        return;
     }
 
     int gV = hash_find(&h_gamevars,pszLabel);
@@ -489,14 +495,14 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         {
             C_ReportError(-1);
             initprintf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
-            return 0;
+            return;
         }
         else if (EDUKE32_PREDICT_FALSE(!(aGameVars[gV].flags & GAMEVAR_SYSTEM)))
         {
             // it's a duplicate in error
             g_warningCnt++;
             C_ReportError(WARNING_DUPLICATEDEFINITION);
-            return 0;
+            return;
         }
     }
 
@@ -553,8 +559,6 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
             aGameVars[gV].pValues[j]=lValue;
     }
     else aGameVars[gV].global = lValue;
-
-    return 1;
 }
 
 static int Gv_GetVarIndex(const char *szGameLabel)
@@ -568,21 +572,6 @@ static int Gv_GetVarIndex(const char *szGameLabel)
     }
 
     return gameVar;
-}
-
-int __fastcall Gv_GetArrayElementSize(int const arrayIdx)
-{
-    int typeSize = 0;
-
-    switch (aGameArrays[arrayIdx].flags & GAMEARRAY_TYPE_MASK)
-    {
-        case 0:               typeSize = sizeof(uintptr_t); break;
-        case GAMEARRAY_UINT8: typeSize = sizeof(uint8_t); break;
-        case GAMEARRAY_INT16: typeSize = sizeof(uint16_t); break;
-        case GAMEARRAY_INT32: typeSize = sizeof(uint32_t); break;
-    }
-
-    return typeSize;
 }
 
 int __fastcall Gv_GetArrayAllocSize(int const arrayIdx)
@@ -603,9 +592,12 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
     switch (aGameArrays[id].flags & GAMEARRAY_TYPE_MASK)
     {
         case 0:               returnValue = (aGameArrays[id].pValues)[index]; break;
-        case GAMEARRAY_INT32: returnValue = ((int32_t *)aGameArrays[id].pValues)[index]; break;
         case GAMEARRAY_INT16: returnValue = ((int16_t *)aGameArrays[id].pValues)[index]; break;
+        case GAMEARRAY_INT8:  returnValue = ((int8_t *)aGameArrays[id].pValues)[index]; break;
+
+        case GAMEARRAY_UINT16:returnValue = ((uint16_t *)aGameArrays[id].pValues)[index]; break;
         case GAMEARRAY_UINT8: returnValue = ((uint8_t *)aGameArrays[id].pValues)[index]; break;
+
         case GAMEARRAY_BITMAP:returnValue = !!(((uint8_t *)aGameArrays[id].pValues)[index >> 3] & pow2char[index & 7]); break;
     }
 
@@ -614,12 +606,10 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
 
 #define CHECK_INDEX(range)                                                                                                                 \
     if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= range))                                                                              \
-    \
-{                                                                                                                                   \
+    {                                                                                                                                      \
         spriteNum = arrayIndex;                                                                                                            \
         goto badindex;                                                                                                                     \
-    \
-}
+    }
 
 int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
 {
@@ -656,9 +646,9 @@ int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
     }
     else switch (varFlags)
     {
-        case GAMEVAR_INT32PTR: returnValue   = *(int32_t *)aGameVars[gameVar].global; break;
+        case GAMEVAR_INT32PTR: returnValue = *(int32_t *)aGameVars[gameVar].global; break;
         case GAMEVAR_INT16PTR: returnValue = *(int16_t *)aGameVars[gameVar].global; break;
-        case GAMEVAR_UINT8PTR: returnValue  = *(char *)aGameVars[gameVar].global; break;
+        case GAMEVAR_UINT8PTR: returnValue = *(char *)aGameVars[gameVar].global; break;
         default: EDUKE32_UNREACHABLE_SECTION(returnValue = 0; break);
     }
 
@@ -848,16 +838,13 @@ static const char *gvxerrs[] = {
     "invalid pal ID",
 };
 
-#define CHECK_INDEX(range, error)                                                                                              \
+#define CHECK_INDEX(range, error)                                                                                                          \
     if (EDUKE32_PREDICT_FALSE((unsigned)arrayIndex >= range))                                                                              \
-    \
-{                                                                                                                                   \
+    {                                                                                                                                      \
         gameVar     = arrayIndex;                                                                                                          \
         returnValue = error;                                                                                                               \
         goto badindex;                                                                                                                     \
-    \
-}
-
+    }
 
 int __fastcall Gv_GetSpecialVarX(int gameVar)
 {
@@ -1570,7 +1557,6 @@ static void Gv_AddSystemVars(void)
     // SYSTEM_GAMEARRAY
     Gv_NewArray("tilesizx", (void *)&tilesiz[0].x, MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
     Gv_NewArray("tilesizy", (void *)&tilesiz[0].y, MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_STRIDE2|GAMEARRAY_READONLY|GAMEARRAY_INT16);
-    Gv_NewArray("walock", (void *) &walock[0], MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_UINT8);
     Gv_NewArray("gotpic", (void *) &gotpic[0], MAXTILES, GAMEARRAY_SYSTEM|GAMEARRAY_BITMAP);
 #endif
 }

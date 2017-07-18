@@ -73,7 +73,7 @@ static void Gv_Clear(void)
 
 #define ASSERT_IMPLIES(x, y) Bassert(!(x) || (y))
 
-int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_t dwFlags)
+void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t dwFlags)
 {
     ASSERT_IMPLIES(dwFlags&GAMEARRAY_VARSIZE, dwFlags&GAMEARRAY_READONLY);
     ASSERT_IMPLIES(dwFlags&GAMEARRAY_STRIDE2, dwFlags&GAMEARRAY_READONLY);
@@ -83,13 +83,13 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_
     if (g_gameArrayCount >= MAXGAMEARRAYS)
     {
         C_CUSTOMERROR("too many arrays! (max: %d)", MAXGAMEARRAYS);
-        return 0;
+        return;
     }
 
     if (Bstrlen(pszLabel) > (MAXARRAYLABEL-1))
     {
         C_CUSTOMERROR("array name `%s' exceeds limit of %d characters.", pszLabel, MAXARRAYLABEL);
-        return 0;
+        return;
     }
 
     const int32_t i = hash_find(&h_arrays, pszLabel);
@@ -102,7 +102,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_
             C_CUSTOMWARNING("ignored redefining system array `%s'.", pszLabel);
 
 //        C_ReportError(WARNING_DUPLICATEDEFINITION);
-        return 0;
+        return;
     }
 
     if (!(dwFlags&GAMEARRAY_VARSIZE) && !(dwFlags&GAMEARRAY_TYPE_MASK) && (asize<=0 || asize>65536))
@@ -110,7 +110,7 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_
         // the dummy array with index 0 sets the size to 0 so that accidental accesses as array
         // will complain.
         C_CUSTOMERROR("invalid array size %d. Must be between 1 and 65536", asize);
-        return 0;
+        return;
     }
 
     gamearray_t *const gar = &aGameArrays[g_gameArrayCount];
@@ -130,11 +130,9 @@ int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_
 
     hash_add(&h_arrays, gar->szLabel, g_gameArrayCount, 1);
     g_gameArrayCount++;
-
-    return 1;
 }
 
-int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
+void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
 {
     int32_t i, j;
 
@@ -144,13 +142,13 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
     if (g_gameVarCount >= MAXGAMEVARS)
     {
         C_CUSTOMERROR("too many gamevars! (max: %d)", MAXGAMEVARS);
-        return 0;
+        return;
     }
 
     if (Bstrlen(pszLabel) > (MAXVARLABEL-1))
     {
         C_CUSTOMERROR("variable name `%s' exceeds limit of %d characters.", pszLabel, MAXVARLABEL);
-        return 0;
+        return;
     }
 
     i = hash_find(&h_gamevars,pszLabel);
@@ -162,14 +160,14 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
         {
             C_ReportError(-1);
             initprintf("%s:%d: warning: cannot redefine internal gamevar `%s'.\n",g_szScriptFileName,g_lineNumber,label+(g_numLabels<<6));
-            return 0;
+            return;
         }
         else if (!(aGameVars[i].dwFlags & GAMEVAR_SYSTEM))
         {
             // it's a duplicate in error
 //            g_numCompilerWarnings++;
 //            C_ReportError(WARNING_DUPLICATEDEFINITION);
-            return 0;
+            return;
         }
     }
 
@@ -210,8 +208,6 @@ int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
             aGameVars[i].val.plValues[j] = lValue;
     }
     else aGameVars[i].val.lValue = lValue;
-
-    return 1;
 }
 
 int32_t __fastcall Gv_GetVarN(int32_t id)  // 'N' for "no side-effects"... vars and locals only!

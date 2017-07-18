@@ -63,17 +63,18 @@ enum GamearrayFlags_t
     GAMEARRAY_RESTORE   = 0x00000010,
     GAMEARRAY_VARSIZE   = 0x00000020,
     GAMEARRAY_STRIDE2   = 0x00000100,
-    GAMEARRAY_ALLOCATED = 0x00000200, // memory allocated for user array
+    GAMEARRAY_ALLOCATED = 0x00000200,  // memory allocated for user array
     GAMEARRAY_SYSTEM    = 0x00000800,
     GAMEARRAY_READONLY  = 0x00001000,
-    GAMEARRAY_INT32     = 0x00002000,
-    GAMEARRAY_NORMAL    = 0x00004000,
-    GAMEARRAY_INT16     = 0x00008000,
-    GAMEARRAY_UINT8     = 0x00010000,
+    GAMEARRAY_INT16     = 0x00004000,
+    GAMEARRAY_INT8      = 0x00008000,
+    GAMEARRAY_UNSIGNED  = 0x00010000,
+    GAMEARRAY_UINT16    = GAMEARRAY_INT16 | GAMEARRAY_UNSIGNED,
+    GAMEARRAY_UINT8     = GAMEARRAY_INT8 | GAMEARRAY_UNSIGNED,
     GAMEARRAY_BITMAP    = 0x00100000,
     GAMEARRAY_WARN      = 0x00200000,
 
-    GAMEARRAY_TYPE_MASK = GAMEARRAY_UINT8 | GAMEARRAY_INT16 | GAMEARRAY_INT32 | GAMEARRAY_BITMAP,
+    GAMEARRAY_TYPE_MASK = GAMEARRAY_UNSIGNED | GAMEARRAY_INT8 | GAMEARRAY_INT16 | GAMEARRAY_BITMAP,
 };
 
 #pragma pack(push,1)
@@ -120,8 +121,8 @@ static FORCE_INLINE void Gv_FillWithVars(T & rv)
 }
 
 int Gv_GetVarByLabel(const char *szGameLabel,int const lDefault,int const spriteNum,int const playerNum);
-int32_t Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
-int32_t Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
+void Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
+void Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 
 static FORCE_INLINE void A_ResetVars(int const spriteNum)
 {

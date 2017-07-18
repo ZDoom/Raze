@@ -4600,10 +4600,11 @@ finish_qsprintf:
 
                 switch (aGameArrays[tw].flags & GAMEARRAY_TYPE_MASK)
                 {
-                    case 0:                            aGameArrays[tw].pValues[arrayIndex] = newValue; break;
-                    case GAMEARRAY_INT32: ((int32_t *)aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
-                    case GAMEARRAY_INT16: ((int16_t *)aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
-                    case GAMEARRAY_UINT8: ((uint8_t *)aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
+                    case 0:                              aGameArrays[tw].pValues[arrayIndex]  = newValue; break;
+                    case GAMEARRAY_INT16:  ((int16_t *)  aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
+                    case GAMEARRAY_INT8:   ((int8_t *)   aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
+                    case GAMEARRAY_UINT16: ((uint16_t *) aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
+                    case GAMEARRAY_UINT8:  ((int8_t *)   aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
                     case GAMEARRAY_BITMAP:
                         if (newValue)
                             ((uint8_t *)aGameArrays[tw].pValues)[arrayIndex >> 3] |= (1 << (arrayIndex & 7));
@@ -4660,10 +4661,7 @@ finish_qsprintf:
                         break;
                     }
 #endif
-                    case GAMEARRAY_INT32:
-                    case GAMEARRAY_INT16:
-                    case GAMEARRAY_UINT8:
-                    case GAMEARRAY_BITMAP:
+                    default:
                         kread(kFile, aGameArrays[arrayNum].pValues, numBytes);
                         break;
                     }
@@ -4719,10 +4717,7 @@ finish_qsprintf:
                     break;
                 }
 #endif
-                case GAMEARRAY_INT32:
-                case GAMEARRAY_INT16:
-                case GAMEARRAY_UINT8:
-                case GAMEARRAY_BITMAP:
+                default:
                     Bfwrite(aGameArrays[arrayNum].pValues, 1, numBytes, fil);
                     break;
                 }
@@ -4817,13 +4812,17 @@ finish_qsprintf:
                         for (; numElements > 0; --numElements)
                             aGameArrays[destArray].pValues[destArrayIndex += destInc] = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
                         break;
-                    case GAMEARRAY_INT32:
-                        for (; numElements > 0; --numElements)
-                            ((int32_t *)aGameArrays[destArray].pValues)[destArrayIndex += destInc] = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
-                        break;
                     case GAMEARRAY_INT16:
                         for (; numElements > 0; --numElements)
                             ((int16_t *) aGameArrays[destArray].pValues)[destArrayIndex += destInc] = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
+                        break;
+                    case GAMEARRAY_INT8:
+                        for (; numElements > 0; --numElements)
+                            ((int8_t *) aGameArrays[destArray].pValues)[destArrayIndex += destInc] = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
+                        break;
+                    case GAMEARRAY_UINT16:
+                        for (; numElements > 0; --numElements)
+                            ((uint16_t *) aGameArrays[destArray].pValues)[destArrayIndex += destInc] = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
                         break;
                     case GAMEARRAY_UINT8:
                         for (; numElements > 0; --numElements)

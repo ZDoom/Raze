@@ -45,8 +45,8 @@ extern void VM_OnEvent(int32_t iEventID, int32_t iActor);
 extern void VM_ScriptInfo(void);
 extern void VM_Disasm(ofstype beg, int32_t size);
 
-extern int32_t Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags);
-extern int32_t Gv_NewArray(const char *pszLabel, void *arrayptr, int32_t asize, uint32_t dwFlags);
+void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags);
+void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t dwFlags);
 extern void Gv_Init(void);
 
 extern int32_t __fastcall Gv_GetVarX(int32_t id);
