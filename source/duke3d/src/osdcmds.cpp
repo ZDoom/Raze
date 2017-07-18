@@ -1214,17 +1214,19 @@ static int32_t osdcmd_quickload(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_screenshot(osdfuncparm_t const * const UNUSED(parm))
+static int32_t osdcmd_screenshot(osdfuncparm_t const * const parm)
 {
-    UNREFERENCED_CONST_PARAMETER(parm);
 //    KB_ClearKeysDown();
-    screencapture(
 #ifndef EDUKE32_STANDALONE
-        "duke0000.tga"
+    static const char *fn = "duke0000.png";
 #else
-        "scrn0000.tga"
+    static const char *fn = "capt0000.png";
 #endif
-        ,0,"EDuke32");
+
+    if (parm->numparms == 1 && !Bstrcasecmp(parm->parms[0], "tga"))
+        screencapture_tga(fn, 0);
+    else screencapture(fn, 0);
+
     return OSDCMD_OK;
 }
 
@@ -1750,7 +1752,7 @@ int32_t registerosdcommands(void)
 #else
     OSD_RegisterFunction("lua", "lua \"Lua code...\": runs Lunatic code", osdcmd_lua);
 #endif
-    OSD_RegisterFunction("screenshot","screenshot: takes a screenshot.  See r_scrcaptureformat.", osdcmd_screenshot);
+    OSD_RegisterFunction("screenshot","screenshot [format]: takes a screenshot.", osdcmd_screenshot);
 
     OSD_RegisterFunction("spawn","spawn <picnum> [palnum] [cstat] [ang] [x y z]: spawns a sprite with the given properties",osdcmd_spawn);
 

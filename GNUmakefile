@@ -172,6 +172,8 @@ ENGINE_OBJS = \
     colmatch.cpp \
     screenshot.cpp \
     mhk.cpp \
+    pngwrite.cpp \
+    miniz.c \
 
 ENGINE_EDITOR_OBJS = \
     build.cpp \

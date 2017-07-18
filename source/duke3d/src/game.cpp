@@ -201,18 +201,16 @@ void G_HandleSpecialKeys(void)
 
     if (KB_UnBoundKeyPressed(sc_F12))
     {
-        char titlebuf[256];
-        Bsprintf(titlebuf,HEAD2 " %s",s_buildRev);
-
         KB_ClearKeyDown(sc_F12);
         screencapture(
 #ifndef EDUKE32_STANDALONE
-            "duke0000.tga"
+        "duke0000.tga"
 #else
-            "scrn0000.tga"
+        "capt0000.tga"
 #endif
-            ,0,titlebuf);
-        P_DoQuote(QUOTE_SCREEN_SAVED,g_player[myconnectindex].ps);
+        ,
+        0);
+        P_DoQuote(QUOTE_SCREEN_SAVED, g_player[myconnectindex].ps);
     }
 
     // only dispatch commands here when not in a game

@@ -10935,10 +10935,9 @@ void ExtCheckKeys(void)
         extern int32_t engine_screenshot;
         engine_screenshot = 1;
 #else
-        extern int16_t capturecount;
+        extern uint16_t capturecount;
 
-        Bsnprintf(tempbuf, sizeof(tempbuf), "%s %s", AppProperName, ExtGetVer());
-        screencapture("captxxxx.tga", eitherSHIFT, tempbuf);
+        screencapture("captxxxx.tga", eitherSHIFT);
         silentmessage("Saved screenshot %04d", capturecount-1);
 #endif
     }

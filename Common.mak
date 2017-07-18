@@ -273,7 +273,6 @@ USE_LUAJIT_2_1 ?= 0
 
 # Library toggles
 HAVE_GTK2 ?= 1
-USE_LIBPNG ?= 1
 USE_LIBVPX ?= 1
 HAVE_VORBIS ?= 1
 HAVE_FLAC ?= 1
@@ -754,16 +753,6 @@ ifneq ($(LUNATIC),0)
     endif
 endif
 
-ifneq (0,$(USE_LIBPNG))
-    COMPILERFLAGS+= -DUSE_LIBPNG
-    ifeq ($(PLATFORM),WINDOWS)
-        LIBS+= -lpng_mini -lz_mini
-    else ifeq ($(PLATFORM),DARWIN)
-        LIBS+= -lpng # -lz
-    else
-        LIBS+= -lpng -lz
-    endif
-endif
 ifneq (0,$(USE_LIBVPX))
     COMPILERFLAGS+= -DUSE_LIBVPX
     LIBS+= -lvpx

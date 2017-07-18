@@ -4340,7 +4340,7 @@ static void drawalls(int32_t bunch)
             printext256(8,8, whitecol,0, tmpbuf, 0);
 
             Bsprintf(fn, "engshot%04d.png", engine_screenshot);
-            screencapture(fn, 0, "BUILD engine");
+            screencapture(fn, 0);
             engine_screenshot++;
 
             Bmemcpy((char *)frameplace, bakframe, xdim*ydim);

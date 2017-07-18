@@ -128,11 +128,13 @@
     <ClInclude Include="..\..\source\build\include\m32script.h" />
     <ClInclude Include="..\..\source\build\include\md4.h" />
     <ClInclude Include="..\..\source\build\include\mdsprite.h" />
+    <ClInclude Include="..\..\source\build\include\miniz.h" />
     <ClInclude Include="..\..\source\build\include\mmulti.h" />
     <ClInclude Include="..\..\source\build\include\mutex.h" />
     <ClInclude Include="..\..\source\build\include\osd.h" />
     <ClInclude Include="..\..\source\build\include\osxbits.h" />
     <ClInclude Include="..\..\source\build\include\palette.h" />
+    <ClInclude Include="..\..\source\build\include\pngwrite.h" />
     <ClInclude Include="..\..\source\build\include\polymer.h" />
     <ClInclude Include="..\..\source\build\include\polymost.h" />
     <ClInclude Include="..\..\source\build\include\pragmas.h" />
@@ -281,9 +283,11 @@
     <ClCompile Include="..\..\source\build\src\md4.cpp" />
     <ClCompile Include="..\..\source\build\src\mdsprite.cpp" />
     <ClCompile Include="..\..\source\build\src\mhk.cpp" />
+    <ClCompile Include="..\..\source\build\src\miniz.c" />
     <ClCompile Include="..\..\source\build\src\mutex.cpp" />
     <ClCompile Include="..\..\source\build\src\osd.cpp" />
     <ClCompile Include="..\..\source\build\src\palette.cpp" />
+    <ClCompile Include="..\..\source\build\src\pngwrite.cpp" />
     <ClCompile Include="..\..\source\build\src\polymer.cpp" />
     <ClCompile Include="..\..\source\build\src\polymost.cpp" />
     <ClCompile Include="..\..\source\build\src\pragmas.cpp" />

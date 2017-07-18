@@ -355,8 +355,6 @@
 		00970E2419F2076B00873EB9 /* libFLAC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1B19F2076B00873EB9 /* libFLAC.a */; };
 		00970E2519F2076B00873EB9 /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1C19F2076B00873EB9 /* libogg.a */; };
 		00970E2619F2076B00873EB9 /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1C19F2076B00873EB9 /* libogg.a */; };
-		00970E2719F2076B00873EB9 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1D19F2076B00873EB9 /* libpng.a */; };
-		00970E2819F2076B00873EB9 /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1D19F2076B00873EB9 /* libpng.a */; };
 		00970E2919F2076B00873EB9 /* libSDL2_mixer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1E19F2076B00873EB9 /* libSDL2_mixer.a */; };
 		00970E2A19F2076B00873EB9 /* libSDL2_mixer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1E19F2076B00873EB9 /* libSDL2_mixer.a */; };
 		00970E2B19F2076B00873EB9 /* libSDL2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E1F19F2076B00873EB9 /* libSDL2.a */; };
@@ -379,8 +377,6 @@
 		00970E5019F2108600873EB9 /* driver_nosound.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 00970E4E19F2108600873EB9 /* driver_nosound.cpp */; };
 		00970E5119F2108600873EB9 /* driver_nosound.h in Headers */ = {isa = PBXBuildFile; fileRef = 00970E4F19F2108600873EB9 /* driver_nosound.h */; };
 		00970E5219F210C100873EB9 /* rev.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0008E9D219F1AD9B0091588D /* rev.cpp */; };
-		00970E5819F2128300873EB9 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E5719F2128300873EB9 /* libz.dylib */; };
-		00970E5919F2129B00873EB9 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E5719F2128300873EB9 /* libz.dylib */; };
 		00970E5B19F2139500873EB9 /* ForceFeedback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E5A19F2139500873EB9 /* ForceFeedback.framework */; };
 		00970E5C19F2139C00873EB9 /* ForceFeedback.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E5A19F2139500873EB9 /* ForceFeedback.framework */; };
 		00970E5E19F213B300873EB9 /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 00970E5D19F213B300873EB9 /* libiconv.dylib */; };
@@ -776,7 +772,6 @@
 		0013832819F366720007DA6C /* libc++.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libc++.dylib"; path = "usr/lib/libc++.dylib"; sourceTree = SDKROOT; };
 		00970E1B19F2076B00873EB9 /* libFLAC.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFLAC.a; path = /usr/local/lib/libFLAC.a; sourceTree = "<absolute>"; };
 		00970E1C19F2076B00873EB9 /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = /usr/local/lib/libogg.a; sourceTree = "<absolute>"; };
-		00970E1D19F2076B00873EB9 /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libpng.a; path = /usr/local/lib/libpng.a; sourceTree = "<absolute>"; };
 		00970E1E19F2076B00873EB9 /* libSDL2_mixer.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2_mixer.a; path = /usr/local/lib/libSDL2_mixer.a; sourceTree = "<absolute>"; };
 		00970E1F19F2076B00873EB9 /* libSDL2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL2.a; path = /usr/local/lib/libSDL2.a; sourceTree = "<absolute>"; };
 		00970E2019F2076B00873EB9 /* libvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbis.a; path = /usr/local/lib/libvorbis.a; sourceTree = "<absolute>"; };
@@ -785,7 +780,6 @@
 		00970E3319F207F000873EB9 /* a-c.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = "a-c.cpp"; path = "../../source/build/src/a-c.cpp"; sourceTree = SOURCE_ROOT; };
 		00970E4E19F2108600873EB9 /* driver_nosound.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.c; name = driver_nosound.cpp; path = ../../source/audiolib/src/driver_nosound.cpp; sourceTree = SOURCE_ROOT; };
 		00970E4F19F2108600873EB9 /* driver_nosound.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = driver_nosound.h; path = ../../source/audiolib/src/driver_nosound.h; sourceTree = SOURCE_ROOT; };
-		00970E5719F2128300873EB9 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		00970E5A19F2139500873EB9 /* ForceFeedback.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ForceFeedback.framework; path = System/Library/Frameworks/ForceFeedback.framework; sourceTree = SDKROOT; };
 		00970E5D19F213B300873EB9 /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		00970E6019F2142400873EB9 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
@@ -844,7 +838,6 @@
 			files = (
 				00970E6119F2142400873EB9 /* CoreAudio.framework in Frameworks */,
 				00970E5E19F213B300873EB9 /* libiconv.dylib in Frameworks */,
-				00970E5819F2128300873EB9 /* libz.dylib in Frameworks */,
 				00970E4A19F20F7E00873EB9 /* libBUILD.a in Frameworks */,
 				0008EA8419F1B1E80091588D /* IOKit.framework in Frameworks */,
 				00970E4B19F20F7E00873EB9 /* libMACT.a in Frameworks */,
@@ -866,7 +859,6 @@
 				000C48E519F35DA9006E6B52 /* Foundation.framework in Frameworks */,
 				0008EA7819F1B1AC0091588D /* Carbon.framework in Frameworks */,
 				00970E4C19F20F7E00873EB9 /* libAudioLib.a in Frameworks */,
-				00970E2719F2076B00873EB9 /* libpng.a in Frameworks */,
 				0008E64F19F1A66E0091588D /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -876,7 +868,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				00970E5B19F2139500873EB9 /* ForceFeedback.framework in Frameworks */,
-				00970E5919F2129B00873EB9 /* libz.dylib in Frameworks */,
 				00970E4619F20F7E00873EB9 /* libBUILD.a in Frameworks */,
 				0008EA8819F1B2400091588D /* AudioToolbox.framework in Frameworks */,
 				00970E4719F20F7E00873EB9 /* libMACT.a in Frameworks */,
@@ -899,7 +890,6 @@
 				000C48E219F35DA8006E6B52 /* Foundation.framework in Frameworks */,
 				0008E68719F1A8F10091588D /* Cocoa.framework in Frameworks */,
 				00970E4819F20F7E00873EB9 /* libAudioLib.a in Frameworks */,
-				00970E2819F2076B00873EB9 /* libpng.a in Frameworks */,
 				0008EA9D19F1BB3A0091588D /* CoreMIDI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1029,7 +1019,6 @@
 				00970E6019F2142400873EB9 /* CoreAudio.framework */,
 				00970E5D19F213B300873EB9 /* libiconv.dylib */,
 				00970E5A19F2139500873EB9 /* ForceFeedback.framework */,
-				00970E5719F2128300873EB9 /* libz.dylib */,
 				0008EA8319F1B1E80091588D /* IOKit.framework */,
 				0008EA8119F1B1E20091588D /* AudioToolbox.framework */,
 				0008EA7F19F1B1D30091588D /* AGL.framework */,
@@ -1433,7 +1422,6 @@
 				00970E2119F2076B00873EB9 /* libvorbisfile.a */,
 				00970E1C19F2076B00873EB9 /* libogg.a */,
 				00970E2219F2076B00873EB9 /* libvpx.a */,
-				00970E1D19F2076B00873EB9 /* libpng.a */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -2405,7 +2393,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -2518,7 +2505,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -2637,7 +2623,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -2750,7 +2735,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -2860,7 +2844,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -2962,7 +2945,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -3067,7 +3049,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -3166,7 +3147,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -3270,7 +3250,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -3368,7 +3347,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -3505,7 +3483,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",
@@ -3604,7 +3581,6 @@
 					"-DNDEBUG",
 					"-DNO_GCC_BUILTINS",
 					"-D_FORTIFY_SOURCE=2",
-					"-DUSE_LIBPNG",
 					"-DUSE_LIBVPX",
 					"-DSDL_TARGET=2",
 					"-DRENDERTYPESDL=1",

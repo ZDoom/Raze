@@ -548,7 +548,7 @@ void M32_DrawRoomsAndMasks(void)
 
     if (g_doScreenShot)
     {
-        screencapture("mcapxxxx.tga", 0, "Mapster32, from script");
+        screencapture("mcapxxxx.tga", 0);
         g_doScreenShot = 0;
     }
 
@@ -4168,9 +4168,7 @@ void overheadeditor(void)
         {
             keystatus[88] = 0;
 //__clearscreen_beforecapture__
-
-            Bsnprintf(tempbuf, sizeof(tempbuf), "%s %s", AppProperName, CallExtGetVer());
-            screencapture("captxxxx.tga", eitherSHIFT, tempbuf);
+            screencapture("captxxxx.tga", eitherSHIFT);
 
             showframe(1);
         }
