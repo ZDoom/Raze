@@ -2973,6 +2973,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                     sprite[newSprite].yrepeat = 32;
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
                 }
+                fallthrough__;
             case SHRINKSPARK__STATIC:
             case RPG__STATIC:
             case FIRELASER__STATIC:
@@ -3448,6 +3449,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                 case STAT_ACTOR:
                     if (sprite[sectSprite].extra > 0 && A_CheckNonTeleporting(sectSprite))
                         goto JBOLT;
+                    fallthrough__;
                 case STAT_MISC:
                 case STAT_FALLER:
                 case STAT_DUMMYPLAYER:
@@ -5077,9 +5079,10 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 if (pData[1] == 5)
                     A_DeleteSprite(spriteNum);
                 goto next_sprite;
-
+                fallthrough__;
             case FRAMEEFFECT1_13__STATIC:
                 if (PLUTOPAK) goto next_sprite;	// JBF: ideally this should never happen...
+                fallthrough__;
             case FRAMEEFFECT1__STATIC:
 
                 if (pSprite->owner >= 0)
@@ -5109,7 +5112,7 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                     sprite[g_player[playerNum].ps->i].extra -= 4;
                 }
             }
-
+            fallthrough__;
             case FIRELASER__STATIC:
                 if (pSprite->extra != 5)
                     pSprite->extra = 5;
@@ -5843,7 +5846,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
             }
             x = 0;  // XXX: This assignment is dead?
-
+            fallthrough__;
 
         case SE_14_SUBWAY_CAR:
             if (pSprite->owner==-1)
@@ -6499,6 +6502,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                         case ST_26_SPLITTING_ST_DOOR:
                             if (GetAnimationGoal(&sector[pSprite->sectnum].ceilingz) >= 0)
                                 break;
+                            fallthrough__;
                         default:
                             G_ActivateBySector(pSprite->sectnum,spriteNum);
                             pData[0] = 0;

@@ -1435,6 +1435,7 @@ static int32_t C_SkipComments(void)
         {
         case '\n':
             g_lineNumber++;
+            fallthrough__;
         case ' ':
         case '\t':
         case '\r':
@@ -1491,6 +1492,7 @@ static int32_t C_SkipComments(void)
                 textptr++;
                 continue;
             }
+            fallthrough__;
         case 0: // EOF
             return ((g_scriptPtr-apScript) > (g_scriptSize-32)) ? C_SetScriptSize(g_scriptSize<<1) : 0;
         }
@@ -3654,6 +3656,7 @@ DO_DEFSTATE:
             C_GetNextValue(LABEL_DEFINE);
             C_GetNextValue(LABEL_DEFINE);
             C_GetNextValue(LABEL_DEFINE);
+            fallthrough__;
         case CON_ADDAMMO:
         case CON_ADDWEAPON:
         case CON_SIZETO:
@@ -3662,6 +3665,7 @@ DO_DEFSTATE:
         case CON_ADDINVENTORY:
         case CON_GUTS:
             C_GetNextValue(LABEL_DEFINE);
+            fallthrough__;
         case CON_ESPAWN:
         case CON_ESHOOT:
         case CON_QSPAWN:
@@ -4059,6 +4063,7 @@ DO_DEFSTATE:
         case CON_NEXTSPRITESECT:
         case CON_SECTOROFWALL:
             C_GetNextVarType(GAMEVAR_READONLY);
+            fallthrough__;
         case CON_ADDLOGVAR:
         case CON_ESHOOTVAR:
         case CON_ESPAWNVAR:
@@ -4103,6 +4108,7 @@ DO_DEFSTATE:
 
         case CON_SQRT:
             C_GetNextVar();
+            fallthrough__;
         case CON_FINDPLAYER:
         case CON_FINDOTHERPLAYER:
         case CON_DISPLAYRAND:
@@ -4284,6 +4290,7 @@ DO_DEFSTATE:
                 return 1;
             }
             textptr++;
+            fallthrough__;
         case CON_SETARRAY:
             C_GetNextLabelName();
             i=GetADefID(label+(g_labelCnt<<6));
@@ -4793,12 +4800,15 @@ DO_DEFSTATE:
             {
             case CON_SCREENTEXT:
                 C_GetManyVars(8);
+                fallthrough__;
             case CON_GAMETEXTZ:
             case CON_DIGITALNUMBERZ:
                 C_GetManyVars(1);
+                fallthrough__;
             case CON_GAMETEXT:
             case CON_DIGITALNUMBER:
                 C_GetManyVars(6);
+                fallthrough__;
             default:
                 C_GetManyVars(5);
                 break;
@@ -6282,7 +6292,7 @@ static void C_AddDefaultDefinitions(void)
         { "GAMEARRAY_BOOLEAN", GAMEARRAY_BITMAP },
     };
 
-    for (int i = 0; i < ARRAY_SIZE(predefined); i++)
+    for (unsigned i = 0; i < ARRAY_SIZE(predefined); i++)
         C_AddDefinition(predefined[i].token, predefined[i].val, LABEL_DEFINE);
 
     C_AddDefinition("NO", 0, LABEL_DEFINE | LABEL_ACTION | LABEL_AI | LABEL_MOVE);

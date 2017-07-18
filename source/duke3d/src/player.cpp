@@ -1287,7 +1287,9 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
             return returnSprite;
         }
 
-        case FREEZEBLAST__STATIC: startPos.z += (3 << 8);
+        case FREEZEBLAST__STATIC:
+            startPos.z += (3 << 8);
+            fallthrough__;
         case RPG__STATIC:
         {
             // XXX: "CODEDUP"
@@ -2282,6 +2284,7 @@ void P_DisplayWeapon(void)
                     case 2:
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 168 - halfLookAng, weaponY + 201 - weaponYOffset,
                                                SHOTGUN + 2, -128, weaponBits, weaponPal, 0);
+                        fallthrough__;
                     case 0:
                     case 6:
                     case 7:
@@ -2297,6 +2300,7 @@ void P_DisplayWeapon(void)
 
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 178 - halfLookAng, weaponY + 194 - weaponYOffset,
                                                SHOTGUN + 1 + ((*(weaponFrame)-1) >> 1), -128, weaponBits, weaponPal, 0);
+                        fallthrough__;
                     case 5:
                     case 9:
                     case 10:

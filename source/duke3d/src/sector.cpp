@@ -1255,7 +1255,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
 
             return 0;
         }
-        /* fall-through (XXX: intended?) */
+        fallthrough__;
     case MULTISWITCH__STATIC:
     case REST_SWITCH_CASES:
         if (G_CheckActivatorMotion(lotag))
@@ -2614,6 +2614,7 @@ CHECKINV1:
 
                             case HANDREMOTE_WEAPON:
                                 i = currentWeapon = HANDBOMB_WEAPON;
+                                fallthrough__;
                             default:
                                 currentWeapon += weaponNum;
                                 break;
@@ -2703,6 +2704,7 @@ CHECKINV1:
                                 pPlayer->last_full_weapon = pPlayer->curr_weapon;
                                 pPlayer->show_empty_weapon = 32;
                             }
+                            fallthrough__;
                         case KNEE_WEAPON:
                         case HANDREMOTE_WEAPON:
                             P_AddWeapon(pPlayer, weaponNum, 1);

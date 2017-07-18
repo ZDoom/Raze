@@ -10307,6 +10307,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 // 5-frame walk
             case 1550 :             // Shark
                 frames=5;
+                fallthrough__;
                 // 2-frame walk
             case 1445 :             // duke kick
             case LIZTROOPDUCKING :
@@ -10318,7 +10319,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
             case BOSS1LOB :
             case LIZTROOPSHOOT :
                 if (frames==0) frames=2;
-
+                fallthrough__;
                 // 4-frame walk
             case 1491 :             // duke crawl
             case LIZTROOP :
@@ -10331,15 +10332,18 @@ void ExtPreCheckKeys(void) // just before drawrooms
             case BOSS4 :
             case NEWBEAST:
                 if (frames==0) frames=4;
+                fallthrough__;
             case LIZTROOPJETPACK :
             case DRONE :
             case COMMANDER :
             case TANK :
             case RECON :
                 if (frames==0) frames = 10;
+                fallthrough__;
             case CAMERA1:
             case APLAYER :
                 if (frames==0) frames=1;
+                fallthrough__;
             case GREENSLIME :
             case EGG :
             case PIGCOPSTAYPUT :
@@ -10525,6 +10529,7 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
             // 5-frame walk
         case 1550 :             // Shark
             frames=5;
+            fallthrough__;
             // 2-frame walk
         case 1445 :             // duke kick
         case LIZTROOPDUCKING :
@@ -10536,7 +10541,7 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
         case BOSS1LOB :
         case LIZTROOPSHOOT :
             if (frames==0) frames=2;
-
+            fallthrough__;
             // 4-frame walk
         case 1491 :             // duke crawl
         case LIZTROOP :
@@ -10549,16 +10554,19 @@ void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr
         case BOSS4 :
         case NEWBEAST:
             if (frames==0) frames=4;
+            fallthrough__;
         case LIZTROOPJETPACK :
         case DRONE :
         case COMMANDER :
         case TANK :
         case RECON :
             if (frames==0) frames = 10;
+            fallthrough__;
         case ROTATEGUN :
         case CAMERA1:
         case APLAYER :
             if (frames==0) frames=1;
+            fallthrough__;
         case GREENSLIME :
         case PIGCOPSTAYPUT :
         case LIZMANSTAYPUT:

@@ -369,6 +369,7 @@ skip_check:
         case CON_BREAK:
             vm.flags |= VMFLAG_BREAK;
             // XXX: may not be cleared subsequently?
+            fallthrough__;
         case CON_ENDS:
             return 1;
 
@@ -379,6 +380,7 @@ skip_check:
 
         case CON_ENDSWITCH:
             vm.flags &= ~VMFLAG_BREAK;
+            fallthrough__;
         case CON_ENDEVENT:
             insptr++;
             return 1;
@@ -2644,6 +2646,7 @@ badindex:
                                     break;
                                 }
                                 k++;
+                                fallthrough__;
                             case 'd':
                             {
                                 char buf[16];

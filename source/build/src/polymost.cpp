@@ -1812,7 +1812,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
     else
     {
-        float const al = waloff[globalpicnum] ? alphahackarray[globalpicnum] * (1.f/255.f) ? alphahackarray[globalpicnum] * (1.f/255.f):
+        float const al = waloff[globalpicnum] ? alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f):
                          (pth && pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f) : 0.f;
 
         bglAlphaFunc(GL_GREATER, al);

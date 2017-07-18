@@ -2262,6 +2262,7 @@ void G_BonusScreen(int32_t bonusonly)
                                 break;
                             }
                         }
+                        fallthrough__;
                     case 1:
                     case 4:
                     case 5:

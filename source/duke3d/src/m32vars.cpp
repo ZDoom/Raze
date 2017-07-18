@@ -109,7 +109,7 @@ void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t 
     {
         // the dummy array with index 0 sets the size to 0 so that accidental accesses as array
         // will complain.
-        C_CUSTOMERROR("invalid array size %d. Must be between 1 and 65536", asize);
+        C_CUSTOMERROR("invalid array size %d. Must be between 1 and 65536", (int)asize);
         return;
     }
 
@@ -335,6 +335,9 @@ int32_t __fastcall Gv_GetVarX(int32_t id)
             return (VM_AccessWall(0, index, memberid, 0) ^ -negateResult) + negateResult;
         case M32_TSPRITE_VAR_ID:
             return (VM_AccessTsprite(0, index, memberid, 0) ^ -negateResult) + negateResult;
+        default:
+            M32_ERROR("Gv_GetVarX(): WTF??");
+            return -1;
         }
     }
     case M32_FLAG_VAR:
@@ -445,6 +448,9 @@ void __fastcall Gv_SetVarX(int32_t id, int32_t lValue)
         case M32_TSPRITE_VAR_ID:
             VM_AccessTsprite(1, index, memberid, lValue);
             return;
+        default:
+            M32_ERROR("Gv_SetVarX(): WTF??");
+            return;
         }
     }
     case M32_FLAG_VAR:
@@ -469,6 +475,7 @@ void __fastcall Gv_SetVarX(int32_t id, int32_t lValue)
                 return;
             }
         }
+        fallthrough__;
         case GAMEVAR_INTPTR:
             *((int32_t *)aGameVars[id].val.lValue)=(int32_t)lValue;
             return;

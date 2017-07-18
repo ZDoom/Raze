@@ -2662,6 +2662,7 @@ nullquote:
                     case CON_EQSPAWNVAR:
                         if (spriteNum != -1)
                             A_AddToDeleteQueue(spriteNum);
+                        fallthrough__;
                     case CON_ESPAWNVAR:
                         aGameVars[g_returnVarID].global = spriteNum;
                         break;
@@ -2693,6 +2694,7 @@ nullquote:
                     case CON_EQSPAWN:
                         if (spriteNum != -1)
                             A_AddToDeleteQueue(spriteNum);
+                        fallthrough__;
                     case CON_ESPAWN:
                         aGameVars[g_returnVarID].global = spriteNum;
                         break;
@@ -3851,6 +3853,7 @@ nullquote:
                                 break;
                             }
                             inputPos++;
+                            fallthrough__;
                         case 'd':
                         {
                             if (argIdx >= numArgs)

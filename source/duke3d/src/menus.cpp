@@ -1723,6 +1723,7 @@ static void Menu_Pre(MenuID_t cm)
     case MENU_MAIN_INGAME:
         MenuEntry_DisableOnCondition(&ME_MAIN_SAVEGAME, ud.recstat == 2);
         MenuEntry_DisableOnCondition(&ME_MAIN_QUITTOTITLE, g_netServer || numplayers > 1);
+        fallthrough__;
     case MENU_MAIN:
         if ((g_netServer || ud.multimode > 1) && ud.recstat != 2)
         {
@@ -1945,6 +1946,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     {
     case MENU_MAIN_INGAME:
         l += 4;
+        fallthrough__;
     case MENU_MAIN:
         rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + ((28+l)<<16), 65536L,0,INGAMEDUKETHREEDEE,0,0,10);
         if (PLUTOPAK)   // JBF 20030804
@@ -2823,6 +2825,7 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         {
         case 2:
             ud.weaponswitch |= 4;
+            fallthrough__;
         case 1:
             ud.weaponswitch |= 1;
             break;
@@ -3405,6 +3408,7 @@ static void Menu_FileSelect(int32_t input)
     case MENU_NETUSERMAP:
         if ((g_netServer || ud.multimode > 1))
             Net_SendUserMapName();
+        fallthrough__;
     case MENU_USERMAP:
         if (input)
         {
@@ -5165,6 +5169,7 @@ static MenuEntry_t *Menu_RunInput_Menu_Movement(MenuMenu_t *menu, MenuMovement_t
     {
         case MM_End:
             menu->currentEntry = menu->numEntries;
+            fallthrough__;
         case MM_Up:
                 do
                 {
@@ -5177,6 +5182,7 @@ static MenuEntry_t *Menu_RunInput_Menu_Movement(MenuMenu_t *menu, MenuMovement_t
 
         case MM_Home:
             menu->currentEntry = -1;
+            fallthrough__;
         case MM_Down:
                 do
                 {
@@ -5229,6 +5235,7 @@ static void Menu_RunInput_EntryOptionList_Movement(MenuOption_t *object, MenuMov
             --object->options->currentEntry;
             if (object->options->currentEntry >= 0)
                 break;
+            fallthrough__;
         case MM_End:
             object->options->currentEntry = object->options->numOptions-1;
             break;
@@ -5237,6 +5244,7 @@ static void Menu_RunInput_EntryOptionList_Movement(MenuOption_t *object, MenuMov
             ++object->options->currentEntry;
             if (object->options->currentEntry < object->options->numOptions)
                 break;
+            fallthrough__;
         case MM_Home:
             object->options->currentEntry = 0;
             break;
@@ -5276,6 +5284,7 @@ static int32_t Menu_RunInput_EntryOption_Movement(MenuEntry_t *entry, MenuOption
             --newValueIndex;
             if (newValueIndex >= 0)
                 break;
+            fallthrough__;
         case MM_AllTheWayRight:
             newValueIndex = object->options->numOptions-1;
             break;
@@ -5284,6 +5293,7 @@ static int32_t Menu_RunInput_EntryOption_Movement(MenuEntry_t *entry, MenuOption
             ++newValueIndex;
             if (newValueIndex < object->options->numOptions)
                 break;
+            fallthrough__;
        case MM_AllTheWayLeft:
             newValueIndex = 0;
             break;
@@ -5362,6 +5372,7 @@ static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRange
                 --newValueIndex;
             if (newValueIndex >= 0)
                 break;
+            fallthrough__;
         case MM_AllTheWayLeft:
             newValueIndex = 0;
             break;
@@ -5371,6 +5382,7 @@ static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRange
                 ++newValueIndex;
             if (newValueIndex < object->steps)
                 break;
+            fallthrough__;
         case MM_AllTheWayRight:
             newValueIndex = object->steps-1;
             break;
@@ -5418,6 +5430,7 @@ static void Menu_RunInput_EntryRangeFloat_Movement(MenuEntry_t *entry, MenuRange
                 --newValueIndex;
             if (newValueIndex >= 0)
                 break;
+            fallthrough__;
         case MM_AllTheWayLeft:
             newValueIndex = 0;
             break;
@@ -5427,6 +5440,7 @@ static void Menu_RunInput_EntryRangeFloat_Movement(MenuEntry_t *entry, MenuRange
                 ++newValueIndex;
             if (newValueIndex < object->steps)
                 break;
+            fallthrough__;
         case MM_AllTheWayRight:
             newValueIndex = object->steps-1;
             break;
@@ -5471,6 +5485,7 @@ static void Menu_RunInput_EntryRangeDouble_Movement(/*MenuEntry_t *entry, */Menu
                 --newValueIndex;
             if (newValueIndex >= 0)
                 break;
+            fallthrough__;
         case MM_AllTheWayLeft:
             newValueIndex = 0;
             break;
@@ -5480,6 +5495,7 @@ static void Menu_RunInput_EntryRangeDouble_Movement(/*MenuEntry_t *entry, */Menu
                 ++newValueIndex;
             if (newValueIndex < object->steps)
                 break;
+            fallthrough__;
         case MM_AllTheWayRight:
             newValueIndex = object->steps-1;
             break;
@@ -5548,6 +5564,7 @@ static void Menu_RunInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMove
                 object->findhigh[object->currentList] = object->findhigh[object->currentList]->prev;
                 break;
             }
+            fallthrough__;
         case MM_End:
             object->findhigh[object->currentList] = object->findhigh[object->currentList]->userb;
             break;
@@ -5560,6 +5577,7 @@ static void Menu_RunInput_FileSelect_Movement(MenuFileSelect_t *object, MenuMove
                 object->findhigh[object->currentList] = object->findhigh[object->currentList]->next;
                 break;
             }
+            fallthrough__;
         case MM_Home:
             object->findhigh[object->currentList] = object->findhigh[object->currentList]->usera;
             break;

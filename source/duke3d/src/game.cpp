@@ -1594,9 +1594,11 @@ int A_Spawn(int spriteNum, int tileNum)
 
             if (sector[sectNum].floorpicnum == FLOORSLIME || sector[sectNum].ceilingpicnum == FLOORSLIME)
                 pSprite->pal = 7;
+            fallthrough__;
         case DOMELITE__STATIC:
             if (pSprite->picnum == DOMELITE)
                 pSprite->cstat |= 257;
+            fallthrough__;
         case NEON1__STATIC:
         case NEON2__STATIC:
         case NEON3__STATIC:
@@ -1605,6 +1607,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case NEON6__STATIC:
             if (pSprite->picnum != WATERSPLASH2)
                 pSprite->cstat |= 257;
+            fallthrough__;
         case NUKEBUTTON__STATIC:
         case JIBS1__STATIC:
         case JIBS2__STATIC:
@@ -1669,6 +1672,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
         case FRAMEEFFECT1_13__STATIC:
             if (PLUTOPAK) break;
+            fallthrough__;
         case FRAMEEFFECT1__STATIC:
             if (spriteNum >= 0)
             {
@@ -1782,6 +1786,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     pSprite->shade = 127;
             }
             pSprite->cstat |= 32;
+            fallthrough__;
         }
         case FECES__STATIC:
             if (spriteNum >= 0)
@@ -1901,6 +1906,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case PIPE6__STATIC:
             pSprite->clipdist = 32;
             pSprite->cstat |= 257;
+            fallthrough__;
         case OCEANSPRITE4__STATIC:
             changespritestat(newSprite, STAT_DEFAULT);
             break;
@@ -1999,6 +2005,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
         case PODFEM1__STATIC:
             pSprite->extra <<= 1;
+            fallthrough__;
         case FEM1__STATIC:
         case FEM2__STATIC:
         case FEM3__STATIC:
@@ -2014,6 +2021,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case TOUGHGAL__STATIC:
             pSprite->yvel  = pSprite->hitag;
             pSprite->hitag = -1;
+            fallthrough__;
         case BLOODYPOLE__STATIC:
             pSprite->cstat   |= 257;
             pSprite->clipdist = 32;
@@ -2035,6 +2043,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 pSprite->shade   = sprite[spriteNum].shade;
                 pSprite->pal     = g_player[P_Get(spriteNum)].ps->palookup;
             }
+            fallthrough__;
         case DUKECAR__STATIC:
         case HELECOPT__STATIC:
             //                if(sp->picnum == HELECOPT || sp->picnum == DUKECAR) sp->xvel = 1024;
@@ -2042,6 +2051,7 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->extra = 1;
             pSprite->xvel  = 292;
             pSprite->zvel  = 360;
+            fallthrough__;
         case BLIMP__STATIC:
             pSprite->cstat   |= 257;
             pSprite->clipdist = 128;
@@ -2148,6 +2158,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
         case RESPAWN__STATIC:
             pSprite->extra = 66-13;
+            fallthrough__;
         case MUSICANDSFX__STATIC:
             if ((!g_netServer && ud.multimode < 2) && pSprite->pal == 1)
             {
@@ -2166,6 +2177,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 G_AddGameLight(0, newSprite, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 32768, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
                 actor[newSprite].lightcount = 2;
             }
+            fallthrough__;
 #endif
         case EXPLOSION2BOT__STATIC:
         case BURNING__STATIC:
@@ -2319,6 +2331,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 T1(newSprite) = pSprite->z;
                 T2(newSprite) = krand()&127;
             }
+            fallthrough__;
         case WATERDRIPSPLASH__STATIC:
             pSprite->xrepeat = pSprite->yrepeat = 24;
             changespritestat(newSprite, STAT_STANDABLE);
@@ -2341,7 +2354,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 changespritestat(newSprite, STAT_MISC);
                 break;
             }
-            // touchplate falls through
+            fallthrough__;
         case WATERBUBBLEMAKER__STATIC:
             if (EDUKE32_PREDICT_FALSE(pSprite->hitag && pSprite->picnum == WATERBUBBLEMAKER))
             {
@@ -2378,6 +2391,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case COMMANDERSTAYPUT__STATIC:
         case BOSS4STAYPUT__STATIC:
             actor[newSprite].actorstayput = pSprite->sectnum;
+            fallthrough__;
         case BOSS1__STATIC:
         case BOSS2__STATIC:
         case BOSS3__STATIC:
@@ -2386,6 +2400,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case GREENSLIME__STATIC:
             if (pSprite->picnum == GREENSLIME)
                 pSprite->extra = 1;
+            fallthrough__;
         case DRONE__STATIC:
         case LIZTROOPONTOILET__STATIC:
         case LIZTROOPJUSTSIT__STATIC:
@@ -2666,7 +2681,7 @@ int A_Spawn(int spriteNum, int tileNum)
             }
 
             pSprite->pal = 0;
-
+            fallthrough__;
         case ACCESSCARD__STATIC:
 
             if (pSprite->picnum == ATOMICHEALTH)
@@ -2697,7 +2712,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
         case WATERFOUNTAIN__STATIC:
             SLT(newSprite) = 1;
-
+            fallthrough__;
         case TREE1__STATIC:
         case TREE2__STATIC:
         case TIRE__STATIC:
@@ -2731,6 +2746,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 pSprite->xvel = -8;
                 A_SetSprite(newSprite,CLIPMASK0);
             }
+            fallthrough__;
         case CEILINGSTEAM__STATIC:
             changespritestat(newSprite, STAT_STANDABLE);
             break;
@@ -2760,6 +2776,7 @@ int A_Spawn(int spriteNum, int tileNum)
             case 46:
                 ror_protectedsectors[pSprite->sectnum] = 1;
                 /* XXX: fall-through intended? */
+                fallthrough__;
 #endif
             case SE_49_POINT_LIGHT:
             case SE_50_SPOT_LIGHT:
@@ -3102,6 +3119,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 if (sector[sectNum].lotag &&
                         labs(sector[sectNum].ceilingz-pSprite->z) > 1024)
                     sector[sectNum].lotag |= 32768; //If its open
+                fallthrough__;
             case SE_8_UP_OPEN_DOOR_LIGHTS:
                 //First, get the ceiling-floor shade
                 {
@@ -3279,9 +3297,11 @@ int A_Spawn(int spriteNum, int tileNum)
                     if (spriteNum == -1)
                         spriteNum = SUBWAY;
                     actor[newSprite].lastv.x = spriteNum;
+                    fallthrough__;
                 case SE_30_TWO_WAY_TRAIN:
                     if (g_netServer || numplayers > 1)
                         break;
+                    fallthrough__;
                 case SE_0_ROTATING_SECTOR:
                 case SE_1_PIVOT:
                 case SE_5:
@@ -3356,6 +3376,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case CANWITHSOMETHING4__STATIC:
         case RUBBERCAN__STATIC:
             pSprite->extra = 0;
+            fallthrough__;
         case EXPLODINGBARREL__STATIC:
         case HORSEONSIDE__STATIC:
         case FIREBARREL__STATIC:
@@ -3371,6 +3392,7 @@ int A_Spawn(int spriteNum, int tileNum)
             if (spriteNum >= 0)
                 pSprite->owner = spriteNum;
             else pSprite->owner = newSprite;
+            fallthrough__;
         case EGG__STATIC:
             if (ud.monsters_off == 1 && pSprite->picnum == EGG)
             {
@@ -3613,6 +3635,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     t->shade = -127;
                     continue;
                 }
+                fallthrough__;
             case BULLETHOLE__STATIC:
             case CRACK1__STATIC:
             case CRACK2__STATIC:
@@ -3731,6 +3754,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         case FOOTPRINTS4__STATIC:
             if (t->pal == 6)
                 t->shade = -127;
+            fallthrough__;
         case PUKE__STATIC:
         case MONEY__STATIC:
             //case MONEY+1__STATIC:
@@ -4047,7 +4071,7 @@ PALONLY:
             }
             if (t->pal == 6)
                 t->shade = -120;
-            /* fall-through */
+            fallthrough__;
         case SCRAP1__STATIC:
         case SCRAP2__STATIC:
         case SCRAP3__STATIC:
@@ -4067,6 +4091,7 @@ PALONLY:
                 t->pal = 7;
                 break;
             }
+            fallthrough__;
         default:
             G_MaybeTakeOnFloorPal(t, sect);
             break;
@@ -4246,6 +4271,7 @@ skip:
             t->z = sprite[pSprite->owner].z-(3<<8);
             if (g_tripbombLaserMode == 2 && g_player[screenpeek].ps->heat_on == 0)
                 t->yrepeat = 0;
+            fallthrough__;
         case EXPLOSION2__STATIC:
         case EXPLOSION2BOT__STATIC:
         case FREEZEBLAST__STATIC:
@@ -4268,11 +4294,13 @@ skip:
         case FIRE__STATIC:
         case FIRE2__STATIC:
             t->cstat |= 128;
+            fallthrough__;
         case BURNING__STATIC:
         case BURNING2__STATIC:
             if (sprite[pSprite->owner].picnum != TREE1 && sprite[pSprite->owner].picnum != TREE2)
                 t->z = actor[t->owner].floorz;
             t->shade = -127;
+            fallthrough__;
         case SMALLSMOKE__STATIC:
             t->cstat |= 8192+1024;
             break;
@@ -4303,6 +4331,7 @@ skip:
             break;
         case SHELL__STATIC:
             t->picnum = pSprite->picnum+(T1(i)&1);
+            fallthrough__;
         case SHOTGUNSHELL__STATIC:
             t->cstat |= 12;
             if (T1(i) > 2) t->cstat &= ~16;
@@ -4310,6 +4339,7 @@ skip:
             break;
         case FRAMEEFFECT1_13__STATIC:
             if (PLUTOPAK) break;
+            fallthrough__;
         case FRAMEEFFECT1__STATIC:
             if (pSprite->owner >= 0 && sprite[pSprite->owner].statnum < MAXSTATUS)
             {

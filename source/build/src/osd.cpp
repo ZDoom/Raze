@@ -957,6 +957,7 @@ int32_t OSD_HandleChar(char ch)
 
             if (--editor.pos < editor.start)
                 editor.start--, editor.end--;
+            fallthrough__;
 #ifndef __APPLE__
         case 127:  // handled in OSD_HandleScanCode (delete)
 #endif
@@ -2125,6 +2126,7 @@ int32_t osdcmd_cvar_set(osdfuncparm_t const * const parm)
                 break;
             case CVAR_INVALIDATEALL:
                 gltexinvalidatetype(INVALIDATE_ALL);
+                fallthrough__;
             case CVAR_INVALIDATEART:
                 gltexinvalidatetype(INVALIDATE_ART);
 #ifdef POLYMER

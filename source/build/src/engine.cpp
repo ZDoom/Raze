@@ -9379,8 +9379,10 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
         {
         case 5:
             convertv5sectv6(&v5sect,&v6sect);
+            fallthrough__;
         case 6:
             convertv6sectv7(&v6sect,&sector[i]);
+            break;
         }
     }
 
@@ -9426,8 +9428,10 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
         {
         case 5:
             convertv5wallv6(&v5wall,&v6wall,i);
+            fallthrough__;
         case 6:
             convertv6wallv7(&v6wall,&wall[i]);
+            break;
         }
     }
 
@@ -9478,8 +9482,10 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
         {
         case 5:
             convertv5sprv6(&v5spr,&v6spr);
+            fallthrough__;
         case 6:
             convertv6sprv7(&v6spr,&sprite[i]);
+            break;
         }
 
         check_sprite(i);

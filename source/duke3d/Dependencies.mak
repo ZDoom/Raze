@@ -46,7 +46,7 @@ $(DUKE3D_OBJ)/gamedef.$o: $(DUKE3D_SRC)/gamedef.cpp $(duke3d_h) $(gamedef_h) $(D
 $(DUKE3D_OBJ)/gameexec.$o: $(DUKE3D_SRC)/gameexec.cpp $(DUKE3D_SRC)/gamestructures.cpp $(duke3d_h) $(gamedef_h)
 $(DUKE3D_OBJ)/gamestructures.$o: $(DUKE3D_SRC)/gamestructures.cpp $(duke3d_h) $(gamedef_h)
 $(DUKE3D_OBJ)/gamevars.$o: $(DUKE3D_SRC)/gamevars.cpp $(DUKE3D_SRC)/gamestructures.cpp $(duke3d_h) $(gamedef_h) $(DUKE3D_SRC)/savegame.h
-$(DUKE3D_OBJ)/global.$o: $(DUKE3D_SRC)/*.cpp $(DUKE3D_SRC)/global.cpp $(duke3d_h)
+$(DUKE3D_OBJ)/global.$o: $(DUKE3D_SRC)/global.cpp $(duke3d_h)
 $(DUKE3D_OBJ)/input.$o: $(DUKE3D_SRC)/input.cpp $(duke3d_h) $(DUKE3D_SRC)/input.h
 $(DUKE3D_OBJ)/mdump.$o: $(DUKE3D_SRC)/mdump.cpp $(DUKE3D_SRC)/mdump.h
 $(DUKE3D_OBJ)/menus.$o: $(DUKE3D_SRC)/menus.cpp $(duke3d_h) $(DUKE3D_SRC)/input.h $(MACT_INC)/mouse.h $(DUKE3D_SRC)/menus.h

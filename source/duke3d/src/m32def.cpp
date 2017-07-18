@@ -3030,6 +3030,7 @@ repeatcase:
             C_ReportError(WARNING_OUTSIDEDRAWSPRITE);
             g_numCompilerWarnings++;
         }
+        fallthrough__;
     case CON_RESETKEY:
     case CON_SETKEY:
     case CON_INSERTSPRITE:
@@ -3180,6 +3181,7 @@ repeatcase:
             C_CUSTOMERROR("Can define quotes only at top level.");
             return 1;
         }
+        fallthrough__;
     case CON_REDEFINEQUOTE:
         if (tw == CON_DEFINEQUOTE)
             g_scriptPtr--;
@@ -3935,6 +3937,7 @@ void C_ReportError(int32_t iError)
     case WARNING_NAMEMATCHESVAR:
         initprintf("%s:%d: warning: symbol `%s' already used for game variable.\n",
                    g_szScriptFileName, g_lineNumber, tlabel);
+        break;
     case WARNING_OUTSIDEDRAWSPRITE:
         initprintf("%s:%d: warning: found `%s' outside of EVENT_ANALYZESPRITES\n",
                    g_szScriptFileName,g_lineNumber,tempbuf);

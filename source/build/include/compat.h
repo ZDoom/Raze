@@ -227,13 +227,13 @@
 #endif
 
 #if __has_cpp_attribute(fallthrough)
-# define FALLTHROUGH [[fallthrough]]
+# define fallthrough__ [[fallthrough]]
 #elif __has_cpp_attribute(clang::fallthrough)
-# define FALLTHROUGH [[clang::fallthrough]]
+# define fallthrough__ [[clang::fallthrough]]
 #elif __has_cpp_attribute(gnu::fallthrough)
-# define FALLTHROUGH [[gnu::fallthrough]]
+# define fallthrough__ [[gnu::fallthrough]]
 #else
-# define FALLTHROUGH
+# define fallthrough__
 #endif
 
 

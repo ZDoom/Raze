@@ -1246,7 +1246,7 @@ static void prelevel(char g)
 
                     if (pWall->lotag && pWall->nextwall >= 0)
                         wall[pWall->nextwall].lotag = pWall->lotag;
-
+                    fallthrough__;
                 case BIGFORCE__STATIC:
                     animwall[g_animWallCnt].wallnum = i;
                     g_animWallCnt++;

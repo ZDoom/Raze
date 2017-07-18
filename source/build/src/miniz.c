@@ -2084,7 +2084,7 @@ void *tdefl_write_image_to_png_file_in_memory_ex(const void *pImage, int w, int 
     for (y = 0; y < h; ++y)
     {
         tdefl_compress_buffer(pComp, &z, 1, TDEFL_NO_FLUSH);
-        tdefl_compress_buffer(pComp, (mz_uint8 *)pImage + (flip ? (h - 1 - y) : y) * bpl, bpl, TDEFL_NO_FLUSH);
+        tdefl_compress_buffer(pComp, (mz_uint8 const *)pImage + (flip ? (h - 1 - y) : y) * bpl, bpl, TDEFL_NO_FLUSH);
     }
     if (tdefl_compress_buffer(pComp, NULL, 0, TDEFL_FINISH) != TDEFL_STATUS_DONE)
     {
@@ -3176,6 +3176,7 @@ struct mz_zip_internal_state_tag
 #if defined(DEBUG) || defined(_DEBUG) || defined(NDEBUG)
 static MZ_FORCEINLINE mz_uint mz_zip_array_range_check(const mz_zip_array *pArray, mz_uint index)
 {
+    pArray = pArray;
     MZ_ASSERT(index < pArray->m_size);
     return index;
 }
@@ -4805,7 +4806,7 @@ mz_zip_reader_extract_iter_state* mz_zip_reader_extract_iter_new(mz_zip_archive 
         if (!((flags & MZ_ZIP_FLAG_COMPRESSED_DATA) || (!pState->file_stat.m_method)))
         {
             /* Decompression required, therefore intermediate read buffer required */
-            pState->read_buf_size = MZ_MIN(pState->file_stat.m_comp_size, MZ_ZIP_MAX_IO_BUF_SIZE);
+            pState->read_buf_size = MZ_MIN(pState->file_stat.m_comp_size, (mz_uint64)MZ_ZIP_MAX_IO_BUF_SIZE);
             if (NULL == (pState->pRead_buf = pZip->m_pAlloc(pZip->m_pAlloc_opaque, 1, (size_t)pState->read_buf_size)))
             {
                 mz_zip_set_error(pZip, MZ_ZIP_ALLOC_FAILED);

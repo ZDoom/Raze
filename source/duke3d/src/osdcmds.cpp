@@ -513,15 +513,19 @@ static int32_t osdcmd_spawn(osdfuncparm_t const * const parm)
         vect.y = Batol(parm->parms[5]);
         vect.z = Batol(parm->parms[6]);
         set |= 8;
+        fallthrough__;
     case 4: // ang
         ang = Batol(parm->parms[3]) & 2047;
         set |= 4;
+        fallthrough__;
     case 3: // cstat
         cstat = (uint16_t)Batol(parm->parms[2]);
         set |= 2;
+        fallthrough__;
     case 2: // pal
         pal = (uint8_t)Batol(parm->parms[1]);
         set |= 1;
+        fallthrough__;
     case 1: // tile number
         if (isdigit(parm->parms[0][0]))
         {

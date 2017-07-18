@@ -326,6 +326,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
         case ParsingSectionBegin:
             currentsection = dp = sp;
             state = ParsingSectionName;
+            fallthrough__;
         case ParsingSectionName:
             LETTER();
             switch (ch)
@@ -360,6 +361,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
                 EATLINE(sp);
                 printf("Unexpected comment on line %d.\n", linenum);
                 SETRV(-1);
+                fallthrough__;
             case '\n':
             case '\r':
                 // Unexpected newline
@@ -385,6 +387,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
         case ParsingValueBegin:
             currentvalue = dp = sp;
             state = ParsingValue;
+            fallthrough__;
         case ParsingValue:
             LETTER();
             switch (ch)

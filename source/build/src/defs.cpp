@@ -3524,6 +3524,7 @@ static int32_t defsparser(scriptfile *script)
                         glb->def[0].alpha = (float)(value2-a) * finv2value;
                         glb->def[1].alpha = (float)a * finv2value;
                     }
+                    fallthrough__;
 #endif
                 case 0:
                     numalphatabs = value;

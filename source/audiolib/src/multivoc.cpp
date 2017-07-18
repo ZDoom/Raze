@@ -619,11 +619,15 @@ void MV_SetVoiceMixMode(VoiceNode *voice)
 
     switch (type)
     {
-        case T_16BITSOURCE | T_LEFTQUIET: MV_LeftVolume = MV_RightVolume;
+        case T_16BITSOURCE | T_LEFTQUIET:
+            MV_LeftVolume = MV_RightVolume;
+            fallthrough__;
         case T_16BITSOURCE | T_MONO:
         case T_16BITSOURCE | T_RIGHTQUIET: voice->mix = MV_Mix16BitMono16; break;
 
-        case T_LEFTQUIET: MV_LeftVolume = MV_RightVolume;
+        case T_LEFTQUIET:
+            MV_LeftVolume = MV_RightVolume;
+            fallthrough__;
         case T_MONO:
         case T_RIGHTQUIET: voice->mix = MV_Mix16BitMono; break;
 

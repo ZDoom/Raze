@@ -304,11 +304,13 @@ static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
         break;
     case 4:	// fs, res, bpp switch
         newfullscreen = (Batol(parm->parms[3]) != 0);
+        fallthrough__;
     case 3:	// res & bpp switch
         tmp = Batol(parm->parms[2]);
         if (!(tmp==8 || tmp==16 || tmp==32))
             return OSDCMD_SHOWHELP;
         newbpp = tmp;
+        fallthrough__;
 #endif
     case 2: // res switch
         newx = Batol(parm->parms[0]);
