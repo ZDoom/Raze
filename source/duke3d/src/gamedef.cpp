@@ -6165,12 +6165,10 @@ static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
 // KEEPINSYNC lunatic/con_lang.lua
 static void C_AddDefaultDefinitions(void)
 {
-    int32_t i;
-
-    for (i=0; i<MAXEVENTS; i++)
+    for (int i=0; i<MAXEVENTS; i++)
         C_AddDefinition(EventNames[i], i, LABEL_DEFINE);
 
-    for (i=0; i<NUMGAMEFUNCTIONS; i++)
+    for (int i=0; i<NUMGAMEFUNCTIONS; i++)
     {
         int32_t j;
 
@@ -6187,98 +6185,107 @@ static void C_AddDefaultDefinitions(void)
         C_AddDefinition(tempbuf, i, LABEL_DEFINE);
     }
 
-    C_AddDefinition("STAT_DEFAULT", STAT_DEFAULT, LABEL_DEFINE);
-    C_AddDefinition("STAT_ACTOR", STAT_ACTOR, LABEL_DEFINE);
-    C_AddDefinition("STAT_ZOMBIEACTOR", STAT_ZOMBIEACTOR, LABEL_DEFINE);
-    C_AddDefinition("STAT_EFFECTOR", STAT_EFFECTOR, LABEL_DEFINE);
-    C_AddDefinition("STAT_PROJECTILE", STAT_PROJECTILE, LABEL_DEFINE);
-    C_AddDefinition("STAT_MISC", STAT_MISC, LABEL_DEFINE);
-    C_AddDefinition("STAT_STANDABLE", STAT_STANDABLE, LABEL_DEFINE);
-    C_AddDefinition("STAT_LOCATOR", STAT_LOCATOR, LABEL_DEFINE);
-    C_AddDefinition("STAT_ACTIVATOR", STAT_ACTIVATOR, LABEL_DEFINE);
-    C_AddDefinition("STAT_TRANSPORT", STAT_TRANSPORT, LABEL_DEFINE);
-    C_AddDefinition("STAT_PLAYER", STAT_PLAYER, LABEL_DEFINE);
-    C_AddDefinition("STAT_FX", STAT_FX, LABEL_DEFINE);
-    C_AddDefinition("STAT_FALLER", STAT_FALLER, LABEL_DEFINE);
-    C_AddDefinition("STAT_DUMMYPLAYER", STAT_DUMMYPLAYER, LABEL_DEFINE);
-    C_AddDefinition("STAT_LIGHT", STAT_LIGHT, LABEL_DEFINE);
+    tokenmap_t predefined[] = { 
+        { "STAT_DEFAULT", STAT_DEFAULT },
+        { "STAT_ACTOR", STAT_ACTOR },
+        { "STAT_ZOMBIEACTOR", STAT_ZOMBIEACTOR },
+        { "STAT_EFFECTOR", STAT_EFFECTOR },
+        { "STAT_PROJECTILE", STAT_PROJECTILE },
+        { "STAT_MISC", STAT_MISC },
+        { "STAT_STANDABLE", STAT_STANDABLE },
+        { "STAT_LOCATOR", STAT_LOCATOR },
+        { "STAT_ACTIVATOR", STAT_ACTIVATOR },
+        { "STAT_TRANSPORT", STAT_TRANSPORT },
+        { "STAT_PLAYER", STAT_PLAYER },
+        { "STAT_FX", STAT_FX },
+        { "STAT_FALLER", STAT_FALLER },
+        { "STAT_DUMMYPLAYER", STAT_DUMMYPLAYER },
+        { "STAT_LIGHT", STAT_LIGHT },
 
-    C_AddDefinition("SFLAG_SHADOW", SFLAG_SHADOW, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NVG", SFLAG_NVG, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOSHADE", SFLAG_NOSHADE, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_BADGUY", SFLAG_BADGUY, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOPAL", SFLAG_NOPAL, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOEVENTS", SFLAG_NOEVENTCODE, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOLIGHT", SFLAG_NOLIGHT, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_USEACTIVATOR", SFLAG_USEACTIVATOR, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOCLIP", SFLAG_NOCLIP, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_SMOOTHMOVE", SFLAG_SMOOTHMOVE, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOTELEPORT", SFLAG_NOTELEPORT, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NODAMAGEPUSH", SFLAG_NODAMAGEPUSH, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_NOWATERDIP", SFLAG_NOWATERDIP, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_HURTSPAWNBLOOD", SFLAG_HURTSPAWNBLOOD, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_GREENSLIMEFOOD", SFLAG_GREENSLIMEFOOD, LABEL_DEFINE);
-    C_AddDefinition("SFLAG_REALCLIPDIST", SFLAG_REALCLIPDIST, LABEL_DEFINE);
+        { "SFLAG_SHADOW", SFLAG_SHADOW },
+        { "SFLAG_NVG", SFLAG_NVG },
+        { "SFLAG_NOSHADE", SFLAG_NOSHADE },
+        { "SFLAG_BADGUY", SFLAG_BADGUY },
+        { "SFLAG_NOPAL", SFLAG_NOPAL },
+        { "SFLAG_NOEVENTS", SFLAG_NOEVENTCODE },
+        { "SFLAG_NOLIGHT", SFLAG_NOLIGHT },
+        { "SFLAG_USEACTIVATOR", SFLAG_USEACTIVATOR },
+        { "SFLAG_NOCLIP", SFLAG_NOCLIP },
+        { "SFLAG_SMOOTHMOVE", SFLAG_SMOOTHMOVE },
+        { "SFLAG_NOTELEPORT", SFLAG_NOTELEPORT },
+        { "SFLAG_NODAMAGEPUSH", SFLAG_NODAMAGEPUSH },
+        { "SFLAG_NOWATERDIP", SFLAG_NOWATERDIP },
+        { "SFLAG_HURTSPAWNBLOOD", SFLAG_HURTSPAWNBLOOD },
+        { "SFLAG_GREENSLIMEFOOD", SFLAG_GREENSLIMEFOOD },
+        { "SFLAG_REALCLIPDIST", SFLAG_REALCLIPDIST },
+        { "SFLAG_WAKEUPBADGUYS", SFLAG_WAKEUPBADGUYS },
 
-    C_AddDefinition("STR_MAPNAME", STR_MAPNAME, LABEL_DEFINE);
-    C_AddDefinition("STR_MAPFILENAME", STR_MAPFILENAME, LABEL_DEFINE);
-    C_AddDefinition("STR_PLAYERNAME", STR_PLAYERNAME, LABEL_DEFINE);
-    C_AddDefinition("STR_VERSION", STR_VERSION, LABEL_DEFINE);
-    C_AddDefinition("STR_GAMETYPE", STR_GAMETYPE, LABEL_DEFINE);
-    C_AddDefinition("STR_VOLUMENAME", STR_VOLUMENAME, LABEL_DEFINE);
-    C_AddDefinition("STR_YOURTIME", STR_YOURTIME, LABEL_DEFINE);
-    C_AddDefinition("STR_PARTIME", STR_PARTIME, LABEL_DEFINE);
-    C_AddDefinition("STR_DESIGNERTIME", STR_DESIGNERTIME, LABEL_DEFINE);
-    C_AddDefinition("STR_BESTTIME", STR_BESTTIME, LABEL_DEFINE);
+        { "STR_MAPNAME", STR_MAPNAME },
+        { "STR_MAPFILENAME", STR_MAPFILENAME },
+        { "STR_PLAYERNAME", STR_PLAYERNAME },
+        { "STR_VERSION", STR_VERSION },
+        { "STR_GAMETYPE", STR_GAMETYPE },
+        { "STR_VOLUMENAME", STR_VOLUMENAME },
+        { "STR_YOURTIME", STR_YOURTIME },
+        { "STR_PARTIME", STR_PARTIME },
+        { "STR_DESIGNERTIME", STR_DESIGNERTIME },
+        { "STR_BESTTIME", STR_BESTTIME },
+
+        { "MAXSTATUS", MAXSTATUS },
+        { "MAXSPRITES", MAXSPRITES },
+        { "MAX_WEAPONS", MAX_WEAPONS },
+        { "MAXSPRITESONSCREEN", MAXSPRITESONSCREEN },
+        { "MAXTILES", MAXTILES },
+
+        { "PROJ_BOUNCES", PROJ_BOUNCES },
+        { "PROJ_BSOUND", PROJ_BSOUND },
+        { "PROJ_CLIPDIST", PROJ_CLIPDIST },
+        { "PROJ_CSTAT", PROJ_CSTAT },
+        { "PROJ_DECAL", PROJ_DECAL },
+        { "PROJ_DROP", PROJ_DROP },
+        { "PROJ_EXTRA", PROJ_EXTRA },
+        { "PROJ_EXTRA_RAND", PROJ_EXTRA_RAND },
+        { "PROJ_FLASH_COLOR", PROJ_FLASH_COLOR },
+        { "PROJ_HITRADIUS", PROJ_HITRADIUS },
+        { "PROJ_ISOUND", PROJ_ISOUND },
+        { "PROJ_OFFSET", PROJ_OFFSET },
+        { "PROJ_PAL", PROJ_PAL },
+        { "PROJ_RANGE", PROJ_RANGE },
+        { "PROJ_SHADE", PROJ_SHADE },
+        { "PROJ_SOUND", PROJ_SOUND },
+        { "PROJ_SPAWNS", PROJ_SPAWNS },
+        { "PROJ_SXREPEAT", PROJ_SXREPEAT },
+        { "PROJ_SYREPEAT", PROJ_SYREPEAT },
+        { "PROJ_TNUM", PROJ_TNUM },
+        { "PROJ_TOFFSET", PROJ_TOFFSET },
+        { "PROJ_TRAIL", PROJ_TRAIL },
+        { "PROJ_TXREPEAT", PROJ_TXREPEAT },
+        { "PROJ_TYREPEAT", PROJ_TYREPEAT },
+        { "PROJ_USERDATA", PROJ_USERDATA },
+        { "PROJ_VEL_MULT", PROJ_MOVECNT },
+        { "PROJ_VEL", PROJ_VEL },
+        { "PROJ_WORKSLIKE", PROJ_WORKSLIKE },
+        { "PROJ_XREPEAT", PROJ_XREPEAT },
+        { "PROJ_YREPEAT", PROJ_YREPEAT },
+
+        { "GAMEVAR_PERPLAYER", GAMEVAR_PERPLAYER },
+        { "GAMEVAR_PERACTOR", GAMEVAR_PERACTOR },
+        { "GAMEVAR_NODEFAULT", GAMEVAR_NODEFAULT },
+        { "GAMEVAR_NORESET", GAMEVAR_NORESET },
+        { "GAMEVAR_NOMULTI", GAMEVAR_NOMULTI },
+
+        { "GAMEARRAY_RESTORE", GAMEARRAY_RESTORE },
+        { "GAMEARRAY_INT16", GAMEARRAY_INT16 },
+        { "GAMEARRAY_INT8", GAMEARRAY_INT8 },
+        { "GAMEARRAY_UINT16", GAMEARRAY_UINT16 },
+        { "GAMEARRAY_UINT8", GAMEARRAY_UINT8 },
+        { "GAMEARRAY_BOOLEAN", GAMEARRAY_BITMAP },
+    };
+
+    for (int i = 0; i < ARRAY_SIZE(predefined); i++)
+        C_AddDefinition(predefined[i].token, predefined[i].val, LABEL_DEFINE);
 
     C_AddDefinition("NO", 0, LABEL_DEFINE | LABEL_ACTION | LABEL_AI | LABEL_MOVE);
-    C_AddDefinition("MAXSTATUS", MAXSTATUS, LABEL_DEFINE);
-    C_AddDefinition("MAXSPRITES", MAXSPRITES, LABEL_DEFINE);
-    C_AddDefinition("MAX_WEAPONS", MAX_WEAPONS, LABEL_DEFINE);
-
-    C_AddDefinition("PROJ_BOUNCES", PROJ_BOUNCES, LABEL_DEFINE);
-    C_AddDefinition("PROJ_BSOUND", PROJ_BSOUND, LABEL_DEFINE);
-    C_AddDefinition("PROJ_CLIPDIST", PROJ_CLIPDIST, LABEL_DEFINE);
-    C_AddDefinition("PROJ_CSTAT", PROJ_CSTAT, LABEL_DEFINE);
-    C_AddDefinition("PROJ_DECAL", PROJ_DECAL, LABEL_DEFINE);
-    C_AddDefinition("PROJ_DROP", PROJ_DROP, LABEL_DEFINE);
-    C_AddDefinition("PROJ_EXTRA", PROJ_EXTRA, LABEL_DEFINE);
-    C_AddDefinition("PROJ_EXTRA_RAND", PROJ_EXTRA_RAND, LABEL_DEFINE);
-    C_AddDefinition("PROJ_FLASH_COLOR", PROJ_FLASH_COLOR, LABEL_DEFINE);
-    C_AddDefinition("PROJ_HITRADIUS", PROJ_HITRADIUS, LABEL_DEFINE);
-    C_AddDefinition("PROJ_ISOUND", PROJ_ISOUND, LABEL_DEFINE);
-    C_AddDefinition("PROJ_OFFSET", PROJ_OFFSET, LABEL_DEFINE);
-    C_AddDefinition("PROJ_PAL", PROJ_PAL, LABEL_DEFINE);
-    C_AddDefinition("PROJ_RANGE", PROJ_RANGE, LABEL_DEFINE);
-    C_AddDefinition("PROJ_SHADE", PROJ_SHADE, LABEL_DEFINE);
-    C_AddDefinition("PROJ_SOUND", PROJ_SOUND, LABEL_DEFINE);
-    C_AddDefinition("PROJ_SPAWNS", PROJ_SPAWNS, LABEL_DEFINE);
-    C_AddDefinition("PROJ_SXREPEAT", PROJ_SXREPEAT, LABEL_DEFINE);
-    C_AddDefinition("PROJ_SYREPEAT", PROJ_SYREPEAT, LABEL_DEFINE);
-    C_AddDefinition("PROJ_TNUM", PROJ_TNUM, LABEL_DEFINE);
-    C_AddDefinition("PROJ_TOFFSET", PROJ_TOFFSET, LABEL_DEFINE);
-    C_AddDefinition("PROJ_TRAIL", PROJ_TRAIL, LABEL_DEFINE);
-    C_AddDefinition("PROJ_TXREPEAT", PROJ_TXREPEAT, LABEL_DEFINE);
-    C_AddDefinition("PROJ_TYREPEAT", PROJ_TYREPEAT, LABEL_DEFINE);
-    C_AddDefinition("PROJ_USERDATA", PROJ_USERDATA, LABEL_DEFINE);
-    C_AddDefinition("PROJ_VEL_MULT", PROJ_MOVECNT, LABEL_DEFINE);
-    C_AddDefinition("PROJ_VEL", PROJ_VEL, LABEL_DEFINE);
-    C_AddDefinition("PROJ_WORKSLIKE", PROJ_WORKSLIKE, LABEL_DEFINE);
-    C_AddDefinition("PROJ_XREPEAT", PROJ_XREPEAT, LABEL_DEFINE);
-    C_AddDefinition("PROJ_YREPEAT", PROJ_YREPEAT, LABEL_DEFINE);
-
-    C_AddDefinition("GAMEVAR_PERPLAYER", GAMEVAR_PERPLAYER, LABEL_DEFINE);
-    C_AddDefinition("GAMEVAR_PERACTOR", GAMEVAR_PERACTOR, LABEL_DEFINE);
-    C_AddDefinition("GAMEVAR_NODEFAULT", GAMEVAR_NODEFAULT, LABEL_DEFINE);
-    C_AddDefinition("GAMEVAR_NORESET", GAMEVAR_NORESET, LABEL_DEFINE);
-    C_AddDefinition("GAMEVAR_NOMULTI", GAMEVAR_NOMULTI, LABEL_DEFINE);
-
-    C_AddDefinition("GAMEARRAY_RESTORE", GAMEARRAY_RESTORE, LABEL_DEFINE);
-    C_AddDefinition("GAMEARRAY_INT16", GAMEARRAY_INT16, LABEL_DEFINE);
-    C_AddDefinition("GAMEARRAY_UINT8", GAMEARRAY_UINT8, LABEL_DEFINE);
-    C_AddDefinition("GAMEARRAY_BOOLEAN", GAMEARRAY_BITMAP, LABEL_DEFINE);
-
-    C_AddDefinition("MAXSPRITESONSCREEN", MAXSPRITESONSCREEN, LABEL_DEFINE);
 }
 #endif
 
@@ -6345,18 +6352,15 @@ void C_PrintStats(void)
             MAXSPRITES * sizeof(spritetype)/(1<<6)),
         g_gameVarCount, MAXGAMEVARS, g_gameArrayCount, MAXGAMEARRAYS);
 
-    if (g_numXStrings)
-        initprintf("%d strings, ", g_numXStrings);
-
     int i, j;
 
-    for (i=MAXQUOTES-1, j=0; i>=0; i--)
+    for (i=MAXQUOTES-1, j=g_numXStrings; i>=0; i--)
     {
         if (apStrings[i])
             j++;
     }
 
-    if (j) initprintf("%d quotes, ", j);
+    if (j) initprintf("%d strings, ", j);
 
     for (i=MAXGAMEEVENTS-1, j=0; i>=0; i--)
     {
@@ -6377,12 +6381,10 @@ void C_PrintStats(void)
 
 void C_Compile(const char *fileName)
 {
-    int32_t i;
-
     Bmemset(apScriptEvents, 0, sizeof(apScriptEvents));
     Bmemset(apScriptGameEventEnd, 0, sizeof(apScriptGameEventEnd));
 
-    for (i=MAXTILES-1; i>=0; i--)
+    for (int i=MAXTILES-1; i>=0; i--)
         Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
 
     C_InitHashes();
@@ -6450,7 +6452,7 @@ void C_Compile(const char *fileName)
 
     C_ParseCommand(1);
 
-    for (i=0; i < g_scriptModulesNum; ++i)
+    for (int i=0; i < g_scriptModulesNum; ++i)
     {
         C_Include(g_scriptModules[i]);
         Bfree(g_scriptModules[i]);
@@ -6476,7 +6478,7 @@ void C_Compile(const char *fileName)
         G_GameExit(buf);
     }
 
-    for (i = 0; i < MAXEVENTS; ++i)
+    for (int i = 0; i < MAXEVENTS; ++i)
     {
         intptr_t *eventEnd = apScript + apScriptGameEventEnd[i];
         if (eventEnd)
@@ -6499,7 +6501,7 @@ void C_Compile(const char *fileName)
     initprintf("Script compiled in %dms, %ld bytes%s\n", getticks() - startcompiletime,
                 (unsigned long)(g_scriptPtr-apScript), C_ScriptVersionString(g_scriptVersion));
 
-    for (i=0; (unsigned)i < ARRAY_SIZE(tables_free); i++)
+    for (unsigned i=0; i < ARRAY_SIZE(tables_free); i++)
         hash_free(tables_free[i]);
 
     freehashnames();
