@@ -100,7 +100,7 @@ CC=cl
 AS=ml
 LINK=link /nologo /opt:ref
 MT=mt
-CFLAGS= /MT /J /nologo $(flags_cl)  \
+CFLAGS= /MT /J /nologo /std:c++latest $(flags_cl)  \
 	/I$(DUKE3D_SRC) /I$(ENGINE_INC)\msvc /I$(ENGINE_INC) /I$(MACT_INC) /I$(AUDIOLIB_INC) /I$(ENET_INC) /I$(LIBXMPLITE_INC) \
 	/W2 $(ENGINEOPTS) \
 	/I$(PLATFORM)\include /DRENDERTYPE$(RENDERTYPE)=1 /DMIXERTYPE$(MIXERTYPE)=1 /DSDL_USEFOLDER /DSDL_TARGET=2
