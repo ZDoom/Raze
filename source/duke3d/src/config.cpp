@@ -720,8 +720,6 @@ void CONFIG_WriteSetup(uint32_t flags)
     {
         SCRIPT_Save(ud.config.scripthandle, g_setupFileName);
         SCRIPT_Free(ud.config.scripthandle);
-        OSD_Printf("Updated %s\n",g_setupFileName);
-
         return;
     }
 
