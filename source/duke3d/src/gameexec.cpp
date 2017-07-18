@@ -4701,7 +4701,6 @@ finish_qsprintf:
                     continue;
                 }
 
-                int const numElements = aGameArrays[arrayNum].size;
                 int const numBytes    = Gv_GetArrayAllocSize(arrayNum);
 
                 switch (aGameArrays[arrayNum].flags & GAMEARRAY_TYPE_MASK)
@@ -4709,7 +4708,8 @@ finish_qsprintf:
                 case 0:
 #ifdef BITNESS64
                 {
-                    int32_t * const pArray = (int32_t *)Xmalloc(numBytes);
+                    int const numElements = aGameArrays[arrayNum].size;
+                    int32_t *const pArray = (int32_t *)Xmalloc(numBytes);
 
                     for (bssize_t k = 0; k < numElements; k++)
                         pArray[k] = Gv_GetArrayValue(arrayNum, k);
