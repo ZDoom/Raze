@@ -161,7 +161,7 @@ int Gv_ReadSave(int32_t kFile)
     if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,kFile) != 1) goto corrupt;
     for (bssize_t i=0; i<g_gameArrayCount; i++)
     {
-        if (aGameArrays[i].flags & GAMEARRAY_READONLY)
+        if (aGameArrays[i].flags & (GAMEARRAY_READONLY | GAMEARRAY_SYSTEM))
             continue;
 
         char *const olabel = aGameArrays[i].szLabel;
@@ -282,7 +282,7 @@ void Gv_WriteSave(FILE *fil)
 
     for (bssize_t i=0; i<g_gameArrayCount; i++)
     {
-        if (aGameArrays[i].flags & GAMEARRAY_READONLY)
+        if (aGameArrays[i].flags & (GAMEARRAY_READONLY | GAMEARRAY_SYSTEM))
             continue;
 
         // write for .size and .dwFlags (the rest are pointers):
