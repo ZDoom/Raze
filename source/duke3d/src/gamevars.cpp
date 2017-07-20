@@ -156,14 +156,10 @@ int Gv_ReadSave(int32_t kFile)
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
-    Gv_RefreshPointers();
 
     if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,kFile) != 1) goto corrupt;
     for (bssize_t i=0; i<g_gameArrayCount; i++)
     {
-        if (aGameArrays[i].flags & (GAMEARRAY_READONLY | GAMEARRAY_SYSTEM))
-            continue;
-
         char *const olabel = aGameArrays[i].szLabel;
 
         // read for .size and .dwFlags (the rest are pointers):
@@ -179,7 +175,7 @@ int Gv_ReadSave(int32_t kFile)
 
         intptr_t const asize = aGameArrays[i].size;
 
-        if (asize != 0)
+        if (asize != 0 && !(aGameArrays[i].flags & GAMEARRAY_SYSTEM))
         {
             aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, Gv_GetArrayAllocSize(i));
             if (kdfread(aGameArrays[i].pValues, Gv_GetArrayAllocSize(i), 1, kFile) < 1) goto corrupt;
@@ -187,6 +183,8 @@ int Gv_ReadSave(int32_t kFile)
         else
             aGameArrays[i].pValues = NULL;
     }
+
+    Gv_RefreshPointers();
 
     //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
     //  AddLog(g_szBuf);
@@ -282,14 +280,12 @@ void Gv_WriteSave(FILE *fil)
 
     for (bssize_t i=0; i<g_gameArrayCount; i++)
     {
-        if (aGameArrays[i].flags & (GAMEARRAY_READONLY | GAMEARRAY_SYSTEM))
-            continue;
-
         // write for .size and .dwFlags (the rest are pointers):
         dfwrite(&aGameArrays[i],sizeof(gamearray_t),1,fil);
-
         dfwrite(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil);
-        dfwrite(aGameArrays[i].pValues, Gv_GetArrayAllocSize(i), 1, fil);
+
+        if (!(aGameArrays[i].flags & GAMEARRAY_SYSTEM))
+            dfwrite(aGameArrays[i].pValues, Gv_GetArrayAllocSize(i), 1, fil);
     }
 
     dfwrite(apScriptEvents,sizeof(apScriptEvents),1,fil);
@@ -388,9 +384,11 @@ int __fastcall Gv_GetArrayElementSize(int const arrayIdx)
 
     switch (aGameArrays[arrayIdx].flags & GAMEARRAY_TYPE_MASK)
     {
-        case 0:               typeSize = sizeof(uintptr_t); break;
-        case GAMEARRAY_INT8:  typeSize = sizeof(uint8_t); break;
-        case GAMEARRAY_INT16: typeSize = sizeof(uint16_t); break;
+        case 0: typeSize = sizeof(uintptr_t); break;
+        case GAMEARRAY_INT8:
+        case GAMEARRAY_UINT8: typeSize = sizeof(uint8_t); break;
+        case GAMEARRAY_INT16:
+        case GAMEARRAY_UINT16: typeSize = sizeof(uint16_t); break;
     }
 
     return typeSize;
@@ -443,23 +441,22 @@ void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t 
     if (aGameArrays[i].szLabel != pszLabel)
         Bstrcpy(aGameArrays[i].szLabel,pszLabel);
 
+    aGameArrays[i].flags = dwFlags & ~GAMEARRAY_RESET;
+    aGameArrays[i].size  = asize;
+
     if (arrayptr)
         aGameArrays[i].pValues = (intptr_t *)arrayptr;
-    else
+    else if (!(aGameArrays[i].flags & GAMEARRAY_SYSTEM))
     {
         if (aGameArrays[i].flags & GAMEARRAY_ALLOCATED)
-            Baligned_free(aGameArrays[i].pValues);
+            ALIGNED_FREE_AND_NULL(aGameArrays[i].pValues);
 
-        int const typeSize  = Gv_GetArrayElementSize(i);
-        int const allocSize = typeSize ? asize * typeSize : (asize + 7) >> 3;
+        int const allocSize = Gv_GetArrayAllocSize(i);
 
         aGameArrays[i].flags |= GAMEARRAY_ALLOCATED;
         aGameArrays[i].pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, allocSize);
         Bmemset(aGameArrays[i].pValues, 0, allocSize);
     }
-
-    aGameArrays[i].size  = asize;
-    aGameArrays[i].flags = dwFlags & ~GAMEARRAY_RESET;
 
     g_gameArrayCount++;
     hash_add(&h_arrays, aGameArrays[i].szLabel, i, 1);
@@ -572,6 +569,19 @@ static int Gv_GetVarIndex(const char *szGameLabel)
     }
 
     return gameVar;
+}
+
+static int Gv_GetArrayIndex(const char *szArrayLabel)
+{
+    int const arrayIdx = hash_find(&h_arrays, szArrayLabel);
+
+    if (EDUKE32_PREDICT_FALSE(arrayIdx == -1))
+    {
+        OSD_Printf(OSD_ERROR "Gv_GetArrayIndex(): INTERNAL ERROR: couldn't find array %s!\n", szArrayLabel);
+        return 0;
+    }
+
+    return arrayIdx;
 }
 
 int __fastcall Gv_GetArrayAllocSize(int const arrayIdx)
@@ -861,7 +871,7 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
 
         if (EDUKE32_PREDICT_FALSE((unsigned) arrayIndex >= (unsigned) arraySiz))
         {
-            CON_ERRPRINTF("%s %s[%d]\n", gvxerrs[GVX_BADINDEX], aGameArrays[gameVar].szLabel, arrayIndex);
+            CON_ERRPRINTF("%s %s[%d] %d\n", gvxerrs[GVX_BADINDEX], aGameArrays[gameVar].szLabel, arrayIndex, gameVar);
             return -1;
         }
 
@@ -1706,5 +1716,9 @@ void Gv_RefreshPointers(void)
 # ifdef USE_OPENGL
     aGameVars[Gv_GetVarIndex("rendmode")].global = (intptr_t)&rendmode;
 # endif
+
+    aGameArrays[Gv_GetArrayIndex("gotpic")].pValues = (intptr_t *)&gotpic[0];
+    aGameArrays[Gv_GetArrayIndex("tilesizx")].pValues = (intptr_t *)&tilesiz[0].x;
+    aGameArrays[Gv_GetArrayIndex("tilesizy")].pValues = (intptr_t *)&tilesiz[0].y;
 }
 #endif
