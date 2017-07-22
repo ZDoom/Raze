@@ -25,6 +25,7 @@ typedef int64_t coord_t;
 // but where no other adverse effect (except being undefined behavior,
 // obviously) is expected to result:
 typedef int64_t inthi_t;
+#define inthi_rintf llrintf
 
 #if !defined(NOASM) && (defined(_MSC_VER) || (defined(__GNUC__) && defined(__i386__)))
 

@@ -1865,7 +1865,7 @@ static WSHELPER_DECL void calc_vplcinc_wall(uint32_t *vplc, int32_t *vinc, inthi
 #ifdef HIGH_PRECISION_SPRITE
 static WSHELPER_DECL void calc_vplcinc_sprite(uint32_t *vplc, int32_t *vinc, int32_t x, int32_t y1v)
 {
-    inthi_t const tmpvinc = Blrintf(swallf[x]);
+    inthi_t const tmpvinc = inthi_rintf(swallf[x]);
     inthi_t const tmpvplc = globalzd + tmpvinc*(y1v-globalhoriz+1);
 
     *vinc = tmpvinc;
