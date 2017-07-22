@@ -38,6 +38,9 @@ float osdscale = 1.f, osdrscale = 1.f;
 #define OSD_SCALE(x) (int32_t)(osdscale != 1.f ? Blrintf(osdscale*(float)(x)) : (x))
 #define OSD_SCALEDIV(x) (int32_t)Blrintf((float)(x) * osdrscale)
 
+#define OSDCHAR_WIDTH (tilesiz[STARTALPHANUM + 'A' - '!'].x)
+#define OSDCHAR_HEIGHT (tilesiz[STARTALPHANUM + 'A' - '!'].y + 1)
+
 static inline int32_t GAME_isspace(int32_t ch)
 {
     return (ch==32 || ch==9);
@@ -62,8 +65,8 @@ void GAME_drawosdchar(int32_t x, int32_t y, char ch, int32_t shade, int32_t pal)
         return;
 
     usehightile = (osdhightile && ht);
-    rotatesprite_fs(OSD_SCALE(9*x<<16),
-        OSD_SCALE((y<<3)<<16),
+    rotatesprite_fs(OSD_SCALE((OSDCHAR_WIDTH*x)<<16),
+        OSD_SCALE((y*OSDCHAR_HEIGHT)<<16),
         OSD_SCALE(65536.f), 0, ac, shade, pal, 8|16);
     usehightile = ht;
 }
@@ -76,7 +79,7 @@ void GAME_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t len, int32_t 
     usehightile = (osdhightile && ht);
 #endif
 
-    x *= 9;
+    x *= OSDCHAR_WIDTH;
 
     do
     {
@@ -84,11 +87,11 @@ void GAME_drawosdstr(int32_t x, int32_t y, const char *ch, int32_t len, int32_t 
             if ((ac = GAME_getchartile(*ch)) >= 0)
             {
                 OSD_GetShadePal(ch, &shade, &pal);
-                rotatesprite_fs(OSD_SCALE(x<<16), OSD_SCALE((y<<3)<<16),
+                rotatesprite_fs(OSD_SCALE(x<<16), OSD_SCALE((y*OSDCHAR_HEIGHT)<<16),
                     OSD_SCALE(65536.f), 0, ac, shade, pal, 8|16);
             }
 
-        x += OSDCHAR_WIDTH+1;
+        x += OSDCHAR_WIDTH;
         ch++;
     }
     while (--len);
@@ -106,19 +109,19 @@ void GAME_drawosdcursor(int32_t x, int32_t y, int32_t type, int32_t lastkeypress
     else ac = '_'-'!'+STARTALPHANUM;
 
     if (((BGetTime()-lastkeypress) & 0x40)==0)
-        rotatesprite_fs(OSD_SCALE(9*x<<16),
-        OSD_SCALE(((y<<3)+(type?-1:2))<<16),
+        rotatesprite_fs(OSD_SCALE((OSDCHAR_WIDTH*x)<<16),
+        OSD_SCALE(((y*OSDCHAR_HEIGHT)+(type?-1:2))<<16),
         OSD_SCALE(65536.f), 0, ac, 0, 8, 8|16);
 }
 
 int32_t GAME_getcolumnwidth(int32_t w)
 {
-     return OSD_SCALEDIV(w/9);
+     return OSD_SCALEDIV(w/OSDCHAR_WIDTH);
 }
 
 int32_t GAME_getrowheight(int32_t h)
 {
-    return OSD_SCALEDIV(h>>3);
+    return OSD_SCALEDIV(h/OSDCHAR_HEIGHT);
 }
 
 void GAME_onshowosd(int32_t shown)
