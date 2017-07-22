@@ -122,7 +122,7 @@ static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
 {
     char *s = Bstrdup(caption), p = Bstrlen(caption)-1;
     if (s[p] == ':') s[p] = 0;
-    menutext_(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (24<<16) + (MF_Redfont.emptychar.y>>1), 0, s, 10|16, TEXT_XCENTER|TEXT_YCENTER);
+    menutext_(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (24<<16) + (15<<15), 0, s, 10|16, TEXT_XCENTER|TEXT_YCENTER);
     Bfree(s);
 }
 
@@ -1660,9 +1660,10 @@ void Menu_Init(void)
     if (KXDWN)
     {
         MF_Redfont.between.x = 2<<16;
-        MF_Redfont.cursorScale = MF_Redfont.zoom = 32768;
+        MF_Redfont.cursorScale = 32768;
+        MF_Redfont.zoom = 16384;
         MF_Bluefont.between.x = MF_BluefontRed.between.x = 0;
-        MF_Bluefont.zoom = MF_BluefontRed.zoom = MF_BluefontGame.zoom = 32768;
+        MF_Bluefont.zoom = MF_BluefontRed.zoom = MF_BluefontGame.zoom = 16384;
 
         // hack; should swap out pointers
         MF_Minifont = MF_Bluefont;
