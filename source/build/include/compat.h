@@ -232,6 +232,8 @@
 # define fallthrough__ [[clang::fallthrough]]
 #elif __has_cpp_attribute(gnu::fallthrough)
 # define fallthrough__ [[gnu::fallthrough]]
+#elif defined _MSC_VER
+# define fallthrough__ __fallthrough
 #else
 # define fallthrough__
 #endif
