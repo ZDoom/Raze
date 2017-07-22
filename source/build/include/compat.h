@@ -408,7 +408,12 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 ////////// DEPRECATED: Standard library prefixing //////////
 
 #ifdef _MSC_VER
+# if defined _M_AMD64 || defined _M_ARM64 || defined _M_X64 || defined _WIN64
+// should be int64_t, if not for a suspected VS compiler bug
 typedef int32_t ssize_t;
+# else
+typedef int32_t ssize_t;
+# endif
 #endif
 
 typedef size_t bsize_t;
