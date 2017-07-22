@@ -719,12 +719,21 @@ struct Dummy FINAL
 };
 #endif
 
-#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
-using native_t = typename integers_of_size<sizeof(size_t)>::i;
-using unative_t = typename integers_of_size<sizeof(size_t)>::u;
+#if defined(__x86_64__)
+// for 32-bit pointers in x86_64 code, such as `gcc -mx32`
+typedef uint64_t reg_t;
+typedef int64_t sreg_t;
 #else
-typedef ssize_t native_t;
-typedef size_t unative_t;
+typedef size_t reg_t;
+typedef ssize_t sreg_t
+#endif
+
+#if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
+using  native_t = typename integers_of_size<sizeof(reg_t)>::i;
+using unative_t = typename integers_of_size<sizeof(reg_t)>::u;
+#else
+typedef sreg_t native_t;
+typedef reg_t unative_t;
 #endif
 EDUKE32_STATIC_ASSERT(sizeof(native_t) == sizeof(unative_t));
 
