@@ -499,7 +499,7 @@ void A_Fall(int const spriteNum)
         }
 }
 
-int G_GetAngleDelta(int currAngle, int newAngle)
+int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle)
 {
     currAngle &= 2047;
     newAngle &= 2047;

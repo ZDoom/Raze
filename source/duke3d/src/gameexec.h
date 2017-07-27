@@ -51,7 +51,7 @@ void A_Execute(int spriteNum, int playerNum, int playerDist);
 void A_Fall(int const spriteNum);
 int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv);
 void A_GetZLimits(int const spriteNum);
-int G_GetAngleDelta(int a, int na);
+int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle);
 void G_RestoreMapState();
 void G_SaveMapState();
 
