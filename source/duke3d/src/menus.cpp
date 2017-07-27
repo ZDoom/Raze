@@ -1085,10 +1085,12 @@ static MenuOptionSet_t MEOS_SOUND_SAMPLINGRATE = MAKE_MENUOPTIONSET( MEOSN_SOUND
 static MenuOption_t MEO_SOUND_SAMPLINGRATE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_SOUND_SAMPLINGRATE, &soundrate );
 static MenuEntry_t ME_SOUND_SAMPLINGRATE = MAKE_MENUENTRY( "Sample rate:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_SAMPLINGRATE, Option );
 
+#ifndef EDUKE32_STANDALONE
 static MenuRangeInt32_t MEO_SOUND_NUMVOICES = MAKE_MENURANGE( &soundvoices, &MF_Redfont, 16, 256, 0, 16, 1 );
 static MenuEntry_t ME_SOUND_NUMVOICES = MAKE_MENUENTRY( "Voices:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_NUMVOICES, RangeInt32 );
+#endif
 
-static MenuEntry_t ME_SOUND_RESTART = MAKE_MENUENTRY( "Restart sound system", &MF_Redfont, &MEF_BigOptionsRt, &MEO_NULL, Link );
+static MenuEntry_t ME_SOUND_RESTART = MAKE_MENUENTRY( "Apply Changes", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_NULL, Link );
 
 #ifndef EDUKE32_SIMPLE_MENU
 static MenuLink_t MEO_ADVSOUND = { MENU_ADVSOUND, MA_Advance, };
@@ -1110,8 +1112,10 @@ static MenuEntry_t *MEL_SOUND[] = {
 static MenuEntry_t *MEL_ADVSOUND[] = {
     &ME_SOUND_SAMPLINGRATE,
     &ME_Space2_Redfont,
+#ifndef EDUKE32_STANDALONE
     &ME_SOUND_NUMVOICES,
     &ME_Space2_Redfont,
+#endif
     &ME_SOUND_RESTART,
 };
 
@@ -1805,7 +1809,9 @@ static void Menu_Pre(MenuID_t cm)
         MenuEntry_DisableOnCondition(&ME_SOUND_VOLUME_MUSIC, !ud.config.MusicToggle);
         MenuEntry_DisableOnCondition(&ME_SOUND_DUKETALK, !ud.config.SoundToggle);
         MenuEntry_DisableOnCondition(&ME_SOUND_SAMPLINGRATE, !ud.config.SoundToggle && !ud.config.MusicToggle);
+#ifndef EDUKE32_SIMPLE_MENU
         MenuEntry_DisableOnCondition(&ME_SOUND_NUMVOICES, !ud.config.SoundToggle);
+#endif
         MenuEntry_DisableOnCondition(&ME_SOUND_RESTART, soundrate == ud.config.MixRate &&
                                                         soundvoices == ud.config.NumVoices);
         break;

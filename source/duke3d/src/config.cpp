@@ -184,7 +184,11 @@ void CONFIG_SetDefaults(void)
     g_myAimMode = g_player[0].ps->aim_mode = 1;
     ud.config.NumBits = 16;
     ud.config.NumChannels = 2;
+#if defined GEKKO || defined __OPENDINGUX__
     ud.config.NumVoices = 32;
+#else
+    ud.config.NumVoices = 256;
+#endif
     ud.config.ReverseStereo = 0;
     ud.auto_run = 1;
     ud.config.ShowOpponentWeapons = 0;
