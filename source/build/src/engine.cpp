@@ -7633,6 +7633,7 @@ int32_t preinitengine(void)
 //            Bprintf("FIXME: Allocating additional space beyond wall[] for editor bugs.\n");
         }
 
+#if 0
         for (i=0; i<(signed)ARRAY_SIZE(dynarray); i++)
             size += dynarray[i].size;
 
@@ -7646,6 +7647,13 @@ int32_t preinitengine(void)
             *dynarray[i].ptr = (int8_t *)blockptr + size;
             size += dynarray[i].size;
         }
+#else
+        for (i = 0; i < (signed) ARRAY_SIZE(dynarray); i++)
+        {
+            Baligned_free(*dynarray[i].ptr);
+            *dynarray[i].ptr = Xaligned_alloc(16, dynarray[i].size);
+        }
+#endif
     }
 
 #elif !defined DEBUG_MAIN_ARRAYS
