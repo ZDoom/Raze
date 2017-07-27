@@ -173,416 +173,432 @@ const tokenmap_t altkeyw [] =
     { "ck", CON_CHEATKEYS },
 
     { "qputs", CON_REDEFINEQUOTE },
+
+    { "espawn", CON_ESPAWNVAR },
+    { "qspawn", CON_QSPAWNVAR },
+    { "eqspawn", CON_EQSPAWNVAR },
+
+    { "eshoot", CON_ESHOOTVAR },
+    { "zshoot", CON_ZSHOOTVAR },
+    { "ezshoot", CON_EZSHOOTVAR },
+    { "shoot", CON_SHOOTVAR },
+
+    { "findnearactor", CON_FINDNEARACTORVAR },
+    { "findnearactor3d", CON_FINDNEARACTOR3DVAR },
+    { "findnearactorz", CON_FINDNEARACTORZVAR },
+
+    { "findnearsprite", CON_FINDNEARSPRITEVAR },
+    { "findnearsprite3d", CON_FINDNEARSPRITE3DVAR },
+    { "findnearspritez", CON_FINDNEARSPRITEZVAR },
 };
 
-const char *keyw[] =
-{
-    "else",                     // 0  used with if checks
-    "actor",                    // 1  defines an actor
-    "addammo",                  // 2  adds ammo to a weapon
-    "ifrnd",                    // 3  checks against a randomizer
-    "enda",                     // 4  ends an actor definition
-    "ifcansee",                 // 5  checks if the player can see an object
-    "ifhitweapon",              // 6  checks if an object was hit by a weapon
-    "action",                   // 7  defines an action if used outside a state or actor, otherwise triggers actor to perform action
-    "ifpdistl",                 // 8  checks if player distance is less than value
-    "ifpdistg",                 // 9  checks if player distance is more than value
-    "definelevelname",          // 10 defines level name
-    "strength",                 // 11 sets health
-    "break",                    // 12 stops processing
-    "shoot",                    // 13 shoots a projectile
-    "palfrom",                  // 14 used for player screen shading effect, sets p->pals
-    "sound",                    // 15 plays a sound that was defined with definesound
-    "fall",                     // 16 causes actor to fall to sector floor height
-    "state",                    // 17 begins defining a state if used outside a state or actor, otherwise calls a state
-    "ends",                     // 18 ends defining a state
-    "define",                   // 19 defines a value
-    "return",                   // 20
-    "ifai",                     // 21 checks if actor is currently performing a specific ai function
-    "killit",                   // 22 kills an actor
-    "addweapon",                // 23 adds a weapon to the closest player
-    "ai",                       // 24 sets an ai function to be used by an actor
-    "addphealth",               // 25 adds health to the player
-    "ifdead",                   // 26 checks if actor is dead
-    "ifsquished",               // 27 checks if actor has been squished
-    "sizeto",                   // 28 gradually increases actor size until it matches parameters given
-    "{",                        // 29 used to indicate segments of code
-    "}",                        // 30 used to indicate segments of code
-    "spawn",                    // 31 spawns an actor
-    "move",                     // 32
-    "ifwasweapon",              // 33
-    "ifaction",                 // 34
-    "ifactioncount",            // 35
-    "resetactioncount",         // 36
-    "debris",                   // 37
-    "pstomp",                   // 38
-    "<null>",                   // 39 was previously used to define the start of a comment block
-    "cstat",                    // 40
-    "ifmove",                   // 41
-    "resetplayer",              // 42
-    "ifonwater",                // 43
-    "ifinwater",                // 44
-    "ifcanshoottarget",         // 45
-    "ifcount",                  // 46
-    "resetcount",               // 47
-    "addinventory",             // 48
-    "ifactornotstayput",        // 49
-    "hitradius",                // 50
-    "ifp",                      // 51
-    "count",                    // 52
-    "ifactor",                  // 53
-    "music",                    // 54
-    "include",                  // 55
-    "ifstrength",               // 56
-    "definesound",              // 57
-    "guts",                     // 58
-    "ifspawnedby",              // 59
-    "gamestartup",              // 60
-    "wackplayer",               // 61
-    "ifgapzl",                  // 62
-    "ifhitspace",               // 63
-    "ifoutside",                // 64
-    "ifmultiplayer",            // 65
-    "operate",                  // 66
-    "ifinspace",                // 67
-    "debug",                    // 68
-    "endofgame",                // 69
-    "ifbulletnear",             // 70
-    "ifrespawn",                // 71
-    "iffloordistl",             // 72
-    "ifceilingdistl",           // 73
-    "spritepal",                // 74
-    "ifpinventory",             // 75
-    "betaname",                 // 76
-    "cactor",                   // 77
-    "ifphealthl",               // 78
-    "definequote",              // 79
-    "quote",                    // 80
-    "ifinouterspace",           // 81
-    "ifnotmoving",              // 82
-    "respawnhitag",             // 83
-    "tip",                      // 84
-    "ifspritepal",              // 85
-    "money",                    // 86
-    "soundonce",                // 87
-    "addkills",                 // 88
-    "stopsound",                // 89
-    "ifawayfromwall",           // 90
-    "ifcanseetarget",           // 91
-    "globalsound",              // 92
-    "lotsofglass",              // 93
-    "ifgotweaponce",            // 94
-    "getlastpal",               // 95
-    "pkick",                    // 96
-    "mikesnd",                  // 97
-    "useractor",                // 98
-    "sizeat",                   // 99
-    "addstrength",              // 100  [#]
-    "cstator",                  // 101
-    "mail",                     // 102
-    "paper",                    // 103
-    "tossweapon",               // 104
-    "sleeptime",                // 105
-    "nullop",                   // 106
-    "definevolumename",         // 107
-    "defineskillname",          // 108
-    "ifnosounds",               // 109
-    "clipdist",                 // 110
-    "ifangdiffl",               // 111  Last Duke3D 1.5 CON command
-    "gamevar",                  // 112
-    "ifvarl",                   // 113
-    "ifvarg",                   // 114
-    "setvarvar",                // 115
-    "setvar",                   // 116
-    "addvarvar",                // 117
-    "addvar",                   // 118
-    "ifvarvarl",                // 119
-    "ifvarvarg",                // 120
-    "addlogvar",                // 121
-    "addlog",                   // 122
-    "onevent",                  // 123
-    "endevent",                 // 124
-    "ifvare",                   // 125
-    "ifvarvare",                // 126
-    "spgetlotag",               // 127
-    "spgethitag",               // 128
-    "sectgetlotag",             // 129
-    "sectgethitag",             // 130
-    "ifsound",                  // 131
-    "gettexturefloor",          // 132
-    "gettextureceiling",        // 133
-    "inittimer",                // 134
-    "starttrack",               // 135
-    "randvar",                  // 136
-    "enhanced",                 // 137
-    "getangletotarget",         // 138
-    "getactorangle",            // 139
-    "setactorangle",            // 140
-    "mulvar",                   // 141
-    "mulvarvar",                // 142
-    "divvar",                   // 143
-    "divvarvar",                // 144
-    "modvar",                   // 145
-    "modvarvar",                // 146
-    "andvar",                   // 147
-    "andvarvar",                // 148
-    "orvar",                    // 149
-    "orvarvar",                 // 150
-    "getplayerangle",           // 151
-    "setplayerangle",           // 152
-    "lockplayer",               // 153
-    "setsector",                // 154
-    "getsector",                // 155
-    "setactor",                 // 156
-    "getactor",                 // 157
-    "setwall",                  // 158
-    "getwall",                  // 159
-    "findnearactor",            // 160
-    "findnearactorvar",         // 161
-    "setactorvar",              // 162
-    "getactorvar",              // 163
-    "espawn",                   // 164
-    "getplayer",                // 165
-    "setplayer",                // 166
-    "sqrt",                     // 167
-    "eventloadactor",           // 168
-    "espawnvar",                // 169
-    "getuserdef",               // 170
-    "setuserdef",               // 171
-    "subvarvar",                // 172
-    "subvar",                   // 173
-    "ifvarn",                   // 174
-    "ifvarvarn",                // 175
-    "ifvarand",                 // 176
-    "ifvarvarand",              // 177
-    "myos",                     // 178
-    "myospal",                  // 179
-    "displayrand",              // 180
-    "sin",                      // 181
-    "xorvarvar",                // 182
-    "xorvar",                   // 183
-    "randvarvar",               // 184
-    "myosx",                    // 185
-    "myospalx",                 // 186
-    "gmaxammo",                 // 187
-    "smaxammo",                 // 188
-    "startlevel",               // 189
-    "eshoot",                   // 190
-    "qspawn",                   // 191
-    "rotatesprite",             // 192
-    "defineprojectile",         // 193
-    "spriteshadow",             // 194
-    "cos",                      // 195
-    "eshootvar",                // 196
-    "findnearactor3d",          // 197
-    "findnearactor3dvar",       // 198
-    "flash",                    // 199
-    "qspawnvar",                // 200
-    "eqspawn",                  // 201
-    "eqspawnvar",               // 202
-    "minitext",                 // 203
-    "gametext",                 // 204
-    "digitalnumber",            // 205
-    "addweaponvar",             // 206
-    "setprojectile",            // 207
-    "angoff",                   // 208
-    "updatesector",             // 209
-    "insertspriteq",            // 210
-    "angoffvar",                // 211
-    "whilevarn",                // 212
-    "switch",                   // 213
-    "case",                     // 214
-    "default",                  // 215
-    "endswitch",                // 216
-    "shootvar",                 // 217
-    "soundvar",                 // 218
-    "findplayer",               // 219
-    "findotherplayer",          // 220
-    "activatebysector",         // 221 sectnum, spriteid
-    "operatesectors",           // 222 sectnum, spriteid
-    "operaterespawns",          // 223 lotag
-    "operateactivators",        // 224 lotag, player index
-    "operatemasterswitches",    // 225 lotag
-    "checkactivatormotion",     // 226 lotag
-    "zshoot",                   // 227 zvar projnum
-    "dist",                     // 228 sprite1 sprite2
-    "ldist",                    // 229 sprite1 sprite2
-    "shiftvarl",                // 230
-    "shiftvarr",                // 231
-    "spritenvg",                // 232
-    "getangle",                 // 233
-    "whilevarvarn",             // 234
-    "hitscan",                  // 235
-    "time",                     // 236
-    "getplayervar",             // 237
-    "setplayervar",             // 238
-    "mulscale",                 // 239
-    "setaspect",                // 240
-    "ezshoot",                  // 241
-    "spritenoshade",            // 242
-    "movesprite",               // 243
-    "checkavailweapon",         // 244
-    "soundoncevar",             // 245
-    "updatesectorz",            // 246
-    "stopallsounds",            // 247
-    "ssp",                      // 248
-    "stopsoundvar",             // 249
-    "displayrandvar",           // 250
-    "displayrandvarvar",        // 251
-    "checkavailinven",          // 252
-    "globalsoundvar",           // 253
-    "guniqhudid",               // 254
-    "getprojectile",            // 255
-    "getthisprojectile",        // 256
-    "setthisprojectile",        // 257
-    "definecheat",              // 258
-    "cheatkeys",                // 259
-    "userquote",                // 260
-    "precache",                 // 261
-    "definegamefuncname",       // 262
-    "redefinequote",            // 263
-    "qsprintf",                 // 264
-    "getpname",                 // 265
-    "qstrcat",                  // 266
-    "qstrcpy",                  // 267
-    "setsprite",                // 268
-    "rotatepoint",              // 269
-    "dragpoint",                // 270
-    "getzrange",                // 271
-    "changespritestat",         // 272
-    "getceilzofslope",          // 273
-    "getflorzofslope",          // 274
-    "neartag",                  // 275
-    "definegametype",           // 276
-    "changespritesect",         // 277
-    "spriteflags",              // 278
-    "savegamevar",              // 279
-    "readgamevar",              // 280
-    "findnearsprite",           // 281
-    "findnearspritevar",        // 282
-    "findnearsprite3d",         // 283
-    "findnearsprite3dvar",      // 284
-    "dynamicremap",             // 285
-    "setinput",                 // 286
-    "getinput",                 // 287
-    "save",                     // 288
-    "cansee",                   // 289  Beginning EDuke32 SVN
-    "canseespr",                // 290
-    "findnearactorz",           // 291
-    "findnearactorzvar",        // 292
-    "findnearspritez",          // 293
-    "findnearspritezvar",       // 294
-    "zshootvar",                // 295
-    "ezshootvar",               // 296
-    "getcurraddress",           // 297
-    "jump",                     // 298
-    "qstrlen",                  // 299
-    "getincangle",              // 300
-    "quake",                    // 301
-    "showview",                 // 302
-    "headspritestat",           // 303
-    "prevspritestat",           // 304
-    "nextspritestat",           // 305
-    "headspritesect",           // 306
-    "prevspritesect",           // 307
-    "nextspritesect",           // 308
-    "getkeyname",               // 309
-    "qsubstr",                  // 310
-    "gametextz",                // 311
-    "digitalnumberz",           // 312
-    "spritenopal",              // 313
-    "hitradiusvar",             // 314
-    "rotatesprite16",           // 315
-    "gamearray",                // 316
-    "setarray",                 // 317
-    "resizearray",              // 318
-    "writearraytofile",         // 319
-    "readarrayfromfile",        // 320
-    "starttrackvar",            // 321
-    "qgetsysstr",               // 322
-    "getticks",                 // 323
-    "gettspr",                  // 324
-    "settspr",                  // 325
-    "savemapstate",             // 326
-    "loadmapstate",             // 327
-    "clearmapstate",            // 328
-    "scriptsize",               // 329
-    "setgamename",              // 330
-    "cmenu",                    // 331
-    "gettimedate",              // 332
-    "activatecheat",            // 333
-    "setgamepalette",           // 334
-    "setdefname",               // 335
-    "setcfgname",               // 336
-    "ifvaror",                  // 337
-    "ifvarvaror",               // 338
-    "ifvarxor",                 // 339
-    "ifvarvarxor",              // 340
-    "ifvareither",              // 341
-    "ifvarvareither",           // 342
-    "getarraysize",             // 343
-    "savenn",                   // 344
-    "copy",                     // 345
-    "inv",                      // 346
-    "sectorofwall",             // 347
-    "qstrncat",                 // 348
-    "ifactorsound",             // 349
-    "stopactorsound",           // 350
-    "ifclient",                 // 351
-    "ifserver",                 // 352
-    "sectsetinterpolation",     // 353
-    "sectclearinterpolation",   // 354
-    "clipmove",                 // 355
-    "lineintersect",            // 356
-    "rayintersect",             // 357
-    "calchypotenuse",           // 358
-    "clipmovenoslide",          // 359
-    "includedefault",           // 360
-    "setactorsoundpitch",       // 361
-    "echo",                     // 362
-    "showviewunbiased",         // 363
-    "rotatespritea",            // 364
-    "shadeto",                  // 365
-    "endoflevel",               // 366
-    "ifplayersl",               // 367
-    "activate",                 // 368
-    "qstrdim",                  // 369
-    "screentext",               // 370
-    "dynamicsoundremap",        // 371
-    "screensound",              // 372
-    "getmusicposition",         // 373
-    "setmusicposition",         // 374
-    "undefinevolume",           // 375
-    "undefineskill",            // 376
-    "undefinelevel",            // 377
-    "startcutscene",            // 378
-    "ifcutscene",               // 379
-    "definevolumeflags",        // 380
-    "resetplayerflags",         // 381
-    "appendevent",              // 382
-    "defstate",                 // 383
-    "shiftvarvarl",             // 384
-    "shiftvarvarr",             // 385
-    "ifvarvarle",               // 386
-    "ifvarvarge",               // 387
-    "ifvarvarboth",             // 388
-    "whilevarl",                // 389
-    "whilevarvarl",             // 390
-    "klabs",                    // 391
-    "ifvarle",                  // 392
-    "ifvarge",                  // 393
-    "ifvarboth",                // 394
-    "movesector",               // 395
-    "for",                      // 396
-    "nextsectorneighborz",      // 397
-    "clamp",                    // 398
-    "ifplaybackon",             // 399
-    "divscale",                 // 400
-    "scalevar",                 // 401
-    "undefinegamefunc",         // 402
-    "getclosestcol",            // 403
-    "drawline256",              // 404
-    "drawlinergb",              // 405
+const char *keyw[] = { 
+    "else",         // 0  used with if checks
+    "actor",        // 1  defines an actor
+    "addammo",      // 2  adds ammo to a weapon
+    "ifrnd",        // 3  checks against a randomizer
+    "enda",         // 4  ends an actor definition
+    "ifcansee",     // 5  checks if the player can see an object
+    "ifhitweapon",  // 6  checks if an object was hit by a weapon
+    "action",       // 7  defines an action if used outside a state or actor, otherwise triggers actor to perform action
+    "ifpdistl",     // 8  checks if player distance is less than value
+    "ifpdistg",     // 9  checks if player distance is more than value
+    "definelevelname",         // 10 defines level name
+    "strength",                // 11 sets health
+    "break",                   // 12 stops processing
+    NULL,                      // 13 shoots a projectile
+    "palfrom",                 // 14 used for player screen shading effect, sets p->pals
+    "sound",                   // 15 plays a sound that was defined with definesound
+    "fall",                    // 16 causes actor to fall to sector floor height
+    "state",                   // 17 begins defining a state if used outside a state or actor, otherwise calls a state
+    "ends",                    // 18 ends defining a state
+    "define",                  // 19 defines a value
+    "return",                  // 20
+    "ifai",                    // 21 checks if actor is currently performing a specific ai function
+    "killit",                  // 22 kills an actor
+    "addweapon",               // 23 adds a weapon to the closest player
+    "ai",                      // 24 sets an ai function to be used by an actor
+    "addphealth",              // 25 adds health to the player
+    "ifdead",                  // 26 checks if actor is dead
+    "ifsquished",              // 27 checks if actor has been squished
+    "sizeto",                  // 28 gradually increases actor size until it matches parameters given
+    "{",                       // 29 used to indicate segments of code
+    "}",                       // 30 used to indicate segments of code
+    "spawn",                   // 31 spawns an actor
+    "move",                    // 32
+    "ifwasweapon",             // 33
+    "ifaction",                // 34
+    "ifactioncount",           // 35
+    "resetactioncount",        // 36
+    "debris",                  // 37
+    "pstomp",                  // 38
+    "<null>",                  // 39 was previously used to define the start of a comment block
+    "cstat",                   // 40
+    "ifmove",                  // 41
+    "resetplayer",             // 42
+    "ifonwater",               // 43
+    "ifinwater",               // 44
+    "ifcanshoottarget",        // 45
+    "ifcount",                 // 46
+    "resetcount",              // 47
+    "addinventory",            // 48
+    "ifactornotstayput",       // 49
+    "hitradius",               // 50
+    "ifp",                     // 51
+    "count",                   // 52
+    "ifactor",                 // 53
+    "music",                   // 54
+    "include",                 // 55
+    "ifstrength",              // 56
+    "definesound",             // 57
+    "guts",                    // 58
+    "ifspawnedby",             // 59
+    "gamestartup",             // 60
+    "wackplayer",              // 61
+    "ifgapzl",                 // 62
+    "ifhitspace",              // 63
+    "ifoutside",               // 64
+    "ifmultiplayer",           // 65
+    "operate",                 // 66
+    "ifinspace",               // 67
+    "debug",                   // 68
+    "endofgame",               // 69
+    "ifbulletnear",            // 70
+    "ifrespawn",               // 71
+    "iffloordistl",            // 72
+    "ifceilingdistl",          // 73
+    "spritepal",               // 74
+    "ifpinventory",            // 75
+    "betaname",                // 76
+    "cactor",                  // 77
+    "ifphealthl",              // 78
+    "definequote",             // 79
+    "quote",                   // 80
+    "ifinouterspace",          // 81
+    "ifnotmoving",             // 82
+    "respawnhitag",            // 83
+    "tip",                     // 84
+    "ifspritepal",             // 85
+    "money",                   // 86
+    "soundonce",               // 87
+    "addkills",                // 88
+    "stopsound",               // 89
+    "ifawayfromwall",          // 90
+    "ifcanseetarget",          // 91
+    "globalsound",             // 92
+    "lotsofglass",             // 93
+    "ifgotweaponce",           // 94
+    "getlastpal",              // 95
+    "pkick",                   // 96
+    "mikesnd",                 // 97
+    "useractor",               // 98
+    "sizeat",                  // 99
+    "addstrength",             // 100  [#]
+    "cstator",                 // 101
+    "mail",                    // 102
+    "paper",                   // 103
+    "tossweapon",              // 104
+    "sleeptime",               // 105
+    "nullop",                  // 106
+    "definevolumename",        // 107
+    "defineskillname",         // 108
+    "ifnosounds",              // 109
+    "clipdist",                // 110
+    "ifangdiffl",              // 111  Last Duke3D 1.5 CON command
+    "gamevar",                 // 112
+    "ifvarl",                  // 113
+    "ifvarg",                  // 114
+    "setvarvar",               // 115
+    "setvar",                  // 116
+    "addvarvar",               // 117
+    "addvar",                  // 118
+    "ifvarvarl",               // 119
+    "ifvarvarg",               // 120
+    "addlogvar",               // 121
+    "addlog",                  // 122
+    "onevent",                 // 123
+    "endevent",                // 124
+    "ifvare",                  // 125
+    "ifvarvare",               // 126
+    "spgetlotag",              // 127
+    "spgethitag",              // 128
+    "sectgetlotag",            // 129
+    "sectgethitag",            // 130
+    "ifsound",                 // 131
+    "gettexturefloor",         // 132
+    "gettextureceiling",       // 133
+    "inittimer",               // 134
+    "starttrack",              // 135
+    "randvar",                 // 136
+    "enhanced",                // 137
+    "getangletotarget",        // 138
+    "getactorangle",           // 139
+    "setactorangle",           // 140
+    "mulvar",                  // 141
+    "mulvarvar",               // 142
+    "divvar",                  // 143
+    "divvarvar",               // 144
+    "modvar",                  // 145
+    "modvarvar",               // 146
+    "andvar",                  // 147
+    "andvarvar",               // 148
+    "orvar",                   // 149
+    "orvarvar",                // 150
+    "getplayerangle",          // 151
+    "setplayerangle",          // 152
+    "lockplayer",              // 153
+    "setsector",               // 154
+    "getsector",               // 155
+    "setactor",                // 156
+    "getactor",                // 157
+    "setwall",                 // 158
+    "getwall",                 // 159
+    NULL,                      // 160
+    "findnearactorvar",        // 161
+    "setactorvar",             // 162
+    "getactorvar",             // 163
+    NULL,                      // 164
+    "getplayer",               // 165
+    "setplayer",               // 166
+    "sqrt",                    // 167
+    "eventloadactor",          // 168
+    "espawnvar",               // 169
+    "getuserdef",              // 170
+    "setuserdef",              // 171
+    "subvarvar",               // 172
+    "subvar",                  // 173
+    "ifvarn",                  // 174
+    "ifvarvarn",               // 175
+    "ifvarand",                // 176
+    "ifvarvarand",             // 177
+    "myos",                    // 178
+    "myospal",                 // 179
+    "displayrand",             // 180
+    "sin",                     // 181
+    "xorvarvar",               // 182
+    "xorvar",                  // 183
+    "randvarvar",              // 184
+    "myosx",                   // 185
+    "myospalx",                // 186
+    "gmaxammo",                // 187
+    "smaxammo",                // 188
+    "startlevel",              // 189 
+    NULL,                      // 190  Beginning of EDuke32
+    NULL,                      // 191
+    "rotatesprite",            // 192
+    "defineprojectile",        // 193
+    "spriteshadow",            // 194
+    "cos",                     // 195
+    "eshootvar",               // 196
+    NULL,                      // 197
+    "findnearactor3dvar",      // 198
+    "flash",                   // 199
+    "qspawnvar",               // 200
+    NULL,                      // 201
+    "eqspawnvar",              // 202
+    "minitext",                // 203
+    "gametext",                // 204
+    "digitalnumber",           // 205
+    "addweaponvar",            // 206
+    "setprojectile",           // 207
+    "angoff",                  // 208
+    "updatesector",            // 209
+    "insertspriteq",           // 210
+    "angoffvar",               // 211
+    "whilevarn",               // 212
+    "switch",                  // 213
+    "case",                    // 214
+    "default",                 // 215
+    "endswitch",               // 216
+    "shootvar",                // 217
+    "soundvar",                // 218
+    "findplayer",              // 219
+    "findotherplayer",         // 220
+    "activatebysector",        // 221 sectnum, spriteid
+    "operatesectors",          // 222 sectnum, spriteid
+    "operaterespawns",         // 223 lotag
+    "operateactivators",       // 224 lotag, player index
+    "operatemasterswitches",   // 225 lotag
+    "checkactivatormotion",    // 226 lotag
+    NULL,                      // 227 zvar projnum
+    "dist",                    // 228 sprite1 sprite2
+    "ldist",                   // 229 sprite1 sprite2
+    "shiftvarl",               // 230
+    "shiftvarr",               // 231
+    "spritenvg",               // 232
+    "getangle",                // 233
+    "whilevarvarn",            // 234
+    "hitscan",                 // 235
+    "time",                    // 236
+    "getplayervar",            // 237
+    "setplayervar",            // 238
+    "mulscale",                // 239
+    "setaspect",               // 240
+    NULL,                      // 241
+    "spritenoshade",           // 242
+    "movesprite",              // 243
+    "checkavailweapon",        // 244
+    "soundoncevar",            // 245
+    "updatesectorz",           // 246
+    "stopallsounds",           // 247
+    "ssp",                     // 248
+    "stopsoundvar",            // 249
+    "displayrandvar",          // 250
+    "displayrandvarvar",       // 251
+    "checkavailinven",         // 252
+    "globalsoundvar",          // 253
+    "guniqhudid",              // 254
+    "getprojectile",           // 255
+    "getthisprojectile",       // 256
+    "setthisprojectile",       // 257
+    "definecheat",             // 258
+    "cheatkeys",               // 259
+    "userquote",               // 260
+    "precache",                // 261
+    "definegamefuncname",      // 262
+    "redefinequote",           // 263
+    "qsprintf",                // 264
+    "getpname",                // 265
+    "qstrcat",                 // 266
+    "qstrcpy",                 // 267
+    "setsprite",               // 268
+    "rotatepoint",             // 269
+    "dragpoint",               // 270
+    "getzrange",               // 271
+    "changespritestat",        // 272
+    "getceilzofslope",         // 273
+    "getflorzofslope",         // 274
+    "neartag",                 // 275
+    "definegametype",          // 276
+    "changespritesect",        // 277
+    "spriteflags",             // 278
+    "savegamevar",             // 279
+    "readgamevar",             // 280
+    NULL,                      // 281
+    "findnearspritevar",       // 282
+    NULL,                      // 283
+    "findnearsprite3dvar",     // 284
+    "dynamicremap",            // 285
+    "setinput",                // 286
+    "getinput",                // 287
+    "save",                    // 288
+    "cansee",                  // 289  Beginning of EDuke32 SVN
+    "canseespr",               // 290
+    NULL,                      // 291
+    "findnearactorzvar",       // 292
+    NULL,                      // 293
+    "findnearspritezvar",      // 294
+    "zshootvar",               // 295
+    "ezshootvar",              // 296
+    "getcurraddress",          // 297
+    "jump",                    // 298
+    "qstrlen",                 // 299
+    "getincangle",             // 300
+    "quake",                   // 301
+    "showview",                // 302
+    "headspritestat",          // 303
+    "prevspritestat",          // 304
+    "nextspritestat",          // 305
+    "headspritesect",          // 306
+    "prevspritesect",          // 307
+    "nextspritesect",          // 308
+    "getkeyname",              // 309
+    "qsubstr",                 // 310
+    "gametextz",               // 311
+    "digitalnumberz",          // 312
+    "spritenopal",             // 313
+    "hitradiusvar",            // 314
+    "rotatesprite16",          // 315
+    "gamearray",               // 316
+    "setarray",                // 317
+    "resizearray",             // 318
+    "writearraytofile",        // 319
+    "readarrayfromfile",       // 320
+    "starttrackvar",           // 321
+    "qgetsysstr",              // 322
+    "getticks",                // 323
+    "gettspr",                 // 324
+    "settspr",                 // 325
+    "savemapstate",            // 326
+    "loadmapstate",            // 327
+    "clearmapstate",           // 328
+    "scriptsize",              // 329
+    "setgamename",             // 330
+    "cmenu",                   // 331
+    "gettimedate",             // 332
+    "activatecheat",           // 333
+    "setgamepalette",          // 334
+    "setdefname",              // 335
+    "setcfgname",              // 336
+    "ifvaror",                 // 337
+    "ifvarvaror",              // 338
+    "ifvarxor",                // 339
+    "ifvarvarxor",             // 340
+    "ifvareither",             // 341
+    "ifvarvareither",          // 342
+    "getarraysize",            // 343
+    "savenn",                  // 344
+    "copy",                    // 345
+    "inv",                     // 346
+    "sectorofwall",            // 347
+    "qstrncat",                // 348
+    "ifactorsound",            // 349
+    "stopactorsound",          // 350
+    "ifclient",                // 351
+    "ifserver",                // 352
+    "sectsetinterpolation",    // 353
+    "sectclearinterpolation",  // 354
+    "clipmove",                // 355
+    "lineintersect",           // 356
+    "rayintersect",            // 357
+    "calchypotenuse",          // 358
+    "clipmovenoslide",         // 359
+    "includedefault",          // 360
+    "setactorsoundpitch",      // 361
+    "echo",                    // 362
+    "showviewunbiased",        // 363
+    "rotatespritea",           // 364
+    "shadeto",                 // 365
+    "endoflevel",              // 366
+    "ifplayersl",              // 367
+    "activate",                // 368
+    "qstrdim",                 // 369
+    "screentext",              // 370
+    "dynamicsoundremap",       // 371
+    "screensound",             // 372
+    "getmusicposition",        // 373
+    "setmusicposition",        // 374
+    "undefinevolume",          // 375
+    "undefineskill",           // 376
+    "undefinelevel",           // 377
+    "startcutscene",           // 378
+    "ifcutscene",              // 379
+    "definevolumeflags",       // 380
+    "resetplayerflags",        // 381
+    "appendevent",             // 382
+    "defstate",                // 383
+    "shiftvarvarl",            // 384
+    "shiftvarvarr",            // 385
+    "ifvarvarle",              // 386
+    "ifvarvarge",              // 387
+    "ifvarvarboth",            // 388
+    "whilevarl",               // 389
+    "whilevarvarl",            // 390
+    "klabs",                   // 391
+    "ifvarle",                 // 392
+    "ifvarge",                 // 393
+    "ifvarboth",               // 394
+    "movesector",              // 395
+    "for",                     // 396
+    "nextsectorneighborz",     // 397
+    "clamp",                   // 398
+    "ifplaybackon",            // 399
+    "divscale",                // 400
+    "scalevar",                // 401
+    "undefinegamefunc",        // 402
+    "getclosestcol",           // 403
+    "drawline256",             // 404
+    "drawlinergb",             // 405
     "<null>"
 };
 #endif
@@ -1315,7 +1331,7 @@ void C_InitHashes()
     inithashnames();
     initsoundhashnames();
 
-    for (i=0; i<NUMKEYWORDS; i++) hash_add(&h_keywords, keyw[i], i, 0);
+    for (i=0; i<NUMKEYWORDS; i++) if (keyw[i]) hash_add(&h_keywords, keyw[i], i, 0);
     for (i=0; i<NUMALTKEYWORDS; i++) hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val, 0);
 
     STRUCT_HASH_SETUP(h_sector, SectorLabels);
@@ -3666,12 +3682,7 @@ DO_DEFSTATE:
         case CON_GUTS:
             C_GetNextValue(LABEL_DEFINE);
             fallthrough__;
-        case CON_ESPAWN:
-        case CON_ESHOOT:
-        case CON_QSPAWN:
-        case CON_EQSPAWN:
         case CON_STRENGTH:
-        case CON_SHOOT:
         case CON_ADDPHEALTH:
         case CON_SPAWN:
         case CON_COUNT:
@@ -3761,36 +3772,6 @@ DO_DEFSTATE:
                 *g_scriptPtr++=SectorLabels[labelNum].lId;
 
                 C_GetNextVarType((tw == CON_GETSECTOR) ? GAMEVAR_READONLY : 0);
-                continue;
-            }
-
-        case CON_FINDNEARACTOR:
-        case CON_FINDNEARACTOR3D:
-        case CON_FINDNEARSPRITE:
-        case CON_FINDNEARSPRITE3D:
-        case CON_FINDNEARACTORZ:
-        case CON_FINDNEARSPRITEZ:
-            {
-                // syntax findnearactor <type> <maxdist> <getvar>
-                // gets the sprite ID of the nearest actor within max dist
-                // that is of <type> into <getvar>
-                // -1 for none found
-
-                C_GetNextValue(LABEL_DEFINE); // get <type>
-                C_GetNextValue(LABEL_DEFINE); // get maxdist
-
-                switch (tw)
-                {
-                case CON_FINDNEARACTORZ:
-                case CON_FINDNEARSPRITEZ:
-                    C_GetNextValue(LABEL_DEFINE);
-                default:
-                    break;
-                }
-
-                // target var
-                // get the ID of the DEF
-                C_GetNextVarType(GAMEVAR_READONLY);
                 continue;
             }
 
@@ -4184,8 +4165,6 @@ DO_DEFSTATE:
             continue;
 
         case CON_RANDVAR:
-        case CON_ZSHOOT:
-        case CON_EZSHOOT:
         case CON_SETVAR:
         case CON_ADDVAR:
         case CON_SUBVAR:
@@ -4207,9 +4186,7 @@ DO_DEFSTATE:
                 // adds const1 to var1 (const1 can be negative...)
                 //printf("Found [add|set]var at line= %d\n",g_lineNumber);
 
-                if (tw != CON_ZSHOOT && tw != CON_EZSHOOT)
-                    C_GetNextVarType(GAMEVAR_READONLY);
-                else C_GetNextVar();
+                C_GetNextVarType(GAMEVAR_READONLY);
 
                 C_GetNextValue(LABEL_DEFINE); // the number to check against...
 

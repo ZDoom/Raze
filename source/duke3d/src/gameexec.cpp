@@ -1601,11 +1601,6 @@ skip_check:
             vm.pSprite->yrepeat = (uint8_t)*insptr++;
             continue;
 
-        case CON_SHOOT:
-            insptr++;
-            A_Shoot(vm.spriteNum,*insptr++);
-            continue;
-
         case CON_SOUNDONCE:
             if (EDUKE32_PREDICT_FALSE((unsigned)*(++insptr) >= MAXSOUNDS))
             {
@@ -2536,22 +2531,6 @@ nullquote:
             }
 
         case CON_LDIST:
-            insptr++;
-            {
-                int const out = *insptr++;
-                vec2_t in;
-                Gv_FillWithVars(in);
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)in.x >= MAXSPRITES || (unsigned)in.y >= MAXSPRITES))
-                {
-                    CON_ERRPRINTF("invalid sprite %d, %d\n", in.x, in.y);
-                    continue;
-                }
-
-                Gv_SetVarX(out, ldist(&sprite[in.x], &sprite[in.y]));
-                continue;
-            }
-
         case CON_DIST:
             insptr++;
             {
@@ -2565,47 +2544,29 @@ nullquote:
                     continue;
                 }
 
-                Gv_SetVarX(out, dist(&sprite[in.x], &sprite[in.y]));
+                Gv_SetVarX(out, (tw == CON_LDIST ? ldist : dist)(&sprite[in.x], &sprite[in.y]));
                 continue;
             }
 
         case CON_GETANGLE:
-            insptr++;
-            {
-                int const out = *insptr++;
-                vec2_t in;
-                Gv_FillWithVars(in);
-                Gv_SetVarX(out, getangle(in.x, in.y));
-                continue;
-            }
-
         case CON_GETINCANGLE:
             insptr++;
             {
                 int const out = *insptr++;
                 vec2_t in;
                 Gv_FillWithVars(in);
-                Gv_SetVarX(out, G_GetAngleDelta(in.x, in.y));
+                Gv_SetVarX(out, (tw == CON_GETANGLE ? getangle : G_GetAngleDelta)(in.x, in.y));
                 continue;
             }
 
         case CON_MULSCALE:
-            insptr++;
-            {
-                int const out = *insptr++;
-                vec3_t in;
-                Gv_FillWithVars(in);
-                Gv_SetVarX(out, mulscale(in.x, in.y, in.z));
-                continue;
-            }
-
         case CON_DIVSCALE:
             insptr++;
             {
                 int const out = *insptr++;
                 vec3_t in;
                 Gv_FillWithVars(in);
-                Gv_SetVarX(out, divscale(in.x, in.y, in.z));
+                Gv_SetVarX(out, (tw == CON_MULSCALE ? mulscale : divscale)(in.x, in.y, in.z));
                 continue;
             }
 
@@ -2673,62 +2634,6 @@ nullquote:
                 }
                 continue;
             }
-
-        case CON_ESPAWN:
-        case CON_EQSPAWN:
-        case CON_QSPAWN:
-            insptr++;
-
-            {
-                if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
-                {
-                    CON_ERRPRINTF("invalid sector %d\n", vm.pUSprite->sectnum);
-                    insptr++;
-                    continue;
-                }
-
-                int const spriteNum = A_Spawn(vm.spriteNum,*insptr++);
-
-                switch (tw)
-                {
-                    case CON_EQSPAWN:
-                        if (spriteNum != -1)
-                            A_AddToDeleteQueue(spriteNum);
-                        fallthrough__;
-                    case CON_ESPAWN:
-                        aGameVars[g_returnVarID].global = spriteNum;
-                        break;
-                    case CON_QSPAWN:
-                        if (spriteNum != -1)
-                            A_AddToDeleteQueue(spriteNum);
-                        break;
-                }
-            }
-            continue;
-
-        case CON_ESHOOT:
-        case CON_EZSHOOT:
-        case CON_ZSHOOT:
-            insptr++;
-            {
-                // NOTE: (int16_t) cast because we want to exclude that
-                // SHOOT_HARDCODED_ZVEL is passed.
-                int const zvel = (tw == CON_ESHOOT) ?
-                    SHOOT_HARDCODED_ZVEL : (int16_t)Gv_GetVarX(*insptr++);
-
-                if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= (unsigned)numsectors))
-                {
-                    CON_ERRPRINTF("invalid sector %d\n", vm.pUSprite->sectnum);
-                    insptr++;
-                    continue;
-                }
-
-                int const spriteNum = A_ShootWithZvel(vm.spriteNum,*insptr++,zvel);
-
-                if (tw != CON_ZSHOOT)
-                    aGameVars[g_returnVarID].global = spriteNum;
-            }
-            continue;
 
         case CON_SHOOTVAR:
         case CON_ESHOOTVAR:
@@ -2981,7 +2886,7 @@ nullquote:
                 } v;
                 Gv_FillWithVars(v);
 
-                int32_t const nZoom       = (tw == CON_DIGITALNUMBERZ) ? Gv_GetVarX(*insptr++) : 65536;
+                int32_t const nZoom = (tw == CON_DIGITALNUMBERZ) ? Gv_GetVarX(*insptr++) : 65536;
 
                 // NOTE: '-' not taken into account, but we have rotatesprite() bound check now anyway
                 if (EDUKE32_PREDICT_FALSE(v.tilenum < 0 || v.tilenum+9 >= MAXTILES))
@@ -3134,17 +3039,10 @@ nullquote:
                 int const intzvar = *insptr++;
                 int const retvar  = *insptr++;
                 vec3_t    in;
-                int       ret = (tw == CON_LINEINTERSECT)
-                          ? lintersect(v.vec[0].x, v.vec[0].y, v.vec[0].z,
-                                       v.vec[1].x, v.vec[1].y, v.vec[1].z,
-                                       v.vec2[0].x, v.vec2[0].y,
-                                       v.vec2[1].x, v.vec2[1].y,
-                                       &in.x, &in.y, &in.z)
-                          : rayintersect(v.vec[0].x, v.vec[0].y, v.vec[0].z,
-                                         v.vec[1].x, v.vec[1].y, v.vec[1].z,
-                                         v.vec2[0].x, v.vec2[0].y,
-                                         v.vec2[1].x, v.vec2[1].y,
-                                         &in.x, &in.y, &in.z);
+
+                int ret = ((tw == CON_LINEINTERSECT) ? lintersect : rayintersect)(v.vec[0].x, v.vec[0].y, v.vec[0].z, v.vec[1].x,
+                                                                                  v.vec[1].y, v.vec[1].z, v.vec2[0].x, v.vec2[0].y,
+                                                                                  v.vec2[1].x, v.vec2[1].y, &in.x, &in.y, &in.z);
 
                 Gv_SetVarX(retvar, ret);
 
@@ -4005,27 +3903,20 @@ finish_qsprintf:
         case CON_SETSECTOR:
             insptr++;
             {
-                tw = *insptr++;
-
+                int const sectNum  = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : sprite[vm.spriteNum].sectnum;
                 int const labelNum = *insptr++;
-                int const lVar2    = *insptr++;
-                int const sectNum  = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : sprite[vm.spriteNum].sectnum;
-                int const nValue   = Gv_GetVarX(lVar2);
 
-                VM_SetSector(sectNum, labelNum, nValue);
+                VM_SetSector(sectNum, labelNum, Gv_GetVarX(*insptr++));
                 continue;
             }
 
         case CON_GETSECTOR:
             insptr++;
             {
-                tw = *insptr++;
-
+                int const sectNum  = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : sprite[vm.spriteNum].sectnum;
                 int const labelNum = *insptr++;
-                int const lVar2    = *insptr++;
-                int const sectNum  = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : sprite[vm.spriteNum].sectnum;
 
-                Gv_SetVarX(lVar2, VM_GetSector(sectNum, labelNum));
+                Gv_SetVarX(*insptr++, VM_GetSector(sectNum, labelNum));
                 continue;
             }
 
@@ -4035,72 +3926,6 @@ finish_qsprintf:
                 // syntax sqrt <invar> <outvar>
                 int const sqrtval = ksqrt((uint32_t)Gv_GetVarX(*insptr++));
                 Gv_SetVarX(*insptr++, sqrtval);
-                continue;
-            }
-
-        case CON_FINDNEARACTOR:
-        case CON_FINDNEARSPRITE:
-        case CON_FINDNEARACTOR3D:
-        case CON_FINDNEARSPRITE3D:
-            insptr++;
-            {
-                // syntax findnearactorvar <type> <maxdist> <getvar>
-                // gets the sprite ID of the nearest actor within max dist
-                // that is of <type> into <getvar>
-                // -1 for none found
-                // <type> <maxdist> <varid>
-                int const findPicnum  = *insptr++;
-                int const maxDist     = *insptr++;
-                int const returnVar   = *insptr++;
-                int       foundSprite = -1;
-                int       findStatnum = MAXSTATUS - 1;
-                int       spriteNum;
-
-                if (tw == CON_FINDNEARACTOR || tw == CON_FINDNEARACTOR3D)
-                    findStatnum = 1;
-
-                if (tw==CON_FINDNEARSPRITE3D || tw==CON_FINDNEARACTOR3D)
-                {
-                    do
-                    {
-                        spriteNum=headspritestat[findStatnum];    // all sprites
-                        while (spriteNum>=0)
-                        {
-                            if (sprite[spriteNum].picnum == findPicnum && spriteNum != vm.spriteNum && dist(&sprite[vm.spriteNum], &sprite[spriteNum]) < maxDist)
-                            {
-                                foundSprite=spriteNum;
-                                spriteNum = MAXSPRITES;
-                                break;
-                            }
-                            spriteNum = nextspritestat[spriteNum];
-                        }
-                        if (spriteNum == MAXSPRITES || tw == CON_FINDNEARACTOR3D)
-                            break;
-                    }
-                    while (findStatnum--);
-                    Gv_SetVarX(returnVar, foundSprite);
-                    continue;
-                }
-
-                do
-                {
-                    spriteNum=headspritestat[findStatnum];    // all sprites
-                    while (spriteNum>=0)
-                    {
-                        if (sprite[spriteNum].picnum == findPicnum && spriteNum != vm.spriteNum && ldist(&sprite[vm.spriteNum], &sprite[spriteNum]) < maxDist)
-                        {
-                            foundSprite=spriteNum;
-                            spriteNum = MAXSPRITES;
-                            break;
-                        }
-                        spriteNum = nextspritestat[spriteNum];
-                    }
-
-                    if (spriteNum == MAXSPRITES || tw == CON_FINDNEARACTOR)
-                        break;
-                }
-                while (findStatnum--);
-                Gv_SetVarX(returnVar, foundSprite);
                 continue;
             }
 
@@ -4220,54 +4045,6 @@ finish_qsprintf:
                 continue;
             }
 
-        case CON_FINDNEARACTORZ:
-        case CON_FINDNEARSPRITEZ:
-            insptr++;
-            {
-                // syntax findnearactorvar <type> <maxdist> <getvar>
-                // gets the sprite ID of the nearest actor within max dist
-                // that is of <type> into <getvar>
-                // -1 for none found
-                // <type> <maxdist> <varid>
-                int const findPicnum  = *insptr++;
-                int const maxDist     = *insptr++;
-                int const maxZDist    = *insptr++;
-                int const returnVar   = *insptr++;
-                int       foundSprite = -1;
-                int       findStatnum = MAXSTATUS - 1;
-
-                do
-                {
-                    int spriteNum = headspritestat[tw == CON_FINDNEARACTORZ ? 1 : findStatnum];  // all sprites
-
-                    if (spriteNum == -1)
-                        continue;
-                    do
-                    {
-                        if (sprite[spriteNum].picnum == findPicnum && spriteNum != vm.spriteNum)
-                        {
-                            if (ldist(&sprite[vm.spriteNum], &sprite[spriteNum]) < maxDist)
-                            {
-                                if (klabs(sprite[vm.spriteNum].z-sprite[spriteNum].z) < maxZDist)
-                                {
-                                    foundSprite=spriteNum;
-                                    spriteNum = MAXSPRITES;
-                                    break;
-                                }
-                            }
-                        }
-                        spriteNum = nextspritestat[spriteNum];
-                    }
-                    while (spriteNum>=0);
-
-                    if (tw==CON_FINDNEARACTORZ || spriteNum == MAXSPRITES)
-                        break;
-                }
-                while (findStatnum--);
-                Gv_SetVarX(returnVar, foundSprite);
-                continue;
-            }
-
         case CON_FINDPLAYER:
             insptr++;
             aGameVars[g_returnVarID].global = A_FindPlayer(&sprite[vm.spriteNum], &tw);
@@ -4283,23 +4060,18 @@ finish_qsprintf:
         case CON_SETPLAYER:
             insptr++;
             {
-                tw = *insptr++;
-
-                int const playerNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.playerNum;
+                int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.playerNum;
                 int const labelNum  = *insptr++;
                 int const lParm2    = (PlayerLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
-                int const nValue    = Gv_GetVarX(*insptr++);
 
-                VM_SetPlayer(playerNum, labelNum, lParm2, nValue);
+                VM_SetPlayer(playerNum, labelNum, lParm2, Gv_GetVarX(*insptr++));
                 continue;
             }
 
         case CON_GETPLAYER:
             insptr++;
             {
-                tw = *insptr++;
-
-                int const playerNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.playerNum;
+                int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.playerNum;
                 int const labelNum  = *insptr++;
                 int const lParm2    = (PlayerLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
 
@@ -4310,9 +4082,7 @@ finish_qsprintf:
         case CON_GETINPUT:
             insptr++;
             {
-                tw = *insptr++;
-
-                int const playerNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.playerNum;
+                int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.playerNum;
                 int const labelNum  = *insptr++;
 
                 Gv_SetVarX(*insptr++, VM_GetPlayerInput(playerNum, labelNum));
@@ -4322,13 +4092,10 @@ finish_qsprintf:
         case CON_SETINPUT:
             insptr++;
             {
-                tw = *insptr++;
-
-                int const playerNum  = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.playerNum;
+                int const playerNum  = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.playerNum;
                 int const labelNum = *insptr++;
-                int const iSet     = Gv_GetVarX(*insptr++);
 
-                VM_SetPlayerInput(playerNum, labelNum, iSet);
+                VM_SetPlayerInput(playerNum, labelNum, Gv_GetVarX(*insptr++));
                 continue;
             }
 
@@ -4407,6 +4174,7 @@ finish_qsprintf:
 
                     if (lVar2 == MAXGAMEVARS || lVar2 & ((MAXGAMEVARS << 2) | (MAXGAMEVARS << 3)))
                         insptr++;
+
                     continue;
                 }
 
@@ -4450,9 +4218,7 @@ finish_qsprintf:
         case CON_SETACTOR:
             insptr++;
             {
-                tw = *insptr++;
-
-                int const spriteNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
+                int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
                 int const labelNum  = *insptr++;
                 int const lParm2    = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
 
@@ -4463,9 +4229,7 @@ finish_qsprintf:
         case CON_GETACTOR:
             insptr++;
             {
-                tw = *insptr++;
-
-                int const spriteNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
+                int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
                 int const labelNum  = *insptr++;
                 int const lParm2    = (ActorLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
 
@@ -4476,9 +4240,7 @@ finish_qsprintf:
         case CON_SETTSPR:
             insptr++;
             {
-                tw = *insptr++;
-
-                int const spriteNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
+                int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
                 int const labelNum  = *insptr++;
 
                 VM_SetTsprite(spriteNum, labelNum, Gv_GetVarX(*insptr++));
@@ -4488,9 +4250,7 @@ finish_qsprintf:
         case CON_GETTSPR:
             insptr++;
             {
-                tw = *insptr++;
-
-                int const spriteNum = (tw != g_thisActorVarID) ? Gv_GetVarX(tw) : vm.spriteNum;
+                int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
                 int const labelNum  = *insptr++;
 
                 Gv_SetVarX(*insptr++, VM_GetTsprite(spriteNum, labelNum));
@@ -4514,19 +4274,6 @@ finish_qsprintf:
             continue;
 
         case CON_CHECKAVAILWEAPON:
-            insptr++;
-            tw = (*insptr != g_thisActorVarID) ? Gv_GetVarX(*insptr) : vm.playerNum;
-            insptr++;
-
-            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= (unsigned)g_mostConcurrentPlayers))
-            {
-                CON_ERRPRINTF("invalid player %d\n", tw);
-                continue;
-            }
-
-            P_CheckWeapon(g_player[tw].ps);
-            continue;
-
         case CON_CHECKAVAILINVEN:
             insptr++;
             tw = (*insptr != g_thisActorVarID) ? Gv_GetVarX(*insptr) : vm.playerNum;
@@ -4538,7 +4285,11 @@ finish_qsprintf:
                 continue;
             }
 
-            P_SelectNextInvItem(g_player[tw].ps);
+            if (tw == CON_CHECKAVAILWEAPON)
+                P_CheckWeapon(g_player[tw].ps);
+            else 
+                P_SelectNextInvItem(g_player[tw].ps);
+
             continue;
 
         case CON_GETPLAYERANGLE:
@@ -4642,11 +4393,15 @@ finish_qsprintf:
                 {
                     int numBytes = numElements * Gv_GetArrayElementSize(arrayNum);
 
-                    Baligned_free(aGameArrays[arrayNum].pValues);
+                    aGameArrays[arrayNum].size = numBytes ? numElements : kfilelength(kFile);
 
-                    aGameArrays[arrayNum].size    = numBytes ? numElements : kfilelength(kFile);
-                    aGameArrays[arrayNum].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, Gv_GetArrayAllocSize(arrayNum));
-                    numBytes                      = Gv_GetArrayAllocSize(arrayNum);
+                    if (numBytes != Gv_GetArrayAllocSize(arrayNum))
+                    {
+                        Baligned_free(aGameArrays[arrayNum].pValues);
+                        aGameArrays[arrayNum].pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, Gv_GetArrayAllocSize(arrayNum));
+                    }
+
+                    numBytes = Gv_GetArrayAllocSize(arrayNum);
 
                     switch (aGameArrays[arrayNum].flags & GAMEARRAY_TYPE_MASK)
                     {
@@ -4665,7 +4420,7 @@ finish_qsprintf:
                     }
 #endif
                     default:
-                        kread(kFile, aGameArrays[arrayNum].pValues, numBytes);
+                        kread(kFile, aGameArrays[arrayNum].pValues, Gv_GetArrayAllocSize(arrayNum));
                         break;
                     }
                 }
@@ -5080,38 +4835,26 @@ finish_qsprintf:
 
         case CON_SHIFTVARL:
             insptr++;
-            if ((aGameVars[*insptr].flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) == 0)
-            {
-                aGameVars[*insptr].global <<= *(insptr+1);
-                insptr += 2;
-                continue;
-            }
-            Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) << *(insptr+1));
+            Gv_ShiftVarL(*insptr, *(insptr+1));
             insptr += 2;
             continue;
 
         case CON_SHIFTVARR:
             insptr++;
-            if ((aGameVars[*insptr].flags & (GAMEVAR_USER_MASK|GAMEVAR_PTR_MASK)) == 0)
-            {
-                aGameVars[*insptr].global >>= *(insptr+1);
-                insptr += 2;
-                continue;
-            }
-            Gv_SetVarX(*insptr, Gv_GetVarX(*insptr) >> *(insptr+1));
+            Gv_ShiftVarR(*insptr, *(insptr+1));
             insptr += 2;
             continue;
 
         case CON_SHIFTVARVARL:
             insptr++;
             tw = *insptr++;
-            Gv_SetVarX(tw, Gv_GetVarX(tw) << Gv_GetVarX(*insptr++));
+            Gv_ShiftVarL(tw, Gv_GetVarX(*insptr++));
             continue;
 
         case CON_SHIFTVARVARR:
             insptr++;
             tw = *insptr++;
-            Gv_SetVarX(tw, Gv_GetVarX(tw) >> Gv_GetVarX(*insptr++));
+            Gv_ShiftVarR(tw, Gv_GetVarX(*insptr++));
             continue;
 
         case CON_SIN:
@@ -5559,11 +5302,17 @@ finish_qsprintf:
 
             switch (*insptr++)
             {
-                case GET_STEROIDS: tw = (pPlayer->inv_amount[GET_STEROIDS] != *insptr); break;
-                case GET_SHIELD:   tw = (pPlayer->inv_amount[GET_SHIELD] != pPlayer->max_shield_amount); break;
-                case GET_SCUBA:    tw = (pPlayer->inv_amount[GET_SCUBA] != *insptr); break;
-                case GET_HOLODUKE: tw = (pPlayer->inv_amount[GET_HOLODUKE] != *insptr); break;
-                case GET_JETPACK:  tw = (pPlayer->inv_amount[GET_JETPACK] != *insptr); break;
+                case GET_STEROIDS:
+                case GET_SHIELD:
+                case GET_SCUBA:
+                case GET_HOLODUKE:
+                case GET_HEATS:
+                case GET_FIRSTAID:
+                case GET_BOOTS:
+                case GET_JETPACK:
+                    tw = (pPlayer->inv_amount[*(insptr - 1)] != *insptr);
+                    break;
+
                 case GET_ACCESS:
                     switch (vm.pSprite->pal)
                     {
@@ -5572,9 +5321,6 @@ finish_qsprintf:
                         case 23: tw = (pPlayer->got_access & 4); break;
                     }
                     break;
-                case GET_HEATS:    tw = (pPlayer->inv_amount[GET_HEATS] != *insptr); break;
-                case GET_FIRSTAID: tw = (pPlayer->inv_amount[GET_FIRSTAID] != *insptr); break;
-                case GET_BOOTS:    tw = (pPlayer->inv_amount[GET_BOOTS] != *insptr); break;
                 default: tw = 0; CON_ERRPRINTF("invalid inventory item %d\n", (int32_t) * (insptr - 1));
             }
 
@@ -5587,7 +5333,7 @@ finish_qsprintf:
                 if (cansee(vm.pSprite->x, vm.pSprite->y, vm.pSprite->z - ZOFFSET6, vm.pSprite->sectnum, pPlayer->pos.x,
                            pPlayer->pos.y, pPlayer->pos.z + ZOFFSET2, sprite[pPlayer->i].sectnum))
                 {
-                    int32_t numPlayers = g_mostConcurrentPlayers - 1;
+                    int numPlayers = g_mostConcurrentPlayers - 1;
 
                     for (; numPlayers >= 0; --numPlayers)
                     {
@@ -5600,8 +5346,8 @@ finish_qsprintf:
                         if (pPlayer->weapon_pos == 0)
                             pPlayer->weapon_pos = -1;
 
-                        pPlayer->actorsqu       = vm.spriteNum;
-                        pPlayer->knee_incs      = 1;
+                        pPlayer->actorsqu  = vm.spriteNum;
+                        pPlayer->knee_incs = 1;
                     }
                 }
             continue;
