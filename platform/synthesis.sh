@@ -8,9 +8,9 @@ top=/var/www/synthesis
 lockfile=$top/synthesis_building
 source=$top/eduke32
 output=/var/www/dukeworld.duke4.net/eduke32/synthesis
-make=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='i686-w64-mingw32-' CC='i686-w64-mingw32-gcc' CXX='i686-w64-mingw32-g++' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='' )
-make64=( make SYNTHESIS=1 PLATFORM=WINDOWS CROSS='x86_64-w64-mingw32-' CC='x86_64-w64-mingw32-gcc' CXX='x86_64-w64-mingw32-g++' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='' )
-clean=veryclean
+make=( make -Bj4 SYNTHESIS=1 PLATFORM=WINDOWS CROSS='i686-w64-mingw32-' CC='i686-w64-mingw32-gcc' CXX='i686-w64-mingw32-g++' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='' )
+make64=( make -Bj4 SYNTHESIS=1 PLATFORM=WINDOWS CROSS='x86_64-w64-mingw32-' CC='x86_64-w64-mingw32-gcc' CXX='x86_64-w64-mingw32-g++' AS='nasm' PRETTY_OUTPUT=0 SDLCONFIG='' )
+clean=
 
 # the following file paths are relative to $source
 targets=( eduke32$exe mapster32$exe )
