@@ -378,7 +378,7 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
     }
 }
 
-int __fastcall Gv_GetArrayElementSize(int const arrayIdx)
+unsigned __fastcall Gv_GetArrayElementSize(int const arrayIdx)
 {
     int typeSize = 0;
 

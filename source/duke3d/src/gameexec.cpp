@@ -2566,7 +2566,12 @@ nullquote:
                 int const out = *insptr++;
                 vec3_t in;
                 Gv_FillWithVars(in);
-                Gv_SetVarX(out, (tw == CON_MULSCALE ? mulscale : divscale)(in.x, in.y, in.z));
+
+                if (tw == CON_MULSCALE)
+                    Gv_SetVarX(out, mulscale(in.x, in.y, in.z));
+                else
+                    Gv_SetVarX(out, divscale(in.x, in.y, in.z));
+
                 continue;
             }
 
