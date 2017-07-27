@@ -4387,7 +4387,7 @@ finish_qsprintf:
                 if (kFile < 0)
                     continue;
 
-                int const numElements = Gv_GetArrayElementSize(arrayNum) ? kfilelength(kFile) / Gv_GetArrayElementSize(arrayNum) : 1;
+                int const numElements = Gv_GetArrayElementSize(arrayNum) ? kfilelength(kFile) / min(Gv_GetArrayElementSize(arrayNum), sizeof(uint32_t)) : 1;
 
                 if (numElements > 0)
                 {
@@ -4457,7 +4457,7 @@ finish_qsprintf:
                     continue;
                 }
 
-                int const numBytes    = Gv_GetArrayAllocSize(arrayNum);
+                int const numBytes = Gv_GetArrayAllocSize(arrayNum);
 
                 switch (aGameArrays[arrayNum].flags & GAMEARRAY_TYPE_MASK)
                 {
@@ -4465,12 +4465,12 @@ finish_qsprintf:
 #ifdef BITNESS64
                 {
                     int const numElements = aGameArrays[arrayNum].size;
-                    int32_t *const pArray = (int32_t *)Xmalloc(numBytes);
+                    int32_t *const pArray = (int32_t *)Xmalloc(numBytes >> 1);
 
                     for (bssize_t k = 0; k < numElements; k++)
                         pArray[k] = Gv_GetArrayValue(arrayNum, k);
 
-                    Bfwrite(pArray, 1, numBytes, fil);
+                    Bfwrite(pArray, 1, numBytes >> 1, fil);
                     Bfree(pArray);
                     break;
                 }
