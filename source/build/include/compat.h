@@ -730,7 +730,7 @@ typedef uint64_t reg_t;
 typedef int64_t sreg_t;
 #else
 typedef size_t reg_t;
-typedef ssize_t sreg_t
+typedef ssize_t sreg_t;
 #endif
 
 #if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
