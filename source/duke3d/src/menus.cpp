@@ -1085,7 +1085,7 @@ static MenuOptionSet_t MEOS_SOUND_SAMPLINGRATE = MAKE_MENUOPTIONSET( MEOSN_SOUND
 static MenuOption_t MEO_SOUND_SAMPLINGRATE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_SOUND_SAMPLINGRATE, &soundrate );
 static MenuEntry_t ME_SOUND_SAMPLINGRATE = MAKE_MENUENTRY( "Sample rate:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_SAMPLINGRATE, Option );
 
-#ifndef EDUKE32_STANDALONE
+#ifndef EDUKE32_SIMPLE_MENU
 static MenuRangeInt32_t MEO_SOUND_NUMVOICES = MAKE_MENURANGE( &soundvoices, &MF_Redfont, 16, 256, 0, 16, 1 );
 static MenuEntry_t ME_SOUND_NUMVOICES = MAKE_MENUENTRY( "Voices:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SOUND_NUMVOICES, RangeInt32 );
 #endif
@@ -1112,7 +1112,7 @@ static MenuEntry_t *MEL_SOUND[] = {
 static MenuEntry_t *MEL_ADVSOUND[] = {
     &ME_SOUND_SAMPLINGRATE,
     &ME_Space2_Redfont,
-#ifndef EDUKE32_STANDALONE
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_SOUND_NUMVOICES,
     &ME_Space2_Redfont,
 #endif
