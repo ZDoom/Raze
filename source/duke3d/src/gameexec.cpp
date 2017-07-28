@@ -4408,7 +4408,7 @@ finish_qsprintf:
 
                     numBytes = Gv_GetArrayAllocSize(arrayNum);
 
-                    switch (aGameArrays[arrayNum].flags & GAMEARRAY_TYPE_MASK)
+                    switch (aGameArrays[arrayNum].flags & GAMEARRAY_SIZE_MASK)
                     {
                     case 0:
 #ifdef BITNESS64
@@ -4462,7 +4462,7 @@ finish_qsprintf:
                     continue;
                 }
 
-                switch (aGameArrays[arrayNum].flags & GAMEARRAY_TYPE_MASK)
+                switch (aGameArrays[arrayNum].flags & GAMEARRAY_SIZE_MASK)
                 {
                 case 0:
 #ifdef BITNESS64
@@ -4563,7 +4563,7 @@ finish_qsprintf:
                 int const destInc = 1 << (int)!!(EDUKE32_PREDICT_FALSE(aGameArrays[destArray].flags & GAMEARRAY_STRIDE2));
 
                 // matching array types and no STRIDE2 flag
-                if ((aGameArrays[srcArray].flags & GAMEARRAY_TYPE_MASK) == (aGameArrays[destArray].flags & GAMEARRAY_TYPE_MASK) && (srcInc & destInc) == 1)
+                if ((aGameArrays[srcArray].flags & GAMEARRAY_SIZE_MASK) == (aGameArrays[destArray].flags & GAMEARRAY_SIZE_MASK) && (srcInc & destInc) == 1)
                 {
                     Bmemcpy(aGameArrays[destArray].pValues + destArrayIndex, aGameArrays[srcArray].pValues + srcArrayIndex,
                         numElements * Gv_GetArrayElementSize(srcArray));

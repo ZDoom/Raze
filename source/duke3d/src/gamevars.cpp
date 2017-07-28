@@ -382,13 +382,11 @@ unsigned __fastcall Gv_GetArrayElementSize(int const arrayIdx)
 {
     int typeSize = 0;
 
-    switch (aGameArrays[arrayIdx].flags & GAMEARRAY_TYPE_MASK)
+    switch (aGameArrays[arrayIdx].flags & GAMEARRAY_SIZE_MASK)
     {
         case 0: typeSize = sizeof(uintptr_t); break;
-        case GAMEARRAY_INT8:
-        case GAMEARRAY_UINT8: typeSize = sizeof(uint8_t); break;
-        case GAMEARRAY_INT16:
-        case GAMEARRAY_UINT16: typeSize = sizeof(uint16_t); break;
+        case GAMEARRAY_INT8: typeSize = sizeof(uint8_t); break;
+        case GAMEARRAY_INT16: typeSize = sizeof(uint16_t); break;
     }
 
     return typeSize;
@@ -602,6 +600,7 @@ int __fastcall Gv_GetArrayValue(int const id, int index)
     switch (aGameArrays[id].flags & GAMEARRAY_TYPE_MASK)
     {
         case 0:               returnValue = (aGameArrays[id].pValues)[index]; break;
+
         case GAMEARRAY_INT16: returnValue = ((int16_t *)aGameArrays[id].pValues)[index]; break;
         case GAMEARRAY_INT8:  returnValue = ((int8_t *)aGameArrays[id].pValues)[index]; break;
 
