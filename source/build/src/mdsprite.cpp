@@ -1863,9 +1863,10 @@ int      md3postload_polymer(md3model_t *m)
         if (s->numverts > tribufverts)
         {
             tribuf = (int32_t *) Xrealloc(tribuf, s->numverts * sizeof(int32_t));
-            Bmemset(tribuf, 0, s->numverts * sizeof(int32_t));
             tribufverts = s->numverts;
         }
+
+        Bmemset(tribuf, 0, s->numverts * sizeof(int32_t));
 
         verti = 0;
         while (verti < (m->head.numframes * s->numverts))
