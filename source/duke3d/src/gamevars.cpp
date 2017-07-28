@@ -582,12 +582,27 @@ static int Gv_GetArrayIndex(const char *szArrayLabel)
     return arrayIdx;
 }
 
-int __fastcall Gv_GetArrayAllocSize(int const arrayIdx)
+size_t __fastcall Gv_GetArrayAllocSizeForCount(int const arrayIdx, size_t const count)
 {
     if (aGameArrays[arrayIdx].flags & GAMEARRAY_BITMAP)
-        return (aGameArrays[arrayIdx].size + 7) >> 3;
+        return (count + 7) >> 3;
 
-    return aGameArrays[arrayIdx].size * Gv_GetArrayElementSize(arrayIdx);
+    return count * Gv_GetArrayElementSize(arrayIdx);
+}
+
+size_t __fastcall Gv_GetArrayAllocSize(int const arrayIdx)
+{
+    return Gv_GetArrayAllocSizeForCount(arrayIdx, aGameArrays[arrayIdx].size);
+}
+
+size_t __fastcall Gv_GetArrayCountFromFile(int const arrayIdx, size_t const filelength)
+{
+    if (aGameArrays[arrayIdx].flags & GAMEARRAY_BITMAP)
+        return filelength << 3;
+
+    size_t const elementSize = Gv_GetArrayElementSize(arrayIdx);
+    size_t const denominator = min(elementSize, sizeof(uint32_t));
+    return filelength / denominator;
 }
 
 int __fastcall Gv_GetArrayValue(int const id, int index)

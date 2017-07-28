@@ -4392,40 +4392,52 @@ finish_qsprintf:
                 if (kFile < 0)
                     continue;
 
-                int const numElements = Gv_GetArrayElementSize(arrayNum) ? kfilelength(kFile) / min(Gv_GetArrayElementSize(arrayNum), sizeof(uint32_t)) : 1;
+                size_t const filelength = kfilelength(kFile);
+                size_t const numElements = Gv_GetArrayCountFromFile(arrayNum, filelength);
 
                 if (numElements > 0)
                 {
-                    int numBytes = numElements * Gv_GetArrayElementSize(arrayNum);
+                    size_t const newBytes = Gv_GetArrayAllocSizeForCount(arrayNum, numElements);
+                    size_t const oldBytes = Gv_GetArrayAllocSize(arrayNum);
 
-                    aGameArrays[arrayNum].size = numBytes ? numElements : kfilelength(kFile);
+                    intptr_t *& pValues = aGameArrays[arrayNum].pValues;
 
-                    if (numBytes != Gv_GetArrayAllocSize(arrayNum))
+                    if (newBytes != oldBytes)
                     {
-                        Baligned_free(aGameArrays[arrayNum].pValues);
-                        aGameArrays[arrayNum].pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, Gv_GetArrayAllocSize(arrayNum));
+                        Baligned_free(pValues);
+                        pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, newBytes);
                     }
 
-                    numBytes = Gv_GetArrayAllocSize(arrayNum);
+                    aGameArrays[arrayNum].size = numElements;
 
-                    switch (aGameArrays[arrayNum].flags & GAMEARRAY_SIZE_MASK)
+                    uintptr_t const flags = aGameArrays[arrayNum].flags;
+
+                    switch (flags & GAMEARRAY_SIZE_MASK)
                     {
                     case 0:
 #ifdef BITNESS64
                     {
-                        int32_t * const pArray = (int32_t *)Xcalloc(1, numBytes);
+                        void * const pArray = Xcalloc(1, newBytes);
 
-                        kread(kFile, pArray, numBytes);
+                        kread(kFile, pArray, newBytes);
 
-                        for (bssize_t i = 0; i < numElements; i++)
-                            aGameArrays[arrayNum].pValues[i] = pArray[i];
+                        if (flags & GAMEARRAY_UNSIGNED)
+                        {
+                            for (size_t i = 0; i < numElements; ++i)
+                                pValues[i] = ((uint32_t *)pArray)[i];
+                        }
+                        else
+                        {
+                            for (size_t i = 0; i < numElements; ++i)
+                                pValues[i] = ((int32_t *)pArray)[i];
+                        }
 
                         Bfree(pArray);
                         break;
                     }
 #endif
                     default:
-                        kread(kFile, aGameArrays[arrayNum].pValues, Gv_GetArrayAllocSize(arrayNum));
+                        kread(kFile, pValues, newBytes);
                         break;
                     }
                 }
