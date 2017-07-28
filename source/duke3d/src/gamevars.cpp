@@ -602,7 +602,7 @@ size_t __fastcall Gv_GetArrayCountFromFile(int const arrayIdx, size_t const file
 
     size_t const elementSize = Gv_GetArrayElementSize(arrayIdx);
     size_t const denominator = min(elementSize, sizeof(uint32_t));
-    return filelength / denominator;
+    return (filelength + denominator - 1) / denominator;
 }
 
 int __fastcall Gv_GetArrayValue(int const id, int index)

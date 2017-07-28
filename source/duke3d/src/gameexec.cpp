@@ -4398,6 +4398,7 @@ finish_qsprintf:
                 if (numElements > 0)
                 {
                     size_t const newBytes = Gv_GetArrayAllocSizeForCount(arrayNum, numElements);
+                    size_t const readBytes = min(newBytes, filelength);
                     size_t const oldBytes = Gv_GetArrayAllocSize(arrayNum);
 
                     intptr_t *& pValues = aGameArrays[arrayNum].pValues;
@@ -4419,7 +4420,7 @@ finish_qsprintf:
                     {
                         void * const pArray = Xcalloc(1, newBytes);
 
-                        kread(kFile, pArray, newBytes);
+                        kread(kFile, pArray, readBytes);
 
                         if (flags & GAMEARRAY_UNSIGNED)
                         {
@@ -4437,7 +4438,8 @@ finish_qsprintf:
                     }
 #endif
                     default:
-                        kread(kFile, pValues, newBytes);
+                        memset((char *)pValues + readBytes, 0, newBytes - readBytes);
+                        kread(kFile, pValues, readBytes);
                         break;
                     }
                 }
