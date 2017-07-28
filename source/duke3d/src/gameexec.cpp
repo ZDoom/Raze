@@ -4462,26 +4462,25 @@ finish_qsprintf:
                     continue;
                 }
 
-                int const numBytes = Gv_GetArrayAllocSize(arrayNum);
-
                 switch (aGameArrays[arrayNum].flags & GAMEARRAY_TYPE_MASK)
                 {
                 case 0:
 #ifdef BITNESS64
                 {
-                    int const numElements = aGameArrays[arrayNum].size;
-                    int32_t *const pArray = (int32_t *)Xmalloc(numBytes >> 1);
+                    size_t const numElements = aGameArrays[arrayNum].size;
+                    size_t const numDiskBytes = numElements * sizeof(int32_t);
+                    int32_t *const pArray = (int32_t *)Xmalloc(numDiskBytes);
 
-                    for (bssize_t k = 0; k < numElements; k++)
+                    for (size_t k = 0; k < numElements; ++k)
                         pArray[k] = Gv_GetArrayValue(arrayNum, k);
 
-                    Bfwrite(pArray, 1, numBytes >> 1, fil);
+                    Bfwrite(pArray, 1, numDiskBytes, fil);
                     Bfree(pArray);
                     break;
                 }
 #endif
                 default:
-                    Bfwrite(aGameArrays[arrayNum].pValues, 1, numBytes, fil);
+                    Bfwrite(aGameArrays[arrayNum].pValues, 1, Gv_GetArrayAllocSize(arrayNum), fil);
                     break;
                 }
 
