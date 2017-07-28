@@ -457,6 +457,7 @@ void M_DisplayMenus(void);
 
 extern MenuFont_t MF_Redfont;
 extern MenuFont_t MF_Bluefont, MF_BluefontRed, MF_BluefontGame;
+extern MenuFont_t MF_MinifontSave;
 
 #define M_MOUSETIMEOUT 210
 extern int32_t m_mouselastactivity;

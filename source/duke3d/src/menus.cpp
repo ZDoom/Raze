@@ -160,7 +160,7 @@ MenuFont_t MF_BluefontRed =      { { 5<<16,  7<<16 }, { -(1<<16), 2<<16 }, 65536
 MenuFont_t MF_BluefontGame =     { { 5<<16,  7<<16 }, {        0,     0 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_Minifont =         { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 16 };
 static MenuFont_t MF_MinifontRed =      { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 16, 21, 16 };
-static MenuFont_t MF_MinifontSave     = { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 13 };
+MenuFont_t MF_MinifontSave     = { { 4<<16,  5<<16 }, {    1<<16, 1<<16 }, 65536, 10<<16, 110<<16, 32768, 0, -1, 10,  0, 13 };
 
 
 static MenuMenuFormat_t MMF_Top_Main =             { {  MENU_MARGIN_CENTER<<16, 55<<16, }, -(170<<16) };
@@ -1672,6 +1672,7 @@ void Menu_Init(void)
         // hack; should swap out pointers
         MF_Minifont = MF_Bluefont;
         MF_MinifontRed = MF_BluefontRed;
+        MF_MinifontSave.zoom = 32768;
 
         MMF_Top_Main.pos.x = 40<<16;
         MMF_Top_Main.pos.y = 130<<16;

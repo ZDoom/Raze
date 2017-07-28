@@ -923,9 +923,10 @@ int32_t minitext_yofs = 0;
 int32_t minitext_lowercase = 0;
 int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int32_t sb)
 {
+    // hack: all MF_MinifontSave should be MF_Minifont, but pointer-swapping should be added in menus.cpp first
+
     vec2_t dim;
-    int32_t z = 65536L;
-    int32_t f = 0;
+    int32_t z = MF_MinifontSave.zoom;
 
     if (t == NULL)
     {
@@ -939,9 +940,6 @@ int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int
         y<<=16;
     }
 
-    if (!minitext_lowercase)
-        f |= TEXT_UPPERCASE;
-
     if (sb & ROTATESPRITE_MAX)
     {
         x = sbarx16(x);
@@ -951,7 +949,7 @@ int32_t minitext_(int32_t x, int32_t y, const char *t, int32_t s, int32_t p, int
 
     sb &= (ROTATESPRITE_MAX-1)|RS_CENTERORIGIN;
 
-    dim = G_ScreenText(MINIFONT, x, y, z, 0, 0, t, s, p, sb|ROTATESPRITE_FULL16, 0, (4<<16), (8<<16), (1<<16), 0, f, 0, 0, xdim-1, ydim-1);
+    dim = G_ScreenText(MINIFONT, x, y, z, 0, 0, t, s, p, sb|ROTATESPRITE_FULL16, 0, MF_MinifontSave.emptychar.x, MF_MinifontSave.emptychar.y, MF_MinifontSave.between.x, MF_MinifontSave.between.y, MF_MinifontSave.textflags, 0, 0, xdim-1, ydim-1);
 
     x += dim.x;
 
