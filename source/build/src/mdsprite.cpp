@@ -1892,7 +1892,7 @@ int      md3postload_polymer(md3model_t *m)
         uint32_t numverts = s->numverts;
 
         trii = 0;
-        while (framei < m->head.numframes)
+        while (trii < s->numtris)
         {
             int32_t const * const i = s->tris[trii].i;
             uint32_t const * const u = (uint32_t const *)i;
@@ -1968,7 +1968,7 @@ int      md3postload_polymer(md3model_t *m)
         }
 
         // now that we accumulated the TBNs, average and invert them for each vertex
-        int verti_end = m->head.numframes * s->numverts - 1;
+        int verti_end = m->head.numframes * s->numverts;
 
         verti = 0;
         while (verti < verti_end)
