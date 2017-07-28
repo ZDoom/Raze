@@ -232,7 +232,7 @@ const char *keyw[] = {
     "resetactioncount",        // 36
     "debris",                  // 37
     "pstomp",                  // 38
-    "<null>",                  // 39 was previously used to define the start of a comment block
+    NULL,                      // 39 was previously used to define the start of a comment block
     "cstat",                   // 40
     "ifmove",                  // 41
     "resetplayer",             // 42
@@ -599,7 +599,7 @@ const char *keyw[] = {
     "getclosestcol",           // 403
     "drawline256",             // 404
     "drawlinergb",             // 405
-    "<null>"
+    NULL
 };
 #endif
 
