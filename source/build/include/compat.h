@@ -82,7 +82,7 @@
 
 #ifndef UNREFERENCED_CONST_PARAMETER
 # ifdef _MSC_VER
-#  define UNREFERENCED_CONST_PARAMETER(x) (x)
+#  define UNREFERENCED_CONST_PARAMETER(x) ((void)(x))
 # else
 #  define UNREFERENCED_CONST_PARAMETER(x)
 # endif
