@@ -3057,11 +3057,13 @@ static int32_t Menu_EntryRangeFloatDidModify(MenuEntry_t *entry)
     return 0;
 }
 
+#ifdef MENU_ENABLE_RANGEDOUBLE
 static int32_t Menu_EntryRangeDoubleModify(void /*MenuEntry_t *entry, double newValue*/)
 {
 
     return 0;
 }
+#endif
 
 static uint32_t save_xxh = 0;
 
@@ -4044,9 +4046,11 @@ static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRange
 static void Menu_RunInput_EntryRangeFloat_MovementVerify(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue);
 static void Menu_RunInput_EntryRangeFloat_MovementArbitrary(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue);
 static void Menu_RunInput_EntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction);
+#ifdef MENU_ENABLE_RANGEDOUBLE
 static void Menu_RunInput_EntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue);
 static void Menu_RunInput_EntryRangeDouble_MovementArbitrary(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue);
 static void Menu_RunInput_EntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction);
+#endif
 static void Menu_RunInput_EntryString_Activate(MenuEntry_t *entry);
 static void Menu_RunInput_EntryString_Submit(MenuEntry_t *entry, MenuString_t *object);
 static void Menu_RunInput_EntryString_Cancel(/*MenuEntry_t *entry, */MenuString_t *object);
@@ -4513,6 +4517,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                         break;
                     }
+#ifdef MENU_ENABLE_RANGEDOUBLE
                     case RangeDouble:
                     {
                         MenuRangeDouble_t *object = (MenuRangeDouble_t*)entry->entry;
@@ -4605,6 +4610,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
                         break;
                     }
+#endif
                     case String:
                     {
                         MenuString_t *object = (MenuString_t*)entry->entry;
@@ -5455,6 +5461,7 @@ static void Menu_RunInput_EntryRangeFloat_Movement(MenuEntry_t *entry, MenuRange
     Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, newValue);
 }
 
+#ifdef MENU_ENABLE_RANGEDOUBLE
 static void Menu_RunInput_EntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue)
 {
     if (!Menu_EntryRangeDoubleModify(/*entry, newValue*/))
@@ -5511,6 +5518,7 @@ static void Menu_RunInput_EntryRangeDouble_Movement(/*MenuEntry_t *entry, */Menu
     double const newValue = newValueIndex * range / maxInterval + object->min;
     Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, newValue);
 }
+#endif
 
 static void Menu_RunInput_EntryString_Activate(MenuEntry_t *entry)
 {
@@ -6023,6 +6031,7 @@ static void Menu_RunInput(Menu_t *cm)
                         }
                         break;
                     }
+#ifdef MENU_ENABLE_RANGEDOUBLE
                     case RangeDouble:
                     {
                         MenuRangeDouble_t *object = (MenuRangeDouble_t*)currentry->entry;
@@ -6048,6 +6057,7 @@ static void Menu_RunInput(Menu_t *cm)
                         }
                         break;
                     }
+#endif
 
                     case String:
                     {

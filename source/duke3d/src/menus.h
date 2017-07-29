@@ -140,7 +140,9 @@ typedef enum MenuEntryType_t
     Custom2Col,
     RangeInt32,
     RangeFloat,
+#ifdef MENU_ENABLE_RANGEDOUBLE
     RangeDouble,
+#endif
     String,
     Spacer,
 } MenuEntryType_t;
@@ -263,6 +265,7 @@ typedef struct MenuRangeFloat_t
 
     uint8_t flags;
 } MenuRangeFloat_t;
+#ifdef MENU_ENABLE_RANGEDOUBLE
 typedef struct MenuRangeDouble_t
 {
     // effect
@@ -279,6 +282,7 @@ typedef struct MenuRangeDouble_t
 
     uint8_t flags;
 } MenuRangeDouble_t;
+#endif
 typedef struct MenuString_t
 {
     // state
