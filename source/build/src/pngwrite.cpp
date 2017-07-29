@@ -16,7 +16,7 @@ static void png_write_uint32(uint32_t const in)
 static void png_write_chunk(uint32_t const size, char const *const type,
                             uint8_t const *const data, uint32_t flags)
 {
-    uint32_t chunk_size = flags & CHUNK_COMPRESSED ? compressBound(size) : size;
+    mz_ulong chunk_size = flags & CHUNK_COMPRESSED ? compressBound(size) : size;
     uint8_t * const chunk = (uint8_t *) Xcalloc(1, 4 + chunk_size);
 
     Bmemcpy(chunk, type, 4);
