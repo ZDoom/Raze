@@ -4360,23 +4360,20 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         {
                             status |= MT_XRight;
 
-                            if (object->onehundredpercent == 0)
-                                object->onehundredpercent = object->max;
+                            int32_t onehundredpercent = object->onehundredpercent;
+                            if (onehundredpercent == 0)
+                                onehundredpercent = object->max;
 
                             switch (object->flags & DisplayTypeMask)
                             {
-                                case 1:
+                                case DisplayTypeInteger:
                                     Bsprintf(tempbuf, "%d", *object->variable);
                                     break;
-                                case 2:
-                                {
-                                    int32_t v;
-                                    v = Blrintf(((float) *object->variable * 100.f) / (float) object->onehundredpercent);
-                                    Bsprintf(tempbuf, "%d%%", v);
+                                case DisplayTypePercent:
+                                    Bsprintf(tempbuf, "%d%%", roundscale(*object->variable, 100, onehundredpercent));
                                     break;
-                                }
-                                case 3:
-                                    Bsprintf(tempbuf, "%.2f", (double) *object->variable / (double) object->onehundredpercent);
+                                case DisplayTypeNormalizedDecimal:
+                                    Bsprintf(tempbuf, "%.2f", (double) *object->variable / (double) onehundredpercent);
                                     break;
                             }
 
@@ -4405,7 +4402,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 // region between the x-midline of the slidepoint at the extremes slides proportionally
                                 if (!Menu_MouseOutsideBounds(&m_mousepos, slideregionx, mousey, slideregionwidth, height))
                                 {
-                                    Menu_RunInput_EntryRangeInt32_MovementArbitrary(entry, object, Blrintf((float)((object->max - object->min) * (m_mousepos.x - slideregionx)) / slideregionwidth + object->min));
+                                    Menu_RunInput_EntryRangeInt32_MovementArbitrary(entry, object, roundscale(object->max - object->min, m_mousepos.x - slideregionx, slideregionwidth) + object->min);
 
                                     m_mousecaught = 1;
                                 }
@@ -4446,7 +4443,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & (MEF_Disabled|MEF_LookDisabled)) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         const int32_t slideregionwidth = mulscale16((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z);
-                        const int32_t slidepointx = slidebarx + (1<<16) + (int32_t)((float) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
+                        const int32_t slidepointx = slidebarx + (1<<16) + Blrintf((float) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
                         const int32_t slidepointy = slidebary + mulscale16((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z);
 
                         rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & (MEF_Disabled|MEF_LookDisabled)) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
@@ -4455,23 +4452,20 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         {
                             status |= MT_XRight;
 
-                            if (object->onehundredpercent == 0)
-                                object->onehundredpercent = 1.f;
+                            float onehundredpercent = object->onehundredpercent;
+                            if (onehundredpercent == 0.f)
+                                onehundredpercent = 1.f;
 
                             switch (object->flags & DisplayTypeMask)
                             {
-                                case 1:
+                                case DisplayTypeInteger:
                                     Bsprintf(tempbuf, "%.2f", *object->variable);
                                     break;
-                                case 2:
-                                {
-                                    int32_t v;
-                                    v = Blrintf((*object->variable * 100.f) / object->onehundredpercent);
-                                    Bsprintf(tempbuf, "%d%%", v);
+                                case DisplayTypePercent:
+                                    Bsprintf(tempbuf, "%d%%", Blrintf(*object->variable * 100.f / onehundredpercent));
                                     break;
-                                }
-                                case 3:
-                                    Bsprintf(tempbuf, "%.2f", *object->variable / object->onehundredpercent);
+                                case DisplayTypeNormalizedDecimal:
+                                    Bsprintf(tempbuf, "%.2f", *object->variable / onehundredpercent);
                                     break;
                             }
 
@@ -4541,7 +4535,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         rotatesprite_ybounds(slidebarx, slidebary, z, 0, SLIDEBAR, s, (entry->flags & (MEF_Disabled|MEF_LookDisabled)) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
 
                         const int32_t slideregionwidth = mulscale16((tilesiz[SLIDEBAR].x-2-tilesiz[SLIDEBAR+1].x)<<16, z);
-                        const int32_t slidepointx = slidebarx + (1<<16) + (int32_t)((double) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
+                        const int32_t slidepointx = slidebarx + (1<<16) + lrint((double) slideregionwidth * (*object->variable - object->min) / (object->max - object->min));
                         const int32_t slidepointy = slidebary + mulscale16((tilesiz[SLIDEBAR].y-tilesiz[SLIDEBAR+1].y)<<15, z);
 
                         rotatesprite_ybounds(slidepointx, slidepointy, z, 0, SLIDEBAR+1, s, (entry->flags & (MEF_Disabled|MEF_LookDisabled)) ? 1 : 0, 2|8|16|ROTATESPRITE_FULL16, ydim_upper, ydim_lower);
@@ -4550,23 +4544,20 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         {
                             status |= MT_XRight;
 
-                            if (object->onehundredpercent == 0)
-                                object->onehundredpercent = 1.;
+                            double onehundredpercent = object->onehundredpercent;
+                            if (onehundredpercent == 0.)
+                                onehundredpercent = 1.;
 
                             switch (object->flags & DisplayTypeMask)
                             {
-                                case 1:
+                                case DisplayTypeInteger:
                                     Bsprintf(tempbuf, "%.2f", *object->variable);
                                     break;
-                                case 2:
-                                {
-                                    int32_t v;
-                                    v = Blrintf((*object->variable * 100.) / object->onehundredpercent);
-                                    Bsprintf(tempbuf, "%d%%", v);
+                                case DisplayTypePercent:
+                                    Bsprintf(tempbuf, "%ld%%", lrint(*object->variable * 100. / onehundredpercent));
                                     break;
-                                }
-                                case 3:
-                                    Bsprintf(tempbuf, "%.2f", *object->variable / object->onehundredpercent);
+                                case DisplayTypeNormalizedDecimal:
+                                    Bsprintf(tempbuf, "%.2f", *object->variable / onehundredpercent);
                                     break;
                             }
 
@@ -5357,10 +5348,10 @@ static void Menu_RunInput_EntryRangeInt32_MovementArbitrary(MenuEntry_t *entry, 
 {
     if (object->flags & EnforceIntervals)
     {
-        const float interval = ((float) (object->max - object->min)) / (object->steps - 1);
-        const float currentPos = (float) (newValue - object->min) / interval;
-        const int32_t newValueIndex = Blrintf(currentPos);
-        newValue = Blrintf(interval * newValueIndex + object->min);
+        int32_t const range = object->max - object->min;
+        int32_t const maxInterval = object->steps - 1;
+        int32_t const newValueIndex = roundscale(newValue - object->min, maxInterval, range);
+        newValue = roundscale(newValueIndex, range, maxInterval) + object->min;
     }
 
     Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, newValue);
@@ -5368,15 +5359,16 @@ static void Menu_RunInput_EntryRangeInt32_MovementArbitrary(MenuEntry_t *entry, 
 
 static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRangeInt32_t *object, MenuMovement_t direction)
 {
-    const float interval = ((float) (object->max - object->min)) / (object->steps - 1);
-    const float currentPos = (float) (*object->variable - object->min) / interval;
-    int32_t newValueIndex = Blrintf(currentPos);
-    const int32_t newValueProjected = Blrintf(interval * newValueIndex + object->min);
+    int32_t const oldValue = *object->variable;
+    int32_t const range = object->max - object->min;
+    int32_t const maxInterval = object->steps - 1;
+    int32_t newValueIndex = roundscale(oldValue - object->min, maxInterval, range);
+    int32_t const newValueProjected = roundscale(newValueIndex, range, maxInterval) + object->min;
 
     switch (direction)
     {
         case MM_Left:
-            if (newValueIndex >= currentPos || *object->variable == newValueProjected)
+            if (newValueProjected >= oldValue)
                 --newValueIndex;
             if (newValueIndex >= 0)
                 break;
@@ -5386,20 +5378,21 @@ static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRange
             break;
 
         case MM_Right:
-            if (newValueIndex <= currentPos || *object->variable == newValueProjected)
+            if (newValueProjected <= oldValue)
                 ++newValueIndex;
-            if (newValueIndex < object->steps)
+            if (newValueIndex <= maxInterval)
                 break;
             fallthrough__;
         case MM_AllTheWayRight:
-            newValueIndex = object->steps-1;
+            newValueIndex = maxInterval;
             break;
 
         default:
             break;
     }
 
-    Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, Blrintf(interval * newValueIndex + object->min));
+    int32_t const newValue = roundscale(newValueIndex, range, maxInterval) + object->min;
+    Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, newValue);
 }
 
 static void Menu_RunInput_EntryRangeFloat_MovementVerify(MenuEntry_t *entry, MenuRangeFloat_t *object, float newValue)
@@ -5415,10 +5408,10 @@ static void Menu_RunInput_EntryRangeFloat_MovementArbitrary(MenuEntry_t *entry, 
 {
     if (object->flags & EnforceIntervals)
     {
-        const float interval = (object->max - object->min) / (object->steps - 1);
-        const float currentPos = (newValue - object->min) / interval;
-        const int32_t newValueIndex = Blrintf(currentPos);
-        newValue = interval * newValueIndex + object->min;
+        float const range = object->max - object->min;
+        float const maxInterval = object->steps - 1;
+        float const newValueIndex = rintf((newValue - object->min) * maxInterval / range);
+        newValue = newValueIndex * range / maxInterval + object->min;
     }
 
     Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, newValue);
@@ -5426,38 +5419,40 @@ static void Menu_RunInput_EntryRangeFloat_MovementArbitrary(MenuEntry_t *entry, 
 
 static void Menu_RunInput_EntryRangeFloat_Movement(MenuEntry_t *entry, MenuRangeFloat_t *object, MenuMovement_t direction)
 {
-    const float interval = (object->max - object->min) / (object->steps - 1);
-    const float currentPos = (*object->variable - object->min) / interval;
-    int32_t newValueIndex = Blrintf(currentPos);
-    const float newValueProjected = interval * newValueIndex + object->min;
+    float const oldValue = *object->variable;
+    float const range = object->max - object->min;
+    float const maxInterval = object->steps - 1;
+    float newValueIndex = rintf((oldValue - object->min) * maxInterval / range);
+    float const newValueProjected = newValueIndex * range / maxInterval + object->min;
 
     switch (direction)
     {
         case MM_Left:
-            if (newValueIndex >= currentPos || *object->variable == newValueProjected)
-                --newValueIndex;
-            if (newValueIndex >= 0)
+            if (newValueProjected >= oldValue)
+                newValueIndex -= 1.f;
+            if (newValueIndex >= 0.f)
                 break;
             fallthrough__;
         case MM_AllTheWayLeft:
-            newValueIndex = 0;
+            newValueIndex = 0.f;
             break;
 
         case MM_Right:
-            if (newValueIndex <= currentPos || *object->variable == newValueProjected)
-                ++newValueIndex;
-            if (newValueIndex < object->steps)
+            if (newValueProjected <= oldValue)
+                newValueIndex += 1.f;
+            if (newValueIndex <= maxInterval)
                 break;
             fallthrough__;
         case MM_AllTheWayRight:
-            newValueIndex = object->steps-1;
+            newValueIndex = maxInterval;
             break;
 
         default:
             break;
     }
 
-    Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, interval * newValueIndex + object->min);
+    float const newValue = newValueIndex * range / maxInterval + object->min;
+    Menu_RunInput_EntryRangeFloat_MovementVerify(entry, object, newValue);
 }
 
 static void Menu_RunInput_EntryRangeDouble_MovementVerify(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, double newValue)
@@ -5470,10 +5465,10 @@ static void Menu_RunInput_EntryRangeDouble_MovementArbitrary(/*MenuEntry_t *entr
 {
     if (object->flags & EnforceIntervals)
     {
-        const double interval = (object->max - object->min) / (object->steps - 1);
-        const double currentPos = (newValue - object->min) / interval;
-        const int32_t newValueIndex = Blrintf(currentPos);
-        newValue = interval * newValueIndex + object->min;
+        double const range = object->max - object->min;
+        double const maxInterval = object->steps - 1;
+        double const newValueIndex = rint((newValue - object->min) * maxInterval / range);
+        newValue = newValueIndex * range / maxInterval + object->min;
     }
 
     Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, newValue);
@@ -5481,38 +5476,40 @@ static void Menu_RunInput_EntryRangeDouble_MovementArbitrary(/*MenuEntry_t *entr
 
 static void Menu_RunInput_EntryRangeDouble_Movement(/*MenuEntry_t *entry, */MenuRangeDouble_t *object, MenuMovement_t direction)
 {
-    const double interval = (object->max - object->min) / (object->steps - 1);
-    const double currentPos = (*object->variable - object->min) / interval;
-    int32_t newValueIndex = Blrintf(currentPos);
-    const double newValueProjected = interval * newValueIndex + object->min;
+    double const oldValue = *object->variable;
+    double const range = object->max - object->min;
+    double const maxInterval = object->steps - 1;
+    double newValueIndex = rint((oldValue - object->min) * maxInterval / range);
+    double const newValueProjected = newValueIndex * range / maxInterval + object->min;
 
     switch (direction)
     {
         case MM_Left:
-            if (newValueIndex >= currentPos || *object->variable == newValueProjected)
-                --newValueIndex;
-            if (newValueIndex >= 0)
+            if (newValueProjected >= oldValue)
+                newValueIndex -= 1.;
+            if (newValueIndex >= 0.)
                 break;
             fallthrough__;
         case MM_AllTheWayLeft:
-            newValueIndex = 0;
+            newValueIndex = 0.;
             break;
 
         case MM_Right:
-            if (newValueIndex <= currentPos || *object->variable == newValueProjected)
-                ++newValueIndex;
-            if (newValueIndex < object->steps)
+            if (newValueProjected <= oldValue)
+                newValueIndex += 1.;
+            if (newValueIndex <= maxInterval)
                 break;
             fallthrough__;
         case MM_AllTheWayRight:
-            newValueIndex = object->steps-1;
+            newValueIndex = maxInterval;
             break;
 
         default:
             break;
     }
 
-    Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, interval * newValueIndex + object->min);
+    double const newValue = newValueIndex * range / maxInterval + object->min;
+    Menu_RunInput_EntryRangeDouble_MovementVerify(/*entry, */object, newValue);
 }
 
 static void Menu_RunInput_EntryString_Activate(MenuEntry_t *entry)
