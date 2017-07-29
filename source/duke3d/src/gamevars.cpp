@@ -754,10 +754,12 @@ special:
             returnValue = VM_GetPlayerInput(arrayIndex, labelNum);
             break;
 
+        // no THISACTOR check here because we convert those cases to setvarvar
         case STRUCT_ACTORVAR:
+            returnValue = Gv_GetVar(labelNum, arrayIndex, vm.playerNum);
+            break;
         case STRUCT_PLAYERVAR:
-            // no THISACTOR check here because we convert those cases to setvarvar
-            returnValue = Gv_GetVar(labelNum, arrayIndex, playerNum);
+            returnValue = Gv_GetVar(labelNum, vm.spriteNum, arrayIndex);
             break;
 
         case STRUCT_SECTOR:
@@ -950,10 +952,12 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 returnValue = VM_GetPlayerInput(arrayIndex, labelNum);
                 break;
 
+            // no THISACTOR check here because we convert those cases to setvarvar
             case STRUCT_ACTORVAR:
-            case STRUCT_PLAYERVAR:
-                // no THISACTOR check here because we convert those cases to setvarvar
                 returnValue = Gv_GetVar(labelNum, arrayIndex, vm.playerNum);
+                break;
+            case STRUCT_PLAYERVAR:
+                returnValue = Gv_GetVar(labelNum, vm.spriteNum, arrayIndex);
                 break;
 
             case STRUCT_SECTOR:
