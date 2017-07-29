@@ -179,7 +179,7 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\mhk.$o \
 	$(ENGINE_OBJ)\pngwrite.$o \
 	$(ENGINE_OBJ)\miniz.$o
- 
+
 
 ENGINE_EDITOR_OBJS=$(ENGINE_OBJ)\build.$o \
 	$(ENGINE_OBJ)\startwin.editor.$o \

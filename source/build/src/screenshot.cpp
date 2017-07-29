@@ -166,7 +166,7 @@ int screencapture_tga(const char *filename, char inverseit)
 
     Bfwrite(head, 18, 1, fil);
 
-    // palette first 
+    // palette first
 #ifdef USE_OPENGL
     if (!HICOLOR)
 #endif
@@ -201,7 +201,7 @@ int screencapture_tga(const char *filename, char inverseit)
         uint8_t *inversebuf = (uint8_t *) Xmalloc(size);
 
         bglReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, inversebuf);
-       
+
         for (i = 0; i < size; i += 3)
             swapchar(&inversebuf[i], &inversebuf[i + 2]);
 

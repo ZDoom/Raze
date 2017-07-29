@@ -4292,7 +4292,7 @@ finish_qsprintf:
 
             if (tw == CON_CHECKAVAILWEAPON)
                 P_CheckWeapon(g_player[tw].ps);
-            else 
+            else
                 P_SelectNextInvItem(g_player[tw].ps);
 
             continue;

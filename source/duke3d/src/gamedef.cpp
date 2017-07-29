@@ -192,7 +192,7 @@ const tokenmap_t altkeyw [] =
     { "findnearspritez", CON_FINDNEARSPRITEZVAR },
 };
 
-const char *keyw[] = { 
+const char *keyw[] = {
     "else",         // 0  used with if checks
     "actor",        // 1  defines an actor
     "addammo",      // 2  adds ammo to a weapon
@@ -382,7 +382,7 @@ const char *keyw[] = {
     "myospalx",                // 186
     "gmaxammo",                // 187
     "smaxammo",                // 188
-    "startlevel",              // 189 
+    "startlevel",              // 189
     NULL,                      // 190  Beginning of EDuke32
     NULL,                      // 191
     "rotatesprite",            // 192
@@ -6172,7 +6172,7 @@ static void C_AddDefaultDefinitions(void)
         C_AddDefinition(tempbuf, i, LABEL_DEFINE);
     }
 
-    tokenmap_t predefined[] = { 
+    tokenmap_t predefined[] = {
         { "STAT_DEFAULT", STAT_DEFAULT },
         { "STAT_ACTOR", STAT_ACTOR },
         { "STAT_ZOMBIEACTOR", STAT_ZOMBIEACTOR },

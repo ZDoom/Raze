@@ -62,7 +62,7 @@ void png_write(FILE * const file, uint32_t const width, uint32_t const height,
                uint8_t type, uint8_t const * const data)
 {
     png.file = file;
-    
+
     png_write_buf("\x89\x50\x4E\x47\x0D\x0A\x1A\x0A", 8);
 
     png_ihdr_t const png_header = { B_BIG32(width), B_BIG32(height), 8, type, 0  };
