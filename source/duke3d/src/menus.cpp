@@ -4466,7 +4466,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     Bsprintf(tempbuf, "%.2f", *object->variable);
                                     break;
                                 case DisplayTypePercent:
-                                    Bsprintf(tempbuf, "%d%%", Blrintf(*object->variable * 100.f / onehundredpercent));
+                                    Bsprintf(tempbuf, "%ld%%", lrintf(*object->variable * 100.f / onehundredpercent));
                                     break;
                                 case DisplayTypeNormalizedDecimal:
                                     Bsprintf(tempbuf, "%.2f", *object->variable / onehundredpercent);
