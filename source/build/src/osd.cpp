@@ -957,8 +957,8 @@ int32_t OSD_HandleChar(char ch)
 
             if (--editor.pos < editor.start)
                 editor.start--, editor.end--;
-            fallthrough__;
 #ifndef __APPLE__
+        fallthrough__;
         case 127:  // handled in OSD_HandleScanCode (delete)
 #endif
             return 0;
