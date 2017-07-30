@@ -4280,22 +4280,23 @@ finish_qsprintf:
 
         case CON_CHECKAVAILWEAPON:
         case CON_CHECKAVAILINVEN:
+        {
             insptr++;
-            tw = (*insptr != g_thisActorVarID) ? Gv_GetVarX(*insptr) : vm.playerNum;
-            insptr++;
+            size_t const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*insptr) : vm.playerNum;
 
-            if (EDUKE32_PREDICT_FALSE((unsigned)tw >= (unsigned)g_mostConcurrentPlayers))
+            if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
             {
-                CON_ERRPRINTF("invalid player %d\n", tw);
+                CON_ERRPRINTF("invalid player %d\n", (int)playerNum);
                 continue;
             }
 
             if (tw == CON_CHECKAVAILWEAPON)
-                P_CheckWeapon(g_player[tw].ps);
+                P_CheckWeapon(g_player[playerNum].ps);
             else
-                P_SelectNextInvItem(g_player[tw].ps);
+                P_SelectNextInvItem(g_player[playerNum].ps);
 
             continue;
+        }
 
         case CON_GETPLAYERANGLE:
             insptr++;
