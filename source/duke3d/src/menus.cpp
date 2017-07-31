@@ -338,7 +338,7 @@ static MenuOption_t MEO_GAMESETUP_STARTWIN = MAKE_MENUOPTION( &MF_Redfont, &MEOS
 static MenuEntry_t ME_GAMESETUP_STARTWIN = MAKE_MENUENTRY( "Startup window:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_STARTWIN, Option );
 #endif
 
-static char const *MEOSN_GAMESETUP_AIM_AUTO[] = { "None", "Regular", "Bullets only",
+static char const *MEOSN_GAMESETUP_AIM_AUTO[] = { "Never", "Always", "Hitscan only",
 #ifdef EDUKE32_ANDROID_MENU
 "Extra wide"
 #endif
@@ -403,7 +403,9 @@ static MenuEntry_t *MEL_GAMESETUP[] = {
     &ME_GAMESETUP_CHEATS,
 };
 
+#ifndef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Game Setup", MEF_OptionsMenu, OPTIONS_GAMESETUP, MENU_GAMESETUP );
+#endif
 MAKE_MENU_TOP_ENTRYLINK( "Sound Setup", MEF_OptionsMenu, OPTIONS_SOUNDSETUP, MENU_SOUND );
 MAKE_MENU_TOP_ENTRYLINK( "Display Setup", MEF_OptionsMenu, OPTIONS_DISPLAYSETUP, MENU_DISPLAYSETUP );
 MAKE_MENU_TOP_ENTRYLINK( "Player Setup", MEF_OptionsMenu, OPTIONS_PLAYERSETUP, MENU_PLAYER );
@@ -607,7 +609,9 @@ static MenuEntry_t ME_CheatCodes[] = {
 };
 
 static MenuEntry_t *MEL_OPTIONS[] = {
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_OPTIONS_GAMESETUP,
+#endif
     &ME_OPTIONS_SOUNDSETUP,
     &ME_OPTIONS_DISPLAYSETUP,
 #ifndef EDUKE32_ANDROID_MENU
@@ -617,6 +621,9 @@ static MenuEntry_t *MEL_OPTIONS[] = {
     &ME_OPTIONS_CONTROLS,
 #else
     &ME_OPTIONS_TOUCHSETUP,
+#endif
+#ifdef EDUKE32_SIMPLE_MENU
+    &ME_GAMESETUP_CHEATS
 #endif
 };
 
@@ -764,28 +771,45 @@ static MenuEntry_t ME_MOUSESETUP_BTNS = MAKE_MENUENTRY( "Button assignment", &MF
 static MenuRangeFloat_t MEO_MOUSESETUP_SENSITIVITY = MAKE_MENURANGE( &CONTROL_MouseSensitivity, &MF_Redfont, .5f, 16.f, 0.f, 32, 1 );
 static MenuEntry_t ME_MOUSESETUP_SENSITIVITY = MAKE_MENUENTRY( "Sensitivity:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_SENSITIVITY, RangeFloat );
 
+#ifndef EDUKE32_SIMPLE_MENU
 static char const *MEOSN_MOUSESETUP_AIM_TYPE [] = { "Toggle", "Hold" };
 static MenuOptionSet_t MEOS_MOUSESETUP_AIM_TYPE = MAKE_MENUOPTIONSET(MEOSN_MOUSESETUP_AIM_TYPE, NULL, 0x2);
 static MenuOption_t MEO_MOUSESETUP_MOUSEAIMINGTYPE = MAKE_MENUOPTION(&MF_Redfont, &MEOS_MOUSESETUP_AIM_TYPE, &ud.mouseaiming);
 static MenuEntry_t ME_MOUSESETUP_MOUSEAIMINGTYPE = MAKE_MENUENTRY("Aiming type:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_MOUSEAIMINGTYPE, Option);
 static MenuOption_t MEO_MOUSESETUP_MOUSEAIMING = MAKE_MENUOPTION( &MF_Redfont, &MEOS_NoYes, &g_myAimMode );
 static MenuEntry_t ME_MOUSESETUP_MOUSEAIMING = MAKE_MENUENTRY( "Vertical aiming:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_MOUSEAIMING, Option );
+#endif
 static MenuOption_t MEO_MOUSESETUP_INVERT = MAKE_MENUOPTION( &MF_Redfont, &MEOS_YesNo, &ud.mouseflip );
 static MenuEntry_t ME_MOUSESETUP_INVERT = MAKE_MENUENTRY( "Invert aiming:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_INVERT, Option );
 static MenuOption_t MEO_MOUSESETUP_SMOOTH = MAKE_MENUOPTION( &MF_Redfont, &MEOS_NoYes, &ud.config.SmoothInput );
 static MenuEntry_t ME_MOUSESETUP_SMOOTH = MAKE_MENUENTRY( "Filter input:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_SMOOTH, Option );
+#ifndef EDUKE32_SIMPLE_MENU
 static MenuLink_t MEO_MOUSESETUP_ADVANCED = { MENU_MOUSEADVANCED, MA_Advance, };
 static MenuEntry_t ME_MOUSESETUP_ADVANCED = MAKE_MENUENTRY( "Advanced setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_ADVANCED, Link );
+#endif
+static MenuRangeInt32_t MEO_MOUSEADVANCED_SCALEX = MAKE_MENURANGE(&ud.config.MouseAnalogueScale[0], &MF_Redfont, 512, 65536, 65536, 63, 3);
+static MenuEntry_t ME_MOUSEADVANCED_SCALEX = MAKE_MENUENTRY("X-Axis Scale:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSEADVANCED_SCALEX, RangeInt32);
+static MenuRangeInt32_t MEO_MOUSEADVANCED_SCALEY = MAKE_MENURANGE(&ud.config.MouseAnalogueScale[1], &MF_Redfont, 512, 65536, 65536, 63, 3);
+static MenuEntry_t ME_MOUSEADVANCED_SCALEY = MAKE_MENUENTRY("Y-Axis Scale:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSEADVANCED_SCALEY, RangeInt32);
 
 static MenuEntry_t *MEL_MOUSESETUP[] = {
-    &ME_MOUSESETUP_SENSITIVITY,
     &ME_MOUSESETUP_BTNS,
+    &ME_MOUSESETUP_SENSITIVITY,
+#ifdef EDUKE32_SIMPLE_MENU
+    &ME_MOUSEADVANCED_SCALEX,
+    &ME_MOUSEADVANCED_SCALEY,
+#endif
     &ME_Space2_Redfont,
-    &ME_MOUSESETUP_MOUSEAIMINGTYPE,
-    &ME_MOUSESETUP_MOUSEAIMING,
+#ifdef EDUKE32_SIMPLE_MENU
+    &ME_GAMESETUP_AIM_AUTO,
+#endif
     &ME_MOUSESETUP_INVERT,
     &ME_MOUSESETUP_SMOOTH,
+#ifndef EDUKE32_SIMPLE_MENU
+    &ME_MOUSESETUP_MOUSEAIMINGTYPE,
+    &ME_MOUSESETUP_MOUSEAIMING,
     &ME_MOUSESETUP_ADVANCED,
+#endif
 };
 
 #ifdef EDUKE32_ANDROID_MENU
@@ -844,11 +868,6 @@ static MenuEntry_t ME_JOYSTICKAXES[MAXJOYAXES];
 static char MenuJoystickAxes[MAXJOYAXES][MAXJOYBUTTONSTRINGLENGTH];
 
 static MenuEntry_t *MEL_JOYSTICKAXES[MAXJOYAXES];
-
-static MenuRangeInt32_t MEO_MOUSEADVANCED_SCALEX = MAKE_MENURANGE( &ud.config.MouseAnalogueScale[0], &MF_Bluefont, -262144, 262144, 65536, 65, 3 );
-static MenuEntry_t ME_MOUSEADVANCED_SCALEX = MAKE_MENUENTRY( "X-Axis Scale", &MF_Redfont, &MEF_BigSliders, &MEO_MOUSEADVANCED_SCALEX, RangeInt32 );
-static MenuRangeInt32_t MEO_MOUSEADVANCED_SCALEY = MAKE_MENURANGE( &ud.config.MouseAnalogueScale[1], &MF_Bluefont, -262144, 262144, 65536, 65, 3 );
-static MenuEntry_t ME_MOUSEADVANCED_SCALEY = MAKE_MENUENTRY( "Y-Axis Scale", &MF_Redfont, &MEF_BigSliders, &MEO_MOUSEADVANCED_SCALEY, RangeInt32 );
 
 static MenuOption_t MEO_MOUSEADVANCED_DAXES_UP = MAKE_MENUOPTION( &MF_BluefontRed, &MEOS_Gamefuncs, &ud.config.MouseDigitalFunctions[1][0] );
 static MenuEntry_t ME_MOUSEADVANCED_DAXES_UP = MAKE_MENUENTRY( "Digital Up", &MF_Redfont, &MEF_BigSliders, &MEO_MOUSEADVANCED_DAXES_UP, Option );
@@ -1363,7 +1382,11 @@ static Menu_t Menus[] = {
     { &M_SOUND, MENU_SOUND, MENU_OPTIONS, MA_Return, Menu },
     { &M_SOUND, MENU_SOUND_INGAME, MENU_CLOSE, MA_Return, Menu },
     { &M_ADVSOUND, MENU_ADVSOUND, MENU_SOUND, MA_Return, Menu },
+#ifdef EDUKE32_SIMPLE_MENU
+    { &M_CHEATS, MENU_CHEATS, MENU_OPTIONS, MA_Return, Menu },
+#else
     { &M_CHEATS, MENU_CHEATS, MENU_GAMESETUP, MA_Return, Menu },
+#endif
     { &M_CHEATENTRY, MENU_CHEATENTRY, MENU_CHEATS, MA_None, TextForm },
     { &M_CHEAT_WARP, MENU_CHEAT_WARP, MENU_CHEATS, MA_None, TextForm },
     { &M_CHEAT_SKILL, MENU_CHEAT_SKILL, MENU_CHEATS, MA_None, TextForm },
@@ -1817,10 +1840,11 @@ static void Menu_Pre(MenuID_t cm)
                                                         soundvoices == ud.config.NumVoices);
         break;
 
+#ifndef EDUKE32_SIMPLE_MENU
     case MENU_MOUSESETUP:
         MenuEntry_DisableOnCondition(&ME_MOUSESETUP_MOUSEAIMING, ud.mouseaiming);
         break;
-
+#endif
     case MENU_NETOPTIONS:
         if (MEOSV_NetEpisodes[MEO_NETOPTIONS_EPISODE.currentOption] == MAXVOLUMES)
             MEL_NETOPTIONS[2] = &ME_NETOPTIONS_USERMAP;
@@ -2013,17 +2037,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         }
         break;
 
-    case MENU_KEYBOARDKEYS:
-        mgametextcenter(origin.x, origin.y + (156<<16), "Up/Down = Select Action\n"
-                                                        "Left/Right = Select List\n"
-                                                        "Enter = Modify   Delete = Clear");
-        break;
-
-    case MENU_MOUSEBTNS:
-        mgametextcenter(origin.x, origin.y + (169<<16), "Up/Down = Select Button\n"
-                                                        "Enter = Modify");
-        break;
-
     case MENU_MOUSEADVANCED:
     {
         size_t i;
@@ -2034,11 +2047,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                                                                 "or for aiming up and down");
             }
     }
-        break;
-
-    case MENU_JOYSTICKBTNS:
-        mgametextcenter(origin.x, origin.y + (149<<16), "Up/Down = Select Button\n"
-                                                        "Enter = Modify");
         break;
 
     case MENU_RESETPLAYER:
