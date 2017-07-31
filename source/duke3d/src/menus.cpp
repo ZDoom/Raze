@@ -381,6 +381,7 @@ static MenuOption_t MEO_GAMESETUP_QUICKSWITCH = MAKE_MENUOPTION(&MF_Redfont, &ME
 static MenuEntry_t ME_GAMESETUP_QUICKSWITCH = MAKE_MENUENTRY("Quick weapon switch:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_QUICKSWITCH, Option);
 #endif
 
+#if defined(EDUKE32_ANDROID_MENU) || !defined(EDUKE32_SIMPLE_MENU)
 static MenuLink_t MEO_GAMESETUP_CHEATS = { MENU_CHEATS, MA_Advance, };
 static MenuEntry_t ME_GAMESETUP_CHEATS = MAKE_MENUENTRY( "Cheats", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_CHEATS, Link );
 
@@ -402,6 +403,7 @@ static MenuEntry_t *MEL_GAMESETUP[] = {
 #endif
     &ME_GAMESETUP_CHEATS,
 };
+#endif
 
 #ifndef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Game Setup", MEF_OptionsMenu, OPTIONS_GAMESETUP, MENU_GAMESETUP );
@@ -418,6 +420,9 @@ MAKE_MENU_TOP_ENTRYLINK( "Mouse Setup", MEF_CenterMenu, OPTIONS_MOUSESETUP, MENU
 MAKE_MENU_TOP_ENTRYLINK( "Joystick Setup", MEF_CenterMenu, OPTIONS_JOYSTICKSETUP, MENU_JOYSTICKSETUP );
 #ifdef EDUKE32_ANDROID_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Touch Setup", MEF_CenterMenu, OPTIONS_TOUCHSETUP, MENU_TOUCHSETUP );
+#endif
+#ifdef EDUKE32_SIMPLE_MENU
+MAKE_MENU_TOP_ENTRYLINK("Cheats", MEF_OptionsMenu, OPTIONS_CHEATS, MENU_CHEATS);
 #endif
 
 static int32_t newresolution, newrendermode, newfullscreen, newvsync;
@@ -612,8 +617,8 @@ static MenuEntry_t *MEL_OPTIONS[] = {
 #ifndef EDUKE32_SIMPLE_MENU
     &ME_OPTIONS_GAMESETUP,
 #endif
-    &ME_OPTIONS_SOUNDSETUP,
     &ME_OPTIONS_DISPLAYSETUP,
+    &ME_OPTIONS_SOUNDSETUP,
 #ifndef EDUKE32_ANDROID_MENU
 #ifndef EDUKE32_SIMPLE_MENU
     &ME_OPTIONS_PLAYERSETUP,
@@ -623,7 +628,7 @@ static MenuEntry_t *MEL_OPTIONS[] = {
     &ME_OPTIONS_TOUCHSETUP,
 #endif
 #ifdef EDUKE32_SIMPLE_MENU
-    &ME_GAMESETUP_CHEATS
+    &ME_OPTIONS_CHEATS
 #endif
 };
 
@@ -1258,7 +1263,9 @@ static MenuMenu_t M_MAIN = MAKE_MENUMENU( NoTitle, &MMF_Top_Main, MEL_MAIN );
 static MenuMenu_t M_MAIN_INGAME = MAKE_MENUMENU( NoTitle, &MMF_Top_Main, MEL_MAIN_INGAME );
 static MenuMenu_t M_EPISODE = MAKE_MENUMENU( "Select An Episode", &MMF_Top_Episode, MEL_EPISODE );
 static MenuMenu_t M_SKILL = MAKE_MENUMENU( "Select Skill", &MMF_Top_Skill, MEL_SKILL );
+#ifndef EDUKE32_SIMPLE_MENU
 static MenuMenu_t M_GAMESETUP = MAKE_MENUMENU( "Game Setup", &MMF_BigOptions, MEL_GAMESETUP );
+#endif
 static MenuMenu_t M_OPTIONS = MAKE_MENUMENU( s_Options, &MMF_Top_Options, MEL_OPTIONS );
 static MenuMenu_t M_VIDEOSETUP = MAKE_MENUMENU( "Video Mode", &MMF_BigOptions, MEL_VIDEOSETUP );
 static MenuMenu_t M_KEYBOARDSETUP = MAKE_MENUMENU( "Keyboard Setup", &MMF_Top_Options, MEL_KEYBOARDSETUP );
@@ -1341,7 +1348,9 @@ static Menu_t Menus[] = {
     { &M_EPISODE, MENU_EPISODE, MENU_MAIN, MA_Return, Menu },
     { &M_USERMAP, MENU_USERMAP, MENU_EPISODE, MA_Return, FileSelect },
     { &M_SKILL, MENU_SKILL, MENU_EPISODE, MA_Return, Menu },
+#ifndef EDUKE32_SIMPLE_MENU
     { &M_GAMESETUP, MENU_GAMESETUP, MENU_OPTIONS, MA_Return, Menu },
+#endif
     { &M_OPTIONS, MENU_OPTIONS, MENU_MAIN, MA_Return, Menu },
     { &M_VIDEOSETUP, MENU_VIDEOSETUP, MENU_DISPLAYSETUP, MA_Return, Menu },
     { &M_KEYBOARDSETUP, MENU_KEYBOARDSETUP, MENU_CONTROLS, MA_Return, Menu },
