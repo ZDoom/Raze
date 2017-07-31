@@ -5423,7 +5423,7 @@ static void Menu_RunInput_EntryRangeFloat_MovementArbitrary(MenuEntry_t *entry, 
     if (object->flags & EnforceIntervals)
     {
         float const range = object->max - object->min;
-        float const maxInterval = object->steps - 1;
+        float const maxInterval = (float)(object->steps - 1);
         float const newValueIndex = rintf((newValue - object->min) * maxInterval / range);
         newValue = newValueIndex * range / maxInterval + object->min;
     }
@@ -5435,7 +5435,7 @@ static void Menu_RunInput_EntryRangeFloat_Movement(MenuEntry_t *entry, MenuRange
 {
     float const oldValue = *object->variable;
     float const range = object->max - object->min;
-    float const maxInterval = object->steps - 1;
+    float const maxInterval = (float)(object->steps - 1);
     float newValueIndex = rintf((oldValue - object->min) * maxInterval / range);
     float const newValueProjected = newValueIndex * range / maxInterval + object->min;
 
