@@ -4107,7 +4107,19 @@ DO_DEFSTATE:
 
         case CON_CLAMP:
         case CON_GETCLOSESTCOL:
+        case CON_CALCHYPOTENUSE:
             C_GetNextVarType(GAMEVAR_READONLY);
+            fallthrough__;
+        case CON_CHANGESPRITESTAT:
+        case CON_CHANGESPRITESECT:
+        case CON_ZSHOOTVAR:
+        case CON_EZSHOOTVAR:
+        case CON_GETPNAME:
+        case CON_STARTLEVEL:
+        case CON_QSTRCAT:
+        case CON_QSTRCPY:
+        case CON_QGETSYSSTR:
+        case CON_STOPACTORSOUND:
             C_GetManyVars(2);
             continue;
 
@@ -4407,6 +4419,7 @@ DO_DEFSTATE:
 
         case CON_GETFLORZOFSLOPE:
         case CON_GETCEILZOFSLOPE:
+        case CON_UPDATESECTORZ:
             C_GetManyVars(3);
             C_GetNextVarType(GAMEVAR_READONLY);
             continue;
@@ -4709,11 +4722,6 @@ DO_DEFSTATE:
             C_GetManyVars(6);
             continue;
 
-        case CON_CALCHYPOTENUSE:
-            C_GetNextVarType(GAMEVAR_READONLY);
-            C_GetManyVars(2);
-            continue;
-
         case CON_LINEINTERSECT:
         case CON_RAYINTERSECT:
             // lineintersect x y z  x y z  x y  x y  <intx> <inty> <intz> <ret>
@@ -4731,6 +4739,7 @@ DO_DEFSTATE:
             continue;
 
         case CON_CANSEESPR:
+        case CON_UPDATESECTOR:
             C_GetManyVars(2);
             C_GetNextVarType(GAMEVAR_READONLY);
             continue;
@@ -4751,14 +4760,8 @@ DO_DEFSTATE:
             continue;
 
         case CON_MOVESPRITE:
-        case CON_SETSPRITE:
-        case CON_NEXTSECTORNEIGHBORZ:
-            C_GetManyVars(4);
-            if (tw == CON_MOVESPRITE)
-            {
-                C_GetNextVar();
-                C_GetNextVarType(GAMEVAR_READONLY);
-            }
+            C_GetManyVars(5);
+            C_GetNextVarType(GAMEVAR_READONLY);
             continue;
 
         case CON_MINITEXT:
@@ -4790,14 +4793,6 @@ DO_DEFSTATE:
                 C_GetManyVars(5);
                 break;
             }
-            continue;
-
-        case CON_UPDATESECTOR:
-        case CON_UPDATESECTORZ:
-            C_GetManyVars(2);
-            if (tw==CON_UPDATESECTORZ)
-                C_GetNextVar();
-            C_GetNextVarType(GAMEVAR_READONLY);
             continue;
 
         case CON_MYOS:
@@ -5058,26 +5053,14 @@ repeatcase:
             C_GetManyVars(3);
             continue;
 
-        case CON_CHANGESPRITESTAT:
-        case CON_CHANGESPRITESECT:
-        case CON_ZSHOOTVAR:
-        case CON_EZSHOOTVAR:
-        case CON_GETPNAME:
-        case CON_STARTLEVEL:
-        case CON_QSTRCAT:
-        case CON_QSTRCPY:
-        case CON_QGETSYSSTR:
-        case CON_STOPACTORSOUND:
-            C_GetManyVars(2);
-            continue;
-
         case CON_QSTRDIM:
-            C_GetNextVarType(GAMEVAR_READONLY);
-            C_GetNextVarType(GAMEVAR_READONLY);
+            C_GetManyVarsType(GAMEVAR_READONLY, 2);
             C_GetManyVars(16);
             continue;
 
         case CON_QSUBSTR:
+        case CON_SETSPRITE:
+        case CON_NEXTSECTORNEIGHBORZ:
             C_GetManyVars(4);
             continue;
 
