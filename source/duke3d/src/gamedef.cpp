@@ -599,6 +599,7 @@ const char *keyw[] = {
     "getclosestcol",           // 403
     "drawline256",             // 404
     "drawlinergb",             // 405
+    "starttrackslot",          // 406
     NULL
 };
 #endif
@@ -4120,6 +4121,7 @@ DO_DEFSTATE:
         case CON_QSTRCPY:
         case CON_QGETSYSSTR:
         case CON_STOPACTORSOUND:
+        case CON_STARTTRACKSLOT:
             C_GetManyVars(2);
             continue;
 

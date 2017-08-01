@@ -1140,11 +1140,11 @@ void G_GetTimeDate(int32_t * const pValues)
     pValues[7] = pTime->tm_yday;
 }
 
-int G_StartTrack(int const levelNum)
+static int G_StartTrackSlot(int const volumeNum, int const levelNum)
 {
-    if ((unsigned)levelNum < MAXLEVELS)
+    if ((unsigned)volumeNum <= MAXVOLUMES && (unsigned)levelNum < MAXLEVELS)
     {
-        int trackNum = MAXLEVELS*ud.volume_number + levelNum;
+        int trackNum = MAXLEVELS*volumeNum + levelNum;
 
         if (g_mapInfo[trackNum].musicfn != NULL)
         {
@@ -1158,6 +1158,20 @@ int G_StartTrack(int const levelNum)
 
     return 1;
 }
+
+static void G_StartTrackSlotWrap(int const volumeNum, int const levelNum)
+{
+    if (EDUKE32_PREDICT_FALSE(G_StartTrackSlot(volumeNum, levelNum)))
+        CON_ERRPRINTF("invalid level %d or null music for volume %d level %d\n",
+                      levelNum, volumeNum, levelNum);
+}
+
+#ifdef LUNATIC
+int G_StartTrack(int const levelNum)
+{
+    return G_StartTrackSlot(ud.volume_number, levelNum);
+}
+#endif
 
 LUNATIC_EXTERN void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sect,
                                int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp)
@@ -4920,14 +4934,21 @@ finish_qsprintf:
             continue;
 
         case CON_STARTTRACK:
+            insptr++;
+            G_StartTrackSlotWrap(ud.volume_number, *(insptr++));
+            continue;
+
         case CON_STARTTRACKVAR:
             insptr++;
-            {
-                int const levelNum = (tw == CON_STARTTRACK) ? *(insptr++) : Gv_GetVarX(*(insptr++));
+            G_StartTrackSlotWrap(ud.volume_number, Gv_GetVarX(*(insptr++)));
+            continue;
 
-                if (EDUKE32_PREDICT_FALSE(G_StartTrack(levelNum)))
-                    CON_ERRPRINTF("invalid level %d or null music for volume %d level %d\n",
-                                  levelNum, ud.volume_number, levelNum);
+        case CON_STARTTRACKSLOT:
+            insptr++;
+            {
+                int const volumeNum = Gv_GetVarX(*(insptr++));
+                int const levelNum = Gv_GetVarX(*(insptr++));
+                G_StartTrackSlotWrap(volumeNum == -1 ? MAXVOLUMES : volumeNum, levelNum);
             }
             continue;
 
