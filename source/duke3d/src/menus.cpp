@@ -5374,7 +5374,7 @@ static void Menu_RunInput_EntryRangeInt32_MovementArbitrary(MenuEntry_t *entry, 
         int32_t const range = object->max - object->min;
         int32_t const maxInterval = object->steps - 1;
         int32_t const newValueIndex = roundscale(newValue - object->min, maxInterval, range);
-        newValue = roundscale(newValueIndex, range, maxInterval) + object->min;
+        newValue = newValueIndex * range / maxInterval + object->min;
     }
 
     Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, newValue);
@@ -5386,7 +5386,7 @@ static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRange
     int32_t const range = object->max - object->min;
     int32_t const maxInterval = object->steps - 1;
     int32_t newValueIndex = roundscale(oldValue - object->min, maxInterval, range);
-    int32_t const newValueProjected = roundscale(newValueIndex, range, maxInterval) + object->min;
+    int32_t const newValueProjected = newValueIndex * range / maxInterval + object->min;
 
     switch (direction)
     {
@@ -5414,7 +5414,7 @@ static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRange
             break;
     }
 
-    int32_t const newValue = roundscale(newValueIndex, range, maxInterval) + object->min;
+    int32_t const newValue = newValueIndex * range / maxInterval + object->min;
     Menu_RunInput_EntryRangeInt32_MovementVerify(entry, object, newValue);
 }
 
