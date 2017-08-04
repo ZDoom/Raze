@@ -254,11 +254,11 @@ MAKE_SPACER( Space8, 8<<16 ); // colcorr, redslide
 
 static MenuEntry_t ME_Space2_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_Null, &MEO_Space2, Spacer );
 static MenuEntry_t ME_Space4_Bluefont = MAKE_MENUENTRY( NULL, &MF_Bluefont, &MEF_Null, &MEO_Space4, Spacer );
-static MenuEntry_t ME_Space4_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_Null, &MEO_Space4, Spacer );
-static MenuEntry_t ME_Space6_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_Null, &MEO_Space6, Spacer );
 #ifndef EDUKE32_SIMPLE_MENU
+static MenuEntry_t ME_Space4_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_Null, &MEO_Space4, Spacer );
 static MenuEntry_t ME_Space8_Bluefont = MAKE_MENUENTRY( NULL, &MF_Bluefont, &MEF_Null, &MEO_Space8, Spacer );
 #endif
+static MenuEntry_t ME_Space6_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_Null, &MEO_Space6, Spacer );
 static MenuEntry_t ME_Space8_Redfont = MAKE_MENUENTRY( NULL, &MF_Redfont, &MEF_Null, &MEO_Space8, Spacer );
 
 #define MAKE_MENU_TOP_ENTRYLINK( Title, Format, EntryName, LinkID ) \
@@ -1187,7 +1187,9 @@ static MenuEntry_t ME_MACROS_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_Bluefont, &MEF
 static MenuEntry_t ME_MACROS[MAXRIDECULE];
 static MenuEntry_t *MEL_MACROS[MAXRIDECULE];
 
+#ifndef EDUKE32_SIMPLE_MENU
 static char const *MenuUserMap = "User Map";
+#endif
 static char const *MenuSkillNone = "None";
 
 static char const *MEOSN_NetGametypes[MAXGAMETYPES];
@@ -1532,11 +1534,16 @@ void Menu_Init(void)
         MEOS_NETOPTIONS_LEVEL[i].optionNames = MEOSN_NetLevels[i];
     }
     M_EPISODE.numEntries = g_volumeCnt+2;
+#ifndef EDUKE32_SIMPLE_MENU
     MEL_EPISODE[g_volumeCnt] = &ME_Space4_Redfont;
     MEL_EPISODE[g_volumeCnt+1] = &ME_EPISODE_USERMAP;
-    MEOS_NETOPTIONS_EPISODE.numOptions = k + 1;
     MEOSN_NetEpisodes[k] = MenuUserMap;
     MEOSV_NetEpisodes[k] = MAXVOLUMES;
+#else
+    M_EPISODE.numEntries = g_volumeCnt;
+    k--;
+#endif
+    MEOS_NETOPTIONS_EPISODE.numOptions = k + 1;
     NetEpisode = MEOSV_NetEpisodes[0];
     MMF_Top_Episode.pos.y = (58 + (3-k)*6)<<16;
     if (g_skillCnt == 0)
