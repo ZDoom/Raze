@@ -1159,14 +1159,14 @@ static int G_StartTrackSlot(int const volumeNum, int const levelNum)
     return 1;
 }
 
+#ifndef LUNATIC
 static void G_StartTrackSlotWrap(int const volumeNum, int const levelNum)
 {
     if (EDUKE32_PREDICT_FALSE(G_StartTrackSlot(volumeNum, levelNum)))
         CON_ERRPRINTF("invalid level %d or null music for volume %d level %d\n",
                       levelNum, volumeNum, levelNum);
 }
-
-#ifdef LUNATIC
+#else
 int G_StartTrack(int const levelNum)
 {
     return G_StartTrackSlot(ud.volume_number, levelNum);
