@@ -5,12 +5,12 @@
 include Common.mak
 
 ### File Extensions
-asm=nasm
-o=o
+asm := nasm
+o := o
 
 ### Directories
-source=source
-obj=obj
+source := source
+obj := obj
 
 ### Functions
 define parent
@@ -29,15 +29,14 @@ define getdeps
 $(call expanddeps,$1_$2 $(COMMON_$2_DEPS) ENGINE)
 endef
 
-COMPILERFLAGS += -I$(ENGINE_INC) -I$(MACT_INC) -I$(AUDIOLIB_INC) -I$(ENET_INC)
 
 ##### External Library Definitions
 
 #### libxmp-lite
 
-LIBXMPLITE=libxmp-lite
+LIBXMPLITE := libxmp-lite
 
-LIBXMPLITE_OBJS = \
+LIBXMPLITE_OBJS := \
     control.c \
     dataio.c \
     effects.c \
@@ -64,36 +63,36 @@ LIBXMPLITE_OBJS = \
     sample.c \
     xm_load.c \
 
-LIBXMPLITE_ROOT=$(source)/$(LIBXMPLITE)
-LIBXMPLITE_SRC=$(LIBXMPLITE_ROOT)/src
-LIBXMPLITE_INC=$(LIBXMPLITE_ROOT)/include
-LIBXMPLITE_OBJ=$(obj)/$(LIBXMPLITE)
+LIBXMPLITE_ROOT := $(source)/$(LIBXMPLITE)
+LIBXMPLITE_SRC := $(LIBXMPLITE_ROOT)/src
+LIBXMPLITE_INC := $(LIBXMPLITE_ROOT)/include
+LIBXMPLITE_OBJ := $(obj)/$(LIBXMPLITE)
 
-LIBXMPLITE_CFLAGS=-DHAVE_ROUND -DLIBXMP_CORE_PLAYER -DBUILDING_STATIC -I$(LIBXMPLITE_INC)/libxmp-lite -Wno-unused-parameter -Wno-sign-compare
+LIBXMPLITE_CFLAGS := -DHAVE_ROUND -DLIBXMP_CORE_PLAYER -DBUILDING_STATIC -I$(LIBXMPLITE_INC)/libxmp-lite -Wno-unused-parameter -Wno-sign-compare
 
 
 #### LPeg
 
-LPEG=lpeg
+LPEG := lpeg
 
-LPEG_OBJS = \
+LPEG_OBJS := \
     lpcap.c \
     lpcode.c \
     lpprint.c \
     lptree.c \
     lpvm.c \
 
-LPEG_ROOT=$(source)/$(LPEG)
-LPEG_SRC=$(LPEG_ROOT)/src
-LPEG_INC=$(LPEG_ROOT)/include
-LPEG_OBJ=$(obj)/$(LPEG)
+LPEG_ROOT := $(source)/$(LPEG)
+LPEG_SRC := $(LPEG_ROOT)/src
+LPEG_INC := $(LPEG_ROOT)/include
+LPEG_OBJ := $(obj)/$(LPEG)
 
 
 #### ENet
 
-ENET=enet
+ENET := enet
 
-ENET_OBJS = \
+ENET_OBJS := \
     callbacks.c \
     host.c \
     list.c \
@@ -102,12 +101,12 @@ ENET_OBJS = \
     protocol.c \
     compress.c \
 
-ENET_ROOT=$(source)/$(ENET)
-ENET_SRC=$(ENET_ROOT)/src
-ENET_INC=$(ENET_ROOT)/include
-ENET_OBJ=$(obj)/$(ENET)
+ENET_ROOT := $(source)/$(ENET)
+ENET_SRC := $(ENET_ROOT)/src
+ENET_INC := $(ENET_ROOT)/include
+ENET_OBJ := $(obj)/$(ENET)
 
-ENET_CFLAGS=
+ENET_CFLAGS :=
 
 ifeq ($(PLATFORM),WINDOWS)
     ENET_OBJS += win32.c
@@ -121,26 +120,26 @@ endif
 
 #### EBacktrace
 
-ifndef EBACKTRACEDLL
-    EBACKTRACEDLL = ebacktrace1.dll
+ifndef EBACKTRACE_DLL
+    EBACKTRACE_DLL := ebacktrace1.dll
     ifeq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
-        EBACKTRACEDLL = ebacktrace1-64.dll
+        EBACKTRACE_DLL := ebacktrace1-64.dll
     endif
 endif
 
 
 #### BUILD Engine
 
-ENGINE=build
+ENGINE := build
 
-ENGINE_CFLAGS=-I$(ENGINE_SRC)
+ENGINE_ROOT := $(source)/$(ENGINE)
+ENGINE_SRC := $(ENGINE_ROOT)/src
+ENGINE_INC := $(ENGINE_ROOT)/include
+ENGINE_OBJ := $(obj)/$(ENGINE)
 
-ENGINE_ROOT=$(source)/$(ENGINE)
-ENGINE_SRC=$(ENGINE_ROOT)/src
-ENGINE_INC=$(ENGINE_ROOT)/include
-ENGINE_OBJ=$(obj)/$(ENGINE)
+ENGINE_CFLAGS := -I$(ENGINE_SRC)
 
-ENGINE_OBJS = \
+ENGINE_OBJS := \
     rev.cpp \
     baselayer.cpp \
     cache1d.cpp \
@@ -175,12 +174,12 @@ ENGINE_OBJS = \
     pngwrite.cpp \
     miniz.c \
 
-ENGINE_EDITOR_OBJS = \
+ENGINE_EDITOR_OBJS := \
     build.cpp \
     config.cpp \
     defs.cpp \
 
-ENGINE_TOOLS_OBJS = \
+ENGINE_TOOLS_OBJS := \
     compat.cpp \
     pragmas.cpp \
     kplib.cpp \
@@ -189,21 +188,21 @@ ENGINE_TOOLS_OBJS = \
     colmatch.cpp \
 
 ifeq (0,$(NOASM))
-  ENGINE_OBJS+= a.nasm
+  ENGINE_OBJS += a.nasm
 else
-  ENGINE_OBJS+= a-c.cpp
+  ENGINE_OBJS += a-c.cpp
   ifneq (0,$(USE_ASM64))
-    ENGINE_OBJS+= a64.yasm
+    ENGINE_OBJS += a64.yasm
   endif
 endif
 ifeq (1,$(USE_OPENGL))
-    ENGINE_OBJS+= glbuild.cpp voxmodel.cpp mdsprite.cpp
+    ENGINE_OBJS += glbuild.cpp voxmodel.cpp mdsprite.cpp
     ifeq (1,$(POLYMER))
-        ENGINE_OBJS+= polymer.cpp
+        ENGINE_OBJS += polymer.cpp
     endif
 endif
 ifneq (0,$(LUNATIC))
-    ENGINE_OBJS+= lunatic.cpp
+    ENGINE_OBJS += lunatic.cpp
 endif
 ifeq ($(PLATFORM),DARWIN)
     ENGINE_OBJS += osxbits.mm
@@ -212,49 +211,49 @@ ifeq ($(PLATFORM),DARWIN)
     endif
     ifeq ($(SDL_TARGET),1)
         ifneq ($(SDL_FRAMEWORK),0)
-            ENGINE_OBJS+=SDLMain.mm
+            ENGINE_OBJS += SDLMain.mm
         endif
     endif
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    ENGINE_OBJS+= winbits.cpp
+    ENGINE_OBJS += winbits.cpp
     ifeq ($(STARTUP_WINDOW),1)
-        ENGINE_EDITOR_OBJS+= startwin.editor.cpp
+        ENGINE_EDITOR_OBJS += startwin.editor.cpp
     endif
 endif
 ifeq ($(PLATFORM),WII)
-    ENGINE_OBJS+= wiibits.cpp
-    LINKERFLAGS+= -Wl,-wrap,c_default_exceptionhandler
+    ENGINE_OBJS += wiibits.cpp
+    LINKERFLAGS += -Wl,-wrap,c_default_exceptionhandler
 endif
 ifeq ($(RENDERTYPE),SDL)
-    ENGINE_OBJS+= sdlayer.cpp
+    ENGINE_OBJS += sdlayer.cpp
 
     ifeq (1,$(HAVE_GTK2))
-        ENGINE_OBJS+= gtkbits.cpp dynamicgtk.cpp
+        ENGINE_OBJS += gtkbits.cpp dynamicgtk.cpp
         ifeq ($(STARTUP_WINDOW),1)
-            ENGINE_EDITOR_OBJS+= startgtk.editor.cpp
+            ENGINE_EDITOR_OBJS += startgtk.editor.cpp
         endif
     endif
 endif
 ifeq ($(RENDERTYPE),WIN)
-    ENGINE_OBJS+= winlayer.cpp rawinput.cpp
+    ENGINE_OBJS += winlayer.cpp rawinput.cpp
 endif
 
 ifneq ($(USE_LIBVPX),0)
-    ENGINE_OBJS+= animvpx.cpp
+    ENGINE_OBJS += animvpx.cpp
 endif
 
 
 #### MACT
 
-MACT=mact
+MACT := mact
 
-MACT_ROOT=$(source)/$(MACT)
-MACT_SRC=$(MACT_ROOT)/src
-MACT_INC=$(MACT_ROOT)/include
-MACT_OBJ=$(obj)/$(MACT)
+MACT_ROOT := $(source)/$(MACT)
+MACT_SRC := $(MACT_ROOT)/src
+MACT_INC := $(MACT_ROOT)/include
+MACT_OBJ := $(obj)/$(MACT)
 
-MACT_OBJS = \
+MACT_OBJS := \
     file_lib.cpp \
     control.cpp \
     keyboard.cpp \
@@ -265,9 +264,9 @@ MACT_OBJS = \
 
 #### AudioLib
 
-AUDIOLIB=audiolib
+AUDIOLIB := audiolib
 
-AUDIOLIB_OBJS = \
+AUDIOLIB_OBJS := \
     drivers.cpp \
     fx_man.cpp \
     multivoc.cpp \
@@ -281,47 +280,50 @@ AUDIOLIB_OBJS = \
     xmp.cpp \
     driver_nosound.cpp \
 
-AUDIOLIB_ROOT=$(source)/$(AUDIOLIB)
-AUDIOLIB_SRC=$(AUDIOLIB_ROOT)/src
-AUDIOLIB_INC=$(AUDIOLIB_ROOT)/include
-AUDIOLIB_OBJ=$(obj)/$(AUDIOLIB)
+AUDIOLIB_ROOT := $(source)/$(AUDIOLIB)
+AUDIOLIB_SRC := $(AUDIOLIB_ROOT)/src
+AUDIOLIB_INC := $(AUDIOLIB_ROOT)/include
+AUDIOLIB_OBJ := $(obj)/$(AUDIOLIB)
+
+AUDIOLIB_CFLAGS :=
+
+AUDIOLIB_DEPS :=
 
 ifeq ($(PLATFORM),WINDOWS)
     ifeq ($(MIXERTYPE),WIN)
-        AUDIOLIB_OBJS+= driver_directsound.cpp
+        AUDIOLIB_OBJS += driver_directsound.cpp
     endif
 endif
 
 ifeq ($(MIXERTYPE),SDL)
     ifeq (,$(filter $(PLATFORM),DARWIN WINDOWS WII))
-        AUDIOLIB_CFLAGS+=`$(PKG_CONFIG) --cflags vorbis`
+        AUDIOLIB_CFLAGS += `$(PKG_CONFIG) --cflags vorbis`
     endif
-    AUDIOLIB_OBJS+= driver_sdl.cpp
+    AUDIOLIB_OBJS += driver_sdl.cpp
 endif
-
-AUDIOLIB_CFLAGS=
-
-AUDIOLIB_DEPS=
 
 ifneq (0,$(HAVE_XMP))
     AUDIOLIB_CFLAGS += -I$(LIBXMPLITE_INC)
     AUDIOLIB_DEPS += LIBXMPLITE
 endif
 
+
 #### Tools
 
-TOOLS=tools
+TOOLS := tools
 
-TOOLS_OBJS = \
+TOOLS_OBJS := \
     compat_tools.cpp \
 
-TOOLS_ROOT=$(source)/$(TOOLS)
-TOOLS_SRC=$(TOOLS_ROOT)/src
-TOOLS_OBJ=$(obj)/$(TOOLS)
+TOOLS_ROOT := $(source)/$(TOOLS)
+TOOLS_SRC := $(TOOLS_ROOT)/src
+TOOLS_OBJ := $(obj)/$(TOOLS)
 
-TOOLS_CFLAGS=$(ENGINE_CFLAGS)
+TOOLS_CFLAGS := $(ENGINE_CFLAGS)
 
-TOOLS_TARGETS= \
+TOOLS_DEPS := ENGINE_TOOLS
+
+TOOLS_TARGETS := \
     kextract \
     kgroup \
     transpal \
@@ -340,65 +342,63 @@ TOOLS_TARGETS= \
     map2stl \
 
 ifeq ($(PLATFORM),WINDOWS)
-    TOOLS_TARGETS+= enumdisplay getdxdidf
+    TOOLS_TARGETS += enumdisplay getdxdidf
 endif
 ifeq ($(RENDERTYPE),SDL)
-    TOOLS_TARGETS+= makesdlkeytrans
+    TOOLS_TARGETS += makesdlkeytrans
 endif
 
 ifeq ($(PLATFORM),DARWIN)
     TOOLS_OBJS += osxbits.mm
 endif
 
-TOOLS_DEPS=ENGINE_TOOLS
-
 
 #### KenBuild (Test Game)
 
-KENBUILD=kenbuild
-kenbuild=KENBUILD
+KENBUILD := kenbuild
+kenbuild := KENBUILD
 
-KENBUILD_ROOT=$(source)/$(KENBUILD)
-KENBUILD_SRC=$(KENBUILD_ROOT)/src
-KENBUILD_RSRC=$(KENBUILD_ROOT)/rsrc
-KENBUILD_OBJ=$(obj)/$(KENBUILD)
+KENBUILD_ROOT := $(source)/$(KENBUILD)
+KENBUILD_SRC := $(KENBUILD_ROOT)/src
+KENBUILD_RSRC := $(KENBUILD_ROOT)/rsrc
+KENBUILD_OBJ := $(obj)/$(KENBUILD)
 
-KENBUILD_CFLAGS=-I$(KENBUILD_SRC)
+KENBUILD_CFLAGS := -I$(KENBUILD_SRC)
 
-KENBUILD_GAME ?= ekenbuild
-KENBUILD_EDITOR ?= ekenbuild-editor
+KENBUILD_GAME := ekenbuild
+KENBUILD_EDITOR := ekenbuild-editor
 
-KENBUILD_GAME_PROPER ?= EKenBuild
-KENBUILD_EDITOR_PROPER ?= EKenBuild Editor
+KENBUILD_GAME_PROPER := EKenBuild
+KENBUILD_EDITOR_PROPER := EKenBuild Editor
 
-KENBUILD_GAME_OBJS = \
+KENBUILD_GAME_OBJS := \
     game.cpp \
     sound_stub.cpp \
     common.cpp \
     config.cpp \
 
-KENBUILD_EDITOR_OBJS = \
+KENBUILD_EDITOR_OBJS := \
     bstub.cpp \
     common.cpp \
 
-KENBUILD_GAME_RSRC_OBJS =
-KENBUILD_EDITOR_RSRC_OBJS =
-KENBUILD_GAME_GEN_OBJS =
-KENBUILD_EDITOR_RSRC_OBJS =
+KENBUILD_GAME_RSRC_OBJS :=
+KENBUILD_EDITOR_RSRC_OBJS :=
+KENBUILD_GAME_GEN_OBJS :=
+KENBUILD_EDITOR_RSRC_OBJS :=
 
 ifeq (1,$(HAVE_GTK2))
-    KENBUILD_GAME_OBJS+= startgtk.game.cpp
-    KENBUILD_GAME_GEN_OBJS+= game_banner.c
-    KENBUILD_EDITOR_GEN_OBJS+= build_banner.c
+    KENBUILD_GAME_OBJS += startgtk.game.cpp
+    KENBUILD_GAME_GEN_OBJS += game_banner.c
+    KENBUILD_EDITOR_GEN_OBJS += build_banner.c
 endif
 ifeq ($(RENDERTYPE),SDL)
-    KENBUILD_GAME_RSRC_OBJS+= game_icon.c
-    KENBUILD_EDITOR_RSRC_OBJS+= build_icon.c
+    KENBUILD_GAME_RSRC_OBJS += game_icon.c
+    KENBUILD_EDITOR_RSRC_OBJS += build_icon.c
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    KENBUILD_GAME_OBJS+= startwin.game.cpp
-    KENBUILD_GAME_RSRC_OBJS+= gameres.rc
-    KENBUILD_EDITOR_RSRC_OBJS+= buildres.rc
+    KENBUILD_GAME_OBJS += startwin.game.cpp
+    KENBUILD_GAME_RSRC_OBJS += gameres.rc
+    KENBUILD_EDITOR_RSRC_OBJS += buildres.rc
 endif
 
 ifeq ($(PLATFORM),DARWIN)
@@ -410,39 +410,53 @@ endif
 
 #### Duke Nukem 3D
 
-DUKE3D=duke3d
-duke3d=DUKE3D
+DUKE3D := duke3d
+duke3d := DUKE3D
 
-DUKE3D_CFLAGS=-I$(DUKE3D_SRC)
+DUKE3D_GAME_LDFLAGS :=
+DUKE3D_EDITOR_LDFLAGS :=
 
-DUKE3D_GAME_LDFLAGS=
-DUKE3D_EDITOR_LDFLAGS=
+DUKE3D_GAME_STRIPFLAGS :=
+DUKE3D_EDITOR_STRIPFLAGS :=
 
-DUKE3D_GAME_STRIPFLAGS=
-DUKE3D_EDITOR_STRIPFLAGS=
+DUKE3D_ROOT := $(source)/$(DUKE3D)
+DUKE3D_SRC := $(DUKE3D_ROOT)/src
+DUKE3D_RSRC := $(DUKE3D_ROOT)/rsrc
+DUKE3D_OBJ := $(obj)/$(DUKE3D)
 
-DUKE3D_ROOT=$(source)/$(DUKE3D)
-DUKE3D_SRC=$(DUKE3D_ROOT)/src
-DUKE3D_RSRC=$(DUKE3D_ROOT)/rsrc
-DUKE3D_OBJ=$(obj)/$(DUKE3D)
+DUKE3D_CFLAGS := -I$(DUKE3D_SRC)
 
-DUKE3D_GAME ?= eduke32
-DUKE3D_EDITOR ?= mapster32
+COMMON_EDITOR_DEPS := DUKE3D_COMMON_EDITOR ENGINE_EDITOR
 
-ifneq (,$(APPBASENAME))
-    DUKE3D_GAME = $(APPBASENAME)
+DUKE3D_GAME_DEPS := DUKE3D_COMMON_MIDI AUDIOLIB MACT
+DUKE3D_EDITOR_DEPS := AUDIOLIB
+
+ifneq (0,$(NETCODE))
+    DUKE3D_GAME_DEPS += ENET
 endif
 
-DUKE3D_GAME_PROPER ?= EDuke32
-DUKE3D_EDITOR_PROPER ?= Mapster32
+ifneq (0,$(LUNATIC))
+    DUKE3D_GAME_DEPS += LUNATIC LUNATIC_GAME LPEG
+    DUKE3D_EDITOR_DEPS += LUNATIC LUNATIC_EDITOR LPEG
+endif
 
-DUKE3D_COMMON_EDITOR_OBJS = \
+DUKE3D_GAME := eduke32
+DUKE3D_EDITOR := mapster32
+
+ifneq (,$(APPBASENAME))
+    DUKE3D_GAME := $(APPBASENAME)
+endif
+
+DUKE3D_GAME_PROPER := EDuke32
+DUKE3D_EDITOR_PROPER := Mapster32
+
+DUKE3D_COMMON_EDITOR_OBJS := \
     m32common.cpp \
     m32def.cpp \
     m32exec.cpp \
     m32vars.cpp \
 
-DUKE3D_GAME_OBJS = \
+DUKE3D_GAME_OBJS := \
     game.cpp \
     global.cpp \
     actors.cpp \
@@ -473,25 +487,25 @@ DUKE3D_GAME_OBJS = \
     screens.cpp \
     cmdline.cpp \
 
-DUKE3D_EDITOR_OBJS = \
+DUKE3D_EDITOR_OBJS := \
     astub.cpp \
     common.cpp \
     grpscan.cpp \
     sounds_mapster32.cpp \
 
-DUKE3D_GAME_RSRC_OBJS =
-DUKE3D_EDITOR_RSRC_OBJS =
-DUKE3D_GAME_GEN_OBJS =
-DUKE3D_EDITOR_GEN_OBJS =
+DUKE3D_GAME_RSRC_OBJS :=
+DUKE3D_EDITOR_RSRC_OBJS :=
+DUKE3D_GAME_GEN_OBJS :=
+DUKE3D_EDITOR_GEN_OBJS :=
 
-DUKE3D_GAME_MISCDEPS=
-DUKE3D_EDITOR_MISCDEPS=
-DUKE3D_GAME_ORDERONLYDEPS=
-DUKE3D_EDITOR_ORDERONLYDEPS=
+DUKE3D_GAME_MISCDEPS :=
+DUKE3D_EDITOR_MISCDEPS :=
+DUKE3D_GAME_ORDERONLYDEPS :=
+DUKE3D_EDITOR_ORDERONLYDEPS :=
 
 ## Lunatic devel
-LUNATIC_SRC=$(DUKE3D_SRC)/lunatic
-LUNATIC_OBJ=$(DUKE3D_OBJ)
+LUNATIC_SRC := $(DUKE3D_SRC)/lunatic
+LUNATIC_OBJ := $(DUKE3D_OBJ)
 
 ifneq (0,$(LUNATIC))
     COMPILERFLAGS += -I$(LUNATIC_SRC) -DLUNATIC
@@ -508,7 +522,7 @@ ifneq (0,$(LUNATIC))
     DUKE3D_CFLAGS += -DLUNATIC_DEFS_BC_SIZE=$(DEFS_BC_SIZE) -DLUNATIC_DEFS_M32_BC_SIZE=$(DEFS_M32_BC_SIZE)
 
     # Lunatic object base names. These are not used in targets directly.
-    LUNATIC_OBJS = \
+    LUNATIC_OBJS := \
         defs_common.lua \
         engine_maptext.lua \
         engine.lua \
@@ -521,7 +535,7 @@ ifneq (0,$(LUNATIC))
         dis_x86.lua \
         dis_x64.lua \
 
-    LUNATIC_GAME_OBJS = \
+    LUNATIC_GAME_OBJS := \
         lunatic_game.cpp \
         _defs_game.lua \
         con_lang.lua \
@@ -532,7 +546,7 @@ ifneq (0,$(LUNATIC))
         lunasave.lua \
         fs.lua \
 
-    LUNATIC_EDITOR_OBJS = \
+    LUNATIC_EDITOR_OBJS := \
         lunatic_editor.cpp \
         _defs_editor.lua \
 
@@ -546,22 +560,22 @@ ifneq (0,$(LUNATIC))
         #                    Use -exported_symbols_list at link time when building
         # But, following _their_ directions does not give us the symbols! wtf?
         # Instead of using -alias_list and -exported_symbols_list, prevent stripping them.
-        DUKE3D_GAME_STRIPFLAGS+= -s $(DUKE3D_OBJ)/lunatic_dynsymlist_game_osx
-        DUKE3D_EDITOR_STRIPFLAGS+= -s $(DUKE3D_OBJ)/lunatic_dynsymlist_editor_osx
+        DUKE3D_GAME_STRIPFLAGS += -s $(DUKE3D_OBJ)/lunatic_dynsymlist_game_osx
+        DUKE3D_EDITOR_STRIPFLAGS += -s $(DUKE3D_OBJ)/lunatic_dynsymlist_editor_osx
 
-        DUKE3D_GAME_ORDERONLYDEPS+= $(DUKE3D_OBJ)/lunatic_dynsymlist_game_osx
-        DUKE3D_EDITOR_ORDERONLYDEPS+= $(DUKE3D_OBJ)/lunatic_dynsymlist_editor_osx
-        LINKERFLAGS+= -pagezero_size 10000 -image_base 100000000
+        DUKE3D_GAME_ORDERONLYDEPS += $(DUKE3D_OBJ)/lunatic_dynsymlist_game_osx
+        DUKE3D_EDITOR_ORDERONLYDEPS += $(DUKE3D_OBJ)/lunatic_dynsymlist_editor_osx
+        LINKERFLAGS += -pagezero_size 10000 -image_base 100000000
     endif
     ifeq ($(PLATFORM),WINDOWS)
-        override STRIP=
-        DUKE3D_GAME_MISCDEPS+= $(DUKE3D_OBJ)/lunatic_dynsymlist_game.def
-        DUKE3D_EDITOR_MISCDEPS+= $(DUKE3D_OBJ)/lunatic_dynsymlist_editor.def
+        override STRIP :=
+        DUKE3D_GAME_MISCDEPS += $(DUKE3D_OBJ)/lunatic_dynsymlist_game.def
+        DUKE3D_EDITOR_MISCDEPS += $(DUKE3D_OBJ)/lunatic_dynsymlist_editor.def
     endif
     ifeq ($(SUBPLATFORM),LINUX)
-        override STRIP=
-        DUKE3D_GAME_LDFLAGS+= -Wl,--dynamic-list=$(LUNATIC_SRC)/dynsymlist_game.lds
-        DUKE3D_EDITOR_LDFLAGS+= -Wl,--dynamic-list=$(LUNATIC_SRC)/dynsymlist_editor.lds
+        override STRIP :=
+        DUKE3D_GAME_LDFLAGS += -Wl,--dynamic-list=$(LUNATIC_SRC)/dynsymlist_game.lds
+        DUKE3D_EDITOR_LDFLAGS += -Wl,--dynamic-list=$(LUNATIC_SRC)/dynsymlist_editor.lds
     endif
 endif
 
@@ -589,15 +603,15 @@ endif
 
 ifeq ($(PLATFORM),WINDOWS)
     LIBS += -lFLAC -lvorbisfile -lvorbis -logg
-    DUKE3D_GAME_OBJS+= winbits.cpp
-    DUKE3D_GAME_RSRC_OBJS+= gameres.rc
-    DUKE3D_EDITOR_RSRC_OBJS+= buildres.rc
+    DUKE3D_GAME_OBJS += winbits.cpp
+    DUKE3D_GAME_RSRC_OBJS += gameres.rc
+    DUKE3D_EDITOR_RSRC_OBJS += buildres.rc
     ifeq ($(STARTUP_WINDOW),1)
-        DUKE3D_GAME_OBJS+= startwin.game.cpp
+        DUKE3D_GAME_OBJS += startwin.game.cpp
     endif
     ifeq ($(MIXERTYPE),WIN)
-        LIBS+= -ldsound
-        DUKE3D_COMMON_MIDI_OBJS=music.cpp midi.cpp mpu401.cpp
+        LIBS += -ldsound
+        DUKE3D_COMMON_MIDI_OBJS := music.cpp midi.cpp mpu401.cpp
     endif
 endif
 
@@ -606,52 +620,41 @@ ifeq ($(PLATFORM),WII)
 endif
 
 ifeq (11,$(HAVE_GTK2)$(STARTUP_WINDOW))
-    DUKE3D_GAME_OBJS+= startgtk.game.cpp
-    DUKE3D_GAME_GEN_OBJS+= game_banner.c
-    DUKE3D_EDITOR_GEN_OBJS+= build_banner.c
+    DUKE3D_GAME_OBJS += startgtk.game.cpp
+    DUKE3D_GAME_GEN_OBJS += game_banner.c
+    DUKE3D_EDITOR_GEN_OBJS += build_banner.c
 endif
 ifeq ($(RENDERTYPE),SDL)
-    DUKE3D_GAME_RSRC_OBJS+= game_icon.c
-    DUKE3D_EDITOR_RSRC_OBJS+= build_icon.c
+    DUKE3D_GAME_RSRC_OBJS += game_icon.c
+    DUKE3D_EDITOR_RSRC_OBJS += build_icon.c
 endif
 ifeq ($(MIXERTYPE),SDL)
-    DUKE3D_COMMON_MIDI_OBJS=sdlmusic.cpp
-endif
-
-COMMON_EDITOR_DEPS=DUKE3D_COMMON_EDITOR ENGINE_EDITOR
-
-DUKE3D_GAME_DEPS=DUKE3D_COMMON_MIDI AUDIOLIB MACT
-DUKE3D_EDITOR_DEPS=AUDIOLIB
-
-ifneq (0,$(NETCODE))
-    DUKE3D_GAME_DEPS += ENET
-endif
-
-ifneq (0,$(LUNATIC))
-    DUKE3D_GAME_DEPS += LUNATIC LUNATIC_GAME LPEG
-    DUKE3D_EDITOR_DEPS += LUNATIC LUNATIC_EDITOR LPEG
+    DUKE3D_COMMON_MIDI_OBJS := sdlmusic.cpp
 endif
 
 
 #### Shadow Warrior
 
-SW=sw
-sw=SW
+SW := sw
+sw := SW
 
-SW_ROOT=$(source)/$(SW)
-SW_SRC=$(SW_ROOT)/src
-SW_RSRC=$(SW_ROOT)/rsrc
-SW_OBJ=$(obj)/$(SW)
+SW_ROOT := $(source)/$(SW)
+SW_SRC := $(SW_ROOT)/src
+SW_RSRC := $(SW_ROOT)/rsrc
+SW_OBJ := $(obj)/$(SW)
 
-SW_CFLAGS=-I$(SW_SRC)
+SW_CFLAGS := -I$(SW_SRC)
 
-SW_GAME ?= voidsw
-SW_EDITOR ?= voidsw-editor
+SW_GAME_DEPS := DUKE3D_COMMON_MIDI AUDIOLIB MACT
+SW_EDITOR_DEPS := AUDIOLIB
 
-SW_GAME_PROPER ?= VoidSW
-SW_EDITOR_PROPER ?= VoidSW Editor
+SW_GAME := voidsw
+SW_EDITOR := voidsw-editor
 
-SW_GAME_OBJS = \
+SW_GAME_PROPER := VoidSW
+SW_EDITOR_PROPER := VoidSW Editor
+
+SW_GAME_OBJS := \
     actor.cpp \
     ai.cpp \
     anim.cpp \
@@ -724,7 +727,7 @@ SW_GAME_OBJS = \
     zombie.cpp \
     saveable.cpp \
 
-SW_EDITOR_OBJS = \
+SW_EDITOR_OBJS := \
     jnstub.cpp \
     brooms.cpp \
     bldscript.cpp \
@@ -733,28 +736,30 @@ SW_EDITOR_OBJS = \
     grpscan.cpp \
     common.cpp \
 
-SW_GAME_RSRC_OBJS =
-SW_EDITOR_RSRC_OBJS =
-SW_GAME_GEN_OBJS =
-SW_EDITOR_GEN_OBJS =
+SW_GAME_RSRC_OBJS :=
+SW_EDITOR_RSRC_OBJS :=
+SW_GAME_GEN_OBJS :=
+SW_EDITOR_GEN_OBJS :=
 
 ifeq (1,$(HAVE_GTK2))
-    SW_GAME_OBJS+= startgtk.game.cpp
-    SW_GAME_GEN_OBJS+= game_banner.c
-    SW_EDITOR_GEN_OBJS+= build_banner.c
+    SW_GAME_OBJS += startgtk.game.cpp
+    SW_GAME_GEN_OBJS += game_banner.c
+    SW_EDITOR_GEN_OBJS += build_banner.c
 endif
 ifeq ($(RENDERTYPE),SDL)
-    SW_GAME_RSRC_OBJS+= game_icon.c
-    SW_EDITOR_RSRC_OBJS+= game_icon.c
+    SW_GAME_RSRC_OBJS += game_icon.c
+    SW_EDITOR_RSRC_OBJS += game_icon.c
 endif
 ifeq ($(PLATFORM),WINDOWS)
-    SW_GAME_OBJS+= startwin.game.cpp
-    SW_GAME_RSRC_OBJS+= gameres.rc
-    SW_EDITOR_RSRC_OBJS+= buildres.rc
+    SW_GAME_OBJS += startwin.game.cpp
+    SW_GAME_RSRC_OBJS += gameres.rc
+    SW_EDITOR_RSRC_OBJS += buildres.rc
 endif
 
-SW_GAME_DEPS=DUKE3D_COMMON_MIDI AUDIOLIB MACT
-SW_EDITOR_DEPS=AUDIOLIB
+
+#### Final setup
+
+COMPILERFLAGS += -I$(ENGINE_INC) -I$(MACT_INC) -I$(AUDIOLIB_INC) -I$(ENET_INC)
 
 
 ##### Recipes
@@ -772,12 +777,12 @@ LIBRARIES := \
     LIBXMPLITE \
     LPEG \
 
-COMPONENTS = \
+COMPONENTS := \
     $(GAMES) \
     $(LIBRARIES) \
     TOOLS \
 
-ROLES = \
+ROLES := \
     GAME \
     EDITOR \
 
@@ -814,7 +819,7 @@ tools: $(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS)) | start
 $(foreach i,$(GAMES),$($i)): $$(foreach i,$(ROLES),$$($$($$@)_$$i)$(EXESUFFIX)) | start
 	@ls -l $^
 
-ebacktrace: $(EBACKTRACEDLL) | start
+ebacktrace: $(EBACKTRACE_DLL) | start
 	@ls -l $^
 
 ifeq ($(PLATFORM),WII)
@@ -854,7 +859,7 @@ include $(SW_ROOT)/Dependencies.mak
 
 #### Rules
 
-$(EBACKTRACEDLL): platform/Windows/src/backtrace.c
+$(EBACKTRACE_DLL): platform/Windows/src/backtrace.c
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(CC) $(CONLYFLAGS) -O2 -ggdb -shared -Wall -Wextra -static-libgcc -I$(ENGINE_INC) -o $@ $^ -lbfd -liberty -limagehlp $(RECIPE_RESULT_COMPILE)
 
@@ -983,7 +988,7 @@ cleantools:
 
 clean: cleanduke3d cleantools
 	-rm -rf $(obj)/
-	-rm -f $(EBACKTRACEDLL)
+	-rm -f $(EBACKTRACE_DLL)
 
 printtools:
 	echo "$(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS))"

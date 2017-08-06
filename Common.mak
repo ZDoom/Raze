@@ -3,56 +3,56 @@
 PACKAGE_REPOSITORY ?= 0
 
 # Are we running from synthesis?
-SYNTHESIS ?= 0
+SYNTHESIS := 0
 
 
 ##### Detect platform
 
 ifndef HOSTPLATFORM
-    HOSTPLATFORM=UNKNOWN
+    HOSTPLATFORM := UNKNOWN
     ifeq ($(findstring Windows,$(OS)),Windows)
-        HOSTPLATFORM=WINDOWS
+        HOSTPLATFORM := WINDOWS
     else
-        uname:=$(strip $(shell uname -s))
+        uname := $(strip $(shell uname -s))
         ifeq ($(findstring Linux,$(uname)),Linux)
-            HOSTPLATFORM=LINUX
+            HOSTPLATFORM := LINUX
         else ifeq ($(findstring BSD,$(uname)),BSD)
-            HOSTPLATFORM=BSD
+            HOSTPLATFORM := BSD
         else ifeq ($(findstring MINGW,$(uname)),MINGW)
-            HOSTPLATFORM=WINDOWS
+            HOSTPLATFORM := WINDOWS
         else ifeq ($(findstring MSYS,$(uname)),MSYS)
-            HOSTPLATFORM=WINDOWS
+            HOSTPLATFORM := WINDOWS
         else ifeq ($(findstring Darwin,$(uname)),Darwin)
-            HOSTPLATFORM=DARWIN
+            HOSTPLATFORM := DARWIN
         else ifeq ($(findstring BeOS,$(uname)),BeOS)
-            HOSTPLATFORM=BEOS
+            HOSTPLATFORM := BEOS
         else ifeq ($(findstring skyos,$(uname)),skyos)
-            HOSTPLATFORM=SKYOS
+            HOSTPLATFORM := SKYOS
         else ifeq ($(findstring QNX,$(uname)),QNX)
-            HOSTPLATFORM=QNX
+            HOSTPLATFORM := QNX
         else ifeq ($(findstring SunOS,$(uname)),SunOS)
-            HOSTPLATFORM=SUNOS
+            HOSTPLATFORM := SUNOS
         else ifeq ($(findstring syllable,$(uname)),syllable)
-            HOSTPLATFORM=SYLLABLE
+            HOSTPLATFORM := SYLLABLE
         endif
     endif
 endif
 ifndef PLATFORM
-    PLATFORM=$(HOSTPLATFORM)
+    PLATFORM := $(HOSTPLATFORM)
 endif
 
 ifndef SUBPLATFORM
-    SUBPLATFORM=
+    SUBPLATFORM :=
     ifeq ($(PLATFORM),$(filter $(PLATFORM),LINUX DINGOO GCW CAANOO))
-        SUBPLATFORM=LINUX
+        SUBPLATFORM := LINUX
     endif
 endif
 
 ifeq ($(HOSTPLATFORM),DARWIN)
     DARWINVERSION:=$(strip $(shell uname -r | cut -d . -f 1))
 
-    DARWIN9 ?= 0
-    DARWIN10 ?= 0
+    DARWIN9 := 0
+    DARWIN10 := 0
     ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 10)))
         override DARWIN9 := 1
     endif
@@ -61,107 +61,134 @@ ifeq ($(HOSTPLATFORM),DARWIN)
     endif
 endif
 
+HOSTEXESUFFIX :=
+ifeq ($(HOSTPLATFORM),WINDOWS)
+    HOSTEXESUFFIX := .exe
+endif
+
+EXESUFFIX :=
+DLLSUFFIX := .so
+DOLSUFFIX := .dol
+ifeq ($(PLATFORM),DARWIN)
+    DLLSUFFIX := .dylib
+endif
+ifeq ($(PLATFORM),WII)
+    EXESUFFIX := .elf
+endif
+ifeq ($(PLATFORM),SKYOS)
+    EXESUFFIX := .app
+endif
+ifeq ($(PLATFORM),WINDOWS)
+    EXESUFFIX := .exe
+    DLLSUFFIX := .dll
+endif
+
 
 ##### Makefile meta-settings
 
-PRETTY_OUTPUT ?= 1
+PRETTY_OUTPUT := 1
 
-NULLSTREAM = /dev/null
-DONT_PRINT = > $(NULLSTREAM) 2>&1
-DONT_PRINT_STDERR = 2> $(NULLSTREAM)
-DONT_FAIL = ; exit 0
+NULLSTREAM := /dev/null
 
 ifeq ($(HOSTPLATFORM),WINDOWS)
 # MSYS2 lets you create files named NUL but has a /dev/null. Go figure.
     ifeq (,$(wildcard /dev/null))
-        NULLSTREAM = NUL
+        NULLSTREAM := NUL
     endif
+endif
+
+DONT_PRINT := > $(NULLSTREAM) 2>&1
+DONT_PRINT_STDERR := 2> $(NULLSTREAM)
+DONT_FAIL := ; exit 0
+
+HAVE_SH := 1
+# when no sh.exe is found in PATH on Windows, no path is prepended to it
+ifeq (sh.exe,$(SHELL))
+    HAVE_SH := 0
+endif
+
+ifeq (0,$(HAVE_SH))
+    # if, printf, exit, and ; are unavailable without sh
+    override PRETTY_OUTPUT := 0
+    override DONT_FAIL :=
 endif
 
 
 ##### Toolchain setup
 
-CROSS=
-CROSS_SUFFIX=
-ifneq ($(CROSS)$(CROSS_SUFFIX),)
-    undefine CC
-    undefine CXX
-    undefine AR
-    undefine RC
-    undefine RANLIB
-    undefine STRIP
-endif
+CROSS :=
+CROSS_SUFFIX :=
 
-CC=$(CROSS)gcc$(CROSS_SUFFIX)
-CXX=$(CROSS)g++$(CROSS_SUFFIX)
-COBJC=$(CC) -x objective-c
-COBJCXX=$(CXX) -x objective-c++
-L_CC=$(CC)
-L_CXX=$(CXX)
+CC := $(CROSS)gcc$(CROSS_SUFFIX)
+CXX := $(CROSS)g++$(CROSS_SUFFIX)
+COBJC := $(CC) -x objective-c
+COBJCXX := $(CXX) -x objective-c++
+L_CC := $(CC)
+L_CXX := $(CXX)
 
-AR=$(CROSS)ar$(CROSS_SUFFIX)
-RC=$(CROSS)windres$(CROSS_SUFFIX)
-RANLIB=$(CROSS)ranlib$(CROSS_SUFFIX)
-STRIP=$(CROSS)strip$(CROSS_SUFFIX)
+AR := $(CROSS)ar$(CROSS_SUFFIX)
+RC := $(CROSS)windres$(CROSS_SUFFIX)
+RANLIB := $(CROSS)ranlib$(CROSS_SUFFIX)
+STRIP := $(CROSS)strip$(CROSS_SUFFIX)
 
-AS=nasm
+AS := nasm
 
 # LuaJIT standalone interpreter executable:
-LUAJIT=luajit$(EXESUFFIX)
+LUAJIT := luajit$(HOSTEXESUFFIX)
 
-PKG_CONFIG=pkg-config
+PKG_CONFIG := pkg-config
 
-ELF2DOL=elf2dol
+ELF2DOL := elf2dol
 
 # Override defaults that absolutely will not work.
 ifeq ($(CC),cc)
-    override CC=gcc
+    override CC := gcc
 endif
 ifeq ($(AS),as)
-    override AS=nasm
+    override AS := nasm
 endif
 
-CCFULLPATH=$(CC)
+CCFULLPATH := $(CC)
 
 ifeq ($(PLATFORM),WII)
     ifeq ($(strip $(DEVKITPPC)),)
-        $(error "Please set DEVKITPPC in your environment. export DEVKITPPC=<path to>devkitPPC")
+        $(error "Please set DEVKITPPC in your environment. export DEVKITPPC := <path to>devkitPPC")
     endif
 
     include $(DEVKITPPC)/wii_rules
 
-    CCFULLPATH=$(DEVKITPPC)/bin/$(CC)
+    CCFULLPATH := $(DEVKITPPC)/bin/$(CC)
 
-    CROSS=powerpc-eabi-
-    RANLIB=powerpc-eabi-ranlib
-    STRIP=powerpc-eabi-strip
+    CROSS := powerpc-eabi-
+    RANLIB := powerpc-eabi-ranlib
+    STRIP := powerpc-eabi-strip
 endif
 
 ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
-    CROSS=mipsel-linux-
+    CROSS := mipsel-linux-
 endif
 
-CLANG?=0
+CLANG := 0
 ifeq ($(findstring clang,$(CC) $(MAKECMDGOALS)),clang)
-    override CLANG=1
-    CLANGNAME:=$(CC)
+    override CLANG := 1
+    CLANGNAME := $(CC)
 else
-    CLANGNAME:=clang
+    CLANGNAME := clang
 endif
 # detect clang symlinked as gcc, as in OS X
 CLANG_POTENTIAL_VERSION := $(shell $(CCFULLPATH) --version)
 ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
-    override CLANG=1
+    override CLANG := 1
 endif
 
 ifneq (0,$(CLANG))
-    CLANGXXNAME:=$(subst clang,clang++,$(CLANGNAME))
-    override CC=$(CLANGNAME) -x c
-    override CXX=$(CLANGXXNAME) -x c++
-    override COBJC=$(CLANGNAME) -x objective-c
-    override COBJCXX=$(CLANGXXNAME) -x objective-c++
-    override L_CC=$(CLANGNAME)
-    override L_CXX=$(CLANGXXNAME)
+    CLANGXXNAME := $(subst clang,clang++,$(CLANGNAME))
+    override CC := $(CLANGNAME) -x c
+    override CXX := $(CLANGXXNAME) -x c++
+    override COBJC := $(CLANGNAME) -x objective-c
+    override COBJCXX := $(CLANGXXNAME) -x objective-c++
+    override L_CC := $(CLANGNAME)
+    override L_CXX := $(CLANGXXNAME)
 endif
 
 ifndef GCC_MAJOR
@@ -192,185 +219,168 @@ endif
 
 ##### Detect machine architecture
 
-BITS=32
+BITS := 32
 
 ifeq ($(PLATFORM),WINDOWS)
     ifndef COMPILERTARGET
-        COMPILERTARGET:=$(strip $(shell $(CC) -dumpmachine))
+        COMPILERTARGET := $(strip $(shell $(CC) -dumpmachine))
     endif
 
-    IMPLICIT_ARCH=i386
+    IMPLICIT_ARCH := i386
     ifeq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
-        IMPLICIT_ARCH=x86_64
-        BITS=64
+        IMPLICIT_ARCH := x86_64
+        BITS := 64
     endif
 else ifeq ($(PLATFORM),WII)
-    IMPLICIT_ARCH=ppc
+    IMPLICIT_ARCH := ppc
 else
     ifneq ($(ARCH),)
-        override ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(strip $(ARCH)))))
-        IMPLICIT_ARCH=$(ARCH)
+        override ARCH := $(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(strip $(ARCH)))))
+        IMPLICIT_ARCH := $(ARCH)
     else
-        IMPLICIT_ARCH:=$(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(strip $(shell uname -m)))))
+        IMPLICIT_ARCH := $(subst i486,i386,$(subst i586,i386,$(subst i686,i386,$(strip $(shell uname -m)))))
     endif
 
     ifeq ($(findstring x86_64,$(IMPLICIT_ARCH)),x86_64)
-        BITS=64
+        BITS := 64
     endif
-endif
-
-EXESUFFIX=
-DLLSUFFIX=.so
-DOLSUFFIX=.dol
-ifeq ($(PLATFORM),DARWIN)
-    DLLSUFFIX=.dylib
-endif
-ifeq ($(PLATFORM),WII)
-    EXESUFFIX=.elf
-endif
-ifeq ($(PLATFORM),SKYOS)
-    EXESUFFIX=.app
-endif
-ifeq ($(PLATFORM),WINDOWS)
-    EXESUFFIX=.exe
-    DLLSUFFIX=.dll
 endif
 
 
 ##### Toggles
 
-#  CPLUSPLUS - 1 = enable C++ building
-#  RELEASE - 1 = no debugging
+#  CPLUSPLUS - 1 := enable C++ building
+#  RELEASE - 1 := no debugging
 #  DEBUGANYWAY:
-#    1 = Include debug symbols even when generating release code.
-#    2 = Also enable sanitizers with Clang. On the C side, make 'sprite' etc. be real arrays.
-#  KRANDDEBUG - 1 = include logging of krand() calls for debugging the demo system
-#  MEMMAP - 1 = produce .memmap file when linking
-#  OPTLEVEL - 0..3 = GCC optimization strategy
-#  LTO - 1 = enable link-time optimization
+#    1 := Include debug symbols even when generating release code.
+#    2 := Also enable sanitizers with Clang. On the C side, make 'sprite' etc. be real arrays.
+#  KRANDDEBUG - 1 := include logging of krand() calls for debugging the demo system
+#  MEMMAP - 1 := produce .memmap file when linking
+#  OPTLEVEL - 0..3 := GCC optimization strategy
+#  LTO - 1 := enable link-time optimization
 
 # Optional overrides for text
-APPNAME=
-APPBASENAME=
+APPNAME :=
+APPBASENAME :=
 
 # Build toggles
-RELEASE?=1
-NOASM = 0
+RELEASE := 1
+NOASM := 0
 # EXPERIMENTAL, unfinished x86_64 assembly routines. DO NOT ENABLE.
-USE_ASM64 ?= 0
-MEMMAP?=0
-CPLUSPLUS?=1
+USE_ASM64 := 0
+MEMMAP := 0
+CPLUSPLUS := 1
 
 # Feature toggles
-STANDALONE ?= 0
-NETCODE ?= 1
-STARTUP_WINDOW ?= 1
-SIMPLE_MENU ?= 0
-POLYMER = 1
-USE_OPENGL = 1
-LUNATIC ?= 0
-USE_LUAJIT_2_1 ?= 0
+STANDALONE := 0
+NETCODE := 1
+STARTUP_WINDOW := 1
+SIMPLE_MENU := 0
+POLYMER := 1
+USE_OPENGL := 1
+LUNATIC := 0
+USE_LUAJIT_2_1 := 0
 
 # Library toggles
-HAVE_GTK2 ?= 1
-USE_LIBVPX ?= 1
-HAVE_VORBIS ?= 1
-HAVE_FLAC ?= 1
-HAVE_XMP ?= 1
-RENDERTYPE=SDL
-MIXERTYPE=SDL
-SDL_TARGET ?= 2
+HAVE_GTK2 := 1
+USE_LIBVPX := 1
+HAVE_VORBIS := 1
+HAVE_FLAC := 1
+HAVE_XMP := 1
+RENDERTYPE := SDL
+MIXERTYPE := SDL
+SDL_TARGET := 2
 
 # Debugging/Build options
-DEBUGANYWAY?=0
-KRANDDEBUG?=0
-PROFILER?=0
+DEBUGANYWAY := 0
+KRANDDEBUG := 0
+PROFILER := 0
 # Make allocache() a wrapper around malloc()? Useful for debugging
 # allocache()-allocated memory accesses with e.g. Valgrind.
 # For debugging with Valgrind + GDB, see
 # http://valgrind.org/docs/manual/manual-core-adv.html#manual-core-adv.gdbserver
-ALLOCACHE_AS_MALLOC?=0
+ALLOCACHE_AS_MALLOC := 0
 
 
 ##### Settings overrides and implicit cascades
 
 ifneq (0,$(KRANDDEBUG))
-    RELEASE=0
+    RELEASE := 0
 endif
 ifneq (100,$(RELEASE)$(PROFILER)$(ALLOCACHE_AS_MALLOC))
     # so that we have debug symbols
-    DEBUGANYWAY=1
+    DEBUGANYWAY := 1
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
-    MIXERTYPE=WIN
+    MIXERTYPE := WIN
     ifneq ($(RENDERTYPE),SDL)
         ifeq ($(MIXERTYPE),SDL)
-            override MIXERTYPE:=WIN
+            override MIXERTYPE := WIN
         endif
     endif
-    override HAVE_GTK2 = 0
+    override HAVE_GTK2 := 0
 else ifeq ($(PLATFORM),DARWIN)
-    HAVE_GTK2 = 0
+    HAVE_GTK2 := 0
 else ifeq ($(PLATFORM),WII)
-    override USE_OPENGL=0
-    override NETCODE = 0
-    override HAVE_GTK2 = 0
-    override HAVE_FLAC = 0
-    SDL_TARGET=1
+    override USE_OPENGL := 0
+    override NETCODE := 0
+    override HAVE_GTK2 := 0
+    override HAVE_FLAC := 0
+    SDL_TARGET := 1
 else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW QNX SUNOS SYLLABLE))
-    override USE_OPENGL=0
-    override NOASM=1
+    override USE_OPENGL := 0
+    override NOASM := 1
 else ifeq ($(PLATFORM),$(filter $(PLATFORM),BEOS SKYOS))
-    override NOASM=1
+    override NOASM := 1
 endif
 
 ifneq (i386,$(strip $(IMPLICIT_ARCH)))
-    override NOASM=1
+    override NOASM := 1
 endif
 
 ifeq (0,$(USE_OPENGL))
-    override POLYMER = 0
-    override USE_LIBVPX = 0
+    override POLYMER := 0
+    override USE_LIBVPX := 0
 endif
 
 ifeq ($(RELEASE),0)
-    override STRIP=
+    override STRIP :=
 endif
 ifneq ($(DEBUGANYWAY),0)
-    override STRIP=
+    override STRIP :=
 endif
 
 ifeq ($(RELEASE),0)
-    OPTLEVEL?=0
-    LTO=0
+    OPTLEVEL := 0
+    LTO := 0
 else
-    OPTLEVEL?=2
-    LTO=1
+    OPTLEVEL := 2
+    LTO := 1
 endif
 
 ifneq (0,$(CLANG))
     ifeq ($(PLATFORM),WINDOWS)
-        LTO=0
+        LTO := 0
     endif
 endif
 ifneq ($(LUNATIC),0)
     # FIXME: Lunatic builds with LTO don't start up properly as the required
     # symbol names are apparently not exported.
-    override LTO=0
+    override LTO := 0
 endif
 ifeq (0,$(CLANG))
     ifeq (0,$(GCC_PREREQ_4))
-        override LTO=0
+        override LTO := 0
     endif
     ifeq (1,$(strip $(shell expr $(GCC_MAJOR) = 4)))
         ifeq ($(PLATFORM),WII)
             ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 8)))
-                override LTO=0
+                override LTO := 0
             endif
         else
             ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 6)))
-                override LTO=0
+                override LTO := 0
             endif
         endif
     endif
@@ -382,37 +392,37 @@ endif
 
 ##### Instantiate variables
 
-COMMONFLAGS =
-COMPILERFLAGS = -funsigned-char
+COMMONFLAGS :=
+COMPILERFLAGS := -funsigned-char
 
-CSTD:=-std=gnu99
-CONLYFLAGS=$(CSTD)
-CXXSTD:=-std=gnu++11
-CXXONLYFLAGS=$(CXXSTD) -fno-exceptions -fno-rtti
+CSTD := -std=gnu99
+CXXSTD := -std=gnu++11
 ifneq (0,$(CLANG))
-    CSTD:=$(subst gnu,c,$(CSTD))
-    CXXSTD:=$(subst gnu,c,$(CXXSTD))
+    CSTD := $(subst gnu,c,$(CSTD))
+    CXXSTD := $(subst gnu,c,$(CXXSTD))
 endif
+CONLYFLAGS := $(CSTD)
+CXXONLYFLAGS := $(CXXSTD) -fno-exceptions -fno-rtti
 
-ASFLAGS=-s #-g
+ASFLAGS := -s #-g
 
 LUAJIT_BCOPTS :=
 
-LINKERFLAGS=
-L_CXXONLYFLAGS=
+LINKERFLAGS :=
+L_CXXONLYFLAGS :=
 
-LIBS=
-GUI_LIBS=
-LIBDIRS=
+LIBS :=
+GUI_LIBS :=
+LIBDIRS :=
 
 
 ##### Mandatory platform parameters
 
-ASFORMAT=elf$(BITS)
+ASFORMAT := elf$(BITS)
 # Options to "luajit -b" for synthesis. Since it runs on Linux, we need to tell
 # the native LuaJIT to emit PE object files.
 ifeq ($(PLATFORM),WINDOWS)
-    LINKERFLAGS+= -static-libgcc -static
+    LINKERFLAGS += -static-libgcc -static
     ifeq (0,$(CLANG))
         L_CXXONLYFLAGS += -static-libstdc++
     endif
@@ -421,14 +431,14 @@ ifeq ($(PLATFORM),WINDOWS)
         GUI_LIBS += -mwindows
     endif
 
-    COMPILERFLAGS+= -DUNDERSCORES
-    ASFORMAT=win$(BITS)
-    ASFLAGS+= -DUNDERSCORES
+    COMPILERFLAGS += -DUNDERSCORES
+    ASFORMAT := win$(BITS)
+    ASFLAGS += -DUNDERSCORES
 
     ifneq ($(findstring x86_64,$(COMPILERTARGET)),x86_64)
-        LINKERFLAGS+= -Wl,--large-address-aware
+        LINKERFLAGS += -Wl,--large-address-aware
     endif
-    LINKERFLAGS+= -Wl,--enable-auto-import
+    LINKERFLAGS += -Wl,--enable-auto-import
 
     LUAJIT_BCOPTS := -o windows
     ifeq (32,$(BITS))
@@ -449,26 +459,26 @@ else ifeq ($(PLATFORM),DARWIN)
         LINKERFLAGS += -read_only_relocs suppress
     endif
 
-    COMPILERFLAGS+= -DUNDERSCORES
-    ASFORMAT=macho
-    ASFLAGS+= -DUNDERSCORES
+    COMPILERFLAGS += -DUNDERSCORES
+    ASFORMAT := macho
+    ASFLAGS += -DUNDERSCORES
 
     ifeq ($(findstring x86_64,$(IMPLICIT_ARCH)),x86_64)
-        ASFORMAT+=64
+        ASFORMAT += 64
     endif
 else ifeq ($(PLATFORM),WII)
-    LINKERFLAGS+= -mrvl -meabi -mhard-float -Wl,--gc-sections
+    LINKERFLAGS += -mrvl -meabi -mhard-float -Wl,--gc-sections
     # -msdata=eabi
-    COMPILERFLAGS+= -DGEKKO -D__POWERPC__ -I$(LIBOGC_INC)
+    COMPILERFLAGS += -DGEKKO -D__POWERPC__ -I$(LIBOGC_INC)
     LIBDIRS += -L$(LIBOGC_LIB)
 else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
     COMPILERFLAGS += -D__OPENDINGUX__
 else ifeq ($(PLATFORM),SKYOS)
-    COMPILERFLAGS+= -DUNDERSCORES
+    COMPILERFLAGS += -DUNDERSCORES
 endif
 ASFLAGS += -f $(ASFORMAT)
 
-COMPILERFLAGS+= -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+COMPILERFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
 
 
 ##### Optimizations
@@ -476,19 +486,19 @@ COMPILERFLAGS+= -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
 ifndef OPTOPT
     ifeq ($(findstring x86_64, $(IMPLICIT_ARCH)),x86_64)
         ifeq ($(findstring x86_64h, $(IMPLICIT_ARCH)),x86_64h)
-            OPTOPT=-march=haswell -mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mpopcnt -mpclmul -mavx -mrdrnd -mf16c -mfsgsbase -mavx2 -maes -mfma -mbmi -mbmi2
+            OPTOPT := -march=haswell -mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mpopcnt -mpclmul -mavx -mrdrnd -mf16c -mfsgsbase -mavx2 -maes -mfma -mbmi -mbmi2
             # -mcrc32 -mmovbe
         else
             ifeq ($(PLATFORM),DARWIN)
-                OPTOPT=-march=core2 -mmmx -msse -msse2 -msse3 -mssse3
+                OPTOPT := -march=core2 -mmmx -msse -msse2 -msse3 -mssse3
             endif
         endif
     endif
     ifeq ($(findstring i386, $(IMPLICIT_ARCH)),i386)
         ifeq ($(PLATFORM),DARWIN)
-            OPTOPT=-march=nocona -mmmx -msse -msse2 -msse3
+            OPTOPT := -march=nocona -mmmx -msse -msse2 -msse3
         else
-            OPTOPT=-march=pentium3
+            OPTOPT := -march=pentium3
             ifneq (0,$(GCC_PREREQ_4))
                 OPTOPT += -mtune=generic
                 # -mstackrealign
@@ -498,7 +508,7 @@ ifndef OPTOPT
         endif
     endif
     ifeq ($(PLATFORM),WII)
-        OPTOPT=-mtune=750
+        OPTOPT := -mtune=750
     endif
 endif
 
@@ -525,7 +535,7 @@ ifneq ($(RELEASE)$(DEBUGANYWAY),10)
     endif
     ifeq ($(SUBPLATFORM),LINUX)
         # This option is needed to allow obtaining backtraces from within a program.
-        LIBS+=-rdynamic
+        LIBS += -rdynamic
     endif
 endif
 
@@ -558,7 +568,7 @@ endif
 
 ifneq (0,$(PROFILER))
     ifneq ($(PLATFORM),DARWIN)
-        LIBS+= -lprofiler
+        LIBS += -lprofiler
     endif
     COMMONFLAGS += -pg
 endif
@@ -598,7 +608,7 @@ ifneq (0,$(KRANDDEBUG))
     COMMONFLAGS += -fno-inline -fno-inline-functions -fno-inline-functions-called-once
 endif
 
-COMMONFLAGS+= -fno-strict-aliasing -fno-threadsafe-statics $(F_JUMP_TABLES) $(F_NO_STACK_PROTECTOR)
+COMMONFLAGS += -fno-strict-aliasing -fno-threadsafe-statics $(F_JUMP_TABLES) $(F_NO_STACK_PROTECTOR)
 
 
 ##### Warnings
@@ -616,28 +626,11 @@ W_GCC_4_1 := -Wno-attributes
 W_GCC_4_2 := $(W_STRICT_OVERFLOW)
 W_GCC_4_4 := -Wno-unused-result
 W_GCC_4_5 := -Wlogical-op -Wcast-qual
+W_CLANG := -Wno-unused-value -Wno-parentheses -Wno-unknown-warning-option
 
-CWARNS = -W -Wall \
-    -Wextra \
-    -Wpointer-arith \
-    -Wno-char-subscripts \
-    -Wno-missing-braces \
-    -Wwrite-strings \
-    $(W_UNINITIALIZED) \
-    $(W_GCC_4_1) \
-    $(W_GCC_4_2) \
-    $(W_GCC_4_4) \
-    $(W_GCC_4_5) \
-    #-Wstrict-prototypes \
-    #-Waggregate-return \
-    #-Wcast-align \
-    #-Waddress
+ifeq (0,$(CLANG))
+    W_CLANG :=
 
-CONLYWARNS = -Wimplicit -Werror-implicit-function-declaration
-
-ifneq (0,$(CLANG))
-    CWARNS+= -Wno-unused-value -Wno-parentheses -Wno-unknown-warning-option
-else
     ifeq (0,$(GCC_PREREQ_4))
         W_GCC_4_5 :=
         W_GCC_4_4 :=
@@ -667,74 +660,93 @@ else
     endif
 endif
 
+CONLYWARNS := -Wimplicit -Werror-implicit-function-declaration
+
+CWARNS := -W -Wall \
+    -Wextra \
+    -Wpointer-arith \
+    -Wno-char-subscripts \
+    -Wno-missing-braces \
+    -Wwrite-strings \
+    $(W_UNINITIALIZED) \
+    $(W_GCC_4_1) \
+    $(W_GCC_4_2) \
+    $(W_GCC_4_4) \
+    $(W_GCC_4_5) \
+    $(W_CLANG) \
+    #-Wstrict-prototypes \
+    #-Waggregate-return \
+    #-Wcast-align \
+    #-Waddress
+
 
 ##### Features
 
 ifneq (,$(APPNAME))
-    COMPILERFLAGS+= -DAPPNAME=\"$(APPNAME)\"
+    COMPILERFLAGS += -DAPPNAME=\"$(APPNAME)\"
 endif
 ifneq (,$(APPBASENAME))
-    COMPILERFLAGS+= -DAPPBASENAME=\"$(APPBASENAME)\"
+    COMPILERFLAGS += -DAPPBASENAME=\"$(APPBASENAME)\"
 endif
 
 ifneq (0,$(NOASM))
-    COMPILERFLAGS+= -DNOASM
+    COMPILERFLAGS += -DNOASM
 endif
 ifneq (0,$(USE_ASM64))
-    COMPILERFLAGS+= -DUSE_ASM64
+    COMPILERFLAGS += -DUSE_ASM64
 endif
 ifneq (0,$(MEMMAP))
     ifeq ($(PLATFORM),DARWIN)
-        LINKERFLAGS+=-Wl,-map -Wl,$@.memmap
+        LINKERFLAGS += -Wl,-map -Wl,$@.memmap
     else
-        LINKERFLAGS+=-Wl,-Map=$@.memmap
+        LINKERFLAGS += -Wl,-Map=$@.memmap
     endif
 endif
 
-COMPILERFLAGS+= -DRENDERTYPE$(RENDERTYPE)=1 -DMIXERTYPE$(MIXERTYPE)=1
+COMPILERFLAGS += -DRENDERTYPE$(RENDERTYPE)=1 -DMIXERTYPE$(MIXERTYPE)=1
 
 ifeq (0,$(NETCODE))
-    COMPILERFLAGS+= -DNETCODE_DISABLE
+    COMPILERFLAGS += -DNETCODE_DISABLE
 endif
 ifneq (0,$(STARTUP_WINDOW))
-    COMPILERFLAGS+= -DSTARTUP_WINDOW
+    COMPILERFLAGS += -DSTARTUP_WINDOW
 endif
 ifneq (0,$(SIMPLE_MENU))
-    COMPILERFLAGS+= -DEDUKE32_SIMPLE_MENU
+    COMPILERFLAGS += -DEDUKE32_SIMPLE_MENU
 endif
 ifneq (0,$(STANDALONE))
-    COMPILERFLAGS+= -DEDUKE32_STANDALONE
+    COMPILERFLAGS += -DEDUKE32_STANDALONE
 endif
 ifneq (0,$(USE_OPENGL))
-    COMPILERFLAGS+= -DUSE_OPENGL
+    COMPILERFLAGS += -DUSE_OPENGL
 endif
 ifneq (0,$(POLYMER))
-    COMPILERFLAGS+= -DPOLYMER
+    COMPILERFLAGS += -DPOLYMER
 endif
 
 
 ##### External library paths
 
 ifeq ($(PLATFORM),WINDOWS)
-    COMPILERFLAGS+= -Iplatform/Windows/include
-    LIBDIRS+= -Lplatform/Windows/lib/$(BITS)
+    COMPILERFLAGS += -Iplatform/Windows/include
+    LIBDIRS += -Lplatform/Windows/lib/$(BITS)
 else ifeq ($(PLATFORM),DARWIN)
     ifneq ($(shell port --version &>/dev/null; echo $$?),127)
-        LIBDIRS+= -L/opt/local/lib
-        COMPILERFLAGS+= -I/opt/local/include
+        LIBDIRS += -L/opt/local/lib
+        COMPILERFLAGS += -I/opt/local/include
     endif
     ifneq ($(shell brew --version &>/dev/null; echo $$?),127)
-        LIBDIRS+= -L/usr/local/lib
-        COMPILERFLAGS+= -I/usr/local/include
+        LIBDIRS += -L/usr/local/lib
+        COMPILERFLAGS += -I/usr/local/include
     endif
     ifneq ($(shell fink --version &>/dev/null; echo $$?),127)
-        LIBDIRS+= -L/sw/lib
-        COMPILERFLAGS+= -I/sw/include
+        LIBDIRS += -L/sw/lib
+        COMPILERFLAGS += -I/sw/include
     endif
 else ifeq ($(PLATFORM),BSD)
-    COMPILERFLAGS+= -I/usr/local/include
+    COMPILERFLAGS += -I/usr/local/include
 else ifeq ($(PLATFORM),WII)
-    COMPILERFLAGS+= -I$(PORTLIBS)/include -Iplatform/Wii/include
+    COMPILERFLAGS += -I$(PORTLIBS)/include -Iplatform/Wii/include
     LIBDIRS += -L$(PORTLIBS)/lib -Lplatform/Wii/lib
 endif
 
@@ -743,62 +755,62 @@ endif
 
 ifneq ($(LUNATIC),0)
     ifneq ($(USE_LUAJIT_2_1),0)
-        COMPILERFLAGS+= -DUSE_LUAJIT_2_1
+        COMPILERFLAGS += -DUSE_LUAJIT_2_1
     endif
 
     ifeq ($(PLATFORM),WINDOWS)
-        LIBS+= -lluajit
+        LIBS += -lluajit
     else
-        LIBS+= -lluajit-5.1
+        LIBS += -lluajit-5.1
     endif
 endif
 
 ifneq (0,$(USE_LIBVPX))
-    COMPILERFLAGS+= -DUSE_LIBVPX
-    LIBS+= -lvpx
+    COMPILERFLAGS += -DUSE_LIBVPX
+    LIBS += -lvpx
 endif
 
 ifneq (0,$(HAVE_VORBIS))
-    COMPILERFLAGS+= -DHAVE_VORBIS
+    COMPILERFLAGS += -DHAVE_VORBIS
 endif
 ifneq (0,$(HAVE_FLAC))
-    COMPILERFLAGS+= -DHAVE_FLAC
+    COMPILERFLAGS += -DHAVE_FLAC
 endif
 ifneq (0,$(HAVE_XMP))
-    COMPILERFLAGS+= -DHAVE_XMP
+    COMPILERFLAGS += -DHAVE_XMP
 endif
 
 ifeq ($(RENDERTYPE),SDL)
-    ifeq ($(PLATFORM),WII)
-        SDLCONFIG=
-    else ifeq ($(PLATFORM),SKYOS)
-        COMPILERFLAGS+= -I/boot/programs/sdk/include/sdl
-        SDLCONFIG=
-    endif
-
     ifeq ($(SDL_TARGET),2)
-        SDLCONFIG ?= sdl2-config
-        SDLNAME ?= SDL2
+        SDLCONFIG := sdl2-config
+        SDLNAME := SDL2
     else ifeq ($(SDL_TARGET),1)
-        SDLCONFIG ?= sdl-config
-        SDLNAME ?= SDL
+        SDLCONFIG := sdl-config
+        SDLNAME := SDL
         ifeq (0,$(RELEASE))
             COMPILERFLAGS += -DNOSDLPARACHUTE
         endif
     endif
 
+    ifeq ($(PLATFORM),WII)
+        SDLCONFIG :=
+    else ifeq ($(PLATFORM),SKYOS)
+        COMPILERFLAGS += -I/boot/programs/sdk/include/sdl
+        SDLCONFIG :=
+    endif
+
     ifneq ($(strip $(SDLCONFIG)),)
         ifeq ($(strip $(shell $(SDLCONFIG) --version $(DONT_PRINT_STDERR))),)
-            override SDLCONFIG =
+            override SDLCONFIG :=
         endif
     endif
 
     COMPILERFLAGS += -DSDL_TARGET=$(SDL_TARGET)
 
-    SDL_FRAMEWORK ?= 0
+    SDL_FRAMEWORK := 0
     ifneq ($(SDL_FRAMEWORK),0)
         ifeq ($(PLATFORM),DARWIN)
-            APPLE_FRAMEWORKS ?=/Library/Frameworks
+            APPLE_FRAMEWORKS := /Library/Frameworks
             LIBDIRS += -F$(APPLE_FRAMEWORKS)
             ifeq ($(MIXERTYPE),SDL)
                 COMPILERFLAGS += -I$(APPLE_FRAMEWORKS)/$(SDLNAME)_mixer.framework/Headers
@@ -822,7 +834,7 @@ ifeq ($(RENDERTYPE),SDL)
                 COMPILERFLAGS += -D_GNU_SOURCE=1
             endif
             COMPILERFLAGS += -D_REENTRANT -DSDL_USEFOLDER
-            LIBS+= -l$(SDLNAME)
+            LIBS += -l$(SDLNAME)
         endif
     endif
 endif
@@ -831,7 +843,7 @@ ifneq (0,$(HAVE_GTK2))
     ifneq (No,$(shell $(PKG_CONFIG) --exists gtk+-2.0 || echo No))
         COMPILERFLAGS += -DHAVE_GTK2 $(shell $(PKG_CONFIG) --cflags gtk+-2.0)
     else
-        override HAVE_GTK2=0
+        override HAVE_GTK2 := 0
     endif
 endif
 
@@ -842,7 +854,7 @@ ifeq ($(PLATFORM),WINDOWS)
     ifneq (0,$(GCC_PREREQ_4))
         L_SSP := -lssp
     endif
-    LIBS+= -lmingwex -lgdi32 -lpthread
+    LIBS += -lmingwex -lgdi32 -lpthread
     ifeq ($(RENDERTYPE),WIN)
         LIBS += -ldxguid
     else
@@ -851,23 +863,23 @@ ifeq ($(PLATFORM),WINDOWS)
     LIBS += -lcomctl32 -lwinmm $(L_SSP) -lwsock32 -lws2_32 -lshlwapi
     # -lshfolder
 else ifeq ($(PLATFORM),SKYOS)
-    LIBS+= -lnet
+    LIBS += -lnet
 else ifeq ($(PLATFORM),QNX)
-    LIBS+= -lsocket
+    LIBS += -lsocket
 else ifeq ($(PLATFORM),SUNOS)
-    LIBS+= -lsocket -lnsl
+    LIBS += -lsocket -lnsl
 else ifeq ($(PLATFORM),WII)
-    LIBS+= -laesnd_tueidj -lfat -lwiiuse -lbte -lwiikeyboard -logc
+    LIBS += -laesnd_tueidj -lfat -lwiiuse -lbte -lwiikeyboard -logc
 else ifeq ($(SUBPLATFORM),LINUX)
-    LIBS+= -lrt
+    LIBS += -lrt
 endif
 
 ifeq (,$(filter $(PLATFORM),WINDOWS WII))
     ifneq ($(PLATFORM),BSD)
-        LIBS+= -ldl
+        LIBS += -ldl
     endif
     ifneq ($(PLATFORM),DARWIN)
-        LIBS+= -pthread
+        LIBS += -pthread
     endif
 endif
 
@@ -892,6 +904,19 @@ ifneq (,$(VC_REV)$(VC_REV_CUSTOM))
 endif
 
 
+##### Allow standard environment variables to take precedence, to help package maintainers.
+
+ifneq (,$(CFLAGS))
+    COMMONFLAGS += $(CFLAGS)
+endif
+ifneq (,$(CXXFLAGS))
+    CXXONLYFLAGS += $(CXXFLAGS)
+endif
+ifneq (,$(LDFLAGS))
+    LINKERFLAGS += $(LDFLAGS)
+endif
+
+
 ##### Final assembly of commands
 
 COMPILER_C=$(CC) $(CONLYFLAGS) $(COMMONFLAGS) $(CWARNS) $(CONLYWARNS) $(COMPILERFLAGS) $(CUSTOMOPT)
@@ -902,19 +927,6 @@ LINKER=$(L_CXX) $(CXXONLYFLAGS) $(L_CXXONLYFLAGS) $(COMMONFLAGS) $(LINKERFLAGS) 
 ifneq ($(CPLUSPLUS),0)
     COMPILER_C=$(COMPILER_CXX)
     COMPILER_OBJC=$(COMPILER_OBJCXX)
-endif
-
-
-##### Allow standard environment variables to take precedence, to help package maintainers.
-
-ifneq (,$(CFLAGS))
-    COMMONFLAGS+= $(CFLAGS)
-endif
-ifneq (,$(CXXFLAGS))
-    CXXONLYFLAGS+= $(CXXFLAGS)
-endif
-ifneq (,$(LDFLAGS))
-    LINKERFLAGS+= $(LDFLAGS)
 endif
 
 
