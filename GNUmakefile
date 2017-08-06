@@ -791,7 +791,7 @@ endif
 .PHONY: \
     all \
     start \
-    $(foreach j,$(foreach i,$(games),$($i)) test utils tools,$j clean$j) \
+    $(addprefix clean,$(games) test utils tools) \
     veryclean \
     clean \
     printutils \
@@ -814,7 +814,7 @@ start:
 tools: $(addsuffix $(EXESUFFIX),$(tools_targets)) | start
 	@$(LL) $^
 
-$(foreach i,$(games),$($i)): $$(foreach i,$(roles),$$($$($$@)_$$i)$(EXESUFFIX)) | start
+$(games): $$(foreach i,$(roles),$$($$@_$$i)$(EXESUFFIX)) | start
 	@$(LL) $^
 
 ebacktrace: $(ebacktrace_dll) | start
@@ -825,6 +825,8 @@ ifneq ($(ELF2DOL),)
 %$(DOLSUFFIX): %$(EXESUFFIX)
 endif
 endif
+
+
 define BUILDRULE
 
 $$($1_$2)$$(EXESUFFIX): $$(foreach i,$(call getdeps,$1,$2),$$(call expandobjs,$$i)) $$($1_$2_miscdeps) | $$($1_$2_orderonlydeps)
@@ -976,10 +978,10 @@ endif
 clang-tools: $(filter %.c %.cpp,$(foreach i,$(call getdeps,duke3d,game),$(call expandsrcs,$i)))
 	echo $^ -- -x c++ $(CXXONLYFLAGS) $(COMPILERFLAGS) $(foreach i,$(components),$($i_cflags)) $(CWARNS)
 
-$(foreach i,$(games),clean$($i)):
-	-rm -f $(foreach i,$(roles),$($($(subst clean,,$@))_$i)$(EXESUFFIX))
+$(addprefix clean,$(games)):
+	-rm -f $(foreach i,$(roles),$($(subst clean,,$@)_$i)$(EXESUFFIX))
 ifeq ($(PLATFORM),DARWIN)
-	-rm -rf $(foreach i,$(roles),"$($($(subst clean,,$@))_$i_proper).app")
+	-rm -rf $(foreach i,$(roles),"$($(subst clean,,$@)_$i_proper).app")
 endif
 
 cleantools:
