@@ -206,6 +206,7 @@ ifneq (0,$(LUNATIC))
 endif
 ifeq ($(PLATFORM),DARWIN)
     engine_objs += osxbits.mm
+    engine_tools_objs += osxbits.mm
     ifeq ($(STARTUP_WINDOW),1)
         engine_editor_objs += startosx.editor.mm
     endif
@@ -346,10 +347,6 @@ ifeq ($(PLATFORM),WINDOWS)
 endif
 ifeq ($(RENDERTYPE),SDL)
     tools_targets += makesdlkeytrans
-endif
-
-ifeq ($(PLATFORM),DARWIN)
-    tools_objs += osxbits.mm
 endif
 
 
@@ -867,6 +864,7 @@ libcache1d$(DLLSUFFIX): $(engine_src)/cache1d.cpp
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(COMPILER_C) -DCACHE1D_COMPRESS_ONLY -shared -fPIC $< -o $@ $(RECIPE_RESULT_COMPILE)
 
+# to debug the tools link phase, make a copy of this rule explicitly replacing % with the name of a tool, such as kextract
 %$(EXESUFFIX): $(tools_obj)/%.$o $(foreach i,tools $(tools_deps),$(call expandobjs,$i))
 	$(LINK_STATUS)
 	$(RECIPE_IF) $(LINKER) -o $@ $^ $(LIBDIRS) $(LIBS) $(RECIPE_RESULT_LINK)
