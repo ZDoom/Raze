@@ -1,6 +1,4 @@
 
-#define HW_RVL
-
 #include "compat.h"
 
 #ifdef __cplusplus

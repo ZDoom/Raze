@@ -127,6 +127,25 @@ endif
 CROSS :=
 CROSS_SUFFIX :=
 
+CCFULLPATH = $(CC)
+
+ifeq ($(PLATFORM),WII)
+    ifeq ($(strip $(DEVKITPPC)),)
+        $(error "Please set DEVKITPPC in your environment. export DEVKITPPC := <path to>devkitPPC")
+    endif
+
+    ifeq ($(HOSTPLATFORM),WINDOWS)
+        override DEVKITPRO := $(subst /c/,C:/,$(DEVKITPRO))
+        override DEVKITPPC := $(subst /c/,C:/,$(DEVKITPPC))
+    endif
+
+    export PATH := $(DEVKITPPC)/bin:$(PATH)
+
+    CROSS := powerpc-eabi-
+
+    CCFULLPATH = $(DEVKITPPC)/bin/$(CC)
+endif
+
 CC := $(CROSS)gcc$(CROSS_SUFFIX)
 CXX := $(CROSS)g++$(CROSS_SUFFIX)
 COBJC := $(CC) -x objective-c
@@ -154,22 +173,6 @@ ifeq ($(CC),cc)
 endif
 ifeq ($(AS),as)
     override AS := nasm
-endif
-
-CCFULLPATH := $(CC)
-
-ifeq ($(PLATFORM),WII)
-    ifeq ($(strip $(DEVKITPPC)),)
-        $(error "Please set DEVKITPPC in your environment. export DEVKITPPC := <path to>devkitPPC")
-    endif
-
-    include $(DEVKITPPC)/wii_rules
-
-    CCFULLPATH := $(DEVKITPPC)/bin/$(CC)
-
-    CROSS := powerpc-eabi-
-    RANLIB := powerpc-eabi-ranlib
-    STRIP := powerpc-eabi-strip
 endif
 
 ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
@@ -470,8 +473,12 @@ else ifeq ($(PLATFORM),DARWIN)
         ASFORMAT += 64
     endif
 else ifeq ($(PLATFORM),WII)
-    LINKERFLAGS += -mrvl -meabi -mhard-float -Wl,--gc-sections
-    # -msdata=eabi
+    LIBOGC_INC := $(DEVKITPRO)/libogc/include
+    LIBOGC_LIB := $(DEVKITPRO)/libogc/lib/wii
+
+    COMMONFLAGS += -mrvl -mcpu=750 -meabi -mhard-float
+    LINKERFLAGS += -Wl,--gc-sections
+    # -msdata=eabiexport
     COMPILERFLAGS += -DGEKKO -D__POWERPC__ -I$(LIBOGC_INC)
     LIBDIRS += -L$(LIBOGC_LIB)
 else ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
