@@ -104,9 +104,9 @@ ifeq ($(HOSTPLATFORM),WINDOWS)
     endif
 endif
 
-LL := ls -l
 DONT_PRINT := > $(NULLSTREAM) 2>&1
 DONT_PRINT_STDERR := 2> $(NULLSTREAM)
+DONT_FAIL := ; exit 0
 
 HAVE_SH := 1
 # when no sh.exe is found in PATH on Windows, no path is prepended to it
@@ -114,8 +114,34 @@ ifeq (sh.exe,$(SHELL))
     HAVE_SH := 0
 endif
 
+define LL
+    ls -l $1
+endef
+define MKDIR
+    mkdir -p $1
+endef
+define RM
+    rm -f $(filter-out / *,$1)
+endef
+define RMDIR
+    rm -rf $(filter-out / *,$1)
+endef
+
 ifeq (0,$(HAVE_SH))
-    LL := dir
+    DONT_FAIL := & rem
+
+    define LL
+        dir $(subst /,\,$1)
+    endef
+    define MKDIR
+        if not exist $(subst /,\,$1) mkdir $(subst /,\,$1)
+    endef
+    define RM
+        del /f /q $(subst /,\,$(filter-out / *,$1)) $(DONT_PRINT_STDERR) $(DONT_FAIL)
+    endef
+    define RMDIR
+        rmdir /s /q $(subst /,\,$(filter-out / *,$1)) $(DONT_PRINT_STDERR) $(DONT_FAIL)
+    endef
 
     # if, printf, exit, and ; are unavailable without sh
     PRETTY_OUTPUT := 0

@@ -812,13 +812,13 @@ start:
 	$(BUILD_STARTED)
 
 tools: $(addsuffix $(EXESUFFIX),$(tools_targets)) | start
-	@$(LL) $^
+	@$(call LL,$^)
 
 $(games): $$(foreach i,$(roles),$$($$@_$$i)$(EXESUFFIX)) | start
-	@$(LL) $^
+	@$(call LL,$^)
 
 ebacktrace: $(ebacktrace_dll) | start
-	@$(LL) $^
+	@$(call LL,$^)
 
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
@@ -842,7 +842,7 @@ ifneq ($$(STRIP),)
 endif
 ifeq ($$(PLATFORM),DARWIN)
 	cp -RPf "platform/Apple/bundles/$$($1_$2_proper).app" "./"
-	mkdir -p "$$($1_$2_proper).app/Contents/MacOS"
+	$(call MKDIR,"$$($1_$2_proper).app/Contents/MacOS")
 	cp -f "$$($1_$2)$$(EXESUFFIX)" "$$($1_$2_proper).app/Contents/MacOS/"
 endif
 
@@ -965,13 +965,8 @@ $(engine_obj)/rev.$o: $(engine_src)/rev.cpp | $(engine_obj)
 
 ### Directories
 
-ifeq (0,$(HAVE_SH))
 $(foreach i,$(components),$($i_obj)):
-	-if not exist $(subst /,\,$@) mkdir $(subst /,\,$@)
-else
-$(foreach i,$(components),$($i_obj)):
-	-mkdir -p $@ ; exit 0
-endif
+	-$(call MKDIR,$@)
 
 ### Phonies
 
@@ -979,17 +974,19 @@ clang-tools: $(filter %.c %.cpp,$(foreach i,$(call getdeps,duke3d,game),$(call e
 	echo $^ -- -x c++ $(CXXONLYFLAGS) $(COMPILERFLAGS) $(foreach i,$(components),$($i_cflags)) $(CWARNS)
 
 $(addprefix clean,$(games)):
-	-rm -f $(foreach i,$(roles),$($(subst clean,,$@)_$i)$(EXESUFFIX))
+	-$(call RM,$(foreach i,$(roles),$($(subst clean,,$@)_$i)$(EXESUFFIX)))
+	-$(call RMDIR,$($(subst clean,,$@)_obj))
 ifeq ($(PLATFORM),DARWIN)
-	-rm -rf $(foreach i,$(roles),"$($(subst clean,,$@)_$i_proper).app")
+	-$(call RMDIR,$(foreach i,$(roles),"$($(subst clean,,$@)_$i_proper).app"))
 endif
 
 cleantools:
-	-rm -f $(addsuffix $(EXESUFFIX),$(tools_targets))
+	-$(call RM,$(addsuffix $(EXESUFFIX),$($(subst clean,,$@)_targets)))
+	-$(call RMDIR,$($(subst clean,,$@)_obj))
 
 clean: cleanduke3d cleantools
-	-rm -rf $(obj)/
-	-rm -f $(ebacktrace_dll)
+	-$(call RMDIR,$(obj))
+	-$(call RM,$(ebacktrace_dll))
 
 printtools:
 	echo "$(addsuffix $(EXESUFFIX),$(tools_targets))"
