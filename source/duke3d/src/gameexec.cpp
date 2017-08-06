@@ -2756,6 +2756,7 @@ nullquote:
                 }
 
                 tw = pPlayer->palette;
+                I_ClearAllInput();
                 Anim_Play(apStrings[nQuote]);
                 P_SetGamePalette(pPlayer, tw, 2 + 16);
                 continue;
