@@ -6,6 +6,13 @@ PACKAGE_REPOSITORY ?= 0
 SYNTHESIS := 0
 
 
+##### Makefile Swiss army knife
+
+override empty :=
+override space := $(empty) $(empty)
+override comma := ,
+
+
 ##### Detect platform
 
 ifndef HOSTPLATFORM
@@ -49,15 +56,15 @@ ifndef SUBPLATFORM
 endif
 
 ifeq ($(HOSTPLATFORM),DARWIN)
-    DARWINVERSION:=$(strip $(shell uname -r | cut -d . -f 1))
+    DARWINVERSION := $(word 1,$(subst ., ,$(strip $(shell uname -r))))
 
     DARWIN9 := 0
     DARWIN10 := 0
-    ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 10)))
-        override DARWIN9 := 1
-    endif
-    ifeq (1,$(strip $(shell expr $(DARWINVERSION) \< 11)))
-        override DARWIN10 := 1
+    ifneq (,$(filter 0 1 2 3 4 5 6 7 8 9 10,$(DARWINVERSION)))
+        DARWIN10 := 1
+        ifneq (,$(filter 0 1 2 3 4 5 6 7 8 9,$(DARWINVERSION)))
+            DARWIN9 := 1
+        endif
     endif
 endif
 
@@ -97,9 +104,9 @@ ifeq ($(HOSTPLATFORM),WINDOWS)
     endif
 endif
 
+LL := ls -l
 DONT_PRINT := > $(NULLSTREAM) 2>&1
 DONT_PRINT_STDERR := 2> $(NULLSTREAM)
-DONT_FAIL := ; exit 0
 
 HAVE_SH := 1
 # when no sh.exe is found in PATH on Windows, no path is prepended to it
@@ -108,9 +115,10 @@ ifeq (sh.exe,$(SHELL))
 endif
 
 ifeq (0,$(HAVE_SH))
+    LL := dir
+
     # if, printf, exit, and ; are unavailable without sh
-    override PRETTY_OUTPUT := 0
-    override DONT_FAIL :=
+    PRETTY_OUTPUT := 0
 endif
 
 
@@ -191,25 +199,20 @@ ifneq (0,$(CLANG))
     override L_CXX := $(CLANGXXNAME)
 endif
 
-ifndef GCC_MAJOR
-    ifeq (0,$(CLANG))
-        GCC_MAJOR    := $(shell $(CCFULLPATH) -dumpversion 2>&1 | cut -d'.' -f1)
-    endif
+GCC_VER :=
+ifeq (0,$(CLANG))
+    GCC_VER := $(strip $(shell $(CCFULLPATH) -dumpversion 2>&1))
 endif
-ifeq ($(GCC_MAJOR),)
-    GCC_MAJOR    := 4
+ifeq (,$(GCC_VER))
+    GCC_VER := 4.9.0
 endif
-ifndef GCC_MINOR
-    ifeq (0,$(CLANG))
-        GCC_MINOR    := $(shell $(CCFULLPATH) -dumpversion 2>&1 | cut -d'.' -f2)
-    endif
-endif
-ifeq ($(GCC_MINOR),)
-    GCC_MINOR    := 8
-endif
+override GCC_VER_SPLIT := $(subst ., ,$(GCC_VER))
+GCC_MAJOR := $(word 1,$(GCC_VER_SPLIT))
+GCC_MINOR := $(word 2,$(GCC_VER_SPLIT))
 
 GCC_PREREQ_4 := 1
-ifeq (1,$(strip $(shell expr $(GCC_MAJOR) \< 4)))
+
+ifneq (,$(filter 1 2 3,$(GCC_MAJOR)))
     ifeq (0,$(CLANG))
         GCC_PREREQ_4 := 0
         $(error How do you still have an old GCC in $$(CURRENT_YEAR)?)
@@ -373,13 +376,13 @@ ifeq (0,$(CLANG))
     ifeq (0,$(GCC_PREREQ_4))
         override LTO := 0
     endif
-    ifeq (1,$(strip $(shell expr $(GCC_MAJOR) = 4)))
+    ifeq (4,$(GCC_MAJOR))
         ifeq ($(PLATFORM),WII)
-            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 8)))
+            ifneq (,$(filter 0 1 2 3 4 5 6 7,$(GCC_MINOR)))
                 override LTO := 0
             endif
         else
-            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 6)))
+            ifneq (,$(filter 0 1 2 3 4 5,$(GCC_MINOR)))
                 override LTO := 0
             endif
         endif
@@ -641,17 +644,17 @@ ifeq (0,$(CLANG))
         W_GCC_4_1 :=
     endif
 
-    ifeq (1,$(strip $(shell expr $(GCC_MAJOR) = 4)))
-        ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 5)))
+    ifeq (4,$(GCC_MAJOR))
+        ifneq (,$(filter 0 1 2 3 4,$(GCC_MINOR)))
             W_GCC_4_5 :=
-            ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 4)))
+            ifneq (,$(filter 0 1 2 3,$(GCC_MINOR)))
                 W_GCC_4_4 :=
                 ifeq (0,$(OPTLEVEL))
                     W_UNINITIALIZED :=
                 endif
-                ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 2)))
+                ifneq (,$(filter 0 1,$(GCC_MINOR)))
                     W_GCC_4_2 :=
-                    ifeq (1,$(strip $(shell expr $(GCC_MINOR) \< 1)))
+                    ifeq (0,$(GCC_MINOR))
                         W_GCC_4_1 :=
                     endif
                 endif
@@ -888,16 +891,15 @@ LIBS += -lm
 
 ##### Detect version control revision, if applicable
 
+VC_REV :=
+-include EDUKE32_REVISION.mak
 ifeq (,$(VC_REV))
-    ifneq (,$(wildcard EDUKE32_REVISION))
-        VC_REV    := $(shell cat EDUKE32_REVISION)
-    endif
+    VC_REV := $(word 2,$(subst :, ,$(filter Revision:%,$(subst : ,:,$(strip $(shell svn info 2>&1))))))
 endif
 ifeq (,$(VC_REV))
-    VC_REV    := $(shell svn info 2>&1 | grep Revision | cut -d' ' -f2)
-endif
-ifeq (,$(VC_REV))
-    VC_REV    := $(shell git svn info 2>&1 | grep Revision | cut -d' ' -f2)
+    GIT_SVN_URL := $(strip $(shell git config --local svn-remote.svn.url))
+    GIT_SVN_FETCH := $(strip $(shell git config --local svn-remote.svn.fetch))
+    VC_REV := $(word 2,$(subst @, ,$(filter git-svn-id:$(GIT_SVN_URL)@%,$(subst : ,:,$(shell git log -1 $(GIT_SVN_FETCH::%=%))))))
 endif
 ifneq (,$(VC_REV)$(VC_REV_CUSTOM))
     REVFLAG := -DREV="\"r$(VC_REV)$(VC_REV_CUSTOM)\""

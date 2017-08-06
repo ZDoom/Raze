@@ -814,13 +814,13 @@ start:
 	$(BUILD_STARTED)
 
 tools: $(addsuffix $(EXESUFFIX),$(TOOLS_TARGETS)) | start
-	@ls -l $^
+	@$(LL) $^
 
 $(foreach i,$(GAMES),$($i)): $$(foreach i,$(ROLES),$$($$($$@)_$$i)$(EXESUFFIX)) | start
-	@ls -l $^
+	@$(LL) $^
 
 ebacktrace: $(EBACKTRACE_DLL) | start
-	@ls -l $^
+	@$(LL) $^
 
 ifeq ($(PLATFORM),WII)
 ifneq ($(ELF2DOL),)
@@ -965,12 +965,13 @@ $(ENGINE_OBJ)/rev.$o: $(ENGINE_SRC)/rev.cpp | $(ENGINE_OBJ)
 
 ### Directories
 
-$(obj):
-	-mkdir $@ $(DONT_PRINT) $(DONT_FAIL)
-
-$(foreach i,$(COMPONENTS),$($i_OBJ)): | $(obj)
-	-mkdir $@ $(DONT_PRINT) $(DONT_FAIL)
-
+ifeq (0,$(HAVE_SH))
+$(foreach i,$(COMPONENTS),$($i_OBJ)):
+	-if not exist $(subst /,\,$@) mkdir $(subst /,\,$@)
+else
+$(foreach i,$(COMPONENTS),$($i_OBJ)):
+	-mkdir -p $@ ; exit 0
+endif
 
 ### Phonies
 
