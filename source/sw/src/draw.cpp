@@ -1678,7 +1678,7 @@ void ScreenCaptureKeys(void)
     {
         KEY_PRESSED(KEYSC_F12) = 0;
         PauseAction();
-        screencapture("swcpxxxx.pcx", KEY_PRESSED(KEYSC_LSHIFT) | KEY_PRESSED(KEYSC_LSHIFT), "EDuke32");
+        screencapture("swcpxxxx.tga", KEY_PRESSED(KEYSC_LSHIFT) | KEY_PRESSED(KEYSC_RSHIFT));
         ResumeAction();
         PutStringInfo(Player + myconnectindex, "Screen Captured");
     }

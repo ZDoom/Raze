@@ -4211,7 +4211,7 @@ void drawscreen(short snum, int dasmoothratio)
     if (keystatus[0x58])   //F12
     {
         keystatus[0x58] = 0;
-        screencapture("captxxxx.tga",keystatus[0x2a]|keystatus[0x36],"EDuke32");
+        screencapture("captxxxx.tga",keystatus[0x2a]|keystatus[0x36]);
     }
     if (keystatus[0x3e])  //F4 - screen re-size
     {
