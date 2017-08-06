@@ -600,6 +600,7 @@ const char *keyw[] = {
     "drawline256",             // 404
     "drawlinergb",             // 405
     "starttrackslot",          // 406
+    "stopallmusic",            // 407
     NULL
 };
 #endif
@@ -6038,6 +6039,7 @@ repeatcase:
         case CON_GETTEXTURECEILING:
         case CON_INSERTSPRITEQ:
         case CON_STOPALLSOUNDS:
+        case CON_STOPALLMUSIC:
             continue;
 
         case CON_NULLOP:

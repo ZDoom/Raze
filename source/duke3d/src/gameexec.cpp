@@ -3605,6 +3605,11 @@ nullquote:
                 FX_StopAllSounds();
             continue;
 
+        case CON_STOPALLMUSIC:
+            insptr++;
+            S_StopMusic();
+            continue;
+
         case CON_IFGAPZL:
             insptr++;
             VM_CONDITIONAL(((vm.pActor->floorz - vm.pActor->ceilingz) >> 8) < *insptr);
