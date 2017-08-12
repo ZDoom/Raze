@@ -174,6 +174,12 @@ endif
 
 CC := $(CROSS)gcc$(CROSS_SUFFIX)
 CXX := $(CROSS)g++$(CROSS_SUFFIX)
+
+ifeq ($(PLATFORM),DARWIN)
+    CC := $(CROSS)clang$(CROSS_SUFFIX)
+    CXX := $(CROSS)clang++$(CROSS_SUFFIX)
+endif
+
 COBJC := $(CC) -x objective-c
 COBJCXX := $(CXX) -x objective-c++
 L_CC := $(CC)
@@ -206,9 +212,6 @@ ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
 endif
 
 CLANG := 0
-ifeq ($(PLATFORM),DARWIN)
-    CLANG := 1
-endif
 ifeq ($(findstring clang,$(CC) $(MAKECMDGOALS)),clang)
     override CLANG := 1
     CLANGNAME := $(CC)
