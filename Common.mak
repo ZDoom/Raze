@@ -206,6 +206,9 @@ ifeq ($(PLATFORM),$(filter $(PLATFORM),DINGOO GCW))
 endif
 
 CLANG := 0
+ifeq ($(PLATFORM),DARWIN)
+    CLANG := 1
+endif
 ifeq ($(findstring clang,$(CC) $(MAKECMDGOALS)),clang)
     override CLANG := 1
     CLANGNAME := $(CC)
