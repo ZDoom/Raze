@@ -339,7 +339,7 @@ static void PopulateForm(unsigned char pgs)
             if (validmode[i].fs != settings.fullscreen) continue;
 
             // all modes get added to the 3D mode list
-            Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+            Bsprintf(buf, "%dx%d %s", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp == 8 ? "software" : "OpenGL");
             gtk_list_store_append(modes3d, &iter);
             gtk_list_store_set(modes3d, &iter, 0,buf, 1,i, -1);
             if (i == mode3d)

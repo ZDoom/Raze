@@ -69,7 +69,7 @@ static void PopulateForm(void)
         if (validmode[i].fs != settings.fullscreen) continue;
 
         // all modes get added to the 3D mode list
-        Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+        Bsprintf(buf, "%dx%d %s", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp == 8 ? "software" : "OpenGL");
         j = ComboBox_AddString(hwnd3d, buf);
         (void)ComboBox_SetItemData(hwnd3d, j, i);
         if (i == mode3d)(void)ComboBox_SetCurSel(hwnd3d, j);

@@ -176,7 +176,7 @@ static void PopulateForm(int32_t pgs)
             if ((validmode[i].bpp < 15) && (settings.flags & 2)) continue;
 
             // all modes get added to the 3D mode list
-            Bsprintf(buf, "%d x %d %dbpp", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp);
+            Bsprintf(buf, "%dx%d %s", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp == 8 ? "software" : "OpenGL");
             j = ComboBox_AddString(hwnd, buf);
             (void)ComboBox_SetItemData(hwnd, j, i);
             if (i == mode)(void)ComboBox_SetCurSel(hwnd, j);
