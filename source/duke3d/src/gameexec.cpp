@@ -102,7 +102,7 @@ void VM_ScriptInfo(intptr_t const *ptr, int range)
             initprintf("%5d: %3d: ", (int32_t) (pScript - apScript), (int32_t) (pScript - ptr));
 
             if (*pScript >> 12 && (*pScript & VM_INSTMASK) < CON_END)
-                initprintf("%5d %s\n", (int32_t) (*pScript >> 12), keyw[*pScript & VM_INSTMASK]);
+                initprintf("%5d %s\n", (int32_t) (*pScript >> 12), vm_keywords[*pScript & VM_INSTMASK].token);
             else
                 initprintf("%d\n", (int32_t) *pScript);
         }
@@ -3856,7 +3856,7 @@ finish_qsprintf:
                         index=Gv_GetVarX(*insptr++);
                         if (EDUKE32_PREDICT_TRUE((unsigned)index < (unsigned)aGameArrays[lVarID].size))
                         {
-                            OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n", keyw[g_tw], g_errorLineNum,
+                            OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n", vm_keywords[g_tw].token, g_errorLineNum,
                                        aGameArrays[lVarID].szLabel, index,
                                        (int32_t)(m*Gv_GetArrayValue(lVarID, index)));
                             continue;
@@ -3881,7 +3881,7 @@ finish_qsprintf:
                                 Gv_GetVarX(*insptr++);
                                 continue;
                             }
-                            OSD_Printf(OSDTEXT_GREEN "%s: L=%d %d %d\n",keyw[g_tw],g_errorLineNum,index,Gv_GetVar(*insptr++,index,vm.playerNum));
+                            OSD_Printf(OSDTEXT_GREEN "%s: L=%d %d %d\n",vm_keywords[g_tw].token,g_errorLineNum,index,Gv_GetVar(*insptr++,index,vm.playerNum));
                             continue;
                         }
                     }
@@ -5276,7 +5276,7 @@ finish_qsprintf:
                     CON_ERRPRINTF("invalid iterator type %d", iterType);
                     continue;
                 badindex:
-                    OSD_Printf(OSD_ERROR "Line %d, %s %s: index %d out of range!\n", g_errorLineNum, keyw[g_tw],
+                    OSD_Printf(OSD_ERROR "Line %d, %s %s: index %d out of range!\n", g_errorLineNum, vm_keywords[g_tw].token,
                         iter_tokens[iterType].token, nIndex);
                     continue;
                 }

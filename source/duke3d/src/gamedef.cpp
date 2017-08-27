@@ -31,8 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "osd.h"
 
-#define NUMKEYWORDS (int32_t)ARRAY_SIZE(keyw)
-#define NUMALTKEYWORDS (int32_t)ARRAY_SIZE(altkeyw)
+#define NUMKEYWORDS (int32_t)ARRAY_SIZE(vm_keywords)
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
@@ -114,494 +113,476 @@ static char *C_GetLabelType(int32_t type)
     return Xstrdup(x);
 }
 
-const tokenmap_t altkeyw [] =
-{
-    { "#define", CON_DEFINE },
-    { "#include", CON_INCLUDE },
-    { "al", CON_ADDLOGVAR },
-    { "var", CON_GAMEVAR },
-    { "array", CON_GAMEARRAY },
-    { "shiftl", CON_SHIFTVARVARL },
-    { "shiftr", CON_SHIFTVARVARR },
-    { "rand", CON_RANDVARVAR },
-    { "set", CON_SETVARVAR },
-    { "add", CON_ADDVARVAR },
-    { "sub", CON_SUBVARVAR },
-    { "mul", CON_MULVARVAR },
-    { "div", CON_DIVVARVAR },
-    { "mod", CON_MODVARVAR },
-    { "and", CON_ANDVARVAR },
-    { "or", CON_ORVARVAR },
-    { "xor", CON_XORVARVAR },
-    { "ifl", CON_IFVARVARL },
-    { "ifle", CON_IFVARVARLE },
-    { "ifg", CON_IFVARVARG },
-    { "ifge", CON_IFVARVARGE },
-    { "ife", CON_IFVARVARE },
-    { "ifn", CON_IFVARVARN },
-    { "ifand", CON_IFVARVARAND },
-    { "ifor", CON_IFVARVAROR },
-    { "ifxor", CON_IFVARVARXOR },
-    { "ifeither", CON_IFVARVAREITHER },
-    { "ifboth", CON_IFVARVARBOTH },
-    { "whilen", CON_WHILEVARVARN },
-    { "whilel", CON_WHILEVARVARL },
-    { "abs", CON_KLABS },
+const tokenmap_t vm_keywords[] = {
+    { "action",                 CON_ACTION },
+    { "activate",               CON_ACTIVATE },
+    { "activatebysector",       CON_ACTIVATEBYSECTOR },
+    { "activatecheat",          CON_ACTIVATECHEAT },
+    { "actor",                  CON_ACTOR },
+    { "addammo",                CON_ADDAMMO },
+    { "addinventory",           CON_ADDINVENTORY },
+    { "addkills",               CON_ADDKILLS },
+    { "addlog",                 CON_ADDLOG },
+    { "addlogvar",              CON_ADDLOGVAR },
+    { "addphealth",             CON_ADDPHEALTH },
+    { "addstrength",            CON_ADDSTRENGTH },
+    { "addvar",                 CON_ADDVAR },
+    { "addvarvar",              CON_ADDVARVAR },
+    { "addweapon",              CON_ADDWEAPON },
+    { "addweaponvar",           CON_ADDWEAPONVAR },
+    { "ai",                     CON_AI },
+    { "andvar",                 CON_ANDVAR },
+    { "andvarvar",              CON_ANDVARVAR },
+    { "angoff",                 CON_ANGOFF },
+    { "angoffvar",              CON_ANGOFFVAR },
+    { "appendevent",            CON_APPENDEVENT },
+    { "betaname",               CON_BETANAME },
+    { "break",                  CON_BREAK },
+    { "cactor",                 CON_CACTOR },
+    { "calchypotenuse",         CON_CALCHYPOTENUSE },
+    { "cansee",                 CON_CANSEE },
+    { "canseespr",              CON_CANSEESPR },
+    { "case",                   CON_CASE },
+    { "changespritesect",       CON_CHANGESPRITESECT },
+    { "changespritestat",       CON_CHANGESPRITESTAT },
+    { "cheatkeys",              CON_CHEATKEYS },
+    { "checkactivatormotion",   CON_CHECKACTIVATORMOTION },
+    { "checkavailinven",        CON_CHECKAVAILINVEN },
+    { "checkavailweapon",       CON_CHECKAVAILWEAPON },
+    { "clamp",                  CON_CLAMP },
+    { "clearmapstate",          CON_CLEARMAPSTATE },
+    { "clipdist",               CON_CLIPDIST },
+    { "clipmove",               CON_CLIPMOVE },
+    { "clipmovenoslide",        CON_CLIPMOVENOSLIDE },
+    { "cmenu",                  CON_CMENU },
+    { "copy",                   CON_COPY },
+    { "cos",                    CON_COS },
+    { "count",                  CON_COUNT },
+    { "cstat",                  CON_CSTAT },
+    { "cstator",                CON_CSTATOR },
+    { "debris",                 CON_DEBRIS },
+    { "debug",                  CON_DEBUG },
+    { "default",                CON_DEFAULT },
+    { "define",                 CON_DEFINE },
+    { "definecheat",            CON_DEFINECHEAT },
+    { "definegamefuncname",     CON_DEFINEGAMEFUNCNAME },
+    { "definegametype",         CON_DEFINEGAMETYPE },
+    { "definelevelname",        CON_DEFINELEVELNAME },
+    { "defineprojectile",       CON_DEFINEPROJECTILE },
+    { "definequote",            CON_DEFINEQUOTE },
+    { "defineskillname",        CON_DEFINESKILLNAME },
+    { "definesound",            CON_DEFINESOUND },
+    { "definevolumeflags",      CON_DEFINEVOLUMEFLAGS },
+    { "definevolumename",       CON_DEFINEVOLUMENAME },
+    { "defstate",               CON_DEFSTATE },
+    { "digitalnumber",          CON_DIGITALNUMBER },
+    { "digitalnumberz",         CON_DIGITALNUMBERZ },
+    { "displayrand",            CON_DISPLAYRAND },
+    { "displayrandvar",         CON_DISPLAYRANDVAR },
+    { "displayrandvarvar",      CON_DISPLAYRANDVARVAR },
+    { "dist",                   CON_DIST },
+    { "divscale",               CON_DIVSCALE },
+    { "divvar",                 CON_DIVVAR },
+    { "divvarvar",              CON_DIVVARVAR },
+    { "dragpoint",              CON_DRAGPOINT },
+    { "drawline256",            CON_DRAWLINE256 },
+    { "drawlinergb",            CON_DRAWLINERGB },
+    { "dynamicremap",           CON_DYNAMICREMAP },
+    { "dynamicsoundremap",      CON_DYNAMICSOUNDREMAP },
+    { "echo",                   CON_ECHO },
+    { "else",                   CON_ELSE },
+    { "enda",                   CON_ENDA },
+    { "endevent",               CON_ENDEVENT },
+    { "endofgame",              CON_ENDOFGAME },
+    { "endoflevel",             CON_ENDOFLEVEL },
+    { "ends",                   CON_ENDS },
+    { "endswitch",              CON_ENDSWITCH },
+    { "enhanced",               CON_ENHANCED },
+    { "eqspawnvar",             CON_EQSPAWNVAR },
+    { "eshootvar",              CON_ESHOOTVAR },
+    { "espawnvar",              CON_ESPAWNVAR },
+    { "eventloadactor",         CON_EVENTLOADACTOR },
+    { "ezshootvar",             CON_EZSHOOTVAR },
+    { "fall",                   CON_FALL },
+    { "findnearactor3dvar",     CON_FINDNEARACTOR3DVAR },
+    { "findnearactorvar",       CON_FINDNEARACTORVAR },
+    { "findnearactorzvar",      CON_FINDNEARACTORZVAR },
+    { "findnearsprite3dvar",    CON_FINDNEARSPRITE3DVAR },
+    { "findnearspritevar",      CON_FINDNEARSPRITEVAR },
+    { "findnearspritezvar",     CON_FINDNEARSPRITEZVAR },
+    { "findotherplayer",        CON_FINDOTHERPLAYER },
+    { "findplayer",             CON_FINDPLAYER },
+    { "flash",                  CON_FLASH },
+    { "for",                    CON_FOR },
+    { "gamearray",              CON_GAMEARRAY },
+    { "gamestartup",            CON_GAMESTARTUP },
+    { "gametext",               CON_GAMETEXT },
+    { "gametextz",              CON_GAMETEXTZ },
+    { "gamevar",                CON_GAMEVAR },
+    { "getactor",               CON_GETACTOR },
+    { "getactorangle",          CON_GETACTORANGLE },
+    { "getactorvar",            CON_GETACTORVAR },
+    { "getangle",               CON_GETANGLE },
+    { "getangletotarget",       CON_GETANGLETOTARGET },
+    { "getarraysize",           CON_GETARRAYSIZE },
+    { "getceilzofslope",        CON_GETCEILZOFSLOPE },
+    { "getclosestcol",          CON_GETCLOSESTCOL },
+    { "getcurraddress",         CON_GETCURRADDRESS },
+    { "getflorzofslope",        CON_GETFLORZOFSLOPE },
+    { "getincangle",            CON_GETINCANGLE },
+    { "getinput",               CON_GETINPUT },
+    { "getkeyname",             CON_GETKEYNAME },
+    { "getlastpal",             CON_GETLASTPAL },
+    { "getmusicposition",       CON_GETMUSICPOSITION },
+    { "getplayer",              CON_GETPLAYER },
+    { "getplayerangle",         CON_GETPLAYERANGLE },
+    { "getplayervar",           CON_GETPLAYERVAR },
+    { "getpname",               CON_GETPNAME },
+    { "getprojectile",          CON_GETPROJECTILE },
+    { "getsector",              CON_GETSECTOR },
+    { "gettextureceiling",      CON_GETTEXTURECEILING },
+    { "gettexturefloor",        CON_GETTEXTUREFLOOR },
+    { "getthisprojectile",      CON_GETTHISPROJECTILE },
+    { "getticks",               CON_GETTICKS },
+    { "gettimedate",            CON_GETTIMEDATE },
+    { "gettspr",                CON_GETTSPR },
+    { "getuserdef",             CON_GETUSERDEF },
+    { "getwall",                CON_GETWALL },
+    { "getzrange",              CON_GETZRANGE },
+    { "globalsound",            CON_GLOBALSOUND },
+    { "globalsoundvar",         CON_GLOBALSOUNDVAR },
+    { "gmaxammo",               CON_GMAXAMMO },
+    { "guniqhudid",             CON_GUNIQHUDID },
+    { "guts",                   CON_GUTS },
+    { "headspritesect",         CON_HEADSPRITESECT },
+    { "headspritestat",         CON_HEADSPRITESTAT },
+    { "hitradius",              CON_HITRADIUS },
+    { "hitradiusvar",           CON_HITRADIUSVAR },
+    { "hitscan",                CON_HITSCAN },
+    { "ifaction",               CON_IFACTION },
+    { "ifactioncount",          CON_IFACTIONCOUNT },
+    { "ifactor",                CON_IFACTOR },
+    { "ifactornotstayput",      CON_IFACTORNOTSTAYPUT },
+    { "ifactorsound",           CON_IFACTORSOUND },
+    { "ifai",                   CON_IFAI },
+    { "ifangdiffl",             CON_IFANGDIFFL },
+    { "ifawayfromwall",         CON_IFAWAYFROMWALL },
+    { "ifbulletnear",           CON_IFBULLETNEAR },
+    { "ifcansee",               CON_IFCANSEE },
+    { "ifcanseetarget",         CON_IFCANSEETARGET },
+    { "ifcanshoottarget",       CON_IFCANSHOOTTARGET },
+    { "ifceilingdistl",         CON_IFCEILINGDISTL },
+    { "ifclient",               CON_IFCLIENT },
+    { "ifcount",                CON_IFCOUNT },
+    { "ifcutscene",             CON_IFCUTSCENE },
+    { "ifdead",                 CON_IFDEAD },
+    { "iffloordistl",           CON_IFFLOORDISTL },
+    { "ifgapzl",                CON_IFGAPZL },
+    { "ifgotweaponce",          CON_IFGOTWEAPONCE },
+    { "ifhitspace",             CON_IFHITSPACE },
+    { "ifhitweapon",            CON_IFHITWEAPON },
+    { "ifinouterspace",         CON_IFINOUTERSPACE },
+    { "ifinspace",              CON_IFINSPACE },
+    { "ifinwater",              CON_IFINWATER },
+    { "ifmove",                 CON_IFMOVE },
+    { "ifmultiplayer",          CON_IFMULTIPLAYER },
+    { "ifnosounds",             CON_IFNOSOUNDS },
+    { "ifnotmoving",            CON_IFNOTMOVING },
+    { "ifonwater",              CON_IFONWATER },
+    { "ifoutside",              CON_IFOUTSIDE },
+    { "ifp",                    CON_IFP },
+    { "ifpdistg",               CON_IFPDISTG },
+    { "ifpdistl",               CON_IFPDISTL },
+    { "ifphealthl",             CON_IFPHEALTHL },
+    { "ifpinventory",           CON_IFPINVENTORY },
+    { "ifplaybackon",           CON_IFPLAYBACKON },
+    { "ifplayersl",             CON_IFPLAYERSL },
+    { "ifrespawn",              CON_IFRESPAWN },
+    { "ifrnd",                  CON_IFRND },
+    { "ifserver",               CON_IFSERVER },
+    { "ifsound",                CON_IFSOUND },
+    { "ifspawnedby",            CON_IFSPAWNEDBY },
+    { "ifspritepal",            CON_IFSPRITEPAL },
+    { "ifsquished",             CON_IFSQUISHED },
+    { "ifstrength",             CON_IFSTRENGTH },
+    { "ifvarand",               CON_IFVARAND },
+    { "ifvarboth",              CON_IFVARBOTH },
+    { "ifvare",                 CON_IFVARE },
+    { "ifvareither",            CON_IFVAREITHER },
+    { "ifvarg",                 CON_IFVARG },
+    { "ifvarge",                CON_IFVARGE },
+    { "ifvarl",                 CON_IFVARL },
+    { "ifvarle",                CON_IFVARLE },
+    { "ifvarn",                 CON_IFVARN },
+    { "ifvaror",                CON_IFVAROR },
+    { "ifvarvarand",            CON_IFVARVARAND },
+    { "ifvarvarboth",           CON_IFVARVARBOTH },
+    { "ifvarvare",              CON_IFVARVARE },
+    { "ifvarvareither",         CON_IFVARVAREITHER },
+    { "ifvarvarg",              CON_IFVARVARG },
+    { "ifvarvarge",             CON_IFVARVARGE },
+    { "ifvarvarl",              CON_IFVARVARL },
+    { "ifvarvarle",             CON_IFVARVARLE },
+    { "ifvarvarn",              CON_IFVARVARN },
+    { "ifvarvaror",             CON_IFVARVAROR },
+    { "ifvarvarxor",            CON_IFVARVARXOR },
+    { "ifvarxor",               CON_IFVARXOR },
+    { "ifwasweapon",            CON_IFWASWEAPON },
+    { "include",                CON_INCLUDE },
+    { "includedefault",         CON_INCLUDEDEFAULT },
+    { "inittimer",              CON_INITTIMER },
+    { "insertspriteq",          CON_INSERTSPRITEQ },
+    { "inv",                    CON_INV },
+    { "jump",                   CON_JUMP },
+    { "killit",                 CON_KILLIT },
+    { "klabs",                  CON_KLABS },
+    { "ldist",                  CON_LDIST },
+    { "lineintersect",          CON_LINEINTERSECT },
+    { "loadmapstate",           CON_LOADMAPSTATE },
+    { "lockplayer",             CON_LOCKPLAYER },
+    { "lotsofglass",            CON_LOTSOFGLASS },
+    { "mail",                   CON_MAIL },
+    { "mikesnd",                CON_MIKESND },
+    { "minitext",               CON_MINITEXT },
+    { "modvar",                 CON_MODVAR },
+    { "modvarvar",              CON_MODVARVAR },
+    { "money",                  CON_MONEY },
+    { "move",                   CON_MOVE },
+    { "movesector",             CON_MOVESECTOR },
+    { "movesprite",             CON_MOVESPRITE },
+    { "mulscale",               CON_MULSCALE },
+    { "mulvar",                 CON_MULVAR },
+    { "mulvarvar",              CON_MULVARVAR },
+    { "music",                  CON_MUSIC },
+    { "myos",                   CON_MYOS },
+    { "myospal",                CON_MYOSPAL },
+    { "myospalx",               CON_MYOSPALX },
+    { "myosx",                  CON_MYOSX },
+    { "neartag",                CON_NEARTAG },
+    { "nextsectorneighborz",    CON_NEXTSECTORNEIGHBORZ },
+    { "nextspritesect",         CON_NEXTSPRITESECT },
+    { "nextspritestat",         CON_NEXTSPRITESTAT },
+    { "nullop",                 CON_NULLOP },
+    { "onevent",                CON_ONEVENT },
+    { "operate",                CON_OPERATE },
+    { "operateactivators",      CON_OPERATEACTIVATORS },
+    { "operatemasterswitches",  CON_OPERATEMASTERSWITCHES },
+    { "operaterespawns",        CON_OPERATERESPAWNS },
+    { "operatesectors",         CON_OPERATESECTORS },
+    { "orvar",                  CON_ORVAR },
+    { "orvarvar",               CON_ORVARVAR },
+    { "palfrom",                CON_PALFROM },
+    { "paper",                  CON_PAPER },
+    { "pkick",                  CON_PKICK },
+    { "precache",               CON_PRECACHE },
+    { "prevspritesect",         CON_PREVSPRITESECT },
+    { "prevspritestat",         CON_PREVSPRITESTAT },
+    { "pstomp",                 CON_PSTOMP },
+    { "qgetsysstr",             CON_QGETSYSSTR },
+    { "qspawnvar",              CON_QSPAWNVAR },
+    { "qsprintf",               CON_QSPRINTF },
+    { "qstrcat",                CON_QSTRCAT },
+    { "qstrcpy",                CON_QSTRCPY },
+    { "qstrdim",                CON_QSTRDIM },
+    { "qstrlen",                CON_QSTRLEN },
+    { "qstrncat",               CON_QSTRNCAT },
+    { "qsubstr",                CON_QSUBSTR },
+    { "quake",                  CON_QUAKE },
+    { "quote",                  CON_QUOTE },
+    { "randvar",                CON_RANDVAR },
+    { "randvarvar",             CON_RANDVARVAR },
+    { "rayintersect",           CON_RAYINTERSECT },
+    { "readarrayfromfile",      CON_READARRAYFROMFILE },
+    { "readgamevar",            CON_READGAMEVAR },
+    { "redefinequote",          CON_REDEFINEQUOTE },
+    { "resetactioncount",       CON_RESETACTIONCOUNT },
+    { "resetcount",             CON_RESETCOUNT },
+    { "resetplayer",            CON_RESETPLAYER },
+    { "resetplayerflags",       CON_RESETPLAYERFLAGS },
+    { "resizearray",            CON_RESIZEARRAY },
+    { "respawnhitag",           CON_RESPAWNHITAG },
+    { "return",                 CON_RETURN },
+    { "rotatepoint",            CON_ROTATEPOINT },
+    { "rotatesprite",           CON_ROTATESPRITE },
+    { "rotatesprite16",         CON_ROTATESPRITE16 },
+    { "rotatespritea",          CON_ROTATESPRITEA },
+    { "save",                   CON_SAVE },
+    { "savegamevar",            CON_SAVEGAMEVAR },
+    { "savemapstate",           CON_SAVEMAPSTATE },
+    { "savenn",                 CON_SAVENN },
+    { "scalevar",               CON_SCALEVAR },
+    { "screensound",            CON_SCREENSOUND },
+    { "screentext",             CON_SCREENTEXT },
+    { "scriptsize",             CON_SCRIPTSIZE },
+    { "sectclearinterpolation", CON_SECTCLEARINTERPOLATION },
+    { "sectgethitag",           CON_SECTGETHITAG },
+    { "sectgetlotag",           CON_SECTGETLOTAG },
+    { "sectorofwall",           CON_SECTOROFWALL },
+    { "sectsetinterpolation",   CON_SECTSETINTERPOLATION },
+    { "setactor",               CON_SETACTOR },
+    { "setactorangle",          CON_SETACTORANGLE },
+    { "setactorsoundpitch",     CON_SETACTORSOUNDPITCH },
+    { "setactorvar",            CON_SETACTORVAR },
+    { "setarray",               CON_SETARRAY },
+    { "setaspect",              CON_SETASPECT },
+    { "setcfgname",             CON_SETCFGNAME },
+    { "setdefname",             CON_SETDEFNAME },
+    { "setgamename",            CON_SETGAMENAME },
+    { "setgamepalette",         CON_SETGAMEPALETTE },
+    { "setinput",               CON_SETINPUT },
+    { "setmusicposition",       CON_SETMUSICPOSITION },
+    { "setplayer",              CON_SETPLAYER },
+    { "setplayerangle",         CON_SETPLAYERANGLE },
+    { "setplayervar",           CON_SETPLAYERVAR },
+    { "setprojectile",          CON_SETPROJECTILE },
+    { "setsector",              CON_SETSECTOR },
+    { "setsprite",              CON_SETSPRITE },
+    { "setthisprojectile",      CON_SETTHISPROJECTILE },
+    { "settspr",                CON_SETTSPR },
+    { "setuserdef",             CON_SETUSERDEF },
+    { "setvar",                 CON_SETVAR },
+    { "setvarvar",              CON_SETVARVAR },
+    { "setwall",                CON_SETWALL },
+    { "shadeto",                CON_SHADETO },
+    { "shiftvarl",              CON_SHIFTVARL },
+    { "shiftvarr",              CON_SHIFTVARR },
+    { "shiftvarvarl",           CON_SHIFTVARVARL },
+    { "shiftvarvarr",           CON_SHIFTVARVARR },
+    { "shootvar",               CON_SHOOTVAR },
+    { "showview",               CON_SHOWVIEW },
+    { "showviewunbiased",       CON_SHOWVIEWUNBIASED },
+    { "sin",                    CON_SIN },
+    { "sizeat",                 CON_SIZEAT },
+    { "sizeto",                 CON_SIZETO },
+    { "sleeptime",              CON_SLEEPTIME },
+    { "smaxammo",               CON_SMAXAMMO },
+    { "sound",                  CON_SOUND },
+    { "soundonce",              CON_SOUNDONCE },
+    { "soundoncevar",           CON_SOUNDONCEVAR },
+    { "soundvar",               CON_SOUNDVAR },
+    { "spawn",                  CON_SPAWN },
+    { "spgethitag",             CON_SPGETHITAG },
+    { "spgetlotag",             CON_SPGETLOTAG },
+    { "spriteflags",            CON_SPRITEFLAGS },
+    { "spritenopal",            CON_SPRITENOPAL },
+    { "spritenoshade",          CON_SPRITENOSHADE },
+    { "spritenvg",              CON_SPRITENVG },
+    { "spritepal",              CON_SPRITEPAL },
+    { "spriteshadow",           CON_SPRITESHADOW },
+    { "sqrt",                   CON_SQRT },
+    { "ssp",                    CON_SSP },
+    { "startcutscene",          CON_STARTCUTSCENE },
+    { "startlevel",             CON_STARTLEVEL },
+    { "starttrack",             CON_STARTTRACK },
+    { "starttrackslot",         CON_STARTTRACKSLOT },
+    { "starttrackvar",          CON_STARTTRACKVAR },
+    { "state",                  CON_STATE },
+    { "stopactorsound",         CON_STOPACTORSOUND },
+    { "stopallmusic",           CON_STOPALLMUSIC },
+    { "stopallsounds",          CON_STOPALLSOUNDS },
+    { "stopsound",              CON_STOPSOUND },
+    { "stopsoundvar",           CON_STOPSOUNDVAR },
+    { "strength",               CON_STRENGTH },
+    { "subvar",                 CON_SUBVAR },
+    { "subvarvar",              CON_SUBVARVAR },
+    { "switch",                 CON_SWITCH },
+    { "time",                   CON_TIME },
+    { "tip",                    CON_TIP },
+    { "tossweapon",             CON_TOSSWEAPON },
+    { "undefinegamefunc",       CON_UNDEFINEGAMEFUNC },
+    { "undefinelevel",          CON_UNDEFINELEVEL },
+    { "undefineskill",          CON_UNDEFINESKILL },
+    { "undefinevolume",         CON_UNDEFINEVOLUME },
+    { "updatesector",           CON_UPDATESECTOR },
+    { "updatesectorz",          CON_UPDATESECTORZ },
+    { "useractor",              CON_USERACTOR },
+    { "userquote",              CON_USERQUOTE },
+    { "wackplayer",             CON_WACKPLAYER },
+    { "whilevarl",              CON_WHILEVARL },
+    { "whilevarn",              CON_WHILEVARN },
+    { "whilevarvarl",           CON_WHILEVARVARL },
+    { "whilevarvarn",           CON_WHILEVARVARN },
+    { "writearraytofile",       CON_WRITEARRAYTOFILE },
+    { "xorvar",                 CON_XORVAR },
+    { "xorvarvar",              CON_XORVARVAR },
+    { "zshootvar",              CON_ZSHOOTVAR },
+    { "{",                      CON_LEFTBRACE },
+    { "}",                      CON_RIGHTBRACE },
 
-    { "getp", CON_GETPLAYER },
-    { "getpv", CON_GETPLAYERVAR },
-    { "gets", CON_GETSECTOR },
-    { "geta", CON_GETACTOR },
-    { "getav", CON_GETACTORVAR },
-    { "getw", CON_GETWALL },
-    { "getu", CON_GETUSERDEF },
-    { "geti", CON_GETINPUT },
+    { "#define",                CON_DEFINE },
+    { "#include",               CON_INCLUDE },
+    { "al",                     CON_ADDLOGVAR },
+    { "var",                    CON_GAMEVAR },
+    { "array",                  CON_GAMEARRAY },
+    { "shiftl",                 CON_SHIFTVARVARL },
+    { "shiftr",                 CON_SHIFTVARVARR },
+    { "rand",                   CON_RANDVARVAR },
+    { "set",                    CON_SETVARVAR },
+    { "add",                    CON_ADDVARVAR },
+    { "sub",                    CON_SUBVARVAR },
+    { "mul",                    CON_MULVARVAR },
+    { "div",                    CON_DIVVARVAR },
+    { "mod",                    CON_MODVARVAR },
+    { "and",                    CON_ANDVARVAR },
+    { "or",                     CON_ORVARVAR },
+    { "xor",                    CON_XORVARVAR },
+    { "ifl",                    CON_IFVARVARL },
+    { "ifle",                   CON_IFVARVARLE },
+    { "ifg",                    CON_IFVARVARG },
+    { "ifge",                   CON_IFVARVARGE },
+    { "ife",                    CON_IFVARVARE },
+    { "ifn",                    CON_IFVARVARN },
+    { "ifand",                  CON_IFVARVARAND },
+    { "ifor",                   CON_IFVARVAROR },
+    { "ifxor",                  CON_IFVARVARXOR },
+    { "ifeither",               CON_IFVARVAREITHER },
+    { "ifboth",                 CON_IFVARVARBOTH },
+    { "whilen",                 CON_WHILEVARVARN },
+    { "whilel",                 CON_WHILEVARVARL },
+    { "abs",                    CON_KLABS },
 
-    { "setp", CON_SETPLAYER },
-    { "setpv", CON_SETPLAYERVAR },
-    { "sets", CON_SETSECTOR },
-    { "seta", CON_SETACTOR },
-    { "setav", CON_SETACTORVAR },
-    { "setw", CON_SETWALL },
-    { "setu", CON_SETUSERDEF },
-    { "seti", CON_SETINPUT },
+    { "getp",                   CON_GETPLAYER },
+    { "getpv",                  CON_GETPLAYERVAR },
+    { "gets",                   CON_GETSECTOR },
+    { "geta",                   CON_GETACTOR },
+    { "getav",                  CON_GETACTORVAR },
+    { "getw",                   CON_GETWALL },
+    { "getu",                   CON_GETUSERDEF },
+    { "geti",                   CON_GETINPUT },
 
-    { "string", CON_DEFINEQUOTE },
-    { "print", CON_QUOTE },
+    { "setp",                   CON_SETPLAYER },
+    { "setpv",                  CON_SETPLAYERVAR },
+    { "sets",                   CON_SETSECTOR },
+    { "seta",                   CON_SETACTOR },
+    { "setav",                  CON_SETACTORVAR },
+    { "setw",                   CON_SETWALL },
+    { "setu",                   CON_SETUSERDEF },
+    { "seti",                   CON_SETINPUT },
 
-    { "dc", CON_DEFINECHEAT },
-    { "ck", CON_CHEATKEYS },
+    { "string",                 CON_DEFINEQUOTE },
+    { "print",                  CON_QUOTE },
 
-    { "qputs", CON_REDEFINEQUOTE },
+    { "dc",                     CON_DEFINECHEAT },
+    { "ck",                     CON_CHEATKEYS },
 
-    { "espawn", CON_ESPAWNVAR },
-    { "qspawn", CON_QSPAWNVAR },
-    { "eqspawn", CON_EQSPAWNVAR },
+    { "qputs",                  CON_REDEFINEQUOTE },
 
-    { "eshoot", CON_ESHOOTVAR },
-    { "zshoot", CON_ZSHOOTVAR },
-    { "ezshoot", CON_EZSHOOTVAR },
-    { "shoot", CON_SHOOTVAR },
+    { "espawn",                 CON_ESPAWNVAR },
+    { "qspawn",                 CON_QSPAWNVAR },
+    { "eqspawn",                CON_EQSPAWNVAR },
 
-    { "findnearactor", CON_FINDNEARACTORVAR },
-    { "findnearactor3d", CON_FINDNEARACTOR3DVAR },
-    { "findnearactorz", CON_FINDNEARACTORZVAR },
+    { "eshoot",                 CON_ESHOOTVAR },
+    { "zshoot",                 CON_ZSHOOTVAR },
+    { "ezshoot",                CON_EZSHOOTVAR },
+    { "shoot",                  CON_SHOOTVAR },
 
-    { "findnearsprite", CON_FINDNEARSPRITEVAR },
-    { "findnearsprite3d", CON_FINDNEARSPRITE3DVAR },
-    { "findnearspritez", CON_FINDNEARSPRITEZVAR },
-};
+    { "findnearactor",          CON_FINDNEARACTORVAR },
+    { "findnearactor3d",        CON_FINDNEARACTOR3DVAR },
+    { "findnearactorz",         CON_FINDNEARACTORZVAR },
 
-const char *keyw[] = {
-    "else",         // 0  used with if checks
-    "actor",        // 1  defines an actor
-    "addammo",      // 2  adds ammo to a weapon
-    "ifrnd",        // 3  checks against a randomizer
-    "enda",         // 4  ends an actor definition
-    "ifcansee",     // 5  checks if the player can see an object
-    "ifhitweapon",  // 6  checks if an object was hit by a weapon
-    "action",       // 7  defines an action if used outside a state or actor, otherwise triggers actor to perform action
-    "ifpdistl",     // 8  checks if player distance is less than value
-    "ifpdistg",     // 9  checks if player distance is more than value
-    "definelevelname",         // 10 defines level name
-    "strength",                // 11 sets health
-    "break",                   // 12 stops processing
-    NULL,                      // 13 shoots a projectile
-    "palfrom",                 // 14 used for player screen shading effect, sets p->pals
-    "sound",                   // 15 plays a sound that was defined with definesound
-    "fall",                    // 16 causes actor to fall to sector floor height
-    "state",                   // 17 begins defining a state if used outside a state or actor, otherwise calls a state
-    "ends",                    // 18 ends defining a state
-    "define",                  // 19 defines a value
-    "return",                  // 20
-    "ifai",                    // 21 checks if actor is currently performing a specific ai function
-    "killit",                  // 22 kills an actor
-    "addweapon",               // 23 adds a weapon to the closest player
-    "ai",                      // 24 sets an ai function to be used by an actor
-    "addphealth",              // 25 adds health to the player
-    "ifdead",                  // 26 checks if actor is dead
-    "ifsquished",              // 27 checks if actor has been squished
-    "sizeto",                  // 28 gradually increases actor size until it matches parameters given
-    "{",                       // 29 used to indicate segments of code
-    "}",                       // 30 used to indicate segments of code
-    "spawn",                   // 31 spawns an actor
-    "move",                    // 32
-    "ifwasweapon",             // 33
-    "ifaction",                // 34
-    "ifactioncount",           // 35
-    "resetactioncount",        // 36
-    "debris",                  // 37
-    "pstomp",                  // 38
-    NULL,                      // 39 was previously used to define the start of a comment block
-    "cstat",                   // 40
-    "ifmove",                  // 41
-    "resetplayer",             // 42
-    "ifonwater",               // 43
-    "ifinwater",               // 44
-    "ifcanshoottarget",        // 45
-    "ifcount",                 // 46
-    "resetcount",              // 47
-    "addinventory",            // 48
-    "ifactornotstayput",       // 49
-    "hitradius",               // 50
-    "ifp",                     // 51
-    "count",                   // 52
-    "ifactor",                 // 53
-    "music",                   // 54
-    "include",                 // 55
-    "ifstrength",              // 56
-    "definesound",             // 57
-    "guts",                    // 58
-    "ifspawnedby",             // 59
-    "gamestartup",             // 60
-    "wackplayer",              // 61
-    "ifgapzl",                 // 62
-    "ifhitspace",              // 63
-    "ifoutside",               // 64
-    "ifmultiplayer",           // 65
-    "operate",                 // 66
-    "ifinspace",               // 67
-    "debug",                   // 68
-    "endofgame",               // 69
-    "ifbulletnear",            // 70
-    "ifrespawn",               // 71
-    "iffloordistl",            // 72
-    "ifceilingdistl",          // 73
-    "spritepal",               // 74
-    "ifpinventory",            // 75
-    "betaname",                // 76
-    "cactor",                  // 77
-    "ifphealthl",              // 78
-    "definequote",             // 79
-    "quote",                   // 80
-    "ifinouterspace",          // 81
-    "ifnotmoving",             // 82
-    "respawnhitag",            // 83
-    "tip",                     // 84
-    "ifspritepal",             // 85
-    "money",                   // 86
-    "soundonce",               // 87
-    "addkills",                // 88
-    "stopsound",               // 89
-    "ifawayfromwall",          // 90
-    "ifcanseetarget",          // 91
-    "globalsound",             // 92
-    "lotsofglass",             // 93
-    "ifgotweaponce",           // 94
-    "getlastpal",              // 95
-    "pkick",                   // 96
-    "mikesnd",                 // 97
-    "useractor",               // 98
-    "sizeat",                  // 99
-    "addstrength",             // 100  [#]
-    "cstator",                 // 101
-    "mail",                    // 102
-    "paper",                   // 103
-    "tossweapon",              // 104
-    "sleeptime",               // 105
-    "nullop",                  // 106
-    "definevolumename",        // 107
-    "defineskillname",         // 108
-    "ifnosounds",              // 109
-    "clipdist",                // 110
-    "ifangdiffl",              // 111  Last Duke3D 1.5 CON command
-    "gamevar",                 // 112
-    "ifvarl",                  // 113
-    "ifvarg",                  // 114
-    "setvarvar",               // 115
-    "setvar",                  // 116
-    "addvarvar",               // 117
-    "addvar",                  // 118
-    "ifvarvarl",               // 119
-    "ifvarvarg",               // 120
-    "addlogvar",               // 121
-    "addlog",                  // 122
-    "onevent",                 // 123
-    "endevent",                // 124
-    "ifvare",                  // 125
-    "ifvarvare",               // 126
-    "spgetlotag",              // 127
-    "spgethitag",              // 128
-    "sectgetlotag",            // 129
-    "sectgethitag",            // 130
-    "ifsound",                 // 131
-    "gettexturefloor",         // 132
-    "gettextureceiling",       // 133
-    "inittimer",               // 134
-    "starttrack",              // 135
-    "randvar",                 // 136
-    "enhanced",                // 137
-    "getangletotarget",        // 138
-    "getactorangle",           // 139
-    "setactorangle",           // 140
-    "mulvar",                  // 141
-    "mulvarvar",               // 142
-    "divvar",                  // 143
-    "divvarvar",               // 144
-    "modvar",                  // 145
-    "modvarvar",               // 146
-    "andvar",                  // 147
-    "andvarvar",               // 148
-    "orvar",                   // 149
-    "orvarvar",                // 150
-    "getplayerangle",          // 151
-    "setplayerangle",          // 152
-    "lockplayer",              // 153
-    "setsector",               // 154
-    "getsector",               // 155
-    "setactor",                // 156
-    "getactor",                // 157
-    "setwall",                 // 158
-    "getwall",                 // 159
-    NULL,                      // 160
-    "findnearactorvar",        // 161
-    "setactorvar",             // 162
-    "getactorvar",             // 163
-    NULL,                      // 164
-    "getplayer",               // 165
-    "setplayer",               // 166
-    "sqrt",                    // 167
-    "eventloadactor",          // 168
-    "espawnvar",               // 169
-    "getuserdef",              // 170
-    "setuserdef",              // 171
-    "subvarvar",               // 172
-    "subvar",                  // 173
-    "ifvarn",                  // 174
-    "ifvarvarn",               // 175
-    "ifvarand",                // 176
-    "ifvarvarand",             // 177
-    "myos",                    // 178
-    "myospal",                 // 179
-    "displayrand",             // 180
-    "sin",                     // 181
-    "xorvarvar",               // 182
-    "xorvar",                  // 183
-    "randvarvar",              // 184
-    "myosx",                   // 185
-    "myospalx",                // 186
-    "gmaxammo",                // 187
-    "smaxammo",                // 188
-    "startlevel",              // 189
-    NULL,                      // 190  Beginning of EDuke32
-    NULL,                      // 191
-    "rotatesprite",            // 192
-    "defineprojectile",        // 193
-    "spriteshadow",            // 194
-    "cos",                     // 195
-    "eshootvar",               // 196
-    NULL,                      // 197
-    "findnearactor3dvar",      // 198
-    "flash",                   // 199
-    "qspawnvar",               // 200
-    NULL,                      // 201
-    "eqspawnvar",              // 202
-    "minitext",                // 203
-    "gametext",                // 204
-    "digitalnumber",           // 205
-    "addweaponvar",            // 206
-    "setprojectile",           // 207
-    "angoff",                  // 208
-    "updatesector",            // 209
-    "insertspriteq",           // 210
-    "angoffvar",               // 211
-    "whilevarn",               // 212
-    "switch",                  // 213
-    "case",                    // 214
-    "default",                 // 215
-    "endswitch",               // 216
-    "shootvar",                // 217
-    "soundvar",                // 218
-    "findplayer",              // 219
-    "findotherplayer",         // 220
-    "activatebysector",        // 221 sectnum, spriteid
-    "operatesectors",          // 222 sectnum, spriteid
-    "operaterespawns",         // 223 lotag
-    "operateactivators",       // 224 lotag, player index
-    "operatemasterswitches",   // 225 lotag
-    "checkactivatormotion",    // 226 lotag
-    NULL,                      // 227 zvar projnum
-    "dist",                    // 228 sprite1 sprite2
-    "ldist",                   // 229 sprite1 sprite2
-    "shiftvarl",               // 230
-    "shiftvarr",               // 231
-    "spritenvg",               // 232
-    "getangle",                // 233
-    "whilevarvarn",            // 234
-    "hitscan",                 // 235
-    "time",                    // 236
-    "getplayervar",            // 237
-    "setplayervar",            // 238
-    "mulscale",                // 239
-    "setaspect",               // 240
-    NULL,                      // 241
-    "spritenoshade",           // 242
-    "movesprite",              // 243
-    "checkavailweapon",        // 244
-    "soundoncevar",            // 245
-    "updatesectorz",           // 246
-    "stopallsounds",           // 247
-    "ssp",                     // 248
-    "stopsoundvar",            // 249
-    "displayrandvar",          // 250
-    "displayrandvarvar",       // 251
-    "checkavailinven",         // 252
-    "globalsoundvar",          // 253
-    "guniqhudid",              // 254
-    "getprojectile",           // 255
-    "getthisprojectile",       // 256
-    "setthisprojectile",       // 257
-    "definecheat",             // 258
-    "cheatkeys",               // 259
-    "userquote",               // 260
-    "precache",                // 261
-    "definegamefuncname",      // 262
-    "redefinequote",           // 263
-    "qsprintf",                // 264
-    "getpname",                // 265
-    "qstrcat",                 // 266
-    "qstrcpy",                 // 267
-    "setsprite",               // 268
-    "rotatepoint",             // 269
-    "dragpoint",               // 270
-    "getzrange",               // 271
-    "changespritestat",        // 272
-    "getceilzofslope",         // 273
-    "getflorzofslope",         // 274
-    "neartag",                 // 275
-    "definegametype",          // 276
-    "changespritesect",        // 277
-    "spriteflags",             // 278
-    "savegamevar",             // 279
-    "readgamevar",             // 280
-    NULL,                      // 281
-    "findnearspritevar",       // 282
-    NULL,                      // 283
-    "findnearsprite3dvar",     // 284
-    "dynamicremap",            // 285
-    "setinput",                // 286
-    "getinput",                // 287
-    "save",                    // 288
-    "cansee",                  // 289  Beginning of EDuke32 SVN
-    "canseespr",               // 290
-    NULL,                      // 291
-    "findnearactorzvar",       // 292
-    NULL,                      // 293
-    "findnearspritezvar",      // 294
-    "zshootvar",               // 295
-    "ezshootvar",              // 296
-    "getcurraddress",          // 297
-    "jump",                    // 298
-    "qstrlen",                 // 299
-    "getincangle",             // 300
-    "quake",                   // 301
-    "showview",                // 302
-    "headspritestat",          // 303
-    "prevspritestat",          // 304
-    "nextspritestat",          // 305
-    "headspritesect",          // 306
-    "prevspritesect",          // 307
-    "nextspritesect",          // 308
-    "getkeyname",              // 309
-    "qsubstr",                 // 310
-    "gametextz",               // 311
-    "digitalnumberz",          // 312
-    "spritenopal",             // 313
-    "hitradiusvar",            // 314
-    "rotatesprite16",          // 315
-    "gamearray",               // 316
-    "setarray",                // 317
-    "resizearray",             // 318
-    "writearraytofile",        // 319
-    "readarrayfromfile",       // 320
-    "starttrackvar",           // 321
-    "qgetsysstr",              // 322
-    "getticks",                // 323
-    "gettspr",                 // 324
-    "settspr",                 // 325
-    "savemapstate",            // 326
-    "loadmapstate",            // 327
-    "clearmapstate",           // 328
-    "scriptsize",              // 329
-    "setgamename",             // 330
-    "cmenu",                   // 331
-    "gettimedate",             // 332
-    "activatecheat",           // 333
-    "setgamepalette",          // 334
-    "setdefname",              // 335
-    "setcfgname",              // 336
-    "ifvaror",                 // 337
-    "ifvarvaror",              // 338
-    "ifvarxor",                // 339
-    "ifvarvarxor",             // 340
-    "ifvareither",             // 341
-    "ifvarvareither",          // 342
-    "getarraysize",            // 343
-    "savenn",                  // 344
-    "copy",                    // 345
-    "inv",                     // 346
-    "sectorofwall",            // 347
-    "qstrncat",                // 348
-    "ifactorsound",            // 349
-    "stopactorsound",          // 350
-    "ifclient",                // 351
-    "ifserver",                // 352
-    "sectsetinterpolation",    // 353
-    "sectclearinterpolation",  // 354
-    "clipmove",                // 355
-    "lineintersect",           // 356
-    "rayintersect",            // 357
-    "calchypotenuse",          // 358
-    "clipmovenoslide",         // 359
-    "includedefault",          // 360
-    "setactorsoundpitch",      // 361
-    "echo",                    // 362
-    "showviewunbiased",        // 363
-    "rotatespritea",           // 364
-    "shadeto",                 // 365
-    "endoflevel",              // 366
-    "ifplayersl",              // 367
-    "activate",                // 368
-    "qstrdim",                 // 369
-    "screentext",              // 370
-    "dynamicsoundremap",       // 371
-    "screensound",             // 372
-    "getmusicposition",        // 373
-    "setmusicposition",        // 374
-    "undefinevolume",          // 375
-    "undefineskill",           // 376
-    "undefinelevel",           // 377
-    "startcutscene",           // 378
-    "ifcutscene",              // 379
-    "definevolumeflags",       // 380
-    "resetplayerflags",        // 381
-    "appendevent",             // 382
-    "defstate",                // 383
-    "shiftvarvarl",            // 384
-    "shiftvarvarr",            // 385
-    "ifvarvarle",              // 386
-    "ifvarvarge",              // 387
-    "ifvarvarboth",            // 388
-    "whilevarl",               // 389
-    "whilevarvarl",            // 390
-    "klabs",                   // 391
-    "ifvarle",                 // 392
-    "ifvarge",                 // 393
-    "ifvarboth",               // 394
-    "movesector",              // 395
-    "for",                     // 396
-    "nextsectorneighborz",     // 397
-    "clamp",                   // 398
-    "ifplaybackon",            // 399
-    "divscale",                // 400
-    "scalevar",                // 401
-    "undefinegamefunc",        // 402
-    "getclosestcol",           // 403
-    "drawline256",             // 404
-    "drawlinergb",             // 405
-    "starttrackslot",          // 406
-    "stopallmusic",            // 407
-    NULL
+    { "findnearsprite",         CON_FINDNEARSPRITEVAR },
+    { "findnearsprite3d",       CON_FINDNEARSPRITE3DVAR },
+    { "findnearspritez",        CON_FINDNEARSPRITEZVAR },
 };
 #endif
 
@@ -736,521 +717,520 @@ const char *EventNames[MAXEVENTS] =
 #if !defined LUNATIC
 const memberlabel_t SectorLabels[]=
 {
-    { "wallptr", SECTOR_WALLPTR, 0, 0 },
-    { "wallnum", SECTOR_WALLNUM, 0, 0 },
-    { "ceilingz", SECTOR_CEILINGZ, 0, 0 },
-    { "ceilingzgoal", SECTOR_CEILINGZGOAL, 0, 0 },
-    { "ceilingzvel", SECTOR_CEILINGZVEL, 0, 0 },
-    { "floorz", SECTOR_FLOORZ, 0, 0 },
-    { "floorzgoal", SECTOR_FLOORZGOAL, 0, 0 },
-    { "floorzvel", SECTOR_FLOORZVEL, 0, 0 },
-    { "ceilingstat", SECTOR_CEILINGSTAT, 0, 0 },
-    { "floorstat", SECTOR_FLOORSTAT, 0, 0 },
-    { "ceilingpicnum", SECTOR_CEILINGPICNUM, 0, 0 },
-    { "ceilingslope", SECTOR_CEILINGSLOPE, 0, 0 },
-    { "ceilingshade", SECTOR_CEILINGSHADE, 0, 0 },
-    { "ceilingpal", SECTOR_CEILINGPAL, 0, 0 },
+    { "wallptr",         SECTOR_WALLPTR,         0, 0 },
+    { "wallnum",         SECTOR_WALLNUM,         0, 0 },
+    { "ceilingz",        SECTOR_CEILINGZ,        0, 0 },
+    { "ceilingzgoal",    SECTOR_CEILINGZGOAL,    0, 0 },
+    { "ceilingzvel",     SECTOR_CEILINGZVEL,     0, 0 },
+    { "floorz",          SECTOR_FLOORZ,          0, 0 },
+    { "floorzgoal",      SECTOR_FLOORZGOAL,      0, 0 },
+    { "floorzvel",       SECTOR_FLOORZVEL,       0, 0 },
+    { "ceilingstat",     SECTOR_CEILINGSTAT,     0, 0 },
+    { "floorstat",       SECTOR_FLOORSTAT,       0, 0 },
+    { "ceilingpicnum",   SECTOR_CEILINGPICNUM,   0, 0 },
+    { "ceilingslope",    SECTOR_CEILINGSLOPE,    0, 0 },
+    { "ceilingshade",    SECTOR_CEILINGSHADE,    0, 0 },
+    { "ceilingpal",      SECTOR_CEILINGPAL,      0, 0 },
     { "ceilingxpanning", SECTOR_CEILINGXPANNING, 0, 0 },
     { "ceilingypanning", SECTOR_CEILINGYPANNING, 0, 0 },
-    { "floorpicnum", SECTOR_FLOORPICNUM, 0, 0 },
-    { "floorslope", SECTOR_FLOORSLOPE, 0, 0 },
-    { "floorshade", SECTOR_FLOORSHADE, 0, 0 },
-    { "floorpal", SECTOR_FLOORPAL, 0, 0 },
-    { "floorxpanning", SECTOR_FLOORXPANNING, 0, 0 },
-    { "floorypanning", SECTOR_FLOORYPANNING, 0, 0 },
-    { "visibility", SECTOR_VISIBILITY, 0, 0 },
-    { "fogpal", SECTOR_FOGPAL, 0, 0 }, // formerly filler
-    { "alignto", SECTOR_FOGPAL, 0, 0 }, // formerly filler
-    { "lotag", SECTOR_LOTAG, 0, 0 },
-    { "hitag", SECTOR_HITAG, 0, 0 },
-    { "extra", SECTOR_EXTRA, 0, 0 },
-    { "ceilingbunch", SECTOR_CEILINGBUNCH, 0, 0 },
-    { "floorbunch", SECTOR_FLOORBUNCH, 0, 0 },
-    { "ulotag", SECTOR_ULOTAG, 0, 0 },
-    { "uhitag", SECTOR_UHITAG, 0, 0 },
-    { "", -1, 0, 0  }     // END OF LIST
+    { "floorpicnum",     SECTOR_FLOORPICNUM,     0, 0 },
+    { "floorslope",      SECTOR_FLOORSLOPE,      0, 0 },
+    { "floorshade",      SECTOR_FLOORSHADE,      0, 0 },
+    { "floorpal",        SECTOR_FLOORPAL,        0, 0 },
+    { "floorxpanning",   SECTOR_FLOORXPANNING,   0, 0 },
+    { "floorypanning",   SECTOR_FLOORYPANNING,   0, 0 },
+    { "visibility",      SECTOR_VISIBILITY,      0, 0 },
+    { "fogpal",          SECTOR_FOGPAL,          0, 0 }, // formerly filler
+    { "alignto",         SECTOR_FOGPAL,          0, 0 }, // formerly filler
+    { "lotag",           SECTOR_LOTAG,           0, 0 },
+    { "hitag",           SECTOR_HITAG,           0, 0 },
+    { "extra",           SECTOR_EXTRA,           0, 0 },
+    { "ceilingbunch",    SECTOR_CEILINGBUNCH,    0, 0 },
+    { "floorbunch",      SECTOR_FLOORBUNCH,      0, 0 },
+    { "ulotag",          SECTOR_ULOTAG,          0, 0 },
+    { "uhitag",          SECTOR_UHITAG,          0, 0 },
+    { "", -1,                                    0, 0  }     // END OF LIST
 };
 
 const memberlabel_t WallLabels[]=
 {
-    { "x", WALL_X, 0, 0 },
-    { "y", WALL_Y, 0, 0 },
-    { "point2", WALL_POINT2, 0, 0 },
-    { "nextwall", WALL_NEXTWALL, 0, 0 },
+    { "x",          WALL_X,          0, 0 },
+    { "y",          WALL_Y,          0, 0 },
+    { "point2",     WALL_POINT2,     0, 0 },
+    { "nextwall",   WALL_NEXTWALL,   0, 0 },
     { "nextsector", WALL_NEXTSECTOR, 0, 0 },
-    { "cstat", WALL_CSTAT, 0, 0 },
-    { "picnum", WALL_PICNUM, 0, 0 },
+    { "cstat",      WALL_CSTAT,      0, 0 },
+    { "picnum",     WALL_PICNUM,     0, 0 },
     { "overpicnum", WALL_OVERPICNUM, 0, 0 },
-    { "shade", WALL_SHADE, 0, 0 },
-    { "pal", WALL_PAL, 0, 0 },
-    { "xrepeat", WALL_XREPEAT, 0, 0 },
-    { "yrepeat", WALL_YREPEAT, 0, 0 },
-    { "xpanning", WALL_XPANNING, 0, 0 },
-    { "ypanning", WALL_YPANNING, 0, 0 },
-    { "lotag", WALL_LOTAG, 0, 0 },
-    { "hitag", WALL_HITAG, 0, 0 },
-    { "extra", WALL_EXTRA, 0, 0 },
-    { "ulotag", WALL_ULOTAG, 0, 0 },
-    { "uhitag", WALL_UHITAG, 0, 0 },
-    { "blend", WALL_BLEND, 0, 0 },
-    { "", -1, 0, 0  }     // END OF LIST
+    { "shade",      WALL_SHADE,      0, 0 },
+    { "pal",        WALL_PAL,        0, 0 },
+    { "xrepeat",    WALL_XREPEAT,    0, 0 },
+    { "yrepeat",    WALL_YREPEAT,    0, 0 },
+    { "xpanning",   WALL_XPANNING,   0, 0 },
+    { "ypanning",   WALL_YPANNING,   0, 0 },
+    { "lotag",      WALL_LOTAG,      0, 0 },
+    { "hitag",      WALL_HITAG,      0, 0 },
+    { "extra",      WALL_EXTRA,      0, 0 },
+    { "ulotag",     WALL_ULOTAG,     0, 0 },
+    { "uhitag",     WALL_UHITAG,     0, 0 },
+    { "blend",      WALL_BLEND,      0, 0 },
+    { "", -1,                        0, 0  }     // END OF LIST
 };
 
 const memberlabel_t ActorLabels[]=
 {
-    { "x", ACTOR_X, 0, 0 },
-    { "y", ACTOR_Y, 0, 0 },
-    { "z", ACTOR_Z, 0, 0 },
-    { "cstat", ACTOR_CSTAT, 0, 0 },
-    { "picnum", ACTOR_PICNUM, 0, 0 },
-    { "shade", ACTOR_SHADE, 0, 0 },
-    { "pal", ACTOR_PAL, 0, 0 },
-    { "clipdist", ACTOR_CLIPDIST, 0, 0 },
-//    { "filler", ACTOR_DETAIL, 0, 0 },
-    { "blend", ACTOR_DETAIL, 0, 0 },
-    { "xrepeat", ACTOR_XREPEAT, 0, 0 },
-    { "yrepeat", ACTOR_YREPEAT, 0, 0 },
-    { "xoffset", ACTOR_XOFFSET, 0, 0 },
-    { "yoffset", ACTOR_YOFFSET, 0, 0 },
-    { "sectnum", ACTOR_SECTNUM, 0, 0 },
-    { "statnum", ACTOR_STATNUM, 0, 0 },
-    { "ang", ACTOR_ANG, 0, 0 },
-    { "owner", ACTOR_OWNER, 0, 0 },
-    { "xvel", ACTOR_XVEL, 0, 0 },
-    { "yvel", ACTOR_YVEL, 0, 0 },
-    { "zvel", ACTOR_ZVEL, 0, 0 },
-    { "lotag", ACTOR_LOTAG, 0, 0 },
-    { "hitag", ACTOR_HITAG, 0, 0 },
-    { "extra", ACTOR_EXTRA, 0, 0 },
+    { "x",              ACTOR_X,                      0, 0 },
+    { "y",              ACTOR_Y,                      0, 0 },
+    { "z",              ACTOR_Z,                      0, 0 },
+    { "cstat",          ACTOR_CSTAT,                  0, 0 },
+    { "picnum",         ACTOR_PICNUM,                 0, 0 },
+    { "shade",          ACTOR_SHADE,                  0, 0 },
+    { "pal",            ACTOR_PAL,                    0, 0 },
+    { "clipdist",       ACTOR_CLIPDIST,               0, 0 },
+//    { "filler",       ACTOR_DETAIL,                 0, 0 },
+    { "blend",          ACTOR_DETAIL,                 0, 0 },
+    { "xrepeat",        ACTOR_XREPEAT,                0, 0 },
+    { "yrepeat",        ACTOR_YREPEAT,                0, 0 },
+    { "xoffset",        ACTOR_XOFFSET,                0, 0 },
+    { "yoffset",        ACTOR_YOFFSET,                0, 0 },
+    { "sectnum",        ACTOR_SECTNUM,                0, 0 },
+    { "statnum",        ACTOR_STATNUM,                0, 0 },
+    { "ang",            ACTOR_ANG,                    0, 0 },
+    { "owner",          ACTOR_OWNER,                  0, 0 },
+    { "xvel",           ACTOR_XVEL,                   0, 0 },
+    { "yvel",           ACTOR_YVEL,                   0, 0 },
+    { "zvel",           ACTOR_ZVEL,                   0, 0 },
+    { "lotag",          ACTOR_LOTAG,                  0, 0 },
+    { "hitag",          ACTOR_HITAG,                  0, 0 },
+    { "extra",          ACTOR_EXTRA,                  0, 0 },
 
     // ActorExtra labels...
-    { "htcgg", ACTOR_HTCGG, 0, 0 },
-    { "htpicnum", ACTOR_HTPICNUM, 0, 0 },
-    { "htang", ACTOR_HTANG, 0, 0 },
-    { "htextra", ACTOR_HTEXTRA, 0, 0 },
-    { "htowner", ACTOR_HTOWNER, 0, 0 },
-    { "htmovflag", ACTOR_HTMOVFLAG, 0, 0 },
-    { "httempang", ACTOR_HTTEMPANG, 0, 0 },
-    { "htactorstayput", ACTOR_HTACTORSTAYPUT, 0, 0 },
-    { "htdispicnum", ACTOR_HTDISPICNUM, 0, 0 },
-    { "httimetosleep", ACTOR_HTTIMETOSLEEP, 0, 0 },
-    { "htfloorz", ACTOR_HTFLOORZ, 0, 0 },
-    { "htceilingz", ACTOR_HTCEILINGZ, 0, 0 },
-    { "htlastvx", ACTOR_HTLASTVX, 0, 0 },
-    { "htlastvy", ACTOR_HTLASTVY, 0, 0 },
-    { "htbposx", ACTOR_HTBPOSX, 0, 0 },
-    { "htbposy", ACTOR_HTBPOSY, 0, 0 },
-    { "htbposz", ACTOR_HTBPOSZ, 0, 0 },
-    { "htg_t", ACTOR_HTG_T, LABEL_HASPARM2, 10 },
+    { "htcgg",          ACTOR_HTCGG,                  0, 0 },
+    { "htpicnum",       ACTOR_HTPICNUM,               0, 0 },
+    { "htang",          ACTOR_HTANG,                  0, 0 },
+    { "htextra",        ACTOR_HTEXTRA,                0, 0 },
+    { "htowner",        ACTOR_HTOWNER,                0, 0 },
+    { "htmovflag",      ACTOR_HTMOVFLAG,              0, 0 },
+    { "httempang",      ACTOR_HTTEMPANG,              0, 0 },
+    { "htactorstayput", ACTOR_HTACTORSTAYPUT,         0, 0 },
+    { "htdispicnum",    ACTOR_HTDISPICNUM,            0, 0 },
+    { "httimetosleep",  ACTOR_HTTIMETOSLEEP,          0, 0 },
+    { "htfloorz",       ACTOR_HTFLOORZ,               0, 0 },
+    { "htceilingz",     ACTOR_HTCEILINGZ,             0, 0 },
+    { "htlastvx",       ACTOR_HTLASTVX,               0, 0 },
+    { "htlastvy",       ACTOR_HTLASTVY,               0, 0 },
+    { "htbposx",        ACTOR_HTBPOSX,                0, 0 },
+    { "htbposy",        ACTOR_HTBPOSY,                0, 0 },
+    { "htbposz",        ACTOR_HTBPOSZ,                0, 0 },
+    { "htg_t",          ACTOR_HTG_T,                  LABEL_HASPARM2, 10 },
 
     // model flags
 
-    { "angoff", ACTOR_ANGOFF, 0, 0 },
-    { "pitch", ACTOR_PITCH, 0, 0 },
-    { "roll", ACTOR_ROLL, 0, 0 },
-    { "mdxoff", ACTOR_MDXOFF, 0, 0 },
-    { "mdyoff", ACTOR_MDYOFF, 0, 0 },
-    { "mdzoff", ACTOR_MDZOFF, 0, 0 },
-    { "mdflags", ACTOR_MDFLAGS, 0, 0 },
-    { "xpanning", ACTOR_XPANNING, 0, 0 },
-    { "ypanning", ACTOR_YPANNING, 0, 0 },
+    { "angoff",         ACTOR_ANGOFF,                 0, 0 },
+    { "pitch",          ACTOR_PITCH,                  0, 0 },
+    { "roll",           ACTOR_ROLL,                   0, 0 },
+    { "mdxoff",         ACTOR_MDXOFF,                 0, 0 },
+    { "mdyoff",         ACTOR_MDYOFF,                 0, 0 },
+    { "mdzoff",         ACTOR_MDZOFF,                 0, 0 },
+    { "mdflags",        ACTOR_MDFLAGS,                0, 0 },
+    { "xpanning",       ACTOR_XPANNING,               0, 0 },
+    { "ypanning",       ACTOR_YPANNING,               0, 0 },
 
-    { "htflags", ACTOR_HTFLAGS, 0, 0 },
+    { "htflags",        ACTOR_HTFLAGS,                0, 0 },
 
-    { "alpha", ACTOR_ALPHA, 0, 0 },
+    { "alpha",          ACTOR_ALPHA,                  0, 0 },
 
-    { "ulotag", ACTOR_ULOTAG, 0, 0 },
-    { "uhitag", ACTOR_UHITAG, 0, 0 },
+    { "ulotag",         ACTOR_ULOTAG,                 0, 0 },
+    { "uhitag",         ACTOR_UHITAG,                 0, 0 },
 
-    { "isvalid", ACTOR_ISVALID, 0, 0 },
+    { "isvalid",        ACTOR_ISVALID,                0, 0 },
 // aliases:
-    { "movflags", ACTOR_HITAG, 0, 0 },
-    { "detail", ACTOR_DETAIL, 0, 0 },  // deprecated name for 'blend'
+    { "movflags",       ACTOR_HITAG,                  0, 0 },
+    { "detail",         ACTOR_DETAIL,                 0, 0 },  // deprecated name for 'blend'
 
-    { "", -1, 0, 0  }     // END OF LIST
+    { "", -1,                                         0, 0  }     // END OF LIST
 };
 
 const memberlabel_t TsprLabels[]=
 {
     // tsprite access
 
-    { "tsprx", ACTOR_X, 0, 0 },
-    { "tspry", ACTOR_Y, 0, 0 },
-    { "tsprz", ACTOR_Z, 0, 0 },
-    { "tsprcstat", ACTOR_CSTAT, 0, 0 },
-    { "tsprpicnum", ACTOR_PICNUM, 0, 0 },
-    { "tsprshade", ACTOR_SHADE, 0, 0 },
-    { "tsprpal", ACTOR_PAL, 0, 0 },
+    { "tsprx",        ACTOR_X,        0, 0 },
+    { "tspry",        ACTOR_Y,        0, 0 },
+    { "tsprz",        ACTOR_Z,        0, 0 },
+    { "tsprcstat",    ACTOR_CSTAT,    0, 0 },
+    { "tsprpicnum",   ACTOR_PICNUM,   0, 0 },
+    { "tsprshade",    ACTOR_SHADE,    0, 0 },
+    { "tsprpal",      ACTOR_PAL,      0, 0 },
     { "tsprclipdist", ACTOR_CLIPDIST, 0, 0 },
-//    { "tsprfiller", ACTOR_DETAIL, 0, 0 },
-    { "tsprblend", ACTOR_DETAIL, 0, 0 },
-    { "tsprxrepeat", ACTOR_XREPEAT, 0, 0 },
-    { "tspryrepeat", ACTOR_YREPEAT, 0, 0 },
-    { "tsprxoffset", ACTOR_XOFFSET, 0, 0 },
-    { "tspryoffset", ACTOR_YOFFSET, 0, 0 },
-    { "tsprsectnum", ACTOR_SECTNUM, 0, 0 },
-    { "tsprstatnum", ACTOR_STATNUM, 0, 0 },
-    { "tsprang", ACTOR_ANG, 0, 0 },
-    { "tsprowner", ACTOR_OWNER, 0, 0 },
+//    { "tsprfiller", ACTOR_DETAIL,   0, 0 },
+    { "tsprblend",    ACTOR_DETAIL,   0, 0 },
+    { "tsprxrepeat",  ACTOR_XREPEAT,  0, 0 },
+    { "tspryrepeat",  ACTOR_YREPEAT,  0, 0 },
+    { "tsprxoffset",  ACTOR_XOFFSET,  0, 0 },
+    { "tspryoffset",  ACTOR_YOFFSET,  0, 0 },
+    { "tsprsectnum",  ACTOR_SECTNUM,  0, 0 },
+    { "tsprstatnum",  ACTOR_STATNUM,  0, 0 },
+    { "tsprang",      ACTOR_ANG,      0, 0 },
+    { "tsprowner",    ACTOR_OWNER,    0, 0 },
 #if 1
-    { "tsprxvel", ACTOR_XVEL, 0, 0 },
-    { "tspryvel", ACTOR_YVEL, 0, 0 },
-    { "tsprzvel", ACTOR_ZVEL, 0, 0 },
-    { "tsprlotag", ACTOR_LOTAG, 0, 0 },
-    { "tsprhitag", ACTOR_HITAG, 0, 0 },
-    { "tsprextra", ACTOR_EXTRA, 0, 0 },
+    { "tsprxvel",     ACTOR_XVEL,     0, 0 },
+    { "tspryvel",     ACTOR_YVEL,     0, 0 },
+    { "tsprzvel",     ACTOR_ZVEL,     0, 0 },
+    { "tsprlotag",    ACTOR_LOTAG,    0, 0 },
+    { "tsprhitag",    ACTOR_HITAG,    0, 0 },
+    { "tsprextra",    ACTOR_EXTRA,    0, 0 },
 #endif
 // aliases:
-    { "tsprdetail", ACTOR_DETAIL, 0, 0 },  // deprecated name for 'tsprblend'
+    { "tsprdetail",   ACTOR_DETAIL,   0, 0 },  // deprecated name for 'tsprblend'
 
-    { "", -1, 0, 0  }     // END OF LIST
+    { "", -1,                         0, 0  }     // END OF LIST
 };
 
 const memberlabel_t PlayerLabels[]=
 {
-    { "zoom", PLAYER_ZOOM, 0, 0 },
-    { "exitx", PLAYER_EXITX, 0, 0 },
-    { "exity", PLAYER_EXITY, 0, 0 },
-    { "loogiex", PLAYER_LOOGIEX, LABEL_HASPARM2, 64 },
-    { "loogiey", PLAYER_LOOGIEY, LABEL_HASPARM2, 64 },
-    { "numloogs", PLAYER_NUMLOOGS, 0, 0 },
-    { "loogcnt", PLAYER_LOOGCNT, 0, 0 },
-    { "posx", PLAYER_POSX, 0, 0 },
-    { "posy", PLAYER_POSY, 0, 0 },
-    { "posz", PLAYER_POSZ, 0, 0 },
-    { "horiz", PLAYER_HORIZ, 0, 0 },
-    { "ohoriz", PLAYER_OHORIZ, 0, 0 },
-    { "ohorizoff", PLAYER_OHORIZOFF, 0, 0 },
-    { "invdisptime", PLAYER_INVDISPTIME, 0, 0 },
-    { "bobposx", PLAYER_BOBPOSX, 0, 0 },
-    { "bobposy", PLAYER_BOBPOSY, 0, 0 },
-    { "oposx", PLAYER_OPOSX, 0, 0 },
-    { "oposy", PLAYER_OPOSY, 0, 0 },
-    { "oposz", PLAYER_OPOSZ, 0, 0 },
-    { "pyoff", PLAYER_PYOFF, 0, 0 },
-    { "opyoff", PLAYER_OPYOFF, 0, 0 },
-    { "posxv", PLAYER_POSXV, 0, 0 },
-    { "posyv", PLAYER_POSYV, 0, 0 },
-    { "poszv", PLAYER_POSZV, 0, 0 },
-    { "last_pissed_time", PLAYER_LAST_PISSED_TIME, 0, 0 },
-    { "truefz", PLAYER_TRUEFZ, 0, 0 },
-    { "truecz", PLAYER_TRUECZ, 0, 0 },
-    { "player_par", PLAYER_PLAYER_PAR, 0, 0 },
-    { "visibility", PLAYER_VISIBILITY, 0, 0 },
-    { "bobcounter", PLAYER_BOBCOUNTER, 0, 0 },
-    { "weapon_sway", PLAYER_WEAPON_SWAY, 0, 0 },
-    { "pals_time", PLAYER_PALS_TIME, 0, 0 },
-    { "randomflamex", PLAYER_RANDOMFLAMEX, 0, 0 },
-    { "crack_time", PLAYER_CRACK_TIME, 0, 0 },
-    { "aim_mode", PLAYER_AIM_MODE, 0, 0 },
-    { "ang", PLAYER_ANG, 0, 0 },
-    { "oang", PLAYER_OANG, 0, 0 },
-    { "angvel", PLAYER_ANGVEL, 0, 0 },
-    { "cursectnum", PLAYER_CURSECTNUM, 0, 0 },
-    { "look_ang", PLAYER_LOOK_ANG, 0, 0 },
-    { "last_extra", PLAYER_LAST_EXTRA, 0, 0 },
-    { "subweapon", PLAYER_SUBWEAPON, 0, 0 },
-    { "ammo_amount", PLAYER_AMMO_AMOUNT, LABEL_HASPARM2, MAX_WEAPONS },
-    { "wackedbyactor", PLAYER_WACKEDBYACTOR, 0, 0 },
-    { "frag", PLAYER_FRAG, 0, 0 },
-    { "fraggedself", PLAYER_FRAGGEDSELF, 0, 0 },
-    { "curr_weapon", PLAYER_CURR_WEAPON, 0, 0 },
-    { "last_weapon", PLAYER_LAST_WEAPON, 0, 0 },
-    { "tipincs", PLAYER_TIPINCS, 0, 0 },
-    { "horizoff", PLAYER_HORIZOFF, 0, 0 },
-    { "wantweaponfire", PLAYER_WANTWEAPONFIRE, 0, 0 },
-    { "holoduke_amount", PLAYER_HOLODUKE_AMOUNT, 0, 0 },
-    { "newowner", PLAYER_NEWOWNER, 0, 0 },
-    { "hurt_delay", PLAYER_HURT_DELAY, 0, 0 },
-    { "hbomb_hold_delay", PLAYER_HBOMB_HOLD_DELAY, 0, 0 },
-    { "jumping_counter", PLAYER_JUMPING_COUNTER, 0, 0 },
-    { "airleft", PLAYER_AIRLEFT, 0, 0 },
-    { "knee_incs", PLAYER_KNEE_INCS, 0, 0 },
-    { "access_incs", PLAYER_ACCESS_INCS, 0, 0 },
-    { "fta", PLAYER_FTA, 0, 0 },
-    { "ftq", PLAYER_FTQ, 0, 0 },
-    { "access_wallnum", PLAYER_ACCESS_WALLNUM, 0, 0 },
-    { "access_spritenum", PLAYER_ACCESS_SPRITENUM, 0, 0 },
-    { "kickback_pic", PLAYER_KICKBACK_PIC, 0, 0 },
-    { "got_access", PLAYER_GOT_ACCESS, 0, 0 },
-    { "weapon_ang", PLAYER_WEAPON_ANG, 0, 0 },
-    { "firstaid_amount", PLAYER_FIRSTAID_AMOUNT, 0, 0 },
-    { "somethingonplayer", PLAYER_SOMETHINGONPLAYER, 0, 0 },
-    { "on_crane", PLAYER_ON_CRANE, 0, 0 },
-    { "i", PLAYER_I, 0, 0 },
-    { "one_parallax_sectnum", PLAYER_ONE_PARALLAX_SECTNUM, 0, 0 },
-    { "over_shoulder_on", PLAYER_OVER_SHOULDER_ON, 0, 0 },
-    { "random_club_frame", PLAYER_RANDOM_CLUB_FRAME, 0, 0 },
-    { "fist_incs", PLAYER_FIST_INCS, 0, 0 },
-    { "one_eighty_count", PLAYER_ONE_EIGHTY_COUNT, 0, 0 },
-    { "cheat_phase", PLAYER_CHEAT_PHASE, 0, 0 },
-    { "dummyplayersprite", PLAYER_DUMMYPLAYERSPRITE, 0, 0 },
-    { "extra_extra8", PLAYER_EXTRA_EXTRA8, 0, 0 },
-    { "quick_kick", PLAYER_QUICK_KICK, 0, 0 },
-    { "heat_amount", PLAYER_HEAT_AMOUNT, 0, 0 },
-    { "actorsqu", PLAYER_ACTORSQU, 0, 0 },
-    { "timebeforeexit", PLAYER_TIMEBEFOREEXIT, 0, 0 },
-    { "customexitsound", PLAYER_CUSTOMEXITSOUND, 0, 0 },
-    { "weaprecs", PLAYER_WEAPRECS, LABEL_HASPARM2, MAX_WEAPONS },
-    { "weapreccnt", PLAYER_WEAPRECCNT, 0, 0 },
+    { "zoom",                  PLAYER_ZOOM,                  0, 0 },
+    { "exitx",                 PLAYER_EXITX,                 0, 0 },
+    { "exity",                 PLAYER_EXITY,                 0, 0 },
+    { "loogiex",               PLAYER_LOOGIEX,               LABEL_HASPARM2, 64 },
+    { "loogiey",               PLAYER_LOOGIEY,               LABEL_HASPARM2, 64 },
+    { "numloogs",              PLAYER_NUMLOOGS,              0, 0 },
+    { "loogcnt",               PLAYER_LOOGCNT,               0, 0 },
+    { "posx",                  PLAYER_POSX,                  0, 0 },
+    { "posy",                  PLAYER_POSY,                  0, 0 },
+    { "posz",                  PLAYER_POSZ,                  0, 0 },
+    { "horiz",                 PLAYER_HORIZ,                 0, 0 },
+    { "ohoriz",                PLAYER_OHORIZ,                0, 0 },
+    { "ohorizoff",             PLAYER_OHORIZOFF,             0, 0 },
+    { "invdisptime",           PLAYER_INVDISPTIME,           0, 0 },
+    { "bobposx",               PLAYER_BOBPOSX,               0, 0 },
+    { "bobposy",               PLAYER_BOBPOSY,               0, 0 },
+    { "oposx",                 PLAYER_OPOSX,                 0, 0 },
+    { "oposy",                 PLAYER_OPOSY,                 0, 0 },
+    { "oposz",                 PLAYER_OPOSZ,                 0, 0 },
+    { "pyoff",                 PLAYER_PYOFF,                 0, 0 },
+    { "opyoff",                PLAYER_OPYOFF,                0, 0 },
+    { "posxv",                 PLAYER_POSXV,                 0, 0 },
+    { "posyv",                 PLAYER_POSYV,                 0, 0 },
+    { "poszv",                 PLAYER_POSZV,                 0, 0 },
+    { "last_pissed_time",      PLAYER_LAST_PISSED_TIME,      0, 0 },
+    { "truefz",                PLAYER_TRUEFZ,                0, 0 },
+    { "truecz",                PLAYER_TRUECZ,                0, 0 },
+    { "player_par",            PLAYER_PLAYER_PAR,            0, 0 },
+    { "visibility",            PLAYER_VISIBILITY,            0, 0 },
+    { "bobcounter",            PLAYER_BOBCOUNTER,            0, 0 },
+    { "weapon_sway",           PLAYER_WEAPON_SWAY,           0, 0 },
+    { "pals_time",             PLAYER_PALS_TIME,             0, 0 },
+    { "randomflamex",          PLAYER_RANDOMFLAMEX,          0, 0 },
+    { "crack_time",            PLAYER_CRACK_TIME,            0, 0 },
+    { "aim_mode",              PLAYER_AIM_MODE,              0, 0 },
+    { "ang",                   PLAYER_ANG,                   0, 0 },
+    { "oang",                  PLAYER_OANG,                  0, 0 },
+    { "angvel",                PLAYER_ANGVEL,                0, 0 },
+    { "cursectnum",            PLAYER_CURSECTNUM,            0, 0 },
+    { "look_ang",              PLAYER_LOOK_ANG,              0, 0 },
+    { "last_extra",            PLAYER_LAST_EXTRA,            0, 0 },
+    { "subweapon",             PLAYER_SUBWEAPON,             0, 0 },
+    { "ammo_amount",           PLAYER_AMMO_AMOUNT,           LABEL_HASPARM2, MAX_WEAPONS },
+    { "wackedbyactor",         PLAYER_WACKEDBYACTOR,         0, 0 },
+    { "frag",                  PLAYER_FRAG,                  0, 0 },
+    { "fraggedself",           PLAYER_FRAGGEDSELF,           0, 0 },
+    { "curr_weapon",           PLAYER_CURR_WEAPON,           0, 0 },
+    { "last_weapon",           PLAYER_LAST_WEAPON,           0, 0 },
+    { "tipincs",               PLAYER_TIPINCS,               0, 0 },
+    { "horizoff",              PLAYER_HORIZOFF,              0, 0 },
+    { "wantweaponfire",        PLAYER_WANTWEAPONFIRE,        0, 0 },
+    { "holoduke_amount",       PLAYER_HOLODUKE_AMOUNT,       0, 0 },
+    { "newowner",              PLAYER_NEWOWNER,              0, 0 },
+    { "hurt_delay",            PLAYER_HURT_DELAY,            0, 0 },
+    { "hbomb_hold_delay",      PLAYER_HBOMB_HOLD_DELAY,      0, 0 },
+    { "jumping_counter",       PLAYER_JUMPING_COUNTER,       0, 0 },
+    { "airleft",               PLAYER_AIRLEFT,               0, 0 },
+    { "knee_incs",             PLAYER_KNEE_INCS,             0, 0 },
+    { "access_incs",           PLAYER_ACCESS_INCS,           0, 0 },
+    { "fta",                   PLAYER_FTA,                   0, 0 },
+    { "ftq",                   PLAYER_FTQ,                   0, 0 },
+    { "access_wallnum",        PLAYER_ACCESS_WALLNUM,        0, 0 },
+    { "access_spritenum",      PLAYER_ACCESS_SPRITENUM,      0, 0 },
+    { "kickback_pic",          PLAYER_KICKBACK_PIC,          0, 0 },
+    { "got_access",            PLAYER_GOT_ACCESS,            0, 0 },
+    { "weapon_ang",            PLAYER_WEAPON_ANG,            0, 0 },
+    { "firstaid_amount",       PLAYER_FIRSTAID_AMOUNT,       0, 0 },
+    { "somethingonplayer",     PLAYER_SOMETHINGONPLAYER,     0, 0 },
+    { "on_crane",              PLAYER_ON_CRANE,              0, 0 },
+    { "i",                     PLAYER_I,                     0, 0 },
+    { "one_parallax_sectnum",  PLAYER_ONE_PARALLAX_SECTNUM,  0, 0 },
+    { "over_shoulder_on",      PLAYER_OVER_SHOULDER_ON,      0, 0 },
+    { "random_club_frame",     PLAYER_RANDOM_CLUB_FRAME,     0, 0 },
+    { "fist_incs",             PLAYER_FIST_INCS,             0, 0 },
+    { "one_eighty_count",      PLAYER_ONE_EIGHTY_COUNT,      0, 0 },
+    { "cheat_phase",           PLAYER_CHEAT_PHASE,           0, 0 },
+    { "dummyplayersprite",     PLAYER_DUMMYPLAYERSPRITE,     0, 0 },
+    { "extra_extra8",          PLAYER_EXTRA_EXTRA8,          0, 0 },
+    { "quick_kick",            PLAYER_QUICK_KICK,            0, 0 },
+    { "heat_amount",           PLAYER_HEAT_AMOUNT,           0, 0 },
+    { "actorsqu",              PLAYER_ACTORSQU,              0, 0 },
+    { "timebeforeexit",        PLAYER_TIMEBEFOREEXIT,        0, 0 },
+    { "customexitsound",       PLAYER_CUSTOMEXITSOUND,       0, 0 },
+    { "weaprecs",              PLAYER_WEAPRECS,              LABEL_HASPARM2, MAX_WEAPONS },
+    { "weapreccnt",            PLAYER_WEAPRECCNT,            0, 0 },
     { "interface_toggle_flag", PLAYER_INTERFACE_TOGGLE_FLAG, 0, 0 },
-    { "rotscrnang", PLAYER_ROTSCRNANG, 0, 0 },
-    { "dead_flag", PLAYER_DEAD_FLAG, 0, 0 },
-    { "show_empty_weapon", PLAYER_SHOW_EMPTY_WEAPON, 0, 0 },
-    { "scuba_amount", PLAYER_SCUBA_AMOUNT, 0, 0 },
-    { "jetpack_amount", PLAYER_JETPACK_AMOUNT, 0, 0 },
-    { "steroids_amount", PLAYER_STEROIDS_AMOUNT, 0, 0 },
-    { "shield_amount", PLAYER_SHIELD_AMOUNT, 0, 0 },
-    { "holoduke_on", PLAYER_HOLODUKE_ON, 0, 0 },
-    { "pycount", PLAYER_PYCOUNT, 0, 0 },
-    { "weapon_pos", PLAYER_WEAPON_POS, 0, 0 },
-    { "frag_ps", PLAYER_FRAG_PS, 0, 0 },
-    { "transporter_hold", PLAYER_TRANSPORTER_HOLD, 0, 0 },
-    { "clipdist", PLAYER_CLIPDIST, 0, 0 },
-    { "last_full_weapon", PLAYER_LAST_FULL_WEAPON, 0, 0 },
-    { "footprintshade", PLAYER_FOOTPRINTSHADE, 0, 0 },
-    { "boot_amount", PLAYER_BOOT_AMOUNT, 0, 0 },
-    { "scream_voice", PLAYER_SCREAM_VOICE, 0, 0 },
-    { "gm", PLAYER_GM, 0, 0 },
-    { "on_warping_sector", PLAYER_ON_WARPING_SECTOR, 0, 0 },
-    { "footprintcount", PLAYER_FOOTPRINTCOUNT, 0, 0 },
-    { "hbomb_on", PLAYER_HBOMB_ON, 0, 0 },
-    { "jumping_toggle", PLAYER_JUMPING_TOGGLE, 0, 0 },
-    { "rapid_fire_hold", PLAYER_RAPID_FIRE_HOLD, 0, 0 },
-    { "on_ground", PLAYER_ON_GROUND, 0, 0 },
-    { "name", PLAYER_NAME,  LABEL_ISSTRING, 32 },
-    { "inven_icon", PLAYER_INVEN_ICON, 0, 0 },
-    { "buttonpalette", PLAYER_BUTTONPALETTE, 0, 0 },
-    { "jetpack_on", PLAYER_JETPACK_ON, 0, 0 },
-    { "spritebridge", PLAYER_SPRITEBRIDGE, 0, 0 },
-    { "lastrandomspot", PLAYER_LASTRANDOMSPOT, 0, 0 },
-    { "scuba_on", PLAYER_SCUBA_ON, 0, 0 },
-    { "footprintpal", PLAYER_FOOTPRINTPAL, 0, 0 },
-    { "heat_on", PLAYER_HEAT_ON, 0, 0 },
-    { "holster_weapon", PLAYER_HOLSTER_WEAPON, 0, 0 },
-    { "falling_counter", PLAYER_FALLING_COUNTER, 0, 0 },
-    { "gotweapon", PLAYER_GOTWEAPON, LABEL_HASPARM2, MAX_WEAPONS },
-    { "refresh_inventory", PLAYER_REFRESH_INVENTORY, 0, 0 },
-    { "palette", PLAYER_PALETTE, 0, 0 },
-    { "toggle_key_flag", PLAYER_TOGGLE_KEY_FLAG, 0, 0 },
-    { "knuckle_incs", PLAYER_KNUCKLE_INCS, 0, 0 },
-    { "walking_snd_toggle", PLAYER_WALKING_SND_TOGGLE, 0, 0 },
-    { "palookup", PLAYER_PALOOKUP, 0, 0 },
-    { "hard_landing", PLAYER_HARD_LANDING, 0, 0 },
-    { "max_secret_rooms", PLAYER_MAX_SECRET_ROOMS, 0, 0 },
-    { "secret_rooms", PLAYER_SECRET_ROOMS, 0, 0 },
-    { "pals", PLAYER_PALS, LABEL_HASPARM2, 3 },
-    { "max_actors_killed", PLAYER_MAX_ACTORS_KILLED, 0, 0 },
-    { "actors_killed", PLAYER_ACTORS_KILLED, 0, 0 },
-    { "return_to_center", PLAYER_RETURN_TO_CENTER, 0, 0 },
-    { "runspeed", PLAYER_RUNSPEED, 0, 0 },
-    { "sbs", PLAYER_SBS, 0, 0 },
-    { "reloading", PLAYER_RELOADING, 0, 0 },
-    { "auto_aim", PLAYER_AUTO_AIM, 0, 0 },
-    { "movement_lock", PLAYER_MOVEMENT_LOCK, 0, 0 },
-    { "sound_pitch", PLAYER_SOUND_PITCH, 0, 0 },
-    { "weaponswitch", PLAYER_WEAPONSWITCH, 0, 0 },
-    { "team", PLAYER_TEAM, 0, 0 },
-    { "max_player_health", PLAYER_MAX_PLAYER_HEALTH, 0, 0 },
-    { "max_shield_amount", PLAYER_MAX_SHIELD_AMOUNT, 0, 0 },
-    { "max_ammo_amount", PLAYER_MAX_AMMO_AMOUNT, LABEL_HASPARM2, MAX_WEAPONS },
-    { "last_quick_kick", PLAYER_LAST_QUICK_KICK, 0, 0 },
-    { "autostep", PLAYER_AUTOSTEP, 0, 0 },
-    { "autostep_sbw", PLAYER_AUTOSTEP_SBW, 0, 0 },
-    { "hudpal", PLAYER_HUDPAL, 0, 0 },
-    { "index", PLAYER_INDEX, 0, 0 },
-    { "", -1, 0, 0  }     // END OF LIST
+    { "rotscrnang",            PLAYER_ROTSCRNANG,            0, 0 },
+    { "dead_flag",             PLAYER_DEAD_FLAG,             0, 0 },
+    { "show_empty_weapon",     PLAYER_SHOW_EMPTY_WEAPON,     0, 0 },
+    { "scuba_amount",          PLAYER_SCUBA_AMOUNT,          0, 0 },
+    { "jetpack_amount",        PLAYER_JETPACK_AMOUNT,        0, 0 },
+    { "steroids_amount",       PLAYER_STEROIDS_AMOUNT,       0, 0 },
+    { "shield_amount",         PLAYER_SHIELD_AMOUNT,         0, 0 },
+    { "holoduke_on",           PLAYER_HOLODUKE_ON,           0, 0 },
+    { "pycount",               PLAYER_PYCOUNT,               0, 0 },
+    { "weapon_pos",            PLAYER_WEAPON_POS,            0, 0 },
+    { "frag_ps",               PLAYER_FRAG_PS,               0, 0 },
+    { "transporter_hold",      PLAYER_TRANSPORTER_HOLD,      0, 0 },
+    { "clipdist",              PLAYER_CLIPDIST,              0, 0 },
+    { "last_full_weapon",      PLAYER_LAST_FULL_WEAPON,      0, 0 },
+    { "footprintshade",        PLAYER_FOOTPRINTSHADE,        0, 0 },
+    { "boot_amount",           PLAYER_BOOT_AMOUNT,           0, 0 },
+    { "scream_voice",          PLAYER_SCREAM_VOICE,          0, 0 },
+    { "gm",                    PLAYER_GM,                    0, 0 },
+    { "on_warping_sector",     PLAYER_ON_WARPING_SECTOR,     0, 0 },
+    { "footprintcount",        PLAYER_FOOTPRINTCOUNT,        0, 0 },
+    { "hbomb_on",              PLAYER_HBOMB_ON,              0, 0 },
+    { "jumping_toggle",        PLAYER_JUMPING_TOGGLE,        0, 0 },
+    { "rapid_fire_hold",       PLAYER_RAPID_FIRE_HOLD,       0, 0 },
+    { "on_ground",             PLAYER_ON_GROUND,             0, 0 },
+    { "name",                  PLAYER_NAME,                  LABEL_ISSTRING, 32 },
+    { "inven_icon",            PLAYER_INVEN_ICON,            0, 0 },
+    { "buttonpalette",         PLAYER_BUTTONPALETTE,         0, 0 },
+    { "jetpack_on",            PLAYER_JETPACK_ON,            0, 0 },
+    { "spritebridge",          PLAYER_SPRITEBRIDGE,          0, 0 },
+    { "lastrandomspot",        PLAYER_LASTRANDOMSPOT,        0, 0 },
+    { "scuba_on",              PLAYER_SCUBA_ON,              0, 0 },
+    { "footprintpal",          PLAYER_FOOTPRINTPAL,          0, 0 },
+    { "heat_on",               PLAYER_HEAT_ON,               0, 0 },
+    { "holster_weapon",        PLAYER_HOLSTER_WEAPON,        0, 0 },
+    { "falling_counter",       PLAYER_FALLING_COUNTER,       0, 0 },
+    { "gotweapon",             PLAYER_GOTWEAPON,             LABEL_HASPARM2, MAX_WEAPONS },
+    { "refresh_inventory",     PLAYER_REFRESH_INVENTORY,     0, 0 },
+    { "palette",               PLAYER_PALETTE,               0, 0 },
+    { "toggle_key_flag",       PLAYER_TOGGLE_KEY_FLAG,       0, 0 },
+    { "knuckle_incs",          PLAYER_KNUCKLE_INCS,          0, 0 },
+    { "walking_snd_toggle",    PLAYER_WALKING_SND_TOGGLE,    0, 0 },
+    { "palookup",              PLAYER_PALOOKUP,              0, 0 },
+    { "hard_landing",          PLAYER_HARD_LANDING,          0, 0 },
+    { "max_secret_rooms",      PLAYER_MAX_SECRET_ROOMS,      0, 0 },
+    { "secret_rooms",          PLAYER_SECRET_ROOMS,          0, 0 },
+    { "pals",                  PLAYER_PALS,                  LABEL_HASPARM2, 3 },
+    { "max_actors_killed",     PLAYER_MAX_ACTORS_KILLED,     0, 0 },
+    { "actors_killed",         PLAYER_ACTORS_KILLED,         0, 0 },
+    { "return_to_center",      PLAYER_RETURN_TO_CENTER,      0, 0 },
+    { "runspeed",              PLAYER_RUNSPEED,              0, 0 },
+    { "sbs",                   PLAYER_SBS,                   0, 0 },
+    { "reloading",             PLAYER_RELOADING,             0, 0 },
+    { "auto_aim",              PLAYER_AUTO_AIM,              0, 0 },
+    { "movement_lock",         PLAYER_MOVEMENT_LOCK,         0, 0 },
+    { "sound_pitch",           PLAYER_SOUND_PITCH,           0, 0 },
+    { "weaponswitch",          PLAYER_WEAPONSWITCH,          0, 0 },
+    { "team",                  PLAYER_TEAM,                  0, 0 },
+    { "max_player_health",     PLAYER_MAX_PLAYER_HEALTH,     0, 0 },
+    { "max_shield_amount",     PLAYER_MAX_SHIELD_AMOUNT,     0, 0 },
+    { "max_ammo_amount",       PLAYER_MAX_AMMO_AMOUNT,       LABEL_HASPARM2, MAX_WEAPONS },
+    { "last_quick_kick",       PLAYER_LAST_QUICK_KICK,       0, 0 },
+    { "autostep",              PLAYER_AUTOSTEP,              0, 0 },
+    { "autostep_sbw",          PLAYER_AUTOSTEP_SBW,          0, 0 },
+    { "hudpal",                PLAYER_HUDPAL,                0, 0 },
+    { "index",                 PLAYER_INDEX,                 0, 0 },
+    { "", -1,                                                0, 0  }     // END OF LIST
 };
 
 const memberlabel_t ProjectileLabels[]=
 {
-    { "workslike", PROJ_WORKSLIKE, 0, 0 },
-    { "spawns", PROJ_SPAWNS, 0, 0 },
-    { "sxrepeat", PROJ_SXREPEAT, 0, 0 },
-    { "syrepeat", PROJ_SYREPEAT, 0, 0 },
-    { "sound", PROJ_SOUND, 0, 0 },
-    { "isound", PROJ_ISOUND, 0, 0 },
-    { "vel", PROJ_VEL, 0, 0 },
-    { "extra", PROJ_EXTRA, 0, 0 },
-    { "decal", PROJ_DECAL, 0, 0 },
-    { "trail", PROJ_TRAIL, 0, 0 },
-    { "txrepeat", PROJ_TXREPEAT, 0, 0 },
-    { "tyrepeat", PROJ_TYREPEAT, 0, 0 },
-    { "toffset", PROJ_TOFFSET, 0, 0 },
-    { "tnum", PROJ_TNUM, 0, 0 },
-    { "drop", PROJ_DROP, 0, 0 },
-    { "cstat", PROJ_CSTAT, 0, 0 },
-    { "clipdist", PROJ_CLIPDIST, 0, 0 },
-    { "shade", PROJ_SHADE, 0, 0 },
-    { "xrepeat", PROJ_XREPEAT, 0, 0 },
-    { "yrepeat", PROJ_YREPEAT, 0, 0 },
-    { "pal", PROJ_PAL, 0, 0 },
-    { "extra_rand", PROJ_EXTRA_RAND, 0, 0 },
-    { "hitradius", PROJ_HITRADIUS, 0, 0 },
-    { "velmult", PROJ_MOVECNT, 0, 0 },
-    { "offset", PROJ_OFFSET, 0, 0 },
-    { "bounces", PROJ_BOUNCES, 0, 0 },
-    { "bsound", PROJ_BSOUND, 0, 0 },
-    { "range", PROJ_RANGE, 0, 0 },
+    { "workslike",  PROJ_WORKSLIKE,   0, 0 },
+    { "spawns",     PROJ_SPAWNS,      0, 0 },
+    { "sxrepeat",   PROJ_SXREPEAT,    0, 0 },
+    { "syrepeat",   PROJ_SYREPEAT,    0, 0 },
+    { "sound",      PROJ_SOUND,       0, 0 },
+    { "isound",     PROJ_ISOUND,      0, 0 },
+    { "vel",        PROJ_VEL,         0, 0 },
+    { "extra",      PROJ_EXTRA,       0, 0 },
+    { "decal",      PROJ_DECAL,       0, 0 },
+    { "trail",      PROJ_TRAIL,       0, 0 },
+    { "txrepeat",   PROJ_TXREPEAT,    0, 0 },
+    { "tyrepeat",   PROJ_TYREPEAT,    0, 0 },
+    { "toffset",    PROJ_TOFFSET,     0, 0 },
+    { "tnum",       PROJ_TNUM,        0, 0 },
+    { "drop",       PROJ_DROP,        0, 0 },
+    { "cstat",      PROJ_CSTAT,       0, 0 },
+    { "clipdist",   PROJ_CLIPDIST,    0, 0 },
+    { "shade",      PROJ_SHADE,       0, 0 },
+    { "xrepeat",    PROJ_XREPEAT,     0, 0 },
+    { "yrepeat",    PROJ_YREPEAT,     0, 0 },
+    { "pal",        PROJ_PAL,         0, 0 },
+    { "extra_rand", PROJ_EXTRA_RAND,  0, 0 },
+    { "hitradius",  PROJ_HITRADIUS,   0, 0 },
+    { "velmult",    PROJ_MOVECNT,     0, 0 },
+    { "offset",     PROJ_OFFSET,      0, 0 },
+    { "bounces",    PROJ_BOUNCES,     0, 0 },
+    { "bsound",     PROJ_BSOUND,      0, 0 },
+    { "range",      PROJ_RANGE,       0, 0 },
     { "flashcolor", PROJ_FLASH_COLOR, 0, 0 },
-    { "userdata", PROJ_USERDATA, 0, 0 },
-    { "", -1, 0, 0  }     // END OF LIST
+    { "userdata",   PROJ_USERDATA,    0, 0 },
+    { "", -1,                         0, 0  }     // END OF LIST
 };
 
 const memberlabel_t UserdefsLabels[]=
 {
-    //        { "<null>", 1, 0, 0 },
-    { "god", USERDEFS_GOD, 0, 0 },
-    { "warp_on", USERDEFS_WARP_ON, 0, 0 },
-    { "cashman", USERDEFS_CASHMAN, 0, 0 },
-    { "eog", USERDEFS_EOG, 0, 0 },
-    { "showallmap", USERDEFS_SHOWALLMAP, 0, 0 },
-    { "show_help", USERDEFS_SHOW_HELP, 0, 0 },
-    { "scrollmode", USERDEFS_SCROLLMODE, 0, 0 },
-    { "clipping", USERDEFS_CLIPPING, 0, 0 },
-    { "user_name", USERDEFS_USER_NAME, LABEL_HASPARM2, MAXPLAYERS },
-    { "ridecule", USERDEFS_RIDECULE, LABEL_HASPARM2 | LABEL_ISSTRING, 10 },
-    { "savegame", USERDEFS_SAVEGAME, LABEL_HASPARM2 | LABEL_ISSTRING, 10 },
-    { "pwlockout", USERDEFS_PWLOCKOUT, LABEL_ISSTRING, 128 },
-    { "rtsname;", USERDEFS_RTSNAME,  LABEL_ISSTRING, 128 },
-    { "overhead_on", USERDEFS_OVERHEAD_ON, 0, 0 },
-    { "last_overhead", USERDEFS_LAST_OVERHEAD, 0, 0 },
-    { "showweapons", USERDEFS_SHOWWEAPONS, 0, 0 },
+    //   { "<null>", 1,                                          0, 0 },
+    { "god",                    USERDEFS_GOD,                    0, 0 },
+    { "warp_on",                USERDEFS_WARP_ON,                0, 0 },
+    { "cashman",                USERDEFS_CASHMAN,                0, 0 },
+    { "eog",                    USERDEFS_EOG,                    0, 0 },
+    { "showallmap",             USERDEFS_SHOWALLMAP,             0, 0 },
+    { "show_help",              USERDEFS_SHOW_HELP,              0, 0 },
+    { "scrollmode",             USERDEFS_SCROLLMODE,             0, 0 },
+    { "clipping",               USERDEFS_CLIPPING,               0, 0 },
+    { "user_name",              USERDEFS_USER_NAME,              LABEL_HASPARM2, MAXPLAYERS },
+    { "ridecule",               USERDEFS_RIDECULE,               LABEL_HASPARM2 | LABEL_ISSTRING, 10 },
+    { "savegame",               USERDEFS_SAVEGAME,               LABEL_HASPARM2 | LABEL_ISSTRING, 10 },
+    { "pwlockout",              USERDEFS_PWLOCKOUT,              LABEL_ISSTRING, 128 },
+    { "rtsname;",               USERDEFS_RTSNAME,                LABEL_ISSTRING, 128 },
+    { "overhead_on",            USERDEFS_OVERHEAD_ON,            0, 0 },
+    { "last_overhead",          USERDEFS_LAST_OVERHEAD,          0, 0 },
+    { "showweapons",            USERDEFS_SHOWWEAPONS,            0, 0 },
 
-    { "pause_on", USERDEFS_PAUSE_ON, 0, 0 },
-    { "from_bonus", USERDEFS_FROM_BONUS, 0, 0 },
-    { "camerasprite", USERDEFS_CAMERASPRITE, 0, 0 },
-    { "last_camsprite", USERDEFS_LAST_CAMSPRITE, 0, 0 },
-    { "last_level", USERDEFS_LAST_LEVEL, 0, 0 },
-    { "secretlevel", USERDEFS_SECRETLEVEL, 0, 0 },
-    { "playerbest", USERDEFS_PLAYERBEST, 0, 0 },
+    { "pause_on",               USERDEFS_PAUSE_ON,               0, 0 },
+    { "from_bonus",             USERDEFS_FROM_BONUS,             0, 0 },
+    { "camerasprite",           USERDEFS_CAMERASPRITE,           0, 0 },
+    { "last_camsprite",         USERDEFS_LAST_CAMSPRITE,         0, 0 },
+    { "last_level",             USERDEFS_LAST_LEVEL,             0, 0 },
+    { "secretlevel",            USERDEFS_SECRETLEVEL,            0, 0 },
+    { "playerbest",             USERDEFS_PLAYERBEST,             0, 0 },
 
-    { "const_visibility", USERDEFS_CONST_VISIBILITY, 0, 0 },
-    { "uw_framerate", USERDEFS_UW_FRAMERATE, 0, 0 },
-    { "camera_time", USERDEFS_CAMERA_TIME, 0, 0 },
-    { "folfvel", USERDEFS_FOLFVEL, 0, 0 },
-    { "folavel", USERDEFS_FOLAVEL, 0, 0 },
-    { "folx", USERDEFS_FOLX, 0, 0 },
-    { "foly", USERDEFS_FOLY, 0, 0 },
-    { "fola", USERDEFS_FOLA, 0, 0 },
-    { "reccnt", USERDEFS_RECCNT, 0, 0 },
+    { "const_visibility",       USERDEFS_CONST_VISIBILITY,       0, 0 },
+    { "uw_framerate",           USERDEFS_UW_FRAMERATE,           0, 0 },
+    { "camera_time",            USERDEFS_CAMERA_TIME,            0, 0 },
+    { "folfvel",                USERDEFS_FOLFVEL,                0, 0 },
+    { "folavel",                USERDEFS_FOLAVEL,                0, 0 },
+    { "folx",                   USERDEFS_FOLX,                   0, 0 },
+    { "foly",                   USERDEFS_FOLY,                   0, 0 },
+    { "fola",                   USERDEFS_FOLA,                   0, 0 },
+    { "reccnt",                 USERDEFS_RECCNT,                 0, 0 },
 
-    { "m_origin_x", USERDEFS_M_ORIGIN_X, 0, 0 },
-    { "m_origin_y", USERDEFS_M_ORIGIN_Y, 0, 0 },
+    { "m_origin_x",             USERDEFS_M_ORIGIN_X,             0, 0 },
+    { "m_origin_y",             USERDEFS_M_ORIGIN_Y,             0, 0 },
 
-    { "usevoxels", USERDEFS_USEVOXELS, 0, 0 },
-    { "usehightile", USERDEFS_USEHIGHTILE, 0, 0 },
-    { "usemodels", USERDEFS_USEMODELS, 0, 0 },
+    { "usevoxels",              USERDEFS_USEVOXELS,              0, 0 },
+    { "usehightile",            USERDEFS_USEHIGHTILE,            0, 0 },
+    { "usemodels",              USERDEFS_USEMODELS,              0, 0 },
 
-    { "entered_name", USERDEFS_ENTERED_NAME, 0, 0 },
-    { "screen_tilting", USERDEFS_SCREEN_TILTING, 0, 0 },
-    { "shadows", USERDEFS_SHADOWS, 0, 0 },
-    { "fta_on", USERDEFS_FTA_ON, 0, 0 },
-    { "executions", USERDEFS_EXECUTIONS, 0, 0 },
-    { "auto_run", USERDEFS_AUTO_RUN, 0, 0 },
-    { "coords", USERDEFS_COORDS, 0, 0 },
-    { "tickrate", USERDEFS_TICKRATE, 0, 0 },
-    { "m_coop", USERDEFS_M_COOP, 0, 0 },
-    { "coop", USERDEFS_COOP, 0, 0 },
-    { "screen_size", USERDEFS_SCREEN_SIZE, 0, 0 },
-    { "lockout", USERDEFS_LOCKOUT, 0, 0 },
-    { "crosshair", USERDEFS_CROSSHAIR, 0, 0 },
-//    { "wchoice[MAXPLAYERS][MAX_WEAPONS]", USERDEFS_WCHOICE, 0, 0 },
-    { "playerai", USERDEFS_PLAYERAI, 0, 0 },
-    { "respawn_monsters", USERDEFS_RESPAWN_MONSTERS, 0, 0 },
-    { "respawn_items", USERDEFS_RESPAWN_ITEMS, 0, 0 },
-    { "respawn_inventory", USERDEFS_RESPAWN_INVENTORY, 0, 0 },
-    { "recstat", USERDEFS_RECSTAT, 0, 0 },
-    { "monsters_off", USERDEFS_MONSTERS_OFF, 0, 0 },
-    { "brightness", USERDEFS_BRIGHTNESS, 0, 0 },
-    { "m_respawn_items", USERDEFS_M_RESPAWN_ITEMS, 0, 0 },
-    { "m_respawn_monsters", USERDEFS_M_RESPAWN_MONSTERS, 0, 0 },
-    { "m_respawn_inventory", USERDEFS_M_RESPAWN_INVENTORY, 0, 0 },
-    { "m_recstat", USERDEFS_M_RECSTAT, 0, 0 },
-    { "m_monsters_off", USERDEFS_M_MONSTERS_OFF, 0, 0 },
-    { "detail", USERDEFS_DETAIL, 0, 0 },
-    { "m_ffire", USERDEFS_M_FFIRE, 0, 0 },
-    { "ffire", USERDEFS_FFIRE, 0, 0 },
-    { "m_player_skill", USERDEFS_M_PLAYER_SKILL, 0, 0 },
-    { "m_level_number", USERDEFS_M_LEVEL_NUMBER, 0, 0 },
-    { "m_volume_number", USERDEFS_M_VOLUME_NUMBER, 0, 0 },
-    { "multimode", USERDEFS_MULTIMODE, 0, 0 },
-    { "player_skill", USERDEFS_PLAYER_SKILL, 0, 0 },
-    { "level_number", USERDEFS_LEVEL_NUMBER, 0, 0 },
-    { "volume_number", USERDEFS_VOLUME_NUMBER, 0, 0 },
-    { "m_marker", USERDEFS_M_MARKER, 0, 0 },
-    { "marker", USERDEFS_MARKER, 0, 0 },
-    { "mouseflip", USERDEFS_MOUSEFLIP, 0, 0 },
-    { "statusbarscale", USERDEFS_STATUSBARSCALE, 0, 0 },
-    { "drawweapon", USERDEFS_DRAWWEAPON, 0, 0 },
-    { "mouseaiming", USERDEFS_MOUSEAIMING, 0, 0 },
-    { "weaponswitch", USERDEFS_WEAPONSWITCH, 0, 0 },
-    { "democams", USERDEFS_DEMOCAMS, 0, 0 },
-    { "color", USERDEFS_COLOR, 0, 0 },
-    { "msgdisptime", USERDEFS_MSGDISPTIME, 0, 0 },
-    { "statusbarmode", USERDEFS_STATUSBARMODE, 0, 0 },
-    { "m_noexits", USERDEFS_M_NOEXITS, 0, 0 },
-    { "noexits", USERDEFS_NOEXITS, 0, 0 },
-    { "autovote", USERDEFS_AUTOVOTE, 0, 0 },
-    { "automsg", USERDEFS_AUTOMSG, 0, 0 },
-    { "idplayers", USERDEFS_IDPLAYERS, 0, 0 },
-    { "team", USERDEFS_TEAM, 0, 0 },
-    { "viewbob", USERDEFS_VIEWBOB, 0, 0 },
-    { "weaponsway", USERDEFS_WEAPONSWAY, 0, 0 },
-    { "angleinterpolation", USERDEFS_ANGLEINTERPOLATION, 0, 0 },
-    { "obituaries", USERDEFS_OBITUARIES, 0, 0 },
-    { "levelstats", USERDEFS_LEVELSTATS, 0, 0 },
-    { "crosshairscale", USERDEFS_CROSSHAIRSCALE, 0, 0 },
-    { "althud", USERDEFS_ALTHUD, 0, 0 },
-    { "display_bonus_screen", USERDEFS_DISPLAY_BONUS_SCREEN, 0, 0 },
-    { "show_level_text", USERDEFS_SHOW_LEVEL_TEXT, 0, 0 },
-    { "weaponscale", USERDEFS_WEAPONSCALE, 0, 0 },
-    { "textscale", USERDEFS_TEXTSCALE, 0, 0 },
-    { "runkey_mode", USERDEFS_RUNKEY_MODE, 0, 0 },
-    { "musictoggle", USERDEFS_MUSICTOGGLE, 0, 0 },
-    { "gametypeflags", USERDEFS_GAMETYPEFLAGS, 0, 0 },
-    { "m_gametypeflags", USERDEFS_M_GAMETYPEFLAGS, 0, 0 },
-    { "globalflags", USERDEFS_GLOBALFLAGS, 0, 0 },
-    { "globalgameflags", USERDEFS_GLOBALGAMEFLAGS, 0, 0 },
-    { "vm_player", USERDEFS_VM_PLAYER, 0, 0 },
-    { "vm_sprite", USERDEFS_VM_SPRITE, 0, 0 },
-    { "vm_distance", USERDEFS_VM_DISTANCE, 0, 0 },
-    { "soundtoggle", USERDEFS_SOUNDTOGGLE, 0, 0 },
-    { "gametext_tracking", USERDEFS_GAMETEXT_TRACKING, 0, 0 },
-    { "mgametext_tracking", USERDEFS_MGAMETEXT_TRACKING, 0, 0 },
-    { "menutext_tracking", USERDEFS_MENUTEXT_TRACKING, 0, 0 },
-    { "maxspritesonscreen", USERDEFS_MAXSPRITESONSCREEN, 0, 0 },
-    { "", -1, 0, 0  }     // END OF LIST
+    { "entered_name",           USERDEFS_ENTERED_NAME,           0, 0 },
+    { "screen_tilting",         USERDEFS_SCREEN_TILTING,         0, 0 },
+    { "shadows",                USERDEFS_SHADOWS,                0, 0 },
+    { "fta_on",                 USERDEFS_FTA_ON,                 0, 0 },
+    { "executions",             USERDEFS_EXECUTIONS,             0, 0 },
+    { "auto_run",               USERDEFS_AUTO_RUN,               0, 0 },
+    { "coords",                 USERDEFS_COORDS,                 0, 0 },
+    { "tickrate",               USERDEFS_TICKRATE,               0, 0 },
+    { "m_coop",                 USERDEFS_M_COOP,                 0, 0 },
+    { "coop",                   USERDEFS_COOP,                   0, 0 },
+    { "screen_size",            USERDEFS_SCREEN_SIZE,            0, 0 },
+    { "lockout",                USERDEFS_LOCKOUT,                0, 0 },
+    { "crosshair",              USERDEFS_CROSSHAIR,              0, 0 },
+    { "playerai",               USERDEFS_PLAYERAI,               0, 0 },
+    { "respawn_monsters",       USERDEFS_RESPAWN_MONSTERS,       0, 0 },
+    { "respawn_items",          USERDEFS_RESPAWN_ITEMS,          0, 0 },
+    { "respawn_inventory",      USERDEFS_RESPAWN_INVENTORY,      0, 0 },
+    { "recstat",                USERDEFS_RECSTAT,                0, 0 },
+    { "monsters_off",           USERDEFS_MONSTERS_OFF,           0, 0 },
+    { "brightness",             USERDEFS_BRIGHTNESS,             0, 0 },
+    { "m_respawn_items",        USERDEFS_M_RESPAWN_ITEMS,        0, 0 },
+    { "m_respawn_monsters",     USERDEFS_M_RESPAWN_MONSTERS,     0, 0 },
+    { "m_respawn_inventory",    USERDEFS_M_RESPAWN_INVENTORY,    0, 0 },
+    { "m_recstat",              USERDEFS_M_RECSTAT,              0, 0 },
+    { "m_monsters_off",         USERDEFS_M_MONSTERS_OFF,         0, 0 },
+    { "detail",                 USERDEFS_DETAIL,                 0, 0 },
+    { "m_ffire",                USERDEFS_M_FFIRE,                0, 0 },
+    { "ffire",                  USERDEFS_FFIRE,                  0, 0 },
+    { "m_player_skill",         USERDEFS_M_PLAYER_SKILL,         0, 0 },
+    { "m_level_number",         USERDEFS_M_LEVEL_NUMBER,         0, 0 },
+    { "m_volume_number",        USERDEFS_M_VOLUME_NUMBER,        0, 0 },
+    { "multimode",              USERDEFS_MULTIMODE,              0, 0 },
+    { "player_skill",           USERDEFS_PLAYER_SKILL,           0, 0 },
+    { "level_number",           USERDEFS_LEVEL_NUMBER,           0, 0 },
+    { "volume_number",          USERDEFS_VOLUME_NUMBER,          0, 0 },
+    { "m_marker",               USERDEFS_M_MARKER,               0, 0 },
+    { "marker",                 USERDEFS_MARKER,                 0, 0 },
+    { "mouseflip",              USERDEFS_MOUSEFLIP,              0, 0 },
+    { "statusbarscale",         USERDEFS_STATUSBARSCALE,         0, 0 },
+    { "drawweapon",             USERDEFS_DRAWWEAPON,             0, 0 },
+    { "mouseaiming",            USERDEFS_MOUSEAIMING,            0, 0 },
+    { "weaponswitch",           USERDEFS_WEAPONSWITCH,           0, 0 },
+    { "democams",               USERDEFS_DEMOCAMS,               0, 0 },
+    { "color",                  USERDEFS_COLOR,                  0, 0 },
+    { "msgdisptime",            USERDEFS_MSGDISPTIME,            0, 0 },
+    { "statusbarmode",          USERDEFS_STATUSBARMODE,          0, 0 },
+    { "m_noexits",              USERDEFS_M_NOEXITS,              0, 0 },
+    { "noexits",                USERDEFS_NOEXITS,                0, 0 },
+    { "autovote",               USERDEFS_AUTOVOTE,               0, 0 },
+    { "automsg",                USERDEFS_AUTOMSG,                0, 0 },
+    { "idplayers",              USERDEFS_IDPLAYERS,              0, 0 },
+    { "team",                   USERDEFS_TEAM,                   0, 0 },
+    { "viewbob",                USERDEFS_VIEWBOB,                0, 0 },
+    { "weaponsway",             USERDEFS_WEAPONSWAY,             0, 0 },
+    { "angleinterpolation",     USERDEFS_ANGLEINTERPOLATION,     0, 0 },
+    { "obituaries",             USERDEFS_OBITUARIES,             0, 0 },
+    { "levelstats",             USERDEFS_LEVELSTATS,             0, 0 },
+    { "crosshairscale",         USERDEFS_CROSSHAIRSCALE,         0, 0 },
+    { "althud",                 USERDEFS_ALTHUD,                 0, 0 },
+    { "display_bonus_screen",   USERDEFS_DISPLAY_BONUS_SCREEN,   0, 0 },
+    { "show_level_text",        USERDEFS_SHOW_LEVEL_TEXT,        0, 0 },
+    { "weaponscale",            USERDEFS_WEAPONSCALE,            0, 0 },
+    { "textscale",              USERDEFS_TEXTSCALE,              0, 0 },
+    { "runkey_mode",            USERDEFS_RUNKEY_MODE,            0, 0 },
+    { "musictoggle",            USERDEFS_MUSICTOGGLE,            0, 0 },
+    { "gametypeflags",          USERDEFS_GAMETYPEFLAGS,          0, 0 },
+    { "m_gametypeflags",        USERDEFS_M_GAMETYPEFLAGS,        0, 0 },
+    { "globalflags",            USERDEFS_GLOBALFLAGS,            0, 0 },
+    { "globalgameflags",        USERDEFS_GLOBALGAMEFLAGS,        0, 0 },
+    { "vm_player",              USERDEFS_VM_PLAYER,              0, 0 },
+    { "vm_sprite",              USERDEFS_VM_SPRITE,              0, 0 },
+    { "vm_distance",            USERDEFS_VM_DISTANCE,            0, 0 },
+    { "soundtoggle",            USERDEFS_SOUNDTOGGLE,            0, 0 },
+    { "gametext_tracking",      USERDEFS_GAMETEXT_TRACKING,      0, 0 },
+    { "mgametext_tracking",     USERDEFS_MGAMETEXT_TRACKING,     0, 0 },
+    { "menutext_tracking",      USERDEFS_MENUTEXT_TRACKING,      0, 0 },
+    { "maxspritesonscreen",     USERDEFS_MAXSPRITESONSCREEN,     0, 0 },
+    { "", -1,                                                    0, 0  } // END OF LIST
 };
 
 const memberlabel_t InputLabels[]=
 {
-    { "avel", INPUT_AVEL, 0, 0 },
-    { "horz", INPUT_HORZ, 0, 0 },
-    { "fvel", INPUT_FVEL, 0, 0 },
-    { "svel", INPUT_SVEL, 0, 0 },
-    { "bits", INPUT_BITS, 0, 0 },
+    { "avel",    INPUT_AVEL,    0, 0 },
+    { "horz",    INPUT_HORZ,    0, 0 },
+    { "fvel",    INPUT_FVEL,    0, 0 },
+    { "svel",    INPUT_SVEL,    0, 0 },
+    { "bits",    INPUT_BITS,    0, 0 },
     { "extbits", INPUT_EXTBITS, 0, 0 },
-    { "", -1, 0, 0  }     // END OF LIST
+    { "", -1,                   0, 0  }     // END OF LIST
 };
 
 const memberlabel_t TileDataLabels[]=
 {
     // tilesiz[]
-    { "xsize", TILEDATA_XSIZE, 0, 0 },
-    { "ysize", TILEDATA_YSIZE, 0, 0 },
+    { "xsize",      TILEDATA_XSIZE,      0, 0 },
+    { "ysize",      TILEDATA_YSIZE,      0, 0 },
 
     // picanm[]
     { "animframes", TILEDATA_ANIMFRAMES, 0, 0 },
-    { "xoffset", TILEDATA_XOFFSET, 0, 0 },
-    { "yoffset", TILEDATA_YOFFSET, 0, 0 },
-    { "animspeed", TILEDATA_ANIMSPEED, 0, 0 },
-    { "animtype", TILEDATA_ANIMTYPE, 0, 0 },
+    { "xoffset",    TILEDATA_XOFFSET,    0, 0 },
+    { "yoffset",    TILEDATA_YOFFSET,    0, 0 },
+    { "animspeed",  TILEDATA_ANIMSPEED,  0, 0 },
+    { "animtype",   TILEDATA_ANIMTYPE,   0, 0 },
 
     // g_tile[]
-    { "gameflags", TILEDATA_GAMEFLAGS, 0, 0 },
+    { "gameflags",  TILEDATA_GAMEFLAGS,  0, 0 },
 
-    { "", -1, 0, 0  }     // END OF LIST
+    { "", -1,                            0, 0  }     // END OF LIST
 };
 
 const memberlabel_t PalDataLabels[]=
@@ -1263,21 +1243,21 @@ const memberlabel_t PalDataLabels[]=
 
 const tokenmap_t iter_tokens [] =
 {
-    { "allsprites", ITER_ALLSPRITES },
-    { "allsectors", ITER_ALLSECTORS },
-    { "allwalls", ITER_ALLWALLS },
-    { "activelights", ITER_ACTIVELIGHTS },
-    { "drawnsprites", ITER_DRAWNSPRITES },
+    { "allsprites",      ITER_ALLSPRITES },
+    { "allsectors",      ITER_ALLSECTORS },
+    { "allwalls",        ITER_ALLWALLS },
+    { "activelights",    ITER_ACTIVELIGHTS },
+    { "drawnsprites",    ITER_DRAWNSPRITES },
     { "spritesofsector", ITER_SPRITESOFSECTOR },
     { "spritesofstatus", ITER_SPRITESOFSTATUS },
-    { "loopofwall", ITER_LOOPOFWALL },
-    { "wallsofsector", ITER_WALLSOFSECTOR },
-    { "range", ITER_RANGE },
+    { "loopofwall",      ITER_LOOPOFWALL },
+    { "wallsofsector",   ITER_WALLSOFSECTOR },
+    { "range",           ITER_RANGE },
     // vvv alternatives go here vvv
-    { "lights", ITER_ACTIVELIGHTS },
-    { "sprofsec", ITER_SPRITESOFSECTOR },
-    { "sprofstat", ITER_SPRITESOFSTATUS },
-    { "walofsec", ITER_WALLSOFSECTOR },
+    { "lights",          ITER_ACTIVELIGHTS },
+    { "sprofsec",        ITER_SPRITESOFSECTOR },
+    { "sprofstat",       ITER_SPRITESOFSTATUS },
+    { "walofsec",        ITER_WALLSOFSECTOR },
     { "", -1 }     // END OF LIST
 };
 
@@ -1333,8 +1313,7 @@ void C_InitHashes()
     inithashnames();
     initsoundhashnames();
 
-    for (i=0; i<NUMKEYWORDS; i++) if (keyw[i]) hash_add(&h_keywords, keyw[i], i, 0);
-    for (i=0; i<NUMALTKEYWORDS; i++) hash_add(&h_keywords, altkeyw[i].token, altkeyw[i].val, 0);
+    for (i=0; i<NUMKEYWORDS; i++) hash_add(&h_keywords, vm_keywords[i].token, vm_keywords[i].val, 0);
 
     STRUCT_HASH_SETUP(h_sector, SectorLabels);
     STRUCT_HASH_SETUP(h_wall, WallLabels);
@@ -1620,7 +1599,7 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
         g_scriptPtr++;
 
         if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
-            initprintf("%s:%d: debug: keyword `%s'.\n",g_scriptFileName,g_lineNumber,keyw[i]);
+            initprintf("%s:%d: debug: keyword `%s'.\n",g_scriptFileName,g_lineNumber,vm_keywords[i].token);
         return i;
     }
 
@@ -2196,7 +2175,7 @@ static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
         C_ReportError(-1);
         g_warningCnt++;
         initprintf("%s:%d: warning: malformed `%s' branch\n",g_scriptFileName,g_lineNumber,
-                   keyw[*(g_scriptPtr) & VM_INSTMASK]);
+                   vm_keywords[*(g_scriptPtr) & VM_INSTMASK].token);
         return 1;
     }
     return 0;
@@ -2205,7 +2184,7 @@ static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
 static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
 {
     // ifrnd and the others actually do something when the condition is executed
-    if ((Bstrncmp(keyw[tw], "if", 2) && tw != CON_ELSE) ||
+    if ((Bstrncmp(vm_keywords[tw].token, "if", 2) && tw != CON_ELSE) ||
             tw == CON_IFRND || tw == CON_IFHITWEAPON || tw == CON_IFCANSEE || tw == CON_IFCANSEETARGET ||
             tw == CON_IFPDISTL || tw == CON_IFPDISTG || tw == CON_IFGOTWEAPONCE)
     {
@@ -2222,7 +2201,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
         g_warningCnt++;
         g_scriptPtr = lastScriptPtr + &apScript[0];
         initprintf("%s:%d: warning: empty `%s' branch\n",g_scriptFileName,g_lineNumber,
-                   keyw[*(g_scriptPtr) & VM_INSTMASK]);
+                   vm_keywords[*(g_scriptPtr) & VM_INSTMASK].token);
         *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
         return 1;
     }

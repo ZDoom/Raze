@@ -196,14 +196,14 @@ void C_Compile(const char *filenam);
 
 extern int32_t g_errorLineNum;
 extern int32_t g_tw;
-extern const char *keyw[];
 
 typedef struct {
     const char* token;
     int32_t val;
 } tokenmap_t;
 
-extern const tokenmap_t iter_tokens [];
+extern const tokenmap_t vm_keywords[];
+extern const tokenmap_t iter_tokens[];
 
 // KEEPINSYNC lunatic/con_lang.lua
 enum SystemString_t {
