@@ -1160,7 +1160,8 @@ void getvalidmodes(void)
     for (i = 0; i < SDL_GetNumDisplayModes(0); i++)
     {
         SDL_GetDisplayMode(0, i, &dispmode);
-        if ((dispmode.w > MAXXDIM) || (dispmode.h > MAXYDIM) ||
+
+        if (!SDL_CHECKMODE(dispmode.w, dispmode.h) ||
             (maxrefreshfreq && (dispmode.refresh_rate > maxrefreshfreq)))
             continue;
 

@@ -267,7 +267,7 @@ void getvalidmodes(void)
         {
             for (i = 0; modes[i]; i++)
             {
-                if ((modes[i]->w > MAXXDIM) || (modes[i]->h > MAXYDIM))
+                if (!SDL_CHECKMODE(modes[i]->w, modes[i]->h > MAXYDIM))
                     continue;
 
                 SDL_ADDMODE(modes[i]->w, modes[i]->h, cdepths[j], 1);

@@ -40,13 +40,15 @@ enum rendmode_t {
 #define MAXWALLSV7 8192
 #define MAXSPRITESV7 4096
 
-#ifndef GEKKO
+#if !defined GEKKO && !defined __OPENDINGUX__
 # define MAXSECTORS MAXSECTORSV8
 # define MAXWALLS MAXWALLSV8
 # define MAXSPRITES MAXSPRITESV8
 
 # define MAXXDIM 7680
 # define MAXYDIM 3200
+# define MINXDIM 640
+# define MINYDIM 480
 
 // additional space beyond wall, in walltypes:
 # define M32_FIXME_WALLS 512
@@ -56,9 +58,16 @@ enum rendmode_t {
 # define MAXWALLS MAXWALLSV7
 # define MAXSPRITES MAXSPRITESV7
 
-# define MAXXDIM 860
-# define MAXYDIM 490
+#ifdef GEKKO
+#  define MAXXDIM 860
+#  define MAXYDIM 490
+# else
+#  define MAXXDIM 320
+#  define MAXYDIM 200
+# endif
 
+# define MINXDIM MAXXDIM
+# define MINYDIM MAXYDIM
 # define M32_FIXME_WALLS 0
 # define M32_FIXME_SECTORS 0
 #endif
