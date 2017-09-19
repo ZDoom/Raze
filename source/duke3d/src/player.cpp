@@ -4549,13 +4549,14 @@ void P_ProcessInput(int playerNum)
     if (g_player[playerNum].playerquitflag == 0)
         return;
 
-    DukePlayer_t *const pPlayer    = g_player[playerNum].ps;
-    spritetype *const   pSprite    = &sprite[pPlayer->i];
-    uint32_t            playerBits = g_player[playerNum].inputBits->bits;
+    DukePlayer_t *const pPlayer = g_player[playerNum].ps;
+    spritetype *const   pSprite = &sprite[pPlayer->i];
 
     ++pPlayer->player_par;
 
     VM_OnEvent(EVENT_PROCESSINPUT, pPlayer->i, playerNum);
+
+    uint32_t playerBits = g_player[playerNum].inputBits->bits;
 
     if (pPlayer->cheat_phase > 0)
         playerBits = 0;
