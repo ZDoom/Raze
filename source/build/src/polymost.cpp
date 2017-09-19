@@ -1075,10 +1075,8 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                     else
                         wpptr->a = 255;
 
-                    {
-                        char *p = (char *)(palookup[dapal])+(int32_t)(dashade<<8);
-                        dacol = (uint8_t)p[dacol];
-                    }
+                    char *p = (char *)(palookup[dapal])+(int32_t)(dashade<<8);
+                    dacol = (uint8_t)p[dacol];
 
                     if (!fullbrightloadingpass)
                     {
