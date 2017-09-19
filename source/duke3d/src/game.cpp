@@ -120,7 +120,7 @@ int32_t hud_showmapname = 1;
 int32_t g_levelTextTime = 0;
 
 int32_t r_maxfps = 60;
-uint32_t g_frameDelay = 17;
+uint64_t g_frameDelay = 17;
 
 #if defined(RENDERTYPEWIN) && defined(USE_OPENGL)
 extern char forcegl;
@@ -6077,7 +6077,8 @@ void G_MaybeAllocPlayer(int32_t pnum)
 
 int G_FPSLimit(void)
 {
-    static uint32_t nextRender = 0, frameWaiting = 0;
+    static uint64_t nextPageTicks = 0;
+    static int frameWaiting = 0;
 
     if (frameWaiting)
     {
@@ -6085,14 +6086,14 @@ int G_FPSLimit(void)
         nextpage();
     }
 
-    uint32_t frameTime = getticks();
+    uint64_t const frameTicks = getu64ticks();
 
-    if (r_maxfps == 0 || frameTime >= nextRender)
+    if (r_maxfps == 0 || frameTicks >= nextPageTicks)
     {
-        if (frameTime > nextRender + g_frameDelay)
-            nextRender = frameTime;
+        if (frameTicks >= nextPageTicks + g_frameDelay)
+            nextPageTicks = frameTicks;
 
-        nextRender += g_frameDelay;
+        nextPageTicks += g_frameDelay;
         frameWaiting++;
 
         return 1;

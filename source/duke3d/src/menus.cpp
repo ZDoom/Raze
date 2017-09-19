@@ -2945,7 +2945,7 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     }
     else if (entry == &ME_VIDEOSETUP_FRAMELIMIT)
     {
-        g_frameDelay = newOption ? Blrintf(1000.f/(float) newOption) : 0;
+        g_frameDelay = newOption ? (getu64tickspersec()/newOption) : 0;
     }
 
     switch (g_currentMenu)

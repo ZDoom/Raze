@@ -290,7 +290,7 @@ extern int32_t MAXCACHE1DSIZE;
 extern palette_t CrosshairColors;
 extern palette_t DefaultCrosshairColors;
 
-extern uint32_t g_frameDelay;
+extern uint64_t g_frameDelay;
 
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,
