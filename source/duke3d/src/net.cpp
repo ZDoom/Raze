@@ -39,7 +39,9 @@ enet_uint16 g_netPort = 23513;
 int32_t g_netDisconnect = 0;
 char g_netPassword[32];
 int32_t g_netPlayersWaiting = 0;
+#ifndef NETCODE_DISABLE
 int32_t g_networkMode = NET_CLIENT;
+#endif
 int32_t g_netIndex = 2;
 newgame_t pendingnewgame;
 
@@ -823,10 +825,12 @@ void Net_ReceiveNewPlayer(uint8_t *pbuf, int32_t packbufleng)
         }
     }
 
+#ifndef NETCODE_DISABLE
     if (pbuf[5] == NET_DEDICATED_SERVER)
     {
         g_networkMode = NET_DEDICATED_CLIENT;
     }
+#endif
 
     for (i=0; i<g_mostConcurrentPlayers-1; i++)
     {

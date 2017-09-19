@@ -41,7 +41,11 @@ extern char           g_netPassword[32];
 extern int32_t        g_netDisconnect;
 extern int32_t        g_netPlayersWaiting;
 extern enet_uint16    g_netPort;
+#ifndef NETCODE_DISABLE
 extern int32_t        g_networkMode;
+#else
+#define g_networkMode 0
+#endif
 extern int32_t        g_netIndex;
 extern int32_t        lastsectupdate[MAXSECTORS];
 extern int32_t        lastupdate[MAXSPRITES];

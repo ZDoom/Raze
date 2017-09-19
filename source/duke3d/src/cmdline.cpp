@@ -365,6 +365,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     i++;
                     continue;
                 }
+#ifndef NETCODE_DISABLE
                 if (!Bstrcasecmp(c+1, "server"))
                 {
                     g_networkMode = NET_SERVER;
@@ -400,6 +401,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     i++;
                     continue;
                 }
+#endif
                 if (!Bstrcasecmp(c+1, "name"))
                 {
                     if (argc > i+1)
