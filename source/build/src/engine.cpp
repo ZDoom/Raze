@@ -7806,7 +7806,7 @@ void uninitengine(void)
         if (i==0 || palookup[i] != palookup[0])
         {
             // Take care of handling aliased ^^^ cases!
-            Bfree(palookup[i]);
+            Baligned_free(palookup[i]);
         }
     Bmemset(palookup, 0, sizeof(palookup));
 

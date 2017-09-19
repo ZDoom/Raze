@@ -87,14 +87,11 @@ void setup_blend(int32_t blend, int32_t doreverse)
 
 static void alloc_palookup(int32_t pal)
 {
-#if defined ENGINE_USING_A_C || (defined CLASSIC_NONPOW2_YSIZE_WALLS && defined CLASSIC_NONPOW2_YSIZE_SPRITES)
-    palookup[pal] = (char *) Xmalloc(numshades*256);
-#else
     // The asm functions vlineasm1, mvlineasm1 (maybe others?) access the next
     // palookup[...] shade entry for tilesizy==512 tiles.
     // See DEBUG_TILESIZY_512 and the comment in a.nasm: vlineasm1.
-    palookup[pal] = (char *) Xcalloc(numshades+1, 256);
-#endif
+    palookup[pal] = (char *) Xaligned_alloc(16, (numshades + 1) * 256);
+    memset(palookup[pal], 0, (numshades + 1) * 256);
 }
 
 static void maybe_alloc_palookup(int32_t palnum);
@@ -518,12 +515,12 @@ void removepalookup(int32_t const palnum)
             if (palookup[i] == palookup[palnum])
                 palookup[i] = NULL;
 
-        DO_FREE_AND_NULL(palookup[palnum]);
+        ALIGNED_FREE_AND_NULL(palookup[palnum]);
     }
     else if (palookup[palnum] == palookup[0])
         palookup[palnum] = NULL;
     else
-        DO_FREE_AND_NULL(palookup[palnum]);
+        ALIGNED_FREE_AND_NULL(palookup[palnum]);
 }
 
 //
