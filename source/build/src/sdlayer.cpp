@@ -437,6 +437,8 @@ int main(int argc, char *argv[])
 
     if ((argp = Bgetenv("BUILD_NOFOG")) != NULL)
         nofog = Batol(argp);
+
+    putenv("__GL_THREADED_OPTIMIZATIONS=1");
 #endif
 
     buildkeytranslationtable();
