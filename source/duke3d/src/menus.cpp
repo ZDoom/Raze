@@ -2375,7 +2375,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                                                                "3D Realms Entertainment"
                                                                "\n"
                                                                "Duke Nukem 3D\n"
-                                                               "(C) 1996, 2014 3D Realms Entertainment");
+                                                               "(C) 1996 3D Realms Entertainment");
 
 #if !defined(EDUKE32_ANDROID_MENU) && !defined(EDUKE32_STANDALONE)
                 if (VOLUMEONE)
@@ -2393,20 +2393,13 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_CREDITS4:   // JBF 20031220
         l = 7;
 
-        mgametextcenter(origin.x, origin.y + ((50-l)<<16), "Production, design, and programming");
+        mgametextcenter(origin.x, origin.y + ((50-l)<<16), "Developers");
         creditsminitext(origin.x + (160<<16), origin.y + ((50+10-l)<<16), "Richard \"TerminX\" Gobeille", 8);
+        creditsminitext(origin.x + (160<<16), origin.y + ((50+7+10-l)<<16), "Evan \"Hendricks266\" Ramos", 8);
 
-#if !defined(POLYMER) || defined(EDUKE32_SIMPLE_MENU)
-        mgametextcenter(origin.x, origin.y + ((70-l)<<16), "Rendering and support programming");
-#else
-        mgametextcenter(origin.x, origin.y + ((70-l)<<16), "Polymer Rendering System by");
-#endif
-        creditsminitext(origin.x + (160<<16), origin.y + ((70+10-l)<<16), "Pierre-Loup \"Plagman\" Griffais", 8);
-
-        mgametextcenter(origin.x, origin.y + ((90-l)<<16), "Engine and game programming");
-        creditsminitext(origin.x + (160<<16), origin.y + ((90+10-l)<<16), "Philipp \"Helixhorned\" Kutin", 8);
-        creditsminitext(origin.x + (160<<16), origin.y + ((90+7+10-l)<<16), "Evan \"Hendricks266\" Ramos", 8);
-
+        mgametextcenter(origin.x, origin.y + ((80-l)<<16), "Retired developers");
+        creditsminitext(origin.x + (160<<16), origin.y + ((80+10-l)<<16), "Pierre-Loup \"Plagman\" Griffais", 8);
+        creditsminitext(origin.x + (160<<16), origin.y + ((80+7+10-l)<<16), "Philipp \"Helixhorned\" Kutin", 8);
 
         mgametextcenter(origin.x, origin.y + ((130+7-l)<<16), "Special thanks to");
         creditsminitext(origin.x + (160<<16), origin.y + ((130+7+10-l)<<16), "Jonathon \"JonoF\" Fowler", 8);
@@ -2445,7 +2438,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                 "Jasper Foreman",    // netcode contributions
                 "Javier Martinez",   // "Malone3D" - EDuke 2.1.1 components
                 "Jeff Hart",         // website graphics
-                "Jonathan Smith",    // "Mblackwell" - testing
+                "Jonathan Strander", // "Mblackwell" - testing and feature speccing
                 "Jose del Castillo", // "Renegado" - EDuke 2.1.1 components
                 "Lachlan McDonald",  // official EDuke32 icon
                 "LSDNinja",          // OS X help and testing
