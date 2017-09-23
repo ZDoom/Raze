@@ -226,16 +226,23 @@
 # define CONSTEXPR_CXX14
 #endif
 
-#if __has_cpp_attribute(fallthrough)
-# define fallthrough__ [[fallthrough]]
-#elif __has_cpp_attribute(clang::fallthrough)
-# define fallthrough__ [[clang::fallthrough]]
-#elif __has_cpp_attribute(gnu::fallthrough)
-# define fallthrough__ [[gnu::fallthrough]]
-#elif defined _MSC_VER
-# define fallthrough__ __fallthrough
-#else
-# define fallthrough__
+#ifdef __cplusplus
+# if __has_cpp_attribute(fallthrough)
+#  define fallthrough__ [[fallthrough]]
+# elif __has_cpp_attribute(clang::fallthrough)
+#  define fallthrough__ [[clang::fallthrough]]
+# elif __has_cpp_attribute(gnu::fallthrough)
+#  define fallthrough__ [[gnu::fallthrough]]
+# endif
+#endif
+#ifndef fallthrough__
+# if !defined __clang__ && EDUKE32_GCC_PREREQ(7,0)
+#  define fallthrough__ __attribute__((fallthrough))
+# elif defined _MSC_VER
+#  define fallthrough__ __fallthrough
+# else
+#  define fallthrough__
+# endif
 #endif
 
 
