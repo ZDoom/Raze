@@ -314,7 +314,66 @@ void G_DoCheats(void)
 
         FOUNDCHEAT:;
 
+            if (cheatNum == CHEAT_SCOTTY)
+            {
+                size_t const i = Bstrlen(CheatStrings[cheatNum])-3+VOLUMEONE;
+                if (!consoleCheat)
+                {
+                    // JBF 20030914
+                    int32_t volnume, levnume;
+                    if (VOLUMEALL)
+                    {
+                        volnume = cheatbuf[i] - '0';
+                        levnume = (cheatbuf[i+1] - '0')*10+(cheatbuf[i+2]-'0');
+                    }
+                    else
+                    {
+                        volnume = cheatbuf[i] - '0';
+                        levnume = cheatbuf[i+1] - '0';
+                    }
+
+                    volnume--;
+                    levnume--;
+
+                    ud.m_volume_number = volnume;
+                    ud.m_level_number = levnume;
+                }
+                else
+                {
+                    // JBF 20030914
+                    ud.m_volume_number = osdcmd_cheatsinfo_stat.volume;
+                    ud.m_level_number = osdcmd_cheatsinfo_stat.level;
+                }
+            }
+            else if (cheatNum == CHEAT_SKILL)
+            {
+                if (!consoleCheat)
+                {
+                    size_t const i = Bstrlen(CheatStrings[cheatNum])-1;
+                    ud.m_player_skill = cheatbuf[i] - '1';
+                }
+                else
+                {
+                    ud.m_player_skill = osdcmd_cheatsinfo_stat.volume;
+                }
+            }
+
+            int const originalCheatNum = cheatNum;
             cheatNum = VM_OnEventWithReturn(EVENT_ACTIVATECHEAT, pPlayer->i, myconnectindex, cheatNum);
+
+            // potential cleanup
+            if (originalCheatNum != cheatNum)
+            {
+                if (originalCheatNum == CHEAT_SCOTTY)
+                {
+                    ud.m_volume_number = ud.volume_number;
+                    ud.m_level_number = ud.level_number;
+                }
+                else if (originalCheatNum == CHEAT_SKILL)
+                {
+                    ud.m_player_skill = ud.player_skill;
+                }
+            }
 
             {
                 switch (cheatNum)
@@ -463,60 +522,36 @@ void G_DoCheats(void)
                 }
 
                 case CHEAT_SCOTTY:
+                {
+                    int32_t const volnume = ud.m_volume_number, levnume = ud.m_level_number;
+
+                    if ((!VOLUMEONE || volnume == 0) && (unsigned)volnume < (unsigned)g_volumeCnt &&
+                        (unsigned)levnume < MAXLEVELS && g_mapInfo[volnume*MAXLEVELS + levnume].filename != NULL)
+                    {
+                        ud.volume_number = volnume;
+                        ud.level_number = levnume;
+
+#if 0
+                        if (numplayers > 1 && g_netServer)
+                            Net_NewGame(volnume, levnume);
+                        else
+#endif
+                            pPlayer->gm |= MODE_RESTART;
+                    }
+
+                    end_cheat(pPlayer);
+                    return;
+                }
+
                 case CHEAT_SKILL:
-                    if (cheatNum == CHEAT_SCOTTY)
-                    {
-                        size_t const i = Bstrlen(CheatStrings[cheatNum])-3+VOLUMEONE;
-                        if (!consoleCheat)
-                        {
-                            // JBF 20030914
-                            int16_t volnume, levnume;
-                            if (VOLUMEALL)
-                            {
-                                volnume = cheatbuf[i] - '0';
-                                levnume = (cheatbuf[i+1] - '0')*10+(cheatbuf[i+2]-'0');
-                            }
-                            else
-                            {
-                                volnume =  cheatbuf[i] - '0';
-                                levnume =  cheatbuf[i+1] - '0';
-                            }
+                    ud.player_skill = ud.m_player_skill;
 
-                            volnume--;
-                            levnume--;
-
-                            if ((VOLUMEONE && volnume > 0) || volnume > g_volumeCnt-1 ||
-                                levnume >= MAXLEVELS || g_mapInfo[volnume *MAXLEVELS+levnume].filename == NULL)
-                            {
-                                end_cheat(pPlayer);
-                                return;
-                            }
-
-                            ud.m_volume_number = ud.volume_number = volnume;
-                            ud.m_level_number = ud.level_number = levnume;
-                        }
-                        else
-                        {
-                            // JBF 20030914
-                            ud.m_volume_number = ud.volume_number = osdcmd_cheatsinfo_stat.volume;
-                            ud.m_level_number = ud.level_number = osdcmd_cheatsinfo_stat.level;
-                        }
-                    }
+#if 0
+                    if (numplayers > 1 && g_netServer)
+                        Net_NewGame(ud.m_volume_number, ud.m_level_number);
                     else
-                    {
-                        if (!consoleCheat)
-                        {
-                            size_t const i = Bstrlen(CheatStrings[cheatNum])-1;
-                            ud.m_player_skill = ud.player_skill = cheatbuf[i] - '1';
-                        }
-                        else
-                        {
-                            ud.m_player_skill = ud.player_skill = osdcmd_cheatsinfo_stat.volume;
-                        }
-                    }
-                    /*if (numplayers > 1 && g_netServer)
-                    Net_NewGame(ud.m_volume_number,ud.m_level_number);
-                    else*/ pPlayer->gm |= MODE_RESTART;
+#endif
+                        pPlayer->gm |= MODE_RESTART;
 
                     end_cheat(pPlayer);
                     return;
