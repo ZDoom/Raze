@@ -580,7 +580,7 @@ void G_DrawStatusBar(int32_t snum)
 
     if (getrendermode() >= REND_POLYMOST) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
 
-    if ((g_netServer || ud.multimode > 1) && ((g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR) || g_fakeMultiMode))
+    if ((g_netServer || ud.multimode > 1) && ((g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)))
     {
         if (pus)
             G_DrawFrags();
