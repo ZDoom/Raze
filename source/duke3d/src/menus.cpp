@@ -6100,7 +6100,8 @@ static void Menu_RunInput(Menu_t *cm)
                     I_EscapeTriggerClear();
                     m_mousecaught = 1;
 
-                    S_PlaySound(EXITMENUSOUND);
+                    if (cm->parentID != MENU_CLOSE || (g_player[myconnectindex].ps->gm & MODE_GAME))
+                        S_PlaySound(EXITMENUSOUND);
 
                     Menu_AnimateChange(cm->parentID, cm->parentAnimation);
                 }
