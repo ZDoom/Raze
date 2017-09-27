@@ -3608,7 +3608,7 @@ void P_FragPlayer(int playerNum)
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
     spritetype *const   pSprite = &sprite[pPlayer->i];
 
-    if (g_netServer || g_netClient)
+    if (g_netClient) // [75] The server should not overwrite its own randomseed
         randomseed = ticrandomseed;
 
     if (pSprite->pal != 1)

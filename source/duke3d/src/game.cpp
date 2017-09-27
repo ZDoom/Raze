@@ -6854,7 +6854,7 @@ int G_DoMoveThings(void)
     // Moved lower so it is restored correctly by diffs:
 //    everyothertime++;
 
-    if (g_netServer || g_netClient)
+    if (g_netClient) // [75] The server should not overwrite its own randomseed
         randomseed = ticrandomseed;
 
     for (bssize_t TRAVERSE_CONNECT(i))

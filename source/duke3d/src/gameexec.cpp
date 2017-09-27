@@ -5644,7 +5644,7 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
     }
 */
 
-    if (g_netServer || g_netClient)
+    if (g_netClient) // [75] The server should not overwrite its own randomseed
         randomseed = ticrandomseed;
 
     if (EDUKE32_PREDICT_FALSE((unsigned)vm.pSprite->sectnum >= MAXSECTORS))
