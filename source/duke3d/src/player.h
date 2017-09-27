@@ -382,7 +382,9 @@ static inline int P_GetP(const void *pSprite)
     return 0;
 #else
     int playerNum = ((const uspritetype *)pSprite)->yvel;
-    if ((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers)
+    // [JM] Check against MAXPLAYERS as opposed to g_mostConcurrentPlayers
+    //      to prevent CON for disconnected/fake players from executing as playernum 0.
+    if ((unsigned)playerNum >= MAXPLAYERS)
         playerNum = 0;
     return playerNum;
 #endif
