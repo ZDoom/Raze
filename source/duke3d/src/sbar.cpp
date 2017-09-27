@@ -1030,11 +1030,14 @@ void G_DrawBackground(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat == 2)
     {
+#if 0
+        // [JM] Commented out since it breaks fragbar in widescreen and serves no other useful purpose anymore.
         if (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
         {
             if ((g_netServer || ud.multimode > 1)) y1 += scale(ydim, 8, 200);
             if (ud.multimode > 4) y1 += scale(ydim, 8, 200);
         }
+#endif
     }
     else
     {
@@ -1074,13 +1077,16 @@ void G_DrawBackground(void)
 
     y2 = scale(ydim, 200-sbarsc(tilesiz[BOTTOMSTATUSBAR].y), 200);
 
-    if (ud.screen_size > 8)
+    if ((ud.screen_size > 8) || ((g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR) && ud.screen_size >= 4))
     {
         // across top
         for (y=0; y<windowxy1.y; y+=tilesiz[dapicnum].y)
             for (x=0; x<xdim; x+=tilesiz[dapicnum].x)
                 rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, y1, xdim-1, windowxy1.y-1);
+    }
 
+    if (ud.screen_size > 8)
+    {
         // sides
         const int32_t rx = windowxy2.x-windowxy2.x%tilesiz[dapicnum].x;
         for (y=windowxy1.y-windowxy1.y%tilesiz[dapicnum].y; y<windowxy2.y; y+=tilesiz[dapicnum].y)
