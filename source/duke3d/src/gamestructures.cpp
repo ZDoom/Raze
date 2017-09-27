@@ -564,6 +564,7 @@ int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32
         case PLAYER_AUTOSTEP_SBW: labelNum = ps->autostep_sbw; break;
         case PLAYER_HUDPAL: labelNum = P_GetHudPal(ps); break;
         case PLAYER_INDEX: labelNum = playerNum; break;
+        case PLAYER_CONNECTED: labelNum = g_player[playerNum].playerquitflag; break;
         default: labelNum = -1; break;
     }
 

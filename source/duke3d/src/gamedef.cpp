@@ -1040,6 +1040,7 @@ const memberlabel_t PlayerLabels[]=
     { "autostep_sbw",          PLAYER_AUTOSTEP_SBW,          0, 0 },
     { "hudpal",                PLAYER_HUDPAL,                0, 0 },
     { "index",                 PLAYER_INDEX,                 0, 0 },
+    { "connected",             PLAYER_CONNECTED,             0, 0 },
     { "", -1,                                                0, 0  }     // END OF LIST
 };
 

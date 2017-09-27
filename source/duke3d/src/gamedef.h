@@ -404,6 +404,7 @@ enum PlayerLabel_t
     PLAYER_AUTOSTEP_SBW,
     PLAYER_HUDPAL,
     PLAYER_INDEX,
+    PLAYER_CONNECTED,
     PLAYER_END
 };
 
