@@ -88,7 +88,7 @@ GAMEEXEC_STATIC void VM_Execute(int loop);
 #if !defined LUNATIC
 void VM_ScriptInfo(intptr_t const *ptr, int range)
 {
-    if (!apScript)
+    if (!apScript || (!vm.pSprite && !vm.pPlayer && g_currentEventExec == -1))
         return;
 
     if (ptr)
@@ -102,7 +102,11 @@ void VM_ScriptInfo(intptr_t const *ptr, int range)
             initprintf("%5d: %3d: ", (int32_t) (pScript - apScript), (int32_t) (pScript - ptr));
 
             if (*pScript >> 12 && (*pScript & VM_INSTMASK) < CON_END)
-                initprintf("%5d %s\n", (int32_t) (*pScript >> 12), vm_keywords[*pScript & VM_INSTMASK].token);
+            {
+                for (size_t i=0; i < NUMKEYWORDS; ++i)
+                    if (vm_keywords[i].val == (*pScript & VM_INSTMASK))
+                        initprintf("%5d %s\n", (int32_t) (*pScript >> 12), vm_keywords[i].token);
+            }
             else
                 initprintf("%d\n", (int32_t) *pScript);
         }
