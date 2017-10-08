@@ -355,11 +355,11 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                 if (sector[wal->nextsector].floorz == z2)
                     if (((wal->cstat|wall[wal->nextwall].cstat)&(16+32)) == 0) continue;
 
-            col = 139; //red
-            if ((wal->cstat|wall[wal->nextwall].cstat)&1) col = 234; //magenta
+            col = editorcolors[1]; //red
+            if ((wal->cstat|wall[wal->nextwall].cstat)&1) col = editorcolors[5]; //magenta
 
             if (!(show2dsector[wal->nextsector>>3]&(1<<(wal->nextsector&7))))
-                col = 24;
+                col = editorcolors[7];
             else continue;
 
             ox = wal->x-cposx;
@@ -390,8 +390,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
             if (j == k || (spr->cstat&0x8000) || spr->cstat == 257 || spr->xrepeat == 0) continue;
 
-            col = 71; //cyan
-            if (spr->cstat&1) col = 234; //magenta
+            col = editorcolors[6]; //cyan
+            if (spr->cstat&1) col = editorcolors[5]; //magenta
 
             sprx = spr->x;
             spry = spr->y;
@@ -562,7 +562,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             x2 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
             y2 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
 
-            drawline256(x1, y1, x2, y2, 24);
+            drawline256(x1, y1, x2, y2, editorcolors[7]);
         }
     }
 

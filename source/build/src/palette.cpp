@@ -294,6 +294,12 @@ void E_PostLoadPalette(void)
 
     redcol = getclosestcol(255, 0, 0);
 
+    for (size_t i = 0; i<16; i++)
+    {
+        palette_t *edcol = (palette_t *) &vgapal16[4*i];
+        editorcolors[i] = getclosestcol_lim(edcol->b, edcol->g, edcol->r, 239);
+    }
+
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
     for (bssize_t c = 0; c < 255; ++c) // skipping transparent color
     {
