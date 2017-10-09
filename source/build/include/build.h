@@ -14,6 +14,10 @@
 # error C++11 or greater is required.
 #endif
 
+#if defined _MSC_VER && _MSC_VER < 1800
+# error Visual Studio 2013 is the minimum supported version.
+#endif
+
 #include "compat.h"
 #include "pragmas.h"
 #include "glbuild.h"
