@@ -1214,10 +1214,6 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sec
 
     horiz = clamp(horiz, HORIZ_MIN, HORIZ_MAX);
 
-#ifdef USE_OPENGL
-    int const oprojhacks = glprojectionhacks;
-    glprojectionhacks = 0;
-#endif
     int const onewaspect = newaspect_enable;
     newaspect_enable = r_usenewaspect;
     setaspect_new_use_dimen = 1;
@@ -1242,9 +1238,6 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sec
     drawmasks();
     G_RestoreInterpolations();
     G_UpdateScreenArea();
-#ifdef USE_OPENGL
-    glprojectionhacks = oprojhacks;
-#endif
 }
 
 #if !defined LUNATIC
