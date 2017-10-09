@@ -234,7 +234,7 @@
 # define CONSTEXPR_CXX14
 #endif
 
-#ifdef __cplusplus
+#if CXXSTD >= 2011
 # if __has_cpp_attribute(fallthrough)
 #  define fallthrough__ [[fallthrough]]
 # elif __has_cpp_attribute(clang::fallthrough)
