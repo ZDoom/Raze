@@ -52,9 +52,9 @@ static int8_t external_midi_restart=0;
 #endif
 
 #ifdef __ANDROID__ //TODO fix
-static char const *external_midi_tempfn = "eduke32-music.mid";
+static char const *external_midi_tempfn = APPBASENAME "-music.mid";
 #else
-static char const *external_midi_tempfn = "/tmp/eduke32-music.mid";
+static char const *external_midi_tempfn = "/tmp/" APPBASENAME "-music.mid";
 #endif
 
 static int32_t external_midi = 0;

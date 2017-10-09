@@ -72,8 +72,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # endif
 #endif /* _WIN32 */
 
-const char* AppProperName = "EDuke32";
-const char* AppTechnicalName = "eduke32";
+const char* AppProperName = APPNAME;
+const char* AppTechnicalName = APPBASENAME;
 
 int32_t g_quitDeadline = 0;
 
@@ -6117,7 +6117,7 @@ int app_main(int argc, char const * const * argv)
 #ifdef _WIN32
     if (!G_CheckCmdSwitch(argc, argv, "-noinstancechecking") && win_checkinstance())
     {
-        if (!wm_ynbox("EDuke32","Another Build game is currently running. "
+        if (!wm_ynbox(APPNAME, "Another Build game is currently running. "
                       "Do you wish to continue starting this copy?"))
             return 3;
     }
@@ -6138,9 +6138,9 @@ int app_main(int argc, char const * const * argv)
         char cwd[BMAX_PATH];
         char *homedir = Bgethomedir();
         if (homedir)
-            Bsnprintf(cwd, sizeof(cwd), "%s/Library/Logs/eduke32.log", homedir);
+            Bsnprintf(cwd, sizeof(cwd), "%s/Library/Logs/" APPBASENAME ".log", homedir);
         else
-            Bstrcpy(cwd, "eduke32.log");
+            Bstrcpy(cwd, APPBASENAME ".log");
         OSD_SetLogFile(cwd);
         Bfree(homedir);
     }
