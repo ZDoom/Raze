@@ -69,6 +69,11 @@ static FORCE_INLINE void WithSDL2_StopTextInput()
 #endif
 }
 
+static FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)
+{
+    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, ydim_upper, xdim-1, ydim_lower);
+}
+
 #ifndef EDUKE32_STANDALONE
 static void mgametext(int32_t x, int32_t y, char const * t)
 {
@@ -124,6 +129,29 @@ static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
     if (s[p] == ':') s[p] = 0;
     menutext_(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (24<<16) + (15<<15), 0, s, 10|16, TEXT_XCENTER|TEXT_YCENTER);
     Bfree(s);
+}
+
+static FORCE_INLINE int32_t Menu_CursorShade(void)
+{
+    return 4-(sintable[(totalclock<<4)&2047]>>11);
+}
+static void Menu_DrawCursorCommon(int32_t x, int32_t y, int32_t z, int32_t picnum, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
+{
+    rotatesprite_(x, y, z, 0, picnum, Menu_CursorShade(), 0, 2|8, 0, 0, 0, ydim_upper, xdim-1, ydim_lower);
+}
+static void Menu_DrawCursorLeft(int32_t x, int32_t y, int32_t z)
+{
+    Menu_DrawCursorCommon(x, y, z, SPINNINGNUKEICON+((totalclock>>3)%7));
+}
+static void Menu_DrawCursorRight(int32_t x, int32_t y, int32_t z)
+{
+    Menu_DrawCursorCommon(x, y, z, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7));
+}
+static void Menu_DrawCursorText(int32_t x, int32_t y, int32_t h, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
+{
+    vec2s_t const & siz = tilesiz[SPINNINGNUKEICON];
+    vec2_t const adjsiz = { siz.x<<15, siz.y<<16 };
+    Menu_DrawCursorCommon(x + scale(adjsiz.x, h, adjsiz.y), y, divscale16(h, adjsiz.y), SPINNINGNUKEICON+((totalclock>>3)%7), ydim_upper, ydim_lower);
 }
 
 extern int32_t g_quitDeadline;
@@ -3919,11 +3947,6 @@ static void Menu_GetFmt(const MenuFont_t *font, uint8_t const status, int32_t *s
     *p = (status & MT_Disabled) ? font->pal_disabled : font->pal;
 }
 
-static FORCE_INLINE void rotatesprite_ybounds(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat, int32_t ydim_upper, int32_t ydim_lower)
-{
-    rotatesprite_(sx, sy, z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, ydim_upper, xdim-1, ydim_lower);
-}
-
 static vec2_t Menu_Text(int32_t x, int32_t y, const MenuFont_t *font, const char *t, uint8_t status, int32_t ydim_upper, int32_t ydim_lower)
 {
     int32_t s, p, ybetween = font->between.y;
@@ -4077,8 +4100,6 @@ static void Menu_RunInput_FileSelect_Select(MenuFileSelect_t *object);
 
 static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *currentry, int32_t state, const vec2_t origin)
 {
-    const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
-
     int32_t totalHeight = 0;
 
     // RIP MenuGroup_t b. 2014-03-?? d. 2014-11-29
@@ -4171,11 +4192,11 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             {
                 if (status & MT_XCenter)
                 {
-                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + entry->font->cursorCenterPosition, y_internal, entry->font->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
-                    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - entry->font->cursorCenterPosition, y_internal, entry->font->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
+                    Menu_DrawCursorLeft(origin.x + (MENU_MARGIN_CENTER<<16) + entry->font->cursorCenterPosition, y_internal, entry->font->cursorScale);
+                    Menu_DrawCursorRight(origin.x + (MENU_MARGIN_CENTER<<16) - entry->font->cursorCenterPosition, y_internal, entry->font->cursorScale);
                 }
                 else
-                    rotatesprite_fs(origin.x + x - entry->font->cursorLeftPosition, y_internal, entry->font->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
+                    Menu_DrawCursorLeft(origin.x + x - entry->font->cursorLeftPosition, y_internal, entry->font->cursorScale);
             }
 
             // need this up here to avoid race conditions
@@ -4642,7 +4663,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             dim = Menu_Text(origin.x + stringx, stringy, object->font, object->editfield, (status & ~MT_Disabled) | MT_Literal, ydim_upper, ydim_lower);
                             h = max(dim.y, entry->font->get_yline());
 
-                            rotatesprite_ybounds(origin.x + x + dim.x + (1<<16) + scale(tilesiz[SPINNINGNUKEICON].x<<15, h, tilesiz[SPINNINGNUKEICON].y<<16), stringy, divscale16(h, tilesiz[SPINNINGNUKEICON].y<<16), 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10, ydim_upper, ydim_lower);
+                            Menu_DrawCursorText(origin.x + x + dim.x + (1<<16), stringy, h, ydim_upper, ydim_lower);
                         }
                         else
                         {
@@ -4714,7 +4735,6 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
 static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *object, const vec2_t origin)
 {
-    const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
     int32_t e, y = 0;
     const int32_t y_upper = object->options->menuFormat->pos.y;
     const int32_t y_lower = object->options->menuFormat->bottomcutoff;
@@ -4774,11 +4794,11 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
         {
             if (status & MT_XCenter)
             {
-                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) + object->options->font->cursorCenterPosition, y_internal, object->options->font->cursorScale, 0, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7), cursorShade, 0, 10);
-                rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16) - object->options->font->cursorCenterPosition, y_internal, object->options->font->cursorScale, 0, SPINNINGNUKEICON+((totalclock>>3)%7), cursorShade, 0, 10);
+                Menu_DrawCursorLeft(origin.x + (MENU_MARGIN_CENTER<<16) + object->options->font->cursorCenterPosition, y_internal, object->options->font->cursorScale);
+                Menu_DrawCursorRight(origin.x + (MENU_MARGIN_CENTER<<16) - object->options->font->cursorCenterPosition, y_internal, object->options->font->cursorScale);
             }
             else
-                rotatesprite_fs(origin.x + x - object->options->font->cursorLeftPosition, y_internal, object->options->font->cursorScale, 0, SPINNINGNUKEICON+(((totalclock>>3))%7), cursorShade, 0, 10);
+                Menu_DrawCursorLeft(origin.x + x - object->options->font->cursorLeftPosition, y_internal, object->options->font->cursorScale);
         }
 
         if (dodraw)
@@ -4902,8 +4922,6 @@ static void Menu_Recurse(MenuID_t cm, const vec2_t origin)
 
 static void Menu_Run(Menu_t *cm, const vec2_t origin)
 {
-    const int32_t cursorShade = 4-(sintable[(totalclock<<4)&2047]>>11);
-
     Menu_Recurse(cm->menuID, origin);
 
     switch (cm->type)
@@ -4918,7 +4936,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
             Menu_PreDraw(cm->menuID, NULL, origin);
 
-            rotatesprite_fs(origin.x + object->cursorpos.x, origin.y + object->cursorpos.y, 65536, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
+            Menu_DrawCursorLeft(origin.x + object->cursorpos.x, origin.y + object->cursorpos.y, 65536);
 
             break;
         }
@@ -4933,7 +4951,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
             Menu_PreDraw(cm->menuID, NULL, origin);
 
-            rotatesprite_fs(origin.x + object->cursorpos.x, origin.y + object->cursorpos.y, 65536, 0, SPINNINGNUKEICON + (((totalclock >> 3)) % 7), cursorShade, 0, 10);
+            Menu_DrawCursorLeft(origin.x + object->cursorpos.x, origin.y + object->cursorpos.y, 65536);
 
             break;
         }
@@ -4966,7 +4984,9 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
             Menu_PreDraw(cm->menuID, NULL, origin);
 
-            rotatesprite_fs(origin.x + (168<<16) + (textreturn.x>>1), origin.y + (106<<16), 32768, 0, SPINNINGNUKEICON + ((totalclock >> 3) % 7), cursorShade, 0, 2 | 8);
+            int32_t const h = MF_Bluefont.get_yline();
+
+            Menu_DrawCursorText(origin.x + (MENU_MARGIN_CENTER<<16) + (textreturn.x>>1) + (1<<16), origin.y + (102<<16) + (h>>1), h);
 
             break;
         }
