@@ -141,17 +141,30 @@ static void Menu_DrawCursorCommon(int32_t x, int32_t y, int32_t z, int32_t picnu
 }
 static void Menu_DrawCursorLeft(int32_t x, int32_t y, int32_t z)
 {
+    if (KXDWN) return;
     Menu_DrawCursorCommon(x, y, z, SPINNINGNUKEICON+((totalclock>>3)%7));
 }
 static void Menu_DrawCursorRight(int32_t x, int32_t y, int32_t z)
 {
+    if (KXDWN) return;
     Menu_DrawCursorCommon(x, y, z, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7));
+}
+static void Menu_DrawCursorTextTile(int32_t x, int32_t y, int32_t h, int32_t picnum, vec2s_t const & siz, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
+{
+    vec2_t const adjsiz = { siz.x<<15, siz.y<<16 };
+    Menu_DrawCursorCommon(x + scale(adjsiz.x, h, adjsiz.y), y, divscale16(h, adjsiz.y), picnum, ydim_upper, ydim_lower);
 }
 static void Menu_DrawCursorText(int32_t x, int32_t y, int32_t h, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
 {
     vec2s_t const & siz = tilesiz[SPINNINGNUKEICON];
-    vec2_t const adjsiz = { siz.x<<15, siz.y<<16 };
-    Menu_DrawCursorCommon(x + scale(adjsiz.x, h, adjsiz.y), y, divscale16(h, adjsiz.y), SPINNINGNUKEICON+((totalclock>>3)%7), ydim_upper, ydim_lower);
+
+    if (KXDWN || siz.x == 0)
+    {
+        Menu_DrawCursorTextTile(x, y, h, SMALLFNTCURSOR, tilesiz[SMALLFNTCURSOR], ydim_upper, ydim_lower);
+        return;
+    }
+
+    Menu_DrawCursorTextTile(x, y, h, SPINNINGNUKEICON+((totalclock>>3)%7), siz, ydim_upper, ydim_lower);
 }
 
 extern int32_t g_quitDeadline;
