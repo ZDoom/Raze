@@ -322,8 +322,8 @@ static MenuLink_t MEO_MAIN_NEWGAME_NETWORK = { MENU_NETWORK, MA_Advance, };
 MAKE_MENU_TOP_ENTRYLINK( s_SaveGame, MEF_MainMenu, MAIN_SAVEGAME, MENU_SAVE );
 MAKE_MENU_TOP_ENTRYLINK( s_LoadGame, MEF_MainMenu, MAIN_LOADGAME, MENU_LOAD );
 MAKE_MENU_TOP_ENTRYLINK( s_Options, MEF_MainMenu, MAIN_OPTIONS, MENU_OPTIONS );
-#ifndef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK( "Help", MEF_MainMenu, MAIN_HELP, MENU_STORY );
+#ifndef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK( s_Credits, MEF_MainMenu, MAIN_CREDITS, MENU_CREDITS );
 #endif
 MAKE_MENU_TOP_ENTRYLINK( "End Game", MEF_MainMenu, MAIN_QUITTOTITLE, MENU_QUITTOTITLE );
@@ -336,8 +336,8 @@ static MenuEntry_t *MEL_MAIN[] = {
     &ME_MAIN_NEWGAME,
     &ME_MAIN_LOADGAME,
     &ME_MAIN_OPTIONS,
-#ifndef EDUKE32_SIMPLE_MENU
     &ME_MAIN_HELP,
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_MAIN_CREDITS,
 #endif
     &ME_MAIN_QUIT,
@@ -352,12 +352,10 @@ static MenuEntry_t *MEL_MAIN_INGAME[] = {
     &ME_MAIN_SAVEGAME,
     &ME_MAIN_LOADGAME,
     &ME_MAIN_OPTIONS,
-#ifndef EDUKE32_SIMPLE_MENU
     &ME_MAIN_HELP,
     &ME_MAIN_QUITTOTITLE,
+#ifndef EDUKE32_SIMPLE_MENU
     &ME_MAIN_QUITGAME,
-#else
-    &ME_MAIN_QUITTOTITLE,
 #endif
 };
 
@@ -3613,6 +3611,28 @@ void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype)
     }
 }
 
+static void Menu_MaybeSetSelectionToChild(Menu_t * m, MenuID_t id)
+{
+    if (m->type == Menu)
+    {
+        MenuMenu_t * menu = (MenuMenu_t *)m->object;
+
+        for (size_t i = 0, i_end = menu->numEntries; i < i_end; ++i)
+        {
+            MenuEntry_t const * entry = menu->entrylist[i];
+            if (entry != NULL && entry->type == Link)
+            {
+                MenuLink_t const * link = (MenuLink_t const *)entry->entry;
+                if (link->linkID == id)
+                {
+                    menu->currentEntry = i;
+                    break;
+                }
+            }
+        }
+    }
+}
+
 static void Menu_AboutToStartDisplaying(Menu_t * m)
 {
     switch (m->menuID)
@@ -3740,7 +3760,7 @@ static void Menu_ChangingTo(Menu_t * m)
 
 int Menu_Change(MenuID_t cm)
 {
-    Menu_t *search;
+    Menu_t * beginMenu = m_currentMenu;
 
     cm = VM_OnEventWithReturn(EVENT_CHANGEMENU, g_player[myconnectindex].ps->i, myconnectindex, cm);
 
@@ -3753,7 +3773,7 @@ int Menu_Change(MenuID_t cm)
         Menu_Close(myconnectindex);
     else if (cm >= 0)
     {
-        search = Menu_FindFiltered(cm);
+        Menu_t * search = Menu_FindFiltered(cm);
 
         if (search == NULL)
             return 0; // intentional, so that users don't use any random value as "don't change"
@@ -3776,8 +3796,15 @@ int Menu_Change(MenuID_t cm)
         }
 
         m_parentMenu = result;
+
+        if (result)
+        {
+            Menu_MaybeSetSelectionToChild(result, m_currentMenu->menuID);
+            Menu_AboutToStartDisplaying(result);
+        }
     }
 
+    Menu_MaybeSetSelectionToChild(m_currentMenu, beginMenu->menuID);
     Menu_AboutToStartDisplaying(m_currentMenu);
     Menu_ChangingTo(m_currentMenu);
 
