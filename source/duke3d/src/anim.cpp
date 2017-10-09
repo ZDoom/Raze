@@ -73,10 +73,12 @@ dukeanim_t * Anim_Create(char const * fn)
     return anim;
 }
 
+#ifndef EDUKE32_STANDALONE
 #ifdef DYNSOUNDREMAP_ENABLE
 static int32_t const StopAllSounds = -1;
 #else
 # define StopAllSounds -1
+#endif
 #endif
 
 void Anim_Init(void)
