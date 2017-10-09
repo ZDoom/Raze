@@ -36,8 +36,14 @@
 
 #ifdef _MSC_VER
 # define EDUKE32_MSVC_PREREQ(major) ((major) <= (_MSC_VER))
+# ifdef __cplusplus
+#  define EDUKE32_MSVC_CXX_PREREQ(major) ((major) <= (_MSC_VER))
+# else
+#  define EDUKE32_MSVC_CXX_PREREQ(major) 0
+# endif
 #else
 # define EDUKE32_MSVC_PREREQ(major) 0
+# define EDUKE32_MSVC_CXX_PREREQ(major) 0
 #endif
 
 
