@@ -3613,10 +3613,134 @@ void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype)
     }
 }
 
+static void Menu_AboutToStartDisplaying(Menu_t * m)
+{
+    switch (m->menuID)
+    {
+    case MENU_MAIN:
+        if (KXDWN)
+            ME_MAIN_LOADGAME.name = s_Continue;
+        break;
+
+    case MENU_MAIN_INGAME:
+        if (KXDWN)
+            ME_MAIN_LOADGAME.name = s_LoadGame;
+        break;
+
+    case MENU_LOAD:
+        if (KXDWN)
+            M_LOAD.title = (g_player[myconnectindex].ps->gm & MODE_GAME) ? s_LoadGame : s_Continue;
+        for (size_t i = 0; i < MAXSAVEGAMES; ++i)
+        {
+            MenuEntry_DisableOnCondition(&ME_LOAD[i], !ud.savegame[i][0] /*|| g_oldverSavegame[i]*/);
+            MenuEntry_LookDisabledOnCondition(&ME_LOAD[i], g_oldverSavegame[i]);
+        }
+
+        if (g_lastSaveSlot >= 0 && g_previousMenu != MENU_LOADVERIFY)
+            M_LOAD.currentEntry = g_lastSaveSlot;
+        break;
+
+    case MENU_SAVE:
+        if (g_lastSaveSlot >= 0 && g_previousMenu != MENU_SAVEVERIFY)
+            M_SAVE.currentEntry = g_lastSaveSlot;
+
+        for (size_t i = 0; i < MAXSAVEGAMES; ++i)
+            MenuEntry_LookDisabledOnCondition(&ME_SAVE[i], g_oldverSavegame[i]);
+
+        if (g_player[myconnectindex].ps->gm&MODE_GAME)
+        {
+            g_screenCapture = 1;
+            G_DrawRooms(myconnectindex,65536);
+            g_screenCapture = 0;
+        }
+        break;
+
+    case MENU_VIDEOSETUP:
+        newresolution = 0;
+        for (size_t i = 0; i < MAXVALIDMODES; ++i)
+        {
+            if (resolution[i].xdim == xdim && resolution[i].ydim == ydim)
+            {
+                newresolution = i;
+                break;
+            }
+        }
+        newrendermode = getrendermode();
+        newfullscreen = fullscreen;
+        newvsync = vsync;
+        break;
+
+    case MENU_ADVSOUND:
+        soundrate = ud.config.MixRate;
+        soundvoices = ud.config.NumVoices;
+        break;
+
+    default:
+        break;
+    }
+
+    switch (m->type)
+    {
+    case TextForm:
+        typebuf[0] = 0;
+        ((MenuTextForm_t*)m->object)->input = typebuf;
+        break;
+    case FileSelect:
+        Menu_FileSelectInit((MenuFileSelect_t*)m->object);
+        break;
+    case Menu:
+    {
+        MenuMenu_t *menu = (MenuMenu_t*)m->object;
+        // MenuEntry_t* currentry = menu->entrylist[menu->currentEntry];
+
+        // need this for MENU_SKILL
+        if (menu->currentEntry >= menu->numEntries)
+            menu->currentEntry = 0;
+
+        int32_t i = menu->currentEntry;
+        while (!menu->entrylist[menu->currentEntry] || ((MenuEntry_t*)menu->entrylist[menu->currentEntry])->type == Spacer)
+        {
+            menu->currentEntry++;
+            if (menu->currentEntry >= menu->numEntries)
+                menu->currentEntry = 0;
+            if (menu->currentEntry == i)
+                G_GameExit("Menu_Change: Attempted to show a menu with no entries.");
+        }
+
+        Menu_EntryFocus(/*currentry*/);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+static void Menu_ChangingTo(Menu_t * m)
+{
+    switch (m->menuID)
+    {
+#ifdef __ANDROID__
+    case MENU_TOUCHBUTTONS:
+        AndroidToggleButtonEditor();
+        break;
+#endif
+    default:
+        break;
+    }
+
+    switch (m->type)
+    {
+    case TextForm:
+        WithSDL2_StartTextInput();
+        break;
+    default:
+        break;
+    }
+}
+
 int Menu_Change(MenuID_t cm)
 {
     Menu_t *search;
-    int32_t i;
 
     cm = VM_OnEventWithReturn(EVENT_CHANGEMENU, g_player[myconnectindex].ps->i, myconnectindex, cm);
 
@@ -3654,109 +3778,12 @@ int Menu_Change(MenuID_t cm)
         m_parentMenu = result;
     }
 
-    switch (g_currentMenu)
-    {
-    case MENU_MAIN:
-        if (KXDWN)
-            ME_MAIN_LOADGAME.name = s_Continue;
-        break;
-
-    case MENU_MAIN_INGAME:
-        if (KXDWN)
-            ME_MAIN_LOADGAME.name = s_LoadGame;
-        break;
-
-    case MENU_LOAD:
-        if (KXDWN)
-            M_LOAD.title = (g_player[myconnectindex].ps->gm & MODE_GAME) ? s_LoadGame : s_Continue;
-        for (i = 0; i < MAXSAVEGAMES; ++i)
-        {
-            MenuEntry_DisableOnCondition(&ME_LOAD[i], !ud.savegame[i][0] /*|| g_oldverSavegame[i]*/);
-            MenuEntry_LookDisabledOnCondition(&ME_LOAD[i], g_oldverSavegame[i]);
-        }
-
-        if (g_lastSaveSlot >= 0 && g_previousMenu != MENU_LOADVERIFY)
-            M_LOAD.currentEntry = g_lastSaveSlot;
-        break;
-
-    case MENU_SAVE:
-        if (g_lastSaveSlot >= 0 && g_previousMenu != MENU_SAVEVERIFY)
-            M_SAVE.currentEntry = g_lastSaveSlot;
-
-        for (i = 0; i < MAXSAVEGAMES; ++i)
-            MenuEntry_LookDisabledOnCondition(&ME_SAVE[i], g_oldverSavegame[i]);
-
-        if (g_player[myconnectindex].ps->gm&MODE_GAME)
-        {
-            g_screenCapture = 1;
-            G_DrawRooms(myconnectindex,65536);
-            g_screenCapture = 0;
-        }
-        break;
-
-    case MENU_VIDEOSETUP:
-        newresolution = 0;
-        for (i = 0; i < MAXVALIDMODES; ++i)
-        {
-            if (resolution[i].xdim == xdim && resolution[i].ydim == ydim)
-            {
-                newresolution = i;
-                break;
-            }
-        }
-        newrendermode = getrendermode();
-        newfullscreen = fullscreen;
-        newvsync = vsync;
-        break;
-
-    case MENU_ADVSOUND:
-        soundrate = ud.config.MixRate;
-        soundvoices = ud.config.NumVoices;
-        break;
-
-#ifdef __ANDROID__
-    case MENU_TOUCHBUTTONS:
-        AndroidToggleButtonEditor();
-        break;
-#endif
-
-    default:
-        break;
-    }
+    Menu_AboutToStartDisplaying(m_currentMenu);
+    Menu_ChangingTo(m_currentMenu);
 
 #if !defined EDUKE32_TOUCH_DEVICES
     m_menuchange_watchpoint = 1;
 #endif
-
-    if (m_currentMenu->type == TextForm)
-    {
-        typebuf[0] = 0;
-        ((MenuTextForm_t*)m_currentMenu->object)->input = typebuf;
-        WithSDL2_StartTextInput();
-    }
-    else if (m_currentMenu->type == FileSelect)
-        Menu_FileSelectInit((MenuFileSelect_t*)m_currentMenu->object);
-    else if (m_currentMenu->type == Menu)
-    {
-        MenuMenu_t *menu = (MenuMenu_t*)m_currentMenu->object;
-        // MenuEntry_t* currentry = menu->entrylist[menu->currentEntry];
-
-        // need this for MENU_SKILL
-        if (menu->currentEntry >= menu->numEntries)
-            menu->currentEntry = 0;
-
-        i = menu->currentEntry;
-        while (!menu->entrylist[menu->currentEntry] || ((MenuEntry_t*)menu->entrylist[menu->currentEntry])->type == Spacer)
-        {
-            menu->currentEntry++;
-            if (menu->currentEntry >= menu->numEntries)
-                menu->currentEntry = 0;
-            if (menu->currentEntry == i)
-                G_GameExit("Menu_Change: Attempted to change to a menu with no entries.");
-        }
-
-        Menu_EntryFocus(/*currentry*/);
-    }
 
     return 0;
 }
