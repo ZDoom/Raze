@@ -188,15 +188,22 @@
 # define EDUKE32_PRETTY_FUNCTION EDUKE32_FUNCTION
 #endif
 
-/* Static assertions, based on source found in LuaJIT's src/lj_def.h. */
-#define EDUKE32_ASSERT_NAME2(name, line) name ## line
-#define EDUKE32_ASSERT_NAME(line) EDUKE32_ASSERT_NAME2(eduke32_assert_, line)
 #ifdef __COUNTER__
-# define EDUKE32_STATIC_ASSERT(cond) \
-    extern void EDUKE32_ASSERT_NAME(__COUNTER__)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
+# define EDUKE32_UNIQUE_SRC_ID __COUNTER__
 #else
+# define EDUKE32_UNIQUE_SRC_ID __LINE__
+#endif
+
+#if CXXSTD >= 2017
+# define EDUKE32_STATIC_ASSERT(cond) static_assert(cond)
+#elif CXXSTD >= 2011 || CSTD >= 2011 || EDUKE32_MSVC_CXX_PREREQ(1600)
+# define EDUKE32_STATIC_ASSERT(cond) static_assert(cond, "")
+#else
+/* C99 / C++03 static assertions based on source found in LuaJIT's src/lj_def.h. */
+# define EDUKE32_ASSERT_NAME2(name, line) name ## line
+# define EDUKE32_ASSERT_NAME(line) EDUKE32_ASSERT_NAME2(eduke32_assert_, line)
 # define EDUKE32_STATIC_ASSERT(cond) \
-    extern void EDUKE32_ASSERT_NAME(__LINE__)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
+    extern void EDUKE32_ASSERT_NAME(EDUKE32_UNIQUE_SRC_ID)(int STATIC_ASSERTION_FAILED[(cond)?1:-1])
 #endif
 
 #ifdef _MSC_VER
