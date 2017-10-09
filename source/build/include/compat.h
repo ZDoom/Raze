@@ -57,7 +57,9 @@
 # define CSTD 0
 #endif
 
-#if defined __cplusplus && __cplusplus >= 201402L
+#if defined __cplusplus && __cplusplus >= 201703L
+# define CXXSTD 2017
+#elif defined __cplusplus && __cplusplus >= 201402L
 # define CXXSTD 2014
 #elif defined __cplusplus && __cplusplus >= 201103L
 # define CXXSTD 2011
