@@ -440,7 +440,6 @@ static void ProcessGroups(CACHE1D_FIND_REC *srch)
 
 int32_t ScanGroups(void)
 {
-    CACHE1D_FIND_REC *srch;
     struct grpcache *fg, *fgg;
 
     initprintf("Searching for game data...\n");
@@ -448,13 +447,19 @@ int32_t ScanGroups(void)
     LoadGameList();
     LoadGroupsCache();
 
-    srch = klistpath("/", "*.grp", CACHE1D_FIND_FILE);
-    ProcessGroups(srch);
-    klistfree(srch);
+    static char const *extensions[] =
+    {
+        "*.grp",
+        "*.ssi",
+        "*.dat",
+    };
 
-    srch = klistpath("/", "*.ssi", CACHE1D_FIND_FILE);
-    ProcessGroups(srch);
-    klistfree(srch);
+    for (char const *extension : extensions)
+    {
+        CACHE1D_FIND_REC *srch = klistpath("/", extension, CACHE1D_FIND_FILE);
+        ProcessGroups(srch);
+        klistfree(srch);
+    }
 
     FreeGroupsCache();
 
