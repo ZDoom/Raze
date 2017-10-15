@@ -4167,7 +4167,7 @@ static void P_ProcessWeapon(int playerNum)
                 else
                 {
                     if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_AUTOMATIC &&
-                            (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike)==KNEE_WEAPON?1:pPlayer->ammo_amount[pPlayer->curr_weapon] > 0))
+                            (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike)==KNEE_WEAPON || pPlayer->ammo_amount[pPlayer->curr_weapon] > 0))
                     {
                         if (TEST_SYNC_KEY(playerBits, SK_FIRE))
                         {
@@ -4180,15 +4180,14 @@ static void P_ProcessWeapon(int playerNum)
 
                     if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_RESET &&
                         ((PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == KNEE_WEAPON)
-                         ? 1
-                         : pPlayer->ammo_amount[pPlayer->curr_weapon] > 0))
+                         || pPlayer->ammo_amount[pPlayer->curr_weapon] > 0))
                     {
                         *weaponFrame = !!(TEST_SYNC_KEY(playerBits, SK_FIRE));
                     }
                 }
             }
             else if (*weaponFrame >= PWEAPON(playerNum, pPlayer->curr_weapon, FireDelay) && (*weaponFrame) < PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime)
-                     && ((PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == KNEE_WEAPON)?1:pPlayer->ammo_amount[pPlayer->curr_weapon] > 0))
+                     && ((PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == KNEE_WEAPON) || pPlayer->ammo_amount[pPlayer->curr_weapon] > 0))
             {
                 if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_AUTOMATIC)
                 {
