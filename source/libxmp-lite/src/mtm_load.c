@@ -50,6 +50,7 @@ struct mtm_instrument_header {
 static int mtm_test(HIO_HANDLE *, char *, const int);
 static int mtm_load(struct module_data *, HIO_HANDLE *, const int);
 
+extern const struct format_loader libxmp_loader_mtm;
 const struct format_loader libxmp_loader_mtm = {
 	"Multitracker",
 	mtm_test,

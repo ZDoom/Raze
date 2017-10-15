@@ -249,7 +249,7 @@ int32_t MV_PlayXMP3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pit
 
 #endif
 
-// KEEPINSYNC libxmp-lite/src/loaders/*_load.c
+// KEEPINSYNC libxmp-lite/src/*_load.c
 
 static int it_test_memory(char const *ptr, uint32_t ptrlength)
 {
@@ -312,10 +312,33 @@ static int xm_test_memory(char const *ptr, uint32_t ptrlength)
     return 0;
 }
 
+static int mtm_test_memory(char const *ptr, uint32_t ptrlength)
+{
+    static char const mtm_magic[] = "MTM\x10";
+
+    if (ptrlength < sizeof(mtm_magic)-1 ||
+        memcmp(ptr, mtm_magic, sizeof(mtm_magic)-1))
+        return -1;
+
+    return 0;
+}
+
 int MV_IdentifyXMP(char const *ptr, uint32_t ptrlength)
 {
-    return it_test_memory(ptr, ptrlength) == 0 ||
-           mod_test_memory(ptr, ptrlength) == 0 ||
-           s3m_test_memory(ptr, ptrlength) == 0 ||
-           xm_test_memory(ptr, ptrlength) == 0;
+    static decltype(mod_test_memory) * const module_test_functions[] =
+    {
+        it_test_memory,
+        mod_test_memory,
+        s3m_test_memory,
+        xm_test_memory,
+        mtm_test_memory,
+    };
+
+    for (auto const test_module : module_test_functions)
+    {
+        if (test_module(ptr, ptrlength) == 0)
+            return 1;
+    }
+
+    return 0;
 }

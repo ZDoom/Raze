@@ -31,21 +31,23 @@ extern const struct format_loader libxmp_loader_xm;
 extern const struct format_loader libxmp_loader_mod;
 extern const struct format_loader libxmp_loader_it;
 extern const struct format_loader libxmp_loader_s3m;
+extern const struct format_loader libxmp_loader_mtm;
 
 extern const struct pw_format *const pw_format[];
 
 extern const struct format_loader *const format_loader[];
-const struct format_loader *const format_loader[5] = {
+const struct format_loader *const format_loader[] = {
 	&libxmp_loader_xm,
 	&libxmp_loader_mod,
 #ifndef LIBXMP_CORE_DISABLE_IT
 	&libxmp_loader_it,
 #endif
 	&libxmp_loader_s3m,
+	&libxmp_loader_mtm,
 	NULL
 };
 
-static const char *_farray[5] = { NULL };
+static const char *_farray[sizeof(format_loader)/sizeof(struct format_loader *)] = { NULL };
 
 const char **format_list()
 {

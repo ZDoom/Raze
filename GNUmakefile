@@ -59,6 +59,7 @@ libxmplite_objs := \
     itsex.c \
     it_load.c \
     mod_load.c \
+    mtm_load.c \
     s3m_load.c \
     sample.c \
     xm_load.c \

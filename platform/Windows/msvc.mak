@@ -216,10 +216,10 @@ LIBXMPLITE_OBJS=$(LIBXMPLITE_OBJ)\control.$o \
     $(LIBXMPLITE_OBJ)\itsex.$o \
     $(LIBXMPLITE_OBJ)\it_load.$o \
     $(LIBXMPLITE_OBJ)\mod_load.$o \
+    $(LIBXMPLITE_OBJ)\mtm_load.$o \
     $(LIBXMPLITE_OBJ)\s3m_load.$o \
     $(LIBXMPLITE_OBJ)\sample.$o \
-    $(LIBXMPLITE_OBJ)\xm_load.$o
-
+    $(LIBXMPLITE_OBJ)\xm_load.$o \
 
 AUDIOLIB_OBJS=$(AUDIOLIB_OBJ)\drivers.$o \
 	$(AUDIOLIB_OBJ)\fx_man.$o \
