@@ -1167,7 +1167,7 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 #if 0
-    if (GametypeFlags[ud.coop] & GAMETYPE_TDM)
+    if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
     {
         for (i=0; i<ud.multimode; i++)
         {
