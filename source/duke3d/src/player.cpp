@@ -4194,7 +4194,7 @@ static void P_ProcessWeapon(int playerNum)
                     if (!(PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_SEMIAUTO))
                     {
                         if (TEST_SYNC_KEY(playerBits, SK_FIRE) == 0 && PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_RESET)
-                            *weaponFrame = 0;
+                            *weaponFrame = PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime);
                         if (PWEAPON(playerNum, pPlayer->curr_weapon, Flags) & WEAPON_FIREEVERYTHIRD)
                         {
                             if (((*(weaponFrame))%3) == 0)
