@@ -146,13 +146,20 @@ const char * OSD_StripColors(char *outBuf, const char *inBuf)
         if (*inBuf == '^')
         {
             if (isdigit(*(inBuf+1)))
+            {
                 inBuf += 2 + !!isdigit(*(inBuf+2));
+                continue;
+            }
             else if ((Btoupper(*(inBuf+1)) == 'O'))
+            {
                 inBuf += 2;
+                continue;
+            }
             else if ((Btoupper(*(inBuf+1)) == 'S') && isdigit(*(inBuf+2)))
+            {
                 inBuf += 3;
-
-            continue;
+                continue;
+            }
         }
         *(outBuf++) = *(inBuf++);
     }
