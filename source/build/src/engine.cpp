@@ -13088,6 +13088,8 @@ int32_t setrendermode(int32_t renderer)
         G_Polymer_UnInit();
         polymer_uninit();
     }
+# else
+    else renderer = REND_POLYMOST;
 # endif
 
     basepalreset = 1;
