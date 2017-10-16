@@ -3849,7 +3849,7 @@ finish_qsprintf:
                         index=Gv_GetVarX(*insptr++);
                         if (EDUKE32_PREDICT_TRUE((unsigned)index < (unsigned)aGameArrays[lVarID].size))
                         {
-                            OSD_Printf(OSDTEXT_GREEN "%s: L=%d %s[%d] =%d\n", vm_keywords[g_tw].token, g_errorLineNum,
+                            OSD_Printf(OSDTEXT_GREEN "CONLOGVAR: L=%d %s[%d] =%d\n", g_errorLineNum,
                                        aGameArrays[lVarID].szLabel, index,
                                        (int32_t)(m*Gv_GetArrayValue(lVarID, index)));
                             continue;
@@ -3874,7 +3874,7 @@ finish_qsprintf:
                                 Gv_GetVarX(*insptr++);
                                 continue;
                             }
-                            OSD_Printf(OSDTEXT_GREEN "%s: L=%d %d %d\n",vm_keywords[g_tw].token,g_errorLineNum,index,Gv_GetVar(*insptr++,index,vm.playerNum));
+                            OSD_Printf(OSDTEXT_GREEN "CONLOGVAR: L=%d %d %d\n",g_errorLineNum,index,Gv_GetVar(*insptr++,index,vm.playerNum));
                             continue;
                         }
                     }
@@ -5269,7 +5269,7 @@ finish_qsprintf:
                     CON_ERRPRINTF("invalid iterator type %d", iterType);
                     continue;
                 badindex:
-                    OSD_Printf(OSD_ERROR "Line %d, %s %s: index %d out of range!\n", g_errorLineNum, vm_keywords[g_tw].token,
+                    OSD_Printf(OSD_ERROR "Line %d, for %s: index %d out of range!\n", g_errorLineNum,
                         iter_tokens[iterType].token, nIndex);
                     continue;
                 }

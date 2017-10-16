@@ -111,7 +111,7 @@ static char *C_GetLabelType(int32_t type)
     return Xstrdup(x);
 }
 
-tokenmap_t const vm_keywords[] =
+static tokenmap_t const vm_keywords[] =
 {
     { "action",                 CON_ACTION },
     { "activate",               CON_ACTIVATE },
@@ -1610,7 +1610,7 @@ static int32_t C_GetNextKeyword(void) //Returns its code #
         g_scriptPtr++;
 
         if (!(g_errorCnt || g_warningCnt) && g_scriptDebug)
-            initprintf("%s:%d: debug: keyword `%s'.\n",g_scriptFileName,g_lineNumber,vm_keywords[i].token);
+            initprintf("%s:%d: debug: keyword `%s'.\n", g_scriptFileName, g_lineNumber, tempbuf);
         return i;
     }
 
@@ -2186,7 +2186,7 @@ static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
         C_ReportError(-1);
         g_warningCnt++;
         initprintf("%s:%d: warning: malformed `%s' branch\n",g_scriptFileName,g_lineNumber,
-                   vm_keywords[*(g_scriptPtr) & VM_INSTMASK].token);
+                   VM_GetKeywordForID(*(g_scriptPtr) & VM_INSTMASK));
         return 1;
     }
     return 0;
@@ -2195,7 +2195,7 @@ static int32_t C_CheckMalformedBranch(intptr_t lastScriptPtr)
 static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
 {
     // ifrnd and the others actually do something when the condition is executed
-    if ((Bstrncmp(vm_keywords[tw].token, "if", 2) && tw != CON_ELSE) ||
+    if ((Bstrncmp(VM_GetKeywordForID(tw), "if", 2) && tw != CON_ELSE) ||
             tw == CON_IFRND || tw == CON_IFHITWEAPON || tw == CON_IFCANSEE || tw == CON_IFCANSEETARGET ||
             tw == CON_IFPDISTL || tw == CON_IFPDISTG || tw == CON_IFGOTWEAPONCE)
     {
@@ -2212,7 +2212,7 @@ static int32_t C_CheckEmptyBranch(int32_t tw, intptr_t lastScriptPtr)
         g_warningCnt++;
         g_scriptPtr = lastScriptPtr + &apScript[0];
         initprintf("%s:%d: warning: empty `%s' branch\n",g_scriptFileName,g_lineNumber,
-                   vm_keywords[*(g_scriptPtr) & VM_INSTMASK].token);
+                   VM_GetKeywordForID(*(g_scriptPtr) & VM_INSTMASK));
         *(g_scriptPtr) = (CON_NULLOP + (IFELSE_MAGIC<<12));
         return 1;
     }
