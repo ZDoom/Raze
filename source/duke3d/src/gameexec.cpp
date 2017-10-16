@@ -102,11 +102,7 @@ void VM_ScriptInfo(intptr_t const *ptr, int range)
             initprintf("%5d: %3d: ", (int32_t) (pScript - apScript), (int32_t) (pScript - ptr));
 
             if (*pScript >> 12 && (*pScript & VM_INSTMASK) < CON_END)
-            {
-                for (size_t i=0; i < NUMKEYWORDS; ++i)
-                    if (vm_keywords[i].val == (*pScript & VM_INSTMASK))
-                        initprintf("%5d %s\n", (int32_t) (*pScript >> 12), vm_keywords[i].token);
-            }
+                initprintf("%5d %s\n", (int32_t) (*pScript >> 12), VM_GetKeywordForID(*pScript & VM_INSTMASK));
             else
                 initprintf("%d\n", (int32_t) *pScript);
         }
