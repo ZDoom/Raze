@@ -522,8 +522,10 @@ static float get_projhack_ratio(void)
 {
     if (glprojectionhacks)
     {
-        float const mul = (gshang * gshang);
-        return 1.05f + mul * mul * mul * mul;
+        static constexpr float const projhack_zoom = 1.3f;
+        static constexpr float const maxcoshoriz = 0.540971179375801f; // 128/sqrt(128^2+199^2) = cos of an horiz diff of 199
+        static constexpr float const factor = (projhack_zoom - 1.f) * (1.f / maxcoshoriz);
+        return 1.f + (factor * (1.f - Bfabsf(gchang)));
     }
 
     // No projection hacks (legacy or new-aspect)
