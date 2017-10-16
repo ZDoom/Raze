@@ -6561,6 +6561,12 @@ MAIN_LOOP_RESTART:
         G_SetCrosshairColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
     }
 
+    if (ud.warp_on == 1)
+    {
+        G_NewGame_EnterLevel();
+        // may change ud.warp_on in an error condition
+    }
+
     if (ud.warp_on == 0)
     {
         if ((g_netServer || ud.multimode > 1) && boardfilename[0] != 0)
@@ -6595,10 +6601,6 @@ MAIN_LOOP_RESTART:
                 goto MAIN_LOOP_RESTART;
             }
         }
-    }
-    else if (ud.warp_on == 1)
-    {
-        G_NewGame_EnterLevel();
     }
     else G_UpdateScreenArea();
 
