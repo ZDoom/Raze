@@ -143,6 +143,7 @@ void Gv_RefreshPointers(void);
 void Gv_ResetVars(void);
 int Gv_ReadSave(int32_t kFile);
 void Gv_WriteSave(FILE *fil);
+void Gv_Clear(void);
 #else
 extern int32_t g_noResetVars;
 extern LUNATIC_CB void (*A_ResetVars)(int32_t spriteNum);

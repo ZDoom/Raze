@@ -62,7 +62,7 @@ intptr_t *aplWeaponFlashColor[MAX_WEAPONS];     // Muzzle flash color
 // counts to zero. Call this function as many times as needed.
 //
 // Returns: old g_gameVarCount | (g_gameArrayCount<<16).
-static int Gv_Free(void)
+int Gv_Free(void)
 {
     for (bssize_t i=0; i<g_gameVarCount; ++i)
     {
@@ -93,7 +93,7 @@ static int Gv_Free(void)
 // Calls Gv_Free() and in addition frees the labels of all game variables and
 // arrays.
 // Only call this function ONCE...
-static void Gv_Clear(void)
+void Gv_Clear(void)
 {
     int       gameVarCount   = Gv_Free();
     int const gameArrayCount = gameVarCount >> 16;
@@ -115,7 +115,7 @@ int Gv_ReadSave(int32_t kFile)
     if (kread(kFile, tbuf, 12)!=12) goto corrupt;
     if (Bmemcmp(tbuf, "BEG: EDuke32", 12)) { OSD_Printf("BEG ERR\n"); return 2; }
 
-    Bmemset(&savedstate,0,sizeof(savedstate));
+    Bmemset(savedstate, 0, sizeof(savedstate));
 
     //     AddLog("Reading gamevars from savegame");
 
@@ -218,6 +218,13 @@ int Gv_ReadSave(int32_t kFile)
                     if (kdfread(&g_mapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, kFile) != MAXSPRITES) goto corrupt;
                 }
             }
+
+            for (bssize_t j=0; j<g_gameArrayCount; j++)
+                if (aGameArrays[j].flags & GAMEARRAY_RESTORE)
+                {
+                    g_mapInfo[i].savedstate->arrays[j] = (intptr_t *) Xaligned_alloc(16, Gv_GetArrayAllocSize(j));
+                    if (kdfread(&g_mapInfo[i].savedstate->arrays[j][0], Gv_GetArrayAllocSize(j), 1, kFile) != (int32_t)Gv_GetArrayAllocSize(j)) goto corrupt;
+                }
         }
         else
         {
@@ -250,7 +257,7 @@ void Gv_WriteSave(FILE *fil)
 {
     char savedstate[MAXVOLUMES*MAXLEVELS];
 
-    Bmemset(&savedstate,0,sizeof(savedstate));
+    Bmemset(savedstate, 0, sizeof(savedstate));
 
     //   AddLog("Saving Game Vars to File");
     fwrite("BEG: EDuke32", 12, 1, fil);
@@ -312,6 +319,10 @@ void Gv_WriteSave(FILE *fil)
                     dfwrite(&g_mapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, fil);
                 }
             }
+
+            for (bssize_t j=0; j<g_gameArrayCount; j++)
+                if (aGameArrays[j].flags & GAMEARRAY_RESTORE)
+                    dfwrite(&g_mapInfo[i].savedstate->arrays[j][0], Gv_GetArrayAllocSize(j), 1, fil);
         }
 
     fwrite("EOF: EDuke32", 12, 1, fil);

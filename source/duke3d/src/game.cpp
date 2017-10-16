@@ -5516,6 +5516,8 @@ static void G_Cleanup(void)
 
 //    Bfree(MusicPtr);
 
+    Gv_Clear();
+
     hash_free(&h_gamevars);
     hash_free(&h_arrays);
     hash_free(&h_labels);
