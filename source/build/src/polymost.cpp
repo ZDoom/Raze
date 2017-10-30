@@ -2870,17 +2870,19 @@ static void polymost_drawalls(int32_t const bunch)
         {
             if (p1.y < SCISDIST) continue;
             t0 = (SCISDIST-p0.y)/(p1.y-p0.y); p0.x = (p1.x-p0.x)*t0+p0.x; p0.y = SCISDIST;
-            n0.x = (wal2->x-wal->x)*t0+wal->x;
-            n0.y = (wal2->y-wal->y)*t0+wal->y;
         }
-        else { t0 = 0.f; n0.x = (float)wal->x; n0.y = (float)wal->y; }
+        else
+            t0 = 0.f;
+        n0.x = (float)wal->x;
+        n0.y = (float)wal->y;
         if (p1.y < SCISDIST)
         {
             t1 = (SCISDIST-op0.y)/(p1.y-op0.y); p1.x = (p1.x-op0.x)*t1+op0.x; p1.y = SCISDIST;
-            n1.x = (wal2->x-wal->x)*t1+wal->x;
-            n1.y = (wal2->y-wal->y)*t1+wal->y;
         }
-        else { t1 = 1.f; n1.x = (float)wal2->x; n1.y = (float)wal2->y; }
+        else
+            t1 = 1.f;
+        n1.x = (float)wal2->x;
+        n1.y = (float)wal2->y;
 
         float ryp0 = 1.f/p0.y, ryp1 = 1.f/p1.y;
 
@@ -4080,13 +4082,13 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
         p1.y = SCISDIST;
     }
 
-    int32_t m0 = (int32_t)((wal2->x - wal->x) * t0 + wal->x);
-    int32_t m1 = (int32_t)((wal2->y - wal->y) * t0 + wal->y);
+    int32_t m0 = (int32_t)((wal2->x - wal->x) + wal->x);
+    int32_t m1 = (int32_t)((wal2->y - wal->y) + wal->y);
     int32_t cz[4], fz[4];
     getzsofslope(sectnum, m0, m1, &cz[0], &fz[0]);
     getzsofslope(wal->nextsector, m0, m1, &cz[1], &fz[1]);
-    m0 = (int32_t)((wal2->x - wal->x) * t1 + wal->x);
-    m1 = (int32_t)((wal2->y - wal->y) * t1 + wal->y);
+    m0 = (int32_t)((wal2->x - wal->x) + wal->x);
+    m1 = (int32_t)((wal2->y - wal->y) + wal->y);
     getzsofslope(sectnum, m0, m1, &cz[2], &fz[2]);
     getzsofslope(wal->nextsector, m0, m1, &cz[3], &fz[3]);
 
