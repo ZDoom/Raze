@@ -5414,19 +5414,6 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
             }
         }
         break;
-        case T_RENAMEFILE:
-        {
-            int32_t fileCRC = 0;
-            int32_t fileNum = -1;
-            char *  newName = NULL;
-
-            if (scriptfile_getnumber(pScript, &fileCRC)) break;
-            if (scriptfile_getnumber(pScript, &fileNum)) break;
-            if (scriptfile_getstring(pScript, &newName)) break;
-
-            krename(fileCRC, fileNum, newName);
-        }
-        break;
         case T_GLOBALGAMEFLAGS: scriptfile_getnumber(pScript, &duke3d_globalflags); break;
         case T_EOF: return 0;
         default: break;

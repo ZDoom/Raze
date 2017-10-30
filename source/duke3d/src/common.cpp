@@ -393,7 +393,7 @@ static int32_t G_LoadGrpDependencyChain(grpfile_t const * const grp)
     int32_t const i = G_TryLoadingGrp(grp->filename);
 
     if (grp->type->postprocessing)
-        grp->type->postprocessing(grp->type->crcval);
+        grp->type->postprocessing(i);
 
     return i;
 }

@@ -103,7 +103,6 @@ enum scripttoken_t
     T_MAPINFO, T_MAPFILE, T_MAPTITLE, T_MAPMD4, T_MHKFILE,
     T_ECHO,
     T_GLOBALFLAGS,
-    T_RENAMEFILE,
     T_COPYTILE,
     T_GLOBALGAMEFLAGS,
     T_MULTIPSKY, T_HORIZFRAC, T_LOGNUMTILES,
@@ -391,7 +390,6 @@ static int32_t defsparser(scriptfile *script)
         { "mapinfo",         T_MAPINFO          },
         { "echo",            T_ECHO             },
         { "globalflags",     T_GLOBALFLAGS      },
-        { "renamefile",      T_RENAMEFILE       },
         { "copytile",        T_COPYTILE         },
         { "globalgameflags", T_GLOBALGAMEFLAGS  },  // dummy
         { "multipsky",       T_MULTIPSKY        },
@@ -2633,17 +2631,6 @@ static int32_t defsparser(scriptfile *script)
         {
             int32_t dummy;
             if (scriptfile_getnumber(script,&dummy)) break;
-        }
-        break;
-
-        case T_RENAMEFILE:
-        {
-            int32_t crcval = 0, filenum = -1;
-            char *newname = NULL;
-            if (scriptfile_getnumber(script,&crcval)) break;
-            if (scriptfile_getnumber(script,&filenum)) break;
-            if (scriptfile_getstring(script,&newname)) break;
-            krename(crcval, filenum, newname);
         }
         break;
 

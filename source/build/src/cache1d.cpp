@@ -23,7 +23,6 @@
 #include "cache1d.h"
 #include "pragmas.h"
 #include "baselayer.h"
-#include "crc32.h"
 
 #ifdef WITHKPLIB
 #include "kplib.h"
@@ -681,7 +680,6 @@ static uint8_t groupfilgrp[MAXGROUPFILES];
 static char *gfilelist[MAXGROUPFILES];
 static char *groupname[MAXGROUPFILES];
 static int32_t *gfileoffs[MAXGROUPFILES];
-static int32_t groupcrc[MAXGROUPFILES];
 
 static uint8_t filegrp[MAXOPENFILES];
 static int32_t filepos[MAXOPENFILES];
@@ -707,25 +705,6 @@ static int32_t kopen_internal(const char *filename, char **lastpfn, char searchf
 static int32_t kread_grp(int32_t handle, void *buffer, int32_t leng);
 static int32_t klseek_grp(int32_t handle, int32_t offset, int32_t whence);
 static void kclose_grp(int32_t handle);
-
-static void initgroupfile_crc32(int32_t handle)
-{
-    int32_t b, crcval = 0;
-#define BUFFER_SIZE (1024 * 1024 * 8)
-    uint8_t *buf = (uint8_t *)Xmalloc(BUFFER_SIZE);
-    klseek_grp(handle, 0, BSEEK_SET);
-
-    do
-    {
-        b = kread_grp(handle, buf, BUFFER_SIZE);
-        if (b > 0) crcval = Bcrc32((uint8_t *)buf, b, crcval);
-    }
-    while (b == BUFFER_SIZE);
-
-    groupcrc[handle] = crcval;
-    klseek_grp(handle, 0, BSEEK_SET);
-    Bfree(buf);
-}
 
 int initgroupfile(const char *filename)
 {
@@ -758,7 +737,7 @@ int initgroupfile(const char *filename)
 
             kzaddstack(zfn);
             Bfree(zfn);
-            return 0;
+            return MAXGROUPFILES;
         }
         klseek_grp(numgroupfiles,0,BSEEK_SET);
 
@@ -788,10 +767,8 @@ int initgroupfile(const char *filename)
             j += k;
         }
         gfileoffs[numgroupfiles][gnumfiles[numgroupfiles]] = j;
-        initgroupfile_crc32(numgroupfiles);
         groupname[numgroupfiles] = Xstrdup(filename);
-        numgroupfiles++;
-        return 0;
+        return numgroupfiles++;
     }
     klseek_grp(numgroupfiles, 0, BSEEK_SET);
 
@@ -893,10 +870,8 @@ int initgroupfile(const char *filename)
             klseek_grp(numgroupfiles, 104, BSEEK_CUR);
         }
         gfileoffs[numgroupfiles][gnumfiles[numgroupfiles]] = j;
-        initgroupfile_crc32(numgroupfiles);
         groupname[numgroupfiles] = Xstrdup(filename);
-        numgroupfiles++;
-        return 0;
+        return numgroupfiles++;
     }
 
     kclose_grp(numgroupfiles);
@@ -1077,14 +1052,7 @@ gnumfiles_continue: ;
 
 void krename(int32_t crcval, int32_t filenum, const char *newname)
 {
-    for (bssize_t k=numgroupfiles-1; k>=0; k--)
-    {
-        if (groupfil[k] >= 0 && groupcrc[k] == crcval)
-        {
-            Bstrncpy((char *)&gfilelist[k][filenum<<4], newname, 12);
-            return;
-        }
-    }
+    Bstrncpy((char *)&gfilelist[crcval][filenum<<4], newname, 12);
 }
 
 char const * kfileparent(int32_t const handle)
