@@ -6444,17 +6444,17 @@ void C_Compile(const char *fileName)
 
     for (int i = 0; i < MAXEVENTS; ++i)
     {
+        if (!apScriptGameEventEnd[i])
+            continue;
+
         intptr_t *eventEnd = apScript + apScriptGameEventEnd[i];
-        if (eventEnd)
+        // C_FillEventBreakStackWithEndEvent
+        intptr_t *breakPtr = (intptr_t*)*(eventEnd + 2);
+        while (breakPtr)
         {
-            // C_FillEventBreakStackWithEndEvent
-            intptr_t *breakPtr = (intptr_t*)*(eventEnd + 2);
-            while (breakPtr)
-            {
-                breakPtr = apScript + (intptr_t)breakPtr;
-                *(breakPtr-2) = CON_ENDEVENT | (g_lineNumber << 12);
-                breakPtr = (intptr_t*)*breakPtr;
-            }
+            breakPtr = apScript + (intptr_t)breakPtr;
+            *(breakPtr-2) = CON_ENDEVENT | (g_lineNumber << 12);
+            breakPtr = (intptr_t*)*breakPtr;
         }
     }
 
