@@ -92,7 +92,7 @@ int Gv_Free(void)
 
 // Calls Gv_Free() and in addition frees the labels of all game variables and
 // arrays.
-// Only call this function ONCE...
+// Only call this function during initialization or at exit
 void Gv_Clear(void)
 {
     int       gameVarCount   = Gv_Free();
@@ -109,20 +109,12 @@ void Gv_Clear(void)
 
 int Gv_ReadSave(int32_t kFile)
 {
-    char savedstate[MAXVOLUMES*MAXLEVELS];
     char tbuf[12];
 
     if (kread(kFile, tbuf, 12)!=12) goto corrupt;
     if (Bmemcmp(tbuf, "BEG: EDuke32", 12)) { OSD_Printf("BEG ERR\n"); return 2; }
 
-    Bmemset(savedstate, 0, sizeof(savedstate));
-
-    //     AddLog("Reading gamevars from savegame");
-
     Gv_Free(); // nuke 'em from orbit, it's the only way to be sure...
-
-    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-    //  AddLog(g_szBuf);
 
     if (kdfread(&g_gameVarCount,sizeof(g_gameVarCount),1,kFile) != 1) goto corrupt;
     for (bssize_t i=0; i<g_gameVarCount; i++)
@@ -146,16 +138,11 @@ int Gv_ReadSave(int32_t kFile)
         else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
         {
             aGameVars[i].pValues = (intptr_t*)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-            if (kdfread(&aGameVars[i].pValues[0],sizeof(intptr_t), MAXSPRITES, kFile) != MAXSPRITES) goto corrupt;
+            if (kdfread(aGameVars[i].pValues,sizeof(intptr_t), MAXSPRITES, kFile) != MAXSPRITES) goto corrupt;
         }
     }
-    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-    //  AddLog(g_szBuf);
 
     Gv_InitWeaponPointers();
-
-    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-    //  AddLog(g_szBuf);
 
     if (kdfread(&g_gameArrayCount,sizeof(g_gameArrayCount),1,kFile) != 1) goto corrupt;
     for (bssize_t i=0; i<g_gameArrayCount; i++)
@@ -177,7 +164,7 @@ int Gv_ReadSave(int32_t kFile)
 
         if (asize != 0 && !(aGameArrays[i].flags & GAMEARRAY_SYSTEM))
         {
-            aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, Gv_GetArrayAllocSize(i));
+            aGameArrays[i].pValues = (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, Gv_GetArrayAllocSize(i));
             if (kdfread(aGameArrays[i].pValues, Gv_GetArrayAllocSize(i), 1, kFile) < 1) goto corrupt;
         }
         else
@@ -186,144 +173,127 @@ int Gv_ReadSave(int32_t kFile)
 
     Gv_RefreshPointers();
 
-    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-    //  AddLog(g_szBuf);
-    if (kdfread(apScriptEvents,sizeof(apScriptEvents),1,kFile) != 1) goto corrupt;
+    if (kdfread(apScriptEvents, sizeof(apScriptEvents), 1, kFile) != 1) goto corrupt;
 
-    //  Bsprintf(g_szBuf,"CP:%s %d",__FILE__,__LINE__);
-    //  AddLog(g_szBuf);
+    uint8_t savedstate[MAXVOLUMES*MAXLEVELS];
+    Bmemset(savedstate, 0, sizeof(savedstate));
 
-    if (kdfread(&savedstate[0],sizeof(savedstate),1,kFile) != 1) goto corrupt;
+    if (kdfread(savedstate, sizeof(savedstate), 1, kFile) != 1) goto corrupt;
 
-    for (bssize_t i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
+    for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
     {
-        if (savedstate[i])
-        {
-            if (g_mapInfo[i].savedstate == NULL)
-                g_mapInfo[i].savedstate = (mapstate_t *)Xaligned_alloc(16, sizeof(mapstate_t));
-            if (kdfread(g_mapInfo[i].savedstate,sizeof(mapstate_t),1,kFile) != sizeof(mapstate_t)) goto corrupt;
-            for (bssize_t j=0; j<g_gameVarCount; j++)
-            {
-                if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
-                if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
-                {
-//                    if (!g_mapInfo[i].savedstate->vars[j])
-                    g_mapInfo[i].savedstate->vars[j] = (intptr_t *)Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
-                    if (kdfread(&g_mapInfo[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, kFile) != 1) goto corrupt;
-                }
-                else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
-                {
-//                    if (!g_mapInfo[i].savedstate->vars[j])
-                    g_mapInfo[i].savedstate->vars[j] = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-                    if (kdfread(&g_mapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, kFile) != MAXSPRITES) goto corrupt;
-                }
-            }
+        G_FreeMapState(i);
 
-            for (bssize_t j=0; j<g_gameArrayCount; j++)
-                if (aGameArrays[j].flags & GAMEARRAY_RESTORE)
-                {
-                    g_mapInfo[i].savedstate->arrays[j] = (intptr_t *) Xaligned_alloc(16, Gv_GetArrayAllocSize(j));
-                    if (kdfread(&g_mapInfo[i].savedstate->arrays[j][0], Gv_GetArrayAllocSize(j), 1, kFile) != (int32_t)Gv_GetArrayAllocSize(j)) goto corrupt;
-                }
-        }
-        else
+        if (!savedstate[i])
+            continue;
+
+        g_mapInfo[i].savedstate = (mapstate_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, sizeof(mapstate_t));
+        if (kdfread(g_mapInfo[i].savedstate, 1, sizeof(mapstate_t), kFile) != sizeof(mapstate_t)) return -8;
+
+        mapstate_t &sv = *g_mapInfo[i].savedstate;
+
+        for (bssize_t j = 0; j < g_gameVarCount; j++)
         {
-            G_FreeMapState(i);
+            if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
+            if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
+            {
+                sv.vars[j] = (intptr_t *) Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
+                if (kdfread(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS, 1, kFile) != 1) return -9;
+            }
+            else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
+            {
+                sv.vars[j] = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
+                if (kdfread(sv.vars[j], sizeof(intptr_t), MAXSPRITES, kFile) != MAXSPRITES) return -10;
+            }
         }
+
+        if (kdfread(sv.arraysiz, sizeof(sv.arraysiz), 1, kFile) < 1)
+            return -11;
+
+        for (bssize_t j = 0; j < g_gameArrayCount; j++)
+            if (aGameArrays[j].flags & GAMEARRAY_RESTORE)
+            {
+                size_t const siz = Gv_GetArrayAllocSizeForCount(j, sv.arraysiz[j]);
+                sv.arrays[j] = (intptr_t *) Xaligned_alloc(ARRAY_ALIGNMENT, siz);
+                if (kdfread(sv.arrays[j], siz, 1, kFile) < 1) return -12;
+            }
     }
 
-    if (kread(kFile, tbuf, 12)!=12) goto corrupt;
+    if (kread(kFile, tbuf, 12) != 12) return -13;
     if (Bmemcmp(tbuf, "EOF: EDuke32", 12)) { OSD_Printf("EOF ERR\n"); return 2; }
 
-# if 0
-    {
-        FILE *fp;
-        AddLog("Dumping Vars...");
-        fp=fopen("xxx.txt","w");
-        if (fp)
-        {
-            Gv_DumpValues(fp);
-            fclose(fp);
-        }
-        AddLog("Done Dumping...");
-    }
-# endif
     return 0;
+
 corrupt:
-    return 1;
+    return -7;
 }
 
 void Gv_WriteSave(FILE *fil)
 {
-    char savedstate[MAXVOLUMES*MAXLEVELS];
-
-    Bmemset(savedstate, 0, sizeof(savedstate));
-
     //   AddLog("Saving Game Vars to File");
     fwrite("BEG: EDuke32", 12, 1, fil);
 
     dfwrite(&g_gameVarCount,sizeof(g_gameVarCount),1,fil);
 
-    for (bssize_t i=0; i<g_gameVarCount; i++)
+    for (bssize_t i = 0; i < g_gameVarCount; i++)
     {
-        dfwrite(&(aGameVars[i]),sizeof(gamevar_t),1,fil);
-        dfwrite(aGameVars[i].szLabel,sizeof(uint8_t) * MAXVARLABEL, 1, fil);
+        dfwrite(&(aGameVars[i]), sizeof(gamevar_t), 1, fil);
+        dfwrite(aGameVars[i].szLabel, sizeof(uint8_t) * MAXVARLABEL, 1, fil);
 
         if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
-        {
-            //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(int32_t) * MAXPLAYERS);
-            //AddLog(g_szBuf);
-            dfwrite(aGameVars[i].pValues,sizeof(intptr_t) * MAXPLAYERS, 1, fil);
-        }
+            dfwrite(aGameVars[i].pValues, sizeof(intptr_t) * MAXPLAYERS, 1, fil);
         else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
-        {
-            //Bsprintf(g_szBuf,"Writing value array for %s (%d)",aGameVars[i].szLabel,sizeof(int32_t) * MAXSPRITES);
-            //AddLog(g_szBuf);
-            dfwrite(&aGameVars[i].pValues[0],sizeof(intptr_t), MAXSPRITES, fil);
-        }
+            dfwrite(aGameVars[i].pValues, sizeof(intptr_t), MAXSPRITES, fil);
     }
 
     dfwrite(&g_gameArrayCount,sizeof(g_gameArrayCount),1,fil);
 
-    for (bssize_t i=0; i<g_gameArrayCount; i++)
+    for (bssize_t i = 0; i < g_gameArrayCount; i++)
     {
         // write for .size and .dwFlags (the rest are pointers):
-        dfwrite(&aGameArrays[i],sizeof(gamearray_t),1,fil);
-        dfwrite(aGameArrays[i].szLabel,sizeof(uint8_t) * MAXARRAYLABEL, 1, fil);
+        dfwrite(&aGameArrays[i], sizeof(gamearray_t), 1, fil);
+        dfwrite(aGameArrays[i].szLabel, sizeof(uint8_t) * MAXARRAYLABEL, 1, fil);
 
-        if (!(aGameArrays[i].flags & GAMEARRAY_SYSTEM))
+        if ((aGameArrays[i].flags & GAMEARRAY_SYSTEM) != GAMEARRAY_SYSTEM)
             dfwrite(aGameArrays[i].pValues, Gv_GetArrayAllocSize(i), 1, fil);
     }
 
-    dfwrite(apScriptEvents,sizeof(apScriptEvents),1,fil);
+    dfwrite(apScriptEvents, sizeof(apScriptEvents), 1, fil);
 
-    for (bssize_t i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
+    uint8_t savedstate[MAXVOLUMES * MAXLEVELS];
+    Bmemset(savedstate, 0, sizeof(savedstate));
+
+    for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
         if (g_mapInfo[i].savedstate != NULL)
             savedstate[i] = 1;
 
-    dfwrite(&savedstate[0],sizeof(savedstate),1,fil);
+    dfwrite(savedstate, sizeof(savedstate), 1, fil);
 
-    for (bssize_t i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
-        if (g_mapInfo[i].savedstate)
+    for (bssize_t i = 0; i < (MAXVOLUMES * MAXLEVELS); i++)
+    {
+        if (!savedstate[i]) continue;
+
+        mapstate_t &sv = *g_mapInfo[i].savedstate;
+
+        dfwrite(g_mapInfo[i].savedstate, sizeof(mapstate_t), 1, fil);
+
+        for (bssize_t j = 0; j < g_gameVarCount; j++)
         {
-            dfwrite(g_mapInfo[i].savedstate,sizeof(mapstate_t),1,fil);
-            for (bssize_t j=0; j<g_gameVarCount; j++)
-            {
-                if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
-                if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
-                {
-                    dfwrite(&g_mapInfo[i].savedstate->vars[j][0],sizeof(intptr_t) * MAXPLAYERS, 1, fil);
-                }
-                else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
-                {
-                    dfwrite(&g_mapInfo[i].savedstate->vars[j][0],sizeof(intptr_t), MAXSPRITES, fil);
-                }
-            }
-
-            for (bssize_t j=0; j<g_gameArrayCount; j++)
-                if (aGameArrays[j].flags & GAMEARRAY_RESTORE)
-                    dfwrite(&g_mapInfo[i].savedstate->arrays[j][0], Gv_GetArrayAllocSize(j), 1, fil);
+            if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
+            if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
+                dfwrite(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS, 1, fil);
+            else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
+                dfwrite(sv.vars[j], sizeof(intptr_t), MAXSPRITES, fil);
         }
+
+        dfwrite(sv.arraysiz, sizeof(sv.arraysiz), 1, fil);
+
+        for (bssize_t j = 0; j < g_gameArrayCount; j++)
+            if (aGameArrays[j].flags & GAMEARRAY_RESTORE)
+            {
+                dfwrite(sv.arrays[j], Gv_GetArrayAllocSizeForCount(j, sv.arraysiz[j]), 1, fil);
+            }
+    }
 
     fwrite("EOF: EDuke32", 12, 1, fil);
 }
@@ -463,7 +433,7 @@ void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t 
         int const allocSize = Gv_GetArrayAllocSize(i);
 
         aGameArrays[i].flags |= GAMEARRAY_ALLOCATED;
-        aGameArrays[i].pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, allocSize);
+        aGameArrays[i].pValues = (intptr_t *) Xaligned_alloc(ARRAY_ALIGNMENT, allocSize);
         Bmemset(aGameArrays[i].pValues, 0, allocSize);
     }
 
@@ -473,9 +443,6 @@ void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t 
 
 void Gv_NewVar(const char *pszLabel, intptr_t lValue, uint32_t dwFlags)
 {
-    //Bsprintf(g_szBuf,"Gv_NewVar(%s, %d, %X)",pszLabel, lValue, dwFlags);
-    //AddLog(g_szBuf);
-
     if (EDUKE32_PREDICT_FALSE(g_gameVarCount >= MAXGAMEVARS))
     {
         g_errorCnt++;

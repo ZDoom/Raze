@@ -4420,7 +4420,7 @@ finish_qsprintf:
                     if (newBytes != oldBytes)
                     {
                         Baligned_free(pValues);
-                        pValues = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, newBytes);
+                        pValues = (intptr_t *) Xaligned_alloc(ARRAY_ALIGNMENT, newBytes);
                     }
 
                     aGameArrays[arrayNum].size = numElements;
@@ -4545,7 +4545,7 @@ finish_qsprintf:
 
                     Baligned_free(aGameArrays[tw].pValues);
 
-                    aGameArrays[tw].pValues = newSize != 0 ? (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, eltSize * newSize) : NULL;
+                    aGameArrays[tw].pValues = newSize != 0 ? (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, eltSize * newSize) : NULL;
                     aGameArrays[tw].size = newSize;
 
                     if (oldSize != 0)
@@ -5739,7 +5739,7 @@ void G_SaveMapState(void)
 
     if (pMapInfo->savedstate == NULL)
     {
-        pMapInfo->savedstate = (mapstate_t *) Xaligned_alloc(16, sizeof(mapstate_t));
+        pMapInfo->savedstate = (mapstate_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, sizeof(mapstate_t));
         Bmemset(pMapInfo->savedstate, 0, sizeof(mapstate_t));
     }
 
@@ -5824,14 +5824,14 @@ void G_SaveMapState(void)
         if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
         {
             if (!save->vars[i])
-                save->vars[i] = (intptr_t *)Xaligned_alloc(16, MAXPLAYERS * sizeof(intptr_t));
-            Bmemcpy(&save->vars[i][0],&aGameVars[i].pValues[0],sizeof(intptr_t) * MAXPLAYERS);
+                save->vars[i] = (intptr_t *)Xaligned_alloc(PLAYER_VAR_ALIGNMENT, MAXPLAYERS * sizeof(intptr_t));
+            Bmemcpy(&save->vars[i][0], aGameVars[i].pValues, sizeof(intptr_t) * MAXPLAYERS);
         }
         else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
         {
             if (!save->vars[i])
-                save->vars[i] = (intptr_t *)Xaligned_alloc(16, MAXSPRITES * sizeof(intptr_t));
-            Bmemcpy(&save->vars[i][0],&aGameVars[i].pValues[0],sizeof(intptr_t) * MAXSPRITES);
+                save->vars[i] = (intptr_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
+            Bmemcpy(&save->vars[i][0], aGameVars[i].pValues, sizeof(intptr_t) * MAXSPRITES);
         }
         else save->vars[i] = (intptr_t *)aGameVars[i].global;
     }
@@ -5841,10 +5841,10 @@ void G_SaveMapState(void)
         if ((aGameArrays[i].flags & GAMEARRAY_RESTORE) == 0)
             continue;
 
-        if (!save->arrays[i])
-            save->arrays[i] = (intptr_t *)Xaligned_alloc(16, Gv_GetArrayAllocSize(i));
-
-        Bmemcpy(&save->arrays[i][0], &aGameArrays[i].pValues[0], Gv_GetArrayAllocSize(i));
+        save->arraysiz[i] = aGameArrays[i].size;
+        Baligned_free(save->arrays[i]);
+        save->arrays[i] = (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, Gv_GetArrayAllocSize(i));
+        Bmemcpy(&save->arrays[i][0], aGameArrays[i].pValues, Gv_GetArrayAllocSize(i));
     }
 #else
     int32_t slen;
@@ -5955,25 +5955,29 @@ void G_RestoreMapState(void)
             if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
             {
                 if (!pSavedState->vars[i]) continue;
-                Bmemcpy(&aGameVars[i].pValues[0],&pSavedState->vars[i][0],sizeof(intptr_t) * MAXPLAYERS);
+                Bmemcpy(aGameVars[i].pValues, pSavedState->vars[i], sizeof(intptr_t) * MAXPLAYERS);
             }
             else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
             {
                 if (!pSavedState->vars[i]) continue;
-                Bmemcpy(&aGameVars[i].pValues[0],&pSavedState->vars[i][0],sizeof(intptr_t) * MAXSPRITES);
+                Bmemcpy(aGameVars[i].pValues, pSavedState->vars[i], sizeof(intptr_t) * MAXSPRITES);
             }
             else aGameVars[i].global = (intptr_t)pSavedState->vars[i];
         }
 
-        Gv_RefreshPointers();
-
         for (bssize_t i=g_gameArrayCount-1; i>=0; i--)
         {
-            if ((aGameArrays[i].flags & GAMEARRAY_RESTORE) == 0 || !pSavedState->arrays[i])
+            if ((aGameArrays[i].flags & GAMEARRAY_RESTORE) == 0)
                 continue;
 
-            Bmemcpy(&aGameArrays[i].pValues[0], &pSavedState->arrays[i][0], Gv_GetArrayAllocSize(i));
+            aGameArrays[i].size = pSavedState->arraysiz[i];
+            Baligned_free(aGameArrays[i].pValues);
+            aGameArrays[i].pValues = (intptr_t *) Xaligned_alloc(ARRAY_ALIGNMENT, Gv_GetArrayAllocSize(i));
+
+            Bmemcpy(aGameArrays[i].pValues, pSavedState->arrays[i], Gv_GetArrayAllocSize(i));
         }
+
+        Gv_RefreshPointers();
 #else
         if (pSavedState->savecode)
         {

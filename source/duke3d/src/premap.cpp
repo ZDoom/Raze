@@ -2029,13 +2029,21 @@ void G_FreeMapState(int levelNum)
 #if !defined LUNATIC
     for (bssize_t j=0; j<g_gameVarCount; j++)
     {
-//        if (aGameVars[j].flags & GAMEVAR_NORESET) continue;
+        if (aGameVars[j].flags & GAMEVAR_NORESET)
+            continue;
+
         if (aGameVars[j].flags & (GAMEVAR_PERPLAYER|GAMEVAR_PERACTOR))
-            Baligned_free(pMapInfo->savedstate->vars[j]);
+            ALIGNED_FREE_AND_NULL(pMapInfo->savedstate->vars[j]);
+    }
+
+    for (bssize_t j=0; j<g_gameArrayCount; j++)
+    {
+        if (aGameArrays[j].flags & GAMEARRAY_RESTORE)
+            ALIGNED_FREE_AND_NULL(pMapInfo->savedstate->arrays[j]);
     }
 #else
     Bfree(pMapInfo->savedstate->savecode);
 #endif
-    Baligned_free(pMapInfo->savedstate);
-    pMapInfo->savedstate = NULL;
+
+    ALIGNED_FREE_AND_NULL(pMapInfo->savedstate);
 }

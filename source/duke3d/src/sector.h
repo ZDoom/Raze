@@ -90,6 +90,7 @@ typedef struct {
 #if !defined LUNATIC
     intptr_t *vars[MAXGAMEVARS];
     intptr_t *arrays[MAXGAMEARRAYS];
+    int32_t arraysiz[MAXGAMEARRAYS];
 #else
     char *savecode;
 #endif

@@ -2038,7 +2038,9 @@ static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
     PRINTSIZE("animisc");
 
 #if !defined LUNATIC
-    if (Gv_ReadSave(fil)) return -7;
+    int i;
+
+    if ((i = Gv_ReadSave(fil))) return i;
 
     if (mem)
     {
