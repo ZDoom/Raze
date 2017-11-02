@@ -2375,8 +2375,8 @@ skip: ;
 
         int const ni = vsp[i].n;
 
-        if ((vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag) /*&&
-            ((vsp[ni].cy[1] <= vsp[i].cy[1]) || (vsp[ni].fy[1] >= vsp[i].fy[1]))*/)
+        if ((vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag) &&
+            ((vsp[i].cy[1] <= vsp[ni].cy[1]) || (vsp[i].fy[1] <= vsp[ni].fy[1])))
         {
             vsp[i].cy[1] = vsp[ni].cy[1];
             vsp[i].fy[1] = vsp[ni].fy[1];
@@ -4188,7 +4188,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
         if (t0 >= 0)
             dp2[n2++] = dpxy[i];
 
-        if ((t0 >= 0) != (t1 >= 0))
+        if ((t0 >= 0) != (t1 >= 0) && (t0 <= 0) != (t1 <= 0))
         {
             float const r = t0 / (t0 - t1);
             dp2[n2].x = (dpxy[j].x - dpxy[i].x) * r + dpxy[i].x;
@@ -4215,7 +4215,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
         if (t0 >= 0)
             dpxy[n++] = dp2[i];
 
-        if ((t0 >= 0) != (t1 >= 0))
+        if ((t0 >= 0) != (t1 >= 0) && (t0 <= 0) != (t1 <= 0))
         {
             float const r = t0 / (t0 - t1);
             dpxy[n].x = (dp2[j].x - dp2[i].x) * r + dp2[i].x;
