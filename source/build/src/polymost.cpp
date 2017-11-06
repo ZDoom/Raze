@@ -522,10 +522,10 @@ static float get_projhack_ratio(void)
 {
     if (glprojectionhacks)
     {
-        static constexpr float const projhack_zoom = 1.3f;
-        static constexpr float const maxcoshoriz = 0.540971179375801f; // 128/sqrt(128^2+199^2) = cos of an horiz diff of 199
-        static constexpr float const factor = (projhack_zoom - 1.f) * (1.f / maxcoshoriz);
-        return 1.f + (factor * (1.f - Bfabsf(gchang)));
+        // tangent of ((angle of 4 by 3) + (angle of 128 by 199)) / tangent of 90
+        static constexpr float const projhack_constant = 1.166015625f;
+        float const projhack = 65536.f / fviewingrange;
+        return projhack_constant > projhack ? projhack_constant : projhack;
     }
 
     // No projection hacks (legacy or new-aspect)
@@ -565,8 +565,10 @@ static void resizeglcheck(void)
         const int32_t ourxdimen = (windowxy2.x-windowxy1.x+1);
         float ratio = get_projhack_ratio();
         const int32_t fovcorrect = (int32_t)(ourxdimen*ratio - ourxdimen);
-
+        viewingrange = Blrintf(fviewingrange *= ratio);
+        float const halfydimen = fydimen * 0.5f;
         ratio = 1.f/ratio;
+        globalhoriz = ((globalhoriz - halfydimen) * ratio) + halfydimen;
 
         glox1 = (float)windowxy1.x; gloy1 = (float)windowxy1.y;
         glox2 = (float)windowxy2.x; gloy2 = (float)windowxy2.y;
