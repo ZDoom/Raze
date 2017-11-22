@@ -1383,8 +1383,8 @@ static void Yax_SetBunchInterpolation(int32_t sectnum, int32_t cf)
 
 // A_Spawn has two forms with arguments having different meaning:
 //
-// 1. j>=0: Spawn from parent sprite <j> with picnum <pn>
-// 2. j<0: Spawn from already *existing* sprite <pn>
+// 1. spriteNum>=0: Spawn from parent sprite <spriteNum> with picnum <tileNum>
+// 2. spriteNum<0: Spawn from already *existing* sprite <tileNum>
 int A_Spawn(int spriteNum, int tileNum)
 {
     int         newSprite;
@@ -1740,28 +1740,15 @@ int A_Spawn(int spriteNum, int tileNum)
                     {
                         updatesector(pSprite->x - 108, pSprite->y + 108, &pukeSect);
                         if (pukeSect >= 0 && sector[pukeSect].floorz != sector[pSprite->sectnum].floorz)
-                        {
-                            pSprite->xrepeat = pSprite->yrepeat = 0;
-                            changespritestat(newSprite, STAT_MISC);
-                            break;
-                        }
+                            goto zero_puke;
                     }
-                    else
-                    {
-                        pSprite->xrepeat = pSprite->yrepeat = 0;
-                        changespritestat(newSprite, STAT_MISC);
-                        break;
-                    }
+                    else goto zero_puke;
                 }
-                else
-                {
-                    pSprite->xrepeat = pSprite->yrepeat = 0;
-                    changespritestat(newSprite, STAT_MISC);
-                    break;
-                }
+                else goto zero_puke;
             }
             else
             {
+            zero_puke:
                 pSprite->xrepeat = pSprite->yrepeat = 0;
                 changespritestat(newSprite, STAT_MISC);
                 break;
@@ -1972,20 +1959,13 @@ int A_Spawn(int spriteNum, int tileNum)
                                 break;
                             }
                         }
-                        else
-                        {
-                            pSprite->xrepeat = pSprite->yrepeat = 0;
-                            break;
-                        }
+                        else goto zero_footprint;
                     }
-                    else
-                    {
-                        pSprite->xrepeat = pSprite->yrepeat = 0;
-                        break;
-                    }
+                    else goto zero_footprint;
                 }
                 else
                 {
+                zero_footprint:
                     pSprite->xrepeat = pSprite->yrepeat = 0;
                     break;
                 }
