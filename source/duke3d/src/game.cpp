@@ -6464,8 +6464,10 @@ int app_main(int argc, char const * const * argv)
     else
         Bsprintf(tempbuf, "%s_settings.cfg", p);
 
-    OSD_Exec(tempbuf);
     Bfree(setupFileName);
+
+    OSD_Exec(tempbuf);
+    OSD_Exec("autoexec.cfg");
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
@@ -6509,12 +6511,8 @@ int app_main(int argc, char const * const * argv)
 
         S_MusicStartup();
         S_SoundStartup();
+        Menu_Init();
     }
-//    loadtmb();
-
-    OSD_Exec("autoexec.cfg");
-
-    Menu_Init();
 
     if (ud.warp_on > 1 && (!g_netServer && ud.multimode < 2))
     {
