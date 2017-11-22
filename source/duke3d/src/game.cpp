@@ -1388,8 +1388,10 @@ static void Yax_SetBunchInterpolation(int32_t sectnum, int32_t cf)
 int A_Spawn(int spriteNum, int tileNum)
 {
     int         newSprite;
-    int         sectNum;
     spritetype *pSprite;
+    actor_t *   pActor;
+    int         sectNum;
+
 
     if (spriteNum >= 0)
     {
@@ -1401,76 +1403,81 @@ int A_Spawn(int spriteNum, int tileNum)
     else
     {
         // spawn from already existing sprite <pn>
-        newSprite = tileNum;
+        newSprite                 = tileNum;
+        spritetype *const pSprite = &sprite[newSprite];
+        actor_t *const    pActor  = &actor[newSprite];
 
         Bmemset(&actor[newSprite], 0, sizeof(actor_t));
-        Bmemcpy(&actor[newSprite].bpos, &sprite[newSprite], sizeof(vec3_t));
+        Bmemcpy(&pActor->bpos, &sprite[newSprite], sizeof(vec3_t));
 
-        actor[newSprite].picnum = PN(newSprite);
+        pActor->picnum = pSprite->picnum;
 
-        if (PN(newSprite) == SECTOREFFECTOR && SLT(newSprite) == 50)
-            actor[newSprite].picnum = OW(newSprite);
+        if (pSprite->picnum == SECTOREFFECTOR && pSprite->lotag == 50)
+            pActor->picnum = pSprite->owner;
 
-        OW(newSprite) = actor[newSprite].owner = newSprite;
+        pSprite->owner = pActor->owner = newSprite;
 
-        actor[newSprite].floorz = sector[SECT(newSprite)].floorz;
-        actor[newSprite].ceilingz = sector[SECT(newSprite)].ceilingz;
+        pActor->floorz   = sector[pSprite->sectnum].floorz;
+        pActor->ceilingz = sector[pSprite->sectnum].ceilingz;
 
-        actor[newSprite].actorstayput = actor[newSprite].extra = -1;
+        pActor->actorstayput = pActor->extra = -1;
+
 #ifdef POLYMER
-        actor[newSprite].lightId = -1;
+        pActor->lightId = -1;
 #endif
 
-        if ((CS(newSprite) & 48)
-            && PN(newSprite) != SPEAKER
-            && PN(newSprite) != LETTER
-            && PN(newSprite) != DUCK
-            && PN(newSprite) != TARGET
-            && PN(newSprite) != TRIPBOMB
-            && PN(newSprite) != VIEWSCREEN
-            && PN(newSprite) != VIEWSCREEN2
-            && (!(PN(newSprite) >= CRACK1 && PN(newSprite) <= CRACK4)))
+        if ((pSprite->cstat & 48)
+            && pSprite->picnum != SPEAKER
+            && pSprite->picnum != LETTER
+            && pSprite->picnum != DUCK
+            && pSprite->picnum != TARGET
+            && pSprite->picnum != TRIPBOMB
+            && pSprite->picnum != VIEWSCREEN
+            && pSprite->picnum != VIEWSCREEN2
+            && (!(pSprite->picnum >= CRACK1 && pSprite->picnum <= CRACK4)))
         {
-            if (SS(newSprite) == 127)
+            if (pSprite->shade == 127)
                 goto SPAWN_END;
 
-            if (A_CheckSwitchTile(newSprite) && (CS(newSprite) & 16))
+            if (A_CheckSwitchTile(newSprite) && (pSprite->cstat & 16))
             {
-                if (sprite[newSprite].pal && PN(newSprite) != ACCESSSWITCH && PN(newSprite) != ACCESSSWITCH2)
+                if (pSprite->pal && pSprite->picnum != ACCESSSWITCH && pSprite->picnum != ACCESSSWITCH2)
                 {
                     if (((!g_netServer && ud.multimode < 2)) || ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_DMSWITCHES)))
                     {
-                        sprite[newSprite].xrepeat = sprite[newSprite].yrepeat = 0;
-                        SLT(newSprite) = SHT(newSprite) = 0;
-                        sprite[newSprite].cstat = 32768;
+                        pSprite->xrepeat = pSprite->yrepeat = 0;
+                        pSprite->lotag = pSprite->hitag = 0;
+                        pSprite->cstat = 32768;
                         goto SPAWN_END;
                     }
                 }
 
-                CS(newSprite) |= 257;
+                pSprite->cstat |= 257;
 
-                if (sprite[newSprite].pal && PN(newSprite) != ACCESSSWITCH && PN(newSprite) != ACCESSSWITCH2)
-                    sprite[newSprite].pal = 0;
+                if (pSprite->pal && pSprite->picnum != ACCESSSWITCH && pSprite->picnum != ACCESSSWITCH2)
+                    pSprite->pal = 0;
+
                 goto SPAWN_END;
             }
 
-            if (SHT(newSprite))
+            if (pSprite->hitag)
             {
                 changespritestat(newSprite, STAT_FALLER);
-                CS(newSprite) |= 257;
-                SH(newSprite) = g_impactDamage;
+                pSprite->cstat |= 257;
+                pSprite->extra = g_impactDamage;
                 goto SPAWN_END;
             }
         }
 
-        if (CS(newSprite) & 1)
-            CS(newSprite) |= 256;
+        if (pSprite->cstat & 1)
+            pSprite->cstat |= 256;
 
-        if (!G_InitActor(newSprite, sprite[newSprite].picnum, 0))
+        if (!G_InitActor(newSprite, pSprite->picnum, 0))
             T2(newSprite) = T5(newSprite) = 0;  // AC_MOVE_ID, AC_ACTION_ID
     }
 
     pSprite = &sprite[newSprite];
+    pActor  = &actor[newSprite];
     sectNum = pSprite->sectnum;
 
     //some special cases that can't be handled through the dynamictostatic system.
@@ -1487,8 +1494,8 @@ int A_Spawn(int spriteNum, int tileNum)
         if (pSprite->picnum != GENERICPOLE)
         {
             pSprite->extra = 1;
-
             pSprite->cstat &= 32768;
+
             if (g_damageCameras)
                 pSprite->cstat |= 257;
         }
@@ -1538,7 +1545,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     A_Fall(newSprite);
 
                     if (A_CheckSpriteFlags(newSprite, SFLAG_BADGUYSTAYPUT))
-                        actor[newSprite].actorstayput = pSprite->sectnum;
+                        pActor->actorstayput = pSprite->sectnum;
 
                     g_player[myconnectindex].ps->max_actors_killed++;
                     pSprite->clipdist = 80;
@@ -1546,7 +1553,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     if (spriteNum >= 0)
                     {
                         if (sprite[spriteNum].picnum == RESPAWN)
-                            actor[newSprite].tempang = sprite[newSprite].pal = sprite[spriteNum].pal;
+                            pActor->tempang = sprite[newSprite].pal = sprite[spriteNum].pal;
 
                         changespritestat(newSprite, STAT_ACTOR);
                     }
@@ -1560,7 +1567,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     changespritestat(newSprite, STAT_ACTOR);
                 }
 
-                actor[newSprite].timetosleep = 0;
+                pActor->timetosleep = 0;
 
                 if (spriteNum >= 0)
                     pSprite->ang = sprite[spriteNum].ang;
@@ -1585,11 +1592,11 @@ int A_Spawn(int spriteNum, int tileNum)
             {
                 if (sector[sprite[spriteNum].sectnum].lotag == ST_2_UNDERWATER)
                 {
-                    pSprite->z = getceilzofslope(SECT(newSprite),SX(newSprite),SY(newSprite))+(16<<8);
+                    pSprite->z = getceilzofslope(sectNum, pSprite->x, pSprite->y) + (16 << 8);
                     pSprite->cstat |= 8;
                 }
                 else if (sector[sprite[spriteNum].sectnum].lotag == ST_1_ABOVE_WATER)
-                    pSprite->z = getflorzofslope(SECT(newSprite),SX(newSprite),SY(newSprite));
+                    pSprite->z = getflorzofslope(sectNum, pSprite->x, pSprite->y);
             }
 
             if (sector[sectNum].floorpicnum == FLOORSLIME || sector[sectNum].ceilingpicnum == FLOORSLIME)
@@ -1754,7 +1761,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 break;
             }
 
-            if (sector[SECT(newSprite)].lotag == ST_1_ABOVE_WATER)
+            if (sector[sectNum].lotag == ST_1_ABOVE_WATER)
             {
                 changespritestat(newSprite, STAT_MISC);
                 break;
@@ -1813,9 +1820,9 @@ int A_Spawn(int spriteNum, int tileNum)
 
             A_SetSprite(newSprite,CLIPMASK0);
 
-            actor[newSprite].t_data[0] = 17;
-            actor[newSprite].t_data[2] = 0;
-            actor[newSprite].t_data[5] = pSprite->ang;
+            pActor->t_data[0] = 17;
+            pActor->t_data[2] = 0;
+            pActor->t_data[5] = pSprite->ang;
 
             changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
@@ -2070,7 +2077,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case MONEY__STATIC:
         case MAIL__STATIC:
         case PAPER__STATIC:
-            actor[newSprite].t_data[0] = krand() & 2047;
+            pActor->t_data[0] = krand() & 2047;
 
             pSprite->cstat   = krand() & 12;
             pSprite->xrepeat = 8;
@@ -2155,7 +2162,7 @@ int A_Spawn(int spriteNum, int tileNum)
             if (pSprite->yrepeat > 32)
             {
                 G_AddGameLight(0, newSprite, ((pSprite->yrepeat*tilesiz[pSprite->picnum].y)<<1), 32768, 255+(95<<8),PR_LIGHT_PRIO_MAX_GAME);
-                actor[newSprite].lightcount = 2;
+                pActor->lightcount = 2;
             }
             fallthrough__;
 #endif
@@ -2257,7 +2264,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
                 do
                 {
-                    if (sprite[findSprite].picnum == CRANEPOLE && SHT(newSprite) == (sprite[findSprite].hitag))
+                    if (sprite[findSprite].picnum == CRANEPOLE && pSprite->hitag == (sprite[findSprite].hitag))
                     {
                         g_origins[tempwallptr + 2].y = findSprite;
 
@@ -2370,7 +2377,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case PIGCOPDIVE__STATIC:
         case COMMANDERSTAYPUT__STATIC:
         case BOSS4STAYPUT__STATIC:
-            actor[newSprite].actorstayput = pSprite->sectnum;
+            pActor->actorstayput = pSprite->sectnum;
             fallthrough__;
         case BOSS1__STATIC:
         case BOSS2__STATIC:
@@ -2484,7 +2491,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
                 if (spriteNum >= 0)
                 {
-                    actor[newSprite].timetosleep = 0;
+                    pActor->timetosleep = 0;
                     A_PlayAlertSound(newSprite);
                     changespritestat(newSprite, STAT_ACTOR);
                 }
@@ -2531,11 +2538,11 @@ int A_Spawn(int spriteNum, int tileNum)
 
             A_GetZLimits(newSprite);
 
-            int const oozSize = (actor[newSprite].floorz-actor[newSprite].ceilingz)>>9;
+            int const oozSize = (pActor->floorz-pActor->ceilingz)>>9;
 
             pSprite->yrepeat = oozSize;
-            pSprite->xrepeat = 25-(oozSize>>1);
-            pSprite->cstat |= (krand()&4);
+            pSprite->xrepeat = 25 - (oozSize >> 1);
+            pSprite->cstat |= (krand() & 4);
 
             break;
         }
@@ -2543,15 +2550,16 @@ int A_Spawn(int spriteNum, int tileNum)
         case REACTOR2__STATIC:
         case REACTOR__STATIC:
             pSprite->extra = g_impactDamage;
-            CS(newSprite) |= 257;
+            pSprite->cstat |= 257;
             if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
             {
                 pSprite->xrepeat = pSprite->yrepeat = 0;
                 changespritestat(newSprite, STAT_MISC);
                 break;
             }
-            pSprite->pal = 0;
-            SS(newSprite) = -17;
+
+            pSprite->pal   = 0;
+            pSprite->shade = -17;
 
             changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
@@ -2563,7 +2571,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
             pSprite->xrepeat = pSprite->yrepeat = 9;
             pSprite->yvel = 4;
-            CS(newSprite) |= 257;
+            pSprite->cstat |= 257;
 
             if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
             {
@@ -2571,8 +2579,8 @@ int A_Spawn(int spriteNum, int tileNum)
                 changespritestat(newSprite, STAT_MISC);
                 break;
             }
-            pSprite->pal = 0;
-            SS(newSprite) = -17;
+            pSprite->pal   = 0;
+            pSprite->shade = -17;
 
             changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
@@ -2585,7 +2593,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 goto SPAWN_END;
             }
             g_player[myconnectindex].ps->max_actors_killed++;
-            actor[newSprite].t_data[5] = 0;
+            pActor->t_data[5] = 0;
             if (ud.monsters_off == 1)
             {
                 pSprite->xrepeat = pSprite->yrepeat = 0;
@@ -2593,7 +2601,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 break;
             }
             pSprite->extra = 130;
-            CS(newSprite) |= 256; // Make it hitable
+            pSprite->cstat |= 256; // Make it hitable
 
             if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
             {
@@ -2601,8 +2609,8 @@ int A_Spawn(int spriteNum, int tileNum)
                 changespritestat(newSprite, STAT_MISC);
                 break;
             }
-            pSprite->pal = 0;
-            SS(newSprite) = -17;
+            pSprite->pal   = 0;
+            pSprite->shade = -17;
 
             changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
@@ -2661,12 +2669,12 @@ int A_Spawn(int spriteNum, int tileNum)
             }
 
             pSprite->pal = 0;
-            fallthrough__;
-        case ACCESSCARD__STATIC:
 
             if (pSprite->picnum == ATOMICHEALTH)
                 pSprite->cstat |= 128;
 
+            fallthrough__;
+        case ACCESSCARD__STATIC:
             if ((g_netServer || ud.multimode > 1) && !GTFLAGS(GAMETYPE_ACCESSCARDSPRITES) && pSprite->picnum == ACCESSCARD)
             {
                 pSprite->xrepeat = pSprite->yrepeat = 0;
@@ -2682,12 +2690,8 @@ int A_Spawn(int spriteNum, int tileNum)
 
             pSprite->shade = -17;
 
-            if (spriteNum >= 0) changespritestat(newSprite, STAT_ACTOR);
-            else
-            {
-                changespritestat(newSprite, STAT_ZOMBIEACTOR);
-                A_Fall(newSprite);
-            }
+            changespritestat(newSprite, (spriteNum >= 0) ? STAT_ACTOR : STAT_ZOMBIEACTOR);
+            A_Fall(newSprite);
             break;
 
         case WATERFOUNTAIN__STATIC:
@@ -2698,7 +2702,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case TIRE__STATIC:
         case CONE__STATIC:
         case BOX__STATIC:
-            CS(newSprite) = 257; // Make it hitable
+            pSprite->cstat = 257; // Make it hitable
             sprite[newSprite].extra = 1;
             changespritestat(newSprite, STAT_STANDABLE);
             break;
@@ -2765,7 +2769,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
                 for (TRAVERSE_SPRITE_SECT(headspritesect[pSprite->sectnum], j, nextj))
                     if (sprite[j].picnum == ACTIVATOR || sprite[j].picnum == ACTIVATORLOCKED)
-                        actor[newSprite].flags |= SFLAG_USEACTIVATOR;
+                        pActor->flags |= SFLAG_USEACTIVATOR;
             }
             changespritestat(newSprite, pSprite->lotag==46 ? STAT_EFFECTOR : STAT_LIGHT);
             goto SPAWN_END;
@@ -3217,7 +3221,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     }
 
 #ifdef YAX_ENABLE
-                    actor[newSprite].t_data[9] = -1;
+                    pActor->t_data[9] = -1;
 
                     if (outerWall >= 0)
                     {
@@ -3234,7 +3238,7 @@ int A_Spawn(int spriteNum, int tileNum)
                             if (foundEffector < 0)
                             {
                                 Sect_SetInterpolation(upperSect);
-                                actor[newSprite].t_data[9] = upperSect;
+                                pActor->t_data[9] = upperSect;
                             }
                         }
                     }
@@ -3276,7 +3280,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     // XXX: uh.. what?
                     if (spriteNum == -1)
                         spriteNum = SUBWAY;
-                    actor[newSprite].lastv.x = spriteNum;
+                    pActor->lastv.x = spriteNum;
                     fallthrough__;
                 case SE_30_TWO_WAY_TRAIN:
                     if (g_netServer || numplayers > 1)
@@ -5809,11 +5813,11 @@ static void G_Startup(void)
     {
         initprintf("*** You have run Duke Nukem 3D %d times. ***\n\n",ud.executions);
 
+#if 0//def _WIN32
         if (ud.executions >= 50 && !DUKEBETA)
         {
             initprintf("IT IS NOW TIME TO UPGRADE TO THE COMPLETE VERSION!\n");
 
-#if 0//def _WIN32
             Bsprintf(tempbuf, "You have run Duke Nukem 3D shareware %d times.  It is now time to upgrade to the complete version!\n\n"
                      "Upgrade Duke Nukem 3D now?\n", ud.executions);
 
@@ -5835,8 +5839,8 @@ static void G_Startup(void)
 
                 quitevent = 1;
             }
-#endif
         }
+#endif
     }
 
     for (i=0; i<MAXPLAYERS; i++)
