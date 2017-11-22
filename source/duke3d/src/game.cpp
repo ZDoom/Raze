@@ -6051,7 +6051,7 @@ void G_MaybeAllocPlayer(int32_t pnum)
 int G_FPSLimit(void)
 {
     static uint64_t nextPageTicks = 0;
-    static int frameWaiting = 0;
+    static unsigned frameWaiting  = 0;
 
     if (frameWaiting)
     {
@@ -6061,18 +6061,16 @@ int G_FPSLimit(void)
 
     uint64_t const frameTicks = getu64ticks();
 
-    if (r_maxfps == 0 || frameTicks >= nextPageTicks)
+    if (!r_maxfps || frameTicks >= nextPageTicks)
     {
         if (frameTicks >= nextPageTicks + g_frameDelay)
             nextPageTicks = frameTicks;
 
         nextPageTicks += g_frameDelay;
         frameWaiting++;
-
-        return 1;
     }
 
-    return 0;
+    return frameWaiting;
 }
 
 // TODO: reorder (net)actor_t to eliminate slop and update assertion
