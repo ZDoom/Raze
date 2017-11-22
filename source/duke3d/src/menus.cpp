@@ -537,6 +537,11 @@ static MenuEntry_t ME_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUENTRY( "Widescreen:", 
 
 
 #ifdef USE_OPENGL
+#ifdef EDUKE32_SIMPLE_MENU
+static MenuOption_t MEO_DISPLAYSETUP_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &r_usetileshades);
+static MenuEntry_t ME_DISPLAYSETUP_PALETTEEMULATION = MAKE_MENUENTRY("Palette emulation:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_PALETTEEMULATION, Option);
+#endif
+
 static char const *MEOSN_DISPLAYSETUP_TEXFILTER[] = { "Classic", "Filtered" };
 static int32_t MEOSV_DISPLAYSETUP_TEXFILTER[] = { TEXFILTER_OFF, TEXFILTER_ON };
 static MenuOptionSet_t MEOS_DISPLAYSETUP_TEXFILTER = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_TEXFILTER, MEOSV_DISPLAYSETUP_TEXFILTER, 0x2 );
@@ -720,9 +725,11 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
     &ME_DISPLAYSETUP_TOUCHALPHA,
 #else
     &ME_DISPLAYSETUP_ANISOTROPY,
-#endif
-#ifndef EDUKE32_SIMPLE_MENU
+#ifdef EDUKE32_SIMPLE_MENU
+    &ME_DISPLAYSETUP_PALETTEEMULATION,
+#else
     &ME_DISPLAYSETUP_ADVANCED_GL_POLYMOST,
+#endif
 #endif
 };
 
@@ -998,7 +1005,9 @@ static MenuOption_t MEO_RENDERERSETUP_GLOWTEX = MAKE_MENUOPTION(&MF_Bluefont, &M
 static MenuEntry_t ME_RENDERERSETUP_GLOWTEX = MAKE_MENUENTRY("Glow textures:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_GLOWTEX, Option);
 # endif
 static MenuOption_t MEO_RENDERERSETUP_MODELS = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &usemodels );
-static MenuEntry_t ME_RENDERERSETUP_MODELS = MAKE_MENUENTRY( "Use 3D models:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_MODELS, Option );
+static MenuEntry_t ME_RENDERERSETUP_MODELS = MAKE_MENUENTRY( "3D models:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_MODELS, Option );
+static MenuOption_t MEO_RENDERERSETUP_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_NoYes, &r_usetileshades);
+static MenuEntry_t ME_RENDERERSETUP_PALETTEEMULATION = MAKE_MENUENTRY("Palette emulation:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_RENDERERSETUP_PALETTEEMULATION, Option);
 #endif
 
 #ifdef POLYMER
@@ -1016,6 +1025,9 @@ static MenuEntry_t ME_POLYMER_SHADOWS = MAKE_MENUENTRY("Dynamic shadows:", &MF_B
 static MenuRangeInt32_t MEO_POLYMER_SHADOWCOUNT = MAKE_MENURANGE(&pr_shadowcount, &MF_Bluefont, 1, 10, 1, 10, 1);
 static MenuEntry_t ME_POLYMER_SHADOWCOUNT = MAKE_MENUENTRY("Shadows per surface:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_POLYMER_SHADOWCOUNT, RangeInt32);
 
+static MenuOption_t MEO_POLYMER_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_NoYes, &pr_artmapping);
+static MenuEntry_t ME_POLYMER_PALETTEEMULATION = MAKE_MENUENTRY("Palette emulation:", &MF_BluefontRed, &MEF_SmallOptions, &MEO_POLYMER_PALETTEEMULATION, Option);
+
 #endif
 
 #ifdef USE_OPENGL
@@ -1032,6 +1044,7 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMOST[] = {
 # endif
     &ME_Space4_Bluefont,
     &ME_RENDERERSETUP_MODELS,
+    &ME_RENDERERSETUP_PALETTEEMULATION,
 };
 
 #ifdef POLYMER
@@ -1045,6 +1058,7 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] = {
 # ifdef USE_GLEXT
     &ME_RENDERERSETUP_DETAILTEX,
     &ME_RENDERERSETUP_GLOWTEX,
+    &ME_POLYMER_PALETTEEMULATION,
 # endif
     &ME_Space4_Bluefont,
     &ME_RENDERERSETUP_MODELS,
