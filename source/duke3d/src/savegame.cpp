@@ -1113,7 +1113,6 @@ static const dataspec_t svgm_script[] =
 #if !defined LUNATIC
     { DS_LOADFN|DS_NOCHK, (void *)&sv_prescriptload_once, 0, 1 },
     { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &apScript, sizeof(apScript[0]), (intptr_t)&g_scriptSize },
-//    { DS_NOCHK, &apScriptGameEvent[0], sizeof(apScriptGameEvent[0]), MAXGAMEEVENTS },
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_postscript_once, 0, 1 },
 #endif
     { DS_SAVEFN, (void *)&sv_preactordatasave, 0, 1 },

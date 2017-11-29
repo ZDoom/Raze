@@ -132,7 +132,7 @@ static void VM_DeleteSprite(int const spriteNum, int const playerNum)
     A_DeleteSprite(spriteNum);
 }
 
-intptr_t apScriptEvents[MAXGAMEEVENTS];
+intptr_t apScriptEvents[MAXEVENTS];
 
 // May recurse, e.g. through EVENT_XXX -> ... -> EVENT_KILLIT
 #ifdef LUNATIC

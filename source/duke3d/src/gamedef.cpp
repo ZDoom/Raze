@@ -65,7 +65,7 @@ weapondata_t g_playerWeapon[MAXPLAYERS][MAX_WEAPONS];
 static intptr_t g_parsingActorPtr;
 static intptr_t g_parsingEventPtr;
 static intptr_t g_parsingEventBreakPtr;
-static intptr_t apScriptGameEventEnd[MAXGAMEEVENTS];
+static intptr_t apScriptGameEventEnd[MAXEVENTS];
 static char *textptr;
 #endif
 
@@ -3588,7 +3588,7 @@ DO_DEFSTATE:
             g_currentEvent = j;
             //Bsprintf(g_szBuf,"Adding Event for %d at %lX",j, g_parsingEventPtr);
             //AddLog(g_szBuf);
-            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXGAMEEVENTS-1))
+            if (EDUKE32_PREDICT_FALSE((unsigned)j > MAXEVENTS-1))
             {
                 initprintf("%s:%d: error: invalid event ID.\n",g_scriptFileName,g_lineNumber);
                 g_errorCnt++;
@@ -6326,7 +6326,7 @@ void C_PrintStats(void)
 
     if (j) initprintf("%d strings, ", j);
 
-    for (i=MAXGAMEEVENTS-1, j=0; i>=0; i--)
+    for (i=MAXEVENTS-1, j=0; i>=0; i--)
     {
         if (apScriptEvents[i])
             j++;

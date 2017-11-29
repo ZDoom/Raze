@@ -31,7 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 #endif
 
-#define MAXGAMEEVENTS   128
 #define LABEL_HASPARM2  1
 #define LABEL_ISSTRING  2
 
@@ -100,7 +99,8 @@ enum QuickStructureAccess_t
 
 extern int32_t g_structVarIDs;
 
-extern intptr_t apScriptEvents[MAXGAMEEVENTS];
+#include "events_defs.h"
+extern intptr_t apScriptEvents[MAXEVENTS];
 #endif
 
 extern char CheatStrings[][MAXCHEATLEN];
