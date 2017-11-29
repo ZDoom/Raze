@@ -8123,6 +8123,9 @@ void A_PlayAlertSound(int spriteNum)
 {
     if (sprite[spriteNum].extra > 0)
     {
+        if ((VM_OnEventWithReturn(EVENT_RECOGSOUND, spriteNum, myconnectindex, 0)) != 0)
+            return;
+
         switch (DYNAMICTILEMAP(PN(spriteNum)))
         {
             case LIZTROOPONTOILET__STATIC:

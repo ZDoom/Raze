@@ -1557,6 +1557,7 @@ int A_Spawn(int spriteNum, int tileNum)
                         if (sprite[spriteNum].picnum == RESPAWN)
                             pActor->tempang = sprite[newSprite].pal = sprite[spriteNum].pal;
 
+                        A_PlayAlertSound(newSprite);
                         changespritestat(newSprite, STAT_ACTOR);
                     }
                     else
