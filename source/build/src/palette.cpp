@@ -20,6 +20,9 @@ palette_t palfadergb = { 0, 0, 0, 0 };
 char palfadedelta = 0;
 uint8_t blackcol;
 
+int32_t realmaxshade;
+float frealmaxshade;
+
 #if defined(USE_OPENGL)
 palette_t palookupfog[MAXPALOOKUPS];
 #endif
@@ -310,6 +313,21 @@ void E_PostLoadPalette(void)
 
         PostLoad_NotFullbright: ;
     }
+
+    uint8_t const * const blackcolor = &palette[blackcol*3];
+    size_t s;
+    for (s = numshades < 2 ? 0 : numshades-2; s > 0; --s)
+    {
+        for (size_t c = s*256, c_end = c+255; c < c_end; ++c) // skipping transparent color
+        {
+            uint8_t const index = palookup0[c];
+            uint8_t const * const color = &palette[index*3];
+            if (!IsPaletteIndexFullbright(index) && memcmp(blackcolor, color, sizeof(rgb24_t)))
+                goto PostLoad_FoundShade;
+        }
+    }
+    PostLoad_FoundShade: ;
+    frealmaxshade = (float)(realmaxshade = s+1);
 }
 
 void E_ReplaceTransparentColorWithBlack(void)

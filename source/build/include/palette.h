@@ -38,6 +38,9 @@ typedef struct {
 extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
 extern char palfadedelta;
 
+extern int32_t realmaxshade;
+extern float frealmaxshade;
+
 extern int32_t globalblend;
 extern uint32_t g_lastpalettesum;
 extern palette_t getpal(int32_t col);
