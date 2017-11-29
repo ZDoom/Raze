@@ -1679,6 +1679,23 @@ skip_check:
                 continue;
             }
 
+        case CON_ACTORSOUND:
+            insptr++;
+            {
+                int const spriteNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.spriteNum;
+                int const soundNum  = Gv_GetVarX(*insptr++);
+
+                if (EDUKE32_PREDICT_FALSE((unsigned)soundNum >= MAXSOUNDS))
+                {
+                    CON_ERRPRINTF("invalid sound %d\n", soundNum);
+                    continue;
+                }
+
+                A_PlaySound(soundNum, spriteNum);
+
+                continue;
+            }
+
         case CON_SETACTORSOUNDPITCH:
             insptr++;
             {

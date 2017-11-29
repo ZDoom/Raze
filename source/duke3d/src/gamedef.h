@@ -1145,6 +1145,7 @@ enum ScriptKeywords_t
     CON_DRAWLINERGB,        // 405
     CON_STARTTRACKSLOT,     // 406
     CON_STOPALLMUSIC,       // 407
+    CON_ACTORSOUND,         // 408
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

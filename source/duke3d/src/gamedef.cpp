@@ -118,6 +118,7 @@ static tokenmap_t const vm_keywords[] =
     { "activatebysector",       CON_ACTIVATEBYSECTOR },
     { "activatecheat",          CON_ACTIVATECHEAT },
     { "actor",                  CON_ACTOR },
+    { "actorsound",             CON_ACTORSOUND },
     { "addammo",                CON_ADDAMMO },
     { "addinventory",           CON_ADDINVENTORY },
     { "addkills",               CON_ADDKILLS },
@@ -4111,6 +4112,7 @@ DO_DEFSTATE:
         case CON_QSTRCAT:
         case CON_QSTRCPY:
         case CON_QGETSYSSTR:
+        case CON_ACTORSOUND:
         case CON_STOPACTORSOUND:
         case CON_STARTTRACKSLOT:
             C_GetManyVars(2);
