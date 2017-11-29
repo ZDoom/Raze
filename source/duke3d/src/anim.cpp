@@ -325,6 +325,8 @@ int32_t Anim_Play(const char *fn)
 
             VM_OnEventWithReturn(EVENT_PRECUTSCENE, -1, myconnectindex, framenum);
 
+            clearallviews(0);
+
             animvpx_render_frame(&codec);
 
             VM_OnEventWithReturn(EVENT_CUTSCENE, -1, myconnectindex, framenum);
