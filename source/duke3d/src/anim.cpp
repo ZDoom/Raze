@@ -327,6 +327,8 @@ int32_t Anim_Play(const char *fn)
 
             clearallviews(0);
 
+            ototalclock = totalclock + 1; // pause game like ANMs
+
             animvpx_render_frame(&codec);
 
             VM_OnEventWithReturn(EVENT_CUTSCENE, -1, myconnectindex, framenum);
