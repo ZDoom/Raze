@@ -173,6 +173,10 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_MGAMETEXT_TRACKING: labelNum = MF_Bluefont.between.x; break;
         case USERDEFS_MENUTEXT_TRACKING: labelNum = MF_Redfont.between.x; break;
         case USERDEFS_MAXSPRITESONSCREEN: labelNum = maxspritesonscreen; break;
+        case USERDEFS_SCREENAREA_X1: labelNum = ud.screenarea_x1; break;
+        case USERDEFS_SCREENAREA_Y1: labelNum = ud.screenarea_y1; break;
+        case USERDEFS_SCREENAREA_X2: labelNum = ud.screenarea_x2; break;
+        case USERDEFS_SCREENAREA_Y2: labelNum = ud.screenarea_y2; break;
         default: labelNum = -1; break;
     }
 
@@ -296,6 +300,10 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_MGAMETEXT_TRACKING: MF_BluefontRed.between.x = MF_Bluefont.between.x = iSet; break;
         case USERDEFS_MENUTEXT_TRACKING: MF_Redfont.between.x = iSet; break;
         case USERDEFS_MAXSPRITESONSCREEN: maxspritesonscreen = clamp(iSet, MAXSPRITESONSCREEN>>2, MAXSPRITESONSCREEN); break;
+        case USERDEFS_SCREENAREA_X1: ud.screenarea_x1 = iSet; break;
+        case USERDEFS_SCREENAREA_Y1: ud.screenarea_y1 = iSet; break;
+        case USERDEFS_SCREENAREA_X2: ud.screenarea_x2 = iSet; break;
+        case USERDEFS_SCREENAREA_Y2: ud.screenarea_y2 = iSet; break;
         default: break;
     }
 }

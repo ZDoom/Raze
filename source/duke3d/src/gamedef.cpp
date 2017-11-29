@@ -728,6 +728,8 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_DISPLAYEND",
     "EVENT_OPENMENUSOUND",
     "EVENT_RECOGSOUND",
+    "EVENT_UPDATESCREENAREA",
+    "EVENT_DISPLAYBORDER",
 #ifdef LUNATIC
     "EVENT_ANIMATEALLSPRITES",
 #endif
@@ -1220,6 +1222,10 @@ const memberlabel_t UserdefsLabels[]=
     { "mgametext_tracking",     USERDEFS_MGAMETEXT_TRACKING,     0, 0 },
     { "menutext_tracking",      USERDEFS_MENUTEXT_TRACKING,      0, 0 },
     { "maxspritesonscreen",     USERDEFS_MAXSPRITESONSCREEN,     0, 0 },
+    { "screenarea_x1",          USERDEFS_SCREENAREA_X1,          0, 0 },
+    { "screenarea_y1",          USERDEFS_SCREENAREA_Y1,          0, 0 },
+    { "screenarea_x2",          USERDEFS_SCREENAREA_X2,          0, 0 },
+    { "screenarea_y2",          USERDEFS_SCREENAREA_Y2,          0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 

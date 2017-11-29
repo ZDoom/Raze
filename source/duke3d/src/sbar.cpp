@@ -1021,25 +1021,13 @@ void G_DrawStatusBar(int32_t snum)
 
 void G_DrawBackground(void)
 {
-    const int32_t dapicnum = BIGHOLE;
     int32_t x, y, x1, x2;
 
     flushperms();
 
     int32_t y1=0, y2=ydim;
 
-    if ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat == 2)
-    {
-#if 0
-        // [JM] Commented out since it breaks fragbar in widescreen and serves no other useful purpose anymore.
-        if (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
-        {
-            if ((g_netServer || ud.multimode > 1)) y1 += scale(ydim, 8, 200);
-            if (ud.multimode > 4) y1 += scale(ydim, 8, 200);
-        }
-#endif
-    }
-    else
+    if ((g_player[myconnectindex].ps->gm&MODE_GAME) == 0 && ud.recstat != 2)
     {
         const int32_t MENUTILE = MENUSCREEN;//(getrendermode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
         const int32_t fstilep = tilesiz[MENUTILE].x>=320 && tilesiz[MENUTILE].y==200;
@@ -1067,85 +1055,92 @@ void G_DrawBackground(void)
         return;
     }
 
+    int32_t const dapicnum = VM_OnEventWithReturn(EVENT_DISPLAYBORDER, g_player[screenpeek].ps->i, screenpeek, BIGHOLE);
+
     // XXX: if dapicnum is not available, this might leave the menu background
     // not drawn, leading to "HOM".
-    if (tilesiz[dapicnum].x == 0 || tilesiz[dapicnum].y == 0)
+    if ((dapicnum >= 0 && tilesiz[dapicnum].x == 0) || (dapicnum >= 0 && tilesiz[dapicnum].y == 0) ||
+        (windowxy1.x-1 <= 0 && windowxy2.x >= xdim-1 && windowxy1.y-1 <= 0 && windowxy2.y >= ydim-1) ||
+        dapicnum < 0)
     {
         pus = pub = NUMPAGES;
         return;
     }
 
-    y2 = scale(ydim, 200-sbarsc(tilesiz[BOTTOMSTATUSBAR].y), 200);
-
-    if ((ud.screen_size > 8) || ((g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR) && ud.screen_size >= 4))
+    if (ud.screen_size > 0 && (g_gametypeFlags[ud.coop]&GAMETYPE_FRAGBAR) && (g_netServer || ud.multimode > 1))
     {
-        // across top
-        for (y=0; y<windowxy1.y; y+=tilesiz[dapicnum].y)
-            for (x=0; x<xdim; x+=tilesiz[dapicnum].x)
-                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, y1, xdim-1, windowxy1.y-1);
+        int32_t i, j = 0;
+
+        for (TRAVERSE_CONNECT(i))
+            if (i > j) j = i;
+
+        if (j > 0) y1 += 8;
+        if (j > 4) y1 += 8;
+        if (j > 8) y1 += 8;
+        if (j > 12) y1 += 8;
+
+        y1 = scale(ydim, y1, 200);
+        y1 -= ((tilesiz[dapicnum].y / y1) +1) * tilesiz[dapicnum].y;
     }
 
-    if (ud.screen_size > 8)
+    if (windowxy1.y > 0)
     {
-        // sides
+        for (y=y1; y<windowxy1.y; y+=tilesiz[dapicnum].y)
+            for (x=0; x<xdim; x+=tilesiz[dapicnum].x)
+                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, 0, xdim-1, windowxy1.y-2); // top
+    }
+
+    if (windowxy1.x > 0 || windowxy2.x < xdim)
+    {
         const int32_t rx = windowxy2.x-windowxy2.x%tilesiz[dapicnum].x;
-        for (y=windowxy1.y-windowxy1.y%tilesiz[dapicnum].y; y<windowxy2.y; y+=tilesiz[dapicnum].y)
+        for (y=y1+windowxy1.y-windowxy1.y%tilesiz[dapicnum].y; y<windowxy2.y; y+=tilesiz[dapicnum].y)
             for (x=0; x<windowxy1.x || x+rx<xdim; x+=tilesiz[dapicnum].x)
             {
-                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, windowxy1.y, windowxy1.x-1, windowxy2.y-1);
-                rotatesprite((x+rx)<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, windowxy2.x, windowxy1.y, xdim-1, windowxy2.y-1);
+                if (windowxy1.x > 0)
+                    rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, windowxy1.y-1, windowxy1.x-2, windowxy2.y); // left
+                if (windowxy2.x < xdim)
+                    rotatesprite((x+rx)<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, windowxy2.x+1, windowxy1.y-1, xdim-1, windowxy2.y); // right
             }
+    }
 
-        // along bottom
-        for (y=windowxy2.y-(windowxy2.y%tilesiz[dapicnum].y); y<y2; y+=tilesiz[dapicnum].y)
+    if (windowxy2.y < ydim)
+    {
+        for (y=y1+windowxy2.y-(windowxy2.y%tilesiz[dapicnum].y); y<y2; y+=tilesiz[dapicnum].y)
             for (x=0; x<xdim; x+=tilesiz[dapicnum].x)
-                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, windowxy2.y, xdim-1, y2-1);
+                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, windowxy2.y+1, xdim-1, ydim-1); //  bottom
     }
 
-    // draw in the bits to the left and right of the non-fullsize status bar
-    if (ud.screen_size >= 8 && ud.statusbarmode == 0)
+    x1 = windowxy1.x-4;
+    y1 = windowxy1.y-4;
+    x2 = windowxy2.x+4;
+    y2 = windowxy2.y+4;
+
+    if (windowxy1.x > 0 || windowxy2.x < xdim)
+    for (y=y1+4; y<y2-4; y+=64)
     {
-        // when not rendering a game, fullscreen wipe
-        x2 = (xdim - sbarsc((int32_t) (ydim*1.333333333333333333f))) >> 1;
-        for (y=y2-y2%tilesiz[dapicnum].y; y<ydim; y+=tilesiz[dapicnum].y)
-            for (x=0; x<xdim>>1; x+=tilesiz[dapicnum].x)
-            {
-                rotatesprite(x<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, 0, y2, x2, ydim-1);
-                rotatesprite((xdim-x)<<16, y<<16, 65536L, 0, dapicnum, 8, 0, 8+16+64, xdim-x2-1, y2, xdim-1, ydim-1);
-            }
+        if (windowxy1.x > 0)
+            rotatesprite(x1<<16, y<<16, 65536L, 0, VIEWBORDER, 0, 0, 8+16+64, x1, y1, x2, y2); // left
+        if (windowxy2.x < xdim)
+            rotatesprite((x2+1)<<16, (y+64)<<16, 65536L, 1024, VIEWBORDER, 0, 0, 8+16+64, x1, y1, x2, y2); // right
     }
 
-    if (ud.screen_size > 8)
+    if (windowxy1.y > 0 || windowxy2.y < ydim)
+    for (x=x1+4; x<x2-4; x+=64)
     {
-        y = 0;
-        if (g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)
-        {
-            if ((g_netServer || ud.multimode > 1)) y += 8;
-            if (ud.multimode > 4) y += 8;
-        }
-
-        x1 = max(windowxy1.x-4, 0);
-        y1 = max(windowxy1.y-4, y);
-        x2 = min(windowxy2.x+4, xdim-1);
-        y2 = min(windowxy2.y+4, scale(ydim, 200-sbarsc(tilesiz[BOTTOMSTATUSBAR].y), 200)-1);
-
-        for (y=y1+4; y<y2-4; y+=64)
-        {
-            rotatesprite(x1<<16, y<<16, 65536L, 0, VIEWBORDER, 0, 0, 8+16+64, x1, y1, x2, y2);
-            rotatesprite((x2+1)<<16, (y+64)<<16, 65536L, 1024, VIEWBORDER, 0, 0, 8+16+64, x1, y1, x2, y2);
-        }
-
-        for (x=x1+4; x<x2-4; x+=64)
-        {
-            rotatesprite((x+64)<<16, y1<<16, 65536L, 512, VIEWBORDER, 0, 0, 8+16+64, x1, y1, x2, y2);
-            rotatesprite(x<<16, (y2+1)<<16, 65536L, 1536, VIEWBORDER, 0, 0, 8+16+64, x1, y1, x2, y2);
-        }
-
-        rotatesprite(x1<<16, y1<<16, 65536L, 0, VIEWBORDER+1, 0, 0, 8+16+64, x1, y1, x2, y2);
-        rotatesprite((x2+1)<<16, y1<<16, 65536L, 512, VIEWBORDER+1, 0, 0, 8+16+64, x1, y1, x2, y2);
-        rotatesprite((x2+1)<<16, (y2+1)<<16, 65536L, 1024, VIEWBORDER+1, 0, 0, 8+16+64, x1, y1, x2, y2);
-        rotatesprite(x1<<16, (y2+1)<<16, 65536L, 1536, VIEWBORDER+1, 0, 0, 8+16+64, x1, y1, x2, y2);
+        if (windowxy1.y > 0)
+            rotatesprite((x+64)<<16, y1<<16, 65536L, 512, VIEWBORDER, 0, 0, 8+16+64, x1, y1, x2, y2); // top
+        if (windowxy2.y < ydim)
+            rotatesprite(x<<16, (y2+1)<<16, 65536L, 1536, VIEWBORDER, 0, 0, 8+16+64, x1, y1, x2, y2); // bottom
     }
+
+    if (windowxy1.x > 0 && windowxy1.y > 0)
+        rotatesprite(x1<<16, y1<<16, 65536L, 0, VIEWBORDER+1, 0, 0, 8+16+64, x1, y1, x2, y2); // top left
+    if (windowxy2.x < xdim && windowxy1.y > 0)
+        rotatesprite((x2+1)<<16, y1<<16, 65536L, 512, VIEWBORDER+1, 0, 0, 8+16+64, x1, y1, x2, y2); // top right
+    if (windowxy2.x < xdim && windowxy2.y < ydim)
+        rotatesprite((x2+1)<<16, (y2+1)<<16, 65536L, 1024, VIEWBORDER+1, 0, 0, 8+16+64, x1, y1, x2, y2); // bottom right
+    if (windowxy1.x > 0 && windowxy2.y < ydim)
+        rotatesprite(x1<<16, (y2+1)<<16, 65536L, 1536, VIEWBORDER+1, 0, 0, 8+16+64, x1, y1, x2, y2); // bottom left
 
     pus = pub = NUMPAGES;
 }

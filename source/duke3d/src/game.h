@@ -147,6 +147,7 @@ typedef struct {
     int32_t democams,color,msgdisptime,statusbarmode;
     int32_t m_noexits,noexits,autovote,automsg,idplayers;
     int32_t team, viewbob, weaponsway, althud, weaponscale, textscale;
+    int32_t screenarea_x1, screenarea_y1, screenarea_x2, screenarea_y2;
 
     int32_t entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
     int32_t coords,showfps,levelstats,m_coop,coop,screen_size,lockout,crosshair;

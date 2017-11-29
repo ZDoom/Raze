@@ -569,11 +569,11 @@ void G_UpdateScreenArea(void)
     {
         const int32_t ss = max(ud.screen_size-8,0);
 
-        const int32_t x1 = scale(ss,xdim,160);
+        int32_t x1 = scale(ss,xdim,160);
         int32_t x2 = xdim-x1;
 
         int32_t y1 = ss;
-        int32_t y2 = 200;
+        int32_t y2 = 200-ss;
 
         if (ud.screen_size > 0 && (g_gametypeFlags[ud.coop]&GAMETYPE_FRAGBAR) && (g_netServer || ud.multimode > 1))
         {
@@ -582,17 +582,31 @@ void G_UpdateScreenArea(void)
             for (TRAVERSE_CONNECT(i))
                 if (i > j) j = i;
 
-            if (j >= 1) y1 += 8;
-            if (j >= 4) y1 += 8;
-            if (j >= 8) y1 += 8;
-            if (j >= 12) y1 += 8;
+            if (j > 0) y1 += 8;
+            if (j > 4) y1 += 8;
+            if (j > 8) y1 += 8;
+            if (j > 12) y1 += 8;
         }
 
+        y2 *= 100;
         if (ud.screen_size >= 8 && ud.statusbarmode==0)
-            y2 -= (ss+scale(tilesiz[BOTTOMSTATUSBAR].y,ud.statusbarscale,100));
+            y2 -= tilesiz[BOTTOMSTATUSBAR].y*ud.statusbarscale;
 
         y1 = scale(y1,ydim,200);
-        y2 = scale(y2,ydim,200)+(getrendermode() != REND_CLASSIC);
+        y2 = scale(y2,ydim,200*100);
+
+        if (VM_HaveEvent(EVENT_UPDATESCREENAREA))
+        {
+            ud.screenarea_x1 = x1;
+            ud.screenarea_y1 = y1;
+            ud.screenarea_x2 = x2;
+            ud.screenarea_y2 = y2;
+            VM_OnEvent(EVENT_UPDATESCREENAREA, g_player[screenpeek].ps->i, screenpeek);
+            x1 = ud.screenarea_x1;
+            y1 = ud.screenarea_y1;
+            x2 = ud.screenarea_x2;
+            y2 = ud.screenarea_y2;
+        }
 
         if (g_halveScreenArea)
         {
