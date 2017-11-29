@@ -132,7 +132,7 @@ char ptempbuf[MAXWALLSB<<1];
 
 // polymost ART sky control
 int32_t r_parallaxskyclamping = 1;
-int32_t r_parallaxskypanning = 0;
+int32_t r_parallaxskypanning = 1;
 
 #define MIN_CACHETIME_PRINT 10
 
