@@ -1168,6 +1168,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         newaspect_enable = 0;
         setaspect(viewingRange, yxAspect);
     }
+
+    VM_OnEvent(EVENT_DISPLAYROOMSEND, g_player[screenpeek].ps->i, screenpeek);
 }
 
 void G_DumpDebugInfo(void)

@@ -1293,6 +1293,8 @@ void G_DisplayRest(int32_t smoothratio)
             applied = 0;
         }
     }
+
+    VM_OnEvent(EVENT_DISPLAYEND, g_player[screenpeek].ps->i, screenpeek);
 }
 
 void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e)
