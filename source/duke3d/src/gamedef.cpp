@@ -411,6 +411,7 @@ static tokenmap_t const vm_keywords[] =
     { "savemapstate",           CON_SAVEMAPSTATE },
     { "savenn",                 CON_SAVENN },
     { "scalevar",               CON_SCALEVAR },
+    { "screenpal",              CON_SCREENPAL },
     { "screensound",            CON_SCREENSOUND },
     { "screentext",             CON_SCREENTEXT },
     { "scriptsize",             CON_SCRIPTSIZE },
@@ -3654,6 +3655,10 @@ DO_DEFSTATE:
                 initprintf("%s:%d: warning: tried to set cstat %d, using %d instead.\n",g_scriptFileName,g_lineNumber,i,(int32_t)(*(g_scriptPtr-1)));
                 g_warningCnt++;
             }
+            continue;
+
+        case CON_SCREENPAL:
+            C_GetManyVars(4);
             continue;
 
         case CON_HITRADIUSVAR:

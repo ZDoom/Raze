@@ -1147,6 +1147,7 @@ enum ScriptKeywords_t
     CON_STOPALLMUSIC,       // 407
     CON_ACTORSOUND,         // 408
     CON_STARTSCREEN,        // 409
+    CON_SCREENPAL,          // 410
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

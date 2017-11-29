@@ -3756,6 +3756,15 @@ nullquote:
             }
             continue;
 
+        case CON_SCREENPAL:
+            insptr++;
+            {
+                int32_t params[4];
+                Gv_FillWithVars(params);
+                setpalettefade(params[0], params[1], params[2], params[3]);
+            }
+            continue;
+
         case CON_SECTOROFWALL:
             insptr++;
             tw = *insptr++;
