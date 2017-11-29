@@ -7940,7 +7940,9 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 #ifdef USE_OPENGL
     case REND_POLYMOST:
         // NOTE: In Polymost, the fragment depth depends on the x screen size!
-        if (r_usenewshading >= 2)
+        if (r_usenewshading == 4)
+            globalvisibility = g_visibility;
+        else if (r_usenewshading >= 2)
             globalvisibility = scale(g_visibility<<2, xdimen, 1680);
         else
             globalvisibility = scale(g_visibility<<2, xdimen, 1100);

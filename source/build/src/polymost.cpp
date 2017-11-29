@@ -45,7 +45,7 @@ static float dxb1[MAXWALLSB], dxb2[MAXWALLSB];
 float shadescale = 1.0f;
 int32_t shadescale_unbounded = 0;
 
-int32_t r_usenewshading = 3;
+int32_t r_usenewshading = 4;
 int32_t r_usetileshades = 2;
 int32_t r_npotwallmode = 0;
 
@@ -482,9 +482,43 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
     }
 }
 
+#define GL_FOG_MAX 1.0e37f
+
 void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
     if (nofog) return;
+
+    if (r_usenewshading == 4)
+    {
+        fogresult = 0.f;
+        fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
+        fogcol = fogtable[pal];
+
+        if (((uint8_t)(vis + 16)) > 0 && g_visibility > 0)
+        {
+            GLfloat glfogconstant = 262144.f / xdimen;
+            GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
+            GLfloat normalizedshade = shade / frealmaxshade;
+            GLfloat fogshade = normalizedshade * fogrange;
+
+            fogresult = -fogshade;
+            fogresult2 = fogrange - fogshade;
+
+            // substract shade from fog
+            if (shade > 0 && shade < realmaxshade)
+            {
+                fogresult = 1.f - (fogresult2 / (fogresult2 - fogresult));
+                fogresult = (fogresult - normalizedshade) / (1.f - normalizedshade);
+                fogresult = -((fogresult2 / (1.f - fogresult)) - fogresult2) ;
+            }
+        }
+
+        bglFogf(GL_FOG_START, fogresult);
+        bglFogf(GL_FOG_END, fogresult2);
+        bglFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
+
+        return;
+    }
 
     fogcalc(tile, shade, vis, pal);
     bglFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
@@ -501,6 +535,32 @@ void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t pal, float factor)
 {
     if (nofog) return;
+
+    if (r_usenewshading == 4)
+    {
+        fogresult = 0.f;
+        fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
+        fogcol = fogtable[pal];
+
+        if (((uint8_t)(vis + 16)) > 0 && ((((uint8_t)(vis + 16)) / 8.f) + shade) > 0)
+        {
+            GLfloat normalizedshade = shade / frealmaxshade;
+            GLfloat fogrange = (((uint8_t)(vis + 16)) / (8.f * frealmaxshade)) + normalizedshade;
+
+            // substract shade from fog
+            if (shade > 0 && shade < realmaxshade)
+                fogrange = (fogrange - normalizedshade) / (1.f - normalizedshade);
+
+            fogresult = -(GL_FOG_MAX * fogrange);
+            fogresult2 = GL_FOG_MAX - (GL_FOG_MAX * fogrange);
+        }
+
+        bglFogf(GL_FOG_START, fogresult);
+        bglFogf(GL_FOG_END, fogresult2);
+        bglFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
+
+        return;
+    }
 
     // NOTE: for r_usenewshading >= 2, the fog beginning/ending distance results are
     // unused.
@@ -1620,6 +1680,9 @@ static uint8_t drawpoly_blend = 0;
 
 static inline pthtyp *our_texcache_fetch(int32_t dameth)
 {
+    if (r_usenewshading == 4)
+        return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1 && !(globalflags & GLOBAL_NO_GL_TILESHADES)), globalshade), dameth);
+
     // r_usetileshades 1 is TX's method.
     return texcache_fetch(globalpicnum, globalpal, getpalookup((r_usetileshades == 1 && !(globalflags & GLOBAL_NO_GL_TILESHADES)) ? globvis>>3 : 0, globalshade), dameth);
 }
@@ -6003,8 +6066,8 @@ void polymost_initosdfuncs(void)
         { "r_texfilter", "changes the texture filtering settings", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
 
         { "r_usenewshading",
-          "visibility/fog code: 0: orig. Polymost   1: 07/2011   2: linear 12/2012   3: no neg. start 03/2014",
-          (void *) &r_usenewshading, CVAR_INT|CVAR_FUNCPTR, 0, 3
+          "visibility/fog code: 0: orig. Polymost   1: 07/2011   2: linear 12/2012   3: no neg. start 03/2014   4: base constant on shade table 11/2017",
+          (void *) &r_usenewshading, CVAR_INT|CVAR_FUNCPTR, 0, 4
         },
 
         { "r_usetileshades", "enable/disable Polymost tile shade textures", (void *) &r_usetileshades, CVAR_INT | CVAR_INVALIDATEART, 0, 2 },
