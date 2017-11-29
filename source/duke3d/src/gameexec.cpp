@@ -1236,6 +1236,28 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sec
     G_UpdateScreenArea();
 }
 
+void Screen_Play(void)
+{
+    int32_t running = 1;
+
+    I_ClearAllInput();
+
+    do
+    {
+        G_HandleAsync();
+
+        clearallviews(0);
+        if (VM_OnEventWithReturn(EVENT_SCREEN, -1, myconnectindex, I_CheckAllInput()))
+            running = 0;
+
+        nextpage();
+
+        I_ClearAllInput();
+
+        ototalclock = totalclock + 1; // pause game like ANMs
+    } while (running);
+}
+
 #if !defined LUNATIC
 GAMEEXEC_STATIC void VM_Execute(int loop)
 {
@@ -2771,6 +2793,12 @@ nullquote:
                 P_SetGamePalette(pPlayer, tw, 2 + 16);
                 continue;
             }
+
+        case CON_STARTSCREEN:
+            insptr++;
+            I_ClearAllInput();
+            Screen_Play();
+            continue;
 
         case CON_GUNIQHUDID:
             insptr++;

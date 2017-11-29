@@ -473,6 +473,7 @@ static tokenmap_t const vm_keywords[] =
     { "ssp",                    CON_SSP },
     { "startcutscene",          CON_STARTCUTSCENE },
     { "startlevel",             CON_STARTLEVEL },
+    { "startscreen",            CON_STARTSCREEN },
     { "starttrack",             CON_STARTTRACK },
     { "starttrackslot",         CON_STARTTRACKSLOT },
     { "starttrackvar",          CON_STARTTRACKVAR },
@@ -721,6 +722,7 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_POSTSAVEGAME",
     "EVENT_PRECUTSCENE",
     "EVENT_SKIPCUTSCENE",
+    "EVENT_SCREEN",
 #ifdef LUNATIC
     "EVENT_ANIMATEALLSPRITES",
 #endif
@@ -6034,6 +6036,7 @@ repeatcase:
         case CON_INSERTSPRITEQ:
         case CON_STOPALLSOUNDS:
         case CON_STOPALLMUSIC:
+        case CON_STARTSCREEN:
             continue;
 
         case CON_NULLOP:
