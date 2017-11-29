@@ -2997,6 +2997,7 @@ static void polymost_drawalls(int32_t const bunch)
             calc_and_apply_fog_factor(sec->floorpicnum, sec->floorshade, sec->visibility, sec->floorpal, 0.005f);
 
             //Use clamping for tiled sky textures
+            //(don't wrap around edges if the sky use multiple panels)
             for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
                 if (dapskyoff[i] != dapskyoff[i-1])
                     { skyclamphack = r_parallaxskyclamping; break; }
@@ -3011,42 +3012,84 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
                 vec3f_t o;
 
-                //Hack to draw black rectangle below sky when looking down...
-                xtex.d = xtex.u = xtex.v = 0;
-
-                ytex.d = gxyaspect * (1.f / 262144.f);
-                ytex.u = 0;
-                ytex.v = (float)(tilesiz[globalpicnum].y - 1) * ytex.d;
-
-                otex.d = -ghoriz * ytex.d;
-                otex.u = 0;
-                otex.v = (float)(tilesiz[globalpicnum].y - 1) * otex.d;
-
-                o.y = ((float)tilesiz[globalpicnum].y*dd-vv[0])/vv[1];
-
-                if ((o.y > fy0) && (o.y > fy1))
-                    polymost_domost(x0,o.y,x1,o.y);
-                else if ((o.y > fy0) != (o.y > fy1))
+                if (tilesiz[globalpicnum].y > 256)
                 {
-                    //  fy0                      fy1
-                    //     \                    /
-                    //oy----------      oy----------
-                    //        \              /
-                    //         fy1        fy0
-                    o.x = (o.y-fy0)*(x1-x0)/(fy1-fy0) + x0;
-                    if (o.y > fy0)
+                    //Hack to draw black rectangle below sky when looking down...
+                    xtex.d = xtex.u = xtex.v = 0;
+
+                    ytex.d = gxyaspect * (1.f / 262144.f);
+                    ytex.u = 0;
+                    ytex.v = (float)(tilesiz[globalpicnum].y - 1) * ytex.d;
+
+                    otex.d = -ghoriz * ytex.d;
+                    otex.u = 0;
+                    otex.v = (float)(tilesiz[globalpicnum].y - 1) * otex.d;
+
+                    o.y = ((float)tilesiz[globalpicnum].y*dd-vv[0])/vv[1];
+
+                    if ((o.y > fy0) && (o.y > fy1))
+                        polymost_domost(x0,o.y,x1,o.y);
+                    else if ((o.y > fy0) != (o.y > fy1))
                     {
-                        polymost_domost(x0,o.y,o.x,o.y);
-                        polymost_domost(o.x,o.y,x1,fy1);
+                        //  fy0                      fy1
+                        //     \                    /
+                        //oy----------      oy----------
+                        //        \              /
+                        //         fy1        fy0
+                        o.x = (o.y-fy0)*(x1-x0)/(fy1-fy0) + x0;
+                        if (o.y > fy0)
+                        {
+                            polymost_domost(x0,o.y,o.x,o.y);
+                            polymost_domost(o.x,o.y,x1,fy1);
+                        }
+                        else
+                        {
+                            polymost_domost(x0,fy0,o.x,o.y);
+                            polymost_domost(o.x,o.y,x1,o.y);
+                        }
                     }
                     else
+                        polymost_domost(x0,fy0,x1,fy1);
+
+                    //Hack to draw color rectangle above sky when looking up...
+                    xtex.d = xtex.u = xtex.v = 0;
+
+                    ytex.d = gxyaspect * (1.f / -262144.f);
+                    ytex.u = 0;
+                    ytex.v = 0;
+
+                    otex.d = -ghoriz * ytex.d;
+                    otex.u = 0;
+                    otex.v = 0;
+
+                    o.y = -vv[0]/vv[1];
+
+                    if ((o.y < cy0) && (o.y < cy1))
+                        polymost_domost(x1,o.y,x0,o.y);
+                    else if ((o.y < cy0) != (o.y < cy1))
                     {
-                        polymost_domost(x0,fy0,o.x,o.y);
-                        polymost_domost(o.x,o.y,x1,o.y);
+                        /*         cy1        cy0
+                        //        /              \
+                        //oy----------      oy---------
+                        //    /                   \
+                        //  cy0                     cy1 */
+                        o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
+                        if (o.y < cy0)
+                        {
+                            polymost_domost(o.x,o.y,x0,o.y);
+                            polymost_domost(x1,cy1,o.x,o.y);
+                        }
+                        else
+                        {
+                            polymost_domost(o.x,o.y,x0,cy0);
+                            polymost_domost(x1,o.y,o.x,o.y);
+                        }
                     }
+                    else
+                        polymost_domost(x1,cy1,x0,cy0);
                 }
                 else
-                    polymost_domost(x0,fy0,x1,fy1);
+                    skyclamphack = 0;
 
                 xtex.d = xtex.v = 0;
                 ytex.d = ytex.u = 0;
@@ -3289,6 +3332,7 @@ static void polymost_drawalls(int32_t const bunch)
             calc_and_apply_fog_factor(sec->ceilingpicnum, sec->ceilingshade, sec->visibility, sec->ceilingpal, 0.005f);
 
             //Use clamping for tiled sky textures
+            //(don't wrap around edges if the sky use multiple panels)
             for (bssize_t i=(1<<dapskybits)-1; i>0; i--)
                 if (dapskyoff[i] != dapskyoff[i-1])
                     { skyclamphack = r_parallaxskyclamping; break; }
@@ -3303,42 +3347,84 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
                 vec3f_t o;
 
-                //Hack to draw color rectangle above sky when looking up...
-                xtex.d = xtex.u = xtex.v = 0;
-
-                ytex.d = gxyaspect * (1.f / -262144.f);
-                ytex.u = 0;
-                ytex.v = 0;
-
-                otex.d = -ghoriz * ytex.d;
-                otex.u = 0;
-                otex.v = 0;
-
-                o.y = -vv[0]/vv[1];
-
-                if ((o.y < cy0) && (o.y < cy1))
-                    polymost_domost(x1,o.y,x0,o.y);
-                else if ((o.y < cy0) != (o.y < cy1))
+                if (tilesiz[globalpicnum].y > 256)
                 {
-                    /*         cy1        cy0
-                    //        /              \
-                    //oy----------      oy---------
-                    //    /                   \
-                    //  cy0                     cy1 */
-                    o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
-                    if (o.y < cy0)
+                    //Hack to draw black rectangle below sky when looking down...
+                    xtex.d = xtex.u = xtex.v = 0;
+
+                    ytex.d = gxyaspect * (1.f / 262144.f);
+                    ytex.u = 0;
+                    ytex.v = (float)(tilesiz[globalpicnum].y - 1) * ytex.d;
+
+                    otex.d = -ghoriz * ytex.d;
+                    otex.u = 0;
+                    otex.v = (float)(tilesiz[globalpicnum].y - 1) * otex.d;
+
+                    o.y = ((float)tilesiz[globalpicnum].y*dd-vv[0])/vv[1];
+
+                    if ((o.y > fy0) && (o.y > fy1))
+                        polymost_domost(x0,o.y,x1,o.y);
+                    else if ((o.y > fy0) != (o.y > fy1))
                     {
-                        polymost_domost(o.x,o.y,x0,o.y);
-                        polymost_domost(x1,cy1,o.x,o.y);
+                        //  fy0                      fy1
+                        //     \                    /
+                        //oy----------      oy----------
+                        //        \              /
+                        //         fy1        fy0
+                        o.x = (o.y-fy0)*(x1-x0)/(fy1-fy0) + x0;
+                        if (o.y > fy0)
+                        {
+                            polymost_domost(x0,o.y,o.x,o.y);
+                            polymost_domost(o.x,o.y,x1,fy1);
+                        }
+                        else
+                        {
+                            polymost_domost(x0,fy0,o.x,o.y);
+                            polymost_domost(o.x,o.y,x1,o.y);
+                        }
                     }
                     else
+                        polymost_domost(x0,fy0,x1,fy1);
+
+                    //Hack to draw color rectangle above sky when looking up...
+                    xtex.d = xtex.u = xtex.v = 0;
+
+                    ytex.d = gxyaspect * (1.f / -262144.f);
+                    ytex.u = 0;
+                    ytex.v = 0;
+
+                    otex.d = -ghoriz * ytex.d;
+                    otex.u = 0;
+                    otex.v = 0;
+
+                    o.y = -vv[0]/vv[1];
+
+                    if ((o.y < cy0) && (o.y < cy1))
+                        polymost_domost(x1,o.y,x0,o.y);
+                    else if ((o.y < cy0) != (o.y < cy1))
                     {
-                        polymost_domost(o.x,o.y,x0,cy0);
-                        polymost_domost(x1,o.y,o.x,o.y);
+                        /*         cy1        cy0
+                        //        /              \
+                        //oy----------      oy---------
+                        //    /                   \
+                        //  cy0                     cy1 */
+                        o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
+                        if (o.y < cy0)
+                        {
+                            polymost_domost(o.x,o.y,x0,o.y);
+                            polymost_domost(x1,cy1,o.x,o.y);
+                        }
+                        else
+                        {
+                            polymost_domost(o.x,o.y,x0,cy0);
+                            polymost_domost(x1,o.y,o.x,o.y);
+                        }
                     }
+                    else
+                        polymost_domost(x1,cy1,x0,cy0);
                 }
                 else
-                    polymost_domost(x1,cy1,x0,cy0);
+                    skyclamphack = 0;
 
                 xtex.d = xtex.v = 0;
                 ytex.d = ytex.u = 0;
