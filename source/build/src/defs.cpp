@@ -2646,6 +2646,7 @@ static int32_t defsparser(scriptfile *script)
                 { "lognumtiles",     T_LOGNUMTILES },
                 { "tile",            T_TILE },
                 { "panel",           T_TILE },
+                { "yscale",          T_YSCALE },
             };
 
             if (scriptfile_getsymbol(script,&tile))
@@ -2706,6 +2707,14 @@ static int32_t defsparser(scriptfile *script)
                         break;
 
                     newpsky->tileofs[panel] = offset;
+                    break;
+                }
+                case T_YSCALE:
+                {
+                    int32_t yscale;
+                    scriptfile_getsymbol(script,&yscale);
+
+                    newpsky->yscale = yscale;
                     break;
                 }
                 default:

@@ -4102,7 +4102,7 @@ static void         polymer_getsky(void)
             curskypal = sector[i].ceilingpal;
             curskyshade = sector[i].ceilingshade;
 
-            getpsky(cursky, &horizfrac, NULL, NULL);
+            getpsky(cursky, &horizfrac, NULL, NULL, NULL);
 
             switch (horizfrac)
             {
@@ -4178,7 +4178,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
     GLfloat         height = 2.45f / 2.0f;
 
     int32_t dapskybits;
-    const int8_t *dapskyoff = getpsky(tilenum, NULL, &dapskybits, NULL);
+    const int8_t *dapskyoff = getpsky(tilenum, NULL, &dapskybits, NULL, NULL);
     const int32_t numskytilesm1 = (1<<dapskybits)-1;
 
     i = 0;

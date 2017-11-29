@@ -2976,8 +2976,8 @@ static void polymost_drawalls(int32_t const bunch)
 
         DO_TILE_ANIM(globalpicnum, sectnum);
 
-        int32_t dapskybits, dapyoffs;
-        int8_t const * dapskyoff = getpsky(globalpicnum, NULL, &dapskybits, &dapyoffs);
+        int32_t dapskybits, dapyoffs, daptileyscale;
+        int8_t const * dapskyoff = getpsky(globalpicnum, NULL, &dapskybits, &dapyoffs, &daptileyscale);
 
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->floorshade, global_cf_pal = sec->floorpal; global_cf_z = sec->floorz;  // REFACT
@@ -3006,7 +3006,7 @@ static void polymost_drawalls(int32_t const bunch)
                 float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
                 float vv[2];
                 float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
-                vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(65536.f*65536.f));
+                vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
                 vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+dapyoffs)) - vv[1]*ghoriz;
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
                 vec3f_t o;
@@ -3269,7 +3269,7 @@ static void polymost_drawalls(int32_t const bunch)
         DO_TILE_ANIM(globalpicnum, sectnum);
 
 
-        dapskyoff = getpsky(globalpicnum, NULL, &dapskybits, &dapyoffs);
+        dapskyoff = getpsky(globalpicnum, NULL, &dapskybits, &dapyoffs, &daptileyscale);
 
         global_cf_fogpal = sec->fogpal;
         global_cf_shade = sec->ceilingshade, global_cf_pal = sec->ceilingpal; global_cf_z = sec->ceilingz;  // REFACT
@@ -3298,7 +3298,7 @@ static void polymost_drawalls(int32_t const bunch)
                 float const dd = fxdimen*.0000001f; //Adjust sky depth based on screen size!
                 float vv[2];
                 float t = (float)((1<<(picsiz[globalpicnum]&15))<<dapskybits);
-                vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(65536.f*65536.f));
+                vv[1] = dd*((float)xdimscale*fviewingrange) * (1.f/(daptileyscale*65536.f));
                 vv[0] = dd*((float)((tilesiz[globalpicnum].y>>1)+dapyoffs)) - vv[1]*ghoriz;
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
                 vec3f_t o;

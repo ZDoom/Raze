@@ -3618,8 +3618,8 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
         return;
 
 
-    int32_t dapyscale, dapskybits, dapyoffs;
-    int8_t const * const dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs);
+    int32_t dapyscale, dapskybits, dapyoffs, daptileyscale;
+    int8_t const * const dapskyoff = getpsky(globalpicnum, &dapyscale, &dapskybits, &dapyoffs, &daptileyscale);
 
     globalshiftval = logtilesizy;
 
@@ -3642,6 +3642,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
         globalyscale = (8<<(globalshiftval-19));
         globalzd = (((tsizy>>1)+dapyoffs)<<globalshiftval) + ((uint32_t)globalypanning<<24);
     }
+    globalyscale = divscale16(globalyscale,daptileyscale);
 
     //if (globalorientation&256) globalyscale = -globalyscale, globalzd = -globalzd;
 
@@ -7514,6 +7515,7 @@ psky_t * E_DefinePsky(int32_t const tilenum)
     psky_t * const newPsky = &multipsky[newPskyID];
     Bmemset(newPsky, 0, sizeof(psky_t));
     multipskytile[newPskyID] = tilenum;
+    newPsky->yscale = 65536;
 
     return newPsky;
 }

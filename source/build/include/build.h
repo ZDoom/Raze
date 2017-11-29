@@ -727,6 +727,8 @@ typedef struct {
 
     int8_t lognumtiles;  // 1<<lognumtiles: number of tiles in multi-sky
     int8_t tileofs[MAXPSKYTILES];  // for 0 <= j < (1<<lognumtiles): tile offset relative to basetile
+
+    int32_t yscale;
 } psky_t;
 
 // Index of map-global (legacy) multi-sky:
