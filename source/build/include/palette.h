@@ -32,6 +32,9 @@ extern uint32_t PaletteIndexFullbrights[8];
 typedef struct {
     char r, g, b, f;
 } palette_t;
+typedef struct {
+    uint8_t r, g, b;
+} rgb24_t;
 extern palette_t curpalette[256], curpalettefaded[256], palfadergb;
 extern char palfadedelta;
 

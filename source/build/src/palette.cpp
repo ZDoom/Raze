@@ -274,24 +274,16 @@ void E_PostLoadPalette(void)
 
     fixtransluscence(FP_OFF(blendtable[0]));
 
+    char const * const palookup0 = palookup[0];
+
 #ifdef DEBUG_TILESIZY_512
     // Bump shade 1 by 16.
     for (bssize_t i=256; i<512; i++)
-        palookup[0][i] = palookup[0][i+(16<<8)];
+        palookup0[i] = palookup0[i+(16<<8)];
 #endif
 
-    // find white and black colors
-    for (bssize_t i=0, j, k=0; i<256; i++)
-    {
-        j = palette[i*3] + palette[i*3+1] + palette[i*3+2];
-        if (j > k) { k = j; whitecol = i; }
-    }
-    for (bssize_t i=0, j, k=768; i<256; i++)
-    {
-        j = palette[i*3] + palette[i*3+1] + palette[i*3+2];
-        if (j < k) { k = j; blackcol = i; }
-    }
-
+    blackcol = getclosestcol(0, 0, 0);
+    whitecol = getclosestcol(255, 255, 255);
     redcol = getclosestcol(255, 0, 0);
 
     for (size_t i = 0; i<16; i++)
@@ -303,22 +295,20 @@ void E_PostLoadPalette(void)
     // Bmemset(PaletteIndexFullbrights, 0, sizeof(PaletteIndexFullbrights));
     for (bssize_t c = 0; c < 255; ++c) // skipping transparent color
     {
-        char const * const thispalookup = palookup[0];
-        char const color = thispalookup[c];
+        uint8_t const index = palookup0[c];
+        rgb24_t const & color = *(rgb24_t *)&palette[index*3];
 
-        if (EDUKE32_PREDICT_FALSE(palette[color*3] == 0 &&
-            palette[color*3+1] == 0 &&
-            palette[color*3+2] == 0))
-            continue; // don't consider #000000 fullbright
+        // don't consider #000000 fullbright
+        if (EDUKE32_PREDICT_FALSE(color.r == 0 && color.g == 0 && color.b == 0))
+            continue;
 
-        for (bssize_t s = c + 256; s < 256*32; s += 256)
-            if (EDUKE32_PREDICT_FALSE(thispalookup[s] != color))
+        for (size_t s = c + 256, s_end = 256*numshades; s < s_end; s += 256)
+            if (EDUKE32_PREDICT_FALSE(palookup0[s] != index))
                 goto PostLoad_NotFullbright;
 
         SetPaletteIndexFullbright(c);
 
-    PostLoad_NotFullbright:
-        continue; // should be optimized out
+        PostLoad_NotFullbright: ;
     }
 }
 
