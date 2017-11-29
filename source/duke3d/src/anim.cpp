@@ -370,7 +370,7 @@ int32_t Anim_Play(const char *fn)
             {
                 G_HandleAsync();
 
-                if (I_CheckAllInput())
+                if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, -1, myconnectindex, I_CheckAllInput()))
                 {
                     running = 0;
                     break;
@@ -473,7 +473,7 @@ int32_t Anim_Play(const char *fn)
         waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
         invalidatetile(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
-        if (I_CheckAllInput())
+        if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, -1, myconnectindex, I_CheckAllInput()))
         {
             running = 0;
             goto end_anim_restore_gl;
