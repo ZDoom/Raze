@@ -181,7 +181,9 @@ void S_MenuSound(void)
         PISTOL_RICOCHET,   PISTOL_BODYHIT,   PISTOL_FIRE,      SHOTGUN_FIRE,  BOS1_WALK,     RPG_EXPLODE,
         PIPEBOMB_BOUNCE,   PIPEBOMB_EXPLODE, NITEVISION_ONOFF, RPG_SHOOT,     SELECT_WEAPON,
     };
-    S_PlaySound(menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
+    int32_t s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, -1, myconnectindex, menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
+    if (s != -1)
+        S_PlaySound(s);
 }
 
 int32_t S_PlayMusic(const char *fn)
