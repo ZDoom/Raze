@@ -323,6 +323,8 @@ int32_t Anim_Play(const char *fn)
             if (!pic)
                 break;  // no more pics!
 
+            VM_OnEventWithReturn(EVENT_PRECUTSCENE, -1, myconnectindex, framenum);
+
             animvpx_render_frame(&codec);
 
             VM_OnEventWithReturn(EVENT_CUTSCENE, -1, myconnectindex, framenum);
@@ -465,6 +467,8 @@ int32_t Anim_Play(const char *fn)
 
         if (totalclock < ototalclock - 1)
             continue;
+
+        i = VM_OnEventWithReturn(EVENT_PRECUTSCENE, -1, myconnectindex, i);
 
         waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
         invalidatetile(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
