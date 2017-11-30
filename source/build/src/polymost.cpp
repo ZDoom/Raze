@@ -34,7 +34,7 @@ int32_t usemodels=1;
 int32_t usehightile=1;
 
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
-#define VSPMAX 4096 //<- careful!
+#define VSPMAX 2048 //<- careful!
 static vsptyp vsp[VSPMAX];
 static int32_t gtag;
 
