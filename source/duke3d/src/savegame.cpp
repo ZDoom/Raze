@@ -165,13 +165,14 @@ void ReadSaveGameHeaders(void)
         if (k)
         {
             // old version, signal to menu code
-            if (k==2 || k==3)
+            if (k > 0)
                 g_oldverSavegame[i] = 1;
             // else h.savename is all zeros (fatal failure, like wrong header
             // magic or too short header)
         }
 
-        Bmemcpy(ud.savegame[i], h.savename, sizeof(ud.savegame[i]));
+        if (k >= 0)
+            Bmemcpy(ud.savegame[i], h.savename, sizeof(ud.savegame[i]));
 
         kclose(fil);
     }
@@ -192,7 +193,7 @@ int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh)
         return -1;
 
     i = sv_loadheader(fil, spot, saveh);
-    if (i && (i != 2 && i != 3))
+    if (i < 0)
         goto corrupt;
 
     if (kread(fil, &screenshotofs, 4) != 4)
@@ -248,9 +249,9 @@ int32_t G_LoadPlayer(int32_t spot)
     ready2send = 0;
 
     i = sv_loadheader(fil, spot, &h);
-    if ((i && i != 2) || h.numplayers != ud.multimode)
+    if ((i < 0) || h.numplayers != ud.multimode)
     {
-        if (i == 2 || i == 3)
+        if (i == -4 || i == -3 || i == 1)
             P_DoQuote(QUOTE_SAVE_BAD_VERSION, g_player[myconnectindex].ps);
         else if (h.numplayers!=ud.multimode)
             P_DoQuote(QUOTE_SAVE_BAD_PLAYERS, g_player[myconnectindex].ps);
@@ -1435,7 +1436,7 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
         OSD_Printf("%s %d header reads \"%s\", expected \"EDuke32SAVE\".\n",
                    havedemo ? "Demo":"Savegame", havedemo ? -spot : spot, h->headerstr);
         Bmemset(h->headerstr, 0, sizeof(h->headerstr));
-        return 1;
+        return -2;
     }
 
     if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION)
@@ -1444,7 +1445,16 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
             OSD_Printf("Incompatible demo version. Expected %d.%d.%d, found %d.%d.%d\n",
                        SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                        h->majorver, h->minorver, h->bytever);
-        return 2;
+
+        if (h->majorver == SV_MAJOR_VER && h->minorver == SV_MINOR_VER)
+        {
+            return 1;
+        }
+        else
+        {
+            Bmemset(h->headerstr, 0, sizeof(h->headerstr));
+            return -3;
+        }
     }
 
     if (h->ptrsize != sizeof(intptr_t))
@@ -1452,7 +1462,9 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
         if (havedemo)
             OSD_Printf("Demo incompatible. Expected pointer size %d, found %d\n",
                        (int32_t)sizeof(intptr_t), h->ptrsize);
-        return 3;
+
+        Bmemset(h->headerstr, 0, sizeof(h->headerstr));
+        return -4;
     }
 
     return 0;
