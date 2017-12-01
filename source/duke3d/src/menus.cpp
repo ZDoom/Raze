@@ -3145,7 +3145,7 @@ static void Menu_EntryStringActivate(/*MenuEntry_t *entry*/)
     {
     case MENU_SAVE:
         if (!save_xxh)
-            save_xxh = XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], 19, 0xDEADBEEF);
+            save_xxh = XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], MAXSAVEGAMENAME, 0xDEADBEEF);
         if (ud.savegame[M_SAVE.currentEntry][0])
             Menu_Change(MENU_SAVEVERIFY);
         break;
@@ -3167,18 +3167,18 @@ static int32_t Menu_EntryStringSubmit(MenuEntry_t *entry, char *input)
 #ifdef __ANDROID__
         if (1)
 #else
-        if (input[0] == 0 || (ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] == 127 &&
-            Bstrncmp(&ud.savegame[M_SAVE.currentEntry][0], input, MAXSAVEGAMENAME-3) == 0 &&
-            save_xxh == XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], MAXSAVEGAMENAME-3, 0xDEADBEEF)))
+        if (input[0] == 0 || (ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME] == 127 &&
+            Bstrncmp(&ud.savegame[M_SAVE.currentEntry][0], input, MAXSAVEGAMENAME) == 0 &&
+            save_xxh == XXH32((uint8_t *)&ud.savegame[M_SAVE.currentEntry][0], MAXSAVEGAMENAME, 0xDEADBEEF)))
 #endif
         {
-            Bstrncpy(&ud.savegame[M_SAVE.currentEntry][0], g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME-3);
-            ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] = 127;
+            Bstrncpy(&ud.savegame[M_SAVE.currentEntry][0], g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME);
+            ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME] = 127;
             returnvar = -1;
         }
         else
         {
-            ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME-2] = 0;
+            ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME] = 0;
             Bstrncpy(object->variable, input, object->maxlength);
         }
 

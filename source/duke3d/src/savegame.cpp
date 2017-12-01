@@ -1277,8 +1277,6 @@ static void SV_AllocSnap(int32_t allocinit)
     svdiff = (uint8_t *)Xmalloc(svdiffsiz);
 }
 
-EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == SAVEHEAD_SIZE);
-
 // make snapshot only if spot < 0 (demo)
 int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress)
 {
@@ -1415,8 +1413,6 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
 
     return 0;
 }
-
-EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == SAVEHEAD_SIZE);
 
 // if file is not an EDuke32 savegame/demo, h->headerstr will be all zeros
 int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)

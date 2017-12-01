@@ -4850,10 +4850,10 @@ FAKE_F3:
             if (g_lastSaveSlot >= 0)
             {
                 // dirty hack... char 127 in last position indicates an auto-filled name
-                if (ud.savegame[g_lastSaveSlot][MAXSAVEGAMENAME-2] == 127)
+                if (ud.savegame[g_lastSaveSlot][MAXSAVEGAMENAME] == 127)
                 {
-                    Bstrncpy(&ud.savegame[g_lastSaveSlot][0], g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, 19);
-                    ud.savegame[g_lastSaveSlot][MAXSAVEGAMENAME-2] = 127;
+                    Bstrncpy(&ud.savegame[g_lastSaveSlot][0], g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME);
+                    ud.savegame[g_lastSaveSlot][MAXSAVEGAMENAME] = 127;
                 }
 
                 G_SavePlayerMaybeMulti(g_lastSaveSlot);

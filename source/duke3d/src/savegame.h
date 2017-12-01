@@ -34,7 +34,7 @@ extern "C" {
 #else
 # define SV_MAJOR_VER 1
 #endif
-#define SV_MINOR_VER 3
+#define SV_MINOR_VER 4
 
 #pragma pack(push,1)
 typedef struct
@@ -51,7 +51,7 @@ typedef struct
     int32_t reccnt, snapsiz;
     // 8 bytes
 
-    char savename[MAXSAVEGAMENAME];
+    char savename[MAXSAVEGAMENAMESTRUCT];
     uint8_t numplayers, volnum, levnum, skill;
     char boardfn[BMAX_PATH];
     // 282 bytes
@@ -60,14 +60,6 @@ typedef struct
 #endif
 } savehead_t;
 #pragma pack(pop)
-
-#ifdef __ANDROID__
-#define SAVEHEAD_SIZE 374
-#else
-#define SAVEHEAD_SIZE 310
-#endif
-
-EDUKE32_STATIC_ASSERT(sizeof(savehead_t) == SAVEHEAD_SIZE);
 
 int32_t sv_updatestate(int32_t frominit);
 int32_t sv_readdiff(int32_t fil);
