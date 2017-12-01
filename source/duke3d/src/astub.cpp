@@ -10931,10 +10931,8 @@ void ExtCheckKeys(void)
         extern int32_t engine_screenshot;
         engine_screenshot = 1;
 #else
-        extern uint16_t capturecount;
-
         screencapture("captxxxx.tga", eitherSHIFT);
-        silentmessage("Saved screenshot %04d", capturecount-1);
+        silentmessage("Saved screenshot");
 #endif
     }
 }

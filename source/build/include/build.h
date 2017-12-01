@@ -1227,6 +1227,12 @@ static FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t 
 int screencapture(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
 int screencapture_tga(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
 
+struct OutputFileCounter {
+    uint16_t count = 0;
+    FILE * opennextfile(char *, char *);
+    FILE * opennextfile_withext(char *, const char *);
+};
+
 // PLAG: line utility functions
 typedef struct  s_equation {
     float       a, b, c;

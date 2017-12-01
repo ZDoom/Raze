@@ -4,46 +4,46 @@
 
 #include "pngwrite.h"
 
-uint16_t capturecount = 0;
-
 //
 // screencapture
 //
 
-static int screencapture_begin(char *fn, const char *ext, BFILE** filptr)
+FILE *OutputFileCounter::opennextfile(char *fn, char *zeros)
 {
-    bssize_t i;
+    FILE *file;
 
     do      // JBF 2004022: So we don't overwrite existing screenshots
     {
-        if (capturecount > 9999) return -1;
+        if (count > 9999) return nullptr;
 
-        i = Bstrrchr(fn, '.')-fn-4;
-        fn[i++] = ((capturecount/1000)%10)+48;
-        fn[i++] = ((capturecount/100)%10)+48;
-        fn[i++] = ((capturecount/10)%10)+48;
-        fn[i++] = (capturecount%10)+48;
-        i++;
-        Bstrcpy(&fn[i], ext);
+        zeros[0] = ((count/1000)%10)+'0';
+        zeros[1] = ((count/100)%10)+'0';
+        zeros[2] = ((count/10)%10)+'0';
+        zeros[3] = (count%10)+'0';
 
-        if ((*filptr = Bfopen(fn, "rb")) == NULL) break;
-        Bfclose(*filptr);
-        capturecount++;
+        if ((file = fopen(fn, "rb")) == nullptr) break;
+        fclose(file);
+        count++;
     } while (1);
 
-    *filptr = Bfopen(fn, "wb");
-    if (*filptr == NULL)
-        return -1;
-
-    return 0;
+    return fopen(fn, "wb");
 }
+
+FILE *OutputFileCounter::opennextfile_withext(char *fn, const char *ext)
+{
+    char *dot = strrchr(fn, '.');
+    strcpy(dot+1, ext);
+    return opennextfile(fn, dot-4);
+}
+
+static OutputFileCounter capturecounter;
 
 static void screencapture_end(char *fn, BFILE** filptr)
 {
     Bfclose(*filptr);
     OSD_Printf("Saved screenshot to %s\n", fn);
     Bfree(fn);
-    capturecount++;
+    capturecounter.count++;
 }
 
 # ifdef USE_OPENGL
@@ -55,13 +55,12 @@ static void screencapture_end(char *fn, BFILE** filptr)
 int screencapture(const char *filename, char inverseit)
 {
     char *fn = Xstrdup(filename);
-    BFILE *fp;
-    int const retval = screencapture_begin(fn, "png", &fp);
+    FILE *fp = capturecounter.opennextfile_withext(fn, "png");
 
-    if (retval)
+    if (fp == nullptr)
     {
         Bfree(fn);
-        return retval;
+        return -1;
     }
 
     uint8_t * const imgBuf = (uint8_t *) Xmalloc(xdim * ydim * (HICOLOR ? 3 : 1));
@@ -136,13 +135,12 @@ int screencapture_tga(const char *filename, char inverseit)
     char head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };
     //char palette[4*256];
     char *fn = Xstrdup(filename);
-    BFILE *fil;
 
-    i = screencapture_begin(fn, "tga", &fil);
-    if (i)
+    FILE *fil = capturecounter.opennextfile_withext(fn, "tga");
+    if (fil == nullptr)
     {
         Bfree(fn);
-        return i;
+        return -1;
     }
 
 #ifdef USE_OPENGL
