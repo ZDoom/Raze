@@ -8225,7 +8225,7 @@ void G_RefreshLights(void)
 #endif
 }
 
-static void G_DoEventGame(int nEventID)
+static void G_DoEventGame(int const nEventID)
 {
     if (VM_HaveEvent(nEventID))
     {
@@ -8254,6 +8254,24 @@ static void G_DoEventGame(int nEventID)
         }
         while (statNum < MAXSTATUS);
     }
+
+    int statNum = 0;
+
+    do
+    {
+        int spriteNum = headspritestat[statNum++];
+
+        while (spriteNum >= 0)
+        {
+            int const nextSprite = nextspritestat[spriteNum];
+
+            if (sprite[spriteNum].xrepeat == 0)
+                A_DeleteSprite(spriteNum);
+
+            spriteNum = nextSprite;
+        }
+    }
+    while (statNum < MAXSTATUS);
 }
 
 void G_MoveWorld(void)
