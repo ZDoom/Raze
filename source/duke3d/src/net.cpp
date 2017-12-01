@@ -1812,7 +1812,9 @@ void Net_SendMessage(void)
     }
     else
     {
-        int32_t const hitstate = I_EnterText(typebuf, 120, 0);
+#define MAXCHATLENGTH 120
+        EDUKE32_STATIC_ASSERT(MAXCHATLENGTH < TYPEBUFSIZE);
+        int32_t const hitstate = I_EnterText(typebuf, MAXCHATLENGTH, 0);
 
         int32_t const y = ud.screen_size > 1 ? (200-58)<<16 : (200-35)<<16;
 

@@ -295,7 +295,7 @@ typedef struct MenuString_t
     MenuFont_t *font;
 
     // effect
-    int32_t maxlength;
+    int32_t bufsize;
     int32_t flags;
 } MenuString_t;
 typedef struct MenuSpacer_t
@@ -392,7 +392,7 @@ typedef struct MenuTextForm_t
 
     // traits
     const char *instructions;
-    int32_t maxlength;
+    int32_t bufsize;
     uint8_t flags;
 } MenuTextForm_t;
 typedef struct MenuFileSelect_t

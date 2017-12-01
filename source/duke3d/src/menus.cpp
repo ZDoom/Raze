@@ -3179,7 +3179,7 @@ static int32_t Menu_EntryStringSubmit(MenuEntry_t *entry, char *input)
         else
         {
             ud.savegame[M_SAVE.currentEntry][MAXSAVEGAMENAME] = 0;
-            Bstrncpy(object->variable, input, object->maxlength);
+            Bstrncpy(object->variable, input, object->bufsize);
         }
 
         G_SavePlayerMaybeMulti(M_SAVE.currentEntry);
@@ -5648,8 +5648,8 @@ static void Menu_RunInput_EntryString_Activate(MenuEntry_t *entry)
     object->editfield = typebuf;
 
     // this limitation is an arbitrary implementation detail
-    if (object->maxlength > TYPEBUFSIZE)
-        object->maxlength = TYPEBUFSIZE;
+    if (object->bufsize > TYPEBUFSIZE)
+        object->bufsize = TYPEBUFSIZE;
 
     Menu_EntryStringActivate(/*entry*/);
     WithSDL2_StartTextInput();
@@ -5658,7 +5658,7 @@ static void Menu_RunInput_EntryString_Activate(MenuEntry_t *entry)
 static void Menu_RunInput_EntryString_Submit(MenuEntry_t *entry, MenuString_t *object)
 {
     if (!Menu_EntryStringSubmit(entry, object->editfield))
-        Bstrncpy(object->variable, object->editfield, object->maxlength);
+        Bstrncpy(object->variable, object->editfield, object->bufsize);
 
     object->editfield = NULL;
     WithSDL2_StopTextInput();
@@ -5784,7 +5784,7 @@ static void Menu_RunInput(Menu_t *cm)
         case TextForm:
         {
             MenuTextForm_t *object = (MenuTextForm_t*)cm->object;
-            int32_t hitstate = I_EnterText(object->input, object->maxlength, 0);
+            int32_t hitstate = I_EnterText(object->input, object->bufsize-1, 0);
 
             if (hitstate == -1 || Menu_RunInput_MouseReturn())
             {
@@ -6250,7 +6250,7 @@ static void Menu_RunInput(Menu_t *cm)
                 {
                     MenuString_t *object = (MenuString_t*)currentry->entry;
 
-                    int32_t hitstate = I_EnterText(object->editfield, object->maxlength, object->flags);
+                    int32_t hitstate = I_EnterText(object->editfield, object->bufsize-1, object->flags);
 
                     if (hitstate == -1 || Menu_RunInput_MouseReturn())
                     {
