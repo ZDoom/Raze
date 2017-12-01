@@ -8255,23 +8255,17 @@ static void G_DoEventGame(int const nEventID)
         while (statNum < MAXSTATUS);
     }
 
-    int statNum = 0;
+    int spriteNum = headspritestat[0];
 
-    do
+    while (spriteNum >= 0)
     {
-        int spriteNum = headspritestat[statNum++];
+        int const nextSprite = nextspritestat[spriteNum];
 
-        while (spriteNum >= 0)
-        {
-            int const nextSprite = nextspritestat[spriteNum];
+        if (sprite[spriteNum].xrepeat == 0)
+            A_DeleteSprite(spriteNum);
 
-            if (sprite[spriteNum].xrepeat == 0)
-                A_DeleteSprite(spriteNum);
-
-            spriteNum = nextSprite;
-        }
+        spriteNum = nextSprite;
     }
-    while (statNum < MAXSTATUS);
 }
 
 void G_MoveWorld(void)
