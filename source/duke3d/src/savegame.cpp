@@ -1005,7 +1005,10 @@ static const dataspec_t svgm_udnetw[] =
 
     { DS_NOCHK, &ud.volume_number, sizeof(ud.volume_number), 1 },
     { DS_NOCHK, &ud.level_number, sizeof(ud.level_number), 1 },
+    { DS_NOCHK, &ud.user_map, sizeof(ud.user_map), 1 },
     { DS_NOCHK, &ud.player_skill, sizeof(ud.player_skill), 1 },
+    { DS_NOCHK, &ud.music_episode, sizeof(ud.music_episode), 1 },
+    { DS_NOCHK, &ud.music_level, sizeof(ud.music_level), 1 },
 
     { DS_NOCHK, &ud.from_bonus, sizeof(ud.from_bonus), 1 },
     { DS_NOCHK, &ud.secretlevel, sizeof(ud.secretlevel), 1 },

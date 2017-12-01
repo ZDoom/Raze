@@ -158,6 +158,7 @@ typedef struct {
     int32_t m_respawn_items,m_respawn_monsters,m_respawn_inventory,m_recstat,m_monsters_off,detail;
     int32_t m_ffire,ffire,m_player_skill,m_level_number,m_volume_number,multimode;
     int32_t player_skill,level_number,volume_number,m_marker,marker,mouseflip;
+    int32_t music_episode, music_level;
 
     vec2_t m_origin;
     int32_t playerbest;
@@ -240,6 +241,8 @@ typedef struct {
     char display_bonus_screen;
     char show_level_text;
     char wchoice[MAX_WEAPONS];
+
+    uint8_t user_map;
 } user_defs;
 
 extern user_defs ud;
