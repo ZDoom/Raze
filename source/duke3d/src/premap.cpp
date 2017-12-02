@@ -1436,7 +1436,7 @@ end_vol4a:
     Gv_ResetSystemDefaults();
 
     for (bssize_t i=0; i<(MAXVOLUMES*MAXLEVELS); i++)
-        ALIGNED_FREE_AND_NULL(g_mapInfo[i].savedstate);
+        G_FreeMapState(i);
 
     if (ud.m_coop != 1)
     {
