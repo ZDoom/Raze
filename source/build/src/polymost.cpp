@@ -1272,7 +1272,9 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
         // make the final texture with fullbright pixels.
         fullbrightloadingpass = 1;
 
-        pth->ofb = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
+        if (!pth->ofb)
+            pth->ofb = (pthtyp *)Xcalloc(1,sizeof(pthtyp));
+
         pth->flags |= PTH_HASFULLBRIGHT;
 
         gloadtile_art(dapic, dapal, -1, 0, (dameth & ~DAMETH_MASKPROPS) | DAMETH_MASK, pth->ofb, 1);
