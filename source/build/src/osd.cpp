@@ -193,6 +193,8 @@ int OSD_Exec(const char *szScript)
         return 1;
     }
 
+    kclose(handle);
+
     buf[len] = 0;
     osd->execdepth++;
 
@@ -205,7 +207,6 @@ int OSD_Exec(const char *szScript)
     }
 
     osd->execdepth--;
-    kclose(handle);
     Bfree(buf);
     return 0;
 }
