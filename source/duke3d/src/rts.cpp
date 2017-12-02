@@ -48,11 +48,11 @@ static int32_t RTS_AddFile(const char *filename)
     //      FIXME: shared opens
 
     handle = kopen4loadfrommod(filename, 0);
+
     if (handle < 0)
-    {
-        initprintf("RTS file \"%s\" was not found\n",filename);
         return -1;
-    }
+    else
+        initprintf("RTS file \"%s\" loaded\n", filename);
 
     startlump = rts_numlumps;
 
