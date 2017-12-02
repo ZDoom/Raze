@@ -827,7 +827,7 @@ struct bad_arg_to_ARRAY_SIZE
 #else
 # define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 #endif
-#define ARRAY_SSIZE(arr) (signed)ARRAY_SIZE(arr)
+#define ARRAY_SSIZE(arr) (native_t)ARRAY_SIZE(arr)
 
 
 ////////// Memory management //////////
