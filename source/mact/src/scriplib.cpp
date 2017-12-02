@@ -112,22 +112,22 @@ void SCRIPT_FreeSection(ScriptSectionType * section)
 }
 
 #define AllocSection(s) \
-	{ \
-		(s) = (ScriptSectionType *)Xmalloc(sizeof(ScriptSectionType)); \
-		(s)->name = NULL; \
-		(s)->entries = NULL; \
-		(s)->lastline = NULL; \
-		(s)->nextsection = (s); \
-		(s)->prevsection = (s); \
-	}
+    { \
+        (s) = (ScriptSectionType *)Xmalloc(sizeof(ScriptSectionType)); \
+        (s)->name = NULL; \
+        (s)->entries = NULL; \
+        (s)->lastline = NULL; \
+        (s)->nextsection = (s); \
+        (s)->prevsection = (s); \
+    }
 #define AllocEntry(e) \
-	{ \
-		(e) = (ScriptEntryType *)Xmalloc(sizeof(ScriptEntryType)); \
-		(e)->name = NULL; \
-		(e)->value = NULL; \
-		(e)->nextentry = (e); \
-		(e)->preventry = (e); \
-	}
+    { \
+        (e) = (ScriptEntryType *)Xmalloc(sizeof(ScriptEntryType)); \
+        (e)->name = NULL; \
+        (e)->value = NULL; \
+        (e)->nextentry = (e); \
+        (e)->preventry = (e); \
+    }
 
 ScriptSectionType * SCRIPT_SectionExists(int32_t scripthandle, const char * sectionname)
 {
