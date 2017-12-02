@@ -263,7 +263,7 @@ int32_t G_LoadPlayer(int32_t spot)
         return 1;
     }
 
-    VM_OnEvent(EVENT_PRELOADGAME, g_player[myconnectindex].ps->i, myconnectindex);
+    VM_OnEvent(EVENT_PRELOADGAME, g_player[screenpeek].ps->i, screenpeek);
 
     // some setup first
     ud.multimode = h.numplayers;
@@ -332,7 +332,7 @@ int32_t G_LoadPlayer(int32_t spot)
     }
     sv_postudload();  // ud.m_XXX = ud.XXX
 
-    VM_OnEvent(EVENT_LOADGAME, g_player[myconnectindex].ps->i, myconnectindex);
+    VM_OnEvent(EVENT_LOADGAME, g_player[screenpeek].ps->i, screenpeek);
 
     return 0;
 }
@@ -438,7 +438,7 @@ int32_t G_SavePlayer(int32_t spot)
         polymer_resetlights();
 #endif
 
-    VM_OnEvent(EVENT_SAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
+    VM_OnEvent(EVENT_SAVEGAME, g_player[screenpeek].ps->i, screenpeek);
 
     // SAVE!
     sv_saveandmakesnapshot(fil, spot, 0, 0, 0);
@@ -462,7 +462,7 @@ int32_t G_SavePlayer(int32_t spot)
     G_RestoreTimers();
     ototalclock = totalclock;
 
-    VM_OnEvent(EVENT_POSTSAVEGAME, g_player[myconnectindex].ps->i, myconnectindex);
+    VM_OnEvent(EVENT_POSTSAVEGAME, g_player[screenpeek].ps->i, screenpeek);
 
     return 0;
 }

@@ -3778,7 +3778,7 @@ int Menu_Change(MenuID_t cm)
 {
     Menu_t * beginMenu = m_currentMenu;
 
-    cm = VM_OnEventWithReturn(EVENT_CHANGEMENU, g_player[myconnectindex].ps->i, myconnectindex, cm);
+    cm = VM_OnEventWithReturn(EVENT_CHANGEMENU, g_player[screenpeek].ps->i, screenpeek, cm);
 
     if (cm == MENU_PREVIOUS)
     {

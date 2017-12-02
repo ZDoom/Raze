@@ -1037,7 +1037,7 @@ void G_DrawBackground(void)
 
         // when not rendering a game, fullscreen wipe
         //        Gv_SetVar(g_iReturnVarID,tilesizx[MENUTILE]==320&&tilesizy[MENUTILE]==200?MENUTILE:BIGHOLE, -1, -1);
-        bgtile = VM_OnEventWithReturn(EVENT_GETMENUTILE, -1, myconnectindex, bgtile);
+        bgtile = VM_OnEventWithReturn(EVENT_GETMENUTILE, g_player[screenpeek].ps->i, screenpeek, bgtile);
         // MENU_TILE: is the menu tile tileable?
 #if !defined LUNATIC
         if (Gv_GetVarByLabel("MENU_TILE", !fstilep, -1, -1))

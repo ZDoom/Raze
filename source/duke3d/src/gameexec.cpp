@@ -1247,7 +1247,7 @@ void Screen_Play(void)
         G_HandleAsync();
 
         clearallviews(0);
-        if (VM_OnEventWithReturn(EVENT_SCREEN, -1, myconnectindex, I_CheckAllInput()))
+        if (VM_OnEventWithReturn(EVENT_SCREEN, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
             running = 0;
 
         nextpage();

@@ -323,7 +323,7 @@ int32_t Anim_Play(const char *fn)
             if (!pic)
                 break;  // no more pics!
 
-            VM_OnEventWithReturn(EVENT_PRECUTSCENE, -1, myconnectindex, framenum);
+            VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, framenum);
 
             clearallviews(0);
 
@@ -331,7 +331,7 @@ int32_t Anim_Play(const char *fn)
 
             animvpx_render_frame(&codec);
 
-            VM_OnEventWithReturn(EVENT_CUTSCENE, -1, myconnectindex, framenum);
+            VM_OnEventWithReturn(EVENT_CUTSCENE, g_player[screenpeek].ps->i, screenpeek, framenum);
 
             // after rendering the frame but before displaying: maybe play sound...
             framenum++;
@@ -374,7 +374,7 @@ int32_t Anim_Play(const char *fn)
             {
                 G_HandleAsync();
 
-                if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, -1, myconnectindex, I_CheckAllInput()))
+                if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
                 {
                     running = 0;
                     break;
@@ -472,12 +472,12 @@ int32_t Anim_Play(const char *fn)
         if (totalclock < ototalclock - 1)
             continue;
 
-        i = VM_OnEventWithReturn(EVENT_PRECUTSCENE, -1, myconnectindex, i);
+        i = VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
 
         waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
         invalidatetile(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
-        if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, -1, myconnectindex, I_CheckAllInput()))
+        if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
         {
             running = 0;
             goto end_anim_restore_gl;
@@ -496,7 +496,7 @@ int32_t Anim_Play(const char *fn)
         rotatesprite_fs(0 << 16, 0 << 16, 65536L, 512, TILE_ANIM, 0, 0, 2 + 4 + 8 + 16 + 64 + BGSTRETCH);
 
         g_animPtr = anim;
-        i = VM_OnEventWithReturn(EVENT_CUTSCENE, -1, myconnectindex, i);
+        i = VM_OnEventWithReturn(EVENT_CUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
         g_animPtr = NULL;
 
         nextpage();

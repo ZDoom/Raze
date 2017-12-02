@@ -1198,7 +1198,7 @@ void G_DisplayRest(int32_t smoothratio)
     G_PrintFPS();
 
     // JBF 20040124: display level stats in screen corner
-    if (ud.overhead_on != 2 && ud.levelstats && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[myconnectindex].ps->i, myconnectindex) == 0)
+    if (ud.overhead_on != 2 && ud.levelstats && VM_OnEvent(EVENT_DISPLAYLEVELSTATS, g_player[screenpeek].ps->i, screenpeek) == 0)
     {
         DukePlayer_t const * const myps = g_player[myconnectindex].ps;
 
@@ -1629,7 +1629,7 @@ void G_DisplayLogo(void)
 #ifdef LUNATIC
                     g_elEventError = 0;
 #endif
-                    VM_OnEvent(EVENT_LOGO, -1, screenpeek);
+                    VM_OnEvent(EVENT_LOGO, g_player[screenpeek].ps->i, screenpeek);
 
                     if (g_restorePalette)
                     {

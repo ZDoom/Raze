@@ -319,7 +319,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
 
     if (ud.recstat != 2)
     {
-        j = VM_OnEventWithReturn(EVENT_GETLOADTILE, -1, myconnectindex, LOADSCREEN);
+        j = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
 
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
@@ -390,7 +390,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
         /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
 
-        j = VM_OnEventWithReturn(EVENT_GETLOADTILE, -1, myconnectindex, LOADSCREEN);
+        j = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
 
         if ((uint32_t)j < 2*MAXTILES)
         {
@@ -1462,7 +1462,7 @@ end_vol4a:
     El_CreateGameState();
     G_PostCreateGameState();
 #endif
-    VM_OnEvent(EVENT_NEWGAME, g_player[myconnectindex].ps->i, myconnectindex);
+    VM_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek);
 }
 
 static void resetpspritevars(char gameMode)
