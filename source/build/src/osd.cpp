@@ -608,6 +608,7 @@ void OSD_Cleanup(void)
         DO_FREE_AND_NULL(osd->history.buf[i]);
     DO_FREE_AND_NULL(osd->text.buf);
     DO_FREE_AND_NULL(osd->text.fmt);
+    DO_FREE_AND_NULL(osd->version.buf);
     DO_FREE_AND_NULL(osd);
 }
 
