@@ -80,6 +80,7 @@ void SCRIPT_Delete(int32_t scripthandle)
             SCRIPT(scripthandle,apScript) = s;
         }
 
+        SCRIPT_FreeSection(SCRIPT(scripthandle, apScript));
         Bfree(SCRIPT(scripthandle,apScript));
     }
 
