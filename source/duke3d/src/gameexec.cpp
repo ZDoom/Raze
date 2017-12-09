@@ -166,38 +166,30 @@ static void VM_DummySprite(void)
 static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const spriteNum, int const playerNum,
                                      int const playerDist, int32_t returnValue)
 {
-    // this is initialized first thing because spriteNum, playerNum, lDist, etc are already right there on the stack
-    // from the function call
-    const vmstate_t tempvm = { spriteNum,
-                               playerNum,
-                               playerDist,
-                               0,
-                               &sprite[(unsigned)spriteNum],
-                               &actor[(unsigned)spriteNum].t_data[0],
-                               g_player[playerNum].ps,
-                               &actor[(unsigned) spriteNum] };
+    const vmstate_t tempvm = { spriteNum, playerNum, playerDist, 0, NULL, NULL, g_player[playerNum].ps, NULL };
 
-    // since we're targeting C99 and C++ now, we can interweave these to avoid
-    // having to load addresses for things twice
-    // for example, because we are loading backupReturnVar with the value of
-    // aGameVars[g_iReturnVarID].lValue, the compiler can avoid having to
-    // reload the address of aGameVars[g_iReturnVarID].lValue in order to
-    // set it to the value of iReturn (...which should still be on the stack!)
+    int const backupReturnVar = aGameVars[g_returnVarID].global;
+    int const backupEventExec = g_currentEventExec;
 
-    int const backupReturnVar       = aGameVars[g_returnVarID].global;
     aGameVars[g_returnVarID].global = returnValue;
-    int const backupEventExec       = g_currentEventExec;
     g_currentEventExec              = eventNum;
-    intptr_t const *oinsptr         = insptr;
-    insptr                          = apScript + apScriptEvents[eventNum];
-    const vmstate_t vm_backup       = vm;
 
-    vm = tempvm;
+    intptr_t const *oinsptr   = insptr;
+    const vmstate_t vm_backup = vm;
+
+    insptr = apScript + apScriptEvents[eventNum];
+    vm     = tempvm;
 
     // check tempvm instead of vm... this way, we are not actually loading
     // FROM vm anywhere until VM_Execute() is called
     if (EDUKE32_PREDICT_FALSE((unsigned) tempvm.spriteNum >= MAXSPRITES))
         VM_DummySprite();
+    else
+    {
+        vm.pSprite = &sprite[spriteNum];
+        vm.pActor  = &actor[spriteNum];
+        vm.pData   = &actor[spriteNum].t_data[0];
+    }
 
     if ((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers)
         vm.pPlayer = g_player[0].ps;
@@ -210,10 +202,11 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
     // this needs to happen after VM_DeleteSprite() because VM_DeleteSprite()
     // can trigger additional events
 
-    vm                               = vm_backup;
-    insptr                           = oinsptr;
-    g_currentEventExec               = backupEventExec;
-    returnValue                      = aGameVars[g_returnVarID].global;
+    vm                 = vm_backup;
+    insptr             = oinsptr;
+    g_currentEventExec = backupEventExec;
+    returnValue        = aGameVars[g_returnVarID].global;
+
     aGameVars[g_returnVarID].global  = backupReturnVar;
 
     return returnValue;
