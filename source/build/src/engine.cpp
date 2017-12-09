@@ -3185,10 +3185,10 @@ static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 #if defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 // from pragmas.h
 # define ourdivscale32(d,b) \
-	({ int32_t __d=(d), __b=(b), __r; \
-	   __asm__ __volatile__ ("xorl %%eax, %%eax; divl %%ebx" \
-		: "=a" (__r), "=d" (__d) : "d" (__d), "b" (__b) : "cc"); \
-	 __r; })
+    ({ int32_t __d=(d), __b=(b), __r; \
+       __asm__ __volatile__ ("xorl %%eax, %%eax; divl %%ebx" \
+        : "=a" (__r), "=d" (__d) : "d" (__d), "b" (__b) : "cc"); \
+     __r; })
 #else
 # define ourdivscale32(d,b) divscale32(d,b)
 #endif
@@ -7164,7 +7164,7 @@ static int32_t loadtables(void)
             reciptable[i] = divscale30(2048, i+2048);
 
         for (i=0; i<16384; i++)
-        	sloptable[i] = krecipasm(i-8192);
+            sloptable[i] = krecipasm(i-8192);
 
         for (i=0; i<=512; i++)
             sintable[i] = (int16_t)(16384.f * sinf((float)i * BANG2RAD));
