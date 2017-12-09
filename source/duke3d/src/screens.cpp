@@ -1629,7 +1629,7 @@ void G_DisplayLogo(void)
 #ifdef LUNATIC
                     g_elEventError = 0;
 #endif
-                    VM_OnEvent(EVENT_LOGO, g_player[screenpeek].ps->i, screenpeek);
+                    VM_OnEvent(EVENT_LOGO, -1, screenpeek);
 
                     if (g_restorePalette)
                     {
