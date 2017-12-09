@@ -1005,7 +1005,7 @@ int32_t inittimer(int32_t tickspersecond)
 
 //    initprintf("Initializing timer\n");
 
-#if defined(_WIN32) && SDL_MAJOR_VERSION==1
+#if defined(_WIN32) && SDL_MAJOR_VERSION == 1
     int32_t t = win_inittimer();
     if (t < 0)
         return t;
@@ -1615,7 +1615,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                to force the surface we WANT to be recreated instead of reused. */
             sdl_window = SDL_CreateWindow("", windowpos ? windowx : (int)SDL_WINDOWPOS_CENTERED,
                                           windowpos ? windowy : (int)SDL_WINDOWPOS_CENTERED, x, y,
-                                          ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0) | SDL_WINDOW_OPENGL);
+                                          SDL_WINDOW_OPENGL);
 
             if (sdl_window)
                 sdl_context = SDL_GL_CreateContext(sdl_window);
@@ -1627,6 +1627,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 return -1;
             }
 
+            SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
             SDL_GL_SetSwapInterval(vsync_renderlayer);
 
             setrefreshrate();
@@ -1642,7 +1643,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         // init
         sdl_window = SDL_CreateWindow("", windowpos ? windowx : (int)SDL_WINDOWPOS_CENTERED,
                                       windowpos ? windowy : (int)SDL_WINDOWPOS_CENTERED, x, y,
-                                      ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
+                                      0);
         if (!sdl_window)
             SDL2_VIDEO_ERR("SDL_CreateWindow");
 
@@ -1669,8 +1670,11 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
         if (SDL_SetSurfacePalette(sdl_buffersurface, sdl_palptr) < 0)
             initprintf("SDL_SetSurfacePalette failed: %s\n", SDL_GetError());
+
+        SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
     }
 
+    SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "1");
     setvideomode_sdlcommonpost(x, y, c, fs, regrab);
 
     return 0;
