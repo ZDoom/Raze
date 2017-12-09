@@ -7160,8 +7160,6 @@ static int32_t loadtables(void)
 
         initksqrt();
 
-        initdivtables();
-
         for (i=0; i<2048; i++)
             reciptable[i] = divscale30(2048, i+2048);
 
@@ -7600,8 +7598,8 @@ static uspritetype tsprite_s[MAXSPRITESONSCREEN];
 
 int32_t preinitengine(void)
 {
+    initdivtables();
     if (initsystem()) Bexit(9);
-
     makeasmwriteable();
 
 #ifdef DYNALLOC_ARRAYS

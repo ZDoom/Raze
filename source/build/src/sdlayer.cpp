@@ -1005,12 +1005,10 @@ int32_t inittimer(int32_t tickspersecond)
 
 //    initprintf("Initializing timer\n");
 
-#ifdef _WIN32
-    {
-        int32_t t = win_inittimer();
-        if (t < 0)
-            return t;
-    }
+#if defined(_WIN32) && SDL_MAJOR_VERSION==1
+    int32_t t = win_inittimer();
+    if (t < 0)
+        return t;
 #endif
 
     timerfreq = 1000;
@@ -1029,14 +1027,10 @@ int32_t inittimer(int32_t tickspersecond)
 //
 void uninittimer(void)
 {
-    if (!timerfreq) return;
-
     timerfreq=0;
-
-#ifdef _WIN32
+#if defined(_WIN32) && SDL_MAJOR_VERSION==1
     win_timerfreq=0;
 #endif
-
     msperu64tick = 0;
 }
 
@@ -1045,12 +1039,10 @@ void uninittimer(void)
 //
 void sampletimer(void)
 {
-    uint32_t i;
-    int32_t n;
-
     if (!timerfreq) return;
-    i = SDL_GetTicks();
-    n = tabledivide32(i * timerticspersec, timerfreq) - timerlastsample;
+
+    int64_t i = SDL_GetTicks();
+    int32_t n = tabledivide64(i * timerticspersec, timerfreq) - timerlastsample;
 
     if (n <= 0) return;
 
@@ -1073,7 +1065,7 @@ uint32_t getticks(void)
 
 // high-resolution timers for profiling
 
-#if SDL_MAJOR_VERSION!=1
+#if SDL_MAJOR_VERSION != 1
 uint64_t getu64ticks(void)
 {
     return SDL_GetPerformanceCounter();

@@ -150,6 +150,7 @@ int32_t win_checkinstance(void)
 //
 // high-resolution timers for profiling
 //
+#if defined(RENDERTYPEWIN) || SDL_MAJOR_VERSION==1
 int32_t win_inittimer(void)
 {
     int64_t t;
@@ -176,7 +177,7 @@ uint64_t win_getu64ticks(void)
     QueryPerformanceCounter((LARGE_INTEGER *)&i);
     return i;
 }
-
+#endif
 
 
 static void ToggleDesktopComposition(BOOL compEnable)
