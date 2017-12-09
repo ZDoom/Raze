@@ -39,7 +39,7 @@
     <ProjectGuid>{8E7A6179-0B72-4073-8A4C-E8682D481DAE}</ProjectGuid>
     <RootNamespace>eduke32</RootNamespace>
     <Keyword>MakeFileProj</Keyword>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -86,7 +86,6 @@
     <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f msvc.mak veryclean all WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f msvc.mak veryclean WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
     <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">USE_OPENGL;POLYMER;NOASM;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);..\..\source\build\include\msvc;..\..\source\build\include;..\..\source\enet\include;..\..\source\mact\include;..\..\source\audiolib\include;..\..\source\libxmp-lite\include</IncludePath>
   </PropertyGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\build\include\a.h" />
