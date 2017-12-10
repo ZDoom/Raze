@@ -955,7 +955,7 @@ $(foreach i,$(components),$(eval $(call OBJECTRULES,$i)))
 # Comment out the following rule to debug a-c.o
 $(engine_obj)/a-c.$o: $(engine_src)/a-c.cpp | $(engine_obj)
 	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(subst -O$(OPTLEVEL),-O2,$(subst $(CLANG_DEBUG_FLAGS),,$(COMPILER_CXX))) $(engine_cflags) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
+	$(RECIPE_IF) $(subst -O$(OPTLEVEL),-O2,$(subst $(ASAN_FLAGS),,$(COMPILER_CXX))) $(engine_cflags) -c $< -o $@ $(RECIPE_RESULT_COMPILE)
 
 $(engine_obj)/rev.$o: $(engine_src)/rev.cpp | $(engine_obj)
 	$(COMPILE_STATUS)

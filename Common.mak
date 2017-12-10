@@ -585,21 +585,27 @@ ifneq ($(ALLOCACHE_AS_MALLOC),0)
     COMPILERFLAGS += -DDEBUG_ALLOCACHE_AS_MALLOC
 endif
 
-# See http://clang.llvm.org/docs/UsersManual.html#controlling-code-generation
-# for a list of possible UBSan options.
-# Clang 3.2 does only supports -fsanitize=address for the AddressSanitizer
-CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overflow,object-size
-#CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),signed-integer-overflow
-#CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),unsigned-integer-overflow
-#CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS) -fsanitize-undefined-trap-on-error
+# See https://clang.llvm.org/docs/UndefinedBehaviorSanitizer.html
+# and https://gcc.gnu.org/onlinedocs/gcc/Instrumentation-Options.html
+# for a list of possible ASan and UBsan options.
+
+ASAN_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overflow
+ASAN_FLAGS := $(ASAN_FLAGS),signed-integer-overflow,unsigned-integer-overflow
+ASAN_FLAGS := $(ASAN_FLAGS),undefined,return,null,pointer-overflow,float-divide-by-zero
+#ASAN_FLAGS := $(ASAN_FLAGS) -fsanitize-undefined-trap-on-error
 
 ifeq (0,$(FORCEDEBUG))
     COMPILERFLAGS += -DNDEBUG
 else
     COMPILERFLAGS += -DDEBUGGINGAIDS=$(FORCEDEBUG)
-    ifneq (0,$(CLANG))
-        ifeq (2,$(FORCEDEBUG))
-            COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
+
+    ifeq (2,$(FORCEDEBUG))
+        ifneq (0,$(CLANG))
+            COMMONFLAGS += $(ASAN_FLAGS)
+        else ifneq (,$(filter 1 2 3 4 5 6,$(GCC_MAJOR)))
+            ifneq (,$(filter 0 1,$(GCC_MINOR)))
+                COMMONFLAGS += $(ASAN_FLAGS)
+            endif
         endif
     endif
 endif
