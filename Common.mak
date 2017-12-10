@@ -289,7 +289,7 @@ endif
 
 #  CPLUSPLUS - 1 := enable C++ building
 #  RELEASE - 1 := no debugging
-#  DEBUGANYWAY:
+#  FORCEDEBUG:
 #    1 := Include debug symbols even when generating release code.
 #    2 := Also enable sanitizers with Clang. On the C side, make 'sprite' etc. be real arrays.
 #  KRANDDEBUG - 1 := include logging of krand() calls for debugging the demo system
@@ -330,7 +330,7 @@ MIXERTYPE := SDL
 SDL_TARGET := 2
 
 # Debugging/Build options
-DEBUGANYWAY := 0
+FORCEDEBUG := 0
 KRANDDEBUG := 0
 PROFILER := 0
 # Make allocache() a wrapper around malloc()? Useful for debugging
@@ -347,7 +347,7 @@ ifneq (0,$(KRANDDEBUG))
 endif
 ifneq (100,$(RELEASE)$(PROFILER)$(ALLOCACHE_AS_MALLOC))
     # so that we have debug symbols
-    DEBUGANYWAY := 1
+    FORCEDEBUG := 1
 endif
 
 ifeq ($(PLATFORM),WINDOWS)
@@ -385,7 +385,7 @@ endif
 ifeq ($(RELEASE),0)
     override STRIP :=
 endif
-ifneq ($(DEBUGANYWAY),0)
+ifneq ($(FORCEDEBUG),0)
     override STRIP :=
 endif
 
@@ -566,7 +566,7 @@ endif
 
 ##### Debugging
 
-ifneq ($(RELEASE)$(DEBUGANYWAY),10)
+ifneq ($(RELEASE)$(FORCEDEBUG),10)
     ifeq ($(PACKAGE_REPOSITORY),0)
         COMMONFLAGS += -g
         ifeq (0,$(CLANG))
@@ -593,12 +593,12 @@ CLANG_DEBUG_FLAGS := -fsanitize=address -fsanitize=bounds,enum,float-cast-overfl
 #CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS),unsigned-integer-overflow
 #CLANG_DEBUG_FLAGS := $(CLANG_DEBUG_FLAGS) -fsanitize-undefined-trap-on-error
 
-ifeq (0,$(DEBUGANYWAY))
+ifeq (0,$(FORCEDEBUG))
     COMPILERFLAGS += -DNDEBUG
 else
-    COMPILERFLAGS += -DDEBUGGINGAIDS=$(DEBUGANYWAY)
+    COMPILERFLAGS += -DDEBUGGINGAIDS=$(FORCEDEBUG)
     ifneq (0,$(CLANG))
-        ifeq (2,$(DEBUGANYWAY))
+        ifeq (2,$(FORCEDEBUG))
             COMMONFLAGS += $(CLANG_DEBUG_FLAGS)
         endif
     endif
@@ -641,7 +641,7 @@ else
         COMMONFLAGS += -funswitch-loops
     endif
 
-    ifeq (0,$(DEBUGANYWAY))
+    ifeq (0,$(FORCEDEBUG))
         COMMONFLAGS += -fomit-frame-pointer
     endif
 endif
