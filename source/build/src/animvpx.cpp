@@ -491,7 +491,7 @@ void animvpx_restore_glstate(void)
     texuploaded = 0;
 }
 
-int32_t animvpx_render_frame(animvpx_codec_ctx *codec)
+int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
 {
     int32_t t = getticks();
 
@@ -518,6 +518,8 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec)
     }
 
     float vid_wbyh = ((float)codec->width)/codec->height;
+    if (animvpx_aspect > 0)
+        vid_wbyh = animvpx_aspect;
     float scr_wbyh = ((float)xdim)/ydim;
 
     float x=1.0, y=1.0;

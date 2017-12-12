@@ -85,7 +85,7 @@ int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **pic);
 
 void animvpx_setup_glstate(void);
 void animvpx_restore_glstate(void);
-int32_t animvpx_render_frame(animvpx_codec_ctx *codec);
+int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect);
 
 void animvpx_print_stats(const animvpx_codec_ctx *codec);
 #endif

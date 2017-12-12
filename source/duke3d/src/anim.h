@@ -30,6 +30,7 @@ typedef struct {
 
 typedef struct
 {
+    double frameaspect1, frameaspect2;
     uint8_t* animbuf;
     animsound_t *sounds;
     uint16_t numsounds;

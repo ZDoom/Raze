@@ -329,7 +329,20 @@ int32_t Anim_Play(const char *fn)
 
             ototalclock = totalclock + 1; // pause game like ANMs
 
-            animvpx_render_frame(&codec);
+            if (anim)
+            {
+                if (anim->frameaspect1 == 0 || anim->frameaspect2 == 0)
+                    animvpx_render_frame(&codec, 0);
+                else
+                    animvpx_render_frame(&codec, anim->frameaspect1 / anim->frameaspect2);
+            }
+            else
+            {
+                if (origanim->frameaspect1 == 0 || origanim->frameaspect2 == 0)
+                    animvpx_render_frame(&codec, 0);
+                else
+                    animvpx_render_frame(&codec, origanim->frameaspect1 / origanim->frameaspect2);
+            }
 
             VM_OnEventWithReturn(EVENT_CUTSCENE, g_player[screenpeek].ps->i, screenpeek, framenum);
 

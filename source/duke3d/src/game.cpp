@@ -172,6 +172,7 @@ enum gametokens
     T_DELAY,
     T_RENAMEFILE,
     T_GLOBALGAMEFLAGS,
+    T_ASPECT,
 };
 
 void G_HandleSpecialKeys(void)
@@ -5191,6 +5192,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
     static const tokenlist animTokens [] =
     {
         { "delay", T_DELAY },
+        { "aspect", T_ASPECT },
         { "sounds", T_SOUND },
     };
 
@@ -5318,6 +5320,15 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                             scriptfile_getnumber(pScript, &temp);
                             animPtr->framedelay = temp;
                             break;
+                        case T_ASPECT:
+                        {
+                            double dtemp, dtemp2;
+                            scriptfile_getdouble(pScript, &dtemp);
+                            scriptfile_getdouble(pScript, &dtemp2);
+                            animPtr->frameaspect1 = dtemp;
+                            animPtr->frameaspect2 = dtemp2;
+                            break;
+                        }
                         case T_SOUND:
                         {
                             char *animSoundsEnd = NULL;
