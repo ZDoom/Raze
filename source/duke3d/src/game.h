@@ -93,6 +93,9 @@ enum LogoFlags_t {
     LOGO_NOE3RADLOGO       = 0x00040000,
     LOGO_NODUKETEAMTEXT    = 0x00080000,
     LOGO_NODUKETEAMPIC     = 0x00100000,
+    LOGO_STOPMISCSOUNDS    = 0x00200000,
+    LOGO_NOGAMETITLE       = 0x00400000,
+    LOGO_NOTITLEBAR        = 0x00800000,
 };
 
 void A_DeleteSprite(int spriteNum);

@@ -120,7 +120,8 @@ static void Menu_DrawBackground(const vec2_t origin)
 
 static void Menu_DrawTopBar(const vec2_t origin)
 {
-    rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (19<<16), MF_Redfont.cursorScale, 0,MENUBAR,16,0,10);
+    if ((G_GetLogoFlags() & LOGO_NOTITLEBAR) == 0)
+        rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + (19<<16), MF_Redfont.cursorScale, 0,MENUBAR,16,0,10);
 }
 
 static void Menu_DrawTopBarCaption(const char *caption, const vec2_t origin)
@@ -2034,9 +2035,12 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         l += 4;
         fallthrough__;
     case MENU_MAIN:
-        rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + ((28+l)<<16), 65536L,0,INGAMEDUKETHREEDEE,0,0,10);
-        if (PLUTOPAK)   // JBF 20030804
-            rotatesprite_fs(origin.x + ((MENU_MARGIN_CENTER+100)<<16), origin.y + (36<<16), 65536L,0,PLUTOPAKSPRITE+2,(sintable[(totalclock<<4)&2047]>>11),0,2+8);
+        if ((G_GetLogoFlags() & LOGO_NOGAMETITLE) == 0)
+        {
+            rotatesprite_fs(origin.x + (MENU_MARGIN_CENTER<<16), origin.y + ((28+l)<<16), 65536L,0,INGAMEDUKETHREEDEE,0,0,10);
+            if (PLUTOPAK)   // JBF 20030804
+                rotatesprite_fs(origin.x + ((MENU_MARGIN_CENTER+100)<<16), origin.y + (36<<16), 65536L,0,PLUTOPAKSPRITE+2,(sintable[(totalclock<<4)&2047]>>11),0,2+8);
+        }
         break;
 
     case MENU_PLAYER:
