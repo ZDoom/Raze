@@ -1227,6 +1227,7 @@ const memberlabel_t UserdefsLabels[]=
     { "screenarea_y1",          USERDEFS_SCREENAREA_Y1,          0, 0 },
     { "screenarea_x2",          USERDEFS_SCREENAREA_X2,          0, 0 },
     { "screenarea_y2",          USERDEFS_SCREENAREA_Y2,          0, 0 },
+    { "screenfade",             USERDEFS_SCREENFADE,             0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 

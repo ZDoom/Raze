@@ -1299,6 +1299,8 @@ void G_DisplayRest(int32_t smoothratio)
 
 void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e)
 {
+    if (ud.screenfade == 0)
+      return;
     setpalettefade(r, g, b, e);
     nextpage();
 
@@ -1311,6 +1313,8 @@ void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e)
 // STEP must evenly divide END-START, i.e. abs(end-start)%step == 0
 void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step)
 {
+    if (ud.screenfade == 0)
+      return;
     if (getrendermode() >= REND_POLYMOST)
     {
         G_FadePalette(r, g, b, end);
@@ -1336,6 +1340,8 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
 // START and END limits are always inclusive!
 static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_t step, int32_t tile)
 {
+    if (ud.screenfade == 0)
+      return;
     // STEP must evenly divide END-START
     Bassert(klabs(end-start)%step == 0);
 
