@@ -4395,10 +4395,16 @@ skip:
 
 void G_SetViewportShrink(int32_t dir)
 {
-    if (ud.screen_size == 8 && dir!=0 && (dir>0)==(int32_t)ud.statusbarmode)
-        ud.statusbarmode = !ud.statusbarmode;
-    else
-        ud.screen_size += dir;
+    if (dir!=0)
+    {
+        if (ud.screen_size == 8 && (dir>0)==(int32_t)ud.statusbarmode)
+            ud.statusbarmode = !ud.statusbarmode;
+        else
+        if (ud.screen_size == 4 && (dir>0)==(int32_t)ud.althud)
+            ud.althud = !ud.althud;
+        else
+            ud.screen_size += dir;
+    }
     G_UpdateScreenArea();
 }
 

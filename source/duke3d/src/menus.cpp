@@ -572,7 +572,7 @@ static MenuRangeInt32_t MEO_SCREENSETUP_CROSSHAIRSIZE = MAKE_MENURANGE( &ud.cros
 static MenuEntry_t ME_SCREENSETUP_CROSSHAIRSIZE = MAKE_MENUENTRY( s_Scale, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SCREENSETUP_CROSSHAIRSIZE, RangeInt32 );
 
 static int32_t vpsize;
-static MenuRangeInt32_t MEO_SCREENSETUP_SCREENSIZE = MAKE_MENURANGE( &vpsize, &MF_Redfont, 12, 0, 0, 4, EnforceIntervals );
+static MenuRangeInt32_t MEO_SCREENSETUP_SCREENSIZE = MAKE_MENURANGE( &vpsize, &MF_Redfont, 16, 0, 0, 5, EnforceIntervals );
 static MenuEntry_t ME_SCREENSETUP_SCREENSIZE = MAKE_MENUENTRY( "Screen size:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_SCREENSIZE, RangeInt32 );
 static MenuRangeInt32_t MEO_SCREENSETUP_TEXTSIZE = MAKE_MENURANGE( &ud.textscale, &MF_Redfont, 100, 400, 0, 16, 2 );
 static MenuEntry_t ME_SCREENSETUP_TEXTSIZE = MAKE_MENUENTRY( s_Scale, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SCREENSETUP_TEXTSIZE, RangeInt32 );
@@ -582,22 +582,6 @@ static MenuEntry_t ME_SCREENSETUP_LEVELSTATS = MAKE_MENUENTRY( "Level stats:", &
 
 static MenuOption_t MEO_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &ud.fta_on);
 static MenuEntry_t ME_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUENTRY( "Game messages:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_SHOWPICKUPMESSAGES, Option );
-
-static char const *MEOSN_SCREENSETUP_NEWSTATUSBAR[] = { "Classic", "New",
-#ifdef EDUKE32_ANDROID_MENU
-"On top",
-#endif
-};
-
-static int32_t MEOSV_SCREENSETUP_NEWSTATUSBAR[] = { 0, 1,
-#ifdef EDUKE32_ANDROID_MENU
-2,
-#endif
-};
-
-static MenuOptionSet_t MEOS_SCREENSETUP_NEWSTATUSBAR = MAKE_MENUOPTIONSET( MEOSN_SCREENSETUP_NEWSTATUSBAR, MEOSV_SCREENSETUP_NEWSTATUSBAR, 0x2 );
-static MenuOption_t MEO_SCREENSETUP_NEWSTATUSBAR = MAKE_MENUOPTION(&MF_Redfont, &MEOS_SCREENSETUP_NEWSTATUSBAR, &ud.althud);
-static MenuEntry_t ME_SCREENSETUP_NEWSTATUSBAR = MAKE_MENUENTRY( "Status bar:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_NEWSTATUSBAR, Option );
 
 
 
@@ -1111,7 +1095,6 @@ static MenuEntry_t *MEL_SCREENSETUP[] = {
     &ME_SCREENSETUP_SCREENSIZE,
 #endif
 
-    &ME_SCREENSETUP_NEWSTATUSBAR,
     &ME_SCREENSETUP_SBARSIZE,
 
     &ME_SCREENSETUP_CROSSHAIR,
@@ -1853,7 +1836,7 @@ static void Menu_Pre(MenuID_t cm)
         else
             MenuMenu_ChangeEntryList(M_DISPLAYSETUP, MEL_DISPLAYSETUP_GL);
 
-        vpsize = ud.screen_size + 4*(ud.screen_size>=8 && ud.statusbarmode==0);
+        vpsize = ud.screen_size + 4*(ud.screen_size>=8 && ud.statusbarmode==0) + 4*(ud.screen_size>=4 && ud.althud==0);
 
         if (getrendermode() != REND_CLASSIC)
         {
