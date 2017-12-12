@@ -81,9 +81,7 @@ static inline float getshadefactor(int32_t const shade)
         return 1.f;
 
     if (r_usenewshading == 4)
-    {
-        return 1.f - (shade * shadescale / frealmaxshade);
-    }
+        return max(min(1.f - (shade * shadescale / frealmaxshade), 1.f), 0.f);
 
     float const shadebound = (float)((shadescale_unbounded || shade>=numshades) ? numshades : numshades-1);
     float const scaled_shade = (float)shade*shadescale;
