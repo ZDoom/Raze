@@ -115,12 +115,12 @@ void hicinit(void)
 
 
 //
-// hicsetpalettetint(pal,r,g,b,effect)
+// hicsetpalettetint(pal,r,g,b,sr,sg,sb,effect)
 //   The tinting values represent a mechanism for emulating the effect of global sector
 //   palette shifts on true-colour textures and only true-colour textures.
 //   effect bitset: 1 = greyscale, 2 = invert
 //
-void hicsetpalettetint(int32_t palnum, char r, char g, char b, polytintflags_t effect)
+void hicsetpalettetint(int32_t palnum, char r, char g, char b, char sr, char sg, char sb, polytintflags_t effect)
 {
     if ((uint32_t)palnum >= (uint32_t)MAXPALOOKUPS) return;
     if (!hicinitcounter) hicinit();
@@ -129,6 +129,9 @@ void hicsetpalettetint(int32_t palnum, char r, char g, char b, polytintflags_t e
     tint.r = r;
     tint.g = g;
     tint.b = b;
+    tint.sr = sr;
+    tint.sg = sg;
+    tint.sb = sb;
     tint.f = effect;
 }
 
@@ -285,7 +288,7 @@ int32_t hicclearsubst(int32_t picnum, int32_t palnum)
 
 #include "compat.h"
 
-void hicsetpalettetint(int32_t palnum, char r, char g, char b, polytintflags_t effect)
+void hicsetpalettetint(int32_t palnum, char r, char g, char b, char sr, char sg, char sb, polytintflags_t effect)
 {
     UNREFERENCED_PARAMETER(palnum);
     UNREFERENCED_PARAMETER(r);

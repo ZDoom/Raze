@@ -21,6 +21,7 @@ typedef struct hicreplc_t {
 typedef struct {
     polytintflags_t f;
     uint8_t r, g, b;
+    uint8_t sr, sg, sb;
 } polytint_t;
 
 extern polytint_t hictinting[MAXPALOOKUPS];

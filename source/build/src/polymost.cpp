@@ -1892,7 +1892,12 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         pc[0] = pc[1] = pc[2] = 1.0f;
     else
 #endif
-        pc[0] = pc[1] = pc[2] = getshadefactor(globalshade);
+    {
+        polytint_t const & tint = hictinting[globalpal];
+        pc[0] = (1.f-(tint.sr*(1.f/255.f)))*getshadefactor(globalshade)+(tint.sr*(1.f/255.f));
+        pc[1] = (1.f-(tint.sg*(1.f/255.f)))*getshadefactor(globalshade)+(tint.sg*(1.f/255.f));
+        pc[2] = (1.f-(tint.sb*(1.f/255.f)))*getshadefactor(globalshade)+(tint.sb*(1.f/255.f));
+    }
 
     // spriteext full alpha control
     pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);

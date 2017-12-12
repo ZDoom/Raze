@@ -117,6 +117,7 @@ enum scripttoken_t
     T_SRC_ALPHA, T_ONE_MINUS_SRC_ALPHA,
     T_DST_ALPHA, T_ONE_MINUS_DST_ALPHA,
     T_DST_COLOR, T_ONE_MINUS_DST_COLOR,
+    T_SHADERED, T_SHADEGREEN, T_SHADEBLUE,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -495,15 +496,18 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_DEFINETINT:
         {
-            int32_t pal, r,g,b,f;
+            int32_t pal, r,g,b,sr,sg,sb,f;
 
             if (scriptfile_getsymbol(script,&pal)) break;
             if (scriptfile_getnumber(script,&r)) break;
             if (scriptfile_getnumber(script,&g)) break;
             if (scriptfile_getnumber(script,&b)) break;
+            if (scriptfile_getnumber(script,&sr)) break;
+            if (scriptfile_getnumber(script,&sg)) break;
+            if (scriptfile_getnumber(script,&sb)) break;
             if (scriptfile_getnumber(script,&f)) break; //effects
 #ifdef USE_OPENGL
-            hicsetpalettetint(pal,r,g,b,f);
+            hicsetpalettetint(pal,r,g,b,sr,sg,sb,f);
 #endif
         }
         break;
@@ -2047,16 +2051,19 @@ static int32_t defsparser(scriptfile *script)
         case T_TINT:
         {
             char *tinttokptr = script->ltextptr;
-            int32_t red=255, green=255, blue=255, pal=-1, flags=0;
+            int32_t red=255, green=255, blue=255, shadered=0, shadegreen=0, shadeblue=0, pal=-1, flags=0;
             char *tintend;
 
             static const tokenlist tinttokens[] =
             {
-                { "pal",   T_PAL },
-                { "red",   T_RED   },{ "r", T_RED },
-                { "green", T_GREEN },{ "g", T_GREEN },
-                { "blue",  T_BLUE  },{ "b", T_BLUE },
-                { "flags", T_FLAGS }
+                { "pal",        T_PAL        },
+                { "red",        T_RED        },{ "r",  T_RED },
+                { "green",      T_GREEN      },{ "g",  T_GREEN },
+                { "blue",       T_BLUE       },{ "b",  T_BLUE },
+                { "shadered",   T_SHADERED   },{ "sr", T_SHADERED },
+                { "shadegreen", T_SHADEGREEN },{ "sg", T_SHADEGREEN },
+                { "shadeblue",  T_SHADEBLUE  },{ "sb", T_SHADEBLUE },
+                { "flags",      T_FLAGS      }
             };
 
             if (scriptfile_getbraces(script,&tintend)) break;
@@ -2065,15 +2072,21 @@ static int32_t defsparser(scriptfile *script)
                 switch (getatoken(script,tinttokens,ARRAY_SIZE(tinttokens)))
                 {
                 case T_PAL:
-                    scriptfile_getsymbol(script,&pal);   break;
+                    scriptfile_getsymbol(script,&pal);        break;
                 case T_RED:
-                    scriptfile_getnumber(script,&red);   red   = min(255,max(0,red));   break;
+                    scriptfile_getnumber(script,&red);        red        = min(255,max(0,red));   break;
                 case T_GREEN:
-                    scriptfile_getnumber(script,&green); green = min(255,max(0,green)); break;
+                    scriptfile_getnumber(script,&green);      green      = min(255,max(0,green)); break;
                 case T_BLUE:
-                    scriptfile_getnumber(script,&blue);  blue  = min(255,max(0,blue));  break;
+                    scriptfile_getnumber(script,&blue);       blue       = min(255,max(0,blue));  break;
+                case T_SHADERED:
+                    scriptfile_getnumber(script,&shadered);   shadered   = min(255,max(0,shadered));   break;
+                case T_SHADEGREEN:
+                    scriptfile_getnumber(script,&shadegreen); shadegreen = min(255,max(0,shadegreen)); break;
+                case T_SHADEBLUE:
+                    scriptfile_getnumber(script,&shadeblue);  shadeblue  = min(255,max(0,shadeblue));  break;
                 case T_FLAGS:
-                    scriptfile_getsymbol(script,&flags); break;
+                    scriptfile_getsymbol(script,&flags);      break;
                 }
             }
 
@@ -2085,7 +2098,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
 #ifdef USE_OPENGL
-            hicsetpalettetint(pal,red,green,blue,flags);
+            hicsetpalettetint(pal,red,green,blue,shadered,shadegreen,shadeblue,flags);
 #endif
         }
         break;

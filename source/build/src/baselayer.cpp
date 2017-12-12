@@ -384,17 +384,18 @@ static int32_t osdfunc_setrendermode(osdfuncparm_t const * const parm)
 #ifdef DEBUGGINGAIDS
 static int32_t osdcmd_hicsetpalettetint(osdfuncparm_t const * const parm)
 {
-    int32_t pal, cols[3], eff;
+    int32_t parms[8];
 
-    if (parm->numparms != 5) return OSDCMD_SHOWHELP;
+    if (parm->numparms < 1 || (int32_t)ARRAY_SIZE(parms) < parm->numparms) return OSDCMD_SHOWHELP;
 
-    pal = Batol(parm->parms[0]);
-    cols[0] = Batol(parm->parms[1]);
-    cols[1] = Batol(parm->parms[2]);
-    cols[2] = Batol(parm->parms[3]);
-    eff = Batol(parm->parms[4]);
+    size_t i;
+    for (i = 0; (int32_t)i < parm->numparms; ++i)
+        parms[i] = Batol(parm->parms[i]);
+    for (; i < ARRAY_SIZE(parms); ++i)
+        parms[i] = 0;
 
-    hicsetpalettetint(pal,cols[0],cols[1],cols[2],eff);
+    // order is intentional
+    hicsetpalettetint(parms[0],parms[1],parms[2],parms[3],parms[5],parms[6],parms[7],parms[4]);
 
     return OSDCMD_OK;
 }

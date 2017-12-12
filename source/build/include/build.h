@@ -1325,7 +1325,7 @@ extern int32_t glrendmode;
 #endif
 
 void hicinit(void);
-void hicsetpalettetint(int32_t palnum, char r, char g, char b, polytintflags_t effect);
+void hicsetpalettetint(int32_t palnum, char r, char g, char b, char sr, char sg, char sb, polytintflags_t effect);
 // flags bitset: 1 = don't compress
 int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float alphacut,
                        float xscale, float yscale, float specpower, float specfactor, char flags);
