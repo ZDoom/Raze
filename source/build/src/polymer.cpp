@@ -1478,7 +1478,7 @@ void                polymer_drawmaskwall(int32_t damaskwallcnt)
     if (searchit == 2) {
         polymer_drawsearchplane(&w->mask, oldcolor, 0x04, (GLubyte *)&maskwall[damaskwallcnt]);
     } else {
-        calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+        calc_and_apply_fog(wal->picnum, fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
         polymer_drawplane(&w->mask);
     }
 
@@ -1507,7 +1507,7 @@ void                polymer_drawsprite(int32_t snum)
     DO_TILE_ANIM(tspr->picnum, tspr->owner+32768);
 
     sec = (usectortype *)&sector[tspr->sectnum];
-    calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, tspr->shade), sec->visibility,
+    calc_and_apply_fog(tspr->picnum, fogshade(tspr->shade, tspr->pal), sec->visibility,
                        get_floor_fogpal((usectortype *)&sector[tspr->sectnum]));
 
     if (usemodels && tile2model[Ptile2tile(tspr->picnum,tspr->pal)].modelid >= 0 &&
@@ -3009,7 +3009,7 @@ static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
             polymer_drawsearchplane(&s->floor, oldcolor, 0x02, (GLubyte *) &sectnum);
         }
         else {
-            calc_and_apply_fog(sec->floorpicnum, fogpal_shade(sec, sec->floorshade),
+            calc_and_apply_fog(sec->floorpicnum, fogshade(sec->floorshade, sec->floorpal),
                 sec->visibility, get_floor_fogpal(sec));
             polymer_drawplane(&s->floor);
         }
@@ -3037,7 +3037,7 @@ static void         polymer_drawsector(int16_t sectnum, int32_t domasks)
             polymer_drawsearchplane(&s->ceil, oldcolor, 0x01, (GLubyte *) &sectnum);
         }
         else {
-            calc_and_apply_fog(sec->ceilingpicnum, fogpal_shade(sec, sec->ceilingshade),
+            calc_and_apply_fog(sec->ceilingpicnum, fogshade(sec->ceilingshade, sec->ceilingpal),
                                sec->visibility, get_ceiling_fogpal(sec));
             polymer_drawplane(&s->ceil);
         }
@@ -3571,7 +3571,7 @@ static void         polymer_drawwall(int16_t sectnum, int16_t wallnum)
         (sector[wal->nextsector].ceilingstat & 1))
         parallaxedceiling = 1;
 
-    calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+    calc_and_apply_fog(wal->picnum, fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
 
     if ((w->underover & 1) && (!parallaxedfloor || (searchit == 2)))
     {

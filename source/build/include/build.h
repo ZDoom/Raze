@@ -864,6 +864,7 @@ EXTERN char *globalpalwritten;
 enum {
     GLOBAL_NO_GL_TILESHADES = 1<<0,
     GLOBAL_NO_GL_FULLBRIGHT = 1<<1,
+    GLOBAL_NO_GL_FOGSHADE = 1<<2,
 };
 
 extern int32_t globalflags;

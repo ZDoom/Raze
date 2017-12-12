@@ -2809,7 +2809,7 @@ static void polymost_internal_nonparallaxed(vec2f_t n0, vec2f_t n1, float ryp0, 
     drawpoly_alpha = 0.f;
     drawpoly_blend = 0;
 
-    calc_and_apply_fog(globalpicnum, fogpal_shade(sec, global_cf_shade), sec->visibility,
+    calc_and_apply_fog(globalpicnum, fogshade(global_cf_shade, global_cf_pal), sec->visibility,
         POLYMOST_CHOOSE_FOG_PAL(global_cf_fogpal, global_cf_pal));
 
     if (have_floor)
@@ -3689,7 +3689,7 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-                calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+                calc_and_apply_fog(wal->picnum, fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1; polymost_domost(x1,ocy1,x0,ocy0);
                 if (wal->cstat&8) { xtex.u = ogux; ytex.u = oguy; otex.u = oguo; }
@@ -3726,7 +3726,7 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 if (nwal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-                calc_and_apply_fog(nwal->picnum, fogpal_shade(sec, nwal->shade), sec->visibility, get_floor_fogpal(sec));
+                calc_and_apply_fog(nwal->picnum, fogshade(nwal->shade, nwal->pal), sec->visibility, get_floor_fogpal(sec));
 
                 pow2xsplit = 1; polymost_domost(x0,ofy0,x1,ofy1);
                 if (wal->cstat&(2+8)) { otex.u = oguo; xtex.u = ogux; ytex.u = oguy; }
@@ -3774,7 +3774,7 @@ static void polymost_drawalls(int32_t const bunch)
                 }
                 if (wal->cstat&256) { xtex.v = -xtex.v; ytex.v = -ytex.v; otex.v = -otex.v; } //yflip
 
-                calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+                calc_and_apply_fog(wal->picnum, fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
                 pow2xsplit = 1; polymost_domost(x0, cy0, x1, cy1);
             } while (0);
         }
@@ -4296,7 +4296,7 @@ void polymost_drawmaskwall(int32_t damaskwallcnt)
     drawpoly_alpha = 0.f;
     drawpoly_blend = blend;
 
-    calc_and_apply_fog(wal->picnum, fogpal_shade(sec, wal->shade), sec->visibility, get_floor_fogpal(sec));
+    calc_and_apply_fog(wal->picnum, fogshade(wal->shade, wal->pal), sec->visibility, get_floor_fogpal(sec));
 
     float const csy[4] = { ((float)(cz[0] - globalposz)) * ryp0 + ghoriz,
                            ((float)(cz[1] - globalposz)) * ryp0 + ghoriz,
@@ -4517,7 +4517,7 @@ void polymost_drawsprite(int32_t snum)
 
     sec = (usectortype *)&sector[tspr->sectnum];
 
-    calc_and_apply_fog(tspr->picnum, fogpal_shade(sec, globalshade), sec->visibility, get_floor_fogpal(sec));
+    calc_and_apply_fog(tspr->picnum, fogshade(globalshade, globalpal), sec->visibility, get_floor_fogpal(sec));
 
     while (!(spriteext[spritenum].flags & SPREXT_NOTMD))
     {

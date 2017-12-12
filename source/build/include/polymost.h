@@ -102,11 +102,10 @@ static FORCE_INLINE int32_t get_ceiling_fogpal(usectortype const * const sec)
 {
     return POLYMOST_CHOOSE_FOG_PAL(sec->fogpal, sec->ceilingpal);
 }
-static FORCE_INLINE int32_t fogpal_shade(usectortype const * const sec, int32_t const shade)
+static FORCE_INLINE int32_t fogshade(int32_t const shade, int32_t const pal)
 {
-    // When fogging is due to sector[].fogpal, don't make the fog parameters
-    // depend on the shade of the object.
-    return sec->fogpal ? 0 : shade;
+    polytintflags_t const tintflags = hictinting[pal].f;
+    return (globalflags & GLOBAL_NO_GL_FOGSHADE || tintflags & HICTINT_NOFOGSHADE) ? 0 : shade;
 }
 
 static FORCE_INLINE int check_nonpow2(int32_t const x)
