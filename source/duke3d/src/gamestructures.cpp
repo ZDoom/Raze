@@ -575,6 +575,13 @@ int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32
         case PLAYER_HUDPAL: labelNum = P_GetHudPal(ps); break;
         case PLAYER_INDEX: labelNum = playerNum; break;
         case PLAYER_CONNECTED: labelNum = g_player[playerNum].playerquitflag; break;
+        case PLAYER_FRAGS:
+            if (playerNum == lParm2)
+                labelNum = ps->fraggedself;
+            else
+                labelNum = g_player[playerNum].frags[lParm2];
+        break;
+        case PLAYER_DEATHS: labelNum = g_player[playerNum].frags[playerNum]; break;
         default: labelNum = -1; break;
     }
 
@@ -764,6 +771,13 @@ void __fastcall VM_SetPlayer(int32_t const playerNum, int32_t const labelNum, in
         case PLAYER_LAST_QUICK_KICK: ps->last_quick_kick = iSet; break;
         case PLAYER_AUTOSTEP: ps->autostep = iSet; break;
         case PLAYER_AUTOSTEP_SBW: ps->autostep_sbw = iSet; break;
+        case PLAYER_FRAGS:
+            if (playerNum == lParm2)
+                ps->fraggedself = iSet;
+            else
+                g_player[playerNum].frags[lParm2] = iSet;
+            break;
+        case PLAYER_DEATHS: g_player[playerNum].frags[playerNum] = iSet; break;
         default: break;
     }
 }

@@ -1063,6 +1063,8 @@ const memberlabel_t PlayerLabels[]=
     { "hudpal",                PLAYER_HUDPAL,                0, 0 },
     { "index",                 PLAYER_INDEX,                 0, 0 },
     { "connected",             PLAYER_CONNECTED,             0, 0 },
+    { "frags",                 PLAYER_FRAGS,                 LABEL_HASPARM2, MAXPLAYERS },
+    { "deaths",                PLAYER_DEATHS,                0, 0 },
     { NULL,                    -1,                           0, 0  }     // END OF LIST
 };
 

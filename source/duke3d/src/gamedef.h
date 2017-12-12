@@ -406,6 +406,8 @@ enum PlayerLabel_t
     PLAYER_HUDPAL,
     PLAYER_INDEX,
     PLAYER_CONNECTED,
+    PLAYER_FRAGS,
+    PLAYER_DEATHS,
     PLAYER_END
 };
 
