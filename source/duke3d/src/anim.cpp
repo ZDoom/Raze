@@ -216,6 +216,8 @@ void Anim_Init(void)
             }
             anim->numsounds = numsounds;
         }
+
+        anim->frameflags = 0;
     }
 }
 
@@ -282,7 +284,10 @@ int32_t Anim_Play(const char *fn)
             return 0;
         }
 
-        animvpx_setup_glstate();
+        if (anim)
+            animvpx_setup_glstate(anim->frameflags);
+        else
+            animvpx_setup_glstate(origanim->frameflags);
 
         animvpx_codec_ctx codec;
 
@@ -463,7 +468,10 @@ int32_t Anim_Play(const char *fn)
     P_SetGamePalette(g_player[myconnectindex].ps, ANIMPAL, 8 + 2);
 
 #ifdef USE_OPENGL
-    gltexfiltermode = 0;
+    if ((anim->frameflags & CUTSCENE_TEXTUREFILTER && gltexfiltermode == TEXFILTER_ON) || anim->frameflags & CUTSCENE_FORCEFILTER)
+        gltexfiltermode = TEXFILTER_ON;
+    else
+        gltexfiltermode = TEXFILTER_OFF;
     gltexapplyprops();
 #endif
 

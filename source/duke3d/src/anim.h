@@ -35,6 +35,7 @@ typedef struct
     animsound_t *sounds;
     uint16_t numsounds;
     uint8_t framedelay;
+    uint8_t frameflags;
     char animlock;
 } dukeanim_t;
 

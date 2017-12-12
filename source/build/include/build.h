@@ -1291,6 +1291,12 @@ enum {
     TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
 };
 
+enum cutsceneflags {
+    CUTSCENE_FORCEFILTER = 1,
+    CUTSCENE_FORCENOFILTER = 2,
+    CUTSCENE_TEXTUREFILTER = 4,
+};
+
 extern int32_t glusetexcache, glusememcache;
 extern int32_t glmultisample, glnvmultisamplehint;
 extern int32_t glprojectionhacks;

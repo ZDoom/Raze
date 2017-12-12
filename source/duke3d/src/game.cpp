@@ -173,6 +173,9 @@ enum gametokens
     T_RENAMEFILE,
     T_GLOBALGAMEFLAGS,
     T_ASPECT,
+    T_FORCEFILTER,
+    T_FORCENOFILTER,
+    T_TEXTUREFILTER,
 };
 
 void G_HandleSpecialKeys(void)
@@ -5194,6 +5197,9 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
         { "delay", T_DELAY },
         { "aspect", T_ASPECT },
         { "sounds", T_SOUND },
+        { "forcefilter", T_FORCEFILTER },
+        { "forcenofilter", T_FORCENOFILTER },
+        { "texturefilter", T_TEXTUREFILTER },
     };
 
     do
@@ -5308,6 +5314,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 {
                     animPtr = Anim_Create(fileName);
                     animPtr->framedelay = 10;
+                    animPtr->frameflags = 0;
                 }
 
                 int32_t temp;
@@ -5337,6 +5344,15 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                             parsedefinitions_game_animsounds(pScript, animSoundsEnd, fileName, animPtr);
                             break;
                         }
+                        case T_FORCEFILTER:
+                            animPtr->frameflags |= CUTSCENE_FORCEFILTER;
+                            break;
+                        case T_FORCENOFILTER:
+                            animPtr->frameflags |= CUTSCENE_FORCENOFILTER;
+                            break;
+                        case T_TEXTUREFILTER:
+                            animPtr->frameflags |= CUTSCENE_TEXTUREFILTER;
+                            break;
                     }
                 }
             }

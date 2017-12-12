@@ -83,7 +83,7 @@ int32_t animvpx_uninit_codec(animvpx_codec_ctx *codec);
 extern const char *animvpx_nextpic_errmsg[8];
 int32_t animvpx_nextpic(animvpx_codec_ctx *codec, uint8_t **pic);
 
-void animvpx_setup_glstate(void);
+void animvpx_setup_glstate(int32_t animvpx_flags);
 void animvpx_restore_glstate(void);
 int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect);
 
