@@ -496,7 +496,7 @@ void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 
         if (((uint8_t)(vis + 16)) > 0 && g_visibility > 0)
         {
-            GLfloat glfogconstant = 262144.f / xdimen;
+            GLfloat glfogconstant = 262144.f;
             GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
             GLfloat normalizedshade = shade / frealmaxshade;
             GLfloat fogshade = normalizedshade * fogrange;

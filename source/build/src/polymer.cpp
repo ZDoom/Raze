@@ -1083,7 +1083,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Drawing rooms...\n");
 
-    // fogcalc needs this
+    // fogcalc_old needs this
     gvisibility = ((float)globalvisibility)*FOGSCALE;
 
     ang = (float)(daang) * (360.f/2048.f);
@@ -5265,7 +5265,9 @@ static int32_t      polymer_bindmaterial(const _prmaterial *material, int16_t* l
         texunit++;
 
         bglUniform1fARB(prprograms[programbits].uniform_shadeOffset, (GLfloat)material->shadeoffset);
-        bglUniform1fARB(prprograms[programbits].uniform_visibility, globalvisibility/2048.0 * material->visibility);
+        // the furthest visible point is the same as Polymost, however the fog in Polymer is a sphere insted of a plane
+        float const visfactor = r_usenewshading == 4 ? 1.f/512.f : 1.f/2048.f;
+        bglUniform1fARB(prprograms[programbits].uniform_visibility, globalvisibility * visfactor * material->visibility);
     }
 
     // PR_BIT_DIFFUSE_MAP
