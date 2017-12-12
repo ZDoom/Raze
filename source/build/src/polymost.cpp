@@ -3017,7 +3017,7 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
                 vec3f_t o;
 
-                if (tilesiz[globalpicnum].y > 256)
+                if ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256)
                 {
                     //Hack to draw black rectangle below sky when looking down...
                     xtex.d = xtex.u = xtex.v = 0;
@@ -3056,6 +3056,7 @@ static void polymost_drawalls(int32_t const bunch)
                     else
                         polymost_domost(x0,fy0,x1,fy1);
 
+#if 0
                     //Hack to draw color rectangle above sky when looking up...
                     xtex.d = xtex.u = xtex.v = 0;
 
@@ -3069,29 +3070,25 @@ static void polymost_drawalls(int32_t const bunch)
 
                     o.y = -vv[0]/vv[1];
 
-                    if ((o.y < cy0) && (o.y < cy1))
+                    if ((o.y < fy0) && (o.y < fy1))
                         polymost_domost(x1,o.y,x0,o.y);
-                    else if ((o.y < cy0) != (o.y < cy1))
+                    else if ((o.y < fy0) != (o.y < fy1))
                     {
-                        /*         cy1        cy0
-                        //        /              \
-                        //oy----------      oy---------
-                        //    /                   \
-                        //  cy0                     cy1 */
-                        o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
-                        if (o.y < cy0)
+                        o.x = (o.y-fy0)*(x1-x0)/(fy1-fy0) + x0;
+                        if (o.y < fy0)
                         {
                             polymost_domost(o.x,o.y,x0,o.y);
-                            polymost_domost(x1,cy1,o.x,o.y);
+                            polymost_domost(x1,fy1,o.x,o.y);
                         }
                         else
                         {
-                            polymost_domost(o.x,o.y,x0,cy0);
+                            polymost_domost(o.x,o.y,x0,fy0);
                             polymost_domost(x1,o.y,o.x,o.y);
                         }
                     }
                     else
-                        polymost_domost(x1,cy1,x0,cy0);
+                        polymost_domost(x1,fy1,x0,fy0);
+#endif
                 }
                 else
                     skyclamphack = 0;
@@ -3352,8 +3349,9 @@ static void polymost_drawalls(int32_t const bunch)
                 int i = (1<<(picsiz[globalpicnum]>>4)); if (i != tilesiz[globalpicnum].y) i += i;
                 vec3f_t o;
 
-                if (tilesiz[globalpicnum].y > 256)
+                if ((tilesiz[globalpicnum].y * daptileyscale * (1.f/65536.f)) > 256)
                 {
+#if 0
                     //Hack to draw black rectangle below sky when looking down...
                     xtex.d = xtex.u = xtex.v = 0;
 
@@ -3367,29 +3365,25 @@ static void polymost_drawalls(int32_t const bunch)
 
                     o.y = ((float)tilesiz[globalpicnum].y*dd-vv[0])/vv[1];
 
-                    if ((o.y > fy0) && (o.y > fy1))
+                    if ((o.y > cy0) && (o.y > cy1))
                         polymost_domost(x0,o.y,x1,o.y);
-                    else if ((o.y > fy0) != (o.y > fy1))
+                    else if ((o.y > cy0) != (o.y > cy1))
                     {
-                        //  fy0                      fy1
-                        //     \                    /
-                        //oy----------      oy----------
-                        //        \              /
-                        //         fy1        fy0
-                        o.x = (o.y-fy0)*(x1-x0)/(fy1-fy0) + x0;
-                        if (o.y > fy0)
+                        o.x = (o.y-cy0)*(x1-x0)/(cy1-cy0) + x0;
+                        if (o.y > cy0)
                         {
                             polymost_domost(x0,o.y,o.x,o.y);
-                            polymost_domost(o.x,o.y,x1,fy1);
+                            polymost_domost(o.x,o.y,x1,cy1);
                         }
                         else
                         {
-                            polymost_domost(x0,fy0,o.x,o.y);
+                            polymost_domost(x0,cy0,o.x,o.y);
                             polymost_domost(o.x,o.y,x1,o.y);
                         }
                     }
                     else
-                        polymost_domost(x0,fy0,x1,fy1);
+                        polymost_domost(x0,cy0,x1,cy1);
+#endif
 
                     //Hack to draw color rectangle above sky when looking up...
                     xtex.d = xtex.u = xtex.v = 0;
