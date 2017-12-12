@@ -2017,7 +2017,8 @@ static void G_DisplayMPResultsScreen(void)
 
     gametext_center_shade(165, "Press any key or button to continue", quotepulseshade);
 
-    minitext(23, 80, "   Name                                         Kills", 8, 2+8+16+128);
+    minitext(38, 80, "Name", 8, 2+8+16+128);
+    minitext(269, 80, "Kills", 8, 2+8+16+128);
     for (i=0; i<g_mostConcurrentPlayers; i++)
     {
         Bsprintf(tempbuf, "%-4d", i+1);
@@ -2061,7 +2062,8 @@ static void G_DisplayMPResultsScreen(void)
         {
             if (i == y)
                 yfragtotal += g_player[i].ps->fraggedself;
-            yfragtotal += g_player[i].frags[y];
+            else
+                yfragtotal += g_player[i].frags[y];
         }
         Bsprintf(tempbuf, "%-4d", yfragtotal);
         minitext(92+(y*23), 96+(8*7), tempbuf, 2, 2+8+16+128);
