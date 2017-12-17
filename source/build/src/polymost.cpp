@@ -3856,7 +3856,7 @@ void polymost_scansector(int32_t sectnum)
 
             vec2f_t p1;
 
-            if (nextsectnum >= 0 /*&& !(wal->cstat&32)*/ && sectorbordercnt < ARRAY_SSIZE(sectorborder))
+            if (nextsectnum >= 0 && !(wal->cstat&32) && sectorbordercnt < ARRAY_SSIZE(sectorborder))
 #ifdef YAX_ENABLE
             if (yax_nomaskpass==0 || !yax_isislandwall(z, !yax_globalcf) || (yax_nomaskdidit=1, 0))
 #endif
