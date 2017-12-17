@@ -1542,7 +1542,7 @@ static void sdl_trycreaterenderer(int32_t const x, int32_t const y)
 
     initprintf("Trying SDL_Renderer \"%s\"\n", sdl_rendererinfo.name);
 
-    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, x, y);
+    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, x, y);
     if (!sdl_texture)
     {
         sdl_trycreaterenderer_fail("SDL_CreateTexture");
