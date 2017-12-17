@@ -334,6 +334,8 @@ int32_t G_LoadPlayer(int32_t spot)
 
     VM_OnEvent(EVENT_LOADGAME, g_player[screenpeek].ps->i, screenpeek);
 
+    kclose(fil);
+
     return 0;
 }
 
