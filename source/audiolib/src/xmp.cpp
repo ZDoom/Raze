@@ -157,6 +157,9 @@ int32_t MV_PlayXMP(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
 
     xmpd->owner = voice;
 
+    voice->length      = 0;
+    voice->sound       = 0;
+
     voice->wavetype    = FMT_XMP;
     voice->rawdataptr  = (void*)xmpd;
     voice->GetSound    = MV_GetNextXMPBlock;
@@ -199,12 +202,12 @@ void MV_ReleaseXMPVoice(VoiceNode * voice)
     if (voice->wavetype != FMT_XMP)
         return;
 
+    voice->rawdataptr = 0;
+
     xmp_end_player(xmpd->context);
     xmp_release_module(xmpd->context);
     xmp_free_context(xmpd->context);
     free(xmpd);
-
-    voice->rawdataptr = 0;
 }
 
 #else
