@@ -775,18 +775,6 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     if (*c)
                         G_AddCon(c);
                     break;
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    ud.warp_on = 2 + (*c) - '0';
-                    break;
                 case 'z':
                     c++;
                     g_scriptDebug = Batoi(c);

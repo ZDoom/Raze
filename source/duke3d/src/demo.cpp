@@ -204,7 +204,7 @@ void G_OpenDemoWrite(void)
     if (g_demo_filePtr == NULL)
         return;
 
-    i=sv_saveandmakesnapshot(g_demo_filePtr, -1, demorec_diffs_cvar, demorec_diffcompress_cvar,
+    i=sv_saveandmakesnapshot(g_demo_filePtr, nullptr, -1, demorec_diffs_cvar, demorec_diffcompress_cvar,
                              demorec_synccompress_cvar|(demorec_seeds_cvar<<1));
     if (i)
     {

@@ -132,7 +132,6 @@ extern camera_t g_camera;
 
 #define MAXRIDECULE 10
 #define MAXRIDECULELENGTH 40
-#define MAXSAVEGAMES 10
 #define MAXSAVEGAMENAMESTRUCT 32
 #define MAXSAVEGAMENAME (MAXSAVEGAMENAMESTRUCT-1)
 #define MAXPWLOCKOUT 128
@@ -239,7 +238,6 @@ typedef struct {
     char god,warp_on,cashman,eog,showallmap;
     char show_help,scrollmode,noclip;
     char ridecule[MAXRIDECULE][MAXRIDECULELENGTH];
-    char savegame[MAXSAVEGAMES][MAXSAVEGAMENAMESTRUCT];
     char pwlockout[MAXPWLOCKOUT],rtsname[MAXRTSNAME];
     char display_bonus_screen;
     char show_level_text;
@@ -481,6 +479,10 @@ enum
 (((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/" basename, g_modDir, ##__VA_ARGS__)                                      \
                        : Bsnprintf(buf, size, basename, ##__VA_ARGS__)) >= ((int32_t)size) - 1\
 )
+#define G_ModDirSnprintfLite(buf, size, basename)                                                                          \
+    \
+((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/%s", g_modDir, basename)                                      \
+                      : Bsnprintf(buf, size, basename))
 
 static inline void G_NewGame_EnterLevel(void)
 {

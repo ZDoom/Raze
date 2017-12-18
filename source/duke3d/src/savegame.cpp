@@ -30,9 +30,9 @@ static int32_t g_savedOK;
 const char *g_failedVarname;
 #endif
 
-extern char *bitptr;
+static OutputFileCounter savecounter;
 
-uint8_t g_oldverSavegame[MAXSAVEGAMES];
+extern char *bitptr;
 
 #define BITPTR_POINTER 1
 
@@ -138,64 +138,88 @@ void G_ResetInterpolations(void)
         G_SetInterpolation(g_animatePtr[i]);
 }
 
-void ReadSaveGameHeaders(void)
-{
-    char fn[16];
-    int32_t fil, i;
+savebrief_t g_lastautosave, g_lastusersave, g_freshload;
+int32_t g_lastAutoSaveArbitraryID = -1;
+bool g_saveRequested;
+savebrief_t * g_quickload;
 
+menusave_t * g_menusaves;
+size_t g_nummenusaves;
+
+static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
+{
     savehead_t h;
 
-    EDUKE32_STATIC_ASSERT(sizeof(h.savename) == sizeof(ud.savegame[0]));
-
-    Bstrcpy(fn, "save0.esv");
-
-    for (i=0; i<MAXSAVEGAMES; i++)
+    for (; f != nullptr; f = f->next)
     {
-        int32_t k;
-
-        fn[4] = i + '0';
-        fil = kopen4loadfrommod(fn, 0);
+        char const * fn = f->name;
+        int32_t fil = kopen4loadfrommod(fn, 0);
         if (fil == -1)
-        {
-            Bmemset(ud.savegame[i], 0, sizeof(ud.savegame[i]));
             continue;
-        }
 
-        k = sv_loadheader(fil, i, &h);
+        menusave_t & msv = g_menusaves[g_nummenusaves];
+
+        int32_t k = sv_loadheader(fil, 0, &h);
         if (k)
         {
             // old version, signal to menu code
             if (k > 0)
-                g_oldverSavegame[i] = 1;
+                msv.isOldVer = 1;
+            else
+                continue;
             // else h.savename is all zeros (fatal failure, like wrong header
             // magic or too short header)
         }
+        else
+            msv.isOldVer = 0;
 
-        if (k >= 0)
-            Bmemcpy(ud.savegame[i], h.savename, sizeof(ud.savegame[i]));
+        if (k >= 0 && h.savename[0] != '\0')
+        {
+            memcpy(msv.brief.name, h.savename, ARRAY_SIZE(msv.brief.name));
+            strncpy(msv.brief.path, fn, ARRAY_SIZE(msv.brief.path));
+
+            ++g_nummenusaves;
+        }
 
         kclose(fil);
     }
 }
 
-int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh)
+static size_t countcache1dfind(CACHE1D_FIND_REC *f)
 {
-    char fn[16];
-    int32_t fil, screenshotofs, i;
+    size_t x = 0;
+    for (; f != nullptr; f = f->next)
+        ++x;
+    return x;
+}
 
-    Bassert(spot < MAXSAVEGAMES);
+void ReadSaveGameHeaders(void)
+{
+    static char const DefaultPath[] = "/", SavePattern[] = "*.esv";
 
-    Bstrcpy(fn, "save0.esv");
-    fn[4] = spot + '0';
+    CACHE1D_FIND_REC *findfiles_default = klistpath(DefaultPath, SavePattern, CACHE1D_FIND_FILE);
 
-    fil = kopen4loadfrommod(fn, 0);
+    // potentially overallocating but programmatically simple
+    size_t const numfiles = countcache1dfind(findfiles_default);
+    g_menusaves = (menusave_t *)Xrealloc(g_menusaves, sizeof(menusave_t) * numfiles);
+
+    g_nummenusaves = 0;
+    ReadSaveGameHeaders_CACHE1D(findfiles_default);
+
+    klistfree(findfiles_default);
+}
+
+int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
+{
+    int32_t fil = kopen4loadfrommod(fn, 0);
     if (fil == -1)
         return -1;
 
-    i = sv_loadheader(fil, spot, saveh);
+    int32_t i = sv_loadheader(fil, 0, saveh);
     if (i < 0)
         goto corrupt;
 
+    int32_t screenshotofs;
     if (kread(fil, &screenshotofs, 4) != 4)
         goto corrupt;
 
@@ -208,7 +232,7 @@ int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh)
     {
         if (kdfread((char *)waloff[TILE_LOADSHOT], 320, 200, fil) != 200)
         {
-            OSD_Printf("G_LoadSaveHeaderNew(%d): failed reading screenshot\n", spot);
+            OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot \"%s\"\n", fn);
             goto corrupt;
         }
     }
@@ -230,25 +254,17 @@ corrupt:
 static void sv_postudload();
 
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
-int32_t G_LoadPlayer(int32_t spot)
+int32_t G_LoadPlayer(savebrief_t & sv)
 {
-    char fn[16];
-    int32_t fil, i;
-
     savehead_t h;
 
-    Bassert(spot < MAXSAVEGAMES);
-
-    Bstrcpy(fn, "save0.esv");
-    fn[4] = spot + '0';
-
-    fil = kopen4loadfrommod(fn, 0);
+    int32_t fil = kopen4loadfrommod(sv.path, 0);
     if (fil == -1)
         return -1;
 
     ready2send = 0;
 
-    i = sv_loadheader(fil, spot, &h);
+    int32_t i = sv_loadheader(fil, 0, &h);
     if ((i < 0) || h.numplayers != ud.multimode)
     {
         if (i == -4 || i == -3 || i == 1)
@@ -283,12 +299,6 @@ int32_t G_LoadPlayer(int32_t spot)
     FX_StopAllSounds();
     S_ClearSoundLocks();
 
-    if (spot >= 0 && numplayers==1)
-    {
-        Bmemcpy(ud.savegame[spot], h.savename, sizeof(ud.savegame[0]));
-        ud.savegame[spot][sizeof(ud.savegame[0])-1] = 0;
-    }
-
     // non-"m_" fields will be loaded from svgm_udnetw
     ud.m_volume_number = h.volnum;
     ud.m_level_number = h.levnum;
@@ -321,12 +331,12 @@ int32_t G_LoadPlayer(int32_t spot)
     else
     {
         // read the rest...
-        i = sv_loadsnapshot(fil, spot, &h);
+        i = sv_loadsnapshot(fil, 0, &h);
         if (i)
         {
             // in theory, we could load into an initial dump first and trivially
             // recover if things go wrong...
-            Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", fn, i);
+            Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", sv.path, i);
             G_GameExit(tempbuf);
         }
     }
@@ -395,44 +405,52 @@ static void G_SavePalette(void)
 }
 #endif
 
-int32_t G_SavePlayer(int32_t spot)
+int32_t G_SavePlayer(savebrief_t & sv)
 {
-    char fn[16];
-    FILE *fil;
-
 #ifdef __ANDROID__
     G_SavePalette();
 #endif
 
-    Bassert(spot < MAXSAVEGAMES);
-
     G_SaveTimers();
-
-    Bstrcpy(fn, "save0.esv");
-    fn[4] = spot + '0';
-
-//    Bstrcpy(mpfn, "edukA_00.esv");
 
     Net_WaitForServer();
     ready2send = 0;
 
+    char temp[BMAX_PATH];
+
+    errno = 0;
+    FILE *fil;
+
+    if (sv.isValid())
     {
-        char temp[BMAX_PATH];
-
-        if (G_ModDirSnprintf(temp, sizeof(temp), "%s", fn))
+        if (G_ModDirSnprintf(temp, sizeof(temp), "%s", sv.path))
         {
-            OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", fn);
-            return -1;
+            OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", sv.path);
+            goto saveproblem;
         }
-
-        errno = 0;
         fil = fopen(temp, "wb");
-        if (!fil)
+    }
+    else
+    {
+        static char const SaveName[] = "save0000.esv";
+        size_t len = G_ModDirSnprintfLite(temp, sizeof(temp), SaveName);
+        if (len >= sizeof(temp)-1)
         {
-            OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
-                       temp, strerror(errno));
-            return -1;
+            OSD_Printf("G_SavePlayer: could not form automatic save path\n");
+            goto saveproblem;
         }
+        char * zeros = temp + (len-8);
+        fil = savecounter.opennextfile(temp, zeros);
+        savecounter.count++;
+        // don't copy the mod dir into sv.path
+        strcpy(sv.path, temp + (len-(ARRAY_SIZE(SaveName)-1)));
+    }
+
+    if (!fil)
+    {
+        OSD_Printf("G_SavePlayer: failed opening \"%s\" for writing: %s\n",
+                   temp, strerror(errno));
+        goto saveproblem;
     }
 
 #ifdef POLYMER
@@ -443,7 +461,7 @@ int32_t G_SavePlayer(int32_t spot)
     VM_OnEvent(EVENT_SAVEGAME, g_player[screenpeek].ps->i, screenpeek);
 
     // SAVE!
-    sv_saveandmakesnapshot(fil, spot, 0, 0, 0);
+    sv_saveandmakesnapshot(fil, sv.name, 0, 0, 0, 0);
 
     fclose(fil);
 
@@ -467,41 +485,46 @@ int32_t G_SavePlayer(int32_t spot)
     VM_OnEvent(EVENT_POSTSAVEGAME, g_player[screenpeek].ps->i, screenpeek);
 
     return 0;
+
+saveproblem:
+    ready2send = 1;
+    Net_WaitForServer();
+
+    G_RestoreTimers();
+    ototalclock = totalclock;
+
+    return -1;
 }
 
-void G_LoadPlayerMaybeMulti(int32_t slot)
+void G_LoadPlayerMaybeMulti(savebrief_t & sv)
 {
     if (g_netServer || ud.multimode > 1)
     {
         Bstrcpy(apStrings[QUOTE_RESERVED4], "Multiplayer Loading Not Yet Supported");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
-//        G_LoadPlayer(-1-g_lastSaveSlot);
 //        g_player[myconnectindex].ps->gm = MODE_GAME;
     }
     else
     {
-        int32_t c = G_LoadPlayer(slot);
+        int32_t c = G_LoadPlayer(sv);
         if (c == 0)
             g_player[myconnectindex].ps->gm = MODE_GAME;
     }
 }
 
-void G_SavePlayerMaybeMulti(int32_t slot)
+void G_SavePlayerMaybeMulti(savebrief_t & sv)
 {
-    Bassert(slot >= 0);
-
     CONFIG_WriteSetup(2);
 
     if (g_netServer || ud.multimode > 1)
     {
         Bstrcpy(apStrings[QUOTE_RESERVED4], "Multiplayer Saving Not Yet Supported");
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
-//        G_SavePlayer(-1-slot);
     }
     else
     {
-        G_SavePlayer(slot);
+        G_SavePlayer(sv);
     }
 }
 
@@ -1283,7 +1306,7 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress)
+int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress)
 {
     savehead_t h;
 
@@ -1338,10 +1361,10 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
         }
     }
 
-    if ((unsigned)spot < MAXSAVEGAMES)
+    if (spot >= 0)
     {
         // savegame
-        Bstrncpyz(h.savename, ud.savegame[spot], sizeof(h.savename));
+        Bstrncpyz(h.savename, name, sizeof(h.savename));
 #ifdef __ANDROID__
         Bstrncpyz(h.volname, g_volumeNames[ud.volume_number], sizeof(h.volname));
         Bstrncpyz(h.skillname, g_skillNames[ud.player_skill], sizeof(h.skillname));
@@ -1413,8 +1436,6 @@ int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t 
             return 1;
         }
     }
-
-    g_oldverSavegame[spot] = 0;
 
     return 0;
 }

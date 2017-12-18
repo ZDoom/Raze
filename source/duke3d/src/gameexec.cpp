@@ -1078,7 +1078,7 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
     //AddLog("resetplayer");
     if (!g_netServer && ud.multimode < 2 && !(resetFlags & 2))
     {
-        if (g_lastSaveSlot >= 0 && ud.recstat != 2 && !(resetFlags & 1))
+        if (g_quickload && g_quickload->isValid() && ud.recstat != 2 && !(resetFlags & 1))
         {
             Menu_Open(playerNum);
             KB_ClearKeyDown(sc_Space);
@@ -3463,19 +3463,28 @@ nullquote:
             {
                 int32_t const requestedSlot = *insptr++;
 
-                if ((unsigned)requestedSlot >= MAXSAVEGAMES)
+                if ((unsigned)requestedSlot >= 10)
                     continue;
 
-                g_requestedSaveSlot = requestedSlot;
+                // check if we need to make a new file
+                if (strcmp(g_lastautosave.path, g_lastusersave.path) == 0 ||
+                    requestedSlot != g_lastAutoSaveArbitraryID)
+                {
+                    g_lastautosave.reset();
+                }
 
-                if (tw == CON_SAVE || ud.savegame[requestedSlot][0] == 0)
+                g_lastAutoSaveArbitraryID = requestedSlot;
+
+                if (tw == CON_SAVE || g_lastautosave.name[0] == 0)
                 {
                     time_t     timeStruct = time(NULL);
                     struct tm *pTime      = localtime(&timeStruct);
 
-                    strftime(ud.savegame[requestedSlot], sizeof(ud.savegame[requestedSlot]),
+                    strftime(g_lastautosave.name, sizeof(g_lastautosave.name),
                         "%d %b %Y %I:%M%p", pTime);
                 }
+
+                g_saveRequested = true;
 
                 continue;
             }

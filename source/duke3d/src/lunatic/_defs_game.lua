@@ -490,7 +490,6 @@ enum
     // game.h
     MAXRIDECULE = 10,
     MAXRIDECULELENGTH = 40,
-    MAXSAVEGAMES = 10,
     MAXSAVEGAMENAME = 22,
     MAXPWLOCKOUT = 128,
     MAXRTSNAME = 128,
@@ -589,7 +588,6 @@ typedef struct {
     char god,warp_on,cashman,eog,showallmap;
     char show_help,scrollmode,noclip;
     char ridecule[MAXRIDECULE][MAXRIDECULELENGTH];
-    char savegame[MAXSAVEGAMES][MAXSAVEGAMENAME];
     char pwlockout[MAXPWLOCKOUT],rtsname[MAXRTSNAME];
     char display_bonus_screen;
     char show_level_text;

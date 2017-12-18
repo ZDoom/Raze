@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "menus.h"
+#include "savegame.h"
 
 #define gamevars_c_
 
@@ -1552,7 +1553,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("NUMSECTORS",(intptr_t)&numsectors, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR | GAMEVAR_READONLY);
     Gv_NewVar("Numsprites",(intptr_t)&Numsprites, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR | GAMEVAR_READONLY);
 
-    Gv_NewVar("lastsavepos",(intptr_t)&g_lastSaveSlot, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
+    Gv_NewVar("lastsavepos",(intptr_t)&g_lastAutoSaveArbitraryID, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
 
 # ifdef USE_OPENGL
     Gv_NewVar("rendmode",(intptr_t)&rendmode, GAMEVAR_READONLY | GAMEVAR_INT32PTR | GAMEVAR_SYSTEM);
@@ -1709,7 +1710,7 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("NUMSECTORS")].global = (intptr_t)&numsectors;
     aGameVars[Gv_GetVarIndex("Numsprites")].global = (intptr_t)&Numsprites;
 
-    aGameVars[Gv_GetVarIndex("lastsavepos")].global = (intptr_t)&g_lastSaveSlot;
+    aGameVars[Gv_GetVarIndex("lastsavepos")].global = (intptr_t)&g_lastAutoSaveArbitraryID;
 # ifdef USE_OPENGL
     aGameVars[Gv_GetVarIndex("rendmode")].global = (intptr_t)&rendmode;
 # endif

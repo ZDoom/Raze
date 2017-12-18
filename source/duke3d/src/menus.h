@@ -447,7 +447,6 @@ extern MenuAnimation_t m_animation;
 extern MenuID_t g_currentMenu;
 extern Menu_t *m_currentMenu;
 
-extern int32_t g_lastSaveSlot;
 extern int32_t g_quitDeadline;
 extern int32_t voting;
 int Menu_Change(int32_t cm);

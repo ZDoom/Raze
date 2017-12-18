@@ -174,8 +174,6 @@ extern int32_t g_bouncemineRadius;
 extern int32_t g_deleteQueueSize;
 extern int32_t g_gametypeCnt;
 extern int32_t g_itemRespawnTime;
-extern int32_t g_lastSaveSlot;
-extern int32_t g_requestedSaveSlot;
 extern int32_t g_morterRadius;
 extern int32_t g_numFreezeBounces;
 extern int32_t g_pipebombRadius;

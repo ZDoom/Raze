@@ -59,7 +59,6 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_CLIPPING: labelNum = ud.noclip; break;
         //  case USERDEFS_USER_NAME: labelNum= ud.user_name[MAXPLAYERS][32]; break;
         //  case USERDEFS_RIDECULE: labelNum= ud.ridecule; break;
-        //  case USERDEFS_SAVEGAME: labelNum= ud.savegame; break;
         //  case USERDEFS_PWLOCKOUT: labelNum= ud.pwlockout; break;
         //  case USERDEFS_RTSNAME: labelNum= ud.rtsname; break;
         case USERDEFS_OVERHEAD_ON: labelNum = ud.overhead_on; break;
@@ -198,7 +197,6 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_CLIPPING: ud.noclip = iSet; break;
         //  case USERDEFS_USER_NAME: ud.user_name[MAXPLAYERS][32] = lValue; break;
         //  case USERDEFS_RIDECULE: ud.ridecule = lValue; break;
-        //  case USERDEFS_SAVEGAME: ud.savegame = lValue; break;
         //  case USERDEFS_PWLOCKOUT: ud.pwlockout = lValue; break;
         //  case USERDEFS_RTSNAME: ud.rtsname = lValue; break;
         case USERDEFS_OVERHEAD_ON: ud.overhead_on = iSet; break;

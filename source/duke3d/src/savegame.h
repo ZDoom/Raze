@@ -61,19 +61,55 @@ typedef struct
 } savehead_t;
 #pragma pack(pop)
 
+struct savebrief_t
+{
+    savebrief_t() = default;
+    savebrief_t(char const *n)
+    {
+        strncpy(name, n, MAXSAVEGAMENAME);
+    }
+
+    char name[MAXSAVEGAMENAMESTRUCT];
+    char path[BMAX_PATH];
+
+    void reset()
+    {
+        name[0] = '\0';
+        path[0] = '\0';
+    }
+    bool isValid() const
+    {
+        return path[0] != '\0';
+    }
+};
+
+struct menusave_t
+{
+    savebrief_t brief;
+    uint8_t isOldVer = 0;
+};
+
+extern savebrief_t g_lastautosave, g_lastusersave, g_freshload;
+extern int32_t g_lastAutoSaveArbitraryID;
+extern bool g_saveRequested;
+extern savebrief_t * g_quickload;
+
+extern menusave_t * g_menusaves;
+extern size_t g_nummenusaves;
+
 int32_t sv_updatestate(int32_t frominit);
 int32_t sv_readdiff(int32_t fil);
 uint32_t sv_writediff(FILE *fil);
 int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h);
 int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h);
-int32_t sv_saveandmakesnapshot(FILE *fil, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress);
+int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress);
 void sv_freemem();
-int32_t G_SavePlayer(int32_t spot);
-int32_t G_LoadPlayer(int32_t spot);
-int32_t G_LoadSaveHeaderNew(int32_t spot, savehead_t *saveh);
+int32_t G_SavePlayer(savebrief_t & sv);
+int32_t G_LoadPlayer(savebrief_t & sv);
+int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh);
 void ReadSaveGameHeaders(void);
-void G_SavePlayerMaybeMulti(int32_t slot);
-void G_LoadPlayerMaybeMulti(int32_t slot);
+void G_SavePlayerMaybeMulti(savebrief_t & sv);
+void G_LoadPlayerMaybeMulti(savebrief_t & sv);
 
 #ifdef YAX_ENABLE
 extern void sv_postyaxload(void);
@@ -82,7 +118,6 @@ extern void sv_postyaxload(void);
 // XXX: The 'bitptr' decl really belongs into gamedef.h, but we don't want to
 // pull all of it in savegame.c?
 extern char *bitptr;
-extern uint8_t g_oldverSavegame[MAXSAVEGAMES];
 
 enum
 {

@@ -94,8 +94,6 @@ int32_t g_actorRespawnTime   = 768;
 int32_t g_bouncemineRadius   = 2500;
 int32_t g_deleteQueueSize    = 64;
 int32_t g_itemRespawnTime    = 768;
-int32_t g_lastSaveSlot       = -1;
-int32_t g_requestedSaveSlot = -1;
 
 int32_t g_morterRadius       = 2500;
 int32_t g_numFreezeBounces   = 3;

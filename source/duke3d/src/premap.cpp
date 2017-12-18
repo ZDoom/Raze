@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "anim.h"
 #include "menus.h"
 #include "demo.h"
+#include "savegame.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"
@@ -1413,7 +1414,10 @@ end_vol4a:
     ud.from_bonus = 0;
 
     ud.last_level = -1;
-    g_lastSaveSlot = -1;
+    g_lastAutoSaveArbitraryID = -1;
+    g_lastautosave.reset();
+    g_lastusersave.reset();
+    g_quickload = nullptr;
 
 #ifdef EDUKE32_TOUCH_DEVICES
     pPlayer->zoom = 360;

@@ -4842,7 +4842,7 @@ FAKE_F3:
 
             g_doQuickSave = 0;
 
-            if (g_lastSaveSlot == -1)
+            if (!g_lastusersave.isValid())
                 goto FAKE_F2;
 
             KB_FlushKeyboardQueue();
@@ -4857,16 +4857,19 @@ FAKE_F3:
             G_DrawRooms(myconnectindex,65536);
             g_screenCapture = 0;
 
-            if (g_lastSaveSlot >= 0)
+            if (g_lastusersave.isValid())
             {
+                savebrief_t & sv = g_lastusersave;
+
                 // dirty hack... char 127 in last position indicates an auto-filled name
-                if (ud.savegame[g_lastSaveSlot][MAXSAVEGAMENAME] == 127)
+                if (sv.name[MAXSAVEGAMENAME] == 127)
                 {
-                    Bstrncpy(&ud.savegame[g_lastSaveSlot][0], g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME);
-                    ud.savegame[g_lastSaveSlot][MAXSAVEGAMENAME] = 127;
+                    strncpy(sv.name, g_mapInfo[ud.volume_number * MAXLEVELS + ud.level_number].name, MAXSAVEGAMENAME);
+                    sv.name[MAXSAVEGAMENAME] = 127;
                 }
 
-                G_SavePlayerMaybeMulti(g_lastSaveSlot);
+                g_quickload = &sv;
+                G_SavePlayerMaybeMulti(sv);
             }
         }
 
@@ -4898,14 +4901,14 @@ FAKE_F3:
 
             g_doQuickSave = 0;
 
-            if (g_lastSaveSlot == -1)
+            if (g_quickload == nullptr || !g_quickload->isValid())
                 goto FAKE_F3;
-            else if (g_lastSaveSlot >= 0)
+            else if (g_quickload->isValid())
             {
                 KB_FlushKeyboardQueue();
                 KB_ClearKeysDown();
                 S_PauseSounds(1);
-                G_LoadPlayerMaybeMulti(g_lastSaveSlot);
+                G_LoadPlayerMaybeMulti(*g_quickload);
             }
         }
 
@@ -5922,8 +5925,6 @@ static void G_Startup(void)
 //    initprintf("Loading palette/lookups...\n");
     G_LoadLookups();
 
-    ReadSaveGameHeaders();
-
     screenpeek = myconnectindex;
 
     Bfflush(NULL);
@@ -6532,7 +6533,10 @@ int app_main(int argc, char const * const * argv)
         Menu_Init();
     }
 
-    if (ud.warp_on > 1 && (!g_netServer && ud.multimode < 2))
+#if 0
+    // previously, passing -0 through -9 on the command line would load the save in that slot #
+    // this code should be reusable for a new parameter that takes a filename, if desired
+    if (/* havesavename */ && (!g_netServer && ud.multimode < 2))
     {
         clearview(0L);
         //g_player[myconnectindex].ps->palette = palette;
@@ -6542,9 +6546,10 @@ int app_main(int argc, char const * const * argv)
         menutext_center(105,"Loading saved game...");
         nextpage();
 
-        if (G_LoadPlayer(ud.warp_on-2))
-            ud.warp_on = 0;
+        if (G_LoadPlayer(/* savefile */))
+            /* havesavename = false; */
     }
+#endif
 
     FX_StopAllSounds();
     S_ClearSoundLocks();
@@ -6721,21 +6726,20 @@ MAIN_LOOP_RESTART:
         }
 
         // handle CON_SAVE and CON_SAVENN
-        if (g_requestedSaveSlot != -1)
+        if (g_saveRequested)
         {
-            g_lastSaveSlot = g_requestedSaveSlot;
-
-            OSD_Printf("Saving to slot %d\n", g_requestedSaveSlot);
-
             KB_FlushKeyboardQueue();
 
             g_screenCapture = 1;
             G_DrawRooms(myconnectindex, 65536);
             g_screenCapture = 0;
 
-            G_SavePlayerMaybeMulti(g_requestedSaveSlot);
+            G_SavePlayerMaybeMulti(g_lastautosave);
+            g_quickload = &g_lastautosave;
 
-            g_requestedSaveSlot = -1;
+            OSD_Printf("Saved: %s\n", g_lastautosave.path);
+
+            g_saveRequested = false;
         }
 
         G_DoCheats();
