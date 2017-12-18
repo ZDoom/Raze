@@ -678,7 +678,10 @@ static int32_t defsparser(scriptfile *script)
             artheader_t local;
             int32_t headerval = E_ReadArtFileHeader(fil, fn, &local);
             if (headerval != 0)
+            {
+            	kclose(fil);
                 break;
+            }
 
             if (havetile)
             {

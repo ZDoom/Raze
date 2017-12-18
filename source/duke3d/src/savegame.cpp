@@ -166,7 +166,10 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
             if (k > 0)
                 msv.isOldVer = 1;
             else
+            {
+            	kclose(fil);
                 continue;
+            }
             // else h.savename is all zeros (fatal failure, like wrong header
             // magic or too short header)
         }

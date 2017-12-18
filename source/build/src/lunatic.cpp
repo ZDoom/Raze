@@ -73,7 +73,10 @@ static int32_t read_whole_file(const char *fn, char **retbufptr)
 
     flen = kfilelength(fid);
     if (flen == 0)
+    {
+    	kclose(fid);
         return 5;
+    }
 
     buf = (char *)Xmalloc(flen+1);
 

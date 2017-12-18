@@ -295,6 +295,7 @@ int32_t Anim_Play(const char *fn)
         {
             OSD_Printf("Error initializing VPX codec.\n");
             animvpx_restore_glstate();
+            kclose(handle);
             return 0;
         }
 
