@@ -63,10 +63,14 @@ typedef struct
 
 struct savebrief_t
 {
-    savebrief_t() = default;
+    savebrief_t()
+    {
+        reset();
+    }
     savebrief_t(char const *n)
     {
         strncpy(name, n, MAXSAVEGAMENAME);
+        path[0] = '\0';
     }
 
     char name[MAXSAVEGAMENAMESTRUCT];
