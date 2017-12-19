@@ -679,7 +679,7 @@ static int32_t defsparser(scriptfile *script)
             int32_t headerval = E_ReadArtFileHeader(fil, fn, &local);
             if (headerval != 0)
             {
-            	kclose(fil);
+                kclose(fil);
                 break;
             }
 

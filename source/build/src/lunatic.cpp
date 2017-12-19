@@ -74,7 +74,7 @@ static int32_t read_whole_file(const char *fn, char **retbufptr)
     flen = kfilelength(fid);
     if (flen == 0)
     {
-    	kclose(fid);
+        kclose(fid);
         return 5;
     }
 

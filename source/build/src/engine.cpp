@@ -9135,7 +9135,7 @@ int32_t loadboard(const char *filename, char flags, vec3_t *dapos, int16_t *daan
 
     if (kread(fil, &mapversion, 4) != 4)
     {
-    	kclose(fil);
+        kclose(fil);
         return -2;
     }
 

@@ -441,7 +441,7 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
         int const headerval = E_ReadArtFileHeader(fil, fn, &local);
         if (headerval != 0)
         {
-        	kclose(fil);
+            kclose(fil);
             return headerval;
         }
 
