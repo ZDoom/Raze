@@ -2445,8 +2445,8 @@ skip: ;
 
         int const ni = vsp[i].n;
 
-        if ((vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag) /*&&
-            ((vsp[i].cy[1] <= vsp[ni].cy[1]) || (vsp[i].fy[1] <= vsp[ni].fy[1]))*/)
+        if ((vsp[i].ctag == vsp[ni].ctag) && (vsp[i].ftag == vsp[ni].ftag) &&
+            ((vsp[i].cy[1] <= vsp[ni].cy[1]) || (vsp[i].fy[1] <= vsp[ni].fy[1])))
         {
             vsp[i].cy[1] = vsp[ni].cy[1];
             vsp[i].fy[1] = vsp[ni].fy[1];
@@ -3836,11 +3836,12 @@ void polymost_scansector(int32_t sectnum)
         gotsector[sectnum>>3] |= pow2char[sectnum&7];
 
         int const bunchfrst = numbunches;
-        int const numscansbefore = numscans;
-
+        int const onumscans = numscans;
         int const startwall = sector[sectnum].wallptr;
-        int const endwall = sector[sectnum].wallnum+startwall;
+        int const endwall   = sector[sectnum].wallnum + startwall;
+
         int scanfirst = numscans;
+
         vec2f_t p2 = { 0, 0 };
 
         uwalltype *wal;
@@ -3848,9 +3849,10 @@ void polymost_scansector(int32_t sectnum)
 
         for (z=startwall,wal=(uwalltype *)&wall[z]; z<endwall; z++,wal++)
         {
-            uwalltype const * const wal2 = (uwalltype *)&wall[wal->point2];
-            vec2f_t const fp1 = { (float)(wal->x-globalposx), (float)(wal->y-globalposy) };
-            vec2f_t const fp2 = { (float)(wal2->x-globalposx), (float)(wal2->y-globalposy) };
+            uwalltype const *const wal2 = (uwalltype *)&wall[wal->point2];
+
+            vec2f_t const fp1 = { (float)(wal->x - globalposx), (float)(wal->y - globalposy) };
+            vec2f_t const fp2 = { (float)(wal2->x - globalposx), (float)(wal2->y - globalposy) };
 
             int const nextsectnum = wal->nextsector; //Scan close sectors
 
@@ -3905,7 +3907,7 @@ void polymost_scansector(int32_t sectnum)
             }
         }
 
-        for (bssize_t z=numscansbefore; z<numscans; z++)
+        for (bssize_t z=onumscans; z<numscans; z++)
         {
             if ((wall[thewall[z]].point2 != thewall[bunchp2[z]]) || (dxb2[z] > dxb1[bunchp2[z]]))
             {
