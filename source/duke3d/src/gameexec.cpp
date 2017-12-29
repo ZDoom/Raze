@@ -5198,7 +5198,7 @@ finish_qsprintf:
                 switch (iterType)
                 {
                 case ITER_ALLSPRITES:
-                    for (bssize_t jj=0; jj<MAXSPRITES; ++jj)
+                    for (bssize_t jj=0; jj<Numsprites; ++jj)
                     {
                         if (sprite[jj].statnum == MAXSTATUS)
                             continue;
@@ -5240,54 +5240,35 @@ finish_qsprintf:
 
                 case ITER_DRAWNSPRITES:
                 {
-/*
-                    uspritetype lastSpriteBackup;
-                    uspritetype *const lastSpritePtr = (uspritetype *) &sprite[MAXSPRITES-1];
-*/
-
-                    // Back up sprite MAXSPRITES-1.
-/*
-                    Bmemcpy(&lastSpriteBackup, lastSpritePtr, sizeof(uspritetype));
-*/
-
                     for (bssize_t ii=0; ii<spritesortcnt; ii++)
                     {
-/*
-                        Bmemcpy(lastSpritePtr, &tsprite[ii], sizeof(uspritetype));
-*/
                         Gv_SetVarX(returnVar, ii);
                         insptr = pNext;
                         VM_Execute(0);
-
-                        // Copy over potentially altered tsprite.
-/*
-                        Bmemcpy(&tsprite[ii], lastSpritePtr, sizeof(uspritetype));
-*/
                     }
-
-                    // Restore sprite MAXSPRITES-1.
-/*
-                    Bmemcpy(lastSpritePtr, &lastSpriteBackup, sizeof(uspritetype));
-*/
                     break;
                 }
 
                 case ITER_SPRITESOFSECTOR:
                     if ((unsigned)nIndex >= MAXSECTORS) goto badindex;
-                    for (bssize_t jj=headspritesect[nIndex]; jj>=0; jj=nextspritesect[jj])
+                    for (bssize_t jj=headspritesect[nIndex]; jj>=0;)
                     {
+                        int const kk=nextspritesect[jj];
                         Gv_SetVarX(returnVar, jj);
                         insptr = pNext;
                         VM_Execute(0);
+                        jj=kk;
                     }
                     break;
                 case ITER_SPRITESOFSTATUS:
                     if ((unsigned) nIndex >= MAXSTATUS) goto badindex;
-                    for (bssize_t jj=headspritestat[nIndex]; jj>=0; jj=nextspritestat[jj])
+                    for (bssize_t jj=headspritestat[nIndex]; jj>=0;)
                     {
+                        int const kk=nextspritestat[jj];
                         Gv_SetVarX(returnVar, jj);
                         insptr = pNext;
                         VM_Execute(0);
+                        jj=kk;
                     }
                     break;
                 case ITER_WALLSOFSECTOR:
