@@ -304,7 +304,7 @@ int32_t A_Dodge(spritetype * const pSprite)
 
     vec2_t const msin = { sintable[(pSprite->ang + 512) & 2047], sintable[pSprite->ang & 2047] };
 
-    for (bssize_t nexti, SPRITES_OF_STAT_SAFE(STAT_PROJECTILE, i, nexti)) //weapons list
+    for (native_t nexti, SPRITES_OF_STAT_SAFE(STAT_PROJECTILE, i, nexti)) //weapons list
     {
         if (OW(i) == i)
             continue;
@@ -337,7 +337,7 @@ int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv)
     int const angIncs       = tabledivide32_noinline(2048, angDiv);
     hitdata_t hit;
 
-    for (bssize_t j = pSprite->ang; j < (2048 + pSprite->ang); j += angIncs)
+    for (native_t j = pSprite->ang; j < (2048 + pSprite->ang); j += angIncs)
     {
         pSprite->z -= ZOFFSET3;
         hitscan((const vec3_t *)pSprite, pSprite->sectnum,
@@ -369,7 +369,7 @@ int A_FurthestVisiblePoint(int const spriteNum, uspritetype * const ts, vec2_t *
     int const angincs = 128;
 //    ((!g_netServer && ud.multimode < 2) && ud.player_skill < 3) ? 2048 / 2 : tabledivide32_noinline(2048, 1 + (krand() & 1));
 
-    for (bssize_t j = ts->ang; j < (2048 + ts->ang); j += (angincs /*-(krand()&511)*/))
+    for (native_t j = ts->ang; j < (2048 + ts->ang); j += (angincs /*-(krand()&511)*/))
     {
         ts->z -= ZOFFSET2;
         hitscan((const vec3_t *)ts, ts->sectnum, sintable[(j + 512) & 2047], sintable[j & 2047],
@@ -846,7 +846,7 @@ static void P_AddWeaponMaybeSwitch(DukePlayer_t * const ps, int const weaponNum)
         int       new_wchoice  = -1;
         int       curr_wchoice = -1;
 
-        for (bssize_t i=0; i<=FREEZE_WEAPON && (new_wchoice < 0 || curr_wchoice < 0); i++)
+        for (native_t i=0; i<=FREEZE_WEAPON && (new_wchoice < 0 || curr_wchoice < 0); i++)
         {
             int w = g_player[playerNum].wchoice[i];
 
@@ -3283,7 +3283,7 @@ nullquote:
                 int32_t values[8];
                 G_GetTimeDate(values);
 
-                for (bssize_t i = 0; i < 8; i++)
+                for (native_t i = 0; i < 8; i++)
                     Gv_SetVarX(*insptr++, values[i]);
 
                 continue;
@@ -3419,7 +3419,7 @@ nullquote:
                 int debrisTile = *insptr++;
 
                 if ((unsigned)vm.pSprite->sectnum < MAXSECTORS)
-                    for (bssize_t cnt = (*insptr) - 1; cnt >= 0; cnt--)
+                    for (native_t cnt = (*insptr) - 1; cnt >= 0; cnt--)
                     {
                         int const tileOffset = (vm.pSprite->picnum == BLIMP && debrisTile == SCRAP1) ? 0 : (krand() % 3);
 
@@ -4351,7 +4351,7 @@ finish_qsprintf:
         case CON_CHECKAVAILINVEN:
         {
             insptr++;
-            size_t const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*insptr) : vm.playerNum;
+            int const playerNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*insptr) : vm.playerNum;
 
             if (EDUKE32_PREDICT_FALSE((unsigned)playerNum >= (unsigned)g_mostConcurrentPlayers))
             {
@@ -4494,12 +4494,12 @@ finish_qsprintf:
 
                         if (flags & GAMEARRAY_UNSIGNED)
                         {
-                            for (size_t i = 0; i < numElements; ++i)
+                            for (unative_t i = 0; i < numElements; ++i)
                                 pValues[i] = ((uint32_t *)pArray)[i];
                         }
                         else
                         {
-                            for (size_t i = 0; i < numElements; ++i)
+                            for (unative_t i = 0; i < numElements; ++i)
                                 pValues[i] = ((int32_t *)pArray)[i];
                         }
 
@@ -4555,7 +4555,7 @@ finish_qsprintf:
                     size_t const numDiskBytes = numElements * sizeof(int32_t);
                     int32_t *const pArray = (int32_t *)Xmalloc(numDiskBytes);
 
-                    for (size_t k = 0; k < numElements; ++k)
+                    for (unative_t k = 0; k < numElements; ++k)
                         pArray[k] = Gv_GetArrayValue(arrayNum, k);
 
                     Bfwrite(pArray, 1, numDiskBytes, fil);
@@ -5189,16 +5189,17 @@ finish_qsprintf:
         case CON_FOR:  // special-purpose iteration
             insptr++;
             {
-                int const             returnVar = *insptr++;
-                int const             iterType  = *insptr++;
-                int const             nIndex    = iterType <= ITER_DRAWNSPRITES ? 0 : Gv_GetVarX(*insptr++);
-                intptr_t const *const pEnd      = insptr + *insptr;
-                intptr_t const *const pNext     = ++insptr;
+                int const returnVar = *insptr++;
+                int const iterType  = *insptr++;
+                int const nIndex    = iterType <= ITER_DRAWNSPRITES ? 0 : Gv_GetVarX(*insptr++);
+
+                intptr_t const *const pEnd  = insptr + *insptr;
+                intptr_t const *const pNext = ++insptr;
 
                 switch (iterType)
                 {
                 case ITER_ALLSPRITES:
-                    for (bssize_t jj=0; jj<Numsprites; ++jj)
+                    for (native_t jj=0; jj<Numsprites; ++jj)
                     {
                         if (sprite[jj].statnum == MAXSTATUS)
                             continue;
@@ -5209,7 +5210,7 @@ finish_qsprintf:
                     }
                     break;
                 case ITER_ALLSECTORS:
-                    for (bssize_t jj=0; jj<numsectors; ++jj)
+                    for (native_t jj=0; jj<numsectors; ++jj)
                     {
                         Gv_SetVarX(returnVar, jj);
                         insptr = pNext;
@@ -5217,7 +5218,7 @@ finish_qsprintf:
                     }
                     break;
                 case ITER_ALLWALLS:
-                    for (bssize_t jj=0; jj<numwalls; ++jj)
+                    for (native_t jj=0; jj<numwalls; ++jj)
                     {
                         Gv_SetVarX(returnVar, jj);
                         insptr = pNext;
@@ -5226,7 +5227,7 @@ finish_qsprintf:
                     break;
                 case ITER_ACTIVELIGHTS:
 #ifdef POLYMER
-                    for (bssize_t jj=0; jj<PR_MAXLIGHTS; ++jj)
+                    for (native_t jj=0; jj<PR_MAXLIGHTS; ++jj)
                     {
                         if (!prlights[jj].flags.active)
                             continue;
@@ -5240,7 +5241,7 @@ finish_qsprintf:
 
                 case ITER_DRAWNSPRITES:
                 {
-                    for (bssize_t ii=0; ii<spritesortcnt; ii++)
+                    for (native_t ii=0; ii<spritesortcnt; ii++)
                     {
                         Gv_SetVarX(returnVar, ii);
                         insptr = pNext;
@@ -5251,7 +5252,7 @@ finish_qsprintf:
 
                 case ITER_SPRITESOFSECTOR:
                     if ((unsigned)nIndex >= MAXSECTORS) goto badindex;
-                    for (bssize_t jj=headspritesect[nIndex]; jj>=0;)
+                    for (native_t jj=headspritesect[nIndex]; jj>=0;)
                     {
                         int const kk=nextspritesect[jj];
                         Gv_SetVarX(returnVar, jj);
@@ -5262,7 +5263,7 @@ finish_qsprintf:
                     break;
                 case ITER_SPRITESOFSTATUS:
                     if ((unsigned) nIndex >= MAXSTATUS) goto badindex;
-                    for (bssize_t jj=headspritestat[nIndex]; jj>=0;)
+                    for (native_t jj=headspritestat[nIndex]; jj>=0;)
                     {
                         int const kk=nextspritestat[jj];
                         Gv_SetVarX(returnVar, jj);
@@ -5273,7 +5274,7 @@ finish_qsprintf:
                     break;
                 case ITER_WALLSOFSECTOR:
                     if ((unsigned) nIndex >= MAXSECTORS) goto badindex;
-                    for (bssize_t jj=sector[nIndex].wallptr, endwall=jj+sector[nIndex].wallnum-1;
+                    for (native_t jj=sector[nIndex].wallptr, endwall=jj+sector[nIndex].wallnum-1;
                     jj<=endwall; jj++)
                     {
                         Gv_SetVarX(returnVar, jj);
@@ -5295,7 +5296,7 @@ finish_qsprintf:
                     }
                     break;
                 case ITER_RANGE:
-                    for (bssize_t jj=0; jj<nIndex; jj++)
+                    for (native_t jj=0; jj<nIndex; jj++)
                     {
                         Gv_SetVarX(returnVar, jj);
                         insptr = pNext;
@@ -5855,7 +5856,7 @@ void G_SaveMapState(void)
     save->g_globalRandom   = g_globalRandom;
 
 #if !defined LUNATIC
-    for (bssize_t i=g_gameVarCount-1; i>=0; i--)
+    for (native_t i=g_gameVarCount-1; i>=0; i--)
     {
         if (aGameVars[i].flags & GAMEVAR_NORESET) continue;
         if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
@@ -5873,7 +5874,7 @@ void G_SaveMapState(void)
         else save->vars[i] = (intptr_t *)aGameVars[i].global;
     }
 
-    for (bssize_t i=g_gameArrayCount-1; i>=0; i--)
+    for (native_t i=g_gameArrayCount-1; i>=0; i--)
     {
         if ((aGameArrays[i].flags & GAMEARRAY_RESTORE) == 0)
             continue;
@@ -5910,7 +5911,7 @@ void G_RestoreMapState(void)
     {
         int playerHealth[MAXPLAYERS];
 
-        for (bssize_t i=0; i<g_mostConcurrentPlayers; i++)
+        for (native_t i=0; i<g_mostConcurrentPlayers; i++)
             playerHealth[i] = sprite[g_player[i].ps->i].extra;
 
         pub = NUMPAGES;
@@ -5933,7 +5934,7 @@ void G_RestoreMapState(void)
         if (g_currentEventExec == EVENT_ANIMATESPRITES)
         {
             initprintf("Line %d: loadmapstate called from EVENT_ANIMATESPRITES. WHY?\n",g_errorLineNum);
-            for (bssize_t i=0; i<MAXSPRITES; i++)
+            for (native_t i=0; i<MAXSPRITES; i++)
                 spriteext[i].tspr = NULL;
         }
 #endif
@@ -5986,7 +5987,7 @@ void G_RestoreMapState(void)
         g_globalRandom = pSavedState->g_globalRandom;
 
 #if !defined LUNATIC
-        for (bssize_t i=g_gameVarCount-1; i>=0; i--)
+        for (native_t i=g_gameVarCount-1; i>=0; i--)
         {
             if (aGameVars[i].flags & GAMEVAR_NORESET) continue;
             if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
@@ -6002,7 +6003,7 @@ void G_RestoreMapState(void)
             else aGameVars[i].global = (intptr_t)pSavedState->vars[i];
         }
 
-        for (bssize_t i=g_gameArrayCount-1; i>=0; i--)
+        for (native_t i=g_gameArrayCount-1; i>=0; i--)
         {
             if ((aGameArrays[i].flags & GAMEARRAY_RESTORE) == 0)
                 continue;
@@ -6027,14 +6028,14 @@ void G_RestoreMapState(void)
         // - walk forward (to door leading to other level "Shadowpine Forest")
         // - in new level, walk backward to get back to the Spider Den
         // - walk backward to the door leading to Shadowpine Forest --> crash.
-        for (bssize_t SPRITES_OF(STAT_PLAYER, i))
+        for (native_t SPRITES_OF(STAT_PLAYER, i))
         {
             int32_t snum = P_Get(i);
             Bassert((unsigned)snum < MAXPLAYERS);
             g_player[snum].ps->i = i;
         }
 
-        for (bssize_t i=0; i<g_mostConcurrentPlayers; i++)
+        for (native_t i=0; i<g_mostConcurrentPlayers; i++)
             sprite[g_player[i].ps->i].extra = playerHealth[i];
 
         if (g_player[myconnectindex].ps->over_shoulder_on != 0)
@@ -6048,7 +6049,7 @@ void G_RestoreMapState(void)
 
         if (ud.lockout)
         {
-            for (bssize_t x=g_animWallCnt-1; x>=0; x--)
+            for (native_t x=g_animWallCnt-1; x>=0; x--)
                 switch (DYNAMICTILEMAP(wall[animwall[x].wallnum].picnum))
                 {
                 case FEMPIC1__STATIC:
@@ -6063,7 +6064,7 @@ void G_RestoreMapState(void)
 #if 0
         else
         {
-            for (bssize_t x=g_numAnimWalls-1; x>=0; x--)
+            for (native_t x=g_numAnimWalls-1; x>=0; x--)
                 if (wall[animwall[x].wallnum].extra >= 0)
                     wall[animwall[x].wallnum].picnum = wall[animwall[x].wallnum].extra;
         }
