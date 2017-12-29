@@ -5199,14 +5199,16 @@ finish_qsprintf:
                 switch (iterType)
                 {
                 case ITER_ALLSPRITES:
-                    for (native_t jj=0; jj<Numsprites; ++jj)
+                    for (native_t statNum=0; statNum<MAXSTATUS; ++statNum)
                     {
-                        if (sprite[jj].statnum == MAXSTATUS)
-                            continue;
-
-                        Gv_SetVarX(returnVar, jj);
-                        insptr = pNext;
-                        VM_Execute(0);
+                        for (native_t jj=headspritestat[statNum]; jj>=0;)
+                        {
+                            int const kk=nextspritestat[jj];
+                            Gv_SetVarX(returnVar, jj);
+                            insptr = pNext;
+                            VM_Execute(0);
+                            jj=kk;
+                        }
                     }
                     break;
                 case ITER_ALLSECTORS:
