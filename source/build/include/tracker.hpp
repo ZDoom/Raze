@@ -90,3 +90,14 @@ inline TrackedType TRACKER_NAME_<TrackedType>::cast() const
 {
     return this->TrackedValue;
 }
+
+template <typename TrackedType>
+struct is_signed<TRACKER_NAME_<TrackedType>>
+{
+    static constexpr bool value = std::is_signed<TrackedType>::value;
+};
+template <typename TrackedType>
+struct is_unsigned<TRACKER_NAME_<TrackedType>>
+{
+    static constexpr bool value = std::is_unsigned<TrackedType>::value;
+};

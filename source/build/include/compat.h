@@ -687,6 +687,16 @@ void eduke32_exit_return(int) ATTRIBUTE((noreturn));
 
 # if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
 using std::is_integral;
+template <typename T>
+struct is_signed
+{
+    static constexpr bool value = std::is_signed<T>::value;
+};
+template <typename T>
+struct is_unsigned
+{
+    static constexpr bool value = std::is_unsigned<T>::value;
+};
 # endif
 
 # if CXXSTD >= 2014
