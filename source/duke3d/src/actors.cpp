@@ -1238,9 +1238,16 @@ ACTOR_STATIC void G_MovePlayers(void)
                         {
                             if (otherPlayerDist < 1400 && pPlayer->knee_incs == 0)
                             {
-                                pPlayer->knee_incs = 1;
-                                pPlayer->weapon_pos = -1;
-                                pPlayer->actorsqu = g_player[otherp].ps->i;
+                                // Don't stomp teammates.
+                                if (
+                                    ((g_gametypeFlags[ud.coop] & GAMETYPE_TDM) && pPlayer->team != g_player[otherp].ps->team) ||
+                                    (!(g_gametypeFlags[ud.coop] & GAMETYPE_PLAYERSFRIENDLY) && !(g_gametypeFlags[ud.coop] & GAMETYPE_TDM))
+                                    )
+                                {
+                                    pPlayer->knee_incs = 1;
+                                    pPlayer->weapon_pos = -1;
+                                    pPlayer->actorsqu = g_player[otherp].ps->i;
+                                }
                             }
                         }
                     }
