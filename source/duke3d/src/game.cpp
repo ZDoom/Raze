@@ -2697,8 +2697,15 @@ int A_Spawn(int spriteNum, int tileNum)
 
             pSprite->shade = -17;
 
-            changespritestat(newSprite, (spriteNum >= 0) ? STAT_ACTOR : STAT_ZOMBIEACTOR);
-            A_Fall(newSprite);
+            if (spriteNum >= 0)
+            {
+                changespritestat(newSprite, STAT_ACTOR);
+            }
+            else
+            {
+                changespritestat(newSprite, STAT_ZOMBIEACTOR);
+                A_Fall(newSprite);
+            }
             break;
 
         case WATERFOUNTAIN__STATIC:
