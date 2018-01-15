@@ -50,7 +50,7 @@ typedef struct
     StructTracker(Sector, int8_t) floorshade;
     StructTracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
     StructTracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
-    StructTracker(Sector, uint16_t) lotag, hitag;
+    StructTracker(Sector, int16_t) lotag, hitag;
     StructTracker(Sector, int16_t) extra;
 } StructName(sectortypev7);
 
@@ -77,7 +77,7 @@ typedef struct
     StructTracker(Wall, int16_t) picnum, overpicnum;
     StructTracker(Wall, int8_t) shade;
     StructTracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
-    StructTracker(Wall, uint16_t) lotag, hitag;
+    StructTracker(Wall, int16_t) lotag, hitag;
     StructTracker(Wall, int16_t) extra;
 } StructName(walltypev7);
 
@@ -114,7 +114,7 @@ typedef struct
     StructTracker(Sprite, int8_t) xoffset, yoffset;
     StructTracker(Sprite, int16_t) sectnum, statnum;
     StructTracker(Sprite, int16_t) ang, owner, xvel, yvel, zvel;
-    StructTracker(Sprite, uint16_t) lotag, hitag;
+    StructTracker(Sprite, int16_t) lotag, hitag;
     StructTracker(Sprite, int16_t) extra;
 } StructName(spritetype);
 
@@ -140,7 +140,7 @@ typedef struct
     StructTracker(Sector, uint8_t) floorpal, floorxpanning, floorypanning;
 
     StructTracker(Sector, uint8_t) /*CM_CEILINGZ:*/ visibility, fogpal;
-    StructTracker(Sector, uint16_t) lotag, hitag;
+    StructTracker(Sector, int16_t) lotag, hitag;
     StructTracker(Sector, int16_t) extra;
 } StructName(sectortypevx);
 
@@ -154,7 +154,7 @@ typedef struct
     StructTracker(Wall, int16_t) picnum, overpicnum;
     StructTracker(Wall, int8_t) shade;
     StructTracker(Wall, uint8_t) pal, xrepeat, yrepeat, xpanning, ypanning;
-    StructTracker(Wall, uint16_t) lotag, hitag;
+    StructTracker(Wall, int16_t) lotag, hitag;
     StructTracker(Wall, int16_t) extra;
     StructTracker(Wall, uint8_t) blend, filler_;
 } StructName(walltypevx);

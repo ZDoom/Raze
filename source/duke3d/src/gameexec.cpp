@@ -261,7 +261,7 @@ static int32_t VM_CheckSquished(void)
 #endif
 
     if (vm.pSprite->pal == 1 ?
-        (floorZ - ceilZ >= ZOFFSET5 || (pSector->lotag&32768)) :
+        (floorZ - ceilZ >= ZOFFSET5 || (pSector->lotag & INT16_32768)) :
         (floorZ - ceilZ >= ZOFFSET4))
     return 0;
 
@@ -648,10 +648,10 @@ static int32_t A_GetWaterZOffset(int spritenum);
 
 GAMEEXEC_STATIC void VM_Move(void)
 {
-    // NOTE: commented out condition is dead since r3159 (making hi/lotag unsigned).
-    // XXX: Does it break anything? Where are movflags with all bits set created?
-    const uint16_t * const movflagsptr = &AC_MOVFLAGS(vm.pSprite, &actor[vm.spriteNum]);
-    int const movflags = /*(*movflagsptr==-1) ? 0 :*/ *movflagsptr;
+    auto const movflagsptr = &AC_MOVFLAGS(vm.pSprite, &actor[vm.spriteNum]);
+    // NOTE: test against -1 commented out and later revived in source history
+    // XXX: Does its presence/absence break anything? Where are movflags with all bits set created?
+    int const movflags = (*movflagsptr == (std::remove_pointer<decltype(movflagsptr)>::type)-1) ? 0 : *movflagsptr;
     int const deadflag = (A_CheckEnemySprite(vm.pSprite) && vm.pSprite->extra <= 0);
 
     AC_COUNT(vm.pData)++;
@@ -3692,7 +3692,7 @@ nullquote:
 
                 if (foundSect >= 0 && isanearoperator(sector[foundSect].lotag))
                     if ((sector[foundSect].lotag&0xff) == ST_23_SWINGING_DOOR || sector[foundSect].floorz == sector[foundSect].ceilingz)
-                        if ((sector[foundSect].lotag&(16384|32768)) == 0)
+                        if ((sector[foundSect].lotag&(int16_t)(16384|INT16_32768)) == 0)
                         {
                             int32_t j;
 
@@ -5536,8 +5536,8 @@ finish_qsprintf:
                         G_OperateRespawns(vm.pSprite->yvel);
                     break;
                 default:
-                    //                if (vm.pSprite->hitag >= 0)
-                    G_OperateRespawns(vm.pSprite->hitag);
+                    if (vm.pSprite->hitag >= 0)
+                        G_OperateRespawns(vm.pSprite->hitag);
                     break;
             }
             continue;
@@ -5642,7 +5642,7 @@ void VM_UpdateAnim(int spriteNum, int32_t *pData)
         int const action_incval = actor[spriteNum].ac.incval;
         int const action_delay  = actor[spriteNum].ac.delay;
 #endif
-        uint16_t *actionticsptr = &AC_ACTIONTICS(&sprite[spriteNum], &actor[spriteNum]);
+        auto actionticsptr = &AC_ACTIONTICS(&sprite[spriteNum], &actor[spriteNum]);
         *actionticsptr += TICSPERFRAME;
 
         if (*actionticsptr > action_delay)

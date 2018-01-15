@@ -1272,7 +1272,7 @@ static int32_t G_InitActor(int32_t i, int32_t tilenum, int32_t set_movflag_uncon
     {
         // ^^^ C-CON takes precedence for now.
         const el_actor_t *a = &g_elActors[tilenum];
-        uint16_t *movflagsptr = &AC_MOVFLAGS(&sprite[i], &actor[i]);
+        auto movflagsptr = &AC_MOVFLAGS(&sprite[i], &actor[i]);
 
         SH(i) = a->strength;
         AC_ACTION_ID(actor[i].t_data) = a->act.id;
@@ -3116,7 +3116,7 @@ int A_Spawn(int spriteNum, int tileNum)
             case SE_9_DOWN_OPEN_DOOR_LIGHTS:
                 if (sector[sectNum].lotag &&
                         labs(sector[sectNum].ceilingz-pSprite->z) > 1024)
-                    sector[sectNum].lotag |= 32768; //If its open
+                    sector[sectNum].lotag |= INT16_32768; //If its open
                 fallthrough__;
             case SE_8_UP_OPEN_DOOR_LIGHTS:
                 //First, get the ceiling-floor shade
@@ -3210,7 +3210,7 @@ int A_Spawn(int spriteNum, int tileNum)
                     int const startWall = sector[sectNum].wallptr;
                     int const endWall   = startWall + sector[sectNum].wallnum;
 
-                    pSprite->extra = (sector[sectNum].hitag != UINT16_MAX);
+                    pSprite->extra = ((uint16_t)sector[sectNum].hitag != UINT16_MAX);
 
                     // TRAIN_SECTOR_TO_SE_INDEX
                     sector[sectNum].hitag = newSprite;

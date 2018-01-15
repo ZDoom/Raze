@@ -317,6 +317,9 @@ enum {
     SPR_ALIGN_MASK = 32+16,
 };
 
+// compatibility token for bitfield uses of the most significant bit of signed int16_t
+#define INT16_32768 ((int16_t)32768)
+
 #include "buildtypes.h"
 #define UNTRACKED_STRUCTS
 #undef buildtypes_h__

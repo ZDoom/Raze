@@ -1012,7 +1012,7 @@ static void G_SetupRotfixedSprites(void)
     }
 }
 
-static inline int G_CheckExitSprite(int spriteNum) { return (sprite[spriteNum].lotag == UINT16_MAX && (sprite[spriteNum].cstat & 16)); }
+static inline int G_CheckExitSprite(int spriteNum) { return ((uint16_t)sprite[spriteNum].lotag == UINT16_MAX && (sprite[spriteNum].cstat & 16)); }
 
 static void prelevel(char g)
 {
@@ -1040,7 +1040,7 @@ static void prelevel(char g)
         case ST_20_CEILING_DOOR:
         case ST_22_SPLITTING_DOOR:
             if (sector[i].floorz > sector[i].ceilingz)
-                sector[i].lotag |= 32768;
+                sector[i].lotag |= INT16_32768;
             continue;
         }
 
@@ -1071,7 +1071,7 @@ static void prelevel(char g)
             continue;
         }
 
-        if (sector[i].lotag == UINT16_MAX)
+        if ((uint16_t)sector[i].lotag == UINT16_MAX)
         {
             g_player[0].ps->exitx = wall[sector[i].wallptr].x;
             g_player[0].ps->exity = wall[sector[i].wallptr].y;

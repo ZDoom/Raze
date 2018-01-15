@@ -856,8 +856,8 @@ int32_t __fastcall VM_GetWall(int32_t const wallNum, int32_t labelNum)
         case WALL_YPANNING: labelNum = pWall->ypanning; break;
         case WALL_LOTAG: labelNum = (int16_t)pWall->lotag; break;
         case WALL_HITAG: labelNum = (int16_t)pWall->hitag; break;
-        case WALL_ULOTAG: labelNum = pWall->lotag; break;
-        case WALL_UHITAG: labelNum = pWall->hitag; break;
+        case WALL_ULOTAG: labelNum = (uint16_t)pWall->lotag; break;
+        case WALL_UHITAG: labelNum = (uint16_t)pWall->hitag; break;
         case WALL_EXTRA: labelNum = pWall->extra; break;
         case WALL_BLEND:
 #ifdef NEW_MAP_FORMAT
@@ -900,8 +900,8 @@ void __fastcall VM_SetWall(int32_t const wallNum, int32_t const labelNum, int32_
         case WALL_YPANNING: pWall->ypanning = iSet; break;
         case WALL_LOTAG: pWall->lotag = (int16_t)iSet; break;
         case WALL_HITAG: pWall->hitag = (int16_t)iSet; break;
-        case WALL_ULOTAG: pWall->lotag = iSet; break;
-        case WALL_UHITAG: pWall->hitag = iSet; break;
+        case WALL_ULOTAG: pWall->lotag = (uint16_t)iSet; break;
+        case WALL_UHITAG: pWall->hitag = (uint16_t)iSet; break;
         case WALL_EXTRA: pWall->extra = iSet; break;
         case WALL_BLEND:
 #ifdef NEW_MAP_FORMAT
@@ -956,8 +956,8 @@ int32_t __fastcall VM_GetSector(int32_t const sectNum, int32_t labelNum)
         case SECTOR_FOGPAL: labelNum = pSector->fogpal; break;
         case SECTOR_LOTAG: labelNum = (int16_t)pSector->lotag; break;
         case SECTOR_HITAG: labelNum = (int16_t)pSector->hitag; break;
-        case SECTOR_ULOTAG: labelNum = pSector->lotag; break;
-        case SECTOR_UHITAG: labelNum = pSector->hitag; break;
+        case SECTOR_ULOTAG: labelNum = (uint16_t)pSector->lotag; break;
+        case SECTOR_UHITAG: labelNum = (uint16_t)pSector->hitag; break;
         case SECTOR_EXTRA: labelNum = pSector->extra; break;
         case SECTOR_CEILINGBUNCH:
         case SECTOR_FLOORBUNCH:
@@ -1020,8 +1020,8 @@ void __fastcall VM_SetSector(int32_t const sectNum, int32_t const labelNum, int3
         case SECTOR_FOGPAL: pSector->fogpal = iSet; break;
         case SECTOR_LOTAG: pSector->lotag = (int16_t) iSet; break;
         case SECTOR_HITAG: pSector->hitag = (int16_t) iSet; break;
-        case SECTOR_ULOTAG: pSector->lotag = iSet; break;
-        case SECTOR_UHITAG: pSector->hitag = iSet; break;
+        case SECTOR_ULOTAG: pSector->lotag = (uint16_t)iSet; break;
+        case SECTOR_UHITAG: pSector->hitag = (uint16_t)iSet; break;
         case SECTOR_EXTRA: pSector->extra = iSet; break;
         case SECTOR_CEILINGBUNCH:
         case SECTOR_FLOORBUNCH:
@@ -1064,8 +1064,8 @@ void __fastcall VM_SetSprite(int32_t const spriteNum, int32_t const labelNum, in
         case ACTOR_ZVEL: pSprite->zvel = iSet; break;
         case ACTOR_LOTAG: pSprite->lotag = (int16_t)iSet; break;
         case ACTOR_HITAG: pSprite->hitag = (int16_t)iSet; break;
-        case ACTOR_ULOTAG: pSprite->lotag = iSet; break;
-        case ACTOR_UHITAG: pSprite->hitag = iSet; break;
+        case ACTOR_ULOTAG: pSprite->lotag = (uint16_t)iSet; break;
+        case ACTOR_UHITAG: pSprite->hitag = (uint16_t)iSet; break;
         case ACTOR_EXTRA: pSprite->extra = iSet; break;
         case ACTOR_HTCGG: actor[spriteNum].cgg = iSet; break;
         case ACTOR_HTPICNUM: actor[spriteNum].picnum = iSet; break;
@@ -1136,8 +1136,8 @@ int32_t __fastcall VM_GetSprite(int32_t const spriteNum, int32_t labelNum, int32
         case ACTOR_ZVEL: labelNum = pSprite->zvel; break;
         case ACTOR_LOTAG: labelNum = (int16_t)pSprite->lotag; break;
         case ACTOR_HITAG: labelNum = (int16_t)pSprite->hitag; break;
-        case ACTOR_ULOTAG: labelNum = pSprite->lotag; break;
-        case ACTOR_UHITAG: labelNum = pSprite->hitag; break;
+        case ACTOR_ULOTAG: labelNum = (uint16_t)pSprite->lotag; break;
+        case ACTOR_UHITAG: labelNum = (uint16_t)pSprite->hitag; break;
         case ACTOR_EXTRA: labelNum = pSprite->extra; break;
         case ACTOR_HTCGG: labelNum = actor[spriteNum].cgg; break;
         case ACTOR_HTPICNUM: labelNum = actor[spriteNum].picnum; break;
@@ -1213,8 +1213,8 @@ error:
         case ACTOR_ZVEL: labelNum = tspr->zvel; break;
         case ACTOR_LOTAG: labelNum = (int16_t) tspr->lotag; break;
         case ACTOR_HITAG: labelNum = (int16_t) tspr->hitag; break;
-        case ACTOR_ULOTAG: labelNum = tspr->lotag; break;
-        case ACTOR_UHITAG: labelNum = tspr->hitag; break;
+        case ACTOR_ULOTAG: labelNum = (uint16_t)tspr->lotag; break;
+        case ACTOR_UHITAG: labelNum = (uint16_t)tspr->hitag; break;
         case ACTOR_EXTRA: labelNum = tspr->extra; break;
         default: labelNum = -1; break;
     }
@@ -1260,8 +1260,8 @@ error:
         case ACTOR_ZVEL: tspr->zvel = iSet; break;
         case ACTOR_LOTAG: tspr->lotag = (int16_t) iSet; break;
         case ACTOR_HITAG: tspr->hitag = (int16_t) iSet; break;
-        case ACTOR_ULOTAG: tspr->lotag = iSet; break;
-        case ACTOR_UHITAG: tspr->hitag = iSet; break;
+        case ACTOR_ULOTAG: tspr->lotag = (uint16_t)iSet; break;
+        case ACTOR_UHITAG: tspr->hitag = (uint16_t)iSet; break;
         case ACTOR_EXTRA: tspr->extra = iSet; break;
     }
 }

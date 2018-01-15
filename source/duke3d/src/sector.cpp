@@ -818,7 +818,7 @@ REDODOOR:
             if (j >= 0) j = sector[j].ceilingz;
             else
             {
-                pSector->lotag |= 32768;
+                pSector->lotag |= INT16_32768;
                 goto REDODOOR;
             }
         }
@@ -1183,8 +1183,10 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
     if (wallOrSprite < 0)
         return 0;
 
-    int lotag, hitag, nSwitchPicnum, nSwitchPal;
     vec3_t davector;
+    int16_t lotag, hitag;
+    int16_t nSwitchPicnum;
+    uint8_t nSwitchPal;
 
     if (switchType == SWITCH_SPRITE) // A wall sprite
     {
@@ -1370,7 +1372,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
         }
     }
 
-    if (lotag == UINT16_MAX)
+    if ((uint16_t)lotag == UINT16_MAX)
     {
         P_EndLevel();
         return 1;
@@ -2880,7 +2882,7 @@ void P_CheckSectors(int playerNum)
     if (pPlayer->cursectnum > -1)
     {
         sectortype *const pSector = &sector[pPlayer->cursectnum];
-        switch (pSector->lotag)
+        switch ((uint16_t)pSector->lotag)
         {
             case 32767:
                 pSector->lotag = 0;

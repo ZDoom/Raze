@@ -2123,7 +2123,7 @@ crack_default:
                     {
                         pSprite->lotag -= 3;
                         if ((int16_t)pSprite->lotag <= 0)
-                            pSprite->lotag = (uint16_t)(-99);
+                            pSprite->lotag = -99;
                     }
                     else
                         pSprite->shade = -33;
@@ -5656,7 +5656,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             j = pSprite->owner;
 
-            if (sprite[j].lotag == UINT16_MAX)
+            if ((uint16_t)sprite[j].lotag == UINT16_MAX)
                 DELETE_SPRITE_AND_CONTINUE(spriteNum);
 
             q = pSector->extra>>3;
@@ -6499,7 +6499,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         case SE_10_DOOR_AUTO_CLOSE:
             // XXX: 32791, what the hell?
-            if ((pSector->lotag&0xff) == ST_27_STRETCH_BRIDGE || (pSector->floorz > pSector->ceilingz && (pSector->lotag&0xff) != ST_23_SWINGING_DOOR) || pSector->lotag == 32791)
+            if ((pSector->lotag&0xff) == ST_27_STRETCH_BRIDGE || (pSector->floorz > pSector->ceilingz && (pSector->lotag&0xff) != ST_23_SWINGING_DOOR) || pSector->lotag == (int16_t)32791)
             {
                 j = 1;
 
