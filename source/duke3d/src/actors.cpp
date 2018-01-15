@@ -1029,10 +1029,21 @@ int A_IncurDamage(int const spriteNum)
 
         int const playerNum = P_GetP(pSprite);
 
-        if (pActor->owner >= 0 && ud.ffire == 0 && sprite[pActor->owner].picnum == APLAYER &&
-            (g_gametypeFlags[ud.coop] & GAMETYPE_PLAYERSFRIENDLY ||
-             (g_gametypeFlags[ud.coop] & GAMETYPE_TDM && g_player[playerNum].ps->team == g_player[P_Get(pActor->owner)].ps->team)))
-            return -1;
+        if (pActor->owner >= 0 && (sprite[pActor->owner].picnum == APLAYER))
+        {
+            if (
+                (ud.ffire == 0) &&
+                (spriteNum != pActor->owner) &&       // Not damaging self.
+                ((g_gametypeFlags[ud.coop] & GAMETYPE_PLAYERSFRIENDLY) ||
+                ((g_gametypeFlags[ud.coop] & GAMETYPE_TDM) && g_player[playerNum].ps->team == g_player[P_Get(pActor->owner)].ps->team))
+                )
+                {
+                    // Nullify damage and cancel.
+                    pActor->owner = -1;
+                    pActor->extra = -1;
+                    return -1;
+                }
+        }
 
         pSprite->extra -= pActor->extra;
 
