@@ -2964,10 +2964,11 @@ int A_Spawn(int spriteNum, int tileNum)
                     T5(newSprite) = sector[nextSectNum].floorz;
                 else
                 {
-                    // XXX: we should return to the menu for this and similar failures
-                    Bsprintf(tempbuf, "SE 17 (warp elevator) setup failed: sprite %d at (%d, %d)", newSprite,
-                             TrackerCast(sprite[newSprite].x), TrackerCast(sprite[newSprite].y));
-                    G_GameExit(tempbuf);
+                    // heuristic
+                    T5(newSprite) = sector[sectNum].floorz;
+
+                    OSD_Printf(OSD_ERROR "WARNING: SE17 sprite %d using own sector %d's floorz.\n",
+                               newSprite, sectNum);
                 }
 
                 if (numplayers < 2 && !g_netServer)
