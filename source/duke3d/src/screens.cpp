@@ -1470,7 +1470,9 @@ void G_DisplayLogo(void)
     S_StopMusic();
     FX_StopAllSounds(); // JBF 20031228
     S_ClearSoundLocks();  // JBF 20031228
-    if ((!g_netServer && ud.multimode < 2) && (logoflags & LOGO_ENABLED) && !g_noLogo)
+    if (!g_noLogo /* && (!g_netServer && ud.multimode < 2) */ &&
+        VM_OnEventWithReturn(EVENT_MAINMENUSCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
+        (logoflags & LOGO_ENABLED))
     {
         if (
 #ifndef EDUKE32_TOUCH_DEVICES

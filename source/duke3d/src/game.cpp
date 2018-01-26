@@ -281,13 +281,16 @@ void G_GameExit(const char *msg)
 
     if (!g_quickExit)
     {
-        if (g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
+        if (VM_OnEventWithReturn(EVENT_EXITGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
+           g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
             setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
         }
 
-        if (*msg != 0 && *(msg+1) != 'V' && *(msg+1) != 'Y')
+        // shareware and TEN screens
+        if (VM_OnEventWithReturn(EVENT_EXITPROGRAMSCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
+           *msg != 0 && *(msg+1) != 'V' && *(msg+1) != 'Y')
             G_DisplayExtraScreens();
     }
 
@@ -5995,7 +5998,8 @@ static int G_EndOfLevel(void)
 
         ready2send = 0;
 
-        if (ud.display_bonus_screen == 1)
+        if ((VM_OnEventWithReturn(EVENT_ENDLEVELSCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)) == 0 &&
+            ud.display_bonus_screen == 1)
         {
             int32_t i = ud.screen_size;
             ud.screen_size = 0;

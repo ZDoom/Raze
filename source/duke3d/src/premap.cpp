@@ -1356,6 +1356,11 @@ static void prelevel(char g)
 }
 
 
+static inline int G_HaveUserMap(void)
+{
+    return (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0);
+}
+
 void G_NewGame(int volumeNum, int levelNum, int skillNum)
 {
     DukePlayer_t *const pPlayer = g_player[0].ps;
@@ -1372,11 +1377,31 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     ready2send = 0;
 
-    if (ud.m_recstat != 2 && ud.last_level >= 0 && (g_netServer || ud.multimode > 1) && (ud.coop&GAMETYPE_SCORESHEET))
+    if (ud.m_recstat != 2 && ud.last_level >= 0 &&
+        VM_OnEventWithReturn(EVENT_EXITGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
+        (g_netServer || ud.multimode > 1) && (ud.coop&GAMETYPE_SCORESHEET))
         G_BonusScreen(1);
 
-    if (levelNum == 0 && volumeNum == 3 && (!g_netServer && ud.multimode < 2) && ud.lockout == 0
-            && (G_GetLogoFlags() & LOGO_NOE4CUTSCENE)==0)
+    g_showShareware = GAMETICSPERSEC*34;
+
+    ud.level_number = levelNum;
+    ud.volume_number = volumeNum;
+    ud.player_skill = skillNum;
+    ud.secretlevel = 0;
+    ud.from_bonus = 0;
+
+    ud.last_level = -1;
+    g_lastAutoSaveArbitraryID = -1;
+    g_lastautosave.reset();
+    g_lastusersave.reset();
+    g_quickload = nullptr;
+
+    int const UserMap = G_HaveUserMap();
+
+    // we don't want the intro to play after the multiplayer setup screen
+    if ((!g_netServer && ud.multimode < 2) && UserMap == 0 &&
+        VM_OnEventWithReturn(EVENT_NEWGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
+        levelNum == 0 && volumeNum == 3 && ud.lockout == 0 && (G_GetLogoFlags() & LOGO_NOE4CUTSCENE)==0)
     {
         S_PlayMusic(g_mapInfo[MUS_BRIEFING].musicfn);
 
@@ -1404,20 +1429,6 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 end_vol4a:
         FX_StopAllSounds();
     }
-
-    g_showShareware = GAMETICSPERSEC*34;
-
-    ud.level_number = levelNum;
-    ud.volume_number = volumeNum;
-    ud.player_skill = skillNum;
-    ud.secretlevel = 0;
-    ud.from_bonus = 0;
-
-    ud.last_level = -1;
-    g_lastAutoSaveArbitraryID = -1;
-    g_lastautosave.reset();
-    g_lastusersave.reset();
-    g_quickload = nullptr;
 
 #ifdef EDUKE32_TOUCH_DEVICES
     pPlayer->zoom = 360;
@@ -1777,11 +1788,6 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
     }
 
     realloc_copy(&g_mapInfo[levelNum].musicfn, "dethtoll.mid");
-}
-
-static inline int G_HaveUserMap(void)
-{
-    return (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0);
 }
 
 int G_EnterLevel(int gameMode)
