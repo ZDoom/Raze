@@ -660,7 +660,7 @@ static void G_ReadGLFrame(void)
     char *const pic = (char *) waloff[TILE_SAVESHOT];
 
     int32_t x, y;
-    const int32_t xf = divscale16(xdim, 320);  // (xdim<<16)/320
+    const int32_t xf = divscale16(ydim*4/3, 320);
     const int32_t yf = divscale16(ydim, 200);  // (ydim<<16)/200
 
     tilesiz[TILE_SAVESHOT].x = 200;
@@ -682,7 +682,7 @@ static void G_ReadGLFrame(void)
 
         for (x = 0; x < 320; x++)
         {
-            const palette_t *pix = &frame[base + mulscale16(x, xf)];
+            const palette_t *pix = &frame[base + mulscale16(x, xf) + (xdim-(ydim*4/3))/2];
             pic[320 * y + x] = getclosestcol(pix->r, pix->g, pix->b);
         }
     }
