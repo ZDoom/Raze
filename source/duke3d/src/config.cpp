@@ -250,6 +250,7 @@ void CONFIG_SetDefaults(void)
     ud.textscale = 200;
     ud.screenfade = 1;
     ud.menubackground = 1;
+    ud.hudontop = 0;
 
     ud.config.CheckForUpdates = 1;
 

@@ -1044,7 +1044,7 @@ static FORCE_INLINE int32_t text_fragbarheight(void)
 
 static FORCE_INLINE int32_t text_ypos(void)
 {
-    if (ud.althud == 2)
+    if (ud.hudontop == 1 && ud.screen_size == 4 && ud.althud == 1)
         return 32<<16;
 
 #ifdef GEKKO

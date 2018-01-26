@@ -48,7 +48,7 @@ static int32_t sbarxr(int32_t x)
 
 static int32_t sbary(int32_t y)
 {
-    if (ud.althud == 2 && ud.screen_size == 4) return sbarsc(y << 16);
+    if (ud.hudontop == 1 && ud.screen_size == 4 && ud.althud == 1) return sbarsc(y << 16);
     else return (200<<16) - sbarsc(200<<16) + sbarsc(y<<16);
 }
 
@@ -608,7 +608,7 @@ void G_DrawStatusBar(int32_t snum)
         {
             // ALTERNATIVE STATUS BAR
 
-            int32_t hudoffset = althud == 2 ? 32 : 200;
+            int32_t hudoffset = ud.hudontop == 1 ? 32 : 200;
             static int32_t ammo_sprites[MAX_WEAPONS];
 
             if (EDUKE32_PREDICT_FALSE(ammo_sprites[0] == 0))
@@ -703,7 +703,7 @@ void G_DrawStatusBar(int32_t snum)
                 }
             }
 
-            if (ud.althud == 2)
+            if (ud.hudontop == 1)
                 hudoffset += 40;
 
             if (p->got_access&1) rotatesprite_althudr(39, hudoffset-43, sb15, 0, ACCESSCARD, 0, 0, 10+16+512);

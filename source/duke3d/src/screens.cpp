@@ -1221,7 +1221,7 @@ void G_DisplayRest(int32_t smoothratio)
 
         if (ud.screen_size == 4)
         {
-            if (ud.althud != 2)
+            if (ud.althud == 1 && ud.hudontop == 0)
                 i -= sbarsc(ud.althud ? (tilesiz[BIGALPHANUM].y+8)<<16 : tilesiz[INVENTORYBOX].y<<16);
         }
         else if (ud.screen_size > 2)

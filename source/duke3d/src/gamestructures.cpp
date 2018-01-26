@@ -181,6 +181,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_STATUSBARFLAGS: labelNum = ud.statusbarflags; break;
         case USERDEFS_STATUSBARRANGE: labelNum = ud.statusbarrange; break;
         case USERDEFS_STATUSBARCUSTOM: labelNum = ud.statusbarcustom; break;
+        case USERDEFS_HUDONTOP: labelNum = ud.hudontop; break;
         default: labelNum = -1; break;
     }
 
@@ -312,6 +313,7 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_STATUSBARFLAGS: ud.statusbarflags = iSet; break;
         case USERDEFS_STATUSBARRANGE: ud.statusbarrange = iSet; break;
         case USERDEFS_STATUSBARCUSTOM: ud.statusbarcustom = iSet; break;
+        case USERDEFS_HUDONTOP: ud.hudontop = iSet; break;
         default: break;
     }
 }

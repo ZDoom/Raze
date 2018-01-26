@@ -1239,6 +1239,7 @@ const memberlabel_t UserdefsLabels[]=
     { "statusbarflags",         USERDEFS_STATUSBARFLAGS,         0, 0 },
     { "statusbarrange",         USERDEFS_STATUSBARRANGE,         0, 0 },
     { "statusbarcustom",        USERDEFS_STATUSBARCUSTOM,        0, 0 },
+    { "hudontop",               USERDEFS_HUDONTOP,               0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 
