@@ -6508,7 +6508,7 @@ void M_DisplayMenus(void)
     g_player[myconnectindex].ps->gm &= (0xff-MODE_TYPE);
     // g_player[myconnectindex].ps->fta = 0;
 
-    int32_t const backgroundOK = Menu_BlackTranslucentBackgroundOK(g_currentMenu);
+    int32_t const backgroundOK = ud.menubackground && Menu_BlackTranslucentBackgroundOK(g_currentMenu);
 
     // need EVENT_DISPLAYMENUBACKGROUND here
 

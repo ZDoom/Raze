@@ -248,6 +248,7 @@ void CONFIG_SetDefaults(void)
     ud.weaponscale = 100;
     ud.textscale = 200;
     ud.screenfade = 1;
+    ud.menubackground = 1;
 
     ud.config.CheckForUpdates = 1;
 

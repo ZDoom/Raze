@@ -244,7 +244,7 @@ typedef struct {
     char wchoice[MAX_WEAPONS];
 
     uint8_t user_map;
-    uint8_t screenfade;
+    uint8_t screenfade, menubackground;
 } user_defs;
 
 extern user_defs ud;

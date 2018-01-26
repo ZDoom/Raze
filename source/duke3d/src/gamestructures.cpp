@@ -177,6 +177,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_SCREENAREA_X2: labelNum = ud.screenarea_x2; break;
         case USERDEFS_SCREENAREA_Y2: labelNum = ud.screenarea_y2; break;
         case USERDEFS_SCREENFADE: labelNum = ud.screenfade; break;
+        case USERDEFS_MENUBACKGROUND: labelNum = ud.menubackground; break;
         default: labelNum = -1; break;
     }
 
@@ -304,6 +305,7 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_SCREENAREA_X2: ud.screenarea_x2 = iSet; break;
         case USERDEFS_SCREENAREA_Y2: ud.screenarea_y2 = iSet; break;
         case USERDEFS_SCREENFADE: ud.screenfade = iSet; break;
+        case USERDEFS_MENUBACKGROUND: ud.menubackground = iSet; break;
         default: break;
     }
 }
