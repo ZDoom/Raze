@@ -1236,6 +1236,9 @@ const memberlabel_t UserdefsLabels[]=
     { "screenarea_y2",          USERDEFS_SCREENAREA_Y2,          0, 0 },
     { "screenfade",             USERDEFS_SCREENFADE,             0, 0 },
     { "menubackground",         USERDEFS_MENUBACKGROUND,         0, 0 },
+    { "statusbarflags",         USERDEFS_STATUSBARFLAGS,         0, 0 },
+    { "statusbarrange",         USERDEFS_STATUSBARRANGE,         0, 0 },
+    { "statusbarcustom",        USERDEFS_STATUSBARCUSTOM,        0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 

@@ -558,6 +558,26 @@ void G_CacheMapData(void)
     OSD_Printf("Cache time: %dms\n", endtime-starttime);
 }
 
+extern int32_t fragbarheight(void)
+{
+    if (ud.screen_size > 0 && !(ud.statusbarflags & STATUSBAR_NOFRAGBAR)
+#ifdef SPLITSCREEN_MOD_HACKS
+        && !g_fakeMultiMode
+#endif
+        && (g_netServer || ud.multimode > 1) && GTFLAGS(GAMETYPE_FRAGBAR))
+    {
+        int32_t i, j = 0;
+
+        for (TRAVERSE_CONNECT(i))
+            if (i > j)
+                j = i;
+
+        return ((j + 3) >> 2) << 3;
+    }
+
+    return 0;
+}
+
 void G_UpdateScreenArea(void)
 {
     if (!in3dmode())
@@ -573,27 +593,13 @@ void G_UpdateScreenArea(void)
         int32_t x1 = scale(ss,xdim,160);
         int32_t x2 = xdim-x1;
 
-        int32_t y1 = ss;
-        int32_t y2 = 200-ss;
+        int32_t y1 = scale(ss,(200 * 100) - (tilesiz[BOTTOMSTATUSBAR].y * ud.statusbarscale),200 - tilesiz[BOTTOMSTATUSBAR].y);
+        int32_t y2 = 200*100-y1;
 
-        if (ud.screen_size > 0 && (g_gametypeFlags[ud.coop]&GAMETYPE_FRAGBAR) && (g_netServer || ud.multimode > 1))
-        {
-            int32_t i, j = 0;
-
-            for (TRAVERSE_CONNECT(i))
-                if (i > j) j = i;
-
-            if (j > 0) y1 += 8;
-            if (j > 4) y1 += 8;
-            if (j > 8) y1 += 8;
-            if (j > 12) y1 += 8;
-        }
-
-        y2 *= 100;
+        y1 += fragbarheight()*100;
         if (ud.screen_size >= 8 && ud.statusbarmode==0)
             y2 -= tilesiz[BOTTOMSTATUSBAR].y*ud.statusbarscale;
-
-        y1 = scale(y1,ydim,200);
+        y1 = scale(y1,ydim,200*100);
         y2 = scale(y2,ydim,200*100);
 
         if (VM_HaveEvent(EVENT_UPDATESCREENAREA))

@@ -228,6 +228,7 @@ void CONFIG_SetDefaults(void)
     ud.screen_size = 4;
     ud.screen_tilting = 1;
     ud.shadows = 1;
+    ud.statusbarflags = STATUSBAR_NOSHRINK;
     ud.statusbarmode = 1;
     ud.statusbarscale = 100;
     ud.team = 0;

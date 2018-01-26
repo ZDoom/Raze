@@ -573,7 +573,7 @@ static MenuRangeInt32_t MEO_SCREENSETUP_CROSSHAIRSIZE = MAKE_MENURANGE( &ud.cros
 static MenuEntry_t ME_SCREENSETUP_CROSSHAIRSIZE = MAKE_MENUENTRY( s_Scale, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SCREENSETUP_CROSSHAIRSIZE, RangeInt32 );
 
 static int32_t vpsize;
-static MenuRangeInt32_t MEO_SCREENSETUP_SCREENSIZE = MAKE_MENURANGE( &vpsize, &MF_Redfont, 16, 0, 0, 5, EnforceIntervals );
+static MenuRangeInt32_t MEO_SCREENSETUP_SCREENSIZE = MAKE_MENURANGE( &vpsize, &MF_Redfont, 0, 0, 0, 1, EnforceIntervals );
 static MenuEntry_t ME_SCREENSETUP_SCREENSIZE = MAKE_MENUENTRY( "Screen size:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_SCREENSIZE, RangeInt32 );
 static MenuRangeInt32_t MEO_SCREENSETUP_TEXTSIZE = MAKE_MENURANGE( &ud.textscale, &MF_Redfont, 100, 400, 0, 16, 2 );
 static MenuEntry_t ME_SCREENSETUP_TEXTSIZE = MAKE_MENUENTRY( s_Scale, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SCREENSETUP_TEXTSIZE, RangeInt32 );
@@ -1853,7 +1853,22 @@ static void Menu_Pre(MenuID_t cm)
         else
             MenuMenu_ChangeEntryList(M_DISPLAYSETUP, MEL_DISPLAYSETUP_GL);
 
-        vpsize = ud.screen_size + 4*(ud.screen_size>=8 && ud.statusbarmode==0) + 4*(ud.screen_size>=4 && ud.althud==0);
+        MEO_SCREENSETUP_SCREENSIZE.steps = !(ud.statusbarflags & STATUSBAR_NONONE) +
+                                           !(ud.statusbarflags & STATUSBAR_NOMODERN) +
+                                           !(ud.statusbarflags & STATUSBAR_NOMINI) * (ud.statusbarrange + 1) +
+                                           !(ud.statusbarflags & STATUSBAR_NOOVERLAY) +
+                                           !(ud.statusbarflags & STATUSBAR_NOFULL) +
+                                           !(ud.statusbarflags & STATUSBAR_NOSHRINK) * 14;
+        MEO_SCREENSETUP_SCREENSIZE.min = MEO_SCREENSETUP_SCREENSIZE.steps - 1;
+        MenuEntry_DisableOnCondition(&ME_SCREENSETUP_SCREENSIZE, (MEO_SCREENSETUP_SCREENSIZE.steps < 2));
+
+        vpsize = !(ud.statusbarflags & STATUSBAR_NONONE) +
+                 (ud.screen_size >= 4 && !(ud.statusbarflags & STATUSBAR_NOMODERN)) +
+                 (ud.screen_size >= 4 && ud.althud == 0 && !(ud.statusbarflags & STATUSBAR_NOMINI)) * (ud.statusbarcustom + 1) +
+                 (ud.screen_size >= 8 && !(ud.statusbarflags & STATUSBAR_NOOVERLAY)) +
+                 (ud.screen_size >= 8 && ud.statusbarmode == 0 && !(ud.statusbarflags & STATUSBAR_NOFULL)) +
+                 (ud.screen_size > 8 && !(ud.statusbarflags & STATUSBAR_NOSHRINK)) * ((ud.screen_size - 8) >> 2)
+                 -1;
 
         if (getrendermode() != REND_CLASSIC)
         {
@@ -3115,7 +3130,7 @@ static void Menu_Custom2ColScreen(/*MenuEntry_t *entry*/)
 static int32_t Menu_EntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
 {
     if (entry == &ME_SCREENSETUP_SCREENSIZE)
-        G_SetViewportShrink(newValue - vpsize);
+        G_SetViewportShrink((newValue - vpsize) * 4);
     else if (entry == &ME_SCREENSETUP_SBARSIZE)
         G_SetStatusBarScale(newValue);
     else if (entry == &ME_SOUND_VOLUME_MASTER)

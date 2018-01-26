@@ -465,6 +465,9 @@ void G_DrawInventory(const DukePlayer_t *p)
 
 void G_DrawFrags(void)
 {
+    if (ud.statusbarflags & STATUSBAR_NOFRAGBAR)
+        return;
+
     int32_t i, j = 0;
     const int32_t orient = 2+8+16+64;
 
@@ -1067,18 +1070,9 @@ void G_DrawBackground(void)
         return;
     }
 
-    if (ud.screen_size > 0 && (g_gametypeFlags[ud.coop]&GAMETYPE_FRAGBAR) && (g_netServer || ud.multimode > 1))
+    y1 = fragbarheight();
+    if (y1 != 0)
     {
-        int32_t i, j = 0;
-
-        for (TRAVERSE_CONNECT(i))
-            if (i > j) j = i;
-
-        if (j > 0) y1 += 8;
-        if (j > 4) y1 += 8;
-        if (j > 8) y1 += 8;
-        if (j > 12) y1 += 8;
-
         y1 = scale(ydim, y1, 200);
         y1 -= ((tilesiz[dapicnum].y / y1) +1) * tilesiz[dapicnum].y;
     }

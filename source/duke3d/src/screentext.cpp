@@ -1064,7 +1064,7 @@ void G_PrintGameQuotes(int32_t snum)
     const int32_t reserved_quote = (ps->ftq >= QUOTE_RESERVED && ps->ftq <= QUOTE_RESERVED3);
     // NOTE: QUOTE_RESERVED4 is not included.
 
-    int32_t const ybase = text_fragbarheight() + text_ypos();
+    int32_t const ybase = (fragbarheight()<<16) + text_ypos();
     int32_t height = 0;
     int32_t k = ps->fta;
 

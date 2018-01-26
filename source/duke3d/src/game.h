@@ -98,6 +98,16 @@ enum LogoFlags_t {
     LOGO_NOTITLEBAR        = 0x00800000,
 };
 
+enum {
+    STATUSBAR_NONONE    = 0x00000001,
+    STATUSBAR_NOMINI    = 0x00000002,
+    STATUSBAR_NOFULL    = 0x00000004,
+    STATUSBAR_NOSHRINK  = 0x00000008,
+    STATUSBAR_NOFRAGBAR = 0x00000010,
+    STATUSBAR_NOOVERLAY = 0x00000020,
+    STATUSBAR_NOMODERN  = 0x00000040,
+};
+
 void A_DeleteSprite(int spriteNum);
 
 static inline int32_t G_GetLogoFlags(void)
@@ -150,6 +160,7 @@ typedef struct {
     int32_t democams,color,msgdisptime,statusbarmode;
     int32_t m_noexits,noexits,autovote,automsg,idplayers;
     int32_t team, viewbob, weaponsway, althud, weaponscale, textscale;
+    int32_t statusbarflags, statusbarrange, statusbarcustom;
     int32_t screenarea_x1, screenarea_y1, screenarea_x2, screenarea_y2;
 
     int32_t entered_name,screen_tilting,shadows,fta_on,executions,auto_run;
