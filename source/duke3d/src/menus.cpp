@@ -3694,6 +3694,17 @@ static void Menu_MaybeSetSelectionToChild(Menu_t * m, MenuID_t id)
     {
         MenuMenu_t * menu = (MenuMenu_t *)m->object;
 
+        if (menu->currentEntry < menu->numEntries)
+        {
+            MenuEntry_t const * currentEntry = menu->entrylist[menu->currentEntry];
+            if (currentEntry != NULL && currentEntry->type == Link)
+            {
+                MenuLink_t const * link = (MenuLink_t const *)currentEntry->entry;
+                if (link->linkID == id)
+                     return; // already good to go
+            }
+        }
+
         for (size_t i = 0, i_end = menu->numEntries; i < i_end; ++i)
         {
             MenuEntry_t const * entry = menu->entrylist[i];
