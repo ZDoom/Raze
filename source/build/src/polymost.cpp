@@ -32,6 +32,7 @@ extern char textfont[2048], smalltextfont[2048];
 int32_t rendmode=0;
 int32_t usemodels=1;
 int32_t usehightile=1;
+uint8_t globalr=255, globalg=255, globalb=255;
 
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 2048 //<- careful!
@@ -1922,6 +1923,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         // global tinting
         if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
             hictinting_apply(pc, MAXPALOOKUPS-1);
+
+        globaltinting_apply(pc);
     }
 
     bglColor4f(pc[0], pc[1], pc[2], pc[3]);

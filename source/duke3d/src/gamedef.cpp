@@ -1243,6 +1243,9 @@ const memberlabel_t UserdefsLabels[]=
     { "menu_slidebarz",         USERDEFS_MENU_SLIDEBARZ,         0, 0 },
     { "menu_slidebarmargin",    USERDEFS_MENU_SLIDEBARMARGIN,    0, 0 },
     { "menu_slidecursorz",      USERDEFS_MENU_SLIDECURSORZ,      0, 0 },
+    { "global_r",               USERDEFS_GLOBAL_R,               0, 0 },
+    { "global_g",               USERDEFS_GLOBAL_G,               0, 0 },
+    { "global_b",               USERDEFS_GLOBAL_B,               0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 

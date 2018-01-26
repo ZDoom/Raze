@@ -4209,6 +4209,8 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
             // global tinting
             if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
                 hictinting_apply(glcolors[i], MAXPALOOKUPS-1);
+
+            globaltinting_apply(glcolors[i]);
         }
 
         i++;
@@ -4301,6 +4303,8 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
             // global tinting
             if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
                 hictinting_apply(color, MAXPALOOKUPS-1);
+
+            globaltinting_apply(color);
         }
 
         bglColor4f(color[0], color[1], color[2], 1.0);
@@ -4526,6 +4530,8 @@ static void         polymer_drawmdsprite(uspritetype *tspr)
     // global tinting
     if (!usinghighpal && have_basepal_tint())
         hictinting_apply_ub(color, MAXPALOOKUPS-1);
+
+    globaltinting_apply_ub(color);
 
     if (tspr->cstat & 2)
     {
@@ -4966,6 +4972,7 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         material->shadeoffset = shade;
         material->visibility = (uint8_t)(vis+16);
 
+        globaltinting_apply_ub(material->diffusemodulation);
         // all the stuff below is mutually exclusive with artmapping
         goto done;
     }
@@ -5012,6 +5019,8 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         // global tinting
         if ((pth->flags & PTH_HIGHTILE) && !usinghighpal && have_basepal_tint())
             hictinting_apply_ub(material->diffusemodulation, MAXPALOOKUPS-1);
+
+        globaltinting_apply_ub(material->diffusemodulation);
 
         // PR_BIT_GLOW_MAP
         if (r_fullbrights && pth->flags & PTH_HASFULLBRIGHT)

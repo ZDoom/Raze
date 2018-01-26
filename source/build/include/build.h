@@ -858,6 +858,7 @@ extern int32_t usevoxels, voxscale[MAXVOXELS];
 #ifdef USE_OPENGL
 extern int32_t usemodels, usehightile;
 extern int32_t rendmode;
+extern uint8_t globalr, globalg, globalb;
 #endif
 EXTERN uint16_t h_xsize[MAXTILES], h_ysize[MAXTILES];
 EXTERN int8_t h_xoffs[MAXTILES], h_yoffs[MAXTILES];

@@ -71,6 +71,20 @@ static inline void hictinting_apply_ub(uint8_t *color, int32_t palnum)
     color[2] = (uint8_t)(color[2] * (float)tint.b * (1.f/255.f));
 }
 
+static inline void globaltinting_apply(float *color)
+{
+    color[0] *= (float)globalr * (1.f/255.f);
+    color[1] *= (float)globalg * (1.f/255.f);
+    color[2] *= (float)globalb * (1.f/255.f);
+}
+
+static inline void globaltinting_apply_ub(uint8_t *color)
+{
+    color[0] = (uint8_t)(color[0] * (float)globalr * (1.f/255.f));
+    color[1] = (uint8_t)(color[1] * (float)globalg * (1.f/255.f));
+    color[2] = (uint8_t)(color[2] * (float)globalb * (1.f/255.f));
+}
+
 // texcacheheader cachead.flags bits
 enum
 {
