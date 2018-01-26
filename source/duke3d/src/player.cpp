@@ -2971,6 +2971,9 @@ void P_GetInput(int playerNum)
     if (BUTTON(gamefunc_Next_Weapon) || (BUTTON(gamefunc_Dpad_Select) && staticInput.fvel > 0))
         weaponSelection = 12;
 
+    if (BUTTON(gamefunc_Alt_Weapon))
+        weaponSelection = 13;
+
     if (BUTTON(gamefunc_Jump) && pPlayer->on_ground)
         g_emuJumpTics = 4;
 

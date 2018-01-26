@@ -109,12 +109,13 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Show_Multiplayer_Scores",
 #endif
    "Dpad_Select",
-   "Dpad_Aiming"
+   "Dpad_Aiming",
+   "Alternate_Weapon",
    };
 
 #ifdef __SETUP__
 
-#define NUMKEYENTRIES 56
+#define NUMKEYENTRIES 57
 
 const char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    {
@@ -171,6 +172,7 @@ const char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "'", "",
    ";", "",
    "`", "",
+   "", "",
    "", "",
    "", "",
    "", "",
@@ -231,6 +233,7 @@ const char oldkeydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "'", "",
    ";", "",
    "C", "",
+   "", "",
    "", "",
    "", "",
    "", "",

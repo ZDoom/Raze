@@ -2552,6 +2552,9 @@ CHECKINV1:
         case 11:
             weaponNum = VM_OnEventWithReturn(EVENT_NEXTWEAPON,pPlayer->i,playerNum, weaponNum);
             break;
+        case 12:
+            weaponNum = VM_OnEventWithReturn(EVENT_ALTWEAPON,pPlayer->i,playerNum, weaponNum);
+            break;
         }
 
         // NOTE: it is assumed that the above events return either -1 or a
@@ -2642,6 +2645,22 @@ CHECKINV1:
                         pPlayer->subweapon &= ~(1 << GROW_WEAPON);
                     else if (weaponNum == GROW_WEAPON)
                         pPlayer->subweapon |= (1<<GROW_WEAPON);
+                }
+
+                if (weaponNum == 12)
+                {
+                    switch (pPlayer->curr_weapon)
+                    {
+                        case HANDREMOTE_WEAPON:
+                            weaponNum = HANDBOMB_WEAPON;
+                            break;
+                        case GROW_WEAPON:
+                            weaponNum = SHRINKER_WEAPON;
+                            break;
+                        default:
+                            weaponNum = pPlayer->curr_weapon;
+                            break;
+                    }
                 }
 
                 P_SetWeaponGamevars(playerNum, pPlayer);
