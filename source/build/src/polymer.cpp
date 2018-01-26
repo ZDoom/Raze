@@ -326,11 +326,7 @@ static const _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "\n",
         // frag_prog
 
-        // NOTE: the denominator was 1.024, but we increase it towards a bit
-        // farther far clipoff distance to account for the fact that the
-        // distance to the fragment is the common Euclidean one, as opposed to
-        // the "ortho" distance of Build.
-        "  float shadeLookup = length(horizDistance) / 1.07 * visibility;\n"
+        "  float shadeLookup = length(horizDistance) / 1.024 * visibility;\n"
         "  shadeLookup = shadeLookup + shadeOffset;\n"
         "\n"
         "  float colorIndex = texture2D(artMap, commonTexCoord.st).r * 256.0;\n"
@@ -497,17 +493,15 @@ static const _prprogrambit   prprogrambits[PR_BIT_COUNT] = {
         "  float fragDepth;\n"
         "  float fogFactor;\n"
         "\n"
-        "  fragDepth = gl_FragCoord.z / gl_FragCoord.w / 35.0;\n"
+        "  fragDepth = gl_FragCoord.z / gl_FragCoord.w;\n"
 #ifdef PR_LINEAR_FOG
         "  if (!linearFog) {\n"
 #endif
         "    fragDepth *= fragDepth;\n"
         "    fogFactor = exp2(-gl_Fog.density * gl_Fog.density * fragDepth * 1.442695);\n"
 #ifdef PR_LINEAR_FOG
-        /* 0.65127==150/230, another constant found out by experiment. :/
-         * (150 is Polymost's old FOGDISTCONST.) */
         "  } else {\n"
-        "    fogFactor = gl_Fog.scale * (gl_Fog.end - fragDepth*0.65217);\n"
+        "    fogFactor = gl_Fog.scale * (gl_Fog.end - fragDepth);\n"
         "    fogFactor = clamp(fogFactor, 0.0, 1.0);"
         "  }\n"
 #endif
@@ -4970,7 +4964,7 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
         }
 
         material->shadeoffset = shade;
-        material->visibility = ((uint8_t) (vis+16) / 16.0f);
+        material->visibility = (uint8_t)(vis+16);
 
         // all the stuff below is mutually exclusive with artmapping
         goto done;
@@ -5265,9 +5259,25 @@ static int32_t      polymer_bindmaterial(const _prmaterial *material, int16_t* l
         texunit++;
 
         bglUniform1fARB(prprograms[programbits].uniform_shadeOffset, (GLfloat)material->shadeoffset);
-        // the furthest visible point is the same as Polymost, however the fog in Polymer is a sphere insted of a plane
-        float const visfactor = r_usenewshading == 4 ? 1.f/512.f : 1.f/2048.f;
-        bglUniform1fARB(prprograms[programbits].uniform_visibility, globalvisibility * visfactor * material->visibility);
+        if (r_usenewshading == 4)
+        {
+            // the fog in Polymer is a sphere insted of a plane, the furthest visible point should be the same as Polymost
+            bglUniform1fARB(prprograms[programbits].uniform_visibility, globalvisibility / 262144.f * material->visibility);
+        }
+        else
+        {
+            static constexpr float material_visibility_divisor = 16.f;
+
+            // NOTE: the denominator was 1.024, but we increase it towards a bit
+            // farther far clipoff distance to account for the fact that the
+            // distance to the fragment is the common Euclidean one, as opposed to
+            // the "ortho" distance of Build.
+            static constexpr float factor_new = 1.f / ((2048.f * (1.07f / 1.024f) * (150.f / 230.f) / 35.f) * material_visibility_divisor);
+
+            static constexpr float factor_old = 1.f / ((2048.f * (1.07f / 1.024f) / 35.f) * material_visibility_divisor);
+
+            bglUniform1fARB(prprograms[programbits].uniform_visibility, globalvisibility * material->visibility * r_usenewshading > 1 ? factor_new : factor_old);
+        }
     }
 
     // PR_BIT_DIFFUSE_MAP

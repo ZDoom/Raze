@@ -7950,9 +7950,13 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 # ifdef POLYMER
     case REND_POLYMER:
         if (r_usenewshading == 4)
-            globalvisibility = g_visibility;
+            globalvisibility = g_visibility<<5;
+        else if (r_usenewshading > 1)
+        /* 0.65127==150/230, another constant found out by experiment. :/
+         * (150 is Polymost's old FOGDISTCONST.) */
+            globalvisibility = (g_visibility<<2) * 150 / (230 * 35);
         else
-            globalvisibility = g_visibility<<2;
+            globalvisibility = (g_visibility<<2) / 35;
         break;
 # endif
 #endif

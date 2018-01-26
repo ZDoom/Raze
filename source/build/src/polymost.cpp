@@ -494,7 +494,7 @@ void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
         fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
         fogcol = fogtable[pal];
 
-        if (((uint8_t)(vis + 16)) > 0 && g_visibility > 0)
+        if (((uint8_t)(vis + 16)) > 0 && globalvisibility > 0)
         {
             GLfloat glfogconstant = 262144.f;
             GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
