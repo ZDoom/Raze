@@ -4216,7 +4216,11 @@ skip:
                 if (actor[i].flags & SFLAG_NOFLOORSHADOW)
                     continue;
 
-                if (ud.shadows && spritesortcnt < (maxspritesonscreen-2) && getrendermode() != REND_POLYMER)
+                if (ud.shadows && spritesortcnt < (maxspritesonscreen-2)
+#ifdef POLYMER
+                    && !(getrendermode() == REND_POLYMER && pr_lighting != 0)
+#endif
+                    )
                 {
                     int const shadowZ = ((sector[sect].lotag & 0xff) > 2 || pSprite->statnum == STAT_PROJECTILE ||
                                    pSprite->statnum == STAT_MISC || pSprite->picnum == DRONE || pSprite->picnum == COMMANDER)
