@@ -515,7 +515,27 @@ int32_t Anim_Play(const char *fn)
 
         clearallviews(0);
 
-        rotatesprite_fs(0 << 16, 0 << 16, 65536L, 512, TILE_ANIM, 0, 0, 2 + 4 + 8 + 16 + 64 + BGSTRETCH);
+        int32_t z;
+        if (anim->frameaspect1 > 0 && anim->frameaspect2 > 0 && ((anim->frameaspect1 / anim->frameaspect2) != (tilesiz[TILE_ANIM].y / (tilesiz[TILE_ANIM].x * 1.2))))
+        {
+            int32_t const oyxaspect = yxaspect;
+            if ((anim->frameaspect1 / anim->frameaspect2) >= ((decltype(anim->frameaspect1))xdim / ydim))
+                z = divscale16(320, tilesiz[TILE_ANIM].y);
+            else
+                z = divscale16(lrint(320 * ydim * anim->frameaspect1), lrint(tilesiz[TILE_ANIM].y * xdim * anim->frameaspect2));
+            int32_t aspect = divscale16(lrint(tilesiz[TILE_ANIM].y * anim->frameaspect2), lrint(tilesiz[TILE_ANIM].x * anim->frameaspect1));
+            setaspect(viewingrange, aspect);
+            rotatesprite_fs(160<<16, 100<<16, z, 512, TILE_ANIM, 0, 0, 2|4|8|64|1024);
+            setaspect(viewingrange, oyxaspect);
+        }
+        else
+        {
+            if ((tilesiz[TILE_ANIM].y / (tilesiz[TILE_ANIM].x * 1.2f)) > (1.f * xdim / ydim))
+                z = divscale16(320 * xdim * 3, tilesiz[TILE_ANIM].y * ydim * 4);
+            else
+                z = divscale16(200, tilesiz[TILE_ANIM].x);
+            rotatesprite_fs(160<<16, 100<<16, z, 512, TILE_ANIM, 0, 0, 2|4|8|64);
+        }
 
         g_animPtr = anim;
         i = VM_OnEventWithReturn(EVENT_CUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
