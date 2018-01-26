@@ -118,6 +118,7 @@ enum scripttoken_t
     T_DST_ALPHA, T_ONE_MINUS_DST_ALPHA,
     T_DST_COLOR, T_ONE_MINUS_DST_COLOR,
     T_SHADERED, T_SHADEGREEN, T_SHADEBLUE,
+    T_SHADEFACTOR,
 };
 
 static int32_t lastmodelid = -1, lastvoxid = -1, modelskin = -1, lastmodelskin = -1, seenframe = 0;
@@ -401,6 +402,7 @@ static int32_t defsparser(scriptfile *script)
         { "undefbasepaletterange", T_UNDEFBASEPALETTERANGE },
         { "undefpalookuprange", T_UNDEFPALOOKUPRANGE },
         { "undefblendtablerange", T_UNDEFBLENDTABLERANGE },
+        { "shadefactor",     T_SHADEFACTOR      },
     };
 
     while (1)
@@ -635,6 +637,10 @@ static int32_t defsparser(scriptfile *script)
             if (scriptfile_getnumber(script,&j)) break;
         }
         break;
+        case T_SHADEFACTOR:
+            scriptfile_getnumber(script, &realmaxshade);
+            frealmaxshade = (float)realmaxshade;
+            break;
         case T_ARTFILE:
         {
             char *blockend, *fn = NULL;
