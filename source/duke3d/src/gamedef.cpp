@@ -1247,6 +1247,8 @@ const memberlabel_t UserdefsLabels[]=
     { "global_r",               USERDEFS_GLOBAL_R,               0, 0 },
     { "global_g",               USERDEFS_GLOBAL_G,               0, 0 },
     { "global_b",               USERDEFS_GLOBAL_B,               0, 0 },
+    { "default_volume",         USERDEFS_DEFAULT_VOLUME,         0, 0 },
+    { "default_skill",          USERDEFS_DEFAULT_SKILL,          0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 

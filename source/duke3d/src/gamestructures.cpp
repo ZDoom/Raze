@@ -188,6 +188,8 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_GLOBAL_R: labelNum = globalr; break;
         case USERDEFS_GLOBAL_G: labelNum = globalg; break;
         case USERDEFS_GLOBAL_B: labelNum = globalb; break;
+        case USERDEFS_DEFAULT_VOLUME: labelNum = ud.default_volume; break;
+        case USERDEFS_DEFAULT_SKILL: labelNum = ud.default_skill; break;
         default: labelNum = -1; break;
     }
 
@@ -326,6 +328,8 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_GLOBAL_R: globalr = iSet; break;
         case USERDEFS_GLOBAL_G: globalg = iSet; break;
         case USERDEFS_GLOBAL_B: globalb = iSet; break;
+        case USERDEFS_DEFAULT_VOLUME: ud.default_volume = iSet; break;
+        case USERDEFS_DEFAULT_SKILL: ud.default_skill = iSet; break;
         default: break;
     }
 }

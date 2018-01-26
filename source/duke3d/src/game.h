@@ -179,6 +179,9 @@ typedef struct {
     int32_t playerbest;
 
     int32_t configversion, bgstretch;
+
+    int32_t default_volume, default_skill;
+
 #if !defined LUNATIC
     int16_t cameraang, camerasect, camerahoriz;
 #endif

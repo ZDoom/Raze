@@ -254,6 +254,7 @@ void CONFIG_SetDefaults(void)
     ud.screenfade = 1;
     ud.menubackground = 1;
     ud.hudontop = 0;
+    ud.default_skill = 1;
 
     ud.config.CheckForUpdates = 1;
 
