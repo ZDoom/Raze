@@ -96,6 +96,7 @@ enum LogoFlags_t {
     LOGO_STOPMISCSOUNDS    = 0x00200000,
     LOGO_NOGAMETITLE       = 0x00400000,
     LOGO_NOTITLEBAR        = 0x00800000,
+    LOGO_HIDEEPISODE       = 0x01000000,
 };
 
 enum {
