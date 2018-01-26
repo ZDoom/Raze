@@ -1240,6 +1240,9 @@ const memberlabel_t UserdefsLabels[]=
     { "statusbarrange",         USERDEFS_STATUSBARRANGE,         0, 0 },
     { "statusbarcustom",        USERDEFS_STATUSBARCUSTOM,        0, 0 },
     { "hudontop",               USERDEFS_HUDONTOP,               0, 0 },
+    { "menu_slidebarz",         USERDEFS_MENU_SLIDEBARZ,         0, 0 },
+    { "menu_slidebarmargin",    USERDEFS_MENU_SLIDEBARMARGIN,    0, 0 },
+    { "menu_slidecursorz",      USERDEFS_MENU_SLIDECURSORZ,      0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 

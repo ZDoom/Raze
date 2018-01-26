@@ -182,6 +182,9 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_STATUSBARRANGE: labelNum = ud.statusbarrange; break;
         case USERDEFS_STATUSBARCUSTOM: labelNum = ud.statusbarcustom; break;
         case USERDEFS_HUDONTOP: labelNum = ud.hudontop; break;
+        case USERDEFS_MENU_SLIDEBARZ: labelNum = ud.menu_slidebarz; break;
+        case USERDEFS_MENU_SLIDEBARMARGIN: labelNum = ud.menu_slidebarmargin; break;
+        case USERDEFS_MENU_SLIDECURSORZ: labelNum = ud.menu_slidecursorz; break;
         default: labelNum = -1; break;
     }
 
@@ -314,6 +317,9 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_STATUSBARRANGE: ud.statusbarrange = iSet; break;
         case USERDEFS_STATUSBARCUSTOM: ud.statusbarcustom = iSet; break;
         case USERDEFS_HUDONTOP: ud.hudontop = iSet; break;
+        case USERDEFS_MENU_SLIDEBARZ: ud.menu_slidebarz = iSet; break;
+        case USERDEFS_MENU_SLIDEBARMARGIN: ud.menu_slidebarmargin = iSet; break;
+        case USERDEFS_MENU_SLIDECURSORZ: ud.menu_slidecursorz = iSet; break;
         default: break;
     }
 }
