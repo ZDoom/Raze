@@ -1213,9 +1213,9 @@ ACTOR_STATIC void G_MovePlayers(void)
                     // NOTE: Compare with G_MoveTransports().
                     pPlayer->on_warping_sector = 1;
 
-                    if (((sectorLotag == ST_1_ABOVE_WATER) ?
+                    if ((sectorLotag == ST_1_ABOVE_WATER ?
                         P_Submerge(spriteNum, P_GetP(pSprite), pPlayer, playerSectnum, otherSector) :
-                        P_Emerge(spriteNum, P_GetP(pSprite), pPlayer, playerSectnum, otherSector) == 1))
+                        P_Emerge(spriteNum, P_GetP(pSprite), pPlayer, playerSectnum, otherSector)) == 1)
                         P_FinishWaterChange(spriteNum, pPlayer, sectorLotag, -1, otherSector);
                 }
 #endif
@@ -1555,7 +1555,7 @@ ACTOR_STATIC void G_MoveFallers(void)
 
                 if ((sector[sectNum].floorz-pSprite->z) < ZOFFSET2)
                 {
-                    for (bssize_t x=0; x<1+(krand()&7); ++x)
+                    for (size_t x = 0, x_end = 1+(krand()&7); x < x_end; ++x)
                         RANDOMSCRAP(pSprite, spriteNum);
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
                 }
