@@ -1022,26 +1022,6 @@ static inline int32_t texta(int32_t t)
     return 255 - clamp(t<<3, 0, 255);
 }
 
-static FORCE_INLINE int32_t text_fragbarheight(void)
-{
-    if (GTFLAGS(GAMETYPE_FRAGBAR) && ud.screen_size > 0
-#ifdef SPLITSCREEN_MOD_HACKS
-        && !g_fakeMultiMode
-#endif
-        && (g_netServer || ud.multimode > 1))
-    {
-        int32_t i, j = 0;
-
-        for (TRAVERSE_CONNECT(i))
-            if (i > j)
-                j = i;
-
-        return ((j & ~3) + 4) << 17; // ((j / 4 + 1) * 8) << 16
-    }
-
-    return 0;
-}
-
 static FORCE_INLINE int32_t text_ypos(void)
 {
     if (ud.hudontop == 1 && ud.screen_size == 4 && ud.althud == 1)
