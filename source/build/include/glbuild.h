@@ -24,6 +24,9 @@
 # include <OpenGL/glu.h>
 #elif defined EDUKE32_IOS
 # include <OpenGLES/ES1/gl.h>
+#elif defined EDUKE32_GLES
+# include <SDL2/SDL_opengles.h>
+# include <SDL2/SDL_opengl_glext.h>
 #else
 # include <GL/gl.h>
 # include <GL/glu.h>

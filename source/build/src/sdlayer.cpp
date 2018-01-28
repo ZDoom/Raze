@@ -1593,7 +1593,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             int32_t value;
         } sdlayer_gl_attributes[] =
         {
-#ifdef EDUKE32_TOUCH_DEVICES
+#ifdef EDUKE32_GLES
               { SDL_GL_CONTEXT_MAJOR_VERSION, 1 },
               { SDL_GL_CONTEXT_MINOR_VERSION, 1 },
 #endif
