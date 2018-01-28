@@ -569,13 +569,13 @@ void G_OperateSectors(int sectNum, int spriteNum)
         if (GetAnimationGoal(&pSector->ceilingz) == -1) //if the door has stopped
         {
             g_haltSoundHack = 1;
-            pSector->lotag &= 0xff00;
+            pSector->lotag &= 0xFF00u;
             pSector->lotag |= ST_22_SPLITTING_DOOR;
             G_OperateSectors(sectNum,spriteNum);
-            pSector->lotag &= 0xff00;
+            pSector->lotag &= 0xFF00u;
             pSector->lotag |= ST_9_SLIDING_ST_DOOR;
             G_OperateSectors(sectNum,spriteNum);
-            pSector->lotag &= 0xff00;
+            pSector->lotag &= 0xFF00u;
             pSector->lotag |= ST_26_SPLITTING_ST_DOOR;
         }
         return;
@@ -767,7 +767,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
 
         A_CallSound(sectNum, spriteNum);
 
-        pSector->lotag ^= 0x8000;
+        pSector->lotag ^= 0x8000u;
 
         if (pSector->lotag&0x8000)
         {
@@ -823,7 +823,7 @@ REDODOOR:
             }
         }
 
-        pSector->lotag ^= 0x8000;
+        pSector->lotag ^= 0x8000u;
 
         SetAnimation(sectNum,&pSector->ceilingz,j,pSector->extra);
         A_CallSound(sectNum,spriteNum);
@@ -844,7 +844,7 @@ REDODOOR:
                 j = sector[nextsectorneighborz(sectNum,pSector->ceilingz,1,1)].floorz;
             else j = pSector->ceilingz;
 
-            pSector->lotag ^= 0x8000;
+            pSector->lotag ^= 0x8000u;
 
             if (SetAnimation(sectNum,&pSector->floorz,j,pSector->extra) >= 0)
                 A_CallSound(sectNum,spriteNum);
@@ -874,11 +874,11 @@ REDODOOR:
             {
                 OSD_Printf("WARNING: ST_22_SPLITTING_DOOR: null sector: floor neighbor=%d, ceiling neighbor=%d!\n",
                            floorNeighbor, ceilingNeighbor);
-                pSector->lotag ^= 0x8000;
+                pSector->lotag ^= 0x8000u;
             }
         }
 
-        pSector->lotag ^= 0x8000;
+        pSector->lotag ^= 0x8000u;
 
         A_CallSound(sectNum,spriteNum);
 
@@ -909,7 +909,7 @@ REDODOOR:
                     if (tag == (sector[SECT(i)].lotag&0x8000) && SLT(i) == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT(i) && !T5(i))
                     {
                         if (sector[SECT(i)].lotag&0x8000) sector[SECT(i)].lotag &= 0x7fff;
-                        else sector[SECT(i)].lotag |= 0x8000;
+                        else sector[SECT(i)].lotag |= 0x8000u;
 
                         T5(i) = 1;
                         T4(i) = -T4(i);
@@ -939,7 +939,7 @@ REDODOOR:
             {
                 if (SLT(i) == SE_15_SLIDING_DOOR)
                 {
-                    sector[SECT(i)].lotag ^= 0x8000; // Toggle the open or close
+                    sector[SECT(i)].lotag ^= 0x8000u; // Toggle the open or close
                     SA(i) += 1024;
 
                     if (T5(i))
@@ -957,7 +957,7 @@ REDODOOR:
         for (SPRITES_OF(STAT_EFFECTOR, j))
             if ((sprite[j].lotag&0xff)==SE_20_STRETCH_BRIDGE && sprite[j].sectnum == sectNum)  //Bridge
             {
-                sector[sectNum].lotag ^= 0x8000;
+                sector[sectNum].lotag ^= 0x8000u;
                 // Highest bit now set means we're opening.
 
                 actor[j].t_data[0] = (sector[sectNum].lotag&0x8000) ? 1 : 2;

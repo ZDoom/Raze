@@ -4790,8 +4790,8 @@ DETONATEB:
                     case SECTOREFFECTOR__STATIC:
                         if (sprite[j].lotag == 1)
                         {
-                            sprite[j].lotag = 65535;
-                            sprite[j].hitag = 65535;
+                            sprite[j].lotag = 65535u;
+                            sprite[j].hitag = 65535u;
                         }
                         break;
                     case REACTOR__STATIC:
