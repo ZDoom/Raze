@@ -261,7 +261,7 @@ static int32_t VM_CheckSquished(void)
 #endif
 
     if (vm.pSprite->pal == 1 ?
-        (floorZ - ceilZ >= ZOFFSET5 || (pSector->lotag & INT16_32768)) :
+        (floorZ - ceilZ >= ZOFFSET5 || (pSector->lotag & 32768u)) :
         (floorZ - ceilZ >= ZOFFSET4))
     return 0;
 
@@ -3692,7 +3692,7 @@ nullquote:
 
                 if (foundSect >= 0 && isanearoperator(sector[foundSect].lotag))
                     if ((sector[foundSect].lotag&0xff) == ST_23_SWINGING_DOOR || sector[foundSect].floorz == sector[foundSect].ceilingz)
-                        if ((sector[foundSect].lotag&(int16_t)(16384|INT16_32768)) == 0)
+                        if ((sector[foundSect].lotag&(16384u|32768u)) == 0)
                         {
                             int32_t j;
 

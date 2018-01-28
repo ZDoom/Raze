@@ -818,7 +818,7 @@ REDODOOR:
             if (j >= 0) j = sector[j].ceilingz;
             else
             {
-                pSector->lotag |= INT16_32768;
+                pSector->lotag |= 32768u;
                 goto REDODOOR;
             }
         }

@@ -1046,7 +1046,7 @@ static void prelevel(char g)
         case ST_20_CEILING_DOOR:
         case ST_22_SPLITTING_DOOR:
             if (sector[i].floorz > sector[i].ceilingz)
-                sector[i].lotag |= INT16_32768;
+                sector[i].lotag |= 32768u;
             continue;
         }
 

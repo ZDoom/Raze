@@ -3120,7 +3120,7 @@ int A_Spawn(int spriteNum, int tileNum)
             case SE_9_DOWN_OPEN_DOOR_LIGHTS:
                 if (sector[sectNum].lotag &&
                         labs(sector[sectNum].ceilingz-pSprite->z) > 1024)
-                    sector[sectNum].lotag |= INT16_32768; //If its open
+                    sector[sectNum].lotag |= 32768u; //If its open
                 fallthrough__;
             case SE_8_UP_OPEN_DOOR_LIGHTS:
                 //First, get the ceiling-floor shade
