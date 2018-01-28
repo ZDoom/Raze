@@ -5284,7 +5284,7 @@ HORIZONLY:;
 
         if (squishPlayer || klabs(actor[pPlayer->i].floorz-actor[pPlayer->i].ceilingz) < (48<<8))
         {
-            if (!(sector[pSprite->sectnum].lotag & 0x8000) &&
+            if (!(sector[pSprite->sectnum].lotag & 0x8000u) &&
                 (isanunderoperator(sector[pSprite->sectnum].lotag) || isanearoperator(sector[pSprite->sectnum].lotag)))
                 G_ActivateBySector(pSprite->sectnum, pPlayer->i);
 

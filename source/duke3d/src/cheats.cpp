@@ -587,7 +587,7 @@ void G_DoCheats(void)
                         if (lotag == -1 || lotag == 32767) continue;
                         if ((lotag & 0x7fff) > 2)
                         {
-                            if (lotag&(0xffff-16384))
+                            if (lotag & (uint16_t)~16384u)
                                 sector[i].lotag &= (uint16_t)~16384u;
                             G_OperateSectors(i, pPlayer->i);
                         }

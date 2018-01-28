@@ -540,7 +540,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
     int32_t i;
     sectortype *const pSector = &sector[sectNum];
 
-    switch (pSector->lotag&(0xffff-49152))
+    switch (pSector->lotag & (uint16_t)~49152u)
     {
     case ST_30_ROTATE_RISE_BRIDGE:
         j = sector[sectNum].hitag;
@@ -769,7 +769,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
 
         pSector->lotag ^= 0x8000u;
 
-        if (pSector->lotag&0x8000)
+        if (pSector->lotag & 0x8000u)
         {
             j = nextsectorneighborz(sectNum,pSector->ceilingz,-1,-1);
             if (j == -1) j = nextsectorneighborz(sectNum,pSector->ceilingz,1,1);
@@ -799,7 +799,7 @@ void G_OperateSectors(int sectNum, int spriteNum)
     case ST_20_CEILING_DOOR:
 REDODOOR:
 
-        if (pSector->lotag&0x8000)
+        if (pSector->lotag & 0x8000u)
         {
             for (SPRITES_OF_SECT(sectNum, i))
                 if (sprite[i].statnum == STAT_EFFECTOR && SLT(i)==SE_9_DOWN_OPEN_DOOR_LIGHTS)
@@ -853,7 +853,7 @@ REDODOOR:
 
     case ST_22_SPLITTING_DOOR:
 
-        if (pSector->lotag&0x8000)
+        if (pSector->lotag & 0x8000u)
         {
             // WTF?
             int const q = (pSector->ceilingz + pSector->floorz) >> 1;
@@ -898,7 +898,7 @@ REDODOOR:
             if (i < 0)
                 return;
 
-            int const tag = sector[SECT(i)].lotag&0x8000;
+            uint16_t const tag = sector[SECT(i)].lotag & 0x8000u;
 
             if (j >= 0)
             {
@@ -906,9 +906,9 @@ REDODOOR:
 
                 for (SPRITES_OF(STAT_EFFECTOR, i))
                 {
-                    if (tag == (sector[SECT(i)].lotag&0x8000) && SLT(i) == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT(i) && !T5(i))
+                    if (tag == (sector[SECT(i)].lotag & 0x8000u) && SLT(i) == SE_11_SWINGING_DOOR && sprite[j].hitag == SHT(i) && !T5(i))
                     {
-                        if (sector[SECT(i)].lotag&0x8000) sector[SECT(i)].lotag &= 0x7fff;
+                        if (sector[SECT(i)].lotag & 0x8000u) sector[SECT(i)].lotag &= 0x7fff;
                         else sector[SECT(i)].lotag |= 0x8000u;
 
                         T5(i) = 1;
@@ -946,7 +946,7 @@ REDODOOR:
                         A_CallSound(SECT(i),i);
                     A_CallSound(SECT(i),i);
 
-                    T5(i) = (sector[SECT(i)].lotag&0x8000) ? 1 : 2;
+                    T5(i) = (sector[SECT(i)].lotag & 0x8000u) ? 1 : 2;
                 }
             }
 
@@ -960,7 +960,7 @@ REDODOOR:
                 sector[sectNum].lotag ^= 0x8000u;
                 // Highest bit now set means we're opening.
 
-                actor[j].t_data[0] = (sector[sectNum].lotag&0x8000) ? 1 : 2;
+                actor[j].t_data[0] = (sector[sectNum].lotag & 0x8000u) ? 1 : 2;
                 A_CallSound(sectNum,spriteNum);
                 break;
             }

@@ -6449,7 +6449,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (animGoal >= 0)
             {
-                int shadeInc = ((pSector->lotag & 0x8000) || actor[spriteNum].t_data[4]) ? -pData[3] : pData[3];
+                int shadeInc = ((pSector->lotag & 0x8000u) || actor[spriteNum].t_data[4]) ? -pData[3] : pData[3];
 
                 if (spriteLotag == SE_9_DOWN_OPEN_DOOR_LIGHTS)
                     shadeInc = -shadeInc;
@@ -6499,7 +6499,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         case SE_10_DOOR_AUTO_CLOSE:
             // XXX: 32791, what the hell?
-            if ((pSector->lotag&0xff) == ST_27_STRETCH_BRIDGE || (pSector->floorz > pSector->ceilingz && (pSector->lotag&0xff) != ST_23_SWINGING_DOOR) || pSector->lotag == (int16_t)32791)
+            if ((pSector->lotag&0xff) == ST_27_STRETCH_BRIDGE || (pSector->floorz > pSector->ceilingz && (pSector->lotag&0xff) != ST_23_SWINGING_DOOR) || pSector->lotag == (int16_t)32791u)
             {
                 j = 1;
 
