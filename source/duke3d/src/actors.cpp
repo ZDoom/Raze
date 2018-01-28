@@ -2300,7 +2300,56 @@ DETONATE:
                     break;
 
                 case SIDEBOLT1__STATIC:
+                    //        case SIDEBOLT1+1:
+                    //        case SIDEBOLT1+2:
+                    //        case SIDEBOLT1+3:
+                {
+                    int32_t playerDist;
+                    A_FindPlayer(pSprite, &playerDist);
+                    if (playerDist > 20480)
+                        goto next_sprite;
+
+                CLEAR_THE_BOLT2:
+                    if (pData[2])
+                    {
+                        pData[2]--;
+                        goto next_sprite;
+                    }
+                    if ((pSprite->xrepeat | pSprite->yrepeat) == 0)
+                    {
+                        pSprite->xrepeat = pData[0];
+                        pSprite->yrepeat = pData[1];
+                    }
+                    if ((krand() & 8) == 0)
+                    {
+                        pData[0]         = pSprite->xrepeat;
+                        pData[1]         = pSprite->yrepeat;
+                        pData[2]         = g_globalRandom & 4;
+                        pSprite->xrepeat = pSprite->yrepeat = 0;
+                        goto CLEAR_THE_BOLT2;
+                    }
+                    pSprite->picnum++;
+
+#if 0
+                    // NOTE: Um, this 'l' was assigned to last at the beginning of this function.
+                    // SIDEBOLT1 never gets translucent as a consequence, unlike BOLT1.
+                    if (randomRepeat & 1)
+                        pSprite->cstat ^= 2;
+#endif
+
+                    if ((krand() & 1) && sector[sectNum].floorpicnum == HURTRAIL)
+                        A_PlaySound(SHORT_CIRCUIT, spriteNum);
+
+                    if (pSprite->picnum == SIDEBOLT1 + 4)
+                        pSprite->picnum = SIDEBOLT1;
+
+                    goto next_sprite;
+                }
+
                 case BOLT1__STATIC:
+                    //        case BOLT1+1:
+                    //        case BOLT1+2:
+                    //        case BOLT1+3:
                 {
                     int32_t playerDist;
                     A_FindPlayer(pSprite, &playerDist);
@@ -2314,11 +2363,8 @@ DETONATE:
                     if (pData[2])
                     {
                         pData[2]--;
-                        if (DYNAMICTILEMAP(switchPic) == BOLT1__STATIC)
-                        {
-                            sector[sectNum].floorshade   = 20;
-                            sector[sectNum].ceilingshade = 20;
-                        }
+                        sector[sectNum].floorshade   = 20;
+                        sector[sectNum].ceilingshade = 20;
                         goto next_sprite;
                     }
                     if ((pSprite->xrepeat | pSprite->yrepeat) == 0)
@@ -2342,29 +2388,23 @@ DETONATE:
                     if (randomRepeat & 1)
                         pSprite->cstat ^= 2;
 
-                    if ((pSprite->picnum == (BOLT1 + 1) || pSprite->picnum == (SIDEBOLT1 + 1))
+                    if (pSprite->picnum == (BOLT1 + 1)
                         && (krand() & 7) == 0 && sector[sectNum].floorpicnum == HURTRAIL)
                         A_PlaySound(SHORT_CIRCUIT, spriteNum);
 
-                    if (DYNAMICTILEMAP(switchPic) == BOLT1__STATIC)
+                    if (pSprite->picnum == BOLT1 + 4)
+                        pSprite->picnum = BOLT1;
+
+                    if (pSprite->picnum & 1)
                     {
-                        if (pSprite->picnum == BOLT1 + 4)
-                            pSprite->picnum = BOLT1;
-
-                        if (pSprite->picnum & 1)
-                        {
-                            sector[sectNum].floorshade   = 0;
-                            sector[sectNum].ceilingshade = 0;
-                        }
-                        else
-                        {
-                            sector[sectNum].floorshade   = 20;
-                            sector[sectNum].ceilingshade = 20;
-                        }
+                        sector[sectNum].floorshade   = 0;
+                        sector[sectNum].ceilingshade = 0;
                     }
-                    else if (pSprite->picnum == SIDEBOLT1 + 4)
-                        pSprite->picnum = SIDEBOLT1;
-
+                    else
+                    {
+                        sector[sectNum].floorshade   = 20;
+                        sector[sectNum].ceilingshade = 20;
+                    }
                     goto next_sprite;
                 }
 
