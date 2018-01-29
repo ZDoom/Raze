@@ -380,6 +380,7 @@ static tokenmap_t const vm_keywords[] =
     { "precache",               CON_PRECACHE },
     { "prevspritesect",         CON_PREVSPRITESECT },
     { "prevspritestat",         CON_PREVSPRITESTAT },
+    { "preloadtrackslotforswap", CON_PRELOADTRACKSLOTFORSWAP },
     { "pstomp",                 CON_PSTOMP },
     { "qgetsysstr",             CON_QGETSYSSTR },
     { "qspawnvar",              CON_QSPAWNVAR },
@@ -492,6 +493,7 @@ static tokenmap_t const vm_keywords[] =
     { "subvar",                 CON_SUBVAR },
     { "subvarvar",              CON_SUBVARVAR },
     { "switch",                 CON_SWITCH },
+    { "swaptrackslot",          CON_SWAPTRACKSLOT },
     { "time",                   CON_TIME },
     { "tip",                    CON_TIP },
     { "tossweapon",             CON_TOSSWEAPON },
@@ -4205,6 +4207,8 @@ DO_DEFSTATE:
         case CON_ACTORSOUND:
         case CON_STOPACTORSOUND:
         case CON_STARTTRACKSLOT:
+        case CON_SWAPTRACKSLOT:
+        case CON_PRELOADTRACKSLOTFORSWAP:
             C_GetManyVars(2);
             continue;
 

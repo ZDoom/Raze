@@ -1146,11 +1146,16 @@ static int G_StartTrackSlot(int const volumeNum, int const levelNum)
 }
 
 #ifndef LUNATIC
-static void G_StartTrackSlotWrap(int const volumeNum, int const levelNum)
+static int G_StartTrackSlotWrap(int const volumeNum, int const levelNum)
 {
     if (EDUKE32_PREDICT_FALSE(G_StartTrackSlot(volumeNum, levelNum)))
+    {
         CON_ERRPRINTF("invalid level %d or null music for volume %d level %d\n",
                       levelNum, volumeNum, levelNum);
+        return 1;
+    }
+
+    return 0;
 }
 #else
 int G_StartTrack(int const levelNum)
@@ -5052,6 +5057,29 @@ finish_qsprintf:
                 int const levelNum = Gv_GetVarX(*(insptr++));
                 G_StartTrackSlotWrap(volumeNum == -1 ? MAXVOLUMES : volumeNum, levelNum);
             }
+            continue;
+
+        case CON_SWAPTRACKSLOT:
+            insptr++;
+            {
+                int const volumeNum = Gv_GetVarX(*(insptr++));
+                int const levelNum = Gv_GetVarX(*(insptr++));
+
+                if (volumeNum == ud.music_episode && levelNum == ud.music_level)
+                    continue;
+
+                // This is the best ASS can do right now. Better implementation pending.
+                int32_t position = S_GetMusicPosition();
+                if (!G_StartTrackSlotWrap(volumeNum == -1 ? MAXVOLUMES : volumeNum, levelNum))
+                    S_SetMusicPosition(position);
+            }
+            continue;
+
+        case CON_PRELOADTRACKSLOTFORSWAP:
+            // ASS can't even handle this command right now.
+            insptr++;
+            Gv_GetVarX(*(insptr++));
+            Gv_GetVarX(*(insptr++));
             continue;
 
         case CON_SETMUSICPOSITION:

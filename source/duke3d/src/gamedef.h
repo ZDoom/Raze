@@ -1208,6 +1208,8 @@ enum ScriptKeywords_t
     CON_QSTRCMP,            // 411
     CON_DIVR,               // 412
     CON_DIVRU,              // 413
+    CON_SWAPTRACKSLOT,      // 414
+    CON_PRELOADTRACKSLOTFORSWAP, // 415
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua
