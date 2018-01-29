@@ -256,6 +256,9 @@ corrupt:
 
 static void sv_postudload();
 
+// hack
+static int different_user_map;
+
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(savebrief_t & sv)
 {
@@ -309,6 +312,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     // NOTE: Bmemcpy needed for SAVEGAME_MUSIC.
     EDUKE32_STATIC_ASSERT(sizeof(boardfilename) == sizeof(h.boardfn));
+    different_user_map = strcmp(boardfilename, h.boardfn);
     Bmemcpy(boardfilename, h.boardfn, sizeof(boardfilename));
 
     const int mapIdx = h.volnum*MAXLEVELS + h.levnum;
@@ -1356,17 +1360,6 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
     EDUKE32_STATIC_ASSERT(BSZ == sizeof(currentboardfilename));
     Bstrncpy(h.boardfn, currentboardfilename, BSZ);
 
-    if (currentboardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
-    {
-        // Shoehorn currently playing music into last bytes of board name buffer.
-        // SAVEGAME_MUSIC.
-        if (g_musicIndex != (0*MAXLEVELS+7) && Bstrlen(h.boardfn) < BSZ-2)
-        {
-            h.boardfn[BSZ-2] = g_musicIndex / MAXLEVELS;
-            h.boardfn[BSZ-1] = g_musicIndex % MAXLEVELS;
-        }
-    }
-
     if (spot >= 0)
     {
         // savegame
@@ -2150,37 +2143,27 @@ static void postloadplayer(int32_t savegamep)
     //2.5
     if (savegamep)
     {
-        int32_t musicIdx = (ud.volume_number*MAXLEVELS) + ud.level_number;
+        int32_t musicIdx = (ud.music_episode*MAXLEVELS) + ud.music_level;
 
         Bmemset(gotpic, 0, sizeof(gotpic));
         S_ClearSoundLocks();
         G_CacheMapData();
 
-        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0)
+        if (boardfilename[0] != 0 && ud.level_number == 7 && ud.volume_number == 0 && ud.music_level == 7 && ud.music_episode == 0)
         {
-            const uint32_t BSZ = sizeof(boardfilename);
             char levname[BMAX_PATH];
-
             G_SetupFilenameBasedMusic(levname, boardfilename, ud.level_number);
+        }
 
-            // Potentially extract the custom music volume/level from
-            // boardfilename[] stored with SAVEGAME_MUSIC.
-            if (Bstrlen(boardfilename) < BSZ-2)
-            {
-                int32_t mi = MAXLEVELS*boardfilename[BSZ-2] + boardfilename[BSZ-1];
-
-                if (mi != 0 && (unsigned)mi < MUS_FIRST_SPECIAL)
-                    musicIdx = mi;
-            }
+        if (g_mapInfo[musicIdx].musicfn != NULL && (musicIdx != g_musicIndex || different_user_map))
+        {
+            ud.music_episode = g_musicIndex / MAXLEVELS;
+            ud.music_level   = g_musicIndex % MAXLEVELS;
+            S_PlayLevelMusicOrNothing(musicIdx);
         }
 
         if (ud.config.MusicToggle)
-        {
-            if (g_mapInfo[musicIdx].musicfn != NULL && musicIdx != g_musicIndex)
-                S_PlayLevelMusicOrNothing(musicIdx);
-
             S_PauseMusic(0);
-        }
 
         g_player[myconnectindex].ps->gm = MODE_GAME;
         ud.recstat = 0;

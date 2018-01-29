@@ -268,6 +268,13 @@ static int32_t S_PlayMusic(const char *fn)
     return 0;
 }
 
+static void S_SetMusicIndex(unsigned int m)
+{
+    g_musicIndex = m;
+    ud.music_episode = m / MAXLEVELS;
+    ud.music_level   = m % MAXLEVELS;
+}
+
 int S_TryPlayLevelMusic(unsigned int m)
 {
     char const * musicfn = g_mapInfo[m].musicfn;
@@ -275,7 +282,7 @@ int S_TryPlayLevelMusic(unsigned int m)
     {
         if (!S_PlayMusic(musicfn))
         {
-            g_musicIndex = m;
+            S_SetMusicIndex(m);
             return 0;
         }
     }
@@ -288,7 +295,7 @@ void S_PlayLevelMusicOrNothing(unsigned int m)
     if (S_TryPlayLevelMusic(m))
     {
         S_StopMusic();
-        g_musicIndex = m;
+        S_SetMusicIndex(m);
     }
 }
 
@@ -299,7 +306,7 @@ int S_TryPlaySpecialMusic(unsigned int m)
     {
         if (!S_PlayMusic(musicfn))
         {
-            g_musicIndex = m;
+            S_SetMusicIndex(m);
             return 0;
         }
     }
@@ -312,7 +319,7 @@ void S_PlaySpecialMusicOrNothing(unsigned int m)
     if (S_TryPlaySpecialMusic(m))
     {
         S_StopMusic();
-        g_musicIndex = m;
+        S_SetMusicIndex(m);
     }
 }
 
