@@ -100,6 +100,7 @@ int S_TryPlayLevelMusic(unsigned int);
 void S_PlayLevelMusicOrNothing(unsigned int);
 int S_TryPlaySpecialMusic(unsigned int);
 void S_PlaySpecialMusicOrNothing(unsigned int);
+void S_ContinueLevelMusic(void);
 int32_t S_PlaySound(int32_t num);
 int32_t S_PlaySound3D(int32_t num,int32_t i,const vec3_t *pos);
 void S_SoundShutdown(void);

@@ -2161,6 +2161,8 @@ static void postloadplayer(int32_t savegamep)
             ud.music_level   = g_musicIndex % MAXLEVELS;
             S_PlayLevelMusicOrNothing(musicIdx);
         }
+        else
+            S_ContinueLevelMusic();
 
         if (ud.config.MusicToggle)
             S_PauseMusic(0);

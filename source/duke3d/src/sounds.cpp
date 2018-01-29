@@ -277,6 +277,17 @@ static void S_SetMusicIndex(unsigned int m)
 
 int S_TryPlayLevelMusic(unsigned int m)
 {
+    auto m_volume_number = ud.m_volume_number;
+    auto m_level_number  = ud.m_level_number;
+    ud.m_volume_number = m / MAXLEVELS;
+    ud.m_level_number  = m % MAXLEVELS;
+    int retval = VM_OnEvent(EVENT_PLAYLEVELMUSICSLOT, g_player[myconnectindex].ps->i, myconnectindex);
+    ud.m_volume_number = m_volume_number;
+    ud.m_level_number  = m_level_number;
+
+    if (retval < 0)
+        return 0;
+
     char const * musicfn = g_mapInfo[m].musicfn;
     if (musicfn != NULL)
     {
@@ -321,6 +332,11 @@ void S_PlaySpecialMusicOrNothing(unsigned int m)
         S_StopMusic();
         S_SetMusicIndex(m);
     }
+}
+
+void S_ContinueLevelMusic(void)
+{
+    VM_OnEvent(EVENT_CONTINUELEVELMUSICSLOT, g_player[myconnectindex].ps->i, myconnectindex);
 }
 
 int32_t S_GetMusicPosition(void)

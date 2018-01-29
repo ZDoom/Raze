@@ -1942,6 +1942,10 @@ int G_EnterLevel(int gameMode)
         {
             S_PlayLevelMusicOrNothing(mii);
         }
+        else
+        {
+            S_ContinueLevelMusic();
+        }
     }
 
     if (gameMode & (MODE_GAME|MODE_EOL))
