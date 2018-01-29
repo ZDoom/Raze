@@ -1813,6 +1813,13 @@ void Menu_Init(void)
         // prepare credits
         M_CREDITS.title = M_CREDITS2.title = M_CREDITS3.title = s_Credits;
     }
+
+    if (G_GetLogoFlags() & LOGO_NOHELP)
+        MEL_MAIN[3] = MEL_MAIN_INGAME[4] = nullptr;
+#ifndef EDUKE32_SIMPLE_MENU
+    if (G_GetLogoFlags() & LOGO_NOCREDITS)
+        MEL_MAIN[4] = nullptr;
+#endif
 }
 
 static void Menu_Run(Menu_t *cm, vec2_t origin);
