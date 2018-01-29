@@ -1362,11 +1362,6 @@ static void prelevel(char g)
 }
 
 
-static inline int G_HaveUserMap(void)
-{
-    return (boardfilename[0] != 0 && ud.m_level_number == 7 && ud.m_volume_number == 0);
-}
-
 void G_NewGame(int volumeNum, int levelNum, int skillNum)
 {
     DukePlayer_t *const pPlayer = g_player[0].ps;
@@ -1402,7 +1397,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     g_lastusersave.reset();
     g_quickload = nullptr;
 
-    int const UserMap = G_HaveUserMap();
+    int const UserMap = Menu_HaveUserMap();
 
     // we don't want the intro to play after the multiplayer setup screen
     if ((!g_netServer && ud.multimode < 2) && UserMap == 0 &&
@@ -1828,7 +1823,7 @@ int G_EnterLevel(int gameMode)
         setgamemode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP);
     }
 
-    if (G_HaveUserMap())
+    if (Menu_HaveUserMap())
     {
         Bcorrectfilename(boardfilename,0);
 
@@ -1852,7 +1847,7 @@ int G_EnterLevel(int gameMode)
 
     if (g_mapInfo[mii].name == NULL || g_mapInfo[mii].filename == NULL)
     {
-        if (G_HaveUserMap())
+        if (Menu_HaveUserMap())
         {
             if (g_mapInfo[mii].filename == NULL)
                 g_mapInfo[mii].filename = (char *)Xcalloc(BMAX_PATH, sizeof(uint8_t));
@@ -1874,7 +1869,7 @@ int G_EnterLevel(int gameMode)
 
     ud.screen_size = i;
 
-    if (G_HaveUserMap())
+    if (Menu_HaveUserMap())
     {
         if (g_gameNamePtr)
 #ifdef EDUKE32_STANDALONE
@@ -1902,7 +1897,7 @@ int G_EnterLevel(int gameMode)
 
     DukePlayer_t *const pPlayer = g_player[0].ps;
 
-    if (!VOLUMEONE && G_HaveUserMap())
+    if (!VOLUMEONE && Menu_HaveUserMap())
     {
         if (loadboard(boardfilename, 0, &pPlayer->pos, &pPlayer->ang, &pPlayer->cursectnum) < 0)
         {
@@ -1934,7 +1929,7 @@ int G_EnterLevel(int gameMode)
     G_AlignWarpElevators();
     resetpspritevars(gameMode);
 
-    ud.playerbest = CONFIG_GetMapBestTime(G_HaveUserMap() ? boardfilename : g_mapInfo[mii].filename, g_loadedMapHack.md4);
+    ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : g_mapInfo[mii].filename, g_loadedMapHack.md4);
 
     // G_FadeLoad(0,0,0, 252,0, -28, 4, -1);
     G_CacheMapData();
