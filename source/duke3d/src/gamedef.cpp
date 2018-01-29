@@ -181,6 +181,9 @@ static tokenmap_t const vm_keywords[] =
     { "displayrandvar",         CON_DISPLAYRANDVAR },
     { "displayrandvarvar",      CON_DISPLAYRANDVARVAR },
     { "dist",                   CON_DIST },
+    { "divr",                   CON_DIVR },
+    { "divrd",                  CON_DIVVARVAR }, // div round toward zero -- alias until proven otherwise
+    { "divru",                  CON_DIVRU },
     { "divscale",               CON_DIVSCALE },
     { "divvar",                 CON_DIVVAR },
     { "divvarvar",              CON_DIVVARVAR },
@@ -4080,6 +4083,8 @@ DO_DEFSTATE:
         case CON_PREVSPRITESECT:
         case CON_NEXTSPRITESECT:
         case CON_SECTOROFWALL:
+        case CON_DIVR:
+        case CON_DIVRU:
             C_GetNextVarType(GAMEVAR_READONLY);
             fallthrough__;
         case CON_ADDLOGVAR:

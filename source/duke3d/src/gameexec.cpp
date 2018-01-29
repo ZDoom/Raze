@@ -4886,6 +4886,42 @@ finish_qsprintf:
                 continue;
             }
 
+        case CON_DIVR: // div round to nearest
+            insptr++;
+            {
+                tw = *insptr++;
+
+                int const dividend = Gv_GetVarX(tw);
+                int const divisor = Gv_GetVarX(*insptr++);
+
+                if (EDUKE32_PREDICT_FALSE(!divisor))
+                {
+                    CON_CRITICALERRPRINTF("divide by zero!\n");
+                    continue;
+                }
+
+                Gv_SetVarX(tw, tabledivide32((dividend - ksgn(dividend) * klabs(divisor / 2)), divisor));
+                continue;
+            }
+
+        case CON_DIVRU: // div round away from zero
+            insptr++;
+            {
+                tw = *insptr++;
+
+                int const dividend = Gv_GetVarX(tw);
+                int const divisor = Gv_GetVarX(*insptr++);
+
+                if (EDUKE32_PREDICT_FALSE(!divisor))
+                {
+                    CON_CRITICALERRPRINTF("divide by zero!\n");
+                    continue;
+                }
+
+                Gv_SetVarX(tw, tabledivide32((dividend - ksgn(dividend) * klabs(divisor) + 1), divisor));
+                continue;
+            }
+
         case CON_MODVARVAR:
             insptr++;
             {

@@ -1169,6 +1169,8 @@ enum ScriptKeywords_t
     CON_STARTSCREEN,        // 409
     CON_SCREENPAL,          // 410
     CON_QSTRCMP,            // 411
+    CON_DIVR,               // 412
+    CON_DIVRU,              // 413
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua
