@@ -2245,6 +2245,24 @@ skip_check:
                 continue;
             }
 
+        case CON_QSTRCMP:
+            insptr++;
+            {
+                int const quote1      = Gv_GetVarX(*insptr++);
+                int const quote2      = Gv_GetVarX(*insptr++);
+                int const gameVar     = *insptr++;
+
+                if (EDUKE32_PREDICT_FALSE(apStrings[quote1] == NULL || apStrings[quote2] == NULL))
+                {
+                    CON_ERRPRINTF("null quote %d\n", apStrings[quote1] ? quote2 : quote1);
+                    Gv_SetVarX(gameVar, -2);
+                    continue;
+                }
+
+                Gv_SetVarX(gameVar, strcmp(apStrings[quote1], apStrings[quote2]));
+                continue;
+            }
+
         case CON_GETPNAME:
         case CON_QSTRNCAT:
         case CON_QSTRCAT:

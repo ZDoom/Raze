@@ -382,6 +382,7 @@ static tokenmap_t const vm_keywords[] =
     { "qspawnvar",              CON_QSPAWNVAR },
     { "qsprintf",               CON_QSPRINTF },
     { "qstrcat",                CON_QSTRCAT },
+    { "qstrcmp",                CON_QSTRCMP },
     { "qstrcpy",                CON_QSTRCPY },
     { "qstrdim",                CON_QSTRDIM },
     { "qstrlen",                CON_QSTRLEN },
@@ -4778,6 +4779,7 @@ DO_DEFSTATE:
 
         case CON_CANSEESPR:
         case CON_UPDATESECTOR:
+        case CON_QSTRCMP:
             C_GetManyVars(2);
             C_GetNextVarType(GAMEVAR_READONLY);
             continue;
