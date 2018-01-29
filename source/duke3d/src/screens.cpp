@@ -1071,7 +1071,7 @@ void G_DisplayRest(int32_t smoothratio)
             if (textret == 0 && ud.overhead_on == 2)
             {
                 const int32_t a = (ud.screen_size > 0) ? 147 : 179;
-                if (!(G_GetLogoFlags() & LOGO_HIDEEPISODE))
+                if (!(G_GetLogoFlags() & LOGO_HIDEEPISODE) && !G_HaveUserMap())
                     minitext(5, a+6, g_volumeNames[ud.volume_number], 0, 2+8+16+256);
                 minitext(5, a+6+6, g_mapInfo[ud.volume_number*MAXLEVELS + ud.level_number].name, 0, 2+8+16+256);
             }
