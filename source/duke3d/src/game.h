@@ -266,6 +266,7 @@ typedef struct {
 
     uint8_t user_map;
     uint8_t screenfade, menubackground;
+    uint8_t shadow_pal;
 } user_defs;
 
 extern user_defs ud;

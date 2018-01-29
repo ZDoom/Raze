@@ -1299,6 +1299,7 @@ const memberlabel_t UserdefsLabels[]=
     { "m_user_map",             USERDEFS_M_USER_MAP,             0, 0 },
     { "music_episode",          USERDEFS_MUSIC_EPISODE,          0, 0 },
     { "music_level",            USERDEFS_MUSIC_LEVEL,            0, 0 },
+    { "shadow_pal",             USERDEFS_SHADOW_PAL,             0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 

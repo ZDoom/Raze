@@ -214,6 +214,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_SLIDEBAR_PALDISABLED: labelNum = ud.slidebar_paldisabled; break;
         case USERDEFS_MUSIC_EPISODE: labelNum = ud.music_episode; break;
         case USERDEFS_MUSIC_LEVEL: labelNum = ud.music_level; break;
+        case USERDEFS_SHADOW_PAL: labelNum = ud.shadow_pal; break;
         default: labelNum = -1; break;
     }
 
@@ -386,6 +387,7 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_MENUTITLE_PAL: ud.menutitle_pal = iSet; break;
         case USERDEFS_SLIDEBAR_PALSELECTED: ud.slidebar_palselected = iSet; break;
         case USERDEFS_SLIDEBAR_PALDISABLED: ud.slidebar_paldisabled = iSet; break;
+        case USERDEFS_SHADOW_PAL: ud.shadow_pal = iSet; break;
         default: break;
     }
 }

@@ -4180,7 +4180,7 @@ static void Menu_BlackRectangle(int32_t x, int32_t y, int32_t width, int32_t hei
 {
     const int32_t xscale = divscale16(width, tilesiz[0].x<<16), yscale = divscale16(height, tilesiz[0].y<<16);
 
-    rotatesprite_(x, y, max(xscale, yscale), 0, 0, 127, 4, (orientation&(1|32))|2|8|16, 0, 0, xdim_from_320_16(x), ydim_from_200_16(y), xdim_from_320_16(x + width), ydim_from_200_16(y + height));
+    rotatesprite_(x, y, max(xscale, yscale), 0, 0, 127, ud.shadow_pal, (orientation&(1|32))|2|8|16, 0, 0, xdim_from_320_16(x), ydim_from_200_16(y), xdim_from_320_16(x + width), ydim_from_200_16(y + height));
 }
 
 enum MenuTextFlags_t

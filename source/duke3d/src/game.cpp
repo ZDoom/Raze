@@ -4241,7 +4241,7 @@ skip:
                         tsprShadow->shade   = 127;
                         tsprShadow->cstat  |= 2;
                         tsprShadow->z       = shadowZ;
-                        tsprShadow->pal     = 4;
+                        tsprShadow->pal     = ud.shadow_pal;
 
 
 #ifdef USE_OPENGL
