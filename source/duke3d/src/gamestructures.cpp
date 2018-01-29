@@ -110,10 +110,12 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_M_PLAYER_SKILL: labelNum = ud.m_player_skill; break;
         case USERDEFS_M_LEVEL_NUMBER: labelNum = ud.m_level_number; break;
         case USERDEFS_M_VOLUME_NUMBER: labelNum = ud.m_volume_number; break;
+        case USERDEFS_M_USER_MAP: labelNum = Menu_HaveUserMap(); break;
         case USERDEFS_MULTIMODE: labelNum = ud.multimode; break;
         case USERDEFS_PLAYER_SKILL: labelNum = ud.player_skill; break;
         case USERDEFS_LEVEL_NUMBER: labelNum = ud.level_number; break;
         case USERDEFS_VOLUME_NUMBER: labelNum = ud.volume_number; break;
+        case USERDEFS_USER_MAP: labelNum = G_HaveUserMap(); break;
         case USERDEFS_M_MARKER: labelNum = ud.m_marker; break;
         case USERDEFS_MARKER: labelNum = ud.marker; break;
         case USERDEFS_MOUSEFLIP: labelNum = ud.mouseflip; break;

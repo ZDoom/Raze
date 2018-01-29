@@ -1291,6 +1291,8 @@ const memberlabel_t UserdefsLabels[]=
     { "menutitle_pal",          USERDEFS_MENUTITLE_PAL,          0, 0 },
     { "slidebar_palselected",   USERDEFS_SLIDEBAR_PALSELECTED,   0, 0 },
     { "slidebar_paldisabled",   USERDEFS_SLIDEBAR_PALDISABLED,   0, 0 },
+    { "user_map",               USERDEFS_USER_MAP,               0, 0 },
+    { "m_user_map",             USERDEFS_M_USER_MAP,             0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 

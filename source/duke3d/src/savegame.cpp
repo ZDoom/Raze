@@ -456,6 +456,9 @@ int32_t G_SavePlayer(savebrief_t & sv)
         goto saveproblem;
     }
 
+    // temporary hack
+    ud.user_map = G_HaveUserMap();
+
 #ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
         polymer_resetlights();
