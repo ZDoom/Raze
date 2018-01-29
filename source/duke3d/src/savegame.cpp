@@ -2176,14 +2176,8 @@ static void postloadplayer(int32_t savegamep)
 
         if (ud.config.MusicToggle)
         {
-            if (g_mapInfo[musicIdx].musicfn != NULL &&
-                (musicIdx != g_musicIndex /* || g_mapInfo[MUS_LOADING].musicfn */))
-            {
-                S_StopMusic();
-
-                g_musicIndex = musicIdx;
-                S_PlayMusic(g_mapInfo[g_musicIndex].musicfn);
-            }
+            if (g_mapInfo[musicIdx].musicfn != NULL && musicIdx != g_musicIndex)
+                S_PlayLevelMusicOrNothing(musicIdx);
 
             S_PauseMusic(0);
         }

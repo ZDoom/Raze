@@ -1139,14 +1139,7 @@ static int G_StartTrackSlot(int const volumeNum, int const levelNum)
     {
         int trackNum = MAXLEVELS*volumeNum + levelNum;
 
-        if (g_mapInfo[trackNum].musicfn != NULL)
-        {
-            // Only set g_musicIndex on success.
-            g_musicIndex = trackNum;
-            S_PlayMusic(g_mapInfo[trackNum].musicfn);
-
-            return 0;
-        }
+        return S_TryPlaySpecialMusic(trackNum);
     }
 
     return 1;

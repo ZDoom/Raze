@@ -423,10 +423,7 @@ void G_CacheMapData(void)
     if (ud.recstat == 2)
         return;
 
-    if (g_mapInfo[MUS_LOADING].musicfn)
-    {
-        S_PlayMusic(g_mapInfo[MUS_LOADING].musicfn);
-    }
+    S_TryPlaySpecialMusic(MUS_LOADING);
 
 #if defined EDUKE32_TOUCH_DEVICES && defined USE_OPENGL
     polymost_glreset();
@@ -1404,7 +1401,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
         VM_OnEventWithReturn(EVENT_NEWGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
         levelNum == 0 && volumeNum == 3 && ud.lockout == 0 && (G_GetLogoFlags() & LOGO_NOE4CUTSCENE)==0)
     {
-        S_PlayMusic(g_mapInfo[MUS_BRIEFING].musicfn);
+        S_PlaySpecialMusicOrNothing(MUS_BRIEFING);
 
         flushperms();
         setview(0,0,xdim-1,ydim-1);
@@ -1937,14 +1934,14 @@ int G_EnterLevel(int gameMode)
 
     if (ud.recstat != 2)
     {
-        if (g_mapInfo[mii].musicfn != NULL &&
-                (g_mapInfo[g_musicIndex].musicfn == NULL ||
-                Bstrcmp(g_mapInfo[g_musicIndex].musicfn, g_mapInfo[mii].musicfn) ||
-                g_musicSize == 0 ||
-                ud.last_level == -1))
-            S_PlayMusic(g_mapInfo[mii].musicfn);
-
-        g_musicIndex = mii;
+        if (g_mapInfo[g_musicIndex].musicfn == NULL ||
+            g_mapInfo[mii].musicfn == NULL || // intentional, to pass control further while avoiding the strcmp on null
+            strcmp(g_mapInfo[g_musicIndex].musicfn, g_mapInfo[mii].musicfn) ||
+            g_musicSize == 0 ||
+            ud.last_level == -1)
+        {
+            S_PlayLevelMusicOrNothing(mii);
+        }
     }
 
     if (gameMode & (MODE_GAME|MODE_EOL))

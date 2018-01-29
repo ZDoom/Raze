@@ -400,10 +400,9 @@ static int32_t osdcmd_music(osdfuncparm_t const * const parm)
             return OSDCMD_OK;
         }
 
-        if (g_mapInfo[sel].musicfn != NULL)
+        if (!S_TryPlayLevelMusic(sel))
         {
-            g_musicIndex = sel;
-            G_StartMusic();
+            G_PrintCurrentMusic();
         }
         else
         {

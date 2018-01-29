@@ -91,7 +91,7 @@ int32_t MUSIC_StopSong(void)
 
 int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
 {
-    MUSIC_StopSong();
+    MUSIC_SetErrorCode(MUSIC_Ok)
 
     if (MIDI_PlaySong(song, loopflag) != MIDI_Ok)
     {

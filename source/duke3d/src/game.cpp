@@ -4480,14 +4480,9 @@ extern int G_StartRTS(int lumpNum, int localPlayer)
     return 0;
 }
 
-void G_StartMusic(void)
+void G_PrintCurrentMusic(void)
 {
-    int const levelNum = g_musicIndex;
-    Bassert(g_mapInfo[levelNum].musicfn != NULL);
-
-    S_PlayMusic(g_mapInfo[levelNum].musicfn);
-
-    Bsnprintf(apStrings[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", g_mapInfo[levelNum].musicfn);
+    Bsnprintf(apStrings[QUOTE_MUSIC], MAXQUOTELEN, "Playing %s", g_mapInfo[g_musicIndex].musicfn);
     P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
 }
 
@@ -4721,17 +4716,18 @@ void G_HandleLocalKeys(void)
             {
                 if (ridiculeNum == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == QUOTE_MUSIC)
                 {
-                    const int32_t maxi = VOLUMEALL ? MUS_FIRST_SPECIAL : 6;
+                    const unsigned int maxi = VOLUMEALL ? MUS_FIRST_SPECIAL : 6;
 
+                    unsigned int MyMusicIndex = g_musicIndex;
                     do
                     {
-                        g_musicIndex++;
-                        if (g_musicIndex >= maxi)
-                            g_musicIndex = 0;
+                        ++MyMusicIndex;
+                        if (MyMusicIndex >= maxi)
+                            MyMusicIndex = 0;
                     }
-                    while (g_mapInfo[g_musicIndex].musicfn == NULL);
+                    while (S_TryPlayLevelMusic(MyMusicIndex));
 
-                    G_StartMusic();
+                    G_PrintCurrentMusic();
 
                     return;
                 }

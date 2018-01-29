@@ -555,7 +555,7 @@ static inline int G_GetViewscreenSizeShift(const uspritetype *tspr)
 #endif
 }
 
-extern void G_StartMusic(void);
+extern void G_PrintCurrentMusic(void);
 
 #ifdef LUNATIC
 void El_SetCON(const char *conluacode);

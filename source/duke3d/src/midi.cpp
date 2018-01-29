@@ -635,13 +635,6 @@ int32_t MIDI_PlaySong(char *song, int32_t loopflag)
     track *CurrentTrack;
     char *ptr;
 
-    if (_MIDI_SongLoaded)
-        MIDI_StopSong();
-
-    MPU_Init(MUSIC_SoundDevice);
-
-    _MIDI_Loop = loopflag;
-
     if (_MIDI_Funcs == NULL)
         return MIDI_NullMidiModule;
 
@@ -652,12 +645,12 @@ int32_t MIDI_PlaySong(char *song, int32_t loopflag)
     headersize      = _MIDI_ReadNumber(song, 4);
     song += 4;
     format          = _MIDI_ReadNumber(song, 2);
-    _MIDI_NumTracks = _MIDI_ReadNumber(song + 2, 2);
-    _MIDI_Division  = _MIDI_ReadNumber(song + 4, 2);
-    if (_MIDI_Division < 0)
+    int32_t My_MIDI_NumTracks = _MIDI_ReadNumber(song + 2, 2);
+    int32_t My_MIDI_Division  = _MIDI_ReadNumber(song + 4, 2);
+    if (My_MIDI_Division < 0)
     {
         // If a SMPTE time division is given, just set to 96 so no errors occur
-        _MIDI_Division = 96;
+        My_MIDI_Division = 96;
     }
 
     if (format > MAX_FORMAT)
@@ -665,22 +658,22 @@ int32_t MIDI_PlaySong(char *song, int32_t loopflag)
 
     ptr = song + headersize;
 
-    if (_MIDI_NumTracks == 0)
+    if (My_MIDI_NumTracks == 0)
         return MIDI_NoTracks;
 
-    _MIDI_TrackMemSize = _MIDI_NumTracks  * sizeof(track);
-    _MIDI_TrackPtr = (track *)Xmalloc(_MIDI_TrackMemSize);
+    int32_t My_MIDI_TrackMemSize = My_MIDI_NumTracks  * sizeof(track);
+    track * My_MIDI_TrackPtr = (track *)Xmalloc(My_MIDI_TrackMemSize);
 
-    CurrentTrack = _MIDI_TrackPtr;
-    numtracks    = _MIDI_NumTracks;
+    CurrentTrack = My_MIDI_TrackPtr;
+    numtracks    = My_MIDI_NumTracks;
 
     while (numtracks--)
     {
         if (B_UNBUF32(ptr) != MIDI_TRACK_SIGNATURE)
         {
-            DO_FREE_AND_NULL(_MIDI_TrackPtr);
+            DO_FREE_AND_NULL(My_MIDI_TrackPtr);
 
-            _MIDI_TrackMemSize = 0;
+            My_MIDI_TrackMemSize = 0;
 
             return MIDI_InvalidTrack;
         }
@@ -691,6 +684,19 @@ int32_t MIDI_PlaySong(char *song, int32_t loopflag)
         ptr += tracklength;
         CurrentTrack++;
     }
+
+    // at this point we know song load is successful
+
+    if (_MIDI_SongLoaded)
+        MIDI_StopSong();
+
+    MPU_Init(MUSIC_SoundDevice);
+
+    _MIDI_Loop = loopflag;
+    _MIDI_NumTracks = My_MIDI_NumTracks;
+    _MIDI_Division = My_MIDI_Division;
+    _MIDI_TrackMemSize = My_MIDI_TrackMemSize;
+    _MIDI_TrackPtr = My_MIDI_TrackPtr;
 
     _MIDI_InitEMIDI();
     _MIDI_ResetTracks();

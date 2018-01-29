@@ -1507,10 +1507,7 @@ void G_DisplayLogo(void)
         }
 
         if (logoflags & LOGO_PLAYMUSIC)
-        {
-            g_musicIndex = MUS_INTRO;
-            S_PlayMusic(g_mapInfo[g_musicIndex].musicfn);
-        }
+            S_PlaySpecialMusicOrNothing(MUS_INTRO);
 
         if (!NAM)
         {

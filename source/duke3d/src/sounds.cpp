@@ -163,13 +163,11 @@ void S_RestartMusic(void)
 {
     if (ud.recstat != 2 && g_player[myconnectindex].ps->gm&MODE_GAME)
     {
-        if (g_mapInfo[g_musicIndex].musicfn != NULL)
-            S_PlayMusic(g_mapInfo[g_musicIndex].musicfn);
+        S_PlayLevelMusicOrNothing(g_musicIndex);
     }
-    else if (g_mapInfo[MUS_INTRO].musicfn != 0 && (G_GetLogoFlags() & LOGO_PLAYMUSIC))
+    else if (G_GetLogoFlags() & LOGO_PLAYMUSIC)
     {
-        g_musicIndex = MUS_INTRO;
-        S_PlayMusic(g_mapInfo[MUS_INTRO].musicfn);
+        S_PlaySpecialMusicOrNothing(MUS_INTRO);
     }
 }
 
@@ -186,19 +184,17 @@ void S_MenuSound(void)
         S_PlaySound(s);
 }
 
-int32_t S_PlayMusic(const char *fn)
+static int32_t S_PlayMusic(const char *fn)
 {
     if (!ud.config.MusicToggle || fn == NULL)
-        return 0;
+        return 1;
 
     int32_t fp = S_OpenAudio(fn, 0, 1);
     if (EDUKE32_PREDICT_FALSE(fp < 0))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: can't open \"%s\" for playback!\n",fn);
-        return 0;
+        return 2;
     }
-
-    S_StopMusic();
 
     int32_t MusicLen = kfilelength(fp);
 
@@ -206,40 +202,118 @@ int32_t S_PlayMusic(const char *fn)
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: empty music file \"%s\"\n", fn);
         kclose(fp);
-        return 0;
+        return 3;
     }
 
-    ALIGNED_FREE_AND_NULL(MusicPtr);  // in case the following allocation was never freed
-    MusicPtr = (char *)Xaligned_alloc(16, MusicLen);
-    g_musicSize = kread(fp, (char *)MusicPtr, MusicLen);
+    char * MyMusicPtr = (char *)Xaligned_alloc(16, MusicLen);
+    int MyMusicSize = kread(fp, MyMusicPtr, MusicLen);
 
-    if (EDUKE32_PREDICT_FALSE(g_musicSize != MusicLen))
+    if (EDUKE32_PREDICT_FALSE(MyMusicSize != MusicLen))
     {
         OSD_Printf(OSD_ERROR "S_PlayMusic(): error: read %d bytes from \"%s\", expected %d\n",
-                   g_musicSize, fn, MusicLen);
+                   MyMusicSize, fn, MusicLen);
         kclose(fp);
-        g_musicSize = 0;
-        return 0;
+        ALIGNED_FREE_AND_NULL(MyMusicPtr);
+        return 4;
     }
 
     kclose(fp);
 
-    if (!Bmemcmp(MusicPtr, "MThd", 4))
+    if (!Bmemcmp(MyMusicPtr, "MThd", 4))
     {
-        MUSIC_PlaySong(MusicPtr, MUSIC_LoopSong);
+        int32_t retval = MUSIC_PlaySong(MyMusicPtr, MUSIC_LoopSong);
+
+        if (retval != MUSIC_Ok)
+        {
+            ALIGNED_FREE_AND_NULL(MyMusicPtr);
+            return 5;
+        }
+
+        if (MusicIsWaveform && MusicVoice >= 0)
+        {
+            FX_StopSound(MusicVoice);
+            MusicVoice = -1;
+        }
+
         MusicIsWaveform = 0;
+        ALIGNED_FREE_AND_NULL(MusicPtr);
+        MusicPtr = MyMusicPtr;
+        g_musicSize = MyMusicSize;
     }
     else
     {
         int32_t const mvol = MASTER_VOLUME(ud.config.MusicVolume);
-        MusicVoice = FX_Play(MusicPtr, MusicLen, 0, 0,
+        int MyMusicVoice = FX_Play(MyMusicPtr, MusicLen, 0, 0,
                                        0, mvol, mvol, mvol,
                                        FX_MUSIC_PRIORITY, MUSIC_ID);
-        if (MusicVoice > FX_Ok)
-            MusicIsWaveform = 1;
+
+        if (MyMusicVoice <= FX_Ok)
+        {
+            ALIGNED_FREE_AND_NULL(MyMusicPtr);
+            return 5;
+        }
+
+        if (MusicIsWaveform && MusicVoice >= 0)
+            FX_StopSound(MusicVoice);
+
+        MUSIC_StopSong();
+
+        MusicVoice = MyMusicVoice;
+        MusicIsWaveform = 1;
+        ALIGNED_FREE_AND_NULL(MusicPtr);
+        MusicPtr = MyMusicPtr;
+        g_musicSize = MyMusicSize;
     }
 
     return 0;
+}
+
+int S_TryPlayLevelMusic(unsigned int m)
+{
+    char const * musicfn = g_mapInfo[m].musicfn;
+    if (musicfn != NULL)
+    {
+        if (!S_PlayMusic(musicfn))
+        {
+            g_musicIndex = m;
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+void S_PlayLevelMusicOrNothing(unsigned int m)
+{
+    if (S_TryPlayLevelMusic(m))
+    {
+        S_StopMusic();
+        g_musicIndex = m;
+    }
+}
+
+int S_TryPlaySpecialMusic(unsigned int m)
+{
+    char const * musicfn = g_mapInfo[m].musicfn;
+    if (musicfn != NULL)
+    {
+        if (!S_PlayMusic(musicfn))
+        {
+            g_musicIndex = m;
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+void S_PlaySpecialMusicOrNothing(unsigned int m)
+{
+    if (S_TryPlaySpecialMusic(m))
+    {
+        S_StopMusic();
+        g_musicIndex = m;
+    }
 }
 
 int32_t S_GetMusicPosition(void)

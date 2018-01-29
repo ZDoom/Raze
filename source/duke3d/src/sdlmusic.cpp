@@ -408,6 +408,7 @@ static void sigchld_handler(int signo)
 int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
 {
 //	initprintf("MUSIC_PlaySong");
+    // TODO: graceful failure
     MUSIC_StopSong();
 
     if (external_midi)
