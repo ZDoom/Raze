@@ -593,7 +593,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             else
                 i = APLAYERTOP;
 
-            int32_t i = VM_OnEventWithReturn(EVENT_DISPLAYOVERHEADMAPPLAYER, g_player[p].ps->i, p, i);
+            i = VM_OnEventWithReturn(EVENT_DISPLAYOVERHEADMAPPLAYER, g_player[p].ps->i, p, i);
 
             if (i < 0)
                 continue;
