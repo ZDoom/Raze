@@ -278,7 +278,6 @@ extern const char *s_buildDate;
 extern const char *g_rtsNamePtr;
 
 extern char boardfilename[BMAX_PATH], currentboardfilename[BMAX_PATH];
-extern char boardfilename[BMAX_PATH];
 
 extern const char *defaultrtsfilename[GAMECOUNT];
 extern const char *G_DefaultRtsFile(void);

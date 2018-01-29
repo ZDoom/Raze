@@ -1876,16 +1876,14 @@ int G_EnterLevel(int gameMode)
 
     if (G_HaveUserMap())
     {
-        Bstrcpy(levelName, boardfilename);
-
         if (g_gameNamePtr)
 #ifdef EDUKE32_STANDALONE
-            Bsprintf(apptitle,"%s - %s",levelName,g_gameNamePtr);
+            Bsprintf(apptitle, "%s - %s", boardfilename, g_gameNamePtr);
 #else
-            Bsprintf(apptitle, "%s - %s - " APPNAME, levelName, g_gameNamePtr);
+            Bsprintf(apptitle, "%s - %s - " APPNAME, boardfilename, g_gameNamePtr);
 #endif
         else
-            Bsprintf(apptitle,"%s - " APPNAME,levelName);
+            Bsprintf(apptitle, "%s - " APPNAME, boardfilename);
     }
     else
     {
