@@ -187,10 +187,11 @@ static FORCE_INLINE void __fastcall Gv_DivVar(int const id, int32_t const operan
 
     static libdivide_s32_t sdiv;
     static int32_t lastValue;
-    libdivide_s32_t *dptr = ((unsigned) operand < DIVTABLESIZE) ? (libdivide_s32_t *) &divtable32[operand] : &sdiv;
     intptr_t *iptr = &aGameVars[id].global;
+    bool const foundInTable = (unsigned) operand < DIVTABLESIZE;
+    libdivide_s32_t *dptr = foundInTable ? (libdivide_s32_t *) &divtable32[operand] : &sdiv;
 
-    if (operand == lastValue || dptr != &sdiv)
+    if (operand == lastValue || foundInTable)
         goto skip;
 
     sdiv = libdivide_s32_gen((lastValue = operand));
@@ -202,17 +203,23 @@ skip:
         default: break;
         case GAMEVAR_PERACTOR: iptr = &aGameVars[id].pValues[vm.spriteNum]; break;
         case GAMEVAR_INT32PTR:
-            *((int32_t *)aGameVars[id].global) =
-            (int32_t)libdivide_s32_do(*((int32_t *)aGameVars[id].global), dptr);
+        {
+            int32_t & var = *(int32_t *)aGameVars[id].global;
+            var = (int32_t)libdivide_s32_do(var, dptr);
             return;
+        }
         case GAMEVAR_INT16PTR:
-            *((int16_t *)aGameVars[id].global) =
-            (int16_t)libdivide_s32_do(*((int16_t *)aGameVars[id].global), dptr);
+        {
+            int16_t & var = *(int16_t *)aGameVars[id].global;
+            var = (int16_t)libdivide_s32_do(var, dptr);
             return;
+        }
         case GAMEVAR_UINT8PTR:
-            *((uint8_t *)aGameVars[id].global) =
-            (uint8_t)libdivide_s32_do(*((uint8_t *)aGameVars[id].global), dptr);
+        {
+            uint8_t & var = *(uint8_t *)aGameVars[id].global;
+            var = (uint8_t)libdivide_s32_do(var, dptr);
             return;
+        }
     }
 
     *iptr = libdivide_s32_do(*iptr, dptr);
