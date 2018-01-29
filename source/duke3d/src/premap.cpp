@@ -2028,8 +2028,15 @@ int G_EnterLevel(int gameMode)
             break;
     }
 
-    OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
-               g_mapInfo[mii].name);
+    if (G_HaveUserMap())
+    {
+        OSD_Printf(OSDTEXT_YELLOW "User Map: %s\n", boardfilename);
+    }
+    else
+    {
+        OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
+                   g_mapInfo[mii].name);
+    }
 
     g_restorePalette = -1;
 
