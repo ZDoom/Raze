@@ -5056,12 +5056,10 @@ finish_qsprintf:
 
         case CON_SETMUSICPOSITION:
             insptr++;
-            S_SetMusicPosition(Gv_GetVarX(*insptr++));
+            Gv_GetVarX(*(insptr++));
             continue;
-
         case CON_GETMUSICPOSITION:
-            insptr++;
-            Gv_SetVarX(*insptr++, S_GetMusicPosition());
+            insptr += 2;
             continue;
 
         case CON_ACTIVATECHEAT:
