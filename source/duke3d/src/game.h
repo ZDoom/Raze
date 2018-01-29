@@ -192,6 +192,8 @@ typedef struct {
     int16_t camerasprite,last_camsprite;
     int16_t last_level,secretlevel;
 
+    int8_t menutitle_pal, slidebar_palselected, slidebar_paldisabled;
+
     struct {
         int32_t UseJoystick;
         int32_t UseMouse;

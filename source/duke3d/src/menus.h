@@ -119,13 +119,17 @@ typedef enum MenuAnimationType_t
 // a subset of screentext parameters, restricted because menus require accessibility
 typedef struct MenuFont_t
 {
+//    int32_t xspace, yline;
     vec2_t emptychar, between;
     int32_t zoom;
     int32_t cursorLeftPosition, cursorCenterPosition, cursorScale;
     int32_t textflags;
     int16_t tilenum;
-    int8_t shade_deselected; // selected entries are mandated to glow
-    uint8_t pal, pal_disabled;
+    // selected shade glows, deselected shade is used by Blood, disabled shade is used by SW
+    int8_t shade_deselected, shade_disabled;
+    uint8_t pal;
+    uint8_t pal_selected, pal_deselected, pal_disabled;
+    uint8_t pal_selected_right, pal_deselected_right, pal_disabled_right;
 
     int32_t get_yline() const { return mulscale16(emptychar.y, zoom); }
 } MenuFont_t;
@@ -458,9 +462,7 @@ void Menu_Open(size_t playerID);
 void Menu_Close(size_t playerID);
 void M_DisplayMenus(void);
 
-extern MenuFont_t MF_Redfont;
-extern MenuFont_t MF_Bluefont, MF_BluefontRed, MF_BluefontGame;
-extern MenuFont_t MF_MinifontSave;
+extern MenuFont_t MF_Redfont, MF_Bluefont, MF_Minifont;
 
 #define M_MOUSETIMEOUT 210
 extern int32_t m_mouselastactivity;

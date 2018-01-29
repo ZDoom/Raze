@@ -255,6 +255,7 @@ void CONFIG_SetDefaults(void)
     ud.menubackground = 1;
     ud.hudontop = 0;
     ud.default_skill = 1;
+    ud.slidebar_paldisabled = 1;
 
     ud.config.CheckForUpdates = 1;
 

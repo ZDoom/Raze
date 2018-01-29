@@ -168,8 +168,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_VM_SPRITE: labelNum = vm.spriteNum; break;
         case USERDEFS_VM_DISTANCE: labelNum = vm.playerDist; break;
         case USERDEFS_SOUNDTOGGLE: labelNum = ud.config.SoundToggle; break;
-        case USERDEFS_GAMETEXT_TRACKING: labelNum = MF_BluefontGame.between.x; break;
-        case USERDEFS_MGAMETEXT_TRACKING: labelNum = MF_Bluefont.between.x; break;
+        case USERDEFS_GAMETEXT_TRACKING: labelNum = MF_Bluefont.between.x; break;
         case USERDEFS_MENUTEXT_TRACKING: labelNum = MF_Redfont.between.x; break;
         case USERDEFS_MAXSPRITESONSCREEN: labelNum = maxspritesonscreen; break;
         case USERDEFS_SCREENAREA_X1: labelNum = ud.screenarea_x1; break;
@@ -190,6 +189,27 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_GLOBAL_B: labelNum = globalb; break;
         case USERDEFS_DEFAULT_VOLUME: labelNum = ud.default_volume; break;
         case USERDEFS_DEFAULT_SKILL: labelNum = ud.default_skill; break;
+        case USERDEFS_MENU_SHADEDESELECTED: labelNum = MF_Redfont.shade_deselected; break;
+        case USERDEFS_MENU_SHADEDISABLED: labelNum = MF_Redfont.shade_disabled; break;
+        case USERDEFS_MENUTEXT_ZOOM: labelNum = MF_Redfont.zoom; break;
+        case USERDEFS_MENUTEXT_XSPACE: labelNum = MF_Redfont.emptychar.x; break;
+        case USERDEFS_MENUTEXT_PALSELECTED: labelNum = MF_Redfont.pal_selected; break;
+        case USERDEFS_MENUTEXT_PALDESELECTED: labelNum = MF_Redfont.pal_deselected; break;
+        case USERDEFS_MENUTEXT_PALDISABLED: labelNum = MF_Redfont.pal_disabled; break;
+        case USERDEFS_GAMETEXT_ZOOM: labelNum = MF_Bluefont.zoom; break;
+        case USERDEFS_GAMETEXT_XSPACE: labelNum = MF_Bluefont.emptychar.x; break;
+        case USERDEFS_GAMETEXT_PALSELECTED: labelNum = MF_Bluefont.pal_selected; break;
+        case USERDEFS_GAMETEXT_PALDESELECTED: labelNum = MF_Bluefont.pal_deselected; break;
+        case USERDEFS_GAMETEXT_PALDISABLED: labelNum = MF_Bluefont.pal_disabled; break;
+        case USERDEFS_MINITEXT_ZOOM: labelNum = MF_Minifont.zoom; break;
+        case USERDEFS_MINITEXT_XSPACE: labelNum = MF_Minifont.emptychar.x; break;
+        case USERDEFS_MINITEXT_TRACKING: labelNum = MF_Minifont.between.x; break;
+        case USERDEFS_MINITEXT_PALSELECTED: labelNum = MF_Minifont.pal_selected; break;
+        case USERDEFS_MINITEXT_PALDESELECTED: labelNum = MF_Minifont.pal_deselected; break;
+        case USERDEFS_MINITEXT_PALDISABLED: labelNum = MF_Minifont.pal_disabled; break;
+        case USERDEFS_MENUTITLE_PAL: labelNum = ud.menutitle_pal; break;
+        case USERDEFS_SLIDEBAR_PALSELECTED: labelNum = ud.slidebar_palselected; break;
+        case USERDEFS_SLIDEBAR_PALDISABLED: labelNum = ud.slidebar_paldisabled; break;
         default: labelNum = -1; break;
     }
 
@@ -308,8 +328,7 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_VM_PLAYER: vm.playerNum = iSet; vm.pPlayer = g_player[iSet].ps; break;
         case USERDEFS_VM_SPRITE: vm.spriteNum = iSet; vm.pSprite = &sprite[iSet]; vm.pActor = &actor[iSet];  vm.pData = &actor[iSet].t_data[0]; break;
         case USERDEFS_VM_DISTANCE: vm.playerDist = iSet; break;
-        case USERDEFS_GAMETEXT_TRACKING: MF_BluefontGame.between.x = iSet; break;
-        case USERDEFS_MGAMETEXT_TRACKING: MF_BluefontRed.between.x = MF_Bluefont.between.x = iSet; break;
+        case USERDEFS_GAMETEXT_TRACKING: MF_Bluefont.between.x = iSet; break;
         case USERDEFS_MENUTEXT_TRACKING: MF_Redfont.between.x = iSet; break;
         case USERDEFS_MAXSPRITESONSCREEN: maxspritesonscreen = clamp(iSet, MAXSPRITESONSCREEN>>2, MAXSPRITESONSCREEN); break;
         case USERDEFS_SCREENAREA_X1: ud.screenarea_x1 = iSet; break;
@@ -330,6 +349,39 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_GLOBAL_B: globalb = iSet; break;
         case USERDEFS_DEFAULT_VOLUME: ud.default_volume = iSet; break;
         case USERDEFS_DEFAULT_SKILL: ud.default_skill = iSet; break;
+        case USERDEFS_MENU_SHADEDESELECTED: MF_Redfont.shade_deselected = MF_Bluefont.shade_deselected = MF_Minifont.shade_deselected = iSet; break;
+        case USERDEFS_MENU_SHADEDISABLED: MF_Redfont.shade_disabled = MF_Bluefont.shade_disabled = MF_Minifont.shade_disabled = iSet; break;
+        case USERDEFS_MENUTEXT_ZOOM: MF_Redfont.zoom = iSet; break;
+        case USERDEFS_MENUTEXT_XSPACE: MF_Redfont.emptychar.x = iSet; break;
+        case USERDEFS_MENUTEXT_PAL: MF_Redfont.pal = iSet; break;
+        case USERDEFS_MENUTEXT_PALSELECTED: MF_Redfont.pal_selected = iSet; break;
+        case USERDEFS_MENUTEXT_PALDESELECTED: MF_Redfont.pal_deselected = iSet; break;
+        case USERDEFS_MENUTEXT_PALDISABLED: MF_Redfont.pal_disabled = iSet; break;
+        case USERDEFS_MENUTEXT_PALSELECTED_RIGHT: MF_Redfont.pal_selected_right = iSet; break;
+        case USERDEFS_MENUTEXT_PALDESELECTED_RIGHT: MF_Redfont.pal_deselected_right = iSet; break;
+        case USERDEFS_MENUTEXT_PALDISABLED_RIGHT: MF_Redfont.pal_disabled_right = iSet; break;
+        case USERDEFS_GAMETEXT_ZOOM: MF_Bluefont.zoom = iSet; break;
+        case USERDEFS_GAMETEXT_XSPACE: MF_Bluefont.emptychar.x = iSet; break;
+        case USERDEFS_GAMETEXT_PAL: MF_Bluefont.pal = iSet; break;
+        case USERDEFS_GAMETEXT_PALSELECTED: MF_Bluefont.pal_selected = iSet; break;
+        case USERDEFS_GAMETEXT_PALDESELECTED: MF_Bluefont.pal_deselected = iSet; break;
+        case USERDEFS_GAMETEXT_PALDISABLED: MF_Bluefont.pal_disabled = iSet; break;
+        case USERDEFS_GAMETEXT_PALSELECTED_RIGHT: MF_Bluefont.pal_selected_right = iSet; break;
+        case USERDEFS_GAMETEXT_PALDESELECTED_RIGHT: MF_Bluefont.pal_deselected_right = iSet; break;
+        case USERDEFS_GAMETEXT_PALDISABLED_RIGHT: MF_Bluefont.pal_disabled_right = iSet; break;
+        case USERDEFS_MINITEXT_ZOOM: MF_Minifont.zoom = iSet; break;
+        case USERDEFS_MINITEXT_XSPACE: MF_Minifont.emptychar.x = iSet; break;
+        case USERDEFS_MINITEXT_TRACKING: MF_Minifont.between.x = iSet; break;
+        case USERDEFS_MINITEXT_PAL: MF_Minifont.pal = iSet; break;
+        case USERDEFS_MINITEXT_PALSELECTED: MF_Minifont.pal_selected = iSet; break;
+        case USERDEFS_MINITEXT_PALDESELECTED: MF_Minifont.pal_deselected = iSet; break;
+        case USERDEFS_MINITEXT_PALDISABLED: MF_Minifont.pal_disabled = iSet; break;
+        case USERDEFS_MINITEXT_PALSELECTED_RIGHT: MF_Minifont.pal_selected_right = iSet; break;
+        case USERDEFS_MINITEXT_PALDESELECTED_RIGHT: MF_Minifont.pal_deselected_right = iSet; break;
+        case USERDEFS_MINITEXT_PALDISABLED_RIGHT: MF_Minifont.pal_disabled_right = iSet; break;
+        case USERDEFS_MENUTITLE_PAL: ud.menutitle_pal = iSet; break;
+        case USERDEFS_SLIDEBAR_PALSELECTED: ud.slidebar_palselected = iSet; break;
+        case USERDEFS_SLIDEBAR_PALDISABLED: ud.slidebar_paldisabled = iSet; break;
         default: break;
     }
 }
