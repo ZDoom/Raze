@@ -212,6 +212,8 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_MENUTITLE_PAL: labelNum = ud.menutitle_pal; break;
         case USERDEFS_SLIDEBAR_PALSELECTED: labelNum = ud.slidebar_palselected; break;
         case USERDEFS_SLIDEBAR_PALDISABLED: labelNum = ud.slidebar_paldisabled; break;
+        case USERDEFS_MUSIC_EPISODE: labelNum = ud.music_episode; break;
+        case USERDEFS_MUSIC_LEVEL: labelNum = ud.music_level; break;
         default: labelNum = -1; break;
     }
 

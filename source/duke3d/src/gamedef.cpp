@@ -1293,6 +1293,8 @@ const memberlabel_t UserdefsLabels[]=
     { "slidebar_paldisabled",   USERDEFS_SLIDEBAR_PALDISABLED,   0, 0 },
     { "user_map",               USERDEFS_USER_MAP,               0, 0 },
     { "m_user_map",             USERDEFS_M_USER_MAP,             0, 0 },
+    { "music_episode",          USERDEFS_MUSIC_EPISODE,          0, 0 },
+    { "music_level",            USERDEFS_MUSIC_LEVEL,            0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 
