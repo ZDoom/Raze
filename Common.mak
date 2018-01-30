@@ -222,6 +222,18 @@ endif
 CLANG_POTENTIAL_VERSION := $(shell $(CCFULLPATH) --version)
 ifeq ($(findstring clang,$(CLANG_POTENTIAL_VERSION)),clang)
     override CLANG := 1
+    ifeq ($(findstring Apple,$(CLANG_POTENTIAL_VERSION)),Apple)
+        override APPLE_CLANG := 1
+        APPLE_CLANG_VER := $(word 4,$(CLANG_POTENTIAL_VERSION))
+        override APPLE_CLANG_VER_SPLIT := $(subst ., ,$(APPLE_CLANG_VER))
+        APPLE_CLANG_MAJOR := $(word 1,$(APPLE_CLANG_VER_SPLIT))
+        APPLE_CLANG_MINOR := $(word 2,$(APPLE_CLANG_VER_SPLIT))
+    else
+        CLANG_VER := $(word 3,$(CLANG_POTENTIAL_VERSION))
+        override CLANG_VER_SPLIT := $(subst ., ,$(CLANG_VER))
+        CLANG_MAJOR := $(word 1,$(CLANG_VER_SPLIT))
+        CLANG_MINOR := $(word 2,$(CLANG_VER_SPLIT))
+    endif
 endif
 
 ifneq (0,$(CLANG))
@@ -391,6 +403,29 @@ endif
 
 ifeq ($(RELEASE),0)
     OPTLEVEL := 0
+
+    # see if we can use -Og
+    ifeq (1,$(APPLE_CLANG))
+      # Apple clang >= 9.0
+      ifeq (,$(filter 0 1 2 3 4 5 6 7 8,$(APPLE_CLANG_MAJOR)))
+        OPTLEVEL := g
+      endif
+    else ifeq (1,$(CLANG))
+      # clang >= 4.0
+      ifeq (,$(filter 0 1 2 3,$(CLANG_MAJOR)))
+        OPTLEVEL := g
+      endif
+    else
+      # GCC >= 4.8
+      ifeq (,$(filter 0 1 2 3 4,$(GCC_MAJOR)))
+        OPTLEVEL := g
+      else ifeq (4,$(GCC_MAJOR))
+        ifeq (,$(filter 0 1 2 3 4 5 6 7,$(GCC_MINOR)))
+          OPTLEVEL := g
+        endif
+      endif
+    endif
+
     LTO := 0
 else
     OPTLEVEL := 2
