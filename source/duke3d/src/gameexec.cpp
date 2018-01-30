@@ -2357,6 +2357,9 @@ skip_check:
                     case STR_BESTTIME:
                         Bstrcpy(apStrings[i],G_PrintBestTime());
                         break;
+                    case STR_USERMAPFILENAME:
+                        Bstrcpy(apStrings[i],boardfilename);
+                        break;
                     default:
                         CON_ERRPRINTF("invalid string index %d or %d\n", i, j);
                     }

@@ -6295,6 +6295,7 @@ static void C_AddDefaultDefinitions(void)
         { "STR_PARTIME", STR_PARTIME },
         { "STR_DESIGNERTIME", STR_DESIGNERTIME },
         { "STR_BESTTIME", STR_BESTTIME },
+        { "STR_USERMAPFILENAME", STR_USERMAPFILENAME },
 
         { "MAXSTATUS", MAXSTATUS },
         { "MAXSPRITES", MAXSPRITES },

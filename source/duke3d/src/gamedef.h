@@ -218,6 +218,7 @@ enum SystemString_t {
     STR_PARTIME,
     STR_DESIGNERTIME,
     STR_BESTTIME,
+    STR_USERMAPFILENAME,
 };
 
 enum ScriptError_t
