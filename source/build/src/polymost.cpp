@@ -1956,7 +1956,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         ngy.u -= ngy.d * uoffs;
         ngo.u -= ngo.d * uoffs;
 
-        float du0, du1;
+        float du0 = 0.f, du1 = 0.f;
 
         //Find min&max u coordinates (du0...du1)
         for (bssize_t i=0; i<npoints; ++i)

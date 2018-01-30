@@ -858,7 +858,7 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
     if (pProj->offset == 0)
         pProj->offset = 1;
 
-    int     otherSprite;
+    int     otherSprite = -1;
     int32_t zvel = 0;
 
     switch (pProj->workslike & PROJECTILE_TYPE_MASK)

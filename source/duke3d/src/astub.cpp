@@ -3836,7 +3836,7 @@ int64_t ldistsqr(spritetype *s1,spritetype *s2)
 static void TextEntryMode(int16_t startspr)
 {
     char ch, buffer[80], doingspace=0;
-    int16_t daang = 0, t, alphidx, basetile, linebegspr, curspr, cursor;
+    int16_t daang = 0, t, alphidx, linebegspr, curspr, cursor;
     int32_t i, j, k, dax = 0, day = 0;
     static uint8_t hgap=0, vgap=4;
     static uint8_t spcgap[MAX_ALPHABETS], firstrun=1;
@@ -3868,7 +3868,7 @@ static void TextEntryMode(int16_t startspr)
         return;
     }
 
-    t = sprite[startspr].picnum;
+    int16_t basetile = t = sprite[startspr].picnum;
     alphidx = -1;
     for (i=0; i<numalphabets; i++)
     {
