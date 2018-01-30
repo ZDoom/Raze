@@ -2760,13 +2760,10 @@ void C_InitQuotes(void)
 #ifdef EDUKE32_TOUCH_DEVICES
     apStrings[QUOTE_DEAD] = 0;
 #else
-    char const * const replacement_USE = "USE";
-    if (!Bstrstr(apStrings[QUOTE_DEAD], replacement_USE))
-    {
-        C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", replacement_USE);
-        C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", replacement_USE);
-        C_ReplaceQuoteSubstring(QUOTE_DEAD, "ANY BUTTON", replacement_USE);
-    }
+    static constexpr char const * const OpenGameFunc = gamefunctions[gamefunc_Open];
+    C_ReplaceQuoteSubstring(QUOTE_DEAD, "SPACE", OpenGameFunc);
+    C_ReplaceQuoteSubstring(QUOTE_DEAD, "OPEN", OpenGameFunc);
+    C_ReplaceQuoteSubstring(QUOTE_DEAD, "USE", OpenGameFunc);
 #endif
 
     // most of these are based on Blood, obviously
