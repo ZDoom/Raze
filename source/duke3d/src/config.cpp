@@ -281,6 +281,28 @@ void CONFIG_SetDefaults(void)
     // JBF 20031211
 
     CONFIG_SetDefaultKeys(keydefaults);
+    if (PLUTOPAK)
+        strcpy(gamefunctions[gamefunc_Weapon_7], "Shrinker/Expander");
+
+    // Caribbean
+#if 0
+    {
+        strcpy(gamefunctions[gamefunc_Weapon_1], "Sandal_Foot");
+        strcpy(gamefunctions[gamefunc_Weapon_2], "Squirt_Gun");
+        strcpy(gamefunctions[gamefunc_Weapon_3], "Super_Soak'em");
+        strcpy(gamefunctions[gamefunc_Weapon_4], "Triple_Poison_Shooter");
+        strcpy(gamefunctions[gamefunc_Weapon_5], "Coconut_Launcher");
+        strcpy(gamefunctions[gamefunc_Weapon_6], "Pineapple");
+        strcpy(gamefunctions[gamefunc_Weapon_7], "Voodoo_Ring");
+        strcpy(gamefunctions[gamefunc_Weapon_8], "Conchanator");
+        strcpy(gamefunctions[gamefunc_Weapon_9], "Voodoo_Tripbomb");
+        strcpy(gamefunctions[gamefunc_Weapon_10], "Ice_Crusher");
+        strcpy(gamefunctions[gamefunc_NightVision], "Sunglasses");
+        strcpy(gamefunctions[gamefunc_MedKit], "Crate_of_Bananas");
+        strcpy(gamefunctions[gamefunc_Steroids], "Hot_Sauce");
+    }
+#endif
+    // TODO: NAM, WWII GI
 
     memset(ud.config.MouseFunctions, -1, sizeof(ud.config.MouseFunctions));
     for (i=0; i<MAXMOUSEBUTTONS; i++)
