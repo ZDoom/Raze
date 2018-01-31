@@ -4036,9 +4036,10 @@ finish_qsprintf:
                 int const findPicnum  = *insptr++;
                 int const maxDist     = Gv_GetVarX(*insptr++);
                 int const returnVar   = *insptr++;
-                int       foundSprite = -1;
-                int       findStatnum = 1;
-                int       spriteNum;
+
+                int foundSprite = -1;
+                int findStatnum = STAT_ACTOR;
+                int spriteNum;
 
                 if (tw == CON_FINDNEARSPRITEVAR || tw == CON_FINDNEARSPRITE3DVAR)
                     findStatnum = MAXSTATUS-1;
@@ -4103,12 +4104,13 @@ finish_qsprintf:
                 int const maxDist     = Gv_GetVarX(*insptr++);
                 int const maxZDist    = Gv_GetVarX(*insptr++);
                 int const returnVar   = *insptr++;
-                int       foundSprite = -1;
-                int       findStatnum = MAXSTATUS - 1;
+
+                int foundSprite = -1;
+                int findStatnum = MAXSTATUS - 1;
 
                 do
                 {
-                    int spriteNum = headspritestat[tw == CON_FINDNEARACTORZVAR ? 1 : findStatnum];  // all sprites
+                    int spriteNum = headspritestat[tw == CON_FINDNEARACTORZVAR ? STAT_ACTOR : findStatnum];  // all sprites
 
                     if (spriteNum == -1)
                         continue;
@@ -4129,6 +4131,7 @@ finish_qsprintf:
                         spriteNum = nextspritestat[spriteNum];
                     }
                     while (spriteNum>=0);
+
                     if (tw==CON_FINDNEARACTORZVAR || spriteNum == MAXSPRITES)
                         break;
                 }
