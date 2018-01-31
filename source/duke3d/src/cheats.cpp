@@ -188,8 +188,8 @@ void G_SetupCheats(void)
         Bstrcpy(CheatStrings[24], "adebug");
         Bstrcpy(CheatStrings[26], "acgs");
 
-        Bstrcpy(g_gametypeNames[0], "Gruntmatch (Spawn)");
-        Bstrcpy(g_gametypeNames[2], "Gruntmatch (No Spawn)");
+        Bstrcpy(g_gametypeNames[0], "GruntMatch (Spawn)");
+        Bstrcpy(g_gametypeNames[2], "GruntMatch (No Spawn)");
     }
 }
 #endif
