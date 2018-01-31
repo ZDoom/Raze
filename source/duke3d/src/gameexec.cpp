@@ -5275,11 +5275,35 @@ finish_qsprintf:
                 switch (iterType)
                 {
                 case ITER_ALLSPRITES:
+                    for (native_t jj=0; jj<MAXSPRITES; ++jj)
+                    {
+                        if (sprite[jj].statnum == MAXSTATUS)
+                            continue;
+
+                        Gv_SetVarX(returnVar, jj);
+                        insptr = pNext;
+                        VM_Execute(0);
+                    }
+                    break;
+                case ITER_ALLSPRITESBYSTAT:
                     for (native_t statNum=0; statNum<MAXSTATUS; ++statNum)
                     {
                         for (native_t jj=headspritestat[statNum]; jj>=0;)
                         {
                             int const kk=nextspritestat[jj];
+                            Gv_SetVarX(returnVar, jj);
+                            insptr = pNext;
+                            VM_Execute(0);
+                            jj=kk;
+                        }
+                    }
+                    break;
+                case ITER_ALLSPRITESBYSECT:
+                    for (native_t sectNum=0; sectNum<numsectors; ++sectNum)
+                    {
+                        for (native_t jj=headspritesect[sectNum]; jj>=0;)
+                        {
+                            int const kk=nextspritesect[jj];
                             Gv_SetVarX(returnVar, jj);
                             insptr = pNext;
                             VM_Execute(0);

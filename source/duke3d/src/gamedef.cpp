@@ -1344,6 +1344,8 @@ const memberlabel_t PalDataLabels[]=
 const tokenmap_t iter_tokens [] =
 {
     { "allsprites",      ITER_ALLSPRITES },
+    { "allspritesbystat",ITER_ALLSPRITESBYSTAT },
+    { "allspritesbysect",ITER_ALLSPRITESBYSECT },
     { "allsectors",      ITER_ALLSECTORS },
     { "allwalls",        ITER_ALLWALLS },
     { "activelights",    ITER_ACTIVELIGHTS },
