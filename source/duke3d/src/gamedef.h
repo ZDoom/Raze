@@ -1214,6 +1214,14 @@ enum ScriptKeywords_t
     CON_DIVRU,              // 413
     CON_SWAPTRACKSLOT,      // 414
     CON_PRELOADTRACKSLOTFORSWAP, // 415
+    CON_IFVARA,             // 416
+    CON_IFVARVARA,          // 417
+    CON_IFVARAE,            // 418
+    CON_IFVARVARAE,         // 419
+    CON_IFVARB,             // 420
+    CON_IFVARVARB,          // 421
+    CON_IFVARBE,            // 422
+    CON_IFVARVARBE,         // 423
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

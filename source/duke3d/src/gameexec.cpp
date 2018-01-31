@@ -5205,6 +5205,38 @@ finish_qsprintf:
             VM_CONDITIONAL(tw);
             continue;
 
+        case CON_IFVARVARA:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            tw = ((uint32_t)tw > (uint32_t)Gv_GetVarX(*insptr++));
+            insptr--;
+            VM_CONDITIONAL(tw);
+            continue;
+
+        case CON_IFVARVARAE:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            tw = ((uint32_t)tw >= (uint32_t)Gv_GetVarX(*insptr++));
+            insptr--;
+            VM_CONDITIONAL(tw);
+            continue;
+
+        case CON_IFVARVARB:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            tw = ((uint32_t)tw < (uint32_t)Gv_GetVarX(*insptr++));
+            insptr--;
+            VM_CONDITIONAL(tw);
+            continue;
+
+        case CON_IFVARVARBE:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            tw = ((uint32_t)tw <= (uint32_t)Gv_GetVarX(*insptr++));
+            insptr--;
+            VM_CONDITIONAL(tw);
+            continue;
+
         case CON_IFVARN:
             insptr++;
             tw = Gv_GetVarX(*insptr++);
@@ -5472,6 +5504,30 @@ finish_qsprintf:
             insptr++;
             tw = Gv_GetVarX(*insptr++);
             VM_CONDITIONAL(tw <= *insptr);
+            continue;
+
+        case CON_IFVARA:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            VM_CONDITIONAL((uint32_t)tw > (uint32_t)*insptr);
+            continue;
+
+        case CON_IFVARAE:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            VM_CONDITIONAL((uint32_t)tw >= (uint32_t)*insptr);
+            continue;
+
+        case CON_IFVARB:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            VM_CONDITIONAL((uint32_t)tw < (uint32_t)*insptr);
+            continue;
+
+        case CON_IFVARBE:
+            insptr++;
+            tw = Gv_GetVarX(*insptr++);
+            VM_CONDITIONAL((uint32_t)tw <= (uint32_t)*insptr);
             continue;
 
         case CON_IFPHEALTHL:

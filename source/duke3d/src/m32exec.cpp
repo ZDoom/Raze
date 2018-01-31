@@ -1096,6 +1096,46 @@ skip_check:
             }
             continue;
 
+        case CON_IFVARVARA:
+            insptr++;
+            {
+                int32_t j = Gv_GetVarX(*insptr++);
+                j = ((uint32_t)j > (uint32_t)Gv_GetVarX(*insptr++));
+                insptr--;
+                VM_DoConditional(j);
+            }
+            continue;
+
+        case CON_IFVARVARAE:
+            insptr++;
+            {
+                int32_t j = Gv_GetVarX(*insptr++);
+                j = ((uint32_t)j >= (uint32_t)Gv_GetVarX(*insptr++));
+                insptr--;
+                VM_DoConditional(j);
+            }
+            continue;
+
+        case CON_IFVARVARB:
+            insptr++;
+            {
+                int32_t j = Gv_GetVarX(*insptr++);
+                j = ((uint32_t)j < (uint32_t)Gv_GetVarX(*insptr++));
+                insptr--;
+                VM_DoConditional(j);
+            }
+            continue;
+
+        case CON_IFVARVARBE:
+            insptr++;
+            {
+                int32_t j = Gv_GetVarX(*insptr++);
+                j = ((uint32_t)j <= (uint32_t)Gv_GetVarX(*insptr++));
+                insptr--;
+                VM_DoConditional(j);
+            }
+            continue;
+
         case CON_IFVARE:
             insptr++;
             {
@@ -1524,6 +1564,38 @@ badindex:
             {
                 int32_t j=Gv_GetVarX(*insptr++);
                 VM_DoConditional(j <= *insptr);
+            }
+            continue;
+
+        case CON_IFVARA:
+            insptr++;
+            {
+                int32_t j=Gv_GetVarX(*insptr++);
+                VM_DoConditional((uint32_t)j > (uint32_t)*insptr);
+            }
+            continue;
+
+        case CON_IFVARAE:
+            insptr++;
+            {
+                int32_t j=Gv_GetVarX(*insptr++);
+                VM_DoConditional((uint32_t)j >= (uint32_t)*insptr);
+            }
+            continue;
+
+        case CON_IFVARB:
+            insptr++;
+            {
+                int32_t j=Gv_GetVarX(*insptr++);
+                VM_DoConditional((uint32_t)j < (uint32_t)*insptr);
+            }
+            continue;
+
+        case CON_IFVARBE:
+            insptr++;
+            {
+                int32_t j=Gv_GetVarX(*insptr++);
+                VM_DoConditional((uint32_t)j <= (uint32_t)*insptr);
             }
             continue;
 

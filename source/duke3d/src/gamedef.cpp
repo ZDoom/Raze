@@ -308,7 +308,11 @@ static tokenmap_t const vm_keywords[] =
     { "ifspritepal",            CON_IFSPRITEPAL },
     { "ifsquished",             CON_IFSQUISHED },
     { "ifstrength",             CON_IFSTRENGTH },
+    { "ifvara",                 CON_IFVARA },
+    { "ifvarae",                CON_IFVARAE },
     { "ifvarand",               CON_IFVARAND },
+    { "ifvarb",                 CON_IFVARB },
+    { "ifvarbe",                CON_IFVARBE },
     { "ifvarboth",              CON_IFVARBOTH },
     { "ifvare",                 CON_IFVARE },
     { "ifvareither",            CON_IFVAREITHER },
@@ -318,7 +322,11 @@ static tokenmap_t const vm_keywords[] =
     { "ifvarle",                CON_IFVARLE },
     { "ifvarn",                 CON_IFVARN },
     { "ifvaror",                CON_IFVAROR },
+    { "ifvarvara",              CON_IFVARVARA },
+    { "ifvarvarae",             CON_IFVARVARAE },
     { "ifvarvarand",            CON_IFVARVARAND },
+    { "ifvarvarb",              CON_IFVARVARB },
+    { "ifvarvarbe",             CON_IFVARVARBE },
     { "ifvarvarboth",           CON_IFVARVARBOTH },
     { "ifvarvare",              CON_IFVARVARE },
     { "ifvarvareither",         CON_IFVARVAREITHER },
@@ -534,6 +542,10 @@ static tokenmap_t const vm_keywords[] =
     { "and",                    CON_ANDVARVAR },
     { "or",                     CON_ORVARVAR },
     { "xor",                    CON_XORVARVAR },
+    { "ifa",                    CON_IFVARVARA },
+    { "ifae",                   CON_IFVARVARAE },
+    { "ifb",                    CON_IFVARVARB },
+    { "ifbe",                   CON_IFVARVARBE },
     { "ifl",                    CON_IFVARVARL },
     { "ifle",                   CON_IFVARVARLE },
     { "ifg",                    CON_IFVARVARG },
@@ -4638,6 +4650,10 @@ DO_DEFSTATE:
         case CON_IFVARVARE:
         case CON_IFVARVARLE:
         case CON_IFVARVARGE:
+        case CON_IFVARVARA:
+        case CON_IFVARVARB:
+        case CON_IFVARVARAE:
+        case CON_IFVARVARBE:
         case CON_IFVARVARBOTH:
         case CON_IFVARVARN:
         case CON_IFVARVARAND:
@@ -4688,6 +4704,10 @@ DO_DEFSTATE:
         case CON_IFVARLE:
         case CON_IFVARG:
         case CON_IFVARGE:
+        case CON_IFVARA:
+        case CON_IFVARAE:
+        case CON_IFVARB:
+        case CON_IFVARBE:
         case CON_IFVARE:
         case CON_IFVARN:
         case CON_IFVARAND:
