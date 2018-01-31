@@ -337,6 +337,11 @@ typedef walltypevx walltype;
 typedef uwalltypevx uwalltype;
 #endif
 
+// this is probably never going to be necessary
+EDUKE32_STATIC_ASSERT(sizeof(sectortype) == sizeof(usectortype));
+EDUKE32_STATIC_ASSERT(sizeof(walltype) == sizeof(uwalltype));
+EDUKE32_STATIC_ASSERT(sizeof(spritetype) == sizeof(uspritetype));
+
 #ifdef NEW_MAP_FORMAT
 
 # define SECTORVX_SZ1 offsetof(sectortypevx, ceilingpicnum)
