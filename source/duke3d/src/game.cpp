@@ -4082,7 +4082,7 @@ PALONLY:
             if (actor[i].picnum == BLIMP && t->picnum == SCRAP1 && pSprite->yvel >= 0)
                 t->picnum = pSprite->yvel < MAXUSERTILES ? pSprite->yvel : 0;
             else t->picnum += T1(i);
-            t->shade = -128+6 < t->shade ? t->shade-6 : -128;
+            t->shade = max(t->shade-6, -128);
 
             G_MaybeTakeOnFloorPal(t, sect);
             break;
