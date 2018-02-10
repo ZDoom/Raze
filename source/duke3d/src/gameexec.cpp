@@ -1237,6 +1237,9 @@ void Screen_Play(void)
     {
         G_HandleAsync();
 
+        if (!G_FPSLimit())
+            continue;
+
         clearallviews(0);
         if (VM_OnEventWithReturn(EVENT_SCREEN, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
             running = 0;
