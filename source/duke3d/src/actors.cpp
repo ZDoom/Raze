@@ -1360,7 +1360,7 @@ ACTOR_STATIC void G_MoveFX(void)
 
         case MUSICANDSFX__STATIC:
         {
-            int const           spriteHitag = pSprite->hitag;
+            int32_t const       spriteHitag = (uint16_t)pSprite->hitag;
             DukePlayer_t *const pPlayer     = g_player[screenpeek].ps;
 
             if (T2(spriteNum) != ud.config.SoundToggle)
@@ -1372,7 +1372,7 @@ ACTOR_STATIC void G_MoveFX(void)
 
             if (pSprite->lotag >= 1000 && pSprite->lotag < 2000)
             {
-                int playerDist = ldist(&sprite[pPlayer->i],pSprite);
+                int32_t playerDist = ldist(&sprite[pPlayer->i], pSprite);
 
 #ifdef SPLITSCREEN_MOD_HACKS
                 if (g_fakeMultiMode==2)
