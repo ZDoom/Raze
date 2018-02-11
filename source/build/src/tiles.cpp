@@ -22,6 +22,8 @@ static uint8_t *g_bakTileFileNum;
 static int32_t *g_bakTileFileOffs;
 static vec2s_t *g_bakTileSiz;
 static picanm_t *g_bakPicAnm;
+static char * g_bakFakeTile;
+static char ** g_bakFakeTileData;
 // NOTE: picsiz[] is not backed up, but recalculated when necessary.
 
 //static int32_t artsize = 0;
@@ -51,32 +53,20 @@ static inline void E_RecalcPicSiz(void)
         set_picsiz(i);
 }
 
-#define RESTORE_MAPART_ARRAY(origar, bakar)                                                                            \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        EDUKE32_STATIC_ASSERT(sizeof(origar[0]) == sizeof(bakar[0]));                                                  \
-        Bmemcpy(origar, bakar, MAXUSERTILES * sizeof(origar[0]));                                                      \
-        DO_FREE_AND_NULL(bakar);                                                                                       \
-    \
-} while (0)
-
-// Allocate per-map ART backup array and back up the original!
-#ifdef __cplusplus
 template <typename origar_t, typename bakar_t>
-static inline void ALLOC_MAPART_ARRAY(origar_t &origar, bakar_t &bakar)
+static inline void RESTORE_MAPART_ARRAY(origar_t & origar, bakar_t & bakar)
 {
-    bakar = (bakar_t) Xmalloc(MAXUSERTILES*sizeof(origar[0]));
-    Bmemcpy(bakar, origar, MAXUSERTILES*sizeof(origar[0]));
+    EDUKE32_STATIC_ASSERT(sizeof(origar[0]) == sizeof(bakar[0]));
+    Bmemcpy(origar, bakar, ARRAY_SIZE(origar) * sizeof(origar[0]));
+    DO_FREE_AND_NULL(bakar);
 }
-#else
-#define ALLOC_MAPART_ARRAY(origar, bakar)                                                                              \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        bakar = Xmalloc(MAXUSERTILES * sizeof(origar[0]));                                                             \
-        Bmemcpy(bakar, origar, MAXUSERTILES * sizeof(origar[0]));                                                      \
-    \
-} while (0)
-#endif
+
+template <typename origar_t, typename bakar_t>
+static inline void ALLOC_MAPART_ARRAY(origar_t & origar, bakar_t & bakar)
+{
+    bakar = (bakar_t) Xmalloc(ARRAY_SIZE(origar) * sizeof(origar[0]));
+    Bmemcpy(bakar, origar, ARRAY_SIZE(origar) * sizeof(origar[0]));
+}
 
 void E_MapArt_Clear(void)
 {
@@ -109,6 +99,17 @@ void E_MapArt_Clear(void)
     RESTORE_MAPART_ARRAY(tilefileoffs, g_bakTileFileOffs);
     RESTORE_MAPART_ARRAY(tilesiz, g_bakTileSiz);
     RESTORE_MAPART_ARRAY(picanm, g_bakPicAnm);
+    RESTORE_MAPART_ARRAY(faketile, g_bakFakeTile);
+
+    for (size_t i = 0; i < MAXUSERTILES; ++i)
+    {
+        if (faketiledata[i] != g_bakFakeTileData[i])
+        {
+            free(faketiledata[i]);
+            faketiledata[i] = g_bakFakeTileData[i];
+        }
+    }
+    DO_FREE_AND_NULL(g_bakFakeTileData);
 
     E_RecalcPicSiz();
 #ifdef USE_OPENGL
@@ -147,6 +148,8 @@ void E_MapArt_Setup(const char *filename)
     ALLOC_MAPART_ARRAY(tilefileoffs, g_bakTileFileOffs);
     ALLOC_MAPART_ARRAY(tilesiz, g_bakTileSiz);
     ALLOC_MAPART_ARRAY(picanm, g_bakPicAnm);
+    ALLOC_MAPART_ARRAY(faketile, g_bakFakeTile);
+    ALLOC_MAPART_ARRAY(faketiledata, g_bakFakeTileData);
 
     for (bssize_t i=MAXARTFILES_BASE; i<MAXARTFILES_TOTAL; i++)
     {
@@ -184,6 +187,23 @@ void E_CreateDummyTile(int32_t const tile)
     DO_FREE_AND_NULL(faketiledata[tile]);
 }
 
+static void E_CreateFakeTileNonDestructive(int32_t const tile, int32_t tsiz, char const * const buffer)
+{
+    int const compressed_tsiz = LZ4_compressBound(tsiz);
+    char * newtile = (char *) Xmalloc(compressed_tsiz);
+
+    if ((tsiz = LZ4_compress_default(buffer, newtile, tsiz, compressed_tsiz)) != -1)
+    {
+        faketiledata[tile] = (char *) Xrealloc(newtile, tsiz);
+        faketile[tile>>3] |= pow2char[tile&7];
+        tilefilenum[tile] = MAXARTFILES_TOTAL;
+    }
+    else
+    {
+        free(newtile);
+    }
+}
+
 void E_CreateFakeTile(int32_t const tile, int32_t tsiz, char const * const buffer)
 {
     int const compressed_tsiz = LZ4_compressBound(tsiz);
@@ -193,6 +213,7 @@ void E_CreateFakeTile(int32_t const tile, int32_t tsiz, char const * const buffe
     {
         faketiledata[tile] = (char *) Xrealloc(faketiledata[tile], tsiz);
         faketile[tile>>3] |= pow2char[tile&7];
+        tilefilenum[tile] = MAXARTFILES_TOTAL;
     }
     else
     {
@@ -201,7 +222,7 @@ void E_CreateFakeTile(int32_t const tile, int32_t tsiz, char const * const buffe
     }
 }
 
-void E_UndefineTile(int32_t const tile)
+static void E_UndefineTileNonDestructive(int32_t const tile)
 {
     tilesiz[tile].x = 0;
     tilesiz[tile].y = 0;
@@ -211,10 +232,16 @@ void E_UndefineTile(int32_t const tile)
     walock[tile] = 1;
     waloff[tile] = 0;
 
-    DO_FREE_AND_NULL(faketiledata[tile]);
     faketile[tile>>3] &= ~pow2char[tile&7];
 
     Bmemset(&picanm[tile], 0, sizeof(picanm_t));
+}
+
+void E_UndefineTile(int32_t const tile)
+{
+    E_UndefineTileNonDestructive(tile);
+
+    DO_FREE_AND_NULL(faketiledata[tile]);
 
     vox_undefine(tile);
 
@@ -393,6 +420,29 @@ void E_ReadArtFileIntoFakeData(int32_t const fil, artheader_t const * const loca
     DO_FREE_AND_NULL(buffer);
 }
 
+static void E_ReadArtFileIntoFakeDataNonDestructive(int32_t const fil, artheader_t const * const local)
+{
+    char *buffer = NULL;
+    int32_t buffersize = 0;
+
+    for (bssize_t i=local->tilestart; i<=local->tileend; i++)
+    {
+        int const dasiz = tilesiz[i].x * tilesiz[i].y;
+
+        if (dasiz == 0)
+        {
+            E_UndefineTileNonDestructive(i);
+            continue;
+        }
+
+        maybe_grow_buffer(&buffer, &buffersize, dasiz);
+        kread(fil, buffer, dasiz);
+        E_CreateFakeTileNonDestructive(i, dasiz, buffer);
+    }
+
+    DO_FREE_AND_NULL(buffer);
+}
+
 static const char *E_GetArtFileName(int32_t tilefilei)
 {
     if (tilefilei >= MAXARTFILES_BASE)
@@ -428,15 +478,6 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
 
     if ((fil = kopen4load(fn, 0)) != -1)
     {
-#ifdef WITHKPLIB
-        if (permap && cache1d_file_fromzip(fil))
-        {
-            initprintf("loadpics: per-map ART file \"%s\": can't be read from a ZIP file\n", fn);
-            kclose(fil);
-            return -2;
-        }
-#endif
-
         artheader_t local;
         int const headerval = E_ReadArtFileHeader(fil, fn, &local);
         if (headerval != 0)
@@ -471,7 +512,10 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
 
         if (cache1d_file_fromzip(fil))
         {
-            E_ReadArtFileIntoFakeData(fil, &local);
+            if (permap)
+                E_ReadArtFileIntoFakeDataNonDestructive(fil, &local);
+            else
+                E_ReadArtFileIntoFakeData(fil, &local);
         }
         else
         {
