@@ -1185,7 +1185,7 @@ static void prelevel(char g)
                 // the lower code only for the 'on' state (*)
                 if (ii==0)
                 {
-                    int const tag = sprite[i].lotag;
+                    uint16_t const tag = sprite[i].lotag;
                     tagbitmap[tag>>3] |= 1<<(tag&7);
                 }
 
@@ -1197,7 +1197,7 @@ static void prelevel(char g)
     // initially 'on' SE 12 light (*)
     for (bssize_t j=headspritestat[STAT_EFFECTOR]; j>=0; j=nextspritestat[j])
     {
-        int const tag = sprite[j].hitag;
+        uint16_t const tag = sprite[j].hitag;
 
         if (sprite[j].lotag == SE_12_LIGHT_SWITCH && tagbitmap[tag>>3]&(1<<(tag&7)))
             actor[j].t_data[0] = 1;
