@@ -89,6 +89,7 @@ extern const char *g_gameNamePtr;
 
 extern char *g_grpNamePtr;
 extern char *g_scriptNamePtr;
+extern char *g_rtsNamePtr;
 
 extern const char *G_DefaultGrpFile(void);
 extern const char *G_GrpFile(void);

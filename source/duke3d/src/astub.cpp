@@ -10091,6 +10091,8 @@ void ExtUnInit(void)
     for (i = numhelppages-1; i >= 0; i--) Bfree(helppage[i]);
     Bfree(helppage);
 #endif
+
+    Duke_CommonCleanup();
 }
 
 void ExtPreCheckKeys(void) // just before drawrooms

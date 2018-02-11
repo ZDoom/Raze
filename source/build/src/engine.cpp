@@ -7838,6 +7838,8 @@ void uninitengine(void)
     DO_FREE_AND_NULL(multipsky);
     DO_FREE_AND_NULL(multipskytile);
     pskynummultis = 0;
+
+    DO_FREE_AND_NULL(g_defNamePtr);
 }
 
 

@@ -426,7 +426,8 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 {
                     if (argc > i+1)
                     {
-                        g_rtsNamePtr = argv[i+1];
+                        free(g_rtsNamePtr);
+                        g_rtsNamePtr = dup_filename(argv[i+1]);
                         Bstrncpyz(ud.rtsname, g_rtsNamePtr, sizeof(ud.rtsname));
                         initprintf("Using RTS file \"%s\".\n", ud.rtsname);
                         i++;
@@ -819,7 +820,8 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     }
                     if (!Bstrcasecmp(k, ".rts"))
                     {
-                        g_rtsNamePtr = argv[i++];
+                        free(g_rtsNamePtr);
+                        g_rtsNamePtr = dup_filename(argv[i++]);
                         Bstrncpyz(ud.rtsname, g_rtsNamePtr, sizeof(ud.rtsname));
                         initprintf("Using RTS file \"%s\".\n", ud.rtsname);
                         continue;

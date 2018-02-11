@@ -118,6 +118,7 @@ static void LoadList(const char * filename)
             T_SCRIPTNAME,
             T_DEFNAME,
             T_FLAGS,
+            T_RTSNAME,
         };
 
         static const tokenlist profiletokens[] =
@@ -132,6 +133,7 @@ static void LoadList(const char * filename)
         {
             int32_t gsize = 0, gcrcval = 0, gflags = GAMEFLAG_DUKE, gdepcrc = DUKE15_CRC;
             char *gname = NULL, *gscript = NULL, *gdef = NULL;
+            char *grts = NULL;
             char *grpend = NULL;
 
             static const tokenlist grpinfotokens[] =
@@ -139,6 +141,7 @@ static void LoadList(const char * filename)
                 { "name",           T_GAMENAME },
                 { "scriptname",     T_SCRIPTNAME },
                 { "defname",        T_DEFNAME },
+                { "rtsname",        T_RTSNAME },
                 { "crc",            T_CRC },
                 { "dependency",     T_DEPCRC },
                 { "size",           T_SIZE },
@@ -160,6 +163,8 @@ static void LoadList(const char * filename)
                     scriptfile_getstring(script,&gscript); break;
                 case T_DEFNAME:
                     scriptfile_getstring(script,&gdef); break;
+                case T_RTSNAME:
+                    scriptfile_getstring(script,&grts); break;
 
                 case T_FLAGS:
                     scriptfile_getsymbol(script,&gflags); gflags &= GAMEFLAGMASK; break;
@@ -190,6 +195,9 @@ static void LoadList(const char * filename)
 
                 if (gdef)
                     fg->defname = dup_filename(gdef);
+
+                if (grts)
+                    fg->rtsname = dup_filename(grts);
             }
             break;
         }
@@ -241,6 +249,7 @@ static void FreeGameList(void)
         Bfree(listgrps->name);
         Bfree(listgrps->scriptname);
         Bfree(listgrps->defname);
+        Bfree(listgrps->rtsname);
 
         grpinfo_t * const fg = listgrps->next;
         Bfree(listgrps);

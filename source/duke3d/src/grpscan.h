@@ -82,6 +82,7 @@ typedef struct grpinfo_t {
     int32_t dependency;
     char *scriptname;
     char *defname;
+    char *rtsname;
     void (*postprocessing)(int32_t);
 	struct grpinfo_t *next;
 } grpinfo_t;

@@ -93,9 +93,6 @@ int32_t g_Debug = 0;
 
 const char *defaultrtsfilename[GAMECOUNT] = { "DUKE.RTS", "NAM.RTS", "NAPALM.RTS", "WW2GI.RTS" };
 
-// g_rtsNamePtr can point to an argv[] element
-const char *g_rtsNamePtr = NULL;
-
 int32_t g_Shareware = 0;
 
 // This was 32 for a while, but I think lowering it to 24 will help things like the Dingoo.
@@ -5585,6 +5582,8 @@ static void G_Cleanup(void)
 
     hash_loop(&h_dukeanim, G_FreeHashAnim);
     hash_free(&h_dukeanim);
+
+    Duke_CommonCleanup();
 }
 
 /*
