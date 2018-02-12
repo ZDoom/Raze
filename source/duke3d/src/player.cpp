@@ -3051,10 +3051,12 @@ void P_GetInput(int playerNum)
     }
 
     localInput.fvel = mulscale9(staticInput.fvel, sintable[(pPlayer->ang + 2560) & 2047]) +
-                      (mulscale9(staticInput.svel, sintable[(pPlayer->ang + 2048) & 2047]));
+                      mulscale9(staticInput.svel, sintable[(pPlayer->ang + 2048) & 2047]) +
+                      pPlayer->fric.x;
 
     localInput.svel = mulscale9(staticInput.fvel, sintable[(pPlayer->ang + 2048) & 2047]) +
-                      (mulscale9(staticInput.svel, sintable[(pPlayer->ang + 1536) & 2047]));
+                      mulscale9(staticInput.svel, sintable[(pPlayer->ang + 1536) & 2047]) +
+                      pPlayer->fric.y;
 
     localInput.avel = staticInput.avel;
     localInput.horz = staticInput.horz;
@@ -5223,13 +5225,11 @@ HORIZONLY:;
             updatesectorz(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z, &pPlayer->cursectnum);
         }
 #endif
-        int const spriteNum = clipmove((vec3_t *) pPlayer, &pPlayer->cursectnum, pPlayer->vel.x + (pPlayer->fric.x << 9),
-            pPlayer->vel.y + (pPlayer->fric.y << 9), pPlayer->clipdist, (4L << 8), stepHeight, CLIPMASK0);
+        int const spriteNum = clipmove((vec3_t *) pPlayer, &pPlayer->cursectnum, pPlayer->vel.x,
+            pPlayer->vel.y, pPlayer->clipdist, (4L << 8), stepHeight, CLIPMASK0);
 
         if (spriteNum)
             P_CheckTouchDamage(pPlayer, spriteNum);
-
-        pPlayer->fric.x = pPlayer->fric.y = 0;
     }
 
     // This makes the player view lower when shrunk.  NOTE that it can get the
