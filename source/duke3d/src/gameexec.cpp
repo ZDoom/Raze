@@ -1237,6 +1237,8 @@ void Screen_Play(void)
     {
         G_HandleAsync();
 
+        ototalclock = totalclock + 1; // pause game like ANMs
+
         if (!G_FPSLimit())
             continue;
 
@@ -1244,11 +1246,9 @@ void Screen_Play(void)
         if (VM_OnEventWithReturn(EVENT_SCREEN, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
             running = 0;
 
-        nextpage();
+        // nextpage();
 
         I_ClearAllInput();
-
-        ototalclock = totalclock + 1; // pause game like ANMs
     } while (running);
 }
 
