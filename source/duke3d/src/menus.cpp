@@ -237,7 +237,7 @@ static MenuEntryFormat_t MEF_Null =             {     0,      0,          0 };
 static MenuEntryFormat_t MEF_MainMenu =         { 4<<16,      0,          0 };
 static MenuEntryFormat_t MEF_OptionsMenu =      { 7<<16,      0,          0 };
 static MenuEntryFormat_t MEF_CenterMenu =       { 7<<16,      0,          0 };
-static MenuEntryFormat_t MEF_BigOptions_Apply = { 4<<16, 16<<16, -(244<<16) };
+static MenuEntryFormat_t MEF_BigOptions_Apply = { 4<<16, 16<<16, -(260<<16) };
 static MenuEntryFormat_t MEF_BigOptionsRt =     { 4<<16,      0, -(260<<16) };
 #if defined USE_OPENGL || !defined EDUKE32_ANDROID_MENU
 static MenuEntryFormat_t MEF_SmallOptions =     { 1<<16,      0,    216<<16 };
@@ -583,7 +583,7 @@ static MenuEntry_t ME_SCREENSETUP_CROSSHAIRSIZE = MAKE_MENUENTRY( s_Scale, &MF_R
 
 static int32_t vpsize;
 static MenuRangeInt32_t MEO_SCREENSETUP_SCREENSIZE = MAKE_MENURANGE( &vpsize, &MF_Redfont, 0, 0, 0, 1, EnforceIntervals );
-static MenuEntry_t ME_SCREENSETUP_SCREENSIZE = MAKE_MENUENTRY( "Screen size:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_SCREENSIZE, RangeInt32 );
+static MenuEntry_t ME_SCREENSETUP_SCREENSIZE = MAKE_MENUENTRY( "Status bar:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_SCREENSIZE, RangeInt32 );
 static MenuRangeInt32_t MEO_SCREENSETUP_TEXTSIZE = MAKE_MENURANGE( &ud.textscale, &MF_Redfont, 100, 400, 0, 16, 2 );
 static MenuEntry_t ME_SCREENSETUP_TEXTSIZE = MAKE_MENUENTRY( s_Scale, &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SCREENSETUP_TEXTSIZE, RangeInt32 );
 static MenuOption_t MEO_SCREENSETUP_LEVELSTATS = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &ud.levelstats);
@@ -1109,13 +1109,10 @@ static MenuEntry_t *MEL_COLCORR[] = {
 };
 
 static MenuEntry_t *MEL_SCREENSETUP[] = {
-#ifndef EDUKE32_SIMPLE_MENU
-    &ME_SCREENSETUP_SCREENSIZE,
-#endif
-
 #ifdef EDUKE32_ANDROID_MENU
     &ME_SCREENSETUP_STATUSBARONTOP,
 #endif
+    &ME_SCREENSETUP_SCREENSIZE,
     &ME_SCREENSETUP_SBARSIZE,
 
     &ME_SCREENSETUP_CROSSHAIR,
@@ -1879,7 +1876,7 @@ static void Menu_Pre(MenuID_t cm)
                                            !(ud.statusbarflags & STATUSBAR_NOOVERLAY) +
                                            !(ud.statusbarflags & STATUSBAR_NOFULL) +
                                            !(ud.statusbarflags & STATUSBAR_NOSHRINK) * 14;
-        MEO_SCREENSETUP_SCREENSIZE.min = MEO_SCREENSETUP_SCREENSIZE.steps - 1;
+        MEO_SCREENSETUP_SCREENSIZE.max = MEO_SCREENSETUP_SCREENSIZE.steps - 1;
         MenuEntry_DisableOnCondition(&ME_SCREENSETUP_SCREENSIZE, (MEO_SCREENSETUP_SCREENSIZE.steps < 2));
 
         vpsize = !(ud.statusbarflags & STATUSBAR_NONONE) +
@@ -4433,7 +4430,8 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             if (entry == NULL)
                 continue;
 
-            int32_t x = menu->format->pos.x + entry->getIndent();
+            int32_t const indent = entry->getIndent();
+            int32_t x = menu->format->pos.x;
 
             uint8_t status = 0;
             if (e == menu->currentEntry)
@@ -4453,7 +4451,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
             vec2_t textsize;
             if (dodraw)
-                textsize = Menu_Text(origin.x + x, y_internal, entry->font, entry->name, status, ydim_upper, ydim_lower);
+                textsize = Menu_Text(origin.x + x + indent, y_internal, entry->font, entry->name, status, ydim_upper, ydim_lower);
 
             if (entry->format->width < 0)
                 status |= MT_XRight;
@@ -4466,7 +4464,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                     Menu_DrawCursorRight(origin.x + (MENU_MARGIN_CENTER<<16) - entry->font->cursorCenterPosition, y_internal, entry->font->cursorScale);
                 }
                 else
-                    Menu_DrawCursorLeft(origin.x + x - entry->font->cursorLeftPosition, y_internal, entry->font->cursorScale);
+                    Menu_DrawCursorLeft(origin.x + x + indent - entry->font->cursorLeftPosition, y_internal, entry->font->cursorScale);
             }
 
             if (entry->name != nullptr && entry->name[0] != '\0')
@@ -4477,7 +4475,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 
             if (dodraw)
             {
-                const int32_t mousex = origin.x + entry->format->width == 0 ? x - textsize.x/2 : x;
+                const int32_t mousex = origin.x + indent + entry->format->width == 0 ? x - textsize.x/2 : x;
                 const int32_t mousey = origin.y + y_upper + y - menu->scrollPos;
                 int32_t mousewidth = entry->format->width == 0 ? textsize.x : klabs(entry->format->width);
 
@@ -6702,7 +6700,28 @@ void M_DisplayMenus(void)
         int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYCURSOR, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
 
         if ((unsigned) a < MAXTILES)
-            rotatesprite_fs_alpha(m_mousepos.x, m_mousepos.y, 65536, 0, a, 0, CROSSHAIR_PAL, 2|1, MOUSEALPHA);
+        {
+            vec2_t cursorpos = m_mousepos;
+            int32_t z = 65536;
+            uint8_t p = CROSSHAIR_PAL;
+            uint32_t o = 1|2;
+
+            auto const oyxaspect = yxaspect;
+            if (KXDWN)
+            {
+                setaspect(viewingrange, 65536);
+                cursorpos.x = scale(cursorpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
+                cursorpos.y = scale(cursorpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15);
+                z = scale(65536, ydim << 2, xdim * 3);
+                p = 0;
+                o |= 1024;
+            }
+
+            rotatesprite_fs_alpha(cursorpos.x, cursorpos.y, z, 0, a, 0, p, o, MOUSEALPHA);
+
+            if (KXDWN)
+                setaspect(viewingrange, oyxaspect);
+        }
     }
     else
         mousepressstate = Mouse_Idle;

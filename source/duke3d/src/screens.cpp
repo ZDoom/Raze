@@ -99,7 +99,7 @@ void G_GetCrosshairColor(void)
     // use the brightest color in the original 8-bit tile
     int32_t bri = 0, j = 0, i;
     int32_t ii;
-    char *ptr = (char *) waloff[CROSSHAIR];
+    char const *ptr = (char const *) waloff[CROSSHAIR];
 
     if (DefaultCrosshairColors.f)
         return;
@@ -107,7 +107,7 @@ void G_GetCrosshairColor(void)
     if (waloff[CROSSHAIR] == 0)
     {
         loadtile(CROSSHAIR);
-        ptr = (char *) waloff[CROSSHAIR];
+        ptr = (char const *) waloff[CROSSHAIR];
     }
 
     ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
@@ -131,6 +131,9 @@ void G_GetCrosshairColor(void)
 
 void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
 {
+    if (KXDWN)
+        return;
+
     int32_t i, ii;
 
     if (g_crosshairSum == r+(g<<8)+(b<<16)) return;
@@ -1161,7 +1164,7 @@ void G_DisplayRest(int32_t smoothratio)
             if (a == 0)
                 a = CROSSHAIR;
 
-            vec2_t crosshairpos = { 160<<16, 100<<16 };
+            vec2_t crosshairpos = { (160<<16) - (g_player[myconnectindex].ps->look_ang<<15), 100<<16 };
 
             uint8_t crosshair_pal = CROSSHAIR_PAL;
             uint32_t crosshair_o = 1|2;
@@ -1171,18 +1174,23 @@ void G_DisplayRest(int32_t smoothratio)
 
             if (KXDWN)
             {
-                crosshair_scale >>= 1;
+                crosshairpos.x = scale(crosshairpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
+                // crosshairpos.y = scale(crosshairpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15); // no-op for constant centering
+                crosshair_scale = scale(crosshair_scale, ydim << 2, xdim * 3) >> 1;
                 crosshair_pal = 0;
                 crosshair_o |= 1024;
                 setaspect(viewingrange, 65536);
             }
 
-            rotatesprite_win(crosshairpos.x-(g_player[myconnectindex].ps->look_ang<<15), crosshairpos.y, crosshair_scale,
-                0, a, 0, crosshair_pal, crosshair_o);
+            rotatesprite_win(crosshairpos.x, crosshairpos.y, crosshair_scale, 0, a, 0, crosshair_pal, crosshair_o);
 
 #ifdef GEKKO
             if ((g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && readmouseabsxy(&crosshairpos, &mouseabs))
+            {
+                crosshairpos.x = scale(crosshairpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
+                crosshairpos.y = scale(crosshairpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15);
                 rotatesprite_win(crosshairpos.x, crosshairpos.y, crosshair_scale, 0, a, 0, crosshair_pal, crosshair_o);
+            }
 #endif
 
             if (KXDWN)
