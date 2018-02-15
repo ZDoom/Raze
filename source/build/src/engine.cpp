@@ -92,6 +92,8 @@ static inline int32_t oldnonpow2(void)
 #endif
 }
 
+uint8_t globalr = 255, globalg = 255, globalb = 255;
+
 int16_t pskybits_override = -1;
 
 //void loadvoxel(int32_t voxindex) { UNREFERENCED_PARAMATER(voxindex); }

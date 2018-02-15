@@ -606,7 +606,7 @@ static FORCE_INLINE int32_t Blrintf(const float x)
     return n;
 }
 #else
-#define Blrintf lrintf
+#define Blrintf(x) ((int32_t)lrintf(x))
 #endif
 
 #if defined(__arm__)

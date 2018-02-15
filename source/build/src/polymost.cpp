@@ -32,7 +32,6 @@ extern char textfont[2048], smalltextfont[2048];
 int32_t rendmode=0;
 int32_t usemodels=1;
 int32_t usehightile=1;
-uint8_t globalr=255, globalg=255, globalb=255;
 
 typedef struct { float x, cy[2], fy[2]; int32_t tag; int16_t n, p, ctag, ftag; } vsptyp;
 #define VSPMAX 2048 //<- careful!

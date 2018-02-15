@@ -294,6 +294,9 @@ void hicsetpalettetint(int32_t palnum, char r, char g, char b, char sr, char sg,
     UNREFERENCED_PARAMETER(r);
     UNREFERENCED_PARAMETER(g);
     UNREFERENCED_PARAMETER(b);
+    UNREFERENCED_PARAMETER(sr);
+    UNREFERENCED_PARAMETER(sg);
+    UNREFERENCED_PARAMETER(sb);
     UNREFERENCED_PARAMETER(effect);
 }
 int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float alphacut)

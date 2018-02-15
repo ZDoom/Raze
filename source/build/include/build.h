@@ -860,8 +860,8 @@ extern int32_t usevoxels, voxscale[MAXVOXELS];
 #ifdef USE_OPENGL
 extern int32_t usemodels, usehightile;
 extern int32_t rendmode;
-extern uint8_t globalr, globalg, globalb;
 #endif
+extern uint8_t globalr, globalg, globalb;
 EXTERN uint16_t h_xsize[MAXTILES], h_ysize[MAXTILES];
 EXTERN int8_t h_xoffs[MAXTILES], h_yoffs[MAXTILES];
 
@@ -1288,6 +1288,12 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype);
 
 typedef uint16_t polytintflags_t;
 
+enum cutsceneflags {
+    CUTSCENE_FORCEFILTER = 1,
+    CUTSCENE_FORCENOFILTER = 2,
+    CUTSCENE_TEXTUREFILTER = 4,
+};
+
 #ifdef USE_OPENGL
 extern int32_t glanisotropy;
 extern int32_t glusetexcompr;
@@ -1296,12 +1302,6 @@ extern int32_t gltexfiltermode;
 enum {
     TEXFILTER_OFF = 0, // GL_NEAREST
     TEXFILTER_ON = 5, // GL_LINEAR_MIPMAP_LINEAR
-};
-
-enum cutsceneflags {
-    CUTSCENE_FORCEFILTER = 1,
-    CUTSCENE_FORCENOFILTER = 2,
-    CUTSCENE_TEXTUREFILTER = 4,
 };
 
 extern int32_t glusetexcache, glusememcache;
