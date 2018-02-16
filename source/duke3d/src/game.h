@@ -390,7 +390,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set);
 // Cstat protection mask for (currently) spawned MASKWALL* sprites.
 // TODO: look at more cases of cstat=(cstat&PROTECTED)|ADDED in A_Spawn()?
 // 2048+(32+16)+8+4
-#define SPAWN_PROTECT_CSTAT_MASK (CSTAT_SPRITE_NOSHADE|CSTAT_SPRITE_SLAB|CSTAT_SPRITE_XFLIP|CSTAT_SPRITE_YFLIP);
+#define SPAWN_PROTECT_CSTAT_MASK (CSTAT_SPRITE_NOSHADE|CSTAT_SPRITE_ALIGNMENT_SLAB|CSTAT_SPRITE_XFLIP|CSTAT_SPRITE_YFLIP);
 
 void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);
 //void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);

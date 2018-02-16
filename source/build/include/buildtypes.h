@@ -101,6 +101,33 @@ typedef struct
 //   bit 13: 1 = does not cast shadow
 //   bit 14: 1 = invisible but casts shadow
 //   bit 15: 1 = Invisible sprite, 0 = not invisible
+#ifndef buildtypes_h__enums
+enum
+{
+    CSTAT_SPRITE_BLOCK = 1u,
+    CSTAT_SPRITE_TRANSLUCENT = 1u<<1u,
+    CSTAT_SPRITE_XFLIP = 1u<<2u,
+    CSTAT_SPRITE_YFLIP = 1u<<3u,
+    CSTAT_SPRITE_ALIGNMENT = 1u<<4u | 1u<<5u, // (cstat & CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_xxxxxx can be used to check sprite alignment
+    CSTAT_SPRITE_ONE_SIDED = 1u<<6u,
+    CSTAT_SPRITE_YCENTER = 1u<<7u,
+    CSTAT_SPRITE_BLOCK_HITSCAN = 1u<<8u,
+    CSTAT_SPRITE_TRANSLUCENT_INVERT = 1u<<9u,
+    CSTAT_SPRITE_RESERVED1 = 1u<<10u, // game-side
+    CSTAT_SPRITE_RESERVED2 = 1u<<11u, // game-side
+    CSTAT_SPRITE_RESERVED3 = 1u<<12u,
+    CSTAT_SPRITE_NO_SHADOW = 1u<<13u, // re-defined in Shadow Warrior
+    CSTAT_SPRITE_INVISIBLE_WITH_SHADOW = 1u<<14u, // re-defined in Shadow Warrior
+    CSTAT_SPRITE_INVISIBLE = 1u<<15u,
+};
+enum
+{
+    CSTAT_SPRITE_ALIGNMENT_FACING = 0,
+    CSTAT_SPRITE_ALIGNMENT_WALL = 1u<<4u,
+    CSTAT_SPRITE_ALIGNMENT_FLOOR = 1u<<5u,
+    CSTAT_SPRITE_ALIGNMENT_SLAB = 1u<<4u | 1u<<5u,
+};
+#endif
 
 //44 bytes
 typedef struct
@@ -165,5 +192,9 @@ typedef struct
 
 #undef StructTracker
 #undef StructName
+
+#ifndef buildtypes_h__enums
+#define buildtypes_h__enums
+#endif
 
 #endif // buildtypes_h__

@@ -1750,7 +1750,7 @@ SpriteSetupPost(void)
             if (ds->picnum == ST1)
                 continue;
 
-            if (TEST(ds->cstat, CSTAT_SPRITE_WALL|CSTAT_SPRITE_FLOOR))
+            if (TEST(ds->cstat, CSTAT_SPRITE_ALIGNMENT_WALL|CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 continue;
 
             if (User[i])
@@ -1818,8 +1818,8 @@ SpriteSetup(void)
         }
 
         // CSTAT_SPIN is insupported - get rid of it
-        if (TEST(sp->cstat, CSTAT_SPRITE_SLAB) == CSTAT_SPRITE_SLAB)
-            RESET(sp->cstat, CSTAT_SPRITE_SLAB);
+        if (TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT) == CSTAT_SPRITE_ALIGNMENT_SLAB)
+            RESET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_SLAB);
 
         // if BLOCK is set set BLOCK_HITSCAN
         // Hope this doesn't screw up anything
@@ -1904,7 +1904,7 @@ SpriteSetup(void)
             short track_num;
 
             // skip this sprite, just for numbering walls/sectors
-            if (TEST(sprite[SpriteNum].cstat, CSTAT_SPRITE_WALL))
+            if (TEST(sprite[SpriteNum].cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
                 continue;
 
             track_num = sprite[SpriteNum].picnum - TRACK_SPRITE + 0;
@@ -3127,7 +3127,7 @@ KeyMain:
 
                 u->spal = sprite[SpriteNum].pal; // Set the palette from build
 
-                //SET(sp->cstat, CSTAT_SPRITE_WALL);
+                //SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 
                 ChangeState(SpriteNum, s_Key[num]);
 
@@ -4595,7 +4595,7 @@ int SpawnItemsMatch(short match)
 
             // need to set the palette here - suggest table lookup
             u->spal = sprite[SpriteNum].pal = KeyPal[num];
-            //SET(sp->cstat, CSTAT_SPRITE_WALL);
+            //SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 
 
             ChangeState(SpriteNum, s_Key[num]);
@@ -4973,7 +4973,7 @@ ActorDrop(short SpriteNum, int x, int y, int z, short new_sector, short min_heig
         SPRITEp hsp = &sprite[florhit & 4095];
 
         // if its a floor sprite and not too far down
-        if (TEST(hsp->cstat, CSTAT_SPRITE_FLOOR) &&
+        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR) &&
             (labs(loz - z) <= min_height))
         {
             return FALSE;
@@ -6452,7 +6452,7 @@ KeyMain:
             // Attach flag to player
             nu->Counter = 0;
             RESET(np->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
-            SET(np->cstat, CSTAT_SPRITE_WALL);
+            SET(np->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
             SetAttach(pp->PlayerSprite, New);
             nu->sz = SPRITEp_MID(&sprite[pp->PlayerSprite]);  // Set mid way up who it hit
             nu->spal = np->pal = sp->pal;   // Set the palette of the flag

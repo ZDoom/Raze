@@ -258,7 +258,7 @@ DoShadowFindGroundPoint(uspritetype * sp)
     {
         hsp = &sprite[NORM_SPRITE(florhit)];
 
-        if (TEST(hsp->cstat, CSTAT_SPRITE_FLOOR))
+        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
             return loz;
@@ -415,7 +415,7 @@ DoShadows(uspritetype * tsp, int viewz)
     loz = tu->loz;
     if (tu->lo_sp)
     {
-        if (!TEST(tu->lo_sp->cstat, CSTAT_SPRITE_WALL | CSTAT_SPRITE_FLOOR))
+        if (!TEST(tu->lo_sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             loz = DoShadowFindGroundPoint(tsp);
         }
@@ -536,7 +536,7 @@ DoMotionBlur(uspritetype const * tsp)
     {
         New = &tsprite[spritesortcnt];
         memcpy(New, tsp, sizeof(SPRITE));
-        SET(New->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANS_FLIP);
+        SET(New->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_TRANSLUCENT_INVERT);
 
         New->x += dx;
         New->y += dy;
@@ -559,7 +559,7 @@ DoMotionBlur(uspritetype const * tsp)
 
 void SetVoxelSprite(SPRITEp sp, short pic)
 {
-    SET(sp->cstat, CSTAT_SPRITE_SLAB);
+    SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_SLAB);
     sp->picnum = pic;
 }
 
@@ -780,7 +780,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                     tsp->picnum = DART_PIC;
                     tsp->ang = NORM_ANGLE(tsp->ang - 512 - 24);
                     tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
-                    SET(tsp->cstat, CSTAT_SPRITE_WALL);
+                    SET(tsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
                 }
                 else
                     DoStarView(tsp, tu, viewz);
@@ -845,7 +845,7 @@ analyzesprites(int viewx, int viewy, int viewz, SWBOOL mirror)
                 tsp->picnum = DART_PIC;
                 tsp->ang = NORM_ANGLE(tsp->ang - 512);
                 tsp->xrepeat = tsp->yrepeat = DART_REPEAT;
-                SET(tsp->cstat, CSTAT_SPRITE_WALL);
+                SET(tsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
             }
 
         // Call my sprite handler
@@ -1116,7 +1116,7 @@ ViewOutsidePlayerRecurse(PLAYERp pp, int32_t* vx, int32_t* vy, int32_t* vz, int1
         sp = &sprite[hit_sprite];
 
         // if you hit a sprite that's not a wall sprite - try again
-        if (!TEST(sp->cstat, CSTAT_SPRITE_WALL))
+        if (!TEST(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
         {
             FLIP(sp->cstat, CSTAT_SPRITE_BLOCK);
             ViewOutsidePlayerRecurse(pp, vx, vy, vz, ang, vsectnum);
@@ -1215,7 +1215,7 @@ BackView(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
             int flag_backup;
 
             // if you hit a sprite that's not a wall sprite - try again
-            if (!TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (!TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 flag_backup = hsp->cstat;
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -1336,7 +1336,7 @@ CircleCamera(int *nx, int *ny, int *nz, short *vsect, short *nang, short horiz)
             int flag_backup;
 
             // if you hit a sprite that's not a wall sprite - try again
-            if (!TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (!TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 flag_backup = hsp->cstat;
                 RESET(hsp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
@@ -2493,9 +2493,9 @@ drawscreen(PLAYERp pp)
             // Don't show sprites tagged with 257
             if (sprite[j].lotag == 257)
             {
-                if (TEST(sprite[j].cstat, CSTAT_SPRITE_FLOOR))
+                if (TEST(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
-                    RESET(sprite[j].cstat, CSTAT_SPRITE_FLOOR);
+                    RESET(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
                     sprite[j].owner = -2;
                 }
             }
@@ -2515,7 +2515,7 @@ drawscreen(PLAYERp pp)
     {
         // Don't show sprites tagged with 257
         if (sprite[j].lotag == 257 && sprite[j].owner == -2)
-            SET(sprite[j].cstat, CSTAT_SPRITE_FLOOR);
+            SET(sprite[j].cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
     }
 
     // if doing a screen save don't need to process the rest

@@ -792,7 +792,7 @@ DoActorStopFall(short SpriteNum)
 
 
     // don't stand on face or wall sprites - jump again
-    if (u->lo_sp && !TEST(u->lo_sp->cstat, CSTAT_SPRITE_FLOOR))
+    if (u->lo_sp && !TEST(u->lo_sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
     {
         USERp tu = User[u->lo_sp - sprite];
 

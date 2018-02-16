@@ -429,7 +429,7 @@ DoBloodSpray(int16_t Weapon)
             SPRITEp hsp = &sprite[hit_sprite];
             USERp hu = User[hit_sprite];
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 SpawnMidSplash(Weapon);
@@ -648,7 +648,7 @@ DoPhosphorus(int16_t Weapon)
             hsp = &sprite[hit_sprite];
             hu = User[hit_sprite];
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(Weapon, wall_ang);
@@ -875,7 +875,7 @@ DoChemBomb(int16_t Weapon)
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(Weapon, wall_ang);
@@ -1133,7 +1133,7 @@ DoCaltrops(int16_t Weapon)
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(Weapon, wall_ang);

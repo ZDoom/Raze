@@ -464,7 +464,7 @@ int StdRandomRange(int range);
 #define SPRITEp_SIZE_TOS(sp) (DIV2(SPRITEp_SIZE_Z(sp)) + Z(SPRITEp_YOFF(sp)))
 #define SPRITEp_SIZE_BOS(sp) (DIV2(SPRITEp_SIZE_Z(sp)) - Z(SPRITEp_YOFF(sp)))
 
-// acual Z for TOS and BOS - handles both WYSIWYG and old style
+// actual Z for TOS and BOS - handles both WYSIWYG and old style
 #define SPRITEp_TOS(sp) (TEST((sp)->cstat, CSTAT_SPRITE_YCENTER) ? \
                          ((sp)->z - SPRITEp_SIZE_TOS(sp)) :         \
                          ((sp)->z - SPRITEp_SIZE_Z(sp)))
@@ -473,7 +473,7 @@ int StdRandomRange(int range);
                          ((sp)->z + SPRITEp_SIZE_BOS(sp)) :         \
                          (sp)->z)
 
-// mid and upper/lower sprite caluculations
+// mid and upper/lower sprite calculations
 #define SPRITEp_MID(sp) (DIV2(SPRITEp_TOS(sp) + SPRITEp_BOS(sp)))
 #define SPRITEp_UPPER(sp) (SPRITEp_TOS(sp) + DIV4(SPRITEp_SIZE_Z(sp)))
 #define SPRITEp_LOWER(sp) (SPRITEp_BOS(sp) - DIV4(SPRITEp_SIZE_Z(sp)))
@@ -626,24 +626,10 @@ int StdRandomRange(int range);
 //       bit 13: reserved
 //       bit 14: reserved
 //       bit 15: 1 = Invisible sprite, 0 = not invisible
-
-#define CSTAT_SPRITE_BLOCK          BIT(0)
-#define CSTAT_SPRITE_TRANSLUCENT    BIT(1)
-#define CSTAT_SPRITE_XFLIP          BIT(2)
-#define CSTAT_SPRITE_YFLIP          BIT(3)
-#define CSTAT_SPRITE_WALL           BIT(4)
-#define CSTAT_SPRITE_FLOOR          BIT(5)
-#define CSTAT_SPRITE_SLAB           (BIT(4)|BIT(5))
-#define CSTAT_SPRITE_ONE_SIDE       BIT(6)
-#define CSTAT_SPRITE_YCENTER        BIT(7)
-#define CSTAT_SPRITE_BLOCK_HITSCAN  BIT(8)
-#define CSTAT_SPRITE_TRANS_FLIP     BIT(9)
-
 #define CSTAT_SPRITE_RESTORE        BIT(12) // my def
 #define CSTAT_SPRITE_CLOSE_FLOOR    BIT(13) // my def - tells whether a sprite
 // started out close to a ceiling or floor
 #define CSTAT_SPRITE_BLOCK_MISSILE  BIT(14) // my def
-#define CSTAT_SPRITE_INVISIBLE      BIT(15)
 
 #define CSTAT_SPRITE_BREAKABLE (CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_BLOCK_MISSILE)
 
@@ -661,7 +647,7 @@ int StdRandomRange(int range);
 // for actors to clip against walls
 #define CLIPMASK_ACTOR                   \
     (                                    \
-        CS(CSTAT_SPRITE_BLOCK) |             \
+        CS(CSTAT_SPRITE_BLOCK) |          \
         CSTAT_WALL_BLOCK |                   \
         CSTAT_WALL_BLOCK_ACTOR               \
     )

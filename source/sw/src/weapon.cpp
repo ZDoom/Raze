@@ -4633,7 +4633,7 @@ WeaponMoveHit(short SpriteNum)
             //return(TRUE);
         }
 
-        if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
         {
             if (hsp->lotag || hsp->hitag)
             {
@@ -4694,7 +4694,7 @@ WeaponMoveHit(short SpriteNum)
                     return TRUE;
             }
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 if (hsp->lotag || hsp->hitag)
                 {
@@ -8759,7 +8759,7 @@ DoPlasma(int16_t Weapon)
             SPRITEp hsp = &sprite[hit_sprite];
             USERp hu = User[hit_sprite];
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 short hcstat = hsp->cstat;
 
@@ -9033,7 +9033,7 @@ DoGrenade(int16_t Weapon)
                     DoMatchEverything(NULL, hsp->hitag, -1);
             }
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(Weapon, wall_ang);
@@ -9266,7 +9266,7 @@ DoVulcanBoulder(int16_t Weapon)
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(Weapon, wall_ang);
@@ -9716,11 +9716,11 @@ DoMine(int16_t Weapon)
             }
             else
             {
-                if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+                if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
                 {
                     SET(u->Flags2, SPR2_ATTACH_WALL);
                 }
-                else if (TEST(hsp->cstat, CSTAT_SPRITE_FLOOR))
+                else if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
                 {
                     // hit floor
                     if (sp->z > DIV2(u->hiz + u->loz))
@@ -12159,7 +12159,7 @@ DoFindGround(int16_t SpriteNum)
     {
         hsp = &sprite[NORM_SPRITE(florhit)];
 
-        if (TEST(hsp->cstat, CSTAT_SPRITE_FLOOR))
+        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
             u->lo_sp = hsp;
@@ -12219,7 +12219,7 @@ DoFindGroundPoint(int16_t SpriteNum)
     {
         hsp = &sprite[NORM_SPRITE(florhit)];
 
-        if (TEST(hsp->cstat, CSTAT_SPRITE_FLOOR))
+        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
         {
             // found a sprite floor
             u->lo_sp = hsp;
@@ -12296,7 +12296,7 @@ DoNapalm(int16_t Weapon)
         {
             SPRITEp hsp = &sprite[NORM_SPRITE(u->ret)];
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 short hcstat = hsp->cstat;
 
@@ -12728,7 +12728,7 @@ DoMirv(int16_t Weapon)
         {
             SPRITEp hsp = &sprite[NORM_SPRITE(u->ret)];
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_BLOCK) && !TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 short hcstat = hsp->cstat;
 
@@ -13953,7 +13953,7 @@ InitSwordAttack(PLAYERp pp)
                 }
 
                 // hit a switch?
-                if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
+                if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
                     ShootableSwitch(hitinfo.sprite,-1);
                 }
@@ -14145,7 +14145,7 @@ InitFistAttack(PLAYERp pp)
                 }
 
                 // hit a switch?
-                if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
+                if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
                     ShootableSwitch(hitinfo.sprite,-1);
                 }
@@ -14753,7 +14753,7 @@ InitStar(PLAYERp pp)
 //    PlaySound(DIGI_STARWIZ, &wp->x, &wp->y, &wp->z, v3df_follow);
 //    Set3DSoundOwner(w);
 
-    //SET(wp->cstat, CSTAT_SPRITE_WALL);
+    //SET(wp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
     SetOwner(pp->PlayerSprite, w);
     wp->yrepeat = wp->xrepeat = STAR_REPEAT;
     wp->shade = -25;
@@ -15048,7 +15048,7 @@ int ContinueHitscan(PLAYERp pp, short sectnum, int x, int y, int z, short ang, i
             return 0;
 
         // hit a switch?
-        if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
+        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
             ShootableSwitch(hitinfo.sprite,-1);
         }
@@ -15224,7 +15224,7 @@ InitShotgun(PLAYERp pp)
                 continue;
 
             // hit a switch?
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
             {
                 ShootableSwitch(hitinfo.sprite,-1);
             }
@@ -17816,9 +17816,9 @@ int SpawnWallHole(short hit_sect, short hit_wall, int hit_x, int hit_y, int hit_
     sp->z = hit_z;
     sp->picnum = 2151;
 
-    //SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_WALL);
-    SET(sp->cstat, CSTAT_SPRITE_WALL);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
+    //SET(sp->cstat, CSTAT_SPRITE_TRANSLUCENT|CSTAT_SPRITE_ALIGNMENT_WALL);
+    SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
 
     w = hit_wall;
     nw = wall[w].point2;
@@ -18046,7 +18046,7 @@ InitUzi(PLAYERp pp)
             return 0;
 
         // hit a switch?
-        if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
+        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
             ShootableSwitch(hitinfo.sprite,-1);
         }
@@ -18225,7 +18225,7 @@ InitEMP(PLAYERp pp)
             //return(0);
 
             // hit a switch?
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
             {
                 ShootableSwitch(hitinfo.sprite,-1);
             }
@@ -18240,11 +18240,11 @@ InitEMP(PLAYERp pp)
         }
         else
         {
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 SET(wu->Flags2, SPR2_ATTACH_WALL);
             }
-            else if (TEST(hsp->cstat, CSTAT_SPRITE_FLOOR))
+            else if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR))
             {
                 // hit floor
                 if (wp->z > DIV2(wu->hiz + wu->loz))
@@ -18740,7 +18740,7 @@ InitSobjMachineGun(short SpriteNum, PLAYERp pp)
             return 0;
 
         // hit a switch?
-        if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
+        if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
         {
             ShootableSwitch(hitinfo.sprite,-1);
         }
@@ -19183,7 +19183,7 @@ InitTurretMgun(SECTOR_OBJECTp sop)
                     continue;
 
                 // hit a switch?
-                if (TEST(hsp->cstat, CSTAT_SPRITE_WALL) && (hsp->lotag || hsp->hitag))
+                if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL) && (hsp->lotag || hsp->hitag))
                 {
                     ShootableSwitch(hitinfo.sprite,-1);
                 }
@@ -20736,8 +20736,8 @@ int QueueHole(short ang, short hit_sect, short hit_wall, int hit_x, int hit_y, i
 
     ASSERT(sp->statnum != MAXSTATUS);
 
-    SET(sp->cstat, CSTAT_SPRITE_WALL);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
+    SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     w = hit_wall;
@@ -20822,8 +20822,8 @@ int QueueFloorBlood(short hit_sprite)
     sp->ang = RANDOM_P2(2048); // Just make it any old angle
     sp->shade -= 5;  // Brighten it up just a bit
 
-    SET(sp->cstat, CSTAT_SPRITE_FLOOR);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
+    SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
     RESET(u->Flags, SPR_SHADOW);
 
@@ -20943,8 +20943,8 @@ int QueueFootPrint(short hit_sprite)
     left_foot = !left_foot;
     if (left_foot)
         SET(sp->cstat, CSTAT_SPRITE_XFLIP);
-    SET(sp->cstat, CSTAT_SPRITE_FLOOR);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
+    SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_FLOOR);
+    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
     return SpriteNum;
@@ -21064,8 +21064,8 @@ int QueueWallBlood(short hit_sprite, short ang)
     sp->shade -= 5;  // Brighten it up just a bit
     sp->yvel = hitinfo.wall; // pass hitinfo.wall in yvel
 
-    SET(sp->cstat, CSTAT_SPRITE_WALL);
-    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDE);
+    SET(sp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
+    SET(sp->cstat, CSTAT_SPRITE_ONE_SIDED);
     SET(sp->cstat, CSTAT_SPRITE_YCENTER);
     RESET(sp->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
@@ -21689,7 +21689,7 @@ DoItemFly(int16_t SpriteNum)
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
 
-            if (TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 wall_ang = NORM_ANGLE(hsp->ang);
                 WallBounce(SpriteNum, wall_ang);

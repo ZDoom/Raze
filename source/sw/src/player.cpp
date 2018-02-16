@@ -1397,7 +1397,7 @@ DoSpawnTeleporterEffect(SPRITEp sp)
     SET(ep->cstat, CSTAT_SPRITE_YCENTER);
     RESET(ep->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    SET(ep->cstat, CSTAT_SPRITE_WALL);
+    SET(ep->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
     //ep->ang = NORM_ANGLE(ep->ang + 512);
 }
 
@@ -1424,7 +1424,7 @@ DoSpawnTeleporterEffectPlace(SPRITEp sp)
     SET(ep->cstat, CSTAT_SPRITE_YCENTER);
     RESET(ep->cstat, CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN);
 
-    SET(ep->cstat, CSTAT_SPRITE_WALL);
+    SET(ep->cstat, CSTAT_SPRITE_ALIGNMENT_WALL);
 }
 
 void
@@ -4587,7 +4587,7 @@ PlayerOnLadder(PLAYERp pp)
             // if the sprite blocking you hit is not a wall sprite there is something between
             // you and the ladder
             if (TEST(sprite[hitinfo.sprite].cstat, CSTAT_SPRITE_BLOCK) &&
-                !TEST(sprite[hitinfo.sprite].cstat, CSTAT_SPRITE_WALL))
+                !TEST(sprite[hitinfo.sprite].cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
             {
                 return FALSE;
             }
@@ -7069,7 +7069,7 @@ void DoPlayerDeathMoveHead(PLAYERp pp)
             hit_sprite = NORM_SPRITE(u->ret);
             hsp = &sprite[hit_sprite];
 
-            if (!TEST(hsp->cstat, CSTAT_SPRITE_WALL))
+            if (!TEST(hsp->cstat, CSTAT_SPRITE_ALIGNMENT_WALL))
                 break;
 
 
