@@ -9902,6 +9902,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     if (getrendermode() >= REND_POLYMOST)
     {
+        //POGOTODO: if we switch to software & then back to GL, this call tries to delete textures that were already lost from the GL Context deletion
         polymost_glreset();
         polymost_glinit();
     }

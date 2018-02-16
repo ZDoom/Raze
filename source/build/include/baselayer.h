@@ -82,6 +82,7 @@ struct glinfo_t {
     char glsl;
     char debugoutput;
     char bufferstorage;
+    char sync;
     char dumped;
 };
 

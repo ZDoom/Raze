@@ -310,6 +310,7 @@ struct glinfo_t glinfo =
     0,          // GLSL
     0,          // Debug Output
     0,          // Buffer storage
+    0,          // Sync
     0,          // GL info dumped
 };
 #endif
@@ -440,6 +441,7 @@ int32_t osdcmd_glinfo(osdfuncparm_t const * const UNUSED(parm))
                " GLSL:                    %s\n"
                " Debug Output:            %s\n"
                " Buffer Storage:          %s\n"
+               " Sync:                    %s\n"
 #endif
                " Maximum anisotropy:      %.1f%s\n"
                " Extensions:\n",
@@ -463,6 +465,7 @@ int32_t osdcmd_glinfo(osdfuncparm_t const * const UNUSED(parm))
                glinfo.glsl ? "supported": "not supported",
                glinfo.debugoutput ? "supported": "not supported",
                glinfo.bufferstorage ? "supported" : "not supported",
+               glinfo.sync ? "supported" : "not supported",
 #endif
                glinfo.maxanisotropy, glinfo.maxanisotropy>1.0?"":" (no anisotropic filtering)"
               );

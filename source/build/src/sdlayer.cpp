@@ -1389,6 +1389,7 @@ void sdlayer_setvideomode_opengl(void)
     glinfo.glsl = !!Bstrstr(glinfo.extensions, "GL_ARB_shader_objects");
     glinfo.debugoutput = !!Bstrstr(glinfo.extensions, "GL_ARB_debug_output");
     glinfo.bufferstorage = !!Bstrstr(glinfo.extensions, "GL_ARB_buffer_storage");
+    glinfo.sync = !!Bstrstr(glinfo.extensions, "GL_ARB_sync");
 
     if (Bstrstr(glinfo.extensions, "WGL_3DFX_gamma_control"))
     {

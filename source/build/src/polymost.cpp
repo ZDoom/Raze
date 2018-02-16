@@ -68,7 +68,19 @@ static int32_t preview_mouseaim=1;  // when 1, displays a CROSSHAIR tsprite at t
 
 static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
 #define MAX_DRAWPOLY_VERTS 8
-static float drawpolyVerts[MAX_DRAWPOLY_VERTS*5];
+#define BUFFER_OFFSET(bytes) (GLintptr) ((GLubyte*) NULL + (bytes))
+// these cvars are never used directly in rendering -- only when glinit() is called/renderer reset
+// We do this because we don't want to accidentally overshoot our existing buffer's bounds
+uint32_t r_persistentStreamBuffer = 1;
+uint32_t persistentStreamBuffer = r_persistentStreamBuffer;
+int32_t r_drawpolyVertsBufferLength = 30000;
+int32_t drawpolyVertsBufferLength = r_drawpolyVertsBufferLength;
+static GLuint drawpolyVertsID = 0;
+static GLint drawpolyVertsOffset = 0;
+static int32_t drawpolyVertsSubBufferIndex = 0;
+static GLsync drawpolyVertsSync[3] = {0};
+static float defaultDrawpolyVertsArray[MAX_DRAWPOLY_VERTS*5];
+static float* drawpolyVerts = defaultDrawpolyVertsArray;
 
 struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 {
@@ -110,6 +122,7 @@ int32_t glrendmode = REND_POLYMOST;
 int32_t r_fullbrights = 1;
 int32_t r_vertexarrays = 1;
 #ifdef USE_GLEXT
+//POGOTODO: we no longer support rendering without VBOs -- update any outdated pre-GL2 code that renders without VBOs
 int32_t r_vbos = 1;
 int32_t r_vbocount = 64;
 #endif
@@ -458,19 +471,22 @@ static void Polymost_DetermineTextureFormatSupport(void);
 // reset vertex pointers to polymost default
 void polymost_resetVertexPointers()
 {
-    glVertexPointer(3, GL_FLOAT, 5*sizeof(float), drawpolyVerts);
-    glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
+    glBindBuffer(GL_ARRAY_BUFFER, drawpolyVertsID);
+    glBindBuffer(GL_TEXTURE_COORD_ARRAY, drawpolyVertsID);
+    
+    glVertexPointer(3, GL_FLOAT, 5*sizeof(float), 0);
+    glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
     
 #ifdef USE_GLEXT
     if (r_detailmapping)
     {
         glClientActiveTexture(GL_TEXTURE1);
-        glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
+        glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
     }
     if (r_glowmapping)
     {
         glClientActiveTexture(GL_TEXTURE2);
-        glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
+        glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
     }
     glClientActiveTexture(GL_TEXTURE0);
 #endif
@@ -488,7 +504,64 @@ void polymost_glinit()
 
     //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     //glEnable(GL_LINE_SMOOTH);
+    
+#ifdef USE_GLEXT
+    if (glmultisample > 0 && glinfo.multisample)
+    {
+        if (glinfo.nvmultisamplehint)
+            glHint(GL_MULTISAMPLE_FILTER_HINT_NV, glnvmultisamplehint ? GL_NICEST:GL_FASTEST);
+        glEnable(GL_MULTISAMPLE);
+    }
 
+    if (!glinfo.multitex || !glinfo.envcombine)
+    {
+        if (r_detailmapping)
+        {
+            OSD_Printf("Your OpenGL implementation doesn't support detail mapping. Disabling...\n");
+            r_detailmapping = 0;
+        }
+
+        if (r_glowmapping)
+        {
+            OSD_Printf("Your OpenGL implementation doesn't support glow mapping. Disabling...\n");
+            r_glowmapping = 0;
+        }
+    }
+    
+    if (persistentStreamBuffer && ((!glinfo.bufferstorage) || (!glinfo.sync)))
+    {
+        OSD_Printf("Your OpenGL implementation doesn't support the required extensions for persistent stream buffers. Disabling...\n");
+        persistentStreamBuffer = 0;
+    }
+#endif
+    
+    persistentStreamBuffer = r_persistentStreamBuffer;
+    drawpolyVertsBufferLength = r_drawpolyVertsBufferLength;
+    
+    drawpolyVertsOffset = 0;
+    drawpolyVertsSubBufferIndex = 0;
+    
+    GLuint ids[2];
+    glGenBuffers(2, ids);
+    drawpolyVertsID = ids[0];
+    glBindBuffer(GL_ARRAY_BUFFER, drawpolyVertsID);
+    if (persistentStreamBuffer)
+    {
+        // reset the sync objects, as old ones we had from any last GL context are gone now
+        Bmemset(drawpolyVertsSync, 0, sizeof(drawpolyVertsSync));
+        
+        GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+        // we want to triple-buffer to avoid having to wait for the buffer to become available again,
+        // so triple the buffer size we expect to use
+        glBufferStorage(GL_ARRAY_BUFFER, 3*drawpolyVertsBufferLength*sizeof(float)*5, NULL, flags);
+        drawpolyVerts = (float*) glMapBufferRange(GL_ARRAY_BUFFER, 0, 3*drawpolyVertsBufferLength*sizeof(float)*5, flags);
+    } else
+    {
+        drawpolyVerts = defaultDrawpolyVertsArray;
+        glBufferData(GL_ARRAY_BUFFER, drawpolyVertsBufferLength*sizeof(float)*5, NULL, GL_STREAM_DRAW);
+    }
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    
     const char blankTex[] = {0, 0, 0, 0,    0, 0, 0, 0,
                              0, 0, 0, 0,    0, 0, 0, 0};
     glGenTextures(1, &blankTextureID);
@@ -497,9 +570,7 @@ void polymost_glinit()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, blankTex);
     
-    GLuint ids[1];
-    glGenBuffers(1, ids);
-    quadVertsID = ids[0];
+    quadVertsID = ids[1];
     glBindBuffer(GL_ARRAY_BUFFER, quadVertsID);
     const float quadVerts[] = 
         {
@@ -536,10 +607,6 @@ void polymost_glinit()
          {\n\
             vec4 eyeCoordPosition = u_mvMatrix * vec4(i_vertPos, 1.0);\n\
             gl_Position = u_projMatrix * eyeCoordPosition;\n\
-            \n\
-            //POGOTODO: temporary z-fighting hack for GL2 approach fighting with GL1\n\
-            //          Eventually adapt this into better decal z-buffer adjustment approach\n\
-            //gl_Position.z -= (u_projMatrix * vec4(0.0, 0.0, 1.011, 1.0)).z;\n\
             \n\
             eyeCoordPosition.xyz /= eyeCoordPosition.w;\n\
             \n\
@@ -599,36 +666,6 @@ void polymost_glinit()
     alphaLoc = glGetUniformLocation(shaderProgramID, "u_alpha");
     fogRangeLoc = glGetUniformLocation(shaderProgramID, "u_fogRange");
     fogColorLoc = glGetUniformLocation(shaderProgramID, "u_fogColor");
-    
-#ifdef USE_GLEXT
-    if (glmultisample > 0 && glinfo.multisample)
-    {
-        if (glinfo.nvmultisamplehint)
-            glHint(GL_MULTISAMPLE_FILTER_HINT_NV, glnvmultisamplehint ? GL_NICEST:GL_FASTEST);
-        glEnable(GL_MULTISAMPLE);
-    }
-
-    if (!glinfo.multitex || !glinfo.envcombine)
-    {
-        if (r_detailmapping)
-        {
-            OSD_Printf("Your OpenGL implementation doesn't support detail mapping. Disabling...\n");
-            r_detailmapping = 0;
-        }
-
-        if (r_glowmapping)
-        {
-            OSD_Printf("Your OpenGL implementation doesn't support glow mapping. Disabling...\n");
-            r_glowmapping = 0;
-        }
-    }
-
-    if (r_vbos && (!glinfo.vbos))
-    {
-        OSD_Printf("Your OpenGL implementation doesn't support Vertex Buffer Objects. Disabling...\n");
-        r_vbos = 0;
-    }
-#endif
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -2153,6 +2190,43 @@ static void polymost2_drawVBO(GLenum mode,
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
+static void polymost_lockSubBuffer(uint32_t subBufferIndex)
+{
+    if (drawpolyVertsSync[subBufferIndex])
+    {
+        glDeleteSync(drawpolyVertsSync[subBufferIndex]);
+    }
+    
+    drawpolyVertsSync[subBufferIndex] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+}
+
+static void polymost_waitForSubBuffer(uint32_t subBufferIndex)
+{
+    if (drawpolyVertsSync[subBufferIndex])
+    {
+        while (true)
+        {
+            // we only need to flush if there's a possibility that drawpolyVertsBufferLength is
+            // so small that we can eat through 3 times the buffer size in a single frame
+            GLenum waitResult = glClientWaitSync(drawpolyVertsSync[subBufferIndex], GL_SYNC_FLUSH_COMMANDS_BIT, 500000);
+            if (waitResult == GL_ALREADY_SIGNALED ||
+                waitResult == GL_CONDITION_SATISFIED)
+            {
+                
+                return;
+            }
+            
+            static char loggedLongWait = false;
+            if (waitResult == GL_TIMEOUT_EXPIRED &&
+                !loggedLongWait)
+            {
+                OSD_Printf("polymost_waitForBuffer(): Had to wait for the drawpoly buffer to become available.  For performance, try increasing buffer size with r_drawpolyVertsBufferLength.\n");
+                loggedLongWait = true;
+            }
+        }
+    }
+}
+
 static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32_t method)
 {
     if (method == DAMETH_BACKFACECULL ||
@@ -2472,6 +2546,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
                 //((px[j]-px[i])*f + px[i])*(ngx.u-ngx.d*du1) +
                 //((py[j]-py[i])*f + py[i])*(ngy.u-ngdy*du1) + (ngo.u-ngo.d*du1) = 0
 
+                //POGOTODO: this could be a static inline function -- the do/while loop should be just a pair of braces
 #define DRAWPOLY_MATH_BULLSHIT(XXX)                                                                                \
 do                                                                                                                 \
 {                                                                                                                  \
@@ -2501,9 +2576,27 @@ do                                                                              
 
             if (nn < 3) continue;
 
-            vec2f_t const invtsiz2 = { 1.f / tsiz2.x, 1.f / tsiz2.y };
+            if (nn+drawpolyVertsOffset > (drawpolyVertsSubBufferIndex+1)*drawpolyVertsBufferLength)
+            {
+                if (persistentStreamBuffer)
+                {
+                    // lock this sub buffer
+                    polymost_lockSubBuffer(drawpolyVertsSubBufferIndex);
+                    drawpolyVertsSubBufferIndex = (drawpolyVertsSubBufferIndex+1)%3;
+                    drawpolyVertsOffset = drawpolyVertsSubBufferIndex*drawpolyVertsBufferLength;
+                    // wait for the next sub buffer to become available before writing to it
+                    // our buffer size should be long enough that no waiting is ever necessary
+                    polymost_waitForSubBuffer(drawpolyVertsSubBufferIndex);
+                } else
+                {
+                    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*5*drawpolyVertsBufferLength, NULL, GL_STREAM_DRAW);
+                    drawpolyVertsOffset = 0;
+                }
+            }
 
-            for (i=0; i<nn; ++i)
+            vec2f_t const invtsiz2 = { 1.f / tsiz2.x, 1.f / tsiz2.y };
+            uint32_t off = persistentStreamBuffer ? drawpolyVertsOffset : 0;
+            for (i = 0; i<nn; ++i)
             {
                 vec2f_t const o = { uu[i], vv[i] };
                 vec3f_t const p = { o.x * ngx.d + o.y * ngy.d + ngo.d,
@@ -2512,35 +2605,65 @@ do                                                                              
                 float const r = 1.f/p.d;
 
                 //update verts
-                drawpolyVerts[i*5] = (o.x - ghalfx) * r * grhalfxdown10x;
-                drawpolyVerts[i*5+1] = (ghoriz - o.y) * r * grhalfxdown10;
-                drawpolyVerts[i*5+2] = r * (1.f / 1024.f);
+                drawpolyVerts[(off+i)*5] = (o.x - ghalfx) * r * grhalfxdown10x;
+                drawpolyVerts[(off+i)*5+1] = (ghoriz - o.y) * r * grhalfxdown10;
+                drawpolyVerts[(off+i)*5+2] = r * (1.f / 1024.f);
                 
                 //update texcoords
-                drawpolyVerts[i*5+3] = (p.u * r - du0 + uoffs) * invtsiz2.x;
-                drawpolyVerts[i*5+4] = p.v * r * invtsiz2.y;
+                drawpolyVerts[(off+i)*5+3] = (p.u * r - du0 + uoffs) * invtsiz2.x;
+                drawpolyVerts[(off+i)*5+4] = p.v * r * invtsiz2.y;
             }
-            glDrawArrays(GL_TRIANGLE_FAN, 0, nn);
+
+            if (!persistentStreamBuffer)
+            {
+                glBufferSubData(GL_ARRAY_BUFFER, drawpolyVertsOffset*sizeof(float)*5, nn*sizeof(float)*5, drawpolyVerts);
+            }
+            glDrawArrays(GL_TRIANGLE_FAN, drawpolyVertsOffset, nn);
+            drawpolyVertsOffset += nn;
         }
     }
     else
     {
+        if (npoints+drawpolyVertsOffset > (drawpolyVertsSubBufferIndex+1)*drawpolyVertsBufferLength)
+        {
+            if (persistentStreamBuffer)
+            {
+                // lock this sub buffer
+                polymost_lockSubBuffer(drawpolyVertsSubBufferIndex);
+                drawpolyVertsSubBufferIndex = (drawpolyVertsSubBufferIndex+1)%3;
+                drawpolyVertsOffset = drawpolyVertsSubBufferIndex*drawpolyVertsBufferLength;
+                // wait for the next sub buffer to become available before writing to it
+                // our buffer size should be long enough that no waiting is ever necessary
+                polymost_waitForSubBuffer(drawpolyVertsSubBufferIndex);
+            } else
+            {
+                glBufferData(GL_ARRAY_BUFFER, sizeof(float)*5*drawpolyVertsBufferLength, NULL, GL_STREAM_DRAW);
+                drawpolyVertsOffset = 0;
+            }
+        }
+        
         vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
-
+        uint32_t off = persistentStreamBuffer ? drawpolyVertsOffset : 0;
         for (bssize_t i = 0; i < npoints; ++i)
         {
             float const r = 1.f / dd[i];
 
             //update verts
-            drawpolyVerts[i*5] = (px[i] - ghalfx) * r * grhalfxdown10x;
-            drawpolyVerts[i*5+1] = (ghoriz - py[i]) * r * grhalfxdown10;
-            drawpolyVerts[i*5+2] = r * (1.f / 1024.f);
+            drawpolyVerts[(off+i)*5] = (px[i] - ghalfx) * r * grhalfxdown10x;
+            drawpolyVerts[(off+i)*5+1] = (ghoriz - py[i]) * r * grhalfxdown10;
+            drawpolyVerts[(off+i)*5+2] = r * (1.f / 1024.f);
             
             //update texcoords
-            drawpolyVerts[i*5+3] = uu[i] * r * scale.x;
-            drawpolyVerts[i*5+4] = vv[i] * r * scale.y;
+            drawpolyVerts[(off+i)*5+3] = uu[i] * r * scale.x;
+            drawpolyVerts[(off+i)*5+4] = vv[i] * r * scale.y;
         }
-        glDrawArrays(GL_TRIANGLE_FAN, 0, npoints);
+
+        if (!persistentStreamBuffer)
+        {
+            glBufferSubData(GL_ARRAY_BUFFER, drawpolyVertsOffset*sizeof(float)*5, npoints*sizeof(float)*5, drawpolyVerts);
+        }
+        glDrawArrays(GL_TRIANGLE_FAN, drawpolyVertsOffset, npoints);
+        drawpolyVertsOffset += npoints;
     }
 
 #ifdef USE_GLEXT
@@ -7005,7 +7128,8 @@ void polymost_initosdfuncs(void)
         { "r_usetileshades", "enable/disable Polymost tile shade textures", (void *) &r_usetileshades, CVAR_INT | CVAR_INVALIDATEART, 0, 2 },
 #ifdef USE_GLEXT
         { "r_vbocount","sets the number of Vertex Buffer Objects to use when drawing models",(void *) &r_vbocount, CVAR_INT, 1, 256 },
-        { "r_vbos"," enable/disable using Vertex Buffer Objects when drawing models",(void *) &r_vbos, CVAR_BOOL, 0, 1 },
+        { "r_persistentStreamBuffer","enable/disable persistent stream buffering (requires renderer restart)",(void *) &r_persistentStreamBuffer, CVAR_BOOL, 0, 1 },
+        { "r_drawpolyVertsBufferLength","sets the size of the vertex buffer for polymost's streaming VBO rendering (requires renderer restart)",(void *) &r_drawpolyVertsBufferLength, CVAR_INT, MAX_DRAWPOLY_VERTS, 1000000 },
 #endif
         { "r_vertexarrays","enable/disable using vertex arrays when drawing models",(void *) &r_vertexarrays, CVAR_BOOL, 0, 1 },
         { "r_projectionhack", "enable/disable projection hack", (void *) &glprojectionhacks, CVAR_INT, 0, 1 },
