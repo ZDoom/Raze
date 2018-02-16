@@ -5213,8 +5213,8 @@ void polymost2_drawsprite(int32_t snum)
 
     //handle sprite flipping
     horzScale *= -2.f*((globalorientation & CSTAT_SPRITE_XFLIP) != 0) + 1.f;
-    vertScale *= -2.f*((globalorientation & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_FLOOR &
-                       (globalorientation & CSTAT_SPRITE_YFLIP) != 0) + 1.f;
+    vertScale *= -2.f*(((globalorientation & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_FLOOR) &
+                       ((globalorientation & CSTAT_SPRITE_YFLIP) != 0)) + 1.f;
     
     //POGOTODO: replace this with simply using off.x and a different float for z offsets
     //          switching that over should fix floor sprite offsets so that they flip properly when yflip/xflip is applied
@@ -5338,8 +5338,8 @@ void polymost2_drawsprite(int32_t snum)
     }
     
     off.x *= ((float) ((globalorientation & CSTAT_SPRITE_XFLIP) != 0))*-2.f + 1.f;
-    off.y *= ((float) ((globalorientation & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_FACING &
-                       (globalorientation & (CSTAT_SPRITE_YFLIP)) != 0))*-2.f + 1.f;
+    off.y *= ((float) (((globalorientation & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_FACING) &
+                       ((globalorientation & CSTAT_SPRITE_YFLIP) != 0)))*-2.f + 1.f;
     
     if ((globalorientation & CSTAT_SPRITE_ALIGNMENT)==CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
@@ -5422,7 +5422,9 @@ void polymost2_drawsprite(int32_t snum)
                       method,
                       texScale,
                       texOffset,
-                      ((globalorientation & CSTAT_SPRITE_ONE_SIDED) != 0)*3 & ((globalorientation & CSTAT_SPRITE_XFLIP) != 0 ^ (globalorientation & CSTAT_SPRITE_YFLIP) != 0)+1);
+                      ((globalorientation & CSTAT_SPRITE_ONE_SIDED) != 0)*3 &
+                       ((((globalorientation & CSTAT_SPRITE_XFLIP) != 0) ^
+                         ((globalorientation & CSTAT_SPRITE_YFLIP) != 0))+1));
 
     drawpoly_srepeat = 0;
     drawpoly_trepeat = 0;
