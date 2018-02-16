@@ -6252,6 +6252,7 @@ static void C_AddDefaultDefinitions(void)
     for (int i=0; i<MAXEVENTS; i++)
         C_AddDefinition(EventNames[i], i, LABEL_DEFINE);
 
+#if 0
     for (int i=0; i<NUMGAMEFUNCTIONS; i++)
     {
         int32_t j;
@@ -6268,6 +6269,7 @@ static void C_AddDefaultDefinitions(void)
 
         C_AddDefinition(tempbuf, i, LABEL_DEFINE);
     }
+#endif
 
     tokenmap_t predefined[] = {
         { "STAT_DEFAULT", STAT_DEFAULT },
