@@ -47,8 +47,10 @@ extern int32_t voting;
 
 #define USERMAPENTRYLENGTH 25
 
-static FORCE_INLINE void WithSDL2_StartTextInput()
+static FORCE_INLINE void Menu_StartTextInput()
 {
+    KB_FlushKeyboardQueue();
+    KB_ClearKeysDown();
 #if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
 # if defined __ANDROID__
     AndroidShowKeyboard(1);
@@ -58,7 +60,7 @@ static FORCE_INLINE void WithSDL2_StartTextInput()
 #endif
 }
 
-static FORCE_INLINE void WithSDL2_StopTextInput()
+static FORCE_INLINE void Menu_StopTextInput()
 {
 #if defined EDUKE32_TOUCH_DEVICES && defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
 # if defined __ANDROID__
@@ -3934,7 +3936,7 @@ static void Menu_ChangingTo(Menu_t * m)
     switch (m->type)
     {
     case TextForm:
-        WithSDL2_StartTextInput();
+        Menu_StartTextInput();
         break;
     default:
         break;
@@ -5864,7 +5866,7 @@ static void Menu_RunInput_EntryString_Activate(MenuEntry_t *entry)
         object->bufsize = TYPEBUFSIZE;
 
     Menu_EntryStringActivate(/*entry*/);
-    WithSDL2_StartTextInput();
+    Menu_StartTextInput();
 }
 
 static void Menu_RunInput_EntryString_Submit(/*MenuEntry_t *entry, */MenuString_t *object)
@@ -5876,7 +5878,7 @@ static void Menu_RunInput_EntryString_Submit(/*MenuEntry_t *entry, */MenuString_
     }
 
     object->editfield = NULL;
-    WithSDL2_StopTextInput();
+    Menu_StopTextInput();
 }
 
 static void Menu_RunInput_EntryString_Cancel(/*MenuEntry_t *entry, */MenuString_t *object)
@@ -5884,7 +5886,7 @@ static void Menu_RunInput_EntryString_Cancel(/*MenuEntry_t *entry, */MenuString_
     Menu_EntryStringCancel(/*entry*/);
 
     object->editfield = NULL;
-    WithSDL2_StopTextInput();
+    Menu_StopTextInput();
 }
 
 static void Menu_RunInput_FileSelect_MovementVerify(MenuFileSelect_t *object)
@@ -6010,7 +6012,7 @@ static void Menu_RunInput(Menu_t *cm)
                 object->input = NULL;
 
                 Menu_AnimateChange(cm->parentID, cm->parentAnimation);
-                WithSDL2_StopTextInput();
+                Menu_StopTextInput();
             }
             else if (hitstate == 1 || Menu_RunInput_MouseAdvance())
             {
@@ -6019,7 +6021,7 @@ static void Menu_RunInput(Menu_t *cm)
                 Menu_TextFormSubmit(object->input);
 
                 object->input = NULL;
-                WithSDL2_StopTextInput();
+                Menu_StopTextInput();
             }
             break;
         }
