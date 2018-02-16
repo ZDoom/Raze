@@ -966,6 +966,14 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     if (hi && !nodownsize && r_downsize > miplevel)
         miplevel = r_downsize;
 
+    // don't use mipmaps if mipmapping is disabled
+    if (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
+        glfiltermodes[gltexfiltermode].min == GL_LINEAR)
+    {
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    }
+    
     if (!miplevel)
         Polymost_SendTexToDriver(doalloc, siz, texfmt, pic,
                                  intexfmt,
@@ -974,6 +982,13 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
                                  texcompress_ok,
 #endif
                                  0);
+    
+    // don't generate mipmaps if we're not going to use them
+    if (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
+        glfiltermodes[gltexfiltermode].min == GL_LINEAR)
+    {
+        return;
+    }
 
     vec2_t siz2 = siz;
 
@@ -6182,7 +6197,7 @@ void polymost_initosdfuncs(void)
         { "r_anisotropy", "changes the OpenGL texture anisotropy setting", (void *) &glanisotropy, CVAR_INT|CVAR_FUNCPTR, 0, 16 },
         { "r_texturemaxsize","changes the maximum OpenGL texture size limit",(void *) &gltexmaxsize, CVAR_INT | CVAR_NOSAVE, 0, 4096 },
         { "r_texturemiplevel","changes the highest OpenGL mipmap level used",(void *) &gltexmiplevel, CVAR_INT, 0, 6 },
-        { "r_texfilter", "changes the texture filtering settings", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
+        { "r_texfilter", "changes the texture filtering settings (may require restart)", (void *) &gltexfiltermode, CVAR_INT|CVAR_FUNCPTR, 0, 5 },
 
         { "r_usenewshading",
           "visibility/fog code: 0: orig. Polymost   1: 07/2011   2: linear 12/2012   3: no neg. start 03/2014   4: base constant on shade table 11/2017",
