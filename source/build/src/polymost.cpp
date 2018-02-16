@@ -1938,6 +1938,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
                          (pth && pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f) : 0.f;
 
         bglAlphaFunc(GL_GREATER, al);
+        handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
+        
         bglEnable(GL_BLEND);
         bglEnable(GL_ALPHA_TEST);
     }
@@ -1958,8 +1960,6 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     // spriteext full alpha control
     pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
-
-    handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
 
     if (pth)
     {
