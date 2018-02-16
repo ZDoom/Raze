@@ -2188,6 +2188,8 @@ static void polymost2_drawVBO(GLenum mode,
     
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    
+    polymost_resetVertexPointers();
 }
 
 static void polymost_lockSubBuffer(uint32_t subBufferIndex)
