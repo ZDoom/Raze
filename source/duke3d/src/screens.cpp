@@ -782,11 +782,12 @@ static void G_ShowCacheLocks(void)
 
 static void G_PrintFPS(void)
 {
-    static int32_t frameCount = 0, lastFPS = 0, lastFrameTime = 0;
+    static int32_t frameCount = 0, lastFPS = 0, lastFrameTime = 0, cumulativeFrameDelay = 0;
     static int32_t minFPS = -1, maxFPS = 0;
 
     int32_t frameTime = getticks();
     int32_t frameDelay = frameTime - lastFrameTime;
+    cumulativeFrameDelay += frameDelay;
 
     if (frameDelay >= 0)
     {
@@ -826,13 +827,11 @@ static void G_PrintFPS(void)
             }
         }
 
-        int32_t const thisSec = tabledivide32_noinline(frameTime, 1000);
-        int32_t const lastSec = tabledivide32_noinline(lastFrameTime, 1000);
-
-        if (thisSec - lastSec)
+        if (cumulativeFrameDelay >= 1000)
         {
-            g_frameRate = lastFPS = tabledivide32_noinline(frameCount, thisSec - lastSec);
+            g_frameRate = lastFPS = tabledivide32_noinline(1000*frameCount, cumulativeFrameDelay);
             frameCount = 0;
+            cumulativeFrameDelay = 0;
 
             if (ud.showfps > 1)
             {
