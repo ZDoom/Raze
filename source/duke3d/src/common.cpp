@@ -452,7 +452,10 @@ void G_LoadGroups(int32_t autoload)
             g_defNamePtr = dup_filename(type->defname);
 
         if (type->rtsname && g_rtsNamePtr == NULL)
+        {
+            free(g_rtsNamePtr);
             g_rtsNamePtr = dup_filename(type->rtsname);
+        }
     }
     else
     {

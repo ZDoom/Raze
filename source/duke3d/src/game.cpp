@@ -6451,29 +6451,12 @@ int app_main(int argc, char const * const * argv)
     }
 
     g_mostConcurrentPlayers = ud.multimode;  // XXX: redundant?
-    ud.last_level      = 0;
-
-    // the point of this block is to avoid overwriting the default in the cfg while asserting our selection
-    if (g_rtsNamePtr == NULL &&
-            (!Bstrcasecmp(ud.rtsname,defaultrtsfilename[GAME_DUKE]) ||
-            !Bstrcasecmp(ud.rtsname,defaultrtsfilename[GAME_WW2GI]) ||
-            !Bstrcasecmp(ud.rtsname,defaultrtsfilename[GAME_NAM]) ||
-            !Bstrcasecmp(ud.rtsname,defaultrtsfilename[GAME_NAPALM])))
-    {
-        // ud.last_level is used as a flag here to reset the string to default after load
-        ud.last_level = (Bstrcpy(ud.rtsname, G_DefaultRtsFile()) == ud.rtsname);
-    }
 
     CONFIG_WriteSetup(1);
     CONFIG_ReadSetup();
 
-    RTS_Init(ud.rtsname);
-
-    if (RTS_IsInitialized())
-        initprintf("Using RTS file \"%s\".\n", ud.rtsname);
-
-    if (ud.last_level)
-        Bstrcpy(ud.rtsname, defaultrtsfilename[0]);
+    char const * rtsname = g_rtsNamePtr ? g_rtsNamePtr : ud.rtsname;
+    RTS_Init(rtsname);
 
     ud.last_level = -1;
 

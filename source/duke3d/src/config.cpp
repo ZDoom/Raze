@@ -260,8 +260,7 @@ void CONFIG_SetDefaults(void)
 
     ud.config.CheckForUpdates = 1;
 
-    if (g_rtsNamePtr == NULL)
-        Bstrcpy(ud.rtsname, G_DefaultRtsFile());
+    Bstrcpy(ud.rtsname, G_DefaultRtsFile());
 
     Bstrcpy(szPlayerName, "Player");
 
@@ -584,8 +583,7 @@ int32_t CONFIG_ReadSetup(void)
 
     Bstrncpyz(szPlayerName, tempbuf, sizeof(szPlayerName));
 
-    if (g_rtsNamePtr == NULL)
-        SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
+    SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ConfigVersion", &ud.configversion);
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup", &ud.config.ForceSetup);
@@ -860,8 +858,7 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","PlayerName",&szPlayerName[0]);
 
-    if (g_rtsNamePtr == NULL)
-        SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
+    SCRIPT_PutString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
     char commmacro[] = "CommbatMacro# ";
 

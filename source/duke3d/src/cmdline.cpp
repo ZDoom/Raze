@@ -428,8 +428,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     {
                         free(g_rtsNamePtr);
                         g_rtsNamePtr = dup_filename(argv[i+1]);
-                        Bstrncpyz(ud.rtsname, g_rtsNamePtr, sizeof(ud.rtsname));
-                        initprintf("Using RTS file \"%s\".\n", ud.rtsname);
+                        initprintf("Using RTS file \"%s\".\n", g_rtsNamePtr);
                         i++;
                     }
                     i++;
@@ -822,8 +821,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                     {
                         free(g_rtsNamePtr);
                         g_rtsNamePtr = dup_filename(argv[i++]);
-                        Bstrncpyz(ud.rtsname, g_rtsNamePtr, sizeof(ud.rtsname));
-                        initprintf("Using RTS file \"%s\".\n", ud.rtsname);
+                        initprintf("Using RTS file \"%s\".\n", g_rtsNamePtr);
                         continue;
                     }
 #ifdef LUNATIC
