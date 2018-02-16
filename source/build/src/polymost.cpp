@@ -905,10 +905,15 @@ static void Polymost_SendTexToDriver(int32_t const doalloc,
     }
 #endif
 
+#if B_BIG_ENDIAN
+    GLenum type = GL_UNSIGNED_INT_8_8_8_8;
+#else
+    GLenum type = GL_UNSIGNED_INT_8_8_8_8_REV;
+#endif
     if (doalloc & 1)
-        bglTexImage2D(GL_TEXTURE_2D, level, intexfmt, siz.x,siz.y, 0, texfmt, GL_UNSIGNED_BYTE, pic);
+        bglTexImage2D(GL_TEXTURE_2D, level, intexfmt, siz.x,siz.y, 0, texfmt, type, pic);
     else
-        bglTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, texfmt, GL_UNSIGNED_BYTE, pic);
+        bglTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, texfmt, type, pic);
 }
 
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
@@ -918,15 +923,14 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     const int hi = !!(dameth & DAMETH_HI);
     const int nodownsize = !!(dameth & DAMETH_NODOWNSIZE) || artimmunity;
     const int nomiptransfix  = !!(dameth & DAMETH_NOFIX);
-    const int hasalpha = !!(dameth & DAMETH_HASALPHA);
     const int texcompress_ok = !(dameth & DAMETH_NOTEXCOMPRESS) && (glusetexcompr == 2 || (glusetexcompr && !artimmunity));
 
 #if !defined EDUKE32_GLES
     int32_t intexfmt;
     if (texcompress_ok && glinfo.texcompr)
-        intexfmt = hasalpha ? GL_COMPRESSED_RGBA_ARB : GL_COMPRESSED_RGB_ARB;
+        intexfmt = GL_COMPRESSED_RGBA_ARB;
     else
-        intexfmt = hasalpha ? GL_RGBA : GL_RGB;
+        intexfmt = GL_RGBA8;
 #else
     const int onebitalpha  = !!(dameth & DAMETH_ONEBITALPHA);
 
@@ -1231,6 +1235,11 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                                 break;
                         }
                     }
+                    
+                    //swap r & b so that we deal with the data as BGRA
+                    uint8_t tmpR = wpptr->r;
+                    wpptr->r = wpptr->b;
+                    wpptr->b = tmpR;
                 }
             }
         }
@@ -1257,7 +1266,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
             npoty = 1;
         }
 
-        uploadtexture(doalloc, siz, GL_RGBA, pic, tsiz,
+        uploadtexture(doalloc, siz, GL_BGRA, pic, tsiz,
                       dameth | DAMETH_ARTIMMUNITY |
                       (dapic >= MAXUSERTILES ? (DAMETH_NOTEXCOMPRESS|DAMETH_NODOWNSIZE) : 0) | /* never process these short-lived tiles */
                       (hasfullbright ? DAMETH_HASFULLBRIGHT : 0) |
