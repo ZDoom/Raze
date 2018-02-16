@@ -6253,6 +6253,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     {
         pr_normalmapping = 0;
         polymer_inb4rotatesprite(picnum, dapalnum, dashade, method);
+        polymost_resetVertexPointers();
 # ifdef USE_GLEXT
         r_detailmapping = 0;
         r_glowmapping = 0;
