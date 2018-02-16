@@ -2584,6 +2584,8 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     bglLoadIdentity();
     bglMatrixMode(GL_MODELVIEW);
     bglLoadIdentity();
+    
+    polymost_resetVertexPointers();
 
     globalnoeffect=0;
     return 1;

@@ -40,6 +40,8 @@ void polymost_fillpolygon(int32_t npoints);
 void polymost_initosdfuncs(void);
 void polymost_drawrooms(void);
 
+void polymost_resetVertexPointers();
+
 void polymost_glinit(void);
 void polymost_glreset(void);
 

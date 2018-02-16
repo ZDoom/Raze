@@ -64,6 +64,8 @@ float fxdim, fydim, fydimen, fviewingrange;
 static int32_t preview_mouseaim=1;  // when 1, displays a CROSSHAIR tsprite at the _real_ aimed position
 
 static int32_t drawpoly_srepeat = 0, drawpoly_trepeat = 0;
+#define MAX_DRAWPOLY_VERTS 8
+static float drawpolyVerts[MAX_DRAWPOLY_VERTS*5];
 
 struct glfiltermodes glfiltermodes[NUMGLFILTERMODES] =
 {
@@ -344,6 +346,27 @@ void polymost_glreset()
 static void Polymost_DetermineTextureFormatSupport(void);
 #endif
 
+// reset vertex pointers to polymost default
+void polymost_resetVertexPointers()
+{
+    bglVertexPointer(3, GL_FLOAT, 5*sizeof(float), drawpolyVerts);
+    bglTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
+    
+#ifdef USE_GLEXT
+    if (r_detailmapping)
+    {
+        bglClientActiveTextureARB(GL_TEXTURE1);
+        bglTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
+    }
+    if (r_glowmapping)
+    {
+        bglClientActiveTextureARB(GL_TEXTURE2);
+        bglTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
+    }
+    bglClientActiveTextureARB(GL_TEXTURE0_ARB);
+#endif
+}
+
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
 {
@@ -389,6 +412,8 @@ void polymost_glinit()
 
     bglEnableClientState(GL_VERTEX_ARRAY);
     bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    
+    polymost_resetVertexPointers();
 
     texcache_init();
     texcache_loadoffsets();
@@ -1637,6 +1662,9 @@ void polymost_setupdetailtexture(const int32_t texunits, const int32_t tex)
 
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    bglClientActiveTextureARB(texunits);
+    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
@@ -1664,6 +1692,9 @@ void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
 
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    bglClientActiveTextureARB(texunits);
+    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 #endif
 
@@ -1732,7 +1763,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         }
     }
 
-    Bassert(n <= 8);
+    Bassert(n <= MAX_DRAWPOLY_VERTS);
 
     int j = 0;
     float px[8], py[8], dd[8], uu[8], vv[8];
@@ -1823,9 +1854,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL, 1) &&
             (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & ~DAMETH_MASKPROPS)) &&
-            detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
+            detailpth && detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
         {
-            polymost_setupdetailtexture(++texunits, detailpth ? detailpth->glpic : 0);
+            polymost_setupdetailtexture(++texunits, detailpth->glpic);
 
             bglMatrixMode(GL_TEXTURE);
             bglLoadIdentity();
@@ -1833,7 +1864,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             if (pth && pth->hicr && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
                 bglScalef(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
 
-            if (detailpth && detailpth->hicr && ((detailpth->hicr->scale.x != 1.0f) || (detailpth->hicr->scale.y != 1.0f)))
+            if ((detailpth->hicr->scale.x != 1.0f) || (detailpth->hicr->scale.y != 1.0f))
                 bglScalef(detailpth->hicr->scale.x, detailpth->hicr->scale.y, 1.0f);
 
             bglMatrixMode(GL_MODELVIEW);
@@ -1847,8 +1878,10 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL, 1) &&
             (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, (method & ~DAMETH_MASKPROPS) | DAMETH_MASK)) &&
-            glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
-            polymost_setupglowtexture(++texunits, glowpth ? glowpth->glpic : 0);
+            glowpth && glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
+        {
+            polymost_setupglowtexture(++texunits, glowpth->glpic);
+        }
     }
 #endif
 
@@ -2035,8 +2068,6 @@ do                                                                              
 
             vec2f_t const invtsiz2 = { 1.f / tsiz2.x, 1.f / tsiz2.y };
 
-            bglBegin(GL_TRIANGLE_FAN);
-
             for (i=0; i<nn; ++i)
             {
                 vec2f_t const o = { uu[i], vv[i] };
@@ -2045,49 +2076,36 @@ do                                                                              
                                     o.x * ngx.v + o.y * ngy.v + ngo.v };
                 float const r = 1.f/p.d;
 
-#ifdef USE_GLEXT
-                if (texunits > GL_TEXTURE0_ARB)
-                {
-                    j = GL_TEXTURE0_ARB;
-                    while (j <= texunits)
-                        bglMultiTexCoord2fARB(j++, (p.u * r - du0 + uoffs) * invtsiz2.x, p.v * r * invtsiz2.y);
-                }
-                else
-#endif
-                    bglTexCoord2f((p.u * r - du0 + uoffs) * invtsiz2.x, p.v * r * invtsiz2.y);
-
-                bglVertex3f((o.x - ghalfx) * r * grhalfxdown10x,
-                            (ghoriz - o.y) * r * grhalfxdown10,
-                            r * (1.f / 1024.f));
+                //update verts
+                drawpolyVerts[i*5] = (o.x - ghalfx) * r * grhalfxdown10x;
+                drawpolyVerts[i*5+1] = (ghoriz - o.y) * r * grhalfxdown10;
+                drawpolyVerts[i*5+2] = r * (1.f / 1024.f);
+                
+                //update texcoords
+                drawpolyVerts[i*5+3] = (p.u * r - du0 + uoffs) * invtsiz2.x;
+                drawpolyVerts[i*5+4] = p.v * r * invtsiz2.y;
             }
-            bglEnd();
+            bglDrawArrays(GL_TRIANGLE_FAN, 0, nn);
         }
     }
     else
     {
         vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
 
-        bglBegin(GL_TRIANGLE_FAN);
-
         for (bssize_t i = 0; i < npoints; ++i)
         {
             float const r = 1.f / dd[i];
 
-#ifdef USE_GLEXT
-            if (texunits > GL_TEXTURE0_ARB)
-            {
-                j = GL_TEXTURE0_ARB;
-                while (j <= texunits) bglMultiTexCoord2fARB(j++, uu[i] * r * scale.x, vv[i] * r * scale.y);
-            }
-            else
-#endif
-                bglTexCoord2f(uu[i] * r * scale.x, vv[i] * r * scale.y);
-
-            bglVertex3f((px[i] - ghalfx) * r * grhalfxdown10x,
-                        (ghoriz - py[i]) * r * grhalfxdown10,
-                        r * (1.f / 1024.f));
+            //update verts
+            drawpolyVerts[i*5] = (px[i] - ghalfx) * r * grhalfxdown10x;
+            drawpolyVerts[i*5+1] = (ghoriz - py[i]) * r * grhalfxdown10;
+            drawpolyVerts[i*5+2] = r * (1.f / 1024.f);
+            
+            //update texcoords
+            drawpolyVerts[i*5+3] = uu[i] * r * scale.x;
+            drawpolyVerts[i*5+4] = vv[i] * r * scale.y;
         }
-        bglEnd();
+        bglDrawArrays(GL_TRIANGLE_FAN, 0, npoints);
     }
 
 #ifdef USE_GLEXT
@@ -2097,7 +2115,10 @@ do                                                                              
         bglMatrixMode(GL_TEXTURE);
         bglLoadIdentity();
         bglMatrixMode(GL_MODELVIEW);
-
+        
+        bglClientActiveTextureARB(texunits);
+        bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        
         bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
         bglDisable(GL_TEXTURE_2D);
 
