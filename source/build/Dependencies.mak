@@ -2,7 +2,7 @@
 #
 $(ENGINE_OBJ)/a-c.$o: $(ENGINE_SRC)/a-c.cpp $(ENGINE_INC)/a.h
 $(ENGINE_OBJ)/a.$o: $(ENGINE_SRC)/a.$(asm)
-$(ENGINE_OBJ)/animvpx.$o: $(ENGINE_SRC)/animvpx.cpp $(ENGINE_INC)/animvpx.h $(ENGINE_INC)/glbuild.h
+$(ENGINE_OBJ)/animvpx.$o: $(ENGINE_SRC)/animvpx.cpp $(ENGINE_INC)/animvpx.h $(GLAD_INC)/glad/glad.h
 $(ENGINE_OBJ)/baselayer.$o: $(ENGINE_SRC)/baselayer.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/osd.h
 $(ENGINE_OBJ)/build.$o: $(ENGINE_SRC)/build.cpp $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/editor.h
 $(ENGINE_OBJ)/cache1d.$o: $(ENGINE_SRC)/cache1d.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/kplib.h
@@ -27,18 +27,18 @@ $(ENGINE_OBJ)/voxmodel.$o: $(ENGINE_SRC)/voxmodel.cpp $(ENGINE_SRC)/engine_priv.
 $(ENGINE_OBJ)/mdsprite.$o: $(ENGINE_SRC)/mdsprite.cpp $(ENGINE_SRC)/engine_priv.h $(ENGINE_INC)/polymost.h $(ENGINE_INC)/hightile.h $(ENGINE_INC)/mdsprite.h $(ENGINE_INC)/texcache.h
 $(ENGINE_OBJ)/textfont.$o: $(ENGINE_SRC)/textfont.cpp
 $(ENGINE_OBJ)/smalltextfont.$o: $(ENGINE_SRC)/smalltextfont.cpp
-$(ENGINE_OBJ)/glbuild.$o: $(ENGINE_SRC)/glbuild.cpp $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/baselayer.h
+$(ENGINE_OBJ)/glbuild.$o: $(ENGINE_SRC)/glbuild.cpp $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/baselayer.h $(GLAD_INC)/glad/glad.h
 $(ENGINE_OBJ)/kplib.$o: $(ENGINE_SRC)/kplib.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/kplib.h
 $(ENGINE_OBJ)/lz4.$o: $(ENGINE_SRC)/lz4.c $(ENGINE_INC)/lz4.h
 $(ENGINE_OBJ)/md4.$o: $(ENGINE_SRC)/md4.cpp $(ENGINE_INC)/md4.h
 $(ENGINE_OBJ)/osd.$o: $(ENGINE_SRC)/osd.cpp $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h
 $(ENGINE_OBJ)/pragmas.$o: $(ENGINE_SRC)/pragmas.cpp $(ENGINE_INC)/compat.h
 $(ENGINE_OBJ)/scriptfile.$o: $(ENGINE_SRC)/scriptfile.cpp $(ENGINE_INC)/scriptfile.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/compat.h
-$(ENGINE_OBJ)/sdlayer.$o: $(ENGINE_SRC)/sdlayer.cpp $(ENGINE_SRC)/sdlayer12.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/sdlayer.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/a.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/glbuild.h
-$(ENGINE_OBJ)/winlayer.$o: $(ENGINE_SRC)/winlayer.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/winlayer.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/a.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/dxdidf.h $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/rawinput.h $(ENGINE_INC)/winbits.h
+$(ENGINE_OBJ)/sdlayer.$o: $(ENGINE_SRC)/sdlayer.cpp $(ENGINE_SRC)/sdlayer12.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/sdlayer.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/a.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/osd.h $(GLAD_INC)/glad/glad.h  $(ENGINE_INC)/glbuild.h
+$(ENGINE_OBJ)/winlayer.$o: $(ENGINE_SRC)/winlayer.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/winlayer.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/a.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/dxdidf.h $(GLAD_INC)/glad/glad.h $(GLAD_INC)/glad/glad_wgl.h  $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/rawinput.h $(ENGINE_INC)/winbits.h
 $(ENGINE_OBJ)/gtkbits.$o: $(ENGINE_SRC)/gtkbits.cpp $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/dynamicgtk.h
 $(ENGINE_OBJ)/dynamicgtk.$o: $(ENGINE_SRC)/dynamicgtk.cpp $(ENGINE_INC)/dynamicgtk.h
-$(ENGINE_OBJ)/polymer.$o: $(ENGINE_SRC)/polymer.cpp $(ENGINE_INC)/polymer.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/mdsprite.h $(ENGINE_INC)/polymost.h
+$(ENGINE_OBJ)/polymer.$o: $(ENGINE_SRC)/polymer.cpp $(ENGINE_INC)/polymer.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(GLAD_INC)/glad/glad.h $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/pragmas.h $(ENGINE_INC)/mdsprite.h $(ENGINE_INC)/polymost.h
 $(ENGINE_OBJ)/mutex.$o: $(ENGINE_SRC)/mutex.cpp $(ENGINE_INC)/mutex.h
 $(ENGINE_OBJ)/rawinput.$o: $(ENGINE_SRC)/rawinput.cpp $(ENGINE_INC)/rawinput.h
 $(ENGINE_OBJ)/wiibits.$o: $(ENGINE_SRC)/wiibits.cpp $(ENGINE_INC)/wiibits.h
@@ -59,7 +59,7 @@ $(TOOLS_OBJ)/transpal.$o: $(TOOLS_SRC)/transpal.cpp $(ENGINE_INC)/compat.h $(ENG
 $(TOOLS_OBJ)/wad2art.$o: $(TOOLS_SRC)/wad2art.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/pragmas.h
 $(TOOLS_OBJ)/wad2map.$o: $(TOOLS_SRC)/wad2map.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/pragmas.h
 $(TOOLS_OBJ)/kmd2tool.$o: $(TOOLS_SRC)/kmd2tool.cpp $(ENGINE_INC)/compat.h
-$(TOOLS_OBJ)/md2tool.$o: $(TOOLS_SRC)/md2tool.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/mdsprite.h
+$(TOOLS_OBJ)/md2tool.$o: $(TOOLS_SRC)/md2tool.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(GLAD_INC)/glad/glad.h $(ENGINE_INC)/mdsprite.h
 $(TOOLS_OBJ)/generateicon.$o: $(TOOLS_SRC)/generateicon.cpp $(ENGINE_INC)/kplib.h $(ENGINE_INC)/compat.h
 $(TOOLS_OBJ)/cacheinfo.$o: $(TOOLS_SRC)/cacheinfo.cpp $(ENGINE_INC)/compat.h
 $(TOOLS_OBJ)/enumdisplay.$o: $(TOOLS_SRC)/enumdisplay.cpp $(ENGINE_INC)/compat.h

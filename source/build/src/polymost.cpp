@@ -8,7 +8,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 
 #include "compat.h"
 #include "build.h"
-#include "glbuild.h"
+#include "glad/glad.h"
 #include "mdsprite.h"
 #include "pragmas.h"
 #include "baselayer.h"
@@ -213,12 +213,12 @@ static void bind_2d_texture(GLuint texture, int filter)
     if (filter == -1)
         filter = gltexfiltermode;
 
-    bglBindTexture(GL_TEXTURE_2D, texture);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[filter].mag);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[filter].min);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[filter].mag);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[filter].min);
 #ifdef USE_GLEXT
     if (glinfo.maxanisotropy > 1.f)
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
 #endif
 }
 
@@ -308,11 +308,11 @@ void polymost_glreset()
 
                 if (pth->flags & PTH_HASFULLBRIGHT)
                 {
-                    bglDeleteTextures(1, &pth->ofb->glpic);
+                    glDeleteTextures(1, &pth->ofb->glpic);
                     Bfree(pth->ofb);
                 }
 
-                bglDeleteTextures(1, &pth->glpic);
+                glDeleteTextures(1, &pth->glpic);
                 Bfree(pth);
                 pth = next;
             }
@@ -324,7 +324,7 @@ void polymost_glreset()
     }
 
     if (polymosttext)
-        bglDeleteTextures(1,&polymosttext);
+        glDeleteTextures(1,&polymosttext);
     polymosttext=0;
 
 #ifdef USE_GLEXT
@@ -349,43 +349,43 @@ static void Polymost_DetermineTextureFormatSupport(void);
 // reset vertex pointers to polymost default
 void polymost_resetVertexPointers()
 {
-    bglVertexPointer(3, GL_FLOAT, 5*sizeof(float), drawpolyVerts);
-    bglTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
+    glVertexPointer(3, GL_FLOAT, 5*sizeof(float), drawpolyVerts);
+    glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
     
 #ifdef USE_GLEXT
     if (r_detailmapping)
     {
-        bglClientActiveTextureARB(GL_TEXTURE1);
-        bglTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
+        glClientActiveTexture(GL_TEXTURE1);
+        glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
     }
     if (r_glowmapping)
     {
-        bglClientActiveTextureARB(GL_TEXTURE2);
-        bglTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
+        glClientActiveTexture(GL_TEXTURE2);
+        glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (drawpolyVerts+3));
     }
-    bglClientActiveTextureARB(GL_TEXTURE0_ARB);
+    glClientActiveTexture(GL_TEXTURE0);
 #endif
 }
 
 // one-time initialization of OpenGL for polymost
 void polymost_glinit()
 {
-    bglHint(GL_FOG_HINT, GL_NICEST);
-    bglFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
-    bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glHint(GL_FOG_HINT, GL_NICEST);
+    glFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    bglPixelStorei(GL_PACK_ALIGNMENT, 1);
-    bglPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    //bglHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    //bglEnable(GL_LINE_SMOOTH);
+    //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    //glEnable(GL_LINE_SMOOTH);
 
 #ifdef USE_GLEXT
     if (glmultisample > 0 && glinfo.multisample)
     {
         if (glinfo.nvmultisamplehint)
-            bglHint(GL_MULTISAMPLE_FILTER_HINT_NV, glnvmultisamplehint ? GL_NICEST:GL_FASTEST);
-        bglEnable(GL_MULTISAMPLE_ARB);
+            glHint(GL_MULTISAMPLE_FILTER_HINT_NV, glnvmultisamplehint ? GL_NICEST:GL_FASTEST);
+        glEnable(GL_MULTISAMPLE);
     }
 
     if (!glinfo.multitex || !glinfo.envcombine)
@@ -410,8 +410,8 @@ void polymost_glinit()
     }
 #endif
 
-    bglEnableClientState(GL_VERTEX_ARRAY);
-    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     
     polymost_resetVertexPointers();
 
@@ -538,22 +538,22 @@ void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
             }
         }
 
-        bglFogf(GL_FOG_START, fogresult);
-        bglFogf(GL_FOG_END, fogresult2);
-        bglFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
+        glFogf(GL_FOG_START, fogresult);
+        glFogf(GL_FOG_END, fogresult2);
+        glFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
 
         return;
     }
 
     fogcalc(tile, shade, vis, pal);
-    bglFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
+    glFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
 
     if (r_usenewshading < 2)
-        bglFogf(GL_FOG_DENSITY, fogresult);
+        glFogf(GL_FOG_DENSITY, fogresult);
     else
     {
-        bglFogf(GL_FOG_START, fogresult);
-        bglFogf(GL_FOG_END, fogresult2);
+        glFogf(GL_FOG_START, fogresult);
+        glFogf(GL_FOG_END, fogresult2);
     }
 }
 
@@ -580,9 +580,9 @@ void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t
             fogresult2 = GL_FOG_MAX - (GL_FOG_MAX * fogrange);
         }
 
-        bglFogf(GL_FOG_START, fogresult);
-        bglFogf(GL_FOG_END, fogresult2);
-        bglFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
+        glFogf(GL_FOG_START, fogresult);
+        glFogf(GL_FOG_END, fogresult2);
+        glFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
 
         return;
     }
@@ -590,14 +590,14 @@ void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t
     // NOTE: for r_usenewshading >= 2, the fog beginning/ending distance results are
     // unused.
     fogcalc(tile, shade, vis, pal);
-    bglFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
+    glFogfv(GL_FOG_COLOR, (GLfloat *)&fogcol);
 
     if (r_usenewshading < 2)
-        bglFogf(GL_FOG_DENSITY, fogresult*factor);
+        glFogf(GL_FOG_DENSITY, fogresult*factor);
     else
     {
-        bglFogf(GL_FOG_START, (GLfloat) FULLVIS_BEGIN);
-        bglFogf(GL_FOG_END, (GLfloat) FULLVIS_END);
+        glFogf(GL_FOG_START, (GLfloat) FULLVIS_BEGIN);
+        glFogf(GL_FOG_END, (GLfloat) FULLVIS_END);
     }
 }
 ////////////////////
@@ -628,21 +628,21 @@ static void resizeglcheck(void)
         {
         default:
         case 0:
-            bglPolygonMode(GL_FRONT_AND_BACK,GL_FILL); break;
+            glPolygonMode(GL_FRONT_AND_BACK,GL_FILL); break;
         case 1:
-            bglPolygonMode(GL_FRONT_AND_BACK,GL_LINE); break;
+            glPolygonMode(GL_FRONT_AND_BACK,GL_LINE); break;
         case 2:
-            bglPolygonMode(GL_FRONT_AND_BACK,GL_POINT); break;
+            glPolygonMode(GL_FRONT_AND_BACK,GL_POINT); break;
         }
     }
     if (r_polygonmode) //FUK
     {
-        bglClearColor(1.0,1.0,1.0,0.0);
-        bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-        bglDisable(GL_TEXTURE_2D);
+        glClearColor(1.0,1.0,1.0,0.0);
+        glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        glDisable(GL_TEXTURE_2D);
     }
 #else
-    bglPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 #endif
 
     if ((glox1 != windowxy1.x) || (gloy1 != windowxy1.y) || (glox2 != windowxy2.x) || (gloy2 != windowxy2.y))
@@ -656,10 +656,10 @@ static void resizeglcheck(void)
         glox1 = (float)windowxy1.x; gloy1 = (float)windowxy1.y;
         glox2 = (float)windowxy2.x; gloy2 = (float)windowxy2.y;
 
-        bglViewport(windowxy1.x-(fovcorrect/2), yres-(windowxy2.y+1),
+        glViewport(windowxy1.x-(fovcorrect/2), yres-(windowxy2.y+1),
                     ourxdimen+fovcorrect, windowxy2.y-windowxy1.y+1);
 
-        bglMatrixMode(GL_PROJECTION);
+        glMatrixMode(GL_PROJECTION);
 
         float m[4][4];
         Bmemset(m,0,sizeof(m));
@@ -669,14 +669,14 @@ static void resizeglcheck(void)
         m[1][1] = fxdimen; m[1][2] = 1.f;
         m[2][2] = 1.f; m[2][3] = fydimen * ratio;
         m[3][2] =-1.f;
-        bglLoadMatrixf(&m[0][0]);
+        glLoadMatrixf(&m[0][0]);
 
-        bglMatrixMode(GL_MODELVIEW);
-        bglLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
 
-        if (!nofog) bglEnable(GL_FOG);
+        if (!nofog) glEnable(GL_FOG);
 
-        //bglEnable(GL_TEXTURE_2D);
+        //glEnable(GL_TEXTURE_2D);
     }
 }
 
@@ -785,7 +785,7 @@ static ETCFunction_t Polymost_PickETCFunction(int32_t const comprtexfmt)
 static int Polymost_ConfirmNoGLError(void)
 {
     GLenum checkerr, err = GL_NO_ERROR;
-    while ((checkerr = bglGetError()) != GL_NO_ERROR)
+    while ((checkerr = glGetError()) != GL_NO_ERROR)
         err = checkerr;
 
     return err == GL_NO_ERROR;
@@ -795,7 +795,7 @@ static int32_t Polymost_TryDummyTexture(coltype const * const pic, int32_t const
 {
     while (*formats)
     {
-        bglTexImage2D(GL_TEXTURE_2D, 0, *formats, 4,4, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic);
+        glTexImage2D(GL_TEXTURE_2D, 0, *formats, 4,4, 0, GL_RGBA, GL_UNSIGNED_BYTE, pic);
 
         if (Polymost_ConfirmNoGLError())
             return *formats;
@@ -831,8 +831,8 @@ static void Polymost_DetermineTextureFormatSupport(void)
     coltype pic[4*4] = { { 0, 0, 0, 0 } };
     GLuint tex = 0;
 
-    bglGenTextures(1, &tex);
-    bglBindTexture(GL_TEXTURE_2D, tex);
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
 
     BuildGLErrorCheck(); // XXX: Clear errors.
 
@@ -844,7 +844,7 @@ static void Polymost_DetermineTextureFormatSupport(void)
     comprtexfmt_rgba = Polymost_TryCompressedDummyTexture(pic, comprtexfmts_rgba);
     comprtexfmt_rgb_mask = Polymost_TryCompressedDummyTexture(pic, comprtexfmts_rgb_mask);
 
-    bglDeleteTextures(1, &tex);
+    glDeleteTextures(1, &tex);
 }
 #endif
 
@@ -911,9 +911,9 @@ static void Polymost_SendTexToDriver(int32_t const doalloc,
     GLenum type = GL_UNSIGNED_INT_8_8_8_8_REV;
 #endif
     if (doalloc & 1)
-        bglTexImage2D(GL_TEXTURE_2D, level, intexfmt, siz.x,siz.y, 0, texfmt, type, pic);
+        glTexImage2D(GL_TEXTURE_2D, level, intexfmt, siz.x,siz.y, 0, texfmt, type, pic);
     else
-        bglTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, texfmt, type, pic);
+        glTexSubImage2D(GL_TEXTURE_2D, level, 0,0, siz.x,siz.y, texfmt, type, pic);
 }
 
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
@@ -928,7 +928,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
 #if !defined EDUKE32_GLES
     int32_t intexfmt;
     if (texcompress_ok && glinfo.texcompr)
-        intexfmt = GL_COMPRESSED_RGBA_ARB;
+        intexfmt = GL_COMPRESSED_RGBA;
     else
         intexfmt = GL_RGBA8;
 #else
@@ -943,7 +943,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     if (gltexmaxsize <= 0)
     {
         GLint i = 0;
-        bglGetIntegerv(GL_MAX_TEXTURE_SIZE, &i);
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &i);
         if (!i) gltexmaxsize = 6;   // 2^6 = 64 == default GL max texture size
         else
         {
@@ -970,8 +970,8 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     if (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
         glfiltermodes[gltexfiltermode].min == GL_LINEAR)
     {
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
     }
     
     if (!miplevel)
@@ -1072,8 +1072,8 @@ static void polymost_setuptexture(const int32_t dameth, int filter)
     if (filter == -1)
         filter = gltexfiltermode;
 
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[filter].mag);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[filter].min);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, glfiltermodes[filter].mag);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glfiltermodes[filter].min);
 
 #ifdef USE_GLEXT
     if (glinfo.maxanisotropy > 1.f)
@@ -1083,20 +1083,20 @@ static void polymost_setuptexture(const int32_t dameth, int filter)
         if ((unsigned)glanisotropy > i)
             glanisotropy = i;
 
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, glanisotropy);
     }
 #endif
 
     if (!(dameth & DAMETH_CLAMPED))
     {
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_if_tile_is_sky(dapic, clamp_mode));
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_if_tile_is_sky(dapic, clamp_mode));
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     }
     else
     {
         // For sprite textures, clamping looks better than wrapping
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
     }
 }
 
@@ -1259,8 +1259,8 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
             }
         }
 
-        if (doalloc) bglGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
-        bglBindTexture(GL_TEXTURE_2D,pth->glpic);
+        if (doalloc) glGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
+        glBindTexture(GL_TEXTURE_2D,pth->glpic);
 
         fixtransparency(pic,tsiz,siz,dameth);
 
@@ -1575,8 +1575,8 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
             hicr->flags |= HICR_ARTIMMUNITY;
 
         if ((doalloc&3)==1)
-            bglGenTextures(1, &pth->glpic); //# of textures (make OpenGL allocate structure)
-        bglBindTexture(GL_TEXTURE_2D,pth->glpic);
+            glGenTextures(1, &pth->glpic); //# of textures (make OpenGL allocate structure)
+        glBindTexture(GL_TEXTURE_2D,pth->glpic);
 
         fixtransparency(pic,tsiz,siz,dameth);
 
@@ -1664,61 +1664,61 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 #ifdef USE_GLEXT
 void polymost_setupdetailtexture(const int32_t texunits, const int32_t tex)
 {
-    bglActiveTextureARB(texunits);
+    glActiveTexture(texunits);
 
-    bglEnable(GL_TEXTURE_2D);
-    bglBindTexture(GL_TEXTURE_2D, tex);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex);
 
-    bglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_MODULATE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
 
-    bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+    glTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+    glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
 
-    bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
+    glTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 
-    bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PREVIOUS_ARB);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
+    glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
+    glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 
-    bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 2.0f);
-
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
     
-    bglClientActiveTextureARB(texunits);
-    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    glClientActiveTexture(texunits);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
 {
-    bglActiveTextureARB(texunits);
+    glActiveTexture(texunits);
 
-    bglEnable(GL_TEXTURE_2D);
-    bglBindTexture(GL_TEXTURE_2D, tex);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex);
 
-    bglTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_INTERPOLATE_ARB);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
 
-    bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_PREVIOUS_ARB);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB_ARB, GL_SRC_COLOR);
+    glTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PREVIOUS);
+    glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
 
-    bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB_ARB, GL_TEXTURE);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB_ARB, GL_SRC_COLOR);
+    glTexEnvf(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_TEXTURE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 
-    bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB_ARB, GL_TEXTURE);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB_ARB, GL_ONE_MINUS_SRC_ALPHA);
+    glTexEnvf(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_TEXTURE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_ONE_MINUS_SRC_ALPHA);
 
-    bglTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_PREVIOUS_ARB);
-    bglTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
-
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+    glTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
+    glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
     
-    bglClientActiveTextureARB(texunits);
-    bglEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    glClientActiveTexture(texunits);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 #endif
 
@@ -1750,7 +1750,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 #endif
         (uint32_t)globalpicnum >= MAXTILES)
         return;
-
+    
     const int32_t method_ = method;
 
     if (n == 3)
@@ -1851,25 +1851,25 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     // just submit the geometry and don't mess with textures.
     if (getrendermode() == REND_POLYMOST)
     {
-        bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
+        glBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
         if (drawpoly_srepeat)
-            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
         if (drawpoly_trepeat)
-            bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
     }
 
     // texture scale by parkar request
     if (pth && pth->hicr && !drawingskybox && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
     {
-        bglMatrixMode(GL_TEXTURE);
-        bglLoadIdentity();
-        bglScalef(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
-        bglMatrixMode(GL_MODELVIEW);
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glScalef(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
+        glMatrixMode(GL_MODELVIEW);
     }
 
 #ifdef USE_GLEXT
-    int32_t texunits = GL_TEXTURE0_ARB;
+    int32_t texunits = GL_TEXTURE0;
 
     // detail texture
     if (r_detailmapping)
@@ -1882,16 +1882,16 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         {
             polymost_setupdetailtexture(++texunits, detailpth->glpic);
 
-            bglMatrixMode(GL_TEXTURE);
-            bglLoadIdentity();
+            glMatrixMode(GL_TEXTURE);
+            glLoadIdentity();
 
             if (pth && pth->hicr && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
-                bglScalef(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
+                glScalef(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
 
             if ((detailpth->hicr->scale.x != 1.0f) || (detailpth->hicr->scale.y != 1.0f))
-                bglScalef(detailpth->hicr->scale.x, detailpth->hicr->scale.y, 1.0f);
+                glScalef(detailpth->hicr->scale.x, detailpth->hicr->scale.y, 1.0f);
 
-            bglMatrixMode(GL_MODELVIEW);
+            glMatrixMode(GL_MODELVIEW);
         }
     }
 
@@ -1929,19 +1929,19 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     if (!(method & DAMETH_MASKPROPS) && fullbright_pass < 2)
     {
-        bglDisable(GL_BLEND);
-        bglDisable(GL_ALPHA_TEST);
+        glDisable(GL_BLEND);
+        glDisable(GL_ALPHA_TEST);
     }
     else
     {
         float const al = waloff[globalpicnum] ? alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f):
                          (pth && pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f) : 0.f;
 
-        bglAlphaFunc(GL_GREATER, al);
+        glAlphaFunc(GL_GREATER, al);
         handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
         
-        bglEnable(GL_BLEND);
-        bglEnable(GL_ALPHA_TEST);
+        glEnable(GL_BLEND);
+        glEnable(GL_ALPHA_TEST);
     }
 
     float pc[4];
@@ -1982,8 +1982,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         globaltinting_apply(pc);
     }
-
-    bglColor4f(pc[0], pc[1], pc[2], pc[3]);
+    
+    glColor4f(pc[0], pc[1], pc[2], pc[3]);
 
     //Hack for walls&masked walls which use textures that are not a power of 2
     if ((pow2xsplit) && (tsiz.x != tsiz2.x))
@@ -2109,7 +2109,7 @@ do                                                                              
                 drawpolyVerts[i*5+3] = (p.u * r - du0 + uoffs) * invtsiz2.x;
                 drawpolyVerts[i*5+4] = p.v * r * invtsiz2.y;
             }
-            bglDrawArrays(GL_TRIANGLE_FAN, 0, nn);
+            glDrawArrays(GL_TRIANGLE_FAN, 0, nn);
         }
     }
     else
@@ -2129,33 +2129,33 @@ do                                                                              
             drawpolyVerts[i*5+3] = uu[i] * r * scale.x;
             drawpolyVerts[i*5+4] = vv[i] * r * scale.y;
         }
-        bglDrawArrays(GL_TRIANGLE_FAN, 0, npoints);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, npoints);
     }
 
 #ifdef USE_GLEXT
-    while (texunits > GL_TEXTURE0_ARB)
+    while (texunits > GL_TEXTURE0)
     {
-        bglActiveTextureARB(texunits);
-        bglMatrixMode(GL_TEXTURE);
-        bglLoadIdentity();
-        bglMatrixMode(GL_MODELVIEW);
+        glActiveTexture(texunits);
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
         
-        bglClientActiveTextureARB(texunits);
-        bglDisableClientState(GL_TEXTURE_COORD_ARRAY);
+        glClientActiveTexture(texunits);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         
-        bglTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE_ARB, 1.0f);
-        bglDisable(GL_TEXTURE_2D);
+        glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
+        glDisable(GL_TEXTURE_2D);
 
         --texunits;
     }
 
-    bglActiveTextureARB(GL_TEXTURE0_ARB);
+    glActiveTexture(GL_TEXTURE0);
 #endif
-    bglMatrixMode(GL_TEXTURE);
-    bglLoadIdentity();
-    bglMatrixMode(GL_MODELVIEW);
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
 
-    bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     if (getrendermode() != REND_POLYMOST)
         return;
@@ -2163,10 +2163,10 @@ do                                                                              
     int const clamp_mode = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
 
     if (drawpoly_srepeat)
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
 
     if (drawpoly_trepeat)
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
 
     if (fullbright_pass == 1)
     {
@@ -2175,16 +2175,16 @@ do                                                                              
         globalshade = -128;
         fullbright_pass = 2;
 
-        bglDisable(GL_FOG);
+        glDisable(GL_FOG);
 
-        bglDepthFunc(GL_EQUAL);
+        glDepthFunc(GL_EQUAL);
 
         polymost_drawpoly(dpxy, n, method_);
 
-        bglDepthFunc(GL_LEQUAL);
+        glDepthFunc(GL_LEQUAL);
 
         if (!nofog)
-            bglEnable(GL_FOG);
+            glEnable(GL_FOG);
 
         globalshade = shade;
         fullbright_pass = 0;
@@ -3345,7 +3345,7 @@ static void polymost_drawalls(int32_t const bunch)
 
             skyclamphack = 0;
             if (!nofog)
-                bglEnable(GL_FOG);
+                glEnable(GL_FOG);
         }
 
         // Ceiling
@@ -3677,7 +3677,7 @@ static void polymost_drawalls(int32_t const bunch)
 
             skyclamphack = 0;
             if (!nofog)
-                bglEnable(GL_FOG);
+                glEnable(GL_FOG);
         }
 
         // Wall
@@ -4066,15 +4066,15 @@ void polymost_drawrooms()
     if (numyaxbunches==0)
 #endif
     if (editstatus)
-        bglClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-    bglClear(GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
-    bglDisable(GL_BLEND);
-    bglEnable(GL_TEXTURE_2D);
-    bglEnable(GL_DEPTH_TEST);
-    bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-//        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
+    glDisable(GL_BLEND);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+//        glDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
 
     //Polymost supports true look up/down :) Here, we convert horizon to angle.
     //gchang&gshang are cos&sin of this angle (respectively)
@@ -4219,8 +4219,8 @@ void polymost_drawrooms()
         bunchlast[closest] = bunchlast[numbunches];
     }
 
-    bglDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-//        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
+    glDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+//        glDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
 
     enddrawing();
 }
@@ -4631,7 +4631,7 @@ void polymost_drawsprite(int32_t snum)
                 (float) (sintable[(ang) & 2047] >> 6) * foffs };
 
             vec2f_t s0 = { (float)(tspr->x - globalposx) + offs.x,
-                           (float)(tspr->y - globalposy) + offs.y };
+                           (float)(tspr->y - globalposy) + offs.y};
 
             vec2f_t p0 = { s0.y * gcosang - s0.x * gsinang, s0.x * gcosang2 + s0.y * gsinang2 };
 
@@ -5264,16 +5264,16 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     tspr.cstat = globalorientation = (dastat&RS_TRANS1) | ((dastat&RS_TRANS2)<<4) | ((dastat&RS_YFLIP)<<1);
 
     if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
-        bglViewport(windowxy1.x, yres-(windowxy2.y+1), windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
+        glViewport(windowxy1.x, yres-(windowxy2.y+1), windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
     else
     {
-        bglViewport(0, 0, xdim, ydim);
+        glViewport(0, 0, xdim, ydim);
         glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
     }
 
     if (getrendermode() < REND_POLYMER)
     {
-        bglMatrixMode(GL_PROJECTION);
+        glMatrixMode(GL_PROJECTION);
         Bmemset(m, 0, sizeof(m));
 
         if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
@@ -5300,31 +5300,31 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
             m[3][2] = 1-m[2][2];
         }
 
-        bglLoadMatrixf(&m[0][0]);
+        glLoadMatrixf(&m[0][0]);
 
-        bglMatrixMode(GL_MODELVIEW);
-        bglLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
     }
 
     if (hud->flags & HUDFLAG_NODEPTH)
-        bglDisable(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
     else
     {
         static int32_t onumframes = 0;
 
-        bglEnable(GL_DEPTH_TEST);
+        glEnable(GL_DEPTH_TEST);
 
         if (onumframes != numframes)
         {
             onumframes = numframes;
-            bglClear(GL_DEPTH_BUFFER_BIT);
+            glClear(GL_DEPTH_BUFFER_BIT);
         }
     }
 
     spriteext[tspr.owner].alpha = daalpha * (1.0f / 255.0f);
     tspr.blend = dablend;
 
-    bglDisable(GL_FOG);
+    glDisable(GL_FOG);
 
     if (getrendermode() == REND_POLYMOST)
         polymost_mddraw(&tspr);
@@ -5335,8 +5335,8 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
         tspriteptr[maxspritesonscreen] = &tspr;
 
-        bglEnable(GL_ALPHA_TEST);
-        bglEnable(GL_BLEND);
+        glEnable(GL_ALPHA_TEST);
+        glEnable(GL_BLEND);
 
         spriteext[tspr.owner].roll = a;
         spriteext[tspr.owner].offset.z = z;
@@ -5358,11 +5358,11 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
         spriteext[tspr.owner].offset.z = 0;
         spriteext[tspr.owner].roll = 0;
 
-        bglDisable(GL_BLEND);
-        bglDisable(GL_ALPHA_TEST);
+        glDisable(GL_BLEND);
+        glDisable(GL_ALPHA_TEST);
     }
 # endif
-    if (!nofog) bglEnable(GL_FOG);
+    if (!nofog) glEnable(GL_FOG);
 
     viewingrange = oldviewingrange;
     fviewingrange = oldfviewingrange;
@@ -5385,9 +5385,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         return;
     }
 
-    bglViewport(0,0,xdim,ydim); glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
-    bglMatrixMode(GL_PROJECTION);
-    bglPushMatrix();
+    glViewport(0,0,xdim,ydim); glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
 
     globvis = 0;
 
@@ -5424,14 +5424,14 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     m[2][2] = 1.0001f;
     m[3][2] = 1 - m[2][2];
 
-    bglLoadMatrixf(&m[0][0]);
-    bglMatrixMode(GL_MODELVIEW);
-    bglPushMatrix();
-    bglLoadIdentity();
+    glLoadMatrixf(&m[0][0]);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
 
-    bglDisable(GL_DEPTH_TEST);
-    bglDisable(GL_ALPHA_TEST);
-    bglEnable(GL_TEXTURE_2D);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_ALPHA_TEST);
+    glEnable(GL_TEXTURE_2D);
 
 #if defined(POLYMER)
 # ifdef USE_GLEXT
@@ -5577,9 +5577,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         }
         while (z);
 
-        bglDisable(GL_FOG);
+        glDisable(GL_FOG);
         pow2xsplit = 0; polymost_drawpoly(pxy, n,method);
-        if (!nofog) bglEnable(GL_FOG);
+        if (!nofog) glEnable(GL_FOG);
     }
 
 #ifdef POLYMER
@@ -5593,9 +5593,9 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
         pr_normalmapping = oldnormalmapping;
     }
 #endif
-    bglPopMatrix();
-    bglMatrixMode(GL_PROJECTION);
-    bglPopMatrix();
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
 
     globalpicnum = ogpicnum;
     globalshade  = ogshade;
@@ -5624,15 +5624,15 @@ static void drawtrap(float x0, float x1, float y0, float x2, float x3, float y1)
     else if (x2 == x3) { px[1] = x1; py[1] = y0; px[2] = x3; }
     else               { px[1] = x1; py[1] = y0; px[2] = x3; px[3] = x2; py[3] = y1; n = 4; }
 
-    bglBegin(GL_TRIANGLE_FAN);
+    glBegin(GL_TRIANGLE_FAN);
     for (bssize_t i=0; i<n; i++)
     {
         px[i] = min(max(px[i],trapextx[0]),trapextx[1]);
-        bglTexCoord2f(px[i]*xtex.u + py[i]*ytex.u + otex.u,
+        glTexCoord2f(px[i]*xtex.u + py[i]*ytex.u + otex.u,
                       px[i]*xtex.v + py[i]*ytex.v + otex.v);
-        bglVertex2f(px[i],py[i]);
+        glVertex2f(px[i],py[i]);
     }
-    bglEnd();
+    glEnd();
 }
 
 static void tessectrap(const float *px, const float *py, const int32_t *point2, int32_t numpoints)
@@ -5676,15 +5676,15 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
     }
     if (z != 3) //Simple polygon... early out
     {
-        bglBegin(GL_TRIANGLE_FAN);
+        glBegin(GL_TRIANGLE_FAN);
         for (i=0; i<npoints; i++)
         {
             j = slist[i];
-            bglTexCoord2f(px[j]*xtex.u + py[j]*ytex.u + otex.u,
+            glTexCoord2f(px[j]*xtex.u + py[j]*ytex.u + otex.u,
                           px[j]*xtex.v + py[j]*ytex.v + otex.v);
-            bglVertex2f(px[j],py[j]);
+            glVertex2f(px[j],py[j]);
         }
-        bglEnd();
+        glEnd();
         return;
     }
 
@@ -5791,10 +5791,10 @@ void polymost_fillpolygon(int32_t npoints)
     }
 
     if (gloy1 != -1) setpolymost2dview(); //disables blending, texturing, and depth testing
-    bglEnable(GL_ALPHA_TEST);
-    bglEnable(GL_TEXTURE_2D);
+    glEnable(GL_ALPHA_TEST);
+    glEnable(GL_TEXTURE_2D);
     pthtyp *pth = our_texcache_fetch(DAMETH_NOMASK);
-    bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
+    glBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
     float const f = getshadefactor(globalshade);
 
@@ -5802,13 +5802,13 @@ void polymost_fillpolygon(int32_t npoints)
     handle_blend(maskprops > DAMETH_MASK, 0, maskprops == DAMETH_TRANS2);
     if (maskprops > DAMETH_MASK)
     {
-        bglEnable(GL_BLEND);
-        bglColor4f(f, f, f, float_trans(maskprops, 0));
+        glEnable(GL_BLEND);
+        glColor4f(f, f, f, float_trans(maskprops, 0));
     }
     else
     {
-        bglDisable(GL_BLEND);
-        bglColor3f(f, f, f);
+        glDisable(GL_BLEND);
+        glColor3f(f, f, f);
     }
 
     tessectrap((float *)rx1,(float *)ry1,xb1,npoints);
@@ -5859,9 +5859,9 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
         loadedhitile[wallnum>>3] |= (1<<(wallnum&7));
     usehightile = ousehightile;
 
-    bglBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
+    glBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : 0);
 
-    bglDisable(GL_ALPHA_TEST);
+    glDisable(GL_ALPHA_TEST);
 
     if (tilezoom)
     {
@@ -5871,32 +5871,32 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
 
     if (!pth || (pth->flags & PTH_HASALPHA))
     {
-        bglDisable(GL_TEXTURE_2D);
-        bglBegin(GL_TRIANGLE_FAN);
+        glDisable(GL_TEXTURE_2D);
+        glBegin(GL_TRIANGLE_FAN);
         if (gammabrightness)
-            bglColor3f((float)curpalette[255].r*(1.0f/255.f),
+            glColor3f((float)curpalette[255].r*(1.0f/255.f),
                        (float)curpalette[255].g*(1.0f/255.f),
                        (float)curpalette[255].b*(1.0f/255.f));
         else
-            bglColor3f((float)britable[curbrightness][ curpalette[255].r ] * (1.0f/255.f),
+            glColor3f((float)britable[curbrightness][ curpalette[255].r ] * (1.0f/255.f),
                        (float)britable[curbrightness][ curpalette[255].g ] * (1.0f/255.f),
                        (float)britable[curbrightness][ curpalette[255].b ] * (1.0f/255.f));
-        bglVertex2f((float)tilex            ,(float)tiley);
-        bglVertex2f((float)tilex+(scx*ratio),(float)tiley);
-        bglVertex2f((float)tilex+(scx*ratio),(float)tiley+(scy*ratio));
-        bglVertex2f((float)tilex            ,(float)tiley+(scy*ratio));
-        bglEnd();
+        glVertex2f((float)tilex            ,(float)tiley);
+        glVertex2f((float)tilex+(scx*ratio),(float)tiley);
+        glVertex2f((float)tilex+(scx*ratio),(float)tiley+(scy*ratio));
+        glVertex2f((float)tilex            ,(float)tiley+(scy*ratio));
+        glEnd();
     }
 
-    bglColor3f(1,1,1);
-    bglEnable(GL_TEXTURE_2D);
-    bglEnable(GL_BLEND);
-    bglBegin(GL_TRIANGLE_FAN);
-    bglTexCoord2f(0,              0); bglVertex2f((float)tilex            ,(float)tiley);
-    bglTexCoord2f(xdimepad,       0); bglVertex2f((float)tilex+(scx*ratio),(float)tiley);
-    bglTexCoord2f(xdimepad,ydimepad); bglVertex2f((float)tilex+(scx*ratio),(float)tiley+(scy*ratio));
-    bglTexCoord2f(0,       ydimepad); bglVertex2f((float)tilex            ,(float)tiley+(scy*ratio));
-    bglEnd();
+    glColor3f(1,1,1);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBegin(GL_TRIANGLE_FAN);
+    glTexCoord2f(0,              0); glVertex2f((float)tilex            ,(float)tiley);
+    glTexCoord2f(xdimepad,       0); glVertex2f((float)tilex+(scx*ratio),(float)tiley);
+    glTexCoord2f(xdimepad,ydimepad); glVertex2f((float)tilex+(scx*ratio),(float)tiley+(scy*ratio));
+    glTexCoord2f(0,       ydimepad); glVertex2f((float)tilex            ,(float)tiley+(scy*ratio));
+    glEnd();
 
     return 0;
 }
@@ -5905,7 +5905,7 @@ static int32_t gen_font_glyph_tex(void)
 {
     // construct a 256x128 8-bit alpha-only texture for the font glyph matrix
 
-    bglGenTextures(1,&polymosttext);
+    glGenTextures(1,&polymosttext);
 
     if (!polymosttext) return -1;
 
@@ -5943,10 +5943,10 @@ static int32_t gen_font_glyph_tex(void)
         }
     }
 
-    bglBindTexture(GL_TEXTURE_2D, polymosttext);
-    bglTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,256,128,0,GL_ALPHA,GL_UNSIGNED_BYTE,(GLvoid *)tbuf);
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    bglTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+    glBindTexture(GL_TEXTURE_2D, polymosttext);
+    glTexImage2D(GL_TEXTURE_2D,0,GL_ALPHA,256,128,0,GL_ALPHA,GL_UNSIGNED_BYTE,(GLvoid *)tbuf);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
     Bfree(tbuf);
 
     return 0;
@@ -5968,43 +5968,43 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     if (getrendermode() < REND_POLYMOST || !in3dmode() || (!polymosttext && gen_font_glyph_tex() < 0))
         return -1;
     else
-        bglBindTexture(GL_TEXTURE_2D, polymosttext);
+        glBindTexture(GL_TEXTURE_2D, polymosttext);
 
     setpolymost2dview();	// disables blending, texturing, and depth testing
 
-    bglDisable(GL_ALPHA_TEST);
-    bglDepthMask(GL_FALSE);	// disable writing to the z-buffer
+    glDisable(GL_ALPHA_TEST);
+    glDepthMask(GL_FALSE);	// disable writing to the z-buffer
 
-//    bglPushAttrib(GL_POLYGON_BIT|GL_ENABLE_BIT);
+//    glPushAttrib(GL_POLYGON_BIT|GL_ENABLE_BIT);
     // XXX: Don't fogify the OSD text in Mapster32 with r_usenewshading >= 2.
-    bglDisable(GL_FOG);
+    glDisable(GL_FOG);
     // We want to have readable text in wireframe mode, too:
-    bglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     if (backcol >= 0)
     {
         int const c = Bstrlen(name);
 
-        bglColor4ub(b.r,b.g,b.b,255);
+        glColor4ub(b.r,b.g,b.b,255);
 
-        bglBegin(GL_QUADS);
+        glBegin(GL_QUADS);
 
-        bglVertex2i(xpos,ypos);
-        bglVertex2i(xpos,ypos+(fontsize?6:8));
-        bglVertex2i(xpos+(c<<(3-fontsize)), ypos+(fontsize ? 6 : 8));
-        bglVertex2i(xpos+(c<<(3-fontsize)), ypos);
+        glVertex2i(xpos,ypos);
+        glVertex2i(xpos,ypos+(fontsize?6:8));
+        glVertex2i(xpos+(c<<(3-fontsize)), ypos+(fontsize ? 6 : 8));
+        glVertex2i(xpos+(c<<(3-fontsize)), ypos);
 
-        bglEnd();
+        glEnd();
     }
 
-    bglEnable(GL_TEXTURE_2D);
-    bglEnable(GL_BLEND);
-    bglColor4ub(p.r,p.g,p.b,255);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glColor4ub(p.r,p.g,p.b,255);
 
     vec2f_t const tc = { fontsize ? (4.f / 256.f) : (8.f / 256.f),
                          fontsize ? (6.f / 128.f) : (8.f / 128.f) };
 
-    bglBegin(GL_QUADS);
+    glBegin(GL_QUADS);
 
     for (bssize_t c=0; name[c]; ++c)
     {
@@ -6031,7 +6031,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
             bricolor(&p, col);
 
-            bglColor4ub(p.r, p.g, p.b, 255);
+            glColor4ub(p.r, p.g, p.b, 255);
 
             continue;
         }
@@ -6039,28 +6039,28 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
         vec2f_t const t = { (float)(name[c] % 32) * (1.0f / 32.f),
                             (float)((name[c] / 32) + (fontsize * 8)) * (1.0f / 16.f) };
 
-        bglTexCoord2f(t.x, t.y);
-        bglVertex2i(xpos, ypos);
+        glTexCoord2f(t.x, t.y);
+        glVertex2i(xpos, ypos);
 
-        bglTexCoord2f(t.x + tc.x, t.y);
-        bglVertex2i(xpos + (8 >> fontsize), ypos);
+        glTexCoord2f(t.x + tc.x, t.y);
+        glVertex2i(xpos + (8 >> fontsize), ypos);
 
-        bglTexCoord2f(t.x + tc.x, t.y + tc.y);
-        bglVertex2i(xpos + (8 >> fontsize), ypos + (fontsize ? 6 : 8));
+        glTexCoord2f(t.x + tc.x, t.y + tc.y);
+        glVertex2i(xpos + (8 >> fontsize), ypos + (fontsize ? 6 : 8));
 
-        bglTexCoord2f(t.x, t.y + tc.y);
-        bglVertex2i(xpos, ypos + (fontsize ? 6 : 8));
+        glTexCoord2f(t.x, t.y + tc.y);
+        glVertex2i(xpos, ypos + (fontsize ? 6 : 8));
 
         xpos += (8>>fontsize);
     }
 
-    bglEnd();
+    glEnd();
 
-    bglDepthMask(GL_TRUE);	// re-enable writing to the z-buffer
+    glDepthMask(GL_TRUE);	// re-enable writing to the z-buffer
 
-//    bglPopAttrib();
+//    glPopAttrib();
 
-    if (!nofog) bglEnable(GL_FOG);
+    if (!nofog) glEnable(GL_FOG);
 
     return 0;
 }
@@ -6148,7 +6148,7 @@ static int32_t osdcmd_cvar_set_polymost(osdfuncparm_t const * const parm)
         else if (!Bstrcasecmp(parm->name, "r_texfilter"))
             gltexturemode(parm);
         else if (!Bstrcasecmp(parm->name, "r_usenewshading"))
-            bglFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
+            glFogi(GL_FOG_MODE, (r_usenewshading < 2) ? GL_EXP2 : GL_LINEAR);
 #ifdef POLYMER
         else if (!Bstrcasecmp(parm->name, "r_pr_maxlightpasses"))
         {

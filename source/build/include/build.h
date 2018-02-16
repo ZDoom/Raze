@@ -20,6 +20,7 @@
 
 #include "compat.h"
 #include "pragmas.h"
+#include "glad/glad.h"
 #include "glbuild.h"
 #include "palette.h"
 
@@ -1424,7 +1425,7 @@ static FORCE_INLINE void push_nofog(void)
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
     {
-        bglDisable(GL_FOG);
+        glDisable(GL_FOG);
     }
 #endif
 }
@@ -1433,7 +1434,7 @@ static FORCE_INLINE void pop_nofog(void)
 {
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST && !nofog)
-        bglEnable(GL_FOG);
+        glEnable(GL_FOG);
 #endif
 }
 

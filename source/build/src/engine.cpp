@@ -22,7 +22,7 @@
 #include "scriptfile.h"
 
 #ifdef USE_OPENGL
-# include "glbuild.h"
+# include "glad/glad.h"
 # include "mdsprite.h"
 # ifdef POLYMER
 #  include "polymer.h"
@@ -1028,7 +1028,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 #ifdef USE_OPENGL
         else
         {
-            bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
         }
 #endif
     }
@@ -5800,17 +5800,17 @@ static void drawsprite(int32_t snum)
 #ifdef USE_OPENGL
     case REND_POLYMOST:
         polymost_drawsprite(snum);
-        bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-//        bglDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+//        glDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
         return;
 # ifdef POLYMER
     case REND_POLYMER:
-        bglEnable(GL_ALPHA_TEST);
-        bglEnable(GL_BLEND);
+        glEnable(GL_ALPHA_TEST);
+        glEnable(GL_BLEND);
         polymer_drawsprite(snum);
-        bglDisable(GL_BLEND);
-        bglDisable(GL_ALPHA_TEST);
+        glDisable(GL_BLEND);
+        glDisable(GL_ALPHA_TEST);
         return;
 # endif
 #endif
@@ -5829,13 +5829,13 @@ static void drawmaskwall(int16_t damaskwallcnt)
 # ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
     {
-        bglEnable(GL_ALPHA_TEST);
-        bglEnable(GL_BLEND);
+        glEnable(GL_ALPHA_TEST);
+        glEnable(GL_BLEND);
 
         polymer_drawmaskwall(damaskwallcnt);
 
-        bglDisable(GL_BLEND);
-        bglDisable(GL_ALPHA_TEST);
+        glDisable(GL_BLEND);
+        glDisable(GL_ALPHA_TEST);
 
         return;
     }
@@ -8013,7 +8013,7 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 #  endif
         polymer_glinit();
         polymer_drawrooms(daposx, daposy, daposz, daang, dahoriz, dacursectnum);
-        bglDisable(GL_CULL_FACE);
+        glDisable(GL_CULL_FACE);
         gloy1 = 0;
         return 0;
     }
@@ -8592,7 +8592,7 @@ killsprite:
 #ifdef USE_OPENGL
     if (getrendermode() == REND_POLYMOST)
     {
-        bglDepthMask(GL_FALSE);
+        glDepthMask(GL_FALSE);
 
         while (spritesortcnt)
         {
@@ -8605,7 +8605,7 @@ killsprite:
             }
         }
 
-        bglDepthMask(GL_TRUE);
+        glDepthMask(GL_TRUE);
     }
 #endif
     spritesortcnt = 0;
@@ -12215,11 +12215,11 @@ void clearview(int32_t dacol)
     {
         palette_t const p = getpal(dacol);
 
-        bglClearColor((float)p.r * (1.f/255.f),
+        glClearColor((float)p.r * (1.f/255.f),
                       (float)p.g * (1.f/255.f),
                       (float)p.b * (1.f/255.f),
                       0);
-        bglClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
         return;
     }
 #endif
@@ -12253,12 +12253,12 @@ void clearallviews(int32_t dacol)
     {
         palette_t const p = getpal(dacol);
 
-        bglViewport(0,0,xdim,ydim); glox1 = -1;
-        bglClearColor((float)p.r * (1.f/255.f),
+        glViewport(0,0,xdim,ydim); glox1 = -1;
+        glClearColor((float)p.r * (1.f/255.f),
                       (float)p.g * (1.f/255.f),
                       (float)p.b * (1.f/255.f),
                       0);
-        bglClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
         return;
     }
 #endif
@@ -12947,10 +12947,10 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
         palette_t p=getpal(col), b=getpal(backcol);
 
         setpolymost2dview();
-        bglDisable(GL_ALPHA_TEST);
-        bglDepthMask(GL_FALSE);	// disable writing to the z-buffer
+        glDisable(GL_ALPHA_TEST);
+        glDepthMask(GL_FALSE);	// disable writing to the z-buffer
 
-        bglBegin(GL_POINTS);
+        glBegin(GL_POINTS);
 
         for (i=0; name[i]; i++)
         {
@@ -12983,16 +12983,16 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
                     if (letptr[y]&pow2char[7-fontsize-x])
                     {
                         if (lc!=col)
-                            bglColor4ub(p.r,p.g,p.b,255);
+                            glColor4ub(p.r,p.g,p.b,255);
                         lc = col;
-                        bglVertex2i(xx+x,yy);
+                        glVertex2i(xx+x,yy);
                     }
                     else if (backcol >= 0)
                     {
                         if (lc!=backcol)
-                            bglColor4ub(b.r,b.g,b.b,255);
+                            glColor4ub(b.r,b.g,b.b,255);
                         lc = backcol;
-                        bglVertex2i(xx+x,yy);
+                        glVertex2i(xx+x,yy);
                     }
                 }
                 yy--;
@@ -13000,8 +13000,8 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
             stx += charxsiz;
         }
 
-        bglEnd();
-        bglDepthMask(GL_TRUE);  // re-enable writing to the z-buffer
+        glEnd();
+        glDepthMask(GL_TRUE);  // re-enable writing to the z-buffer
 
         return;
     }

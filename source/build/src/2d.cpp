@@ -54,9 +54,9 @@ void plotpixel(int32_t x, int32_t y, char col)
     {
         palette_t p = getpal(col);
 
-        bglRasterPos4i(x, y, 0, 1);
-        bglDrawPixels(1, 1, GL_RGB, GL_UNSIGNED_BYTE, &p);
-        bglRasterPos4i(0, 0, 0, 1);
+        glRasterPos4i(x, y, 0, 1);
+        glDrawPixels(1, 1, GL_RGB, GL_UNSIGNED_BYTE, &p);
+        glRasterPos4i(0, 0, 0, 1);
         return;
     }
 #endif
@@ -75,14 +75,14 @@ void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int co
     {
         palette_t p = getpal(col);
 
-        bglBegin(GL_LINE_STRIP);
+        glBegin(GL_LINE_STRIP);
 
-        bglColor4ub(p.r, p.g, p.b, 1);
+        glColor4ub(p.r, p.g, p.b, 1);
 
         for (i=0; i<numpoints; i++)
-            bglVertex2i(xx[i], yy[i]);
+            glVertex2i(xx[i], yy[i]);
 
-        bglEnd();
+        glEnd();
         return;
     }
 #endif
@@ -126,28 +126,28 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
 {
     //        setpolymost2dview();	// JBF 20040205: more efficient setup
 
-    bglViewport(0, 0, xres, yres);
-    bglMatrixMode(GL_PROJECTION);
-    bglLoadIdentity();
-    bglOrtho(0, xres, yres, 0, -1, 1);
+    glViewport(0, 0, xres, yres);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, xres, yres, 0, -1, 1);
     if (getrendermode() == REND_POLYMER)
     {
-        bglMatrixMode(GL_MODELVIEW);
-        bglLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
     }
 
     gloy1 = -1;
-    bglDisable(GL_ALPHA_TEST);
-    bglDisable(GL_DEPTH_TEST);
-    bglDisable(GL_TEXTURE_2D);
-    bglEnable(GL_BLEND);	// When using line antialiasing, this is needed
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);	// When using line antialiasing, this is needed
 
-    bglBegin(GL_LINES);
-    bglColor4ub(p.r, p.g, p.b, 255);
-    bglVertex2f((float) x1 * (1.f/4096.f), (float) y1 * (1.f/4096.f));
-    bglVertex2f((float) x2 * (1.f/4096.f), (float) y2 * (1.f/4096.f));
+    glBegin(GL_LINES);
+    glColor4ub(p.r, p.g, p.b, 255);
+    glVertex2f((float) x1 * (1.f/4096.f), (float) y1 * (1.f/4096.f));
+    glVertex2f((float) x2 * (1.f/4096.f), (float) y2 * (1.f/4096.f));
 
-    bglEnd();
+    glEnd();
 }
 #endif
 
@@ -1393,22 +1393,22 @@ void setpolymost2dview(void)
 #ifdef USE_OPENGL
     if (getrendermode() < REND_POLYMOST) return;
 
-    bglViewport(0, 0, xres, yres);
+    glViewport(0, 0, xres, yres);
 
-    bglMatrixMode(GL_PROJECTION);
-    bglLoadIdentity();
-    bglOrtho(0, xres, yres, 0, -1, 1);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, xres, yres, 0, -1, 1);
 
     if (getrendermode() == REND_POLYMER)
     {
-        bglMatrixMode(GL_MODELVIEW);
-        bglLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
     }
 
     gloy1 = -1;
 
-    bglDisable(GL_DEPTH_TEST);
-    bglDisable(GL_TEXTURE_2D);
-    bglDisable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_BLEND);
 #endif
 }

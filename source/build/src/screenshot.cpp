@@ -70,7 +70,7 @@ int screencapture(const char *filename, char inverseit)
 #ifdef USE_OPENGL
     if (HICOLOR)
     {
-        bglReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, imgBuf);
+        glReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, imgBuf);
         int const bytesPerLine = xdim * 3;
 
         if (inverseit)
@@ -198,7 +198,7 @@ int screencapture_tga(const char *filename, char inverseit)
         int const size = xdim * ydim * 3;
         uint8_t *inversebuf = (uint8_t *) Xmalloc(size);
 
-        bglReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, inversebuf);
+        glReadPixels(0, 0, xdim, ydim, GL_RGB, GL_UNSIGNED_BYTE, inversebuf);
 
         for (i = 0; i < size; i += 3)
             swapchar(&inversebuf[i], &inversebuf[i + 2]);

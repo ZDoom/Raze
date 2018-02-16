@@ -17,6 +17,7 @@
 #include "palette.h"
 
 #ifdef USE_OPENGL
+# include "glad/glad.h"
 # include "glbuild.h"
 #endif
 
@@ -616,11 +617,18 @@ int32_t initsystem(void)
     if (!novideo)
     {
 #ifdef USE_OPENGL
-        if (loadgldriver(getenv("BUILD_GLDRV")))
+        if (SDL_GL_LoadLibrary(0))
         {
-            initprintf("Failed loading OpenGL driver. GL modes will be unavailable.\n");
+            initprintf("Failed loading OpenGL Driver.  GL modes will be unavailable. Error: %s\n", SDL_GetError());
             nogl = 1;
         }
+#ifdef POLYMER
+        if (loadglulibrary(getenv("BUILD_GLULIB")))
+        {
+            initprintf("Failed loading GLU.  GL modes will be unavailable. Error: %s\n", SDL_GetError());
+            nogl = 1;
+        }
+#endif
 #endif
 
 #ifndef _WIN32
@@ -658,7 +666,10 @@ void uninitsystem(void)
 #endif
 
 #ifdef USE_OPENGL
-    unloadgldriver();
+    SDL_GL_UnloadLibrary();
+#ifdef POLYMER
+    unloadglulibrary();
+#endif
 #endif
 }
 
@@ -1294,20 +1305,20 @@ void sdlayer_setvideomode_opengl(void)
 {
     polymost_glreset();
 
-    bglEnable(GL_TEXTURE_2D);
-    bglShadeModel(GL_SMOOTH);  // GL_FLAT
-    bglClearColor(0, 0, 0, 1.0);  // Black Background
-    bglHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Use FASTEST for ortho!
-//    bglHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glEnable(GL_TEXTURE_2D);
+    glShadeModel(GL_SMOOTH);  // GL_FLAT
+    glClearColor(0, 0, 0, 1.0);  // Black Background
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Use FASTEST for ortho!
+//    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 
 #ifndef EDUKE32_GLES
-    bglDisable(GL_DITHER);
+    glDisable(GL_DITHER);
 #endif
 
-    glinfo.vendor = (const char *) bglGetString(GL_VENDOR);
-    glinfo.renderer = (const char *) bglGetString(GL_RENDERER);
-    glinfo.version = (const char *) bglGetString(GL_VERSION);
-    glinfo.extensions = (const char *) bglGetString(GL_EXTENSIONS);
+    glinfo.vendor = (const char *) glGetString(GL_VENDOR);
+    glinfo.renderer = (const char *) glGetString(GL_RENDERER);
+    glinfo.version = (const char *) glGetString(GL_VERSION);
+    glinfo.extensions = (const char *) glGetString(GL_EXTENSIONS);
 
 #ifdef POLYMER
     if (!Bstrcmp(glinfo.vendor, "ATI Technologies Inc."))
@@ -1355,7 +1366,7 @@ void sdlayer_setvideomode_opengl(void)
 #if !defined EDUKE32_GLES
     glinfo.texcompr = !!Bstrstr(glinfo.extensions, "GL_ARB_texture_compression") && Bstrcmp(glinfo.vendor, "ATI Technologies Inc.");
 # ifdef DYNAMIC_GLEXT
-    if (glinfo.texcompr && (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB))
+    if (glinfo.texcompr && (!glCompressedTexImage2D || !glGetCompressedTexImage))
     {
         // lacking the necessary extensions to do this
         initprintf("Warning: the GL driver lacks necessary functions to use caching\n");
@@ -1394,7 +1405,7 @@ void sdlayer_setvideomode_opengl(void)
 #endif
 
 //    if (Bstrstr(glinfo.extensions, "GL_EXT_texture_filter_anisotropic"))
-        bglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
+        glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
 
     if (!glinfo.dumped)
     {
@@ -1627,14 +1638,12 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 return -1;
             }
 
+            gladLoadGLLoader(SDL_GL_GetProcAddress);
+            
             SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
             SDL_GL_SetSwapInterval(vsync_renderlayer);
 
             setrefreshrate();
-
-#ifdef _WIN32
-            loadglextensions();
-#endif
         } while (multisamplecheck--);
     }
     else

@@ -5,8 +5,9 @@
 
 # include "compat.h"
 # include "baselayer.h"
-# include "glbuild.h"
+# include "glad/glad.h"
 # include "build.h"
+# include "glbuild.h"
 # include "osd.h"
 # include "hightile.h"
 # include "mdsprite.h"
@@ -124,7 +125,7 @@ typedef struct      s_prmaterial {
 }                   _prmaterial;
 
 typedef struct      s_prrograminfo {
-    GLhandleARB     handle;
+    GLuint          handle;
     // PR_BIT_ANIM_INTERPOLATION
     GLint           attrib_nextFrameData;
     GLint           attrib_nextFrameNormal;
@@ -379,7 +380,7 @@ static inline void polymer_invalidateartmap(int32_t tilenum)
 {
     if (prartmaps[tilenum])
     {
-        bglDeleteTextures(1, &prartmaps[tilenum]);
+        glDeleteTextures(1, &prartmaps[tilenum]);
         prartmaps[tilenum] = 0;
     }
 }
@@ -458,7 +459,7 @@ void PR_CALLBACK    polymer_debugoutputcallback(GLenum source,GLenum type,GLuint
 
 #define INDICE(n) ((p->indices) ? (p->indices[(i+n)%p->indicescount]) : (((i+n)%p->vertcount)))
 
-#define SWITCH_CULL_DIRECTION { culledface = (culledface == GL_FRONT) ? GL_BACK : GL_FRONT; bglCullFace(culledface); }
+#define SWITCH_CULL_DIRECTION { culledface = (culledface == GL_FRONT) ? GL_BACK : GL_FRONT; glCullFace(culledface); }
 
 static inline GLfloat dot2f(GLfloat *v1, GLfloat *v2)
 {

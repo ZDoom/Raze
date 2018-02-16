@@ -117,6 +117,23 @@ else
 endif
 
 
+#### glad
+
+glad := glad
+
+glad_objs := \
+    glad.c \
+
+glad_root := $(source)/$(glad)
+glad_src := $(glad_root)/src
+glad_inc := $(glad_root)/include
+glad_obj := $(obj)/$(glad)
+
+ifeq ($(RENDERTYPE),WIN)
+    glad_objs += glad_wgl.c
+endif
+
+
 ##### Component Definitions
 
 #### EBacktrace
@@ -139,6 +156,8 @@ engine_inc := $(engine_root)/include
 engine_obj := $(obj)/$(engine)
 
 engine_cflags := -I$(engine_src)
+
+engine_deps :=
 
 engine_objs := \
     rev.cpp \
@@ -197,9 +216,10 @@ else
   endif
 endif
 ifeq (1,$(USE_OPENGL))
-    engine_objs += glbuild.cpp voxmodel.cpp mdsprite.cpp
+    engine_objs += voxmodel.cpp mdsprite.cpp
+    engine_deps += glad
     ifeq (1,$(POLYMER))
-        engine_objs += polymer.cpp
+        engine_objs += glbuild.cpp polymer.cpp
     endif
 endif
 ifneq (0,$(LUNATIC))
@@ -755,7 +775,7 @@ endif
 
 #### Final setup
 
-COMPILERFLAGS += -I$(engine_inc) -I$(mact_inc) -I$(audiolib_inc) -I$(enet_inc)
+COMPILERFLAGS += -I$(engine_inc) -I$(mact_inc) -I$(audiolib_inc) -I$(enet_inc) -I$(glad_inc)
 
 
 ##### Recipes
@@ -772,6 +792,7 @@ libraries := \
     enet \
     libxmplite \
     lpeg \
+    glad \
 
 components := \
     $(games) \

@@ -1,7 +1,7 @@
 
 #include "compat.h"
 #include "build.h"
-#include "glbuild.h"
+#include "glad/glad.h"
 #include "mdsprite.h"
 
 

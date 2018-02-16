@@ -502,12 +502,12 @@ void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
 
     if (!enable)
     {
-        bglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         return;
     }
 
     glblenddef_t const * const glbdef = glblend[blend].def + def;
-    bglBlendFunc(blendFuncTokens[glbdef->src], blendFuncTokens[glbdef->dst]);
+    glBlendFunc(blendFuncTokens[glbdef->src], blendFuncTokens[glbdef->dst]);
 }
 #endif
 

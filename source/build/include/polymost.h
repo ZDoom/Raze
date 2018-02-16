@@ -3,7 +3,7 @@
 
 #ifdef USE_OPENGL
 
-#include "glbuild.h"
+#include "glad/glad.h"
 #include "hightile.h"
 #include "baselayer.h"  // glinfo
 

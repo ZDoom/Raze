@@ -7,7 +7,7 @@
 #include "compat.h"
 #include "baselayer.h"
 #include "build.h"
-#include "glbuild.h"
+#include "glad/glad.h"
 #include "cache1d.h"
 
 #undef UNUSED
@@ -406,96 +406,96 @@ void animvpx_setup_glstate(int32_t animvpx_flags)
     if (glinfo.glsl)
     {
         GLint gli;
-        GLhandleARB FSHandle, PHandle;
+        GLuint FSHandle, PHandle;
         static char logbuf[512];
 
         // first, compile the fragment shader
         /* Set up program objects. */
-        PHandle = bglCreateProgramObjectARB();
-        FSHandle = bglCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+        PHandle = glCreateProgram();
+        FSHandle = glCreateShader(GL_FRAGMENT_SHADER);
 
         /* Compile the shader. */
-        bglShaderSourceARB(FSHandle, 1, (const GLcharARB **)&fragprog_src, NULL);
-        bglCompileShaderARB(FSHandle);
+        glShaderSource(FSHandle, 1, (const GLchar **)&fragprog_src, NULL);
+        glCompileShader(FSHandle);
 
         /* Print the compilation log. */
-        bglGetObjectParameterivARB(FSHandle, GL_OBJECT_COMPILE_STATUS_ARB, &gli);
-        bglGetInfoLogARB(FSHandle, sizeof(logbuf), NULL, logbuf);
+        glGetShaderiv(FSHandle, GL_COMPILE_STATUS, &gli);
+        glGetShaderInfoLog(FSHandle, sizeof(logbuf), NULL, logbuf);
         if (logbuf[0])
             OSD_Printf("animvpx compile log: %s\n", logbuf);
 
         /* Create a complete program object. */
-        bglAttachObjectARB(PHandle, FSHandle);
-        bglLinkProgramARB(PHandle);
+        glAttachShader(PHandle, FSHandle);
+        glLinkProgram(PHandle);
 
         /* And print the link log. */
-        bglGetInfoLogARB(PHandle, sizeof(logbuf), NULL, logbuf);
+        glGetProgramInfoLog(PHandle, sizeof(logbuf), NULL, logbuf);
         if (logbuf[0])
             OSD_Printf("animvpx link log: %s\n", logbuf);
 
         /* Finally, use the program. */
-        bglUseProgramObjectARB(PHandle);
+        glUseProgram(PHandle);
     }
 #endif
 
     ////////// GL STATE //////////
 
     //Force fullscreen (glox1=-1 forces it to restore afterwards)
-    bglViewport(0,0,xdim,ydim); glox1 = -1;
+    glViewport(0,0,xdim,ydim); glox1 = -1;
 
-    bglMatrixMode(GL_MODELVIEW);
-    bglLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 
-    bglMatrixMode(GL_PROJECTION);
-    bglLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
 
-    bglMatrixMode(GL_TEXTURE);
-    bglLoadIdentity();
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
 
-//    bglPushAttrib(GL_ENABLE_BIT);
-    bglDisable(GL_ALPHA_TEST);
-    bglDisable(GL_DEPTH_TEST);
-    bglDisable(GL_BLEND);
-    bglDisable(GL_CULL_FACE);
-    bglEnable(GL_TEXTURE_2D);
+//    glPushAttrib(GL_ENABLE_BIT);
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_TEXTURE_2D);
 
 #ifdef USE_GLEXT
-    bglActiveTextureARB(GL_TEXTURE0_ARB);
+    glActiveTexture(GL_TEXTURE0);
 #endif
-    bglGenTextures(1, &texname);
-    bglBindTexture(GL_TEXTURE_2D, texname);
+    glGenTextures(1, &texname);
+    glBindTexture(GL_TEXTURE_2D, texname);
 
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glinfo.clamptoedge?GL_CLAMP_TO_EDGE:GL_CLAMP);
     if ((animvpx_flags & CUTSCENE_TEXTUREFILTER && gltexfiltermode == TEXFILTER_ON) || animvpx_flags & CUTSCENE_FORCEFILTER ||
     (!(animvpx_flags & CUTSCENE_TEXTUREFILTER) && !(animvpx_flags & CUTSCENE_FORCENOFILTER))) // if no flags, then use filter for IVFs
     {
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
     else
     {
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     }
 
     texuploaded = 0;
     ////////////////////
 
-    bglClearColor(0.0,0.0,0.0,1.0);
-    bglClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0,0.0,0.0,1.0);
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 }
 
 void animvpx_restore_glstate(void)
 {
 #ifdef USE_GLEXT
     if (glinfo.glsl)
-        bglUseProgramObjectARB(0);
+        glUseProgram(0);
 #endif
 
-//    bglPopAttrib();
+//    glPopAttrib();
 
-    bglDeleteTextures(1, &texname);
+    glDeleteTextures(1, &texname);
     texname = 0;
     texuploaded = 0;
 }
@@ -514,16 +514,16 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
 
     if (!texuploaded)
     {
-        bglTexImage2D(GL_TEXTURE_2D, 0, fmt, codec->width,codec->height,
+        glTexImage2D(GL_TEXTURE_2D, 0, fmt, codec->width,codec->height,
                      0, fmt, GL_UNSIGNED_BYTE, codec->pic);
-        if (bglGetError() != GL_NO_ERROR) return 1;
+        if (glGetError() != GL_NO_ERROR) return 1;
         texuploaded = 1;
     }
     else
     {
-        bglTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, codec->width,codec->height,
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0,0, codec->width,codec->height,
                         fmt, GL_UNSIGNED_BYTE, codec->pic);
-        if (bglGetError() != GL_NO_ERROR) return 1;
+        if (glGetError() != GL_NO_ERROR) return 1;
     }
 
     float vid_wbyh = ((float)codec->width)/codec->height;
@@ -543,24 +543,24 @@ int32_t animvpx_render_frame(animvpx_codec_ctx *codec, double animvpx_aspect)
             y = scr_wbyh/vid_wbyh;
     }
 #endif
-    bglBegin(GL_QUADS);
+    glBegin(GL_QUADS);
 
     if (!glinfo.glsl)
-        bglColor3f(1.0, 1.0, 1.0);
+        glColor3f(1.0, 1.0, 1.0);
 
-    bglTexCoord2f(0.0,1.0);
-    bglVertex3f(-x, -y, 0.0);
+    glTexCoord2f(0.0,1.0);
+    glVertex3f(-x, -y, 0.0);
 
-    bglTexCoord2f(0.0,0.0);
-    bglVertex3f(-x, y, 0.0);
+    glTexCoord2f(0.0,0.0);
+    glVertex3f(-x, y, 0.0);
 
-    bglTexCoord2f(1.0,0.0);
-    bglVertex3f(x, y, 0.0);
+    glTexCoord2f(1.0,0.0);
+    glVertex3f(x, y, 0.0);
 
-    bglTexCoord2f(1.0,1.0);
-    bglVertex3f(x, -y, 0.0);
+    glTexCoord2f(1.0,1.0);
+    glVertex3f(x, -y, 0.0);
 
-    bglEnd();
+    glEnd();
 
     t = getticks()-t;
     codec->sumtimes[2] += t;

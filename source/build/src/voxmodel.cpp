@@ -4,7 +4,7 @@
 
 #include "compat.h"
 #include "build.h"
-#include "glbuild.h"
+#include "glad/glad.h"
 #include "pragmas.h"
 #include "baselayer.h"
 #include "engine_priv.h"
@@ -71,11 +71,11 @@ uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, i
 
     uint32_t rtexid;
 
-    bglGenTextures(1, (GLuint *) &rtexid);
-    bglBindTexture(GL_TEXTURE_2D, rtexid);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    bglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    bglTexImage2D(GL_TEXTURE_2D, 0, 4, xsiz, ysiz, 0, GL_RGBA, GL_UNSIGNED_BYTE, (char *) pic2);
+    glGenTextures(1, (GLuint *) &rtexid);
+    glBindTexture(GL_TEXTURE_2D, rtexid);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, 4, xsiz, ysiz, 0, GL_RGBA, GL_UNSIGNED_BYTE, (char *) pic2);
 
     Bfree(pic2);
 
@@ -954,21 +954,21 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
 
     if (tspr->extra&TSPR_EXTRA_MDHACK)
     {
-        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-//        bglDepthRange(0.0, 0.9999);
+        glDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+//        glDepthRange(0.0, 0.9999);
     }
 
-//    bglPushAttrib(GL_POLYGON_BIT);
+//    glPushAttrib(GL_POLYGON_BIT);
 
     if ((grhalfxdown10x >= 0) /*^ ((globalorientation&8) != 0) ^ ((globalorientation&4) != 0)*/)
-        bglFrontFace(GL_CW);
+        glFrontFace(GL_CW);
     else
-        bglFrontFace(GL_CCW);
+        glFrontFace(GL_CCW);
 
-    bglEnable(GL_CULL_FACE);
-    bglCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
-    bglEnable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);
 
     float pc[4];
 
@@ -982,7 +982,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
     handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
     if ((tspr->cstat&2) || spriteext[tspr->owner].alpha > 0.f || pc[3] < 1.0f)
-        bglEnable(GL_BLEND); //else bglDisable(GL_BLEND);
+        glEnable(GL_BLEND); //else glDisable(GL_BLEND);
     //------------
 
     //transform to Build coords
@@ -998,10 +998,10 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
     mat[13] -= (m->piv.x*mat[1] + m->piv.y*mat[5] + (m->piv.z+m->siz.z*.5f)*mat[9]);
     mat[14] -= (m->piv.x*mat[2] + m->piv.y*mat[6] + (m->piv.z+m->siz.z*.5f)*mat[10]);
     //
-    bglMatrixMode(GL_MODELVIEW); //Let OpenGL (and perhaps hardware :) handle the matrix rotation
+    glMatrixMode(GL_MODELVIEW); //Let OpenGL (and perhaps hardware :) handle the matrix rotation
     mat[3] = mat[7] = mat[11] = 0.f; mat[15] = 1.f;
 
-    bglLoadMatrixf(mat);
+    glLoadMatrixf(mat);
 
     const float ru = 1.f/((float)m->mytexx);
     const float rv = 1.f/((float)m->mytexy);
@@ -1014,16 +1014,16 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
     if (!m->texid[globalpal])
         m->texid[globalpal] = gloadtex(m->mytex, m->mytexx, m->mytexy, m->is8bit, globalpal);
     else
-        bglBindTexture(GL_TEXTURE_2D, m->texid[globalpal]);
+        glBindTexture(GL_TEXTURE_2D, m->texid[globalpal]);
 
-    bglBegin(GL_QUADS);  // {{{
+    glBegin(GL_QUADS);  // {{{
 
     for (bssize_t i=0, fi=0; i<m->qcnt; i++)
     {
         if (i == m->qfacind[fi])
         {
             f = 1 /*clut[fi++]*/;
-            bglColor4f(pc[0]*f, pc[1]*f, pc[2]*f, pc[3]*f);
+            glColor4f(pc[0]*f, pc[1]*f, pc[2]*f, pc[3]*f);
         }
 
         const vert_t *const vptr = &m->quad[i].v[0];
@@ -1036,30 +1036,30 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
         {
             vec3f_t fp;
 #if (VOXBORDWIDTH == 0)
-            bglTexCoord2f(((float)vptr[j].u)*ru + uhack[vptr[j].u!=vptr[0].u],
+            glTexCoord2f(((float)vptr[j].u)*ru + uhack[vptr[j].u!=vptr[0].u],
                           ((float)vptr[j].v)*rv + vhack[vptr[j].v!=vptr[0].v]);
 #else
-            bglTexCoord2f(((float)vptr[j].u)*ru, ((float)vptr[j].v)*rv);
+            glTexCoord2f(((float)vptr[j].u)*ru, ((float)vptr[j].v)*rv);
 #endif
             fp.x = ((float)vptr[j].x) - phack[xx>vptr[j].x*2] + phack[xx<vptr[j].x*2];
             fp.y = ((float)vptr[j].y) - phack[yy>vptr[j].y*2] + phack[yy<vptr[j].y*2];
             fp.z = ((float)vptr[j].z) - phack[zz>vptr[j].z*2] + phack[zz<vptr[j].z*2];
 
-            bglVertex3fv((float *)&fp);
+            glVertex3fv((float *)&fp);
         }
     }
 
-    bglEnd();  // }}}
+    glEnd();  // }}}
 
     //------------
-    bglDisable(GL_CULL_FACE);
-//    bglPopAttrib();
+    glDisable(GL_CULL_FACE);
+//    glPopAttrib();
     if (tspr->extra&TSPR_EXTRA_MDHACK)
     {
-        bglDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
-//        bglDepthRange(0.0, 0.99999);
+        glDepthFunc(GL_LESS); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
+//        glDepthRange(0.0, 0.99999);
     }
-    bglLoadIdentity();
+    glLoadIdentity();
 
     return 1;
 }

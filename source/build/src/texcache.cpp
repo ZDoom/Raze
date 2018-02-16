@@ -11,7 +11,7 @@
 #include "xxhash.h"
 #include "kplib.h"
 
-#define CLEAR_GL_ERRORS() while(bglGetError() != GL_NO_ERROR) { }
+#define CLEAR_GL_ERRORS() while(glGetError() != GL_NO_ERROR) { }
 #define TEXCACHE_FREEBUFS() { Bfree(pic), Bfree(packbuf), Bfree(midbuf); }
 
 globaltexcache texcache;
@@ -23,8 +23,8 @@ static const char *texcache_errors[TEXCACHEERRORS] = {
     "out of memory!",
     "read too few bytes from cache file",
     "dedxtfilter failed",
-    "bglCompressedTexImage2DARB failed",
-    "bglGetTexLevelParameteriv failed",
+    "glCompressedTexImage2DARB failed",
+    "glGetTexLevelParameteriv failed",
 };
 
 static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, int32_t const dashade, int32_t const dameth)
@@ -544,14 +544,14 @@ void texcache_prewritetex(texcacheheader *head)
     head->quality = B_LITTLE32(head->quality);
 }
 
-#define WRITEX_FAIL_ON_ERROR() if (bglGetError() != GL_NO_ERROR) goto failure
+#define WRITEX_FAIL_ON_ERROR() if (glGetError() != GL_NO_ERROR) goto failure
 
 void texcache_writetex_fromdriver(char const * const cacheid, texcacheheader *head)
 {
     if (!texcache_enabled()) return;
 
     GLint gi = GL_FALSE;
-    bglGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED_ARB, &gi);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_COMPRESSED, &gi);
     if (gi != GL_TRUE)
     {
         static GLint glGetTexLevelParameterivOK = GL_TRUE;
@@ -581,12 +581,12 @@ void texcache_writetex_fromdriver(char const * const cacheid, texcacheheader *he
 
     for (uint32_t level = 0, padx = 0, pady = 0; level == 0 || (padx > 1 || pady > 1); ++level)
     {
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_ARB, &gi);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED, &gi);
         WRITEX_FAIL_ON_ERROR();
         if (gi != GL_TRUE)
             goto failure;  // an uncompressed mipmap
 
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &gi);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &gi);
         WRITEX_FAIL_ON_ERROR();
 
 #if defined __APPLE__ && defined POLYMER
@@ -595,25 +595,25 @@ void texcache_writetex_fromdriver(char const * const cacheid, texcacheheader *he
         // native -> external (little endian)
         pict.format = B_LITTLE32(gi);
 
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, &gi);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH, &gi);
         WRITEX_FAIL_ON_ERROR();
         padx      = gi;
         pict.xdim = B_LITTLE32(gi);
 
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_HEIGHT, &gi);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_HEIGHT, &gi);
         WRITEX_FAIL_ON_ERROR();
         pady      = gi;
         pict.ydim = B_LITTLE32(gi);
 
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_BORDER, &gi);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_BORDER, &gi);
         WRITEX_FAIL_ON_ERROR();
         pict.border = B_LITTLE32(gi);
 
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_DEPTH, &gi);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_DEPTH, &gi);
         WRITEX_FAIL_ON_ERROR();
         pict.depth = B_LITTLE32(gi);
 
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE_ARB, &gi);
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &gi);
         WRITEX_FAIL_ON_ERROR();
         uint32_t miplen = gi;
         pict.size       = B_LITTLE32(gi);
@@ -626,7 +626,7 @@ void texcache_writetex_fromdriver(char const * const cacheid, texcacheheader *he
             midbuf   = (void *)Xrealloc(midbuf, miplen);
         }
 
-        bglGetCompressedTexImageARB(GL_TEXTURE_2D, level, pic);
+        glGetCompressedTexImage(GL_TEXTURE_2D, level, pic);
         WRITEX_FAIL_ON_ERROR();
 
         if (Bwrite(texcache.handle, &pict, sizeof(texcachepicture)) != sizeof(texcachepicture)) goto failure;
@@ -698,11 +698,11 @@ static void texcache_setuptexture(int32_t *doalloc, GLuint *glpic)
 {
     if (*doalloc&1)
     {
-        bglGenTextures(1, glpic);  //# of textures (make OpenGL allocate structure)
-        *doalloc |= 2;	// prevents bglGenTextures being called again if we fail in here
+        glGenTextures(1, glpic);  //# of textures (make OpenGL allocate structure)
+        *doalloc |= 2;	// prevents glGenTextures being called again if we fail in here
     }
 
-    bglBindTexture(GL_TEXTURE_2D, *glpic);
+    glBindTexture(GL_TEXTURE_2D, *glpic);
 }
 
 static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr)
@@ -751,16 +751,16 @@ static int32_t texcache_loadmips(const texcacheheader *head, GLenum *glerr)
             return TEXCACHERR_DEDXT;
         }
 
-        bglCompressedTexImage2DARB(GL_TEXTURE_2D, level, pict.format, pict.xdim, pict.ydim, pict.border, pict.size, pic);
-        if ((*glerr=bglGetError()) != GL_NO_ERROR)
+        glCompressedTexImage2D(GL_TEXTURE_2D, level, pict.format, pict.xdim, pict.ydim, pict.border, pict.size, pic);
+        if ((*glerr=glGetError()) != GL_NO_ERROR)
         {
             TEXCACHE_FREEBUFS();
             return TEXCACHERR_COMPTEX;
         }
 
         GLint format;
-        bglGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);
-        if ((*glerr = bglGetError()) != GL_NO_ERROR)
+        glGetTexLevelParameteriv(GL_TEXTURE_2D, level, GL_TEXTURE_INTERNAL_FORMAT, &format);
+        if ((*glerr = glGetError()) != GL_NO_ERROR)
         {
             TEXCACHE_FREEBUFS();
             return TEXCACHERR_GETTEXLEVEL;

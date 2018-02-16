@@ -2362,7 +2362,7 @@ static void m32_showmouse(void)
     if (getrendermode() >= REND_POLYMOST)
     {
         push_nofog();
-        bglDisable(GL_TEXTURE_2D);
+        glDisable(GL_TEXTURE_2D);
     }
 #endif
 
@@ -2509,15 +2509,15 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 static inline void pushDisableFog(void)
 {
 #ifdef USE_OPENGL
-    bglPushAttrib(GL_ENABLE_BIT);
-    bglDisable(GL_FOG);
+    glPushAttrib(GL_ENABLE_BIT);
+    glDisable(GL_FOG);
 #endif
 }
 
 static inline void popDisableFog(void)
 {
 #ifdef USE_OPENGL
-    bglPopAttrib();
+    glPopAttrib();
 #endif
 }
 
@@ -3264,7 +3264,7 @@ static int32_t OnSelectTile(int32_t tileNum)
 
     setpolymost2dview();
 #ifdef USE_OPENGL
-    bglEnable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);
 #endif
     clearview(-1);
 
@@ -3497,10 +3497,10 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 
     if (getrendermode() >= REND_POLYMOST)
     {
-        bglEnable(GL_TEXTURE_2D);
+        glEnable(GL_TEXTURE_2D);
 
         if (lazyselector)
-            bglDrawBuffer(GL_FRONT_AND_BACK);
+            glDrawBuffer(GL_FRONT_AND_BACK);
     }
 #endif
     clearview(-1);
@@ -3577,7 +3577,7 @@ restart:
                     showframe(1);
 #ifdef USE_OPENGL
                     if (getrendermode() >= REND_POLYMOST && lazyselector)
-                        bglDrawBuffer(GL_BACK);
+                        glDrawBuffer(GL_BACK);
 #endif
                     return 1;
                 }
@@ -3609,7 +3609,7 @@ restart:
 
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST && lazyselector)
-        bglDrawBuffer(GL_BACK);
+        glDrawBuffer(GL_BACK);
 #endif
 
     return 0;

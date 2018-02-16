@@ -5,6 +5,11 @@
 
 #include "build.h"
 
+#ifdef USE_OPENGL
+#include "glbuild.h"
+#include "glad/glad_wgl.h"
+#endif
+
 #define NEED_DINPUT_H
 #define NEED_DDRAW_H
 #ifdef _MSC_VER
@@ -488,7 +493,7 @@ int32_t initsystem(void)
     win_init();
 
 #ifdef USE_OPENGL
-    if (loadgldriver(getenv("BUILD_GLDRV")))
+    if (loadwgl(getenv("BUILD_GLDRV")))
     {
         initprintf("Failure loading OpenGL. GL modes are unavailable.\n");
         nogl = 1;
@@ -539,7 +544,12 @@ void uninitsystem(void)
     win_uninit();
 
 #ifdef USE_OPENGL
-    unloadgldriver();
+    //POGO: there is no equivalent to unloadgldriver() with GLAD's loader, but this shouldn't be a problem.
+    //unloadgldriver();
+    unloadwgl();
+#ifdef POLYMER
+    unloadglulibrary();
+#endif
 #endif
 }
 
@@ -1631,7 +1641,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     }
 
 #if defined USE_OPENGL && defined USE_GLEXT
-    if (hGLWindow && glinfo.vsync) bwglSwapIntervalEXT(vsync_renderlayer);
+    if (hGLWindow && glinfo.vsync) wglSwapIntervalEXT(vsync_renderlayer);
 #endif
     if (inp) AcquireInputDevices(1);
     modechange=1;
@@ -1667,7 +1677,7 @@ int32_t setvsync(int32_t newSync)
         return 0;
     }
 # ifdef USE_GLEXT
-    bwglSwapIntervalEXT(newSync);
+    wglSwapIntervalEXT(newSync);
 # endif
 #endif
 
@@ -1902,7 +1912,7 @@ void showframe(int32_t w)
         if (palfadedelta)
             fullscreen_tint_gl(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
-        bwglSwapBuffers(hDC);
+        SwapBuffers(hDC);
         return;
     }
 #endif
@@ -2568,8 +2578,8 @@ static void ReleaseOpenGL(void)
     if (hGLRC)
     {
         polymost_glreset();
-        if (!bwglMakeCurrent(0,0)) { }
-        if (!bwglDeleteContext(hGLRC)) { }
+        if (!wglMakeCurrent(0,0)) { }
+        if (!wglDeleteContext(hGLRC)) { }
         hGLRC = NULL;
     }
     if (hGLWindow)
@@ -2650,7 +2660,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
 
     minidriver = Bstrcasecmp(gldriver,"opengl32.dll");
 
-    if (minidriver) PixelFormat = bwglChoosePixelFormat(hDC,&pfd);
+    if (minidriver) PixelFormat = wglChoosePixelFormat(hDC,&pfd);
     else PixelFormat = ChoosePixelFormat(hDC,&pfd);
     if (!PixelFormat)
     {
@@ -2659,7 +2669,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         return TRUE;
     }
 
-    if (minidriver) err = bwglSetPixelFormat(hDC, PixelFormat, &pfd);
+    if (minidriver) err = wglSetPixelFormat(hDC, PixelFormat, &pfd);
     else err = SetPixelFormat(hDC, PixelFormat, &pfd);
     if (!err)
     {
@@ -2668,7 +2678,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         return TRUE;
     }
 
-    hGLRC = bwglCreateContext(hDC);
+    hGLRC = wglCreateContext(hDC);
 
     if (!hGLRC)
     {
@@ -2677,19 +2687,40 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         return TRUE;
     }
 
-    if (!bwglMakeCurrent(hDC, hGLRC))
+    if (!wglMakeCurrent(hDC, hGLRC))
     {
         ReleaseOpenGL();
         ShowErrorBox("Can't activate GL RC");
         return TRUE;
     }
-
-    loadglextensions();
+    
+    static int32_t glLoaded = 0;
+    if (!glLoaded)
+    {
+        if (!gladLoadWGL(hDC) || !gladLoadGL())
+        {
+            initprintf("Failure loading OpenGL. GL modes are unavailable.\n");
+            nogl = 1;
+            ReleaseOpenGL();
+            return TRUE;
+#ifdef POLYMER
+        } else if (loadglulibrary(getenv("BUILD_GLULIB")))
+        {
+            initprintf("Failure loading GLU. GL modes are unavailable.\n");
+                        nogl = 1;
+                        ReleaseOpenGL();
+                        return TRUE;
+#endif
+        } else
+        {
+            glLoaded = 1;
+        }
+    }
 
 # if defined DEBUGGINGAIDS && defined USE_GLEXT
     // We should really be checking for the new WGL extension string instead
     // Enable this to leverage ARB_debug_output
-    if (bwglCreateContextAttribsARB) {
+    if (wglCreateContextAttribsARB) {
         HGLRC debuggingContext = hGLRC;
 
         // This corresponds to WGL_CONTEXT_FLAGS_ARB set to WGL_CONTEXT_DEBUG_BIT_ARB
@@ -2699,37 +2730,34 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             0
         };
 
-        debuggingContext = bwglCreateContextAttribsARB(hDC, NULL, attribs);
+        debuggingContext = wglCreateContextAttribsARB(hDC, NULL, attribs);
 
         if (debuggingContext) {
-            bwglDeleteContext(hGLRC);
-            bwglMakeCurrent(hDC, debuggingContext);
+            wglDeleteContext(hGLRC);
+            wglMakeCurrent(hDC, debuggingContext);
             hGLRC = debuggingContext;
-
-            // This should be able to get the ARB_debug_output symbols
-            loadglextensions();
         }
     }
 # endif
 
     polymost_glreset();
 
-    bglEnable(GL_TEXTURE_2D);
-    bglShadeModel(GL_SMOOTH); //GL_FLAT
-    bglClearColor(0,0,0,0.5); //Black Background
-    bglHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST); //Use FASTEST for ortho!
-    bglHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
-    bglHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
-    bglDisable(GL_DITHER);
+    glEnable(GL_TEXTURE_2D);
+    glShadeModel(GL_SMOOTH); //GL_FLAT
+    glClearColor(0,0,0,0.5); //Black Background
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT,GL_NICEST); //Use FASTEST for ortho!
+    glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
+    glHint(GL_TEXTURE_COMPRESSION_HINT, GL_NICEST);
+    glDisable(GL_DITHER);
 
     {
         GLubyte *p,*p2,*p3;
         int32_t err = 0;
 
-        glinfo.vendor     = (char const *)bglGetString(GL_VENDOR);
-        glinfo.renderer   = (char const *)bglGetString(GL_RENDERER);
-        glinfo.version    = (char const *)bglGetString(GL_VERSION);
-        glinfo.extensions = (char const *)bglGetString(GL_EXTENSIONS);
+        glinfo.vendor     = (char const *)glGetString(GL_VENDOR);
+        glinfo.renderer   = (char const *)glGetString(GL_RENDERER);
+        glinfo.version    = (char const *)glGetString(GL_VERSION);
+        glinfo.extensions = (char const *)glGetString(GL_EXTENSIONS);
 
         // GL driver blacklist
 
@@ -2779,7 +2807,9 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             OSD_Printf("Unsupported OpenGL driver detected. GL modes will be unavailable. Use -forcegl to override.\n");
             wm_msgbox("Unsupported OpenGL driver", "Unsupported OpenGL driver detected.  GL modes will be unavailable.");
             ReleaseOpenGL();
-            unloadgldriver();
+            //POGO: there is no equivalent to unloadgldriver() with GLAD's loader, but this shouldn't be a problem.
+            //unloadgldriver();
+            unloadwgl();
             nogl = 1;
             modeschecked = 0;
             getvalidmodes();
@@ -2798,7 +2828,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             if (!Bstrcmp((char *)p2, "GL_EXT_texture_filter_anisotropic"))
             {
                 // supports anisotropy. get the maximum anisotropy level
-                bglGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
+                glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &glinfo.maxanisotropy);
             }
             else if (!Bstrcmp((char *)p2, "GL_EXT_texture_edge_clamp") ||
                      !Bstrcmp((char *)p2, "GL_SGIS_texture_edge_clamp"))
@@ -2817,7 +2847,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
                 glinfo.texcompr = 1;
 
 #ifdef DYNAMIC_GLEXT
-                if (!bglCompressedTexImage2DARB || !bglGetCompressedTexImageARB)
+                if (!glCompressedTexImage2D || !glGetCompressedTexImage)
                 {
                     // lacking the necessary extensions to do this
                     initprintf("Warning: the GL driver lacks necessary functions to use caching\n");

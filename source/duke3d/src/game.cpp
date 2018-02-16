@@ -62,7 +62,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #ifdef _WIN32
-# define WIN32_LEAN_AND_MEAN
+# define WIN32_LEAN_AND_MEAN 1
 # include <shellapi.h>
 # define UPDATEINTERVAL 604800 // 1w
 # include "winbits.h"
@@ -670,7 +670,7 @@ static void G_ReadGLFrame(void)
     }
 
     begindrawing();
-    bglReadPixels(0, 0, xdim, ydim, GL_RGBA, GL_UNSIGNED_BYTE, frame);
+    glReadPixels(0, 0, xdim, ydim, GL_RGBA, GL_UNSIGNED_BYTE, frame);
     enddrawing();
 
     for (y = 0; y < 200; y++)
