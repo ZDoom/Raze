@@ -531,7 +531,7 @@ void polymost_glinit()
     if (persistentStreamBuffer && ((!glinfo.bufferstorage) || (!glinfo.sync)))
     {
         OSD_Printf("Your OpenGL implementation doesn't support the required extensions for persistent stream buffers. Disabling...\n");
-        persistentStreamBuffer = 0;
+        r_persistentStreamBuffer = 0;
     }
 #endif
     
