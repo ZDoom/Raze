@@ -385,17 +385,21 @@ static GLuint polymost2_compileShader(GLenum shaderType, const char* const sourc
                    NULL);
     glCompileShader(shaderID);
     
-    int compileStatus[1];
-    glGetShaderiv(shaderID, GL_COMPILE_STATUS, compileStatus);
-    OSD_Printf("Compile Status: %u\n", compileStatus[0]);
+    GLint compileStatus;
+    glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileStatus);
+    OSD_Printf("Compile Status: %u\n", compileStatus);
     
-    int logLength[1];
-    glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, logLength);
-    if (logLength[0] > 0)
+    if (!compileStatus)
     {
-        char infoLog[logLength[0]];
-        glGetShaderInfoLog(shaderID, logLength[0], NULL, infoLog);
-        OSD_Printf("Log:\n%s\n", infoLog);
+        GLint logLength;
+        glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
+        if (logLength > 0)
+        {
+            char *infoLog = (char*) malloc(logLength);
+            glGetShaderInfoLog(shaderID, logLength, &logLength, infoLog);
+            OSD_Printf("Log:\n%s\n", infoLog);
+            free(infoLog);
+        }
     }
     
     return shaderID;

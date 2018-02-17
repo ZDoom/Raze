@@ -226,6 +226,8 @@
     <ClInclude Include="..\..\source\audiolib\src\linklist.h" />
     <ClInclude Include="..\..\source\audiolib\include\music.h" />
     <ClInclude Include="..\..\source\audiolib\src\pitch.h" />
+    <ClInclude Include="..\..\source\glad\include\glad\glad.h" />
+    <ClInclude Include="..\..\source\glad\include\glad\glad_wgl.h" />
     <ClInclude Include="..\..\source\mact\include\_control.h" />
     <ClInclude Include="..\..\source\mact\src\_scrplib.h" />
     <ClInclude Include="..\..\source\mact\include\animlib.h" />
@@ -370,6 +372,8 @@
     <ClCompile Include="..\..\source\audiolib\src\multivoc.cpp" />
     <ClCompile Include="..\..\source\audiolib\src\pitch.cpp" />
     <ClCompile Include="..\..\source\audiolib\src\vorbis.cpp" />
+    <ClCompile Include="..\..\source\glad\src\glad.c" />
+    <ClCompile Include="..\..\source\glad\src\glad_wgl.c" />
     <ClCompile Include="..\..\source\mact\src\animlib.cpp" />
     <ClCompile Include="..\..\source\mact\src\control.cpp" />
     <ClCompile Include="..\..\source\mact\src\file_lib.cpp" />

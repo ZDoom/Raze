@@ -82,6 +82,18 @@
     <Filter Include="touchcontrols\source">
       <UniqueIdentifier>{ed032f74-5d34-4314-9579-6a031cf615f1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="glad">
+      <UniqueIdentifier>{7cc363ab-f5ca-4caa-b082-a4b7b19a4b04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="glad\headers">
+      <UniqueIdentifier>{965e9834-14d4-48c6-a5b4-016d0bb5290e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="glad\source">
+      <UniqueIdentifier>{46fa3902-239e-408c-ad6d-29fb433f50f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="glad\headers\glad">
+      <UniqueIdentifier>{51aa430b-dee3-4d5a-b657-6b829491fcdc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\build\include\a.h">
@@ -549,6 +561,12 @@
     <ClInclude Include="..\..\source\build\include\miniz.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\glad\include\glad\glad.h">
+      <Filter>glad\headers\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\glad\include\glad\glad_wgl.h">
+      <Filter>glad\headers\glad</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\build\src\a-c.cpp">
@@ -964,6 +982,12 @@
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\miniz.c">
       <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\glad\src\glad.c">
+      <Filter>glad\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\glad\src\glad_wgl.c">
+      <Filter>glad\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
