@@ -2531,17 +2531,20 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
         mgametextcenter(origin.x, origin.y + ((38-l)<<16), "License and Other Contributors");
         {
-            const char *header[] =
+            size_t c;
+            static const char *header[] =
             {
                 "This program is distributed under the terms of the",
                 "GNU General Public License version 2 as published by the",
                 "Free Software Foundation. See gpl-2.0.txt for details.",
-                " ",
+                "BUILD engine technology available under license. See buildlic.txt.",
+                nullptr,
                 "The EDuke32 team thanks the following people for their contributions:",
-                " ",
+                nullptr,
             };
-            const char *body[] =
+            static const char *body[] =
             {
+                "Alex Dawson",       // "pogokeen" - Polymost2, renderer work, bugfixes
                 "Bioman",            // GTK work, APT repository and package upkeep
                 "Brandon Bergren",   // "Bdragon" - tiles.cfg
                 "Charlie Honig",     // "CONAN" - showview command
@@ -2549,18 +2552,21 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                 "David Koenig",      // "Bargle" - Merged a couple of things from duke3d_w32
                 "Ed Coolidge",       // Mapster32 improvements
                 "Emile Belanger",    // original Android work
+                "Fox",               // various patches
                 "Hunter_rus",        // tons of stuff
                 "James Bentler",     // Mapster32 improvements
                 "Jasper Foreman",    // netcode contributions
                 "Javier Martinez",   // "Malone3D" - EDuke 2.1.1 components
                 "Jeff Hart",         // website graphics
                 "Jonathan Strander", // "Mblackwell" - testing and feature speccing
+                "Jordon Moss",       // "Striker" - various patches, OldMP work
                 "Jose del Castillo", // "Renegado" - EDuke 2.1.1 components
                 "Lachlan McDonald",  // official EDuke32 icon
                 "LSDNinja",          // OS X help and testing
                 "Marcus Herbert",    // "rhoenie" - OS X compatibility work
                 "Matthew Palmer",    // "Usurper" - testing and eduke32.com domain
                 "Matt Saettler",     // original DOS EDuke/WW2GI enhancements
+                "NY00123",           // Linux / SDL usability patches
                 "Ozkan Sezer",       // SDL/GTK version checking improvements
                 "Peter Green",       // "Plugwash" - dynamic remapping, custom gametypes
                 "Peter Veenstra",    // "Qbix" - port to 64-bit
@@ -2568,31 +2574,33 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                 "Ryan Gordon",       // "icculus" - icculus.org Duke3D port sound code
                 "Stephen Anthony",   // early 64-bit porting work
                 "tueidj",            // Wii port
-                " ",
             };
-            const char *footer[] =
+            EDUKE32_STATIC_ASSERT(ARRAY_SIZE(body) % 3 == 0);
+            static const char *footer[] =
             {
-                " ",
-                "BUILD engine technology available under license. See buildlic.txt.",
+                nullptr,
+                "Visit eduke32.com for news and updates",
             };
 
-            const int32_t header_numlines = sizeof(header)/sizeof(char *);
-            const int32_t body_numlines = sizeof(body)/sizeof(char *);
-            const int32_t footer_numlines = sizeof(footer)/sizeof(char *);
+            static constexpr size_t header_numlines = ARRAY_SIZE(header);
+            static constexpr size_t body_numlines = ARRAY_SIZE(body);
+            static constexpr size_t footer_numlines = ARRAY_SIZE(footer);
+
+            static constexpr size_t CCOLUMNS = 3;
+            static constexpr size_t CCOLXBUF = 20;
 
             i = 0;
-            for (m=0; m<header_numlines; m++)
-                creditsminitext(origin.x + (160<<16), origin.y + ((17+10+10+8+4+(m*7)-l)<<16), header[m], 8);
-            i += m;
-#define CCOLUMNS 3
-#define CCOLXBUF 20
-            for (m=0; m<body_numlines; m++)
-                creditsminitext(origin.x + ((CCOLXBUF+((320-CCOLXBUF*2)/(CCOLUMNS*2)) +((320-CCOLXBUF*2)/CCOLUMNS)*(m/(body_numlines/CCOLUMNS)))<<16), origin.y + ((17+10+10+8+4+((m%(body_numlines/CCOLUMNS))*7)+(i*7)-l)<<16), body[m], 8);
-            i += m/CCOLUMNS;
-            for (m=0; m<footer_numlines; m++)
-                creditsminitext(origin.x + (160<<16), origin.y + ((17+10+10+8+4+(m*7)+(i*7)-l)<<16), footer[m], 8);
-
-            creditsminitext(origin.x + (160<<16), origin.y + ((138+10+10+10+10+4-l)<<16), "Visit www.eduke32.com for news and updates", 8);
+            for (c=0; c<header_numlines; c++)
+                if (header[c])
+                    creditsminitext(origin.x + (160<<16), origin.y + ((17+10+10+8+4+(c*7)-l)<<16), header[c], 8);
+            i += c;
+            for (c=0; c<body_numlines; c++)
+                if (body[c])
+                    creditsminitext(origin.x + ((CCOLXBUF+((320-CCOLXBUF*2)/(CCOLUMNS*2)) +((320-CCOLXBUF*2)/CCOLUMNS)*(c/(body_numlines/CCOLUMNS)))<<16), origin.y + ((17+10+10+8+4+((c%(body_numlines/CCOLUMNS))*7)+(i*7)-l)<<16), body[c], 8);
+            i += c/CCOLUMNS;
+            for (c=0; c<footer_numlines; c++)
+                if (footer[c])
+                    creditsminitext(origin.x + (160<<16), origin.y + ((17+10+10+8+4+(c*7)+(i*7)-l)<<16), footer[c], 8);
         }
 
         break;
