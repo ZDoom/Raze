@@ -6539,13 +6539,12 @@ void C_Compile(const char *fileName)
 
     C_ParseCommand(1);
 
-    for (int i=0; i < g_scriptModulesNum; ++i)
+    for (char * m : g_scriptModules)
     {
-        C_Include(g_scriptModules[i]);
-        Bfree(g_scriptModules[i]);
+        C_Include(m);
+        free(m);
     }
-    DO_FREE_AND_NULL(g_scriptModules);
-    g_scriptModulesNum = 0;
+    g_scriptModules.clear();
 
     flushlogwindow = 1;
 

@@ -23,6 +23,7 @@
 #include "glad/glad.h"
 #include "glbuild.h"
 #include "palette.h"
+#include "collections.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1349,12 +1350,10 @@ extern const char *G_DefaultDefFile(void);
 extern const char *G_DefFile(void);
 extern char *g_defNamePtr;
 
-extern char **g_defModules;
-extern int32_t g_defModulesNum;
+extern GrowArray<char *> g_defModules;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
-extern char **g_clipMapFiles;
-extern int32_t g_clipMapFilesNum;
+extern GrowArray<char *> g_clipMapFiles;
 #endif
 
 #ifdef USE_OPENGL

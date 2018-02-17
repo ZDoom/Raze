@@ -3637,7 +3637,6 @@ int32_t loaddefinitionsfile(const char *fn)
 {
     scriptfile *script;
     int32_t f = flushlogwindow;
-    int32_t i;
 
     script = scriptfile_fromfile(fn);
 
@@ -3650,8 +3649,8 @@ int32_t loaddefinitionsfile(const char *fn)
         defsparser(script);
     }
 
-    for (i=0; i < g_defModulesNum; ++i)
-        defsparser_include(g_defModules[i], NULL, NULL);
+    for (char const * m : g_defModules)
+        defsparser_include(m, NULL, NULL);
 
     flushlogwindow = f;
 

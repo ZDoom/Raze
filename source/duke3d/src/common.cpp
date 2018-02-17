@@ -937,8 +937,7 @@ void G_CleanupSearchPaths(void)
 
 struct strllist *CommandPaths, *CommandGrps;
 
-char **g_scriptModules = NULL;
-int32_t g_scriptModulesNum = 0;
+GrowArray<char *> g_scriptModules;
 
 void G_AddGroup(const char *buffer)
 {
@@ -987,9 +986,7 @@ void G_AddCon(const char *buffer)
 
 void G_AddConModule(const char *buffer)
 {
-    g_scriptModules = (char **) Xrealloc (g_scriptModules, (g_scriptModulesNum+1) * sizeof(char *));
-    g_scriptModules[g_scriptModulesNum] = Xstrdup(buffer);
-    ++g_scriptModulesNum;
+    g_scriptModules.append(Xstrdup(buffer));
 }
 
 //////////

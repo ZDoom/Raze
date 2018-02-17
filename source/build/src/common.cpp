@@ -68,12 +68,10 @@ void clearDefNamePtr(void)
     // g_defNamePtr assumed to be assigned to right after
 }
 
-char **g_defModules = NULL;
-int32_t g_defModulesNum = 0;
+GrowArray<char *> g_defModules;
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
-char **g_clipMapFiles = NULL;
-int32_t g_clipMapFilesNum = 0;
+GrowArray<char *> g_clipMapFiles;
 #endif
 
 void G_AddDef(const char *buffer)
@@ -85,17 +83,13 @@ void G_AddDef(const char *buffer)
 
 void G_AddDefModule(const char *buffer)
 {
-    g_defModules = (char **) Xrealloc (g_defModules, (g_defModulesNum+1) * sizeof(char *));
-    g_defModules[g_defModulesNum] = Xstrdup(buffer);
-    ++g_defModulesNum;
+    g_defModules.append(Xstrdup(buffer));
 }
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
 void G_AddClipMap(const char *buffer)
 {
-    g_clipMapFiles = (char **) Xrealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-    g_clipMapFiles[g_clipMapFilesNum] = Xstrdup(buffer);
-    ++g_clipMapFilesNum;
+    g_clipMapFiles.append(Xstrdup(buffer));
 }
 #endif
 

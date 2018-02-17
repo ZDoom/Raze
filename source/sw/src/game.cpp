@@ -1032,10 +1032,9 @@ InitGame(int32_t argc, char const * const * argv)
 
     if (!loaddefinitionsfile(G_DefFile())) buildputs("Definitions file loaded.\n");
 
-    for (i=0; i < g_defModulesNum; ++i)
-        Bfree(g_defModules[i]);
-    DO_FREE_AND_NULL(g_defModules);
-    g_defModulesNum = 0;
+    for (char * m : g_defModules)
+        free(m);
+    g_defModules.clear();
 
     if (E_PostInit())
         SW_FatalEngineError();

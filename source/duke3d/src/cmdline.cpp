@@ -196,9 +196,7 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
         char clipshape[16] = "_clipshape0.map";
 
         clipshape[10] = j;
-        g_clipMapFiles = (char **) Xrealloc(g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-        g_clipMapFiles[g_clipMapFilesNum] = Xstrdup(clipshape);
-        ++g_clipMapFilesNum;
+        g_clipMapFiles.append(Xstrdup(clipshape));
     }
 #endif
 

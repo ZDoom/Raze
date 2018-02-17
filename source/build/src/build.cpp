@@ -687,10 +687,9 @@ int app_main(int argc, char const * const * argv)
     if (!loaddefinitionsfile(defsfile))
         initprintf("Definitions file \"%s\" loaded.\n",defsfile);
 
-    for (i=0; i < g_defModulesNum; ++i)
-        Bfree(g_defModules[i]);
-    DO_FREE_AND_NULL(g_defModules);
-    g_defModulesNum = 0;
+    for (char * m : g_defModules)
+        free(m);
+    g_defModules.clear();
 
     if (E_PostInit())
         M32_FatalEngineError();
@@ -738,10 +737,9 @@ int app_main(int argc, char const * const * argv)
     if (k>0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", k);
 
-    for (i=0; i < g_clipMapFilesNum; ++i)
-        Bfree(g_clipMapFiles[i]);
-    DO_FREE_AND_NULL(g_clipMapFiles);
-    g_clipMapFilesNum = 0;
+    for (char * f : g_clipMapFiles)
+        free(f);
+    g_clipMapFiles.clear();
 #endif
 
     taglab_init();

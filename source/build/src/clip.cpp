@@ -77,7 +77,8 @@ int32_t clipmapinfo_load(void)
     int32_t i, k, w;
 
     int32_t lwcp = 0;
-    int32_t fi;
+    size_t fi;
+    size_t const g_clipMapFilesNum = g_clipMapFiles.size();
 
     int32_t *fisec = NULL;
     int32_t *fispr = NULL;

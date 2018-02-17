@@ -97,8 +97,7 @@ extern const char *G_GrpFile(void);
 extern const char *G_DefaultConFile(void);
 extern const char *G_ConFile(void);
 
-extern char **g_scriptModules;
-extern int32_t g_scriptModulesNum;
+extern GrowArray<char *> g_scriptModules;
 
 extern void G_AddCon(const char *buffer);
 extern void G_AddConModule(const char *buffer);

@@ -8074,9 +8074,7 @@ static void G_CheckCommandLine(int32_t argc, char const * const * argv)
         char clipshape[16] = "_clipshape0.map";
 
         clipshape[10] = j;
-        g_clipMapFiles = (char **) Xrealloc (g_clipMapFiles, (g_clipMapFilesNum+1) * sizeof(char *));
-        g_clipMapFiles[g_clipMapFilesNum] = Xstrdup(clipshape);
-        ++g_clipMapFilesNum;
+        g_clipMapFiles.append(Xstrdup(clipshape));
     }
 #endif
 
@@ -9350,7 +9348,6 @@ static int32_t parsegroupfiles(scriptfile *script)
 int loaddefinitions_game(const char *fn, int32_t preload)
 {
     scriptfile *script;
-    int32_t i;
 
     UNREFERENCED_PARAMETER(preload);
 
@@ -9358,8 +9355,8 @@ int loaddefinitions_game(const char *fn, int32_t preload)
     if (script)
         parsegroupfiles(script);
 
-    for (i=0; i < g_defModulesNum; ++i)
-        parsegroupfiles_include(g_defModules[i], NULL, "null");
+    for (char const * m : g_defModules)
+        parsegroupfiles_include(m, NULL, "null");
 
     if (script)
         scriptfile_close(script);
@@ -9901,7 +9898,7 @@ END:
 static int32_t loadconsounds(const char *fn)
 {
     scriptfile *script;
-    int32_t ret, i;
+    int32_t ret;
 
     initprintf("Loading sounds from \"%s\"\n",fn);
 
@@ -9913,13 +9910,12 @@ static int32_t loadconsounds(const char *fn)
     }
     ret = parseconsounds(script);
 
-    for (i=0; i < g_scriptModulesNum; ++i)
+    for (char * m : g_scriptModules)
     {
-        parseconsounds_include(g_scriptModules[i], NULL, "null");
-        Bfree(g_scriptModules[i]);
+        parseconsounds_include(m, NULL, "null");
+        free(m);
     }
-    DO_FREE_AND_NULL(g_scriptModules);
-    g_scriptModulesNum = 0;
+    g_scriptModules.clear();
 
     if (ret < 0)
         initprintf("There was an error parsing \"%s\".\n", fn);

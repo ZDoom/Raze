@@ -5500,8 +5500,8 @@ int loaddefinitions_game(const char *fileName, int32_t firstPass)
     if (pScript)
         parsedefinitions_game(pScript, firstPass);
 
-    for (bssize_t i=0; i < g_defModulesNum; ++i)
-        parsedefinitions_game_include(g_defModules[i], NULL, "null", firstPass);
+    for (char const * m : g_defModules)
+        parsedefinitions_game_include(m, NULL, "null", firstPass);
 
     if (pScript)
         scriptfile_close(pScript);
@@ -6418,10 +6418,9 @@ int app_main(int argc, char const * const * argv)
     }
     loaddefinitions_game(defsfile, FALSE);
 
-    for (bssize_t i = 0; i < g_defModulesNum; ++i) Bfree(g_defModules[i]);
-
-    DO_FREE_AND_NULL(g_defModules);
-    g_defModulesNum = 0;
+    for (char * m : g_defModules)
+        free(m);
+    g_defModules.clear();
 
     if (E_PostInit())
         G_FatalEngineError();
@@ -6493,10 +6492,9 @@ int app_main(int argc, char const * const * argv)
     if (clipMapError > 0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", clipMapError);
 
-    for (bssize_t i=0; i < g_clipMapFilesNum; ++i)
-        Bfree(g_clipMapFiles[i]);
-    DO_FREE_AND_NULL(g_clipMapFiles);
-    g_clipMapFilesNum = 0;
+    for (char * m : g_clipMapFiles)
+        free(m);
+    g_clipMapFiles.clear();
 #endif
 
     // check if the minifont will support lowercase letters (3136-3161)
