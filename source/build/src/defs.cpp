@@ -498,18 +498,15 @@ static int32_t defsparser(scriptfile *script)
         break;
         case T_DEFINETINT:
         {
-            int32_t pal, r,g,b,sr,sg,sb,f;
+            int32_t pal, r,g,b,f;
 
             if (scriptfile_getsymbol(script,&pal)) break;
             if (scriptfile_getnumber(script,&r)) break;
             if (scriptfile_getnumber(script,&g)) break;
             if (scriptfile_getnumber(script,&b)) break;
-            if (scriptfile_getnumber(script,&sr)) break;
-            if (scriptfile_getnumber(script,&sg)) break;
-            if (scriptfile_getnumber(script,&sb)) break;
             if (scriptfile_getnumber(script,&f)) break; //effects
 #ifdef USE_OPENGL
-            hicsetpalettetint(pal,r,g,b,sr,sg,sb,f);
+            hicsetpalettetint(pal,r,g,b,0,0,0,f);
 #endif
         }
         break;
