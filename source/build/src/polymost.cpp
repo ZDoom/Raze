@@ -1256,8 +1256,10 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
         miplevel = r_downsize;
 
     // don't use mipmaps if mipmapping is disabled
-    if (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
-        glfiltermodes[gltexfiltermode].min == GL_LINEAR)
+    //POGO: until the texcacheheader can be updated, generate the mipmaps texcache expects if it's enabled 
+    if (!glusetexcache &&
+        (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
+         glfiltermodes[gltexfiltermode].min == GL_LINEAR))
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
@@ -1273,8 +1275,9 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
                                  0);
     
     // don't generate mipmaps if we're not going to use them
-    if (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
-        glfiltermodes[gltexfiltermode].min == GL_LINEAR)
+    if (!glusetexcache &&
+        (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
+         glfiltermodes[gltexfiltermode].min == GL_LINEAR))
     {
         return;
     }
