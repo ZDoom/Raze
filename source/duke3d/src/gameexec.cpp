@@ -3906,7 +3906,7 @@ finish_qsprintf:
         {
             insptr++;
 
-            OSD_Printf(OSDTEXT_GREEN "CONLOG: L=%d\n",g_errorLineNum);
+            initprintf(OSDTEXT_GREEN "CONLOG: L=%d\n",g_errorLineNum);
             continue;
         }
 
@@ -3939,7 +3939,7 @@ finish_qsprintf:
                         index=Gv_GetVarX(*insptr++);
                         if (EDUKE32_PREDICT_TRUE((unsigned)index < (unsigned)aGameArrays[lVarID].size))
                         {
-                            OSD_Printf(OSDTEXT_GREEN "CONLOGVAR: L=%d %s[%d] =%d\n", g_errorLineNum,
+                            initprintf(OSDTEXT_GREEN "CONLOGVAR: L=%d %s[%d] =%d\n", g_errorLineNum,
                                        aGameArrays[lVarID].szLabel, index,
                                        (int32_t)(m*Gv_GetArrayValue(lVarID, index)));
                             continue;
@@ -3964,7 +3964,7 @@ finish_qsprintf:
                                 Gv_GetVarX(*insptr++);
                                 continue;
                             }
-                            OSD_Printf(OSDTEXT_GREEN "CONLOGVAR: L=%d %d %d\n",g_errorLineNum,index,Gv_GetVar(*insptr++,index,vm.playerNum));
+                            initprintf(OSDTEXT_GREEN "CONLOGVAR: L=%d %d %d\n",g_errorLineNum,index,Gv_GetVar(*insptr++,index,vm.playerNum));
                             continue;
                         }
                     }
@@ -4003,7 +4003,7 @@ finish_qsprintf:
                 Bstrcat(tempbuf, szBuf);
                 Bsprintf(szBuf, " =%d\n", Gv_GetVarX(lVarID) * m);
                 Bstrcat(tempbuf, szBuf);
-                OSD_Printf(OSDTEXT_GREEN "%s", tempbuf);
+                initprintf(OSDTEXT_GREEN "%s", tempbuf);
                 insptr++;
                 continue;
             }
