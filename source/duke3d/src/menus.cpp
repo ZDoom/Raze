@@ -1998,6 +1998,14 @@ static void Menu_Pre(MenuID_t cm)
     {
         const int32_t menucheatsdisabled = numplayers != 1 || !(g_player[myconnectindex].ps->gm & MODE_GAME);
 
+        // refresh display names of quote cheats
+        if (!DUKEBETA)
+        {
+            ME_CheatCodes[CHEATFUNC_QUOTEBETA].name = apStrings[QUOTE_CHEAT_BETA];
+            ME_CheatCodes[CHEATFUNC_QUOTETODD].name = NAM ? g_NAMMattCheatQuote : apStrings[QUOTE_CHEAT_TODD];
+            ME_CheatCodes[CHEATFUNC_QUOTEALLEN].name = apStrings[QUOTE_CHEAT_ALLEN];
+        }
+
         for (i = 0; i < NUMCHEATFUNCS; i++)
         {
             uint32_t cheatmask = cl_cheatmask & (1<<i);
@@ -2029,19 +2037,11 @@ static void Menu_Pre(MenuID_t cm)
 
             MenuEntry_t & entry = ME_CheatCodes[i];
 
-            // only show cheats that have been typed in before
-            MenuEntry_HideOnCondition(&entry, !cheatmask);
+            // only show cheats that have been typed in before and are not undefined
+            MenuEntry_HideOnCondition(&entry, !cheatmask || CheatStrings[CheatFunctionIDs[i]][0] == '\0');
 
             // disable outside of a single-player game
             MenuEntry_DisableOnCondition(&entry, menucheatsdisabled);
-        }
-
-        // refresh display names of quote cheats
-        if (!DUKEBETA)
-        {
-            ME_CheatCodes[CHEATFUNC_QUOTEBETA].name = apStrings[QUOTE_CHEAT_BETA];
-            ME_CheatCodes[CHEATFUNC_QUOTETODD].name = NAM ? g_NAMMattCheatQuote : apStrings[QUOTE_CHEAT_TODD];
-            ME_CheatCodes[CHEATFUNC_QUOTEALLEN].name = apStrings[QUOTE_CHEAT_ALLEN];
         }
 
         MenuEntry_DisableOnCondition(&ME_ENTERCHEAT, (cl_cheatmask == UINT32_MAX));
