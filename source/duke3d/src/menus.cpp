@@ -1513,6 +1513,13 @@ static void MenuEntry_LookDisabledOnCondition(MenuEntry_t * const entry, const i
     else
         entry->flags &= ~MEF_LookDisabled;
 }
+static void MenuEntry_HideOnCondition(MenuEntry_t * const entry, const int32_t condition)
+{
+    if (condition)
+        entry->flags |= MEF_Hidden;
+    else
+        entry->flags &= ~MEF_Hidden;
+}
 
 static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *currentry, int32_t state, const vec2_t origin, bool actually_draw = true);
 static void Menu_EntryFocus(/*MenuEntry_t *entry*/);
@@ -1664,6 +1671,10 @@ void Menu_Init(void)
     if (NAM_WW2GI)
         ME_NETOPTIONS_MONSTERS.name = "Enemies";
 
+    // prepare cheats
+    for (i = 0; i < NUMCHEATFUNCS; ++i)
+        MEL_CHEATS[i+1] = &ME_CheatCodes[i];
+
     // prepare text chat macros
     for (i = 0; i < MAXRIDECULE; ++i)
     {
@@ -1814,11 +1825,9 @@ void Menu_Init(void)
         M_CREDITS.title = M_CREDITS2.title = M_CREDITS3.title = s_Credits;
     }
 
-    if (G_GetLogoFlags() & LOGO_NOHELP)
-        MEL_MAIN[3] = MEL_MAIN_INGAME[4] = nullptr;
+    MenuEntry_HideOnCondition(&ME_MAIN_HELP, G_GetLogoFlags() & LOGO_NOHELP);
 #ifndef EDUKE32_SIMPLE_MENU
-    if (G_GetLogoFlags() & LOGO_NOCREDITS)
-        MEL_MAIN[4] = nullptr;
+    MenuEntry_HideOnCondition(&ME_MAIN_CREDITS, G_GetLogoFlags() & LOGO_NOCREDITS);
 #endif
 }
 
@@ -2018,11 +2027,13 @@ static void Menu_Pre(MenuID_t cm)
                 }
             }
 
+            MenuEntry_t & entry = ME_CheatCodes[i];
+
             // only show cheats that have been typed in before
-            MEL_CHEATS[i+1] = cheatmask ? &ME_CheatCodes[i] : NULL;
+            MenuEntry_HideOnCondition(&entry, !cheatmask);
 
             // disable outside of a single-player game
-            MenuEntry_DisableOnCondition(&ME_CheatCodes[i], menucheatsdisabled);
+            MenuEntry_DisableOnCondition(&entry, menucheatsdisabled);
         }
 
         // refresh display names of quote cheats
@@ -3750,7 +3761,7 @@ static void Menu_MaybeSetSelectionToChild(Menu_t * m, MenuID_t id)
         for (size_t i = 0, i_end = menu->numEntries; i < i_end; ++i)
         {
             MenuEntry_t const * entry = menu->entrylist[i];
-            if (entry != NULL && entry->type == Link)
+            if (entry != NULL && entry->type == Link && !(entry->flags & MEF_Hidden))
             {
                 MenuLink_t const * link = (MenuLink_t const *)entry->entry;
                 if (link->linkID == id)
@@ -3911,7 +3922,9 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
             menu->currentEntry = 0;
 
         int32_t i = menu->currentEntry;
-        while (!menu->entrylist[menu->currentEntry] || ((MenuEntry_t*)menu->entrylist[menu->currentEntry])->type == Spacer)
+        while (!menu->entrylist[menu->currentEntry] ||
+               (((MenuEntry_t*)menu->entrylist[menu->currentEntry])->flags & MEF_Hidden) ||
+               ((MenuEntry_t*)menu->entrylist[menu->currentEntry])->type == Spacer)
         {
             menu->currentEntry++;
             if (menu->currentEntry >= menu->numEntries)
@@ -4393,7 +4406,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
             {
                 MenuEntry_t *entry = menu->entrylist[e];
 
-                if (entry == NULL)
+                if (entry == NULL || (entry->flags & MEF_Hidden))
                     continue;
 
                 ++numvalidentries;
@@ -4410,7 +4423,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
         {
             MenuEntry_t *entry = menu->entrylist[e];
 
-            if (entry == NULL)
+            if (entry == NULL || (entry->flags & MEF_Hidden))
                 continue;
 
             int32_t const height = entry->getHeight();
@@ -4437,7 +4450,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
         {
             MenuEntry_t *entry = menu->entrylist[e];
 
-            if (entry == NULL)
+            if (entry == NULL || (entry->flags & MEF_Hidden))
                 continue;
 
             int32_t const indent = entry->getIndent();
@@ -5521,7 +5534,9 @@ static MenuEntry_t *Menu_RunInput_Menu_Movement(MenuMenu_t *menu, MenuMovement_t
                     if (menu->currentEntry < 0)
                         return Menu_RunInput_Menu_Movement(menu, MM_End);
                 }
-                while (!menu->entrylist[menu->currentEntry] || menu->entrylist[menu->currentEntry]->type == Spacer);
+                while (!menu->entrylist[menu->currentEntry] ||
+                       (menu->entrylist[menu->currentEntry]->flags & MEF_Hidden) ||
+                       menu->entrylist[menu->currentEntry]->type == Spacer);
             break;
 
         case MM_Home:
@@ -5534,7 +5549,9 @@ static MenuEntry_t *Menu_RunInput_Menu_Movement(MenuMenu_t *menu, MenuMovement_t
                     if (menu->currentEntry >= menu->numEntries)
                         return Menu_RunInput_Menu_Movement(menu, MM_Home);
                 }
-                while (!menu->entrylist[menu->currentEntry] || menu->entrylist[menu->currentEntry]->type == Spacer);
+                while (!menu->entrylist[menu->currentEntry] ||
+                       (menu->entrylist[menu->currentEntry]->flags & MEF_Hidden) ||
+                       menu->entrylist[menu->currentEntry]->type == Spacer);
             break;
 
         case MM_Swap:
