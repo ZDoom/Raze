@@ -505,6 +505,7 @@ static tokenmap_t const vm_keywords[] =
     { "time",                   CON_TIME },
     { "tip",                    CON_TIP },
     { "tossweapon",             CON_TOSSWEAPON },
+    { "undefinecheat",          CON_UNDEFINECHEAT },
     { "undefinegamefunc",       CON_UNDEFINEGAMEFUNC },
     { "undefinelevel",          CON_UNDEFINELEVEL },
     { "undefineskill",          CON_UNDEFINESKILL },
@@ -583,6 +584,7 @@ static tokenmap_t const vm_keywords[] =
     { "print",                  CON_QUOTE },
 
     { "dc",                     CON_DEFINECHEAT },
+    { "udc",                    CON_UNDEFINECHEAT },
     { "ck",                     CON_CHEATKEYS },
 
     { "qputs",                  CON_REDEFINEQUOTE },
@@ -5896,6 +5898,24 @@ repeatcase:
             C_GetNextValue(LABEL_DEFINE);
             CheatKeys[1] = *(g_scriptPtr-1);
             g_scriptPtr -= 2;
+            continue;
+
+        case CON_UNDEFINECHEAT:
+            g_scriptPtr--;
+
+            C_GetNextValue(LABEL_DEFINE);
+            g_scriptPtr--;
+            j = *g_scriptPtr;
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)j >= NUMCHEATS))
+            {
+                initprintf("%s:%d: error: cheat undefinition attempts to undefine nonexistent cheat.\n",g_scriptFileName,g_lineNumber);
+                g_errorCnt++;
+                C_NextLine();
+                continue;
+            }
+
+            CheatStrings[j][0] = '\0';
             continue;
 
         case CON_DEFINECHEAT:
