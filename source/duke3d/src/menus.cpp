@@ -225,7 +225,7 @@ static MenuMenuFormat_t MMF_BigOptions =           { {    MENU_MARGIN_WIDE<<16, 
 static MenuMenuFormat_t MMF_SmallOptions =         { {    MENU_MARGIN_WIDE<<16, 37<<16, },    170<<16 };
 static MenuMenuFormat_t MMF_Macros =               { {                  26<<16, 40<<16, },    160<<16 };
 static MenuMenuFormat_t MMF_SmallOptionsNarrow  =  { { MENU_MARGIN_REGULAR<<16, 38<<16, }, -(190<<16) };
-static MenuMenuFormat_t MMF_KeyboardSetupFuncs =   { {                  70<<16, 34<<16, },    151<<16 };
+static MenuMenuFormat_t MMF_KeyboardSetupFuncs =   { {                  50<<16, 34<<16, },    151<<16 };
 static MenuMenuFormat_t MMF_MouseJoySetupBtns =    { {                  76<<16, 34<<16, },    143<<16 };
 static MenuMenuFormat_t MMF_FuncList =             { {                 100<<16, 51<<16, },    152<<16 };
 static MenuMenuFormat_t MMF_ColorCorrect =         { { MENU_MARGIN_REGULAR<<16, 86<<16, },    190<<16 };
@@ -242,7 +242,7 @@ static MenuEntryFormat_t MEF_CenterMenu =       { 7<<16,      0,          0 };
 static MenuEntryFormat_t MEF_BigOptions_Apply = { 4<<16, 16<<16, -(260<<16) };
 static MenuEntryFormat_t MEF_BigOptionsRt =     { 4<<16,      0, -(260<<16) };
 #if defined USE_OPENGL || !defined EDUKE32_ANDROID_MENU
-static MenuEntryFormat_t MEF_SmallOptions =     { 1<<16,      0,    216<<16 };
+static MenuEntryFormat_t MEF_SmallOptions =     { 1<<16,      0, -(260<<16) };
 #endif
 static MenuEntryFormat_t MEF_BigCheats =        { 3<<16,      0, -(260<<16) };
 static MenuEntryFormat_t MEF_Cheats =           { 2<<16,      0, -(260<<16) };
@@ -250,9 +250,10 @@ static MenuEntryFormat_t MEF_PlayerNarrow =     { 1<<16,      0,     90<<16 };
 static MenuEntryFormat_t MEF_Macros =           { 2<<16,     -1,    268<<16 };
 static MenuEntryFormat_t MEF_VideoSetup =       { 4<<16,      0,    168<<16 };
 static MenuEntryFormat_t MEF_VideoSetup_Apply = { 4<<16, 16<<16,    168<<16 };
-static MenuEntryFormat_t MEF_FuncList =         { 3<<16,      0,    100<<16 };
+static MenuEntryFormat_t MEF_KBFuncList =       { 3<<16,      0, -(225<<16) };
+static MenuEntryFormat_t MEF_FuncList =         { 3<<16,      0, -(170<<16) };
 static MenuEntryFormat_t MEF_ColorCorrect =     { 2<<16,      0, -(240<<16) };
-static MenuEntryFormat_t MEF_BigSliders =       { 2<<16,      0,    170<<16 };
+static MenuEntryFormat_t MEF_BigSliders =       { 2<<16,      0, -(260<<16) };
 static MenuEntryFormat_t MEF_LoadSave =         { 2<<16,     -1,     78<<16 };
 static MenuEntryFormat_t MEF_NetSetup =         { 4<<16,      0,    112<<16 };
 static MenuEntryFormat_t MEF_NetSetup_Confirm = { 4<<16, 16<<16,    112<<16 };
@@ -549,8 +550,10 @@ static MenuEntry_t ME_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUENTRY( "Widescreen:", 
 
 
 #ifdef USE_OPENGL
+static int32_t MEOSV_PaletteEmulation[] = { 0, r_usetileshades };
+static MenuOptionSet_t MEOS_PaletteEmulation = MAKE_MENUOPTIONSET( MEOSN_OffOn, MEOSV_PaletteEmulation, 0x3 );
 #ifdef EDUKE32_SIMPLE_MENU
-static MenuOption_t MEO_DISPLAYSETUP_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Redfont, &MEOS_OffOn, &r_usetileshades);
+static MenuOption_t MEO_DISPLAYSETUP_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Redfont, &MEOS_PaletteEmulation, &r_usetileshades);
 static MenuEntry_t ME_DISPLAYSETUP_PALETTEEMULATION = MAKE_MENUENTRY("Palette emulation:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_PALETTEEMULATION, Option);
 #endif
 
@@ -599,7 +602,7 @@ static MenuEntry_t ME_SCREENSETUP_SHOWPICKUPMESSAGES = MAKE_MENUENTRY( "Game mes
 
 #ifdef EDUKE32_ANDROID_MENU
 static char const *MEOSN_SCREENSETUP_STATUSBARONTOP[] = { "Bottom", "Top" };
-static int32_t MEOSV_SCREENSETUP_STATUSBARONTOP[] = { 0, 1};
+static int32_t MEOSV_SCREENSETUP_STATUSBARONTOP[] = { 0, 1 };
 static MenuOptionSet_t MEOS_SCREENSETUP_STATUSBARONTOP = MAKE_MENUOPTIONSET( MEOSN_SCREENSETUP_STATUSBARONTOP, MEOSV_SCREENSETUP_STATUSBARONTOP, 0x2 );
 static MenuOption_t MEO_SCREENSETUP_STATUSBARONTOP = MAKE_MENUOPTION(&MF_Redfont, &MEOS_SCREENSETUP_STATUSBARONTOP, &ud.hudontop);
 static MenuEntry_t ME_SCREENSETUP_STATUSBARONTOP = MAKE_MENUENTRY( "Status bar:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SCREENSETUP_STATUSBARONTOP, Option );
@@ -763,7 +766,7 @@ static char const *MEOSN_Keys[NUMKEYS];
 
 static MenuCustom2Col_t MEO_KEYBOARDSETUPFUNCS_TEMPLATE = { { NULL, NULL, }, MEOSN_Keys, &MF_Minifont, NUMKEYS, 54<<16, 0 };
 static MenuCustom2Col_t MEO_KEYBOARDSETUPFUNCS[NUMGAMEFUNCTIONS];
-static MenuEntry_t ME_KEYBOARDSETUPFUNCS_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_Minifont, &MEF_FuncList, &MEO_KEYBOARDSETUPFUNCS_TEMPLATE, Custom2Col );
+static MenuEntry_t ME_KEYBOARDSETUPFUNCS_TEMPLATE = MAKE_MENUENTRY( NULL, &MF_Minifont, &MEF_KBFuncList, &MEO_KEYBOARDSETUPFUNCS_TEMPLATE, Custom2Col );
 static MenuEntry_t ME_KEYBOARDSETUPFUNCS[NUMGAMEFUNCTIONS];
 static MenuEntry_t *MEL_KEYBOARDSETUPFUNCS[NUMGAMEFUNCTIONS];
 
@@ -845,9 +848,9 @@ static MenuLink_t MEO_MOUSESETUP_ADVANCED = { MENU_MOUSEADVANCED, MA_Advance, };
 static MenuEntry_t ME_MOUSESETUP_ADVANCED = MAKE_MENUENTRY( "Advanced setup", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSESETUP_ADVANCED, Link );
 #endif
 static MenuRangeInt32_t MEO_MOUSEADVANCED_SCALEX = MAKE_MENURANGE(&ud.config.MouseAnalogueScale[0], &MF_Redfont, 512, 65536, 65536, 63, 3);
-static MenuEntry_t ME_MOUSEADVANCED_SCALEX = MAKE_MENUENTRY("X-Axis Scale:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSEADVANCED_SCALEX, RangeInt32);
+static MenuEntry_t ME_MOUSEADVANCED_SCALEX = MAKE_MENUENTRY("X-Scale:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSEADVANCED_SCALEX, RangeInt32);
 static MenuRangeInt32_t MEO_MOUSEADVANCED_SCALEY = MAKE_MENURANGE(&ud.config.MouseAnalogueScale[1], &MF_Redfont, 512, 65536, 65536, 63, 3);
-static MenuEntry_t ME_MOUSEADVANCED_SCALEY = MAKE_MENUENTRY("Y-Axis Scale:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSEADVANCED_SCALEY, RangeInt32);
+static MenuEntry_t ME_MOUSEADVANCED_SCALEY = MAKE_MENUENTRY("Y-Scale:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_MOUSEADVANCED_SCALEY, RangeInt32);
 
 static MenuEntry_t *MEL_MOUSESETUP[] = {
     &ME_MOUSESETUP_BTNS,
@@ -1012,7 +1015,7 @@ static MenuEntry_t ME_RENDERERSETUP_GLOWTEX = MAKE_MENUENTRY("Glow textures:", &
 # endif
 static MenuOption_t MEO_RENDERERSETUP_MODELS = MAKE_MENUOPTION( &MF_Bluefont, &MEOS_NoYes, &usemodels );
 static MenuEntry_t ME_RENDERERSETUP_MODELS = MAKE_MENUENTRY( "3D models:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_MODELS, Option );
-static MenuOption_t MEO_RENDERERSETUP_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_NoYes, &r_usetileshades);
+static MenuOption_t MEO_RENDERERSETUP_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Bluefont, &MEOS_PaletteEmulation, &r_usetileshades);
 static MenuEntry_t ME_RENDERERSETUP_PALETTEEMULATION = MAKE_MENUENTRY("Palette emulation:", &MF_Bluefont, &MEF_SmallOptions, &MEO_RENDERERSETUP_PALETTEEMULATION, Option);
 #endif
 
@@ -2088,7 +2091,7 @@ static void Menu_PreDrawBackground(MenuID_t cm, const vec2_t origin)
 
 static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 {
-    int32_t i, j, l = 0, m;
+    int32_t i, j, l = 0;
 
     switch (cm)
     {
@@ -2397,6 +2400,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 #ifndef EDUKE32_STANDALONE
         if (!VOLUMEALL || !PLUTOPAK)
         {
+            int32_t m;
             switch (cm)
             {
             case MENU_CREDITS:
