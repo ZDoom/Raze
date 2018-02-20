@@ -1078,12 +1078,24 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
     //AddLog("resetplayer");
     if (!g_netServer && ud.multimode < 2 && !(resetFlags & 2))
     {
-        if (g_quickload && g_quickload->isValid() && ud.recstat != 2 && !(resetFlags & 1))
+        if (g_quickload && g_quickload->isValid() && ud.recstat != 2)
         {
-            Menu_Open(playerNum);
-            KB_ClearKeyDown(sc_Space);
-            I_AdvanceTriggerClear();
-            Menu_Change(MENU_RESETPLAYER);
+            if (resetFlags & 4)
+            {
+                KB_FlushKeyboardQueue();
+                KB_ClearKeysDown();
+                FX_StopAllSounds();
+                S_ClearSoundLocks();
+
+                G_LoadPlayerMaybeMulti(*g_quickload);
+            }
+            else if (!(resetFlags & 1))
+            {
+                Menu_Open(playerNum);
+                KB_ClearKeyDown(sc_Space);
+                I_AdvanceTriggerClear();
+                Menu_Change(MENU_RESETPLAYER);
+            }
         }
         else g_player[playerNum].ps->gm = MODE_RESTART;
 #if !defined LUNATIC
