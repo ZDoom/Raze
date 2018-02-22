@@ -41,7 +41,7 @@ struct GrowArray
     void vacuum()
     {
         if (size_ < capacity_)
-            reallocate(size);
+            reallocate(size_);
     }
 
     void clear()
