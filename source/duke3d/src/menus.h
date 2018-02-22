@@ -470,13 +470,16 @@ extern int32_t m_mouselastactivity;
 
 #if defined EDUKE32_TOUCH_DEVICES
 # define MOUSEALPHA 0
+# define CURSORALPHA (255/3)
 # define MOUSEACTIVECONDITIONAL(condition) (condition)
 # define MOUSEWATCHPOINTCONDITIONAL(condition) (condition)
 #else
 extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 // alpha increments of 3 --> 255 / 3 = 85 --> round up to power of 2 --> 128 --> divide by 2 --> 64 alphatabs required
 // use 16 anyway :P
-# define MOUSEALPHA ((getrendermode() == REND_CLASSIC && numalphatabs < 15) ? 0 : clamp((totalclock - m_mouselastactivity - 90)*3, 0, 255))
+# define MOUSEUSEALPHA (getrendermode() != REND_CLASSIC || numalphatabs >= 15)
+# define MOUSEALPHA (MOUSEUSEALPHA ? clamp((totalclock - m_mouselastactivity - 90)*3, 0, 255) : 0)
+# define CURSORALPHA (MOUSEUSEALPHA ? clamp((totalclock - m_mouselastactivity - 90)*2 + (255/3), (255/3), 255) : 0)
 # define MOUSEACTIVECONDITION (totalclock - m_mouselastactivity < M_MOUSETIMEOUT)
 # define MOUSEACTIVECONDITIONAL(condition) (MOUSEACTIVECONDITION && (condition))
 # define MOUSEINACTIVECONDITIONAL(condition) (!MOUSEACTIVECONDITION && (condition))

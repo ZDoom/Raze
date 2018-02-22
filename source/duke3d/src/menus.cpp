@@ -6735,7 +6735,7 @@ void M_DisplayMenus(void)
             vec2_t cursorpos = m_mousepos;
             int32_t z = 65536;
             uint8_t p = CROSSHAIR_PAL;
-            uint32_t o = 1|2;
+            uint32_t o = 2;
 
             auto const oyxaspect = yxaspect;
             if (KXDWN)
@@ -6748,7 +6748,7 @@ void M_DisplayMenus(void)
                 o |= 1024;
             }
 
-            rotatesprite_fs_alpha(cursorpos.x, cursorpos.y, z, 0, a, 0, p, o, MOUSEALPHA);
+            rotatesprite_fs_alpha(cursorpos.x, cursorpos.y, z, 0, a, 0, p, o, CURSORALPHA);
 
             if (KXDWN)
                 setaspect(viewingrange, oyxaspect);
