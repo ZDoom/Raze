@@ -30,7 +30,7 @@ int32_t G_GetStringLineLength(const char *text, const char *end, const int32_t i
 {
     int32_t length = 0;
 
-    while (*text != '\n' && text != end)
+    while (text != end && *text != '\n')
     {
         ++length;
 
@@ -128,7 +128,10 @@ int32_t G_GetStringTile(int32_t font, char *t, int32_t f)
         default: // unknown character
             *t = ' '; // whitespace-ize
             fallthrough__;
+        case '\t':
+        case ' ':
         case '\n':
+        case '\x7F':
             return font;
             break;
         }
@@ -195,7 +198,7 @@ vec2_t G_ScreenTextSize(const int32_t font,
     // size/width/height/spacing/offset values should be multiplied or scaled by $z, zoom (since 100% is 65536, the same as 1<<16)
 
     // loop through the string
-    while ((t = *text) && text != end)
+    while (text != end && (t = *text))
     {
         // handle escape sequences
         if (t == '^' && Bisdigit(*(text+iter)) && !(f & TEXT_LITERALESCAPE))
@@ -505,6 +508,10 @@ vec2_t G_ScreenText(const int32_t font,
     // size is the return value, and we need it for alignment
     size = G_ScreenTextSize(font, x, y, z, blockangle, str, o | ROTATESPRITE_FULL16, xspace, yline, (f & TEXT_XJUSTIFY) ? 0 : xbetween, (f & TEXT_YJUSTIFY) ? 0 : ybetween, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY), x1, y1, x2, y2);
 
+    int32_t const xspace_orig = xspace;
+    int32_t const yline_orig = yline;
+    int32_t const xbetween_orig = xbetween;
+    int32_t const ybetween_orig = ybetween;
     // handle zooming where applicable
     xspace = mulscale16(xspace, z);
     yline = mulscale16(yline, z);
@@ -527,7 +534,7 @@ vec2_t G_ScreenText(const int32_t font,
             {
                 char *line = G_GetSubString(text, end, iter, length);
 
-                linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace, yline, (f & TEXT_XJUSTIFY) ? 0 : xbetween, (f & TEXT_YJUSTIFY) ? 0 : ybetween, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
+                linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace_orig, yline_orig, (f & TEXT_XJUSTIFY) ? 0 : xbetween_orig, (f & TEXT_YJUSTIFY) ? 0 : ybetween_orig, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
 
                 Bfree(line);
             }
@@ -561,7 +568,7 @@ vec2_t G_ScreenText(const int32_t font,
     }
 
     // loop through the string
-    while ((t = *text) && text != end)
+    while (text != end && (t = *text))
     {
         int32_t orientation = o;
         int32_t angle = blockangle + charangle;
@@ -719,7 +726,7 @@ vec2_t G_ScreenText(const int32_t font,
 
                 char *line = G_GetSubString(text+1, end, iter, length);
 
-                int32_t linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace, yline, (f & TEXT_XJUSTIFY) ? 0 : xbetween, (f & TEXT_YJUSTIFY) ? 0 : ybetween, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
+                int32_t linewidth = G_ScreenTextSize(font, x, y, z, blockangle, line, o | ROTATESPRITE_FULL16, xspace_orig, yline_orig, (f & TEXT_XJUSTIFY) ? 0 : xbetween_orig, (f & TEXT_YJUSTIFY) ? 0 : ybetween_orig, f & ~(TEXT_XJUSTIFY|TEXT_YJUSTIFY|TEXT_BACKWARDS), x1, y1, x2, y2).x;
 
                 Bfree(line);
 
