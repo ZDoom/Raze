@@ -1314,6 +1314,9 @@ const memberlabel_t UserdefsLabels[]=
     { "music_episode",          USERDEFS_MUSIC_EPISODE,          0, 0 },
     { "music_level",            USERDEFS_MUSIC_LEVEL,            0, 0 },
     { "shadow_pal",             USERDEFS_SHADOW_PAL,             0, 0 },
+    { "menu_scrollbartilenum",  USERDEFS_MENU_SCROLLBARTILENUM,  0, 0 },
+    { "menu_scrollbarz",        USERDEFS_MENU_SCROLLBARZ,        0, 0 },
+    { "menu_scrollcursorz",     USERDEFS_MENU_SCROLLCURSORZ,     0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 

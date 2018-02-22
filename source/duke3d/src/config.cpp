@@ -257,6 +257,9 @@ void CONFIG_SetDefaults(void)
     ud.default_skill = 1;
     ud.slidebar_paldisabled = 1;
     ud.shadow_pal = 4;
+    ud.menu_scrollbartilenum = -1;
+    ud.menu_scrollbarz = 65536;
+    ud.menu_scrollcursorz = 65536;
 
     ud.config.CheckForUpdates = 1;
 

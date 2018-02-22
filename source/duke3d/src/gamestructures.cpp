@@ -215,6 +215,9 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
         case USERDEFS_MUSIC_EPISODE: labelNum = ud.music_episode; break;
         case USERDEFS_MUSIC_LEVEL: labelNum = ud.music_level; break;
         case USERDEFS_SHADOW_PAL: labelNum = ud.shadow_pal; break;
+        case USERDEFS_MENU_SCROLLBARTILENUM: labelNum = ud.menu_scrollbartilenum; break;
+        case USERDEFS_MENU_SCROLLBARZ: labelNum = ud.menu_scrollbarz; break;
+        case USERDEFS_MENU_SCROLLCURSORZ: labelNum = ud.menu_scrollcursorz; break;
         default: labelNum = -1; break;
     }
 
@@ -388,6 +391,9 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
         case USERDEFS_SLIDEBAR_PALSELECTED: ud.slidebar_palselected = iSet; break;
         case USERDEFS_SLIDEBAR_PALDISABLED: ud.slidebar_paldisabled = iSet; break;
         case USERDEFS_SHADOW_PAL: ud.shadow_pal = iSet; break;
+        case USERDEFS_MENU_SCROLLBARTILENUM: ud.menu_scrollbartilenum = iSet; break;
+        case USERDEFS_MENU_SCROLLBARZ: ud.menu_scrollbarz = iSet; break;
+        case USERDEFS_MENU_SCROLLCURSORZ: ud.menu_scrollcursorz = iSet; break;
         default: break;
     }
 }

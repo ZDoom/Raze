@@ -4313,20 +4313,43 @@ static void Menu_RunScrollbar(Menu_t *cm, MenuMenuFormat_t const * const format,
 {
     if (totalextent > klabs(format->bottomcutoff))
     {
-        const int32_t scrollx = origin.x + rightedge - (tilesiz[SELECTDIR].x<<16), scrolly = origin.y + format->pos.y;
-        const int32_t scrollwidth = tilesiz[SELECTDIR].x<<16;
+        int32_t scrollTile = (ud.menu_scrollbartilenum >= 0) ? ud.menu_scrollbartilenum : -1;
+        int32_t scrollTileTop = (ud.menu_scrollbartilenum >= 0) ? ud.menu_scrollbartilenum + 1 : -1;
+        int32_t scrollTileBottom = (ud.menu_scrollbartilenum >= 0) ? ud.menu_scrollbartilenum + 2 : -1;
+        int32_t scrollTileCursor = (ud.menu_scrollbartilenum >= 0) ? ud.menu_scrollbartilenum + 3 : SELECTDIR;
+
+        const int32_t scrollwidth = (scrollTile >= 0) ? tilesiz[scrollTile].x*ud.menu_scrollbarz : tilesiz[scrollTileCursor].x*ud.menu_scrollcursorz;
+        const int32_t scrollx = origin.x + rightedge - scrollwidth, scrolly = origin.y + format->pos.y;
         const int32_t scrollheight = klabs(format->bottomcutoff) - format->pos.y;
-        const int32_t scrollregionheight = scrollheight - (tilesiz[SELECTDIR].y<<16);
+        int32_t scrollregionstart = scrolly;
+        int32_t scrollregionend = scrolly + scrollheight;
+        if (ud.menu_scrollbartilenum >= 0)
+        {
+            scrollregionstart += tilesiz[scrollTileTop].y*ud.menu_scrollbarz;
+            scrollregionend += tilesiz[scrollTileBottom].y*ud.menu_scrollbarz;
+        }
+        const int32_t scrollregionheight = scrollregionend - scrollregionstart - (tilesiz[scrollTileCursor].y*ud.menu_scrollcursorz);
         const int32_t scrollPosMax = totalextent - klabs(format->bottomcutoff);
 
-        Menu_BlackRectangle(scrollx, scrolly, scrollwidth, scrollheight, 1|32);
+        if (scrollTile >= 0)
+        {
+            if (tilesiz[scrollTile].y > 0)
+            {
+                for (int32_t y = scrollregionstart; y < scrollregionend; y += tilesiz[scrollTile].y*ud.menu_scrollbarz)
+                    rotatesprite(scrollx, y, ud.menu_scrollbarz, 0, scrollTile, 0, 0, 26, 0, 0, xdim-1, mulscale16(scrollregionend, ydim*200)-1);
+            }
+            rotatesprite_fs(scrollx, scrolly, ud.menu_scrollbarz, 0, scrollTileTop, 0, 0, 26);
+            rotatesprite_fs(scrollx, scrollregionend, ud.menu_scrollbarz, 0, scrollTileBottom, 0, 0, 26);
+        }
+        else
+            Menu_BlackRectangle(scrollx, scrolly, scrollwidth, scrollheight, 1|32);
 
-        rotatesprite_fs(scrollx, scrolly + scale(scrollregionheight, *scrollPos, scrollPosMax), 65536, 0, SELECTDIR, 0, 0, 26);
+        rotatesprite_fs(scrollx + (scrollwidth>>1) - ((tilesiz[scrollTileCursor].x*ud.menu_scrollcursorz)>>1), scrollregionstart + scale(scrollregionheight, *scrollPos, scrollPosMax), ud.menu_scrollcursorz, 0, scrollTileCursor, 0, 0, 26);
 
         if (cm == m_currentMenu && !m_mousecaught && MOUSEACTIVECONDITIONAL(mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
         {
-            const int32_t scrolltilehalfheight = tilesiz[SELECTDIR].y<<15;
-            const int32_t scrollregiony = scrolly + scrolltilehalfheight;
+            const int32_t scrolltilehalfheight = (tilesiz[scrollTileCursor].y*ud.menu_scrollcursorz)>>1;
+            const int32_t scrollregiony = scrollregionstart + scrolltilehalfheight;
 
             // region between the y-midline of the arrow at the extremes scrolls proportionally
             if (!Menu_MouseOutsideBounds(&m_mousepos, scrollx, scrollregiony, scrollwidth, scrollregionheight))
