@@ -4326,7 +4326,7 @@ static void Menu_RunScrollbar(Menu_t *cm, MenuMenuFormat_t const * const format,
         if (ud.menu_scrollbartilenum >= 0)
         {
             scrollregionstart += tilesiz[scrollTileTop].y*ud.menu_scrollbarz;
-            scrollregionend += tilesiz[scrollTileBottom].y*ud.menu_scrollbarz;
+            scrollregionend -= tilesiz[scrollTileBottom].y*ud.menu_scrollbarz;
         }
         const int32_t scrollregionheight = scrollregionend - scrollregionstart - (tilesiz[scrollTileCursor].y*ud.menu_scrollcursorz);
         const int32_t scrollPosMax = totalextent - klabs(format->bottomcutoff);
