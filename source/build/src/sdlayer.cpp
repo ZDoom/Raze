@@ -101,6 +101,7 @@ char nogl=0;
 #endif
 static int32_t vsync_renderlayer;
 int32_t maxrefreshfreq=0;
+static uint32_t currentVBlankInterval=0;
 
 // last gamma, contrast, brightness
 static float lastvidgcb[3];
@@ -1521,6 +1522,8 @@ void setrefreshrate(void)
         initprintf("Refresh rate: %dHz\n", newmode.refresh_rate);
         SDL_SetWindowDisplayMode(sdl_window, &newmode);
     }
+
+    currentVBlankInterval = 1000/newmode.refresh_rate;
 }
 
 static void sdl_trycreaterenderer_fail(char const * const failurepoint)
@@ -1789,7 +1792,15 @@ void showframe(int32_t w)
 #ifdef __ANDROID__
         AndroidDrawControls();
 #endif
+        
+        static uint32_t lastSwapTime = 0;
         SDL_GL_SwapWindow(sdl_window);
+        if (vsync)
+        {
+            // busy loop until we're ready to update again
+            while (SDL_GetTicks()-lastSwapTime < currentVBlankInterval) {}
+        }
+        lastSwapTime = SDL_GetTicks();
         return;
     }
 #endif
