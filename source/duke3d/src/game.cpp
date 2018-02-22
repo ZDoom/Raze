@@ -6503,8 +6503,6 @@ int app_main(int argc, char const * const * argv)
     for (bssize_t i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
         minitext_lowercase &= tile_exists(i);
 
-    system_getcvars();
-
     char *const setupFileName = Xstrdup(g_setupFileName);
     char *const p             = strtok(setupFileName, ".");
 
@@ -6517,6 +6515,8 @@ int app_main(int argc, char const * const * argv)
 
     OSD_Exec(tempbuf);
     OSD_Exec("autoexec.cfg");
+    
+    system_getcvars();
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
