@@ -1997,8 +1997,6 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                     mousey += ev->motion.yrel;
 # if SDL_MAJOR_VERSION==1
                     SDL_WarpMouse(xdim>>1, ydim>>1);
-# else
-                    SDL_WarpMouseInWindow(sdl_window, xdim>>1, ydim>>1);
 # endif
                 }
             }
