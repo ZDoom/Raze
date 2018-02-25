@@ -1921,6 +1921,8 @@ static void sv_restload()
             CPDAT(&dummy_ps, sizeof(DukePlayer_t));
     }
 #undef CPDAT
+
+    g_player[myconnectindex].ps->auto_aim = ud.config.AutoAim;
 }
 
 #ifdef DEBUGGINGAIDS
