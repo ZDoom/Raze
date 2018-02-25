@@ -186,7 +186,10 @@ void S_MenuSound(void)
 
 static int32_t S_PlayMusic(const char *fn)
 {
-    if (!ud.config.MusicToggle || fn == NULL)
+    if (!ud.config.MusicToggle)
+        return 0;
+
+    if (fn == NULL)
         return 1;
 
     int32_t fp = S_OpenAudio(fn, 0, 1);
