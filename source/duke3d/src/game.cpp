@@ -6035,6 +6035,10 @@ static int G_EndOfLevel(void)
 
         ready2send = 0;
 
+        if (g_player[myconnectindex].ps->player_par > 0 && (g_player[myconnectindex].ps->player_par < ud.playerbest || ud.playerbest < 0) &&
+            ud.display_bonus_screen == 1)
+            CONFIG_SetMapBestTime(g_loadedMapHack.md4, g_player[myconnectindex].ps->player_par);
+
         if ((VM_OnEventWithReturn(EVENT_ENDLEVELSCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0)) == 0 &&
             ud.display_bonus_screen == 1)
         {

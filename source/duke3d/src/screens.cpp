@@ -2262,9 +2262,6 @@ void G_BonusScreen(int32_t bonusonly)
     bonuscnt = 0;
     totalclock = 0;
 
-    if (g_player[myconnectindex].ps->player_par > 0 && (g_player[myconnectindex].ps->player_par < ud.playerbest || ud.playerbest < 0))
-        CONFIG_SetMapBestTime(g_loadedMapHack.md4, g_player[myconnectindex].ps->player_par);
-
     do
     {
         int32_t yy = 0, zz;
