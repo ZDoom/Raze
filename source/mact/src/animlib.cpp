@@ -147,7 +147,8 @@ static inline void loadpage(uint16_t pagenumber, uint16_t **pagepointer)
     if (anim->curlpnum == pagenumber)
         return;
 
-    anim->curlp = &anim->LpArray[(anim->curlpnum = pagenumber)];
+    anim->curlpnum = pagenumber;
+    anim->curlp = &anim->LpArray[pagenumber];
     *pagepointer = (uint16_t *)(anim->buffer + 0xb00 + (pagenumber*IMAGEBUFFERSIZE) +
                                 sizeof(lp_descriptor) + sizeof(uint16_t));
 }
@@ -176,13 +177,17 @@ static void decodeframe(uint8_t * srcP, uint8_t * dstP)
         if (!count) /* Short RLE */
         {
             int32_t color = *(srcP+1);
-            count = *(uint8_t *)((srcP += sizeof(int16_t)) - sizeof(int16_t));
-            Bmemset((dstP += count) - count, color, count);
+            count = *(uint8_t *)srcP;
+            srcP += sizeof(int16_t);
+            Bmemset(dstP, color, count);
+            dstP += count;
             continue;
         }
         else if ((count & 0x80) == 0) /* Short copy */
         {
-            Bmemcpy((dstP += count) - count, (srcP += count) - count, count);
+            Bmemcpy(dstP, srcP, count);
+            dstP += count;
+            srcP += count;
             continue;
         }
         else if ((count &= ~0x80) > 0) /* short skip */
@@ -206,12 +211,15 @@ static void decodeframe(uint8_t * srcP, uint8_t * dstP)
         {
             int32_t color = *srcP++;
             count &= ~0x4000;
-            Bmemset((dstP += count) - count, color, count);
+            Bmemset(dstP, color, count);
+            dstP += count;
             continue;
         }
 
         /* long copy */
-        Bmemcpy((dstP += count) - count, (srcP += count) - count, count);
+        Bmemcpy(dstP, srcP, count);
+        dstP += count;
+        srcP += count;
     }
     while (1);
 }
@@ -235,7 +243,10 @@ static void renderframe(uint16_t framenumber, uint16_t *pagepointer)
     ppointer = (uint8_t *)(pagepointer) + anim->curlp->nRecords*2 + offset + 4;
 
     if ((ppointer-4)[1])
-        ppointer += B_LITTLE16(((uint16_t *)(ppointer-4))[1]) + (B_LITTLE16(((uint16_t *)(ppointer-4))[1]) & 1);
+    {
+        uint16_t const temp = B_LITTLE16(((uint16_t *)(ppointer-4))[1]);
+        ppointer += temp + (temp & 1);
+    }
 
     decodeframe((uint8_t *)ppointer, (uint8_t *)anim->imagebuffer);
 }
