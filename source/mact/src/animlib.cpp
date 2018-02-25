@@ -91,7 +91,7 @@ typedef struct
     uint8_t imagebuffer[IMAGEBUFFERSIZE]; // buffer where anim frame is decoded
     uint8_t * buffer;
     uint8_t pal[768];
-    int32_t  currentframe;
+    int32_t currentframe;
 } anim_t;
 
 static anim_t * anim = NULL;
@@ -106,26 +106,29 @@ static anim_t * anim = NULL;
 static inline uint16_t findpage(uint16_t framenumber)
 {
     // curlpnum is initialized to 0xffff, obviously
-    uint16_t i = (uint16_t)(anim->curlpnum & ~0xffff);
-    int32_t j = 0;
+    size_t i = anim->curlpnum & ~0xffff;
+    size_t const nLps = anim->lpheader->nLps;
+    bool j = true;
 
     if (framenumber < anim->currentframe)
-        i = 0, j++;
+        i = 0, j = false;
 
     // this scans the last used page and higher first and then scans the
     // previously accessed pages afterwards if it doesn't find anything
     do
     {
-        for (; i<anim->lpheader->nLps; i++)
-            if (anim->LpArray[i].baseRecord <= framenumber &&
-                anim->LpArray[i].baseRecord + anim->LpArray[i].nRecords > framenumber)
+        for (; i < nLps; ++i)
+        {
+            lp_descriptor & lp = anim->LpArray[i];
+            if (lp.baseRecord <= framenumber && framenumber < lp.baseRecord + lp.nRecords)
                 return i;
+        }
 
-        if (!j && i == anim->lpheader->nLps)
+        if (j && i == nLps)
         {
             // handle out of order pages... I don't think any Duke .ANM files
             // have them, but they're part of the file spec
-            i = 0, j++;
+            i = 0, j = false;
             continue;
         }
     }
@@ -172,54 +175,59 @@ static void decodeframe(uint8_t * srcP, uint8_t * dstP)
 {
     do
     {
-        int32_t count=*srcP++;
+        {
+            /* short op */
+            uint8_t count = *srcP++;
 
-        if (!count) /* Short RLE */
-        {
-            int32_t color = *(srcP+1);
-            count = *(uint8_t *)srcP;
-            srcP += sizeof(int16_t);
-            Bmemset(dstP, color, count);
-            dstP += count;
-            continue;
+            if (!count) /* short RLE */
+            {
+                uint8_t color = *(srcP+1);
+                count = *(uint8_t *)srcP;
+                srcP += sizeof(int16_t);
+                Bmemset(dstP, color, count);
+                dstP += count;
+                continue;
+            }
+            else if ((count & 0x80) == 0) /* short copy */
+            {
+                Bmemcpy(dstP, srcP, count);
+                dstP += count;
+                srcP += count;
+                continue;
+            }
+            else if ((count &= ~0x80) > 0) /* short skip */
+            {
+                dstP += count;
+                continue;
+            }
         }
-        else if ((count & 0x80) == 0) /* Short copy */
+
         {
+            /* long op */
+            uint16_t count = B_LITTLE16(B_UNBUF16(srcP));
+            srcP += sizeof(int16_t);
+
+            if (!count) /* stop sign */
+                return;
+            else if ((count & 0x8000) == 0) /* long skip */
+            {
+                dstP += count;
+                continue;
+            }
+            else if ((count &= ~0x8000) & 0x4000) /* long RLE */
+            {
+                uint8_t color = *srcP++;
+                count &= ~0x4000;
+                Bmemset(dstP, color, count);
+                dstP += count;
+                continue;
+            }
+
+            /* long copy */
             Bmemcpy(dstP, srcP, count);
             dstP += count;
             srcP += count;
-            continue;
         }
-        else if ((count &= ~0x80) > 0) /* short skip */
-        {
-            dstP += count;
-            continue;
-        }
-
-        /* long op */
-        count = B_LITTLE16(B_UNBUF16(srcP));
-        srcP += sizeof(int16_t);
-
-        if (!count) /* stop sign */
-            return;
-        else if ((count & 0x8000) == 0) /* long skip */
-        {
-            dstP += count;
-            continue;
-        }
-        else if ((count &= ~0x8000) & 0x4000) /* long RLE */
-        {
-            int32_t color = *srcP++;
-            count &= ~0x4000;
-            Bmemset(dstP, color, count);
-            dstP += count;
-            continue;
-        }
-
-        /* long copy */
-        Bmemcpy(dstP, srcP, count);
-        dstP += count;
-        srcP += count;
     }
     while (1);
 }
@@ -234,13 +242,12 @@ static void decodeframe(uint8_t * srcP, uint8_t * dstP)
 
 static void renderframe(uint16_t framenumber, uint16_t *pagepointer)
 {
-    uint8_t *ppointer;
     uint16_t offset = 0;
     uint16_t frame = framenumber - anim->curlp->baseRecord;
 
     while (frame--) offset += B_LITTLE16(pagepointer[frame]);
 
-    ppointer = (uint8_t *)(pagepointer) + anim->curlp->nRecords*2 + offset + 4;
+    uint8_t *ppointer = (uint8_t *)(pagepointer) + anim->curlp->nRecords*2 + offset + 4;
 
     if ((ppointer-4)[1])
     {
@@ -268,8 +275,6 @@ static inline void drawframe(uint16_t framenumber)
 // <length> is the file size, for consistency checking.
 int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length)
 {
-    int32_t i;
-
     length -= sizeof(lpfileheader)+128+768;
     if (length < 0)
         return -1;
@@ -280,33 +285,32 @@ int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length)
     anim->currentframe = -1;
 
     // this just modifies the data in-place instead of copying it elsewhere now
-    anim->lpheader = (lpfileheader *)(anim->buffer = (uint8_t *)buffer);
+    lpfileheader & lpheader = *(anim->lpheader = (lpfileheader *)(anim->buffer = buffer));
 
-    anim->lpheader->id              = B_LITTLE32(anim->lpheader->id);
-    anim->lpheader->maxLps          = B_LITTLE16(anim->lpheader->maxLps);
-    anim->lpheader->nLps            = B_LITTLE16(anim->lpheader->nLps);
-    anim->lpheader->nRecords        = B_LITTLE32(anim->lpheader->nRecords);
-    anim->lpheader->maxRecsPerLp    = B_LITTLE16(anim->lpheader->maxRecsPerLp);
-    anim->lpheader->lpfTableOffset  = B_LITTLE16(anim->lpheader->lpfTableOffset);
-    anim->lpheader->contentType     = B_LITTLE32(anim->lpheader->contentType);
-    anim->lpheader->width           = B_LITTLE16(anim->lpheader->width);
-    anim->lpheader->height          = B_LITTLE16(anim->lpheader->height);
-    anim->lpheader->nFrames         = B_LITTLE32(anim->lpheader->nFrames);
-    anim->lpheader->framesPerSecond = B_LITTLE16(anim->lpheader->framesPerSecond);
+    lpheader.id              = B_LITTLE32(lpheader.id);
+    lpheader.maxLps          = B_LITTLE16(lpheader.maxLps);
+    lpheader.nLps            = B_LITTLE16(lpheader.nLps);
+    lpheader.nRecords        = B_LITTLE32(lpheader.nRecords);
+    lpheader.maxRecsPerLp    = B_LITTLE16(lpheader.maxRecsPerLp);
+    lpheader.lpfTableOffset  = B_LITTLE16(lpheader.lpfTableOffset);
+    lpheader.contentType     = B_LITTLE32(lpheader.contentType);
+    lpheader.width           = B_LITTLE16(lpheader.width);
+    lpheader.height          = B_LITTLE16(lpheader.height);
+    lpheader.nFrames         = B_LITTLE32(lpheader.nFrames);
+    lpheader.framesPerSecond = B_LITTLE16(lpheader.framesPerSecond);
 
-    length -= anim->lpheader->nLps * sizeof(lp_descriptor);
+    length -= lpheader.nLps * sizeof(lp_descriptor);
     if (length < 0)
         return -2;
 
     buffer += sizeof(lpfileheader)+128;
 
     // load the color palette
-    for (i = 0; i < 768; i += 3)
+    for (uint8_t * pal = anim->pal, * pal_end = pal+768; pal < pal_end; pal += 3, buffer += 4)
     {
-        anim->pal[i+2] = *buffer++;
-        anim->pal[i+1] = *buffer++;
-        anim->pal[i] = *buffer++;
-        buffer++;
+        pal[2] = buffer[0];
+        pal[1] = buffer[1];
+        pal[0] = buffer[2];
     }
 
     // set up large page descriptors
@@ -314,11 +318,11 @@ int32_t ANIM_LoadAnim(uint8_t *buffer, int32_t length)
 
     // theoretically we should be able to play files with more than 256 frames now
     // assuming the utilities to create them can make them that way
-    for (i = 0; i < anim->lpheader->nLps; i++)
+    for (lp_descriptor * lp = anim->LpArray, * lp_end = lp+lpheader.nLps; lp < lp_end; ++lp)
     {
-        anim->LpArray[i].baseRecord = B_LITTLE16(anim->LpArray[i].baseRecord);
-        anim->LpArray[i].nRecords   = B_LITTLE16(anim->LpArray[i].nRecords);
-        anim->LpArray[i].nBytes     = B_LITTLE16(anim->LpArray[i].nBytes);
+        lp->baseRecord = B_LITTLE16(lp->baseRecord);
+        lp->nRecords   = B_LITTLE16(lp->nRecords);
+        lp->nBytes     = B_LITTLE16(lp->nBytes);
     }
 
     return 0;
@@ -339,14 +343,14 @@ int32_t ANIM_NumFrames(void)
 
 uint8_t * ANIM_DrawFrame(int32_t framenumber)
 {
-    bssize_t cnt = anim->currentframe;
+    uint32_t cnt = anim->currentframe;
 
     // handle first play and looping or rewinding
-    if (cnt < 0 || cnt > framenumber)
+    if (cnt > (uint32_t)framenumber)
         cnt = 0;
 
     do drawframe(cnt++);
-    while (cnt < framenumber);
+    while (cnt < (uint32_t)framenumber);
 
     anim->currentframe = framenumber;
     return anim->imagebuffer;
