@@ -484,7 +484,7 @@ enum resflags_t {
     RES_WIN = 0x2,
 };
 
-#define MAXRESOLUTIONSTRINGLENGTH 16
+#define MAXRESOLUTIONSTRINGLENGTH 19
 
 typedef struct resolution_t {
     int32_t xdim, ydim;
@@ -1750,28 +1750,28 @@ void Menu_Init(void)
     // prepare video setup
     for (i = 0; i < validmodecnt; ++i)
     {
-        int32_t *const r = &MEOS_VIDEOSETUP_RESOLUTION.numOptions;
-
-        for (j = 0; j < *r; ++j)
+        for (j = 0; j < MEOS_VIDEOSETUP_RESOLUTION.numOptions; ++j)
         {
             if (validmode[i].xdim == resolution[j].xdim && validmode[i].ydim == resolution[j].ydim)
             {
                 resolution[j].flags |= validmode[i].fs ? RES_FS : RES_WIN;
+                Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d%s", resolution[j].xdim, resolution[j].ydim, resolution[j].flags & RES_FS ? "" : "Win");
+                MEOSN_VIDEOSETUP_RESOLUTION[j] = resolution[j].name;
                 if (validmode[i].bpp > resolution[j].bppmax)
                     resolution[j].bppmax = validmode[i].bpp;
                 break;
             }
         }
 
-        if (j == *r) // no match found
+        if (j == MEOS_VIDEOSETUP_RESOLUTION.numOptions) // no match found
         {
             resolution[j].xdim = validmode[i].xdim;
             resolution[j].ydim = validmode[i].ydim;
             resolution[j].bppmax = validmode[i].bpp;
             resolution[j].flags = validmode[i].fs ? RES_FS : RES_WIN;
-            Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d", resolution[j].xdim, resolution[j].ydim);
+            Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d%s", resolution[j].xdim, resolution[j].ydim, resolution[j].flags & RES_FS ? "" : "Win");
             MEOSN_VIDEOSETUP_RESOLUTION[j] = resolution[j].name;
-            ++*r;
+            ++MEOS_VIDEOSETUP_RESOLUTION.numOptions;
         }
     }
 
@@ -1932,12 +1932,14 @@ static void Menu_Pre(MenuID_t cm)
     {
         const int32_t nr = newresolution;
 
+        // don't allow setting fullscreen mode if it's not supported by the resolution
+        MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_FULLSCREEN, !(resolution[nr].flags & RES_FS));
+
         MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_APPLY,
              (xdim == resolution[nr].xdim && ydim == resolution[nr].ydim &&
               getrendermode() == newrendermode && fullscreen == newfullscreen
               && vsync == newvsync
              )
-             || (newfullscreen ? !(resolution[nr].flags & RES_FS) : !(resolution[nr].flags & RES_WIN))
              || (newrendermode != REND_CLASSIC && resolution[nr].bppmax <= 8));
         break;
     }
@@ -2903,7 +2905,8 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         int32_t prend = getrendermode();
         int32_t pvsync = vsync;
 
-        resolution_t n = { resolution[newresolution].xdim, resolution[newresolution].ydim, newfullscreen,
+        resolution_t n = { resolution[newresolution].xdim, resolution[newresolution].ydim,
+                           (resolution[newresolution].flags & RES_FS) ? newfullscreen : 0,
                            (newrendermode == REND_CLASSIC) ? 8 : resolution[newresolution].bppmax, 0 };
         int32_t nrend = newrendermode;
         int32_t nvsync = newvsync;
