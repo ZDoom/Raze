@@ -280,13 +280,9 @@ static void S_SetMusicIndex(unsigned int m)
 
 int S_TryPlayLevelMusic(unsigned int m)
 {
-    auto m_volume_number = ud.m_volume_number;
-    auto m_level_number  = ud.m_level_number;
-    ud.m_volume_number = m / MAXLEVELS;
-    ud.m_level_number  = m % MAXLEVELS;
+    ud.returnvar[0] = m / MAXLEVELS;
+    ud.returnvar[1] = m % MAXLEVELS;
     int retval = VM_OnEvent(EVENT_PLAYLEVELMUSICSLOT, g_player[myconnectindex].ps->i, myconnectindex);
-    ud.m_volume_number = m_volume_number;
-    ud.m_level_number  = m_level_number;
 
     if (retval < 0)
         return 0;

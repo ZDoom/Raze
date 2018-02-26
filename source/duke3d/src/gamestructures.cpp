@@ -151,8 +151,8 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int32_t const lParm2)
         case USERDEFS_WEAPONSCALE: labelNum = ud.weaponscale; break;
         case USERDEFS_TEXTSCALE: labelNum = ud.textscale; break;
         case USERDEFS_RUNKEY_MODE: labelNum = ud.runkey_mode; break;
-        case USERDEFS_M_ORIGIN_X: labelNum = ud.m_origin.x; break;
-        case USERDEFS_M_ORIGIN_Y: labelNum = ud.m_origin.y; break;
+        case USERDEFS_M_ORIGIN_X: labelNum = ud.returnvar[0]; break;
+        case USERDEFS_M_ORIGIN_Y: labelNum = ud.returnvar[1]; break;
         case USERDEFS_PLAYERBEST: labelNum = ud.playerbest; break;
         case USERDEFS_MUSICTOGGLE: labelNum = ud.config.MusicToggle; break;
         case USERDEFS_USEVOXELS: labelNum = usevoxels; break;
@@ -179,10 +179,10 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int32_t const lParm2)
         case USERDEFS_GAMETEXT_TRACKING: labelNum = MF_Bluefont.between.x; break;
         case USERDEFS_MENUTEXT_TRACKING: labelNum = MF_Redfont.between.x; break;
         case USERDEFS_MAXSPRITESONSCREEN: labelNum = maxspritesonscreen; break;
-        case USERDEFS_SCREENAREA_X1: labelNum = ud.screenarea_x1; break;
-        case USERDEFS_SCREENAREA_Y1: labelNum = ud.screenarea_y1; break;
-        case USERDEFS_SCREENAREA_X2: labelNum = ud.screenarea_x2; break;
-        case USERDEFS_SCREENAREA_Y2: labelNum = ud.screenarea_y2; break;
+        case USERDEFS_SCREENAREA_X1: labelNum = aGameVars[g_returnVarID].global; break;
+        case USERDEFS_SCREENAREA_Y1: labelNum = ud.returnvar[0]; break;
+        case USERDEFS_SCREENAREA_X2: labelNum = ud.returnvar[1]; break;
+        case USERDEFS_SCREENAREA_Y2: labelNum = ud.returnvar[2]; break;
         case USERDEFS_SCREENFADE: labelNum = ud.screenfade; break;
         case USERDEFS_MENUBACKGROUND: labelNum = ud.menubackground; break;
         case USERDEFS_STATUSBARFLAGS: labelNum = ud.statusbarflags; break;
@@ -224,6 +224,12 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int32_t const lParm2)
         case USERDEFS_MENU_SCROLLBARTILENUM: labelNum = ud.menu_scrollbartilenum; break;
         case USERDEFS_MENU_SCROLLBARZ: labelNum = ud.menu_scrollbarz; break;
         case USERDEFS_MENU_SCROLLCURSORZ: labelNum = ud.menu_scrollcursorz; break;
+        case USERDEFS_RETURN:
+            if (lParm2 == 0)
+                labelNum = aGameVars[g_returnVarID].global;
+            else
+                labelNum = ud.returnvar[lParm2-1];
+            break;
         default: labelNum = -1; break;
     }
 
@@ -341,8 +347,8 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const lParm2, int3
         case USERDEFS_WEAPONSCALE: ud.weaponscale = iSet; break;
         case USERDEFS_TEXTSCALE: ud.textscale = iSet; break;
         case USERDEFS_RUNKEY_MODE: ud.runkey_mode = iSet; break;
-        case USERDEFS_M_ORIGIN_X: ud.m_origin.x = iSet; break;
-        case USERDEFS_M_ORIGIN_Y: ud.m_origin.y = iSet; break;
+        case USERDEFS_M_ORIGIN_X: ud.returnvar[0] = iSet; break;
+        case USERDEFS_M_ORIGIN_Y: ud.returnvar[1] = iSet; break;
         case USERDEFS_GLOBALFLAGS: globalflags = iSet; break;
         case USERDEFS_GLOBALGAMEFLAGS: duke3d_globalflags = iSet; break;
         case USERDEFS_VM_PLAYER: vm.playerNum = iSet; vm.pPlayer = g_player[iSet].ps; break;
@@ -351,10 +357,10 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const lParm2, int3
         case USERDEFS_GAMETEXT_TRACKING: MF_Bluefont.between.x = iSet; break;
         case USERDEFS_MENUTEXT_TRACKING: MF_Redfont.between.x = iSet; break;
         case USERDEFS_MAXSPRITESONSCREEN: maxspritesonscreen = clamp(iSet, MAXSPRITESONSCREEN>>2, MAXSPRITESONSCREEN); break;
-        case USERDEFS_SCREENAREA_X1: ud.screenarea_x1 = iSet; break;
-        case USERDEFS_SCREENAREA_Y1: ud.screenarea_y1 = iSet; break;
-        case USERDEFS_SCREENAREA_X2: ud.screenarea_x2 = iSet; break;
-        case USERDEFS_SCREENAREA_Y2: ud.screenarea_y2 = iSet; break;
+        case USERDEFS_SCREENAREA_X1: aGameVars[g_returnVarID].global = iSet; break;
+        case USERDEFS_SCREENAREA_Y1: ud.returnvar[0] = iSet; break;
+        case USERDEFS_SCREENAREA_X2: ud.returnvar[1] = iSet; break;
+        case USERDEFS_SCREENAREA_Y2: ud.returnvar[2] = iSet; break;
         case USERDEFS_SCREENFADE: ud.screenfade = iSet; break;
         case USERDEFS_MENUBACKGROUND: ud.menubackground = iSet; break;
         case USERDEFS_STATUSBARFLAGS: ud.statusbarflags = iSet; break;
@@ -406,6 +412,12 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const lParm2, int3
         case USERDEFS_MENU_SCROLLBARTILENUM: ud.menu_scrollbartilenum = iSet; break;
         case USERDEFS_MENU_SCROLLBARZ: ud.menu_scrollbarz = iSet; break;
         case USERDEFS_MENU_SCROLLCURSORZ: ud.menu_scrollcursorz = iSet; break;
+        case USERDEFS_RETURN:
+            if (lParm2 == 0)
+                aGameVars[g_returnVarID].global = iSet;
+            else
+                ud.returnvar[lParm2-1] = iSet;
+            break;
         default: break;
     }
 }

@@ -6660,9 +6660,11 @@ void M_DisplayMenus(void)
 
     if (m_parentMenu)
     {
-        ud.m_origin = origin;
+        ud.returnvar[0] = origin.x;
+        ud.returnvar[1] = origin.y;
         VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENU, g_player[screenpeek].ps->i, screenpeek, m_parentMenu->menuID);
-        origin = ud.m_origin;
+        origin.x = ud.returnvar[0];
+        origin.y = ud.returnvar[1];
     }
 
     // Determine animation values.
@@ -6673,14 +6675,18 @@ void M_DisplayMenus(void)
         origin.x = mulscale15(screenwidth, m_animation.in(&m_animation));
         previousOrigin.x = mulscale15(screenwidth, m_animation.out(&m_animation));
 
-        ud.m_origin = previousOrigin;
+        ud.returnvar[0] = previousOrigin.x;
+        ud.returnvar[1] = previousOrigin.y;
         VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENU, g_player[screenpeek].ps->i, screenpeek, m_animation.previous->menuID);
-        previousOrigin = ud.m_origin;
+        previousOrigin.x = ud.returnvar[0];
+        previousOrigin.y = ud.returnvar[1];
     }
 
-    ud.m_origin = origin;
+    ud.returnvar[0] = origin.x;
+    ud.returnvar[1] = origin.y;
     VM_OnEventWithReturn(EVENT_DISPLAYMENU, g_player[screenpeek].ps->i, screenpeek, g_currentMenu);
-    origin = ud.m_origin;
+    origin.x = ud.returnvar[0];
+    origin.y = ud.returnvar[1];
 
     if (m_parentMenu && backgroundOK)
     {
@@ -6707,17 +6713,20 @@ void M_DisplayMenus(void)
 
     if (m_parentMenu)
     {
-        ud.m_origin = origin;
+        ud.returnvar[0] = origin.x;
+        ud.returnvar[1] = origin.y;
         VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENUREST, g_player[screenpeek].ps->i, screenpeek, m_parentMenu->menuID);
     }
 
     if (totalclock < m_animation.start + m_animation.length)
     {
-        ud.m_origin = previousOrigin;
+        ud.returnvar[0] = previousOrigin.x;
+        ud.returnvar[1] = previousOrigin.y;
         VM_OnEventWithReturn(EVENT_DISPLAYINACTIVEMENUREST, g_player[screenpeek].ps->i, screenpeek, m_animation.previous->menuID);
     }
 
-    ud.m_origin = origin;
+    ud.returnvar[0] = origin.x;
+    ud.returnvar[1] = origin.y;
     VM_OnEventWithReturn(EVENT_DISPLAYMENUREST, g_player[screenpeek].ps->i, screenpeek, g_currentMenu);
 
 #if !defined EDUKE32_TOUCH_DEVICES

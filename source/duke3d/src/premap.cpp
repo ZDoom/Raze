@@ -601,15 +601,13 @@ void G_UpdateScreenArea(void)
 
         if (VM_HaveEvent(EVENT_UPDATESCREENAREA))
         {
-            ud.screenarea_x1 = x1;
-            ud.screenarea_y1 = y1;
-            ud.screenarea_x2 = x2;
-            ud.screenarea_y2 = y2;
-            VM_OnEvent(EVENT_UPDATESCREENAREA, g_player[screenpeek].ps->i, screenpeek);
-            x1 = ud.screenarea_x1;
-            y1 = ud.screenarea_y1;
-            x2 = ud.screenarea_x2;
-            y2 = ud.screenarea_y2;
+            ud.returnvar[0] = y1;
+            ud.returnvar[1] = x2;
+            ud.returnvar[2] = y2;
+            x1 = VM_OnEventWithReturn(EVENT_UPDATESCREENAREA, g_player[screenpeek].ps->i, screenpeek, x1);
+            y1 = ud.returnvar[0];
+            x2 = ud.returnvar[1];
+            y2 = ud.returnvar[2];
         }
 
         if (g_halveScreenArea)

@@ -150,6 +150,8 @@ extern camera_t g_camera;
 #define MAXPWLOCKOUT 128
 #define MAXRTSNAME 128
 
+#define MAX_RETURN_VALUES 4
+
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
 #if !defined LUNATIC
@@ -165,7 +167,6 @@ typedef struct {
     int32_t team, viewbob, weaponsway, althud, weaponscale, textscale;
     int32_t statusbarflags, statusbarrange, statusbarcustom;
     int32_t hudontop;
-    int32_t screenarea_x1, screenarea_y1, screenarea_x2, screenarea_y2;
     int32_t menu_slidebarz, menu_slidebarmargin, menu_slidecursorz;
     int32_t menu_scrollbartilenum, menu_scrollbarz, menu_scrollcursorz;
 
@@ -179,12 +180,13 @@ typedef struct {
     int32_t player_skill,level_number,volume_number,m_marker,marker,mouseflip;
     int32_t music_episode, music_level;
 
-    vec2_t m_origin;
     int32_t playerbest;
 
     int32_t configversion, bgstretch;
 
     int32_t default_volume, default_skill;
+
+    int32_t returnvar[MAX_RETURN_VALUES-1];
 
 #if !defined LUNATIC
     int16_t cameraang, camerasect, camerahoriz;
