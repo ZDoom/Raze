@@ -754,7 +754,8 @@ special:
             break;
 
         case STRUCT_USERDEF:
-            returnValue = VM_GetUserdef(labelNum);
+            arrayIndexVar = (EDUKE32_PREDICT_FALSE(UserdefsLabels[labelNum].flags & LABEL_HASPARM2)) ? Gv_GetVarX(*insptr++) : 0;
+            returnValue = VM_GetUserdef(labelNum, arrayIndexVar);
             break;
 
         default:
@@ -952,7 +953,8 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
                 break;
 
             case STRUCT_USERDEF:
-                returnValue = VM_GetUserdef(labelNum);
+                arrayIndexVar = (EDUKE32_PREDICT_FALSE(UserdefsLabels[labelNum].flags & LABEL_HASPARM2)) ? Gv_GetVarX(*insptr++) : 0;
+                returnValue = VM_GetUserdef(labelNum, arrayIndexVar);
                 break;
 
             default: EDUKE32_UNREACHABLE_SECTION(return -1);

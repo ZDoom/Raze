@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // I got a 3-4 fps gain by inlining these...
 
 #ifndef gamevars_c_
-int32_t __fastcall VM_GetUserdef(int32_t labelNum);
-void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet);
+int32_t __fastcall VM_GetUserdef(int32_t labelNum, int32_t const lParm2);
+void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const lParm2, int32_t const iSet);
 int32_t __fastcall VM_GetActiveProjectile(int32_t const spriteNum, int32_t labelNum);
 void __fastcall VM_SetActiveProjectile(int32_t const spriteNum, int32_t const labelNum, int32_t const iSet);
 int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32_t const lParm2);
@@ -45,8 +45,14 @@ void __fastcall VM_SetProjectile(int32_t const tileNum, int32_t const labelNum, 
 int32_t __fastcall VM_GetTileData(int32_t const tileNum, int32_t labelNum);
 int32_t __fastcall VM_GetPalData(int32_t const palNum, int32_t labelNum);
 #else
-int32_t __fastcall VM_GetUserdef(int32_t labelNum)
+int32_t __fastcall VM_GetUserdef(int32_t labelNum, int32_t const lParm2)
 {
+    if (EDUKE32_PREDICT_FALSE(UserdefsLabels[labelNum].flags & LABEL_HASPARM2 && (unsigned) lParm2 >= (unsigned) UserdefsLabels[labelNum].maxParm2))
+    {
+        CON_ERRPRINTF("%s[%d] invalid for userdef", UserdefsLabels[labelNum].name, lParm2);
+        return -1;
+    }
+
     switch (labelNum)
     {
         case USERDEFS_GOD: labelNum = ud.god; break;
@@ -224,8 +230,14 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum)
     return labelNum;
 }
 
-void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const iSet)
+void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const lParm2, int32_t const iSet)
 {
+    if (EDUKE32_PREDICT_FALSE(UserdefsLabels[labelNum].flags & LABEL_HASPARM2 && (unsigned)lParm2 >= (unsigned)UserdefsLabels[labelNum].maxParm2))
+    {
+        CON_ERRPRINTF("%s[%d] invalid for userdef", UserdefsLabels[labelNum].name, lParm2);
+        return;
+    }
+
     switch (labelNum)
     {
         case USERDEFS_GOD: ud.god = iSet; break;

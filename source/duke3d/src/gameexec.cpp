@@ -4213,16 +4213,20 @@ finish_qsprintf:
         case CON_GETUSERDEF:
             insptr++;
             {
-                tw = *insptr++;
-                Gv_SetVarX(*insptr++, VM_GetUserdef(tw));
+                int const labelNum  = *insptr++;
+                int const lParm2    = (UserdefsLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
+
+                Gv_SetVarX(*insptr++, VM_GetUserdef(labelNum, lParm2));
                 continue;
             }
 
         case CON_SETUSERDEF:
             insptr++;
             {
-                tw = *insptr++;
-                VM_SetUserdef(tw, Gv_GetVarX(*insptr++));
+                int const labelNum  = *insptr++;
+                int const lParm2    = (UserdefsLabels[labelNum].flags & LABEL_HASPARM2) ? Gv_GetVarX(*insptr++) : 0;
+
+                VM_SetUserdef(labelNum, lParm2, Gv_GetVarX(*insptr++));
                 continue;
             }
 

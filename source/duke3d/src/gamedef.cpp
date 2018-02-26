@@ -2015,6 +2015,9 @@ static void C_GetNextVarType(int32_t type)
                 break;
             case STRUCT_USERDEF:
                 *g_scriptPtr++=UserdefsLabels[labelNum].lId;
+
+                if (UserdefsLabels[labelNum].flags & LABEL_HASPARM2)
+                    C_GetNextVarType(0);
                 break;
             case STRUCT_INPUT:
                 *g_scriptPtr++=InputLabels[labelNum].lId;
@@ -3981,6 +3984,9 @@ DO_DEFSTATE:
                 }
                 BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++=labelNum;
+
+                if (UserdefsLabels[labelNum].flags & LABEL_HASPARM2)
+                    C_GetNextVar();
 
                 C_GetNextVarType((tw == CON_GETUSERDEF) ? GAMEVAR_READONLY : 0);
                 continue;
