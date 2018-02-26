@@ -109,19 +109,19 @@ int32_t loadwgl(const char *driver)
         initprintf("Failed loading \"%s\"\n", driver);
         return -1;
     }
-    
+
     gldriver = Bstrdup(driver);
 
     bwglCreateContext = (bwglCreateContextProcPtr) GETPROC("wglCreateContext");
     bwglDeleteContext = (bwglDeleteContextProcPtr) GETPROC("wglDeleteContext");
     bwglGetProcAddress = (bwglGetProcAddressProcPtr) GETPROC("wglGetProcAddress");
     bwglMakeCurrent = (bwglMakeCurrentProcPtr) GETPROC("wglMakeCurrent");
-    
+
     bwglChoosePixelFormat = (bwglChoosePixelFormatProcPtr) GETPROC("wglChoosePixelFormat");
     bwglDescribePixelFormat = (bwglDescribePixelFormatProcPtr) GETPROC("wglDescribePixelFormat");
     bwglGetPixelFormat = (bwglGetPixelFormatProcPtr) GETPROC("wglGetPixelFormat");
     bwglSetPixelFormat = (bwglSetPixelFormatProcPtr) GETPROC("wglSetPixelFormat");
-    
+
     if (err) unloadwgl();
     return err;
 }

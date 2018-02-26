@@ -6519,7 +6519,7 @@ int app_main(int argc, char const * const * argv)
 
     OSD_Exec(tempbuf);
     OSD_Exec("autoexec.cfg");
-    
+
     system_getcvars();
 
     if (g_networkMode != NET_DEDICATED_SERVER)

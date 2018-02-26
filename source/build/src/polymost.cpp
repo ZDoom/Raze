@@ -313,33 +313,33 @@ static int32_t gltexcacnum = -1;
 static float* multiplyMatrix4f(float m0[4*4], float m1[4*4])
 {
     float mR[4*4];
-    
+
 #define multMatrix4RowCol(r, c) mR[r*4+c] = m0[r*4]*m1[c] + m0[r*4+1]*m1[c+4] + m0[r*4+2]*m1[c+8] + m0[r*4+3]*m1[c+12]
-    
+
     multMatrix4RowCol(0, 0);
     multMatrix4RowCol(0, 1);
     multMatrix4RowCol(0, 2);
     multMatrix4RowCol(0, 3);
-    
+
     multMatrix4RowCol(1, 0);
     multMatrix4RowCol(1, 1);
     multMatrix4RowCol(1, 2);
     multMatrix4RowCol(1, 3);
-    
+
     multMatrix4RowCol(2, 0);
     multMatrix4RowCol(2, 1);
     multMatrix4RowCol(2, 2);
     multMatrix4RowCol(2, 3);
-    
+
     multMatrix4RowCol(3, 0);
     multMatrix4RowCol(3, 1);
     multMatrix4RowCol(3, 2);
     multMatrix4RowCol(3, 3);
-    
+
     Bmemcpy(m0, mR, sizeof(float)*4*4);
-    
+
     return m0;
-    
+
 #undef multMatrix4RowCol
 }
 
@@ -377,18 +377,18 @@ static GLuint polymost2_compileShader(GLenum shaderType, const char* const sourc
     {
         return 0;
     }
-    
+
     const char* const sources[1] = {source};
     glShaderSource(shaderID,
                    1,
                    sources,
                    NULL);
     glCompileShader(shaderID);
-    
+
     GLint compileStatus;
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileStatus);
     OSD_Printf("Compile Status: %u\n", compileStatus);
-    
+
     if (!compileStatus)
     {
         GLint logLength;
@@ -401,7 +401,7 @@ static GLuint polymost2_compileShader(GLenum shaderType, const char* const sourc
             free(infoLog);
         }
     }
-    
+
     return shaderID;
 }
 
@@ -477,10 +477,10 @@ void polymost_resetVertexPointers()
 {
     glBindBuffer(GL_ARRAY_BUFFER, drawpolyVertsID);
     glBindBuffer(GL_TEXTURE_COORD_ARRAY, drawpolyVertsID);
-    
+
     glVertexPointer(3, GL_FLOAT, 5*sizeof(float), 0);
     glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
-    
+
 #ifdef USE_GLEXT
     if (r_detailmapping)
     {
@@ -508,7 +508,7 @@ void polymost_glinit()
 
     //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     //glEnable(GL_LINE_SMOOTH);
-    
+
 #ifdef USE_GLEXT
     if (glmultisample > 0 && glinfo.multisample)
     {
@@ -531,20 +531,20 @@ void polymost_glinit()
             r_glowmapping = 0;
         }
     }
-    
+
     if (persistentStreamBuffer && ((!glinfo.bufferstorage) || (!glinfo.sync)))
     {
         OSD_Printf("Your OpenGL implementation doesn't support the required extensions for persistent stream buffers. Disabling...\n");
         r_persistentStreamBuffer = 0;
     }
 #endif
-    
+
     persistentStreamBuffer = r_persistentStreamBuffer;
     drawpolyVertsBufferLength = r_drawpolyVertsBufferLength;
-    
+
     drawpolyVertsOffset = 0;
     drawpolyVertsSubBufferIndex = 0;
-    
+
     GLuint ids[2];
     glGenBuffers(2, ids);
     drawpolyVertsID = ids[0];
@@ -553,7 +553,7 @@ void polymost_glinit()
     {
         // reset the sync objects, as old ones we had from any last GL context are gone now
         Bmemset(drawpolyVertsSync, 0, sizeof(drawpolyVertsSync));
-        
+
         GLbitfield flags = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
         // we want to triple-buffer to avoid having to wait for the buffer to become available again,
         // so triple the buffer size we expect to use
@@ -565,7 +565,7 @@ void polymost_glinit()
         glBufferData(GL_ARRAY_BUFFER, drawpolyVertsBufferLength*sizeof(float)*5, NULL, GL_STREAM_DRAW);
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
+
     const char blankTex[] = {0, 0, 0, 0,    0, 0, 0, 0,
                              0, 0, 0, 0,    0, 0, 0, 0};
     glGenTextures(1, &blankTextureID);
@@ -573,10 +573,10 @@ void polymost_glinit()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, blankTex);
-    
+
     quadVertsID = ids[1];
     glBindBuffer(GL_ARRAY_BUFFER, quadVertsID);
-    const float quadVerts[] = 
+    const float quadVerts[] =
         {
             -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, //top-left
             -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, //bottom-left
@@ -584,15 +584,15 @@ void polymost_glinit()
              0.5f, 0.0f, 0.0f, 1.0f, 0.0f  //bottom-right
         };
     glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW);
-    
+
     //specify format/arrangement for vertex positions:
     glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(float) * 5, 0);
     //specify format/arrangement for vertex texture coords:
     glVertexAttribPointer(1, 2, GL_FLOAT, false, sizeof(float) * 5, (const void*) (sizeof(float) * 3));
-    
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    
-    const char* const BASIC_VERTEX_SHADER_CODE = 
+
+    const char* const BASIC_VERTEX_SHADER_CODE =
         "#version 110\n\
          \n\
          // input\n\
@@ -617,7 +617,7 @@ void polymost_glinit()
             v_texCoord = i_texCoord * u_texScale + u_texOffset;\n\
             v_distance = eyeCoordPosition.z;\n\
          }\n";
-    const char* const BASIC_FRAGMENT_SHADER_CODE = 
+    const char* const BASIC_FRAGMENT_SHADER_CODE =
         "#version 110\n\
          \n\
          varying vec2 v_texCoord;\n\
@@ -649,7 +649,7 @@ void polymost_glinit()
              \n\
              gl_FragColor = color;\n\
          }\n";
-    
+
     shaderProgramID = glCreateProgram();
     GLuint basicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, BASIC_VERTEX_SHADER_CODE);
     GLuint basicFragmentShaderID = polymost2_compileShader(GL_FRAGMENT_SHADER, BASIC_FRAGMENT_SHADER_CODE);
@@ -658,7 +658,7 @@ void polymost_glinit()
     glAttachShader(shaderProgramID, basicVertexShaderID);
     glAttachShader(shaderProgramID, basicFragmentShaderID);
     glLinkProgram(shaderProgramID);
-    
+
     // Get the attribute/uniform locations
     texSamplerLoc = glGetUniformLocation(shaderProgramID, "s_texture");
     fullBrightSamplerLoc = glGetUniformLocation(shaderProgramID, "s_fullBright");
@@ -673,7 +673,7 @@ void polymost_glinit()
 
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    
+
     polymost_resetVertexPointers();
 
     texcache_init();
@@ -773,11 +773,11 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
 void polymost2_calc_fog(int32_t shade, int32_t vis, int32_t pal)
 {
     if (nofog) return;
-    
+
     fogresult = 0.f;
     fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
     fogcol = fogtable[pal];
-    
+
     if (((uint8_t)(vis + 16)) > 0 && g_visibility > 0)
     {
         GLfloat glfogconstant = 262144.f;
@@ -1256,7 +1256,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
         miplevel = r_downsize;
 
     // don't use mipmaps if mipmapping is disabled
-    //POGO: until the texcacheheader can be updated, generate the mipmaps texcache expects if it's enabled 
+    //POGO: until the texcacheheader can be updated, generate the mipmaps texcache expects if it's enabled
     if (!glusetexcache &&
         (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
          glfiltermodes[gltexfiltermode].min == GL_LINEAR))
@@ -1264,7 +1264,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
     }
-    
+
     if (!miplevel)
         Polymost_SendTexToDriver(doalloc, siz, texfmt, pic,
                                  intexfmt,
@@ -1273,7 +1273,7 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
                                  texcompress_ok,
 #endif
                                  0);
-    
+
     // don't generate mipmaps if we're not going to use them
     if (!glusetexcache &&
         (glfiltermodes[gltexfiltermode].min == GL_NEAREST ||
@@ -1542,7 +1542,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
                                 break;
                         }
                     }
-                    
+
                     //swap r & b so that we deal with the data as BGRA
                     uint8_t tmpR = wpptr->r;
                     wpptr->r = wpptr->b;
@@ -1975,10 +1975,10 @@ void polymost_setupdetailtexture(const int32_t texunits, const int32_t tex)
     glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 
     glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
-    
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
+
     glClientActiveTexture(texunits);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
@@ -2005,10 +2005,10 @@ void polymost_setupglowtexture(const int32_t texunits, const int32_t tex)
     glTexEnvf(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
     glTexEnvf(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_PREVIOUS);
     glTexEnvf(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
-    
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    
+
     glClientActiveTexture(texunits);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
@@ -2053,10 +2053,10 @@ static void polymost2_drawVBO(GLenum mode,
     {
         return;
     }
-    
+
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    
+
     if (cullFaces)
     {
         glEnable(GL_CULL_FACE);
@@ -2069,26 +2069,26 @@ static void polymost2_drawVBO(GLenum mode,
     {
         glCullFace(GL_FRONT);
     }
-    
+
     //POGOTODO: in the future, state changes like binding these buffers can be batched.  For now, just switch on every VBO rendered
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
-    
+
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    
+
     if (palookup[globalpal] == NULL)
     {
         globalpal = 0;
     }
-    
+
     //Load texture (globalpicnum)
     setgotpic(globalpicnum);
     if (!waloff[globalpicnum])
     {
         loadtile(globalpicnum);
     }
-    
+
     pthtyp *pth = our_texcache_fetch(dameth);
 
     if (!pth)
@@ -2100,20 +2100,20 @@ static void polymost2_drawVBO(GLenum mode,
         }
         return;
     }
-    
+
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, (pth && pth->flags & PTH_HASFULLBRIGHT && r_fullbrights) ? pth->ofb->glpic : blankTextureID);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-    
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : blankTextureID);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-    
+
     //POGOTODO: handle tinting & shading completely with fragment shader
     //POGOTODO: handle fullbright & glow completely with fragment shader
-    
+
     //POGOTODO: glAlphaFunc is deprecated, move this into the fragment shader
     float const al = waloff[globalpicnum] ? alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f):
                              (pth && pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f) : 0.f;
@@ -2121,11 +2121,11 @@ static void polymost2_drawVBO(GLenum mode,
     //POGOTODO: batch this, only apply it to sprites that actually need blending
     glEnable(GL_BLEND);
     glEnable(GL_ALPHA_TEST);
-    
+
     handle_blend((dameth & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (dameth & DAMETH_MASKPROPS) == DAMETH_TRANS2);
-    
+
     glUseProgram(shaderProgramID);
-    
+
     //POGOTODO: batch uniform binding
     float tint[4] = {1.0f, 1.0f, 1.0f, 1.0f};
     polytint_t const & polytint = hictinting[globalpal];
@@ -2156,7 +2156,7 @@ static void polymost2_drawVBO(GLenum mode,
         if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
             hictinting_apply(tint, MAXPALOOKUPS-1);
     }
-    
+
     glUniformMatrix4fv(projMatrixLoc, 1, false, projectionMatrix);
     glUniformMatrix4fv(mvMatrixLoc, 1, false, modelViewMatrix);
     glUniform1i(texSamplerLoc, 0);
@@ -2168,7 +2168,7 @@ static void polymost2_drawVBO(GLenum mode,
     const float fogRange[2] = {fogresult, fogresult2};
     glUniform2fv(fogRangeLoc, 1, fogRange);
     glUniform4fv(fogColorLoc, 1, (GLfloat*) &fogcol);
-    
+
     if (indexBufferID == 0)
     {
         glDrawArrays(mode,
@@ -2181,21 +2181,21 @@ static void polymost2_drawVBO(GLenum mode,
                        GL_UNSIGNED_SHORT,
                        0);
     }
-    
+
     glUseProgram(0);
-    
+
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
-    
+
     //POGOTODO: again, these state changes should be batched in the future, rather than on each VBO rendered
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    
+
     glDisable(GL_CULL_FACE);
-    
+
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    
+
     polymost_resetVertexPointers();
 }
 
@@ -2205,7 +2205,7 @@ static void polymost_lockSubBuffer(uint32_t subBufferIndex)
     {
         glDeleteSync(drawpolyVertsSync[subBufferIndex]);
     }
-    
+
     drawpolyVertsSync[subBufferIndex] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 }
 
@@ -2221,10 +2221,10 @@ static void polymost_waitForSubBuffer(uint32_t subBufferIndex)
             if (waitResult == GL_ALREADY_SIGNALED ||
                 waitResult == GL_CONDITION_SATISFIED)
             {
-                
+
                 return;
             }
-            
+
             static char loggedLongWait = false;
             if (waitResult == GL_TIMEOUT_EXPIRED &&
                 !loggedLongWait)
@@ -2244,7 +2244,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 #endif
         (uint32_t)globalpicnum >= MAXTILES)
         return;
-    
+
     const int32_t method_ = method;
 
     if (n == 3)
@@ -2433,7 +2433,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         glAlphaFunc(GL_GREATER, al);
         handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
-        
+
         glEnable(GL_BLEND);
         glEnable(GL_ALPHA_TEST);
     }
@@ -2476,7 +2476,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         globaltinting_apply(pc);
     }
-    
+
     glColor4f(pc[0], pc[1], pc[2], pc[3]);
 
     //Hack for walls&masked walls which use textures that are not a power of 2
@@ -2617,7 +2617,7 @@ do                                                                              
                 drawpolyVerts[(off+i)*5] = (o.x - ghalfx) * r * grhalfxdown10x;
                 drawpolyVerts[(off+i)*5+1] = (ghoriz - o.y) * r * grhalfxdown10;
                 drawpolyVerts[(off+i)*5+2] = r * (1.f / 1024.f);
-                
+
                 //update texcoords
                 drawpolyVerts[(off+i)*5+3] = (p.u * r - du0 + uoffs) * invtsiz2.x;
                 drawpolyVerts[(off+i)*5+4] = p.v * r * invtsiz2.y;
@@ -2650,7 +2650,7 @@ do                                                                              
                 drawpolyVertsOffset = 0;
             }
         }
-        
+
         vec2f_t const scale = { 1.f / tsiz2.x * hacksc.x, 1.f / tsiz2.y * hacksc.y };
         uint32_t off = persistentStreamBuffer ? drawpolyVertsOffset : 0;
         for (bssize_t i = 0; i < npoints; ++i)
@@ -2661,7 +2661,7 @@ do                                                                              
             drawpolyVerts[(off+i)*5] = (px[i] - ghalfx) * r * grhalfxdown10x;
             drawpolyVerts[(off+i)*5+1] = (ghoriz - py[i]) * r * grhalfxdown10;
             drawpolyVerts[(off+i)*5+2] = r * (1.f / 1024.f);
-            
+
             //update texcoords
             drawpolyVerts[(off+i)*5+3] = uu[i] * r * scale.x;
             drawpolyVerts[(off+i)*5+4] = vv[i] * r * scale.y;
@@ -2682,10 +2682,10 @@ do                                                                              
         glMatrixMode(GL_TEXTURE);
         glLoadIdentity();
         glMatrixMode(GL_MODELVIEW);
-        
+
         glClientActiveTexture(texunits);
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-        
+
         glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
         glDisable(GL_TEXTURE_2D);
 
@@ -5130,7 +5130,7 @@ void polymost2_drawsprite(int32_t snum)
 
         break;
     }
-    
+
     //POGO: some comments seem to indicate that spinning sprites were intended to be supported before the
     //      decision was made to implement that behaviour with voxels.
     //      Skip SPIN aligned sprites when not rendering as voxels.
@@ -5165,7 +5165,7 @@ void polymost2_drawsprite(int32_t snum)
         return;
 
     vec2f_t const ftsiz = { (float) tsiz.x, (float) tsiz.y };
-    
+
     //POGOTODO: some of these cases where we return could be done further up in order to skip doing throw away computation
     if ((globalorientation & CSTAT_SPRITE_ALIGNMENT_FLOOR) &&
         (globalorientation & CSTAT_SPRITE_ONE_SIDED) != 0 &&
@@ -5173,16 +5173,16 @@ void polymost2_drawsprite(int32_t snum)
     {
         return;
     }
-    
+
     //POGOTODO: in polymost1 any sprites that are too close are pre-clipped here before any calculation
 
     tilesiz[globalpicnum].x = tsiz.x;
     tilesiz[globalpicnum].y = tsiz.y;
-    
+
     float texScale[2] = {1.0f, -1.0f};
     float texOffset[2] = {((float) (spriteext[spritenum].xpanning) * (1.0f / 255.f)),
                           ((float) (spriteext[spritenum].ypanning) * (1.0f / 255.f))};
-    
+
     float transformMatrix[4*4] =
         {
             1.0f, 0.0f, 0.0f, 0.0f,
@@ -5190,7 +5190,7 @@ void polymost2_drawsprite(int32_t snum)
             0.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f
         };
-    
+
     float modelViewMatrix[4*4] =
         {
             1.0f, 0.0f, 0.0f, 0.0f,
@@ -5198,16 +5198,16 @@ void polymost2_drawsprite(int32_t snum)
             0.0f, 0.0f, 1.0f, 0.0f,
             0.0f, 0.0f, 0.0f, 1.0f
         };
-    
+
     float f = (65536.f*512.f) / (fxdimen*viewingrange);
     float g = 32.f / (fxdimen*gxyaspect);
-    
+
     float horzScale = ftsiz.x*(1.f/64.f);
     float vertScale = ftsiz.y*(1.f/64.f);
 
     horzScale *= ((float)tspr->xrepeat) * (1.f/64.f);
     vertScale *= ((float)tspr->yrepeat) * (1.f/64.f);
-    
+
     if ((globalorientation & CSTAT_SPRITE_ALIGNMENT)==CSTAT_SPRITE_ALIGNMENT_FACING)
     {
         horzScale *= 256.f/320.f;
@@ -5224,16 +5224,16 @@ void polymost2_drawsprite(int32_t snum)
     horzScale *= -2.f*((globalorientation & CSTAT_SPRITE_XFLIP) != 0) + 1.f;
     vertScale *= -2.f*(((globalorientation & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_FLOOR) &
                        ((globalorientation & CSTAT_SPRITE_YFLIP) != 0)) + 1.f;
-    
+
     //POGOTODO: replace this with simply using off.x and a different float for z offsets
     //          switching that over should fix floor sprite offsets so that they flip properly when yflip/xflip is applied
     //handle orientation offsets
     vec2f_t orientationOffset = {0.f, 0.f};
     vec3f_t offs = { 0.f, 0.f, 0.f };
-    
+
     off.x = 0.2f * ((float)tspr->xrepeat) * (((float) off.x) + (tsiz.x & 1)*0.5f*(((globalorientation & CSTAT_SPRITE_XFLIP) == 0)*-2.f + 1.f));
-    off.y = 4.f * ((float)tspr->yrepeat) * (((float) off.y) + (((globalorientation & CSTAT_SPRITE_YCENTER) != 0) & tsiz.y & 1)*0.5f); 
-    
+    off.y = 4.f * ((float)tspr->yrepeat) * (((float) off.y) + (((globalorientation & CSTAT_SPRITE_YCENTER) != 0) & tsiz.y & 1)*0.5f);
+
     int16_t angle = globalang;
     float combinedClipScale = 1.f;
     if ((globalorientation & CSTAT_SPRITE_ALIGNMENT)==CSTAT_SPRITE_ALIGNMENT_FACING)
@@ -5249,7 +5249,7 @@ void polymost2_drawsprite(int32_t snum)
         /*float const foffs = TSPR_OFFSET(tspr);
         offs = { (float) (sintable[(tspr->ang + 512) & 2047] >> 6) * foffs,
                  (float) (sintable[(tspr->ang) & 2047] >> 6) * foffs};*/
-        
+
         //POGOTODO: For now, just handle this exactly the same way as in polymost1.
         //          Eventually, I should change how all sprites avoid z-fighting by offsetting the z-buffer depth
         //          rather than offsetting the entire object in space.
@@ -5258,7 +5258,7 @@ void polymost2_drawsprite(int32_t snum)
         //POGOTODO: this needs to be calculated before I make my adjustments to off.x above!
         float f = (float)(tsiz.x >> 1) + (float)off.x;
         vec2f_t const vf = { extent.x * f, extent.y * f };
-        
+
         int32_t const s = tspr->owner;
         int32_t walldist = 1;
         int32_t w = (s == -1) ? -1 : wsprinfo[s].wall;
@@ -5303,7 +5303,7 @@ void polymost2_drawsprite(int32_t snum)
                          0.f};
             }
         }
-        
+
         //POGO: for full compatibility, facing sprites should also clip similarly (see polymost_drawsprite())
         // Clip sprites to ceilings/floors when no parallaxing
         float fullCenterYOff = off.y + (((globalorientation & CSTAT_SPRITE_YCENTER) != 0) * 2.f)
@@ -5317,7 +5317,7 @@ void polymost2_drawsprite(int32_t snum)
                 //don't draw sprites fully clipped by the ceiling
                 return;
             }
-            
+
             texScale[1] *= clipScale;
             texOffset[1] += (1.f-clipScale)*(-1.f*((globalorientation & CSTAT_SPRITE_YFLIP) == CSTAT_SPRITE_YFLIP));
             vertScale *= clipScale;
@@ -5333,7 +5333,7 @@ void polymost2_drawsprite(int32_t snum)
                 //don't draw sprites fully clipped by the floor
                 return;
             }
-            
+
             texScale[1] *= clipScale;
             texOffset[1] += (1.f-clipScale)*(-1.f*((globalorientation & CSTAT_SPRITE_YFLIP) != CSTAT_SPRITE_YFLIP));
             vertScale *= clipScale;
@@ -5345,23 +5345,23 @@ void polymost2_drawsprite(int32_t snum)
             combinedClipScale = 1.f;
         }
     }
-    
+
     off.x *= ((float) ((globalorientation & CSTAT_SPRITE_XFLIP) != 0))*-2.f + 1.f;
     off.y *= ((float) (((globalorientation & CSTAT_SPRITE_ALIGNMENT) != CSTAT_SPRITE_ALIGNMENT_FACING) &
                        ((globalorientation & CSTAT_SPRITE_YFLIP) != 0)))*-2.f + 1.f;
-    
+
     if ((globalorientation & CSTAT_SPRITE_ALIGNMENT)==CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
         vertScale = -vertScale;
         orientationOffset.x += ftsiz.y*((float) tspr->yrepeat)*(1.f/8.f);
-        
+
         // unfortunately, offsetting by only 1 isn't enough on most Android devices
         if (tspr->z == sec->ceilingz || tspr->z == sec->ceilingz + 1)
             tspr->z = sec->ceilingz + 2, orientationOffset.y += (tspr->owner & 31);
 
         if (tspr->z == sec->floorz || tspr->z == sec->floorz - 1)
             tspr->z = sec->floorz - 2, orientationOffset.y -= ((tspr->owner & 31));
-        
+
         angle = tspr->ang;
     } else
     {
@@ -5369,7 +5369,7 @@ void polymost2_drawsprite(int32_t snum)
                   ((globalorientation & CSTAT_SPRITE_YFLIP) != 0)*-4.f)
                       * combinedClipScale * ftsiz.y * ((float)tspr->yrepeat);
     }
-    
+
     vec3f_t a0;
     a0.x = ((float)(pos.y-globalposy)+offs.y) * -(1.f/1024.f)*-f;
     a0.y = ((float)(pos.x-globalposx)+offs.x) * (1.f/1024.f)*f;
@@ -5377,14 +5377,14 @@ void polymost2_drawsprite(int32_t snum)
     orientationOffset.x *= -(1.f/1024.f)*-f;
     orientationOffset.y *= -(1.f/16384.f)*g;
     calcmat(a0, &orientationOffset, f, modelViewMatrix, angle);
-    
+
     if ((globalorientation & CSTAT_SPRITE_ALIGNMENT)==CSTAT_SPRITE_ALIGNMENT_FLOOR)
     {
         float temp = modelViewMatrix[4]; modelViewMatrix[4] = modelViewMatrix[8]*16.f; modelViewMatrix[8] = -temp*(1.f/16.f);
         temp = modelViewMatrix[5]; modelViewMatrix[5] = modelViewMatrix[9]*16.f; modelViewMatrix[9] = -temp*(1.f/16.f);
         temp = modelViewMatrix[6]; modelViewMatrix[6] = modelViewMatrix[10]*16.f; modelViewMatrix[10] = -temp*(1.f/16.f);
     }
-    
+
     // mirrors
     if (grhalfxdown10x < 0)
     {
@@ -5399,7 +5399,7 @@ void polymost2_drawsprite(int32_t snum)
                        0.0f,    0.0f,  1.0f, fydimen * ratio,
                        0.0f,    0.0f, -1.0f,            0.0f
         };
-    
+
     float scaleMatrix[4*4] =
         {
             horzScale,      0.0f,  0.0f, 0.0f,
@@ -5414,12 +5414,12 @@ void polymost2_drawsprite(int32_t snum)
                              0.0f,                         0.0f,  1.0f, 0.0f,
             -off.x*(1.f/1024.f)*f,      off.y * (1.f/16384.f)*g,  0.0f, 1.0f
         };
-    
+
     multiplyMatrix4f(transformMatrix, scaleMatrix);
     multiplyMatrix4f(transformMatrix, offsetMatrix);
     //POGOTODO: for later optimization purposes (batching/caching), I need to split the modelViewMatrix into modelMatrix and viewMatrix
     multiplyMatrix4f(transformMatrix, modelViewMatrix);
-    
+
     //POGOTODO: I should instead implement one-sided sprites & culling by switching the xflip/yflip from flipping scale to instead flipping texScale
     //          Doing that will allow me to simplify a lot of this code, but it will require a lot of changes
     polymost2_drawVBO(GL_TRIANGLE_STRIP,
@@ -5437,7 +5437,7 @@ void polymost2_drawsprite(int32_t snum)
 
     drawpoly_srepeat = 0;
     drawpoly_trepeat = 0;
-    
+
     tilesiz[globalpicnum] = oldsiz;
 }
 
@@ -5448,7 +5448,7 @@ void polymost_drawsprite(int32_t snum)
         polymost2_drawsprite(snum);
         return;
     }
-    
+
     uspritetype *const tspr = tspriteptr[snum];
 
     if (EDUKE32_PREDICT_FALSE(bad_tspr(tspr)))

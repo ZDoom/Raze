@@ -1643,7 +1643,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
             }
 
             gladLoadGLLoader(SDL_GL_GetProcAddress);
-            
+
             SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
             SDL_GL_SetSwapInterval(vsync_renderlayer);
 
@@ -1792,7 +1792,7 @@ void showframe(int32_t w)
 #ifdef __ANDROID__
         AndroidDrawControls();
 #endif
-        
+
         static uint32_t lastSwapTime = 0;
         SDL_GL_SwapWindow(sdl_window);
         if (vsync)
