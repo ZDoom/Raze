@@ -1048,6 +1048,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         {
             g_screenCapture = 0;
 
+            invalidatetile(TILE_SAVESHOT, 0, 255);
+
             if (getrendermode() == REND_CLASSIC)
             {
                 setviewback();
@@ -4816,10 +4818,6 @@ FAKE_F2:
                 }
 
                 Menu_Change(MENU_SAVE);
-
-                g_screenCapture = 1;
-                G_DrawRooms(myconnectindex,65536);
-                g_screenCapture = 0;
 
                 S_PauseSounds(1);
                 Menu_Open(myconnectindex);
