@@ -2198,7 +2198,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
         if (M_LOAD.currentEntry >= (int32_t)g_nummenusaves)
         {
-            mmenutext(origin.x + (72<<16), origin.y + (100<<16), "Empty");
+            menutext_centeralign(origin.x + (101<<16), origin.y + (97<<16), "Empty");
             break;
         }
 
@@ -2210,8 +2210,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
             if (msv.isOldVer)
             {
-                mmenutext(origin.x + (53<<16), origin.y + (70<<16), "Previous");
-                mmenutext(origin.x + (58<<16), origin.y + (90<<16), "Version");
+                menutext_centeralign(origin.x + (101<<16), origin.y + (97<<16), "Previous\nVersion");
 
 #ifndef EDUKE32_SIMPLE_MENU
                 Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
@@ -2271,8 +2270,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
                 if (g_menusaves[M_SAVE.currentEntry-1].isOldVer)
                 {
-                    mmenutext(origin.x + (53<<16), origin.y + (70<<16), "Previous");
-                    mmenutext(origin.x + (58<<16), origin.y + (90<<16), "Version");
+                    menutext_centeralign(origin.x + (101<<16), origin.y + (97<<16), "Previous\nVersion");
 
 #ifndef EDUKE32_SIMPLE_MENU
                     Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
@@ -2288,7 +2286,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
             }
         }
         else
-            mmenutext(origin.x + (82<<16), origin.y + (100<<16), "New");
+            menutext_centeralign(origin.x + (101<<16), origin.y + (97<<16), "New");
 
         if (ud.multimode > 1)
         {
