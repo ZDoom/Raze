@@ -2221,6 +2221,8 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                          (int32_t)(8*sizeof(intptr_t)));
                 mgametext(origin.x + ((31+16)<<16), origin.y + (114<<16), tempbuf);
 #endif
+
+                break;
             }
 
             if (savehead.numplayers > 1)
@@ -2280,6 +2282,8 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                              (int32_t)(8*sizeof(intptr_t)));
                     mgametext(origin.x + ((31+16)<<16), origin.y + (114<<16), tempbuf);
 #endif
+
+                    break;
                 }
             }
         }
@@ -3840,7 +3844,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
         Menu_ReadSaveGameHeaders();
 
         for (size_t i = 0; i < g_nummenusaves; ++i)
-            MenuEntry_LookDisabledOnCondition(&ME_LOAD[i], g_menusaves[i].isOldVer);
+            MenuEntry_DisableOnCondition(&ME_LOAD[i], g_menusaves[i].isOldVer);
 
         if (g_quickload && g_quickload->isValid())
         {
