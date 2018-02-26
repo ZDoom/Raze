@@ -3542,7 +3542,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         }
 #endif
 
-        Win_SetKeyboardLayoutUS(appactive);
+        // Win_SetKeyboardLayoutUS(appactive);
 
         if (backgroundidle)
             SetPriorityClass(GetCurrentProcess(),

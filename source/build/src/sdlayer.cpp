@@ -2356,7 +2356,7 @@ int32_t handleevents_pollsdl(void)
                         if (mousegrab && moustat)
                             grabmouse_low(appactive);
 #ifdef _WIN32
-                        Win_SetKeyboardLayoutUS(appactive);
+                        // Win_SetKeyboardLayoutUS(appactive);
 
                         if (backgroundidle)
                             SetPriorityClass(GetCurrentProcess(), appactive ? NORMAL_PRIORITY_CLASS : IDLE_PRIORITY_CLASS);
