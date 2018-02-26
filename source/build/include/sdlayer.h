@@ -37,26 +37,29 @@ int32_t SDL_WaitEventTimeout(SDL_Event *event, int32_t timeout);
     }
 
 #define SDL_ADDMODE(x, y, c, f)                                                                                        \
-    do                                                                                                                 \
     {                                                                                                                  \
-        if (validmodecnt < MAXVALIDMODES)                                                                              \
+        int fullscreen;                                                                                                \
+        for (fullscreen = f; fullscreen >= 0; --fullscreen)                                                            \
         {                                                                                                              \
-            int32_t mn;                                                                                                \
-            for (mn = 0; mn < validmodecnt; mn++)                                                                      \
-                if (validmode[mn].xdim == x && validmode[mn].ydim == y && validmode[mn].bpp == c &&                    \
-                    validmode[mn].fs == f)                                                                             \
-                    break;                                                                                             \
-            if (mn == validmodecnt)                                                                                    \
+            if (validmodecnt < MAXVALIDMODES)                                                                          \
             {                                                                                                          \
-                validmode[validmodecnt].xdim = x;                                                                      \
-                validmode[validmodecnt].ydim = y;                                                                      \
-                validmode[validmodecnt].bpp = c;                                                                       \
-                validmode[validmodecnt].fs = f;                                                                        \
-                validmodecnt++;                                                                                        \
-                /*initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed");*/                       \
+                int32_t mn;                                                                                            \
+                for (mn = 0; mn < validmodecnt; mn++)                                                                  \
+                    if (validmode[mn].xdim == x && validmode[mn].ydim == y && validmode[mn].bpp == c &&                \
+                        validmode[mn].fs == fullscreen)                                                                \
+                        break;                                                                                         \
+                if (mn == validmodecnt)                                                                                \
+                {                                                                                                      \
+                    validmode[validmodecnt].xdim = x;                                                                  \
+                    validmode[validmodecnt].ydim = y;                                                                  \
+                    validmode[validmodecnt].bpp = c;                                                                   \
+                    validmode[validmodecnt].fs = fullscreen;                                                           \
+                    validmodecnt++;                                                                                    \
+                    /*initprintf("  - %dx%d %d-bit %s\n", x, y, c, (fullscreen&1)?"fullscreen":"windowed");*/          \
+                }                                                                                                      \
             }                                                                                                          \
         }                                                                                                              \
-    } while (0)
+    }
 
 #define SDL_CHECKMODE(w, h) ((w < MAXXDIM) && (h < MAXYDIM) && (w >= MINXDIM) && (h >= MINYDIM) && (((float)w/(float)h) >= 1.3f))
 

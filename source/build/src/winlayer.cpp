@@ -1655,16 +1655,23 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 //
 // getvalidmodes() -- figure out what video modes are available
 //
-#define ADDMODE(x,y,c,f,n) if (validmodecnt<MAXVALIDMODES) { \
-    validmode[validmodecnt].xdim=x; \
-    validmode[validmodecnt].ydim=y; \
-    validmode[validmodecnt].bpp=c; \
-    validmode[validmodecnt].fs=f; \
-    validmode[validmodecnt].extra=n; \
-    validmodecnt++; \
-}
-/*	initprintf("  - %dx%d %d-bit %s\n", x, y, c, (f&1)?"fullscreen":"windowed"); \
-} */
+#define ADDMODE(x,y,c,f,n)                                                                          \
+    {                                                                                               \
+        int fullscreen;                                                                             \
+        for (fullscreen = f; fullscreen >= 0; --fullscreen)                                         \
+        {                                                                                           \
+            if (validmodecnt<MAXVALIDMODES)                                                         \
+            {                                                                                       \
+                validmode[validmodecnt].xdim=x;                                                     \
+                validmode[validmodecnt].ydim=y;                                                     \
+                validmode[validmodecnt].bpp=c;                                                      \
+                validmode[validmodecnt].fs=fullscreen;                                              \
+                validmode[validmodecnt].extra=n;                                                    \
+                validmodecnt++;                                                                     \
+/*           initprintf("  - %dx%d %d-bit %s\n", x, y, c, (fullscreen&1)?"fullscreen":"windowed");*/\
+            }                                                                                       \
+        }                                                                                           \
+    }
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
