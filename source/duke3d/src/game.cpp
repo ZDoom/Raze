@@ -6596,6 +6596,8 @@ MAIN_LOOP_RESTART:
     lockclock = 0;
 
     g_player[myconnectindex].ps->fta = 0;
+    for (size_t q = 0; q < MAXUSERQUOTES; ++q)
+        user_quote_time[q] = 0;
 
     Menu_Change(MENU_MAIN);
 
