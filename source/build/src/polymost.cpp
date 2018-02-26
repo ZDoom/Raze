@@ -6427,8 +6427,8 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     }
 
     vec2f_t const fofs = { (float)ofs.x, (float)ofs.y };
-    float const cx = (float)sx * (1.0f / 65536.f) - fofs.x * cosang2 + fofs.y * sinang2;
-    float const cy = (float)sy * (1.0f / 65536.f) - fofs.x * sinang  - fofs.y * cosang;
+    float const cx = floorf((float)sx * (1.0f / 65536.f) - fofs.x * cosang2 + fofs.y * sinang2);
+    float const cy = floorf((float)sy * (1.0f / 65536.f) - fofs.x * sinang  - fofs.y * cosang);
 
     vec2f_t pxy[8] = { { cx, cy },
                        { cx + (float)siz.x * cosang2, cy + (float)siz.x * sinang },
@@ -6437,6 +6437,13 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
 
     pxy[2].x = pxy[1].x + pxy[3].x - pxy[0].x;
     pxy[2].y = pxy[1].y + pxy[3].y - pxy[0].y;
+
+    // Round after calculating pxy[2] so that it is calculated correctly
+    // Rounding pxy[0].x & pxy[0].y is unnecessary so long as pxy[0] can never have fractional values
+    //pxy[0].x = roundf(pxy[0].x); pxy[0].y = roundf(pxy[0].y);
+    pxy[1].x = roundf(pxy[1].x); pxy[1].y = roundf(pxy[1].y);
+    pxy[2].x = roundf(pxy[2].x); pxy[2].y = roundf(pxy[2].y);
+    pxy[3].x = roundf(pxy[3].x); pxy[3].y = roundf(pxy[3].y);
 
     int32_t n = 4;
 
