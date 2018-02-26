@@ -133,6 +133,10 @@ void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
     }
 }
 
+#if defined SDL_TARGET && SDL_TARGET > 1
+# include "sdl_inc.h"
+#endif
+
 void CONFIG_SetDefaults(void)
 {
     // JBF 20031211
@@ -152,11 +156,28 @@ void CONFIG_SetDefaults(void)
     ud.config.ScreenWidth = droidinfo.screen_width;
     ud.config.ScreenHeight = droidinfo.screen_height;
 #else
-    ud.config.ScreenWidth = 1024;
-    ud.config.ScreenHeight = 768;
+# if defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
+    uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
+    if (inited == 0)
+        SDL_Init(SDL_INIT_VIDEO);
+    else if (!(inited & SDL_INIT_VIDEO))
+        SDL_InitSubSystem(SDL_INIT_VIDEO);
+
+    SDL_DisplayMode dm;
+    if (SDL_GetDesktopDisplayMode(0, &dm) == 0)
+    {
+        ud.config.ScreenWidth = dm.w;
+        ud.config.ScreenHeight = dm.h;
+    }
+    else
+# endif
+    {
+        ud.config.ScreenWidth = 1024;
+        ud.config.ScreenHeight = 768;
+    }
 #endif
 
-    ud.config.ScreenMode = 0;
+    ud.config.ScreenMode = 1;
 
 #ifdef USE_OPENGL
     ud.config.ScreenBPP = 32;
