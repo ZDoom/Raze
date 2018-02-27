@@ -38,7 +38,7 @@ extern "C" {
 // KEEPINSYNC lunatic/con_lang.lua
 #define MAXSOUNDS           4096
 #define MAXSOUNDINSTANCES   8
-#define LOUDESTVOLUME       150
+#define LOUDESTVOLUME       111
 #define MUSIC_ID            -65536
 
 #define FX_VOLUME(x) (ud.config.FXVolume > 0 ? scale(x, 255, ud.config.FXVolume) : 0)

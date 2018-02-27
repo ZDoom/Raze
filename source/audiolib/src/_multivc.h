@@ -49,7 +49,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MV_MAXPANPOSITION  127  /* formerly 31 */
 #define MV_NUMPANPOSITIONS ( MV_MAXPANPOSITION + 1 )
 #define MV_MAXTOTALVOLUME  255
-#define MV_MAXVOLUME       255  /* formerly 63 */
+#define MV_MAXVOLUME       127  /* formerly 63 */
 #define MV_NUMVOICES       8
 
 // mirrors FX_MUSIC_PRIORITY from fx_man.h
