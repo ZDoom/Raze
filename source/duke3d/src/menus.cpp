@@ -1987,7 +1987,7 @@ static void Menu_Pre(MenuID_t cm)
 
     case MENU_OPTIONS:
         MenuEntry_DisableOnCondition(&ME_OPTIONS_PLAYERSETUP, ud.recstat == 1);
-        MenuEntry_DisableOnCondition(&ME_OPTIONS_JOYSTICKSETUP, CONTROL_JoyPresent == 0);
+        MenuEntry_HideOnCondition(&ME_OPTIONS_JOYSTICKSETUP, !ud.config.UseJoystick || CONTROL_JoyPresent == 0);
         break;
 
     case MENU_COLCORR:
