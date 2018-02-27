@@ -2509,15 +2509,21 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 static inline void pushDisableFog(void)
 {
 #ifdef USE_OPENGL
-    glPushAttrib(GL_ENABLE_BIT);
-    glDisable(GL_FOG);
+    if (getrendermode() >= REND_POLYMOST)
+    {
+        glPushAttrib(GL_ENABLE_BIT);
+        glDisable(GL_FOG);
+    }
 #endif
 }
 
 static inline void popDisableFog(void)
 {
 #ifdef USE_OPENGL
-    glPopAttrib();
+    if (getrendermode() >= REND_POLYMOST)
+    {
+        glPopAttrib();
+    }
 #endif
 }
 
@@ -3264,7 +3270,10 @@ static int32_t OnSelectTile(int32_t tileNum)
 
     setpolymost2dview();
 #ifdef USE_OPENGL
-    glEnable(GL_TEXTURE_2D);
+    if (getrendermode() >= REND_POLYMOST)
+    {
+        glEnable(GL_TEXTURE_2D);
+    }
 #endif
     clearview(-1);
 
