@@ -479,7 +479,7 @@ extern int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 // use 16 anyway :P
 # define MOUSEUSEALPHA (getrendermode() != REND_CLASSIC || numalphatabs >= 15)
 # define MOUSEALPHA (MOUSEUSEALPHA ? clamp((totalclock - m_mouselastactivity - 90)*3, 0, 255) : 0)
-# define CURSORALPHA (MOUSEUSEALPHA ? clamp((totalclock - m_mouselastactivity - 90)*2 + (255/3), (255/3), 255) : 0)
+# define CURSORALPHA (MOUSEUSEALPHA ? clamp((totalclock - m_mouselastactivity - 90)*2 + (255/3), (255/3), 255) : 255/3)
 # define MOUSEACTIVECONDITION (totalclock - m_mouselastactivity < M_MOUSETIMEOUT)
 # define MOUSEACTIVECONDITIONAL(condition) (MOUSEACTIVECONDITION && (condition))
 # define MOUSEINACTIVECONDITIONAL(condition) (!MOUSEACTIVECONDITION && (condition))

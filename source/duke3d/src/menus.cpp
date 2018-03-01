@@ -6765,6 +6765,12 @@ void M_DisplayMenus(void)
     // Display the mouse cursor, except on touch devices.
     if (MOUSEACTIVECONDITION)
     {
+        if (VM_HaveEvent(EVENT_DISPLAYCURSOR))
+        {
+            ud.returnvar[0] = m_mousepos.x;
+            ud.returnvar[1] = m_mousepos.y;
+            ud.returnvar[2] = CURSORALPHA;
+        }
         int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYCURSOR, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
 
         if ((unsigned) a < MAXTILES)
@@ -6780,7 +6786,7 @@ void M_DisplayMenus(void)
                 setaspect(viewingrange, 65536);
                 cursorpos.x = scale(cursorpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
                 cursorpos.y = scale(cursorpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15);
-                z = scale(65536, ydim << 2, xdim * 3);
+                z = scale(z, ydim << 2, xdim * 3);
                 p = 0;
                 o |= 1024;
             }
