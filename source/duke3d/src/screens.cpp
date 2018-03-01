@@ -1147,13 +1147,6 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 
-    if (VM_HaveEvent(EVENT_DISPLAYREST))
-    {
-        int32_t vr=viewingrange, asp=yxaspect;
-        VM_OnEvent_(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek);
-        setaspect(vr, asp);
-    }
-
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.crosshair && ud.camerasprite == -1)
     {
         ud.returnvar[0] = (160<<16) - (g_player[myconnectindex].ps->look_ang<<15);
@@ -1229,6 +1222,13 @@ void G_DisplayRest(int32_t smoothratio)
         }
     }
 #endif
+
+    if (VM_HaveEvent(EVENT_DISPLAYREST))
+    {
+        int32_t vr=viewingrange, asp=yxaspect;
+        VM_OnEvent_(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek);
+        setaspect(vr, asp);
+    }
 
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
         menutext_center(100, "Game Paused");
