@@ -1301,7 +1301,7 @@ int32_t A_InsertSprite(int16_t whatsect,int32_t s_x,int32_t s_y,int32_t s_z,int1
 {
     int32_t i = Net_IsRelevantStat(s_ss) ? Net_InsertSprite(whatsect, s_ss) : insertsprite(whatsect, s_ss);
 
-    if (EDUKE32_PREDICT_FALSE(i) < 0)
+    if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXSPRITES))
     {
         G_DumpDebugInfo();
         OSD_Printf("Failed spawning pic %d spr from pic %d spr %d at x:%d,y:%d,z:%d,sect:%d\n",
