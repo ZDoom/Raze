@@ -876,10 +876,11 @@ int __fastcall Gv_GetSpecialVarX(int gameVar)
     else if (gameVar & (MAXGAMEVARS << 3))  // struct shortcut vars
     {
         int       arrayIndexVar = *insptr++;
-        int       arrayIndex    = Gv_GetVarX(arrayIndexVar);
+        auto const structIndex  = (gameVar & (MAXGAMEVARS - 1)) - g_structVarIDs;
+        int       arrayIndex    = structIndex != STRUCT_USERDEF ? Gv_GetVarX(arrayIndexVar) : -1;
         int const labelNum      = *insptr++;
 
-        switch ((gameVar & (MAXGAMEVARS - 1)) - g_structVarIDs)
+        switch (structIndex)
         {
             case STRUCT_SPRITE:
                 arrayIndexVar = (EDUKE32_PREDICT_FALSE(ActorLabels[labelNum].flags & LABEL_HASPARM2)) ? Gv_GetVarX(*insptr++) : 0;
