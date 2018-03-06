@@ -2013,7 +2013,7 @@ ACTOR_STATIC void G_MoveStandables(void)
         }
         else if (pSprite->picnum >= CRACK1 && pSprite->picnum <= CRACK4)
         {
-            if (pSprite->hitag > 0)
+            if (pSprite->hitag)
             {
                 pData[0] = pSprite->cstat;
                 pData[1] = pSprite->ang;
