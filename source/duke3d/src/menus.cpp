@@ -4338,6 +4338,14 @@ static void Menu_RunScrollbar(Menu_t *cm, MenuMenuFormat_t const * const format,
 
         if (scrollTile >= 0)
         {
+            // draw the scrollbar (minus the top tile) twice to fill the gaps between tiles
+            if (tilesiz[scrollTile].y > 0)
+            {
+                for (int32_t y = scrollregionstart + ((tilesiz[scrollTileTop].y == 0)*tilesiz[scrollTile].y*ud.menu_scrollbarz); y < scrollregionend; y += tilesiz[scrollTile].y*ud.menu_scrollbarz)
+                    rotatesprite(scrollx, y - (ud.menu_scrollbarz>>1), ud.menu_scrollbarz, 0, scrollTile, 0, 0, 26, 0, 0, xdim-1, mulscale16(scrollregionend, ydim*200)-1);
+            }
+            rotatesprite_fs(scrollx, scrollregionend - (ud.menu_scrollbarz>>1), ud.menu_scrollbarz, 0, scrollTileBottom, 0, 0, 26);
+
             if (tilesiz[scrollTile].y > 0)
             {
                 for (int32_t y = scrollregionstart; y < scrollregionend; y += tilesiz[scrollTile].y*ud.menu_scrollbarz)
