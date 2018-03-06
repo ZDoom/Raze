@@ -6794,7 +6794,7 @@ void M_DisplayMenus(void)
                 setaspect(viewingrange, 65536);
                 cursorpos.x = scale(cursorpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
                 cursorpos.y = scale(cursorpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15);
-                z = scale(z, ydim << 2, xdim * 3);
+                z = scale(32768, ydim << 2, xdim * 3);
                 p = 0;
                 o |= 1024;
             }
