@@ -6759,23 +6759,6 @@ MAIN_LOOP_RESTART:
             while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
         }
 
-        // handle CON_SAVE and CON_SAVENN
-        if (g_saveRequested)
-        {
-            KB_FlushKeyboardQueue();
-
-            g_screenCapture = 1;
-            G_DrawRooms(myconnectindex, 65536);
-            g_screenCapture = 0;
-
-            G_SavePlayerMaybeMulti(g_lastautosave);
-            g_quickload = &g_lastautosave;
-
-            OSD_Printf("Saved: %s\n", g_lastautosave.path);
-
-            g_saveRequested = false;
-        }
-
         G_DoCheats();
 
         if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
@@ -6790,10 +6773,8 @@ MAIN_LOOP_RESTART:
         if (g_networkMode == NET_DEDICATED_SERVER)
         {
             idle();
-            goto skipframe;
         }
-
-        if (G_FPSLimit())
+        else if (G_FPSLimit() || g_saveRequested)
         {
             int const smoothRatio
             = ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm & MODE_MENU))
@@ -6808,7 +6789,24 @@ MAIN_LOOP_RESTART:
             G_DisplayRest(smoothRatio);
         }
 
-skipframe:
+        // handle CON_SAVE and CON_SAVENN
+        if (g_saveRequested)
+        {
+            KB_FlushKeyboardQueue();
+            nextpage();
+
+            g_screenCapture = 1;
+            G_DrawRooms(myconnectindex, 65536);
+            g_screenCapture = 0;
+
+            G_SavePlayerMaybeMulti(g_lastautosave);
+            g_quickload = &g_lastautosave;
+
+            OSD_Printf("Saved: %s\n", g_lastautosave.path);
+
+            g_saveRequested = false;
+        }
+
         if (g_player[myconnectindex].ps->gm&MODE_DEMO)
             goto MAIN_LOOP_RESTART;
     }
