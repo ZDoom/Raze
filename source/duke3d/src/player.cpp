@@ -1632,7 +1632,7 @@ static void P_DisplaySpit(void)
     {
         int const rotAng = klabs(sintable[((loogCounter + i) << 5) & 2047]) >> 5;
         int const rotZoom  = 4096 + ((loogCounter + i) << 9);
-        int const rotX     = (-fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 1) + (sintable[((loogCounter + i) << 6) & 2047] >> 10);
+        int const rotX     = (-fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 1) + (sintable[((loogCounter + i) << 6) & 2047] >> 10);
 
         rotatesprite_fs((pPlayer->loogiex[i] + rotX) << 16, (200 + pPlayer->loogiey[i] - rotY) << 16, rotZoom - (i << 8),
                         256 - rotAng, LOOGIE, 0, 0, 2);
@@ -1683,7 +1683,7 @@ static int P_DisplayFist(int const fistShade)
         wx[(g_snum==0)] = (wx[0]+wx[1])/2+1;
 #endif
 
-    rotatesprite((-fistInc + 222 + (fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 5)) << 16, (fistY + fistYOffset) << 16,
+    rotatesprite((-fistInc + 222 + (fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 5)) << 16, (fistY + fistYOffset) << 16,
                  fistZoom, 0, FIST, fistShade, fistPal, 2, wx[0], windowxy1.y, wx[1], windowxy2.y);
 
     return 1;
@@ -1830,7 +1830,7 @@ static int P_DisplayKnee(int kneeShade)
     if (kneePal == 0)
         kneePal = ps->palookup;
 
-    G_DrawTileScaled(105+(fix16_to_int(g_player[screenpeek].inputBits->qavel)>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
+    G_DrawTileScaled(105+(fix16_to_int(g_player[screenpeek].inputBits->q16avel)>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
                      kneeY+280-(fix16_to_int(ps->q16horiz-ps->q16horizoff)>>4),KNEE,kneeShade,4+DRAWEAP_CENTER,kneePal);
 
     return 1;
@@ -1860,7 +1860,7 @@ static int P_DisplayKnuckles(int knuckleShade)
     int const knuckleY   = (klabs(pPlayer->look_ang) / 9) - (pPlayer->hard_landing << 3);
     int const knucklePal = P_GetHudPal(pPlayer);
 
-    G_DrawTileScaled(160 + (fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 5) - (pPlayer->look_ang >> 1),
+    G_DrawTileScaled(160 + (fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 5) - (pPlayer->look_ang >> 1),
                      knuckleY + 180 - (fix16_to_int(pPlayer->q16horiz - pPlayer->q16horizoff) >> 4),
                      CRACKKNUCKLES + knuckleFrames[pPlayer->knuckle_incs >> 1], knuckleShade, 4 + DRAWEAP_CENTER,
                      knucklePal);
@@ -2015,7 +2015,7 @@ static int P_DisplayTip(int tipShade)
 
     guniqhudid = 201;
 
-    G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 5) - (pPlayer->look_ang >> 1),
+    G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 5) - (pPlayer->look_ang >> 1),
                      tipYOffset + tipY + 240 - (fix16_to_int(pPlayer->q16horiz - pPlayer->q16horizoff) >> 4),
                      TIP + ((26 - pPlayer->tipincs) >> 4), tipShade, DRAWEAP_CENTER, tipPal);
 
@@ -2048,13 +2048,13 @@ static int P_DisplayAccess(int accessShade)
 
     if ((pSprite->access_incs - 3) > 0 && (pSprite->access_incs - 3) >> 3)
     {
-        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 5) - (pSprite->look_ang >> 1) + accessX,
+        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 5) - (pSprite->look_ang >> 1) + accessX,
                          accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4),
                          HANDHOLDINGLASER + (pSprite->access_incs >> 3), accessShade, DRAWEAP_CENTER, accessPal);
     }
     else
     {
-        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 5) - (pSprite->look_ang >> 1) + accessX,
+        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->q16avel) >> 5) - (pSprite->look_ang >> 1) + accessX,
                          accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4), HANDHOLDINGACCESS, accessShade,
                          4 + DRAWEAP_CENTER, accessPal);
     }
@@ -2887,7 +2887,7 @@ void P_GetInput(int playerNum)
     // JBF: Run key behaviour is selectable
     int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
 
-    staticInput.svel = staticInput.fvel = staticInput.qavel = staticInput.qhorz = 0;
+    staticInput.svel = staticInput.fvel = staticInput.q16avel = staticInput.q16horz = 0;
 
     if (BUTTON(gamefunc_Strafe))
     {
@@ -2897,11 +2897,11 @@ void P_GetInput(int playerNum)
         dyaw = (info[0].dyaw + dyaw) % 8;
     }
     else
-        staticInput.qavel = fix16_div(fix16_from_int(info[0].dyaw), F16(32));
+        staticInput.q16avel = fix16_div(fix16_from_int(info[0].dyaw), F16(32));
 
-    staticInput.qhorz = fix16_div(fix16_from_int(info[0].dpitch), F16(256));
+    staticInput.q16horz = fix16_div(fix16_from_int(info[0].dpitch), F16(256));
 
-    if (ud.mouseflip) staticInput.qhorz = -staticInput.qhorz;
+    if (ud.mouseflip) staticInput.q16horz = -staticInput.q16horz;
 
     staticInput.svel -= info[0].dx;
     staticInput.fvel = -info[0].dz >> 6;
@@ -2923,12 +2923,12 @@ void P_GetInput(int playerNum)
         if (BUTTON(gamefunc_Turn_Left))
         {
             turnHeldTime += elapsedTics;
-            staticInput.qavel -= fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
+            staticInput.q16avel -= fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
         }
         else if (BUTTON(gamefunc_Turn_Right))
         {
             turnHeldTime += elapsedTics;
-            staticInput.qavel += fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
+            staticInput.q16avel += fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
         }
         else
             turnHeldTime=0;
@@ -2948,8 +2948,8 @@ void P_GetInput(int playerNum)
 
     staticInput.fvel = clamp(staticInput.fvel, -MAXVEL, MAXVEL);
     staticInput.svel = clamp(staticInput.svel, -MAXSVEL, MAXSVEL);
-    staticInput.qavel = fix16_clamp(staticInput.qavel, F16(-MAXANGVEL), F16(MAXANGVEL));
-    staticInput.qhorz = fix16_clamp(staticInput.qhorz, F16(-MAXHORIZ), F16(MAXHORIZ));
+    staticInput.q16avel = fix16_clamp(staticInput.q16avel, F16(-MAXANGVEL), F16(MAXANGVEL));
+    staticInput.q16horz = fix16_clamp(staticInput.q16horz, F16(-MAXHORIZ), F16(MAXHORIZ));
 
     int weaponSelection;
 
@@ -3001,7 +3001,7 @@ void P_GetInput(int playerNum)
     localInput.bits |= BUTTON(gamefunc_Center_View) << SK_CENTER_VIEW;
     localInput.bits |= BUTTON(gamefunc_Holster_Weapon) << SK_HOLSTER;
     localInput.bits |= (BUTTON(gamefunc_Inventory_Left) ||
-                 (BUTTON(gamefunc_Dpad_Select) && (staticInput.svel > 0 || staticInput.qavel < 0))) << SK_INV_LEFT;
+                 (BUTTON(gamefunc_Dpad_Select) && (staticInput.svel > 0 || staticInput.q16avel < 0))) << SK_INV_LEFT;
     localInput.bits |= KB_KeyPressed(sc_Pause) << SK_PAUSE;
     localInput.bits |= BUTTON(gamefunc_Quick_Kick) << SK_QUICK_KICK;
     localInput.bits |= g_myAimMode << SK_AIMMODE;
@@ -3009,7 +3009,7 @@ void P_GetInput(int playerNum)
     localInput.bits |= BUTTON(gamefunc_Jetpack) << SK_JETPACK;
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
     localInput.bits |= (BUTTON(gamefunc_Inventory_Right) ||
-                 (BUTTON(gamefunc_Dpad_Select) && (staticInput.svel < 0 || staticInput.qavel > 0))) << SK_INV_RIGHT;
+                 (BUTTON(gamefunc_Dpad_Select) && (staticInput.svel < 0 || staticInput.q16avel > 0))) << SK_INV_RIGHT;
     localInput.bits |= BUTTON(gamefunc_TurnAround) << SK_TURNAROUND;
     localInput.bits |= BUTTON(gamefunc_Open) << SK_OPEN;
     localInput.bits |= BUTTON(gamefunc_Inventory) << SK_INVENTORY;
@@ -3019,7 +3019,7 @@ void P_GetInput(int playerNum)
     {
         staticInput.fvel = 0;
         staticInput.svel = 0;
-        staticInput.qavel = 0;
+        staticInput.q16avel = 0;
     }
 
     if (BUTTON(gamefunc_Dpad_Aiming))
@@ -3045,11 +3045,11 @@ void P_GetInput(int playerNum)
     if (ud.scrollmode && ud.overhead_on)
     {
         ud.folfvel = staticInput.fvel;
-        ud.folavel = fix16_to_int(staticInput.qavel);
+        ud.folavel = fix16_to_int(staticInput.q16avel);
         localInput.fvel   = 0;
         localInput.svel   = 0;
-        localInput.qavel  = 0;
-        localInput.qhorz  = 0;
+        localInput.q16avel  = 0;
+        localInput.q16horz  = 0;
         return;
     }
 
@@ -3063,8 +3063,8 @@ void P_GetInput(int playerNum)
                       mulscale9(staticInput.svel, sintable[(q16ang + 1536) & 2047]) +
                       pPlayer->fric.y;
 
-    localInput.qavel = staticInput.qavel;
-    localInput.qhorz = staticInput.qhorz;
+    localInput.q16avel = staticInput.q16avel;
+    localInput.q16horz = staticInput.q16horz;
 }
 
 static int32_t P_DoCounters(int playerNum)
@@ -5073,9 +5073,9 @@ void P_ProcessInput(int playerNum)
         pPlayer->vel.x   = 0;
         pPlayer->vel.y   = 0;
     }
-    else if (g_player[playerNum].inputBits->qavel)            //p->ang += syncangvel * constant
+    else if (g_player[playerNum].inputBits->q16avel)            //p->ang += syncangvel * constant
     {
-        fix16_t const inputAng  = g_player[playerNum].inputBits->qavel;
+        fix16_t const inputAng  = g_player[playerNum].inputBits->q16avel;
 
         pPlayer->q16angvel     = (sectorLotag == ST_2_UNDERWATER) ? fix16_mul(inputAng - (inputAng >> 3), fix16_from_int(ksgn(velocityModifier)))
                                                                : fix16_mul(inputAng, fix16_from_int(ksgn(velocityModifier)));
@@ -5123,10 +5123,10 @@ void P_ProcessInput(int playerNum)
     if (g_player[playerNum].inputBits->extbits & (1 << 2)) VM_OnEvent(EVENT_STRAFELEFT,   pPlayer->i, playerNum);
     if (g_player[playerNum].inputBits->extbits & (1 << 3)) VM_OnEvent(EVENT_STRAFERIGHT,  pPlayer->i, playerNum);
 
-    if (g_player[playerNum].inputBits->extbits & (1 << 4) || g_player[playerNum].inputBits->qavel < 0)
+    if (g_player[playerNum].inputBits->extbits & (1 << 4) || g_player[playerNum].inputBits->q16avel < 0)
         VM_OnEvent(EVENT_TURNLEFT, pPlayer->i, playerNum);
 
-    if (g_player[playerNum].inputBits->extbits & (1 << 5) || g_player[playerNum].inputBits->qavel > 0)
+    if (g_player[playerNum].inputBits->extbits & (1 << 5) || g_player[playerNum].inputBits->q16avel > 0)
         VM_OnEvent(EVENT_TURNRIGHT, pPlayer->i, playerNum);
 
     if (pPlayer->vel.x || pPlayer->vel.y || g_player[playerNum].inputBits->fvel || g_player[playerNum].inputBits->svel)
@@ -5371,7 +5371,7 @@ HORIZONLY:;
         if (pPlayer->q16horizoff > F16(-5) && pPlayer->q16horizoff < F16(5)) pPlayer->q16horizoff = 0;
     }
 
-    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz + g_player[playerNum].inputBits->qhorz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz + g_player[playerNum].inputBits->q16horz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
     //Shooting code/changes
 
