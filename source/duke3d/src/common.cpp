@@ -321,7 +321,7 @@ void G_ExtInit(void)
 #elif defined(GEKKO)
                       "apps/" APPBASENAME
 #else
-                      "." APPBASENAME
+                      ".config/" APPBASENAME
 #endif
                       ,homedir);
             asperr = addsearchpath(cwd);
