@@ -906,9 +906,9 @@ int32_t __fastcall VM_GetPlayerInput(int32_t const playerNum, int32_t labelNum)
 
     switch (labelNum)
     {
-        case INPUT_AVEL:    labelNum = fix16_to_int(i->q16avel); break;
+        case INPUT_AVEL:    labelNum = (i->q16avel >> 16); break;
         case INPUT_Q16AVEL: labelNum = i->q16avel; break;
-        case INPUT_HORZ:    labelNum = fix16_to_int(i->q16horz); break;
+        case INPUT_HORZ:    labelNum = (i->q16horz >> 16); break;
         case INPUT_Q16HORZ: labelNum = i->q16horz; break;
         case INPUT_FVEL:    labelNum = i->fvel; break;
         case INPUT_SVEL:    labelNum = i->svel; break;
