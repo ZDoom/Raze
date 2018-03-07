@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define player_h_
 
 #include "inv.h"
+#include "fix16.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -119,7 +120,8 @@ typedef struct {
 typedef struct {
     uint32_t bits;
     int16_t fvel, svel, avel;
-    int8_t horz, extbits;
+    fix16_t qhorz;
+    int8_t extbits;
 } input_t;
 
 #pragma pack(push,1)
@@ -155,7 +157,7 @@ typedef struct {
     int16_t max_ammo_amount[MAX_WEAPONS], ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
     int16_t wackedbyactor, pyoff, opyoff;
 
-    int16_t horiz, horizoff, ohoriz, ohorizoff;
+    fix16_t qhoriz, qhorizoff, oqhoriz, oqhorizoff;
     int16_t newowner, jumping_counter, airleft;
     int16_t fta, ftq, access_wallnum, access_spritenum;
     int16_t got_access, weapon_ang, visibility;

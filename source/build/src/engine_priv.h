@@ -205,6 +205,7 @@ extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern intptr_t frameoffset;
 extern int32_t globalposx, globalposy, globalposz, globalhoriz;
+extern fix16_t qglobalhoriz;
 extern float fglobalposx, fglobalposy, fglobalposz;
 extern int16_t globalang, globalcursectnum;
 extern int32_t globalpal, cosglobalang, singlobalang;

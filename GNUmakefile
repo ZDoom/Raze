@@ -201,6 +201,8 @@ engine_objs := \
     mhk.cpp \
     pngwrite.cpp \
     miniz.c \
+    fix16.c \
+    fix16_str.c \
 
 engine_editor_objs := \
     build.cpp \

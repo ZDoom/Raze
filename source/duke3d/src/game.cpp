@@ -334,7 +334,7 @@ static void M32_drawdebug(void)
 #endif
 
 
-static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int32_t ang, int32_t horiz)
+static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int32_t ang, fix16_t qhoriz)
 {
     spritetype *sp = &sprite[pp->i];
     int32_t i, hx, hy;
@@ -344,7 +344,7 @@ static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vs
     vec3_t n = {
         sintable[(ang+1536)&2047]>>4,
         sintable[(ang+1024)&2047]>>4,
-        (horiz-100)*128
+        fix16_mul(qhoriz-F16(100), F16(128))
     };
 
     updatesectorz(vect->x,vect->y,vect->z,vsectnum);
@@ -522,7 +522,7 @@ static void G_SE40(int32_t smoothratio)
                 polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), CAMERA(ang), smoothratio);
 #endif
             drawrooms(sprite[sprite2].x + x, sprite[sprite2].y + y,
-                      z + renderz, CAMERA(ang), CAMERA(horiz), sect);
+                      z + renderz, CAMERA(ang), CAMERA(qhoriz), sect);
             drawing_ror = 1 + level;
 
             if (drawing_ror == 2) // viewing from top
@@ -555,7 +555,7 @@ static void G_SE40(int32_t smoothratio)
 }
 #endif
 
-void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio)
+void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, fix16_t qhoriz, int32_t smoothratio)
 {
     if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
 #ifdef POLYMER
@@ -616,12 +616,12 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, i
                 int32_t didmirror;
 
                 yax_preparedrawrooms();
-                didmirror = drawrooms(tposx,tposy,z,tang,horiz,g_mirrorSector[i]+MAXSECTORS);
+                didmirror = drawrooms(tposx,tposy,z,tang,qhoriz,g_mirrorSector[i]+MAXSECTORS);
                 yax_drawrooms(G_DoSpriteAnimations, g_mirrorSector[i], didmirror, smoothratio);
             }
 #ifdef USE_OPENGL
             else
-                drawrooms(tposx,tposy,z,tang,horiz,g_mirrorSector[i]+MAXSECTORS);
+                drawrooms(tposx,tposy,z,tang,qhoriz,g_mirrorSector[i]+MAXSECTORS);
             // XXX: Sprites don't get drawn with TROR/Polymost
 #endif
             display_mirror = 1;
@@ -910,8 +910,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             CAMERA(pos) = camVect;
             CAMERA(ang) = pPlayer->oang + mulscale16(((pPlayer->ang + 1024 - pPlayer->oang) & 2047) - 1024, smoothRatio);
             CAMERA(ang) += pPlayer->look_ang;
-            CAMERA(horiz) = pPlayer->ohoriz + pPlayer->ohorizoff
-                            + mulscale16((pPlayer->horiz + pPlayer->horizoff - pPlayer->ohoriz - pPlayer->ohorizoff), smoothRatio);
+            CAMERA(qhoriz) = pPlayer->oqhoriz + pPlayer->oqhorizoff
+                            + mulscale16((pPlayer->qhoriz + pPlayer->qhorizoff - pPlayer->oqhoriz - pPlayer->oqhorizoff), smoothRatio);
 
             if (ud.viewbob)
             {
@@ -927,10 +927,10 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             {
                 CAMERA(pos.z) -= 3072;
 
-                if (G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(horiz)) < 0)
+                if (G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(qhoriz)) < 0)
                 {
                     CAMERA(pos.z) += 3072;
-                    G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(horiz));
+                    G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(qhoriz));
                 }
             }
         }
@@ -941,7 +941,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             // looking through viewscreen
             CAMERA(pos)   = camVect;
             CAMERA(ang)   = pPlayer->ang + pPlayer->look_ang;
-            CAMERA(horiz) = 100 + sprite[pPlayer->newowner].shade;
+            CAMERA(qhoriz) = fix16_from_int(100 + sprite[pPlayer->newowner].shade);
             CAMERA(sect)  = sprite[pPlayer->newowner].sectnum;
         }
 
@@ -1005,7 +1005,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         //  like showview must cope with that situation or bail out!
         int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMS, pPlayer->i, playerNum, 0);
 
-        CAMERA(horiz) = clamp(CAMERA(horiz), HORIZ_MIN, HORIZ_MAX);
+        CAMERA(qhoriz) = fix16_clamp(CAMERA(qhoriz), F16(HORIZ_MIN), F16(HORIZ_MAX));
 
         if (noDraw != 1)  // event return values other than 0 and 1 are reserved
         {
@@ -1015,7 +1015,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                            "other values are reserved.\n");
 */
 
-            G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(ang), CAMERA(horiz), smoothRatio);
+            G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(ang), CAMERA(qhoriz), smoothRatio);
 #ifdef LEGACY_ROR
             G_SE40(smoothRatio);
 #endif
@@ -1030,7 +1030,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             gotpic[MIRROR>>3] |= (1<<(MIRROR&7));
 #else
             yax_preparedrawrooms();
-            drawrooms(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(ang),CAMERA(horiz),CAMERA(sect));
+            drawrooms(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(ang),CAMERA(qhoriz),CAMERA(sect));
             yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothRatio);
 #ifdef LEGACY_ROR
             if ((unsigned)ror_sprite < MAXSPRITES && drawing_ror == 1)  // viewing from bottom
@@ -2118,7 +2118,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
                     T1(newSprite) = krand() & 1;
 
-                    pSprite->z = (3 << 8) + pPlayer->pyoff + pPlayer->pos.z - ((pPlayer->horizoff + pPlayer->horiz - 100) << 4);
+                    pSprite->z = (3 << 8) + pPlayer->pyoff + pPlayer->pos.z - (fix16_to_int((pPlayer->qhorizoff + pPlayer->qhoriz - F16(100))) << 4);
 
                     if (pSprite->picnum == SHOTGUNSHELL)
                         pSprite->z += (3 << 8);
@@ -6858,7 +6858,7 @@ int G_DoMoveThings(void)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
         hitscan((vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(pPlayer->ang + 512) & 2047], sintable[pPlayer->ang & 2047],
-                (100 - pPlayer->horiz - pPlayer->horizoff) << 11, &hitData, 0xffff0030);
+                fix16_to_int(F16(100) - pPlayer->qhoriz - pPlayer->qhorizoff) << 11, &hitData, 0xffff0030);
 
         for (bssize_t TRAVERSE_CONNECT(i))
             if (g_player[i].ps->holoduke_on != -1)

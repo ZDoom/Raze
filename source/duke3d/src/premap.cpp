@@ -712,10 +712,10 @@ void P_ResetPlayer(int playerNum)
     pPlayer->last_extra = pSprite->extra = pPlayer->max_player_health;
 
     pPlayer->wantweaponfire         = -1;
-    pPlayer->horiz                  = 100;
+    pPlayer->qhoriz                  = F16(100);
     pPlayer->on_crane               = -1;
     pPlayer->frag_ps                = playerNum;
-    pPlayer->horizoff               = 0;
+    pPlayer->qhorizoff               = 0;
     pPlayer->opyoff                 = 0;
     pPlayer->wackedbyactor          = -1;
     pPlayer->inv_amount[GET_SHIELD] = g_startArmorAmount;
@@ -790,9 +790,9 @@ void P_ResetStatus(int playerNum)
     pPlayer->footprintpal      = 0;
     pPlayer->footprintshade    = 0;
     pPlayer->jumping_toggle    = 0;
-    pPlayer->ohoriz            = 140;
-    pPlayer->horiz             = 140;
-    pPlayer->horizoff          = 0;
+    pPlayer->oqhoriz           = F16(140);
+    pPlayer->qhoriz            = F16(140);
+    pPlayer->qhorizoff         = 0;
     pPlayer->bobcounter        = 0;
     pPlayer->on_ground         = 0;
     pPlayer->player_par        = 0;

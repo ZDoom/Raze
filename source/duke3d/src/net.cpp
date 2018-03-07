@@ -1442,8 +1442,8 @@ void Net_FillPlayerUpdate(playerupdate_t *update, int32_t player)
     update->opos = g_player[player].ps->opos;
     update->vel = g_player[player].ps->vel;
     update->ang = g_player[player].ps->ang;
-    update->horiz = g_player[player].ps->horiz;
-    update->horizoff = g_player[player].ps->horizoff;
+    update->horiz = g_player[player].ps->qhoriz;
+    update->horizoff = g_player[player].ps->qhorizoff;
     update->ping = g_player[player].ping;
     update->deadflag = g_player[player].ps->dead_flag;
     update->playerquitflag = g_player[player].playerquitflag;
@@ -1459,8 +1459,8 @@ void Net_ExtractPlayerUpdate(playerupdate_t *update, int32_t type)
         g_player[playerindex].ps->opos = update->opos;
         g_player[playerindex].ps->vel = update->vel;
         g_player[playerindex].ps->ang = update->ang;
-        g_player[playerindex].ps->horiz = update->horiz;
-        g_player[playerindex].ps->horizoff = update->horizoff;
+        g_player[playerindex].ps->qhoriz = update->horiz;
+        g_player[playerindex].ps->qhorizoff = update->horizoff;
     }
 
     if (type == PACKET_MASTER_TO_SLAVE)

@@ -29,8 +29,8 @@ $(ENGINE_OBJ)/textfont.$o: $(ENGINE_SRC)/textfont.cpp
 $(ENGINE_OBJ)/smalltextfont.$o: $(ENGINE_SRC)/smalltextfont.cpp
 $(ENGINE_OBJ)/glbuild.$o: $(ENGINE_SRC)/glbuild.cpp $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/baselayer.h $(GLAD_INC)/glad/glad.h
 $(ENGINE_OBJ)/kplib.$o: $(ENGINE_SRC)/kplib.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/kplib.h
-$(ENGINE_OBJ)/lz4.$o: $(ENGINE_SRC)/lz4.c $(ENGINE_INC)/lz4.h
 $(ENGINE_OBJ)/md4.$o: $(ENGINE_SRC)/md4.cpp $(ENGINE_INC)/md4.h
+$(ENGINE_OBJ)/lz4.$o: $(ENGINE_SRC)/lz4.c $(ENGINE_INC)/lz4.h
 $(ENGINE_OBJ)/osd.$o: $(ENGINE_SRC)/osd.cpp $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_INC)/osd.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/baselayer.h
 $(ENGINE_OBJ)/pragmas.$o: $(ENGINE_SRC)/pragmas.cpp $(ENGINE_INC)/compat.h
 $(ENGINE_OBJ)/scriptfile.$o: $(ENGINE_SRC)/scriptfile.cpp $(ENGINE_INC)/scriptfile.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/compat.h
@@ -46,6 +46,8 @@ $(ENGINE_OBJ)/winbits.$o: $(ENGINE_SRC)/winbits.cpp $(ENGINE_INC)/winbits.h
 $(ENGINE_OBJ)/xxhash.$o: $(ENGINE_SRC)/xxhash.c $(ENGINE_INC)/xxhash.h
 $(ENGINE_OBJ)/pngwrite.$o: $(ENGINE_SRC)/pngwrite.cpp $(ENGINE_INC)/pngwrite.h
 $(ENGINE_OBJ)/miniz.$o: $(ENGINE_SRC)/miniz.c $(ENGINE_INC)/miniz.h
+$(ENGINE_OBJ)/fix16.$o: $(ENGINE_SRC)/fix16.c $(ENGINE_INC)/fix16.h 
+$(ENGINE_OBJ)/fix16_str.$o: $(ENGINE_SRC)/fix16_str.c $(ENGINE_INC)/fix16.h 
 
 $(ENGINE_OBJ)/lunatic.$o: $(ENGINE_SRC)/lunatic.cpp $(ENGINE_INC)/lunatic.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/osd.h
 

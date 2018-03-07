@@ -2611,7 +2611,7 @@ ACTOR_STATIC void A_DoProjectileBounce(int const spriteNum)
 
 ACTOR_STATIC void P_HandleBeingSpitOn(DukePlayer_t * const ps)
 {
-    ps->horiz += 32;
+    ps->qhoriz += F16(32);
     ps->return_to_center = 8;
 
     if (ps->loogcnt)
@@ -4303,7 +4303,7 @@ ACTOR_STATIC void G_MoveActors(void)
                         DELETE_SPRITE_AND_CONTINUE(spriteNum);
                     }
 
-                pSprite->z = pPlayer->pos.z + pPlayer->pyoff - pData[2] + ZOFFSET3 + ((100 - pPlayer->horiz) << 4);
+                pSprite->z = pPlayer->pos.z + pPlayer->pyoff - pData[2] + ZOFFSET3 + (fix16_to_int(F16(100) - pPlayer->qhoriz) << 4);
 
                 if (pData[2] > 512)
                     pData[2] -= 128;

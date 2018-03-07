@@ -639,7 +639,10 @@ static void G_PrintCoords(int32_t snum)
     }
     Bsprintf(tempbuf, "XYZ= (%d, %d, %d)", ps->pos.x, ps->pos.y, ps->pos.z);
     printext256(x, y, COLOR_WHITE, -1, tempbuf, 0);
-    Bsprintf(tempbuf, "A/H/HO= %d, %d, %d", ps->ang, ps->horiz, ps->horizoff);
+    char horiz[16], horizoff[16];
+    fix16_to_str(ps->qhoriz, horiz, 2);
+    fix16_to_str(ps->qhorizoff, horizoff, 2);
+    Bsprintf(tempbuf, "A/H/HO= %d, %s, %s", ps->ang, horiz, horizoff);
     printext256(x, y+9, COLOR_WHITE, -1, tempbuf, 0);
     Bsprintf(tempbuf, "VEL= (%d, %d, %d) + (%d, %d, 0)",
         ps->vel.x>>14, ps->vel.y>>14, ps->vel.z, ps->fric.x>>5, ps->fric.y>>5);

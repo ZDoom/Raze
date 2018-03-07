@@ -184,7 +184,9 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\screenshot.$o \
 	$(ENGINE_OBJ)\mhk.$o \
 	$(ENGINE_OBJ)\pngwrite.$o \
-	$(ENGINE_OBJ)\miniz.$o
+	$(ENGINE_OBJ)\miniz.$o \
+	$(ENGINE_OBJ)\fix16.$o \
+	$(ENGINE_OBJ)\fix16_str.$o
 
 
 ENGINE_EDITOR_OBJS=$(ENGINE_OBJ)\build.$o \

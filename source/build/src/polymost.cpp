@@ -4630,7 +4630,7 @@ void polymost_drawrooms()
     gsinang2 = gsinang * (fviewingrange * (1.0f/65536.f));
     ghalfx = (float)(xdimen>>1);
     grhalfxdown10 = 1.f/(ghalfx*1024.f);
-    ghoriz = (float)globalhoriz;
+    ghoriz = fix16_to_float(qglobalhoriz);
 
     gvisibility = ((float)globalvisibility)*FOGSCALE;
 

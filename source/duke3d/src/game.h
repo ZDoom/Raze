@@ -29,6 +29,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "premap.h" // XXX
 #endif
 
+#include "fix16.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -127,7 +129,8 @@ static inline int32_t G_GetLogoFlags(void)
 typedef struct {
     vec3_t pos;
     int32_t dist, clock;
-    int16_t ang, horiz, sect;
+    fix16_t qhoriz;
+    int16_t ang, sect;
 } camera_t;
 
 extern camera_t g_camera;
@@ -189,7 +192,8 @@ typedef struct {
     int32_t returnvar[MAX_RETURN_VALUES-1];
 
 #if !defined LUNATIC
-    int16_t cameraang, camerasect, camerahoriz;
+    int16_t cameraang, camerasect;
+    fix16_t cameraqhoriz;
 #endif
     int16_t pause_on,from_bonus;
     int16_t camerasprite,last_camsprite;
@@ -367,7 +371,7 @@ void G_DisplayRest(int32_t smoothratio);
 void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothratio);
 void G_DrawBackground(void);
 void G_DrawFrags(void);
-void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, int32_t horiz, int32_t smoothratio);
+void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, fix16_t horiz, int32_t smoothratio);
 void G_DrawRooms(int32_t snum,int32_t smoothratio);
 void G_DrawTXDigiNumZ(int32_t starttile,int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,int32_t cs,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
 int G_FPSLimit(void);

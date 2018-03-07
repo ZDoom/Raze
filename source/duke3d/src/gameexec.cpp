@@ -285,7 +285,7 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 {
     int const nAngle = 128-(krand()&255);
 
-    pPlayer->horiz           += 64;
+    pPlayer->qhoriz           += F16(64);
     pPlayer->return_to_center = 9;
     pPlayer->rotscrnang       = nAngle >> 1;
     pPlayer->look_ang         = pPlayer->rotscrnang;

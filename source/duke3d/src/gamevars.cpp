@@ -1544,7 +1544,7 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("cameray",(intptr_t)&ud.camerapos.y, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("cameraz",(intptr_t)&ud.camerapos.z, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("cameraang",(intptr_t)&ud.cameraang, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR);
-    Gv_NewVar("camerahoriz",(intptr_t)&ud.camerahoriz, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR);
+    Gv_NewVar("camerahoriz",(intptr_t)&ud.cameraqhoriz, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR); // XXX FIXME
     Gv_NewVar("camerasect",(intptr_t)&ud.camerasect, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR);
     Gv_NewVar("cameradist",(intptr_t)&g_cameraDistance, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("cameraclock",(intptr_t)&g_cameraClock, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
@@ -1701,7 +1701,7 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("cameray")].global     = (intptr_t)&ud.camerapos.y;
     aGameVars[Gv_GetVarIndex("cameraz")].global     = (intptr_t)&ud.camerapos.z;
     aGameVars[Gv_GetVarIndex("cameraang")].global   = (intptr_t)&ud.cameraang;
-    aGameVars[Gv_GetVarIndex("camerahoriz")].global = (intptr_t)&ud.camerahoriz;
+    aGameVars[Gv_GetVarIndex("camerahoriz")].global = (intptr_t)&ud.cameraqhoriz; // XXX FIXME
     aGameVars[Gv_GetVarIndex("camerasect")].global  = (intptr_t)&ud.camerasect;
     aGameVars[Gv_GetVarIndex("cameradist")].global  = (intptr_t)&g_cameraDistance;
     aGameVars[Gv_GetVarIndex("cameraclock")].global = (intptr_t)&g_cameraClock;

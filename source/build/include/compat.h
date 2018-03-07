@@ -1241,6 +1241,7 @@ static inline void maybe_grow_buffer(char ** const buffer, int32_t * const buffe
 #define LIBDIVIDE_NONAMESPACE
 #define LIBDIVIDE_NOINLINE
 #include "libdivide.h"
+#include "fix16.h"
 
 /* End dependence on compat.o object. */
 

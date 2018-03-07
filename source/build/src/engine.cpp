@@ -214,7 +214,7 @@ static void scansector(int16_t startsectnum);
 static void draw_rainbow_background(void);
 
 int16_t editstatus = 0;
-static int32_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
+static fix16_t global100horiz;  // (-100..300)-scale horiz (the one passed to drawrooms)
 
 
 ////////// YAX //////////
@@ -874,7 +874,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 {
     static uint8_t havebunch[YAX_MAXBUNCHES>>3];
 
-    const int32_t horiz = global100horiz;
+    const fix16_t horiz = global100horiz;
 
     int32_t i, j, k, lev, cf, nmp;
     int32_t bnchcnt, bnchnum[2] = {0,0}, maxlev[2];
@@ -1386,6 +1386,7 @@ static int32_t xsi[8], ysi[8], horizycent;
 static int32_t *horizlookup=0, *horizlookup2=0;
 
 int32_t globalposx, globalposy, globalposz, globalhoriz;
+fix16_t qglobalhoriz;
 float fglobalposx, fglobalposy, fglobalposz;
 int16_t globalang, globalcursectnum;
 int32_t globalpal, cosglobalang, singlobalang;
@@ -7911,7 +7912,7 @@ void set_globalang(int16_t ang)
 // drawrooms
 //
 int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
-               int16_t daang, int32_t dahoriz, int16_t dacursectnum)
+               int16_t daang, fix16_t dahoriz, int16_t dacursectnum)
 {
     int32_t i, j, /*cz, fz,*/ closest;
     int16_t *shortptr1, *shortptr2;
@@ -7927,7 +7928,8 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
 
     // xdimenscale is scale(xdimen,yxaspect,320);
     // normalization by viewingrange so that center-of-aim doesn't depend on it
-    globalhoriz = mulscale16(dahoriz-100,divscale16(xdimenscale,viewingrange))+(ydimen>>1);
+    globalhoriz = mulscale16(fix16_to_int(dahoriz)-100,divscale16(xdimenscale,viewingrange))+(ydimen>>1);
+    qglobalhoriz = mulscale16(dahoriz-F16(100), divscale16(xdimenscale, viewingrange))+fix16_from_int(ydimen>>1);
 
     globaluclip = (0-globalhoriz)*xdimscale;
     globaldclip = (ydimen-globalhoriz)*xdimscale;

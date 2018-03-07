@@ -103,6 +103,8 @@
     <ClInclude Include="..\..\source\build\include\dxtfilter.h" />
     <ClInclude Include="..\..\source\build\include\dynamicgtk.h" />
     <ClInclude Include="..\..\source\build\include\editor.h" />
+    <ClInclude Include="..\..\source\build\include\fix16.h" />
+    <ClInclude Include="..\..\source\build\include\fix16.hpp" />
     <ClInclude Include="..\..\source\build\include\glbuild.h" />
     <ClInclude Include="..\..\source\build\include\glext.h" />
     <ClInclude Include="..\..\source\build\include\gtkbits.h" />
@@ -263,6 +265,8 @@
     <ClCompile Include="..\..\source\build\src\dxtfilter.cpp" />
     <ClCompile Include="..\..\source\build\src\dynamicgtk.cpp" />
     <ClCompile Include="..\..\source\build\src\engine.cpp" />
+    <ClCompile Include="..\..\source\build\src\fix16.c" />
+    <ClCompile Include="..\..\source\build\src\fix16_str.c" />
     <ClCompile Include="..\..\source\build\src\glbuild.cpp" />
     <ClCompile Include="..\..\source\build\src\gtkbits.cpp" />
     <ClCompile Include="..\..\source\build\src\hash.cpp" />
