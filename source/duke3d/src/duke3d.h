@@ -43,14 +43,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "keyboard.h"
 #include "fx_man.h"
 
-#ifndef APPNAME
-    #define APPNAME             "EDuke32"
-#endif
-
-#ifndef APPBASENAME
-    #define APPBASENAME         "eduke32"
-#endif
-
 #define HEAD2                   APPNAME
 
 #ifdef EDUKE32_STANDALONE

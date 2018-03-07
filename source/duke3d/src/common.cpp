@@ -317,11 +317,11 @@ void G_ExtInit(void)
         {
             Bsnprintf(cwd,sizeof(cwd),"%s/"
 #if defined(_WIN32)
-                      "EDuke32 Settings"
+                      APPNAME " Settings"
 #elif defined(GEKKO)
-                      "apps/eduke32"
+                      "apps/" APPBASENAME
 #else
-                      ".eduke32"
+                      "." APPBASENAME
 #endif
                       ,homedir);
             asperr = addsearchpath(cwd);
