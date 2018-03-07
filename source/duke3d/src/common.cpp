@@ -304,7 +304,7 @@ void G_ExtInit(void)
         }
     }
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(EDUKE32_STANDALONE)
     if (!access("user_profiles_enabled", F_OK))
 #else
     if (g_useCwd == 0 && access("user_profiles_disabled", F_OK))
