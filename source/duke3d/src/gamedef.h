@@ -715,7 +715,9 @@ enum ActorLabel_t
 enum InputLabel_t
 {
     INPUT_AVEL,
+    INPUT_Q16AVEL,
     INPUT_HORZ,
+    INPUT_Q16HORZ,
     INPUT_FVEL,
     INPUT_SVEL,
     INPUT_BITS,

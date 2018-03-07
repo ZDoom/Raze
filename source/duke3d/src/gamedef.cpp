@@ -1320,7 +1320,9 @@ const memberlabel_t UserdefsLabels[]=
 const memberlabel_t InputLabels[]=
 {
     { "avel",    INPUT_AVEL,    0, 0 },
+    { "q16avel", INPUT_Q16AVEL, 0, 0 },
     { "horz",    INPUT_HORZ,    0, 0 },
+    { "q16horz", INPUT_Q16HORZ, 0, 0 },
     { "fvel",    INPUT_FVEL,    0, 0 },
     { "svel",    INPUT_SVEL,    0, 0 },
     { "bits",    INPUT_BITS,    0, 0 },
