@@ -111,11 +111,12 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Dpad_Select",
    "Dpad_Aiming",
    "Alternate_Weapon",
+   "Last_Used_Weapon"
    };
 
 #ifdef __SETUP__
 
-#define NUMKEYENTRIES 57
+#define NUMKEYENTRIES 58
 
 const char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    {
@@ -172,6 +173,7 @@ const char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "'", "",
    ";", "",
    "`", "",
+   "", "",
    "", "",
    "", "",
    "", "",
@@ -233,6 +235,7 @@ const char oldkeydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "'", "",
    ";", "",
    "C", "",
+   "", "",
    "", "",
    "", "",
    "", "",

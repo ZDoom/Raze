@@ -2811,6 +2811,7 @@ enddisplayweapon:
 int32_t g_myAimMode = 0, g_myAimStat = 0, g_oldAimStat = 0;
 int32_t mouseyaxismode = -1;
 int32_t g_emuJumpTics = 0;
+int32_t g_lastWeapon = 0;
 
 void P_GetInput(int playerNum)
 {
@@ -2973,6 +2974,9 @@ void P_GetInput(int playerNum)
 
     if (BUTTON(gamefunc_Alt_Weapon))
         weaponSelection = 13;
+
+    if (BUTTON(gamefunc_Last_Weapon))
+        weaponSelection = g_lastWeapon + 1;
 
     if (BUTTON(gamefunc_Jump) && pPlayer->on_ground)
         g_emuJumpTics = 4;
@@ -3344,13 +3348,17 @@ static void P_ChangeWeapon(DukePlayer_t * const pPlayer, int const weaponNum)
         pPlayer->last_weapon = -1;
     }
 
-#ifdef __ANDROID__
     if (currentWeapon != pPlayer->curr_weapon &&
 //        p->last_weapon != -1 &&
         !(PWEAPON(playerNum, currentWeapon, WorksLike) == HANDREMOTE_WEAPON && PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == HANDBOMB_WEAPON) &&
         !(PWEAPON(playerNum, currentWeapon, WorksLike) == HANDBOMB_WEAPON && PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike) == HANDREMOTE_WEAPON))
-        CONTROL_Android_SetLastWeapon(PWEAPON(playerNum, currentWeapon, WorksLike) == HANDREMOTE_WEAPON ? (int)HANDBOMB_WEAPON : currentWeapon);
+    {
+        g_lastWeapon = PWEAPON(playerNum, currentWeapon, WorksLike) == HANDREMOTE_WEAPON ? (int) HANDBOMB_WEAPON : currentWeapon;
+        if (g_lastWeapon == GROW_WEAPON) g_lastWeapon = SHRINKER_WEAPON;
+#ifdef __ANDROID__
+        CONTROL_Android_SetLastWeapon(g_lastWeapon);
 #endif
+    }
 
     pPlayer->kickback_pic = 0;
 
