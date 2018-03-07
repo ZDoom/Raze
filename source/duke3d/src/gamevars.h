@@ -179,8 +179,8 @@ void Gv_FinalizeWeaponDefaults(void);
             case GAMEVAR_UINT8PTR: *(uint8_t *)aGameVars[id].global operator(uint8_t) operand; break;                                      \
             case GAMEVAR_Q16PTR:                                                                                                           \
             {                                                                                                                              \
-                Fix16 *pfix = (Fix16 *)aGameVars[id].global;                                                                             \
-                *pfix operator operand;                                                                                                      \
+                Fix16 *pfix = (Fix16 *)aGameVars[id].global;                                                                               \
+                *pfix operator(int16_t) operand;                                                                                           \
                 break;                                                                                                                     \
             }                                                                                                                              \
         }                                                                                                                                  \
