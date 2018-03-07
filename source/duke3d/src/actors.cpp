@@ -86,7 +86,7 @@ void G_ClearCameraView(DukePlayer_t *ps)
 {
     ps->newowner = -1;
     ps->pos = ps->opos;
-    ps->ang = ps->oang;
+    ps->q16ang = ps->oq16ang;
 
     updatesector(ps->pos.x, ps->pos.y, &ps->cursectnum);
     P_UpdateScreenPal(ps);
@@ -1151,7 +1151,7 @@ void A_MoveDummyPlayers(void)
             {
                 CS(spriteNum) = 257;
                 SZ(spriteNum) = sector[SECT(spriteNum)].ceilingz+(27<<8);
-                SA(spriteNum) = pPlayer->ang;
+                SA(spriteNum) = fix16_to_int(pPlayer->q16ang);
                 if (T1(spriteNum) == 8)
                     T1(spriteNum) = 0;
                 else T1(spriteNum)++;
@@ -1195,7 +1195,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                 pSprite->y              = pPlayer->opos.y;
                 pSprite->z              = pPlayer->opos.z + PHEIGHT;
                 actor[spriteNum].bpos.z = pSprite->z;
-                pSprite->ang            = pPlayer->oang;
+                pSprite->ang            = fix16_from_int(pPlayer->oq16ang);
 
                 setsprite(spriteNum, (vec3_t *)pSprite);
             }
@@ -1279,12 +1279,15 @@ ACTOR_STATIC void G_MovePlayers(void)
 
                     if (pPlayer->wackedbyactor >= 0 && sprite[pPlayer->wackedbyactor].statnum < MAXSTATUS)
                     {
-                        pPlayer->ang += G_GetAngleDelta(pPlayer->ang,getangle(sprite[pPlayer->wackedbyactor].x-pPlayer->pos.x,sprite[pPlayer->wackedbyactor].y-pPlayer->pos.y))>>1;
-                        pPlayer->ang &= 2047;
+                        pPlayer->q16ang += fix16_to_int(G_GetAngleDelta(pPlayer->q16ang,
+                                                                      getangle(sprite[pPlayer->wackedbyactor].x - pPlayer->pos.x,
+                                                                               sprite[pPlayer->wackedbyactor].y - pPlayer->pos.y))
+                                                      >> 1);
+                        pPlayer->q16ang &= 0x7FFFFFF;
                     }
                 }
 
-                pSprite->ang = pPlayer->ang;
+                pSprite->ang = fix16_to_int(pPlayer->q16ang);
             }
         }
         else
@@ -1316,13 +1319,13 @@ ACTOR_STATIC void G_MovePlayers(void)
             if (pSprite->extra < 8)
             {
                 pSprite->xvel = 128;
-                pSprite->ang = pPlayer->ang;
+                pSprite->ang = fix16_to_int(pPlayer->q16ang);
                 pSprite->extra++;
                 A_SetSprite(spriteNum,CLIPMASK0);
             }
             else
             {
-                pSprite->ang = 2047-pPlayer->ang;
+                pSprite->ang = 2047-fix16_to_int(pPlayer->q16ang);
                 setsprite(spriteNum,(vec3_t *)pSprite);
             }
         }
@@ -1674,7 +1677,7 @@ ACTOR_STATIC void G_MoveStandables(void)
                         pSprite->owner = -2;
                         g_player[p].ps->on_crane = spriteNum;
                         A_PlaySound(DUKE_GRUNT,g_player[p].ps->i);
-                        g_player[p].ps->ang = pSprite->ang+1024;
+                        g_player[p].ps->q16ang = fix16_from_int(pSprite->ang+1024);
                     }
                     else
                     {
@@ -1762,8 +1765,8 @@ ACTOR_STATIC void G_MoveStandables(void)
                 {
                     DukePlayer_t *const ps = g_player[p].ps;
 
-                    ps->opos.x = ps->pos.x = pSprite->x-(sintable[(ps->ang+512)&2047]>>6);
-                    ps->opos.y = ps->pos.y = pSprite->y-(sintable[ps->ang&2047]>>6);
+                    ps->opos.x = ps->pos.x = pSprite->x-(sintable[(fix16_to_int(ps->q16ang)+512)&2047]>>6);
+                    ps->opos.y = ps->pos.y = pSprite->y-(sintable[fix16_to_int(ps->q16ang)&2047]>>6);
                     ps->opos.z = ps->pos.z = pSprite->z+(2<<8);
 
                     setsprite(ps->i, (vec3_t *)ps);
@@ -2611,7 +2614,7 @@ ACTOR_STATIC void A_DoProjectileBounce(int const spriteNum)
 
 ACTOR_STATIC void P_HandleBeingSpitOn(DukePlayer_t * const ps)
 {
-    ps->qhoriz += F16(32);
+    ps->q16horiz += F16(32);
     ps->return_to_center = 8;
 
     if (ps->loogcnt)
@@ -3427,7 +3430,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                     }
                                 }
 
-                                pPlayer->ang = sprite[OW(spriteNum)].ang;
+                                pPlayer->q16ang = fix16_from_int(sprite[OW(spriteNum)].ang);
 
                                 if (sprite[OW(spriteNum)].owner != OW(spriteNum))
                                 {
@@ -3841,7 +3844,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 // I'm 50/50 on this being either a typo or a stupid hack
                 if (playerDist < 1596)
                 {
-                    int const angDiff = G_GetAngleDelta(pPlayer->ang,getangle(pSprite->x-pPlayer->pos.x,pSprite->y-pPlayer->pos.y));
+                    int const angDiff = G_GetAngleDelta(fix16_to_int(pPlayer->q16ang),getangle(pSprite->x-pPlayer->pos.x,pSprite->y-pPlayer->pos.y));
 
                     if (angDiff > -64 && angDiff < 64 && TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_OPEN)
                         && pPlayer->toggle_key_flag == 1)
@@ -3853,7 +3856,7 @@ ACTOR_STATIC void G_MoveActors(void)
                             if (sprite[ballSprite].picnum == QUEBALL || sprite[ballSprite].picnum == STRIPEBALL)
                             {
                                 int const angDiff2 = G_GetAngleDelta(
-                                pPlayer->ang, getangle(sprite[ballSprite].x - pPlayer->pos.x, sprite[ballSprite].y - pPlayer->pos.y));
+                                    fix16_to_int(pPlayer->q16ang), getangle(sprite[ballSprite].x - pPlayer->pos.x, sprite[ballSprite].y - pPlayer->pos.y));
 
                                 if (angDiff2 > -64 && angDiff2 < 64)
                                 {
@@ -3869,7 +3872,7 @@ ACTOR_STATIC void G_MoveActors(void)
                         if (ballSprite == -1)
                         {
                             pSprite->xvel = (pSprite->pal == 12) ? 164 : 140;
-                            pSprite->ang  = pPlayer->ang;
+                            pSprite->ang  = fix16_to_int(pPlayer->q16ang);
 
                             pPlayer->toggle_key_flag = 2;
                         }
@@ -4248,7 +4251,7 @@ ACTOR_STATIC void G_MoveActors(void)
                 }
                 else if (playerDist < 1024 && pPlayer->quick_kick == 0)
                 {
-                    int const angDiff = G_GetAngleDelta(pPlayer->ang, getangle(SX(spriteNum) - pPlayer->pos.x,
+                    int const angDiff = G_GetAngleDelta(fix16_to_int(pPlayer->q16ang), getangle(SX(spriteNum) - pPlayer->pos.x,
                                                                                SY(spriteNum) - pPlayer->pos.y));
 
                     if (angDiff > -128 && angDiff < 128)
@@ -4270,7 +4273,7 @@ ACTOR_STATIC void G_MoveActors(void)
 
                 setsprite(spriteNum,(vec3_t *)pSprite);
 
-                pSprite->ang = pPlayer->ang;
+                pSprite->ang = fix16_to_int(pPlayer->q16ang);
 
                 if ((TEST_SYNC_KEY(g_player[playerNum].inputBits->bits, SK_FIRE) || (pPlayer->quick_kick > 0)) && sprite[pPlayer->i].extra > 0)
                     if (pPlayer->quick_kick > 0 ||
@@ -4303,7 +4306,7 @@ ACTOR_STATIC void G_MoveActors(void)
                         DELETE_SPRITE_AND_CONTINUE(spriteNum);
                     }
 
-                pSprite->z = pPlayer->pos.z + pPlayer->pyoff - pData[2] + ZOFFSET3 + (fix16_to_int(F16(100) - pPlayer->qhoriz) << 4);
+                pSprite->z = pPlayer->pos.z + pPlayer->pyoff - pData[2] + ZOFFSET3 + (fix16_to_int(F16(100) - pPlayer->q16horiz) << 4);
 
                 if (pData[2] > 512)
                     pData[2] -= 128;
@@ -4340,8 +4343,8 @@ ACTOR_STATIC void G_MoveActors(void)
 
                 pSprite->xrepeat = 20 + (sintable[pData[1] & 2047] >> 13);
                 pSprite->yrepeat = 15 + (sintable[pData[1] & 2047] >> 13);
-                pSprite->x       = pPlayer->pos.x + (sintable[(pPlayer->ang + 512) & 2047] >> 7);
-                pSprite->y       = pPlayer->pos.y + (sintable[pPlayer->ang & 2047] >> 7);
+                pSprite->x       = pPlayer->pos.x + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 7);
+                pSprite->y       = pPlayer->pos.y + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 7);
 
                 goto next_sprite;
             }
@@ -5792,8 +5795,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                     if (pPlayer->cursectnum == pSprite->sectnum && pPlayer->on_ground == 1)
                     {
-                        pPlayer->ang += (l*q);
-                        pPlayer->ang &= 2047;
+                        pPlayer->q16ang += fix16_from_int(l*q);
+                        pPlayer->q16ang &= 0x7FFFFFF;
 
                         pPlayer->pos.z += zchange;
 
@@ -6013,8 +6016,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                             pPlayer->bobpos.x += m;
                             pPlayer->bobpos.y += x;
 
-                            pPlayer->ang += q;
-                            pPlayer->ang &= 2047;
+                            pPlayer->q16ang += fix16_from_int(q);
+                            pPlayer->q16ang &= 0x7FFFFFF;
 
                             if (g_netServer || numplayers > 1)
                             {

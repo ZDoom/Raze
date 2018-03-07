@@ -539,9 +539,9 @@ int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32
         case PLAYER_POSX: labelNum = ps->pos.x; break;
         case PLAYER_POSY: labelNum = ps->pos.y; break;
         case PLAYER_POSZ: labelNum = ps->pos.z; break;
-        case PLAYER_HORIZ: labelNum = fix16_to_int(ps->qhoriz); break;
-        case PLAYER_OHORIZ: labelNum = fix16_to_int(ps->oqhoriz); break;
-        case PLAYER_OHORIZOFF: labelNum = fix16_to_int(ps->oqhorizoff); break;
+        case PLAYER_HORIZ: labelNum = fix16_to_int(ps->q16horiz); break;
+        case PLAYER_OHORIZ: labelNum = fix16_to_int(ps->oq16horiz); break;
+        case PLAYER_OHORIZOFF: labelNum = fix16_to_int(ps->oq16horizoff); break;
         case PLAYER_INVDISPTIME: labelNum = ps->invdisptime; break;
         case PLAYER_BOBPOSX: labelNum = ps->bobpos.x; break;
         case PLAYER_BOBPOSY: labelNum = ps->bobpos.y; break;
@@ -564,9 +564,9 @@ int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32
         case PLAYER_RANDOMFLAMEX: labelNum = ps->randomflamex; break;
         case PLAYER_CRACK_TIME: labelNum = ps->crack_time; break;
         case PLAYER_AIM_MODE: labelNum = ps->aim_mode; break;
-        case PLAYER_ANG: labelNum = ps->ang; break;
-        case PLAYER_OANG: labelNum = ps->oang; break;
-        case PLAYER_ANGVEL: labelNum = ps->angvel; break;
+        case PLAYER_ANG: labelNum = fix16_to_int(ps->q16ang); break;
+        case PLAYER_OANG: labelNum = fix16_to_int(ps->oq16ang); break;
+        case PLAYER_ANGVEL: labelNum = fix16_to_int(ps->q16angvel); break;
         case PLAYER_CURSECTNUM: labelNum = ps->cursectnum; break;
         case PLAYER_LOOK_ANG: labelNum = ps->look_ang; break;
         case PLAYER_LAST_EXTRA: labelNum = ps->last_extra; break;
@@ -578,7 +578,7 @@ int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32
         case PLAYER_CURR_WEAPON: labelNum = ps->curr_weapon; break;
         case PLAYER_LAST_WEAPON: labelNum = ps->last_weapon; break;
         case PLAYER_TIPINCS: labelNum = ps->tipincs; break;
-        case PLAYER_HORIZOFF: labelNum = fix16_to_int(ps->qhorizoff); break;
+        case PLAYER_HORIZOFF: labelNum = fix16_to_int(ps->q16horizoff); break;
         case PLAYER_WANTWEAPONFIRE: labelNum = ps->wantweaponfire; break;
         case PLAYER_HOLODUKE_AMOUNT: labelNum = ps->inv_amount[GET_HOLODUKE]; break;
         case PLAYER_NEWOWNER: labelNum = ps->newowner; break;
@@ -723,9 +723,9 @@ void __fastcall VM_SetPlayer(int32_t const playerNum, int32_t const labelNum, in
         case PLAYER_POSX: ps->pos.x = iSet; break;
         case PLAYER_POSY: ps->pos.y = iSet; break;
         case PLAYER_POSZ: ps->pos.z = iSet; break;
-        case PLAYER_HORIZ: ps->qhoriz = fix16_from_int(iSet); break;
-        case PLAYER_OHORIZ: ps->oqhoriz = fix16_from_int(iSet); break;
-        case PLAYER_OHORIZOFF: ps->oqhorizoff = fix16_from_int(iSet); break;
+        case PLAYER_HORIZ: ps->q16horiz = fix16_from_int(iSet); break;
+        case PLAYER_OHORIZ: ps->oq16horiz = fix16_from_int(iSet); break;
+        case PLAYER_OHORIZOFF: ps->oq16horizoff = fix16_from_int(iSet); break;
         case PLAYER_INVDISPTIME: ps->invdisptime = iSet; break;
         case PLAYER_BOBPOSX: ps->bobpos.x = iSet; break;
         case PLAYER_BOBPOSY: ps->bobpos.y = iSet; break;
@@ -748,9 +748,9 @@ void __fastcall VM_SetPlayer(int32_t const playerNum, int32_t const labelNum, in
         case PLAYER_RANDOMFLAMEX: ps->randomflamex = iSet; break;
         case PLAYER_CRACK_TIME: ps->crack_time = iSet; break;
         case PLAYER_AIM_MODE: ps->aim_mode = iSet; break;
-        case PLAYER_ANG: ps->ang = iSet; break;
-        case PLAYER_OANG: ps->oang = iSet; break;
-        case PLAYER_ANGVEL: ps->angvel = iSet; break;
+        case PLAYER_ANG: ps->q16ang = fix16_from_int(iSet); break;
+        case PLAYER_OANG: ps->oq16ang = fix16_from_int(iSet); break;
+        case PLAYER_ANGVEL: ps->q16angvel = fix16_from_int(iSet); break;
         case PLAYER_CURSECTNUM: ps->cursectnum = iSet; break;
         case PLAYER_LOOK_ANG: ps->look_ang = iSet; break;
         case PLAYER_LAST_EXTRA: ps->last_extra = iSet; break;
@@ -762,7 +762,7 @@ void __fastcall VM_SetPlayer(int32_t const playerNum, int32_t const labelNum, in
         case PLAYER_CURR_WEAPON: ps->curr_weapon = iSet; break;
         case PLAYER_LAST_WEAPON: ps->last_weapon = iSet; break;
         case PLAYER_TIPINCS: ps->tipincs = iSet; break;
-        case PLAYER_HORIZOFF: ps->qhorizoff = fix16_from_int(iSet); break;
+        case PLAYER_HORIZOFF: ps->q16horizoff = fix16_from_int(iSet); break;
         case PLAYER_WANTWEAPONFIRE: ps->wantweaponfire = iSet; break;
         case PLAYER_HOLODUKE_AMOUNT: ps->inv_amount[GET_HOLODUKE] = iSet; break;
         case PLAYER_NEWOWNER: ps->newowner = iSet; break;
@@ -906,7 +906,7 @@ int32_t __fastcall VM_GetPlayerInput(int32_t const playerNum, int32_t labelNum)
 
     switch (labelNum)
     {
-        case INPUT_AVEL: labelNum = i->avel; break;
+        case INPUT_AVEL: labelNum = fix16_to_int(i->qavel); break;
         case INPUT_HORZ: labelNum = fix16_to_int(i->qhorz); break;
         case INPUT_FVEL: labelNum = i->fvel; break;
         case INPUT_SVEL: labelNum = i->svel; break;
@@ -930,7 +930,7 @@ void __fastcall VM_SetPlayerInput(int32_t const playerNum, int32_t const labelNu
 
     switch (labelNum)
     {
-        case INPUT_AVEL: i->avel = iSet; break;
+        case INPUT_AVEL: i->qavel = fix16_from_int(iSet); break;
         case INPUT_HORZ: i->qhorz = fix16_from_int(iSet); break;
         case INPUT_FVEL: i->fvel = iSet; break;
         case INPUT_SVEL: i->svel = iSet; break;

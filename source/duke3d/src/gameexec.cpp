@@ -285,7 +285,7 @@ GAMEEXEC_STATIC GAMEEXEC_INLINE void P_ForceAngle(DukePlayer_t *pPlayer)
 {
     int const nAngle = 128-(krand()&255);
 
-    pPlayer->qhoriz           += F16(64);
+    pPlayer->q16horiz           += F16(64);
     pPlayer->return_to_center = 9;
     pPlayer->rotscrnang       = nAngle >> 1;
     pPlayer->look_ang         = pPlayer->rotscrnang;
@@ -3619,9 +3619,9 @@ nullquote:
             {
                 nResult =
                 (vm.pSprite->picnum == APLAYER && (g_netServer || ud.multimode > 1))
-                ? G_GetAngleDelta(g_player[otherp].ps->ang, getangle(pPlayer->pos.x - g_player[otherp].ps->pos.x,
+                ? G_GetAngleDelta(fix16_to_int(g_player[otherp].ps->q16ang), getangle(pPlayer->pos.x - g_player[otherp].ps->pos.x,
                                                                      pPlayer->pos.y - g_player[otherp].ps->pos.y))
-                : G_GetAngleDelta(pPlayer->ang, getangle(vm.pSprite->x - pPlayer->pos.x, vm.pSprite->y - pPlayer->pos.y));
+                : G_GetAngleDelta(fix16_to_int(pPlayer->q16ang), getangle(vm.pSprite->x - pPlayer->pos.x, vm.pSprite->y - pPlayer->pos.y));
 
                 nResult = (nResult > -128 && nResult < 128);
             }
@@ -4410,7 +4410,7 @@ finish_qsprintf:
 
         case CON_GETPLAYERANGLE:
             insptr++;
-            Gv_SetVarX(*insptr++, pPlayer->ang);
+            Gv_SetVarX(*insptr++, fix16_to_int(pPlayer->q16ang));
             continue;
 
         case CON_GETACTORANGLE:
@@ -4420,7 +4420,7 @@ finish_qsprintf:
 
         case CON_SETPLAYERANGLE:
             insptr++;
-            pPlayer->ang = Gv_GetVarX(*insptr++) & 2047;
+            pPlayer->q16ang = fix16_from_int(Gv_GetVarX(*insptr++) & 2047);
             continue;
 
         case CON_SETACTORANGLE:
@@ -5727,7 +5727,7 @@ finish_qsprintf:
 
         case CON_IFANGDIFFL:
             insptr++;
-            tw = klabs(G_GetAngleDelta(pPlayer->ang, vm.pSprite->ang));
+            tw = klabs(G_GetAngleDelta(fix16_to_int(pPlayer->q16ang), vm.pSprite->ang));
             VM_CONDITIONAL(tw <= *insptr);
             continue;
 

@@ -1583,7 +1583,7 @@ void A_DamageWall(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
 
                 {
                     int const i = A_InsertSprite(sectNum, vPos->x, vPos->y, vPos->z, SECTOREFFECTOR, 0, 0, 0,
-                        g_player[0].ps->ang, 0, 0, spriteNum, 3);
+                        fix16_to_int(g_player[0].ps->q16ang), 0, 0, spriteNum, 3);
                     SLT(i) = 128;
                     T2(i)  = 5;
                     T3(i)  = wallNum;
@@ -2753,7 +2753,7 @@ CHECKINV1:
                         if (pPlayer->cursectnum > -1)
                         {
                             int const i = A_InsertSprite(pPlayer->cursectnum, pPlayer->pos.x, pPlayer->pos.y,
-                                pPlayer->pos.z+(30<<8), APLAYER, -64, 0, 0, pPlayer->ang, 0, 0, -1, 10);
+                                pPlayer->pos.z+(30<<8), APLAYER, -64, 0, 0, fix16_to_int(pPlayer->q16ang), 0, 0, -1, 10);
                             pPlayer->holoduke_on = i;
                             T4(i) = T5(i) = 0;
                             sprite[i].yvel = playerNum;
@@ -2869,8 +2869,8 @@ static int P_FindWall(DukePlayer_t *pPlayer, int *hitWall)
 {
     hitdata_t hitData;
 
-    hitscan((const vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(pPlayer->ang + 512) & 2047],
-            sintable[pPlayer->ang & 2047], 0, &hitData, CLIPMASK0);
+    hitscan((const vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047],
+            sintable[fix16_to_int(pPlayer->q16ang) & 2047], 0, &hitData, CLIPMASK0);
 
     *hitWall = hitData.wall;
 
@@ -2987,22 +2987,24 @@ void P_CheckSectors(int playerNum)
             if (wall[foundWall].lotag)
                 return;
 
+        int const intang = fix16_to_int(pPlayer->oq16ang);
+
         if (pPlayer->newowner >= 0)
-            neartag(pPlayer->opos.x, pPlayer->opos.y, pPlayer->opos.z, sprite[pPlayer->i].sectnum, pPlayer->oang, &nearSector,
+            neartag(pPlayer->opos.x, pPlayer->opos.y, pPlayer->opos.z, sprite[pPlayer->i].sectnum, intang, &nearSector,
                 &nearWall, &nearSprite, &nearDist, 1280, 1, our_neartag_blacklist);
         else
         {
-            neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z, sprite[pPlayer->i].sectnum, pPlayer->oang, &nearSector,
+            neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z, sprite[pPlayer->i].sectnum, intang, &nearSector,
                 &nearWall, &nearSprite, &nearDist, 1280, 1, our_neartag_blacklist);
             if (nearSprite == -1 && nearWall == -1 && nearSector == -1)
-                neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z+ZOFFSET3, sprite[pPlayer->i].sectnum, pPlayer->oang, &nearSector,
+                neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z+ZOFFSET3, sprite[pPlayer->i].sectnum, intang, &nearSector,
                     &nearWall, &nearSprite, &nearDist, 1280, 1, our_neartag_blacklist);
             if (nearSprite == -1 && nearWall == -1 && nearSector == -1)
-                neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z+ZOFFSET2, sprite[pPlayer->i].sectnum, pPlayer->oang, &nearSector,
+                neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z+ZOFFSET2, sprite[pPlayer->i].sectnum, intang, &nearSector,
                     &nearWall, &nearSprite, &nearDist, 1280, 1, our_neartag_blacklist);
             if (nearSprite == -1 && nearWall == -1 && nearSector == -1)
             {
-                neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z+ZOFFSET2, sprite[pPlayer->i].sectnum, pPlayer->oang, &nearSector,
+                neartag(pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z+ZOFFSET2, sprite[pPlayer->i].sectnum, intang, &nearSector,
                     &nearWall, &nearSprite, &nearDist, 1280, 3, our_neartag_blacklist);
                 if (nearSprite >= 0)
                 {

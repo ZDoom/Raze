@@ -129,8 +129,8 @@ static inline int32_t G_GetLogoFlags(void)
 typedef struct {
     vec3_t pos;
     int32_t dist, clock;
-    fix16_t qhoriz;
-    int16_t ang, sect;
+    fix16_t q16horiz, q16ang;
+    int16_t sect;
 } camera_t;
 
 extern camera_t g_camera;
@@ -192,8 +192,8 @@ typedef struct {
     int32_t returnvar[MAX_RETURN_VALUES-1];
 
 #if !defined LUNATIC
-    int16_t cameraang, camerasect;
-    fix16_t cameraqhoriz;
+    fix16_t cameraq16ang, cameraq16horiz;
+    int16_t camerasect;
 #endif
     int16_t pause_on,from_bonus;
     int16_t camerasprite,last_camsprite;

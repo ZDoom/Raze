@@ -657,7 +657,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     }
 
     int32_t sndist, sndang;
-    int32_t explosionp = S_CalcDistAndAng(i, num, CAMERA(sect), CAMERA(ang), &CAMERA(pos), pos, &sndist, &sndang);
+    int32_t explosionp = S_CalcDistAndAng(i, num, CAMERA(sect), fix16_to_int(CAMERA(q16ang)), &CAMERA(pos), pos, &sndist, &sndang);
     int32_t pitch = S_GetPitch(num);
     const DukePlayer_t *peekps = g_player[screenpeek].ps;
 
@@ -897,7 +897,7 @@ void S_Update(void)
     {
         c = &CAMERA(pos);
         cs = CAMERA(sect);
-        ca = CAMERA(ang);
+        ca = fix16_to_int(CAMERA(q16ang));
     }
     else
     {

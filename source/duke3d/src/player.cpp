@@ -289,7 +289,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                         if (pSprite->picnum == APLAYER)
                         {
                             const DukePlayer_t *const ps = g_player[P_GetP(pSprite)].ps;
-                            onScreen = (klabs(scale(SZ(spriteNum)-pSprite->z,10,spriteDist)-fix16_to_int(ps->qhoriz+ps->qhorizoff-F16(100))) < 100);
+                            onScreen = (klabs(scale(SZ(spriteNum)-pSprite->z,10,spriteDist)-fix16_to_int(ps->q16horiz+ps->q16horizoff-F16(100))) < 100);
                         }
 
                         int const canSee = (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN)
@@ -480,7 +480,7 @@ static void P_PreFireHitscan(int spriteNum, int playerNum, int projecTile, vec3_
         {
             hitdata_t hitData;
 
-            *zvel = A_GetShootZvel(fix16_to_int(F16(100)-pPlayer->qhoriz-pPlayer->qhorizoff)<<5);
+            *zvel = A_GetShootZvel(fix16_to_int(F16(100)-pPlayer->q16horiz-pPlayer->q16horizoff)<<5);
 
             hitscan(srcVect, sprite[spriteNum].sectnum, sintable[(*shootAng + 512) & 2047],
                     sintable[*shootAng & 2047], *zvel << 6, &hitData, CLIPMASK1);
@@ -503,7 +503,7 @@ static void P_PreFireHitscan(int spriteNum, int playerNum, int projecTile, vec3_
         if (aimSprite == -1)  // no target
         {
 notarget:
-            *zvel = fix16_to_int(F16(100)-pPlayer->qhoriz-pPlayer->qhorizoff)<<5;
+            *zvel = fix16_to_int(F16(100)-pPlayer->q16horiz-pPlayer->q16horizoff)<<5;
         }
 
         Proj_MaybeAddSpread(doSpread, zvel, shootAng, zRange, angRange);
@@ -917,7 +917,7 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
             otherSprite = GetAutoAimAng(spriteNum, playerNum, projecTile, 8<<8, 0+2, startPos, pProj->vel, &zvel, &shootAng);
 
             if (otherSprite < 0)
-                zvel = fix16_to_int(F16(100)-pPlayer->qhoriz-pPlayer->qhorizoff)*(pProj->vel/8);
+                zvel = fix16_to_int(F16(100)-pPlayer->q16horiz-pPlayer->q16horizoff)*(pProj->vel/8);
 
             if (pProj->sound >= 0)
                 A_PlaySound(pProj->sound, spriteNum);
@@ -976,7 +976,7 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
     case PROJECTILE_KNEE:
         if (playerNum >= 0)
         {
-            zvel = fix16_to_int(F16(100) - pPlayer->qhoriz - pPlayer->qhorizoff) << 5;
+            zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) << 5;
             startPos->z += (6 << 8);
             shootAng += 15;
         }
@@ -1095,7 +1095,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
             {
                 if (playerNum >= 0)
                 {
-                    Zvel = fix16_to_int(F16(100) - pPlayer->qhoriz - pPlayer->qhorizoff) << 5;
+                    Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) << 5;
                     startPos.z += (6 << 8);
                     shootAng += 15;
                 }
@@ -1239,7 +1239,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
             if (playerNum >= 0)
             {
                 if (GetAutoAimAng(spriteNum, playerNum, projecTile, -ZOFFSET4, 0, &startPos, vel, &Zvel, &shootAng) < 0)
-                    Zvel = fix16_to_int(F16(100) - pPlayer->qhoriz - pPlayer->qhorizoff) * 98;
+                    Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 98;
             }
             else
             {
@@ -1306,7 +1306,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                 j = GetAutoAimAng(spriteNum, playerNum, projecTile, 8 << 8, 0 + 2, &startPos, vel, &Zvel, &shootAng);
 
                 if (j < 0)
-                    Zvel = fix16_to_int(F16(100) - pPlayer->qhoriz - pPlayer->qhorizoff) * 81;
+                    Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 81;
 
                 if (projecTile == RPG)
                     A_PlaySound(RPG_SHOOT, spriteNum);
@@ -1413,7 +1413,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
         case HANDHOLDINGLASER__STATIC:
         {
             int const zOffset     = (playerNum >= 0) ? g_player[playerNum].ps->pyoff : 0;
-            Zvel                  = (playerNum >= 0) ? fix16_to_int(F16(100) - pPlayer->qhoriz - pPlayer->qhorizoff) * 32 : 0;
+            Zvel                  = (playerNum >= 0) ? fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 32 : 0;
 
             startPos.z -= zOffset;
             Proj_DoHitscan(spriteNum, 0, &startPos, Zvel, shootAng, &hitData);
@@ -1513,7 +1513,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
             if (playerNum >= 0)
             {
                 if (GetAutoAimAng(spriteNum, playerNum, projecTile, ZOFFSET6, 0, &startPos, 768, &Zvel, &shootAng) < 0)
-                    Zvel = fix16_to_int(F16(100) - pPlayer->qhoriz - pPlayer->qhorizoff) * 98;
+                    Zvel = fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 98;
             }
             else if (pSprite->statnum != STAT_EFFECTOR)
             {
@@ -1561,7 +1561,7 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
     {
         startPos            = *(vec3_t *)pPlayer;
         startPos.z          += pPlayer->pyoff + ZOFFSET6;
-        shootAng          = pPlayer->ang;
+        shootAng          = fix16_to_int(pPlayer->q16ang);
         pPlayer->crack_time = 777;
     }
     else
@@ -1632,7 +1632,7 @@ static void P_DisplaySpit(void)
     {
         int const rotAng = klabs(sintable[((loogCounter + i) << 5) & 2047]) >> 5;
         int const rotZoom  = 4096 + ((loogCounter + i) << 9);
-        int const rotX     = (-g_player[screenpeek].inputBits->avel >> 1) + (sintable[((loogCounter + i) << 6) & 2047] >> 10);
+        int const rotX     = (-fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 1) + (sintable[((loogCounter + i) << 6) & 2047] >> 10);
 
         rotatesprite_fs((pPlayer->loogiex[i] + rotX) << 16, (200 + pPlayer->loogiey[i] - rotY) << 16, rotZoom - (i << 8),
                         256 - rotAng, LOOGIE, 0, 0, 2);
@@ -1683,7 +1683,7 @@ static int P_DisplayFist(int const fistShade)
         wx[(g_snum==0)] = (wx[0]+wx[1])/2+1;
 #endif
 
-    rotatesprite((-fistInc + 222 + (g_player[screenpeek].inputBits->avel >> 5)) << 16, (fistY + fistYOffset) << 16,
+    rotatesprite((-fistInc + 222 + (fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 5)) << 16, (fistY + fistYOffset) << 16,
                  fistZoom, 0, FIST, fistShade, fistPal, 2, wx[0], windowxy1.y, wx[1], windowxy2.y);
 
     return 1;
@@ -1830,8 +1830,8 @@ static int P_DisplayKnee(int kneeShade)
     if (kneePal == 0)
         kneePal = ps->palookup;
 
-    G_DrawTileScaled(105+(g_player[screenpeek].inputBits->avel>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
-                     kneeY+280-(fix16_to_int(ps->qhoriz-ps->qhorizoff)>>4),KNEE,kneeShade,4+DRAWEAP_CENTER,kneePal);
+    G_DrawTileScaled(105+(fix16_to_int(g_player[screenpeek].inputBits->qavel)>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
+                     kneeY+280-(fix16_to_int(ps->q16horiz-ps->q16horizoff)>>4),KNEE,kneeShade,4+DRAWEAP_CENTER,kneePal);
 
     return 1;
 }
@@ -1860,8 +1860,8 @@ static int P_DisplayKnuckles(int knuckleShade)
     int const knuckleY   = (klabs(pPlayer->look_ang) / 9) - (pPlayer->hard_landing << 3);
     int const knucklePal = P_GetHudPal(pPlayer);
 
-    G_DrawTileScaled(160 + (g_player[screenpeek].inputBits->avel >> 5) - (pPlayer->look_ang >> 1),
-                     knuckleY + 180 - (fix16_to_int(pPlayer->qhoriz - pPlayer->qhorizoff) >> 4),
+    G_DrawTileScaled(160 + (fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 5) - (pPlayer->look_ang >> 1),
+                     knuckleY + 180 - (fix16_to_int(pPlayer->q16horiz - pPlayer->q16horizoff) >> 4),
                      CRACKKNUCKLES + knuckleFrames[pPlayer->knuckle_incs >> 1], knuckleShade, 4 + DRAWEAP_CENTER,
                      knucklePal);
 
@@ -2015,8 +2015,8 @@ static int P_DisplayTip(int tipShade)
 
     guniqhudid = 201;
 
-    G_DrawTileScaled(170 + (g_player[screenpeek].inputBits->avel >> 5) - (pPlayer->look_ang >> 1),
-                     tipYOffset + tipY + 240 - (fix16_to_int(pPlayer->qhoriz - pPlayer->qhorizoff) >> 4),
+    G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 5) - (pPlayer->look_ang >> 1),
+                     tipYOffset + tipY + 240 - (fix16_to_int(pPlayer->q16horiz - pPlayer->q16horizoff) >> 4),
                      TIP + ((26 - pPlayer->tipincs) >> 4), tipShade, DRAWEAP_CENTER, tipPal);
 
     guniqhudid = 0;
@@ -2048,14 +2048,14 @@ static int P_DisplayAccess(int accessShade)
 
     if ((pSprite->access_incs - 3) > 0 && (pSprite->access_incs - 3) >> 3)
     {
-        G_DrawTileScaled(170 + (g_player[screenpeek].inputBits->avel >> 5) - (pSprite->look_ang >> 1) + accessX,
-                         accessY + 266 - (fix16_to_int(pSprite->qhoriz - pSprite->qhorizoff) >> 4),
+        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 5) - (pSprite->look_ang >> 1) + accessX,
+                         accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4),
                          HANDHOLDINGLASER + (pSprite->access_incs >> 3), accessShade, DRAWEAP_CENTER, accessPal);
     }
     else
     {
-        G_DrawTileScaled(170 + (g_player[screenpeek].inputBits->avel >> 5) - (pSprite->look_ang >> 1) + accessX,
-                         accessY + 266 - (fix16_to_int(pSprite->qhoriz - pSprite->qhorizoff) >> 4), HANDHOLDINGACCESS, accessShade,
+        G_DrawTileScaled(170 + (fix16_to_int(g_player[screenpeek].inputBits->qavel) >> 5) - (pSprite->look_ang >> 1) + accessX,
+                         accessY + 266 - (fix16_to_int(pSprite->q16horiz - pSprite->q16horizoff) >> 4), HANDHOLDINGACCESS, accessShade,
                          4 + DRAWEAP_CENTER, accessPal);
     }
 
@@ -2820,13 +2820,14 @@ void P_GetInput(int playerNum)
     static int32_t     lastControlInput = 0;  // MED
     DukePlayer_t *     pPlayer          = g_player[playerNum].ps;
     static input_t     staticInput;
+    static int32_t     dyaw;
 
     if ((pPlayer->gm & (MODE_MENU|MODE_TYPE)) || (ud.pause_on && !KB_KeyPressed(sc_Pause)))
     {
         if (!(pPlayer->gm&MODE_MENU))
             CONTROL_GetInput(&info[0]);
 
-        Bmemset(&info[1],    0, sizeof(input_t));
+        dyaw = 0;
         Bmemset(&localInput, 0, sizeof(input_t));
 
         localInput.bits    = (((int32_t)g_gameQuit) << SK_GAMEQUIT);
@@ -2886,26 +2887,23 @@ void P_GetInput(int playerNum)
     // JBF: Run key behaviour is selectable
     int const playerRunning = (ud.runkey_mode) ? (BUTTON(gamefunc_Run) | ud.auto_run) : (ud.auto_run ^ BUTTON(gamefunc_Run));
 
-    staticInput.svel = staticInput.fvel = staticInput.avel = staticInput.qhorz = 0;
+    staticInput.svel = staticInput.fvel = staticInput.qavel = staticInput.qhorz = 0;
 
     if (BUTTON(gamefunc_Strafe))
     {
-        staticInput.svel = -(info[0].dyaw + info[1].dyaw) / 8;
-        staticInput.svel = -(info[0].dyaw + info[1].dyaw) / 8;
-        info[1].dyaw     = (info[1].dyaw + info[0].dyaw) % 8;
+        staticInput.svel = -(info[0].dyaw + dyaw) >> 3;
+        staticInput.svel = -(info[0].dyaw + dyaw) >> 3;
+
+        dyaw = (info[0].dyaw + dyaw) % 8;
     }
     else
-    {
-        staticInput.avel = (info[0].dyaw + info[1].dyaw) / 32;
-        info[1].dyaw     = (info[1].dyaw + info[0].dyaw) % 32;
-    }
+        staticInput.qavel = fix16_div(fix16_from_int(info[0].dyaw), F16(32));
 
-    staticInput.qhorz = fix16_div(fix16_from_int(info[0].dpitch), F16(512));
+    staticInput.qhorz = fix16_div(fix16_from_int(info[0].dpitch), F16(256));
 
     if (ud.mouseflip) staticInput.qhorz = -staticInput.qhorz;
 
     staticInput.svel -= info[0].dx;
-    info[1].dz       = info[0].dz % (1 << 6);
     staticInput.fvel = -info[0].dz >> 6;
 
     //     OSD_Printf("running: %d\n", running);
@@ -2925,12 +2923,12 @@ void P_GetInput(int playerNum)
         if (BUTTON(gamefunc_Turn_Left))
         {
             turnHeldTime += elapsedTics;
-            staticInput.avel -= (turnHeldTime>=TURBOTURNTIME) ? (turnAmount<<1) : (PREAMBLETURN<<1);
+            staticInput.qavel -= fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
         }
         else if (BUTTON(gamefunc_Turn_Right))
         {
             turnHeldTime += elapsedTics;
-            staticInput.avel += (turnHeldTime>=TURBOTURNTIME) ? (turnAmount<<1) : (PREAMBLETURN<<1);
+            staticInput.qavel += fix16_from_int((turnHeldTime >= TURBOTURNTIME) ? (turnAmount << 1) : (PREAMBLETURN << 1));
         }
         else
             turnHeldTime=0;
@@ -2950,7 +2948,7 @@ void P_GetInput(int playerNum)
 
     staticInput.fvel = clamp(staticInput.fvel, -MAXVEL, MAXVEL);
     staticInput.svel = clamp(staticInput.svel, -MAXSVEL, MAXSVEL);
-    staticInput.avel = clamp(staticInput.avel, -MAXANGVEL, MAXANGVEL);
+    staticInput.qavel = fix16_clamp(staticInput.qavel, F16(-MAXANGVEL), F16(MAXANGVEL));
     staticInput.qhorz = fix16_clamp(staticInput.qhorz, F16(-MAXHORIZ), F16(MAXHORIZ));
 
     int weaponSelection;
@@ -3003,7 +3001,7 @@ void P_GetInput(int playerNum)
     localInput.bits |= BUTTON(gamefunc_Center_View) << SK_CENTER_VIEW;
     localInput.bits |= BUTTON(gamefunc_Holster_Weapon) << SK_HOLSTER;
     localInput.bits |= (BUTTON(gamefunc_Inventory_Left) ||
-                 (BUTTON(gamefunc_Dpad_Select) && (staticInput.svel > 0 || staticInput.avel < 0))) << SK_INV_LEFT;
+                 (BUTTON(gamefunc_Dpad_Select) && (staticInput.svel > 0 || staticInput.qavel < 0))) << SK_INV_LEFT;
     localInput.bits |= KB_KeyPressed(sc_Pause) << SK_PAUSE;
     localInput.bits |= BUTTON(gamefunc_Quick_Kick) << SK_QUICK_KICK;
     localInput.bits |= g_myAimMode << SK_AIMMODE;
@@ -3011,7 +3009,7 @@ void P_GetInput(int playerNum)
     localInput.bits |= BUTTON(gamefunc_Jetpack) << SK_JETPACK;
     localInput.bits |= (g_gameQuit << SK_GAMEQUIT);
     localInput.bits |= (BUTTON(gamefunc_Inventory_Right) ||
-                 (BUTTON(gamefunc_Dpad_Select) && (staticInput.svel < 0 || staticInput.avel > 0))) << SK_INV_RIGHT;
+                 (BUTTON(gamefunc_Dpad_Select) && (staticInput.svel < 0 || staticInput.qavel > 0))) << SK_INV_RIGHT;
     localInput.bits |= BUTTON(gamefunc_TurnAround) << SK_TURNAROUND;
     localInput.bits |= BUTTON(gamefunc_Open) << SK_OPEN;
     localInput.bits |= BUTTON(gamefunc_Inventory) << SK_INVENTORY;
@@ -3021,7 +3019,7 @@ void P_GetInput(int playerNum)
     {
         staticInput.fvel = 0;
         staticInput.svel = 0;
-        staticInput.avel = 0;
+        staticInput.qavel = 0;
     }
 
     if (BUTTON(gamefunc_Dpad_Aiming))
@@ -3047,23 +3045,25 @@ void P_GetInput(int playerNum)
     if (ud.scrollmode && ud.overhead_on)
     {
         ud.folfvel = staticInput.fvel;
-        ud.folavel = staticInput.avel;
+        ud.folavel = fix16_to_int(staticInput.qavel);
         localInput.fvel   = 0;
         localInput.svel   = 0;
-        localInput.avel   = 0;
+        localInput.qavel  = 0;
         localInput.qhorz  = 0;
         return;
     }
 
-    localInput.fvel = mulscale9(staticInput.fvel, sintable[(pPlayer->ang + 2560) & 2047]) +
-                      mulscale9(staticInput.svel, sintable[(pPlayer->ang + 2048) & 2047]) +
+    int16_t const q16ang = fix16_to_int(pPlayer->q16ang);
+
+    localInput.fvel = mulscale9(staticInput.fvel, sintable[(q16ang + 2560) & 2047]) +
+                      mulscale9(staticInput.svel, sintable[(q16ang + 2048) & 2047]) +
                       pPlayer->fric.x;
 
-    localInput.svel = mulscale9(staticInput.fvel, sintable[(pPlayer->ang + 2048) & 2047]) +
-                      mulscale9(staticInput.svel, sintable[(pPlayer->ang + 1536) & 2047]) +
+    localInput.svel = mulscale9(staticInput.fvel, sintable[(q16ang + 2048) & 2047]) +
+                      mulscale9(staticInput.svel, sintable[(q16ang + 1536) & 2047]) +
                       pPlayer->fric.y;
 
-    localInput.avel = staticInput.avel;
+    localInput.qavel = staticInput.qavel;
     localInput.qhorz = staticInput.qhorz;
 }
 
@@ -3457,8 +3457,8 @@ void P_CheckWeaponI(int playerNum)
 
 static void DoWallTouchDamage(const DukePlayer_t *pPlayer, int32_t wallNum)
 {
-    vec3_t const davect = { pPlayer->pos.x + (sintable[(pPlayer->ang + 512) & 2047] >> 9),
-                      pPlayer->pos.y + (sintable[pPlayer->ang & 2047] >> 9), pPlayer->pos.z };
+    vec3_t const davect = { pPlayer->pos.x + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 9),
+                      pPlayer->pos.y + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 9), pPlayer->pos.z };
 
     A_DamageWall(pPlayer->i, wallNum, &davect, -1);
 }
@@ -3505,8 +3505,8 @@ static void P_CheckTouchDamage(DukePlayer_t *pPlayer, int touchObject)
             pPlayer->hurt_delay = 16;
             P_PalFrom(pPlayer, 32, 32,0,0);
 
-            pPlayer->vel.x = -(sintable[(pPlayer->ang+512)&2047]<<8);
-            pPlayer->vel.y = -(sintable[(pPlayer->ang)&2047]<<8);
+            pPlayer->vel.x = -(sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]<<8);
+            pPlayer->vel.y = -(sintable[(fix16_to_int(pPlayer->q16ang))&2047]<<8);
             A_PlaySound(DUKE_LONGTERM_PAIN,pPlayer->i);
 
             DoWallTouchDamage(pPlayer, touchWall);
@@ -3917,8 +3917,8 @@ static void P_ProcessWeapon(int playerNum)
                         {
                             hitdata_t hitData;
 
-                            hitscan((const vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(pPlayer->ang + 512) & 2047],
-                                    sintable[pPlayer->ang & 2047], fix16_to_int(F16(100) - pPlayer->qhoriz - pPlayer->qhorizoff) * 32, &hitData,
+                            hitscan((const vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047],
+                                    sintable[fix16_to_int(pPlayer->q16ang) & 2047], fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) * 32, &hitData,
                                     CLIPMASK1);
 
                             if ((hitData.sect < 0 || hitData.sprite >= 0) ||
@@ -4016,19 +4016,19 @@ static void P_ProcessWeapon(int playerNum)
                     if (pPlayer->on_ground && TEST_SYNC_KEY(playerBits, SK_CROUCH))
                     {
                         pipeBombFwdVel = 15;
-                        pipeBombZvel   = (fix16_to_int(pPlayer->qhoriz + pPlayer->qhorizoff - F16(100)) * 20);
+                        pipeBombZvel   = (fix16_to_int(pPlayer->q16horiz + pPlayer->q16horizoff - F16(100)) * 20);
                     }
                     else
                     {
                         pipeBombFwdVel = 140;
-                        pipeBombZvel   = -512 - (fix16_to_int(pPlayer->qhoriz + pPlayer->qhorizoff - F16(100)) * 20);
+                        pipeBombZvel   = -512 - (fix16_to_int(pPlayer->q16horiz + pPlayer->q16horizoff - F16(100)) * 20);
                     }
 
                     int pipeSpriteNum = A_InsertSprite(pPlayer->cursectnum,
-                                       pPlayer->pos.x+(sintable[(pPlayer->ang+512)&2047]>>6),
-                                       pPlayer->pos.y+(sintable[pPlayer->ang&2047]>>6),
+                                       pPlayer->pos.x+(sintable[(fix16_to_int(pPlayer->q16ang)+512)&2047]>>6),
+                                       pPlayer->pos.y+(sintable[fix16_to_int(pPlayer->q16ang)&2047]>>6),
                                        pPlayer->pos.z,PWEAPON(playerNum, pPlayer->curr_weapon, Shoots),-16,9,9,
-                                       pPlayer->ang,(pipeBombFwdVel+(pPlayer->hbomb_hold_delay<<5)),pipeBombZvel,pPlayer->i,1);
+                                       fix16_to_int(pPlayer->q16ang),(pipeBombFwdVel+(pPlayer->hbomb_hold_delay<<5)),pipeBombZvel,pPlayer->i,1);
 
                     pipeBombType = PIPEBOMB_CONTROL(playerNum);
 
@@ -4363,7 +4363,7 @@ void P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer)
 {
     int const newOwner      = pPlayer->newowner;
     pPlayer->pos            = *(vec3_t *)&sprite[newOwner];
-    pPlayer->ang            = SA(newOwner);
+    pPlayer->q16ang           = fix16_from_int(SA(newOwner));
     pPlayer->vel.x          = 0;
     pPlayer->vel.y          = 0;
     sprite[pPlayer->i].xvel = 0;
@@ -4421,9 +4421,10 @@ static void P_DoWater(int const playerNum, int const playerBits, int const floor
     if (pPlayer->scuba_on && (krand()&255) < 8)
     {
         int const spriteNum = A_Spawn(pPlayer->i, WATERBUBBLE);
+        int const q16ang      = fix16_to_int(pPlayer->q16ang);
 
-        sprite[spriteNum].x      += sintable[(pPlayer->ang + 512 + 64 - (g_globalRandom & 128)) & 2047] >> 6;
-        sprite[spriteNum].y      += sintable[(pPlayer->ang + 64 - (g_globalRandom & 128)) & 2047] >> 6;
+        sprite[spriteNum].x      += sintable[(q16ang + 512 + 64 - (g_globalRandom & 128)) & 2047] >> 6;
+        sprite[spriteNum].y      += sintable[(q16ang + 64 - (g_globalRandom & 128)) & 2047] >> 6;
         sprite[spriteNum].xrepeat = 3;
         sprite[spriteNum].yrepeat = 2;
         sprite[spriteNum].z       = pPlayer->pos.z + ZOFFSET3;
@@ -4511,11 +4512,11 @@ static void P_Dead(int const playerNum, int const sectorLotag, int const floorZ,
     }
 
     Bmemcpy(&pPlayer->opos, &pPlayer->pos, sizeof(vec3_t));
-    pPlayer->oang = pPlayer->ang;
+    pPlayer->oq16ang = pPlayer->q16ang;
     pPlayer->opyoff = pPlayer->pyoff;
 
-    pPlayer->qhoriz = F16(100);
-    pPlayer->qhorizoff = 0;
+    pPlayer->q16horiz = F16(100);
+    pPlayer->q16horizoff = 0;
 
     updatesector(pPlayer->pos.x, pPlayer->pos.y, &pPlayer->cursectnum);
 
@@ -4606,15 +4607,15 @@ void P_ProcessInput(int playerNum)
     actor[pPlayer->i].floorz   = floorZ;
     actor[pPlayer->i].ceilingz = ceilZ;
 
-    pPlayer->oqhoriz            = pPlayer->qhoriz;
-    pPlayer->oqhorizoff         = pPlayer->qhorizoff;
+    pPlayer->oq16horiz            = pPlayer->q16horiz;
+    pPlayer->oq16horizoff         = pPlayer->q16horizoff;
 
     // calculates automatic view angle for playing without a mouse
     if (pPlayer->aim_mode == 0 && pPlayer->on_ground && sectorLotag != ST_2_UNDERWATER
         && (sector[pPlayer->cursectnum].floorstat & 2))
     {
-        vec2_t const adjustedPlayer = { pPlayer->pos.x + (sintable[(pPlayer->ang + 512) & 2047] >> 5),
-                                        pPlayer->pos.y + (sintable[pPlayer->ang & 2047] >> 5) };
+        vec2_t const adjustedPlayer = { pPlayer->pos.x + (sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047] >> 5),
+                                        pPlayer->pos.y + (sintable[fix16_to_int(pPlayer->q16ang) & 2047] >> 5) };
         int16_t curSectNum = pPlayer->cursectnum;
 
         updatesector(adjustedPlayer.x, adjustedPlayer.y, &curSectNum);
@@ -4624,14 +4625,14 @@ void P_ProcessInput(int playerNum)
             int const slopeZ = getflorzofslope(pPlayer->cursectnum, adjustedPlayer.x, adjustedPlayer.y);
             if ((pPlayer->cursectnum == curSectNum) ||
                 (klabs(getflorzofslope(curSectNum, adjustedPlayer.x, adjustedPlayer.y) - slopeZ) <= ZOFFSET6))
-                pPlayer->qhorizoff += fix16_from_int(mulscale16(trueFloorZ - slopeZ, 160));
+                pPlayer->q16horizoff += fix16_from_int(mulscale16(trueFloorZ - slopeZ, 160));
         }
     }
 
-    if (pPlayer->qhorizoff > 0)
-        pPlayer->qhorizoff -= ((pPlayer->qhorizoff >> 3) + fix16_one);
-    else if (pPlayer->qhorizoff < 0)
-        pPlayer->qhorizoff += (((-pPlayer->qhorizoff) >> 3) + fix16_one);
+    if (pPlayer->q16horizoff > 0)
+        pPlayer->q16horizoff -= ((pPlayer->q16horizoff >> 3) + fix16_one);
+    else if (pPlayer->q16horizoff < 0)
+        pPlayer->q16horizoff += (((-pPlayer->q16horizoff) >> 3) + fix16_one);
 
     if (highZhit >= 0 && (highZhit&49152) == 49152)
     {
@@ -4814,12 +4815,12 @@ void P_ProcessInput(int playerNum)
     pPlayer->bobpos.y = pPlayer->pos.y;
     pPlayer->opos.z   = pPlayer->pos.z;
     pPlayer->opyoff   = pPlayer->pyoff;
-    pPlayer->oang     = pPlayer->ang;
+    pPlayer->oq16ang    = pPlayer->q16ang;
 
     if (pPlayer->one_eighty_count < 0)
     {
         pPlayer->one_eighty_count += 128;
-        pPlayer->ang += 128;
+        pPlayer->q16ang += F16(128);
     }
 
     // Shrinking code
@@ -5072,14 +5073,14 @@ void P_ProcessInput(int playerNum)
         pPlayer->vel.x   = 0;
         pPlayer->vel.y   = 0;
     }
-    else if (g_player[playerNum].inputBits->avel)            //p->ang += syncangvel * constant
+    else if (g_player[playerNum].inputBits->qavel)            //p->ang += syncangvel * constant
     {
-        int const inputAng  = g_player[playerNum].inputBits->avel;
+        fix16_t const inputAng  = g_player[playerNum].inputBits->qavel;
 
-        pPlayer->angvel     = (sectorLotag == ST_2_UNDERWATER) ? (inputAng - (inputAng >> 3)) * ksgn(velocityModifier)
-                                                               : inputAng * ksgn(velocityModifier);
-        pPlayer->ang       += pPlayer->angvel;
-        pPlayer->ang       &= 2047;
+        pPlayer->q16angvel     = (sectorLotag == ST_2_UNDERWATER) ? fix16_mul(inputAng - (inputAng >> 3), fix16_from_int(ksgn(velocityModifier)))
+                                                               : fix16_mul(inputAng, fix16_from_int(ksgn(velocityModifier)));
+        pPlayer->q16ang       += pPlayer->q16angvel;
+        pPlayer->q16ang       &= 0x7FFFFFF;
         pPlayer->crack_time = 777;
     }
 
@@ -5122,10 +5123,10 @@ void P_ProcessInput(int playerNum)
     if (g_player[playerNum].inputBits->extbits & (1 << 2)) VM_OnEvent(EVENT_STRAFELEFT,   pPlayer->i, playerNum);
     if (g_player[playerNum].inputBits->extbits & (1 << 3)) VM_OnEvent(EVENT_STRAFERIGHT,  pPlayer->i, playerNum);
 
-    if (g_player[playerNum].inputBits->extbits & (1 << 4) || g_player[playerNum].inputBits->avel < 0)
+    if (g_player[playerNum].inputBits->extbits & (1 << 4) || g_player[playerNum].inputBits->qavel < 0)
         VM_OnEvent(EVENT_TURNLEFT, pPlayer->i, playerNum);
 
-    if (g_player[playerNum].inputBits->extbits & (1 << 5) || g_player[playerNum].inputBits->avel > 0)
+    if (g_player[playerNum].inputBits->extbits & (1 << 5) || g_player[playerNum].inputBits->qavel > 0)
         VM_OnEvent(EVENT_TURNRIGHT, pPlayer->i, playerNum);
 
     if (pPlayer->vel.x || pPlayer->vel.y || g_player[playerNum].inputBits->fvel || g_player[playerNum].inputBits->svel)
@@ -5318,7 +5319,7 @@ HORIZONLY:;
         if (VM_OnEvent(EVENT_LOOKUP,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            pPlayer->qhoriz += fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            pPlayer->q16horiz += fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             centerHoriz++;
         }
     }
@@ -5328,7 +5329,7 @@ HORIZONLY:;
         if (VM_OnEvent(EVENT_LOOKDOWN,pPlayer->i,playerNum) == 0)
         {
             pPlayer->return_to_center = 9;
-            pPlayer->qhoriz -= fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            pPlayer->q16horiz -= fix16_from_int(12<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             centerHoriz++;
         }
     }
@@ -5337,7 +5338,7 @@ HORIZONLY:;
     {
         if (VM_OnEvent(EVENT_AIMUP,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->qhoriz += fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            pPlayer->q16horiz += fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             centerHoriz++;
         }
     }
@@ -5346,7 +5347,7 @@ HORIZONLY:;
     {
         if (VM_OnEvent(EVENT_AIMDOWN,pPlayer->i,playerNum) == 0)
         {
-            pPlayer->qhoriz -= fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
+            pPlayer->q16horiz -= fix16_from_int(6<<(int)(TEST_SYNC_KEY(playerBits, SK_RUN)));
             centerHoriz++;
         }
     }
@@ -5354,23 +5355,23 @@ HORIZONLY:;
     if (pPlayer->return_to_center > 0 && !TEST_SYNC_KEY(playerBits, SK_LOOK_UP) && !TEST_SYNC_KEY(playerBits, SK_LOOK_DOWN))
     {
         pPlayer->return_to_center--;
-        pPlayer->qhoriz += F16(33)-fix16_div(pPlayer->qhoriz, F16(3));
+        pPlayer->q16horiz += F16(33)-fix16_div(pPlayer->q16horiz, F16(3));
         centerHoriz++;
     }
 
     if (pPlayer->hard_landing > 0)
     {
         pPlayer->hard_landing--;
-        pPlayer->qhoriz -= fix16_from_int(pPlayer->hard_landing<<4);
+        pPlayer->q16horiz -= fix16_from_int(pPlayer->hard_landing<<4);
     }
 
     if (centerHoriz)
     {
-        if (pPlayer->qhoriz > F16(95) && pPlayer->qhoriz < F16(105)) pPlayer->qhoriz = F16(100);
-        if (pPlayer->qhorizoff > F16(-5) && pPlayer->qhorizoff < F16(5)) pPlayer->qhorizoff = 0;
+        if (pPlayer->q16horiz > F16(95) && pPlayer->q16horiz < F16(105)) pPlayer->q16horiz = F16(100);
+        if (pPlayer->q16horizoff > F16(-5) && pPlayer->q16horizoff < F16(5)) pPlayer->q16horizoff = 0;
     }
 
-    pPlayer->qhoriz = fix16_clamp(pPlayer->qhoriz + g_player[playerNum].inputBits->qhorz, F16(HORIZ_MIN), F16(HORIZ_MAX));
+    pPlayer->q16horiz = fix16_clamp(pPlayer->q16horiz + g_player[playerNum].inputBits->qhorz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
     //Shooting code/changes
 
@@ -5392,7 +5393,7 @@ HORIZONLY:;
 
     if (pPlayer->knee_incs > 0)
     {
-        pPlayer->qhoriz -= F16(48);
+        pPlayer->q16horiz -= F16(48);
         pPlayer->return_to_center = 9;
 
         if (++pPlayer->knee_incs > 15)
@@ -5444,8 +5445,10 @@ HORIZONLY:;
             pPlayer->actorsqu = -1;
         }
         else if (pPlayer->actorsqu >= 0)
-            pPlayer->ang += G_GetAngleDelta(pPlayer->ang, getangle(sprite[pPlayer->actorsqu].x - pPlayer->pos.x,
-                                                                   sprite[pPlayer->actorsqu].y - pPlayer->pos.y)) >> 2;
+            pPlayer->q16ang += fix16_from_int(
+            G_GetAngleDelta(fix16_to_int(pPlayer->q16ang),
+                            getangle(sprite[pPlayer->actorsqu].x - pPlayer->pos.x, sprite[pPlayer->actorsqu].y - pPlayer->pos.y))
+            >> 2);
     }
 
     if (P_DoCounters(playerNum))

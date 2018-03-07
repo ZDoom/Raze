@@ -334,17 +334,17 @@ static void M32_drawdebug(void)
 #endif
 
 
-static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int32_t ang, fix16_t qhoriz)
+static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vsectnum, int16_t ang, int16_t horiz)
 {
     spritetype *sp = &sprite[pp->i];
     int32_t i, hx, hy;
-    int32_t daang;
     int32_t bakcstat = sp->cstat;
     hitdata_t hit;
+
     vec3_t n = {
         sintable[(ang+1536)&2047]>>4,
         sintable[(ang+1024)&2047]>>4,
-        fix16_mul(qhoriz-F16(100), F16(128))
+        (horiz-100) * 128
     };
 
     updatesectorz(vect->x,vect->y,vect->z,vsectnum);
@@ -365,7 +365,7 @@ static int32_t G_DoThirdPerson(const DukePlayer_t *pp, vec3_t *vect, int16_t *vs
 
         if (hit.wall >= 0)
         {
-            daang = getangle(wall[wall[hit.wall].point2].x-wall[hit.wall].x,
+            int32_t daang = getangle(wall[wall[hit.wall].point2].x-wall[hit.wall].x,
                              wall[wall[hit.wall].point2].y-wall[hit.wall].y);
 
             i = n.x*sintable[daang] + n.y*sintable[(daang+1536)&2047];
@@ -519,16 +519,16 @@ static void G_SE40(int32_t smoothratio)
 
 #ifdef POLYMER
             if (getrendermode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), CAMERA(ang), smoothratio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), fix16_to_int(CAMERA(q16ang)), smoothratio);
 #endif
             drawrooms(sprite[sprite2].x + x, sprite[sprite2].y + y,
-                      z + renderz, CAMERA(ang), CAMERA(qhoriz), sect);
+                      z + renderz, CAMERA(q16ang), CAMERA(q16horiz), sect);
             drawing_ror = 1 + level;
 
             if (drawing_ror == 2) // viewing from top
                 G_OROR_DupeSprites(sp);
 
-            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothratio);
+            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothratio);
             drawmasks();
 
             if (level)
@@ -555,7 +555,7 @@ static void G_SE40(int32_t smoothratio)
 }
 #endif
 
-void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, fix16_t qhoriz, int32_t smoothratio)
+void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz, int32_t smoothratio)
 {
     if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
 #ifdef POLYMER
@@ -604,7 +604,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, fix16_t qhoriz, 
         if (wall[g_mirrorWall[i]].overpicnum == MIRROR)
         {
             int32_t tposx, tposy;
-            int16_t tang;
+            fix16_t tang;
 
             preparemirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
 
@@ -616,16 +616,16 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, fix16_t qhoriz, 
                 int32_t didmirror;
 
                 yax_preparedrawrooms();
-                didmirror = drawrooms(tposx,tposy,z,tang,qhoriz,g_mirrorSector[i]+MAXSECTORS);
+                didmirror = drawrooms(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
                 yax_drawrooms(G_DoSpriteAnimations, g_mirrorSector[i], didmirror, smoothratio);
             }
 #ifdef USE_OPENGL
             else
-                drawrooms(tposx,tposy,z,tang,qhoriz,g_mirrorSector[i]+MAXSECTORS);
+                drawrooms(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
             // XXX: Sprites don't get drawn with TROR/Polymost
 #endif
             display_mirror = 1;
-            G_DoSpriteAnimations(tposx,tposy,tang,smoothratio);
+            G_DoSpriteAnimations(tposx,tposy,fix16_to_int(tang),smoothratio);
             display_mirror = 0;
 
             drawmasks();
@@ -740,8 +740,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         if (pSprite->yvel < 0) pSprite->yvel = -100;
         else if (pSprite->yvel > 199) pSprite->yvel = 300;
 
-        CAMERA(ang) = actor[ud.camerasprite].tempang +
-            mulscale16(((pSprite->ang+1024-actor[ud.camerasprite].tempang)&2047)-1024, smoothRatio);
+        CAMERA(q16ang) = fix16_from_int(actor[ud.camerasprite].tempang
+                                      + mulscale16(((pSprite->ang + 1024 - actor[ud.camerasprite].tempang) & 2047) - 1024, smoothRatio));
 
         int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMSCAMERA, pPlayer->i, playerNum, 0);
 
@@ -756,12 +756,12 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
 #ifdef POLYMER
             if (getrendermode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, CAMERA(ang), smoothRatio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
 #endif
             yax_preparedrawrooms();
-            drawrooms(pSprite->x,pSprite->y,pSprite->z-ZOFFSET6,CAMERA(ang),pSprite->yvel,pSprite->sectnum);
+            drawrooms(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), pSprite->yvel, pSprite->sectnum);
             yax_drawrooms(G_DoSpriteAnimations, pSprite->sectnum, 0, smoothRatio);
-            G_DoSpriteAnimations(pSprite->x,pSprite->y,CAMERA(ang),smoothRatio);
+            G_DoSpriteAnimations(pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
             drawmasks();
         }
     }
@@ -908,10 +908,10 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                      pPlayer->opos.z + mulscale16(pPlayer->pos.z - pPlayer->opos.z, smoothRatio) };
 
             CAMERA(pos) = camVect;
-            CAMERA(ang) = pPlayer->oang + mulscale16(((pPlayer->ang + 1024 - pPlayer->oang) & 2047) - 1024, smoothRatio);
-            CAMERA(ang) += pPlayer->look_ang;
-            CAMERA(qhoriz) = pPlayer->oqhoriz + pPlayer->oqhorizoff
-                            + mulscale16((pPlayer->qhoriz + pPlayer->qhorizoff - pPlayer->oqhoriz - pPlayer->oqhorizoff), smoothRatio);
+            CAMERA(q16ang) = pPlayer->oq16ang + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio);
+            CAMERA(q16ang) += fix16_from_int(pPlayer->look_ang);
+            CAMERA(q16horiz) = pPlayer->oq16horiz + pPlayer->oq16horizoff
+                            + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
 
             if (ud.viewbob)
             {
@@ -927,10 +927,10 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             {
                 CAMERA(pos.z) -= 3072;
 
-                if (G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(qhoriz)) < 0)
+                if (G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), fix16_to_int(CAMERA(q16ang)), fix16_to_int(CAMERA(q16horiz))) < 0)
                 {
                     CAMERA(pos.z) += 3072;
-                    G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), CAMERA(ang), CAMERA(qhoriz));
+                    G_DoThirdPerson(pPlayer, &CAMERA(pos), &CAMERA(sect), fix16_to_int(CAMERA(q16ang)), fix16_to_int(CAMERA(q16horiz)));
                 }
             }
         }
@@ -940,8 +940,8 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             // looking through viewscreen
             CAMERA(pos)   = camVect;
-            CAMERA(ang)   = pPlayer->ang + pPlayer->look_ang;
-            CAMERA(qhoriz) = fix16_from_int(100 + sprite[pPlayer->newowner].shade);
+            CAMERA(q16ang)   = pPlayer->q16ang + fix16_from_int(pPlayer->look_ang);
+            CAMERA(q16horiz) = fix16_from_int(100 + sprite[pPlayer->newowner].shade);
             CAMERA(sect)  = sprite[pPlayer->newowner].sectnum;
         }
 
@@ -951,7 +951,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         if (g_earthquakeTime > 0 && pPlayer->on_ground == 1)
         {
             CAMERA(pos.z) += 256 - (((g_earthquakeTime)&1) << 9);
-            CAMERA(ang)   += (2 - ((g_earthquakeTime)&2)) << 2;
+            CAMERA(q16ang)   += fix16_from_int((2 - ((g_earthquakeTime)&2)) << 2);
         }
 
         if (sprite[pPlayer->i].pal == 1)
@@ -1005,7 +1005,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         //  like showview must cope with that situation or bail out!
         int const noDraw = VM_OnEventWithReturn(EVENT_DISPLAYROOMS, pPlayer->i, playerNum, 0);
 
-        CAMERA(qhoriz) = fix16_clamp(CAMERA(qhoriz), F16(HORIZ_MIN), F16(HORIZ_MAX));
+        CAMERA(q16horiz) = fix16_clamp(CAMERA(q16horiz), F16(HORIZ_MIN), F16(HORIZ_MAX));
 
         if (noDraw != 1)  // event return values other than 0 and 1 are reserved
         {
@@ -1015,13 +1015,13 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                            "other values are reserved.\n");
 */
 
-            G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(ang), CAMERA(qhoriz), smoothRatio);
+            G_HandleMirror(CAMERA(pos.x), CAMERA(pos.y), CAMERA(pos.z), CAMERA(q16ang), CAMERA(q16horiz), smoothRatio);
 #ifdef LEGACY_ROR
             G_SE40(smoothRatio);
 #endif
 #ifdef POLYMER
             if (getrendermode() == REND_POLYMER)
-                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothRatio);
+                polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothRatio);
 #endif
             // for G_PrintCoords
             dr_viewingrange = viewingrange;
@@ -1030,13 +1030,13 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             gotpic[MIRROR>>3] |= (1<<(MIRROR&7));
 #else
             yax_preparedrawrooms();
-            drawrooms(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(ang),CAMERA(qhoriz),CAMERA(sect));
+            drawrooms(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),CAMERA(sect));
             yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothRatio);
 #ifdef LEGACY_ROR
             if ((unsigned)ror_sprite < MAXSPRITES && drawing_ror == 1)  // viewing from bottom
                 G_OROR_DupeSprites(&sprite[ror_sprite]);
 #endif
-            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),CAMERA(ang),smoothRatio);
+            G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothRatio);
 #ifdef LEGACY_ROR
             drawing_ror = 0;
 #endif
@@ -1249,7 +1249,7 @@ void G_DumpDebugInfo(void)
     Gv_DumpValues();
 //    fclose(fp);
 #endif
-    saveboard("debug.map", &g_player[myconnectindex].ps->pos, g_player[myconnectindex].ps->ang,
+    saveboard("debug.map", &g_player[myconnectindex].ps->pos, fix16_to_int(g_player[myconnectindex].ps->q16ang),
               g_player[myconnectindex].ps->cursectnum);
 }
 
@@ -2114,11 +2114,11 @@ int A_Spawn(int spriteNum, int tileNum)
                     int const                 playerNum = P_Get(spriteNum);
                     const DukePlayer_t *const pPlayer   = g_player[playerNum].ps;
 
-                    shellAng = pPlayer->ang - (krand() & 63) + 8;  // Fine tune
+                    shellAng = fix16_to_int(pPlayer->q16ang) - (krand() & 63) + 8;  // Fine tune
 
                     T1(newSprite) = krand() & 1;
 
-                    pSprite->z = (3 << 8) + pPlayer->pyoff + pPlayer->pos.z - (fix16_to_int((pPlayer->qhorizoff + pPlayer->qhoriz - F16(100))) << 4);
+                    pSprite->z = (3 << 8) + pPlayer->pyoff + pPlayer->pos.z - (fix16_to_int((pPlayer->q16horizoff + pPlayer->q16horiz - F16(100))) << 4);
 
                     if (pSprite->picnum == SHOTGUNSHELL)
                         pSprite->z += (3 << 8);
@@ -3892,9 +3892,9 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
             if (g_player[playerNum].ps->over_shoulder_on > 0 && g_player[playerNum].ps->newowner < 0)
             {
-                t->ang = g_player[playerNum].ps->ang +
-                    mulscale16((((g_player[playerNum].ps->ang+1024 - g_player[playerNum].ps->oang)&2047)-1024),
-                               smoothratio);
+                t->ang = fix16_to_int(
+                g_player[playerNum].ps->q16ang
+                + mulscale16((((g_player[playerNum].ps->q16ang + 1024 - g_player[playerNum].ps->oq16ang) & 2047) - 1024), smoothratio));
 #ifdef USE_OPENGL
                 if (bpp > 8 && usemodels && md_tilehasmodel(t->picnum, t->pal) >= 0)
                 {
@@ -4595,7 +4595,7 @@ void G_HandleLocalKeys(void)
         {
             ud.folx = g_player[screenpeek].ps->opos.x;
             ud.foly = g_player[screenpeek].ps->opos.y;
-            ud.fola = g_player[screenpeek].ps->oang;
+            ud.fola = fix16_to_int(g_player[screenpeek].ps->oq16ang);
         }
         P_DoQuote(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,g_player[myconnectindex].ps);
     }
@@ -6857,8 +6857,9 @@ int G_DoMoveThings(void)
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
-        hitscan((vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(pPlayer->ang + 512) & 2047], sintable[pPlayer->ang & 2047],
-                fix16_to_int(F16(100) - pPlayer->qhoriz - pPlayer->qhorizoff) << 11, &hitData, 0xffff0030);
+        hitscan((vec3_t *)pPlayer, pPlayer->cursectnum, sintable[(fix16_to_int(pPlayer->q16ang) + 512) & 2047],
+                sintable[fix16_to_int(pPlayer->q16ang) & 2047], fix16_to_int(F16(100) - pPlayer->q16horiz - pPlayer->q16horizoff) << 11, &hitData,
+                0xffff0030);
 
         for (bssize_t TRAVERSE_CONNECT(i))
             if (g_player[i].ps->holoduke_on != -1)

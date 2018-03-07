@@ -718,7 +718,7 @@ int16_t         *cursectormasks;
 int16_t         *cursectormaskcount;
 
 float           horizang;
-int16_t         viewangle;
+fix16_t         viewangle;
 
 int32_t         depth;
 _prmirror       mirrors[10];
@@ -1060,7 +1060,7 @@ void                polymer_loadboard(void)
 // The parallaxed ART sky angle divisor corresponding to a horizfrac of 32768.
 #define DEFAULT_ARTSKY_ANGDIV 4.3027f
 
-void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum)
+void polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t daang, fix16_t dahoriz, int16_t dacursectnum)
 {
     int16_t         cursectnum;
     int32_t         i, cursectflorz, cursectceilz;
@@ -1080,8 +1080,8 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     // fogcalc_old needs this
     gvisibility = ((float)globalvisibility)*FOGSCALE;
 
-    ang = (float)(daang) * (360.f/2048.f);
-    horizang = (float)(-getangle(128, dahoriz-100)) * (360.f/2048.f);
+    ang = fix16_to_float(daang) * (360.f/2048.f);
+    horizang = (float)(-getangle(128, fix16_to_int(dahoriz)-100)) * (360.f/2048.f);
     tiltang = (gtang * 90.0f);
 
     pos[0] = (float)daposy;
@@ -1214,7 +1214,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
 
         polymer_emptybuckets();
 
-        viewangle = daang;
+        viewangle = fix16_to_int(daang);
         enddrawing();
         return;
     }
@@ -1225,7 +1225,7 @@ void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t da
     curmodelviewmatrix = rootmodelviewmatrix;
 
     // build globals used by rotatesprite
-    viewangle = daang;
+    viewangle = fix16_to_int(daang);
     set_globalang(daang);
 
     // polymost globals used by polymost_dorotatesprite

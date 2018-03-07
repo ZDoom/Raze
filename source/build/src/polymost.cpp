@@ -3496,6 +3496,7 @@ static void polymost_drawalls(int32_t const bunch)
 
     int32_t const sectnum = thesector[bunchfirst[bunch]];
     usectortype const * const sec = (usectortype *)&sector[sectnum];
+    float const fglobalang = fix16_to_float(qglobalang);
 
     //DRAW WALLS SECTION!
     for (bssize_t z=bunchfirst[bunch]; z>=0; z=bunchp2[z])
@@ -3695,14 +3696,14 @@ static void polymost_drawalls(int32_t const bunch)
                 float const r = (fy1-fy0)/(x1-x0); //slope of line
                 o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
 
-                int y = ((((int32_t)((x0-ghalfx)*o.y))+globalang)>>(11-dapskybits));
+                int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
                 float fx = x0;
                 do
                 {
                     globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                    otex.u = otex.d*(t*((float)(globalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
+                    otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->floorxpanning:0)) - xtex.u*ghalfx;
                     y++;
-                    o.x = fx; fx = ((float)((y<<(11-dapskybits))-globalang))*o.z+ghalfx;
+                    o.x = fx; fx = ((float)((y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
 
                     pow2xsplit = 0; polymost_domost(o.x,(o.x-x0)*r+fy0,fx,(fx-x0)*r+fy0); //flor
@@ -4027,14 +4028,14 @@ static void polymost_drawalls(int32_t const bunch)
                 float const r = (cy1-cy0)/(x1-x0); //slope of line
                 o.y = fviewingrange/(ghalfx*256.f); o.z = 1.f/o.y;
 
-                int y = ((((int32_t)((x0-ghalfx)*o.y))+globalang)>>(11-dapskybits));
+                int y = ((int32_t)(((x0-ghalfx)*o.y)+fglobalang)>>(11-dapskybits));
                 float fx = x0;
                 do
                 {
                     globalpicnum = dapskyoff[y&((1<<dapskybits)-1)]+i;
-                    otex.u = otex.d*(t*((float)(globalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - xtex.u*ghalfx;
+                    otex.u = otex.d*(t*((float)(fglobalang-(y<<(11-dapskybits)))) * (1.f/2048.f) + (float)((r_parallaxskypanning)?sec->ceilingxpanning:0)) - xtex.u*ghalfx;
                     y++;
-                    o.x = fx; fx = ((float)((y<<(11-dapskybits))-globalang))*o.z+ghalfx;
+                    o.x = fx; fx = (((float) (y<<(11-dapskybits))-fglobalang))*o.z+ghalfx;
                     if (fx > x1) { fx = x1; i = -1; }
 
                     pow2xsplit = 0; polymost_domost(fx,(fx-x0)*r+cy0,o.x,(o.x-x0)*r+cy0); //ceil

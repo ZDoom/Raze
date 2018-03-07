@@ -119,8 +119,8 @@ typedef struct {
 
 typedef struct {
     uint32_t bits;
-    int16_t fvel, svel, avel;
-    fix16_t qhorz;
+    int16_t fvel, svel;
+    fix16_t qavel, qhorz;
     int8_t extbits;
 } input_t;
 
@@ -135,6 +135,10 @@ typedef struct {
 typedef struct {
     vec3_t pos, opos, vel, npos;
     vec2_t bobpos, fric;
+
+    fix16_t q16horiz, q16horizoff, oq16horiz, oq16horizoff;
+    fix16_t q16ang, oq16ang, q16angvel;
+
     int32_t truefz, truecz, player_par;
     int32_t randomflamex, exitx, exity;
     int32_t runspeed, max_player_health, max_shield_amount;
@@ -153,11 +157,10 @@ typedef struct {
 
     int16_t loogiex[64], loogiey[64], sbs, sound_pitch;
 
-    int16_t ang, oang, angvel, cursectnum, look_ang, last_extra, subweapon;
+    int16_t cursectnum, look_ang, last_extra, subweapon;
     int16_t max_ammo_amount[MAX_WEAPONS], ammo_amount[MAX_WEAPONS], inv_amount[GET_MAX];
     int16_t wackedbyactor, pyoff, opyoff;
 
-    fix16_t qhoriz, qhorizoff, oqhoriz, oqhorizoff;
     int16_t newowner, jumping_counter, airleft;
     int16_t fta, ftq, access_wallnum, access_spritenum;
     int16_t got_access, weapon_ang, visibility;
@@ -205,7 +208,7 @@ typedef struct {
     // anywhere (like with spritetype_t): g_player[i].ps->wa.idx == i.
     struct { int32_t idx; } wa;
 #endif
-    int8_t padding_[3];
+    int8_t padding_[1];
 } DukePlayer_t;
 
 // KEEPINSYNC lunatic/_defs_game.lua

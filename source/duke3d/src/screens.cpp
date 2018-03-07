@@ -306,8 +306,8 @@ static inline void G_MoveClouds(void)
 
     g_cloudClock = totalclock+6;
 
-    g_cloudX += sintable[(g_player[screenpeek].ps->ang+512)&2047]>>9;
-    g_cloudY += sintable[g_player[screenpeek].ps->ang&2047]>>9;
+    g_cloudX += sintable[(fix16_to_int(g_player[screenpeek].ps->q16ang)+512)&2047]>>9;
+    g_cloudY += sintable[fix16_to_int(g_player[screenpeek].ps->q16ang)&2047]>>9;
 
     for (i=g_cloudCnt-1; i>=0; i--)
     {
@@ -639,10 +639,11 @@ static void G_PrintCoords(int32_t snum)
     }
     Bsprintf(tempbuf, "XYZ= (%d, %d, %d)", ps->pos.x, ps->pos.y, ps->pos.z);
     printext256(x, y, COLOR_WHITE, -1, tempbuf, 0);
-    char horiz[16], horizoff[16];
-    fix16_to_str(ps->qhoriz, horiz, 2);
-    fix16_to_str(ps->qhorizoff, horizoff, 2);
-    Bsprintf(tempbuf, "A/H/HO= %d, %s, %s", ps->ang, horiz, horizoff);
+    char ang[16], horiz[16], horizoff[16];
+    fix16_to_str(ps->q16ang, ang, 2);
+    fix16_to_str(ps->q16horiz, horiz, 2);
+    fix16_to_str(ps->q16horizoff, horizoff, 2);
+    Bsprintf(tempbuf, "A/H/HO= %s, %s, %s", ang, horiz, horizoff);
     printext256(x, y+9, COLOR_WHITE, -1, tempbuf, 0);
     Bsprintf(tempbuf, "VEL= (%d, %d, %d) + (%d, %d, 0)",
         ps->vel.x>>14, ps->vel.y>>14, ps->vel.z, ps->fric.x>>5, ps->fric.y>>5);
@@ -1036,13 +1037,13 @@ void G_DisplayRest(int32_t smoothratio)
                 {
                     cposx = pp->opos.x + mulscale16(pp->pos.x-pp->opos.x, smoothratio);
                     cposy = pp->opos.y + mulscale16(pp->pos.y-pp->opos.y, smoothratio);
-                    cang = pp->oang + mulscale16(((pp->ang+1024-pp->oang)&2047)-1024, smoothratio);
+                    cang = fix16_to_int(pp->oq16ang) + mulscale16((fix16_to_int(pp->q16ang+F16(1024)-pp->oq16ang)&2047)-1024, smoothratio);
                 }
                 else
                 {
                     cposx = pp->opos.x;
                     cposy = pp->opos.y;
-                    cang = pp->oang;
+                    cang = fix16_to_int(pp->oq16ang);
                 }
             }
             else

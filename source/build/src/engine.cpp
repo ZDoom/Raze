@@ -1389,6 +1389,7 @@ int32_t globalposx, globalposy, globalposz, globalhoriz;
 fix16_t qglobalhoriz;
 float fglobalposx, fglobalposy, fglobalposz;
 int16_t globalang, globalcursectnum;
+fix16_t qglobalang;
 int32_t globalpal, cosglobalang, singlobalang;
 int32_t cosviewingrangeglobalang, sinviewingrangeglobalang;
 static int32_t globaluclip, globaldclip;
@@ -7895,15 +7896,22 @@ void initspritelists(void)
 }
 
 
-void set_globalang(int16_t ang)
+void set_globalang(fix16_t ang)
 {
-    globalang = ang&2047;
+    globalang = fix16_to_int(ang)&2047;
+    qglobalang = ang & 0x7FFFFFF;
+
     cosglobalang = sintable[(globalang+512)&2047];
     singlobalang = sintable[globalang&2047];
+
 #ifdef USE_OPENGL
-    fcosglobalang = (float) cosglobalang;
-    fsinglobalang = (float) singlobalang;
+    float const f_ang = fix16_to_float(ang);
+    float const f_ang_radians = f_ang * M_PI * (1.f/1024.f);
+
+    fcosglobalang = cosf(f_ang_radians) * 16384.f;
+    fsinglobalang = sinf(f_ang_radians) * 16384.f;
 #endif
+
     cosviewingrangeglobalang = mulscale16(cosglobalang,viewingrange);
     sinviewingrangeglobalang = mulscale16(singlobalang,viewingrange);
 }
@@ -7912,7 +7920,7 @@ void set_globalang(int16_t ang)
 // drawrooms
 //
 int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
-               int16_t daang, fix16_t dahoriz, int16_t dacursectnum)
+               fix16_t daang, fix16_t dahoriz, int16_t dacursectnum)
 {
     int32_t i, j, /*cz, fz,*/ closest;
     int16_t *shortptr1, *shortptr2;
@@ -7922,8 +7930,15 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     beforedrawrooms = 0;
 
     set_globalpos(daposx, daposy, daposz);
-    set_globalang(daang);
 
+    // support the old range of values
+    if ((dahoriz & 0xFFFF0000) == 0)
+        dahoriz = fix16_from_int(dahoriz);
+
+    if ((daang & 0xFFFF0000) == 0)
+        daang = fix16_from_int(daang);
+
+    set_globalang(daang);
     global100horiz = dahoriz;
 
     // xdimenscale is scale(xdimen,yxaspect,320);
@@ -12382,8 +12397,8 @@ void squarerotatetile(int16_t tilenume)
 //
 // preparemirror
 //
-void preparemirror(int32_t dax, int32_t day, int16_t daang, int16_t dawall,
-                   int32_t *tposx, int32_t *tposy, int16_t *tang)
+void preparemirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
+                   int32_t *tposx, int32_t *tposy, fix16_t *tang)
 {
     const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
     const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
@@ -12396,7 +12411,7 @@ void preparemirror(int32_t dax, int32_t day, int16_t daang, int16_t dawall,
 
     *tposx = (x<<1) + scale(dx,i,j) - dax;
     *tposy = (y<<1) + scale(dy,i,j) - day;
-    *tang = ((getangle(dx,dy)<<1)-daang)&2047;
+    *tang  = (fix16_from_int(getangle(dx, dy) << 1) - daang) & 0x7FFFFFF;
 
     inpreparemirror = 1;
 }

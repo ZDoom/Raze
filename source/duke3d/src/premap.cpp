@@ -668,7 +668,7 @@ void P_RandomSpawnPoint(int playerNum)
     pPlayer->pos        = g_playerSpawnPoints[i].pos;
     pPlayer->opos       = pPlayer->pos;
     pPlayer->bobpos     = *(vec2_t *)&pPlayer->pos;
-    pPlayer->ang        = g_playerSpawnPoints[i].ang;
+    pPlayer->q16ang       = fix16_from_int(g_playerSpawnPoints[i].ang);
     pPlayer->cursectnum = g_playerSpawnPoints[i].sect;
 
     sprite[pPlayer->i].cstat = 1 + 256;
@@ -712,10 +712,10 @@ void P_ResetPlayer(int playerNum)
     pPlayer->last_extra = pSprite->extra = pPlayer->max_player_health;
 
     pPlayer->wantweaponfire         = -1;
-    pPlayer->qhoriz                  = F16(100);
+    pPlayer->q16horiz                  = F16(100);
     pPlayer->on_crane               = -1;
     pPlayer->frag_ps                = playerNum;
-    pPlayer->qhorizoff               = 0;
+    pPlayer->q16horizoff               = 0;
     pPlayer->opyoff                 = 0;
     pPlayer->wackedbyactor          = -1;
     pPlayer->inv_amount[GET_SHIELD] = g_startArmorAmount;
@@ -775,7 +775,7 @@ void P_ResetStatus(int playerNum)
     pPlayer->pyoff             = 0;
     pPlayer->opyoff            = 0;
     pPlayer->loogcnt           = 0;
-    pPlayer->angvel            = 0;
+    pPlayer->q16angvel           = 0;
     pPlayer->weapon_sway       = 0;
     pPlayer->extra_extra8      = 0;
     pPlayer->show_empty_weapon = 0;
@@ -790,9 +790,9 @@ void P_ResetStatus(int playerNum)
     pPlayer->footprintpal      = 0;
     pPlayer->footprintshade    = 0;
     pPlayer->jumping_toggle    = 0;
-    pPlayer->oqhoriz           = F16(140);
-    pPlayer->qhoriz            = F16(140);
-    pPlayer->qhorizoff         = 0;
+    pPlayer->oq16horiz           = F16(140);
+    pPlayer->q16horiz            = F16(140);
+    pPlayer->q16horizoff         = 0;
     pPlayer->bobcounter        = 0;
     pPlayer->on_ground         = 0;
     pPlayer->player_par        = 0;
@@ -1486,7 +1486,7 @@ static void resetpspritevars(char gameMode)
     if (g_player[0].ps->cursectnum >= 0)  // < 0 may happen if we start a map in void space (e.g. testing it)
     {
         A_InsertSprite(g_player[0].ps->cursectnum,g_player[0].ps->pos.x,g_player[0].ps->pos.y,g_player[0].ps->pos.z,
-                       APLAYER,0,0,0,g_player[0].ps->ang,0,0,0,10);
+                       APLAYER,0,0,0,fix16_to_int(g_player[0].ps->q16ang),0,0,0,10);
     }
 
     if (ud.recstat != 2)
@@ -1621,7 +1621,7 @@ static void resetpspritevars(char gameMode)
                 actor[i].bpos.x = g_player[j].ps->bobpos.x = g_player[j].ps->opos.x = g_player[j].ps->pos.x =        s->x;
                 actor[i].bpos.y = g_player[j].ps->bobpos.y = g_player[j].ps->opos.y = g_player[j].ps->pos.y =        s->y;
                 actor[i].bpos.z = g_player[j].ps->opos.z = g_player[j].ps->pos.z =        s->z;
-                g_player[j].ps->oang  = g_player[j].ps->ang  =        s->ang;
+                g_player[j].ps->oq16ang = g_player[j].ps->q16ang = fix16_from_int(s->ang);
 
                 updatesector(s->x,s->y,&g_player[j].ps->cursectnum);
             }
@@ -1891,10 +1891,11 @@ int G_EnterLevel(int gameMode)
     wm_setapptitle(tempbuf);
 
     DukePlayer_t *const pPlayer = g_player[0].ps;
+    int16_t lbang;
 
     if (!VOLUMEONE && Menu_HaveUserMap())
     {
-        if (loadboard(boardfilename, 0, &pPlayer->pos, &pPlayer->ang, &pPlayer->cursectnum) < 0)
+        if (loadboard(boardfilename, 0, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
@@ -1903,7 +1904,7 @@ int G_EnterLevel(int gameMode)
         G_LoadMapHack(levelName, boardfilename);
         G_SetupFilenameBasedMusic(levelName, boardfilename, ud.m_level_number);
     }
-    else if (loadboard(g_mapInfo[mii].filename, VOLUMEONE, &pPlayer->pos, &pPlayer->ang, &pPlayer->cursectnum) < 0)
+    else if (loadboard(g_mapInfo[mii].filename, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
     {
         OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", g_mapInfo[mii].filename);
         return 1;
@@ -1912,6 +1913,8 @@ int G_EnterLevel(int gameMode)
     {
         G_LoadMapHack(levelName, g_mapInfo[mii].filename);
     }
+
+    pPlayer->q16ang = fix16_from_int(lbang);
 
     g_precacheCount = 0;
     Bmemset(gotpic, 0, sizeof(gotpic));

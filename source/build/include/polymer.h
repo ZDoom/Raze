@@ -352,7 +352,7 @@ void                polymer_setaspect(int32_t);
 void                polymer_glinit(void);
 void                polymer_resetlights(void);
 void                polymer_loadboard(void);
-void                polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int32_t dahoriz, int16_t dacursectnum);
+void polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t daang, int32_t dahoriz, int16_t dacursectnum);
 void                polymer_drawmasks(void);
 void                polymer_editorpick(void);
 void                polymer_inb4rotatesprite(int16_t tilenum, char pal, int8_t shade, int32_t method);

@@ -205,7 +205,7 @@ extern int32_t xdimen, xdimenrecip, halfxdimen, xdimenscale, xdimscale, ydimen;
 extern float fxdimen;
 extern intptr_t frameoffset;
 extern int32_t globalposx, globalposy, globalposz, globalhoriz;
-extern fix16_t qglobalhoriz;
+extern fix16_t qglobalhoriz, qglobalang;
 extern float fglobalposx, fglobalposy, fglobalposz;
 extern int16_t globalang, globalcursectnum;
 extern int32_t globalpal, cosglobalang, singlobalang;
@@ -257,7 +257,7 @@ extern void get_floorspr_points(uspritetype const * const spr, int32_t px, int32
 // int32_t wallmost(int16_t *mostbuf, int32_t w, int32_t sectnum, char dastat);
 int32_t wallfront(int32_t l1, int32_t l2);
 
-void set_globalang(int16_t ang);
+void set_globalang(fix16_t ang);
 
 #ifdef DEBUGGINGAIDS
 int32_t animateoffs(int const tilenum, int fakevar);
