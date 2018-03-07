@@ -5998,8 +5998,8 @@ void polymost_drawsprite(int32_t snum)
 
                 float const ft[4] = { ((float)(globalposy - vv.y)) * ff.y + ((float)(globalposx - vv.x)) * ff.x,
                                       ((float)(globalposx - vv.x)) * ff.y - ((float)(globalposy - vv.y)) * ff.x,
-                                      singlobalang * ff.y + cosglobalang * ff.x,
-                                      singlobalang * ff.x - cosglobalang * ff.y };
+                                      fsinglobalang * ff.y + fcosglobalang * ff.x,
+                                      fsinglobalang * ff.x - fcosglobalang * ff.y };
 
                 f = fviewingrange * -(1.f / (65536.f * 262144.f));
                 xtex.u = (float)ft[3] * f;

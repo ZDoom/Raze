@@ -465,6 +465,8 @@ static tokenmap_t const vm_keywords[] =
     { "shootvar",               CON_SHOOTVAR },
     { "showview",               CON_SHOWVIEW },
     { "showviewunbiased",       CON_SHOWVIEWUNBIASED },
+    { "showviewq16",            CON_SHOWVIEWQ16 },
+    { "showviewq16unbiased",    CON_SHOWVIEWQ16UNBIASED },
     { "sin",                    CON_SIN },
     { "sizeat",                 CON_SIZEAT },
     { "sizeto",                 CON_SIZETO },
@@ -4819,6 +4821,8 @@ DO_DEFSTATE:
 
         case CON_SHOWVIEW:
         case CON_SHOWVIEWUNBIASED:
+        case CON_SHOWVIEWQ16:
+        case CON_SHOWVIEWQ16UNBIASED:
             if (EDUKE32_PREDICT_FALSE(!g_parsingEventPtr && g_processingState == 0))
             {
                 C_ReportError(ERROR_EVENTONLY);

@@ -521,7 +521,7 @@ static void G_SE40(int32_t smoothratio)
             if (getrendermode() == REND_POLYMER)
                 polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), fix16_to_int(CAMERA(q16ang)), smoothratio);
 #endif
-            drawrooms(sprite[sprite2].x + x, sprite[sprite2].y + y,
+            drawrooms_q16(sprite[sprite2].x + x, sprite[sprite2].y + y,
                       z + renderz, CAMERA(q16ang), CAMERA(q16horiz), sect);
             drawing_ror = 1 + level;
 
@@ -616,12 +616,12 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
                 int32_t didmirror;
 
                 yax_preparedrawrooms();
-                didmirror = drawrooms(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
+                didmirror = drawrooms_q16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
                 yax_drawrooms(G_DoSpriteAnimations, g_mirrorSector[i], didmirror, smoothratio);
             }
 #ifdef USE_OPENGL
             else
-                drawrooms(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
+                drawrooms_q16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
             // XXX: Sprites don't get drawn with TROR/Polymost
 #endif
             display_mirror = 1;
@@ -759,7 +759,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
 #endif
             yax_preparedrawrooms();
-            drawrooms(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), pSprite->yvel, pSprite->sectnum);
+            drawrooms_q16(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), fix16_from_int(pSprite->yvel), pSprite->sectnum);
             yax_drawrooms(G_DoSpriteAnimations, pSprite->sectnum, 0, smoothRatio);
             G_DoSpriteAnimations(pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
             drawmasks();
@@ -1030,7 +1030,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             gotpic[MIRROR>>3] |= (1<<(MIRROR&7));
 #else
             yax_preparedrawrooms();
-            drawrooms(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),CAMERA(sect));
+            drawrooms_q16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),CAMERA(sect));
             yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothRatio);
 #ifdef LEGACY_ROR
             if ((unsigned)ror_sprite < MAXSPRITES && drawing_ror == 1)  // viewing from bottom

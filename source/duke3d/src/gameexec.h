@@ -111,7 +111,7 @@ static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNu
 void G_GetTimeDate(int32_t * const pValues);
 int G_StartTrack(int const levelNum);
 #ifdef LUNATIC
-void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sect,
+void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int32_t sect,
                 int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp);
 void P_AddWeaponMaybeSwitchI(int32_t snum, int32_t weap);
 void VM_FallSprite(int32_t i);

@@ -980,7 +980,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                         int32_t odsprcnt = yax_spritesortcnt[yax_globallev];
 #endif
                         // +MAXSECTORS: force
-                        drawrooms(globalposx,globalposy,globalposz,globalang,horiz,k+MAXSECTORS);
+                        drawrooms_q16(globalposx,globalposy,globalposz,qglobalang,horiz,k+MAXSECTORS);
                         if (numhere > 1)
                             for (i=0; i<(numsectors+7)>>3; i++)
                                 lgotsector[i] |= gotsector[i];
@@ -1058,7 +1058,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                 for (nmp=r_tror_nomaskpass; nmp>=0; nmp--)
                 {
                     yax_nomaskpass = nmp;
-                    drawrooms(globalposx,globalposy,globalposz,globalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
+                    drawrooms_q16(globalposx,globalposy,globalposz,qglobalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
 
                     if (nmp==1)
                     {
@@ -1101,7 +1101,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
     scansector_collectsprites = 0;
 
     // draw base level
-    drawrooms(globalposx,globalposy,globalposz,globalang,horiz,
+    drawrooms_q16(globalposx,globalposy,globalposz,qglobalang,horiz,
               osectnum + MAXSECTORS*didmirror);
 //    if (scansector_collectsprites)
 //        spritesortcnt = 0;
@@ -7919,7 +7919,14 @@ void set_globalang(fix16_t ang)
 //
 // drawrooms
 //
+
 int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
+    int16_t daang, int16_t dahoriz, int16_t dacursectnum)
+{
+    return drawrooms_q16(daposx, daposy, daposz, fix16_from_int(daang), fix16_from_int(dahoriz), dacursectnum);
+}
+
+int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz,
                fix16_t daang, fix16_t dahoriz, int16_t dacursectnum)
 {
     int32_t i, j, /*cz, fz,*/ closest;
@@ -7930,15 +7937,8 @@ int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
     beforedrawrooms = 0;
 
     set_globalpos(daposx, daposy, daposz);
-
-    // support the old range of values
-    if ((dahoriz & 0xFFFF0000) == 0)
-        dahoriz = fix16_from_int(dahoriz);
-
-    if ((daang & 0xFFFF0000) == 0)
-        daang = fix16_from_int(daang);
-
     set_globalang(daang);
+
     global100horiz = dahoriz;
 
     // xdimenscale is scale(xdimen,yxaspect,320);

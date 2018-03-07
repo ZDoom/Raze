@@ -1228,6 +1228,8 @@ enum ScriptKeywords_t
     CON_IFVARBE,            // 422
     CON_IFVARVARBE,         // 423
     CON_UNDEFINECHEAT,      // 424
+    CON_SHOWVIEWQ16,        // 425
+    CON_SHOWVIEWQ16UNBIASED,// 426
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

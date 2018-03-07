@@ -1176,7 +1176,7 @@ int G_StartTrack(int const levelNum)
 }
 #endif
 
-LUNATIC_EXTERN void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sect,
+LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int32_t sect,
                                int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp)
 {
     if (g_screenCapture)
@@ -1211,13 +1211,6 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sec
         y2 = scale(y2,ydim-1,199);
     }
 
-    // support the old range of values
-    if ((horiz & 0xFFFF0000) == 0)
-        horiz = fix16_from_int(horiz);
-
-    if ((a & 0xFFFF0000) == 0)
-        a = fix16_from_int(a);
-
     horiz = fix16_clamp(horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
     int const onewaspect = newaspect_enable;
@@ -1235,7 +1228,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sec
         polymer_setanimatesprites(G_DoSpriteAnimations, vec.x, vec.y, fix16_to_int(a), smoothratio);
 #endif
     yax_preparedrawrooms();
-    drawrooms(vec.x, vec.y, vec.z, a, horiz, sect);
+    drawrooms_q16(vec.x, vec.y, vec.z, a, horiz, sect);
     yax_drawrooms(G_DoSpriteAnimations, sect, 0, smoothratio);
 
     display_mirror = 2;
@@ -2872,6 +2865,8 @@ nullquote:
 
         case CON_SHOWVIEW:
         case CON_SHOWVIEWUNBIASED:
+        case CON_SHOWVIEWQ16:
+        case CON_SHOWVIEWQ16UNBIASED:
             insptr++;
             {
                 struct {
@@ -2893,7 +2888,13 @@ nullquote:
                     continue;
                 }
 
-                G_ShowView(v.vec, v.params[0], v.params[1], v.params[2], v.scrn[0].x, v.scrn[0].y, v.scrn[1].x, v.scrn[1].y, (tw != CON_SHOWVIEW));
+                if (tw != CON_SHOWVIEWQ16 && tw != CON_SHOWVIEWQ16UNBIASED)
+                {
+                    v.params[0] <<= 16;
+                    v.params[1] <<= 16;
+                }
+
+                G_ShowView(v.vec, v.params[0], v.params[1], v.params[2], v.scrn[0].x, v.scrn[0].y, v.scrn[1].x, v.scrn[1].y, (tw != CON_SHOWVIEW && tw != CON_SHOWVIEWQ16));
 
                 continue;
             }
