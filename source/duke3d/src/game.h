@@ -371,7 +371,7 @@ void G_DisplayRest(int32_t smoothratio);
 void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothratio);
 void G_DrawBackground(void);
 void G_DrawFrags(void);
-void G_HandleMirror(int32_t x, int32_t y, int32_t z, int32_t a, fix16_t horiz, int32_t smoothratio);
+void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t horiz, int32_t smoothratio);
 void G_DrawRooms(int32_t snum,int32_t smoothratio);
 void G_DrawTXDigiNumZ(int32_t starttile,int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,int32_t cs,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
 int G_FPSLimit(void);

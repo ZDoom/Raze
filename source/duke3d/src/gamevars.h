@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define gamevars_h_
 
 #include "gamedef.h"
+#include "fix16.hpp"
 
 #define MAXGAMEVARS 2048 // must be a power of two
 #define MAXVARLABEL 26
@@ -42,10 +43,11 @@ enum GamevarFlags_t
     GAMEVAR_INT32PTR  = 0x00002000,  // plValues is a pointer to an int32_t
     GAMEVAR_INT16PTR  = 0x00008000,  // plValues is a pointer to a short
     GAMEVAR_UINT8PTR  = 0x00010000,  // plValues is a pointer to a char
-    GAMEVAR_PTR_MASK  = (GAMEVAR_INT32PTR | GAMEVAR_INT16PTR | GAMEVAR_UINT8PTR),
     GAMEVAR_NORESET   = 0x00020000,  // var values are not reset when restoring map state
     GAMEVAR_SPECIAL   = 0x00040000,  // flag for structure member shortcut vars
     GAMEVAR_NOMULTI   = 0x00080000,  // don't attach to multiplayer packets
+    GAMEVAR_Q16PTR    = 0x00100000,  // plValues is a pointer to a q16.16
+    GAMEVAR_PTR_MASK  = (GAMEVAR_INT32PTR | GAMEVAR_INT16PTR | GAMEVAR_UINT8PTR | GAMEVAR_Q16PTR),
 };
 
 #if !defined LUNATIC
@@ -172,9 +174,15 @@ void Gv_FinalizeWeaponDefaults(void);
                     break;                                                                                                                 \
                 aGameVars[id].pValues[vm.spriteNum] operator operand;                                                                      \
                 break;                                                                                                                     \
-            case GAMEVAR_INT32PTR: *((int32_t *)aGameVars[id].global) operator(int32_t) operand; break;                                    \
-            case GAMEVAR_INT16PTR: *((int16_t *)aGameVars[id].global) operator(int16_t) operand; break;                                    \
-            case GAMEVAR_UINT8PTR: *((uint8_t *)aGameVars[id].global) operator(uint8_t) operand; break;                                    \
+            case GAMEVAR_INT32PTR: *(int32_t *)aGameVars[id].global operator(int32_t) operand; break;                                      \
+            case GAMEVAR_INT16PTR: *(int16_t *)aGameVars[id].global operator(int16_t) operand; break;                                      \
+            case GAMEVAR_UINT8PTR: *(uint8_t *)aGameVars[id].global operator(uint8_t) operand; break;                                      \
+            case GAMEVAR_Q16PTR:                                                                                                           \
+            {                                                                                                                              \
+                Fix16 *pfix = (Fix16 *)aGameVars[id].global;                                                                             \
+                *pfix operator operand;                                                                                                      \
+                break;                                                                                                                     \
+            }                                                                                                                              \
         }                                                                                                                                  \
     }
 
@@ -218,6 +226,12 @@ skip:
         {
             uint8_t & var = *(uint8_t *)aGameVars[id].global;
             var = (uint8_t)libdivide_s32_do(var, dptr);
+            return;
+        }
+        case GAMEVAR_Q16PTR:
+        {
+            fix16_t & var = *(fix16_t *)aGameVars[id].global;
+            var = fix16_div(var, fix16_from_int(operand));
             return;
         }
     }

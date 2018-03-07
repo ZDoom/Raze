@@ -652,6 +652,10 @@ int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
         case GAMEVAR_INT32PTR: returnValue = *(int32_t *)aGameVars[gameVar].global; break;
         case GAMEVAR_INT16PTR: returnValue = *(int16_t *)aGameVars[gameVar].global; break;
         case GAMEVAR_UINT8PTR: returnValue = *(char *)aGameVars[gameVar].global; break;
+        case GAMEVAR_Q16PTR:
+            returnValue = aGameVars[gameVar].flags & GAMEVAR_SPECIAL ? *(int32_t *)aGameVars[gameVar].global
+                                                                     : fix16_to_int(*(fix16_t *)aGameVars[gameVar].global);
+            break;
         default: EDUKE32_UNREACHABLE_SECTION(returnValue = 0; break);
     }
 
@@ -803,9 +807,13 @@ void __fastcall Gv_SetVar(int const gameVar, int const newValue, int const sprit
     {
         switch (varFlags)
         {
-            case GAMEVAR_INT32PTR: *((int32_t *)aGameVars[gameVar].global)   = (int32_t)newValue; break;
+            case GAMEVAR_INT32PTR: *((int32_t *)aGameVars[gameVar].global) = (int32_t)newValue; break;
             case GAMEVAR_INT16PTR: *((int16_t *)aGameVars[gameVar].global) = (int16_t)newValue; break;
-            case GAMEVAR_UINT8PTR: *((uint8_t *)aGameVars[gameVar].global)  = (uint8_t)newValue; break;
+            case GAMEVAR_UINT8PTR: *((uint8_t *)aGameVars[gameVar].global) = (uint8_t)newValue; break;
+            case GAMEVAR_Q16PTR:
+                *(fix16_t *)aGameVars[gameVar].global
+                = aGameVars[gameVar].flags & GAMEVAR_SPECIAL ? (int32_t)newValue : fix16_from_int((int16_t)newValue);
+                break;
         }
     }
     return;
@@ -1001,9 +1009,13 @@ int __fastcall Gv_GetVarX(int gameVar)
             returnValue = aGameVars[gameVar].pValues[vm.spriteNum];
         else switch (varFlags)
         {
-            case GAMEVAR_INT32PTR: returnValue   = (*((int32_t *)aGameVars[gameVar].global)); break;
-            case GAMEVAR_INT16PTR: returnValue = (*((int16_t *)aGameVars[gameVar].global)); break;
-            case GAMEVAR_UINT8PTR: returnValue  = (*((uint8_t *)aGameVars[gameVar].global)); break;
+            case GAMEVAR_INT32PTR: returnValue = (*(int32_t *)aGameVars[gameVar].global); break;
+            case GAMEVAR_INT16PTR: returnValue = (*(int16_t *)aGameVars[gameVar].global); break;
+            case GAMEVAR_UINT8PTR: returnValue = (*(uint8_t *)aGameVars[gameVar].global); break;
+            case GAMEVAR_Q16PTR:
+                returnValue = aGameVars[gameVar].flags & GAMEVAR_SPECIAL ? *(int32_t *)aGameVars[gameVar].global
+                                                                         : fix16_to_int(*(fix16_t *)aGameVars[gameVar].global);
+                break;
         }
     }
 
@@ -1057,9 +1069,13 @@ void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
         {
             switch (varFlags)
             {
-                case GAMEVAR_INT32PTR:   value = (*((int32_t *)aGameVars[gameVar].global)); break;
-                case GAMEVAR_INT16PTR: value = (*((int16_t *)aGameVars[gameVar].global)); break;
-                case GAMEVAR_UINT8PTR:  value = (*((uint8_t *)aGameVars[gameVar].global)); break;
+                case GAMEVAR_INT32PTR: value = *(int32_t *)aGameVars[gameVar].global; break;
+                case GAMEVAR_INT16PTR: value = *(int16_t *)aGameVars[gameVar].global; break;
+                case GAMEVAR_UINT8PTR: value = *(uint8_t *)aGameVars[gameVar].global; break;
+                case GAMEVAR_Q16PTR:
+                    value = aGameVars[gameVar].flags & GAMEVAR_SPECIAL ? *(int32_t *)aGameVars[gameVar].global
+                                                                       : fix16_to_int(*(fix16_t *)aGameVars[gameVar].global);
+                    break;
             }
         }
 
@@ -1088,9 +1104,13 @@ void __fastcall Gv_SetVarX(int const gameVar, int const newValue)
     }
     else switch (varFlags)
     {
-        case GAMEVAR_INT32PTR: *((int32_t *)aGameVars[gameVar].global)   = (int32_t)newValue; break;
-        case GAMEVAR_INT16PTR: *((int16_t *)aGameVars[gameVar].global) = (int16_t)newValue; break;
-        case GAMEVAR_UINT8PTR: *((uint8_t *)aGameVars[gameVar].global)  = (uint8_t)newValue; break;
+        case GAMEVAR_INT32PTR: *(int32_t *)aGameVars[gameVar].global = (int32_t)newValue; break;
+        case GAMEVAR_INT16PTR: *(int16_t *)aGameVars[gameVar].global = (int16_t)newValue; break;
+        case GAMEVAR_UINT8PTR: *(uint8_t *)aGameVars[gameVar].global = (uint8_t)newValue; break;
+        case GAMEVAR_Q16PTR:
+            *(fix16_t *)aGameVars[gameVar].global
+            = aGameVars[gameVar].flags & GAMEVAR_SPECIAL ? (int32_t)newValue : fix16_from_int((int16_t)newValue);
+            break;
     }
 
     return;
@@ -1543,8 +1563,10 @@ static void Gv_AddSystemVars(void)
     Gv_NewVar("camerax",(intptr_t)&ud.camerapos.x, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("cameray",(intptr_t)&ud.camerapos.y, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("cameraz",(intptr_t)&ud.camerapos.z, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
-    Gv_NewVar("cameraang",(intptr_t)&ud.cameraq16ang, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR); // XXX FIXME
-    Gv_NewVar("camerahoriz",(intptr_t)&ud.cameraq16horiz, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR); // XXX FIXME
+    Gv_NewVar("cameraang",(intptr_t)&ud.cameraq16ang, GAMEVAR_SYSTEM | GAMEVAR_Q16PTR);
+    Gv_NewVar("camerahoriz",(intptr_t)&ud.cameraq16horiz, GAMEVAR_SYSTEM | GAMEVAR_Q16PTR);
+    Gv_NewVar("cameraq16ang", (intptr_t) &ud.cameraq16ang, GAMEVAR_SYSTEM | GAMEVAR_Q16PTR | GAMEVAR_SPECIAL);
+    Gv_NewVar("cameraq16horiz", (intptr_t) &ud.cameraq16horiz, GAMEVAR_SYSTEM | GAMEVAR_Q16PTR | GAMEVAR_SPECIAL);
     Gv_NewVar("camerasect",(intptr_t)&ud.camerasect, GAMEVAR_SYSTEM | GAMEVAR_INT16PTR);
     Gv_NewVar("cameradist",(intptr_t)&g_cameraDistance, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
     Gv_NewVar("cameraclock",(intptr_t)&g_cameraClock, GAMEVAR_SYSTEM | GAMEVAR_INT32PTR);
@@ -1702,6 +1724,8 @@ void Gv_RefreshPointers(void)
     aGameVars[Gv_GetVarIndex("cameraz")].global     = (intptr_t)&ud.camerapos.z;
     aGameVars[Gv_GetVarIndex("cameraang")].global   = (intptr_t)&ud.cameraq16ang; // XXX FIXME
     aGameVars[Gv_GetVarIndex("camerahoriz")].global = (intptr_t)&ud.cameraq16horiz; // XXX FIXME
+    aGameVars[Gv_GetVarIndex("cameraq16ang")].global   = (intptr_t) &ud.cameraq16ang; // XXX FIXME
+    aGameVars[Gv_GetVarIndex("cameraq16horiz")].global = (intptr_t) &ud.cameraq16horiz; // XXX FIXME
     aGameVars[Gv_GetVarIndex("camerasect")].global  = (intptr_t)&ud.camerasect;
     aGameVars[Gv_GetVarIndex("cameradist")].global  = (intptr_t)&g_cameraDistance;
     aGameVars[Gv_GetVarIndex("cameraclock")].global = (intptr_t)&g_cameraClock;

@@ -1211,7 +1211,14 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sec
         y2 = scale(y2,ydim-1,199);
     }
 
-    horiz = clamp(horiz, HORIZ_MIN, HORIZ_MAX);
+    // support the old range of values
+    if ((horiz & 0xFFFF0000) == 0)
+        horiz = fix16_from_int(horiz);
+
+    if ((a & 0xFFFF0000) == 0)
+        a = fix16_from_int(a);
+
+    horiz = fix16_clamp(horiz, F16(HORIZ_MIN), F16(HORIZ_MAX));
 
     int const onewaspect = newaspect_enable;
     newaspect_enable = r_usenewaspect;
@@ -1225,14 +1232,14 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, int32_t a, int32_t horiz, int32_t sec
     G_HandleMirror(vec.x, vec.y, vec.z, a, horiz, smoothratio);
 #ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
-        polymer_setanimatesprites(G_DoSpriteAnimations, vec.x,vec.y,a,smoothratio);
+        polymer_setanimatesprites(G_DoSpriteAnimations, vec.x, vec.y, fix16_to_int(a), smoothratio);
 #endif
     yax_preparedrawrooms();
-    drawrooms(vec.x,vec.y,vec.z,a,horiz,sect);
+    drawrooms(vec.x, vec.y, vec.z, a, horiz, sect);
     yax_drawrooms(G_DoSpriteAnimations, sect, 0, smoothratio);
 
     display_mirror = 2;
-    G_DoSpriteAnimations(vec.x,vec.y,a,smoothratio);
+    G_DoSpriteAnimations(vec.x, vec.y, fix16_to_int(a), smoothratio);
     display_mirror = 0;
     drawmasks();
     G_RestoreInterpolations();
