@@ -1334,7 +1334,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
 
 
     // create header
-    Bmemcpy(h.headerstr, "EDuke32SAVE", 11);
+    Bmemcpy(h.headerstr, "E32SAVEGAME", 11);
     h.majorver = SV_MAJOR_VER;
     h.minorver = SV_MINOR_VER;
     h.ptrsize = sizeof(intptr_t);
@@ -1450,11 +1450,17 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
         return -1;
     }
 
-    if (Bmemcmp(h->headerstr, "EDuke32SAVE", 11))
+    if (Bmemcmp(h->headerstr, "E32SAVEGAME", 11)
+#if 1
+        && Bmemcmp(h->headerstr, "EDuke32SAVE", 11)
+#endif
+       )
     {
-        h->headerstr[sizeof(h->headerstr)-1] = 0;
-        OSD_Printf("%s %d header reads \"%s\", expected \"EDuke32SAVE\".\n",
-                   havedemo ? "Demo":"Savegame", havedemo ? -spot : spot, h->headerstr);
+        char headerCstr[sizeof(h->headerstr) + 1];
+        Bmemcpy(headerCstr, h->headerstr, sizeof(h->headerstr));
+        headerCstr[sizeof(h->headerstr)] = '\0';
+        OSD_Printf("%s %d header reads \"%s\", expected \"E32SAVEGAME\".\n",
+                   havedemo ? "Demo":"Savegame", havedemo ? -spot : spot, headerCstr);
         Bmemset(h->headerstr, 0, sizeof(h->headerstr));
         return -2;
     }
