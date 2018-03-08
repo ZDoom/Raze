@@ -2647,6 +2647,23 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 }
 
 
+static void Menu_ReadSaveGameHeaders();
+
+static void Menu_LoadReadHeaders()
+{
+    Menu_ReadSaveGameHeaders();
+
+    for (size_t i = 0; i < g_nummenusaves; ++i)
+        MenuEntry_DisableOnCondition(&ME_LOAD[i], g_menusaves[i].isOldVer);
+}
+
+static void Menu_SaveReadHeaders()
+{
+    Menu_ReadSaveGameHeaders();
+
+    for (size_t i = 0; i < g_nummenusaves; ++i)
+        MenuEntry_LookDisabledOnCondition(&ME_SAVE[i], g_menusaves[i].isOldVer);
+}
 
 static void Menu_PreInput(MenuEntry_t *entry)
 {
@@ -2664,6 +2681,31 @@ static void Menu_PreInput(MenuEntry_t *entry)
             CONFIG_MapKey(M_KEYBOARDKEYS.currentEntry, ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0], key[0], ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1], key[1]);
             S_PlaySound(KICK_HIT);
             KB_ClearKeyDown(sc_Delete);
+        }
+        break;
+
+    case MENU_LOAD:
+        if (KB_KeyPressed(sc_Delete))
+        {
+            KB_ClearKeyDown(sc_Delete);
+            if ((unsigned)M_LOAD.currentEntry < g_nummenusaves)
+            {
+                G_DeleteSave(g_menusaves[M_LOAD.currentEntry].brief);
+                Menu_LoadReadHeaders();
+                M_LOAD.currentEntry = clamp(M_LOAD.currentEntry, 0, (int32_t)g_nummenusaves-1);
+            }
+        }
+        break;
+    case MENU_SAVE:
+        if (KB_KeyPressed(sc_Delete))
+        {
+            KB_ClearKeyDown(sc_Delete);
+            if (0 < M_SAVE.currentEntry && M_SAVE.currentEntry <= (int32_t)g_nummenusaves)
+            {
+                G_DeleteSave(g_menusaves[M_SAVE.currentEntry-1].brief);
+                Menu_SaveReadHeaders();
+                M_SAVE.currentEntry = clamp(M_SAVE.currentEntry, 0, (int32_t)g_nummenusaves);
+            }
         }
         break;
 
@@ -3856,10 +3898,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
         if (KXDWN)
             M_LOAD.title = (g_player[myconnectindex].ps->gm & MODE_GAME) ? s_LoadGame : s_Continue;
 
-        Menu_ReadSaveGameHeaders();
-
-        for (size_t i = 0; i < g_nummenusaves; ++i)
-            MenuEntry_DisableOnCondition(&ME_LOAD[i], g_menusaves[i].isOldVer);
+        Menu_LoadReadHeaders();
 
         if (g_quickload && g_quickload->isValid())
         {
@@ -3879,7 +3918,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
         if (g_previousMenu == MENU_SAVEVERIFY)
             break;
 
-        Menu_ReadSaveGameHeaders();
+        Menu_SaveReadHeaders();
 
         if (g_lastusersave.isValid())
         {
@@ -3893,9 +3932,6 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
                 }
             }
         }
-
-        for (size_t i = 0; i < g_nummenusaves; ++i)
-            MenuEntry_LookDisabledOnCondition(&ME_SAVE[i], g_menusaves[i].isOldVer);
 
         if (g_player[myconnectindex].ps->gm&MODE_GAME)
         {
@@ -6540,7 +6576,7 @@ static void Menu_RunInput(Menu_t *cm)
                     currentry = Menu_RunInput_Menu_Movement(menu, MM_Down);
                 }
 
-                if (currentry != NULL && !(currentry->flags & MEF_Disabled))
+                if (currentry != NULL)
                     Menu_PreInput(currentry);
             }
             else if (state == 1)

@@ -434,6 +434,22 @@ static void G_SavePalette(void)
 }
 #endif
 
+void G_DeleteSave(savebrief_t const & sv)
+{
+    if (!sv.isValid())
+        return;
+
+    char temp[BMAX_PATH];
+
+    if (G_ModDirSnprintf(temp, sizeof(temp), "%s", sv.path))
+    {
+        OSD_Printf("G_SavePlayer: file name \"%s\" too long\n", sv.path);
+        return;
+    }
+
+    unlink(temp);
+}
+
 int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 {
 #ifdef __ANDROID__
