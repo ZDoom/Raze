@@ -1580,6 +1580,8 @@ static MenuEntry_t *Menu_AdjustForCurrentEntryAssignmentBlind(MenuMenu_t *menu)
     return Menu_AdjustForCurrentEntryAssignment(menu);
 }
 
+static int32_t SELECTDIR_z = 65536;
+
 /*
 This function prepares data after ART and CON have been processed.
 It also initializes some data in loops rather than statically at compile time.
@@ -1835,6 +1837,8 @@ void Menu_Init(void)
         MEF_MainMenu.marginBottom = 7<<16;
 
         M_OPTIONS.title = NoTitle;
+
+        SELECTDIR_z = 16384;
     }
 
     // prepare shareware
@@ -2112,6 +2116,9 @@ static void Menu_PreDrawBackground(MenuID_t cm, const vec2_t origin)
 
     case MENU_LOAD:
     case MENU_SAVE:
+        if (KXDWN)
+            break;
+        fallthrough__;
     case MENU_CREDITS4:
     case MENU_CREDITS5:
         Menu_DrawBackground(origin);
@@ -5333,10 +5340,12 @@ static void Menu_Run_MouseReturn(Menu_t *cm, const vec2_t origin)
     if (cm->menuID == MENU_MAIN)
         return;
 
-    rotatesprite_(origin.x + (tilesiz[SELECTDIR].y << 16), 0, 65536, 512, SELECTDIR,
+    uint32_t const posx = tilesiz[SELECTDIR].y * SELECTDIR_z;
+
+    rotatesprite_(origin.x + posx, 0, SELECTDIR_z, 512, SELECTDIR,
                   Menu_RunInput_MouseReturn_status ? 4 - (sintable[(totalclock << 4) & 2047] >> 11) : 6, 0,
                   2 | 8 | 16 | RS_ALIGN_L, MOUSEALPHA, 0, xdim_from_320_16(origin.x + x_widescreen_left()), 0,
-                  xdim_from_320_16(origin.x + x_widescreen_left() + (tilesiz[SELECTDIR].y << 15)), ydim - 1);
+                  xdim_from_320_16(origin.x + x_widescreen_left() + (posx>>1)), ydim - 1);
 }
 #endif
 
@@ -5355,7 +5364,9 @@ static int32_t Menu_RunInput_MouseReturn(void)
 
     const int32_t MouseReturnRegionX = x_widescreen_left();
 
-    if (!Menu_MouseOutsideBounds(&m_mousepos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16))
+    vec2_t backbuttonbound = { (tilesiz[SELECTDIR].y * SELECTDIR_z)>>1, tilesiz[SELECTDIR].x * SELECTDIR_z };
+
+    if (!Menu_MouseOutsideBounds(&m_mousepos, MouseReturnRegionX, 0, backbuttonbound.x, backbuttonbound.y))
     {
 #if !defined EDUKE32_TOUCH_DEVICES
         Menu_RunInput_MouseReturn_status = 1;
@@ -5363,7 +5374,7 @@ static int32_t Menu_RunInput_MouseReturn(void)
         Menu_RunInput_MouseReturn_status = (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held);
 #endif
 
-        return !m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, MouseReturnRegionX, 0, tilesiz[SELECTDIR].y<<15, tilesiz[SELECTDIR].x<<16);
+        return !m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, MouseReturnRegionX, 0, backbuttonbound.x, backbuttonbound.y);
     }
 
     Menu_RunInput_MouseReturn_status = 0;
@@ -6917,6 +6928,7 @@ void M_DisplayMenus(void)
             uint32_t o = 2;
 
             auto const oyxaspect = yxaspect;
+            int32_t alpha;
             if (KXDWN)
             {
                 setaspect(viewingrange, 65536);
@@ -6925,9 +6937,14 @@ void M_DisplayMenus(void)
                 z = scale(32768, ydim << 2, xdim * 3);
                 p = 0;
                 o |= 1024;
+                alpha = MOUSEALPHA;
+            }
+            else
+            {
+                alpha = CURSORALPHA;
             }
 
-            rotatesprite_fs_alpha(cursorpos.x, cursorpos.y, z, 0, a, 0, p, o, CURSORALPHA);
+            rotatesprite_fs_alpha(cursorpos.x, cursorpos.y, z, 0, a, 0, p, o, alpha);
 
             if (KXDWN)
                 setaspect(viewingrange, oyxaspect);
