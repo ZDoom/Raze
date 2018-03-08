@@ -1218,8 +1218,15 @@ static MenuEntry_t *MEL_ADVSOUND[] = {
 static MenuOption_t MEO_SAVESETUP_AUTOSAVE = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.autosave );
 static MenuEntry_t ME_SAVESETUP_AUTOSAVE = MAKE_MENUENTRY( "Autosaves:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_SAVESETUP_AUTOSAVE, Option );
 
+static MenuOption_t MEO_SAVESETUP_AUTOSAVEDELETION = MAKE_MENUOPTION( &MF_Redfont, &MEOS_NoYes, &ud.autosavedeletion );
+static MenuEntry_t ME_SAVESETUP_AUTOSAVEDELETION = MAKE_MENUENTRY( "Auto-Delete:", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SAVESETUP_AUTOSAVEDELETION, Option );
+static MenuRangeInt32_t MEO_SAVESETUP_MAXAUTOSAVES = MAKE_MENURANGE( &ud.maxautosaves, &MF_Redfont, 1, 10, 0, 10, 1 );
+static MenuEntry_t ME_SAVESETUP_MAXAUTOSAVES = MAKE_MENUENTRY( "Limit:", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SAVESETUP_MAXAUTOSAVES, RangeInt32 );
+
 static MenuEntry_t *MEL_SAVESETUP[] = {
     &ME_SAVESETUP_AUTOSAVE,
+    &ME_SAVESETUP_AUTOSAVEDELETION,
+    &ME_SAVESETUP_MAXAUTOSAVES,
 };
 
 
@@ -1974,6 +1981,10 @@ static void Menu_Pre(MenuID_t cm)
 #endif
         MenuEntry_DisableOnCondition(&ME_SOUND_RESTART, soundrate == ud.config.MixRate &&
                                                         soundvoices == ud.config.NumVoices);
+        break;
+
+    case MENU_SAVESETUP:
+        MenuEntry_DisableOnCondition(&ME_SAVESETUP_MAXAUTOSAVES, !ud.autosavedeletion);
         break;
 
 #ifndef EDUKE32_SIMPLE_MENU

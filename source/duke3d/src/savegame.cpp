@@ -196,7 +196,7 @@ static size_t countcache1dfind(CACHE1D_FIND_REC *f)
     return x;
 }
 
-void ReadSaveGameHeaders(void)
+static void ReadSaveGameHeaders_Internal(void)
 {
     static char const DefaultPath[] = "/", SavePattern[] = "*.esv";
 
@@ -250,6 +250,32 @@ void ReadSaveGameHeaders(void)
             break;
         }
     }
+}
+
+void ReadSaveGameHeaders(void)
+{
+    ReadSaveGameHeaders_Internal();
+
+    if (!ud.autosavedeletion)
+        return;
+
+    bool didDelete = false;
+    int32_t numautosaves = 0;
+    for (size_t x = 0; x < g_nummenusaves; ++x)
+    {
+        menusave_t & msv = g_menusaves[x];
+        if (!msv.isAutoSave)
+            continue;
+        if (numautosaves >= ud.maxautosaves)
+        {
+            G_DeleteSave(msv.brief);
+            didDelete = true;
+        }
+        ++numautosaves;
+    }
+
+    if (didDelete)
+        ReadSaveGameHeaders_Internal();
 }
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
