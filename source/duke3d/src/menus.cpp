@@ -1415,11 +1415,14 @@ static MenuPanel_t M_CREDITS5 = { "About " APPNAME, MENU_CREDITS4, MA_Return, ME
 #define CURSOR_CENTER_3LINE { MENU_MARGIN_CENTER<<16, 129<<16, }
 #define CURSOR_BOTTOMRIGHT { 304<<16, 186<<16, }
 
+static MenuVerify_t M_SAVECLEANVERIFY = { CURSOR_CENTER_2LINE, MENU_SAVESETUP, MA_None, };
 static MenuVerify_t M_QUIT = { CURSOR_CENTER_2LINE, MENU_CLOSE, MA_None, };
 static MenuVerify_t M_QUITTOTITLE = { CURSOR_CENTER_2LINE, MENU_CLOSE, MA_None, };
 static MenuVerify_t M_LOADVERIFY = { CURSOR_CENTER_3LINE, MENU_CLOSE, MA_None, };
+static MenuVerify_t M_LOADDELVERIFY = { CURSOR_CENTER_3LINE, MENU_CLOSE, MA_None, };
 static MenuVerify_t M_NEWVERIFY = { CURSOR_CENTER_2LINE, MENU_EPISODE, MA_Advance, };
 static MenuVerify_t M_SAVEVERIFY = { CURSOR_CENTER_2LINE, MENU_SAVE, MA_None, };
+static MenuVerify_t M_SAVEDELVERIFY = { CURSOR_CENTER_3LINE, MENU_SAVE, MA_None, };
 static MenuVerify_t M_RESETPLAYER = { CURSOR_CENTER_3LINE, MENU_CLOSE, MA_None, };
 
 static MenuMessage_t M_NETWAITMASTER = { CURSOR_BOTTOMRIGHT, MENU_NULL, MA_None, };
@@ -1486,6 +1489,7 @@ static Menu_t Menus[] = {
     { &M_SOUND, MENU_SOUND_INGAME, MENU_CLOSE, MA_Return, Menu },
     { &M_ADVSOUND, MENU_ADVSOUND, MENU_SOUND, MA_Return, Menu },
     { &M_SAVESETUP, MENU_SAVESETUP, MENU_OPTIONS, MA_Return, Menu },
+    { &M_SAVECLEANVERIFY, MENU_SAVECLEANVERIFY, MENU_SAVESETUP, MA_None, Verify },
 #ifdef EDUKE32_SIMPLE_MENU
     { &M_CHEATS, MENU_CHEATS, MENU_OPTIONS, MA_Return, Menu },
 #else
@@ -1500,8 +1504,10 @@ static Menu_t Menus[] = {
     { &M_CREDITS4, MENU_CREDITS4, MENU_MAIN, MA_Return, Panel },
     { &M_CREDITS5, MENU_CREDITS5, MENU_MAIN, MA_Return, Panel },
     { &M_LOADVERIFY, MENU_LOADVERIFY, MENU_LOAD, MA_None, Verify },
-    { &M_NEWVERIFY, MENU_NEWVERIFY, MENU_MAIN, MA_Return, Verify },
+    { &M_LOADDELVERIFY, MENU_LOADDELVERIFY, MENU_LOAD, MA_None, Verify },
+    { &M_NEWVERIFY, MENU_NEWVERIFY, MENU_PREVIOUS, MA_Return, Verify },
     { &M_SAVEVERIFY, MENU_SAVEVERIFY, MENU_SAVE, MA_None, Verify },
+    { &M_SAVEDELVERIFY, MENU_SAVEDELVERIFY, MENU_SAVE, MA_None, Verify },
     { &M_ADULTPASSWORD, MENU_ADULTPASSWORD, MENU_GAMESETUP, MA_None, TextForm },
     { &M_RESETPLAYER, MENU_RESETPLAYER, MENU_CLOSE, MA_None, Verify },
     { &M_BUYDUKE, MENU_BUYDUKE, MENU_EPISODE, MA_Return, Message },
@@ -2342,6 +2348,15 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
 #endif
 
+    case MENU_SAVECLEANVERIFY:
+        fade_screen_black(1);
+        mgametextcenter(origin.x, origin.y + (90<<16), "Delete obsolete saves?"
+#ifndef EDUKE32_ANDROID_MENU
+                                                       "\n(Y/N)"
+#endif
+        );
+        break;
+
     case MENU_LOADVERIFY:
     {
         fade_screen_black(1);
@@ -2375,6 +2390,20 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 #endif
         );
         break;
+
+    case MENU_LOADDELVERIFY:
+    case MENU_SAVEDELVERIFY:
+    {
+        fade_screen_black(1);
+        menusave_t & msv = cm == MENU_LOADDELVERIFY ? g_menusaves[M_LOAD.currentEntry] : g_menusaves[M_SAVE.currentEntry-1];
+        Bsprintf(tempbuf, "Delete saved game:\n\"%s\""
+#ifndef EDUKE32_ANDROID_MENU
+                          "\n(Y/N)"
+#endif
+        , msv.brief.name);
+        mgametextcenter(origin.x, origin.y + (90<<16), tempbuf);
+        break;
+    }
 
     case MENU_NEWVERIFY:
         fade_screen_black(1);
@@ -2703,11 +2732,7 @@ static void Menu_PreInput(MenuEntry_t *entry)
         {
             KB_ClearKeyDown(sc_Delete);
             if ((unsigned)M_LOAD.currentEntry < g_nummenusaves)
-            {
-                G_DeleteSave(g_menusaves[M_LOAD.currentEntry].brief);
-                Menu_LoadReadHeaders();
-                M_LOAD.currentEntry = clamp(M_LOAD.currentEntry, 0, (int32_t)g_nummenusaves-1);
-            }
+                Menu_Change(MENU_LOADDELVERIFY);
         }
         break;
     case MENU_SAVE:
@@ -2715,11 +2740,7 @@ static void Menu_PreInput(MenuEntry_t *entry)
         {
             KB_ClearKeyDown(sc_Delete);
             if (0 < M_SAVE.currentEntry && M_SAVE.currentEntry <= (int32_t)g_nummenusaves)
-            {
-                G_DeleteSave(g_menusaves[M_SAVE.currentEntry-1].brief);
-                Menu_SaveReadHeaders();
-                M_SAVE.currentEntry = clamp(M_SAVE.currentEntry, 0, (int32_t)g_nummenusaves);
-            }
+                Menu_Change(MENU_SAVEDELVERIFY);
         }
         break;
 
@@ -3029,7 +3050,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     }
     else if (entry == &ME_SAVESETUP_CLEANUP)
     {
-        G_DeleteOldSaves();
+        Menu_Change(MENU_SAVECLEANVERIFY);
     }
     else if (entry == &ME_COLCORR_RESET)
     {
@@ -3420,6 +3441,13 @@ static void Menu_Verify(int32_t input)
 {
     switch (g_currentMenu)
     {
+    case MENU_SAVECLEANVERIFY:
+        if (input)
+        {
+            G_DeleteOldSaves();
+        }
+        break;
+
     case MENU_RESETPLAYER:
         if (input)
         {
@@ -3474,6 +3502,23 @@ static void Menu_Verify(int32_t input)
             save_xxh = 0;
 
             ((MenuString_t*)M_SAVE.entrylist[M_SAVE.currentEntry]->entry)->editfield = NULL;
+        }
+        break;
+
+    case MENU_LOADDELVERIFY:
+        if (input)
+        {
+            G_DeleteSave(g_menusaves[M_LOAD.currentEntry].brief);
+            Menu_LoadReadHeaders();
+            M_LOAD.currentEntry = clamp(M_LOAD.currentEntry, 0, (int32_t)g_nummenusaves-1);
+        }
+        break;
+    case MENU_SAVEDELVERIFY:
+        if (input)
+        {
+            G_DeleteSave(g_menusaves[M_SAVE.currentEntry-1].brief);
+            Menu_SaveReadHeaders();
+            M_SAVE.currentEntry = clamp(M_SAVE.currentEntry, 0, (int32_t)g_nummenusaves);
         }
         break;
 
@@ -3933,7 +3978,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
         break;
 
     case MENU_SAVE:
-        if (g_previousMenu == MENU_SAVEVERIFY)
+        if (g_previousMenu == MENU_SAVEVERIFY || g_previousMenu == MENU_SAVEDELVERIFY)
             break;
 
         Menu_SaveReadHeaders();
@@ -4063,6 +4108,13 @@ int Menu_Change(MenuID_t cm)
 
         if (search == NULL)
             return 0; // intentional, so that users don't use any random value as "don't change"
+
+        // security
+        if (search->type == Verify &&
+            search->parentID != MENU_PREVIOUS &&
+            search->parentID != MENU_CLOSE &&
+            search->parentID != g_currentMenu)
+            return 1;
 
         m_previousMenu = m_currentMenu;
         g_previousMenu = g_currentMenu;
@@ -4194,7 +4246,9 @@ static inline int32_t Menu_UpdateScreenOK(MenuID_t cm)
         case MENU_LOAD:
         case MENU_SAVE:
         case MENU_LOADVERIFY:
+        case MENU_LOADDELVERIFY:
         case MENU_SAVEVERIFY:
+        case MENU_SAVEDELVERIFY:
             return 0;
             break;
         default:
@@ -5335,8 +5389,11 @@ static void Menu_Recurse(MenuID_t cm, const vec2_t origin)
 {
     switch (cm)
     {
+    case MENU_SAVECLEANVERIFY:
     case MENU_LOADVERIFY:
+    case MENU_LOADDELVERIFY:
     case MENU_SAVEVERIFY:
+    case MENU_SAVEDELVERIFY:
     case MENU_ADULTPASSWORD:
     case MENU_CHEATENTRY:
     case MENU_CHEAT_WARP:
