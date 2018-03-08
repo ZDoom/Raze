@@ -6195,6 +6195,10 @@ int app_main(int argc, char const * const * argv)
 #endif
 #endif
 
+#ifdef EDUKE32_STANDALONE
+    G_DeleteOldSaves();
+#endif
+
     G_ExtPreInit(argc, argv);
 
 #ifdef __APPLE__

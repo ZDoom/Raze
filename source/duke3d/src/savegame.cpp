@@ -506,6 +506,21 @@ void G_DeleteOldSaves(void)
     }
 }
 
+size_t G_CountOldSaves(void)
+{
+    ReadSaveGameHeaders();
+
+    size_t bad = 0;
+    for (size_t x = 0; x < g_numinternalsaves; ++x)
+    {
+        menusave_t const & msv = g_internalsaves[x];
+        if (msv.isOldVer || msv.isUnreadable)
+            ++bad;
+    }
+
+    return bad;
+}
+
 int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 {
 #ifdef __ANDROID__

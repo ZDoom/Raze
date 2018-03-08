@@ -175,7 +175,7 @@ static void Menu_DrawCursorText(int32_t x, int32_t y, int32_t h, int32_t ydim_up
 }
 
 extern int32_t g_quitDeadline;
-
+static size_t g_oldSaveCnt;
 
 
 
@@ -335,7 +335,11 @@ static MenuLink_t MEO_MAIN_NEWGAME_NETWORK = { MENU_NETWORK, MA_Advance, };
 MAKE_MENU_TOP_ENTRYLINK( s_SaveGame, MEF_MainMenu, MAIN_SAVEGAME, MENU_SAVE );
 MAKE_MENU_TOP_ENTRYLINK( s_LoadGame, MEF_MainMenu, MAIN_LOADGAME, MENU_LOAD );
 MAKE_MENU_TOP_ENTRYLINK( s_Options, MEF_MainMenu, MAIN_OPTIONS, MENU_OPTIONS );
-MAKE_MENU_TOP_ENTRYLINK( "Help", MEF_MainMenu, MAIN_HELP, MENU_STORY );
+#ifdef EDUKE32_STANDALONE
+MAKE_MENU_TOP_ENTRYLINK( "Read me!", MEF_MainMenu, MAIN_HELP, MENU_STORY );
+#else
+MAKE_MENU_TOP_ENTRYLINK("Help", MEF_MainMenu, MAIN_HELP, MENU_STORY);
+#endif
 #ifndef EDUKE32_SIMPLE_MENU
 MAKE_MENU_TOP_ENTRYLINK( s_Credits, MEF_MainMenu, MAIN_CREDITS, MENU_CREDITS );
 #endif
@@ -2357,11 +2361,19 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
     case MENU_SAVECLEANVERIFY:
         fade_screen_black(1);
-        mgametextcenter(origin.x, origin.y + (90<<16), "Delete obsolete saves?"
+
+        if (g_oldSaveCnt)
+        {
+            Bsprintf(tempbuf, "Delete %zu obsolete saves?\nThis action cannot be undone."
 #ifndef EDUKE32_ANDROID_MENU
-                                                       "\n(Y/N)"
+                "\n(Y/N)"
 #endif
-        );
+                , g_oldSaveCnt);
+        }
+        else
+            Bsprintf(tempbuf, "No obsolete saves found!");
+
+        mgametextcenter(origin.x, origin.y + (90<<16), tempbuf);
         break;
 
     case MENU_LOADVERIFY:
@@ -2403,7 +2415,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     {
         fade_screen_black(1);
         menusave_t & msv = cm == MENU_LOADDELVERIFY ? g_menusaves[M_LOAD.currentEntry] : g_menusaves[M_SAVE.currentEntry-1];
-        Bsprintf(tempbuf, "Delete saved game:\n\"%s\""
+        Bsprintf(tempbuf, "Delete saved game:\n\"%s\"?"
 #ifndef EDUKE32_ANDROID_MENU
                           "\n(Y/N)"
 #endif
@@ -3057,6 +3069,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     }
     else if (entry == &ME_SAVESETUP_CLEANUP)
     {
+        g_oldSaveCnt = G_CountOldSaves();
         Menu_Change(MENU_SAVECLEANVERIFY);
     }
     else if (entry == &ME_COLCORR_RESET)
