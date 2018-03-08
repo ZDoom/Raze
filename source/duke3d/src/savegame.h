@@ -34,7 +34,7 @@ extern "C" {
 #else
 # define SV_MAJOR_VER 1
 #endif
-#define SV_MINOR_VER 4
+#define SV_MINOR_VER 5
 
 #pragma pack(push,1)
 typedef struct
@@ -43,6 +43,8 @@ typedef struct
     uint8_t majorver, minorver, ptrsize;
     uint16_t bytever;
     // 16 bytes
+
+    uint32_t userbytever;
 
     uint8_t comprthres;
     uint8_t recdiffsp, diffcompress, synccompress;
@@ -54,7 +56,7 @@ typedef struct
     char savename[MAXSAVEGAMENAMESTRUCT];
     uint8_t numplayers, volnum, levnum, skill;
     char boardfn[BMAX_PATH];
-    // 282 bytes
+    // 286 bytes
 #ifdef __ANDROID__
     char skillname[32], volname[32];
 #endif

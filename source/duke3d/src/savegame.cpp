@@ -1339,6 +1339,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
     h.minorver = SV_MINOR_VER;
     h.ptrsize = sizeof(intptr_t);
     h.bytever = BYTEVERSION;
+    h.userbytever = ud.userbytever;
 
     h.comprthres = savegame_comprthres;
     h.recdiffsp = recdiffsp;
@@ -1465,12 +1466,12 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
         return -2;
     }
 
-    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION)
+    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION || h->userbytever != ud.userbytever)
     {
         if (havedemo)
-            OSD_Printf("Incompatible demo version. Expected %d.%d.%d, found %d.%d.%d\n",
-                       SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
-                       h->majorver, h->minorver, h->bytever);
+            OSD_Printf("Incompatible demo version. Expected %d.%d.%d.%d, found %d.%d.%d.%d\n",
+                       SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION, ud.userbytever,
+                       h->majorver, h->minorver, h->bytever, h->userbytever);
 
         if (h->majorver == SV_MAJOR_VER && h->minorver == SV_MINOR_VER)
         {

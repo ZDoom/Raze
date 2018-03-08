@@ -191,6 +191,8 @@ typedef struct {
 
     int32_t returnvar[MAX_RETURN_VALUES-1];
 
+    uint32_t userbytever;
+
 #if !defined LUNATIC
     fix16_t cameraq16ang, cameraq16horiz;
     int16_t camerasect;

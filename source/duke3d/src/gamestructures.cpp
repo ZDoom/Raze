@@ -230,6 +230,7 @@ int32_t __fastcall VM_GetUserdef(int32_t labelNum, int32_t const lParm2)
             else
                 labelNum = ud.returnvar[lParm2-1];
             break;
+        case USERDEFS_USERBYTEVERSION: labelNum = ud.userbytever; break;
         default: labelNum = -1; break;
     }
 
@@ -418,6 +419,7 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const lParm2, int3
             else
                 ud.returnvar[lParm2-1] = iSet;
             break;
+        case USERDEFS_USERBYTEVERSION: ud.userbytever = iSet; break;
         default: break;
     }
 }

@@ -1307,6 +1307,7 @@ const memberlabel_t UserdefsLabels[]=
     { "menu_scrollbarz",        USERDEFS_MENU_SCROLLBARZ,        0, 0 },
     { "menu_scrollcursorz",     USERDEFS_MENU_SCROLLCURSORZ,     0, 0 },
     { "return",                 USERDEFS_RETURN,                 LABEL_HASPARM2, MAX_RETURN_VALUES },
+    { "userbyteversion",        USERDEFS_USERBYTEVERSION,        0, 0 },
     { NULL,                     -1,                              0, 0  } // END OF LIST
 };
 
