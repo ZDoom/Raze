@@ -146,6 +146,9 @@ savebrief_t * g_quickload;
 menusave_t * g_menusaves;
 size_t g_nummenusaves;
 
+static menusave_t * g_internalsaves;
+static size_t g_numinternalsaves;
+
 static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
 {
     savehead_t h;
@@ -157,34 +160,29 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
         if (fil == -1)
             continue;
 
-        menusave_t & msv = g_menusaves[g_nummenusaves];
+        menusave_t & msv = g_internalsaves[g_numinternalsaves];
 
         int32_t k = sv_loadheader(fil, 0, &h);
         if (k)
         {
-            // old version, signal to menu code
-            if (k > 0)
-                msv.isOldVer = 1;
-            else
-            {
-                kclose(fil);
-                continue;
-            }
-            // else h.savename is all zeros (fatal failure, like wrong header
-            // magic or too short header)
+            if (k < 0)
+                msv.isUnreadable = 1;
+            msv.isOldVer = 1;
         }
         else
             msv.isOldVer = 0;
 
         msv.isAutoSave = h.isAutoSave();
 
+        strncpy(msv.brief.path, fn, ARRAY_SIZE(msv.brief.path));
+        ++g_numinternalsaves;
+
         if (k >= 0 && h.savename[0] != '\0')
         {
             memcpy(msv.brief.name, h.savename, ARRAY_SIZE(msv.brief.name));
-            strncpy(msv.brief.path, fn, ARRAY_SIZE(msv.brief.path));
-
-            ++g_nummenusaves;
         }
+        else
+            msv.isUnreadable = 1;
 
         kclose(fil);
     }
@@ -206,12 +204,34 @@ void ReadSaveGameHeaders(void)
 
     // potentially overallocating but programmatically simple
     size_t const numfiles = countcache1dfind(findfiles_default);
-    g_menusaves = (menusave_t *)Xrealloc(g_menusaves, sizeof(menusave_t) * numfiles);
+    size_t const internalsavesize = sizeof(menusave_t) * numfiles;
+    g_internalsaves = (menusave_t *)Xrealloc(g_internalsaves, internalsavesize);
+    memset(g_internalsaves, 0, internalsavesize);
+
+    g_numinternalsaves = 0;
+    ReadSaveGameHeaders_CACHE1D(findfiles_default);
+    klistfree(findfiles_default);
 
     g_nummenusaves = 0;
-    ReadSaveGameHeaders_CACHE1D(findfiles_default);
-
-    klistfree(findfiles_default);
+    for (size_t x = g_numinternalsaves-1; x < g_numinternalsaves; --x)
+    {
+        menusave_t & msv = g_internalsaves[x];
+        if (!msv.isUnreadable)
+        {
+            ++g_nummenusaves;
+        }
+    }
+    size_t const menusavesize = sizeof(menusave_t) * g_nummenusaves;
+    g_menusaves = (menusave_t *)Xrealloc(g_menusaves, menusavesize);
+    memset(g_menusaves, 0, menusavesize);
+    for (size_t x = g_numinternalsaves-1, y = 0; x < g_numinternalsaves; --x)
+    {
+        menusave_t & msv = g_internalsaves[x];
+        if (!msv.isUnreadable)
+        {
+            g_menusaves[y++] = msv;
+        }
+    }
 }
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)

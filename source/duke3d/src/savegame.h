@@ -96,6 +96,7 @@ struct menusave_t
 {
     savebrief_t brief;
     uint8_t isOldVer = 0;
+    uint8_t isUnreadable = 0;
     uint8_t isAutoSave = 0;
 };
 
