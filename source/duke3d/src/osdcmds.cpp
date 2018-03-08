@@ -1442,12 +1442,12 @@ static int32_t osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
             if (!haveev)
             {
                 haveev = 1;
-                OSD_Printf("\n  -- event times: [event]={ total calls, total time [ms], mean time/call [us] }\n");
+                OSD_Printf("\nevent times: event, total calls, total time [ms], mean time/call [us]\n");
             }
 
             buf[n] = 0;
 
-            OSD_Printf("  [%-26s]={ %8d, %10.3f, %10.3f },\n",
+            OSD_Printf("%17s, %8d, %10.3f, %10.3f,\n",
                 buf, g_eventCalls[i], g_eventTotalMs[i],
                 1000*g_eventTotalMs[i]/g_eventCalls[i]);
         }
@@ -1458,7 +1458,7 @@ static int32_t osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
             if (!haveac)
             {
                 haveac = 1;
-                OSD_Printf("\n  -- actor times: [tile]={ total calls, total time [ms], {min,mean,max} time/call [us] }\n");
+                OSD_Printf("\nactor times: tile, total calls, total time [ms], {min,mean,max} time/call [us]\n");
             }
 
             buf[0] = 0;
@@ -1474,7 +1474,7 @@ static int32_t osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
 
             if (!buf[0]) Bsprintf(buf, "%d", i);
 
-            OSD_Printf("  [%-26s]={ %8d, %9.3f, %9.3f, %9.3f, %9.3f },\n",
+            OSD_Printf("%17s, %8d, %9.3f, %9.3f, %9.3f, %9.3f,\n",
                 buf, g_actorCalls[i], g_actorTotalMs[i],
                 1000*g_actorMinMs[i],
                 1000*g_actorTotalMs[i]/g_actorCalls[i],
