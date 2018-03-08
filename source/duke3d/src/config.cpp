@@ -281,6 +281,7 @@ void CONFIG_SetDefaults(void)
     ud.menu_scrollbartilenum = -1;
     ud.menu_scrollbarz = 65536;
     ud.menu_scrollcursorz = 65536;
+    ud.autosave = 1;
 
     ud.config.CheckForUpdates = 1;
 

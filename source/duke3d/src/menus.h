@@ -80,6 +80,7 @@ enum MenuIndex_t {
     MENU_SOUND          = 700,
     MENU_SOUND_INGAME   = 701,
 	MENU_ADVSOUND       = 702,
+    MENU_SAVESETUP      = 750,
     MENU_CHEATS         = 800,
     MENU_CHEATENTRY     = 801,
     MENU_CHEAT_WARP     = 802,

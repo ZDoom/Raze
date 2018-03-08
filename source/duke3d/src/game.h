@@ -189,6 +189,8 @@ typedef struct {
 
     int32_t default_volume, default_skill;
 
+    int32_t autosave;
+
     int32_t returnvar[MAX_RETURN_VALUES-1];
 
     uint32_t userbytever;
