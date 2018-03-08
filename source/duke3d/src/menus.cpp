@@ -2214,7 +2214,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
 #ifndef EDUKE32_SIMPLE_MENU
                 Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
-                         savehead.bytever, 8*savehead.ptrsize);
+                         savehead.bytever, 8*savehead.getPtrSize());
                 mgametext(origin.x + (31<<16), origin.y + (104<<16), tempbuf);
                 Bsprintf(tempbuf,"Our: %d.%d.%d %d-bit", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                          (int32_t)(8*sizeof(intptr_t)));
@@ -2274,7 +2274,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
 #ifndef EDUKE32_SIMPLE_MENU
                     Bsprintf(tempbuf,"Saved: %d.%d.%d %d-bit", savehead.majorver, savehead.minorver,
-                             savehead.bytever, 8*savehead.ptrsize);
+                             savehead.bytever, 8*savehead.getPtrSize());
                     mgametext(origin.x + (31<<16), origin.y + (104<<16), tempbuf);
                     Bsprintf(tempbuf,"Our: %d.%d.%d %d-bit", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
                              (int32_t)(8*sizeof(intptr_t)));

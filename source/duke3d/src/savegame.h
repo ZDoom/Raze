@@ -58,6 +58,9 @@ typedef struct
 #ifdef __ANDROID__
     char skillname[32], volname[32];
 #endif
+
+    uint8_t getPtrSize() const { return ptrsize & 0x7Fu; }
+    bool isAutoSave() const { return !!(ptrsize & (1u<<7u)); }
 } savehead_t;
 #pragma pack(pop)
 

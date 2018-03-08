@@ -1483,11 +1483,11 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
         }
     }
 
-    if (h->ptrsize != sizeof(intptr_t))
+    if (h->getPtrSize() != sizeof(intptr_t))
     {
         if (havedemo)
             OSD_Printf("Demo incompatible. Expected pointer size %d, found %d\n",
-                       (int32_t)sizeof(intptr_t), h->ptrsize);
+                       (int32_t)sizeof(intptr_t), h->getPtrSize());
 
         Bmemset(h->headerstr, 0, sizeof(h->headerstr));
         return -4;
