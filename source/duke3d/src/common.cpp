@@ -317,7 +317,7 @@ void G_ExtInit(void)
         {
             Bsnprintf(cwd,sizeof(cwd),"%s/"
 #if defined(_WIN32)
-                      APPNAME " Settings"
+                      APPNAME
 #elif defined(GEKKO)
                       "apps/" APPBASENAME
 #else
