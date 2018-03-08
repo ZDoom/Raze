@@ -1437,9 +1437,7 @@ static int32_t osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
                 OSD_Printf("\n  -- event times: [event]={ total calls, total time [ms], mean time/call [us] }\n");
             }
 
-            for (; n<maxlen; n++)
-                buf[n] = ' ';
-            buf[maxlen] = 0;
+            buf[n] = 0;
 
             OSD_Printf("  [%-26s]={ %8d, %10.3f, %10.3f },\n",
                 buf, g_eventCalls[i], g_eventTotalMs[i],
@@ -1459,14 +1457,14 @@ static int32_t osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
 
             for (int ii=0; ii<g_labelCnt; ii++)
             {
-                if (labelcode[ii] == i && labeltype[ii] == LABEL_DEFINE)
+                if (labelcode[ii] == i && labeltype[ii] & LABEL_ACTOR)
                 {
                     Bstrcpy(buf, label+(ii<<6));
                     break;
                 }
             }
 
-            if (!buf[0]) Bsprintf(buf, "%5d", i);
+            if (!buf[0]) Bsprintf(buf, "%d", i);
 
             OSD_Printf("  [%-26s]={ %8d, %9.3f, %9.3f, %9.3f, %9.3f },\n",
                 buf, g_actorCalls[i], g_actorTotalMs[i],

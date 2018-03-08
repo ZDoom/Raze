@@ -3559,6 +3559,11 @@ DO_DEFSTATE:
             }
             g_szCurrentBlockName[j] = 0;
 
+            j = hash_find(&h_labels, g_szCurrentBlockName);
+
+            if (j != -1)
+                labeltype[j] |= LABEL_ACTOR;
+
             if (tw == CON_USERACTOR)
             {
                 j = *g_scriptPtr;
@@ -3574,7 +3579,7 @@ DO_DEFSTATE:
                 }
             }
 
-            C_GetNextValue(LABEL_DEFINE);
+            C_GetNextValue(LABEL_ACTOR);
             g_scriptPtr--;
 
             if (EDUKE32_PREDICT_FALSE((unsigned)*g_scriptPtr >= MAXTILES))
@@ -3680,7 +3685,7 @@ DO_DEFSTATE:
             }
             g_szCurrentBlockName[j] = 0;
             //        g_labelsOnly = 1;
-            C_GetNextValue(LABEL_DEFINE);
+            C_GetNextValue(LABEL_EVENT);
             g_labelsOnly = 0;
             g_scriptPtr--;
             j= *g_scriptPtr;  // type of event
@@ -6271,7 +6276,7 @@ static void C_AddDefinition(const char *lLabel,int32_t lValue,int32_t lType)
 static void C_AddDefaultDefinitions(void)
 {
     for (int i=0; i<MAXEVENTS; i++)
-        C_AddDefinition(EventNames[i], i, LABEL_DEFINE);
+        C_AddDefinition(EventNames[i], i, LABEL_DEFINE|LABEL_EVENT);
 
 #if 0
     for (int i=0; i<NUMGAMEFUNCTIONS; i++)

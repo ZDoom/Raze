@@ -40,6 +40,7 @@ enum
     LABEL_ACTION = 8,
     LABEL_AI     = 16,
     LABEL_MOVE   = 32,
+    LABEL_EVENT  = 64,
 };
 
 #define LABEL_HASPARM2  1
