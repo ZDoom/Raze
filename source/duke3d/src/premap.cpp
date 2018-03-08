@@ -870,6 +870,7 @@ void P_ResetWeapons(int playerNum)
     pPlayer->show_empty_weapon          = 0;
     pPlayer->last_pissed_time           = 0;
     pPlayer->holster_weapon             = 0;
+    pPlayer->last_used_weapon           = -1;
 
     VM_OnEvent(EVENT_RESETWEAPONS, pPlayer->i, playerNum);
 }

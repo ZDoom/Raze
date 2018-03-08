@@ -111,7 +111,7 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Dpad_Select",
    "Dpad_Aiming",
    "Alternate_Weapon",
-   "Last_Used_Weapon"
+   "Last_Used_Weapon",
    };
 
 #ifdef __SETUP__

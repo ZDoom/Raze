@@ -7157,5 +7157,5 @@ static void G_SetupGameButtons(void)
     CONTROL_DefineFlag(gamefunc_Next_Weapon,FALSE);
     CONTROL_DefineFlag(gamefunc_Previous_Weapon,FALSE);
     CONTROL_DefineFlag(gamefunc_Alt_Weapon,FALSE);
-    CONTROL_DefineFlag(gamefunc_Last_Weapon, FALSE);
+    CONTROL_DefineFlag(gamefunc_Last_Weapon,FALSE);
 }

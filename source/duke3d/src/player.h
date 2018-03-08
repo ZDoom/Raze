@@ -201,6 +201,8 @@ typedef struct {
     uint8_t palette;
     palette_t pals;
 
+    int8_t last_used_weapon;
+
 #ifdef LUNATIC
     int8_t palsfadespeed, palsfadenext, palsfadeprio, padding2_;
 
@@ -208,7 +210,7 @@ typedef struct {
     // anywhere (like with spritetype_t): g_player[i].ps->wa.idx == i.
     struct { int32_t idx; } wa;
 #endif
-    int8_t padding_[1];
+    // int8_t padding_[0];
 } DukePlayer_t;
 
 // KEEPINSYNC lunatic/_defs_game.lua

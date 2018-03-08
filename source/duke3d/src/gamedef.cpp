@@ -756,6 +756,7 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_PLAYLEVELMUSICSLOT",
     "EVENT_CONTINUELEVELMUSICSLOT",
     "EVENT_DISPLAYPOINTER",
+    "EVENT_LASTWEAPON",
 #ifdef LUNATIC
     "EVENT_ANIMATEALLSPRITES",
 #endif
@@ -1090,6 +1091,7 @@ const memberlabel_t PlayerLabels[]=
     { "connected",             PLAYER_CONNECTED,             0, 0 },
     { "frags",                 PLAYER_FRAGS,                 LABEL_HASPARM2, MAXPLAYERS },
     { "deaths",                PLAYER_DEATHS,                0, 0 },
+    { "last_used_weapon",      PLAYER_LAST_USED_WEAPON,      0, 0 },
     { NULL,                    -1,                           0, 0  }     // END OF LIST
 };
 

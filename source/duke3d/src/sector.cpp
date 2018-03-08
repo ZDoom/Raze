@@ -2555,6 +2555,9 @@ CHECKINV1:
         case 12:
             weaponNum = VM_OnEventWithReturn(EVENT_ALTWEAPON,pPlayer->i,playerNum, weaponNum);
             break;
+        case 13:
+            weaponNum = VM_OnEventWithReturn(EVENT_LASTWEAPON,pPlayer->i,playerNum, weaponNum);
+            break;
         }
 
         // NOTE: it is assumed that the above events return either -1 or a
@@ -2647,9 +2650,11 @@ CHECKINV1:
                         pPlayer->subweapon |= (1<<GROW_WEAPON);
                 }
 
-                if (weaponNum == 12)
+                // last used weapon will depend on subweapon
+                if (weaponNum >= 12) // alt weapon, last used weapon
                 {
-                    switch (pPlayer->curr_weapon)
+                    uint32_t const weaponNumSwitch = weaponNum == 13 ? pPlayer->last_used_weapon : pPlayer->curr_weapon;
+                    switch (weaponNumSwitch)
                     {
                         case HANDREMOTE_WEAPON:
                             weaponNum = HANDBOMB_WEAPON;
@@ -2658,7 +2663,7 @@ CHECKINV1:
                             weaponNum = SHRINKER_WEAPON;
                             break;
                         default:
-                            weaponNum = pPlayer->curr_weapon;
+                            weaponNum = weaponNumSwitch;
                             break;
                     }
                 }

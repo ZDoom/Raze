@@ -694,6 +694,7 @@ int32_t __fastcall VM_GetPlayer(int32_t const playerNum, int32_t labelNum, int32
                 labelNum = g_player[playerNum].frags[lParm2];
         break;
         case PLAYER_DEATHS: labelNum = g_player[playerNum].frags[playerNum]; break;
+        case PLAYER_LAST_USED_WEAPON: labelNum = ps->last_used_weapon; break;
         default: labelNum = -1; break;
     }
 
@@ -890,6 +891,7 @@ void __fastcall VM_SetPlayer(int32_t const playerNum, int32_t const labelNum, in
                 g_player[playerNum].frags[lParm2] = iSet;
             break;
         case PLAYER_DEATHS: g_player[playerNum].frags[playerNum] = iSet; break;
+        case PLAYER_LAST_USED_WEAPON: ps->last_used_weapon = iSet; break;
         default: break;
     }
 }
