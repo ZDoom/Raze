@@ -232,6 +232,24 @@ void ReadSaveGameHeaders(void)
             g_menusaves[y++] = msv;
         }
     }
+
+    for (size_t x = g_numinternalsaves-1; x < g_numinternalsaves; --x)
+    {
+        char const * const path = g_internalsaves[x].brief.path;
+        size_t const pathlen = strlen(path);
+        if (pathlen < 12)
+            continue;
+        char const * const fn = path + (pathlen-12);
+        if (fn[0] == 's' && fn[1] == 'a' && fn[2] == 'v' && fn[3] == 'e' &&
+            isdigit(fn[4]) && isdigit(fn[5]) && isdigit(fn[6]) && isdigit(fn[7]))
+        {
+            char number[5];
+            memcpy(number, fn+4, 4);
+            number[4] = '\0';
+            savecounter.count = atoi(number)+1;
+            break;
+        }
+    }
 }
 
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
@@ -257,7 +275,7 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
     {
         if (kdfread((char *)waloff[TILE_LOADSHOT], 320, 200, fil) != 200)
         {
-            OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot \"%s\"\n", fn);
+            OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot in \"%s\"\n", fn);
             goto corrupt;
         }
     }
