@@ -1223,10 +1223,13 @@ static MenuEntry_t ME_SAVESETUP_AUTOSAVEDELETION = MAKE_MENUENTRY( "Auto-Delete:
 static MenuRangeInt32_t MEO_SAVESETUP_MAXAUTOSAVES = MAKE_MENURANGE( &ud.maxautosaves, &MF_Redfont, 1, 10, 0, 10, 1 );
 static MenuEntry_t ME_SAVESETUP_MAXAUTOSAVES = MAKE_MENUENTRY( "Limit:", &MF_Redfont, &MEF_BigOptions_Apply, &MEO_SAVESETUP_MAXAUTOSAVES, RangeInt32 );
 
+static MenuEntry_t ME_SAVESETUP_CLEANUP = MAKE_MENUENTRY( "Clean Up Saves", &MF_Redfont, &MEF_BigOptionsRt, &MEO_NULL, Link );
+
 static MenuEntry_t *MEL_SAVESETUP[] = {
     &ME_SAVESETUP_AUTOSAVE,
     &ME_SAVESETUP_AUTOSAVEDELETION,
     &ME_SAVESETUP_MAXAUTOSAVES,
+    &ME_SAVESETUP_CLEANUP,
 };
 
 
@@ -3023,6 +3026,10 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 
         if (ud.config.MusicToggle)
             S_RestartMusic();
+    }
+    else if (entry == &ME_SAVESETUP_CLEANUP)
+    {
+        G_DeleteOldSaves();
     }
     else if (entry == &ME_COLCORR_RESET)
     {

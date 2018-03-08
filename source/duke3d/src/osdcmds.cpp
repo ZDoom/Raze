@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "demo.h"  // g_firstDemoFile[]
 #include "cheats.h"
 #include "sbar.h"
+#include "savegame.h"
 
 #ifdef LUNATIC
 # include "lunatic_game.h"
@@ -1410,6 +1411,13 @@ static int32_t osdcmd_kickban(osdfuncparm_t const * const parm)
 }
 #endif
 
+static int32_t osdcmd_sv_cleanup(osdfuncparm_t const * const UNUSED(parm))
+{
+    UNREFERENCED_CONST_PARAMETER(parm);
+    G_DeleteOldSaves();
+    return OSDCMD_OK;
+}
+
 static int32_t osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -1775,6 +1783,8 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
     OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
 #endif
+
+    OSD_RegisterFunction("sv_cleanup", "sv_cleanup: deletes obsolete and unreadable save files", osdcmd_sv_cleanup);
 
     for (i=0; i<NUMGAMEFUNCTIONS; i++)
     {

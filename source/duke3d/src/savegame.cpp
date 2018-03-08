@@ -494,6 +494,18 @@ void G_DeleteSave(savebrief_t const & sv)
     unlink(temp);
 }
 
+void G_DeleteOldSaves(void)
+{
+    ReadSaveGameHeaders();
+
+    for (size_t x = 0; x < g_numinternalsaves; ++x)
+    {
+        menusave_t const & msv = g_internalsaves[x];
+        if (msv.isOldVer || msv.isUnreadable)
+            G_DeleteSave(msv.brief);
+    }
+}
+
 int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 {
 #ifdef __ANDROID__
