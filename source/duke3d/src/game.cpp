@@ -5646,15 +5646,19 @@ static void G_CompileScripts(void)
     {
         char *newlabel;
         int32_t *newlabelcode;
+        int32_t *newlabeltype;
 
-        newlabel     = (char *)Xmalloc(g_labelCnt<<6);
-        newlabelcode = (int32_t *)Xmalloc(g_labelCnt*sizeof(int32_t));
+        newlabel     = (char *)Xmalloc(g_labelCnt << 6);
+        newlabelcode = (int32_t *)Xmalloc(g_labelCnt * sizeof(int32_t));
+        newlabeltype = (int32_t *)Xmalloc(g_labelCnt * sizeof(int32_t));
 
         Bmemcpy(newlabel, label, g_labelCnt*64);
         Bmemcpy(newlabelcode, labelcode, g_labelCnt*sizeof(int32_t));
+        Bmemcpy(newlabeltype, labeltype, g_labelCnt*sizeof(int32_t));
 
         label = newlabel;
         labelcode = newlabelcode;
+        labeltype = newlabeltype;
     }
 
     Bmemset(sprite, 0, MAXSPRITES*sizeof(spritetype));

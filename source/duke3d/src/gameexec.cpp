@@ -71,6 +71,10 @@ int32_t g_textureVarID   = -1;  // var ID of "TEXTURE"
 int32_t g_thisActorVarID = -1;  // var ID of "THISACTOR"
 int32_t g_structVarIDs   = -1;
 
+// for timing events and actors
+uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
+double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
+
 GAMEEXEC_STATIC void VM_Execute(int loop);
 
 # include "gamestructures.cpp"
@@ -166,6 +170,8 @@ static void VM_DummySprite(void)
 static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const spriteNum, int const playerNum,
                                      int const playerDist, int32_t returnValue)
 {
+    const double t = gethiticks();
+
     const vmstate_t tempvm = { spriteNum, playerNum, playerDist, 0, NULL, NULL, g_player[playerNum].ps, NULL };
 
     int const backupReturnVar = aGameVars[g_returnVarID].global;
@@ -208,6 +214,9 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
     returnValue        = aGameVars[g_returnVarID].global;
 
     aGameVars[g_returnVarID].global  = backupReturnVar;
+
+    g_eventTotalMs[eventNum] += gethiticks()-t;
+    g_eventCalls[eventNum]++;
 
     return returnValue;
 }
@@ -5893,9 +5902,17 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
         g_actorCalls[picnum]++;
     }
 #else
+    double t = gethiticks();
+    int const picnum = vm.pSprite->picnum;
     insptr = 4 + (g_tile[vm.pSprite->picnum].execPtr);
     VM_Execute(1);
     insptr = NULL;
+
+    t = gethiticks()-t;
+    g_actorTotalMs[picnum] += t;
+    g_actorMinMs[picnum] = min(g_actorMinMs[picnum], t);
+    g_actorMaxMs[picnum] = max(g_actorMaxMs[picnum], t);
+    g_actorCalls[picnum]++;
 #endif
 
 #ifdef LUNATIC

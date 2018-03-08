@@ -73,17 +73,6 @@ int32_t g_errorCnt,g_warningCnt;
 
 extern int32_t g_maxSoundPos;
 
-enum
-{
-    LABEL_ANY    = -1,
-    LABEL_DEFINE = 1,
-    LABEL_STATE  = 2,
-    LABEL_ACTOR  = 4,
-    LABEL_ACTION = 8,
-    LABEL_AI     = 16,
-    LABEL_MOVE   = 32,
-};
-
 #if !defined LUNATIC
 static char *C_GetLabelType(int32_t type)
 {
@@ -6503,8 +6492,11 @@ void C_Compile(const char *fileName)
     Bmemset(apScriptEvents, 0, sizeof(apScriptEvents));
     Bmemset(apScriptGameEventEnd, 0, sizeof(apScriptGameEventEnd));
 
-    for (int i=MAXTILES-1; i>=0; i--)
+    for (int i=0; i<MAXTILES; i++)
+    {
         Bmemset(&g_tile[i], 0, sizeof(tiledata_t));
+        g_actorMinMs[i] = 1e308;
+    }
 
     C_InitHashes();
     Gv_Init();

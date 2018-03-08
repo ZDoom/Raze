@@ -852,6 +852,7 @@ void onvideomodechange(int32_t newmode)
     g_crosshairSum = -1;
 }
 
+#if !defined NETCODE_DISABLE
 static int32_t osdcmd_name(osdfuncparm_t const * const parm)
 {
     char namebuf[32];
@@ -876,7 +877,7 @@ static int32_t osdcmd_name(osdfuncparm_t const * const parm)
 
     return OSDCMD_OK;
 }
-
+#endif
 
 static int32_t osdcmd_button(osdfuncparm_t const * const parm)
 {
@@ -1265,6 +1266,7 @@ static int32_t osdcmd_inittimer(osdfuncparm_t const * const parm)
 }
 #endif
 
+#if !defined NETCODE_DISABLE
 static int32_t osdcmd_disconnect(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
@@ -1294,7 +1296,6 @@ static int32_t osdcmd_password(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-#if !defined NETCODE_DISABLE
 static int32_t osdcmd_listplayers(osdfuncparm_t const * const parm)
 {
     ENetPeer *currentPeer;
@@ -1408,6 +1409,74 @@ static int32_t osdcmd_kickban(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 #endif
+
+static int32_t osdcmd_printtimes(osdfuncparm_t const * const UNUSED(parm))
+{
+    UNREFERENCED_CONST_PARAMETER(parm);
+
+    char buf[32];
+    int32_t maxlen = 0;
+    int32_t haveev=0, haveac=0;
+    const char nn = Bstrlen("EVENT_");
+
+    for (int i=0; i<MAXEVENTS; i++)
+    {
+        int32_t len = Bstrlen(EventNames[i]+nn);
+        Bassert(len < (int32_t)sizeof(buf));
+        maxlen = max(len, maxlen);
+    }
+
+    for (int i=0; i<MAXEVENTS; i++)
+        if (g_eventCalls[i])
+        {
+            int32_t n=Bsprintf(buf, "%s", EventNames[i]+nn);
+
+            if (!haveev)
+            {
+                haveev = 1;
+                OSD_Printf("\n  -- event times: [event]={ total calls, total time [ms], mean time/call [us] }\n");
+            }
+
+            for (; n<maxlen; n++)
+                buf[n] = ' ';
+            buf[maxlen] = 0;
+
+            OSD_Printf("  [%-26s]={ %8d, %10.3f, %10.3f },\n",
+                buf, g_eventCalls[i], g_eventTotalMs[i],
+                1000*g_eventTotalMs[i]/g_eventCalls[i]);
+        }
+
+    for (int i=0; i<MAXTILES; i++)
+        if (g_actorCalls[i])
+        {
+            if (!haveac)
+            {
+                haveac = 1;
+                OSD_Printf("\n  -- actor times: [tile]={ total calls, total time [ms], {min,mean,max} time/call [us] }\n");
+            }
+
+            buf[0] = 0;
+
+            for (int ii=0; ii<g_labelCnt; ii++)
+            {
+                if (labelcode[ii] == i && labeltype[ii] == LABEL_DEFINE)
+                {
+                    Bstrcpy(buf, label+(ii<<6));
+                    break;
+                }
+            }
+
+            if (!buf[0]) Bsprintf(buf, "%5d", i);
+
+            OSD_Printf("  [%-26s]={ %8d, %9.3f, %9.3f, %9.3f, %9.3f },\n",
+                buf, g_actorCalls[i], g_actorTotalMs[i],
+                1000*g_actorMinMs[i],
+                1000*g_actorTotalMs[i]/g_actorCalls[i],
+                1000*g_actorMaxMs[i]);
+        }
+
+    return OSDCMD_OK;
+}
 
 static int32_t osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
 {
@@ -1700,8 +1769,10 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
 
+#if !defined NETCODE_DISABLE
     OSD_RegisterFunction("connect","connect: connects to a multiplayer game", osdcmd_connect);
     OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
+#endif
 
     for (i=0; i<NUMGAMEFUNCTIONS; i++)
     {
@@ -1736,10 +1807,18 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("listplayers","listplayers: lists currently connected multiplayer clients", osdcmd_listplayers);
 #endif
     OSD_RegisterFunction("music","music E<ep>L<lev>: change music", osdcmd_music);
+
+#if !defined NETCODE_DISABLE
     OSD_RegisterFunction("name","name: change your multiplayer nickname", osdcmd_name);
+#endif
+
     OSD_RegisterFunction("noclip","noclip: toggles clipping mode", osdcmd_noclip);
 
+#if !defined NETCODE_DISABLE
     OSD_RegisterFunction("password","password: sets multiplayer game password", osdcmd_password);
+#endif
+
+    OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
 
     OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
     OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);

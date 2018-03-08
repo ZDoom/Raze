@@ -8337,7 +8337,8 @@ static void G_DoEventGame(int const nEventID)
 
 void G_MoveWorld(void)
 {
-    extern double g_moveActorsTime;
+    extern double g_moveActorsTime, g_moveWorldTime;
+    const double worldTime = gethiticks();
 
     VM_OnEvent(EVENT_PREWORLD, -1, -1);
 
@@ -8351,11 +8352,11 @@ void G_MoveWorld(void)
     G_MoveFallers();          //ST 12
     G_MoveMisc();             //ST 5
 
-    double t = gethiticks();
+    const double actorsTime = gethiticks();
 
     G_MoveActors();           //ST 1
 
-    g_moveActorsTime = (1-0.033)*g_moveActorsTime + 0.033*(gethiticks()-t);
+    g_moveActorsTime = (1-0.033)*g_moveActorsTime + 0.033*(gethiticks()-actorsTime);
 
     // XXX: Has to be before effectors, in particular movers?
     // TODO: lights in moving sectors ought to be interpolated
@@ -8371,4 +8372,6 @@ void G_MoveWorld(void)
     G_RefreshLights();
     G_DoSectorAnimations();
     G_MoveFX();               //ST 11
+
+    g_moveWorldTime = (1-0.033)*g_moveWorldTime + 0.033*(gethiticks()-worldTime);
 }

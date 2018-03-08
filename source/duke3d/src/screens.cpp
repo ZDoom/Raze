@@ -46,7 +46,7 @@ palette_t DefaultCrosshairColors = { 0, 0, 0, 0 };
 int32_t g_crosshairSum = -1;
 // yxaspect and viewingrange just before the 'main' drawrooms call
 int32_t dr_yxaspect, dr_viewingrange;
-double g_moveActorsTime = 0;  // in ms, smoothed
+double g_moveActorsTime, g_moveWorldTime;  // in ms, smoothed
 int32_t g_noLogoAnim = 0;
 int32_t g_noLogo = 0;
 
@@ -685,6 +685,8 @@ static void G_PrintCoords(int32_t snum)
     printext256(x, y+72, COLOR_WHITE, -1, tempbuf, 0);
     Bsprintf(tempbuf, "MOVEACTORS [ms]= %.3e", g_moveActorsTime);
     printext256(x, y+81, COLOR_WHITE, -1, tempbuf, 0);
+    Bsprintf(tempbuf, "MOVEWORLD [ms]= %.3e", g_moveWorldTime);
+    printext256(x, y+90, COLOR_WHITE, -1, tempbuf, 0);
 
 #ifdef USE_OPENGL
     if (ud.coords == 2)

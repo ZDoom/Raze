@@ -50,8 +50,6 @@ int32_t g_RETURN;
 
 // for timing events and actors
 static int32_t g_timingInited = 0;
-uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
-double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
 
 // Used as Lua registry key to the tweak_traceback_msg() function, set to 1 if
 // such a function has been registered.
