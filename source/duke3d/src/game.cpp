@@ -6803,7 +6803,7 @@ MAIN_LOOP_RESTART:
             G_DrawRooms(myconnectindex, 65536);
             g_screenCapture = 0;
 
-            G_SavePlayerMaybeMulti(g_lastautosave);
+            G_SavePlayerMaybeMulti(g_lastautosave, true);
             g_quickload = &g_lastautosave;
 
             OSD_Printf("Saved: %s\n", g_lastautosave.path);

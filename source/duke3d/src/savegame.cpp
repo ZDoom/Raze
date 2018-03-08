@@ -176,6 +176,8 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
         else
             msv.isOldVer = 0;
 
+        msv.isAutoSave = h.isAutoSave();
+
         if (k >= 0 && h.savename[0] != '\0')
         {
             memcpy(msv.brief.name, h.savename, ARRAY_SIZE(msv.brief.name));
@@ -412,7 +414,7 @@ static void G_SavePalette(void)
 }
 #endif
 
-int32_t G_SavePlayer(savebrief_t & sv)
+int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
 {
 #ifdef __ANDROID__
     G_SavePalette();
@@ -471,7 +473,7 @@ int32_t G_SavePlayer(savebrief_t & sv)
     VM_OnEvent(EVENT_SAVEGAME, g_player[screenpeek].ps->i, screenpeek);
 
     // SAVE!
-    sv_saveandmakesnapshot(fil, sv.name, 0, 0, 0, 0);
+    sv_saveandmakesnapshot(fil, sv.name, 0, 0, 0, 0, isAutoSave);
 
     fclose(fil);
 
@@ -523,7 +525,7 @@ void G_LoadPlayerMaybeMulti(savebrief_t & sv)
     }
 }
 
-void G_SavePlayerMaybeMulti(savebrief_t & sv)
+void G_SavePlayerMaybeMulti(savebrief_t & sv, bool isAutoSave)
 {
     CONFIG_WriteSetup(2);
 
@@ -534,7 +536,7 @@ void G_SavePlayerMaybeMulti(savebrief_t & sv)
     }
     else
     {
-        G_SavePlayer(sv);
+        G_SavePlayer(sv, isAutoSave);
     }
 }
 
@@ -1315,7 +1317,7 @@ static void SV_AllocSnap(int32_t allocinit)
 }
 
 // make snapshot only if spot < 0 (demo)
-int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress)
+int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave)
 {
     savehead_t h;
 
@@ -1338,6 +1340,8 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
     h.majorver = SV_MAJOR_VER;
     h.minorver = SV_MINOR_VER;
     h.ptrsize = sizeof(intptr_t);
+    if (isAutoSave)
+        h.ptrsize |= 1u<<7u;
     h.bytever = BYTEVERSION;
     h.userbytever = ud.userbytever;
 

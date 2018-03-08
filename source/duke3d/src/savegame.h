@@ -96,6 +96,7 @@ struct menusave_t
 {
     savebrief_t brief;
     uint8_t isOldVer = 0;
+    uint8_t isAutoSave = 0;
 };
 
 extern savebrief_t g_lastautosave, g_lastusersave, g_freshload;
@@ -111,13 +112,13 @@ int32_t sv_readdiff(int32_t fil);
 uint32_t sv_writediff(FILE *fil);
 int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h);
 int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h);
-int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress);
+int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t recdiffsp, int8_t diffcompress, int8_t synccompress, bool isAutoSave = false);
 void sv_freemem();
-int32_t G_SavePlayer(savebrief_t & sv);
+int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave);
 int32_t G_LoadPlayer(savebrief_t & sv);
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh);
 void ReadSaveGameHeaders(void);
-void G_SavePlayerMaybeMulti(savebrief_t & sv);
+void G_SavePlayerMaybeMulti(savebrief_t & sv, bool isAutoSave = false);
 void G_LoadPlayerMaybeMulti(savebrief_t & sv);
 
 #ifdef YAX_ENABLE
