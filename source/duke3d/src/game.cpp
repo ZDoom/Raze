@@ -5535,6 +5535,8 @@ static void G_FreeHashAnim(const char *UNUSED(string), intptr_t key)
 
 static void G_Cleanup(void)
 {
+    ReadSaveGameHeaders(); // for culling
+
     int32_t i;
 
     for (i=(MAXLEVELS*(MAXVOLUMES+1))-1; i>=0; i--) // +1 volume for "intro", "briefing" music
@@ -6568,6 +6570,8 @@ int app_main(int argc, char const * const * argv)
         S_SoundStartup();
         Menu_Init();
     }
+
+    ReadSaveGameHeaders();
 
 #if 0
     // previously, passing -0 through -9 on the command line would load the save in that slot #
