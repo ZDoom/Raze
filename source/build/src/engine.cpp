@@ -7919,13 +7919,6 @@ void set_globalang(fix16_t ang)
 //
 // drawrooms
 //
-
-int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz,
-    int16_t daang, int16_t dahoriz, int16_t dacursectnum)
-{
-    return drawrooms_q16(daposx, daposy, daposz, fix16_from_int(daang), fix16_from_int(dahoriz), dacursectnum);
-}
-
 int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz,
                fix16_t daang, fix16_t dahoriz, int16_t dacursectnum)
 {
