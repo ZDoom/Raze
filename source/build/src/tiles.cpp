@@ -287,6 +287,22 @@ int32_t E_ReadArtFileHeader(int32_t const fil, char const * const fn, artheader_
 {
     int32_t artversion;
     kread(fil, &artversion, 4); artversion = B_LITTLE32(artversion);
+
+    if (artversion == B_LITTLE32(0x4c495542))
+    {
+        kread(fil, &artversion, 4); artversion = B_LITTLE32(artversion);
+        if (artversion == B_LITTLE32(0x54524144))
+        {
+            kread(fil, &artversion, 4); artversion = B_LITTLE32(artversion);
+        }
+        else
+        {
+            initprintf("loadpics: Invalid art file, %s\n", fn);
+            kclose(fil);
+            return 1;
+        }
+    }
+
     if (artversion != 1)
     {
         initprintf("loadpics: Invalid art file version in %s\n", fn);
@@ -519,7 +535,7 @@ static int32_t E_ReadArtFileOfID(int32_t tilefilei)
         }
         else
         {
-            int offscount = 4+4+4+4+(local.numtiles<<3);
+            int offscount = ktell(fil);
 
             for (bssize_t i=local.tilestart; i<=local.tileend; ++i)
             {
