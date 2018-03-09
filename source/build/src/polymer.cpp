@@ -1214,7 +1214,7 @@ void polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t d
 
         polymer_emptybuckets();
 
-        viewangle = fix16_to_int(daang);
+        viewangle = daang;
         enddrawing();
         return;
     }
@@ -1225,7 +1225,7 @@ void polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t d
     curmodelviewmatrix = rootmodelviewmatrix;
 
     // build globals used by rotatesprite
-    viewangle = fix16_to_int(daang);
+    viewangle = daang;
     set_globalang(daang);
 
     // polymost globals used by polymost_dorotatesprite
@@ -2050,7 +2050,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
         //glEnable(GL_CLIP_PLANE0);
 
         if (mirrorlist[i].wallnum >= 0)
-            preparemirror(globalposx, globalposy, globalang,
+            preparemirror(globalposx, globalposy, qglobalang,
                           mirrorlist[i].wallnum, &gx, &gy, &viewangle);
 
         gx = globalposx;
@@ -2341,7 +2341,7 @@ static void         polymer_drawplane(_prplane* plane)
     GLuint planevbo;
     GLintptr geomfbooffset;
 
-	if (plane->mapvbo_vertoffset != (uint32_t)-1)
+    if (plane->mapvbo_vertoffset != (uint32_t)-1)
     {
         planevbo = prmapvbo;
         geomfbooffset = plane->mapvbo_vertoffset * sizeof(_prvert);
@@ -2441,7 +2441,7 @@ static inline void  polymer_inb4mirror(_prvert* buffer, GLfloat* plane)
 static void         polymer_animatesprites(void)
 {
     if (asi.animatesprites)
-        asi.animatesprites(globalposx, globalposy, viewangle, asi.smoothratio);
+        asi.animatesprites(globalposx, globalposy, fix16_to_int(viewangle), asi.smoothratio);
 }
 
 static void         polymer_freeboard(void)
@@ -3966,7 +3966,7 @@ void                polymer_updatesprite(int32_t snum)
         {
             // do surgery on the face tspr to make it look like a wall sprite
             tspr->cstat |= 16;
-            tspr->ang = (viewangle + 1024) & 2047;
+            tspr->ang = (fix16_to_int(viewangle) + 1024) & 2047;
         }
 
         if (flipu)
@@ -3979,7 +3979,7 @@ void                polymer_updatesprite(int32_t snum)
     switch (tspr->cstat & SPR_ALIGN_MASK)
     {
     case 0:
-        ang = (float)((viewangle) & 2047) * (360.f/2048.f);
+        ang = (float)((fix16_to_int(viewangle)) & 2047) * (360.f/2048.f);
 
         glTranslatef(spos[0], spos[1], spos[2]);
         glRotatef(-ang, 0.0f, 1.0f, 0.0f);
@@ -6129,7 +6129,7 @@ static inline void  polymer_culllight(int16_t lighti)
 
 static void         polymer_prepareshadows(void)
 {
-    int16_t         oviewangle, oglobalang;
+    fix16_t         oviewangle, oglobalang;
     int32_t         i, j, k;
     int32_t         gx, gy, gz;
     int32_t         oldoverridematerial;
@@ -6140,7 +6140,7 @@ static void         polymer_prepareshadows(void)
     gz = globalposz;
     // build globals used by drawmasks
     oviewangle = viewangle;
-    oglobalang = globalang;
+    oglobalang = qglobalang;
 
     i = j = k = 0;
 
@@ -6174,8 +6174,8 @@ static void         polymer_prepareshadows(void)
             set_globalpos(prlights[i].x, prlights[i].y, prlights[i].z);
 
             // build globals used by rotatesprite
-            viewangle = prlights[i].angle;
-            set_globalang(prlights[i].angle);
+            viewangle = fix16_from_int(prlights[i].angle);
+            set_globalang(fix16_from_int(prlights[i].angle));
 
             oldoverridematerial = overridematerial;
             // smooth model shadows
