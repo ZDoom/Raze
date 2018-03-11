@@ -1095,8 +1095,11 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
                 KB_ClearKeysDown();
                 FX_StopAllSounds();
                 S_ClearSoundLocks();
-
-                G_LoadPlayerMaybeMulti(*g_quickload);
+                if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
+                {
+                    g_quickload->reset();
+                    goto QuickLoadFailure;
+                }
             }
             else if (!(resetFlags & 1))
             {
@@ -1106,7 +1109,11 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
                 Menu_Change(MENU_RESETPLAYER);
             }
         }
-        else g_player[playerNum].ps->gm = MODE_RESTART;
+        else
+        {
+            QuickLoadFailure:
+            g_player[playerNum].ps->gm = MODE_RESTART;
+        }
 #if !defined LUNATIC
         vmFlags |= VM_NOEXECUTE;
 #endif

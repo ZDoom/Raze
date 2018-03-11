@@ -4952,7 +4952,8 @@ FAKE_F3:
                 KB_FlushKeyboardQueue();
                 KB_ClearKeysDown();
                 S_PauseSounds(1);
-                G_LoadPlayerMaybeMulti(*g_quickload);
+                if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
+                    g_quickload->reset();
             }
         }
 

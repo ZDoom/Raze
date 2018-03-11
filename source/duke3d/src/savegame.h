@@ -123,7 +123,7 @@ int32_t G_LoadPlayer(savebrief_t & sv);
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh);
 void ReadSaveGameHeaders(void);
 void G_SavePlayerMaybeMulti(savebrief_t & sv, bool isAutoSave = false);
-void G_LoadPlayerMaybeMulti(savebrief_t & sv);
+int32_t G_LoadPlayerMaybeMulti(savebrief_t & sv);
 
 #ifdef YAX_ENABLE
 extern void sv_postyaxload(void);

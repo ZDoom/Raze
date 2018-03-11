@@ -3469,17 +3469,22 @@ static void Menu_Verify(int32_t input)
         break;
 
     case MENU_RESETPLAYER:
-        if (input)
+        switch (input)
         {
+        default:
             KB_FlushKeyboardQueue();
             KB_ClearKeysDown();
             FX_StopAllSounds();
             S_ClearSoundLocks();
 
-            G_LoadPlayerMaybeMulti(*g_quickload);
-        }
-        else
-        {
+            if (G_LoadPlayerMaybeMulti(*g_quickload) == 0)
+                break;
+
+            // error state, consider as a no instead of yes
+            g_quickload->reset();
+
+            fallthrough__;
+        case 0:
             if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
             {
                 if (G_EnterLevel(MODE_GAME)) G_BackToMenu();
@@ -3487,6 +3492,7 @@ static void Menu_Verify(int32_t input)
             }
 
             Menu_Change(MENU_CLOSE);
+            break;
         }
         break;
 

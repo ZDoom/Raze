@@ -615,7 +615,7 @@ saveproblem:
     return -1;
 }
 
-void G_LoadPlayerMaybeMulti(savebrief_t & sv)
+int32_t G_LoadPlayerMaybeMulti(savebrief_t & sv)
 {
     if (g_netServer || ud.multimode > 1)
     {
@@ -623,12 +623,14 @@ void G_LoadPlayerMaybeMulti(savebrief_t & sv)
         P_DoQuote(QUOTE_RESERVED4, g_player[myconnectindex].ps);
 
 //        g_player[myconnectindex].ps->gm = MODE_GAME;
+        return 127;
     }
     else
     {
         int32_t c = G_LoadPlayer(sv);
         if (c == 0)
             g_player[myconnectindex].ps->gm = MODE_GAME;
+        return c;
     }
 }
 
