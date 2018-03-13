@@ -15,7 +15,7 @@
 
 #define kNumOfSamples   224
 #define kNumOfSGs       18
-#define TTYWidth		80
+#define TTYWidth        80
 
 /* ADPCM */
 #define XA_DATA_START   (0x44-48)
@@ -50,35 +50,35 @@ typedef struct {
 typedef int8_t SoundGroup[128];
 
 typedef struct XASector {
-	int8_t            sectorFiller[48];
-	SoundGroup      SoundGroups[18];
+    int8_t     sectorFiller[48];
+    SoundGroup SoundGroups[18];
 } XASector;
 
 #if USE_FXD
-static int32_t      K0[4] = {
-	0x00000000,
-	0x0000F000,
-	0x0001CC00,
-	0x00018800,
+static int32_t K0[4] = {
+    0x00000000,
+    0x0000F000,
+    0x0001CC00,
+    0x00018800,
 };
-static int32_t      K1[4] = {
-	0x00000000,
-	0x00000000,
-	(int32_t)0xFFFF3000u,
-	(int32_t)0xFFFF2400u,
+static int32_t K1[4] = {
+    0x00000000,
+    0x00000000,
+    (int32_t)0xFFFF3000u,
+    (int32_t)0xFFFF2400u,
 };
 #else
-static double   K0[4] = {
-	0.0,
-	0.9375,
-	1.796875,
-	1.53125
+static double K0[4] = {
+    0.0,
+    0.9375,
+    1.796875,
+    1.53125
 };
-static double   K1[4] = {
-	0.0,
-	0.0,
-	-0.8125,
-	-0.859375
+static double K1[4] = {
+    0.0,
+    0.0,
+    -0.8125,
+    -0.859375
 };
 #endif
 
@@ -86,24 +86,24 @@ static double   K1[4] = {
 #if USE_FXD
 static int32_t FXD_FixMul(int32_t a, int32_t b)
 {
-	int32_t                high_a, low_a, high_b, low_b;
-	int32_t                hahb, halb, lahb;
-	uint32_t       lalb;
-	int32_t                 ret;
+    int32_t  high_a, low_a, high_b, low_b;
+    int32_t  hahb, halb, lahb;
+    uint32_t lalb;
+    int32_t  ret;
 
-	high_a = a >> 16;
-	low_a = a & 0x0000FFFF;
-	high_b = b >> 16;
-	low_b = b & 0x0000FFFF;
+    high_a = a >> 16;
+    low_a  = a & 0x0000FFFF;
+    high_b = b >> 16;
+    low_b  = b & 0x0000FFFF;
 
-	hahb = (high_a * high_b) << 16;
-	halb = high_a * low_b;
-	lahb = low_a * high_b;
-	lalb = (uint32_t)(low_a * low_b) >> 16;
+    hahb = (high_a * high_b) << 16;
+    halb = high_a * low_b;
+    lahb = low_a * high_b;
+    lalb = (uint32_t)(low_a * low_b) >> 16;
 
-	ret = hahb + halb + lahb + lalb;
+    ret = hahb + halb + lahb + lalb;
 
-	return ret;
+    return ret;
 }
 #endif
 
@@ -111,81 +111,81 @@ static int32_t FXD_FixMul(int32_t a, int32_t b)
 
 static int8_t getSoundData(int8_t *buf, int32_t unit, int32_t sample)
 {
-	int8_t ret;
-	int8_t *p;
-	int32_t offset, shift;
+    int8_t ret;
+    int8_t *p;
+    int32_t offset, shift;
 
-	p = buf;
-	shift = (unit%2) * 4;
+    p = buf;
+    shift = (unit%2) * 4;
 
-	offset = 16 + (unit / 2) + (sample * 4);
-	p += offset;
+    offset = 16 + (unit / 2) + (sample * 4);
+    p += offset;
 
-	ret = (*p >> shift) & 0x0F;
+    ret = (*p >> shift) & 0x0F;
 
-	if (ret > 7) {
-		ret -= 16;
-	}
-	return ret;
+    if (ret > 7) {
+        ret -= 16;
+    }
+    return ret;
 }
 
 static int8_t getFilter(int8_t *buf, int32_t unit)
 {
-	return (*(buf + 4 + unit) >> 4) & 0x03;
+    return (*(buf + 4 + unit) >> 4) & 0x03;
 }
 
 
 static int8_t getRange(int8_t *buf, int32_t unit)
 {
-	return *(buf + 4 + unit) & 0x0F;
+    return *(buf + 4 + unit) & 0x0F;
 }
 
 
 static void decodeSoundSectMono(XASector *ssct, xa_data * xad)
 {
-	size_t count = 0;
-	int8_t snddat, filt, range;
-	int16_t decoded;
-	int32_t unit, sample;
-	int32_t sndgrp;
+    size_t count = 0;
+    int8_t snddat, filt, range;
+    int16_t decoded;
+    int32_t unit, sample;
+    int32_t sndgrp;
 #if USE_FXD
-	int32_t tmp2, tmp3, tmp4, tmp5;
+    int32_t tmp2, tmp3, tmp4, tmp5;
 #else
-	double tmp2, tmp3, tmp4, tmp5;
+    double tmp2, tmp3, tmp4, tmp5;
 #endif
     int8_t decodeBuf[kNumOfSGs*kNumOfSamples*2];
 
-	for (sndgrp = 0; sndgrp < kNumOfSGs; sndgrp++)
-	{
-		for (unit = 0; unit < 8; unit++)
-		{
-			range = getRange(ssct->SoundGroups[sndgrp], unit);
-			filt = getFilter(ssct->SoundGroups[sndgrp], unit);
-			for (sample = 0; sample < 28; sample++)
-			{
-				snddat = getSoundData(ssct->SoundGroups[sndgrp], unit, sample);
+    for (sndgrp = 0; sndgrp < kNumOfSGs; sndgrp++)
+    {
+        for (unit = 0; unit < 8; unit++)
+        {
+            range = getRange(ssct->SoundGroups[sndgrp], unit);
+            filt = getFilter(ssct->SoundGroups[sndgrp], unit);
+            for (sample = 0; sample < 28; sample++)
+            {
+                snddat = getSoundData(ssct->SoundGroups[sndgrp], unit, sample);
 #if USE_FXD
-				tmp2 = (int32_t)(snddat) << (12 - range);
-				tmp3 = FXD_Pcm16ToFxd(tmp2);
-				tmp4 = FXD_FixMul(K0[filt], xad->t1);
-				tmp5 = FXD_FixMul(K1[filt], xad->t2);
-				xad->t2 = xad->t1;
-				xad->t1 = tmp3 + tmp4 + tmp5;
-				decoded = FXD_FxdToPcm16(xad->t1);
+                tmp2 = (int32_t)(snddat) << (12 - range);
+                tmp3 = FXD_Pcm16ToFxd(tmp2);
+                tmp4 = FXD_FixMul(K0[filt], xad->t1);
+                tmp5 = FXD_FixMul(K1[filt], xad->t2);
+                xad->t2 = xad->t1;
+                xad->t1 = tmp3 + tmp4 + tmp5;
+                decoded = FXD_FxdToPcm16(xad->t1);
 #else
-				tmp2 = (double)(1 << (12 - range));
-				tmp3 = (double)snddat * tmp2;
-				tmp4 = xad->t1 * K0[filt];
-				tmp5 = xad->t2 * K1[filt];
-				xad->t2 = xad->t1;
-				xad->t1 = tmp3 + tmp4 + tmp5;
-				decoded = DblToPCM(xad->t1);
+                tmp2 = (double)(1 << (12 - range));
+                tmp3 = (double)snddat * tmp2;
+                tmp4 = xad->t1 * K0[filt];
+                tmp5 = xad->t2 * K1[filt];
+                xad->t2 = xad->t1;
+                xad->t1 = tmp3 + tmp4 + tmp5;
+                decoded = DblToPCM(xad->t1);
 #endif
-				decodeBuf[count++] = (int8_t) ((uint16_t)decoded & 0x00FF);
-				decodeBuf[count++] = (int8_t)(((uint16_t)decoded & 0xFF00) >> 8);
-			}
-		}
-	}
+                decodeBuf[count++] = (int8_t) ((uint16_t)decoded & 0x00FF);
+                decodeBuf[count++] = (int8_t)(((uint16_t)decoded & 0xFF00) >> 8);
+            }
+        }
+    }
 
     if (count > xad->blocksize)
         xad->block = (int8_t *)realloc(xad->block, count);
@@ -196,76 +196,76 @@ static void decodeSoundSectMono(XASector *ssct, xa_data * xad)
 
 static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
 {
-	size_t count = 0;
-	int8_t snddat, filt, range;
-	int8_t filt1, range1;
-	int16_t decoded;
-	int32_t unit, sample;
-	int32_t sndgrp;
+    size_t count = 0;
+    int8_t snddat, filt, range;
+    int8_t filt1, range1;
+    int16_t decoded;
+    int32_t unit, sample;
+    int32_t sndgrp;
 #if USE_FXD
-	int32_t tmp2, tmp3, tmp4, tmp5;
+    int32_t tmp2, tmp3, tmp4, tmp5;
 #else
-	double tmp2, tmp3, tmp4, tmp5;
+    double tmp2, tmp3, tmp4, tmp5;
 #endif
     int8_t decodeBuf[kNumOfSGs*kNumOfSamples*2];
 
-	for (sndgrp = 0; sndgrp < kNumOfSGs; sndgrp++)
-	{
-		for (unit = 0; unit < 8; unit+= 2)
-		{
-			range = getRange(ssct->SoundGroups[sndgrp], unit);
-			filt = getFilter(ssct->SoundGroups[sndgrp], unit);
-			range1 = getRange(ssct->SoundGroups[sndgrp], unit+1);
-			filt1 = getFilter(ssct->SoundGroups[sndgrp], unit+1);
+    for (sndgrp = 0; sndgrp < kNumOfSGs; sndgrp++)
+    {
+        for (unit = 0; unit < 8; unit+= 2)
+        {
+            range = getRange(ssct->SoundGroups[sndgrp], unit);
+            filt = getFilter(ssct->SoundGroups[sndgrp], unit);
+            range1 = getRange(ssct->SoundGroups[sndgrp], unit+1);
+            filt1 = getFilter(ssct->SoundGroups[sndgrp], unit+1);
 
-			for (sample = 0; sample < 28; sample++)
-			{
-				// Channel 1
-				snddat = getSoundData(ssct->SoundGroups[sndgrp], unit, sample);
+            for (sample = 0; sample < 28; sample++)
+            {
+                // Channel 1
+                snddat = getSoundData(ssct->SoundGroups[sndgrp], unit, sample);
 #if USE_FXD
-				tmp2 = (int32_t)(snddat) << (12 - range);
-				tmp3 = FXD_Pcm16ToFxd(tmp2);
-				tmp4 = FXD_FixMul(K0[filt], xad->t1);
-				tmp5 = FXD_FixMul(K1[filt], xad->t2);
-				xad->t2 = xad->t1;
-				xad->t1 = tmp3 + tmp4 + tmp5;
-				decoded = FXD_FxdToPcm16(xad->t1);
+                tmp2 = (int32_t)(snddat) << (12 - range);
+                tmp3 = FXD_Pcm16ToFxd(tmp2);
+                tmp4 = FXD_FixMul(K0[filt], xad->t1);
+                tmp5 = FXD_FixMul(K1[filt], xad->t2);
+                xad->t2 = xad->t1;
+                xad->t1 = tmp3 + tmp4 + tmp5;
+                decoded = FXD_FxdToPcm16(xad->t1);
 #else
-				tmp2 = (double)(1 << (12 - range));
-				tmp3 = (double)snddat * tmp2;
-				tmp4 = xad->t1 * K0[filt];
-				tmp5 = xad->t2 * K1[filt];
-				xad->t2 = xad->t1;
-				xad->t1 = tmp3 + tmp4 + tmp5;
-				decoded = DblToPCM(xad->t1);
+                tmp2 = (double)(1 << (12 - range));
+                tmp3 = (double)snddat * tmp2;
+                tmp4 = xad->t1 * K0[filt];
+                tmp5 = xad->t2 * K1[filt];
+                xad->t2 = xad->t1;
+                xad->t1 = tmp3 + tmp4 + tmp5;
+                decoded = DblToPCM(xad->t1);
 #endif
-				decodeBuf[count++] = (int8_t) ((uint16_t)decoded & 0x00FF);
-				decodeBuf[count++] = (int8_t)(((uint16_t)decoded & 0xFF00) >> 8);
+                decodeBuf[count++] = (int8_t) ((uint16_t)decoded & 0x00FF);
+                decodeBuf[count++] = (int8_t)(((uint16_t)decoded & 0xFF00) >> 8);
 
-				// Channel 2
-				snddat = getSoundData(ssct->SoundGroups[sndgrp], unit+1, sample);
+                // Channel 2
+                snddat = getSoundData(ssct->SoundGroups[sndgrp], unit+1, sample);
 #if USE_FXD
-				tmp2 = (int32_t)(snddat) << (12 - range1);
-				tmp3 = FXD_Pcm16ToFxd(tmp2);
-				tmp4 = FXD_FixMul(K0[filt1], xad->t1_x);
-				tmp5 = FXD_FixMul(K1[filt1], xad->t2_x);
-				xad->t2_x = xad->t1_x;
-				xad->t1_x = tmp3 + tmp4 + tmp5;
-				decoded = FXD_FxdToPcm16(xad->t1_x);
+                tmp2 = (int32_t)(snddat) << (12 - range1);
+                tmp3 = FXD_Pcm16ToFxd(tmp2);
+                tmp4 = FXD_FixMul(K0[filt1], xad->t1_x);
+                tmp5 = FXD_FixMul(K1[filt1], xad->t2_x);
+                xad->t2_x = xad->t1_x;
+                xad->t1_x = tmp3 + tmp4 + tmp5;
+                decoded = FXD_FxdToPcm16(xad->t1_x);
 #else
-				tmp2 = (double)(1 << (12 - range1));
-				tmp3 = (double)snddat * tmp2;
-				tmp4 = xad->t1_x * K0[filt1];
-				tmp5 = xad->t2_x * K1[filt1];
-				xad->t2_x = xad->t1_x;
-				xad->t1_x = tmp3 + tmp4 + tmp5;
-				decoded = DblToPCM(xad->t1_x);
+                tmp2 = (double)(1 << (12 - range1));
+                tmp3 = (double)snddat * tmp2;
+                tmp4 = xad->t1_x * K0[filt1];
+                tmp5 = xad->t2_x * K1[filt1];
+                xad->t2_x = xad->t1_x;
+                xad->t1_x = tmp3 + tmp4 + tmp5;
+                decoded = DblToPCM(xad->t1_x);
 #endif
-				decodeBuf[count++] = (int8_t) ((uint16_t)decoded & 0x00FF);
-				decodeBuf[count++] = (int8_t)(((uint16_t)decoded & 0xFF00) >> 8);
-			}
-		}
-	}
+                decodeBuf[count++] = (int8_t) ((uint16_t)decoded & 0x00FF);
+                decodeBuf[count++] = (int8_t)(((uint16_t)decoded & 0xFF00) >> 8);
+            }
+        }
+    }
 
     if (count > xad->blocksize)
         xad->block = (int8_t *)realloc(xad->block, count);
@@ -303,7 +303,6 @@ static playbackstatus MV_GetNextXABlock
 (
  VoiceNode *voice
  )
-
 {
     xa_data * xad = (xa_data *) voice->rawdataptr;
     XASector ssct;
@@ -382,7 +381,6 @@ int32_t MV_PlayXA3D
  int32_t  priority,
  uint32_t callbackval
  )
-
 {
    int32_t left;
    int32_t right;
@@ -477,7 +475,7 @@ int32_t MV_PlayXA
    xad->owner = voice;
 
    voice->wavetype    = FMT_XA;
-   voice->rawdataptr       = (void*)xad;
+   voice->rawdataptr  = (void*)xad;
    voice->GetSound    = MV_GetNextXABlock;
    voice->NextBlock   = (char *)xad->block;
    voice->LoopCount   = 0;
