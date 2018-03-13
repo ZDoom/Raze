@@ -1081,7 +1081,7 @@ void polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t d
     gvisibility = ((float)globalvisibility)*FOGSCALE;
 
     ang = fix16_to_float(daang) * (360.f/2048.f);
-    horizang = (float)(-getangle(128, fix16_to_int(dahoriz)-100)) * (360.f/2048.f);
+    horizang = -(float)atan2(fix16_to_float(dahoriz)-100.f, 128.f) * (180.f*(float)M_1_PI);
     tiltang = (gtang * 90.0f);
 
     pos[0] = (float)daposy;
