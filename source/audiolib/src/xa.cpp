@@ -20,8 +20,8 @@
 /* ADPCM */
 #define XA_DATA_START   (0x44-48)
 
-#define FXD_FxdToPCM(dt)        (max(min((short)((dt)>>16), 32767), -32768))
-#define DblToPCM(dt)            (short)(max(min((dt), 32767), -32768))
+#define FXD_FxdToPCM(dt)        (max(min((int16_t)((dt)>>16), 32767), -32768))
+#define DblToPCM(dt)            (int16_t)(max(min((dt), 32767), -32768))
 
 #if USE_FXD
 #define FXD_FxdToPcm16(dt)      (max(min((dt)/2, 32767), -32768))
@@ -41,16 +41,16 @@ typedef struct {
    double t1_x, t2_x;
 #endif
 
-   char *block;
+   int8_t *block;
    size_t blocksize;
 
    VoiceNode *owner;
 } xa_data;
 
-typedef char SoundGroup[128];
+typedef int8_t SoundGroup[128];
 
 typedef struct XASector {
-	char            sectorFiller[48];
+	int8_t            sectorFiller[48];
 	SoundGroup      SoundGroups[18];
 } XASector;
 
@@ -64,8 +64,8 @@ static int32_t      K0[4] = {
 static int32_t      K1[4] = {
 	0x00000000,
 	0x00000000,
-	-53248, // 0xFFFF3000,
-	-56320, // 0xFFFF2400,
+	(int32_t)0xFFFF3000u,
+	(int32_t)0xFFFF2400u,
 };
 #else
 static double   K0[4] = {
@@ -109,10 +109,10 @@ static int32_t FXD_FixMul(int32_t a, int32_t b)
 
 
 
-static int8_t getSoundData(char *buf, int32_t unit, int32_t sample)
+static int8_t getSoundData(int8_t *buf, int32_t unit, int32_t sample)
 {
 	int8_t ret;
-	char *p;
+	int8_t *p;
 	int32_t offset, shift;
 
 	p = buf;
@@ -129,13 +129,13 @@ static int8_t getSoundData(char *buf, int32_t unit, int32_t sample)
 	return ret;
 }
 
-static int8_t getFilter(char *buf, int32_t unit)
+static int8_t getFilter(int8_t *buf, int32_t unit)
 {
 	return (*(buf + 4 + unit) >> 4) & 0x03;
 }
 
 
-static int8_t getRange(char *buf, int32_t unit)
+static int8_t getRange(int8_t *buf, int32_t unit)
 {
 	return *(buf + 4 + unit) & 0x0F;
 }
@@ -145,7 +145,7 @@ static void decodeSoundSectMono(XASector *ssct, xa_data * xad)
 {
 	size_t count = 0;
 	int8_t snddat, filt, range;
-	short decoded;
+	int16_t decoded;
 	int32_t unit, sample;
 	int32_t sndgrp;
 #if USE_FXD
@@ -153,7 +153,7 @@ static void decodeSoundSectMono(XASector *ssct, xa_data * xad)
 #else
 	double tmp2, tmp3, tmp4, tmp5;
 #endif
-    char decodeBuf[kNumOfSGs*kNumOfSamples*2];
+    int8_t decodeBuf[kNumOfSGs*kNumOfSamples*2];
 
 	for (sndgrp = 0; sndgrp < kNumOfSGs; sndgrp++)
 	{
@@ -181,14 +181,14 @@ static void decodeSoundSectMono(XASector *ssct, xa_data * xad)
 				xad->t1 = tmp3 + tmp4 + tmp5;
 				decoded = DblToPCM(xad->t1);
 #endif
-				decodeBuf[count++] = (char)(decoded & 0x0000ffff);
-				decodeBuf[count++] = (char)(decoded >> 8);
+				decodeBuf[count++] = (int8_t) ((uint16_t)decoded & 0x00FF);
+				decodeBuf[count++] = (int8_t)(((uint16_t)decoded & 0xFF00) >> 8);
 			}
 		}
 	}
 
     if (count > xad->blocksize)
-        xad->block = (char*)realloc(xad->block, count);
+        xad->block = (int8_t *)realloc(xad->block, count);
 
     memcpy(xad->block, decodeBuf, count);
     xad->blocksize = count;
@@ -199,7 +199,7 @@ static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
 	size_t count = 0;
 	int8_t snddat, filt, range;
 	int8_t filt1, range1;
-	short decoded;
+	int16_t decoded;
 	int32_t unit, sample;
 	int32_t sndgrp;
 #if USE_FXD
@@ -207,7 +207,7 @@ static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
 #else
 	double tmp2, tmp3, tmp4, tmp5;
 #endif
-    char decodeBuf[kNumOfSGs*kNumOfSamples*2];
+    int8_t decodeBuf[kNumOfSGs*kNumOfSamples*2];
 
 	for (sndgrp = 0; sndgrp < kNumOfSGs; sndgrp++)
 	{
@@ -239,8 +239,8 @@ static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
 				xad->t1 = tmp3 + tmp4 + tmp5;
 				decoded = DblToPCM(xad->t1);
 #endif
-				decodeBuf[count++] = (char)(decoded & 0x0000ffff);
-				decodeBuf[count++] = (char)(decoded >> 8);
+				decodeBuf[count++] = (int8_t) ((uint16_t)decoded & 0x00FF);
+				decodeBuf[count++] = (int8_t)(((uint16_t)decoded & 0xFF00) >> 8);
 
 				// Channel 2
 				snddat = getSoundData(ssct->SoundGroups[sndgrp], unit+1, sample);
@@ -261,14 +261,14 @@ static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
 				xad->t1_x = tmp3 + tmp4 + tmp5;
 				decoded = DblToPCM(xad->t1_x);
 #endif
-				decodeBuf[count++] = (char)(decoded & 0x0000ffff);
-				decodeBuf[count++] = (char)(decoded >> 8);
+				decodeBuf[count++] = (int8_t) ((uint16_t)decoded & 0x00FF);
+				decodeBuf[count++] = (int8_t)(((uint16_t)decoded & 0xFF00) >> 8);
 			}
 		}
 	}
 
     if (count > xad->blocksize)
-        xad->block = (char*)realloc(xad->block, count);
+        xad->block = (int8_t *)realloc(xad->block, count);
 
     memcpy(xad->block, decodeBuf, count);
     xad->blocksize = count;
@@ -317,7 +317,7 @@ static playbackstatus MV_GetNextXABlock
         if (sizeof(XASector) < bytes)
             bytes = sizeof(XASector);
 
-        memcpy(&ssct, (char*) xad->ptr + xad->pos, bytes);
+        memcpy(&ssct, (int8_t *)xad->ptr + xad->pos, bytes);
         xad->pos += bytes;
     }
 #define SUBMODE_REAL_TIME_SECTOR (1 << 6)
@@ -340,7 +340,7 @@ static playbackstatus MV_GetNextXABlock
     else
         decodeSoundSectMono(&ssct, xad);
 
-    voice->sound        = xad->block;
+    voice->sound        = (char *)xad->block;
     voice->length       = (((xad->blocksize * (voice->bits/8))/2)<<voice->bits) / 4;
     voice->position     = 0;
     voice->BlockLength  = 0;
@@ -474,7 +474,7 @@ int32_t MV_PlayXA
    voice->wavetype    = FMT_XA;
    voice->rawdataptr       = (void*)xad;
    voice->GetSound    = MV_GetNextXABlock;
-   voice->NextBlock   = xad->block;
+   voice->NextBlock   = (char *)xad->block;
    voice->LoopCount   = 0;
    voice->BlockLength = 0;
    voice->PitchScale  = PITCH_GetScale( pitchoffset );
@@ -482,8 +482,6 @@ int32_t MV_PlayXA
    voice->prev        = NULL;
    voice->priority    = priority;
    voice->callbackval = callbackval;
-
-   voice->bits        = 16;
 
    voice->bits        = 16;
 
