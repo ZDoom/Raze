@@ -285,7 +285,10 @@ void MV_SetXAPosition(VoiceNode *voice, int32_t position)
     xa_data * xad = (xa_data *) voice->rawdataptr;
 
     if (position < XA_DATA_START || (size_t)position >= xad->length)
+    {
         position = XA_DATA_START;
+        xad->t1 = xad->t2 = xad->t1_x = xad->t2_x = 0;
+    }
 
     xad->pos = position;
 }
@@ -307,8 +310,6 @@ static playbackstatus MV_GetNextXABlock
     int coding;
 
     voice->Playing = TRUE;
-
-	xad->t1 = xad->t2 = xad->t1_x = xad->t2_x = 0;
 
     do
     {
@@ -348,7 +349,10 @@ static playbackstatus MV_GetNextXABlock
     if (xad->length == xad->pos)
     {
         if (voice->LoopSize > 0)
+        {
             xad->pos = XA_DATA_START;
+            xad->t1 = xad->t2 = xad->t1_x = xad->t2_x = 0;
+        }
         else
         {
             voice->Playing = FALSE;
@@ -454,6 +458,7 @@ int32_t MV_PlayXA
 
    xad->ptr = ptr;
    xad->pos = XA_DATA_START;
+   xad->t1 = xad->t2 = xad->t1_x = xad->t2_x = 0;
    xad->blocksize = 0;
    xad->length = ptrlength;
 
