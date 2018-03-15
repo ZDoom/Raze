@@ -4624,9 +4624,15 @@ void P_ProcessInput(int playerNum)
     }
 
     if (pPlayer->q16horizoff > 0)
+    {
         pPlayer->q16horizoff -= ((pPlayer->q16horizoff >> 3) + fix16_one);
+        pPlayer->q16horizoff = max(pPlayer->q16horizoff, 0);
+    }
     else if (pPlayer->q16horizoff < 0)
+    {
         pPlayer->q16horizoff += (((-pPlayer->q16horizoff) >> 3) + fix16_one);
+        pPlayer->q16horizoff = min(pPlayer->q16horizoff, 0);
+    }
 
     if (highZhit >= 0 && (highZhit&49152) == 49152)
     {
