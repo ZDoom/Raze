@@ -4244,6 +4244,26 @@ finish_qsprintf:
                 continue;
             }
 
+        case CON_GETTILEDATA:
+            insptr++;
+            {
+                int const tileNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.pSprite->picnum;
+                int const labelNum = *insptr++;
+
+                Gv_SetVarX(*insptr++, VM_GetTileData(tileNum, labelNum));
+                continue;
+            }
+
+        case CON_SETTILEDATA:
+            insptr++;
+            {
+                int const tileNum = (*insptr++ != g_thisActorVarID) ? Gv_GetVarX(*(insptr - 1)) : vm.pSprite->picnum;
+                int const labelNum = *insptr++;
+
+                VM_SetTileData(tileNum, labelNum, Gv_GetVarX(*insptr++));
+                continue;
+            }
+
         case CON_SETUSERDEF:
             insptr++;
             {

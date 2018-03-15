@@ -236,6 +236,7 @@ static tokenmap_t const vm_keywords[] =
     { "gettexturefloor",        CON_GETTEXTUREFLOOR },
     { "getthisprojectile",      CON_GETTHISPROJECTILE },
     { "getticks",               CON_GETTICKS },
+    { "gettiledata",            CON_GETTILEDATA }, // OldMP compat.
     { "gettimedate",            CON_GETTIMEDATE },
     { "gettspr",                CON_GETTSPR },
     { "getuserdef",             CON_GETUSERDEF },
@@ -441,6 +442,7 @@ static tokenmap_t const vm_keywords[] =
     { "setsector",              CON_SETSECTOR },
     { "setsprite",              CON_SETSPRITE },
     { "setthisprojectile",      CON_SETTHISPROJECTILE },
+    { "settiledata",            CON_SETTILEDATA },
     { "settspr",                CON_SETTSPR },
     { "setuserdef",             CON_SETUSERDEF },
     { "setvar",                 CON_SETVAR },
@@ -3951,6 +3953,21 @@ DO_DEFSTATE:
                 C_GetNextVarType(tw == CON_GETINPUT ? GAMEVAR_READONLY : 0);
                 continue;
             }
+
+        case CON_SETTILEDATA:
+        case CON_GETTILEDATA:
+        {
+            int32_t const labelNum = C_GetStructureIndexes(0, &h_tiledata);
+
+            if (labelNum == -1)
+                continue;
+
+            BITPTR_CLEAR(g_scriptPtr - apScript);
+            *g_scriptPtr++ = TileDataLabels[labelNum].lId;
+
+            C_GetNextVarType((tw == CON_GETTILEDATA) ? GAMEVAR_READONLY : 0);
+            continue;
+        }
 
         case CON_SETUSERDEF:
         case CON_GETUSERDEF:

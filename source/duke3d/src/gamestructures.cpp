@@ -43,6 +43,7 @@ void __fastcall VM_SetTsprite(int32_t const spriteNum, int32_t const labelNum, i
 int32_t __fastcall VM_GetProjectile(int32_t const tileNum, int32_t labelNum);
 void __fastcall VM_SetProjectile(int32_t const tileNum, int32_t const labelNum, int32_t const iSet);
 int32_t __fastcall VM_GetTileData(int32_t const tileNum, int32_t labelNum);
+void __fastcall VM_SetTileData(int32_t const tileNum, int32_t labelNum, int32_t const iSet);
 int32_t __fastcall VM_GetPalData(int32_t const palNum, int32_t labelNum);
 #else
 int32_t __fastcall VM_GetUserdef(int32_t labelNum, int32_t const lParm2)
@@ -1515,6 +1516,29 @@ int32_t __fastcall VM_GetTileData(int32_t const tileNum, int32_t labelNum)
     }
 
     return labelNum;
+}
+
+void __fastcall VM_SetTileData(int32_t const tileNum, int32_t labelNum, int32_t iSet)
+{
+    if (EDUKE32_PREDICT_FALSE((unsigned)tileNum >= MAXTILES))
+    {
+        CON_ERRPRINTF("invalid tile %d\n", tileNum);
+        return;
+    }
+
+    switch (labelNum)
+    {
+        //case TILEDATA_XSIZE: tilesiz[tileNum].x = iSet; break;
+        //case TILEDATA_YSIZE: tilesiz[tileNum].y = iSet; break;
+
+        case TILEDATA_ANIMFRAMES: picanm[tileNum].num = iSet; break;
+        case TILEDATA_XOFFSET: picanm[tileNum].xofs = iSet; break;
+        case TILEDATA_YOFFSET: picanm[tileNum].yofs = iSet; break;
+        case TILEDATA_ANIMSPEED: picanm[tileNum].sf = (picanm[tileNum].sf & ~PICANM_ANIMSPEED_MASK) | (iSet & PICANM_ANIMSPEED_MASK); break;
+        case TILEDATA_ANIMTYPE: picanm[tileNum].sf = (picanm[tileNum].sf & ~PICANM_ANIMTYPE_MASK) | ((iSet << PICANM_ANIMTYPE_SHIFT) & PICANM_ANIMTYPE_MASK); break;
+
+        case TILEDATA_GAMEFLAGS: g_tile[tileNum].flags = iSet; break;
+    }
 }
 
 int32_t __fastcall VM_GetPalData(int32_t const palNum, int32_t labelNum)
