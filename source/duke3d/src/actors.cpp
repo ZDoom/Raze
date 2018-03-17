@@ -2714,7 +2714,7 @@ static void Proj_BounceOffWall(spritetype *s, int j)
 // NOTE: Compare with Proj_MaybeDamageCF2() in sector.c
 static int Proj_MaybeDamageCF(int spriteNum)
 {
-    uspritetype const * const s = &sprite[spriteNum];
+    uspritetype const * const s = (uspritetype const *)&sprite[spriteNum];
 
     if (s->zvel < 0)
     {
