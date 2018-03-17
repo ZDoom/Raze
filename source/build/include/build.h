@@ -261,11 +261,19 @@ enum {
 #endif
 
 #ifdef __cplusplus
+}
+#endif
 
+#if defined __cplusplus && (defined USE_OPENGL || defined POLYMER)
+# define STRUCT_TRACKERS_ENABLED
+#endif
+
+#ifdef STRUCT_TRACKERS_ENABLED
+
+extern "C" {
 static FORCE_INLINE void sector_tracker_hook(uintptr_t address);
 static FORCE_INLINE void wall_tracker_hook(uintptr_t address);
 static FORCE_INLINE void sprite_tracker_hook(uintptr_t address);
-
 }
 
 #define TRACKER_NAME_ SectorTracker
@@ -585,9 +593,11 @@ EXTERN spritetype sprite[MAXSPRITES];
 EXTERN uspritetype tsprite[MAXSPRITESONSCREEN];
 #endif
 
+#ifdef STRUCT_TRACKERS_ENABLED
 EXTERN uint32_t sectorchanged[MAXSECTORS + M32_FIXME_SECTORS];
 EXTERN uint32_t wallchanged[MAXWALLS + M32_FIXME_WALLS];
 EXTERN uint32_t spritechanged[MAXSPRITES];
+#endif
 
 #ifdef NEW_MAP_FORMAT
 static FORCE_INLINE int16_t yax_getbunch(int16_t i, int16_t cf)
@@ -612,6 +622,7 @@ static FORCE_INLINE void yax_setnextwall(int16_t wal, int16_t cf, int16_t thenex
 }
 #endif
 
+#ifdef STRUCT_TRACKERS_ENABLED
 static FORCE_INLINE void sector_tracker_hook(uintptr_t const address)
 {
     uintptr_t const usector = address - (uintptr_t)sector;
@@ -644,6 +655,7 @@ static FORCE_INLINE void sprite_tracker_hook(uintptr_t const address)
 
     ++spritechanged[usprite / sizeof(spritetype)];
 }
+#endif
 
 
 EXTERN int16_t maskwall[MAXWALLSB], maskwallcnt;

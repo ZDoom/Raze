@@ -8978,9 +8978,11 @@ static void prepare_loadboard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_
     Bmemset(show2dsector, 0, sizeof(show2dsector));
     Bmemset(show2dsprite, 0, sizeof(show2dsprite));
     Bmemset(show2dwall, 0, sizeof(show2dwall));
+#ifdef STRUCT_TRACKERS_ENABLED
     Bmemset(sectorchanged, 0, sizeof(sectorchanged));
     Bmemset(spritechanged, 0, sizeof(spritechanged));
     Bmemset(wallchanged, 0, sizeof(wallchanged));
+#endif
 
 #ifdef USE_OPENGL
     Polymost_prepare_loadboard();

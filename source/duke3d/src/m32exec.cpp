@@ -2921,42 +2921,54 @@ dodefault:
             X_ERROR_INVALIDSP();
             vm.pSprite->xrepeat = (uint8_t) Gv_GetVarX(*(insptr-2));
             vm.pSprite->yrepeat = (uint8_t) Gv_GetVarX(*(insptr-1));
+#ifdef STRUCT_TRACKERS_ENABLED
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
+#endif
             continue;
 
         case CON_CSTAT:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.pSprite->cstat = (int16_t) *(insptr-1);
+#ifdef STRUCT_TRACKERS_ENABLED
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
+#endif
             continue;
 
         case CON_CSTATOR:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.pSprite->cstat |= (int16_t) Gv_GetVarX(*(insptr-1));
+#ifdef STRUCT_TRACKERS_ENABLED
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
+#endif
             continue;
 
         case CON_CLIPDIST:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.pSprite->clipdist = (uint8_t) Gv_GetVarX(*(insptr-1));
+#ifdef STRUCT_TRACKERS_ENABLED
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
+#endif
             continue;
 
         case CON_SPRITEPAL:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.pSprite->pal = Gv_GetVarX(*(insptr-1));
+#ifdef STRUCT_TRACKERS_ENABLED
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
+#endif
             continue;
 
         case CON_CACTOR:
             insptr += 2;
             X_ERROR_INVALIDSP();
             vm.pSprite->picnum = Gv_GetVarX(*(insptr-1));
+#ifdef STRUCT_TRACKERS_ENABLED
             if (vm.spriteNum != -1) spritechanged[vm.spriteNum]++;
+#endif
             continue;
 
         case CON_SPGETLOTAG:
