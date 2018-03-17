@@ -149,6 +149,8 @@ static tokenmap_t const vm_keywords[] =
     { "count",                  CON_COUNT },
     { "cstat",                  CON_CSTAT },
     { "cstator",                CON_CSTATOR },
+    { "damageeventtile",        CON_DAMAGEEVENTTILE },
+    { "damageeventtilerange",   CON_DAMAGEEVENTTILERANGE },
     { "debris",                 CON_DEBRIS },
     { "debug",                  CON_DEBUG },
     { "default",                CON_DEFAULT },
@@ -759,6 +761,11 @@ const char *EventNames[MAXEVENTS] =
     "EVENT_CONTINUELEVELMUSICSLOT",
     "EVENT_DISPLAYPOINTER",
     "EVENT_LASTWEAPON",
+    "EVENT_DAMAGESPRITE",
+    "EVENT_POSTDAMAGESPRITE",
+    "EVENT_DAMAGEWALL",
+    "EVENT_DAMAGEFLOOR",
+    "EVENT_DAMAGECEILING",
 #ifdef LUNATIC
     "EVENT_ANIMATEALLSPRITES",
 #endif
@@ -4585,6 +4592,59 @@ DO_DEFSTATE:
                 continue;
             }
 
+        case CON_DAMAGEEVENTTILE:
+        {
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            {
+                C_ReportError(ERROR_FOUNDWITHIN);
+                g_errorCnt++;
+            }
+
+            g_scriptPtr--;
+
+            C_GetNextValue(LABEL_DEFINE);
+            j = *(g_scriptPtr - 1);
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)j >= MAXTILES))
+            {
+                C_ReportError(ERROR_EXCEEDSMAXTILES);
+                g_errorCnt++;
+                continue;
+            }
+
+            g_tile[j].flags |= SFLAG_DAMAGEEVENT;
+
+            continue;
+        }
+
+        case CON_DAMAGEEVENTTILERANGE:
+        {
+            if (EDUKE32_PREDICT_FALSE(g_processingState || g_parsingActorPtr))
+            {
+                C_ReportError(ERROR_FOUNDWITHIN);
+                g_errorCnt++;
+            }
+
+            g_scriptPtr--;
+
+            C_GetNextValue(LABEL_DEFINE);
+            i = *(g_scriptPtr - 1);
+            C_GetNextValue(LABEL_DEFINE);
+            j = *(g_scriptPtr - 1);
+
+            if (EDUKE32_PREDICT_FALSE((unsigned)i >= MAXTILES || (unsigned)j >= MAXTILES))
+            {
+                C_ReportError(ERROR_EXCEEDSMAXTILES);
+                g_errorCnt++;
+                continue;
+            }
+
+            for (tiledata_t * t = g_tile + i, * t_end = g_tile + j; t <= t_end; ++t)
+                t->flags |= SFLAG_DAMAGEEVENT;
+
+            continue;
+        }
+
         case CON_SPRITEFLAGS:
             if (!g_parsingActorPtr && g_processingState == 0)
             {
@@ -6352,6 +6412,7 @@ static void C_AddDefaultDefinitions(void)
         { "SFLAG_GREENSLIMEFOOD", SFLAG_GREENSLIMEFOOD },
         { "SFLAG_REALCLIPDIST", SFLAG_REALCLIPDIST },
         { "SFLAG_WAKEUPBADGUYS", SFLAG_WAKEUPBADGUYS },
+        { "SFLAG_DAMAGEEVENT", SFLAG_DAMAGEEVENT },
 
         { "STR_MAPNAME", STR_MAPNAME },
         { "STR_MAPFILENAME", STR_MAPFILENAME },

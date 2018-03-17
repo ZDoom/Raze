@@ -153,7 +153,7 @@ extern camera_t g_camera;
 #define MAXPWLOCKOUT 128
 #define MAXRTSNAME 128
 
-#define MAX_RETURN_VALUES 4
+#define MAX_RETURN_VALUES 6
 
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {

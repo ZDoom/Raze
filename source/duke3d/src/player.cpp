@@ -581,7 +581,7 @@ static inline void HandleHitWall(hitdata_t *hitData)
 // Maybe damage a ceiling or floor as the consequence of projectile impact.
 // Returns 1 if projectile hit a parallaxed ceiling.
 // NOTE: Compare with Proj_MaybeDamageCF() in actors.c
-static int Proj_MaybeDamageCF2(int const zvel, int const hitSect)
+static int Proj_MaybeDamageCF2(int const spriteNum, int const zvel, int const hitSect)
 {
     Bassert(hitSect >= 0);
 
@@ -590,7 +590,7 @@ static int Proj_MaybeDamageCF2(int const zvel, int const hitSect)
         if (sector[hitSect].ceilingstat&1)
             return 1;
 
-        Sect_DamageCeilingOrFloor(0, hitSect);
+        Sect_DamageCeiling(spriteNum, hitSect);
     }
     else if (zvel > 0)
     {
@@ -601,7 +601,7 @@ static int Proj_MaybeDamageCF2(int const zvel, int const hitSect)
             return 0;
         }
 
-        Sect_DamageCeilingOrFloor(1, hitSect);
+        Sect_DamageFloor(spriteNum, hitSect);
     }
 
     return 0;
@@ -622,7 +622,7 @@ static int P_PostFireHitscan(int const playerNum, int const spriteNum, hitdata_t
 {
     if (hitData->wall == -1 && hitData->sprite == -1)
     {
-        if (Proj_MaybeDamageCF2(zvel, hitData->sect))
+        if (Proj_MaybeDamageCF2(spriteNum, zvel, hitData->sect))
         {
             sprite[spriteNum].xrepeat = 0;
             sprite[spriteNum].yrepeat = 0;
@@ -746,7 +746,7 @@ static int A_PostFireHitscan(const hitdata_t *hitData, int const spriteNum, int 
     }
     else
     {
-        if (Proj_MaybeDamageCF2(zvel, hitData->sect))
+        if (Proj_MaybeDamageCF2(returnSprite, zvel, hitData->sect))
         {
             sprite[returnSprite].xrepeat = 0;
             sprite[returnSprite].yrepeat = 0;
@@ -1206,7 +1206,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
 
             if (hitData.wall == -1 && hitData.sprite == -1 && hitData.sect >= 0)
             {
-                Proj_MaybeDamageCF2(Zvel, hitData.sect);
+                Proj_MaybeDamageCF2(otherSprite, Zvel, hitData.sect);
             }
             else if (hitData.sprite >= 0)
                 A_DamageObject(hitData.sprite, otherSprite);

@@ -116,6 +116,12 @@ void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3
     int16_t *const sectorList = (int16_t *)tempbuf;
     const int32_t maxSectors = sizeof(tempbuf)/sizeof(int16_t);
 
+    ud.returnvar[0] = blastRadius; // Allow checking for radius damage in EVENT_DAMAGE(SPRITE/WALL/FLOOR/CEILING) events.
+    ud.returnvar[1] = dmg1;
+    ud.returnvar[2] = dmg2;
+    ud.returnvar[3] = dmg3;
+    ud.returnvar[4] = dmg4;
+
     if (pSprite->picnum == RPG && pSprite->xrepeat < 11)
         goto SKIPWALLCHECK;
 
@@ -139,9 +145,9 @@ void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3
                     G_WallSpriteDist((uwalltype *)&wall[wall[w2].point2], pSprite) < blastRadius)
             {
                 if (((sector[sectorNum].ceilingz-pSprite->z)>>8) < blastRadius)
-                    Sect_DamageCeilingOrFloor(0, sectorNum);
+                    Sect_DamageCeiling_Internal(spriteNum, sectorNum);
                 if (((pSprite->z-sector[sectorNum].floorz)>>8) < blastRadius)
-                    Sect_DamageCeilingOrFloor(1, sectorNum);
+                    Sect_DamageFloor_Internal(spriteNum, sectorNum);
             }
 
             uwalltype const *pWall;
@@ -178,7 +184,7 @@ void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3
                                                     pSprite->x, pSprite->y, pSprite->z, pSprite->sectnum))
                     {
                         vec3_t const tmpvect = { pWall->x, pWall->y, pSprite->z };
-                        A_DamageWall(spriteNum, w, &tmpvect, pSprite->picnum);
+                        A_DamageWall_Internal(spriteNum, w, &tmpvect, pSprite->picnum);
                     }
                 }
             }
@@ -207,7 +213,7 @@ SKIPWALLCHECK:
                     {
                         if (A_CheckEnemySprite(pOther) && !cansee(pOther->x, pOther->y,pOther->z+q, pOther->sectnum, pSprite->x, pSprite->y, pSprite->z+q, pSprite->sectnum))
                             goto next_sprite;
-                        A_DamageObject(otherSprite, spriteNum);
+                        A_DamageObject_Internal(otherSprite, spriteNum);
                     }
             }
             else if (pOther->extra >= 0 && (uspritetype *)pOther != pSprite &&
@@ -233,6 +239,12 @@ SKIPWALLCHECK:
                 if (d < blastRadius && cansee(pOther->x, pOther->y, pOther->z - ZOFFSET3, pOther->sectnum, pSprite->x,
                                               pSprite->y, pSprite->z - ZOFFSET4, pSprite->sectnum))
                 {
+                    if (A_CheckSpriteFlags(otherSprite, SFLAG_DAMAGEEVENT))
+                    {
+                        if (VM_OnEventWithReturn(EVENT_DAMAGESPRITE, spriteNum, -1, otherSprite) < 0)
+                            goto next_sprite;
+                    }
+
                     actor[otherSprite].ang = getangle(pOther->x-pSprite->x,pOther->y-pSprite->y);
 
                     if (pSprite->picnum == RPG && pOther->extra > 0)
@@ -272,13 +284,16 @@ SKIPWALLCHECK:
                             pOther->xvel += (pSprite->extra<<2);
                         }
 
+                        if (A_CheckSpriteFlags(otherSprite, SFLAG_DAMAGEEVENT))
+                            VM_OnEventWithReturn(EVENT_POSTDAMAGESPRITE, spriteNum, -1, otherSprite);
+
                         if (pOther->picnum == PODFEM1 || pOther->picnum == FEM1 || pOther->picnum == FEM2 ||
                             pOther->picnum == FEM3 || pOther->picnum == FEM4 || pOther->picnum == FEM5 ||
                             pOther->picnum == FEM6 || pOther->picnum == FEM7 || pOther->picnum == FEM8 ||
                             pOther->picnum == FEM9 || pOther->picnum == FEM10 || pOther->picnum == STATUE ||
                             pOther->picnum == STATUEFLASH || pOther->picnum == SPACEMARINE || pOther->picnum == QUEBALL ||
                             pOther->picnum == STRIPEBALL)
-                            A_DamageObject(otherSprite, spriteNum);
+                            A_DamageObject_Internal(otherSprite, spriteNum);
                     }
                     else if (pSprite->extra == 0) actor[otherSprite].extra = 0;
 
@@ -2697,14 +2712,16 @@ static void Proj_BounceOffWall(spritetype *s, int j)
 // Maybe damage a ceiling or floor as the consequence of projectile impact.
 // Returns 1 if sprite <s> should be killed.
 // NOTE: Compare with Proj_MaybeDamageCF2() in sector.c
-static int Proj_MaybeDamageCF(uspritetype const * const s)
+static int Proj_MaybeDamageCF(int spriteNum)
 {
+    uspritetype const * const s = &sprite[spriteNum];
+
     if (s->zvel < 0)
     {
         if ((sector[s->sectnum].ceilingstat&1) && sector[s->sectnum].ceilingpal == 0)
             return 1;
 
-        Sect_DamageCeilingOrFloor(0, s->sectnum);
+        Sect_DamageCeiling(spriteNum, s->sectnum);
     }
     else if (s->zvel > 0)
     {
@@ -2715,7 +2732,7 @@ static int Proj_MaybeDamageCF(uspritetype const * const s)
             return 0;
         }
 
-        Sect_DamageCeilingOrFloor(1, s->sectnum);
+        Sect_DamageFloor(spriteNum, s->sectnum);
     }
 
     return 0;
@@ -2954,7 +2971,7 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
                     case 16384:
                         setsprite(spriteNum, &davect);
 
-                        if (Proj_MaybeDamageCF((uspritetype *)pSprite))
+                        if (Proj_MaybeDamageCF(spriteNum))
                         {
                             A_DeleteSprite(spriteNum);
                             return;
@@ -3172,7 +3189,7 @@ ACTOR_STATIC void G_MoveWeapons(void)
                         case 16384:
                             setsprite(spriteNum, &davect);
 
-                            if (Proj_MaybeDamageCF((uspritetype *)pSprite))
+                            if (Proj_MaybeDamageCF(spriteNum))
                                 DELETE_SPRITE_AND_CONTINUE(spriteNum);
 
                             if (pSprite->picnum == FREEZEBLAST)

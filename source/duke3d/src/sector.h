@@ -118,7 +118,9 @@ void G_ActivateBySector(int sect,int j);
 int S_FindMusicSFX(int sectNum, int *sndptr);
 int A_CallSound(int sectNum,int spriteNum);
 int A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
+void A_DamageObject_Internal(int spriteNum, int const dmgSrc);
 void A_DamageObject(int spriteNum,int const dmgSrc);
+void A_DamageWall_Internal(int spr, int dawallnum, const vec3_t *pos, int atwith);
 void A_DamageWall(int spr,int dawallnum,const vec3_t *pos,int atwith);
 int __fastcall A_FindPlayer(const spritetype *pSprite,int32_t *dist);
 void G_AlignWarpElevators(void);
@@ -139,7 +141,10 @@ int isanearoperator(int lotag);
 int isanunderoperator(int lotag);
 int P_ActivateSwitch(int playerNum, int nObject, int nSwitchType);
 void P_CheckSectors(int snum);
-int Sect_DamageCeilingOrFloor(int const dmgFloor, int const sectNum);
+void Sect_DamageFloor_Internal(int const spriteNum, int const sectNum);
+void Sect_DamageFloor(int const spriteNum, int const sectNum);
+void Sect_DamageCeiling_Internal(int const spriteNum, int const sectNum);
+void Sect_DamageCeiling(int const spriteNum, int const sectNum);
 int SetAnimation(int sectNum,int32_t *animPtr,int goalVal,int animVel);
 
 #define FORCEFIELD_CSTAT (64+16+4+1)

@@ -1479,10 +1479,16 @@ static void G_BreakWall(int tileNum, int spriteNum, int wallNum)
     A_SpawnWallGlass(spriteNum,wallNum,10);
 }
 
-void A_DamageWall(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
+void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
 {
     int16_t sectNum = -1;
     walltype *pWall = &wall[wallNum];
+
+    if ((g_tile[pWall->overpicnum].flags & SFLAG_DAMAGEEVENT) || (g_tile[pWall->picnum].flags & SFLAG_DAMAGEEVENT))
+    {
+        if (VM_OnEventWithReturn(EVENT_DAMAGEWALL, spriteNum, -1, wallNum) < 0)
+            return;
+    }
 
     if (pWall->overpicnum == MIRROR && pWall->pal != 4 &&
         A_CheckSpriteFlags(spriteNum, SFLAG_PROJECTILE) &&
@@ -1753,19 +1759,53 @@ void A_DamageWall(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
     }
 }
 
-// NOTE: return value never examined in any of the callers.
-int Sect_DamageCeilingOrFloor(int const dmgFloor, int const sectNum)
+void A_DamageWall(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
 {
+    ud.returnvar[0] = -1;
+    A_DamageWall_Internal(spriteNum, wallNum, vPos, weaponNum);
+}
+
+void Sect_DamageFloor_Internal(int const spriteNum, int const sectNum)
+{
+    int16_t tileNum = sector[sectNum].floorpicnum;
+    if (g_tile[tileNum].flags & SFLAG_DAMAGEEVENT)
+    {
+        if (VM_OnEventWithReturn(EVENT_DAMAGEFLOOR, spriteNum, -1, sectNum) < 0)
+            return;
+    }
+
     // NOTE: pass RETURN in the dist argument, too.
-    int const     RETURN_in = dmgFloor ? 131072 + sectNum : 65536 + sectNum;
-    int32_t const returnValue =
-    VM_OnEventWithBoth(EVENT_DAMAGEHPLANE, g_player[screenpeek].ps->i, screenpeek, RETURN_in, RETURN_in);
+    int const     RETURN_in = 131072 + sectNum;
+    /* int32_t const returnValue = */ VM_OnEventWithBoth(EVENT_DAMAGEHPLANE, -1, -1, RETURN_in, RETURN_in);
+
+#if 0
+    // No hard-coded floor damage effects.
+    if (returnValue < 0)
+        return;
+#endif
+}
+
+void Sect_DamageFloor(int const spriteNum, int const sectNum)
+{
+    ud.returnvar[0] = -1;
+    Sect_DamageFloor_Internal(spriteNum, sectNum);
+}
+
+void Sect_DamageCeiling_Internal(int const spriteNum, int const sectNum)
+{
+    int16_t tileNum = sector[sectNum].ceilingpicnum;
+    if (g_tile[tileNum].flags & SFLAG_DAMAGEEVENT)
+    {
+        if (VM_OnEventWithReturn(EVENT_DAMAGECEILING, spriteNum, -1, sectNum) < 0)
+            return;
+    }
+
+    // NOTE: pass RETURN in the dist argument, too.
+    int const     RETURN_in = 65536 + sectNum;
+    int32_t const returnValue = VM_OnEventWithBoth(EVENT_DAMAGEHPLANE, -1, -1, RETURN_in, RETURN_in);
 
     if (returnValue < 0)
-        return 0;
-
-    if (dmgFloor)
-        return 0;
+        return;
 
     int16_t * const pPicnum = &sector[sectNum].ceilingpicnum;
 
@@ -1813,18 +1853,26 @@ int Sect_DamageCeilingOrFloor(int const dmgFloor, int const sectNum)
                     T5(i) = 1;
                 }
             }
-
-            return 1;
     }
+}
 
-    return 0;
+void Sect_DamageCeiling(int const spriteNum, int const sectNum)
+{
+    ud.returnvar[0] = -1;
+    Sect_DamageCeiling_Internal(spriteNum, sectNum);
 }
 
 // hard coded props... :(
-void A_DamageObject(int spriteNum, int const dmgSrc)
+void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
 {
     if (g_netClient)
         return;
+
+    if (A_CheckSpriteFlags(spriteNum, SFLAG_DAMAGEEVENT))
+    {
+        if (VM_OnEventWithReturn(EVENT_DAMAGESPRITE, dmgSrc, -1, spriteNum) < 0)
+            return;
+    }
 
     int radiusDamage = 0;
 
@@ -2272,6 +2320,9 @@ void A_DamageObject(int spriteNum, int const dmgSrc)
                 actor[spriteNum].extra += sprite[dmgSrc].extra;
                 actor[spriteNum].ang    = sprite[dmgSrc].ang;
                 actor[spriteNum].owner  = sprite[dmgSrc].owner;
+
+                if(A_CheckSpriteFlags(spriteNum, SFLAG_DAMAGEEVENT))
+                    VM_OnEventWithReturn(EVENT_POSTDAMAGESPRITE, dmgSrc, -1, spriteNum);
             }
 
             if (sprite[spriteNum].statnum == STAT_PLAYER)
@@ -2292,6 +2343,12 @@ void A_DamageObject(int spriteNum, int const dmgSrc)
 
         break;
     }
+}
+
+void A_DamageObject(int spriteNum, int const dmgSrc)
+{
+    ud.returnvar[0] = -1;
+    A_DamageObject_Internal(spriteNum, dmgSrc);
 }
 
 void G_AlignWarpElevators(void)
