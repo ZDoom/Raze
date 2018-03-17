@@ -3898,7 +3898,7 @@ static void P_ProcessWeapon(int playerNum)
                         break;
 
                     case SHOTGUN_WEAPON:
-                        if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0 && pPlayer->random_club_frame == 0)
+                        if (pPlayer->ammo_amount[pPlayer->curr_weapon] > 0)
                         {
                             (*weaponFrame) = 1;
                             if (PWEAPON(playerNum, pPlayer->curr_weapon, InitialSound) > 0)
