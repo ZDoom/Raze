@@ -111,23 +111,22 @@ void CONTROL_FreeMouseBind(int i)
 #ifndef __ANDROID__
 static void CONTROL_GetMouseDelta(void)
 {
-    int32_t x,y;
+    vec2_t pos;
 
-    MOUSE_GetDelta(&x, &y);
+    MOUSE_GetDelta(&pos.x, &pos.y);
 
     if (CONTROL_SmoothMouse)
     {
-        static int32_t lastx = 0, lasty = 0;
+        static vec2_t last;
 
-        CONTROL_MouseAxes[0].analog = (int32_t)(((x + lastx) / 2.0f) * 4.0f * CONTROL_MouseSensitivity);
-        CONTROL_MouseAxes[1].analog = (int32_t)((((y + lasty) / 2.0f) * 4.0f * CONTROL_MouseSensitivity) * 2.0f);
-        lastx = x;
-        lasty = y;
+        CONTROL_MouseAxes[0].analog = (int32_t)(((float)(pos.x + last.x) / 2.0f) * 4.0f * CONTROL_MouseSensitivity);
+        CONTROL_MouseAxes[1].analog = (int32_t)(((float)(pos.y + last.y) / 2.0f) * 4.0f * CONTROL_MouseSensitivity * 2.0f);
+        last = pos;
         return;
     }
 
-    CONTROL_MouseAxes[0].analog = (int32_t)(x * 4.0f * CONTROL_MouseSensitivity);
-    CONTROL_MouseAxes[1].analog = (int32_t)((y * 4.0f * CONTROL_MouseSensitivity) * 2.0f);
+    CONTROL_MouseAxes[0].analog = (int32_t)(pos.x * 4.0f * CONTROL_MouseSensitivity);
+    CONTROL_MouseAxes[1].analog = (int32_t)(pos.y * 4.0f * CONTROL_MouseSensitivity * 2.0f);
 }
 #endif
 
