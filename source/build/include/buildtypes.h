@@ -113,11 +113,17 @@ enum
     CSTAT_SPRITE_YCENTER = 1u<<7u,
     CSTAT_SPRITE_BLOCK_HITSCAN = 1u<<8u,
     CSTAT_SPRITE_TRANSLUCENT_INVERT = 1u<<9u,
+
     CSTAT_SPRITE_RESERVED1 = 1u<<10u, // game-side
     CSTAT_SPRITE_RESERVED2 = 1u<<11u, // game-side
     CSTAT_SPRITE_RESERVED3 = 1u<<12u,
+    CSTAT_SPRITE_RESERVED4 = 1u<<13u,
+    CSTAT_SPRITE_RESERVED5 = 1u<<14u,
+
+    // TODO: Make these two Duke3D-only by translating them to bits in tspr
     CSTAT_SPRITE_NO_SHADOW = 1u<<13u, // re-defined in Shadow Warrior
     CSTAT_SPRITE_INVISIBLE_WITH_SHADOW = 1u<<14u, // re-defined in Shadow Warrior
+
     CSTAT_SPRITE_INVISIBLE = 1u<<15u,
 };
 enum
@@ -143,7 +149,7 @@ typedef struct
     StructTracker(Sprite, int16_t) ang, owner, xvel, yvel, zvel;
     StructTracker(Sprite, int16_t) lotag, hitag;
     StructTracker(Sprite, int16_t) extra;
-} StructName(spritetype);
+} StructName(spritetypev7);
 
 //////////////////// END Version 7 map format ////////////////
 

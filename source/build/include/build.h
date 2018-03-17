@@ -319,11 +319,11 @@ enum {
     SPR_ALIGN_MASK = 32+16,
 };
 
-#include "buildtypes.h"
 #define UNTRACKED_STRUCTS
-#undef buildtypes_h__
 #include "buildtypes.h"
 #undef UNTRACKED_STRUCTS
+#undef buildtypes_h__
+#include "buildtypes.h"
 
 #if !defined NEW_MAP_FORMAT
 typedef sectortypev7 sectortype;
@@ -338,6 +338,9 @@ typedef usectortypevx usectortype;
 typedef walltypevx walltype;
 typedef uwalltypevx uwalltype;
 #endif
+
+typedef spritetypev7 spritetype;
+typedef uspritetypev7 uspritetype;
 
 // this is probably never going to be necessary
 EDUKE32_STATIC_ASSERT(sizeof(sectortype) == sizeof(usectortype));
