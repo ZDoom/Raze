@@ -380,6 +380,10 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 # define __STDC_LIMIT_MACROS
 #endif
 
+#ifndef _USE_MATH_DEFINES
+# define _USE_MATH_DEFINES
+#endif
+
 #if !defined _MSC_VER || defined __cplusplus
 # include <stdint.h>
 # include <inttypes.h>
