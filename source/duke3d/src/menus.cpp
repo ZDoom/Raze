@@ -1944,6 +1944,10 @@ static void Menu_Pre(MenuID_t cm)
 
         if (getrendermode() != REND_CLASSIC)
         {
+            //POGOTODO: allow setting anisotropy again while r_useindexedcolortextures is set when support is added down the line
+            // don't allow setting anisotropy while r_useindexedcolortextures is enabled
+            MenuEntry_DisableOnCondition(&ME_DISPLAYSETUP_ANISOTROPY, r_useindexedcolortextures);
+
             for (i = (int32_t) ARRAY_SIZE(MEOSV_DISPLAYSETUP_ANISOTROPY) - 1; i >= 0; --i)
             {
                 if (MEOSV_DISPLAYSETUP_ANISOTROPY[i] <= glinfo.maxanisotropy)

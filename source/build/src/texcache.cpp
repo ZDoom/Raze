@@ -44,11 +44,14 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
 
     // load from art
     for (pth=texcache.list[j]; pth; pth=pth->next)
-        if (pth->picnum == dapicnum && pth->palnum == dapalnum && pth->shade == dashade &&
-                (pth->flags & (PTH_CLAMPED | PTH_HIGHTILE | PTH_NOTRANSFIX)) ==
-                    (TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth)) &&
-                polymost_want_npotytex(dameth, tilesiz[dapicnum].y) == !!(pth->flags&PTH_NPOTWALL)
-           )
+        if (pth->picnum == dapicnum &&
+            (dameth & PTH_INDEXED ? (pth->flags & PTH_INDEXED) &&
+                                    (pth->flags & PTH_CLAMPED) == TO_PTH_CLAMPED(dameth) :
+                 (pth->palnum == dapalnum && pth->shade == dashade &&
+                 !(pth->flags & PTH_INDEXED) &&
+                 (pth->flags & (PTH_CLAMPED | PTH_HIGHTILE | PTH_NOTRANSFIX)) ==
+                     (TO_PTH_CLAMPED(dameth) | TO_PTH_NOTRANSFIX(dameth)) &&
+                 polymost_want_npotytex(dameth, tilesiz[dapicnum].y) == !!(pth->flags&PTH_NPOTWALL))))
         {
             if (pth->flags & PTH_INVALIDATED)
             {

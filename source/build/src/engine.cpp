@@ -13126,6 +13126,11 @@ int32_t setrendermode(int32_t renderer)
     rendmode = renderer;
     if (getrendermode() >= REND_POLYMOST)
         glrendmode = rendmode;
+
+    if (renderer == REND_POLYMOST)
+    {
+        polymost_init();
+    }
 #endif
 
     return 0;

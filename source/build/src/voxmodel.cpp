@@ -1016,6 +1016,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
     else
         glBindTexture(GL_TEXTURE_2D, m->texid[globalpal]);
 
+    polymost_usePaletteIndexing(false);
+
     glBegin(GL_QUADS);  // {{{
 
     for (bssize_t i=0, fi=0; i<m->qcnt; i++)
@@ -1050,6 +1052,8 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
     }
 
     glEnd();  // }}}
+
+    polymost_usePaletteIndexing(true);
 
     //------------
     glDisable(GL_CULL_FACE);

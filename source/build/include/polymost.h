@@ -32,6 +32,8 @@ extern void Polymost_prepare_loadboard(void);
 
 //void phex(char v, char *s);
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
+void uploadbasepalette(int32_t basepalnum);
+void uploadpalswap(int32_t palookupnum);
 void polymost_drawsprite(int32_t snum);
 void polymost_drawmaskwall(int32_t damaskwallcnt);
 void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
@@ -40,14 +42,26 @@ void polymost_fillpolygon(int32_t npoints);
 void polymost_initosdfuncs(void);
 void polymost_drawrooms(void);
 
-void polymost_resetVertexPointers();
+void polymost_resetVertexPointers(void);
+void polymost_disableProgram(void);
+void polymost_resetProgram(void);
+void polymost_setFogEnabled(char fogEnabled);
+void polymost_useColorOnly(char useColorOnly);
+void polymost_usePaletteIndexing(char usePaletteIndexing);
+void polymost_useDetailMapping(char useDetailMapping);
+void polymost_useGlowMapping(char useGlowMapping);
+void useShaderProgram(uint32_t shaderID);
 
 void polymost_glinit(void);
 void polymost_glreset(void);
 
+void polymost_init(void);
+
 enum {
     INVALIDATE_ALL,
-    INVALIDATE_ART
+    INVALIDATE_ART,
+    INVALIDATE_ALL_NON_INDEXED,
+    INVALIDATE_ART_NON_INDEXED
 };
 
 void gltexinvalidate(int32_t dapicnum, int32_t dapalnum, int32_t dameth);
@@ -214,6 +228,8 @@ enum pthtyp_flags {
     PTH_INVALIDATED = 128,
 
     PTH_NOTRANSFIX = 256, // fixtransparency() bypassed
+
+    PTH_INDEXED = 512,
 };
 
 typedef struct pthtyp_t

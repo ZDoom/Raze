@@ -6510,12 +6510,6 @@ int app_main(int argc, char const * const * argv)
     g_clipMapFiles.clear();
 #endif
 
-    // check if the minifont will support lowercase letters (3136-3161)
-    // there is room for them in tiles012.art between "[\]^_." and "{|}~"
-    minitext_lowercase = 1;
-    for (bssize_t i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
-        minitext_lowercase &= tile_exists(i);
-
     char *const setupFileName = Xstrdup(g_setupFileName);
     char *const p             = strtok(setupFileName, ".");
 
@@ -6573,6 +6567,16 @@ int app_main(int argc, char const * const * argv)
 
         S_MusicStartup();
         S_SoundStartup();
+    }
+
+    // check if the minifont will support lowercase letters (3136-3161)
+    // there is room for them in tiles012.art between "[\]^_." and "{|}~"
+    minitext_lowercase = 1;
+    for (bssize_t i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
+        minitext_lowercase &= tile_exists(i);
+
+    if (g_networkMode != NET_DEDICATED_SERVER)
+    {
         Menu_Init();
     }
 

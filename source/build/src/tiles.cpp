@@ -113,6 +113,7 @@ void E_MapArt_Clear(void)
 
     E_RecalcPicSiz();
 #ifdef USE_OPENGL
+    //POGOTODO: review this to ensure we're not invalidating more than we have to
     gltexinvalidatetype(INVALIDATE_ART);
 # ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
@@ -169,6 +170,7 @@ void E_MapArt_Setup(const char *filename)
 
     E_RecalcPicSiz();
 #ifdef USE_OPENGL
+    //POGOTODO: review this to ensure we're not invalidating more than we have to
     gltexinvalidatetype(INVALIDATE_ART);
 # ifdef POLYMER
     if (getrendermode() == REND_POLYMER)
@@ -602,6 +604,18 @@ void loadtile(int16_t tilenume)
     }
 
     E_LoadTileIntoBuffer(tilenume, dasiz, (char *) waloff[tilenume]);
+
+#ifdef USE_OPENGL
+    if (getrendermode() >= REND_POLYMOST)
+    {
+        //POGOTODO: this type stuff won't be necessary down the line -- review this
+        int type;
+        for (type = 0; type <= 1; ++type)
+        {
+            texcache_fetch(tilenume, 0, 0, (type ? DAMETH_CLAMPED : DAMETH_MASK) | PTH_INDEXED);
+        }
+    }
+#endif
 
     postloadtile(tilenume);
 }

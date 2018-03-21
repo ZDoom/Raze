@@ -1320,6 +1320,7 @@ enum cutsceneflags {
 extern int32_t glanisotropy;
 extern int32_t glusetexcompr;
 extern int32_t gltexfiltermode;
+extern int32_t r_useindexedcolortextures;
 
 enum {
     TEXFILTER_OFF = 0, // GL_NEAREST
@@ -1429,10 +1430,9 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
 
 #ifdef POLYMER
 # include "polymer.h"
-#else
-# ifdef USE_OPENGL
-#  include "polymost.h"
-# endif
+#endif
+#ifdef USE_OPENGL
+# include "polymost.h"
 #endif
 
 #ifdef __cplusplus
@@ -1444,7 +1444,7 @@ static FORCE_INLINE void push_nofog(void)
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
     {
-        glDisable(GL_FOG);
+        polymost_setFogEnabled(false);
     }
 #endif
 }
@@ -1453,7 +1453,7 @@ static FORCE_INLINE void pop_nofog(void)
 {
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST && !nofog)
-        glEnable(GL_FOG);
+        polymost_setFogEnabled(true);
 #endif
 }
 

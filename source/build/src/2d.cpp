@@ -75,6 +75,7 @@ void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int co
     {
         palette_t p = getpal(col);
 
+        polymost_useColorOnly(true);
         glBegin(GL_LINE_STRIP);
 
         glColor4ub(p.r, p.g, p.b, 1);
@@ -83,6 +84,7 @@ void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int co
             glVertex2i(xx[i], yy[i]);
 
         glEnd();
+        polymost_useColorOnly(false);
         return;
     }
 #endif
@@ -134,20 +136,23 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
     {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+
+        glDisable(GL_TEXTURE_2D);
     }
 
     gloy1 = -1;
     glDisable(GL_ALPHA_TEST);
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);	// When using line antialiasing, this is needed
 
+    polymost_useColorOnly(true);
     glBegin(GL_LINES);
     glColor4ub(p.r, p.g, p.b, 255);
     glVertex2f((float) x1 * (1.f/4096.f), (float) y1 * (1.f/4096.f));
     glVertex2f((float) x2 * (1.f/4096.f), (float) y2 * (1.f/4096.f));
 
     glEnd();
+    polymost_useColorOnly(false);
 }
 #endif
 
@@ -1403,12 +1408,13 @@ void setpolymost2dview(void)
     {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
+
+        glDisable(GL_TEXTURE_2D);
     }
 
     gloy1 = -1;
 
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_TEXTURE_2D);
     glDisable(GL_BLEND);
 #endif
 }

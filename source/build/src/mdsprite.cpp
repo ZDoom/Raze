@@ -2396,13 +2396,17 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
         if (!(tspr->extra&TSPR_EXTRA_MDHACK))
         {
 #ifdef USE_GLEXT
+            //POGOTODO: if we add support for palette indexing on model skins, the texture for the palswap could be setup here
+            texunits += 4;
+
             i = r_detailmapping ? mdloadskin((md2model_t *) m, tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum, DETAILPAL, surfi) : 0;
 
             if (i)
             {
                 mdskinmap_t *sk;
 
-                polymost_setupdetailtexture(++texunits, i);
+                polymost_useDetailMapping(true);
+                polymost_setupdetailtexture(GL_TEXTURE3, i);
 
                 for (sk = m->skinmap; sk; sk = sk->next)
                     if ((int32_t) sk->palette == DETAILPAL && sk->skinnum == tile2model[Ptile2tile(tspr->picnum, lpal)].skinnum && sk->surfnum == surfi)
@@ -2419,7 +2423,8 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
 
             if (i)
             {
-                polymost_setupglowtexture(++texunits, i);
+                polymost_useGlowMapping(true);
+                polymost_setupglowtexture(GL_TEXTURE4, i);
 
                 glMatrixMode(GL_TEXTURE);
                 glLoadIdentity();
@@ -2571,6 +2576,9 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
                 glActiveTexture(--texunits);
             }
         } // r_vertexarrays
+
+        polymost_useDetailMapping(false);
+        polymost_useGlowMapping(false);
 #endif
     }
     //------------
@@ -2747,8 +2755,20 @@ int32_t polymost_mddraw(const uspritetype *tspr)
 
     mdmodel_t *const vm = models[tile2model[Ptile2tile(tspr->picnum,
     (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal)].modelid];
-    if (vm->mdnum == 1) { return polymost_voxdraw((voxmodel_t *)vm,tspr); }
-    if (vm->mdnum == 3) { return polymost_md3draw((md3model_t *)vm,tspr); }
+    if (vm->mdnum == 1)
+    {
+        polymost_usePaletteIndexing(false);
+        int ret = polymost_voxdraw((voxmodel_t *)vm,tspr);
+        polymost_usePaletteIndexing(true);
+        return ret;
+    }
+    if (vm->mdnum == 3)
+    {
+        polymost_usePaletteIndexing(false);
+        int ret = polymost_md3draw((md3model_t *)vm,tspr);
+        polymost_usePaletteIndexing(true);
+        return ret;
+    }
     return 0;
 }
 

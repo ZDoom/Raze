@@ -247,7 +247,7 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows)
     if (getrendermode() >= REND_POLYMOST && qsetmode==200)
     {
 //        glPushAttrib(GL_FOG_BIT);
-        glDisable(GL_FOG);
+        polymost_setFogEnabled(false);
 
         setpolymost2dview();
         glColor4f(0.f, 0.f, 0.f, 0.67f);
@@ -257,7 +257,7 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows)
         glRecti(0, 8*numrows+4, xdim, 8*numrows+8);
 
 //        glPopAttrib();
-        glEnable(GL_FOG);
+        polymost_setFogEnabled(true);
 
         return;
     }

@@ -2363,6 +2363,7 @@ static void m32_showmouse(void)
     {
         push_nofog();
         glDisable(GL_TEXTURE_2D);
+        polymost_useColorOnly(true);
     }
 #endif
 
@@ -2404,7 +2405,10 @@ static void m32_showmouse(void)
 
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
+    {
         pop_nofog();
+        polymost_useColorOnly(false);
+    }
 #endif
 }
 
@@ -2512,7 +2516,7 @@ static inline void pushDisableFog(void)
     if (getrendermode() >= REND_POLYMOST)
     {
         glPushAttrib(GL_ENABLE_BIT);
-        glDisable(GL_FOG);
+        polymost_setFogEnabled(false);
     }
 #endif
 }

@@ -622,6 +622,8 @@ void setbasepal(int32_t id, uint8_t const * const table)
         basepaltable[id] = (uint8_t *) Xmalloc(768);
 
     Bmemcpy(basepaltable[id], table, 768);
+
+    uploadbasepalette(id);
 }
 void removebasepal(int32_t const id)
 {
@@ -718,9 +720,9 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
         const int32_t doinvalidate = (paldidchange || (palsumdidchange && !gammabrightness));
 
         if (!(flags&2) && doinvalidate)
-            gltexinvalidatetype(INVALIDATE_ALL);
+            gltexinvalidatetype(INVALIDATE_ALL_NON_INDEXED);
         if (!(flags&8) && doinvalidate)
-            gltexinvalidatetype(INVALIDATE_ART);
+            gltexinvalidatetype(INVALIDATE_ART_NON_INDEXED);
 #ifdef POLYMER
         if ((getrendermode() == REND_POLYMER) && doinvalidate)
             polymer_texinvalidate();
