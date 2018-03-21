@@ -151,10 +151,11 @@ static GLint alphaLoc = -1;
 static GLint fogRangeLoc = -1;
 static GLint fogColorLoc = -1;
 
+#define PALSWAP_TEXTURE_SIZE 2048
 int32_t r_useindexedcolortextures = -1;
 static int32_t lastbasepal = -1;
 static GLuint paletteTextureIDs[MAXBASEPALS];
-static GLuint palswapTextureIDs[MAXPALOOKUPS];
+static GLuint palswapTextureID = 0;
 static GLuint polymost1CurrentShaderProgramID = 0;
 static GLuint polymost1BasicShaderProgramID = 0;
 static GLuint polymost1ExtendedShaderProgramID = 0;
@@ -163,6 +164,11 @@ static GLint polymost1PalSwapSamplerLoc = -1;
 static GLint polymost1PaletteSamplerLoc = -1;
 static GLint polymost1DetailSamplerLoc = -1;
 static GLint polymost1GlowSamplerLoc = -1;
+static GLint polymost1PalswapPosLoc = -1;
+static vec2f_t polymost1PalswapPos = {0.f, 0.f};
+static GLint polymost1PalswapSizeLoc = -1;
+static vec2f_t polymost1PalswapSize = {0.f, 0.f};
+static vec2f_t polymost1PalswapInnerSize = {0.f, 0.f};
 static GLint polymost1ShadeLoc = -1;
 static float polymost1Shade = 0.f;
 static GLint polymost1FogEnabledLoc = -1;
@@ -556,6 +562,11 @@ void polymost_resetProgram()
         {
             useShaderProgram(polymost1CurrentShaderProgramID);
         }
+
+        // ensure the palswapTexture is bound
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, palswapTextureID);
+        glActiveTexture(GL_TEXTURE0);
     }
 }
 
@@ -570,6 +581,8 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     polymost1PaletteSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_palette");
     polymost1DetailSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_detail");
     polymost1GlowSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_glow");
+    polymost1PalswapPosLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_palswapPos");
+    polymost1PalswapSizeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_palswapSize");
     polymost1ShadeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_shade");
     polymost1FogEnabledLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_fogEnabled");
     polymost1UsePaletteLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_usePalette");
@@ -578,12 +591,61 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     polymost1UseGlowMappingLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_useGlowMapping");
 
     //set the uniforms to the current values
+    glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
+    glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
     glUniform1f(polymost1ShadeLoc, polymost1Shade);
     glUniform1f(polymost1FogEnabledLoc, polymost1FogEnabled);
     glUniform1f(polymost1UseColorOnlyLoc, polymost1UseColorOnly);
     glUniform1f(polymost1UsePaletteLoc, polymost1UsePalette);
     glUniform1f(polymost1UseDetailMappingLoc, polymost1UseDetailMapping);
     glUniform1f(polymost1UseGlowMappingLoc, polymost1UseGlowMapping);
+}
+
+static void polymost_setPalswap(uint32_t index)
+{
+    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    {
+        static uint32_t lastPalswapIndex = 0;
+        if (index == lastPalswapIndex)
+        {
+            return;
+        }
+
+        lastPalswapIndex = index;
+        polymost1PalswapPos.x = index*polymost1PalswapSize.x;
+        polymost1PalswapPos.y = floorf(polymost1PalswapPos.x);
+        polymost1PalswapPos.x = polymost1PalswapPos.x - polymost1PalswapPos.y + (0.5f/PALSWAP_TEXTURE_SIZE);
+        polymost1PalswapPos.y = polymost1PalswapPos.y * polymost1PalswapSize.y + (0.5f/PALSWAP_TEXTURE_SIZE);
+        glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
+    }
+}
+
+static void polymost_setPalswapSize(uint32_t width, uint32_t height)
+{
+    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    {
+        polymost1PalswapSize.x = width*(1.f/PALSWAP_TEXTURE_SIZE);
+        polymost1PalswapSize.y = height*(1.f/PALSWAP_TEXTURE_SIZE);
+        polymost1PalswapInnerSize.x = (width-1)*(1.f/PALSWAP_TEXTURE_SIZE);
+        polymost1PalswapInnerSize.y = (height-1)*(1.f/PALSWAP_TEXTURE_SIZE);
+        glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
+    }
+}
+
+static void polymost_setShade(int32_t shade)
+{
+    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    {
+        static int32_t lastShade = 0;
+        if (shade == lastShade)
+        {
+            return;
+        }
+
+        lastShade = shade;
+        polymost1Shade = getpalookup((r_usetileshades == 1 && !(globalflags & GLOBAL_NO_GL_TILESHADES)), shade)/((float) numshades);
+        glUniform1f(polymost1ShadeLoc, polymost1Shade);
+    }
 }
 
 void polymost_setFogEnabled(char fogEnabled)
@@ -617,6 +679,11 @@ void polymost_useDetailMapping(char useDetailMapping)
 {
     if (currentShaderProgramID == polymost1CurrentShaderProgramID)
     {
+        if (useDetailMapping == polymost1UseDetailMapping)
+        {
+            return;
+        }
+
         if (useDetailMapping &&
             currentShaderProgramID != polymost1ExtendedShaderProgramID)
         {
@@ -632,6 +699,11 @@ void polymost_useGlowMapping(char useGlowMapping)
 {
     if (currentShaderProgramID == polymost1CurrentShaderProgramID)
     {
+        if (useGlowMapping == polymost1UseGlowMapping)
+        {
+            return;
+        }
+
         if (useGlowMapping &&
             currentShaderProgramID != polymost1ExtendedShaderProgramID)
         {
@@ -848,6 +920,8 @@ void polymost_glinit()
          //s_palette is the base palette texture where u is the color index\n\
          uniform sampler2D s_palette;\n\
          \n\
+         uniform vec2 u_palswapPos;\n\
+         uniform vec2 u_palswapSize;\n\
          uniform float u_shade;\n\
          uniform float u_fogEnabled;\n\
          \n\
@@ -855,6 +929,9 @@ void polymost_glinit()
          uniform float u_usePalette;\n\
          \n\
          varying vec4 v_color;\n\
+         \n\
+         const float c_basepalScale = 255.0/256.0;\n\
+         const float c_basepalOffset = 0.5/256.0;\n\
          \n\
          const float c_zero = 0.0;\n\
          const float c_one  = 1.0;\n\
@@ -866,7 +943,8 @@ void polymost_glinit()
              texCoord = mix(texCoord.xy, texCoord.yx, u_usePalette);\n\
              \n\
              vec4 color = texture2D(s_texture, texCoord);\n\
-             float colorIndex = texture2D(s_palswap, vec2(color.r, u_shade)).r;\n\
+             float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, u_shade)).r;\n\
+             colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
              vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
              float fogEnabled = c_one-u_usePalette*palettedColor.a;\n\
              palettedColor.a = c_one-floor(color.r);\n\
@@ -891,70 +969,76 @@ void polymost_glinit()
              gl_FragColor = color;\n\
          }\n";
     const char* const POLYMOST1_EXTENDED_FRAGMENT_SHADER_CODE =
-            "#version 110\n\
+        "#version 110\n\
+         \n\
+         //s_texture points to an indexed color texture\n\
+         uniform sampler2D s_texture;\n\
+         //s_palswap is the palette swap texture where u is the color index and v is the shade\n\
+         uniform sampler2D s_palswap;\n\
+         //s_palette is the base palette texture where u is the color index\n\
+         uniform sampler2D s_palette;\n\
+         \n\
+         uniform sampler2D s_detail;\n\
+         uniform sampler2D s_glow;\n\
+         \n\
+         uniform vec2 u_palswapPos;\n\
+         uniform vec2 u_palswapSize;\n\
+         uniform float u_shade;\n\
+         uniform float u_fogEnabled;\n\
+         \n\
+         uniform float u_useColorOnly;\n\
+         uniform float u_usePalette;\n\
+         \n\
+         uniform float u_useDetailMapping;\n\
+         uniform float u_useGlowMapping;\n\
+         \n\
+         varying vec4 v_color;\n\
+         \n\
+         const float c_basepalScale = 255.0/256.0;\n\
+         const float c_basepalOffset = 0.5/256.0;\n\
+         \n\
+         const float c_zero = 0.0;\n\
+         const float c_one  = 1.0;\n\
+         const vec4 c_vec4_one = vec4(c_one);\n\
+         \n\
+         void main()\n\
+         {\n\
+             vec2 texCoord = (gl_TextureMatrix[0] * gl_TexCoord[0]).xy;\n\
+             texCoord = mix(texCoord.xy, texCoord.yx, u_usePalette);\n\
              \n\
-             //s_texture points to an indexed color texture\n\
-             uniform sampler2D s_texture;\n\
-             //s_palswap is the palette swap texture where u is the color index and v is the shade\n\
-             uniform sampler2D s_palswap;\n\
-             //s_palette is the base palette texture where u is the color index\n\
-             uniform sampler2D s_palette;\n\
+             vec4 color = texture2D(s_texture, texCoord);\n\
+             float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, u_shade)).r;\n\
+             colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
+             vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
+             float fogEnabled = c_one-u_usePalette*palettedColor.a;\n\
+             palettedColor.a = c_one-floor(color.r);\n\
+             color = mix(color, palettedColor, u_usePalette);\n\
              \n\
-             uniform sampler2D s_detail;\n\
-             uniform sampler2D s_glow;\n\
+             vec4 detailColor = texture2D(s_detail, (gl_TextureMatrix[3] * gl_TexCoord[0]).xy);\n\
+             detailColor = mix(c_vec4_one, 2.0*detailColor, u_useDetailMapping*detailColor.a);\n\
+             color.rgb *= detailColor.rgb;\n\
              \n\
-             uniform float u_shade;\n\
-             uniform float u_fogEnabled;\n\
+             color = mix(color, c_vec4_one, u_useColorOnly);\n\
              \n\
-             uniform float u_useColorOnly;\n\
-             uniform float u_usePalette;\n\
+             // DEBUG \n\
+             //color = texture2D(s_palswap, gl_TexCoord[0].xy);\n\
+             //color = texture2D(s_palette, gl_TexCoord[0].xy);\n\
+             //color = texture2D(s_texture, gl_TexCoord[0].yx);\n\
              \n\
-             uniform float u_useDetailMapping;\n\
-             uniform float u_useGlowMapping;\n\
+             fogEnabled = min(u_fogEnabled, fogEnabled);\n\
+             float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, c_one-fogEnabled, c_one);\n\
+             //float fogFactor = clamp(gl_FogFragCoord, c_one-fogEnabled, c_one);\n\
              \n\
-             varying vec4 v_color;\n\
+             color.rgb *= v_color.rgb;\n\
+             color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);\n\
              \n\
-             const float c_zero = 0.0;\n\
-             const float c_one  = 1.0;\n\
-             const vec4 c_vec4_one = vec4(c_one);\n\
+             vec4 glowColor = texture2D(s_glow, (gl_TextureMatrix[4] * gl_TexCoord[0]).xy);\n\
+             color.rgb = mix(color.rgb, glowColor.rgb, u_useGlowMapping*glowColor.a*(c_one-u_useColorOnly));\n\
              \n\
-             void main()\n\
-             {\n\
-                 vec2 texCoord = (gl_TextureMatrix[0] * gl_TexCoord[0]).xy;\n\
-                 texCoord = mix(texCoord.xy, texCoord.yx, u_usePalette);\n\
-                 \n\
-                 vec4 color = texture2D(s_texture, texCoord);\n\
-                 float colorIndex = texture2D(s_palswap, vec2(color.r, u_shade)).r;\n\
-                 vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
-                 float fogEnabled = c_one-u_usePalette*palettedColor.a;\n\
-                 palettedColor.a = c_one-floor(color.r);\n\
-                 color = mix(color, palettedColor, u_usePalette);\n\
-                 \n\
-                 vec4 detailColor = texture2D(s_detail, (gl_TextureMatrix[3] * gl_TexCoord[0]).xy);\n\
-                 detailColor = mix(c_vec4_one, 2.0*detailColor, u_useDetailMapping*detailColor.a);\n\
-                 color.rgb *= detailColor.rgb;\n\
-                 \n\
-                 color = mix(color, c_vec4_one, u_useColorOnly);\n\
-                 \n\
-                 // DEBUG \n\
-                 //color = texture2D(s_palswap, gl_TexCoord[0].xy);\n\
-                 //color = texture2D(s_palette, gl_TexCoord[0].xy);\n\
-                 //color = texture2D(s_texture, gl_TexCoord[0].yx);\n\
-                 \n\
-                 fogEnabled = min(u_fogEnabled, fogEnabled);\n\
-                 float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, c_one-fogEnabled, c_one);\n\
-                 //float fogFactor = clamp(gl_FogFragCoord, c_one-fogEnabled, c_one);\n\
-                 \n\
-                 color.rgb *= v_color.rgb;\n\
-                 color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);\n\
-                 \n\
-                 vec4 glowColor = texture2D(s_glow, (gl_TextureMatrix[4] * gl_TexCoord[0]).xy);\n\
-                 color.rgb = mix(color.rgb, glowColor.rgb, u_useGlowMapping*glowColor.a*(c_one-u_useColorOnly));\n\
-                 \n\
-                 color.a *= v_color.a;\n\
-                 \n\
-                 gl_FragColor = color;\n\
-             }\n";
+             color.a *= v_color.a;\n\
+             \n\
+             gl_FragColor = color;\n\
+         }\n";
 
     polymost1BasicShaderProgramID = glCreateProgram();
     GLuint polymost1BasicVertexShaderID = polymost2_compileShader(GL_VERTEX_SHADER, POLYMOST1_BASIC_VERTEX_SHADER_CODE);
@@ -976,6 +1060,7 @@ void polymost_glinit()
     glUniform1i(polymost1PaletteSamplerLoc, 2);
     glUniform1i(polymost1DetailSamplerLoc, 3);
     glUniform1i(polymost1GlowSamplerLoc, 4);
+    polymost_setPalswapSize(256, numshades+1);
     glUniform1f(polymost1UseColorOnlyLoc, polymost1UseColorOnly);
     glUniform1f(polymost1UsePaletteLoc, polymost1UsePalette);
     glUniform1f(polymost1UseDetailMappingLoc, polymost1UseDetailMapping);
@@ -992,9 +1077,9 @@ void polymost_glinit()
         paletteTextureIDs[basepalnum] = 0;
         uploadbasepalette(basepalnum);
     }
+    palswapTextureID = 0;
     for (int palookupnum = 0; palookupnum < MAXPALOOKUPS; ++palookupnum)
     {
-        palswapTextureIDs[palookupnum] = 0;
         uploadpalswap(palookupnum);
     }
 
@@ -1716,14 +1801,14 @@ void uploadbasepalette(int32_t basepalnum)
         glGenTextures(1, &paletteTextureIDs[basepalnum]);
     }
     glBindTexture(GL_TEXTURE_2D, paletteTextureIDs[basepalnum]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     if (allocateTexture)
     {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, basepalWFullBrightInfo);
     }
     else
@@ -1744,26 +1829,32 @@ void uploadpalswap(int32_t palookupnum)
         return;
     }
 
-    char allocateTexture = !palswapTextureIDs[palookupnum];
+    char allocateTexture = !palswapTextureID;
     if (allocateTexture)
     {
-        glGenTextures(1, &palswapTextureIDs[palookupnum]);
+        glGenTextures(1, &palswapTextureID);
     }
-    glBindTexture(GL_TEXTURE_2D, palswapTextureIDs[palookupnum]);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glBindTexture(GL_TEXTURE_2D, palswapTextureID);
     if (allocateTexture)
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 256, numshades+1, 0, GL_RED, GL_UNSIGNED_BYTE, palookup[palookupnum]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
     }
-    else
+
+    int32_t column = palookupnum%(PALSWAP_TEXTURE_SIZE/256);
+    int32_t row = palookupnum/(PALSWAP_TEXTURE_SIZE/256);
+    int32_t rowOffset = (numshades+1)*row;
+    if (rowOffset > PALSWAP_TEXTURE_SIZE)
     {
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 256, numshades+1, GL_RED, GL_UNSIGNED_BYTE, palookup[palookupnum]);
+        OSD_Printf("Polymost: palswaps are too large for palswap tilesheet!\n");
+        return;
     }
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 256*column, rowOffset, 256, numshades+1, GL_RED, GL_UNSIGNED_BYTE, palookup[palookupnum]);
 }
 
 
@@ -2633,8 +2724,6 @@ static void polymost2_drawVBO(GLenum mode,
                        0);
     }
 
-    polymost_resetProgram();
-
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
 
@@ -2647,22 +2736,18 @@ static void polymost2_drawVBO(GLenum mode,
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-    polymost_resetVertexPointers();
+    //polymost_resetVertexPointers();
 }
 
-static void polymost_bindPaletteTextures()
+static void polymost_updatePalette()
 {
     if (getrendermode() != REND_POLYMOST)
     {
         return;
     }
 
-    //POGOTODO: I could use the same approach as below, but with the palswaps to avoid rebinding when multiple objects in a row use the same palswap
-    //POGOTODO: or I could make the palswaps an array texture or a tilesheet so they never have to be rebound
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, palswapTextureIDs[globalpal]);
-    polymost1Shade = getpalookup((r_usetileshades == 1 && !(globalflags & GLOBAL_NO_GL_TILESHADES)), globalshade)/((float) numshades);
-    glUniform1f(polymost1ShadeLoc, polymost1Shade);
+    polymost_setPalswap(globalpal);
+    polymost_setShade(globalshade);
 
     //POGO: only bind the base pal once when it's swapped
     if (curbasepal != lastbasepal)
@@ -2670,9 +2755,8 @@ static void polymost_bindPaletteTextures()
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, paletteTextureIDs[curbasepal]);
         lastbasepal = curbasepal;
+        glActiveTexture(GL_TEXTURE0);
     }
-
-    glActiveTexture(GL_TEXTURE0);
 }
 
 static void polymost_lockSubBuffer(uint32_t subBufferIndex)
@@ -2845,7 +2929,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     if (getrendermode() == REND_POLYMOST)
     {
-        polymost_bindPaletteTextures();
+        polymost_updatePalette();
         texunits += 4;
     }
 
@@ -2871,6 +2955,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
                 glScalef(detailpth->hicr->scale.x, detailpth->hicr->scale.y, 1.0f);
 
             glMatrixMode(GL_MODELVIEW);
+            glActiveTexture(GL_TEXTURE0);
         }
     }
 
@@ -2885,6 +2970,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
         {
             polymost_useGlowMapping(true);
             polymost_setupglowtexture(getrendermode() == REND_POLYMOST ? GL_TEXTURE4 : ++texunits, glowpth->glpic);
+            glActiveTexture(GL_TEXTURE0);
         }
     }
 #endif
@@ -3166,30 +3252,34 @@ do                                                                              
     }
 
 #ifdef USE_GLEXT
-    while (texunits > GL_TEXTURE0)
+    if (getrendermode() != REND_POLYMOST)
     {
-        glActiveTexture(texunits);
-        glMatrixMode(GL_TEXTURE);
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
+        while (texunits > GL_TEXTURE0)
+        {
+            glActiveTexture(texunits);
+            glMatrixMode(GL_TEXTURE);
+            glLoadIdentity();
+            glMatrixMode(GL_MODELVIEW);
 
-        glClientActiveTexture(texunits);
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+            glClientActiveTexture(texunits);
+            glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-        glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
-        glDisable(GL_TEXTURE_2D);
+            glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
+            glDisable(GL_TEXTURE_2D);
 
-        --texunits;
+            --texunits;
+        }
     }
 
     polymost_useDetailMapping(false);
     polymost_useGlowMapping(false);
-
-    glActiveTexture(GL_TEXTURE0);
 #endif
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
+    if (pth && pth->hicr)
+    {
+        glMatrixMode(GL_TEXTURE);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+    }
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -7242,7 +7332,7 @@ void polymost_fillpolygon(int32_t npoints)
     }
     else
     {
-        polymost_bindPaletteTextures();
+        polymost_updatePalette();
     }
 
     float const f = getshadefactor(globalshade);
@@ -7321,7 +7411,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
     }
     else
     {
-        polymost_bindPaletteTextures();
+        polymost_updatePalette();
     }
 
     glDisable(GL_ALPHA_TEST);
