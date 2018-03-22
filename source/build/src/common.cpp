@@ -248,6 +248,7 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows)
     {
 //        glPushAttrib(GL_FOG_BIT);
         polymost_setFogEnabled(false);
+        polymost_useColorOnly(true);
 
         setpolymost2dview();
         glColor4f(0.f, 0.f, 0.f, 0.67f);
@@ -257,6 +258,7 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows)
         glRecti(0, 8*numrows+4, xdim, 8*numrows+8);
 
 //        glPopAttrib();
+        polymost_useColorOnly(false);
         polymost_setFogEnabled(true);
 
         return;

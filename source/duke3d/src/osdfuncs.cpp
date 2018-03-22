@@ -147,6 +147,7 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
         const int32_t i8n8 = OSD_SCALE(OSDCHAR_HEIGHT*numrows);
 //        glPushAttrib(GL_FOG_BIT);
         polymost_setFogEnabled(false);
+        polymost_useColorOnly(true);
 
         setpolymost2dview();
         glColor4f(0.f, 0.f, 0.f, 0.67f);
@@ -154,6 +155,8 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
         glRecti(0, 0, xdim, i8n8+OSDCHAR_HEIGHT);
         glColor4f(0.f, 0.f, 0.f, 1.f);
         glRecti(0, i8n8+4, xdim, i8n8+OSDCHAR_HEIGHT);
+
+        polymost_useColorOnly(false);
         if (!nofog)
             polymost_setFogEnabled(true);
 //        glPopAttrib();
