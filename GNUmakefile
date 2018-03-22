@@ -1001,7 +1001,7 @@ $(foreach i,$(components),$($i_obj)):
 ### Phonies
 
 clang-tools: $(filter %.c %.cpp,$(foreach i,$(call getdeps,duke3d,game),$(call expandsrcs,$i)))
-	echo $^ -- -x c++ $(CXXONLYFLAGS) $(COMPILERFLAGS) $(foreach i,$(components),$($i_cflags)) $(CWARNS)
+	echo $^ -- -x c++ $(CXXONLYFLAGS) $(COMPILERFLAGS) $(CWARNS) $(foreach i,$(components),$($i_cflags))
 
 $(addprefix clean,$(games)):
 	-$(call RM,$(foreach i,$(roles),$($(subst clean,,$@)_$i)$(EXESUFFIX)))
