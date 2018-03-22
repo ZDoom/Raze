@@ -33,7 +33,6 @@ gamevar hud_fistsign 0 1
 gamevar hud_totaltime 0 1
 
 gamevar hud_shadef 0 1
-gamevar hud_shadef_crystal 0 1
 gamevar hud_palf 0 1
 
 // It is unfortunate that we need so many temporary gamevars.
@@ -168,32 +167,6 @@ state G_DrawWeaponTile
 
     setvarvar hud_palf hud_pal
     setvarvar hud_shade hud_shadef
-
-    state G_DrawTileScaled
-ends
-
-state G_DrawWeaponTile_crystal
-    // basic fading between player weapon shades
-    ifvarvarn hud_shade hud_shadef_crystal
-    {
-        setvarvar hud_int_temp hud_shade
-        subvarvar hud_int_temp hud_shadef_crystal
-        setvarvar hud_int_temp2 hud_int_temp
-        shiftvarr hud_int_temp 2
-        addvarvar hud_shadef_crystal hud_int_temp
-
-        ifvare hud_int_temp 0
-        {
-            shiftvarr hud_int_temp2 1
-            addvarvar hud_shadef_crystal hud_int_temp2
-            ifvare hud_int_temp2 0
-                setvarvar hud_shadef_crystal hud_shade
-        }
-    }
-    else
-        setvarvar hud_shadef_crystal hud_shade
-
-    setvarvar hud_shade hud_shadef_crystal
 
     state G_DrawTileScaled
 ends
@@ -1399,7 +1372,7 @@ state draw_expander // GROW_WEAPON:
 
             guniqhudid hud_temp3
 
-            state G_DrawWeaponTile_crystal
+            state G_DrawTileScaled
 
             guniqhudid currentweapon
 
@@ -1436,7 +1409,7 @@ state draw_expander // GROW_WEAPON:
 
         guniqhudid hud_temp3
 
-        state G_DrawWeaponTile_crystal
+        state G_DrawTileScaled
 
         guniqhudid currentweapon
 
@@ -1500,7 +1473,7 @@ state draw_shrinker // SHRINKER_WEAPON:
 
             guniqhudid hud_temp3
 
-            state G_DrawWeaponTile_crystal
+            state G_DrawTileScaled
 
             guniqhudid currentweapon
 
@@ -1537,7 +1510,7 @@ state draw_shrinker // SHRINKER_WEAPON:
 
         guniqhudid hud_temp3
 
-        state G_DrawWeaponTile_crystal
+        state G_DrawTileScaled
 
         guniqhudid currentweapon
 

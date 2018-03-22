@@ -1752,28 +1752,23 @@ static void G_DrawTileScaled(int drawX, int drawY, int tileNum, int drawShade, i
                  wx[0],wy[0], wx[1],wy[1]);
 }
 
-static void G_DrawWeaponTile(int weaponX, int weaponY, int weaponTile, int weaponShade, int weaponBits, int weaponPal,
-                             uint8_t drawSlot)
+static void G_DrawWeaponTile(int weaponX, int weaponY, int weaponTile, int weaponShade, int weaponBits, int weaponPal)
 {
-    static int shadef[2] = { 0, 0 };
-    static int palf[2]   = { 0, 0 };
-
-    // sanity checking the slot value
-    if (drawSlot > 1)
-        drawSlot = 1;
+    static int shadef = 0;
+    static int palf = 0;
 
     // basic fading between player weapon shades
-    if (shadef[drawSlot] != weaponShade && (!weaponPal || palf[drawSlot] == weaponPal))
+    if (shadef != weaponShade && (!weaponPal || palf == weaponPal))
     {
-        shadef[drawSlot] += (weaponShade - shadef[drawSlot]) >> 2;
+        shadef += (weaponShade - shadef) >> 2;
 
-        if (!((weaponShade - shadef[drawSlot]) >> 2))
-            shadef[drawSlot] = logapproach(shadef[drawSlot], weaponShade);
+        if (!((weaponShade - shadef) >> 2))
+            shadef = logapproach(shadef, weaponShade);
     }
     else
-        shadef[drawSlot] = weaponShade;
+        shadef = weaponShade;
 
-    palf[drawSlot] = weaponPal;
+    palf = weaponPal;
 
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST)
@@ -1786,23 +1781,34 @@ static void G_DrawWeaponTile(int weaponX, int weaponY, int weaponTile, int weapo
                 // pixels (not texels; multiplied by weapon scale) lower
                 // first, preventing ugly horizontal seam.
                 g_dts_yadd = tabledivide32_noinline(65536 * 2 * 200, ydim);
-                G_DrawTileScaled(weaponX, weaponY, weaponTile, shadef[drawSlot], weaponBits, weaponPal);
+                G_DrawTileScaled(weaponX, weaponY, weaponTile, shadef, weaponBits, weaponPal);
                 g_dts_yadd = 0;
             }
         }
     }
 #endif
 
-    G_DrawTileScaled(weaponX, weaponY, weaponTile, shadef[drawSlot], weaponBits, weaponPal);
+    G_DrawTileScaled(weaponX, weaponY, weaponTile, shadef, weaponBits, weaponPal);
 }
 
 static inline void G_DrawWeaponTileWithID(int uniqueID, int weaponX, int weaponY, int weaponTile, int weaponShade,
-                                          int weaponBits, int p, uint8_t slot)
+                                          int weaponBits, int p)
 {
     int lastUniqueID = guniqhudid;
     guniqhudid       = uniqueID;
 
-    G_DrawWeaponTile(weaponX, weaponY, weaponTile, weaponShade, weaponBits, p, slot);
+    G_DrawWeaponTile(weaponX, weaponY, weaponTile, weaponShade, weaponBits, p);
+
+    guniqhudid       = lastUniqueID;
+}
+
+static inline void G_DrawWeaponTileUnfadedWithID(int uniqueID, int weaponX, int weaponY, int weaponTile, int weaponShade,
+                                          int weaponBits, int p)
+{
+    int lastUniqueID = guniqhudid;
+    guniqhudid       = uniqueID;
+
+    G_DrawTileScaled(weaponX, weaponY, weaponTile, weaponShade, weaponBits, p); // skip G_DrawWeaponTile
 
     guniqhudid       = lastUniqueID;
 }
@@ -2200,14 +2206,14 @@ void P_DisplayWeapon(void)
                     weaponY += ((*weaponFrame) << 3);
                 else if ((*weaponFrame) < 4)
                     G_DrawWeaponTileWithID(currentWeapon << 2, weaponX + 142 - halfLookAng,
-                                           weaponY + 234 - weaponYOffset, HANDHOLDINGLASER + 3, weaponShade, weaponBits, weaponPal, 0);
+                                           weaponY + 234 - weaponYOffset, HANDHOLDINGLASER + 3, weaponShade, weaponBits, weaponPal);
 
                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 130 - halfLookAng, weaponY + 249 - weaponYOffset,
-                                       HANDHOLDINGLASER + ((*weaponFrame) >> 2), weaponShade, weaponBits, weaponPal, 0);
+                                       HANDHOLDINGLASER + ((*weaponFrame) >> 2), weaponShade, weaponBits, weaponPal);
 
                 G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 152 - halfLookAng,
                                        weaponY + 249 - weaponYOffset, HANDHOLDINGLASER + ((*weaponFrame) >> 2), weaponShade, weaponBits | 4,
-                                       weaponPal, 0);
+                                       weaponPal);
                 break;
 
             case RPG_WEAPON:
@@ -2221,7 +2227,7 @@ void P_DisplayWeapon(void)
                 {
                     if (*weaponFrame < 8)
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset,
-                            RPGGUN + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal, 0);
+                            RPGGUN + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal);
                     else if (WW2GI)
                     {
                         int const totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
@@ -2237,7 +2243,7 @@ void P_DisplayWeapon(void)
                 }
 
                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset, RPGGUN, weaponShade,
-                                       weaponBits, weaponPal, 0);
+                                       weaponBits, weaponPal);
                 break;
 
             case SHOTGUN_WEAPON:
@@ -2257,12 +2263,12 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame == 0)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
-                                               SHOTGUN, weaponShade, weaponBits, weaponPal, 0);
+                                               SHOTGUN, weaponShade, weaponBits, weaponPal);
                     }
                     else if (*weaponFrame <= totalTime)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
-                                               SHOTGUN + 1, weaponShade, weaponBits, weaponPal, 0);
+                                               SHOTGUN + 1, weaponShade, weaponBits, weaponPal);
                     }
                     // else we are in 'reload time'
                     else
@@ -2272,7 +2278,7 @@ void P_DisplayWeapon(void)
                                          : 10 * (reloadTime - (*weaponFrame));  // U
 
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
-                                               SHOTGUN, weaponShade, weaponBits, weaponPal, 0);
+                                               SHOTGUN, weaponShade, weaponBits, weaponPal);
                     }
 
                     break;
@@ -2283,14 +2289,14 @@ void P_DisplayWeapon(void)
                     case 1:
                     case 2:
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 168 - halfLookAng, weaponY + 201 - weaponYOffset,
-                                               SHOTGUN + 2, -128, weaponBits, weaponPal, 0);
+                                               SHOTGUN + 2, -128, weaponBits, weaponPal);
                         fallthrough__;
                     case 0:
                     case 6:
                     case 7:
                     case 8:
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 146 - halfLookAng, weaponY + 202 - weaponYOffset,
-                                               SHOTGUN, weaponShade, weaponBits, weaponPal, 0);
+                                               SHOTGUN, weaponShade, weaponBits, weaponPal);
                         break;
 
                     case 3:
@@ -2299,7 +2305,7 @@ void P_DisplayWeapon(void)
                         weaponX += 20;
 
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 178 - halfLookAng, weaponY + 194 - weaponYOffset,
-                                               SHOTGUN + 1 + ((*(weaponFrame)-1) >> 1), -128, weaponBits, weaponPal, 0);
+                                               SHOTGUN + 1 + ((*(weaponFrame)-1) >> 1), -128, weaponBits, weaponPal);
                         fallthrough__;
                     case 5:
                     case 9:
@@ -2307,14 +2313,14 @@ void P_DisplayWeapon(void)
                     case 11:
                     case 12:
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 158 - halfLookAng, weaponY + 220 - weaponYOffset,
-                                               SHOTGUN + 3, weaponShade, weaponBits, weaponPal, 0);
+                                               SHOTGUN + 3, weaponShade, weaponBits, weaponPal);
                         break;
 
                     case 13:
                     case 14:
                     case 15:
                         G_DrawWeaponTileWithID(currentWeapon, 32 + weaponX + 166 - halfLookAng, weaponY + 210 - weaponYOffset,
-                                               SHOTGUN + 4, weaponShade, weaponBits, weaponPal, 0);
+                                               SHOTGUN + 4, weaponShade, weaponBits, weaponPal);
                         break;
 
                     case 16:
@@ -2326,7 +2332,7 @@ void P_DisplayWeapon(void)
                     case 26:
                     case 27:
                         G_DrawWeaponTileWithID(currentWeapon, 64 + weaponX + 170 - halfLookAng, weaponY + 196 - weaponYOffset,
-                                               SHOTGUN + 5, weaponShade, weaponBits, weaponPal, 0);
+                                               SHOTGUN + 5, weaponShade, weaponBits, weaponPal);
                         break;
 
                     case 20:
@@ -2334,7 +2340,7 @@ void P_DisplayWeapon(void)
                     case 22:
                     case 23:
                         G_DrawWeaponTileWithID(currentWeapon, 64 + weaponX + 176 - halfLookAng, weaponY + 196 - weaponYOffset,
-                                               SHOTGUN + 6, weaponShade, weaponBits, weaponPal, 0);
+                                               SHOTGUN + 6, weaponShade, weaponBits, weaponPal);
                         break;
 
 
@@ -2342,7 +2348,7 @@ void P_DisplayWeapon(void)
                     case 29:
                     case 30:
                         G_DrawWeaponTileWithID(currentWeapon, 32 + weaponX + 156 - halfLookAng, weaponY + 206 - weaponYOffset,
-                                               SHOTGUN + 4, weaponShade, weaponBits, weaponPal, 0);
+                                               SHOTGUN + 4, weaponShade, weaponBits, weaponPal);
                         break;
                 }
                 break;
@@ -2364,12 +2370,12 @@ void P_DisplayWeapon(void)
                     if (*weaponFrame == 0)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - halfLookAng,weaponY+233-weaponYOffset,
-                            CHAINGUN+1,weaponShade,weaponBits,weaponPal,0);
+                            CHAINGUN+1,weaponShade,weaponBits,weaponPal);
                     }
                     else if (*weaponFrame <= totalTime)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng,weaponY+243-weaponYOffset,
-                            CHAINGUN+2,weaponShade,weaponBits,weaponPal,0);
+                            CHAINGUN+2,weaponShade,weaponBits,weaponPal);
                     }
                     // else we are in 'reload time'
                     // divide reload time into fifths..
@@ -2391,7 +2397,7 @@ void P_DisplayWeapon(void)
                             weaponYOffset += weaponOffset;
                             weaponX += weaponOffset;
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 17,
-                                                   weaponShade, weaponBits, weaponPal, 0);
+                                                   weaponShade, weaponBits, weaponPal);
                         }
                         else if (*weaponFrame < (iFifths * 2 + totalTime))
                         {
@@ -2399,7 +2405,7 @@ void P_DisplayWeapon(void)
                             weaponYOffset += 80; // D
                             weaponX += 80;
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 18,
-                                                   weaponShade, weaponBits, weaponPal, 0);
+                                                   weaponShade, weaponBits, weaponPal);
                         }
                         else if (*weaponFrame < (iFifths * 3 + totalTime))
                         {
@@ -2408,7 +2414,7 @@ void P_DisplayWeapon(void)
                             weaponYOffset += 80;
                             weaponX += 80;
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 19,
-                                                   weaponShade, weaponBits, weaponPal, 0);
+                                                   weaponShade, weaponBits, weaponPal);
                         }
                         else if (*weaponFrame < (iFifths * 4 + totalTime))
                         {
@@ -2417,7 +2423,7 @@ void P_DisplayWeapon(void)
                             weaponYOffset += 80; // D
                             weaponX += 80;
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 18,
-                                                   weaponShade, weaponBits, weaponPal, 0);
+                                                   weaponShade, weaponBits, weaponPal);
                         }
                         else
                         {
@@ -2426,7 +2432,7 @@ void P_DisplayWeapon(void)
                             weaponYOffset += weaponOffset; // U
                             weaponX += weaponOffset;
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 168 - halfLookAng, weaponY + 260 - weaponYOffset, CHAINGUN - 17,
-                                                   weaponShade, weaponBits, weaponPal, 0);
+                                                   weaponShade, weaponBits, weaponPal);
                         }
                     }
 
@@ -2437,7 +2443,7 @@ void P_DisplayWeapon(void)
                 {
                 case 0:
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1), weaponY + 233 - weaponYOffset,
-                                           CHAINGUN + 1, weaponShade, weaponBits, weaponPal, 0);
+                                           CHAINGUN + 1, weaponShade, weaponBits, weaponPal);
                     break;
 
                 default:
@@ -2447,11 +2453,11 @@ void P_DisplayWeapon(void)
                         int randomOffset = doAnim ? rand()&7 : 0;
                         G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 140 - (pPlayer->look_ang >> 1),
                                                randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
-                                               CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal, 0);
+                                               CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal);
                         if (doAnim) randomOffset = rand()&7;
                         G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 184 - (pPlayer->look_ang >> 1),
                                                randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
-                                               CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal, 0);
+                                               CHAINGUN + 5 + ((*weaponFrame - 4) / 5), weaponShade, weaponBits, weaponPal);
                     }
 
                     if (*weaponFrame < PWEAPON(screenpeek, CHAINGUN_WEAPON, TotalTime)-4)
@@ -2459,19 +2465,19 @@ void P_DisplayWeapon(void)
                         int const randomOffset = doAnim ? rand()&7 : 0;
                         G_DrawWeaponTileWithID(currentWeapon << 2, randomOffset + weaponX - 4 + 162 - (pPlayer->look_ang >> 1),
                             randomOffset + weaponY - ((*weaponFrame) >> 1) + 208 - weaponYOffset,
-                                               CHAINGUN + 5 + ((*weaponFrame - 2) / 5), weaponShade, weaponBits, weaponPal, 0);
+                                               CHAINGUN + 5 + ((*weaponFrame - 2) / 5), weaponShade, weaponBits, weaponPal);
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1), weaponY + 233 - weaponYOffset,
-                                               CHAINGUN + 1 + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal, 0);
+                                               CHAINGUN + 1 + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal);
                     }
                     else
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 178 - (pPlayer->look_ang >> 1), weaponY + 233 - weaponYOffset,
-                                               CHAINGUN + 1, weaponShade, weaponBits, weaponPal, 0);
+                                               CHAINGUN + 1, weaponShade, weaponBits, weaponPal);
 
                     break;
                 }
 
                 G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 168 - (pPlayer->look_ang >> 1), weaponY + 260 - weaponYOffset,
-                                       CHAINGUN, weaponShade, weaponBits, weaponPal, 0);
+                                       CHAINGUN, weaponShade, weaponBits, weaponPal);
                 break;
 
             case PISTOL_WEAPON:
@@ -2485,7 +2491,7 @@ void P_DisplayWeapon(void)
 
                     G_DrawWeaponTileWithID(currentWeapon, (pistolOffset - (pPlayer->look_ang >> 1)), (weaponY + 244 - weaponYOffset),
                                            FIRSTGUN + pistolFrames[*weaponFrame > 2 ? 0 : *weaponFrame], weaponShade, 2,
-                                           weaponPal, 0);
+                                           weaponPal);
 
                     break;
                 }
@@ -2495,41 +2501,41 @@ void P_DisplayWeapon(void)
 
                 if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 17)
                     G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 230 - weaponYOffset, FIRSTGUN + 4,
-                                           weaponShade, weaponBits, weaponPal, 0);
+                                           weaponShade, weaponBits, weaponPal);
                 else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 12)
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 1, 244 - ((*weaponFrame) << 3) - (pPlayer->look_ang >> 1),
                                            weaponY + 130 - weaponYOffset + ((*weaponFrame) << 4), FIRSTGUN + 6, weaponShade,
-                                           weaponBits, weaponPal, 0);
+                                           weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
-                                           weaponShade, weaponBits, weaponPal, 0);
+                                           weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 7)
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 1, 124 + ((*weaponFrame) << 1) - (pPlayer->look_ang >> 1),
                                            weaponY + 430 - weaponYOffset - ((*weaponFrame) << 3), FIRSTGUN + 6, weaponShade,
-                                           weaponBits, weaponPal, 0);
+                                           weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
-                                           weaponShade, weaponBits, weaponPal, 0);
+                                           weaponShade, weaponBits, weaponPal);
                 }
 
                 else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (WW2GI ? 12 : 4))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 184 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
-                                           FIRSTGUN + 8, weaponShade, weaponBits, weaponPal, 0);
+                                           FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 210 - weaponYOffset, FIRSTGUN + 5,
-                                           weaponShade, weaponBits, weaponPal, 0);
+                                           weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (WW2GI ? 6 : 2))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 164 - (pPlayer->look_ang >> 1), weaponY + 245 - weaponYOffset,
-                                           FIRSTGUN + 8, weaponShade, weaponBits, weaponPal, 0);
+                                           FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
-                                           weaponShade, weaponBits, weaponPal, 0);
+                                           weaponShade, weaponBits, weaponPal);
                 }
                 else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload))
                     G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset, FIRSTGUN + 5,
-                                           weaponShade, weaponBits, weaponPal, 0);
+                                           weaponShade, weaponBits, weaponPal);
 
                 break;
 
@@ -2579,7 +2585,7 @@ void P_DisplayWeapon(void)
                     }
 
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 190 - halfLookAng, weaponY + 260 - weaponYOffset,
-                                           HANDTHROW + pipebombFrames[(*weaponFrame)], weaponShade, weaponBits, weaponPal, 0);
+                                           HANDTHROW + pipebombFrames[(*weaponFrame)], weaponShade, weaponBits, weaponPal);
                 }
                 break;
 
@@ -2592,7 +2598,7 @@ void P_DisplayWeapon(void)
 
                     weaponX = -48;
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 150 - halfLookAng, weaponY + 258 - weaponYOffset,
-                                           HANDREMOTE + remoteFrames[(*weaponFrame)], weaponShade, weaponBits, weaponPal, 0);
+                                           HANDREMOTE + remoteFrames[(*weaponFrame)], weaponShade, weaponBits, weaponPal);
                 }
                 break;
 
@@ -2611,16 +2617,16 @@ void P_DisplayWeapon(void)
                             if (pPlayer->ammo_amount[pPlayer->curr_weapon] & 1)
                             {
                                 G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                                       DEVISTATOR, weaponShade, weaponBits | 4, weaponPal, 0);
+                                                       DEVISTATOR, weaponShade, weaponBits | 4, weaponPal);
                                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset,
-                                                       DEVISTATOR + tileOffset, -32, weaponBits, weaponPal, 0);
+                                                       DEVISTATOR + tileOffset, -32, weaponBits, weaponPal);
                             }
                             else
                             {
                                 G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                                       DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal, 0);
+                                                       DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal);
                                 G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
-                                                       weaponShade, weaponBits, weaponPal, 0);
+                                                       weaponShade, weaponBits, weaponPal);
                             }
                         }
                         // else we are in 'reload time'
@@ -2631,17 +2637,17 @@ void P_DisplayWeapon(void)
                                              : 10 * (reloadTime - (*weaponFrame));
 
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
-                                                   weaponShade, weaponBits, weaponPal, 0);
+                                                   weaponShade, weaponBits, weaponPal);
                             G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
-                                                   weaponShade, weaponBits | 4, weaponPal, 0);
+                                                   weaponShade, weaponBits | 4, weaponPal);
                         }
                     }
                     else
                     {
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
-                                               weaponShade, weaponBits, weaponPal, 0);
+                                               weaponShade, weaponBits, weaponPal);
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
-                                               weaponShade, weaponBits | 4, weaponPal, 0);
+                                               weaponShade, weaponBits | 4, weaponPal);
                     }
                     break;
                 }
@@ -2659,25 +2665,25 @@ void P_DisplayWeapon(void)
                     {
                         G_DrawWeaponTileWithID(currentWeapon, (devastatorFrames[*weaponFrame] >> 1) + weaponX + 268 - halfLookAng,
                                                devastatorFrames[*weaponFrame] + weaponY + 238 - weaponYOffset,
-                                               DEVISTATOR + tileOffset, -32, weaponBits, weaponPal, 0);
+                                               DEVISTATOR + tileOffset, -32, weaponBits, weaponPal);
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
-                                               weaponShade, weaponBits | 4, weaponPal, 0);
+                                               weaponShade, weaponBits | 4, weaponPal);
                     }
                     else
                     {
                         G_DrawWeaponTileWithID(currentWeapon << 1, -(devastatorFrames[*weaponFrame] >> 1) + weaponX + 30 - halfLookAng,
                                                devastatorFrames[*weaponFrame] + weaponY + 240 - weaponYOffset,
-                                               DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal, 0);
+                                               DEVISTATOR + tileOffset, -32, weaponBits | 4, weaponPal);
                         G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR,
-                                               weaponShade, weaponBits, weaponPal, 0);
+                                               weaponShade, weaponBits, weaponPal);
                     }
                 }
                 else
                 {
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 268 - halfLookAng, weaponY + 238 - weaponYOffset, DEVISTATOR, weaponShade,
-                                           weaponBits, weaponPal, 0);
+                                           weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 30 - halfLookAng, weaponY + 240 - weaponYOffset, DEVISTATOR,
-                                           weaponShade, weaponBits | 4, weaponPal, 0);
+                                           weaponShade, weaponBits | 4, weaponPal);
                 }
                 break;
 
@@ -2699,13 +2705,13 @@ void P_DisplayWeapon(void)
                     }
                     weaponYOffset -= 16;
                     G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
-                                           FREEZE + 2, -32, weaponBits, weaponPal, 0);
+                                           FREEZE + 2, -32, weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
-                                           FREEZE + 3 + freezerFrames[*weaponFrame % 6], -32, weaponBits, weaponPal, 0);
+                                           FREEZE + 3 + freezerFrames[*weaponFrame % 6], -32, weaponBits, weaponPal);
                 }
                 else
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 210 - (pPlayer->look_ang >> 1), weaponY + 261 - weaponYOffset,
-                                           FREEZE, weaponShade, weaponBits, weaponPal, 0);
+                                           FREEZE, weaponShade, weaponBits, weaponPal);
                 break;
 
             case GROW_WEAPON:
@@ -2721,15 +2727,15 @@ void P_DisplayWeapon(void)
                         if (currentWeapon == GROW_WEAPON)
                         {
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER - 2,
-                                                   weaponShade, weaponBits, weaponPal, 0);
+                                                   weaponShade, weaponBits, weaponPal);
                             break;
                         }
                         else if (pPlayer->ammo_amount[currentWeapon] > 0)
                         {
-                            G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER + 2,
-                                                   16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits, 0, 1);
+                            G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER + 2,
+                                                          16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits, 0);
                             G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset, SHRINKER,
-                                                   weaponShade, weaponBits, weaponPal, 0);
+                                                   weaponShade, weaponBits, weaponPal);
                             break;
                         }
                     }
@@ -2760,11 +2766,11 @@ void P_DisplayWeapon(void)
                                          : 10 * (reloadTime - (*weaponFrame)); // U
                     }
 
-                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                           SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0, 1);
+                    G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
+                                                  SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0);
 
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                           SHRINKER + (currentWeapon == GROW_WEAPON ? -1 : 1), weaponShade, weaponBits, weaponPal, 0);
+                                           SHRINKER + (currentWeapon == GROW_WEAPON ? -1 : 1), weaponShade, weaponBits, weaponPal);
 
                     break;
                 }
@@ -2777,18 +2783,18 @@ void P_DisplayWeapon(void)
                         weaponYOffset += (rand() & 3);
                     }
 
-                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                           SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0, 1);
+                    G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
+                                                  SHRINKER + 3 + ((*weaponFrame) & 3), -32, weaponBits, currentWeapon == GROW_WEAPON ? 2 : 0);
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                           currentWeapon == GROW_WEAPON ? SHRINKER - 1 : SHRINKER + 1, weaponShade, weaponBits, weaponPal, 0);
+                                           currentWeapon == GROW_WEAPON ? SHRINKER - 1 : SHRINKER + 1, weaponShade, weaponBits, weaponPal);
                 }
                 else
                 {
-                    G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                           SHRINKER + 2, 16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits,
-                                           currentWeapon == GROW_WEAPON ? 2 : 0, 1);
+                    G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
+                                                  SHRINKER + 2, 16 - (sintable[pPlayer->random_club_frame & 2047] >> 10), weaponBits,
+                                                  currentWeapon == GROW_WEAPON ? 2 : 0);
                     G_DrawWeaponTileWithID(currentWeapon, weaponX + 188 - halfLookAng, weaponY + 240 - weaponYOffset,
-                                           currentWeapon == GROW_WEAPON ? SHRINKER - 2 : SHRINKER, weaponShade, weaponBits, weaponPal, 0);
+                                           currentWeapon == GROW_WEAPON ? SHRINKER - 2 : SHRINKER, weaponShade, weaponBits, weaponPal);
                 }
                 break;
             }
