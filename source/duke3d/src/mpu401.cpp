@@ -257,6 +257,7 @@ int32_t MPU_Reset
 {
     midiStreamStop(hmido);
     midiStreamClose(hmido);
+    hmido = (HMIDISTRM)-1;
 
     return MPU_Ok;
 }
@@ -274,6 +275,9 @@ int32_t MPU_Init
 )
 
 {
+    if (hmido != (HMIDISTRM)-1)
+        return MPU_Ok;
+
     int32_t i;
 
     for (i=0; i<NUMBUFFERS; i++) eventcnt[i]=0;
