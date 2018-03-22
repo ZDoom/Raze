@@ -5805,7 +5805,7 @@ finish_qsprintf:
             VM_ScriptInfo(insptr, 64);
             G_GameExit("An error has occurred in the " APPNAME " virtual machine.\n\n"
                        "If you are an end user, please e-mail the file " APPBASENAME ".log\n"
-                       "along with links to any mods you're using to richard@voidpoint.com.\n\n"
+                       "along with links to any mods you're using to development@voidpoint.com.\n\n"
                        "If you are a developer, please attach all of your script files\n"
                        "along with instructions on how to reproduce this error.\n\n"
                        "Thank you!");
