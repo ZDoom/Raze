@@ -3019,7 +3019,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 #endif
     {
         polytint_t const & tint = hictinting[globalpal];
-        float shadeFactor = pth->flags & PTH_HIGHTILE ? getshadefactor(globalshade) : 1.f;
+        float shadeFactor = pth->flags & PTH_INDEXED ? 1.f : getshadefactor(globalshade);
         pc[0] = (1.f-(tint.sr*(1.f/255.f)))*shadeFactor+(tint.sr*(1.f/255.f));
         pc[1] = (1.f-(tint.sg*(1.f/255.f)))*shadeFactor+(tint.sg*(1.f/255.f));
         pc[2] = (1.f-(tint.sb*(1.f/255.f)))*shadeFactor+(tint.sb*(1.f/255.f));
