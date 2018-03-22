@@ -610,6 +610,9 @@ void MIDI_StopSong(void)
     _MIDI_SongActive = FALSE;
     _MIDI_SongLoaded = FALSE;
 
+    MPU_Reset();
+    MPU_Init(MUSIC_SoundDevice);
+
     MIDI_Reset();
     _MIDI_ResetTracks();
 
@@ -623,7 +626,6 @@ void MIDI_StopSong(void)
     _MIDI_TotalBeats    = 0;
     _MIDI_TotalMeasures = 0;
 
-    MPU_Reset();
 }
 
 int32_t MIDI_PlaySong(char *song, int32_t loopflag)
