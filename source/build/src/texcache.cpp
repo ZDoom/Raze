@@ -27,7 +27,7 @@ static const char *texcache_errors[TEXCACHEERRORS] = {
     "glGetTexLevelParameteriv failed",
 };
 
-static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, int32_t const dashade, int32_t const dameth)
+static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, int32_t const dashade, int32_t dameth)
 {
     const int32_t j = dapicnum&(GLTEXCACHEADSIZ-1);
     pthtyp *pth;
@@ -38,6 +38,7 @@ static pthtyp *texcache_tryart(int32_t const dapicnum, int32_t const dapalnum, i
     if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
     {
         tintpalnum = dapalnum;
+        dameth &= ~PTH_INDEXED;
         if (!(tintflags & HICTINT_APPLYOVERPALSWAP))
             searchpalnum = 0;
     }
