@@ -23,6 +23,7 @@
 #include "cache1d.h"
 #include "pragmas.h"
 #include "baselayer.h"
+#include "lz4.h"
 
 #ifdef WITHKPLIB
 #include "kplib.h"
@@ -1703,6 +1704,31 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     return c1d_read_compressed(buffer, dasizeof, count, (intptr_t)fil);
 }
 
+int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
+{
+    int32_t leng;
+
+    // read compressed data length
+    if (c1d_readfunc(fil, &leng, 4) != 4)
+        return -1;
+    leng = B_LITTLE32(leng);
+
+    char compressedDataStackBuf[100000];
+    char* pCompressedData = compressedDataStackBuf;
+    if (leng > 100000)
+        pCompressedData = (char*) Bmalloc(leng);
+
+    if (c1d_readfunc(fil, pCompressedData, leng) != leng)
+        return -1;
+
+    int32_t decompressedLength = LZ4_decompress_safe(pCompressedData, (char*) buffer, leng, dasizeof*count);
+
+    if (pCompressedData != compressedDataStackBuf)
+        free(pCompressedData);
+
+    return decompressedLength/dasizeof;
+}
+
 
 ////////// COMPRESSED WRITE //////////
 
@@ -1767,6 +1793,28 @@ void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
 {
     c1d_write_compressed(buffer, dasizeof, count, (intptr_t)fil);
 }
+
+// LZ4_COMPRESSION_ACCELERATION_VALUE can be tuned for performance/space trade-off
+// (lower number = higher compression ratio, higher number = faster compression speed)
+#define LZ4_COMPRESSION_ACCELERATION_VALUE 15
+void dfwrite_LZ4(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
+{
+    char compressedDataStackBuf[100000];
+    char* pCompressedData = compressedDataStackBuf;
+    int32_t maxCompressedSize = LZ4_compressBound(dasizeof*count);
+    if (maxCompressedSize > 100000)
+        pCompressedData = (char*) Bmalloc(maxCompressedSize);
+
+    const int32_t leng = LZ4_compress_fast((const char*) buffer, pCompressedData, dasizeof*count, maxCompressedSize, LZ4_COMPRESSION_ACCELERATION_VALUE);
+    const int32_t swleng = B_LITTLE32(leng);
+
+    c1d_writefunc((intptr_t) fil, &swleng, 4);
+    c1d_writefunc((intptr_t) fil, pCompressedData, leng);
+
+    if (pCompressedData != compressedDataStackBuf)
+        free(pCompressedData);
+}
+
 
 ////////// CORE COMPRESSION FUNCTIONS //////////
 

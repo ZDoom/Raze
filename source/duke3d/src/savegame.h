@@ -34,7 +34,7 @@ extern "C" {
 #else
 # define SV_MAJOR_VER 1
 #endif
-#define SV_MINOR_VER 5
+#define SV_MINOR_VER 6
 
 #pragma pack(push,1)
 typedef struct

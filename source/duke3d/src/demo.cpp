@@ -270,7 +270,7 @@ static void Demo_WriteSync()
         fwrite(g_demo_seedbuf, 1, ud.reccnt, g_demo_filePtr);
 
     if (demo_synccompress)
-        dfwrite(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
+        dfwrite_LZ4(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
     else //if (demo_synccompress==0)
         fwrite(recsync, sizeof(input_t), ud.reccnt, g_demo_filePtr);
 
@@ -363,7 +363,7 @@ static int32_t Demo_ReadSync(int32_t errcode)
 
     if (demo_synccompress)
     {
-        if (kdfread(recsync, sizeof(input_t), i, g_demo_recFilePtr) != i)
+        if (kdfread_LZ4(recsync, sizeof(input_t), i, g_demo_recFilePtr) != i)
             return errcode+1;
     }
     else

@@ -299,7 +299,7 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
     tilesiz[TILE_LOADSHOT].y = 320;
     if (screenshotofs)
     {
-        if (kdfread((char *)waloff[TILE_LOADSHOT], 320, 200, fil) != 200)
+        if (kdfread_LZ4((char *)waloff[TILE_LOADSHOT], 320, 200, fil) != 200)
         {
             OSD_Printf("G_LoadSaveHeaderNew(): failed reading screenshot in \"%s\"\n", fn);
             goto corrupt;
@@ -744,7 +744,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
                     || (sp->flags&DS_CMP))
                 fwrite(ptr, sp->size, cnt, fil);
             else
-                dfwrite((void *)ptr, sp->size, cnt, fil);
+                dfwrite_LZ4((void *)ptr, sp->size, cnt, fil);
         }
 
         if (dump && (sp->flags&(DS_NOCHK|DS_CMP))==0)
@@ -817,7 +817,7 @@ static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpv
             }
             else
             {
-                i = kdfread(mem, sp->size, cnt, fil);
+                i = kdfread_LZ4(mem, sp->size, cnt, fil);
                 j = cnt;
             }
             if (i!=j)
@@ -1507,7 +1507,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
         int32_t ofs;
 
         // write the screenshot compressed
-        dfwrite((char *)waloff[TILE_SAVESHOT], 320, 200, fil);
+        dfwrite_LZ4((char *)waloff[TILE_SAVESHOT], 320, 200, fil);
 
         // write the current file offset right after the header
         ofs = ftell(fil);
@@ -1715,7 +1715,7 @@ uint32_t sv_writediff(FILE *fil)
     fwrite("dIfF",4,1,fil);
     fwrite(&diffsiz, sizeof(diffsiz), 1, fil);
     if (savegame_diffcompress)
-        dfwrite(svdiff, 1, diffsiz, fil);  // cnt and sz swapped
+        dfwrite_LZ4(svdiff, 1, diffsiz, fil);  // cnt and sz swapped
     else
         fwrite(svdiff, 1, diffsiz, fil);
 
@@ -1737,7 +1737,7 @@ int32_t sv_readdiff(int32_t fil)
         return -1;
     if (savegame_diffcompress)
     {
-        if (kdfread(svdiff, 1, diffsiz, fil) != diffsiz)  // cnt and sz swapped
+        if (kdfread_LZ4(svdiff, 1, diffsiz, fil) != diffsiz)  // cnt and sz swapped
             return -2;
     }
     else
@@ -2086,7 +2086,7 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
         fwrite("\0\1LunaGVAR\3\4", 12, 1, fil);
         slen_ext = B_LITTLE32(slen);
         fwrite(&slen_ext, sizeof(slen_ext), 1, fil);
-        dfwrite(svcode, 1, slen, fil);  // cnt and sz swapped
+        dfwrite_LZ4(svcode, 1, slen, fil);  // cnt and sz swapped
 
         g_savedOK = 1;
     }
@@ -2145,7 +2145,7 @@ static int32_t El_ReadSaveCode(int32_t fil)
     {
         char *svcode = (char *)Xmalloc(slen+1);
 
-        if (kdfread(svcode, 1, slen, fil) != slen)  // cnt and sz swapped
+        if (kdfread_LZ4(svcode, 1, slen, fil) != slen)  // cnt and sz swapped
         {
             OSD_Printf("doloadplayer2: failed reading Lunatic gamevar restoration code.\n");
             Bfree(svcode);
