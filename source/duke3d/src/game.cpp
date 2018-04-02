@@ -907,11 +907,12 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                      pPlayer->opos.y + mulscale16(pPlayer->pos.y - pPlayer->opos.y, smoothRatio),
                                      pPlayer->opos.z + mulscale16(pPlayer->pos.z - pPlayer->opos.z, smoothRatio) };
 
-            CAMERA(pos) = camVect;
-            CAMERA(q16ang) = pPlayer->oq16ang + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio);
-            CAMERA(q16ang) += fix16_from_int(pPlayer->look_ang);
+            CAMERA(pos)      = camVect;
+            CAMERA(q16ang)   = pPlayer->oq16ang
+                             + mulscale16(((pPlayer->q16ang + F16(1024) - pPlayer->oq16ang) & 0x7FFFFFF) - F16(1024), smoothRatio)
+                             + fix16_from_int(pPlayer->look_ang);
             CAMERA(q16horiz) = pPlayer->oq16horiz + pPlayer->oq16horizoff
-                            + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
+                             + mulscale16((pPlayer->q16horiz + pPlayer->q16horizoff - pPlayer->oq16horiz - pPlayer->oq16horizoff), smoothRatio);
 
             if (ud.viewbob)
             {
@@ -939,10 +940,10 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             vec3_t const camVect = G_GetCameraPosition(pPlayer->newowner, smoothRatio);
 
             // looking through viewscreen
-            CAMERA(pos)   = camVect;
+            CAMERA(pos)      = camVect;
             CAMERA(q16ang)   = pPlayer->q16ang + fix16_from_int(pPlayer->look_ang);
             CAMERA(q16horiz) = fix16_from_int(100 + sprite[pPlayer->newowner].shade);
-            CAMERA(sect)  = sprite[pPlayer->newowner].sectnum;
+            CAMERA(sect)     = sprite[pPlayer->newowner].sectnum;
         }
 
         ceilZ  = actor[pPlayer->i].ceilingz;
