@@ -145,8 +145,9 @@ int G_CheckActivatorMotion(int lotag)
     return 0;
 }
 
-int CheckDoorTile(int tileNum)
+int CheckDoorTile(int UNUSED(tileNum))
 {
+#ifndef EDUKE32_STANDALONE
     switch (DYNAMICTILEMAP(tileNum))
     {
         case DOORTILE1__STATIC:
@@ -173,6 +174,7 @@ int CheckDoorTile(int tileNum)
         case DOORTILE23__STATIC:
             return 1;
     }
+#endif
     return 0;
 }
 
@@ -1479,7 +1481,7 @@ static void G_BreakWall(int tileNum, int spriteNum, int wallNum)
     A_SpawnWallGlass(spriteNum,wallNum,10);
 }
 
-void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
+void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *UNUSED(vPos), int weaponNum)
 {
     int16_t sectNum = -1;
     walltype *pWall = &wall[wallNum];
@@ -1508,13 +1510,15 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
     {
         switch (DYNAMICTILEMAP(weaponNum))
         {
-            case HEAVYHBOMB__STATIC:
             case RADIUSEXPLOSION__STATIC:
+            case SEENINE__STATIC:
+#ifndef EDUKE32_STANDALONE
+            case HEAVYHBOMB__STATIC:
             case RPG__STATIC:
             case HYDRENT__STATIC:
-            case SEENINE__STATIC:
             case OOZFILTER__STATIC:
             case EXPLODINGBARREL__STATIC:
+#endif
                 if (pWall->nextwall == -1 || wall[pWall->nextwall].pal != 4)
                 {
                     A_SpawnWallGlass(spriteNum, wallNum, 70);
@@ -1526,6 +1530,7 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
         }
     }
 
+#ifndef EDUKE32_STANDALONE
     if ((((pWall->cstat & 16) || pWall->overpicnum == BIGFORCE) && pWall->nextsector >= 0) &&
         (sector[pWall->nextsector].floorz > vPos->z) &&
         (sector[pWall->nextsector].floorz != sector[pWall->nextsector].ceilingz))
@@ -1610,6 +1615,7 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
                 return;
         }
     }
+#endif
 
     switch (DYNAMICTILEMAP(pWall->picnum))
     {
@@ -1807,7 +1813,9 @@ void Sect_DamageCeiling_Internal(int const spriteNum, int const sectNum)
     if (returnValue < 0)
         return;
 
+#ifndef EDUKE32_STANDALONE
     int16_t * const pPicnum = &sector[sectNum].ceilingpicnum;
+#endif
 
     if (returnValue == (1<<20))
     {
@@ -1816,6 +1824,7 @@ void Sect_DamageCeiling_Internal(int const spriteNum, int const sectNum)
         goto GLASSBREAK_CODE;
     }
 
+#ifndef EDUKE32_STANDALONE
     switch (DYNAMICTILEMAP(*pPicnum))
     {
         case WALLLIGHT1__STATIC: *pPicnum = WALLLIGHTBUST1; goto GLASSBREAK_CODE;
@@ -1824,7 +1833,10 @@ void Sect_DamageCeiling_Internal(int const spriteNum, int const sectNum)
         case WALLLIGHT4__STATIC: *pPicnum = WALLLIGHTBUST4; goto GLASSBREAK_CODE;
         case TECHLIGHT2__STATIC: *pPicnum = TECHLIGHTBUST2; goto GLASSBREAK_CODE;
         case TECHLIGHT4__STATIC: *pPicnum = TECHLIGHTBUST4;
-
+#else
+    if (0)
+    {
+#endif
         GLASSBREAK_CODE:
             A_SpawnCeilingGlass(g_player[myconnectindex].ps->i, sectNum, 10);
             A_PlaySound(GLASS_BREAKING, g_player[screenpeek].ps->i);
@@ -1874,17 +1886,20 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
             return;
     }
 
-    int radiusDamage = 0;
 
     spriteNum &= (MAXSPRITES-1);
-    spritetype *pSprite = &sprite[spriteNum];
+
+#ifndef EDUKE32_STANDALONE
+    int radiusDamage = 0;
 
     if (A_CheckSpriteFlags(dmgSrc,SFLAG_PROJECTILE))
         if (SpriteProjectile[dmgSrc].workslike & PROJECTILE_RPG)
             radiusDamage = 1;
+#endif
 
     switch (DYNAMICTILEMAP(PN(spriteNum)))
     {
+#ifndef EDUKE32_STANDALONE
     case OCEANSPRITE1__STATIC:
     case OCEANSPRITE2__STATIC:
     case OCEANSPRITE3__STATIC:
@@ -1993,7 +2008,10 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
 
         for (bssize_t j=16; j>0; j--)
+        {
+            spritetype * const pSprite = &sprite[spriteNum];
             RANDOMSCRAP(pSprite, spriteNum);
+        }
 
         break;
 
@@ -2244,9 +2262,13 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
     case TRIPODCAMERA__STATIC:
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         for (bssize_t j=16; j>0; j--)
+        {
+            spritetype * const pSprite = &sprite[spriteNum];
             RANDOMSCRAP(pSprite, spriteNum);
+        }
         A_DeleteSprite(spriteNum);
         break;
+#endif // EDUKE32_STANDALONE
 
     case PLAYERONWATER__STATIC:
         spriteNum = OW(spriteNum);
@@ -2259,6 +2281,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
         {
             if (A_CheckEnemySprite(&sprite[spriteNum]) == 1)
             {
+#ifndef EDUKE32_STANDALONE
                 if (sprite[dmgSrc].picnum == RPG)
                     sprite[dmgSrc].extra <<= 1;
 
@@ -2286,6 +2309,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
                             A_Shoot(spriteNum, BLOODSPLAT2);
                             A_Shoot(spriteNum, BLOODSPLAT4);
                         }
+#endif
 
                 if (!A_CheckSpriteFlags(spriteNum, SFLAG_NODAMAGEPUSH))
                 {
@@ -2313,9 +2337,10 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
 
             if (sprite[spriteNum].statnum != STAT_ZOMBIEACTOR)
             {
+#ifndef EDUKE32_STANDALONE
                 if (sprite[dmgSrc].picnum == FREEZEBLAST && ((PN(spriteNum) == APLAYER && sprite[spriteNum].pal == 1) || (g_freezerSelfDamage == 0 && sprite[dmgSrc].owner == spriteNum)))
                     return;
-
+#endif
                 actor[spriteNum].picnum = sprite[dmgSrc].picnum;
                 actor[spriteNum].extra += sprite[dmgSrc].extra;
                 actor[spriteNum].ang    = sprite[dmgSrc].ang;
@@ -3120,6 +3145,7 @@ void P_CheckSectors(int playerNum)
 
             switch (DYNAMICTILEMAP(sprite[nearSprite].picnum))
             {
+#ifndef EDUKE32_STANDALONE
             case TOILET__STATIC:
             case STALL__STATIC:
                 if (pPlayer->last_pissed_time == 0)
@@ -3196,6 +3222,7 @@ void P_CheckSectors(int playerNum)
 
                 P_PalFrom(pPlayer, 32, 48,48,64);
                 break;
+#endif
 
             case VIEWSCREEN__STATIC:
             case VIEWSCREEN2__STATIC:
