@@ -1445,7 +1445,6 @@ static void ReadHelpFile(const char *name)
     numhelppages = i;
 
     Bfclose(fp);
-    return;
 }
 
 // why can't MSVC allocate an array of variable size?!
