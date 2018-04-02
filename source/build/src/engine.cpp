@@ -12473,39 +12473,38 @@ void completemirror(void)
 //
 // sectorofwall
 //
-static int32_t sectorofwall_internal(int16_t theline)
+static int32_t sectorofwall_internal(int16_t wallNum)
 {
-    int32_t gap = numsectors>>1, i = gap;
+    native_t gap = numsectors>>1, sectNum = gap;
 
     while (gap > 1)
     {
         gap >>= 1;
-        if (sector[i].wallptr < theline) i += gap; else i -= gap;
+        native_t const n = !!(sector[sectNum].wallptr < wallNum);
+        sectNum += (n ^ (n - 1)) * gap;
     }
-    while (sector[i].wallptr > theline) i--;
-    while (sector[i].wallptr+sector[i].wallnum <= theline) i++;
+    while (sector[sectNum].wallptr > wallNum) sectNum--;
+    while (sector[sectNum].wallptr + sector[sectNum].wallnum <= wallNum) sectNum++;
 
-    return i;
+    return sectNum;
 }
 
-int32_t sectorofwall(int16_t theline)
+int32_t sectorofwall(int16_t wallNum)
 {
-    if ((unsigned)theline >= (unsigned)numwalls)
+    if (EDUKE32_PREDICT_FALSE((unsigned)wallNum >= (unsigned)numwalls))
         return -1;
 
-    int i = wall[theline].nextwall;
-    if ((unsigned)i < MAXWALLS)
-        return wall[i].nextsector;
+    native_t const w = wall[wallNum].nextwall;
 
-    return sectorofwall_internal(theline);
+    return ((unsigned)w < MAXWALLS) ? wall[w].nextsector : sectorofwall_internal(wallNum);
 }
 
-int32_t sectorofwall_noquick(int16_t theline)
+int32_t sectorofwall_noquick(int16_t wallNum)
 {
-    if ((unsigned)theline >= (unsigned)numwalls)
+    if (EDUKE32_PREDICT_FALSE((unsigned) wallNum >= (unsigned) numwalls))
         return -1;
 
-    return sectorofwall_internal(theline);
+    return sectorofwall_internal(wallNum);
 }
 
 

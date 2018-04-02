@@ -1223,8 +1223,8 @@ int clipshape_idx_for_sprite(uspritetype const * const curspr, int curidx);
 
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
-int32_t   sectorofwall(int16_t theline);
-int32_t   sectorofwall_noquick(int16_t theline);
+int32_t sectorofwall(int16_t wallNum);
+int32_t sectorofwall_noquick(int16_t wallNum);
 int32_t   loopnumofsector(int16_t sectnum, int16_t wallnum);
 void setslope(int32_t sectnum, int32_t cf, int16_t slope);
 
