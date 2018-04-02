@@ -2013,7 +2013,9 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
             //  <VER> is 1.3 for PK, 1.2 for tueidj
             if (appactive && mousegrab)
             {
+# if SDL_MAJOR_VERSION==1
                 if (ev->motion.x != xdim >> 1 || ev->motion.y != ydim >> 1)
+# endif
                 {
                     mousex += ev->motion.xrel;
                     mousey += ev->motion.yrel;
