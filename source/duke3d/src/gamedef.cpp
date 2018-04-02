@@ -71,7 +71,7 @@ static char *textptr;
 
 int32_t g_errorCnt,g_warningCnt;
 
-extern int32_t g_maxSoundPos;
+extern int32_t g_highestSoundIdx;
 
 #if !defined LUNATIC
 static char *C_GetLabelType(int32_t type)
@@ -2516,8 +2516,8 @@ void C_DefineSound(int32_t sndidx, const char *fn, int32_t args[5])
             snd->m |= SF_ONEINST_INTERNAL;
         snd->vo = args[4];
 
-        if (sndidx > g_maxSoundPos)
-            g_maxSoundPos = sndidx;
+        if (sndidx > g_highestSoundIdx)
+            g_highestSoundIdx = sndidx;
     }
 }
 
@@ -6104,8 +6104,8 @@ repeatcase:
             g_sounds[k].vo = *(g_scriptPtr-1);
             g_scriptPtr -= 5;
 
-            if (k > g_maxSoundPos)
-                g_maxSoundPos = k;
+            if (k > g_highestSoundIdx)
+                g_highestSoundIdx = k;
 
             if (k >= 0 && k < MAXSOUNDS && g_dynamicSoundMapping && j >= 0 && (labeltype[j] & LABEL_DEFINE))
                 G_ProcessDynamicSoundMapping(label+(j<<6),k);

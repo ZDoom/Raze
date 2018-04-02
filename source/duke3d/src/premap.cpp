@@ -270,50 +270,6 @@ static void G_PrecacheSprites(void)
     for (i=0; i<=60; i++) tloadtile(i,1);
 }
 
-// FIXME: this function is a piece of shit, needs specific sounds listed
-static int32_t G_CacheSound(uint32_t num)
-{
-    if (num >= MAXSOUNDS || !ud.config.SoundToggle) return 0;
-
-    if (EDUKE32_PREDICT_FALSE(!g_sounds[num].filename)) return 0;
-
-    int32_t fp = S_OpenAudio(g_sounds[num].filename, g_loadFromGroupOnly, 0);
-    if (EDUKE32_PREDICT_FALSE(fp == -1))
-    {
-//        OSD_Printf(OSDTEXT_RED "Sound %s(#%d) not found!\n",g_sounds[num].filename,num);
-        return 0;
-    }
-
-    int32_t l = kfilelength(fp);
-    g_sounds[num].soundsiz = l;
-
-    if ((ud.level_number == 0 && ud.volume_number == 0 && (num == 189 || num == 232 || num == 99 || num == 233 || num == 17)) ||
-            (l < 12288))
-    {
-        g_soundlocks[num] = 199;
-        allocache((intptr_t *)&g_sounds[num].ptr,l,(char *)&g_soundlocks[num]);
-        if (g_sounds[num].ptr != NULL)
-            kread(fp, g_sounds[num].ptr , l);
-    }
-    kclose(fp);
-    return 1;
-}
-
-static void G_PrecacheSounds(void)
-{
-    int32_t i, j = 0;
-
-    for (i=MAXSOUNDS-1; i>=0; i--)
-        if (g_sounds[i].ptr == 0)
-        {
-            j++;
-            if ((j&7) == 0)
-                G_HandleAsync();
-
-            G_CacheSound(i);
-        }
-}
-
 static void G_DoLoadScreen(const char *statustext, int32_t percent)
 {
     int32_t i=0,j;
@@ -431,7 +387,7 @@ void G_CacheMapData(void)
 
     starttime = getticks();
 
-    G_PrecacheSounds();
+    S_PrecacheSounds();
     G_PrecacheSprites();
 
     for (i=0; i<numwalls; i++)

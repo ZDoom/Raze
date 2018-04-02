@@ -60,26 +60,25 @@ int32_t EnumAudioDevs(struct audioenumdrv **wave, struct audioenumdev **midi, st
 
 typedef struct
 {
-    int16_t ow;
-    int16_t voice;
-    uint32_t sndist;
-    uint32_t clock;
-} SOUNDOWNER;
-
+    int16_t  spriteNum;
+    int16_t  voice;
+    uint16_t sndist;
+    uint16_t clock;
+} sndinst_t;
 
 typedef struct
 {
-    char *filename, *ptr; // 8b/16b
-    int32_t  length, num, soundsiz; // 12b
-    SOUNDOWNER SoundOwner[MAXSOUNDINSTANCES]; // 64b
-    int16_t ps,pe,vo; // 6b
-    char pr,m; // 2b
+    char *    filename, *ptr;                // 8b/16b
+    int32_t   length, num, soundsiz;         // 12b
+    sndinst_t instances[MAXSOUNDINSTANCES];  // 64b
+    int16_t   ps, pe, vo;                    // 6b
+    char      pr, m;                         // 2b
 } sound_t;
 
 extern char g_soundlocks[MAXSOUNDS];
 extern sound_t g_sounds[MAXSOUNDS];
 extern int32_t g_skillSoundVoice;
-extern int32_t g_numEnvSoundsPlaying,g_maxSoundPos;
+extern int32_t g_numEnvSoundsPlaying,g_highestSoundIdx;
 
 int32_t A_CheckSoundPlaying(int32_t i,int32_t num);
 int32_t A_PlaySound(uint32_t num,int32_t i);
@@ -89,6 +88,7 @@ int32_t S_CheckSoundPlaying(int32_t i,int32_t num);
 void S_Cleanup(void);
 void S_ClearSoundLocks(void);
 int32_t S_LoadSound(uint32_t num);
+void S_PrecacheSounds(void);
 void S_MenuSound(void);
 void S_MusicShutdown(void);
 void S_MusicStartup(void);

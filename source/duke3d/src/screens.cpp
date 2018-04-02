@@ -757,7 +757,7 @@ static void G_ShowCacheLocks(void)
         return;
 
     k = 18;
-    for (i=0; i<=g_maxSoundPos; i++)
+    for (i=0; i<=g_highestSoundIdx; i++)
         if (g_sounds[i].num > 0)
         {
             int32_t j, n=g_sounds[i].num;
@@ -768,7 +768,7 @@ static void G_ShowCacheLocks(void)
                     break;
 
                 Bsprintf(tempbuf, "snd #%d inst %d: voice %d, ow %d", i, j,
-                    g_sounds[i].SoundOwner[j].voice, g_sounds[i].SoundOwner[j].ow);
+                    g_sounds[i].instances[j].voice, g_sounds[i].instances[j].spriteNum);
                 printext256(240, k, COLOR_WHITE, -1, tempbuf, 0);
 
                 k += 9;
