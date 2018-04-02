@@ -156,7 +156,7 @@ void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3
             {
                 if (G_WallSpriteDist(pWall, pSprite) < blastRadius)
                 {
-                    int16_t damageSector = -1;
+                    int16_t damageSector = pSprite->sectnum;
                     int const nextSector = pWall->nextsector;
 
                     if (nextSector >= 0)
