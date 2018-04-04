@@ -8240,6 +8240,7 @@ void A_PlayAlertSound(int spriteNum)
         if ((VM_OnEventWithReturn(EVENT_RECOGSOUND, spriteNum, screenpeek, 0)) != 0)
             return;
 
+#ifndef EDUKE32_STANDALONE
         switch (DYNAMICTILEMAP(PN(spriteNum)))
         {
             case LIZTROOPONTOILET__STATIC:
@@ -8270,6 +8271,7 @@ void A_PlayAlertSound(int spriteNum)
             case BOSS4STAYPUT__STATIC:     S_PlaySound((sprite[spriteNum].pal != 0) ? BOS4_RECOG : BOSS4_FIRSTSEE); break;
             case GREENSLIME__STATIC:       A_PlaySound(SLIM_RECOG, spriteNum); break;
         }
+#endif
     }
 }
 

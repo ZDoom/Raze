@@ -730,7 +730,7 @@ static void G_ShowCacheLocks(void)
             if (k >= ydim-12)
                 break;
 
-            Bsprintf(tempbuf, "Locked- %d: Leng:%d, Lock:%d", i, cac[i].leng, *cac[i].lock);
+            Bsprintf(tempbuf, "Locked- %d: Leng:%zu, Lock:%d", i, cac[i].leng, *cac[i].lock);
             printext256(0L, k, COLOR_WHITE, -1, tempbuf, 1);
             k += 6;
         }

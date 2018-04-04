@@ -1071,6 +1071,7 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
     }
 }
 
+#ifndef EDUKE32_STANDALONE
 static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec3_t startPos,
                                 spritetype *pSprite, int const playerNum, DukePlayer_t * const pPlayer)
 {
@@ -1537,6 +1538,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
 
     return -1;
 }
+#endif
 
 int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZvel)
 {
@@ -1607,9 +1609,13 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
 #endif // POLYMER
     }
 
+#ifdef EDUKE32_STANDALONE
+    return A_ShootCustom(spriteNum, projecTile, shootAng, &startPos);
+#else
     return A_CheckSpriteTileFlags(projecTile, SFLAG_PROJECTILE)
            ? A_ShootCustom(spriteNum, projecTile, shootAng, &startPos)
            : A_ShootHardcoded(spriteNum, projecTile, shootAng, startPos, pSprite, playerNum, pPlayer);
+#endif
 }
 
 
