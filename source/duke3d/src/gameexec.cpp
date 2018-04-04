@@ -5956,6 +5956,7 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
 
     if (vm.pSprite->statnum != STAT_ACTOR)
     {
+#ifndef EDUKE32_STANDALONE
         if (vm.pSprite->statnum == STAT_STANDABLE)
         {
             switch (DYNAMICTILEMAP(vm.pSprite->picnum))
@@ -5978,6 +5979,7 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
                 default: break;
             }
         }
+#endif
         return;
     }
 
@@ -5996,8 +5998,10 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
     else if (vm.pActor->timetosleep == 1)
     {
         // hack for 1.3D fire sprites
+#ifndef EDUKE32_STANDALONE
         if (EDUKE32_PREDICT_FALSE(g_scriptVersion == 13 && (vm.pSprite->picnum == FIRE || vm.pSprite->picnum == FIRE2)))
             return;
+#endif
         changespritestat(vm.spriteNum, STAT_ZOMBIEACTOR);
     }
 }

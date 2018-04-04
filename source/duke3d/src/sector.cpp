@@ -1481,7 +1481,7 @@ static void G_BreakWall(int tileNum, int spriteNum, int wallNum)
     A_SpawnWallGlass(spriteNum,wallNum,10);
 }
 
-void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *UNUSED(vPos), int weaponNum)
+void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
 {
     int16_t sectNum = -1;
     walltype *pWall = &wall[wallNum];
@@ -1530,7 +1530,6 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *UNUSED(vPos
         }
     }
 
-#ifndef EDUKE32_STANDALONE
     if ((((pWall->cstat & 16) || pWall->overpicnum == BIGFORCE) && pWall->nextsector >= 0) &&
         (sector[pWall->nextsector].floorz > vPos->z) &&
         (sector[pWall->nextsector].floorz != sector[pWall->nextsector].ceilingz))
@@ -1539,6 +1538,19 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *UNUSED(vPos
 
         switch (DYNAMICTILEMAP(switchPic))
         {
+            case FANSPRITE__STATIC:
+                pWall->overpicnum = FANSPRITEBROKE;
+                pWall->cstat &= 65535 - 65;
+                if (pWall->nextwall >= 0)
+                {
+                    wall[pWall->nextwall].overpicnum = FANSPRITEBROKE;
+                    wall[pWall->nextwall].cstat &= 65535 - 65;
+                }
+                A_PlaySound(VENT_BUST, spriteNum);
+                A_PlaySound(GLASS_BREAKING, spriteNum);
+                return;
+
+#ifndef EDUKE32_STANDALONE
             case W_FORCEFIELD__STATIC:
                 pWall->extra = 1;  // tell the forces to animate
             /* fall-through */
@@ -1567,18 +1579,6 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *UNUSED(vPos
 
                 A_PlaySound(SOMETHINGHITFORCE, i);
             }
-                return;
-
-            case FANSPRITE__STATIC:
-                pWall->overpicnum = FANSPRITEBROKE;
-                pWall->cstat &= 65535 - 65;
-                if (pWall->nextwall >= 0)
-                {
-                    wall[pWall->nextwall].overpicnum = FANSPRITEBROKE;
-                    wall[pWall->nextwall].cstat &= 65535 - 65;
-                }
-                A_PlaySound(VENT_BUST, spriteNum);
-                A_PlaySound(GLASS_BREAKING, spriteNum);
                 return;
 
             case GLASS__STATIC:
@@ -1613,9 +1613,9 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *UNUSED(vPos
                 A_PlaySound(VENT_BUST, spriteNum);
                 A_PlaySound(GLASS_BREAKING, spriteNum);
                 return;
+#endif
         }
     }
-#endif
 
     switch (DYNAMICTILEMAP(pWall->picnum))
     {
@@ -1899,6 +1899,28 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
 
     switch (DYNAMICTILEMAP(PN(spriteNum)))
     {
+    case GRATE1__STATIC:
+        PN(spriteNum) = BGRATE1;
+        CS(spriteNum) &= (65535-256-1);
+        A_PlaySound(VENT_BUST, spriteNum);
+        break;
+
+    case FANSPRITE__STATIC:
+        PN(spriteNum) = FANSPRITEBROKE;
+        CS(spriteNum) &= (65535-257);
+        if (sector[SECT(spriteNum)].floorpicnum == FANSHADOW)
+            sector[SECT(spriteNum)].floorpicnum = FANSHADOWBROKE;
+
+        A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
+
+        for (bssize_t j=16; j>0; j--)
+        {
+            spritetype * const pSprite = &sprite[spriteNum];
+            RANDOMSCRAP(pSprite, spriteNum);
+        }
+
+        break;
+
 #ifndef EDUKE32_STANDALONE
     case OCEANSPRITE1__STATIC:
     case OCEANSPRITE2__STATIC:
@@ -1997,22 +2019,6 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
             A_InsertSprite(SECT(spriteNum),SX(spriteNum),SY(spriteNum),SZ(spriteNum)-ZOFFSET3,SCRAP1+(krand()&15),-8,48,48,krand()&2047,(krand()&63)+64,-(krand()&4095)-(sprite[spriteNum].zvel>>2),spriteNum,5);
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         A_DeleteSprite(spriteNum);
-        break;
-
-    case FANSPRITE__STATIC:
-        PN(spriteNum) = FANSPRITEBROKE;
-        CS(spriteNum) &= (65535-257);
-        if (sector[SECT(spriteNum)].floorpicnum == FANSHADOW)
-            sector[SECT(spriteNum)].floorpicnum = FANSHADOWBROKE;
-
-        A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
-
-        for (bssize_t j=16; j>0; j--)
-        {
-            spritetype * const pSprite = &sprite[spriteNum];
-            RANDOMSCRAP(pSprite, spriteNum);
-        }
-
         break;
 
     case WATERFOUNTAIN__STATIC:
@@ -2147,12 +2153,6 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
         //          sprite[j].pal = 2;
         //    }
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
-        break;
-
-    case GRATE1__STATIC:
-        PN(spriteNum) = BGRATE1;
-        CS(spriteNum) &= (65535-256-1);
-        A_PlaySound(VENT_BUST,spriteNum);
         break;
 
     case CIRCLEPANNEL__STATIC:

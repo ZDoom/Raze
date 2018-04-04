@@ -1436,11 +1436,13 @@ int A_Spawn(int spriteNum, int tileNum)
 #endif
 
         if ((pSprite->cstat & 48)
+#ifndef EDUKE32_STANDALONE
             && pSprite->picnum != SPEAKER
             && pSprite->picnum != LETTER
             && pSprite->picnum != DUCK
             && pSprite->picnum != TARGET
             && pSprite->picnum != TRIPBOMB
+#endif
             && pSprite->picnum != VIEWSCREEN
             && pSprite->picnum != VIEWSCREEN2
             && (!(pSprite->picnum >= CRACK1 && pSprite->picnum <= CRACK4)))
@@ -1448,6 +1450,7 @@ int A_Spawn(int spriteNum, int tileNum)
             if (pSprite->shade == 127)
                 goto SPAWN_END;
 
+#ifndef EDUKE32_STANDALONE
             if (A_CheckSwitchTile(newSprite) && (pSprite->cstat & 16))
             {
                 if (pSprite->pal && pSprite->picnum != ACCESSSWITCH && pSprite->picnum != ACCESSSWITCH2)
@@ -1468,6 +1471,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
                 goto SPAWN_END;
             }
+#endif
 
             if (pSprite->hitag)
             {
@@ -1490,6 +1494,7 @@ int A_Spawn(int spriteNum, int tileNum)
     sectNum = pSprite->sectnum;
 
     //some special cases that can't be handled through the dynamictostatic system.
+#ifndef EDUKE32_STANDALONE
     if ((pSprite->picnum >= BOLT1 && pSprite->picnum <= BOLT1 + 3) || (pSprite->picnum >= SIDEBOLT1 && pSprite->picnum <= SIDEBOLT1 + 3))
     {
         T1(newSprite) = pSprite->xrepeat;
@@ -1526,6 +1531,7 @@ int A_Spawn(int spriteNum, int tileNum)
         }
     }
     else
+#endif
         switch (DYNAMICTILEMAP(pSprite->picnum))
         {
         default:
@@ -1587,6 +1593,7 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->xrepeat = pSprite->yrepeat = 0;
             changespritestat(newSprite, STAT_MISC);
             break;
+#ifndef EDUKE32_STANDALONE
         case WATERSPLASH2__STATIC:
             if (spriteNum >= 0)
             {
@@ -1690,6 +1697,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case FRAMEEFFECT1_13__STATIC:
             if (PLUTOPAK) break;
             fallthrough__;
+#endif
         case FRAMEEFFECT1__STATIC:
             if (spriteNum >= 0)
             {
@@ -1702,7 +1710,7 @@ int A_Spawn(int spriteNum, int tileNum)
             changespritestat(newSprite, STAT_MISC);
 
             break;
-
+#ifndef EDUKE32_STANDALONE
         case LASERLINE__STATIC:
             pSprite->yrepeat = 6;
             pSprite->xrepeat = 32;
@@ -1842,7 +1850,6 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->cstat |= 257;
             changespritestat(newSprite, STAT_ZOMBIEACTOR);
             break;
-
         case HYDRENT__STATIC:
         case PANNEL1__STATIC:
         case PANNEL2__STATIC:
@@ -1850,7 +1857,6 @@ int A_Spawn(int spriteNum, int tileNum)
         case FUELPOD__STATIC:
         case SOLARPANNEL__STATIC:
         case ANTENNA__STATIC:
-        case GRATE1__STATIC:
         case CHAIR1__STATIC:
         case CHAIR2__STATIC:
         case CHAIR3__STATIC:
@@ -1882,7 +1888,6 @@ int A_Spawn(int spriteNum, int tileNum)
         case JURYGUY__STATIC:
         case SCALE__STATIC:
         case VACUUM__STATIC:
-        case FANSPRITE__STATIC:
         case CACTUS__STATIC:
         case CACTUSBROKE__STATIC:
         case HANGLIGHT__STATIC:
@@ -1908,12 +1913,16 @@ int A_Spawn(int spriteNum, int tileNum)
         case PIPE4__STATIC:
         case PIPE5__STATIC:
         case PIPE6__STATIC:
+#endif
+        case GRATE1__STATIC:
+        case FANSPRITE__STATIC:
             pSprite->clipdist = 32;
             pSprite->cstat |= 257;
             fallthrough__;
         case OCEANSPRITE4__STATIC:
             changespritestat(newSprite, STAT_DEFAULT);
             break;
+#ifndef EDUKE32_STANDALONE
         case FEMMAG1__STATIC:
         case FEMMAG2__STATIC:
             pSprite->cstat &= ~257;
@@ -1951,6 +1960,7 @@ int A_Spawn(int spriteNum, int tileNum)
             changespritestat(newSprite, STAT_DEFAULT);
             break;
         }
+#endif
         case FOOTPRINTS__STATIC:
         case FOOTPRINTS2__STATIC:
         case FOOTPRINTS3__STATIC:
@@ -1999,7 +2009,7 @@ int A_Spawn(int spriteNum, int tileNum)
             A_AddToDeleteQueue(newSprite);
             changespritestat(newSprite, STAT_MISC);
             break;
-
+#ifndef EDUKE32_STANDALONE
         case PODFEM1__STATIC:
             pSprite->extra <<= 1;
             fallthrough__;
@@ -2096,14 +2106,14 @@ int A_Spawn(int spriteNum, int tileNum)
 
             changespritestat(newSprite, STAT_MISC);
             break;
-
+#endif
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
             pSprite->owner = newSprite;
             pSprite->lotag = pSprite->extra = 1;
             changespritestat(newSprite, STAT_STANDABLE);
             break;
-
+#ifndef EDUKE32_STANDALONE
         case SHELL__STATIC: //From the player
         case SHOTGUNSHELL__STATIC:
             if (spriteNum >= 0)
@@ -2152,7 +2162,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 changespritestat(newSprite, STAT_MISC);
             }
             break;
-
+#endif
         case RESPAWN__STATIC:
             pSprite->extra = 66-13;
             fallthrough__;
@@ -2242,7 +2252,7 @@ int A_Spawn(int spriteNum, int tileNum)
                                         ? STAT_MISC
                                         : STAT_PLAYER);
             break;
-
+#ifndef EDUKE32_STANDALONE
         case WATERBUBBLE__STATIC:
             if (spriteNum >= 0)
             {
@@ -2338,7 +2348,7 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->lotag = 9999;
             changespritestat(newSprite, STAT_STANDABLE);
             break;
-
+#endif
         case TOUCHPLATE__STATIC:
             T3(newSprite) = sector[sectNum].floorz;
 
@@ -2351,6 +2361,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 changespritestat(newSprite, STAT_MISC);
                 break;
             }
+#ifndef EDUKE32_STANDALONE
             fallthrough__;
         case WATERBUBBLEMAKER__STATIC:
             if (EDUKE32_PREDICT_FALSE(pSprite->hitag && pSprite->picnum == WATERBUBBLEMAKER))
@@ -2360,6 +2371,7 @@ int A_Spawn(int spriteNum, int tileNum)
                            newSprite,TrackerCast(pSprite->x),TrackerCast(pSprite->y));
                 pSprite->hitag = 0;
             }
+#endif
             pSprite->cstat |= 32768;
             changespritestat(newSprite, STAT_STANDABLE);
             break;
@@ -2370,7 +2382,7 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->yvel = 0;
             changespritestat(newSprite, STAT_STANDABLE);
             break;
-
+#ifndef EDUKE32_STANDALONE
         case TARGET__STATIC:
         case DUCK__STATIC:
         case LETTER__STATIC:
@@ -2512,7 +2524,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 pSprite->zvel = 0;
 
             break;
-
+#endif
         case LOCATORS__STATIC:
             pSprite->cstat |= 32768;
             changespritestat(newSprite, STAT_LOCATOR);
@@ -2556,7 +2568,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
             break;
         }
-
+#ifndef EDUKE32_STANDALONE
         case REACTOR2__STATIC:
         case REACTOR__STATIC:
             pSprite->extra = g_impactDamage;
@@ -2751,7 +2763,7 @@ int A_Spawn(int spriteNum, int tileNum)
         case CEILINGSTEAM__STATIC:
             changespritestat(newSprite, STAT_STANDABLE);
             break;
-
+#endif
         case SECTOREFFECTOR__STATIC:
             pSprite->cstat |= 32768;
             pSprite->xrepeat = pSprite->yrepeat = 0;
@@ -3363,7 +3375,7 @@ int A_Spawn(int spriteNum, int tileNum)
             changespritestat(newSprite, STAT_STANDABLE);
             A_SetSprite(newSprite,CLIPMASK0);
             break;
-
+#ifndef EDUKE32_STANDALONE
         case TOILET__STATIC:
         case STALL__STATIC:
             pSprite->lotag = 1;
@@ -3414,6 +3426,7 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->shade = -16;
             changespritestat(newSprite, STAT_STANDABLE);
             break;
+#endif
         }
 
 SPAWN_END:
@@ -5711,6 +5724,7 @@ static void G_PostLoadPalette(void)
 // Has to be after setting the dynamic names (e.g. SHARK).
 static void A_InitEnemyFlags(void)
 {
+#ifndef EDUKE32_STANDALONE
     int DukeEnemies[] = {
         SHARK, RECON, DRONE,
         LIZTROOPONTOILET, LIZTROOPJUSTSIT, LIZTROOPSTAYPUT, LIZTROOPSHOOT,
@@ -5737,6 +5751,7 @@ static void A_InitEnemyFlags(void)
 
     for (bssize_t i=ARRAY_SIZE(GreenSlimeFoodEnemies)-1; i>=0; i--)
         SETFLAG(GreenSlimeFoodEnemies[i], SFLAG_GREENSLIMEFOOD);
+#endif
 }
 #undef SETFLAG
 
