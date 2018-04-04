@@ -273,11 +273,13 @@
     <ClCompile Include="..\..\source\build\src\hightile.cpp" />
     <ClCompile Include="..\..\source\build\src\jwzgles.c" />
     <ClCompile Include="..\..\source\build\src\kplib.cpp" />
-    <ClCompile Include="..\..\source\build\src\lzwnew.cpp" />
+    <ClCompile Include="..\..\source\build\src\lunatic.cpp" />
     <ClCompile Include="..\..\source\build\src\md4.cpp" />
     <ClCompile Include="..\..\source\build\src\mdsprite.cpp" />
     <ClCompile Include="..\..\source\build\src\mhk.cpp" />
+    <ClCompile Include="..\..\source\build\src\mingw_main.cpp" />
     <ClCompile Include="..\..\source\build\src\miniz.c" />
+    <ClCompile Include="..\..\source\build\src\mmulti_null.cpp" />
     <ClCompile Include="..\..\source\build\src\mutex.cpp" />
     <ClCompile Include="..\..\source\build\src\osd.cpp" />
     <ClCompile Include="..\..\source\build\src\palette.cpp" />
@@ -287,10 +289,12 @@
     <ClCompile Include="..\..\source\build\src\pragmas.cpp" />
     <ClCompile Include="..\..\source\build\src\lz4.c" />
     <ClCompile Include="..\..\source\build\src\rawinput.cpp" />
+    <ClCompile Include="..\..\source\build\src\rev.cpp" />
     <ClCompile Include="..\..\source\build\src\screenshot.cpp" />
     <ClCompile Include="..\..\source\build\src\scriptfile.cpp" />
     <ClCompile Include="..\..\source\build\src\sdlayer.cpp" />
     <ClCompile Include="..\..\source\build\src\sdlayer12.cpp" />
+    <ClCompile Include="..\..\source\build\src\sdlkeytrans.cpp" />
     <ClCompile Include="..\..\source\build\src\smalltextfont.cpp" />
     <ClCompile Include="..\..\source\build\src\startgtk.editor.cpp" />
     <ClCompile Include="..\..\source\build\src\startwin.editor.cpp" />
@@ -298,6 +302,7 @@
     <ClCompile Include="..\..\source\build\src\textfont.cpp" />
     <ClCompile Include="..\..\source\build\src\tiles.cpp" />
     <ClCompile Include="..\..\source\build\src\voxmodel.cpp" />
+    <ClCompile Include="..\..\source\build\src\wiibits.cpp" />
     <ClCompile Include="..\..\source\build\src\winbits.cpp" />
     <ClCompile Include="..\..\source\build\src\winlayer.cpp" />
     <ClCompile Include="..\..\source\build\src\xxhash.c" />

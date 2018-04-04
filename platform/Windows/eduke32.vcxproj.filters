@@ -617,9 +617,6 @@
     <ClCompile Include="..\..\source\build\src\kplib.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\source\build\src\lzwnew.cpp">
-      <Filter>build\source</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\source\build\src\mdsprite.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
@@ -999,6 +996,24 @@
       <Filter>build\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\fix16_str.c">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\lunatic.cpp">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\mingw_main.cpp">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\mmulti_null.cpp">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\rev.cpp">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\sdlkeytrans.cpp">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\wiibits.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
   </ItemGroup>
