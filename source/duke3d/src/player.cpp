@@ -2070,16 +2070,12 @@ static int P_DisplayAccess(int accessShade)
     return 1;
 }
 
-
-static int32_t fistPos;
-
 void P_DisplayWeapon(void)
 {
     DukePlayer_t *const  pPlayer     = g_player[screenpeek].ps;
     const uint8_t *const weaponFrame = &pPlayer->kickback_pic;
 
     int currentWeapon;
-    int32_t weaponBits = 0;
 
 #ifdef SPLITSCREEN_MOD_HACKS
     g_snum = screenpeek;
@@ -2093,6 +2089,9 @@ void P_DisplayWeapon(void)
     int weaponY       = klabs(pPlayer->look_ang) / 9;
     int weaponYOffset = 80 - (pPlayer->weapon_pos * pPlayer->weapon_pos);
     int weaponShade   = sprite[pPlayer->i].shade <= 24 ? sprite[pPlayer->i].shade : 24;
+
+    int32_t weaponBits = 0;
+    UNREFERENCED_PARAMETER(weaponBits);
 
     if (P_DisplayFist(weaponShade) || P_DisplayKnuckles(weaponShade) || P_DisplayTip(weaponShade) || P_DisplayAccess(weaponShade))
         goto enddisplayweapon;
@@ -2122,6 +2121,7 @@ void P_DisplayWeapon(void)
 
     if (VM_OnEvent(EVENT_DISPLAYWEAPON, pPlayer->i, screenpeek) == 0)
     {
+#ifndef EDUKE32_STANDALONE
         int const quickKickFrame = 14 - pPlayer->quick_kick;
 
         if ((quickKickFrame != 14 || pPlayer->last_quick_kick) && ud.drawweapon == 1)
@@ -2144,6 +2144,8 @@ void P_DisplayWeapon(void)
 
         if (sprite[pPlayer->i].xrepeat < 40)
         {
+            static int32_t fistPos;
+
             int const weaponPal = P_GetHudPal(pPlayer);
 
             if (pPlayer->jetpack_on == 0)
@@ -2162,6 +2164,7 @@ void P_DisplayWeapon(void)
                 weaponShade, weaponBits | 4, weaponPal);
         }
         else
+#endif
         {
             switch (ud.drawweapon)
             {
@@ -2177,6 +2180,7 @@ void P_DisplayWeapon(void)
             if (VM_OnEvent(EVENT_DRAWWEAPON, g_player[screenpeek].ps->i, screenpeek)||(currentWeapon == KNEE_WEAPON && *weaponFrame == 0))
                 goto enddisplayweapon;
 
+#ifndef EDUKE32_STANDALONE
             int const doAnim      = !(sprite[pPlayer->i].pal == 1 || ud.pause_on || g_player[myconnectindex].ps->gm & MODE_MENU);
             int const halfLookAng = pPlayer->look_ang >> 1;
 
@@ -2798,6 +2802,7 @@ void P_DisplayWeapon(void)
                 }
                 break;
             }
+#endif
         }
     }
 
