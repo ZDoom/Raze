@@ -6,11 +6,10 @@ pngwrite_t png;
 
 #define png_write_buf(p, size) Bfwrite(p, size, 1, png.file)
 
-static void png_write_uint32(uint32_t const in)
+static FORCE_INLINE void png_write_uint32(uint32_t const in)
 {
-    uint8_t buf[4];
-    *(uint32_t *)buf = B_BIG32(in);
-    png_write_buf(buf, sizeof(uint32_t));
+    uint32_t const buf = B_BIG32(in);
+    png_write_buf(&buf, sizeof(uint32_t));
 }
 
 static void png_write_chunk(uint32_t const size, char const *const type,
@@ -59,7 +58,7 @@ void png_set_text(char const * const keyword, char const * const text)
 }
 
 void png_write(FILE * const file, uint32_t const width, uint32_t const height,
-               uint8_t type, uint8_t const * const data)
+               uint8_t const type, uint8_t const * const data)
 {
     png.file = file;
 
@@ -77,13 +76,16 @@ void png_write(FILE * const file, uint32_t const width, uint32_t const height,
     uint32_t const bytesPerPixel = (type == PNG_TRUECOLOR ? 3 : 1);
     uint32_t const bytesPerLine  = width * bytesPerPixel;
 
-    if (type == PNG_INDEXED)
+    if (png.pal_data)
+    {
         png_write_chunk(png.pal_entries * 3, "PLTE", png.pal_data, 0);
+        DO_FREE_AND_NULL(png.pal_data);
+    }
 
     unsigned const linesiz = height * bytesPerLine + height;
     uint8_t *lines = (uint8_t *) Xcalloc(1, linesiz);
 
-    for (unsigned i = 0; i < height; i++)
+    for (unative_t i = 0; i < height; i++)
         Bmemcpy(lines + i * bytesPerLine + i + 1, data + i * bytesPerLine, bytesPerLine);
 
     png_write_chunk(linesiz, "IDAT", lines, CHUNK_COMPRESSED);

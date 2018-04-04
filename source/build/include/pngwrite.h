@@ -32,6 +32,6 @@ typedef struct
 
 void png_set_pal(uint8_t const * const data, int numentries);
 void png_set_text(char const * const keyword, char const * const text);
-void png_write(FILE * const file, uint32_t const width, uint32_t const height, uint8_t type, uint8_t const * const data);
+void png_write(FILE * const file, uint32_t const width, uint32_t const height, uint8_t const type, uint8_t const * const data);
 
 #endif
