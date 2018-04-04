@@ -145,7 +145,7 @@ int G_CheckActivatorMotion(int lotag)
     return 0;
 }
 
-int CheckDoorTile(int UNUSED(tileNum))
+int CheckDoorTile(int tileNum)
 {
 #ifndef EDUKE32_STANDALONE
     switch (DYNAMICTILEMAP(tileNum))
@@ -174,6 +174,8 @@ int CheckDoorTile(int UNUSED(tileNum))
         case DOORTILE23__STATIC:
             return 1;
     }
+#else
+    UNREFERENCED_PARAMETER(tileNum);
 #endif
     return 0;
 }

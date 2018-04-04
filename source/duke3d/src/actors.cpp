@@ -114,13 +114,12 @@ void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3
 
     int32_t sectorCount = 0;
     int32_t numSectors = 1;
+    int16_t sectorList[64] = { pSprite->sectnum };
 
 #ifndef EDUKE32_STANDALONE
     if ((pSprite->picnum == RPG && pSprite->xrepeat < 11) || pSprite->picnum == SHRINKSPARK)
         goto SKIPWALLCHECK;
 #endif
-
-    int16_t sectorList[64] = { pSprite->sectnum };
 
     do
     {
@@ -464,7 +463,7 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     }
 
     int16_t   newSectnum = pSprite->sectnum;
-    int const UNUSED(oldSectnum) = newSectnum;
+    int const oldSectnum = newSectnum;
     int32_t   newZ       = pSprite->z - 2 * tilesiz[pSprite->picnum].y * pSprite->yrepeat;
     int const oldZ       = pSprite->z;
 
