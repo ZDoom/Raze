@@ -463,7 +463,9 @@ int32_t A_MoveSpriteClipdist(int32_t spriteNum, vec3_t const * const change, uin
     }
 
     int16_t   newSectnum = pSprite->sectnum;
+#ifndef EDUKE32_STANDALONE
     int const oldSectnum = newSectnum;
+#endif
     int32_t   newZ       = pSprite->z - 2 * tilesiz[pSprite->picnum].y * pSprite->yrepeat;
     int const oldZ       = pSprite->z;
 
