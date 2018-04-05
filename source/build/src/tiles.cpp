@@ -567,7 +567,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
     cachesize = (Bgetsysmemsize() <= (uint32_t)askedsize) ? (int32_t)((Bgetsysmemsize() / 100) * 60) : askedsize;
 
     // NOTE: this doesn't make a lot of sense on modern OSs...
-    pic = Xaligned_alloc(cachesize, 16);
+    pic = Xaligned_alloc(16, cachesize);
     initcache((intptr_t) pic, cachesize);
 
     E_RecalcPicSiz();
