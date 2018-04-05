@@ -39,8 +39,6 @@
 L_State g_engState;
 #endif
 
-#define CACHEAGETIME 16
-
 //////////
 // Compilation switches for optional/extended engine features
 
@@ -165,7 +163,6 @@ int32_t globalx1, globaly2, globalx3, globaly3;
 int32_t sloptable[16384];
 static intptr_t slopalookup[16384];    // was 2048
 
-static int32_t lastageclock;
 static int32_t no_radarang2 = 0;
 static int16_t radarang[1280], *radarang2;
 
@@ -9988,10 +9985,9 @@ void nextpage(void)
     case 480:
         break;
     }
-    faketimerhandler();
 
-    if ((totalclock >= lastageclock+CACHEAGETIME) || (totalclock < lastageclock))
-        { lastageclock = totalclock; agecache(); }
+    faketimerhandler();
+    agecache();
 
 #ifdef USE_OPENGL
     omdtims = mdtims; mdtims = getticks();

@@ -110,7 +110,6 @@ int32_t kpzbufload(char const * const filnam)
 static int32_t cachesize = 0;
 static char zerochar = 0;
 static intptr_t cachestart = 0;
-static int32_t agecount = 0;
 static int32_t lockrecip[200];
 
 int32_t cacnum = 0;
@@ -148,19 +147,11 @@ void initcache(intptr_t dacachestart, int32_t dacachesize)
     for (i=1; i<200; i++)
         lockrecip[i] = tabledivide32_noinline(1<<28, 200-i);
 
-    // The following code was relocated here from engine.c, since this
-    // function is only ever called once (from there), and it seems to
-    // really belong here:
-    //
-    //   initcache((FP_OFF(pic)+15)&0xfffffff0,(cachesize-((-FP_OFF(pic))&15))&0xfffffff0);
-    //
-    // I'm not sure why it's necessary, but the code is making sure the
-    // cache starts on a multiple of 16 bytes?  -- SA
+    // we allocate this block with aligned_alloc, but I'm leaving this here in
+    // case we run on any platforms that just implement it as regular malloc
 
-//printf("BEFORE: cachestart = %x, cachesize = %d\n", dacachestart, dacachesize);
     cachestart = ((uintptr_t)dacachestart+15)&~(uintptr_t)0xf;
     cachesize = (dacachesize-(((uintptr_t)(dacachestart))&0xf))&~(uintptr_t)0xf;
-//printf("AFTER : cachestart = %x, cachesize = %d\n", cachestart, cachesize);
 
     cac[0].leng = cachesize;
     cac[0].lock = &zerochar;
@@ -183,45 +174,40 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 #else
 static inline void inc_and_check_cacnum(void)
 {
-    if (++cacnum > MAXCACHEOBJECTS)
+    if (EDUKE32_PREDICT_FALSE(++cacnum > MAXCACHEOBJECTS))
         reportandexit("Too many objects in cache! (cacnum > MAXCACHEOBJECTS)");
 }
 
 void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 {
-    int32_t i, z, bestz=0, bestval, besto=0, o1, sucklen, suckz;
+    if (EDUKE32_PREDICT_FALSE(*newlockptr == 0))
+        reportandexit("ALLOCACHE CALLED WITH LOCK OF 0!");
 
-//printf("  ==> asking for %d bytes, ", newbytes);
     // Make all requests a multiple of 16 bytes
-    newbytes = (newbytes+15)&0xfffffff0;
-//printf("allocated %d bytes\n", newbytes);
+    newbytes = (newbytes + 15) & ~0xf;
 
-    if ((unsigned)newbytes > (unsigned)cachesize)
+    if (EDUKE32_PREDICT_FALSE((unsigned)newbytes > (unsigned)cachesize))
     {
         Bprintf("Cachesize: %d\n",cachesize);
         Bprintf("*Newhandle: 0x%" PRIxPTR ", Newbytes: %d, *Newlock: %d\n",(intptr_t)newhandle,newbytes,*newlockptr);
         reportandexit("BUFFER TOO BIG TO FIT IN CACHE!");
     }
 
-    if (*newlockptr == 0)
-    {
-        reportandexit("ALLOCACHE CALLED WITH LOCK OF 0!");
-    }
+    int32_t bestz   = 0;
+    int32_t besto   = 0;
+    int32_t bestval = 0x7fffffff;
 
-    //Find best place
-    bestval = 0x7fffffff; o1 = cachesize;
-    for (z=cacnum-1; z>=0; z--)
+    for (native_t z=cacnum-1, o1=cachesize; z>=0; z--)
     {
-        int32_t zz, o2, daval;
-
         o1 -= cac[z].leng;
-        o2 = o1+newbytes;
+        int32_t o2 = o1 + newbytes;
 
         if (o2 > cachesize)
             continue;
 
-        daval = 0;
-        for (i=o1,zz=z; i<o2; i+=cac[zz++].leng)
+        int32_t daval = 0;
+
+        for (native_t i=o1, zz=z; i<o2; i+=cac[zz++].leng)
         {
             if (*cac[zz].lock == 0)
                 continue;
@@ -235,25 +221,33 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
             // Potential for eviction increases with
             //  - smaller item size
             //  - smaller lock byte value (but in [1 .. 199])
-            daval += mulscale32(cac[zz].leng+65536, lockrecip[*cac[zz].lock]);
+            daval += mulscale32(cac[zz].leng + 65536, lockrecip[*cac[zz].lock]);
+
             if (daval >= bestval)
                 break;
         }
 
         if (daval < bestval)
         {
-            bestval = daval; besto = o1; bestz = z;
-            if (bestval == 0) break;
+            bestval = daval;
+            besto   = o1;
+            bestz   = z;
+
+            if (bestval == 0)
+                break;
         }
     }
 
     //printf("%d %d %d\n",besto,newbytes,*newlockptr);
 
-    if (bestval == 0x7fffffff)
+    if (EDUKE32_PREDICT_FALSE(bestval == 0x7fffffff))
         reportandexit("CACHE SPACE ALL LOCKED UP!");
 
     //Suck things out
-    for (sucklen=-newbytes,suckz=bestz; sucklen<0; sucklen+=cac[suckz++].leng)
+    int32_t sucklen = -newbytes;
+    int32_t suckz = bestz;
+
+    for (;sucklen<0; sucklen+=cac[suckz++].leng)
         if (*cac[suckz].lock)
             *cac[suckz].hand = 0;
 
@@ -261,9 +255,10 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
     suckz -= bestz+1;
     cacnum -= suckz;
 
-    Bmemmove(&cac[bestz], &cac[bestz+suckz], (cacnum-bestz)*sizeof(cactype));
+    Bmemmove(&cac[bestz], &cac[bestz + suckz], (cacnum - bestz) * sizeof(cactype));
+
     cac[bestz].hand = newhandle;
-    *newhandle = cachestart + besto;
+    *newhandle      = cachestart + besto;
     cac[bestz].leng = newbytes;
     cac[bestz].lock = newlockptr;
 
@@ -271,11 +266,9 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
     if (sucklen <= 0)
         return;
 
-    bestz++;
-    if (bestz == cacnum)
+    if (++bestz == cacnum)
     {
         inc_and_check_cacnum();
-
         cac[bestz].leng = sucklen;
         cac[bestz].lock = &zerochar;
         return;
@@ -289,8 +282,9 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 
     inc_and_check_cacnum();
 
-    for (z=cacnum-1; z>bestz; z--)
+    for (native_t z=cacnum-1; z>bestz; z--)
         cac[z] = cac[z-1];
+
     cac[bestz].leng = sucklen;
     cac[bestz].lock = &zerochar;
 }
@@ -299,10 +293,12 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 void agecache(void)
 {
 #ifndef DEBUG_ALLOCACHE_AS_MALLOC
-    bssize_t cnt = (cacnum>>4);
+    static int32_t agecount;
 
     if (agecount >= cacnum)
         agecount = cacnum-1;
+
+    native_t cnt = (cacnum>>5);
 
     if (agecount < 0 || !cnt)
         return;
@@ -313,8 +309,7 @@ void agecache(void)
         if (cac[agecount].lock && (((*cac[agecount].lock)-2)&255) < 198)
             (*cac[agecount].lock)--;
 
-        agecount--;
-        if (agecount < 0)
+        if (--agecount < 0)
             agecount = cacnum-1;
     }
 #endif
@@ -323,25 +318,32 @@ void agecache(void)
 static void reportandexit(const char *errormessage)
 {
 #ifndef DEBUG_ALLOCACHE_AS_MALLOC
-    int32_t i, j;
-
     //setvmode(0x3);
-    j = 0;
-    for (i=0; i<cacnum; i++)
+    int32_t j = 0;
+    for (native_t i = 0; i < cacnum; i++)
     {
-        Bprintf("%d- ",i);
-        if (cac[i].hand) Bprintf("ptr: 0x%" PRIxPTR ", ",*cac[i].hand);
-        else Bprintf("ptr: NULL, ");
-        Bprintf("leng: %d, ",cac[i].leng);
-        if (cac[i].lock) Bprintf("lock: %d\n",*cac[i].lock);
-        else Bprintf("lock: NULL\n");
+        Bprintf("%zu- ", i);
+
+        if (cac[i].hand)
+            Bprintf("ptr: 0x%" PRIxPTR ", ", *cac[i].hand);
+        else
+            Bprintf("ptr: NULL, ");
+
+        Bprintf("leng: %d, ", cac[i].leng);
+
+        if (cac[i].lock)
+            Bprintf("lock: %d\n", *cac[i].lock);
+        else
+            Bprintf("lock: NULL\n");
+
         j += cac[i].leng;
     }
-    Bprintf("Cachesize = %d\n",cachesize);
-    Bprintf("Cacnum = %d\n",cacnum);
-    Bprintf("Cache length sum = %d\n",j);
+
+    Bprintf("Cachesize = %d\n", cachesize);
+    Bprintf("Cacnum = %d\n", cacnum);
+    Bprintf("Cache length sum = %d\n", j);
 #endif
-    initprintf("ERROR: %s\n",errormessage);
+    initprintf("ERROR: %s\n", errormessage);
     Bexit(1);
 }
 
@@ -1704,6 +1706,14 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     return c1d_read_compressed(buffer, dasizeof, count, (intptr_t)fil);
 }
 
+// LZ4_COMPRESSION_ACCELERATION_VALUE can be tuned for performance/space trade-off
+// (lower number = higher compression ratio, higher number = faster compression speed)
+#define LZ4_COMPRESSION_ACCELERATION_VALUE 15
+
+static char compressedDataStackBuf[131072];
+int32_t lz4CompressionLevel = LZ4_COMPRESSION_ACCELERATION_VALUE;
+
+
 int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
 {
     int32_t leng;
@@ -1711,12 +1721,13 @@ int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     // read compressed data length
     if (c1d_readfunc(fil, &leng, 4) != 4)
         return -1;
+
     leng = B_LITTLE32(leng);
 
-    char compressedDataStackBuf[100000];
-    char* pCompressedData = compressedDataStackBuf;
-    if (leng > 100000)
-        pCompressedData = (char*) Bmalloc(leng);
+    char *pCompressedData = compressedDataStackBuf;
+
+    if (leng > ARRAY_SSIZE(compressedDataStackBuf))
+        pCompressedData = (char *)Xaligned_alloc(16, leng);
 
     if (c1d_readfunc(fil, pCompressedData, leng) != leng)
         return -1;
@@ -1724,7 +1735,7 @@ int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
     int32_t decompressedLength = LZ4_decompress_safe(pCompressedData, (char*) buffer, leng, dasizeof*count);
 
     if (pCompressedData != compressedDataStackBuf)
-        free(pCompressedData);
+        Baligned_free(pCompressedData);
 
     return decompressedLength/dasizeof;
 }
@@ -1794,25 +1805,22 @@ void dfwrite(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
     c1d_write_compressed(buffer, dasizeof, count, (intptr_t)fil);
 }
 
-// LZ4_COMPRESSION_ACCELERATION_VALUE can be tuned for performance/space trade-off
-// (lower number = higher compression ratio, higher number = faster compression speed)
-#define LZ4_COMPRESSION_ACCELERATION_VALUE 15
 void dfwrite_LZ4(const void *buffer, bsize_t dasizeof, bsize_t count, BFILE *fil)
 {
-    char compressedDataStackBuf[100000];
-    char* pCompressedData = compressedDataStackBuf;
-    int32_t maxCompressedSize = LZ4_compressBound(dasizeof*count);
-    if (maxCompressedSize > 100000)
-        pCompressedData = (char*) Bmalloc(maxCompressedSize);
+    char *        pCompressedData   = compressedDataStackBuf;
+    int32_t const maxCompressedSize = LZ4_compressBound(dasizeof * count);
 
-    const int32_t leng = LZ4_compress_fast((const char*) buffer, pCompressedData, dasizeof*count, maxCompressedSize, LZ4_COMPRESSION_ACCELERATION_VALUE);
-    const int32_t swleng = B_LITTLE32(leng);
+    if (maxCompressedSize > ARRAY_SSIZE(compressedDataStackBuf))
+        pCompressedData = (char *)Xaligned_alloc(16, maxCompressedSize);
+
+    int32_t const leng = LZ4_compress_fast((const char*) buffer, pCompressedData, dasizeof*count, maxCompressedSize, lz4CompressionLevel);
+    int32_t const swleng = B_LITTLE32(leng);
 
     c1d_writefunc((intptr_t) fil, &swleng, 4);
     c1d_writefunc((intptr_t) fil, pCompressedData, leng);
 
     if (pCompressedData != compressedDataStackBuf)
-        free(pCompressedData);
+        Baligned_free(pCompressedData);
 }
 
 

@@ -567,12 +567,7 @@ int32_t loadpics(const char *filename, int32_t askedsize)
     cachesize = (Bgetsysmemsize() <= (uint32_t)askedsize) ? (int32_t)((Bgetsysmemsize() / 100) * 60) : askedsize;
 
     // NOTE: this doesn't make a lot of sense on modern OSs...
-    while ((pic = Bmalloc(cachesize)) == NULL)
-    {
-        cachesize -= 65536;
-        if (cachesize < 65536)
-            return -1;
-    }
+    pic = Xaligned_alloc(cachesize, 16);
     initcache((intptr_t) pic, cachesize);
 
     E_RecalcPicSiz();
@@ -793,5 +788,5 @@ void Buninitart(void)
     if (artfil != -1)
         kclose(artfil);
 
-    DO_FREE_AND_NULL(pic);
+    ALIGNED_FREE_AND_NULL(pic);
 }

@@ -47,31 +47,37 @@ void	kclose(int32_t handle);
 void krename(int32_t crcval, int32_t filenum, const char *newname);
 char const * kfileparent(int32_t handle);
 
-typedef struct { intptr_t *hand; int32_t leng; char *lock ; } cactype;
+typedef struct
+{
+    intptr_t *hand;
+    int32_t   leng;
+    char *    lock;
+} cactype;
 
 enum {
-	CACHE1D_FIND_FILE = 1,
-	CACHE1D_FIND_DIR = 2,
-	CACHE1D_FIND_DRIVE = 4,
-	CACHE1D_FIND_NOCURDIR = 8,
+    CACHE1D_FIND_FILE = 1,
+    CACHE1D_FIND_DIR = 2,
+    CACHE1D_FIND_DRIVE = 4,
+    CACHE1D_FIND_NOCURDIR = 8,
 
-	CACHE1D_OPT_NOSTACK = 0x100,
+    CACHE1D_OPT_NOSTACK = 0x100,
 
-	// the lower the number, the higher the priority
-	CACHE1D_SOURCE_DRIVE = 0,
-	CACHE1D_SOURCE_CURDIR = 1,
-	CACHE1D_SOURCE_PATH = 2,	// + path stack depth
-	CACHE1D_SOURCE_ZIP = 0x7ffffffe,
-	CACHE1D_SOURCE_GRP = 0x7fffffff,
+    // the lower the number, the higher the priority
+    CACHE1D_SOURCE_DRIVE = 0,
+    CACHE1D_SOURCE_CURDIR = 1,
+    CACHE1D_SOURCE_PATH = 2,	// + path stack depth
+    CACHE1D_SOURCE_ZIP = 0x7ffffffe,
+    CACHE1D_SOURCE_GRP = 0x7fffffff,
 };
 typedef struct _CACHE1D_FIND_REC {
-	char *name;
-	int32_t type, source;
-	struct _CACHE1D_FIND_REC *next, *prev, *usera, *userb;
+    char *name;
+    int32_t type, source;
+    struct _CACHE1D_FIND_REC *next, *prev, *usera, *userb;
 } CACHE1D_FIND_REC;
 void klistfree(CACHE1D_FIND_REC *rec);
 CACHE1D_FIND_REC *klistpath(const char *path, const char *mask, int32_t type);
 
+extern int32_t lz4CompressionLevel;
 int32_t	kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil);
 int32_t kdfread_LZ4(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil);
 #if 0
