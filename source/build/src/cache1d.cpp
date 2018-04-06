@@ -298,7 +298,7 @@ void agecache(void)
     if (agecount >= cacnum)
         agecount = cacnum-1;
 
-    native_t cnt = (cacnum>>5);
+    native_t cnt = (cacnum>>4);
 
     if (agecount < 0 || !cnt)
         return;
@@ -1708,7 +1708,7 @@ int32_t kdfread(void *buffer, bsize_t dasizeof, bsize_t count, int32_t fil)
 
 // LZ4_COMPRESSION_ACCELERATION_VALUE can be tuned for performance/space trade-off
 // (lower number = higher compression ratio, higher number = faster compression speed)
-#define LZ4_COMPRESSION_ACCELERATION_VALUE 15
+#define LZ4_COMPRESSION_ACCELERATION_VALUE 5
 
 static char compressedDataStackBuf[131072];
 int32_t lz4CompressionLevel = LZ4_COMPRESSION_ACCELERATION_VALUE;
