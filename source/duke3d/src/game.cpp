@@ -1494,43 +1494,14 @@ int A_Spawn(int spriteNum, int tileNum)
     sectNum = pSprite->sectnum;
 
     //some special cases that can't be handled through the dynamictostatic system.
+
+    if (pSprite->picnum >= CAMERA1 && pSprite->picnum <= CAMERA1 + 4)
+        pSprite->picnum = CAMERA1;
 #ifndef EDUKE32_STANDALONE
-    if ((pSprite->picnum >= BOLT1 && pSprite->picnum <= BOLT1 + 3) || (pSprite->picnum >= SIDEBOLT1 && pSprite->picnum <= SIDEBOLT1 + 3))
-    {
-        T1(newSprite) = pSprite->xrepeat;
-        T2(newSprite) = pSprite->yrepeat;
-        pSprite->yvel = 0;
-
-        changespritestat(newSprite, STAT_STANDABLE);
-    }
-    else if ((pSprite->picnum >= CAMERA1 && pSprite->picnum <= CAMERA1 + 4) || pSprite->picnum == CAMERAPOLE || pSprite->picnum == GENERICPOLE)
-    {
-        if (pSprite->picnum != GENERICPOLE)
-        {
-            pSprite->extra = 1;
-            pSprite->cstat &= 32768;
-
-            if (g_damageCameras)
-                pSprite->cstat |= 257;
-        }
-
-        if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
-        {
-            pSprite->xrepeat = pSprite->yrepeat = 0;
-            changespritestat(newSprite, STAT_MISC);
-        }
-        else
-        {
-            pSprite->pal = 0;
-
-            if (!(pSprite->picnum == CAMERAPOLE || pSprite->picnum == GENERICPOLE))
-            {
-                pSprite->picnum = CAMERA1;
-                changespritestat(newSprite, STAT_ACTOR);
-            }
-        }
-    }
-    else
+    else if (pSprite->picnum >= BOLT1 && pSprite->picnum <= BOLT1 + 3)
+        pSprite->picnum = BOLT1;
+    else if (pSprite->picnum >= SIDEBOLT1 && pSprite->picnum <= SIDEBOLT1 + 3)
+        pSprite->picnum = SIDEBOLT1;
 #endif
         switch (DYNAMICTILEMAP(pSprite->picnum))
         {
@@ -1593,7 +1564,51 @@ int A_Spawn(int spriteNum, int tileNum)
             pSprite->xrepeat = pSprite->yrepeat = 0;
             changespritestat(newSprite, STAT_MISC);
             break;
+        case CAMERA1__STATIC:
+            pSprite->extra = 1;
+            pSprite->cstat &= 32768;
+
+            if (g_damageCameras)
+                pSprite->cstat |= 257;
+
+            if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
+            {
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
+            }
+            else
+            {
+                pSprite->pal = 0;
+                changespritestat(newSprite, STAT_ACTOR);
+            }
+            break;
+        case CAMERAPOLE__STATIC:
+            pSprite->extra = 1;
+            pSprite->cstat &= 32768;
+
+            if (g_damageCameras)
+                pSprite->cstat |= 257;
+            fallthrough__;
+        case GENERICPOLE__STATIC:
+            if ((!g_netServer && ud.multimode < 2) && pSprite->pal != 0)
+            {
+                pSprite->xrepeat = pSprite->yrepeat = 0;
+                changespritestat(newSprite, STAT_MISC);
+            }
+            else
+                pSprite->pal = 0;
+            break;
+
 #ifndef EDUKE32_STANDALONE
+        case BOLT1__STATIC:
+        case SIDEBOLT1__STATIC:
+            T1(newSprite) = pSprite->xrepeat;
+            T2(newSprite) = pSprite->yrepeat;
+            pSprite->yvel = 0;
+
+            changespritestat(newSprite, STAT_STANDABLE);
+            break;
+
         case WATERSPLASH2__STATIC:
             if (spriteNum >= 0)
             {
