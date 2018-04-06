@@ -4648,10 +4648,7 @@ void G_HandleLocalKeys(void)
             g_demo_rewind = 0;
 
             if (g_demo_paused)
-            {
                 FX_StopAllSounds();
-                S_ClearSoundLocks();
-            }
         }
 
         if (KB_KeyPressed(sc_Tab))
@@ -6681,7 +6678,6 @@ MAIN_LOOP_RESTART:
             if (G_PlaybackDemo())
             {
                 FX_StopAllSounds();
-                S_ClearSoundLocks();
                 g_noLogoAnim = 1;
                 goto MAIN_LOOP_RESTART;
             }

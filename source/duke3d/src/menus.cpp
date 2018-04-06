@@ -3484,7 +3484,6 @@ static void Menu_Verify(int32_t input)
             KB_FlushKeyboardQueue();
             KB_ClearKeysDown();
             FX_StopAllSounds();
-            S_ClearSoundLocks();
 
             if (G_LoadPlayerMaybeMulti(*g_quickload) == 0)
                 break;
