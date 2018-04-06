@@ -142,7 +142,7 @@ void GAME_clearbackground(int32_t numcols, int32_t numrows)
     UNREFERENCED_PARAMETER(numcols);
 
 # ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && qsetmode==200)
+    if (getrendermode() >= REND_POLYMOST && in3dmode())
     {
         const int32_t i8n8 = OSD_SCALE(OSDCHAR_HEIGHT*numrows);
 //        glPushAttrib(GL_FOG_BIT);
