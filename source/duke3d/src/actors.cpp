@@ -223,7 +223,7 @@ SKIPWALLCHECK:
                     goto next_sprite;
 #endif
                 int32_t const spriteDist = pOther->picnum == APLAYER
-                                     ? sepdist(pSprite->x - pOther->x, pSprite->y - pOther->y, pSprite->z - (pOther->z - PHEIGHT))
+                                     ? FindDistance3D(pSprite->x - pOther->x, pSprite->y - pOther->y, pSprite->z - (pOther->z - PHEIGHT))
                                      : dist(pSprite, pOther);
 
                 if (spriteDist >= blastRadius || !cansee(pOther->x, pOther->y, pOther->z - ZOFFSET3, pOther->sectnum, pSprite->x,
