@@ -323,50 +323,50 @@ extern int32_t m32_numdebuglines;
 
 static inline void setgotpic(int32_t a)
 {
-	_asm {
-		push ebx
-		mov eax, a
-		mov ebx, eax
-		cmp byte ptr walock[eax], 200
-		jae skipit
-		mov byte ptr walock[eax], 199
+    _asm {
+        push ebx
+        mov eax, a
+        mov ebx, eax
+        cmp byte ptr walock[eax], 200
+        jae skipit
+        mov byte ptr walock[eax], 199
 skipit:
-		shr eax, 3
-		and ebx, 7
-		mov dl, byte ptr gotpic[eax]
-		mov bl, byte ptr pow2char[ebx]
-		or dl, bl
-		mov byte ptr gotpic[eax], dl
-		pop ebx
-	}
+        shr eax, 3
+        and ebx, 7
+        mov dl, byte ptr gotpic[eax]
+        mov bl, byte ptr pow2char[ebx]
+        or dl, bl
+        mov byte ptr gotpic[eax], dl
+        pop ebx
+    }
 }
 
 #elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)	// _MSC_VER
 
 #define setgotpic(a) \
 ({ int32_t __a=(a); \
-	__asm__ __volatile__ ( \
-			       "movl %%eax, %%ebx\n\t" \
-			       "cmpb $200, " ASMSYM("walock") "(%%eax)\n\t" \
-			       "jae 0f\n\t" \
-			       "movb $199, " ASMSYM("walock") "(%%eax)\n\t" \
-			       "0:\n\t" \
-			       "shrl $3, %%eax\n\t" \
-			       "andl $7, %%ebx\n\t" \
-			       "movb " ASMSYM("gotpic") "(%%eax), %%dl\n\t" \
-			       "movb " ASMSYM("pow2char") "(%%ebx), %%bl\n\t" \
-			       "orb %%bl, %%dl\n\t" \
-			       "movb %%dl, " ASMSYM("gotpic") "(%%eax)" \
-			       : "=a" (__a) : "a" (__a) \
-			       : "ebx", "edx", "memory", "cc"); \
-				       __a; })
+    __asm__ __volatile__ ( \
+                   "movl %%eax, %%ebx\n\t" \
+                   "cmpb $200, " ASMSYM("walock") "(%%eax)\n\t" \
+                   "jae 0f\n\t" \
+                   "movb $199, " ASMSYM("walock") "(%%eax)\n\t" \
+                   "0:\n\t" \
+                   "shrl $3, %%eax\n\t" \
+                   "andl $7, %%ebx\n\t" \
+                   "movb " ASMSYM("gotpic") "(%%eax), %%dl\n\t" \
+                   "movb " ASMSYM("pow2char") "(%%ebx), %%bl\n\t" \
+                   "orb %%bl, %%dl\n\t" \
+                   "movb %%dl, " ASMSYM("gotpic") "(%%eax)" \
+                   : "=a" (__a) : "a" (__a) \
+                   : "ebx", "edx", "memory", "cc"); \
+                       __a; })
 
 #else	// __GNUC__ && __i386__
 
 static FORCE_INLINE void setgotpic(int32_t tilenume)
 {
-	if (walock[tilenume] < 200) walock[tilenume] = 199;
-	gotpic[tilenume>>3] |= pow2char[tilenume&7];
+    if (walock[tilenume] < 200) walock[tilenume] = 199;
+    gotpic[tilenume>>3] |= pow2char[tilenume&7];
 }
 
 #endif
