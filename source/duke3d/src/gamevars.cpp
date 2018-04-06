@@ -1028,25 +1028,22 @@ perr:
 
 void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
 {
-    for (bssize_t j = 0; j < numVars; ++j)
+    for (native_t j = 0; j < numVars; ++j)
     {
         int gameVar = *insptr++;
+        int const invertResult = !!(gameVar & (MAXGAMEVARS << 1));
 
         if (gameVar == MAXGAMEVARS)
         {
             outBuf[j] = *insptr++;
             continue;
         }
-
-        if (gameVar == g_thisActorVarID)
+        else if (gameVar == g_thisActorVarID)
         {
             outBuf[j] = vm.spriteNum;
             continue;
         }
-
-        int const invertResult = !!(gameVar & (MAXGAMEVARS << 1));
-
-        if (gameVar >= g_gameVarCount && !invertResult)
+        else if (gameVar >= g_gameVarCount && !invertResult)
         {
             outBuf[j] = Gv_GetSpecialVarX(gameVar);
             continue;
