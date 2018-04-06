@@ -1076,9 +1076,9 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
 #endif
             x1 = spr->x; y1 = spr->y;
 
-            switch (cstat&48)
+            switch (cstat & (CSTAT_SPRITE_ALIGNMENT_WALL | CSTAT_SPRITE_ALIGNMENT_FLOOR))
             {
-            case 0:
+            case CSTAT_SPRITE_ALIGNMENT_FACING:
                 if (x1 >= xmin && x1 <= xmax && y1 >= ymin && y1 <= ymax)
                 {
                     const int32_t daz = spr->z + spriteheightofs(j, &k, 1);
@@ -1094,7 +1094,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 }
                 break;
 
-            case 16:
+            case CSTAT_SPRITE_ALIGNMENT_WALL:
             {
                 const int32_t daz = spr->z + spriteheightofs(j, &k, 1);
 
@@ -1127,7 +1127,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 break;
             }
 
-            case 32:
+            case CSTAT_SPRITE_ALIGNMENT_FLOOR:
             {
                 if (pos->z > spr->z - flordist && pos->z < spr->z + ceildist)
                 {
