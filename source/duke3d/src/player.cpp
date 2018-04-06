@@ -1610,7 +1610,7 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
     }
 
 #ifdef EDUKE32_STANDALONE
-    return A_ShootCustom(spriteNum, projecTile, shootAng, &startPos);
+    return A_CheckSpriteTileFlags(projecTile, SFLAG_PROJECTILE) ? A_ShootCustom(spriteNum, projecTile, shootAng, &startPos) : -1;
 #else
     return A_CheckSpriteTileFlags(projecTile, SFLAG_PROJECTILE)
            ? A_ShootCustom(spriteNum, projecTile, shootAng, &startPos)
@@ -2115,8 +2115,7 @@ void P_DisplayWeapon(void)
     weaponX -= 58 + pPlayer->weapon_ang;
     weaponYOffset -= (pPlayer->hard_landing << 3);
 
-    currentWeapon                  = PWEAPON(screenpeek, (pPlayer->last_weapon >= 0) ? pPlayer->last_weapon
-                                                                          : pPlayer->curr_weapon, WorksLike);
+    currentWeapon       = PWEAPON(screenpeek, (pPlayer->last_weapon >= 0) ? pPlayer->last_weapon : pPlayer->curr_weapon, WorksLike);
     hudweap.gunposy     = weaponYOffset;
     hudweap.lookhoriz   = weaponY;
     hudweap.cur         = currentWeapon;
