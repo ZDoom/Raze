@@ -9948,9 +9948,8 @@ void nextpage(void)
     //sprintf(snotbuf,"Total: %d",k);
     //printext256((j>>5)*40+32,(j&31)*6,31,-1,snotbuf,1);
 
-    switch (qsetmode)
+    if (in3dmode())
     {
-    case 200:
         begindrawing(); //{{{
         for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
@@ -9979,20 +9978,16 @@ void nextpage(void)
                 permtail = ((permtail+1)&(MAXPERMS-1));
         }
         enddrawing();   //}}}
-        break;
-
-    case 350:
-    case 480:
-        break;
     }
 
     faketimerhandler();
     agecache();
 
 #ifdef USE_OPENGL
-    omdtims = mdtims; mdtims = getticks();
+    omdtims = mdtims;
+    mdtims = getticks();
 
-    for (bssize_t i = 0; i < Numsprites; ++i)
+    for (native_t i = 0; i < Numsprites; ++i)
         if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
             spriteext[i].mdanimtims += mdtims - omdtims;
 #endif
