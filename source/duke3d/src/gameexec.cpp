@@ -1453,6 +1453,7 @@ skip_check:
             // select sprite for monster to target
             // if holoduke is on, let them target holoduke first.
             //
+#ifndef EDUKE32_STANDALONE
             if (pPlayer->holoduke_on >= 0)
             {
                 pSprite = (uspritetype *)&sprite[pPlayer->holoduke_on];
@@ -1466,7 +1467,7 @@ skip_check:
                     pSprite = (uspritetype *)&sprite[pPlayer->i];
                 }
             }
-
+#endif
             // can they see player, (or player's holoduke)
             tw = cansee(vm.pSprite->x,vm.pSprite->y,vm.pSprite->z-(krand()&((47<<8))),vm.pSprite->sectnum,
                        pSprite->x,pSprite->y,pSprite->z-(24<<8),pSprite->sectnum);
@@ -3409,7 +3410,7 @@ nullquote:
         case CON_UPDATESECTOR:
             insptr++;
             {
-                vec2_t vect         = { 0, 0 };
+                vec2_t vect = { 0, 0 };
                 Gv_FillWithVars(vect);
 
                 int const returnVar = *insptr++;
@@ -3423,7 +3424,7 @@ nullquote:
         case CON_UPDATESECTORZ:
             insptr++;
             {
-                vec3_t vect         = { 0, 0, 0 };
+                vec3_t vect = { 0, 0, 0 };
                 Gv_FillWithVars(vect);
 
                 int const returnVar = *insptr++;
@@ -4520,11 +4521,12 @@ finish_qsprintf:
                     case GAMEARRAY_UINT16: ((uint16_t *) aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
                     case GAMEARRAY_UINT8:  ((int8_t *)   aGameArrays[tw].pValues)[arrayIndex] = newValue; break;
                     case GAMEARRAY_BITMAP:
-                        if (newValue)
-                            ((uint8_t *)aGameArrays[tw].pValues)[arrayIndex >> 3] |= (1 << (arrayIndex & 7));
-                        else
-                            ((uint8_t *)aGameArrays[tw].pValues)[arrayIndex >> 3] &= ~(1 << (arrayIndex & 7));
+                    {
+                        uint32_t const mask = (1 << (arrayIndex & 7));
+                        uint8_t & value = ((uint8_t *)aGameArrays[tw].pValues)[arrayIndex >> 3];
+                        value = (value & ~mask) | (-!!newValue & mask);
                         break;
+                    }
                 }
 
                 continue;
