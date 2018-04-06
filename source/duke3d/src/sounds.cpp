@@ -175,6 +175,7 @@ void S_RestartMusic(void)
 
 void S_MenuSound(void)
 {
+#ifndef EDUKE32_STANDALONE
     static int32_t SoundNum;
     int32_t const menusnds[] = {
         LASERTRIP_EXPLODE, DUKE_GRUNT,       DUKE_LAND_HURT,   CHAINGUN_FIRE, SQUISHED,      KICK_HIT,
@@ -182,6 +183,9 @@ void S_MenuSound(void)
         PIPEBOMB_BOUNCE,   PIPEBOMB_EXPLODE, NITEVISION_ONOFF, RPG_SHOOT,     SELECT_WEAPON,
     };
     int32_t s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, menusnds[SoundNum++ % ARRAY_SIZE(menusnds)]);
+#else
+    int32_t s = VM_OnEventWithReturn(EVENT_OPENMENUSOUND, g_player[screenpeek].ps->i, screenpeek, -1);
+#endif
     if (s != -1)
         S_PlaySound(s);
 }
@@ -590,6 +594,7 @@ sound_further_processing:
             !cansee(cam->x,cam->y,cam->z-(24<<8),camsect, SX(i),SY(i),SZ(i)-(24<<8),SECT(i)))
         sndist += sndist>>5;
 
+#ifndef EDUKE32_STANDALONE
     switch (DYNAMICSOUNDMAP(num))
     {
     case PIPEBOMB_EXPLODE__STATIC:
@@ -600,6 +605,7 @@ sound_further_processing:
             sndist = 6144;
         break;
     }
+#endif
 
     if ((g_sounds[num].m & SF_GLOBAL) || sndist < ((255-LOUDESTVOLUME)<<6))
         sndist = ((255-LOUDESTVOLUME)<<6);
@@ -975,11 +981,10 @@ int32_t A_CheckSoundPlaying(int32_t i, int32_t num)
 int32_t A_CheckAnySoundPlaying(int32_t i)
 {
     int32_t const msp = g_highestSoundIdx;
-    int32_t k;
 
     for (bssize_t j=0; j<msp; ++j)
     {
-        for (k=0; k<MAXSOUNDINSTANCES; ++k)
+        for (native_t k=0; k<MAXSOUNDINSTANCES; ++k)
             if (g_sounds[j].instances[k].spriteNum == i)
                 return 1;
     }
