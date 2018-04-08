@@ -566,8 +566,14 @@ static MenuOption_t MEO_DISPLAYSETUP_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Redf
 static MenuEntry_t ME_DISPLAYSETUP_PALETTEEMULATION = MAKE_MENUENTRY("Palette emulation:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_PALETTEEMULATION, Option);
 #endif
 
+//POGOTODO: allow filtering again in standalone once indexed colour textures support filtering
+#ifdef EDUKE32_STANDALONE
+static char const *MEOSN_DISPLAYSETUP_TEXFILTER[] = { "Classic" };
+static int32_t MEOSV_DISPLAYSETUP_TEXFILTER[] = { TEXFILTER_OFF };
+#else
 static char const *MEOSN_DISPLAYSETUP_TEXFILTER[] = { "Classic", "Filtered" };
 static int32_t MEOSV_DISPLAYSETUP_TEXFILTER[] = { TEXFILTER_OFF, TEXFILTER_ON };
+#endif
 static MenuOptionSet_t MEOS_DISPLAYSETUP_TEXFILTER = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_TEXFILTER, MEOSV_DISPLAYSETUP_TEXFILTER, 0x2 );
 static MenuOption_t MEO_DISPLAYSETUP_TEXFILTER = MAKE_MENUOPTION( &MF_Redfont, &MEOS_DISPLAYSETUP_TEXFILTER, &gltexfiltermode );
 static MenuEntry_t ME_DISPLAYSETUP_TEXFILTER = MAKE_MENUENTRY( "Texture Mode:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_TEXFILTER, Option );
