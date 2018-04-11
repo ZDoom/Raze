@@ -1249,6 +1249,9 @@ enum ScriptKeywords_t
     CON_SETTILEDATA,        // 428
     CON_DAMAGEEVENTTILE,    // 429
     CON_DAMAGEEVENTTILERANGE, // 430
+    CON_SPAWNWALLGLASS,     // 431
+    CON_SPAWNWALLSTAINEDGLASS, // 432
+    CON_SPAWNCEILINGGLASS,  // 433
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua

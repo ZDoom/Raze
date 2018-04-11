@@ -1847,6 +1847,33 @@ skip_check:
             A_SpawnGlass(vm.spriteNum,*insptr++);
             continue;
 
+        case CON_SPAWNWALLGLASS:
+            insptr++;
+            {
+                int const wallNum = Gv_GetVarX(*insptr++);
+                int const numShards = Gv_GetVarX(*insptr++);
+                A_SpawnWallGlass(vm.spriteNum, wallNum, numShards);
+            }
+            continue;
+
+        case CON_SPAWNWALLSTAINEDGLASS:
+            insptr++;
+            {
+                int const wallNum = Gv_GetVarX(*insptr++);
+                int const numShards = Gv_GetVarX(*insptr++);
+                A_SpawnRandomGlass(vm.spriteNum, wallNum, numShards);
+            }
+            continue;
+
+        case CON_SPAWNCEILINGGLASS:
+            insptr++;
+            {
+                int const sectNum = Gv_GetVarX(*insptr++);
+                int const numShards = Gv_GetVarX(*insptr++);
+                A_SpawnCeilingGlass(vm.spriteNum, sectNum, numShards);
+            }
+            continue;
+
         case CON_KILLIT:
             insptr++;
             vm.flags |= VM_KILL;

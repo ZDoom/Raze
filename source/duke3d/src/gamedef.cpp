@@ -470,6 +470,9 @@ static tokenmap_t const vm_keywords[] =
     { "soundoncevar",           CON_SOUNDONCEVAR },
     { "soundvar",               CON_SOUNDVAR },
     { "spawn",                  CON_SPAWN },
+    { "spawnceilingglass",      CON_SPAWNCEILINGGLASS },
+    { "spawnwallstainedglass",  CON_SPAWNWALLSTAINEDGLASS },
+    { "spawnwallglass",         CON_SPAWNWALLGLASS },
     { "spgethitag",             CON_SPGETHITAG },
     { "spgetlotag",             CON_SPGETLOTAG },
     { "spriteflags",            CON_SPRITEFLAGS },
@@ -4257,6 +4260,9 @@ DO_DEFSTATE:
         case CON_STARTTRACKSLOT:
         case CON_SWAPTRACKSLOT:
         case CON_PRELOADTRACKSLOTFORSWAP:
+        case CON_SPAWNWALLGLASS:
+        case CON_SPAWNWALLSTAINEDGLASS:
+        case CON_SPAWNCEILINGGLASS:
             C_GetManyVars(2);
             continue;
 
