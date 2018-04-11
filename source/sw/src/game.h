@@ -544,9 +544,13 @@ int StdRandomRange(int range);
 #define HIT_SECTOR BIT(14)
 #define HIT_PLAX_WALL BIT(13)
 
-#define NORM_SPRITE(val) ((val) & (SIZ(sprite) - 1))
-#define NORM_WALL(val) ((val) & (SIZ(wall) - 1))
-#define NORM_SECTOR(val) ((val) & (SIZ(sector) - 1))
+#define NORM_SPRITE(val) ((val) & (MAXSPRITES - 1))
+#define NORM_WALL(val) ((val) & (MAXWALLS - 1))
+#define NORM_SECTOR(val) ((val) & (MAXSECTORS - 1))
+
+EDUKE32_STATIC_ASSERT(isPow2(MAXSPRITES));
+EDUKE32_STATIC_ASSERT(isPow2(MAXWALLS));
+EDUKE32_STATIC_ASSERT(isPow2(MAXSECTORS));
 
 // overwritesprite flags
 #define OVER_SPRITE_MIDDLE      (BIT(0))

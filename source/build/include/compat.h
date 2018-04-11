@@ -1057,6 +1057,9 @@ CONSTEXPR size_t logbasenegative(T n)
     return n > static_cast<T>(-(native_t)base) ? 1 : 1 + logbase<base>(n / static_cast<T>(-(native_t)base));
 }
 
+#define isPow2OrZero(v) (((v) & ((v) - 1)) == 0)
+#define isPow2(v) (isPow2OrZero(v) && (v))
+
 #endif
 
 
