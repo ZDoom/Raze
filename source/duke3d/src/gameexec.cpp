@@ -1087,7 +1087,7 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
     //AddLog("resetplayer");
     if (!g_netServer && ud.multimode < 2 && !(resetFlags & 2))
     {
-        if (g_quickload && g_quickload->isValid() && ud.recstat != 2)
+        if (g_quickload && g_quickload->isValid() && ud.recstat != 2 && !(resetFlags & 8))
         {
             if (resetFlags & 4)
             {
