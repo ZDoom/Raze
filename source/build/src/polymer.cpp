@@ -1068,7 +1068,7 @@ void polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t d
     float           pos[3];
     pthtyp*         pth;
 
-    if (getrendermode() == REND_CLASSIC) return;
+    if (videoGetRenderMode() == REND_CLASSIC) return;
 
     videoBeginDrawing();
 

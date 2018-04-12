@@ -614,7 +614,7 @@ void A_DeleteSprite(int spriteNum)
     }
 
 #ifdef POLYMER
-    if (actor[spriteNum].lightptr != NULL && getrendermode() == REND_POLYMER)
+    if (actor[spriteNum].lightptr != NULL && videoGetRenderMode() == REND_POLYMER)
         A_DeleteLight(spriteNum);
 #endif
 
@@ -807,7 +807,7 @@ void G_AddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange,
 #ifdef POLYMER
     spritetype *s = &sprite[spriteNum];
 
-    if (getrendermode() != REND_POLYMER || pr_lighting != 1)
+    if (videoGetRenderMode() != REND_POLYMER || pr_lighting != 1)
         return;
 
     if (actor[spriteNum].lightptr == NULL)
@@ -7851,7 +7851,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
 #ifdef POLYMER
         case SE_49_POINT_LIGHT:
         {
-            if (!A_CheckSpriteFlags(i, SFLAG_NOLIGHT) && getrendermode() == REND_POLYMER &&
+            if (!A_CheckSpriteFlags(i, SFLAG_NOLIGHT) && videoGetRenderMode() == REND_POLYMER &&
                     !(A_CheckSpriteFlags(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
             {
                 if (actor[i].lightptr == NULL)
@@ -7917,7 +7917,7 @@ static void G_DoEffectorLights(void)  // STATNUM 14
         }
         case SE_50_SPOT_LIGHT:
         {
-            if (!A_CheckSpriteFlags(i, SFLAG_NOLIGHT) && getrendermode() == REND_POLYMER &&
+            if (!A_CheckSpriteFlags(i, SFLAG_NOLIGHT) && videoGetRenderMode() == REND_POLYMER &&
                     !(A_CheckSpriteFlags(i, SFLAG_USEACTIVATOR) && sector[sprite[i].sectnum].lotag & 16384))
             {
                 if (actor[i].lightptr == NULL)
@@ -8323,7 +8323,7 @@ int A_CheckSwitchTile(int spriteNum)
 void G_RefreshLights(void)
 {
 #ifdef POLYMER
-    if (Numsprites && getrendermode() == REND_POLYMER)
+    if (Numsprites && videoGetRenderMode() == REND_POLYMER)
     {
         int statNum = 0;
 

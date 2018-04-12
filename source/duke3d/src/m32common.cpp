@@ -564,7 +564,7 @@ int32_t map_undoredo(int32_t dir)
     Bassert(Numsprites == mapstate->num[2]);
 
 #ifdef POLYMER
-    if (in3dmode() && getrendermode() == REND_POLYMER)
+    if (in3dmode() && videoGetRenderMode() == REND_POLYMER)
         polymer_loadboard();
 #endif
 #ifdef YAX_ENABLE

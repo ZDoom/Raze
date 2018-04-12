@@ -34,7 +34,7 @@ int8_t g_noFloorPal[MAXPALOOKUPS];
 
 int32_t curbrightness = 0, gammabrightness = 0;
 
-static void setpalettefade_calc(uint8_t offset);
+static void paletteSetFade(uint8_t offset);
 
 #ifdef USE_OPENGL
 void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
@@ -69,10 +69,10 @@ void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
 }
 #endif
 
-void fade_screen_black(int32_t moreopaquep)
+void videoFadeToBlack(int32_t moreopaquep)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
         fullscreen_tint_gl(0, 0, 0, moreopaquep ? 168 : 84);
     else
 #endif
@@ -80,26 +80,24 @@ void fade_screen_black(int32_t moreopaquep)
         Bassert(!offscreenrendering);
 
         videoBeginDrawing();
-        {
-            char *const p = (char *) frameplace;
-            const char *const trans = getblendtab(0);
-            const int32_t shiftamnt = ((!!moreopaquep)*8);
-            const int32_t dimprod = xdim*ydim;
-            int32_t i = 0;
+        char *const p = (char *) frameplace;
+        const char *const trans = paletteGetBlendTable(0);
+        const int32_t shiftamnt = ((!!moreopaquep)*8);
+        const int32_t dimprod = xdim*ydim;
+        int32_t i = 0;
 
 #ifdef CLASSIC_SLICE_BY_4
-            for (; i<dimprod-4; i+=4)
-            {
-                p[i] = trans[p[i]<<shiftamnt];
-                p[i+1] = trans[p[i+1]<<shiftamnt];
-                p[i+2] = trans[p[i+2]<<shiftamnt];
-                p[i+3] = trans[p[i+3]<<shiftamnt];
-            }
+        for (; i<dimprod-4; i+=4)
+        {
+            p[i] = trans[p[i]<<shiftamnt];
+            p[i+1] = trans[p[i+1]<<shiftamnt];
+            p[i+2] = trans[p[i+2]<<shiftamnt];
+            p[i+3] = trans[p[i+3]<<shiftamnt];
+        }
 #endif
 
-            for (; i<dimprod; i++)
-                p[i] = trans[p[i]<<shiftamnt];
-        }
+        for (; i<dimprod; i++)
+            p[i] = trans[p[i]<<shiftamnt];
         videoEndDrawing();
     }
 }
@@ -112,7 +110,7 @@ void setup_blend(int32_t blend, int32_t doreverse)
     if (globalblend != blend)
     {
         globalblend = blend;
-        fixtransluscence(FP_OFF(getblendtab(blend)));
+        fixtransluscence(FP_OFF(paletteGetBlendTable(blend)));
     }
 
     if (doreverse)
@@ -135,7 +133,7 @@ static void maybe_alloc_palookup(int32_t palnum);
 //
 // loadpalette (internal)
 //
-void loadpalette(void)
+void paletteLoadFromDisk(void)
 {
     initfastcolorlookup_scale(30, 59, 11);
     initfastcolorlookup_gridvectors();
@@ -271,7 +269,7 @@ void loadpalette(void)
                 return kclose(fil);
             }
 
-            if (getblendtab(blendnum) != NULL)
+            if (paletteGetBlendTable(blendnum) != NULL)
                 initprintf("Warning: duplicate blending table index %3d encountered\n", blendnum);
 
             if (kread_and_test(fil, tab, 256*256))
@@ -281,7 +279,7 @@ void loadpalette(void)
                 return kclose(fil);
             }
 
-            setblendtab(blendnum, tab);
+            paletteSetBlendTable(blendnum, tab);
         }
         Bfree(tab);
 
@@ -301,7 +299,7 @@ void loadpalette(void)
 
 uint32_t PaletteIndexFullbrights[8];
 
-void E_PostLoadPalette(void)
+void palettePostLoadTables(void)
 {
     globalpal = 0;
 
@@ -366,7 +364,7 @@ void E_PostLoadPalette(void)
     }
 }
 
-void E_ReplaceTransparentColorWithBlack(void)
+void paletteFixTranslucencyMask(void)
 {
     for (bssize_t i=0; i<MAXPALOOKUPS; i++)
     {
@@ -405,7 +403,7 @@ void E_ReplaceTransparentColorWithBlack(void)
 //  - on success, 0
 //  - on error, -1 (didn't read enough data)
 //  - -2: error, we already wrote an error message ourselves
-int32_t loadlookups(int32_t fp)
+int32_t paletteLoadLookupTable(int32_t fp)
 {
     uint8_t numlookups;
     char remapbuf[256];
@@ -429,39 +427,39 @@ int32_t loadlookups(int32_t fp)
         if (kread_and_test(fp, remapbuf, 256))
             return -1;
 
-        makepalookup(palnum, remapbuf, 0, 0, 0, 0);
+        paletteMakeLookupTable(palnum, remapbuf, 0, 0, 0, 0);
     }
 
     return 0;
 }
 
-void generatefogpals(void)
+void paletteSetupDefaultFog(void)
 {
     // Find a gap of four consecutive unused pal numbers to generate fog shade
     // tables.
     for (bssize_t j=1; j<=255-3; j++)
         if (!palookup[j] && !palookup[j+1] && !palookup[j+2] && !palookup[j+3])
         {
-            makepalookup(j, NULL, 60, 60, 60, 1);
-            makepalookup(j+1, NULL, 60, 0, 0, 1);
-            makepalookup(j+2, NULL, 0, 60, 0, 1);
-            makepalookup(j+3, NULL, 0, 0, 60, 1);
+            paletteMakeLookupTable(j, NULL, 60, 60, 60, 1);
+            paletteMakeLookupTable(j+1, NULL, 60, 0, 0, 1);
+            paletteMakeLookupTable(j+2, NULL, 0, 60, 0, 1);
+            paletteMakeLookupTable(j+3, NULL, 0, 0, 60, 1);
 
             break;
         }
 }
 
-void fillemptylookups(void)
+void palettePostLoadLookups(void)
 {
     // Alias remaining unused pal numbers to the base shade table.
     for (bssize_t j=1; j<MAXPALOOKUPS; j++)
     {
         // If an existing lookup is identical to #0, free it.
         if (palookup[j] && palookup[j] != palookup[0] && !Bmemcmp(palookup[0], palookup[j], 256*numshades))
-            removepalookup(j);
+            paletteFreeLookupTable(j);
 
         if (!palookup[j])
-            makepalookup(j, NULL, 0, 0, 0, 1);
+            paletteMakeLookupTable(j, NULL, 0, 0, 0, 1);
     }
 }
 
@@ -480,20 +478,20 @@ static void maybe_alloc_palookup(int32_t palnum)
     }
 }
 
-void setblendtab(int32_t blend, const char *tab)
+void paletteSetBlendTable(int32_t blend, const char *tab)
 {
     if (blendtable[blend] == NULL)
         blendtable[blend] = (char *) Xmalloc(256*256);
 
     Bmemcpy(blendtable[blend], tab, 256*256);
 }
-void removeblendtab(int32_t const blend)
+void paletteFreeBlendTable(int32_t const blend)
 {
     DO_FREE_AND_NULL(blendtable[blend]);
 }
 
 #ifdef LUNATIC
-const char *(getblendtab) (int32_t blend)
+const char *(paletteGetBlendTable) (int32_t blend)
 {
     return blendtable[blend];
 }
@@ -544,7 +542,7 @@ void handle_blend(uint8_t enable, uint8_t blend, uint8_t def)
 }
 #endif
 
-int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
+int32_t paletteSetLookupTable(int32_t palnum, const uint8_t *shtab)
 {
     if (numshades != 32)
         return -1;
@@ -557,7 +555,8 @@ int32_t setpalookup(int32_t palnum, const uint8_t *shtab)
 
     return 0;
 }
-void removepalookup(int32_t const palnum)
+
+void paletteFreeLookupTable(int32_t const palnum)
 {
     if (palnum == 0 && palookup[palnum] != NULL)
     {
@@ -576,7 +575,7 @@ void removepalookup(int32_t const palnum)
 //
 // makepalookup
 //
-void makepalookup(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal)
+void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal)
 {
     int32_t i, j;
 
@@ -649,7 +648,7 @@ void makepalookup(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, ui
 //
 // setbasepal
 //
-void setbasepal(int32_t id, uint8_t const * const table)
+void paletteSetColorTable(int32_t id, uint8_t const * const table)
 {
     if (basepaltable[id] == NULL)
         basepaltable[id] = (uint8_t *) Xmalloc(768);
@@ -658,7 +657,8 @@ void setbasepal(int32_t id, uint8_t const * const table)
 
     uploadbasepalette(id);
 }
-void removebasepal(int32_t const id)
+
+void paletteFreeColorTable(int32_t const id)
 {
     if (id == 0)
         Bmemset(basepaltable[id], 0, 768);
@@ -675,7 +675,7 @@ void removebasepal(int32_t const id)
 //  4: don't calc curbrightness from dabrightness,  DON'T USE THIS FLAG!
 //  8: don't gltexinvalidate8()
 // 16: don't reset palfade*
-void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
+void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 {
     int32_t i, j;
     const uint8_t *dapal;
@@ -724,25 +724,23 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
     }
 
     if ((flags&16) && palfadedelta)  // keep the fade
-        setpalettefade_calc(palfadedelta>>2);
+        paletteSetFade(palfadedelta>>2);
 
+    static uint32_t lastpalettesum=0;
+    uint32_t newpalettesum = XXH32((uint8_t *) curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
+
+    palsumdidchange = (newpalettesum != lastpalettesum);
+
+    if (palsumdidchange || newpalettesum != g_lastpalettesum)
     {
-        static uint32_t lastpalettesum=0;
-        uint32_t newpalettesum = XXH32((uint8_t *) curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
-
-        palsumdidchange = (newpalettesum != lastpalettesum);
-
-        if (palsumdidchange || newpalettesum != g_lastpalettesum)
-        {
-            //            if ((flags&1) == 0)
-            videoUpdatePalette(0, 256);
-        }
-
-        g_lastpalettesum = lastpalettesum = newpalettesum;
+        //            if ((flags&1) == 0)
+        videoUpdatePalette(0, 256);
     }
 
+    g_lastpalettesum = lastpalettesum = newpalettesum;
+
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         // Only reset the textures if the corresponding preserve flags are clear and
         // either (a) the new palette is different to the last, or (b) the brightness
@@ -757,7 +755,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
         if (!(flags&8) && doinvalidate)
             gltexinvalidatetype(INVALIDATE_ART_NON_INDEXED);
 #ifdef POLYMER
-        if ((getrendermode() == REND_POLYMER) && doinvalidate)
+        if ((videoGetRenderMode() == REND_POLYMER) && doinvalidate)
             polymer_texinvalidate();
 #endif
     }
@@ -770,7 +768,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
     }
 }
 
-palette_t getpal(int32_t col)
+palette_t paletteGetColor(int32_t col)
 {
     if (!gammabrightness)
     {
@@ -782,21 +780,15 @@ palette_t getpal(int32_t col)
     return curpalette[col];
 }
 
-static void setpalettefade_calc(uint8_t offset)
+static void paletteSetFade(uint8_t offset)
 {
-    int32_t i;
-    palette_t p;
-
-    for (i=0; i<256; i++)
+    for (native_t i=0; i<256; i++)
     {
-        p = getpal(i);
+        palette_t const p = paletteGetColor(i);
 
-        curpalettefaded[i].b =
-            p.b + (((palfadergb.b - p.b) * offset) >> 8);
-        curpalettefaded[i].g =
-            p.g + (((palfadergb.g - p.g) * offset) >> 8);
-        curpalettefaded[i].r =
-            p.r + (((palfadergb.r - p.r) * offset) >> 8);
+        curpalettefaded[i].b = p.b + (((palfadergb.b - p.b) * offset) >> 8);
+        curpalettefaded[i].g = p.g + (((palfadergb.g - p.g) * offset) >> 8);
+        curpalettefaded[i].r = p.r + (((palfadergb.r - p.r) * offset) >> 8);
         curpalettefaded[i].f = 0;
     }
 }
@@ -806,7 +798,7 @@ static void setpalettefade_calc(uint8_t offset)
 //
 // setpalettefade
 //
-void setpalettefade(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
+void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
 {
     palfadergb.r = r;
     palfadergb.g = g;
@@ -817,15 +809,13 @@ void setpalettefade(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
 #endif
     palfadedelta = offset;
 
-    setpalettefade_calc(offset);
+    paletteSetFade(offset);
 
-    {
-        static uint32_t lastpalettesum=0;
-        uint32_t newpalettesum = XXH32((uint8_t *) curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
+    static uint32_t lastpalettesum=0;
+    uint32_t newpalettesum = XXH32((uint8_t *) curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
 
-        if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
-            videoUpdatePalette(0, 256);
+    if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
+        videoUpdatePalette(0, 256);
 
-        g_lastpalettesum = lastpalettesum = newpalettesum;
-    }
+    g_lastpalettesum = lastpalettesum = newpalettesum;
 }

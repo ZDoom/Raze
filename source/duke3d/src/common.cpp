@@ -1033,7 +1033,7 @@ void G_LoadLookups(void)
         if ((fp=kopen4loadfrommod("lookup.dat",1)) == -1)
             return;
 
-    j = loadlookups(fp);
+    j = paletteLoadLookupTable(fp);
 
     if (j < 0)
     {
@@ -1056,7 +1056,7 @@ void G_LoadLookups(void)
         for (bssize_t k = 0; k < 768; k++)
             paldata[k] <<= 2;
 
-        setbasepal(basepalnum, paldata);
+        paletteSetColorTable(basepalnum, paldata);
     }
 
     kclose(fp);

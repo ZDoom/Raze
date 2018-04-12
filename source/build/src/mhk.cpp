@@ -309,7 +309,7 @@ int32_t loadmaphack(const char *filename)
             light.publicflags.emitshadow = 1;
             light.publicflags.negative = 0;
 
-            if (getrendermode() == REND_POLYMER)
+            if (videoGetRenderMode() == REND_POLYMER)
             {
                 if (maphacklightcnt == PR_MAXLIGHTS)
                 {

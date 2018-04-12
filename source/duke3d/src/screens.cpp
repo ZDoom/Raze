@@ -91,7 +91,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set)
     if (player != g_player[screenpeek].ps)
         return;
 
-    setbrightness(ud.brightness>>2, palid, set);
+    videoSetPalette(ud.brightness>>2, palid, set);
 }
 
 void G_GetCrosshairColor(void)
@@ -157,7 +157,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
     if (ii <= 0) return;
 
-    if (getrendermode() == REND_CLASSIC)
+    if (videoGetRenderMode() == REND_CLASSIC)
         i = getclosestcol(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
     else i = getclosestcol(255, 255, 255); // use white in GL so we can tint it to the right color
 
@@ -168,7 +168,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
         ptr++;
     } while (--ii);
 
-    makepalookup(CROSSHAIR_PAL, NULL, CrosshairColors.r, CrosshairColors.g, CrosshairColors.b, 1);
+    paletteMakeLookupTable(CROSSHAIR_PAL, NULL, CrosshairColors.r, CrosshairColors.g, CrosshairColors.b, 1);
 
 #ifdef USE_OPENGL
     // XXX: this makes us also load all hightile textures tinted with the crosshair color!
@@ -259,7 +259,7 @@ static void palaccum_add(palaccum_t *pa, const palette_t *pal, int32_t f)
 
 static void G_FadePalaccum(const palaccum_t *pa)
 {
-    setpalettefade(tabledivide32_noinline(pa->r, pa->sumf)<<2,
+    videoFadePalette(tabledivide32_noinline(pa->r, pa->sumf)<<2,
         tabledivide32_noinline(pa->g, pa->sumf)<<2,
         tabledivide32_noinline(pa->b, pa->sumf)<<2, pa->maxf<<2);
 }
@@ -693,7 +693,7 @@ static void G_PrintCoords(int32_t snum)
     {
         y=16;
 
-        printcoordsline("rendmode = %d", getrendermode());
+        printcoordsline("rendmode = %d", videoGetRenderMode());
         printcoordsline("r_ambientlight = %.03f", r_ambientlight);
 
         if (rendmode >= 3)
@@ -873,7 +873,7 @@ void G_DisplayRest(int32_t smoothratio)
 
 #ifdef USE_OPENGL
     // this takes care of fullscreen tint for OpenGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         polytint_t & fstint = hictinting[MAXPALOOKUPS-1];
 
@@ -1344,7 +1344,7 @@ void G_DisplayRest(int32_t smoothratio)
         else if (applied)
         {
             // be sure to always un-apply a tint.
-            setpalettefade(0, 0, 0, 0);
+            videoFadePalette(0, 0, 0, 0);
             applied = 0;
         }
     }
@@ -1356,7 +1356,7 @@ void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e)
 {
     if (ud.screenfade == 0)
       return;
-    setpalettefade(r, g, b, e);
+    videoFadePalette(r, g, b, e);
     videoNextPage();
 
     int32_t tc = totalclock;
@@ -1370,7 +1370,7 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
 {
     if (ud.screenfade == 0)
       return;
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         G_FadePalette(r, g, b, end);
         return;
@@ -1382,7 +1382,7 @@ void fadepal(int32_t r, int32_t g, int32_t b, int32_t start, int32_t end, int32_
         if (KB_KeyPressed(sc_Space))
         {
             KB_ClearKeyDown(sc_Space);
-            setpalettefade(r, g, b, end);  // have to set to end fade value if we break!
+            videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
             return;
         }
 
@@ -1411,7 +1411,7 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
         if (KB_KeyPressed(sc_Space))
         {
             KB_ClearKeyDown(sc_Space);
-            setpalettefade(r, g, b, end);  // have to set to end fade value if we break!
+            videoFadePalette(r, g, b, end);  // have to set to end fade value if we break!
             return;
         }
         rotatesprite_fs(160<<16, 100<<16, 65536L, 0, tile, 0, 0, 2+8+64+BGSTRETCH);

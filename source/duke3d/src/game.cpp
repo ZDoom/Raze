@@ -518,7 +518,7 @@ static void G_SE40(int32_t smoothratio)
             }
 
 #ifdef POLYMER
-            if (getrendermode() == REND_POLYMER)
+            if (videoGetRenderMode() == REND_POLYMER)
                 polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), fix16_to_int(CAMERA(q16ang)), smoothratio);
 #endif
             drawrooms_q16(sprite[sprite2].x + x, sprite[sprite2].y + y,
@@ -559,7 +559,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
 {
     if ((gotpic[MIRROR>>3]&(1<<(MIRROR&7)))
 #ifdef POLYMER
-        && (getrendermode() != REND_POLYMER)
+        && (videoGetRenderMode() != REND_POLYMER)
 #endif
         )
     {
@@ -611,7 +611,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             int32_t j = g_visibility;
             g_visibility = (j>>1) + (j>>2);
 
-            if (getrendermode() == REND_CLASSIC)
+            if (videoGetRenderMode() == REND_CLASSIC)
             {
                 int32_t didmirror;
 
@@ -699,7 +699,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     totalclocklock = totalclock;
 
-    if (pub > 0 || getrendermode() >= REND_POLYMOST) // JBF 20040101: redraw background always
+    if (pub > 0 || videoGetRenderMode() >= REND_POLYMOST) // JBF 20040101: redraw background always
     {
 #ifndef EDUKE32_TOUCH_DEVICES
         if (ud.screen_size >= 8)
@@ -710,7 +710,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
     VM_OnEvent(EVENT_DISPLAYSTART, pPlayer->i, playerNum);
 
-    if (ud.overhead_on == 2 || ud.show_help || (pPlayer->cursectnum == -1 && getrendermode() != REND_CLASSIC))
+    if (ud.overhead_on == 2 || ud.show_help || (pPlayer->cursectnum == -1 && videoGetRenderMode() != REND_CLASSIC))
         return;
 
     if (r_usenewaspect)
@@ -755,7 +755,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             G_SE40(smoothRatio);
 #endif
 #ifdef POLYMER
-            if (getrendermode() == REND_POLYMER)
+            if (videoGetRenderMode() == REND_POLYMER)
                 polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
 #endif
             yax_preparedrawrooms();
@@ -772,7 +772,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
         int       pixelDoubling = 0;
         int const vr            = divscale22(1, sprite[pPlayer->i].yrepeat + 28);
-        int       screenTilting = (getrendermode() == REND_CLASSIC && ((ud.screen_tilting && pPlayer->rotscrnang
+        int       screenTilting = (videoGetRenderMode() == REND_CLASSIC && ((ud.screen_tilting && pPlayer->rotscrnang
 #ifdef SPLITSCREEN_MOD_HACKS
                                                                   && !g_fakeMultiMode
 #endif
@@ -794,7 +794,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             if (waloff[TILE_SAVESHOT] == 0)
                 allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
 
-            if (getrendermode() == REND_CLASSIC)
+            if (videoGetRenderMode() == REND_CLASSIC)
                 videoSetTarget(TILE_SAVESHOT, 200, 320);
         }
         else if (screenTilting)
@@ -883,7 +883,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
             }
         }
-        else if (getrendermode() >= REND_POLYMOST && (ud.screen_tilting
+        else if (videoGetRenderMode() >= REND_POLYMOST && (ud.screen_tilting
 #ifdef SPLITSCREEN_MOD_HACKS
         && !g_fakeMultiMode
 #endif
@@ -894,7 +894,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #endif
             pPlayer->orotscrnang = pPlayer->rotscrnang;
         }
-        else if (ud.detail && getrendermode()==REND_CLASSIC)
+        else if (ud.detail && videoGetRenderMode()==REND_CLASSIC)
         {
             pixelDoubling = 1;
             g_halveScreenArea = 1;
@@ -1021,7 +1021,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             G_SE40(smoothRatio);
 #endif
 #ifdef POLYMER
-            if (getrendermode() == REND_POLYMER)
+            if (videoGetRenderMode() == REND_POLYMER)
                 polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothRatio);
 #endif
             // for G_PrintCoords
@@ -1051,7 +1051,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             invalidatetile(TILE_SAVESHOT, 0, 255);
 
-            if (getrendermode() == REND_CLASSIC)
+            if (videoGetRenderMode() == REND_CLASSIC)
             {
                 videoRestoreTarget();
 //                walock[TILE_SAVESHOT] = 1;
@@ -3639,7 +3639,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 continue;
             case CHAIR3__STATIC:
 #ifdef USE_OPENGL
-                if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     t->cstat &= ~4;
                     break;
@@ -3875,7 +3875,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             break;
         case RPG__STATIC:
 #ifdef USE_OPENGL
-            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
+            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 &&
                     !(spriteext[i].flags & SPREXT_NOTMD))
             {
                 int32_t v = getangle(t->xvel, t->zvel>>4);
@@ -3891,7 +3891,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
         case RECON__STATIC:
 #ifdef USE_OPENGL
-            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -3989,7 +3989,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             if (pSprite->owner == -1)
             {
 #ifdef USE_OPENGL
-                if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                 {
                     frameOffset = 0;
                     t->cstat &= ~4;
@@ -4035,7 +4035,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                 {
                     if ((!g_netServer && ud.multimode < 2) || ((g_netServer || ud.multimode > 1) && playerNum == screenpeek))
                     {
-                        if (getrendermode() == REND_POLYMER)
+                        if (videoGetRenderMode() == REND_POLYMER)
                             t->cstat |= 16384;
                         else
                         {
@@ -4045,7 +4045,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                         }
 
 #ifdef USE_OPENGL
-                        if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+                        if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum, t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
                         {
                             frameOffset = 0;
                             t->cstat &= ~4;
@@ -4137,7 +4137,7 @@ PALONLY:
             l = klabs(l);
 
 #ifdef USE_OPENGL
-            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,t->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 frameOffset = 0;
                 t->cstat &= ~4;
@@ -4239,7 +4239,7 @@ skip:
 
                 if (ud.shadows && spritesortcnt < (maxspritesonscreen-2)
 #ifdef POLYMER
-                    && !(getrendermode() == REND_POLYMER && pr_lighting != 0)
+                    && !(videoGetRenderMode() == REND_POLYMER && pr_lighting != 0)
 #endif
                     )
                 {
@@ -4266,7 +4266,7 @@ skip:
 
 
 #ifdef USE_OPENGL
-                        if (getrendermode() >= REND_POLYMOST)
+                        if (videoGetRenderMode() >= REND_POLYMOST)
                         {
                             if (usemodels && md_tilehasmodel(t->picnum,t->pal) >= 0)
                             {
@@ -4338,7 +4338,7 @@ skip:
             break;
         case PLAYERONWATER__STATIC:
 #ifdef USE_OPENGL
-            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 frameOffset = 0;
                 t->cstat &= ~4;
@@ -4396,7 +4396,7 @@ skip:
         case CAMERA1__STATIC:
         case RAT__STATIC:
 #ifdef USE_OPENGL
-            if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
+            if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(pSprite->picnum,pSprite->pal) >= 0 && !(spriteext[i].flags&SPREXT_NOTMD))
             {
                 t->cstat &= ~4;
                 break;
@@ -5714,14 +5714,12 @@ static void G_PostLoadPalette(void)
     }
 
     if (!(duke3d_globalflags & DUKE3D_NO_HARDCODED_FOGPALS))
-        generatefogpals();
+        paletteSetupDefaultFog();
 
     if (!(duke3d_globalflags & DUKE3D_NO_PALETTE_CHANGES))
-    {
-        E_ReplaceTransparentColorWithBlack();
-    }
+        paletteFixTranslucencyMask();
 
-    fillemptylookups();
+    palettePostLoadLookups();
 }
 
 #define SETFLAG(Tilenum, Flag) g_tile[Tilenum].flags |= Flag
@@ -6584,7 +6582,7 @@ int app_main(int argc, char const * const * argv)
             ud.config.ScreenBPP    = bpp[bppIdx];
         }
 
-        setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
+        videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
 
         S_MusicStartup();
         S_SoundStartup();
@@ -6821,7 +6819,7 @@ MAIN_LOOP_RESTART:
               : 65536;
 
             G_DrawRooms(screenpeek, smoothRatio);
-            if (getrendermode() >= REND_POLYMOST)
+            if (videoGetRenderMode() >= REND_POLYMOST)
                 G_DrawBackground();
             G_DisplayRest(smoothRatio);
         }

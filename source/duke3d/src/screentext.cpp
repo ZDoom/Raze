@@ -1006,7 +1006,7 @@ int32_t hud_glowingquotes = 1;
 // alpha increments of 8 --> 256 / 8 = 32 --> round up to power of 2 --> 32 --> divide by 2 --> 16 alphatabs required
 static inline int32_t textsh(uint32_t t)
 {
-    return (hud_glowingquotes && ((getrendermode() == REND_CLASSIC && numalphatabs < 15) || t >= FTAOPAQUETIME))
+    return (hud_glowingquotes && ((videoGetRenderMode() == REND_CLASSIC && numalphatabs < 15) || t >= FTAOPAQUETIME))
         ? sintable[(t << 7) & 2047] >> 11
         : (sintable[(FTAOPAQUETIME << 7) & 2047] >> 11);
 }
@@ -1014,7 +1014,7 @@ static inline int32_t textsh(uint32_t t)
 // orientation flags depending on time that a quote has still to be displayed
 static inline int32_t texto(int32_t t)
 {
-    if (getrendermode() != REND_CLASSIC || numalphatabs >= 15 || t > 4)
+    if (videoGetRenderMode() != REND_CLASSIC || numalphatabs >= 15 || t > 4)
         return 0;
 
     if (t > 2)
@@ -1025,7 +1025,7 @@ static inline int32_t texto(int32_t t)
 
 static inline int32_t texta(int32_t t)
 {
-    if (getrendermode() == REND_CLASSIC && numalphatabs < 15)
+    if (videoGetRenderMode() == REND_CLASSIC && numalphatabs < 15)
         return 0;
 
     return 255 - clamp(t<<3, 0, 255);

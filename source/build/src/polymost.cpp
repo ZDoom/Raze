@@ -291,7 +291,7 @@ static void bind_2d_texture(GLuint texture, int filter)
 
 void gltexapplyprops(void)
 {
-    if (getrendermode() == REND_CLASSIC)
+    if (videoGetRenderMode() == REND_CLASSIC)
         return;
 
     if (glinfo.maxanisotropy > 1.f)
@@ -544,7 +544,7 @@ void polymost_resetVertexPointers()
 
 void polymost_disableProgram()
 {
-    if (getrendermode() == REND_POLYMOST)
+    if (videoGetRenderMode() == REND_POLYMOST)
     {
         useShaderProgram(0);
     }
@@ -552,7 +552,7 @@ void polymost_disableProgram()
 
 void polymost_resetProgram()
 {
-    if (getrendermode() == REND_POLYMOST)
+    if (videoGetRenderMode() == REND_POLYMOST)
     {
         if (r_enablepolymost2)
         {
@@ -1142,7 +1142,7 @@ static void fogcalc_old(int32_t shade, int32_t vis)
 
 static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
 {
-    if (shade > 0 && getrendermode() == REND_POLYMOST && r_usetileshades == 1 &&
+    if (shade > 0 && videoGetRenderMode() == REND_POLYMOST && r_usetileshades == 1 &&
         !(globalflags & GLOBAL_NO_GL_TILESHADES) &&
         (!usehightile || !hicfindsubst(tile, pal, hictinting[pal].f & HICTINT_ALWAYSUSEART)) &&
         (!usemodels || md_tilehasmodel(tile, pal) < 0))
@@ -2741,7 +2741,7 @@ static void polymost2_drawVBO(GLenum mode,
 
 static void polymost_updatePalette()
 {
-    if (getrendermode() != REND_POLYMOST)
+    if (videoGetRenderMode() != REND_POLYMOST)
     {
         return;
     }
@@ -2877,7 +2877,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     if (skyclamphack) method |= DAMETH_CLAMPED;
 
-    pthtyp *pth = our_texcache_fetch(method | (getrendermode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
+    pthtyp *pth = our_texcache_fetch(method | (videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
 
     if (!pth)
     {
@@ -2902,7 +2902,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     // If we aren't rendmode 3, we're in Polymer, which means this code is
     // used for rotatesprite only. Polymer handles all the material stuff,
     // just submit the geometry and don't mess with textures.
-    if (getrendermode() == REND_POLYMOST)
+    if (videoGetRenderMode() == REND_POLYMOST)
     {
         glBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : blankTextureID);
 
@@ -2927,7 +2927,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 #ifdef USE_GLEXT
     int32_t texunits = GL_TEXTURE0;
 
-    if (getrendermode() == REND_POLYMOST)
+    if (videoGetRenderMode() == REND_POLYMOST)
     {
         polymost_updatePalette();
         texunits += 4;
@@ -2943,7 +2943,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             detailpth && detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
         {
             polymost_useDetailMapping(true);
-            polymost_setupdetailtexture(getrendermode() == REND_POLYMOST ? GL_TEXTURE3 : ++texunits, detailpth->glpic);
+            polymost_setupdetailtexture(videoGetRenderMode() == REND_POLYMOST ? GL_TEXTURE3 : ++texunits, detailpth->glpic);
 
             glMatrixMode(GL_TEXTURE);
             glLoadIdentity();
@@ -2969,7 +2969,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             glowpth && glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
         {
             polymost_useGlowMapping(true);
-            polymost_setupglowtexture(getrendermode() == REND_POLYMOST ? GL_TEXTURE4 : ++texunits, glowpth->glpic);
+            polymost_setupglowtexture(videoGetRenderMode() == REND_POLYMOST ? GL_TEXTURE4 : ++texunits, glowpth->glpic);
             glActiveTexture(GL_TEXTURE0);
         }
     }
@@ -3013,7 +3013,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     float pc[4];
 
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER && pr_artmapping && !(globalflags & GLOBAL_NO_GL_TILESHADES) && polymer_eligible_for_artmap(globalpicnum, pth))
+    if (videoGetRenderMode() == REND_POLYMER && pr_artmapping && !(globalflags & GLOBAL_NO_GL_TILESHADES) && polymer_eligible_for_artmap(globalpicnum, pth))
         pc[0] = pc[1] = pc[2] = 1.0f;
     else
 #endif
@@ -3252,7 +3252,7 @@ do                                                                              
     }
 
 #ifdef USE_GLEXT
-    if (getrendermode() != REND_POLYMOST)
+    if (videoGetRenderMode() != REND_POLYMOST)
     {
         while (texunits > GL_TEXTURE0)
         {
@@ -3283,7 +3283,7 @@ do                                                                              
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    if (getrendermode() != REND_POLYMOST)
+    if (videoGetRenderMode() != REND_POLYMOST)
         return;
 
     if (pth && !(pth->flags & PTH_INDEXED))
@@ -5189,7 +5189,7 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
 
 void polymost_drawrooms()
 {
-    if (getrendermode() == REND_CLASSIC) return;
+    if (videoGetRenderMode() == REND_CLASSIC) return;
 
     videoBeginDrawing();
     frameoffset = frameplace + windowxy1.y*bytesperline + windowxy1.x;
@@ -6759,7 +6759,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
     // In Polymost, we don't care if the model is very big
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
     {
         vec3f_t const vec2 = { fglobalposx + (gcosang * vec1.z - gsinang * vec1.x) * 2560.f,
                                fglobalposy + (gsinang * vec1.z + gcosang * vec1.x) * 2560.f,
@@ -6794,7 +6794,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
         glox1 = -1; //Force fullscreen (glox1=-1 forces it to restore)
     }
 
-    if (getrendermode() < REND_POLYMER)
+    if (videoGetRenderMode() < REND_POLYMER)
     {
         glMatrixMode(GL_PROJECTION);
         Bmemset(m, 0, sizeof(m));
@@ -6849,7 +6849,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
 
     polymost_setFogEnabled(false);
 
-    if (getrendermode() == REND_POLYMOST)
+    if (videoGetRenderMode() == REND_POLYMOST)
         polymost_mddraw(&tspr);
 # ifdef POLYMER
     else
@@ -6976,7 +6976,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     handle_blend(!!(dastat & RS_TRANS1), dablend, !!(dastat & RS_TRANS2));
 
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
     {
         pr_normalmapping = 0;
         polymer_inb4rotatesprite(picnum, dapalnum, dashade, method);
@@ -7114,7 +7114,7 @@ void polymost_dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16
     }
 
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
     {
 # ifdef USE_GLEXT
         r_detailmapping = olddetailmapping;
@@ -7324,7 +7324,7 @@ void polymost_fillpolygon(int32_t npoints)
     if (gloy1 != -1) setpolymost2dview(); //disables blending, texturing, and depth testing
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_TEXTURE_2D);
-    pthtyp *pth = our_texcache_fetch(DAMETH_NOMASK | (getrendermode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
+    pthtyp *pth = our_texcache_fetch(DAMETH_NOMASK | (videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
     glBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : blankTextureID);
     if (pth && !(pth->flags & PTH_INDEXED))
     {
@@ -7366,7 +7366,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
     int32_t i;
     pthtyp *pth;
 
-    if (getrendermode() < REND_POLYMOST || !in3dmode())
+    if (videoGetRenderMode() < REND_POLYMOST || !in3dmode())
         return -1;
 
     if (!glinfo.texnpot)
@@ -7399,7 +7399,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
 
     int32_t const ousehightile = usehightile;
     usehightile = usehitile && usehightile;
-    pth = texcache_fetch(wallnum, 0, 0, DAMETH_CLAMPED | (getrendermode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
+    pth = texcache_fetch(wallnum, 0, 0, DAMETH_CLAMPED | (videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
     if (usehightile)
         loadedhitile[wallnum>>3] |= (1<<(wallnum&7));
     usehightile = ousehightile;
@@ -7530,7 +7530,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
     bricolor(&p, col);
     bricolor(&b, arbackcol);
 
-    if (getrendermode() < REND_POLYMOST || !in3dmode() || (!polymosttext && gen_font_glyph_tex() < 0))
+    if (videoGetRenderMode() < REND_POLYMOST || !in3dmode() || (!polymosttext && gen_font_glyph_tex() < 0))
         return -1;
     else
         glBindTexture(GL_TEXTURE_2D, polymosttext);
@@ -7849,7 +7849,7 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     //    while sprites are clamped
     int32_t mid;
 
-    if (getrendermode() < REND_POLYMOST) return;
+    if (videoGetRenderMode() < REND_POLYMOST) return;
 
     if ((palookup[dapalnum] == NULL) && (dapalnum < (MAXPALOOKUPS - RESERVEDPALS))) return;//dapalnum = 0;
 

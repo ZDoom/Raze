@@ -103,7 +103,7 @@ static void G_DrawInvNum(int32_t x, int32_t yofs, int32_t y, char num1, char ha,
 
     if (num1 > 99)
     {
-        if (shd && ud.screen_size == 4 && getrendermode() >= REND_POLYMOST && althud_shadows)
+        if (shd && ud.screen_size == 4 && videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
         {
             for (i=0; i<=2; i++)
                 rotatesprite_fs(sbarx(x+(-4+4*i)+1), sbyp1, sbscale, 0, THREEBYFIVE+dabuf[i]-'0',
@@ -117,7 +117,7 @@ static void G_DrawInvNum(int32_t x, int32_t yofs, int32_t y, char num1, char ha,
 
     if (num1 > 9)
     {
-        if (shd && ud.screen_size == 4 && getrendermode() >= REND_POLYMOST && althud_shadows)
+        if (shd && ud.screen_size == 4 && videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
         {
             rotatesprite_fs(sbarx(x+1), sbyp1, sbscale, 0, THREEBYFIVE+dabuf[0]-'0', 127, 4, POLYMOSTTRANS|sbits);
             rotatesprite_fs(sbarx(x+4+1), sbyp1, sbscale, 0, THREEBYFIVE+dabuf[1]-'0', 127, 4, POLYMOSTTRANS|sbits);
@@ -359,7 +359,7 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
         for (k=0; k<i; k++)
         {
             p = althud_numbertile + b[k]-'0';
-            if (shd && getrendermode() >= REND_POLYMOST && althud_shadows)
+            if (shd && videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
                 rotatesprite_fs(sbarxr(c+j-1), sbary(y+1), sbscale, 0, p, 127, 4, cs|POLYMOSTTRANS2);
             rotatesprite_fs(sbarxr(c+j), sbary(y), sbscale, 0, p, s, althud_numberpal, cs);
             j -= tilesiz[p].x+1;
@@ -371,7 +371,7 @@ static void G_DrawAltDigiNum(int32_t x, int32_t y, int32_t n, char s, int32_t cs
     for (k=0; k<i; k++)
     {
         p = althud_numbertile + b[k]-'0';
-        if (shd && getrendermode() >= REND_POLYMOST && althud_shadows)
+        if (shd && videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
             rotatesprite_fs(sbarx(c+j+1), sbary(y+1), sbscale, 0, p, 127, 4, cs|POLYMOSTTRANS2);
         rotatesprite_fs(sbarx(c+j), sbary(y), sbscale, 0, p, s, althud_numberpal, cs);
         j += tilesiz[p].x+1;
@@ -538,14 +538,14 @@ static int32_t G_GetMorale(int32_t p_i, int32_t snum)
 
 static inline void rotatesprite_althud(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat)
 {
-    if (getrendermode() >= REND_POLYMOST && althud_shadows)
+    if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
         rotatesprite_(sbarx(sx+1), sbary(sy+1), z, a, picnum, 127, 4, dastat + POLYMOSTTRANS2, 0, 0, 0, 0, xdim - 1, ydim - 1);
     rotatesprite_(sbarx(sx), sbary(sy), z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, 0, xdim - 1, ydim - 1);
 }
 
 static inline void rotatesprite_althudr(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum, int8_t dashade, char dapalnum, int32_t dastat)
 {
-    if (getrendermode() >= REND_POLYMOST && althud_shadows)
+    if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
         rotatesprite_(sbarxr(sx + 1), sbary(sy + 1), z, a, picnum, 127, 4, dastat + POLYMOSTTRANS2, 0, 0, 0, 0, xdim - 1, ydim - 1);
     rotatesprite_(sbarxr(sx), sbary(sy), z, a, picnum, dashade, dapalnum, dastat, 0, 0, 0, 0, xdim - 1, ydim - 1);
 }
@@ -581,7 +581,7 @@ void G_DrawStatusBar(int32_t snum)
         Bmemcpy(item_icons, iicons, sizeof(item_icons));
     }
 
-    if (getrendermode() >= REND_POLYMOST) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
+    if (videoGetRenderMode() >= REND_POLYMOST) pus = NUMPAGES;   // JBF 20040101: always redraw in GL
 
     if ((g_netServer || ud.multimode > 1) && ((g_gametypeFlags[ud.coop] & GAMETYPE_FRAGBAR)))
     {
@@ -673,7 +673,7 @@ void G_DrawStatusBar(int32_t snum)
                 if (i >= 0)
                     rotatesprite_althud(231-o, hudoffset-21-2, sb16, 0, i, 0, 0, orient);
 
-                if (getrendermode() >= REND_POLYMOST && althud_shadows)
+                if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
                     minitextshade(292-30-o+1, hudoffset-10-3+1, "%", 127, 4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                 minitext(292-30-o, hudoffset-10-3, "%", 6, orient+ROTATESPRITE_MAX);
 
@@ -684,20 +684,20 @@ void G_DrawStatusBar(int32_t snum)
 
                 if (j > 0)
                 {
-                    if (getrendermode() >= REND_POLYMOST && althud_shadows)
+                    if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
                         minitextshade(288-30-o+1, hudoffset-20-3+1, "On", 127, 4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                     minitext(288-30-o, hudoffset-20-3, "On", 0, orient+ROTATESPRITE_MAX);
                 }
                 else if ((uint32_t) j != 0x80000000)
                 {
-                    if (getrendermode() >= REND_POLYMOST && althud_shadows)
+                    if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
                         minitextshade(284-30-o+1, hudoffset-20-3+1, "Off", 127, 4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                     minitext(284-30-o, hudoffset-20-3, "Off", 2, orient+ROTATESPRITE_MAX);
                 }
 
                 if (p->inven_icon >= ICON_SCUBA)
                 {
-                    if (getrendermode() >= REND_POLYMOST && althud_shadows)
+                    if (videoGetRenderMode() >= REND_POLYMOST && althud_shadows)
                         minitextshade(284-35-o+1, hudoffset-20-3+1, "Auto", 127, 4, POLYMOSTTRANS+orient+ROTATESPRITE_MAX);
                     minitext(284-35-o, hudoffset-20-3, "Auto", 2, orient+ROTATESPRITE_MAX);
                 }
@@ -1032,7 +1032,7 @@ void G_DrawBackground(void)
 
     if ((g_player[myconnectindex].ps->gm&MODE_GAME) == 0 && ud.recstat != 2)
     {
-        const int32_t MENUTILE = MENUSCREEN;//(getrendermode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
+        const int32_t MENUTILE = MENUSCREEN;//(videoGetRenderMode() == REND_CLASSIC ? MENUSCREEN : LOADSCREEN);
         const int32_t fstilep = tilesiz[MENUTILE].x>=320 && tilesiz[MENUTILE].y==200;
         int32_t bgtile = (fstilep ? MENUTILE : BIGHOLE);
 

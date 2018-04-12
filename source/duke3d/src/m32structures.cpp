@@ -416,7 +416,7 @@ static int32_t __fastcall VM_AccessTsprite(int32_t how, int32_t lVar1, int32_t l
         }
         else
         {
-// check whether getrendermode() == REND_POLYMER ?
+// check whether videoGetRenderMode() == REND_POLYMER ?
             if ((unsigned)i >= PR_MAXLIGHTS)
             {
                 M32_ERROR("invalid light index (%d)", i);

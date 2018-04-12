@@ -1240,7 +1240,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int32_t sec
     G_DoInterpolations(smoothratio);
     G_HandleMirror(vec.x, vec.y, vec.z, a, horiz, smoothratio);
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
         polymer_setanimatesprites(G_DoSpriteAnimations, vec.x, vec.y, fix16_to_int(a), smoothratio);
 #endif
     yax_preparedrawrooms();
@@ -3849,7 +3849,7 @@ nullquote:
             {
                 int32_t params[4];
                 Gv_FillWithVars(params);
-                setpalettefade(params[0], params[1], params[2], params[3]);
+                videoFadePalette(params[0], params[1], params[2], params[3]);
             }
             continue;
 

@@ -842,7 +842,7 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
     DukePlayer_t *const pPlayer   = playerNum >= 0 ? g_player[playerNum].ps : NULL;
 
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER && pProj->flashcolor)
+    if (videoGetRenderMode() == REND_POLYMER && pProj->flashcolor)
     {
         int32_t x = ((sintable[(pSprite->ang + 512) & 2047]) >> 7), y = ((sintable[(pSprite->ang) & 2047]) >> 7);
 
@@ -1749,7 +1749,7 @@ static void G_DrawTileScaled(int drawX, int drawY, int tileNum, int drawShade, i
 #endif
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && usemodels && md_tilehasmodel(tileNum,drawPal) >= 0)
+    if (videoGetRenderMode() >= REND_POLYMOST && usemodels && md_tilehasmodel(tileNum,drawPal) >= 0)
         drawYOffset += (224<<16)-weapsc(224<<16);
 #endif
     rotatesprite(weapsc(drawX<<16) + (drawXOffset-weapsc(drawXOffset)),
@@ -1777,7 +1777,7 @@ static void G_DrawWeaponTile(int weaponX, int weaponY, int weaponTile, int weapo
     palf = weaponPal;
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         if (weaponTile >= CHAINGUN + 1 && weaponTile <= CHAINGUN + 4)
         {
@@ -1989,7 +1989,7 @@ void P_DisplayScuba(void)
 
         // this is a hack to hide the seam that appears between the two halves of the mask in GL
 #ifdef USE_OPENGL
-        if (getrendermode() >= REND_POLYMOST)
+        if (videoGetRenderMode() >= REND_POLYMOST)
             G_DrawTileScaled(44, (200 - tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);
 #endif
         G_DrawTileScaled(43, (200 - tilesiz[SCUBAMASK].y), SCUBAMASK, 0, 2 + 16 + DRAWEAP_CENTER, scubaPal);

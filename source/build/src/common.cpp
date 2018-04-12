@@ -244,7 +244,7 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows)
     UNREFERENCED_PARAMETER(numcols);
 
 # ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && in3dmode())
+    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
     {
 //        glPushAttrib(GL_FOG_BIT);
         polymost_setFogEnabled(false);

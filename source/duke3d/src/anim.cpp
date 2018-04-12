@@ -238,7 +238,7 @@ int32_t Anim_Play(const char *fn)
 
 #ifdef USE_LIBVPX
     uint16_t framenum = 0;
-    while (getrendermode() >= REND_POLYMOST)  // if, really
+    while (videoGetRenderMode() >= REND_POLYMOST)  // if, really
     {
         char const * dot = Bstrrchr(fn, '.');
         if (!dot)
@@ -462,7 +462,7 @@ int32_t Anim_Play(const char *fn)
         goto end_anim;
     }
 
-    setbasepal(ANIMPAL, ANIM_GetPalette());
+    paletteSetColorTable(ANIMPAL, ANIM_GetPalette());
 
     // setpalette(0L,256L,tempbuf);
     // setbrightness(ud.brightness>>2,tempbuf,2);

@@ -1496,7 +1496,7 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
     }
 #endif
 
-    setpalettefade(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
+    videoFadePalette(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
     if (regrab)
         mouseGrabInput(g_mouseLockedToWindow);

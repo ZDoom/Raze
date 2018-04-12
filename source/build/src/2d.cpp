@@ -50,9 +50,9 @@ void plotpixel(int32_t x, int32_t y, char col)
 {
     // XXX: if we ever want the editor to work under GL ES, find a replacement for the raster functions
 #if defined USE_OPENGL && !defined EDUKE32_GLES
-    if (getrendermode() >= REND_POLYMOST && in3dmode())
+    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
     {
-        palette_t p = getpal(col);
+        palette_t p = paletteGetColor(col);
 
         glRasterPos4i(x, y, 0, 1);
         glDrawPixels(1, 1, GL_RGB, GL_UNSIGNED_BYTE, &p);
@@ -71,9 +71,9 @@ void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int co
     int32_t i;
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && in3dmode())
+    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
     {
-        palette_t p = getpal(col);
+        palette_t p = paletteGetColor(col);
 
         polymost_useColorOnly(true);
         glBegin(GL_LINE_STRIP);
@@ -110,7 +110,7 @@ char getpixel(int32_t x, int32_t y)
     char r;
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && in3dmode()) return 0;
+    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode()) return 0;
 #endif
 
     videoBeginDrawing(); //{{{
@@ -132,7 +132,7 @@ static void drawlinegl(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(0, xres, yres, 0, -1, 1);
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
     {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
@@ -238,7 +238,7 @@ static void drawlinepixels(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char 
 void drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         drawlinegl(x1, y1, x2, y2, p);
         return;
@@ -254,9 +254,9 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
     col = palookup[0][col];
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        palette_t p = getpal(col);
+        palette_t p = paletteGetColor(col);
         p.f = col;
         drawlinegl(x1, y1, x2, y2, p);
         return;
@@ -1396,7 +1396,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 void setpolymost2dview(void)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() < REND_POLYMOST) return;
+    if (videoGetRenderMode() < REND_POLYMOST) return;
 
     glViewport(0, 0, xres, yres);
 
@@ -1404,7 +1404,7 @@ void setpolymost2dview(void)
     glLoadIdentity();
     glOrtho(0, xres, yres, 0, -1, 1);
 
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
     {
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();

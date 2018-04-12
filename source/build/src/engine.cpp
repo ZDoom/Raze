@@ -712,7 +712,7 @@ static void yax_scanbunches(int32_t bbeg, int32_t numhere, const uint8_t *lastgo
             if (checkthisec)
             {
                 numscans = numbunches = 0;
-                if (getrendermode() == REND_CLASSIC)
+                if (videoGetRenderMode() == REND_CLASSIC)
                     scansector(k);
 #ifdef USE_OPENGL
                 else
@@ -776,7 +776,7 @@ void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore)
             }
 #ifdef POLYMER
             // will be called only in editor
-            if (getrendermode() == REND_POLYMER)
+            if (videoGetRenderMode() == REND_POLYMER)
             {
                 if (!restore)
                 {
@@ -851,14 +851,14 @@ static void yax_copytsprites()
 
 void yax_preparedrawrooms(void)
 {
-    if (getrendermode() == REND_POLYMER || numyaxbunches==0)
+    if (videoGetRenderMode() == REND_POLYMER || numyaxbunches==0)
         return;
 
     g_nodraw = 1;
     Bmemset(yax_spritesortcnt, 0, sizeof(yax_spritesortcnt));
     Bmemset(haveymost, 0, (numyaxbunches+7)>>3);
 
-    if (getrendermode() == REND_CLASSIC && ymostallocsize < xdimen*numyaxbunches)
+    if (videoGetRenderMode() == REND_CLASSIC && ymostallocsize < xdimen*numyaxbunches)
     {
         ymostallocsize = xdimen*numyaxbunches;
         yumost = (int16_t *)Xrealloc(yumost, ymostallocsize*sizeof(int16_t));
@@ -885,7 +885,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
     uint64_t t;
 #endif
 
-    if (getrendermode() == REND_POLYMER || numyaxbunches==0)
+    if (videoGetRenderMode() == REND_POLYMER || numyaxbunches==0)
     {
 #ifdef ENGINE_SCREENSHOT_DEBUG
         engine_screenshot = 0;
@@ -927,7 +927,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                 j = yax_getbunch(i, cf);
                 if (j >= 0 && !(havebunch[j>>3]&(1<<(j&7))))
                 {
-                    if (getrendermode() == REND_CLASSIC && (haveymost[j>>3]&(1<<(j&7)))==0)
+                    if (videoGetRenderMode() == REND_CLASSIC && (haveymost[j>>3]&(1<<(j&7)))==0)
                     {
                         yaxdebug("%s, l %d: skipped bunch %d (no *most)", cf?"v":"^", lev, j);
                         continue;
@@ -1016,7 +1016,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 
     if (editstatus==1 && in3dmode())
     {
-        if (getrendermode() == REND_CLASSIC)
+        if (videoGetRenderMode() == REND_CLASSIC)
         {
             videoBeginDrawing();
             draw_rainbow_background();
@@ -1117,7 +1117,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 #endif
 
 #ifdef YAX_DEBUG_YMOSTS
-    if (getrendermode() == REND_CLASSIC && numyaxbunches>0)
+    if (videoGetRenderMode() == REND_CLASSIC && numyaxbunches>0)
     {
         char purple = getclosestcol(255, 0, 255);
         char yellow = getclosestcol(255, 255, 0);
@@ -3226,7 +3226,7 @@ static void nonpow2_thline(intptr_t bufplc, uint32_t bx, int32_t cntup16, uint32
 
     const char *const A_C_RESTRICT buf = (char *)bufplc;
     const char *const A_C_RESTRICT pal = (char *)asm3;
-    const char *const A_C_RESTRICT trans = getblendtab(globalblend);
+    const char *const A_C_RESTRICT trans = paletteGetBlendTable(globalblend);
 
     const uint32_t xdiv = globalxspan > 1 ? (uint32_t)ourdivscale32(1, globalxspan) : UINT32_MAX;
     const uint32_t ydiv = globalyspan > 1 ? (uint32_t)ourdivscale32(1, globalyspan) : UINT32_MAX;
@@ -3361,7 +3361,7 @@ static void tslopevlin(uint8_t *p, const intptr_t *slopalptr, bssize_t cnt, int3
 {
     const char *const A_C_RESTRICT buf = ggbuf;
     const char *const A_C_RESTRICT pal = ggpal;
-    const char *const A_C_RESTRICT trans = getblendtab(0);
+    const char *const A_C_RESTRICT trans = paletteGetBlendTable(0);
     const int32_t bzinc = (asm1>>3), pinc = ggpinc;
 
     const int32_t transmode = (globalorientation&128);
@@ -5791,7 +5791,7 @@ draw_as_face_sprite:
 
 static void drawsprite(int32_t snum)
 {
-    switch (getrendermode())
+    switch (videoGetRenderMode())
     {
     case REND_CLASSIC:
         drawsprite_classic(snum);
@@ -5824,9 +5824,9 @@ static void drawmaskwall(int16_t damaskwallcnt)
 {
     //============================================================================= //POLYMOST BEGINS
 #ifdef USE_OPENGL
-    if (getrendermode() == REND_POLYMOST) { polymost_drawmaskwall(damaskwallcnt); return; }
+    if (videoGetRenderMode() == REND_POLYMOST) { polymost_drawmaskwall(damaskwallcnt); return; }
 # ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
     {
         glEnable(GL_ALPHA_TEST);
         glEnable(GL_BLEND);
@@ -5933,7 +5933,7 @@ static void fillpolygon(int32_t npoints)
             xb1[z] = 0;
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && in3dmode())
+    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
     {
         polymost_fillpolygon(npoints);
         return;
@@ -6505,7 +6505,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     //============================================================================= //POLYMOST BEGINS
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && in3dmode())
+    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
     {
         polymost_dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,dablend,cx1,cy1,cx2,cy2,uniqid);
         return;
@@ -7744,7 +7744,7 @@ int32_t initengine(void)
 
     maxspritesonscreen = MAXSPRITESONSCREEN;
 
-    loadpalette();
+    paletteLoadFromDisk();
 
 #ifdef USE_OPENGL
     if (!hicinitcounter) hicinit();
@@ -7778,7 +7778,7 @@ int32_t E_PostInit(void)
     if (!(paletteloaded & PALETTE_TRANSLUC))
         return E_FatalError("No translucency table found.");
 
-    E_PostLoadPalette();
+    palettePostLoadTables();
 
     return 0;
 }
@@ -7942,7 +7942,7 @@ int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     i = mulscale16(xdimenscale,viewingrangerecip);
     globalpisibility = mulscale16(parallaxvisibility,i);
-    switch (getrendermode())
+    switch (videoGetRenderMode())
     {
         // switch on renderers to make fog look almost the same everywhere
 
@@ -7985,7 +7985,7 @@ int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz,
 
     Bmemset(gotsector, 0, ((numsectors+7)>>3));
 
-    if (getrendermode() != REND_CLASSIC
+    if (videoGetRenderMode() != REND_CLASSIC
 #ifdef YAX_ENABLE
         || yax_globallev==YAX_MAXDRAWS
 #endif
@@ -8006,7 +8006,7 @@ int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz,
 
 #ifdef USE_OPENGL
 # ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
     {
 #  ifdef YAX_ENABLE
         // BEGIN_TWEAK ceiling/floor fake 'TROR' pics, see END_TWEAK in build.c
@@ -8048,7 +8048,7 @@ int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz,
     //============================================================================= //POLYMOST BEGINS
     polymost_drawrooms();
 
-    if (getrendermode() != REND_CLASSIC)
+    if (videoGetRenderMode() != REND_CLASSIC)
         return 0;
     //============================================================================= //POLYMOST ENDS
 #endif
@@ -8321,7 +8321,7 @@ void drawmasks(void)
         int32_t dmasknum = 0;
 
 # define debugmask_add(dispidx, idx) do { \
-        if (g_maskDrawMode && getrendermode()==REND_CLASSIC) { \
+        if (g_maskDrawMode && videoGetRenderMode()==REND_CLASSIC) { \
             debugmask[dmasknum].di = dispidx; \
             debugmask[dmasknum++].i = idx; \
         } \
@@ -8475,7 +8475,7 @@ killsprite:
     while (maskwallcnt)
     {
         // PLAG: sorting stuff
-        const int32_t w = (getrendermode()==REND_POLYMER) ?
+        const int32_t w = (videoGetRenderMode()==REND_POLYMER) ?
             maskwall[maskwallcnt-1] : thewall[maskwall[maskwallcnt-1]];
 
         maskwallcnt--;
@@ -8494,7 +8494,7 @@ killsprite:
             i--;
             if (tspriteptr[i] != NULL
 #ifdef USE_OPENGL
-                && (!(tspriteptr[i]->cstat & 1024) || getrendermode() != REND_POLYMOST)
+                && (!(tspriteptr[i]->cstat & 1024) || videoGetRenderMode() != REND_POLYMOST)
 #endif
                )
             {
@@ -8586,7 +8586,7 @@ killsprite:
         i--;
         if (tspriteptr[i] != NULL
 #ifdef USE_OPENGL
-            && (!(tspriteptr[i]->cstat & 1024) || getrendermode() != REND_POLYMOST)
+            && (!(tspriteptr[i]->cstat & 1024) || videoGetRenderMode() != REND_POLYMOST)
 #endif
            )
         {
@@ -8598,7 +8598,7 @@ killsprite:
     }
 
 #ifdef USE_OPENGL
-    if (getrendermode() == REND_POLYMOST)
+    if (videoGetRenderMode() == REND_POLYMOST)
     {
         glDepthMask(GL_FALSE);
 
@@ -8619,11 +8619,11 @@ killsprite:
     spritesortcnt = 0;
 
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
         polymer_drawmasks();
 #endif
 #ifdef DEBUG_MASK_DRAWING
-    if (g_maskDrawMode && getrendermode() == REND_CLASSIC)
+    if (g_maskDrawMode && videoGetRenderMode() == REND_CLASSIC)
     {
         for (i=0; i<dmasknum; i++)
         {
@@ -9061,7 +9061,7 @@ static int32_t finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int1
         Bmemset(spritesmooth, 0, sizeof(spritesmooth_t)*(MAXSPRITES+MAXUNIQHUDID));
 
 # ifdef POLYMER
-        if (getrendermode() == REND_POLYMER)
+        if (videoGetRenderMode() == REND_POLYMER)
         {
             if ((myflags&4)==0)
                 polymer_loadboard();
@@ -9902,22 +9902,22 @@ int32_t videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32
 
     videoSetViewableArea(0L,0L,xdim-1,ydim-1);
     videoClearScreen(0L);
-    setbrightness(curbrightness,0,0);
+    videoSetPalette(curbrightness,0,0);
 
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
 #ifdef USE_OPENGL
-    if (getrendermode() == REND_POLYMOST)
+    if (videoGetRenderMode() == REND_POLYMOST)
         PolymostProcessVoxels();
 
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         //POGOTODO: if we switch to software & then back to GL, this call tries to delete textures that were already lost from the GL Context deletion
         polymost_glreset();
         polymost_glinit();
     }
 # ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
     {
         if (!polymer_init())
             rendmode = REND_POLYMOST;
@@ -12008,7 +12008,7 @@ int32_t setaspect_new_use_dimen = 0;
 
 void videoSetCorrectedAspect()
 {
-    if (r_usenewaspect && newaspect_enable && getrendermode() != REND_POLYMER)
+    if (r_usenewaspect && newaspect_enable && videoGetRenderMode() != REND_POLYMER)
     {
         // The correction factor 100/107 has been found
         // out experimentally. Squares FTW!
@@ -12216,9 +12216,9 @@ void videoClearViewableArea(int32_t dacol)
     if (dacol == -1) dacol = 0;
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        palette_t const p = getpal(dacol);
+        palette_t const p = paletteGetColor(dacol);
 
         glClearColor((float)p.r * (1.f/255.f),
                       (float)p.g * (1.f/255.f),
@@ -12254,9 +12254,9 @@ void videoClearScreen(int32_t dacol)
     //dacol += (dacol<<8); dacol += (dacol<<16);
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        palette_t const p = getpal(dacol);
+        palette_t const p = paletteGetColor(dacol);
 
         glViewport(0,0,xdim,ydim); glox1 = -1;
         glClearColor((float)p.r * (1.f/255.f),
@@ -12410,7 +12410,7 @@ void preparemirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
 void completemirror(void)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() != REND_CLASSIC)
+    if (videoGetRenderMode() != REND_CLASSIC)
         return;
 #endif
 
@@ -12944,7 +12944,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 #ifdef USE_OPENGL
     if (!polymost_printext256(xpos,ypos,col,backcol,name,fontsize)) return;
 # if 0
-    if (getrendermode() >= REND_POLYMOST && in3dmode())
+    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
     {
         int32_t xx, yy;
         int32_t lc=-1;
@@ -13102,7 +13102,7 @@ int32_t setrendermode(int32_t renderer)
         if (!polymer_init())
             renderer = REND_POLYMOST;
     }
-    else if (getrendermode() == REND_POLYMER)  // going from Polymer to another renderer
+    else if (videoGetRenderMode() == REND_POLYMER)  // going from Polymer to another renderer
     {
         delete_maphack_lights();
         G_Polymer_UnInit();
@@ -13115,7 +13115,7 @@ int32_t setrendermode(int32_t renderer)
     basepalreset = 1;
 
     rendmode = renderer;
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
         glrendmode = rendmode;
 
     if (renderer == REND_POLYMOST)
@@ -13159,7 +13159,7 @@ void invalidatetile(int16_t tilenume, int32_t pal, int32_t how)
     UNREFERENCED_PARAMETER(pal);
     UNREFERENCED_PARAMETER(how);
 #else
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         const int32_t firstpal = (pal < 0) ? 0 : pal;
         const int32_t numpals = (pal < 0) ? MAXPALOOKUPS : 1;
@@ -13172,7 +13172,7 @@ void invalidatetile(int16_t tilenume, int32_t pal, int32_t how)
         }
 
 #ifdef POLYMER
-        if (getrendermode() == REND_POLYMER)
+        if (videoGetRenderMode() == REND_POLYMER)
             polymer_invalidateartmap(tilenume);
 #endif
     }

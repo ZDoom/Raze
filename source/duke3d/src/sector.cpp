@@ -427,7 +427,7 @@ void G_AnimateCamSprite(int smoothRatio)
             G_SetupCamTile(OW(spriteNum), viewscrTile, smoothRatio);
 #ifdef POLYMER
             // Force texture update on viewscreen sprite in Polymer!
-            if (getrendermode() == REND_POLYMER)
+            if (videoGetRenderMode() == REND_POLYMER)
                 polymer_invalidatesprite(spriteNum);
 #endif
         }

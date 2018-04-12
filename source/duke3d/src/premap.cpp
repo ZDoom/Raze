@@ -448,7 +448,7 @@ void G_CacheMapData(void)
                             if (k == MAXPALOOKUPS-RESERVEDPALS-1)
                                 break;
 #ifdef POLYMER
-                            if (getrendermode() != REND_POLYMER || !polymer_havehighpalookup(0, k))
+                            if (videoGetRenderMode() != REND_POLYMER || !polymer_havehighpalookup(0, k))
 #endif
                                 polymost_precache(i,k,type);
                         }
@@ -460,7 +460,7 @@ void G_CacheMapData(void)
                             polymost_precache(i,GLOWPAL,type);
 #endif
 #ifdef POLYMER
-                        if (getrendermode() == REND_POLYMER)
+                        if (videoGetRenderMode() == REND_POLYMER)
                         {
                             if (pr_specularmapping && !KB_KeyPressed(sc_Space))
                                 polymost_precache(i,SPECULARPAL,type);

@@ -573,7 +573,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
     ud.user_map = G_HaveUserMap();
 
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
         polymer_resetlights();
 #endif
 
@@ -2239,7 +2239,7 @@ int32_t sv_updatestate(int32_t frominit)
     if (frominit)
         postloadplayer(0);
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
         polymer_resetlights();  // must do it after polymer_loadboard() !!!
 #endif
 
@@ -2372,10 +2372,10 @@ static void postloadplayer(int32_t savegamep)
 
 #ifdef POLYMER
     //9
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
         polymer_loadboard();
 
-    // this light pointer nulling needs to be outside the getrendermode check
+    // this light pointer nulling needs to be outside the videoGetRenderMode check
     // because we might be loading the savegame using another renderer but
     // change to Polymer later
     for (i=0; i<MAXSPRITES; i++)

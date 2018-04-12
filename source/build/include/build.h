@@ -896,7 +896,7 @@ extern const char *engineerrstr;
 
 EXTERN int32_t editorzrange[2];
 
-static FORCE_INLINE int32_t getrendermode(void)
+static FORCE_INLINE int32_t videoGetRenderMode(void)
 {
 #ifndef USE_OPENGL
     return REND_CLASSIC;
@@ -1431,7 +1431,7 @@ extern "C" {
 static FORCE_INLINE void push_nofog(void)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         polymost_setFogEnabled(false);
     }
@@ -1441,7 +1441,7 @@ static FORCE_INLINE void push_nofog(void)
 static FORCE_INLINE void pop_nofog(void)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && !nofog)
+    if (videoGetRenderMode() >= REND_POLYMOST && !nofog)
         polymost_setFogEnabled(true);
 #endif
 }

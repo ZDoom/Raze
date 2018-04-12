@@ -91,7 +91,7 @@ static inline float getshadefactor(int32_t const shade)
 {
     // 8-bit tiles, i.e. non-hightiles and non-models, don't get additional
     // glColor() shading with r_usetileshades!
-    if (getrendermode() == REND_POLYMOST && r_usetileshades &&
+    if (videoGetRenderMode() == REND_POLYMOST && r_usetileshades &&
             !(globalflags & GLOBAL_NO_GL_TILESHADES) &&
             eligible_for_tileshades(globalpicnum, globalpal))
         return 1.f;
@@ -211,7 +211,7 @@ EDUKE32_STATIC_ASSERT(TO_DAMETH_ARTIMMUNITY(HICR_ARTIMMUNITY) == DAMETH_ARTIMMUN
 // Do we want a NPOT-y-as-classic texture for this <dameth> and <ysiz>?
 static FORCE_INLINE int polymost_want_npotytex(int32_t dameth, int32_t ysiz)
 {
-    return getrendermode() != REND_POLYMER &&  // r_npotwallmode NYI in Polymer
+    return videoGetRenderMode() != REND_POLYMER &&  // r_npotwallmode NYI in Polymer
         polymost_is_npotmode() && (dameth&DAMETH_WALL) && check_nonpow2(ysiz);
 }
 

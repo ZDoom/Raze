@@ -2358,7 +2358,7 @@ static void m32_showmouse(void)
     else col = whitecol + mousecol;
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         push_nofog();
         glDisable(GL_TEXTURE_2D);
@@ -2403,7 +2403,7 @@ static void m32_showmouse(void)
     }
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         pop_nofog();
         polymost_useColorOnly(false);
@@ -2512,7 +2512,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 static inline void pushDisableFog(void)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         glPushAttrib(GL_ENABLE_BIT);
         polymost_setFogEnabled(false);
@@ -2523,7 +2523,7 @@ static inline void pushDisableFog(void)
 static inline void popDisableFog(void)
 {
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         glPopAttrib();
     }
@@ -3273,7 +3273,7 @@ static int32_t OnSelectTile(int32_t tileNum)
 
     setpolymost2dview();
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         glEnable(GL_TEXTURE_2D);
     }
@@ -3507,7 +3507,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 #ifdef USE_OPENGL
     setpolymost2dview();
 
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         glEnable(GL_TEXTURE_2D);
 
@@ -3588,7 +3588,7 @@ restart:
                     videoEndDrawing();
                     videoShowFrame(1);
 #ifdef USE_OPENGL
-                    if (getrendermode() >= REND_POLYMOST && lazyselector)
+                    if (videoGetRenderMode() >= REND_POLYMOST && lazyselector)
                         glDrawBuffer(GL_BACK);
 #endif
                     return 1;
@@ -3603,7 +3603,7 @@ restart:
 
     tilescreen_drawrest(iSelected, showmsg);
 
-    if (getrendermode() >= REND_POLYMOST && in3dmode() && lazyselector)
+    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode() && lazyselector)
     {
         if (runi==0)
         {
@@ -3620,7 +3620,7 @@ restart:
     videoShowFrame(1);
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST && lazyselector)
+    if (videoGetRenderMode() >= REND_POLYMOST && lazyselector)
         glDrawBuffer(GL_BACK);
 #endif
 
@@ -6332,7 +6332,7 @@ static void Keys3d(void)
         brightness &= 15;
 
         g_videoGamma = 1.0 + ((float)brightness / 10.0);
-        setbrightness(brightness, 0, 0);
+        videoSetPalette(brightness, 0, 0);
         message("Brightness: %d/16", brightness+1);
     }
 
@@ -10077,9 +10077,9 @@ void ExtPostInit(void)
     }
 
     if (!(duke3d_m32_globalflags & DUKE3D_NO_HARDCODED_FOGPALS))
-        generatefogpals();
+        paletteSetupDefaultFog();
 
-    fillemptylookups();
+    palettePostLoadLookups();
 }
 
 void ExtUnInit(void)
@@ -10180,7 +10180,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 #ifdef POLYMER
                     if (sprite[i].lotag == 49)
                     {
-                        if (getrendermode() == REND_POLYMER)
+                        if (videoGetRenderMode() == REND_POLYMER)
                         {
                             if (spritelightptr[i] == NULL)
                             {
@@ -10213,7 +10213,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                     }
                     if (sprite[i].lotag == 50)
                     {
-                        if (getrendermode() == REND_POLYMER)
+                        if (videoGetRenderMode() == REND_POLYMER)
                         {
                             if (spritelightptr[i] == NULL)
                             {
@@ -10959,7 +10959,7 @@ void SetGamePalette(int32_t palid)
     if ((unsigned)palid >= MAXBASEPALS)
         palid = 0;
 
-    setbrightness(GAMMA_CALC, palid, 2);
+    videoSetPalette(GAMMA_CALC, palid, 2);
 }
 
 static void SearchSectors(int32_t dir)  // <0: backwards, >=0: forwards

@@ -488,7 +488,7 @@ void M32_ResetFakeRORTiles(void)
 #ifdef POLYMER
 # ifdef YAX_ENABLE
         // END_TWEAK ceiling/floor fake 'TROR' pics, see BEGIN_TWEAK in engine.c
-        if (getrendermode() == REND_POLYMER && showinvisibility)
+        if (videoGetRenderMode() == REND_POLYMER && showinvisibility)
         {
             int32_t i;
 
@@ -536,7 +536,7 @@ void M32_DrawRoomsAndMasks(void)
     M32_ResetFakeRORTiles();
 
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER && searchit == 2)
+    if (videoGetRenderMode() == REND_POLYMER && searchit == 2)
     {
         polymer_editorpick();
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
@@ -768,7 +768,7 @@ int app_main(int argc, char const * const * argv)
         g_videoGamma = g_videoContrast = 1.0;
         g_videoBrightness = 0.0;
 
-        setbrightness(0,0,0);
+        videoSetPalette(0,0,0);
         if (videoSetGameMode(fullscreen, xdim2d, ydim2d, 8) < 0)
         {
             CallExtUnInit();
@@ -788,7 +788,7 @@ int app_main(int argc, char const * const * argv)
 
         vid_gamma_3d = vid_contrast_3d = vid_brightness_3d = -1;
 
-        setbrightness(GAMMA_CALC,0,0);
+        videoSetPalette(GAMMA_CALC,0,0);
     }
     else
     {
@@ -802,7 +802,7 @@ int app_main(int argc, char const * const * argv)
 
         system_getcvars();
 
-        setbrightness(GAMMA_CALC,0,0);
+        videoSetPalette(GAMMA_CALC,0,0);
     }
 
 CANCEL:
@@ -1382,7 +1382,7 @@ void editinput(void)
             rotatepoint(zerovec, da, ang, &da);
 
 #ifdef USE_OPENGL
-            if (getrendermode() == REND_POLYMOST)
+            if (videoGetRenderMode() == REND_POLYMOST)
                 hit = polymost_hitdata;
             else
 #endif
@@ -1481,7 +1481,7 @@ void editinput(void)
         g_videoGamma = g_videoContrast = 1.0;
         g_videoBrightness = 0.0;
 
-        setbrightness(0,0,0);
+        videoSetPalette(0,0,0);
 
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
         overheadeditor();
@@ -1493,7 +1493,7 @@ void editinput(void)
 
         vid_gamma_3d = vid_contrast_3d = vid_brightness_3d = -1;
 
-        setbrightness(GAMMA_CALC,0,0);
+        videoSetPalette(GAMMA_CALC,0,0);
     }
 }
 
@@ -8270,7 +8270,7 @@ CANCEL:
         Bexit(1);
     }
 
-    setbrightness(GAMMA_CALC,0,0);
+    videoSetPalette(GAMMA_CALC,0,0);
 
     pos.z = oposz;
 

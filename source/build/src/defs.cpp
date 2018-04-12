@@ -604,7 +604,7 @@ static int32_t defsparser(scriptfile *script)
             g = clamp(g, 0, 63);
             b = clamp(b, 0, 63);
 
-            makepalookup(p, NULL, r<<2, g<<2, b<<2, 1);
+            paletteMakeLookupTable(p, NULL, r<<2, g<<2, b<<2, 1);
         }
         break;
         case T_NOFLOORPALRANGE:
@@ -2213,7 +2213,7 @@ static int32_t defsparser(scriptfile *script)
 
             // NOTE: all palookups are initialized, i.e. non-NULL!
             // NOTE2: aliasing (pal==remappal) is OK
-            makepalookup(pal, palookup[remappal], red<<2, green<<2, blue<<2,
+            paletteMakeLookupTable(pal, palookup[remappal], red<<2, green<<2, blue<<2,
                          remappal==0 ? 1 : (nofloorpal == -1 ? g_noFloorPal[remappal] : nofloorpal));
         }
         break;
@@ -2870,7 +2870,7 @@ static int32_t defsparser(scriptfile *script)
                             palbuf[k] <<= shiftleft;
                     }
 
-                    setbasepal(id, palbuf);
+                    paletteSetColorTable(id, palbuf);
                     didLoadPal = 1;
 
                     Bfree(palbuf);
@@ -2897,13 +2897,13 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    setbasepal(id, sourcetable);
+                    paletteSetColorTable(id, sourcetable);
                     didLoadPal = 1;
                     break;
                 }
                 case T_UNDEF:
                 {
-                    removebasepal(id);
+                    paletteFreeColorTable(id);
 
                     didLoadPal = 0;
                     if (id == 0)
@@ -3049,7 +3049,7 @@ static int32_t defsparser(scriptfile *script)
                     {
                         didLoadShade = 1;
                         numshades = 32;
-                        setpalookup(id, (uint8_t *)palookupbuf);
+                        paletteSetLookupTable(id, (uint8_t *)palookupbuf);
                     }
                     else
                     {
@@ -3060,7 +3060,7 @@ static int32_t defsparser(scriptfile *script)
                             break;
                         }
 
-                        makepalookup(id, palookupbuf, 0,0,0, g_noFloorPal[id]);
+                        paletteMakeLookupTable(id, palookupbuf, 0,0,0, g_noFloorPal[id]);
                     }
 
                     Bfree(palookupbuf);
@@ -3094,7 +3094,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    setpalookup(id, sourcepal);
+                    paletteSetLookupTable(id, sourcepal);
                     didLoadShade = 1;
                     break;
                 }
@@ -3140,7 +3140,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    makepalookup(id, NULL, red, green, blue, 1);
+                    paletteMakeLookupTable(id, NULL, red, green, blue, 1);
                     break;
                 }
                 case T_MAKEPALOOKUP:
@@ -3201,7 +3201,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    makepalookup(id, NULL, red, green, blue, g_noFloorPal[id]);
+                    paletteMakeLookupTable(id, NULL, red, green, blue, g_noFloorPal[id]);
 
                     break;
                 }
@@ -3217,7 +3217,7 @@ static int32_t defsparser(scriptfile *script)
                 }
                 case T_UNDEF:
                 {
-                    removepalookup(id);
+                    paletteFreeLookupTable(id);
 
                     didLoadShade = 0;
                     if (id == 0)
@@ -3344,7 +3344,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    setblendtab(id, blendbuf);
+                    paletteSetBlendTable(id, blendbuf);
                     didLoadTransluc = 1;
 
                     Bfree(blendbuf);
@@ -3371,7 +3371,7 @@ static int32_t defsparser(scriptfile *script)
                         break;
                     }
 
-                    setblendtab(id, sourcetable);
+                    paletteSetBlendTable(id, sourcetable);
                     didLoadTransluc = 1;
 
 #ifdef USE_OPENGL
@@ -3381,7 +3381,7 @@ static int32_t defsparser(scriptfile *script)
                 }
                 case T_UNDEF:
                 {
-                    removeblendtab(id);
+                    paletteFreeBlendTable(id);
 
                     didLoadTransluc = 0;
                     if (id == 0)
@@ -3568,7 +3568,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
             for (bssize_t i = id0; i <= id1; i++)
-                removebasepal(i);
+                paletteFreeColorTable(i);
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_MAIN;
@@ -3591,7 +3591,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
             for (bssize_t i = id0; i <= id1; i++)
-                removepalookup(i);
+                paletteFreeLookupTable(i);
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_SHADE;
@@ -3614,7 +3614,7 @@ static int32_t defsparser(scriptfile *script)
             }
 
             for (bssize_t i = id0; i <= id1; i++)
-                removeblendtab(i);
+                paletteFreeBlendTable(i);
 
             if (id0 == 0)
                 paletteloaded &= ~PALETTE_TRANSLUC;

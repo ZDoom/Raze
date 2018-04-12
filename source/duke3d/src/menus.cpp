@@ -1922,10 +1922,10 @@ static void Menu_Pre(MenuID_t cm)
 
 #ifdef USE_OPENGL
     case MENU_DISPLAYSETUP:
-        if (getrendermode() == REND_CLASSIC)
+        if (videoGetRenderMode() == REND_CLASSIC)
             MenuMenu_ChangeEntryList(M_DISPLAYSETUP, MEL_DISPLAYSETUP);
 #ifdef POLYMER
-        else if (getrendermode() == REND_POLYMER)
+        else if (videoGetRenderMode() == REND_POLYMER)
             MenuMenu_ChangeEntryList(M_DISPLAYSETUP, MEL_DISPLAYSETUP_GL_POLYMER);
 #endif
         else
@@ -1948,13 +1948,13 @@ static void Menu_Pre(MenuID_t cm)
                  (ud.screen_size > 8 && !(ud.statusbarflags & STATUSBAR_NOSHRINK)) * ((ud.screen_size - 8) >> 2)
                  -1;
 
-        if (getrendermode() != REND_CLASSIC)
+        if (videoGetRenderMode() != REND_CLASSIC)
         {
             //POGOTODO: allow setting anisotropy again while r_useindexedcolortextures is set when support is added down the line
             // don't allow setting anisotropy or changing palette emulation while in POLYMOST and r_useindexedcolortextures is enabled
-            MenuEntry_DisableOnCondition(&ME_DISPLAYSETUP_ANISOTROPY, getrendermode() == REND_POLYMOST && r_useindexedcolortextures);
+            MenuEntry_DisableOnCondition(&ME_DISPLAYSETUP_ANISOTROPY, videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures);
 #ifdef EDUKE32_SIMPLE_MENU
-            MenuEntry_DisableOnCondition(&ME_DISPLAYSETUP_PALETTEEMULATION, getrendermode() == REND_POLYMOST && r_useindexedcolortextures);
+            MenuEntry_DisableOnCondition(&ME_DISPLAYSETUP_PALETTEEMULATION, videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures);
 #endif
 
             for (i = (int32_t) ARRAY_SIZE(MEOSV_DISPLAYSETUP_ANISOTROPY) - 1; i >= 0; --i)
@@ -1980,7 +1980,7 @@ static void Menu_Pre(MenuID_t cm)
         MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_GLOWTEX, !usehightile);
 # endif
         // don't allow changing palette emulation while in POLYMOST and r_useindexedcolortextures is enabled
-        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_PALETTEEMULATION, getrendermode() == REND_POLYMOST && r_useindexedcolortextures);
+        MenuEntry_DisableOnCondition(&ME_RENDERERSETUP_PALETTEEMULATION, videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures);
         break;
 #endif
 
@@ -1993,7 +1993,7 @@ static void Menu_Pre(MenuID_t cm)
 
         MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_APPLY,
              (xdim == resolution[nr].xdim && ydim == resolution[nr].ydim &&
-              getrendermode() == newrendermode && fullscreen == newfullscreen
+              videoGetRenderMode() == newrendermode && fullscreen == newfullscreen
               && vsync == newvsync
              )
              || (newrendermode != REND_CLASSIC && resolution[nr].bppmax <= 8));
@@ -2237,7 +2237,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
 
     case MENU_RESETPLAYER:
-        fade_screen_black(1);
+        videoFadeToBlack(1);
         Bsprintf(tempbuf, "Load last game:\n\"%s\""
 #ifndef EDUKE32_ANDROID_MENU
                           "\n(Y/N)"
@@ -2375,7 +2375,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 #endif
 
     case MENU_SAVECLEANVERIFY:
-        fade_screen_black(1);
+        videoFadeToBlack(1);
 
         if (g_oldSaveCnt)
         {
@@ -2393,7 +2393,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
     case MENU_LOADVERIFY:
     {
-        fade_screen_black(1);
+        videoFadeToBlack(1);
         menusave_t & msv = g_menusaves[M_LOAD.currentEntry];
         if (msv.isOldVer)
         {
@@ -2417,7 +2417,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     }
 
     case MENU_SAVEVERIFY:
-        fade_screen_black(1);
+        videoFadeToBlack(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Overwrite previous saved game?"
 #ifndef EDUKE32_ANDROID_MENU
                                                        "\n(Y/N)"
@@ -2428,7 +2428,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_LOADDELVERIFY:
     case MENU_SAVEDELVERIFY:
     {
-        fade_screen_black(1);
+        videoFadeToBlack(1);
         menusave_t & msv = cm == MENU_LOADDELVERIFY ? g_menusaves[M_LOAD.currentEntry] : g_menusaves[M_SAVE.currentEntry-1];
         Bsprintf(tempbuf, "Delete saved game:\n\"%s\"?"
 #ifndef EDUKE32_ANDROID_MENU
@@ -2440,7 +2440,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     }
 
     case MENU_NEWVERIFY:
-        fade_screen_black(1);
+        videoFadeToBlack(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Abort this game?"
 #ifndef EDUKE32_ANDROID_MENU
                                                        "\n(Y/N)"
@@ -2450,7 +2450,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
     case MENU_QUIT:
     case MENU_QUIT_INGAME:
-        fade_screen_black(1);
+        videoFadeToBlack(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "Are you sure you want to quit?"
 #ifndef EDUKE32_ANDROID_MENU
                                                        "\n(Y/N)"
@@ -2459,7 +2459,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         break;
 
     case MENU_QUITTOTITLE:
-        fade_screen_black(1);
+        videoFadeToBlack(1);
         mgametextcenter(origin.x, origin.y + (90<<16), "End game and return to title screen?"
 #ifndef EDUKE32_ANDROID_MENU
                                                        "\n(Y/N)"
@@ -3032,7 +3032,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     if (entry == &ME_VIDEOSETUP_APPLY)
     {
         resolution_t p = { xdim, ydim, fullscreen, bpp, 0 };
-        int32_t prend = getrendermode();
+        int32_t prend = videoGetRenderMode();
         int32_t pvsync = vsync;
 
         resolution_t n = { resolution[newresolution].xdim, resolution[newresolution].ydim,
@@ -3094,7 +3094,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         g_videoBrightness = DEFAULT_BRIGHTNESS;
         ud.brightness = 0;
         r_ambientlight = r_ambientlightrecip = 1.f;
-        setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
+        videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
     }
     else if (entry == &ME_KEYBOARDSETUP_RESET)
         CONFIG_SetDefaultKeys(keydefaults);
@@ -3352,11 +3352,11 @@ static int32_t Menu_EntryRangeFloatDidModify(MenuEntry_t *entry)
     if (entry == &ME_COLCORR_GAMMA)
     {
         ud.brightness = GAMMA_CALC<<2;
-        setbrightness(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
+        videoSetPalette(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
     }
     else if (entry == &ME_COLCORR_CONTRAST || entry == &ME_COLCORR_BRIGHTNESS)
     {
-        setbrightness(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
+        videoSetPalette(ud.brightness>>2, g_player[myconnectindex].ps->palette, 0);
     }
 
     return 0;
@@ -4054,7 +4054,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
                 break;
             }
         }
-        newrendermode = getrendermode();
+        newrendermode = videoGetRenderMode();
         newfullscreen = fullscreen;
         newvsync = vsync;
         break;
@@ -6828,7 +6828,7 @@ void M_DisplayMenus(void)
     // need EVENT_DISPLAYMENUBACKGROUND here
 
     if (!KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && backgroundOK)
-        fade_screen_black(1);
+        videoFadeToBlack(1);
 
     if (Menu_UpdateScreenOK(g_currentMenu))
         G_UpdateScreenArea();
@@ -6875,7 +6875,7 @@ void M_DisplayMenus(void)
 
     // hack; need EVENT_DISPLAYMENUBACKGROUND above
     if (KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2 || m_parentMenu != NULL) && backgroundOK)
-        fade_screen_black(1);
+        videoFadeToBlack(1);
 
     // Display the menu, with a transition animation if applicable.
     if (totalclock < m_animation.start + m_animation.length)

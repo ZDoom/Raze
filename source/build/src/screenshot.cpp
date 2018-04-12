@@ -47,7 +47,7 @@ static void screencapture_end(char *fn, BFILE** filptr)
 }
 
 # ifdef USE_OPENGL
-#  define HICOLOR (getrendermode() >= REND_POLYMOST && in3dmode())
+#  define HICOLOR (videoGetRenderMode() >= REND_POLYMOST && in3dmode())
 # else
 #  define HICOLOR 0
 # endif

@@ -323,7 +323,7 @@ static int32_t osdfunc_setrendermode(osdfuncparm_t const * const parm)
 
     char const *renderer;
 
-    switch (getrendermode())
+    switch (videoGetRenderMode())
     {
     case REND_CLASSIC:
         renderer = "classic software";
@@ -425,7 +425,7 @@ static int32_t osdcmd_cvar_set_baselayer(osdfuncparm_t const * const parm)
 
     if (!Bstrcasecmp(parm->name, "vid_gamma") || !Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
     {
-        setbrightness(GAMMA_CALC,0,0);
+        videoSetPalette(GAMMA_CALC,0,0);
 
         return r;
     }

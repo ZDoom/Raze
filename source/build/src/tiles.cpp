@@ -116,7 +116,7 @@ void E_MapArt_Clear(void)
     //POGOTODO: review this to ensure we're not invalidating more than we have to
     gltexinvalidatetype(INVALIDATE_ART);
 # ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
         polymer_texinvalidate();
 # endif
 #endif
@@ -173,7 +173,7 @@ void E_MapArt_Setup(const char *filename)
     //POGOTODO: review this to ensure we're not invalidating more than we have to
     gltexinvalidatetype(INVALIDATE_ART);
 # ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
         polymer_texinvalidate();
 # endif
 #endif
@@ -601,7 +601,7 @@ void loadtile(int16_t tilenume)
     E_LoadTileIntoBuffer(tilenume, dasiz, (char *) waloff[tilenume]);
 
 #ifdef USE_OPENGL
-    if (getrendermode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         //POGOTODO: this type stuff won't be necessary down the line -- review this
         int type;

@@ -831,7 +831,7 @@ void onvideomodechange(int32_t newmode)
         palid = BASEPAL;
 
 #ifdef POLYMER
-    if (getrendermode() == REND_POLYMER)
+    if (videoGetRenderMode() == REND_POLYMER)
     {
         int32_t i = 0;
 
@@ -848,7 +848,7 @@ void onvideomodechange(int32_t newmode)
     }
 #endif
 
-    setbrightness(ud.brightness>>2, palid, 0);
+    videoSetPalette(ud.brightness>>2, palid, 0);
     g_restorePalette = -1;
     g_crosshairSum = -1;
 }
@@ -1518,11 +1518,11 @@ static int32_t osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
     {
         ud.brightness = GAMMA_CALC;
         ud.brightness <<= 2;
-        setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
+        videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
     }
     else if (!Bstrcasecmp(parm->name, "vid_brightness") || !Bstrcasecmp(parm->name, "vid_contrast"))
     {
-        setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
+        videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
     }
     else if (!Bstrcasecmp(parm->name, "hud_scale")
              || !Bstrcasecmp(parm->name, "hud_statusbarmode")
