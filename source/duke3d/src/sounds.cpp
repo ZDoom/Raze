@@ -465,7 +465,7 @@ int32_t S_LoadSound(uint32_t num)
     int32_t l = kfilelength(fp);
     g_soundlocks[num] = 200;
     g_sounds[num].soundsiz = l;
-    allocache((intptr_t *)&g_sounds[num].ptr, l, (char *)&g_soundlocks[num]);
+    cacheAllocateBlock((intptr_t *)&g_sounds[num].ptr, l, (char *)&g_soundlocks[num]);
     l = kread(fp, g_sounds[num].ptr, l);
     kclose(fp);
 

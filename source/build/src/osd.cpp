@@ -1589,6 +1589,9 @@ static inline void OSD_LineFeed(void)
 
 void OSD_Puts(const char *tmpstr)
 {
+    if (!osd)
+        OSD_Init();
+
     if (tmpstr[0]==0)
         return;
 

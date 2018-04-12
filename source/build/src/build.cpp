@@ -468,7 +468,7 @@ static void reset_default_mapstate(void)
 
     initspritelists();
     taglab_init();
-    E_MapArt_Clear();
+    artClearMapArt();
 #ifdef YAX_ENABLE
     yax_resetbunchnums();
 #endif
@@ -677,7 +677,7 @@ int app_main(int argc, char const * const * argv)
     timerInit(TIMERINTSPERSECOND);
     timerSetCallback(keytimerstuff);
 
-    loadpics("tiles000.art", g_maxCacheSize);
+    artLoadFiles("tiles000.art", g_maxCacheSize);
 
     Bstrcpy(kensig,"Uses BUILD technology by Ken Silverman");
     initcrc();
@@ -719,7 +719,7 @@ int app_main(int argc, char const * const * argv)
         walock[i] = 255; // permanent tile
         picsiz[i] = 5 + (5<<4);
         tilesiz[i].x = sx; tilesiz[i].y = sy;
-        allocache(&waloff[i], sx*sy, &walock[i]);
+        cacheAllocateBlock(&waloff[i], sx*sy, &walock[i]);
         newtile = (char *)waloff[i];
 
         col = getclosestcol(128, 128, 0);

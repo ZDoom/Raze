@@ -434,7 +434,7 @@ int32_t Anim_Play(const char *fn)
     anim->animlock = 1;
 
     if (!anim->animbuf)
-        allocache((intptr_t *)&anim->animbuf, length + 1, &anim->animlock);
+        cacheAllocateBlock((intptr_t *)&anim->animbuf, length + 1, &anim->animlock);
 
     tilesiz[TILE_ANIM].x = 200;
     tilesiz[TILE_ANIM].y = 320;

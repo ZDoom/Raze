@@ -3576,7 +3576,7 @@ static void Menu_Verify(int32_t input)
             g_player[myconnectindex].ps->gm = MODE_DEMO;
             if (ud.recstat == 1)
                 G_CloseDemoWrite();
-            E_MapArt_Clear();
+            artClearMapArt();
         }
         break;
 

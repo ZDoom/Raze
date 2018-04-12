@@ -294,7 +294,7 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
 
     walock[TILE_LOADSHOT] = 255;
     if (waloff[TILE_LOADSHOT] == 0)
-        allocache(&waloff[TILE_LOADSHOT], 320*200, &walock[TILE_LOADSHOT]);
+        cacheAllocateBlock(&waloff[TILE_LOADSHOT], 320*200, &walock[TILE_LOADSHOT]);
     tilesiz[TILE_LOADSHOT].x = 200;
     tilesiz[TILE_LOADSHOT].y = 320;
     if (screenshotofs)
@@ -390,7 +390,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     if (currentboardfilename[0])
     {
-        E_MapArt_Setup(currentboardfilename);
+        artSetupMapArt(currentboardfilename);
         append_ext_UNSAFE(currentboardfilename, ".mhk");
         loadmaphack(currentboardfilename);
     }

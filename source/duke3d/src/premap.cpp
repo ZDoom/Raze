@@ -430,7 +430,7 @@ void G_CacheMapData(void)
         if (gotpic[i>>3] & pow2char[i&7])
         {
             if (waloff[i] == 0)
-                loadtile((int16_t)i);
+                tileLoad((int16_t)i);
 
 #ifdef USE_OPENGL
 // PRECACHE

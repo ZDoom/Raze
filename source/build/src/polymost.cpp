@@ -2263,7 +2263,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if (tsiz.x == 0 || tsiz.y == 0)
         {
-            if (E_CheckUnitArtFileHeader((uint8_t *)kpzbuf, picfillen))
+            if (artCheckUnitFileHeader((uint8_t *)kpzbuf, picfillen))
                 return -1;
 
             tsiz.x = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
@@ -2307,7 +2307,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
         {
             if (isart)
             {
-                E_RenderArtDataIntoBuffer((palette_t *)pic, (uint8_t *)&kpzbuf[ARTv1_UNITOFFSET], siz.x, tsiz.x, tsiz.y);
+                artConvertRGB((palette_t *)pic, (uint8_t *)&kpzbuf[ARTv1_UNITOFFSET], siz.x, tsiz.x, tsiz.y);
             }
 #ifdef WITHKPLIB
             else
@@ -2627,7 +2627,7 @@ static void polymost2_drawVBO(GLenum mode,
     setgotpic(globalpicnum);
     if (!waloff[globalpicnum])
     {
-        loadtile(globalpicnum);
+        tileLoad(globalpicnum);
     }
 
     pthtyp *pth = our_texcache_fetch(dameth | (r_useindexedcolortextures ? PTH_INDEXED : 0));
@@ -2831,7 +2831,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     if (!waloff[globalpicnum])
     {
-        loadtile(globalpicnum);
+        tileLoad(globalpicnum);
 
         if (!waloff[globalpicnum])
         {

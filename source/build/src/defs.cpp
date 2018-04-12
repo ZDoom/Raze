@@ -219,7 +219,7 @@ static void tile_from_truecolpic(int32_t tile, const palette_t *picptr, int32_t 
         }
     }
 
-    E_CreateFakeTile(tile, tsiz, faketilebuffer);
+    tileSetData(tile, tsiz, faketilebuffer);
 }
 
 static int32_t Defs_LoadTileIntoBuffer(int32_t const tile)
@@ -232,7 +232,7 @@ static int32_t Defs_LoadTileIntoBuffer(int32_t const tile)
 
     maybe_grow_buffer(&faketilebuffer, &faketilebuffersiz, tsiz);
 
-    E_LoadTileIntoBuffer(tile, tsiz, faketilebuffer);
+    tileLoadData(tile, tsiz, faketilebuffer);
 
     return tsiz;
 }
@@ -258,32 +258,32 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
 
     if (!picptr)
     {
-        int32_t const artstatus = E_CheckUnitArtFileHeader((uint8_t *)kpzbuf, length);
+        int32_t const artstatus = artCheckUnitFileHeader((uint8_t *)kpzbuf, length);
         if (artstatus < 0)
             return artstatus<<8;
 
         Bmemcpy(&picanm[tile], &kpzbuf[20], sizeof(picanm_t));
-        E_ConvertARTv1picanmToMemory(tile);
+        tileConvertAnimFormat(tile);
 
         int32_t const xsiz = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
         int32_t const ysiz = B_LITTLE16(B_UNBUF16(&kpzbuf[18]));
 
         if (EDUKE32_PREDICT_FALSE(xsiz <= 0 || ysiz <= 0))
         {
-            E_UndefineTile(tile);
+            tileDelete(tile);
             return 2;
         }
 
-        set_tilesiz(tile, xsiz, ysiz);
+        tileSetSize(tile, xsiz, ysiz);
         int32_t const dasiz = xsiz * ysiz;
 
         if (EDUKE32_PREDICT_FALSE(ARTv1_UNITOFFSET + dasiz > length))
         {
-            E_CreateDummyTile(tile);
+            tileSetupDummy(tile);
             return 3;
         }
 
-        E_CreateFakeTile(tile, dasiz, &kpzbuf[ARTv1_UNITOFFSET]);
+        tileSetData(tile, dasiz, &kpzbuf[ARTv1_UNITOFFSET]);
 
 #ifdef USE_OPENGL
         if (istexture)
@@ -299,7 +299,7 @@ static int32_t Defs_ImportTileFromTexture(char const * const fn, int32_t const t
     if (!(paletteloaded & PALETTE_MAIN))
         return -3;
 
-    set_tilesiz(tile, xsiz, ysiz);
+    tileSetSize(tile, xsiz, ysiz);
 
     tile_from_truecolpic(tile, picptr, alphacut);
 
@@ -679,7 +679,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
             artheader_t local;
-            int32_t headerval = E_ReadArtFileHeader(fil, fn, &local);
+            int32_t headerval = artReadHeader(fil, fn, &local);
             if (headerval != 0)
             {
                 kclose(fil);
@@ -695,8 +695,8 @@ static int32_t defsparser(scriptfile *script)
                 }
             }
 
-            E_ReadArtFileTileInfo(fil, &local);
-            E_ReadArtFileIntoFakeData(fil, &local);
+            artReadManifest(fil, &local);
+            artPreloadFile(fil, &local);
 
             kclose(fil);
         }
@@ -982,7 +982,7 @@ static int32_t defsparser(scriptfile *script)
 
             if (havetile)
             {
-                E_CreateFakeTile(tile, tsiz, faketilebuffer);
+                tileSetData(tile, tsiz, faketilebuffer);
             }
             else // if !havetile, we have never confirmed a valid source
             {
@@ -992,11 +992,11 @@ static int32_t defsparser(scriptfile *script)
 
             if (tsiz <= 0)
             {
-                E_UndefineTile(tile);
+                tileDelete(tile);
                 break;
             }
 
-            set_tilesiz(tile, tilesiz[source].x, tilesiz[source].y);
+            tileSetSize(tile, tilesiz[source].x, tilesiz[source].y);
             picanm[tile].xofs = havexoffset ? clamp(xoffset, -128, 127) : picanm[source].xofs;
             picanm[tile].yofs = haveyoffset ? clamp(yoffset, -128, 127) : picanm[source].yofs;
             picanm[tile].sf = (picanm[tile].sf & ~PICANM_MISC_MASK) | (picanm[source].sf & PICANM_MISC_MASK) | flags;
@@ -1041,15 +1041,15 @@ static int32_t defsparser(scriptfile *script)
 
             if ((int16_t) xsiz == 0 || (int16_t) ysiz == 0)
             {
-                E_UndefineTile(tile);
+                tileDelete(tile);
                 break;
             }
 
             if (xsiz > 0 && ysiz > 0)
             {
-                set_tilesiz(tile, xsiz, ysiz);
+                tileSetSize(tile, xsiz, ysiz);
                 Bmemset(&picanm[tile], 0, sizeof(picanm_t));
-                E_CreateDummyTile(tile);
+                tileSetupDummy(tile);
             }
 
             break;
@@ -1072,15 +1072,15 @@ static int32_t defsparser(scriptfile *script)
             if ((int16_t) xsiz == 0 || (int16_t) ysiz == 0)
             {
                 for (i=tile1; i<=tile2; i++)
-                    E_UndefineTile(i);
+                    tileDelete(i);
                 break;
             }
 
             for (i=tile1; i<=tile2; i++)
             {
-                set_tilesiz(i, xsiz, ysiz);
+                tileSetSize(i, xsiz, ysiz);
                 Bmemset(&picanm[i], 0, sizeof(picanm_t));
-                E_CreateDummyTile(i);
+                tileSetupDummy(i);
             }
 
             break;
@@ -1095,7 +1095,7 @@ static int32_t defsparser(scriptfile *script)
             if (check_tile("undefinetile", tile, script, cmdtokptr))
                 break;
 
-            E_UndefineTile(tile);
+            tileDelete(tile);
 
             break;
         }
@@ -1110,7 +1110,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
 
             for (bssize_t i = tile1; i <= tile2; i++)
-                E_UndefineTile(i);
+                tileDelete(i);
 
             break;
         }
@@ -2321,9 +2321,9 @@ static int32_t defsparser(scriptfile *script)
 
                     if (xsiz > 0 && ysiz > 0)
                     {
-                        set_tilesiz(tile, xsiz, ysiz);
+                        tileSetSize(tile, xsiz, ysiz);
                         Bmemset(&picanm[tile], 0, sizeof(picanm_t));
-                        E_CreateDummyTile(tile);
+                        tileSetupDummy(tile);
                     }
 #ifdef USE_OPENGL
                     xscale = 1.0f / xscale;

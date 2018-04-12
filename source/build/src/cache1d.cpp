@@ -139,7 +139,7 @@ char toupperlookup[256] =
 static void reportandexit(const char *errormessage);
 
 
-void initcache(intptr_t dacachestart, int32_t dacachesize)
+void cacheInitBuffer(intptr_t dacachestart, int32_t dacachesize)
 {
 #ifndef DEBUG_ALLOCACHE_AS_MALLOC
     int32_t i;
@@ -165,7 +165,7 @@ void initcache(intptr_t dacachestart, int32_t dacachesize)
 }
 
 #ifdef DEBUG_ALLOCACHE_AS_MALLOC
-void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
+void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 {
     UNREFERENCED_PARAMETER(newlockptr);
 
@@ -178,7 +178,7 @@ static inline void inc_and_check_cacnum(void)
         reportandexit("Too many objects in cache! (cacnum > MAXCACHEOBJECTS)");
 }
 
-void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
+void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 {
     if (EDUKE32_PREDICT_FALSE(*newlockptr == 0))
         reportandexit("ALLOCACHE CALLED WITH LOCK OF 0!");
@@ -290,7 +290,7 @@ void allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 }
 #endif
 
-void agecache(void)
+void cacheAgeEntries(void)
 {
 #ifndef DEBUG_ALLOCACHE_AS_MALLOC
     static int32_t agecount;

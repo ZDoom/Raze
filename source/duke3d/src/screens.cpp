@@ -106,7 +106,7 @@ void G_GetCrosshairColor(void)
 
     if (waloff[CROSSHAIR] == 0)
     {
-        loadtile(CROSSHAIR);
+        tileLoad(CROSSHAIR);
         ptr = (char const *) waloff[CROSSHAIR];
     }
 
@@ -150,7 +150,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
 
     if (waloff[CROSSHAIR] == 0)
     {
-        loadtile(CROSSHAIR);
+        tileLoad(CROSSHAIR);
         ptr = (char *) waloff[CROSSHAIR];
     }
 

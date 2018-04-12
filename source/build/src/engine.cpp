@@ -1911,7 +1911,7 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 
     setgotpic(globalpicnum);
 
-    if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
 
     tweak_tsizes(&tsiz);
 
@@ -2635,7 +2635,7 @@ static int32_t setup_globals_cf1(const usectortype *sec, int32_t pal, int32_t zd
     DO_TILE_ANIM(globalpicnum, 0);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return 1;
-    if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
 
     globalbufplc = waloff[globalpicnum];
 
@@ -2934,7 +2934,7 @@ static void wallscan(int32_t x1, int32_t x2,
     if ((uwal[x1] > ydimen) && (uwal[x2] > ydimen)) return;
     if ((dwal[x1] < 0) && (dwal[x2] < 0)) return;
 
-    if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
 
     tweak_tsizes(&tsiz);
 
@@ -3155,7 +3155,7 @@ static void transmaskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0))
         return;
 
-    if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
 
     setuptvlineasm(globalshiftval, saturatevplc);
 
@@ -3429,7 +3429,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     DO_TILE_ANIM(globalpicnum, sectnum);
     setgotpic(globalpicnum);
     if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) return;
-    if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+    if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
 
     wal = (uwalltype *)&wall[sec->wallptr];
     wx = wall[wal->point2].x - wal->x;
@@ -5584,7 +5584,7 @@ draw_as_face_sprite:
         globalpicnum = tilenum;
         if ((unsigned)globalpicnum >= (unsigned)MAXTILES) globalpicnum = 0;
 
-        if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+        if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
         setgotpic(globalpicnum);
         globalbufplc = waloff[globalpicnum];
 
@@ -6615,7 +6615,7 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
         nextv = v;
     }
 
-    if (waloff[picnum] == 0) loadtile(picnum);
+    if (waloff[picnum] == 0) tileLoad(picnum);
     setgotpic(picnum);
     bufplc = waloff[picnum];
 
@@ -8768,7 +8768,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             DO_TILE_ANIM(globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
-            if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+            if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
             globalbufplc = waloff[globalpicnum];
             globalshade = max(min(sec->floorshade,numshades-1),0);
             globvis = globalhisibility;
@@ -8893,7 +8893,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             DO_TILE_ANIM(globalpicnum, s);
             setgotpic(globalpicnum);
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
-            if (waloff[globalpicnum] == 0) loadtile(globalpicnum);
+            if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
             globalbufplc = waloff[globalpicnum];
 
             // 'loading' the tile doesn't actually guarantee that it's there afterwards.
@@ -9337,7 +9337,7 @@ skip_reading_mapbin:
         system_getcvars();
 
         // Per-map ART
-        E_MapArt_Setup(filename);
+        artSetupMapArt(filename);
     }
 
     // initprintf("Loaded map \"%s\" (md4sum: %08x%08x%08x%08x)\n", filename, B_BIG32(*((int32_t*)&md4out[0])), B_BIG32(*((int32_t*)&md4out[4])), B_BIG32(*((int32_t*)&md4out[8])), B_BIG32(*((int32_t*)&md4out[12])));
@@ -9982,7 +9982,7 @@ void videoNextPage(void)
     }
 
     faketimerhandler();
-    agecache();
+    cacheAgeEntries();
 
 #ifdef USE_OPENGL
     omdtims = mdtims;
@@ -10016,7 +10016,7 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
 
         //Must store filenames to use cacheing system :(
         voxlock[voxindex][i] = 200;
-        allocache(&voxoff[voxindex][i], dasiz, &voxlock[voxindex][i]);
+        cacheAllocateBlock(&voxoff[voxindex][i], dasiz, &voxlock[voxindex][i]);
 
         char *ptr = (char *) voxoff[voxindex][i];
         kread(fil, ptr, dasiz);
@@ -10903,7 +10903,7 @@ restart_grand:
                         DO_TILE_ANIM(tilenum, 0);
 
                         if (!waloff[tilenum])
-                            loadtile(tilenum);
+                            tileLoad(tilenum);
 
                         if (waloff[tilenum])
                         {

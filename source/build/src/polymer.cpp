@@ -1654,7 +1654,7 @@ int16_t             polymer_addlight(_prlight* light)
             DO_TILE_ANIM(picnum, 0);
 
             if (!waloff[picnum])
-                loadtile(picnum);
+                tileLoad(picnum);
 
             pth = NULL;
             pth = texcache_fetch(picnum, 0, 0, DAMETH_NOMASK);
@@ -2690,7 +2690,7 @@ static int32_t      polymer_updatesector(int16_t sectnum)
             }
 
             if (!waloff[curpicnum])
-                loadtile(curpicnum);
+                tileLoad(curpicnum);
 
             if (((sec->floorstat & 64) || (sec->ceilingstat & 64)) &&
                     ((secangcos == 2) && (secangsin == 2)))
@@ -4185,7 +4185,7 @@ static void         polymer_drawartsky(int16_t tilenum, char palnum, int8_t shad
 
         DO_TILE_ANIM(picnum, 0);
         if (!waloff[picnum])
-            loadtile(picnum);
+            tileLoad(picnum);
         pth = texcache_fetch(picnum, palnum, 0, DAMETH_NOMASK);
         glpics[i] = pth ? pth->glpic : 0;
 
@@ -4929,7 +4929,7 @@ static _prbucket*   polymer_getbuildmaterial(_prmaterial* material, int16_t tile
     polymer_getscratchmaterial(material);
 
     if (!waloff[tilenum])
-        loadtile(tilenum);
+        tileLoad(tilenum);
 
     // PR_BIT_DIFFUSE_MAP
     pthtyp *pth = texcache_fetch(tilenum, pal, 0, cmeth);
@@ -5773,7 +5773,7 @@ static void         polymer_updatelights(void)
                 DO_TILE_ANIM(picnum, 0);
 
                 if (!waloff[picnum])
-                    loadtile(picnum);
+                    tileLoad(picnum);
 
                 pth = NULL;
                 pth = texcache_fetch(picnum, 0, 0, DAMETH_NOMASK);

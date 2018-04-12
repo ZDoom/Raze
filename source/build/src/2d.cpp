@@ -1044,7 +1044,7 @@ int32_t getspritecol(int32_t spr)
 
     if (tilecol) return palookup[pal][tilecol];
 
-    if (!waloff[picnum]) loadtile(picnum);
+    if (!waloff[picnum]) tileLoad(picnum);
     if (!waloff[picnum]) return editorcolors[3];
 
     // Calculate 2D mode tile color.

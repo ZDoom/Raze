@@ -740,7 +740,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
         if (tsiz.x == 0 || tsiz.y == 0)
         {
-            if (E_CheckUnitArtFileHeader((uint8_t *)kpzbuf, picfillen))
+            if (artCheckUnitFileHeader((uint8_t *)kpzbuf, picfillen))
                 return mdloadskin_failed(skinfile, fn);
 
             tsiz.x = B_LITTLE16(B_UNBUF16(&kpzbuf[16]));
@@ -782,7 +782,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         {
             if (isart)
             {
-                E_RenderArtDataIntoBuffer((palette_t *)pic, (uint8_t *)&kpzbuf[ARTv1_UNITOFFSET], siz.x, tsiz.x, tsiz.y);
+                artConvertRGB((palette_t *)pic, (uint8_t *)&kpzbuf[ARTv1_UNITOFFSET], siz.x, tsiz.x, tsiz.y);
             }
 #ifdef WITHKPLIB
             else

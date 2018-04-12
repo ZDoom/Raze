@@ -466,7 +466,7 @@ int32_t baselayer_init(void)
 #endif
     };
 
-    for (native_t i=0; i<ARRAY_SIZE(cvars_engine); i++)
+    for (native_t i=0; i<ARRAY_SSIZE(cvars_engine); i++)
         OSD_RegisterCvar(&cvars_engine[i], (cvars_engine[i].flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
 
 #ifdef USE_OPENGL

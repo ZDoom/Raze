@@ -420,7 +420,7 @@ void G_AnimateCamSprite(int smoothRatio)
             int const viewscrTile  = TILE_VIEWSCR - viewscrShift;
 
             if (waloff[viewscrTile] == 0)
-                allocatepermanenttile(viewscrTile, tilesiz[PN(spriteNum)].x << viewscrShift, tilesiz[PN(spriteNum)].y << viewscrShift);
+                tileCreate(viewscrTile, tilesiz[PN(spriteNum)].x << viewscrShift, tilesiz[PN(spriteNum)].y << viewscrShift);
             else
                 walock[viewscrTile] = 255;
 

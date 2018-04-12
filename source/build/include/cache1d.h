@@ -18,9 +18,9 @@ extern int32_t kpzbufsiz;
 extern int32_t kpzbufloadfil(int32_t);
 extern int32_t kpzbufload(const char *);
 
-void	initcache(intptr_t dacachestart, int32_t dacachesize);
-void	allocache(intptr_t *newhandle, int32_t newbytes, char *newlockptr);
-void	agecache(void);
+void	cacheInitBuffer(intptr_t dacachestart, int32_t dacachesize);
+void	cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, char *newlockptr);
+void	cacheAgeEntries(void);
 
 extern int32_t pathsearchmode;	// 0 = gamefs mode (default), 1 = localfs mode (editor's mode)
 char *listsearchpath(int32_t initp);

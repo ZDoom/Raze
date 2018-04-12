@@ -1032,28 +1032,27 @@ int32_t clipmapinfo_load(void);
 #endif
 int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 
-void E_CreateDummyTile(int32_t const tile);
-void E_CreateFakeTile(int32_t const tile, int32_t tsiz, char const * const buffer);
-void E_UndefineTile(int32_t const tile);
-void set_tilesiz(int32_t picnum, int16_t dasizx, int16_t dasizy);
-int32_t tile_exists(int32_t picnum);
-int32_t E_ReadArtFileHeader(int32_t const fil, char const * const fn, artheader_t * const local);
-int32_t E_ReadArtFileHeaderFromBuffer(uint8_t const * const buf, artheader_t * const local);
-int32_t E_CheckUnitArtFileHeader(uint8_t const * const buf, int32_t length);
-void E_ConvertARTv1picanmToMemory(int32_t const picnum);
-void E_ReadArtFileTileInfo(int32_t const fil, artheader_t const * const local);
-void E_ReadArtFileIntoFakeData(int32_t const fil, artheader_t const * const local);
-int32_t   loadpics(const char *filename, int32_t askedsize);
-void E_MapArt_Clear(void);
-void E_MapArt_Setup(const char *filename);
-void   loadtile(int16_t tilenume);
-void E_LoadTileIntoBuffer(int16_t tilenume, int32_t dasiz, char *buffer);
-void E_RenderArtDataIntoBuffer(palette_t * pic, uint8_t const * buf, int32_t bufsizx, int32_t sizx, int32_t sizy);
+void tileSetupDummy(int32_t const tile);
+void tileSetData(int32_t const tile, int32_t tsiz, char const * const buffer);
+void tileDelete(int32_t const tile);
+void tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy);
+int32_t artReadHeader(int32_t const fil, char const * const fn, artheader_t * const local);
+int32_t artReadHeaderFromBuffer(uint8_t const * const buf, artheader_t * const local);
+int32_t artCheckUnitFileHeader(uint8_t const * const buf, int32_t length);
+void tileConvertAnimFormat(int32_t const picnum);
+void artReadManifest(int32_t const fil, artheader_t const * const local);
+void artPreloadFile(int32_t const fil, artheader_t const * const local);
+int32_t   artLoadFiles(const char *filename, int32_t askedsize);
+void artClearMapArt(void);
+void artSetupMapArt(const char *filename);
+bool tileLoad(int16_t tilenume);
+void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer);
+void artConvertRGB(palette_t * pic, uint8_t const * buf, int32_t bufsizx, int32_t sizx, int32_t sizy);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
-intptr_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
-void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
+intptr_t   tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz);
+void   tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   squarerotatetile(int16_t tilenume);
 
 int32_t   videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp);

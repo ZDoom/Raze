@@ -3341,7 +3341,7 @@ static const char *GetTilePixels(int32_t idTile)
     if (idTile >= 0 && idTile < MAXTILES)
     {
         if (!waloff[idTile])
-            loadtile(idTile);
+            tileLoad(idTile);
 
         if (IsValidTile(idTile))
             pPixelData = (char *)waloff[idTile];
@@ -5775,7 +5775,7 @@ static void Keys3d(void)
             getnumberptr256(tempbuf, picnumptr, sizeof(int16_t), MAXTILES-1, 0+2, NULL);
 
             Bassert((unsigned)*picnumptr < MAXTILES);
-            if (!tile_exists(*picnumptr))
+            if (!tileLoad(*picnumptr))
                 *picnumptr = opicnum;
 
             if (*picnumptr != opicnum)
