@@ -195,9 +195,9 @@ int32_t circlewall=-1;
 #ifdef __cplusplus
 extern "C" {
 #endif
-void setup_sideview_sincos(void);
+void editorSetup2dSideView(void);
 int32_t getscreenvdisp(int32_t bz, int32_t zoome);
-void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
+void editorGet2dScreenCoordinates(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
 int32_t scalescreeny(int32_t sy);
 #ifdef YAX_ENABLE
 void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore);
@@ -977,7 +977,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                         int32_t odsprcnt = yax_spritesortcnt[yax_globallev];
 #endif
                         // +MAXSECTORS: force
-                        drawrooms_q16(globalposx,globalposy,globalposz,qglobalang,horiz,k+MAXSECTORS);
+                        renderDrawRoomsQ16(globalposx,globalposy,globalposz,qglobalang,horiz,k+MAXSECTORS);
                         if (numhere > 1)
                             for (i=0; i<(numsectors+7)>>3; i++)
                                 lgotsector[i] |= gotsector[i];
@@ -1055,7 +1055,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                 for (nmp=r_tror_nomaskpass; nmp>=0; nmp--)
                 {
                     yax_nomaskpass = nmp;
-                    drawrooms_q16(globalposx,globalposy,globalposz,qglobalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
+                    renderDrawRoomsQ16(globalposx,globalposy,globalposz,qglobalang,horiz,k+MAXSECTORS);  // +MAXSECTORS: force
 
                     if (nmp==1)
                     {
@@ -1080,7 +1080,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                          (double)(1000*(timerGetTicksU64()-t))/u64tickspersec);
 
                 SpriteAnimFunc(globalposx, globalposy, globalang, smoothr);
-                drawmasks();
+                renderDrawMasks();
             }
 
             if (lev < maxlev[cf])
@@ -1098,7 +1098,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
     scansector_collectsprites = 0;
 
     // draw base level
-    drawrooms_q16(globalposx,globalposy,globalposz,qglobalang,horiz,
+    renderDrawRoomsQ16(globalposx,globalposy,globalposz,qglobalang,horiz,
               osectnum + MAXSECTORS*didmirror);
 //    if (scansector_collectsprites)
 //        spritesortcnt = 0;
@@ -1119,8 +1119,8 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 #ifdef YAX_DEBUG_YMOSTS
     if (videoGetRenderMode() == REND_CLASSIC && numyaxbunches>0)
     {
-        char purple = getclosestcol(255, 0, 255);
-        char yellow = getclosestcol(255, 255, 0);
+        char purple = paletteGetClosestColor(255, 0, 255);
+        char yellow = paletteGetClosestColor(255, 255, 0);
 
         videoBeginDrawing();
         for (i=0; i<numyaxbunches; i++)
@@ -4315,8 +4315,8 @@ static void drawalls(int32_t bunch)
 # endif
         {
             static char fn[32], tmpbuf[80];
-            char purple = getclosestcol(255, 0, 255);
-            char yellow = getclosestcol(255, 255, 0);
+            char purple = paletteGetClosestColor(255, 0, 255);
+            char yellow = paletteGetClosestColor(255, 255, 0);
             char *bakframe = (char *)Xaligned_alloc(16, xdim*ydim);
 
             videoBeginDrawing();  //{{{
@@ -4342,7 +4342,7 @@ static void drawalls(int32_t bunch)
             printext256(8,8, whitecol,0, tmpbuf, 0);
 
             Bsprintf(fn, "engshot%04d.png", engine_screenshot);
-            screencapture(fn, 0);
+            videoCaptureScreen(fn, 0);
             engine_screenshot++;
 
             Bmemcpy((char *)frameplace, bakframe, xdim*ydim);
@@ -7151,7 +7151,7 @@ static inline void calcbritable(void)
 
 #define BANG2RAD (fPI * (1.f/1024.f))
 
-static int32_t loadtables(void)
+static int32_t engineLoadTables(void)
 {
     static char tablesloaded = 0;
 
@@ -7501,7 +7501,7 @@ int32_t rayintersect(int32_t x1, int32_t y1, int32_t z1, int32_t vx, int32_t vy,
 // multi-pskies
 //
 
-psky_t * E_DefinePsky(int32_t const tilenum)
+psky_t * tileSetupSky(int32_t const tilenum)
 {
     for (bssize_t i = 0; i < pskynummultis; i++)
         if (multipskytile[i] == tilenum)
@@ -7569,7 +7569,7 @@ static void sighandler(int sig, siginfo_t *info, void *ctx)
 //
 // E_FatalError
 //
-int32_t E_FatalError(char const * const msg)
+int32_t engineFatalError(char const * const msg)
 {
     engineerrstr = msg;
     initprintf("ERROR: %s\n", engineerrstr);
@@ -7597,7 +7597,7 @@ static spritetype sprite_s[MAXSPRITES];
 static uspritetype tsprite_s[MAXSPRITESONSCREEN];
 #endif
 
-int32_t preinitengine(void)
+int32_t enginePreInit(void)
 {
     baselayer_init();
     initdivtables();
@@ -7680,7 +7680,7 @@ int32_t preinitengine(void)
     initcrc32table();
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
-    clipmapinfo_init();
+    engineInitClipMaps();
 #endif
     preinitcalled = 1;
     return 0;
@@ -7690,7 +7690,7 @@ int32_t preinitengine(void)
 //
 // initengine
 //
-int32_t initengine(void)
+int32_t engineInit(void)
 {
     int32_t i, j;
 
@@ -7704,7 +7704,7 @@ int32_t initengine(void)
 
     if (!preinitcalled)
     {
-        i = preinitengine();
+        i = enginePreInit();
         if (i) return i;
     }
 
@@ -7714,7 +7714,7 @@ int32_t initengine(void)
         u64tickspersec = 1.0;
 #endif
 
-    if (loadtables())
+    if (engineLoadTables())
         return 1;
 
     xyaspect = -1;
@@ -7753,13 +7753,13 @@ int32_t initengine(void)
 
 #ifdef LUNATIC
     if (L_CreateState(&g_engState, "eng", NULL))
-        return E_FatalError("Failed creating engine Lua state!");
+        return engineFatalError("Failed creating engine Lua state!");
 
     {
         static char const * const luastr = "_LUNATIC_AUX=true; decl=require('ffi').cdef; require'defs_common'";
 
         if (L_RunString(&g_engState, luastr, -1, "eng"))
-            return E_FatalError("Failed setting up engine Lua state");
+            return engineFatalError("Failed setting up engine Lua state");
     }
 #endif
 
@@ -7769,14 +7769,14 @@ int32_t initengine(void)
 //
 // E_PostInit
 //
-int32_t E_PostInit(void)
+int32_t enginePostInit(void)
 {
     if (!(paletteloaded & PALETTE_MAIN))
-        return E_FatalError("No palette found.");
+        return engineFatalError("No palette found.");
     if (!(paletteloaded & PALETTE_SHADE))
-        return E_FatalError("No shade table found.");
+        return engineFatalError("No shade table found.");
     if (!(paletteloaded & PALETTE_TRANSLUC))
-        return E_FatalError("No translucency table found.");
+        return engineFatalError("No translucency table found.");
 
     palettePostLoadTables();
 
@@ -7786,7 +7786,7 @@ int32_t E_PostInit(void)
 //
 // uninitengine
 //
-void uninitengine(void)
+void engineUnInit(void)
 {
 #ifdef USE_OPENGL
     polymost_glreset();
@@ -7917,8 +7917,8 @@ void set_globalang(fix16_t ang)
 //
 // drawrooms
 //
-int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz,
-               fix16_t daang, fix16_t dahoriz, int16_t dacursectnum)
+int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
+                           fix16_t daang, fix16_t dahoriz, int16_t dacursectnum)
 {
     int32_t i, j, /*cz, fz,*/ closest;
     int16_t *shortptr1, *shortptr2;
@@ -8310,7 +8310,7 @@ int32_t g_maskDrawMode = 0;
 //
 // drawmasks
 //
-void drawmasks(void)
+void renderDrawMasks(void)
 {
 #ifdef DEBUG_MASK_DRAWING
         static struct {
@@ -8659,7 +8659,7 @@ killsprite:
 //
 // drawmapview
 //
-void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
+void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 {
     int32_t i, j, k, l;
     int32_t x, y;
@@ -8667,7 +8667,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     int32_t const oyxaspect = yxaspect, oviewingrange = viewingrange;
 
-    videoSetAspect(65536, divscale16((320*5)/8, 200));
+    renderSetAspect(65536, divscale16((320*5)/8, 200));
 
     beforedrawrooms = 0;
 
@@ -8957,9 +8957,9 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
     videoEndDrawing();   //}}}
 
     if (r_usenewaspect)
-        videoSetAspect(oviewingrange, oyxaspect);
+        renderSetAspect(oviewingrange, oyxaspect);
     else
-        videoSetAspect(65536, divscale16(ydim*320, xdim*200));
+        renderSetAspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //////////////////// LOADING AND SAVING ROUTINES ////////////////////
@@ -8969,7 +8969,7 @@ static FORCE_INLINE int32_t have_maptext(void)
     return (mapversion >= 10);
 }
 
-static void prepare_loadboard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
+static void enginePrepareLoadBoard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     initspritelists();
 
@@ -8996,7 +8996,7 @@ static void prepare_loadboard(int32_t fil, vec3_t *dapos, int16_t *daang, int16_
     }
 }
 
-static int32_t finish_loadboard(const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
+static int32_t engineFinishLoadBoard(const vec3_t *dapos, int16_t *dacursectnum, int16_t numsprites, char myflags)
 {
     int32_t i, realnumsprites=numsprites, numremoved;
 
@@ -9140,7 +9140,7 @@ LUNATIC_CB int32_t (*loadboard_maptext)(int32_t fil, vec3_t *dapos, int16_t *daa
 //          -2: invalid version
 //          -3: invalid number of sectors, walls or sprites
 //       <= -4: map-text error
-int32_t loadboard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
+int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     int32_t fil, i;
     int16_t numsprites;
@@ -9189,7 +9189,7 @@ int32_t loadboard(const char *filename, char flags, vec3_t *dapos, int16_t *daan
         }
     }
 
-    prepare_loadboard(fil, dapos, daang, dacursectnum);
+    enginePrepareLoadBoard(fil, dapos, daang, dacursectnum);
 
 #ifdef NEW_MAP_FORMAT
     if (have_maptext())
@@ -9342,7 +9342,7 @@ skip_reading_mapbin:
 
     // initprintf("Loaded map \"%s\" (md4sum: %08x%08x%08x%08x)\n", filename, B_BIG32(*((int32_t*)&md4out[0])), B_BIG32(*((int32_t*)&md4out[4])), B_BIG32(*((int32_t*)&md4out[8])), B_BIG32(*((int32_t*)&md4out[12])));
 
-    return finish_loadboard(dapos, dacursectnum, numsprites, myflags);
+    return engineFinishLoadBoard(dapos, dacursectnum, numsprites, myflags);
 }
 
 
@@ -9353,7 +9353,7 @@ skip_reading_mapbin:
 
 // Powerslave uses v6
 // Witchaven 1 and TekWar and LameDuke use v5
-int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
+int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum)
 {
     int32_t fil, i;
     int16_t numsprites;
@@ -9371,7 +9371,7 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
     kread(fil,&mapversion,4); mapversion = B_LITTLE32(mapversion);
     if (mapversion != 5L && mapversion != 6L) { kclose(fil); return -2; }
 
-    prepare_loadboard(fil, dapos, daang, dacursectnum);
+    enginePrepareLoadBoard(fil, dapos, daang, dacursectnum);
 
     kread(fil,&numsectors,2); numsectors = B_LITTLE16(numsectors);
     if (numsectors > MAXSECTORS) { kclose(fil); return -1; }
@@ -9528,7 +9528,7 @@ int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_
     kclose(fil);
     // Done reading file.
 
-    return finish_loadboard(dapos, dacursectnum, numsprites, 0);
+    return engineFinishLoadBoard(dapos, dacursectnum, numsprites, 0);
 }
 
 
@@ -10734,7 +10734,7 @@ restart_grand:
         {
             // one bunch of sectors completed, prepare the next
             if (!curspr)
-                mapinfo_set(&origmapinfo, &clipmapinfo);  // replace sector and wall with clip map
+                engineSetClipMap(&origmapinfo, &clipmapinfo);  // replace sector and wall with clip map
 
             curspr = (uspritetype *)&sprite[clipspritelist[clipspritecnt]];
             curidx = clipshape_idx_for_sprite(curspr, curidx);
@@ -10965,7 +10965,7 @@ restart_grand:
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
     if (curspr)
-        mapinfo_set(NULL, &origmapinfo);
+        engineSetClipMap(NULL, &origmapinfo);
 #endif
 
 #ifdef YAX_ENABLE
@@ -11513,7 +11513,7 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t daang, vec2_t *p2)
 // getmousevalues
 //
 
-void getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus)
+void mouseGetValues(int32_t *mousx, int32_t *mousy, int32_t *bstatus)
 {
     mouseReadPos(mousx,mousy);
     mouseReadButtons(bstatus);
@@ -11635,7 +11635,7 @@ void getzrange(const vec3_t *pos, int16_t sectnum,
     {
 beginagain:
         // replace sector and wall with clip map
-        mapinfo_set(&origmapinfo, &clipmapinfo);
+        engineSetClipMap(&origmapinfo, &clipmapinfo);
         clipsectcnt = clipsectnum;  // should be a nop, "safety"...
     }
 #endif
@@ -11804,7 +11804,7 @@ restart_grand:
 #ifdef HAVE_CLIPSHAPE_FEATURE
     if (curspr)
     {
-        mapinfo_set(NULL, &origmapinfo);  // restore original map
+        engineSetClipMap(NULL, &origmapinfo);  // restore original map
         clipsectnum = clipspritenum = 0;  // skip the next for loop and check afterwards
     }
 #endif
@@ -12048,10 +12048,10 @@ void videoSetCorrectedAspect()
 
         vr = divscale16(x*3, y*4);
 
-        videoSetAspect(vr, yx);
+        renderSetAspect(vr, yx);
     }
     else
-        videoSetAspect(65536, divscale16(ydim*320, xdim*200));
+        renderSetAspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //
@@ -12085,7 +12085,7 @@ void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 //
 // setaspect
 //
-void videoSetAspect(int32_t daxrange, int32_t daaspect)
+void renderSetAspect(int32_t daxrange, int32_t daaspect)
 {
     viewingrange = daxrange;
     viewingrangerecip = divscale32(1,daxrange);
@@ -12282,7 +12282,7 @@ void videoClearScreen(int32_t dacol)
 //
 // setviewtotile
 //
-void videoSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
+void renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
     //DRAWROOMS TO TILE BACKUP&SET CODE
     tilesiz[tilenume].x = xsiz; tilesiz[tilenume].y = ysiz;
@@ -12309,7 +12309,7 @@ void videoSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 
     offscreenrendering = 1;
     videoSetViewableArea(0,0,ysiz-1,xsiz-1);
-    videoSetAspect(65536,65536);
+    renderSetAspect(65536,65536);
 
     calc_ylookup(ysiz, xsiz);
 }
@@ -12318,7 +12318,7 @@ void videoSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 //
 // setviewback
 //
-void videoRestoreTarget(void)
+void renderRestoreTarget(void)
 {
     if (setviewcnt <= 0) return;
     setviewcnt--;
@@ -12328,7 +12328,7 @@ void videoRestoreTarget(void)
     if (setviewcnt == 0)
     {
         rendmode = bakrendmode;
-        invalidatetile(baktile,-1,-1);
+        tileInvalidate(baktile,-1,-1);
     }
 #endif
 
@@ -12384,8 +12384,8 @@ void squarerotatetile(int16_t tilenume)
 //
 // preparemirror
 //
-void preparemirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
-                   int32_t *tposx, int32_t *tposy, fix16_t *tang)
+void renderPrepareMirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
+                         int32_t *tposx, int32_t *tposy, fix16_t *tang)
 {
     const int32_t x = wall[dawall].x, dx = wall[wall[dawall].point2].x-x;
     const int32_t y = wall[dawall].y, dy = wall[wall[dawall].point2].y-y;
@@ -12407,7 +12407,7 @@ void preparemirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
 //
 // completemirror
 //
-void completemirror(void)
+void renderCompleteMirror(void)
 {
 #ifdef USE_OPENGL
     if (videoGetRenderMode() != REND_CLASSIC)
@@ -13084,7 +13084,7 @@ static void PolymerProcessModels(void)
 //
 // setrendermode
 //
-int32_t setrendermode(int32_t renderer)
+int32_t videoSetRenderMode(int32_t renderer)
 {
     UNREFERENCED_PARAMETER(renderer);
 
@@ -13104,7 +13104,7 @@ int32_t setrendermode(int32_t renderer)
     }
     else if (videoGetRenderMode() == REND_POLYMER)  // going from Polymer to another renderer
     {
-        delete_maphack_lights();
+        engineClearLightsFromMHK();
         G_Polymer_UnInit();
         polymer_uninit();
     }
@@ -13131,7 +13131,7 @@ int32_t setrendermode(int32_t renderer)
 // setrollangle
 //
 #ifdef USE_OPENGL
-void setrollangle(int32_t rolla)
+void renderSetRollAngle(int32_t rolla)
 {
     gtang = (float)rolla * (fPI * (1.f/1024.f));
 }
@@ -13152,7 +13152,7 @@ void setrollangle(int32_t rolla)
 //         bit 7: ignored (67% translucence, using clamping)
 //       clamping is for sprites, repeating is for walls
 //
-void invalidatetile(int16_t tilenume, int32_t pal, int32_t how)
+void tileInvalidate(int16_t tilenume, int32_t pal, int32_t how)
 {
 #if !defined USE_OPENGL
     UNREFERENCED_PARAMETER(tilenume);

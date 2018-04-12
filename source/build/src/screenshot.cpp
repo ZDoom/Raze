@@ -52,7 +52,7 @@ static void screencapture_end(char *fn, BFILE** filptr)
 #  define HICOLOR 0
 # endif
 
-int screencapture(const char *filename, char inverseit)
+int videoCaptureScreen(const char *filename, char inverseit)
 {
     char *fn = Xstrdup(filename);
     FILE *fp = capturecounter.opennextfile_withext(fn, "png");
@@ -129,7 +129,7 @@ int screencapture(const char *filename, char inverseit)
     return 0;
 }
 
-int screencapture_tga(const char *filename, char inverseit)
+int videoCaptureScreenTGA(const char *filename, char inverseit)
 {
     int32_t i;
     char head[18] = { 0,1,1,0,0,0,1,24,0,0,0,0,0/*wlo*/,0/*whi*/,0/*hlo*/,0/*hhi*/,8,0 };

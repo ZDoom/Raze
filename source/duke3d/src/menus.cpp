@@ -3045,7 +3045,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         {
             if (videoSetGameMode(p.flags, p.xdim, p.ydim, p.bppmax) < 0)
             {
-                setrendermode(prend);
+                videoSetRenderMode(prend);
                 G_GameExit("Failed restoring old video mode.");
             }
             else
@@ -3058,7 +3058,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 
         g_restorePalette = -1;
         G_UpdateScreenArea();
-        setrendermode(nrend);
+        videoSetRenderMode(nrend);
         vsync = videoSetVsync(nvsync);
         ud.config.ScreenMode = fullscreen;
         ud.config.ScreenWidth = xdim;
@@ -6964,7 +6964,7 @@ void M_DisplayMenus(void)
             int32_t alpha;
             if (KXDWN)
             {
-                videoSetAspect(viewingrange, 65536);
+                renderSetAspect(viewingrange, 65536);
                 cursorpos.x = scale(cursorpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
                 cursorpos.y = scale(cursorpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15);
                 z = scale(32768, ydim << 2, xdim * 3);
@@ -6980,7 +6980,7 @@ void M_DisplayMenus(void)
             rotatesprite_fs_alpha(cursorpos.x, cursorpos.y, z, 0, a, 0, p, o, alpha);
 
             if (KXDWN)
-                videoSetAspect(viewingrange, oyxaspect);
+                renderSetAspect(viewingrange, oyxaspect);
         }
     }
     else

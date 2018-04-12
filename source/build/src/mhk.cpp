@@ -17,7 +17,7 @@ int32_t num_usermaphacks;
 static int16_t maphacklightcnt=0;
 static int16_t maphacklight[PR_MAXLIGHTS];
 
-void delete_maphack_lights()
+void engineClearLightsFromMHK()
 {
     int32_t i;
     for (i=0; i<maphacklightcnt; i++)
@@ -30,13 +30,13 @@ void delete_maphack_lights()
     maphacklightcnt = 0;
 }
 #else
-void delete_maphack_lights() {}
+void engineClearLightsFromMHK() {}
 #endif
 
 //
 // loadmaphack
 //
-int32_t loadmaphack(const char *filename)
+int32_t engineLoadMHK(const char *filename)
 {
     enum
     {
@@ -85,7 +85,7 @@ int32_t loadmaphack(const char *filename)
 #ifdef POLYMER
     int32_t toomanylights = 0;
 
-    delete_maphack_lights();
+    engineClearLightsFromMHK();
 #endif
 
     if (filename)

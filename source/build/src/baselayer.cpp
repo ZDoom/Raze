@@ -319,7 +319,7 @@ static int32_t osdfunc_setrendermode(osdfuncparm_t const * const parm)
         baselayer_osdcmd_vidmode_func(&parm);
     }
 
-    setrendermode(m);
+    videoSetRenderMode(m);
 
     char const *renderer;
 

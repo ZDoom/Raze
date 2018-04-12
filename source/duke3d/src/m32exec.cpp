@@ -2277,7 +2277,7 @@ badindex:
             insptr++;
             {
                 int32_t r = Gv_GetVarX(*insptr++), g = Gv_GetVarX(*insptr++), b = Gv_GetVarX(*insptr++);
-                Gv_SetVarX(*insptr++, getclosestcol(r, g, b));
+                Gv_SetVarX(*insptr++, paletteGetClosestColor(r, g, b));
                 continue;
             }
 
@@ -2899,7 +2899,7 @@ dodefault:
                 if (daxrange > (1<<20)) daxrange = (1<<20);
                 if (dayxaspect < (1<<12)) dayxaspect = (1<<12);
                 if (dayxaspect > (1<<20)) dayxaspect = (1<<20);
-                videoSetAspect(daxrange, dayxaspect);
+                renderSetAspect(daxrange, dayxaspect);
                 continue;
             }
 
@@ -3021,8 +3021,8 @@ dodefault:
 
                 if (tw==CON_DRAWLINE16B || tw==CON_DRAWLINE16Z)
                 {
-                    screencoords(&x1,&y1, x1-pos.x,y1-pos.y, zoom);
-                    screencoords(&x2,&y2, x2-pos.x,y2-pos.y, zoom);
+                    editorGet2dScreenCoordinates(&x1,&y1, x1-pos.x,y1-pos.y, zoom);
+                    editorGet2dScreenCoordinates(&x2,&y2, x2-pos.x,y2-pos.y, zoom);
 
                     if (tw==CON_DRAWLINE16Z && m32_sideview)
                     {
@@ -3035,7 +3035,7 @@ dodefault:
                 }
 
                 drawlinepat = m32_drawlinepat;
-                drawline16(xofs+x1,yofs+y1, xofs+x2,yofs+y2, col>=0?editorcolors[col&15]:((-col)&255));
+                editorDraw2dLine(xofs+x1,yofs+y1, xofs+x2,yofs+y2, col>=0?editorcolors[col&15]:((-col)&255));
                 drawlinepat = odrawlinepat;
                 continue;
             }
@@ -3053,7 +3053,7 @@ dodefault:
 
                 if (tw==CON_DRAWCIRCLE16B || tw==CON_DRAWCIRCLE16Z)
                 {
-                    screencoords(&x1,&y1, x1-pos.x,y1-pos.y, zoom);
+                    editorGet2dScreenCoordinates(&x1,&y1, x1-pos.x,y1-pos.y, zoom);
                     if (m32_sideview)
                         y1 += getscreenvdisp(z1-pos.z, zoom);
                     r = mulscale14(r,zoom);
@@ -3063,7 +3063,7 @@ dodefault:
                 }
 
                 drawlinepat = m32_drawlinepat;
-                drawcircle16(xofs+x1, yofs+y1, r, eccen, col>=0?editorcolors[col&15]:((-col)&255));
+                editorDraw2dCircle(xofs+x1, yofs+y1, r, eccen, col>=0?editorcolors[col&15]:((-col)&255));
                 drawlinepat = odrawlinepat;
                 continue;
             }

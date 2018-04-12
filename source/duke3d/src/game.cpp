@@ -203,7 +203,7 @@ void G_HandleSpecialKeys(void)
     if (KB_UnBoundKeyPressed(sc_F12))
     {
         KB_ClearKeyDown(sc_F12);
-        screencapture(
+        videoCaptureScreen(
 #ifndef EDUKE32_STANDALONE
         "duke0000.tga"
 #else
@@ -319,7 +319,7 @@ int32_t m32_numdebuglines=0;
 
 static void M32_drawdebug(void)
 {
-    int i, col=getclosestcol(255,255,255);
+    int i, col=paletteGetClosestColor(255,255,255);
     int x=4, y=8;
 
     if (m32_numdebuglines>0)
@@ -521,7 +521,7 @@ static void G_SE40(int32_t smoothratio)
             if (videoGetRenderMode() == REND_POLYMER)
                 polymer_setanimatesprites(G_DoSpriteAnimations, CAMERA(pos.x), CAMERA(pos.y), fix16_to_int(CAMERA(q16ang)), smoothratio);
 #endif
-            drawrooms_q16(sprite[sprite2].x + x, sprite[sprite2].y + y,
+            renderDrawRoomsQ16(sprite[sprite2].x + x, sprite[sprite2].y + y,
                       z + renderz, CAMERA(q16ang), CAMERA(q16horiz), sect);
             drawing_ror = 1 + level;
 
@@ -529,7 +529,7 @@ static void G_SE40(int32_t smoothratio)
                 G_OROR_DupeSprites(sp);
 
             G_DoSpriteAnimations(CAMERA(pos.x),CAMERA(pos.y),fix16_to_int(CAMERA(q16ang)),smoothratio);
-            drawmasks();
+            renderDrawMasks();
 
             if (level)
             {
@@ -606,7 +606,7 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
             int32_t tposx, tposy;
             fix16_t tang;
 
-            preparemirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
+            renderPrepareMirror(x, y, a, g_mirrorWall[i], &tposx, &tposy, &tang);
 
             int32_t j = g_visibility;
             g_visibility = (j>>1) + (j>>2);
@@ -616,20 +616,20 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
                 int32_t didmirror;
 
                 yax_preparedrawrooms();
-                didmirror = drawrooms_q16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
+                didmirror = renderDrawRoomsQ16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
                 yax_drawrooms(G_DoSpriteAnimations, g_mirrorSector[i], didmirror, smoothratio);
             }
 #ifdef USE_OPENGL
             else
-                drawrooms_q16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
+                renderDrawRoomsQ16(tposx,tposy,z,tang,q16horiz,g_mirrorSector[i]+MAXSECTORS);
             // XXX: Sprites don't get drawn with TROR/Polymost
 #endif
             display_mirror = 1;
             G_DoSpriteAnimations(tposx,tposy,fix16_to_int(tang),smoothratio);
             display_mirror = 0;
 
-            drawmasks();
-            completemirror();   //Reverse screen x-wise in this function
+            renderDrawMasks();
+            renderCompleteMirror();   //Reverse screen x-wise in this function
             g_visibility = j;
         }
 
@@ -680,7 +680,7 @@ static void G_ReadGLFrame(void)
         for (x = 0; x < 320; x++)
         {
             const palette_t *pix = &frame[base + mulscale16(x, xf) + (xdim-(ydim*4/3))/2];
-            pic[320 * y + x] = getclosestcol(pix->r, pix->g, pix->b);
+            pic[320 * y + x] = paletteGetClosestColor(pix->r, pix->g, pix->b);
         }
     }
 
@@ -759,10 +759,10 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 polymer_setanimatesprites(G_DoSpriteAnimations, pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
 #endif
             yax_preparedrawrooms();
-            drawrooms_q16(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), fix16_from_int(pSprite->yvel), pSprite->sectnum);
+            renderDrawRoomsQ16(pSprite->x, pSprite->y, pSprite->z - ZOFFSET6, CAMERA(q16ang), fix16_from_int(pSprite->yvel), pSprite->sectnum);
             yax_drawrooms(G_DoSpriteAnimations, pSprite->sectnum, 0, smoothRatio);
             G_DoSpriteAnimations(pSprite->x, pSprite->y, fix16_to_int(CAMERA(q16ang)), smoothRatio);
-            drawmasks();
+            renderDrawMasks();
         }
     }
     else
@@ -779,13 +779,13 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                                                   )));
 
         if (!r_usenewaspect)
-            videoSetAspect(vr, yxaspect);
+            renderSetAspect(vr, yxaspect);
         else
         {
             viewingRange = vr;
             yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
 
-            videoSetAspect(mulscale16(viewingRange,viewingrange), yxaspect);
+            renderSetAspect(mulscale16(viewingRange,viewingrange), yxaspect);
         }
 
         if (g_screenCapture)
@@ -795,7 +795,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 cacheAllocateBlock(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
 
             if (videoGetRenderMode() == REND_CLASSIC)
-                videoSetTarget(TILE_SAVESHOT, 200, 320);
+                renderSetTarget(TILE_SAVESHOT, 200, 320);
         }
         else if (screenTilting)
         {
@@ -854,7 +854,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 if (waloff[TILE_TILT] == 0)
                     cacheAllocateBlock(&waloff[TILE_TILT], maxTiltSize, &walock[TILE_TILT]);
 
-                videoSetTarget(TILE_TILT, viewtilexsiz, viewtileysiz);
+                renderSetTarget(TILE_TILT, viewtilexsiz, viewtileysiz);
 
                 if ((tang&1023) == 512)
                 {
@@ -877,7 +877,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 vRange = sintable[vRange + 512] * 8 + sintable[vRange] * 5;
 
                 //                setaspect(i>>1, yxaspect);
-                videoSetAspect(mulscale16(oviewingrange, vRange >> 1), yxaspect);
+                renderSetAspect(mulscale16(oviewingrange, vRange >> 1), yxaspect);
 
                 viewingRange = vRange >> 1;
                 yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
@@ -890,7 +890,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         ))
         {
 #ifdef USE_OPENGL
-            setrollangle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
+            renderSetRollAngle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
 #endif
             pPlayer->orotscrnang = pPlayer->rotscrnang;
         }
@@ -1031,7 +1031,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             gotpic[MIRROR>>3] |= (1<<(MIRROR&7));
 #else
             yax_preparedrawrooms();
-            drawrooms_q16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),CAMERA(sect));
+            renderDrawRoomsQ16(CAMERA(pos.x),CAMERA(pos.y),CAMERA(pos.z),CAMERA(q16ang),CAMERA(q16horiz),CAMERA(sect));
             yax_drawrooms(G_DoSpriteAnimations, CAMERA(sect), 0, smoothRatio);
 #ifdef LEGACY_ROR
             if ((unsigned)ror_sprite < MAXSPRITES && drawing_ror == 1)  // viewing from bottom
@@ -1041,7 +1041,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 #ifdef LEGACY_ROR
             drawing_ror = 0;
 #endif
-            drawmasks();
+            renderDrawMasks();
 #endif
         }
 
@@ -1049,11 +1049,11 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         {
             g_screenCapture = 0;
 
-            invalidatetile(TILE_SAVESHOT, 0, 255);
+            tileInvalidate(TILE_SAVESHOT, 0, 255);
 
             if (videoGetRenderMode() == REND_CLASSIC)
             {
-                videoRestoreTarget();
+                renderRestoreTarget();
 //                walock[TILE_SAVESHOT] = 1;
             }
 #ifdef USE_OPENGL
@@ -1090,7 +1090,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             }
             else
             {
-                videoRestoreTarget();
+                renderRestoreTarget();
                 picanm[TILE_TILT].xofs = picanm[TILE_TILT].yofs = 0;
 
                 int tiltZoom = (tang&511);
@@ -1173,7 +1173,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     if (r_usenewaspect)
     {
         newaspect_enable = 0;
-        videoSetAspect(viewingRange, yxAspect);
+        renderSetAspect(viewingRange, yxAspect);
     }
 
     VM_OnEvent(EVENT_DISPLAYROOMSEND, g_player[screenpeek].ps->i, screenpeek);
@@ -5621,7 +5621,7 @@ void G_Shutdown(void)
     S_MusicShutdown();
     CONTROL_Shutdown();
     KB_Shutdown();
-    uninitengine();
+    engineUnInit();
     G_Cleanup();
     FreeGroups();
     OSD_Cleanup();
@@ -5845,7 +5845,7 @@ static void G_Startup(void)
 
     G_CompileScripts();
 
-    if (initengine())
+    if (engineInit())
         G_FatalEngineError();
 
 #ifdef LUNATIC
@@ -6332,7 +6332,7 @@ int app_main(int argc, char const * const * argv)
     }
 #endif
 
-    if (preinitengine())
+    if (enginePreInit())
     {
         wm_msgbox("Build Engine Initialization Error",
                   "There was a problem initializing the Build engine: %s", engineerrstr);
@@ -6350,7 +6350,7 @@ int app_main(int argc, char const * const * argv)
     {
         if (quitevent || !startwin_run())
         {
-            uninitengine();
+            engineUnInit();
             Bexit(0);
         }
     }
@@ -6454,7 +6454,7 @@ int app_main(int argc, char const * const * argv)
         free(m);
     g_defModules.clear();
 
-    if (E_PostInit())
+    if (enginePostInit())
         G_FatalEngineError();
 
     G_PostLoadPalette();
@@ -6503,7 +6503,7 @@ int app_main(int argc, char const * const * argv)
         if (CONTROL_Startup(controltype_keyboardandmouse, &BGetTime, TICRATE))
         {
             ERRprintf("There was an error initializing the CONTROL system.\n");
-            uninitengine();
+            engineUnInit();
             Bexit(5);
         }
 
@@ -6520,7 +6520,7 @@ int app_main(int argc, char const * const * argv)
     }
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
-    int const clipMapError = clipmapinfo_load();
+    int const clipMapError = engineLoadClipMaps();
     if (clipMapError > 0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", clipMapError);
 

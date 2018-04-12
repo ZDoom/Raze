@@ -497,7 +497,7 @@ int32_t Anim_Play(const char *fn)
         i = VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
 
         waloff[TILE_ANIM] = (intptr_t)ANIM_DrawFrame(i);
-        invalidatetile(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
+        tileInvalidate(TILE_ANIM, 0, 1 << 4);  // JBF 20031228
 
         if (VM_OnEventWithReturn(EVENT_SKIPCUTSCENE, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
         {
@@ -524,9 +524,9 @@ int32_t Anim_Play(const char *fn)
             else
                 z = divscale16(lrint(320 * ydim * anim->frameaspect1), lrint(tilesiz[TILE_ANIM].y * xdim * anim->frameaspect2));
             int32_t aspect = divscale16(lrint(tilesiz[TILE_ANIM].y * anim->frameaspect2), lrint(tilesiz[TILE_ANIM].x * anim->frameaspect1));
-            videoSetAspect(viewingrange, aspect);
+            renderSetAspect(viewingrange, aspect);
             rotatesprite_fs(160<<16, 100<<16, z, 512, TILE_ANIM, 0, 0, 2|4|8|64|1024);
-            videoSetAspect(viewingrange, oyxaspect);
+            renderSetAspect(viewingrange, oyxaspect);
         }
         else
         {

@@ -1229,8 +1229,8 @@ static int32_t osdcmd_screenshot(osdfuncparm_t const * const parm)
 #endif
 
     if (parm->numparms == 1 && !Bstrcasecmp(parm->parms[0], "tga"))
-        screencapture_tga(fn, 0);
-    else screencapture(fn, 0);
+        videoCaptureScreenTGA(fn, 0);
+    else videoCaptureScreen(fn, 0);
 
     return OSDCMD_OK;
 }

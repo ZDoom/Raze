@@ -142,7 +142,7 @@ void L_DestroyState(L_State *estate)
 static void L_OnOutOfMem(void)
 {
     OSD_Printf("Out of memory in Lunatic.\n");
-    uninitengine();
+    engineUnInit();
     exit(127);
 }
 

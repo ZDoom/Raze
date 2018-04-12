@@ -250,7 +250,7 @@ void COMMON_clearbackground(int32_t numcols, int32_t numrows)
         polymost_setFogEnabled(false);
         polymost_useColorOnly(true);
 
-        setpolymost2dview();
+        polymostSet2dView();
         glColor4f(0.f, 0.f, 0.f, 0.67f);
         glEnable(GL_BLEND);
         glRecti(0, 0, xdim, 8*numrows+8);

@@ -1244,13 +1244,13 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int32_t sec
         polymer_setanimatesprites(G_DoSpriteAnimations, vec.x, vec.y, fix16_to_int(a), smoothratio);
 #endif
     yax_preparedrawrooms();
-    drawrooms_q16(vec.x, vec.y, vec.z, a, horiz, sect);
+    renderDrawRoomsQ16(vec.x, vec.y, vec.z, a, horiz, sect);
     yax_drawrooms(G_DoSpriteAnimations, sect, 0, smoothratio);
 
     display_mirror = 2;
     G_DoSpriteAnimations(vec.x, vec.y, fix16_to_int(a), smoothratio);
     display_mirror = 0;
-    drawmasks();
+    renderDrawMasks();
     G_RestoreInterpolations();
     G_UpdateScreenArea();
 }
@@ -1975,7 +1975,7 @@ skip_check:
             insptr++;
             {
                 int const xRange = Gv_GetVarX(*insptr++);
-                videoSetAspect(xRange, Gv_GetVarX(*insptr++));
+                renderSetAspect(xRange, Gv_GetVarX(*insptr++));
                 break;
             }
 

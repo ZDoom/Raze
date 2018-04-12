@@ -1676,7 +1676,7 @@ static void G_FadeLoad(int32_t r, int32_t g, int32_t b, int32_t start, int32_t e
 
 static int G_TryMapHack(const char *mhkfile)
 {
-    int32_t failure = loadmaphack(mhkfile);
+    int32_t failure = engineLoadMHK(mhkfile);
 
     if (!failure)
         initprintf("Loaded map hack file \"%s\"\n", mhkfile);
@@ -1852,7 +1852,7 @@ int G_EnterLevel(int gameMode)
 
     if (!VOLUMEONE && Menu_HaveUserMap())
     {
-        if (loadboard(boardfilename, 0, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
+        if (engineLoadBoard(boardfilename, 0, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
@@ -1861,7 +1861,7 @@ int G_EnterLevel(int gameMode)
         G_LoadMapHack(levelName, boardfilename);
         G_SetupFilenameBasedMusic(levelName, boardfilename, ud.m_level_number);
     }
-    else if (loadboard(g_mapInfo[mii].filename, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
+    else if (engineLoadBoard(g_mapInfo[mii].filename, VOLUMEONE, &pPlayer->pos, &lbang, &pPlayer->cursectnum) < 0)
     {
         OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", g_mapInfo[mii].filename);
         return 1;

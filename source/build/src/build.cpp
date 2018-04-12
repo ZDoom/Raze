@@ -531,7 +531,7 @@ void M32_DrawRoomsAndMasks(void)
     CallExtAnalyzeSprites(0,0,0,0);
     searchwall = osearchwall, searchstat=osearchstat;
 
-    drawmasks();
+    renderDrawMasks();
     srchwall = (searchstat == 3) ? searchwall : -1;
     M32_ResetFakeRORTiles();
 
@@ -541,7 +541,7 @@ void M32_DrawRoomsAndMasks(void)
         polymer_editorpick();
         drawrooms(pos.x,pos.y,pos.z,ang,horiz,cursectnum);
         CallExtAnalyzeSprites(0,0,0,0);
-        drawmasks();
+        renderDrawMasks();
         M32_ResetFakeRORTiles();
     }
 #endif
@@ -550,14 +550,14 @@ void M32_DrawRoomsAndMasks(void)
 
     if (g_doScreenShot)
     {
-        screencapture("mcapxxxx.tga", 0);
+        videoCaptureScreen("mcapxxxx.tga", 0);
         g_doScreenShot = 0;
     }
 
     if (r_usenewaspect)
     {
         newaspect_enable = 0;
-        videoSetAspect(tmpvr, tmpyx);
+        renderSetAspect(tmpvr, tmpyx);
     }
 }
 
@@ -650,7 +650,7 @@ int app_main(int argc, char const * const * argv)
 
     Bstrncpy(game_executable, DefaultGameLocalExec, sizeof(game_executable));
 
-    if (preinitengine())
+    if (enginePreInit())
         M32_FatalEngineError();
 
     if ((i = CallExtInit()) < 0) return -1;
@@ -660,7 +660,7 @@ int app_main(int argc, char const * const * argv)
     {
         if (quitevent || !startwin_run())
         {
-            uninitengine();
+            engineUnInit();
             Bexit(0);
         }
     }
@@ -691,7 +691,7 @@ int app_main(int argc, char const * const * argv)
         free(m);
     g_defModules.clear();
 
-    if (E_PostInit())
+    if (enginePostInit())
         M32_FatalEngineError();
 
     CallExtPostInit();
@@ -722,7 +722,7 @@ int app_main(int argc, char const * const * argv)
         cacheAllocateBlock(&waloff[i], sx*sy, &walock[i]);
         newtile = (char *)waloff[i];
 
-        col = getclosestcol(128, 128, 0);
+        col = paletteGetClosestColor(128, 128, 0);
         for (j=0; j<(signed)sizeof(R); j++)
             R[j] *= col;
 
@@ -733,7 +733,7 @@ int app_main(int argc, char const * const * argv)
 #endif
 
 #ifdef HAVE_CLIPSHAPE_FEATURE
-    int k = clipmapinfo_load();
+    int k = engineLoadClipMaps();
     if (k>0)
         initprintf("There was an error loading the sprite clipping map (status %d).\n", k);
 
@@ -772,7 +772,7 @@ int app_main(int argc, char const * const * argv)
         if (videoSetGameMode(fullscreen, xdim2d, ydim2d, 8) < 0)
         {
             CallExtUnInit();
-            uninitengine();
+            engineUnInit();
             Bprintf("%d * %d not supported in this graphics mode\n",xdim2d,ydim2d);
             Bexit(0);
         }
@@ -795,7 +795,7 @@ int app_main(int argc, char const * const * argv)
         if (videoSetGameMode(fullscreen, xdimgame, ydimgame, bppgame) < 0)
         {
             CallExtUnInit();
-            uninitengine();
+            engineUnInit();
             Bprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
             Bexit(0);
         }
@@ -913,7 +913,7 @@ CANCEL:
 
     CallExtUnInit();
 //    clearfilenames();
-    uninitengine();
+    engineUnInit();
 
     return 0;
 }
@@ -929,7 +929,7 @@ static void loadmhk(int32_t domessage)
     Bstrcpy(levname, boardfilename);
     append_ext_UNSAFE(levname, ".mhk");
 
-    if (!loadmaphack(levname))
+    if (!engineLoadMHK(levname))
     {
         if (domessage)
             message("Loaded map hack file \"%s\"",levname);
@@ -1092,7 +1092,7 @@ void editinput(void)
 // F1  F2  F3  F4   F5  F6  F7  F8   F9 F10 F11 F12        SCROLL
 
     mousz = 0;
-    getmousevalues(&mousx,&mousy,&bstatus);
+    mouseGetValues(&mousx,&mousy,&bstatus);
     mousx = (mousx<<16) + mousexsurp;
     mousy = (mousy<<16) + mouseysurp;
 
@@ -1228,7 +1228,7 @@ void editinput(void)
         {
             Bmemset(spriteext, 0, sizeof(spriteext_t) * MAXSPRITES);
             Bmemset(spritesmooth, 0, sizeof(spritesmooth_t) * (MAXSPRITES+MAXUNIQHUDID));
-            delete_maphack_lights();
+            engineClearLightsFromMHK();
             mhk = 0;
             message("Maphacks disabled");
         }
@@ -1562,7 +1562,7 @@ static int32_t inside_editor(const vec3_t *pos, int32_t searchx, int32_t searchy
         {
             wall[i].point2 += dstw-srcw;
 
-            screencoords(&wall[i].x, &wall[i].y, wall[i].x-pos->x, wall[i].y-pos->y, zoom);
+            editorGet2dScreenCoordinates(&wall[i].x, &wall[i].y, wall[i].x-pos->x, wall[i].y-pos->y, zoom);
             wall[i].y += getscreenvdisp(getflorzofslope(sectnum,wall[oi].x,wall[oi].y)-pos->z, zoom);
             wall[i].x += halfxdim16;
             wall[i].y += midydim16;
@@ -1585,12 +1585,12 @@ int32_t inside_editor_curpos(int16_t sectnum)
 
 static inline void drawline16base(int32_t bx, int32_t by, int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 {
-    drawline16(bx+x1, by+y1, bx+x2, by+y2, col);
+    editorDraw2dLine(bx+x1, by+y1, bx+x2, by+y2, col);
 }
 
 void drawsmallabel(const char *text, char col, char backcol, char border, int32_t dax, int32_t day, int32_t daz)
 {
-    screencoords(&dax,&day, dax-pos.x,day-pos.y, zoom);
+    editorGet2dScreenCoordinates(&dax,&day, dax-pos.x,day-pos.y, zoom);
 
     if (m32_sideview)
         day += getscreenvdisp(daz-pos.z, zoom);
@@ -1607,18 +1607,18 @@ void drawsmallabel(const char *text, char col, char backcol, char border, int32_
 
     printext16(x1,y1, col,backcol, text,1);
 
-    drawline16(x1-2, y1-2, x2-2, y1-2, border);
-    drawline16(x1-2, y2+1, x2-2, y2+1, border);
+    editorDraw2dLine(x1-2, y1-2, x2-2, y1-2, border);
+    editorDraw2dLine(x1-2, y2+1, x2-2, y2+1, border);
 
-    drawline16(x1-3, y1-1, x1-3, y2+0, border);
-    drawline16(x2-1, y1-1, x2-1, y2+0, border);
+    editorDraw2dLine(x1-3, y1-1, x1-3, y2+0, border);
+    editorDraw2dLine(x2-1, y1-1, x2-1, y2+0, border);
 
-    drawline16(x1-1,y1-1, x2-3,y1-1, backcol);
-    drawline16(x1-1,y2+0, x2-3,y2+0, backcol);
+    editorDraw2dLine(x1-1,y1-1, x2-3,y1-1, backcol);
+    editorDraw2dLine(x1-1,y2+0, x2-3,y2+0, backcol);
 
-    drawline16(x1-2,y1+0, x1-2,y2-1, backcol);
-    drawline16(x2-2,y1+0, x2-2,y2-1, backcol);
-    drawline16(x2-3,y1+0, x2-3,y2+0, backcol);
+    editorDraw2dLine(x1-2,y1+0, x1-2,y2-1, backcol);
+    editorDraw2dLine(x2-2,y1+0, x2-2,y2-1, backcol);
+    editorDraw2dLine(x2-3,y1+0, x2-3,y2+0, backcol);
 
     videoBeginDrawing(); //{{{
 
@@ -3230,8 +3230,8 @@ static void drawlinebetween(const vec3_t *v1, const vec3_t *v2, int32_t col, uin
 
     int32_t x1, x2, y1, y2;
 
-    screencoords(&x1,&y1, v1->x-pos.x,v1->y-pos.y, zoom);
-    screencoords(&x2,&y2, v2->x-pos.x,v2->y-pos.y, zoom);
+    editorGet2dScreenCoordinates(&x1,&y1, v1->x-pos.x,v1->y-pos.y, zoom);
+    editorGet2dScreenCoordinates(&x2,&y2, v2->x-pos.x,v2->y-pos.y, zoom);
 
     if (m32_sideview)
     {
@@ -3240,7 +3240,7 @@ static void drawlinebetween(const vec3_t *v1, const vec3_t *v2, int32_t col, uin
     }
 
     drawlinepat = pat;
-    drawline16(xofs+x1,yofs+y1, xofs+x2,yofs+y2, col);
+    editorDraw2dLine(xofs+x1,yofs+y1, xofs+x2,yofs+y2, col);
     drawlinepat = opat;
 }
 
@@ -3307,7 +3307,7 @@ static void drawspritelabel(int i)
     // KEEPINSYNC drawscreen_drawsprite()
     uspritetype const * s = (uspritetype *)&sprite[i];
     uint8_t const spritecol = spritecol2d[s->picnum][(s->cstat&1)];
-    int col = spritecol ? editorcolors[spritecol] : getspritecol(i);
+    int col = spritecol ? editorcolors[spritecol] : editorGet2dSpriteColor(i);
     int const blocking = s->cstat & 1;
     int bordercol = blocking ? editorcolors[5] : col;
 
@@ -3459,7 +3459,7 @@ void overheadeditor(void)
         if (!m32_is2d3dmode())
         {
             oldmousebstatus = bstatus;
-            getmousevalues(&mousx, &mousy, &bstatus);
+            mouseGetValues(&mousx, &mousy, &bstatus);
 
             {
                 int32_t bs = bstatus;
@@ -3513,7 +3513,7 @@ void overheadeditor(void)
 
             clear2dscreen();
 
-            setup_sideview_sincos();
+            editorSetup2dSideView();
 
             VM_OnEvent(EVENT_PREDRAW2DSCREEN, -1);
 
@@ -3531,15 +3531,15 @@ void overheadeditor(void)
                 if (graphicsmode == 2)
                     totalclocklock = totalclock;
 
-                drawmapview(pos.x, pos.y, zoom, m32_sideview ? (3584 - m32_sideang) & 2047: 1536);
+                renderDrawMapView(pos.x, pos.y, zoom, m32_sideview ? (3584 - m32_sideang) & 2047: 1536);
             }
 
-            draw2dgrid(pos.x,pos.y,pos.z,cursectnum,ang,zoom,grid);
+            editorDraw2dGrid(pos.x,pos.y,pos.z,cursectnum,ang,zoom,grid);
             CallExtPreCheckKeys();
-            draw2dscreen(&pos,cursectnum,ang,zoom,grid);
+            editorDraw2dScreen(&pos,cursectnum,ang,zoom,grid);
 
             // Draw brown arrow (start)
-            screencoords(&x2, &y2, startpos.x-pos.x,startpos.y-pos.y, zoom);
+            editorGet2dScreenCoordinates(&x2, &y2, startpos.x-pos.x,startpos.y-pos.y, zoom);
             if (m32_sideview)
                 y2 += getscreenvdisp(startpos.z-pos.z, zoom);
 
@@ -3684,8 +3684,8 @@ void overheadeditor(void)
                 if (!m32_is2d3dmode() && (m32_sideview || highlightcnt <= 0))
                 {
                     drawlinepat = 0x00ff00ff;
-                    drawline16(searchx,0, searchx,ydim2d-1, editorcolors[15]);
-                    drawline16(0,searchy, xdim2d-1,searchy, editorcolors[15]);
+                    editorDraw2dLine(searchx,0, searchx,ydim2d-1, editorcolors[15]);
+                    editorDraw2dLine(0,searchy, xdim2d-1,searchy, editorcolors[15]);
                     drawlinepat = 0xffffffff;
 
                     _printmessage16("(%d,%d)",mousxplc,mousyplc);
@@ -3840,8 +3840,8 @@ void overheadeditor(void)
                 }
             }
 
-            drawline16(searchx,0, searchx,8, editorcolors[15]);
-            drawline16(0,searchy, 8,searchy, editorcolors[15]);
+            editorDraw2dLine(searchx,0, searchx,8, editorcolors[15]);
+            editorDraw2dLine(0,searchy, 8,searchy, editorcolors[15]);
 
             // 2d3d mode
             if (m32_2d3dmode && m32_2d3d_resolutions_match())
@@ -3897,10 +3897,10 @@ void overheadeditor(void)
                     searchy = osearch.y;
 
                     videoBeginDrawing();
-                    drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, editorcolors[15]);
-                    drawline16(m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y  + YSIZE_2D3D, editorcolors[15]);
-                    drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
-                    drawline16(m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
+                    editorDraw2dLine(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, editorcolors[15]);
+                    editorDraw2dLine(m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y  + YSIZE_2D3D, editorcolors[15]);
+                    editorDraw2dLine(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
+                    editorDraw2dLine(m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
                 }
             }
 
@@ -4168,7 +4168,7 @@ void overheadeditor(void)
         {
             keystatus[88] = 0;
 //__clearscreen_beforecapture__
-            screencapture("captxxxx.tga", eitherSHIFT);
+            videoCaptureScreen("captxxxx.tga", eitherSHIFT);
 
             videoShowFrame(1);
         }
@@ -5071,7 +5071,7 @@ end_yax: ;
                             }
                             else
                             {
-                                screencoords(&tx,&ty, wall[i].x-pos.x,wall[i].y-pos.y, zoom);
+                                editorGet2dScreenCoordinates(&tx,&ty, wall[i].x-pos.x,wall[i].y-pos.y, zoom);
                                 ty += getscreenvdisp(
                                     getflorzofslope(sectorofwall(i), wall[i].x,wall[i].y)-pos.z, zoom);
                                 tx += halfxdim16;
@@ -5120,7 +5120,7 @@ end_yax: ;
                             }
                             else
                             {
-                                screencoords(&tx,&ty, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
+                                editorGet2dScreenCoordinates(&tx,&ty, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
                                 ty += getscreenvdisp(sprite[i].z-pos.z, zoom);
                                 tx += halfxdim16;
                                 ty += midydim16;
@@ -5439,7 +5439,7 @@ end_autoredwall:
                                 }
                                 else
                                 {
-                                    screencoords(&tx,&ty, wall[j].x-pos.x,wall[j].y-pos.y, zoom);
+                                    editorGet2dScreenCoordinates(&tx,&ty, wall[j].x-pos.x,wall[j].y-pos.y, zoom);
                                     ty += getscreenvdisp(getflorzofslope(i, wall[j].x,wall[j].y)-pos.z, zoom);
                                     tx += halfxdim16;
                                     ty += midydim16;
@@ -8230,7 +8230,7 @@ CANCEL:
 
                         CallExtUnInit();
 //                        clearfilenames();
-                        uninitengine();
+                        engineUnInit();
 
                         Bexit(0);
                     }
@@ -8266,7 +8266,7 @@ CANCEL:
         initprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
         CallExtUnInit();
 //        clearfilenames();
-        uninitengine();
+        engineUnInit();
         Bexit(1);
     }
 
@@ -8464,9 +8464,9 @@ int32_t LoadBoard(const char *filename, uint32_t flags)
     editorzrange[1] = INT32_MAX;
 
     CallExtPreLoadMap();
-    i = loadboard(filename, (flags&4)|loadingflags, &pos, &ang, &cursectnum);
+    i = engineLoadBoard(filename, (flags&4)|loadingflags, &pos, &ang, &cursectnum);
     if (i == -2)
-        i = loadoldboard(filename,loadingflags, &pos, &ang, &cursectnum);
+        i = engineLoadBoardV5V6(filename,loadingflags, &pos, &ang, &cursectnum);
 
     if (i < 0)
     {
@@ -8641,7 +8641,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
                 dst = klabs(xplc-wall[j].x) + klabs(yplc-wall[j].y);
             else
             {
-                screencoords(&dax,&day, wall[j].x-pos.x,wall[j].y-pos.y, zoom);
+                editorGet2dScreenCoordinates(&dax,&day, wall[j].x-pos.x,wall[j].y-pos.y, zoom);
                 day += getscreenvdisp(getflorzofslope(i, wall[j].x,wall[j].y)-pos.z, zoom);
 
                 if (halfxdim16+dax < 0 || halfxdim16+dax >= xdim || midydim16+day < 0 || midydim16+day >= ydim)
@@ -8672,7 +8672,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
                 }
                 else
                 {
-                    screencoords(&dax,&day, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
+                    editorGet2dScreenCoordinates(&dax,&day, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
                     day += getscreenvdisp(sprite[i].z-pos.z, zoom);
 
                     if (halfxdim16+dax < 0 || halfxdim16+dax >= xdim || midydim16+day < 0 || midydim16+day >= ydim)
@@ -10033,7 +10033,7 @@ int32_t fillsector_maybetrans(int16_t sectnum, int32_t fillcolor, uint8_t dotran
     endwall = startwall + sector[sectnum].wallnum - 1;
     for (z=startwall; z<=endwall; z++)
     {
-        screencoords(&x1,&y1, wall[z].x-pos.x,wall[z].y-pos.y, zoom);
+        editorGet2dScreenCoordinates(&x1,&y1, wall[z].x-pos.x,wall[z].y-pos.y, zoom);
         if (m32_sideview)
             y1 += getscreenvdisp(getflorzofslope(sectnum,wall[z].x,wall[z].y)-pos.z, zoom);
 
@@ -10128,7 +10128,7 @@ int32_t fillsector_maybetrans(int16_t sectnum, int32_t fillcolor, uint8_t dotran
                 if (fillist[z+1] > rborder)
                     fillist[z+1] = rborder;
 
-                drawline16(fillist[z]+1,sy, fillist[z+1]-1,sy, dotrans ? -col : col);  //editorcolors[fillcolor]
+                editorDraw2dLine(fillist[z]+1,sy, fillist[z+1]-1,sy, dotrans ? -col : col);  //editorcolors[fillcolor]
             }
         }
     }

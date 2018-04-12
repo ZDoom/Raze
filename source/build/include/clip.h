@@ -55,12 +55,12 @@ typedef struct
 
 extern mapinfo_t origmapinfo, clipmapinfo;
 
-extern void clipmapinfo_init();
+extern void engineInitClipMaps();
 extern int32_t quickloadboard;
 extern int16_t *sectq;
 extern int16_t pictoidx[MAXTILES];  // maps tile num to clipinfo[] index
 extern int16_t clipspritelist[MAXCLIPNUM];
-extern void mapinfo_set(mapinfo_t *bak, mapinfo_t *newmap);
+extern void engineSetClipMap(mapinfo_t *bak, mapinfo_t *newmap);
 extern int32_t clipsprite_try(uspritetype const * const spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax);
 extern int32_t clipsprite_initindex(int32_t curidx, uspritetype const * const curspr, int32_t *clipsectcnt, const vec3_t *vect);
 

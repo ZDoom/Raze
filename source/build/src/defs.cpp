@@ -2679,7 +2679,7 @@ static int32_t defsparser(scriptfile *script)
                 break;
             }
 
-            psky_t * const newpsky = E_DefinePsky(tile);
+            psky_t * const newpsky = tileSetupSky(tile);
 
             while (script->textptr < blockend)
             {

@@ -158,8 +158,8 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     if (ii <= 0) return;
 
     if (videoGetRenderMode() == REND_CLASSIC)
-        i = getclosestcol(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
-    else i = getclosestcol(255, 255, 255); // use white in GL so we can tint it to the right color
+        i = paletteGetClosestColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
+    else i = paletteGetClosestColor(255, 255, 255); // use white in GL so we can tint it to the right color
 
     do
     {
@@ -178,7 +178,7 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     crosshairtint.b = CrosshairColors.b;
     crosshairtint.f = HICTINT_USEONART | HICTINT_GRAYSCALE;
 #endif
-    invalidatetile(CROSSHAIR, -1, -1);
+    tileInvalidate(CROSSHAIR, -1, -1);
 }
 
 #define SCORESHEETOFFSET -20
@@ -329,7 +329,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
     int32_t tmpydim = (xdim*5)/8;
 
-    videoSetAspect(65536, divscale16(tmpydim*320, xdim*200));
+    renderSetAspect(65536, divscale16(tmpydim*320, xdim*200));
 
     xvect = sintable[(-cang)&2047] * czoom;
     yvect = sintable[(1536-cang)&2047] * czoom;
@@ -1068,7 +1068,7 @@ void G_DisplayRest(int32_t smoothratio)
             if (ud.overhead_on == 2)
             {
                 videoClearViewableArea(0L);
-                drawmapview(cposx, cposy, pp->zoom, cang);
+                renderDrawMapView(cposx, cposy, pp->zoom, cang);
             }
             G_DrawOverheadMap(cposx, cposy, pp->zoom, cang);
 
@@ -1173,13 +1173,13 @@ void G_DisplayRest(int32_t smoothratio)
                 crosshair_scale = scale(crosshair_scale, ydim << 2, xdim * 3) >> 1;
                 crosshair_pal = 0;
                 crosshair_o |= 1024;
-                videoSetAspect(viewingrange, 65536);
+                renderSetAspect(viewingrange, 65536);
             }
 
             rotatesprite_win(crosshairpos.x, crosshairpos.y, crosshair_scale, 0, a, 0, crosshair_pal, crosshair_o);
 
             if (KXDWN)
-                videoSetAspect(viewingrange, oyxaspect);
+                renderSetAspect(viewingrange, oyxaspect);
         }
     }
 
@@ -1204,13 +1204,13 @@ void G_DisplayRest(int32_t smoothratio)
                 pointer_scale = scale(pointer_scale, ydim << 2, xdim * 3) >> 1;
                 pointer_pal = 0;
                 pointer_o |= 1024;
-                videoSetAspect(viewingrange, 65536);
+                renderSetAspect(viewingrange, 65536);
             }
 
             rotatesprite_win(pointerpos.x, pointerpos.y, pointer_scale, 0, a, 0, pointer_pal, pointer_o);
 
             if (KXDWN)
-                videoSetAspect(viewingrange, oyxaspect);
+                renderSetAspect(viewingrange, oyxaspect);
         }
     }
 #endif
@@ -1233,7 +1233,7 @@ void G_DisplayRest(int32_t smoothratio)
     {
         int32_t vr=viewingrange, asp=yxaspect;
         VM_OnEvent_(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek);
-        videoSetAspect(vr, asp);
+        renderSetAspect(vr, asp);
     }
 
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)

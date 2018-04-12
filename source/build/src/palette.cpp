@@ -316,9 +316,9 @@ void palettePostLoadTables(void)
         palookup0[i] = palookup0[i+(16<<8)];
 #endif
 
-    blackcol = getclosestcol(0, 0, 0);
-    whitecol = getclosestcol(255, 255, 255);
-    redcol = getclosestcol(255, 0, 0);
+    blackcol = paletteGetClosestColor(0, 0, 0);
+    whitecol = paletteGetClosestColor(255, 255, 255);
+    redcol = paletteGetClosestColor(255, 0, 0);
 
     for (size_t i = 0; i<16; i++)
     {
@@ -631,7 +631,7 @@ void paletteMakeLookupTable(int32_t palnum, const char *remapbuf, uint8_t r, uin
             for (j=0; j<256; j++)
             {
                 const char *ptr = (const char *) &palette[remapbuf[j]*3];
-                *ptr2++ = getclosestcol(ptr[0] + mulscale16(r-ptr[0], palscale),
+                *ptr2++ = paletteGetClosestColor(ptr[0] + mulscale16(r-ptr[0], palscale),
                     ptr[1] + mulscale16(g-ptr[1], palscale),
                     ptr[2] + mulscale16(b-ptr[2], palscale));
             }

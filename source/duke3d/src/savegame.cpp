@@ -309,7 +309,7 @@ int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh)
     {
         Bmemset((char *)waloff[TILE_LOADSHOT], 0, 320*200);
     }
-    invalidatetile(TILE_LOADSHOT, 0, 255);
+    tileInvalidate(TILE_LOADSHOT, 0, 255);
 
     kclose(fil);
     return 0;
@@ -392,7 +392,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
     {
         artSetupMapArt(currentboardfilename);
         append_ext_UNSAFE(currentboardfilename, ".mhk");
-        loadmaphack(currentboardfilename);
+        engineLoadMHK(currentboardfilename);
     }
 
     Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);

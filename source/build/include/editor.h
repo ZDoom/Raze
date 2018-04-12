@@ -168,11 +168,11 @@ extern int32_t m32_wallscreenxy[MAXWALLS][2];
 extern int16_t m32_wallsprite[MAXWALLS+MAXSPRITES];
 extern int8_t sideview_reversehrot;
 extern int32_t scalescreeny(int32_t sy);
-extern void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome) ATTRIBUTE((nonnull));
+extern void editorGet2dScreenCoordinates(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome) ATTRIBUTE((nonnull));
 //extern void invscreencoords(int32_t *dx, int32_t *dy, int32_t sx, int32_t sy, int32_t zoome);
 extern int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz) ATTRIBUTE((nonnull));
 extern int32_t getscreenvdisp(int32_t bz, int32_t zoome);
-extern void setup_sideview_sincos(void);
+extern void editorSetup2dSideView(void);
 
 extern int8_t keeptexturestretch;
 extern int16_t pointhighlightdist, linehighlightdist;
@@ -395,7 +395,7 @@ static inline int32_t m32_is2d3dmode(void)
         searchy > m32_2d3d.y && searchy < (m32_2d3d.y + YSIZE_2D3D);
 }
 
-extern int32_t getspritecol(int32_t spr);
+extern int32_t editorGet2dSpriteColor(int32_t spr);
 
 #define NEXTWALL(i) (wall[wall[i].nextwall])
 #define POINT2(i) (wall[wall[i].point2])

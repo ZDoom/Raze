@@ -13,7 +13,7 @@ extern int32_t getclosestcol_lim(int32_t r, int32_t g, int32_t b, int32_t lastok
 extern int32_t getclosestcol_nocache_lim(int32_t r, int32_t g, int32_t b, int32_t lastokcol);
 extern void getclosestcol_flush(void);
 
-static FORCE_INLINE int32_t getclosestcol(int32_t r, int32_t g, int32_t b)
+static FORCE_INLINE int32_t paletteGetClosestColor(int32_t r, int32_t g, int32_t b)
 {
     return getclosestcol_lim(r, g, b, 255);
 }

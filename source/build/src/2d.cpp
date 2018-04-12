@@ -94,29 +94,11 @@ void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int co
 
         videoBeginDrawing();
         for (i=0; i<numpoints-1; i++)
-            drawline16(xx[i], yy[i], xx[i+1], yy[i+1], col);
+            editorDraw2dLine(xx[i], yy[i], xx[i+1], yy[i+1], col);
         videoEndDrawing();
 
         drawlinepat = odrawlinepat;
     }
-}
-
-
-//
-// getpixel
-//
-char getpixel(int32_t x, int32_t y)
-{
-    char r;
-
-#ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST && in3dmode()) return 0;
-#endif
-
-    videoBeginDrawing(); //{{{
-    r = readpixel((void *) (ylookup[y]+x+frameplace));
-    videoEndDrawing();   //}}}
-    return r;
 }
 
 
@@ -276,7 +258,7 @@ void drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 //   after clipping or crashes would ensue
 uint32_t drawlinepat = 0xffffffff;
 
-int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
+int32_t editorDraw2dLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
 {
     //int32_t odx,ody;
     //int32_t ox1=x1,oy1=y1, ox2=x2,oy2=y2;
@@ -432,16 +414,16 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
     return 1;
 }
 
-static FORCE_INLINE void drawline16mid(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
+static FORCE_INLINE void editorDraw2dLineMiddle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col)
 {
-    drawline16(halfxdim16+x1, midydim16+y1, halfxdim16+x2, midydim16+y2, col);
+    editorDraw2dLine(halfxdim16+x1, midydim16+y1, halfxdim16+x2, midydim16+y2, col);
 }
 
 // eccen: eccentricity of the ellipse,
 //   16384: circle
 //  <16384: shrink in y
 //  >16384: grow in y
-void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
+void editorDraw2dCircle(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
 {
     if (eccen != 16384)
     {
@@ -456,13 +438,13 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
             px = x1 + mulscale14(r, sintable[l]);
             py = y1 + mulscale14(eccen, mulscale14(r, sintable[(l+512)&2047]));
 
-            drawline16(lpx, lpy, px, py, col);
+            editorDraw2dLine(lpx, lpy, px, py, col);
 
             lpx = px;
             lpy = py;
         }
 
-        drawline16(lpx, lpy, spx, spy, col);
+        editorDraw2dLine(lpx, lpy, spx, spy, col);
 
         return;
     }
@@ -609,7 +591,7 @@ void clear2dscreen(void)
 int32_t scalescreeny(int32_t sy) { return (m32_sideview) ? mulscale14(sy, m32_sidesin) : sy; }
 
 // return screen coordinates for BUILD coords x and y (relative to current position)
-void screencoords(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome)
+void editorGet2dScreenCoordinates(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome)
 {
     vec2_t coord = { x, y };
 
@@ -656,7 +638,7 @@ int32_t getscreenvdisp(int32_t bz, int32_t zoome)
     return mulscale32(bz, zoome*m32_sidecos);
 }
 
-void setup_sideview_sincos(void)
+void editorSetup2dSideView(void)
 {
     if (m32_sideview)
     {
@@ -673,7 +655,7 @@ void setup_sideview_sincos(void)
     }
 }
 
-static void sideview_getdist(int16_t sw, int16_t sect)
+static void editorGet2dSideViewDistance(int16_t sw, int16_t sect)
 {
     vec3_t *p;
     vec3_t v;
@@ -691,7 +673,7 @@ static void sideview_getdist(int16_t sw, int16_t sect)
     m32_sidedist[sw] = p->x*m32_viewplane.x + p->y*m32_viewplane.y + (p->z>>4)*m32_viewplane.z;
 }
 
-static int sideview_cmppoints(const void *sw1, const void *sw2)
+static int editorCompare2dSideViewPoints(const void *sw1, const void *sw2)
 {
     int32_t dist1 = m32_sidedist[B_UNBUF16(sw1)];
     int32_t dist2 = m32_sidedist[B_UNBUF16(sw2)];
@@ -710,7 +692,7 @@ static int sideview_cmppoints(const void *sw1, const void *sw2)
 //
 // draw2dgrid
 //
-void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride)
+void editorDraw2dGrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride)
 {
     int64_t i, xp1, yp1, xp2=0, yp2, tempy;
 
@@ -745,10 +727,10 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
         {
             if (xinc==0)
             {
-                screencoords(&sx1, &sy1, -editorgridextent-posxe, yp2-posye, zoome);
+                editorGet2dScreenCoordinates(&sx1, &sy1, -editorgridextent-posxe, yp2-posye, zoome);
                 if (yp2 == yp1)
                 {
-                    screencoords(&sx2, &sy2, editorgridextent-posxe, yp2-posye, zoome);
+                    editorGet2dScreenCoordinates(&sx2, &sy2, editorgridextent-posxe, yp2-posye, zoome);
                     dx = sx2-sx1;
                     dy = sy2-sy1;
                 }
@@ -756,17 +738,17 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
             }
             else  // if (yinc==0)
             {
-                screencoords(&sx1, &sy1, xp2-posxe, -editorgridextent-posye, zoome);
+                editorGet2dScreenCoordinates(&sx1, &sy1, xp2-posxe, -editorgridextent-posye, zoome);
                 if (xp2 == xp1)
                 {
-                    screencoords(&sx2, &sy2, xp2-posxe, editorgridextent-posye, zoome);
+                    editorGet2dScreenCoordinates(&sx2, &sy2, xp2-posxe, editorgridextent-posye, zoome);
                     dx = sx2-sx1;
                     dy = sy2-sy1;
                 }
                 xp2 += xinc;
             }
 
-            i = drawline16(halfxdim16+sx1, midydim16+sy1+yofs, halfxdim16+sx1+dx, midydim16+sy1+dy+yofs, editorcolors[25]);
+            i = editorDraw2dLine(halfxdim16+sx1, midydim16+sy1+yofs, halfxdim16+sx1+dx, midydim16+sy1+dy+yofs, editorcolors[25]);
             if (i==0 || (xp2<-editorgridextent || xp2>editorgridextent ||
                 yp2<-editorgridextent || yp2>editorgridextent))
             {
@@ -813,13 +795,13 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
                 if (xp1 >= 0)
                 {
                     if (xp1 != xp2)
-                        drawline16(xp1, yp1, xp1, yp2, editorcolors[25]);
+                        editorDraw2dLine(xp1, yp1, xp1, yp2, editorcolors[25]);
                 }
             }
             if (i >= editorgridextent && xp1 < xdim)
                 xp2 = xp1;
             if (xp2 >= 0 && xp2 < xdim)
-                drawline16(xp2, yp1, xp2, yp2, editorcolors[25]);
+                editorDraw2dLine(xp2, yp1, xp2, yp2, editorcolors[25]);
         }
 
         // horizontal lines
@@ -834,7 +816,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
             {
                 if ((yp1 > midydim16-ydim16) && (yp1 <= midydim16))
                 {
-                    drawline16mid(-xp1, -yp1, -xp2, -yp1, editorcolors[25]);
+                    editorDraw2dLineMiddle(-xp1, -yp1, -xp2, -yp1, editorcolors[25]);
                     tempy = yp1;
                 }
             }
@@ -845,7 +827,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
 }
 
 
-static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t posze, int32_t zoome, int32_t grayp)
+static void editorDraw2dWall(int32_t i, int32_t posxe, int32_t posye, int32_t posze, int32_t zoome, int32_t grayp)
 {
     const walltype *const wal = &wall[i];
 
@@ -884,8 +866,8 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     int const p2 = wal->point2;
 
     int32_t x1, y1, x2, y2;
-    screencoords(&x1, &y1, wal->x-posxe, wal->y-posye, zoome);
-    screencoords(&x2, &y2, wall[p2].x-posxe, wall[p2].y-posye, zoome);
+    editorGet2dScreenCoordinates(&x1, &y1, wal->x-posxe, wal->y-posye, zoome);
+    editorGet2dScreenCoordinates(&x2, &y2, wall[p2].x-posxe, wall[p2].y-posye, zoome);
 
     int64_t const dx = wal->x-wall[p2].x;
     int64_t const dy = wal->y-wall[p2].y;
@@ -930,7 +912,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         {
             fzn = getflorzofslope(wal->nextsector, wal->x, wal->y);
             //            if (i < wall[j].point2)
-            drawline16mid(x1, y1, x1, y1+getscreenvdisp(fzn-fz, zoome), col);
+            editorDraw2dLineMiddle(x1, y1, x1, y1+getscreenvdisp(fzn-fz, zoome), col);
         }
 #ifdef YAX_ENABLE
         {
@@ -941,7 +923,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
                 int32_t const odrawlinepat = drawlinepat;
                 fz2 = getflorzofslope(sectorofwall(nw), wall[nw].x, wall[nw].y);
                 drawlinepat = 0x11111111;
-                drawline16mid(x1, y1, x1, y1+getscreenvdisp(fz2-fz, zoome), col);
+                editorDraw2dLineMiddle(x1, y1, x1, y1+getscreenvdisp(fz2-fz, zoome), col);
                 drawlinepat = odrawlinepat;
             }
         }
@@ -955,11 +937,11 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
     {
         int32_t const one=(klabs(x2-x1) >= klabs(y2-y1)), no=!one;
 
-        drawline16mid(x1+no, y1+one, x2+no, y2+one, col);
-        drawline16mid(x1-no, y1-one, x2-no, y2-one, col);
+        editorDraw2dLineMiddle(x1+no, y1+one, x2+no, y2+one, col);
+        editorDraw2dLineMiddle(x1-no, y1-one, x2-no, y2-one, col);
     }
 
-    drawline16mid(x1, y1, x2, y2, col);
+    editorDraw2dLineMiddle(x1, y1, x2, y2, col);
 
     // Draw height indicators at center of walls if requested and if not in
     // side-view mode.
@@ -969,7 +951,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
         int32_t dax, day;
         int32_t const k = getangle(x1-x2, y1-y2);
 
-        screencoords(&dax, &day,
+        editorGet2dScreenCoordinates(&dax, &day,
             ((wal->x+wall[wal->point2].x)>>1)-posxe,
             ((wal->y+wall[wal->point2].y)>>1)-posye, zoome);
 
@@ -985,7 +967,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
                 int32_t const dx = mulscale11(sintable[(k+1024 + 1024*bb)&2047], min(4096, zoome)) / 2560;
                 int32_t const dy = scalescreeny(mulscale11(sintable[(k+512 + 1024*bb)&2047], min(4096, zoome)) / 2560);
 
-                drawline16mid(dax, day, dax+dx, day+dy, col);
+                editorDraw2dLineMiddle(dax, day, dax+dx, day+dy, col);
             }
         }
         else if (showheightindicators == 2)
@@ -994,7 +976,7 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
             int32_t const dx = mulscale11(sintable[(k+2048)&2047], min(4096, zoome)) / 2560;
             int32_t const dy = scalescreeny(mulscale11(sintable[(k+1536)&2047], min(4096, zoome)) / 2560);
 
-            drawline16mid(dax, day, dax+dx, day+dy, col);
+            editorDraw2dLineMiddle(dax, day, dax+dx, day+dy, col);
         }
     }
 
@@ -1029,11 +1011,11 @@ static void drawscreen_drawwall(int32_t i, int32_t posxe, int32_t posye, int32_t
                 }
             }
 
-            drawcircle16(halfxdim16+x1, midydim16+y1, pointsize, 16384, col);
+            editorDraw2dCircle(halfxdim16+x1, midydim16+y1, pointsize, 16384, col);
         }
 }
 
-int32_t getspritecol(int32_t spr)
+int32_t editorGet2dSpriteColor(int32_t spr)
 {
     int const picnum = sprite[spr].picnum;
     int pal = sprite[spr].pal;
@@ -1072,7 +1054,7 @@ int32_t getspritecol(int32_t spr)
     return palookup[pal][tilecols[picnum]];
 }
 
-static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32_t posze, int32_t zoome)
+static void editorDraw2dSprite(int32_t j, int32_t posxe, int32_t posye, int32_t posze, int32_t zoome)
 {
     int32_t x1, y1, x2, y2;
     int col;
@@ -1088,7 +1070,7 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
     if (spr->sectnum<0)
         col = editorcolors[4];  // red
     else
-        col = spritecol ? editorcolors[spritecol] : blocking ? editorcolors[5] : getspritecol(j);
+        col = spritecol ? editorcolors[spritecol] : blocking ? editorcolors[5] : editorGet2dSpriteColor(j);
 
     if (editstatus == 1)
     {
@@ -1108,7 +1090,7 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
         }
     }
 
-    screencoords(&x1, &y1, spr->x-posxe, spr->y-posye, zoome);
+    editorGet2dScreenCoordinates(&x1, &y1, spr->x-posxe, spr->y-posye, zoome);
     //   tempint = ((midydim16+y1)*bytesperline)+(halfxdim16+x1)+frameplace;
 
     if (m32_sideview)
@@ -1120,22 +1102,22 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
         (midydim16+y1 >= -f) && (midydim16+y1 < ydim16+f))
     {
         if (zoome > 512 && spr->clipdist > 32)
-            drawcircle16(halfxdim16+x1, midydim16+y1, mulscale14(spr->clipdist<<2, zoome), 16384, col);
+            editorDraw2dCircle(halfxdim16+x1, midydim16+y1, mulscale14(spr->clipdist<<2, zoome), 16384, col);
 
-        drawcircle16(halfxdim16+x1, midydim16+y1, 4, 16384, col);
+        editorDraw2dCircle(halfxdim16+x1, midydim16+y1, 4, 16384, col);
 
         x2 = mulscale11(sintable[(spr->ang+angofs+2560)&2047], zoome) / 768;
         y2 = mulscale11(sintable[(spr->ang+angofs+2048)&2047], zoome) / 768;
         y2 = scalescreeny(y2);
 
-        drawline16mid(x1, y1, x1+x2, y1+y2, col);
+        editorDraw2dLineMiddle(x1, y1, x1+x2, y1+y2, col);
 
         if (hitblocking)
         {
-            drawline16mid(x1, y1+1, x1+x2, y1+y2+1, col);
-            drawline16mid(x1, y1-1, x1+x2, y1+y2-1, col);
-            drawline16mid(x1-1, y1, x1+x2-1, y1+y2, col);
-            drawline16mid(x1+1, y1, x1+x2+1, y1+y2, col);
+            editorDraw2dLineMiddle(x1, y1+1, x1+x2, y1+y2+1, col);
+            editorDraw2dLineMiddle(x1, y1-1, x1+x2, y1+y2-1, col);
+            editorDraw2dLineMiddle(x1-1, y1, x1+x2-1, y1+y2, col);
+            editorDraw2dLineMiddle(x1+1, y1, x1+x2+1, y1+y2, col);
         }
 
         if (flooraligned)
@@ -1164,15 +1146,15 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
             for (ii=3; ii>=0; ii--)
             {
                 in = (ii+1)&3;
-                drawline16mid(x1+co[ii][0], y1-co[ii][1], x1+co[in][0], y1-co[in][1], col);
+                editorDraw2dLineMiddle(x1+co[ii][0], y1-co[ii][1], x1+co[in][0], y1-co[in][1], col);
                 if (hitblocking)
                 {
-                    drawline16mid(x1+co[ii][0], y1-co[ii][1]+1, x1+co[in][0], y1-co[in][1]+1, col);
-                    drawline16mid(x1+co[ii][0], y1-co[ii][1]-1, x1+co[in][0], y1-co[in][1]-1, col);
-                    drawline16mid(x1+co[ii][0]+1, y1-co[ii][1], x1+co[in][0]+1, y1-co[in][1], col);
-                    drawline16mid(x1+co[ii][0]-1, y1-co[ii][1], x1+co[in][0]-1, y1-co[in][1], col);
+                    editorDraw2dLineMiddle(x1+co[ii][0], y1-co[ii][1]+1, x1+co[in][0], y1-co[in][1]+1, col);
+                    editorDraw2dLineMiddle(x1+co[ii][0], y1-co[ii][1]-1, x1+co[in][0], y1-co[in][1]-1, col);
+                    editorDraw2dLineMiddle(x1+co[ii][0]+1, y1-co[ii][1], x1+co[in][0]+1, y1-co[in][1], col);
+                    editorDraw2dLineMiddle(x1+co[ii][0]-1, y1-co[ii][1], x1+co[in][0]-1, y1-co[in][1], col);
                 }
-                drawline16mid(x1, y1, x1 + co[in][0], y1 - co[in][1], col);
+                editorDraw2dLineMiddle(x1, y1, x1 + co[in][0], y1 - co[in][1], col);
             }
             drawlinepat = 0xffffffff;
         }
@@ -1185,21 +1167,21 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
             y2 = mulscale11(sintable[(spr->ang+angofs+2048)&2047], zoome) / 6144;
             y2 = scalescreeny(y2);
 
-            drawline16mid(x1, y1, x1+x2, y1+y2, col);
+            editorDraw2dLineMiddle(x1, y1, x1+x2, y1+y2, col);
             if (!(spr->cstat&64))  // not 1-sided
             {
-                drawline16mid(x1, y1, x1-x2, y1-y2, col);
+                editorDraw2dLineMiddle(x1, y1, x1-x2, y1-y2, col);
                 if (hitblocking)
                 {
-                    drawline16mid(x1-no, y1-one, x1-x2-no, y1-y2-one, col);
-                    drawline16mid(x1+no, y1+one, x1-x2+no, y1-y2+one, col);
+                    editorDraw2dLineMiddle(x1-no, y1-one, x1-x2-no, y1-y2-one, col);
+                    editorDraw2dLineMiddle(x1+no, y1+one, x1-x2+no, y1-y2+one, col);
                 }
             }
 
             if (hitblocking)
             {
-                drawline16mid(x1-no, y1-one, x1+x2-no, y1+y2-one, col);
-                drawline16mid(x1+no, y1+one, x1+x2+no, y1+y2+one, col);
+                editorDraw2dLineMiddle(x1-no, y1-one, x1+x2-no, y1+y2-one, col);
+                editorDraw2dLineMiddle(x1+no, y1+one, x1+x2+no, y1+y2+one, col);
             }
 
 
@@ -1207,20 +1189,20 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
             y2 = mulscale13(sintable[(spr->ang+angofs+512)&2047], zoome) * fx / 4096;
             y2 = scalescreeny(y2);
 
-            drawline16mid(x1, y1, x1-x2, y1-y2, col);
-            drawline16mid(x1, y1, x1+x2, y1+y2, col);
+            editorDraw2dLineMiddle(x1, y1, x1-x2, y1-y2, col);
+            editorDraw2dLineMiddle(x1, y1, x1+x2, y1+y2, col);
 
             if (hitblocking)
             {
-                drawline16mid(x1+1, y1, x1+x2+1, y1+y2, col);
-                drawline16mid(x1-1, y1, x1-x2-1, y1-y2, col);
-                drawline16mid(x1-1, y1, x1+x2-1, y1+y2, col);
-                drawline16mid(x1+1, y1, x1-x2+1, y1-y2, col);
+                editorDraw2dLineMiddle(x1+1, y1, x1+x2+1, y1+y2, col);
+                editorDraw2dLineMiddle(x1-1, y1, x1-x2-1, y1-y2, col);
+                editorDraw2dLineMiddle(x1-1, y1, x1+x2-1, y1+y2, col);
+                editorDraw2dLineMiddle(x1+1, y1, x1-x2+1, y1-y2, col);
 
-                drawline16mid(x1, y1-1, x1+x2, y1+y2-1, col);
-                drawline16mid(x1, y1+1, x1-x2, y1-y2+1, col);
-                drawline16mid(x1, y1+1, x1+x2, y1+y2+1, col);
-                drawline16mid(x1, y1-1, x1-x2, y1-y2-1, col);
+                editorDraw2dLineMiddle(x1, y1-1, x1+x2, y1+y2-1, col);
+                editorDraw2dLineMiddle(x1, y1+1, x1-x2, y1-y2+1, col);
+                editorDraw2dLineMiddle(x1, y1+1, x1+x2, y1+y2+1, col);
+                editorDraw2dLineMiddle(x1, y1-1, x1-x2, y1-y2-1, col);
             }
         }
     }
@@ -1232,7 +1214,7 @@ static void drawscreen_drawsprite(int32_t j, int32_t posxe, int32_t posye, int32
 
 static int8_t tempbuf[(MAXWALLS+7)>>3];
 
-void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride)
+void editorDraw2dScreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t zoome, int16_t gride)
 {
     int32_t i, x1, y1;
     int16_t angofs = m32_sideview ? m32_sideang : 0;
@@ -1243,7 +1225,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     if (in3dmode()) return;
 
-    setup_sideview_sincos();
+    editorSetup2dSideView();
 
     videoBeginDrawing(); //{{{
 
@@ -1254,7 +1236,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
         clear2dscreen();
 
         //        faketimerhandler();
-        draw2dgrid(posxe, posye, posze, cursectnum, ange, zoome, gride);
+        editorDraw2dGrid(posxe, posye, posze, cursectnum, ange, zoome, gride);
     }
 
     faketimerhandler();
@@ -1279,16 +1261,16 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     {
 #ifndef YAX_ENABLE
         for (i=numwalls-1; i>=0; i--)
-            drawscreen_drawwall(i, posxe, posye, posze, zoome, 0);
+            editorDraw2dWall(i, posxe, posye, posze, zoome, 0);
 #else
         if (alwaysshowgray)
             for (i=numwalls-1; i>=0; i--)
                 if (graybitmap[i>>3]&(1<<(i&7)))
-                    drawscreen_drawwall(i, posxe, posye, posze, zoome, 1+2);
+                    editorDraw2dWall(i, posxe, posye, posze, zoome, 1+2);
 
         for (i=numwalls-1; i>=0; i--)
             if ((graybitmap[i>>3]&(1<<(i&7)))==0)
-                drawscreen_drawwall(i, posxe, posye, posze, zoome, 2);
+                editorDraw2dWall(i, posxe, posye, posze, zoome, 2);
 #endif
     }
     else
@@ -1299,14 +1281,14 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
             for (j=sector[i].wallptr; j<sector[i].wallptr+sector[i].wallnum; j++)
             {
                 m32_wallsprite[m32_swcnt++] = j;
-                sideview_getdist(j, i);
+                editorGet2dSideViewDistance(j, i);
             }
 
         // j = sector[numsectors-1].wallptr + sector[numsectors-1].wallnum
         for (; j < numwalls; j++)  // new walls ...
         {
             m32_wallsprite[m32_swcnt++] = j;
-            sideview_getdist(j, 0);
+            editorGet2dSideViewDistance(j, 0);
         }
     }
 
@@ -1327,11 +1309,11 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
                 }
 
                 if (!m32_sideview)
-                    drawscreen_drawsprite(j, posxe, posye, posze, zoome);
+                    editorDraw2dSprite(j, posxe, posye, posze, zoome);
                 else
                 {
                     m32_wallsprite[m32_swcnt++] = MAXWALLS+j;
-                    sideview_getdist(MAXWALLS+j, -1);
+                    editorGet2dSideViewDistance(MAXWALLS+j, -1);
                 }
             }
 
@@ -1339,7 +1321,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     if (m32_sideview)
     {
-        qsort(m32_wallsprite, m32_swcnt, sizeof(int16_t), &sideview_cmppoints);
+        qsort(m32_wallsprite, m32_swcnt, sizeof(int16_t), &editorCompare2dSideViewPoints);
 
         for (i=0; i<m32_swcnt; i++)  // shouldn't it go the other way around?
         {
@@ -1347,14 +1329,14 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
             if (j<MAXWALLS)
             {
                 if (alwaysshowgray || !(graybitmap[j>>3]&(1<<(j&7))))
-                    drawscreen_drawwall(j, posxe, posye, posze, zoome, !!(graybitmap[j>>3]&(1<<(j&7))));
+                    editorDraw2dWall(j, posxe, posye, posze, zoome, !!(graybitmap[j>>3]&(1<<(j&7))));
             }
             else
             {
                 if (!alwaysshowgray && sprite[j-MAXWALLS].sectnum>=0)
                     YAX_SKIPSECTOR(sprite[j-MAXWALLS].sectnum);
 
-                drawscreen_drawsprite(j-MAXWALLS, posxe, posye, posze, zoome);
+                editorDraw2dSprite(j-MAXWALLS, posxe, posye, posze, zoome);
             }
         }
 
@@ -1381,9 +1363,9 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     i = scalescreeny(x1);
     int32_t j = scalescreeny(y1);
 
-    drawline16mid(x1, j, -x1, -j, editorcolors[15]);
-    drawline16mid(x1, j, +y1, -i, editorcolors[15]);
-    drawline16mid(x1, j, -y1, +i, editorcolors[15]);
+    editorDraw2dLineMiddle(x1, j, -x1, -j, editorcolors[15]);
+    editorDraw2dLineMiddle(x1, j, +y1, -i, editorcolors[15]);
+    editorDraw2dLineMiddle(x1, j, -y1, +i, editorcolors[15]);
 
 
     videoEndDrawing();   //}}}
@@ -1393,7 +1375,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 // setpolymost2dview
 //  Sets OpenGL for 2D drawing
 //
-void setpolymost2dview(void)
+void polymostSet2dView(void)
 {
 #ifdef USE_OPENGL
     if (videoGetRenderMode() < REND_POLYMOST) return;

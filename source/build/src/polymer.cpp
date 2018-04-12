@@ -1005,7 +1005,7 @@ void                polymer_resetlights(void)
 
     lightcount = 0;
 
-    if (!loadmaphack(NULL))
+    if (!engineLoadMHK(NULL))
         OSD_Printf("polymer_resetlights: reloaded maphack\n");
 }
 
@@ -2050,7 +2050,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
         //glEnable(GL_CLIP_PLANE0);
 
         if (mirrorlist[i].wallnum >= 0)
-            preparemirror(globalposx, globalposy, qglobalang,
+            renderPrepareMirror(globalposx, globalposy, qglobalang,
                           mirrorlist[i].wallnum, &gx, &gy, &viewangle);
 
         gx = globalposx;
@@ -2120,7 +2120,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
             display_mirror = 0;
 
         glDisable(GL_CULL_FACE);
-        drawmasks();
+        renderDrawMasks();
         glEnable(GL_CULL_FACE);
     }
     return;

@@ -13,7 +13,7 @@ static int16_t clipobjectval[MAXCLIPNUM];
 
 ////// sector-like clipping for sprites //////
 #ifdef HAVE_CLIPSHAPE_FEATURE
-void mapinfo_set(mapinfo_t *bak, mapinfo_t *newmap)
+void engineSetClipMap(mapinfo_t *bak, mapinfo_t *newmap)
 {
     if (bak)
     {
@@ -49,7 +49,7 @@ static uwalltype *loadwall, *loadwallinv;
 static uspritetype *loadsprite;
 
 
-void clipmapinfo_init()
+void engineInitClipMaps()
 {
     numclipmaps = 0;
     numclipsects = 0;
@@ -72,7 +72,7 @@ void clipmapinfo_init()
 
 // loads the clip maps.
 // this should be called before any real map is loaded.
-int32_t clipmapinfo_load(void)
+int32_t engineLoadClipMaps(void)
 {
     int32_t i, k, w;
 
@@ -85,7 +85,7 @@ int32_t clipmapinfo_load(void)
 
     int32_t ournumsectors=0, ournumwalls=0, ournumsprites=0;
 
-    clipmapinfo_init();
+    engineInitClipMaps();
 
     loadsector = (usectortype *) Xmalloc(MAXSECTORS * sizeof(sectortype));
     loadwall = (uwalltype *) Xmalloc(MAXWALLS * sizeof(walltype));
@@ -105,7 +105,7 @@ int32_t clipmapinfo_load(void)
         fisec[fi] = ournumsectors;
         fispr[fi] = ournumsprites;
 
-        i = loadboard(g_clipMapFiles[fi], 8, &tmppos, &ang, &cs);
+        i = engineLoadBoard(g_clipMapFiles[fi], 8, &tmppos, &ang, &cs);
         if (i<0)
             continue;
         // Numsprites will now be set!
@@ -148,7 +148,7 @@ int32_t clipmapinfo_load(void)
 
     if (ournumsectors==0 || ournumwalls==0 || ournumsprites==0)  // nothing loaded
     {
-        clipmapinfo_init();
+        engineInitClipMaps();
 
         Bfree(fisec);
         Bfree(fispr);
@@ -234,7 +234,7 @@ int32_t clipmapinfo_load(void)
                     initprintf("clip map \"%s\": error: tried to chain picnum %d (sprite %d) in sector %d which"
                         " already belongs to picnum %d.\n", g_clipMapFiles[fi], pn, i-fispr[fi], k-fisec[fi],
                         clipinfo[sectoidx[k]].picnum);
-                    clipmapinfo_init();
+                    engineInitClipMaps();
 
                     Bfree(fisec);
                     Bfree(fispr);
@@ -298,7 +298,7 @@ int32_t clipmapinfo_load(void)
                                         break;
                                 initprintf("clip map \"%s\": error: encountered more than one outer sector (%d and %d)"
                                     " for sprite %d.\n", g_clipMapFiles[fi], outersect-fisec[fi], ns-fisec[fi], i-fispr[fi]);
-                                clipmapinfo_init();
+                                engineInitClipMaps();
 
                                 Bfree(fisec);
                                 Bfree(fispr);
@@ -317,7 +317,7 @@ int32_t clipmapinfo_load(void)
                             initprintf("clip map \"%s\": error: encountered sector %d belonging to index %d"
                                 " while collecting sectors for sprite %d (index %d).\n",
                                 g_clipMapFiles[fi], ns-fisec[fi], sectoidx[ns], i-fispr[fi], numclipmaps);
-                            clipmapinfo_init();
+                            engineInitClipMaps();
 
                             Bfree(fisec);
                             Bfree(fispr);
@@ -331,7 +331,7 @@ int32_t clipmapinfo_load(void)
             if (outersect==-1)
             {
                 initprintf("clip map: INTERNAL ERROR: outersect==-1!\n");
-                clipmapinfo_init();
+                engineInitClipMaps();
 
                 Bfree(fisec);
                 Bfree(fispr);
@@ -916,7 +916,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
                 Bmemcpy(origclipsectorlist, clipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));
 
                 // replace sector and wall with clip map
-                mapinfo_set(&origmapinfo, &clipmapinfo);
+                engineSetClipMap(&origmapinfo, &clipmapinfo);
             }
 
             curspr = (uspritetype *)&sprite[clipspritelist[clipspritecnt]];
@@ -1175,7 +1175,7 @@ int32_t clipmove(vec3_t *pos, int16_t *sectnum,
     if (curspr)
     {
         // restore original map
-        mapinfo_set(NULL, &origmapinfo);
+        engineSetClipMap(NULL, &origmapinfo);
 
         clipsectnum = origclipsectnum;
         Bmemcpy(clipsectorlist, origclipsectorlist, clipsectnum*sizeof(clipsectorlist[0]));

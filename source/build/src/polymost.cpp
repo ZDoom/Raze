@@ -7321,7 +7321,7 @@ void polymost_fillpolygon(int32_t npoints)
         ((float *)ry1)[i] = ((float)ry1[i])*(1.0f/4096.f);
     }
 
-    if (gloy1 != -1) setpolymost2dview(); //disables blending, texturing, and depth testing
+    if (gloy1 != -1) polymostSet2dView(); //disables blending, texturing, and depth testing
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_TEXTURE_2D);
     pthtyp *pth = our_texcache_fetch(DAMETH_NOMASK | (videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
@@ -7537,7 +7537,7 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
     polymost_usePaletteIndexing(false);
 
-    setpolymost2dview();	// disables blending, texturing, and depth testing
+    polymostSet2dView();	// disables blending, texturing, and depth testing
 
     glDisable(GL_ALPHA_TEST);
     glDepthMask(GL_FALSE);	// disable writing to the z-buffer

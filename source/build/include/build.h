@@ -772,7 +772,7 @@ static FORCE_INLINE int32_t getpskyidx(int32_t picnum)
     return j;
 }
 
-EXTERN psky_t * E_DefinePsky(int32_t tilenum);
+EXTERN psky_t * tileSetupSky(int32_t tilenum);
 
 EXTERN char parallaxtype;
 EXTERN int32_t parallaxyoffs_override, parallaxyscale_override;
@@ -1017,37 +1017,37 @@ typedef struct artheader_t {
 } artheader_t;
 #define ARTv1_UNITOFFSET ((signed)(4*sizeof(int32_t) + 2*sizeof(int16_t) + sizeof(picanm_t)))
 
-int32_t    preinitengine(void);	// a partial setup of the engine used for launch windows
-int32_t    initengine(void);
-int32_t E_PostInit(void);
-void   uninitengine(void);
+int32_t    enginePreInit(void);	// a partial setup of the engine used for launch windows
+int32_t    engineInit(void);
+int32_t enginePostInit(void);
+void   engineUnInit(void);
 void   initspritelists(void);
-int32_t E_FatalError(char const * const msg);
+int32_t engineFatalError(char const * const msg);
 
-int32_t   loadboard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
-int32_t   loadmaphack(const char *filename);
-void delete_maphack_lights();
+int32_t   engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
+int32_t   engineLoadMHK(const char *filename);
+void engineClearLightsFromMHK();
 #ifdef HAVE_CLIPSHAPE_FEATURE
-int32_t clipmapinfo_load(void);
+int32_t engineLoadClipMaps(void);
 #endif
 int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 
-void tileSetupDummy(int32_t const tile);
-void tileSetData(int32_t const tile, int32_t tsiz, char const * const buffer);
-void tileDelete(int32_t const tile);
-void tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy);
-int32_t artReadHeader(int32_t const fil, char const * const fn, artheader_t * const local);
-int32_t artReadHeaderFromBuffer(uint8_t const * const buf, artheader_t * const local);
-int32_t artCheckUnitFileHeader(uint8_t const * const buf, int32_t length);
-void tileConvertAnimFormat(int32_t const picnum);
-void artReadManifest(int32_t const fil, artheader_t const * const local);
-void artPreloadFile(int32_t const fil, artheader_t const * const local);
-int32_t   artLoadFiles(const char *filename, int32_t askedsize);
-void artClearMapArt(void);
-void artSetupMapArt(const char *filename);
-bool tileLoad(int16_t tilenume);
-void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer);
-void artConvertRGB(palette_t * pic, uint8_t const * buf, int32_t bufsizx, int32_t sizx, int32_t sizy);
+void    tileSetupDummy(int32_t const tile);
+void    tileSetData(int32_t const tile, int32_t tsiz, char const *const buffer);
+void    tileDelete(int32_t const tile);
+void    tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy);
+int32_t artReadHeader(int32_t const fil, char const *const fn, artheader_t *const local);
+int32_t artReadHeaderFromBuffer(uint8_t const *const buf, artheader_t *const local);
+int32_t artCheckUnitFileHeader(uint8_t const *const buf, int32_t length);
+void    tileConvertAnimFormat(int32_t const picnum);
+void    artReadManifest(int32_t const fil, artheader_t const *const local);
+void    artPreloadFile(int32_t const fil, artheader_t const *const local);
+int32_t artLoadFiles(const char *filename, int32_t askedsize);
+void    artClearMapArt(void);
+void    artSetupMapArt(const char *filename);
+bool    tileLoad(int16_t tilenume);
+void    tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer);
+void    artConvertRGB(palette_t *pic, uint8_t const *buf, int32_t bufsizx, int32_t sizx, int32_t sizy);
 
 int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
@@ -1059,30 +1059,29 @@ int32_t   videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int
 void   videoNextPage(void);
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-void   videoSetAspect(int32_t daxrange, int32_t daaspect);
+void   renderSetAspect(int32_t daxrange, int32_t daaspect);
 void   flushperms(void);
 
 void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int col) ATTRIBUTE((nonnull(1,2)));
 
 void   plotpixel(int32_t x, int32_t y, char col);
-char   getpixel(int32_t x, int32_t y);
-void   videoSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz);
-void   videoRestoreTarget(void);
-void   preparemirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
+void   renderSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz);
+void   renderRestoreTarget(void);
+void   renderPrepareMirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
                      int32_t *tposx, int32_t *tposy, fix16_t *tang);
-void   completemirror(void);
+void   renderCompleteMirror(void);
 
-int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t daang, fix16_t dahoriz, int16_t dacursectnum);
+int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t daang, fix16_t dahoriz, int16_t dacursectnum);
 
 static FORCE_INLINE int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, int16_t daang, int16_t dahoriz, int16_t dacursectnum)
 {
-    return drawrooms_q16(daposx, daposy, daposz, fix16_from_int(daang), fix16_from_int(dahoriz), dacursectnum);
+    return renderDrawRoomsQ16(daposx, daposy, daposz, fix16_from_int(daang), fix16_from_int(dahoriz), dacursectnum);
 }
 
-void   drawmasks(void);
+void   renderDrawMasks(void);
 void   videoClearViewableArea(int32_t dacol);
 void   videoClearScreen(int32_t dacol);
-void   drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
+void   renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
 void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                      int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                      int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
@@ -1145,7 +1144,7 @@ void   setfirstwall(int16_t sectnum, int16_t newfirstwall);
 extern const int16_t *chsecptr_onextwall;
 int32_t checksectorpointer(int16_t i, int16_t sectnum);
 
-void   getmousevalues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));
+void   mouseGetValues(int32_t *mousx, int32_t *mousy, int32_t *bstatus) ATTRIBUTE((nonnull(1,2,3)));
 
 #if !KRANDDEBUG && !defined LUNATIC
 static FORCE_INLINE int32_t krand(void)
@@ -1241,8 +1240,8 @@ static FORCE_INLINE int32_t spriteheightofs(int16_t i, int32_t *height, int32_t 
     return spriteheightofsptr((uspritetype *)&sprite[i], height, alsotileyofs);
 }
 
-int screencapture(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
-int screencapture_tga(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
+int videoCaptureScreen(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
+int videoCaptureScreenTGA(const char *filename, char inverseit) ATTRIBUTE((nonnull(1)));
 
 struct OutputFileCounter {
     uint16_t count = 0;
@@ -1263,17 +1262,17 @@ int32_t             wallvisible(int32_t x, int32_t y, int16_t wallnum);
 //void   qsetmode640480(void);
 void   videoSet2dMode(int32_t,int32_t);
 void   clear2dscreen(void);
-void   draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
+void   editorDraw2dGrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
                   int16_t ange, int32_t zoome, int16_t gride);
-void   draw2dscreen(const vec3_t *pos, int16_t cursectnum,
+void   editorDraw2dScreen(const vec3_t *pos, int16_t cursectnum,
                     int16_t ange, int32_t zoome, int16_t gride) ATTRIBUTE((nonnull(1)));
-int32_t   drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col);
-void   drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col);
+int32_t   editorDraw2dLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col);
+void   editorDraw2dCircle(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col);
 
-int32_t   setrendermode(int32_t renderer);
+int32_t   videoSetRenderMode(int32_t renderer);
 
 #ifdef USE_OPENGL
-void    setrollangle(int32_t rolla);
+void    renderSetRollAngle(int32_t rolla);
 #endif
 
 //  pal: pass -1 to invalidate all palettes for the tile, or >=0 for a particular palette
@@ -1287,9 +1286,9 @@ void    setrollangle(int32_t rolla);
 //         bit 6: 33% translucence, using clamping
 //         bit 7: 67% translucence, using clamping
 //       clamping is for sprites, repeating is for walls
-void invalidatetile(int16_t tilenume, int32_t pal, int32_t how);
+void tileInvalidate(int16_t tilenume, int32_t pal, int32_t how);
 
-void setpolymost2dview(void);   // sets up GL for 2D drawing
+void polymostSet2dView(void);   // sets up GL for 2D drawing
 
 int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, int32_t dimen, int32_t tilezoom,
                                 int32_t usehitile, uint8_t *loadedhitile);
@@ -1408,7 +1407,7 @@ int32_t loaddefinitionsfile(const char *fn);
 
 // if loadboard() fails with -2 return, try loadoldboard(). if it fails with
 // -2, board is dodgy
-int32_t loadoldboard(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
+int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 
 #ifdef __cplusplus
 }

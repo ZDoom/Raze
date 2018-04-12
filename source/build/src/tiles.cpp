@@ -635,7 +635,7 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
         if (artfil == -1)
         {
             initprintf("Failed opening ART file \"%s\"!\n", fn);
-            uninitengine();
+            engineUnInit();
             Bexit(11);
         }
 

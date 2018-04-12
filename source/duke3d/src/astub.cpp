@@ -2228,7 +2228,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
 
     drawrooms(x+offx,y+offy,z+offz,a,h,sprite[floor2].sectnum);
     ExtAnalyzeSprites(0,0,0,0);
-    drawmasks();
+    renderDrawMasks();
     M32_ResetFakeRORTiles();
 
     if (draw_both)
@@ -2254,7 +2254,7 @@ static void ExtSE40Draw(int32_t spnum,int32_t x,int32_t y,int32_t z,int16_t a,in
         // Now re-draw
         drawrooms(x+offx,y+offy,z+offz,a,h,sprite[floor2].sectnum);
         ExtAnalyzeSprites(0,0,0,0);
-        drawmasks();
+        renderDrawMasks();
         M32_ResetFakeRORTiles();
     }
 
@@ -2703,7 +2703,7 @@ static int32_t m32gettile(int32_t idInitialTile)
             if (handleevents())
                 quitevent = 0;
         }
-        getmousevalues(&mousedx,&mousedy,&bstatus);
+        mouseGetValues(&mousedx,&mousedy,&bstatus);
 
         iLastTile = tileNum;
 
@@ -3271,7 +3271,7 @@ static int32_t OnSelectTile(int32_t tileNum)
 
     keyFlushChars();
 
-    setpolymost2dview();
+    polymostSet2dView();
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
@@ -3409,7 +3409,7 @@ static void tilescreen_drawbox(int32_t iTopLeft, int32_t iSelected, int32_t nXTi
 
         char markedcol = editorcolors[14];
 
-        setpolymost2dview();
+        polymostSet2dView();
 
         y1=max(y1, 0);
         y2=min(y2, ydim-1);
@@ -3505,7 +3505,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
     static uint8_t loadedhitile[(MAXTILES+7)>>3];
 
 #ifdef USE_OPENGL
-    setpolymost2dview();
+    polymostSet2dView();
 
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
@@ -3670,10 +3670,10 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
         const int32_t scale = (int32_t)(65536.0/scalediv);
 
         const int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
-        videoSetAspect(65536, divscale16(ydim*320, xdim*200));
+        renderSetAspect(65536, divscale16(ydim*320, xdim*200));
         // +1024: prevents rotatesprite from setting aspect itself
         rotatesprite_fs((x1+13)<<16,(y+11)<<16,scale,0, picnum,shade,pal, 2+1024);
-        videoSetAspect(oviewingrange, oyxaspect);
+        renderSetAspect(oviewingrange, oyxaspect);
     }
 
     x = (int32_t)(x * xdimgame/320.0);
@@ -8481,7 +8481,7 @@ static int32_t osdcmd_quit(osdfuncparm_t const * const UNUSED(parm))
     OSD_ShowDisplay(0);
 
     ExtUnInit();
-    uninitengine();
+    engineUnInit();
 
     Bfflush(NULL);
 
@@ -10031,7 +10031,7 @@ int32_t ExtPostStartupWindow(void)
     if (!g_useCwd)
         G_CleanupSearchPaths();
 
-    if (initengine())
+    if (engineInit())
     {
         initprintf("There was a problem initializing the engine.\n");
         return -1;
@@ -10393,7 +10393,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
 
             if (m32_sideview)
             {
-                screencoords(&xp1, &yp1, sprite[i].x-pos.x, sprite[i].y-pos.y, zoom);
+                editorGet2dScreenCoordinates(&xp1, &yp1, sprite[i].x-pos.x, sprite[i].y-pos.y, zoom);
                 yp1 += midydim16 + getscreenvdisp(sprite[i].z-pos.z, zoom);
                 yp1 -= mulscale14(tilesiz[picnum].y<<2, zoom);
                 xp1 += halfxdim16;
@@ -10409,10 +10409,10 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 continue;
 
             const int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
-            videoSetAspect(yxaspect, divscale16(sprite[i].yrepeat, sprite[i].xrepeat));
+            renderSetAspect(yxaspect, divscale16(sprite[i].yrepeat, sprite[i].xrepeat));
             rotatesprite(xp1<<16,yp1<<16,zoom<<5,daang,picnum,
                          shade,sprite[i].pal,flags|1024,0,0,xdim-1,ydim16-1);
-            videoSetAspect(oviewingrange, oyxaspect);
+            renderSetAspect(oviewingrange, oyxaspect);
         }
     }
 
@@ -10430,7 +10430,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 if (showambiencesounds==1 && sprite[i].sectnum!=cursectnum)
                     continue;
 
-                screencoords(&xp1,&yp1, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
+                editorGet2dScreenCoordinates(&xp1,&yp1, sprite[i].x-pos.x,sprite[i].y-pos.y, zoom);
                 if (m32_sideview)
                     yp1 += getscreenvdisp(sprite[i].z-pos.z, zoom);
 
@@ -10444,7 +10444,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 }
                 else radius = mulscale14(sprite[i].hitag, zoom);
 
-                drawcircle16(halfxdim16+xp1, midydim16+yp1, radius, scalescreeny(16384), col);
+                editorDraw2dCircle(halfxdim16+xp1, midydim16+yp1, radius, scalescreeny(16384), col);
                 drawlinepat = 0xffffffff;
             }
     }
@@ -10941,7 +10941,7 @@ void ExtCheckKeys(void)
         extern int32_t engine_screenshot;
         engine_screenshot = 1;
 #else
-        screencapture("captxxxx.tga", eitherSHIFT);
+        videoCaptureScreen("captxxxx.tga", eitherSHIFT);
         silentmessage("Saved screenshot");
 #endif
     }
