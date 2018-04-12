@@ -9,6 +9,14 @@
 #include "polymost.h"
 #include "cache1d.h"
 
+#ifdef _WIN32
+extern "C"
+{
+    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 0x00000001;
+    __declspec(dllexport) DWORD NvOptimusEnablement                = 0x00000001;
+}
+#endif // _WIN32
+
 // input
 char inputdevices=0;
 char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyasciififo[KEYFIFOSIZ];
