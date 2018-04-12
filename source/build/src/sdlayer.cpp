@@ -1519,6 +1519,9 @@ void setrefreshrate(void)
         SDL_SetWindowDisplayMode(sdl_window, &newmode);
     }
 
+    if (!newmode.refresh_rate)
+        newmode.refresh_rate = 60;
+
     currentVBlankInterval = 1000/newmode.refresh_rate;
 }
 
