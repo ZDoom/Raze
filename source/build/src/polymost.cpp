@@ -5008,7 +5008,7 @@ void polymost_scansector(int32_t sectnum)
             if ((spr->cstat&48) || (usemodels && tile2model[spr->picnum].modelid>=0) || ((s.x * gcosang) + (s.y * gsinang) > 0))
             {
                 if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-s.x, sintable[spr->ang&2047],-s.y) > 0)
-                    if (engine_addtsprite(z, sectnum))
+                    if (renderAddTsprite(z, sectnum))
                         break;
             }
         }

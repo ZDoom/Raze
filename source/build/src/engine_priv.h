@@ -296,7 +296,7 @@ void dorotspr_handle_bit2(int32_t *sx, int32_t *sy, int32_t *z, int32_t dastat,
 #ifdef USE_OPENGL
 extern void polymost_scansector(int32_t sectnum);
 #endif
-int32_t engine_addtsprite(int16_t z, int16_t sectnum);
+int32_t renderAddTsprite(int16_t z, int16_t sectnum);
 #ifdef YAX_ENABLE
 extern int32_t g_nodraw, scansector_retfast;
 extern int32_t yax_globallev, yax_globalbunch;

@@ -336,7 +336,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     xvect2 = mulscale16(xvect, yxaspect);
     yvect2 = mulscale16(yvect, yxaspect);
 
-    push_nofog();
+    renderDisableFog();
 
     //Draw red lines
     for (i=numsectors-1; i>=0; i--)
@@ -376,11 +376,11 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             x2 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
             y2 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
 
-            drawline256(x1, y1, x2, y2, col);
+            renderDrawLine(x1, y1, x2, y2, col);
         }
     }
 
-    pop_nofog();
+    renderEnableFog();
 
     //Draw sprites
     k = g_player[screenpeek].ps->i;
@@ -417,11 +417,11 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                 x3 = mulscale16(x2, yxaspect);
                 y3 = mulscale16(y2, yxaspect);
 
-                drawline256(x1-x2+(xdim<<11), y1-y3+(ydim<<11),
+                renderDrawLine(x1-x2+(xdim<<11), y1-y3+(ydim<<11),
                     x1+x2+(xdim<<11), y1+y3+(ydim<<11), col);
-                drawline256(x1-y2+(xdim<<11), y1+x3+(ydim<<11),
+                renderDrawLine(x1-y2+(xdim<<11), y1+x3+(ydim<<11),
                     x1+x2+(xdim<<11), y1+y3+(ydim<<11), col);
-                drawline256(x1+y2+(xdim<<11), y1-x3+(ydim<<11),
+                renderDrawLine(x1+y2+(xdim<<11), y1-x3+(ydim<<11),
                     x1+x2+(xdim<<11), y1+y3+(ydim<<11), col);
                 break;
 
@@ -454,7 +454,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                     x2 = dmulscale16(ox, xvect, -oy, yvect);
                     y2 = dmulscale16(oy, xvect2, ox, yvect2);
 
-                    drawline256(x1+(xdim<<11), y1+(ydim<<11),
+                    renderDrawLine(x1+(xdim<<11), y1+(ydim<<11),
                         x2+(xdim<<11), y2+(ydim<<11), col);
                 }
 
@@ -510,16 +510,16 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
                 x4 = dmulscale16(ox, xvect, -oy, yvect);
                 y4 = dmulscale16(oy, xvect2, ox, yvect2);
 
-                drawline256(x1+(xdim<<11), y1+(ydim<<11),
+                renderDrawLine(x1+(xdim<<11), y1+(ydim<<11),
                     x2+(xdim<<11), y2+(ydim<<11), col);
 
-                drawline256(x2+(xdim<<11), y2+(ydim<<11),
+                renderDrawLine(x2+(xdim<<11), y2+(ydim<<11),
                     x3+(xdim<<11), y3+(ydim<<11), col);
 
-                drawline256(x3+(xdim<<11), y3+(ydim<<11),
+                renderDrawLine(x3+(xdim<<11), y3+(ydim<<11),
                     x4+(xdim<<11), y4+(ydim<<11), col);
 
-                drawline256(x4+(xdim<<11), y4+(ydim<<11),
+                renderDrawLine(x4+(xdim<<11), y4+(ydim<<11),
                     x1+(xdim<<11), y1+(ydim<<11), col);
 
                 break;
@@ -527,7 +527,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
         }
     }
 
-    push_nofog();
+    renderDisableFog();
 
     //Draw white lines
     for (i=numsectors-1; i>=0; i--)
@@ -565,11 +565,11 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             x2 = dmulscale16(ox, xvect, -oy, yvect)+(xdim<<11);
             y2 = dmulscale16(oy, xvect2, ox, yvect2)+(ydim<<11);
 
-            drawline256(x1, y1, x2, y2, editorcolors[7]);
+            renderDrawLine(x1, y1, x2, y2, editorcolors[7]);
         }
     }
 
-    pop_nofog();
+    renderEnableFog();
 
     videoSetCorrectedAspect();
 
@@ -1442,7 +1442,7 @@ void G_DisplayExtraScreens(void)
         inExtraScreens = 1;
 #endif
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
-        flushperms();
+        renderFlushPerms();
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         fadepal(0, 0, 0, 0, 252, 28);
@@ -1470,7 +1470,7 @@ void G_DisplayExtraScreens(void)
         inExtraScreens = 1;
 #endif
         videoSetViewableArea(0, 0, xdim-1, ydim-1);
-        flushperms();
+        renderFlushPerms();
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         fadepal(0, 0, 0, 0, 252, 28);
@@ -1502,7 +1502,7 @@ void G_DisplayLogo(void)
     videoClearScreen(0L);
     G_FadePalette(0, 0, 0, 252);
 
-    flushperms();
+    renderFlushPerms();
     videoNextPage();
 
     G_UpdateAppTitle();
@@ -1571,7 +1571,7 @@ void G_DisplayLogo(void)
 
                         P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8 + 2 + 1);    // JBF 20040308
                         fadepal(0, 0, 0, 0, 252, 28);
-                        flushperms();
+                        renderFlushPerms();
                         rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
                         videoNextPage();
                         fadepaltile(0, 0, 0, 252, 0, -28, DREALMS);
@@ -1613,7 +1613,7 @@ void G_DisplayLogo(void)
 
             //g_player[myconnectindex].ps->palette = titlepal;
             P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);   // JBF 20040308
-            flushperms();
+            renderFlushPerms();
             rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BETASCREEN, 0, 0, 2+8+64+BGSTRETCH);
             KB_FlushKeyboardQueue();
             fadepaltile(0, 0, 0, 252, 0, -28, BETASCREEN);
@@ -1709,7 +1709,7 @@ void G_DisplayLogo(void)
         I_ClearAllInput();
     }
 
-    flushperms();
+    renderFlushPerms();
     videoClearScreen(0L);
     videoNextPage();
 
@@ -2211,7 +2211,7 @@ void G_BonusScreen(int32_t bonusonly)
     videoSetViewableArea(0, 0, xdim-1, ydim-1);
     videoClearScreen(0L);
     videoNextPage();
-    flushperms();
+    renderFlushPerms();
 
     FX_StopAllSounds();
     S_ClearSoundLocks();

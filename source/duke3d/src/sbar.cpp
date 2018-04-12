@@ -1026,7 +1026,7 @@ void G_DrawBackground(void)
 {
     int32_t x, y, x1, x2;
 
-    flushperms();
+    renderFlushPerms();
 
     int32_t y1=0, y2=ydim;
 

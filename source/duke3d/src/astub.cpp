@@ -2360,7 +2360,7 @@ static void m32_showmouse(void)
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        push_nofog();
+        renderDisableFog();
         glDisable(GL_TEXTURE_2D);
         polymost_useColorOnly(true);
     }
@@ -2405,7 +2405,7 @@ static void m32_showmouse(void)
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        pop_nofog();
+        renderEnableFog();
         polymost_useColorOnly(false);
     }
 #endif
@@ -3452,7 +3452,7 @@ static void tilescreen_drawrest(int32_t iSelected, int32_t showmsg)
         // Clear out behind the text for improved visibility.
         //drawline256(0, (ydim-12)<<12, xdim<<12, (ydim-12)<<12, whitecol);
         for (i=ydim-12; i<ydim; i++)
-            drawline256(0, i<<12, xdim<<12, i<<12, (ydim-i));
+            renderDrawLine(0, i<<12, xdim<<12, i<<12, (ydim-i));
 
         // Tile number on left.
         Bsprintf(szT, "%d" , idTile);

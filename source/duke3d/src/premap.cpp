@@ -538,7 +538,7 @@ void G_UpdateScreenArea(void)
 
     ud.screen_size = clamp(ud.screen_size, 0, 64);
     if (ud.screen_size == 0)
-        flushperms();
+        renderFlushPerms();
 
     {
         const int32_t ss = max(ud.screen_size-8,0);
@@ -1358,7 +1358,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
     {
         S_PlaySpecialMusicOrNothing(MUS_BRIEFING);
 
-        flushperms();
+        renderFlushPerms();
         videoSetViewableArea(0,0,xdim-1,ydim-1);
         videoClearViewableArea(0L);
         videoNextPage();
@@ -1957,7 +1957,7 @@ int G_EnterLevel(int gameMode)
     //G_FadePalette(0,0,0,0);
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
     P_UpdateScreenPal(g_player[myconnectindex].ps);
-    flushperms();
+    renderFlushPerms();
 
     everyothertime = 0;
     g_globalRandom = 0;

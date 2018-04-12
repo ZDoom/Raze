@@ -513,7 +513,7 @@ RECHECK:
     pub = NUMPAGES;
     pus = NUMPAGES;
 
-    flushperms();
+    renderFlushPerms();
 
     if (!g_netServer && ud.multimode < 2)
         foundemo = G_OpenDemoRead(g_whichDemo);

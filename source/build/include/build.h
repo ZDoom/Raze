@@ -1060,7 +1060,7 @@ void   videoNextPage(void);
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void   renderSetAspect(int32_t daxrange, int32_t daaspect);
-void   flushperms(void);
+void   renderFlushPerms(void);
 
 void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int col) ATTRIBUTE((nonnull(1,2)));
 
@@ -1085,7 +1085,7 @@ void   renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
 void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                      int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                      int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
-void   drawline256(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
+void   renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
 void   drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t col);
 int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
                       const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
@@ -1426,7 +1426,7 @@ int32_t engineLoadBoardV5V6(const char *filename, char fromwhere, vec3_t *dapos,
 extern "C" {
 #endif
 
-static FORCE_INLINE void push_nofog(void)
+static FORCE_INLINE void renderDisableFog(void)
 {
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST)
@@ -1436,7 +1436,7 @@ static FORCE_INLINE void push_nofog(void)
 #endif
 }
 
-static FORCE_INLINE void pop_nofog(void)
+static FORCE_INLINE void renderEnableFog(void)
 {
 #ifdef USE_OPENGL
     if (videoGetRenderMode() >= REND_POLYMOST && !nofog)

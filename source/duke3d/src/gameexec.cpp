@@ -4833,7 +4833,7 @@ finish_qsprintf:
 
                 Gv_FillWithVars(v);
 
-                drawline256(v.pos[0].x, v.pos[0].y, v.pos[1].x, v.pos[1].y, v.index);
+                renderDrawLine(v.pos[0].x, v.pos[0].y, v.pos[1].x, v.pos[1].y, v.index);
             }
             continue;
 

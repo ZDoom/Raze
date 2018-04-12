@@ -207,7 +207,7 @@ int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz);
 }
 #endif
 
-static void scansector(int16_t startsectnum);
+static void classicScanSector(int16_t startsectnum);
 static void draw_rainbow_background(void);
 
 int16_t editstatus = 0;
@@ -713,7 +713,7 @@ static void yax_scanbunches(int32_t bbeg, int32_t numhere, const uint8_t *lastgo
             {
                 numscans = numbunches = 0;
                 if (videoGetRenderMode() == REND_CLASSIC)
-                    scansector(k);
+                    classicScanSector(k);
 #ifdef USE_OPENGL
                 else
                     polymost_scansector(k);
@@ -1484,7 +1484,7 @@ char apptitle[256] = "Build Engine";
 
 // returns: 0=continue sprite collecting;
 //          1=break out of sprite collecting;
-int32_t engine_addtsprite(int16_t z, int16_t sectnum)
+int32_t renderAddTsprite(int16_t z, int16_t sectnum)
 {
     uspritetype *spr = (uspritetype *)&sprite[z];
 #ifdef YAX_ENABLE
@@ -1644,7 +1644,7 @@ static int get_screen_coords(const vec2_t p1, const vec2_t p2,
 //
 // scansector (internal)
 //
-static void scansector(int16_t startsectnum)
+static void classicScanSector(int16_t startsectnum)
 {
     if (startsectnum < 0)
         return;
@@ -1670,7 +1670,7 @@ static void scansector(int16_t startsectnum)
 
             if ((spr->cstat&48) || ((coord_t)s.x*cosglobalang+(coord_t)s.y*singlobalang > 0))
                 if ((spr->cstat&(64+48))!=(64+16) || dmulscale6(sintable[(spr->ang+512)&2047],-s.x, sintable[spr->ang&2047],-s.y) > 0)
-                    if (engine_addtsprite(i, sectnum))
+                    if (renderAddTsprite(i, sectnum))
                         break;
         }
 
@@ -3870,7 +3870,7 @@ static int32_t should_clip_fwall(int32_t x1, int32_t x2)
 //
 // drawalls (internal)
 //
-static void drawalls(int32_t bunch)
+static void classicDrawBunches(int32_t bunch)
 {
     int32_t i, x;
 
@@ -4236,12 +4236,12 @@ static void drawalls(int32_t bunch)
             if (!(wal->cstat&32) && (gotsector[nextsectnum>>3]&pow2char[nextsectnum&7]) == 0)
             {
                 if (umost[x2] < dmost[x2])
-                    scansector(nextsectnum);
+                    classicScanSector(nextsectnum);
                 else
                 {
                     for (x=x1; x<x2; x++)
                         if (umost[x] < dmost[x])
-                            { scansector(nextsectnum); break; }
+                            { classicScanSector(nextsectnum); break; }
 
                     //If can't see sector beyond, then cancel smost array and just
                     //store wall!
@@ -4360,9 +4360,9 @@ typedef zint_t voxint_t;
 //
 // drawvox
 //
-static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasprang,
-                    int32_t daxscale, int32_t dayscale, int32_t daindex,
-                    int8_t dashade, char dapal, const int32_t *daumost, const int32_t *dadmost)
+static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasprang,
+                             int32_t daxscale, int32_t dayscale, int32_t daindex,
+                             int8_t dashade, char dapal, const int32_t *daumost, const int32_t *dadmost)
 {
     int32_t i, j, k, x, y;
 
@@ -4750,7 +4750,7 @@ static FORCE_INLINE int32_t mulscale_triple30(int32_t a, int32_t b, int32_t c)
     return ((int64_t)a * b * c)>>30;
 }
 
-static void drawsprite_classic(int32_t snum)
+static void classicDrawSprite(int32_t snum)
 {
     uspritetype *const tspr = tspriteptr[snum];
     const int32_t sectnum = tspr->sectnum;
@@ -5785,16 +5785,16 @@ draw_as_face_sprite:
 
         i = (int32_t)tspr->ang+1536;
         i += spriteext[spritenum].angoff;
-        drawvox(tspr->x,tspr->y,tspr->z,i,daxrepeat,(int32_t)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
+        classicDrawVoxel(tspr->x,tspr->y,tspr->z,i,daxrepeat,(int32_t)tspr->yrepeat,vtilenum,tspr->shade,tspr->pal,lwall,swall);
     }
 }
 
-static void drawsprite(int32_t snum)
+static void renderDrawSprite(int32_t snum)
 {
     switch (videoGetRenderMode())
     {
     case REND_CLASSIC:
-        drawsprite_classic(snum);
+        classicDrawSprite(snum);
         return;
 #ifdef USE_OPENGL
     case REND_POLYMOST:
@@ -5820,13 +5820,13 @@ static void drawsprite(int32_t snum)
 //
 // drawmaskwall (internal)
 //
-static void drawmaskwall(int16_t damaskwallcnt)
+static void renderDrawMaskedWall(int16_t damaskwallcnt)
 {
     //============================================================================= //POLYMOST BEGINS
 #ifdef USE_OPENGL
     if (videoGetRenderMode() == REND_POLYMOST) { polymost_drawmaskwall(damaskwallcnt); return; }
 # ifdef POLYMER
-    if (videoGetRenderMode() == REND_POLYMER)
+    else if (videoGetRenderMode() == REND_POLYMER)
     {
         glEnable(GL_ALPHA_TEST);
         glEnable(GL_BLEND);
@@ -5923,7 +5923,7 @@ static void drawmaskwall(int16_t damaskwallcnt)
 //
 // fillpolygon (internal)
 //
-static void fillpolygon(int32_t npoints)
+static void renderFillPolygon(int32_t npoints)
 {
     int32_t i, z, y, miny, maxy;
 
@@ -8095,7 +8095,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
     if (globalposz < cz) globparaceilclip = 0;
     if (globalposz > fz) globparaflorclip = 0;
 */
-    scansector(globalcursectnum);
+    classicScanSector(globalcursectnum);
 
     if (inpreparemirror)
     {
@@ -8129,7 +8129,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
             if (umost[i] <= dmost[i])
                 { umost[i] = 1; dmost[i] = 0; numhits--; }
 
-        drawalls(0L);
+        classicDrawBunches(0L);
         numbunches--;
         bunchfirst[0] = bunchfirst[numbunches];
         bunchlast[0] = bunchlast[numbunches];
@@ -8158,7 +8158,7 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
             if (j == 0) tempbuf[closest] = 1, closest = i, i = 0;
         }
 
-        drawalls(closest);
+        classicDrawBunches(closest);
 
         numbunches--;
         bunchfirst[closest] = bunchfirst[numbunches];
@@ -8567,7 +8567,7 @@ killsprite:
                     if (ok)
                     {
                         debugmask_add(i | 32768, tspr->owner);
-                        drawsprite(i);
+                        renderDrawSprite(i);
 
                         tspriteptr[i] = NULL;
                     }
@@ -8576,7 +8576,7 @@ killsprite:
         }
 
         debugmask_add(maskwall[maskwallcnt], thewall[maskwall[maskwallcnt]]);
-        drawmaskwall(maskwallcnt);
+        renderDrawMaskedWall(maskwallcnt);
     }
 
     i = spritesortcnt;
@@ -8591,7 +8591,7 @@ killsprite:
            )
         {
             debugmask_add(i | 32768, tspriteptr[i]->owner);
-            drawsprite(i);
+            renderDrawSprite(i);
 
             tspriteptr[i] = NULL;
         }
@@ -8608,7 +8608,7 @@ killsprite:
             if (tspriteptr[spritesortcnt] != NULL)
             {
                 Bassert(tspriteptr[spritesortcnt]->cstat & 1024);
-                drawsprite(spritesortcnt);
+                renderDrawSprite(spritesortcnt);
                 tspriteptr[spritesortcnt] = NULL;
             }
         }
@@ -8820,7 +8820,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             set_globalpos(((int64_t) globalposx<<(20+globalxshift))+(((uint32_t) sec->floorxpanning)<<24),
                 ((int64_t) globalposy<<(20+globalyshift))-(((uint32_t) sec->floorypanning)<<24),
                 globalposz);
-            fillpolygon(npoints);
+            renderFillPolygon(npoints);
         }
 
     //Sort sprite list
@@ -8950,7 +8950,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
             // so polymost can get the translucency. ignored in software mode:
             globalorientation = ((spr->cstat&2)<<7) | ((spr->cstat&512)>>2);
-            fillpolygon(npoints);
+            renderFillPolygon(npoints);
         }
     }
 
@@ -12103,7 +12103,7 @@ void renderSetAspect(int32_t daxrange, int32_t daaspect)
 //
 // flushperms
 //
-void flushperms(void)
+void renderFlushPerms(void)
 {
     permhead = permtail = 0;
 }
