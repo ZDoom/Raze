@@ -380,7 +380,7 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     int const    saveMirror = display_mirror;
 
     //if (waloff[wn] == 0) loadtile(wn);
-    setviewtotile(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
+    videoSetTarget(tileNum, tilesiz[tileNum].y, tilesiz[tileNum].x);
 
     yax_preparedrawrooms();
     drawrooms(camera.x, camera.y, camera.z, SA(spriteNum), 100 + sprite[spriteNum].shade, SECT(spriteNum));
@@ -391,7 +391,7 @@ static void G_SetupCamTile(int spriteNum, int tileNum, int smoothRatio)
     display_mirror = saveMirror;
     drawmasks();
 
-    setviewback();
+    videoRestoreTarget();
     squarerotatetile(tileNum);
     invalidatetile(tileNum, -1, 255);
 }

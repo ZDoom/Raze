@@ -49,6 +49,42 @@ extern int32_t nofog;
 
 void calc_ylookup(int32_t bpl, int32_t lastyidx);
 
+int32_t videoCheckMode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced);
+int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs);
+void    videoGetModes(void);
+void    videoResetMode(void);
+void    videoEndDrawing(void);
+void    videoShowFrame(int32_t);
+int32_t videoUpdatePalette(int32_t start, int32_t num);
+int32_t videoSetGamma(void);
+int32_t videoSetVsync(int32_t newSync);
+
+//#define DEBUG_FRAME_LOCKING
+#if !defined DEBUG_FRAME_LOCKING
+void videoBeginDrawing(void);
+#else
+void begindrawing_real(void);
+# define BEGINDRAWING_SIZE 256
+extern uint32_t begindrawing_line[BEGINDRAWING_SIZE];
+extern const char *begindrawing_file[BEGINDRAWING_SIZE];
+extern int32_t lockcount;
+# define videoBeginDrawing() do {                     \
+    if (lockcount < BEGINDRAWING_SIZE) {         \
+        begindrawing_line[lockcount] = __LINE__; \
+        begindrawing_file[lockcount] = __FILE__; \
+    }                                            \
+    begindrawing_real();                         \
+} while(0)
+#endif
+
+extern float g_videoGamma, g_videoContrast, g_videoBrightness;
+
+#define DEFAULT_GAMMA 1.0f
+#define DEFAULT_CONTRAST 1.0f
+#define DEFAULT_BRIGHTNESS 0.0f
+
+#define GAMMA_CALC ((int32_t)(min(max((float)((g_videoGamma - 1.0f) * 10.0f), 0.f), 15.f)))
+
 #ifdef USE_OPENGL
 extern int32_t (*baselayer_osdcmd_vidmode_func)(osdfuncparm_t const * const parm);
 extern int32_t osdcmd_glinfo(osdfuncparm_t const * const parm);
@@ -86,7 +122,6 @@ struct glinfo_t {
 
 extern struct glinfo_t glinfo;
 #endif
-extern int32_t setvsync(int32_t newSync);
 extern vec2_t const g_defaultVideoModes[];
 
 extern char inputdevices;
@@ -189,69 +224,31 @@ void keyFlushChars(void);
 
 int32_t mouseInit(void);
 void mouseUninit(void);
+int32_t mouseReadAbs(vec2_t *const destination, vec2_t const *const source);
 void mouseGrabInput(char a);
 void mouseLockToWindow(char a);
-void mouseReadPos(int32_t *x, int32_t *y);
-int32_t mouseReadAbs(vec2_t * const destination, vec2_t const * const source);
 void mouseReadButtons(int32_t *b);
+void mouseReadPos(int32_t *x, int32_t *y);
 
 void joyReadButtons(int32_t *b);
 void joySetDeadZone(int32_t axis, uint16_t dead, uint16_t satur);
 void joyGetDeadZone(int32_t axis, uint16_t *dead, uint16_t *satur);
 extern int32_t inputchecked;
 
-int32_t inittimer(int32_t);
-void uninittimer(void);
-void sampletimer(void);
+int32_t  timerInit(int32_t);
+void     timerUninit(void);
+void     timerUpdate(void);
+int32_t  timerGetFreq(void);
+uint64_t timerGetTicksU64(void);
+uint64_t timerGetFreqU64(void);
+double   timerGetHiTicks(void);
+void (*timerSetCallback(void (*callback)(void)))(void);
+
 #if defined RENDERTYPESDL && !defined LUNATIC
-static FORCE_INLINE uint32_t getticks(void) { return (uint32_t)SDL_GetTicks(); }
+static FORCE_INLINE uint32_t timerGetTicks(void) { return (uint32_t)SDL_GetTicks(); }
 #else
-uint32_t getticks(void);
+uint32_t timerGetTicks(void);
 #endif
-int32_t gettimerfreq(void);
-uint64_t getu64ticks(void);
-uint64_t getu64tickspersec(void);
-double gethiticks(void);
-void (*installusertimercallback(void (*callback)(void)))(void);
-
-int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced);
-int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs);
-void getvalidmodes(void);
-void resetvideomode(void);
-
-//#define DEBUG_FRAME_LOCKING
-
-void enddrawing(void);
-void showframe(int32_t);
-#if !defined DEBUG_FRAME_LOCKING
-void begindrawing(void);
-#else
-void begindrawing_real(void);
-# define BEGINDRAWING_SIZE 256
-extern uint32_t begindrawing_line[BEGINDRAWING_SIZE];
-extern const char *begindrawing_file[BEGINDRAWING_SIZE];
-extern int32_t lockcount;
-# define begindrawing() do {                     \
-    if (lockcount < BEGINDRAWING_SIZE) {         \
-        begindrawing_line[lockcount] = __LINE__; \
-        begindrawing_file[lockcount] = __FILE__; \
-    }                                            \
-    begindrawing_real();                         \
-} while(0)
-#endif
-
-int32_t setpalette(int32_t start, int32_t num);
-//int32_t getpalette(int32_t start, int32_t num, char *dapal);
-int32_t setgamma(void);
-extern float vid_gamma, vid_contrast, vid_brightness;
-
-#define DEFAULT_GAMMA 1.0f
-#define DEFAULT_CONTRAST 1.0f
-#define DEFAULT_BRIGHTNESS 0.0f
-
-#define GAMMA_CALC ((int32_t)(min(max((float)((vid_gamma-1.0f)*10.0f),0.f),15.f)))
-
-//int32_t switchrendermethod(int32_t,int32_t);    // 0 = software, 1 = opengl | bool = reinit
 
 int32_t wm_msgbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));
 int32_t wm_ynbox(const char *name, const char *fmt, ...) ATTRIBUTE((format(printf,2,3)));

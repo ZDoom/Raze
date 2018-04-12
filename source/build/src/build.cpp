@@ -278,8 +278,8 @@ int32_t osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
 
     if (!in3dmode()) return OSDCMD_OK;
 
-    resetvideomode();
-    if (setgamemode(fullscreen,xdim,ydim,bpp))
+    videoResetMode();
+    if (videoSetGameMode(fullscreen,xdim,ydim,bpp))
         OSD_Printf("restartvid: Reset failed...\n");
 
     return OSDCMD_OK;
@@ -322,20 +322,20 @@ static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
 
     if (!in3dmode())
     {
-        qsetmodeany(newx,newy);
+        videoSet2dMode(newx,newy);
         xdim2d = xdim;
         ydim2d = ydim;
 
-        begindrawing();	//{{{
+        videoBeginDrawing();	//{{{
         CLEARLINES2D(0, ydim16, 0);
-        enddrawing();	//}}}
+        videoEndDrawing();	//}}}
 
         ydim16 = ydim-STATUS2DSIZ2;
 
         return OSDCMD_OK;
     }
 
-    if (setgamemode(newfullscreen,newx,newy,newbpp))
+    if (videoSetGameMode(newfullscreen,newx,newy,newbpp))
         OSD_Printf("vidmode: Mode change failed!\n");
 
     xdimgame = newx;
@@ -366,10 +366,10 @@ static void M32_drawdebug(void)
 #endif
     if (m32_numdebuglines>0)
     {
-        begindrawing();
+        videoBeginDrawing();
         for (i=0; i<m32_numdebuglines && y<ydim-8; i++, y+=8)
             printext256(x,y,whitecol,0,m32_debugstr[i],xdimgame>640?0:1);
-        enddrawing();
+        videoEndDrawing();
     }
     m32_numdebuglines=0;
 }
@@ -510,7 +510,7 @@ void M32_DrawRoomsAndMasks(void)
     if (r_usenewaspect)
     {
         newaspect_enable = 1;
-        setaspect_new();
+        videoSetCorrectedAspect();
     }
 
     VM_OnEvent(EVENT_PREDRAW3DSCREEN, -1);
@@ -557,7 +557,7 @@ void M32_DrawRoomsAndMasks(void)
     if (r_usenewaspect)
     {
         newaspect_enable = 0;
-        setaspect(tmpvr, tmpyx);
+        videoSetAspect(tmpvr, tmpyx);
     }
 }
 
@@ -674,8 +674,8 @@ int app_main(int argc, char const * const * argv)
 
     mouseInit();
 
-    inittimer(TIMERINTSPERSECOND);
-    installusertimercallback(keytimerstuff);
+    timerInit(TIMERINTSPERSECOND);
+    timerSetCallback(keytimerstuff);
 
     loadpics("tiles000.art", g_maxCacheSize);
 
@@ -761,15 +761,15 @@ int app_main(int argc, char const * const * argv)
 
     if (cursectnum == -1)
     {
-        vid_gamma_3d = vid_gamma;
-        vid_brightness_3d = vid_brightness;
-        vid_contrast_3d = vid_contrast;
+        vid_gamma_3d = g_videoGamma;
+        vid_brightness_3d = g_videoBrightness;
+        vid_contrast_3d = g_videoContrast;
 
-        vid_gamma = vid_contrast = 1.0;
-        vid_brightness = 0.0;
+        g_videoGamma = g_videoContrast = 1.0;
+        g_videoBrightness = 0.0;
 
         setbrightness(0,0,0);
-        if (setgamemode(fullscreen, xdim2d, ydim2d, 8) < 0)
+        if (videoSetGameMode(fullscreen, xdim2d, ydim2d, 8) < 0)
         {
             CallExtUnInit();
             uninitengine();
@@ -782,9 +782,9 @@ int app_main(int argc, char const * const * argv)
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
 
-        vid_gamma = vid_gamma_3d;
-        vid_contrast = vid_contrast_3d;
-        vid_brightness = vid_brightness_3d;
+        g_videoGamma = vid_gamma_3d;
+        g_videoContrast = vid_contrast_3d;
+        g_videoBrightness = vid_brightness_3d;
 
         vid_gamma_3d = vid_contrast_3d = vid_brightness_3d = -1;
 
@@ -792,7 +792,7 @@ int app_main(int argc, char const * const * argv)
     }
     else
     {
-        if (setgamemode(fullscreen, xdimgame, ydimgame, bppgame) < 0)
+        if (videoSetGameMode(fullscreen, xdimgame, ydimgame, bppgame) < 0)
         {
             CallExtUnInit();
             uninitengine();
@@ -820,7 +820,7 @@ CANCEL:
 
         OSD_DispatchQueued();
 
-        nextpage();
+        videoNextPage();
         synctics = totalclock-lockclock;
         lockclock += synctics;
 
@@ -849,7 +849,7 @@ CANCEL:
 
             printext256(0,0,whitecol,0,"Are you sure you want to quit?",0);
 
-            showframe(1);
+            videoShowFrame(1);
             synctics = totalclock-lockclock;
             lockclock += synctics;
 
@@ -886,7 +886,7 @@ CANCEL:
         i = CheckMapCorruption(4, 0);
 
         printext256(0,8,whitecol,0,i<4?"Save changes?":"Map is heavily corrupt. Save changes?",0);
-        showframe(1);
+        videoShowFrame(1);
 
         while ((keystatus[1]|keystatus[0x1c]|keystatus[0x39]|keystatus[0x31]|keystatus[0x2e]) == 0)
         {
@@ -1474,12 +1474,12 @@ void editinput(void)
     if (keystatus[buildkeys[BK_MODE2D_3D]] && !m32_is2d3dmode())  // Enter
     {
 
-        vid_gamma_3d = vid_gamma;
-        vid_contrast_3d = vid_contrast;
-        vid_brightness_3d = vid_brightness;
+        vid_gamma_3d = g_videoGamma;
+        vid_contrast_3d = g_videoContrast;
+        vid_brightness_3d = g_videoBrightness;
 
-        vid_gamma = vid_contrast = 1.0;
-        vid_brightness = 0.0;
+        g_videoGamma = g_videoContrast = 1.0;
+        g_videoBrightness = 0.0;
 
         setbrightness(0,0,0);
 
@@ -1487,9 +1487,9 @@ void editinput(void)
         overheadeditor();
         keystatus[buildkeys[BK_MODE2D_3D]] = 0;
 
-        vid_gamma = vid_gamma_3d;
-        vid_contrast = vid_contrast_3d;
-        vid_brightness = vid_brightness_3d;
+        g_videoGamma = vid_gamma_3d;
+        g_videoContrast = vid_contrast_3d;
+        g_videoBrightness = vid_brightness_3d;
 
         vid_gamma_3d = vid_contrast_3d = vid_brightness_3d = -1;
 
@@ -1620,7 +1620,7 @@ void drawsmallabel(const char *text, char col, char backcol, char border, int32_
     drawline16(x2-2,y1+0, x2-2,y2-1, backcol);
     drawline16(x2-3,y1+0, x2-3,y2+0, backcol);
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
 
     if ((unsigned)y1-1 < ydim16+0u && (unsigned) (x1-2) < xdim2d+0u && (unsigned) (x2-2) < xdim2d+0u)
     {
@@ -1634,7 +1634,7 @@ void drawsmallabel(const char *text, char col, char backcol, char border, int32_
         drawpixel((char *) (frameplace + ((y2) * bytesperline) + (x2-2)), border);
     }
 
-    enddrawing();
+    videoEndDrawing();
 }
 
 // backup highlighted sectors with sprites as mapinfo for later restoration
@@ -2335,7 +2335,7 @@ void fade_editor_screen(int32_t keepcol)
     int32_t pix, i, threecols = (keepcol >= 256);
     char cols[3] = {(char)(keepcol&0xff), (char)((keepcol>>8)&0xff), (char)((keepcol>>16)&0xff)};
 
-    begindrawing();
+    videoBeginDrawing();
     cp = (char *)frameplace;
     for (i=0; i<bytesperline*(ydim-STATUS2DSIZ2); i++, cp++)
     {
@@ -2352,8 +2352,8 @@ void fade_editor_screen(int32_t keepcol)
         else if (*cp != blackcol)
             *cp = greycol;
     }
-    enddrawing();
-    showframe(1);
+    videoEndDrawing();
+    videoShowFrame(1);
 }
 
 static void copy_some_wall_members(int16_t dst, int16_t src, int32_t reset_some)
@@ -2916,15 +2916,15 @@ static int32_t bakframe_fillandfade(char **origframeptr, int32_t sectnum, const 
     {
         *origframeptr = (char *)Xmalloc(xdim*ydim);
 
-        begindrawing();
+        videoBeginDrawing();
         Bmemcpy(*origframeptr, (char *)frameplace, xdim*ydim);
-        enddrawing();
+        videoEndDrawing();
     }
     else
     {
-        begindrawing();
+        videoBeginDrawing();
         Bmemcpy((char *)frameplace, *origframeptr, xdim*ydim);
-        enddrawing();
+        videoEndDrawing();
     }
 
     fillsector_notrans(sectnum, editorcolors[9]);
@@ -3352,7 +3352,7 @@ void overheadeditor(void)
     int32_t sectorhighlightx=0, sectorhighlighty=0;
     int16_t cursectorhighlight, sectorhighlightstat;
     int32_t prefixarg = 0, tsign;
-    int32_t resetsynctics = 0, lasttick=getticks(), waitdelay=totalclock, lastdraw=getticks();
+    int32_t resetsynctics = 0, lasttick=timerGetTicks(), waitdelay=totalclock, lastdraw=timerGetTicks();
     int32_t olen[2] = {0, 0}, dragwall[2] = {-1, -1};
     int16_t linehighlight2 = -1;
 
@@ -3361,7 +3361,7 @@ void overheadeditor(void)
     ovh.splitsect = -1;
     ovh.splitstartwall = -1;
 
-    qsetmodeany(xdim2d,ydim2d);
+    videoSet2dMode(xdim2d,ydim2d);
     xdim2d = xdim;
     ydim2d = ydim;
 
@@ -3374,9 +3374,9 @@ void overheadeditor(void)
 
     yax_updategrays(pos.z);
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
     CLEARLINES2D(0, ydim, 0);
-    enddrawing(); //}}}
+    videoEndDrawing(); //}}}
 
     ydim16 = ydim-STATUS2DSIZ2;
 
@@ -3421,14 +3421,14 @@ void overheadeditor(void)
             {
                 uint32_t ms = 50;// (highlightsectorcnt>0) ? 75 : 200;
                 // wait for event, timeout after 200 ms - (last loop time)
-                idle_waitevent_timeout(ms - min(getticks()-lasttick, ms));
+                idle_waitevent_timeout(ms - min(timerGetTicks()-lasttick, ms));
                 // have synctics reset to 0 after we've slept to avoid zooming out to the max instantly
                 resetsynctics = 1;
             }
         }
         else waitdelay = totalclock + 6; // should be 50 ms
 
-        lasttick = getticks();
+        lasttick = timerGetTicks();
 
         if (handleevents())
         {
@@ -3505,11 +3505,11 @@ void overheadeditor(void)
         if (numwalls < 0)
             numwalls = numwalls_bak;
 
-        if ((getticks() - lastdraw) >= 5 || (vel|angvel|svel) || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN)
+        if ((timerGetTicks() - lastdraw) >= 5 || (vel|angvel|svel) || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN)
                 || mousx || mousy || bstatus || keystatus[0x10] || keystatus[0x11]
                 || newnumwalls>=0 || OSD_IsMoving())
         {
-            lastdraw = getticks();
+            lastdraw = timerGetTicks();
 
             clear2dscreen();
 
@@ -3526,7 +3526,7 @@ void overheadeditor(void)
                     show2dsector[i>>3] |= (1<<(i&7));
                 }
 
-                setview(0, 0, xdim-1, ydim16-1);
+                videoSetViewableArea(0, 0, xdim-1, ydim16-1);
 
                 if (graphicsmode == 2)
                     totalclocklock = totalclock;
@@ -3546,7 +3546,7 @@ void overheadeditor(void)
             int32_t cx = halfxdim16+x2;
             int32_t cy = midydim16+y2;
 
-            begindrawing();	//{{{  LOCK_FRAME_1
+            videoBeginDrawing();	//{{{  LOCK_FRAME_1
 
             if ((cx >= 2 && cx <= xdim-3) && (cy >= 2 && cy <= ydim16-3))
             {
@@ -3876,9 +3876,9 @@ void overheadeditor(void)
 
                     inpclamp(&pos.z, cz+(4<<8), fz-(4<<8));
 
-                    enddrawing();
-                    setview(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D);
-                    clearview(-1);
+                    videoEndDrawing();
+                    videoSetViewableArea(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y + YSIZE_2D3D);
+                    videoClearViewableArea(-1);
 
                     vec2_t osearch = { searchx, searchy };
 
@@ -3886,7 +3886,7 @@ void overheadeditor(void)
                     searchy -= m32_2d3d.y;
 
                     M32_DrawRoomsAndMasks();
-                    setview(0, 0, xdim2d-1, ydim2d-1);
+                    videoSetViewableArea(0, 0, xdim2d-1, ydim2d-1);
 
 #ifdef USE_OPENGL
                     rendmode = bakrendmode;
@@ -3896,7 +3896,7 @@ void overheadeditor(void)
                     searchx = osearch.x;
                     searchy = osearch.y;
 
-                    begindrawing();
+                    videoBeginDrawing();
                     drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, editorcolors[15]);
                     drawline16(m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y, m32_2d3d.x + XSIZE_2D3D, m32_2d3d.y  + YSIZE_2D3D, editorcolors[15]);
                     drawline16(m32_2d3d.x, m32_2d3d.y, m32_2d3d.x, m32_2d3d.y + YSIZE_2D3D, editorcolors[15]);
@@ -3995,7 +3995,7 @@ void overheadeditor(void)
                 }
             }
 
-            enddrawing();	//}}} LOCK_FRAME_1
+            videoEndDrawing();	//}}} LOCK_FRAME_1
 
             OSD_Draw();
         }
@@ -4170,7 +4170,7 @@ void overheadeditor(void)
 //__clearscreen_beforecapture__
             screencapture("captxxxx.tga", eitherSHIFT);
 
-            showframe(1);
+            videoShowFrame(1);
         }
         if (keystatus[0x30])  // B (clip Blocking xor) (2D)
         {
@@ -7900,7 +7900,7 @@ end_insert_points:
 
     nokeys:
 
-        showframe(1);
+        videoShowFrame(1);
         synctics = totalclock-lockclock;
         lockclock += synctics;
 
@@ -7947,7 +7947,7 @@ end_insert_points:
                         RESET_EDITOR_VARS();
                         oposz = pos.z;
                     }
-                    showframe(1);
+                    videoShowFrame(1);
                     keystatus[0x1c] = 0;
 
                     keystatus[0x2d]=keystatus[0x13]=0;
@@ -7975,7 +7975,7 @@ CANCEL:
 #endif
             printext16(16*8, ydim-STATUS2DSIZ2-12, editorcolors[15], -1, GetSaveBoardFilename(NULL), 0);
 
-            showframe(1);
+            videoShowFrame(1);
             keyFlushChars();
             bad = 1;
             while (bad == 1)
@@ -8087,7 +8087,7 @@ CANCEL:
                             }
                         }
                     }
-                    showframe(1);
+                    videoShowFrame(1);
                     keystatus[0x1c] = 0;
                 }
                 else if (ch == 'a' || ch == 'A')  //A
@@ -8119,7 +8119,7 @@ CANCEL:
                     {
                         _printmessage16("%sSave as: ^011%s%s", corrupt>=4?"(map corrupt) ":"",
                                         boardfilename, (totalclock&32)?"_":"");
-                        showframe(1);
+                        videoShowFrame(1);
 
                         if (handleevents())
                             quitevent = 0;
@@ -8150,7 +8150,7 @@ CANCEL:
                         Bstrcpy(boardfilename, selectedboardfilename);
                         keystatus[1] = 0;
                         printmessage16("Operation cancelled");
-                        showframe(1);
+                        videoShowFrame(1);
                     }
                     else if (bad == 2)
                     {
@@ -8184,7 +8184,7 @@ CANCEL:
 
                     SaveBoardAndPrintMessage(NULL);
 
-                    showframe(1);
+                    videoShowFrame(1);
                 }
                 else if (ch == 't' || ch == 'T')
                 {
@@ -8224,7 +8224,7 @@ CANCEL:
                             keystatus[0x2e] = 0;
                             quitevent = 0;
                             printmessage16("Operation cancelled");
-                            showframe(1);
+                            videoShowFrame(1);
                             goto CANCEL;
                         }
 
@@ -8236,7 +8236,7 @@ CANCEL:
                     }
 
                     // printmessage16("");
-                    showframe(1);
+                    videoShowFrame(1);
                 }
             }
 
@@ -8261,7 +8261,7 @@ CANCEL:
 
     fixspritesectors();
 
-    if (setgamemode(fullscreen,xdimgame,ydimgame,bppgame) < 0)
+    if (videoSetGameMode(fullscreen,xdimgame,ydimgame,bppgame) < 0)
     {
         initprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
         CallExtUnInit();
@@ -8292,7 +8292,7 @@ int32_t ask_if_sure(const char *query, uint32_t flags)
         _printmessage16("Are you sure?");
     else
         _printmessage16("%s", query);
-    showframe(1);
+    videoShowFrame(1);
     keyFlushChars();
 
     while ((keystatus[1]|keystatus[0x2e]) == 0 && ret==-1)
@@ -8333,7 +8333,7 @@ int32_t editor_ask_function(const char *question, const char *dachars, int32_t n
 
     _printmessage16("%s", question);
 
-    showframe(1);
+    videoShowFrame(1);
     keyFlushChars();
 
     // 'c' is cancel too, but can be overridden
@@ -8368,7 +8368,7 @@ static void SaveBoardAndPrintMessage(const char *fn)
     const char *f;
 
     _printmessage16("Saving board...");
-    showframe(1);
+    videoShowFrame(1);
 
     f = SaveBoard(fn, M32_SB_ASKOV);
 
@@ -9106,16 +9106,16 @@ void clearmidstatbar16(void)
 {
     int32_t y = overridepm16y<0 ? STATUS2DSIZ : overridepm16y;
 
-    begindrawing();
+    videoBeginDrawing();
     CLEARLINES2D(ydim-y+25, STATUS2DSIZ+2-(25<<1), 0);
-    enddrawing();
+    videoEndDrawing();
 }
 
 static void clearministatbar16(void)
 {
     int32_t i, col = editorcolors[25];
 
-    begindrawing();
+    videoBeginDrawing();
 
     for (i=ydim-STATUS2DSIZ2; i<ydim; i+=2)
     {
@@ -9135,7 +9135,7 @@ static void clearministatbar16(void)
         printext16(xdim2d-(Bstrlen(tempbuf)<<3)-2, ydim2d-STATUS2DSIZ2+9, editorcolors[12],-1, tempbuf, 0);
     }
 
-    enddrawing();
+    videoEndDrawing();
 }
 
 // <startwall> has to be the starting wall of a loop!
@@ -9339,7 +9339,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
             printext16(n<<3, ydim-STATUS2DSIZ+128, editorcolors[11], -1, buffer,0);
         }
 
-        showframe(1);
+        videoShowFrame(1);
 
         n = 0;
         if (getnumber_internal1(ch, &danum, maxnumber, sign) ||
@@ -9424,7 +9424,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
             printmessage256(0, 9, buffer);
         }
 
-        showframe(1);
+        videoShowFrame(1);
 
         if (getnumber_internal1(ch, &danum, maxnumber, sign) ||
             getnumber_autocomplete(ournamestart, ch, &danum, flags&(1+2)))
@@ -9492,7 +9492,7 @@ const char *getstring_simple(const char *querystr, const char *defaultstr, int32
         else
             _printmessage16("%s", buf);
 
-        showframe(1);
+        videoShowFrame(1);
 
         if (handleevents())
             quitevent = 0;
@@ -9726,7 +9726,7 @@ static int32_t menuselect(void)
 
     do
     {
-        begindrawing(); //{{{
+        videoBeginDrawing(); //{{{
 
         CLEARLINES2D(0, ydim16, 0);
 
@@ -9795,8 +9795,8 @@ static int32_t menuselect(void)
             }
         }
 
-        enddrawing(); //}}}
-        showframe(1);
+        videoEndDrawing(); //}}}
+        videoShowFrame(1);
 
         keystatus[0xcb] = 0;
         keystatus[0xcd] = 0;
@@ -9972,10 +9972,10 @@ static int32_t menuselect(void)
 
             ch = 0;
 
-            begindrawing();
+            videoBeginDrawing();
             CLEARLINES2D(0, ydim16, 0);
-            enddrawing();
-            showframe(1);
+            videoEndDrawing();
+            videoShowFrame(1);
         }
 
         if (ch == 13 && !findfileshigh) ch = 0;
@@ -10997,7 +10997,7 @@ void test_map(int32_t mode)
         message("Board saved to " PLAYTEST_MAPNAME ". Starting the game...");
         OSD_Printf("...as `%s'\n", fullparam);
 
-        showframe(1);
+        videoShowFrame(1);
         mouseUninit();
 #ifdef _WIN32
         {

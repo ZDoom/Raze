@@ -699,7 +699,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     int32_t picfillen = kfilelength(filh);
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
-    int32_t startticks = getticks(), willprint = 0;
+    int32_t startticks = timerGetTicks(), willprint = 0;
 
     char hasalpha;
     texcacheheader cachead;
@@ -985,7 +985,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
             if (willprint)
             {
-                int32_t etime = getticks()-startticks;
+                int32_t etime = timerGetTicks()-startticks;
                 if (etime>=MIN_CACHETIME_PRINT)
                     OSD_Printf("Load skin: p%d-e%d \"%s\"... cached... %d ms\n", pal, hicfxmask(pal), fn, etime);
                 willprint = 0;
@@ -997,7 +997,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 
     if (willprint)
     {
-        int32_t etime = getticks()-startticks;
+        int32_t etime = timerGetTicks()-startticks;
         if (etime>=MIN_CACHETIME_PRINT)
             OSD_Printf("Load skin: p%d-e%d \"%s\"... %d ms\n", pal, hicfxmask(pal), fn, etime);
     }

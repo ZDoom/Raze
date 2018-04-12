@@ -2227,7 +2227,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
     int32_t picfillen = kfilelength(filh);
     kclose(filh);	// FIXME: shouldn't have to do this. bug in cache1d.c
 
-    int32_t startticks = getticks(), willprint = 0;
+    int32_t startticks = timerGetTicks(), willprint = 0;
 
     char hasalpha;
     texcacheheader cachead;
@@ -2502,7 +2502,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if (willprint)
         {
-            int32_t etime = getticks() - startticks;
+            int32_t etime = timerGetTicks() - startticks;
             if (etime >= MIN_CACHETIME_PRINT)
                 OSD_Printf("Load tile %4d: p%d-m%d-e%d %s... cached... %d ms\n", dapic, dapalnum, dameth, effect,
                            willprint == 2 ? fn : "", etime);
@@ -2515,7 +2515,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
     if (willprint)
     {
-        int32_t etime = getticks()-startticks;
+        int32_t etime = timerGetTicks()-startticks;
         if (etime>=MIN_CACHETIME_PRINT)
             OSD_Printf("Load tile %4d: p%d-m%d-e%d %s... %d ms\n", dapic, dapalnum, dameth, effect,
                        willprint==2 ? fn : "", etime);
@@ -5191,7 +5191,7 @@ void polymost_drawrooms()
 {
     if (getrendermode() == REND_CLASSIC) return;
 
-    begindrawing();
+    videoBeginDrawing();
     frameoffset = frameplace + windowxy1.y*bytesperline + windowxy1.x;
 
     resizeglcheck();
@@ -5282,7 +5282,7 @@ void polymost_drawrooms()
         }
     }
 
-    if (n < 3) { enddrawing(); return; }
+    if (n < 3) { videoEndDrawing(); return; }
 
     float sx[4], sy[4];
 
@@ -5355,7 +5355,7 @@ void polymost_drawrooms()
     glDepthFunc(GL_LEQUAL); //NEVER,LESS,(,L)EQUAL,GREATER,(NOT,G)EQUAL,ALWAYS
 //        glDepthRange(0.0, 1.0); //<- this is more widely supported than glPolygonOffset
 
-    enddrawing();
+    videoEndDrawing();
 }
 
 void polymost_drawmaskwall(int32_t damaskwallcnt)
@@ -7696,7 +7696,7 @@ static int32_t osdcmd_cvar_set_polymost(osdfuncparm_t const * const parm)
     if (r == OSDCMD_OK)
     {
         if (!Bstrcasecmp(parm->name, "r_swapinterval"))
-            vsync = setvsync(vsync);
+            vsync = videoSetVsync(vsync);
         else if (!Bstrcasecmp(parm->name, "r_downsize"))
         {
             if (r_downsizevar == -1)
@@ -7705,8 +7705,8 @@ static int32_t osdcmd_cvar_set_polymost(osdfuncparm_t const * const parm)
             if (in3dmode() && r_downsize != r_downsizevar)
             {
                 texcache_invalidate();
-                resetvideomode();
-                if (setgamemode(fullscreen,xdim,ydim,bpp))
+                videoResetMode();
+                if (videoSetGameMode(fullscreen,xdim,ydim,bpp))
                     OSD_Printf("restartvid: Reset failed...\n");
             }
 

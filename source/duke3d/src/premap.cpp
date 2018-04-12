@@ -286,19 +286,19 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
             i = ud.screen_size;
             ud.screen_size = 0;
             G_UpdateScreenArea();
-            clearallviews(0L);
+            videoClearScreen(0L);
         }
 
         if ((uint32_t)j < 2*MAXTILES)
         {
-            clearallviews(0);
+            videoClearScreen(0);
 
             rotatesprite_fs(320<<15,200<<15,65536L,0, j > MAXTILES-1?j-MAXTILES:j,0,0,
                             2+8+64+BGSTRETCH);
         }
         else
         {
-            nextpage();
+            videoNextPage();
             return;
         }
 
@@ -328,7 +328,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
 
         VM_OnEventWithReturn(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, percent);
-        nextpage();
+        videoNextPage();
 
         if (!statustext)
         {
@@ -340,7 +340,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
     {
         if (!statustext)
         {
-            clearallviews(0L);
+            videoClearScreen(0L);
             //g_player[myconnectindex].ps->palette = palette;
             //G_FadePalette(0,0,0,0);
             P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
@@ -356,14 +356,14 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
         else
         {
-            nextpage();
+            videoNextPage();
             return;
         }
 
         menutext_center(105,"Loading...");
         if (statustext) gametext_center_number(180, statustext);
         VM_OnEventWithReturn(EVENT_DISPLAYLOADINGSCREEN, g_player[screenpeek].ps->i, screenpeek, percent);
-        nextpage();
+        videoNextPage();
     }
 }
 
@@ -385,7 +385,7 @@ void G_CacheMapData(void)
     polymost_glreset();
 #endif
 
-    starttime = getticks();
+    starttime = timerGetTicks();
 
     S_PrecacheSounds();
     G_PrecacheSprites();
@@ -490,7 +490,7 @@ void G_CacheMapData(void)
             {
                 Bsprintf(tempbuf, "Loaded %d%% (%d/%d textures)\n", lpc, pc, g_precacheCount);
                 G_DoLoadScreen(tempbuf, lpc);
-                sampletimer();
+                timerUpdate();
 
                 if (totalclock - tc >= 1)
                 {
@@ -507,7 +507,7 @@ void G_CacheMapData(void)
 
     Bmemset(gotpic, 0, sizeof(gotpic));
 
-    endtime = getticks();
+    endtime = timerGetTicks();
     OSD_Printf("Cache time: %dms\n", endtime-starttime);
 }
 
@@ -579,7 +579,7 @@ void G_UpdateScreenArea(void)
             y2 = y1 + (ourydimen>>1);
         }
 
-        setview(x1,y1,x2-1,y2-1);
+        videoSetViewableArea(x1,y1,x2-1,y2-1);
     }
 
     G_GetCrosshairColor();
@@ -1359,25 +1359,25 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
         S_PlaySpecialMusicOrNothing(MUS_BRIEFING);
 
         flushperms();
-        setview(0,0,xdim-1,ydim-1);
-        clearview(0L);
-        nextpage();
+        videoSetViewableArea(0,0,xdim-1,ydim-1);
+        videoClearViewableArea(0L);
+        videoNextPage();
 
         int animReturn = Anim_Play("vol41a.anm");
-        clearview(0L);
-        nextpage();
+        videoClearViewableArea(0L);
+        videoNextPage();
         if (animReturn)
             goto end_vol4a;
 
         animReturn = Anim_Play("vol42a.anm");
-        clearview(0L);
-        nextpage();
+        videoClearViewableArea(0L);
+        videoNextPage();
         if (animReturn)
             goto end_vol4a;
 
         Anim_Play("vol43a.anm");
-        clearview(0L);
-        nextpage();
+        videoClearViewableArea(0L);
+        videoNextPage();
 
 end_vol4a:
         FX_StopAllSounds();
@@ -1772,7 +1772,7 @@ int G_EnterLevel(int gameMode)
         FX_StopAllSounds();
         S_ClearSoundLocks();
         FX_SetReverb(0);
-        setgamemode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP);
+        videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP);
     }
 
     if (Menu_HaveUserMap())
@@ -2000,7 +2000,7 @@ int G_EnterLevel(int gameMode)
     g_restorePalette = -1;
 
     G_UpdateScreenArea();
-    clearview(0L);
+    videoClearViewableArea(0L);
     G_DrawBackground();
     G_DrawRooms(myconnectindex,65536);
 

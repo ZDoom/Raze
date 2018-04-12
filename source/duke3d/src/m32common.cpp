@@ -65,11 +65,11 @@ const char *YUPDOWNWALL[2] = {"UPWALL","DOWNWALL"};
 void drawgradient(void)
 {
     int32_t i, col = editorcolors[25];
-    begindrawing();
+    videoBeginDrawing();
     for (i=ydim-STATUS2DSIZ+16; i<ydim && col>0; i++,col--)
         CLEARLINES2D(i, 1, (col<<24)|(col<<16)|(col<<8)|col);
     CLEARLINES2D(i, ydim-i, 0);
-    enddrawing();
+    videoEndDrawing();
 }
 
 static void message_common1(const char *tmpstr)
@@ -1655,11 +1655,11 @@ static void M_EnterMainLoop(StatusBarMenu *m)
         }
 #endif
         printext16(xpos, ypos+row*MENU_Y_SPACING, MENU_FG_COLOR, MENU_BG_COLOR_SEL, disptext, 0);
-        showframe(1);
+        videoShowFrame(1);
     }
 
     printext16(xpos, ypos+row*MENU_Y_SPACING, MENU_FG_COLOR, MENU_BG_COLOR, disptext, 0);
-    showframe(1);
+    videoShowFrame(1);
 
     keystatus[KEYSC_ESC] = 0;
 }

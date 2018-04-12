@@ -1056,19 +1056,19 @@ intptr_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   squarerotatetile(int16_t tilenume);
 
-int32_t   setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp);
-void   nextpage(void);
-void   setaspect_new();
-void   setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-void   setaspect(int32_t daxrange, int32_t daaspect);
+int32_t   videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp);
+void   videoNextPage(void);
+void   videoSetCorrectedAspect();
+void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
+void   videoSetAspect(int32_t daxrange, int32_t daaspect);
 void   flushperms(void);
 
 void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int col) ATTRIBUTE((nonnull(1,2)));
 
 void   plotpixel(int32_t x, int32_t y, char col);
 char   getpixel(int32_t x, int32_t y);
-void   setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
-void   setviewback(void);
+void   videoSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz);
+void   videoRestoreTarget(void);
 void   preparemirror(int32_t dax, int32_t day, fix16_t daang, int16_t dawall,
                      int32_t *tposx, int32_t *tposy, fix16_t *tang);
 void   completemirror(void);
@@ -1081,8 +1081,8 @@ static FORCE_INLINE int32_t drawrooms(int32_t daposx, int32_t daposy, int32_t da
 }
 
 void   drawmasks(void);
-void   clearview(int32_t dacol);
-void   clearallviews(int32_t dacol);
+void   videoClearViewableArea(int32_t dacol);
+void   videoClearScreen(int32_t dacol);
 void   drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang);
 void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
                      int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
@@ -1262,7 +1262,7 @@ int32_t             wallvisible(int32_t x, int32_t y, int16_t wallnum);
 
 //void   qsetmode640350(void);
 //void   qsetmode640480(void);
-void   qsetmodeany(int32_t,int32_t);
+void   videoSet2dMode(int32_t,int32_t);
 void   clear2dscreen(void);
 void   draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
                   int16_t ange, int32_t zoome, int16_t gride);

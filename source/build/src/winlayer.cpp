@@ -399,7 +399,6 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     //    atexit(uninitsystem);
 
     startwin_open();
-    baselayer_init();
 
     r = app_main(_buildargc, _buildargv);
 
@@ -539,7 +538,7 @@ void uninitsystem(void)
     startwin_close();
 
     uninitinput();
-    uninittimer();
+    timerUninit();
 
     win_uninit();
 
@@ -559,7 +558,7 @@ void uninitsystem(void)
 //
 void system_getcvars(void)
 {
-    vsync = setvsync(vsync);
+    vsync = videoSetVsync(vsync);
 }
 
 
@@ -675,7 +674,7 @@ int32_t handleevents(void)
 
     if (!appactive || quitevent) rv = -1;
 
-    sampletimer();
+    timerUpdate();
 
     return rv;
 }
@@ -721,7 +720,7 @@ void uninitinput(void)
 void idle_waitevent_timeout(uint32_t timeout)
 {
     // timeout becomes a completion deadline
-    timeout += getticks();
+    timeout += timerGetTicks();
 
     do
     {
@@ -738,7 +737,7 @@ void idle_waitevent_timeout(uint32_t timeout)
 
         Sleep(10);
     }
-    while (timeout > (getticks() + 10));
+    while (timeout > (timerGetTicks() + 10));
 }
 
 
@@ -1385,7 +1384,7 @@ static void (*usertimercallback)(void) = NULL;
 //
 // installusertimercallback() -- set up a callback function to be called when the timer is fired
 //
-void (*installusertimercallback(void (*callback)(void)))(void)
+void (*timerSetCallback(void (*callback)(void)))(void)
 {
     void (*oldtimercallback)(void);
 
@@ -1399,7 +1398,7 @@ void (*installusertimercallback(void (*callback)(void)))(void)
 //
 // inittimer() -- initialize timer
 //
-int32_t inittimer(int32_t tickspersecond)
+int32_t timerInit(int32_t tickspersecond)
 {
     int64_t t;
 
@@ -1417,7 +1416,7 @@ int32_t inittimer(int32_t tickspersecond)
 
     usertimercallback = NULL;
 
-    msperu64tick = 1000.0 / (double)getu64tickspersec();
+    msperu64tick = 1000.0 / (double)timerGetFreqU64();
 
     return 0;
 }
@@ -1425,7 +1424,7 @@ int32_t inittimer(int32_t tickspersecond)
 //
 // uninittimer() -- shut down timer
 //
-void uninittimer(void)
+void timerUninit(void)
 {
     if (!win_timerfreq) return;
 
@@ -1438,7 +1437,7 @@ void uninittimer(void)
 //
 // sampletimer() -- update totalclock
 //
-void sampletimer(void)
+void timerUpdate(void)
 {
     int64_t i;
     int32_t n;
@@ -1460,7 +1459,7 @@ void sampletimer(void)
 //
 // getticks() -- returns the windows ticks count
 //
-uint32_t getticks(void)
+uint32_t timerGetTicks(void)
 {
     int64_t i;
     if (win_timerfreq == 0) return 0;
@@ -1469,27 +1468,27 @@ uint32_t getticks(void)
 }
 
 // high-resolution timers for profiling
-uint64_t getu64ticks(void)
+uint64_t timerGetTicksU64(void)
 {
     return win_getu64ticks();
 }
 
-uint64_t getu64tickspersec(void)
+uint64_t timerGetFreqU64(void)
 {
     return win_timerfreq;
 }
 
 // Returns the time since an unspecified starting time in milliseconds.
 ATTRIBUTE((flatten))
-double gethiticks(void)
+double timerGetHiTicks(void)
 {
-    return (double)getu64ticks() * msperu64tick;
+    return (double)timerGetTicksU64() * msperu64tick;
 }
 
 //
 // gettimerfreq() -- returns the number of ticks per second the timer is configured to generate
 //
-int32_t gettimerfreq(void)
+int32_t timerGetFreq(void)
 {
     return timerticspersec;
 }
@@ -1524,11 +1523,11 @@ static int32_t getgammaramp(LPDDGAMMARAMP gt);
 //
 // checkvideomode() -- makes sure the video mode passed is legal
 //
-int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced)
+int32_t videoCheckMode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced)
 {
     int32_t i, nearest=-1, dx, dy, odx=9999, ody=9999;
 
-    getvalidmodes();
+    videoGetModes();
 
     // fix up the passed resolution values to be multiples of 8
     // and at least 320x200 or at most MAXXDIMxMAXYDIM
@@ -1588,7 +1587,7 @@ int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t fo
 static HWND hGLWindow = NULL;
 #endif
 
-int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
+int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
     char inp;
     int32_t modenum;
@@ -1599,7 +1598,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
         return 0;
     }
 
-    modenum = checkvideomode(&x,&y,c,fs,0);
+    modenum = videoCheckMode(&x,&y,c,fs,0);
     if (modenum < 0) return -1;
     if (modenum == 0x7fffffff)
     {
@@ -1630,7 +1629,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
     {
         //        float f = 1.0 + ((float)curbrightness / 10.0);
         if (getgammaramp(&sysgamma) >= 0) gammabrightness = 1;
-        if (gammabrightness && setgamma() < 0) gammabrightness = 0;
+        if (gammabrightness && videoSetGamma() < 0) gammabrightness = 0;
     }
 
 #if defined USE_OPENGL && defined USE_GLEXT
@@ -1668,7 +1667,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
 #define CHECK(w,h) if ((w < maxx) && (h < maxy))
 
-int32_t setvsync(int32_t newSync)
+int32_t videoSetVsync(int32_t newSync)
 {
 #ifdef USE_OPENGL
     if (!glinfo.vsync)
@@ -1766,7 +1765,7 @@ static int sortmodes(const void *a_, const void *b_)
 
     return 0;
 }
-void getvalidmodes(void)
+void videoGetModes(void)
 {
     int32_t cdepths[2] = { 8, 0 };
     int32_t i, j, maxx=0, maxy=0;
@@ -1827,7 +1826,7 @@ void getvalidmodes(void)
 //
 // resetvideomode() -- resets the video system
 //
-void resetvideomode(void)
+void videoResetMode(void)
 {
     videomodereset = 1;
     modeschecked = 0;
@@ -1842,7 +1841,7 @@ uint32_t begindrawing_line[BEGINDRAWING_SIZE];
 const char *begindrawing_file[BEGINDRAWING_SIZE];
 void begindrawing_real(void)
 #else
-void begindrawing(void)
+void videoBeginDrawing(void)
 #endif
 {
     if (bpp > 8)
@@ -1881,7 +1880,7 @@ void begindrawing(void)
 //
 // enddrawing() -- unlocks the framebuffer
 //
-void enddrawing(void)
+void videoEndDrawing(void)
 {
     if (bpp > 8)
     {
@@ -1899,7 +1898,7 @@ void enddrawing(void)
 //
 // showframe() -- update the display
 //
-void showframe(int32_t w)
+void videoShowFrame(int32_t w)
 {
     HRESULT result;
     DDSURFACEDESC ddsd;
@@ -1924,7 +1923,7 @@ void showframe(int32_t w)
     if (lockcount)
     {
         initprintf("Frame still locked %d times when showframe() called.\n", lockcount);
-        while (lockcount) enddrawing();
+        while (lockcount) videoEndDrawing();
     }
 
     if (!fullscreen)
@@ -2000,7 +1999,7 @@ void showframe(int32_t w)
 // New behaviour: curpalettefaded is the live palette, and any changes this function
 // makes are done to it and not the base palette.
 //
-int32_t setpalette(int32_t start, int32_t num)
+int32_t videoUpdatePalette(int32_t start, int32_t num)
 {
     int32_t i, n;
     HRESULT result;
@@ -2116,13 +2115,13 @@ static int32_t setgammaramp(LPDDGAMMARAMP gt)
     return 0;
 }
 
-int32_t setgamma(void)
+int32_t videoSetGamma(void)
 {
     int32_t i;
     static DDGAMMARAMP gammaTable;
-    float gamma = max(0.1f,min(4.f,vid_gamma));
-    float contrast = max(0.1f,min(3.f,vid_contrast));
-    float bright = max(-0.8f,min(0.8f,vid_brightness));
+    float gamma = max(0.1f,min(4.f,g_videoGamma));
+    float contrast = max(0.1f,min(3.f,g_videoContrast));
+    float bright = max(-0.8f,min(0.8f,g_videoBrightness));
 
     double invgamma = 1 / gamma;
     double norm = pow(255., invgamma - 1);
@@ -2809,7 +2808,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             unloadwgl();
             nogl = 1;
             modeschecked = 0;
-            getvalidmodes();
+            videoGetModes();
             return TRUE;
         }
 
@@ -3515,7 +3514,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
                 }
                 realfs = fullscreen;
                 silentvideomodeswitch = 1;
-                setgamemode(!fullscreen,xdim,ydim,bpp);
+                videoSetGameMode(!fullscreen,xdim,ydim,bpp);
                 ShowWindow(hWindow, SW_MINIMIZE);
             }
             else if (appactive && realfs)
@@ -3528,7 +3527,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
                 ShowWindow(hWindow, SW_RESTORE);
                 SetForegroundWindow(hWindow);
                 SetFocus(hWindow);
-                setgamemode(realfs,xdim,ydim,bpp);
+                videoSetGameMode(realfs,xdim,ydim,bpp);
                 silentvideomodeswitch = 0;
                 realfs = 0;
             }
@@ -3569,10 +3568,10 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
                 initprintf("Palette set failed: %s\n", GetDDrawError(result));
                 break;
             }
-            setpalette(0,256);
+            videoUpdatePalette(0,256);
             break;
         }
-        if (appactive && (HWND)wParam != hWindow) setpalette(0,256);
+        if (appactive && (HWND)wParam != hWindow) videoUpdatePalette(0,256);
         break;
 
     case WM_DISPLAYCHANGE:
@@ -3580,7 +3579,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         desktopxdim = LOWORD(lParam);
         desktopydim = HIWORD(lParam);
         desktopbpp  = wParam;
-        getvalidmodes();
+        videoGetModes();
         break;
 
     case WM_PAINT:

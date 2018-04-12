@@ -419,8 +419,8 @@ static int32_t osdcmd_music(osdfuncparm_t const * const parm)
 int32_t osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
-    resetvideomode();
-    if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
+    videoResetMode();
+    if (videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
         G_GameExit("restartvid: Reset failed...\n");
     onvideomodechange(ud.config.ScreenBPP>8);
     G_UpdateScreenArea();
@@ -471,10 +471,10 @@ static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
         break;
     }
 
-    if (setgamemode(newfs,newwidth,newheight,newbpp))
+    if (videoSetGameMode(newfs,newwidth,newheight,newbpp))
     {
         initprintf("vidmode: Mode change failed!\n");
-        if (setgamemode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
+        if (videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
             G_GameExit("vidmode: Reset failed!\n");
     }
     ud.config.ScreenBPP = newbpp;
@@ -1498,7 +1498,7 @@ static int32_t osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
     else if (!Bstrcasecmp(parm->name, "r_maxfps"))
     {
         if (r_maxfps != 0) r_maxfps = clamp(r_maxfps, 30, 1000);
-        g_frameDelay = r_maxfps ? (getu64tickspersec()/r_maxfps) : 0;
+        g_frameDelay = r_maxfps ? (timerGetFreqU64()/r_maxfps) : 0;
     }
     else if (!Bstrcasecmp(parm->name, "r_ambientlight"))
     {
@@ -1743,9 +1743,9 @@ int32_t registerosdcommands(void)
         { "touch_invert", "invert look up/down touch input", (void *) &droidinput.invertLook, CVAR_INT, 0, 1 },
 #endif
 
-        { "vid_gamma","adjusts gamma component of gamma ramp",(void *)&vid_gamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-        { "vid_contrast","adjusts contrast component of gamma ramp",(void *)&vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-        { "vid_brightness","adjusts brightness component of gamma ramp",(void *)&vid_brightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+        { "vid_gamma","adjusts gamma component of gamma ramp",(void *)&g_videoGamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+        { "vid_contrast","adjusts contrast component of gamma ramp",(void *)&g_videoContrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+        { "vid_brightness","adjusts brightness component of gamma ramp",(void *)&g_videoBrightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
         { "wchoice","sets weapon autoselection order", (void *)ud.wchoice, CVAR_STRING|CVAR_FUNCPTR, 0, MAX_WEAPONS },
     };
 

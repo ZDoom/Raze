@@ -316,7 +316,7 @@ static void PopulateForm(unsigned char pgs)
         GtkTreeIter iter;
         char buf[64];
 
-        mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, settings.bpp3d, settings.fullscreen, 1);
+        mode3d = videoCheckMode(&settings.xdim3d, &settings.ydim3d, settings.bpp3d, settings.fullscreen, 1);
         if (mode3d < 0)
         {
             int32_t i, cd[] = { 32, 24, 16, 15, 8, 0 };
@@ -324,7 +324,7 @@ static void PopulateForm(unsigned char pgs)
             for (i=0; cd[i];) { if (cd[i] >= settings.bpp3d) i++; else break; }
             for (; cd[i]; i++)
             {
-                mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, cd[i], settings.fullscreen, 1);
+                mode3d = videoCheckMode(&settings.xdim3d, &settings.ydim3d, cd[i], settings.fullscreen, 1);
                 if (mode3d < 0) continue;
                 settings.bpp3d = cd[i];
                 break;

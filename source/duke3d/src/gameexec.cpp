@@ -142,12 +142,12 @@ intptr_t apScriptEvents[MAXEVENTS];
 #ifdef LUNATIC
 static FORCE_INLINE int32_t VM_EventCommon_(int eventNum, int spriteNum, int playerNum, int playerDist, int32_t returnValue)
 {
-    const double t = gethiticks();
+    const double t = timerGetHiTicks();
     int32_t ret = El_CallEvent(&g_ElState, eventNum, spriteNum, playerNum, playerDist, &returnValue);
 
     // NOTE: the run times are those of the called event plus any events
     // called by it, *not* "self" time.
-    g_eventTotalMs[eventNum] += gethiticks()-t;
+    g_eventTotalMs[eventNum] += timerGetHiTicks()-t;
     g_eventCalls[eventNum]++;
 
     if (ret == 1)
@@ -170,7 +170,7 @@ static void VM_DummySprite(void)
 static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const spriteNum, int const playerNum,
                                      int const playerDist, int32_t returnValue)
 {
-    const double t = gethiticks();
+    const double t = timerGetHiTicks();
 
     const vmstate_t tempvm = { spriteNum, playerNum, playerDist, 0, NULL, NULL, g_player[playerNum].ps, NULL };
 
@@ -215,7 +215,7 @@ static FORCE_INLINE int32_t VM_EventCommon_(int const eventNum, int const sprite
 
     aGameVars[g_returnVarID].global  = backupReturnVar;
 
-    g_eventTotalMs[eventNum] += gethiticks()-t;
+    g_eventTotalMs[eventNum] += timerGetHiTicks()-t;
     g_eventCalls[eventNum]++;
 
     return returnValue;
@@ -1200,7 +1200,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int32_t sec
 
     if (offscreenrendering)
     {
-        clearview(0);
+        videoClearViewableArea(0);
         return;
     }
 
@@ -1232,7 +1232,7 @@ LUNATIC_EXTERN void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int32_t sec
     int const onewaspect = newaspect_enable;
     newaspect_enable = r_usenewaspect;
     setaspect_new_use_dimen = 1;
-    setview(x1,y1,x2,y2);
+    videoSetViewableArea(x1,y1,x2,y2);
     setaspect_new_use_dimen = 0;
     newaspect_enable = onewaspect;
 
@@ -1270,7 +1270,7 @@ void Screen_Play(void)
         if (!G_FPSLimit())
             continue;
 
-        clearallviews(0);
+        videoClearScreen(0);
         if (VM_OnEventWithReturn(EVENT_SCREEN, g_player[screenpeek].ps->i, screenpeek, I_CheckAllInput()))
             running = 0;
 
@@ -1975,7 +1975,7 @@ skip_check:
             insptr++;
             {
                 int const xRange = Gv_GetVarX(*insptr++);
-                setaspect(xRange, Gv_GetVarX(*insptr++));
+                videoSetAspect(xRange, Gv_GetVarX(*insptr++));
                 break;
             }
 
@@ -5815,7 +5815,7 @@ finish_qsprintf:
 
         case CON_GETTICKS:
             insptr++;
-            Gv_SetVarX(*insptr++, getticks());
+            Gv_SetVarX(*insptr++, timerGetTicks());
             continue;
 
         case CON_GETCURRADDRESS:
@@ -5947,24 +5947,24 @@ void A_Execute(int spriteNum, int playerNum, int playerDist)
 
     if (L_IsInitialized(&g_ElState) && El_HaveActor(picnum))
     {
-        double t = gethiticks();
+        double t = timerGetHiTicks();
 
         killit = (El_CallActor(&g_ElState, picnum, spriteNum, playerNum, playerDist)==1);
 
-        t = gethiticks()-t;
+        t = timerGetHiTicks()-t;
         g_actorTotalMs[picnum] += t;
         g_actorMinMs[picnum] = min(g_actorMinMs[picnum], t);
         g_actorMaxMs[picnum] = max(g_actorMaxMs[picnum], t);
         g_actorCalls[picnum]++;
     }
 #else
-    double t = gethiticks();
+    double t = timerGetHiTicks();
     int const picnum = vm.pSprite->picnum;
     insptr = 4 + (g_tile[vm.pSprite->picnum].execPtr);
     VM_Execute(1);
     insptr = NULL;
 
-    t = gethiticks()-t;
+    t = timerGetHiTicks()-t;
     g_actorTotalMs[picnum] += t;
     g_actorMinMs[picnum] = min(g_actorMinMs[picnum], t);
     g_actorMaxMs[picnum] = max(g_actorMaxMs[picnum], t);

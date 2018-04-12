@@ -1,7 +1,4 @@
-// SDL interface layer
-// for the Build Engine
-// by Jonathon Fowler (jf@jonof.id.au)
-//
+// SDL interface layer for the Build Engine
 // Use SDL 1.2 or 2.0 from http://www.libsdl.org
 
 #include "compat.h"
@@ -484,7 +481,6 @@ int main(int argc, char *argv[])
 
     startwin_open();
     maybe_redirect_outputs();
-    baselayer_init();
 
 #ifdef _WIN32
     char *argvbuf;
@@ -517,7 +513,7 @@ int main(int argc, char *argv[])
 
 
 #if SDL_MAJOR_VERSION != 1
-int32_t setvsync(int32_t newSync)
+int32_t videoSetVsync(int32_t newSync)
 {
     if (vsync_renderlayer == newSync)
         return newSync;
@@ -549,8 +545,8 @@ int32_t setvsync(int32_t newSync)
     {
         vsync_renderlayer = newSync;
 
-        resetvideomode();
-        if (setgamemode(fullscreen, xdim, ydim, bpp))
+        videoResetMode();
+        if (videoSetGameMode(fullscreen, xdim, ydim, bpp))
             OSD_Printf("restartvid: Reset failed...\n");
     }
 
@@ -663,7 +659,7 @@ int32_t initsystem(void)
 void uninitsystem(void)
 {
     uninitinput();
-    uninittimer();
+    timerUninit();
 
     if (appicon)
     {
@@ -691,7 +687,7 @@ void uninitsystem(void)
 //
 void system_getcvars(void)
 {
-    vsync = setvsync(vsync);
+    vsync = videoSetVsync(vsync);
 }
 
 //
@@ -1011,7 +1007,7 @@ static void(*usertimercallback)(void) = NULL;
 //
 // inittimer() -- initialize timer
 //
-int32_t inittimer(int32_t tickspersecond)
+int32_t timerInit(int32_t tickspersecond)
 {
     if (timerfreq) return 0;	// already installed
 
@@ -1029,7 +1025,7 @@ int32_t inittimer(int32_t tickspersecond)
 
     usertimercallback = NULL;
 
-    msperu64tick = 1000.0 / (double)getu64tickspersec();
+    msperu64tick = 1000.0 / (double)timerGetFreqU64();
 
     return 0;
 }
@@ -1037,7 +1033,7 @@ int32_t inittimer(int32_t tickspersecond)
 //
 // uninittimer() -- shut down timer
 //
-void uninittimer(void)
+void timerUninit(void)
 {
     timerfreq=0;
 #if defined(_WIN32) && SDL_MAJOR_VERSION==1
@@ -1049,7 +1045,7 @@ void uninittimer(void)
 //
 // sampletimer() -- update totalclock
 //
-void sampletimer(void)
+void timerUpdate(void)
 {
     if (!timerfreq) return;
 
@@ -1069,7 +1065,7 @@ void sampletimer(void)
 //
 // getticks() -- returns the sdl ticks count
 //
-uint32_t getticks(void)
+uint32_t timerGetTicks(void)
 {
     return (uint32_t)SDL_GetTicks();
 }
@@ -1078,12 +1074,12 @@ uint32_t getticks(void)
 // high-resolution timers for profiling
 
 #if SDL_MAJOR_VERSION != 1
-uint64_t getu64ticks(void)
+uint64_t timerGetTicksU64(void)
 {
     return SDL_GetPerformanceCounter();
 }
 
-uint64_t getu64tickspersec(void)
+uint64_t timerGetFreqU64(void)
 {
     return SDL_GetPerformanceFrequency();
 }
@@ -1092,15 +1088,15 @@ uint64_t getu64tickspersec(void)
 // Returns the time since an unspecified starting time in milliseconds.
 // (May be not monotonic for certain configurations.)
 ATTRIBUTE((flatten))
-double gethiticks(void)
+double timerGetHiTicks(void)
 {
-    return (double)getu64ticks() * msperu64tick;
+    return (double)timerGetTicksU64() * msperu64tick;
 }
 
 //
 // gettimerfreq() -- returns the number of ticks per second the timer is configured to generate
 //
-int32_t gettimerfreq(void)
+int32_t timerGetFreq(void)
 {
     return timerticspersec;
 }
@@ -1109,7 +1105,7 @@ int32_t gettimerfreq(void)
 //
 // installusertimercallback() -- set up a callback function to be called when the timer is fired
 //
-void(*installusertimercallback(void(*callback)(void)))(void)
+void(*timerSetCallback(void(*callback)(void)))(void)
 {
     void(*oldtimercallback)(void);
 
@@ -1153,7 +1149,7 @@ static int sortmodes(const void *a_, const void *b_)
 static char modeschecked=0;
 
 #if SDL_MAJOR_VERSION != 1
-void getvalidmodes(void)
+void videoGetModes(void)
 {
     int32_t i, maxx = 0, maxy = 0;
     SDL_DisplayMode dispmode;
@@ -1214,11 +1210,11 @@ void getvalidmodes(void)
 //
 // checkvideomode() -- makes sure the video mode passed is legal
 //
-int32_t checkvideomode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced)
+int32_t videoCheckMode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t forced)
 {
     int32_t i, nearest=-1, dx, dy, odx=9999, ody=9999;
 
-    getvalidmodes();
+    videoGetModes();
 
     if (c>8
 #ifdef USE_OPENGL
@@ -1432,7 +1428,7 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
         return 0;
     }
 
-    if (checkvideomode(x, y, c, fs, 0) < 0)
+    if (videoCheckMode(x, y, c, fs, 0) < 0)
         return -1;
 
 #ifdef GEKKO
@@ -1448,7 +1444,7 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
         mouseGrabInput(0);
     }
 
-    while (lockcount) enddrawing();
+    while (lockcount) videoEndDrawing();
 
 #ifdef USE_OPENGL
     if (bpp > 8 && sdl_surface)
@@ -1495,7 +1491,7 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
             gammabrightness = 1;
 
         // see if gamma really is working by trying to set the brightness
-        if (gammabrightness && setgamma() < 0)
+        if (gammabrightness && videoSetGamma() < 0)
             gammabrightness = 0;  // nope
     }
 #endif
@@ -1575,7 +1571,7 @@ static void sdl_trycreaterenderer(int32_t const x, int32_t const y)
     }
 }
 
-int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
+int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
     int32_t regrab = 0, ret;
 
@@ -1697,7 +1693,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 //
 // resetvideomode() -- resets the video system
 //
-void resetvideomode(void)
+void videoResetMode(void)
 {
     videomodereset = 1;
     modeschecked = 0;
@@ -1712,7 +1708,7 @@ uint32_t begindrawing_line[BEGINDRAWING_SIZE];
 const char *begindrawing_file[BEGINDRAWING_SIZE];
 void begindrawing_real(void)
 #else
-void begindrawing(void)
+void videoBeginDrawing(void)
 #endif
 {
     if (bpp > 8)
@@ -1747,7 +1743,7 @@ void begindrawing(void)
 //
 // enddrawing() -- unlocks the framebuffer
 //
-void enddrawing(void)
+void videoEndDrawing(void)
 {
     if (bpp > 8)
     {
@@ -1775,7 +1771,7 @@ void enddrawing(void)
 extern "C" void AndroidDrawControls();
 #endif
 
-void showframe(int32_t w)
+void videoShowFrame(int32_t w)
 {
     UNREFERENCED_PARAMETER(w);
 
@@ -1810,7 +1806,7 @@ void showframe(int32_t w)
     if (lockcount)
     {
         printf("Frame still locked %d times when showframe() called.\n", lockcount);
-        while (lockcount) enddrawing();
+        while (lockcount) videoEndDrawing();
     }
 
     // deferred palette updating
@@ -1845,16 +1841,14 @@ void showframe(int32_t w)
 //
 // setpalette() -- set palette values
 //
-int32_t setpalette(int32_t start, int32_t num)
+int32_t videoUpdatePalette(int32_t start, int32_t num)
 {
-    int32_t i, n;
-
     if (bpp > 8)
         return 0;  // no palette in opengl
 
     Bmemcpy(sdlayer_pal, curpalettefaded, 256 * 4);
 
-    for (i = start, n = num; n > 0; i++, n--)
+    for (native_t i = start, n = num; n > 0; i++, n--)
         curpalettefaded[i].f =
 #if SDL_MAJOR_VERSION == 1
         sdlayer_pal[i].unused
@@ -1871,21 +1865,19 @@ int32_t setpalette(int32_t start, int32_t num)
 //
 // setgamma
 //
-int32_t setgamma(void)
+int32_t videoSetGamma(void)
 {
-    // return 0;
+    if (novideo)
+        return 0;
 
     int32_t i;
     uint16_t gammaTable[768];
-    float gamma = max(0.1f, min(4.f, vid_gamma));
-    float contrast = max(0.1f, min(3.f, vid_contrast));
-    float bright = max(-0.8f, min(0.8f, vid_brightness));
+    float gamma = max(0.1f, min(4.f, g_videoGamma));
+    float contrast = max(0.1f, min(3.f, g_videoContrast));
+    float bright = max(-0.8f, min(0.8f, g_videoBrightness));
 
     float invgamma = 1.f / gamma;
     float norm = powf(255.f, invgamma - 1.f);
-
-    if (novideo)
-        return 0;
 
     if (lastvidgcb[0] == gamma && lastvidgcb[1] == contrast && lastvidgcb[2] == bright)
         return 0;
@@ -2403,7 +2395,7 @@ int32_t handleevents(void)
     rv = handleevents_pollsdl();
 
     inputchecked = 0;
-    sampletimer();
+    timerUpdate();
 
 #ifndef _WIN32
     startwin_idle(NULL);

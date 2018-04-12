@@ -290,7 +290,7 @@ static int32_t osdfunc_fileinfo(osdfuncparm_t const * const parm)
 
     char buf[256];
     uint32_t length = kfilelength(i);
-    int32_t crctime = getticks();
+    int32_t crctime = timerGetTicks();
     uint32_t crc = 0;
     do
     {
@@ -298,11 +298,11 @@ static int32_t osdfunc_fileinfo(osdfuncparm_t const * const parm)
         crc = Bcrc32((uint8_t *)buf,j,crc);
     }
     while (j == 256);
-    crctime = getticks() - crctime;
+    crctime = timerGetTicks() - crctime;
 
     klseek(i, 0, BSEEK_SET);
 
-    int32_t xxhtime = getticks();
+    int32_t xxhtime = timerGetTicks();
     XXH32_state_t xxh;
     XXH32_reset(&xxh, 0x1337);
     do
@@ -312,7 +312,7 @@ static int32_t osdfunc_fileinfo(osdfuncparm_t const * const parm)
     }
     while (j == 256);
     uint32_t xxhash = XXH32_digest(&xxh);
-    xxhtime = getticks() - xxhtime;
+    xxhtime = timerGetTicks() - xxhtime;
 
     kclose(i);
 
@@ -321,8 +321,8 @@ static int32_t osdfunc_fileinfo(osdfuncparm_t const * const parm)
                "  CRC-32:    %08X (%g sec)\n"
                "  xxHash:    %08X (%g sec)\n",
                parm->parms[0], length,
-               crc, (double)crctime/gettimerfreq(),
-               xxhash, (double)xxhtime/gettimerfreq());
+               crc, (double)crctime/timerGetFreq(),
+               xxhash, (double)xxhtime/timerGetFreq());
 
     return OSDCMD_OK;
 }
@@ -1212,7 +1212,7 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
                              -draw.scrolling;
             osdrowscur += draw.scrolling;
             OSD_CaptureInput(draw.scrolling == 1);
-            osdscrtime = getticks();
+            osdscrtime = timerGetTicks();
         }
         return -1;
     }
@@ -1240,7 +1240,7 @@ int OSD_HandleScanCode(uint8_t scanCode, int keyDown)
         draw.scrolling = -1;
         osdrowscur--;
         OSD_CaptureInput(0);
-        osdscrtime = getticks();
+        osdscrtime = timerGetTicks();
         break;
 
     case sc_PgUp:
@@ -1477,7 +1477,7 @@ void OSD_Draw(void)
     {
         if ((osdrowscur < osd->draw.rows && osd->draw.scrolling == 1) || osdrowscur < -1)
         {
-            int32_t j = (getticks()-osdscrtime);
+            int32_t j = (timerGetTicks()-osdscrtime);
             while (j >= 0)
             {
                 osdrowscur++;
@@ -1488,7 +1488,7 @@ void OSD_Draw(void)
         }
         else if ((osdrowscur > -1 && osd->draw.scrolling == -1) || osdrowscur > osd->draw.rows)
         {
-            int32_t j = (getticks()-osdscrtime);
+            int32_t j = (timerGetTicks()-osdscrtime);
             while (j >= 0)
             {
                 osdrowscur--;
@@ -1498,7 +1498,7 @@ void OSD_Draw(void)
             }
         }
 
-        osdscrtime = getticks();
+        osdscrtime = timerGetTicks();
     }
 
     if ((osd->flags & OSD_DRAW) == 0 || !osdrowscur) return;
@@ -1507,7 +1507,7 @@ void OSD_Draw(void)
     row = osdrowscur-1;
     lines = min(osd->text.lines-osd->draw.head, osdrowscur);
 
-    begindrawing();
+    videoBeginDrawing();
 
     clearbackground(osd->draw.cols,osdrowscur+1);
 
@@ -1547,7 +1547,7 @@ void OSD_Draw(void)
                        osd->version.buf, osd->version.len, (sintable[(totalclock<<4)&2047]>>11), osd->version.pal);
     }
 
-    enddrawing();
+    videoEndDrawing();
 }
 
 

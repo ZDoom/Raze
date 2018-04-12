@@ -399,14 +399,14 @@ static void Demo_StopProfiling(void)
 static void Demo_GToc(double t)
 {
     g_prof.numtics++;
-    g_prof.totalgamems += gethiticks()-t;
+    g_prof.totalgamems += timerGetHiTicks()-t;
 }
 
 static void Demo_RToc(double t1, double t2)
 {
     g_prof.numframes++;
     g_prof.totalroomsdrawms += t2-t1;
-    g_prof.totalrestdrawms += gethiticks()-t2;
+    g_prof.totalrestdrawms += timerGetHiTicks()-t2;
 }
 
 static void Demo_DisplayProfStatus(void)
@@ -420,11 +420,11 @@ static void Demo_DisplayProfStatus(void)
         return;
     lastpercent = percent;
 
-    clearallviews(0);
+    videoClearScreen(0);
     Bsnprintf(buf, sizeof(buf), "timing... %d/%d game tics (%d %%)",
               g_demo_cnt, g_demo_totalCnt, percent);
     gametext_center(60, buf);
-    nextpage();
+    videoNextPage();
 }
 
 static void Demo_SetupProfile(void)
@@ -436,7 +436,7 @@ static void Demo_SetupProfile(void)
 
     Bmemset(&g_prof, 0, sizeof(g_prof));
 
-    g_prof.starthiticks = gethiticks();
+    g_prof.starthiticks = timerGetHiTicks();
 }
 
 static void Demo_FinishProfile(void)
@@ -468,7 +468,7 @@ static void Demo_FinishProfile(void)
 
         {
             double totalprofms = gms+dms1+dms2;
-            double totalms = gethiticks()-g_prof.starthiticks;
+            double totalms = timerGetHiTicks()-g_prof.starthiticks;
             if (totalprofms != 0)
                 OSD_Printf("== demo %d: non-profiled time overhead: %.02f %%\n",
                            dn, 100.0*totalms/totalprofms - 100.0);
@@ -532,7 +532,7 @@ RECHECK:
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
         G_DrawBackground();
         M_DisplayMenus();
-        nextpage();
+        videoNextPage();
         fadepal(0,0,0, 252,0,-28);
         ud.reccnt = 0;
     }
@@ -738,7 +738,7 @@ nextdemo_nomenu:
 
                 if (Demo_IsProfiling())
                 {
-                    double t = gethiticks();
+                    double t = timerGetHiTicks();
                     G_DoMoveThings();
                     Demo_GToc(t);
                 }
@@ -813,7 +813,7 @@ nextdemo_nomenu:
 
                     for (i=0; i<num; i++)
                     {
-                        double t1 = gethiticks(), t2;
+                        double t1 = timerGetHiTicks(), t2;
 
                         //                    initprintf("t=%d, o=%d, t-o = %d\n", totalclock,
                         //                               ototalclock, totalclock-ototalclock);
@@ -826,7 +826,7 @@ nextdemo_nomenu:
 
                         G_DrawRooms(screenpeek, j);
 
-                        t2 = gethiticks();
+                        t2 = timerGetHiTicks();
 
                         G_DisplayRest(j);
 

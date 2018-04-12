@@ -65,7 +65,7 @@ int screencapture(const char *filename, char inverseit)
 
     uint8_t * const imgBuf = (uint8_t *) Xmalloc(xdim * ydim * (HICOLOR ? 3 : 1));
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
 
 #ifdef USE_OPENGL
     if (HICOLOR)
@@ -119,7 +119,7 @@ int screencapture(const char *filename, char inverseit)
             Bmemcpy(imgBuf + i * xdim, (uint8_t *)frameplace + ylookup[i], xdim);
     }
 
-    enddrawing(); //}}}
+    videoEndDrawing(); //}}}
 
     png_set_text("Software", osd->version.buf);
     png_write(fp, xdim, ydim, HICOLOR ? PNG_TRUECOLOR : PNG_INDEXED, imgBuf);
@@ -189,7 +189,7 @@ int screencapture_tga(const char *filename, char inverseit)
         }
     }
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
 
 # ifdef USE_OPENGL
     if (HICOLOR)
@@ -215,7 +215,7 @@ int screencapture_tga(const char *filename, char inverseit)
             Bfwrite(ptr + i * bytesperline, xdim, 1, fil);
     }
 
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 
     screencapture_end(fn, &fil);
 

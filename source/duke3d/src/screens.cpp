@@ -329,7 +329,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
     int32_t tmpydim = (xdim*5)/8;
 
-    setaspect(65536, divscale16(tmpydim*320, xdim*200));
+    videoSetAspect(65536, divscale16(tmpydim*320, xdim*200));
 
     xvect = sintable[(-cang)&2047] * czoom;
     yvect = sintable[(1536-cang)&2047] * czoom;
@@ -571,7 +571,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
     pop_nofog();
 
-    setaspect_new();
+    videoSetCorrectedAspect();
 
     for (TRAVERSE_CONNECT(p))
     {
@@ -791,7 +791,7 @@ static void G_PrintFPS(void)
     static int32_t frameCount = 0, lastFPS = 0, lastFrameTime = 0, cumulativeFrameDelay = 0;
     static int32_t minFPS = -1, maxFPS = 0;
 
-    int32_t frameTime = getticks();
+    int32_t frameTime = timerGetTicks();
     int32_t frameDelay = frameTime - lastFrameTime;
     cumulativeFrameDelay += frameDelay;
 
@@ -1067,7 +1067,7 @@ void G_DisplayRest(int32_t smoothratio)
 
             if (ud.overhead_on == 2)
             {
-                clearview(0L);
+                videoClearViewableArea(0L);
                 drawmapview(cposx, cposy, pp->zoom, cang);
             }
             G_DrawOverheadMap(cposx, cposy, pp->zoom, cang);
@@ -1173,13 +1173,13 @@ void G_DisplayRest(int32_t smoothratio)
                 crosshair_scale = scale(crosshair_scale, ydim << 2, xdim * 3) >> 1;
                 crosshair_pal = 0;
                 crosshair_o |= 1024;
-                setaspect(viewingrange, 65536);
+                videoSetAspect(viewingrange, 65536);
             }
 
             rotatesprite_win(crosshairpos.x, crosshairpos.y, crosshair_scale, 0, a, 0, crosshair_pal, crosshair_o);
 
             if (KXDWN)
-                setaspect(viewingrange, oyxaspect);
+                videoSetAspect(viewingrange, oyxaspect);
         }
     }
 
@@ -1204,13 +1204,13 @@ void G_DisplayRest(int32_t smoothratio)
                 pointer_scale = scale(pointer_scale, ydim << 2, xdim * 3) >> 1;
                 pointer_pal = 0;
                 pointer_o |= 1024;
-                setaspect(viewingrange, 65536);
+                videoSetAspect(viewingrange, 65536);
             }
 
             rotatesprite_win(pointerpos.x, pointerpos.y, pointer_scale, 0, a, 0, pointer_pal, pointer_o);
 
             if (KXDWN)
-                setaspect(viewingrange, oyxaspect);
+                videoSetAspect(viewingrange, oyxaspect);
         }
     }
 #endif
@@ -1233,7 +1233,7 @@ void G_DisplayRest(int32_t smoothratio)
     {
         int32_t vr=viewingrange, asp=yxaspect;
         VM_OnEvent_(EVENT_DISPLAYREST, g_player[screenpeek].ps->i, screenpeek);
-        setaspect(vr, asp);
+        videoSetAspect(vr, asp);
     }
 
     if (ud.pause_on==1 && (g_player[myconnectindex].ps->gm&MODE_MENU) == 0)
@@ -1357,7 +1357,7 @@ void G_FadePalette(int32_t r, int32_t g, int32_t b, int32_t e)
     if (ud.screenfade == 0)
       return;
     setpalettefade(r, g, b, e);
-    nextpage();
+    videoNextPage();
 
     int32_t tc = totalclock;
     while (totalclock < tc + 4)
@@ -1400,13 +1400,13 @@ static void fadepaltile(int32_t r, int32_t g, int32_t b, int32_t start, int32_t 
     // STEP must evenly divide END-START
     Bassert(klabs(end-start)%step == 0);
 
-    clearallviews(0);
+    videoClearScreen(0);
 
     // (end-start)/step + 1 iterations
     do
     {
 #ifdef __ANDROID__ //Needed for N7 2013 to stop corruption while fading video
-        clearview(0);
+        videoClearViewableArea(0);
 #endif
         if (KB_KeyPressed(sc_Space))
         {
@@ -1441,7 +1441,7 @@ void G_DisplayExtraScreens(void)
 #ifdef __ANDROID__
         inExtraScreens = 1;
 #endif
-        setview(0, 0, xdim-1, ydim-1);
+        videoSetViewableArea(0, 0, xdim-1, ydim-1);
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
@@ -1469,7 +1469,7 @@ void G_DisplayExtraScreens(void)
 #ifdef __ANDROID__
         inExtraScreens = 1;
 #endif
-        setview(0, 0, xdim-1, ydim-1);
+        videoSetViewableArea(0, 0, xdim-1, ydim-1);
         flushperms();
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
@@ -1498,12 +1498,12 @@ void G_DisplayLogo(void)
 
     I_ClearAllInput();
 
-    setview(0, 0, xdim-1, ydim-1);
-    clearallviews(0L);
+    videoSetViewableArea(0, 0, xdim-1, ydim-1);
+    videoClearScreen(0L);
     G_FadePalette(0, 0, 0, 252);
 
     flushperms();
-    nextpage();
+    videoNextPage();
 
     G_UpdateAppTitle();
 
@@ -1528,8 +1528,8 @@ void G_DisplayLogo(void)
                 I_ClearAllInput();
             }
 
-            clearallviews(0L);
-            nextpage();
+            videoClearScreen(0L);
+            videoNextPage();
 
             if (logoflags & LOGO_STOPANIMSOUNDS)
             {
@@ -1567,13 +1567,13 @@ void G_DisplayLogo(void)
                     }
                     else
                     {
-                        clearallviews(0);
+                        videoClearScreen(0);
 
                         P_SetGamePalette(g_player[myconnectindex].ps, DREALMSPAL, 8 + 2 + 1);    // JBF 20040308
                         fadepal(0, 0, 0, 0, 252, 28);
                         flushperms();
                         rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
-                        nextpage();
+                        videoNextPage();
                         fadepaltile(0, 0, 0, 252, 0, -28, DREALMS);
                         totalclock = 0;
 
@@ -1581,7 +1581,7 @@ void G_DisplayLogo(void)
                         {
                             if (G_FPSLimit())
                             {
-                                clearallviews(0);
+                                videoClearScreen(0);
                                 rotatesprite_fs(160 << 16, 100 << 16, 65536L, 0, DREALMS, 0, 0, 2 + 8 + 64 + BGSTRETCH);
                                 G_HandleAsync();
 
@@ -1597,19 +1597,19 @@ void G_DisplayLogo(void)
                     }
                 }
 
-                clearallviews(0L);
-                nextpage();
+                videoClearScreen(0L);
+                videoNextPage();
             }
 
             I_ClearAllInput();
         }
 
-        clearallviews(0L);
-        nextpage();
+        videoClearScreen(0L);
+        videoNextPage();
 
         if (logoflags & LOGO_TITLESCREEN)
         {
-            clearallviews(0);
+            videoClearScreen(0);
 
             //g_player[myconnectindex].ps->palette = titlepal;
             P_SetGamePalette(g_player[myconnectindex].ps, TITLEPAL, 8+2+1);   // JBF 20040308
@@ -1627,7 +1627,7 @@ void G_DisplayLogo(void)
             {
                 if (G_FPSLimit())
                 {
-                    clearallviews(0);
+                    videoClearScreen(0);
                     rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BETASCREEN, 0, 0, 2+8+64+BGSTRETCH);
                     if (logoflags & LOGO_DUKENUKEM)
                     {
@@ -1710,8 +1710,8 @@ void G_DisplayLogo(void)
     }
 
     flushperms();
-    clearallviews(0L);
-    nextpage();
+    videoClearScreen(0L);
+    videoNextPage();
 
     //g_player[myconnectindex].ps->palette = palette;
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
@@ -1719,7 +1719,7 @@ void G_DisplayLogo(void)
         S_PlaySound(NITEVISION_ONOFF);
 
     //G_FadePalette(0,0,0,0);
-    clearallviews(0L);
+    videoClearScreen(0L);
 }
 
 #ifndef EDUKE32_STANDALONE
@@ -1727,7 +1727,7 @@ void G_DoOrderScreen(void)
 {
     int32_t i;
 
-    setview(0, 0, xdim-1, ydim-1);
+    videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
     P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
 
@@ -1771,9 +1771,9 @@ static void G_BonusCutscenes(void)
             };
 
             P_SetGamePalette(g_player[myconnectindex].ps, ENDINGPAL, 8+2+1); // JBF 20040308
-            clearallviews(0L);
+            videoClearScreen(0L);
             rotatesprite_fs(0, 50<<16, 65536L, 0, VICTORY1, 0, 0, 2+8+16+64+128+BGSTRETCH);
-            nextpage();
+            videoNextPage();
             fadepal(0, 0, 0, 252, 0, -4);
 
             I_ClearAllInput();
@@ -1783,7 +1783,7 @@ static void G_BonusCutscenes(void)
             {
                 if (G_FPSLimit())
                 {
-                    clearallviews(0L);
+                    videoClearScreen(0L);
                     rotatesprite_fs(0, 50<<16, 65536L, 0, VICTORY1, 0, 0, 2+8+16+64+128+BGSTRETCH);
 
                     // boss
@@ -1862,19 +1862,19 @@ static void G_BonusCutscenes(void)
         if ((G_GetLogoFlags() & LOGO_NOE2BONUSSCENE) && (G_GetLogoFlags() & LOGO_NOE2ENDSCREEN))
             return;
 
-        setview(0, 0, xdim-1, ydim-1);
+        videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
         S_StopMusic();
-        clearallviews(0L);
-        nextpage();
+        videoClearScreen(0L);
+        videoNextPage();
 
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE2BONUSSCENE))
         {
             fadepal(0, 0, 0, 252, 0, -4);
             Anim_Play("cineov2.anm");
             I_ClearAllInput();
-            clearallviews(0L);
-            nextpage();
+            videoClearScreen(0L);
+            videoNextPage();
 
             S_PlaySound(PIPEBOMB_EXPLODE);
             fadepal(0, 0, 0, 0, 252, 4);
@@ -1896,11 +1896,11 @@ static void G_BonusCutscenes(void)
         if ((G_GetLogoFlags() & LOGO_NOE4BONUSSCENE) && (G_GetLogoFlags() & LOGO_NODUKETEAMTEXT) && (G_GetLogoFlags() & LOGO_NODUKETEAMPIC))
             return;
 
-        setview(0, 0, xdim-1, ydim-1);
+        videoSetViewableArea(0, 0, xdim-1, ydim-1);
 
         S_StopMusic();
-        clearallviews(0L);
-        nextpage();
+        videoClearScreen(0L);
+        videoNextPage();
 
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE4BONUSSCENE))
         {
@@ -1908,20 +1908,20 @@ static void G_BonusCutscenes(void)
 
             I_ClearAllInput();
             int t = Anim_Play("vol4e1.anm");
-            clearallviews(0L);
-            nextpage();
+            videoClearScreen(0L);
+            videoNextPage();
             if (t)
                 goto end_vol4e;
 
             t = Anim_Play("vol4e2.anm");
-            clearallviews(0L);
-            nextpage();
+            videoClearScreen(0L);
+            videoNextPage();
             if (t)
                 goto end_vol4e;
 
             Anim_Play("vol4e3.anm");
-            clearallviews(0L);
-            nextpage();
+            videoClearScreen(0L);
+            videoNextPage();
         }
 
     end_vol4e:
@@ -1939,16 +1939,16 @@ static void G_BonusCutscenes(void)
         G_FadePalette(0, 0, 0, 0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 8+2+1);   // JBF 20040308
                                                                          //        G_FadePalette(0,0,0,252);
-        clearallviews(0L);
+        videoClearScreen(0L);
         menutext_center(60, "Thanks to all our");
         menutext_center(60+16, "fans for giving");
         menutext_center(60+16+16, "us big heads.");
         menutext_center(70+16+16+16, "Look for a Duke Nukem 3D");
         menutext_center(70+16+16+16+16, "sequel soon.");
-        nextpage();
+        videoNextPage();
 
         fadepal(0, 0, 0, 252, 0, -12);
-        nextpage();
+        videoNextPage();
         I_ClearAllInput();
         G_HandleEventsWhileNoInput();
         fadepal(0, 0, 0, 0, 252, 12);
@@ -1957,16 +1957,16 @@ static void G_BonusCutscenes(void)
             goto VOL4_END;
 
     VOL4_DUKETEAM:
-        clearallviews(0L);
-        nextpage();
+        videoClearScreen(0L);
+        videoNextPage();
 
         Anim_Play("DUKETEAM.ANM");
 
         I_ClearAllInput();
         G_HandleEventsWhileNoInput();
 
-        clearallviews(0L);
-        nextpage();
+        videoClearScreen(0L);
+        videoNextPage();
         G_FadePalette(0, 0, 0, 252);
 
     VOL4_END:
@@ -1981,8 +1981,8 @@ static void G_BonusCutscenes(void)
             return;
 
         S_StopMusic();
-        clearallviews(0L);
-        nextpage();
+        videoClearScreen(0L);
+        videoNextPage();
         if (ud.lockout == 0 && !(G_GetLogoFlags() & LOGO_NOE3BONUSSCENE))
         {
             fadepal(0, 0, 0, 252, 0, -4);
@@ -1991,8 +1991,8 @@ static void G_BonusCutscenes(void)
             ototalclock = totalclock+200;
             while (totalclock < ototalclock)
                 G_HandleAsync();
-            clearallviews(0L);
-            nextpage();
+            videoClearScreen(0L);
+            videoNextPage();
 
             FX_StopAllSounds();
             S_ClearSoundLocks();
@@ -2034,16 +2034,16 @@ static void G_BonusCutscenes(void)
             S_ClearSoundLocks();
             S_PlaySound(ENDSEQVOL3SND4);
 
-            clearallviews(0L);
-            nextpage();
+            videoClearScreen(0L);
+            videoNextPage();
 
             Anim_Play("DUKETEAM.ANM");
 
             I_ClearAllInput();
             G_HandleEventsWhileNoInput();
 
-            clearallviews(0L);
-            nextpage();
+            videoClearScreen(0L);
+            videoNextPage();
             G_FadePalette(0, 0, 0, 252);
         }
 
@@ -2051,7 +2051,7 @@ static void G_BonusCutscenes(void)
         FX_StopAllSounds();
         S_ClearSoundLocks();
 
-        clearallviews(0L);
+        videoClearScreen(0L);
 
         break;
     }
@@ -2208,9 +2208,9 @@ void G_BonusScreen(int32_t bonusonly)
 
 
     fadepal(0, 0, 0, 0, 252, 28);
-    setview(0, 0, xdim-1, ydim-1);
-    clearallviews(0L);
-    nextpage();
+    videoSetViewableArea(0, 0, xdim-1, ydim-1);
+    videoClearScreen(0L);
+    videoNextPage();
     flushperms();
 
     FX_StopAllSounds();
@@ -2235,13 +2235,13 @@ void G_BonusScreen(int32_t bonusonly)
 
     if (g_mostConcurrentPlayers > 1 && (g_gametypeFlags[ud.coop]&GAMETYPE_SCORESHEET))
     {
-        clearallviews(0);
+        videoClearScreen(0);
         G_DisplayMPResultsScreen();
 
         if (ud.config.MusicToggle)
             S_PlaySound(BONUSMUSIC);
 
-        nextpage();
+        videoNextPage();
         I_ClearAllInput();
         fadepal(0, 0, 0, 252, 0, -28);
         totalclock = 0;
@@ -2253,7 +2253,7 @@ void G_BonusScreen(int32_t bonusonly)
 
             if (G_FPSLimit())
             {
-                clearallviews(0);
+                videoClearScreen(0);
                 G_DisplayMPResultsScreen();
             }
 
@@ -2281,7 +2281,7 @@ void G_BonusScreen(int32_t bonusonly)
     if (ud.config.MusicToggle)
         S_PlaySound(BONUSMUSIC);
 
-    nextpage();
+    videoNextPage();
     I_ClearAllInput();
     fadepal(0, 0, 0, 252, 0, -4);
     bonuscnt = 0;
@@ -2298,7 +2298,7 @@ void G_BonusScreen(int32_t bonusonly)
         {
             if (g_player[myconnectindex].ps->gm&MODE_EOL)
             {
-                clearallviews(0);
+                videoClearScreen(0);
                 rotatesprite_fs(160<<16, 100<<16, 65536L, 0, BONUSSCREEN+gfx_offset, 0, 0, 2+8+64+128+BGSTRETCH);
 
                 if (totalclock >= 1000000000 && totalclock < 1000000320)

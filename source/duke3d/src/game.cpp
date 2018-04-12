@@ -188,10 +188,10 @@ void G_HandleSpecialKeys(void)
 
     if (g_networkMode != NET_DEDICATED_SERVER && ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
-        if (setgamemode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
+        if (videoSetGameMode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
         {
             OSD_Printf(OSD_ERROR "Failed setting fullscreen video mode.\n");
-            if (setgamemode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
+            if (videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
                 G_GameExit("Failed to recover from failure to set fullscreen video mode.\n");
         }
         else ud.config.ScreenMode = !ud.config.ScreenMode;
@@ -282,7 +282,7 @@ void G_GameExit(const char *msg)
            g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
-            setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
+            videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
         }
 
         // shareware and TEN screens
@@ -324,10 +324,10 @@ static void M32_drawdebug(void)
 
     if (m32_numdebuglines>0)
     {
-        begindrawing();
+        videoBeginDrawing();
         for (i=0; i<m32_numdebuglines && y<ydim-8; i++, y+=8)
             printext256(x,y,col,0,m32_debugstr[i],xdim>640?0:1);
-        enddrawing();
+        videoEndDrawing();
     }
     m32_numdebuglines=0;
 }
@@ -669,9 +669,9 @@ static void G_ReadGLFrame(void)
         return;
     }
 
-    begindrawing();
+    videoBeginDrawing();
     glReadPixels(0, 0, xdim, ydim, GL_RGBA, GL_UNSIGNED_BYTE, frame);
-    enddrawing();
+    videoEndDrawing();
 
     for (y = 0; y < 200; y++)
     {
@@ -716,7 +716,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     if (r_usenewaspect)
     {
         newaspect_enable = 1;
-        setaspect_new();
+        videoSetCorrectedAspect();
     }
 
     if (ud.pause_on || pPlayer->on_crane > -1)
@@ -779,13 +779,13 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                                                                   )));
 
         if (!r_usenewaspect)
-            setaspect(vr, yxaspect);
+            videoSetAspect(vr, yxaspect);
         else
         {
             viewingRange = vr;
             yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
 
-            setaspect(mulscale16(viewingRange,viewingrange), yxaspect);
+            videoSetAspect(mulscale16(viewingRange,viewingrange), yxaspect);
         }
 
         if (g_screenCapture)
@@ -795,7 +795,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 allocache(&waloff[TILE_SAVESHOT],200*320,&walock[TILE_SAVESHOT]);
 
             if (getrendermode() == REND_CLASSIC)
-                setviewtotile(TILE_SAVESHOT, 200, 320);
+                videoSetTarget(TILE_SAVESHOT, 200, 320);
         }
         else if (screenTilting)
         {
@@ -854,7 +854,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 if (waloff[TILE_TILT] == 0)
                     allocache(&waloff[TILE_TILT], maxTiltSize, &walock[TILE_TILT]);
 
-                setviewtotile(TILE_TILT, viewtilexsiz, viewtileysiz);
+                videoSetTarget(TILE_TILT, viewtilexsiz, viewtileysiz);
 
                 if ((tang&1023) == 512)
                 {
@@ -877,7 +877,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 vRange = sintable[vRange + 512] * 8 + sintable[vRange] * 5;
 
                 //                setaspect(i>>1, yxaspect);
-                setaspect(mulscale16(oviewingrange, vRange >> 1), yxaspect);
+                videoSetAspect(mulscale16(oviewingrange, vRange >> 1), yxaspect);
 
                 viewingRange = vRange >> 1;
                 yxAspect     = tabledivide32_noinline(65536 * ydim * 8, xdim * 5);
@@ -1053,7 +1053,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             if (getrendermode() == REND_CLASSIC)
             {
-                setviewback();
+                videoRestoreTarget();
 //                walock[TILE_SAVESHOT] = 1;
             }
 #ifdef USE_OPENGL
@@ -1067,7 +1067,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
 
             if (screenTilting == 2)  // tang == 1024
             {
-                begindrawing();
+                videoBeginDrawing();
                 {
                     const int32_t height = windowxy2.y-windowxy1.y+1;
                     const int32_t width = windowxy2.x-windowxy1.x+1;
@@ -1086,11 +1086,11 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                         for (x=0; x<(width>>1); x++)
                             swapchar(&f[x], &f[width-1-x]);
                 }
-                enddrawing();
+                videoEndDrawing();
             }
             else
             {
-                setviewback();
+                videoRestoreTarget();
                 picanm[TILE_TILT].xofs = picanm[TILE_TILT].yofs = 0;
 
                 int tiltZoom = (tang&511);
@@ -1111,7 +1111,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             g_halveScreenArea = 0;
             G_UpdateScreenArea();
 
-            begindrawing();
+            videoBeginDrawing();
             {
                 uint8_t *const f = (uint8_t *)frameplace;
                 const int32_t x1=g_halfScreen.x1, y1=g_halfScreen.y1;
@@ -1136,7 +1136,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                         B_BUF32(&f[yldst+x1+dx], pixl|(pixl<<8)|(pixr<<16)|(pixr<<24));
                     }
             }
-            enddrawing();
+            videoEndDrawing();
         }
     }
 
@@ -1173,7 +1173,7 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
     if (r_usenewaspect)
     {
         newaspect_enable = 0;
-        setaspect(viewingRange, yxAspect);
+        videoSetAspect(viewingRange, yxAspect);
     }
 
     VM_OnEvent(EVENT_DISPLAYROOMSEND, g_player[screenpeek].ps->i, screenpeek);
@@ -4473,8 +4473,8 @@ void G_InitTimer(int32_t ticspersec)
 {
     if (g_timerTicsPerSecond != ticspersec)
     {
-        uninittimer();
-        inittimer(ticspersec);
+        timerUninit();
+        timerInit(ticspersec);
         g_timerTicsPerSecond = ticspersec;
     }
 }
@@ -5841,7 +5841,7 @@ static void G_Startup(void)
 
     set_memerr_handler(&G_HandleMemErr);
 
-    inittimer(TICRATE);
+    timerInit(TICRATE);
 
     initcrc32table();
 
@@ -6172,10 +6172,10 @@ int G_FPSLimit(void)
     if (frameWaiting)
     {
         frameWaiting--;
-        nextpage();
+        videoNextPage();
     }
 
-    uint64_t const frameTicks = getu64ticks();
+    uint64_t const frameTicks = timerGetTicksU64();
 
     if (!r_maxfps || frameTicks >= nextPageTicks)
     {
@@ -6444,10 +6444,10 @@ int app_main(int argc, char const * const * argv)
     Anim_Init();
 
     const char *defsfile = G_DefFile();
-    uint32_t stime = getticks();
+    uint32_t stime = timerGetTicks();
     if (!loaddefinitionsfile(defsfile))
     {
-        uint32_t etime = getticks();
+        uint32_t etime = timerGetTicks();
         initprintf("Definitions file \"%s\" loaded in %d ms.\n", defsfile, etime-stime);
     }
     loaddefinitions_game(defsfile, FALSE);
@@ -6548,7 +6548,7 @@ int app_main(int argc, char const * const * argv)
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (setgamemode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
+        if (videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
         {
             vec2_t const res[] = {
                 { ud.config.ScreenWidth, ud.config.ScreenHeight }, { 800, 600 }, { 640, 480 }, { 320, 240 },
@@ -6566,7 +6566,7 @@ int app_main(int argc, char const * const * argv)
             int resIdx = 0;
             int bppIdx = 0;
 
-            while (setgamemode(0, res[resIdx].x, res[resIdx].y, bpp[bppIdx]) < 0)
+            while (videoSetGameMode(0, res[resIdx].x, res[resIdx].y, bpp[bppIdx]) < 0)
             {
                 initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n", res[resIdx].x, res[resIdx].y,
                            bpp[bppIdx]);
@@ -6711,7 +6711,7 @@ MAIN_LOOP_RESTART:
             quitevent = 0;
         }
 
-        sampletimer();
+        timerUpdate();
         Net_GetPackets();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
@@ -6763,7 +6763,7 @@ MAIN_LOOP_RESTART:
 
             do
             {
-                sampletimer();
+                timerUpdate();
 
                 if (ready2send == 0) break;
 
@@ -6783,7 +6783,7 @@ MAIN_LOOP_RESTART:
 #endif
                 }
 
-                sampletimer();
+                timerUpdate();
 
                 if (totalclock - moveClock >= TICSPERFRAME)
                 {
@@ -6830,7 +6830,7 @@ MAIN_LOOP_RESTART:
         if (g_saveRequested)
         {
             KB_FlushKeyboardQueue();
-            nextpage();
+            videoNextPage();
 
             g_screenCapture = 1;
             G_DrawRooms(myconnectindex, 65536);

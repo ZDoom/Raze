@@ -6627,7 +6627,7 @@ void C_Compile(const char *fileName)
 
     g_logFlushWindow = 0;
 
-    uint32_t const startcompiletime = getticks();
+    uint32_t const startcompiletime = timerGetTicks();
 
     char * mptr = (char *)Xmalloc(kFileLen+1);
     mptr[kFileLen] = 0;
@@ -6701,7 +6701,7 @@ void C_Compile(const char *fileName)
 
     C_SetScriptSize(g_scriptPtr-apScript+8);
 
-    initprintf("Script compiled in %dms, %ld bytes%s\n", getticks() - startcompiletime,
+    initprintf("Script compiled in %dms, %ld bytes%s\n", timerGetTicks() - startcompiletime,
                 (unsigned long)(g_scriptPtr-apScript), C_ScriptVersionString(g_scriptVersion));
 
     for (unsigned i=0; i < ARRAY_SIZE(tables_free); i++)

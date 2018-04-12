@@ -363,7 +363,7 @@ int32_t G_LoadPlayer(savebrief_t & sv)
         G_UpdateScreenArea();
         G_DrawBackground();
         menutext_center(100, "Loading...");
-        nextpage();
+        videoNextPage();
     }
 
     Net_WaitForServer();
@@ -439,7 +439,7 @@ static void G_SaveTimers(void)
 
 static void G_RestoreTimers(void)
 {
-    sampletimer();
+    timerUpdate();
 
     totalclock = g_timers.totalclock;
     totalclocklock = g_timers.totalclocklock;
@@ -2046,7 +2046,7 @@ static void sv_restload()
 
 #ifdef DEBUGGINGAIDS
 # define PRINTSIZE(name) do { if (mem) OSD_Printf(name ": %d\n", (int32_t)(mem-tmem)); \
-        OSD_Printf(name ": %d ms\n", getticks()-t); t=getticks(); tmem=mem; } while (0)
+        OSD_Printf(name ": %d ms\n", timerGetTicks()-t); t=timerGetTicks(); tmem=mem; } while (0)
 #else
 # define PRINTSIZE(name) do { } while (0)
 #endif
@@ -2061,7 +2061,7 @@ static uint8_t *dosaveplayer2(FILE *fil, uint8_t *mem)
 {
 #ifdef DEBUGGINGAIDS
     uint8_t *tmem = mem;
-    int32_t t=getticks();
+    int32_t t=timerGetTicks();
 #endif
     mem=writespecdata(svgm_udnetw, fil, mem);  // user settings, players & net
     PRINTSIZE("ud");
@@ -2172,7 +2172,7 @@ static int32_t doloadplayer2(int32_t fil, uint8_t **memptr)
     uint8_t *mem = memptr ? *memptr : NULL;
 #ifdef DEBUGGINGAIDS
     uint8_t *tmem=mem;
-    int32_t t=getticks();
+    int32_t t=timerGetTicks();
 #endif
     if (readspecdata(svgm_udnetw, fil, &mem)) return -2;
     PRINTSIZE("ud");

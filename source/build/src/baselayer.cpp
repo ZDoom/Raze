@@ -454,9 +454,9 @@ int32_t baselayer_init(void)
         { "r_tror_nomaskpass", "enable/disable additional pass in TROR software rendering", (void *)&r_tror_nomaskpass, CVAR_BOOL, 0, 1 },
 #endif
         { "r_windowpositioning", "enable/disable window position memory", (void *) &windowpos, CVAR_BOOL, 0, 1 },
-        { "vid_gamma","adjusts gamma component of gamma ramp",(void *) &vid_gamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-        { "vid_contrast","adjusts contrast component of gamma ramp",(void *) &vid_contrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
-        { "vid_brightness","adjusts brightness component of gamma ramp",(void *) &vid_brightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+        { "vid_gamma","adjusts gamma component of gamma ramp",(void *) &g_videoGamma, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+        { "vid_contrast","adjusts contrast component of gamma ramp",(void *) &g_videoContrast, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
+        { "vid_brightness","adjusts brightness component of gamma ramp",(void *) &g_videoBrightness, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },
 #ifdef DEBUGGINGAIDS
         { "debug1","debug counter",(void *) &debug1, CVAR_FLOAT, -100000, 100000 },
         { "debug2","debug counter",(void *) &debug2, CVAR_FLOAT, -100000, 100000 },

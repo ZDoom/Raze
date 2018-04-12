@@ -142,9 +142,9 @@ int32_t loadsetup(const char *fn)
 #ifdef POLYMER
     if (readconfig(fp, "rendmode", val, VL) > 0) { i = atoi_safe(val); glrendmode = i; }
 #endif
-    if (readconfig(fp, "vid_gamma", val, VL) > 0) vid_gamma = clampd(Bstrtod(val, NULL), 0.0, 10.0);
-    if (readconfig(fp, "vid_brightness", val, VL) > 0) vid_brightness = clampd(Bstrtod(val, NULL), 0.0, 10.0);
-    if (readconfig(fp, "vid_contrast", val, VL) > 0) vid_contrast = clampd(Bstrtod(val, NULL), 0.0, 10.0);
+    if (readconfig(fp, "vid_gamma", val, VL) > 0) g_videoGamma = clampd(Bstrtod(val, NULL), 0.0, 10.0);
+    if (readconfig(fp, "vid_brightness", val, VL) > 0) g_videoBrightness = clampd(Bstrtod(val, NULL), 0.0, 10.0);
+    if (readconfig(fp, "vid_contrast", val, VL) > 0) g_videoContrast = clampd(Bstrtod(val, NULL), 0.0, 10.0);
 #ifdef RENDERTYPEWIN
     if (readconfig(fp, "maxrefreshfreq", val, VL) > 0) maxrefreshfreq = atoi_safe(val);
 #endif
@@ -627,9 +627,9 @@ int32_t writesetup(const char *fn)
              maxrefreshfreq,
 #endif
              windowpos, windowx, windowy,
-             vid_gamma_3d>=0?vid_gamma_3d:vid_gamma,
-             vid_brightness_3d>=0?vid_brightness_3d:vid_brightness,
-             vid_contrast_3d>=0?vid_contrast_3d:vid_contrast,
+             vid_gamma_3d>=0?vid_gamma_3d:g_videoGamma,
+             vid_brightness_3d>=0?vid_brightness_3d:g_videoBrightness,
+             vid_contrast_3d>=0?vid_contrast_3d:g_videoContrast,
              game_executable,
 #if 0
              option[7]>>4, option[2],

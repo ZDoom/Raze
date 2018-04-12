@@ -61,9 +61,9 @@ void plotpixel(int32_t x, int32_t y, char col)
     }
 #endif
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
     drawpixel_safe((void *) (ylookup[y]+x+frameplace), col);
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 }
 
 void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int col)
@@ -92,10 +92,10 @@ void plotlines2d(const int32_t *xx, const int32_t *yy, int32_t numpoints, int co
         int32_t odrawlinepat = drawlinepat;
         drawlinepat = 0xffffffff;
 
-        begindrawing();
+        videoBeginDrawing();
         for (i=0; i<numpoints-1; i++)
             drawline16(xx[i], yy[i], xx[i+1], yy[i+1], col);
-        enddrawing();
+        videoEndDrawing();
 
         drawlinepat = odrawlinepat;
     }
@@ -113,9 +113,9 @@ char getpixel(int32_t x, int32_t y)
     if (getrendermode() >= REND_POLYMOST && in3dmode()) return 0;
 #endif
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
     r = readpixel((void *) (ylookup[y]+x+frameplace));
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
     return r;
 }
 
@@ -200,7 +200,7 @@ static void drawlinepixels(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char 
         plc = y1+mulscale12((2047-x1)&4095, inc);
         i = ((x1+2048)>>12); daend = ((x2+2048)>>12);
 
-        begindrawing(); //{{{
+        videoBeginDrawing(); //{{{
         for (; i<daend; i++)
         {
             j = (plc>>12);
@@ -208,7 +208,7 @@ static void drawlinepixels(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char 
                 drawpixel_safe((void *) (frameplace+ylookup[j]+i), col);
             plc += inc;
         }
-        enddrawing();   //}}}
+        videoEndDrawing();   //}}}
     }
     else
     {
@@ -222,7 +222,7 @@ static void drawlinepixels(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char 
         plc = x1+mulscale12((2047-y1)&4095, inc);
         i = ((y1+2048)>>12); daend = ((y2+2048)>>12);
 
-        begindrawing(); //{{{
+        videoBeginDrawing(); //{{{
         p = ylookup[i]+frameplace;
         for (; i<daend; i++)
         {
@@ -231,7 +231,7 @@ static void drawlinepixels(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char 
                 drawpixel_safe((void *) (j+p), col);
             plc += inc; p += ylookup[1];
         }
-        enddrawing();   //}}}
+        videoEndDrawing();   //}}}
     }
 }
 
@@ -351,7 +351,7 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
 
     int pinc, inc = 1;
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
 
     intptr_t p = (y1*bytesperline)+x1+frameplace;
 
@@ -396,7 +396,7 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
             }
         }
 
-        enddrawing();   //}}}
+        videoEndDrawing();   //}}}
 
         return 1;
     }
@@ -427,7 +427,7 @@ int32_t drawline16(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int col)
         }
     }
 
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 
     return 1;
 }
@@ -484,7 +484,7 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
     *      b
     */
 
-    begindrawing();
+    videoBeginDrawing();
     intptr_t const p = (y1*bytesperline)+x1+frameplace;
 
     uint32_t patc = UINT_MAX;
@@ -547,7 +547,7 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
             }
         } while (yp > xp);
 
-        enddrawing();
+        videoEndDrawing();
         return;
     }
 
@@ -589,7 +589,7 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
             drawpixel_safe((char *) (p + yp - xpbpl), col);  // 8
     } while (yp > xp);
 
-    enddrawing();
+    videoEndDrawing();
 }
 
 //
@@ -598,9 +598,9 @@ void drawcircle16(int32_t x1, int32_t y1, int32_t r, int32_t eccen, char col)
 void clear2dscreen(void)
 {
     int32_t const clearsz = (ydim16 <= yres - STATUS2DSIZ2) ? yres - STATUS2DSIZ2 : yres;
-    begindrawing();  //{{{
+    videoBeginDrawing();  //{{{
     Bmemset((char *) frameplace, 0, bytesperline*clearsz);
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 }
 
 
@@ -719,7 +719,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
     if (gride <= 0)
         return;
 
-    begindrawing();	//{{{
+    videoBeginDrawing();	//{{{
 
     if (m32_sideview)
     {
@@ -841,7 +841,7 @@ void draw2dgrid(int32_t posxe, int32_t posye, int32_t posze, int16_t cursectnum,
         }
     }
 
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 }
 
 
@@ -1245,7 +1245,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
 
     setup_sideview_sincos();
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
 
 
     if (editstatus == 0)
@@ -1386,7 +1386,7 @@ void draw2dscreen(const vec3_t *pos, int16_t cursectnum, int16_t ange, int32_t z
     drawline16mid(x1, j, -y1, +i, editorcolors[15]);
 
 
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 }
 
 //

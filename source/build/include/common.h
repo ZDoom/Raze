@@ -140,8 +140,8 @@ int32_t dist(const void *s1, const void *s2);
 void COMMON_clearbackground(int32_t numcols, int32_t numrows);
 
 // timer defs for profiling function chunks the simple way
-#define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=getticks();
-#define EDUKE32_TMRTIC t[ti++]=getticks()
+#define EDUKE32_TMRDEF int32_t t[20], ti=0; const char *tmrstr=__func__; fprintf(stderr,"%s\n",tmrstr); t[ti++]=timerGetTicks();
+#define EDUKE32_TMRTIC t[ti++]=timerGetTicks()
 #define EDUKE32_TMRPRN do { int ii=0; fprintf(stderr,"%s: ",tmrstr); for (ii=1; ii<ti; ii++) fprintf(stderr,"%d ", t[ii]-t[ii-1]); fprintf(stderr,"\n"); } while (0)
 
 void Duke_CommonCleanup(void);

@@ -3739,7 +3739,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 
 //    flushlogwindow = 0;
 
-    startcompiletime = getticks();
+    startcompiletime = timerGetTicks();
 
     if (isfilename)
     {
@@ -3809,7 +3809,7 @@ void C_Compile(const char *filenameortext, int32_t isfilename)
 //        C_SetScriptSize(g_scriptPtr-script+8);
         if (isfilename)
         {
-            int32_t ct = getticks() - startcompiletime;
+            int32_t ct = timerGetTicks() - startcompiletime;
             if (ct > 50)
                 initprintf("Script compiled in %dms\n", ct);
             C_CompilationInfo();

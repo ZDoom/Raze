@@ -1097,14 +1097,14 @@ static MenuEntry_t *MEL_RENDERERSETUP_POLYMER [] = {
 #endif
 
 #ifdef EDUKE32_ANDROID_MENU
-static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &vid_gamma, &MF_Bluefont, 1.f, 2.5f, 0.f, 39, 1 );
+static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &g_videoGamma, &MF_Bluefont, 1.f, 2.5f, 0.f, 39, 1 );
 #else
-static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &vid_gamma, &MF_Bluefont, 0.3f, 4.f, 0.f, 38, 1 );
+static MenuRangeFloat_t MEO_COLCORR_GAMMA = MAKE_MENURANGE( &g_videoGamma, &MF_Bluefont, 0.3f, 4.f, 0.f, 38, 1 );
 #endif
 static MenuEntry_t ME_COLCORR_GAMMA = MAKE_MENUENTRY( "Gamma:", &MF_Redfont, &MEF_ColorCorrect, &MEO_COLCORR_GAMMA, RangeFloat );
-static MenuRangeFloat_t MEO_COLCORR_CONTRAST = MAKE_MENURANGE( &vid_contrast, &MF_Bluefont, 0.1f, 2.7f, 0.f, 53, 1 );
+static MenuRangeFloat_t MEO_COLCORR_CONTRAST = MAKE_MENURANGE( &g_videoContrast, &MF_Bluefont, 0.1f, 2.7f, 0.f, 53, 1 );
 static MenuEntry_t ME_COLCORR_CONTRAST = MAKE_MENUENTRY( "Contrast:", &MF_Redfont, &MEF_ColorCorrect, &MEO_COLCORR_CONTRAST, RangeFloat );
-static MenuRangeFloat_t MEO_COLCORR_BRIGHTNESS = MAKE_MENURANGE( &vid_brightness, &MF_Bluefont, -0.8f, 0.8f, 0.f, 33, 1 );
+static MenuRangeFloat_t MEO_COLCORR_BRIGHTNESS = MAKE_MENURANGE( &g_videoBrightness, &MF_Bluefont, -0.8f, 0.8f, 0.f, 33, 1 );
 static MenuEntry_t ME_COLCORR_BRIGHTNESS = MAKE_MENUENTRY( "Brightness:", &MF_Redfont, &MEF_ColorCorrect, &MEO_COLCORR_BRIGHTNESS, RangeFloat );
 static MenuEntry_t ME_COLCORR_RESET = MAKE_MENUENTRY( "Reset To Defaults", &MF_Redfont, &MEF_ColorCorrect, &MEO_NULL, Link );
 #ifdef EDUKE32_ANDROID_MENU
@@ -3041,9 +3041,9 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         int32_t nrend = newrendermode;
         int32_t nvsync = newvsync;
 
-        if (setgamemode(n.flags, n.xdim, n.ydim, n.bppmax) < 0)
+        if (videoSetGameMode(n.flags, n.xdim, n.ydim, n.bppmax) < 0)
         {
-            if (setgamemode(p.flags, p.xdim, p.ydim, p.bppmax) < 0)
+            if (videoSetGameMode(p.flags, p.xdim, p.ydim, p.bppmax) < 0)
             {
                 setrendermode(prend);
                 G_GameExit("Failed restoring old video mode.");
@@ -3051,7 +3051,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
             else
             {
                 onvideomodechange(p.bppmax > 8);
-                vsync = setvsync(pvsync);
+                vsync = videoSetVsync(pvsync);
             }
         }
         else onvideomodechange(n.bppmax > 8);
@@ -3059,7 +3059,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         g_restorePalette = -1;
         G_UpdateScreenArea();
         setrendermode(nrend);
-        vsync = setvsync(nvsync);
+        vsync = videoSetVsync(nvsync);
         ud.config.ScreenMode = fullscreen;
         ud.config.ScreenWidth = xdim;
         ud.config.ScreenHeight = ydim;
@@ -3089,9 +3089,9 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     }
     else if (entry == &ME_COLCORR_RESET)
     {
-        vid_gamma = DEFAULT_GAMMA;
-        vid_contrast = DEFAULT_CONTRAST;
-        vid_brightness = DEFAULT_BRIGHTNESS;
+        g_videoGamma = DEFAULT_GAMMA;
+        g_videoContrast = DEFAULT_CONTRAST;
+        g_videoBrightness = DEFAULT_BRIGHTNESS;
         ud.brightness = 0;
         r_ambientlight = r_ambientlightrecip = 1.f;
         setbrightness(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
@@ -3226,7 +3226,7 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
     }
     else if (entry == &ME_VIDEOSETUP_FRAMELIMIT)
     {
-        g_frameDelay = newOption ? (getu64tickspersec()/newOption) : 0;
+        g_frameDelay = newOption ? (timerGetFreqU64()/newOption) : 0;
     }
 
     switch (g_currentMenu)
@@ -3289,8 +3289,8 @@ static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
 
     if (domodechange)
     {
-        resetvideomode();
-        if (setgamemode(fullscreen, xdim, ydim, bpp))
+        videoResetMode();
+        if (videoSetGameMode(fullscreen, xdim, ydim, bpp))
             OSD_Printf("restartvid: Reset failed...\n");
         onvideomodechange(ud.config.ScreenBPP>8);
         G_RefreshLights();
@@ -6964,7 +6964,7 @@ void M_DisplayMenus(void)
             int32_t alpha;
             if (KXDWN)
             {
-                setaspect(viewingrange, 65536);
+                videoSetAspect(viewingrange, 65536);
                 cursorpos.x = scale(cursorpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
                 cursorpos.y = scale(cursorpos.y - (200<<15), (ydim << 2) * 6, (xdim * 3) * 5) + (200<<15);
                 z = scale(32768, ydim << 2, xdim * 3);
@@ -6980,7 +6980,7 @@ void M_DisplayMenus(void)
             rotatesprite_fs_alpha(cursorpos.x, cursorpos.y, z, 0, a, 0, p, o, alpha);
 
             if (KXDWN)
-                setaspect(viewingrange, oyxaspect);
+                videoSetAspect(viewingrange, oyxaspect);
         }
     }
     else

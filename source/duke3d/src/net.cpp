@@ -411,7 +411,7 @@ void Net_ReceiveDisconnect(ENetEvent *event)
 
 void Net_GetPackets(void)
 {
-    sampletimer();
+    timerUpdate();
     MUSIC_Update();
     S_Update();
 

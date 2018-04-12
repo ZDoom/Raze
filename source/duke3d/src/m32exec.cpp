@@ -2887,7 +2887,7 @@ dodefault:
             insptr++;
             {
                 int32_t j=*insptr++;
-                Gv_SetVarX(j, getticks());
+                Gv_SetVarX(j, timerGetTicks());
             }
             continue;
 
@@ -2899,7 +2899,7 @@ dodefault:
                 if (daxrange > (1<<20)) daxrange = (1<<20);
                 if (dayxaspect < (1<<12)) dayxaspect = (1<<12);
                 if (dayxaspect > (1<<20)) dayxaspect = (1<<20);
-                setaspect(daxrange, dayxaspect);
+                videoSetAspect(daxrange, dayxaspect);
                 continue;
             }
 

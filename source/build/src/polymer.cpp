@@ -747,7 +747,7 @@ int32_t         culledface;
 // EXTERNAL FUNCTIONS
 int32_t             polymer_init(void)
 {
-    int32_t         i, j, t = getticks();
+    int32_t         i, j, t = timerGetTicks();
 
     if (pr_verbosity >= 1) OSD_Printf("Initializing Polymer subsystem...\n");
 
@@ -852,7 +852,7 @@ int32_t             polymer_init(void)
     }
 #endif
 
-    if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete in %d ms.\n", getticks()-t);
+    if (pr_verbosity >= 1) OSD_Printf("PR : Initialization complete in %d ms.\n", timerGetTicks()-t);
 
     return 1;
 }
@@ -1070,7 +1070,7 @@ void polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t d
 
     if (getrendermode() == REND_CLASSIC) return;
 
-    begindrawing();
+    videoBeginDrawing();
 
     // TODO: support for screen resizing
     // frameoffset = frameplace + windowxy1.y*bytesperline + windowxy1.x;
@@ -1215,7 +1215,7 @@ void polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t d
         polymer_emptybuckets();
 
         viewangle = daang;
-        enddrawing();
+        videoEndDrawing();
         return;
     }
 
@@ -1235,7 +1235,7 @@ void polymer_drawrooms(int32_t daposx, int32_t daposy, int32_t daposz, fix16_t d
     gsinang2 = gsinang*fviewingrange*(1./65536.f);
 
     if (pr_verbosity >= 3) OSD_Printf("PR : Rooms drawn.\n");
-    enddrawing();
+    videoEndDrawing();
 }
 
 void                polymer_drawmasks(void)

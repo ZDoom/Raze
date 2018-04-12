@@ -18,15 +18,15 @@ HWND win_gethwnd(void)
 }
 #endif
 
-int32_t setvsync(int32_t newSync)
+int32_t videoSetVsync(int32_t newSync)
 {
     if (vsync_renderlayer == newSync)
         return newSync;
 
     vsync_renderlayer = newSync;
 
-    resetvideomode();
-    if (setgamemode(fullscreen, xdim, ydim, bpp))
+    videoResetMode();
+    if (videoSetGameMode(fullscreen, xdim, ydim, bpp))
         OSD_Printf("restartvid: Reset failed...\n");
 
     return newSync;
@@ -174,7 +174,7 @@ static inline char grabmouse_low(char a)
 }
 
 // high-resolution timers for profiling
-uint64_t getu64ticks(void)
+uint64_t timerGetTicksU64(void)
 {
 # if defined _WIN32
     return win_getu64ticks();
@@ -201,7 +201,7 @@ uint64_t getu64ticks(void)
 # endif
 }
 
-uint64_t getu64tickspersec(void)
+uint64_t timerGetFreqU64(void)
 {
 # if defined _WIN32
     return win_timerfreq;
@@ -219,7 +219,7 @@ uint64_t getu64tickspersec(void)
 # endif
 }
 
-void getvalidmodes(void)
+void videoGetModes(void)
 {
     int32_t i, maxx = 0, maxy = 0;
     int32_t j;
@@ -317,7 +317,7 @@ void getvalidmodes(void)
 //
 // setvideomode() -- set SDL video mode
 //
-int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
+int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
 {
     int32_t regrab = 0, ret;
 #ifdef USE_OPENGL
@@ -433,7 +433,7 @@ int32_t setvideomode(int32_t x, int32_t y, int32_t c, int32_t fs)
 //
 // showframe() -- update the display
 //
-void showframe(int32_t w)
+void videoShowFrame(int32_t w)
 {
     UNREFERENCED_PARAMETER(w);
 
@@ -453,7 +453,7 @@ void showframe(int32_t w)
     if (lockcount)
     {
         printf("Frame still locked %d times when showframe() called.\n", lockcount);
-        while (lockcount) enddrawing();
+        while (lockcount) videoEndDrawing();
     }
 
     // deferred palette updating

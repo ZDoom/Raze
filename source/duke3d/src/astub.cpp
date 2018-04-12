@@ -1038,7 +1038,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
 
     ydim -= 8; // vvvvvv reset at end!!
 
-    begindrawing();  //{{{
+    videoBeginDrawing();  //{{{
 
     x=1; x2=14;
     y=4; yi=2;
@@ -1102,7 +1102,7 @@ void ExtShowSectorData(int16_t sectnum)   //F5
     PrintStatus("Skill 4 =", totalactors4, 65, 13, 11);
     PrintStatus("Respawn =", totalrespawn, 65, 14, 11);
 
-    enddrawing();  //}}}
+    videoEndDrawing();  //}}}
 
     ydim += 8; // ^^^^^^ see above!
 }
@@ -1220,7 +1220,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
         for (i=0; i<MAXTILES; i++)
             total += multisprite[i];
 
-        begindrawing();  //{{{
+        videoBeginDrawing();  //{{{
 
         x=2+runi*34;
         y=4;
@@ -1251,7 +1251,7 @@ void ExtShowWallData(int16_t wallnum)       //F6
         PRSTAT("Boss4     =", BOSS4);
 #undef PRSTAT
 
-        enddrawing();  //}}}
+        videoEndDrawing();  //}}}
     }
 }
 
@@ -1278,7 +1278,7 @@ static void ShowFileText(const char *name)
     }
 
     t=65;
-    begindrawing();
+    videoBeginDrawing();
     while (t!=EOF && col<5)
     {
         t = 0;
@@ -1309,7 +1309,7 @@ static void ShowFileText(const char *name)
             xmax=0;
         }
     }
-    enddrawing();
+    videoEndDrawing();
 
     kclose(fp);
 
@@ -1468,9 +1468,9 @@ static void IntegratedHelp(void)
         Bmemset(oldpattern, 0, sizeof(char));
         //    clearmidstatbar16();
 
-        begindrawing();
+        videoBeginDrawing();
         CLEARLINES2D(0, ydim, 0);
-        enddrawing();
+        videoEndDrawing();
 
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F1]==0)
         {
@@ -1486,9 +1486,9 @@ static void IntegratedHelp(void)
             }
             else
             {
-                begindrawing();
+                videoBeginDrawing();
                 CLEARLINES2D(0, ydim, 0);
-                enddrawing();
+                videoEndDrawing();
             }
 
             // based on 'save as' dialog in overheadeditor()
@@ -1503,7 +1503,7 @@ static void IntegratedHelp(void)
                 while (bad == 0)
                 {
                     _printmessage16("Search: %s_", pattern);
-                    showframe(1);
+                    videoShowFrame(1);
 
                     idle_waitevent();
 
@@ -1653,11 +1653,11 @@ ENDFOR1:
 
 //            drawgradient();
 
-            begindrawing();
+            videoBeginDrawing();
             printext16(9, ydim2d-overridepm16y+9, editorcolors[4], -1, "Help Mode", 0);
             printext16(8, ydim2d-overridepm16y+8, editorcolors[12], -1, "Help Mode", 0);
             printext16(8 + 9*8 + 2*8, ydim2d-overridepm16y+8, editorcolors[15], -1, "(S:search)", 0);
-            enddrawing();
+            videoEndDrawing();
 
             if (curhp < helppage[0]->numlines)
                 _printmessage16("%s", helppage[0]->line[curhp]);
@@ -1677,7 +1677,7 @@ ENDFOR1:
                            disptext[i], 0);
             }
 
-            showframe(1);
+            videoShowFrame(1);
         }
 
         clearkeys();
@@ -1838,9 +1838,9 @@ static void SoundDisplay(void)
         while (keystatus[KEYSC_ESC]==0 && keystatus[KEYSC_Q]==0 && keystatus[KEYSC_F2]==0
                 && keystatus[buildkeys[BK_MODE2D_3D]]==0)  // quickjump to 3d mode
         {
-            begindrawing();
+            videoBeginDrawing();
             CLEARLINES2D(0, ydim16, 0);
-            enddrawing();
+            videoEndDrawing();
 
             idle_waitevent();
             if (handleevents())
@@ -1848,11 +1848,11 @@ static void SoundDisplay(void)
 
 //            drawgradient();
 
-            begindrawing();
+            videoBeginDrawing();
             printext16(9, ydim2d-overridepm16y+9, editorcolors[4], -1, "Sound Index", 0);
             printext16(8, ydim2d-overridepm16y+8, editorcolors[12], -1, "Sound Index", 0);
             printext16(8 + 11*8 + 2*8, ydim2d-overridepm16y+8, editorcolors[15], -1, "(SPACE:play, S:sort)", 0);
-            enddrawing();
+            videoEndDrawing();
 
             if (PRESSED_KEYSC(G))    // goto specified sound#
             {
@@ -1968,7 +1968,7 @@ static void SoundDisplay(void)
                 char ch, bad=0;
 
                 _printmessage16("Sort by: (S)oundnum (D)ef (F)ile ori(g) or flags (12345)");
-                showframe(1);
+                videoShowFrame(1);
 
                 i=0;
                 keyFlushChars();
@@ -1993,7 +1993,7 @@ static void SoundDisplay(void)
                 clearkeys();
             }
             else
-                showframe(1);
+                videoShowFrame(1);
         }
 
         overridepm16y = -1;
@@ -2417,16 +2417,16 @@ int32_t AskIfSure(const char *text)
 
     if (in3dmode())
     {
-        begindrawing(); //{{{
+        videoBeginDrawing(); //{{{
         printext256(0,0,whitecol,0,text?text:"Are you sure you want to proceed?",0);
-        enddrawing();   //}}}
+        videoEndDrawing();   //}}}
     }
     else
     {
         _printmessage16("%s", text?text:"Are you sure you want to proceed?");
     }
 
-    showframe(1);
+    videoShowFrame(1);
 
     while ((keystatus[KEYSC_ESC]|keystatus[KEYSC_ENTER]|keystatus[KEYSC_SPACE]|keystatus[KEYSC_N]) == 0)
     {
@@ -2498,7 +2498,7 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
 #define TMPERRMSG_PRINT(Msg, ...) do {  \
     Bsprintf(tilesel_errmsg, Msg, ## __VA_ARGS__); \
     TMPERRMSG_SHOW(1); \
-    showframe(1); \
+    videoShowFrame(1); \
     tilesel_showerr = 1; \
 } while (0)
 
@@ -3278,7 +3278,7 @@ static int32_t OnSelectTile(int32_t tileNum)
         glEnable(GL_TEXTURE_2D);
     }
 #endif
-    clearview(-1);
+    videoClearViewableArea(-1);
 
     //
     //	Await appropriate selection keypress.
@@ -3312,7 +3312,7 @@ static int32_t OnSelectTile(int32_t tileNum)
                 }
             }
         }
-        showframe(1);
+        videoShowFrame(1);
 
         ch = keyGetChar();
 
@@ -3327,7 +3327,7 @@ static int32_t OnSelectTile(int32_t tileNum)
         }
     }
 
-    showframe(1);
+    videoShowFrame(1);
 
     clearkeys();
 
@@ -3515,9 +3515,9 @@ static int32_t DrawTiles(int32_t iTopLeft, int32_t iSelected, int32_t nXTiles, i
             glDrawBuffer(GL_FRONT_AND_BACK);
     }
 #endif
-    clearview(-1);
+    videoClearViewableArea(-1);
 
-    begindrawing();
+    videoBeginDrawing();
 
 restart:
     for (YTile = 0-(offset>0); YTile < nYTiles+(offset<0)+1; YTile++)
@@ -3585,8 +3585,8 @@ restart:
                         }
                 if (k)
                 {
-                    enddrawing();
-                    showframe(1);
+                    videoEndDrawing();
+                    videoShowFrame(1);
 #ifdef USE_OPENGL
                     if (getrendermode() >= REND_POLYMOST && lazyselector)
                         glDrawBuffer(GL_BACK);
@@ -3594,9 +3594,9 @@ restart:
                     return 1;
                 }
 
-                enddrawing();
-                showframe(1);
-                begindrawing();
+                videoEndDrawing();
+                videoShowFrame(1);
+                videoBeginDrawing();
             }
         }
     }
@@ -3607,17 +3607,17 @@ restart:
     {
         if (runi==0)
         {
-            enddrawing();
-            showframe(1);
-            begindrawing();
+            videoEndDrawing();
+            videoShowFrame(1);
+            videoBeginDrawing();
 
             runi = 1;
             goto restart;
         }
     }
 
-    enddrawing();
-    showframe(1);
+    videoEndDrawing();
+    videoShowFrame(1);
 
 #ifdef USE_OPENGL
     if (getrendermode() >= REND_POLYMOST && lazyselector)
@@ -3670,16 +3670,16 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
         const int32_t scale = (int32_t)(65536.0/scalediv);
 
         const int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
-        setaspect(65536, divscale16(ydim*320, xdim*200));
+        videoSetAspect(65536, divscale16(ydim*320, xdim*200));
         // +1024: prevents rotatesprite from setting aspect itself
         rotatesprite_fs((x1+13)<<16,(y+11)<<16,scale,0, picnum,shade,pal, 2+1024);
-        setaspect(oviewingrange, oyxaspect);
+        videoSetAspect(oviewingrange, oyxaspect);
     }
 
     x = (int32_t)(x * xdimgame/320.0);
     y = (int32_t)(y * ydimgame/200.0);
 
-    begindrawing();
+    videoBeginDrawing();
     printext256(x+2,y+2,0,-1,title,small);
     printext256(x,y,editorcolors[14],-1,title,small);
 
@@ -3709,7 +3709,7 @@ static void drawtileinfo(const char *title,int32_t x,int32_t y,int32_t picnum,in
     tileinfo_doprint(x, y, buf, "Hit", hitag, 0, 6);
     tileinfo_doprint(x, y, buf, (flags&2)?"Ex*":"Ext", extra, statnum, 7);
 
-    enddrawing();
+    videoEndDrawing();
 }
 //int32_t snap=0;
 //int32_t saveval1,saveval2,saveval3;
@@ -3788,7 +3788,7 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
             Bsprintf(buffer,"%s",(char *)func((int32_t)danum));
             printmessage256(0, 9, buffer);
         }
-        showframe(1);
+        videoShowFrame(1);
 
         if (getnumber_internal1(ch, &danum, maxnumber, sign) ||
             getnumber_autocomplete(namestart, ch, &danum, flags))
@@ -3979,7 +3979,7 @@ ENDFOR1:
         Bsprintf(buffer, "Hgap=%d, Vgap=%d, SPCgap=%d, Shd=%d, Pal=%d",
                  hgap, vgap, spcgap[alphidx], TrackerCast(sprite[linebegspr].shade), TrackerCast(sprite[linebegspr].pal));
         printmessage256(0, 9, buffer);
-        showframe(1);
+        videoShowFrame(1);
 
         // ---
         sp = &sprite[curspr];
@@ -4447,14 +4447,14 @@ static void Keys3d(void)
             Bsprintf(lines[num++], "^%d%s", editorcolors[10], getmessage);
         }
 
-        begindrawing();
+        videoBeginDrawing();
         for (i=0; i<num; i++)
         {
             printext256(x+2, y+2, 0, -1, lines[i], xdimgame<=640);
             printext256(x, y, whitecol, -1, lines[i], xdimgame<=640);
             y += ydimgame>>6;
         }
-        enddrawing();
+        videoEndDrawing();
     }
 
     VM_OnEvent(EVENT_PREKEYS3D, -1);
@@ -5438,7 +5438,7 @@ static void Keys3d(void)
         static int32_t LastSec = 0;
         static int32_t LastMS = 0;
 
-        int32_t ms = getticks();
+        int32_t ms = timerGetTicks();
         int32_t howlong = ms - LastMS;
 
         if (howlong >= 0)
@@ -5537,10 +5537,10 @@ static void Keys3d(void)
         int32_t small = !(xdimgame > 640);
         for (i=0; i<MAXHELP3D; i++)
         {
-            begindrawing();
+            videoBeginDrawing();
             printext256(2, 8+(i*(8+!small))+2, 0, -1, Help3d[i], small);
             printext256(0, 8+(i*(8+!small)), whitecol, -1, Help3d[i], small);
-            enddrawing();
+            videoEndDrawing();
 
             switch (i)
             {
@@ -5567,7 +5567,7 @@ static void Keys3d(void)
                 break;
             }
 
-            begindrawing();
+            videoBeginDrawing();
             if (!Bstrcmp(tempbuf,"0"))
                 Bsprintf(tempbuf,"OFF");
             else if (!Bstrcmp(tempbuf,"1"))
@@ -5577,7 +5577,7 @@ static void Keys3d(void)
 
             printext256((20+(!small * 20))*8+2, 8+(i*(8+!small))+2, 0, -1, tempbuf, small);
             printext256((20+(!small * 20))*8, 8+(i*(8+!small)), whitecol, -1, tempbuf, small);
-            enddrawing();
+            videoEndDrawing();
         }
     }
 
@@ -6326,12 +6326,12 @@ static void Keys3d(void)
         static int16_t brightness = -1;
 
         if (brightness==-1)
-            brightness = ((int16_t)((vid_gamma-1.0)*10.0))&15;
+            brightness = ((int16_t)((g_videoGamma-1.0)*10.0))&15;
 
         brightness = brightness + (1-2*eitherSHIFT);
         brightness &= 15;
 
-        vid_gamma = 1.0 + ((float)brightness / 10.0);
+        g_videoGamma = 1.0 + ((float)brightness / 10.0);
         setbrightness(brightness, 0, 0);
         message("Brightness: %d/16", brightness+1);
     }
@@ -10276,13 +10276,13 @@ void ExtPreCheckKeys(void) // just before drawrooms
         }
 
         if (floor_over_floor) SE40Code(pos.x,pos.y,pos.z,ang,horiz);
-        if (purpleon) clearview(255);
+        if (purpleon) videoClearViewableArea(255);
 
         return;
     }
 
 
-    begindrawing();  //{{{
+    videoBeginDrawing();  //{{{
 
     //    if (cursectornum >= 0)
     //        fillsector(cursectornum, 31);
@@ -10409,10 +10409,10 @@ void ExtPreCheckKeys(void) // just before drawrooms
                 continue;
 
             const int32_t oviewingrange=viewingrange, oyxaspect=yxaspect;
-            setaspect(yxaspect, divscale16(sprite[i].yrepeat, sprite[i].xrepeat));
+            videoSetAspect(yxaspect, divscale16(sprite[i].yrepeat, sprite[i].xrepeat));
             rotatesprite(xp1<<16,yp1<<16,zoom<<5,daang,picnum,
                          shade,sprite[i].pal,flags|1024,0,0,xdim-1,ydim16-1);
-            setaspect(oviewingrange, oyxaspect);
+            videoSetAspect(oviewingrange, oyxaspect);
         }
     }
 
@@ -10449,7 +10449,7 @@ void ExtPreCheckKeys(void) // just before drawrooms
             }
     }
 
-    enddrawing();  //}}}
+    videoEndDrawing();  //}}}
 }
 
 void ExtAnalyzeSprites(int32_t ourx, int32_t oury, int32_t oura, int32_t smoothr)
@@ -10951,7 +10951,7 @@ void ExtCheckKeys(void)
 
 void faketimerhandler(void)
 {
-    sampletimer();
+    timerUpdate();
 }
 
 void SetGamePalette(int32_t palid)
@@ -11272,13 +11272,13 @@ static void EditSectorData(int16_t sectnum)
         if (med_editval)
             med_editval = 0;
 
-        showframe(1);
+        videoShowFrame(1);
     }
 
     med_printcurline(xpos, ypos, row, 0);
     // printmessage16("");
 
-    showframe(1);
+    videoShowFrame(1);
     keystatus[KEYSC_ESC] = 0;
 }
 
@@ -11374,13 +11374,13 @@ static void EditWallData(int16_t wallnum)
             //// printmessage16("");
         }
 
-        showframe(1);
+        videoShowFrame(1);
     }
 
     med_printcurline(xpos, ypos, row, 0);
     // printmessage16("");
 
-    showframe(1);
+    videoShowFrame(1);
     keystatus[KEYSC_ESC] = 0;
 }
 
@@ -11613,12 +11613,12 @@ static void EditSpriteData(int16_t spritenum)
         if (med_editval)
             med_editval = 0;
 
-        showframe(1);
+        videoShowFrame(1);
     }
 
     med_printcurline(xpos, ypos, row, 0);
     // printmessage16("");
-    showframe(1);
+    videoShowFrame(1);
 
     keystatus[KEYSC_ESC] = 0;
 }
@@ -11777,12 +11777,12 @@ static void GenericSpriteSearch(void)
 
         printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[1],disptext,0);
 
-        showframe(1);
+        videoShowFrame(1);
     }
 
     printext16(xpos[col],ypos+row*8,editorcolors[11],editorcolors[0],disptext,0);
     printmessage16("Search sprite");
-    showframe(1);
+    videoShowFrame(1);
 
     keystatus[KEYSC_ESC] = 0;
 }

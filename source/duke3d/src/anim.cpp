@@ -304,7 +304,7 @@ int32_t Anim_Play(const char *fn)
         uint32_t const convdenom = info.fpsnumer * origanim->framedelay;
 
         uint32_t const msecsperframe = scale(info.fpsdenom, 1000, info.fpsnumer);
-        uint32_t nextframetime = getticks();
+        uint32_t nextframetime = timerGetTicks();
         uint8_t *pic;
 
         //        OSD_Printf("msecs per frame: %d\n", msecsperframe);
@@ -331,7 +331,7 @@ int32_t Anim_Play(const char *fn)
 
             VM_OnEventWithReturn(EVENT_PRECUTSCENE, g_player[screenpeek].ps->i, screenpeek, framenum);
 
-            clearallviews(0);
+            videoClearScreen(0);
 
             ototalclock = totalclock + 1; // pause game like ANMs
 
@@ -385,7 +385,7 @@ int32_t Anim_Play(const char *fn)
             // this and showframe() instead of nextpage() are so that
             // nobody tramples on our carefully set up GL state!
             palfadedelta = 0;
-            showframe(0);
+            videoShowFrame(0);
 
             //            I_ClearAllInput();
 
@@ -398,7 +398,7 @@ int32_t Anim_Play(const char *fn)
                     running = 0;
                     break;
                 }
-            } while (getticks() < nextframetime);
+            } while (timerGetTicks() < nextframetime);
         } while (running);
 
         animvpx_print_stats(&codec);
@@ -513,7 +513,7 @@ int32_t Anim_Play(const char *fn)
 
         frametime = totalclock;
 
-        clearallviews(0);
+        videoClearScreen(0);
 
         int32_t z;
         if (anim->frameaspect1 > 0 && anim->frameaspect2 > 0 && ((anim->frameaspect1 / anim->frameaspect2) != (tilesiz[TILE_ANIM].y / (tilesiz[TILE_ANIM].x * 1.2))))
@@ -524,9 +524,9 @@ int32_t Anim_Play(const char *fn)
             else
                 z = divscale16(lrint(320 * ydim * anim->frameaspect1), lrint(tilesiz[TILE_ANIM].y * xdim * anim->frameaspect2));
             int32_t aspect = divscale16(lrint(tilesiz[TILE_ANIM].y * anim->frameaspect2), lrint(tilesiz[TILE_ANIM].x * anim->frameaspect1));
-            setaspect(viewingrange, aspect);
+            videoSetAspect(viewingrange, aspect);
             rotatesprite_fs(160<<16, 100<<16, z, 512, TILE_ANIM, 0, 0, 2|4|8|64|1024);
-            setaspect(viewingrange, oyxaspect);
+            videoSetAspect(viewingrange, oyxaspect);
         }
         else
         {
@@ -541,7 +541,7 @@ int32_t Anim_Play(const char *fn)
         i = VM_OnEventWithReturn(EVENT_CUTSCENE, g_player[screenpeek].ps->i, screenpeek, i);
         g_animPtr = NULL;
 
-        nextpage();
+        videoNextPage();
 
         I_ClearAllInput();
 

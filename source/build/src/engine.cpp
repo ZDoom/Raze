@@ -134,9 +134,9 @@ uint32_t r_screenxy = 0;
 
 int32_t globalflags;
 
-float vid_gamma = DEFAULT_GAMMA;
-float vid_contrast = DEFAULT_CONTRAST;
-float vid_brightness = DEFAULT_BRIGHTNESS;
+float g_videoGamma = DEFAULT_GAMMA;
+float g_videoContrast = DEFAULT_CONTRAST;
+float g_videoBrightness = DEFAULT_BRIGHTNESS;
 
 //Textured Map variables
 static char globalpolytype;
@@ -961,7 +961,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                     j = bunches[cf][bnchcnt];  // the actual bunchnum...
                     yax_globalbunch = j;
 #ifdef YAX_DEBUG
-                    t=getu64ticks();
+                    t=timerGetTicksU64();
 #endif
                     k = bunchsec[j];
 
@@ -985,7 +985,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                         yaxdebug("l%d: faked (bn %2d) sec %4d,%3d dspr, ob=[%2d,%2d], sn=%4d, %.3f ms",
                                  yax_globallev-YAX_MAXDRAWS, j, k, yax_spritesortcnt[yax_globallev]-odsprcnt,
                                  ourbunch[0],ourbunch[1],sectnum,
-                                 (double)(1000*(getu64ticks()-t))/u64tickspersec);
+                                 (double)(1000*(timerGetTicksU64()-t))/u64tickspersec);
                     }
 
                     if (ourbunch[cf]==j)
@@ -1018,9 +1018,9 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
     {
         if (getrendermode() == REND_CLASSIC)
         {
-            begindrawing();
+            videoBeginDrawing();
             draw_rainbow_background();
-            enddrawing();
+            videoEndDrawing();
         }
 #ifdef USE_OPENGL
         else
@@ -1045,7 +1045,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                 k = bunchsec[j];  // best start-drawing sector
                 yax_globalbunch = j;
 #ifdef YAX_DEBUG
-                t=getu64ticks();
+                t=timerGetTicksU64();
 #endif
                 yax_tweakpicnums(j, cf, 0);
                 if (k < 0)
@@ -1061,7 +1061,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                     {
                         yaxdebug("nm1 l%d: DRAWN (bn %2d) sec %4d,          %.3f ms",
                                  yax_globallev-YAX_MAXDRAWS, j, k,
-                                 (double)(1000*(getu64ticks()-t))/u64tickspersec);
+                                 (double)(1000*(timerGetTicksU64()-t))/u64tickspersec);
 
                         if (!yax_nomaskdidit)
                         {
@@ -1077,7 +1077,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                 yax_copytsprites();
                 yaxdebug("nm0 l%d: DRAWN (bn %2d) sec %4d,%3d tspr, %.3f ms",
                          yax_globallev-YAX_MAXDRAWS, j, k, spritesortcnt,
-                         (double)(1000*(getu64ticks()-t))/u64tickspersec);
+                         (double)(1000*(timerGetTicksU64()-t))/u64tickspersec);
 
                 SpriteAnimFunc(globalposx, globalposy, globalang, smoothr);
                 drawmasks();
@@ -1090,7 +1090,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
     }
 
 #ifdef YAX_DEBUG
-    t=getu64ticks();
+    t=timerGetTicksU64();
 #endif
     yax_globalcf = -1;
     yax_globalbunch = -1;
@@ -1104,7 +1104,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
 //        spritesortcnt = 0;
     yax_copytsprites();
     yaxdebug("DRAWN base level sec %d,%3d tspr, %.3f ms", osectnum,
-             spritesortcnt, (double)(1000*(getu64ticks()-t))/u64tickspersec);
+             spritesortcnt, (double)(1000*(timerGetTicksU64()-t))/u64tickspersec);
     scansector_collectsprites = 1;
 
     for (cf=0; cf<2; cf++)
@@ -1122,7 +1122,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
         char purple = getclosestcol(255, 0, 255);
         char yellow = getclosestcol(255, 255, 0);
 
-        begindrawing();
+        videoBeginDrawing();
         for (i=0; i<numyaxbunches; i++)
         {
             int32_t x, x1;
@@ -1141,7 +1141,7 @@ void yax_drawrooms(void (*SpriteAnimFunc)(int32_t,int32_t,int32_t,int32_t),
                     *((char *)frameplace + (ydmost[x]-1)*bytesperline + x-x1) = yellow;
             }
         }
-        enddrawing();
+        videoEndDrawing();
     }
 #endif
 }
@@ -4319,7 +4319,7 @@ static void drawalls(int32_t bunch)
             char yellow = getclosestcol(255, 255, 0);
             char *bakframe = (char *)Xaligned_alloc(16, xdim*ydim);
 
-            begindrawing();  //{{{
+            videoBeginDrawing();  //{{{
             Bmemcpy(bakframe, (char *)frameplace, xdim*ydim);
             for (x=0; x<xdim; x++)
             {
@@ -4346,7 +4346,7 @@ static void drawalls(int32_t bunch)
             engine_screenshot++;
 
             Bmemcpy((char *)frameplace, bakframe, xdim*ydim);
-            enddrawing();  //}}}
+            videoEndDrawing();  //}}}
 
             Baligned_free(bakframe);
         }
@@ -4450,7 +4450,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     longptr = (int32_t *)davoxptr;
     int32_t xyvoxoffs = (daxsiz+1)<<2;
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
 
     for (bssize_t cnt=0; cnt<8; cnt++)
     {
@@ -4653,7 +4653,7 @@ static void drawvox(int32_t dasprx, int32_t daspry, int32_t dasprz, int32_t dasp
     }
 #endif
 
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 }
 
 
@@ -7599,6 +7599,7 @@ static uspritetype tsprite_s[MAXSPRITESONSCREEN];
 
 int32_t preinitengine(void)
 {
+    baselayer_init();
     initdivtables();
     if (initsystem()) Bexit(9);
     makeasmwriteable();
@@ -7674,7 +7675,7 @@ int32_t preinitengine(void)
 #endif
 
     validmodecnt = 0;
-    getvalidmodes();
+    videoGetModes();
 
     initcrc32table();
 
@@ -7708,7 +7709,7 @@ int32_t initengine(void)
     }
 
 #ifdef YAX_DEBUG
-    u64tickspersec = (double)getu64tickspersec();
+    u64tickspersec = (double)timerGetFreqU64();
     if (u64tickspersec==0.0)
         u64tickspersec = 1.0;
 #endif
@@ -8052,7 +8053,7 @@ int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz,
     //============================================================================= //POLYMOST ENDS
 #endif
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
 
 #ifdef ENGINE_CLEAR_SCREEN
 #ifdef YAX_ENABLE
@@ -8104,7 +8105,7 @@ int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz,
         // Leave inpreparemirror as is, it's restored by completemirror.
         if (numbunches==0)
         {
-            enddrawing();  //!!!
+            videoEndDrawing();  //!!!
             return 0;
         }
 
@@ -8164,7 +8165,7 @@ int32_t drawrooms_q16(int32_t daposx, int32_t daposy, int32_t daposz,
         bunchlast[closest] = bunchlast[numbunches];
     }
 
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 
     return didmirror;
 }
@@ -8441,7 +8442,7 @@ killsprite:
         i = j;
     }
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
 #if 0
     for (i=spritesortcnt-1; i>=0; i--)
     {
@@ -8652,7 +8653,7 @@ killsprite:
     }
 #endif
 
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 }
 
 //
@@ -8666,7 +8667,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     int32_t const oyxaspect = yxaspect, oviewingrange = viewingrange;
 
-    setaspect(65536, divscale16((320*5)/8, 200));
+    videoSetAspect(65536, divscale16((320*5)/8, 200));
 
     beforedrawrooms = 0;
 
@@ -8684,7 +8685,7 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
 
     int32_t sortnum = 0;
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
 
     usectortype *sec;
 
@@ -8953,12 +8954,12 @@ void drawmapview(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
         }
     }
 
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 
     if (r_usenewaspect)
-        setaspect(oviewingrange, oyxaspect);
+        videoSetAspect(oviewingrange, oyxaspect);
     else
-        setaspect(65536, divscale16(ydim*320, xdim*200));
+        videoSetAspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //////////////////// LOADING AND SAVING ROUTINES ////////////////////
@@ -9763,7 +9764,7 @@ int32_t saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int1
 
 #define YSAVES ((xdim*MAXSPRITES)>>7)
 
-static void initsmost(void)
+static void videoAllocateBuffers(void)
 {
     int32_t i;
     // Needed for the game's TILT_SETVIEWTOTILE_320.
@@ -9815,7 +9816,7 @@ static void PolymostProcessVoxels(void)
     g_haveVoxels = 0;
 
     OSD_Printf("Generating voxel models for Polymost. This may take a while...\n");
-    nextpage();
+    videoNextPage();
 
     for (bssize_t i=0; i<MAXVOXELS; i++)
     {
@@ -9833,7 +9834,7 @@ static void PolymostProcessVoxels(void)
 //
 // JBF: davidoption now functions as a windowed-mode flag (0 == windowed, 1 == fullscreen)
 extern char videomodereset;
-int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp)
+int32_t videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp)
 {
     int32_t j;
 
@@ -9861,7 +9862,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     j = bpp;
 
     g_lastpalettesum = 0;
-    if (setvideomode(daxdim,daydim,dabpp,davidoption) < 0) return -1;
+    if (videoSetMode(daxdim,daydim,dabpp,davidoption) < 0) return -1;
 
     // Workaround possible bugs in the GL driver
     makeasmwriteable();
@@ -9879,7 +9880,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
     fydim = (float) daydim;
 #endif
 
-    initsmost();
+    videoAllocateBuffers();
 
 #ifdef HIGH_PRECISION_SPRITE
     swallf = (float *) Xrealloc(swallf, xdim * sizeof(float));
@@ -9899,8 +9900,8 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 
     calc_ylookup(bytesperline, ydim);
 
-    setview(0L,0L,xdim-1,ydim-1);
-    clearallviews(0L);
+    videoSetViewableArea(0L,0L,xdim-1,ydim-1);
+    videoClearScreen(0L);
     setbrightness(curbrightness,0,0);
 
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
@@ -9931,7 +9932,7 @@ int32_t setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t da
 //
 // nextpage
 //
-void nextpage(void)
+void videoNextPage(void)
 {
     permfifotype *per;
 
@@ -9950,7 +9951,7 @@ void nextpage(void)
 
     if (in3dmode())
     {
-        begindrawing(); //{{{
+        videoBeginDrawing(); //{{{
         for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
             per = &permfifo[i];
@@ -9959,12 +9960,12 @@ void nextpage(void)
                                per->dashade,per->dapalnum,per->dastat,per->daalpha,per->dablend,
                                per->cx1,per->cy1,per->cx2,per->cy2,per->uniqid);
         }
-        enddrawing();   //}}}
+        videoEndDrawing();   //}}}
 
         OSD_Draw();
-        showframe(0);
+        videoShowFrame(0);
 
-        begindrawing(); //{{{
+        videoBeginDrawing(); //{{{
         for (bssize_t i=permtail; i!=permhead; i=((i+1)&(MAXPERMS-1)))
         {
             per = &permfifo[i];
@@ -9977,7 +9978,7 @@ void nextpage(void)
             if (((per->pagesleft&127) == 0) && (i == permtail))
                 permtail = ((permtail+1)&(MAXPERMS-1));
         }
-        enddrawing();   //}}}
+        videoEndDrawing();   //}}}
     }
 
     faketimerhandler();
@@ -9985,7 +9986,7 @@ void nextpage(void)
 
 #ifdef USE_OPENGL
     omdtims = mdtims;
-    mdtims = getticks();
+    mdtims = timerGetTicks();
 
     for (native_t i = 0; i < Numsprites; ++i)
         if ((mdpause && spriteext[i].mdanimtims) || (spriteext[i].flags & SPREXT_NOMDANIM))
@@ -12005,7 +12006,7 @@ restart_grand:
 
 int32_t setaspect_new_use_dimen = 0;
 
-void setaspect_new()
+void videoSetCorrectedAspect()
 {
     if (r_usenewaspect && newaspect_enable && getrendermode() != REND_POLYMER)
     {
@@ -12047,16 +12048,16 @@ void setaspect_new()
 
         vr = divscale16(x*3, y*4);
 
-        setaspect(vr, yx);
+        videoSetAspect(vr, yx);
     }
     else
-        setaspect(65536, divscale16(ydim*320, xdim*200));
+        videoSetAspect(65536, divscale16(ydim*320, xdim*200));
 }
 
 //
 // setview
 //
-void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
+void videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
     windowxy1.x = x1; wx1 = (x1<<12);
     windowxy1.y = y1; wy1 = (y1<<12);
@@ -12071,7 +12072,7 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 #ifdef USE_OPENGL
     fydimen = (float) ydimen;
 #endif
-    setaspect_new();
+    videoSetCorrectedAspect();
 
     for (bssize_t i=0; i<windowxy1.x; i++) { startumost[i] = 1, startdmost[i] = 0; }
     Bassert(windowxy2.x < xdim);  // xdim is the number of alloc'd elements in start*most[].
@@ -12084,7 +12085,7 @@ void setview(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 //
 // setaspect
 //
-void setaspect(int32_t daxrange, int32_t daaspect)
+void videoSetAspect(int32_t daxrange, int32_t daaspect)
 {
     viewingrange = daxrange;
     viewingrangerecip = divscale32(1,daxrange);
@@ -12131,9 +12132,9 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 
     if (((dastat & RS_PERM) == 0) || (numpages < 2) || (beforedrawrooms != 0))
     {
-        begindrawing(); //{{{
+        videoBeginDrawing(); //{{{
         dorotatesprite(sx,sy,z,a,picnum,dashade,dapalnum,dastat,daalpha,dablend,cx1,cy1,cx2,cy2,guniqhudid);
-        enddrawing();   //}}}
+        videoEndDrawing();   //}}}
     }
 
     if ((dastat & RS_NOMASK) && (cx1 <= 0) && (cy1 <= 0) && (cx2 >= xdim-1) && (cy2 >= ydim-1) &&
@@ -12208,7 +12209,7 @@ void rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnum,
 //
 // clearview
 //
-void clearview(int32_t dacol)
+void videoClearViewableArea(int32_t dacol)
 {
     if (!in3dmode() && dacol != -1) return;
 
@@ -12228,7 +12229,7 @@ void clearview(int32_t dacol)
     }
 #endif
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
     //dacol += (dacol<<8); dacol += (dacol<<16);
     int const dx = windowxy2.x-windowxy1.x+1;
     intptr_t p = frameplace+ylookup[windowxy1.y]+windowxy1.x;
@@ -12238,7 +12239,7 @@ void clearview(int32_t dacol)
         Bmemset((void *)p,dacol,dx);
         p += ylookup[1];
     }
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 
     faketimerhandler();
 }
@@ -12247,7 +12248,7 @@ void clearview(int32_t dacol)
 //
 // clearallviews
 //
-void clearallviews(int32_t dacol)
+void videoClearScreen(int32_t dacol)
 {
     if (!in3dmode()) return;
     //dacol += (dacol<<8); dacol += (dacol<<16);
@@ -12267,9 +12268,9 @@ void clearallviews(int32_t dacol)
     }
 #endif
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
     Bmemset((void *)frameplace,dacol,bytesperline*yres);
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
     //nextpage();
 
     faketimerhandler();
@@ -12281,7 +12282,7 @@ void clearallviews(int32_t dacol)
 //
 // setviewtotile
 //
-void setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
+void videoSetTarget(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 {
     //DRAWROOMS TO TILE BACKUP&SET CODE
     tilesiz[tilenume].x = xsiz; tilesiz[tilenume].y = ysiz;
@@ -12307,8 +12308,8 @@ void setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
     setviewcnt++;
 
     offscreenrendering = 1;
-    setview(0,0,ysiz-1,xsiz-1);
-    setaspect(65536,65536);
+    videoSetViewableArea(0,0,ysiz-1,xsiz-1);
+    videoSetAspect(65536,65536);
 
     calc_ylookup(ysiz, xsiz);
 }
@@ -12317,7 +12318,7 @@ void setviewtotile(int16_t tilenume, int32_t xsiz, int32_t ysiz)
 //
 // setviewback
 //
-void setviewback(void)
+void videoRestoreTarget(void)
 {
     if (setviewcnt <= 0) return;
     setviewcnt--;
@@ -12331,7 +12332,7 @@ void setviewback(void)
     }
 #endif
 
-    setview(bakwindowxy1[setviewcnt].x,bakwindowxy1[setviewcnt].y,
+    videoSetViewableArea(bakwindowxy1[setviewcnt].x,bakwindowxy1[setviewcnt].y,
             bakwindowxy2[setviewcnt].x,bakwindowxy2[setviewcnt].y);
     copybufbyte(&bakumost[windowxy1.x],&startumost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startumost[0]));
     copybufbyte(&bakdmost[windowxy1.x],&startdmost[windowxy1.x],(windowxy2.x-windowxy1.x+1)*sizeof(startdmost[0]));
@@ -12430,7 +12431,7 @@ void completemirror(void)
     // Variables mirrorsx{1,2} refer to the source scene here, the one drawn
     // from the inside of the mirror.
 
-    begindrawing();
+    videoBeginDrawing();
 
     // Width in pixels (screen x's are inclusive on both sides):
     int const width = mirrorsx2-mirrorsx1+1;
@@ -12457,7 +12458,7 @@ void completemirror(void)
         faketimerhandler();
     }
 
-    enddrawing();
+    videoEndDrawing();
 }
 
 
@@ -12717,7 +12718,7 @@ void setfirstwall(int16_t sectnum, int16_t newfirstwall)
 //
 // qsetmodeany
 //
-void qsetmodeany(int32_t daxdim, int32_t daydim)
+void videoSet2dMode(int32_t daxdim, int32_t daydim)
 {
     if (daxdim < 640) daxdim = 640;
     if (daydim < 480) daydim = 480;
@@ -12725,7 +12726,7 @@ void qsetmodeany(int32_t daxdim, int32_t daydim)
     if (qsetmode != ((daxdim<<16)|(daydim&0xffff)))
     {
         g_lastpalettesum = 0;
-        if (setvideomode(daxdim, daydim, 8, fullscreen) < 0)
+        if (videoSetMode(daxdim, daydim, 8, fullscreen) < 0)
             return;
 
         xdim = xres;
@@ -12736,15 +12737,15 @@ void qsetmodeany(int32_t daxdim, int32_t daydim)
         fydim = (float) yres;
 #endif
 
-        initsmost();
+        videoAllocateBuffers();
 
         ydim16 = yres - STATUS2DSIZ2;
         halfxdim16 = xres >> 1;
         midydim16 = ydim16 >> 1; // scale(200,yres,480);
 
-        begindrawing(); //{{{
+        videoBeginDrawing(); //{{{
         Bmemset((char *)frameplace, 0, yres*bytesperline);
-        enddrawing();   //}}}
+        videoEndDrawing();   //}}}
     }
 
     qsetmode = ((daxdim<<16)|(daydim&0xffff));
@@ -12882,7 +12883,7 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
 
         char const * const letptr = &fontptr[name[i]<<3];
 
-        begindrawing(); //{{{
+        videoBeginDrawing(); //{{{
         char *ptr = (char *)(bytesperline*ypos + (stx-(fontsize&1)) + frameplace);
         int const trans = (obackcol < -1);
 
@@ -12915,7 +12916,7 @@ int32_t printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, con
                 ptr += bytesperline;
             }
         }
-        enddrawing();   //}}}
+        videoEndDrawing();   //}}}
 
         stx += charxsiz;
 
@@ -13011,7 +13012,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
 # endif
 #endif
 
-    begindrawing(); //{{{
+    videoBeginDrawing(); //{{{
     for (i=0; name[i]; i++)
     {
         if (name[i] == '^' && isdigit(name[i+1]))
@@ -13046,7 +13047,7 @@ void printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol, const
         }
         stx += charxsiz;
     }
-    enddrawing();   //}}}
+    videoEndDrawing();   //}}}
 }
 
 
@@ -13063,7 +13064,7 @@ static void PolymerProcessModels(void)
             if (!warned)
             {
                 OSD_Printf("Post-processing MD3 models for Polymer. This may take a while...\n");
-                nextpage();
+                videoNextPage();
                 warned = 1;
             }
 

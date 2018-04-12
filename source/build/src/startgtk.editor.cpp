@@ -155,8 +155,8 @@ static void PopulateForm(void)
     GtkComboBox *box2d, *box3d;
     char buf[64];
 
-    mode2d = checkvideomode(&settings.xdim2d, &settings.ydim2d, 8, settings.fullscreen, 1);
-    mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, settings.bpp3d, settings.fullscreen, 1);
+    mode2d = videoCheckMode(&settings.xdim2d, &settings.ydim2d, 8, settings.fullscreen, 1);
+    mode3d = videoCheckMode(&settings.xdim3d, &settings.ydim3d, settings.bpp3d, settings.fullscreen, 1);
     if (mode2d < 0) mode2d = 0;
     if (mode3d < 0)
     {
@@ -164,7 +164,7 @@ static void PopulateForm(void)
         for (i=0; cd[i];) { if (cd[i] >= settings.bpp3d) i++; else break; }
         for (; cd[i]; i++)
         {
-            mode3d = checkvideomode(&settings.xdim3d, &settings.ydim3d, cd[i], settings.fullscreen, 1);
+            mode3d = videoCheckMode(&settings.xdim3d, &settings.ydim3d, cd[i], settings.fullscreen, 1);
             if (mode3d < 0) continue;
             settings.bpp3d = cd[i];
             break;

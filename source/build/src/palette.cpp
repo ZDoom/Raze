@@ -79,7 +79,7 @@ void fade_screen_black(int32_t moreopaquep)
     {
         Bassert(!offscreenrendering);
 
-        begindrawing();
+        videoBeginDrawing();
         {
             char *const p = (char *) frameplace;
             const char *const trans = getblendtab(0);
@@ -100,7 +100,7 @@ void fade_screen_black(int32_t moreopaquep)
             for (; i<dimprod; i++)
                 p[i] = trans[p[i]<<shiftamnt];
         }
-        enddrawing();
+        videoEndDrawing();
     }
 }
 
@@ -705,7 +705,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
         //            vid_gamma = 1.0 + ((float)curbrightness / 10.0);
     }
 
-    setgamma();
+    videoSetGamma();
     j = !gammabrightness ? curbrightness : 0;
 
     for (i=0; i<256; i++)
@@ -735,7 +735,7 @@ void setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags)
         if (palsumdidchange || newpalettesum != g_lastpalettesum)
         {
             //            if ((flags&1) == 0)
-            setpalette(0, 256);
+            videoUpdatePalette(0, 256);
         }
 
         g_lastpalettesum = lastpalettesum = newpalettesum;
@@ -824,7 +824,7 @@ void setpalettefade(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
         uint32_t newpalettesum = XXH32((uint8_t *) curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
 
         if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
-            setpalette(0, 256);
+            videoUpdatePalette(0, 256);
 
         g_lastpalettesum = lastpalettesum = newpalettesum;
     }
