@@ -57,7 +57,7 @@ void S_SoundStartup(void)
     initprintf("%d voices, %d channels, %d-bit %d Hz\n", ud.config.NumVoices, ud.config.NumChannels,
         ud.config.NumBits, ud.config.MixRate);
 
-    for (bssize_t i=0; i<g_highestSoundIdx; ++i)
+    for (bssize_t i=0; i<=g_highestSoundIdx; ++i)
     {
         for (bssize_t j = 0; j<MAXSOUNDINSTANCES; ++j)
         {
@@ -141,7 +141,7 @@ void S_PauseSounds(int32_t onf)
 
     SoundPaused = onf;
 
-    for (bssize_t i=0; i<g_highestSoundIdx; ++i)
+    for (bssize_t i=0; i<=g_highestSoundIdx; ++i)
     {
         for (bssize_t j = 0; j<MAXSOUNDINSTANCES; ++j)
         {
@@ -474,7 +474,7 @@ int32_t S_LoadSound(uint32_t num)
 
 void S_PrecacheSounds(void)
 {
-    for (int32_t i = 0, j = 0; i < g_highestSoundIdx; ++i)
+    for (int32_t i = 0, j = 0; i <= g_highestSoundIdx; ++i)
         if (g_sounds[i].ptr == 0)
         {
             j++;
@@ -667,7 +667,7 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             return -1;
 
         // don't play if any Duke talk sounds are already playing
-        for (j=0; j<g_highestSoundIdx; ++j)
+        for (j=0; j<=g_highestSoundIdx; ++j)
             if ((g_sounds[j].m & SF_TALK) && g_sounds[j].num > 0)
                 return -1;
     }
@@ -958,7 +958,7 @@ void S_ClearSoundLocks(void)
         if (rts_lumplockbyte[i] >= 200)
             rts_lumplockbyte[i] = 199;
 
-    for (i = 0; i < msp; ++i)
+    for (i = 0; i <= msp; ++i)
         if (g_soundlocks[i] >= 200)
             g_soundlocks[i] = 199;
 }
@@ -982,7 +982,7 @@ int32_t A_CheckAnySoundPlaying(int32_t i)
 {
     int32_t const msp = g_highestSoundIdx;
 
-    for (bssize_t j=0; j<msp; ++j)
+    for (bssize_t j=0; j<=msp; ++j)
     {
         for (native_t k=0; k<MAXSOUNDINSTANCES; ++k)
             if (g_sounds[j].instances[k].spriteNum == i)
