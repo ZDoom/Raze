@@ -563,7 +563,7 @@ void M32_DrawRoomsAndMasks(void)
 
 void M32_OnShowOSD(int32_t shown)
 {
-    AppGrabMouse((!shown) + 2);
+    mouseLockToWindow((!shown) + 2);
 }
 
 static void M32_FatalEngineError(void)
@@ -672,7 +672,7 @@ int app_main(int argc, char const * const * argv)
 
     if (initinput()) return -1;
 
-    initmouse();
+    mouseInit();
 
     inittimer(TIMERINTSPERSECOND);
     installusertimercallback(keytimerstuff);
@@ -756,7 +756,7 @@ int app_main(int argc, char const * const * argv)
 
     updatesector(pos.x,pos.y,&cursectnum);
 
-    setkeypresscallback(&m32_keypresscallback);
+    keySetCallback(&m32_keypresscallback);
     M32_OnShowOSD(0);  // make sure the desktop's mouse cursor is hidden
 
     if (cursectnum == -1)
@@ -4283,7 +4283,7 @@ rotate_hlsect_out:
                 if (!smoothRotation || manualAngle)
                     keystatus[0x33] = keystatus[0x34] = 0;
 
-                mouseb &= ~(16|32);
+                g_mouseBits &= ~(16|32);
                 bstatus &= ~(16|32);
             }
             else
@@ -4299,7 +4299,7 @@ rotate_hlsect_out:
                         keystatus[0x33] = keystatus[0x34] = 0;
                     }
 
-                    mouseb &= ~(16|32);
+                    g_mouseBits &= ~(16|32);
                     bstatus &= ~(16|32);
                 }
             }
@@ -5918,7 +5918,7 @@ end_point_dragging:
             if (circlepoints > 1)
                 circlepoints--;
             keystatus[0x4a] = 0;
-            mouseb &= ~32;
+            g_mouseBits &= ~32;
             bstatus &= ~32;
         }
         if (circlewall != -1 && (keystatus[0x4e] || ((bstatus&16) && !eitherCTRL)))  // +, mousewheel up
@@ -5926,7 +5926,7 @@ end_point_dragging:
             if (circlepoints < 63)
                 circlepoints++;
             keystatus[0x4e] = 0;
-            mouseb &= ~16;
+            g_mouseBits &= ~16;
             bstatus &= ~16;
         }
 
@@ -7976,7 +7976,7 @@ CANCEL:
             printext16(16*8, ydim-STATUS2DSIZ2-12, editorcolors[15], -1, GetSaveBoardFilename(NULL), 0);
 
             showframe(1);
-            bflushchars();
+            keyFlushChars();
             bad = 1;
             while (bad == 1)
             {
@@ -7989,7 +7989,7 @@ CANCEL:
                 }
                 idle();
 
-                ch = bgetchar();
+                ch = keyGetChar();
 
                 if (keystatus[1])
                 {
@@ -8114,7 +8114,7 @@ CANCEL:
                         i -= 4;
                     boardfilename[i] = 0;
 
-                    bflushchars();
+                    keyFlushChars();
                     while (bad == 0)
                     {
                         _printmessage16("%sSave as: ^011%s%s", corrupt>=4?"(map corrupt) ":"",
@@ -8126,7 +8126,7 @@ CANCEL:
 
                         idle();
 
-                        ch = bgetchar();
+                        ch = keyGetChar();
 
                         if (keystatus[1]) bad = 1;
                         else if (ch == 13) bad = 2;
@@ -8293,7 +8293,7 @@ int32_t ask_if_sure(const char *query, uint32_t flags)
     else
         _printmessage16("%s", query);
     showframe(1);
-    bflushchars();
+    keyFlushChars();
 
     while ((keystatus[1]|keystatus[0x2e]) == 0 && ret==-1)
     {
@@ -8309,7 +8309,7 @@ int32_t ask_if_sure(const char *query, uint32_t flags)
         }
         idle();
 
-        ch = bgetchar();
+        ch = keyGetChar();
 
         if (ch == 'y' || ch == 'Y')
             ret = 1;
@@ -8334,7 +8334,7 @@ int32_t editor_ask_function(const char *question, const char *dachars, int32_t n
     _printmessage16("%s", question);
 
     showframe(1);
-    bflushchars();
+    keyFlushChars();
 
     // 'c' is cancel too, but can be overridden
     while ((keystatus[1]|keystatus[0x2e]) == 0 && ret==-1)
@@ -8343,7 +8343,7 @@ int32_t editor_ask_function(const char *question, const char *dachars, int32_t n
             quitevent = 0;
 
         idle();
-        ch = bgetchar();
+        ch = keyGetChar();
 
         for (i=0; i<numchars; i++)
             if (ch==Btolower(dachars[i]) || ch==Btoupper(dachars[i]))
@@ -8549,7 +8549,7 @@ static int32_t getlinehighlight(int32_t xplc, int32_t yplc, int32_t line, int8_t
     if (numwalls == 0)
         return -1;
 
-    if (mouseb & 1 || searchlock)
+    if (g_mouseBits & 1 || searchlock)
         return line;
 
     if (!ignore_pointhighlight && (pointhighlight&0xc000) == 16384)
@@ -8624,7 +8624,7 @@ int32_t getpointhighlight(int32_t xplc, int32_t yplc, int32_t point)
     if (numwalls == 0)
         return -1;
 
-    if (mouseb & 1 || searchlock)
+    if (g_mouseBits & 1 || searchlock)
         return point;
 
     if (grid < 1)
@@ -9316,14 +9316,14 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
     // ("^011", max. string length of an int32, "_ ")
     Bstrncpyz(ournamestart, namestart, sizeof(ournamestart));
 
-    bflushchars();
+    keyFlushChars();
     while (keystatus[0x1] == 0)
     {
         if (handleevents())
             quitevent = 0;
 
         idle();
-        ch = bgetchar();
+        ch = keyGetChar();
 
         Bsprintf(buffer, "%s^011%d", ournamestart, danum);
         n = Bstrlen(buffer);  // maximum is 62+4+11 == 77
@@ -9387,7 +9387,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
     // (max. string length of an int32, "_ ")
     Bstrncpyz(ournamestart, namestart, sizeof(ournamestart));
 
-    bflushchars();
+    keyFlushChars();
     while (keystatus[0x1] == 0)
     {
         if (handleevents())
@@ -9396,12 +9396,12 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
         if ((flags&8)==0)
             M32_DrawRoomsAndMasks();
 
-        ch = bgetchar();
+        ch = keyGetChar();
         if (keystatus[0x1])
             break;
         clearkeys();
 
-        mouseb = 0;
+        g_mouseBits = 0;
         searchx = osearchx;
         searchy = osearchy;
 
@@ -9457,7 +9457,7 @@ const char *getstring_simple(const char *querystr, const char *defaultstr, int32
     int32_t ei=0, qrylen=0, maxidx, havecompl=0;
     char ch;
 
-    bflushchars();
+    keyFlushChars();
     clearkeys();
 
     Bmemset(buf, 0, sizeof(buf));
@@ -9498,7 +9498,7 @@ const char *getstring_simple(const char *querystr, const char *defaultstr, int32
             quitevent = 0;
 
         idle();
-        ch = bgetchar();
+        ch = keyGetChar();
 
         if (ch==13)
         {
@@ -9818,7 +9818,7 @@ static int32_t menuselect(void)
 
             idle();
 
-            ch = bgetchar();
+            ch = keyGetChar();
 
             {
                 // JBF 20040208: seek to first name matching pressed character
@@ -10998,7 +10998,7 @@ void test_map(int32_t mode)
         OSD_Printf("...as `%s'\n", fullparam);
 
         showframe(1);
-        uninitmouse();
+        mouseUninit();
 #ifdef _WIN32
         {
             STARTUPINFO si;
@@ -11023,7 +11023,7 @@ void test_map(int32_t mode)
         else system(fullparam);
 #endif
         printmessage16("Game process exited");
-        initmouse();
+        mouseInit();
         clearkeys();
 
         Bfree(fullparam);

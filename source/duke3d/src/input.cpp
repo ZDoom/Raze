@@ -34,7 +34,7 @@ int32_t I_CheckAllInput(void)
 {
     return (
 #if defined EDUKE32_IOS
-            mousepressstate == Mouse_Pressed ||
+            g_mouseClickState == MOUSE_PRESSED ||
 #endif
             KB_KeyWaiting() ||
             MOUSE_GetButtons() ||
@@ -44,7 +44,7 @@ int32_t I_CheckAllInput(void)
 void I_ClearAllInput(void)
 {
 #if defined EDUKE32_IOS
-    mousepressstateadvance();
+    mouseAdvanceClickState();
 #endif
     KB_FlushKeyboardQueue();
     KB_ClearKeysDown();

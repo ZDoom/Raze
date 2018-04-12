@@ -135,20 +135,20 @@ static const char *joynames[3][15] = {
             "Hat 11", "Hat 12", "Hat 13", "Hat 14", "Hat 15",
         }
 };
-const char *getjoyname(int32_t what, int32_t num)
+const char *joyGetName(int32_t what, int32_t num)
 {
     switch (what)
     {
         case 0:	// axis
-            if ((unsigned)num > (unsigned)joynumaxes) return NULL;
+            if ((unsigned)num > (unsigned)joystick.numAxes) return NULL;
             return joynames[0][num];
 
         case 1: // button
-            if ((unsigned)num > (unsigned)joynumbuttons) return NULL;
+            if ((unsigned)num > (unsigned)joystick.numButtons) return NULL;
             return joynames[1][num];
 
         case 2: // hat
-            if ((unsigned)num > (unsigned)joynumhats) return NULL;
+            if ((unsigned)num > (unsigned)joystick.numHats) return NULL;
             return joynames[2][num];
 
         default:
@@ -267,8 +267,8 @@ void getvalidmodes(void)
 
         if (modes == (SDL_Rect **)-1)
         {
-            for (i = 0; defaultres[i][0]; i++)
-                SDL_ADDMODE(defaultres[i][0], defaultres[i][1], cdepths[j], 1);
+            for (i = 0; g_defaultVideoModes[i].x; i++)
+                SDL_ADDMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y, cdepths[j], 1);
         }
         else
         {
@@ -300,12 +300,12 @@ void getvalidmodes(void)
         if (cdepths[j] < 0)
             continue;
 
-        for (i = 0; defaultres[i][0]; i++)
+        for (i = 0; g_defaultVideoModes[i].x; i++)
         {
-            if (!SDL_CHECKMODE(defaultres[i][0], defaultres[i][1]))
+            if (!SDL_CHECKMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y))
                 continue;
 
-            SDL_ADDMODE(defaultres[i][0], defaultres[i][1], cdepths[j], 0);
+            SDL_ADDMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y, cdepths[j], 0);
         }
     }
 
@@ -484,14 +484,14 @@ int32_t handleevents_pollsdl(void)
             case SDL_KEYUP:
                 code = keytranslation[ev.key.keysym.sym];
 #ifdef KEY_PRINT_DEBUG
-                printf("keytranslation[%d] = %s (%d)  %s\n", ev.key.keysym.sym, key_names[code], code,
+                printf("keytranslation[%d] = %s (%d)  %s\n", ev.key.keysym.sym, g_keyNameTable[code], code,
                        ev.key.type == SDL_KEYDOWN ? "DOWN" : "UP");
 #endif
                 if (code != OSD_OSDKey() && ev.key.keysym.unicode != 0 && ev.key.type == SDL_KEYDOWN &&
-                    (ev.key.keysym.unicode & 0xff80) == 0 && !keyascfifo_isfull())
+                    (ev.key.keysym.unicode & 0xff80) == 0 && !keyBufferFull())
                 {
                     if (OSD_HandleChar(ev.key.keysym.unicode & 0x7f))
-                        keyascfifo_insert(ev.key.keysym.unicode & 0x7f);
+                        keyBufferInsert(ev.key.keysym.unicode & 0x7f);
                 }
 
                 // hook in the osd
@@ -499,11 +499,11 @@ int32_t handleevents_pollsdl(void)
                 {
                     if (j == -1)  // osdkey
                     {
-                        for (j = 0; j < KEYSTATUSSIZ; ++j)
+                        for (j = 0; j < NUMKEYS; ++j)
                         {
-                            if (GetKey(j))
+                            if (keyGetState(j))
                             {
-                                SetKey(j, 0);
+                                keySetState(j, 0);
                                 if (keypresscallback)
                                     keypresscallback(j, 0);
                             }
@@ -514,9 +514,9 @@ int32_t handleevents_pollsdl(void)
 
                 if (ev.key.type == SDL_KEYDOWN)
                 {
-                    if (!GetKey(code))
+                    if (!keyGetState(code))
                     {
-                        SetKey(code, 1);
+                        keySetState(code, 1);
                         if (keypresscallback)
                             keypresscallback(code, 1);
                     }
@@ -527,7 +527,7 @@ int32_t handleevents_pollsdl(void)
                     if (code == 0x59)  // pause
                         break;
 #endif
-                    SetKey(code, 0);
+                    keySetState(code, 0);
                     if (keypresscallback)
                         keypresscallback(code, 0);
                 }
@@ -537,7 +537,7 @@ int32_t handleevents_pollsdl(void)
                 if (ev.active.state & SDL_APPINPUTFOCUS)
                 {
                     appactive = ev.active.gain;
-                    if (mousegrab && moustat)
+                    if (g_mouseGrabbed && g_mouseEnabled)
                         grabmouse_low(!!appactive);
 # ifdef _WIN32
                     // Win_SetKeyboardLayoutUS(appactive);
@@ -549,7 +549,7 @@ int32_t handleevents_pollsdl(void)
                     rv = -1;
 
                     if (ev.active.state & SDL_APPMOUSEFOCUS)
-                        mouseinwindow = ev.active.gain;
+                        g_mouseInsideWindow = ev.active.gain;
                 }
                 break;
 
@@ -560,8 +560,8 @@ int32_t handleevents_pollsdl(void)
                 if (ev.motion.state & SDL_BUTTON_X2MASK)
                 {
                     // the absolute values are used to draw the crosshair
-                    mouseabs.x = ev.motion.x;
-                    mouseabs.y = ev.motion.y;
+                    g_mouseAbs.x = ev.motion.x;
+                    g_mouseAbs.y = ev.motion.y;
                     // hack: reduce the scale of the "relative" motions
                     // to make it act more like a real mouse
                     ev.motion.xrel /= 16;

@@ -9,6 +9,7 @@
 #include "polymost.h"
 #include "cache1d.h"
 
+// video
 #ifdef _WIN32
 extern "C"
 {
@@ -17,145 +18,131 @@ extern "C"
 }
 #endif // _WIN32
 
+vec2_t const g_defaultVideoModes[]
+= { { 2560, 1440 }, { 2560, 1200 }, { 2560, 1080 }, { 1920, 1440 }, { 1920, 1200 }, { 1920, 1080 }, { 1680, 1050 },
+    { 1600, 1200 }, { 1600, 900 },  { 1366, 768 },  { 1280, 1024 }, { 1280, 960 },  { 1280, 720 },  { 1152, 864 },
+    { 1024, 768 },  { 1024, 600 },  { 800, 600 },   { 640, 480 },   { 640, 400 },   { 512, 384 },   { 480, 360 },
+    { 400, 300 },   { 320, 240 },   { 320, 200 },   { 0, 0 } };
+
 // input
-char inputdevices=0;
-char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyasciififo[KEYFIFOSIZ];
-uint8_t keyfifoplc, keyfifoend, keyasciififoplc, keyasciififoend;
-char keyremap[KEYSTATUSSIZ];
-int32_t keyremapinit=0;
-char key_names[NUMKEYS][24];
-int32_t mousex=0,mousey=0,mouseb=0;
-vec2_t mouseabs;
-uint8_t mousepressstate;
-uint8_t moustat = 0, mousegrab = 0, mouseinwindow = 1, AppMouseGrab = 1;
+char    inputdevices = 0;
 
-int32_t mousepressstateadvance(void)
-{
-    if (mousepressstate == Mouse_Pressed)
-    {
-        mousepressstate = Mouse_Held;
-        return 1;
-    }
-    else if (mousepressstate == Mouse_Released)
-    {
-        mousepressstate = Mouse_Idle;
-        return 1;
-    }
-    else if (mousepressstate == Mouse_Held)
-        return 1;
+char    keystatus[NUMKEYS];
+char    g_keyFIFO[KEYFIFOSIZ];
+char    g_keyAsciiFIFO[KEYFIFOSIZ];
+uint8_t g_keyFIFOend;
+uint8_t g_keyAsciiPos;
+uint8_t g_keyAsciiEnd;
+char    g_keyRemapTable[NUMKEYS];
+char    g_keyNameTable[NUMKEYS][24];
 
-    return 0;
-}
+void (*keypresscallback)(int32_t, int32_t);
 
-int32_t *joyaxis = NULL, joyb=0, *joyhat = NULL;
-char joyisgamepad=0, joynumaxes=0, joynumbuttons=0, joynumhats=0;
-int32_t joyaxespresent=0;
+void keySetCallback(void (*callback)(int32_t, int32_t)) { keypresscallback = callback; }
 
-void(*keypresscallback)(int32_t,int32_t) = 0;
-void(*mousepresscallback)(int32_t,int32_t) = 0;
-void(*joypresscallback)(int32_t,int32_t) = 0;
-
-extern int16_t brightness;
-
-//
-// set{key|mouse|joy}presscallback() -- sets a callback which gets notified when keys are pressed
-//
-void setkeypresscallback(void (*callback)(int32_t, int32_t)) { keypresscallback = callback; }
-void setmousepresscallback(void (*callback)(int32_t, int32_t)) { mousepresscallback = callback; }
-void setjoypresscallback(void (*callback)(int32_t, int32_t)) { joypresscallback = callback; }
-
-char scantoasc[128] = {
-    0,   0,   '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0,  0,   'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
+char const g_keyAsciiTable[128] = {
+    0  ,   0,   '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 0,  0,   'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p',
     '[', ']', 0,   0,   'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', 39, '`', 0,   92,  'z', 'x', 'c', 'v', 'b', 'n', 'm', ',',
     '.', '/', 0,   '*', 0,   32,  0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   '7', '8', '9', '-', '4', '5', '6',
     '+', '1', '2', '3', '0', '.', 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,
+    0  ,   0,   0,   0,   0,   0, 0,   0,   0,   0,   0,   0,   0,   0,   0,  0,   0,   0,   0,   0,   0,   0,   0,   0,
 };
 
-int32_t defaultres[][2]
-= { { 2560, 1440 }, { 2560, 1200 }, { 2560, 1080 }, { 1920, 1440 }, { 1920, 1200 }, { 1920, 1080 }, { 1680, 1050 }, { 1600, 1200 },
-    { 1600, 900 },  { 1366, 768 },  { 1280, 1024 }, { 1280, 960 },  { 1280, 720 },  { 1152, 864 },  { 1024, 768 },  { 1024, 600 },
-    { 800, 600 },   { 640, 480 },   { 640, 400 },   { 512, 384 },   { 480, 360 },   { 400, 300 },   { 320, 240 },   { 320, 200 },
-    { 0, 0 } };
+int32_t keyGetState(int32_t key) { return keystatus[g_keyRemapTable[key]]; }
 
-
-int32_t GetKey(int32_t key)
+void keySetState(int32_t key, int32_t state)
 {
-    return keystatus[keyremap[key]];
-}
-
-void SetKey(int32_t key, int32_t state)
-{
-    keystatus[keyremap[key]] = state;
+    keystatus[g_keyRemapTable[key]] = state;
 
     if (state)
     {
-        keyfifo[keyfifoend] = keyremap[key];
-        keyfifo[(keyfifoend+1)&(KEYFIFOSIZ-1)] = state;
-        keyfifoend = ((keyfifoend+2)&(KEYFIFOSIZ-1));
+        g_keyFIFO[g_keyFIFOend] = g_keyRemapTable[key];
+        g_keyFIFO[(g_keyFIFOend+1)&(KEYFIFOSIZ-1)] = state;
+        g_keyFIFOend = ((g_keyFIFOend+2)&(KEYFIFOSIZ-1));
     }
 }
 
 //
-// bgetchar, bflushchars -- character-based input functions
+// character-based input functions
 //
-char bgetchar(void)
+char keyGetChar(void)
 {
-    if (keyasciififoplc == keyasciififoend)
+    if (g_keyAsciiPos == g_keyAsciiEnd)
         return 0;
 
+    char const c    = g_keyAsciiFIFO[g_keyAsciiPos];
+    g_keyAsciiPos = ((g_keyAsciiPos + 1) & (KEYFIFOSIZ - 1));
+
+    return c;
+}
+
+void keyFlushChars(void)
+{
+    Bmemset(&g_keyAsciiFIFO,0,sizeof(g_keyAsciiFIFO));
+    g_keyAsciiPos = g_keyAsciiEnd = 0;
+}
+
+const char *keyGetName(int32_t num) { return ((unsigned)num >= NUMKEYS) ? NULL : g_keyNameTable[num]; }
+
+vec2_t  g_mousePos;
+vec2_t  g_mouseAbs;
+int32_t g_mouseBits;
+uint8_t g_mouseClickState;
+
+bool g_mouseEnabled;
+bool g_mouseGrabbed;
+bool g_mouseInsideWindow   = 1;
+bool g_mouseLockedToWindow = 1;
+
+void (*g_mouseCallback)(int32_t, int32_t);
+void mouseSetCallback(void(*callback)(int32_t, int32_t)) { g_mouseCallback = callback; }
+
+int32_t mouseAdvanceClickState(void)
+{
+    switch (g_mouseClickState)
     {
-        char c = keyasciififo[keyasciififoplc];
-        keyasciififoplc = ((keyasciififoplc+1)&(KEYFIFOSIZ-1));
-        return c;
+        case MOUSE_PRESSED: g_mouseClickState  = MOUSE_HELD; return 1;
+        case MOUSE_RELEASED: g_mouseClickState = MOUSE_IDLE; return 1;
+        case MOUSE_HELD: return 1;
     }
+    return 0;
 }
 
-void bflushchars(void)
+void mouseReadPos(int32_t *x, int32_t *y)
 {
-    Bmemset(&keyasciififo,0,sizeof(keyasciififo));
-    keyasciififoplc = keyasciififoend = 0;
+    if (!g_mouseEnabled || !g_mouseGrabbed || !appactive)
+    {
+        *x = *y = 0;
+        return;
+    }
+
+    *x = g_mousePos.x;
+    *y = g_mousePos.y;
+    g_mousePos.x = g_mousePos.y = 0;
 }
 
-const char *getkeyname(int32_t num)
+int32_t mouseReadAbs(vec2_t * const pResult, vec2_t const * const pInput)
 {
-    return ((unsigned)num >= 256) ? NULL : key_names[num];
-}
-
-void readmousexy(int32_t *x, int32_t *y)
-{
-    if (!moustat || !mousegrab || !appactive) { *x = *y = 0; return; }
-    *x = mousex;
-    *y = mousey;
-    mousex = mousey = 0;
-}
-
-int32_t readmouseabsxy(vec2_t * const destination, vec2_t const * const source)
-{
-    int32_t xwidth;
-
-    if (!moustat || !appactive || !mouseinwindow || (osd && osd->flags & OSD_CAPTURE))
+    if (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || (osd && osd->flags & OSD_CAPTURE))
         return 0;
 
-    xwidth = max(scale(240<<16, xdim, ydim), 320<<16);
+    int32_t const xwidth = max(scale(240<<16, xdim, ydim), 320<<16);
 
-    destination->x = scale(source->x, xwidth, xdim) - ((xwidth>>1) - (320<<15));
-    destination->y = scale(source->y, 200<<16, ydim);
+    pResult->x = scale(pInput->x, xwidth, xdim) - ((xwidth>>1) - (320<<15));
+    pResult->y = scale(pInput->y, 200<<16, ydim);
 
     return 1;
 }
 
-void readmousebstatus(int32_t *b)
+void mouseReadButtons(int32_t *pResult)
 {
-    if (!moustat || !appactive || !mouseinwindow || (osd && osd->flags & OSD_CAPTURE)) { *b = 0; return; }
-    *b = mouseb;
+    *pResult = (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || (osd && osd->flags & OSD_CAPTURE)) ? 0 : g_mouseBits;
 }
 
-void readjoybstatus(int32_t *b)
-{
-    if (!appactive) { *b = 0; return; }
-    *b = joyb;
-}
+controllerinput_t joystick;
+
+void joySetCallback(void (*callback)(int32_t, int32_t)) { joystick.pCallback = callback; }
+void joyReadButtons(int32_t *pResult) { *pResult = appactive ? joystick.bits : 0; }
 
 #if defined __linux || defined EDUKE32_BSD || defined __APPLE__
 # include <sys/mman.h>
@@ -259,41 +246,9 @@ void makeasmwriteable(void)
 }
 
 int32_t vsync=0;
+int32_t g_logFlushWindow = 1;
 
 #ifdef USE_OPENGL
-extern int32_t nofog;
-
-void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
-{
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_ALPHA_TEST);
-    glDisable(GL_TEXTURE_2D);
-    polymost_setFogEnabled(false);
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
-    glColor4ub(r, g, b, f);
-
-    polymost_useColorOnly(true);
-    glBegin(GL_TRIANGLES);
-    glVertex2f(-2.5f, 1.f);
-    glVertex2f(2.5f, 1.f);
-    glVertex2f(.0f, -2.5f);
-    glEnd();
-    polymost_useColorOnly(false);
-
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-}
-
 struct glinfo_t glinfo =
 {
     "Unknown",  // vendor
@@ -325,11 +280,7 @@ struct glinfo_t glinfo =
     0,          // Sync
     0,          // GL info dumped
 };
-#endif
 
-int32_t flushlogwindow = 1;
-
-#ifdef USE_OPENGL
 // Used to register the game's / editor's osdcmd_vidmode() functions here.
 int32_t (*baselayer_osdcmd_vidmode_func)(osdfuncparm_t const * const parm);
 
@@ -393,7 +344,7 @@ static int32_t osdfunc_setrendermode(osdfuncparm_t const * const parm)
 
     return OSDCMD_OK;
 }
-#if defined(USE_OPENGL)
+
 #ifdef DEBUGGINGAIDS
 static int32_t osdcmd_hicsetpalettetint(osdfuncparm_t const * const parm)
 {
@@ -416,8 +367,6 @@ static int32_t osdcmd_hicsetpalettetint(osdfuncparm_t const * const parm)
 
 int32_t osdcmd_glinfo(osdfuncparm_t const * const UNUSED(parm))
 {
-    char *s,*t,*u,i;
-
     UNREFERENCED_CONST_PARAMETER(parm);
 
     if (bpp == 8)
@@ -432,82 +381,40 @@ int32_t osdcmd_glinfo(osdfuncparm_t const * const UNUSED(parm))
     if (!glinfo.dumped)
         return OSDCMD_OK;
 
-    initprintf(
-               " BGRA textures:           %s\n"
-               " Non-power-of-2 textures: %s\n"
-               " Clamp-to-edge:           %s\n"
-               " Multitexturing:          %s\n"
-               " Frame Buffer Objects:    %s\n"
-#ifndef EDUKE32_GLES
-               " Texture compression:     %s\n"
-               " Multisampling:           %s\n"
-               " NVIDIA multisample hint: %s\n"
-               " ARBfp fragment programs: %s\n"
-               " Depth textures:          %s\n"
-               " Shadow textures:         %s\n"
-               " Rectangle textures:      %s\n"
-               " env_combine:             %s\n"
-               " Vertex Buffer Objects:   %s\n"
-               " Shader Model 4:          %s\n"
-               " Occlusion queries:       %s\n"
-               " GLSL:                    %s\n"
-               " Debug Output:            %s\n"
-               " Buffer Storage:          %s\n"
-               " Sync:                    %s\n"
-#endif
-               " Maximum anisotropy:      %.1f%s\n"
-               " Extensions:\n",
-               glinfo.bgra ? "supported": "not supported",
-               glinfo.texnpot ? "supported": "not supported",
-               glinfo.clamptoedge ? "supported": "not supported",
-               glinfo.multitex ? "supported": "not supported",
-               glinfo.fbos ? "supported": "not supported",
-#ifndef EDUKE32_GLES
-               glinfo.texcompr ? "supported": "not supported",
-               glinfo.multisample ? "supported": "not supported",
-               glinfo.nvmultisamplehint ? "supported": "not supported",
-               glinfo.arbfp ? "supported": "not supported",
-               glinfo.depthtex ? "supported": "not supported",
-               glinfo.shadow ? "supported": "not supported",
-               glinfo.rect ? "supported": "not supported",
-               glinfo.envcombine ? "supported": "not supported",
-               glinfo.vbos ? "supported": "not supported",
-               glinfo.sm4 ? "supported": "not supported",
-               glinfo.occlusionqueries ? "supported": "not supported",
-               glinfo.glsl ? "supported": "not supported",
-               glinfo.debugoutput ? "supported": "not supported",
-               glinfo.bufferstorage ? "supported" : "not supported",
-               glinfo.sync ? "supported" : "not supported",
-#endif
-               glinfo.maxanisotropy, glinfo.maxanisotropy>1.0?"":" (no anisotropic filtering)"
-              );
+    char const *s[] = { "supported", "not supported" };
 
-    s = Bstrdup(glinfo.extensions);
-    if (!s) initprintf("%s", glinfo.extensions);
-    else
-    {
-        i = 0; t = u = s;
-        while (*t)
-        {
-            if (*t == ' ')
-            {
-                if (i&1)
-                {
-                    *t = 0;
-                    initprintf("   %s\n",u);
-                    u = t+1;
-                }
-                i++;
-            }
-            t++;
-        }
-        if (i&1) initprintf("   %s\n",u);
-        Bfree(s);
-    }
+#define SUPPORTED(x) (x ? s[0] : s[1])
+
+    initprintf(" BGRA textures:           %s\n", SUPPORTED(glinfo.bgra));
+    initprintf(" Non-power-of-2 textures: %s\n", SUPPORTED(glinfo.texnpot));
+    initprintf(" Clamp-to-edge:           %s\n", SUPPORTED(glinfo.clamptoedge));
+    initprintf(" Multi-texturing:         %s\n", SUPPORTED(glinfo.multitex));
+    initprintf(" Framebuffer objects:     %s\n", SUPPORTED(glinfo.fbos));
+#ifndef EDUKE32_GLES
+    initprintf(" Texture compression:     %s\n", SUPPORTED(glinfo.texcompr));
+    initprintf(" Multi-sampling:          %s\n", SUPPORTED(glinfo.multisample));
+    initprintf(" NVIDIA multisample hint: %s\n", SUPPORTED(glinfo.nvmultisamplehint));
+    initprintf(" ARBfp fragment programs: %s\n", SUPPORTED(glinfo.arbfp));
+    initprintf(" Depth textures:          %s\n", SUPPORTED(glinfo.depthtex));
+    initprintf(" Shadow textures:         %s\n", SUPPORTED(glinfo.shadow));
+    initprintf(" Rectangle textures:      %s\n", SUPPORTED(glinfo.rect));
+    initprintf(" env_combine:             %s\n", SUPPORTED(glinfo.envcombine));
+    initprintf(" Vertex buffer objects:   %s\n", SUPPORTED(glinfo.vbos));
+    initprintf(" Shader model 4:          %s\n", SUPPORTED(glinfo.sm4));
+    initprintf(" Occlusion queries:       %s\n", SUPPORTED(glinfo.occlusionqueries));
+    initprintf(" GLSL:                    %s\n", SUPPORTED(glinfo.glsl));
+    initprintf(" Debug output:            %s\n", SUPPORTED(glinfo.debugoutput));
+    initprintf(" Buffer storage:          %s\n", SUPPORTED(glinfo.bufferstorage));
+    initprintf(" Sync:                    %s\n", SUPPORTED(glinfo.sync));
+#endif
+    initprintf(" Maximum anisotropy:      %.1f%s\n", glinfo.maxanisotropy, glinfo.maxanisotropy > 1.0 ? "" : " (no anisotropic filtering)");
+
+#undef SUPPORTED
+
+    initprintf(" Extensions:\n%s", glinfo.extensions);
 
     return OSDCMD_OK;
 }
-#endif
 #endif
 
 static int32_t osdcmd_cvar_set_baselayer(osdfuncparm_t const * const parm)
@@ -528,7 +435,6 @@ static int32_t osdcmd_cvar_set_baselayer(osdfuncparm_t const * const parm)
 
 int32_t baselayer_init(void)
 {
-    uint32_t i;
 #ifdef _WIN32
 // on Windows, don't save the "r_screenaspect" cvar because the physical screen size is
 // determined at startup
@@ -560,7 +466,7 @@ int32_t baselayer_init(void)
 #endif
     };
 
-    for (i=0; i<ARRAY_SIZE(cvars_engine); i++)
+    for (native_t i=0; i<ARRAY_SIZE(cvars_engine); i++)
         OSD_RegisterCvar(&cvars_engine[i], (cvars_engine[i].flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
 
 #ifdef USE_OPENGL
@@ -583,6 +489,8 @@ int32_t baselayer_init(void)
     polymost_initosdfuncs();
 #endif
 
+    for (native_t i = 0; i < NUMKEYS; i++) g_keyRemapTable[i] = i;
+
     return 0;
 }
 
@@ -592,20 +500,19 @@ void maybe_redirect_outputs(void)
     char *argp;
 
     // pipe standard outputs to files
-    if ((argp = Bgetenv("BUILD_LOGSTDOUT")) != NULL)
-        if (!Bstrcasecmp(argp, "TRUE"))
-        {
-            FILE *fp = freopen("stdout.txt", "w", stdout);
+    if ((argp = Bgetenv("BUILD_LOGSTDOUT")) == NULL || Bstrcasecmp(argp, "TRUE"))
+        return;
 
-            if (!fp)
-                fp = fopen("stdout.txt", "w");
+    FILE *fp = freopen("stdout.txt", "w", stdout);
 
-            if (fp)
-            {
-                setvbuf(fp, 0, _IONBF, 0);
-                *stdout = *fp;
-                *stderr = *fp;
-            }
-        }
+    if (!fp)
+        fp = fopen("stdout.txt", "w");
+
+    if (fp)
+    {
+        setvbuf(fp, 0, _IONBF, 0);
+        *stdout = *fp;
+        *stderr = *fp;
+    }
 #endif
 }

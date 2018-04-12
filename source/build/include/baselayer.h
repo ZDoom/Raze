@@ -51,8 +51,6 @@ void calc_ylookup(int32_t bpl, int32_t lastyidx);
 
 #ifdef USE_OPENGL
 extern int32_t (*baselayer_osdcmd_vidmode_func)(osdfuncparm_t const * const parm);
-
-void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f);
 extern int32_t osdcmd_glinfo(osdfuncparm_t const * const parm);
 
 struct glinfo_t {
@@ -89,40 +87,60 @@ struct glinfo_t {
 extern struct glinfo_t glinfo;
 #endif
 extern int32_t setvsync(int32_t newSync);
+extern vec2_t const g_defaultVideoModes[];
+
 extern char inputdevices;
 
 // keys
 #define NUMKEYS 256
-#define KEYSTATUSSIZ 256
 #define KEYFIFOSIZ 64
-extern char keystatus[KEYSTATUSSIZ], keyfifo[KEYFIFOSIZ], keyasciififo[KEYFIFOSIZ];
-extern uint8_t keyasciififoplc, keyasciififoend, keyfifoplc, keyfifoend;
-extern char scantoasc[128], keyremap[KEYSTATUSSIZ], key_names[NUMKEYS][24];
-extern int32_t keyremapinit;
+extern char const g_keyAsciiTable[128];
 
-extern int32_t defaultres[][2];
+extern char    keystatus[NUMKEYS];
+extern char    g_keyFIFO[KEYFIFOSIZ];
+extern char    g_keyAsciiFIFO[KEYFIFOSIZ];
+extern uint8_t g_keyAsciiPos;
+extern uint8_t g_keyAsciiEnd;
+extern uint8_t g_keyFIFOend;
+extern char    g_keyRemapTable[NUMKEYS];
+extern char    g_keyNameTable[NUMKEYS][24];
 
-extern int32_t GetKey(int32_t key);
-extern void SetKey(int32_t key, int32_t state);
+extern int32_t keyGetState(int32_t key);
+extern void keySetState(int32_t key, int32_t state);
 
 // mouse
-extern int32_t mousex, mousey, mouseb;
-extern vec2_t mouseabs;
-extern uint8_t mousepressstate;
-extern uint8_t mousegrab, moustat, mouseinwindow, AppMouseGrab;
+extern vec2_t  g_mousePos;
+extern vec2_t  g_mouseAbs;
+extern int32_t g_mouseBits;
+extern uint8_t g_mouseClickState;
+extern bool    g_mouseGrabbed;
+extern bool    g_mouseEnabled;
+extern bool    g_mouseInsideWindow;
+extern bool    g_mouseLockedToWindow;
+
 enum
 {
-    Mouse_Idle = 0,
-    Mouse_Pressed = 1,
-    Mouse_Held = 2,
-    Mouse_Released = 3,
+    MOUSE_IDLE = 0,
+    MOUSE_PRESSED,
+    MOUSE_HELD,
+    MOUSE_RELEASED,
 };
-extern int32_t mousepressstateadvance(void);
+extern int32_t mouseAdvanceClickState(void);
 
 // joystick
-extern int32_t *joyaxis, *joyhat, joyb;
-extern char joyisgamepad, joynumaxes, joynumbuttons, joynumhats;
-extern int32_t joyaxespresent;
+
+typedef struct
+{
+    int32_t *pAxis;
+    int32_t *pHat;
+    void (*pCallback)(int32_t, int32_t);
+    int32_t  bits;
+    int32_t  numAxes;
+    int32_t  numButtons;
+    int32_t  numHats;
+} controllerinput_t;
+
+extern controllerinput_t joystick;
 
 extern int32_t qsetmode;
 
@@ -132,7 +150,7 @@ int32_t initsystem(void);
 void uninitsystem(void);
 void system_getcvars(void);
 
-extern int32_t flushlogwindow;
+extern int32_t g_logFlushWindow;
 void initputs(const char *);
 #define buildputs initputs
 void initprintf(const char *, ...) ATTRIBUTE((format(printf,1,2)));
@@ -143,44 +161,43 @@ int32_t handleevents(void);
 int32_t handleevents_peekkeys(void);
 
 extern void (*keypresscallback)(int32_t,int32_t);
-extern void (*mousepresscallback)(int32_t,int32_t);
-extern void (*joypresscallback)(int32_t,int32_t);
+extern void (*g_mouseCallback)(int32_t,int32_t);
 
 int32_t initinput(void);
 void uninitinput(void);
-void releaseallbuttons(void);
-void setkeypresscallback(void (*callback)(int32_t,int32_t));
-void setmousepresscallback(void (*callback)(int32_t,int32_t));
-void setjoypresscallback(void (*callback)(int32_t,int32_t));
-const char *getkeyname(int32_t num);
-const char *getjoyname(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=hat
+void keySetCallback(void (*callback)(int32_t,int32_t));
+void mouseSetCallback(void (*callback)(int32_t,int32_t));
+void joySetCallback(void (*callback)(int32_t,int32_t));
+const char *keyGetName(int32_t num);
+const char *joyGetName(int32_t what, int32_t num); // what: 0=axis, 1=button, 2=hat
 
-char bgetchar(void);
-#define bkbhit() (keyasciififoplc != keyasciififoend)
+char keyGetChar(void);
+#define keyBufferWaiting() (g_keyAsciiPos != g_keyAsciiEnd)
 
-static FORCE_INLINE int keyascfifo_isfull(void)
+static FORCE_INLINE int keyBufferFull(void)
 {
-    return ((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc;
+    return ((g_keyAsciiEnd+1)&(KEYFIFOSIZ-1)) == g_keyAsciiPos;
 }
 
-static FORCE_INLINE void keyascfifo_insert(char code)
+static FORCE_INLINE void keyBufferInsert(char code)
 {
-    keyasciififo[keyasciififoend] = code;
-    keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
+    g_keyAsciiFIFO[g_keyAsciiEnd] = code;
+    g_keyAsciiEnd = ((g_keyAsciiEnd+1)&(KEYFIFOSIZ-1));
 }
 
-void bflushchars(void);
+void keyFlushChars(void);
 
-int32_t initmouse(void);
-void uninitmouse(void);
-void grabmouse(char a);
-void AppGrabMouse(char a);
-void readmousexy(int32_t *x, int32_t *y);
-int32_t readmouseabsxy(vec2_t * const destination, vec2_t const * const source);
-void readmousebstatus(int32_t *b);
-void readjoybstatus(int32_t *b);
-void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur);
-void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur);
+int32_t mouseInit(void);
+void mouseUninit(void);
+void mouseGrabInput(char a);
+void mouseLockToWindow(char a);
+void mouseReadPos(int32_t *x, int32_t *y);
+int32_t mouseReadAbs(vec2_t * const destination, vec2_t const * const source);
+void mouseReadButtons(int32_t *b);
+
+void joyReadButtons(int32_t *b);
+void joySetDeadZone(int32_t axis, uint16_t dead, uint16_t satur);
+void joyGetDeadZone(int32_t axis, uint16_t *dead, uint16_t *satur);
 extern int32_t inputchecked;
 
 int32_t inittimer(int32_t);

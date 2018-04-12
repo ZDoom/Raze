@@ -36,6 +36,39 @@ int32_t curbrightness = 0, gammabrightness = 0;
 
 static void setpalettefade_calc(uint8_t offset);
 
+#ifdef USE_OPENGL
+void fullscreen_tint_gl(uint8_t r, uint8_t g, uint8_t b, uint8_t f)
+{
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_ALPHA_TEST);
+    glDisable(GL_TEXTURE_2D);
+    polymost_setFogEnabled(false);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glColor4ub(r, g, b, f);
+
+    polymost_useColorOnly(true);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(-2.5f, 1.f);
+    glVertex2f(2.5f, 1.f);
+    glVertex2f(.0f, -2.5f);
+    glEnd();
+    polymost_useColorOnly(false);
+
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+}
+#endif
+
 void fade_screen_black(int32_t moreopaquep)
 {
 #ifdef USE_OPENGL

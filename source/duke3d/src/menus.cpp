@@ -1633,7 +1633,7 @@ void Menu_Init(void)
     MEOS_Gamefuncs.numOptions = k;
 
     for (i = 0; i < NUMKEYS; ++i)
-        MEOSN_Keys[i] = key_names[i];
+        MEOSN_Keys[i] = g_keyNameTable[i];
     MEOSN_Keys[NUMKEYS-1] = MenuKeyNone;
 
 
@@ -1761,18 +1761,18 @@ void Menu_Init(void)
         MEO_MOUSESETUPBTNS[i] = MEO_MOUSEJOYSETUPBTNS_TEMPLATE;
         MEO_MOUSESETUPBTNS[i].data = &ud.config.MouseFunctions[MenuMouseDataIndex[i][0]][MenuMouseDataIndex[i][1]];
     }
-    for (i = 0; i < 2*joynumbuttons + 8*joynumhats; ++i)
+    for (i = 0; i < 2*joystick.numButtons + 8*joystick.numHats; ++i)
     {
-        if (i < 2*joynumbuttons)
+        if (i < 2*joystick.numButtons)
         {
             if (i & 1)
-                Bsnprintf(MenuJoystickNames[i], MAXJOYBUTTONSTRINGLENGTH, "Double %s", getjoyname(1, i>>1));
+                Bsnprintf(MenuJoystickNames[i], MAXJOYBUTTONSTRINGLENGTH, "Double %s", joyGetName(1, i>>1));
             else
-                Bstrncpy(MenuJoystickNames[i], getjoyname(1, i>>1), MAXJOYBUTTONSTRINGLENGTH);
+                Bstrncpy(MenuJoystickNames[i], joyGetName(1, i>>1), MAXJOYBUTTONSTRINGLENGTH);
         }
         else
         {
-            Bsnprintf(MenuJoystickNames[i], MAXJOYBUTTONSTRINGLENGTH, (i & 1) ? "Double Hat %d %s" : "Hat %d %s", ((i - 2*joynumbuttons)>>3), MenuJoystickHatDirections[((i - 2*joynumbuttons)>>1) % 4]);
+            Bsnprintf(MenuJoystickNames[i], MAXJOYBUTTONSTRINGLENGTH, (i & 1) ? "Double Hat %d %s" : "Hat %d %s", ((i - 2*joystick.numButtons)>>3), MenuJoystickHatDirections[((i - 2*joystick.numButtons)>>1) % 4]);
         }
 
         MEL_JOYSTICKBTNS[i] = &ME_JOYSTICKBTNS[i];
@@ -1782,15 +1782,15 @@ void Menu_Init(void)
         MEO_JOYSTICKBTNS[i] = MEO_MOUSEJOYSETUPBTNS_TEMPLATE;
         MEO_JOYSTICKBTNS[i].data = &ud.config.JoystickFunctions[i>>1][i&1];
     }
-    M_JOYSTICKBTNS.numEntries = 2*joynumbuttons + 8*joynumhats;
-    for (i = 0; i < joynumaxes; ++i)
+    M_JOYSTICKBTNS.numEntries = 2*joystick.numButtons + 8*joystick.numHats;
+    for (i = 0; i < joystick.numAxes; ++i)
     {
         ME_JOYSTICKAXES[i] = ME_JOYSTICKAXES_TEMPLATE;
-        Bstrncpy(MenuJoystickAxes[i], getjoyname(0, i), MAXJOYBUTTONSTRINGLENGTH);
+        Bstrncpy(MenuJoystickAxes[i], joyGetName(0, i), MAXJOYBUTTONSTRINGLENGTH);
         ME_JOYSTICKAXES[i].name = MenuJoystickAxes[i];
         MEL_JOYSTICKAXES[i] = &ME_JOYSTICKAXES[i];
     }
-    M_JOYSTICKAXES.numEntries = joynumaxes;
+    M_JOYSTICKAXES.numEntries = joystick.numAxes;
 
     // prepare video setup
     for (i = 0; i < validmodecnt; ++i)
@@ -3000,7 +3000,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
     }
 
     case MENU_JOYSTICKAXES:
-        M_JOYSTICKAXIS.title = getjoyname(0, M_JOYSTICKAXES.currentEntry);
+        M_JOYSTICKAXIS.title = joyGetName(0, M_JOYSTICKAXES.currentEntry);
         MEO_JOYSTICKAXIS_ANALOG.data = &ud.config.JoystickAnalogueAxes[M_JOYSTICKAXES.currentEntry];
         MEO_JOYSTICKAXIS_SCALE.variable = &ud.config.JoystickAnalogueScale[M_JOYSTICKAXES.currentEntry];
         MEO_JOYSTICKAXIS_DEAD.variable = &ud.config.JoystickAnalogueDead[M_JOYSTICKAXES.currentEntry];
@@ -3327,9 +3327,9 @@ static int32_t Menu_EntryRangeInt32Modify(MenuEntry_t *entry, int32_t newValue)
     else if (entry == &ME_JOYSTICKAXIS_SCALE)
         CONTROL_SetAnalogAxisScale(M_JOYSTICKAXES.currentEntry, newValue, controldevice_joystick);
     else if (entry == &ME_JOYSTICKAXIS_DEAD)
-        setjoydeadzone(M_JOYSTICKAXES.currentEntry, newValue, *MEO_JOYSTICKAXIS_SATU.variable);
+        joySetDeadZone(M_JOYSTICKAXES.currentEntry, newValue, *MEO_JOYSTICKAXIS_SATU.variable);
     else if (entry == &ME_JOYSTICKAXIS_SATU)
-        setjoydeadzone(M_JOYSTICKAXES.currentEntry, *MEO_JOYSTICKAXIS_DEAD.variable, newValue);
+        joySetDeadZone(M_JOYSTICKAXES.currentEntry, *MEO_JOYSTICKAXIS_DEAD.variable, newValue);
 
     return 0;
 }
@@ -3638,7 +3638,7 @@ static void Menu_TextFormSubmit(char *input)
 
         int8_t cheatID = -1;
 
-        if (inputlength > 2 && tempbuf[0] == scantoasc[CheatKeys[0]] && tempbuf[1] == scantoasc[CheatKeys[1]])
+        if (inputlength > 2 && tempbuf[0] == g_keyAsciiTable[CheatKeys[0]] && tempbuf[1] == g_keyAsciiTable[CheatKeys[1]])
         {
             for (size_t i = 0; i < NUMCHEATS; i++)
                 if (Menu_CheatStringMatch(tempbuf+2, CheatStrings[i]))
@@ -4317,14 +4317,14 @@ void Menu_Open(size_t playerID)
 {
     g_player[playerID].ps->gm |= MODE_MENU;
 
-    readmouseabsxy(&m_prevmousepos, &mouseabs);
+    mouseReadAbs(&m_prevmousepos, &g_mouseAbs);
     m_mouselastactivity = -M_MOUSETIMEOUT;
 
 #if !defined EDUKE32_TOUCH_DEVICES
     m_mousewake_watchpoint = 0;
 #endif
 
-    AppGrabMouse(0);
+    mouseLockToWindow(0);
 }
 
 void Menu_Close(size_t playerID)
@@ -4333,7 +4333,7 @@ void Menu_Close(size_t playerID)
     {
         // The following lines are here so that you cannot close the menu when no game is running.
         g_player[playerID].ps->gm &= ~MODE_MENU;
-        AppGrabMouse(1);
+        mouseLockToWindow(1);
 
         if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
         {
@@ -4524,7 +4524,7 @@ static void Menu_RunScrollbar(Menu_t *cm, MenuMenuFormat_t const * const format,
 
         rotatesprite_fs(scrollx + (scrollwidth>>1) - ((tilesiz[scrollTileCursor].x*ud.menu_scrollcursorz)>>1), scrollregionstart + scale(scrollregionheight, *scrollPos, scrollPosMax), ud.menu_scrollcursorz, 0, scrollTileCursor, 0, 0, 26);
 
-        if (cm == m_currentMenu && !m_mousecaught && MOUSEACTIVECONDITIONAL(mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
+        if (cm == m_currentMenu && !m_mousecaught && MOUSEACTIVECONDITIONAL(g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
         {
             const int32_t scrolltilehalfheight = (tilesiz[scrollTileCursor].y*ud.menu_scrollcursorz)>>1;
             const int32_t scrollregiony = scrollregionstart + scrolltilehalfheight;
@@ -4733,7 +4733,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 Menu_RunInput_Menu_MovementVerify(menu);
                             }
 
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
+                            if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
@@ -4778,7 +4778,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 Menu_RunInput_Menu_MovementVerify(menu);
                             }
 
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
+                            if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, entry->font->get_yline()))
                             {
                                 menu->currentEntry = e;
                                 Menu_RunInput_Menu_MovementVerify(menu);
@@ -4828,7 +4828,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     menu->currentColumn = 1;
                                 }
 
-                                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->get_yline()))
+                                if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[1], mousey, column1textsize.x, object->font->get_yline()))
                                 {
                                     menu->currentEntry = e;
                                     Menu_RunInput_Menu_MovementVerify(menu);
@@ -4851,7 +4851,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                     menu->currentColumn = 0;
                                 }
 
-                                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->get_yline()))
+                                if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, columnx[0], mousey, column0textsize.x, object->font->get_yline()))
                                 {
                                     menu->currentEntry = e;
                                     Menu_RunInput_Menu_MovementVerify(menu);
@@ -4936,7 +4936,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 Menu_RunInput_Menu_MovementVerify(menu);
                             }
 
-                            if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
+                            if (!m_mousecaught && (g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
                             {
                                 const int32_t slidepointhalfwidth = mulscale16((((tilesiz[SLIDEBAR+1].x)*ud.menu_slidecursorz)>>2) + ud.menu_slidebarmargin, z);
                                 const int32_t slideregionx = slidebarx + slidepointhalfwidth;
@@ -5035,7 +5035,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 Menu_RunInput_Menu_MovementVerify(menu);
                             }
 
-                            if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
+                            if (!m_mousecaught && (g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
                             {
                                 const int32_t slidepointhalfwidth = mulscale16((2+tilesiz[SLIDEBAR+1].x)<<15, z);
                                 const int32_t slideregionx = slidebarx + slidepointhalfwidth;
@@ -5135,7 +5135,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                                 Menu_RunInput_Menu_MovementVerify(menu);
                             }
 
-                            if (!m_mousecaught && (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held))
+                            if (!m_mousecaught && (g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD))
                             {
                                 const int32_t slidepointhalfwidth = mulscale16((2+tilesiz[SLIDEBAR+1].x)<<15, z);
                                 const int32_t slideregionx = slidebarx + slidepointhalfwidth;
@@ -5208,7 +5208,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                             }
 
     #ifndef EDUKE32_TOUCH_DEVICES
-                            if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, h) && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
+                            if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousepos, mousex, mousey, mousewidth, h) && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, h))
     #endif
                             {
                                 if (entry == currentry && object->editfield != NULL)
@@ -5336,7 +5336,7 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
                     object->options->currentEntry = e;
                 }
 
-                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, object->options->font->get_yline()))
+                if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, mousewidth, object->options->font->get_yline()))
                 {
                     object->options->currentEntry = e;
 
@@ -5359,7 +5359,7 @@ static void Menu_RunOptionList(Menu_t *cm, MenuEntry_t *entry, MenuOption_t *obj
 
 static int32_t Menu_RunInput_MouseAdvance(void)
 {
-    return MOUSEACTIVECONDITIONAL(!m_mousecaught && mousepressstate == Mouse_Released);
+    return MOUSEACTIVECONDITIONAL(!m_mousecaught && g_mouseClickState == MOUSE_RELEASED);
 }
 
 static int32_t Menu_RunInput_MouseReturn_status;
@@ -5404,10 +5404,10 @@ static int32_t Menu_RunInput_MouseReturn(void)
 #if !defined EDUKE32_TOUCH_DEVICES
         Menu_RunInput_MouseReturn_status = 1;
 #else
-        Menu_RunInput_MouseReturn_status = (mousepressstate == Mouse_Pressed || mousepressstate == Mouse_Held);
+        Menu_RunInput_MouseReturn_status = (g_mouseClickState == MOUSE_PRESSED || g_mouseClickState == MOUSE_HELD);
 #endif
 
-        return !m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, MouseReturnRegionX, 0, backbuttonbound.x, backbuttonbound.y);
+        return !m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, MouseReturnRegionX, 0, backbuttonbound.x, backbuttonbound.y);
     }
 
     Menu_RunInput_MouseReturn_status = 0;
@@ -5607,7 +5607,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
                                     Menu_RunInput_FileSelect_MovementVerify(object);
                                 }
 
-                                if (!m_mousecaught && mousepressstate == Mouse_Released && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, textdim.x, object->font[i]->get_yline()))
+                                if (!m_mousecaught && g_mouseClickState == MOUSE_RELEASED && !Menu_MouseOutsideBounds(&m_mousedownpos, mousex, mousey, textdim.x, object->font[i]->get_yline()))
                                 {
                                     object->findhigh[i] = dir;
                                     object->currentList = i;
@@ -6814,8 +6814,8 @@ void M_DisplayMenus(void)
     if (!Menu_IsTextInput(m_currentMenu) && KB_KeyPressed(sc_Q))
         Menu_AnimateChange(MENU_QUIT, MA_Advance);
 
-    int32_t mousestatus = readmouseabsxy(&m_mousepos, &mouseabs);
-    if (mousestatus && mousepressstate == Mouse_Pressed)
+    int32_t mousestatus = mouseReadAbs(&m_mousepos, &g_mouseAbs);
+    if (mousestatus && g_mouseClickState == MOUSE_PRESSED)
         m_mousedownpos = m_mousepos;
 
     Menu_RunInput(m_currentMenu);
@@ -6920,7 +6920,7 @@ void M_DisplayMenus(void)
             m_mousewake_watchpoint = 1;
 #endif
 
-        if (MOUSEACTIVECONDITIONAL(mousepressstateadvance()) || m_mousepos.x != m_prevmousepos.x || m_mousepos.y != m_prevmousepos.y)
+        if (MOUSEACTIVECONDITIONAL(mouseAdvanceClickState()) || m_mousepos.x != m_prevmousepos.x || m_mousepos.y != m_prevmousepos.y)
         {
             m_prevmousepos = m_mousepos;
             m_mouselastactivity = totalclock;
@@ -6984,7 +6984,7 @@ void M_DisplayMenus(void)
         }
     }
     else
-        mousepressstate = Mouse_Idle;
+        g_mouseClickState = MOUSE_IDLE;
 #endif
 
     if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU)

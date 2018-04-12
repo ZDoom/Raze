@@ -1186,7 +1186,7 @@ void G_DisplayRest(int32_t smoothratio)
 #ifdef GEKKO
     // like the mouse cursor, the pointer doesn't use the crosshair enabled / scale options
     if (g_player[myconnectindex].ps->newowner == -1 && ud.overhead_on == 0 && ud.camerasprite == -1 &&
-        (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && readmouseabsxy((vec2_t *)&ud.returnvar[0], &mouseabs))
+        (g_player[myconnectindex].ps->gm&MODE_MENU) == 0 && mouseReadAbs((vec2_t *)&ud.returnvar[0], &g_mouseAbs))
     {
         int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYPOINTER, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
         if ((unsigned) a < MAXTILES)

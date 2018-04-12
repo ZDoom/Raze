@@ -6358,7 +6358,7 @@ int app_main(int argc, char const * const * argv)
     }
 #endif
 
-    flushlogwindow = 0;
+    g_logFlushWindow = 0;
     G_LoadGroups(!g_noAutoLoad && !ud.config.NoAutoLoad);
 //    flushlogwindow = 1;
 
@@ -6517,8 +6517,8 @@ int app_main(int argc, char const * const * argv)
         CONTROL_MouseEnabled    = (ud.config.UseMouse && CONTROL_MousePresent);
 
         // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
-        for (bssize_t i=0; i<joynumaxes; i++)
-            setjoydeadzone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
+        for (bssize_t i=0; i<joystick.numAxes; i++)
+            joySetDeadZone(i,ud.config.JoystickAnalogueDead[i],ud.config.JoystickAnalogueSaturate[i]);
     }
 
 #ifdef HAVE_CLIPSHAPE_FEATURE

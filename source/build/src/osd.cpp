@@ -1439,13 +1439,10 @@ void OSD_CaptureInput(int32_t cap)
 {
     osd->flags = (osd->flags & ~(OSD_CAPTURE|OSD_CTRL|OSD_SHIFT)) | (-cap & OSD_CAPTURE);
 
-    grabmouse(cap == 0 ? AppMouseGrab : 0);
+    mouseGrabInput(cap == 0 ? g_mouseLockedToWindow : 0);
     onshowosd(cap);
 
-    if (cap)
-        releaseallbuttons();
-
-    bflushchars();
+    keyFlushChars();
 }
 
 

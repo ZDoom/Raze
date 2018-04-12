@@ -44,31 +44,31 @@ int32_t JOYSTICK_GetButtons(void)
 {
     int32_t buttons;
 
-    readjoybstatus(&buttons);
+    joyReadButtons(&buttons);
 
-    if (joynumhats > 0)
+    if (joystick.numHats > 0)
     {
         int32_t hat = JOYSTICK_GetHat(0);
         if (hat != 0)
-            buttons |= hat << min(MAXJOYBUTTONS, joynumbuttons);
+            buttons |= hat << min(MAXJOYBUTTONS, joystick.numButtons);
     }
 
     return buttons;
 }
 int32_t JOYSTICK_ClearButton(int32_t b)
 {
-    return (joyb &= ~b);
+    return (joystick.bits &= ~b);
 }
 void JOYSTICK_ClearAllButtons(void)
 {
-    joyb = 0;
+    joystick.bits = 0;
 }
 
 int32_t JOYSTICK_GetHat(int32_t h)
 {
-    if (h>=0 && h<joynumhats)
+    if (h>=0 && h<joystick.numHats)
     {
-        if (joyhat[h] == -1)
+        if (joystick.pHat[h] == -1)
             return (HAT_CENTERED);
         else
         {
@@ -76,7 +76,7 @@ int32_t JOYSTICK_GetHat(int32_t h)
             int32_t val;
 
             // thanks SDL for this much more sensible method
-            val = ((joyhat[0] + 4500 / 2) % 36000) / 4500;
+            val = ((joystick.pHat[0] + 4500 / 2) % 36000) / 4500;
             if (val < 8)
                 return hatstate[val];
         }
@@ -85,28 +85,28 @@ int32_t JOYSTICK_GetHat(int32_t h)
 }
 void JOYSTICK_ClearHat(int32_t h)
 {
-    if (h>=0 && h<joynumhats)
-        joyhat[h] = -1;
+    if (h>=0 && h<joystick.numHats)
+        joystick.pHat[h] = -1;
 }
 void JOYSTICK_ClearAllHats(void)
 {
     int32_t h;
-    for (h=0; h<joynumhats; ++h)
-        joyhat[h] = -1;
+    for (h=0; h<joystick.numHats; ++h)
+        joystick.pHat[h] = -1;
 }
 
 int32_t JOYSTICK_GetAxis(int32_t a)
 {
-    return ((a>=0 && a<joynumaxes)?joyaxis[a]:0);
+    return ((a>=0 && a<joystick.numAxes)?joystick.pAxis[a]:0);
 }
 void JOYSTICK_ClearAxis(int32_t a)
 {
-    if (a>=0 && a<joynumaxes)
-        joyaxis[a] = 0;
+    if (a>=0 && a<joystick.numAxes)
+        joystick.pAxis[a] = 0;
 }
 void JOYSTICK_ClearAllAxes(void)
 {
     int32_t a;
-    for (a=0; a<joynumaxes; ++a)
-        joyaxis[a] = 0;
+    for (a=0; a<joystick.numAxes; ++a)
+        joystick.pAxis[a] = 0;
 }

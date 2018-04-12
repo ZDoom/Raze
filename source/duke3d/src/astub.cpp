@@ -1499,7 +1499,7 @@ static void IntegratedHelp(void)
                 for (i=0; i<IHELP_PATLEN+1; i++) pattern[i]=0;
 
                 i=0;
-                bflushchars();
+                keyFlushChars();
                 while (bad == 0)
                 {
                     _printmessage16("Search: %s_", pattern);
@@ -1510,7 +1510,7 @@ static void IntegratedHelp(void)
                     if (handleevents())
                         quitevent = 0;
 
-                    ch = bgetchar();
+                    ch = keyGetChar();
 
                     if (keystatus[1]) bad = 1;
                     else if (ch == 13) bad = 2;
@@ -1971,14 +1971,14 @@ static void SoundDisplay(void)
                 showframe(1);
 
                 i=0;
-                bflushchars();
+                keyFlushChars();
                 while (bad == 0)
                 {
                     idle_waitevent();
                     if (handleevents())
                         quitevent = 0;
 
-                    ch = bgetchar();
+                    ch = keyGetChar();
 
                     if (keystatus[1]) bad = 1;
 
@@ -2743,12 +2743,12 @@ static int32_t m32gettile(int32_t idInitialTile)
         scrollmode = !(eitherCTRL^revertCTRL);
         if (bstatus&16 && scrollmode && iTopLeftTile > 0)
         {
-            mouseb &= ~16;
+            g_mouseBits &= ~16;
             iTopLeftTile -= (nXTiles*scrollamount);
         }
         else if (bstatus&32 && scrollmode && iTopLeftTile < localartlookupnum-nDisplayedTiles-1)
         {
-            mouseb &= ~32;
+            g_mouseBits &= ~32;
             iTopLeftTile += (nXTiles*scrollamount);
         }
 
@@ -2769,7 +2769,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         {
             if (PRESSED_KEYSC(gSLASH) || (!scrollmode && bstatus&16))
             {
-                mouseb &= ~16;
+                g_mouseBits &= ~16;
                 bstatus &= ~16;
 
                 // Watch out : If editor window is small, then the next zoom level
@@ -2783,7 +2783,7 @@ static int32_t m32gettile(int32_t idInitialTile)
             else
             {
                 keystatus[KEYSC_gSTAR] = 0;
-                mouseb &= ~32;
+                g_mouseBits &= ~32;
                 bstatus &= ~32;
                 s_Zoom--;
             }
@@ -2966,7 +2966,7 @@ static int32_t m32gettile(int32_t idInitialTile)
                 }
             }
 
-            mousex = mousey = mouseb = 0;
+            g_mousePos.x = g_mousePos.y = g_mouseBits = 0;
         }
 
         //
@@ -3269,7 +3269,7 @@ static int32_t OnSelectTile(int32_t tileNum)
 
     SelectAllTiles(tileNum);
 
-    bflushchars();
+    keyFlushChars();
 
     setpolymost2dview();
 #ifdef USE_OPENGL
@@ -3314,7 +3314,7 @@ static int32_t OnSelectTile(int32_t tileNum)
         }
         showframe(1);
 
-        ch = bgetchar();
+        ch = keyGetChar();
 
         for (i = 0; i < tile_groups; i++)
         {
@@ -3575,7 +3575,7 @@ restart:
 
                 tilescreen_drawrest(iSelected, showmsg);
 
-                k = (mousex || mousey || mouseb);
+                k = (g_mousePos.x || g_mousePos.y || g_mouseBits);
                 if (!k)
                     for (i=0; i<(signed)ARRAY_SIZE(keystatus); i++)
                         if (keystatus[i])
@@ -3758,7 +3758,7 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
     }
 
     oldnum = danum;
-    bflushchars();
+    keyFlushChars();
     while (keystatus[0x1] == 0)
     {
         if (handleevents())
@@ -3766,13 +3766,13 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
 
         M32_DrawRoomsAndMasks();
 
-        ch = bgetchar();
+        ch = keyGetChar();
 
         if (keystatus[0x1]) break;
 
         clearkeys();
 
-        mouseb = 0;
+        g_mouseBits = 0;
         searchx = osearchx;
         searchy = osearchy;
 
@@ -3921,7 +3921,7 @@ ENDFOR1:
     sp->pal = 0;
     sp->cstat = 18;
 
-    bflushchars();
+    keyFlushChars();
     while (keystatus[0x1] == 0)
     {
         if (handleevents())
@@ -3960,13 +3960,13 @@ ENDFOR1:
 
         M32_DrawRoomsAndMasks();
 
-        ch = bgetchar();
+        ch = keyGetChar();
 
         if (keystatus[0x1]) break;
 
         clearkeys();
 
-        mouseb = 0;
+        g_mouseBits = 0;
         searchx = osearchx;
         searchy = osearchy;
 
@@ -5011,7 +5011,7 @@ static void Keys3d(void)
 
         if (tsign)
         {
-            mouseb &= ~(16|32);
+            g_mouseBits &= ~(16|32);
             bstatus &= ~(16|32);
 
             if (eitherALT)  //ALT
@@ -5143,7 +5143,7 @@ static void Keys3d(void)
             asksave = 1;
         }
         keystatus[KEYSC_DASH] = keystatus[KEYSC_EQUAL] = 0;
-        mouseb &= ~(16|32);
+        g_mouseBits &= ~(16|32);
     }
 
     if (PRESSED_KEYSC(E))  // E (expand)
@@ -5244,10 +5244,10 @@ static void Keys3d(void)
     mouseaction=0;
     if (eitherALT && (bstatus&1))
     {
-        mousex=0; mskip=1;
-        if (mousey!=0)
+        g_mousePos.x=0; mskip=1;
+        if (g_mousePos.y!=0)
         {
-            updownunits=klabs(mousey*128);
+            updownunits=klabs(g_mousePos.y*128);
             mouseaction=1;
         }
     }
@@ -5257,8 +5257,8 @@ static void Keys3d(void)
     if (ASSERT_AIMING)
     {
         // PK: PGUP/PGDN, rmb only & mwheel
-        tsign -= (PRESSED_KEYSC(PGUP) || (mouseaction && mousey<0) || ((bstatus&(16|2|1))==(16|2)));
-        tsign += (PRESSED_KEYSC(PGDN) || (mouseaction && mousey>0) || ((bstatus&(32|2|1))==(32|2)));
+        tsign -= (PRESSED_KEYSC(PGUP) || (mouseaction && g_mousePos.y<0) || ((bstatus&(16|2|1))==(16|2)));
+        tsign += (PRESSED_KEYSC(PGDN) || (mouseaction && g_mousePos.y>0) || ((bstatus&(32|2|1))==(32|2)));
     }
 
     if (tsign)
@@ -5424,7 +5424,7 @@ static void Keys3d(void)
         }
 
         asksave = 1;
-        mouseb &= ~(16|32);
+        g_mouseBits &= ~(16|32);
     }
 
     /* end Mapster32 */
@@ -5919,10 +5919,10 @@ static void Keys3d(void)
 
     if (eitherCTRL && !eitherSHIFT && (bstatus&1) && AIMING_AT_CEILING_OR_FLOOR)
     {
-        mousex=0; mskip=1;
-        if (mousey)
+        g_mousePos.x=0; mskip=1;
+        if (g_mousePos.y)
         {
-            i=klabs(mousey*2);
+            i=klabs(g_mousePos.y*2);
             mouseaction=1;
         }
     }
@@ -5930,8 +5930,8 @@ static void Keys3d(void)
     tsign = 0;
     if (ASSERT_AIMING)
     {
-        tsign -= (PRESSED_KEYSC(LBRACK) || (mouseaction && mousey<0));   // [
-        tsign += (PRESSED_KEYSC(RBRACK) || (mouseaction && mousey>0));   // ]
+        tsign -= (PRESSED_KEYSC(LBRACK) || (mouseaction && g_mousePos.y<0));   // [
+        tsign += (PRESSED_KEYSC(RBRACK) || (mouseaction && g_mousePos.y>0));   // ]
     }
 
     if (tsign)
@@ -6005,7 +6005,7 @@ static void Keys3d(void)
     if ((bstatus&1) && eitherSHIFT)
         mskip=1;
 
-    if ((bstatus&1) && eitherSHIFT && AIMING_AT_CEILING_OR_FLOOR && (mousex|mousey))
+    if ((bstatus&1) && eitherSHIFT && AIMING_AT_CEILING_OR_FLOOR && (g_mousePos.x|g_mousePos.y))
     {
         int32_t fw,x1,y1,x2,y2,stat,ma,a=0;
 
@@ -6017,7 +6017,7 @@ static void Keys3d(void)
             x2=POINT2(fw).x,y2=POINT2(fw).y;
             a=getangle(x1-x2,y1-y2);
         }
-        mouseax+=mousex; mouseay+=mousey;
+        mouseax+=g_mousePos.x; mouseay+=g_mousePos.y;
         ma = getangle(mouseax,mouseay);
         ma += ang-a;
 
@@ -6082,8 +6082,8 @@ static void Keys3d(void)
                 }
             }
         }
-        mousex=0;
-        mousey=0;
+        g_mousePos.x=0;
+        g_mousePos.y=0;
     }
 
 
@@ -6094,7 +6094,7 @@ static void Keys3d(void)
     updownunits=1;
     mouseaction=0;
 
-    if (!mouseb)
+    if (!g_mouseBits)
     {
         mouseax=0;
         mouseay=0;
@@ -6105,10 +6105,10 @@ static void Keys3d(void)
         if (eitherSHIFT)
         {
             mskip=1;
-            if (mousex)
+            if (g_mousePos.x)
             {
                 mouseaction = 1;
-                mouseax += mousex;
+                mouseax += g_mousePos.x;
                 updownunits = klabs(mouseax/2);
                 if (updownunits)
                     mouseax=0;
@@ -6117,11 +6117,11 @@ static void Keys3d(void)
         else if (eitherCTRL && !eitherALT)
         {
             mskip=1;
-            if (mousex)
+            if (g_mousePos.x)
             {
                 mouseaction = 2;
                 repeatpanalign = 0;
-                updownunits = klabs(mouseax+=mousex)/(16 - 12*AIMING_AT_SPRITE);
+                updownunits = klabs(mouseax+=g_mousePos.x)/(16 - 12*AIMING_AT_SPRITE);
                 if (updownunits)
                     mouseax=0;
             }
@@ -6133,9 +6133,9 @@ static void Keys3d(void)
         if (repeatcountx == 0 || repeatcountx > 32 || mouseaction)
         {
             changedir = 0;
-            if (keystatus[KEYSC_gLEFT]  || mousex>0)
+            if (keystatus[KEYSC_gLEFT]  || g_mousePos.x>0)
                 changedir = -1;
-            if (keystatus[KEYSC_gRIGHT] || mousex<0)
+            if (keystatus[KEYSC_gRIGHT] || g_mousePos.x<0)
                 changedir = 1;
 
             if (AIMING_AT_WALL_OR_MASK)
@@ -6189,7 +6189,7 @@ static void Keys3d(void)
                 static int32_t sumxvect=0, sumyvect=0;
 
                 if (mouseaction==1)
-                    mouseaction_movesprites(&sumxvect, &sumyvect, 1536, mousex);
+                    mouseaction_movesprites(&sumxvect, &sumyvect, 1536, g_mousePos.x);
                 else
                 {
                     sumxvect = sumyvect = 0;
@@ -6222,23 +6222,23 @@ static void Keys3d(void)
         if (eitherSHIFT)
         {
             mskip=1;
-            if (mousey)
+            if (g_mousePos.y)
             {
                 mouseaction = 1;
-                updownunits = klabs(mousey);
+                updownunits = klabs(g_mousePos.y);
 
                 if (!AIMING_AT_SPRITE)
-                    updownunits = klabs((int32_t)(mousey*128./tilesiz[wall[searchwall].picnum].y));
+                    updownunits = klabs((int32_t)(g_mousePos.y*128./tilesiz[wall[searchwall].picnum].y));
             }
         }
         else if (eitherCTRL && !eitherALT)
         {
             mskip=1;
-            if (mousey)
+            if (g_mousePos.y)
             {
                 mouseaction = 2;
                 repeatpanalign = 0;
-                mouseay += mousey;
+                mouseay += g_mousePos.y;
                 updownunits = klabs(mouseay)/(32 - 28*AIMING_AT_SPRITE);
                 if (updownunits)
                     mouseay=0;
@@ -6246,7 +6246,7 @@ static void Keys3d(void)
         }
     }
 
-    if (!mouseb)
+    if (!g_mouseBits)
     {
         mouseax=0;
         mouseay=0;
@@ -6257,9 +6257,9 @@ static void Keys3d(void)
         if (repeatcounty == 0 || repeatcounty > 32 || mouseaction)
         {
             changedir = 0;
-            if (keystatus[KEYSC_gUP]   || mousey>0)
+            if (keystatus[KEYSC_gUP]   || g_mousePos.y>0)
                 changedir = -1;
-            if (keystatus[KEYSC_gDOWN] || mousey<0)
+            if (keystatus[KEYSC_gDOWN] || g_mousePos.y<0)
                 changedir = 1;
 
             if (AIMING_AT_WALL_OR_MASK)
@@ -6298,7 +6298,7 @@ static void Keys3d(void)
                 static int32_t sumxvect=0, sumyvect=0;
 
                 if (mouseaction==1)
-                    mouseaction_movesprites(&sumxvect, &sumyvect, 2048, mousey);
+                    mouseaction_movesprites(&sumxvect, &sumyvect, 2048, g_mousePos.y);
                 else
                 {
                     sumxvect = sumyvect = 0;
@@ -10853,7 +10853,7 @@ void ExtCheckKeys(void)
     }
 
     lastbstatus = bstatus;
-    readmousebstatus(&bstatus);
+    mouseReadButtons(&bstatus);
 
     Keys2d3d();
 

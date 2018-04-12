@@ -642,14 +642,14 @@ static void CONTROL_PollDevices(ControlInfo *info)
 
     if (CONTROL_JoystickEnabled)
     {
-        int32_t i = joynumaxes-1;
+        int32_t i = joystick.numAxes-1;
 
         Bmemcpy(CONTROL_LastJoyAxes,   CONTROL_JoyAxes,   sizeof(CONTROL_JoyAxes));
         memset(CONTROL_JoyAxes,   0, sizeof(CONTROL_JoyAxes));
 
         for (; i>=0; i--)
         {
-            CONTROL_JoyAxes[i].analog = joyaxis[i];
+            CONTROL_JoyAxes[i].analog = joystick.pAxis[i];
 
             CONTROL_DigitizeAxis(i, controldevice_joystick);
             CONTROL_ScaleAxis(i, controldevice_joystick);
@@ -859,8 +859,8 @@ int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t
     //		break;
 
     //	case controltype_keyboardandjoystick:
-    CONTROL_NumJoyAxes    = min(MAXJOYAXES,joynumaxes);
-    CONTROL_NumJoyButtons = min(MAXJOYBUTTONS,joynumbuttons + 4*(joynumhats>0));
+    CONTROL_NumJoyAxes    = min(MAXJOYAXES,joystick.numAxes);
+    CONTROL_NumJoyButtons = min(MAXJOYBUTTONS,joystick.numButtons + 4*(joystick.numHats>0));
     CONTROL_JoystickEnabled = CONTROL_JoyPresent = (inputdevices&4)>>2;
     //		break;
     //}

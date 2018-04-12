@@ -48,12 +48,12 @@ extern "C" {
 
 static inline int32_t Mouse_Init(void)
 {
-    initmouse();
+    mouseInit();
     return ((inputdevices & 2) == 2);
 }
 
 
-static inline void MOUSE_Shutdown(void) { uninitmouse(); }
+static inline void MOUSE_Shutdown(void) { mouseUninit(); }
 
 #if 0
 static inline void MOUSE_ShowCursor(void) {}
@@ -63,13 +63,13 @@ static inline void MOUSE_HideCursor(void) {}
 static inline int32_t MOUSE_GetButtons(void)
 {
     int32_t buttons;
-    readmousebstatus(&buttons);
+    mouseReadButtons(&buttons);
     return buttons;
 }
 
-#define MOUSE_ClearButton(b) (mouseb &= ~b)
-#define MOUSE_ClearAllButtons() mouseb = 0
-#define MOUSE_GetDelta(x, y) readmousexy(x, y)
+#define MOUSE_ClearButton(b) (g_mouseBits &= ~b)
+#define MOUSE_ClearAllButtons() g_mouseBits = 0
+#define MOUSE_GetDelta(x, y) mouseReadPos(x, y)
 
 #ifdef __cplusplus
 }

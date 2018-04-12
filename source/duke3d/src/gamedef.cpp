@@ -6625,7 +6625,7 @@ void C_Compile(const char *fileName)
 
     initprintf("Compiling: %s (%d bytes)\n", fileName, kFileLen);
 
-    flushlogwindow = 0;
+    g_logFlushWindow = 0;
 
     uint32_t const startcompiletime = getticks();
 
@@ -6663,7 +6663,7 @@ void C_Compile(const char *fileName)
     }
     g_scriptModules.clear();
 
-    flushlogwindow = 1;
+    g_logFlushWindow = 1;
 
     if (g_errorCnt > 63)
         initprintf("fatal error: too many errors: Aborted\n");

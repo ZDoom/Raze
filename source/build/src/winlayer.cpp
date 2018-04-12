@@ -597,7 +597,7 @@ void initputs(const char *buf)
 
     Bstrcat(dabuf,buf);
 
-    if (flushlogwindow || Bstrlen(dabuf) > 768)
+    if (g_logFlushWindow || Bstrlen(dabuf) > 768)
     {
         startwin_puts(dabuf);
         handleevents();
@@ -691,19 +691,13 @@ int32_t initinput(void)
     Win_GetOriginalLayoutName();
     Win_SetKeyboardLayoutUS(1);
 
-    moustat=0;
+    g_mouseEnabled=0;
     memset(keystatus, 0, sizeof(keystatus));
 
-    if (!keyremapinit)
-        for (i=0; i<256; i++)
-            keyremap[i]=i;
-
-    keyremapinit=1;
-    keyfifoplc = keyfifoend = 0;
-    keyasciififoplc = keyasciififoend = 0;
+    g_keyFIFOend = g_keyAsciiPos = g_keyAsciiEnd = 0;
 
     inputdevices = 1|2;
-    joyisgamepad = joynumaxes = joynumbuttons = joynumhats=0;
+    joystick.numAxes = joystick.numButtons = joystick.numHats=0;
 
     GetKeyNames();
     InitDirectInput();
@@ -719,7 +713,7 @@ void uninitinput(void)
 {
     Win_SetKeyboardLayoutUS(0);
 
-    uninitmouse();
+    mouseUninit();
     UninitDirectInput();
 }
 
@@ -751,7 +745,7 @@ void idle_waitevent_timeout(uint32_t timeout)
 //
 // setjoydeadzone() -- sets the dead and saturation zones for the joystick
 //
-void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
+void joySetDeadZone(int32_t axis, uint16_t dead, uint16_t satur)
 {
     DIPROPDWORD dipdw;
     HRESULT result;
@@ -761,7 +755,7 @@ void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
     if (dead > 10000) dead = 10000;
     if (satur > 10000) satur = 10000;
     if (dead >= satur) dead = satur-100;
-    if (axis >= joynumaxes) return;
+    if (axis >= joystick.numAxes) return;
 
     memset(&dipdw, 0, sizeof(dipdw));
     dipdw.diph.dwSize = sizeof(DIPROPDWORD);
@@ -801,14 +795,14 @@ void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
 //
 // getjoydeadzone() -- gets the dead and saturation zones for the joystick
 //
-void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
+void joyGetDeadZone(int32_t axis, uint16_t *dead, uint16_t *satur)
 {
     DIPROPDWORD dipdw;
     HRESULT result;
 
     if (!dead || !satur) return;
     if (!lpDID) { *dead = *satur = 0; return; }
-    if (axis >= joynumaxes) { *dead = *satur = 0; return; }
+    if (axis >= joystick.numAxes) { *dead = *satur = 0; return; }
 
     memset(&dipdw, 0, sizeof(dipdw));
     dipdw.diph.dwSize = sizeof(DIPROPDWORD);
@@ -845,41 +839,41 @@ void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
     *satur = dipdw.dwData;
 }
 
-
+#if 0
 void releaseallbuttons(void)
 {
     int32_t i;
 
-    if (mousepresscallback)
+    if (g_mouseCallback)
     {
-        if (mouseb & 1) mousepresscallback(1, 0);
-        if (mouseb & 2) mousepresscallback(2, 0);
-        if (mouseb & 4) mousepresscallback(3, 0);
-        if (mouseb & 8) mousepresscallback(4, 0);
-        if (mouseb & 16) mousepresscallback(5, 0);
-        if (mouseb & 32) mousepresscallback(6, 0);
-        if (mouseb & 64) mousepresscallback(7, 0);
+        if (g_mouseBits & 1) g_mouseCallback(1, 0);
+        if (g_mouseBits & 2) g_mouseCallback(2, 0);
+        if (g_mouseBits & 4) g_mouseCallback(3, 0);
+        if (g_mouseBits & 8) g_mouseCallback(4, 0);
+        if (g_mouseBits & 16) g_mouseCallback(5, 0);
+        if (g_mouseBits & 32) g_mouseCallback(6, 0);
+        if (g_mouseBits & 64) g_mouseCallback(7, 0);
     }
-    mouseb = 0;
+    g_mouseBits = 0;
 
-    if (joypresscallback)
+    if (joystick.pCallback)
     {
         for (i=0; i<32; i++)
-            if (joyb & (1<<i)) joypresscallback(i+1, 0);
+            if (joystick.bits & (1<<i)) joystick.pCallback(i+1, 0);
     }
-    joyb = joyblast = 0;
+    joystick.bits = joyblast = 0;
 
-    for (i=0; i<KEYSTATUSSIZ; i++)
+    for (i=0; i<NUMKEYS; i++)
     {
         //if (!keystatus[i]) continue;
         //if (OSD_HandleKey(i, 0) != 0) {
         OSD_HandleScanCode(i, 0);
-        SetKey(i, 0);
+        keySetState(i, 0);
         if (keypresscallback) keypresscallback(i, 0);
         //}
     }
 }
-
+#endif
 
 //
 // InitDirectInput() -- get DirectInput started
@@ -896,8 +890,7 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
         return DIENUM_CONTINUE;
 
     inputdevices |= 4;
-    joyisgamepad = ((lpddi->dwDevType & (DIDEVTYPEJOYSTICK_GAMEPAD<<8)) != 0);
-    d = joyisgamepad ? "GAMEPAD" : "JOYSTICK";
+    d = "CONTROLLER"
     Bmemcpy(&guidDevs, &lpddi->guidInstance, sizeof(GUID));
 
     initprintf("    * %s: %s\n", d, lpddi->tszProductName);
@@ -1043,19 +1036,19 @@ static BOOL InitDirectInput(void)
         if (FAILED(result)) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting controller capabilities", result); }
         else if (result != DI_OK) initprintf("    Fetched controller capabilities with warning: %s\n",GetDInputError(result));
 
-        joynumaxes    = (uint8_t)didc.dwAxes;
-        joynumbuttons = min(32,(uint8_t)didc.dwButtons);
-        joynumhats    = (uint8_t)didc.dwPOVs;
-        initprintf("Controller has %d axes, %d buttons, and %d hat(s).\n",joynumaxes,joynumbuttons,joynumhats);
+        joystick.numAxes    = (uint8_t)didc.dwAxes;
+        joystick.numButtons = min(32,(uint8_t)didc.dwButtons);
+        joystick.numHats    = (uint8_t)didc.dwPOVs;
+        initprintf("Controller has %d axes, %d buttons, and %d hat(s).\n",joystick.numAxes,joystick.numButtons,joystick.numHats);
 
         axisdefs = (struct _joydef *)Bcalloc(didc.dwAxes, sizeof(struct _joydef));
         buttondefs = (struct _joydef *)Bcalloc(didc.dwButtons, sizeof(struct _joydef));
         if (didc.dwPOVs)
             hatdefs = (struct _joydef *)Bcalloc(didc.dwPOVs, sizeof(struct _joydef));
 
-        joyaxis = (int32_t *)Bcalloc(didc.dwAxes, sizeof(int32_t));
+        joystick.pAxis = (int32_t *)Bcalloc(didc.dwAxes, sizeof(int32_t));
         if (didc.dwPOVs)
-            joyhat = (int32_t *)Bcalloc(didc.dwPOVs, sizeof(int32_t));
+            joystick.pHat = (int32_t *)Bcalloc(didc.dwPOVs, sizeof(int32_t));
 
         result = IDirectInputDevice7_EnumObjects(dev2, InitDirectInput_enumobjects, (LPVOID)typecounts, DIDFT_ALL);
         if (FAILED(result)) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting controller features", result); }
@@ -1083,17 +1076,17 @@ static void UninitDirectInput(void)
 
     if (axisdefs)
     {
-        for (i=joynumaxes-1; i>=0; i--) Bfree(axisdefs[i].name);
+        for (i=joystick.numAxes-1; i>=0; i--) Bfree(axisdefs[i].name);
         DO_FREE_AND_NULL(axisdefs);
     }
     if (buttondefs)
     {
-        for (i=joynumbuttons-1; i>=0; i--) Bfree(buttondefs[i].name);
+        for (i=joystick.numButtons-1; i>=0; i--) Bfree(buttondefs[i].name);
         DO_FREE_AND_NULL(buttondefs);
     }
     if (hatdefs)
     {
-        for (i=joynumhats-1; i>=0; i--) Bfree(hatdefs[i].name);
+        for (i=joystick.numHats-1; i>=0; i--) Bfree(hatdefs[i].name);
         DO_FREE_AND_NULL(hatdefs);
     }
 
@@ -1131,29 +1124,29 @@ static void GetKeyNames(void)
     int32_t i;
     char tbuf[MAX_PATH], *cp;
 
-    memset(key_names,0,sizeof(key_names));
+    memset(g_keyNameTable,0,sizeof(g_keyNameTable));
 
     for (i=0; i<256; i++)
     {
         tbuf[0] = 0;
-        GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(key_names[i])-1);
-        Bstrncpy(&key_names[i][0], tbuf, sizeof(key_names[i])-1);
-        for (cp=key_names[i]; *cp; cp++)
+        GetKeyNameText((i>128?(i+128):i)<<16, tbuf, sizeof(g_keyNameTable[i])-1);
+        Bstrncpy(&g_keyNameTable[i][0], tbuf, sizeof(g_keyNameTable[i])-1);
+        for (cp=g_keyNameTable[i]; *cp; cp++)
             if (!(*cp>=32 && *cp<127))
                 *cp = '?';
     }
 }
 
-const char *getjoyname(int32_t what, int32_t num)
+const char *joyGetName(int32_t what, int32_t num)
 {
     switch (what)
     {
     case 0:	// axis
-        return ((unsigned)num > (unsigned)joynumaxes) ? NULL : (char *)axisdefs[num].name;
+        return ((unsigned)num > (unsigned)joystick.numAxes) ? NULL : (char *)axisdefs[num].name;
     case 1: // button
-        return ((unsigned)num > (unsigned)joynumbuttons) ? NULL : (char *)buttondefs[num].name;
+        return ((unsigned)num > (unsigned)joystick.numButtons) ? NULL : (char *)buttondefs[num].name;
     case 2: // hat
-        return ((unsigned)num > (unsigned)joynumhats) ? NULL : (char *)hatdefs[num].name;
+        return ((unsigned)num > (unsigned)joystick.numHats) ? NULL : (char *)hatdefs[num].name;
     default:
         return NULL;
     }
@@ -1195,7 +1188,7 @@ static void AcquireInputDevices(char acquire)
 
     di_devacquired = 0;
 
-    releaseallbuttons();
+    // releaseallbuttons();
 
     if (! *devicedef.did) return;
 
@@ -1250,31 +1243,31 @@ static inline void DI_PollJoysticks(void)
                 int32_t j;
 
                 // check axes
-                for (j=0; j<joynumaxes; j++)
+                for (j=0; j<joystick.numAxes; j++)
                 {
                     if (axisdefs[j].ofs != didod[i].dwOfs) continue;
-                    joyaxis[j] = didod[i].dwData - 32767;
+                    joystick.pAxis[j] = didod[i].dwData - 32767;
                     break;
                 }
-                if (j<joynumaxes) continue;
+                if (j<joystick.numAxes) continue;
 
                 // check buttons
-                for (j=0; j<joynumbuttons; j++)
+                for (j=0; j<joystick.numButtons; j++)
                 {
                     if (buttondefs[j].ofs != didod[i].dwOfs) continue;
-                    if (didod[i].dwData & 0x80) joyb |= (1<<j);
-                    else joyb &= ~(1<<j);
-                    if (joypresscallback)
-                        joypresscallback(j+1, (didod[i].dwData & 0x80)==0x80);
+                    if (didod[i].dwData & 0x80) joystick.bits |= (1<<j);
+                    else joystick.bits &= ~(1<<j);
+                    if (joystick.pCallback)
+                        joystick.pCallback(j+1, (didod[i].dwData & 0x80)==0x80);
                     break;
                 }
-                if (j<joynumbuttons) continue;
+                if (j<joystick.numButtons) continue;
 
                 // check hats
-                for (j=0; j<joynumhats; j++)
+                for (j=0; j<joystick.numHats; j++)
                 {
                     if (hatdefs[j].ofs != didod[i].dwOfs) continue;
-                    joyhat[j] = didod[i].dwData;
+                    joystick.pHat[j] = didod[i].dwData;
                     break;
                 }
             }
@@ -1800,8 +1793,8 @@ void getvalidmodes(void)
             for (j=0; j < 2; j++)
             {
                 if (cdepths[j] == 0) continue;
-                for (i=0; defaultres[i][0]; i++)
-                    ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],1,-1)
+                for (i=0; g_defaultVideoModes[i].x; i++)
+                    ADDMODE(g_defaultVideoModes[i].x,g_defaultVideoModes[i].y,cdepths[j],1,-1)
                 }
         }
     }
@@ -1817,9 +1810,9 @@ void getvalidmodes(void)
     for (j=0; j < 2; j++)
     {
         if (cdepths[j] == 0) continue;
-        for (i=0; defaultres[i][0]; i++)
-            CHECK(defaultres[i][0],defaultres[i][1])
-            ADDMODE(defaultres[i][0],defaultres[i][1],cdepths[j],0,-1)
+        for (i=0; g_defaultVideoModes[i].x; i++)
+            CHECK(g_defaultVideoModes[i].x,g_defaultVideoModes[i].y)
+            ADDMODE(g_defaultVideoModes[i].x,g_defaultVideoModes[i].y,cdepths[j],0,-1)
         }
 
     qsort((void *)validmode, validmodecnt, sizeof(struct validmode_t), &sortmodes);
@@ -3515,9 +3508,9 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
         {
             if (!appactive && fullscreen)
             {
-                if (mousegrab)
+                if (g_mouseGrabbed)
                 {
-                    grabmouse(0);
+                    mouseGrabInput(0);
                     regrabmouse = 1;
                 }
                 realfs = fullscreen;
@@ -3529,7 +3522,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
             {
                 if (regrabmouse)
                 {
-                    grabmouse(AppMouseGrab);
+                    mouseGrabInput(g_mouseLockedToWindow);
                     regrabmouse = 0;
                 }
                 ShowWindow(hWindow, SW_RESTORE);

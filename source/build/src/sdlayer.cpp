@@ -732,7 +732,7 @@ void initputs(const char *buf)
 
     Bstrcat(dabuf,buf);
 
-    if (flushlogwindow || Bstrlen(dabuf) > 768)
+    if (g_logFlushWindow || Bstrlen(dabuf) > 768)
     {
         startwin_puts(dabuf);
 #ifndef _WIN32
@@ -794,14 +794,10 @@ int32_t initinput(void)
         putenv(sdl_has3buttonmouse);
 #endif
 
-    if (!keyremapinit)
-        for (i = 0; i < 256; i++) keyremap[i] = i;
-    keyremapinit = 1;
-
     inputdevices = 1 | 2;  // keyboard (1) and mouse (2)
-    mousegrab = 0;
+    g_mouseGrabbed = 0;
 
-    memset(key_names, 0, sizeof(key_names));
+    memset(g_keyNameTable, 0, sizeof(g_keyNameTable));
 
 #if SDL_MAJOR_VERSION == 1
 #define SDL_SCANCODE_TO_KEYCODE(x) (SDLKey)(x)
@@ -817,7 +813,7 @@ int32_t initinput(void)
         if (!keytranslation[i])
             continue;
 
-        Bstrncpyz(key_names[keytranslation[i]], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(key_names[i]));
+        Bstrncpyz(g_keyNameTable[keytranslation[i]], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(g_keyNameTable[i]));
     }
 
     if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK))
@@ -836,20 +832,20 @@ int32_t initinput(void)
             inputdevices |= 4;
 
             // KEEPINSYNC duke3d/src/gamedefs.h, mact/include/_control.h
-            joynumaxes = min(9, SDL_JoystickNumAxes(joydev));
-            joynumbuttons = min(32, SDL_JoystickNumButtons(joydev));
-            joynumhats = min((36-joynumbuttons)/4,SDL_JoystickNumHats(joydev));
-            initprintf("Joystick 1 has %d axes, %d buttons, and %d hat(s).\n", joynumaxes, joynumbuttons, joynumhats);
+            joystick.numAxes = min(9, SDL_JoystickNumAxes(joydev));
+            joystick.numButtons = min(32, SDL_JoystickNumButtons(joydev));
+            joystick.numHats = min((36-joystick.numButtons)/4,SDL_JoystickNumHats(joydev));
+            initprintf("Joystick 1 has %d axes, %d buttons, and %d hat(s).\n", joystick.numAxes, joystick.numButtons, joystick.numHats);
 
-            joyaxis = (int32_t *)Bcalloc(joynumaxes, sizeof(int32_t));
+            joystick.pAxis = (int32_t *)Bcalloc(joystick.numAxes, sizeof(int32_t));
 
-            if (joynumhats)
-                joyhat = (int32_t *)Bcalloc(joynumhats, sizeof(int32_t));
+            if (joystick.numHats)
+                joystick.pHat = (int32_t *)Bcalloc(joystick.numHats, sizeof(int32_t));
 
-            for (i = 0; i < joynumhats; i++) joyhat[i] = -1;  // centre
+            for (i = 0; i < joystick.numHats; i++) joystick.pHat[i] = -1;  // centre
 
-            joydead = (uint16_t *)Bcalloc(joynumaxes, sizeof(uint16_t));
-            joysatur = (uint16_t *)Bcalloc(joynumaxes, sizeof(uint16_t));
+            joydead = (uint16_t *)Bcalloc(joystick.numAxes, sizeof(uint16_t));
+            joysatur = (uint16_t *)Bcalloc(joystick.numAxes, sizeof(uint16_t));
         }
     }
 
@@ -864,7 +860,7 @@ void uninitinput(void)
 #ifdef _WIN32
     Win_SetKeyboardLayoutUS(0);
 #endif
-    uninitmouse();
+    mouseUninit();
 
     if (joydev)
     {
@@ -874,26 +870,26 @@ void uninitinput(void)
 }
 
 #ifndef GEKKO
-const char *getjoyname(int32_t what, int32_t num)
+const char *joyGetName(int32_t what, int32_t num)
 {
     static char tmp[64];
 
     switch (what)
     {
         case 0:  // axis
-            if ((unsigned)num > (unsigned)joynumaxes)
+            if ((unsigned)num > (unsigned)joystick.numAxes)
                 return NULL;
             Bsprintf(tmp, "Axis %d", num);
             return (char *)tmp;
 
         case 1:  // button
-            if ((unsigned)num > (unsigned)joynumbuttons)
+            if ((unsigned)num > (unsigned)joystick.numButtons)
                 return NULL;
             Bsprintf(tmp, "Button %d", num);
             return (char *)tmp;
 
         case 2:  // hat
-            if ((unsigned)num > (unsigned)joynumhats)
+            if ((unsigned)num > (unsigned)joystick.numHats)
                 return NULL;
             Bsprintf(tmp, "Hat %d", num);
             return (char *)tmp;
@@ -907,20 +903,20 @@ const char *getjoyname(int32_t what, int32_t num)
 //
 // initmouse() -- init mouse input
 //
-int32_t initmouse(void)
+int32_t mouseInit(void)
 {
-    moustat=AppMouseGrab;
-    grabmouse(AppMouseGrab); // FIXME - SA
+    g_mouseEnabled=g_mouseLockedToWindow;
+    mouseGrabInput(g_mouseLockedToWindow); // FIXME - SA
     return 0;
 }
 
 //
 // uninitmouse() -- uninit mouse input
 //
-void uninitmouse(void)
+void mouseUninit(void)
 {
-    grabmouse(0);
-    moustat = 0;
+    mouseGrabInput(0);
+    g_mouseEnabled = 0;
 }
 
 
@@ -948,27 +944,27 @@ static inline char grabmouse_low(char a)
 //
 // grabmouse() -- show/hide mouse cursor
 //
-void grabmouse(char a)
+void mouseGrabInput(char a)
 {
-    if (appactive && moustat)
+    if (appactive && g_mouseEnabled)
     {
 #if !defined EDUKE32_TOUCH_DEVICES
-        if ((a != mousegrab) && !grabmouse_low(a))
+        if ((a != g_mouseGrabbed) && !grabmouse_low(a))
 #endif
-            mousegrab = a;
+            g_mouseGrabbed = a;
     }
     else
-        mousegrab = a;
+        g_mouseGrabbed = a;
 
-    mousex = mousey = 0;
+    g_mousePos.x = g_mousePos.y = 0;
 }
 
-void AppGrabMouse(char a)
+void mouseLockToWindow(char a)
 {
     if (!(a & 2))
     {
-        grabmouse(a);
-        AppMouseGrab = mousegrab;
+        mouseGrabInput(a);
+        g_mouseLockedToWindow = g_mouseGrabbed;
     }
 
     SDL_ShowCursor((osd && osd->flags & OSD_CAPTURE) ? SDL_ENABLE : SDL_DISABLE);
@@ -977,7 +973,7 @@ void AppGrabMouse(char a)
 //
 // setjoydeadzone() -- sets the dead and saturation zones for the joystick
 //
-void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
+void joySetDeadZone(int32_t axis, uint16_t dead, uint16_t satur)
 {
     joydead[axis] = dead;
     joysatur[axis] = satur;
@@ -987,18 +983,11 @@ void setjoydeadzone(int32_t axis, uint16_t dead, uint16_t satur)
 //
 // getjoydeadzone() -- gets the dead and saturation zones for the joystick
 //
-void getjoydeadzone(int32_t axis, uint16_t *dead, uint16_t *satur)
+void joyGetDeadZone(int32_t axis, uint16_t *dead, uint16_t *satur)
 {
     *dead = joydead[axis];
     *satur = joysatur[axis];
 }
-
-
-//
-// releaseallbuttons()
-//
-void releaseallbuttons(void)
-{}
 
 
 //
@@ -1200,19 +1189,19 @@ void getvalidmodes(void)
     SDL_CHECKFSMODES(maxx, maxy);
 
     // add windowed modes next
-    for (i = 0; defaultres[i][0]; i++)
+    for (i = 0; g_defaultVideoModes[i].x; i++)
     {
-        if (!SDL_CHECKMODE(defaultres[i][0], defaultres[i][1]))
+        if (!SDL_CHECKMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y))
             continue;
 
         // HACK: 8-bit == Software, 32-bit == OpenGL
-        SDL_ADDMODE(defaultres[i][0], defaultres[i][1], 8, 0);
+        SDL_ADDMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y, 8, 0);
 
 #ifdef USE_OPENGL
         if (nogl)
             continue;
 
-        SDL_ADDMODE(defaultres[i][0], defaultres[i][1], 32, 0);
+        SDL_ADDMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y, 32, 0);
 #endif
     }
 
@@ -1453,10 +1442,10 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
 
     startwin_close();
 
-    if (mousegrab)
+    if (g_mouseGrabbed)
     {
         *regrab = 1;
-        grabmouse(0);
+        mouseGrabInput(0);
     }
 
     while (lockcount) enddrawing();
@@ -1514,7 +1503,7 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
     setpalettefade(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
     if (regrab)
-        grabmouse(AppMouseGrab);
+        mouseGrabInput(g_mouseLockedToWindow);
 }
 
 #if SDL_MAJOR_VERSION!=1
@@ -1988,7 +1977,7 @@ int32_t handleevents_peekkeys(void)
 
 void handleevents_updatemousestate(uint8_t state)
 {
-    mousepressstate = state == SDL_RELEASED ? Mouse_Released : Mouse_Pressed;
+    g_mouseClickState = state == SDL_RELEASED ? MOUSE_RELEASED : MOUSE_PRESSED;
 }
 
 
@@ -2004,21 +1993,21 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
 #if !defined EDUKE32_IOS
         case SDL_MOUSEMOTION:
 #ifndef GEKKO
-            mouseabs.x = ev->motion.x;
-            mouseabs.y = ev->motion.y;
+            g_mouseAbs.x = ev->motion.x;
+            g_mouseAbs.y = ev->motion.y;
 #endif
             // SDL <VER> doesn't handle relative mouse movement correctly yet as the cursor still clips to the
             // screen edges
             // so, we call SDL_WarpMouse() to center the cursor and ignore the resulting motion event that occurs
             //  <VER> is 1.3 for PK, 1.2 for tueidj
-            if (appactive && mousegrab)
+            if (appactive && g_mouseGrabbed)
             {
 # if SDL_MAJOR_VERSION==1
                 if (ev->motion.x != xdim >> 1 || ev->motion.y != ydim >> 1)
 # endif
                 {
-                    mousex += ev->motion.xrel;
-                    mousey += ev->motion.yrel;
+                    g_mousePos.x += ev->motion.xrel;
+                    g_mousePos.y += ev->motion.yrel;
 # if SDL_MAJOR_VERSION==1
                     SDL_WarpMouse(xdim>>1, ydim>>1);
 # endif
@@ -2062,44 +2051,44 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                 break;
 
             if (ev->button.state == SDL_PRESSED)
-                mouseb |= (1 << j);
+                g_mouseBits |= (1 << j);
             else
 #if SDL_MAJOR_VERSION==1
                 if (j != SDL_BUTTON_WHEELUP && j != SDL_BUTTON_WHEELDOWN)
 #endif
-                mouseb &= ~(1 << j);
+                g_mouseBits &= ~(1 << j);
 
-            if (mousepresscallback)
-                mousepresscallback(j+1, ev->button.state == SDL_PRESSED);
+            if (g_mouseCallback)
+                g_mouseCallback(j+1, ev->button.state == SDL_PRESSED);
             break;
         }
 #else
 # if SDL_MAJOR_VERSION != 1
         case SDL_FINGERUP:
-            mousepressstate = Mouse_Released;
+            g_mouseClickState = MOUSE_RELEASED;
             break;
         case SDL_FINGERDOWN:
-            mousepressstate = Mouse_Pressed;
+            g_mouseClickState = MOUSE_PRESSED;
         case SDL_FINGERMOTION:
-            mouseabs.x = Blrintf(ev->tfinger.x * xdim);
-            mouseabs.y = Blrintf(ev->tfinger.y * ydim);
+            g_mouseAbs.x = Blrintf(ev->tfinger.x * xdim);
+            g_mouseAbs.y = Blrintf(ev->tfinger.y * ydim);
             break;
 # endif
 #endif
 
         case SDL_JOYAXISMOTION:
-            if (appactive && ev->jaxis.axis < joynumaxes)
+            if (appactive && ev->jaxis.axis < joystick.numAxes)
             {
-                joyaxis[ev->jaxis.axis] = ev->jaxis.value * 10000 / 32767;
-                if ((joyaxis[ev->jaxis.axis] < joydead[ev->jaxis.axis]) &&
-                    (joyaxis[ev->jaxis.axis] > -joydead[ev->jaxis.axis]))
-                    joyaxis[ev->jaxis.axis] = 0;
-                else if (joyaxis[ev->jaxis.axis] >= joysatur[ev->jaxis.axis])
-                    joyaxis[ev->jaxis.axis] = 10000;
-                else if (joyaxis[ev->jaxis.axis] <= -joysatur[ev->jaxis.axis])
-                    joyaxis[ev->jaxis.axis] = -10000;
+                joystick.pAxis[ev->jaxis.axis] = ev->jaxis.value * 10000 / 32767;
+                if ((joystick.pAxis[ev->jaxis.axis] < joydead[ev->jaxis.axis]) &&
+                    (joystick.pAxis[ev->jaxis.axis] > -joydead[ev->jaxis.axis]))
+                    joystick.pAxis[ev->jaxis.axis] = 0;
+                else if (joystick.pAxis[ev->jaxis.axis] >= joysatur[ev->jaxis.axis])
+                    joystick.pAxis[ev->jaxis.axis] = 10000;
+                else if (joystick.pAxis[ev->jaxis.axis] <= -joysatur[ev->jaxis.axis])
+                    joystick.pAxis[ev->jaxis.axis] = -10000;
                 else
-                    joyaxis[ev->jaxis.axis] = joyaxis[ev->jaxis.axis] * 10000 / joysatur[ev->jaxis.axis];
+                    joystick.pAxis[ev->jaxis.axis] = joystick.pAxis[ev->jaxis.axis] * 10000 / joysatur[ev->jaxis.axis];
             }
             break;
 
@@ -2123,19 +2112,19 @@ int32_t handleevents_sdlcommon(SDL_Event *ev)
                 -1,     // left+down+right!! 14
                 -1,     // left+down+right+up!! 15
             };
-            if (appactive && ev->jhat.hat < joynumhats)
-                joyhat[ev->jhat.hat] = hatvals[ev->jhat.value & 15];
+            if (appactive && ev->jhat.hat < joystick.numHats)
+                joystick.pHat[ev->jhat.hat] = hatvals[ev->jhat.value & 15];
             break;
         }
 
         case SDL_JOYBUTTONDOWN:
         case SDL_JOYBUTTONUP:
-            if (appactive && ev->jbutton.button < joynumbuttons)
+            if (appactive && ev->jbutton.button < joystick.numButtons)
             {
                 if (ev->jbutton.state == SDL_PRESSED)
-                    joyb |= 1 << ev->jbutton.button;
+                    joystick.bits |= 1 << ev->jbutton.button;
                 else
-                    joyb &= ~(1 << ev->jbutton.button);
+                    joystick.bits &= ~(1 << ev->jbutton.button);
 
 #ifdef GEKKO
                 if (ev->jbutton.button == 0) // WII_A
@@ -2170,10 +2159,10 @@ int32_t handleevents_pollsdl(void)
                 {
                     code = ev.text.text[j];
 
-                    if (code != scantoasc[OSD_OSDKey()] && !keyascfifo_isfull())
+                    if (code != g_keyAsciiTable[OSD_OSDKey()] && !keyBufferFull())
                     {
                         if (OSD_HandleChar(code))
-                            keyascfifo_insert(code);
+                            keyBufferInsert(code);
                     }
                 } while (j < SDL_TEXTINPUTEVENT_TEXT_SIZE && ev.text.text[++j]);
                 break;
@@ -2191,7 +2180,7 @@ int32_t handleevents_pollsdl(void)
                     KMOD_LALT|KMOD_RALT|KMOD_LGUI|KMOD_RGUI;
 
                 // XXX: see osd.c, OSD_HandleChar(), there are more...
-                if (ev.key.type == SDL_KEYDOWN && !keyascfifo_isfull() &&
+                if (ev.key.type == SDL_KEYDOWN && !keyBufferFull() &&
                     (sc == SDL_SCANCODE_RETURN || sc == SDL_SCANCODE_KP_ENTER ||
                      sc == SDL_SCANCODE_ESCAPE ||
                      sc == SDL_SCANCODE_BACKSPACE ||
@@ -2209,10 +2198,10 @@ int32_t handleevents_pollsdl(void)
                         default: keyvalue = sc - SDL_SCANCODE_A + 1; break;  // Ctrl+A --> 1, etc.
                     }
                     if (OSD_HandleChar(keyvalue))
-                        keyascfifo_insert(keyvalue);
+                        keyBufferInsert(keyvalue);
                 }
                 else if (ev.key.type == SDL_KEYDOWN &&
-                         ev.key.keysym.sym != scantoasc[OSD_OSDKey()] && !keyascfifo_isfull() &&
+                         ev.key.keysym.sym != g_keyAsciiTable[OSD_OSDKey()] && !keyBufferFull() &&
                          !SDL_IsTextInputActive())
                 {
                     /*
@@ -2288,7 +2277,7 @@ int32_t handleevents_pollsdl(void)
                     if ((unsigned)keyvalue <= 0x7Fu)
                     {
                         if (OSD_HandleChar(keyvalue))
-                            keyascfifo_insert(keyvalue);
+                            keyBufferInsert(keyvalue);
                     }
                 }
 
@@ -2298,10 +2287,10 @@ int32_t handleevents_pollsdl(void)
                 if ((j = OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN))) <= 0)
                 {
                     if (j == -1)  // osdkey
-                        for (j = 0; j < KEYSTATUSSIZ; ++j)
-                            if (GetKey(j))
+                        for (j = 0; j < NUMKEYS; ++j)
+                            if (keyGetState(j))
                             {
-                                SetKey(j, 0);
+                                keySetState(j, 0);
                                 if (keypresscallback)
                                     keypresscallback(j, 0);
                             }
@@ -2310,9 +2299,9 @@ int32_t handleevents_pollsdl(void)
 
                 if (ev.key.type == SDL_KEYDOWN)
                 {
-                    if (!GetKey(code))
+                    if (!keyGetState(code))
                     {
-                        SetKey(code, 1);
+                        keySetState(code, 1);
                         if (keypresscallback)
                             keypresscallback(code, 1);
                     }
@@ -2326,7 +2315,7 @@ int32_t handleevents_pollsdl(void)
                     if (code == 0x59)  // pause
                         break;
 # endif
-                    SetKey(code, 0);
+                    keySetState(code, 0);
                     if (keypresscallback)
                         keypresscallback(code, 0);
                 }
@@ -2337,15 +2326,15 @@ int32_t handleevents_pollsdl(void)
                 // initprintf("wheel y %d\n",ev.wheel.y);
                 if (ev.wheel.y > 0)
                 {
-                    mouseb |= 16;
-                    if (mousepresscallback)
-                        mousepresscallback(5, 1);
+                    g_mouseBits |= 16;
+                    if (g_mouseCallback)
+                        g_mouseCallback(5, 1);
                 }
                 if (ev.wheel.y < 0)
                 {
-                    mouseb |= 32;
-                    if (mousepresscallback)
-                        mousepresscallback(6, 1);
+                    g_mouseBits |= 32;
+                    if (g_mouseCallback)
+                        g_mouseCallback(6, 1);
                 }
                 break;
 
@@ -2355,7 +2344,7 @@ int32_t handleevents_pollsdl(void)
                     case SDL_WINDOWEVENT_FOCUS_GAINED:
                     case SDL_WINDOWEVENT_FOCUS_LOST:
                         appactive = (ev.window.event == SDL_WINDOWEVENT_FOCUS_GAINED);
-                        if (mousegrab && moustat)
+                        if (g_mouseGrabbed && g_mouseEnabled)
                             grabmouse_low(appactive);
 #ifdef _WIN32
                         // Win_SetKeyboardLayoutUS(appactive);
@@ -2373,10 +2362,10 @@ int32_t handleevents_pollsdl(void)
                         }
                         break;
                     case SDL_WINDOWEVENT_ENTER:
-                        mouseinwindow = 1;
+                        g_mouseInsideWindow = 1;
                         break;
                     case SDL_WINDOWEVENT_LEAVE:
-                        mouseinwindow = 0;
+                        g_mouseInsideWindow = 0;
                         break;
                 }
                 break;
@@ -2399,16 +2388,16 @@ int32_t handleevents(void)
 
     int32_t rv;
 
-    if (inputchecked && moustat)
+    if (inputchecked && g_mouseEnabled)
     {
-        if (mousepresscallback)
+        if (g_mouseCallback)
         {
-            if (mouseb & 16)
-                mousepresscallback(5, 0);
-            if (mouseb & 32)
-                mousepresscallback(6, 0);
+            if (g_mouseBits & 16)
+                g_mouseCallback(5, 0);
+            if (g_mouseBits & 32)
+                g_mouseCallback(6, 0);
         }
-        mouseb &= ~(16 | 32);
+        g_mouseBits &= ~(16 | 32);
     }
 
     rv = handleevents_pollsdl();

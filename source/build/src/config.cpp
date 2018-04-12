@@ -258,10 +258,6 @@ int32_t loadsetup(const char *fn)
 
     if (readconfig(fp, "osdtryscript", val, VL) > 0) m32_osd_tryscript = !!atoi_safe(val);
 
-    for (i=0; i<256; i++)
-        keyremap[i]=i;
-
-    keyremapinit=1;
     if (readconfig(fp, "remap", val, VL) > 0)
     {
         char *p=val; int32_t v1,v2;
@@ -271,7 +267,7 @@ int32_t loadsetup(const char *fn)
             if ((p=strchr(p,'-'))==0)break;
             p++;
             if (!sscanf(p,"%x",&v2))break;
-            keyremap[v1]=v2;
+            g_keyRemapTable[v1]=v2;
             initprintf("Remap %X key to %X\n",v1,v2);
             if ((p=strchr(p,','))==0)break;
             p++;
@@ -673,9 +669,9 @@ int32_t writesetup(const char *fn)
             );
 
     for (i=0; i<256; i++)
-        if (keyremap[i]!=i)
+        if (g_keyRemapTable[i]!=i)
         {
-            Bfprintf(fp,first?"%02X-%02X":",%02X-%02X",i,keyremap[i]);
+            Bfprintf(fp,first?"%02X-%02X":",%02X-%02X",i,g_keyRemapTable[i]);
             first=0;
         }
     Bfprintf(fp,"\n\n");

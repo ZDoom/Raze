@@ -1054,18 +1054,7 @@ int32_t   qloadkvx(int32_t voxindex, const char *filename);
 void vox_undefine(int32_t const);
 intptr_t   allocatepermanenttile(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   copytilepiece(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
-void   makepalookup(int32_t palnum, const char *remapbuf, uint8_t r, uint8_t g, uint8_t b, char noFloorPal);
-//void   setvgapalette(void);
-void setbasepal(int32_t id, uint8_t const *table);
-void removebasepal(int32_t id);
-void setblendtab(int32_t blend, const char *tab);
-void removeblendtab(int32_t blend);
-int32_t setpalookup(int32_t palnum, const uint8_t *shtab);
-void removepalookup(int32_t palnum);
-void   setbrightness(char dabrightness, uint8_t dapalid, uint8_t flags);
-void   setpalettefade(uint8_t r, uint8_t g, uint8_t b, uint8_t offset);
 void   squarerotatetile(int16_t tilenume);
-void fade_screen_black(int32_t moreopaquep);
 
 int32_t   setgamemode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp);
 void   nextpage(void);

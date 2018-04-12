@@ -10,8 +10,8 @@
 static BOOL rawinput_started = 0;
 static uint8_t KeyboardState[256] = {0}; // VKeys
 
-extern uint8_t moustat, mousegrab;
-extern void SetKey(int32_t key, int32_t state);
+extern uint8_t g_mouseEnabled, g_mouseGrabbed;
+extern void keySetState(int32_t key, int32_t state);
 
 //#define MASK_DOWN (1<<(i<<1))
 //#define MASK_UP (MASK_DOWN<<1)
@@ -24,11 +24,11 @@ static inline void RI_ProcessMouse(const RAWMOUSE *rmouse)
     int32_t i, mask;
     int8_t MWheel = 0;
 
-    if (!mousegrab || !appactive)
+    if (!g_mouseGrabbed || !appactive)
         return;
 
-    mousex += rmouse->lLastX;
-    mousey += rmouse->lLastY;
+    g_mousePos.x += rmouse->lLastX;
+    g_mousePos.y += rmouse->lLastY;
 
     if (rmouse->usFlags & MOUSE_MOVE_ABSOLUTE)
     {
@@ -37,8 +37,8 @@ static inline void RI_ProcessMouse(const RAWMOUSE *rmouse)
 
         ClientToScreen((HWND)win_gethwnd(), &pos);
 
-        mousex -= pos.x;
-        mousey -= pos.y;
+        g_mousePos.x -= pos.x;
+        g_mousePos.y -= pos.y;
     }
 
     for (i = 0, mask = (1<<0); mask <= (1<<8); i++, mask<<=2)
@@ -56,15 +56,15 @@ static inline void RI_ProcessMouse(const RAWMOUSE *rmouse)
 
         if (rmouse->usButtonFlags & mask) // button down
         {
-            if (mousepresscallback)
-                mousepresscallback(i+1, 1);
-            mouseb |= 1<<i;
+            if (g_mouseCallback)
+                g_mouseCallback(i+1, 1);
+            g_mouseBits |= 1<<i;
         }
         else if (rmouse->usButtonFlags & (mask<<1)) // button up
         {
-            if (mousepresscallback)
-                mousepresscallback(i+1, 0);
-            mouseb &= ~(1<<i);
+            if (g_mouseCallback)
+                g_mouseCallback(i+1, 0);
+            g_mouseBits &= ~(1<<i);
         }
     }
 
@@ -72,13 +72,13 @@ static inline void RI_ProcessMouse(const RAWMOUSE *rmouse)
 
     if (MWheel > 0)   	// wheel up
     {
-        mouseb |= 16;
-        if (mousepresscallback) mousepresscallback(5, 1);
+        g_mouseBits |= 16;
+        if (g_mouseCallback) g_mouseCallback(5, 1);
     }
     else if (MWheel < 0)  	// wheel down
     {
-        mouseb |= 32;
-        if (mousepresscallback) mousepresscallback(6, 1);
+        g_mouseBits |= 32;
+        if (g_mouseCallback) g_mouseCallback(6, 1);
     }
 }
 
@@ -166,7 +166,7 @@ static inline void RI_ProcessKeyboard(const RAWKEYBOARD *rkbd)
         if (rkbd->Flags & RI_KEY_BREAK)
             return;
 
-        SetKey(sc_Pause, 1);
+        keySetState(sc_Pause, 1);
 
         if (keypresscallback)
             keypresscallback(sc_Pause, 1);
@@ -178,25 +178,25 @@ static inline void RI_ProcessKeyboard(const RAWKEYBOARD *rkbd)
 
     if (OSD_HandleScanCode(key, KeyboardState[VKey] > 0))
     {
-        SetKey(key, KeyboardState[VKey] != 0);
+        keySetState(key, KeyboardState[VKey] != 0);
 
         if (keypresscallback)
             keypresscallback(key, KeyboardState[VKey] != 0);
     }
 
     if (rkbd->Flags & RI_KEY_BREAK) return;
-    if (((keyasciififoend+1)&(KEYFIFOSIZ-1)) == keyasciififoplc) return;
-    if ((keyasciififoend - keyasciififoplc) > 0) return;
+    if (((g_keyAsciiEnd+1)&(KEYFIFOSIZ-1)) == g_keyAsciiPos) return;
+    if ((g_keyAsciiEnd - g_keyAsciiPos) > 0) return;
 
     {
         uint8_t buf[2];
 
         if (ToAscii(VKey, key, &KeyboardState[0], (LPWORD)&buf[0], 0) != 1) return;
-        if ((OSD_OSDKey() < 128) && (Btolower(scantoasc[OSD_OSDKey()]) == Btolower(buf[0]))) return;
+        if ((OSD_OSDKey() < 128) && (Btolower(g_keyAsciiTable[OSD_OSDKey()]) == Btolower(buf[0]))) return;
         if (OSD_HandleChar(buf[0]) == 0) return;
 
-        keyasciififo[keyasciififoend] = buf[0];
-        keyasciififoend = ((keyasciififoend+1)&(KEYFIFOSIZ-1));
+        g_keyAsciiFIFO[g_keyAsciiEnd] = buf[0];
+        g_keyAsciiEnd = ((g_keyAsciiEnd+1)&(KEYFIFOSIZ-1));
     }
 }
 
@@ -215,7 +215,7 @@ BOOL RI_CaptureInput(BOOL grab, HWND target)
     raw[1].dwFlags = 0;
     raw[1].hwndTarget = target;
 
-    mousegrab = grab;
+    g_mouseGrabbed = grab;
 
     return (RegisterRawInputDevices(raw, 2, sizeof(raw[0])) == FALSE);
 }
@@ -252,14 +252,14 @@ void RI_PollDevices(BOOL loop)
 
     if (inputchecked)
     {
-        if (mousepresscallback)
+        if (g_mouseCallback)
         {
-            if (mouseb & 16)
-                mousepresscallback(5, 0);
-            if (mouseb & 32)
-                mousepresscallback(6, 0);
+            if (g_mouseBits & 16)
+                g_mouseCallback(5, 0);
+            if (g_mouseBits & 32)
+                g_mouseCallback(6, 0);
         }
-        mouseb &= ~(16|32);
+        g_mouseBits &= ~(16|32);
     }
 
     // snapshot the whole keyboard state so we can translate key presses into ascii later
@@ -269,7 +269,7 @@ void RI_PollDevices(BOOL loop)
     while (loop && PeekMessage(&msg, 0, WM_INPUT, WM_INPUT, PM_REMOVE | PM_QS_INPUT))
         RI_ProcessMessage(&msg);
 
-    if (mousegrab && appactive)
+    if (g_mouseGrabbed && appactive)
     {
         // center the cursor in the window
         POINT pt = { xdim>>1, ydim>>1 };
@@ -279,27 +279,27 @@ void RI_PollDevices(BOOL loop)
     }
 }
 
-int32_t initmouse(void)
+int32_t mouseInit(void)
 {
-    if (moustat) return 0;
-    grabmouse(moustat = AppMouseGrab);
+    if (g_mouseEnabled) return 0;
+    mouseGrabInput(g_mouseEnabled = g_mouseLockedToWindow);
     return 0;
 }
 
-void uninitmouse(void)
+void mouseUninit(void)
 {
-    if (!moustat) return;
-    grabmouse(moustat = 0);
+    if (!g_mouseEnabled) return;
+    mouseGrabInput(g_mouseEnabled = 0);
 }
 
-void grabmouse(char a)
+void mouseGrabInput(char a)
 {
     static POINT pos;
     static int32_t d = 0;
 
-    if (!moustat) return;
+    if (!g_mouseEnabled) return;
 
-    if (!mousegrab || !d)
+    if (!g_mouseGrabbed || !d)
     {
         GetCursorPos(&pos);
         d++;
@@ -310,7 +310,7 @@ void grabmouse(char a)
     SetCursorPos(pos.x, pos.y);
 }
 
-void AppGrabMouse(char a)
+void mouseLockToWindow(char a)
 {
     UNREFERENCED_PARAMETER(a);
 }

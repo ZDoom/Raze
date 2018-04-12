@@ -59,9 +59,9 @@ extern kb_scancode KB_LastScan;
         keystatus[(scan)] = FALSE;                                                                                                         \
     }
 #define KB_UnBoundKeyPressed(scan) (keystatus[(scan)] != 0 && !CONTROL_KeyBinds[scan].cmdstr)
-#define KB_GetCh bgetchar
-#define KB_KeyWaiting bkbhit
-#define KB_FlushKeyboardQueue bflushchars
+#define KB_GetCh keyGetChar
+#define KB_KeyWaiting keyBufferWaiting
+#define KB_FlushKeyboardQueue keyFlushChars
 
 static inline void KB_ClearKeysDown(void)
 {
@@ -75,8 +75,8 @@ static inline void KB_KeyEvent(int32_t scancode, int32_t keypressed)
         KB_LastScan = scancode;
 }
 
-static inline void KB_Startup(void) { setkeypresscallback(KB_KeyEvent); }
-static inline void KB_Shutdown(void) { setkeypresscallback((void (*)(int32_t, int32_t))NULL); }
+static inline void KB_Startup(void) { keySetCallback(KB_KeyEvent); }
+static inline void KB_Shutdown(void) { keySetCallback((void (*)(int32_t, int32_t))NULL); }
 const char *  KB_ScanCodeToString( kb_scancode scancode ); // convert scancode into a string
 kb_scancode KB_StringToScanCode( const char * string );  // convert a string into a scancode
 

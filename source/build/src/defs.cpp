@@ -155,9 +155,9 @@ static void defsparser_include(const char *fn, const scriptfile *script, const c
     {
         if (!cmdtokptr)
         {
-            flushlogwindow = 1;
+            g_logFlushWindow = 1;
             initprintf("Loading module \"%s\"\n",fn);
-            flushlogwindow = 0;
+            g_logFlushWindow = 0;
         }
 
         defsparser(included);
@@ -410,9 +410,9 @@ static int32_t defsparser(scriptfile *script)
 #ifdef USE_DEF_PROGRESS
         if (++iter >= 50)
         {
-            flushlogwindow = 1;
+            g_logFlushWindow = 1;
             initprintf(".");
-            flushlogwindow = 0;
+            g_logFlushWindow = 0;
             iter = 0;
         }
 #endif
@@ -3633,15 +3633,15 @@ static int32_t defsparser(scriptfile *script)
 int32_t loaddefinitionsfile(const char *fn)
 {
     scriptfile *script;
-    int32_t f = flushlogwindow;
+    int32_t f = g_logFlushWindow;
 
     script = scriptfile_fromfile(fn);
 
     if (script)
     {
-        flushlogwindow = 1;
+        g_logFlushWindow = 1;
         initprintf("Loading \"%s\"\n",fn);
-        flushlogwindow = 0;
+        g_logFlushWindow = 0;
 
         defsparser(script);
     }
@@ -3649,7 +3649,7 @@ int32_t loaddefinitionsfile(const char *fn)
     for (char const * m : g_defModules)
         defsparser_include(m, NULL, NULL);
 
-    flushlogwindow = f;
+    g_logFlushWindow = f;
 
     if (script)
         scriptfile_close(script);
