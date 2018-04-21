@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "duke3d.h"
 #include "renderlayer.h" // for win_gethwnd()
+#include <atomic>
 
 #define DQSIZE 128
 
@@ -35,8 +36,8 @@ static int32_t MusicVoice = -1;
 static int32_t MusicPaused = 0;
 static int32_t SoundPaused = 0;
 
-static mutex_t s_mutex;
-static volatile uint32_t dq[DQSIZE], dnum = 0;
+std::atomic<uint32_t> dnum;
+uint32_t dq[DQSIZE];
 
 void S_SoundStartup(void)
 {
@@ -79,7 +80,6 @@ void S_SoundStartup(void)
     FX_SetReverseStereo(ud.config.ReverseStereo);
     FX_SetCallBack(S_Callback);
     FX_SetPrintf(initprintf);
-    mutex_init(&s_mutex);
 }
 
 void S_SoundShutdown(void)
@@ -379,31 +379,11 @@ void S_StopMusic(void)
 
 void S_Cleanup(void)
 {
-    static uint32_t ldq[DQSIZE];
+    static uint32_t ldnum;
 
-    // process from our own local copy of the delete queue so we don't hold the lock long
-    mutex_lock(&s_mutex);
-
-    uint32_t ldnum = dnum;
-
-    if (!ldnum)
+    while (ldnum < dnum)
     {
-        mutex_unlock(&s_mutex);
-        return;
-    }
-
-    dnum = 0;
-
-    for (uint32_t i = 0; i < ldnum; i++)
-        ldq[i] = dq[i];
-
-    mutex_unlock(&s_mutex);
-
-    ldnum--;
-
-    do
-    {
-        uint32_t num = ldq[ldnum];
+        uint32_t num = dq[ldnum++ & (DQSIZE - 1)];
 
         // negative index is RTS playback
         if ((int32_t)num < 0)
@@ -445,7 +425,6 @@ void S_Cleanup(void)
 
         g_soundlocks[num]--;
     }
-    while (ldnum--);
 }
 
 // returns number of bytes read
@@ -517,9 +496,8 @@ static int32_t S_TakeSlot(int32_t num)
     if (FX_SoundActive(g_sounds[num].instances[i].voice))
         FX_StopSound(g_sounds[num].instances[i].voice);
 
-    mutex_lock(&s_mutex);
-    dq[dnum++] = (num * MAXSOUNDINSTANCES) + i;
-    mutex_unlock(&s_mutex);
+    dq[dnum & (DQSIZE - 1)] = (num * MAXSOUNDINSTANCES) + i;
+    dnum++;
     S_Cleanup();
 
     return i;
@@ -947,9 +925,8 @@ void S_Callback(uint32_t num)
     if ((int32_t)num == MUSIC_ID)
         return;
 
-    mutex_lock(&s_mutex);
-    dq[dnum++] = num;
-    mutex_unlock(&s_mutex);
+    dq[dnum & (DQSIZE - 1)] = num;
+    dnum++;
 }
 
 void S_ClearSoundLocks(void)
