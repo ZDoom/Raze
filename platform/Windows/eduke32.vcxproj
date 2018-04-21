@@ -249,6 +249,7 @@
     <ClInclude Include="..\..\source\enet\include\enet\win32.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\source\audiolib\src\xmp.cpp" />
     <ClCompile Include="..\..\source\build\src\2d.cpp" />
     <ClCompile Include="..\..\source\build\src\a-c.cpp" />
     <ClCompile Include="..\..\source\build\src\animvpx.cpp" />

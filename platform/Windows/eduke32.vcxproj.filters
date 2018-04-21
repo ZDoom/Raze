@@ -1016,6 +1016,9 @@
     <ClCompile Include="..\..\source\build\src\wiibits.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\source\audiolib\src\xmp.cpp">
+      <Filter>audiolib\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="msvc.mak">
