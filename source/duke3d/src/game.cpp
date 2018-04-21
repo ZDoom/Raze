@@ -6710,7 +6710,6 @@ MAIN_LOOP_RESTART:
             quitevent = 0;
         }
 
-        timerUpdate();
         Net_GetPackets();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
@@ -6759,6 +6758,8 @@ MAIN_LOOP_RESTART:
             }
 
             Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
+
+            S_Update();
 
             do
             {

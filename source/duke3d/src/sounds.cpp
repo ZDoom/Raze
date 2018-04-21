@@ -915,11 +915,14 @@ void S_Update(void)
 
     do
     {
+        if (g_sounds[num].num == 0)
+            continue;
+
         for (bssize_t k=0; k<MAXSOUNDINSTANCES; ++k)
         {
             int32_t i = g_sounds[num].instances[k].spriteNum;
 
-            if ((unsigned)i >= MAXSPRITES || g_sounds[num].num == 0 || g_sounds[num].instances[k].voice <= FX_Ok ||
+            if ((unsigned)i >= MAXSPRITES || g_sounds[num].instances[k].voice <= FX_Ok ||
                 !FX_SoundActive(g_sounds[num].instances[k].voice))
                 continue;
 
