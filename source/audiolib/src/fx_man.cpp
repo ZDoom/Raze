@@ -117,24 +117,17 @@ static wavefmt_t FX_DetectFormat(char const * const ptr, uint32_t length)
                 case 'C' + ('D' << 8) + ('X' << 16) + ('A' << 24):  // CDXA
                     fmt = FMT_XA;
                     break;
-                default: fmt = FMT_WAV; break;
+                case 'W' + ('A' << 8) + ('V' << 16) + ('E' << 24):  // WAVE
+                    fmt = FMT_WAV;
+                    break;
             }
             break;
         case 'f' + ('L' << 8) + ('a' << 16) + ('C' << 24):  // fLaC
             fmt = FMT_FLAC;
             break;
         default:
-            switch (B_LITTLE32(*(int32_t const *)(ptr + 8)))
-            {
-                case 'W' + ('A' << 8) + ('V' << 16) + ('E' << 24):  // WAVE
-                    fmt = FMT_WAV;
-                    break;
-            }
             if (MV_IdentifyXMP(ptr, length))
-            {
                 fmt = FMT_XMP;
-                break;
-            }
             break;
     }
 
