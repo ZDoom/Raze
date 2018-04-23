@@ -62,7 +62,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #endif
 
 #ifdef _WIN32
-# define WIN32_LEAN_AND_MEAN 1
 # include <shellapi.h>
 # define UPDATEINTERVAL 604800 // 1w
 # include "winbits.h"
@@ -6593,7 +6592,7 @@ int app_main(int argc, char const * const * argv)
     minitext_lowercase = 1;
 
     for (bssize_t i = MINIFONT + ('a'-'!'); minitext_lowercase && i < MINIFONT + ('z'-'!') + 1; ++i)
-        minitext_lowercase &= tileLoad(i);
+        minitext_lowercase &= (int)tileLoad(i);
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {

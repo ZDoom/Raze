@@ -7,6 +7,9 @@
 
 #pragma once
 
+#ifdef _WIN32
+# include "windows_inc.h"
+#endif
 
 ////////// Compiler detection //////////
 
