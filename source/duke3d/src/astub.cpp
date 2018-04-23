@@ -2898,6 +2898,9 @@ static int32_t m32gettile(int32_t idInitialTile)
             else globalpal = 0;
         }
 
+        if (PRESSED_KEYSC(BS))
+            globalpal = 0;
+
         // 'V'  KEYPRESS
         if (PRESSED_KEYSC(V))
             tileNum = SelectAllTiles(tileNum);
