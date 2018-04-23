@@ -442,12 +442,12 @@ static struct {
         }
 
     }
-    mode3d = checkvideomode(&xdim, &ydim, bpp, fullscreen, 1);
+    mode3d = videoCheckMode(&xdim, &ydim, bpp, fullscreen, 1);
     if (mode3d < 0) {
         int i, cd[] = { 32, 24, 16, 15, 8, 0 };
         for (i=0; cd[i]; ) { if (cd[i] >= bpp) i++; else break; }
         for ( ; cd[i]; i++) {
-            mode3d = checkvideomode(&xdim, &ydim, cd[i], fullscreen, 1);
+            mode3d = videoCheckMode(&xdim, &ydim, cd[i], fullscreen, 1);
             if (mode3d < 0) continue;
             break;
         }
@@ -508,7 +508,7 @@ static struct {
 
 - (void)setupRunMode
 {
-    getvalidmodes();
+    videoGetModes();
 
     [fullscreenButton setState: (settings.fullscreen ? NSOnState : NSOffState)];
     [alwaysShowButton setState: (settings.forcesetup ? NSOnState : NSOffState)];
