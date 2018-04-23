@@ -7670,33 +7670,31 @@ end_batch_insert_points:
             }
         }
 
+        static int32_t backspace_last = 0;
+
+        if (keystatus[0x0e]) //Backspace
         {
-            static int32_t backspace_last = 0;
+            keystatus[0x0e] = 0;
 
-            if (keystatus[0x0e]) //Backspace
+            if (newnumwalls >= numwalls)
             {
-                keystatus[0x0e] = 0;
+                backspace_last = 1;
 
-                if (newnumwalls >= numwalls)
-                {
-                    backspace_last = 1;
-
-                    if (newnumwalls == numwalls+1 || keystatus[0x1d])  // LCtrl: delete all newly drawn walls
-                        newnumwalls = -1;
-                    else
-                        newnumwalls--;
-                }
-                else if (backspace_last==0)
-                {
-                    graphicsmode += (1-2*(DOWN_BK(RUN) || keystatus[0x36]))+3;
-                    graphicsmode %= 3;
-                    printmessage16("2D mode textures %s",
-                                   (graphicsmode == 2)?"enabled w/ animation":graphicsmode?"enabled":"disabled");
-                }
+                if (newnumwalls == numwalls+1 || keystatus[0x1d])  // LCtrl: delete all newly drawn walls
+                    newnumwalls = -1;
+                else
+                    newnumwalls--;
             }
-            else
-                backspace_last = 0;
+            else if (backspace_last==0)
+            {
+                graphicsmode += (1-2*(DOWN_BK(RUN) || keystatus[0x36]))+3;
+                graphicsmode %= 3;
+                printmessage16("2D mode textures %s",
+                                (graphicsmode == 2)?"enabled w/ animation":graphicsmode?"enabled":"disabled");
+            }
         }
+        else
+            backspace_last = 0;
 
         if (keystatus[0xd3] && eitherCTRL && numwalls > 0)  //sector delete
         {
