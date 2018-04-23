@@ -225,7 +225,7 @@ void keyFlushChars(void);
 int32_t mouseInit(void);
 void mouseUninit(void);
 int32_t mouseReadAbs(vec2_t *const destination, vec2_t const *const source);
-void mouseGrabInput(char a);
+void mouseGrabInput(bool grab);
 void mouseLockToWindow(char a);
 void mouseReadButtons(int32_t *b);
 void mouseReadPos(int32_t *x, int32_t *y);

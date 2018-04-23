@@ -940,17 +940,17 @@ static inline char grabmouse_low(char a)
 //
 // grabmouse() -- show/hide mouse cursor
 //
-void mouseGrabInput(char a)
+void mouseGrabInput(bool grab)
 {
     if (appactive && g_mouseEnabled)
     {
 #if !defined EDUKE32_TOUCH_DEVICES
-        if ((a != g_mouseGrabbed) && !grabmouse_low(a))
+        if ((grab != g_mouseGrabbed) && !grabmouse_low(grab))
 #endif
-            g_mouseGrabbed = a;
+            g_mouseGrabbed = grab;
     }
     else
-        g_mouseGrabbed = a;
+        g_mouseGrabbed = grab;
 
     g_mousePos.x = g_mousePos.y = 0;
 }

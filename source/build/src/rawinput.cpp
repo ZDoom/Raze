@@ -292,7 +292,7 @@ void mouseUninit(void)
     mouseGrabInput(g_mouseEnabled = 0);
 }
 
-void mouseGrabInput(char a)
+void mouseGrabInput(bool grab)
 {
     static POINT pos;
     static int32_t d = 0;
@@ -305,8 +305,8 @@ void mouseGrabInput(char a)
         d++;
     }
 
-    ShowCursor(a == 0);
-    RI_CaptureInput(a, (HWND)win_gethwnd());
+    ShowCursor(grab == 0);
+    RI_CaptureInput(grab, (HWND)win_gethwnd());
     SetCursorPos(pos.x, pos.y);
 }
 
