@@ -380,8 +380,9 @@ void S_StopMusic(void)
 void S_Cleanup(void)
 {
     static uint32_t ldnum;
+    uint32_t const odnum = dnum;
 
-    while (ldnum < dnum)
+    while (ldnum < odnum)
     {
         uint32_t num = dq[ldnum++ & (DQSIZE - 1)];
 
