@@ -39,6 +39,8 @@ extern "C" {
 #ifndef LZ4_H_2983827168210
 #define LZ4_H_2983827168210
 
+#define LZ4_VISIBILITY
+
 /* --- Dependency --- */
 #include <stddef.h>   /* size_t */
 
