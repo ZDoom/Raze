@@ -5,6 +5,8 @@
 // You may use libdivide under the terms of either of these.
 // See LICENSE.txt for more details.
 
+// Modified for EDuke32.
+
 #ifndef LIBDIVIDE_H
 #define LIBDIVIDE_H
 
@@ -15,12 +17,24 @@
 #define LIBDIVIDE_VC
 #endif
 
-#ifdef __cplusplus
+#if defined __cplusplus && !defined LIBDIVIDE_C_HEADERS
 #include <cstdlib>
 #include <cstdio>
 #else
 #include <stdlib.h>
 #include <stdio.h>
+#endif
+
+#if defined(__x86_64__) || defined(_WIN64) || defined(_M_X64)
+#define LIBDIVIDE_IS_X86_64 1
+#endif
+
+#if defined(__i386__)
+#define LIBDIVIDE_IS_i386 1
+#endif
+
+#if LIBDIVIDE_IS_X86_64 || defined __SSE2__ || (defined _M_IX86_FP && _M_IX86_FP == 2)
+#define LIBDIVIDE_USE_SSE2 1
 #endif
 
 #include <stdint.h>
@@ -39,14 +53,6 @@
 
 #if defined(__SIZEOF_INT128__)
 #define HAS_INT128_T
-#endif
-
-#if defined(__x86_64__) || defined(_WIN64) || defined(_M_X64)
-#define LIBDIVIDE_IS_X86_64
-#endif
-
-#if defined(__i386__)
-#define LIBDIVIDE_IS_i386
 #endif
 
 #if defined(__GNUC__) || defined(__clang__)
@@ -87,7 +93,7 @@
 #include <smmintrin.h>
 #endif
 
-#ifdef __cplusplus
+#if defined __cplusplus && !defined LIBDIVIDE_NONAMESPACE
 // We place libdivide within the libdivide namespace, and that goes in an
 // anonymous namespace so that the functions are only visible to files that
 // #include this header and don't get external linkage. At least that's the
@@ -184,7 +190,7 @@ struct libdivide_s64_branchfree_t {
 #pragma pack(pop)
 
 #ifndef LIBDIVIDE_API
-    #ifdef __cplusplus
+    #if defined __cplusplus || defined LIBDIVIDE_NOINLINE
         // In C++, we don't want our public functions to be static, because
         // they are arguments to templates and static functions can't do that.
         // They get internal linkage through virtue of the anonymous namespace.
@@ -282,6 +288,8 @@ LIBDIVIDE_API __m128i libdivide_u64_branchfree_do_vector(__m128i numers, const s
 LIBDIVIDE_API __m128i libdivide_s64_branchfree_do_vector(__m128i numers, const struct libdivide_s64_branchfree_t *denom);
 
 #endif
+
+#ifndef LIBDIVIDE_HEADER_ONLY
 
 //////// Internal Utility Functions
 
@@ -571,7 +579,7 @@ static uint64_t libdivide_128_div_64_to_64(uint64_t u1, uint64_t u0, uint64_t v,
 
     // If overflow, set rem. to an impossible value,
     // and return the largest possible quotient
-    if (u1 >= v) {
+    if (EDUKE32_PREDICT_FALSE(u1 >= v)) {
         if (r != NULL)
             *r = (uint64_t) -1;
         return (uint64_t) -1;
@@ -579,7 +587,7 @@ static uint64_t libdivide_128_div_64_to_64(uint64_t u1, uint64_t u0, uint64_t v,
 
     // count leading zeros
     s = libdivide__count_leading_zeros64(v);
-    if (s > 0) {
+    if (EDUKE32_PREDICT_TRUE(s > 0)) {
         // Normalize divisor
         v = v << s;
         un64 = (u1 << s) | ((u0 >> (64 - s)) & (-s >> 31));
@@ -752,7 +760,7 @@ static inline struct libdivide_u32_t libdivide_internal_u32_gen(uint32_t d, int 
 
     struct libdivide_u32_t result;
     uint32_t floor_log_2_d = 31 - libdivide__count_leading_zeros32(d);
-    if ((d & (d - 1)) == 0) {
+    if (EDUKE32_PREDICT_FALSE((d & (d - 1)) == 0)) {
         // Power of 2
         if (! branchfree) {
             result.magic = 0;
@@ -813,7 +821,7 @@ struct libdivide_u32_branchfree_t libdivide_u32_branchfree_gen(uint32_t d) {
 
 uint32_t libdivide_u32_do(uint32_t numer, const struct libdivide_u32_t *denom) {
     uint8_t more = denom->more;
-    if (more & LIBDIVIDE_U32_SHIFT_PATH) {
+    if (EDUKE32_PREDICT_FALSE(more & LIBDIVIDE_U32_SHIFT_PATH)) {
         return numer >> (more & LIBDIVIDE_32_SHIFT_MASK);
     }
     else {
@@ -960,7 +968,7 @@ static inline struct libdivide_u64_t libdivide_internal_u64_gen(uint64_t d, int 
 
     struct libdivide_u64_t result;
     uint32_t floor_log_2_d = 63 - libdivide__count_leading_zeros64(d);
-    if ((d & (d - 1)) == 0) {
+    if (EDUKE32_PREDICT_FALSE((d & (d - 1)) == 0)) {
         // Power of 2
         if (! branchfree) {
             result.magic = 0;
@@ -1023,7 +1031,7 @@ struct libdivide_u64_branchfree_t libdivide_u64_branchfree_gen(uint64_t d) {
 
 uint64_t libdivide_u64_do(uint64_t numer, const struct libdivide_u64_t *denom) {
     uint8_t more = denom->more;
-    if (more & LIBDIVIDE_U64_SHIFT_PATH) {
+    if (EDUKE32_PREDICT_FALSE(more & LIBDIVIDE_U64_SHIFT_PATH)) {
         return numer >> (more & LIBDIVIDE_64_SHIFT_MASK);
     }
     else {
@@ -1195,7 +1203,7 @@ static inline struct libdivide_s32_t libdivide_internal_s32_gen(int32_t d, int b
     uint32_t floor_log_2_d = 31 - libdivide__count_leading_zeros32(absD);
     // check if exactly one bit is set,
     // don't care if absD is 0 since that's divide by zero
-    if ((absD & (absD - 1)) == 0) {
+    if (EDUKE32_PREDICT_FALSE((absD & (absD - 1)) == 0)) {
         // Branchfree and normal paths are exactly the same
         result.magic = 0;
         result.more = floor_log_2_d | (d < 0 ? LIBDIVIDE_NEGATIVE_DIVISOR : 0) | LIBDIVIDE_S32_SHIFT_PATH;
@@ -1499,7 +1507,7 @@ static inline struct libdivide_s64_t libdivide_internal_s64_gen(int64_t d, int b
     uint32_t floor_log_2_d = 63 - libdivide__count_leading_zeros64(absD);
     // check if exactly one bit is set,
     // don't care if absD is 0 since that's divide by zero
-    if ((absD & (absD - 1)) == 0) {
+    if (EDUKE32_PREDICT_FALSE((absD & (absD - 1)) == 0)) {
         // Branchfree and non-branchfree cases are the same
         result.magic = 0;
         result.more = floor_log_2_d | (d < 0 ? LIBDIVIDE_NEGATIVE_DIVISOR : 0);
@@ -1778,6 +1786,8 @@ __m128i libdivide_s64_branchfree_do_vector(__m128i numers, const struct libdivid
 
 #endif
 
+#endif // LIBDIVIDE_HEADER_ONLY
+
 /////////// C++ stuff
 
 #ifdef __cplusplus
@@ -1877,12 +1887,23 @@ namespace libdivide_internal {
     // than signed i.e. alg3 and alg4 are not defined for unsigned. In
     // order to make templates compile we need to define unsigned alg3 and
     // alg4 as crash functions.
+
+    uint32_t libdivide_u32_crash(uint32_t, const libdivide_u32_t *);
+    uint64_t libdivide_u64_crash(uint64_t, const libdivide_u64_t *);
+
+#if defined(LIBDIVIDE_USE_SSE2)
+    __m128i libdivide_u32_crash_vector(__m128i, const libdivide_u32_t *);
+    __m128i libdivide_u64_crash_vector(__m128i, const libdivide_u64_t *);
+#endif
+
+#ifndef LIBDIVIDE_HEADER_ONLY
     uint32_t libdivide_u32_crash(uint32_t, const libdivide_u32_t *) { exit(-1); }
     uint64_t libdivide_u64_crash(uint64_t, const libdivide_u64_t *) { exit(-1); }
 
 #if defined(LIBDIVIDE_USE_SSE2)
     __m128i libdivide_u32_crash_vector(__m128i, const libdivide_u32_t *) { exit(-1); }
     __m128i libdivide_u64_crash_vector(__m128i, const libdivide_u64_t *) { exit(-1); }
+#endif
 #endif
 
     template<typename T, int ALGO> struct dispatcher { };
@@ -2048,8 +2069,10 @@ __m128i operator/=(__m128i& numer, const divider<int_type, ALGO>& denom) {
 
 #endif
 
+#if defined __cplusplus && !defined LIBDIVIDE_NONAMESPACE
 } // namespace libdivide
 } // anonymous namespace
+#endif
 
 #endif // __cplusplus
 
