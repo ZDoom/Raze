@@ -201,6 +201,8 @@ engine_objs := \
     mhk.cpp \
     pngwrite.cpp \
     miniz.c \
+    miniz_tinfl.c \
+    miniz_tdef.c \
     fix16.c \
     fix16_str.c \
 

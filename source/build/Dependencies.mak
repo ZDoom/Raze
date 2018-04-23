@@ -45,8 +45,10 @@ $(ENGINE_OBJ)/wiibits.$o: $(ENGINE_SRC)/wiibits.cpp $(ENGINE_INC)/wiibits.h
 $(ENGINE_OBJ)/winbits.$o: $(ENGINE_SRC)/winbits.cpp $(ENGINE_INC)/winbits.h
 $(ENGINE_OBJ)/xxhash.$o: $(ENGINE_SRC)/xxhash.c $(ENGINE_INC)/xxhash.h
 $(ENGINE_OBJ)/pngwrite.$o: $(ENGINE_SRC)/pngwrite.cpp $(ENGINE_INC)/pngwrite.h
-$(ENGINE_OBJ)/miniz.$o: $(ENGINE_SRC)/miniz.c $(ENGINE_INC)/miniz.h
 $(ENGINE_OBJ)/fix16.$o: $(ENGINE_SRC)/fix16.c $(ENGINE_INC)/fix16.h $(ENGINE_INC)/fix16_int64.h
+$(ENGINE_OBJ)/miniz.$o: $(ENGINE_SRC)/miniz.c $(ENGINE_INC)/miniz.h $(ENGINE_INC)/miniz_common.h $(ENGINE_INC)/miniz_tinfl.h $(ENGINE_INC)/miniz_tdef.h
+$(ENGINE_OBJ)/miniz_tinfl.$o: $(ENGINE_SRC)/miniz_tinfl.c $(ENGINE_INC)/miniz.h $(ENGINE_INC)/miniz_common.h $(ENGINE_INC)/miniz_tinfl.h $(ENGINE_INC)/miniz_tdef.h
+$(ENGINE_OBJ)/miniz_tdef.$o: $(ENGINE_SRC)/miniz_tdef.c $(ENGINE_INC)/miniz.h $(ENGINE_INC)/miniz_common.h $(ENGINE_INC)/miniz_tinfl.h $(ENGINE_INC)/miniz_tdef.h
 $(ENGINE_OBJ)/fix16_str.$o: $(ENGINE_SRC)/fix16_str.c $(ENGINE_INC)/fix16.h 
 
 $(ENGINE_OBJ)/lunatic.$o: $(ENGINE_SRC)/lunatic.cpp $(ENGINE_INC)/lunatic.h $(ENGINE_INC)/cache1d.h $(ENGINE_INC)/osd.h

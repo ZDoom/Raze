@@ -185,6 +185,8 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\mhk.$o \
 	$(ENGINE_OBJ)\pngwrite.$o \
 	$(ENGINE_OBJ)\miniz.$o \
+	$(ENGINE_OBJ)\miniz_tinfl.$o \
+	$(ENGINE_OBJ)\miniz_tdef.$o \
 	$(ENGINE_OBJ)\fix16.$o \
 	$(ENGINE_OBJ)\fix16_str.$o
 
