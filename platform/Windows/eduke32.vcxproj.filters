@@ -126,9 +126,6 @@
     <ClInclude Include="..\..\source\build\include\glbuild.h">
       <Filter>build\headers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\build\include\glext.h">
-      <Filter>build\headers</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\build\include\gtkbits.h">
       <Filter>build\headers</Filter>
     </ClInclude>
