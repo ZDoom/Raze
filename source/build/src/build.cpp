@@ -14,7 +14,7 @@
 #include "common.h"
 #include "colmatch.h"
 #include "palette.h"
-
+#include "scancodes.h"
 #include "baselayer.h"
 #include "renderlayer.h"
 
@@ -207,9 +207,9 @@ typedef struct
 
 int32_t g_doScreenShot;
 
-#define eitherALT   (keystatus[0x38]|keystatus[0xb8])
-#define eitherCTRL  (keystatus[0x1d]|keystatus[0x9d])
-#define eitherSHIFT (keystatus[0x2a]|keystatus[0x36])
+#define eitherALT   (keystatus[sc_LeftAlt]|keystatus[sc_RightAlt])
+#define eitherCTRL  (keystatus[sc_LeftControl]|keystatus[sc_RightControl])
+#define eitherSHIFT (keystatus[sc_LeftShift]|keystatus[sc_RightShift])
 
 #define DOWN_BK(BuildKey) (keystatus[buildkeys[BK_##BuildKey]])
 
@@ -813,7 +813,7 @@ CANCEL:
         {
             if (quitevent)
             {
-                keystatus[1] = 1;
+                keystatus[sc_Escape] = 1;
                 quitevent = 0;
             }
         }
@@ -843,9 +843,9 @@ CANCEL:
         CallExtCheckKeys();
 
 
-        if (keystatus[1])
+        if (keystatus[sc_Escape])
         {
-            keystatus[1] = 0;
+            keystatus[sc_Escape] = 0;
 
             printext256(0,0,whitecol,0,"Are you sure you want to quit?",0);
 
@@ -853,7 +853,7 @@ CANCEL:
             synctics = totalclock-lockclock;
             lockclock += synctics;
 
-            while ((keystatus[1]|keystatus[0x1c]|keystatus[0x39]|keystatus[0x31]) == 0)
+            while ((keystatus[sc_Escape]|keystatus[sc_Enter]|keystatus[sc_Space]|keystatus[sc_N]) == 0)
             {
                 idle_waitevent();
                 if (handleevents())
@@ -865,16 +865,16 @@ CANCEL:
                     }
                 }
 
-                if (keystatus[0x15]||keystatus[0x1c]) // Y or ENTER
+                if (keystatus[sc_Y]||keystatus[sc_Enter]) // Y or ENTER
                 {
-                    keystatus[0x15] = 0;
-                    keystatus[0x1c] = 0;
+                    keystatus[sc_Y] = 0;
+                    keystatus[sc_Enter] = 0;
                     quitflag = 1; break;
                 }
             }
-            while (keystatus[1])
+            while (keystatus[sc_Escape])
             {
-                keystatus[1] = 0;
+                keystatus[sc_Escape] = 0;
                 quitevent = 0;
                 goto CANCEL;
             }
@@ -888,23 +888,23 @@ CANCEL:
         printext256(0,8,whitecol,0,i<4?"Save changes?":"Map is heavily corrupt. Save changes?",0);
         videoShowFrame(1);
 
-        while ((keystatus[1]|keystatus[0x1c]|keystatus[0x39]|keystatus[0x31]|keystatus[0x2e]) == 0)
+        while ((keystatus[sc_Escape]|keystatus[sc_Enter]|keystatus[sc_Space]|keystatus[sc_N]|keystatus[sc_C]) == 0)
         {
             idle_waitevent();
             if (handleevents()) { if (quitevent) break;	} // like saying no
 
-            if (keystatus[0x15] || keystatus[0x1c]) // Y or ENTER
+            if (keystatus[sc_Y] || keystatus[sc_Enter]) // Y or ENTER
             {
-                keystatus[0x15] = keystatus[0x1c] = 0;
+                keystatus[sc_Y] = keystatus[sc_Enter] = 0;
 
                 SaveBoard(NULL, M32_SB_ASKOV);
 
                 break;
             }
         }
-        while (keystatus[1]||keystatus[0x2e])
+        while (keystatus[sc_Escape]||keystatus[sc_C])
         {
-            keystatus[1] = keystatus[0x2e] = 0;
+            keystatus[sc_Escape] = keystatus[sc_C] = 0;
             quitevent = 0;
             goto CANCEL;
         }
@@ -1222,7 +1222,7 @@ void editinput(void)
 
 //    showmouse();
 
-    if (keystatus[0x43])  // F9
+    if (keystatus[sc_F9])  // F9
     {
         if (mhk)
         {
@@ -1238,7 +1238,7 @@ void editinput(void)
             loadmhk(1);
         }
 
-        keystatus[0x43] = 0;
+        keystatus[sc_F9] = 0;
     }
 
     mainloop_move();
@@ -1370,10 +1370,10 @@ void editinput(void)
     searchit = 2;
     if (searchstat >= 0)
     {
-        if ((bstatus&(1|2|4)) || keystatus[0x39])  // SPACE
+        if ((bstatus&(1|2|4)) || keystatus[sc_Space])  // SPACE
             searchit = 0;
 
-        if (keystatus[0x1f])  //S (insert sprite) (3D)
+        if (keystatus[sc_S])  //S (insert sprite) (3D)
         {
             hitdata_t hit;
 
@@ -1433,10 +1433,10 @@ void editinput(void)
                 }
             }
 
-            keystatus[0x1f] = 0;
+            keystatus[sc_S] = 0;
         }
 
-        if (keystatus[0x3f]||keystatus[0x40])  //F5,F6
+        if (keystatus[sc_F5]||keystatus[sc_F6])  //F5,F6
         {
             switch (searchstat)
             {
@@ -1450,9 +1450,9 @@ void editinput(void)
                 CallExtShowSpriteData(searchwall); break;
             }
 
-            keystatus[0x3f] = keystatus[0x40] = 0;
+            keystatus[sc_F5] = keystatus[sc_F6] = 0;
         }
-        if (keystatus[0x41]||keystatus[0x42])  //F7,F8
+        if (keystatus[sc_F7]||keystatus[sc_F8])  //F7,F8
         {
             switch (searchstat)
             {
@@ -1466,7 +1466,7 @@ void editinput(void)
                 CallExtEditSpriteData(searchwall); break;
             }
 
-            keystatus[0x41] = keystatus[0x42] = 0;
+            keystatus[sc_F7] = keystatus[sc_F8] = 0;
         }
 
     }
@@ -3413,8 +3413,8 @@ void overheadeditor(void)
         }
 
         if (!((vel|angvel|svel) || m32_is2d3dmode() || ztarget != zoom//DOWN_BK(MOVEFORWARD) || DOWN_BK(MOVEBACKWARD) || DOWN_BK(TURNLEFT) || DOWN_BK(TURNRIGHT)
-                || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || keystatus[0x10] || keystatus[0x11]
-                || keystatus[0x48] || keystatus[0x4b] || keystatus[0x4d] || keystatus[0x50]  // keypad keys
+                || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN) || keystatus[sc_Q] || keystatus[sc_W]
+                || keystatus[sc_kpad_8] || keystatus[sc_kpad_4] || keystatus[sc_kpad_6] || keystatus[sc_kpad_2]  // keypad keys
                 || bstatus || OSD_IsMoving()))
         {
             if (totalclock > waitdelay)
@@ -3434,7 +3434,7 @@ void overheadeditor(void)
         {
             if (quitevent)
             {
-                keystatus[1] = 1;
+                keystatus[sc_Escape] = 1;
                 quitevent = 0;
             }
         }
@@ -3506,7 +3506,7 @@ void overheadeditor(void)
             numwalls = numwalls_bak;
 
         if ((timerGetTicks() - lastdraw) >= 5 || (vel|angvel|svel) || DOWN_BK(MOVEUP) || DOWN_BK(MOVEDOWN)
-                || mousx || mousy || bstatus || keystatus[0x10] || keystatus[0x11]
+                || mousx || mousy || bstatus || keystatus[sc_Q] || keystatus[sc_W]
                 || newnumwalls>=0 || OSD_IsMoving())
         {
             lastdraw = timerGetTicks();
@@ -3560,7 +3560,7 @@ void overheadeditor(void)
                 drawline16base(cx,cy, x1,j, -y1,+i, editorcolors[6]);
             }
 
-            if (keystatus[0x2a] && (pointhighlight&16384) && highlightcnt<=0)  // LShift
+            if (keystatus[sc_LeftShift] && (pointhighlight&16384) && highlightcnt<=0)  // LShift
             {
                 // draw lines to linking sprites
                 const int32_t refspritenum = pointhighlight&16383;
@@ -3679,7 +3679,7 @@ void overheadeditor(void)
                         fillsector(i, -1);
             }
 
-            if (keystatus[0x2a])  // LShift
+            if (keystatus[sc_LeftShift])  // LShift
             {
                 if (!m32_is2d3dmode() && (m32_sideview || highlightcnt <= 0))
                 {
@@ -3946,17 +3946,17 @@ void overheadeditor(void)
 
                 if (highlightsectorcnt==0 || highlightcnt==0)
                 {
-                    if (keystatus[0x27] || keystatus[0x28])  // ' and ;
+                    if (keystatus[sc_SemiColon] || keystatus[sc_Quote])  // ' and ;
                     {
                         col = editorcolors[14];
 
                         drawline16base(searchx+16, searchy-16, -4, 0, +4, 0, col);
-                        if (keystatus[0x28])
+                        if (keystatus[sc_Quote])
                             drawline16base(searchx+16, searchy-16, 0, -4, 0, +4, col);
                     }
 
                     if (highlightsectorcnt == 0)
-                        if (keystatus[0x36])
+                        if (keystatus[sc_RightShift])
                             printext16(searchx+6, searchy-2+8, editorcolors[12], -1, "ALL", 0);
 
                     if (highlightcnt == 0)
@@ -3964,7 +3964,7 @@ void overheadeditor(void)
                         if (eitherCTRL && (highlightx1!=highlightx2 || highlighty1!=highlighty2))
                             printext16(searchx+6, searchy-6-8, editorcolors[12], -1, "SPR ONLY", 0);
 #ifdef YAX_ENABLE
-                        if (keystatus[0xcf])  // End
+                        if (keystatus[sc_End])  // End
                             printext16(searchx+6, searchy-2+8, editorcolors[12], -1, "ALL", 0);
 #endif
                     }
@@ -4011,16 +4011,16 @@ void overheadeditor(void)
             goto nokeys;
 
         // Flip/mirror sector Ed Coolidge
-        if (keystatus[0x2d] || keystatus[0x15])  // X or Y (2D)
+        if (keystatus[sc_X] || keystatus[sc_Y])  // X or Y (2D)
         {
-            int32_t about_x=keystatus[0x2d];
+            int32_t about_x=keystatus[sc_X];
             int32_t doMirror = eitherALT;  // mirror walls and wall/floor sprites
 
 #ifdef YAX_ENABLE
             if (highlightsectorcnt > 0 && !hl_all_bunch_sectors_p())
             {
                 printmessage16("To flip extended sectors, all sectors of a bunch must be selected");
-                keystatus[0x2d] = keystatus[0x15] = 0;
+                keystatus[sc_X] = keystatus[sc_Y] = 0;
             }
             else
 #endif
@@ -4030,7 +4030,7 @@ void overheadeditor(void)
 
                 mkonwinvalid();
 
-                keystatus[0x2d] = keystatus[0x15] = 0;
+                keystatus[sc_X] = keystatus[sc_Y] = 0;
 
                 for (j=0; j<numwalls; j++)
                     otonwall[j] = j;
@@ -4172,7 +4172,7 @@ void overheadeditor(void)
 
             videoShowFrame(1);
         }
-        if (keystatus[0x30])  // B (clip Blocking xor) (2D)
+        if (keystatus[sc_B])  // B (clip Blocking xor) (2D)
         {
             pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
             linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight, 0);
@@ -4195,11 +4195,11 @@ void overheadeditor(void)
                 }
                 asksave = 1;
             }
-            keystatus[0x30] = 0;
+            keystatus[sc_B] = 0;
         }
-        if (keystatus[0x21])  //F (F alone does nothing in 2D right now)
+        if (keystatus[sc_F])  //F (F alone does nothing in 2D right now)
         {
-            keystatus[0x21] = 0;
+            keystatus[sc_F] = 0;
             if (eitherALT)  //ALT-F (relative alignmment flip)
             {
                 linehighlight = getlinehighlight(mousxplc, mousyplc, linehighlight, 0);
@@ -4208,9 +4208,9 @@ void overheadeditor(void)
             }
         }
 
-        if (keystatus[0x18])  // O (ornament onto wall) (2D)
+        if (keystatus[sc_O])  // O (ornament onto wall) (2D)
         {
-            keystatus[0x18] = 0;
+            keystatus[sc_O] = 0;
             if ((pointhighlight&0xc000) == 16384)
             {
                 asksave = 1;
@@ -4220,9 +4220,9 @@ void overheadeditor(void)
 
 
         tsign = 0;
-        if (keystatus[0x33] || (bstatus&33)==33)  // , (2D)
+        if (keystatus[sc_Comma] || (bstatus&33)==33)  // , (2D)
             tsign = +1;
-        if (keystatus[0x34] || (bstatus&17)==17)  // . (2D)
+        if (keystatus[sc_Period] || (bstatus&17)==17)  // . (2D)
             tsign = -1;
 
         if (tsign)
@@ -4281,7 +4281,7 @@ void overheadeditor(void)
                 asksave = 1;
 rotate_hlsect_out:
                 if (!smoothRotation || manualAngle)
-                    keystatus[0x33] = keystatus[0x34] = 0;
+                    keystatus[sc_Comma] = keystatus[sc_Period] = 0;
 
                 g_mouseBits &= ~(16|32);
                 bstatus &= ~(16|32);
@@ -4296,7 +4296,7 @@ rotate_hlsect_out:
                     else
                     {
                         sprite[i].ang = (sprite[i].ang-128*tsign)&2047;
-                        keystatus[0x33] = keystatus[0x34] = 0;
+                        keystatus[sc_Comma] = keystatus[sc_Period] = 0;
                     }
 
                     g_mouseBits &= ~(16|32);
@@ -4305,22 +4305,22 @@ rotate_hlsect_out:
             }
         }
 
-        if (keystatus[0x46])  //Scroll lock (set starting position)
+        if (keystatus[sc_ScrollLock])  //Scroll lock (set starting position)
         {
             startpos = pos;
             startang = ang;
             startsectnum = cursectnum;
-            keystatus[0x46] = 0;
+            keystatus[sc_ScrollLock] = 0;
             asksave = 1;
 
             printmessage16("Set starting position");
         }
 #if 1
-        if (keystatus[0x3f])  //F5
+        if (keystatus[sc_F5])  //F5
         {
             CallExtShowSectorData(0);
         }
-        if (keystatus[0x40])  //F6
+        if (keystatus[sc_F6])  //F6
         {
             if (pointhighlight >= 16384)
                 CallExtShowSpriteData(pointhighlight-16384);
@@ -4329,9 +4329,9 @@ rotate_hlsect_out:
             else
                 CallExtShowWallData(0);
         }
-        if (keystatus[0x41])  //F7
+        if (keystatus[sc_F7])  //F7
         {
-            keystatus[0x41] = 0;
+            keystatus[sc_F7] = 0;
 
             for (i=0; i<numsectors; i++)
                 if (inside_editor_curpos(i) == 1)
@@ -4342,9 +4342,9 @@ rotate_hlsect_out:
                     break;
                 }
         }
-        if (keystatus[0x42])  //F8
+        if (keystatus[sc_F8])  //F8
         {
-            keystatus[0x42] = 0;
+            keystatus[sc_F8] = 0;
 
             if (pointhighlight >= 16384)
                 CallExtEditSpriteData(pointhighlight-16384);
@@ -4353,9 +4353,9 @@ rotate_hlsect_out:
         }
 #endif
 
-        if (keystatus[0x23])  //H (Hi 16 bits of tag)
+        if (keystatus[sc_H])  //H (Hi 16 bits of tag)
         {
-            keystatus[0x23] = 0;
+            keystatus[sc_H] = 0;
             if (eitherCTRL)  //Ctrl-H
             {
                 pointhighlight = getpointhighlight(mousxplc, mousyplc, pointhighlight);
@@ -4410,9 +4410,9 @@ rotate_hlsect_out:
             }
             // printmessage16("");
         }
-        if (keystatus[0x19])  // P (palookup #)
+        if (keystatus[sc_P])  // P (palookup #)
         {
-            keystatus[0x19] = 0;
+            keystatus[sc_P] = 0;
 
             for (i=0; i<numsectors; i++)
                 if (inside_editor_curpos(i) == 1)
@@ -4427,9 +4427,9 @@ rotate_hlsect_out:
                     break;
                 }
         }
-        if (keystatus[0x12])  // E (status list)
+        if (keystatus[sc_E])  // E (status list)
         {
-            keystatus[0x12] = 0;
+            keystatus[sc_E] = 0;
 
             if (!eitherCTRL)
             {
@@ -4964,7 +4964,7 @@ end_yax: ;
 
         if (highlightsectorcnt < 0)
         {
-            if (((bstatus & 5) == 1 && highlightcnt <= 0) || ((bstatus & 5) == 1 && pointhighlight == -1) || keystatus[0x36])  //Right shift (point highlighting)
+            if (((bstatus & 5) == 1 && highlightcnt <= 0) || ((bstatus & 5) == 1 && pointhighlight == -1) || keystatus[sc_RightShift])  //Right shift (point highlighting)
             {
                 if (highlightcnt == 0)
                 {
@@ -4977,7 +4977,7 @@ end_yax: ;
 
                     plotlines2d(xx, yy, 5, -editorcolors[14]);
                 }
-                else if (pointhighlight == -1 || keystatus[0x36])
+                else if (pointhighlight == -1 || keystatus[sc_RightShift])
                 {
                     highlightcnt = 0;
 
@@ -4991,7 +4991,7 @@ end_yax: ;
             {
                 if (highlightcnt == 0)
                 {
-                    int32_t add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
+                    int32_t add=keystatus[sc_Quote], sub=(!add && keystatus[sc_SemiColon]), setop=(add||sub);
 
                     if (!m32_sideview)
                     {
@@ -5110,7 +5110,7 @@ end_yax: ;
                                 continue;
 
                             //  v v v: if END pressed, also permit sprites from grayed out sectors
-                            if (!keystatus[0xcf] && (unsigned)sprite[i].sectnum < MAXSECTORS)
+                            if (!keystatus[sc_End] && (unsigned)sprite[i].sectnum < MAXSECTORS)
                                 YAX_SKIPSECTOR(sprite[i].sectnum);
 
                             if (!m32_sideview)
@@ -5151,7 +5151,7 @@ end_yax: ;
         if (highlightcnt < 0)
         {
             if (((bstatus & 4) && highlightsectorcnt <= 0) || ((bstatus & 4) && linehighlight == -1)
-                || keystatus[0xb8])  //Right alt (sector highlighting)
+                || keystatus[sc_RightAlt])  //Right alt (sector highlighting)
             {
                 if (highlightsectorcnt == 0)
                 {
@@ -5395,12 +5395,12 @@ end_autoredwall:
             {
                 if (highlightsectorcnt == 0)
                 {
-                    int32_t const add=keystatus[0x28], sub=(!add && keystatus[0x27]), setop=(add||sub);
+                    int32_t const add=keystatus[sc_Quote], sub=(!add && keystatus[sc_SemiColon]), setop=(add||sub);
                     int32_t const pointsel = eitherCTRL;
                     int32_t tx,ty;
 #ifdef YAX_ENABLE
                     // home: ceilings, end: floors
-                    int32_t fb, bunchsel = keystatus[0xcf] ? 1 : (keystatus[0xc7] ? 0 : -1);
+                    int32_t fb, bunchsel = keystatus[sc_End] ? 1 : (keystatus[sc_Home] ? 0 : -1);
                     uint8_t bunchbitmap[YAX_MAXBUNCHES>>3];
                     Bmemset(bunchbitmap, 0, sizeof(bunchbitmap));
 #endif
@@ -5913,26 +5913,26 @@ end_point_dragging:
 //        else if ((oldmousebstatus&6) > 0)
             updatesectorz(pos.x,pos.y,pos.z,&cursectnum);
 
-        if (circlewall != -1 && (keystatus[0x4a] || ((bstatus&32) && !eitherCTRL)))  // -, mousewheel down
+        if (circlewall != -1 && (keystatus[sc_kpad_Minus] || ((bstatus&32) && !eitherCTRL)))  // -, mousewheel down
         {
             if (circlepoints > 1)
                 circlepoints--;
-            keystatus[0x4a] = 0;
+            keystatus[sc_kpad_Minus] = 0;
             g_mouseBits &= ~32;
             bstatus &= ~32;
         }
-        if (circlewall != -1 && (keystatus[0x4e] || ((bstatus&16) && !eitherCTRL)))  // +, mousewheel up
+        if (circlewall != -1 && (keystatus[sc_kpad_Plus] || ((bstatus&16) && !eitherCTRL)))  // +, mousewheel up
         {
             if (circlepoints < 63)
                 circlepoints++;
-            keystatus[0x4e] = 0;
+            keystatus[sc_kpad_Plus] = 0;
             g_mouseBits &= ~16;
             bstatus &= ~16;
         }
 
-        if (keystatus[0x3d])  // F3
+        if (keystatus[sc_F3])  // F3
         {
-            keystatus[0x3d]=0;
+            keystatus[sc_F3]=0;
             if (!m32_sideview && EDITING_MAP_P())
                 message("Must not be editing map while switching to side view mode.");
             else
@@ -5942,26 +5942,26 @@ end_point_dragging:
             }
         }
 
-        if (m32_sideview && (keystatus[0x10] || keystatus[0x11]))
+        if (m32_sideview && (keystatus[sc_Q] || keystatus[sc_W]))
         {
             if (eitherCTRL)
             {
                 if (m32_sideang&63)
                 {
-                    m32_sideang += (1-2*keystatus[0x10])*(1-2*sideview_reversehrot)*32;
+                    m32_sideang += (1-2*keystatus[sc_Q])*(1-2*sideview_reversehrot)*32;
                     m32_sideang &= (2047&~63);
                 }
                 else
                 {
-                    m32_sideang += (1-2*keystatus[0x10])*(1-2*sideview_reversehrot)*64;
+                    m32_sideang += (1-2*keystatus[sc_Q])*(1-2*sideview_reversehrot)*64;
                     m32_sideang &= 2047;
                 }
 
-                keystatus[0x10] = keystatus[0x11] = 0;
+                keystatus[sc_Q] = keystatus[sc_W] = 0;
             }
             else
             {
-                m32_sideang += (1-2*keystatus[0x10])*(1-2*sideview_reversehrot)*synctics<<(eitherSHIFT*2);
+                m32_sideang += (1-2*keystatus[sc_Q])*(1-2*sideview_reversehrot)*synctics<<(eitherSHIFT*2);
                 m32_sideang &= 2047;
             }
             _printmessage16("Sideview angle: %d", (int32_t)m32_sideang);
@@ -6042,15 +6042,15 @@ end_point_dragging:
         }
 
 
-        if (keystatus[0x22])  // G (grid on/off)
+        if (keystatus[sc_G])  // G (grid on/off)
         {
-            keystatus[0x22] = 0;
+            keystatus[sc_G] = 0;
             grid++;
             if (grid == 7) grid = 0;
         }
-        if (keystatus[0x26])  // L (grid lock)
+        if (keystatus[sc_L])  // L (grid lock)
         {
-            keystatus[0x26] = 0;
+            keystatus[sc_L] = 0;
 
             if (eitherSHIFT)
             {
@@ -6064,9 +6064,9 @@ end_point_dragging:
             }
         }
 
-        if (keystatus[0x24])  // J (join sectors)
+        if (keystatus[sc_J])  // J (join sectors)
         {
-            keystatus[0x24] = 0;
+            keystatus[sc_J] = 0;
 
             if (newnumwalls >= 0)
             {
@@ -6785,9 +6785,9 @@ end_join_sectors:
                 break;
             }
 
-        if (eitherALT && keystatus[0x1f]) //ALT-S
+        if (eitherALT && keystatus[sc_S]) //ALT-S
         {
-            keystatus[0x1f] = 0;
+            keystatus[sc_S] = 0;
 
             if (linehighlight >= 0 && wall[linehighlight].nextwall == -1)
             {
@@ -6827,11 +6827,11 @@ end_join_sectors:
                 }
             }
         }
-        else if (keystatus[0x1f])  //S
+        else if (keystatus[sc_S])  //S
         {
             int16_t sucksect = -1;
 
-            keystatus[0x1f] = 0;
+            keystatus[sc_S] = 0;
 
             for (i=0; i<numsectors; i++)
             {
@@ -6880,7 +6880,7 @@ end_join_sectors:
             }
         }
 
-        if (keystatus[0x2e])  // C (make circle of points)
+        if (keystatus[sc_C])  // C (make circle of points)
         {
             if (highlightsectorcnt > 0)
                 duplicate_selected_sectors();
@@ -6906,12 +6906,12 @@ end_join_sectors:
                 }
             }
 
-            keystatus[0x2e] = 0;
+            keystatus[sc_C] = 0;
         }
 
-        bad = keystatus[0x39] && (!m32_sideview || m32_sideelev == 512);  //Gotta do this to save lots of 3 spaces!
+        bad = keystatus[sc_Space] && (!m32_sideview || m32_sideelev == 512);  //Gotta do this to save lots of 3 spaces!
 
-        if (keystatus[0x39] && !bad)
+        if (keystatus[sc_Space] && !bad)
             message("Unable to create sectors in angled sideview mode.");
 
         if (circlewall >= 0)
@@ -7016,12 +7016,12 @@ end_circle_insertion:
             }
 
             bad = 0;
-            keystatus[0x39] = 0;
+            keystatus[sc_Space] = 0;
         }
 
         if (bad > 0)   //Space bar test
         {
-            keystatus[0x39] = 0;
+            keystatus[sc_Space] = 0;
             adjustmark(&mousxplc,&mousyplc,newnumwalls);
 
             if (checkautoinsert(mousxplc,mousyplc,newnumwalls) == 1)
@@ -7553,10 +7553,10 @@ split_not_enough_walls:
         }
 end_space_handling:
 
-        if (keystatus[0x1c]) //Left Enter
+        if (keystatus[sc_Enter]) //Left Enter
         {
-            keystatus[0x1c] = 0;
-            if (keystatus[0x2a] && keystatus[0x1d])  // LCtrl+LShift
+            keystatus[sc_Enter] = 0;
+            if (keystatus[sc_LeftShift] && keystatus[sc_LeftControl])  // LCtrl+LShift
             {
 #ifdef YAX_ENABLE
                 if (numyaxbunches == 0 ||
@@ -7672,22 +7672,22 @@ end_batch_insert_points:
 
         static int32_t backspace_last = 0;
 
-        if (keystatus[0x0e]) //Backspace
+        if (keystatus[sc_BackSpace]) //Backspace
         {
-            keystatus[0x0e] = 0;
+            keystatus[sc_BackSpace] = 0;
 
             if (newnumwalls >= numwalls)
             {
                 backspace_last = 1;
 
-                if (newnumwalls == numwalls+1 || keystatus[0x1d])  // LCtrl: delete all newly drawn walls
+                if (newnumwalls == numwalls+1 || keystatus[sc_LeftControl])  // LCtrl: delete all newly drawn walls
                     newnumwalls = -1;
                 else
                     newnumwalls--;
             }
             else if (backspace_last==0)
             {
-                graphicsmode += (1-2*(DOWN_BK(RUN) || keystatus[0x36]))+3;
+                graphicsmode += (1-2*(DOWN_BK(RUN) || keystatus[sc_RightShift]))+3;
                 graphicsmode %= 3;
                 printmessage16("2D mode textures %s",
                                 (graphicsmode == 2)?"enabled w/ animation":graphicsmode?"enabled":"disabled");
@@ -7696,7 +7696,7 @@ end_batch_insert_points:
         else
             backspace_last = 0;
 
-        if (keystatus[0xd3] && eitherCTRL && numwalls > 0)  //sector delete
+        if (keystatus[sc_Delete] && eitherCTRL && numwalls > 0)  //sector delete
         {
             int32_t numdelsectors = 0;
             char *origframe=NULL;
@@ -7706,7 +7706,7 @@ end_batch_insert_points:
             uint8_t bunchbitmap[YAX_MAXBUNCHES>>3];
             Bmemset(bunchbitmap, 0, sizeof(bunchbitmap));
 #endif
-            keystatus[0xd3] = 0;
+            keystatus[sc_Delete] = 0;
 
             for (i=0; i<numsectors; i++)
             {
@@ -7716,7 +7716,7 @@ end_batch_insert_points:
 
             for (i=0; i<numsectors; i++)
             {
-                if (highlightsectorcnt <= 0 || !keystatus[0x2a])  // LShift
+                if (highlightsectorcnt <= 0 || !keystatus[sc_LeftShift])  // LShift
                 {
                     YAX_SKIPSECTOR(i);
 
@@ -7728,7 +7728,7 @@ end_batch_insert_points:
                 if (highlightsectorcnt > 0)
                 {
                     // LShift: force highlighted sector deleting
-                    if (keystatus[0x2a] || (hlsectorbitmap[i>>3]&(1<<(i&7))))
+                    if (keystatus[sc_LeftShift] || (hlsectorbitmap[i>>3]&(1<<(i&7))))
                     {
                         for (j=highlightsectorcnt-1; j>=0; j--)
                         {
@@ -7792,7 +7792,7 @@ end_batch_insert_points:
             }
         }
 
-        if (keystatus[0xd3] && (pointhighlight >= 0))
+        if (keystatus[sc_Delete] && (pointhighlight >= 0))
         {
             if ((pointhighlight&0xc000) == 16384)   //Sprite Delete
             {
@@ -7802,10 +7802,10 @@ end_batch_insert_points:
                 update_highlight();
                 asksave = 1;
             }
-            keystatus[0xd3] = 0;
+            keystatus[sc_Delete] = 0;
         }
 
-        if (keystatus[0xd2] || keystatus[0x17])  //InsertPoint
+        if (keystatus[sc_Insert] || keystatus[sc_I])  //InsertPoint
         {
             if (highlightsectorcnt > 0)
                 duplicate_selected_sectors();
@@ -7891,7 +7891,7 @@ end_insert_points:
 
                 asksave = 1;
             }
-            keystatus[0xd2] = keystatus[0x17] = 0;
+            keystatus[sc_Insert] = keystatus[sc_I] = 0;
         }
 
         /*j = 0;
@@ -7922,7 +7922,7 @@ end_insert_points:
 // vvv PK ------------------------------------ (LShift) Ctrl-X: (prev) next map
 // this is copied from 'L' (load map), but without copying the highlighted sectors
 
-        if (quickmapcycling && keystatus[0x2d])   //X
+        if (quickmapcycling && keystatus[sc_X])   //X
         {
 
             if (eitherCTRL)  //Ctrl
@@ -7934,7 +7934,7 @@ end_insert_points:
                     int skip = 0;
                 nextmap:
                     //				bad = 0;
-                    i = menuselect_auto(keystatus[0x2a] ? 0 : 1, skip); // LShift: prev map
+                    i = menuselect_auto(keystatus[sc_LeftShift] ? 0 : 1, skip); // LShift: prev map
                     if (i < 0)
                     {
                         if (i == -1)
@@ -7954,26 +7954,25 @@ end_insert_points:
                         oposz = pos.z;
                     }
                     videoShowFrame(1);
-                    keystatus[0x1c] = 0;
-
-                    keystatus[0x2d]=keystatus[0x13]=0;
-
+                    keystatus[sc_Enter] = 0;
+                    keystatus[sc_X]     = 0;
+                    keystatus[sc_R]     = 0;
                 }
             }
         }
 // ^^^ PK ------------------------------------
 
-        if (keystatus[1] && joinsector[0] >= 0)
+        if (keystatus[sc_Escape] && joinsector[0] >= 0)
         {
-            keystatus[1]=0;
+            keystatus[sc_Escape]=0;
             joinsector[0]=-1;
             printmessage16("No sectors joined.");
         }
 
 CANCEL:
-        if (keystatus[1])
+        if (keystatus[sc_Escape])
         {
-            keystatus[1] = 0;
+            keystatus[sc_Escape] = 0;
 #if M32_UNDO
             _printmessage16("(N)ew, (L)oad, (S)ave, save (A)s, (T)est map, (U)ndo, (R)edo, (Q)uit");
 #else
@@ -7997,9 +7996,9 @@ CANCEL:
 
                 ch = keyGetChar();
 
-                if (keystatus[1])
+                if (keystatus[sc_Escape])
                 {
-                    keystatus[1] = 0;
+                    keystatus[sc_Escape] = 0;
                     bad = 0;
                     // printmessage16("");
                 }
@@ -8094,7 +8093,7 @@ CANCEL:
                         }
                     }
                     videoShowFrame(1);
-                    keystatus[0x1c] = 0;
+                    keystatus[sc_Enter] = 0;
                 }
                 else if (ch == 'a' || ch == 'A')  //A
                 {
@@ -8134,7 +8133,7 @@ CANCEL:
 
                         ch = keyGetChar();
 
-                        if (keystatus[1]) bad = 1;
+                        if (keystatus[sc_Escape]) bad = 1;
                         else if (ch == 13) bad = 2;
                         else if (ch > 0)
                         {
@@ -8154,7 +8153,7 @@ CANCEL:
                     if (bad == 1)
                     {
                         Bstrcpy(boardfilename, selectedboardfilename);
-                        keystatus[1] = 0;
+                        keystatus[sc_Escape] = 0;
                         printmessage16("Operation cancelled");
                         videoShowFrame(1);
                     }
@@ -8162,7 +8161,7 @@ CANCEL:
                     {
                         char *slash;
 
-                        keystatus[0x1c] = 0;
+                        keystatus[sc_Enter] = 0;
 
                         Bstrcpy(&boardfilename[i], ".map");
 
@@ -8224,10 +8223,10 @@ CANCEL:
                         if (ask_if_sure(corrupt<4?"Save changes?":"Map corrupt. Save changes?", 2+(corrupt>=4)))
                             SaveBoard(NULL, M32_SB_ASKOV);
 
-                        while (keystatus[1] || keystatus[0x2e])
+                        while (keystatus[sc_Escape] || keystatus[sc_C])
                         {
-                            keystatus[1] = 0;
-                            keystatus[0x2e] = 0;
+                            keystatus[sc_Escape] = 0;
+                            keystatus[sc_C] = 0;
                             quitevent = 0;
                             printmessage16("Operation cancelled");
                             videoShowFrame(1);
@@ -8301,7 +8300,7 @@ int32_t ask_if_sure(const char *query, uint32_t flags)
     videoShowFrame(1);
     keyFlushChars();
 
-    while ((keystatus[1]|keystatus[0x2e]) == 0 && ret==-1)
+    while ((keystatus[sc_Escape]|keystatus[sc_C]) == 0 && ret==-1)
     {
         if (handleevents())
         {
@@ -8343,7 +8342,7 @@ int32_t editor_ask_function(const char *question, const char *dachars, int32_t n
     keyFlushChars();
 
     // 'c' is cancel too, but can be overridden
-    while ((keystatus[1]|keystatus[0x2e]) == 0 && ret==-1)
+    while ((keystatus[sc_Escape]|keystatus[sc_C]) == 0 && ret==-1)
     {
         if (handleevents())
             quitevent = 0;
@@ -9323,7 +9322,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
     Bstrncpyz(ournamestart, namestart, sizeof(ournamestart));
 
     keyFlushChars();
-    while (keystatus[0x1] == 0)
+    while (keystatus[sc_Escape] == 0)
     {
         if (handleevents())
             quitevent = 0;
@@ -9360,7 +9359,7 @@ int32_t _getnumber16(const char *namestart, int32_t num, int32_t maxnumber, char
         }
     }
 
-    if (keystatus[0x1] && (flags&4))
+    if (keystatus[sc_Escape] && (flags&4))
         oldnum = -1;
 
     clearkeys();
@@ -9394,7 +9393,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
     Bstrncpyz(ournamestart, namestart, sizeof(ournamestart));
 
     keyFlushChars();
-    while (keystatus[0x1] == 0)
+    while (keystatus[sc_Escape] == 0)
     {
         if (handleevents())
             quitevent = 0;
@@ -9403,7 +9402,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
             M32_DrawRoomsAndMasks();
 
         ch = keyGetChar();
-        if (keystatus[0x1])
+        if (keystatus[sc_Escape])
             break;
         clearkeys();
 
@@ -9442,7 +9441,7 @@ int32_t _getnumber256(const char *namestart, int32_t num, int32_t maxnumber, cha
         }
     }
 
-    if (keystatus[0x1] && (flags&4))
+    if (keystatus[sc_Escape] && (flags&4))
         oldnum = -1;
 
     clearkeys();
@@ -9512,7 +9511,7 @@ const char *getstring_simple(const char *querystr, const char *defaultstr, int32
                 buf[ei] = 0;
             break;
         }
-        else if (keystatus[1])
+        else if (keystatus[sc_Escape])
         {
             clearkeys();
             return completion ? NULL : defaultstr;
@@ -9804,21 +9803,23 @@ static int32_t menuselect(void)
         videoEndDrawing(); //}}}
         videoShowFrame(1);
 
-        keystatus[0xcb] = 0;
-        keystatus[0xcd] = 0;
-        keystatus[0xc8] = 0;
-        keystatus[0xd0] = 0;
-        keystatus[0x1c] = 0;	//enter
-        keystatus[0x0e] = 0;    //backspace
-        keystatus[0xf] = 0;		//tab
-        keystatus[1] = 0;		//esc
+        keystatus[sc_LeftArrow]  = 0;
+        keystatus[sc_RightArrow] = 0;
+        keystatus[sc_UpArrow]    = 0;
+        keystatus[sc_DownArrow]  = 0;
+        keystatus[sc_Enter]      = 0;
+        keystatus[sc_BackSpace]  = 0;
+        keystatus[sc_Tab]        = 0;
+        keystatus[sc_Escape]     = 0;
+
         ch = 0;                      //Interesting fakery of ch = getch()
+
         while (ch == 0)
         {
             if (handleevents())
                 if (quitevent)
                 {
-                    keystatus[1] = 1;
+                    keystatus[sc_Escape] = 1;
                     quitevent = 0;
                 }
 
@@ -9829,27 +9830,28 @@ static int32_t menuselect(void)
             {
                 // JBF 20040208: seek to first name matching pressed character
                 CACHE1D_FIND_REC *seeker = currentlist ? fnlist.findfiles : fnlist.finddirs;
-                if (keystatus[0xc7]||keystatus[0xcf]) // home/end
+                if (keystatus[sc_Home]||keystatus[sc_End]) // home/end
                 {
-                    while (keystatus[0xcf]?seeker->next:seeker->prev)
-                        seeker = keystatus[0xcf]?seeker->next:seeker->prev;
+                    while (keystatus[sc_End] ? seeker->next : seeker->prev)
+                        seeker = keystatus[sc_End] ? seeker->next : seeker->prev;
+
                     if (seeker)
                     {
                         if (currentlist) findfileshigh = seeker;
                         else finddirshigh = seeker;
                     }
-                    ch = keystatus[0xcf]?80:72;
-                    keystatus[0xc7] = keystatus[0xcf] = 0;
+                    ch = keystatus[sc_End] ? 80 : 72;
+                    keystatus[sc_Home] = keystatus[sc_End] = 0;
                 }
-                else if (keystatus[0xc9]|keystatus[0xd1]) // page up/down
+                else if (keystatus[sc_PgUp]|keystatus[sc_PgDn]) // page up/down
                 {
                     seeker = currentlist?findfileshigh:finddirshigh;
                     i = (ydim2d-STATUS2DSIZ2-48)>>5/*3*/;  //PK
 
                     while (i>0)
                     {
-                        if (keystatus[0xd1]?seeker->next:seeker->prev)
-                            seeker = keystatus[0xd1]?seeker->next:seeker->prev;
+                        if (keystatus[sc_PgDn] ? seeker->next : seeker->prev)
+                            seeker = keystatus[sc_PgDn] ? seeker->next : seeker->prev;
                         i--;
                     }
                     if (seeker)
@@ -9857,8 +9859,8 @@ static int32_t menuselect(void)
                         if (currentlist) findfileshigh = seeker;
                         else finddirshigh = seeker;
                     }
-                    ch = keystatus[0xd1]?80:72;
-                    keystatus[0xc9] = keystatus[0xd1] = 0;
+                    ch = keystatus[sc_PgDn]?80:72;
+                    keystatus[sc_PgUp] = keystatus[sc_PgDn] = 0;
                 }
                 else
                 {
@@ -9887,10 +9889,10 @@ static int32_t menuselect(void)
                     }
                 }
             }
-            if (keystatus[0xcb]) ch = 9;		// left arr
-            if (keystatus[0xcd]) ch = 9;		// right arr
-            if (keystatus[0xc8]) ch = 72;   	// up arr
-            if (keystatus[0xd0]) ch = 80;   	// down arr
+            if (keystatus[sc_LeftArrow]) ch = 9;		// left arr
+            if (keystatus[sc_RightArrow]) ch = 9;		// right arr
+            if (keystatus[sc_UpArrow]) ch = 72;   	// up arr
+            if (keystatus[sc_DownArrow]) ch = 80;   	// down arr
         }
 
         if (ch==6)  // Ctrl-F
@@ -9921,7 +9923,7 @@ static int32_t menuselect(void)
             if ((currentlist == 0 && fnlist.findfiles) || (currentlist == 1 && fnlist.finddirs))
                 currentlist = 1-currentlist;
         }
-        else if (keystatus[0xc8] /*(ch == 75) || (ch == 72)*/)
+        else if (keystatus[sc_UpArrow] /*(ch == 75) || (ch == 72)*/)
         {
             if (currentlist == 0)
             {
@@ -9934,7 +9936,7 @@ static int32_t menuselect(void)
                     findfileshigh = findfileshigh->prev;
             }
         }
-        else if (keystatus[0xd0] /*(ch == 77) || (ch == 80)*/)
+        else if (keystatus[sc_DownArrow] /*(ch == 77) || (ch == 80)*/)
         {
             if (currentlist == 0)
             {
@@ -9947,13 +9949,13 @@ static int32_t menuselect(void)
                     findfileshigh = findfileshigh->next;
             }
         }
-        else if (keystatus[0x0e]) // backspace
+        else if (keystatus[sc_BackSpace]) // backspace
         {
             Bstrcat(selectedboardfilename, "../");
             tweak_sboardfilename();
             Bstrcpy(g_oldpath, selectedboardfilename);
             getfilenames(selectedboardfilename, "*.map");
-            keystatus[0x0e] = 0;
+            keystatus[sc_BackSpace] = 0;
         }
         else if (ch == 13 && currentlist == 0)
         {

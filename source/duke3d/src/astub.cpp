@@ -1512,7 +1512,7 @@ static void IntegratedHelp(void)
 
                     ch = keyGetChar();
 
-                    if (keystatus[1]) bad = 1;
+                    if (keystatus[sc_Escape]) bad = 1;
                     else if (ch == 13) bad = 2;
                     else if (ch > 0)
                     {
@@ -1980,7 +1980,7 @@ static void SoundDisplay(void)
 
                     ch = keyGetChar();
 
-                    if (keystatus[1]) bad = 1;
+                    if (keystatus[sc_Escape]) bad = 1;
 
                     else if (ch == 's' || ch == 'd' || ch == 'f' || ch == 'g' ||
                              ch == '1' || ch == '2' || ch == '3' || ch == '4' || ch == '5')
@@ -3759,7 +3759,7 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
 
     oldnum = danum;
     keyFlushChars();
-    while (keystatus[0x1] == 0)
+    while (keystatus[sc_Escape] == 0)
     {
         if (handleevents())
             quitevent = 0;
@@ -3768,7 +3768,7 @@ static void getnumberptr256(const char *namestart, void *num, int32_t bytes, int
 
         ch = keyGetChar();
 
-        if (keystatus[0x1]) break;
+        if (keystatus[sc_Escape]) break;
 
         clearkeys();
 
@@ -3922,7 +3922,7 @@ ENDFOR1:
     sp->cstat = 18;
 
     keyFlushChars();
-    while (keystatus[0x1] == 0)
+    while (keystatus[sc_Escape] == 0)
     {
         if (handleevents())
             quitevent = 0;
@@ -3962,7 +3962,7 @@ ENDFOR1:
 
         ch = keyGetChar();
 
-        if (keystatus[0x1]) break;
+        if (keystatus[sc_Escape]) break;
 
         clearkeys();
 

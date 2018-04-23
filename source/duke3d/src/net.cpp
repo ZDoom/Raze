@@ -217,7 +217,7 @@ void Net_WaitForServer(void)
 
     do
     {
-        if (quitevent || keystatus[1]) G_GameExit("");
+        if (quitevent || keystatus[sc_Escape]) G_GameExit("");
 
         if (G_FPSLimit())
         {
