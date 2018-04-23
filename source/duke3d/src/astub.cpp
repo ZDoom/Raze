@@ -181,7 +181,6 @@ static const char *Typestr_wss[] = { "Wall", "Sector", "Sector", "Sprite", "Wall
 //#define AIMED_OVR_PICNUM  SFBASE_CF(picnum, &OVR_WALL(searchwall, picnum))
 #define AIMED_SELOVR_PICNUM SFBASE_CF(picnum, &AIMED_SELOVR_WALL(picnum))
 
-
 static const char *ONOFF_[] = {"OFF","ON"};
 #define ONOFF(b) (ONOFF_[!!(b)])
 
@@ -2536,7 +2535,7 @@ static int32_t m32gettile(int32_t idInitialTile)
     int32_t nXTiles, nYTiles, nDisplayedTiles;
     int32_t i;
     int32_t tileNum, iTopLeftTile, iLastTile;
-    int32_t idSelectedTile;
+    int32_t idSelectedTile, idInitialPal;
     int32_t scrollmode;
     int32_t mousedx, mousedy, mtile, omousex=searchx, omousey=searchy, moffset=0;
 
@@ -2577,6 +2576,7 @@ static int32_t m32gettile(int32_t idInitialTile)
     }
 
     iLastTile = tileNum = idSelectedTile = idInitialTile;
+    idInitialPal = globalpal;
 
     switch (searchstat)
     {
@@ -2686,7 +2686,7 @@ static int32_t m32gettile(int32_t idInitialTile)
     // Start of key handling code //
     ////////////////////////////////
 
-    while ((keystatus[KEYSC_ENTER]|keystatus[KEYSC_ESC]|(bstatus&1)) == 0) // <- Presumably one of these is escape key ??
+    while ((keystatus[KEYSC_ENTER]|keystatus[KEYSC_ESC]|(bstatus&1)) == 0)
     {
         int32_t ret;
         zoomsz = ZoomToThumbSize[s_Zoom];
@@ -2876,6 +2876,28 @@ static int32_t m32gettile(int32_t idInitialTile)
                 tileNum = ((tileNum+nXTiles)/nXTiles)*nXTiles - 1;
         }
 
+        if (PRESSED_KEYSC(DASH))
+        {
+            if (globalpal > 0)
+                globalpal--;
+            else globalpal = MAXPALOOKUPS - RESERVEDPALS;
+
+            while (globalpal > 0 && (!palookup[globalpal] || palookup[globalpal] == palookup[0]))
+                globalpal--;
+        }
+
+        if (PRESSED_KEYSC(EQUAL))
+        {
+            if (globalpal < (MAXPALOOKUPS - RESERVEDPALS))
+            {
+                globalpal++;
+
+                while (globalpal < (MAXPALOOKUPS - RESERVEDPALS) && (!palookup[globalpal] || palookup[globalpal] == palookup[0]))
+                    globalpal++;
+            }
+            else globalpal = 0;
+        }
+
         // 'V'  KEYPRESS
         if (PRESSED_KEYSC(V))
             tileNum = SelectAllTiles(tileNum);
@@ -3027,30 +3049,36 @@ static int32_t m32gettile(int32_t idInitialTile)
             }
         }
 
-        if ((keystatus[KEYSC_ENTER] || (bstatus&1)) == 0)   // uh ? Not escape key ?
-        {
-            idSelectedTile = idInitialTile;
-        }
-        else
-        {
-            if (tileNum < localartlookupnum)
-            {
-                // Convert tile num from index to actual tile num
-                idSelectedTile = localartlookup[tileNum];
-
-                // Check : if invalid tile selected, return original tile num
-                if (!IsValidTile(idSelectedTile))
-                    idSelectedTile = idInitialTile;
-            }
-            else
-            {
-                idSelectedTile = idInitialTile;
-            }
-        }
         if (mtile!=tileNum) // if changed by keyboard, update mouse cursor
         {
             searchx = ((tileNum-iTopLeftTile)%nXTiles) * zoomsz + zoomsz/2;
             searchy = ((tileNum-iTopLeftTile)/nXTiles) * zoomsz + zoomsz/2 + moffset;
+        }
+    }
+
+    if ((keystatus[KEYSC_ENTER] || (bstatus&1)) == 0)
+    {
+        idSelectedTile = idInitialTile;
+        globalpal      = idInitialPal;
+    }
+    else
+    {
+        if (tileNum < localartlookupnum)
+        {
+            // Convert tile num from index to actual tile num
+            idSelectedTile = localartlookup[tileNum];
+
+            // Check : if invalid tile selected, return original tile num
+            if (!IsValidTile(idSelectedTile))
+            {
+                idSelectedTile = idInitialTile;
+                globalpal      = idInitialPal;
+            }
+        }
+        else
+        {
+            idSelectedTile = idInitialTile;
+            globalpal      = idInitialPal;
         }
     }
 
@@ -3383,7 +3411,7 @@ static void classic_drawtilescreen(int32_t x, int32_t y, int32_t idTile, int32_t
             pScreen = (char *)ylookup[y]+x+frameplace;
             for (xofs = 0; xofs < dispxsz; xofs++)
             {
-                pScreen[xofs] = pRawPixels[((yofs*divinc)/mulinc) + (((xofs*divinc)/mulinc)*tilesiz[idTile].y)];
+                pScreen[xofs] = palookup[globalpal][pRawPixels[((yofs*divinc)/mulinc) + (((xofs*divinc)/mulinc)*tilesiz[idTile].y)]];
             }
         }
         y -= yofs;
@@ -3455,7 +3483,7 @@ static void tilescreen_drawrest(int32_t iSelected, int32_t showmsg)
             renderDrawLine(0, i<<12, xdim<<12, i<<12, (ydim-i));
 
         // Tile number on left.
-        Bsprintf(szT, "%d" , idTile);
+        Bsprintf(szT, "%d, %d" , idTile, globalpal);
         printext256(1, ydim-10, whitecol, -1, szT, 0);
 
         // Tile name on right.
@@ -4525,8 +4553,10 @@ static void Keys3d(void)
         {
             int32_t oldtile = AIMED_SELOVR_PICNUM;
 
+            globalpal = AIMED_CF_SEL(pal);
             tempint = m32gettile(oldtile);
             AIMED_SELOVR_PICNUM = tempint;
+            AIMED_CF_SEL(pal) = globalpal;
 
             if (AIMING_AT_MASKWALL && wall[searchwall].nextwall >= 0)
                 NEXTWALL(searchwall).overpicnum = tempint;
