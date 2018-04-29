@@ -2880,7 +2880,7 @@ static int32_t m32gettile(int32_t idInitialTile)
         {
             if (globalpal > 0)
                 globalpal--;
-            else globalpal = MAXPALOOKUPS - RESERVEDPALS;
+            else globalpal = M32_MAXPALOOKUPS;
 
             while (globalpal > 0 && (!palookup[globalpal] || palookup[globalpal] == palookup[0]))
                 globalpal--;
@@ -2888,12 +2888,15 @@ static int32_t m32gettile(int32_t idInitialTile)
 
         if (PRESSED_KEYSC(EQUAL))
         {
-            if (globalpal < (MAXPALOOKUPS - RESERVEDPALS))
+            if (globalpal < M32_MAXPALOOKUPS)
             {
                 globalpal++;
 
-                while (globalpal < (MAXPALOOKUPS - RESERVEDPALS) && (!palookup[globalpal] || palookup[globalpal] == palookup[0]))
+                while (globalpal < M32_MAXPALOOKUPS && (!palookup[globalpal] || palookup[globalpal] == palookup[0]))
                     globalpal++;
+
+                if (globalpal == M32_MAXPALOOKUPS)
+                    globalpal = 0;
             }
             else globalpal = 0;
         }
@@ -2920,6 +2923,21 @@ static int32_t m32gettile(int32_t idInitialTile)
             }
             else
                 tileNum = OnGotoTile(tileNum);
+        }
+
+        // change palette
+        if (PRESSED_KEYSC(P))
+        {
+            Bsprintf(tempbuf, "%s pal: ", Typestr[searchstat]);
+
+            int pal;
+
+            do
+            {
+                pal = getnumber256(tempbuf, globalpal, M32_MAXPALOOKUPS, 0+2+16);
+            } while (pal != 0 && (palookup[pal] == palookup[0] || palookup[pal] == NULL));
+
+            globalpal = pal;
         }
 
         // 'U'  KEYPRESS : go straight to user defined art
@@ -3486,19 +3504,19 @@ static void tilescreen_drawrest(int32_t iSelected, int32_t showmsg)
             renderDrawLine(0, i<<12, xdim<<12, i<<12, (ydim-i));
 
         // Tile number on left.
-        Bsprintf(szT, "%d, %d" , idTile, globalpal);
+        Bsprintf(szT, "Tile: %d (p)al: %d" , idTile, globalpal);
         printext256(1, ydim-10, whitecol, -1, szT, 0);
 
         // Tile name on right.
         printext256(xdim-(Bstrlen(names[idTile])<<3)-1,ydim-10,whitecol,-1,names[idTile],0);
 
         // Tile dimensions.
-        Bsprintf(szT,"%dx%d",tilesiz[idTile].x,tilesiz[idTile].y);
-        printext256(xdim>>2,ydim-10,whitecol,-1,szT,0);
+        Bsprintf(szT,"dim: %dx%d",tilesiz[idTile].x,tilesiz[idTile].y);
+        printext256((xdim>>2)+(4<<3),ydim-10,whitecol,-1,szT,0);
 
         // EditArt offset flags.
-        Bsprintf(szT,"%d, %d", picanm[idTile].xofs, picanm[idTile].yofs);
-        printext256((xdim>>2)+100,ydim-10,whitecol,-1,szT,0);
+        Bsprintf(szT,"offs: %d, %d", picanm[idTile].xofs, picanm[idTile].yofs);
+        printext256((xdim>>2)+(4<<3)+100,ydim-10,whitecol,-1,szT,0);
 
         // EditArt animation flags.
         if (picanm[idTile].sf&PICANM_ANIMTYPE_MASK)
@@ -3507,7 +3525,7 @@ static void tilescreen_drawrest(int32_t iSelected, int32_t showmsg)
             int32_t ii = (picanm[idTile].sf&PICANM_ANIMTYPE_MASK)>>PICANM_ANIMTYPE_SHIFT;
 
             Bsprintf(szT,"%s %d", anmtype[ii], picanm[idTile].num);
-            printext256((xdim>>2)+100+14*8,ydim-10,whitecol,-1,szT,0);
+            printext256((xdim>>2)+(4<<3)+100+14*8,ydim-10,whitecol,-1,szT,0);
         }
     }
 
