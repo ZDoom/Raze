@@ -188,8 +188,8 @@ void cacheAllocateBlock(intptr_t *newhandle, int32_t newbytes, char *newlockptr)
 
     if (EDUKE32_PREDICT_FALSE((unsigned)newbytes > (unsigned)cachesize))
     {
-        Bprintf("Cachesize: %d\n",cachesize);
-        Bprintf("*Newhandle: 0x%" PRIxPTR ", Newbytes: %d, *Newlock: %d\n",(intptr_t)newhandle,newbytes,*newlockptr);
+        initprintf("Cachesize: %d\n",cachesize);
+        initprintf("*Newhandle: 0x%" PRIxPTR ", Newbytes: %d, *Newlock: %d\n",(intptr_t)newhandle,newbytes,*newlockptr);
         reportandexit("BUFFER TOO BIG TO FIT IN CACHE!");
     }
 
@@ -322,26 +322,26 @@ static void reportandexit(const char *errormessage)
     int32_t j = 0;
     for (native_t i = 0; i < cacnum; i++)
     {
-        Bprintf("%zu- ", i);
+        initprintf("%zu- ", i);
 
         if (cac[i].hand)
-            Bprintf("ptr: 0x%" PRIxPTR ", ", *cac[i].hand);
+            initprintf("ptr: 0x%" PRIxPTR ", ", *cac[i].hand);
         else
-            Bprintf("ptr: NULL, ");
+            initprintf("ptr: NULL, ");
 
-        Bprintf("leng: %d, ", cac[i].leng);
+        initprintf("leng: %d, ", cac[i].leng);
 
         if (cac[i].lock)
-            Bprintf("lock: %d\n", *cac[i].lock);
+            initprintf("lock: %d\n", *cac[i].lock);
         else
-            Bprintf("lock: NULL\n");
+            initprintf("lock: NULL\n");
 
         j += cac[i].leng;
     }
 
-    Bprintf("Cachesize = %d\n", cachesize);
-    Bprintf("Cacnum = %d\n", cacnum);
-    Bprintf("Cache length sum = %d\n", j);
+    initprintf("Cachesize = %d\n", cachesize);
+    initprintf("Cacnum = %d\n", cacnum);
+    initprintf("Cache length sum = %d\n", j);
 #endif
     initprintf("ERROR: %s\n", errormessage);
     Bexit(1);
@@ -1080,7 +1080,7 @@ int32_t kopen4load(const char *filename, char searchfirst)
         newhandle--;
         if (newhandle < 0)
         {
-            Bprintf("TOO MANY FILES OPEN IN FILE GROUPING SYSTEM!");
+            initprintf("TOO MANY FILES OPEN IN FILE GROUPING SYSTEM!");
             Bexit(0);
         }
     }
