@@ -7606,21 +7606,21 @@ end_space_handling:
                     }
 
                     newnumwalls = -1;
-                    char touchedwall[(MAXWALLS+7)>>3];
 
                     for (i=0; i<numdrawnwalls; i++)
                     {
+                        char touchedwall[(MAXWALLS+7)>>3];
                         Bmemset(touchedwall, 0, sizeof(touchedwall));
 
                         for (j=numwalls-1; j>=0; j--)  /* j may be modified in loop */
                         {
-                            vec2_t pint;
-                            int32_t inspts;
-
                             YAX_SKIPWALL(j);
 
-                            if (wall[j].nextwall >= 0 && (touchedwall[wall[j].nextwall>>3] & pow2char[wall[j].nextwall&7]))
+                            if ((touchedwall[j >> 3] & pow2char[j & 7])
+                                || (wall[j].nextwall >= 0 && (touchedwall[wall[j].nextwall >> 3] & pow2char[wall[j].nextwall & 7])))
                                 continue;
+
+                            vec2_t pint;
 
                             if (!lineintersect2v((vec2_t *)&wall[j], (vec2_t *)&POINT2(j),
                                                  &point[i], &point[i+1], &pint))
@@ -7631,7 +7631,10 @@ end_space_handling:
 
                             touchedwall[j>>3] |= (1<<(j&7));
 
-                            inspts = M32_InsertPoint(j, pint.x, pint.y, -1, &j);  /* maybe modify j */
+                            if (wall[j].nextwall != -1)
+                                touchedwall[wall[j].nextwall>>3] |= (1<<(wall[j].nextwall&7));
+
+                            int32_t inspts = M32_InsertPoint(j, pint.x, pint.y, -1, &j);  /* maybe modify j */
 
                             if (inspts==0)
                             {
