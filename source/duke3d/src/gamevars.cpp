@@ -1429,9 +1429,45 @@ static void Gv_AddSystemVars(void)
         weapondefaults[SHRINKER_WEAPON].TotalTime = 30;
 
         weapondefaults[GROW_WEAPON].TotalTime = 30;
-        weapondefaults[GROW_WEAPON].SpawnTime = 2;
-        weapondefaults[GROW_WEAPON].Spawn = SHELL;
-        weapondefaults[GROW_WEAPON].FireSound = 0;
+
+        if (NAM)
+        {
+            weapondefaults[GROW_WEAPON].SpawnTime = 2;
+            weapondefaults[GROW_WEAPON].Spawn = SHELL;
+            weapondefaults[GROW_WEAPON].FireSound = 0;
+        }
+        else if (WW2GI)
+        {
+            weapondefaults[KNEE_WEAPON].Reload = 30;
+            weapondefaults[KNEE_WEAPON].HoldDelay = 14;
+
+            weapondefaults[PISTOL_WEAPON].Flags |= WEAPON_AUTOMATIC;
+
+            weapondefaults[SHOTGUN_WEAPON].TotalTime = 31;
+
+            weapondefaults[CHAINGUN_WEAPON].Reload = 30;
+            weapondefaults[CHAINGUN_WEAPON].FireDelay = 1;
+            weapondefaults[CHAINGUN_WEAPON].HoldDelay = 10;
+            weapondefaults[CHAINGUN_WEAPON].SpawnTime = 0;
+
+            weapondefaults[RPG_WEAPON].Reload = 30;
+
+            weapondefaults[DEVISTATOR_WEAPON].Reload = 30;
+            weapondefaults[DEVISTATOR_WEAPON].FireDelay = 2;
+            weapondefaults[DEVISTATOR_WEAPON].TotalTime = 5;
+            weapondefaults[DEVISTATOR_WEAPON].Flags = WEAPON_FIREEVERYOTHER;
+            weapondefaults[DEVISTATOR_WEAPON].ShotsPerBurst = 0;
+
+            weapondefaults[TRIPBOMB_WEAPON].Reload = 30;
+            weapondefaults[TRIPBOMB_WEAPON].HoldDelay = 0;
+            weapondefaults[TRIPBOMB_WEAPON].Flags = WEAPON_STANDSTILL;
+
+            weapondefaults[FREEZE_WEAPON].Flags = WEAPON_FIREEVERYOTHER;
+
+            weapondefaults[HANDREMOTE_WEAPON].Reload = 30;
+
+            weapondefaults[GROW_WEAPON].InitialSound = EXPANDERSHOOT;
+        }
     }
 
     for (int i=0; i<MAX_WEAPONS; i++)
