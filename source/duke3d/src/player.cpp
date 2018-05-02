@@ -2508,10 +2508,10 @@ void P_DisplayWeapon(void)
                 if (!(duke3d_globalflags & DUKE3D_NO_WIDESCREEN_PINNING) && DUKE)
                     weaponBits |= 512;
 
-                if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 17)
+                if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (NAM_WW2GI ? 40 : 17))
                     G_DrawWeaponTileWithID(currentWeapon, 194 - (pPlayer->look_ang >> 1), weaponY + 230 - weaponYOffset, FIRSTGUN + 4,
                                            weaponShade, weaponBits, weaponPal);
-                else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 12)
+                else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (NAM_WW2GI ? 35 : 12))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 1, 244 - ((*weaponFrame) << 3) - (pPlayer->look_ang >> 1),
                                            weaponY + 130 - weaponYOffset + ((*weaponFrame) << 4), FIRSTGUN + 6, weaponShade,
@@ -2519,7 +2519,7 @@ void P_DisplayWeapon(void)
                     G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 220 - weaponYOffset, FIRSTGUN + 5,
                                            weaponShade, weaponBits, weaponPal);
                 }
-                else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - 7)
+                else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (NAM_WW2GI ? 30 : 7))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 1, 124 + ((*weaponFrame) << 1) - (pPlayer->look_ang >> 1),
                                            weaponY + 430 - weaponYOffset - ((*weaponFrame) << 3), FIRSTGUN + 6, weaponShade,
@@ -2528,14 +2528,14 @@ void P_DisplayWeapon(void)
                                            weaponShade, weaponBits, weaponPal);
                 }
 
-                else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (WW2GI ? 12 : 4))
+                else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (NAM_WW2GI ? 12 : 4))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 184 - (pPlayer->look_ang >> 1), weaponY + 235 - weaponYOffset,
                                            FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);
                     G_DrawWeaponTileWithID(currentWeapon, 224 - (pPlayer->look_ang >> 1), weaponY + 210 - weaponYOffset, FIRSTGUN + 5,
                                            weaponShade, weaponBits, weaponPal);
                 }
-                else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (WW2GI ? 6 : 2))
+                else if ((*weaponFrame) < PWEAPON(screenpeek, PISTOL_WEAPON, Reload) - (NAM_WW2GI ? 6 : 2))
                 {
                     G_DrawWeaponTileWithID(currentWeapon << 2, 164 - (pPlayer->look_ang >> 1), weaponY + 245 - weaponYOffset,
                                            FIRSTGUN + 8, weaponShade, weaponBits, weaponPal);

@@ -841,7 +841,10 @@ void G_DrawStatusBar(int32_t snum)
             sbar.ammo_amount[i] = p->ammo_amount[i];
             if (i < 9)
                 u |= ((2<<i)+1024);
-            else u |= 65536L+1024;
+            else if (WW2GI && i == 11)
+                u |= 1024 + 128;
+            else
+                u |= 65536L+1024;
         }
 
         if ((sbar.gotweapon & (1<<i)) != (p->gotweapon & (1<<i)))
@@ -852,7 +855,8 @@ void G_DrawStatusBar(int32_t snum)
 
             if (i < 9)
                 u |= ((2<<i)+1024);
-            else u |= 65536L+1024;
+            else
+                u |= 65536L+1024;
         }
     }
 
