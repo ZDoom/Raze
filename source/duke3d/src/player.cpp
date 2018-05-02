@@ -1156,7 +1156,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
 
             if (playerNum >= 0)
                 P_PreFireHitscan(spriteNum, playerNum, projecTile, &startPos, &Zvel, &shootAng,
-                    projecTile == SHOTSPARK1__STATIC && !NAM_WW2GI, 1);
+                    projecTile == SHOTSPARK1__STATIC && !WW2GI, 1);
             else
                 A_PreFireHitscan(pSprite, &startPos, &Zvel, &shootAng, 1);
 
