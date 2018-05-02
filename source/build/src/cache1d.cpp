@@ -322,7 +322,7 @@ static void reportandexit(const char *errormessage)
     int32_t j = 0;
     for (native_t i = 0; i < cacnum; i++)
     {
-        initprintf("%zu- ", i);
+        buildprint(i, "- ");
 
         if (cac[i].hand)
             initprintf("ptr: 0x%" PRIxPTR ", ", *cac[i].hand);

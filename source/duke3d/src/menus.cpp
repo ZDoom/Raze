@@ -2379,11 +2379,11 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
         if (g_oldSaveCnt)
         {
-            Bsprintf(tempbuf, "Delete %zu obsolete saves?\nThis action cannot be undone."
+            Bsprintf(tempbuf, "Delete %" PRIu64 " obsolete saves?\nThis action cannot be undone."
 #ifndef EDUKE32_ANDROID_MENU
                 "\n(Y/N)"
 #endif
-                , g_oldSaveCnt);
+                , (uint64_t)g_oldSaveCnt);
         }
         else
             Bsprintf(tempbuf, "No obsolete saves found!");
