@@ -2239,15 +2239,12 @@ void P_DisplayWeapon(void)
                             RPGGUN + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal);
                     else if (WW2GI)
                     {
-                        int const totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
-                        if (*weaponFrame >= totalTime)
-                        {
-                            int const reloadTime = PWEAPON(screenpeek, pPlayer->curr_weapon, Reload);
+                        int const totalTime = 8; // not what WW2GI.EXE reports, not in the source, but apparently necessary!
+                        int const reloadTime = PWEAPON(screenpeek, pPlayer->curr_weapon, Reload);
 
-                            weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
-                                              ? 10 * ((*weaponFrame) - totalTime)   // down
-                                              : 10 * (reloadTime - (*weaponFrame)); // up
-                        }
+                        weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
+                                          ? 10 * ((*weaponFrame) - totalTime)   // down
+                                          : 10 * (reloadTime - (*weaponFrame)); // up
                     }
                 }
 
@@ -2770,9 +2767,12 @@ void P_DisplayWeapon(void)
                             }
                         }
                         // else we are in 'reload time'
-                        weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
-                                         ? (currentWeapon == GROW_WEAPON ? 5 : 10) * ((*weaponFrame) - totalTime) // D
-                                         : 10 * (reloadTime - (*weaponFrame)); // U
+                        else
+                        {
+                            weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
+                                             ? (currentWeapon == GROW_WEAPON ? 5 : 10) * ((*weaponFrame) - totalTime) // D
+                                             : 10 * (reloadTime - (*weaponFrame)); // U
+                        }
                     }
 
                     G_DrawWeaponTileUnfadedWithID(currentWeapon << 1, weaponX + 184 - halfLookAng, weaponY + 240 - weaponYOffset,
