@@ -2241,12 +2241,13 @@ void P_DisplayWeapon(void)
 
                 if (*weaponFrame > 0)
                 {
-                    if (*weaponFrame < 8)
+                    int totalTime;
+                    if (*weaponFrame < (WW2GI ? (totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime)) : 8))
                         G_DrawWeaponTileWithID(currentWeapon << 1, weaponX + 164, (weaponY << 1) + 176 - weaponYOffset,
                             RPGGUN + ((*weaponFrame) >> 1), weaponShade, weaponBits, weaponPal);
                     else if (WW2GI)
                     {
-                        int const totalTime = 8; // not what WW2GI.EXE reports, not in the source, but apparently necessary!
+                        totalTime = PWEAPON(screenpeek, pPlayer->curr_weapon, TotalTime);
                         int const reloadTime = PWEAPON(screenpeek, pPlayer->curr_weapon, Reload);
 
                         weaponYOffset -= (*weaponFrame < ((reloadTime - totalTime) / 2 + totalTime))
