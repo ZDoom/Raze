@@ -98,9 +98,9 @@ int32_t g_Shareware = 0;
 // Ideally, we would look at our memory usage on our most cramped platform and figure out
 // how much of that is needed for the underlying OS and things like SDL instead of guessing
 #ifndef GEKKO
-int32_t MAXCACHE1DSIZE = (24*1048576);
+int32_t MAXCACHE1DSIZE = (96*1024*1024);
 #else
-int32_t MAXCACHE1DSIZE = (8*1048576);
+int32_t MAXCACHE1DSIZE = (8*1024*1024);
 #endif
 
 int32_t tempwallptr;
