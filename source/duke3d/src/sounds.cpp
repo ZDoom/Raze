@@ -932,6 +932,7 @@ void S_Callback(uint32_t num)
 
 void S_ClearSoundLocks(void)
 {
+#ifdef CACHING_DOESNT_SUCK
     int32_t i;
     int32_t const msp = g_highestSoundIdx;
 
@@ -942,6 +943,7 @@ void S_ClearSoundLocks(void)
     for (i = 0; i <= msp; ++i)
         if (g_soundlocks[i] >= 200)
             g_soundlocks[i] = 199;
+#endif
 }
 
 int32_t A_CheckSoundPlaying(int32_t i, int32_t num)
