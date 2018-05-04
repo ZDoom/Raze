@@ -46,15 +46,15 @@ extern "C" {
 
 struct audioenumdev
 {
-	char *def;
-	char **devs;
-	struct audioenumdev *next;
+    char *def;
+    char **devs;
+    struct audioenumdev *next;
 };
 struct audioenumdrv
 {
-	char *def;
-	char **drvs;
-	struct audioenumdev *devs;
+    char *def;
+    char **drvs;
+    struct audioenumdev *devs;
 };
 int32_t EnumAudioDevs(struct audioenumdrv **wave, struct audioenumdev **midi, struct audioenumdev **cda);
 
