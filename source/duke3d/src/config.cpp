@@ -615,7 +615,10 @@ int32_t CONFIG_ReadSetup(void)
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ConfigVersion", &ud.configversion);
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup", &ud.config.ForceSetup);
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", &ud.config.NoAutoLoad);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "CacheSize", &MAXCACHE1DSIZE);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "CacheSize", &dummy);
+
+    if (dummy > MAXCACHE1DSIZE)
+        MAXCACHE1DSIZE = dummy;
 
     if (g_noSetup == 0 && g_modDir[0] == '/')
     {
