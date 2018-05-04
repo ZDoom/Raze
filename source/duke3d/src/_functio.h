@@ -112,11 +112,11 @@ char gamefunctions[NUMGAMEFUNCTIONS][MAXGAMEFUNCLEN] =
    "Dpad_Aiming",
    "Alternate_Weapon",
    "Last_Used_Weapon",
+   "Quick_Save",
+   "Quick_Load",
    };
 
 #ifdef __SETUP__
-
-#define NUMKEYENTRIES 58
 
 const char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    {
@@ -178,6 +178,8 @@ const char keydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "", "",
    "", "",
    "", "",
+   "F6", "",
+   "F9", "",
    };
 
 const char oldkeydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
@@ -240,6 +242,8 @@ const char oldkeydefaults[NUMGAMEFUNCTIONS*2][MAXGAMEFUNCLEN] =
    "", "",
    "", "",
    "", "",
+   "F6", "",
+   "F9", "",
    };
 
 static const char * mousedefaults[MAXMOUSEBUTTONS] =

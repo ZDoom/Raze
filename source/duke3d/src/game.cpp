@@ -4898,9 +4898,9 @@ FAKE_F3:
             P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
         }
 
-        if ((KB_UnBoundKeyPressed(sc_F6) || g_doQuickSave == 1) && (g_player[myconnectindex].ps->gm&MODE_GAME))
+        if ((BUTTON(gamefunc_Quick_Save) || g_doQuickSave == 1) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
-            KB_ClearKeyDown(sc_F6);
+            CONTROL_ClearButton(gamefunc_Quick_Save);
 
             g_doQuickSave = 0;
 
@@ -4957,9 +4957,9 @@ FAKE_F3:
             ud.fta_on     = fta;
         }
 
-        if ((KB_UnBoundKeyPressed(sc_F9) || g_doQuickSave == 2) && (g_player[myconnectindex].ps->gm&MODE_GAME))
+        if ((BUTTON(gamefunc_Quick_Load) || g_doQuickSave == 2) && (g_player[myconnectindex].ps->gm&MODE_GAME))
         {
-            KB_ClearKeyDown(sc_F9);
+            CONTROL_ClearButton(gamefunc_Quick_Load);
 
             g_doQuickSave = 0;
 
@@ -7190,4 +7190,6 @@ static void G_SetupGameButtons(void)
     CONTROL_DefineFlag(gamefunc_Previous_Weapon,FALSE);
     CONTROL_DefineFlag(gamefunc_Alt_Weapon,FALSE);
     CONTROL_DefineFlag(gamefunc_Last_Weapon,FALSE);
+    CONTROL_DefineFlag(gamefunc_Quick_Save, FALSE);
+    CONTROL_DefineFlag(gamefunc_Quick_Load, FALSE);
 }
