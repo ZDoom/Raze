@@ -6482,6 +6482,7 @@ int app_main(int argc, char const * const * argv)
 
     g_mostConcurrentPlayers = ud.multimode;  // XXX: redundant?
 
+    ++ud.executions;
     CONFIG_WriteSetup(1);
     CONFIG_ReadSetup();
 
