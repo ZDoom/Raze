@@ -520,7 +520,6 @@ static void Polymost_DetermineTextureFormatSupport(void);
 void polymost_resetVertexPointers()
 {
     glBindBuffer(GL_ARRAY_BUFFER, drawpolyVertsID);
-    glBindBuffer(GL_TEXTURE_COORD_ARRAY, drawpolyVertsID);
 
     glVertexPointer(3, GL_FLOAT, 5*sizeof(float), 0);
     glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), (GLvoid*) (3*sizeof(float)));
