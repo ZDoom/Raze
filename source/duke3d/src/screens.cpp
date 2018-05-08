@@ -777,6 +777,7 @@ static void G_ShowCacheLocks(void)
 }
 
 #define LOW_FPS 30
+#define SLOW_FRAME_TIME 33
 
 #if defined GEKKO
 # define FPS_YOFFSET 16
@@ -790,6 +791,7 @@ static void G_PrintFPS(void)
 {
     static int32_t frameCount = 0, lastFPS = 0, lastFrameTime = 0, cumulativeFrameDelay = 0;
     static int32_t minFPS = -1, maxFPS = 0;
+    static uint32_t minGameUpdate = -1, maxGameUpdate = 0;
 
     int32_t frameTime = timerGetTicks();
     int32_t frameDelay = frameTime - lastFrameTime;
@@ -821,6 +823,23 @@ static void G_PrintFPS(void)
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+20+FPS_YOFFSET,
                     FPS_COLOR(minFPS < LOW_FPS), -1, tempbuf, x);
             }
+            if (ud.showfps > 2)
+            {
+                if (g_gameUpdateTime > maxGameUpdate) maxGameUpdate = g_gameUpdateTime;
+                if (g_gameUpdateTime < minGameUpdate) minGameUpdate = g_gameUpdateTime;
+
+                chars = Bsprintf(tempbuf, "Game Update: %2d ms GU & Draw: %2d ms", g_gameUpdateTime, g_gameUpdateAndDrawTime);
+
+                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+30+2+FPS_YOFFSET, 0, -1, tempbuf, x);
+                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+30+FPS_YOFFSET,
+                    FPS_COLOR(g_gameUpdateAndDrawTime >= SLOW_FRAME_TIME), -1, tempbuf, x);
+
+                chars = Bsprintf(tempbuf, "Min Game Update: %2d ms Max Game Update: %2d ms", minGameUpdate, maxGameUpdate);
+
+                printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+40+2+FPS_YOFFSET, 0, -1, tempbuf, x);
+                printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+40+FPS_YOFFSET,
+                    FPS_COLOR(maxGameUpdate >= SLOW_FRAME_TIME), -1, tempbuf, x);
+            }
 
             // lag meter
             if (g_netClientPeer)
@@ -849,6 +868,8 @@ static void G_PrintFPS(void)
                 {
                     maxFPS = (lastFPS + maxFPS) >> 1;
                     minFPS = (lastFPS + minFPS) >> 1;
+                    maxGameUpdate = (g_gameUpdateTime + maxGameUpdate) >> 1;
+                    minGameUpdate = (g_gameUpdateTime + minGameUpdate) >> 1;
                     secondCounter = 0;
                 }
             }

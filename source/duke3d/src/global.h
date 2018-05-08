@@ -161,6 +161,8 @@ G_EXTERN projectile_t SpriteProjectile[MAXSPRITES];
 G_EXTERN sound_t g_sounds[MAXSOUNDS];
 G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;
+G_EXTERN uint32_t g_gameUpdateTime;
+G_EXTERN uint32_t g_gameUpdateAndDrawTime;
 
 #ifndef global_c_
 extern char CheatKeys[2];

@@ -6748,6 +6748,8 @@ MAIN_LOOP_RESTART:
 
         OSD_DispatchQueued();
 
+        char gameUpdate = false;
+        uint32_t gameUpdateStartTime = timerGetTicks();
         if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
         {
             if (g_networkMode != NET_DEDICATED_SERVER)
@@ -6793,6 +6795,9 @@ MAIN_LOOP_RESTART:
                 }
             }
             while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
+
+            gameUpdate = true;
+            g_gameUpdateTime = timerGetTicks()-gameUpdateStartTime;
         }
 
         G_DoCheats();
@@ -6823,6 +6828,11 @@ MAIN_LOOP_RESTART:
             if (videoGetRenderMode() >= REND_POLYMOST)
                 G_DrawBackground();
             G_DisplayRest(smoothRatio);
+
+            if (gameUpdate)
+            {
+                g_gameUpdateAndDrawTime = timerGetTicks()-gameUpdateStartTime;
+            }
         }
 
         // handle CON_SAVE and CON_SAVENN
