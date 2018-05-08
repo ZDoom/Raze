@@ -228,7 +228,7 @@ else
   endif
 endif
 ifeq (1,$(USE_OPENGL))
-    engine_objs += voxmodel.cpp mdsprite.cpp
+    engine_objs += voxmodel.cpp mdsprite.cpp tilepacker.cpp
     engine_deps += glad
     ifeq (1,$(POLYMER))
         engine_objs += glbuild.cpp polymer.cpp

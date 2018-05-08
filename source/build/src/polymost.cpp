@@ -24,6 +24,7 @@ Ken Silverman's official web site: http://www.advsys.net/ken
 #include "texcache.h"
 #include "common.h"
 #include "palette.h"
+#include "tilepacker.h"
 
 #ifndef _WIN32
 extern int32_t filelength(int h); // kplib.c
@@ -79,7 +80,7 @@ int32_t drawpolyVertsBufferLength = r_drawpolyVertsBufferLength;
 static GLuint drawpolyVertsID = 0;
 static GLint drawpolyVertsOffset = 0;
 static int32_t drawpolyVertsSubBufferIndex = 0;
-static GLsync drawpolyVertsSync[3] = {0};
+static GLsync drawpolyVertsSync[3] = { 0 };
 static float defaultDrawpolyVertsArray[MAX_DRAWPOLY_VERTS*5];
 static float* drawpolyVerts = defaultDrawpolyVertsArray;
 
@@ -136,8 +137,9 @@ static float fogresult, fogresult2;
 coltypef fogcol, fogtable[MAXPALOOKUPS];
 
 static uint32_t currentShaderProgramID = 0;
+static GLenum currentActiveTexture = 0;
+static uint32_t currentTextureID = 0;
 
-static GLuint blankTextureID = 0;
 static GLuint quadVertsID = 0;
 static GLuint polymost2BasicShaderProgramID = 0;
 static GLint texSamplerLoc = -1;
@@ -153,6 +155,9 @@ static GLint fogColorLoc = -1;
 
 #define PALSWAP_TEXTURE_SIZE 2048
 int32_t r_useindexedcolortextures = -1;
+static GLuint tilesheetTexIDs[MAXTILESHEETS];
+static GLint tilesheetSize = 0;
+static vec2f_t tilesheetHalfTexelSize = { 0.f, 0.f };
 static int32_t lastbasepal = -1;
 static GLuint paletteTextureIDs[MAXBASEPALS];
 static GLuint palswapTextureID = 0;
@@ -164,11 +169,15 @@ static GLint polymost1PalSwapSamplerLoc = -1;
 static GLint polymost1PaletteSamplerLoc = -1;
 static GLint polymost1DetailSamplerLoc = -1;
 static GLint polymost1GlowSamplerLoc = -1;
+static GLint polymost1TexturePosSizeLoc = -1;
+static vec4f_t polymost1TexturePosSize = { 0.f, 0.f, 1.f, 1.f };
+static GLint polymost1HalfTexelSizeLoc = -1;
+static vec2f_t polymost1HalfTexelSize = { 0.f, 0.f };
 static GLint polymost1PalswapPosLoc = -1;
-static vec2f_t polymost1PalswapPos = {0.f, 0.f};
+static vec2f_t polymost1PalswapPos = { 0.f, 0.f };
 static GLint polymost1PalswapSizeLoc = -1;
-static vec2f_t polymost1PalswapSize = {0.f, 0.f};
-static vec2f_t polymost1PalswapInnerSize = {0.f, 0.f};
+static vec2f_t polymost1PalswapSize = { 0.f, 0.f };
+static vec2f_t polymost1PalswapInnerSize = { 0.f, 0.f };
 static GLint polymost1ShadeLoc = -1;
 static float polymost1Shade = 0.f;
 static GLint polymost1FogEnabledLoc = -1;
@@ -580,6 +589,8 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     polymost1PaletteSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_palette");
     polymost1DetailSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_detail");
     polymost1GlowSamplerLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "s_glow");
+    polymost1TexturePosSizeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_texturePosSize");
+    polymost1HalfTexelSizeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_halfTexelSize");
     polymost1PalswapPosLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_palswapPos");
     polymost1PalswapSizeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_palswapSize");
     polymost1ShadeLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_shade");
@@ -590,6 +601,8 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     polymost1UseGlowMappingLoc = glGetUniformLocation(polymost1CurrentShaderProgramID, "u_useGlowMapping");
 
     //set the uniforms to the current values
+    glUniform4f(polymost1TexturePosSizeLoc, polymost1TexturePosSize.x, polymost1TexturePosSize.y, polymost1TexturePosSize.z, polymost1TexturePosSize.w);
+    glUniform2f(polymost1HalfTexelSizeLoc, polymost1HalfTexelSize.x, polymost1HalfTexelSize.y);
     glUniform2f(polymost1PalswapPosLoc, polymost1PalswapPos.x, polymost1PalswapPos.y);
     glUniform2f(polymost1PalswapSizeLoc, polymost1PalswapInnerSize.x, polymost1PalswapInnerSize.y);
     glUniform1f(polymost1ShadeLoc, polymost1Shade);
@@ -598,6 +611,24 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     glUniform1f(polymost1UsePaletteLoc, polymost1UsePalette);
     glUniform1f(polymost1UseDetailMappingLoc, polymost1UseDetailMapping);
     glUniform1f(polymost1UseGlowMappingLoc, polymost1UseGlowMapping);
+}
+
+void polymost_setTexturePosSize(vec4f_t texturePosSize)
+{
+    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    {
+        polymost1TexturePosSize = texturePosSize;
+        glUniform4f(polymost1TexturePosSizeLoc, polymost1TexturePosSize.x, polymost1TexturePosSize.y, polymost1TexturePosSize.z, polymost1TexturePosSize.w);
+    }
+}
+
+static void polymost_setHalfTexelSize(vec2f_t halfTexelSize)
+{
+    if (currentShaderProgramID == polymost1CurrentShaderProgramID)
+    {
+        polymost1HalfTexelSize = halfTexelSize;
+        glUniform2f(polymost1HalfTexelSizeLoc, polymost1HalfTexelSize.x, polymost1HalfTexelSize.y);
+    }
 }
 
 static void polymost_setPalswap(uint32_t index)
@@ -714,6 +745,55 @@ void polymost_useGlowMapping(char useGlowMapping)
     }
 }
 
+void polymost_activeTexture(GLenum texture)
+{
+    currentActiveTexture = texture;
+    glad_glActiveTexture(texture);
+}
+
+//POGOTODO: replace this and polymost_activeTexture with proper draw call organization
+void polymost_bindTexture(GLenum target, uint32_t textureID)
+{
+    if (currentTextureID != textureID ||
+        textureID == 0 ||
+        currentActiveTexture != GL_TEXTURE0 ||
+        videoGetRenderMode() != REND_POLYMOST)
+    {
+        glad_glBindTexture(target, textureID);
+        if (currentActiveTexture == GL_TEXTURE0)
+        {
+            currentTextureID = textureID;
+        }
+    }
+}
+
+static void polymost_bindPth(pthtyp *pPth)
+{
+    vec4f_t texturePosSize = { 0.f, 0.f, 1.f, 1.f };
+    vec2f_t halfTexelSize = { 0.f, 0.f };
+    if (r_useindexedcolortextures &&
+        !(pPth->flags & PTH_HIGHTILE))
+    {
+        Tile tile;
+        char tileIsPacked = tilepacker_getTile(waloff[pPth->picnum] ? pPth->picnum+1 : 0, &tile);
+        //POGO: check the width and height to ensure that the tile hasn't been changed for a user tile that has different dimensions
+        if (tileIsPacked &&
+            (!waloff[pPth->picnum] ||
+             (tile.rect.width == (uint32_t) tilesiz[pPth->picnum].y &&
+              tile.rect.height == (uint32_t) tilesiz[pPth->picnum].x)))
+        {
+            texturePosSize = { tile.rect.u/(float) tilesheetSize,
+                               tile.rect.v/(float) tilesheetSize,
+                               tile.rect.width/(float) tilesheetSize,
+                               tile.rect.height/(float) tilesheetSize };
+            halfTexelSize = tilesheetHalfTexelSize;
+        }
+    }
+    polymost_setTexturePosSize(texturePosSize);
+    polymost_setHalfTexelSize(halfTexelSize);
+    glBindTexture(GL_TEXTURE_2D, pPth->glpic);
+}
+
 void useShaderProgram(uint32_t shaderID)
 {
     glUseProgram(shaderID);
@@ -754,6 +834,8 @@ void polymost_glinit()
     }
 #endif
 
+    //POGOTODO: require a max texture size >= 2048
+
     persistentStreamBuffer = r_persistentStreamBuffer;
     drawpolyVertsBufferLength = r_drawpolyVertsBufferLength;
 
@@ -782,13 +864,43 @@ void polymost_glinit()
     }
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    const char blankTex[] = {255, 0, 0, 0,  255, 0, 0, 0,
-                             255, 0, 0, 0,  255, 0, 0, 0};
-    glGenTextures(1, &blankTextureID);
-    glBindTexture(GL_TEXTURE_2D, blankTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0, GL_RGBA, GL_UNSIGNED_BYTE, blankTex);
+    currentTextureID = 0;
+
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &tilesheetSize);
+    tilesheetHalfTexelSize = { 0.5f/tilesheetSize, 0.5f/tilesheetSize };
+    vec2_t maxTexDimensions = { tilesheetSize, tilesheetSize };
+    char allPacked = false;
+    static uint32_t numTilesheets = 0;
+    //POGO: only pack the tilesheets once
+    if (numTilesheets == 0)
+    {
+        // add a blank texture for tileUID 0
+        tilepacker_addTile(0, 2, 2);
+        for (int picnum = 0; picnum < MAXTILES; ++picnum)
+        {
+            tilepacker_addTile(picnum+1, (uint32_t) tilesiz[picnum].y, (uint32_t) tilesiz[picnum].x);
+        }
+
+        do
+        {
+            tilepacker_initTilesheet(numTilesheets, tilesheetSize, tilesheetSize);
+            allPacked = tilepacker_pack(numTilesheets);
+            ++numTilesheets;
+        } while (!allPacked && numTilesheets < MAXTILESHEETS);
+    }
+    for (uint32_t i = 0; i < numTilesheets; ++i)
+    {
+        glGenTextures(1, tilesheetTexIDs+i);
+        glBindTexture(GL_TEXTURE_2D, tilesheetTexIDs[i]);
+        uploadtextureindexed(true, {0, 0}, maxTexDimensions, (intptr_t) NULL);
+    }
+
+    const char blankTex[] = {255, 255,
+                             255, 255};
+    Tile blankTile;
+    tilepacker_getTile(0, &blankTile);
+    glBindTexture(GL_TEXTURE_2D, tilesheetTexIDs[blankTile.tilesheetID]);
+    uploadtextureindexed(false, {(int32_t) blankTile.rect.u, (int32_t) blankTile.rect.v}, {2, 2}, (intptr_t) blankTex);
 
     quadVertsID = ids[1];
     glBindBuffer(GL_ARRAY_BUFFER, quadVertsID);
@@ -890,8 +1002,11 @@ void polymost_glinit()
     const char* const POLYMOST1_BASIC_VERTEX_SHADER_CODE =
         "#version 110\n\
          \n\
-         // output\n\
          varying vec4 v_color;\n\
+         \n\
+         //u_texturePosSize is the texture position & size packaged into a single vec4 as {pos.x, pos.y, size.x, size.y}\n\
+         uniform vec4 u_texturePosSize;\n\
+         uniform float u_usePalette;\n\
          \n\
          const float c_zero = 0.0;\n\
          const float c_one  = 1.0;\n\
@@ -904,6 +1019,11 @@ void polymost_glinit()
             eyeCoordPosition.xyz /= eyeCoordPosition.w;\n\
             \n\
             gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n\
+            gl_TexCoord[0] = mix(gl_TexCoord[0].xyzw, gl_TexCoord[0].yxzw, u_usePalette);\n\
+            \n\
+            gl_TexCoord[3] = gl_TextureMatrix[3] * gl_MultiTexCoord3;\n\
+            gl_TexCoord[4] = gl_TextureMatrix[4] * gl_MultiTexCoord4;\n\
+            \n\
             gl_FogFragCoord = abs(eyeCoordPosition.z);\n\
             //gl_FogFragCoord = clamp((gl_Fog.end-abs(eyeCoordPosition.z))*gl_Fog.scale, c_zero, c_one);\n\
             \n\
@@ -919,8 +1039,12 @@ void polymost_glinit()
          //s_palette is the base palette texture where u is the color index\n\
          uniform sampler2D s_palette;\n\
          \n\
+         //u_texturePosSize is the texture position & size packaged into a single vec4 as {pos.x, pos.y, size.x, size.y}\n\
+         uniform vec4 u_texturePosSize;\n\
+         uniform vec2 u_halfTexelSize;\n\
          uniform vec2 u_palswapPos;\n\
          uniform vec2 u_palswapSize;\n\
+         \n\
          uniform float u_shade;\n\
          uniform float u_fogEnabled;\n\
          \n\
@@ -933,15 +1057,20 @@ void polymost_glinit()
          const float c_basepalOffset = 0.5/256.0;\n\
          \n\
          const float c_zero = 0.0;\n\
-         const float c_one  = 1.0;\n\
+         const float c_one = 1.0;\n\
+         const float c_two = 2.0;\n\
          const vec4 c_vec4_one = vec4(c_one);\n\
+         const float c_wrapThreshold = 0.90;\n\
          \n\
          void main()\n\
          {\n\
-             vec2 texCoord = (gl_TextureMatrix[0] * gl_TexCoord[0]).xy;\n\
-             texCoord = mix(texCoord.xy, texCoord.yx, u_usePalette);\n\
+             //GLSL 130+ could alternatively use texture2DGrad()\n\
+             vec2 transitionBlend = fwidth(floor(gl_TexCoord[0].xy));\n\
+             transitionBlend = fwidth(transitionBlend)+transitionBlend;\n\
+             vec2 texCoord = mix(fract(gl_TexCoord[0].xy), abs(c_one-mod(gl_TexCoord[0].xy+c_one, c_two)), transitionBlend);\n\
+             texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
+             vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
              \n\
-             vec4 color = texture2D(s_texture, texCoord);\n\
              float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, u_shade)).r;\n\
              colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
              vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
@@ -980,8 +1109,12 @@ void polymost_glinit()
          uniform sampler2D s_detail;\n\
          uniform sampler2D s_glow;\n\
          \n\
+         //u_texturePosSize is the texture position & size packaged into a single vec4 as {pos.x, pos.y, size.x, size.y}\n\
+         uniform vec4 u_texturePosSize;\n\
+         uniform vec2 u_halfTexelSize;\n\
          uniform vec2 u_palswapPos;\n\
          uniform vec2 u_palswapSize;\n\
+         \n\
          uniform float u_shade;\n\
          uniform float u_fogEnabled;\n\
          \n\
@@ -997,15 +1130,20 @@ void polymost_glinit()
          const float c_basepalOffset = 0.5/256.0;\n\
          \n\
          const float c_zero = 0.0;\n\
-         const float c_one  = 1.0;\n\
+         const float c_one = 1.0;\n\
+         const float c_two = 2.0;\n\
          const vec4 c_vec4_one = vec4(c_one);\n\
+         const float c_wrapThreshold = 0.95;\n\
          \n\
          void main()\n\
          {\n\
-             vec2 texCoord = (gl_TextureMatrix[0] * gl_TexCoord[0]).xy;\n\
-             texCoord = mix(texCoord.xy, texCoord.yx, u_usePalette);\n\
+             //GLSL 130+ could alternatively use texture2DGrad()\n\
+             vec2 transitionBlend = fwidth(floor(gl_TexCoord[0].xy));\n\
+             transitionBlend = fwidth(transitionBlend)+transitionBlend;\n\
+             vec2 texCoord = mix(fract(gl_TexCoord[0].xy), abs(c_one-mod(gl_TexCoord[0].xy+c_one, c_two)), transitionBlend);\n\
+             texCoord = clamp(u_texturePosSize.zw*texCoord, u_halfTexelSize, u_texturePosSize.zw-u_halfTexelSize);\n\
+             vec4 color = texture2D(s_texture, u_texturePosSize.xy+texCoord);\n\
              \n\
-             vec4 color = texture2D(s_texture, texCoord);\n\
              float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, u_shade)).r;\n\
              colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
              vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
@@ -1013,7 +1151,7 @@ void polymost_glinit()
              palettedColor.a = c_one-floor(color.r);\n\
              color = mix(color, palettedColor, u_usePalette);\n\
              \n\
-             vec4 detailColor = texture2D(s_detail, (gl_TextureMatrix[3] * gl_TexCoord[0]).xy);\n\
+             vec4 detailColor = texture2D(s_detail, gl_TexCoord[3].xy);\n\
              detailColor = mix(c_vec4_one, 2.0*detailColor, u_useDetailMapping*detailColor.a);\n\
              color.rgb *= detailColor.rgb;\n\
              \n\
@@ -1031,7 +1169,7 @@ void polymost_glinit()
              color.rgb *= v_color.rgb;\n\
              color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);\n\
              \n\
-             vec4 glowColor = texture2D(s_glow, (gl_TextureMatrix[4] * gl_TexCoord[0]).xy);\n\
+             vec4 glowColor = texture2D(s_glow, gl_TexCoord[4].xy);\n\
              color.rgb = mix(color.rgb, glowColor.rgb, u_useGlowMapping*glowColor.a*(c_one-u_useColorOnly));\n\
              \n\
              color.a *= v_color.a;\n\
@@ -1060,10 +1198,6 @@ void polymost_glinit()
     glUniform1i(polymost1DetailSamplerLoc, 3);
     glUniform1i(polymost1GlowSamplerLoc, 4);
     polymost_setPalswapSize(256, numshades+1);
-    glUniform1f(polymost1UseColorOnlyLoc, polymost1UseColorOnly);
-    glUniform1f(polymost1UsePaletteLoc, polymost1UsePalette);
-    glUniform1f(polymost1UseDetailMappingLoc, polymost1UseDetailMapping);
-    glUniform1f(polymost1UseGlowMappingLoc, polymost1UseGlowMapping);
     polymost_setCurrentShaderProgram(polymost1BasicShaderProgramID);
     glUniform1i(polymost1TexSamplerLoc, 0);
     glUniform1i(polymost1PalSwapSamplerLoc, 1);
@@ -1760,16 +1894,22 @@ void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt,
     }
 }
 
-void uploadtextureindexed(int32_t doalloc, vec2_t siz, intptr_t tile)
+void uploadtextureindexed(int32_t doalloc, vec2_t offset, vec2_t siz, intptr_t tile)
 {
-    // don't use mipmaps for indexed color textures
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
     if (doalloc & 1)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
+
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, siz.y, siz.x, 0, GL_RED, GL_UNSIGNED_BYTE, (void*) tile);
+    }
     else
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, siz.y, siz.x, GL_RED, GL_UNSIGNED_BYTE, (void*) tile);
+    {
+        glTexSubImage2D(GL_TEXTURE_2D, 0, offset.x, offset.y, siz.y, siz.x, GL_RED, GL_UNSIGNED_BYTE, (void*) tile);
+    }
 }
 
 void uploadbasepalette(int32_t basepalnum)
@@ -1806,6 +1946,7 @@ void uploadbasepalette(int32_t basepalnum)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 256, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, basepalWFullBrightInfo);
@@ -1840,6 +1981,7 @@ void uploadpalswap(int32_t palookupnum)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, PALSWAP_TEXTURE_SIZE, PALSWAP_TEXTURE_SIZE, 0, GL_RED, GL_UNSIGNED_BYTE, NULL);
@@ -1915,38 +2057,44 @@ static void gloadtile_art_indexed(int32_t dapic, int32_t dameth, pthtyp *pth, in
     //POGOTODO: if !glinfo.texnpot, then we could allocate a texture of the pow2 size, and then populate the subportion using buffersubdata func
     //if (!glinfo.texnpot)
 
+    Tile tile = {};
     if (waloff[dapic])
     {
-        if (doalloc)
+        char tileIsPacked = tilepacker_getTile(dapic+1, &tile);
+        if (tileIsPacked &&
+            tile.rect.width == (uint32_t) tsizart.y &&
+            tile.rect.height == (uint32_t) tsizart.x)
+        {
+            pth->glpic = tilesheetTexIDs[tile.tilesheetID];
+            doalloc = false;
+        }
+        else if (doalloc)
         {
             glGenTextures(1, (GLuint *)&pth->glpic);
         }
-        glBindTexture(GL_TEXTURE_2D,pth->glpic);
+        glBindTexture(GL_TEXTURE_2D, pth->glpic);
 
-        uploadtextureindexed(doalloc, siz, waloff[dapic]);
+        if (doalloc)
+        {
+            const GLuint clamp_mode = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
+            if (!(dameth & DAMETH_CLAMPED))
+            {
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_if_tile_is_sky(dapic, clamp_mode));
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            }
+            else
+            {
+                // For sprite textures, clamping looks better than wrapping
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
+            }
+        }
+        uploadtextureindexed(doalloc, {(int32_t) tile.rect.u, (int32_t) tile.rect.v}, siz, waloff[dapic]);
     }
     else
     {
-        //Force invalid textures to draw something - an almost purely transparency texture
-        //This allows the Z-buffer to be updated for mirrors (which are invalidated textures)
-        pth->glpic = blankTextureID;
-    }
-
-    const GLuint clamp_mode = glinfo.clamptoedge ? GL_CLAMP_TO_EDGE : GL_CLAMP;
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    if (!(dameth & DAMETH_CLAMPED))
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_if_tile_is_sky(dapic, clamp_mode));
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    }
-    else
-    {
-        // For sprite textures, clamping looks better than wrapping
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, clamp_mode);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, clamp_mode);
+        tilepacker_getTile(0, &tile);
+        pth->glpic = tilesheetTexIDs[tile.tilesheetID];
     }
 
     pth->picnum = dapic;
@@ -2122,7 +2270,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
         }
 
         if (doalloc) glGenTextures(1,(GLuint *)&pth->glpic); //# of textures (make OpenGL allocate structure)
-        glBindTexture(GL_TEXTURE_2D,pth->glpic);
+        glBindTexture(GL_TEXTURE_2D, pth->glpic);
 
         fixtransparency(pic,tsiz,siz,dameth);
 
@@ -2438,7 +2586,7 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
 
         if ((doalloc&3)==1)
             glGenTextures(1, &pth->glpic); //# of textures (make OpenGL allocate structure)
-        glBindTexture(GL_TEXTURE_2D,pth->glpic);
+        glBindTexture(GL_TEXTURE_2D, pth->glpic);
 
         fixtransparency(pic,tsiz,siz,dameth);
 
@@ -2642,12 +2790,13 @@ static void polymost2_drawVBO(GLenum mode,
     }
 
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, (pth && pth->flags & PTH_HASFULLBRIGHT && r_fullbrights) ? pth->ofb->glpic : blankTextureID);
+    //POGO: temporarily swapped out blankTextureID for 0 (as the blank texture has been moved into the dynamic tilesheets)
+    glBindTexture(GL_TEXTURE_2D, (pth && pth->flags & PTH_HASFULLBRIGHT && r_fullbrights) ? pth->ofb->glpic : 0);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : blankTextureID);
+    polymost_bindPth(pth);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
 
@@ -2903,8 +3052,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     // just submit the geometry and don't mess with textures.
     if (videoGetRenderMode() == REND_POLYMOST)
     {
-        glBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : blankTextureID);
+        polymost_bindPth(pth);
 
+        //POGOTODO: I could move this into bindPth
         if (pth && !(pth->flags & PTH_INDEXED))
             polymost_usePaletteIndexing(false);
 
@@ -7324,7 +7474,7 @@ void polymost_fillpolygon(int32_t npoints)
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_TEXTURE_2D);
     pthtyp *pth = our_texcache_fetch(DAMETH_NOMASK | (videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
-    glBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : blankTextureID);
+    polymost_bindPth(pth);
     if (pth && !(pth->flags & PTH_INDEXED))
     {
         polymost_usePaletteIndexing(false);
@@ -7403,7 +7553,7 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
         loadedhitile[wallnum>>3] |= (1<<(wallnum&7));
     usehightile = ousehightile;
 
-    glBindTexture(GL_TEXTURE_2D, pth ? pth->glpic : blankTextureID);
+    polymost_bindPth(pth);
     if (pth && !(pth->flags & PTH_INDEXED))
     {
         polymost_usePaletteIndexing(false);
@@ -7531,8 +7681,9 @@ int32_t polymost_printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t ba
 
     if (videoGetRenderMode() < REND_POLYMOST || !in3dmode() || (!polymosttext && gen_font_glyph_tex() < 0))
         return -1;
-    else
-        glBindTexture(GL_TEXTURE_2D, polymosttext);
+
+    glBindTexture(GL_TEXTURE_2D, polymosttext);
+    polymost_setTexturePosSize({0, 0, 1, 1});
 
     polymost_usePaletteIndexing(false);
 

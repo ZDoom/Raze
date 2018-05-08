@@ -2293,6 +2293,9 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     float const xpanning = (float)sext->xpanning * (1.f/256.f);
     float const ypanning = (float)sext->ypanning * (1.f/256.f);
 
+    polymost_usePaletteIndexing(false);
+    polymost_setTexturePosSize({ 0.f, 0.f, 1.f, 1.f });
+
     for (surfi=0; surfi<m->head.numsurfs; surfi++)
     {
         //PLAG : sorting stuff
@@ -2593,6 +2596,7 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+    polymost_usePaletteIndexing(true);
     polymost_resetVertexPointers();
 
     globalnoeffect=0;
@@ -2756,19 +2760,9 @@ int32_t polymost_mddraw(const uspritetype *tspr)
     mdmodel_t *const vm = models[tile2model[Ptile2tile(tspr->picnum,
     (tspr->owner >= MAXSPRITES) ? tspr->pal : sprite[tspr->owner].pal)].modelid];
     if (vm->mdnum == 1)
-    {
-        polymost_usePaletteIndexing(false);
-        int ret = polymost_voxdraw((voxmodel_t *)vm,tspr);
-        polymost_usePaletteIndexing(true);
-        return ret;
-    }
-    if (vm->mdnum == 3)
-    {
-        polymost_usePaletteIndexing(false);
-        int ret = polymost_md3draw((md3model_t *)vm,tspr);
-        polymost_usePaletteIndexing(true);
-        return ret;
-    }
+        return polymost_voxdraw((voxmodel_t *)vm,tspr);
+    else if (vm->mdnum == 3)
+        return polymost_md3draw((md3model_t *)vm,tspr);
     return 0;
 }
 

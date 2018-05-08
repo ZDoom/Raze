@@ -1017,6 +1017,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
         glBindTexture(GL_TEXTURE_2D, m->texid[globalpal]);
 
     polymost_usePaletteIndexing(false);
+    polymost_setTexturePosSize({ 0.f, 0.f, 1.f, 1.f });
 
     glBegin(GL_QUADS);  // {{{
 
