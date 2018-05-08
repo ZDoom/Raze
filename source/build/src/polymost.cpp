@@ -771,7 +771,7 @@ static void polymost_bindPth(pthtyp *pPth)
 {
     vec4f_t texturePosSize = { 0.f, 0.f, 1.f, 1.f };
     vec2f_t halfTexelSize = { 0.f, 0.f };
-    if (r_useindexedcolortextures &&
+    if ((pPth->flags & PTH_INDEXED) &&
         !(pPth->flags & PTH_HIGHTILE))
     {
         Tile tile;
