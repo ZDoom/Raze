@@ -7394,56 +7394,75 @@ int32_t changespritestat(int16_t spritenum, int16_t newstatnum)
 //
 // lintersect (internal)
 //
-int32_t lintersect(int32_t x1, int32_t y1, int32_t z1,
-                   int32_t x2, int32_t y2, int32_t z2,
-                   int32_t x3, int32_t y3, int32_t x4, int32_t y4,
-                   int32_t *intx, int32_t *inty, int32_t *intz)
+int32_t lintersect(const int32_t originX, const int32_t originY, const int32_t originZ,
+                   const int32_t destX, const int32_t destY, const int32_t destZ,
+                   const int32_t lineStartX, const int32_t lineStartY, const int32_t lineEndX, const int32_t lineEndY,
+                   int32_t *intersectionX, int32_t *intersectionY, int32_t *intersectionZ)
 {
-    // p1 to p2 is a line segment
-    int32_t const x21 = x2 - x1;
-    int32_t const x34 = x3 - x4;
-    int32_t const y21 = y2 - y1;
-    int32_t const y34 = y3 - y4;
-    int32_t const bot = x21 * y34 - y21 * x34;
-    int32_t topt;
+    const vec2_t ray = { destX-originX,
+                         destY-originY };
+    const vec2_t lineVec = { lineEndX-lineStartX,
+                             lineEndY-lineStartY };
+    const vec2_t originDiff = { lineStartX-originX,
+                                lineStartY-originY };
 
-    if (bot == 0)
+    const int32_t rayCrossLineVec = ray.x*lineVec.y - ray.y*lineVec.x;
+    const int32_t originDiffCrossRay = originDiff.x*ray.y - originDiff.y*ray.x;
+
+    if (rayCrossLineVec == 0)
+    {
+        if (originDiffCrossRay != 0)
+        {
+            // line segments are parallel
+            return 0;
+        }
+
+        // line segments are collinear
+        const int32_t rayLengthSquared = ray.x*ray.x + ray.y*ray.y;
+        const int32_t rayDotOriginDiff = ray.x*originDiff.x + ray.y*originDiff.y;
+        const int32_t rayDotLineEndDiff = rayDotOriginDiff + ray.x*lineVec.x + ray.y*lineVec.y;
+        int32_t t = min(rayDotOriginDiff, rayDotLineEndDiff);
+        if (rayDotOriginDiff < 0)
+        {
+            if (rayDotLineEndDiff < 0)
+                return 0;
+
+            t = 0;
+        }
+        else if (rayDotOriginDiff > rayLengthSquared)
+        {
+            if (rayDotLineEndDiff > rayLengthSquared)
+                return 0;
+
+            t = rayDotLineEndDiff;
+        }
+        t = divscale24(t, rayLengthSquared);
+        *intersectionX = originX + mulscale24(ray.x, t);
+        *intersectionY = originY + mulscale24(ray.y, t);
+        *intersectionZ = originZ + mulscale24(destZ-originZ, t);
+
+        return 1;
+    }
+
+    const int32_t originDiffCrossLineVec = originDiff.x*lineVec.y - originDiff.y*lineVec.x;
+    static const int32_t signBit = 1u<<31u;
+    // t is < 0 if (originDiffCrossLineVec^rayCrossLineVec) & signBit)
+    // t is > 1 if originDiffCrossLineVec > rayCrossLineVec
+    // u is < 0 if (originDiffCrossRay^rayCrossLineVec) & signBit
+    // u is > 1 if originDiffCrossRay > rayCrossLineVec
+    // where int32_t u = divscale24(originDiffCrossRay, rayCrossLineVec);
+    if (originDiffCrossLineVec > rayCrossLineVec ||
+        originDiffCrossRay > rayCrossLineVec ||
+        ((originDiffCrossLineVec^rayCrossLineVec) & signBit) ||
+        ((originDiffCrossRay^rayCrossLineVec) & signBit))
+    {
+        // line segments do not overlap
         return 0;
-    else if (bot > 0)
-    {
-        int32_t x31 = x3 - x1;
-        int32_t y31 = y3 - y1;
-
-        topt = x31 * y34 - y31 * x34;
-
-        if ((unsigned)topt >= (unsigned)bot)
-            return 0;
-
-        int32_t topu = x21 * y31 - y21 * x31;
-
-        if ((unsigned)topu >= (unsigned)bot)
-            return 0;
     }
-    else
-    {
-        int32_t x31 = x3 - x1;
-        int32_t y31 = y3 - y1;
-
-        topt = x31 * y34 - y31 * x34;
-
-        if ((unsigned)topt <= (unsigned)bot)
-            return 0;
-
-        int32_t topu = x21 * y31 - y21 * x31;
-
-        if ((unsigned)topu <= (unsigned)bot)
-            return 0;
-    }
-
-    int32_t t = divscale24(topt, bot);
-    *intx = x1 + mulscale24(x21, t);
-    *inty = y1 + mulscale24(y21, t);
-    *intz = z1 + mulscale24(z2 - z1, t);
+    int32_t t = divscale24(originDiffCrossLineVec, rayCrossLineVec);
+    *intersectionX = originX + mulscale24(ray.x, t);
+    *intersectionY = originY + mulscale24(ray.y, t);
+    *intersectionZ = originZ + mulscale24(destZ-originZ, t);
 
     return 1;
 }
