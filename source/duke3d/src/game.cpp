@@ -574,6 +574,9 @@ void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t q16horiz
 
         for (bssize_t k=g_mirrorCount-1; k>=0; k--)
         {
+            if (!wallvisible(x, y, g_mirrorWall[k]))
+                continue;
+
             const int32_t j =
                 klabs(wall[g_mirrorWall[k]].x - x) +
                 klabs(wall[g_mirrorWall[k]].y - y);
