@@ -3142,7 +3142,12 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             ; /* do nothing */
     }
 
-    if (!(method & DAMETH_MASKPROPS) && fullbright_pass < 2)
+    if (!waloff[globalpicnum])
+    {
+        glEnable(GL_BLEND);
+        glDisable(GL_ALPHA_TEST);
+    }
+    else if (!(method & DAMETH_MASKPROPS) && fullbright_pass < 2)
     {
         glDisable(GL_BLEND);
         glDisable(GL_ALPHA_TEST);
