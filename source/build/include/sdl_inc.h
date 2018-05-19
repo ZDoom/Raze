@@ -51,7 +51,7 @@ Minimum required SDL versions:
 #error SDL version found is too old
 #endif
 
-#if defined _NEED_SDLMIXER
+#if defined NEED_SDL_MIXER
 
 # if defined SDL_USEFOLDER
 #  if SDL_TARGET == 2

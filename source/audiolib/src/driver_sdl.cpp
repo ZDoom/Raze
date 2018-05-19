@@ -22,7 +22,7 @@
  * libSDL output driver for MultiVoc
  */
 
-#define _NEED_SDLMIXER
+#define NEED_SDL_MIXER
 #include "compat.h"
 #include "sdl_inc.h"
 #include "driver_sdl.h"

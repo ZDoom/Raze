@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // This object is shared by all Build games with MIDI playback!
 
-#define _NEED_SDLMIXER	1
+#define NEED_SDL_MIXER
 
 #include "compat.h"
 
@@ -102,8 +102,8 @@ const char *MUSIC_ErrorString(int32_t ErrorNumber)
 int32_t MUSIC_Init(int32_t SoundCard, int32_t Address)
 {
 #ifdef __ANDROID__
-	music_initialized = 1;
-	return MUSIC_Ok;
+    music_initialized = 1;
+    return MUSIC_Ok;
 #endif
     // Use an external MIDI player if the user has specified to do so
     char *command = getenv("EDUKE32_MUSIC_CMD");
@@ -410,7 +410,6 @@ static void sigchld_handler(int signo)
 // void MUSIC_PlayMusic(char *_filename)
 int32_t MUSIC_PlaySong(char *song, int32_t songsize, int32_t loopflag)
 {
-//	initprintf("MUSIC_PlaySong");
     if (external_midi)
     {
         FILE *fp;
