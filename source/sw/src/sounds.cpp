@@ -501,7 +501,7 @@ PlaySong(char *song_file_name, int cdaudio_track, SWBOOL loop, SWBOOL restart)
 
     if (!memcmp(SongPtr, "MThd", 4))
     {
-        MUSIC_PlaySong(SongPtr, /*SongLength,*/  MUSIC_LoopSong);
+        MUSIC_PlaySong(SongPtr, SongLength, MUSIC_LoopSong);
         SongType = SongTypeMIDI;
         SongName = strdup(song_file_name);
         return TRUE;

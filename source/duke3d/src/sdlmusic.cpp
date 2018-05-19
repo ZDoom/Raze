@@ -405,7 +405,7 @@ static void sigchld_handler(int signo)
 
 // Duke3D-specific.  --ryan.
 // void MUSIC_PlayMusic(char *_filename)
-int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
+int32_t MUSIC_PlaySong(char *song, int32_t songsize, int32_t loopflag)
 {
 //	initprintf("MUSIC_PlaySong");
     // TODO: graceful failure
@@ -435,7 +435,7 @@ int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
         fp = Bfopen(external_midi_tempfn, "wb");
         if (fp)
         {
-            fwrite(song, 1, g_musicSize, fp);
+            fwrite(song, 1, songsize, fp);
             Bfclose(fp);
 
 #if defined FORK_EXEC_MIDI
@@ -450,7 +450,7 @@ int32_t MUSIC_PlaySong(char *song, int32_t loopflag)
         else initprintf("%s: fopen: %s\n", __func__, strerror(errno));
     }
     else
-        music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem(song, g_musicSize)
+        music_musicchunk = Mix_LoadMUS_RW(SDL_RWFromMem(song, songsize)
 #if (SDL_MAJOR_VERSION > 1)
             , SDL_FALSE
 #endif

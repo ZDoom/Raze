@@ -65,7 +65,7 @@ void  MUSIC_SetLoopFlag( int32_t loopflag );
 void  MUSIC_Continue( void );
 void  MUSIC_Pause( void );
 int32_t   MUSIC_StopSong( void );
-int32_t   MUSIC_PlaySong( char *song, int32_t loopflag );
+int32_t   MUSIC_PlaySong( char *song, int32_t songsize, int32_t loopflag );
 void  MUSIC_Update(void);
 
 #endif
