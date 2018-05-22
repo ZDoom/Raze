@@ -6649,22 +6649,29 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                                 && clipinsidebox((vec2_t *)&sprite[k], j, 256) == 1)
                             goto next_sprite;
                     }
+                }
 
+                l = (SP(spriteNum) >> 3) * pData[3];
+                pData[2] += l;
+                pData[4] += l;
+                A_MoveSector(spriteNum);
+                setsprite(spriteNum, (vec3_t *)pSprite);
+
+                for (j=pSector->wallptr; j<endWall; j++)
+                {
                     for (SPRITES_OF(STAT_PLAYER, k))
                     {
-                        if (sprite[k].owner >= 0 && clipinsidebox((vec2_t *)&sprite[k], j, pPlayer->clipdist + 40) == 1)
+                        if (sprite[k].owner >= 0 && clipinsidebox((vec2_t *)&sprite[k], j, pPlayer->clipdist))
                         {
                             pData[5] = 8;  // Delay
+                            pData[2] -= l;
+                            pData[4] -= l;
+                            A_MoveSector(spriteNum);
+                            setsprite(spriteNum, (vec3_t *)pSprite);
                             goto next_sprite;
                         }
                     }
                 }
-
-                k = (SP(spriteNum) >> 3) * pData[3];
-                pData[2] += k;
-                pData[4] += k;
-                A_MoveSector(spriteNum);
-                setsprite(spriteNum, (vec3_t *)pSprite);
 
                 if (pData[4] <= -511 || pData[4] >= 512)
                 {
