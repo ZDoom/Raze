@@ -8371,18 +8371,6 @@ static void G_DoEventGame(int const nEventID)
         }
         while (statNum < MAXSTATUS);
     }
-
-    int spriteNum = headspritestat[0];
-
-    while (spriteNum >= 0)
-    {
-        int const nextSprite = nextspritestat[spriteNum];
-
-        if (sprite[spriteNum].xrepeat == 0)
-            A_DeleteSprite(spriteNum);
-
-        spriteNum = nextSprite;
-    }
 }
 
 void G_MoveWorld(void)
