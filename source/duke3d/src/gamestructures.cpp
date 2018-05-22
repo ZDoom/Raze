@@ -1117,7 +1117,7 @@ void __fastcall VM_SetSector(int32_t const sectNum, int32_t const labelNum, int3
 
     switch (labelNum)
     {
-        case SECTOR_WALLPTR:              pSector->wallptr         = iSet;           break;
+        case SECTOR_WALLPTR:              setfirstwall(sectNum, iSet);               break;
         case SECTOR_WALLNUM:              pSector->wallnum         = iSet;           break;
 
         case SECTOR_CEILINGZ:             pSector->ceilingz        = iSet;           break;
