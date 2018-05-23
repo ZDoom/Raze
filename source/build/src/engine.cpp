@@ -4410,8 +4410,8 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
     const int32_t dayscalerecip = divideu32_noinline(1<<30, dayscale);
 
     int32_t *longptr = (int32_t *)davoxptr;
-    const int32_t daxsiz = B_LITTLE32(longptr[0]), daysiz = B_LITTLE32(longptr[1]); //dazsiz = B_LITTLE32(longptr[2]);
-    const int32_t daxpivot = B_LITTLE32(longptr[3]), daypivot = B_LITTLE32(longptr[4]), dazpivot = B_LITTLE32(longptr[5]);
+    const int32_t daxsiz = B_LITTLE32(longptr[0]), daysiz = B_LITTLE32(longptr[1]), dazsiz = B_LITTLE32(longptr[2]);
+    const int32_t daxpivot = B_LITTLE32(longptr[3]), daypivot = B_LITTLE32(longptr[4]);// dazpivot = B_LITTLE32(longptr[5]);
     davoxptr += (6<<2);
 
     x = mulscale16(globalposx-dasprx, daxscalerecip);
@@ -4445,7 +4445,7 @@ static void classicDrawVoxel(int32_t dasprx, int32_t daspry, int32_t dasprz, int
     if ((klabs(globalposz-dasprz)>>10) >= klabs(odayscale))
         return;
 
-    const int32_t syoff = divscale21(globalposz-dasprz,odayscale) + (dazpivot<<7);
+    const int32_t syoff = divscale21(globalposz-dasprz,odayscale) + (dazsiz<<14);
     int32_t yoff = (klabs(gxinc)+klabs(gyinc))>>1;
     longptr = (int32_t *)davoxptr;
     int32_t xyvoxoffs = (daxsiz+1)<<2;
