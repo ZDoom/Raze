@@ -499,6 +499,7 @@ static tokenmap_t const vm_keywords[] =
     { "subvar",                 CON_SUBVAR },
     { "subvarvar",              CON_SUBVARVAR },
     { "switch",                 CON_SWITCH },
+    { "swaparrays",             CON_SWAPARRAYS },
     { "swaptrackslot",          CON_SWAPTRACKSLOT },
     { "time",                   CON_TIME },
     { "tip",                    CON_TIP },
@@ -4473,13 +4474,51 @@ DO_DEFSTATE:
 
             if (aGameArrays[i].flags & (GAMEARRAY_READONLY|GAMEARRAY_SYSTEM))
             {
+                g_errorCnt++;
                 C_ReportError(-1);
-                initprintf("can't resize system array `%s'.", label+(g_labelCnt<<6));
+                initprintf("%s:%d: error: can't resize system array `%s'.\n", g_scriptFileName, g_lineNumber, label+(g_labelCnt<<6));
                 return 1;
             }
 
             C_SkipComments();
             C_GetNextVarType(0);
+            continue;
+
+        case CON_SWAPARRAYS:
+            i = C_GetNextGameArrayName();
+            if (EDUKE32_PREDICT_FALSE(i < 0))
+                return 1;
+
+            if (aGameArrays[i].flags & (GAMEARRAY_READONLY|GAMEARRAY_SYSTEM|GAMEARRAY_VARSIZE))
+            {
+                g_errorCnt++;
+                C_ReportError(-1);
+                initprintf("%s:%d: error: can't swap system array `%s'.\n", g_scriptFileName, g_lineNumber, label+(g_labelCnt<<6));
+                return 1;
+            }
+
+            C_SkipComments();
+
+            tw = C_GetNextGameArrayName();
+            if (EDUKE32_PREDICT_FALSE(tw < 0))
+                return 1;
+
+            if (aGameArrays[tw].flags & (GAMEARRAY_READONLY|GAMEARRAY_SYSTEM|GAMEARRAY_VARSIZE))
+            {
+                g_errorCnt++;
+                C_ReportError(-1);
+                initprintf("%s:%d: error: can't swap system array `%s'.\n", g_scriptFileName, g_lineNumber, label+(g_labelCnt<<6));
+                return 1;
+            }
+
+            if ((aGameArrays[i].flags & GAMEARRAY_STORAGE_MASK) != (aGameArrays[tw].flags & GAMEARRAY_STORAGE_MASK))
+            {
+                g_errorCnt++;
+                C_ReportError(-1);
+                initprintf("%s:%d: error: can't swap arrays of different storage classes.\n", g_scriptFileName, g_lineNumber);
+                return 1;
+            }
+
             continue;
 
         case CON_SMAXAMMO:

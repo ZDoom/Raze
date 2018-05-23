@@ -5132,6 +5132,18 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     continue;
                 }
 
+            case CON_SWAPARRAYS:
+                insptr++;
+                {
+                    uint32_t const array1 = *insptr++;
+                    uint32_t const array2 = *insptr++;
+
+                    swap(&aGameArrays[array1].size, &aGameArrays[array2].size);
+                    swap(&aGameArrays[array1].pValues, &aGameArrays[array2].pValues);
+
+                    continue;
+                }
+
             case CON_RANDVAR:
                 insptr++;
                 Gv_SetVarX(*insptr, mulscale16(krand(), *(insptr + 1) + 1));

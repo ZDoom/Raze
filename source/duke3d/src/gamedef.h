@@ -1252,6 +1252,7 @@ enum ScriptKeywords_t
     CON_SPAWNWALLGLASS,     // 431
     CON_SPAWNWALLSTAINEDGLASS, // 432
     CON_SPAWNCEILINGGLASS,  // 433
+    CON_SWAPARRAYS,         // 434
     CON_END
 };
 // KEEPINSYNC with the keyword list in lunatic/con_lang.lua
