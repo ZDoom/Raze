@@ -5117,6 +5117,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                     ((uint8_t *) aGameArrays[destArray].pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
                                     destArrayIndex += destInc;
                                 }
+                                break;
                             case GAMEARRAY_BITMAP:
                                 for (; numElements > 0; --numElements)
                                 {
