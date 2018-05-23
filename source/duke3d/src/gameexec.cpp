@@ -5004,33 +5004,42 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 {
                     tw = *insptr++;
 
+                    gamearray_t & array = aGameArrays[tw];
                     int const newSize = Gv_GetVarX(*insptr++);
-                    int const oldSize = aGameArrays[tw].size;
+                    int const oldSize = array.size;
 
-                    if (newSize >= 0 && newSize != oldSize)
+                    if (newSize == oldSize || newSize < 0)
+                        continue;
+
+#if 0
+                    OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
+                               array.szLabel, array.size, newSize);
+#endif
+
+                    if (newSize == 0)
                     {
-                        //                    OSD_Printf(OSDTEXT_GREEN "CON_RESIZEARRAY: resizing array %s from %d to %d\n",
-                        //                               aGameArrays[j].szLabel, aGameArrays[j].size, newSize);
-
-                        int const       eltSize = Gv_GetArrayElementSize(tw);
-                        intptr_t *const pArray  = oldSize != 0 ? (intptr_t *)Xmalloc(eltSize * oldSize) : NULL;
-
-                        if (oldSize != 0)
-                            Bmemcpy(pArray, aGameArrays[tw].pValues, eltSize * oldSize);
-
-                        Baligned_free(aGameArrays[tw].pValues);
-
-                        aGameArrays[tw].pValues = newSize != 0 ? (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, eltSize * newSize) : NULL;
-                        aGameArrays[tw].size    = newSize;
-
-                        if (oldSize != 0)
-                            Bmemcpy(aGameArrays[tw].pValues, pArray, eltSize * min(oldSize, newSize));
-
-                        if (newSize > oldSize)
-                            Bmemset(&aGameArrays[tw].pValues[oldSize], 0, eltSize * (newSize - oldSize));
-
-                        Bfree(pArray);
+                        Baligned_free(array.pValues);
+                        array.pValues = nullptr;
+                        array.size = 0;
+                        continue;
                     }
+
+                    size_t const oldBytes = Gv_GetArrayAllocSizeForCount(tw, oldSize);
+                    size_t const newBytes = Gv_GetArrayAllocSizeForCount(tw, newSize);
+                    intptr_t * const oldArray = array.pValues;
+                    intptr_t * const newArray = (intptr_t *)Xaligned_alloc(ARRAY_ALIGNMENT, newBytes);
+
+                    if (oldSize != 0)
+                        Bmemcpy(newArray, oldArray, min(oldBytes, newBytes));
+
+                    if (newSize > oldSize)
+                        Bmemset((char *)newArray + oldBytes, 0, newBytes - oldBytes);
+
+                    array.pValues = newArray;
+                    array.size = newSize;
+
+                    Baligned_free(oldArray);
+
                     continue;
                 }
 

@@ -376,7 +376,7 @@ unsigned __fastcall Gv_GetArrayElementSize(int const arrayIdx)
 
 void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t dwFlags)
 {
-    Bassert(asize);
+    Bassert(asize >= 0);
 
     if (EDUKE32_PREDICT_FALSE(g_gameArrayCount >= MAXGAMEARRAYS))
     {
@@ -434,8 +434,15 @@ void Gv_NewArray(const char *pszLabel, void *arrayptr, intptr_t asize, uint32_t 
         int const allocSize = Gv_GetArrayAllocSize(i);
 
         aGameArrays[i].flags |= GAMEARRAY_ALLOCATED;
-        aGameArrays[i].pValues = (intptr_t *) Xaligned_alloc(ARRAY_ALIGNMENT, allocSize);
-        Bmemset(aGameArrays[i].pValues, 0, allocSize);
+        if (allocSize > 0)
+        {
+            aGameArrays[i].pValues = (intptr_t *) Xaligned_alloc(ARRAY_ALIGNMENT, allocSize);
+            Bmemset(aGameArrays[i].pValues, 0, allocSize);
+        }
+        else
+        {
+            aGameArrays[i].pValues = nullptr;
+        }
     }
 
     g_gameArrayCount++;
