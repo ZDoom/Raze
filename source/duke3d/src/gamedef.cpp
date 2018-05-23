@@ -1670,6 +1670,22 @@ static void C_GetNextLabelName(void)
         initprintf("%s:%d: debug: label `%s'.\n",g_scriptFileName,g_lineNumber,label+(g_labelCnt<<6));
 }
 
+static int32_t C_GetNextGameArrayName(void)
+{
+    C_GetNextLabelName();
+    int32_t const i = GetADefID(label+(g_labelCnt<<6));
+    if (EDUKE32_PREDICT_FALSE(i < 0))
+    {
+        g_errorCnt++;
+        C_ReportError(ERROR_NOTAGAMEARRAY);
+        return -1;
+    }
+
+    BITPTR_CLEAR(g_scriptPtr-apScript);
+    *g_scriptPtr++ = i;
+    return i;
+}
+
 static int32_t C_GetKeyword(void)
 {
     int32_t i;
@@ -4379,33 +4395,20 @@ DO_DEFSTATE:
 
         case CON_WRITEARRAYTOFILE:
         case CON_READARRAYFROMFILE:
-            C_GetNextLabelName();
-            i=GetADefID(label+(g_labelCnt<<6));
+            i = C_GetNextGameArrayName();
             if (EDUKE32_PREDICT_FALSE(i < 0))
-            {
-                g_errorCnt++;
-                C_ReportError(ERROR_NOTAGAMEARRAY);
                 return 1;
-            }
-
-            BITPTR_CLEAR(g_scriptPtr-apScript);
-            *g_scriptPtr++=i;
 
             C_GetNextValue(LABEL_DEFINE);
             continue;
 
         case CON_COPY:
-            C_GetNextLabelName();
-            i=GetADefID(label+(g_labelCnt<<6));
+            i = C_GetNextGameArrayName();
             if (EDUKE32_PREDICT_FALSE(i < 0))
-            {
-                g_errorCnt++;
-                C_ReportError(ERROR_NOTAGAMEARRAY);
                 return 1;
-            }
-            BITPTR_CLEAR(g_scriptPtr-apScript);
-            *g_scriptPtr++=i;
-            C_SkipComments();// skip comments and whitespace
+
+            C_SkipComments();
+
             if (EDUKE32_PREDICT_FALSE(*textptr != '['))
             {
                 g_errorCnt++;
@@ -4414,7 +4417,7 @@ DO_DEFSTATE:
             }
             textptr++;
             C_GetNextVar();
-            C_SkipComments();// skip comments and whitespace
+            C_SkipComments();
             if (EDUKE32_PREDICT_FALSE(*textptr != ']'))
             {
                 g_errorCnt++;
@@ -4424,17 +4427,9 @@ DO_DEFSTATE:
             textptr++;
             fallthrough__;
         case CON_SETARRAY:
-            C_GetNextLabelName();
-            i=GetADefID(label+(g_labelCnt<<6));
+            i = C_GetNextGameArrayName();
             if (EDUKE32_PREDICT_FALSE(i < 0))
-            {
-                g_errorCnt++;
-                C_ReportError(ERROR_NOTAGAMEARRAY);
                 return 1;
-            }
-
-            BITPTR_CLEAR(g_scriptPtr-apScript);
-            *g_scriptPtr++=i;
 
             if (EDUKE32_PREDICT_FALSE(aGameArrays[i].flags & GAMEARRAY_READONLY))
             {
@@ -4443,7 +4438,7 @@ DO_DEFSTATE:
                 return 1;
             }
 
-            C_SkipComments();// skip comments and whitespace
+            C_SkipComments();
             if (EDUKE32_PREDICT_FALSE(*textptr != '['))
             {
                 g_errorCnt++;
@@ -4452,7 +4447,7 @@ DO_DEFSTATE:
             }
             textptr++;
             C_GetNextVar();
-            C_SkipComments();// skip comments and whitespace
+            C_SkipComments();
             if (EDUKE32_PREDICT_FALSE(*textptr != ']'))
             {
                 g_errorCnt++;
@@ -4464,19 +4459,19 @@ DO_DEFSTATE:
             continue;
 
         case CON_GETARRAYSIZE:
-        case CON_RESIZEARRAY:
-            C_GetNextLabelName();
-            i=GetADefID(label+(g_labelCnt<<6));
+            i = C_GetNextGameArrayName();
             if (EDUKE32_PREDICT_FALSE(i < 0))
-            {
-                g_errorCnt++;
-                C_ReportError(ERROR_NOTAGAMEARRAY);
                 return 1;
-            }
+            C_SkipComments();
+            C_GetNextVarType(GAMEVAR_READONLY);
+            continue;
 
-            BITPTR_CLEAR(g_scriptPtr-apScript);
-            *g_scriptPtr++ = i;
-            if (tw==CON_RESIZEARRAY && (aGameArrays[i].flags & (GAMEARRAY_READONLY|GAMEARRAY_SYSTEM)))
+        case CON_RESIZEARRAY:
+            i = C_GetNextGameArrayName();
+            if (EDUKE32_PREDICT_FALSE(i < 0))
+                return 1;
+
+            if (aGameArrays[i].flags & (GAMEARRAY_READONLY|GAMEARRAY_SYSTEM))
             {
                 C_ReportError(-1);
                 initprintf("can't resize system array `%s'.", label+(g_labelCnt<<6));
@@ -4484,7 +4479,7 @@ DO_DEFSTATE:
             }
 
             C_SkipComments();
-            C_GetNextVarType(tw==CON_GETARRAYSIZE ? GAMEVAR_READONLY : 0);
+            C_GetNextVarType(0);
             continue;
 
         case CON_SMAXAMMO:
