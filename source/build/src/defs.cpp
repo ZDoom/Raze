@@ -595,7 +595,7 @@ static int32_t defsparser(scriptfile *script)
         {
             int32_t p,r,g,b;
 
-            if (scriptfile_getnumber(script,&p)) break;
+            if (scriptfile_getsymbol(script,&p)) break;
             if (scriptfile_getnumber(script,&r)) break;
             if (scriptfile_getnumber(script,&g)) break;
             if (scriptfile_getnumber(script,&b)) break;
@@ -611,8 +611,8 @@ static int32_t defsparser(scriptfile *script)
         {
             int32_t b,e,i;
 
-            if (scriptfile_getnumber(script,&b)) break;
-            if (scriptfile_getnumber(script,&e)) break;
+            if (scriptfile_getsymbol(script,&b)) break;
+            if (scriptfile_getsymbol(script,&e)) break;
 
             b = max(b, 1);
             e = min(e, MAXPALOOKUPS-1);
@@ -722,8 +722,8 @@ static int32_t defsparser(scriptfile *script)
         {
             int32_t tile1,tile2,xsiz,ysiz,xoffs,yoffs,i;
 
-            if (scriptfile_getnumber(script,&tile1)) break;
-            if (scriptfile_getnumber(script,&tile2)) break;
+            if (scriptfile_getsymbol(script,&tile1)) break;
+            if (scriptfile_getsymbol(script,&tile2)) break;
             if (scriptfile_getnumber(script,&xsiz)) break;
             if (scriptfile_getnumber(script,&ysiz)) break;
             if (scriptfile_getsymbol(script,&xoffs)) break;
@@ -1058,8 +1058,8 @@ static int32_t defsparser(scriptfile *script)
         {
             int32_t tile1,tile2,xsiz,ysiz,i;
 
-            if (scriptfile_getnumber(script,&tile1)) break;
-            if (scriptfile_getnumber(script,&tile2)) break;
+            if (scriptfile_getsymbol(script,&tile1)) break;
+            if (scriptfile_getsymbol(script,&tile2)) break;
             if (scriptfile_getnumber(script,&xsiz)) break;
             if (scriptfile_getnumber(script,&ysiz)) break;
 
@@ -1103,8 +1103,8 @@ static int32_t defsparser(scriptfile *script)
         {
             int32_t tile1, tile2;
 
-            if (scriptfile_getnumber(script,&tile1)) break;
-            if (scriptfile_getnumber(script,&tile2)) break;
+            if (scriptfile_getsymbol(script,&tile1)) break;
+            if (scriptfile_getsymbol(script,&tile2)) break;
 
             if (check_tile_range("undefinetilerange", &tile1, &tile2, script, cmdtokptr))
                 break;
@@ -1152,8 +1152,8 @@ static int32_t defsparser(scriptfile *script)
             int32_t ftilenume, ltilenume;
 
             if (scriptfile_getstring(script,&framename)) break;
-            if (scriptfile_getnumber(script,&ftilenume)) break; //first tile number
-            if (scriptfile_getnumber(script,&ltilenume)) break; //last tile number (inclusive)
+            if (scriptfile_getsymbol(script,&ftilenume)) break; //first tile number
+            if (scriptfile_getsymbol(script,&ltilenume)) break; //last tile number (inclusive)
 
             if (check_tile_range("definemodelframe", &ftilenume, &ltilenume, script, cmdtokptr))
                 break;
@@ -1311,8 +1311,8 @@ static int32_t defsparser(scriptfile *script)
         {
             int32_t ftilenume, ltilenume, tilex;
 
-            if (scriptfile_getnumber(script,&ftilenume)) break; //1st tile #
-            if (scriptfile_getnumber(script,&ltilenume)) break; //last tile #
+            if (scriptfile_getsymbol(script,&ftilenume)) break; //1st tile #
+            if (scriptfile_getsymbol(script,&ltilenume)) break; //last tile #
 
             if (check_tile_range("definevoxeltiles", &ftilenume, &ltilenume, script, cmdtokptr))
                 break;
@@ -1415,7 +1415,7 @@ static int32_t defsparser(scriptfile *script)
                         switch (getatoken(script,modelframetokens,ARRAY_SIZE(modelframetokens)))
                         {
                         case T_PAL:
-                            scriptfile_getnumber(script,&pal); break;
+                            scriptfile_getsymbol(script,&pal); break;
                         case T_FRAME:
                             scriptfile_getstring(script,&framename); break;
                         case T_TILE:
@@ -2539,8 +2539,8 @@ static int32_t defsparser(scriptfile *script)
         {
             int32_t b,e, i;
 
-            if (EDUKE32_PREDICT_FALSE(scriptfile_getnumber(script,&b))) break;
-            if (EDUKE32_PREDICT_FALSE(scriptfile_getnumber(script,&e))) break;
+            if (EDUKE32_PREDICT_FALSE(scriptfile_getsymbol(script,&b))) break;
+            if (EDUKE32_PREDICT_FALSE(scriptfile_getsymbol(script,&e))) break;
 
             b = max(b, 0);
             e = min(e, MAXUSERTILES-1);

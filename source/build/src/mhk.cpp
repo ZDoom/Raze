@@ -303,7 +303,7 @@ int32_t engineLoadMHK(const char *filename)
             light.maxshade = value;
             scriptfile_getnumber(script, &value);
             light.priority = value;
-            scriptfile_getnumber(script, &value);
+            scriptfile_getsymbol(script, &value);
             light.tilenum = value;
 
             light.publicflags.emitshadow = 1;
