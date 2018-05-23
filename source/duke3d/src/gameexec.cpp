@@ -5075,27 +5075,38 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         {
                             case 0:
                                 for (; numElements > 0; --numElements)
-                                    aGameArrays[destArray].pValues[destArrayIndex += destInc] = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
+                                {
+                                    aGameArrays[destArray].pValues[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                    destArrayIndex += destInc;
+                                }
                                 break;
                             case GAMEARRAY_INT16:
                                 for (; numElements > 0; --numElements)
-                                    ((int16_t *)aGameArrays[destArray].pValues)[destArrayIndex += destInc]
-                                    = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
+                                {
+                                    ((int16_t *) aGameArrays[destArray].pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                    destArrayIndex += destInc;
+                                }
                                 break;
                             case GAMEARRAY_INT8:
                                 for (; numElements > 0; --numElements)
-                                    ((int8_t *)aGameArrays[destArray].pValues)[destArrayIndex += destInc]
-                                    = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
+                                {
+                                    ((int8_t *) aGameArrays[destArray].pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                    destArrayIndex += destInc;
+                                }
                                 break;
                             case GAMEARRAY_UINT16:
                                 for (; numElements > 0; --numElements)
-                                    ((uint16_t *)aGameArrays[destArray].pValues)[destArrayIndex += destInc]
-                                    = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
+                                {
+                                    ((uint16_t *) aGameArrays[destArray].pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                    destArrayIndex += destInc;
+                                }
                                 break;
                             case GAMEARRAY_UINT8:
                                 for (; numElements > 0; --numElements)
-                                    ((uint8_t *)aGameArrays[destArray].pValues)[destArrayIndex += destInc]
-                                    = Gv_GetArrayValue(srcArray, srcArrayIndex += srcInc);
+                                {
+                                    ((uint8_t *) aGameArrays[destArray].pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                    destArrayIndex += destInc;
+                                }
                                 break;
                         }
 
