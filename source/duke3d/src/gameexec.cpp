@@ -5063,8 +5063,9 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     int const srcInc  = 1 << (int)!!(EDUKE32_PREDICT_FALSE(aGameArrays[srcArray].flags & GAMEARRAY_STRIDE2));
                     int const destInc = 1 << (int)!!(EDUKE32_PREDICT_FALSE(aGameArrays[destArray].flags & GAMEARRAY_STRIDE2));
 
-                    // matching array types and no STRIDE2 flag
+                    // matching array types, no BITMAPs, no STRIDE2 flag
                     if ((aGameArrays[srcArray].flags & GAMEARRAY_SIZE_MASK) == (aGameArrays[destArray].flags & GAMEARRAY_SIZE_MASK)
+                        && !((aGameArrays[srcArray].flags | aGameArrays[destArray].flags) & GAMEARRAY_BITMAP)
                         && (srcInc & destInc) == 1)
                     {
                         Bmemcpy(aGameArrays[destArray].pValues + destArrayIndex, aGameArrays[srcArray].pValues + srcArrayIndex,
@@ -5105,6 +5106,15 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                                 for (; numElements > 0; --numElements)
                                 {
                                     ((uint8_t *) aGameArrays[destArray].pValues)[destArrayIndex] = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                    destArrayIndex += destInc;
+                                }
+                            case GAMEARRAY_BITMAP:
+                                for (; numElements > 0; --numElements)
+                                {
+                                    uint32_t const newValue = Gv_GetArrayValue(srcArray, srcArrayIndex++);
+                                    uint32_t const mask = 1 << (destArrayIndex & 7);
+                                    uint8_t & value = ((uint8_t *)aGameArrays[destArray].pValues)[destArrayIndex >> 3];
+                                    value = (value & ~mask) | (-!!newValue & mask);
                                     destArrayIndex += destInc;
                                 }
                                 break;
