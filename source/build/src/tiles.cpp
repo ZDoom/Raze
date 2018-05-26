@@ -591,7 +591,8 @@ bool tileLoad(int16_t tileNum)
     tileLoadData(tileNum, dasiz, (char *) waloff[tileNum]);
 
 #ifdef USE_OPENGL
-    if (videoGetRenderMode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST &&
+        in3dmode())
     {
         //POGOTODO: this type stuff won't be necessary down the line -- review this
         int type;
