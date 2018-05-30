@@ -9842,7 +9842,7 @@ static void PolymostProcessVoxels(void)
         if (voxfilenames[i])
         {
             voxmodels[i] = voxload(voxfilenames[i]);
-            voxmodels[i]->scale = voxscale[i]>>16;
+            voxmodels[i]->scale = voxscale[i]*(1.f/65536.f);
             DO_FREE_AND_NULL(voxfilenames[i]);
         }
     }
