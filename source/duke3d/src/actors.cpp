@@ -891,7 +891,7 @@ ACTOR_STATIC void A_MaybeAwakenBadGuys(int const spriteNum)
                     || cansee(pSprite->x, pSprite->y, pSprite->z - PHEIGHT, pSprite->sectnum, sprite[spriteNum].x, sprite[spriteNum].y,
                               sprite[spriteNum].z - PHEIGHT, sprite[spriteNum].sectnum))
                 {
-                    actor[spriteNum].timetosleep = 0;
+                    actor[spriteNum].timetosleep = SLEEPTIME;
                     A_PlayAlertSound(spriteNum);
                     changespritestat(spriteNum, STAT_ACTOR);
 
