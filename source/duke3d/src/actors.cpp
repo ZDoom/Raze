@@ -5727,10 +5727,13 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
     int32_t q = 0, j, k, l, m, x;
     int spriteNum = headspritestat[STAT_EFFECTOR];
 
-    for (native_t TRAVERSE_CONNECT(playerNum))
+    if (!IONMAIDEN)
     {
-        vec2_t & fric = g_player[playerNum].ps->fric;
-        fric.x = fric.y = 0;
+        for (native_t TRAVERSE_CONNECT(playerNum))
+        {
+            vec2_t & fric = g_player[playerNum].ps->fric;
+            fric.x = fric.y = 0;
+        }
     }
 
     while (spriteNum >= 0)
