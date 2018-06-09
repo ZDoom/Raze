@@ -1478,9 +1478,13 @@ void G_ActivateBySector(int sectNum, int spriteNum)
 static void G_BreakWall(int tileNum, int spriteNum, int wallNum)
 {
     wall[wallNum].picnum = tileNum;
+#ifndef EDUKE32_STANDALONE
     A_PlaySound(VENT_BUST,spriteNum);
     A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
     A_SpawnWallGlass(spriteNum,wallNum,10);
+#else
+    UNREFERENCED_PARAMETER(spriteNum);
+#endif
 }
 
 void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int weaponNum)
@@ -1500,10 +1504,12 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
     {
         if (pWall->nextwall == -1 || wall[pWall->nextwall].pal != 4)
         {
+#ifndef EDUKE32_STANDALONE
             A_SpawnWallGlass(spriteNum, wallNum, 70);
+            A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
+#endif
             pWall->cstat &= ~16;
             pWall->overpicnum = MIRRORBROKE;
-            A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
             return;
         }
     }
@@ -1523,10 +1529,12 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
 #endif
                 if (pWall->nextwall == -1 || wall[pWall->nextwall].pal != 4)
                 {
+#ifndef EDUKE32_STANDALONE
                     A_SpawnWallGlass(spriteNum, wallNum, 70);
+                    A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
+#endif
                     pWall->cstat &= ~16;
                     pWall->overpicnum = MIRRORBROKE;
-                    A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
                     return;
                 }
         }
@@ -1653,9 +1661,11 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
         case SCREENBREAK18__STATIC:
         case SCREENBREAK19__STATIC:
         case BORNTOBEWILDSCREEN__STATIC:
+#ifndef EDUKE32_STANDALONE
             A_SpawnWallGlass(spriteNum, wallNum, 30);
-            pWall->picnum = W_SCREENBREAK + (krand() % 3);
             A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
+#endif
+            pWall->picnum = W_SCREENBREAK + (krand() % 3);
             return;
 
         case W_TECHWALL5__STATIC:
@@ -1715,8 +1725,10 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
         case TECHLIGHT2__STATIC:
         case TECHLIGHT4__STATIC:
         {
+#ifndef EDUKE32_STANDALONE
             A_PlaySound(rnd(128) ? GLASS_HEAVYBREAK : GLASS_BREAKING, spriteNum);
             A_SpawnWallGlass(spriteNum, wallNum, 30);
+#endif
 
             if (pWall->picnum == WALLLIGHT1)
                 pWall->picnum = WALLLIGHTBUST1;
@@ -1839,10 +1851,11 @@ void Sect_DamageCeiling_Internal(int const spriteNum, int const sectNum)
     if (0)
     {
 #endif
-        GLASSBREAK_CODE:
+    GLASSBREAK_CODE:
+#ifndef EDUKE32_STANDALONE
             A_SpawnCeilingGlass(g_player[myconnectindex].ps->i, sectNum, 10);
             A_PlaySound(GLASS_BREAKING, g_player[screenpeek].ps->i);
-
+#endif
             if (sector[sectNum].hitag == 0)
             {
                 for (bssize_t SPRITES_OF_SECT(sectNum, i))
@@ -1913,6 +1926,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
         if (sector[SECT(spriteNum)].floorpicnum == FANSHADOW)
             sector[SECT(spriteNum)].floorpicnum = FANSHADOWBROKE;
 
+#ifndef EDUKE32_STANDALONE
         A_PlaySound(GLASS_HEAVYBREAK, spriteNum);
 
         for (bssize_t j=16; j>0; j--)
@@ -1920,7 +1934,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
             spritetype * const pSprite = &sprite[spriteNum];
             RANDOMSCRAP(pSprite, spriteNum);
         }
-
+#endif
         break;
 
 #ifndef EDUKE32_STANDALONE

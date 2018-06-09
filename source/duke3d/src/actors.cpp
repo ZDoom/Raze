@@ -659,6 +659,7 @@ void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt)
     }
 }
 
+#ifndef EDUKE32_STANDALONE
 void A_DoGuts(int spriteNum, int tileNum, int spawnCnt)
 {
     uspritetype const *const pSprite = (uspritetype *)&sprite[spriteNum];
@@ -716,6 +717,7 @@ void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt)
         sprite[i].pal = s->pal;
     }
 }
+#endif
 
 LUNATIC_EXTERN int32_t G_ToggleWallInterpolation(int32_t wallNum, int32_t setInterpolation)
 {
@@ -1587,8 +1589,10 @@ ACTOR_STATIC void G_MoveFallers(void)
 
                 if ((sector[sectNum].floorz-pSprite->z) < ZOFFSET2)
                 {
+#ifndef EDUKE32_STANDALONE
                     for (size_t x = 0, x_end = 1+(krand()&7); x < x_end; ++x)
                         RANDOMSCRAP(pSprite, spriteNum);
+#endif
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
                 }
             }
@@ -2217,9 +2221,11 @@ DETONATE:
 
                     pSprite->z -= ZOFFSET5;
 
+#ifndef EDUKE32_STANDALONE
                     if (pSprite->xrepeat)
                         for (bsize_t x=0; x<8; x++)
                             RANDOMSCRAP(pSprite, spriteNum);
+#endif
 
                     if ((pData[3] == 1 && pSprite->xrepeat) || (int16_t)pSprite->lotag == -99)
                     {
@@ -4987,9 +4993,10 @@ DETONATEB:
                         pData[0]       = 1;  // static
                         pSprite->cstat = 32768;
 
+#ifndef EDUKE32_STANDALONE
                         for (bssize_t x = 0; x < 5; x++)
                             RANDOMSCRAP(pSprite, spriteNum);
-
+#endif
                         goto next_sprite;
                     }
                 }
@@ -6833,10 +6840,10 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                     DELETE_SPRITE_AND_CONTINUE(spriteNum);
             }
 
-
+#ifndef EDUKE32_STANDALONE
             if (pData[2] == 4 && pSprite->ang != 512)
                 for (x=0; x<7; x++) RANDOMSCRAP(pSprite, spriteNum);
-
+#endif
             break;
 
 
@@ -7751,11 +7758,12 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
             }
             break;
 
+#ifndef EDUKE32_STANDALONE
         case SE_33_QUAKE_DEBRIS:
             if (g_earthquakeTime > 0 && (krand()&7) == 0)
                 RANDOMSCRAP(pSprite, spriteNum);
             break;
-
+#endif
         case SE_36_PROJ_SHOOTER:
             if (pData[0])
             {

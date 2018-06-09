@@ -113,8 +113,10 @@ void P_QuickKill(DukePlayer_t * const pPlayer)
     sprite[pPlayer->i].extra = 0;
     sprite[pPlayer->i].cstat |= 32768;
 
+#ifndef EDUKE32_STANDALONE
     if (ud.god == 0)
         A_DoGuts(pPlayer->i,JIBS6,8);
+#endif
 }
 
 static void A_DoWaterTracers(vec3_t startPos, vec3_t const *endPos, int n, int16_t sectNum)
@@ -5418,6 +5420,7 @@ HORIZONLY:;
         }
     }
 
+#ifndef EDUKE32_STANDALONE
     if (pPlayer->knee_incs > 0)
     {
         pPlayer->q16horiz -= F16(48);
@@ -5435,7 +5438,6 @@ HORIZONLY:;
                 A_DoGuts(pPlayer->actorsqu, JIBS6, 7);
                 A_Spawn(pPlayer->actorsqu, BLOODPOOL);
                 A_PlaySound(SQUISHED, pPlayer->actorsqu);
-
                 switch (DYNAMICTILEMAP(sprite[pPlayer->actorsqu].picnum))
                 {
                     case FEM1__STATIC:
@@ -5477,6 +5479,7 @@ HORIZONLY:;
                             getangle(sprite[pPlayer->actorsqu].x - pPlayer->pos.x, sprite[pPlayer->actorsqu].y - pPlayer->pos.y))
             >> 2);
     }
+#endif
 
     if (P_DoCounters(playerNum))
         return;

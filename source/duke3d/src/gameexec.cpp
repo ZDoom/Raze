@@ -1036,13 +1036,14 @@ static void VM_Fall(int const spriteNum, spritetype * const pSprite)
         {
             // I'm guessing this DRONE check is from a beta version of the game
             // where they crashed into the ground when killed
+#ifndef EDUKE32_STANDALONE
             if (!(pSprite->picnum == APLAYER && pSprite->extra > 0) && pSprite->pal != 1 && pSprite->picnum != DRONE)
             {
                 A_DoGuts(spriteNum,JIBS6,15);
                 A_PlaySound(SQUISHED,spriteNum);
                 A_Spawn(spriteNum,BLOODPOOL);
             }
-
+#endif
             actor[spriteNum].picnum = SHOTSPARK1;
             actor[spriteNum].extra = 1;
             pSprite->zvel = 0;
@@ -2187,33 +2188,52 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
 
             case CON_LOTSOFGLASS:
                 insptr++;
+#ifndef EDUKE32_STANDALONE
                 A_SpawnGlass(vm.spriteNum, *insptr++);
+#else
+                insptr++;
+#endif
                 continue;
 
             case CON_SPAWNWALLGLASS:
                 insptr++;
                 {
+#ifndef EDUKE32_STANDALONE
                     int const wallNum   = Gv_GetVarX(*insptr++);
                     int const numShards = Gv_GetVarX(*insptr++);
                     A_SpawnWallGlass(vm.spriteNum, wallNum, numShards);
+#else
+                    Gv_GetVarX(*insptr++);
+                    Gv_GetVarX(*insptr++);
+#endif
                 }
                 continue;
 
             case CON_SPAWNWALLSTAINEDGLASS:
                 insptr++;
                 {
+#ifndef EDUKE32_STANDALONE
                     int const wallNum   = Gv_GetVarX(*insptr++);
                     int const numShards = Gv_GetVarX(*insptr++);
                     A_SpawnRandomGlass(vm.spriteNum, wallNum, numShards);
+#else
+                    Gv_GetVarX(*insptr++);
+                    Gv_GetVarX(*insptr++);
+#endif
                 }
                 continue;
 
             case CON_SPAWNCEILINGGLASS:
                 insptr++;
                 {
+#ifndef EDUKE32_STANDALONE
                     int const sectNum   = Gv_GetVarX(*insptr++);
                     int const numShards = Gv_GetVarX(*insptr++);
                     A_SpawnCeilingGlass(vm.spriteNum, sectNum, numShards);
+#else
+                    Gv_GetVarX(*insptr++);
+                    Gv_GetVarX(*insptr++);
+#endif
                 }
                 continue;
 
@@ -4019,7 +4039,9 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                 continue;
 
             case CON_GUTS:
+#ifndef EDUKE32_STANDALONE
                 A_DoGuts(vm.spriteNum, *(insptr + 1), *(insptr + 2));
+#endif
                 insptr += 3;
                 continue;
 

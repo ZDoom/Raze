@@ -7036,6 +7036,7 @@ int G_DoMoveThings(void)
     return 0;
 }
 
+#ifndef EDUKE32_STANDALONE
 void A_SpawnWallGlass(int spriteNum, int wallNum, int glassCnt)
 {
     if (wallNum < 0)
@@ -7147,6 +7148,7 @@ void A_SpawnRandomGlass(int spriteNum, int wallNum, int glassCnt)
         sprite[k].pal = krand() & 7;
     }
 }
+#endif
 
 static void G_SetupGameButtons(void)
 {
