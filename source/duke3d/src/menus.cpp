@@ -148,12 +148,12 @@ static void Menu_DrawCursorCommon(int32_t x, int32_t y, int32_t z, int32_t picnu
 }
 static void Menu_DrawCursorLeft(int32_t x, int32_t y, int32_t z)
 {
-    if (KXDWN) return;
+    if (IONMAIDEN) return;
     Menu_DrawCursorCommon(x, y, z, VM_OnEventWithReturn(EVENT_MENUCURSORLEFT, -1, myconnectindex, SPINNINGNUKEICON+((totalclock>>3)%7)));
 }
 static void Menu_DrawCursorRight(int32_t x, int32_t y, int32_t z)
 {
-    if (KXDWN) return;
+    if (IONMAIDEN) return;
     Menu_DrawCursorCommon(x, y, z, VM_OnEventWithReturn(EVENT_MENUCURSORRIGHT, -1, myconnectindex, SPINNINGNUKEICON+6-((6+(totalclock>>3))%7)));
 }
 static void Menu_DrawCursorTextTile(int32_t x, int32_t y, int32_t h, int32_t picnum, vec2s_t const & siz, int32_t ydim_upper = 0, int32_t ydim_lower = ydim-1)
@@ -165,7 +165,7 @@ static void Menu_DrawCursorText(int32_t x, int32_t y, int32_t h, int32_t ydim_up
 {
     vec2s_t const & siz = tilesiz[SPINNINGNUKEICON];
 
-    if (KXDWN || siz.x == 0)
+    if (IONMAIDEN || siz.x == 0)
     {
         Menu_DrawCursorTextTile(x, y, h, SMALLFNTCURSOR, tilesiz[SMALLFNTCURSOR], ydim_upper, ydim_lower);
         return;
@@ -1828,7 +1828,7 @@ void Menu_Init(void)
         ME_SOUND_DUKETALK.name = "Grunt talk:";
 #endif
 
-    if (KXDWN)
+    if (IONMAIDEN)
     {
         MF_Redfont.between.x = 2<<16;
         MF_Redfont.cursorScale = 32768;
@@ -2135,7 +2135,7 @@ static void Menu_PreDrawBackground(MenuID_t cm, const vec2_t origin)
 
     case MENU_LOAD:
     case MENU_SAVE:
-        if (KXDWN)
+        if (IONMAIDEN)
             break;
         fallthrough__;
     case MENU_CREDITS4:
@@ -3860,7 +3860,7 @@ int32_t Menu_Anim_SinInLeft(MenuAnimation_t *animdata)
 
 void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype)
 {
-    if (KXDWN)
+    if (IONMAIDEN)
     {
         m_animation.start  = 0;
         m_animation.length = 0;
@@ -3988,17 +3988,17 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
     switch (m->menuID)
     {
     case MENU_MAIN:
-        if (KXDWN)
+        if (IONMAIDEN)
             ME_MAIN_LOADGAME.name = s_Continue;
         break;
 
     case MENU_MAIN_INGAME:
-        if (KXDWN)
+        if (IONMAIDEN)
             ME_MAIN_LOADGAME.name = s_LoadGame;
         break;
 
     case MENU_LOAD:
-        if (KXDWN)
+        if (IONMAIDEN)
             M_LOAD.title = (g_player[myconnectindex].ps->gm & MODE_GAME) ? s_LoadGame : s_Continue;
 
         Menu_LoadReadHeaders();
@@ -4164,7 +4164,7 @@ int Menu_Change(MenuID_t cm)
     else
         return 1;
 
-    if (KXDWN)
+    if (IONMAIDEN)
     {
         Menu_t * parent = m_currentMenu, * result = NULL;
 
@@ -4398,7 +4398,7 @@ static void Menu_GetFmt(const MenuFont_t *font, uint8_t const status, int32_t *s
     if (status & MT_Disabled)
         s += font->shade_disabled;
 
-    if (KXDWN && status & MT_Selected)
+    if (IONMAIDEN && status & MT_Selected)
         *z += (*z >> 4);
 }
 
@@ -6827,7 +6827,7 @@ void M_DisplayMenus(void)
 
     // need EVENT_DISPLAYMENUBACKGROUND here
 
-    if (!KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && backgroundOK)
+    if (!IONMAIDEN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2) && backgroundOK)
         videoFadeToBlack(1);
 
     if (Menu_UpdateScreenOK(g_currentMenu))
@@ -6874,7 +6874,7 @@ void M_DisplayMenus(void)
     }
 
     // hack; need EVENT_DISPLAYMENUBACKGROUND above
-    if (KXDWN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2 || m_parentMenu != NULL) && backgroundOK)
+    if (IONMAIDEN && ((g_player[myconnectindex].ps->gm&MODE_GAME) || ud.recstat==2 || m_parentMenu != NULL) && backgroundOK)
         videoFadeToBlack(1);
 
     // Display the menu, with a transition animation if applicable.
@@ -6962,7 +6962,7 @@ void M_DisplayMenus(void)
 
             auto const oyxaspect = yxaspect;
             int32_t alpha;
-            if (KXDWN)
+            if (IONMAIDEN)
             {
                 renderSetAspect(viewingrange, 65536);
                 cursorpos.x = scale(cursorpos.x - (320<<15), ydim << 2, xdim * 3) + (320<<15);
@@ -6979,7 +6979,7 @@ void M_DisplayMenus(void)
 
             rotatesprite_fs_alpha(cursorpos.x, cursorpos.y, z, 0, a, 0, p, o, alpha);
 
-            if (KXDWN)
+            if (IONMAIDEN)
                 renderSetAspect(viewingrange, oyxaspect);
         }
     }

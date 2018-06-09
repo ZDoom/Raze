@@ -30,7 +30,8 @@ extern int g_useCwd;
 #define GAMEFLAG_ADDON      0x00000010
 #define GAMEFLAG_SHAREWARE  0x00000020
 #define GAMEFLAG_DUKEBETA   0x00000060 // includes 0x20 since it's a shareware beta
-#define GAMEFLAG_KXDWN      0x00000080
+#define GAMEFLAG_IONMAIDEN  0x00000080
+#define GAMEFLAG_STANDALONE 0x00000100
 #define GAMEFLAGMASK        0x000000FF // flags allowed from grpinfo
 
 extern struct grpfile_t const *g_selectedGrp;
@@ -45,7 +46,7 @@ extern int     g_addonNum;
 #define NAM_WW2GI           (g_gameType & (GAMEFLAG_NAM|GAMEFLAG_WW2GI))
 #define SHAREWARE           (g_gameType & GAMEFLAG_SHAREWARE)
 #define DUKEBETA            ((g_gameType & GAMEFLAG_DUKEBETA) == GAMEFLAG_DUKEBETA)
-#define KXDWN               (g_gameType & GAMEFLAG_KXDWN)
+#define IONMAIDEN           (g_gameType & GAMEFLAG_IONMAIDEN)
 
 enum Games_t {
     GAME_DUKE = 0,
