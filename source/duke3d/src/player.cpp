@@ -119,7 +119,7 @@ void P_QuickKill(DukePlayer_t * const pPlayer)
 #endif
 }
 
-static void A_DoWaterTracers(vec3_t startPos, vec3_t const *endPos, int n, int16_t sectNum)
+static void Proj_DoWaterTracers(vec3_t startPos, vec3_t const *endPos, int n, int16_t sectNum)
 {
     if ((klabs(startPos.x - endPos->x) + klabs(startPos.y - endPos->y)) < 3084)
         return;
@@ -138,10 +138,8 @@ static void A_DoWaterTracers(vec3_t startPos, vec3_t const *endPos, int n, int16
         if (sectNum < 0)
             break;
 
-        if (sector[sectNum].lotag == ST_2_UNDERWATER)
-            A_InsertSprite(sectNum,startPos.x,startPos.y,startPos.z,WATERBUBBLE,-32,4+(krand()&3),4+(krand()&3),krand()&2047,0,0,g_player[0].ps->i,5);
-        else
-            A_InsertSprite(sectNum,startPos.x,startPos.y,startPos.z,SMALLSMOKE,-32,14,14,0,0,0,g_player[0].ps->i,5);
+        A_InsertSprite(sectNum, startPos.x, startPos.y, startPos.z, WATERBUBBLE, -32, 4 + (krand() & 3), 4 + (krand() & 3), krand() & 2047, 0, 0,
+                       g_player[0].ps->i, 5);
     }
 }
 
@@ -887,7 +885,7 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
         if (pProj->workslike & PROJECTILE_WATERBUBBLES)
         {
             if ((krand() & 15) == 0 && sector[hitData.sect].lotag == ST_2_UNDERWATER)
-                A_DoWaterTracers(hitData.pos, startPos, 8 - (ud.multimode >> 1), pSprite->sectnum);
+                Proj_DoWaterTracers(hitData.pos, startPos, 8 - (ud.multimode >> 1), pSprite->sectnum);
         }
 
         if (playerNum >= 0)
@@ -1166,7 +1164,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
                 return -1;
 
             if ((krand() & 15) == 0 && sector[hitData.sect].lotag == ST_2_UNDERWATER)
-                A_DoWaterTracers(hitData.pos, &startPos, 8 - (ud.multimode >> 1), pSprite->sectnum);
+                Proj_DoWaterTracers(hitData.pos, &startPos, 8 - (ud.multimode >> 1), pSprite->sectnum);
 
             int spawnedSprite;
 
