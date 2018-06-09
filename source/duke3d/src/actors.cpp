@@ -7464,30 +7464,49 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             for (SPRITES_OF_SECT_SAFE(pSprite->sectnum, j, nextj))
             {
-                if (sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PLAYER)
+                if (sprite[j].statnum != STAT_EFFECTOR && sprite[j].statnum != STAT_PLAYER && sprite[j].statnum != STAT_PROJECTILE)
                 {
                     actor[j].bpos.x = sprite[j].x;
                     actor[j].bpos.y = sprite[j].y;
 
                     sprite[j].x += l;
                     sprite[j].y += x;
-
                     sprite[j].z += pSprite->zvel;
-                    setsprite(j,(vec3_t *)&sprite[j]);
+
+                    setsprite(j, (vec3_t *)&sprite[j]);
                 }
             }
 
             for (TRAVERSE_CONNECT(p))
             {
-                DukePlayer_t *const ps = g_player[p].ps;
+                DukePlayer_t *const pPlayer = g_player[p].ps;
 
-                if (sprite[ps->i].sectnum == pSprite->sectnum && ps->on_ground)
+                if (pSprite->sectnum == sprite[pPlayer->i].sectnum && pPlayer->on_ground)
                 {
-                    ps->fric.x += l<<5;
-                    ps->fric.y += x<<5;
-                    ps->pos.z += pSprite->zvel;
+                    pPlayer->pos.x += l;
+                    pPlayer->pos.y += x;
+                    pPlayer->pos.z += pSprite->zvel;
+
+                    updatesector(pPlayer->pos.x, pPlayer->pos.y, &pPlayer->cursectnum);
+                    changespritesect(pPlayer->i, pPlayer->cursectnum);
+
+                    pPlayer->bobpos.x += l;
+                    pPlayer->bobpos.y += x;
+
+                    if (g_netServer || numplayers > 1)
+                    {
+                        pPlayer->opos.x = pPlayer->pos.x;
+                        pPlayer->opos.y = pPlayer->pos.y;
+                    }
+
+                    if (sprite[pPlayer->i].extra <= 0)
+                    {
+                        sprite[pPlayer->i].x = pPlayer->pos.x;
+                        sprite[pPlayer->i].y = pPlayer->pos.y;
+                    }
                 }
             }
+
             A_MoveSector(spriteNum);
             setsprite(spriteNum,(vec3_t *)pSprite);
 
