@@ -476,6 +476,7 @@ int32_t Anim_Play(const char *fn)
     gltexapplyprops();
 #endif
 
+    timerUpdate();
     ototalclock = totalclock;
 
     i = 1;
