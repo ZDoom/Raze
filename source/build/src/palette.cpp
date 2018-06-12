@@ -655,7 +655,9 @@ void paletteSetColorTable(int32_t id, uint8_t const * const table)
 
     Bmemcpy(basepaltable[id], table, 768);
 
+#ifdef USE_OPENGL
     uploadbasepalette(id);
+#endif
 }
 
 void paletteFreeColorTable(int32_t const id)
