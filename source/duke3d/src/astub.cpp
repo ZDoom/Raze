@@ -63,6 +63,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern const char *s_buildRev;
 extern const char *s_buildTimestamp;
 
+extern int32_t globalpal;
+
 #include <signal.h>
 
 // Workaround for namespace pollution in <sys/stat.h> introduced in MinGW 4.8.
