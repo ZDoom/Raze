@@ -1605,9 +1605,6 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
         if (nogl)
             return -1;
 
-#ifdef _WIN32
-        win_setvideomode(c);
-#endif
         struct glattribs
         {
             SDL_GLattr attr;
