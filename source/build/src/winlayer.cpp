@@ -128,7 +128,7 @@ static GUID                  guidDevs;
 char di_disabled = 0;
 static char di_devacquired;
 static HANDLE di_inputevt = 0;
-static int32_t joyblast=0;
+//static int32_t joyblast=0;
 
 static struct
 {
@@ -685,8 +685,6 @@ int32_t handleevents(void)
 //
 int32_t initinput(void)
 {
-    int32_t i;
-
     Win_GetOriginalLayoutName();
     Win_SetKeyboardLayoutUS(1);
 
@@ -860,7 +858,8 @@ void releaseallbuttons(void)
         for (i=0; i<32; i++)
             if (joystick.bits & (1<<i)) joystick.pCallback(i+1, 0);
     }
-    joystick.bits = joyblast = 0;
+    joystick.bits = 0;
+    //joyblast = 0;
 
     for (i=0; i<NUMKEYS; i++)
     {
@@ -889,7 +888,7 @@ static BOOL CALLBACK InitDirectInput_enum(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRe
         return DIENUM_CONTINUE;
 
     inputdevices |= 4;
-    d = "CONTROLLER"
+    d = "CONTROLLER";
     Bmemcpy(&guidDevs, &lpddi->guidInstance, sizeof(GUID));
 
     initprintf("    * %s: %s\n", d, lpddi->tszProductName);
@@ -2703,14 +2702,23 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
             ReleaseOpenGL();
             return TRUE;
 #ifdef POLYMER
-        } else if (loadglulibrary(getenv("BUILD_GLULIB")))
+        }
+        else if (loadglulibrary(getenv("BUILD_GLULIB")))
         {
             initprintf("Failure loading GLU. GL modes are unavailable.\n");
                         nogl = 1;
                         ReleaseOpenGL();
                         return TRUE;
 #endif
-        } else
+        }
+        else if (GLVersion.major < 2)
+        {
+            initprintf("Your computer does not support OpenGL version 2 or greater. GL modes are unavailable.\n");
+            nogl = 1;
+            ReleaseOpenGL();
+            return TRUE;
+        }
+        else
         {
             glLoaded = 1;
         }

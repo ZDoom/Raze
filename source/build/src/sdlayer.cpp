@@ -1646,6 +1646,13 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
             }
 
             gladLoadGLLoader(SDL_GL_GetProcAddress);
+            if (GLVersion.major < 2)
+            {
+                initprintf("Your computer does not support OpenGL version 2 or greater. GL modes are unavailable.\n");
+                nogl = 1;
+                destroy_window_resources();
+                return -1;
+            }
 
             SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
             SDL_GL_SetSwapInterval(vsync_renderlayer);

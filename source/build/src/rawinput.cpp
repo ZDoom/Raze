@@ -10,7 +10,7 @@
 static BOOL rawinput_started = 0;
 static uint8_t KeyboardState[256] = {0}; // VKeys
 
-extern uint8_t g_mouseEnabled, g_mouseGrabbed;
+extern bool g_mouseEnabled, g_mouseGrabbed;
 extern void keySetState(int32_t key, int32_t state);
 
 //#define MASK_DOWN (1<<(i<<1))
