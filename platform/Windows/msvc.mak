@@ -161,6 +161,7 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\hash.$o \
 	$(ENGINE_OBJ)\palette.$o \
         $(ENGINE_OBJ)\glbuild.$o \
+	$(ENGINE_OBJ)\glsurface.$o \
         $(ENGINE_OBJ)\texcache.$o \
         $(ENGINE_OBJ)\kplib.$o \
         $(ENGINE_OBJ)\hightile.$o \
@@ -168,6 +169,7 @@ ENGINE_OBJS= \
         $(ENGINE_OBJ)\polymer.$o \
         $(ENGINE_OBJ)\mdsprite.$o \
         $(ENGINE_OBJ)\voxmodel.$o \
+	$(ENGINE_OBJ)\tilepacker.$o \
 	$(ENGINE_OBJ)\dxtfilter.$o \
 	$(ENGINE_OBJ)\textfont.$o \
 	$(ENGINE_OBJ)\smalltextfont.$o \

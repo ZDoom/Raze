@@ -107,6 +107,7 @@
     <ClInclude Include="..\..\source\build\include\fix16.hpp" />
     <ClInclude Include="..\..\source\build\include\fix16_int64.h" />
     <ClInclude Include="..\..\source\build\include\glbuild.h" />
+    <ClInclude Include="..\..\source\build\include\glsurface.h" />
     <ClInclude Include="..\..\source\build\include\gtkbits.h" />
     <ClInclude Include="..\..\source\build\include\hash.h" />
     <ClInclude Include="..\..\source\build\include\hightile.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="..\..\source\build\include\sdl_inc.h" />
     <ClInclude Include="..\..\source\build\include\startwin.editor.h" />
     <ClInclude Include="..\..\source\build\include\texcache.h" />
+    <ClInclude Include="..\..\source\build\include\tilepacker.h" />
     <ClInclude Include="..\..\source\build\include\tracker.hpp" />
     <ClInclude Include="..\..\source\build\include\tracker_operator.hpp" />
     <ClInclude Include="..\..\source\build\include\tracker_operators.hpp" />
@@ -269,6 +271,7 @@
     <ClCompile Include="..\..\source\build\src\fix16.c" />
     <ClCompile Include="..\..\source\build\src\fix16_str.c" />
     <ClCompile Include="..\..\source\build\src\glbuild.cpp" />
+    <ClCompile Include="..\..\source\build\src\glsurface.cpp" />
     <ClCompile Include="..\..\source\build\src\gtkbits.cpp" />
     <ClCompile Include="..\..\source\build\src\hash.cpp" />
     <ClCompile Include="..\..\source\build\src\hightile.cpp" />
@@ -301,6 +304,7 @@
     <ClCompile Include="..\..\source\build\src\startwin.editor.cpp" />
     <ClCompile Include="..\..\source\build\src\texcache.cpp" />
     <ClCompile Include="..\..\source\build\src\textfont.cpp" />
+    <ClCompile Include="..\..\source\build\src\tilepacker.cpp" />
     <ClCompile Include="..\..\source\build\src\tiles.cpp" />
     <ClCompile Include="..\..\source\build\src\voxmodel.cpp" />
     <ClCompile Include="..\..\source\build\src\wiibits.cpp" />

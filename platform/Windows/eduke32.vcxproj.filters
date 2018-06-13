@@ -573,6 +573,12 @@
     <ClInclude Include="..\..\source\build\include\fix16_int64.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\build\include\glsurface.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\build\include\tilepacker.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\build\src\a-c.cpp">
@@ -1018,6 +1024,12 @@
     </ClCompile>
     <ClCompile Include="..\..\source\audiolib\src\xmp.cpp">
       <Filter>audiolib\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\glsurface.cpp">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\tilepacker.cpp">
+      <Filter>build\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

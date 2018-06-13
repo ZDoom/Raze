@@ -21,6 +21,7 @@ $(ENGINE_OBJ)/mhk.$o: $(ENGINE_SRC)/mhk.cpp
 $(ENGINE_OBJ)/palette.$o: $(ENGINE_SRC)/palette.cpp $(ENGINE_INC)/palette.h
 $(ENGINE_OBJ)/polymost.$o: $(ENGINE_SRC)/polymost.cpp $(ENGINE_INC)/lz4.h $(ENGINE_INC)/compat.h $(ENGINE_INC)/build.h $(ENGINE_INC)/buildtypes.h $(ENGINE_SRC)/engine_priv.h $(ENGINE_INC)/polymost.h $(ENGINE_INC)/hightile.h $(ENGINE_INC)/mdsprite.h $(ENGINE_INC)/texcache.h
 $(ENGINE_OBJ)/texcache.$o: $(ENGINE_SRC)/texcache.cpp $(ENGINE_INC)/texcache.h $(ENGINE_INC)/polymost.h $(ENGINE_INC)/dxtfilter.h $(ENGINE_INC)/kplib.h
+$(ENGINE_OBJ)/tilepacker.$o: $(ENGINE_SRC)/tilepacker.cpp  $(ENGINE_INC)/compat.h $(ENGINE_INC)/build.h $(ENGINE_INC)/tilepacker.h
 $(ENGINE_OBJ)/dxtfilter.$o: $(ENGINE_SRC)/dxtfilter.cpp $(ENGINE_INC)/dxtfilter.h $(ENGINE_INC)/texcache.h
 $(ENGINE_OBJ)/hightile.$o: $(ENGINE_SRC)/hightile.cpp $(ENGINE_INC)/kplib.h $(ENGINE_INC)/hightile.h
 $(ENGINE_OBJ)/voxmodel.$o: $(ENGINE_SRC)/voxmodel.cpp $(ENGINE_SRC)/engine_priv.h $(ENGINE_INC)/polymost.h $(ENGINE_INC)/hightile.h $(ENGINE_INC)/mdsprite.h $(ENGINE_INC)/texcache.h
@@ -28,6 +29,7 @@ $(ENGINE_OBJ)/mdsprite.$o: $(ENGINE_SRC)/mdsprite.cpp $(ENGINE_SRC)/engine_priv.
 $(ENGINE_OBJ)/textfont.$o: $(ENGINE_SRC)/textfont.cpp
 $(ENGINE_OBJ)/smalltextfont.$o: $(ENGINE_SRC)/smalltextfont.cpp
 $(ENGINE_OBJ)/glbuild.$o: $(ENGINE_SRC)/glbuild.cpp $(ENGINE_INC)/glbuild.h $(ENGINE_INC)/baselayer.h $(GLAD_INC)/glad/glad.h
+$(ENGINE_OBJ)/glsurface.$o: $(ENGINE_SRC)/glsurface.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/palette.h $(ENGINE_INC)/glsurface.h $(GLAD_INC)/glad/glad.h $(ENGINE_INC)/baselayer.h $(ENGINE_INC)/build.h
 $(ENGINE_OBJ)/kplib.$o: $(ENGINE_SRC)/kplib.cpp $(ENGINE_INC)/compat.h $(ENGINE_INC)/kplib.h
 $(ENGINE_OBJ)/md4.$o: $(ENGINE_SRC)/md4.cpp $(ENGINE_INC)/md4.h
 $(ENGINE_OBJ)/lz4.$o: $(ENGINE_SRC)/lz4.c $(ENGINE_INC)/lz4.h
