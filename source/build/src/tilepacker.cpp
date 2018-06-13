@@ -33,6 +33,7 @@ TreeNode rejectQueue[MAX_REJECTS];
 uint32_t rejectQueueHeadIndex = 0;
 uint32_t numRejected = 0;
 
+#if 0
 static void maxheap_bubbleUp(uint32_t nodeIndex)
 {
     while (true)
@@ -56,6 +57,7 @@ static void maxheap_bubbleUp(uint32_t nodeIndex)
         nodeIndex = parentIndex;
     }
 }
+#endif
 
 static void maxheap_bubbleDown(uint32_t nodeIndex)
 {
@@ -85,6 +87,14 @@ static void maxheap_bubbleDown(uint32_t nodeIndex)
         nodes[largestChildIndex] = temp;
 
         nodeIndex = largestChildIndex;
+    }
+}
+
+static void maxheap_buildHeap()
+{
+    for (int i = (heapNodes-2)/2; i >= 0; --i)
+    {
+        maxheap_bubbleDown(i);
     }
 }
 
@@ -300,7 +310,6 @@ void tilepacker_addTile(uint32_t tileUID, uint32_t tileWidth, uint32_t tileHeigh
                         (TreeNode*) 0,
                         {0, 0, tileWidth, tileHeight},
                         tileUID);
-    maxheap_bubbleUp(heapNodes-1);
 }
 
 char tilepacker_pack(uint32_t tilesheetID)
@@ -319,6 +328,8 @@ char tilepacker_pack(uint32_t tilesheetID)
             rejectQueue_add(pNode);
         }
     }
+
+    maxheap_buildHeap();
     for (TreeNode *pNode = maxheap_pop(); pNode != NULL; pNode = maxheap_pop())
     {
         char success = kdtree_add(tilesheetID, pNode);
