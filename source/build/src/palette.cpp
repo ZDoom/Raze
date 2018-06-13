@@ -8,6 +8,10 @@
 #include "a.h"
 #include "xxhash.h"
 
+#ifdef USE_OPENGL
+# include "glsurface.h"
+#endif
+
 uint8_t *basepaltable[MAXBASEPALS] = { palette };
 uint8_t basepalreset=1;
 uint8_t curbasepal;
@@ -656,7 +660,14 @@ void paletteSetColorTable(int32_t id, uint8_t const * const table)
     Bmemcpy(basepaltable[id], table, 768);
 
 #ifdef USE_OPENGL
-    uploadbasepalette(id);
+    if (videoGetRenderMode() == REND_CLASSIC)
+    {
+        glsurface_setPalette(id, basepaltable[id]);
+    }
+    else if (videoGetRenderMode() >= REND_POLYMOST)
+    {
+        uploadbasepalette(id);
+    }
 #endif
 }
 

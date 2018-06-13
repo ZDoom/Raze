@@ -23,6 +23,7 @@
 
 #ifdef USE_OPENGL
 # include "glad/glad.h"
+# include "glsurface.h"
 # include "mdsprite.h"
 # ifdef POLYMER
 #  include "polymer.h"
@@ -9898,6 +9899,11 @@ int32_t videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32
 #ifdef USE_OPENGL
     fxdim = (float) daxdim;
     fydim = (float) daydim;
+
+    if (videoGetRenderMode() == REND_CLASSIC && !nogl)
+    {
+        glsurface_initialize({xdim, ydim});
+    }
 #endif
 
     videoAllocateBuffers();

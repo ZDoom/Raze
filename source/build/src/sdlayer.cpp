@@ -16,6 +16,7 @@
 #ifdef USE_OPENGL
 # include "glad/glad.h"
 # include "glbuild.h"
+# include "glsurface.h"
 #endif
 
 #if defined _WIN32
@@ -1300,6 +1301,7 @@ static void destroy_window_resources()
 #ifdef USE_OPENGL
 void sdlayer_setvideomode_opengl(void)
 {
+    glsurface_destroy();
     polymost_glreset();
 
     glEnable(GL_TEXTURE_2D);
@@ -1447,8 +1449,13 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
     while (lockcount) videoEndDrawing();
 
 #ifdef USE_OPENGL
-    if (bpp > 8 && sdl_surface)
-        polymost_glreset();
+    if (sdl_surface)
+    {
+        if (bpp > 8)
+            polymost_glreset();
+        else if (!nogl)
+            glsurface_destroy();
+    }
 #endif
 
     // clear last gamma/contrast/brightness so that it will be set anew
@@ -1462,7 +1469,7 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
     wm_setapptitle(apptitle);
 
 #ifdef USE_OPENGL
-    if (c > 8)
+    if (!nogl)
         sdlayer_setvideomode_opengl();
 #endif
 
@@ -1587,7 +1594,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
     initprintf("Setting video mode %dx%d (%d-bpp %s)\n", x, y, c, ((fs & 1) ? "fullscreen" : "windowed"));
 
 #ifdef USE_OPENGL
-    if (c > 8)
+    if (c > 8 || !nogl)
     {
         int32_t i, j;
 #ifdef USE_GLEXT
@@ -1722,6 +1729,19 @@ void videoBeginDrawing(void)
         modechange = 0;
         return;
     }
+    else if (!nogl)
+    {
+        if (offscreenrendering) return;
+
+        frameplace = (intptr_t)glsurface_getBuffer();
+        if (modechange)
+        {
+            bytesperline = xdim;
+            calc_ylookup(bytesperline, ydim);
+            modechange=0;
+        }
+        return;
+    }
 
     // lock the frame
     if (lockcount++ > 0)
@@ -1748,7 +1768,7 @@ void videoBeginDrawing(void)
 //
 void videoEndDrawing(void)
 {
-    if (bpp > 8)
+    if (bpp > 8 || !nogl)
     {
         if (!offscreenrendering) frameplace = 0;
         return;
@@ -1783,14 +1803,21 @@ void videoShowFrame(int32_t w)
 #endif
 
 #ifdef USE_OPENGL
-    if (bpp > 8)
+    if (!nogl)
     {
-        if (palfadedelta)
-            fullscreen_tint_gl(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
+        if (bpp > 8)
+        {
+            if (palfadedelta)
+                fullscreen_tint_gl(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
 
 #ifdef __ANDROID__
-        AndroidDrawControls();
+            AndroidDrawControls();
 #endif
+        }
+        else
+        {
+            glsurface_blitBuffer(curbasepal);
+        }
 
         static uint32_t lastSwapTime = 0;
         SDL_GL_SwapWindow(sdl_window);
