@@ -27,7 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cmdline.h"
 
 #ifdef __ANDROID__
-#include "android.h"
+# include "android.h"
+#endif
+
+#if defined RENDERTYPESDL && defined SDL_TARGET && SDL_TARGET > 1
+# include "sdl_inc.h"
 #endif
 
 // we load this in to get default button and key assignments
@@ -133,9 +137,6 @@ void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
     }
 }
 
-#if defined SDL_TARGET && SDL_TARGET > 1
-# include "sdl_inc.h"
-#endif
 
 void CONFIG_SetDefaults(void)
 {
