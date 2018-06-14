@@ -218,6 +218,7 @@ engine_tools_objs := \
     cache1d.cpp \
     crc32.cpp \
     colmatch.cpp \
+    lz4.cpp \
 
 ifeq (0,$(NOASM))
   engine_objs += a.nasm

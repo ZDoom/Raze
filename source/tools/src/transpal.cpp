@@ -26,7 +26,7 @@ static char getshade(char dashade, char dacol)
     r = ((ptr[0]*t+32768)>>16);
     g = ((ptr[1]*t+32768)>>16);
     b = ((ptr[2]*t+32768)>>16);
-    return(getclosestcol(r,g,b));
+    return(paletteGetClosestColor(r,g,b));
 }
 
 static char gettrans(char dat1, char dat2, int datransratio)
@@ -39,7 +39,7 @@ static char gettrans(char dat1, char dat2, int datransratio)
     r = ptr[0]; r += (((ptr2[0]-r)*datransratio+128)>>8);
     g = ptr[1]; g += (((ptr2[1]-g)*datransratio+128)>>8);
     b = ptr[2]; b += (((ptr2[2]-b)*datransratio+128)>>8);
-    return(getclosestcol(r,g,b));
+    return(paletteGetClosestColor(r,g,b));
 }
 
 int main(int argc, char **argv)
