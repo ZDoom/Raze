@@ -156,7 +156,7 @@ void CONFIG_SetDefaults(void)
     ud.config.ScreenWidth = droidinfo.screen_width;
     ud.config.ScreenHeight = droidinfo.screen_height;
 #else
-# if defined SDL_MAJOR_VERSION && SDL_MAJOR_VERSION > 1
+# if defined RENDERTYPESDL && SDL_MAJOR_VERSION > 1
     uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
     if (inited == 0)
         SDL_Init(SDL_INIT_VIDEO);
