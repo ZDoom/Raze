@@ -19,6 +19,8 @@ void initprintf(const char *f, ...)
     va_end(va);
 }
 
+int initputs (const char * str) { return puts(str); }
+
 int16_t editstatus = 1;
 
 #ifdef __cplusplus
