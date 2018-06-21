@@ -1226,7 +1226,7 @@ ACTOR_STATIC void G_MovePlayers(void)
                 pSprite->y              = pPlayer->opos.y;
                 pSprite->z              = pPlayer->opos.z + PHEIGHT;
                 actor[spriteNum].bpos.z = pSprite->z;
-                pSprite->ang            = fix16_from_int(pPlayer->oq16ang);
+                pSprite->ang            = fix16_to_int(pPlayer->oq16ang);
 
                 setsprite(spriteNum, (vec3_t *)pSprite);
             }
