@@ -9890,7 +9890,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32
 
 #ifdef USE_OPENGL
     if (dabpp > 8) rendmode = glrendmode;    // GL renderer
-    else if (dabpp == 8 && j > 8) rendmode = REND_CLASSIC;
+    else rendmode = REND_CLASSIC;
 #endif
 
     xdim = daxdim;
@@ -12759,19 +12759,21 @@ void videoSet2dMode(int32_t daxdim, int32_t daydim)
         ydim = yres;
 
 #ifdef USE_OPENGL
+        extern char nogl;
+
         fxdim = (float) xres;
         fydim = (float) yres;
-#endif
 
+        if (!nogl)
+            glsurface_initialize({ xres, yres });
+#endif
         videoAllocateBuffers();
 
         ydim16 = yres - STATUS2DSIZ2;
         halfxdim16 = xres >> 1;
         midydim16 = ydim16 >> 1; // scale(200,yres,480);
 
-        videoBeginDrawing(); //{{{
-        Bmemset((char *)frameplace, 0, yres*bytesperline);
-        videoEndDrawing();   //}}}
+        videoClearScreen(0L);
     }
 
     qsetmode = ((daxdim<<16)|(daydim&0xffff));
