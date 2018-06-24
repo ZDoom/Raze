@@ -46,10 +46,10 @@ static GLuint compileShader(GLenum shaderType, const char* const source)
         glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
         if (logLength > 0)
         {
-            char *infoLog = (char*) malloc(logLength);
+            char *infoLog = (char*) Bmalloc(logLength);
             glGetShaderInfoLog(shaderID, logLength, &logLength, infoLog);
             OSD_Printf("Log:\n%s\n", infoLog);
-            free(infoLog);
+            Bfree(infoLog);
         }
     }
 
@@ -64,7 +64,7 @@ bool glsurface_initialize(vec2_t inputBufferResolution)
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     bufferRes = inputBufferResolution;
-    buffer = malloc(bufferRes.x*bufferRes.y);
+    buffer    = Xaligned_alloc(16, bufferRes.x * bufferRes.y);
 
     glGenBuffers(1, &quadVertsID);
     glBindBuffer(GL_ARRAY_BUFFER, quadVertsID);
@@ -168,8 +168,7 @@ void glsurface_destroy()
     if (!buffer)
         return;
 
-    free(buffer);
-    buffer = 0;
+    ALIGNED_FREE_AND_NULL(buffer);
 
     glDeleteBuffers(1, &quadVertsID);
     quadVertsID = 0;
