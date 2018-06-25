@@ -85,6 +85,7 @@ bool glsurface_initialize(vec2_t inputBufferResolution)
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
+    glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &bufferTexID);
     glBindTexture(GL_TEXTURE_2D, bufferTexID);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);

@@ -769,7 +769,7 @@ int app_main(int argc, char const * const * argv)
         g_videoBrightness = 0.0;
 
         videoSetPalette(0,0,0);
-        if (videoSetGameMode(fullscreen, xdim2d, ydim2d, bppgame) < 0)
+        if (videoSetGameMode(fullscreen, xdim2d, ydim2d, 8) < 0)
         {
             CallExtUnInit();
             engineUnInit();
