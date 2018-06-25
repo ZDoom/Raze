@@ -1820,7 +1820,7 @@ void videoShowFrame(int32_t w)
         }
         else
         {
-            glsurface_blitBuffer(curbasepal);
+            glsurface_blitBuffer();
         }
 
         static uint32_t lastSwapTime = 0;

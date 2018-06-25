@@ -660,11 +660,7 @@ void paletteSetColorTable(int32_t id, uint8_t const * const table)
     Bmemcpy(basepaltable[id], table, 768);
 
 #ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_CLASSIC)
-    {
-        glsurface_setPalette(id, basepaltable[id]);
-    }
-    else if (videoGetRenderMode() >= REND_POLYMOST)
+    if (videoGetRenderMode() >= REND_POLYMOST)
     {
         uploadbasepalette(id);
     }
@@ -746,6 +742,7 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 
     if (palsumdidchange || newpalettesum != g_lastpalettesum)
     {
+        glsurface_setPalette(curpalettefaded);
         //            if ((flags&1) == 0)
         videoUpdatePalette(0, 256);
     }
@@ -828,7 +825,10 @@ void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
     uint32_t newpalettesum = XXH32((uint8_t *) curpalettefaded, sizeof(curpalettefaded), sizeof(curpalettefaded));
 
     if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
+    {
+        glsurface_setPalette(curpalettefaded);
         videoUpdatePalette(0, 256);
+    }
 
     g_lastpalettesum = lastpalettesum = newpalettesum;
 }
