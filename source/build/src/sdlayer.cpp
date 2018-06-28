@@ -1733,10 +1733,15 @@ void videoBeginDrawing(void)
         modechange = 0;
         return;
     }
-    else if (!nogl)
-    {
-        if (offscreenrendering) return;
 
+    // lock the frame
+    if (lockcount++ > 0)
+        return;
+
+    if (offscreenrendering) return;
+
+    if (!nogl)
+    {
         frameplace = (intptr_t)glsurface_getBuffer();
         if (modechange)
         {
@@ -1746,12 +1751,6 @@ void videoBeginDrawing(void)
         }
         return;
     }
-
-    // lock the frame
-    if (lockcount++ > 0)
-        return;
-
-    if (offscreenrendering) return;
 
     if (SDL_MUSTLOCK(sdl_buffersurface)) SDL_LockSurface(sdl_buffersurface);
     frameplace = (intptr_t)sdl_buffersurface->pixels;
@@ -1772,7 +1771,7 @@ void videoBeginDrawing(void)
 //
 void videoEndDrawing(void)
 {
-    if (bpp > 8 || !nogl)
+    if (bpp > 8)
     {
         if (!offscreenrendering) frameplace = 0;
         return;
@@ -1784,7 +1783,7 @@ void videoEndDrawing(void)
     if (lockcount == 0) return;
     lockcount = 0;
 
-    if (offscreenrendering) return;
+    if (offscreenrendering || !nogl) return;
 
     if (SDL_MUSTLOCK(sdl_buffersurface)) SDL_UnlockSurface(sdl_buffersurface);
 }
