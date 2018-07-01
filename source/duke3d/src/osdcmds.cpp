@@ -1411,7 +1411,7 @@ static int32_t osdcmd_kickban(osdfuncparm_t const * const parm)
 }
 #endif
 
-static int32_t osdcmd_sv_cleanup(osdfuncparm_t const * const UNUSED(parm))
+static int32_t osdcmd_purgesaves(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     G_DeleteOldSaves();
@@ -1784,8 +1784,6 @@ int32_t registerosdcommands(void)
     OSD_RegisterFunction("disconnect","disconnect: disconnects from the local multiplayer game", osdcmd_disconnect);
 #endif
 
-    OSD_RegisterFunction("sv_cleanup", "sv_cleanup: deletes obsolete and unreadable save files", osdcmd_sv_cleanup);
-
     for (i=0; i<NUMGAMEFUNCTIONS; i++)
     {
         char *t;
@@ -1831,6 +1829,8 @@ int32_t registerosdcommands(void)
 #endif
 
     OSD_RegisterFunction("printtimes", "printtimes: prints VM timing statistics", osdcmd_printtimes);
+
+    OSD_RegisterFunction("purgesaves", "purgesaves: deletes obsolete and unreadable save files", osdcmd_purgesaves);
 
     OSD_RegisterFunction("quicksave","quicksave: performs a quick save", osdcmd_quicksave);
     OSD_RegisterFunction("quickload","quickload: performs a quick load", osdcmd_quickload);
