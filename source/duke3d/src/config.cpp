@@ -209,7 +209,7 @@ void CONFIG_SetDefaults(void)
 #if defined GEKKO || defined __OPENDINGUX__
     ud.config.NumVoices = 32;
 #else
-    ud.config.NumVoices = 256;
+    ud.config.NumVoices = 64;
 #endif
     ud.config.ReverseStereo = 0;
     ud.auto_run = 1;
