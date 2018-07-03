@@ -571,9 +571,11 @@ void polymost_resetProgram()
             useShaderProgram(polymost1CurrentShaderProgramID);
         }
 
-        // ensure the palswapTexture is bound
+        // ensure that palswapTexture and paletteTexture[curbasepal] is bound
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, palswapTextureID);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, paletteTextureIDs[curbasepal]);
         glActiveTexture(GL_TEXTURE0);
     }
 }
@@ -666,6 +668,11 @@ static void polymost_setShade(int32_t shade)
 {
     if (currentShaderProgramID == polymost1CurrentShaderProgramID)
     {
+        if (!r_usetileshades || (globalflags & GLOBAL_NO_GL_TILESHADES))
+            shade = 0;
+        else
+            shade = getpalookup(r_usetileshades == 1, shade);
+
         static int32_t lastShade = 0;
         if (shade == lastShade)
         {
@@ -673,7 +680,7 @@ static void polymost_setShade(int32_t shade)
         }
 
         lastShade = shade;
-        polymost1Shade = getpalookup((r_usetileshades == 1 && !(globalflags & GLOBAL_NO_GL_TILESHADES)), shade)/((float) numshades);
+        polymost1Shade = shade/((float) numshades);
         glUniform1f(polymost1ShadeLoc, polymost1Shade);
     }
 }
@@ -1074,7 +1081,7 @@ void polymost_glinit()
              float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, u_shade)).r;\n\
              colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
              vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
-             float fogEnabled = c_one-u_usePalette*palettedColor.a;\n\
+             float fullbright = u_usePalette*palettedColor.a;\n\
              palettedColor.a = c_one-floor(color.r);\n\
              color = mix(color, palettedColor, u_usePalette);\n\
              \n\
@@ -1085,11 +1092,11 @@ void polymost_glinit()
              //color = texture2D(s_palette, gl_TexCoord[0].xy);\n\
              //color = texture2D(s_texture, gl_TexCoord[0].yx);\n\
              \n\
-             fogEnabled = min(u_fogEnabled, fogEnabled);\n\
-             float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, c_one-fogEnabled, c_one);\n\
-             //float fogFactor = clamp(gl_FogFragCoord, c_one-fogEnabled, c_one);\n\
+             color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);\n\
              \n\
-             color.rgb *= v_color.rgb;\n\
+             fullbright = max(c_one-u_fogEnabled, fullbright);\n\
+             float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, fullbright, c_one);\n\
+             //float fogFactor = clamp(gl_FogFragCoord, fullbright, c_one);\n\
              color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);\n\
              \n\
              color.a *= v_color.a;\n\
@@ -1147,7 +1154,7 @@ void polymost_glinit()
              float colorIndex = texture2D(s_palswap, u_palswapPos+u_palswapSize*vec2(color.r, u_shade)).r;\n\
              colorIndex = c_basepalOffset + c_basepalScale*colorIndex;\n\
              vec4 palettedColor = texture2D(s_palette, vec2(colorIndex, c_zero));\n\
-             float fogEnabled = c_one-u_usePalette*palettedColor.a;\n\
+             float fullbright = u_usePalette*palettedColor.a;\n\
              palettedColor.a = c_one-floor(color.r);\n\
              color = mix(color, palettedColor, u_usePalette);\n\
              \n\
@@ -1162,11 +1169,11 @@ void polymost_glinit()
              //color = texture2D(s_palette, gl_TexCoord[0].xy);\n\
              //color = texture2D(s_texture, gl_TexCoord[0].yx);\n\
              \n\
-             fogEnabled = min(u_fogEnabled, fogEnabled);\n\
-             float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, c_one-fogEnabled, c_one);\n\
-             //float fogFactor = clamp(gl_FogFragCoord, c_one-fogEnabled, c_one);\n\
+             color.rgb = mix(v_color.rgb*color.rgb, color.rgb, fullbright);\n\
              \n\
-             color.rgb *= v_color.rgb;\n\
+             fullbright = max(c_one-u_fogEnabled, fullbright);\n\
+             float fogFactor = clamp((gl_Fog.end-gl_FogFragCoord)*gl_Fog.scale, fullbright, c_one);\n\
+             //float fogFactor = clamp(gl_FogFragCoord, fullbright, c_one);\n\
              color.rgb = mix(gl_Fog.color.rgb, color.rgb, fogFactor);\n\
              \n\
              vec4 glowColor = texture2D(s_glow, gl_TexCoord[4].xy);\n\
@@ -1924,7 +1931,7 @@ void uploadbasepalette(int32_t basepalnum)
         return;
     }
 
-    //POGO: this is only necessary for GL fog compatibility, since it doesn't index into shade tables
+    //POGO: this is only necessary for GL fog/vertex color shade compatibility, since those features don't index into shade tables
     uint8_t basepalWFullBrightInfo[4*256];
     for (int i = 0; i < 256; ++i)
     {
@@ -3173,7 +3180,9 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 #endif
     {
         polytint_t const & tint = hictinting[globalpal];
-        float shadeFactor = pth->flags & PTH_INDEXED ? 1.f : getshadefactor(globalshade);
+        float shadeFactor = (pth->flags & PTH_INDEXED) &&
+                            r_usetileshades &&
+                            !(globalflags & GLOBAL_NO_GL_TILESHADES) ? 1.f : getshadefactor(globalshade);
         pc[0] = (1.f-(tint.sr*(1.f/255.f)))*shadeFactor+(tint.sr*(1.f/255.f));
         pc[1] = (1.f-(tint.sg*(1.f/255.f)))*shadeFactor+(tint.sg*(1.f/255.f));
         pc[2] = (1.f-(tint.sb*(1.f/255.f)))*shadeFactor+(tint.sb*(1.f/255.f));
