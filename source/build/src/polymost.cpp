@@ -1067,7 +1067,7 @@ void polymost_glinit()
          const float c_one = 1.0;\n\
          const float c_two = 2.0;\n\
          const vec4 c_vec4_one = vec4(c_one);\n\
-         const float c_wrapThreshold = 0.90;\n\
+         const float c_wrapThreshold = 0.9;\n\
          \n\
          void main()\n\
          {\n\
@@ -1140,7 +1140,7 @@ void polymost_glinit()
          const float c_one = 1.0;\n\
          const float c_two = 2.0;\n\
          const vec4 c_vec4_one = vec4(c_one);\n\
-         const float c_wrapThreshold = 0.95;\n\
+         const float c_wrapThreshold = 0.9;\n\
          \n\
          void main()\n\
          {\n\
