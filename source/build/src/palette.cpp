@@ -8,10 +8,6 @@
 #include "a.h"
 #include "xxhash.h"
 
-#ifdef USE_OPENGL
-# include "glsurface.h"
-#endif
-
 uint8_t *basepaltable[MAXBASEPALS] = { palette };
 uint8_t basepalreset=1;
 uint8_t curbasepal;
@@ -742,7 +738,6 @@ void videoSetPalette(char dabrightness, uint8_t dapalid, uint8_t flags)
 
     if (palsumdidchange || newpalettesum != g_lastpalettesum)
     {
-        glsurface_setPalette(curpalettefaded);
         //            if ((flags&1) == 0)
         videoUpdatePalette(0, 256);
     }
@@ -826,7 +821,6 @@ void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset)
 
     if (newpalettesum != lastpalettesum || newpalettesum != g_lastpalettesum)
     {
-        glsurface_setPalette(curpalettefaded);
         videoUpdatePalette(0, 256);
     }
 

@@ -924,7 +924,7 @@ void                polymer_glinit(void)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClearStencil(0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    glViewport(windowxy1.x, yres-(windowxy2.y+1),windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
+    glViewport(windowxy1.x, ydim-(windowxy2.y+1),windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
 
     // texturing
     glEnable(GL_TEXTURE_2D);
@@ -2029,7 +2029,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
     {
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, prrts[0].fbo);
         glPushAttrib(GL_VIEWPORT_BIT);
-        glViewport(windowxy1.x, yres-(windowxy2.y+1),windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
+        glViewport(windowxy1.x, ydim-(windowxy2.y+1),windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

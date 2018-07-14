@@ -420,7 +420,7 @@ int32_t osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     videoResetMode();
-    if (videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
+    if (videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail))
         G_GameExit("restartvid: Reset failed...\n");
     onvideomodechange(ud.config.ScreenBPP>8);
     G_UpdateScreenArea();
@@ -471,10 +471,10 @@ static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
         break;
     }
 
-    if (videoSetGameMode(newfs,newwidth,newheight,newbpp))
+    if (videoSetGameMode(newfs,newwidth,newheight,newbpp,upscalefactor))
     {
         initprintf("vidmode: Mode change failed!\n");
-        if (videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
+        if (videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP, upscalefactor))
             G_GameExit("vidmode: Reset failed!\n");
     }
     ud.config.ScreenBPP = newbpp;
@@ -1490,7 +1490,14 @@ static int32_t osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
 
     if (r != OSDCMD_OK) return r;
 
-    if (!Bstrcasecmp(parm->name, "r_size"))
+    if (!Bstrcasecmp(parm->name, "r_upscalefactor"))
+    {
+        if (in3dmode())
+        {
+            videoSetGameMode(fullscreen, xres, yres, bpp, ud.detail);
+        }
+    }
+    else if (!Bstrcasecmp(parm->name, "r_size"))
     {
         ud.statusbarmode = (ud.screen_size < 8);
         G_UpdateScreenArea();
@@ -1709,7 +1716,7 @@ int32_t registerosdcommands(void)
         { "r_shadows", "enable/disable sprite and model shadows", (void *)&ud.shadows, CVAR_BOOL, 0, 1 },
         { "r_size", "change size of viewable area", (void *)&ud.screen_size, CVAR_INT|CVAR_FUNCPTR, 0, 64 },
         { "r_rotatespritenowidescreen", "pass bit 1024 to all CON rotatesprite calls", (void *)&g_rotatespriteNoWidescreen, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "r_pixeldoubling", "enable/disable pixel doubling in the software renderer", (void *) &ud.detail, CVAR_BOOL, 0, 1 },
+        { "r_upscalefactor", "increase performance by rendering at upscalefactor less than the screen resolution and upscale to the full resolution in the software renderer", (void *)&ud.detail, CVAR_INT|CVAR_FUNCPTR, 1, 16 },
         { "r_precache", "enable/disable the pre-level caching routine", (void *)&ud.config.useprecache, CVAR_BOOL, 0, 1 },
 
         { "r_ambientlight", "sets the global map light level",(void *)&r_ambientlight, CVAR_FLOAT|CVAR_FUNCPTR, 0, 10 },

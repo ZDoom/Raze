@@ -141,6 +141,7 @@
     <ClInclude Include="..\..\source\build\include\scriptfile.h" />
     <ClInclude Include="..\..\source\build\include\sdlayer.h" />
     <ClInclude Include="..\..\source\build\include\sdl_inc.h" />
+    <ClInclude Include="..\..\source\build\include\softsurface.h" />
     <ClInclude Include="..\..\source\build\include\startwin.editor.h" />
     <ClInclude Include="..\..\source\build\include\texcache.h" />
     <ClInclude Include="..\..\source\build\include\tilepacker.h" />
@@ -300,6 +301,7 @@
     <ClCompile Include="..\..\source\build\src\sdlayer12.cpp" />
     <ClCompile Include="..\..\source\build\src\sdlkeytrans.cpp" />
     <ClCompile Include="..\..\source\build\src\smalltextfont.cpp" />
+    <ClCompile Include="..\..\source\build\src\softsurface.cpp" />
     <ClCompile Include="..\..\source\build\src\startgtk.editor.cpp" />
     <ClCompile Include="..\..\source\build\src\startwin.editor.cpp" />
     <ClCompile Include="..\..\source\build\src\texcache.cpp" />

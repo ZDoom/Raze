@@ -1503,7 +1503,7 @@ static void resizeglcheck(void)
         glox1 = (float)windowxy1.x; gloy1 = (float)windowxy1.y;
         glox2 = (float)windowxy2.x; gloy2 = (float)windowxy2.y;
 
-        glViewport(windowxy1.x-(fovcorrect/2), yres-(windowxy2.y+1),
+        glViewport(windowxy1.x-(fovcorrect/2), ydim-(windowxy2.y+1),
                     ourxdimen+fovcorrect, windowxy2.y-windowxy1.y+1);
 
         glMatrixMode(GL_PROJECTION);
@@ -6950,7 +6950,7 @@ void polymost_dorotatespritemodel(int32_t sx, int32_t sy, int32_t z, int16_t a, 
     tspr.cstat = globalorientation = (dastat&RS_TRANS1) | ((dastat&RS_TRANS2)<<4) | ((dastat&RS_YFLIP)<<1);
 
     if ((dastat&(RS_AUTO|RS_NOCLIP)) == RS_AUTO)
-        glViewport(windowxy1.x, yres-(windowxy2.y+1), windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
+        glViewport(windowxy1.x, ydim-(windowxy2.y+1), windowxy2.x-windowxy1.x+1, windowxy2.y-windowxy1.y+1);
     else
     {
         glViewport(0, 0, xdim, ydim);
@@ -7870,7 +7870,7 @@ static int32_t osdcmd_cvar_set_polymost(osdfuncparm_t const * const parm)
             {
                 texcache_invalidate();
                 videoResetMode();
-                if (videoSetGameMode(fullscreen,xdim,ydim,bpp))
+                if (videoSetGameMode(fullscreen,xres,yres,bpp,upscalefactor))
                     OSD_Printf("restartvid: Reset failed...\n");
             }
 

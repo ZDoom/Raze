@@ -13,6 +13,7 @@
 #include "engine_priv.h"
 #include "palette.h"
 
+#include "softsurface.h"
 #ifdef USE_OPENGL
 # include "glad/glad.h"
 # include "glbuild.h"
@@ -37,7 +38,6 @@
 # include "wiibits.h"
 # include <ogc/lwp.h>
 # include <ogc/lwp_watchdog.h>
-# define SDL_DISABLE_8BIT_BUFFER
 #endif
 
 #if SDL_MAJOR_VERSION != 1
@@ -69,18 +69,10 @@ char quitevent=0, appactive=1, novideo=0;
 
 // video
 static SDL_Surface *sdl_surface/*=NULL*/;
-#if !defined SDL_DISABLE_8BIT_BUFFER
-static SDL_Surface *sdl_buffersurface=NULL;
-#else
-# define sdl_buffersurface sdl_surface
-#endif
 
 #if SDL_MAJOR_VERSION==2
-static SDL_Palette *sdl_palptr=NULL;
 static SDL_Window *sdl_window=NULL;
 static SDL_GLContext sdl_context=NULL;
-static SDL_Texture *sdl_texture=NULL;
-static SDL_Renderer *sdl_renderer=NULL;
 #endif
 
 int32_t xres=-1, yres=-1, bpp=0, fullscreen=0, bytesperline;
@@ -99,7 +91,9 @@ char nogl=0;
 #endif
 static int32_t vsync_renderlayer;
 int32_t maxrefreshfreq=0;
+#if SDL_MAJOR_VERSION==2
 static uint32_t currentVBlankInterval=0;
+#endif
 
 // last gamma, contrast, brightness
 static float lastvidgcb[3];
@@ -547,7 +541,7 @@ int32_t videoSetVsync(int32_t newSync)
         vsync_renderlayer = newSync;
 
         videoResetMode();
-        if (videoSetGameMode(fullscreen, xdim, ydim, bpp))
+        if (videoSetGameMode(fullscreen, xres, yres, bpp, upscalefactor))
             OSD_Printf("restartvid: Reset failed...\n");
     }
 
@@ -675,10 +669,12 @@ void uninitsystem(void)
 #endif
 
 #ifdef USE_OPENGL
+# if SDL_MAJOR_VERSION!=1
     SDL_GL_UnloadLibrary();
-#ifdef POLYMER
+# endif
+# ifdef POLYMER
     unloadglulibrary();
-#endif
+# endif
 #endif
 }
 
@@ -1265,33 +1261,15 @@ int32_t videoCheckMode(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t fo
     return nearest;
 }
 
-static int32_t needpalupdate;
-static SDL_Color sdlayer_pal[256];
-
 static void destroy_window_resources()
 {
-#if !defined SDL_DISABLE_8BIT_BUFFER
-    if (sdl_buffersurface)
-        SDL_FreeSurface(sdl_buffersurface);
-
-    sdl_buffersurface = NULL;
-#endif
 /* We should NOT destroy the window surface. This is done automatically
    when SDL_DestroyWindow or SDL_SetVideoMode is called.             */
 
 #if SDL_MAJOR_VERSION == 2
-    if (sdl_renderer && sdl_texture && sdl_surface)
-        SDL_FreeSurface(sdl_surface);
-    sdl_surface = NULL;
     if (sdl_context)
         SDL_GL_DeleteContext(sdl_context);
     sdl_context = NULL;
-    if (sdl_texture)
-        SDL_DestroyTexture(sdl_texture);
-    sdl_texture = NULL;
-    if (sdl_renderer)
-        SDL_DestroyRenderer(sdl_renderer);
-    sdl_renderer = NULL;
     if (sdl_window)
         SDL_DestroyWindow(sdl_window);
     sdl_window = NULL;
@@ -1425,10 +1403,7 @@ void sdlayer_setvideomode_opengl(void)
 int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, int32_t *regrab)
 {
     if ((fs == fullscreen) && (*x == xres) && (*y == yres) && (c == bpp) && !videomodereset)
-    {
-        OSD_ResizeDisplay(xres, yres);
         return 0;
-    }
 
     if (videoCheckMode(x, y, c, fs, 0) < 0)
         return -1;
@@ -1461,7 +1436,11 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
         if ((fs == fullscreen) && (*x == xres) && (*y == yres) && (bpp != 0) && !videomodereset)
             return 0;
     }
+    else
 #endif
+    {
+       softsurface_destroy();
+    }
 
     // clear last gamma/contrast/brightness so that it will be set anew
     lastvidgcb[0] = lastvidgcb[1] = lastvidgcb[2] = 0.0f;
@@ -1488,7 +1467,6 @@ void setvideomode_sdlcommonpost(int32_t x, int32_t y, int32_t c, int32_t fs, int
     lockcount = 0;
     modechange = 1;
     videomodereset = 0;
-    OSD_ResizeDisplay(xres, yres);
 
     // save the current system gamma to determine if gamma is available
 #ifndef EDUKE32_GLES
@@ -1535,55 +1513,6 @@ void setrefreshrate(void)
         newmode.refresh_rate = 60;
 
     currentVBlankInterval = 1000/newmode.refresh_rate;
-}
-
-static void sdl_trycreaterenderer_fail(char const * const failurepoint)
-{
-    initprintf("Falling back to SDL_GetWindowSurface: %s failed: %s\n", failurepoint, SDL_GetError());
-    SDL_DestroyRenderer(sdl_renderer);
-    sdl_renderer = NULL;
-}
-
-static void sdl_trycreaterenderer(int32_t const x, int32_t const y)
-{
-    int const flags = SDL_RENDERER_ACCELERATED | (vsync_renderlayer ? SDL_RENDERER_PRESENTVSYNC : 0);
-
-    sdl_renderer = SDL_CreateRenderer(sdl_window, -1, flags);
-    if (!sdl_renderer)
-    {
-        sdl_trycreaterenderer_fail("SDL_CreateRenderer");
-        return;
-    }
-
-    SDL_RendererInfo sdl_rendererinfo;
-    SDL_GetRendererInfo(sdl_renderer, &sdl_rendererinfo);
-
-    if (sdl_rendererinfo.flags & SDL_RENDERER_SOFTWARE) // this would be useless
-    {
-        initprintf("Falling back to SDL_GetWindowSurface: software SDL_Renderer \"%s\" provides no benefit.\n", sdl_rendererinfo.name);
-        SDL_DestroyRenderer(sdl_renderer);
-        sdl_renderer = NULL;
-        return;
-    }
-
-    initprintf("Trying SDL_Renderer \"%s\"\n", sdl_rendererinfo.name);
-
-    sdl_texture = SDL_CreateTexture(sdl_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, x, y);
-    if (!sdl_texture)
-    {
-        sdl_trycreaterenderer_fail("SDL_CreateTexture");
-        return;
-    }
-
-    sdl_surface = SDL_CreateRGBSurface(0, x, y, 32, 0, 0, 0, 0);
-
-    if (!sdl_surface)
-    {
-        SDL_DestroyTexture(sdl_texture);
-        sdl_texture = NULL;
-        sdl_trycreaterenderer_fail("SDL_CreateRGBSurface");
-        return;
-    }
 }
 
 int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
@@ -1684,27 +1613,12 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
         setrefreshrate();
 
-        sdl_trycreaterenderer(x, y);
-
         if (!sdl_surface)
         {
             sdl_surface = SDL_GetWindowSurface(sdl_window);
             if (!sdl_surface)
                 SDL2_VIDEO_ERR("SDL_GetWindowSurface");
         }
-
-#if !defined SDL_DISABLE_8BIT_BUFFER
-        sdl_buffersurface = SDL_CreateRGBSurface(0, x, y, c, 0, 0, 0, 0);
-
-        if (!sdl_buffersurface)
-            SDL2_VIDEO_ERR("SDL_CreateRGBSurface");
-#endif
-
-        if (!sdl_palptr)
-            sdl_palptr = SDL_AllocPalette(256);
-
-        if (SDL_SetSurfacePalette(sdl_buffersurface, sdl_palptr) < 0)
-            initprintf("SDL_SetSurfacePalette failed: %s\n", SDL_GetError());
 
         SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
     }
@@ -1752,6 +1666,7 @@ void videoBeginDrawing(void)
 
     if (offscreenrendering) return;
 
+#ifdef USE_OPENGL
     if (!nogl)
     {
         frameplace = (intptr_t)glsurface_getBuffer();
@@ -1763,16 +1678,13 @@ void videoBeginDrawing(void)
         }
         return;
     }
+#endif
 
-    if (SDL_MUSTLOCK(sdl_buffersurface)) SDL_LockSurface(sdl_buffersurface);
-    frameplace = (intptr_t)sdl_buffersurface->pixels;
-
-    if (sdl_buffersurface->pitch != bytesperline || modechange)
+    frameplace = (intptr_t)softsurface_getBuffer();
+    if (modechange)
     {
-        bytesperline = sdl_buffersurface->pitch;
-
+        bytesperline = xdim;
         calc_ylookup(bytesperline, ydim);
-
         modechange=0;
     }
 }
@@ -1794,10 +1706,6 @@ void videoEndDrawing(void)
     if (!offscreenrendering) frameplace = 0;
     if (lockcount == 0) return;
     lockcount = 0;
-
-    if (offscreenrendering || !nogl) return;
-
-    if (SDL_MUSTLOCK(sdl_buffersurface)) SDL_UnlockSurface(sdl_buffersurface);
 }
 
 //
@@ -1854,27 +1762,11 @@ void videoShowFrame(int32_t w)
         while (lockcount) videoEndDrawing();
     }
 
-    // deferred palette updating
-    if (needpalupdate)
-    {
-        if (SDL_SetPaletteColors(sdl_palptr, sdlayer_pal, 0, 256) < 0)
-            initprintf("SDL_SetPaletteColors failed: %s\n", SDL_GetError());
-        needpalupdate = 0;
-    }
+    if (SDL_MUSTLOCK(sdl_surface)) SDL_LockSurface(sdl_surface);
+    softsurface_blitBuffer((uint32_t*) sdl_surface->pixels, sdl_surface->format->BitsPerPixel);
+    if (SDL_MUSTLOCK(sdl_surface)) SDL_UnlockSurface(sdl_surface);
 
-#if !defined SDL_DISABLE_8BIT_BUFFER
-    SDL_BlitSurface(sdl_buffersurface, NULL, sdl_surface, NULL);
-#endif
-
-    if (sdl_renderer && sdl_texture)
-    {
-        SDL_UpdateTexture(sdl_texture, NULL, sdl_surface->pixels, sdl_surface->pitch);
-
-        SDL_RenderClear(sdl_renderer);
-        SDL_RenderCopy(sdl_renderer, sdl_texture, NULL, NULL);
-        SDL_RenderPresent(sdl_renderer);
-    }
-    else if (SDL_UpdateWindowSurface(sdl_window))
+    if (SDL_UpdateWindowSurface(sdl_window))
     {
         // If a fullscreen X11 window is minimized then this may be required.
         // FIXME: What to do if this fails...
@@ -1888,21 +1780,24 @@ void videoShowFrame(int32_t w)
 //
 int32_t videoUpdatePalette(int32_t start, int32_t num)
 {
+    UNREFERENCED_PARAMETER(start);
+    UNREFERENCED_PARAMETER(num);
+
     if (bpp > 8)
         return 0;  // no palette in opengl
 
-    Bmemcpy(sdlayer_pal, curpalettefaded, 256 * 4);
-
-    for (native_t i = start, n = num; n > 0; i++, n--)
-        curpalettefaded[i].f =
-#if SDL_MAJOR_VERSION == 1
-        sdlayer_pal[i].unused
-#else
-        sdlayer_pal[i].a
+#ifdef USE_OPENGL
+    if (!nogl)
+        glsurface_setPalette(curpalettefaded);
+    else
 #endif
-        = 0;
-
-    needpalupdate = 1;
+    {
+        if (sdl_surface)
+            softsurface_setPalette(curpalettefaded,
+                                   sdl_surface->format->Rmask,
+                                   sdl_surface->format->Gmask,
+                                   sdl_surface->format->Bmask);
+    }
 
     return 0;
 }

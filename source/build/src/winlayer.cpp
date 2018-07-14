@@ -1592,10 +1592,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
     int32_t modenum;
 
     if ((fs == fullscreen) && (x == xres) && (y == yres) && (c == bpp) && !videomodereset)
-    {
-        OSD_ResizeDisplay(xres,yres);
         return 0;
-    }
 
     modenum = videoCheckMode(&x,&y,c,fs,0);
     if (modenum < 0) return -1;
@@ -1637,7 +1634,6 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
     if (inp) AcquireInputDevices(1);
     modechange=1;
     videomodereset = 0;
-    OSD_ResizeDisplay(xres,yres);
 
     return 0;
 }
@@ -3190,7 +3186,6 @@ static BOOL CreateAppWindow(int32_t modenum)
     //bytesperline = width;
 
     modechange = 1;
-    OSD_ResizeDisplay(xres,yres);
 
     UpdateWindow(hWindow);
 
@@ -3522,7 +3517,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
                 }
                 realfs = fullscreen;
                 silentvideomodeswitch = 1;
-                videoSetGameMode(!fullscreen,xdim,ydim,bpp);
+                videoSetGameMode(!fullscreen,xres,yres,bpp,upscalefactor);
                 ShowWindow(hWindow, SW_MINIMIZE);
             }
             else if (appactive && realfs)
@@ -3535,7 +3530,7 @@ static LRESULT CALLBACK WndProcCallback(HWND hWnd, UINT uMsg, WPARAM wParam, LPA
                 ShowWindow(hWindow, SW_RESTORE);
                 SetForegroundWindow(hWindow);
                 SetFocus(hWindow);
-                videoSetGameMode(realfs,xdim,ydim,bpp);
+                videoSetGameMode(realfs,xres,yres,bpp,upscalefactor);
                 silentvideomodeswitch = 0;
                 realfs = 0;
             }

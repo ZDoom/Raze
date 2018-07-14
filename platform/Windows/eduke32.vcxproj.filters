@@ -579,6 +579,9 @@
     <ClInclude Include="..\..\source\build\include\tilepacker.h">
       <Filter>build\headers</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\source\build\include\softsurface.h">
+      <Filter>build\headers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\build\src\a-c.cpp">
@@ -1029,6 +1032,9 @@
       <Filter>build\source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\tilepacker.cpp">
+      <Filter>build\source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\softsurface.cpp">
       <Filter>build\source</Filter>
     </ClCompile>
   </ItemGroup>

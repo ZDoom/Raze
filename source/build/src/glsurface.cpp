@@ -56,14 +56,14 @@ static GLuint compileShader(GLenum shaderType, const char* const source)
     return shaderID;
 }
 
-bool glsurface_initialize(vec2_t inputBufferResolution)
+bool glsurface_initialize(vec2_t bufferResolution)
 {
     if (buffer)
         glsurface_destroy();
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    bufferRes = inputBufferResolution;
+    bufferRes = bufferResolution;
     buffer    = Xaligned_alloc(16, bufferRes.x * bufferRes.y);
 
     glGenBuffers(1, &quadVertsID);

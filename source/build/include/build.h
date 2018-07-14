@@ -663,7 +663,7 @@ EXTERN int16_t thewall[MAXWALLSB];
 EXTERN uspritetype *tspriteptr[MAXSPRITESONSCREEN + 1];
 
 EXTERN int32_t wx1, wy1, wx2, wy2;
-EXTERN int32_t xdim, ydim, numpages;
+EXTERN int32_t xdim, ydim, numpages, upscalefactor;
 EXTERN int32_t yxaspect, viewingrange;
 EXTERN intptr_t *ylookup;
 
@@ -1055,7 +1055,7 @@ intptr_t   tileCreate(int16_t tilenume, int32_t xsiz, int32_t ysiz);
 void   tileCopySection(int32_t tilenume1, int32_t sx1, int32_t sy1, int32_t xsiz, int32_t ysiz, int32_t tilenume2, int32_t sx2, int32_t sy2);
 void   squarerotatetile(int16_t tilenume);
 
-int32_t   videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp);
+int32_t   videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daupscaledydim, int32_t dabpp, int32_t daupscalefactor);
 void   videoNextPage(void);
 void   videoSetCorrectedAspect();
 void   videoSetViewableArea(int32_t x1, int32_t y1, int32_t x2, int32_t y2);

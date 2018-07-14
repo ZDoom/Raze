@@ -279,7 +279,7 @@ int32_t osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
     if (!in3dmode()) return OSDCMD_OK;
 
     videoResetMode();
-    if (videoSetGameMode(fullscreen,xdim,ydim,bpp))
+    if (videoSetGameMode(fullscreen,xres,yres,bpp,upscalefactor))
         OSD_Printf("restartvid: Reset failed...\n");
 
     return OSDCMD_OK;
@@ -288,7 +288,7 @@ int32_t osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
 
 static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
 {
-    int32_t newx = xdim, newy = ydim, newbpp = bpp, newfullscreen = fullscreen;
+    int32_t newx = xres, newy = yres, newbpp = bpp, newfullscreen = fullscreen;
 #ifdef USE_OPENGL
     int32_t tmp;
 #endif
@@ -335,7 +335,7 @@ static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
         return OSDCMD_OK;
     }
 
-    if (videoSetGameMode(newfullscreen,newx,newy,newbpp))
+    if (videoSetGameMode(newfullscreen,newx,newy,newbpp,upscalefactor))
         OSD_Printf("vidmode: Mode change failed!\n");
 
     xdimgame = newx;
@@ -769,7 +769,7 @@ int app_main(int argc, char const * const * argv)
         g_videoBrightness = 0.0;
 
         videoSetPalette(0,0,0);
-        if (videoSetGameMode(fullscreen, xdim2d, ydim2d, 8) < 0)
+        if (videoSetGameMode(fullscreen, xdim2d, ydim2d, 8, upscalefactor) < 0)
         {
             CallExtUnInit();
             engineUnInit();
@@ -792,7 +792,7 @@ int app_main(int argc, char const * const * argv)
     }
     else
     {
-        if (videoSetGameMode(fullscreen, xdimgame, ydimgame, bppgame) < 0)
+        if (videoSetGameMode(fullscreen, xdimgame, ydimgame, bppgame, upscalefactor) < 0)
         {
             CallExtUnInit();
             engineUnInit();
@@ -8269,7 +8269,7 @@ CANCEL:
 
     fixspritesectors();
 
-    if (videoSetGameMode(fullscreen,xdimgame,ydimgame,bppgame) < 0)
+    if (videoSetGameMode(fullscreen,xdimgame,ydimgame,bppgame,upscalefactor) < 0)
     {
         initprintf("%d * %d not supported in this graphics mode\n",xdim,ydim);
         CallExtUnInit();

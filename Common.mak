@@ -940,6 +940,8 @@ ifeq ($(PLATFORM),WINDOWS)
     LIBS += -lmingwex -lgdi32 -lpthread
     ifeq ($(RENDERTYPE),WIN)
         LIBS += -ldxguid
+    else ifeq ($(SDL_TARGET),1)
+        LIBS += -ldxguid -lmingw32 -limm32 -lole32 -loleaut32 -lversion
     else
         LIBS += -ldxguid_sdl -lmingw32 -limm32 -lole32 -loleaut32 -lversion
     endif

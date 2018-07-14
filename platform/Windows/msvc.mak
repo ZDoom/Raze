@@ -184,6 +184,7 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\winbits.$o \
 	$(ENGINE_OBJ)\xxhash.$o \
 	$(ENGINE_OBJ)\screenshot.$o \
+	$(ENGINE_OBJ)\softsurface.$o \
 	$(ENGINE_OBJ)\mhk.$o \
 	$(ENGINE_OBJ)\pngwrite.$o \
 	$(ENGINE_OBJ)\miniz.$o \

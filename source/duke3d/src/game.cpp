@@ -187,10 +187,10 @@ void G_HandleSpecialKeys(void)
 
     if (g_networkMode != NET_DEDICATED_SERVER && ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
-        if (videoSetGameMode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP))
+        if (videoSetGameMode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail))
         {
             OSD_Printf(OSD_ERROR "Failed setting fullscreen video mode.\n");
-            if (videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP))
+            if (videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP, ud.detail))
                 G_GameExit("Failed to recover from failure to set fullscreen video mode.\n");
         }
         else ud.config.ScreenMode = !ud.config.ScreenMode;
@@ -281,7 +281,7 @@ void G_GameExit(const char *msg)
            g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
-            videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP);
+            videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail);
         }
 
         // shareware and TEN screens
@@ -772,7 +772,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
         int32_t floorZ, ceilZ;
         int32_t tiltcx, tiltcy, tiltcs=0;    // JBF 20030807
 
-        int       pixelDoubling = 0;
         int const vr            = divscale22(1, sprite[pPlayer->i].yrepeat + 28);
         int       screenTilting = (videoGetRenderMode() == REND_CLASSIC && ((ud.screen_tilting && pPlayer->rotscrnang
 #ifdef SPLITSCREEN_MOD_HACKS
@@ -895,12 +894,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
             renderSetRollAngle(pPlayer->orotscrnang + mulscale16(((pPlayer->rotscrnang - pPlayer->orotscrnang + 1024)&2047)-1024, smoothRatio));
 #endif
             pPlayer->orotscrnang = pPlayer->rotscrnang;
-        }
-        else if (ud.detail && videoGetRenderMode()==REND_CLASSIC)
-        {
-            pixelDoubling = 1;
-            g_halveScreenArea = 1;
-            G_UpdateScreenArea();
         }
 
         if (pPlayer->newowner < 0)
@@ -1106,39 +1099,6 @@ void G_DrawRooms(int32_t playerNum, int32_t smoothRatio)
                 rotatesprite_win(160 << 16, 100 << 16, tiltZoom, tang + 512, TILE_TILT, 0, 0, 4 + 2 + 64 + 1024);
                 walock[TILE_TILT] = 199;
             }
-        }
-        else if (pixelDoubling)
-        {
-            Bassert(g_halfScreen.xdimen!=0);
-            g_halveScreenArea = 0;
-            G_UpdateScreenArea();
-
-            videoBeginDrawing();
-            {
-                uint8_t *const f = (uint8_t *)frameplace;
-                const int32_t x1=g_halfScreen.x1, y1=g_halfScreen.y1;
-                const int32_t xd=g_halfScreen.xdimen, yd=g_halfScreen.ydimen;
-                int32_t dx, dy;
-
-                // Commented out: naive, per-byte access version.
-                // Live: optimized version: may access memory unaligned, relies
-                // on little-endian byte ordering.
-
-                for (dy=2*yd-1; dy>=0; dy--)
-//                    for (dx=2*xd-1; dx>=0; dx--)
-                    for (dx=2*xd-4; dx>=0; dx-=4)
-                    {
-                        const int32_t ylsrc = ylookup[y1+(dy>>1)];
-                        const int32_t yldst = ylookup[y1+dy];
-
-//                        f[yldst+x1+dx] = f[ylsrc+x1+(dx>>1)];
-                        uint8_t pixr = f[ylsrc+x1+((dx+3)>>1)];
-                        uint8_t pixl = f[ylsrc+x1+((dx+1)>>1)];
-
-                        B_BUF32(&f[yldst+x1+dx], pixl|(pixl<<8)|(pixr<<16)|(pixr<<24));
-                    }
-            }
-            videoEndDrawing();
         }
     }
 
@@ -6549,7 +6509,7 @@ int app_main(int argc, char const * const * argv)
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP) < 0)
+        if (videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail) < 0)
         {
             vec2_t const res[] = {
                 { ud.config.ScreenWidth, ud.config.ScreenHeight }, { 800, 600 }, { 640, 480 }, { 320, 240 },
@@ -6567,7 +6527,7 @@ int app_main(int argc, char const * const * argv)
             int resIdx = 0;
             int bppIdx = 0;
 
-            while (videoSetGameMode(0, res[resIdx].x, res[resIdx].y, bpp[bppIdx]) < 0)
+            while (videoSetGameMode(0, res[resIdx].x, res[resIdx].y, bpp[bppIdx], ud.detail) < 0)
             {
                 initprintf("Failure setting video mode %dx%dx%d windowed! Attempting safer mode...\n", res[resIdx].x, res[resIdx].y,
                            bpp[bppIdx]);

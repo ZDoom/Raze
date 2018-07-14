@@ -26,7 +26,7 @@ int32_t videoSetVsync(int32_t newSync)
     vsync_renderlayer = newSync;
 
     videoResetMode();
-    if (videoSetGameMode(fullscreen, xdim, ydim, bpp))
+    if (videoSetGameMode(fullscreen, xres, yres, bpp, upscalefactor))
         OSD_Printf("restartvid: Reset failed...\n");
 
     return newSync;
@@ -251,12 +251,8 @@ void videoGetModes(void)
         pf.BitsPerPixel = cdepths[j];
         pf.BytesPerPixel = cdepths[j] >> 3;
 
-#if !defined SDL_DISABLE_8BIT_BUFFER
         // We convert paletted contents to non-paletted
         modes = SDL_ListModes((cdepths[j] == 8) ? NULL : &pf, SURFACE_FLAGS | SDL_FULLSCREEN);
-#else
-        modes = SDL_ListModes(&pf, SURFACE_FLAGS | SDL_FULLSCREEN);
-#endif
 
         if (modes == (SDL_Rect **)0)
         {
@@ -325,7 +321,14 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #endif
 
     ret = setvideomode_sdlcommon(&x, &y, c, fs, &regrab);
-    if (ret != 1) return ret;
+    if (ret != 1)
+    {
+        if (ret == 0)
+        {
+            setvideomode_sdlcommonpost(x, y, c, fs, regrab);
+        }
+        return ret;
+    }
 
     // restore gamma before we change video modes if it was changed
     if (sdl_surface && gammabrightness)
@@ -340,7 +343,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
     initprintf("Setting video mode %dx%d (%d-bpp %s)\n", x, y, c, ((fs & 1) ? "fullscreen" : "windowed"));
 
 #ifdef USE_OPENGL
-    if (c > 8)
+    if (c > 8 || !nogl)
     {
         int32_t i, j, multisamplecheck = (glmultisample > 0);
 
@@ -395,34 +398,21 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 initprintf("Unable to set video mode!\n");
                 return -1;
             }
-
-#ifdef _WIN32
-            loadglextensions();
-#endif
         } while (multisamplecheck--);
+
+        gladLoadGLLoader(SDL_GL_GetProcAddress);
     }
     else
 #endif  // defined USE_OPENGL
     {
-#if !defined SDL_DISABLE_8BIT_BUFFER
         // We convert paletted contents to non-paletted
         sdl_surface = SDL_SetVideoMode(x, y, 0, SURFACE_FLAGS | ((fs & 1) ? SDL_FULLSCREEN : 0));
-#else
-        sdl_surface = SDL_SetVideoMode(x, y, c, SURFACE_FLAGS | ((fs & 1) ? SDL_FULLSCREEN : 0));
-#endif
+
         if (!sdl_surface)
         {
             initprintf("Unable to set video mode!\n");
             return -1;
         }
-#if !defined SDL_DISABLE_8BIT_BUFFER
-        sdl_buffersurface = SDL_CreateRGBSurface(SURFACE_FLAGS, x, y, c, 0, 0, 0, 0);
-        if (!sdl_buffersurface)
-        {
-            initprintf("Unable to set video mode: SDL_CreateRGBSurface failed: %s\n", SDL_GetError());
-            return -1;
-        }
-#endif
     }
 
     setvideomode_sdlcommonpost(x, y, c, fs, regrab);
@@ -438,10 +428,17 @@ void videoShowFrame(int32_t w)
     UNREFERENCED_PARAMETER(w);
 
 #ifdef USE_OPENGL
-    if (bpp > 8)
+    if (!nogl)
     {
-        if (palfadedelta)
-            fullscreen_tint_gl(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
+        if (bpp > 8)
+        {
+            if (palfadedelta)
+                fullscreen_tint_gl(palfadergb.r, palfadergb.g, palfadergb.b, palfadedelta);
+        }
+        else
+        {
+            glsurface_blitBuffer();
+        }
 
         SDL_GL_SwapBuffers();
         return;
@@ -456,16 +453,10 @@ void videoShowFrame(int32_t w)
         while (lockcount) videoEndDrawing();
     }
 
-    // deferred palette updating
-    if (needpalupdate)
-    {
-        SDL_SetColors(sdl_buffersurface, sdlayer_pal, 0, 256);
-        needpalupdate = 0;
-    }
+    if (SDL_MUSTLOCK(sdl_surface)) SDL_LockSurface(sdl_surface);
+    softsurface_blitBuffer((uint32_t*) sdl_surface->pixels, sdl_surface->format->BitsPerPixel);
+    if (SDL_MUSTLOCK(sdl_surface)) SDL_UnlockSurface(sdl_surface);
 
-#if !defined SDL_DISABLE_8BIT_BUFFER
-    SDL_BlitSurface(sdl_buffersurface, NULL, sdl_surface, NULL);
-#endif
     SDL_Flip(sdl_surface);
 }
 

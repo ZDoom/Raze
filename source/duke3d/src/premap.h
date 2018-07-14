@@ -27,14 +27,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 extern "C" {
 #endif
 
-typedef struct {
-    int32_t x1, y1;
-    int32_t xdimen, ydimen;
-} halfdimen_t;
-
-extern halfdimen_t g_halfScreen;
-extern int32_t g_halveScreenArea;
-
 extern int32_t g_levelTextTime;
 extern int32_t voting,vote_map,vote_episode;
 extern palette_t CrosshairColors;

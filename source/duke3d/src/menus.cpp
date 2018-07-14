@@ -548,8 +548,11 @@ static MenuLink_t MEO_DISPLAYSETUP_COLORCORR = { MENU_COLCORR, MA_Advance, };
 static MenuEntry_t ME_DISPLAYSETUP_COLORCORR = MAKE_MENUENTRY( "Color Correction", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_COLORCORR, Link );
 
 
-static MenuOption_t MEO_DISPLAYSETUP_PIXELDOUBLING = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.detail );
-static MenuEntry_t ME_DISPLAYSETUP_PIXELDOUBLING = MAKE_MENUENTRY( "Pixel Doubling:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_PIXELDOUBLING, Option );
+static char const *MEOSN_DISPLAYSETUP_UPSCALING[] = { "None", "2x", "4x", "8x", "16x", };
+static int32_t MEOSV_DISPLAYSETUP_UPSCALING[] = { 1, 2, 4, 8, 16, };
+static MenuOptionSet_t MEOS_DISPLAYSETUP_UPSCALING = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_UPSCALING, MEOSV_DISPLAYSETUP_UPSCALING, 0x0 );
+static MenuOption_t MEO_DISPLAYSETUP_UPSCALING = MAKE_MENUOPTION( &MF_Redfont, &MEOS_DISPLAYSETUP_UPSCALING, &ud.detail );
+static MenuEntry_t ME_DISPLAYSETUP_UPSCALING = MAKE_MENUENTRY( "Upscaling:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_UPSCALING, Option );
 
 
 #ifndef EDUKE32_ANDROID_MENU
@@ -733,7 +736,7 @@ static MenuEntry_t *MEL_DISPLAYSETUP[] = {
     &ME_DISPLAYSETUP_VIDEOSETUP,
     &ME_DISPLAYSETUP_ASPECTRATIO,
 #endif
-    &ME_DISPLAYSETUP_PIXELDOUBLING,
+    &ME_DISPLAYSETUP_UPSCALING,
 };
 
 #ifdef USE_OPENGL
@@ -1992,7 +1995,7 @@ static void Menu_Pre(MenuID_t cm)
         MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_FULLSCREEN, !(resolution[nr].flags & RES_FS));
 
         MenuEntry_DisableOnCondition(&ME_VIDEOSETUP_APPLY,
-             (xdim == resolution[nr].xdim && ydim == resolution[nr].ydim &&
+             (xres == resolution[nr].xdim && yres == resolution[nr].ydim &&
               videoGetRenderMode() == newrendermode && fullscreen == newfullscreen
               && vsync == newvsync
              )
@@ -3031,7 +3034,7 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
 
     if (entry == &ME_VIDEOSETUP_APPLY)
     {
-        resolution_t p = { xdim, ydim, fullscreen, bpp, 0 };
+        resolution_t p = { xres, yres, fullscreen, bpp, 0 };
         int32_t prend = videoGetRenderMode();
         int32_t pvsync = vsync;
 
@@ -3041,9 +3044,9 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         int32_t nrend = newrendermode;
         int32_t nvsync = newvsync;
 
-        if (videoSetGameMode(n.flags, n.xdim, n.ydim, n.bppmax) < 0)
+        if (videoSetGameMode(n.flags, n.xdim, n.ydim, n.bppmax, upscalefactor) < 0)
         {
-            if (videoSetGameMode(p.flags, p.xdim, p.ydim, p.bppmax) < 0)
+            if (videoSetGameMode(p.flags, p.xdim, p.ydim, p.bppmax, upscalefactor) < 0)
             {
                 videoSetRenderMode(prend);
                 G_GameExit("Failed restoring old video mode.");
@@ -3061,8 +3064,8 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         videoSetRenderMode(nrend);
         vsync = videoSetVsync(nvsync);
         ud.config.ScreenMode = fullscreen;
-        ud.config.ScreenWidth = xdim;
-        ud.config.ScreenHeight = ydim;
+        ud.config.ScreenWidth = xres;
+        ud.config.ScreenHeight = yres;
         ud.config.ScreenBPP = bpp;
     }
     else if (entry == &ME_SOUND_RESTART)
@@ -3271,6 +3274,13 @@ static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
         entry == &ME_PLAYER_COLOR ||
         entry == &ME_PLAYER_TEAM)
         G_UpdatePlayerFromMenu();
+    else if (entry == &ME_DISPLAYSETUP_UPSCALING)
+    {
+        if (in3dmode())
+        {
+            videoSetGameMode(fullscreen, xres, yres, bpp, ud.detail);
+        }
+    }
 #ifdef USE_OPENGL
     else if (entry == &ME_DISPLAYSETUP_ANISOTROPY || entry == &ME_DISPLAYSETUP_TEXFILTER)
         gltexapplyprops();
@@ -3290,7 +3300,7 @@ static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
     if (domodechange)
     {
         videoResetMode();
-        if (videoSetGameMode(fullscreen, xdim, ydim, bpp))
+        if (videoSetGameMode(fullscreen, xres, yres, bpp, upscalefactor))
             OSD_Printf("restartvid: Reset failed...\n");
         onvideomodechange(ud.config.ScreenBPP>8);
         G_RefreshLights();
@@ -4048,7 +4058,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
         newresolution = 0;
         for (size_t i = 0; i < MAXVALIDMODES; ++i)
         {
-            if (resolution[i].xdim == xdim && resolution[i].ydim == ydim)
+            if (resolution[i].xdim == xres && resolution[i].ydim == yres)
             {
                 newresolution = i;
                 break;

@@ -192,6 +192,7 @@ engine_objs := \
     osd.cpp \
     pragmas.cpp \
     scriptfile.cpp \
+    softsurface.cpp \
     mmulti_null.cpp \
     mutex.cpp \
     xxhash.c \

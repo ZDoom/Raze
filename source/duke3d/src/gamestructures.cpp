@@ -308,8 +308,8 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const lParm2, int3
         case USERDEFS_M_RESPAWN_INVENTORY:          ud.m_respawn_inventory           = iSet; break;
         case USERDEFS_M_RECSTAT:                    ud.m_recstat                     = iSet; break;
         case USERDEFS_M_MONSTERS_OFF:               ud.m_monsters_off                = iSet; break;
-        // REMINDER: must implement "boolean" setters like this in Lunatic, too.
-        case USERDEFS_DETAIL:                       ud.detail                        = !!iSet; break;
+        // REMINDER: must implement "boolean" setters like "!!iSet" in Lunatic, too.
+        case USERDEFS_DETAIL:                       ud.detail                        = clamp(iSet, 1, 16); break;
         case USERDEFS_M_FFIRE:                      ud.m_ffire                       = iSet; break;
         case USERDEFS_FFIRE:                        ud.ffire                         = iSet; break;
         case USERDEFS_M_PLAYER_SKILL:               ud.m_player_skill                = iSet; break;

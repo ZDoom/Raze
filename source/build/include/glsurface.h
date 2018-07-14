@@ -1,5 +1,5 @@
 /*
- * glsurface.cpp
+ * glsurface.h
  *  A 32-bit rendering surface that can quickly blit 8-bit paletted buffers implemented in OpenGL.
  *
  * Copyright © 2018, Alex Dawson. All rights reserved.
@@ -15,7 +15,7 @@
 //  glsurface will still render at the full size of the screen.
 // If a surface already exists, glsurface_destroy() will be automatically called before re-initializing.
 // Returns whether or not the glsurface could be successfully initialized.
-bool glsurface_initialize(vec2_t inputBufferResolution);
+bool glsurface_initialize(vec2_t bufferResolution);
 
 // Destroy an existing surface.
 void glsurface_destroy();

@@ -30,9 +30,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "lunatic_game.h"
 #endif
 
-halfdimen_t g_halfScreen;
-int32_t g_halveScreenArea = 0;
-
 static int32_t g_whichPalForPlayer = 9;
 
 static uint8_t precachehightile[2][MAXTILES>>3];
@@ -564,19 +561,6 @@ void G_UpdateScreenArea(void)
             y1 = ud.returnvar[0];
             x2 = ud.returnvar[1];
             y2 = ud.returnvar[2];
-        }
-
-        if (g_halveScreenArea)
-        {
-            int32_t ourxdimen=x2-x1, ourydimen=y2-y1;
-
-            g_halfScreen.x1 = x1;
-            g_halfScreen.y1 = y1;
-            g_halfScreen.xdimen = (ourxdimen>>1);
-            g_halfScreen.ydimen = (ourydimen>>1);
-
-            x2 = x1 + (ourxdimen>>1);
-            y2 = y1 + (ourydimen>>1);
         }
 
         videoSetViewableArea(x1,y1,x2-1,y2-1);
@@ -1772,7 +1756,7 @@ int G_EnterLevel(int gameMode)
         FX_StopAllSounds();
         S_ClearSoundLocks();
         FX_SetReverb(0);
-        videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP);
+        videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP, upscalefactor);
     }
 
     if (Menu_HaveUserMap())

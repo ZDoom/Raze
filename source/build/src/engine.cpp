@@ -21,6 +21,7 @@
 #include "baselayer.h"
 #include "scriptfile.h"
 
+#include "softsurface.h"
 #ifdef USE_OPENGL
 # include "glad/glad.h"
 # include "glsurface.h"
@@ -2336,8 +2337,8 @@ static inline void wallmosts_finish(int16_t *mostbuf, int32_t z1, int32_t z2,
 
 #if 0
     // enable for paranoia:
-    ix1 = clamp(ix1, 0, xres-1);
-    ix2 = clamp(ix2, 0, xres-1);
+    ix1 = clamp(ix1, 0, xdim-1);
+    ix2 = clamp(ix2, 0, xdim-1);
     if (ix2-ix1 < 0)
         swaplong(&ix1, &ix2);
 #endif
@@ -6518,13 +6519,13 @@ static void dorotatesprite(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t
 
     // bound clipping rectangle to screen
     if (cx1 < 0) cx1 = 0;
-    else if (cx1 > xres-1) cx1 = xres-1;
+    else if (cx1 > xdim-1) cx1 = xdim-1;
     if (cy1 < 0) cy1 = 0;
-    else if (cy1 > yres-1) cy1 = yres-1;
+    else if (cy1 > ydim-1) cy1 = ydim-1;
     if (cx2 < 0) cx2 = 0;
-    else if (cx2 > xres-1) cx2 = xres-1;
+    else if (cx2 > xdim-1) cx2 = xdim-1;
     if (cy2 < 0) cy2 = 0;
-    else if (cy2 > yres-1) cy2 = yres-1;
+    else if (cy2 > ydim-1) cy2 = ydim-1;
 
     xsiz = tilesiz[picnum].x;
     ysiz = tilesiz[picnum].y;
@@ -9826,11 +9827,21 @@ static void videoAllocateBuffers(void)
     ysavecnt = YSAVES;
     nodesperline = tabledivide32_noinline(YSAVES, ydim);
 
-#ifdef USE_OPENGL
-    extern char nogl;
-    if (videoGetRenderMode() == REND_CLASSIC && !nogl)
+#ifdef RENDERTYPESDL
+    if (videoGetRenderMode() == REND_CLASSIC)
     {
-        glsurface_initialize({xdim, ydim});
+# ifdef USE_OPENGL
+        extern char nogl;
+        if (!nogl)
+        {
+            glsurface_initialize({ xdim, ydim });
+        }
+        else
+# endif
+        {
+            softsurface_initialize({ xdim, ydim },
+                                   { xres, yres });
+        }
     }
 #endif
 }
@@ -9863,7 +9874,7 @@ static void PolymostProcessVoxels(void)
 //
 // JBF: davidoption now functions as a windowed-mode flag (0 == windowed, 1 == fullscreen)
 extern char videomodereset;
-int32_t videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32_t dabpp)
+int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daupscaledydim, int32_t dabpp, int32_t daupscalefactor)
 {
     int32_t j;
 
@@ -9872,11 +9883,11 @@ int32_t videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32
 
     if (nogl) dabpp = 8;
 #endif
-    daxdim = max(320, daxdim);
-    daydim = max(200, daydim);
+    daupscaledxdim = max(320, daupscaledxdim);
+    daupscaledydim = max(200, daupscaledydim);
 
-    if (in3dmode() && videomodereset == 0 &&
-            (davidoption == fullscreen) && (xdim == daxdim) && (ydim == daydim) && (bpp == dabpp))
+    if (in3dmode() && videomodereset == 0 && (davidoption == fullscreen) &&
+        (xres == daupscaledxdim) && (yres == daupscaledydim) && (bpp == dabpp) && (upscalefactor == daupscalefactor))
         return 0;
 
     Bstrcpy(kensmessage,"!!!! BUILD engine&tools programmed by Ken Silverman of E.G. RI."
@@ -9891,7 +9902,7 @@ int32_t videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32
     j = bpp;
 
     g_lastpalettesum = 0;
-    if (videoSetMode(daxdim,daydim,dabpp,davidoption) < 0) return -1;
+    if (videoSetMode(daupscaledxdim,daupscaledydim,dabpp,davidoption) < 0) return -1;
 
     // Workaround possible bugs in the GL driver
     makeasmwriteable();
@@ -9901,13 +9912,24 @@ int32_t videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32
     else rendmode = REND_CLASSIC;
 #endif
 
-    xdim = daxdim;
-    ydim = daydim;
+    upscalefactor = max(1, min(tabledivide32(yres, 200), daupscalefactor));
+    //POGOTODO: Polymost/Polymer could work with upscaling with a couple more changes
+    int32_t scalefactor = upscalefactor;
+#ifdef RENDERTYPESDL
+    if (bpp != 8)
+#endif
+    {
+        scalefactor = 1;
+    }
+    xdim = daupscaledxdim/scalefactor;
+    ydim = daupscaledydim/scalefactor;
 
 #ifdef USE_OPENGL
-    fxdim = (float) daxdim;
-    fydim = (float) daydim;
+    fxdim = (float) xdim;
+    fydim = (float) ydim;
 #endif
+
+    OSD_ResizeDisplay(xdim, ydim);
 
     videoAllocateBuffers();
 
@@ -12297,7 +12319,7 @@ void videoClearScreen(int32_t dacol)
 #endif
 
     videoBeginDrawing(); //{{{
-    Bmemset((void *)frameplace,dacol,bytesperline*yres);
+    Bmemset((void *)frameplace,dacol,bytesperline*ydim);
     videoEndDrawing();   //}}}
     //nextpage();
 
@@ -12761,20 +12783,22 @@ void videoSet2dMode(int32_t daxdim, int32_t daydim)
         ydim = yres;
 
 #ifdef USE_OPENGL
-        fxdim = (float) xres;
-        fydim = (float) yres;
+        fxdim = (float) xdim;
+        fydim = (float) ydim;
 
         rendmode = REND_CLASSIC;
 #endif
 
+        OSD_ResizeDisplay(xdim, ydim);
+
         videoAllocateBuffers();
 
-        ydim16 = yres - STATUS2DSIZ2;
-        halfxdim16 = xres >> 1;
-        midydim16 = ydim16 >> 1; // scale(200,yres,480);
+        ydim16 = ydim - STATUS2DSIZ2;
+        halfxdim16 = xdim >> 1;
+        midydim16 = ydim16 >> 1; // scale(200,ydim,480);
 
         videoBeginDrawing(); //{{{
-        Bmemset((char *)frameplace, 0, yres*bytesperline);
+        Bmemset((char *)frameplace, 0, ydim*bytesperline);
         videoEndDrawing();   //}}}
     }
 

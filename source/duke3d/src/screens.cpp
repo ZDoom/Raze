@@ -1212,7 +1212,7 @@ void G_DisplayRest(int32_t smoothratio)
         int32_t a = VM_OnEventWithReturn(EVENT_DISPLAYPOINTER, g_player[screenpeek].ps->i, screenpeek, CROSSHAIR);
         if ((unsigned) a < MAXTILES)
         {
-            vec2_t pointerpos = { ud.returnvar[0], ud.returnvar[1] };
+            vec2_t pointerpos = { tabledivide32(ud.returnvar[0], upscalefactor), tabledivide32(ud.returnvar[1], upscalefactor) };
             uint8_t pointer_pal = CROSSHAIR_PAL;
             uint32_t pointer_o = 1|2;
             uint32_t pointer_scale = 65536;
