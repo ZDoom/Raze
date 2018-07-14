@@ -171,11 +171,15 @@ void glsurface_destroy()
     glDeleteBuffers(1, &quadVertsID);
     quadVertsID = 0;
 
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+
     glDeleteTextures(1, &bufferTexID);
     bufferTexID = 0;
     glDeleteTextures(1, &paletteTexID);
     paletteTexID = 0;
 
+    glUseProgram(0);
     glDeleteProgram(shaderProgramID);
     shaderProgramID = 0;
 }

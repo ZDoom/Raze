@@ -9941,7 +9941,6 @@ int32_t videoSetGameMode(char davidoption, int32_t daxdim, int32_t daydim, int32
 
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
-        //POGOTODO: if we switch to software & then back to GL, this call tries to delete textures that were already lost from the GL Context deletion
         polymost_glreset();
         polymost_glinit();
     }

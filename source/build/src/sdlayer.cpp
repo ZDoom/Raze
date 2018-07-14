@@ -1453,8 +1453,13 @@ int32_t setvideomode_sdlcommon(int32_t *x, int32_t *y, int32_t c, int32_t fs, in
     {
         if (bpp > 8)
             polymost_glreset();
-        else if (!nogl)
+    }
+    if (!nogl)
+    {
+        if (bpp == 8)
             glsurface_destroy();
+        if ((fs == fullscreen) && (*x == xres) && (*y == yres) && (bpp != 0) && !videomodereset)
+            return 0;
     }
 #endif
 
@@ -1586,7 +1591,14 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
     int32_t regrab = 0, ret;
 
     ret = setvideomode_sdlcommon(&x, &y, c, fs, &regrab);
-    if (ret != 1) return ret;
+    if (ret != 1)
+    {
+        if (ret == 0)
+        {
+            setvideomode_sdlcommonpost(x, y, c, fs, regrab);
+        }
+        return ret;
+    }
 
     // deinit
     destroy_window_resources();
