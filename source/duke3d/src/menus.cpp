@@ -564,19 +564,15 @@ static MenuEntry_t ME_DISPLAYSETUP_ASPECTRATIO = MAKE_MENUENTRY( "Widescreen:", 
 #ifdef USE_OPENGL
 static int32_t MEOSV_PaletteEmulation[] = { 0, r_usetileshades };
 static MenuOptionSet_t MEOS_PaletteEmulation = MAKE_MENUOPTIONSET( MEOSN_OffOn, MEOSV_PaletteEmulation, 0x3 );
-#ifdef EDUKE32_SIMPLE_MENU
+# if !(defined EDUKE32_STANDALONE) || defined POLYMER
+#  ifdef EDUKE32_SIMPLE_MENU
 static MenuOption_t MEO_DISPLAYSETUP_PALETTEEMULATION = MAKE_MENUOPTION(&MF_Redfont, &MEOS_PaletteEmulation, &r_usetileshades);
 static MenuEntry_t ME_DISPLAYSETUP_PALETTEEMULATION = MAKE_MENUENTRY("Palette emulation:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_PALETTEEMULATION, Option);
-#endif
+#  endif
 
 //POGOTODO: allow filtering again in standalone once indexed colour textures support filtering
-#ifdef EDUKE32_STANDALONE
-static char const *MEOSN_DISPLAYSETUP_TEXFILTER[] = { "Classic" };
-static int32_t MEOSV_DISPLAYSETUP_TEXFILTER[] = { TEXFILTER_OFF };
-#else
 static char const *MEOSN_DISPLAYSETUP_TEXFILTER[] = { "Classic", "Filtered" };
 static int32_t MEOSV_DISPLAYSETUP_TEXFILTER[] = { TEXFILTER_OFF, TEXFILTER_ON };
-#endif
 static MenuOptionSet_t MEOS_DISPLAYSETUP_TEXFILTER = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_TEXFILTER, MEOSV_DISPLAYSETUP_TEXFILTER, 0x2 );
 static MenuOption_t MEO_DISPLAYSETUP_TEXFILTER = MAKE_MENUOPTION( &MF_Redfont, &MEOS_DISPLAYSETUP_TEXFILTER, &gltexfiltermode );
 static MenuEntry_t ME_DISPLAYSETUP_TEXFILTER = MAKE_MENUENTRY( "Texture Mode:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_TEXFILTER, Option );
@@ -586,14 +582,15 @@ static int32_t MEOSV_DISPLAYSETUP_ANISOTROPY[] = { 0, 1, 2, 4, 8, 16, };
 static MenuOptionSet_t MEOS_DISPLAYSETUP_ANISOTROPY = MAKE_MENUOPTIONSET( MEOSN_DISPLAYSETUP_ANISOTROPY, MEOSV_DISPLAYSETUP_ANISOTROPY, 0x0 );
 static MenuOption_t MEO_DISPLAYSETUP_ANISOTROPY = MAKE_MENUOPTION(&MF_Redfont, &MEOS_DISPLAYSETUP_ANISOTROPY, &glanisotropy);
 static MenuEntry_t ME_DISPLAYSETUP_ANISOTROPY = MAKE_MENUENTRY( "Anisotropy:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_ANISOTROPY, Option );
+# endif
 
-#ifdef EDUKE32_ANDROID_MENU
+# ifdef EDUKE32_ANDROID_MENU
 static MenuOption_t MEO_DISPLAYSETUP_HIDEDPAD = MAKE_MENUOPTION(&MF_Redfont, &MEOS_NoYes, &droidinput.hideStick);
 static MenuEntry_t ME_DISPLAYSETUP_HIDEDPAD = MAKE_MENUENTRY("Hide touch D-pad:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_HIDEDPAD, Option);
 
 static MenuRangeFloat_t MEO_DISPLAYSETUP_TOUCHALPHA = MAKE_MENURANGE(&droidinput.gameControlsAlpha, &MF_Redfont, 0, 1, 0, 16, 2);
 static MenuEntry_t ME_DISPLAYSETUP_TOUCHALPHA = MAKE_MENUENTRY("UI opacity:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_DISPLAYSETUP_TOUCHALPHA, RangeFloat);
-#endif
+# endif
 
 #endif
 
@@ -747,17 +744,23 @@ static MenuEntry_t *MEL_DISPLAYSETUP_GL[] = {
     &ME_DISPLAYSETUP_VIDEOSETUP,
     &ME_DISPLAYSETUP_ASPECTRATIO,
 #endif
+#ifndef EDUKE32_STANDALONE
     &ME_DISPLAYSETUP_TEXFILTER,
+#endif
 #ifdef EDUKE32_ANDROID_MENU
     &ME_DISPLAYSETUP_HIDEDPAD,
     &ME_DISPLAYSETUP_TOUCHALPHA,
 #else
+# ifndef EDUKE32_STANDALONE
     &ME_DISPLAYSETUP_ANISOTROPY,
-#ifdef EDUKE32_SIMPLE_MENU
+# endif
+# ifdef EDUKE32_SIMPLE_MENU
+#  ifndef EDUKE32_STANDALONE
     &ME_DISPLAYSETUP_PALETTEEMULATION,
-#else
+#  endif
+# else
     &ME_DISPLAYSETUP_ADVANCED_GL_POLYMOST,
-#endif
+# endif
 #endif
 };
 
@@ -1951,6 +1954,7 @@ static void Menu_Pre(MenuID_t cm)
                  (ud.screen_size > 8 && !(ud.statusbarflags & STATUSBAR_NOSHRINK)) * ((ud.screen_size - 8) >> 2)
                  -1;
 
+#ifndef EDUKE32_STANDALONE
         if (videoGetRenderMode() != REND_CLASSIC)
         {
             //POGOTODO: allow setting anisotropy again while r_useindexedcolortextures is set when support is added down the line
@@ -1969,6 +1973,7 @@ static void Menu_Pre(MenuID_t cm)
                 }
             }
         }
+#endif
         break;
 
     case MENU_POLYMER:
@@ -3282,8 +3287,10 @@ static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
         }
     }
 #ifdef USE_OPENGL
+#ifndef EDUKE32_STANDALONE
     else if (entry == &ME_DISPLAYSETUP_ANISOTROPY || entry == &ME_DISPLAYSETUP_TEXFILTER)
         gltexapplyprops();
+#endif
     else if (entry == &ME_RENDERERSETUP_TEXQUALITY)
     {
         texcache_invalidate();
