@@ -3458,12 +3458,13 @@ ACTOR_STATIC void G_MoveTransports(void)
                         {
                             if (pPlayer->on_ground && sectLotag == 0 && onFloor && pPlayer->jetpack_on == 0)
                             {
+#ifndef EDUKE32_STANDALONE
                                 if (sprite[spriteNum].pal == 0)
                                 {
                                     A_Spawn(spriteNum, TRANSPORTERBEAM);
                                     A_PlaySound(TELEPORTER, spriteNum);
                                 }
-
+#endif
                                 for (int TRAVERSE_CONNECT(otherPlayer))
                                 {
                                     if (g_player[otherPlayer].ps->cursectnum == sprite[OW(spriteNum)].sectnum)
@@ -3490,12 +3491,13 @@ ACTOR_STATIC void G_MoveTransports(void)
                                 changespritesect(sectSprite, sprite[OW(spriteNum)].sectnum);
                                 pPlayer->cursectnum = sprite[sectSprite].sectnum;
 
+#ifndef EDUKE32_STANDALONE
                                 if (sprite[spriteNum].pal == 0)
                                 {
                                     int const newSprite = A_Spawn(OW(spriteNum), TRANSPORTERBEAM);
                                     A_PlaySound(TELEPORTER, newSprite);
                                 }
-
+#endif
                                 break;
                             }
 
@@ -3624,7 +3626,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                         int const osect = sprite[OW(spriteNum)].sectnum;
 
                                         Bassert(sectLotag == ST_1_ABOVE_WATER || sectLotag == ST_2_UNDERWATER);
-
+#ifndef EDUKE32_STANDALONE
                                         int const newSprite = A_Spawn(sectSprite, WATERSPLASH2);
 
                                         if (sectLotag == ST_1_ABOVE_WATER && sprite[sectSprite].statnum == STAT_PROJECTILE)
@@ -3633,7 +3635,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                             sprite[newSprite].ang  = sprite[sectSprite].ang;
                                             A_SetSprite(newSprite, CLIPMASK0);
                                         }
-
+#endif
                                         actor[sectSprite].lasttransport = (totalclock & UINT8_MAX);
 
                                         sprite[sectSprite].x += sprite[OW(spriteNum)].x - SX(spriteNum);
@@ -3660,7 +3662,7 @@ ACTOR_STATIC void G_MoveTransports(void)
 
                                                 sprite[sectSprite].ang = sprite[OW(spriteNum)].ang;
                                                 actor[sectSprite].bpos = *(vec3_t *)&sprite[sectSprite];
-
+#ifndef EDUKE32_STANDALONE
                                                 if (sprite[spriteNum].pal == 0)
                                                 {
                                                     int newSprite = A_Spawn(spriteNum, TRANSPORTERBEAM);
@@ -3669,7 +3671,7 @@ ACTOR_STATIC void G_MoveTransports(void)
                                                     newSprite = A_Spawn(OW(spriteNum), TRANSPORTERBEAM);
                                                     A_PlaySound(TELEPORTER, newSprite);
                                                 }
-
+#endif
                                                 if (sprite[OW(spriteNum)].owner != OW(spriteNum))
                                                 {
                                                     T1(spriteNum)                  = 13;

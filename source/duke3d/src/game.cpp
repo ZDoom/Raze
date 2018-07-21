@@ -1544,6 +1544,7 @@ int A_Spawn(int spriteNum, int tileNum)
                 changespritestat(newSprite, STAT_ACTOR);
             }
             break;
+#ifndef EDUKE32_STANDALONE
         case CAMERAPOLE__STATIC:
             pSprite->extra = 1;
             pSprite->cstat &= 32768;
@@ -1561,7 +1562,6 @@ int A_Spawn(int spriteNum, int tileNum)
                 pSprite->pal = 0;
             break;
 
-#ifndef EDUKE32_STANDALONE
         case BOLT1__STATIC:
         case SIDEBOLT1__STATIC:
             T1(newSprite) = pSprite->xrepeat;
@@ -2647,13 +2647,14 @@ int A_Spawn(int spriteNum, int tileNum)
             }
             fallthrough__;
 #endif
+#ifndef EDUKE32_STANDALONE
         case EXPLOSION2BOT__STATIC:
         case BURNING__STATIC:
         case BURNING2__STATIC:
         case SMALLSMOKE__STATIC:
         case SHRINKEREXPLOSION__STATIC:
         case COOLEXPLOSION1__STATIC:
-
+#endif
             if (spriteNum >= 0)
             {
                 pSprite->ang = sprite[spriteNum].ang;
@@ -3447,10 +3448,10 @@ static int getofs_viewtype_mirrored(uint16_t & cstat, int angDiff)
 }
 
 // XXX: this fucking sucks and needs to be replaced with a SFLAG
+#ifndef EDUKE32_STANDALONE
 static int G_CheckAdultTile(int tileNum)
 {
     UNREFERENCED_PARAMETER(tileNum);
-#ifndef EDUKE32_STANDALONE
     switch (tileNum)
     {
         case FEM1__STATIC:
@@ -3515,9 +3516,9 @@ static int G_CheckAdultTile(int tileNum)
         case 4957:
             return 1;
     }
-#endif
     return 0;
 }
+#endif
 
 static inline void G_DoEventAnimSprites(int tspriteNum)
 {
@@ -3675,6 +3676,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         // NOTE: not const spritetype because set at SET_SPRITE_NOT_TSPRITE (see below).
         uspritetype *const pSprite = (i < 0) ? &tsprite[j] : (uspritetype *)&sprite[i];
 
+#ifndef EDUKE32_STANDALONE
         if (ud.lockout && G_CheckAdultTile(DYNAMICTILEMAP(pSprite->picnum)))
         {
             t->xrepeat = t->yrepeat = 0;
@@ -3686,7 +3688,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             t->shade = -127;
             t->cstat |= 8192;
         }
-
+#endif
         if (t->statnum == TSPR_TEMP)
             continue;
 
@@ -3729,6 +3731,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
         switch (DYNAMICTILEMAP(switchpic))
         {
+#ifndef EDUKE32_STANDALONE
         case DUKELYINGDEAD__STATIC:
             t->z += (24<<8);
             break;
@@ -3790,6 +3793,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
         case CRYSTALAMMO__STATIC:
             t->shade = (sintable[(totalclock<<4)&2047]>>10);
             continue;
+#endif
         case VIEWSCREEN__STATIC:
         case VIEWSCREEN2__STATIC:
         {
@@ -3828,7 +3832,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 
             break;
         }
-
+#ifndef EDUKE32_STANDALONE
         case SHRINKSPARK__STATIC:
             t->picnum = SHRINKSPARK+((totalclock>>4)&3);
             break;
@@ -3868,7 +3872,7 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
             t->picnum = RECON+frameOffset;
 
             break;
-
+#endif
         case APLAYER__STATIC:
             playerNum = P_GetP(pSprite);
 
@@ -4033,7 +4037,7 @@ PALONLY:
                 t->z = actor[i].floorz;
 
             break;
-
+#ifndef EDUKE32_STANDALONE
         case JIBS1__STATIC:
         case JIBS2__STATIC:
         case JIBS3__STATIC:
@@ -4069,7 +4073,6 @@ PALONLY:
 
             G_MaybeTakeOnFloorPal(t, sect);
             break;
-
         case WATERBUBBLE__STATIC:
             if (sector[t->sectnum].floorpicnum == FLOORSLIME)
             {
@@ -4077,6 +4080,7 @@ PALONLY:
                 break;
             }
             fallthrough__;
+#endif
         default:
             G_MaybeTakeOnFloorPal(t, sect);
             break;
@@ -4255,13 +4259,13 @@ skip:
 
         switch (DYNAMICTILEMAP(pSprite->picnum))
         {
+#ifndef EDUKE32_STANDALONE
         case LASERLINE__STATIC:
             if (sector[t->sectnum].lotag == ST_2_UNDERWATER) t->pal = 8;
             t->z = sprite[pSprite->owner].z-(3<<8);
             if (g_tripbombLaserMode == 2 && g_player[screenpeek].ps->heat_on == 0)
                 t->yrepeat = 0;
             fallthrough__;
-        case EXPLOSION2__STATIC:
         case EXPLOSION2BOT__STATIC:
         case FREEZEBLAST__STATIC:
         case ATOMICHEALTH__STATIC:
@@ -4272,6 +4276,8 @@ skip:
         case SHRINKEREXPLOSION__STATIC:
         case RPG__STATIC:
         case FLOORFLAME__STATIC:
+#endif
+        case EXPLOSION2__STATIC:
             if (t->picnum == EXPLOSION2)
             {
                 g_player[screenpeek].ps->visibility = -127;
@@ -4280,6 +4286,7 @@ skip:
             t->shade = -127;
             t->cstat |= 8192+1024;
             break;
+#ifndef EDUKE32_STANDALONE
         case FIRE__STATIC:
         case FIRE2__STATIC:
             t->cstat |= 128;
@@ -4329,6 +4336,7 @@ skip:
         case FRAMEEFFECT1_13__STATIC:
             if (PLUTOPAK) break;
             fallthrough__;
+#endif
         case FRAMEEFFECT1__STATIC:
             if (pSprite->owner >= 0 && sprite[pSprite->owner].statnum < MAXSTATUS)
             {

@@ -211,7 +211,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
 
     int const playerNum = pSprite->picnum == APLAYER ? P_GetP(pSprite) : -1;
 
-    if (pSprite->picnum == APLAYER)
+    if (playerNum != -1)
     {
         if (!g_player[playerNum].ps->auto_aim)
             return -1;
@@ -221,6 +221,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
             if (A_CheckSpriteTileFlags(projecTile,SFLAG_PROJECTILE) && (Proj_GetProjectile(projecTile)->workslike & PROJECTILE_RPG))
                 return -1;
 
+#ifndef EDUKE32_STANDALONE
             switch (DYNAMICTILEMAP(projecTile))
             {
             case TONGUE__STATIC:
@@ -235,26 +236,27 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
             default:
                 break;
             }
+#endif
         }
     }
 
     int const spriteAng = pSprite->ang;
 
-    int const gotShrinker =
-    (pSprite->picnum == APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == SHRINKER_WEAPON);
-    int const gotFreezer =
-    (pSprite->picnum == APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
+#ifndef EDUKE32_STANDALONE
+    int const isShrinker = (pSprite->picnum == APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == SHRINKER_WEAPON);
+    int const isFreezer  = (pSprite->picnum == APLAYER && PWEAPON(playerNum, g_player[playerNum].ps->curr_weapon, WorksLike) == FREEZE_WEAPON);
+#endif
 
     vec2_t const d1 = { sintable[(spriteAng + 512 - projAng) & 2047], sintable[(spriteAng - projAng) & 2047] };
     vec2_t const d2 = { sintable[(spriteAng + 512 + projAng) & 2047], sintable[(spriteAng + projAng) & 2047] };
     vec2_t const d3 = { sintable[(spriteAng + 512) & 2047], sintable[spriteAng & 2047] };
 
-    int lastDist     = INT32_MAX;
-    int returnSprite = -1;
+    int lastDist   = INT32_MAX;
+    int bestSprite = -1;
 
     for (bssize_t k=0; k<4; k++)
     {
-        if (returnSprite >= 0)
+        if (bestSprite >= 0)
             break;
 
         for (bssize_t spriteNum=headspritestat[aimstats[k]]; spriteNum >= 0; spriteNum=nextspritestat[spriteNum])
@@ -263,20 +265,22 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                  (sprite[spriteNum].cstat & (257 + 32768)) == 257) &&
                 (A_CheckEnemySprite(&sprite[spriteNum]) || k < 2))
             {
-                if (A_CheckEnemySprite(&sprite[spriteNum]) || PN(spriteNum) == APLAYER || PN(spriteNum) == SHARK)
+                if (A_CheckEnemySprite(&sprite[spriteNum]) || PN(spriteNum) == APLAYER)
                 {
                     if (PN(spriteNum) == APLAYER && pSprite->picnum == APLAYER && pSprite != &sprite[spriteNum] &&
                         (GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) ||
                          (GTFLAGS(GAMETYPE_TDM) && g_player[P_Get(spriteNum)].ps->team == g_player[playerNum].ps->team)))
                         continue;
 
-                    if ((gotShrinker && sprite[spriteNum].xrepeat < 30
+#ifndef EDUKE32_STANDALONE
+                    if ((isShrinker && sprite[spriteNum].xrepeat < 30
                         && (PN(spriteNum) == SHARK || !(PN(spriteNum) >= GREENSLIME && PN(spriteNum) <= GREENSLIME + 7)))
-                        || (gotFreezer && sprite[spriteNum].pal == 1))
+                        || (isFreezer && sprite[spriteNum].pal == 1))
                         continue;
+#endif
                 }
 
-                vec2_t vd = { (SX(spriteNum) - pSprite->x), (SY(spriteNum) - pSprite->y) };
+                vec2_t const vd = { (SX(spriteNum) - pSprite->x), (SY(spriteNum) - pSprite->y) };
 
                 if ((d1.y * vd.x <= d1.x * vd.y) && (d2.y * vd.x >= d2.x * vd.y))
                 {
@@ -292,16 +296,18 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
                             onScreen = (klabs(scale(SZ(spriteNum)-pSprite->z,10,spriteDist)-fix16_to_int(ps->q16horiz+ps->q16horizoff-F16(100))) < 100);
                         }
 
-                        int const canSee = (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN)
-                                            ? cansee(SX(spriteNum), SY(spriteNum), SZ(spriteNum), SECT(spriteNum), pSprite->x, pSprite->y,
-                                                    pSprite->z - ZOFFSET5, pSprite->sectnum)
-                                            : cansee(SX(spriteNum), SY(spriteNum), SZ(spriteNum) - ZOFFSET5, SECT(spriteNum), pSprite->x, pSprite->y,
-                                                    pSprite->z - ZOFFSET5, pSprite->sectnum);
+#ifndef EDUKE32_STANDALONE
+                        int const zOffset = (PN(spriteNum) == ORGANTIC || PN(spriteNum) == ROTATEGUN) ? ZOFFSET5 : 0;
+#else
+                        int const zOffset = 0;
+#endif
+                        int const canSee = cansee(SX(spriteNum), SY(spriteNum), SZ(spriteNum) - zOffset, SECT(spriteNum),
+                                                  pSprite->x, pSprite->y, pSprite->z - ZOFFSET5, pSprite->sectnum);
 
                         if (onScreen && canSee)
                         {
-                            lastDist = spriteDist;
-                            returnSprite = spriteNum;
+                            lastDist   = spriteDist;
+                            bestSprite = spriteNum;
                         }
                     }
                 }
@@ -309,7 +315,7 @@ static int A_FindTargetSprite(const spritetype *pSprite, int projAng, int projec
         }
     }
 
-    return returnSprite;
+    return bestSprite;
 }
 
 static void A_SetHitData(int spriteNum, const hitdata_t *hitData)
@@ -319,11 +325,13 @@ static void A_SetHitData(int spriteNum, const hitdata_t *hitData)
     actor[spriteNum].t_data[8] = hitData->sprite;
 }
 
+#ifndef EDUKE32_STANDALONE
 static int CheckShootSwitchTile(int tileNum)
 {
     return tileNum == DIPSWITCH || tileNum == DIPSWITCH + 1 || tileNum == DIPSWITCH2 || tileNum == DIPSWITCH2 + 1 ||
            tileNum == DIPSWITCH3 || tileNum == DIPSWITCH3 + 1 || tileNum == HANDSWITCH || tileNum == HANDSWITCH + 1;
 }
+#endif
 
 static int32_t safeldist(int32_t spriteNum, const void *pSprite)
 {
@@ -362,9 +370,11 @@ static int GetAutoAimAng(int spriteNum, int playerNum, int projecTile, int zAdju
         const uspritetype *const pSprite = (uspritetype *)&sprite[returnSprite];
         int                      zCenter = 2 * (pSprite->yrepeat * tilesiz[pSprite->picnum].y) + zAdjust;
 
+#ifndef EDUKE32_STANDALONE
         if (aimFlags &&
             ((pSprite->picnum >= GREENSLIME && pSprite->picnum <= GREENSLIME + 7) || pSprite->picnum == ROTATEGUN))
             zCenter -= ZOFFSET3;
+#endif
 
         int spriteDist = safeldist(g_player[playerNum].ps->i, &sprite[returnSprite]);
         *pZvel         = tabledivide32_noinline((pSprite->z - startPos->z - zCenter) * projVel, spriteDist);
@@ -460,8 +470,8 @@ static void P_PreFireHitscan(int spriteNum, int playerNum, int projecTile, vec3_
     pPlayer->angrange = angRange;
     pPlayer->zrange = zRange;
 #else
-    Gv_SetVar(g_angRangeVarID,angRange, spriteNum,playerNum);
-    Gv_SetVar(g_zRangeVarID,zRange,spriteNum,playerNum);
+    Gv_SetVar(g_angRangeVarID, angRange, spriteNum, playerNum);
+    Gv_SetVar(g_zRangeVarID, zRange, spriteNum, playerNum);
 #endif
 
     VM_OnEvent(EVENT_GETSHOTRANGE, spriteNum, playerNum);
@@ -616,10 +626,13 @@ static int Proj_MaybeDamageCF2(int const spriteNum, int const zvel, int const hi
 //    2: set cstat to wall-aligned + random x/y flip
 //
 // TODO: maybe split into 3 cases (hit neither wall nor sprite, hit sprite, hit wall)?
-static int P_PostFireHitscan(int const playerNum, int const spriteNum, hitdata_t *const hitData, int const spriteOwner,
+static int P_PostFireHitscan(int playerNum, int const spriteNum, hitdata_t *const hitData, int const spriteOwner,
                              int const projecTile, int const zvel, int const spawnTile, int const decalTile, int const wallDamage,
                              int const decalFlags)
 {
+#ifdef EDUKE32_STANDALONE
+    UNREFERENCED_PARAMETER(playerNum);
+#endif
     if (hitData->wall == -1 && hitData->sprite == -1)
     {
         if (Proj_MaybeDamageCF2(spriteNum, zvel, hitData->sect))
@@ -639,6 +652,7 @@ static int P_PostFireHitscan(int const playerNum, int const spriteNum, hitdata_t
             (ud.ffire == 1 || (!GTFLAGS(GAMETYPE_PLAYERSFRIENDLY) && GTFLAGS(GAMETYPE_TDM) &&
                                g_player[P_Get(hitData->sprite)].ps->team != g_player[P_Get(spriteOwner)].ps->team)))
         {
+#ifndef EDUKE32_STANDALONE
             int jibSprite = A_Spawn(spriteNum, JIBS6);
 
             sprite[spriteNum].xrepeat = sprite[spriteNum].yrepeat = 0;
@@ -646,17 +660,19 @@ static int P_PostFireHitscan(int const playerNum, int const spriteNum, hitdata_t
             sprite[jibSprite].xvel    = 16;
             sprite[jibSprite].xrepeat = sprite[jibSprite].yrepeat = 24;
             sprite[jibSprite].ang += 64 - (krand() & 127);
+#endif
         }
         else
         {
             Proj_MaybeSpawn(spriteNum, spawnTile, hitData);
         }
-
+#ifndef EDUKE32_STANDALONE
         if (playerNum >= 0 && CheckShootSwitchTile(sprite[hitData->sprite].picnum))
         {
             P_ActivateSwitch(playerNum, hitData->sprite, 1);
             return -1;
         }
+#endif
     }
     else if (hitData->wall >= 0)
     {
@@ -667,11 +683,13 @@ static int P_PostFireHitscan(int const playerNum, int const spriteNum, hitdata_t
         if (CheckDoorTile(hitWall->picnum) == 1)
             goto SKIPBULLETHOLE;
 
+#ifndef EDUKE32_STANDALONE
         if (playerNum >= 0 && CheckShootSwitchTile(hitWall->picnum))
         {
             P_ActivateSwitch(playerNum, hitData->wall, 0);
             return -1;
         }
+#endif
 
         if (hitWall->hitag != 0 || (hitWall->nextwall >= 0 && wall[hitWall->nextwall].hitag != 0))
             goto SKIPBULLETHOLE;
