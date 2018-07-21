@@ -5068,7 +5068,7 @@ DO_DEFSTATE:
                 C_GetNextVar();
 
                 intptr_t *tempscrptr= g_scriptPtr;
-                tempoffset = (unsigned)(tempscrptr-apScript);
+                tempoffset = (unsigned)(g_scriptPtr-apScript);
                 BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++=0; // leave spot for end location (for after processing)
                 BITPTR_CLEAR(g_scriptPtr-apScript);
@@ -5097,6 +5097,7 @@ DO_DEFSTATE:
                 if (tempscrptr)
                 {
                     tempscrptr[1]=(intptr_t)j;  // save count of cases
+                    BITPTR_CLEAR(&tempscrptr[1]-apScript);
                 }
                 else
                 {
@@ -5146,17 +5147,13 @@ DO_DEFSTATE:
 
                         if (n != i)
                         {
-                            t                 = tempscrptr[i];
-                            tempscrptr[i]     = tempscrptr[n];
-                            tempscrptr[n]     = t;
-                            t                 = tempscrptr[i + 1];
-                            tempscrptr[i + 1] = tempscrptr[n + 1];
-                            tempscrptr[n + 1] = t;
+                            swapptr(&tempscrptr[i],   &tempscrptr[n]);
+                            swapptr(&tempscrptr[i+1], &tempscrptr[n+1]);
                         }
                     }
                     //            for (j=3;j<3+tempscrptr[1]*2;j+=2)initprintf("%5d %8x\n",tempscrptr[j],tempscrptr[j+1]);
                     tempscrptr[0]= (intptr_t)g_scriptPtr - (intptr_t)&apScript[0];    // save 'end' location
-                    //            BITPTR_POINTER_SET(tempscrptr-script);
+                    BITPTR_CLEAR(tempscrptr-apScript);
                 }
                 else
                 {
