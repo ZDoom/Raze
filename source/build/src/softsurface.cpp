@@ -34,7 +34,7 @@ static uint32_t countTrailingZeros(uint32_t u)
 #if (defined __GNUC__  && __GNUC__>=3) || defined __clang__
     return __builtin_ctz(u);
 #elif defined _MSC_VER
-    uint32_t result;
+    DWORD result;
     _BitScanForward(&result, u);
     return result;
 #else
