@@ -1630,6 +1630,11 @@ int32_t registerosdcommands(void)
         { "cl_autoaim", "enable/disable weapon autoaim", (void *)&ud.config.AutoAim, CVAR_INT|CVAR_MULTI, 0, 3 },
         { "cl_automsg", "enable/disable automatically sending messages to all players", (void *)&ud.automsg, CVAR_BOOL, 0, 1 },
         { "cl_autorun", "enable/disable autorun", (void *)&ud.auto_run, CVAR_BOOL, 0, 1 },
+
+        { "cl_autosave", "enable/disable autosaves", (void *) &ud.autosave, CVAR_BOOL, 0, 1 },
+        { "cl_autosavedeletion", "enable/disable automatic deletion of autosaves", (void *) &ud.autosavedeletion, CVAR_BOOL, 0, 1 },
+        { "cl_maxautosaves", "number of autosaves to keep before deleting the oldest", (void *) &ud.maxautosaves, CVAR_INT, 1, 100 },
+
         { "cl_autovote", "enable/disable automatic voting", (void *)&ud.autovote, CVAR_INT, 0, 2 },
 
         { "cl_cheatmask", "configure what cheats show in the cheats menu", (void *)&cl_cheatmask, CVAR_UINT, 0, ~0 },
@@ -1735,10 +1740,6 @@ int32_t registerosdcommands(void)
         { "snd_numvoices", "the number of concurrent sounds", (void *)&ud.config.NumVoices, CVAR_INT, 1, 128 },
         { "snd_reversestereo", "reverses the stereo channels", (void *)&ud.config.ReverseStereo, CVAR_BOOL, 0, 1 },
         { "snd_speech", "enables/disables player speech", (void *)&ud.config.VoiceToggle, CVAR_INT, 0, 5 },
-
-        { "sv_autosave", "enable/disable autosaves", (void *)&ud.autosave, CVAR_BOOL, 0, 1 },
-        { "sv_autosavedeletion", "enable/disable automatic deletion of autosaves", (void *)&ud.autosavedeletion, CVAR_BOOL, 0, 1 },
-        { "sv_maxautosaves", "number of autosaves to keep before deleting the oldest", (void *)&ud.maxautosaves, CVAR_INT, 1, 100 },
 
         { "team","change team in multiplayer", (void *)&ud.team, CVAR_INT|CVAR_MULTI, 0, 3 },
 
