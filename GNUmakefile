@@ -129,13 +129,7 @@ glad_src := $(glad_root)/src
 glad_inc := $(glad_root)/include
 glad_obj := $(obj)/$(glad)
 
-glad__no_cast_qual := -Wno-cast-qual
-ifeq (4,$(GCC_MAJOR))
-    ifneq (,$(filter 0 1 2 3 4,$(GCC_MINOR)))
-        glad__no_cast_qual :=
-    endif
-endif
-glad_cflags := $(glad__no_cast_qual)
+glad_cflags :=
 
 ifeq ($(RENDERTYPE),WIN)
     glad_objs += glad_wgl.c
