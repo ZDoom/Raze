@@ -1688,6 +1688,11 @@ int P_GetKneePal(DukePlayer_t const * pPlayer, int const hudPal)
     return hudPal == 0 ? pPlayer->palookup : hudPal;
 }
 
+int P_GetOverheadPal(DukePlayer_t const * pPlayer)
+{
+    return sprite[pPlayer->i].pal;
+}
+
 static int P_DisplayFist(int const fistShade)
 {
     DukePlayer_t const *const pPlayer = g_player[screenpeek].ps;

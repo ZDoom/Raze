@@ -611,7 +611,7 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             else if (j > (65536<<1)) j = (65536<<1);
 
             rotatesprite_win((x1<<4)+(xdim<<15), (y1<<4)+(ydim<<15), j, daang, i, pSprite->shade,
-                (pPlayer->cursectnum > -1) ? sector[pPlayer->cursectnum].floorpal : 0, 0);
+                P_GetOverheadPal(pPlayer), 0);
         }
     }
 }

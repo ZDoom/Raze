@@ -368,6 +368,7 @@ int     P_GetKneePal(const DukePlayer_t *pPlayer);
 int     P_GetKneePal(const DukePlayer_t *pPlayer, int const hudPal);
 extern "C" {
 #endif
+int     P_GetOverheadPal(const DukePlayer_t *pPlayer);
 
 int Proj_GetDamage(projectile_t const *pProj);
 
