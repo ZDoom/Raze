@@ -5953,13 +5953,14 @@ static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRange
     int32_t const oldValue = *object->variable;
     int32_t const range = object->max - object->min;
     int32_t const maxInterval = object->steps - 1;
-    int32_t newValueIndex = roundscale(oldValue - object->min, maxInterval, range);
-    int32_t const newValueProjected = newValueIndex * range / maxInterval + object->min;
+    int32_t const oldValueIndex = roundscale(oldValue - object->min, maxInterval, range);
+    int32_t const oldValueQuantized = oldValueIndex * range / maxInterval + object->min;
+    int32_t newValueIndex = oldValueIndex;
 
     switch (direction)
     {
         case MM_Left:
-            if (newValueProjected >= oldValue)
+            if (oldValueQuantized >= oldValue)
                 --newValueIndex;
             if (newValueIndex >= 0)
                 break;
@@ -5969,7 +5970,7 @@ static void Menu_RunInput_EntryRangeInt32_Movement(MenuEntry_t *entry, MenuRange
             break;
 
         case MM_Right:
-            if (newValueProjected <= oldValue)
+            if (oldValueQuantized <= oldValue)
                 ++newValueIndex;
             if (newValueIndex <= maxInterval)
                 break;
@@ -6013,13 +6014,15 @@ static void Menu_RunInput_EntryRangeFloat_Movement(MenuEntry_t *entry, MenuRange
     float const oldValue = *object->variable;
     float const range = object->max - object->min;
     float const maxInterval = (float)(object->steps - 1);
-    float newValueIndex = rintf((oldValue - object->min) * maxInterval / range);
-    float const newValueProjected = newValueIndex * range / maxInterval + object->min;
+    float const oldValueIndexUnrounded = (oldValue - object->min) * maxInterval / range;
+    float const oldValueIndex = rintf(oldValueIndexUnrounded);
+    float const oldValueQuantized = oldValueIndex * range / maxInterval + object->min;
+    float newValueIndex = oldValueIndex;
 
     switch (direction)
     {
         case MM_Left:
-            if (newValueProjected >= oldValue)
+            if (oldValueQuantized >= oldValue)
                 newValueIndex -= 1.f;
             if (newValueIndex >= 0.f)
                 break;
@@ -6029,7 +6032,7 @@ static void Menu_RunInput_EntryRangeFloat_Movement(MenuEntry_t *entry, MenuRange
             break;
 
         case MM_Right:
-            if (newValueProjected <= oldValue)
+            if (oldValueQuantized <= oldValue)
                 newValueIndex += 1.f;
             if (newValueIndex <= maxInterval)
                 break;
@@ -6071,13 +6074,14 @@ static void Menu_RunInput_EntryRangeDouble_Movement(/*MenuEntry_t *entry, */Menu
     double const oldValue = *object->variable;
     double const range = object->max - object->min;
     double const maxInterval = object->steps - 1;
-    double newValueIndex = rint((oldValue - object->min) * maxInterval / range);
-    double const newValueProjected = newValueIndex * range / maxInterval + object->min;
+    double const oldValueIndex = rint((oldValue - object->min) * maxInterval / range);
+    double const oldValueQuantized = oldValueIndex * range / maxInterval + object->min;
+    double newValueIndex = oldValueIndex;
 
     switch (direction)
     {
         case MM_Left:
-            if (newValueProjected >= oldValue)
+            if (oldValueQuantized >= oldValue)
                 newValueIndex -= 1.;
             if (newValueIndex >= 0.)
                 break;
@@ -6087,7 +6091,7 @@ static void Menu_RunInput_EntryRangeDouble_Movement(/*MenuEntry_t *entry, */Menu
             break;
 
         case MM_Right:
-            if (newValueProjected <= oldValue)
+            if (oldValueQuantized <= oldValue)
                 newValueIndex += 1.;
             if (newValueIndex <= maxInterval)
                 break;
