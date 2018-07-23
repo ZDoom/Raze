@@ -362,6 +362,12 @@ void    P_UpdateScreenPal(DukePlayer_t *pPlayer);
 void    P_EndLevel(void);
 void    P_CheckWeaponI(int playerNum);
 int     P_GetHudPal(const DukePlayer_t *pPlayer);
+int     P_GetKneePal(const DukePlayer_t *pPlayer);
+#ifdef __cplusplus
+}
+int     P_GetKneePal(const DukePlayer_t *pPlayer, int const hudPal);
+extern "C" {
+#endif
 
 int Proj_GetDamage(projectile_t const *pProj);
 

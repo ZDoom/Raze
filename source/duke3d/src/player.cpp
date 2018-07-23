@@ -1678,6 +1678,16 @@ int P_GetHudPal(const DukePlayer_t *p)
     return 0;
 }
 
+int P_GetKneePal(DukePlayer_t const * pPlayer)
+{
+    return P_GetKneePal(pPlayer, P_GetHudPal(pPlayer));
+}
+
+int P_GetKneePal(DukePlayer_t const * pPlayer, int const hudPal)
+{
+    return hudPal == 0 ? pPlayer->palookup : hudPal;
+}
+
 static int P_DisplayFist(int const fistShade)
 {
     DukePlayer_t const *const pPlayer = g_player[screenpeek].ps;
@@ -1855,10 +1865,7 @@ static int P_DisplayKnee(int kneeShade)
         return 0;
 
     int const kneeY   = knee_y[ps->knee_incs] + (klabs(ps->look_ang) / 9) - (ps->hard_landing << 3);
-    int       kneePal = P_GetHudPal(ps);
-
-    if (kneePal == 0)
-        kneePal = ps->palookup;
+    int const kneePal = P_GetKneePal(ps);
 
     G_DrawTileScaled(105+(fix16_to_int(g_player[screenpeek].inputBits->q16avel)>>5)-(ps->look_ang>>1)+(knee_y[ps->knee_incs]>>2),
                      kneeY+280-(fix16_to_int(ps->q16horiz-ps->q16horizoff)>>4),KNEE,kneeShade,4+DRAWEAP_CENTER,kneePal);
@@ -2159,10 +2166,7 @@ void P_DisplayWeapon(void)
 
         if ((quickKickFrame != 14 || pPlayer->last_quick_kick) && ud.drawweapon == 1)
         {
-            int weaponPal = P_GetHudPal(pPlayer);
-
-            if (weaponPal == 0)
-                weaponPal = pPlayer->palookup;
+            int const weaponPal = P_GetKneePal(pPlayer);
 
             guniqhudid = 100;
 
@@ -2217,23 +2221,24 @@ void P_DisplayWeapon(void)
             int const doAnim      = !(sprite[pPlayer->i].pal == 1 || ud.pause_on || g_player[myconnectindex].ps->gm & MODE_MENU);
             int const halfLookAng = pPlayer->look_ang >> 1;
 
-            int weaponPal = P_GetHudPal(pPlayer);
+            int const weaponPal = P_GetHudPal(pPlayer);
 
             switch (currentWeapon)
             {
             case KNEE_WEAPON:
-                if (weaponPal == 0)
-                    weaponPal = pPlayer->palookup;
+            {
+                int const kneePal = P_GetKneePal(pPlayer, weaponPal);
 
                 guniqhudid = currentWeapon;
                 if (*weaponFrame < 5 || *weaponFrame > 9)
                     G_DrawTileScaled(weaponX + 220 - halfLookAng, weaponY + 250 - weaponYOffset, KNEE,
-                                     weaponShade, weaponBits, weaponPal);
+                                     weaponShade, weaponBits, kneePal);
                 else
                     G_DrawTileScaled(weaponX + 160 - halfLookAng, weaponY + 214 - weaponYOffset, KNEE + 1,
-                                     weaponShade, weaponBits, weaponPal);
+                                     weaponShade, weaponBits, kneePal);
                 guniqhudid = 0;
                 break;
+            }
 
             case TRIPBOMB_WEAPON:
                 weaponX += 8;
