@@ -98,6 +98,13 @@ struct menusave_t
     uint8_t isOldVer = 0;
     uint8_t isUnreadable = 0;
     uint8_t isAutoSave = 0;
+    void clear()
+    {
+      brief.reset();
+      isOldVer = 0;
+      isUnreadable = 0;
+      isAutoSave = 0;
+    }
 };
 
 extern savebrief_t g_lastautosave, g_lastusersave, g_freshload;

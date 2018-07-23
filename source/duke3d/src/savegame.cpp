@@ -206,7 +206,7 @@ static void ReadSaveGameHeaders_Internal(void)
     size_t const numfiles = countcache1dfind(findfiles_default);
     size_t const internalsavesize = sizeof(menusave_t) * numfiles;
     g_internalsaves = (menusave_t *)Xrealloc(g_internalsaves, internalsavesize);
-    memset(g_internalsaves, 0, internalsavesize);
+    g_internalsaves->clear();
 
     g_numinternalsaves = 0;
     ReadSaveGameHeaders_CACHE1D(findfiles_default);
@@ -223,7 +223,7 @@ static void ReadSaveGameHeaders_Internal(void)
     }
     size_t const menusavesize = sizeof(menusave_t) * g_nummenusaves;
     g_menusaves = (menusave_t *)Xrealloc(g_menusaves, menusavesize);
-    memset(g_menusaves, 0, menusavesize);
+    g_menusaves->clear();
     for (size_t x = g_numinternalsaves-1, y = 0; x < g_numinternalsaves; --x)
     {
         menusave_t & msv = g_internalsaves[x];
