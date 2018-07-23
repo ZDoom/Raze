@@ -308,7 +308,7 @@ SKIPWALLCHECK:
                 {
                     if (pOther->picnum == APLAYER)
                     {
-                        DukePlayer_t *pPlayer = g_player[P_GetP((uspritetype * const)pOther)].ps;
+                        DukePlayer_t *pPlayer = g_player[P_GetP((uspritetype *)pOther)].ps;
 
                         if (pPlayer->newowner >= 0)
                             G_ClearCameraView(pPlayer);

@@ -655,7 +655,7 @@ static void G_ReadGLFrame(void)
 {
     // Save OpenGL screenshot with Duke3D palette
     // NOTE: maybe need to move this to the engine...
-    palette_t *const frame = (palette_t *const)Xcalloc(xdim * ydim, sizeof(palette_t));
+    palette_t *const frame = (palette_t *)Xcalloc(xdim * ydim, sizeof(palette_t));
     char *const pic = (char *) waloff[TILE_SAVESHOT];
 
     int32_t x, y;
