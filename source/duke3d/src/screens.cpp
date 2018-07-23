@@ -577,9 +577,12 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
     {
         if (ud.scrollmode && p == screenpeek) continue;
 
-        ox = sprite[g_player[p].ps->i].x-cposx;
-        oy = sprite[g_player[p].ps->i].y-cposy;
-        daang = (sprite[g_player[p].ps->i].ang-cang)&2047;
+        DukePlayer_t const * const pPlayer = g_player[p].ps;
+        uspritetype const * const pSprite = (uspritetype const *)&sprite[pPlayer->i];
+
+        ox = pSprite->x - cposx;
+        oy = pSprite->y - cposy;
+        daang = (pSprite->ang - cang) & 2047;
         if (p == screenpeek)
         {
             ox = 0;
@@ -591,24 +594,24 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
 
         if (p == screenpeek || GTFLAGS(GAMETYPE_OTHERPLAYERSINMAP))
         {
-            if (sprite[g_player[p].ps->i].xvel > 16 && g_player[p].ps->on_ground)
+            if (pSprite->xvel > 16 && pPlayer->on_ground)
                 i = APLAYERTOP+((totalclock>>4)&3);
             else
                 i = APLAYERTOP;
 
-            i = VM_OnEventWithReturn(EVENT_DISPLAYOVERHEADMAPPLAYER, g_player[p].ps->i, p, i);
+            i = VM_OnEventWithReturn(EVENT_DISPLAYOVERHEADMAPPLAYER, pPlayer->i, p, i);
 
             if (i < 0)
                 continue;
 
-            j = klabs(g_player[p].ps->truefz-g_player[p].ps->pos.z)>>8;
-            j = mulscale16(czoom*(sprite[g_player[p].ps->i].yrepeat+j), yxaspect);
+            j = klabs(pPlayer->truefz - pPlayer->pos.z) >> 8;
+            j = mulscale16(czoom * (pSprite->yrepeat + j), yxaspect);
 
             if (j < 22000) j = 22000;
-            else if (j >(65536<<1)) j = (65536<<1);
+            else if (j > (65536<<1)) j = (65536<<1);
 
-            rotatesprite_win((x1<<4)+(xdim<<15), (y1<<4)+(ydim<<15), j, daang, i, sprite[g_player[p].ps->i].shade,
-                (g_player[p].ps->cursectnum > -1) ? sector[g_player[p].ps->cursectnum].floorpal : 0, 0);
+            rotatesprite_win((x1<<4)+(xdim<<15), (y1<<4)+(ydim<<15), j, daang, i, pSprite->shade,
+                (pPlayer->cursectnum > -1) ? sector[pPlayer->cursectnum].floorpal : 0, 0);
         }
     }
 }
