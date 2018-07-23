@@ -24,7 +24,8 @@ static uint32_t pPal[256];
 // lookup table to find the source position within a scanline
 static uint16_t* scanPosLookupTable;
 
-static uint32_t roundUp(uint32_t num, uint32_t multiple)
+template <uint32_t multiple>
+static uint32_t roundUp(uint32_t num)
 {
     return (num+multiple-1)/multiple * multiple;
 }
@@ -59,7 +60,7 @@ bool softsurface_initialize(vec2_t bufferResolution,
 
     // allocate one continuous block of memory large enough to hold the buffer, the palette,
     // and the scanPosLookupTable while maintaining alignment for each
-    uint32_t bufferSize = roundUp(bufferRes.x * bufferRes.y, 16);
+    uint32_t bufferSize = roundUp<16>(bufferRes.x * bufferRes.y);
     buffer = (uint8_t*) Xaligned_alloc(16, bufferSize + sizeof(uint16_t)*destBufferRes.x);
     scanPosLookupTable = (uint16_t*) (buffer + bufferSize);
 
