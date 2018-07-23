@@ -2426,8 +2426,8 @@ badindex:
                         switch (code&M32_VARTYPE_MASK)
                         {
                         case M32_FLAG_ARRAY:
-                            Bsprintf(buf, "%s[%s]", aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel?
-                                     aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel:"???", buf2);
+                            Bsnprintf(buf, sizeof(buf), "%s[%s]", aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel
+                                      ? aGameArrays[code&(MAXGAMEARRAYS-1)].szLabel : "???", buf2);
                             break;
                         case M32_FLAG_STRUCT:
                         {
@@ -2441,14 +2441,14 @@ badindex:
                                 memberid -= LIGHT_X;
                             }
 
-                            Bsprintf(buf, "%s[%s].%s", pp1[code&3], buf2, pp2[code&3][memberid].name);
+                            Bsnprintf(buf, sizeof(buf), "%s[%s].%s", pp1[code&3], buf2, pp2[code&3][memberid].name);
                         }
                         break;
                         case M32_FLAG_VAR:
-                            Bsprintf(buf, "???");
+                            Bstrcpy(buf, "???");
                             break;
                         case M32_FLAG_LOCAL:
-                            Bsprintf(buf, ".local[%s]", buf2);
+                            Bsnprintf(buf, sizeof(buf), ".local[%s]", buf2);
                             break;
                         }
                     }
@@ -2465,7 +2465,7 @@ badindex:
                         Bstrcat(buf2, buf);
                     }
 
-                    Bsprintf(buf, "%s%s", buf2, aGameVars[code].szLabel ? aGameVars[code].szLabel : "???");
+                    Bsnprintf(buf, sizeof(buf), "%s%s", buf2, aGameVars[code].szLabel ? aGameVars[code].szLabel : "???");
                 }
 
                 OSD_Printf("L%d: %s%s=%d\n", g_errorLineNum, negate?"-":"", buf, val);

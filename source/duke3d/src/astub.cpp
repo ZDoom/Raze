@@ -715,9 +715,9 @@ const char *ExtGetSectorCaption(int16_t sectnum)
     {
         Bstrcpy(lo, ExtGetSectorType(sector[sectnum].lotag));
         if (!in3dmode())
-            Bsprintf(tempbuf,"%hu,%hu %s", TrackerCast(sector[sectnum].hitag), TrackerCast(sector[sectnum].lotag), lo);
+            Bsnprintf(tempbuf, sizeof(tempbuf), "%hu,%hu %s", TrackerCast(sector[sectnum].hitag), TrackerCast(sector[sectnum].lotag), lo);
         else
-            Bsprintf(tempbuf,"%hu %s", TrackerCast(sector[sectnum].lotag), lo);
+            Bsnprintf(tempbuf, sizeof(tempbuf), "%hu %s", TrackerCast(sector[sectnum].lotag), lo);
     }
     return tempbuf;
 }
@@ -767,7 +767,7 @@ const char *ExtGetWallCaption(int16_t wallnum)
 #endif
         {
             taglab_handle1(lt&1, wall[wallnum].lotag, lostr);
-            Bsprintf(tempbuf, "%s,%s", histr, lostr);
+            Bsnprintf(tempbuf, sizeof(tempbuf), "%s,%s", histr, lostr);
         }
     }
 
@@ -870,7 +870,7 @@ const char *SectorEffectorText(int32_t spritenum)
     else
     {
         if (cursprite == spritenum)
-            Bsprintf(tempbuf, "SE %d %s", TrackerCast(sprite[spritenum].lotag), lo);
+            Bsnprintf(tempbuf, sizeof(tempbuf), "SE %d %s", TrackerCast(sprite[spritenum].lotag), lo);
         else Bstrcpy(tempbuf, lo);
     }
 

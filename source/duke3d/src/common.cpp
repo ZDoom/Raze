@@ -412,7 +412,7 @@ void G_LoadGroups(int32_t autoload)
 
         if (getcwd(cwd, BMAX_PATH))
         {
-            Bsprintf(cwd, "%s/%s", cwd, g_modDir);
+            Bsnprintf(cwd, sizeof(cwd), "%s/%s", cwd, g_modDir);
             if (!Bstrcmp(g_rootDir, cwd))
             {
                 if (addsearchpath(cwd) == -2)
@@ -422,7 +422,7 @@ void G_LoadGroups(int32_t autoload)
         }
 
 #ifdef USE_OPENGL
-        Bsprintf(cwd, "%s/%s", g_modDir, TEXCACHEFILE);
+        Bsnprintf(cwd, sizeof(cwd), "%s/%s", g_modDir, TEXCACHEFILE);
         Bstrcpy(TEXCACHEFILE, cwd);
 #endif
     }

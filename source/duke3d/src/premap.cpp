@@ -1809,12 +1809,12 @@ int G_EnterLevel(int gameMode)
     {
         if (g_gameNamePtr)
 #ifdef EDUKE32_STANDALONE
-            Bsprintf(apptitle, "%s - %s", boardfilename, g_gameNamePtr);
+            Bsnprintf(apptitle, sizeof(apptitle), "%s - %s", boardfilename, g_gameNamePtr);
 #else
-            Bsprintf(apptitle, "%s - %s - " APPNAME, boardfilename, g_gameNamePtr);
+            Bsnprintf(apptitle, sizeof(apptitle), "%s - %s - " APPNAME, boardfilename, g_gameNamePtr);
 #endif
         else
-            Bsprintf(apptitle, "%s - " APPNAME, boardfilename);
+            Bsnprintf(apptitle, sizeof(apptitle), "%s - " APPNAME, boardfilename);
     }
     else
     {
