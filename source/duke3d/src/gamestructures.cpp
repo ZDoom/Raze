@@ -427,6 +427,7 @@ void __fastcall VM_SetUserdef(int32_t const labelNum, int32_t const lParm2, int3
             else
                 ud.returnvar[lParm2 - 1] = iSet;
             break;
+        case USERDEFS_USERBYTEVERSION:              ud.userbytever                   = iSet; break;
         case USERDEFS_AUTOSAVE:                     ud.autosave                      = iSet; break;
         default: break;
     }
