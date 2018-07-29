@@ -9150,6 +9150,7 @@ static int32_t osdcmd_do(osdfuncparm_t const * const parm)
         if (!(vm.flags&VMFLAG_ERROR) && !dontsavehist)
             SaveInHistory(parm->raw);
 
+        OSD_Printf(OSDTEXT_GREEN "%s\n", parm->raw);
 //        asksave = 1; // handled in Access(Sprite|Sector|Wall)
     }
 
