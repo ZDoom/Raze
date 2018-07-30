@@ -440,12 +440,11 @@ static GLuint polymost2_compileShader(GLenum shaderType, const char* const sourc
 
     GLint compileStatus;
     glGetShaderiv(shaderID, GL_COMPILE_STATUS, &compileStatus);
-    OSD_Printf("Compile Status: %u\n", compileStatus);
-
     if (!compileStatus)
     {
         GLint logLength;
         glGetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &logLength);
+        OSD_Printf("Compile Status: %u\n", compileStatus);
         if (logLength > 0)
         {
             char *infoLog = (char*) malloc(logLength);
