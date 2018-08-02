@@ -837,7 +837,7 @@ static void G_PrintFPS(void)
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+30+FPS_YOFFSET,
                     FPS_COLOR(g_gameUpdateAndDrawTime >= SLOW_FRAME_TIME), -1, tempbuf, x);
 
-                chars = Bsprintf(tempbuf, "Min Game Update: %2d ms Max Game Update: %2d ms", minGameUpdate, maxGameUpdate);
+                chars = Bsprintf(tempbuf, "Min GU: %2d ms Max GU: %2d ms Avg GU: %5.2f ms", minGameUpdate, maxGameUpdate, g_gameUpdateAvgTime);
 
                 printext256(windowxy2.x-(chars<<(3-x))+1, windowxy1.y+40+2+FPS_YOFFSET, 0, -1, tempbuf, x);
                 printext256(windowxy2.x-(chars<<(3-x)), windowxy1.y+40+FPS_YOFFSET,

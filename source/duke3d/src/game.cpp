@@ -6770,6 +6770,9 @@ MAIN_LOOP_RESTART:
 
             gameUpdate = true;
             g_gameUpdateTime = timerGetTicks()-gameUpdateStartTime;
+            if (g_gameUpdateAvgTime < 0.f)
+                g_gameUpdateAvgTime = g_gameUpdateTime;
+            g_gameUpdateAvgTime = ((GAMEUPDATEAVGTIMENUMSAMPLES-1.f)*g_gameUpdateAvgTime+g_gameUpdateTime)/((float) GAMEUPDATEAVGTIMENUMSAMPLES);
         }
 
         G_DoCheats();

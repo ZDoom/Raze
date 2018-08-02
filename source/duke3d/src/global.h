@@ -163,6 +163,8 @@ G_EXTERN uint32_t everyothertime;
 G_EXTERN uint32_t g_moveThingsCount;
 G_EXTERN uint32_t g_gameUpdateTime;
 G_EXTERN uint32_t g_gameUpdateAndDrawTime;
+#define GAMEUPDATEAVGTIMENUMSAMPLES 100
+extern float g_gameUpdateAvgTime;
 
 #ifndef global_c_
 extern char CheatKeys[2];
