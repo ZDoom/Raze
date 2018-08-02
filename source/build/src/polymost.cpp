@@ -1332,27 +1332,20 @@ void polymost2_calc_fog(int32_t shade, int32_t vis, int32_t pal)
     if (nofog) return;
 
     fogresult = 0.f;
-    fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
     fogcol = fogtable[pal];
 
     if (((uint8_t)(vis + 16)) > 0 && g_visibility > 0)
     {
-        GLfloat glfogconstant = 262144.f;
+        constexpr GLfloat glfogconstant = 262144.f;
         GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
         GLfloat normalizedshade = shade / frealmaxshade;
         GLfloat fogshade = normalizedshade * fogrange;
 
-        fogresult = -fogshade;
+        // fogresult = -fogshade; // uncomment this to incorporate shades in the fog
         fogresult2 = fogrange - fogshade;
-
-        // substract shade from fog
-        if (shade > 0 && shade < realmaxshade)
-        {
-            fogresult = 1.f - (fogresult2 / (fogresult2 - fogresult));
-            fogresult = (fogresult - normalizedshade) / (1.f - normalizedshade);
-            fogresult = -((fogresult2 / (1.f - fogresult)) - fogresult2) ;
-        }
     }
+    else
+        fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
 }
 
 void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
@@ -1362,27 +1355,20 @@ void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal)
     if (r_usenewshading == 4)
     {
         fogresult = 0.f;
-        fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
         fogcol = fogtable[pal];
 
         if (((uint8_t)(vis + 16)) > 0 && globalvisibility > 0)
         {
-            GLfloat glfogconstant = 262144.f;
+            constexpr GLfloat glfogconstant = 262144.f;
             GLfloat fogrange = (frealmaxshade * glfogconstant) / (((uint8_t)(vis + 16)) * globalvisibility);
             GLfloat normalizedshade = shade / frealmaxshade;
             GLfloat fogshade = normalizedshade * fogrange;
 
-            fogresult = -fogshade;
+            // fogresult = -fogshade; // uncomment this to incorporate shades in the fog
             fogresult2 = fogrange - fogshade;
-
-            // substract shade from fog
-            if (shade > 0 && shade < realmaxshade)
-            {
-                fogresult = 1.f - (fogresult2 / (fogresult2 - fogresult));
-                fogresult = (fogresult - normalizedshade) / (1.f - normalizedshade);
-                fogresult = -((fogresult2 / (1.f - fogresult)) - fogresult2) ;
-            }
         }
+        else
+            fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
 
         glFogf(GL_FOG_START, fogresult);
         glFogf(GL_FOG_END, fogresult2);
@@ -1409,8 +1395,6 @@ void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t
 
     if (r_usenewshading == 4)
     {
-        fogresult = 0.f;
-        fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
         fogcol = fogtable[pal];
 
         if (((uint8_t)(vis + 16)) > 0 && ((((uint8_t)(vis + 16)) / 8.f) + shade) > 0)
@@ -1418,12 +1402,17 @@ void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t
             GLfloat normalizedshade = shade / frealmaxshade;
             GLfloat fogrange = (((uint8_t)(vis + 16)) / (8.f * frealmaxshade)) + normalizedshade;
 
-            // substract shade from fog
+            // subtract shades from fog
             if (shade > 0 && shade < realmaxshade)
                 fogrange = (fogrange - normalizedshade) / (1.f - normalizedshade);
 
             fogresult = -(GL_FOG_MAX * fogrange);
             fogresult2 = GL_FOG_MAX - (GL_FOG_MAX * fogrange);
+        }
+        else
+        {
+            fogresult = 0.f;
+            fogresult2 = -GL_FOG_MAX; // hide fog behind the camera
         }
 
         glFogf(GL_FOG_START, fogresult);
