@@ -208,8 +208,8 @@ static void ReadSaveGameHeaders_Internal(void)
 
     g_internalsaves = (menusave_t *)Xrealloc(g_internalsaves, internalsavesize);
 
-    if (internalsavesize)
-        g_internalsaves->clear();
+    for (size_t x = 0; x < numfiles; ++x)
+        g_internalsaves[x].clear();
 
     g_numinternalsaves = 0;
     ReadSaveGameHeaders_CACHE1D(findfiles_default);
@@ -228,8 +228,8 @@ static void ReadSaveGameHeaders_Internal(void)
 
     g_menusaves = (menusave_t *)Xrealloc(g_menusaves, menusavesize);
 
-    if (menusavesize)
-        g_menusaves->clear();
+    for (size_t x = 0; x < g_nummenusaves; ++x)
+        g_menusaves[x].clear();
 
     for (size_t x = g_numinternalsaves-1, y = 0; x < g_numinternalsaves; --x)
     {
