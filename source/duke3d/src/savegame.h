@@ -34,7 +34,7 @@ extern "C" {
 #else
 # define SV_MAJOR_VER 1
 #endif
-#define SV_MINOR_VER 6
+#define SV_MINOR_VER 7
 
 #pragma pack(push,1)
 typedef struct
@@ -45,6 +45,7 @@ typedef struct
     // 16 bytes
 
     uint32_t userbytever;
+    uint32_t scriptcrc;
 
     uint8_t comprthres;
     uint8_t recdiffsp, diffcompress, synccompress;

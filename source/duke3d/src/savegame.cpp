@@ -32,10 +32,6 @@ const char *g_failedVarname;
 
 static OutputFileCounter savecounter;
 
-extern char *bitptr;
-
-#define BITPTR_POINTER 1
-
 // For storing pointers in files.
 //  back_p==0: ptr -> "small int"
 //  back_p==1: "small int" -> ptr
@@ -1102,9 +1098,7 @@ static void sv_prespriteextsave();
 static void sv_postspriteext();
 #endif
 #if !defined LUNATIC
-static void sv_calcbitptrsize();
 static void sv_prescriptsave_once();
-static void sv_prescriptload_once();
 static void sv_postscript_once();
 #else
 // Recreate Lua state.
@@ -1116,7 +1110,6 @@ static void sv_create_lua_state(void)
     G_PostCreateGameState();
 }
 #endif
-static void sv_preactordatasave();
 static void sv_postactordata();
 static void sv_preanimateptrsave();
 static void sv_postanimateptr();
@@ -1140,9 +1133,6 @@ static projectile_t *ProjectileData;
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
       +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS)
 
-#if !defined LUNATIC
-static uint32_t savegame_bitptrsize;
-#endif
 static uint8_t savegame_quotedef[MAXQUOTES>>3];
 static char(*savegame_quotes)[MAXQUOTELEN];
 static char(*savegame_quoteredefs)[MAXQUOTELEN];
@@ -1235,8 +1225,6 @@ static const dataspec_t svgm_secwsp[] =
 #ifdef USE_OPENGL
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postspriteext, 0, 1 },
 #endif
-    { 0, &DynamicTileMap[0], sizeof(DynamicTileMap[0]), MAXTILES },  // NOCHK?
-    { 0, &DynamicSoundMap[0], sizeof(DynamicSoundMap[0]), MAXSOUNDS },  // NOCHK?
     { DS_NOCHK, &g_cyclerCnt, sizeof(g_cyclerCnt), 1 },
     { DS_CNT(g_cyclerCnt), &g_cyclers[0][0], sizeof(g_cyclers[0]), (intptr_t)&g_cyclerCnt },
     { DS_NOCHK, &g_animWallCnt, sizeof(g_animWallCnt), 1 },
@@ -1255,10 +1243,6 @@ static const dataspec_t svgm_script[] =
 {
     { DS_STRING, (void *)svgm_script_string, 0, 1 },
 #if !defined LUNATIC
-    { DS_NOCHK, &g_scriptSize, sizeof(g_scriptSize), 1 },
-    { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_calcbitptrsize, 0, 1 },
-    { DS_DYNAMIC|DS_CNT(savegame_bitptrsize)|DS_NOCHK, &bitptr, sizeof(bitptr[0]), (intptr_t)&savegame_bitptrsize },
-
     { DS_SAVEFN|DS_NOCHK, (void *)&sv_prescriptsave_once, 0, 1 },
 #endif
     { DS_SAVEFN, (void *) &sv_preprojectilesave, 0, 1 },
@@ -1268,11 +1252,8 @@ static const dataspec_t svgm_script[] =
     { DS_SAVEFN, (void *) &sv_postprojectilesave, 0, 1 },
     { DS_LOADFN, (void *) &sv_postprojectileload, 0, 1 },
 #if !defined LUNATIC
-    { DS_LOADFN|DS_NOCHK, (void *)&sv_prescriptload_once, 0, 1 },
-    { DS_DYNAMIC|DS_CNT(g_scriptSize)|DS_NOCHK, &apScript, sizeof(apScript[0]), (intptr_t)&g_scriptSize },
     { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_postscript_once, 0, 1 },
 #endif
-    { DS_SAVEFN, (void *)&sv_preactordatasave, 0, 1 },
     { 0, &actor[0], sizeof(actor_t), MAXSPRITES },
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
 #if defined LUNATIC
@@ -1313,7 +1294,6 @@ static const dataspec_t svgm_anmisc[] =
     { DS_DYNAMIC, &savegame_quotes, MAXQUOTELEN, MAXQUOTES },
     { DS_LOADFN, (void *)&sv_quoteload, 0, 1 },
 
-    { DS_NOCHK, &g_numXStrings, sizeof(g_numXStrings), 1 },
     { DS_NOCHK|DS_SAVEFN|DS_LOADFN, (void *)&sv_prequoteredef, 0, 1 },
     { DS_NOCHK|DS_SAVEFN, (void *)&sv_quoteredefsave, 0, 1 },  // quote redefinitions replace quotes at runtime, but cannot be changed after CON compilation
     { DS_NOCHK|DS_DYNAMIC|DS_CNT(g_numXStrings), &savegame_quoteredefs, MAXQUOTELEN, (intptr_t)&g_numXStrings },
@@ -1460,7 +1440,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
         h.ptrsize |= 1u<<7u;
     h.bytever = BYTEVERSION;
     h.userbytever = ud.userbytever;
-
+    h.scriptcrc = g_scriptcrc;
     h.comprthres = savegame_comprthres;
     h.recdiffsp = recdiffsp;
     h.diffcompress = savegame_diffcompress;
@@ -1586,12 +1566,13 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
         return -2;
     }
 
-    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION || h->userbytever != ud.userbytever)
+    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION || h->userbytever != ud.userbytever || h->scriptcrc != g_scriptcrc)
     {
+#ifndef DEBUGGINGAIDS
         if (havedemo)
-            OSD_Printf("Incompatible demo version. Expected %d.%d.%d.%d, found %d.%d.%d.%d\n",
-                       SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION, ud.userbytever,
-                       h->majorver, h->minorver, h->bytever, h->userbytever);
+#endif
+            OSD_Printf("Incompatible file version. Expected %d.%d.%d.%d.%0x, found %d.%d.%d.%d.%0x\n", SV_MAJOR_VER, SV_MINOR_VER, BYTEVERSION,
+                       ud.userbytever, g_scriptcrc, h->majorver, h->minorver, h->bytever, h->userbytever, h->scriptcrc);
 
         if (h->majorver == SV_MAJOR_VER && h->minorver == SV_MINOR_VER)
         {
@@ -1606,8 +1587,10 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
 
     if (h->getPtrSize() != sizeof(intptr_t))
     {
+#ifndef DEBUGGINGAIDS
         if (havedemo)
-            OSD_Printf("Demo incompatible. Expected pointer size %d, found %d\n",
+#endif
+            OSD_Printf("File incompatible. Expected pointer size %d, found %d\n",
                        (int32_t)sizeof(intptr_t), h->getPtrSize());
 
         Bmemset(h->headerstr, 0, sizeof(h->headerstr));
@@ -1820,48 +1803,18 @@ void sv_postyaxload(void)
 #endif
 
 #if !defined LUNATIC
-static void sv_calcbitptrsize()
-{
-    savegame_bitptrsize = (g_scriptSize+7)>>3;
-}
 static void sv_prescriptsave_once()
 {
-    int32_t i;
-    for (i=0; i<g_scriptSize; i++)
-        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
-            apScript[i] = (intptr_t *)apScript[i] - apScript;
-
    G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
    G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
 }
-static void sv_prescriptload_once()
-{
-    Bfree(apScript);
-    apScript = (intptr_t *)Xmalloc(g_scriptSize * sizeof(apScript[0]));
-}
+
 static void sv_postscript_once()
 {
-    int32_t i;
-
    G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
    G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
-
-    for (i=0; i<g_scriptSize; i++)
-        if (bitptr[i>>3]&(BITPTR_POINTER<<(i&7)))
-            apScript[i] = (intptr_t)(apScript + apScript[i]);
 }
 #endif
-
-static void sv_preactordatasave()
-{
-#ifdef POLYMER
-    for (bssize_t i=0; i<MAXSPRITES; i++)
-    {
-        actor[i].lightptr = NULL;
-        actor[i].lightId = -1;
-    }
-#endif
-}
 
 static void sv_postactordata()
 {

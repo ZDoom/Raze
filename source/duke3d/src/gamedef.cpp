@@ -30,12 +30,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "cheats.h"
 
 #include "osd.h"
+#include "crc32.h"
 
 int32_t g_scriptVersion = 13; // 13 = 1.3D-style CON files, 14 = 1.4/1.5 style CON files
 
 char g_scriptFileName[BMAX_PATH] = "(none)";  // file we're currently compiling
 
-int32_t g_totalLines,g_lineNumber;
+int32_t g_totalLines, g_lineNumber;
+uint32_t g_scriptcrc;
 char g_szBuf[1024];
 
 #if !defined LUNATIC
@@ -2401,6 +2403,7 @@ static void C_Include(const char *confile)
 
     kread(fp, mptr, j);
     kclose(fp);
+    g_scriptcrc = Bcrc32(mptr, j, g_scriptcrc);
     mptr[j] = 0;
 
     if (*textptr == '"') // skip past the closing quote if it's there so we don't screw up the next line
@@ -6666,6 +6669,9 @@ void C_Compile(const char *fileName)
     textptr = (char *) mptr;
     kread(kFile,(char *)textptr,kFileLen);
     kclose(kFile);
+
+    g_scriptcrc = Bcrc32(NULL, 0, 0L);
+    g_scriptcrc = Bcrc32(textptr, kFileLen, g_scriptcrc);
 
     Bfree(apScript);
 
