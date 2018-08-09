@@ -18,8 +18,8 @@ int isvalidipaddress (const char *st)
     UNREFERENCED_PARAMETER(st);
     return 0;
 }
-
-int initmultiplayersparms(int argc, char const * const argv[])
+#if 0 // XXX XXX XXX: causes internal compiler error with gcc 8.2.0, wtf?
+int initmultiplayersparms(int argc, char const * const * argv)
 {
     UNREFERENCED_PARAMETER(argc);
     UNREFERENCED_PARAMETER(argv);
@@ -31,7 +31,7 @@ int initmultiplayerscycle(void)
     return 0;
 }
 
-void initmultiplayers(int argc, char const * const argv[], unsigned char damultioption, unsigned char dacomrateoption, unsigned char dapriority)
+void initmultiplayers(int argc, char const * const * argv, unsigned char damultioption, unsigned char dacomrateoption, unsigned char dapriority)
 {
     UNREFERENCED_PARAMETER(argc);
     UNREFERENCED_PARAMETER(argv);
@@ -42,7 +42,7 @@ void initmultiplayers(int argc, char const * const argv[], unsigned char damulti
     numplayers = 1; myconnectindex = 0;
     connecthead = 0; connectpoint2[0] = -1;
 }
-
+#endif
 void setpackettimeout(int datimeoutcount, int daresendagaincount)
 {
     UNREFERENCED_PARAMETER(datimeoutcount);
