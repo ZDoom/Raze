@@ -2302,9 +2302,10 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     {
                         if (*insptr > 0)
                         {
+#ifndef EDUKE32_STANDALONE
                             if ((newHealth - *insptr) < (pPlayer->max_player_health >> 2) && newHealth >= (pPlayer->max_player_health >> 2))
                                 A_PlaySound(DUKE_GOTHEALTHATLOW, pPlayer->i);
-
+#endif
                             pPlayer->last_extra = newHealth;
                         }
 
