@@ -186,7 +186,7 @@ static void ToggleDesktopComposition(BOOL compEnable)
     static HRESULT(WINAPI *aDwmEnableComposition)(UINT);
 
     if (!hDWMApiDLL && (hDWMApiDLL = LoadLibrary("DWMAPI.DLL")))
-        aDwmEnableComposition = (HRESULT(WINAPI *)(UINT))GetProcAddress(hDWMApiDLL, "DwmEnableComposition");
+        aDwmEnableComposition = (HRESULT(WINAPI *)(UINT))(void (*)(void))GetProcAddress(hDWMApiDLL, "DwmEnableComposition");
 
     if (aDwmEnableComposition)
     {
@@ -207,8 +207,8 @@ void win_open(void)
     HMODULE ebacktrace = LoadLibraryA(EBACKTRACEDLL);
     if (ebacktrace)
     {
-        dllSetString SetTechnicalName = (dllSetString) GetProcAddress(ebacktrace, "SetTechnicalName");
-        dllSetString SetProperName = (dllSetString) GetProcAddress(ebacktrace, "SetProperName");
+        dllSetString SetTechnicalName = (dllSetString) (void (*)(void))GetProcAddress(ebacktrace, "SetTechnicalName");
+        dllSetString SetProperName = (dllSetString) (void (*)(void))GetProcAddress(ebacktrace, "SetProperName");
 
         if (SetTechnicalName)
             SetTechnicalName(AppTechnicalName);

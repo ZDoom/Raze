@@ -90,7 +90,7 @@ char *Bgethomedir(void)
     if (hShell32 == NULL)
         return NULL;
 
-    aSHGetSpecialFolderPathA = (aSHGetSpecialFolderPathAtype)GetProcAddress(hShell32, "SHGetSpecialFolderPathA");
+    aSHGetSpecialFolderPathA = (aSHGetSpecialFolderPathAtype)(void (*)(void))GetProcAddress(hShell32, "SHGetSpecialFolderPathA");
     if (aSHGetSpecialFolderPathA != NULL)
         if (SUCCEEDED(aSHGetSpecialFolderPathA(NULL, appdata, CSIDL_APPDATA, FALSE)))
         {
@@ -124,13 +124,13 @@ char *Bgetappdir(void)
     char *dir = NULL;
 
 #ifdef _WIN32
-	TCHAR appdir[MAX_PATH];
+    TCHAR appdir[MAX_PATH];
 
-	if (GetModuleFileName(NULL, appdir, MAX_PATH) > 0) {
-		// trim off the filename
-		char *slash = Bstrrchr(appdir, '\\');
-		if (slash) slash[0] = 0;
-		dir = Bstrdup(appdir);
+    if (GetModuleFileName(NULL, appdir, MAX_PATH) > 0) {
+        // trim off the filename
+        char *slash = Bstrrchr(appdir, '\\');
+        if (slash) slash[0] = 0;
+        dir = Bstrdup(appdir);
     }
 
 #elif defined EDUKE32_OSX
@@ -591,7 +591,7 @@ uint32_t Bgetsysmemsize(void)
     if (lib)
     {
         aGlobalMemoryStatusExType aGlobalMemoryStatusEx =
-            (aGlobalMemoryStatusExType)GetProcAddress(lib, "GlobalMemoryStatusEx");
+            (aGlobalMemoryStatusExType)(void (*)(void))GetProcAddress(lib, "GlobalMemoryStatusEx");
 
         if (aGlobalMemoryStatusEx)
         {
