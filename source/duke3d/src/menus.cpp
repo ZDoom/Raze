@@ -5435,7 +5435,7 @@ static int32_t Menu_RunInput_MouseReturn(void)
 static void Menu_Run_AbbreviateNameIntoBuffer(const char* name, int32_t entrylength)
 {
     int32_t len = Bstrlen(name);
-    Bstrncpy(tempbuf, name, len);
+    Bstrncpy(tempbuf, name, ARRAY_SIZE(tempbuf));
     if (len > entrylength)
     {
         len = entrylength-3;
