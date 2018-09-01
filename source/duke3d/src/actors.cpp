@@ -2945,7 +2945,9 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
                         {
                             actor[otherSprite].owner  = pSprite->owner;
                             actor[otherSprite].picnum = pSprite->picnum;
-                            actor[otherSprite].extra += pProj->extra;
+
+                            if (pProj->workslike & PROJECTILE_RPG_IMPACT_DAMAGE)
+                                actor[otherSprite].extra += pProj->extra;
 
                             A_DoProjectileEffects(spriteNum, &davect, 0);
 

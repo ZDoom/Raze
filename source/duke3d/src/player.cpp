@@ -971,8 +971,7 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
                 startPos->y + tabledivide32_noinline(sintable[(shootAng + 348) & 2047], pProj->offset),
                 startPos->z - (1 << 8), projecTile, 0, 14, 14, shootAng, pProj->vel, zvel, spriteNum, 4);
 
-
-            if (pProj->workslike & PROJECTILE_RPG_IMPACT)
+            if (pProj->workslike & PROJECTILE_RPG_IMPACT_DAMAGE)
                 sprite[otherSprite].extra = Proj_GetDamage(pProj);
 
             if (!(pProj->workslike & PROJECTILE_BOUNCESOFFWALLS))
