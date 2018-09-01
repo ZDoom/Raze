@@ -1566,7 +1566,7 @@ int32_t sv_loadheader(int32_t fil, int32_t spot, savehead_t *h)
         return -2;
     }
 
-    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION || h->userbytever != ud.userbytever || h->scriptcrc != g_scriptcrc)
+    if (h->majorver != SV_MAJOR_VER || h->minorver != SV_MINOR_VER || h->bytever != BYTEVERSION || h->userbytever != ud.userbytever || (apScript != NULL && h->scriptcrc != g_scriptcrc))
     {
 #ifndef DEBUGGINGAIDS
         if (havedemo)
