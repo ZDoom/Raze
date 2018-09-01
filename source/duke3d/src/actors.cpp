@@ -2935,8 +2935,9 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
                         {
                             int playerNum = P_Get(otherSprite);
 
+#ifndef EDUKE32_STANDALONE
                             A_PlaySound(PISTOL_BODYHIT, otherSprite);
-
+#endif
                             if (pProj->workslike & PROJECTILE_SPIT)
                                 P_HandleBeingSpitOn(g_player[playerNum].ps);
                         }
@@ -3341,8 +3342,10 @@ static int P_Submerge(int const spriteNum, int const playerNum, DukePlayer_t * c
             S_ClearSoundLocks();
         }
 
+#ifndef EDUKE32_STANDALONE
         if (sprite[pPlayer->i].extra > 0)
             A_PlaySound(DUKE_UNDERWATER, spriteNum);
+#endif
 
         pPlayer->opos.z = pPlayer->pos.z = sector[otherSect].ceilingz;
 
@@ -3369,7 +3372,9 @@ static int P_Emerge(int const spriteNum, int const playerNum, DukePlayer_t * con
             S_ClearSoundLocks();
         }
 
+#ifndef EDUKE32_STANDALONE
         A_PlaySound(DUKE_GASP, spriteNum);
+#endif
 
         pPlayer->opos.z = pPlayer->pos.z = sector[otherSect].floorz;
         pPlayer->vel.z = 0;
