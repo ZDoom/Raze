@@ -2678,7 +2678,7 @@ EDUKE32_STATIC_ASSERT(sizeof(projectile_t) == sizeof(DefaultProjectile));
 
 void C_AllocProjectile(int32_t j)
 {
-    g_tile[j].proj = (projectile_t *)Xmalloc(2 * sizeof(projectile_t));
+    g_tile[j].proj = (projectile_t *)Xrealloc(g_tile[j].proj, 2 * sizeof(projectile_t));
     g_tile[j].defproj = g_tile[j].proj + 1;
 }
 
