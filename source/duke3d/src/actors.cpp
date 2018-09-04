@@ -4637,7 +4637,7 @@ ACTOR_STATIC void G_MoveActors(void)
             int const j        = A_Spawn(spriteNum, (PLUTOPAK ? FRAMEEFFECT1 : FRAMEEFFECT1_13));
             actor[j].t_data[0] = 3;
         }
-        /* fall-through */
+            fallthrough__;
         case HEAVYHBOMB__STATIC:
         {
             int           playerNum;
@@ -7347,11 +7347,11 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                             case LASERLINE__STATIC: continue;
                         }
-                    // fall-through
+                        fallthrough__;
                     case STAT_STANDABLE:
                         if (sprite[sectSprite].picnum == TRIPBOMB)
                             break;
-                    // else, fall-through
+                        fallthrough__;
                     case STAT_ACTOR:
                     case STAT_DEFAULT:
                         if (sprite[sectSprite].picnum == BOLT1

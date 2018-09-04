@@ -559,6 +559,7 @@ int32_t handleevents_pollsdl(void)
                     ev.motion.yrel /= 12;
                 }
 #endif
+            fallthrough__;
             default: // OSD_Printf("Got event (%d)\n", ev.type); break;
                 rv = handleevents_sdlcommon(&ev);
                 break;

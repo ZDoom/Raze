@@ -7683,7 +7683,7 @@ static void Keys2d(void)
                 {
                 case 0:
                     printmessage16("MAP LIMITS EXCEEDED!");
-                    /* fall-through */
+                    fallthrough__;
                 default:
                     k = 0;
                     break;

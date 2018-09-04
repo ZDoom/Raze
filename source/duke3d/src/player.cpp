@@ -1109,7 +1109,7 @@ static int32_t A_ShootHardcoded(int spriteNum, int projecTile, int shootAng, vec
             if (playerNum < 0)
                 shootAng += 1024;
             Zvel = 1024 - (krand() & 2047);
-        // fall-through
+            fallthrough__;
         case KNEE__STATIC:
             if (projecTile == KNEE)
             {

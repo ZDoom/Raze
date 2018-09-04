@@ -3174,7 +3174,7 @@ int A_Spawn(int spriteNum, int tileNum)
 
             case SE_11_SWINGING_DOOR:  // Pivitor rotater
                 T4(newSprite) = (pSprite->ang > 1024) ? 2 : -2;
-            /* fall-through */
+                fallthrough__;
             case SE_0_ROTATING_SECTOR:
             case SE_2_EARTHQUAKE:      // Earthquakemakers
             case SE_5:                 // Boss Creature

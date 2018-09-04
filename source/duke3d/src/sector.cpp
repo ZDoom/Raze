@@ -1389,7 +1389,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
         default:
             if (CheckDoorTile(nSwitchPicnum) == 0)
                 break;
-        /* fall-through */
+            fallthrough__;
         case DIPSWITCH_LIKE_CASES:
             if (G_IsLikeDipswitch(nSwitchPicnum))
             {
@@ -1401,7 +1401,7 @@ int P_ActivateSwitch(int playerNum, int wallOrSprite, int switchType)
 
                 S_PlaySound3D(END_OF_LEVEL_WARN, g_player[playerNum].ps->i, &davector);
             }
-        /* fall-through */
+            fallthrough__;
         case ACCESSSWITCH_CASES:
         case MULTISWITCH__STATIC:
         case REST_SWITCH_CASES:
@@ -1563,7 +1563,7 @@ void A_DamageWall_Internal(int spriteNum, int wallNum, const vec3_t *vPos, int w
 #ifndef EDUKE32_STANDALONE
             case W_FORCEFIELD__STATIC:
                 pWall->extra = 1;  // tell the forces to animate
-            /* fall-through */
+                fallthrough__;
             case BIGFORCE__STATIC:
             {
                 updatesector(vPos->x, vPos->y, &sectNum);
@@ -2116,7 +2116,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
         }
         A_PlaySound(GLASS_HEAVYBREAK,spriteNum);
         A_PlaySound(SQUISHED,spriteNum);
-        /* fall-through */
+        fallthrough__;
     case BOTTLE7__STATIC:
         A_PlaySound(GLASS_BREAKING,spriteNum);
         A_SpawnWallGlass(spriteNum,-1,10);
@@ -2230,7 +2230,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
     case JURYGUY__STATIC:
         A_PlaySound(SLT(spriteNum),spriteNum);
         A_Spawn(spriteNum,SHT(spriteNum));
-        /* fall-through */
+        fallthrough__;
     case SPACEMARINE__STATIC:
         sprite[spriteNum].extra -= sprite[dmgSrc].extra;
         if (sprite[spriteNum].extra > 0) break;
@@ -2288,7 +2288,7 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
 
     case PLAYERONWATER__STATIC:
         spriteNum = OW(spriteNum);
-        /* fall-through */
+        fallthrough__;
     default:
         if ((sprite[spriteNum].cstat&16) && SHT(spriteNum) == 0 && SLT(spriteNum) == 0 && sprite[spriteNum].statnum == STAT_DEFAULT)
             break;

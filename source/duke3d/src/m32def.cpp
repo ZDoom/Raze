@@ -2027,7 +2027,7 @@ static int32_t C_ParseCommand(void)
             *g_scriptPtr++ = -1;
             return 0;
         }
-        // fall-through
+        fallthrough__;
     case CON_STATE:
         if (C_GetNextLabelName(1))
             return 1;
@@ -2622,7 +2622,7 @@ repeatcase:
             return 1;
         }
         textptr++;
-        // fall-through
+        fallthrough__;
     case CON_SETARRAY:
         if (C_GetNextLabelName(1))
             return 1;
