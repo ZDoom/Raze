@@ -410,20 +410,22 @@ void G_LoadGroups(int32_t autoload)
         addsearchpath(g_rootDir);
         //        addsearchpath(mod_dir);
 
+        char path[BMAX_PATH];
+
         if (getcwd(cwd, BMAX_PATH))
         {
-            Bsnprintf(cwd, sizeof(cwd), "%s/%s", cwd, g_modDir);
-            if (!Bstrcmp(g_rootDir, cwd))
+            Bsnprintf(path, sizeof(path), "%s/%s", cwd, g_modDir);
+            if (!Bstrcmp(g_rootDir, path))
             {
-                if (addsearchpath(cwd) == -2)
-                    if (Bmkdir(cwd, S_IRWXU) == 0)
-                        addsearchpath(cwd);
+                if (addsearchpath(path) == -2)
+                    if (Bmkdir(path, S_IRWXU) == 0)
+                        addsearchpath(path);
             }
         }
 
 #ifdef USE_OPENGL
-        Bsnprintf(cwd, sizeof(cwd), "%s/%s", g_modDir, TEXCACHEFILE);
-        Bstrcpy(TEXCACHEFILE, cwd);
+        Bsnprintf(path, sizeof(path), "%s/%s", g_modDir, TEXCACHEFILE);
+        Bstrcpy(TEXCACHEFILE, path);
 #endif
     }
 
