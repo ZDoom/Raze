@@ -162,8 +162,6 @@ void C_FreeProjectile(int32_t j);
 void C_InitQuotes(void);
 void C_InitProjectiles(void);
 
-extern int32_t g_numProjectiles;
-
 typedef struct {
     int spriteNum;
     int playerNum;

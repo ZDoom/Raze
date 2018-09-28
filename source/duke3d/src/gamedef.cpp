@@ -2672,7 +2672,6 @@ LUNATIC_EXTERN int32_t C_SetDefName(const char *name)
 }
 
 defaultprojectile_t DefaultProjectile;
-int32_t g_numProjectiles = 0;
 
 EDUKE32_STATIC_ASSERT(sizeof(projectile_t) == sizeof(DefaultProjectile));
 
@@ -2695,7 +2694,6 @@ LUNATIC_EXTERN void C_DefineProjectile(int32_t j, int32_t what, int32_t val)
     {
         C_AllocProjectile(j);
         *g_tile[j].proj = DefaultProjectile;
-        g_numProjectiles += 2;
     }
 
     projectile_t * const proj = g_tile[j].proj;

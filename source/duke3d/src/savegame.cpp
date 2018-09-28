@@ -1097,10 +1097,7 @@ static uint32_t calcsz(const dataspec_t *spec)
 static void sv_prespriteextsave();
 static void sv_postspriteext();
 #endif
-#if !defined LUNATIC
-static void sv_prescriptsave_once();
-static void sv_postscript_once();
-#else
+#if defined LUNATIC
 // Recreate Lua state.
 // XXX: It may matter a great deal when this is run from if the Lua code refers
 // to C-side data at file scope. Such usage is strongly discouraged though.
@@ -1127,7 +1124,9 @@ static void sv_postprojectilesave();
 static void sv_preprojectileload();
 static void sv_postprojectileload();
 
-static projectile_t *ProjectileData;
+static projectile_t *savegame_projectiledata;
+static uint8_t savegame_projectiles[MAXSPRITES>>3];
+static int32_t savegame_projectilecnt = 0;
 
 #define SVARDATALEN \
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
@@ -1242,18 +1241,12 @@ static char svgm_script_string [] = "blK:scri";
 static const dataspec_t svgm_script[] =
 {
     { DS_STRING, (void *)svgm_script_string, 0, 1 },
-#if !defined LUNATIC
-    { DS_SAVEFN|DS_NOCHK, (void *)&sv_prescriptsave_once, 0, 1 },
-#endif
     { DS_SAVEFN, (void *) &sv_preprojectilesave, 0, 1 },
+    { DS_NOCHK, &savegame_projectiles, sizeof(savegame_projectiles), 1 },
     { DS_LOADFN, (void *) &sv_preprojectileload, 0, 1 },
-    { DS_NOCHK, &g_tile[0], sizeof(tiledata_t), MAXTILES },
-    { DS_DYNAMIC|DS_CNT(g_numProjectiles), &ProjectileData, sizeof(projectile_t), (intptr_t)&g_numProjectiles },
+    { DS_DYNAMIC|DS_CNT(savegame_projectilecnt), &savegame_projectiledata, sizeof(projectile_t), (intptr_t)&savegame_projectilecnt },
     { DS_SAVEFN, (void *) &sv_postprojectilesave, 0, 1 },
     { DS_LOADFN, (void *) &sv_postprojectileload, 0, 1 },
-#if !defined LUNATIC
-    { DS_SAVEFN|DS_LOADFN|DS_NOCHK, (void *)&sv_postscript_once, 0, 1 },
-#endif
     { 0, &actor[0], sizeof(actor_t), MAXSPRITES },
     { DS_SAVEFN|DS_LOADFN, (void *)&sv_postactordata, 0, 1 },
 #if defined LUNATIC
@@ -1802,20 +1795,6 @@ void sv_postyaxload(void)
 }
 #endif
 
-#if !defined LUNATIC
-static void sv_prescriptsave_once()
-{
-   G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
-   G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_FWD_NON0);
-}
-
-static void sv_postscript_once()
-{
-   G_Util_PtrToIdx2(&g_tile[0].execPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
-   G_Util_PtrToIdx2(&g_tile[0].loadPtr, MAXTILES, sizeof(tiledata_t), apScript, P2I_BACK_NON0);
-}
-#endif
-
 static void sv_postactordata()
 {
 #ifdef POLYMER
@@ -1869,26 +1848,25 @@ static void sv_quoteload()
 
 static void sv_preprojectilesave()
 {
-    if (ProjectileData != NULL || g_numProjectiles > 0)
-        ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
-#ifdef DEBUGGINGAIDS
-    int onumprojectiles = g_numProjectiles;
-#endif
-    g_numProjectiles = 0;
+    savegame_projectilecnt = 0;
+
+    for (bssize_t i=0; i<MAXTILES; i++)
+        if (g_tile[i].proj)
+            savegame_projectilecnt++;
+
+    if (savegame_projectiledata != NULL || savegame_projectilecnt > 0)
+        savegame_projectiledata = (projectile_t *) Xrealloc(savegame_projectiledata, sizeof(projectile_t) * savegame_projectilecnt);
+
+    int32_t cnt = 0;
 
     for (bssize_t i=0; i<MAXTILES; i++)
     {
         if (g_tile[i].proj)
         {
-            Bmemcpy(&ProjectileData[g_numProjectiles], g_tile[i].proj, sizeof(projectile_t));
-            Bmemcpy(&ProjectileData[g_numProjectiles+1], g_tile[i].defproj, sizeof(projectile_t));
-            g_numProjectiles += 2;
+            savegame_projectiles[i>>3] |= 1<<(i&7);
+            Bmemcpy(&savegame_projectiledata[cnt++], g_tile[i].proj, sizeof(projectile_t));
         }
     }
-
-#ifdef DEBUGGINGAIDS
-    Bassert(g_numProjectiles == onumprojectiles);
-#endif
 }
 
 static void sv_postprojectilesave()
@@ -1898,35 +1876,30 @@ static void sv_postprojectilesave()
 
 static void sv_preprojectileload()
 {
-    if (ProjectileData != NULL || g_numProjectiles > 0)
-        ProjectileData = (projectile_t *) Xrealloc(ProjectileData, sizeof(projectile_t) * g_numProjectiles);
+    int32_t cnt = 0;
 
     for (bssize_t i=0; i<MAXTILES; i++)
-        C_FreeProjectile(i);
+    {
+        if (savegame_projectiles[i>>3]&(1<<(i&7)))
+            cnt++;
+    }
+
+    if (savegame_projectiledata != NULL || cnt > 0)
+        savegame_projectiledata = (projectile_t *) Xrealloc(savegame_projectiledata, sizeof(projectile_t) * cnt);
 }
 
 static void sv_postprojectileload()
 {
-#ifdef DEBUGGINGAIDS
-    int onumprojectiles = g_numProjectiles;
-#endif
-    g_numProjectiles = 0;
+    int32_t cnt = 0;
 
     for (bssize_t i=0; i<MAXTILES; i++)
     {
-        if (g_tile[i].proj)
+        if (savegame_projectiles[i>>3]&(1<<(i&7)))
         {
             C_AllocProjectile(i);
-            Bmemcpy(g_tile[i].proj, &ProjectileData[g_numProjectiles], sizeof(projectile_t));
-            Bmemcpy(g_tile[i].defproj, &ProjectileData[g_numProjectiles+1], sizeof(projectile_t));
-            g_numProjectiles += 2;
+            Bmemcpy(g_tile[i].proj, &savegame_projectiledata[cnt++], sizeof(projectile_t));
         }
     }
-
-#ifdef DEBUGGINGAIDS
-    Bassert(g_numProjectiles == onumprojectiles);
-#endif
-
 //    DO_FREE_AND_NULL(ProjectileData);
 }
 
