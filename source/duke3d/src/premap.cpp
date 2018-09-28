@@ -1216,10 +1216,26 @@ static void prelevel(char g)
 
         switch (DYNAMICTILEMAP(pWall->picnum))
         {
+#ifndef EDUKE32_STANDALONE
             case WATERTILE2__STATIC:
                 for (bsize_t j = 0; j < 3; j++)
                     tloadtile(pWall->picnum + j, 0);
                 break;
+
+            case FEMPIC1__STATIC:
+            case FEMPIC2__STATIC:
+            case FEMPIC3__STATIC:
+                pWall->extra                 = pWall->picnum;
+                animwall[g_animWallCnt].tag = -1;
+
+                if (ud.lockout)
+                    pWall->picnum = (pWall->picnum == FEMPIC1) ? BLANKSCREEN : SCREENBREAK6;
+
+                animwall[g_animWallCnt].wallnum = i;
+                animwall[g_animWallCnt].tag     = pWall->picnum;
+                g_animWallCnt++;
+                break;
+#endif
 
             case TECHLIGHT2__STATIC:
             case TECHLIGHT4__STATIC: tloadtile(pWall->picnum, 0); break;
@@ -1239,20 +1255,6 @@ static void prelevel(char g)
 
                 animwall[g_animWallCnt].wallnum = i;
                 animwall[g_animWallCnt].tag     = -1;
-                g_animWallCnt++;
-                break;
-
-            case FEMPIC1__STATIC:
-            case FEMPIC2__STATIC:
-            case FEMPIC3__STATIC:
-                pWall->extra                 = pWall->picnum;
-                animwall[g_animWallCnt].tag = -1;
-
-                if (ud.lockout)
-                    pWall->picnum = (pWall->picnum == FEMPIC1) ? BLANKSCREEN : SCREENBREAK6;
-
-                animwall[g_animWallCnt].wallnum = i;
-                animwall[g_animWallCnt].tag     = pWall->picnum;
                 g_animWallCnt++;
                 break;
 
