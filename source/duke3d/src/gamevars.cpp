@@ -174,8 +174,6 @@ int Gv_ReadSave(int32_t kFile)
 
     Gv_RefreshPointers();
 
-    if (kdfread_LZ4(apScriptEvents, sizeof(apScriptEvents), 1, kFile) != 1) goto corrupt;
-
     uint8_t savedstate[MAXVOLUMES*MAXLEVELS];
     Bmemset(savedstate, 0, sizeof(savedstate));
 
@@ -258,8 +256,6 @@ void Gv_WriteSave(FILE *fil)
         if ((aGameArrays[i].flags & GAMEARRAY_SYSTEM) != GAMEARRAY_SYSTEM)
             dfwrite_LZ4(aGameArrays[i].pValues, Gv_GetArrayAllocSize(i), 1, fil);
     }
-
-    dfwrite_LZ4(apScriptEvents, sizeof(apScriptEvents), 1, fil);
 
     uint8_t savedstate[MAXVOLUMES * MAXLEVELS];
     Bmemset(savedstate, 0, sizeof(savedstate));
