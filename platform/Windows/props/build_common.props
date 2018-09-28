@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>WIN32;RENDERTYPESDL=1;MIXERTYPEWIN=1;SDL_USEFOLDER;SDL_TARGET=2;USE_OPENGL=1;POLYMER=1;STARTUP_WINDOW;USE_LIBVPX;HAVE_VORBIS;HAVE_XMP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>./include;./include/vpx/;./include/sdl2/;../../source/build/include;../../source/mact/include;../../source/audiolib/include;../../source/enet/include;../../source/glad/include;../../source/libxmp-lite/include;../../source/libxmp-lite/include/libxmp-lite</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;4244;4018;4267</DisableSpecificWarnings>
+      <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>Shlwapi.lib;Comctl32.lib;version.lib;Imm32.lib;libogg.a;libvorbis.a;libvorbisfile.a;libxmp-lite.a;libvpx.a;dxguid.lib;dsound.lib;winmm.lib;ws2_32.lib;libSDL2main.a;libSDL2.a;libcompat-to-msvc.a;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <ProjectGuid>{DBECB851-5624-4FA8-9A9D-7169D0F12FF1}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>build</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.props" />
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="props\build_x64.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="props\build_x64.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="props\build_x86.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="props\build_x86.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\Build\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\Build\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\Build\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\Build\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\source\build\src\2d.cpp" />
+    <ClCompile Include="..\..\source\build\src\a-c.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\animvpx.cpp" />
+    <ClCompile Include="..\..\source\build\src\baselayer.cpp" />
+    <ClCompile Include="..\..\source\build\src\cache1d.cpp" />
+    <ClCompile Include="..\..\source\build\src\clip.cpp" />
+    <ClCompile Include="..\..\source\build\src\colmatch.cpp" />
+    <ClCompile Include="..\..\source\build\src\common.cpp" />
+    <ClCompile Include="..\..\source\build\src\compat.cpp" />
+    <ClCompile Include="..\..\source\build\src\crc32.cpp" />
+    <ClCompile Include="..\..\source\build\src\defs.cpp" />
+    <ClCompile Include="..\..\source\build\src\dxtfilter.cpp" />
+    <ClCompile Include="..\..\source\build\src\dynamicgtk.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\engine.cpp" />
+    <ClCompile Include="..\..\source\build\src\fix16.c" />
+    <ClCompile Include="..\..\source\build\src\fix16_str.c" />
+    <ClCompile Include="..\..\source\build\src\glbuild.cpp" />
+    <ClCompile Include="..\..\source\build\src\glsurface.cpp" />
+    <ClCompile Include="..\..\source\build\src\gtkbits.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\hash.cpp" />
+    <ClCompile Include="..\..\source\build\src\hightile.cpp" />
+    <ClCompile Include="..\..\source\build\src\jwzgles.c" />
+    <ClCompile Include="..\..\source\build\src\kplib.cpp" />
+    <ClCompile Include="..\..\source\build\src\lunatic.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\lz4.c" />
+    <ClCompile Include="..\..\source\build\src\md4.cpp" />
+    <ClCompile Include="..\..\source\build\src\mdsprite.cpp" />
+    <ClCompile Include="..\..\source\build\src\mhk.cpp" />
+    <ClCompile Include="..\..\source\build\src\mingw_main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\miniz.c">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\miniz_tdef.c" />
+    <ClCompile Include="..\..\source\build\src\miniz_tinfl.c" />
+    <ClCompile Include="..\..\source\build\src\mmulti_null.cpp" />
+    <ClCompile Include="..\..\source\build\src\mutex.cpp" />
+    <ClCompile Include="..\..\source\build\src\osd.cpp" />
+    <ClCompile Include="..\..\source\build\src\palette.cpp" />
+    <ClCompile Include="..\..\source\build\src\pngwrite.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\polymer.cpp" />
+    <ClCompile Include="..\..\source\build\src\polymost.cpp" />
+    <ClCompile Include="..\..\source\build\src\pragmas.cpp" />
+    <ClCompile Include="..\..\source\build\src\rawinput.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\rev.cpp" />
+    <ClCompile Include="..\..\source\build\src\screenshot.cpp" />
+    <ClCompile Include="..\..\source\build\src\scriptfile.cpp" />
+    <ClCompile Include="..\..\source\build\src\sdlayer.cpp" />
+    <ClCompile Include="..\..\source\build\src\sdlayer12.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\sdlkeytrans.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\smalltextfont.cpp" />
+    <ClCompile Include="..\..\source\build\src\softsurface.cpp" />
+    <ClCompile Include="..\..\source\build\src\texcache.cpp" />
+    <ClCompile Include="..\..\source\build\src\textfont.cpp" />
+    <ClCompile Include="..\..\source\build\src\tilepacker.cpp" />
+    <ClCompile Include="..\..\source\build\src\tiles.cpp" />
+    <ClCompile Include="..\..\source\build\src\voxmodel.cpp" />
+    <ClCompile Include="..\..\source\build\src\wiibits.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\winbits.cpp" />
+    <ClCompile Include="..\..\source\build\src\winlayer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\source\build\src\xxhash.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\source\build\include\a.h" />
+    <ClInclude Include="..\..\source\build\include\animvpx.h" />
+    <ClInclude Include="..\..\source\build\include\baselayer.h" />
+    <ClInclude Include="..\..\source\build\include\build.h" />
+    <ClInclude Include="..\..\source\build\include\buildtypes.h" />
+    <ClInclude Include="..\..\source\build\include\cache1d.h" />
+    <ClInclude Include="..\..\source\build\include\clip.h" />
+    <ClInclude Include="..\..\source\build\include\colmatch.h" />
+    <ClInclude Include="..\..\source\build\include\common.h" />
+    <ClInclude Include="..\..\source\build\include\compat.h" />
+    <ClInclude Include="..\..\source\build\include\crc32.h" />
+    <ClInclude Include="..\..\source\build\include\dxdidf.h" />
+    <ClInclude Include="..\..\source\build\include\dxtfilter.h" />
+    <ClInclude Include="..\..\source\build\include\dynamicgtk.h" />
+    <ClInclude Include="..\..\source\build\include\editor.h" />
+    <ClInclude Include="..\..\source\build\include\fix16.h" />
+    <ClInclude Include="..\..\source\build\include\fix16.hpp" />
+    <ClInclude Include="..\..\source\build\include\fix16_int64.h" />
+    <ClInclude Include="..\..\source\build\include\glbuild.h" />
+    <ClInclude Include="..\..\source\build\include\glsurface.h" />
+    <ClInclude Include="..\..\source\build\include\gtkbits.h" />
+    <ClInclude Include="..\..\source\build\include\hash.h" />
+    <ClInclude Include="..\..\source\build\include\hightile.h" />
+    <ClInclude Include="..\..\source\build\include\jwzgles.h" />
+    <ClInclude Include="..\..\source\build\include\jwzglesI.h" />
+    <ClInclude Include="..\..\source\build\include\kplib.h" />
+    <ClInclude Include="..\..\source\build\include\libdivide.h" />
+    <ClInclude Include="..\..\source\build\include\lz4.h" />
+    <ClInclude Include="..\..\source\build\include\lzwnew.h" />
+    <ClInclude Include="..\..\source\build\include\md4.h" />
+    <ClInclude Include="..\..\source\build\include\mdsprite.h" />
+    <ClInclude Include="..\..\source\build\include\miniz.h" />
+    <ClInclude Include="..\..\source\build\include\mmulti.h" />
+    <ClInclude Include="..\..\source\build\include\msvc\inttypes.h" />
+    <ClInclude Include="..\..\source\build\include\msvc\stdint.h" />
+    <ClInclude Include="..\..\source\build\include\mutex.h" />
+    <ClInclude Include="..\..\source\build\include\osd.h" />
+    <ClInclude Include="..\..\source\build\include\osxbits.h" />
+    <ClInclude Include="..\..\source\build\include\palette.h" />
+    <ClInclude Include="..\..\source\build\include\pngwrite.h" />
+    <ClInclude Include="..\..\source\build\include\polymer.h" />
+    <ClInclude Include="..\..\source\build\include\polymost.h" />
+    <ClInclude Include="..\..\source\build\include\pragmas.h" />
+    <ClInclude Include="..\..\source\build\include\pragmas_arm.h" />
+    <ClInclude Include="..\..\source\build\include\pragmas_ppc.h" />
+    <ClInclude Include="..\..\source\build\include\pragmas_x86_gcc.h" />
+    <ClInclude Include="..\..\source\build\include\pragmas_x86_msvc.h" />
+    <ClInclude Include="..\..\source\build\include\prlights.h" />
+    <ClInclude Include="..\..\source\build\include\rawinput.h" />
+    <ClInclude Include="..\..\source\build\include\renderlayer.h" />
+    <ClInclude Include="..\..\source\build\include\scancodes.h" />
+    <ClInclude Include="..\..\source\build\include\scriptfile.h" />
+    <ClInclude Include="..\..\source\build\include\sdlayer.h" />
+    <ClInclude Include="..\..\source\build\include\sdl_inc.h" />
+    <ClInclude Include="..\..\source\build\include\softsurface.h" />
+    <ClInclude Include="..\..\source\build\include\texcache.h" />
+    <ClInclude Include="..\..\source\build\include\tilepacker.h" />
+    <ClInclude Include="..\..\source\build\include\tracker.hpp" />
+    <ClInclude Include="..\..\source\build\include\tracker_operator.hpp" />
+    <ClInclude Include="..\..\source\build\include\tracker_operators.hpp" />
+    <ClInclude Include="..\..\source\build\include\winbits.h" />
+    <ClInclude Include="..\..\source\build\include\winlayer.h" />
+    <ClInclude Include="..\..\source\build\include\xxhash.h" />
+    <ClInclude Include="..\..\source\build\src\engine_priv.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\..\source\build\src\a.masm">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <TreatWarningsAsErrors Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</TreatWarningsAsErrors>
+    </MASM>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\masm.targets" />
+  </ImportGroup>
+</Project>

@@ -17,158 +17,112 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-SDL|Win32">
-      <Configuration>Debug-SDL</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-SDL|Win32">
-      <Configuration>Release-SDL</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug-SDL|x64">
-      <Configuration>Debug-SDL</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release-SDL|x64">
-      <Configuration>Release-SDL</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{8E7A6179-0B72-4073-8A4C-E8682D481DAE}</ProjectGuid>
     <RootNamespace>eduke32</RootNamespace>
     <Keyword>MakeFileProj</Keyword>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="props\build_x64.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="props\build_x64.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="props\build_x86.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="props\build_x86.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <ConfigurationType>Makefile</ConfigurationType>
-    <OutDir>.\..\..\</OutDir>
-    <IntDir>.\..\..\</IntDir>
+    <ConfigurationType>Application</ConfigurationType>
+    <OutDir>$(SolutionDir)..\..\</OutDir>
+    <IntDir>$(Platform)\Build\$(ProjectName)\$(Configuration)\</IntDir>
     <NMakeIncludeSearchPath>$(NMakeIncludeSearchPath);..\..\source\build\include;..\..\source\mact\include;..\..\source\audiolib\include;..\..\source\enet\include;..\..\platform\windows\include</NMakeIncludeSearchPath>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak DEBUG=1 WINBITS=32</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=32</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=32</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak WINBITS=32</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak veryclean all WINBITS=32</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak veryclean WINBITS=32</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">USE_OPENGL;POLYMER</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak DEBUG=1 WINBITS=64</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=64</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=64</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">USE_OPENGL;POLYMER;NOASM</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak WINBITS=64</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak veryclean all WINBITS=64</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak veryclean WINBITS=64</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">USE_OPENGL;POLYMER;NOASM</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f msvc.mak DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|Win32'">USE_OPENGL;POLYMER;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f msvc.mak WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f msvc.mak veryclean all WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">nmake /f msvc.mak veryclean WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|Win32'">USE_OPENGL;POLYMER;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f msvc.mak DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-SDL|x64'">USE_OPENGL;POLYMER;NOASM;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f msvc.mak WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f msvc.mak veryclean all WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">nmake /f msvc.mak veryclean WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
-    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-SDL|x64'">USE_OPENGL;POLYMER;NOASM;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">USE_OPENGL;POLYMER;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak WINBITS=32 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak veryclean all WINBITS=32 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">nmake /f msvc.mak veryclean WINBITS=32 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">USE_OPENGL;POLYMER;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak veryclean all DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">nmake /f msvc.mak veryclean DEBUG=1 WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">USE_OPENGL;POLYMER;NOASM;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
+    <NMakeBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak WINBITS=64 RENDERTYPE=SDL</NMakeBuildCommandLine>
+    <NMakeReBuildCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak veryclean all WINBITS=64 RENDERTYPE=SDL</NMakeReBuildCommandLine>
+    <NMakeCleanCommandLine Condition="'$(Configuration)|$(Platform)'=='Release|x64'">nmake /f msvc.mak veryclean WINBITS=64 RENDERTYPE=SDL</NMakeCleanCommandLine>
+    <NMakePreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">USE_OPENGL;POLYMER;NOASM;SDL_USEFOLDER;SDL_TARGET=2</NMakePreprocessorDefinitions>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <GenerateManifest>false</GenerateManifest>
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile />
+    <Link />
+    <ClCompile />
+    <Link>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile />
+    <Link />
+    <Link>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <ClCompile />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile />
+    <Link />
+    <ClCompile />
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile />
+    <Link />
+    <Link>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\source\build\include\a.h" />
-    <ClInclude Include="..\..\source\build\include\animvpx.h" />
-    <ClInclude Include="..\..\source\build\include\baselayer.h" />
-    <ClInclude Include="..\..\source\build\include\build.h" />
-    <ClInclude Include="..\..\source\build\include\buildtypes.h" />
-    <ClInclude Include="..\..\source\build\include\cache1d.h" />
-    <ClInclude Include="..\..\source\build\include\clip.h" />
-    <ClInclude Include="..\..\source\build\include\colmatch.h" />
-    <ClInclude Include="..\..\source\build\include\compat.h" />
-    <ClInclude Include="..\..\source\build\include\common.h" />
-    <ClInclude Include="..\..\source\build\include\crc32.h" />
-    <ClInclude Include="..\..\source\build\include\dxdidf.h" />
-    <ClInclude Include="..\..\source\build\include\dxtfilter.h" />
-    <ClInclude Include="..\..\source\build\include\dynamicgtk.h" />
-    <ClInclude Include="..\..\source\build\include\editor.h" />
-    <ClInclude Include="..\..\source\build\include\fix16.h" />
-    <ClInclude Include="..\..\source\build\include\fix16.hpp" />
-    <ClInclude Include="..\..\source\build\include\fix16_int64.h" />
-    <ClInclude Include="..\..\source\build\include\glbuild.h" />
-    <ClInclude Include="..\..\source\build\include\glsurface.h" />
-    <ClInclude Include="..\..\source\build\include\gtkbits.h" />
-    <ClInclude Include="..\..\source\build\include\hash.h" />
-    <ClInclude Include="..\..\source\build\include\hightile.h" />
-    <ClInclude Include="..\..\source\build\include\jwzgles.h" />
-    <ClInclude Include="..\..\source\build\include\jwzglesI.h" />
-    <ClInclude Include="..\..\source\build\include\kplib.h" />
-    <ClInclude Include="..\..\source\build\include\libdivide.h" />
-    <ClInclude Include="..\..\source\build\include\lzwnew.h" />
     <ClInclude Include="..\..\source\build\include\m32script.h" />
-    <ClInclude Include="..\..\source\build\include\md4.h" />
-    <ClInclude Include="..\..\source\build\include\mdsprite.h" />
-    <ClInclude Include="..\..\source\build\include\miniz.h" />
-    <ClInclude Include="..\..\source\build\include\mmulti.h" />
-    <ClInclude Include="..\..\source\build\include\mutex.h" />
-    <ClInclude Include="..\..\source\build\include\osd.h" />
-    <ClInclude Include="..\..\source\build\include\osxbits.h" />
-    <ClInclude Include="..\..\source\build\include\palette.h" />
-    <ClInclude Include="..\..\source\build\include\pngwrite.h" />
-    <ClInclude Include="..\..\source\build\include\polymer.h" />
-    <ClInclude Include="..\..\source\build\include\polymost.h" />
-    <ClInclude Include="..\..\source\build\include\pragmas.h" />
-    <ClInclude Include="..\..\source\build\include\pragmas_arm.h" />
-    <ClInclude Include="..\..\source\build\include\pragmas_ppc.h" />
-    <ClInclude Include="..\..\source\build\include\pragmas_x86_gcc.h" />
-    <ClInclude Include="..\..\source\build\include\pragmas_x86_msvc.h" />
-    <ClInclude Include="..\..\source\build\include\prlights.h" />
-    <ClInclude Include="..\..\source\build\include\lz4.h" />
-    <ClInclude Include="..\..\source\build\include\rawinput.h" />
-    <ClInclude Include="..\..\source\build\include\renderlayer.h" />
-    <ClInclude Include="..\..\source\build\include\scancodes.h" />
-    <ClInclude Include="..\..\source\build\include\scriptfile.h" />
-    <ClInclude Include="..\..\source\build\include\sdlayer.h" />
-    <ClInclude Include="..\..\source\build\include\sdl_inc.h" />
-    <ClInclude Include="..\..\source\build\include\softsurface.h" />
-    <ClInclude Include="..\..\source\build\include\startwin.editor.h" />
-    <ClInclude Include="..\..\source\build\include\texcache.h" />
-    <ClInclude Include="..\..\source\build\include\tilepacker.h" />
-    <ClInclude Include="..\..\source\build\include\tracker.hpp" />
-    <ClInclude Include="..\..\source\build\include\tracker_operator.hpp" />
-    <ClInclude Include="..\..\source\build\include\tracker_operators.hpp" />
-    <ClInclude Include="..\..\source\build\include\winbits.h" />
-    <ClInclude Include="..\..\source\build\include\winlayer.h" />
-    <ClInclude Include="..\..\source\build\include\msvc\inttypes.h" />
-    <ClInclude Include="..\..\source\build\include\msvc\stdint.h" />
-    <ClInclude Include="..\..\source\build\include\xxhash.h" />
-    <ClInclude Include="..\..\source\build\src\engine_priv.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\Button.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\ControlSuper.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLLines.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLRect.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\Mouse.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\PointF.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\RectF.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControls.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControlsConfig.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchJoy.h" />
-    <ClInclude Include="..\..\platform\Android\Duke3d\jni\TouchControls\WheelSelect.h" />
     <ClInclude Include="..\..\source\duke3d\src\actors.h" />
     <ClInclude Include="..\..\source\duke3d\src\android.h" />
     <ClInclude Include="..\..\source\duke3d\src\in_android.h" />
@@ -184,10 +138,6 @@
     <ClInclude Include="..\..\source\duke3d\src\global.h" />
     <ClInclude Include="..\..\source\duke3d\src\input.h" />
     <ClInclude Include="..\..\source\duke3d\src\inv.h" />
-    <ClInclude Include="..\..\source\audiolib\include\drivers.h" />
-    <ClInclude Include="..\..\source\audiolib\include\multivoc.h" />
-    <ClInclude Include="..\..\source\duke3d\src\lunatic\lunatic_game.h" />
-    <ClInclude Include="..\..\source\duke3d\src\lunatic\lunatic_editor.h" />
     <ClInclude Include="..\..\source\duke3d\src\m32def.h" />
     <ClInclude Include="..\..\source\duke3d\src\menus.h" />
     <ClInclude Include="..\..\source\duke3d\src\mpu401.h" />
@@ -223,137 +173,29 @@
     <ClInclude Include="..\..\source\duke3d\src\sounds_mapster32.h" />
     <ClInclude Include="..\..\source\duke3d\src\soundsdyn.h" />
     <ClInclude Include="..\..\source\duke3d\src\startwin.game.h" />
-    <ClInclude Include="..\..\source\audiolib\src\_multivc.h" />
-    <ClInclude Include="..\..\source\audiolib\src\driver_directsound.h" />
-    <ClInclude Include="..\..\source\audiolib\src\driver_nosound.h" />
-    <ClInclude Include="..\..\source\audiolib\src\driver_sdl.h" />
-    <ClInclude Include="..\..\source\audiolib\include\fx_man.h" />
-    <ClInclude Include="..\..\source\audiolib\src\linklist.h" />
-    <ClInclude Include="..\..\source\audiolib\include\music.h" />
-    <ClInclude Include="..\..\source\audiolib\src\pitch.h" />
-    <ClInclude Include="..\..\source\glad\include\glad\glad.h" />
-    <ClInclude Include="..\..\source\glad\include\glad\glad_wgl.h" />
-    <ClInclude Include="..\..\source\mact\include\_control.h" />
-    <ClInclude Include="..\..\source\mact\src\_scrplib.h" />
-    <ClInclude Include="..\..\source\mact\include\animlib.h" />
-    <ClInclude Include="..\..\source\mact\include\control.h" />
-    <ClInclude Include="..\..\source\mact\include\file_lib.h" />
-    <ClInclude Include="..\..\source\mact\include\keyboard.h" />
-    <ClInclude Include="..\..\source\mact\include\mouse.h" />
-    <ClInclude Include="..\..\source\mact\include\scriplib.h" />
-    <ClInclude Include="..\..\source\enet\include\enet\callbacks.h" />
-    <ClInclude Include="..\..\source\enet\include\enet\enet.h" />
-    <ClInclude Include="..\..\source\enet\include\enet\list.h" />
-    <ClInclude Include="..\..\source\enet\include\enet\protocol.h" />
-    <ClInclude Include="..\..\source\enet\include\enet\time.h" />
-    <ClInclude Include="..\..\source\enet\include\enet\types.h" />
-    <ClInclude Include="..\..\source\enet\include\enet\unix.h" />
-    <ClInclude Include="..\..\source\enet\include\enet\utility.h" />
-    <ClInclude Include="..\..\source\enet\include\enet\win32.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\source\audiolib\src\xmp.cpp" />
-    <ClCompile Include="..\..\source\build\src\2d.cpp" />
-    <ClCompile Include="..\..\source\build\src\a-c.cpp" />
-    <ClCompile Include="..\..\source\build\src\animvpx.cpp" />
-    <ClCompile Include="..\..\source\build\src\baselayer.cpp" />
-    <ClCompile Include="..\..\source\build\src\build.cpp" />
-    <ClCompile Include="..\..\source\build\src\cache1d.cpp" />
-    <ClCompile Include="..\..\source\build\src\clip.cpp" />
-    <ClCompile Include="..\..\source\build\src\colmatch.cpp" />
-    <ClCompile Include="..\..\source\build\src\common.cpp" />
-    <ClCompile Include="..\..\source\build\src\compat.cpp" />
-    <ClCompile Include="..\..\source\build\src\config.cpp" />
-    <ClCompile Include="..\..\source\build\src\crc32.cpp" />
-    <ClCompile Include="..\..\source\build\src\defs.cpp" />
-    <ClCompile Include="..\..\source\build\src\dxtfilter.cpp" />
-    <ClCompile Include="..\..\source\build\src\dynamicgtk.cpp" />
-    <ClCompile Include="..\..\source\build\src\engine.cpp" />
-    <ClCompile Include="..\..\source\build\src\fix16.c" />
-    <ClCompile Include="..\..\source\build\src\fix16_str.c" />
-    <ClCompile Include="..\..\source\build\src\glbuild.cpp" />
-    <ClCompile Include="..\..\source\build\src\glsurface.cpp" />
-    <ClCompile Include="..\..\source\build\src\gtkbits.cpp" />
-    <ClCompile Include="..\..\source\build\src\hash.cpp" />
-    <ClCompile Include="..\..\source\build\src\hightile.cpp" />
-    <ClCompile Include="..\..\source\build\src\jwzgles.c" />
-    <ClCompile Include="..\..\source\build\src\kplib.cpp" />
-    <ClCompile Include="..\..\source\build\src\lunatic.cpp" />
-    <ClCompile Include="..\..\source\build\src\md4.cpp" />
-    <ClCompile Include="..\..\source\build\src\mdsprite.cpp" />
-    <ClCompile Include="..\..\source\build\src\mhk.cpp" />
-    <ClCompile Include="..\..\source\build\src\mingw_main.cpp" />
-    <ClCompile Include="..\..\source\build\src\miniz.c" />
-    <ClCompile Include="..\..\source\build\src\mmulti_null.cpp" />
-    <ClCompile Include="..\..\source\build\src\mutex.cpp" />
-    <ClCompile Include="..\..\source\build\src\osd.cpp" />
-    <ClCompile Include="..\..\source\build\src\palette.cpp" />
-    <ClCompile Include="..\..\source\build\src\pngwrite.cpp" />
-    <ClCompile Include="..\..\source\build\src\polymer.cpp" />
-    <ClCompile Include="..\..\source\build\src\polymost.cpp" />
-    <ClCompile Include="..\..\source\build\src\pragmas.cpp" />
-    <ClCompile Include="..\..\source\build\src\lz4.c" />
-    <ClCompile Include="..\..\source\build\src\rawinput.cpp" />
-    <ClCompile Include="..\..\source\build\src\rev.cpp" />
-    <ClCompile Include="..\..\source\build\src\screenshot.cpp" />
-    <ClCompile Include="..\..\source\build\src\scriptfile.cpp" />
-    <ClCompile Include="..\..\source\build\src\sdlayer.cpp" />
-    <ClCompile Include="..\..\source\build\src\sdlayer12.cpp" />
-    <ClCompile Include="..\..\source\build\src\sdlkeytrans.cpp" />
-    <ClCompile Include="..\..\source\build\src\smalltextfont.cpp" />
-    <ClCompile Include="..\..\source\build\src\softsurface.cpp" />
-    <ClCompile Include="..\..\source\build\src\startgtk.editor.cpp" />
-    <ClCompile Include="..\..\source\build\src\startwin.editor.cpp" />
-    <ClCompile Include="..\..\source\build\src\texcache.cpp" />
-    <ClCompile Include="..\..\source\build\src\textfont.cpp" />
-    <ClCompile Include="..\..\source\build\src\tilepacker.cpp" />
-    <ClCompile Include="..\..\source\build\src\tiles.cpp" />
-    <ClCompile Include="..\..\source\build\src\voxmodel.cpp" />
-    <ClCompile Include="..\..\source\build\src\wiibits.cpp" />
-    <ClCompile Include="..\..\source\build\src\winbits.cpp" />
-    <ClCompile Include="..\..\source\build\src\winlayer.cpp" />
-    <ClCompile Include="..\..\source\build\src\xxhash.c" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\Button.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\ControlSuper.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLLines.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\GLRect.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\JNITouchControlsUtils.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\Mouse.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\MultitouchMouse.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\OpenGLUtils.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\RectF.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControls.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchControlsContainer.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\TouchJoy.cpp" />
-    <ClCompile Include="..\..\platform\Android\Duke3d\jni\TouchControls\WheelSelect.cpp" />
+    <ClCompile Include="..\..\source\duke3d\rsrc\eduke32_icon.c" />
     <ClCompile Include="..\..\source\duke3d\src\actors.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\in_android.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\anim.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\astub.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\cheats.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\cmdline.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\config.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\common.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\demo.cpp" />
-    <ClCompile Include="..\..\source\enet\src\compress.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\game.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\gamedef.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\gameexec.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\gamestructures.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\gamestructures.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\gamevars.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\global.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\grpscan.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\input.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\flac.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\formats.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\xa.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\lunatic\lunatic_game.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\lunatic\lunatic_editor.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\m32common.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\m32def.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\m32exec.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\m32structures.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\m32vars.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\mdump.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\menus.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\midi.cpp" />
@@ -370,66 +212,54 @@
     <ClCompile Include="..\..\source\duke3d\src\sbar.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\screens.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\screentext.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\sdlmusic.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\sdlmusic.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\sector.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\sounds.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\sounds_mapster32.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\soundsdyn.cpp" />
-    <ClCompile Include="..\..\source\duke3d\src\startgtk.game.cpp" />
+    <ClCompile Include="..\..\source\duke3d\src\startgtk.game.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\startwin.game.cpp" />
     <ClCompile Include="..\..\source\duke3d\src\winbits.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\driver_directsound.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\driver_nosound.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\driver_sdl.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\drivers.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\fx_man.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\mix.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\mixst.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\multivoc.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\pitch.cpp" />
-    <ClCompile Include="..\..\source\audiolib\src\vorbis.cpp" />
-    <ClCompile Include="..\..\source\glad\src\glad.c" />
-    <ClCompile Include="..\..\source\glad\src\glad_wgl.c" />
-    <ClCompile Include="..\..\source\mact\src\animlib.cpp" />
-    <ClCompile Include="..\..\source\mact\src\control.cpp" />
-    <ClCompile Include="..\..\source\mact\src\file_lib.cpp" />
-    <ClCompile Include="..\..\source\mact\src\keyboard.cpp" />
-    <ClCompile Include="..\..\source\mact\src\scriplib.cpp" />
-    <ClCompile Include="..\..\source\enet\src\callbacks.c" />
-    <ClCompile Include="..\..\source\enet\src\host.c" />
-    <ClCompile Include="..\..\source\enet\src\list.c" />
-    <ClCompile Include="..\..\source\enet\src\packet.c" />
-    <ClCompile Include="..\..\source\enet\src\peer.c" />
-    <ClCompile Include="..\..\source\enet\src\protocol.c" />
-    <ClCompile Include="..\..\source\enet\src\unix.c" />
-    <ClCompile Include="..\..\source\enet\src\win32.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="msvc.mak" />
-    <None Include="..\..\source\duke3d\src\lunatic\bcarray.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\bcheck.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\bitar.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\control.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\con_lang.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\_defs_game.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\defs_common.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\_defs_editor.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\dis_x64.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\dis_x86.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\dump.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\dynsymlist_game.lds" />
-    <None Include="..\..\source\duke3d\src\lunatic\dynsymlist_editor.lds" />
-    <None Include="..\..\source\duke3d\src\lunatic\engine_maptext.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\listglobals.sh" />
-    <None Include="..\..\source\duke3d\src\lunatic\lunacon.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\profdemo.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\randgen.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\savegame.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\stat.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\strict.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\test.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\v.lua" />
-    <None Include="..\..\source\duke3d\src\lunatic\xmath.lua" />
+    <ProjectReference Include="audiolib.vcxproj">
+      <Project>{0029c61b-b63d-4e61-99f2-f4e49aabfc47}</Project>
+    </ProjectReference>
+    <ProjectReference Include="build.vcxproj">
+      <Project>{dbecb851-5624-4fa8-9a9d-7169d0f12ff1}</Project>
+    </ProjectReference>
+    <ProjectReference Include="enet.vcxproj">
+      <Project>{a68cc5e4-567a-44c8-94fe-c1de09aeeb40}</Project>
+    </ProjectReference>
+    <ProjectReference Include="glad.vcxproj">
+      <Project>{6ac1d997-8dae-4343-8dd8-da2a1ca63212}</Project>
+    </ProjectReference>
+    <ProjectReference Include="libxmp-lite.vcxproj">
+      <Project>{32d4cf70-a3d6-4cea-81d7-64c743980276}</Project>
+    </ProjectReference>
+    <ProjectReference Include="mact.vcxproj">
+      <Project>{bcde1852-e2c6-4abb-84fb-5cd431764a9a}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\source\duke3d\rsrc\gameres.rc">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="eduke32.exe.manifest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

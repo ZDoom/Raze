@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\source\libxmp-lite\include\libxmp-lite\xmp.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\common.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\effects.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\format.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\hio.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\it.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\lfo.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\list.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\loader.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\mdataio.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\memio.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\mixer.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\mod.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\period.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\player.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\precomp_lut.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\s3m.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\tempfile.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\virtual.h" />
+    <ClInclude Include="..\..\source\libxmp-lite\src\xm.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\source\libxmp-lite\src\common.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\control.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\dataio.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\effects.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\filter.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\format.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\hio.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\itsex.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\it_load.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\lfo.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\load.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\load_helpers.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\memio.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\mixer.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\mix_all.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\mod_load.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\mtm_load.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\period.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\player.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\read_event.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\s3m_load.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\sample.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\scan.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\smix.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\virtual.c" />
+    <ClCompile Include="..\..\source\libxmp-lite\src\xm_load.c" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>15.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>libxmp-lite</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <ProjectGuid>{32D4CF70-A3D6-4CEA-81D7-64C743980276}</ProjectGuid>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v141</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="props\build_x64.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="props\build_x64.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="props\build_x86.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="props\build_x86.props" />
+    <Import Project="props\build_common.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\Build\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\Build\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\Build\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Build\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(Platform)\Build\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>HAVE_ROUND;LIBXMP_CORE_PLAYER;LIBXMP_CORE_DISABLE_IT;BUILDING_STATIC;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>HAVE_ROUND;LIBXMP_CORE_PLAYER;LIBXMP_CORE_DISABLE_IT;BUILDING_STATIC;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>HAVE_ROUND;LIBXMP_CORE_PLAYER;LIBXMP_CORE_DISABLE_IT;BUILDING_STATIC;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>HAVE_ROUND;LIBXMP_CORE_PLAYER;LIBXMP_CORE_DISABLE_IT;BUILDING_STATIC;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
