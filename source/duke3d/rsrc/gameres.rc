@@ -1,6 +1,6 @@
 #define NEED_COMMCTRL_H
-#include "..\..\build\include\windows_inc.h"
-#include "..\src\startwin.game.h"
+#include "../../build/include/windows_inc.h"
+#include "../src/startwin.game.h"
 
 RSRC_ICON ICON "game_icon.ico"
 RSRC_BMP BITMAP "game.bmp"
