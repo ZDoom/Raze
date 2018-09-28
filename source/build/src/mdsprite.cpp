@@ -605,7 +605,7 @@ static int32_t mdloadskin_failed(char * const skinfile, char const * const fn)
 int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 {
     int32_t i;
-    char *skinfile, fn[BMAX_PATH];
+    char *skinfile = NULL, fn[BMAX_PATH];
     GLuint *texidx = NULL;
     mdskinmap_t *sk, *skzero = NULL;
     int32_t doalloc = 1;
@@ -667,7 +667,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 #endif
     }
 
-    if (!skinfile[0])
+    if (skinfile == NULL || !skinfile[0])
         return 0;
 
     if (*texidx)

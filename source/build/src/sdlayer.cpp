@@ -1877,7 +1877,7 @@ int32_t videoSetGamma(void)
 }
 
 #if !defined __APPLE__ && !defined EDUKE32_TOUCH_DEVICES
-extern struct sdlappicon sdlappicon;
+extern "C" struct sdlappicon sdlappicon;
 static inline SDL_Surface *loadappicon(void)
 {
     SDL_Surface *surf = SDL_CreateRGBSurfaceFrom((void *)sdlappicon.pixels, sdlappicon.width, sdlappicon.height, 32,

@@ -1,6 +1,6 @@
 #define NEED_COMMCTRL_H
-#include "windows_inc.h"
-#include "startwin.editor.h"
+#include "..\..\build\include\windows_inc.h"
+#include "..\..\build\include\startwin.editor.h"
 
 RSRC_ICON ICON "build_icon.ico"
 RSRC_BMP BITMAP "build.bmp"
