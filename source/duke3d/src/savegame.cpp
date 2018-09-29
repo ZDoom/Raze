@@ -1242,9 +1242,9 @@ static const dataspec_t svgm_script[] =
 {
     { DS_STRING, (void *)svgm_script_string, 0, 1 },
     { DS_SAVEFN, (void *) &sv_preprojectilesave, 0, 1 },
-    { DS_NOCHK, &savegame_projectiles, sizeof(savegame_projectiles), 1 },
+    { DS_NOCHK, savegame_projectiles, sizeof(savegame_projectiles), 1 },
     { DS_LOADFN, (void *) &sv_preprojectileload, 0, 1 },
-    { DS_DYNAMIC|DS_CNT(savegame_projectilecnt), &savegame_projectiledata, sizeof(projectile_t), (intptr_t)&savegame_projectilecnt },
+    { DS_CNT(savegame_projectilecnt), savegame_projectiledata, sizeof(projectile_t), (intptr_t)&savegame_projectilecnt },
     { DS_SAVEFN, (void *) &sv_postprojectilesave, 0, 1 },
     { DS_LOADFN, (void *) &sv_postprojectileload, 0, 1 },
     { 0, &actor[0], sizeof(actor_t), MAXSPRITES },
@@ -1849,17 +1849,16 @@ static void sv_quoteload()
 static void sv_preprojectilesave()
 {
     savegame_projectilecnt = 0;
+    Bmemset(savegame_projectiles, 0, sizeof(savegame_projectiles));
 
-    for (bssize_t i=0; i<MAXTILES; i++)
+    for (native_t i=0; i<MAXTILES; i++)
         if (g_tile[i].proj)
             savegame_projectilecnt++;
 
-    if (savegame_projectiledata != NULL || savegame_projectilecnt > 0)
+    if (savegame_projectilecnt > 0)
         savegame_projectiledata = (projectile_t *) Xrealloc(savegame_projectiledata, sizeof(projectile_t) * savegame_projectilecnt);
 
-    int32_t cnt = 0;
-
-    for (bssize_t i=0; i<MAXTILES; i++)
+    for (native_t i=0, cnt=0; i<MAXTILES; i++)
     {
         if (g_tile[i].proj)
         {
@@ -1871,28 +1870,26 @@ static void sv_preprojectilesave()
 
 static void sv_postprojectilesave()
 {
-//    DO_FREE_AND_NULL(ProjectileData);
+    DO_FREE_AND_NULL(savegame_projectiledata);
 }
 
 static void sv_preprojectileload()
 {
-    int32_t cnt = 0;
+    savegame_projectilecnt = 0;
 
-    for (bssize_t i=0; i<MAXTILES; i++)
+    for (native_t i=0; i<MAXTILES; i++)
     {
         if (savegame_projectiles[i>>3]&(1<<(i&7)))
-            cnt++;
+            savegame_projectilecnt++;
     }
 
-    if (savegame_projectiledata != NULL || cnt > 0)
-        savegame_projectiledata = (projectile_t *) Xrealloc(savegame_projectiledata, sizeof(projectile_t) * cnt);
+    if (savegame_projectilecnt > 0)
+        savegame_projectiledata = (projectile_t *) Xrealloc(savegame_projectiledata, sizeof(projectile_t) * savegame_projectilecnt);
 }
 
 static void sv_postprojectileload()
 {
-    int32_t cnt = 0;
-
-    for (bssize_t i=0; i<MAXTILES; i++)
+    for (native_t i=0, cnt=0; i<MAXTILES; i++)
     {
         if (savegame_projectiles[i>>3]&(1<<(i&7)))
         {
@@ -1900,7 +1897,8 @@ static void sv_postprojectileload()
             Bmemcpy(g_tile[i].proj, &savegame_projectiledata[cnt++], sizeof(projectile_t));
         }
     }
-//    DO_FREE_AND_NULL(ProjectileData);
+
+    DO_FREE_AND_NULL(savegame_projectiledata);
 }
 
 static void sv_prequoteredef()
