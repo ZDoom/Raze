@@ -1125,7 +1125,7 @@ static void sv_preprojectileload();
 static void sv_postprojectileload();
 
 static projectile_t *savegame_projectiledata;
-static uint8_t savegame_projectiles[MAXSPRITES>>3];
+static uint8_t savegame_projectiles[MAXTILES>>3];
 static int32_t savegame_projectilecnt = 0;
 
 #define SVARDATALEN \
@@ -1242,7 +1242,7 @@ static const dataspec_t svgm_script[] =
 {
     { DS_STRING, (void *)svgm_script_string, 0, 1 },
     { DS_SAVEFN, (void *) &sv_preprojectilesave, 0, 1 },
-    { DS_NOCHK, savegame_projectiles, sizeof(savegame_projectiles), 1 },
+    { 0, savegame_projectiles, sizeof(uint8_t), MAXTILES >> 3 },
     { DS_LOADFN, (void *) &sv_preprojectileload, 0, 1 },
     { DS_CNT(savegame_projectilecnt), savegame_projectiledata, sizeof(projectile_t), (intptr_t)&savegame_projectilecnt },
     { DS_SAVEFN, (void *) &sv_postprojectilesave, 0, 1 },
