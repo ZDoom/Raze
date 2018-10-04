@@ -5,7 +5,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;RENDERTYPESDL=1;MIXERTYPEWIN=1;SDL_USEFOLDER;SDL_TARGET=2;USE_OPENGL=1;POLYMER=1;STARTUP_WINDOW;USE_LIBVPX;HAVE_VORBIS;HAVE_XMP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;RENDERTYPESDL=1;MIXERTYPEWIN=1;SDL_USEFOLDER;SDL_TARGET=2;USE_OPENGL=1;POLYMER=1;STARTUP_WINDOW;USE_LIBVPX;HAVE_VORBIS;HAVE_XMP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>./include;./include/vpx/;./include/sdl2/;../../source/build/include;../../source/mact/include;../../source/audiolib/include;../../source/enet/include;../../source/glad/include;../../source/libxmp-lite/include;../../source/libxmp-lite/include/libxmp-lite</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4244;4018;4267</DisableSpecificWarnings>
       <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
