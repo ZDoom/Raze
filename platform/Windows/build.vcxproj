@@ -315,6 +315,7 @@
     <ClInclude Include="..\..\source\build\include\common.h" />
     <ClInclude Include="..\..\source\build\include\compat.h" />
     <ClInclude Include="..\..\source\build\include\crc32.h" />
+    <ClInclude Include="..\..\source\build\include\debugbreak.h" />
     <ClInclude Include="..\..\source\build\include\dxdidf.h" />
     <ClInclude Include="..\..\source\build\include\dxtfilter.h" />
     <ClInclude Include="..\..\source\build\include\dynamicgtk.h" />

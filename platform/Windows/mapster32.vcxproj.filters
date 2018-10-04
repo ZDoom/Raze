@@ -13,7 +13,7 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\dukeedit">
+    <Filter Include="Source Files\duke3d_editor">
       <UniqueIdentifier>{ee09cb31-7362-4130-8d18-bbd79d8b6beb}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -28,31 +28,31 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\astub.cpp">
-      <Filter>Source Files\dukeedit</Filter>
+      <Filter>Source Files\duke3d_editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\m32common.cpp">
-      <Filter>Source Files\dukeedit</Filter>
+      <Filter>Source Files\duke3d_editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\m32def.cpp">
-      <Filter>Source Files\dukeedit</Filter>
+      <Filter>Source Files\duke3d_editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\m32exec.cpp">
-      <Filter>Source Files\dukeedit</Filter>
+      <Filter>Source Files\duke3d_editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\m32structures.cpp">
-      <Filter>Source Files\dukeedit</Filter>
+      <Filter>Source Files\duke3d_editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\m32vars.cpp">
-      <Filter>Source Files\dukeedit</Filter>
+      <Filter>Source Files\duke3d_editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\sounds_mapster32.cpp">
-      <Filter>Source Files\dukeedit</Filter>
+      <Filter>Source Files\duke3d_editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\grpscan.cpp">
-      <Filter>Source Files\dukeedit</Filter>
+      <Filter>Source Files\duke3d_editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\duke3d\src\common.cpp">
-      <Filter>Source Files\dukeedit</Filter>
+      <Filter>Source Files\duke3d_editor</Filter>
     </ClCompile>
     <ClCompile Include="..\..\source\build\src\config.cpp">
       <Filter>Source Files</Filter>
