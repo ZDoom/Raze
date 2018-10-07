@@ -69,11 +69,11 @@ void G_DoInterpolations(int smoothRatio)
     if (g_interpolationLock++)
         return;
 
-    int32_t odelta, ndelta = 0;
+    int32_t ndelta = 0;
 
     for (bssize_t i = 0, j = 0; i < g_interpolationCnt; ++i)
     {
-        odelta = ndelta;
+        int32_t const odelta = ndelta;
         bakipos[i] = *curipos[i];
         ndelta = (*curipos[i]) - oldipos[i];
         if (odelta != ndelta)
@@ -2916,7 +2916,7 @@ ACTOR_STATIC void Proj_MoveCustom(int const spriteNum)
                             pSprite->yvel--;
 
                             int const projAngle = getangle(sprite[otherSprite].x - pSprite->x, sprite[otherSprite].y - pSprite->y)
-                                                  + (sprite[otherSprite].cstat & 16 ? 0 : 512);
+                                                  + ((sprite[otherSprite].cstat & 16) ? 0 : 512);
                             pSprite->ang = ((projAngle << 1) - pSprite->ang) & 2047;
 
                             if (pProj->bsound >= 0)
@@ -4173,14 +4173,7 @@ ACTOR_STATIC void G_MoveActors(void)
                     else
                     {
                         // Control speed here
-                        if (locatorDist > 1524)
-                        {
-                            if (pSprite->xvel < 256) pSprite->xvel += 32;
-                        }
-                        else
-                        {
-                            pSprite->xvel = (pSprite->xvel > 0) ? pSprite->xvel - 16 : 0;
-                        }
+                        if (pSprite->xvel < 256) pSprite->xvel += 32;
                     }
 
                     if (pData[0] < 2) pData[2]++;
@@ -5243,7 +5236,6 @@ ACTOR_STATIC void G_MoveMisc(void)  // STATNUM 5
                 if (pData[1] == 5)
                     A_DeleteSprite(spriteNum);
                 goto next_sprite;
-                fallthrough__;
             case INNERJAW__STATIC:
             {
                 //        case INNERJAW+1:
@@ -6927,8 +6919,6 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
         case SE_17_WARP_ELEVATOR:
         {
-            int32_t nextk;
-
             q = pData[0]*(SP(spriteNum)<<2);
 
             pSector->ceilingz += q;
@@ -6990,6 +6980,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
                 }
 
                 if (j == -1) break;
+
+                int32_t nextk;
 
                 for (SPRITES_OF_SECT_SAFE(pSprite->sectnum, k, nextk))
                 {
