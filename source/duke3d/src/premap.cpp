@@ -785,7 +785,6 @@ void P_ResetStatus(int playerNum)
     pPlayer->knuckle_incs       = 1;
     pPlayer->fist_incs          = 0;
     pPlayer->knee_incs          = 0;
-    pPlayer->jetpack_on         = 0;
     pPlayer->reloading          = 0;
     pPlayer->movement_lock      = 0;
     pPlayer->frag_ps            = playerNum;
