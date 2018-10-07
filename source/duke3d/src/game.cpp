@@ -6504,7 +6504,7 @@ int app_main(int argc, char const * const * argv)
     char *const setupFileName = Xstrdup(g_setupFileName);
     char *const p             = strtok(setupFileName, ".");
 
-    if (!Bstrcmp(g_setupFileName, SETUPFILENAME))
+    if (!p || !Bstrcmp(g_setupFileName, SETUPFILENAME))
         Bsprintf(tempbuf, "settings.cfg");
     else
         Bsprintf(tempbuf, "%s_settings.cfg", p);
