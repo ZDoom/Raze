@@ -4,6 +4,7 @@
 
 #define LIBDIVIDE_BODY
 #include "compat.h"
+#include "debugbreak.h"
 
 #ifdef _WIN32
 # define NEED_SHLOBJ_H
@@ -49,6 +50,8 @@ void xalloc_set_location(int32_t line, const char *file, const char *func)
 
 void handle_memerr(void)
 {
+    debug_break();
+
     if (g_MemErrHandler)
     {
 #ifdef DEBUGGINGAIDS
