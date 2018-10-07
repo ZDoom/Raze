@@ -36,7 +36,7 @@ static intptr_t kzipopen(const char *filnam)
     char newst[BMAX_PATH+8];
 
     newst[0] = '|';
-    for (i=0; filnam[i] && (i < sizeof(newst)-2); i++) newst[i+1] = filnam[i];
+    for (i=0; i < BMAX_PATH+4 && filnam[i]; i++) newst[i+1] = filnam[i];
     newst[i+1] = 0;
     return kzopen(newst);
 }
