@@ -116,7 +116,7 @@ void VM_ScriptInfo(intptr_t const *ptr, int range)
 
     if (ptr == insptr)
     {
-        if (vm.spriteNum)
+        if (vm.pUSprite)
             initprintf("current actor: %d (%d)\n", vm.spriteNum, vm.pUSprite->picnum);
 
         initprintf("g_errorLineNum: %d, g_tw: %d\n", g_errorLineNum, g_tw);
