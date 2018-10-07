@@ -1866,8 +1866,6 @@ static void C_GetNextVarType(int32_t type)
     C_SkipComments(); //skip comments and whitespace
     if (*textptr == '[')     //read of array as a gamevar
     {
-        int32_t labelNum = -1;
-
         f |= (MAXGAMEVARS<<2);
         textptr++;
         i=GetADefID(label+(g_labelCnt<<6));
@@ -1959,6 +1957,8 @@ static void C_GetNextVarType(int32_t type)
             C_GetNextLabelName();
             /*initprintf("found xxx label of \"%s\"\n",   label+(g_numLabels<<6));*/
 
+            int32_t labelNum = -1;
+
             switch (i - g_structVarIDs)
             {
             case STRUCT_SPRITE:
@@ -1996,10 +1996,7 @@ static void C_GetNextVarType(int32_t type)
             case STRUCT_PALDATA:
                 labelNum=C_GetLabelNameOffset(&h_paldata,Bstrtolower(label+(g_labelCnt<<6)));
                 break;
-            }
-
-            if (EDUKE32_PREDICT_FALSE(labelNum == -1))
-            {
+            default:
                 g_errorCnt++;
                 C_ReportError(ERROR_NOTAMEMBER);
                 return;
