@@ -761,10 +761,10 @@ int initgroupfile(const char *filename)
 
         kread_grp(numgroupfiles,gfilelist[numgroupfiles],gnumfiles[numgroupfiles]<<4);
 
-        int32_t j = (gnumfiles[numgroupfiles]+1)<<4, k;
+        int32_t j = (gnumfiles[numgroupfiles]+1)<<4;
         for (bssize_t i=0; i<gnumfiles[numgroupfiles]; i++)
         {
-            k = B_LITTLE32(*((int32_t *)&gfilelist[numgroupfiles][(i<<4)+12]));
+            int32_t const k = B_LITTLE32(*((int32_t *)&gfilelist[numgroupfiles][(i<<4)+12]));
             gfilelist[numgroupfiles][(i<<4)+12] = 0;
             gfileoffs[numgroupfiles][i] = j;
             j += k;
@@ -1144,9 +1144,7 @@ int32_t kread_internal(int32_t handle, void *buffer, int32_t leng, uint8_t *arra
 
 int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
-    int32_t i, groupnum;
-
-    groupnum = arraygrp[handle];
+    int32_t const groupnum = arraygrp[handle];
 
     if (groupnum == GRP_FILESYSTEM) return Blseek(arrayhan[handle],offset,whence);
 #ifdef WITHKPLIB
@@ -1170,9 +1168,11 @@ int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, uint8_t 
         case BSEEK_SET:
             arraypos[handle] = offset; break;
         case BSEEK_END:
-            i = arrayhan[handle];
+        {
+            int32_t const i = arrayhan[handle];
             arraypos[handle] = (gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i])+offset;
             break;
+        }
         case BSEEK_CUR:
             arraypos[handle] += offset; break;
         }
@@ -1183,9 +1183,7 @@ int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, uint8_t 
 
 int32_t kfilelength_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
-    int32_t i, groupnum;
-
-    groupnum = arraygrp[handle];
+    int32_t const groupnum = arraygrp[handle];
     if (groupnum == GRP_FILESYSTEM)
     {
         // return (filelength(arrayhan[handle]))
@@ -1204,7 +1202,7 @@ int32_t kfilelength_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayh
         return kzfilelength();
     }
 #endif
-    i = arrayhan[handle];
+    int32_t const i = arrayhan[handle];
     return gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i];
 }
 
