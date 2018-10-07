@@ -269,11 +269,10 @@ static void G_PrecacheSprites(void)
 
 static void G_DoLoadScreen(const char *statustext, int32_t percent)
 {
-    int32_t i=0,j;
-
     if (ud.recstat != 2)
     {
-        j = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
+        int32_t i = 0;
+        int32_t j = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
 
         //g_player[myconnectindex].ps->palette = palette;
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 1);    // JBF 20040308
@@ -344,7 +343,7 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
         }
         /*Gv_SetVar(g_iReturnVarID,LOADSCREEN, -1, -1);*/
 
-        j = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
+        int32_t j = VM_OnEventWithReturn(EVENT_GETLOADTILE, g_player[screenpeek].ps->i, screenpeek, LOADSCREEN);
 
         if ((uint32_t)j < 2*MAXTILES)
         {
@@ -577,9 +576,7 @@ void P_RandomSpawnPoint(int playerNum)
 {
     DukePlayer_t *const pPlayer = g_player[playerNum].ps;
 
-    int32_t  i = playerNum;
-    uint32_t dist;
-    uint32_t pdist = -1;
+    int32_t i = playerNum;
 
     if ((g_netServer || ud.multimode > 1) && !(g_gametypeFlags[ud.coop] & GAMETYPE_FIXEDRESPAWN))
     {
@@ -587,13 +584,14 @@ void P_RandomSpawnPoint(int playerNum)
 
         if (g_gametypeFlags[ud.coop] & GAMETYPE_TDMSPAWN)
         {
+            uint32_t pdist = -1;
             for (bssize_t j=0; j<ud.multimode; j++)
             {
                 if (j != playerNum && g_player[j].ps->team == pPlayer->team && sprite[g_player[j].ps->i].extra > 0)
                 {
                     for (bssize_t k=0; k<g_playerSpawnCnt; k++)
                     {
-                        dist = FindDistance2D(g_player[j].ps->pos.x - g_playerSpawnPoints[k].pos.x,
+                        uint32_t dist = FindDistance2D(g_player[j].ps->pos.x - g_playerSpawnPoints[k].pos.x,
                                               g_player[j].ps->pos.y - g_playerSpawnPoints[k].pos.y);
 
                         if (dist < pdist)

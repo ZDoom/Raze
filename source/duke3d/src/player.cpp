@@ -3931,8 +3931,6 @@ static void P_ProcessWeapon(int playerNum)
                 // this event is deprecated
                 VM_OnEvent(EVENT_FIREWEAPON, pPlayer->i, playerNum);
 
-                int spriteNum;
-
                 switch (PWEAPON(playerNum, pPlayer->curr_weapon, WorksLike))
                 {
                     case HANDBOMB_WEAPON:
@@ -3978,7 +3976,7 @@ static void P_ProcessWeapon(int playerNum)
                                 if (wall[hitData.wall].overpicnum == BIGFORCE)
                                     break;
 
-                            spriteNum = headspritesect[hitData.sect];
+                            int spriteNum = headspritesect[hitData.sect];
                             while (spriteNum >= 0)
                             {
                                 if (sprite[spriteNum].picnum == TRIPBOMB && klabs(sprite[spriteNum].z - hitData.pos.z) < ZOFFSET4 &&
