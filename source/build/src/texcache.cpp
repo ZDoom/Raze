@@ -135,7 +135,7 @@ pthtyp *texcache_fetch(int32_t dapicnum, int32_t dapalnum, int32_t dashade, int3
     polytintflags_t const tintflags = hictinting[dapalnum].f;
 
     const int32_t checktintpal = (tintflags & HICTINT_APPLYOVERALTPAL) ? 0 : si->palnum;
-    const int32_t checkcachepal = (tintflags & HICTINT_IN_MEMORY) || ((tintflags & HICTINT_APPLYOVERALTPAL) && si->palnum > 0) ? dapalnum : si->palnum;
+    const int32_t checkcachepal = ((tintflags & HICTINT_IN_MEMORY) || ((tintflags & HICTINT_APPLYOVERALTPAL) && si->palnum > 0)) ? dapalnum : si->palnum;
 
     // load a replacement
     for (pthtyp *pth = texcache.list[j]; pth; pth = pth->next)
