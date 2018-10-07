@@ -1571,7 +1571,7 @@ static inline vec2_t get_rel_coords(int32_t const x, int32_t const y)
 
 // Note: the returned y coordinates are not actually screen coordinates, but
 // potentially clipped player-relative y coordinates.
-static int get_screen_coords(const vec2_t p1, const vec2_t p2,
+static int get_screen_coords(const vec2_t &p1, const vec2_t &p2,
                              int32_t *sx1ptr, int32_t *sy1ptr,
                              int32_t *sx2ptr, int32_t *sy2ptr)
 {
