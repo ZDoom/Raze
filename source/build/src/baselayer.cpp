@@ -321,12 +321,16 @@ static int32_t osdfunc_setrendermode(osdfuncparm_t const * const parm)
 
     videoSetRenderMode(m);
 
-    char const *renderer;
+    char const *renderer = "other";
 
     switch (videoGetRenderMode())
     {
     case REND_CLASSIC:
-        renderer = "classic software";
+#ifdef NOASM
+        renderer = "classic software (C)";
+#else
+        renderer = "classic software (ASM)";
+#endif
         break;
     case REND_POLYMOST:
         renderer = "polygonal OpenGL";
@@ -336,8 +340,6 @@ static int32_t osdfunc_setrendermode(osdfuncparm_t const * const parm)
         renderer = "great justice (Polymer)";
         break;
 #endif
-    default:
-        EDUKE32_UNREACHABLE_SECTION(break);
     }
 
     OSD_Printf("Rendering method changed to %s\n", renderer);
