@@ -565,7 +565,6 @@ static inline int32_t Paeth686(int32_t const a, int32_t const b, int32_t c)
 
 static inline void rgbhlineasm(int32_t x, int32_t xr1, intptr_t p, int32_t ixstp)
 {
-    int32_t i;
     if (!trnsrgb)
     {
         for (; x>xr1; p+=ixstp,x-=3) B_BUF32((void *) p, (B_UNBUF32(&olinbuf[x]))|B_LITTLE32(0xff000000));
@@ -573,7 +572,7 @@ static inline void rgbhlineasm(int32_t x, int32_t xr1, intptr_t p, int32_t ixstp
     }
     for (; x>xr1; p+=ixstp,x-=3)
     {
-        i = (B_UNBUF32(&olinbuf[x]))|B_LITTLE32(0xff000000);
+        int32_t i = (B_UNBUF32(&olinbuf[x]))|B_LITTLE32(0xff000000);
         if (i == trnsrgb) i &= B_LITTLE32(0xffffff);
         B_BUF32((void *) p, i);
     }
@@ -597,7 +596,7 @@ static inline void pal8hlineasm(int32_t x, int32_t xr1, intptr_t p, int32_t ixst
 static int32_t filter1st, filterest;
 static void putbuf(const uint8_t *buf, int32_t leng)
 {
-    int32_t i, x;
+    int32_t i;
     intptr_t p;
 
     if (filt < 0)
@@ -611,7 +610,7 @@ static void putbuf(const uint8_t *buf, int32_t leng)
 
     while (i < leng)
     {
-        x = i+xplc; if (x > leng) x = leng;
+        int32_t x = i+xplc; if (x > leng) x = leng;
         switch (filt)
         {
         case 0:
@@ -1043,9 +1042,9 @@ static int32_t crmul[4096], cbmul[4096];
 
 static void initkpeg()
 {
-    int32_t i, j, x, y;
+    int32_t i, j, y;
 
-    x = 0;  //Back & forth diagonal pattern (aligning bytes for best compression)
+    int32_t x = 0;  //Back & forth diagonal pattern (aligning bytes for best compression)
     for (i=0; i<16; i+=2)
     {
         for (y=8-1; y>=0; y--)
@@ -2400,8 +2399,6 @@ static int32_t kzhashead[256], kzhashpos, kzlastfnam = -1, kzhashsiz, kzdirnamhe
 
 static int32_t kzcheckhashsiz(int32_t siz)
 {
-    int32_t i;
-
     if (!kzhashbuf) //Initialize hash table on first call
     {
         Bmemset(kzhashead,-1,sizeof(kzhashead));
@@ -2410,7 +2407,7 @@ static int32_t kzcheckhashsiz(int32_t siz)
     }
     if (kzhashpos+siz > kzhashsiz) //Make sure string fits in kzhashbuf
     {
-        i = kzhashsiz; do { i <<= 1; }
+        int32_t i = kzhashsiz; do { i <<= 1; }
         while (kzhashpos+siz > i);
         kzhashbuf = (char *)Brealloc(kzhashbuf,i); if (!kzhashbuf) return 0;
         kzhashsiz = i;
@@ -2572,7 +2569,7 @@ void kzsetfil(FILE *fil)
 intptr_t kzopen(const char *filnam)
 {
     FILE *fil;
-    int32_t i, j, fileoffs, fileleng;
+    int32_t i, fileoffs, fileleng;
     char tempbuf[46+260], *zipnam, iscomp;
 
     //kzfs.fil = 0;
