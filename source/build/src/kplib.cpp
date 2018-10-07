@@ -2632,11 +2632,14 @@ intptr_t kzopen(const char *filnam)
     }
 
     //Finally, check mounted dirs
+
+    int const namlen = strlen(filnam);
+
     for (i=kzdirnamhead; i>=0; i=B_UNBUF32(&kzhashbuf[i]))
     {
         strcpy(tempbuf,&kzhashbuf[i+4]);
-        j = strlen(tempbuf);
-        if (strlen(filnam)+1+j >= sizeof(tempbuf)) continue; //don't allow int32_t filenames to buffer overrun
+        uint32_t const j = strlen(tempbuf);
+        if (namlen+1+j >= sizeof(tempbuf)) continue; //don't allow int32_t filenames to buffer overrun
         if ((j) && (tempbuf[j-1] != '/') && (tempbuf[j-1] != '\\') && (filnam[0] != '/') && (filnam[0] != '\\'))
 #if defined(_WIN32)
             strcat(tempbuf,"\\");
