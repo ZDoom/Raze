@@ -4,13 +4,13 @@ Copyright (c) 1998-2008 Ken Silverman
 Ken Silverman's official web site: http://advsys.net/ken
 
 Features of KPLIB.C:
-	* Routines for decoding JPG/PNG/GIF/PCX/TGA/BMP/DDS/CEL.
-		See kpgetdim(), kprender(), and optional helper function: kpzload().
-	* Routines for reading files out of ZIP/GRP files. All ZIP/GRP functions start with "kz".
-	* Multi-platform support: Dos/Windows/Linux/Mac/etc..
-	* Compact code, all in a single source file. Yeah, bad design on my part... but makes life
-		  easier for everyone else - you simply add a single C file to your project, throw a few
-		  externs in there, add the function calls, and you're done!
+    * Routines for decoding JPG/PNG/GIF/PCX/TGA/BMP/DDS/CEL.
+        See kpgetdim(), kprender(), and optional helper function: kpzload().
+    * Routines for reading files out of ZIP/GRP files. All ZIP/GRP functions start with "kz".
+    * Multi-platform support: Dos/Windows/Linux/Mac/etc..
+    * Compact code, all in a single source file. Yeah, bad design on my part... but makes life
+          easier for everyone else - you simply add a single C file to your project, throw a few
+          externs in there, add the function calls, and you're done!
 
 Brief history:
 1998?: Wrote KPEG, a JPEG viewer for DOS
@@ -1012,16 +1012,16 @@ static inline int32_t mulshr32(int32_t a, int32_t d)
 #elif defined(__GNUC__) && defined(__i386__) && !defined(NOASM)
 
 #define mulshr24(a,d) \
-	({ int32_t __a=(a), __d=(d); \
-		__asm__ __volatile__ ("imull %%edx; shrdl $24, %%edx, %%eax" \
-		: "+a" (__a), "+d" (__d) : : "cc"); \
-	 __a; })
+    ({ int32_t __a=(a), __d=(d); \
+        __asm__ __volatile__ ("imull %%edx; shrdl $24, %%edx, %%eax" \
+        : "+a" (__a), "+d" (__d) : : "cc"); \
+     __a; })
 
 #define mulshr32(a,d) \
-	({ int32_t __a=(a), __d=(d); \
-		__asm__ __volatile__ ("imull %%edx" \
-		: "+a" (__a), "+d" (__d) : : "cc"); \
-	 __d; })
+    ({ int32_t __a=(a), __d=(d); \
+        __asm__ __volatile__ ("imull %%edx" \
+        : "+a" (__a), "+d" (__d) : : "cc"); \
+     __d; })
 
 #else
 
@@ -1246,11 +1246,11 @@ static void yrbrend(int32_t x, int32_t y, int32_t *ldct)
 void (*kplib_yrbrend_func)(int32_t,int32_t,int32_t *) = yrbrend;
 
 #define KPEG_GETBITS(curbits, minbits, num, kfileptr, kfileend)\
-	while (curbits < minbits)\
-	{\
-		ch = *kfileptr++; num = (num<<8)+((int)ch); curbits += 8;\
-		if (ch == 255) { kfileptr++; if (kfileptr >= kfileend) { num <<= 8; curbits += 8; /*Hack to prevent read overrun on valid JPG by stuffing extra byte*/ } }\
-	}
+    while (curbits < minbits)\
+    {\
+        ch = *kfileptr++; num = (num<<8)+((int)ch); curbits += 8;\
+        if (ch == 255) { kfileptr++; if (kfileptr >= kfileend) { num <<= 8; curbits += 8; /*Hack to prevent read overrun on valid JPG by stuffing extra byte*/ } }\
+    }
 
 
 static int32_t kpegrend(const char *kfilebuf, int32_t kfilength,
