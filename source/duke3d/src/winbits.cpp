@@ -81,6 +81,7 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR)
     {
         //      initprintf("update: connect() error in G_GetVersionFromWebsite() (%d)\n",errno);
+        closesocket(mysock);
         return 0;
     }
 
@@ -88,6 +89,7 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     if (bytes_sent == SOCKET_ERROR)
     {
         //    initprintf("update: send() error in G_GetVersionFromWebsite() (%d)\n",errno);
+        closesocket(mysock);
         return 0;
     }
 
@@ -96,6 +98,7 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     if (i < 0)
     {
 //        initprintf("update: recv() returned %d\n", i);
+        closesocket(mysock);
         return 0;
     }
 
