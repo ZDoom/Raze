@@ -96,23 +96,24 @@ void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set)
 
 void G_GetCrosshairColor(void)
 {
-    // use the brightest color in the original 8-bit tile
-    int32_t bri = 0, j = 0, i;
-    int32_t ii;
-    char const *ptr = (char const *) waloff[CROSSHAIR];
+    if (IONMAIDEN)
+        return;
 
     if (DefaultCrosshairColors.f)
         return;
 
-    if (waloff[CROSSHAIR] == 0)
-    {
-        tileLoad(CROSSHAIR);
-        ptr = (char const *) waloff[CROSSHAIR];
-    }
+    tileLoad(CROSSHAIR);
 
-    ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
+    if (!waloff[CROSSHAIR])
+        return;
 
-    if (ii <= 0) return;
+    char const *ptr = (char const *) waloff[CROSSHAIR];
+
+    // find the brightest color in the original 8-bit tile
+    int32_t ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
+    int32_t bri = 0, j = 0, i;
+
+    Bassert(ii > 0);
 
     do
     {
@@ -134,9 +135,13 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
     if (IONMAIDEN)
         return;
 
-    int32_t i, ii;
+    if (g_crosshairSum == r+(g<<8)+(b<<16))
+        return;
 
-    if (g_crosshairSum == r+(g<<8)+(b<<16)) return;
+    tileLoad(CROSSHAIR);
+
+    if (!waloff[CROSSHAIR])
+        return;
 
     if (!DefaultCrosshairColors.f)
         G_GetCrosshairColor();
@@ -148,18 +153,13 @@ void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b)
 
     char *ptr = (char *) waloff[CROSSHAIR];
 
-    if (waloff[CROSSHAIR] == 0)
-    {
-        tileLoad(CROSSHAIR);
-        ptr = (char *) waloff[CROSSHAIR];
-    }
+    int32_t ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
 
-    ii = tilesiz[CROSSHAIR].x * tilesiz[CROSSHAIR].y;
-    if (ii <= 0) return;
+    Bassert(ii > 0);
 
-    if (videoGetRenderMode() == REND_CLASSIC)
-        i = paletteGetClosestColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b);
-    else i = paletteGetClosestColor(255, 255, 255); // use white in GL so we can tint it to the right color
+    int32_t i = (videoGetRenderMode() == REND_CLASSIC)
+                ? paletteGetClosestColor(CrosshairColors.r, CrosshairColors.g, CrosshairColors.b)
+                : paletteGetClosestColor(255, 255, 255);  // use white in GL so we can tint it to the right color
 
     do
     {
