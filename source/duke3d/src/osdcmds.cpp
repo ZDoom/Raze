@@ -185,14 +185,13 @@ static int32_t osdcmd_map(osdfuncparm_t const * const parm)
 
         if (maxwidth > 0)
         {
-            int32_t x = 0, count = 0;
+            int32_t x = 0;
             maxwidth += 3;
             OSD_Printf(OSDTEXT_RED "Map listing:\n");
             for (r=fnlist.findfiles; r; r=r->next)
             {
                 OSD_Printf("%-*s",maxwidth,r->name);
                 x += maxwidth;
-                count++;
                 if (x > OSD_GetCols() - maxwidth)
                 {
                     x = 0;
@@ -641,9 +640,6 @@ static int32_t osdcmd_addlogvar(osdfuncparm_t const * const parm)
 
 static int32_t osdcmd_setactorvar(osdfuncparm_t const * const parm)
 {
-    int32_t i, varval, ID;
-    char varname[256];
-
     if (parm->numparms != 3) return OSDCMD_SHOWHELP;
 
     if (numplayers > 1)
@@ -652,24 +648,26 @@ static int32_t osdcmd_setactorvar(osdfuncparm_t const * const parm)
         return OSDCMD_OK;
     }
 
-    ID=Batol(parm->parms[0]);
-    if (ID>=MAXSPRITES)
+    int32_t spriteNum = Batol(parm->parms[0]);
+
+    if ((unsigned)spriteNum >= MAXSPRITES)
     {
         OSD_Printf("Invalid sprite ID\n");
         return OSDCMD_OK;
     }
 
-    varval = Batol(parm->parms[2]);
-    strcpy(varname,parm->parms[2]);
-    varval = Batol(varname);
-    i = hash_find(&h_gamevars,varname);
-    if (i >= 0)
-        varval=Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek);
+    // get value to set
+    char varname[MAXVARLABEL];
+    strcpy(varname, parm->parms[2]);
 
-    strcpy(varname,parm->parms[1]);
-    i = hash_find(&h_gamevars,varname);
+    int32_t i = hash_find(&h_gamevars, varname);
+    int32_t const newValue = (i >= 0) ? Gv_GetVar(i, g_player[screenpeek].ps->i, screenpeek) : Batol(varname);
+
+    strcpy(varname, parm->parms[1]);
+    i = hash_find(&h_gamevars, varname);
     if (i >= 0)
-        Gv_SetVar(i, varval, ID, -1);
+        Gv_SetVar(i, newValue, spriteNum, -1);
+
     return OSDCMD_OK;
 }
 #else
