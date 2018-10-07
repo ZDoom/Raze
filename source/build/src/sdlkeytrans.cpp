@@ -249,7 +249,7 @@ static int32_t buildkeytranslationtable(void)
     MAP(SDL_SCANCODE_LALT,		0x38);
     MAP(SDL_SCANCODE_LGUI,	0xdb);	// win l
     MAP(SDL_SCANCODE_RGUI,	0xdc);	// win r
-    MAP(SDL_SCANCODE_PRINTSCREEN,		-2);	// 0xaa + 0xb7
+//    MAP(SDL_SCANCODE_PRINTSCREEN,		-2);	// 0xaa + 0xb7
     MAP(SDL_SCANCODE_SYSREQ,	0x54);	// alt+printscr
 //    MAP(SDL_SCANCODE_PAUSE,		0xb7);	// ctrl+pause
     MAP(SDL_SCANCODE_MENU,		0xdd);	// win menu?
