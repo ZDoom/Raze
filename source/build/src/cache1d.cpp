@@ -835,7 +835,7 @@ int initgroupfile(const char *filename)
             if (temp == 0)
                 continue;
             kread_grp(numgroupfiles, buf, temp);
-            temp2 |= Bmemcmp(buf, zerobuf, temp);
+            temp2 |= !!Bmemcmp(buf, zerobuf, temp);
         }
         if (temp2)
             break;
