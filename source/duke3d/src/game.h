@@ -536,7 +536,7 @@ static inline void G_NewGame_EnterLevel(void)
 static inline int G_GetMusicIdx(const char *str)
 {
     int32_t lev, ep;
-    char    b1, b2;
+    signed char b1, b2;
 
     int numMatches = sscanf(str, "%c%d%c%d", &b1,&ep, &b2,&lev);
 
