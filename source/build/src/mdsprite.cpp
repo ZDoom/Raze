@@ -1105,16 +1105,12 @@ void updateanimation(md2model_t *m, const uspritetype *tspr, uint8_t lpal)
         goto prep_return;
     }
 
-    fps = smooth->mdsmooth ?
-          Blrintf((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f) :
-          anim->fpssc;
+    fps = smooth->mdsmooth ? Blrintf((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f) : anim ? anim->fpssc : 1;
 
-    i = (mdtims - sprext->mdanimtims)*((fps*timerticspersec)/120);
+    i = (mdtims - sprext->mdanimtims) * ((fps * timerticspersec) / 120);
 
-    if (smooth->mdsmooth)
-        j = 65536;
-    else
-        j = ((anim->endframe+1-anim->startframe)<<16);
+    j = (smooth->mdsmooth || !anim) ? 65536 : ((anim->endframe + 1 - anim->startframe) << 16);
+
     // XXX: Just in case you play the game for a VERY long time...
     if (i < 0) { i = 0; sprext->mdanimtims = mdtims; }
     //compare with j*2 instead of j to ensure i stays > j-65536 for MDANIM_ONESHOT
@@ -1153,13 +1149,16 @@ void updateanimation(md2model_t *m, const uspritetype *tspr, uint8_t lpal)
     }
     else
     {
-        m->cframe = (i>>16)+anim->startframe;
+        if (anim)
+            m->cframe = (i>>16)+anim->startframe;
+
 #ifdef DEBUGGINGAIDS
         if (m->cframe >= m->numframes)
             OSD_Printf("6: c > n\n");
 #endif
         m->nframe = m->cframe+1;
-        if (m->nframe > anim->endframe)  // VERIFY: (!(r_animsmoothing && smooth->mdsmooth)) implies (anim!=NULL) ?
+
+        if (anim && m->nframe > anim->endframe)  // VERIFY: (!(r_animsmoothing && smooth->mdsmooth)) implies (anim!=NULL) ?
             m->nframe = anim->startframe;
 
         smooth->mdoldframe = m->cframe;
