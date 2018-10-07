@@ -676,8 +676,8 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
     // possibly fetch an already loaded multitexture :_)
     if (pal >= (MAXPALOOKUPS - RESERVEDPALS))
         for (i=0; i<nextmodelid; i++)
-            for (skzero = ((md2model_t *)models[i])->skinmap; skzero; skzero = skzero->next)
-                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[hicfxid(pal)] && sk)
+            for (skzero = ((md2model_t *)models[i])->skinmap; skzero && sk; skzero = skzero->next)
+                if (!Bstrcasecmp(skzero->fn, sk->fn) && skzero->texid[hicfxid(pal)])
                 {
                     size_t f = hicfxid(pal);
 
@@ -955,7 +955,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
         m->skinloaded = 1+number;
     }
 
-    int32_t const filter = sk->flags & HICR_FORCEFILTER ? TEXFILTER_ON : gltexfiltermode;
+    int32_t const filter = (sk->flags & HICR_FORCEFILTER) ? TEXFILTER_ON : gltexfiltermode;
 
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,glfiltermodes[filter].mag);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,glfiltermodes[filter].min);
@@ -978,7 +978,7 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
             cachead.ydim = tsiz.y>>cachead.quality;
 
             cachead.flags = nonpow2*CACHEAD_NONPOW2 | (hasalpha ? CACHEAD_HASALPHA : 0) |
-                            (sk->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY) ? CACHEAD_NODOWNSIZE : 0);
+                            ((sk->flags & (HICR_NODOWNSIZE|HICR_ARTIMMUNITY)) ? CACHEAD_NODOWNSIZE : 0);
 
 ///            OSD_Printf("Caching \"%s\"\n",fn);
             texcache_writetex_fromdriver(texcacheid, &cachead);
@@ -1105,7 +1105,8 @@ void updateanimation(md2model_t *m, const uspritetype *tspr, uint8_t lpal)
         goto prep_return;
     }
 
-    fps = smooth->mdsmooth ? Blrintf((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f) : anim ? anim->fpssc : 1;
+    fps = smooth->mdsmooth ? Blrintf((1.0f / ((float)tile2model[tile].smoothduration * (1.f / (float)UINT16_MAX))) * 66.f)
+                                   : anim ? anim->fpssc : 1;
 
     i = (mdtims - sprext->mdanimtims) * ((fps * timerticspersec) / 120);
 
@@ -1450,9 +1451,9 @@ int32_t partition(uint16_t *indexes, float *depths, int32_t f, int32_t l)
     uint16_t piv2 = indexes[f];
     do
     {
-        while ((depths[up] <= piv) && (up < l))
+        while ((up < l) && (depths[up] <= piv))
             up++;
-        while ((depths[down] > piv)  && (down > f))
+        while ((depths[down] > piv) && (down > f))
             down--;
         if (up < down)
         {
@@ -2241,7 +2242,9 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
         hictinting_apply(pc, MAXPALOOKUPS-1);
 
     pc[3] = (tspr->cstat&2) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;
-    pc[3] *= 1.0f - sext->alpha;
+
+    if (sext)
+        pc[3] *= 1.0f - sext->alpha;
 
     handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
@@ -2260,7 +2263,7 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     }
     else
     {
-        if ((tspr->cstat&2) || sext->alpha > 0.f || pc[3] < 1.0f)
+        if ((tspr->cstat&2) || (sext && sext->alpha > 0.f) || pc[3] < 1.0f)
             glEnable(GL_BLEND); //else glDisable(GL_BLEND);
     }
     glColor4f(pc[0],pc[1],pc[2],pc[3]);
@@ -2269,7 +2272,7 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     //------------
 
     // PLAG: Cleaner model rotation code
-    if (sext->pitch || sext->roll)
+    if (sext && (sext->pitch || sext->roll))
     {
         float f = 1.f/(fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.x+m1.x);
         Bmemset(&a0, 0, sizeof(a0));
@@ -2289,8 +2292,8 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
         k3 = (float)sintable[sext->roll&2047] * (1.f/16384.f);
     }
 
-    float const xpanning = (float)sext->xpanning * (1.f/256.f);
-    float const ypanning = (float)sext->ypanning * (1.f/256.f);
+    float const xpanning = sext ? (float)sext->xpanning * (1.f/256.f) : 0.f;
+    float const ypanning = sext ? (float)sext->ypanning * (1.f/256.f) : 0.f;
 
     polymost_usePaletteIndexing(false);
     polymost_setTexturePosSize({ 0.f, 0.f, 1.f, 1.f });
@@ -2322,7 +2325,7 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
         }
 #endif
 
-        if (sext->pitch || sext->roll)
+        if (sext && (sext->pitch || sext->roll))
         {
             vec3f_t fp1, fp2;
 
