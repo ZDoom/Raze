@@ -340,7 +340,7 @@ void vlineasm4(bssize_t cnt, char *p)
 
 #ifdef USE_SATURATE_VPLC
 static int32_t g_saturate;  // -1 if saturating vplc is requested, 0 else
-# define set_saturate(dosaturate) g_saturate = -!!dosaturate
+# define set_saturate(dosaturate) g_saturate = -(int)!!dosaturate
 #else
 # define set_saturate(dosaturate) UNREFERENCED_PARAMETER(dosaturate)
 #endif
