@@ -31,7 +31,7 @@
 
 static playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
 {
-    if (voice->BlockLength <= 0)
+    if (voice->BlockLength == 0)
     {
         if (voice->LoopStart == NULL)
         {
