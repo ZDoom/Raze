@@ -5068,7 +5068,6 @@ DO_DEFSTATE:
                 g_checkingSwitch++; // allow nesting (if other things work)
                 C_GetNextVar();
 
-                intptr_t *tempscrptr= g_scriptPtr;
                 tempoffset = (unsigned)(g_scriptPtr-apScript);
                 BITPTR_CLEAR(g_scriptPtr-apScript);
                 *g_scriptPtr++=0; // leave spot for end location (for after processing)
@@ -5086,7 +5085,7 @@ DO_DEFSTATE:
                 g_scriptPtr+=j*2;
                 C_SkipComments();
                 g_scriptPtr-=j*2; // allocate buffer for the table
-                tempscrptr = (intptr_t *)(apScript+tempoffset);
+                intptr_t *tempscrptr = (intptr_t *)(apScript+tempoffset);
 
                 //AddLog(g_szBuf);
 
@@ -5188,7 +5187,7 @@ DO_DEFSTATE:
                 }
 
                 intptr_t tempoffset = 0;
-                intptr_t *tempscrptr = NULL;
+                intptr_t *tempscrptr = g_scriptPtr;
 
                 g_checkingCase++;
 repeatcase:
@@ -6083,7 +6082,7 @@ repeatcase:
             j = hash_find(&h_labels,tempbuf);
 
             k = *(g_scriptPtr-1);
-            if (EDUKE32_PREDICT_FALSE((unsigned)k >= MAXSOUNDS))
+            if (EDUKE32_PREDICT_FALSE((unsigned)k >= MAXSOUNDS-1))
             {
                 initprintf("%s:%d: error: exceeded sound limit of %d.\n",g_scriptFileName,g_lineNumber,MAXSOUNDS);
                 g_errorCnt++;
