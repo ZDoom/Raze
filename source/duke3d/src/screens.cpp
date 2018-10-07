@@ -1306,13 +1306,9 @@ void G_DisplayRest(int32_t smoothratio)
         else
         {
             if (myps->actors_killed >= myps->max_actors_killed)
-                Bsprintf(tempbuf, "K:%d/%d", myps->actors_killed,
-                    myps->max_actors_killed>myps->actors_killed ?
-                    myps->max_actors_killed : myps->actors_killed);
+                Bsprintf(tempbuf, "K:%d/%d", myps->actors_killed, myps->actors_killed);
             else
-                Bsprintf(tempbuf, "K:^15%d/%d", myps->actors_killed,
-                    myps->max_actors_killed>myps->actors_killed ?
-                    myps->max_actors_killed : myps->actors_killed);
+                Bsprintf(tempbuf, "K:^15%d/%d", myps->actors_killed, myps->max_actors_killed);
         }
         G_ScreenText(MF_Bluefont.tilenum, 2<<16, i-gtextsc(14<<16), gtextsc(MF_Bluefont.zoom), 0, 0, tempbuf, 0, 10, 2|8|16|256|ROTATESPRITE_FULL16, 0, MF_Bluefont.emptychar.x, MF_Bluefont.emptychar.y, xbetween, MF_Bluefont.between.y, MF_Bluefont.textflags|TEXT_XOFFSETZERO|TEXT_GAMETEXTNUMHACK, 0, 0, xdim-1, ydim-1);
 
