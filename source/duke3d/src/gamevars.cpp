@@ -344,7 +344,7 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
     {
         if (aGameVars[i].szLabel != NULL)
         Gv_NewVar(aGameVars[i].szLabel,
-                    aGameVars[i].flags & GAMEVAR_NODEFAULT ? aGameVars[i].global : aGameVars[i].defaultValue,
+                    (aGameVars[i].flags & GAMEVAR_NODEFAULT) ? aGameVars[i].global : aGameVars[i].defaultValue,
                     aGameVars[i].flags);
     }
 
@@ -655,7 +655,7 @@ int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum)
         case GAMEVAR_INT32PTR: returnValue = *(int32_t *)var.global; break;
         case GAMEVAR_INT16PTR: returnValue = *(int16_t *)var.global; break;
         case GAMEVAR_UINT8PTR: returnValue = *(char *)var.global; break;
-        case GAMEVAR_Q16PTR: returnValue   = var.flags & GAMEVAR_SPECIAL ? *(int32_t *)var.global : fix16_to_int(*(fix16_t *)var.global); break;
+        case GAMEVAR_Q16PTR: returnValue   = (var.flags & GAMEVAR_SPECIAL) ? *(int32_t *)var.global : fix16_to_int(*(fix16_t *)var.global); break;
         default: EDUKE32_UNREACHABLE_SECTION(returnValue = 0; break);
     }
 
@@ -811,7 +811,7 @@ void __fastcall Gv_SetVar(int const gameVar, int const newValue, int const sprit
             case GAMEVAR_INT32PTR: *((int32_t *)var.global) = (int32_t)newValue; break;
             case GAMEVAR_INT16PTR: *((int16_t *)var.global) = (int16_t)newValue; break;
             case GAMEVAR_UINT8PTR: *((uint8_t *)var.global) = (uint8_t)newValue; break;
-            case GAMEVAR_Q16PTR: *(fix16_t *)var.global = var.flags & GAMEVAR_SPECIAL ? (int32_t)newValue : fix16_from_int((int16_t)newValue);
+            case GAMEVAR_Q16PTR: *(fix16_t *)var.global = (var.flags & GAMEVAR_SPECIAL) ? (int32_t)newValue : fix16_from_int((int16_t)newValue);
                 break;
         }
     }
@@ -824,7 +824,7 @@ badvarid:
 
 badindex:
     CON_ERRPRINTF("Gv_SetVar(): invalid index (%d) for gamevar %s from sprite %d, player %d\n",
-               var.flags & GAMEVAR_PERACTOR ? spriteNum : playerNum,
+               (var.flags & GAMEVAR_PERACTOR) ? spriteNum : playerNum,
                var.szLabel,vm.spriteNum,vm.playerNum);
 }
 
@@ -1010,7 +1010,7 @@ int __fastcall Gv_GetVarX(int gameVar)
             case GAMEVAR_INT32PTR: returnValue = (*(int32_t *)var.global); break;
             case GAMEVAR_INT16PTR: returnValue = (*(int16_t *)var.global); break;
             case GAMEVAR_UINT8PTR: returnValue = (*(uint8_t *)var.global); break;
-            case GAMEVAR_Q16PTR: returnValue   = var.flags & GAMEVAR_SPECIAL ? *(int32_t *)var.global : fix16_to_int(*(fix16_t *)var.global); break;
+            case GAMEVAR_Q16PTR: returnValue   = (var.flags & GAMEVAR_SPECIAL) ? *(int32_t *)var.global : fix16_to_int(*(fix16_t *)var.global); break;
         }
     }
 
@@ -1065,7 +1065,7 @@ void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf)
                 case GAMEVAR_INT32PTR: value = *(int32_t *)var.global; break;
                 case GAMEVAR_INT16PTR: value = *(int16_t *)var.global; break;
                 case GAMEVAR_UINT8PTR: value = *(uint8_t *)var.global; break;
-                case GAMEVAR_Q16PTR: value   = var.flags & GAMEVAR_SPECIAL ? *(int32_t *)var.global : fix16_to_int(*(fix16_t *)var.global); break;
+                case GAMEVAR_Q16PTR: value   = (var.flags & GAMEVAR_SPECIAL) ? *(int32_t *)var.global : fix16_to_int(*(fix16_t *)var.global); break;
             }
         }
 
@@ -1098,14 +1098,14 @@ void __fastcall Gv_SetVarX(int const gameVar, int const newValue)
         case GAMEVAR_INT32PTR: *(int32_t *)var.global = (int32_t)newValue; break;
         case GAMEVAR_INT16PTR: *(int16_t *)var.global = (int16_t)newValue; break;
         case GAMEVAR_UINT8PTR: *(uint8_t *)var.global = (uint8_t)newValue; break;
-        case GAMEVAR_Q16PTR: *(fix16_t *)var.global   = var.flags & GAMEVAR_SPECIAL ? (int32_t)newValue : fix16_from_int((int16_t)newValue); break;
+        case GAMEVAR_Q16PTR: *(fix16_t *)var.global   = (var.flags & GAMEVAR_SPECIAL) ? (int32_t)newValue : fix16_from_int((int16_t)newValue); break;
     }
 
     return;
 
 badindex:
     CON_ERRPRINTF("Gv_SetVar(): invalid index (%d) for gamevar %s\n",
-               var.flags & GAMEVAR_PERACTOR ? vm.spriteNum : vm.playerNum,
+               (var.flags & GAMEVAR_PERACTOR) ? vm.spriteNum : vm.playerNum,
                var.szLabel);
 }
 
