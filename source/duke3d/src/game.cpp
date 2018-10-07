@@ -5044,11 +5044,11 @@ static int32_t S_DefineAudioIfSupported(char **fn, const char *name)
 #if !defined HAVE_FLAC || !defined HAVE_VORBIS
     const char *extension = Bstrrchr(name, '.');
 # if !defined HAVE_FLAC
-    if (!Bstrcasecmp(extension, ".flac"))
+    if (extension && !Bstrcasecmp(extension, ".flac"))
         return -2;
 # endif
 # if !defined HAVE_VORBIS
-    if (!Bstrcasecmp(extension, ".ogg"))
+    if (extension && !Bstrcasecmp(extension, ".ogg"))
         return -2;
 # endif
 #endif
