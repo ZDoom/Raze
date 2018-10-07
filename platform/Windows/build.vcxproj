@@ -337,7 +337,6 @@
     <ClInclude Include="..\..\source\build\include\kplib.h" />
     <ClInclude Include="..\..\source\build\include\libdivide.h" />
     <ClInclude Include="..\..\source\build\include\lz4.h" />
-    <ClInclude Include="..\..\source\build\include\lzwnew.h" />
     <ClInclude Include="..\..\source\build\include\md4.h" />
     <ClInclude Include="..\..\source\build\include\mdsprite.h" />
     <ClInclude Include="..\..\source\build\include\miniz.h" />

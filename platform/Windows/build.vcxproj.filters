@@ -283,9 +283,6 @@
     <ClInclude Include="..\..\source\build\include\lz4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\build\include\lzwnew.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\build\include\md4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
