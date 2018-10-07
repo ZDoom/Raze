@@ -773,7 +773,7 @@ static SDL_Joystick *joydev = NULL;
 //
 int32_t initinput(void)
 {
-    int32_t i, j;
+    int32_t i;
 
 #ifdef _WIN32
     Win_GetOriginalLayoutName();
@@ -781,10 +781,12 @@ int32_t initinput(void)
 #endif
 
 #if defined EDUKE32_OSX
-    static char sdl_has3buttonmouse[] = "SDL_HAS3BUTTONMOUSE=1";
     // force OS X to operate in >1 button mouse mode so that LMB isn't adulterated
     if (!getenv("SDL_HAS3BUTTONMOUSE"))
+    {
+        static char sdl_has3buttonmouse[] = "SDL_HAS3BUTTONMOUSE=1";
         putenv(sdl_has3buttonmouse);
+    }
 #endif
 
     inputdevices = 1 | 2;  // keyboard (1) and mouse (2)
@@ -814,7 +816,7 @@ int32_t initinput(void)
         i = SDL_NumJoysticks();
         initprintf("%d joystick(s) found\n", i);
 
-        for (j = 0; j < i; j++)
+        for (int32_t j = 0; j < i; j++)
             initprintf("  %d. %s\n", j + 1, SDL_JoystickNameForIndex(j));
 
         joydev = SDL_JoystickOpen(0);
@@ -1537,7 +1539,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
 #ifdef USE_OPENGL
     if (c > 8 || !nogl)
     {
-        int32_t i, j;
+        int32_t i;
 #ifdef USE_GLEXT
         int32_t multisamplecheck = (glmultisample > 0);
 #else
