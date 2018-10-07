@@ -1736,7 +1736,7 @@ static char *strtoken(char *s, char **ptrptr, int32_t *restart)
     if (!p) return NULL;
 
     // eat up any leading whitespace
-    while (*p != 0 && *p != ';' && *p == ' ') p++;
+    while (*p && *p == ' ') p++;
 
     // a semicolon is an end of statement delimiter like a \0 is, so we signal
     // the caller to 'restart' for the rest of the string pointed at by *ptrptr
@@ -1985,13 +1985,15 @@ static osdsymbol_t *osd_addsymbol(const char *pszName)
 //
 // findsymbol() -- Finds a symbol, possibly partially named
 //
-static osdsymbol_t * osd_findsymbol(const char *pszName, osdsymbol_t *pSymbol)
+static osdsymbol_t * osd_findsymbol(const char * const pszName, osdsymbol_t *pSymbol)
 {
     if (!pSymbol) pSymbol = symbols;
     if (!pSymbol) return NULL;
 
+    int const nameLen = Bstrlen(pszName);
+
     for (; pSymbol; pSymbol=pSymbol->next)
-        if (pSymbol->func != OSD_UNALIASED && !Bstrncasecmp(pszName, pSymbol->name, Bstrlen(pszName))) return pSymbol;
+        if (pSymbol->func != OSD_UNALIASED && !Bstrncasecmp(pszName, pSymbol->name, nameLen)) return pSymbol;
 
     return NULL;
 }
