@@ -3570,7 +3570,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
 //
 // parascan (internal)
 //
-static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, int32_t bunch)
+static void parascan(char dastat, int32_t bunch)
 {
     usectortype *sec;
     int32_t j, k, l, m, n, x, z, wallnum, nextsectnum, globalhorizbak;
@@ -3578,10 +3578,7 @@ static void parascan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat, i
 
     int32_t logtilesizy, tsizy;
 
-    UNREFERENCED_PARAMETER(dax1);
-    UNREFERENCED_PARAMETER(dax2);
-
-    sectnum = thesector[bunchfirst[bunch]]; sec = (usectortype *)&sector[sectnum];
+    int32_t sectnum = thesector[bunchfirst[bunch]]; sec = (usectortype *)&sector[sectnum];
 
     globalhorizbak = globalhoriz;
     globvis = globalpisibility;
@@ -3967,7 +3964,7 @@ static void classicDrawBunches(int32_t bunch)
             else if ((sec->ceilingstat&1) == 0)
                 ceilscan(xb1[bunchfirst[bunch]],xb2[bunchlast[bunch]],sectnum);
             else
-                parascan(xb1[bunchfirst[bunch]],xb2[bunchlast[bunch]],sectnum,0,bunch);
+                parascan(0,bunch);
         }
 
         if ((andwstat2&12) != 12)   //draw floors
@@ -3982,7 +3979,7 @@ static void classicDrawBunches(int32_t bunch)
             else if ((sec->floorstat&1) == 0)
                 florscan(xb1[bunchfirst[bunch]],xb2[bunchlast[bunch]],sectnum);
             else
-                parascan(xb1[bunchfirst[bunch]],xb2[bunchlast[bunch]],sectnum,1,bunch);
+                parascan(1,bunch);
         }
     }
 
