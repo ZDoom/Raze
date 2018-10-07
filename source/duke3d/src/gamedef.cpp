@@ -50,7 +50,7 @@ static intptr_t *g_caseScriptPtr;
 static intptr_t previous_event;
 static int32_t g_numCases = 0, g_checkingCase = 0;
 static int32_t g_checkingSwitch = 0, g_currentEvent = -1;
-static int32_t g_labelsOnly = 0, g_skipKeywordCheck = 0, g_dynamicTileMapping = 0, g_dynamicSoundMapping = 0;
+static int32_t g_labelsOnly = 0, g_dynamicTileMapping = 0, g_dynamicSoundMapping = 0;
 static int32_t g_numBraces = 0;
 
 static int32_t C_ParseCommand(int32_t loop);
@@ -1856,7 +1856,7 @@ static void C_GetNextVarType(int32_t type)
 
     C_GetNextLabelName();
 
-    if (EDUKE32_PREDICT_FALSE(!g_skipKeywordCheck && hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
+    if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,label+(g_labelCnt<<6))>=0))
     {
         g_errorCnt++;
         C_ReportError(ERROR_ISAKEYWORD);
@@ -2142,7 +2142,7 @@ static int32_t C_GetNextValue(int32_t type)
     }
     tempbuf[l] = 0;
 
-    if (EDUKE32_PREDICT_FALSE(!g_skipKeywordCheck && hash_find(&h_keywords,tempbuf /*label+(g_numLabels<<6)*/)>=0))
+    if (EDUKE32_PREDICT_FALSE(hash_find(&h_keywords,tempbuf /*label+(g_numLabels<<6)*/)>=0))
     {
         g_errorCnt++;
         C_ReportError(ERROR_ISAKEYWORD);
