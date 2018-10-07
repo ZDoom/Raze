@@ -1116,11 +1116,11 @@ extern "C" {
 
 struct Bdirent
 {
-    uint16_t namlen;
     char *name;
     uint32_t mode;
     uint32_t size;
     uint32_t mtime;
+    uint16_t namlen;
 };
 
 typedef void BDIR;
