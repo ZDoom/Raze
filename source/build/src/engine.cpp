@@ -3883,6 +3883,7 @@ static void classicDrawBunches(int32_t bunch)
 
     uint8_t andwstat1 = 0xff, andwstat2 = 0xff;
 
+
     for (; z>=0; z=bunchp2[z]) //uplc/dplc calculation
     {
         andwstat1 &= wallmost(uplc,z,sectnum,(uint8_t)0);
@@ -3985,6 +3986,7 @@ static void classicDrawBunches(int32_t bunch)
         }
     }
 
+    int32_t gotswall, startsmostwallcnt, startsmostcnt;
 
     //DRAW WALLS SECTION!
     for (z=bunchfirst[bunch]; z>=0; z=bunchp2[z])
@@ -4011,10 +4013,9 @@ static void classicDrawBunches(int32_t bunch)
         const int32_t nextsectnum = wal->nextsector;
         const usectortype *const nextsec = nextsectnum>=0 ? (usectortype *)&sector[nextsectnum] : NULL;
 
-        int32_t gotswall = 0;
-
-        const int32_t startsmostwallcnt = smostwallcnt;
-        const int32_t startsmostcnt = smostcnt;
+        gotswall = 0;
+        startsmostwallcnt = smostwallcnt;
+        startsmostcnt = smostcnt;
 
         if (searchit == 2 && (searchx >= x1 && searchx <= x2))
         {
