@@ -487,7 +487,7 @@ static void G_SE40(int32_t smoothratio)
                 {
                     SE40backupStat[i] = sector[i].ceilingstat;
                     SE40backupZ[i] = sector[i].ceilingz;
-                    if (!ror_protectedsectors[i] || (ror_protectedsectors[i] && sp->lotag == 41))
+                    if (!ror_protectedsectors[i] || sp->lotag == 41)
                     {
                         sector[i].ceilingstat = 1;
                         sector[i].ceilingz += newz;
@@ -509,7 +509,7 @@ static void G_SE40(int32_t smoothratio)
                 {
                     SE40backupStat[i] = sector[i].floorstat;
                     SE40backupZ[i] = sector[i].floorz;
-                    if (!ror_protectedsectors[i] || (ror_protectedsectors[i] && sp->lotag == 41))
+                    if (!ror_protectedsectors[i] || sp->lotag == 41)
                     {
                         sector[i].floorstat = 1;
                         sector[i].floorz = +newz;
@@ -6704,7 +6704,7 @@ MAIN_LOOP_RESTART:
                 if (ch != '\n')
                     buf[bufpos++] = ch;
 
-                if (ch == '\n' || bufpos >= sizeof(buf))
+                if (ch == '\n' || bufpos >= sizeof(buf)-1)
                 {
                     buf[bufpos] = 0;
                     OSD_Dispatch(buf);
