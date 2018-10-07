@@ -775,6 +775,8 @@ void polymost_bindTexture(GLenum target, uint32_t textureID)
 
 static void polymost_bindPth(pthtyp *pPth)
 {
+    Bassert(pPth);
+
     vec4f_t texturePosSize = { 0.f, 0.f, 1.f, 1.f };
     vec2f_t halfTexelSize = { 0.f, 0.f };
     if ((pPth->flags & PTH_INDEXED) &&
@@ -3042,19 +3044,18 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             pth = pth->ofb;
     }
 
+    Bassert(pth);
+
     // If we aren't rendmode 3, we're in Polymer, which means this code is
     // used for rotatesprite only. Polymer handles all the material stuff,
     // just submit the geometry and don't mess with textures.
     if (videoGetRenderMode() == REND_POLYMOST)
     {
-        if (pth)
-        {
-            polymost_bindPth(pth);
+        polymost_bindPth(pth);
 
-            //POGOTODO: I could move this into bindPth
-            if (!(pth->flags & PTH_INDEXED))
-                polymost_usePaletteIndexing(false);
-        }
+        //POGOTODO: I could move this into bindPth
+        if (!(pth->flags & PTH_INDEXED))
+            polymost_usePaletteIndexing(false);
 
         if (drawpoly_srepeat)
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -3063,7 +3064,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
 
     // texture scale by parkar request
-    if (pth && pth->hicr && !drawingskybox && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
+    if (pth->hicr && !drawingskybox && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
     {
         glMatrixMode(GL_TEXTURE);
         glLoadIdentity();
@@ -3095,7 +3096,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
             glMatrixMode(GL_TEXTURE);
             glLoadIdentity();
 
-            if (pth && pth->hicr && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
+            if (pth->hicr && ((pth->hicr->scale.x != 1.0f) || (pth->hicr->scale.y != 1.0f)))
                 glScalef(pth->hicr->scale.x, pth->hicr->scale.y, 1.0f);
 
             if ((detailpth->hicr->scale.x != 1.0f) || (detailpth->hicr->scale.y != 1.0f))
@@ -3124,7 +3125,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
     vec2f_t hacksc = { 1.f, 1.f };
 
-    if (pth && (pth->flags & PTH_HIGHTILE))
+    if (pth->flags & PTH_HIGHTILE)
     {
         hacksc = pth->scale;
         tsiz = pth->siz;
@@ -3153,7 +3154,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     else
     {
         float const al = waloff[globalpicnum] ? alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f):
-                         (pth && pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f) : 0.f;
+                         (pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f) : 0.f;
 
         glAlphaFunc(GL_GREATER, al);
         handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
@@ -3171,8 +3172,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 #endif
     {
         polytint_t const & tint = hictinting[globalpal];
-        float shadeFactor = pth &&
-                            (pth->flags & PTH_INDEXED) &&
+        float shadeFactor = (pth->flags & PTH_INDEXED) &&
                             r_usetileshades &&
                             !(globalflags & GLOBAL_NO_GL_TILESHADES) ? 1.f : getshadefactor(globalshade);
         pc[0] = (1.f-(tint.sr*(1.f/255.f)))*shadeFactor+(tint.sr*(1.f/255.f));
@@ -3183,27 +3183,24 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     // spriteext full alpha control
     pc[3] = float_trans(method & DAMETH_MASKPROPS, drawpoly_blend) * (1.f - drawpoly_alpha);
 
-    if (pth)
+    // tinting
+    polytintflags_t const tintflags = hictinting[globalpal].f;
+    if (!(tintflags & HICTINT_PRECOMPUTED))
     {
-        // tinting
-        polytintflags_t const tintflags = hictinting[globalpal].f;
-        if (!(tintflags & HICTINT_PRECOMPUTED))
+        if (pth->flags & PTH_HIGHTILE)
         {
-            if (pth->flags & PTH_HIGHTILE)
-            {
-                if (pth->palnum != globalpal || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
-                    hictinting_apply(pc, globalpal);
-            }
-            else if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
+            if (pth->palnum != globalpal || (pth->effects & HICTINT_IN_MEMORY) || (tintflags & HICTINT_APPLYOVERALTPAL))
                 hictinting_apply(pc, globalpal);
         }
-
-        // global tinting
-        if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
-            hictinting_apply(pc, MAXPALOOKUPS-1);
-
-        globaltinting_apply(pc);
+        else if (tintflags & (HICTINT_USEONART|HICTINT_ALWAYSUSEART))
+            hictinting_apply(pc, globalpal);
     }
+
+    // global tinting
+    if ((pth->flags & PTH_HIGHTILE) && have_basepal_tint())
+        hictinting_apply(pc, MAXPALOOKUPS-1);
+
+    globaltinting_apply(pc);
 
     glColor4f(pc[0], pc[1], pc[2], pc[3]);
 
@@ -3429,7 +3426,7 @@ do                                                                              
     polymost_useDetailMapping(false);
     polymost_useGlowMapping(false);
 #endif
-    if (pth && pth->hicr)
+    if (pth->hicr)
     {
         glMatrixMode(GL_TEXTURE);
         glLoadIdentity();
@@ -3441,7 +3438,7 @@ do                                                                              
     if (videoGetRenderMode() != REND_POLYMOST)
         return;
 
-    if (pth && !(pth->flags & PTH_INDEXED))
+    if (!(pth->flags & PTH_INDEXED))
     {
         // restore palette usage if we were just rendering a non-indexed color texture
         polymost_usePaletteIndexing(true);
