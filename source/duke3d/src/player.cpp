@@ -1577,7 +1577,7 @@ int A_ShootWithZvel(int const spriteNum, int const projecTile, int const forceZv
     int    shootAng;
     vec3_t startPos;
 
-    if (pSprite->picnum == APLAYER)
+    if (pPlayer != NULL)
     {
         startPos            = *(vec3_t *)pPlayer;
         startPos.z          += pPlayer->pyoff + ZOFFSET6;
