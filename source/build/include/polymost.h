@@ -22,8 +22,8 @@ extern float gcosang, gsinang, gcosang2, gsinang2;
 extern float gchang, gshang, gctang, gstang, gvisibility;
 
 struct glfiltermodes {
-	const char *name;
-	int32_t min,mag;
+    const char *name;
+    int32_t min,mag;
 };
 #define NUMGLFILTERMODES 6
 extern struct glfiltermodes glfiltermodes[NUMGLFILTERMODES];
