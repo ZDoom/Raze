@@ -3036,28 +3036,32 @@ void inflineintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                       int32_t *intx, int32_t *inty, int32_t *sign12, int32_t *sign34)
 {
     //p1 to p2 is a line segment
-    int64_t x21, y21, x34, y34, x31, y31, bot, topt, topu, t;
+    int64_t topt, topu, t;
 
-    x21 = x2-x1; x34 = x3-x4;
-    y21 = y2-y1; y34 = y3-y4;
-    bot = x21*y34 - y21*x34;
-    if (bot >= 0)
+    int64_t x21 = x2-x1;
+    int64_t x34 = x3-x4;
+    int64_t y21 = y2-y1;
+    int64_t y34 = y3-y4;
+    int64_t bot = x21*y34 - y21*x34;
+
+    if (EDUKE32_PREDICT_FALSE(bot == 0))
     {
-        if (bot == 0) { *sign12 = *sign34 = 0; return; };
-        x31 = x3-x1; y31 = y3-y1;
-        topt = x31*y34 - y31*x34;
-        topu = x21*y31 - y21*x31;
+        *sign12 = *sign34 = 0;
+        return;
     }
     else
     {
-        x31 = x3-x1; y31 = y3-y1;
-        topt = x31*y34 - y31*x34;
-        topu = x21*y31 - y21*x31;
+        int64_t const x31 = x3 - x1;
+        int64_t const y31 = y3 - y1;
+
+        topt = x31 * y34 - y31 * x34;
+        topu = x21 * y31 - y21 * x31;
     }
 
-    t = (topt*(1<<24))/bot;
-    *intx = x1 + ((x21*t)>>24);
-    *inty = y1 + ((y21*t)>>24);
+    t = (topt * (1 << 24)) / bot;
+
+    *intx = x1 + ((x21 * t) >> 24);
+    *inty = y1 + ((y21 * t) >> 24);
 
     *sign12 = topt < 0 ? -1 : 1;
     *sign34 = topu < 0 ? -1 : 1;
