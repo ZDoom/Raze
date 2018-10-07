@@ -3047,11 +3047,14 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     // just submit the geometry and don't mess with textures.
     if (videoGetRenderMode() == REND_POLYMOST)
     {
-        polymost_bindPth(pth);
+        if (pth)
+        {
+            polymost_bindPth(pth);
 
-        //POGOTODO: I could move this into bindPth
-        if (pth && !(pth->flags & PTH_INDEXED))
-            polymost_usePaletteIndexing(false);
+            //POGOTODO: I could move this into bindPth
+            if (!(pth->flags & PTH_INDEXED))
+                polymost_usePaletteIndexing(false);
+        }
 
         if (drawpoly_srepeat)
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -3168,7 +3171,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 #endif
     {
         polytint_t const & tint = hictinting[globalpal];
-        float shadeFactor = (pth->flags & PTH_INDEXED) &&
+        float shadeFactor = pth &&
+                            (pth->flags & PTH_INDEXED) &&
                             r_usetileshades &&
                             !(globalflags & GLOBAL_NO_GL_TILESHADES) ? 1.f : getshadefactor(globalshade);
         pc[0] = (1.f-(tint.sr*(1.f/255.f)))*shadeFactor+(tint.sr*(1.f/255.f));
@@ -7476,15 +7480,16 @@ void polymost_fillpolygon(int32_t npoints)
     glEnable(GL_ALPHA_TEST);
     glEnable(GL_TEXTURE_2D);
     pthtyp *pth = our_texcache_fetch(DAMETH_NOMASK | (videoGetRenderMode() == REND_POLYMOST && r_useindexedcolortextures ? PTH_INDEXED : 0));
-    polymost_bindPth(pth);
-    if (pth && !(pth->flags & PTH_INDEXED))
+
+    if (pth)
     {
-        polymost_usePaletteIndexing(false);
+        polymost_bindPth(pth);
+
+        if (!(pth->flags & PTH_INDEXED))
+            polymost_usePaletteIndexing(false);
     }
     else
-    {
         polymost_updatePalette();
-    }
 
     float const f = getshadefactor(globalshade);
 
@@ -7555,15 +7560,15 @@ int32_t polymost_drawtilescreen(int32_t tilex, int32_t tiley, int32_t wallnum, i
         loadedhitile[wallnum>>3] |= (1<<(wallnum&7));
     usehightile = ousehightile;
 
-    polymost_bindPth(pth);
-    if (pth && !(pth->flags & PTH_INDEXED))
+    if (pth)
     {
-        polymost_usePaletteIndexing(false);
+        polymost_bindPth(pth);
+
+        if (!(pth->flags & PTH_INDEXED))
+            polymost_usePaletteIndexing(false);
     }
     else
-    {
         polymost_updatePalette();
-    }
 
     glDisable(GL_ALPHA_TEST);
 
