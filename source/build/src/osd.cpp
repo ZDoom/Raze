@@ -508,9 +508,11 @@ static int32_t osdfunc_listsymbols(osdfuncparm_t const * const parm)
         else
             OSD_Printf("%sSymbol listing:\n", osd->draw.highlight);
 
+        int const parmlen = Bstrlen(parm->parms[0]);
+
         for (i=symbols; i!=NULL; i=i->next)
         {
-            if (i->func == OSD_UNALIASED || (parm->numparms == 1 && Bstrncmp(parm->parms[0], i->name, Bstrlen(parm->parms[0]))))
+            if (i->func == OSD_UNALIASED || (parm->numparms == 1 && Bstrncmp(parm->parms[0], i->name, parmlen)))
                 continue;
 
             {
