@@ -3345,7 +3345,6 @@ void overheadeditor(void)
     int32_t i, j, k, m=0, mousxplc, mousyplc, firstx=0, firsty=0, oposz, col;
     int32_t numwalls_bak;
     int32_t startwall=0, endwall, dax, day, x1, y1, x2, y2, x3, y3; //, x4, y4;
-    int32_t highlightx1, highlighty1, highlightx2, highlighty2;
     int16_t bad, joinsector[2];
     int32_t bstatus, mousewaitmask=0;
     int16_t circlepoints;
@@ -3355,6 +3354,7 @@ void overheadeditor(void)
     int32_t resetsynctics = 0, lasttick=timerGetTicks(), waitdelay=totalclock, lastdraw=timerGetTicks();
     int32_t olen[2] = {0, 0}, dragwall[2] = {-1, -1};
     int16_t linehighlight2 = -1;
+    vec2_t highlight1 ={ 0, 0 }, highlight2 ={ 0, 0 };
 
     ovh.suckwall = -1;
     ovh.split = 0;
@@ -3961,7 +3961,7 @@ void overheadeditor(void)
 
                     if (highlightcnt == 0)
                     {
-                        if (eitherCTRL && (highlightx1!=highlightx2 || highlighty1!=highlighty2))
+                        if (eitherCTRL && (highlight1.x!=highlight2.x || highlight1.y!=highlight2.y))
                             printext16(searchx+6, searchy-6-8, editorcolors[12], -1, "SPR ONLY", 0);
 #ifdef YAX_ENABLE
                         if (keystatus[sc_End])  // End
@@ -4968,11 +4968,11 @@ end_yax: ;
             {
                 if (highlightcnt == 0)
                 {
-                    int32_t xx[] = { highlightx1, highlightx1, searchx, searchx, highlightx1 };
-                    int32_t yy[] = { highlighty1, searchy, searchy, highlighty1, highlighty1 };
+                    int32_t xx[] = { highlight1.x, highlight1.x, searchx, searchx, highlight1.x };
+                    int32_t yy[] = { highlight1.y, searchy, searchy, highlight1.y, highlight1.y };
 
-                    highlightx2 = searchx;
-                    highlighty2 = searchy;
+                    highlight2.x = searchx;
+                    highlight2.y = searchy;
                     ydim16 = ydim-STATUS2DSIZ2;
 
                     plotlines2d(xx, yy, 5, -editorcolors[14]);
@@ -4981,10 +4981,10 @@ end_yax: ;
                 {
                     highlightcnt = 0;
 
-                    highlightx1 = searchx;
-                    highlighty1 = searchy;
-                    highlightx2 = searchx;
-                    highlighty2 = searchy;
+                    highlight1.x = searchx;
+                    highlight1.y = searchy;
+                    highlight2.x = searchx;
+                    highlight2.y = searchy;
                 }
             }
             else
@@ -4995,17 +4995,17 @@ end_yax: ;
 
                     if (!m32_sideview)
                     {
-                        getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
-                        getpoint(highlightx2,highlighty2, &highlightx2,&highlighty2);
+                        getpoint(highlight1.x,highlight1.y, &highlight1.x,&highlight1.y);
+                        getpoint(highlight2.x,highlight2.y, &highlight2.x,&highlight2.y);
                     }
 
-                    if (highlightx1 > highlightx2)
-                        swaplong(&highlightx1, &highlightx2);
-                    if (highlighty1 > highlighty2)
-                        swaplong(&highlighty1, &highlighty2);
+                    if (highlight1.x > highlight2.x)
+                        swaplong(&highlight1.x, &highlight2.x);
+                    if (highlight1.y > highlight2.y)
+                        swaplong(&highlight1.y, &highlight2.y);
 
                     // Ctrl+RShift: select all wall-points of highlighted wall's loop:
-                    if (eitherCTRL && highlightx1==highlightx2 && highlighty1==highlighty2)
+                    if (eitherCTRL && highlight1.x==highlight2.x && highlight1.y==highlight2.y)
                     {
                         if (!setop)
                         {
@@ -5078,8 +5078,8 @@ end_yax: ;
                                 ty += midydim16;
                             }
 
-                            if (tx >= highlightx1 && tx <= highlightx2 &&
-                                    ty >= highlighty1 && ty <= highlighty2)
+                            if (tx >= highlight1.x && tx <= highlight2.x &&
+                                    ty >= highlight1.y && ty <= highlight2.y)
                             {
                                 if (!sub)
                                 {
@@ -5126,8 +5126,8 @@ end_yax: ;
                                 ty += midydim16;
                             }
 
-                            if (tx >= highlightx1 && tx <= highlightx2 &&
-                                    ty >= highlighty1 && ty <= highlighty2)
+                            if (tx >= highlight1.x && tx <= highlight2.x &&
+                                    ty >= highlight1.y && ty <= highlight2.y)
                             {
                                 if (!sub)
                                 {
@@ -5157,11 +5157,11 @@ end_yax: ;
                 {
                     if (!eitherCTRL)
                     {
-                        int32_t xx[] = { highlightx1, highlightx1, searchx, searchx, highlightx1 };
-                        int32_t yy[] = { highlighty1, searchy, searchy, highlighty1, highlighty1 };
+                        int32_t xx[] = { highlight1.x, highlight1.x, searchx, searchx, highlight1.x };
+                        int32_t yy[] = { highlight1.y, searchy, searchy, highlight1.y, highlight1.y };
 
-                        highlightx2 = searchx;
-                        highlighty2 = searchy;
+                        highlight2.x = searchx;
+                        highlight2.y = searchy;
                         ydim16 = ydim-STATUS2DSIZ2;
 
                         plotlines2d(xx, yy, 5, -editorcolors[10]);
@@ -5384,10 +5384,10 @@ end_autoredwall:
 #endif
                     }
 
-                    highlightx1 = searchx;
-                    highlighty1 = searchy;
-                    highlightx2 = searchx;
-                    highlighty2 = searchy;
+                    highlight1.x = searchx;
+                    highlight1.y = searchy;
+                    highlight2.x = searchx;
+                    highlight2.y = searchy;
                     highlightsectorcnt = 0;
                 }
             }
@@ -5406,16 +5406,16 @@ end_autoredwall:
 #endif
                     if (!m32_sideview)
                     {
-                        getpoint(highlightx1,highlighty1, &highlightx1,&highlighty1);
-                        getpoint(highlightx2,highlighty2, &highlightx2,&highlighty2);
+                        getpoint(highlight1.x,highlight1.y, &highlight1.x,&highlight1.y);
+                        getpoint(highlight2.x,highlight2.y, &highlight2.x,&highlight2.y);
                     }
 
                     if (!pointsel)
                     {
-                        if (highlightx1 > highlightx2)
-                            swaplong(&highlightx1, &highlightx2);
-                        if (highlighty1 > highlighty2)
-                            swaplong(&highlighty1, &highlighty2);
+                        if (highlight1.x > highlight2.x)
+                            swaplong(&highlight1.x, &highlight2.x);
+                        if (highlight1.y > highlight2.y)
+                            swaplong(&highlight1.y, &highlight2.y);
                     }
 
                     if (!setop)
@@ -5425,7 +5425,7 @@ end_autoredwall:
                     {
                         if (pointsel)
                         {
-                            bad = (inside_editor(&pos, searchx,searchy, zoom, highlightx2, highlighty2, i)!=1);
+                            bad = (inside_editor(&pos, searchx,searchy, zoom, highlight2.x, highlight2.y, i)!=1);
                         }
                         else
                         {
@@ -5445,8 +5445,8 @@ end_autoredwall:
                                     ty += midydim16;
                                 }
 
-                                if (tx < highlightx1 || tx > highlightx2) bad = 1;
-                                if (ty < highlighty1 || ty > highlighty2) bad = 1;
+                                if (tx < highlight1.x || tx > highlight2.x) bad = 1;
+                                if (ty < highlight1.y || ty > highlight2.y) bad = 1;
                                 if (bad == 1) break;
                             }
                         }
