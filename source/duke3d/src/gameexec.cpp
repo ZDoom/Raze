@@ -5079,7 +5079,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     = (aGameArrays[srcArray].flags & GAMEARRAY_VARSIZE) ? Gv_GetVarX(aGameArrays[srcArray].size) : aGameArrays[srcArray].size;
 
                     int const destArraySize
-                    = (aGameArrays[destArray].flags & GAMEARRAY_VARSIZE) ? Gv_GetVarX(aGameArrays[srcArray].size) : aGameArrays[destArray].size;
+                    = (aGameArrays[destArray].flags & GAMEARRAY_VARSIZE) ? Gv_GetVarX(aGameArrays[destArray].size) : aGameArrays[destArray].size;
 
                     if (EDUKE32_PREDICT_FALSE(srcArrayIndex > srcArraySize || destArrayIndex > destArraySize))
                         continue;
