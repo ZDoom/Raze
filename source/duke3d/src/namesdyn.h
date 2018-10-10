@@ -20,6 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
+#ifndef namesdyn_h__
+#define namesdyn_h__
+
+
 #define DYNTILEREMAP_ENABLE
 
 
@@ -1241,3 +1245,4 @@ extern int32_t JURYGUY;
 #define DYNAMICTILEMAP(Tilenum) (Tilenum)
 
 #endif
+#endif // namesdyn_h__
