@@ -32,7 +32,7 @@ extern void Polymost_prepare_loadboard(void);
 
 //void phex(char v, char *s);
 void uploadtexture(int32_t doalloc, vec2_t siz, int32_t texfmt, coltype *pic, vec2_t tsiz, int32_t dameth);
-void uploadtextureindexed(int32_t doalloc, vec2_t siz, vec2_t offset, intptr_t tile);
+void uploadtextureindexed(int32_t doalloc, vec2_t offset, vec2_t siz, intptr_t tile);
 void uploadbasepalette(int32_t basepalnum);
 void uploadpalswap(int32_t palookupnum);
 void polymost_drawsprite(int32_t snum);
