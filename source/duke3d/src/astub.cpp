@@ -1751,6 +1751,7 @@ static int32_t sort_sounds(int32_t how)
     {
     case 'g':  // restore original order
         Bmemcpy(g_sndnum, g_definedsndnum, sizeof(int16_t)*n);
+        Bfree(dst);
         return 0;
     case 's':
         compare_sounds = compare_sounds_s;
@@ -1777,6 +1778,7 @@ static int32_t sort_sounds(int32_t how)
         compare_sounds = compare_sounds_5;
         break;
     default:
+        Bfree(dst);
         return -2;
     }
 
@@ -9117,6 +9119,7 @@ static int32_t osdcmd_do(osdfuncparm_t const * const parm)
     if (g_numCompilerErrors)
     {
 //        g_scriptPtr = script + oscrofs;  // handled in C_Compile()
+        Bfree(tp);
         return OSDCMD_OK;
     }
 
@@ -9320,9 +9323,8 @@ static int32_t parsegroupfiles(scriptfile *script);
 
 static void parsegroupfiles_include(const char *fn, scriptfile *script, const char *cmdtokptr)
 {
-    scriptfile *included;
+    scriptfile *included = scriptfile_fromfile(fn);
 
-    included = scriptfile_fromfile(fn);
     if (!included)
     {
         if (!Bstrcasecmp(cmdtokptr,"null"))
