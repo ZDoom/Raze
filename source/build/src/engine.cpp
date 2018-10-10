@@ -9954,13 +9954,13 @@ int32_t videoSetGameMode(char davidoption, int32_t daupscaledxdim, int32_t daups
     if (searchx < 0) { searchx = halfxdimen; searchy = (ydimen>>1); }
 
 #ifdef USE_OPENGL
-    if (videoGetRenderMode() == REND_POLYMOST)
-        PolymostProcessVoxels();
-
     if (videoGetRenderMode() >= REND_POLYMOST)
     {
         polymost_glreset();
         polymost_glinit();
+
+        if (videoGetRenderMode() == REND_POLYMOST)
+            PolymostProcessVoxels();
     }
 # ifdef POLYMER
     if (videoGetRenderMode() == REND_POLYMER)
