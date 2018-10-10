@@ -4371,7 +4371,7 @@ static void Keys3d(void)
 
     if (searchsector > -1 && searchsector < numsectors)
     {
-        char lines[8][64];
+        char lines[8][128];
         int32_t num=0;
         int32_t x,y,flags=0;
 
