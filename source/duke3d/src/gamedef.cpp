@@ -6080,8 +6080,9 @@ repeatcase:
             k = *(g_scriptPtr-1);
             if (EDUKE32_PREDICT_FALSE((unsigned)k >= MAXSOUNDS-1))
             {
-                initprintf("%s:%d: error: exceeded sound limit of %d.\n",g_scriptFileName,g_lineNumber,MAXSOUNDS);
+                initprintf("%s:%d: error: sound index exceeds limit of %d.\n",g_scriptFileName,g_lineNumber, MAXSOUNDS-1);
                 g_errorCnt++;
+                k = MAXSOUNDS-1;
             }
             g_scriptPtr--;
             i = 0;
@@ -6140,7 +6141,7 @@ repeatcase:
             if (k > g_highestSoundIdx)
                 g_highestSoundIdx = k;
 
-            if (k >= 0 && k < MAXSOUNDS && g_dynamicSoundMapping && j >= 0 && (labeltype[j] & LABEL_DEFINE))
+            if (k >= 0 && k < MAXSOUNDS-1 && g_dynamicSoundMapping && j >= 0 && (labeltype[j] & LABEL_DEFINE))
                 G_ProcessDynamicSoundMapping(label+(j<<6),k);
             continue;
 
