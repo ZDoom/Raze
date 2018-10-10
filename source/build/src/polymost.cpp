@@ -835,7 +835,7 @@ void polymost_glinit()
         glEnable(GL_MULTISAMPLE);
     }
 
-    if (persistentStreamBuffer && ((!glinfo.bufferstorage) || (!glinfo.sync)))
+    if (r_persistentStreamBuffer && ((!glinfo.bufferstorage) || (!glinfo.sync)))
     {
         OSD_Printf("Your OpenGL implementation doesn't support the required extensions for persistent stream buffers. Disabling...\n");
         r_persistentStreamBuffer = 0;
@@ -2928,12 +2928,24 @@ static void polymost_waitForSubBuffer(uint32_t subBufferIndex)
             {
                 return;
             }
+            if (waitResult == GL_WAIT_FAILED)
+            {
+                OSD_Printf("polymost_waitForSubBuffer: Wait failed! Error 0x%X. Disabling r_persistentStreamBuffer.\n", glGetError());
+                r_persistentStreamBuffer = 0;
+                videoResetMode();
+                if (videoSetGameMode(fullscreen,xres,yres,bpp,upscalefactor))
+                {
+                    OSD_Printf("polymost_waitForSubBuffer: Video reset failed.  Please ensure r_persistentStreamBuffer = 0 and try restarting the game.\n");
+                    Bexit(1);
+                }
+                return;
+            }
 
             static char loggedLongWait = false;
             if (waitResult == GL_TIMEOUT_EXPIRED &&
                 !loggedLongWait)
             {
-                OSD_Printf("polymost_waitForBuffer(): Had to wait for the drawpoly buffer to become available.  For performance, try increasing buffer size with r_drawpolyVertsBufferLength.\n");
+                OSD_Printf("polymost_waitForSubBuffer(): Had to wait for the drawpoly buffer to become available.  For performance, try increasing buffer size with r_drawpolyVertsBufferLength.\n");
                 loggedLongWait = true;
             }
         }
