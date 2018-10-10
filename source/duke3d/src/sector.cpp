@@ -3256,10 +3256,10 @@ void P_CheckSectors(int playerNum)
 
                         int const playerSectnum = pPlayer->cursectnum;
                         pPlayer->cursectnum     = SECT(spriteNum);
+                        P_UpdateScreenPal(pPlayer);
                         pPlayer->cursectnum     = playerSectnum;
                         pPlayer->newowner       = spriteNum;
 
-                        P_UpdateScreenPal(pPlayer);
                         P_UpdatePosWhenViewingCam(pPlayer);
 
                         return;
