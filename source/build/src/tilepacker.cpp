@@ -260,10 +260,7 @@ static char rejectQueue_add(TreeNode *pNode)
 
 static TreeNode* rejectQueue_remove()
 {
-    if (numRejected == 0)
-    {
-        return NULL;
-    }
+    Bassert(numRejected);
 
     --numRejected;
     TreeNode* pNode = rejectQueue+rejectQueueHeadIndex;
