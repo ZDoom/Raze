@@ -45,7 +45,8 @@ LONG MiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInfo )
 		hDll = ::LoadLibrary( "DBGHELP.DLL" );
 	}
 
-	LPCTSTR szResult = NULL;
+	LPCTSTR szResult = "DBGHELP.DLL not found";;
+	char szScratch [_MAX_PATH];
 
 	if (hDll)
 	{
@@ -53,7 +54,6 @@ LONG MiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInfo )
 		if (pDump)
 		{
 			char szDumpPath[_MAX_PATH];
-			char szScratch [_MAX_PATH];
 
 			// work out a good place for the dump file
 			/*if (!GetTempPath( _MAX_PATH, szDumpPath ))
@@ -104,13 +104,8 @@ LONG MiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInfo )
 			szResult = "DBGHELP.DLL too old";
 		}
 	}
-	else
-	{
-		szResult = "DBGHELP.DLL not found";
-	}
 
-	if (szResult)
-		::MessageBox( NULL, szResult, m_szAppName, MB_OK );
+    ::MessageBox( NULL, szResult, m_szAppName, MB_OK );
 
 	return retval;
 }
