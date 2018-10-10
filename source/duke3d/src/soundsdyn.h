@@ -19,6 +19,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
+#ifndef soundsdyn_h__
+#define soundsdyn_h__
 
 #define DYNSOUNDREMAP_ENABLE
 
@@ -328,3 +330,4 @@ extern int32_t BIGBANG;
 #define DYNAMICSOUNDMAP(Soundnum) (Soundnum)
 
 #endif
+#endif // soundsdyn_h__
