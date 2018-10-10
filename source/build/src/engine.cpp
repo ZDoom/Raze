@@ -1628,9 +1628,8 @@ static int get_screen_coords(const vec2_t &p1, const vec2_t &p2,
 
         sx2 = xdimen-1;
 
-        int32_t tempint = (p1.y - p1.x) + (p2.x - p2.y);
-        if (tempint == 0)
-            return 0;
+        int32_t const tempint = (p1.y - p1.x) + (p2.x - p2.y);
+
         sy2 = p1.y + scale(p2.y-p1.y, p1.y-p1.x, tempint);
     }
 
