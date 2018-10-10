@@ -33,8 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int32_t G_GetVersionFromWebsite(char *buffer)
 {
-    int32_t wsainitialized = 0;
-    int32_t bytes_sent, i=0, j=0;
+    static int32_t wsainitialized = 0;
+    int32_t i=0, j=0, r=0;
     struct sockaddr_in dest_addr;
     struct hostent *h;
     char const *host = "www.eduke32.com";
@@ -42,24 +42,21 @@ int32_t G_GetVersionFromWebsite(char *buffer)
     char *tok;
     char tempbuf[2048],otherbuf[16],ver[16];
     SOCKET mysock;
+    WSADATA ws;
 
 #ifdef _WIN32
     if (wsainitialized == 0)
     {
-        WSADATA ws;
-
-        if (WSAStartup(0x101,&ws) == SOCKET_ERROR)
-        {
-//            initprintf("update: Winsock error in G_GetVersionFromWebsite() (%d)\n",errno);
+        if (WSAStartup(0x101, &ws) == SOCKET_ERROR)
             return 0;
-        }
+
         wsainitialized = 1;
     }
 #endif
 
-    if ((h=gethostbyname(host)) == NULL)
+    if ((h = gethostbyname(host)) == NULL)
     {
-//        initprintf("update: gethostbyname() error in G_GetVersionFromWebsite() (%d)\n",h_errno);
+        initprintf("Couldn't resolve %s!\n", host);
         return 0;
     }
 
@@ -69,54 +66,39 @@ int32_t G_GetVersionFromWebsite(char *buffer)
 
     memset(&(dest_addr.sin_zero), '\0', 8);
 
-
     mysock = socket(PF_INET, SOCK_STREAM, 0);
 
     if (mysock == INVALID_SOCKET)
     {
-//        initprintf("update: socket() error in G_GetVersionFromWebsite() (%d)\n",errno);
+        WSACleanup();
         return 0;
     }
+
     initprintf("Connecting to http://%s\n",host);
+
     if (connect(mysock, (struct sockaddr *)&dest_addr, sizeof(struct sockaddr)) == SOCKET_ERROR)
-    {
-        //      initprintf("update: connect() error in G_GetVersionFromWebsite() (%d)\n",errno);
-        closesocket(mysock);
-        return 0;
-    }
+        goto done;
 
-    bytes_sent = send(mysock, req, strlen(req), 0);
-    if (bytes_sent == SOCKET_ERROR)
-    {
-        //    initprintf("update: send() error in G_GetVersionFromWebsite() (%d)\n",errno);
-        closesocket(mysock);
-        return 0;
-    }
+    i = send(mysock, req, strlen(req), 0);
 
-    //    initprintf("sent %d bytes\n",bytes_sent);
+    if (i == SOCKET_ERROR)
+        goto done;
+
     i = recv(mysock, (char *)&tempbuf, sizeof(tempbuf), 0);
+
     if (i < 0)
-    {
-//        initprintf("update: recv() returned %d\n", i);
-        closesocket(mysock);
-        return 0;
-    }
+        goto done;
 
-    closesocket(mysock);
+    Bmemcpy(&otherbuf, &tempbuf, sizeof(otherbuf));
 
-    Bmemcpy(&otherbuf,&tempbuf,sizeof(otherbuf));
+    strtok(otherbuf, " ");
 
-    strtok(otherbuf," ");
-    tok = strtok(NULL," ");
-    if (tok == NULL)
-    {
-//        initprintf("update: strtok() produced no token\n");
-        return 0;
-    }
+    if ((tok = strtok(NULL, " ")) == NULL)
+        goto done;
 
     if (Batol(tok) == 200)
     {
-        for (i=0; (unsigned)i<strlen(tempbuf); i++) // HACK: all of this needs to die a fiery death; we just skip to the content
+        for (i = 0; (unsigned)i < strlen(tempbuf); i++)  // HACK: all of this needs to die a fiery death; we just skip to the content
         {
             // instead of actually parsing any of the http headers
             if (i > 4)
@@ -134,10 +116,16 @@ int32_t G_GetVersionFromWebsite(char *buffer)
 
         if (j)
         {
-            strcpy(buffer,ver);
-            return 1;
+            strcpy(buffer, ver);
+            r = 1;
+            goto done;
         }
     }
-    return 0;
+
+done:
+    closesocket(mysock);
+    WSACleanup();
+
+    return r;
 }
 #endif
