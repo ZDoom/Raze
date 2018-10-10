@@ -2375,7 +2375,6 @@ static int32_t C_CountCaseStatements()
     g_lineNumber = temp_ScriptLineNumber;
 
     int32_t const lCount=g_numCases;
-    g_numCases=0;
     g_caseScriptPtr = (intptr_t *)(apScript+caseoffset);
     g_numCases = 0;
     return lCount;
@@ -5210,7 +5209,7 @@ repeatcase:
                 {
                     if (tw == CON_DEFAULT)
                     {
-                        if (EDUKE32_PREDICT_FALSE(g_caseScriptPtr && g_caseScriptPtr[0]!=0))
+                        if (EDUKE32_PREDICT_FALSE(g_caseScriptPtr[0] != 0))
                         {
                             // duplicate default statement
                             g_errorCnt++;
