@@ -4559,7 +4559,6 @@ ACTOR_STATIC void G_MoveActors(void)
                 }
                 else
                 {
-                    if (pSprite->xvel < 32) pSprite->xvel += 4;
                     pSprite->xvel = 64 - (sintable[(pData[1]+512)&2047]>>9);
 
                     pSprite->ang += G_GetAngleDelta(pSprite->ang,
@@ -6497,10 +6496,7 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
             if (ldist(&sprite[pSprite->owner],pSprite) < 1024)
             {
-                int const saveAng = pSprite->ang;
-                pSprite->ang      = getangle(pPlayer->pos.x - pSprite->x, pPlayer->pos.y - pSprite->y);
-                pSprite->ang      = saveAng;
-                pSprite->owner    = -1;
+                pSprite->owner = -1;
                 goto next_sprite;
             }
             else pSprite->xvel=256;
@@ -6750,11 +6746,8 @@ ACTOR_STATIC void G_MoveEffectors(void)   //STATNUM 3
 
                 for (SPRITES_OF_SECT(SECT(spriteNum), j))
                 {
-                    if (sprite[j].cstat&16)
-                    {
-                        if ((sprite[j].cstat & 16) && (A_CheckSpriteFlags(j, SFLAG_NOSHADE) == 0))
-                            sprite[j].shade = (pSector->ceilingstat & 1) ? pSector->ceilingshade : pSector->floorshade;
-                    }
+                    if ((sprite[j].cstat & 16) && (A_CheckSpriteFlags(j, SFLAG_NOSHADE) == 0))
+                        sprite[j].shade = (pSector->ceilingstat & 1) ? pSector->ceilingshade : pSector->floorshade;
                 }
             }
             break;
