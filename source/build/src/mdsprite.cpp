@@ -1008,36 +1008,32 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
 //Note: even though it says md2model, it works for both md2model&md3model
 void updateanimation(md2model_t *m, const uspritetype *tspr, uint8_t lpal)
 {
-    const mdanim_t *anim;
-    int32_t i, j, k;
-    int32_t fps;
-
-    int32_t tile, smoothdurationp;
-    spritesmooth_t *smooth;
-    spriteext_t *sprext;
-
     if (m->numframes < 2)
     {
         m->interpol = 0;
         return;
     }
 
-    tile = Ptile2tile(tspr->picnum,lpal);
+    int32_t const tile = Ptile2tile(tspr->picnum,lpal);
     m->cframe = m->nframe = tile2model[tile].framenum;
+
 #ifdef DEBUGGINGAIDS
     if (m->cframe >= m->numframes)
         OSD_Printf("1: c > n\n");
 #endif
 
-    smoothdurationp = (r_animsmoothing && (tile2model[tile].smoothduration != 0));
+    int32_t const smoothdurationp = (r_animsmoothing && (tile2model[tile].smoothduration != 0));
+    spritesmooth_t * const smooth = &spritesmooth[((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? tspr->owner : MAXSPRITES+MAXUNIQHUDID-1];
+    spriteext_t * const sprext = &spriteext[((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? tspr->owner : MAXSPRITES+MAXUNIQHUDID-1];
 
-    smooth = ((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? &spritesmooth[tspr->owner] : NULL;
-    sprext = ((unsigned)tspr->owner < MAXSPRITES+MAXUNIQHUDID) ? &spriteext[tspr->owner] : NULL;
-
+    const mdanim_t *anim;
     for (anim = m->animations; anim && anim->startframe != m->cframe; anim = anim->next)
     {
         /* do nothing */;
     }
+
+    int32_t i, j, k;
+    int32_t fps;
 
     if (!anim)
     {
@@ -1058,8 +1054,7 @@ void updateanimation(md2model_t *m, const uspritetype *tspr, uint8_t lpal)
                 smooth->mdsmooth = 1;
                 smooth->mdcurframe = m->cframe;
             }
-
-            if (smooth->mdcurframe != m->cframe)
+            else if (smooth->mdcurframe != m->cframe)
             {
                 sprext->mdanimtims = mdtims;
                 m->interpol = 0;
@@ -2108,9 +2103,7 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     int32_t texunits = GL_TEXTURE0;
 
     const int32_t owner = tspr->owner;
-    // PK: XXX: These owner bound checks are redundant because sext is
-    // dereferenced unconditionally below anyway.
-    const spriteext_t *const sext = ((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? &spriteext[owner] : NULL;
+    const spriteext_t *const sext = &spriteext[((unsigned)owner < MAXSPRITES+MAXUNIQHUDID) ? owner : MAXSPRITES+MAXUNIQHUDID-1];
     const uint8_t lpal = ((unsigned)owner < MAXSPRITES) ? sprite[tspr->owner].pal : tspr->pal;
     const int32_t sizyrep = tilesiz[tspr->picnum].y*tspr->yrepeat;
 
@@ -2242,9 +2235,7 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
         hictinting_apply(pc, MAXPALOOKUPS-1);
 
     pc[3] = (tspr->cstat&2) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;
-
-    if (sext)
-        pc[3] *= 1.0f - sext->alpha;
+    pc[3] *= 1.0f - sext->alpha;
 
     handle_blend(!!(tspr->cstat & 2), tspr->blend, !!(tspr->cstat & 512));
 
@@ -2263,7 +2254,7 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     }
     else
     {
-        if ((tspr->cstat&2) || (sext && sext->alpha > 0.f) || pc[3] < 1.0f)
+        if ((tspr->cstat&2) || sext->alpha > 0.f || pc[3] < 1.0f)
             glEnable(GL_BLEND); //else glDisable(GL_BLEND);
     }
     glColor4f(pc[0],pc[1],pc[2],pc[3]);
@@ -2272,7 +2263,7 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     //------------
 
     // PLAG: Cleaner model rotation code
-    if (sext && (sext->pitch || sext->roll))
+    if (sext->pitch || sext->roll)
     {
         float f = 1.f/(fxdimen * fviewingrange) * (256.f/(65536.f*128.f)) * (m0.x+m1.x);
         Bmemset(&a0, 0, sizeof(a0));
@@ -2292,8 +2283,8 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
         k3 = (float)sintable[sext->roll&2047] * (1.f/16384.f);
     }
 
-    float const xpanning = sext ? (float)sext->xpanning * (1.f/256.f) : 0.f;
-    float const ypanning = sext ? (float)sext->ypanning * (1.f/256.f) : 0.f;
+    float const xpanning = (float)sext->xpanning * (1.f/256.f);
+    float const ypanning = (float)sext->ypanning * (1.f/256.f);
 
     polymost_usePaletteIndexing(false);
     polymost_setTexturePosSize({ 0.f, 0.f, 1.f, 1.f });
@@ -2325,7 +2316,7 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
         }
 #endif
 
-        if (sext && (sext->pitch || sext->roll))
+        if (sext->pitch || sext->roll)
         {
             vec3f_t fp1, fp2;
 
