@@ -51,9 +51,9 @@ extern uint32_t g_eventCalls[MAXEVENTS], g_actorCalls[MAXTILES];
 extern double g_eventTotalMs[MAXEVENTS], g_actorTotalMs[MAXTILES], g_actorMinMs[MAXTILES], g_actorMaxMs[MAXTILES];
 
 void A_Execute(int spriteNum, int playerNum, int playerDist);
-void A_Fall(int const spriteNum);
-int32_t A_GetFurthestAngle(int const spriteNum, int const angDiv);
-void A_GetZLimits(int const spriteNum);
+void A_Fall(int spriteNum);
+int32_t A_GetFurthestAngle(int spriteNum, int angDiv);
+void A_GetZLimits(int spriteNum);
 int32_t __fastcall G_GetAngleDelta(int32_t currAngle, int32_t newAngle);
 void G_RestoreMapState();
 void G_SaveMapState();
@@ -68,10 +68,10 @@ void VM_DrawTileGeneric(int32_t x, int32_t y, int32_t zoom, int32_t tilenum,
     int32_t shade, int32_t orientation, int32_t p);
 #endif
 
-int32_t VM_OnEventWithBoth_(int const nEventID, int const spriteNum, int const playerNum, int const nDist, int32_t const nReturn);
-int32_t VM_OnEventWithReturn_(int const nEventID, int const spriteNum, int const playerNum, int32_t const nReturn);
-int32_t VM_OnEventWithDist_(int const nEventID, int const spriteNum, int const playerNum, int const nDist);
-int32_t VM_OnEvent_(int const nEventID, int const spriteNum, int const playerNum);
+int32_t VM_OnEventWithBoth_(int nEventID, int spriteNum, int playerNum, int nDist, int32_t nReturn);
+int32_t VM_OnEventWithReturn_(int nEventID, int spriteNum, int playerNum, int32_t nReturn);
+int32_t VM_OnEventWithDist_(int nEventID, int spriteNum, int playerNum, int nDist);
+int32_t VM_OnEvent_(int nEventID, int spriteNum, int playerNum);
 
 static FORCE_INLINE int VM_HaveEvent(int nEventID)
 {
@@ -111,8 +111,8 @@ static FORCE_INLINE int32_t VM_OnEvent(int nEventID, int spriteNum, int playerNu
     wm_msgbox(APPNAME, "Line %d, %s: " Text, g_errorLineNum, VM_GetKeywordForID(g_tw), ## __VA_ARGS__); \
 } while (0)
 
-void G_GetTimeDate(int32_t * const pValues);
-int G_StartTrack(int const levelNum);
+void G_GetTimeDate(int32_t * pValues);
+int G_StartTrack(int levelNum);
 #ifdef LUNATIC
 void G_ShowView(vec3_t vec, fix16_t a, fix16_t horiz, int32_t sect,
                 int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t unbiasedp);

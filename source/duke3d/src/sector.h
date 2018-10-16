@@ -114,37 +114,37 @@ typedef struct {
 
 //extern map_t g_mapInfo[(MAXVOLUMES+1)*MAXLEVELS]; // +1 volume for "intro", "briefing" music
 
-void G_ActivateBySector(int sect,int j);
+void G_ActivateBySector(int sect,int spriteNum);
 int S_FindMusicSFX(int sectNum, int *sndptr);
 int A_CallSound(int sectNum,int spriteNum);
 int A_CheckHitSprite(int spriteNum,int16_t *hitSprite);
-void A_DamageObject_Internal(int spriteNum, int const dmgSrc);
-void A_DamageObject(int spriteNum,int const dmgSrc);
-void A_DamageWall_Internal(int spr, int dawallnum, const vec3_t *pos, int atwith);
-void A_DamageWall(int spr,int dawallnum,const vec3_t *pos,int atwith);
+void A_DamageObject_Internal(int spriteNum, int dmgSrc);
+void A_DamageObject(int spriteNum,int dmgSrc);
+void A_DamageWall_Internal(int spr, int dawallnum, const vec3_t *pos, int weaponNum);
+void A_DamageWall(int spr,int dawallnum,const vec3_t *pos,int weaponNum);
 int __fastcall A_FindPlayer(const spritetype *pSprite,int32_t *dist);
 void G_AlignWarpElevators(void);
 int CheckDoorTile(int tileNum);
 void G_AnimateCamSprite(int smoothRatio);
 void G_AnimateWalls(void);
-int G_ActivateWarpElevators(int s,int d);
+int G_ActivateWarpElevators(int s,int warpDir);
 int G_CheckActivatorMotion(int lotag);
 void G_DoSectorAnimations(void);
-void G_OperateActivators(int nTag, int playerNum);
+void G_OperateActivators(int lotag, int playerNum);
 void G_OperateForceFields(int spriteNum,int wallTag);
-void G_OperateMasterSwitches(int nTag);
+void G_OperateMasterSwitches(int lotag);
 void G_OperateRespawns(int lotag);
 void G_OperateSectors(int sectNum,int spriteNum);
 void P_HandleSharedKeys(int playerNum);
 int GetAnimationGoal(const int32_t *animPtr);
 int isanearoperator(int lotag);
 int isanunderoperator(int lotag);
-int P_ActivateSwitch(int playerNum, int nObject, int nSwitchType);
-void P_CheckSectors(int snum);
-void Sect_DamageFloor_Internal(int const spriteNum, int const sectNum);
-void Sect_DamageFloor(int const spriteNum, int const sectNum);
-void Sect_DamageCeiling_Internal(int const spriteNum, int const sectNum);
-void Sect_DamageCeiling(int const spriteNum, int const sectNum);
+int P_ActivateSwitch(int playerNum, int wallOrSprite, int nSwitchType);
+void P_CheckSectors(int playerNum);
+void Sect_DamageFloor_Internal(int spriteNum, int sectNum);
+void Sect_DamageFloor(int spriteNum, int sectNum);
+void Sect_DamageCeiling_Internal(int spriteNum, int sectNum);
+void Sect_DamageCeiling(int spriteNum, int sectNum);
 int SetAnimation(int sectNum,int32_t *animPtr,int goalVal,int animVel);
 
 #define FORCEFIELD_CSTAT (64+16+4+1)

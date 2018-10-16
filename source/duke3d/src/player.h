@@ -343,16 +343,16 @@ static inline void P_PalFrom(DukePlayer_t *pPlayer, uint8_t f, uint8_t r, uint8_
     }
 }
 
-void    P_AddKills(DukePlayer_t * const pPlayer, uint16_t kills);
+void    P_AddKills(DukePlayer_t * pPlayer, uint16_t kills);
 int32_t A_GetHitscanRange(int spriteNum);
 void    P_GetInput(int playerNum);
-void P_AddAmmo(DukePlayer_t * const pPlayer, int const weaponNum, int const addAmount);
+void P_AddAmmo(DukePlayer_t * pPlayer, int weaponNum, int addAmount);
 void    P_AddWeapon(DukePlayer_t *pPlayer, int weaponNum, int switchWeapon);
 void    P_CheckWeapon(DukePlayer_t *pPlayer);
 void    P_DisplayScuba(void);
 void    P_DisplayWeapon(void);
-void P_DropWeapon(int const playerNum);
-int     P_FindOtherPlayer(int playerNum, int32_t *d);
+void P_DropWeapon(int playerNum);
+int     P_FindOtherPlayer(int playerNum, int32_t *pDist);
 void    P_FragPlayer(int playerNum);
 void    P_UpdatePosWhenViewingCam(DukePlayer_t *pPlayer);
 void    P_ProcessInput(int playerNum);
@@ -365,7 +365,7 @@ int     P_GetHudPal(const DukePlayer_t *pPlayer);
 int     P_GetKneePal(const DukePlayer_t *pPlayer);
 #ifdef __cplusplus
 }
-int     P_GetKneePal(const DukePlayer_t *pPlayer, int const hudPal);
+int     P_GetKneePal(const DukePlayer_t *pPlayer, int hudPal);
 extern "C" {
 #endif
 int     P_GetOverheadPal(const DukePlayer_t *pPlayer);

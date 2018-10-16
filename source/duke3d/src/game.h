@@ -343,7 +343,7 @@ extern uint64_t g_frameDelay;
 int32_t A_CheckInventorySprite(spritetype *s);
 int32_t A_InsertSprite(int16_t whatsect, int32_t s_x, int32_t s_y, int32_t s_z, int16_t s_pn, int8_t s_s, uint8_t s_xr,
                        uint8_t s_yr, int16_t s_a, int16_t s_ve, int16_t s_zv, int16_t s_ow, int16_t s_ss);
-int A_Spawn(int j,int pn);
+int A_Spawn(int spriteNum,int tileNum);
 int G_DoMoveThings(void);
 //int32_t G_EndOfLevel(void);
 
@@ -361,7 +361,7 @@ void G_PostCreateGameState(void);
 void A_SpawnCeilingGlass(int spriteNum,int sectNum,int glassCnt);
 void A_SpawnGlass(int spriteNum,int glassCnt);
 void A_SpawnRandomGlass(int spriteNum,int wallNum,int glassCnt);
-void A_SpawnWallGlass(int i,int wallnum,int n);
+void A_SpawnWallGlass(int spriteNum,int wallnum,int glassCnt);
 void G_AddUserQuote(const char *daquote);
 void G_BackToMenu(void);
 void G_DumpDebugInfo(void);
@@ -377,10 +377,10 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
 void G_DrawBackground(void);
 void G_DrawFrags(void);
 void G_HandleMirror(int32_t x, int32_t y, int32_t z, fix16_t a, fix16_t horiz, int32_t smoothratio);
-void G_DrawRooms(int32_t snum,int32_t smoothratio);
+void G_DrawRooms(int32_t playerNum,int32_t smoothratio);
 void G_DrawTXDigiNumZ(int32_t starttile,int32_t x,int32_t y,int32_t n,int32_t s,int32_t pal,int32_t cs,int32_t x1,int32_t y1,int32_t x2,int32_t y2,int32_t z);
 int G_FPSLimit(void);
-void G_GameExit(const char *t) ATTRIBUTE((noreturn));
+void G_GameExit(const char *msg) ATTRIBUTE((noreturn));
 void G_GameQuit(void);
 void G_GetCrosshairColor(void);
 void G_HandleLocalKeys(void);
@@ -406,7 +406,7 @@ void P_SetGamePalette(DukePlayer_t *player, uint32_t palid, int32_t set);
 
 void fadepal(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step);
 //void fadepaltile(int32_t r,int32_t g,int32_t b,int32_t start,int32_t end,int32_t step,int32_t tile);
-void G_InitTimer(int32_t ticpersec);
+void G_InitTimer(int32_t ticspersec);
 
 static inline int32_t G_GetTeamPalette(int32_t team)
 {

@@ -88,14 +88,14 @@ extern void G_PrintGameText(int32_t tile, int32_t x, int32_t y, const char *t,
                             int32_t x1, int32_t y1, int32_t x2, int32_t y2,
                             int32_t z, int32_t a);
 
-extern int32_t G_GetStringLineLength(const char *text, const char *end, const int32_t iter);
-extern int32_t G_GetStringNumLines(const char *text, const char *end, const int32_t iter);
-extern char* G_GetSubString(const char *text, const char *end, const int32_t iter, const int32_t length);
+extern int32_t G_GetStringLineLength(const char *text, const char *end, int32_t iter);
+extern int32_t G_GetStringNumLines(const char *text, const char *end, int32_t iter);
+extern char* G_GetSubString(const char *text, const char *end, int32_t iter, int32_t length);
 extern int32_t G_GetStringTile(int32_t font, char *t, int32_t f);
-extern vec2_t G_ScreenTextSize(const int32_t font, int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const char *str, const int32_t o, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f, const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2);
-extern void G_AddCoordsFromRotation(vec2_t *coords, const vec2_t *unitDirection, const int32_t magnitude);
-extern vec2_t G_ScreenText(const int32_t font, int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle, const char *str, const int32_t shade, int32_t pal, int32_t o, int32_t alpha, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
-extern vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy, const int32_t font, int32_t x, int32_t y, const int32_t z, const int32_t blockangle, const int32_t charangle, const char *str, const int32_t shade, int32_t pal, int32_t o, const int32_t alpha, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, const int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
+extern vec2_t G_ScreenTextSize(int32_t font, int32_t x, int32_t y, int32_t z, int32_t blockangle, const char *str, int32_t o, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
+extern void G_AddCoordsFromRotation(vec2_t *coords, const vec2_t *unitDirection, int32_t magnitude);
+extern vec2_t G_ScreenText(int32_t font, int32_t x, int32_t y, int32_t z, int32_t blockangle, int32_t charangle, const char *str, int32_t shade, int32_t pal, int32_t o, int32_t alpha, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
+extern vec2_t G_ScreenTextShadow(int32_t sx, int32_t sy, int32_t font, int32_t x, int32_t y, int32_t z, int32_t blockangle, int32_t charangle, const char *str, int32_t shade, int32_t pal, int32_t o, int32_t alpha, int32_t xspace, int32_t yline, int32_t xbetween, int32_t ybetween, int32_t f, int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 
 #ifdef __cplusplus
 }

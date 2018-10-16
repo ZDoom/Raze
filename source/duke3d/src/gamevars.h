@@ -114,11 +114,11 @@ size_t __fastcall Gv_GetArrayAllocSizeForCount(int const arrayIdx, size_t const 
 size_t __fastcall Gv_GetArrayAllocSize(int const arrayIdx);
 size_t __fastcall Gv_GetArrayCountFromFile(int const arrayIdx, size_t const filelength);
 int __fastcall Gv_GetArrayValue(int const id, int index);
-int __fastcall Gv_GetVar(int id, int spriteNum, int playerNum);
-void __fastcall Gv_SetVar(int const id, int const lValue, int const spriteNum, int const playerNum);
-int __fastcall Gv_GetVarX(int id);
-void __fastcall Gv_GetManyVars(int const count, int32_t * const rv);
-void __fastcall Gv_SetVarX(int const id, int const lValue);
+int __fastcall Gv_GetVar(int gameVar, int spriteNum, int playerNum);
+void __fastcall Gv_SetVar(int const gameVar, int const newValue, int const spriteNum, int const playerNum);
+int __fastcall Gv_GetVarX(int gameVar);
+void __fastcall Gv_GetManyVars(int const numVars, int32_t * const outBuf);
+void __fastcall Gv_SetVarX(int const gameVar, int const newValue);
 
 template <typename T>
 static FORCE_INLINE void Gv_FillWithVars(T & rv)
@@ -128,7 +128,7 @@ static FORCE_INLINE void Gv_FillWithVars(T & rv)
     Gv_GetManyVars(sizeof(T)/sizeof(int32_t), (int32_t *)&rv);
 }
 
-int Gv_GetVarByLabel(const char *szGameLabel,int const lDefault,int const spriteNum,int const playerNum);
+int Gv_GetVarByLabel(const char *szGameLabel,int defaultValue,int spriteNum,int playerNum);
 void Gv_NewArray(const char *pszLabel,void *arrayptr,intptr_t asize,uint32_t dwFlags);
 void Gv_NewVar(const char *pszLabel,intptr_t lValue,uint32_t dwFlags);
 

@@ -298,30 +298,30 @@ extern int32_t      ticrandomseed;
 extern projectile_t SpriteProjectile[MAXSPRITES];
 
 
-int  A_CheckNoSE7Water(uspritetype const *const pSprite, int sectNum, int sectLotag, int32_t *pOther);
+int  A_CheckNoSE7Water(uspritetype const *pSprite, int sectNum, int sectLotag, int32_t *pOther);
 int  A_CheckSwitchTile(int spriteNum);
-int A_IncurDamage(int const spriteNum);
+int A_IncurDamage(int spriteNum);
 void A_AddToDeleteQueue(int spriteNum);
 void A_DeleteSprite(int spriteNum);
 void A_DoGuts(int spriteNum, int tileNum, int spawnCnt);
 void A_DoGutsDir(int spriteNum, int tileNum, int spawnCnt);
 void A_MoveCyclers(void);
 void A_MoveDummyPlayers(void);
-void A_MoveSector(int i);
+void A_MoveSector(int spriteNum);
 void A_PlayAlertSound(int spriteNum);
 void A_RadiusDamage(int spriteNum, int blastRadius, int dmg1, int dmg2, int dmg3, int dmg4);
 void A_SpawnMultiple(int spriteNum, int tileNum, int spawnCnt);
 
-int  G_SetInterpolation(int32_t *const posptr);
+int  G_SetInterpolation(int32_t *posptr);
 void G_AddGameLight(int lightRadius, int spriteNum, int zOffset, int lightRange, int lightColor, int lightPrio);
 void G_ClearCameraView(DukePlayer_t *ps);
 void G_DoInterpolations(int smoothRatio);
 void G_MoveWorld(void);
 void G_RefreshLights(void);
-void G_StopInterpolation(int32_t *const posptr);
+void G_StopInterpolation(const int32_t *posptr);
 
 // PK 20110701: changed input argument: int32_t i (== sprite, whose sectnum...) --> sectnum directly
-void                Sect_ToggleInterpolation(int sectnum, int doset);
+void                Sect_ToggleInterpolation(int sectnum, int setInterpolation);
 static FORCE_INLINE void   Sect_ClearInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 0); }
 static FORCE_INLINE void   Sect_SetInterpolation(int sectnum) { Sect_ToggleInterpolation(sectnum, 1); }
 
@@ -337,15 +337,15 @@ int32_t G_ToggleWallInterpolation(int32_t w, int32_t doset);
 # define ACTOR_INLINE_HEADER EXTERN_INLINE_HEADER
 #endif
 
-extern int32_t A_MoveSpriteClipdist(int32_t spritenum, vec3_t const * const change, uint32_t cliptype, int32_t clipdist);
-ACTOR_INLINE_HEADER int A_CheckEnemyTile(int const tileNum);
-ACTOR_INLINE_HEADER int A_SetSprite(int const spriteNum, uint32_t cliptype);
-ACTOR_INLINE_HEADER int32_t A_MoveSprite(int const spriteNum, vec3_t const * const change, uint32_t cliptype);
+extern int32_t A_MoveSpriteClipdist(int32_t spritenum, vec3_t const * change, uint32_t cliptype, int32_t clipdist);
+ACTOR_INLINE_HEADER int A_CheckEnemyTile(int tileNum);
+ACTOR_INLINE_HEADER int A_SetSprite(int spriteNum, uint32_t cliptype);
+ACTOR_INLINE_HEADER int32_t A_MoveSprite(int spriteNum, vec3_t const * change, uint32_t cliptype);
 
-EXTERN_INLINE_HEADER int G_CheckForSpaceCeiling(int const sectnum);
-EXTERN_INLINE_HEADER int G_CheckForSpaceFloor(int const sectnum);
+EXTERN_INLINE_HEADER int G_CheckForSpaceCeiling(int sectnum);
+EXTERN_INLINE_HEADER int G_CheckForSpaceFloor(int sectnum);
 
-EXTERN_INLINE_HEADER int A_CheckEnemySprite(void const * const s);
+EXTERN_INLINE_HEADER int A_CheckEnemySprite(void const * s);
 
 #ifdef __cplusplus
 }
