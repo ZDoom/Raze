@@ -3937,11 +3937,6 @@ void G_DoSpriteAnimations(int32_t ourx, int32_t oury, int32_t oura, int32_t smoo
                     uspritetype *const playerTyping = t;
 
                     playerTyping->statnum = TSPR_TEMP;
-                    playerTyping->yrepeat = (t->yrepeat >> 3);
-
-                    if (playerTyping->yrepeat < 4)
-                        playerTyping->yrepeat = 4;
-
                     playerTyping->cstat   = 0;
                     playerTyping->picnum  = RESPAWNMARKERGREEN;
                     playerTyping->z       = (pSprite->owner >= 0) ? (g_player[playerNum].ps->pos.z - (20 << 8)) : (pSprite->z - (96 << 8));

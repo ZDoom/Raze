@@ -859,10 +859,9 @@ REDODOOR:
 
         if (pSector->lotag & 0x8000u)
         {
-            // WTF?
             int const q = (pSector->ceilingz + pSector->floorz) >> 1;
-            j = SetAnimation(sectNum, &pSector->floorz, q, pSector->extra);
-            j = SetAnimation(sectNum, &pSector->ceilingz, q, pSector->extra);
+            SetAnimation(sectNum, &pSector->floorz, q, pSector->extra);
+            SetAnimation(sectNum, &pSector->ceilingz, q, pSector->extra);
         }
         else
         {
@@ -871,8 +870,8 @@ REDODOOR:
 
             if (floorNeighbor>=0 && ceilingNeighbor>=0)
             {
-                j = SetAnimation(sectNum, &pSector->floorz, sector[floorNeighbor].floorz, pSector->extra);
-                j = SetAnimation(sectNum, &pSector->ceilingz, sector[ceilingNeighbor].ceilingz, pSector->extra);
+                SetAnimation(sectNum, &pSector->floorz, sector[floorNeighbor].floorz, pSector->extra);
+                SetAnimation(sectNum, &pSector->ceilingz, sector[ceilingNeighbor].ceilingz, pSector->extra);
             }
             else
             {
