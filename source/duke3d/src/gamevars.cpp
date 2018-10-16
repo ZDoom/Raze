@@ -139,7 +139,7 @@ int Gv_ReadSave(int32_t kFile)
         else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
         {
             aGameVars[i].pValues = (intptr_t*)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-            if (kdfread_LZ4(aGameVars[i].pValues,sizeof(intptr_t), MAXSPRITES, kFile) != MAXSPRITES) goto corrupt;
+            if (kdfread_LZ4(aGameVars[i].pValues,sizeof(intptr_t) * MAXSPRITES, 1, kFile) != 1) goto corrupt;
         }
     }
 
@@ -187,7 +187,7 @@ int Gv_ReadSave(int32_t kFile)
             continue;
 
         g_mapInfo[i].savedstate = (mapstate_t *)Xaligned_alloc(ACTOR_VAR_ALIGNMENT, sizeof(mapstate_t));
-        if (kdfread_LZ4(g_mapInfo[i].savedstate, 1, sizeof(mapstate_t), kFile) != sizeof(mapstate_t)) return -8;
+        if (kdfread_LZ4(g_mapInfo[i].savedstate, sizeof(mapstate_t), 1, kFile) != 1) return -8;
 
         mapstate_t &sv = *g_mapInfo[i].savedstate;
 
@@ -202,7 +202,7 @@ int Gv_ReadSave(int32_t kFile)
             else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
             {
                 sv.vars[j] = (intptr_t *) Xaligned_alloc(ACTOR_VAR_ALIGNMENT, MAXSPRITES * sizeof(intptr_t));
-                if (kdfread_LZ4(sv.vars[j], sizeof(intptr_t), MAXSPRITES, kFile) != MAXSPRITES) return -10;
+                if (kdfread_LZ4(sv.vars[j], sizeof(intptr_t) * MAXSPRITES, 1, kFile) != 1) return -10;
             }
         }
 
@@ -242,7 +242,7 @@ void Gv_WriteSave(FILE *fil)
         if (aGameVars[i].flags & GAMEVAR_PERPLAYER)
             dfwrite_LZ4(aGameVars[i].pValues, sizeof(intptr_t) * MAXPLAYERS, 1, fil);
         else if (aGameVars[i].flags & GAMEVAR_PERACTOR)
-            dfwrite_LZ4(aGameVars[i].pValues, sizeof(intptr_t), MAXSPRITES, fil);
+            dfwrite_LZ4(aGameVars[i].pValues, sizeof(intptr_t) * MAXSPRITES, 1, fil);
     }
 
     dfwrite_LZ4(&g_gameArrayCount,sizeof(g_gameArrayCount),1,fil);
@@ -280,7 +280,7 @@ void Gv_WriteSave(FILE *fil)
             if (aGameVars[j].flags & GAMEVAR_PERPLAYER)
                 dfwrite_LZ4(sv.vars[j], sizeof(intptr_t) * MAXPLAYERS, 1, fil);
             else if (aGameVars[j].flags & GAMEVAR_PERACTOR)
-                dfwrite_LZ4(sv.vars[j], sizeof(intptr_t), MAXSPRITES, fil);
+                dfwrite_LZ4(sv.vars[j], sizeof(intptr_t) * MAXSPRITES, 1, fil);
         }
 
         dfwrite_LZ4(sv.arraysiz, sizeof(sv.arraysiz), 1, fil);
