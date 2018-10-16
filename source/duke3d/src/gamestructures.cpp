@@ -1045,8 +1045,7 @@ void __fastcall VM_SetWall(int32_t const wallNum, int32_t const labelNum, int32_
             break;
     }
 
-    return;
-}
+    }
 
 int32_t __fastcall VM_GetSector(int32_t const sectNum, int32_t labelNum)
 {

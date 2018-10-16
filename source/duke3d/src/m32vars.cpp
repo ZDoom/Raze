@@ -67,8 +67,6 @@ static void Gv_Clear(void)
 
     hash_init(&h_gamevars);
     hash_init(&h_arrays);
-
-    return;
 }
 
 #define ASSERT_IMPLIES(x, y) Bassert(!(x) || (y))

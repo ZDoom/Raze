@@ -916,7 +916,6 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
         CPDATA(8);
 
     *diffvar = retdiff;
-    return;
 
 #undef CPELTS
 #undef CPSINGLEVAL
@@ -971,7 +970,6 @@ static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **dif
 
     *diffvar = diff;
     *dumpvar = dump;
-    return;
 }
 
 #define VALOFS(bits,p,ofs) (*(((UINT(bits) *)(p)) + (ofs)))
