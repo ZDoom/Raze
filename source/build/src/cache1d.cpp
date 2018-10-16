@@ -1094,7 +1094,7 @@ int32_t kopen4load(const char *filename, char searchfirst)
     return h;
 }
 
-int32_t kread_internal(int32_t handle, void *buffer, int32_t leng, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
+int32_t kread_internal(int32_t handle, void *buffer, int32_t leng, const uint8_t *arraygrp, const intptr_t *arrayhan, int32_t *arraypos)
 {
     int32_t filenum = arrayhan[handle];
     int32_t groupnum = arraygrp[handle];
@@ -1142,7 +1142,7 @@ int32_t kread_internal(int32_t handle, void *buffer, int32_t leng, uint8_t *arra
     return 0;
 }
 
-int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
+int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, const uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
     int32_t const groupnum = arraygrp[handle];
 
@@ -1181,7 +1181,7 @@ int32_t klseek_internal(int32_t handle, int32_t offset, int32_t whence, uint8_t 
     return -1;
 }
 
-int32_t kfilelength_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
+int32_t kfilelength_internal(int32_t handle, const uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
     int32_t const groupnum = arraygrp[handle];
     if (groupnum == GRP_FILESYSTEM)
@@ -1206,7 +1206,7 @@ int32_t kfilelength_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayh
     return gfileoffs[groupnum][i+1]-gfileoffs[groupnum][i];
 }
 
-int32_t ktell_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
+int32_t ktell_internal(int32_t handle, const uint8_t *arraygrp, intptr_t *arrayhan, int32_t *arraypos)
 {
     int32_t groupnum = arraygrp[handle];
 
@@ -1229,7 +1229,7 @@ int32_t ktell_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan, in
     return -1;
 }
 
-void kclose_internal(int32_t handle, uint8_t *arraygrp, intptr_t *arrayhan)
+void kclose_internal(int32_t handle, const uint8_t *arraygrp, intptr_t *arrayhan)
 {
     if (handle < 0) return;
     if (arraygrp[handle] == GRP_FILESYSTEM) Bclose(arrayhan[handle]);

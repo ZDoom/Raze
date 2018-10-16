@@ -1873,14 +1873,14 @@ int LZ4_uncompress_unknownOutputSize (const char* source, char* dest, int isize,
 
 int LZ4_sizeofStreamState() { return LZ4_STREAMSIZE; }
 
-int LZ4_resetStreamState(void* state, char* inputBuffer)
+int LZ4_resetStreamState(void* state, const char* inputBuffer)
 {
     (void)inputBuffer;
     LZ4_resetStream((LZ4_stream_t*)state);
     return 0;
 }
 
-void* LZ4_create (char* inputBuffer)
+void* LZ4_create (const char* inputBuffer)
 {
     (void)inputBuffer;
     return LZ4_createStream();

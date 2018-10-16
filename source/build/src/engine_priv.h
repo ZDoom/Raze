@@ -247,9 +247,9 @@ void calc_and_apply_fog(int32_t tile, int32_t shade, int32_t vis, int32_t pal);
 void calc_and_apply_fog_factor(int32_t tile, int32_t shade, int32_t vis, int32_t pal, float factor);
 #endif
 
-extern void get_wallspr_points(uspritetype const * const spr, int32_t *x1, int32_t *x2,
+extern void get_wallspr_points(uspritetype const * spr, int32_t *x1, int32_t *x2,
     int32_t *y1, int32_t *y2);
-extern void get_floorspr_points(uspritetype const * const spr, int32_t px, int32_t py,
+extern void get_floorspr_points(uspritetype const * spr, int32_t px, int32_t py,
     int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
     int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
 
@@ -265,7 +265,7 @@ int32_t animateoffs(int const tilenum, int fakevar);
         if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum, Fakevar); \
     } while (0)
 #else
-int32_t animateoffs(int const tilenum);
+int32_t animateoffs(int tilenum);
 #define DO_TILE_ANIM(Picnum, Fakevar) do { \
         if (picanm[Picnum].sf&PICANM_ANIMTYPE_MASK) Picnum += animateoffs(Picnum); \
     } while (0)
@@ -290,7 +290,7 @@ static FORCE_INLINE int32_t getpalookupsh(int32_t davis) { return getpalookup(da
 
 void dorotspr_handle_bit2(int32_t *sx, int32_t *sy, int32_t *z, int32_t dastat,
                           int32_t cx1_plus_cx2, int32_t cy1_plus_cy2,
-                          int32_t *ret_ouryxaspect, int32_t *ret_ourxyaspect);
+                          int32_t *ret_yxaspect, int32_t *ret_xyaspect);
 
 ////// yax'y stuff //////
 #ifdef USE_OPENGL

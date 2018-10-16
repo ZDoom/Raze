@@ -126,10 +126,6 @@ static int32_t nextvoxid = 0;
 static char *faketilebuffer = NULL;
 static int32_t faketilebuffersiz = 0;
 
-#ifdef USE_OPENGL
-extern uint8_t alphahackarray[MAXTILES];
-#endif
-
 static const char *skyfaces[6] =
 {
     "front face", "right face", "back face",

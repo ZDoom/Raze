@@ -20,14 +20,6 @@ static osdsymbol_t *osd_addsymbol(const char *name);
 static osdsymbol_t *osd_findsymbol(const char *pszName, osdsymbol_t *pSymbol);
 static osdsymbol_t *osd_findexactsymbol(const char *pszName);
 
-// static int32_t _validate_osdlines(void *);
-
-static int32_t osdfunc_listsymbols(osdfuncparm_t const * const);
-static int32_t osdfunc_help(osdfuncparm_t const * const);
-static int32_t osdfunc_alias(osdfuncparm_t const * const);
-// static int32_t osdfunc_dumpbuildinfo(osdfuncparm_t const * const);
-// static int32_t osdfunc_setrendermode(osdfuncparm_t const * const);
-
 static int32_t whiteColorIdx=-1;            // colour of white (used by default display routines)
 static void _internal_drawosdchar(int32_t, int32_t, char, int32_t, int32_t);
 static void _internal_drawosdstr(int32_t, int32_t, const char *, int32_t, int32_t, int32_t);

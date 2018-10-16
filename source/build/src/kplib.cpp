@@ -225,7 +225,7 @@ static inline int32_t peekbits(int32_t n) { return (B_LITTLE32(B_UNBUF32(&filptr
 static inline void suckbits(int32_t n) { bitpos += n; if (bitpos < 0) return; suckbitsnextblock(); }
 static inline int32_t getbits(int32_t n) { int32_t i = peekbits(n); suckbits(n); return i; }
 
-static int32_t hufgetsym(int32_t *hitab, int32_t *hbmax)
+static int32_t hufgetsym(int32_t *hitab, const int32_t *hbmax)
 {
     int32_t v, n;
 
@@ -245,7 +245,7 @@ static int32_t hufgetsym(int32_t *hitab, int32_t *hbmax)
 //   return hitab[hbmax[n]+v];
 //}
 
-static void qhufgencode(int32_t *hitab, int32_t *hbmax, int32_t *qhval, uint8_t *qhbit, int32_t numbits)
+static void qhufgencode(const int32_t *hitab, const int32_t *hbmax, int32_t *qhval, uint8_t *qhbit, int32_t numbits)
 {
     int32_t i, j, k, n, r;
 
@@ -293,7 +293,7 @@ static void qhufgencode(int32_t *hitab, int32_t *hbmax, int32_t *qhval, uint8_t 
 //hitab[inum] : Indices from size-ordered list to original symbol
 //hbmax[0-31] : Highest index (+1) of n-bit symbol
 
-static void hufgencode(int32_t *inbuf, int32_t inum, int32_t *hitab, int32_t *hbmax)
+static void hufgencode(const int32_t *inbuf, int32_t inum, int32_t *hitab, int32_t *hbmax)
 {
     int32_t i, tbuf[31], *tbufptr, *hbmaxptr;
 
@@ -2342,7 +2342,7 @@ int32_t kprender(const char *buf, int32_t leng, intptr_t frameptr, int32_t bpl,
 //Given: string i and string j. string j can have wildcards
 //Returns: 1:matches, 0:doesn't match
 
-extern char toupperlookup[256];
+
 
 int32_t wildmatch(const char *match, const char *wild)
 {

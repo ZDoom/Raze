@@ -363,7 +363,7 @@ float glox1, gloy1, glox2, gloy2;
 static int32_t gltexcacnum = -1;
 
 //in-place multiply m0=m0*m1
-static float* multiplyMatrix4f(float m0[4*4], float m1[4*4])
+static float* multiplyMatrix4f(float m0[4*4], const float m1[4*4])
 {
     float mR[4*4];
 
@@ -1248,7 +1248,6 @@ void polymost_init()
 }
 
 ////////// VISIBILITY FOG ROUTINES //////////
-extern int32_t nofog;  // in windows/SDL layers
 
 // only for r_usenewshading < 2 (not preferred)
 static void fogcalc_old(int32_t shade, int32_t vis)
@@ -3985,7 +3984,7 @@ void polymost_editorfunc(void)
     searchit = 0;
 }
 
-void polymost_scansector(int32_t sectnum);
+
 
 // variables that are set to ceiling- or floor-members, depending
 // on which one is processed right now

@@ -1626,7 +1626,7 @@ static md3model_t *md3load(int32_t fil)
 }
 
 #ifdef POLYMER
-static inline void  invertmatrix(float *m, float *out)
+static inline void  invertmatrix(const float *m, float *out)
 {
     float det;
 

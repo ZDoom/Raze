@@ -193,22 +193,6 @@ int32_t showfirstwall=0;
 int32_t showheightindicators=1;
 int32_t circlewall=-1;
 
-// forward refs
-#ifdef __cplusplus
-extern "C" {
-#endif
-void editorSetup2dSideView(void);
-int32_t getscreenvdisp(int32_t bz, int32_t zoome);
-void editorGet2dScreenCoordinates(int32_t *xres, int32_t *yres, int32_t x, int32_t y, int32_t zoome);
-int32_t scalescreeny(int32_t sy);
-#ifdef YAX_ENABLE
-void yax_tweakpicnums(int32_t bunchnum, int32_t cf, int32_t restore);
-#endif
-int32_t getinvdisplacement(int32_t *dx, int32_t *dy, int32_t dz);
-#ifdef __cplusplus
-}
-#endif
-
 static void classicScanSector(int16_t startsectnum);
 static void draw_rainbow_background(void);
 
@@ -8314,11 +8298,8 @@ static inline int32_t         sameside(const _equation *eq, const vec2f_t *p1, c
 
 // x1, y1: in/out
 // rest x/y: out
-void get_wallspr_points(const uspritetype *spr, int32_t *x1, int32_t *x2,
-                               int32_t *y1, int32_t *y2);
-void get_floorspr_points(const uspritetype *spr, int32_t px, int32_t py,
-                                int32_t *x1, int32_t *x2, int32_t *x3, int32_t *x4,
-                                int32_t *y1, int32_t *y2, int32_t *y3, int32_t *y4);
+
+
 
 #ifdef DEBUG_MASK_DRAWING
 int32_t g_maskDrawMode = 0;
@@ -11157,8 +11138,6 @@ void neartag(int32_t xs, int32_t ys, int32_t zs, int16_t sectnum, int16_t ange,
         }
     }
     while (tempshortcnt < tempshortnum);
-
-    return;
 }
 
 

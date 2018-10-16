@@ -58,11 +58,6 @@ static int32_t readconfig(BFILE *fp, const char *key, char *value, uint32_t len)
 }
 
 extern int16_t brightness;
-#ifdef USE_OPENGL
-extern int32_t vsync;
-#endif
-extern char game_executable[BMAX_PATH];
-extern int32_t fullscreen;
 extern char default_buildkeys[NUMBUILDKEYS];
 static char *const keys = default_buildkeys;
 static int32_t default_grid=9;

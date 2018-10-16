@@ -254,7 +254,7 @@ static void initcrc(void);
 static int32_t menuselect(void);
 static int32_t menuselect_auto(int, int); //PK
 
-static int32_t insert_sprite_common(int32_t sucksect, int32_t dax, int32_t day);
+static int32_t insert_sprite_common(int32_t sectnum, int32_t dax, int32_t day);
 static void correct_ornamented_sprite(int32_t i, int32_t hitw);
 
 static int32_t getfilenames(const char *path, const char *kind);
@@ -3065,8 +3065,6 @@ void inflineintersect(int32_t x1, int32_t y1, int32_t x2, int32_t y2,
 
     *sign12 = topt < 0 ? -1 : 1;
     *sign34 = topu < 0 ? -1 : 1;
-
-    return;
 }
 
 static int32_t lineintersect2v(const vec2_t *p1, const vec2_t *p2,  // line segment 1
@@ -8927,10 +8925,6 @@ static void deletepoint(int16_t point, int32_t runi)
     }
 #endif
     movewalls(point, -1);
-
-//    checksectorpointer(j, sucksect);
-
-    return;
 }
 
 static int32_t deletesector(int16_t sucksect)

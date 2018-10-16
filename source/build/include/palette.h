@@ -53,6 +53,7 @@ void videoFadePalette(uint8_t r, uint8_t g, uint8_t b, uint8_t offset);
 extern int32_t realmaxshade;
 extern float frealmaxshade;
 
+extern int32_t globalpal;
 extern int32_t globalblend;
 extern uint32_t g_lastpalettesum;
 extern palette_t paletteGetColor(int32_t col);

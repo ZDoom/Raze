@@ -71,14 +71,14 @@ void setsocket(int newsocket)
     UNREFERENCED_PARAMETER(newsocket);
 }
 
-void sendpacket(int other, unsigned char *bufptr, int messleng)
+void sendpacket(int other, const unsigned char *bufptr, int messleng)
 {
     UNREFERENCED_PARAMETER(other);
     UNREFERENCED_PARAMETER(bufptr);
     UNREFERENCED_PARAMETER(messleng);
 }
 
-int getpacket (int *other, unsigned char *bufptr)
+int getpacket (const int *other, const unsigned char *bufptr)
 {
     UNREFERENCED_PARAMETER(other);
     UNREFERENCED_PARAMETER(bufptr);
@@ -90,7 +90,7 @@ void flushpackets(void)
 {
 }
 
-void genericmultifunction(int other, unsigned char *bufptr, int messleng, int command)
+void genericmultifunction(int other, const unsigned char *bufptr, int messleng, int command)
 {
     UNREFERENCED_PARAMETER(other);
     UNREFERENCED_PARAMETER(bufptr);

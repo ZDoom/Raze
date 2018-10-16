@@ -1435,11 +1435,11 @@ void                polymer_postrotatesprite(void)
     polymer_unbindmaterial(rotatespritematerialbits);
 }
 
-static void         polymer_setupdiffusemodulation(_prplane *plane, GLubyte modulation, GLubyte *data)
+static void         polymer_setupdiffusemodulation(_prplane *plane, GLubyte modulation, const GLubyte *data)
 {
     plane->material.diffusemodulation[0] = modulation;
-    plane->material.diffusemodulation[1] = ((GLubyte *) data)[0];
-    plane->material.diffusemodulation[2] = ((GLubyte *) data)[1];
+    plane->material.diffusemodulation[1] = ((GLubyte const *) data)[0];
+    plane->material.diffusemodulation[2] = ((GLubyte const *) data)[1];
     plane->material.diffusemodulation[3] = 0xFF;
 }
 
@@ -2123,8 +2123,7 @@ static void         polymer_displayrooms(const int16_t dacursectnum)
         renderDrawMasks();
         glEnable(GL_CULL_FACE);
     }
-    return;
-}
+    }
 
 static void         polymer_emptybuckets(void)
 {
@@ -2400,7 +2399,7 @@ static void         polymer_drawplane(_prplane* plane)
     }
 }
 
-static inline void  polymer_inb4mirror(_prvert* buffer, GLfloat* plane)
+static inline void  polymer_inb4mirror(_prvert* buffer, const GLfloat* plane)
 {
     float           pv;
     float           reflectionmatrix[16];
@@ -2886,7 +2885,6 @@ void PR_CALLBACK    polymer_tessedgeflag(GLenum error)
 {
     // Passing an edgeflag callback forces the tesselator to output a triangle list
     UNREFERENCED_PARAMETER(error);
-    return;
 }
 
 void PR_CALLBACK    polymer_tessvertex(void* vertex, void* sector)
@@ -3698,14 +3696,14 @@ static void         polymer_computeplane(_prplane* p)
           (!p->indices && i < p->vertcount));
 }
 
-static inline void  polymer_crossproduct(GLfloat* in_a, GLfloat* in_b, GLfloat* out)
+static inline void  polymer_crossproduct(const GLfloat* in_a, const GLfloat* in_b, GLfloat* out)
 {
     out[0] = in_a[1] * in_b[2] - in_a[2] * in_b[1];
     out[1] = in_a[2] * in_b[0] - in_a[0] * in_b[2];
     out[2] = in_a[0] * in_b[1] - in_a[1] * in_b[0];
 }
 
-static inline void  polymer_transformpoint(const float* inpos, float* pos, float* matrix)
+static inline void  polymer_transformpoint(const float* inpos, float* pos, const float* matrix)
 {
     pos[0] = inpos[0] * matrix[0] +
              inpos[1] * matrix[4] +
@@ -3785,7 +3783,7 @@ static void         polymer_extractfrustum(GLfloat* modelview, GLfloat* projecti
     if (pr_verbosity >= 3) OSD_Printf("PR : Frustum extracted.\n");
 }
 
-static inline int32_t polymer_planeinfrustum(_prplane *plane, float* frustum)
+static inline int32_t polymer_planeinfrustum(_prplane *plane, const float* frustum)
 {
     int32_t         i, j, k = -1;
     i = 4;
@@ -4325,8 +4323,6 @@ static void         polymer_drawskybox(int16_t tilenum, char palnum, int8_t shad
 
     if (pr_vbos > 0)
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    return;
 }
 
 // MDSPRITES
@@ -5065,7 +5061,7 @@ done:
     return bucketptr;
 }
 
-static int32_t      polymer_bindmaterial(const _prmaterial *material, int16_t* lights, int matlightcount)
+static int32_t      polymer_bindmaterial(const _prmaterial *material, const int16_t* lights, int matlightcount)
 {
     int32_t         programbits;
     int32_t         texunit;

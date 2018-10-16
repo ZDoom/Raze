@@ -35,7 +35,7 @@ static voxmodel_t *gvox;
 
 
 //pitch must equal xsiz*4
-uint32_t gloadtex(int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
+uint32_t gloadtex(const int32_t *picbuf, int32_t xsiz, int32_t ysiz, int32_t is8bit, int32_t dapal)
 {
     const char *const cptr = &britable[gammabrightness ? 0 : curbrightness][0];
 
