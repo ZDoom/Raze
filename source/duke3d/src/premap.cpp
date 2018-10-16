@@ -801,7 +801,7 @@ void P_ResetWeapons(int playerNum)
     pPlayer->curr_weapon                = PISTOL_WEAPON;
     pPlayer->kickback_pic               = PWEAPON(playerNum, pPlayer->curr_weapon, TotalTime);
     pPlayer->gotweapon                  = ((1 << PISTOL_WEAPON) | (1 << KNEE_WEAPON) | (1 << HANDREMOTE_WEAPON));
-    pPlayer->ammo_amount[PISTOL_WEAPON] = min(pPlayer->max_ammo_amount[PISTOL_WEAPON], 48);
+    pPlayer->ammo_amount[PISTOL_WEAPON] = min<int16_t>(pPlayer->max_ammo_amount[PISTOL_WEAPON], 48);
     pPlayer->last_weapon                = -1;
     pPlayer->show_empty_weapon          = 0;
     pPlayer->last_pissed_time           = 0;
@@ -1396,7 +1396,7 @@ end_vol4a:
             {
                 pPlayer->curr_weapon = weaponNum;
                 pPlayer->gotweapon |= (1 << weaponNum);
-                pPlayer->ammo_amount[weaponNum] = min(pPlayer->max_ammo_amount[weaponNum], 48);
+                pPlayer->ammo_amount[weaponNum] = min<int16_t>(pPlayer->max_ammo_amount[weaponNum], 48);
             }
             else if (PWEAPON(0, weaponNum, WorksLike) == KNEE_WEAPON || PWEAPON(0, weaponNum, WorksLike) == HANDREMOTE_WEAPON)
                 pPlayer->gotweapon |= (1 << weaponNum);

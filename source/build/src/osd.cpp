@@ -488,7 +488,7 @@ static int32_t osdfunc_listsymbols(osdfuncparm_t const * const parm)
 
     for (i=symbols; i!=NULL; i=i->next)
         if (i->func != OSD_UNALIASED)
-            maxwidth = max((unsigned)maxwidth,Bstrlen(i->name));
+            maxwidth = max<int>(maxwidth, Bstrlen(i->name));
 
     if (maxwidth > 0)
     {
@@ -1004,7 +1004,7 @@ int32_t OSD_HandleChar(char ch)
                                     commonsize = diffpt;
                             }
 
-                            maxwidth  = max((unsigned)maxwidth, Bstrlen(symb->name));
+                            maxwidth  = max<int>(maxwidth, Bstrlen(symb->name));
                             lastmatch = symb;
 
                             if (!lastmatch->next)

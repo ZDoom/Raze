@@ -6406,7 +6406,7 @@ static void Keys3d(void)
 #endif
                 temppicnum = AIMED_SELOVR_WALL(picnum);
                 tempxrepeat = AIMED_SEL_WALL(xrepeat);
-                tempxrepeat = max(1, tempxrepeat);
+                tempxrepeat = max<int>(1, tempxrepeat);
                 tempyrepeat = AIMED_SEL_WALL(yrepeat);
                 tempxpanning = AIMED_SEL_WALL(xpanning);
                 tempypanning = AIMED_SEL_WALL(ypanning);
@@ -6612,13 +6612,13 @@ static void Keys3d(void)
             if (AIMING_AT_WALL_OR_MASK && eitherCTRL)  //Ctrl-shift Enter (auto-shade)
             {
                 int16_t daang;
-                int32_t dashade[2] = { 127, -128 };
+                int8_t dashade[2] = { 127, -128 };
 
                 i = searchwall;
                 do
                 {
-                    dashade[0] = min(dashade[0], wall[i].shade);
-                    dashade[1] = max(dashade[1], wall[i].shade);
+                    dashade[0] = min(dashade[0], TrackerCast(wall[i].shade));
+                    dashade[1] = max(dashade[1], TrackerCast(wall[i].shade));
 
                     i = wall[i].point2;
                 }
@@ -6862,8 +6862,8 @@ paste_ceiling_or_floor:
 
                 if (somethingintab == SEARCH_SPRITE)
                 {
-                    sprite[searchwall].xrepeat = max(tempxrepeat, 1);
-                    sprite[searchwall].yrepeat = max(tempyrepeat, 1);
+                    sprite[searchwall].xrepeat = max(tempxrepeat, 1u);
+                    sprite[searchwall].yrepeat = max(tempyrepeat, 1u);
                     sprite[searchwall].cstat = tempcstat;
                     sprite[searchwall].lotag = templotag;
                     sprite[searchwall].hitag = temphitag;
@@ -7326,8 +7326,8 @@ static void Keys2d(void)
                 if (yax_getbunch(i, YAX_FLOOR) < 0 /*&& yax_getbunch(i, YAX_CEILING) < 0*/)
                     continue;
 
-                loz = min(loz, sector[i].floorz);
-                hiz = max(hiz, sector[i].floorz);
+                loz = min(loz, TrackerCast(sector[i].floorz));
+                hiz = max(hiz, TrackerCast(sector[i].floorz));
 
                 // TODO: see if at least one sector point inside sceeen
                 j = (sector[i].floorz-pos.z)*zsign;
@@ -7383,8 +7383,8 @@ static void Keys2d(void)
 
             for (i=0; i<highlightsectorcnt; i++)
             {
-                damin = min(damin, sector[highlightsector[i]].ceilingz);
-                damax = max(damax, sector[highlightsector[i]].floorz);
+                damin = min(damin, TrackerCast(sector[highlightsector[i]].ceilingz));
+                damax = max(damax, TrackerCast(sector[highlightsector[i]].floorz));
             }
 
             if (damin < damax)
@@ -7579,7 +7579,7 @@ static void Keys2d(void)
                     if ((ppointhighlight&0xc000) == 16384 && (sprite[cursprite].cstat & 48))
                     {
                         uint8_t *repeat = (k==0) ? &sprite[cursprite].xrepeat : &sprite[cursprite].yrepeat;
-                        *repeat = max(4, changechar(*repeat, changedir, smooshy, 1));
+                        *repeat = max<uint8_t>(4, changechar(*repeat, changedir, smooshy, 1));
                         silentmessage("Sprite %d repeat: %d, %d", cursprite,
                             TrackerCast(sprite[cursprite].xrepeat),
                             TrackerCast(sprite[cursprite].yrepeat));

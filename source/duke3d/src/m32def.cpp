@@ -726,7 +726,7 @@ static int32_t C_SkipComments(void)
     // Be sure to have enough space allocated for the command to be parsed next.
     // Currently, the commands that potentially need the most space are
     // various string handling function that accept inline strings.
-    if ((unsigned)(g_scriptPtr-apScript) > (unsigned)(g_scriptSize - max(40, MAXQUOTELEN/sizeof(instype)+8)))
+    if ((unsigned)(g_scriptPtr-apScript) > (unsigned)(g_scriptSize - max<int>(40, MAXQUOTELEN/sizeof(instype)+8)))
         return C_SetScriptSize(g_scriptSize<<1);
 
     return 0;

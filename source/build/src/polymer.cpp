@@ -2921,7 +2921,7 @@ static int32_t      polymer_buildfloor(int16_t sectnum)
 
     if (s->floor.indices == NULL)
     {
-        s->indicescount = (max(3, sec->wallnum) - 2) * 3;
+        s->indicescount = (max<int16_t>(3, sec->wallnum) - 2) * 3;
         s->floor.indices = (GLushort *)Xcalloc(s->indicescount, sizeof(GLushort));
         s->ceil.indices = (GLushort *)Xcalloc(s->indicescount, sizeof(GLushort));
     }
@@ -4509,7 +4509,7 @@ static void         polymer_drawmdsprite(uspritetype *tspr)
     color = mdspritematerial.diffusemodulation;
 
     color[0] = color[1] = color[2] =
-        (GLubyte)(((float)(numshades-min(max((tspr->shade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades) * 0xFF);
+        (GLubyte)(((float)(numshades-min(max((tspr->shade * shadescale)+m->shadeoff,0.f),(float)numshades)))/((float)numshades) * 0xFF);
 
     usinghighpal = (pr_highpalookups &&
                     prhighpalookups[curbasepal][tspr->pal].map);

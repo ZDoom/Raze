@@ -47,7 +47,7 @@ static playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
 
     voice->sound        = voice->NextBlock;
     voice->position    -= voice->length;
-    voice->length       = min(voice->BlockLength, 0x8000);
+    voice->length       = min(voice->BlockLength, 0x8000u);
     voice->NextBlock   += voice->length * (voice->channels * voice->bits / 8);
     voice->BlockLength -= voice->length;
     voice->length     <<= 16;
@@ -57,18 +57,18 @@ static playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
 
 static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
 {
-    size_t  blocklength = 0;
-    uint32_t   samplespeed = 0;  // XXX: compiler-happy on synthesis
-    uint32_t   tc = 0;
-    unsigned       BitsPerSample;
-    unsigned       Channels;
-    unsigned       Format;
+    size_t   blocklength = 0;
+    uint32_t samplespeed = 0;  // XXX: compiler-happy on synthesis
+    uint32_t tc          = 0;
+    unsigned BitsPerSample;
+    unsigned Channels;
+    unsigned Format;
 
     if (voice->BlockLength > 0)
     {
         voice->position    -= voice->length;
         voice->sound       += (voice->length >> 16) * (voice->channels * voice->bits / 8);
-        voice->length       = min(voice->BlockLength, 0x8000);
+        voice->length       = min(voice->BlockLength, 0x8000u);
         voice->BlockLength -= voice->length;
         voice->length     <<= 16;
         return KeepPlaying;
@@ -295,7 +295,7 @@ end_of_data:
             blocklength /= 2;
 
         voice->position     = 0;
-        voice->length       = min(blocklength, 0x8000);
+        voice->length       = min(blocklength, 0x8000ull);
         voice->BlockLength  = blocklength - voice->length;
         voice->length     <<= 16;
 

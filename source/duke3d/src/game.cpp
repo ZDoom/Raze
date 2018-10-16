@@ -4978,10 +4978,10 @@ FAKE_F3:
             nonsharedtimer += timerOffset;
 
             if (BUTTON(gamefunc_Enlarge_Screen))
-                g_player[myconnectindex].ps->zoom += mulscale6(timerOffset, max(g_player[myconnectindex].ps->zoom, 256));
+                g_player[myconnectindex].ps->zoom += mulscale6(timerOffset, max<int>(g_player[myconnectindex].ps->zoom, 256));
 
             if (BUTTON(gamefunc_Shrink_Screen))
-                g_player[myconnectindex].ps->zoom -= mulscale6(timerOffset, max(g_player[myconnectindex].ps->zoom, 256));
+                g_player[myconnectindex].ps->zoom -= mulscale6(timerOffset, max<int>(g_player[myconnectindex].ps->zoom, 256));
 
             g_player[myconnectindex].ps->zoom = clamp(g_player[myconnectindex].ps->zoom, 48, 2048);
         }

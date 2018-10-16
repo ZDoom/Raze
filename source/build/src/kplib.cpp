@@ -192,9 +192,8 @@ static void suckbitsnextblock()
     if (zipfilmode)
     {
         //NOTE: should only read bytes inside compsize, not 64K!!! :/
-        int32_t n;
         B_BUF32(&olinbuf[0], B_UNBUF32(&olinbuf[sizeof(olinbuf)-4]));
-        n = min((unsigned) (kzfs.compleng-kzfs.comptell), sizeof(olinbuf)-4);
+        uint32_t n = min<uint32_t>(kzfs.compleng-kzfs.comptell, sizeof(olinbuf)-4);
         fread(&olinbuf[4], n, 1, kzfs.fil);
         kzfs.comptell += n;
         bitpos -= ((sizeof(olinbuf)-4)<<3);
@@ -2855,7 +2854,7 @@ int32_t kzread(void *buffer, int32_t leng)
             kzfs.jmpplc = 0;
 
             //Initialize for suckbits/peekbits/getbits
-            kzfs.comptell = min((unsigned)kzfs.compleng,sizeof(olinbuf));
+            kzfs.comptell = min<int32_t>(kzfs.compleng,sizeof(olinbuf));
             fread(&olinbuf[0],kzfs.comptell,1,kzfs.fil);
             //Make it re-load when there are < 32 bits left in FIFO
             bitpos = -(((int32_t)sizeof(olinbuf)-4)<<3);

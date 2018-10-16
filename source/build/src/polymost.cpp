@@ -2111,7 +2111,7 @@ void gloadtile_art(int32_t dapic, int32_t dapal, int32_t tintpalnum, int32_t das
     static int32_t fullbrightloadingpass = 0;
     vec2s_t const & tsizart = tilesiz[dapic];
     vec2_t siz = { 0, 0 }, tsiz = { tsizart.x, tsizart.y };
-    size_t const picdim = tsiz.x*tsiz.y;
+    int const picdim = tsiz.x*tsiz.y;
     char hasalpha = 0, hasfullbright = 0;
     char npoty = 0;
 

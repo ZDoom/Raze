@@ -412,6 +412,8 @@ defined __x86_64__ || defined __amd64__ || defined _M_X64 || defined _M_IA64 || 
 
 #ifdef __cplusplus
 # if CXXSTD >= 2011 || EDUKE32_MSVC_PREREQ(1800)
+#  include <algorithm>
+#  include <functional>
 #  include <type_traits>
 # endif
 #endif
@@ -1011,27 +1013,29 @@ static FORCE_INLINE uint64_t B_UNBUF64(void const * const vbuf)
 
 ////////// Abstract data operations //////////
 
+#define ABSTRACT_DECL static FORCE_INLINE WARN_UNUSED_RESULT
+
+#ifdef __cplusplus
+template <typename T, typename X, typename Y> ABSTRACT_DECL T clamp(T in, X min, Y max) { return in <= (T) min ? (T) min : (in >= (T) max ? (T) max : in); }
+template <typename T, typename X, typename Y> ABSTRACT_DECL T clamp2(T in, X min, Y max) { return in >= (T) max ? (T) max : (in <= (T) min ? (T) min : in); }
+using std::min;
+using std::max;
+# define fclamp clamp
+# define fclamp2 clamp2
+#else
+// Clamp <in> to [<min>..<max>]. The case in <= min is handled first.
+ABSTRACT_DECL int32_t clamp(int32_t in, int32_t min, int32_t max) { return in <= min ? min : (in >= max ? max : in); }
+ABSTRACT_DECL float fclamp(float in, float min, float max) { return in <= min ? min : (in >= max ? max : in); }
+// Clamp <in> to [<min>..<max>]. The case in >= max is handled first.
+ABSTRACT_DECL int32_t clamp2(int32_t in, int32_t min, int32_t max) { return in >= max ? max : (in <= min ? min : in); }
+ABSTRACT_DECL float fclamp2(float in, float min, float max) { return in >= max ? max : (in <= min ? min : in); }
+
 #ifndef min
 # define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
 #ifndef max
 # define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
-
-#define CLAMP_DECL static FORCE_INLINE WARN_UNUSED_RESULT
-
-#ifdef __cplusplus
-template <typename T, typename X, typename Y> CLAMP_DECL T clamp(T in, X min, Y max) { return in <= (T) min ? (T) min : (in >= (T) max ? (T) max : in); }
-template <typename T, typename X, typename Y> CLAMP_DECL T clamp2(T in, X min, Y max) { return in >= (T) max ? (T) max : (in <= (T) min ? (T) min : in); }
-# define fclamp clamp
-# define fclamp2 clamp2
-#else
-// Clamp <in> to [<min>..<max>]. The case in <= min is handled first.
-CLAMP_DECL int32_t clamp(int32_t in, int32_t min, int32_t max) { return in <= min ? min : (in >= max ? max : in); }
-CLAMP_DECL float fclamp(float in, float min, float max) { return in <= min ? min : (in >= max ? max : in); }
-// Clamp <in> to [<min>..<max>]. The case in >= max is handled first.
-CLAMP_DECL int32_t clamp2(int32_t in, int32_t min, int32_t max) { return in >= max ? max : (in <= min ? min : in); }
-CLAMP_DECL float fclamp2(float in, float min, float max) { return in >= max ? max : (in <= min ? min : in); }
 #endif
 
 ////////// Mathematical operations //////////

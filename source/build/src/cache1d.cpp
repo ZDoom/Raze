@@ -550,7 +550,7 @@ int32_t findfrompath(const char *fn, char **where)
 
     Bcorrectfilename(ffn,0);	// compress relative paths
 
-    int32_t allocsiz = max(maxsearchpathlen, 2);	// "./" (aka. curdir)
+    int32_t allocsiz = max<int>(maxsearchpathlen, 2);	// "./" (aka. curdir)
     allocsiz += strlen(ffn);
     allocsiz += 1;	// a nul
 

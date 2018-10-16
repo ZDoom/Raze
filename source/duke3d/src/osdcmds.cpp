@@ -181,7 +181,7 @@ static int32_t osdcmd_map(osdfuncparm_t const * const parm)
         fnlist_getnames(&fnlist, "/", filename, -1, 0);
 
         for (r=fnlist.findfiles; r; r=r->next)
-            maxwidth = max((unsigned)maxwidth, Bstrlen(r->name));
+            maxwidth = max<int>(maxwidth, Bstrlen(r->name));
 
         if (maxwidth > 0)
         {

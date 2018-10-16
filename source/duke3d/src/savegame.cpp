@@ -140,7 +140,7 @@ bool g_saveRequested;
 savebrief_t * g_quickload;
 
 menusave_t * g_menusaves;
-size_t g_nummenusaves;
+uint32_t g_nummenusaves;
 
 static menusave_t * g_internalsaves;
 static size_t g_numinternalsaves;

@@ -972,8 +972,7 @@ int32_t polymost_voxdraw(voxmodel_t *m, const uspritetype *tspr)
 
     float pc[4];
 
-    pc[0] = pc[1] = pc[2] =
-        (float)(numshades-min(max((globalshade * shadescale)+m->shadeoff, 0), numshades)) / (float)numshades;
+    pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
     hictinting_apply(pc, globalpal);
 
     pc[3] = (tspr->cstat&2) ? glblend[tspr->blend].def[!!(tspr->cstat&512)].alpha : 1.0f;

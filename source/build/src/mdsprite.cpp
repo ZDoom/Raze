@@ -2221,7 +2221,7 @@ static int32_t polymost_md3draw(md3model_t *m, const uspritetype *tspr)
     glEnable(GL_TEXTURE_2D);
 
     // tinting
-    pc[0] = pc[1] = pc[2] = ((float)(numshades-min(max((globalshade * shadescale)+m->shadeoff,0),numshades)))/((float)numshades);
+    pc[0] = pc[1] = pc[2] = ((float)numshades - min(max((globalshade * shadescale) + m->shadeoff, 0.f), (float)numshades)) / (float)numshades;
     polytintflags_t const tintflags = hictinting[globalpal].f;
     if (!(tintflags & HICTINT_PRECOMPUTED))
     {

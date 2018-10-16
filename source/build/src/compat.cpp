@@ -602,7 +602,7 @@ uint32_t Bgetsysmemsize(void)
             MEMORYSTATUSEX memst;
             memst.dwLength = sizeof(MEMORYSTATUSEX);
             if (aGlobalMemoryStatusEx(&memst))
-                siz = (uint32_t)min(UINT32_MAX, memst.ullTotalPhys);
+                siz = min<uint32_t>(UINT32_MAX, memst.ullTotalPhys);
         }
         else
         {

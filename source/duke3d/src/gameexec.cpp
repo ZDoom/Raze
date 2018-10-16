@@ -100,15 +100,17 @@ void VM_ScriptInfo(intptr_t const *ptr, int range)
     {
         initprintf("\n");
 
-        for (intptr_t const *pScript = max(ptr - (range >> 1), apScript), *p_end = min(ptr + (range >> 1), apScript + g_scriptSize); pScript < p_end;
-             pScript++)
+        for (auto pScript = max<intptr_t const *>(ptr - (range >> 1), apScript),
+                  p_end   = min<intptr_t const *>(ptr + (range >> 1), apScript + g_scriptSize);
+             pScript < p_end;
+             ++pScript)
         {
-            initprintf("%5d: %3d: ", (int32_t) (pScript - apScript), (int32_t) (pScript - ptr));
+            initprintf("%5d: %3d: ", (int32_t)(pScript - apScript), (int32_t)(pScript - ptr));
 
             if (*pScript >> 12 && (*pScript & VM_INSTMASK) < CON_END)
-                initprintf("%5d %s\n", (int32_t) (*pScript >> 12), VM_GetKeywordForID(*pScript & VM_INSTMASK));
+                initprintf("%5d %s\n", (int32_t)(*pScript >> 12), VM_GetKeywordForID(*pScript & VM_INSTMASK));
             else
-                initprintf("%d\n", (int32_t) *pScript);
+                initprintf("%d\n", (int32_t)*pScript);
         }
 
         initprintf("\n");

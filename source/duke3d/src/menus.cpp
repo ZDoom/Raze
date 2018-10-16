@@ -3957,7 +3957,7 @@ static void Menu_ReadSaveGameHeaders()
 {
     ReadSaveGameHeaders();
 
-    size_t const numloaditems = max(g_nummenusaves, 1), numsaveitems = g_nummenusaves+1;
+    uint32_t const numloaditems = max(g_nummenusaves, 1u), numsaveitems = g_nummenusaves+1;
     ME_LOAD = (MenuEntry_t *)Xrealloc(ME_LOAD, g_nummenusaves * sizeof(MenuEntry_t));
     MEL_LOAD = (MenuEntry_t **)Xrealloc(MEL_LOAD, numloaditems * sizeof(MenuEntry_t *));
     MEO_SAVE = (MenuString_t *)Xrealloc(MEO_SAVE, g_nummenusaves * sizeof(MenuString_t));

@@ -246,8 +246,8 @@ void yax_updategrays(int32_t posze)
         int32_t keep = ((cb<0 || sector[i].ceilingz < posze) && (fb<0 || posze <= sector[i].floorz));
         if (autogray && (cb>=0 || fb>=0) && (sector[i].ceilingz <= posze && posze <= sector[i].floorz))
         {
-            mingoodz = min(mingoodz, sector[i].ceilingz);
-            maxgoodz = max(maxgoodz, sector[i].floorz);
+            mingoodz = min(mingoodz, TrackerCast(sector[i].ceilingz));
+            maxgoodz = max(maxgoodz, TrackerCast(sector[i].floorz));
         }
 #endif
         // update grayouts due to editorzrange
@@ -1856,7 +1856,7 @@ static WSHELPER_DECL void calc_vplcinc_sprite(uint32_t *vplc, int32_t *vinc, int
 
     *vinc = tmpvinc;
     // Clamp the vertical texture coordinate!
-    *vplc = min(max(0, tmpvplc), UINT32_MAX);
+    *vplc = min(max<uint32_t>(0, tmpvplc), UINT32_MAX);
 }
 #endif
 
@@ -1923,8 +1923,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 #ifdef MULTI_COLUMN_VLINE
     for (; (x<=x2)&&(p&3); x++,p++)
     {
-        y1ve[0] = max(uwall[x],startumost[x+windowxy1.x]-windowxy1.y);
-        y2ve[0] = min(dwall[x],startdmost[x+windowxy1.x]-windowxy1.y);
+        y1ve[0] = max<int>(uwall[x],startumost[x+windowxy1.x]-windowxy1.y);
+        y2ve[0] = min<int>(dwall[x],startdmost[x+windowxy1.x]-windowxy1.y);
         if (y2ve[0] <= y1ve[0]) continue;
 
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
@@ -1940,8 +1940,8 @@ static void maskwallscan(int32_t x1, int32_t x2, int32_t saturatevplc)
 
         for (bssize_t z=3,dax=x+3; z>=0; z--,dax--)
         {
-            y1ve[z] = max(uwall[dax],startumost[dax+windowxy1.x]-windowxy1.y);
-            y2ve[z] = min(dwall[dax],startdmost[dax+windowxy1.x]-windowxy1.y)-1;
+            y1ve[z] = max<int>(uwall[dax],startumost[dax+windowxy1.x]-windowxy1.y);
+            y2ve[z] = min<int>(dwall[dax],startdmost[dax+windowxy1.x]-windowxy1.y)-1;
             if (y2ve[z] < y1ve[z]) { bad += pow2char[z]; continue; }
 
             calc_bufplc(&bufplce[z], lwall[dax], tsiz);
@@ -1996,8 +1996,8 @@ do_mvlineasm1:
 #endif
     for (; x<=x2; x++,p++)
     {
-        y1ve[0] = max(uwall[x],startumost[x+windowxy1.x]-windowxy1.y);
-        y2ve[0] = min(dwall[x],startdmost[x+windowxy1.x]-windowxy1.y);
+        y1ve[0] = max<int>(uwall[x],startumost[x+windowxy1.x]-windowxy1.y);
+        y2ve[0] = min<int>(dwall[x],startdmost[x+windowxy1.x]-windowxy1.y);
         if (y2ve[0] <= y1ve[0]) continue;
 
         palookupoffse[0] = fpalookup + getpalookupsh(mulscale16(swall[x],globvis));
@@ -3038,8 +3038,8 @@ static void transmaskvline(int32_t x)
 {
     if ((unsigned)x >= (unsigned)xdimen) return;
 
-    int32_t const y1v = max(uwall[x],startumost[x+windowxy1.x]-windowxy1.y);
-    int32_t const y2v = min(dwall[x],startdmost[x+windowxy1.x]-windowxy1.y) - 1;
+    int32_t const y1v = max<int>(uwall[x],startumost[x+windowxy1.x]-windowxy1.y);
+    int32_t const y2v = min<int>(dwall[x],startdmost[x+windowxy1.x]-windowxy1.y) - 1;
 
     if (y2v < y1v) return;
 
@@ -3075,11 +3075,11 @@ static void transmaskvline2(int32_t x)
     int32_t y1ve[2], y2ve[2];
     int32_t x2 = x+1;
 
-    y1ve[0] = max(uwall[x],startumost[x+windowxy1.x]-windowxy1.y);
-    y2ve[0] = min(dwall[x],startdmost[x+windowxy1.x]-windowxy1.y)-1;
+    y1ve[0] = max<int>(uwall[x],startumost[x+windowxy1.x]-windowxy1.y);
+    y2ve[0] = min<int>(dwall[x],startdmost[x+windowxy1.x]-windowxy1.y)-1;
     if (y2ve[0] < y1ve[0]) { transmaskvline(x2); return; }
-    y1ve[1] = max(uwall[x2],startumost[x2+windowxy1.x]-windowxy1.y);
-    y2ve[1] = min(dwall[x2],startdmost[x2+windowxy1.x]-windowxy1.y)-1;
+    y1ve[1] = max<int>(uwall[x2],startumost[x2+windowxy1.x]-windowxy1.y);
+    y2ve[1] = min<int>(dwall[x2],startdmost[x2+windowxy1.x]-windowxy1.y)-1;
     if (y2ve[1] < y1ve[1]) { transmaskvline(x); return; }
 
     palookupoffse[0] = FP_OFF(palookup[globalpal]) + getpalookupsh(mulscale16(swall[x],globvis));
@@ -4876,21 +4876,21 @@ draw_as_face_sprite:
 #ifdef CLASSIC_SLICE_BY_4
         for (; x<=rx-4; x+=4)
         {
-            uwall[x] =   max(startumost[windowxy1.x+x]-windowxy1.y,   (int16_t) startum);
-            uwall[x+1] = max(startumost[windowxy1.x+x+1]-windowxy1.y, (int16_t) startum);
-            uwall[x+2] = max(startumost[windowxy1.x+x+2]-windowxy1.y, (int16_t) startum);
-            uwall[x+3] = max(startumost[windowxy1.x+x+3]-windowxy1.y, (int16_t) startum);
+            uwall[x] =   max<int>(startumost[windowxy1.x+x]-windowxy1.y,   startum);
+            uwall[x+1] = max<int>(startumost[windowxy1.x+x+1]-windowxy1.y, startum);
+            uwall[x+2] = max<int>(startumost[windowxy1.x+x+2]-windowxy1.y, startum);
+            uwall[x+3] = max<int>(startumost[windowxy1.x+x+3]-windowxy1.y, startum);
 
-            dwall[x] =   min(startdmost[windowxy1.x+x]-windowxy1.y,   (int16_t) startdm);
-            dwall[x+1] = min(startdmost[windowxy1.x+x+1]-windowxy1.y, (int16_t) startdm);
-            dwall[x+2] = min(startdmost[windowxy1.x+x+2]-windowxy1.y, (int16_t) startdm);
-            dwall[x+3] = min(startdmost[windowxy1.x+x+3]-windowxy1.y, (int16_t) startdm);
+            dwall[x] =   min<int>(startdmost[windowxy1.x+x]-windowxy1.y,   startdm);
+            dwall[x+1] = min<int>(startdmost[windowxy1.x+x+1]-windowxy1.y, startdm);
+            dwall[x+2] = min<int>(startdmost[windowxy1.x+x+2]-windowxy1.y, startdm);
+            dwall[x+3] = min<int>(startdmost[windowxy1.x+x+3]-windowxy1.y, startdm);
         }
 #endif
         for (; x<=rx; x++)
         {
-            uwall[x] = max(startumost[windowxy1.x+x]-windowxy1.y,(int16_t)startum);
-            dwall[x] = min(startdmost[windowxy1.x+x]-windowxy1.y,(int16_t)startdm);
+            uwall[x] = max<int>(startumost[windowxy1.x+x]-windowxy1.y,startum);
+            dwall[x] = min<int>(startdmost[windowxy1.x+x]-windowxy1.y,startdm);
         }
 
         int32_t daclip = 0;
@@ -5507,8 +5507,8 @@ draw_as_face_sprite:
 
         for (x=lx; x<=rx; x++)
         {
-            uwall[x] = max(uwall[x],startumost[x+windowxy1.x]-windowxy1.y);
-            dwall[x] = min(dwall[x],startdmost[x+windowxy1.x]-windowxy1.y);
+            uwall[x] = max<int>(uwall[x],startumost[x+windowxy1.x]-windowxy1.y);
+            dwall[x] = min<int>(dwall[x],startdmost[x+windowxy1.x]-windowxy1.y);
         }
 
         //Additional uwall/dwall clipping goes here
@@ -8768,7 +8768,7 @@ void renderDrawMapView(int32_t dax, int32_t day, int32_t zoome, int16_t ang)
             if ((tilesiz[globalpicnum].x <= 0) || (tilesiz[globalpicnum].y <= 0)) continue;
             if (waloff[globalpicnum] == 0) tileLoad(globalpicnum);
             globalbufplc = waloff[globalpicnum];
-            globalshade = max(min(sec->floorshade,numshades-1),0);
+            globalshade = max(min<int>(sec->floorshade,numshades-1),0);
             globvis = globalhisibility;
             if (sec->visibility != 0) globvis = mulscale4(globvis, (uint8_t)(sec->visibility+16));
             globalpolytype = 0;
