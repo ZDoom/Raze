@@ -2946,8 +2946,6 @@ void P_GetInput(int playerNum)
     if (BUTTON(gamefunc_Strafe))
     {
         staticInput.svel = -(info[0].dyaw + dyaw) >> 3;
-        staticInput.svel = -(info[0].dyaw + dyaw) >> 3;
-
         dyaw = (info[0].dyaw + dyaw) % 8;
     }
     else
