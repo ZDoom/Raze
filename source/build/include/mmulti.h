@@ -21,10 +21,10 @@ void sendlogon(void);
 void sendlogoff(void);
 int getoutputcirclesize(void);
 void setsocket(int newsocket);
-void sendpacket(int other, unsigned char *bufptr, int messleng);
-int getpacket(int *other, unsigned char *bufptr);
+void sendpacket(int other, const unsigned char *bufptr, int messleng);
+int getpacket(const int *other, const unsigned char *bufptr);
 void flushpackets(void);
-void genericmultifunction(int other, unsigned char *bufptr, int messleng, int command);
+void genericmultifunction(int other, const unsigned char *bufptr, int messleng, int command);
 int isvalidipaddress(const char *st);
 
 #endif  // mmulti_h_

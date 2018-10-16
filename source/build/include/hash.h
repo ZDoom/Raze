@@ -26,8 +26,8 @@ typedef struct
 void hash_init(hashtable_t *t);
 void hash_loop(hashtable_t *t, void(*func)(const char *, intptr_t));
 void hash_free(hashtable_t *t);
-intptr_t  hash_findcase(hashtable_t const * const t, char const * const s);
-intptr_t  hash_find(hashtable_t const * const t, char const * const s);
+intptr_t  hash_findcase(hashtable_t const * t, char const * s);
+intptr_t  hash_find(hashtable_t const * t, char const * s);
 void hash_add(hashtable_t *t, const char *s, intptr_t key, int32_t replace);
 void hash_delete(hashtable_t *t, const char *s);
 

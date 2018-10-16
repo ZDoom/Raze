@@ -1022,7 +1022,7 @@ int32_t    engineInit(void);
 int32_t enginePostInit(void);
 void   engineUnInit(void);
 void   initspritelists(void);
-int32_t engineFatalError(char const * const msg);
+int32_t engineFatalError(char const * msg);
 
 int32_t   engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t *daang, int16_t *dacursectnum);
 int32_t   engineLoadMHK(const char *filename);
@@ -1032,16 +1032,16 @@ int32_t engineLoadClipMaps(void);
 #endif
 int32_t   saveboard(const char *filename, const vec3_t *dapos, int16_t daang, int16_t dacursectnum);
 
-void    tileSetupDummy(int32_t const tile);
-void    tileSetData(int32_t const tile, int32_t tsiz, char const *const buffer);
-void    tileDelete(int32_t const tile);
+void    tileSetupDummy(int32_t tile);
+void    tileSetData(int32_t tile, int32_t tsiz, char const *buffer);
+void    tileDelete(int32_t tile);
 void    tileSetSize(int32_t picnum, int16_t dasizx, int16_t dasizy);
-int32_t artReadHeader(int32_t const fil, char const *const fn, artheader_t *const local);
-int32_t artReadHeaderFromBuffer(uint8_t const *const buf, artheader_t *const local);
-int32_t artCheckUnitFileHeader(uint8_t const *const buf, int32_t length);
-void    tileConvertAnimFormat(int32_t const picnum);
-void    artReadManifest(int32_t const fil, artheader_t const *const local);
-void    artPreloadFile(int32_t const fil, artheader_t const *const local);
+int32_t artReadHeader(int32_t fil, char const *fn, artheader_t *local);
+int32_t artReadHeaderFromBuffer(uint8_t const *buf, artheader_t *local);
+int32_t artCheckUnitFileHeader(uint8_t const *buf, int32_t length);
+void    tileConvertAnimFormat(int32_t picnum);
+void    artReadManifest(int32_t fil, artheader_t const *local);
+void    artPreloadFile(int32_t fil, artheader_t const *local);
 int32_t artLoadFiles(const char *filename, int32_t askedsize);
 void    artClearMapArt(void);
 void    artSetupMapArt(const char *filename);
@@ -1086,7 +1086,7 @@ void   rotatesprite_(int32_t sx, int32_t sy, int32_t z, int16_t a, int16_t picnu
                      int8_t dashade, char dapalnum, int32_t dastat, uint8_t daalpha, uint8_t dablend,
                      int32_t cx1, int32_t cy1, int32_t cx2, int32_t cy2);
 void   renderDrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, char col);
-void   drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t col);
+void   drawlinergb(int32_t x1, int32_t y1, int32_t x2, int32_t y2, palette_t p);
 int32_t    printext16(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
                       const char *name, char fontsize) ATTRIBUTE((nonnull(5)));
 void   printext256(int32_t xpos, int32_t ypos, int16_t col, int16_t backcol,
@@ -1122,7 +1122,7 @@ static FORCE_INLINE void rotatesprite_win(int32_t sx, int32_t sy, int32_t z, int
 void bfirst_search_init(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int32_t maxnum, int16_t firstelt);
 void bfirst_search_try(int16_t *list, uint8_t *bitmap, int32_t *eltnumptr, int16_t elt);
 
-void   getzrange(const vec3_t *vect, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
+void   getzrange(const vec3_t *pos, int16_t sectnum, int32_t *ceilz, int32_t *ceilhit, int32_t *florz,
                  int32_t *florhit, int32_t walldist, uint32_t cliptype) ATTRIBUTE((nonnull(1,3,4,5,6)));
 int32_t   hitscan(const vec3_t *sv, int16_t sectnum, int32_t vx, int32_t vy, int32_t vz,
                   hitdata_t *hitinfo, uint32_t cliptype) ATTRIBUTE((nonnull(1,6)));
@@ -1206,7 +1206,7 @@ static FORCE_INLINE int32_t E_SpriteIsValid(const int32_t i)
     return ((unsigned)i < MAXSPRITES && sprite[i].statnum != MAXSTATUS);
 }
 
-int clipshape_idx_for_sprite(uspritetype const * const curspr, int curidx);
+int clipshape_idx_for_sprite(uspritetype const * curspr, int curidx);
 
 void   alignceilslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
 void   alignflorslope(int16_t dasect, int32_t x, int32_t y, int32_t z);
@@ -1351,7 +1351,7 @@ int32_t hicsetsubsttex(int32_t picnum, int32_t palnum, const char *filen, float 
 int32_t hicsetskybox(int32_t picnum, int32_t palnum, char *faces[6], int32_t flags);
 int32_t hicclearsubst(int32_t picnum, int32_t palnum);
 
-int32_t Ptile2tile(int32_t tile, int32_t pallet) ATTRIBUTE((pure));
+int32_t Ptile2tile(int32_t tile, int32_t palette) ATTRIBUTE((pure));
 int32_t md_loadmodel(const char *fn);
 int32_t md_setmisc(int32_t modelid, float scale, int32_t shadeoff, float zadd, float yoffset, int32_t flags);
 // int32_t md_tilehasmodel(int32_t tilenume, int32_t pal);

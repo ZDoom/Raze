@@ -190,8 +190,8 @@ extern keybind CONTROL_KeyBinds[MAXBOUNDKEYS+MAXMOUSEBUTTONS];
 extern int32_t CONTROL_BindsEnabled;
 
 void CONTROL_ClearAllBinds(void);
-void CONTROL_BindKey(int i, char const * const cmd, int repeat, char const * const keyname);
-void CONTROL_BindMouse(int i, char const * const cmd, int repeat, char const * const keyname);
+void CONTROL_BindKey(int i, char const * cmd, int repeat, char const * keyname);
+void CONTROL_BindMouse(int i, char const * cmd, int repeat, char const * keyname);
 void CONTROL_FreeKeyBind(int i);
 void CONTROL_FreeMouseBind(int i);
 

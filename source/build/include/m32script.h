@@ -40,7 +40,7 @@ extern char *apStrings[MAXQUOTES+1], *apXStrings[MAXQUOTES+1];
 extern int32_t g_numQuoteRedefinitions;
 
 extern int32_t VM_Execute(int32_t once);
-extern void VM_OnEvent(int32_t iEventID, int32_t iActor);
+extern void VM_OnEvent(int32_t iEventID, int32_t spriteNum);
 
 extern void VM_ScriptInfo(void);
 extern void VM_Disasm(ofstype beg, int32_t size);
@@ -175,7 +175,7 @@ extern int32_t m32_sortvar1, m32_sortvar2;
 
 //extern int32_t g_scriptDebug;
 
-extern int32_t g_numQuoteRedefinitions;
+
 
 extern hashtable_t h_gamevars;
 extern hashtable_t h_arrays;

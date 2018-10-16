@@ -87,7 +87,7 @@ extern float g_videoGamma, g_videoContrast, g_videoBrightness;
 
 #ifdef USE_OPENGL
 extern int32_t (*baselayer_osdcmd_vidmode_func)(osdfuncparm_t const * const parm);
-extern int32_t osdcmd_glinfo(osdfuncparm_t const * const parm);
+extern int32_t osdcmd_glinfo(osdfuncparm_t const * parm);
 
 struct glinfo_t {
     const char *vendor;
@@ -224,13 +224,13 @@ void keyFlushChars(void);
 
 int32_t mouseInit(void);
 void mouseUninit(void);
-int32_t mouseReadAbs(vec2_t *const destination, vec2_t const *const source);
+int32_t mouseReadAbs(vec2_t *pResult, vec2_t const *pInput);
 void mouseGrabInput(bool grab);
 void mouseLockToWindow(char a);
-void mouseReadButtons(int32_t *b);
+void mouseReadButtons(int32_t *pResult);
 void mouseReadPos(int32_t *x, int32_t *y);
 
-void joyReadButtons(int32_t *b);
+void joyReadButtons(int32_t *pResult);
 void joySetDeadZone(int32_t axis, uint16_t dead, uint16_t satur);
 void joyGetDeadZone(int32_t axis, uint16_t *dead, uint16_t *satur);
 extern int32_t inputchecked;

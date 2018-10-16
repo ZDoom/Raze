@@ -61,8 +61,8 @@ extern int16_t *sectq;
 extern int16_t pictoidx[MAXTILES];  // maps tile num to clipinfo[] index
 extern int16_t clipspritelist[MAXCLIPNUM];
 extern void engineSetClipMap(mapinfo_t *bak, mapinfo_t *newmap);
-extern int32_t clipsprite_try(uspritetype const * const spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax);
-extern int32_t clipsprite_initindex(int32_t curidx, uspritetype const * const curspr, int32_t *clipsectcnt, const vec3_t *vect);
+extern int32_t clipsprite_try(uspritetype const * spr, int32_t xmin, int32_t ymin, int32_t xmax, int32_t ymax);
+extern int32_t clipsprite_initindex(int32_t curidx, uspritetype const * curspr, int32_t *clipsectcnt, const vec3_t *vect);
 
 #endif // HAVE_CLIPSHAPE_FEATURE
 typedef struct
@@ -81,7 +81,7 @@ int clipinsideboxline(int x, int y, int x1, int y1, int x2, int y2, int walldist
 
 extern int32_t clipmoveboxtracenum;
 
-int32_t clipmove(vec3_t *vect, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist,
+int32_t clipmove(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist,
     int32_t flordist, uint32_t cliptype) ATTRIBUTE((nonnull(1, 2)));
 int32_t clipmovex(vec3_t *pos, int16_t *sectnum, int32_t xvect, int32_t yvect, int32_t walldist, int32_t ceildist,
     int32_t flordist, uint32_t cliptype, uint8_t noslidep) ATTRIBUTE((nonnull(1, 2)));

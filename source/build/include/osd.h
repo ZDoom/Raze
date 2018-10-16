@@ -238,12 +238,12 @@ void OSD_SetFunctions(void (*drawchar)(int32_t, int32_t, char, int32_t, int32_t)
                       int32_t (*colwidth)(int32_t),
                       int32_t (*rowheight)(int32_t),
                       void (*clearbg)(int32_t, int32_t),
-                      int32_t (*gettime)(void),
-                      void (*onshow)(int32_t));
+                      int32_t (*gtime)(void),
+                      void (*showosd)(int32_t));
 
 // sets the parameters for presenting the text
 void OSD_SetParameters(int32_t promptShade, int32_t promptPal, int32_t editShade, int32_t editPal, int32_t textShade, int32_t textPal,
-                       char const *const errorStr, char const *const highlight, uint32_t flags);
+                       char const *errorStr, char const *highlight, uint32_t flags);
 
 // sets the scancode for the key which activates the onscreen display
 void OSD_CaptureKey(uint8_t scanCode);
@@ -286,8 +286,8 @@ int32_t OSD_Dispatch(const char *cmd);
 //   func = the entry point to the function
 int32_t OSD_RegisterFunction(const char *pszName, const char *pszDesc, int32_t (*func)(const osdfuncparm_t *));
 
-int32_t osdcmd_cvar_set(osdfuncparm_t const * const parm);
-void OSD_RegisterCvar(osdcvardata_t * const cvar, int32_t (*func)(osdfuncparm_t const * const));
+int32_t osdcmd_cvar_set(osdfuncparm_t const * parm);
+void OSD_RegisterCvar(osdcvardata_t * cvar, int32_t (*func)(osdfuncparm_t const * const));
 void OSD_WriteAliases(FILE *fp);
 void OSD_WriteCvars(FILE *fp);
 
@@ -297,7 +297,7 @@ static inline void OSD_SetHistory(int32_t histIdx, const char *src)
     Bstrncpyz(osd->history.buf[histIdx], src, OSDEDITLENGTH);
 }
 
-extern int32_t osdcmd_restartvid(osdfuncparm_t const * const parm);
+extern int32_t osdcmd_restartvid(osdfuncparm_t const * parm);
 
 extern void M32RunScript(const char *s);
 
