@@ -743,8 +743,8 @@ static int32_t osdcmd_cmenu(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-extern void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b);
-extern palette_t CrosshairColors;
+
+
 
 static int32_t osdcmd_crosshaircolor(osdfuncparm_t const * const parm)
 {
@@ -1781,7 +1781,7 @@ int32_t registerosdcommands(void)
     }
 
     OSD_RegisterFunction("addpath","addpath <path>: adds path to game filesystem", osdcmd_addpath);
-    OSD_RegisterFunction("bind","bind <key> <string>: associates a keypress with a string of console input. Type \"bind showkeys\" for a list of keys and \"listsymbols\" for a list of valid console commands.", osdcmd_bind);
+    OSD_RegisterFunction("bind",R"(bind <key> <string>: associates a keypress with a string of console input. Type "bind showkeys" for a list of keys and "listsymbols" for a list of valid console commands.)", osdcmd_bind);
     OSD_RegisterFunction("cmenu","cmenu <#>: jumps to menu", osdcmd_cmenu);
     OSD_RegisterFunction("crosshaircolor","crosshaircolor: changes the crosshair color", osdcmd_crosshaircolor);
 

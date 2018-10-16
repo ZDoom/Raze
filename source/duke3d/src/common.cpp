@@ -833,14 +833,14 @@ void G_AddSearchPaths(void)
 
     // Duke Nukem 3D: 20th Anniversary World Tour (Steam)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 434050", "InstallLocation", buf, &bufsize))
+    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 434050)", "InstallLocation", buf, &bufsize))
     {
         addsearchpath_user(buf, SEARCHPATH_REMOVE);
     }
 
     // Duke Nukem 3D: Megaton Edition (Steam)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 225140", "InstallLocation", buf, &bufsize))
+    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 225140)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         DWORD const remaining = sizeof(buf) - bufsize;
@@ -857,7 +857,7 @@ void G_AddSearchPaths(void)
 
     // Duke Nukem 3D (3D Realms Anthology (Steam) / Kill-A-Ton Collection 2015)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 359850", "InstallLocation", buf, &bufsize))
+    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 359850)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         DWORD const remaining = sizeof(buf) - bufsize;
@@ -897,7 +897,7 @@ void G_AddSearchPaths(void)
 
     // NAM (Steam)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 329650", "InstallLocation", buf, &bufsize))
+    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 329650)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         DWORD const remaining = sizeof(buf) - bufsize;
@@ -908,7 +908,7 @@ void G_AddSearchPaths(void)
 
     // WWII GI (Steam)
     bufsize = sizeof(buf);
-    if (G_ReadRegistryValue("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Steam App 376750", "InstallLocation", buf, &bufsize))
+    if (G_ReadRegistryValue(R"(SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 376750)", "InstallLocation", buf, &bufsize))
     {
         char * const suffix = buf + bufsize - 1;
         DWORD const remaining = sizeof(buf) - bufsize;
