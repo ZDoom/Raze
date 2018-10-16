@@ -258,7 +258,7 @@ int32_t A_CheckInventorySprite(spritetype *s)
     }
 }
 
-extern int32_t g_doQuickSave;
+
 
 void G_GameExit(const char *msg)
 {
@@ -5122,7 +5122,7 @@ static void parsedefinitions_game_include(const char *fileName, scriptfile *pScr
     }
 }
 
-static void parsedefinitions_game_animsounds(scriptfile *pScript, char * blockEnd, char const * fileName, dukeanim_t * animPtr)
+static void parsedefinitions_game_animsounds(scriptfile *pScript, const char * blockEnd, char const * fileName, dukeanim_t * animPtr)
 {
     Bfree(animPtr->sounds);
 
@@ -5519,7 +5519,7 @@ void G_UpdateAppTitle(void)
     }
 }
 
-static void G_FreeHashAnim(const char *UNUSED(string), intptr_t key)
+static void G_FreeHashAnim(const char * /*string*/, intptr_t key)
 {
     Bfree((void *)key);
 }

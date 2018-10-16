@@ -43,8 +43,6 @@ droidinput_t droidinput;
 
 int32_t g_skillSoundVoice = -1;
 
-extern int32_t voting;
-
 #define USERMAPENTRYLENGTH 25
 
 static FORCE_INLINE void Menu_StartTextInput()
@@ -174,16 +172,8 @@ static void Menu_DrawCursorText(int32_t x, int32_t y, int32_t h, int32_t ydim_up
     Menu_DrawCursorTextTile(x, y, h, SPINNINGNUKEICON+((totalclock>>3)%7), siz, ydim_upper, ydim_lower);
 }
 
-extern int32_t g_quitDeadline;
+
 static size_t g_oldSaveCnt;
-
-
-
-
-
-
-
-
 
 
 
@@ -1573,7 +1563,7 @@ static void MenuEntry_HideOnCondition(MenuEntry_t * const entry, const int32_t c
         entry->flags &= ~MEF_Hidden;
 }
 
-static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *currentry, int32_t state, const vec2_t origin, bool actually_draw = true);
+static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *currentry, int32_t state, vec2_t origin, bool actually_draw = true);
 static void Menu_EntryFocus(/*MenuEntry_t *entry*/);
 
 static MenuEntry_t *Menu_AdjustForCurrentEntryAssignment(MenuMenu_t *menu)

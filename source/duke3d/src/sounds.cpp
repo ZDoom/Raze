@@ -41,10 +41,10 @@ uint32_t dq[DQSIZE];
 
 void S_SoundStartup(void)
 {
-    void *initdata = NULL;
-
 #ifdef MIXERTYPEWIN
-    initdata = (void *) win_gethwnd(); // used for DirectSound
+    void *initdata = (void *) win_gethwnd(); // used for DirectSound
+#else
+    void *initdata = NULL;
 #endif
 
     initprintf("Initializing sound... ");

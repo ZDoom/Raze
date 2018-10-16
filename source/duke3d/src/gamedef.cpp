@@ -73,8 +73,6 @@ static char *textptr;
 
 int32_t g_errorCnt,g_warningCnt;
 
-extern int32_t g_highestSoundIdx;
-
 #if !defined LUNATIC
 static char *C_GetLabelType(int32_t type)
 {
@@ -6552,9 +6550,6 @@ void C_InitProjectiles(void)
 }
 
 #if !defined LUNATIC
-extern int32_t g_numObituaries;
-extern int32_t g_numSelfObituaries;
-
 static char const * C_ScriptVersionString(int32_t version)
 {
     switch (version)

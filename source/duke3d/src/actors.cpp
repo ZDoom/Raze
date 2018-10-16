@@ -32,9 +32,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define DELETE_SPRITE_AND_CONTINUE(KX) do { A_DeleteSprite(KX); goto next_sprite; } while (0)
 
-extern int32_t g_numEnvSoundsPlaying;
-extern int32_t g_noEnemies;
-
 int32_t otherp;
 
 int G_SetInterpolation(int32_t *const posptr)
@@ -52,7 +49,7 @@ int G_SetInterpolation(int32_t *const posptr)
     return 0;
 }
 
-void G_StopInterpolation(int32_t * const posptr)
+void G_StopInterpolation(const int32_t * const posptr)
 {
     for (bssize_t i = 0; i < g_interpolationCnt; ++i)
         if (curipos[i] == posptr)

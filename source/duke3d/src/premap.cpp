@@ -33,9 +33,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 static int32_t g_whichPalForPlayer = 9;
 
 static uint8_t precachehightile[2][MAXTILES>>3];
-static int32_t  g_precacheCount;
+static int32_t g_precacheCount;
 
-extern int32_t g_levelTextTime;
 
 static void flag_precache(int32_t tile, int32_t type)
 {
@@ -363,8 +362,8 @@ static void G_DoLoadScreen(const char *statustext, int32_t percent)
     }
 }
 
-extern void G_SetCrosshairColor(int32_t r, int32_t g, int32_t b);
-extern palette_t CrosshairColors;
+
+
 
 void G_CacheMapData(void)
 {

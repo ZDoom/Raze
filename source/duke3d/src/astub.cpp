@@ -60,11 +60,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 # include "lunatic_editor.h"
 #endif
 
-extern const char *s_buildRev;
-extern const char *s_buildTimestamp;
-
-extern int32_t globalpal;
-
 #include <signal.h>
 
 // Workaround for namespace pollution in <sys/stat.h> introduced in MinGW 4.8.
@@ -309,7 +304,7 @@ extern int32_t mskip;
 
 //extern int32_t fillsector(int16_t sectnum, char fillcolor);
 
-static int32_t osdcmd_quit(osdfuncparm_t const * const parm);
+static int32_t osdcmd_quit(osdfuncparm_t const * parm);
 
 
 #define M32_NUM_SPRITE_MODES (signed)ARRAY_SIZE(SpriteMode)

@@ -56,7 +56,7 @@ uint32_t m32_drawlinepat=0xffffffff;
 int32_t m32_script_expertmode = 0;
 
 instype *insptr;
-int32_t VM_Execute(int32_t once);
+
 static instype *x_sortingstateptr;
 
 //#include "m32structures.cpp"
