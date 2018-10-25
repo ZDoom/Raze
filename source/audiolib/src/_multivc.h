@@ -56,21 +56,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MIX_VOLUME(volume) ((max(0, min((volume), 255)) * (MV_MAXVOLUME + 1)) >> 8)
 
 template <typename T>
-static inline conditional_t< is_signed<T>::value, make_unsigned_t<T>, make_signed_t<T> > MV_FLIP_SIGNEDNESS(T src)
+static inline conditional_t< is_signed<T>::value, make_unsigned_t<T>, make_signed_t<T> > FLIP_SIGN(T src)
 {
     static constexpr make_unsigned_t<T> msb = ((make_unsigned_t<T>)1) << (sizeof(T) * CHAR_BIT - 1u);
     return src ^ msb;
 }
 
 template <typename T>
-static inline enable_if_t<is_signed<T>::value, T> MV_VOLUME(T src, float volume)
+static inline enable_if_t<is_signed<T>::value, T> SCALE_SAMPLE(T src, float volume)
 {
     return (T)Blrintf((float)src * volume);
 }
 template <typename T>
-static inline enable_if_t<is_unsigned<T>::value, T> MV_VOLUME(T src, float volume)
+static inline enable_if_t<is_unsigned<T>::value, T> SCALE_SAMPLE(T src, float volume)
 {
-    return MV_FLIP_SIGNEDNESS(MV_VOLUME(MV_FLIP_SIGNEDNESS(src), volume));
+    return FLIP_SIGN(SCALE_SAMPLE(FLIP_SIGN(src), volume));
 }
 
 struct split16_t
@@ -110,7 +110,7 @@ typedef struct VoiceNode
 
     playbackstatus (*GetSound)(struct VoiceNode *voice);
 
-    void (*mix)(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume);
+    void (*mix)(struct VoiceNode *voice, uint32_t length);
 
     const char *sound;
 
@@ -186,7 +186,8 @@ extern Pan MV_PanTable[ MV_NUMPANPOSITIONS ][ MV_MAXVOLUME + 1 ];
 extern int32_t MV_ErrorCode;
 extern int32_t MV_Installed;
 extern int32_t MV_MixRate;
-typedef char HARSH_CLIP_TABLE_8[ MV_NUMVOICES * 256 ];
+
+using HARSH_CLIP_TABLE_8 = char[MV_NUMVOICES * 256];
 
 #define MV_SetErrorCode(status) MV_ErrorCode = (status);
 
@@ -213,17 +214,17 @@ void MV_ReleaseXAVoice(VoiceNode *voice);
 void MV_ReleaseXMPVoice(VoiceNode *voice);
 
 // implemented in mix.c
-void MV_Mix16BitMono(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume);
-void MV_Mix16BitStereo(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume);
-void MV_Mix16BitMono16(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume);
-void MV_Mix16BitStereo16(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume);
+void MV_Mix16BitMono(struct VoiceNode *voice, uint32_t length);
+void MV_Mix16BitStereo(struct VoiceNode *voice, uint32_t length);
+void MV_Mix16BitMono16(struct VoiceNode *voice, uint32_t length);
+void MV_Mix16BitStereo16(struct VoiceNode *voice, uint32_t length);
 void MV_16BitReverb( char const *src, char *dest, int16_t *volume, int32_t count );
 
 // implemented in mixst.c
-void MV_Mix16BitMono8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume);
-void MV_Mix16BitStereo8Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume);
-void MV_Mix16BitMono16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume);
-void MV_Mix16BitStereo16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume);
+void MV_Mix16BitMono8Stereo(struct VoiceNode *voice, uint32_t length);
+void MV_Mix16BitStereo8Stereo(struct VoiceNode *voice, uint32_t length);
+void MV_Mix16BitMono16Stereo(struct VoiceNode *voice, uint32_t length);
+void MV_Mix16BitStereo16Stereo(struct VoiceNode *voice, uint32_t length);
 
 extern char *MV_MixDestination;  // pointer to the next output sample
 extern uint32_t MV_MixPosition;  // return value of where the source pointer got to

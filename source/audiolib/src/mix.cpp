@@ -29,19 +29,21 @@
  */
 
 // 8-bit mono source, 16-bit mono output
-void MV_Mix16BitMono(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume)
+void MV_Mix16BitMono(struct VoiceNode *voice, uint32_t length)
 {
-    auto const source = (uint8_t const *)start;
-    int16_t *  dest   = (int16_t *)MV_MixDestination;
+    auto const     source   = (uint8_t const *)voice->sound;
+    int16_t *      dest     = (int16_t *)MV_MixDestination;
+    uint32_t       position = voice->position;
+    uint32_t const rate     = voice->RateScale;
+    float const    volume   = voice->volume;
 
     while (length--)
     {
-        uint8_t const usample0 = MV_VOLUME(source[position >> 16], volume);
+        uint8_t const usample0 = SCALE_SAMPLE(source[position >> 16], volume);
 
         position += rate;
 
         *dest = (int16_t)clamp(MV_LeftVolume[usample0] + *dest, INT16_MIN, INT16_MAX);
-
         dest += MV_SampleSize >> 1;
     }
 
@@ -50,21 +52,23 @@ void MV_Mix16BitMono(uint32_t position, uint32_t rate, const char *start, uint32
 }
 
 // 8-bit mono source, 16-bit stereo output
-void MV_Mix16BitStereo(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume)
+void MV_Mix16BitStereo(struct VoiceNode *voice, uint32_t length)
 {
-    auto const source = (uint8_t const *)start;
-    int16_t *  dest   = (int16_t *)MV_MixDestination;
+    auto const     source   = (uint8_t const *)voice->sound;
+    int16_t *      dest     = (int16_t *)MV_MixDestination;
+    uint32_t       position = voice->position;
+    uint32_t const rate     = voice->RateScale;
+    float const    volume   = voice->volume;
 
     while (length--)
     {
-        uint8_t const usample0 = MV_VOLUME(source[position >> 16], volume);
+        uint8_t const usample0 = SCALE_SAMPLE(source[position >> 16], volume);
 
         position += rate;
 
         *dest = (int16_t)clamp(MV_LeftVolume[usample0] + *dest, INT16_MIN, INT16_MAX);
         *(dest + (MV_RightChannelOffset >> 1))
             = (int16_t)clamp(MV_RightVolume[usample0] + *(dest + (MV_RightChannelOffset >> 1)), INT16_MIN, INT16_MAX);
-
         dest += MV_SampleSize >> 1;
     }
 
@@ -73,21 +77,24 @@ void MV_Mix16BitStereo(uint32_t position, uint32_t rate, const char *start, uint
 }
 
 // 16-bit mono source, 16-bit mono output
-void MV_Mix16BitMono16(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume)
+void MV_Mix16BitMono16(struct VoiceNode *voice, uint32_t length)
 {
-    auto const source = (int16_t const *)start;
-    int16_t *  dest   = (int16_t *)MV_MixDestination;
+    auto const     source   = (int16_t const *)voice->sound;
+    int16_t *      dest     = (int16_t *)MV_MixDestination;
+    uint32_t       position = voice->position;
+    uint32_t const rate     = voice->RateScale;
+    float const    volume   = voice->volume;
 
     while (length--)
     {
         int16_t const isample0 = B_LITTLE16(source[position >> 16]);
-        split16_t const usample0{MV_FLIP_SIGNEDNESS(MV_VOLUME(isample0, volume))};
+        split16_t const usample0{FLIP_SIGN(SCALE_SAMPLE(isample0, volume))};
 
         position += rate;
 
         int32_t const sample0 = (MV_LeftVolume[usample0.l()] >> 8) + MV_LeftVolume[usample0.h()] + 128;
-        *dest = (int16_t)clamp(sample0 + *dest, INT16_MIN, INT16_MAX);
 
+        *dest = (int16_t)clamp(sample0 + *dest, INT16_MIN, INT16_MAX);
         dest += MV_SampleSize >> 1;
     }
 
@@ -96,24 +103,27 @@ void MV_Mix16BitMono16(uint32_t position, uint32_t rate, const char *start, uint
 }
 
 // 16-bit mono source, 16-bit stereo output
-void MV_Mix16BitStereo16(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume)
+void MV_Mix16BitStereo16(struct VoiceNode *voice, uint32_t length)
 {
-    auto const source = (int16_t const *)start;
-    int16_t *  dest   = (int16_t *)MV_MixDestination;
+    auto const     source   = (int16_t const *)voice->sound;
+    int16_t *      dest     = (int16_t *)MV_MixDestination;
+    uint32_t       position = voice->position;
+    uint32_t const rate     = voice->RateScale;
+    float const    volume   = voice->volume;
 
     while (length--)
     {
         int16_t const isample0 = B_LITTLE16(source[position >> 16]);
-        split16_t const usample0{MV_FLIP_SIGNEDNESS(MV_VOLUME(isample0, volume))};
+        split16_t const usample0{FLIP_SIGN(SCALE_SAMPLE(isample0, volume))};
 
         position += rate;
 
         int32_t const sample0 = (MV_LeftVolume[usample0.l()] >> 8) + MV_LeftVolume[usample0.h()] + 128;
         int32_t const sample1 = (MV_RightVolume[usample0.l()] >> 8) + MV_RightVolume[usample0.h()] + 128;
+
         *dest = (int16_t)clamp(sample0 + *dest, INT16_MIN, INT16_MAX);
         *(dest + (MV_RightChannelOffset >> 1))
             = (int16_t)clamp(sample1 + *(dest + (MV_RightChannelOffset >> 1)), INT16_MIN, INT16_MAX);
-
         dest += MV_SampleSize >> 1;
     }
 

@@ -177,7 +177,7 @@ static void MV_Mix(VoiceNode *voice, int const buffer)
             voclength = length;
 
         if (voice->mix)
-            voice->mix(position, rate, start, voclength, voice->volume);
+            voice->mix(voice, voclength);
 
         voice->position = MV_MixPosition;
 
