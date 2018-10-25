@@ -308,8 +308,6 @@ static playbackstatus MV_GetNextXABlock
     XASector ssct;
     int coding;
 
-    voice->Playing = TRUE;
-
     do
     {
         size_t bytes = xad->length - xad->pos;
@@ -353,10 +351,7 @@ static playbackstatus MV_GetNextXABlock
             xad->t1 = xad->t2 = xad->t1_x = xad->t2_x = 0;
         }
         else
-        {
-            voice->Playing = FALSE;
             return NoMoreData;
-        }
     }
 
     return KeepPlaying;
@@ -467,7 +462,6 @@ int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend
 
    voice->bits        = 16;
 
-   voice->Playing     = TRUE;
    voice->Paused      = FALSE;
 
    voice->LoopStart   = 0;

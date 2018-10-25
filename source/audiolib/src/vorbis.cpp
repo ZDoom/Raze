@@ -226,8 +226,6 @@ static playbackstatus MV_GetNextVorbisBlock(VoiceNode *voice)
 {
     int bitstream;
 
-    voice->Playing = TRUE;
-
     int32_t bytesread = 0;
     vorbis_data *vd = (vorbis_data *)voice->rawdataptr;
     do
@@ -282,16 +280,12 @@ static playbackstatus MV_GetNextVorbisBlock(VoiceNode *voice)
         else if (bytes < 0)
         {
             MV_Printf("MV_GetNextVorbisBlock ov_read: err %d\n", bytes);
-            voice->Playing = FALSE;
             return NoMoreData;
         }
     } while (bytesread < BLOCKSIZE);
 
     if (bytesread == 0)
-    {
-        voice->Playing = FALSE;
         return NoMoreData;
-    }
 
     if (bitstream != vd->lastbitstream)
     {
@@ -299,10 +293,7 @@ static playbackstatus MV_GetNextVorbisBlock(VoiceNode *voice)
 
         vi = ov_info(&vd->vf, -1);
         if (!vi || (vi->channels != 1 && vi->channels != 2))
-        {
-            voice->Playing = FALSE;
             return NoMoreData;
-        }
 
         voice->channels = vi->channels;
         voice->SamplingRate = vi->rate;
@@ -452,7 +443,6 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loo
     // load loop tags from metadata
     MV_GetVorbisCommentLoops(voice, ov_comment(&vd->vf, 0));
 
-   voice->Playing     = TRUE;
    voice->Paused      = FALSE;
 
    MV_SetVoicePitch(voice, vi->rate, pitchoffset);

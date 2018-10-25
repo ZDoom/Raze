@@ -135,12 +135,12 @@ const char *MV_ErrorString(int32_t ErrorNumber)
     }
 }
 
-static void MV_Mix(VoiceNode *voice, int const buffer)
+static bool MV_Mix(VoiceNode *voice, int const buffer)
 {
     /* cheap fix for a crash under 64-bit linux */
     /*                            v  v  v  v    */
     if (voice->length == 0 && (voice->GetSound == NULL || voice->GetSound(voice) != KeepPlaying))
-        return;
+        return false;
 
     int32_t length = MV_MIXBUFFERSIZE;
     uint32_t FixedPointBufferSize = voice->FixedPointBufferSize;
@@ -169,7 +169,7 @@ static void MV_Mix(VoiceNode *voice, int const buffer)
             if (position >= voice->length)
             {
                 voice->GetSound(voice);
-                return;
+                return true;
             }
 
             voclength = (voice->length - position + rate - voice->channels) / rate;
@@ -193,8 +193,8 @@ static void MV_Mix(VoiceNode *voice, int const buffer)
         if (voice->position >= voice->length)
         {
             // Get the next block of sound
-            if (voice->GetSound(voice) != KeepPlaying)
-                return;
+            if (voice->GetSound(voice) == NoMoreData)
+                return false;
 
             if (length > (voice->channels - 1))
             {
@@ -203,6 +203,8 @@ static void MV_Mix(VoiceNode *voice, int const buffer)
             }
         }
     } while (length > 0);
+
+    return true;
 }
 
 void MV_PlayVoice(VoiceNode *voice)
@@ -314,10 +316,8 @@ static void MV_ServiceVoc(void)
 
         MV_BufferEmpty[ MV_MixPage ] = FALSE;
 
-        MV_Mix(voice, MV_MixPage);
-
         // Is this voice done?
-        if (!voice->Playing)
+        if (!MV_Mix(voice, MV_MixPage))
         {
             //JBF: prevent a deadlock caused by MV_StopVoice grabbing the mutex again
             //MV_StopVoice( voice );

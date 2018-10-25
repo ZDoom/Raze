@@ -34,10 +34,7 @@ static playbackstatus MV_GetNextWAVBlock(VoiceNode *voice)
     if (voice->BlockLength == 0)
     {
         if (voice->LoopStart == NULL)
-        {
-            voice->Playing = FALSE;
             return NoMoreData;
-        }
 
         voice->BlockLength = voice->LoopSize;
         voice->NextBlock   = voice->LoopStart;
@@ -76,7 +73,6 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
 
     const uint8_t *ptr = (uint8_t const *)voice->NextBlock;
 
-    voice->Playing = TRUE;
     voice->Paused = FALSE;
 
     int voicemode = 0;
@@ -91,8 +87,7 @@ static playbackstatus MV_GetNextVOCBlock(VoiceNode *voice)
         // Stop playing if we get a NULL pointer
         if (ptr == NULL)
         {
-            voice->Playing = FALSE;
-            done = TRUE;
+            done = 2;
             break;
         }
 
@@ -121,8 +116,7 @@ end_of_data:
             if ((voice->LoopStart == NULL) ||
                     ((intptr_t) voice->LoopStart >= ((intptr_t) ptr - 4)))
             {
-                voice->Playing = FALSE;
-                done = TRUE;
+                done = 2;
             }
             else
             {
@@ -254,8 +248,7 @@ end_of_data:
 
         default :
             // Unknown data.  Probably not a VOC file.
-            voice->Playing = FALSE;
-            done = TRUE;
+            done = 2;
             break;
         }
 
@@ -263,7 +256,7 @@ end_of_data:
     }
     while (!done);
 
-    if (voice->Playing)
+    if (done != 2)
     {
         voice->NextBlock    = (char const *)ptr + blocklength;
         voice->sound        = (char const *)ptr;
@@ -397,7 +390,6 @@ int32_t MV_PlayWAV(char *ptr, uint32_t length, int32_t loopstart, int32_t loopen
 
     voice->rawdataptr = (uint8_t *)ptr;
     voice->ptrlength  = length;
-    voice->Playing     = TRUE;
     voice->Paused      = FALSE;
     voice->LoopCount   = 0;
     voice->position    = 0;
@@ -464,7 +456,6 @@ int32_t MV_PlayVOC(char *ptr, uint32_t length, int32_t loopstart, int32_t loopen
 
     voice->rawdataptr = (uint8_t *)ptr;
     voice->ptrlength = length;
-    voice->Playing = TRUE;
     voice->Paused = FALSE;
     voice->wavetype    = FMT_VOC;
     voice->bits        = 8;

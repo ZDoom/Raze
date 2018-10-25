@@ -41,16 +41,10 @@ static playbackstatus MV_GetNextXMPBlock(VoiceNode *voice)
         {
             xmp_restart_module(xmpd->context);
             if (xmp_play_frame(xmpd->context) != 0)
-            {
-                voice->Playing = FALSE;
                 return NoMoreData;
-            }
         }
         else
-        {
-            voice->Playing = FALSE;
             return NoMoreData;
-        }
     }
 
     xmp_get_frame_info(xmpd->context, &mi);
@@ -62,7 +56,6 @@ static playbackstatus MV_GetNextXMPBlock(VoiceNode *voice)
     // voice->length       = (mi.buffer_size << 16) / (voice->channels * (voice->bits >> 3));
     voice->position     = 0;
     voice->BlockLength  = 0;
-    voice->Playing = TRUE;
 
     MV_SetVoiceMixMode(voice);
 
@@ -173,7 +166,6 @@ int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopen
     voice->channels    = 2;
     voice->SamplingRate = MV_MixRate;
 
-    voice->Playing     = TRUE;
     voice->Paused      = FALSE;
 
     voice->LoopStart   = 0;

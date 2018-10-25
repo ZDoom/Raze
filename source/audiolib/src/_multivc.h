@@ -144,7 +144,6 @@ typedef struct VoiceNode
     uint32_t SamplingRate;
     uint32_t RateScale;
     uint32_t position;
-    int32_t Playing;
     int32_t Paused;
 
     int32_t handle;

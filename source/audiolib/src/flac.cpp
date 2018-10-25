@@ -316,8 +316,6 @@ static playbackstatus MV_GetNextFLACBlock(VoiceNode *voice)
     FLAC__StreamDecoderState decode_state;
     // FLAC__bool decode_status;
 
-    voice->Playing = TRUE;
-
     if ((FLAC__uint64)(uintptr_t)voice->LoopEnd > 0 && fd->sample_pos >= (FLAC__uint64)(uintptr_t)voice->LoopEnd)
         if (!FLAC__stream_decoder_seek_absolute(fd->stream, (FLAC__uint64)(uintptr_t)voice->LoopStart))
             MV_Printf("MV_GetNextFLACBlock FLAC__stream_decoder_seek_absolute: LOOP_START %ul, LOOP_END %ul\n",
@@ -330,7 +328,6 @@ static playbackstatus MV_GetNextFLACBlock(VoiceNode *voice)
         if (!decode_status)
         {
             MV_Printf("MV_GetNextFLACBlock: %s\n", FLAC__StreamDecoderStateString[decode_state]);
-            voice->Playing = FALSE;
             return NoMoreData;
         }
     */
@@ -350,10 +347,7 @@ static playbackstatus MV_GetNextFLACBlock(VoiceNode *voice)
                           (FLAC__uint64)(uintptr_t)voice->LoopStart);
         }
         else
-        {
-            voice->Playing = FALSE;
             return NoMoreData;
-        }
     }
 
 #if 0
@@ -489,7 +483,6 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
     voice->priority = priority;
     voice->callbackval = callbackval;
 
-    voice->Playing = TRUE;
     voice->Paused = FALSE;
 
     voice->LoopStart = 0;
