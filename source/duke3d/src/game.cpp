@@ -165,6 +165,12 @@ enum gametokens
     T_ANIMSOUNDS,
     T_NOFLOORPALRANGE,
     T_ID,
+    T_MINPITCH,
+    T_MAXPITCH,
+    T_PRIORITY,
+    T_TYPE,
+    T_DISTANCE,
+    T_VOLUME,
     T_DELAY,
     T_RENAMEFILE,
     T_GLOBALGAMEFLAGS,
@@ -5051,12 +5057,24 @@ static int32_t S_DefineAudioIfSupported(char **fn, const char *name)
     return 0;
 }
 
-static int32_t S_DefineSound(int32_t ID, const char *name)
+static int32_t S_DefineSound(int sndidx, const char *name, int minpitch, int maxpitch, int priority, int type, int distance, float volume)
 {
-    if ((unsigned)ID >= MAXSOUNDS)
+    if ((unsigned)sndidx >= MAXSOUNDS || S_DefineAudioIfSupported(&g_sounds[sndidx].filename, name))
         return -1;
 
-    return S_DefineAudioIfSupported(&g_sounds[ID].filename, name);
+    auto &snd = g_sounds[sndidx];
+
+    snd.ps     = clamp(minpitch, INT16_MIN, INT16_MAX);
+    snd.pe     = clamp(maxpitch, INT16_MIN, INT16_MAX);
+    snd.pr     = priority & 255;
+    snd.m      = type & ~SF_ONEINST_INTERNAL;
+    snd.vo     = clamp(distance, INT16_MIN, INT16_MAX);
+    snd.volume = volume;
+
+    if (snd.m & SF_LOOP)
+        snd.m |= SF_ONEINST_INTERNAL;
+
+    return 0;
 }
 
 // Returns:
@@ -5227,16 +5245,22 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
     static const tokenlist soundTokens[] =
     {
-        { "id",   T_ID  },
-        { "file", T_FILE },
+        { "id",       T_ID },
+        { "file",     T_FILE },
+        { "minpitch", T_MINPITCH },
+        { "maxpitch", T_MAXPITCH },
+        { "priority", T_PRIORITY },
+        { "type",     T_TYPE },
+        { "distance", T_DISTANCE },
+        { "volume",   T_VOLUME },
     };
 
     static const tokenlist animTokens [] =
     {
-        { "delay", T_DELAY },
-        { "aspect", T_ASPECT },
-        { "sounds", T_SOUND },
-        { "forcefilter", T_FORCEFILTER },
+        { "delay",         T_DELAY },
+        { "aspect",        T_ASPECT },
+        { "sounds",        T_SOUND },
+        { "forcefilter",   T_FORCEFILTER },
         { "forcenofilter", T_FORCENOFILTER },
         { "texturefilter", T_TEXTUREFILTER },
     };
@@ -5434,10 +5458,18 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
 
         case T_SOUND:
         {
-            char *  tokenPtr = pScript->ltextptr;
-            char *  fileName = NULL;
+            char *tokenPtr = pScript->ltextptr;
+            char *fileName = NULL;
+            char *musicEnd;
+
+            double volume = 1.0;
+
             int32_t soundNum = -1;
-            char *  musicEnd;
+            int32_t maxpitch = 0;
+            int32_t minpitch = 0;
+            int32_t priority = 0;
+            int32_t type     = 0;
+            int32_t distance = 0;
 
             if (scriptfile_getbraces(pScript, &musicEnd))
                 break;
@@ -5446,8 +5478,14 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
             {
                 switch (getatoken(pScript, soundTokens, ARRAY_SIZE(soundTokens)))
                 {
-                    case T_ID: scriptfile_getsymbol(pScript, &soundNum); break;
-                    case T_FILE: scriptfile_getstring(pScript, &fileName); break;
+                    case T_ID:       scriptfile_getsymbol(pScript, &soundNum); break;
+                    case T_FILE:     scriptfile_getstring(pScript, &fileName); break;
+                    case T_MINPITCH: scriptfile_getsymbol(pScript, &minpitch); break;
+                    case T_MAXPITCH: scriptfile_getsymbol(pScript, &maxpitch); break;
+                    case T_PRIORITY: scriptfile_getsymbol(pScript, &priority); break;
+                    case T_TYPE:     scriptfile_getsymbol(pScript, &type);     break;
+                    case T_DISTANCE: scriptfile_getsymbol(pScript, &distance); break;
+                    case T_VOLUME:   scriptfile_getdouble(pScript, &volume);   break;
                 }
             }
 
@@ -5462,7 +5500,8 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 if (fileName == NULL || check_file_exist(fileName))
                     break;
 
-                if (S_DefineSound(soundNum,fileName) == -1)
+                // maybe I should have just packed this into a sound_t and passed a reference...
+                if (S_DefineSound(soundNum, fileName, minpitch, maxpitch, priority, type, distance, volume) == -1)
                     initprintf("Error: invalid sound ID on line %s:%d\n", pScript->filename, scriptfile_getlinum(pScript,tokenPtr));
             }
         }

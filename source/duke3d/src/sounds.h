@@ -70,6 +70,7 @@ typedef struct
 {
     char *    filename, *ptr;                // 8b/16b
     int32_t   length, num, soundsiz;         // 12b
+    float     volume;                        // 4b
     sndinst_t instances[MAXSOUNDINSTANCES];  // 64b
     int16_t   ps, pe, vo;                    // 6b
     char      pr, m;                         // 2b

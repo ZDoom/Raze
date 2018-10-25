@@ -6129,7 +6129,7 @@ repeatcase:
 
             C_GetNextValue(LABEL_DEFINE);
             g_sounds[k].m = *(g_scriptPtr-1) & ~SF_ONEINST_INTERNAL;
-            if (*(g_scriptPtr-1) & 1)
+            if (*(g_scriptPtr-1) & SF_LOOP)
                 g_sounds[k].m |= SF_ONEINST_INTERNAL;
 
             C_GetNextValue(LABEL_DEFINE);
