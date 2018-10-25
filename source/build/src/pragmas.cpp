@@ -29,7 +29,7 @@ void initdivtables(void)
 
 uint32_t divideu32_noinline(uint32_t n, uint32_t d) { return divideu32(n, d); }
 int32_t tabledivide32_noinline(int32_t n, int32_t d) { return tabledivide32(n, d); }
-int32_t tabledivide64_noinline(int64_t n, int32_t d) { return tabledivide64(n, d); }
+int64_t tabledivide64_noinline(int64_t n, int32_t d) { return tabledivide64(n, d); }
 
 int32_t dmval;
 
