@@ -2885,6 +2885,8 @@ void P_GetInput(int playerNum)
         return;
     }
 
+    CONTROL_ProcessBinds();
+
     if (ud.mouseaiming)
         g_myAimMode = BUTTON(gamefunc_Mouse_Aiming);
     else

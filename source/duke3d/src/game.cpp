@@ -6760,10 +6760,7 @@ MAIN_LOOP_RESTART:
         if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
         {
             if (g_networkMode != NET_DEDICATED_SERVER)
-            {
-                CONTROL_ProcessBinds();
                 P_GetInput(myconnectindex);
-            }
 
             Bmemcpy(&inputfifo[0][myconnectindex], &localInput, sizeof(input_t));
 
