@@ -828,7 +828,7 @@ static void Proj_HandleKnee(hitdata_t *const hitData, int const spriteNum, int c
             A_PlaySound(soundNum, kneeSprite);
     }
 
-    if (playerNum >= 0 && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
+    if (pPlayer != NULL && pPlayer->inv_amount[GET_STEROIDS] > 0 && pPlayer->inv_amount[GET_STEROIDS] < 400)
         sprite[kneeSprite].extra += (pPlayer->max_player_health>>2);
 
     if (hitData->sprite >= 0 && sprite[hitData->sprite].picnum != ACCESSSWITCH && sprite[hitData->sprite].picnum != ACCESSSWITCH2)
@@ -931,7 +931,7 @@ static int A_ShootCustom(int const spriteNum, int const projecTile, int shootAng
         if (!(pProj->workslike & PROJECTILE_NOSETOWNERSHADE) && pSprite->extra >= 0)
             pSprite->shade = pProj->shade;
 
-        if (playerNum >= 0)
+        if (pPlayer != NULL)
         {
             // NOTE: j is a SPRITE_INDEX
             otherSprite = GetAutoAimAng(spriteNum, playerNum, projecTile, 8<<8, 0+2, startPos, pProj->vel, &zvel, &shootAng);
