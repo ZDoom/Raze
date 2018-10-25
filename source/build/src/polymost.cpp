@@ -614,7 +614,7 @@ static void polymost_setCurrentShaderProgram(uint32_t programID)
     glUniform1f(polymost1UseGlowMappingLoc, polymost1UseGlowMapping);
 }
 
-void polymost_setTexturePosSize(vec4f_t texturePosSize)
+void polymost_setTexturePosSize(vec4f_t const &texturePosSize)
 {
     if (currentShaderProgramID == polymost1CurrentShaderProgramID)
     {
@@ -623,7 +623,7 @@ void polymost_setTexturePosSize(vec4f_t texturePosSize)
     }
 }
 
-static void polymost_setHalfTexelSize(vec2f_t halfTexelSize)
+static inline void polymost_setHalfTexelSize(vec2f_t const &halfTexelSize)
 {
     if (currentShaderProgramID == polymost1CurrentShaderProgramID)
     {

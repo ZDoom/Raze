@@ -46,7 +46,7 @@ void polymost_drawrooms(void);
 void polymost_resetVertexPointers(void);
 void polymost_disableProgram(void);
 void polymost_resetProgram(void);
-void polymost_setTexturePosSize(vec4f_t texturePosSize);
+void polymost_setTexturePosSize(vec4f_t const &texturePosSize);
 void polymost_setFogEnabled(char fogEnabled);
 void polymost_useColorOnly(char useColorOnly);
 void polymost_usePaletteIndexing(char usePaletteIndexing);
