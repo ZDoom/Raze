@@ -1856,7 +1856,7 @@ static WSHELPER_DECL void calc_vplcinc_sprite(uint32_t *vplc, int32_t *vinc, int
 
     *vinc = tmpvinc;
     // Clamp the vertical texture coordinate!
-    *vplc = min(max<uint32_t>(0, tmpvplc), UINT32_MAX);
+    *vplc = min<inthi_t>(max<inthi_t>(0, tmpvplc), UINT32_MAX);
 }
 #endif
 
