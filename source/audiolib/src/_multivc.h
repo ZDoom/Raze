@@ -56,7 +56,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MV_MUSIC_PRIORITY INT_MAX
 
 #define MIX_VOLUME(volume) ((max(0, min((volume), 255)) * (MV_MAXVOLUME + 1)) >> 8)
-#define MV_VOLUME(src) (Blrintf((float)(src) * volume))
+#define MV_VOLUME(src) (int)((float)(src) * volume)
 
 #define MV_MIXBUFFERSIZE     256
 #define MV_NUMBEROFBUFFERS   16

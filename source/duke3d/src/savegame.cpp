@@ -2222,7 +2222,7 @@ static void postloadplayer(int32_t savegamep)
             S_ContinueLevelMusic();
 
         if (ud.config.MusicToggle)
-            S_PauseMusic(0);
+            S_PauseMusic(false);
 
         g_player[myconnectindex].ps->gm = MODE_GAME;
         ud.recstat = 0;

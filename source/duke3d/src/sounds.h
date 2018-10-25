@@ -44,34 +44,20 @@ extern "C" {
 #define FX_VOLUME(x) (ud.config.FXVolume > 0 ? scale(x, 255, ud.config.FXVolume) : 0)
 #define MASTER_VOLUME(x) scale(ud.config.MasterVolume, x, 255)
 
-struct audioenumdev
-{
-    char *def;
-    char **devs;
-    struct audioenumdev *next;
-};
-struct audioenumdrv
-{
-    char *def;
-    char **drvs;
-    struct audioenumdev *devs;
-};
-int32_t EnumAudioDevs(struct audioenumdrv **wave, struct audioenumdev **midi, struct audioenumdev **cda);
-
 typedef struct
 {
-    int16_t  spriteNum;
-    int16_t  voice;
-    uint16_t sndist;
+    int16_t  owner;
+    int16_t  id;
+    uint16_t dist;
     uint16_t clock;
-} sndinst_t;
+} assvoice_t;
 
 typedef struct
 {
-    char *    filename, *ptr;                // 8b/16b
-    int32_t   length, num, soundsiz;         // 12b
+    char *    ptr, *filename;                // 8b/16b
+    int32_t   length, num, siz;              // 12b
     float     volume;                        // 4b
-    sndinst_t instances[MAXSOUNDINSTANCES];  // 64b
+    assvoice_t voices[MAXSOUNDINSTANCES];  // 64b
     int16_t   ps, pe, vo;                    // 6b
     char      pr, m;                         // 2b
 } sound_t;
@@ -81,11 +67,11 @@ extern sound_t g_sounds[MAXSOUNDS];
 extern int32_t g_skillSoundVoice;
 extern int32_t g_numEnvSoundsPlaying,g_highestSoundIdx;
 
-int32_t A_CheckSoundPlaying(int32_t i,int32_t num);
-int32_t A_PlaySound(uint32_t num,int32_t i);
+bool A_CheckSoundPlaying(int spriteNum,int soundNum);
+int A_PlaySound(int soundNum, int spriteNum);
 void S_Callback(uint32_t num);
-int32_t A_CheckAnySoundPlaying(int32_t i);
-int32_t S_CheckSoundPlaying(int32_t i,int32_t num);
+bool A_CheckAnySoundPlaying(int spriteNum);
+bool S_CheckSoundPlaying(int spriteNum,int soundNum);
 void S_Cleanup(void);
 void S_ClearSoundLocks(void);
 int32_t S_LoadSound(uint32_t num);
@@ -95,28 +81,28 @@ void S_MusicShutdown(void);
 void S_MusicStartup(void);
 void S_MusicVolume(int32_t volume);
 void S_RestartMusic(void);
-void S_PauseMusic(int32_t onf);
-void S_PauseSounds(int32_t onf);
-int S_TryPlayLevelMusic(unsigned int);
+void S_PauseMusic(bool paused);
+void S_PauseSounds(bool paused);
+bool S_TryPlayLevelMusic(unsigned int m);
 void S_PlayLevelMusicOrNothing(unsigned int);
 int S_TryPlaySpecialMusic(unsigned int);
 void S_PlaySpecialMusicOrNothing(unsigned int);
 void S_ContinueLevelMusic(void);
-int32_t S_PlaySound(int32_t num);
-int32_t S_PlaySound3D(int32_t num,int32_t i,const vec3_t *pos);
+int S_PlaySound(int num);
+int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos);
 void S_SoundShutdown(void);
 void S_SoundStartup(void);
 void S_StopEnvSound(int32_t num,int32_t i);
 void S_StopAllSounds(void);
 void S_StopMusic(void);
 void S_Update(void);
-void S_ChangeSoundPitch(int32_t num, int32_t i, int32_t pitchoffset);
+void S_ChangeSoundPitch(int soundNum, int spriteNum, int pitchoffset);
 int32_t S_GetMusicPosition(void);
 void S_SetMusicPosition(int32_t position);
 
-static inline int32_t S_IsAmbientSFX(int32_t i)
+static inline bool S_IsAmbientSFX(int spriteNum)
 {
-    return (sprite[i].picnum==MUSICANDSFX && sprite[i].lotag < 999);
+    return (sprite[spriteNum].picnum == MUSICANDSFX && sprite[spriteNum].lotag < 999);
 }
 
 #ifdef __cplusplus

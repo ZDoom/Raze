@@ -1953,8 +1953,8 @@ void A_DamageObject_Internal(int spriteNum, int const dmgSrc)
             sprite[dmgSrc].xvel = (sprite[spriteNum].xvel>>1)+(sprite[spriteNum].xvel>>2);
             sprite[dmgSrc].ang -= (SA(spriteNum)<<1)+1024;
             SA(spriteNum) = getangle(SX(spriteNum)-sprite[dmgSrc].x,SY(spriteNum)-sprite[dmgSrc].y)-512;
-            if (S_CheckSoundPlaying(spriteNum,POOLBALLHIT) < 2)
-                A_PlaySound(POOLBALLHIT,spriteNum);
+            if (g_sounds[POOLBALLHIT].num < 2)
+                A_PlaySound(POOLBALLHIT, spriteNum);
         }
         else
         {
@@ -2500,14 +2500,14 @@ void P_HandleSharedKeys(int playerNum)
             else ud.pause_on = 1+SHIFTS_IS_PRESSED;
             if (ud.pause_on)
             {
-                S_PauseMusic(1);
-                S_PauseSounds(1);
+                S_PauseMusic(true);
+                S_PauseSounds(true);
             }
             else
             {
-                if (ud.config.MusicToggle) S_PauseMusic(0);
+                if (ud.config.MusicToggle) S_PauseMusic(false);
 
-                S_PauseSounds(0);
+                S_PauseSounds(false);
 
                 pub = NUMPAGES;
                 pus = NUMPAGES;

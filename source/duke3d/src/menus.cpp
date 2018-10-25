@@ -3156,11 +3156,11 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         ud.config.MusicToggle = newOption;
 
         if (newOption == 0)
-            S_PauseMusic(1);
+            S_PauseMusic(true);
         else
         {
             S_RestartMusic();
-            S_PauseMusic(0);
+            S_PauseMusic(false);
         }
     }
     else if (entry == &ME_SOUND_DUKETALK)

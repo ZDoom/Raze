@@ -767,7 +767,7 @@ static void G_ShowCacheLocks(void)
                     break;
 
                 Bsprintf(tempbuf, "snd #%d inst %d: voice %d, ow %d", i, j,
-                    g_sounds[i].instances[j].voice, g_sounds[i].instances[j].spriteNum);
+                    g_sounds[i].voices[j].id, g_sounds[i].voices[j].owner);
                 printext256(240, k, COLOR_WHITE, -1, tempbuf, 0);
 
                 k += 9;
@@ -1152,14 +1152,14 @@ void G_DisplayRest(int32_t smoothratio)
             S_PlaySound(EXITMENUSOUND);
             Menu_Change(MENU_CLOSE);
             if (!ud.pause_on)
-                S_PauseSounds(0);
+                S_PauseSounds(false);
         }
         else if ((g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU &&
             g_player[myconnectindex].ps->newowner == -1 &&
             (g_player[myconnectindex].ps->gm&MODE_TYPE) != MODE_TYPE)
         {
             I_EscapeTriggerClear();
-            S_PauseSounds(1);
+            S_PauseSounds(true);
 
             Menu_Open(myconnectindex);
 

@@ -4784,7 +4784,7 @@ void G_HandleLocalKeys(void)
             KB_ClearKeyDown(sc_F1);
 
             Menu_Change(MENU_STORY);
-            S_PauseSounds(1);
+            S_PauseSounds(true);
             Menu_Open(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2))
@@ -4810,7 +4810,7 @@ FAKE_F2:
 
                 Menu_Change(MENU_SAVE);
 
-                S_PauseSounds(1);
+                S_PauseSounds(true);
                 Menu_Open(myconnectindex);
 
                 if ((!g_netServer && ud.multimode < 2))
@@ -4827,7 +4827,7 @@ FAKE_F2:
 
 FAKE_F3:
                 Menu_Change(MENU_LOAD);
-                S_PauseSounds(1);
+                S_PauseSounds(true);
                 Menu_Open(myconnectindex);
 
                 if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
@@ -4844,7 +4844,7 @@ FAKE_F3:
         {
             KB_ClearKeyDown(sc_F4);
 
-            S_PauseSounds(1);
+            S_PauseSounds(true);
             Menu_Open(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
@@ -4942,7 +4942,7 @@ FAKE_F3:
             {
                 KB_FlushKeyboardQueue();
                 KB_ClearKeysDown();
-                S_PauseSounds(1);
+                S_PauseSounds(true);
                 if (G_LoadPlayerMaybeMulti(*g_quickload) != 0)
                     g_quickload->reset();
             }
@@ -4953,7 +4953,7 @@ FAKE_F3:
             KB_ClearKeyDown(sc_F10);
 
             Menu_Change(MENU_QUIT_INGAME);
-            S_PauseSounds(1);
+            S_PauseSounds(true);
             Menu_Open(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
@@ -4968,7 +4968,7 @@ FAKE_F3:
             KB_ClearKeyDown(sc_F11);
 
             Menu_Change(MENU_COLCORR_INGAME);
-            S_PauseSounds(1);
+            S_PauseSounds(true);
             Menu_Open(myconnectindex);
 
             if ((!g_netServer && ud.multimode < 2) && ud.recstat != 2)
