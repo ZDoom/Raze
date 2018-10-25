@@ -33,8 +33,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define MAXDETUNE 50
 
-static uint32_t PitchTable[ 12 ][ MAXDETUNE ];
-static int32_t PITCH_Installed = 0;
+static uint32_t PitchTable[12][MAXDETUNE];
 
 
 /*---------------------------------------------------------------------
@@ -47,14 +46,8 @@ static int32_t PITCH_Installed = 0;
 void PITCH_Init(void)
 {
     for (int note = 0; note < 12; note++)
-    {
         for (int detune = 0; detune < MAXDETUNE; detune++)
-        {
             PitchTable[note][detune] = (uint32_t) (65536.f * powf(2.f, (note * MAXDETUNE + detune) / (12.f * MAXDETUNE)));
-        }
-    }
-
-    PITCH_Installed = 1;
 }
 
 
@@ -64,10 +57,15 @@ void PITCH_Init(void)
    Returns a fixed-point value to scale number the specified amount.
 ---------------------------------------------------------------------*/
 
-uint32_t PITCH_GetScale(int32_t pitchoffset)
+uint32_t PITCH_GetScale(int const pitchoffset)
 {
-    if (!PITCH_Installed)
+    static bool bInitialized;
+
+    if (!bInitialized)
+    {
         PITCH_Init();
+        bInitialized = true;
+    }
 
     if (pitchoffset == 0)
         return PitchTable[0][0];
@@ -77,23 +75,10 @@ uint32_t PITCH_GetScale(int32_t pitchoffset)
     if (noteshift < 0)
         noteshift += 1200;
 
-    int note   = noteshift / 100;
-    int detune = (noteshift % 100) / (100 / MAXDETUNE);
-    int octaveshift = (pitchoffset - noteshift) / 1200;
+    int const   note   = noteshift / 100;
+    int const   detune = (noteshift % 100) / (100 / MAXDETUNE);
+    int const   oshift = (pitchoffset - noteshift) / 1200;
+    auto const &scale  = PitchTable[note][detune];
 
-    if (detune < 0)
-    {
-        detune += (100 / MAXDETUNE);
-        note--;
-        if (note < 0)
-        {
-            note += 12;
-            octaveshift--;
-        }
-    }
-
-    uint32_t scale = PitchTable[note][detune];
-
-    return (octaveshift < 0) ? (scale >> -octaveshift) : (scale <<= octaveshift);
+    return (oshift < 0) ? (scale >> -oshift) : (scale << oshift);
 }
-

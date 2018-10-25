@@ -33,5 +33,5 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #include "inttypes.h"
 
-uint32_t PITCH_GetScale(int32_t pitchoffset);
+uint32_t PITCH_GetScale(int pitchoffset);
 #endif
