@@ -129,13 +129,13 @@ static int8_t getSoundData(int8_t *buf, int32_t unit, int32_t sample)
     return ret;
 }
 
-static int8_t getFilter(int8_t *buf, int32_t unit)
+static int8_t getFilter(const int8_t *buf, int32_t unit)
 {
     return (*(buf + 4 + unit) >> 4) & 0x03;
 }
 
 
-static int8_t getRange(int8_t *buf, int32_t unit)
+static int8_t getRange(const int8_t *buf, int32_t unit)
 {
     return *(buf + 4 + unit) & 0x0F;
 }
@@ -276,13 +276,13 @@ static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
 
 int32_t MV_GetXAPosition(VoiceNode *voice)
 {
-    xa_data * xad = (xa_data *) voice->rawdataptr;
+    auto * xad = (xa_data *) voice->rawdataptr;
     return xad->pos;
 }
 
 void MV_SetXAPosition(VoiceNode *voice, int32_t position)
 {
-    xa_data * xad = (xa_data *) voice->rawdataptr;
+    auto * xad = (xa_data *) voice->rawdataptr;
 
     if (position < XA_DATA_START || (size_t)position >= xad->length)
     {
@@ -304,7 +304,7 @@ static playbackstatus MV_GetNextXABlock
  VoiceNode *voice
  )
 {
-    xa_data * xad = (xa_data *) voice->rawdataptr;
+    auto * xad = (xa_data *) voice->rawdataptr;
     XASector ssct;
     int coding;
 
@@ -477,7 +477,7 @@ int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend
 
 void MV_ReleaseXAVoice( VoiceNode * voice )
 {
-    xa_data * xad = (xa_data *) voice->rawdataptr;
+    auto * xad = (xa_data *) voice->rawdataptr;
 
     if (voice->wavetype != FMT_XA) {
         return;

@@ -21,18 +21,18 @@
 #include "_multivc.h"
 
 /*
- position = offset of starting sample in start
- rate = resampling increment
- start = sound data
  length = count of samples to mix
+ position = offset of starting sample in source
+ rate = resampling increment
  volume = direct volume adjustment, 1.0 = no change
  */
 
 // 8-bit mono source, 16-bit mono output
-void MV_Mix16BitMono(struct VoiceNode *voice, uint32_t length)
+void MV_Mix16BitMono(struct VoiceNode const * const voice, uint32_t length)
 {
-    auto const     source   = (uint8_t const *)voice->sound;
-    int16_t *      dest     = (int16_t *)MV_MixDestination;
+    auto *const source = (uint8_t const *)voice->sound;
+    auto *      dest   = (int16_t *)MV_MixDestination;
+
     uint32_t       position = voice->position;
     uint32_t const rate     = voice->RateScale;
     float const    volume   = voice->volume;
@@ -52,10 +52,11 @@ void MV_Mix16BitMono(struct VoiceNode *voice, uint32_t length)
 }
 
 // 8-bit mono source, 16-bit stereo output
-void MV_Mix16BitStereo(struct VoiceNode *voice, uint32_t length)
+void MV_Mix16BitStereo(struct VoiceNode const * const voice, uint32_t length)
 {
-    auto const     source   = (uint8_t const *)voice->sound;
-    int16_t *      dest     = (int16_t *)MV_MixDestination;
+    auto *const source = (uint8_t const *)voice->sound;
+    auto *      dest   = (int16_t *)MV_MixDestination;
+
     uint32_t       position = voice->position;
     uint32_t const rate     = voice->RateScale;
     float const    volume   = voice->volume;
@@ -77,10 +78,11 @@ void MV_Mix16BitStereo(struct VoiceNode *voice, uint32_t length)
 }
 
 // 16-bit mono source, 16-bit mono output
-void MV_Mix16BitMono16(struct VoiceNode *voice, uint32_t length)
+void MV_Mix16BitMono16(struct VoiceNode const * const voice, uint32_t length)
 {
-    auto const     source   = (int16_t const *)voice->sound;
-    int16_t *      dest     = (int16_t *)MV_MixDestination;
+    auto *const source = (int16_t const *)voice->sound;
+    auto *      dest   = (int16_t *)MV_MixDestination;
+
     uint32_t       position = voice->position;
     uint32_t const rate     = voice->RateScale;
     float const    volume   = voice->volume;
@@ -104,10 +106,11 @@ void MV_Mix16BitMono16(struct VoiceNode *voice, uint32_t length)
 }
 
 // 16-bit mono source, 16-bit stereo output
-void MV_Mix16BitStereo16(struct VoiceNode *voice, uint32_t length)
+void MV_Mix16BitStereo16(struct VoiceNode const * const voice, uint32_t length)
 {
-    auto const     source   = (int16_t const *)voice->sound;
-    int16_t *      dest     = (int16_t *)MV_MixDestination;
+    auto *const source = (int16_t const *)voice->sound;
+    auto *      dest   = (int16_t *)MV_MixDestination;
+
     uint32_t       position = voice->position;
     uint32_t const rate     = voice->RateScale;
     float const    volume   = voice->volume;
@@ -134,10 +137,10 @@ void MV_Mix16BitStereo16(struct VoiceNode *voice, uint32_t length)
     MV_MixDestination = (char *)dest;
 }
 
-void MV_16BitReverb(char const *src, char *dest, int16_t *volume, int32_t count)
+void MV_16BitReverb(char const *src, char *dest, const int16_t *volume, int32_t count)
 {
-    auto     input  = (uint16_t const *)src;
-    int16_t *output = (int16_t *)dest;
+    auto *input  = (uint16_t const *)src;
+    auto *output = (int16_t *)dest;
 
     do
     {
@@ -150,8 +153,8 @@ void MV_16BitReverb(char const *src, char *dest, int16_t *volume, int32_t count)
         int sample0h = (sample0 >> 8) ^ 128;
 #endif
 
-        sample0l  = ((int16_t *)volume)[sample0l] >> 8;
-        sample0h  = ((int16_t *)volume)[sample0h];
+        sample0l  = (volume)[sample0l] >> 8;
+        sample0h  = (volume)[sample0h];
         *output++ = (int16_t)(sample0l + sample0h + 128);
     } while (--count > 0);
 }

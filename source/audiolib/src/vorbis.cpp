@@ -136,7 +136,7 @@ static void MV_GetVorbisCommentLoops(VoiceNode *voice, vorbis_comment *vc)
 
 static size_t read_vorbis(void *ptr, size_t size, size_t nmemb, void *datasource)
 {
-    vorbis_data *vorb = (vorbis_data *)datasource;
+    auto *vorb = (vorbis_data *)datasource;
 
     errno = 0;
 
@@ -169,7 +169,7 @@ static size_t read_vorbis(void *ptr, size_t size, size_t nmemb, void *datasource
 
 static int seek_vorbis(void *datasource, ogg_int64_t offset, int whence)
 {
-    vorbis_data *vorb = (vorbis_data *)datasource;
+    auto *vorb = (vorbis_data *)datasource;
 
     switch (whence)
     {
@@ -194,7 +194,7 @@ static int close_vorbis(void *datasource)
 
 static long tell_vorbis(void *datasource)
 {
-    vorbis_data *vorb = (vorbis_data *)datasource;
+    auto *vorb = (vorbis_data *)datasource;
 
     return vorb->pos;
 }
@@ -204,14 +204,14 @@ static ov_callbacks vorbis_callbacks = { read_vorbis, seek_vorbis, close_vorbis,
 
 int32_t MV_GetVorbisPosition(VoiceNode *voice)
 {
-    vorbis_data * vd = (vorbis_data *) voice->rawdataptr;
+    auto * vd = (vorbis_data *) voice->rawdataptr;
 
     return ov_pcm_tell(&vd->vf);
 }
 
 void MV_SetVorbisPosition(VoiceNode *voice, int32_t position)
 {
-    vorbis_data * vd = (vorbis_data *) voice->rawdataptr;
+    auto * vd = (vorbis_data *) voice->rawdataptr;
 
     ov_pcm_seek(&vd->vf, position);
 }
@@ -227,7 +227,7 @@ static playbackstatus MV_GetNextVorbisBlock(VoiceNode *voice)
     int bitstream;
 
     int32_t bytesread = 0;
-    vorbis_data *vd = (vorbis_data *)voice->rawdataptr;
+    auto *vd = (vorbis_data *)voice->rawdataptr;
     do
     {
 #ifdef USING_TREMOR
@@ -370,7 +370,7 @@ int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loo
        return MV_Error;
    }
 
-   vorbis_data *vd = (vorbis_data *)calloc(1, sizeof(vorbis_data));
+   auto *vd = (vorbis_data *)calloc(1, sizeof(vorbis_data));
 
    if (!vd)
    {
@@ -459,7 +459,7 @@ void MV_ReleaseVorbisVoice( VoiceNode * voice )
     if (voice->wavetype != FMT_VORBIS)
         return;
 
-    vorbis_data *vd = (vorbis_data *)voice->rawdataptr;
+    auto *vd = (vorbis_data *)voice->rawdataptr;
 
     ov_clear(&vd->vf);
     free(vd);

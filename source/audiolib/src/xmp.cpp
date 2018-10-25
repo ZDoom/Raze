@@ -20,19 +20,19 @@ typedef struct {
 
 int32_t MV_GetXMPPosition(VoiceNode *voice)
 {
-    xmp_data * xmpd = (xmp_data *)voice->rawdataptr;
+    auto * xmpd = (xmp_data *)voice->rawdataptr;
     return xmpd->time;
 }
 
 void MV_SetXMPPosition(VoiceNode *voice, int32_t position)
 {
-    xmp_data * xmpd = (xmp_data *)voice->rawdataptr;
+    auto * xmpd = (xmp_data *)voice->rawdataptr;
     xmp_seek_time(xmpd->context, position);
 }
 
 static playbackstatus MV_GetNextXMPBlock(VoiceNode *voice)
 {
-    xmp_data * xmpd = (xmp_data *)voice->rawdataptr;
+    auto * xmpd = (xmp_data *)voice->rawdataptr;
     struct xmp_frame_info mi;
 
     if (xmp_play_frame(xmpd->context) != 0)
@@ -187,7 +187,7 @@ int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopen
 
 void MV_ReleaseXMPVoice(VoiceNode * voice)
 {
-    xmp_data * xmpd = (xmp_data *) voice->rawdataptr;
+    auto * xmpd = (xmp_data *) voice->rawdataptr;
 
     if (voice->wavetype != FMT_XMP)
         return;
