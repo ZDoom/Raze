@@ -604,16 +604,15 @@ uint32_t Bgetsysmemsize(void)
     return siz;
 #elif (defined(_SC_PAGE_SIZE) || defined(_SC_PAGESIZE)) && defined(_SC_PHYS_PAGES) && !defined(GEKKO)
     uint32_t siz = UINT32_MAX;
-    int64_t scpagesiz, scphyspages;
-
 #ifdef _SC_PAGE_SIZE
-    scpagesiz = sysconf(_SC_PAGE_SIZE);
+    int64_t const scpagesiz = sysconf(_SC_PAGE_SIZE);
 #else
-    scpagesiz = sysconf(_SC_PAGESIZE);
+    int64_t const scpagesiz = sysconf(_SC_PAGESIZE);
 #endif
-    scphyspages = sysconf(_SC_PHYS_PAGES);
+    int64_t const scphyspages = sysconf(_SC_PHYS_PAGES);
+
     if (scpagesiz >= 0 && scphyspages >= 0)
-        siz = (uint32_t)min(UINT32_MAX, (int64_t)scpagesiz * (int64_t)scphyspages);
+        siz = min<uint32_t>(UINT32_MAX, scpagesiz * scphyspages);
 
     //initprintf("Bgetsysmemsize(): %d pages of %d bytes, %d bytes of system memory\n",
     //		scphyspages, scpagesiz, siz);
