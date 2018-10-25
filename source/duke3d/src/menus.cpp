@@ -1796,7 +1796,7 @@ void Menu_Init(void)
             if (validmode[i].xdim == resolution[j].xdim && validmode[i].ydim == resolution[j].ydim)
             {
                 resolution[j].flags |= validmode[i].fs ? RES_FS : RES_WIN;
-                Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d%s", resolution[j].xdim, resolution[j].ydim, resolution[j].flags & RES_FS ? "" : "Win");
+                Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d%s", resolution[j].xdim, resolution[j].ydim, (resolution[j].flags & RES_FS) ? "" : "Win");
                 MEOSN_VIDEOSETUP_RESOLUTION[j] = resolution[j].name;
                 if (validmode[i].bpp > resolution[j].bppmax)
                     resolution[j].bppmax = validmode[i].bpp;
@@ -1810,7 +1810,7 @@ void Menu_Init(void)
             resolution[j].ydim = validmode[i].ydim;
             resolution[j].bppmax = validmode[i].bpp;
             resolution[j].flags = validmode[i].fs ? RES_FS : RES_WIN;
-            Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d%s", resolution[j].xdim, resolution[j].ydim, resolution[j].flags & RES_FS ? "" : "Win");
+            Bsnprintf(resolution[j].name, MAXRESOLUTIONSTRINGLENGTH, "%d x %d%s", resolution[j].xdim, resolution[j].ydim, (resolution[j].flags & RES_FS) ? "" : "Win");
             MEOSN_VIDEOSETUP_RESOLUTION[j] = resolution[j].name;
             ++MEOS_VIDEOSETUP_RESOLUTION.numOptions;
         }
