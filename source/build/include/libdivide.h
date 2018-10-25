@@ -1863,13 +1863,13 @@ namespace libdivide_internal {
         DenomType denom;
 
         // Constructor that takes a divisor value, and applies the gen function
-        base(IntType d) : denom(gen_func(d)) { }
+        explicit base(IntType d) : denom(gen_func(d)) { }
 
         // Default constructor to allow uninitialized uses in e.g. arrays
         base() {}
 
         // Needed for unswitch
-        base(const DenomType& d) : denom(d) { }
+        explicit base(const DenomType& d) : denom(d) { }
 
         IntType perform_divide(IntType val) const {
             return do_func(val, &denom);
@@ -1977,11 +1977,11 @@ private:
     friend divider<S, NEW_ALGO> unswitch(const divider<S, BRANCHFULL> & d);
 
     // Constructor used by the unswitch friend
-    divider(const div_t& denom) : div(denom) { }
+    explicit divider(const div_t& denom) : div(denom) { }
 
 public:
     // Ordinary constructor that takes the divisor as a parameter
-    divider(T n) : div(n) { }
+    explicit divider(T n) : div(n) { }
 
     // Default constructor. We leave this deliberately undefined so that
     // creating an array of divider and then initializing them
