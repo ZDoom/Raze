@@ -728,8 +728,7 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
 
         if (!fil && (sp->flags&(DS_NOCHK|DS_CMP|DS_STRING)))
             continue;
-
-        if (sp->flags&DS_STRING)
+        else if (sp->flags&DS_STRING)
         {
             fwrite(sp->ptr, Bstrlen((const char *)sp->ptr), 1, fil);  // not null-terminated!
             continue;
