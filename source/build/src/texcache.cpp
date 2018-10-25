@@ -237,7 +237,7 @@ void texcache_syncmemcache(void)
     if (!texcache.buf || texcache.handle == -1 || len <= (int32_t)texcache.memsize)
         return;
 
-    texcache.buf = (uint8_t *)Brealloc(texcache.buf, len);
+    texcache.buf = (uint8_t *)Xrealloc(texcache.buf, len);
 
     if (!texcache.buf)
     {
@@ -453,8 +453,12 @@ char const * texcache_calcid(char *outbuf, const char *filename, const int32_t l
     Bstrcpy(id.name, filename);
 
     size_t const fnlen = Bstrlen(filename);
-    while (Bstrlen(id.name) < BMAX_PATH - fnlen)
+    size_t idlen = Bstrlen(id.name);
+    while (idlen < BMAX_PATH - fnlen)
+    {
         Bstrcat(id.name, filename);
+        idlen += fnlen;
+    }
 
     Bsprintf(outbuf, "%08x%08x%08x",
              XXH32((uint8_t *)id.name, fnlen, TEXCACHEMAGIC[3]),
@@ -839,7 +843,7 @@ void texcache_setupmemcache(void)
     if (texcache.memsize <= 0)
         return;
 
-    texcache.buf = (uint8_t *)Brealloc(texcache.buf, texcache.memsize);
+    texcache.buf = (uint8_t *)Xrealloc(texcache.buf, texcache.memsize);
 
     if (!texcache.buf)
     {

@@ -659,16 +659,16 @@ static int32_t osdfunc_toggle(osdfuncparm_t const * const parm)
 //
 void OSD_Init(void)
 {
-    osd = (osdmain_t *)Bcalloc(1, sizeof(osdmain_t));
+    osd = (osdmain_t *)Xcalloc(1, sizeof(osdmain_t));
 
     mutex_init(&osd->mutex);
 
     if (!osd->keycode) osd->keycode = sc_Tilde;
 
-    osd->text.buf   = (char *)Bmalloc(OSDBUFFERSIZE);
-    osd->text.fmt   = (char *)Bmalloc(OSDBUFFERSIZE);
-    osd->editor.buf = (char *)Bmalloc(OSDEDITLENGTH);
-    osd->editor.tmp = (char *)Bmalloc(OSDEDITLENGTH);
+    osd->text.buf   = (char *)Xmalloc(OSDBUFFERSIZE);
+    osd->text.fmt   = (char *)Xmalloc(OSDBUFFERSIZE);
+    osd->editor.buf = (char *)Xmalloc(OSDEDITLENGTH);
+    osd->editor.tmp = (char *)Xmalloc(OSDEDITLENGTH);
 
     Bmemset(osd->text.buf, asc_Space, OSDBUFFERSIZE);
     Bmemset(osd->text.fmt, osd->draw.textpal + (osd->draw.textshade<<5), OSDBUFFERSIZE);
@@ -1394,8 +1394,8 @@ void OSD_ResizeDisplay(int32_t w, int32_t h)
     j = min(newmaxlines, osd->text.maxlines);
     k = min(newcols, osd->draw.cols);
 
-    newtext = (char *)Bmalloc(OSDBUFFERSIZE);
-    newfmt = (char *)Bmalloc(OSDBUFFERSIZE);
+    newtext = (char *)Xmalloc(OSDBUFFERSIZE);
+    newfmt = (char *)Xmalloc(OSDBUFFERSIZE);
 
     Bmemset(newtext, asc_Space, OSDBUFFERSIZE);
 
@@ -1919,7 +1919,7 @@ int32_t OSD_RegisterFunction(const char *pszName, const char *pszDesc, int32_t (
 void OSD_SetVersion(const char *pszVersion, int osdShade, int osdPal)
 {
     DO_FREE_AND_NULL(osd->version.buf);
-    osd->version.buf   = Bstrdup(pszVersion);
+    osd->version.buf   = Xstrdup(pszVersion);
     osd->version.len   = Bstrlen(pszVersion);
     osd->version.shade = osdShade;
     osd->version.pal   = osdPal;

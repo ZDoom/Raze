@@ -480,7 +480,7 @@ int main(int argc, char *argv[])
 #ifdef _WIN32
     char *argvbuf;
     int32_t buildargc = win_buildargs(&argvbuf);
-    const char **buildargv = (const char **) Bmalloc(sizeof(char *)*(buildargc+1));
+    const char **buildargv = (const char **) Xmalloc(sizeof(char *)*(buildargc+1));
     char *wp = argvbuf;
 
     for (bssize_t i=0; i<buildargc; i++, wp++)
@@ -832,15 +832,15 @@ int32_t initinput(void)
             joystick.numHats = min((36-joystick.numButtons)/4,SDL_JoystickNumHats(joydev));
             initprintf("Joystick 1 has %d axes, %d buttons, and %d hat(s).\n", joystick.numAxes, joystick.numButtons, joystick.numHats);
 
-            joystick.pAxis = (int32_t *)Bcalloc(joystick.numAxes, sizeof(int32_t));
+            joystick.pAxis = (int32_t *)Xcalloc(joystick.numAxes, sizeof(int32_t));
 
             if (joystick.numHats)
-                joystick.pHat = (int32_t *)Bcalloc(joystick.numHats, sizeof(int32_t));
+                joystick.pHat = (int32_t *)Xcalloc(joystick.numHats, sizeof(int32_t));
 
             for (i = 0; i < joystick.numHats; i++) joystick.pHat[i] = -1;  // centre
 
-            joydead = (uint16_t *)Bcalloc(joystick.numAxes, sizeof(uint16_t));
-            joysatur = (uint16_t *)Bcalloc(joystick.numAxes, sizeof(uint16_t));
+            joydead = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
+            joysatur = (uint16_t *)Xcalloc(joystick.numAxes, sizeof(uint16_t));
         }
     }
 

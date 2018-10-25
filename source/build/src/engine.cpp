@@ -7640,8 +7640,7 @@ int32_t enginePreInit(void)
         for (i=0; i<(signed)ARRAY_SIZE(dynarray); i++)
             size += dynarray[i].size;
 
-        if ((blockptr = Bcalloc(1, size)) == NULL)
-            return 1;
+        blockptr = Xcalloc(1, size);
 
         size = 0;
 
@@ -10063,7 +10062,7 @@ int32_t qloadkvx(int32_t voxindex, const char *filename)
     }
 
     Bfree(voxfilenames[voxindex]);
-    voxfilenames[voxindex] = Bstrdup(filename);
+    voxfilenames[voxindex] = Xstrdup(filename);
     g_haveVoxels = 1;
 #endif
 

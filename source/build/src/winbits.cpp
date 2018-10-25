@@ -97,7 +97,7 @@ static void win_printversion(void)
             break;
     }
 
-    char *str = (char *)Bcalloc(1, 256);
+    char *str = (char *)Xcalloc(1, 256);
     int l;
 
     if (pwinever)
@@ -336,7 +336,7 @@ int32_t addsearchpath_ProgramFiles(const char *p)
     {
         if (ProgramFiles[i])
         {
-            char *buffer = (char*)Bmalloc((strlen(ProgramFiles[i])+1+strlen(p)+1)*sizeof(char));
+            char *buffer = (char*)Xmalloc((strlen(ProgramFiles[i])+1+strlen(p)+1)*sizeof(char));
             Bsprintf(buffer,"%s/%s",ProgramFiles[i],p);
             if (addsearchpath(buffer) == 0) // if any work, return success
                 returncode = 0;
@@ -351,7 +351,7 @@ int32_t win_buildargs(char **argvbuf)
 {
     int32_t buildargc = 0;
 
-    *argvbuf = Bstrdup(GetCommandLine());
+    *argvbuf = Xstrdup(GetCommandLine());
 
     if (*argvbuf)
     {

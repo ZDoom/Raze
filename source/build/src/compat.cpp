@@ -99,7 +99,7 @@ char *Bgethomedir(void)
         {
             if (loaded)
                 FreeLibrary(hShell32);
-            return Bstrdup(appdata);
+            return Xstrdup(appdata);
         }
 
     if (loaded)
@@ -114,11 +114,11 @@ char *Bgethomedir(void)
     drv = strchr(cwd, ':');
     if (drv)
         drv[1] = '\0';
-    return Bstrdup(cwd);
+    return Xstrdup(cwd);
 #else
     char *e = getenv("HOME");
     if (!e) return NULL;
-    return Bstrdup(e);
+    return Xstrdup(e);
 #endif
 }
 
@@ -133,7 +133,7 @@ char *Bgetappdir(void)
         // trim off the filename
         char *slash = Bstrrchr(appdir, '\\');
         if (slash) slash[0] = 0;
-        dir = Bstrdup(appdir);
+        dir = Xstrdup(appdir);
     }
 
 #elif defined EDUKE32_OSX
@@ -148,7 +148,7 @@ char *Bgetappdir(void)
     if(ret == 0 && buf[0] != '\0') {
         // again, remove executable name with dirname()
         // on FreeBSD dirname() seems to use some internal buffer
-        dir = strdup(dirname(buf));
+        dir = Xstrdup(dirname(buf));
     }
 #elif defined __linux || defined EDUKE32_BSD
     char buf[PATH_MAX] = {0};
@@ -163,7 +163,7 @@ char *Bgetappdir(void)
         // remove executable name with dirname(3)
         // on Linux, dirname() will modify buf2 (cutting off executable name) and return it
         // on FreeBSD it seems to use some internal buffer instead.. anyway, just strdup()
-        dir = Bstrdup(dirname(buf2));
+        dir = Xstrdup(dirname(buf2));
     }
 #endif
 
@@ -176,7 +176,7 @@ int32_t Bcorrectfilename(char *filename, int32_t removefn)
     char *tokarr[64], *first, *next = NULL, *token;
     int32_t i, ntok = 0, leadslash = 0, trailslash = 0;
 
-    fn = Bstrdup(filename);
+    fn = Xstrdup(filename);
     if (!fn) return -1;
 
     for (first=fn; *first; first++)
@@ -301,7 +301,7 @@ char *Bgetsystemdrives(void)
         number++;
     }
 
-    str = p = (char *)Bmalloc(1 + (3 * number));
+    str = p = (char *)Xmalloc(1 + (3 * number));
     if (!str)
         return NULL;
 
@@ -349,12 +349,12 @@ BDIR *Bopendir(const char *name)
     BDIR_real *dirr;
 #ifdef _MSC_VER
     char *t, *tt;
-    t = (char *)Bmalloc(Bstrlen(name) + 1 + 4);
+    t = (char *)Xmalloc(Bstrlen(name) + 1 + 4);
     if (!t)
         return NULL;
 #endif
 
-    dirr = (BDIR_real *)Bmalloc(sizeof(BDIR_real) + Bstrlen(name));
+    dirr = (BDIR_real *)Xmalloc(sizeof(BDIR_real) + Bstrlen(name));
     if (!dirr)
     {
 #ifdef _MSC_VER
@@ -430,7 +430,7 @@ struct Bdirent *Breaddir(BDIR *dir)
     dirr->info.size = 0;
     dirr->info.mtime = 0;
 
-    char *fn = (char *)Bmalloc(Bstrlen(dirr->name) + 1 + dirr->info.namlen + 1);
+    char *fn = (char *)Xmalloc(Bstrlen(dirr->name) + 1 + dirr->info.namlen + 1);
     if (fn)
     {
         Bsprintf(fn, "%s/%s", dirr->name, dirr->info.name);

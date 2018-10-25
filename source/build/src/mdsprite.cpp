@@ -802,13 +802,13 @@ int32_t mdloadskin(md2model_t *m, int32_t number, int32_t pal, int32_t surf)
                 lastfn = fn;  // careful...
                 if (!lastpic)
                 {
-                    lastpic = (coltype *)Bmalloc(siz.x*siz.y*sizeof(coltype));
+                    lastpic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
                     lastsize = siz.x*siz.y;
                 }
                 else if (lastsize < siz.x*siz.y)
                 {
                     Bfree(lastpic);
-                    lastpic = (coltype *)Bmalloc(siz.x*siz.y*sizeof(coltype));
+                    lastpic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
                 }
                 if (lastpic)
                     Bmemcpy(lastpic, pic, siz.x*siz.y*sizeof(coltype));

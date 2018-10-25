@@ -2622,8 +2622,8 @@ static int32_t defsparser(scriptfile *script)
 
             for (; previous_usermaphacks < num_usermaphacks; previous_usermaphacks++)
             {
-                usermaphacks[previous_usermaphacks].mhkfile = mhkfile ? Bstrdup(mhkfile) : NULL;
-                usermaphacks[previous_usermaphacks].title = title ? Bstrdup(title) : NULL;
+                usermaphacks[previous_usermaphacks].mhkfile = mhkfile ? Xstrdup(mhkfile) : NULL;
+                usermaphacks[previous_usermaphacks].title = title ? Xstrdup(title) : NULL;
             }
         }
         break;

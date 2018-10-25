@@ -110,7 +110,7 @@ int32_t loadwgl(const char *driver)
         return -1;
     }
 
-    gldriver = Bstrdup(driver);
+    gldriver = Xstrdup(driver);
 
     bwglCreateContext = (bwglCreateContextProcPtr) GETPROC("wglCreateContext");
     bwglDeleteContext = (bwglDeleteContextProcPtr) GETPROC("wglDeleteContext");
@@ -211,7 +211,7 @@ int32_t loadglulibrary(const char *driver)
         return -1;
     }
 
-    glulibrary = Bstrdup(driver);
+    glulibrary = Xstrdup(driver);
 
     bgluTessBeginContour = (bgluTessBeginContourProcPtr) GLUGETPROC("gluTessBeginContour");
     bgluTessBeginPolygon = (bgluTessBeginPolygonProcPtr) GLUGETPROC("gluTessBeginPolygon");

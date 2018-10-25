@@ -45,7 +45,7 @@ static GLuint compileShader(GLenum shaderType, const char* const source)
         OSD_Printf("Compile Status: %u\n", compileStatus);
         if (logLength > 0)
         {
-            char *infoLog = (char*) Bmalloc(logLength);
+            char *infoLog = (char*) Xmalloc(logLength);
             glGetShaderInfoLog(shaderID, logLength, &logLength, infoLog);
             OSD_Printf("Log:\n%s\n", infoLog);
             Bfree(infoLog);

@@ -447,7 +447,7 @@ static GLuint polymost2_compileShader(GLenum shaderType, const char* const sourc
         OSD_Printf("Compile Status: %u\n", compileStatus);
         if (logLength > 0)
         {
-            char *infoLog = (char*) malloc(logLength);
+            char *infoLog = (char*)Xmalloc(logLength);
             glGetShaderInfoLog(shaderID, logLength, &logLength, infoLog);
             OSD_Printf("Log:\n%s\n", infoLog);
             free(infoLog);
@@ -2470,13 +2470,13 @@ int32_t gloadtile_hi(int32_t dapic,int32_t dapalnum, int32_t facen, hicreplctyp 
                 lastfn = fn;  // careful...
                 if (!lastpic)
                 {
-                    lastpic = (coltype *)Bmalloc(siz.x*siz.y*sizeof(coltype));
+                    lastpic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
                     lastsize = siz.x*siz.y;
                 }
                 else if (lastsize < siz.x*siz.y)
                 {
                     Bfree(lastpic);
-                    lastpic = (coltype *)Bmalloc(siz.x*siz.y*sizeof(coltype));
+                    lastpic = (coltype *)Xmalloc(siz.x*siz.y*sizeof(coltype));
                 }
                 if (lastpic)
                     Bmemcpy(lastpic, pic, siz.x*siz.y*sizeof(coltype));

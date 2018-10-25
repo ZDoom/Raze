@@ -119,7 +119,7 @@ int32_t MV_PlayXMP(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
         return MV_Error;
     }
 
-    xmpd = (xmp_data *)calloc(1, sizeof(xmp_data));
+    xmpd = (xmp_data *)Xcalloc(1, sizeof(xmp_data));
     if (!xmpd)
     {
         MV_SetErrorCode(MV_InvalidFile);

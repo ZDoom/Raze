@@ -301,7 +301,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
     }
 
     // carve up the command line into more recognizable pieces
-    argvbuf = Bstrdup(GetCommandLine());
+    argvbuf = Xstrdup(GetCommandLine());
     _buildargc = 0;
     if (argvbuf)
     {
@@ -363,7 +363,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, LPSTR lpCmdLine, int nC
         }
         *wp = 0;
 
-        _buildargv = (const char **)Bmalloc(sizeof(char *)*(_buildargc+1));
+        _buildargv = (const char **)Xmalloc(sizeof(char *)*(_buildargc+1));
         wp = argvbuf;
         for (i=0; i<_buildargc; i++,wp++)
         {
@@ -904,7 +904,7 @@ static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddo
     {
         //initprintf(" Axis: %s (dwOfs=%d)\n", lpddoi->tszName, lpddoi->dwOfs);
 
-        axisdefs[ typecounts[0] ].name = Bstrdup(lpddoi->tszName);
+        axisdefs[ typecounts[0] ].name = Xstrdup(lpddoi->tszName);
         axisdefs[ typecounts[0] ].ofs = lpddoi->dwOfs;
 
         typecounts[0]++;
@@ -913,7 +913,7 @@ static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddo
     {
         //initprintf(" Button: %s (dwOfs=%d)\n", lpddoi->tszName, lpddoi->dwOfs);
 
-        buttondefs[ typecounts[1] ].name = Bstrdup(lpddoi->tszName);
+        buttondefs[ typecounts[1] ].name = Xstrdup(lpddoi->tszName);
         buttondefs[ typecounts[1] ].ofs = lpddoi->dwOfs;
 
         typecounts[1]++;
@@ -922,7 +922,7 @@ static BOOL CALLBACK InitDirectInput_enumobjects(LPCDIDEVICEOBJECTINSTANCE lpddo
     {
         //initprintf(" POV: %s (dwOfs=%d)\n", lpddoi->tszName, lpddoi->dwOfs);
 
-        hatdefs[ typecounts[2] ].name = Bstrdup(lpddoi->tszName);
+        hatdefs[ typecounts[2] ].name = Xstrdup(lpddoi->tszName);
         hatdefs[ typecounts[2] ].ofs = lpddoi->dwOfs;
 
         typecounts[2]++;
@@ -1039,14 +1039,14 @@ static BOOL InitDirectInput(void)
         joystick.numHats    = (uint8_t)didc.dwPOVs;
         initprintf("Controller has %d axes, %d buttons, and %d hat(s).\n",joystick.numAxes,joystick.numButtons,joystick.numHats);
 
-        axisdefs = (struct _joydef *)Bcalloc(didc.dwAxes, sizeof(struct _joydef));
-        buttondefs = (struct _joydef *)Bcalloc(didc.dwButtons, sizeof(struct _joydef));
+        axisdefs = (struct _joydef *)Xcalloc(didc.dwAxes, sizeof(struct _joydef));
+        buttondefs = (struct _joydef *)Xcalloc(didc.dwButtons, sizeof(struct _joydef));
         if (didc.dwPOVs)
-            hatdefs = (struct _joydef *)Bcalloc(didc.dwPOVs, sizeof(struct _joydef));
+            hatdefs = (struct _joydef *)Xcalloc(didc.dwPOVs, sizeof(struct _joydef));
 
-        joystick.pAxis = (int32_t *)Bcalloc(didc.dwAxes, sizeof(int32_t));
+        joystick.pAxis = (int32_t *)Xcalloc(didc.dwAxes, sizeof(int32_t));
         if (didc.dwPOVs)
-            joystick.pHat = (int32_t *)Bcalloc(didc.dwPOVs, sizeof(int32_t));
+            joystick.pHat = (int32_t *)Xcalloc(didc.dwPOVs, sizeof(int32_t));
 
         result = IDirectInputDevice7_EnumObjects(dev2, InitDirectInput_enumobjects, (LPVOID)typecounts, DIDFT_ALL);
         if (FAILED(result)) { IDirectInputDevice7_Release(dev2); HorribleDInputDeath("Failed getting controller features", result); }
@@ -2029,7 +2029,7 @@ int32_t videoUpdatePalette(int32_t start, int32_t num)
 
     if (num > 0)
     {
-        rgb = (RGBQUAD *)Bmalloc(sizeof(RGBQUAD)*num);
+        rgb = (RGBQUAD *)Xmalloc(sizeof(RGBQUAD)*num);
         for (i=start, n=0; n<num; i++, n++)
         {
             rgb[n].rgbBlue = lpal.palPalEntry[i].peBlue;
@@ -2406,7 +2406,7 @@ static int32_t SetupDirectDraw(int32_t width, int32_t height)
     }
 
     //    initprintf("  - Allocating offscreen buffer\n");
-    lpOffscreen = (char *)Bmalloc((width|1)*height);
+    lpOffscreen = (char *)Xmalloc((width|1)*height);
     if (!lpOffscreen)
     {
         ShowErrorBox("Failure allocating offscreen buffer");
@@ -2821,7 +2821,7 @@ static int32_t SetupOpenGL(int32_t width, int32_t height, int32_t bitspp)
         glinfo.texcompr = 0;
 
         // process the extensions string and flag stuff we recognize
-        p = (GLubyte *)Bstrdup(glinfo.extensions);
+        p = (GLubyte *)Xstrdup(glinfo.extensions);
         p3 = p;
         while ((p2 = (GLubyte *)Bstrtoken(p3==p?(char *)p:NULL, " ", (char **)&p3, 1)) != NULL)
         {

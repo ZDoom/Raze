@@ -156,7 +156,7 @@ ScriptSectionType * SCRIPT_AddSection(int32_t scripthandle, const char * section
     if (s) return s;
 
     AllocSection(s);
-    s->name = Bstrdup(sectionname);
+    s->name = Xstrdup(sectionname);
     if (!SCRIPT(scripthandle,apScript))
     {
         SCRIPT(scripthandle,apScript) = s;
@@ -205,7 +205,7 @@ void SCRIPT_AddEntry(int32_t scripthandle, const char * sectionname, const char 
     if (!e)
     {
         AllocEntry(e);
-        e->name = Bstrdup(entryname);
+        e->name = Xstrdup(entryname);
         if (!s->entries)
         {
             s->entries = e;
@@ -220,7 +220,7 @@ void SCRIPT_AddEntry(int32_t scripthandle, const char * sectionname, const char 
     }
 
     Bfree(e->value);
-    e->value = Bstrdup(entryvalue);
+    e->value = Xstrdup(entryvalue);
 }
 
 

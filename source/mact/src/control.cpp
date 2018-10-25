@@ -90,12 +90,12 @@ void CONTROL_ClearAllBinds(void)
 
 void CONTROL_BindKey(int i, char const * const cmd, int repeat, char const * const keyname)
 {
-    BIND(CONTROL_KeyBinds[i], Bstrdup(cmd), repeat, keyname);
+    BIND(CONTROL_KeyBinds[i], Xstrdup(cmd), repeat, keyname);
 }
 
 void CONTROL_BindMouse(int i, char const * const cmd, int repeat, char const * const keyname)
 {
-    BIND(CONTROL_KeyBinds[MAXBOUNDKEYS + i], Bstrdup(cmd), repeat, keyname);
+    BIND(CONTROL_KeyBinds[MAXBOUNDKEYS + i], Xstrdup(cmd), repeat, keyname);
 }
 
 void CONTROL_FreeKeyBind(int i)

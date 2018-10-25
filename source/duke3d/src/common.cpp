@@ -756,7 +756,7 @@ static void G_ParseSteamKeyValuesForPaths(const char *vdf)
     if (size <= 0)
         return;
 
-    vdfbufstart = vdfbuf = (char*)Bmalloc(size);
+    vdfbufstart = vdfbuf = (char*)Xmalloc(size);
     size = (int32_t)Bread(fd, vdfbuf, size);
     Bclose(fd);
     vdfbufend = vdfbuf + size;

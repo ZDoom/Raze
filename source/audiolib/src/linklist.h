@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 
-#define NewNode(type) ((type *)Bmalloc(sizeof(type)))
+#define NewNode(type) ((type *)Xmalloc(sizeof(type)))
 
 
 #define LL_New(rootnode, type, next, prev)                                                                             \

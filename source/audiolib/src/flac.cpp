@@ -562,21 +562,21 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t lo
                                 {
                                     char const * const tag = loopStartTags[t];
                                     if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
-                                        vc_loopstart = strdup(value);
+                                        vc_loopstart = Xstrdup(value);
                                 }
 
                                 for (size_t t = 0; t < loopEndTagCount && vc_loopend == NULL; ++t)
                                 {
                                     char const * const tag = loopEndTags[t];
                                     if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
-                                        vc_loopend = strdup(value);
+                                        vc_loopend = Xstrdup(value);
                                 }
 
                                 for (size_t t = 0; t < loopLengthTagCount && vc_looplength == NULL; ++t)
                                 {
                                     char const * const tag = loopLengthTags[t];
                                     if (field == strlen(tag) && Bstrncasecmp(entry, tag, field) == 0)
-                                        vc_looplength = strdup(value);
+                                        vc_looplength = Xstrdup(value);
                                 }
                             }
                         }
