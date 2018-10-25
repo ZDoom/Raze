@@ -7345,7 +7345,7 @@ static void tessectrap(const float *px, const float *py, const int32_t *point2, 
     npoints = numpoints; z = 0;
     for (i=0; i<numpoints; i++)
     {
-        j = npoint2[i]; if ((point2[i] < i) && (i < numpoints-1)) z = 3;
+        j = npoint2[i]; if ((i < numpoints-1) && (point2[i] < i)) z = 3;
         if (j < 0) continue;
         k = npoint2[j];
         m0 = (px[j]-px[i])*(py[k]-py[j]);
@@ -8007,28 +8007,25 @@ void polymost_precache(int32_t dapicnum, int32_t dapalnum, int32_t datype)
     // datype is 0 for a wall/floor/ceiling and 1 for a sprite
     //    basically this just means walls are repeating
     //    while sprites are clamped
-    int32_t mid;
 
     if (videoGetRenderMode() < REND_POLYMOST) return;
-
-    if ((palookup[dapalnum] == NULL) && (dapalnum < (MAXPALOOKUPS - RESERVEDPALS))) return;//dapalnum = 0;
+    if ((dapalnum < (MAXPALOOKUPS - RESERVEDPALS)) && (palookup[dapalnum] == NULL)) return;//dapalnum = 0;
 
     //OSD_Printf("precached %d %d type %d\n", dapicnum, dapalnum, datype);
     hicprecaching = 1;
-
-
     texcache_fetch(dapicnum, dapalnum, 0, (datype & 1)*(DAMETH_CLAMPED|DAMETH_MASK));
     hicprecaching = 0;
 
     if (datype == 0 || !usemodels) return;
 
-    mid = md_tilehasmodel(dapicnum,dapalnum);
+    int const mid = md_tilehasmodel(dapicnum, dapalnum);
 
     if (mid < 0 || models[mid]->mdnum < 2) return;
 
-    int j = (models[mid]->mdnum == 3) ? ((md3model_t *)models[mid])->head.numsurfs : 0;
+    int const surfaces = (models[mid]->mdnum == 3) ? ((md3model_t *)models[mid])->head.numsurfs : 0;
 
-    for (bssize_t i = 0; i <= j; i++) mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
+    for (int i = 0; i <= surfaces; i++)
+        mdloadskin((md2model_t *)models[mid], 0, dapalnum, i);
 }
 
 #else /* if !defined USE_OPENGL */
