@@ -4191,13 +4191,13 @@ int Menu_Change(MenuID_t cm)
 
 
 
-void G_CheckPlayerColor(int32_t *color, int32_t prev_color)
+int G_CheckPlayerColor(int color)
 {
     for (int i : MEOSV_PLAYER_COLOR)
-        if (*color == i)
-            return;
+        if (i == color)
+            return color;
 
-    *color = prev_color;
+    return -1;
 }
 
 

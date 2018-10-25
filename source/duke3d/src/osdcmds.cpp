@@ -1544,7 +1544,7 @@ static int32_t osdcmd_cvar_set_game(osdfuncparm_t const * const parm)
     }
     else if (!Bstrcasecmp(parm->name, "color"))
     {
-        G_CheckPlayerColor((int32_t *)&ud.color,-1);
+        ud.color = G_CheckPlayerColor(ud.color);
         g_player[0].ps->palookup = g_player[0].pcolor = ud.color;
     }
     else if (!Bstrcasecmp(parm->name, "osdscale"))

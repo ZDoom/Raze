@@ -461,7 +461,7 @@ extern int32_t voting;
 int Menu_Change(int32_t cm);
 void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype);
 int32_t Menu_IsTextInput(Menu_t *cm);
-void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
+int G_CheckPlayerColor(int color);
 void Menu_Init(void);
 void Menu_Open(uint8_t playerID);
 void Menu_Close(uint8_t playerID);
