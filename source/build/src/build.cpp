@@ -10524,16 +10524,16 @@ void showwalldata(int16_t wallnum, int16_t small)
 
     col++;
 
-    DOPRINT(48-(small?16:0), "nextsector: %d", TrackerCast(wal->nextsector));
-    DOPRINT(56-(small?16:0), "nextwall: %d", TrackerCast(wal->nextwall));
+    DOPRINT(48, "nextsector: %d", TrackerCast(wal->nextsector));
+    DOPRINT(56, "nextwall: %d", TrackerCast(wal->nextwall));
 
-    DOPRINT(72-(small?16:0), "Extra: %d", TrackerCast(wal->extra));
+    DOPRINT(72, "Extra: %d", TrackerCast(wal->extra));
 
     // TX 20050102 I'm not sure what unit dist<<4 is supposed to be, but dist itself is correct in terms of game coordinates as one would expect
-    DOPRINT(96-(small?16:0),  "Wall length: %d",  wallength(wallnum));
+    DOPRINT(96,  "Wall length: %d",  wallength(wallnum));
 
     sec = sectorofwall(wallnum);
-    DOPRINT(104-(small?16:0), "Pixel height: %d", (sector[sec].floorz-sector[sec].ceilingz)>>8);
+    DOPRINT(104, "Pixel height: %d", (sector[sec].floorz-sector[sec].ceilingz)>>8);
 }
 
 void showspritedata(int16_t spritenum, int16_t small)

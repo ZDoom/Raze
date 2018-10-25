@@ -30,8 +30,6 @@ void hash_free(hashtable_t *t)
     {
         hashitem_t *cur = t->items[remaining];
 
-        int num = 0;
-
         while (cur)
         {
             hashitem_t * const tmp = cur;
@@ -39,7 +37,6 @@ void hash_free(hashtable_t *t)
 
             Bfree(tmp->string);
             Bfree(tmp);
-            num++;
         }
     } while (--remaining >= 0);
 

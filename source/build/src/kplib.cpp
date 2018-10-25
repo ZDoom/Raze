@@ -1967,8 +1967,6 @@ static int32_t kbmprend(const char *buf, int32_t fleng,
 
     x0 = 0; x1 = xsiz;
     y0 = 0; y1 = ysiz;
-    if ((x0 >= daxres) || (x1 <= 0) || (y0 >= dayres) || (y1 <= 0)) return 0;
-    if (x0 < 0) x0 = 0;
     if (x1 > daxres) x1 = daxres;
     for (y=y0; y<y1; y++,cptr=&cptr[cptrinc])
     {

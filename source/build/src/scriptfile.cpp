@@ -291,7 +291,6 @@ void scriptfile_preparse(scriptfile *sf, char *tx, int32_t flen)
     printf("[eof]\nnumlines=%d\n",sf->linenum);
     for (i=0; i<sf->linenum; i++) printf("line %d = byte %d\n",i,sf->lineoffs[i]);
 #endif
-    flen = nflen;
 
     sf->textbuf = sf->textptr = tx;
     sf->textlength = nflen;

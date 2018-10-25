@@ -354,12 +354,8 @@ static void G_DrawOverheadMap(int32_t cposx, int32_t cposy, int32_t czoom, int16
             k = wal->nextwall;
             if (k < 0) continue;
 
-            if (sector[wal->nextsector].ceilingz == z1)
-                if (sector[wal->nextsector].floorz == z2)
+            if (sector[wal->nextsector].ceilingz == z1 && sector[wal->nextsector].floorz == z2)
                     if (((wal->cstat|wall[wal->nextwall].cstat)&(16+32)) == 0) continue;
-
-            col = editorcolors[1]; //red
-            if ((wal->cstat|wall[wal->nextwall].cstat)&1) col = editorcolors[5]; //magenta
 
             if (!(show2dsector[wal->nextsector>>3]&(1<<(wal->nextsector&7))))
                 col = editorcolors[7];

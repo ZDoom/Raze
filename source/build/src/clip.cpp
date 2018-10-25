@@ -92,9 +92,10 @@ int32_t engineLoadClipMaps(void)
     loadsprite = (uspritetype *) Xmalloc(MAXSPRITES * sizeof(spritetype));
 
     if (g_clipMapFilesNum)
+    {
         fisec = (int32_t *) Xcalloc(g_clipMapFilesNum, sizeof(int32_t));
-    if (g_clipMapFilesNum)
         fispr = (int32_t *) Xcalloc(g_clipMapFilesNum, sizeof(int32_t));
+    }
 
     quickloadboard = 1;
     for (fi = 0; fi < g_clipMapFilesNum; ++fi)

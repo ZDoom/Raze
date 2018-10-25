@@ -4077,7 +4077,8 @@ static void classicDrawBunches(int32_t bunch)
                     setup_globals_wall1(wal, wal->picnum);
                     setup_globals_wall2(wal, sec->visibility, nextsec->ceilingz, sec->ceilingz);
 
-                    if (gotswall == 0) { gotswall = 1; prepwall(z,wal); }
+                    gotswall = 1;
+                    prepwall(z,wal);
                     wallscan(x1,x2,uplc,dwall,swall,lwall);
 
                     if ((cz[2] >= cz[0]) && (cz[3] >= cz[1]))
@@ -4798,7 +4799,7 @@ static void classicDrawSprite(int32_t snum)
             return;
     }
 
-    if (tspr->xrepeat <= 0 || tspr->yrepeat <= 0)
+    if (!tspr->xrepeat || !tspr->yrepeat)
         return;
 
     globalpal = tspr->pal;
@@ -7467,8 +7468,7 @@ int32_t rintersect(int32_t x1, int32_t y1, int32_t z1,
 
     if (bot == 0)
         return -1;
-
-    if (bot >= 0)
+    else if (bot > 0)
     {
         int64_t x31=x3-x1, y31 = y3-y1;
         topt = x31*y34 - y31*x34; if (topt < 0) return -1;

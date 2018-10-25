@@ -3099,7 +3099,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, DETAILPAL, 1) &&
             (detailpth = texcache_fetch(globalpicnum, DETAILPAL, 0, method & ~DAMETH_MASKPROPS)) &&
-            detailpth && detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
+            detailpth->hicr && detailpth->hicr->palnum == DETAILPAL)
         {
             polymost_useDetailMapping(true);
             polymost_setupdetailtexture(videoGetRenderMode() == REND_POLYMOST ? GL_TEXTURE3 : ++texunits, detailpth->glpic);
@@ -3125,7 +3125,7 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
 
         if (usehightile && !drawingskybox && hicfindsubst(globalpicnum, GLOWPAL, 1) &&
             (glowpth = texcache_fetch(globalpicnum, GLOWPAL, 0, (method & ~DAMETH_MASKPROPS) | DAMETH_MASK)) &&
-            glowpth && glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
+            glowpth->hicr && (glowpth->hicr->palnum == GLOWPAL))
         {
             polymost_useGlowMapping(true);
             polymost_setupglowtexture(videoGetRenderMode() == REND_POLYMOST ? GL_TEXTURE4 : ++texunits, glowpth->glpic);
@@ -3164,8 +3164,8 @@ static void polymost_drawpoly(vec2f_t const * const dpxy, int32_t const n, int32
     }
     else
     {
-        float const al = waloff[globalpicnum] ? alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f):
-                         (pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f) : 0.f;
+        float const al = alphahackarray[globalpicnum] != 0 ? alphahackarray[globalpicnum] * (1.f/255.f) :
+                         (pth->hicr && pth->hicr->alphacut >= 0.f ? pth->hicr->alphacut : 0.f);
 
         glAlphaFunc(GL_GREATER, al);
         handle_blend((method & DAMETH_MASKPROPS) > DAMETH_MASK, drawpoly_blend, (method & DAMETH_MASKPROPS) == DAMETH_TRANS2);
@@ -5303,7 +5303,7 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
     {
         if (px[i] < px[j])
         {
-            if ((vcnt > 1) && (px[i] <= vsp[vcnt-1].x)) vcnt--;
+            if (px[i] <= vsp[vcnt-1].x) vcnt--;
             vsp[vcnt].x = px[i];
             vsp[vcnt].cy[0] = py[i];
             int k = j+1; if (k >= n) k = 0;
@@ -5316,7 +5316,7 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
         }
         else if (px[j] < px[i])
         {
-            if ((vcnt > 1) && (px[j] <= vsp[vcnt-1].x)) vcnt--;
+            if (px[j] <= vsp[vcnt-1].x) vcnt--;
             vsp[vcnt].x = px[j];
             vsp[vcnt].fy[0] = py[j];
             int k = i-1; if (k < 0) k = n-1;
@@ -5329,7 +5329,7 @@ static void polymost_initmosts(const float * px, const float * py, int const n)
         }
         else
         {
-            if ((vcnt > 1) && (px[i] <= vsp[vcnt-1].x)) vcnt--;
+            if (px[i] <= vsp[vcnt-1].x) vcnt--;
             vsp[vcnt].x = px[i];
             vsp[vcnt].cy[0] = py[i];
             vsp[vcnt].fy[0] = py[j];

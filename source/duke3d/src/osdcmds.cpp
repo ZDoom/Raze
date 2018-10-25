@@ -1056,7 +1056,7 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
         j = 1;
 
         repeat = 1;
-        if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"norepeat"))
+        if (!Bstrcasecmp(parm->parms[j],"norepeat"))
         {
             repeat = 0;
             j++;
@@ -1089,7 +1089,7 @@ static int32_t osdcmd_bind(osdfuncparm_t const * const parm)
     j = 1;
 
     repeat = 1;
-    if (parm->numparms >= 2 && !Bstrcasecmp(parm->parms[j],"norepeat"))
+    if (!Bstrcasecmp(parm->parms[j],"norepeat"))
     {
         repeat = 0;
         j++;

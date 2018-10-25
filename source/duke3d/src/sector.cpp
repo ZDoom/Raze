@@ -2624,13 +2624,11 @@ CHECKINV1:
             {
                 pPlayer->inven_icon = inventoryIcon;
 
-                if (inventoryIcon || pPlayer->inv_amount[GET_FIRSTAID])
-                {
-                    static const int32_t invQuotes[8] = { QUOTE_MEDKIT, QUOTE_STEROIDS, QUOTE_HOLODUKE,
-                        QUOTE_JETPACK, QUOTE_NVG, QUOTE_SCUBA, QUOTE_BOOTS, 0 };
-                    if (inventoryIcon-1 < ARRAY_SSIZE(invQuotes))
-                        P_DoQuote(invQuotes[inventoryIcon-1], pPlayer);
-                }
+                static const int32_t invQuotes[8] = { QUOTE_MEDKIT, QUOTE_STEROIDS, QUOTE_HOLODUKE,
+                    QUOTE_JETPACK, QUOTE_NVG, QUOTE_SCUBA, QUOTE_BOOTS, 0 };
+
+                if (inventoryIcon-1 < ARRAY_SSIZE(invQuotes))
+                    P_DoQuote(invQuotes[inventoryIcon-1], pPlayer);
             }
         }
 
@@ -3294,11 +3292,6 @@ void P_CheckSectors(int playerNum)
             {
                 if (foundWall == nearWall || foundWall == -1)
                     P_ActivateSwitch(playerNum,nearWall,0);
-                return;
-            }
-            else if (pPlayer->newowner >= 0)
-            {
-                G_ClearCameras(pPlayer);
                 return;
             }
         }

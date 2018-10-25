@@ -634,7 +634,7 @@ static char * SCRIPT_ParseString(char ** dest, char * p)
                 break;
             }
         }
-        if (ch == 0) return p;
+        return p;
     }
     else
     {

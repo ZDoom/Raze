@@ -1050,7 +1050,7 @@ int32_t OSD_HandleChar(char ch)
             {
                 tabc = osd_findsymbol(editor.tmp, lastmatch->next);
 
-                if (!tabc && lastmatch)
+                if (!tabc)
                     tabc = osd_findsymbol(editor.tmp, NULL);  // wrap */
             }
 
@@ -1611,13 +1611,10 @@ void OSD_Puts(const char *tmpstr)
 
     if (log.lines < log.cutoff)
     {
-        if (osdlog && (!log.cutoff || log.lines < log.cutoff))
-        {
-            char *chp2 = Xstrdup(tmpstr);
-            Bfputs(OSD_StripColors(chp2, tmpstr), osdlog);
-            Bprintf("%s", chp2);
-            Bfree(chp2);
-        }
+        char *chp2 = Xstrdup(tmpstr);
+        Bfputs(OSD_StripColors(chp2, tmpstr), osdlog);
+        Bprintf("%s", chp2);
+        Bfree(chp2);
     }
     else if (log.lines == log.cutoff)
     {
