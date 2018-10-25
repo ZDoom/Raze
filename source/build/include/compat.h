@@ -1174,27 +1174,24 @@ uint32_t Bgetsysmemsize(void);
 extern void xalloc_set_location(int32_t line, const char *file, const char *func);
 #endif
 void set_memerr_handler(void (*handlerfunc)(int32_t, const char *, const char *));
-void handle_memerr(void);
+void *handle_memerr(void *);
 
 static FORCE_INLINE char *xstrdup(const char *s)
 {
     char *ptr = Bstrdup(s);
-    if (ptr == NULL) handle_memerr();
-    return ptr;
+    return (ptr == NULL) ? (char *)handle_memerr(ptr) : ptr;
 }
 
 static FORCE_INLINE void *xmalloc(const bsize_t size)
 {
     void *ptr = Bmalloc(size);
-    if (ptr == NULL) handle_memerr();
-    return ptr;
+    return (ptr == NULL) ? handle_memerr(ptr) : ptr;
 }
 
 static FORCE_INLINE void *xcalloc(const bsize_t nmemb, const bsize_t size)
 {
     void *ptr = Bcalloc(nmemb, size);
-    if (ptr == NULL) handle_memerr();
-    return ptr;
+    return (ptr == NULL) ? handle_memerr(ptr) : ptr;
 }
 
 static FORCE_INLINE void *xrealloc(void * const ptr, const bsize_t size)
@@ -1205,18 +1202,14 @@ static FORCE_INLINE void *xrealloc(void * const ptr, const bsize_t size)
     //  - ptr == NULL makes realloc() behave like malloc()
     //  - size == 0 make it behave like free() if ptr != NULL
     // Since we want to catch an out-of-mem in the first case, this leaves:
-    if (newptr == NULL && size != 0)
-        handle_memerr();
-
-    return newptr;
+    return (newptr == NULL && size != 0) ? handle_memerr(ptr) : newptr;
 }
 
 #if !defined NO_ALIGNED_MALLOC
 static FORCE_INLINE void *xaligned_alloc(const bsize_t alignment, const bsize_t size)
 {
     void *ptr = Baligned_alloc(alignment, size);
-    if (ptr == NULL) handle_memerr();
-    return ptr;
+    return (ptr == NULL) ? handle_memerr(ptr) : ptr;
 }
 #else
 # define xaligned_alloc(alignment, size) xmalloc(size)

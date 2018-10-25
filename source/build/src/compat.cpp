@@ -48,8 +48,9 @@ void xalloc_set_location(int32_t line, const char *file, const char *func)
 }
 #endif
 
-void handle_memerr(void)
+void *handle_memerr(void *p)
 {
+    UNREFERENCED_PARAMETER(p);
     debug_break();
 
     if (g_MemErrHandler)
@@ -62,6 +63,7 @@ void handle_memerr(void)
     }
 
     Bexit(EXIT_FAILURE);
+    EDUKE32_UNREACHABLE_SECTION(return &handle_memerr);
 }
 
 void set_memerr_handler(void(*handlerfunc)(int32_t, const char *, const char *))
