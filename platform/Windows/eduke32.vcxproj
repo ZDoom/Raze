@@ -168,7 +168,6 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\source\build\include\m32script.h" />
     <ClInclude Include="..\..\source\duke3d\src\actors.h" />
     <ClInclude Include="..\..\source\duke3d\src\android.h" />
     <ClInclude Include="..\..\source\duke3d\src\in_android.h" />
@@ -184,7 +183,6 @@
     <ClInclude Include="..\..\source\duke3d\src\global.h" />
     <ClInclude Include="..\..\source\duke3d\src\input.h" />
     <ClInclude Include="..\..\source\duke3d\src\inv.h" />
-    <ClInclude Include="..\..\source\duke3d\src\m32def.h" />
     <ClInclude Include="..\..\source\duke3d\src\menus.h" />
     <ClInclude Include="..\..\source\duke3d\src\mpu401.h" />
     <ClInclude Include="..\..\source\duke3d\src\net.h" />
@@ -207,7 +205,6 @@
     <ClInclude Include="..\..\source\duke3d\src\grpscan.h" />
     <ClInclude Include="..\..\source\duke3d\src\keys.h" />
     <ClInclude Include="..\..\source\duke3d\src\macros.h" />
-    <ClInclude Include="..\..\source\duke3d\src\mapster32.h" />
     <ClInclude Include="..\..\source\duke3d\src\mdump.h" />
     <ClInclude Include="..\..\source\duke3d\src\names.h" />
     <ClInclude Include="..\..\source\duke3d\src\namesdyn.h" />
@@ -216,7 +213,6 @@
     <ClInclude Include="..\..\source\duke3d\src\rts.h" />
     <ClInclude Include="..\..\source\duke3d\src\soundefs.h" />
     <ClInclude Include="..\..\source\duke3d\src\sounds.h" />
-    <ClInclude Include="..\..\source\duke3d\src\sounds_mapster32.h" />
     <ClInclude Include="..\..\source\duke3d\src\soundsdyn.h" />
     <ClInclude Include="..\..\source\duke3d\src\startwin.game.h" />
   </ItemGroup>

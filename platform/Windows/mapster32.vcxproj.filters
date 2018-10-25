@@ -16,6 +16,9 @@
     <Filter Include="Source Files\duke3d_editor">
       <UniqueIdentifier>{ee09cb31-7362-4130-8d18-bbd79d8b6beb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\editor">
+      <UniqueIdentifier>{0a73384a-1c85-408e-b551-41eee33e3db6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\source\build\src\startwin.editor.cpp">
@@ -64,6 +67,18 @@
   <ItemGroup>
     <ClInclude Include="..\..\source\build\include\startwin.editor.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\build\include\m32script.h">
+      <Filter>Header Files\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\duke3d\src\m32def.h">
+      <Filter>Header Files\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\duke3d\src\mapster32.h">
+      <Filter>Header Files\editor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\source\duke3d\src\sounds_mapster32.h">
+      <Filter>Header Files\editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

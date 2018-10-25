@@ -7,9 +7,6 @@
     <Filter Include="Header Files">
       <UniqueIdentifier>{82d4000f-cd8c-4737-88dc-4ada5775a68e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\editor">
-      <UniqueIdentifier>{3477e5cd-29a4-42b2-8c3f-ca4618242526}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\android">
       <UniqueIdentifier>{52ce6149-4982-41a4-9adf-c7a9468421fd}</UniqueIdentifier>
     </Filter>
@@ -123,15 +120,6 @@
     <ClInclude Include="..\..\source\duke3d\src\quotes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\source\duke3d\src\m32def.h">
-      <Filter>Header Files\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\duke3d\src\mapster32.h">
-      <Filter>Header Files\editor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\duke3d\src\sounds_mapster32.h">
-      <Filter>Header Files\editor</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\source\duke3d\src\input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -167,9 +155,6 @@
     </ClInclude>
     <ClInclude Include="..\..\source\duke3d\src\inv.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\source\build\include\m32script.h">
-      <Filter>Header Files\editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

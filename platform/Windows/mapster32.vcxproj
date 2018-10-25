@@ -214,7 +214,11 @@
     <ClCompile Include="..\..\source\duke3d\src\sounds_mapster32.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\source\build\include\m32script.h" />
     <ClInclude Include="..\..\source\build\include\startwin.editor.h" />
+    <ClInclude Include="..\..\source\duke3d\src\m32def.h" />
+    <ClInclude Include="..\..\source\duke3d\src\mapster32.h" />
+    <ClInclude Include="..\..\source\duke3d\src\sounds_mapster32.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="audiolib.vcxproj">
