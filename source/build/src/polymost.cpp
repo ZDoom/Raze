@@ -1254,25 +1254,20 @@ static void fogcalc_old(int32_t shade, int32_t vis)
 {
     float f;
 
-    if (r_usenewshading==1)
+    if (r_usenewshading == 1)
     {
         f = 0.9f * shade;
-        f = (vis > 239) ? (float)(gvisibility*((vis-240+f))) :
-            (float)(gvisibility*(vis+16+f));
+        f = (vis > 239) ? (float)(gvisibility * (vis - 240 + f)) :
+                          (float)(gvisibility * (vis + 16 + f));
     }
     else
     {
         f = (shade < 0) ? shade * 3.5f : shade * .66f;
-        f = (vis > 239) ? (float)(gvisibility*((vis-240+f)/(klabs(vis-256)))) :
-            (float)(gvisibility*(vis+16+f));
+        f = (vis > 239) ? (float)(gvisibility * ((vis - 240 + f) / (klabs(vis - 256)))) :
+                          (float)(gvisibility * (vis + 16 + f));
     }
 
-    if (f < 0.001f)
-        f = 0.001f;
-    else if (f > 100.0f)
-        f = 100.0f;
-
-    fogresult = f;
+    fogresult = clamp(f, 0.001f, 100.0f);
 }
 
 // For GL_LINEAR fog:
@@ -1304,13 +1299,13 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
         {
             // beg = -D*shade, end = D*(NUMSHADES-1-shade)
             //  => end/beg = -(NUMSHADES-1-shade)/shade
-            fogresult = (float) -FULLVIS_BEGIN;
-            fogresult2 = FULLVIS_BEGIN * (float) (numshades-1-shade)/shade;
+            fogresult = -FULLVIS_BEGIN;
+            fogresult2 = FULLVIS_BEGIN * (float)(numshades-1-shade) / shade;
         }
         else
         {
-            fogresult = (float) FULLVIS_BEGIN;
-            fogresult2 = (float) FULLVIS_END;
+            fogresult  = FULLVIS_BEGIN;
+            fogresult2 = FULLVIS_END;
         }
     }
     else if (r_usenewshading == 3 && shade >= numshades-1)
@@ -1321,7 +1316,7 @@ static inline void fogcalc(int32_t tile, int32_t shade, int32_t vis, int32_t pal
     else
     {
         combvis = 1.f/combvis;
-        fogresult = (r_usenewshading == 3 && shade > 0) ? 0 : -(FOGDISTCONST * shade) * combvis;
+        fogresult = (r_usenewshading == 3 && shade > 0) ? 0.f : -(FOGDISTCONST * shade) * combvis;
         fogresult2 = (FOGDISTCONST * (numshades-1-shade)) * combvis;
     }
 }
