@@ -103,6 +103,8 @@ LONG MiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS *pExceptionInfo )
 		{
 			szResult = "DBGHELP.DLL too old";
 		}
+
+        ::FreeLibrary(hDll);
 	}
 
     ::MessageBox( NULL, szResult, m_szAppName, MB_OK );
