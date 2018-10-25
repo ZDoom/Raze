@@ -140,10 +140,10 @@ bool g_saveRequested;
 savebrief_t * g_quickload;
 
 menusave_t * g_menusaves;
-uint32_t g_nummenusaves;
+uint16_t g_nummenusaves;
 
 static menusave_t * g_internalsaves;
-static size_t g_numinternalsaves;
+static uint16_t g_numinternalsaves;
 
 static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
 {
@@ -184,9 +184,9 @@ static void ReadSaveGameHeaders_CACHE1D(CACHE1D_FIND_REC *f)
     }
 }
 
-static size_t countcache1dfind(CACHE1D_FIND_REC *f)
+static int countcache1dfind(CACHE1D_FIND_REC *f)
 {
-    size_t x = 0;
+    int x = 0;
     for (; f != nullptr; f = f->next)
         ++x;
     return x;
@@ -199,12 +199,12 @@ static void ReadSaveGameHeaders_Internal(void)
     CACHE1D_FIND_REC *findfiles_default = klistpath(DefaultPath, SavePattern, CACHE1D_FIND_FILE);
 
     // potentially overallocating but programmatically simple
-    size_t const numfiles = countcache1dfind(findfiles_default);
+    int const numfiles = countcache1dfind(findfiles_default);
     size_t const internalsavesize = sizeof(menusave_t) * numfiles;
 
     g_internalsaves = (menusave_t *)Xrealloc(g_internalsaves, internalsavesize);
 
-    for (size_t x = 0; x < numfiles; ++x)
+    for (int x = 0; x < numfiles; ++x)
         g_internalsaves[x].clear();
 
     g_numinternalsaves = 0;
@@ -212,7 +212,7 @@ static void ReadSaveGameHeaders_Internal(void)
     klistfree(findfiles_default);
 
     g_nummenusaves = 0;
-    for (size_t x = g_numinternalsaves-1; x < g_numinternalsaves; --x)
+    for (int x = g_numinternalsaves-1; x >= 0; --x)
     {
         menusave_t & msv = g_internalsaves[x];
         if (!msv.isUnreadable)
@@ -224,10 +224,10 @@ static void ReadSaveGameHeaders_Internal(void)
 
     g_menusaves = (menusave_t *)Xrealloc(g_menusaves, menusavesize);
 
-    for (size_t x = 0; x < g_nummenusaves; ++x)
+    for (int x = 0; x < g_nummenusaves; ++x)
         g_menusaves[x].clear();
 
-    for (size_t x = g_numinternalsaves-1, y = 0; x < g_numinternalsaves; --x)
+    for (int x = g_numinternalsaves-1, y = 0; x >= 0; --x)
     {
         menusave_t & msv = g_internalsaves[x];
         if (!msv.isUnreadable)
@@ -236,10 +236,10 @@ static void ReadSaveGameHeaders_Internal(void)
         }
     }
 
-    for (size_t x = g_numinternalsaves-1; x < g_numinternalsaves; --x)
+    for (int x = g_numinternalsaves-1; x >= 0; --x)
     {
         char const * const path = g_internalsaves[x].brief.path;
-        size_t const pathlen = strlen(path);
+        int const pathlen = Bstrlen(path);
         if (pathlen < 12)
             continue;
         char const * const fn = path + (pathlen-12);
@@ -249,7 +249,7 @@ static void ReadSaveGameHeaders_Internal(void)
             char number[5];
             memcpy(number, fn+4, 4);
             number[4] = '\0';
-            savecounter.count = atoi(number)+1;
+            savecounter.count = Batoi(number)+1;
             break;
         }
     }
@@ -263,8 +263,8 @@ void ReadSaveGameHeaders(void)
         return;
 
     bool didDelete = false;
-    int32_t numautosaves = 0;
-    for (size_t x = 0; x < g_nummenusaves; ++x)
+    int numautosaves = 0;
+    for (int x = 0; x < g_nummenusaves; ++x)
     {
         menusave_t & msv = g_menusaves[x];
         if (!msv.isAutoSave)
@@ -331,20 +331,21 @@ static int different_user_map;
 // XXX: keyboard input 'blocked' after load fail? (at least ESC?)
 int32_t G_LoadPlayer(savebrief_t & sv)
 {
-    savehead_t h;
+    int const fil = kopen4loadfrommod(sv.path, 0);
 
-    int32_t fil = kopen4loadfrommod(sv.path, 0);
     if (fil == -1)
         return -1;
 
     ready2send = 0;
 
-    int32_t i = sv_loadheader(fil, 0, &h);
-    if ((i < 0) || h.numplayers != ud.multimode)
+    savehead_t h;
+    int status = sv_loadheader(fil, 0, &h);
+
+    if (status < 0 || h.numplayers != ud.multimode)
     {
-        if (i == -4 || i == -3 || i == 1)
+        if (status == -4 || status == -3 || status == 1)
             P_DoQuote(QUOTE_SAVE_BAD_VERSION, g_player[myconnectindex].ps);
-        else if (h.numplayers!=ud.multimode)
+        else if (h.numplayers != ud.multimode)
             P_DoQuote(QUOTE_SAVE_BAD_PLAYERS, g_player[myconnectindex].ps);
 
         kclose(fil);
@@ -381,10 +382,10 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     // NOTE: Bmemcpy needed for SAVEGAME_MUSIC.
     EDUKE32_STATIC_ASSERT(sizeof(boardfilename) == sizeof(h.boardfn));
-    different_user_map = strcmp(boardfilename, h.boardfn);
+    different_user_map = Bstrcmp(boardfilename, h.boardfn);
     Bmemcpy(boardfilename, h.boardfn, sizeof(boardfilename));
 
-    const int mapIdx = h.volnum*MAXLEVELS + h.levnum;
+    int const mapIdx = h.volnum*MAXLEVELS + h.levnum;
 
     if (boardfilename[0])
         Bstrcpy(currentboardfilename, boardfilename);
@@ -400,26 +401,18 @@ int32_t G_LoadPlayer(savebrief_t & sv)
 
     Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
 
-    if (i == 2)
-    {
+    if (status == 2)
         G_NewGame_EnterLevel();
-    }
-    else
+    else if ((status = sv_loadsnapshot(fil, 0, &h)))  // read the rest...
     {
-        // read the rest...
-        i = sv_loadsnapshot(fil, 0, &h);
-        if (i)
-        {
-            // in theory, we could load into an initial dump first and trivially
-            // recover if things go wrong...
-            Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", sv.path, i);
-            G_GameExit(tempbuf);
-        }
+        // in theory, we could load into an initial dump first and trivially
+        // recover if things go wrong...
+        Bsprintf(tempbuf, "Loading save game file \"%s\" failed (code %d), cannot recover.", sv.path, status);
+        G_GameExit(tempbuf);
     }
+
     sv_postudload();  // ud.m_XXX = ud.XXX
-
     VM_OnEvent(EVENT_LOADGAME, g_player[screenpeek].ps->i, screenpeek);
-
     kclose(fil);
 
     return 0;
@@ -434,20 +427,20 @@ static struct {
 
 static void G_SaveTimers(void)
 {
-    g_timers.totalclock = totalclock;
+    g_timers.totalclock     = totalclock;
     g_timers.totalclocklock = totalclocklock;
-    g_timers.ototalclock = ototalclock;
-    g_timers.lockclock = lockclock;
+    g_timers.ototalclock    = ototalclock;
+    g_timers.lockclock      = lockclock;
 }
 
 static void G_RestoreTimers(void)
 {
     timerUpdate();
 
-    totalclock = g_timers.totalclock;
+    totalclock     = g_timers.totalclock;
     totalclocklock = g_timers.totalclocklock;
-    ototalclock = g_timers.ototalclock;
-    lockclock = g_timers.lockclock;
+    ototalclock    = g_timers.ototalclock;
+    lockclock      = g_timers.lockclock;
 }
 
 //////////
@@ -474,6 +467,8 @@ static void G_SavePalette(void)
                 kread(pfil, buf, len);
                 fwrite(buf, len, 1, fil);
                 fclose(fil);
+
+                Bfree(buf);
             }
         }
         else fclose(fil);
@@ -501,7 +496,7 @@ void G_DeleteOldSaves(void)
 {
     ReadSaveGameHeaders();
 
-    for (size_t x = 0; x < g_numinternalsaves; ++x)
+    for (int x = 0; x < g_numinternalsaves; ++x)
     {
         menusave_t const & msv = g_internalsaves[x];
         if (msv.isOldVer || msv.isUnreadable)
@@ -509,12 +504,12 @@ void G_DeleteOldSaves(void)
     }
 }
 
-size_t G_CountOldSaves(void)
+uint16_t G_CountOldSaves(void)
 {
     ReadSaveGameHeaders();
 
-    size_t bad = 0;
-    for (size_t x = 0; x < g_numinternalsaves; ++x)
+    int bad = 0;
+    for (int x = 0; x < g_numinternalsaves; ++x)
     {
         menusave_t const & msv = g_internalsaves[x];
         if (msv.isOldVer || msv.isUnreadable)
@@ -552,8 +547,8 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
     else
     {
         static char const SaveName[] = "save0000.esv";
-        size_t len = G_ModDirSnprintfLite(temp, sizeof(temp), SaveName);
-        if (len >= sizeof(temp)-1)
+        int const len = G_ModDirSnprintfLite(temp, ARRAY_SIZE(temp), SaveName);
+        if (len >= ARRAY_SSIZE(temp)-1)
         {
             OSD_Printf("G_SavePlayer: could not form automatic save path\n");
             goto saveproblem;
@@ -562,7 +557,7 @@ int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave)
         fil = savecounter.opennextfile(temp, zeros);
         savecounter.count++;
         // don't copy the mod dir into sv.path
-        strcpy(sv.path, temp + (len-(ARRAY_SIZE(SaveName)-1)));
+        Bstrcpy(sv.path, temp + (len-(ARRAY_SIZE(SaveName)-1)));
     }
 
     if (!fil)
@@ -690,69 +685,72 @@ static uint8_t savegame_comprthres;
 #define DS_PROTECTFN 512
 #define DS_END (0x70000000)
 
-static int32_t ds_getcnt(const dataspec_t *sp)
+static int32_t ds_getcnt(const dataspec_t *spec)
 {
-    int rv = -1;
+    int cnt = -1;
 
-    switch (sp->flags & DS_CNTMASK)
+    switch (spec->flags & DS_CNTMASK)
     {
-        case 0: rv = sp->cnt; break;
-        case DS_CNT16: rv = *((int16_t *)sp->cnt); break;
-        case DS_CNT32: rv = *((int32_t *)sp->cnt); break;
+        case 0: cnt = spec->cnt; break;
+        case DS_CNT16: cnt = *((int16_t *)spec->cnt); break;
+        case DS_CNT32: cnt = *((int32_t *)spec->cnt); break;
     }
 
-    return rv;
+    return cnt;
 }
 
-static inline void ds_get(const dataspec_t *sp, void **ptr, int32_t *cnt)
+static inline void ds_get(const dataspec_t *spec, void **ptr, int32_t *cnt)
 {
-    *cnt = ds_getcnt(sp);
-    *ptr = (sp->flags&DS_DYNAMIC) ? *((void **)sp->ptr) : sp->ptr;
+    *cnt = ds_getcnt(spec);
+    *ptr = (spec->flags & DS_DYNAMIC) ? *((void **)spec->ptr) : spec->ptr;
 }
 
 // write state to file and/or to dump
 static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
 {
-    int32_t cnt;
-    void *ptr;
-    const dataspec_t *sp=spec;
-
-    for (; sp->flags!=DS_END; sp++)
+    for (; spec->flags != DS_END; spec++)
     {
-        if (sp->flags&(DS_SAVEFN|DS_LOADFN))
+        if (spec->flags & (DS_SAVEFN|DS_LOADFN))
         {
-            if (sp->flags&DS_SAVEFN)
-                (*(void (*)(void))sp->ptr)();
+            if (spec->flags & DS_SAVEFN)
+                (*(void (*)(void))spec->ptr)();
             continue;
         }
 
-        if (!fil && (sp->flags&(DS_NOCHK|DS_CMP|DS_STRING)))
+        if (!fil && (spec->flags & (DS_NOCHK|DS_CMP|DS_STRING)))
             continue;
-        else if (sp->flags&DS_STRING)
+        else if (spec->flags & DS_STRING)
         {
-            fwrite(sp->ptr, Bstrlen((const char *)sp->ptr), 1, fil);  // not null-terminated!
+            fwrite(spec->ptr, Bstrlen((const char *)spec->ptr), 1, fil);  // not null-terminated!
             continue;
         }
 
-        ds_get(sp, &ptr, &cnt);
-        if (cnt < 0) { OSD_Printf("wsd: cnt=%d, f=0x%x.\n",cnt,sp->flags); continue; }
+        void *  ptr;
+        int32_t cnt;
+
+        ds_get(spec, &ptr, &cnt);
+
+        if (cnt < 0)
+        {
+            OSD_Printf("wsd: cnt=%d, f=0x%x.\n", cnt, spec->flags);
+            continue;
+        }
 
         if (!ptr || !cnt)
             continue;
 
         if (fil)
         {
-            if (((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=savegame_comprthres)
-                    || (sp->flags&DS_CMP))
-                fwrite(ptr, sp->size, cnt, fil);
+            if ((spec->flags & DS_CMP) || ((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres))
+                fwrite(ptr, spec->size, cnt, fil);
             else
-                dfwrite_LZ4((void *)ptr, sp->size, cnt, fil);
+                dfwrite_LZ4((void *)ptr, spec->size, cnt, fil);
         }
 
-        if (dump && (sp->flags&(DS_NOCHK|DS_CMP))==0)
+        if (dump && (spec->flags & (DS_NOCHK|DS_CMP)) == 0)
         {
-            Bmemcpy(dump, ptr, sp->size*cnt);
-            dump += sp->size*cnt;
+            Bmemcpy(dump, ptr, spec->size * cnt);
+            dump += spec->size * cnt;
         }
     }
     return dump;
@@ -764,86 +762,85 @@ static uint8_t *writespecdata(const dataspec_t *spec, FILE *fil, uint8_t *dump)
 // (fil>=0 && !havedump): only restore state from file
 static int32_t readspecdata(const dataspec_t *spec, int32_t fil, uint8_t **dumpvar)
 {
-    int32_t cnt, i, j;
-    void *ptr;
-    uint8_t *dump=dumpvar?*dumpvar:NULL, *mem;
-    const dataspec_t *sp=spec;
-    static char cmpstrbuf[32];
+    uint8_t *  dump = dumpvar ? *dumpvar : NULL;
+    auto const sptr = spec;
 
-    for (; sp->flags!=DS_END; sp++)
+    for (; spec->flags != DS_END; spec++)
     {
-        if (fil < 0 && sp->flags&(DS_NOCHK|DS_STRING|DS_CMP))  // we're updating
+        if (fil < 0 && spec->flags & (DS_NOCHK|DS_STRING|DS_CMP))  // we're updating
             continue;
 
-        if (sp->flags&(DS_LOADFN|DS_SAVEFN))
+        if (spec->flags & (DS_LOADFN|DS_SAVEFN))
         {
-            if (sp->flags&DS_LOADFN)
-                (*(void (*)())sp->ptr)();
+            if (spec->flags & DS_LOADFN)
+                (*(void (*)())spec->ptr)();
             continue;
         }
 
-        if (sp->flags&(DS_STRING|DS_CMP))  // DS_STRING and DS_CMP is for static data only
+        if (spec->flags & (DS_STRING|DS_CMP))  // DS_STRING and DS_CMP is for static data only
         {
-            if (sp->flags&(DS_STRING))
-                i = Bstrlen((const char *)sp->ptr);
-            else
-                i = sp->size*sp->cnt;
+            static char cmpstrbuf[32];
+            int const siz  = (spec->flags & DS_STRING) ? Bstrlen((const char *)spec->ptr) : spec->size * spec->cnt;
+            int const ksiz = kread(fil, cmpstrbuf, siz);
 
-            j=kread(fil, cmpstrbuf, i);
-            if (j!=i || Bmemcmp(sp->ptr, cmpstrbuf, i))
+            if (ksiz != siz || Bmemcmp(spec->ptr, cmpstrbuf, siz))
             {
-                OSD_Printf("rsd: spec=%s, idx=%d:\n", (char *)spec->ptr, (int32_t)(sp-spec));
-                if (j!=i)
-                    OSD_Printf("    kread returned %d, expected %d.\n", j, i);
+                OSD_Printf("rsd: spec=%s, idx=%d:\n", (char *)sptr->ptr, (int32_t)(spec-sptr));
+
+                if (ksiz!=siz)
+                    OSD_Printf("    kread returned %d, expected %d.\n", ksiz, siz);
                 else
                     OSD_Printf("    sp->ptr and cmpstrbuf not identical!\n");
+
                 return -1;
             }
             continue;
         }
 
-        ds_get(sp, &ptr, &cnt);
-        if (cnt < 0) { OSD_Printf("rsd: cnt<0... wtf?\n"); return -1; }
+        void *  ptr;
+        int32_t cnt;
+
+        ds_get(spec, &ptr, &cnt);
+
+        if (cnt < 0)
+        {
+            OSD_Printf("rsd: cnt<0... wtf?\n");
+            return -1;
+        }
 
         if (!ptr || !cnt)
             continue;
 
-        if (fil>=0)
+        if (fil >= 0)
         {
-            mem = (dump && (sp->flags&DS_NOCHK)==0) ? dump : (uint8_t *)ptr;
+            auto const mem  = (dump && (spec->flags & DS_NOCHK) == 0) ? dump : (uint8_t *)ptr;
+            bool const comp = !((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres);
+            int const  siz  = comp ? cnt : cnt * spec->size;
+            int const  ksiz = comp ? kdfread_LZ4(mem, spec->size, siz, fil) : kread(fil, mem, siz);
 
-            if ((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=savegame_comprthres)
+            if (ksiz != siz)
             {
-                i = kread(fil, mem, cnt*sp->size);
-                j = cnt*sp->size;
-            }
-            else
-            {
-                i = kdfread_LZ4(mem, sp->size, cnt, fil);
-                j = cnt;
-            }
-            if (i!=j)
-            {
-                OSD_Printf("rsd: spec=%s, idx=%d, mem=%p\n", (char *)spec->ptr, (int32_t)(sp-spec), mem);
+                OSD_Printf("rsd: spec=%s, idx=%d, mem=%p\n", (char *)sptr->ptr, (int32_t)(spec - sptr), mem);
                 OSD_Printf("     (%s): read %d, expected %d!\n",
-                           ((sp->flags&DS_CNTMASK)==0 && sp->size*cnt<=savegame_comprthres)?
-                           "uncompressed":"compressed", i, j);
+                           ((spec->flags & DS_CNTMASK) == 0 && spec->size * cnt <= savegame_comprthres) ? "uncompressed" : "compressed", ksiz, siz);
 
-                if (i==-1)
+                if (ksiz == -1)
                     OSD_Printf("     read: %s\n", strerror(errno));
+
                 return -1;
             }
         }
 
-        if (dump && (sp->flags&DS_NOCHK)==0)
+        if (dump && (spec->flags & DS_NOCHK) == 0)
         {
-            Bmemcpy(ptr, dump, sp->size*cnt);
-            dump += sp->size*cnt;
+            Bmemcpy(ptr, dump, spec->size * cnt);
+            dump += spec->size * cnt;
         }
     }
 
     if (dumpvar)
         *dumpvar = dump;
+
     return 0;
 }
 
@@ -857,59 +854,61 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
     uint8_t *retdiff = *diffvar;
 
     // Hail to the C preprocessor, baby!
-#define CPSINGLEVAL(Datbits) \
-        if (VAL(Datbits, ptr) != VAL(Datbits, dump))  \
-        {                                             \
-            WVAL(Datbits, retdiff) = WVAL(Datbits, dump) = VAL(Datbits, ptr); \
-            *diffvar = retdiff+BYTES(Datbits);        \
-        }
+#define CPSINGLEVAL(Datbits)                                              \
+    if (VAL(Datbits, ptr) != VAL(Datbits, dump))                          \
+    {                                                                     \
+        WVAL(Datbits, retdiff) = WVAL(Datbits, dump) = VAL(Datbits, ptr); \
+        *diffvar = retdiff + BYTES(Datbits);                              \
+    }
 
-    if (cnt==1)
+    if (cnt == 1)
         switch (size)
         {
-        case 8: CPSINGLEVAL(64); return;
-        case 4: CPSINGLEVAL(32); return;
-        case 2: CPSINGLEVAL(16); return;
-        case 1: CPSINGLEVAL(8); return;
+            case 8: CPSINGLEVAL(64); return;
+            case 4: CPSINGLEVAL(32); return;
+            case 2: CPSINGLEVAL(16); return;
+            case 1: CPSINGLEVAL(8); return;
         }
 
-#define CPELTS(Idxbits, Datbits) do \
-    {                                         \
-        for (i=0; i<nelts; i++)               \
-        {                                     \
-            if (*p!=*op)                      \
-            {                                 \
-                *op = *p;      \
-                WVAL(Idxbits, retdiff) = i;    \
-                retdiff += BYTES(Idxbits);    \
-                WVAL(Datbits, retdiff) = *p;   \
-                retdiff += BYTES(Datbits);    \
-            }                                 \
-            p++;                              \
-            op++;                             \
-        }                                     \
-        WVAL(Idxbits, retdiff) = -1;           \
-        retdiff += BYTES(Idxbits);            \
+#define CPELTS(Idxbits, Datbits)             \
+    do                                       \
+    {                                        \
+        for (int i = 0; i < nelts; i++)      \
+        {                                    \
+            if (*p != *op)                   \
+            {                                \
+                *op = *p;                    \
+                WVAL(Idxbits, retdiff) = i;  \
+                retdiff += BYTES(Idxbits);   \
+                WVAL(Datbits, retdiff) = *p; \
+                retdiff += BYTES(Datbits);   \
+            }                                \
+            p++;                             \
+            op++;                            \
+        }                                    \
+        WVAL(Idxbits, retdiff) = -1;         \
+        retdiff += BYTES(Idxbits);           \
     } while (0)
 
-#define CPDATA(Datbits) do \
-    { \
-        const UINT(Datbits) *p=(UINT(Datbits) const *)ptr;    \
-        UINT(Datbits) *op=(UINT(Datbits) *)dump;        \
-        uint32_t i, nelts=tabledivide32_noinline(size*cnt, BYTES(Datbits));    \
-        if (nelts>65536)                                \
-            CPELTS(32,Datbits);                         \
-        else if (nelts>256)                             \
-            CPELTS(16,Datbits);                         \
-        else                                            \
-            CPELTS(8,Datbits);                          \
+#define CPDATA(Datbits)                                                  \
+    do                                                                   \
+    {                                                                    \
+        auto p     = (UINT(Datbits) const *)ptr;                         \
+        auto op    = (UINT(Datbits) *)dump;                              \
+        int  nelts = tabledivide32_noinline(size * cnt, BYTES(Datbits)); \
+        if (nelts > 65536)                                               \
+            CPELTS(32, Datbits);                                         \
+        else if (nelts > 256)                                            \
+            CPELTS(16, Datbits);                                         \
+        else                                                             \
+            CPELTS(8, Datbits);                                          \
     } while (0)
 
-    if (size==8)
+    if (size == 8)
         CPDATA(64);
-    else if ((size&3)==0)
+    else if ((size & 3) == 0)
         CPDATA(32);
-    else if ((size&1)==0)
+    else if ((size & 1) == 0)
         CPDATA(16);
     else
         CPDATA(8);
@@ -924,46 +923,60 @@ static void docmpsd(const void *ptr, void *dump, uint32_t size, uint32_t cnt, ui
 // get the number of elements to be monitored for changes
 static int32_t getnumvar(const dataspec_t *spec)
 {
-    int32_t n=0;
-    for (; spec->flags!=DS_END; spec++)
-        n += (spec->flags&(DS_STRING|DS_CMP|DS_NOCHK|DS_SAVEFN|DS_LOADFN) ? 0 : 1);
+    int n = 0;
+    for (; spec->flags != DS_END; spec++)
+        if (spec->flags & (DS_STRING|DS_CMP|DS_NOCHK|DS_SAVEFN|DS_LOADFN))
+            ++n;
     return n;
 }
 
 // update dump at *dumpvar with new state and write diff to *diffvar
 static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **diffvar)
 {
-    void *ptr;
-    uint8_t *dump=*dumpvar, *diff=*diffvar, *tmptr;
-    const dataspec_t *sp=spec;
-    int32_t cnt, eltnum=0, nbytes=(getnumvar(spec)+7)>>3, l=Bstrlen((const char *)spec->ptr);
+    uint8_t * dump   = *dumpvar;
+    uint8_t * diff   = *diffvar;
+    int       nbytes = (getnumvar(spec) + 7) >> 3;
+    int const slen   = Bstrlen((const char *)spec->ptr);
 
-    Bmemcpy(diff, spec->ptr, l);
-    diff+=l;
+    Bmemcpy(diff, spec->ptr, slen);
+    diff += slen;
 
     while (nbytes--)
         *(diff++) = 0;  // the bitmap of indices which elements of spec have changed go here
 
-    for (sp++; sp->flags!=DS_END; sp++)
+    int eltnum = 0;
+
+    for (spec++; spec->flags!=DS_END; spec++)
     {
-        if ((sp->flags&(DS_NOCHK|DS_STRING|DS_CMP)))
+        if ((spec->flags&(DS_NOCHK|DS_STRING|DS_CMP)))
             continue;
 
-        if (sp->flags&(DS_LOADFN|DS_SAVEFN))
+        if (spec->flags&(DS_LOADFN|DS_SAVEFN))
         {
-            if ((sp->flags&(DS_PROTECTFN))==0)
-                (*(void (*)())sp->ptr)();
+            if ((spec->flags&(DS_PROTECTFN))==0)
+                (*(void (*)())spec->ptr)();
             continue;
         }
 
-        ds_get(sp, &ptr, &cnt);
-        if (cnt < 0) { OSD_Printf("csd: cnt=%d, f=0x%x\n", cnt, sp->flags); continue; }
+        void *  ptr;
+        int32_t cnt;
 
-        tmptr = diff;
-        docmpsd(ptr, dump, sp->size, cnt, &diff);
+        ds_get(spec, &ptr, &cnt);
+
+        if (cnt < 0)
+        {
+            OSD_Printf("csd: cnt=%d, f=0x%x\n", cnt, spec->flags);
+            continue;
+        }
+
+        uint8_t * const tmptr = diff;
+
+        docmpsd(ptr, dump, spec->size, cnt, &diff);
+
         if (diff != tmptr)
-            (*diffvar + l)[eltnum>>3] |= 1<<(eltnum&7);
-        dump += sp->size*cnt;
+            (*diffvar + slen)[eltnum>>3] |= 1<<(eltnum&7);
+
+        dump += spec->size*cnt;
         eltnum++;
     }
 
@@ -976,81 +989,85 @@ static void cmpspecdata(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **dif
 // apply diff to dump, not to state! state is restored from dump afterwards.
 static int32_t applydiff(const dataspec_t *spec, uint8_t **dumpvar, uint8_t **diffvar)
 {
-    uint8_t *dumptr=*dumpvar, *diffptr=*diffvar;
-    const dataspec_t *sp=spec;
-    bssize_t cnt, eltnum=-1, nbytes=(getnumvar(spec)+7)>>3, l=Bstrlen((const char *)spec->ptr);
+    uint8_t * dump   = *dumpvar;
+    uint8_t * diff   = *diffvar;
+    int const nbytes = (getnumvar(spec)+7)>>3;
+    int const slen   = Bstrlen((const char *)spec->ptr);
 
-    if (Bmemcmp(diffptr, spec->ptr, l))  // check STRING magic (sync check)
+    if (Bmemcmp(diff, spec->ptr, slen))  // check STRING magic (sync check)
         return 1;
 
-    diffptr += l+nbytes;
+    diff += slen+nbytes;
 
-    for (sp++; sp->flags!=DS_END; sp++)
+    int eltnum = -1;
+    for (spec++; spec->flags != DS_END; spec++)
     {
-        if ((sp->flags&(DS_NOCHK|DS_STRING|DS_CMP|DS_LOADFN|DS_SAVEFN)))
+        if ((spec->flags & (DS_NOCHK|DS_STRING|DS_CMP|DS_LOADFN|DS_SAVEFN)))
             continue;
 
-        cnt = ds_getcnt(sp);
+        int const cnt = ds_getcnt(spec);
         if (cnt < 0) return 1;
 
         eltnum++;
-        if (((*diffvar + l)[eltnum>>3]&(1<<(eltnum&7))) == 0)
+        if (((*diffvar+slen)[eltnum>>3] & (1<<(eltnum&7))) == 0)
         {
-            dumptr += sp->size*cnt;
+            dump += spec->size * cnt;
             continue;
         }
 
 // ----------
-#define CPSINGLEVAL(Datbits) \
-            WVAL(Datbits, dumptr) = VAL(Datbits, diffptr); \
-            diffptr += BYTES(Datbits); \
-            dumptr += BYTES(Datbits)
+#define CPSINGLEVAL(Datbits)                  \
+    WVAL(Datbits, dump) = VAL(Datbits, diff); \
+    diff += BYTES(Datbits);                   \
+    dump += BYTES(Datbits)
 
-        if (cnt==1)
+        if (cnt == 1)
         {
-            switch (sp->size)
+            switch (spec->size)
             {
-            case 8: CPSINGLEVAL(64); continue;
-            case 4: CPSINGLEVAL(32); continue;
-            case 2: CPSINGLEVAL(16); continue;
-            case 1: CPSINGLEVAL(8); continue;
+                case 8: CPSINGLEVAL(64); continue;
+                case 4: CPSINGLEVAL(32); continue;
+                case 2: CPSINGLEVAL(16); continue;
+                case 1: CPSINGLEVAL(8); continue;
             }
         }
 
-#define CPELTS(Idxbits, Datbits) do \
-        {                                    \
-            UINT(Idxbits) idx;               \
-            goto readidx_##Idxbits##_##Datbits; \
-            do                               \
-            {                                \
-                VALOFS(Datbits, dumptr, idx) = VAL(Datbits, diffptr); \
-                diffptr += BYTES(Datbits);   \
-readidx_##Idxbits##_##Datbits:               \
-                idx = VAL(Idxbits, diffptr); \
-                diffptr += BYTES(Idxbits);   \
-            } while ((int##Idxbits##_t)idx != -1);  \
-        } while (0)
+#define CPELTS(Idxbits, Datbits)                             \
+    do                                                       \
+    {                                                        \
+        UINT(Idxbits) idx;                                   \
+        goto readidx_##Idxbits##_##Datbits;                  \
+        do                                                   \
+        {                                                    \
+            VALOFS(Datbits, dump, idx) = VAL(Datbits, diff); \
+            diff += BYTES(Datbits);                          \
+readidx_##Idxbits##_##Datbits:                               \
+            idx = VAL(Idxbits, diff);                        \
+            diff += BYTES(Idxbits);                          \
+        } while ((int##Idxbits##_t)idx != -1);               \
+    } while (0)
 
-#define CPDATA(Datbits) do \
-        {                             \
-            uint32_t nelts=tabledivide32_noinline(sp->size*cnt, BYTES(Datbits)); \
-            if (nelts>65536)          \
-                CPELTS(32,Datbits);   \
-            else if (nelts>256)       \
-                CPELTS(16,Datbits);   \
-            else                      \
-                CPELTS(8,Datbits);    \
-        } while (0)
+#define CPDATA(Datbits)                                                            \
+    do                                                                             \
+    {                                                                              \
+        int const elts = tabledivide32_noinline(spec->size * cnt, BYTES(Datbits)); \
+        if (elts > 65536)                                                          \
+            CPELTS(32, Datbits);                                                   \
+        else if (elts > 256)                                                       \
+            CPELTS(16, Datbits);                                                   \
+        else                                                                       \
+            CPELTS(8, Datbits);                                                    \
+    } while (0)
 
-        if (sp->size==8)
+        if (spec->size == 8)
             CPDATA(64);
-        else if ((sp->size&3)==0)
+        else if ((spec->size & 3) == 0)
             CPDATA(32);
-        else if ((sp->size&1)==0)
+        else if ((spec->size & 1) == 0)
             CPDATA(16);
         else
             CPDATA(8);
-        dumptr += sp->size*cnt;
+        dump += spec->size * cnt;
 // ----------
 
 #undef CPELTS
@@ -1058,8 +1075,8 @@ readidx_##Idxbits##_##Datbits:               \
 #undef CPDATA
     }
 
-    *diffvar = diffptr;
-    *dumpvar = dumptr;
+    *diffvar = diff;
+    *dumpvar = dump;
     return 0;
 }
 
@@ -1071,20 +1088,20 @@ readidx_##Idxbits##_##Datbits:               \
 // calculate size needed for dump
 static uint32_t calcsz(const dataspec_t *spec)
 {
-    const dataspec_t *sp=spec;
-    bssize_t cnt;
-    uint32_t dasiz=0;
+    uint32_t dasiz = 0;
 
-    for (; sp->flags!=DS_END; sp++)
+    for (; spec->flags != DS_END; spec++)
     {
         // DS_STRINGs are used as sync checks in the diffs but not in the dump
-        if ((sp->flags&(DS_CMP|DS_NOCHK|DS_SAVEFN|DS_LOADFN|DS_STRING)))
+        if ((spec->flags & (DS_CMP|DS_NOCHK|DS_SAVEFN|DS_LOADFN|DS_STRING)))
             continue;
 
-        cnt = ds_getcnt(sp);
-        if (cnt<=0) continue;
+        int const cnt = ds_getcnt(spec);
 
-        dasiz += cnt*sp->size;
+        if (cnt <= 0)
+            continue;
+
+        dasiz += cnt * spec->size;
     }
 
     return dasiz;
@@ -1122,16 +1139,16 @@ static void sv_preprojectileload();
 static void sv_postprojectileload();
 
 static projectile_t *savegame_projectiledata;
-static uint8_t savegame_projectiles[MAXTILES>>3];
-static int32_t savegame_projectilecnt = 0;
+static uint8_t       savegame_projectiles[MAXTILES >> 3];
+static int32_t       savegame_projectilecnt = 0;
 
 #define SVARDATALEN \
     ((sizeof(g_player[0].user_name)+sizeof(g_player[0].pcolor)+sizeof(g_player[0].pteam) \
       +sizeof(g_player[0].frags)+sizeof(DukePlayer_t))*MAXPLAYERS)
 
-static uint8_t savegame_quotedef[MAXQUOTES>>3];
-static char(*savegame_quotes)[MAXQUOTELEN];
-static char(*savegame_quoteredefs)[MAXQUOTELEN];
+static uint8_t savegame_quotedef[MAXQUOTES >> 3];
+static char (*savegame_quotes)[MAXQUOTELEN];
+static char (*savegame_quoteredefs)[MAXQUOTELEN];
 static uint8_t savegame_restdata[SVARDATALEN];
 
 static char svgm_udnetw_string [] = "blK:udnt";
@@ -1241,7 +1258,7 @@ static const dataspec_t svgm_script[] =
     { DS_SAVEFN, (void *) &sv_preprojectilesave, 0, 1 },
     { 0, savegame_projectiles, sizeof(uint8_t), MAXTILES >> 3 },
     { DS_LOADFN, (void *) &sv_preprojectileload, 0, 1 },
-    { DS_CNT(savegame_projectilecnt), savegame_projectiledata, sizeof(projectile_t), (intptr_t)&savegame_projectilecnt },
+    { DS_DYNAMIC|DS_CNT(savegame_projectilecnt), &savegame_projectiledata, sizeof(projectile_t), (intptr_t)&savegame_projectilecnt },
     { DS_SAVEFN, (void *) &sv_postprojectilesave, 0, 1 },
     { DS_LOADFN, (void *) &sv_postprojectileload, 0, 1 },
     { 0, &actor[0], sizeof(actor_t), MAXSPRITES },
@@ -1309,7 +1326,8 @@ static void postloadplayer(int32_t savegamep);
 
 // SVGM snapshot system
 static uint32_t svsnapsiz;
-static uint8_t *svsnapshot, *svinitsnap;
+static uint8_t *svsnapshot;
+static uint8_t *svinitsnap;
 static uint32_t svdiffsiz;
 static uint8_t *svdiff;
 
@@ -1322,38 +1340,38 @@ static char svgm_vars_string [] = "blK:vars";
 // setup gamevar data spec for snapshotting and diffing... gamevars must be loaded when called
 static void sv_makevarspec()
 {
-    static char *magic = svgm_vars_string;
-    int32_t i, j, numsavedvars=0, numsavedarrays=0, per;
+    int vcnt = 0;
 
-    for (i=0; i<g_gameVarCount; i++)
-        numsavedvars += (aGameVars[i].flags&SV_SKIPMASK) ? 0 : 1;
+    for (int i = 0; i < g_gameVarCount; i++)
+        vcnt += (aGameVars[i].flags & SV_SKIPMASK) ? 0 : 1;
 
-    for (i=0; i<g_gameArrayCount; i++)
-        numsavedarrays += !(aGameArrays[i].flags & (GAMEARRAY_SYSTEM|GAMEARRAY_READONLY));  // SYSTEM_GAMEARRAY
+    for (int i=0; i<g_gameArrayCount; i++)
+        vcnt += !(aGameArrays[i].flags & (GAMEARRAY_SYSTEM|GAMEARRAY_READONLY));  // SYSTEM_GAMEARRAY
 
-    Bfree(svgm_vars);
-    svgm_vars = (dataspec_gv_t *)Xmalloc((numsavedvars+numsavedarrays+2)*sizeof(dataspec_gv_t));
+    svgm_vars = (dataspec_gv_t *)Xrealloc(svgm_vars, (vcnt + 2) * sizeof(dataspec_gv_t));
 
     svgm_vars[0].flags = DS_STRING;
-    svgm_vars[0].ptr = magic;
-    svgm_vars[0].cnt = 1;
+    svgm_vars[0].ptr   = svgm_vars_string;
+    svgm_vars[0].cnt   = 1;
 
-    j=1;
-    for (i=0; i<g_gameVarCount; i++)
+    vcnt = 1;
+
+    for (int i = 0; i < g_gameVarCount; i++)
     {
-        if (aGameVars[i].flags&SV_SKIPMASK)
+        if (aGameVars[i].flags & SV_SKIPMASK)
             continue;
 
-        per = aGameVars[i].flags&GAMEVAR_USER_MASK;
+        unsigned const per = aGameVars[i].flags & GAMEVAR_USER_MASK;
 
-        svgm_vars[j].flags = 0;
-        svgm_vars[j].ptr = (per==0) ? &aGameVars[i].global : aGameVars[i].pValues;
-        svgm_vars[j].size = sizeof(intptr_t);
-        svgm_vars[j].cnt = (per==0) ? 1 : (per==GAMEVAR_PERPLAYER ? MAXPLAYERS : MAXSPRITES);
-        j++;
+        svgm_vars[vcnt].flags = 0;
+        svgm_vars[vcnt].ptr   = (per == 0) ? &aGameVars[i].global : aGameVars[i].pValues;
+        svgm_vars[vcnt].size  = sizeof(intptr_t);
+        svgm_vars[vcnt].cnt   = (per == 0) ? 1 : (per == GAMEVAR_PERPLAYER ? MAXPLAYERS : MAXSPRITES);
+
+        ++vcnt;
     }
 
-    for (i=0; i<g_gameArrayCount; i++)
+    for (int i = 0; i < g_gameArrayCount; i++)
     {
         // We must not update read-only SYSTEM_GAMEARRAY gamearrays: besides
         // being questionable by itself, sizeof(...) may be e.g. 4 whereas the
@@ -1361,26 +1379,29 @@ static void sv_makevarspec()
         if (aGameArrays[i].flags & (GAMEARRAY_SYSTEM|GAMEARRAY_READONLY))
             continue;
 
-        intptr_t * const plValues = aGameArrays[i].pValues;
-        svgm_vars[j].flags = 0;
-        svgm_vars[j].ptr = plValues;
+        auto const pValues = aGameArrays[i].pValues;
+
+        svgm_vars[vcnt].flags = 0;
+        svgm_vars[vcnt].ptr   = pValues;
 
         if (aGameArrays[i].flags & GAMEARRAY_BITMAP)
         {
-            svgm_vars[j].size = (aGameArrays[i].size + 7) >> 3;
-            svgm_vars[j].cnt = 1;  // assumed constant throughout demo, i.e. no RESIZEARRAY
+            svgm_vars[vcnt].size = (aGameArrays[i].size + 7) >> 3;
+            svgm_vars[vcnt].cnt  = 1;  // assumed constant throughout demo, i.e. no RESIZEARRAY
         }
         else
         {
-            svgm_vars[j].size = plValues == NULL ? 0 : sizeof(aGameArrays[0].pValues[0]);
-            svgm_vars[j].cnt = aGameArrays[i].size;  // assumed constant throughout demo, i.e. no RESIZEARRAY
+            svgm_vars[vcnt].size = pValues == NULL ? 0 : sizeof(aGameArrays[0].pValues[0]);
+            svgm_vars[vcnt].cnt  = aGameArrays[i].size;  // assumed constant throughout demo, i.e. no RESIZEARRAY
         }
-        j++;
+
+        ++vcnt;
     }
 
-    svgm_vars[j].flags = DS_END;
-    svgm_vars[j].ptr = NULL;
-    svgm_vars[j].size = svgm_vars[j].cnt = 0;
+    svgm_vars[vcnt].flags = DS_END;
+    svgm_vars[vcnt].ptr   = NULL;
+    svgm_vars[vcnt].size  = 0;
+    svgm_vars[vcnt].cnt   = 0;
 }
 #endif
 
@@ -1425,26 +1446,29 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
     Bmemcpy(h.headerstr, "E32SAVEGAME", 11);
     h.majorver = SV_MAJOR_VER;
     h.minorver = SV_MINOR_VER;
-    h.ptrsize = sizeof(intptr_t);
+    h.ptrsize  = sizeof(intptr_t);
+
     if (isAutoSave)
-        h.ptrsize |= 1u<<7u;
-    h.bytever = BYTEVERSION;
-    h.userbytever = ud.userbytever;
-    h.scriptcrc = g_scriptcrc;
-    h.comprthres = savegame_comprthres;
-    h.recdiffsp = recdiffsp;
+        h.ptrsize |= 1u << 7u;
+
+    h.bytever      = BYTEVERSION;
+    h.userbytever  = ud.userbytever;
+    h.scriptcrc    = g_scriptcrc;
+    h.comprthres   = savegame_comprthres;
+    h.recdiffsp    = recdiffsp;
     h.diffcompress = savegame_diffcompress;
     h.synccompress = synccompress;
 
-    h.reccnt = 0;
+    h.reccnt  = 0;
     h.snapsiz = svsnapsiz;
 
     // the following is kinda redundant, but we save it here to be able to quickly fetch
     // it in a savegame header read
+
     h.numplayers = ud.multimode;
-    h.volnum = ud.volume_number;
-    h.levnum = ud.level_number;
-    h.skill = ud.player_skill;
+    h.volnum     = ud.volume_number;
+    h.levnum     = ud.level_number;
+    h.skill      = ud.player_skill;
 
     const uint32_t BSZ = sizeof(h.boardfn);
     EDUKE32_STATIC_ASSERT(BSZ == sizeof(currentboardfilename));
@@ -1463,8 +1487,8 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
     {
         // demo
 
-        const time_t t=time(NULL);
-        struct tm *st;
+        const time_t t = time(NULL);
+        struct tm *  st;
 
         Bstrncpyz(h.savename, "EDuke32 demo", sizeof(h.savename));
         if (t>=0 && (st = localtime(&t)))
@@ -1513,15 +1537,14 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
     }
     else
     {
-        uint8_t *p;
-
         // demo
         SV_AllocSnap(0);
 
-        p = dosaveplayer2(fil, svsnapshot);
+        uint8_t * const p = dosaveplayer2(fil, svsnapshot);
+
         if (p != svsnapshot+svsnapsiz)
         {
-            OSD_Printf("sv_saveandmakesnapshot: ptr-(snapshot end)=%d!\n", (int32_t)(p-(svsnapshot+svsnapsiz)));
+            OSD_Printf("sv_saveandmakesnapshot: ptr-(snapshot end)=%d!\n", (int32_t)(p - (svsnapshot + svsnapsiz)));
             return 1;
         }
     }
@@ -1676,8 +1699,8 @@ int32_t sv_loadsnapshot(int32_t fil, int32_t spot, savehead_t *h)
 
 uint32_t sv_writediff(FILE *fil)
 {
-    uint8_t *p=svsnapshot, *d=svdiff;
-    uint32_t diffsiz;
+    uint8_t *p = svsnapshot;
+    uint8_t *d = svdiff;
 
     cmpspecdata(svgm_udnetw, &p, &d);
     cmpspecdata(svgm_secwsp, &p, &d);
@@ -1690,10 +1713,11 @@ uint32_t sv_writediff(FILE *fil)
     if (p != svsnapshot+svsnapsiz)
         OSD_Printf("sv_writediff: dump+siz=%p, p=%p!\n", svsnapshot+svsnapsiz, p);
 
-    diffsiz = d-svdiff;
+    uint32_t const diffsiz = d - svdiff;
 
     fwrite("dIfF",4,1,fil);
     fwrite(&diffsiz, sizeof(diffsiz), 1, fil);
+
     if (savegame_diffcompress)
         dfwrite_LZ4(svdiff, 1, diffsiz, fil);  // cnt and sz swapped
     else
@@ -1704,17 +1728,11 @@ uint32_t sv_writediff(FILE *fil)
 
 int32_t sv_readdiff(int32_t fil)
 {
-    uint8_t *p=svsnapshot, *d=svdiff, i=0; //, tbuf[4];
     int32_t diffsiz;
 
-#if 0  // handled by the caller
-    if (kread(fil, tbuf, 4)!=4)
+    if (kread(fil, &diffsiz, sizeof(uint32_t)) != sizeof(uint32_t))
         return -1;
-    if (Bmemcmp(tbuf, "dIfF", 4))
-        return 4;
-#endif
-    if (kread(fil, &diffsiz, sizeof(uint32_t))!=sizeof(uint32_t))
-        return -1;
+
     if (savegame_diffcompress)
     {
         if (kdfread_LZ4(svdiff, 1, diffsiz, fil) != diffsiz)  // cnt and sz swapped
@@ -1726,6 +1744,9 @@ int32_t sv_readdiff(int32_t fil)
             return -2;
     }
 
+    uint8_t *p = svsnapshot;
+    uint8_t *d = svdiff;
+
     if (applydiff(svgm_udnetw, &p, &d)) return -3;
     if (applydiff(svgm_secwsp, &p, &d)) return -4;
     if (applydiff(svgm_script, &p, &d)) return -5;
@@ -1733,6 +1754,8 @@ int32_t sv_readdiff(int32_t fil)
 #if !defined LUNATIC
     if (applydiff((const dataspec_t *)svgm_vars, &p, &d)) return -7;
 #endif
+
+    int i = 0;
 
     if (p!=svsnapshot+svsnapsiz)
         i|=1;
@@ -1749,17 +1772,17 @@ static void sv_postudload()
 {
 //    Bmemcpy(&boardfilename[0], &currentboardfilename[0], BMAX_PATH);  // DON'T do this in demos!
 #if 1
-    ud.m_level_number = ud.level_number;
-    ud.m_volume_number = ud.volume_number;
-    ud.m_player_skill = ud.player_skill;
-    ud.m_respawn_monsters = ud.respawn_monsters;
-    ud.m_respawn_items = ud.respawn_items;
+    ud.m_level_number      = ud.level_number;
+    ud.m_volume_number     = ud.volume_number;
+    ud.m_player_skill      = ud.player_skill;
+    ud.m_respawn_monsters  = ud.respawn_monsters;
+    ud.m_respawn_items     = ud.respawn_items;
     ud.m_respawn_inventory = ud.respawn_inventory;
-    ud.m_monsters_off = ud.monsters_off;
-    ud.m_coop = ud.coop;
-    ud.m_marker = ud.marker;
-    ud.m_ffire = ud.ffire;
-    ud.m_noexits = ud.noexits;
+    ud.m_monsters_off      = ud.monsters_off;
+    ud.m_coop              = ud.coop;
+    ud.m_marker            = ud.marker;
+    ud.m_ffire             = ud.ffire;
+    ud.m_noexits           = ud.noexits;
 #endif
 }
 //static int32_t lockclock_dummy;
@@ -1767,8 +1790,7 @@ static void sv_postudload()
 #ifdef USE_OPENGL
 static void sv_prespriteextsave()
 {
-    int32_t i;
-    for (i=0; i<MAXSPRITES; i++)
+    for (int i=0; i<MAXSPRITES; i++)
         if (spriteext[i].mdanimtims)
         {
             spriteext[i].mdanimtims -= mdtims;
@@ -1778,8 +1800,7 @@ static void sv_prespriteextsave()
 }
 static void sv_postspriteext()
 {
-    int32_t i;
-    for (i=0; i<MAXSPRITES; i++)
+    for (int i=0; i<MAXSPRITES; i++)
         if (spriteext[i].mdanimtims)
             spriteext[i].mdanimtims += mdtims;
 }
@@ -1795,7 +1816,7 @@ void sv_postyaxload(void)
 static void sv_postactordata()
 {
 #ifdef POLYMER
-    for (bssize_t i=0; i<MAXSPRITES; i++)
+    for (int i = 0; i < MAXSPRITES; i++)
     {
         actor[i].lightptr = NULL;
         actor[i].lightId = -1;
@@ -1821,9 +1842,8 @@ static void sv_prequote()
 }
 static void sv_quotesave()
 {
-    int32_t i;
     Bmemset(savegame_quotedef, 0, sizeof(savegame_quotedef));
-    for (i=0; i<MAXQUOTES; i++)
+    for (int i = 0; i < MAXQUOTES; i++)
         if (apStrings[i])
         {
             savegame_quotedef[i>>3] |= 1<<(i&7);
@@ -1832,15 +1852,12 @@ static void sv_quotesave()
 }
 static void sv_quoteload()
 {
-    int32_t i;
-    for (i=0; i<MAXQUOTES; i++)
-    {
-        if (savegame_quotedef[i>>3]&(1<<(i&7)))
+    for (int i = 0; i < MAXQUOTES; i++)
+        if (savegame_quotedef[i>>3] & (1<<(i&7)))
         {
             C_AllocQuote(i);
             Bmemcpy(apStrings[i], savegame_quotes[i], MAXQUOTELEN);
         }
-    }
 }
 
 static void sv_preprojectilesave()
@@ -1848,14 +1865,14 @@ static void sv_preprojectilesave()
     savegame_projectilecnt = 0;
     Bmemset(savegame_projectiles, 0, sizeof(savegame_projectiles));
 
-    for (native_t i=0; i<MAXTILES; i++)
+    for (int i = 0; i < MAXTILES; i++)
         if (g_tile[i].proj)
             savegame_projectilecnt++;
 
     if (savegame_projectilecnt > 0)
         savegame_projectiledata = (projectile_t *) Xrealloc(savegame_projectiledata, sizeof(projectile_t) * savegame_projectilecnt);
 
-    for (native_t i=0, cnt=0; i<MAXTILES; i++)
+    for (int i = 0, cnt = 0; i < MAXTILES; i++)
     {
         if (g_tile[i].proj)
         {
@@ -1874,9 +1891,9 @@ static void sv_preprojectileload()
 {
     savegame_projectilecnt = 0;
 
-    for (native_t i=0; i<MAXTILES; i++)
+    for (int i = 0; i < MAXTILES; i++)
     {
-        if (savegame_projectiles[i>>3]&(1<<(i&7)))
+        if (savegame_projectiles[i>>3] & (1<<(i&7)))
             savegame_projectilecnt++;
     }
 
@@ -1886,9 +1903,9 @@ static void sv_preprojectileload()
 
 static void sv_postprojectileload()
 {
-    for (native_t i=0, cnt=0; i<MAXTILES; i++)
+    for (int i = 0, cnt = 0; i < MAXTILES; i++)
     {
-        if (savegame_projectiles[i>>3]&(1<<(i&7)))
+        if (savegame_projectiles[i>>3] & (1<<(i&7)))
         {
             C_AllocProjectile(i);
             Bmemcpy(g_tile[i].proj, &savegame_projectiledata[cnt++], sizeof(projectile_t));
@@ -1902,19 +1919,17 @@ static void sv_prequoteredef()
 {
     // "+1" needed for dfwrite which doesn't handle the src==NULL && cnt==0 case
     void *ptr = Xcalloc(g_numXStrings+1, MAXQUOTELEN);
-    savegame_quoteredefs = (char(*)[MAXQUOTELEN])ptr;
+    savegame_quoteredefs = (decltype(savegame_quoteredefs))ptr;
 }
 static void sv_quoteredefsave()
 {
-    int32_t i;
-    for (i=0; i<g_numXStrings; i++)
+    for (int i = 0; i < g_numXStrings; i++)
         if (apXStrings[i])
             Bmemcpy(savegame_quoteredefs[i], apXStrings[i], MAXQUOTELEN);
 }
 static void sv_quoteredefload()
 {
-    int32_t i;
-    for (i=0; i<g_numXStrings; i++)
+    for (int i = 0; i < g_numXStrings; i++)
     {
         if (!apXStrings[i])
             apXStrings[i] = (char *)Xcalloc(1,MAXQUOTELEN);
@@ -1927,45 +1942,37 @@ static void sv_postquoteredef()
 }
 static void sv_restsave()
 {
-    int32_t i;
-    uint8_t *mem = savegame_restdata;
+    uint8_t *    mem = savegame_restdata;
     DukePlayer_t dummy_ps;
 
     Bmemset(&dummy_ps, 0, sizeof(DukePlayer_t));
 
-#define CPDAT(ptr,sz) Bmemcpy(mem, ptr, sz), mem+=sz
-    for (i=0; i<MAXPLAYERS; i++)
+#define CPDAT(ptr,sz) do { Bmemcpy(mem, ptr, sz), mem+=sz ; } while (0)
+    for (int i = 0; i < MAXPLAYERS; i++)
     {
         CPDAT(g_player[i].user_name, 32);
         CPDAT(&g_player[i].pcolor, sizeof(g_player[0].pcolor));
         CPDAT(&g_player[i].pteam, sizeof(g_player[0].pteam));
         CPDAT(&g_player[i].frags[0], sizeof(g_player[0].frags));
-        if (g_player[i].ps)
-            CPDAT(g_player[i].ps, sizeof(DukePlayer_t));
-        else
-            CPDAT(&dummy_ps, sizeof(DukePlayer_t));
+        CPDAT(g_player[i].ps ? g_player[i].ps : &dummy_ps, sizeof(DukePlayer_t));
     }
 
-    Bassert((savegame_restdata+SVARDATALEN)-mem == 0);
+    Bassert((savegame_restdata + SVARDATALEN) - mem == 0);
 #undef CPDAT
 }
 static void sv_restload()
 {
-    int32_t i;
-    uint8_t *mem = savegame_restdata;
+    uint8_t *    mem = savegame_restdata;
     DukePlayer_t dummy_ps;
 
 #define CPDAT(ptr,sz) Bmemcpy(ptr, mem, sz), mem+=sz
-    for (i=0; i<MAXPLAYERS; i++)
+    for (int i = 0; i < MAXPLAYERS; i++)
     {
         CPDAT(g_player[i].user_name, 32);
         CPDAT(&g_player[i].pcolor, sizeof(g_player[0].pcolor));
         CPDAT(&g_player[i].pteam, sizeof(g_player[0].pteam));
         CPDAT(&g_player[i].frags[0], sizeof(g_player[0].frags));
-        if (g_player[i].ps)
-            CPDAT(g_player[i].ps, sizeof(DukePlayer_t));
-        else
-            CPDAT(&dummy_ps, sizeof(DukePlayer_t));
+        CPDAT(g_player[i].ps ? g_player[i].ps : &dummy_ps, sizeof(DukePlayer_t));
     }
 #undef CPDAT
 

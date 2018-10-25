@@ -114,7 +114,7 @@ extern bool g_saveRequested;
 extern savebrief_t * g_quickload;
 
 extern menusave_t * g_menusaves;
-extern uint32_t g_nummenusaves;
+extern uint16_t g_nummenusaves;
 
 int32_t sv_updatestate(int32_t frominit);
 int32_t sv_readdiff(int32_t fil);
@@ -125,7 +125,7 @@ int32_t sv_saveandmakesnapshot(FILE *fil, char const *name, int8_t spot, int8_t 
 void sv_freemem();
 void G_DeleteSave(savebrief_t const & sv);
 void G_DeleteOldSaves(void);
-size_t G_CountOldSaves(void);
+uint16_t G_CountOldSaves(void);
 int32_t G_SavePlayer(savebrief_t & sv, bool isAutoSave);
 int32_t G_LoadPlayer(savebrief_t & sv);
 int32_t G_LoadSaveHeaderNew(char const *fn, savehead_t *saveh);
