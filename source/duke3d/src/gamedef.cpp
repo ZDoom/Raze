@@ -613,7 +613,7 @@ char const * VM_GetKeywordForID(int32_t id)
         if (keyword.val == id)
             return keyword.token;
 
-    return nullptr;
+    return "<invalid keyword>";
 }
 #endif
 
