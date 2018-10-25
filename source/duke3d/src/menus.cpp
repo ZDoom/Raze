@@ -173,7 +173,7 @@ static void Menu_DrawCursorText(int32_t x, int32_t y, int32_t h, int32_t ydim_up
 }
 
 
-static size_t g_oldSaveCnt;
+static uint16_t g_oldSaveCnt;
 
 
 
@@ -1526,7 +1526,7 @@ static Menu_t Menus[] = {
     { &M_NETJOIN, MENU_NETJOIN, MENU_NETWORK, MA_Return, Menu },
 };
 
-static CONSTEXPR const size_t numMenus = ARRAY_SIZE(Menus);
+static CONSTEXPR const uint16_t numMenus = ARRAY_SIZE(Menus);
 
 Menu_t *m_currentMenu = &Menus[0];
 static Menu_t *m_previousMenu = &Menus[0];
@@ -2224,8 +2224,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
     case MENU_MOUSEADVANCED:
     {
-        size_t i;
-        for (i = 0; i < ARRAY_SIZE(MEL_INTERNAL_MOUSEADVANCED_DAXES); i++)
+        for (int i = 0; i < ARRAY_SSIZE(MEL_INTERNAL_MOUSEADVANCED_DAXES); i++)
             if (entry == MEL_INTERNAL_MOUSEADVANCED_DAXES[i])
             {
                 mgametextcenter(origin.x, origin.y + (162<<16), "Digital axes are not for mouse look\n"
@@ -2317,7 +2316,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
         rotatesprite_fs(origin.x + (103<<16), origin.y + (144<<16), 65536L,1024+512,WINDOWBORDER1,24,0,10);
 
         j = 0;
-        for (size_t k = 0; k < g_nummenusaves+1; ++k)
+        for (int k = 0; k < g_nummenusaves+1; ++k)
             if (((MenuString_t*)M_SAVE.entrylist[k]->entry)->editfield)
                 j |= 1;
 
@@ -2366,7 +2365,7 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
     case MENU_SKILL:
     {
         static const char *s[] = { "EASY - Few enemies, and lots of stuff.", "MEDIUM - Normal difficulty.", "HARD - For experienced players.", "EXPERTS - Lots of enemies, plus they respawn!" };
-        if ((size_t)M_SKILL.currentEntry < ARRAY_SIZE(s))
+        if (M_SKILL.currentEntry < ARRAY_SSIZE(s))
             mgametextcenter(origin.x, origin.y + (168<<16), s[M_SKILL.currentEntry]);
     }
         break;
@@ -2377,11 +2376,11 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
         if (g_oldSaveCnt)
         {
-            Bsprintf(tempbuf, "Delete %" PRIu64 " obsolete saves?\nThis action cannot be undone."
+            Bsprintf(tempbuf, "Delete %d obsolete saves?\nThis action cannot be undone."
 #ifndef EDUKE32_ANDROID_MENU
                 "\n(Y/N)"
 #endif
-                , (uint64_t)g_oldSaveCnt);
+                , g_oldSaveCnt);
         }
         else
             Bsprintf(tempbuf, "No obsolete saves found!");
@@ -2642,7 +2641,6 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
         mgametextcenter(origin.x, origin.y + ((38-l)<<16), "License and Other Contributors");
         {
-            size_t c;
             static const char *header[] =
             {
                 "This program is distributed under the terms of the",
@@ -2693,23 +2691,24 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
                 "Visit eduke32.com for news and updates",
             };
 
-            static constexpr size_t header_numlines = ARRAY_SIZE(header);
-            static constexpr size_t body_numlines = ARRAY_SIZE(body);
-            static constexpr size_t footer_numlines = ARRAY_SIZE(footer);
+            static constexpr int header_numlines = ARRAY_SIZE(header);
+            static constexpr int body_numlines   = ARRAY_SIZE(body);
+            static constexpr int footer_numlines = ARRAY_SIZE(footer);
 
-            static constexpr size_t CCOLUMNS = 3;
-            static constexpr size_t CCOLXBUF = 20;
+            static constexpr int CCOLUMNS = 3;
+            static constexpr int CCOLXBUF = 20;
 
+            int c;
             i = 0;
-            for (c=0; c<header_numlines; c++)
+            for (c = 0; c < header_numlines; c++)
                 if (header[c])
                     creditsminitext(origin.x + (160<<16), origin.y + ((17+10+10+8+4+(c*7)-l)<<16), header[c], 8);
             i += c;
-            for (c=0; c<body_numlines; c++)
+            for (c = 0; c < body_numlines; c++)
                 if (body[c])
                     creditsminitext(origin.x + ((CCOLXBUF+((320-CCOLXBUF*2)/(CCOLUMNS*2)) +((320-CCOLXBUF*2)/CCOLUMNS)*(c/(body_numlines/CCOLUMNS)))<<16), origin.y + ((17+10+10+8+4+((c%(body_numlines/CCOLUMNS))*7)+(i*7)-l)<<16), body[c], 8);
             i += c/CCOLUMNS;
-            for (c=0; c<footer_numlines; c++)
+            for (c = 0; c < footer_numlines; c++)
                 if (footer[c])
                     creditsminitext(origin.x + (160<<16), origin.y + ((17+10+10+8+4+(c*7)+(i*7)-l)<<16), footer[c], 8);
         }
@@ -2728,7 +2727,7 @@ static void Menu_LoadReadHeaders()
 {
     Menu_ReadSaveGameHeaders();
 
-    for (size_t i = 0; i < g_nummenusaves; ++i)
+    for (int i = 0; i < g_nummenusaves; ++i)
         MenuEntry_DisableOnCondition(&ME_LOAD[i], g_menusaves[i].isOldVer);
 }
 
@@ -2736,7 +2735,7 @@ static void Menu_SaveReadHeaders()
 {
     Menu_ReadSaveGameHeaders();
 
-    for (size_t i = 0; i < g_nummenusaves; ++i)
+    for (int i = 0; i < g_nummenusaves; ++i)
         MenuEntry_LookDisabledOnCondition(&ME_SAVE[i], g_menusaves[i].isOldVer);
 }
 
@@ -2763,7 +2762,7 @@ static void Menu_PreInput(MenuEntry_t *entry)
         if (KB_KeyPressed(sc_Delete))
         {
             KB_ClearKeyDown(sc_Delete);
-            if ((unsigned)M_LOAD.currentEntry < g_nummenusaves)
+            if (M_LOAD.currentEntry < g_nummenusaves)
                 Menu_Change(MENU_LOADDELVERIFY);
         }
         break;
@@ -3235,8 +3234,7 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         break;
     case MENU_MOUSEADVANCED:
     {
-        size_t i;
-        for (i = 0; i < ARRAY_SIZE(MEL_INTERNAL_MOUSEADVANCED_DAXES); i++)
+        for (int i = 0; i < ARRAY_SSIZE(MEL_INTERNAL_MOUSEADVANCED_DAXES); i++)
             if (entry == MEL_INTERNAL_MOUSEADVANCED_DAXES[i])
                 CONTROL_MapDigitalAxis(i>>1, newOption, i&1, controldevice_mouse);
     }
@@ -3246,8 +3244,7 @@ static int32_t Menu_EntryOptionModify(MenuEntry_t *entry, int32_t newOption)
         break;
     case MENU_JOYSTICKAXIS:
     {
-        size_t i;
-        for (i = 0; i < ARRAY_SIZE(MEL_INTERNAL_JOYSTICKAXIS_DIGITAL); i++)
+        for (int i = 0; i < ARRAY_SSIZE(MEL_INTERNAL_JOYSTICKAXIS_DIGITAL); i++)
             if (entry == MEL_INTERNAL_JOYSTICKAXIS_DIGITAL[i])
                 CONTROL_MapDigitalAxis(i>>1, newOption, i&1, controldevice_joystick);
     }
@@ -3623,7 +3620,7 @@ static void Menu_TextFormSubmit(char *input)
             Bstrcpy(&ud.pwlockout[0], input);
         else if (Bstrcmp(input, &ud.pwlockout[0]) == 0)
         {
-            for (bssize_t x=0; x<g_animWallCnt; x++)
+            for (int x=0; x<g_animWallCnt; x++)
                 if ((unsigned) animwall[x].wallnum < (unsigned)numwalls && wall[animwall[x].wallnum].picnum != W_SCREENBREAK &&
                         wall[animwall[x].wallnum].picnum != W_SCREENBREAK+1 &&
                         wall[animwall[x].wallnum].picnum != W_SCREENBREAK+2)
@@ -3647,7 +3644,7 @@ static void Menu_TextFormSubmit(char *input)
 
         if (inputlength > 2 && tempbuf[0] == g_keyAsciiTable[CheatKeys[0]] && tempbuf[1] == g_keyAsciiTable[CheatKeys[1]])
         {
-            for (size_t i = 0; i < NUMCHEATS; i++)
+            for (int i = 0; i < NUMCHEATS; i++)
                 if (Menu_CheatStringMatch(tempbuf+2, CheatStrings[i]))
                 {
                     cheatID = i;
@@ -3727,8 +3724,7 @@ static void Menu_TextFormSubmit(char *input)
 
 void klistbookends(CACHE1D_FIND_REC *start)
 {
-    CACHE1D_FIND_REC *end = start, *n;
-    size_t i = 0;
+    auto end = start;
 
     if (!start)
         return;
@@ -3739,7 +3735,9 @@ void klistbookends(CACHE1D_FIND_REC *start)
     while (end->next)
         end = end->next;
 
-    for (n = start; n; n = n->next)
+    int i = 0;
+
+    for (auto n = start; n; n = n->next)
     {
         n->type = i; // overload this...
         n->usera = start;
@@ -3750,8 +3748,6 @@ void klistbookends(CACHE1D_FIND_REC *start)
 
 static void Menu_FileSelectInit(MenuFileSelect_t *object)
 {
-    size_t i;
-
     fnlist_clearnames(&object->fnlist);
 
     if (object->destination[0] == 0)
@@ -3762,7 +3758,7 @@ static void Menu_FileSelectInit(MenuFileSelect_t *object)
     object->findhigh[0] = object->fnlist.finddirs;
     object->findhigh[1] = object->fnlist.findfiles;
 
-    for (i = 0; i < 2; ++i)
+    for (int i = 0; i < 2; ++i)
     {
         object->scrollPos[i] = 0;
         klistbookends(object->findhigh[i]);
@@ -3805,9 +3801,9 @@ static void Menu_FileSelect(int32_t input)
 
 
 
-static Menu_t* Menu_BinarySearch(MenuID_t query, size_t searchstart, size_t searchend)
+static Menu_t* Menu_BinarySearch(MenuID_t query, uint16_t searchstart, uint16_t searchend)
 {
-    const size_t thissearch = (searchstart + searchend) / 2;
+    const uint16_t thissearch = (searchstart + searchend) / 2;
     const MenuID_t difference = query - Menus[thissearch].menuID;
 
     if (difference == 0)
@@ -3936,7 +3932,7 @@ static void Menu_MaybeSetSelectionToChild(Menu_t * m, MenuID_t id)
             }
         }
 
-        for (size_t i = 0, i_end = menu->numEntries; i < i_end; ++i)
+        for (int i = 0, i_end = menu->numEntries; i < i_end; ++i)
         {
             MenuEntry_t const * entry = menu->entrylist[i];
             if (entry != NULL && entry->type == Link && !(entry->flags & MEF_Hidden))
@@ -3957,7 +3953,7 @@ static void Menu_ReadSaveGameHeaders()
 {
     ReadSaveGameHeaders();
 
-    uint32_t const numloaditems = max(g_nummenusaves, 1u), numsaveitems = g_nummenusaves+1;
+    int const numloaditems = max<int>(g_nummenusaves, 1), numsaveitems = g_nummenusaves+1;
     ME_LOAD = (MenuEntry_t *)Xrealloc(ME_LOAD, g_nummenusaves * sizeof(MenuEntry_t));
     MEL_LOAD = (MenuEntry_t **)Xrealloc(MEL_LOAD, numloaditems * sizeof(MenuEntry_t *));
     MEO_SAVE = (MenuString_t *)Xrealloc(MEO_SAVE, g_nummenusaves * sizeof(MenuString_t));
@@ -3966,7 +3962,7 @@ static void Menu_ReadSaveGameHeaders()
 
     MEL_SAVE[0] = &ME_SAVE_NEW;
     ME_SAVE_NEW.name = s_NewSaveGame;
-    for (size_t i = 0; i < g_nummenusaves; ++i)
+    for (int i = 0; i < g_nummenusaves; ++i)
     {
         MEL_LOAD[i] = &ME_LOAD[i];
         MEL_SAVE[i+1] = &ME_SAVE[i];
@@ -4012,7 +4008,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
 
         if (g_quickload && g_quickload->isValid())
         {
-            for (size_t i = 0; i < g_nummenusaves; ++i)
+            for (int i = 0; i < g_nummenusaves; ++i)
             {
                 if (strcmp(g_menusaves[i].brief.path, g_quickload->path) == 0)
                 {
@@ -4032,7 +4028,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
 
         if (g_lastusersave.isValid())
         {
-            for (size_t i = 0; i < g_nummenusaves; ++i)
+            for (int i = 0; i < g_nummenusaves; ++i)
             {
                 if (strcmp(g_menusaves[i].brief.path, g_lastusersave.path) == 0)
                 {
@@ -4053,7 +4049,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
 
     case MENU_VIDEOSETUP:
         newresolution = 0;
-        for (size_t i = 0; i < MAXVALIDMODES; ++i)
+        for (int i = 0; i < MAXVALIDMODES; ++i)
         {
             if (resolution[i].xdim == xres && resolution[i].ydim == yres)
             {
@@ -4205,9 +4201,7 @@ int Menu_Change(MenuID_t cm)
 
 void G_CheckPlayerColor(int32_t *color, int32_t prev_color)
 {
-    size_t i;
-
-    for (i = 0; i < ARRAY_SIZE(MEOSV_PLAYER_COLOR); ++i)
+    for (int i = 0; i < ARRAY_SSIZE(MEOSV_PLAYER_COLOR); ++i)
         if (*color == MEOSV_PLAYER_COLOR[i])
             return;
 
@@ -4314,7 +4308,7 @@ int32_t m_mousewake_watchpoint, m_menuchange_watchpoint;
 int32_t m_mousecaught;
 static vec2_t m_prevmousepos, m_mousepos, m_mousedownpos;
 
-void Menu_Open(size_t playerID)
+void Menu_Open(uint8_t playerID)
 {
     g_player[playerID].ps->gm |= MODE_MENU;
 
@@ -4328,7 +4322,7 @@ void Menu_Open(size_t playerID)
     mouseLockToWindow(0);
 }
 
-void Menu_Close(size_t playerID)
+void Menu_Close(uint8_t playerID)
 {
     if (g_player[playerID].ps->gm & MODE_GAME)
     {
@@ -4444,14 +4438,12 @@ static vec2_t Menu_TextSize(int32_t x, int32_t y, const MenuFont_t *font, const 
 }
 #endif
 
-static int32_t Menu_FindOptionBinarySearch(MenuOption_t *object, const int32_t query, size_t searchstart, size_t searchend)
+static int32_t Menu_FindOptionBinarySearch(MenuOption_t *object, const int32_t query, uint16_t searchstart, uint16_t searchend)
 {
-    const size_t thissearch = (searchstart + searchend) / 2;
-    const bool isIdentityMap = object->options->optionValues == NULL;
-
-    const int32_t destination = isIdentityMap ? (int32_t) thissearch : object->options->optionValues[thissearch];
-
-    const int32_t difference = query - destination;
+    const uint16_t thissearch    = (searchstart + searchend) / 2;
+    const bool     isIdentityMap = object->options->optionValues == NULL;
+    const int32_t  destination   = isIdentityMap ? (int32_t)thissearch : object->options->optionValues[thissearch];
+    const int32_t  difference    = query - destination;
 
     Bassert(!isIdentityMap || query >= 0);
 

@@ -463,8 +463,8 @@ void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype);
 int32_t Menu_IsTextInput(Menu_t *cm);
 void G_CheckPlayerColor(int32_t *color,int32_t prev_color);
 void Menu_Init(void);
-void Menu_Open(size_t playerID);
-void Menu_Close(size_t playerID);
+void Menu_Open(uint8_t playerID);
+void Menu_Close(uint8_t playerID);
 void M_DisplayMenus(void);
 
 extern MenuFont_t MF_Redfont, MF_Bluefont, MF_Minifont;
