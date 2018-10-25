@@ -163,7 +163,7 @@ const char * OSD_StripColors(char *outBuf, const char *inBuf)
 int OSD_Exec(const char *szScript)
 {
     int err = 0;
-    int32_t handle, len;
+    int32_t handle, len = 0;
     char *buf = NULL;
 
     if ((handle = kopen4load(szScript, 0)) == -1)
