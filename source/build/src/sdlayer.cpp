@@ -808,7 +808,7 @@ int32_t initinput(void)
         if (!keytranslation[i])
             continue;
 
-        Bstrncpyz(g_keyNameTable[keytranslation[i]], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(g_keyNameTable[i]));
+        Bstrncpyz(g_keyNameTable[keytranslation[i]], SDL_GetKeyName(SDL_SCANCODE_TO_KEYCODE(i)), sizeof(g_keyNameTable[0]));
     }
 
     if (!SDL_InitSubSystem(SDL_INIT_JOYSTICK))
@@ -2098,7 +2098,7 @@ int32_t handleevents_pollsdl(void)
                         if (OSD_HandleChar(code))
                             keyBufferInsert(code);
                     }
-                } while (j < SDL_TEXTINPUTEVENT_TEXT_SIZE && ev.text.text[++j]);
+                } while (j < SDL_TEXTINPUTEVENT_TEXT_SIZE-1 && ev.text.text[++j]);
                 break;
 
             case SDL_KEYDOWN:
