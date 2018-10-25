@@ -19,7 +19,6 @@ extern "C" {
     EDUKE32_SCALER_PRAGMA(25) EDUKE32_SCALER_PRAGMA(26) EDUKE32_SCALER_PRAGMA(27) EDUKE32_SCALER_PRAGMA(28)            \
     EDUKE32_SCALER_PRAGMA(29) EDUKE32_SCALER_PRAGMA(30) EDUKE32_SCALER_PRAGMA(31)
 
-extern int32_t dmval;
 #if !defined(NOASM) && defined __cplusplus
 extern "C" {
 #endif
@@ -44,7 +43,7 @@ extern libdivide_s32_t divtable32[DIVTABLESIZE];
 extern void initdivtables(void);
 
 #if defined(__arm__) || defined(LIBDIVIDE_ALWAYS)
-static inline uint32_t divideu32(uint32_t n, uint32_t d)
+static inline uint32_t divideu32(uint32_t const n, uint32_t const d)
 {
     static libdivide_u32_t udiv;
     static uint32_t lastd;
@@ -57,11 +56,11 @@ skip:
     return libdivide_u32_do(n, &udiv);
 }
 
-static inline int64_t tabledivide64(int64_t n, int32_t d)
+static inline int64_t tabledivide64(int64_t const n, int32_t const d)
 {
     static libdivide_s64_t sdiv;
     static int32_t lastd;
-    auto const dptr = ((unsigned)d < DIVTABLESIZE) ? (libdivide_s64_t *)&divtable64[d] : &sdiv;
+    auto *const dptr = ((unsigned)d < DIVTABLESIZE) ? &divtable64[d] : &sdiv;
 
     if (d == lastd || dptr != &sdiv)
         goto skip;
@@ -71,11 +70,11 @@ skip:
     return libdivide_s64_do(n, dptr);
 }
 
-static inline int32_t tabledivide32(int32_t n, int32_t d)
+static inline int32_t tabledivide32(int32_t const n, int32_t const d)
 {
     static libdivide_s32_t sdiv;
     static int32_t lastd;
-    auto const dptr = ((unsigned)d < DIVTABLESIZE) ? (libdivide_s32_t *)&divtable32[d] : &sdiv;
+    auto *const dptr = ((unsigned)d < DIVTABLESIZE) ? &divtable32[d] : &sdiv;
 
     if (d == lastd || dptr != &sdiv)
         goto skip;
@@ -85,16 +84,16 @@ skip:
     return libdivide_s32_do(n, dptr);
 }
 #else
-static FORCE_INLINE uint32_t divideu32(uint32_t n, uint32_t d) { return n / d; }
+static FORCE_INLINE CONSTEXPR uint32_t divideu32(uint32_t const n, uint32_t const d) { return n / d; }
 
-static inline int64_t tabledivide64(int64_t n, int32_t d)
+static inline int64_t tabledivide64(int64_t const n, int32_t const d)
 {
-    return ((unsigned)d < DIVTABLESIZE) ? libdivide_s64_do(n, (libdivide_s64_t *)&divtable64[d]) : n / d;
+    return ((unsigned)d < DIVTABLESIZE) ? libdivide_s64_do(n, &divtable64[d]) : n / d;
 }
 
-static inline int32_t tabledivide32(int32_t n, int32_t d)
+static inline int32_t tabledivide32(int32_t const n, int32_t const d)
 {
-    return ((unsigned)d < DIVTABLESIZE) ? libdivide_s32_do(n, (libdivide_s32_t *)&divtable32[d]) : n / d;
+    return ((unsigned)d < DIVTABLESIZE) ? libdivide_s32_do(n, &divtable32[d]) : n / d;
 }
 #endif
 
@@ -112,7 +111,7 @@ static inline int32_t divscale(int32_t eax, int32_t ebx, int32_t ecx)
 }
 #endif
 
-#define EDUKE32_SCALER_PRAGMA(a)                                                                                       \
+#define EDUKE32_SCALER_PRAGMA(a) \
     static FORCE_INLINE int32_t divscale##a(int32_t eax, int32_t ebx) { return divscale(eax, ebx, a); }
 EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 #undef EDUKE32_SCALER_PRAGMA
@@ -164,16 +163,16 @@ static FORCE_INLINE int32_t sqr(int32_t a) { return a * a; }
 
 #ifndef pragmas_have_mulscale
 
-#define EDUKE32_SCALER_PRAGMA(a)                                                                                       \
-    static FORCE_INLINE int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }                \
-    static FORCE_INLINE int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                              \
-    {                                                                                                                  \
-        return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(a));                                                       \
-    }                                                                                                                  \
-    static FORCE_INLINE int32_t tmulscale##a(int32_t eax, int32_t edx, int32_t ebx, int32_t ecx, int32_t esi, int32_t edi)    \
-    {                                                                                                                  \
-        return dw(((qw(eax) * edx) + (qw(ebx) * ecx) + (qw(esi) * edi)) >> by(a));                         \
-    }                                                                                                                  \
+#define EDUKE32_SCALER_PRAGMA(a)                                                                                                     \
+    static FORCE_INLINE CONSTEXPR int32_t mulscale##a(int32_t eax, int32_t edx) { return dw((qw(eax) * edx) >> by(a)); }             \
+    static FORCE_INLINE CONSTEXPR int32_t dmulscale##a(int32_t eax, int32_t edx, int32_t esi, int32_t edi)                           \
+    {                                                                                                                                \
+        return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(a));                                                                     \
+    }                                                                                                                                \
+    static FORCE_INLINE CONSTEXPR int32_t tmulscale##a(int32_t eax, int32_t edx, int32_t ebx, int32_t ecx, int32_t esi, int32_t edi) \
+    {                                                                                                                                \
+        return dw(((qw(eax) * edx) + (qw(ebx) * ecx) + (qw(esi) * edi)) >> by(a));                                                   \
+    }
 
 EDUKE32_GENERATE_PRAGMAS EDUKE32_SCALER_PRAGMA(32)
 
@@ -255,7 +254,7 @@ static FORCE_INLINE void swapchar2(void *a, void *b, int32_t s)
 }
 #endif
 
-static FORCE_INLINE char readpixel(void *s) { return *(char *)s; }
+static FORCE_INLINE CONSTEXPR char readpixel(void *s) { return *(char *)s; }
 static FORCE_INLINE void drawpixel(void *s, char a) { *(char *)s = a; }
 
 #ifndef pragmas_have_klabs
@@ -266,12 +265,12 @@ static FORCE_INLINE int32_t klabs(int32_t a)
 }
 #endif
 #ifndef pragmas_have_ksgn
-static FORCE_INLINE int32_t ksgn(int32_t a) { return (a > 0) - (a < 0); }
+static FORCE_INLINE CONSTEXPR int32_t ksgn(int32_t a) { return (a > 0) - (a < 0); }
 #endif
 
 #ifndef pragmas_have_mulscale
-static FORCE_INLINE int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
-static FORCE_INLINE int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx)
+static FORCE_INLINE CONSTEXPR int32_t mulscale(int32_t eax, int32_t edx, int32_t ecx) { return dw((qw(eax) * edx) >> by(ecx)); }
+static FORCE_INLINE CONSTEXPR int32_t dmulscale(int32_t eax, int32_t edx, int32_t esi, int32_t edi, int32_t ecx)
 {
     return dw(((qw(eax) * edx) + (qw(esi) * edi)) >> by(ecx));
 }

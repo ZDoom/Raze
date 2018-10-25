@@ -8,12 +8,6 @@
 #ifndef pragmas_x86_h_
 #define pragmas_x86_h_
 
-#ifndef UNDERSCORES
-#define _DMVAL "dmval"
-#else
-#define _DMVAL "_dmval"
-#endif
-
 #define pragmas_have_mulscale
 
 #define mulscale(a,d,c) \

@@ -958,9 +958,9 @@ static FORCE_INLINE void B_BUF16(void * const buf, uint16_t const x) { *(uint16_
 static FORCE_INLINE void B_BUF32(void * const buf, uint32_t const x) { *(uint32_t *) buf = x; }
 static FORCE_INLINE void B_BUF64(void * const buf, uint64_t const x) { *(uint64_t *) buf = x; }
 
-static FORCE_INLINE uint16_t B_UNBUF16(void const * const buf) { return *(uint16_t const *) buf; }
-static FORCE_INLINE uint32_t B_UNBUF32(void const * const buf) { return *(uint32_t const *) buf; }
-static FORCE_INLINE uint64_t B_UNBUF64(void const * const buf) { return *(uint64_t const *) buf; }
+static FORCE_INLINE CONSTEXPR uint16_t B_UNBUF16(void const * const buf) { return *(uint16_t const *) buf; }
+static FORCE_INLINE CONSTEXPR uint32_t B_UNBUF32(void const * const buf) { return *(uint32_t const *) buf; }
+static FORCE_INLINE CONSTEXPR uint64_t B_UNBUF64(void const * const buf) { return *(uint64_t const *) buf; }
 #else
 static FORCE_INLINE void B_BUF16(void * const vbuf, uint16_t const x)
 {
@@ -1013,7 +1013,7 @@ static FORCE_INLINE uint64_t B_UNBUF64(void const * const vbuf)
 
 ////////// Abstract data operations //////////
 
-#define ABSTRACT_DECL static FORCE_INLINE WARN_UNUSED_RESULT
+#define ABSTRACT_DECL static FORCE_INLINE WARN_UNUSED_RESULT CONSTEXPR
 
 #ifdef __cplusplus
 template <typename T, typename X, typename Y> ABSTRACT_DECL T clamp(T in, X min, Y max) { return in <= (T) min ? (T) min : (in >= (T) max ? (T) max : in); }
