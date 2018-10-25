@@ -36,11 +36,12 @@ void MV_Mix16BitMono8Stereo(uint32_t position, uint32_t rate, const char *start,
 
     while (length--)
     {
-        int const sample0 = MV_VOLUME(source[(position >> 16) << 1]);
-        int const sample1 = MV_VOLUME(source[((position >> 16) << 1) + 1]);
+        uint8_t const usample0 = MV_VOLUME(source[(position >> 16) << 1], volume);
+        uint8_t const usample1 = MV_VOLUME(source[((position >> 16) << 1) + 1], volume);
+
         position += rate;
 
-        *dest = (int16_t)clamp(((MV_LeftVolume[sample0] + MV_LeftVolume[sample1]) >> 1) + *dest, INT16_MIN, INT16_MAX);
+        *dest = (int16_t)clamp(((MV_LeftVolume[usample0] + MV_LeftVolume[usample1]) >> 1) + *dest, INT16_MIN, INT16_MAX);
         dest += MV_SampleSize >> 1;
     }
 
@@ -56,13 +57,15 @@ void MV_Mix16BitStereo8Stereo(uint32_t position, uint32_t rate, const char *star
 
     while (length--)
     {
-        int const sample0 = MV_VOLUME(source[(position >> 16) << 1]);
-        int const sample1 = MV_VOLUME(source[((position >> 16) << 1) + 1]);
+        uint8_t const usample0 = MV_VOLUME(source[(position >> 16) << 1], volume);
+        uint8_t const usample1 = MV_VOLUME(source[((position >> 16) << 1) + 1], volume);
+
         position += rate;
 
-        *dest = (int16_t)clamp(MV_LeftVolume[sample0] + *dest, INT16_MIN, INT16_MAX);
+        *dest = (int16_t)clamp(MV_LeftVolume[usample0] + *dest, INT16_MIN, INT16_MAX);
         *(dest + (MV_RightChannelOffset >> 1))
-        = (int16_t)clamp(MV_RightVolume[sample1] + *(dest + (MV_RightChannelOffset >> 1)), INT16_MIN, INT16_MAX);
+            = (int16_t)clamp(MV_RightVolume[usample1] + *(dest + (MV_RightChannelOffset >> 1)), INT16_MIN, INT16_MAX);
+
         dest += MV_SampleSize >> 1;
     }
 
@@ -73,35 +76,22 @@ void MV_Mix16BitStereo8Stereo(uint32_t position, uint32_t rate, const char *star
 // 16-bit stereo source, 16-bit mono output
 void MV_Mix16BitMono16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume)
 {
-    auto const source = (uint16_t const *)start;
+    auto const source = (int16_t const *)start;
     int16_t *  dest   = (int16_t *)MV_MixDestination;
 
     while (length--)
     {
-        int sample0 = MV_VOLUME(source[(position >> 16) << 1]);
-        int sample1 = MV_VOLUME(source[((position >> 16) << 1) + 1]);
-#ifdef BIGENDIAN
-        int sample0l = sample0 >> 8;
-        int sample0h = (sample0 & 255) ^ 128;
-        int sample1l = sample1 >> 8;
-        int sample1h = (sample1 & 255) ^ 128;
-#else
-        int sample0l = sample0 & 255;
-        int sample0h = (sample0 >> 8) ^ 128;
-        int sample1l = sample1 & 255;
-        int sample1h = (sample1 >> 8) ^ 128;
-#endif
+        int16_t const isample0 = B_LITTLE16(source[(position >> 16) << 1]);
+        int16_t const isample1 = B_LITTLE16(source[((position >> 16) << 1) + 1]);
+        split16_t const usample0{MV_FLIP_SIGNEDNESS(MV_VOLUME(isample0, volume))};
+        split16_t const usample1{MV_FLIP_SIGNEDNESS(MV_VOLUME(isample1, volume))};
+
         position += rate;
 
-        sample0l = MV_LeftVolume[sample0l] >> 8;
-        sample0h = MV_LeftVolume[sample0h];
-        sample0  = sample0l + sample0h + 128;
-
-        sample1l = MV_LeftVolume[sample1l] >> 8;
-        sample1h = MV_LeftVolume[sample1h];
-        sample1  = sample1l + sample1h + 128;
-
+        int32_t const sample0 = (MV_LeftVolume[usample0.l()] >> 8) + MV_LeftVolume[usample0.h()] + 128;
+        int32_t const sample1 = (MV_LeftVolume[usample1.l()] >> 8) + MV_LeftVolume[usample1.h()] + 128;
         *dest = (int16_t)clamp(((sample0 + sample1) >> 1) + *dest, INT16_MIN, INT16_MAX);
+
         dest += MV_SampleSize >> 1;
     }
 
@@ -112,35 +102,24 @@ void MV_Mix16BitMono16Stereo(uint32_t position, uint32_t rate, const char *start
 // 16-bit stereo source, 16-bit stereo output
 void MV_Mix16BitStereo16Stereo(uint32_t position, uint32_t rate, const char *start, uint32_t length, float volume)
 {
-    auto const source = (uint16_t const *)start;
+    auto const source = (int16_t const *)start;
     int16_t *  dest   = (int16_t *)MV_MixDestination;
 
     while (length--)
     {
-        int sample0 = MV_VOLUME(source[(position >> 16) << 1]);
-        int sample1 = MV_VOLUME(source[((position >> 16) << 1) + 1]);
-#ifdef BIGENDIAN
-        int sample0l = sample0 >> 8;
-        int sample0h = (sample0 & 255) ^ 128;
-        int sample1l = sample1 >> 8;
-        int sample1h = (sample1 & 255) ^ 128;
-#else
-        int sample0l = sample0 & 255;
-        int sample0h = (sample0 >> 8) ^ 128;
-        int sample1l = sample1 & 255;
-        int sample1h = (sample1 >> 8) ^ 128;
-#endif
+        int16_t const isample0 = B_LITTLE16(source[(position >> 16) << 1]);
+        int16_t const isample1 = B_LITTLE16(source[((position >> 16) << 1) + 1]);
+        split16_t const usample0{MV_FLIP_SIGNEDNESS(MV_VOLUME(isample0, volume))};
+        split16_t const usample1{MV_FLIP_SIGNEDNESS(MV_VOLUME(isample1, volume))};
+
         position += rate;
 
-        sample0l = MV_LeftVolume[sample0l] >> 8;
-        sample0h = MV_LeftVolume[sample0h];
-
-        sample1l = MV_RightVolume[sample1l] >> 8;
-        sample1h = MV_RightVolume[sample1h];
-
-        *dest = (int16_t)clamp(sample0l + sample0h + 128 + *dest, INT16_MIN, INT16_MAX);
+        int32_t const sample0 = (MV_LeftVolume[usample0.l()] >> 8) + MV_LeftVolume[usample0.h()] + 128;
+        int32_t const sample1 = (MV_RightVolume[usample1.l()] >> 8) + MV_RightVolume[usample1.h()] + 128;
+        *dest = (int16_t)clamp(sample0 + *dest, INT16_MIN, INT16_MAX);
         *(dest + (MV_RightChannelOffset >> 1))
-        = (int16_t)clamp(sample1l + sample1h + 128 + *(dest + (MV_RightChannelOffset >> 1)), INT16_MIN, INT16_MAX);
+            = (int16_t)clamp(sample1 + *(dest + (MV_RightChannelOffset >> 1)), INT16_MIN, INT16_MAX);
+
         dest += MV_SampleSize >> 1;
     }
 

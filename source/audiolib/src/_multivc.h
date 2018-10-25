@@ -31,8 +31,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef MULTIVC_H_
 #define MULTIVC_H_
 
-#include "limits.h"
-#include "inttypes.h"
 #include "multivoc.h"
 
 #define VOC_8BIT            0x0
@@ -56,7 +54,41 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #define MV_MUSIC_PRIORITY INT_MAX
 
 #define MIX_VOLUME(volume) ((max(0, min((volume), 255)) * (MV_MAXVOLUME + 1)) >> 8)
-#define MV_VOLUME(src) (int)((float)(src) * volume)
+
+template <typename T>
+static inline conditional_t< is_signed<T>::value, make_unsigned_t<T>, make_signed_t<T> > MV_FLIP_SIGNEDNESS(T src)
+{
+    static constexpr make_unsigned_t<T> msb = ((make_unsigned_t<T>)1) << (sizeof(T) * CHAR_BIT - 1u);
+    return src ^ msb;
+}
+
+template <typename T>
+static inline enable_if_t<is_signed<T>::value, T> MV_VOLUME(T src, float volume)
+{
+    return (T)Blrintf((float)src * volume);
+}
+template <typename T>
+static inline enable_if_t<is_unsigned<T>::value, T> MV_VOLUME(T src, float volume)
+{
+    return MV_FLIP_SIGNEDNESS(MV_VOLUME(MV_FLIP_SIGNEDNESS(src), volume));
+}
+
+struct split16_t
+{
+    explicit split16_t(uint16_t x) : v{x} {}
+
+    uint8_t l() const
+    {
+        return (v & 0x00FFu);
+    }
+    uint8_t h() const
+    {
+        return (v & 0xFF00u) >> CHAR_BIT;
+    }
+
+private:
+    uint16_t v;
+};
 
 #define MV_MIXBUFFERSIZE     256
 #define MV_NUMBEROFBUFFERS   16
