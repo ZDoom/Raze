@@ -9081,35 +9081,31 @@ static int32_t osdcmd_disasm(osdfuncparm_t const * const parm)
 
 static int32_t osdcmd_do(osdfuncparm_t const * const parm)
 {
-    intptr_t oscrofs;
-    char *tp;
-    int32_t i, j, slen, ofs, dontsavehist;
-    int32_t onumconstants=g_numSavedConstants;
-
     if (parm->numparms==0)
         return OSDCMD_SHOWHELP;
 
-    oscrofs = (g_scriptPtr-apScript);
+    int32_t onumconstants = g_numSavedConstants;
 
-    ofs = 2*(parm->numparms>0);  // true if "do" command
-    slen = Bstrlen(parm->raw+ofs);
-    tp = (char *)Xmalloc(slen+2);
+    intptr_t oscrofs = (g_scriptPtr-apScript);
+    int32_t  ofs     = 2 * (parm->numparms > 0);  // true if "do" command
+    int32_t  slen    = Bstrlen(parm->raw + ofs);
+    char *   tp      = (char *)Xmalloc(slen+2);
 
     Bmemcpy(tp, parm->raw+ofs, slen);
 
     // M32script call from 'special functions' menu
-    dontsavehist = (slen==0 || tp[0]==' ');
+    int32_t dontsavehist = (slen == 0 || tp[0] == ' ');
 
     // needed so that subsequent commands won't execute old stuff.
-    tp[slen] = '\n';
+    tp[slen]   = '\n';
     tp[slen+1] = '\0';
 
     g_didDefineSomething = 0;
 
     C_Compile(tp, 0);
 
-    if (parm->numparms>=0)
-        Bfree(tp);
+    if (parm->numparms >= 0)
+        DO_FREE_AND_NULL(tp);
 
     if (g_numCompilerErrors)
     {
@@ -9118,16 +9114,12 @@ static int32_t osdcmd_do(osdfuncparm_t const * const parm)
         return OSDCMD_OK;
     }
 
-    for (i=0,j=0; i<MAXEVENTS; i++)
-        if (aEventOffsets[i]>=0)
-            j++;
-
     if (g_didDefineSomething == 0)
     {
         g_numSavedConstants = onumconstants;
 
         *g_scriptPtr = CON_RETURN + (g_lineNumber<<12);
-        g_scriptPtr = apScript + oscrofs;
+        g_scriptPtr  = apScript + oscrofs;
 
         insptr = apScript + oscrofs;
         Bmemcpy(&vm, &vm_default, sizeof(vmstate_t));
