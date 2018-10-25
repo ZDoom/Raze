@@ -11855,9 +11855,9 @@ restart_grand:
 #endif
                 vec2_t v1 = *(vec2_t *)&sprite[j];
 
-                switch (cstat&48)
+                switch (cstat & CSTAT_SPRITE_ALIGNMENT_MASK)
                 {
-                    case 0:
+                    case CSTAT_SPRITE_ALIGNMENT_FACING:
                     {
                         int32_t k = walldist+(sprite[j].clipdist<<2)+1;
                         if ((klabs(v1.x-pos->x) <= k) && (klabs(v1.y-pos->y) <= k))
@@ -11869,7 +11869,7 @@ restart_grand:
                         break;
                     }
 
-                    case 16:
+                    case CSTAT_SPRITE_ALIGNMENT_WALL:
                     {
                         vec2_t v2;
                         get_wallspr_points((uspritetype *)&sprite[j], &v1.x, &v2.x, &v1.y, &v2.y);
@@ -11884,7 +11884,7 @@ restart_grand:
                         break;
                     }
 
-                    case 32:
+                    case CSTAT_SPRITE_ALIGNMENT_FLOOR:
                     {
                         daz = sprite[j].z; daz2 = daz;
 
