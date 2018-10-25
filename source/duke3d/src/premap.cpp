@@ -75,6 +75,7 @@ static void G_CacheSpriteNum(int32_t i)
     for (j = PN(i); j <= g_tile[PN(i)].cacherange; j++)
         tloadtile(j,1);
 
+#ifndef EDUKE32_STANDALONE
     switch (DYNAMICTILEMAP(PN(i)))
     {
     case HYDRENT__STATIC:
@@ -195,8 +196,8 @@ static void G_CacheSpriteNum(int32_t i)
     case DEVISTATORSPRITE__STATIC:
         for (j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1);
         break;
-
     }
+#endif
 
     for (j = PN(i); j < (PN(i)+maxc); j++) tloadtile(j,1);
 }
@@ -214,6 +215,7 @@ static void G_PrecacheSprites(void)
             for (j = i; j <= g_tile[i].cacherange; j++)
                 tloadtile(j,1);
     }
+#ifndef EDUKE32_STANDALONE
     tloadtile(BOTTOMSTATUSBAR,1);
     if ((g_netServer || ud.multimode > 1))
         tloadtile(FRAGBAR,1);
@@ -264,6 +266,7 @@ static void G_PrecacheSprites(void)
     for (i=SHRINKEREXPLOSION; i<SHRINKEREXPLOSION+4; i++) tloadtile(i,1);
     for (i=MORTER; i<MORTER+4; i++) tloadtile(i,1);
     for (i=0; i<=60; i++) tloadtile(i,1);
+#endif
 }
 
 static void G_DoLoadScreen(const char *statustext, int32_t percent)
