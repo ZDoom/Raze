@@ -1184,19 +1184,25 @@ void videoGetModes(void)
     SDL_CHECKFSMODES(maxx, maxy);
 
     // add windowed modes next
+    // SDL sorts display modes largest to smallest, so we can just compare with mode 0
+    // to make sure we aren't adding modes that are larger than the actual screen res
+    SDL_GetDisplayMode(0, 0, &dispmode);
+
     for (i = 0; g_defaultVideoModes[i].x; i++)
     {
-        if (!SDL_CHECKMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y))
+        auto const &mode = g_defaultVideoModes[i];
+
+        if (mode.x > dispmode.w || mode.y > dispmode.h || !SDL_CHECKMODE(mode.x, mode.y))
             continue;
 
-        // HACK: 8-bit == Software, 32-bit == OpenGL
-        SDL_ADDMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y, 8, 0);
+        // 8-bit == Software, 32-bit == OpenGL
+        SDL_ADDMODE(mode.x, mode.y, 8, 0);
 
 #ifdef USE_OPENGL
         if (nogl)
             continue;
 
-        SDL_ADDMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y, 32, 0);
+        SDL_ADDMODE(mode.x, mode.y, 32, 0);
 #endif
     }
 

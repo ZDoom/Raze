@@ -298,10 +298,11 @@ void videoGetModes(void)
 
         for (i = 0; g_defaultVideoModes[i].x; i++)
         {
-            if (!SDL_CHECKMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y))
+            auto &mode = g_defaultVideoModes[i];
+            if (mode.x > maxx || mode.y > maxy || !SDL_CHECKMODE(mode.x, mode.y))
                 continue;
 
-            SDL_ADDMODE(g_defaultVideoModes[i].x, g_defaultVideoModes[i].y, cdepths[j], 0);
+            SDL_ADDMODE(mode.x, mode.y, cdepths[j], 0);
         }
     }
 
