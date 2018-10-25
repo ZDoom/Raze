@@ -2219,8 +2219,8 @@ static void Menu_PreDraw(MenuID_t cm, MenuEntry_t *entry, const vec2_t origin)
 
     case MENU_MOUSEADVANCED:
     {
-        for (int i = 0; i < ARRAY_SSIZE(MEL_INTERNAL_MOUSEADVANCED_DAXES); i++)
-            if (entry == MEL_INTERNAL_MOUSEADVANCED_DAXES[i])
+        for (auto & i : MEL_INTERNAL_MOUSEADVANCED_DAXES)
+            if (entry == i)
             {
                 mgametextcenter(origin.x, origin.y + (162<<16), "Digital axes are not for mouse look\n"
                                                                 "or for aiming up and down");
@@ -2742,7 +2742,7 @@ static void Menu_PreInput(MenuEntry_t *entry)
     case MENU_KEYBOARDKEYS:
         if (KB_KeyPressed(sc_Delete))
         {
-            MenuCustom2Col_t *column = (MenuCustom2Col_t*)entry->entry;
+            auto *column = (MenuCustom2Col_t*)entry->entry;
             char key[2];
             key[0] = ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][0];
             key[1] = ud.config.KeyboardKeys[M_KEYBOARDKEYS.currentEntry][1];
@@ -2798,7 +2798,7 @@ static int32_t Menu_PreCustom2ColScreen(MenuEntry_t *entry)
 {
     if (g_currentMenu == MENU_KEYBOARDKEYS)
     {
-        MenuCustom2Col_t *column = (MenuCustom2Col_t*)entry->entry;
+        auto *column = (MenuCustom2Col_t*)entry->entry;
 
         int32_t sc = KB_GetLastScanCode();
         if (sc != sc_None)
@@ -3911,14 +3911,14 @@ static void Menu_MaybeSetSelectionToChild(Menu_t * m, MenuID_t id)
 {
     if (m->type == Menu)
     {
-        MenuMenu_t * menu = (MenuMenu_t *)m->object;
+        auto * menu = (MenuMenu_t *)m->object;
 
         if (menu->currentEntry < menu->numEntries)
         {
             MenuEntry_t const * currentEntry = menu->entrylist[menu->currentEntry];
             if (currentEntry != NULL && currentEntry->type == Link)
             {
-                MenuLink_t const * link = (MenuLink_t const *)currentEntry->entry;
+                auto const * link = (MenuLink_t const *)currentEntry->entry;
                 if (link->linkID == id)
                      return; // already good to go
             }
@@ -3929,7 +3929,7 @@ static void Menu_MaybeSetSelectionToChild(Menu_t * m, MenuID_t id)
             MenuEntry_t const * entry = menu->entrylist[i];
             if (entry != NULL && entry->type == Link && !(entry->flags & MEF_Hidden))
             {
-                MenuLink_t const * link = (MenuLink_t const *)entry->entry;
+                auto const * link = (MenuLink_t const *)entry->entry;
                 if (link->linkID == id)
                 {
                     menu->currentEntry = i;
@@ -4074,7 +4074,7 @@ static void Menu_AboutToStartDisplaying(Menu_t * m)
         break;
     case Menu:
     {
-        MenuMenu_t *menu = (MenuMenu_t*)m->object;
+        auto *menu = (MenuMenu_t*)m->object;
         // MenuEntry_t* currentry = menu->entrylist[menu->currentEntry];
 
         // need this for MENU_SKILL
@@ -4193,8 +4193,8 @@ int Menu_Change(MenuID_t cm)
 
 void G_CheckPlayerColor(int32_t *color, int32_t prev_color)
 {
-    for (int i = 0; i < ARRAY_SSIZE(MEOSV_PLAYER_COLOR); ++i)
-        if (*color == MEOSV_PLAYER_COLOR[i])
+    for (int i : MEOSV_PLAYER_COLOR)
+        if (*color == i)
             return;
 
     *color = prev_color;
@@ -4240,8 +4240,8 @@ int32_t Menu_IsTextInput(Menu_t *cm)
             break;
         case Menu:
         {
-            MenuMenu_t *menu = (MenuMenu_t*)cm->object;
-            MenuEntry_t *entry = menu->entrylist[menu->currentEntry];
+            auto *menu  = (MenuMenu_t *)cm->object;
+            auto *entry = menu->entrylist[menu->currentEntry];
             return Menu_DetermineSpecialState(entry);
         }
             break;
@@ -4737,7 +4737,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                         break;
                     case Option:
                     {
-                        MenuOption_t *object = (MenuOption_t*)entry->entry;
+                        auto *object = (MenuOption_t*)entry->entry;
                         int32_t currentOption = Menu_FindOptionBinarySearch(object, object->data == NULL ? Menu_EntryOptionSource(entry, object->currentOption) : *object->data, 0, object->options->numOptions);
 
                         if (currentOption >= 0)
@@ -4783,7 +4783,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                     }
                     case Custom2Col:
                     {
-                        MenuCustom2Col_t *object = (MenuCustom2Col_t*)entry->entry;
+                        auto *object = (MenuCustom2Col_t*)entry->entry;
                         int32_t columnx[2] = { origin.x + x - ((status & MT_XRight) ? object->columnWidth : 0), origin.x + x + ((status & MT_XRight) ? 0 : object->columnWidth) };
                         const int32_t columny = origin.y + y_upper + y - menu->scrollPos;
 
@@ -4857,7 +4857,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                     }
                     case RangeInt32:
                     {
-                        MenuRangeInt32_t *object = (MenuRangeInt32_t*)entry->entry;
+                        auto *object = (MenuRangeInt32_t*)entry->entry;
 
                         int32_t s, p;
                         int32_t z = entry->font->cursorScale;
@@ -4956,7 +4956,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
                     }
                     case RangeFloat:
                     {
-                        MenuRangeFloat_t *object = (MenuRangeFloat_t*)entry->entry;
+                        auto *object = (MenuRangeFloat_t*)entry->entry;
 
                         int32_t s, p;
                         int32_t z = entry->font->cursorScale;
@@ -5156,7 +5156,7 @@ static int32_t M_RunMenu_Menu(Menu_t *cm, MenuMenu_t *menu, MenuEntry_t *current
 #endif
                     case String:
                     {
-                        MenuString_t *object = (MenuString_t*)entry->entry;
+                        auto *object = (MenuString_t*)entry->entry;
 
                         vec2_t dim;
                         int32_t stringx = x;
@@ -5442,7 +5442,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
     {
         case Verify:
         {
-            MenuVerify_t *object = (MenuVerify_t*)cm->object;
+            auto *object = (MenuVerify_t*)cm->object;
 
             Menu_Pre(cm->menuID);
 
@@ -5457,7 +5457,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
         case Message:
         {
-            MenuMessage_t *object = (MenuMessage_t*)cm->object;
+            auto *object = (MenuMessage_t*)cm->object;
 
             Menu_Pre(cm->menuID);
 
@@ -5472,7 +5472,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
         case TextForm:
         {
-            MenuTextForm_t *object = (MenuTextForm_t*)cm->object;
+            auto *object = (MenuTextForm_t*)cm->object;
 
             Menu_Pre(cm->menuID);
 
@@ -5507,7 +5507,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
         case FileSelect:
         {
-            MenuFileSelect_t *object = (MenuFileSelect_t*)cm->object;
+            auto *object = (MenuFileSelect_t*)cm->object;
             const int32_t MenuFileSelect_scrollbar_rightedge[2] = { 160<<16, 284<<16 };
             int32_t i, selected = 0;
 
@@ -5631,7 +5631,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
 
         case Panel:
         {
-            MenuPanel_t *object = (MenuPanel_t*)cm->object;
+            auto *object = (MenuPanel_t*)cm->object;
 
             Menu_Pre(cm->menuID);
 
@@ -5652,7 +5652,7 @@ static void Menu_Run(Menu_t *cm, const vec2_t origin)
         {
             int32_t state;
 
-            MenuMenu_t *menu = (MenuMenu_t*)cm->object;
+            auto *menu = (MenuMenu_t*)cm->object;
             MenuEntry_t *currentry = menu->entrylist[menu->currentEntry];
 
             state = Menu_DetermineSpecialState(currentry);
@@ -5764,7 +5764,7 @@ static MenuEntry_t *Menu_RunInput_Menu_Movement(MenuMenu_t *menu, MenuMovement_t
 
 static void Menu_RunInput_EntryLink_Activate(MenuEntry_t *entry)
 {
-    MenuLink_t *link = (MenuLink_t*)entry->entry;
+    auto *link = (MenuLink_t*)entry->entry;
 
     Menu_EntryLinkActivate(entry);
 
@@ -5890,7 +5890,7 @@ static int32_t Menu_RunInput_EntryOptionList_Activate(MenuEntry_t *entry, MenuOp
 
 static void Menu_RunInput_EntryCustom2Col_Activate(MenuEntry_t *entry)
 {
-    MenuCustom2Col_t *object = (MenuCustom2Col_t*)entry->entry;
+    auto *object = (MenuCustom2Col_t*)entry->entry;
 
     Menu_Custom2ColScreen(/*entry*/);
 
@@ -6079,7 +6079,7 @@ static void Menu_RunInput_EntryRangeDouble_Movement(/*MenuEntry_t *entry, */Menu
 
 static void Menu_RunInput_EntryString_Activate(MenuEntry_t *entry)
 {
-    MenuString_t *object = (MenuString_t*)entry->entry;
+    auto *object = (MenuString_t*)entry->entry;
 
     if (object->variable)
         strncpy(typebuf, object->variable, TYPEBUFSIZE);
@@ -6195,7 +6195,7 @@ static void Menu_RunInput(Menu_t *cm)
     {
         case Panel:
         {
-            MenuPanel_t *panel = (MenuPanel_t*)cm->object;
+            auto *panel = (MenuPanel_t*)cm->object;
 
             if (I_ReturnTrigger() || Menu_RunInput_MouseReturn())
             {
@@ -6226,7 +6226,7 @@ static void Menu_RunInput(Menu_t *cm)
 
         case TextForm:
         {
-            MenuTextForm_t *object = (MenuTextForm_t*)cm->object;
+            auto *object = (MenuTextForm_t*)cm->object;
             int32_t hitstate = I_EnterText(object->input, object->bufsize-1, 0);
 
             if (hitstate == -1 || Menu_RunInput_MouseReturn())
@@ -6254,7 +6254,7 @@ static void Menu_RunInput(Menu_t *cm)
 
         case FileSelect:
         {
-            MenuFileSelect_t *object = (MenuFileSelect_t*)cm->object;
+            auto *object = (MenuFileSelect_t*)cm->object;
 
             if (I_ReturnTrigger() || Menu_RunInput_MouseReturn())
             {
@@ -6414,7 +6414,7 @@ static void Menu_RunInput(Menu_t *cm)
 
             if (I_CheckAllInput())
             {
-                MenuMessage_t *message = (MenuMessage_t*)cm->object;
+                auto *message = (MenuMessage_t*)cm->object;
 
                 I_ClearAllInput();
 
@@ -6442,7 +6442,7 @@ static void Menu_RunInput(Menu_t *cm)
 
             if (I_AdvanceTrigger() || KB_KeyPressed(sc_Y) || Menu_RunInput_MouseAdvance())
             {
-                MenuVerify_t *verify = (MenuVerify_t*)cm->object;
+                auto *verify = (MenuVerify_t*)cm->object;
 
                 I_AdvanceTriggerClear();
                 KB_ClearKeyDown(sc_Y);
@@ -6462,7 +6462,7 @@ static void Menu_RunInput(Menu_t *cm)
         {
             int32_t state;
 
-            MenuMenu_t *menu = (MenuMenu_t*)cm->object;
+            auto *menu = (MenuMenu_t*)cm->object;
             MenuEntry_t *currentry = menu->entrylist[menu->currentEntry];
 
             state = Menu_DetermineSpecialState(currentry);
@@ -6490,7 +6490,7 @@ static void Menu_RunInput(Menu_t *cm)
                         break;
                     case Option:
                     {
-                        MenuOption_t *object = (MenuOption_t*)currentry->entry;
+                        auto *object = (MenuOption_t*)currentry->entry;
 
                         if (currentry->flags & MEF_Disabled)
                             break;
@@ -6546,7 +6546,7 @@ static void Menu_RunInput(Menu_t *cm)
                         break;
                     case RangeInt32:
                     {
-                        MenuRangeInt32_t *object = (MenuRangeInt32_t*)currentry->entry;
+                        auto *object = (MenuRangeInt32_t*)currentry->entry;
 
                         if (currentry->flags & MEF_Disabled)
                             break;
@@ -6571,7 +6571,7 @@ static void Menu_RunInput(Menu_t *cm)
                     }
                     case RangeFloat:
                     {
-                        MenuRangeFloat_t *object = (MenuRangeFloat_t*)currentry->entry;
+                        auto *object = (MenuRangeFloat_t*)currentry->entry;
 
                         if (currentry->flags & MEF_Disabled)
                             break;
@@ -6691,7 +6691,7 @@ static void Menu_RunInput(Menu_t *cm)
             {
                 if (currentry->type == String)
                 {
-                    MenuString_t *object = (MenuString_t*)currentry->entry;
+                    auto *object = (MenuString_t*)currentry->entry;
 
                     int32_t hitstate = I_EnterText(object->editfield, object->bufsize-1, object->flags);
 
@@ -6715,7 +6715,7 @@ static void Menu_RunInput(Menu_t *cm)
             {
                 if (currentry->type == Option)
                 {
-                    MenuOption_t *object = (MenuOption_t*)currentry->entry;
+                    auto *object = (MenuOption_t*)currentry->entry;
 
                     if (I_ReturnTrigger() || Menu_RunInput_MouseReturn())
                     {
