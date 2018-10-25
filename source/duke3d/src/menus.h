@@ -60,12 +60,12 @@ enum MenuIndex_t {
     MENU_TOUCHSETUP     = 214,
     MENU_TOUCHSENS      = 215,
     MENU_TOUCHBUTTONS   = 216,
-	MENU_CONTROLS       = 220,
+    MENU_CONTROLS       = 220,
     MENU_POLYMOST       = 230,
     MENU_COLCORR        = 231,
     MENU_COLCORR_INGAME = 232,
-	MENU_SCREENSETUP    = 233,
-	MENU_DISPLAYSETUP   = 234,
+    MENU_SCREENSETUP    = 233,
+    MENU_DISPLAYSETUP   = 234,
     MENU_POLYMER        = 240,
     MENU_LOAD           = 300,
     MENU_SAVE           = 350,
@@ -79,7 +79,7 @@ enum MenuIndex_t {
     MENU_NETWAITVOTES   = 603,
     MENU_SOUND          = 700,
     MENU_SOUND_INGAME   = 701,
-	MENU_ADVSOUND       = 702,
+    MENU_ADVSOUND       = 702,
     MENU_SAVESETUP      = 750,
     MENU_SAVECLEANVERIFY = 751,
     MENU_CHEATS         = 800,
@@ -458,7 +458,7 @@ extern Menu_t *m_currentMenu;
 
 extern int32_t g_quitDeadline;
 extern int32_t voting;
-int Menu_Change(int32_t cm);
+int Menu_Change(MenuID_t cm);
 void Menu_AnimateChange(int32_t cm, MenuAnimationType_t animtype);
 int32_t Menu_IsTextInput(Menu_t *cm);
 int G_CheckPlayerColor(int color);
