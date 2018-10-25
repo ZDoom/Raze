@@ -6637,8 +6637,8 @@ MAIN_LOOP_RESTART:
     lockclock = 0;
 
     g_player[myconnectindex].ps->fta = 0;
-    for (size_t q = 0; q < MAXUSERQUOTES; ++q)
-        user_quote_time[q] = 0;
+    for (int & q : user_quote_time)
+        q = 0;
 
     Menu_Change(MENU_MAIN);
 
@@ -6889,13 +6889,13 @@ int G_DoMoveThings(void)
     if (g_RTSPlaying > 0)
         g_RTSPlaying--;
 
-    for (bssize_t i=0; i<MAXUSERQUOTES; i++)
+    for (int & i : user_quote_time)
     {
-        if (user_quote_time[i])
+        if (i)
         {
-            if (--user_quote_time[i] > ud.msgdisptime)
-                user_quote_time[i] = ud.msgdisptime;
-            if (!user_quote_time[i]) pub = NUMPAGES;
+            if (--i > ud.msgdisptime)
+                i = ud.msgdisptime;
+            if (!i) pub = NUMPAGES;
         }
     }
 

@@ -340,19 +340,16 @@ void Gv_ResetVars(void) /* this is called during a new game and nowhere else */
 
     osd->log.errors = 0;
 
-    for (bssize_t i=0; i<MAXGAMEVARS; i++)
+    for (auto &aGameVar : aGameVars)
     {
-        if (aGameVars[i].szLabel != NULL)
-        Gv_NewVar(aGameVars[i].szLabel,
-                    (aGameVars[i].flags & GAMEVAR_NODEFAULT) ? aGameVars[i].global : aGameVars[i].defaultValue,
-                    aGameVars[i].flags);
+        if (aGameVar.szLabel != NULL)
+            Gv_NewVar(aGameVar.szLabel, (aGameVar.flags & GAMEVAR_NODEFAULT) ? aGameVar.global : aGameVar.defaultValue, aGameVar.flags);
     }
 
-    for (bssize_t i=0; i<MAXGAMEARRAYS; i++)
+    for (auto &aGameArray : aGameArrays)
     {
-        if (aGameArrays[i].szLabel != NULL)
-        if (aGameArrays[i].flags & GAMEARRAY_RESET)
-            Gv_NewArray(aGameArrays[i].szLabel,aGameArrays[i].pValues,aGameArrays[i].size,aGameArrays[i].flags);
+        if (aGameArray.szLabel != NULL && aGameArray.flags & GAMEARRAY_RESET)
+            Gv_NewArray(aGameArray.szLabel, aGameArray.pValues, aGameArray.size, aGameArray.flags);
     }
 }
 
@@ -1203,9 +1200,9 @@ void Gv_ResetSystemDefaults(void)
     g_structVarIDs   = Gv_GetVarIndex("sprite");
 #endif
 
-    for (bssize_t weaponNum = 0; weaponNum <= MAXTILES - 1; weaponNum++)
-        if (g_tile[weaponNum].defproj)
-            *g_tile[weaponNum].proj = *g_tile[weaponNum].defproj;
+    for (auto & tile : g_tile)
+        if (tile.defproj)
+            *tile.proj = *tile.defproj;
 
     //AddLog("EOF:ResetWeaponDefaults");
 }

@@ -468,8 +468,8 @@ int32_t baselayer_init(void)
 #endif
     };
 
-    for (native_t i=0; i<ARRAY_SSIZE(cvars_engine); i++)
-        OSD_RegisterCvar(&cvars_engine[i], (cvars_engine[i].flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
+    for (auto & i : cvars_engine)
+        OSD_RegisterCvar(&i, (i.flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_baselayer : osdcmd_cvar_set);
 
 #ifdef USE_OPENGL
     OSD_RegisterFunction("setrendermode","setrendermode <number>: sets the engine's rendering mode.\n"

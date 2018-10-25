@@ -3728,8 +3728,8 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                     int32_t values[8];
                     G_GetTimeDate(values);
 
-                    for (native_t i = 0; i < 8; i++)
-                        Gv_SetVarX(*insptr++, values[i]);
+                    for (int value : values)
+                        Gv_SetVarX(*insptr++, value);
 
                     continue;
                 }

@@ -1711,11 +1711,11 @@ void G_SetupFilenameBasedMusic(char *nameBuf, const char *fileName, int levelNum
         p[0] = '.';
     }
 
-    for (unsigned int i = 0; i < ARRAY_SIZE(exts); i++)
+    for (auto & ext : exts)
     {
         int32_t kFile;
 
-        Bmemcpy(p+1, exts[i], Bstrlen(exts[i]) + 1);
+        Bmemcpy(p+1, ext, Bstrlen(ext) + 1);
 
         if ((kFile = kopen4loadfrommod(nameBuf, 0)) != -1)
         {

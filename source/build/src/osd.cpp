@@ -598,8 +598,8 @@ void OSD_Cleanup(void)
     DO_FREE_AND_NULL(osd->cvars);
     DO_FREE_AND_NULL(osd->editor.buf);
     DO_FREE_AND_NULL(osd->editor.tmp);
-    for (bssize_t i=0; i<OSDMAXHISTORYDEPTH; i++)
-        DO_FREE_AND_NULL(osd->history.buf[i]);
+    for (auto & i : osd->history.buf)
+        DO_FREE_AND_NULL(i);
     DO_FREE_AND_NULL(osd->text.buf);
     DO_FREE_AND_NULL(osd->text.fmt);
     DO_FREE_AND_NULL(osd->version.buf);
@@ -699,8 +699,8 @@ void OSD_Init(void)
         { "osdhistorydepth", "sets the history depth, in lines", (void *) &osd->history.maxlines, CVAR_INT|CVAR_FUNCPTR, OSDMINHISTORYDEPTH, OSDMAXHISTORYDEPTH },
     };
 
-    for (unsigned i=0; i<ARRAY_SIZE(cvars_osd); i++)
-        OSD_RegisterCvar(&cvars_osd[i], (cvars_osd[i].flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_osd : osdcmd_cvar_set);
+    for (auto & i : cvars_osd)
+        OSD_RegisterCvar(&i, (i.flags & CVAR_FUNCPTR) ? osdcmd_cvar_set_osd : osdcmd_cvar_set);
 
     OSD_RegisterFunction("alias", "alias: creates an alias for calling multiple commands", osdfunc_alias);
     OSD_RegisterFunction("clear", "clear: clears the console text buffer", osdfunc_clear);

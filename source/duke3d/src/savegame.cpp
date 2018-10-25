@@ -1816,10 +1816,10 @@ void sv_postyaxload(void)
 static void sv_postactordata()
 {
 #ifdef POLYMER
-    for (int i = 0; i < MAXSPRITES; i++)
+    for (auto & i : actor)
     {
-        actor[i].lightptr = NULL;
-        actor[i].lightId = -1;
+        i.lightptr = NULL;
+        i.lightId = -1;
     }
 #endif
 }
@@ -1865,8 +1865,8 @@ static void sv_preprojectilesave()
     savegame_projectilecnt = 0;
     Bmemset(savegame_projectiles, 0, sizeof(savegame_projectiles));
 
-    for (int i = 0; i < MAXTILES; i++)
-        if (g_tile[i].proj)
+    for (auto & i : g_tile)
+        if (i.proj)
             savegame_projectilecnt++;
 
     if (savegame_projectilecnt > 0)

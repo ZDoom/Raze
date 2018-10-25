@@ -614,8 +614,8 @@ void G_DoCheats(void)
                 case CHEAT_SHOWMAP: // SHOW ALL OF THE MAP TOGGLE;
                     ud.showallmap = !ud.showallmap;
 
-                    for (bssize_t i=0; i<(MAXSECTORS>>3); i++)
-                        show2dsector[i] = ud.showallmap*255;
+                    for (char & i : show2dsector)
+                        i = ud.showallmap*255;
 
                     P_DoQuote(ud.showallmap ? QUOTE_SHOW_MAP_ON : QUOTE_SHOW_MAP_OFF,
                         pPlayer);

@@ -67,18 +67,18 @@ static struct
 // this is horrible!
 const char *KB_ScanCodeToString(kb_scancode scancode)
 {
-    for (size_t s = 0; s < ARRAY_SIZE(sctokeylut); s++)
-        if (sctokeylut[s].sc == scancode)
-            return sctokeylut[s].key;
+    for (auto &s : sctokeylut)
+        if (s.sc == scancode)
+            return s.key;
 
     return "";
 }
 
 kb_scancode KB_StringToScanCode(const char * string)
 {
-    for (size_t s = 0; s < ARRAY_SIZE(sctokeylut); s++)
-        if (!Bstrcasecmp(sctokeylut[s].key, string))
-            return sctokeylut[s].sc;
+    for (auto &s : sctokeylut)
+        if (!Bstrcasecmp(s.key, string))
+            return s.sc;
 
     return 0;
 }

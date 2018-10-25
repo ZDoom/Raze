@@ -139,8 +139,8 @@ void paletteLoadFromDisk(void)
     initfastcolorlookup_gridvectors();
 
 #ifdef USE_OPENGL
-    for (size_t x = 0; x < MAXBLENDTABS; ++x)
-        glblend[x] = defaultglblend;
+    for (auto & x : glblend)
+        x = defaultglblend;
 #endif
 
     int32_t fil;
@@ -153,8 +153,8 @@ void paletteLoadFromDisk(void)
     if (kread_and_test(fil, palette, 768))
         return kclose(fil);
 
-    for (bssize_t k = 0; k < 768; k++)
-        palette[k] <<= 2;
+    for (unsigned char & k : palette)
+        k <<= 2;
 
     initfastcolorlookup_palette(palette);
 
@@ -366,23 +366,19 @@ void palettePostLoadTables(void)
 
 void paletteFixTranslucencyMask(void)
 {
-    for (bssize_t i=0; i<MAXPALOOKUPS; i++)
+    for (auto *thispalookup : palookup)
     {
-        char * const thispalookup = palookup[i];
         if (thispalookup == NULL)
             continue;
 
         for (bssize_t j=0; j<numshades; j++)
-        {
             thispalookup[(j<<8) + 255] = 255;
-        }
     }
 
     // fix up translucency table so that transluc(255,x)
     // and transluc(x,255) is black instead of purple.
-    for (bssize_t i=0; i<MAXBLENDTABS; i++)
+    for (auto *transluc : blendtable)
     {
-        char * const transluc = blendtable[i];
         if (transluc == NULL)
             continue;
 
