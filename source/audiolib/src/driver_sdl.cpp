@@ -61,8 +61,8 @@ static SDL_mutex *EffectFence;
 
 static void fillData(int chan, void *ptr, int remaining, void *udata)
 {
-	int32_t len;
-	char *sptr;
+    int32_t len;
+    char *sptr;
 
     UNREFERENCED_PARAMETER(chan);
     UNREFERENCED_PARAMETER(udata);
@@ -72,32 +72,32 @@ static void fillData(int chan, void *ptr, int remaining, void *udata)
 
     SDL_LockMutex(EffectFence);
 
-	while (remaining > 0) {
-		if (MixBufferUsed == MixBufferSize) {
-			MixCallBack();
+    while (remaining > 0) {
+        if (MixBufferUsed == MixBufferSize) {
+            MixCallBack();
 
-			MixBufferUsed = 0;
-			MixBufferCurrent++;
-			if (MixBufferCurrent >= MixBufferCount) {
-				MixBufferCurrent -= MixBufferCount;
-			}
-		}
+            MixBufferUsed = 0;
+            MixBufferCurrent++;
+            if (MixBufferCurrent >= MixBufferCount) {
+                MixBufferCurrent -= MixBufferCount;
+            }
+        }
 
-		while (remaining > 0 && MixBufferUsed < MixBufferSize) {
-			sptr = MixBuffer + (MixBufferCurrent * MixBufferSize) + MixBufferUsed;
+        while (remaining > 0 && MixBufferUsed < MixBufferSize) {
+            sptr = MixBuffer + (MixBufferCurrent * MixBufferSize) + MixBufferUsed;
 
-			len = MixBufferSize - MixBufferUsed;
-			if (remaining < len) {
-				len = remaining;
-			}
+            len = MixBufferSize - MixBufferUsed;
+            if (remaining < len) {
+                len = remaining;
+            }
 
-			memcpy(ptr, sptr, len);
+            memcpy(ptr, sptr, len);
 
-			ptr = (void *)((uintptr_t)(ptr) + len);
-			MixBufferUsed += len;
-			remaining -= len;
-		}
-	}
+            ptr = (void *)((uintptr_t)(ptr) + len);
+            MixBufferUsed += len;
+            remaining -= len;
+        }
+    }
 
     SDL_UnlockMutex(EffectFence);
 }
@@ -249,43 +249,43 @@ void SDLDrv_PCM_Shutdown(void)
 }
 
 int32_t SDLDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
-						int32_t NumDivisions, void ( *CallBackFunc )( void ) )
+                        int32_t NumDivisions, void ( *CallBackFunc )( void ) )
 {
-	if (!Initialised) {
-		ErrorCode = SDLErr_Uninitialised;
-		return SDLErr_Error;
-	}
+    if (!Initialised) {
+        ErrorCode = SDLErr_Uninitialised;
+        return SDLErr_Error;
+    }
 
-	if (Playing) {
-		SDLDrv_PCM_StopPlayback();
-	}
+    if (Playing) {
+        SDLDrv_PCM_StopPlayback();
+    }
 
-	MixBuffer = BufferStart;
-	MixBufferSize = BufferSize;
-	MixBufferCount = NumDivisions;
-	MixBufferCurrent = 0;
-	MixBufferUsed = 0;
-	MixCallBack = CallBackFunc;
+    MixBuffer = BufferStart;
+    MixBufferSize = BufferSize;
+    MixBufferCount = NumDivisions;
+    MixBufferCurrent = 0;
+    MixBufferUsed = 0;
+    MixCallBack = CallBackFunc;
 
-	// prime the buffer
-	MixCallBack();
+    // prime the buffer
+    MixCallBack();
 
-	Mix_Resume(-1);
+    Mix_Resume(-1);
 
     Playing = 1;
 
-	return SDLErr_Ok;
+    return SDLErr_Ok;
 }
 
 void SDLDrv_PCM_StopPlayback(void)
 {
-	if (!Initialised || !Playing) {
-		return;
-	}
+    if (!Initialised || !Playing) {
+        return;
+    }
 
     Mix_Pause(-1);
 
-	Playing = 0;
+    Playing = 0;
 }
 
 void SDLDrv_PCM_Lock(void)

@@ -55,7 +55,7 @@ static struct
     NoSoundDrv_PCM_BeginPlayback, NoSoundDrv_PCM_StopPlayback, NoSoundDrv_PCM_Lock, NoSoundDrv_PCM_Unlock,
     },
 
-	// Windows DirectSound
+    // Windows DirectSound
 #if defined MIXERTYPEWIN
     {
     DirectSoundDrv_GetError, DirectSoundDrv_ErrorString, DirectSoundDrv_PCM_Init, DirectSoundDrv_PCM_Shutdown,

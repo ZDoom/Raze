@@ -35,20 +35,20 @@ enum {
    DSErr_Warning = -2,
    DSErr_Error   = -1,
    DSErr_Ok      = 0,
-	DSErr_Uninitialised,
-	DSErr_DirectSoundCreate,
-	DSErr_SetCooperativeLevel,
-	DSErr_CreateSoundBuffer,
-	DSErr_CreateSoundBufferSecondary,
-	DSErr_SetFormat,
-	DSErr_SetFormatSecondary,
-	DSErr_Notify,
-	DSErr_NotifyEvents,
-	DSErr_SetNotificationPositions,
-	DSErr_Play,
-	DSErr_PlaySecondary,
-	DSErr_CreateThread,
-	DSErr_CreateMutex
+    DSErr_Uninitialised,
+    DSErr_DirectSoundCreate,
+    DSErr_SetCooperativeLevel,
+    DSErr_CreateSoundBuffer,
+    DSErr_CreateSoundBufferSecondary,
+    DSErr_SetFormat,
+    DSErr_SetFormatSecondary,
+    DSErr_Notify,
+    DSErr_NotifyEvents,
+    DSErr_SetNotificationPositions,
+    DSErr_Play,
+    DSErr_PlaySecondary,
+    DSErr_CreateThread,
+    DSErr_CreateMutex
 };
 
 static int32_t ErrorCode = DSErr_Ok;
@@ -73,34 +73,34 @@ static HANDLE mutex = NULL;
 static void FillBufferPortion(char * ptr, int32_t remaining)
 {
     int32_t len = 0;
-	char *sptr;
+    char *sptr;
 
-	while (remaining >= len) {
-		if (MixBufferUsed == MixBufferSize) {
-			MixCallBack();
+    while (remaining >= len) {
+        if (MixBufferUsed == MixBufferSize) {
+            MixCallBack();
 
-			MixBufferUsed = 0;
-			MixBufferCurrent++;
-			if (MixBufferCurrent >= MixBufferCount) {
-				MixBufferCurrent -= MixBufferCount;
-			}
-		}
+            MixBufferUsed = 0;
+            MixBufferCurrent++;
+            if (MixBufferCurrent >= MixBufferCount) {
+                MixBufferCurrent -= MixBufferCount;
+            }
+        }
 
-		while (remaining >= len && MixBufferUsed < MixBufferSize) {
-			sptr = MixBuffer + (MixBufferCurrent * MixBufferSize) + MixBufferUsed;
+        while (remaining >= len && MixBufferUsed < MixBufferSize) {
+            sptr = MixBuffer + (MixBufferCurrent * MixBufferSize) + MixBufferUsed;
 
-			len = MixBufferSize - MixBufferUsed;
-			if (remaining < len) {
-				len = remaining;
-			}
+            len = MixBufferSize - MixBufferUsed;
+            if (remaining < len) {
+                len = remaining;
+            }
 
-			memcpy(ptr, sptr, len);
+            memcpy(ptr, sptr, len);
 
-			ptr += len;
-			MixBufferUsed += len;
-			remaining -= len;
-		}
-	}
+            ptr += len;
+            MixBufferUsed += len;
+            remaining -= len;
+        }
+    }
 }
 
 static void FillBuffer(int32_t bufnum)
@@ -156,7 +156,7 @@ static DWORD WINAPI fillDataThread(LPVOID lpParameter)
 
     UNREFERENCED_PARAMETER(lpParameter);
 
-	do {
+    do {
         waitret = WaitForMultipleObjects(3, handles, FALSE, INFINITE);
         switch (waitret) {
             case WAIT_OBJECT_0:
@@ -179,23 +179,23 @@ static DWORD WINAPI fillDataThread(LPVOID lpParameter)
                     MV_Printf( "DirectSound fillDataThread: wfmo err %d\n", (int32_t) waitret);
                 break;
         }
-	} while (1);
+    } while (1);
 
-	return 0;
+    return 0;
 }
 
 
 int32_t DirectSoundDrv_GetError(void)
 {
-	return ErrorCode;
+    return ErrorCode;
 }
 
 const char *DirectSoundDrv_ErrorString( int32_t ErrorNumber )
 {
-	const char *ErrorString;
+    const char *ErrorString;
 
    switch( ErrorNumber )
-	{
+    {
       case DSErr_Warning :
       case DSErr_Error :
          ErrorString = DirectSoundDrv_ErrorString( ErrorCode );
@@ -205,11 +205,11 @@ const char *DirectSoundDrv_ErrorString( int32_t ErrorNumber )
          ErrorString = "DirectSound ok.";
          break;
 
-		case DSErr_Uninitialised:
-			ErrorString = "DirectSound uninitialised.";
-			break;
+        case DSErr_Uninitialised:
+            ErrorString = "DirectSound uninitialised.";
+            break;
 
-		case DSErr_DirectSoundCreate:
+        case DSErr_DirectSoundCreate:
             ErrorString = "DirectSound error: DirectSoundCreate failed.";
             break;
 
@@ -261,12 +261,12 @@ const char *DirectSoundDrv_ErrorString( int32_t ErrorNumber )
             ErrorString = "DirectSound error: failed creating mix mutex.";
             break;
 
-		default:
-			ErrorString = "Unknown DirectSound error code.";
-			break;
-	}
+        default:
+            ErrorString = "Unknown DirectSound error code.";
+            break;
+    }
 
-	return ErrorString;
+    return ErrorString;
 
 }
 
@@ -409,7 +409,7 @@ int32_t DirectSoundDrv_PCM_Init(int32_t *mixrate, int32_t *numchannels, void * i
 
 //     initprintf("DirectSound Init: yay\n");
 
-	return DSErr_Ok;
+    return DSErr_Ok;
 }
 
 void DirectSoundDrv_PCM_Shutdown(void)
@@ -426,7 +426,7 @@ void DirectSoundDrv_PCM_Shutdown(void)
 }
 
 int32_t DirectSoundDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
-						int32_t NumDivisions, void ( *CallBackFunc )( void ) )
+                        int32_t NumDivisions, void ( *CallBackFunc )( void ) )
 {
     HRESULT err;
 
@@ -437,18 +437,18 @@ int32_t DirectSoundDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
 
     DirectSoundDrv_PCM_StopPlayback();
 
-	MixBuffer = BufferStart;
-	MixBufferSize = BufferSize;
-	MixBufferCount = NumDivisions;
-	MixBufferCurrent = 0;
-	MixBufferUsed = 0;
-	MixCallBack = CallBackFunc;
+    MixBuffer = BufferStart;
+    MixBufferSize = BufferSize;
+    MixBufferCount = NumDivisions;
+    MixBufferCurrent = 0;
+    MixBufferUsed = 0;
+    MixCallBack = CallBackFunc;
 
-	// prime the buffer
-	FillBuffer(0);
+    // prime the buffer
+    FillBuffer(0);
 
-	mixThread = CreateThread(NULL, 0, fillDataThread, 0, 0, 0);
-	if (!mixThread) {
+    mixThread = CreateThread(NULL, 0, fillDataThread, 0, 0, 0);
+    if (!mixThread) {
         ErrorCode = DSErr_CreateThread;
         return DSErr_Error;
     }
@@ -463,7 +463,7 @@ int32_t DirectSoundDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
 
     Playing = 1;
 
-	return DSErr_Ok;
+    return DSErr_Ok;
 }
 
 void DirectSoundDrv_PCM_StopPlayback(void)

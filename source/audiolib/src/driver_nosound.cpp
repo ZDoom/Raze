@@ -49,7 +49,7 @@ void NoSoundDrv_PCM_Shutdown(void)
 }
 
 int32_t NoSoundDrv_PCM_BeginPlayback(char *BufferStart, int32_t BufferSize,
-						int32_t NumDivisions, void ( *CallBackFunc )( void ) )
+                        int32_t NumDivisions, void ( *CallBackFunc )( void ) )
 {
     UNREFERENCED_PARAMETER(BufferStart);
     UNREFERENCED_PARAMETER(BufferSize);
