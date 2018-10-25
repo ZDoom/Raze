@@ -45,13 +45,6 @@ static HMIDISTRM hmido = (HMIDISTRM)-1;
 static MIDIOUTCAPS midicaps;
 static DWORD mididevice = -1;
 
-typedef struct
-{
-    int32_t time;
-    int32_t stream;
-    int32_t event;
-}
-MIDIEVENTHEAD;
 #define PAD(x) ((((x)+3)&(~3)))
 
 #define BUFFERLEN (32*4*4)
