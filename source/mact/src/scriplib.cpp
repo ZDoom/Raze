@@ -226,11 +226,16 @@ void SCRIPT_AddEntry(int32_t scripthandle, const char * sectionname, const char 
 
 int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
 {
-    char *fence = data + length;
-    char *dp, *sp, ch=0, lastch=0;
+    if (!data || length < 0) return 1;
+
     char const *currentsection = "";
-    char *currententry = NULL;
-    char *currentvalue = NULL;
+    char const *currententry   = NULL;
+    char const *currentvalue   = NULL;
+
+    char *fence  = data + length;
+    char  ch     = 0;
+    char  lastch = 0;
+
     enum
     {
         ParsingIdle,
@@ -240,6 +245,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
         ParsingValueBegin,
         ParsingValue
     };
+
     enum
     {
         ExpectingSection = 1,
@@ -248,18 +254,17 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
         ExpectingValue = 8,
         ExpectingComment = 16
     };
-    int32_t state;
-    int32_t expect;
-    int32_t linenum=1;
-    int32_t rv = 0;
-#define SETRV(v) if (v>rv||rv==0) rv=v
 
-    if (!data) return 1;
-    if (length < 0) return 1;
 
-    dp = sp = data;
-    state = ParsingIdle;
-    expect = ExpectingSection | ExpectingEntry;
+#define SETERR(v) do { if (v>errlevel||errlevel==0) errlevel=v; } while (0)
+
+    char *sp = data;
+    char *dp = data;
+
+    int state    = ParsingIdle;
+    int expect   = ExpectingSection | ExpectingEntry;
+    int linenum  = 1;
+    int errlevel = 0;
 
 #define EATLINE(p) while (length > 0 && *p != '\n' && *p != '\r') { p++; length--; }
 #define LETTER() { lastch = ch; ch = *(sp++); length--; }
@@ -287,7 +292,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
                 {
                     // Unexpected section start
                     printf("Unexpected start of section on line %d.\n", linenum);
-                    SETRV(-1);
+                    SETERR(-1);
                     EATLINE(sp);
                     continue;
                 }
@@ -303,7 +308,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
                     {
                         // Unexpected name start
                         printf("Unexpected entry LabelText on line %d.\n", linenum);
-                        SETRV(-1);
+                        SETERR(-1);
                         EATLINE(sp);
                         continue;
                     }
@@ -318,7 +323,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
                 {
                     // Unexpected character
                     printf("Illegal character (ASCII %d) on line %d.\n", ch, linenum);
-                    SETRV(-1);
+                    SETERR(-1);
                     EATLINE(sp);
                     continue;
                 }
@@ -335,7 +340,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
             case '\n':
             case '\r':	// Unexpected newline
                 printf("Unexpected newline on line %d.\n", linenum);
-                SETRV(-1);
+                SETERR(-1);
                 state = ParsingIdle;
                 linenum++;
                 continue;
@@ -361,13 +366,13 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
                 // unexpected comment
                 EATLINE(sp);
                 printf("Unexpected comment on line %d.\n", linenum);
-                SETRV(-1);
+                SETERR(-1);
                 fallthrough__;
             case '\n':
             case '\r':
                 // Unexpected newline
                 printf("Unexpected newline on line %d.\n", linenum);
-                SETRV(-1);
+                SETERR(-1);
                 expect = ExpectingSection | ExpectingEntry;
                 state = ParsingIdle;
                 linenum++;
@@ -418,7 +423,7 @@ int32_t SCRIPT_ParseBuffer(int32_t scripthandle, char *data, int32_t length)
 
     if (sp > fence) printf("Stepped outside the fence!\n");
 
-    return rv;
+    return errlevel;
 }
 
 
