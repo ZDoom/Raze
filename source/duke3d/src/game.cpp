@@ -4464,7 +4464,7 @@ extern int G_StartRTS(int lumpNum, int localPlayer)
 
         if (pData != NULL)
         {
-            FX_Play3D(pData, RTS_SoundLength(lumpNum - 1), FX_ONESHOT, 0, 0, FX_VOLUME(1), 255, -lumpNum);
+            FX_Play3D(pData, RTS_SoundLength(lumpNum - 1), FX_ONESHOT, 0, 0, FX_VOLUME(1), 255, 1.f, -lumpNum);
             g_RTSPlaying = 7;
             return 1;
         }

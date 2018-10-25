@@ -370,48 +370,39 @@ Begin playback of sound data at specified angle and distance
 from listener.
 ---------------------------------------------------------------------*/
 
-int32_t MV_PlayXA3D
-(
- char *ptr,
- uint32_t ptrlength,
- int32_t loophow,
- int32_t  pitchoffset,
- int32_t  angle,
- int32_t  distance,
- int32_t  priority,
- uint32_t callbackval
- )
+int32_t MV_PlayXA3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority, float volume,
+                    uint32_t callbackval)
 {
-   int32_t left;
-   int32_t right;
-   int32_t mid;
-   int32_t volume;
-   int32_t status;
+    int32_t left;
+    int32_t right;
+    int32_t mid;
+    int32_t vol;
+    int32_t status;
 
-   if ( !MV_Installed )
-   {
-      MV_SetErrorCode( MV_NotInstalled );
-      return MV_Error;
-   }
+    if (!MV_Installed)
+    {
+        MV_SetErrorCode(MV_NotInstalled);
+        return MV_Error;
+    }
 
-   if ( distance < 0 )
-   {
-      distance  = -distance;
-      angle    += MV_NUMPANPOSITIONS / 2;
-   }
+    if (distance < 0)
+    {
+        distance = -distance;
+        angle += MV_NUMPANPOSITIONS / 2;
+    }
 
-   volume = MIX_VOLUME( distance );
+    vol = MIX_VOLUME(distance);
 
-   // Ensure angle is within 0 - 127
-   angle &= MV_MAXPANPOSITION;
+    // Ensure angle is within 0 - 127
+    angle &= MV_MAXPANPOSITION;
 
-   left  = MV_PanTable[ angle ][ volume ].left;
-   right = MV_PanTable[ angle ][ volume ].right;
-   mid   = max( 0, 255 - distance );
+    left  = MV_PanTable[angle][vol].left;
+    right = MV_PanTable[angle][vol].right;
+    mid   = max(0, 255 - distance);
 
-   status = MV_PlayXA(ptr, ptrlength, loophow, -1, pitchoffset, mid, left, right, priority, callbackval);
+    status = MV_PlayXA(ptr, length, loophow, -1, pitchoffset, mid, left, right, priority, volume, callbackval);
 
-   return status;
+    return status;
 }
 
 
@@ -422,20 +413,8 @@ Begin playback of sound data with the given sound levels and
 priority.
 ---------------------------------------------------------------------*/
 
-int32_t MV_PlayXA
-(
- char *ptr,
- uint32_t ptrlength,
- int32_t   loopstart,
- int32_t   loopend,
- int32_t   pitchoffset,
- int32_t   vol,
- int32_t   left,
- int32_t   right,
- int32_t   priority,
- uint32_t callbackval
- )
-
+int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
+                  int32_t priority, float volume, uint32_t callbackval)
 {
    VoiceNode   *voice;
    xa_data * xad = 0;
@@ -458,7 +437,7 @@ int32_t MV_PlayXA
    xad->pos = XA_DATA_START;
    xad->t1 = xad->t2 = xad->t1_x = xad->t2_x = 0;
    xad->blocksize = 0;
-   xad->length = ptrlength;
+   xad->length = length;
 
    xad->block = NULL;
 
@@ -494,6 +473,8 @@ int32_t MV_PlayXA
    voice->LoopStart   = 0;
    voice->LoopEnd     = 0;
    voice->LoopSize    = (loopstart >= 0 ? 1 : 0);
+
+   voice->volume      = volume;
 
    MV_SetVoiceVolume( voice, vol, left, right );
    MV_PlayVoice( voice );

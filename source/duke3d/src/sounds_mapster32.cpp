@@ -255,12 +255,12 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
             return -1;
 
         voice = FX_Play(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
-                                  pitch, sndist>>6, sndist>>6, 0, g_sounds[num].pr, num);
+                                  pitch, sndist>>6, sndist>>6, 0, g_sounds[num].pr, 1.f, num);
     }
     else
     {
         voice = FX_Play3D(g_sounds[num].ptr, g_sounds[num].soundsiz, FX_ONESHOT,
-                              pitch, sndang>>4, sndist>>6, g_sounds[num].pr, num);
+                              pitch, sndang>>4, sndist>>6, g_sounds[num].pr, 1.f, num);
     }
 
     if (voice >= FX_Ok)
@@ -314,12 +314,12 @@ void S_PlaySound(int32_t num)
     if (g_sounds[num].m & SF_LOOP)
     {
         voice = FX_Play(g_sounds[num].ptr, g_sounds[num].soundsiz, 0, -1,
-                                  pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz,num);
+                                  pitch,LOUDESTVOLUME,LOUDESTVOLUME,LOUDESTVOLUME,g_sounds[num].soundsiz, 1.f,num);
     }
     else
     {
         voice = FX_Play3D(g_sounds[num].ptr, g_sounds[num].soundsiz, FX_ONESHOT,
-                              pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, num);
+                              pitch,0,255-LOUDESTVOLUME,g_sounds[num].pr, 1.f, num);
     }
 
     if (voice >= FX_Ok)

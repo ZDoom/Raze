@@ -86,30 +86,30 @@ void MV_SetReverbDelay(int32_t delay);
 // int32_t   MV_SetMixMode( int32_t numchannels, int32_t samplebits );
 // int32_t   MV_StartPlayback( void );
 // void  MV_StopPlayback( void );
-int32_t MV_PlayWAV3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
-                     int32_t priority, uint32_t callbackval);
-int32_t MV_PlayWAV(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
-                   int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
-int32_t MV_PlayVOC3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
-                     int32_t priority, uint32_t callbackval);
-int32_t MV_PlayVOC(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
-                   int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
-int32_t MV_PlayVorbis3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle,
-                        int32_t distance, int32_t priority, uint32_t callbackval);
-int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
-                      int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
-int32_t MV_PlayFLAC3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
-                      int32_t priority, uint32_t callbackval);
-int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
-                    int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
-int32_t MV_PlayXA3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
-                    int32_t priority, uint32_t callbackval);
-int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
-                  int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
-int32_t MV_PlayXMP3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
-                    int32_t priority, uint32_t callbackval);
-int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
-                  int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
+int32_t MV_PlayWAV3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority,
+                     float volume, uint32_t callbackval);
+int32_t MV_PlayWAV(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
+                   int32_t priority, float volume, uint32_t callbackval);
+int32_t MV_PlayVOC3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority,
+                     float volume, uint32_t callbackval);
+int32_t MV_PlayVOC(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
+                   int32_t priority, float volume, uint32_t callbackval);
+int32_t MV_PlayVorbis3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority,
+                        float volume, uint32_t callbackval);
+int32_t MV_PlayVorbis(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
+                      int32_t priority, float volume, uint32_t callbackval);
+int32_t MV_PlayFLAC3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority,
+                      float volume, uint32_t callbackval);
+int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
+                    int32_t priority, float volume, uint32_t callbackval);
+int32_t MV_PlayXA3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority, float volume,
+                    uint32_t callbackval);
+int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
+                  int32_t priority, float volume, uint32_t callbackval);
+int32_t MV_PlayXMP3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority,
+                     float volume, uint32_t callbackval);
+int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right,
+                   int32_t priority, float volume, uint32_t callbackval);
 
 int MV_IdentifyXMP(char const *ptr, uint32_t length);
 

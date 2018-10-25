@@ -308,7 +308,7 @@ end_of_data:
 }
 
 int32_t MV_PlayWAV3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance,
-                     int32_t priority, uint32_t callbackval)
+                     int32_t priority, float volume, uint32_t callbackval)
 {
     if (!MV_Installed)
         return MV_Error;
@@ -319,17 +319,17 @@ int32_t MV_PlayWAV3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitcho
         angle    += MV_NUMPANPOSITIONS / 2;
     }
 
-    int const volume = MIX_VOLUME(distance);
+    int const vol = MIX_VOLUME(distance);
 
     // Ensure angle is within 0 - 127
     angle &= MV_MAXPANPOSITION;
 
     return MV_PlayWAV(ptr, length, loophow, -1, pitchoffset, max(0, 255 - distance),
-        MV_PanTable[ angle ][ volume ].left, MV_PanTable[ angle ][ volume ].right, priority, callbackval);
+        MV_PanTable[ angle ][ vol ].left, MV_PanTable[ angle ][ vol ].right, priority, volume, callbackval);
 }
 
-int32_t MV_PlayWAV(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
-                   int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
+int32_t MV_PlayWAV(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
+                   int32_t left, int32_t right, int32_t priority, float volume, uint32_t callbackval)
 {
     if (!MV_Installed)
         return MV_Error;
@@ -381,28 +381,28 @@ int32_t MV_PlayWAV(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     voice->channels    = format.nChannels;
     voice->GetSound    = MV_GetNextWAVBlock;
 
-    int32_t length = data.size;
+    int32_t blocklen = data.size;
 
     if (voice->bits == 16)
     {
         data.size  &= ~1;
-        length     /= 2;
+        blocklen     /= 2;
     }
 
     if (voice->channels == 2)
     {
         data.size &= ~1;
-        length    /= 2;
+        blocklen    /= 2;
     }
 
     voice->rawdataptr = (uint8_t *)ptr;
-    voice->ptrlength = ptrlength;
+    voice->ptrlength  = length;
     voice->Playing     = TRUE;
     voice->Paused      = FALSE;
     voice->LoopCount   = 0;
     voice->position    = 0;
     voice->length      = 0;
-    voice->BlockLength = length;
+    voice->BlockLength = blocklen;
     voice->NextBlock   = (char *)((intptr_t) ptr + sizeof(riff_header) + riff.format_size + sizeof(data_header));
     voice->next        = NULL;
     voice->prev        = NULL;
@@ -410,7 +410,8 @@ int32_t MV_PlayWAV(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     voice->callbackval = callbackval;
     voice->LoopStart   = loopstart >= 0 ? voice->NextBlock : NULL;
     voice->LoopEnd     = NULL;
-    voice->LoopSize    = loopend > 0 ? loopend - loopstart + 1 : length;
+    voice->LoopSize    = loopend > 0 ? loopend - loopstart + 1 : blocklen;
+    voice->volume      = volume;
 
     MV_SetVoicePitch(voice, format.nSamplesPerSec, pitchoffset);
     MV_SetVoiceVolume(voice, vol, left, right);
@@ -419,8 +420,8 @@ int32_t MV_PlayWAV(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     return voice->handle;
 }
 
-int32_t MV_PlayVOC3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
-                     int32_t distance, int32_t priority, uint32_t callbackval)
+int32_t MV_PlayVOC3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle,
+                     int32_t distance, int32_t priority, float volume, uint32_t callbackval)
 {
     if (!MV_Installed)
         return MV_Error;
@@ -431,17 +432,17 @@ int32_t MV_PlayVOC3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pit
         angle    += MV_NUMPANPOSITIONS / 2;
     }
 
-    int const volume = MIX_VOLUME(distance);
+    int const vol = MIX_VOLUME(distance);
 
     // Ensure angle is within 0 - 127
     angle &= MV_MAXPANPOSITION;
 
-    return MV_PlayVOC(ptr, ptrlength, loophow, -1, pitchoffset, max(0, 255 - distance),
-        MV_PanTable[ angle ][ volume ].left, MV_PanTable[ angle ][ volume ].right, priority, callbackval);
+    return MV_PlayVOC(ptr, length, loophow, -1, pitchoffset, max(0, 255 - distance),
+        MV_PanTable[ angle ][ vol ].left, MV_PanTable[ angle ][ vol ].right, priority, volume, callbackval);
 }
 
-int32_t MV_PlayVOC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
-                   int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
+int32_t MV_PlayVOC(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
+                   int32_t left, int32_t right, int32_t priority, float volume, uint32_t callbackval)
 {
     if (!MV_Installed)
         return MV_Error;
@@ -463,7 +464,7 @@ int32_t MV_PlayVOC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     }
 
     voice->rawdataptr = (uint8_t *)ptr;
-    voice->ptrlength = ptrlength;
+    voice->ptrlength = length;
     voice->Playing = TRUE;
     voice->Paused = FALSE;
     voice->wavetype    = FMT_VOC;
@@ -482,6 +483,8 @@ int32_t MV_PlayVOC(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     voice->LoopStart   = loopstart >= 0 ? voice->NextBlock : NULL;
     voice->LoopEnd     = NULL;
     voice->LoopSize    = loopend - loopstart + 1;
+
+    voice->volume      = volume;
 
     MV_SetVoiceVolume(voice, vol, left, right);
     MV_PlayVoice(voice);

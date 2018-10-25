@@ -64,9 +64,9 @@ int32_t FX_Shutdown(void);
 
 
 int32_t FX_Play(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset,
-                      int32_t vol, int32_t left, int32_t right, int32_t priority, uint32_t callbackval);
+                      int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, uint32_t callbackval);
 int32_t FX_Play3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
-                  int32_t distance, int32_t priority, uint32_t callbackval);
+                  int32_t distance, int32_t priority, float volume, uint32_t callbackval);
 
 
 int32_t FX_SetPrintf(void(*function)(const char *, ...));

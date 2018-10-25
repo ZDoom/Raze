@@ -254,7 +254,7 @@ static int32_t S_PlayMusic(const char *fn)
         int32_t const mvol = MASTER_VOLUME(ud.config.MusicVolume);
         int MyMusicVoice = FX_Play(MyMusicPtr, MusicLen, 0, 0,
                                        0, mvol, mvol, mvol,
-                                       FX_MUSIC_PRIORITY, MUSIC_ID);
+                                       FX_MUSIC_PRIORITY, 1.f, MUSIC_ID);
 
         if (MyMusicVoice <= FX_Ok)
         {
@@ -720,13 +720,13 @@ int32_t S_PlaySound3D(int32_t num, int32_t i, const vec3_t *pos)
     if (repeatp && !ambsfxp)
     {
         // XXX: why is 'right' 0?
-        voice = FX_Play(snd.ptr, snd.soundsiz, 0, -1, pitch, FX_VOLUME(sndist >> 6), FX_VOLUME(sndist >> 6), 0, snd.pr,
+        voice = FX_Play(snd.ptr, snd.soundsiz, 0, -1, pitch, FX_VOLUME(sndist >> 6), FX_VOLUME(sndist >> 6), 0, snd.pr, snd.volume,
                         (sndNum * MAXSOUNDINSTANCES) + sndSlot);
     }
     else
     {
         // Ambient MUSICANDSFX always start playing using the 3D routines!
-        voice = FX_Play3D(snd.ptr, snd.soundsiz, repeatp ? FX_LOOP : FX_ONESHOT, pitch, sndang >> 4, FX_VOLUME(sndist >> 6), snd.pr,
+        voice = FX_Play3D(snd.ptr, snd.soundsiz, repeatp ? FX_LOOP : FX_ONESHOT, pitch, sndang >> 4, FX_VOLUME(sndist >> 6), snd.pr, snd.volume,
             (sndNum * MAXSOUNDINSTANCES) + sndSlot);
     }
 
@@ -782,9 +782,9 @@ int32_t S_PlaySound(int32_t num)
 
     if (snd.m & SF_LOOP)
         voice = FX_Play(snd.ptr, snd.soundsiz, 0, -1, pitch, FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME),
-                        snd.soundsiz, (num * MAXSOUNDINSTANCES) + sndnum);
+                        snd.soundsiz, snd.volume, (num * MAXSOUNDINSTANCES) + sndnum);
     else
-        voice = FX_Play3D(snd.ptr, snd.soundsiz, FX_ONESHOT, pitch, 0, FX_VOLUME(255 - LOUDESTVOLUME), snd.pr, (num * MAXSOUNDINSTANCES) + sndnum);
+        voice = FX_Play3D(snd.ptr, snd.soundsiz, FX_ONESHOT, pitch, 0, FX_VOLUME(255 - LOUDESTVOLUME), snd.pr, snd.volume, (num * MAXSOUNDINSTANCES) + sndnum);
 
     if (voice <= FX_Ok)
     {

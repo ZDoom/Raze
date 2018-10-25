@@ -69,13 +69,12 @@ static playbackstatus MV_GetNextXMPBlock(VoiceNode *voice)
     return KeepPlaying;
 }
 
-int32_t MV_PlayXMP3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
-                     int32_t distance, int32_t priority, uint32_t callbackval)
+int32_t MV_PlayXMP3D(char *ptr, uint32_t length, int32_t loophow, int32_t pitchoffset, int32_t angle, int32_t distance, int32_t priority, float volume, uint32_t callbackval)
 {
     int32_t left;
     int32_t right;
     int32_t mid;
-    int32_t volume;
+    int32_t vol;
     int32_t status;
 
     if (!MV_Installed)
@@ -90,22 +89,21 @@ int32_t MV_PlayXMP3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pit
         angle    += MV_NUMPANPOSITIONS / 2;
     }
 
-    volume = MIX_VOLUME(distance);
+    vol = MIX_VOLUME(distance);
 
     // Ensure angle is within 0 - 127
     angle &= MV_MAXPANPOSITION;
 
-    left  = MV_PanTable[angle][volume].left;
-    right = MV_PanTable[angle][volume].right;
+    left  = MV_PanTable[angle][vol].left;
+    right = MV_PanTable[angle][vol].right;
     mid   = max( 0, 255 - distance );
 
-    status = MV_PlayXMP(ptr, ptrlength, loophow, -1, pitchoffset, mid, left, right, priority, callbackval);
+    status = MV_PlayXMP(ptr, length, loophow, -1, pitchoffset, mid, left, right, priority, volume, callbackval);
 
     return status;
 }
 
-int32_t MV_PlayXMP(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
-                   int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
+int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol, int32_t left, int32_t right, int32_t priority, float volume, uint32_t callbackval)
 {
     VoiceNode   *voice;
     xmp_data * xmpd = 0;
@@ -127,7 +125,7 @@ int32_t MV_PlayXMP(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     }
 
     xmpd->ptr = ptr;
-    xmpd->length = ptrlength;
+    xmpd->length = length;
 
     if ((xmpd->context = xmp_create_context()) == NULL)
     {
@@ -136,7 +134,7 @@ int32_t MV_PlayXMP(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
         return MV_Error;
     }
 
-    if ((retval = xmp_load_module_from_memory(xmpd->context, ptr, ptrlength)) != 0)
+    if ((retval = xmp_load_module_from_memory(xmpd->context, ptr, length)) != 0)
     {
         free(xmpd);
         MV_Printf("MV_PlayXMP: xmp_load_module_from_memory failed (%i)\n", retval);
@@ -189,6 +187,8 @@ int32_t MV_PlayXMP(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     voice->FixedPointBufferSize = (voice->RateScale * MV_MIXBUFFERSIZE) - voice->RateScale;
     MV_SetVoiceMixMode(voice);
 
+    voice->volume      = volume;
+
     MV_SetVoiceVolume(voice, vol, left, right);
     MV_PlayVoice(voice);
 
@@ -217,7 +217,7 @@ void MV_ReleaseXMPVoice(VoiceNode * voice)
 static char const NoXMP[] = "MV_PlayXMP: libxmp-lite support not included in this binary.\n";
 
 int32_t MV_PlayXMP(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loopend, int32_t pitchoffset, int32_t vol,
-                   int32_t left, int32_t right, int32_t priority, uint32_t callbackval)
+                   int32_t left, int32_t right, int32_t priority, float volume, uint32_t callbackval)
 {
     UNREFERENCED_PARAMETER(ptr);
     UNREFERENCED_PARAMETER(ptrlength);
@@ -228,6 +228,7 @@ int32_t MV_PlayXMP(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
     UNREFERENCED_PARAMETER(left);
     UNREFERENCED_PARAMETER(right);
     UNREFERENCED_PARAMETER(priority);
+    UNREFERENCED_PARAMETER(volume);
     UNREFERENCED_PARAMETER(callbackval);
 
     MV_Printf(NoXMP);
@@ -235,7 +236,7 @@ int32_t MV_PlayXMP(char *ptr, uint32_t ptrlength, int32_t loopstart, int32_t loo
 }
 
 int32_t MV_PlayXMP3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pitchoffset, int32_t angle,
-                     int32_t distance, int32_t priority, uint32_t callbackval)
+                     int32_t distance, int32_t priority, float volume, uint32_t callbackval)
 {
     UNREFERENCED_PARAMETER(ptr);
     UNREFERENCED_PARAMETER(ptrlength);
@@ -244,6 +245,7 @@ int32_t MV_PlayXMP3D(char *ptr, uint32_t ptrlength, int32_t loophow, int32_t pit
     UNREFERENCED_PARAMETER(angle);
     UNREFERENCED_PARAMETER(distance);
     UNREFERENCED_PARAMETER(priority);
+    UNREFERENCED_PARAMETER(volume);
     UNREFERENCED_PARAMETER(callbackval);
 
     MV_Printf(NoXMP);
