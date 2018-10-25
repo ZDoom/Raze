@@ -249,7 +249,7 @@ void clearbufbyte(void *d, int32_t c, int32_t a)
 #ifndef pragmas_have_qinterpolatedown16
 void qinterpolatedown16(intptr_t bufptr, int32_t num, int32_t val, int32_t add)
 {
-    int32_t *lptr = (int32_t *)bufptr;
+    auto lptr = (int32_t *)bufptr;
     for (size_t i = 0, i_end = num; i < i_end; ++i)
     {
         lptr[i] = val>>16;
@@ -259,7 +259,7 @@ void qinterpolatedown16(intptr_t bufptr, int32_t num, int32_t val, int32_t add)
 
 void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t add)
 {
-    int16_t *sptr = (int16_t *)bufptr;
+    auto sptr = (int16_t *)bufptr;
     for (size_t i = 0, i_end = num; i < i_end; ++i)
     {
         sptr[i] = val>>16;
@@ -271,7 +271,7 @@ void qinterpolatedown16short(intptr_t bufptr, int32_t num, int32_t val, int32_t 
 #ifndef pragmas_have_clearbuf
 void clearbuf(void *d, int32_t c, int32_t a)
 {
-    int32_t *p = (int32_t *)d;
+    auto p = (int32_t *)d;
 
 #if 0
     if (a == 0)
@@ -289,8 +289,8 @@ void clearbuf(void *d, int32_t c, int32_t a)
 #ifndef pragmas_have_copybuf
 void copybuf(const void *s, void *d, int32_t c)
 {
-    const int32_t *p = (const int32_t *)s;
-    int32_t *q = (int32_t *)d;
+    auto p = (const int32_t *) s;
+    auto q = (int32_t *) d;
 
     while (c--)
         *q++ = *p++;
@@ -300,12 +300,12 @@ void copybuf(const void *s, void *d, int32_t c)
 #ifndef pragmas_have_swaps
 void swapbuf4(void *a, void *b, int32_t c)
 {
-    int32_t *p = (int32_t *)a, *q = (int32_t *)b;
-    int32_t x, y;
+    auto p = (int32_t *) a;
+    auto q = (int32_t *) b;
+
     while ((c--) > 0)
     {
-        x = *q;
-        y = *p;
+        int x = *q, y = *p;
         *(q++) = y;
         *(p++) = x;
     }
@@ -318,7 +318,7 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
     // Cringe City
     int32_t const m[4] = { 0xffl, 0xff00l, 0xff0000l, (int32_t)0xff000000l };
     int32_t z = 0;
-    char *p = (char *)D;
+    auto p = (char *)D;
 
     while ((c--) > 0)
     {
@@ -331,8 +331,8 @@ void clearbufbyte(void *D, int32_t c, int32_t a)
 #ifndef pragmas_have_copybufbyte
 void copybufbyte(const void *s, void *d, int32_t c)
 {
-    const char *src = (const char *)s;
-    char *dst = (char *)d;
+    auto src = (const char *)s;
+    auto dst = (char *)d;
 
     while (c--)
         *dst++ = *src++;
@@ -385,8 +385,8 @@ void copybufreverse(const void *S, void *D, int32_t c)
 #elif !defined pragmas_have_copybufreverse
 void copybufreverse(const void *s, void *d, int32_t c)
 {
-    const char *src = (const char *)s;
-    char *dst = (char *)d;
+    auto src = (const char *)s;
+    auto dst = (char *)d;
 
     while (c--)
         *dst++ = *src--;
