@@ -94,6 +94,8 @@ uint32_t MV_MixPosition;
 
 int32_t MV_ErrorCode = MV_NotInstalled;
 
+float MV_GlobalVolume = 1.f;
+
 static int32_t lockdepth = 0;
 
 static FORCE_INLINE void DisableInterrupts(void)
@@ -156,7 +158,6 @@ static void MV_Mix(VoiceNode *voice, int const buffer)
     // Add this voice to the mix
     do
     {
-        const char *start = voice->sound;
         uint32_t const rate = voice->RateScale;
         uint32_t const position = voice->position;
         int32_t voclength;
@@ -176,9 +177,15 @@ static void MV_Mix(VoiceNode *voice, int const buffer)
         else
             voclength = length;
 
+        float const gv = MV_GlobalVolume;
+
+        if (voice->priority == FX_MUSIC_PRIORITY)
+            MV_GlobalVolume = 1.f;
+
         if (voice->mix)
             voice->mix(voice, voclength);
 
+        MV_GlobalVolume = gv;
         voice->position = MV_MixPosition;
 
         length -= voclength;
@@ -647,7 +654,7 @@ void MV_SetVoiceMixMode(VoiceNode *voice)
     }
 }
 
-void MV_SetVoiceVolume(VoiceNode *voice, int32_t vol, int32_t left, int32_t right)
+void MV_SetVoiceVolume(VoiceNode *voice, int32_t vol, int32_t left, int32_t right, float volume)
 {
     if (MV_Channels == 1)
         left = right = vol;
@@ -663,6 +670,8 @@ void MV_SetVoiceVolume(VoiceNode *voice, int32_t vol, int32_t left, int32_t righ
         if (MV_ReverseStereo)
             swapptr(&voice->LeftVolume, &voice->RightVolume);
     }
+
+    voice->volume = volume;
 
     MV_SetVoiceMixMode(voice);
 }
@@ -757,7 +766,7 @@ int32_t MV_SetPan(int32_t handle, int32_t vol, int32_t left, int32_t right)
     if (voice == NULL)
         return MV_Error;
 
-    MV_SetVoiceVolume(voice, vol, left, right);
+    MV_SetVoiceVolume(voice, vol, left, right, MV_GetVoice(handle)->volume);
     MV_EndService();
     return MV_Ok;
 }
@@ -894,8 +903,9 @@ static void MV_CalcPanTable(void)
 
 void MV_SetVolume(int32_t volume)
 {
-    MV_TotalVolume = min(max(0, volume), MV_MAXTOTALVOLUME);
-    MV_CalcVolume(MV_TotalVolume);
+    MV_TotalVolume  = min(max(0, volume), MV_MAXTOTALVOLUME);
+    MV_GlobalVolume = (float)volume / 255.f;
+    // MV_CalcVolume(MV_TotalVolume);
 }
 
 int32_t MV_GetVolume(void) { return MV_TotalVolume; }
@@ -975,8 +985,7 @@ int32_t MV_Init(int32_t soundcard, int32_t MixRate, int32_t Voices, int32_t numc
 
     // Calculate pan table
     MV_CalcPanTable();
-
-    MV_SetVolume(MV_MAXTOTALVOLUME);
+    MV_CalcVolume(MV_MAXTOTALVOLUME);
 
     // Start the playback engine
     if (MV_StartPlayback() != MV_Ok)

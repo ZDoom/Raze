@@ -55,6 +55,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 #define MIX_VOLUME(volume) ((max(0, min((volume), 255)) * (MV_MAXVOLUME + 1)) >> 8)
 
+extern float MV_GlobalVolume;
+
 template <typename T>
 static inline conditional_t< is_signed<T>::value, make_unsigned_t<T>, make_signed_t<T> > FLIP_SIGN(T src)
 {
@@ -196,7 +198,7 @@ void MV_PlayVoice(VoiceNode *voice);
 VoiceNode *MV_AllocVoice(int32_t priority);
 
 void MV_SetVoiceMixMode(VoiceNode *voice);
-void MV_SetVoiceVolume(VoiceNode *voice, int32_t vol, int32_t left, int32_t right);
+void MV_SetVoiceVolume(VoiceNode *voice, int32_t vol, int32_t left, int32_t right, float volume);
 void MV_SetVoicePitch(VoiceNode *voice, uint32_t rate, int32_t pitchoffset);
 
 int32_t MV_GetVorbisPosition(VoiceNode *voice);

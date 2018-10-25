@@ -74,8 +74,8 @@ void S_SoundStartup(void)
 
     S_PrecacheSounds();
 
-    FX_SetVolume(ud.config.MasterVolume);
-    S_MusicVolume(MASTER_VOLUME(ud.config.MusicVolume));
+    FX_SetVolume(ud.config.FXVolume);
+    S_MusicVolume(ud.config.MusicVolume);
 
     FX_SetReverseStereo(ud.config.ReverseStereo);
     FX_SetCallBack(S_Callback);
@@ -100,7 +100,7 @@ void S_MusicStartup(void)
 
     if (MUSIC_Init(0, 0) == MUSIC_Ok || MUSIC_Init(1, 0) == MUSIC_Ok)
     {
-        MUSIC_SetVolume(MASTER_VOLUME(ud.config.MusicVolume));
+        MUSIC_SetVolume(ud.config.MusicVolume);
         return;
     }
 
@@ -248,10 +248,8 @@ static int S_PlayMusic(const char *fn)
     }
     else
     {
-        int32_t const mvol = MASTER_VOLUME(ud.config.MusicVolume);
-        int MyMusicVoice = FX_Play(MyMusicPtr, MusicLen, 0, 0,
-                                       0, mvol, mvol, mvol,
-                                       FX_MUSIC_PRIORITY, 1.f, MUSIC_ID);
+        int MyMusicVoice = FX_Play(MyMusicPtr, MusicLen, 0, 0, 0, ud.config.MusicVolume, ud.config.MusicVolume, ud.config.MusicVolume,
+                                   FX_MUSIC_PRIORITY, 1.f, MUSIC_ID);
 
         if (MyMusicVoice <= FX_Ok)
         {
@@ -726,9 +724,9 @@ int S_PlaySound3D(int num, int spriteNum, const vec3_t *pos)
     // XXX: why is 'right' 0?
     // Ambient MUSICANDSFX always start playing using the 3D routines!
     int const ambsfxp = S_IsAmbientSFX(spriteNum);
-    int const voice = (repeatp && !ambsfxp) ? FX_Play(snd.ptr, snd.siz, 0, -1, pitch, FX_VOLUME(sndist >> 6), FX_VOLUME(sndist >> 6), 0, snd.pr,
+    int const voice = (repeatp && !ambsfxp) ? FX_Play(snd.ptr, snd.siz, 0, -1, pitch, sndist >> 6, sndist >> 6, 0, snd.pr,
                                                       snd.volume, (sndNum * MAXSOUNDINSTANCES) + sndSlot)
-                                            : FX_Play3D(snd.ptr, snd.siz, repeatp ? FX_LOOP : FX_ONESHOT, pitch, sndang >> 4, FX_VOLUME(sndist >> 6),
+                                            : FX_Play3D(snd.ptr, snd.siz, repeatp ? FX_LOOP : FX_ONESHOT, pitch, sndang >> 4, sndist >> 6,
                                                         snd.pr, snd.volume, (sndNum * MAXSOUNDINSTANCES) + sndSlot);
 
     if (voice <= FX_Ok)
@@ -779,9 +777,9 @@ int S_PlaySound(int num)
         return -1;
     }
 
-    int const voice = (snd.m & SF_LOOP) ? FX_Play(snd.ptr, snd.siz, 0, -1, pitch, FX_VOLUME(LOUDESTVOLUME), FX_VOLUME(LOUDESTVOLUME),
-                                                  FX_VOLUME(LOUDESTVOLUME), snd.siz, snd.volume, (num * MAXSOUNDINSTANCES) + sndnum)
-                                        : FX_Play3D(snd.ptr, snd.siz, FX_ONESHOT, pitch, 0, FX_VOLUME(255 - LOUDESTVOLUME), snd.pr, snd.volume,
+    int const voice = (snd.m & SF_LOOP) ? FX_Play(snd.ptr, snd.siz, 0, -1, pitch, LOUDESTVOLUME, LOUDESTVOLUME,
+                                                  LOUDESTVOLUME, snd.siz, snd.volume, (num * MAXSOUNDINSTANCES) + sndnum)
+                                        : FX_Play3D(snd.ptr, snd.siz, FX_ONESHOT, pitch, 0, 255 - LOUDESTVOLUME, snd.pr, snd.volume,
                                                     (num * MAXSOUNDINSTANCES) + sndnum);
 
     if (voice <= FX_Ok)
@@ -909,7 +907,7 @@ void S_Update(void)
                 g_numEnvSoundsPlaying++;
 
             // AMBIENT_SOUND
-            FX_Pan3D(voice.id, sndang >> 4, FX_VOLUME(sndist >> 6));
+            FX_Pan3D(voice.id, sndang >> 4, sndist >> 6);
             voice.dist = sndist >> 6;
             voice.clock++;
         }

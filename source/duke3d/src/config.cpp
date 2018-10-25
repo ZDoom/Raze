@@ -190,8 +190,7 @@ void CONFIG_SetDefaults(void)
     ud.config.NoAutoLoad = 1;
     ud.config.AmbienceToggle = 1;
     ud.config.AutoAim = 1;
-    ud.config.MasterVolume = 255;
-    ud.config.FXVolume = 225;
+    ud.config.FXVolume = 255;
 #if defined(_WIN32)
     ud.config.MixRate = 44100;
 #elif defined __ANDROID__

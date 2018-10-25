@@ -634,9 +634,7 @@ int32_t MV_PlayFLAC(char *ptr, uint32_t length, int32_t loopstart, int32_t loope
     voice->FixedPointBufferSize = (voice->RateScale * MV_MIXBUFFERSIZE) - voice->RateScale;
     MV_SetVoiceMixMode(voice);
 
-    voice->volume = volume;
-
-    MV_SetVoiceVolume(voice, vol, left, right);
+    MV_SetVoiceVolume(voice, vol, left, right, volume);
     MV_PlayVoice(voice);
 
     return voice->handle;

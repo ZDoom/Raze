@@ -231,7 +231,6 @@ typedef struct {
         //
         // Sound variables
         //
-        int32_t MasterVolume;
         int32_t FXVolume;
         int32_t MusicVolume;
         int32_t SoundToggle;

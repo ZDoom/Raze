@@ -474,9 +474,7 @@ int32_t MV_PlayXA(char *ptr, uint32_t length, int32_t loopstart, int32_t loopend
    voice->LoopEnd     = 0;
    voice->LoopSize    = (loopstart >= 0 ? 1 : 0);
 
-   voice->volume      = volume;
-
-   MV_SetVoiceVolume( voice, vol, left, right );
+   MV_SetVoiceVolume( voice, vol, left, right, volume );
    MV_PlayVoice( voice );
 
    return voice->handle;

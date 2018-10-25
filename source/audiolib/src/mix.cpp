@@ -43,7 +43,7 @@ void MV_Mix16BitMono(struct VoiceNode *voice, uint32_t length)
 
         position += rate;
 
-        *dest = (int16_t)clamp(MV_LeftVolume[usample0] + *dest, INT16_MIN, INT16_MAX);
+        *dest = (int16_t)clamp(SCALE_SAMPLE(MV_LeftVolume[usample0], MV_GlobalVolume) + *dest, INT16_MIN, INT16_MAX);
         dest += MV_SampleSize >> 1;
     }
 
@@ -66,9 +66,9 @@ void MV_Mix16BitStereo(struct VoiceNode *voice, uint32_t length)
 
         position += rate;
 
-        *dest = (int16_t)clamp(MV_LeftVolume[usample0] + *dest, INT16_MIN, INT16_MAX);
+        *dest = (int16_t)clamp(SCALE_SAMPLE(MV_LeftVolume[usample0], MV_GlobalVolume) + *dest, INT16_MIN, INT16_MAX);
         *(dest + (MV_RightChannelOffset >> 1))
-            = (int16_t)clamp(MV_RightVolume[usample0] + *(dest + (MV_RightChannelOffset >> 1)), INT16_MIN, INT16_MAX);
+            = (int16_t)clamp(SCALE_SAMPLE(MV_RightVolume[usample0], MV_GlobalVolume) + *(dest + (MV_RightChannelOffset >> 1)), INT16_MIN, INT16_MAX);
         dest += MV_SampleSize >> 1;
     }
 
@@ -92,7 +92,8 @@ void MV_Mix16BitMono16(struct VoiceNode *voice, uint32_t length)
 
         position += rate;
 
-        int32_t const sample0 = (MV_LeftVolume[usample0.l()] >> 8) + MV_LeftVolume[usample0.h()] + 128;
+        int32_t const sample0 = (SCALE_SAMPLE(MV_LeftVolume[usample0.l()], MV_GlobalVolume) >> 8) +
+                                 SCALE_SAMPLE(MV_LeftVolume[usample0.h()], MV_GlobalVolume) + 128;
 
         *dest = (int16_t)clamp(sample0 + *dest, INT16_MIN, INT16_MAX);
         dest += MV_SampleSize >> 1;
@@ -118,8 +119,10 @@ void MV_Mix16BitStereo16(struct VoiceNode *voice, uint32_t length)
 
         position += rate;
 
-        int32_t const sample0 = (MV_LeftVolume[usample0.l()] >> 8) + MV_LeftVolume[usample0.h()] + 128;
-        int32_t const sample1 = (MV_RightVolume[usample0.l()] >> 8) + MV_RightVolume[usample0.h()] + 128;
+        int32_t const sample0 = (SCALE_SAMPLE(MV_LeftVolume[usample0.l()], MV_GlobalVolume) >> 8) +
+                                 SCALE_SAMPLE(MV_LeftVolume[usample0.h()], MV_GlobalVolume) + 128;
+        int32_t const sample1 = (SCALE_SAMPLE(MV_RightVolume[usample0.l()], MV_GlobalVolume) >> 8) +
+                                 SCALE_SAMPLE(MV_RightVolume[usample0.h()], MV_GlobalVolume) + 128;
 
         *dest = (int16_t)clamp(sample0 + *dest, INT16_MIN, INT16_MAX);
         *(dest + (MV_RightChannelOffset >> 1))

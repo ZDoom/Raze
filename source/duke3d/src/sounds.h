@@ -41,9 +41,6 @@ extern "C" {
 #define LOUDESTVOLUME       111
 #define MUSIC_ID            -65536
 
-#define FX_VOLUME(x) (ud.config.FXVolume > 0 ? scale(x, 255, ud.config.FXVolume) : 0)
-#define MASTER_VOLUME(x) scale(ud.config.MasterVolume, x, 255)
-
 typedef struct
 {
     int16_t  owner;
