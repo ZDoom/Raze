@@ -171,7 +171,7 @@ extern "C" {
     }                                                                                                                               \
     MZ_MACRO_END
 
-tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_next, size_t *pIn_buf_size, mz_uint8 *pOut_buf_start, mz_uint8 *pOut_buf_next, size_t *pOut_buf_size, mz_uint32 decomp_flags)
+tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_next, size_t *pIn_buf_size, mz_uint8 *pOut_buf_start, mz_uint8 *pOut_buf_next, size_t *pOut_buf_size, const mz_uint32 decomp_flags)
 {
     static const int s_length_base[31] = { 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0 };
     static const int s_length_extra[31] = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 0, 0 };
@@ -540,18 +540,19 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_nex
                     }
                 }
 #endif
-                do
+                while(counter>2)
                 {
                     pOut_buf_cur[0] = pSrc[0];
                     pOut_buf_cur[1] = pSrc[1];
                     pOut_buf_cur[2] = pSrc[2];
                     pOut_buf_cur += 3;
                     pSrc += 3;
-                } while ((int)(counter -= 3) > 2);
-                if ((int)counter > 0)
+                    counter -= 3;
+                }
+                if (counter > 0)
                 {
                     pOut_buf_cur[0] = pSrc[0];
-                    if ((int)counter > 1)
+                    if (counter > 1)
                         pOut_buf_cur[1] = pSrc[1];
                     pOut_buf_cur += counter;
                 }
