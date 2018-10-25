@@ -255,7 +255,9 @@ int32_t loadsetup(const char *fn)
 
     if (readconfig(fp, "remap", val, VL) > 0)
     {
-        char *p=val; int32_t v1,v2;
+        char *p=val;
+        uint32_t v1,v2;
+
         while (*p)
         {
             if (!sscanf(p,"%x",&v1))break;

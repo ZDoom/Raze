@@ -140,7 +140,7 @@ static void G_AddDemo(const char* param)
         // -d<filename>:<num>[,<num>]
         // profiling options
         *(colon++) = 0;
-        Bsscanf(colon, "%u,%u", &framespertic, &numrepeats);
+        Bsscanf(colon, "%d,%d", &framespertic, &numrepeats);
     }
 
     Demo_SetFirst(tempbuf);

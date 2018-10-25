@@ -1793,7 +1793,7 @@ static int32_t parse_decimal_number(void)  // (textptr)
 
 static int32_t parse_hex_constant(const char *hexnum)
 {
-    int64_t x;
+    uint64_t x;
     sscanf(hexnum, "%" PRIx64 "", &x);
 
     if (EDUKE32_PREDICT_FALSE(x > UINT32_MAX))

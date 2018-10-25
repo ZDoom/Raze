@@ -958,7 +958,7 @@ static int32_t GetGamearrayID(const char *szGameLabel, int32_t searchlocals)
 static int32_t parse_integer_literal(int32_t *num)
 {
     if (textptr[0] == '0' && tolower(textptr[1])=='x')
-        sscanf(textptr+2, "%" SCNx32, num);
+        sscanf(textptr+2, "%" SCNx32, (uint32_t *)&num);
     else
     {
         long lnum;

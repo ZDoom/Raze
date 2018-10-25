@@ -379,7 +379,7 @@ int32_t scriptfile_getsymbolvalue(char const *name, int32_t *val)
     {
         if (name[0] == '0' && tolower(name[1]) == 'x')  // hex constants
         {
-            int64_t x;
+            uint64_t x;
             sscanf(name + 2, "%" PRIx64 "", &x);
 
             if (EDUKE32_PREDICT_FALSE(x > UINT32_MAX))

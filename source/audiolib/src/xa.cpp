@@ -188,7 +188,7 @@ static void decodeSoundSectMono(XASector *ssct, xa_data * xad)
     }
 
     if (count > xad->blocksize)
-        xad->block = (int8_t *)realloc(xad->block, count);
+        xad->block = (int8_t *)Xrealloc(xad->block, count);
 
     memcpy(xad->block, decodeBuf, count);
     xad->blocksize = count;
@@ -268,7 +268,7 @@ static void decodeSoundSectStereo(XASector *ssct, xa_data * xad)
     }
 
     if (count > xad->blocksize)
-        xad->block = (int8_t *)realloc(xad->block, count);
+        xad->block = (int8_t *)Xrealloc(xad->block, count);
 
     memcpy(xad->block, decodeBuf, count);
     xad->blocksize = count;
@@ -448,7 +448,7 @@ int32_t MV_PlayXA
       return MV_Error;
    }
 
-   xad = (xa_data *) calloc( 1, sizeof(xa_data) );
+   xad = (xa_data *) Xcalloc( 1, sizeof(xa_data) );
    if (!xad) {
       MV_SetErrorCode( MV_InvalidFile );
       return MV_Error;
