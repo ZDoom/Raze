@@ -295,7 +295,7 @@ end_of_data:
             blocklength /= 2;
 
         voice->position     = 0;
-        voice->length       = min(blocklength, 0x8000ull);
+        voice->length       = min<uint32_t>(blocklength, 0x8000u);
         voice->BlockLength  = blocklength - voice->length;
         voice->length     <<= 16;
 
