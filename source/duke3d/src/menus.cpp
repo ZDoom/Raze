@@ -4397,7 +4397,7 @@ static void Menu_GetFmt(const MenuFont_t *font, uint8_t const status, int32_t *s
         *s = font->shade_deselected;
     // sum shade values
     if (status & MT_Disabled)
-        s += font->shade_disabled;
+        *s += font->shade_disabled;
 
     if (IONMAIDEN && status & MT_Selected)
         *z += (*z >> 4);
