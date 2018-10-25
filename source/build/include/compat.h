@@ -1153,8 +1153,13 @@ char *Bstrtolower(char *str);
 #define Bwildmatch wildmatch
 
 #ifdef _WIN32
-# define Bstrlwr strlwr
-# define Bstrupr strupr
+# ifdef _MSC_VER
+#  define Bstrlwr _strlwr
+#  define Bstrupr _strupr
+# else
+#  define Bstrlwr strlwr
+#  define Bstrupr strupr
+# endif
 #else
 char *Bstrlwr(char *);
 char *Bstrupr(char *);
