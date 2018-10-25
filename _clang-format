@@ -1,6 +1,6 @@
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
-AlignEscapedNewlinesLeft: false
+AlignEscapedNewlinesLeft: true 
 AlignOperands: true
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
@@ -41,5 +41,6 @@ SpacesInCStyleCastParentheses: false
 SpacesInContainerLiterals: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
+Standard: Cpp11
 TabWidth: 4
 UseTab: Never
