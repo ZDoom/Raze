@@ -5295,7 +5295,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         continue;
                     }
 
-                    Gv_SetVarX(tw, tabledivide32((dividend - ksgn(dividend) * klabs(divisor / 2)), divisor));
+                    Gv_SetVarX(tw, tabledivide32((dividend + ksgn(dividend) * klabs(divisor / 2)), divisor));
                     continue;
                 }
 
@@ -5313,7 +5313,7 @@ GAMEEXEC_STATIC void VM_Execute(native_t loop)
                         continue;
                     }
 
-                    Gv_SetVarX(tw, tabledivide32((dividend - ksgn(dividend) * klabs(divisor) + 1), divisor));
+                    Gv_SetVarX(tw, tabledivide32((dividend + ksgn(dividend) * klabs(divisor) + 1), divisor));
                     continue;
                 }
 
