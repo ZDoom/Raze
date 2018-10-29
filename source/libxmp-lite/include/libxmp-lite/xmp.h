@@ -322,8 +322,10 @@ EXPORT extern const unsigned int xmp_vercode;
 
 EXPORT xmp_context xmp_create_context  (void);
 EXPORT void        xmp_free_context    (xmp_context);
+#ifdef EDUKE32_DISABLED
 EXPORT int         xmp_test_module     (char *, struct xmp_test_info *);
 EXPORT int         xmp_load_module     (xmp_context, char *);
+#endif
 EXPORT void        xmp_scan_module     (xmp_context);
 EXPORT void        xmp_release_module  (xmp_context);
 EXPORT int         xmp_start_player    (xmp_context, int, int);
@@ -346,7 +348,9 @@ EXPORT int         xmp_set_player      (xmp_context, int, int);
 EXPORT int         xmp_get_player      (xmp_context, int);
 EXPORT int         xmp_set_instrument_path (xmp_context, char *);
 EXPORT int         xmp_load_module_from_memory (xmp_context, void *, long);
+#ifdef EDUKE32_DISABLED
 EXPORT int         xmp_load_module_from_file (xmp_context, void *, long);
+#endif
 
 /* External sample mixer API */
 EXPORT int         xmp_start_smix       (xmp_context, int, int);
@@ -354,7 +358,9 @@ EXPORT void        xmp_end_smix         (xmp_context);
 EXPORT int         xmp_smix_play_instrument(xmp_context, int, int, int, int);
 EXPORT int         xmp_smix_play_sample (xmp_context, int, int, int, int);
 EXPORT int         xmp_smix_channel_pan (xmp_context, int, int);
+#ifdef EDUKE32_DISABLED
 EXPORT int         xmp_smix_load_sample (xmp_context, int, char *);
+#endif
 EXPORT int         xmp_smix_release_sample (xmp_context, int);
 
 #ifdef __cplusplus

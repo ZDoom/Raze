@@ -28,6 +28,7 @@
 #include "hio.h"
 #include "mdataio.h"
 
+#ifdef EDUKE32_DISABLED
 static long get_size(FILE *f)
 {
 	long size, pos;
@@ -46,19 +47,24 @@ static long get_size(FILE *f)
 		return pos;
 	}
 }
+#endif
 
 int8 hio_read8s(HIO_HANDLE *h)
 {
+#ifdef EDUKE32_DISABLED
 	int err;
+#endif
 	int8 ret = 0;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = read8s(h->handle.file, &err);
 		if (err != 0) {
 			h->error = err;
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mread8s(h->handle.mem);
 		break;
@@ -69,16 +75,20 @@ int8 hio_read8s(HIO_HANDLE *h)
 
 uint8 hio_read8(HIO_HANDLE *h)
 {
+#ifdef EDUKE32_DISABLED
 	int err;
+#endif
 	uint8 ret = 0;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = read8(h->handle.file, &err);
 		if (err != 0) {
 			h->error = err;
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mread8(h->handle.mem);
 		break;
@@ -89,16 +99,20 @@ uint8 hio_read8(HIO_HANDLE *h)
 
 uint16 hio_read16l(HIO_HANDLE *h)
 {
+#ifdef EDUKE32_DISABLED
 	int err;
+#endif
 	uint16 ret = 0;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = read16l(h->handle.file, &err);
 		if (err != 0) {
 			h->error = err;
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mread16l(h->handle.mem);
 		break;
@@ -109,16 +123,20 @@ uint16 hio_read16l(HIO_HANDLE *h)
 
 uint16 hio_read16b(HIO_HANDLE *h)
 {
+#ifdef EDUKE32_DISABLED
 	int err;
+#endif
 	uint16 ret = 0;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = read16b(h->handle.file, &err);
 		if (err != 0) {
 			h->error = err;
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mread16b(h->handle.mem);
 		break;
@@ -129,16 +147,20 @@ uint16 hio_read16b(HIO_HANDLE *h)
 
 uint32 hio_read24l(HIO_HANDLE *h)
 {
+#ifdef EDUKE32_DISABLED
 	int err;
+#endif
 	uint32 ret = 0;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = read24l(h->handle.file, &err); 
 		if (err != 0) {
 			h->error = err;
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mread24l(h->handle.mem); 
 		break;
@@ -149,16 +171,20 @@ uint32 hio_read24l(HIO_HANDLE *h)
 
 uint32 hio_read24b(HIO_HANDLE *h)
 {
+#ifdef EDUKE32_DISABLED
 	int err;
+#endif
 	uint32 ret = 0;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = read24b(h->handle.file, &err);
 		if (err != 0) {
 			h->error = err;
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mread24b(h->handle.mem);
 		break;
@@ -169,16 +195,20 @@ uint32 hio_read24b(HIO_HANDLE *h)
 
 uint32 hio_read32l(HIO_HANDLE *h)
 {
+#ifdef EDUKE32_DISABLED
 	int err;
+#endif
 	uint32 ret = 0;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = read32l(h->handle.file, &err);
 		if (err != 0) {
 			h->error = err;
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mread32l(h->handle.mem);
 		break;
@@ -189,16 +219,20 @@ uint32 hio_read32l(HIO_HANDLE *h)
 
 uint32 hio_read32b(HIO_HANDLE *h)
 {
+#ifdef EDUKE32_DISABLED
 	int err;
+#endif
 	uint32 ret = 0;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = read32b(h->handle.file, &err);
 		if (err != 0) {
 			h->error = err;
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mread32b(h->handle.mem);
 	}
@@ -211,6 +245,7 @@ size_t hio_read(void *buf, size_t size, size_t num, HIO_HANDLE *h)
 	size_t ret = 0;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = fread(buf, size, num, h->handle.file);
 		if (ret != num) {
@@ -221,6 +256,7 @@ size_t hio_read(void *buf, size_t size, size_t num, HIO_HANDLE *h)
 			}
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mread(buf, size, num, h->handle.mem);
 		if (ret != num) {
@@ -237,12 +273,14 @@ int hio_seek(HIO_HANDLE *h, long offset, int whence)
 	int ret = -1;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = fseek(h->handle.file, offset, whence);
 		if (ret < 0) {
 			h->error = errno;
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mseek(h->handle.mem, offset, whence);
 		if (ret < 0) {
@@ -259,12 +297,14 @@ long hio_tell(HIO_HANDLE *h)
 	long ret = -1;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = ftell(h->handle.file);
 		if (ret < 0) {
 			h->error = errno;
 		}
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mtell(h->handle.mem);
 		if (ret < 0) {
@@ -279,8 +319,10 @@ long hio_tell(HIO_HANDLE *h)
 int hio_eof(HIO_HANDLE *h)
 {
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		return feof(h->handle.file);
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		return meof(h->handle.mem);
 	default:
@@ -295,6 +337,7 @@ int hio_error(HIO_HANDLE *h)
 	return error;
 }
 
+#ifdef EDUKE32_DISABLED
 HIO_HANDLE *hio_open(const void *path, const char *mode)
 {
 	HIO_HANDLE *h;
@@ -322,6 +365,7 @@ HIO_HANDLE *hio_open(const void *path, const char *mode)
     err:
 	return NULL;
 }
+#endif
 
 HIO_HANDLE *hio_open_mem(const void *ptr, long size)
 {
@@ -339,6 +383,7 @@ HIO_HANDLE *hio_open_mem(const void *ptr, long size)
 	return h;
 }
 
+#ifdef EDUKE32_DISABLED
 HIO_HANDLE *hio_open_file(FILE *f)
 {
 	HIO_HANDLE *h;
@@ -354,15 +399,18 @@ HIO_HANDLE *hio_open_file(FILE *f)
 
 	return h;
 }
+#endif
 
 int hio_close(HIO_HANDLE *h)
 {
 	int ret;
 
 	switch (HIO_HANDLE_TYPE(h)) {
+#ifdef EDUKE32_DISABLED
 	case HIO_HANDLE_TYPE_FILE:
 		ret = fclose(h->handle.file);
 		break;
+#endif
 	case HIO_HANDLE_TYPE_MEMORY:
 		ret = mclose(h->handle.mem);
 		break;

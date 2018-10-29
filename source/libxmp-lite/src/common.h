@@ -415,6 +415,7 @@ int	libxmp_scan_sequences	(struct context_data *);
 int	libxmp_get_sequence	(struct context_data *, int);
 int	libxmp_set_player_mode	(struct context_data *);
 
+#ifdef EDUKE32_DISABLED
 int8	read8s			(FILE *, int *err);
 uint8	read8			(FILE *, int *err);
 uint16	read16l			(FILE *, int *err);
@@ -431,6 +432,7 @@ void	write16b		(FILE *, uint16);
 void	write32l		(FILE *, uint32);
 void	write32b		(FILE *, uint32);
 int	move_data		(FILE *, FILE *, int);
+#endif
 
 uint16	readmem16l		(const uint8 *);
 uint16	readmem16b		(const uint8 *);

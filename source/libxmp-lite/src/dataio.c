@@ -34,6 +34,7 @@
 } while (0)
 
 
+#ifdef EDUKE32_DISABLED
 uint8 read8(FILE *f, int *err)
 {
 	int a;
@@ -155,6 +156,7 @@ uint32 read32b(FILE *f, int *err)
 	set_error(ferror(f) ? errno : EOF);
 	return 0xffffffff;
 }
+#endif
 
 uint16 readmem16l(const uint8 *m)
 {

@@ -172,6 +172,7 @@ int xmp_smix_channel_pan(xmp_context opaque, int chn, int pan)
 	return 0;
 }
 
+#ifdef EDUKE32_DISABLED
 int xmp_smix_load_sample(xmp_context opaque, int num, char *path)
 {
 	struct context_data *ctx = (struct context_data *)opaque;
@@ -288,6 +289,7 @@ int xmp_smix_load_sample(xmp_context opaque, int num, char *path)
     err:
 	return retval;
 }
+#endif
 
 int xmp_smix_release_sample(xmp_context opaque, int num)
 {
