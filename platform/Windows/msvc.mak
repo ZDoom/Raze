@@ -149,6 +149,7 @@ ENGINE_OBJS= \
 	$(ENGINE_OBJ)\animvpx.$o \
 	$(ENGINE_OBJ)\baselayer.$o \
 	$(ENGINE_OBJ)\cache1d.$o \
+	$(ENGINE_OBJ)\klzw.$o \
 	$(ENGINE_OBJ)\common.$o \
 	$(ENGINE_OBJ)\compat.$o \
 	$(ENGINE_OBJ)\crc32.$o \

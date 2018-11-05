@@ -165,6 +165,7 @@ engine_objs := \
     rev.cpp \
     baselayer.cpp \
     cache1d.cpp \
+    klzw.cpp \
     common.cpp \
     compat.cpp \
     crc32.cpp \
@@ -211,6 +212,7 @@ engine_tools_objs := \
     pragmas.cpp \
     kplib.cpp \
     cache1d.cpp \
+    klzw.cpp \
     crc32.cpp \
     colmatch.cpp \
     lz4.cpp \
@@ -890,9 +892,9 @@ $(ebacktrace_dll): platform/Windows/src/backtrace.c
 	$(COMPILE_STATUS)
 	$(RECIPE_IF) $(CC) $(CONLYFLAGS) -O2 -ggdb -shared -Wall -Wextra -static-libgcc -I$(engine_inc) -o $@ $^ -lbfd -liberty -limagehlp $(RECIPE_RESULT_COMPILE)
 
-libcache1d$(DLLSUFFIX): $(engine_src)/cache1d.cpp
+libklzw$(DLLSUFFIX): $(engine_src)/klzw.cpp
 	$(COMPILE_STATUS)
-	$(RECIPE_IF) $(COMPILER_C) -DCACHE1D_COMPRESS_ONLY -shared -fPIC $< -o $@ $(RECIPE_RESULT_COMPILE)
+	$(RECIPE_IF) $(COMPILER_C) -shared -fPIC $< -o $@ $(RECIPE_RESULT_COMPILE)
 
 # to debug the tools link phase, make a copy of this rule explicitly replacing % with the name of a tool, such as kextract
 %$(EXESUFFIX): $(tools_obj)/%.$o $(foreach i,tools $(tools_deps),$(call expandobjs,$i))
