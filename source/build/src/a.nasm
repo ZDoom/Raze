@@ -4,6 +4,7 @@
 ;
 ; This file has been modified from Ken Silverman's original release
 ; by Jonathon Fowler (jf@jonof.id.au)
+; by the EDuke32 team (development@voidpoint.com)
 
 %ifidn __OUTPUT_FORMAT__, x64
 %define ASM_x86_64
