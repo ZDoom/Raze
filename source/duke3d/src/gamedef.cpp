@@ -1951,45 +1951,25 @@ static void C_GetNextVarType(int32_t type)
 
             switch (id - g_structVarIDs)
             {
-            case STRUCT_SPRITE:
-                labelNum=C_GetLabelNameOffset(&h_actor,Bstrtolower(LAST_LABEL));
-                break;
-            case STRUCT_SECTOR:
-                labelNum=C_GetLabelNameOffset(&h_sector,Bstrtolower(LAST_LABEL));
-                break;
-            case STRUCT_WALL:
-                labelNum=C_GetLabelNameOffset(&h_wall,Bstrtolower(LAST_LABEL));
-                break;
-            case STRUCT_PLAYER:
-                labelNum=C_GetLabelNameOffset(&h_player,Bstrtolower(LAST_LABEL));
-                break;
-            case STRUCT_ACTORVAR:
-            case STRUCT_PLAYERVAR:
-                labelNum=GetDefID(LAST_LABEL);
-                break;
-            case STRUCT_TSPR:
-                labelNum=C_GetLabelNameOffset(&h_tsprite,Bstrtolower(LAST_LABEL));
-                break;
-            case STRUCT_PROJECTILE:
-            case STRUCT_THISPROJECTILE:
-                labelNum=C_GetLabelNameOffset(&h_projectile,Bstrtolower(LAST_LABEL));
-                break;
-            case STRUCT_USERDEF:
-                labelNum=C_GetLabelNameOffset(&h_userdef,Bstrtolower(LAST_LABEL));
-                break;
-            case STRUCT_INPUT:
-                labelNum=C_GetLabelNameOffset(&h_input,Bstrtolower(LAST_LABEL));
-                break;
-            case STRUCT_TILEDATA:
-                labelNum=C_GetLabelNameOffset(&h_tiledata,Bstrtolower(LAST_LABEL));
-                break;
-            case STRUCT_PALDATA:
-                labelNum=C_GetLabelNameOffset(&h_paldata,Bstrtolower(LAST_LABEL));
-                break;
-            default:
-                g_errorCnt++;
-                C_ReportError(ERROR_NOTAMEMBER);
-                return;
+                case STRUCT_SPRITE:         labelNum = C_GetLabelNameOffset(&h_actor,      Bstrtolower(LAST_LABEL)); break;
+                case STRUCT_SECTOR:         labelNum = C_GetLabelNameOffset(&h_sector,     Bstrtolower(LAST_LABEL)); break;
+                case STRUCT_WALL:           labelNum = C_GetLabelNameOffset(&h_wall,       Bstrtolower(LAST_LABEL)); break;
+                case STRUCT_PLAYER:         labelNum = C_GetLabelNameOffset(&h_player,     Bstrtolower(LAST_LABEL)); break;
+                case STRUCT_TSPR:           labelNum = C_GetLabelNameOffset(&h_tsprite,    Bstrtolower(LAST_LABEL)); break;
+                case STRUCT_PROJECTILE:
+                case STRUCT_THISPROJECTILE: labelNum = C_GetLabelNameOffset(&h_projectile, Bstrtolower(LAST_LABEL)); break;
+                case STRUCT_USERDEF:        labelNum = C_GetLabelNameOffset(&h_userdef,    Bstrtolower(LAST_LABEL)); break;
+                case STRUCT_INPUT:          labelNum = C_GetLabelNameOffset(&h_input,      Bstrtolower(LAST_LABEL)); break;
+                case STRUCT_TILEDATA:       labelNum = C_GetLabelNameOffset(&h_tiledata,   Bstrtolower(LAST_LABEL)); break;
+                case STRUCT_PALDATA:        labelNum = C_GetLabelNameOffset(&h_paldata,    Bstrtolower(LAST_LABEL)); break;
+
+                case STRUCT_ACTORVAR:
+                case STRUCT_PLAYERVAR:      labelNum = GetDefID(LAST_LABEL); break;
+
+                default:
+                    g_errorCnt++;
+                    C_ReportError(ERROR_NOTAMEMBER);
+                    return;
             }
 
             BITPTR_CLEAR(g_scriptPtr-apScript);
