@@ -273,7 +273,7 @@ void clearkeys(void)
 }
 
 #ifdef USE_OPENGL
-int32_t osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
+int osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -287,7 +287,7 @@ int32_t osdcmd_restartvid(osdfuncparm_t const * const UNUSED(parm))
 }
 #endif
 
-static int32_t osdcmd_vidmode(osdfuncparm_t const * const parm)
+static int osdcmd_vidmode(osdfuncparm_t const * const parm)
 {
     int32_t newx = xres, newy = yres, newbpp = bpp, newfullscreen = fullscreen;
 #ifdef USE_OPENGL

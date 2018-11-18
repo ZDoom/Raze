@@ -284,7 +284,7 @@ struct glinfo_t glinfo =
 // Used to register the game's / editor's osdcmd_vidmode() functions here.
 int32_t (*baselayer_osdcmd_vidmode_func)(osdfuncparm_t const * const parm);
 
-static int32_t osdfunc_setrendermode(osdfuncparm_t const * const parm)
+static int osdfunc_setrendermode(osdfuncparm_t const * const parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -348,7 +348,7 @@ static int32_t osdfunc_setrendermode(osdfuncparm_t const * const parm)
 }
 
 #ifdef DEBUGGINGAIDS
-static int32_t osdcmd_hicsetpalettetint(osdfuncparm_t const * const parm)
+static int osdcmd_hicsetpalettetint(osdfuncparm_t const * const parm)
 {
     int32_t parms[8];
 
@@ -367,7 +367,7 @@ static int32_t osdcmd_hicsetpalettetint(osdfuncparm_t const * const parm)
 }
 #endif
 
-int32_t osdcmd_glinfo(osdfuncparm_t const * const UNUSED(parm))
+int osdcmd_glinfo(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -419,7 +419,7 @@ int32_t osdcmd_glinfo(osdfuncparm_t const * const UNUSED(parm))
 }
 #endif
 
-static int32_t osdcmd_cvar_set_baselayer(osdfuncparm_t const * const parm)
+static int osdcmd_cvar_set_baselayer(osdfuncparm_t const * const parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
 

@@ -26,8 +26,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "osdfuncs.h"
 #include "premap.h"
 
-int32_t osdhightile = 1;
-int32_t osdshown = 0;
+int osdhightile = 1;
+int osdshown = 0;
 
 #ifdef EDUKE32_TOUCH_DEVICES
 float osdscale = 2.f, osdrscale = 0.5f;

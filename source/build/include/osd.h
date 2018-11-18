@@ -207,10 +207,10 @@ enum osdflags_t
 #define OSDCMD_OK	0
 #define OSDCMD_SHOWHELP 1
 
-int32_t OSD_ParsingScript(void);
+int OSD_ParsingScript(void);
 
-int32_t OSD_OSDKey(void);
-int32_t OSD_GetTextMode(void);
+int OSD_OSDKey(void);
+int OSD_GetTextMode(void);
 void OSD_SetTextMode(int32_t mode);
 
 int OSD_Exec(const char *szScript);
@@ -218,9 +218,9 @@ int OSD_Exec(const char *szScript);
 // Get shade and pal index from the OSD format buffer.
 void OSD_GetShadePal(const char *ch, int32_t *shadeptr, int32_t *palptr);
 
-int32_t OSD_GetCols(void);
-int32_t OSD_IsMoving(void);
-int32_t OSD_GetRowsCur(void);
+int OSD_GetCols(void);
+int OSD_IsMoving(void);
+int OSD_GetRowsCur(void);
 
 // initializes things
 void OSD_Init(void);
@@ -284,9 +284,9 @@ void OSD_Dispatch(const char *cmd);
 //   name = name of the function
 //   help = a short help string
 //   func = the entry point to the function
-int32_t OSD_RegisterFunction(const char *pszName, const char *pszDesc, int32_t (*func)(const osdfuncparm_t *));
+int OSD_RegisterFunction(const char *pszName, const char *pszDesc, int32_t (*func)(const osdfuncparm_t *));
 
-int32_t osdcmd_cvar_set(osdfuncparm_t const * parm);
+int osdcmd_cvar_set(osdfuncparm_t const * parm);
 void OSD_RegisterCvar(osdcvardata_t * cvar, int32_t (*func)(osdfuncparm_t const * const));
 void OSD_WriteAliases(FILE *fp);
 void OSD_WriteCvars(FILE *fp);
@@ -297,7 +297,7 @@ static inline void OSD_SetHistory(int32_t histIdx, const char *src)
     Bstrncpyz(osd->history.buf[histIdx], src, OSDEDITLENGTH);
 }
 
-extern int32_t osdcmd_restartvid(osdfuncparm_t const * parm);
+extern int osdcmd_restartvid(osdfuncparm_t const * parm);
 
 extern void M32RunScript(const char *s);
 

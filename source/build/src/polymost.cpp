@@ -7836,7 +7836,7 @@ static int32_t gltexturemode(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_cvar_set_polymost(osdfuncparm_t const * const parm)
+static int osdcmd_cvar_set_polymost(osdfuncparm_t const * const parm)
 {
     int32_t r = osdcmd_cvar_set(parm);
 

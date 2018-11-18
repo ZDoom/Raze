@@ -3964,7 +3964,7 @@ void C_PrintErrorPosition()
 {
     const char *b = g_curkwptr, *e=textptr;
     int32_t i, nchars;
-    int32_t osdcols = OSD_GetCols();
+    int osdcols = OSD_GetCols();
 
     if (!(b<e+1))
         return;

@@ -304,7 +304,7 @@ extern int32_t mskip;
 
 //extern int32_t fillsector(int16_t sectnum, char fillcolor);
 
-static int32_t osdcmd_quit(osdfuncparm_t const * parm);
+static int osdcmd_quit(osdfuncparm_t const * parm);
 
 
 #define M32_NUM_SPRITE_MODES (signed)ARRAY_SIZE(SpriteMode)
@@ -8527,7 +8527,7 @@ int32_t ExtPreInit(int32_t argc,char const * const * argv)
     return 0;
 }
 
-static int32_t osdcmd_quit(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_quit(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
 
@@ -8541,7 +8541,7 @@ static int32_t osdcmd_quit(osdfuncparm_t const * const UNUSED(parm))
     Bexit(0);
 }
 
-static int32_t osdcmd_editorgridextent(osdfuncparm_t const * const parm)
+static int osdcmd_editorgridextent(osdfuncparm_t const * const parm)
 {
     int32_t i;
 
@@ -8566,7 +8566,7 @@ static int32_t osdcmd_editorgridextent(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_addpath(osdfuncparm_t const * const parm)
+static int osdcmd_addpath(osdfuncparm_t const * const parm)
 {
     char pathname[BMAX_PATH];
 
@@ -8577,7 +8577,7 @@ static int32_t osdcmd_addpath(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_initgroupfile(osdfuncparm_t const * const parm)
+static int osdcmd_initgroupfile(osdfuncparm_t const * const parm)
 {
     char file[BMAX_PATH];
 
@@ -8588,7 +8588,7 @@ static int32_t osdcmd_initgroupfile(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_sensitivity(osdfuncparm_t const * const parm)
+static int osdcmd_sensitivity(osdfuncparm_t const * const parm)
 {
     if (parm->numparms != 1)
     {
@@ -8600,7 +8600,7 @@ static int32_t osdcmd_sensitivity(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_noclip(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_noclip(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     m32_clipping--;
@@ -8612,7 +8612,7 @@ static int32_t osdcmd_noclip(osdfuncparm_t const * const UNUSED(parm))
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_testplay_addparam(osdfuncparm_t const * const parm)
+static int osdcmd_testplay_addparam(osdfuncparm_t const * const parm)
 {
     int32_t slen;
 
@@ -8648,7 +8648,7 @@ static int32_t osdcmd_testplay_addparam(osdfuncparm_t const * const parm)
 
 //PK vvv ------------
 // FIXME: The way the different options are handled is horribly inconsistent.
-static int32_t osdcmd_vars_pk(osdfuncparm_t const * const parm)
+static int osdcmd_vars_pk(osdfuncparm_t const * const parm)
 {
     const int32_t setval = (parm->numparms >= 1);
 
@@ -8938,7 +8938,7 @@ static int32_t osdcmd_vars_pk(osdfuncparm_t const * const parm)
 }
 
 #ifdef USE_OPENGL
-static int32_t osdcmd_tint(osdfuncparm_t const * const parm)
+static int osdcmd_tint(osdfuncparm_t const * const parm)
 {
     int32_t i;
     polytint_t *p;
@@ -9007,7 +9007,7 @@ static void SaveInHistory(const char *commandstr)
 }
 
 #ifdef LUNATIC
-static int32_t osdcmd_lua(osdfuncparm_t const * const parm)
+static int osdcmd_lua(osdfuncparm_t const * const parm)
 {
     // Should be used like
     // lua "lua code..."
@@ -9035,7 +9035,7 @@ static int32_t osdcmd_lua(osdfuncparm_t const * const parm)
 #endif
 
 // M32 script vvv
-static int32_t osdcmd_include(osdfuncparm_t const * const parm)
+static int osdcmd_include(osdfuncparm_t const * const parm)
 {
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
@@ -9043,7 +9043,7 @@ static int32_t osdcmd_include(osdfuncparm_t const * const parm)
     return OSDCMD_OK;
 }
 
-static int32_t osdcmd_scriptinfo(osdfuncparm_t const * const UNUSED(parm))
+static int osdcmd_scriptinfo(osdfuncparm_t const * const UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     C_CompilationInfo();
@@ -9053,7 +9053,7 @@ static int32_t osdcmd_scriptinfo(osdfuncparm_t const * const UNUSED(parm))
 #ifdef DEBUGGINGAIDS
 extern void X_Disasm(ofstype beg, int32_t size);
 
-static int32_t osdcmd_disasm(osdfuncparm_t const * const parm)
+static int osdcmd_disasm(osdfuncparm_t const * const parm)
 {
     int32_t i;
 
@@ -9079,7 +9079,7 @@ static int32_t osdcmd_disasm(osdfuncparm_t const * const parm)
 }
 #endif
 
-static int32_t osdcmd_do(osdfuncparm_t const * const parm)
+static int osdcmd_do(osdfuncparm_t const * const parm)
 {
     if (parm->numparms==0)
         return OSDCMD_SHOWHELP;
@@ -9160,7 +9160,7 @@ void M32RunScript(const char *s)
     osdcmd_do(&parm);
 }
 
-static int32_t osdcmd_endisableevent(osdfuncparm_t const * const parm)
+static int osdcmd_endisableevent(osdfuncparm_t const * const parm)
 {
     int32_t i, j, enable;
 
