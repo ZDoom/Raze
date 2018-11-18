@@ -366,8 +366,9 @@ static void ProcessGroups(CACHE1D_FIND_REC *srch)
     char *fn;
     struct Bstat st;
 
-#define BUFFER_SIZE (1024 * 1024 * 8)
-    uint8_t *buf = (uint8_t *)Xmalloc(BUFFER_SIZE);
+    static constexpr int ReadSize = 65536;
+
+    auto *buf = (uint8_t *)Xmalloc(ReadSize);
 
     for (sidx = srch; sidx; sidx = sidx->next)
     {
@@ -419,10 +420,10 @@ static void ProcessGroups(CACHE1D_FIND_REC *srch)
             initprintf(" Checksumming %s...", sidx->name);
             do
             {
-                b = read(fh, buf, BUFFER_SIZE);
+                b = read(fh, buf, ReadSize);
                 if (b > 0) crcval = Bcrc32((uint8_t *)buf, b, crcval);
             }
-            while (b == BUFFER_SIZE);
+            while (b == ReadSize);
             close(fh);
             initprintf(" Done\n");
 
