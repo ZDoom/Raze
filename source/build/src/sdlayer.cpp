@@ -1539,6 +1539,11 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
 
     initprintf("Setting video mode %dx%d (%d-bpp %s)\n", x, y, c, ((fs & 1) ? "fullscreen" : "windowed"));
 
+    SDL_DisplayMode desktopmode;
+    SDL_GetDesktopDisplayMode(0, &desktopmode);
+
+    int const windowedMode = (desktopmode.w == x && desktopmode.h == y) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
+
 #ifdef USE_OPENGL
     if (c > 8 || !nogl)
     {
@@ -1600,7 +1605,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 return -1;
             }
 
-            SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
+            SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : windowedMode));
             SDL_GL_SetSwapInterval(vsync_renderlayer);
 
             setrefreshrate();
@@ -1625,7 +1630,7 @@ int32_t videoSetMode(int32_t x, int32_t y, int32_t c, int32_t fs)
                 SDL2_VIDEO_ERR("SDL_GetWindowSurface");
         }
 
-        SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : 0));
+        SDL_SetWindowFullscreen(sdl_window, ((fs & 1) ? SDL_WINDOW_FULLSCREEN : windowedMode));
     }
 
     SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "1");
