@@ -579,7 +579,7 @@ void Net_ParseClientPacket(ENetEvent *event)
         sprite[g_player[other].ps->i].cstat = 1+256;
         actor[g_player[other].ps->i].t_data[2] = actor[g_player[other].ps->i].t_data[3] = actor[g_player[other].ps->i].t_data[4] = 0;
 
-        P_ResetPlayer(other);
+        P_ResetMultiPlayer(other);
         Net_SpawnPlayer(other);
 
         break;
@@ -663,7 +663,7 @@ void Net_ParseServerPacket(ENetEvent *event)
     case PACKET_PLAYER_SPAWN:
         if (!(g_player[myconnectindex].ps->gm & MODE_GAME)) break;
 
-        P_ResetPlayer(pbuf[1]);
+        P_ResetMultiPlayer(pbuf[1]);
         Bmemcpy(&g_player[pbuf[1]].ps->pos.x, &pbuf[2], sizeof(vec3_t) * 2);
         Bmemcpy(&sprite[g_player[pbuf[1]].ps->i], &pbuf[2], sizeof(vec3_t));
         break;

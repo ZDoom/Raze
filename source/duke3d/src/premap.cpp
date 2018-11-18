@@ -625,7 +625,7 @@ static inline void P_ResetTintFade(DukePlayer_t *const pPlayer)
 #endif
 }
 
-void P_ResetPlayer(int playerNum)
+void P_ResetMultiPlayer(int playerNum)
 {
     auto &p = *g_player[playerNum].ps;
 
@@ -697,7 +697,7 @@ void P_ResetPlayer(int playerNum)
     VM_OnEvent(EVENT_RESETPLAYER, p.i, playerNum);
 }
 
-void P_ResetStatus(int playerNum)
+void P_ResetPlayer(int playerNum)
 {
     auto &p = *g_player[playerNum].ps;
 
@@ -722,7 +722,9 @@ void P_ResetStatus(int playerNum)
     p.footprintcount     = 0;
     p.footprintpal       = 0;
     p.footprintshade     = 0;
+    p.frag               = 0;
     p.frag_ps            = playerNum;
+    p.fraggedself        = 0;
     p.fric               = { 0, 0 };
     p.fta                = 0;
     p.ftq                = 0;
@@ -752,6 +754,7 @@ void P_ResetStatus(int playerNum)
     p.opyoff             = 0;
     p.oq16horiz          = F16(140);
     p.orotscrnang        = 1;  // JBF 20031220
+    p.over_shoulder_on   = 0;
     p.palette            = BASEPAL;
     p.player_par         = 0;
     p.pycount            = 0;
@@ -840,7 +843,7 @@ void P_ResetInventory(int playerNum)
     VM_OnEvent(EVENT_RESETINVENTORY, p.i, playerNum);
 }
 
-static void resetprestat(int playerNum, int gameMode)
+static void P_PrepForNewLevel(int playerNum, int gameMode)
 {
     auto &p = *g_player[playerNum].ps;
 
@@ -963,162 +966,13 @@ static void G_SetupRotfixedSprites(void)
     }
 }
 
-static inline int G_CheckExitSprite(int spriteNum) { return ((uint16_t)sprite[spriteNum].lotag == UINT16_MAX && (sprite[spriteNum].cstat & 16)); }
-
-static void prelevel(int g)
+static inline int G_CheckExitSprite(int spriteNum)
 {
-    Bmemset(show2dsector, 0, sizeof(show2dsector));
-#ifdef LEGACY_ROR
-    Bmemset(ror_protectedsectors, 0, MAXSECTORS);
-#endif
-    g_cloudCnt = 0;
+    return ((uint16_t)sprite[spriteNum].lotag == UINT16_MAX && (sprite[spriteNum].cstat & CSTAT_SPRITE_ALIGNMENT_WALL));
+}
 
-    resetprestat(0, g);
-    G_SetupGlobalPsky();
-
-    VM_OnEvent(EVENT_PRELEVEL, -1, -1);
-
-    int missedCloudSectors = 0;
-
-    for (int i = 0; i < numsectors; i++)
-    {
-        sector[i].extra = 256;
-
-        switch (sector[i].lotag)
-        {
-        case ST_20_CEILING_DOOR:
-        case ST_22_SPLITTING_DOOR:
-            if (sector[i].floorz > sector[i].ceilingz)
-                sector[i].lotag |= 32768u;
-            continue;
-        }
-
-        if (sector[i].ceilingstat&1)
-        {
-            if (waloff[sector[i].ceilingpicnum] == 0)
-            {
-                if (sector[i].ceilingpicnum == LA)
-                {
-                    for (int j = 0; j < 5; j++)
-                        tloadtile(sector[i].ceilingpicnum + j, 0);
-                }
-            }
-
-            if (sector[i].ceilingpicnum == CLOUDYSKIES)
-            {
-                if (g_cloudCnt < ARRAY_SSIZE(g_cloudSect))
-                    g_cloudSect[g_cloudCnt++] = i;
-                else
-                    missedCloudSectors++;
-            }
-
-            if (g_player[0].ps->parallax_sectnum == -1)
-                g_player[0].ps->parallax_sectnum = i;
-        }
-
-        if (sector[i].lotag == 32767) //Found a secret room
-        {
-            g_player[0].ps->max_secret_rooms++;
-            continue;
-        }
-
-        if ((uint16_t)sector[i].lotag == UINT16_MAX)
-        {
-            g_player[0].ps->exitx = wall[sector[i].wallptr].x;
-            g_player[0].ps->exity = wall[sector[i].wallptr].y;
-            continue;
-        }
-    }
-
-    if (missedCloudSectors > 0)
-        OSD_Printf(OSDTEXT_RED "Map warning: have %d unhandled CLOUDYSKIES ceilings.\n", missedCloudSectors);
-
-    // NOTE: must be safe loop because callbacks could delete sprites.
-    for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
-    {
-        A_ResetVars(i);
-#if !defined LUNATIC
-        A_LoadActor(i);
-#endif
-        VM_OnEvent(EVENT_LOADACTOR, i, -1);
-        if (G_CheckExitSprite(i))
-        {
-            g_player[0].ps->exitx = SX(i);
-            g_player[0].ps->exity = SY(i);
-        }
-        else
-        {
-            switch (DYNAMICTILEMAP(PN(i)))
-            {
-                case GPSPEED__STATIC:
-                    // DELETE_AFTER_LOADACTOR. Must not change statnum.
-                    sector[SECT(i)].extra = SLT(i);
-                    break;
-
-                case CYCLER__STATIC:
-                {
-                    // DELETE_AFTER_LOADACTOR. Must not change statnum.
-                    if (g_cyclerCnt >= MAXCYCLERS)
-                    {
-                        Bsprintf(tempbuf, "\nToo many cycling sectors (%d max).", MAXCYCLERS);
-                        G_GameExit(tempbuf);
-                    }
-
-                    auto &cycler = g_cyclers[g_cyclerCnt];
-
-                    cycler[0] = SECT(i);
-                    cycler[1] = SLT(i);
-                    cycler[2] = SS(i);
-                    cycler[3] = sector[SECT(i)].floorshade;
-                    cycler[4] = SHT(i);
-                    cycler[5] = (SA(i) == 1536);
-
-                    g_cyclerCnt++;
-                    break;
-                }
-
-                case SECTOREFFECTOR__STATIC:
-                case ACTIVATOR__STATIC:
-                case TOUCHPLATE__STATIC:
-                case ACTIVATORLOCKED__STATIC:
-                case MUSICANDSFX__STATIC:
-                case LOCATORS__STATIC:
-                case MASTERSWITCH__STATIC:
-                case RESPAWN__STATIC:
-                    sprite[i].cstat &= ~(CSTAT_SPRITE_BLOCK|CSTAT_SPRITE_BLOCK_HITSCAN|CSTAT_SPRITE_ALIGNMENT_MASK);
-                    break;
-            }
-        }
-    }
-
-    // Delete some effector / effector modifier sprites AFTER the loop running
-    // the LOADACTOR events. DELETE_AFTER_LOADACTOR.
-    for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
-    {
-        if (!G_CheckExitSprite(i))
-        {
-            switch (DYNAMICTILEMAP(PN(i)))
-            {
-                case GPSPEED__STATIC:
-                case CYCLER__STATIC: A_DeleteSprite(i); break;
-            }
-        }
-    }
-
-    for (int i = 0; i < MAXSPRITES; i++)
-    {
-        if (sprite[i].statnum < MAXSTATUS && (PN(i) != SECTOREFFECTOR || SLT(i) != SE_14_SUBWAY_CAR))
-            A_Spawn(-1, i);
-    }
-
-    for (int i = 0; i < MAXSPRITES; i++)
-    {
-        if (sprite[i].statnum < MAXSTATUS && PN(i) == SECTOREFFECTOR && SLT(i) == SE_14_SUBWAY_CAR)
-            A_Spawn(-1, i);
-    }
-
-    G_SetupRotfixedSprites();
-
+static void G_SetupLightSwitches()
+{
     auto tagbitmap = (uint8_t *)Xcalloc(65536 >> 3, 1);
 
     for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
@@ -1126,31 +980,31 @@ static void prelevel(int g)
         if (PN(i) <= 0)  // oob safety for switch below
             continue;
 
-        for (int ii=0; ii<2; ii++)
+        for (int ii = 0; ii < 2; ii++)
         {
             switch (DYNAMICTILEMAP(PN(i) - 1 + ii))
             {
-            case DIPSWITCH__STATIC:
-            case DIPSWITCH2__STATIC:
-            case PULLSWITCH__STATIC:
-            case HANDSWITCH__STATIC:
-            case SLOTDOOR__STATIC:
-            case LIGHTSWITCH__STATIC:
-            case SPACELIGHTSWITCH__STATIC:
-            case SPACEDOORSWITCH__STATIC:
-            case FRANKENSTINESWITCH__STATIC:
-            case LIGHTSWITCH2__STATIC:
-            case POWERSWITCH1__STATIC:
-            case LOCKSWITCH1__STATIC:
-            case POWERSWITCH2__STATIC:
-                // the lower code only for the 'on' state (*)
-                if (ii==0)
-                {
-                    uint16_t const tag = sprite[i].lotag;
-                    tagbitmap[tag>>3] |= 1<<(tag&7);
-                }
+                case DIPSWITCH__STATIC:
+                case DIPSWITCH2__STATIC:
+                case PULLSWITCH__STATIC:
+                case HANDSWITCH__STATIC:
+                case SLOTDOOR__STATIC:
+                case LIGHTSWITCH__STATIC:
+                case SPACELIGHTSWITCH__STATIC:
+                case SPACEDOORSWITCH__STATIC:
+                case FRANKENSTINESWITCH__STATIC:
+                case LIGHTSWITCH2__STATIC:
+                case POWERSWITCH1__STATIC:
+                case LOCKSWITCH1__STATIC:
+                case POWERSWITCH2__STATIC:
+                    // the lower code only for the 'on' state (*)
+                    if (ii == 0)
+                    {
+                        uint16_t const tag = sprite[i].lotag;
+                        tagbitmap[tag >> 3] |= 1 << (tag & 7);
+                    }
 
-                break;
+                    break;
             }
         }
     }
@@ -1160,18 +1014,22 @@ static void prelevel(int g)
     {
         uint16_t const tag = sprite[j].hitag;
 
-        if (sprite[j].lotag == SE_12_LIGHT_SWITCH && tagbitmap[tag>>3]&(1<<(tag&7)))
+        if (sprite[j].lotag == SE_12_LIGHT_SWITCH && tagbitmap[tag >> 3] & (1 << (tag & 7)))
             actor[j].t_data[0] = 1;
     }
 
     DO_FREE_AND_NULL(tagbitmap);
+}
+
+static void G_SetupSpecialWalls(void)
+{
     g_mirrorCount = 0;
 
     for (int i = 0; i < numwalls; i++)
     {
         auto &w = wall[i];
 
-        if (w.overpicnum == MIRROR && (w.cstat&32) != 0)
+        if (w.overpicnum == MIRROR && (w.cstat & 32) != 0)
         {
             int const nextSectnum = w.nextsector;
 
@@ -1193,7 +1051,7 @@ static void prelevel(int g)
 
         if (g_animWallCnt >= MAXANIMWALLS)
         {
-            Bsprintf(tempbuf,"\nToo many 'anim' walls (%d max).",MAXANIMWALLS);
+            Bsprintf(tempbuf, "\nToo many 'anim' walls (%d max).", MAXANIMWALLS);
             G_GameExit(tempbuf);
         }
 
@@ -1301,7 +1159,7 @@ static void prelevel(int g)
         }
     }
 
-    //Invalidate textures in sector behind mirror
+    // Invalidate textures in sector behind mirror
     for (int i = 0; i < g_mirrorCount; i++)
     {
         int const startWall = sector[g_mirrorSector[i]].wallptr;
@@ -1315,6 +1173,180 @@ static void prelevel(int g)
                 wall[j].pal = 4;
         }
     }
+}
+
+static void A_MaybeProcessEffector(int spriteNum)
+{
+    switch (DYNAMICTILEMAP(PN(spriteNum)))
+    {
+        case GPSPEED__STATIC:
+            // DELETE_AFTER_LOADACTOR. Must not change statnum.
+            sector[SECT(spriteNum)].extra = SLT(spriteNum);
+            break;
+
+        case CYCLER__STATIC:
+        {
+            // DELETE_AFTER_LOADACTOR. Must not change statnum.
+            if (g_cyclerCnt >= MAXCYCLERS)
+            {
+                Bsprintf(tempbuf, "\nToo many cycling sectors (%d max).", MAXCYCLERS);
+                G_GameExit(tempbuf);
+            }
+
+            auto &cycler = g_cyclers[g_cyclerCnt];
+
+            cycler[0] = SECT(spriteNum);
+            cycler[1] = SLT(spriteNum);
+            cycler[2] = SS(spriteNum);
+            cycler[3] = sector[SECT(spriteNum)].floorshade;
+            cycler[4] = SHT(spriteNum);
+            cycler[5] = (SA(spriteNum) == 1536);
+
+            g_cyclerCnt++;
+            break;
+        }
+
+        case SECTOREFFECTOR__STATIC:
+        case ACTIVATOR__STATIC:
+        case TOUCHPLATE__STATIC:
+        case ACTIVATORLOCKED__STATIC:
+        case MUSICANDSFX__STATIC:
+        case LOCATORS__STATIC:
+        case MASTERSWITCH__STATIC:
+        case RESPAWN__STATIC: sprite[spriteNum].cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ALIGNMENT_MASK); break;
+    }
+}
+
+static void G_SpawnAllSprites()
+{
+    // I don't know why this is separated, but I have better things to do than combine them and see what happens
+    for (int i = 0; i < MAXSPRITES; i++)
+    {
+        if (sprite[i].statnum < MAXSTATUS && (PN(i) != SECTOREFFECTOR || SLT(i) != SE_14_SUBWAY_CAR))
+            A_Spawn(-1, i);
+    }
+
+    for (int i = 0; i < MAXSPRITES; i++)
+    {
+        if (sprite[i].statnum < MAXSTATUS && PN(i) == SECTOREFFECTOR && SLT(i) == SE_14_SUBWAY_CAR)
+            A_Spawn(-1, i);
+    }
+}
+
+static void G_DeleteTempEffectors()
+{
+    for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
+    {
+        if (!G_CheckExitSprite(i))
+        {
+            switch (DYNAMICTILEMAP(PN(i)))
+            {
+                case GPSPEED__STATIC:
+                case CYCLER__STATIC: A_DeleteSprite(i); break;
+            }
+        }
+    }
+}
+
+static void prelevel(int g)
+{
+    Bmemset(show2dsector, 0, sizeof(show2dsector));
+#ifdef LEGACY_ROR
+    Bmemset(ror_protectedsectors, 0, MAXSECTORS);
+#endif
+    g_cloudCnt = 0;
+
+    P_PrepForNewLevel(0, g);
+    G_SetupGlobalPsky();
+
+    VM_OnEvent(EVENT_PRELEVEL, -1, -1);
+
+    int missedCloudSectors = 0;
+
+    auto &p0 = *g_player[0].ps;
+
+    for (int i = 0; i < numsectors; i++)
+    {
+        auto &s = sector[i];
+
+        s.extra = 256;
+
+        switch (s.lotag)
+        {
+        case ST_20_CEILING_DOOR:
+        case ST_22_SPLITTING_DOOR:
+            if (s.floorz > s.ceilingz)
+                s.lotag |= 32768u;
+            continue;
+        }
+
+        if (s.ceilingstat&1)
+        {
+            if (waloff[s.ceilingpicnum] == 0)
+            {
+                if (s.ceilingpicnum == LA)
+                {
+                    for (int j = 0; j < 5; j++)
+                        tloadtile(s.ceilingpicnum + j, 0);
+                }
+            }
+
+            if (s.ceilingpicnum == CLOUDYSKIES)
+            {
+                if (g_cloudCnt < ARRAY_SSIZE(g_cloudSect))
+                    g_cloudSect[g_cloudCnt++] = i;
+                else
+                    missedCloudSectors++;
+            }
+
+            if (p0.parallax_sectnum == -1)
+                p0.parallax_sectnum = i;
+        }
+
+        if (s.lotag == 32767) //Found a secret room
+        {
+            p0.max_secret_rooms++;
+            continue;
+        }
+
+        if ((uint16_t)s.lotag == UINT16_MAX)
+        {
+            p0.exitx = wall[s.wallptr].x;
+            p0.exity = wall[s.wallptr].y;
+            continue;
+        }
+    }
+
+    if (missedCloudSectors > 0)
+        OSD_Printf(OSDTEXT_RED "Map warning: have %d unhandled CLOUDYSKIES ceilings.\n", missedCloudSectors);
+
+    // NOTE: must be safe loop because callbacks could delete sprites.
+    for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
+    {
+        A_ResetVars(i);
+#if !defined LUNATIC
+        A_LoadActor(i);
+#endif
+        VM_OnEvent(EVENT_LOADACTOR, i, -1);
+
+        if (G_CheckExitSprite(i))
+        {
+            p0.exitx = SX(i);
+            p0.exity = SY(i);
+            continue;
+        }
+
+        A_MaybeProcessEffector(i);
+    }
+
+    // Delete some effector / effector modifier sprites AFTER the loop running
+    // the LOADACTOR events. DELETE_AFTER_LOADACTOR.
+    G_DeleteTempEffectors();
+
+    G_SpawnAllSprites();
+    G_SetupRotfixedSprites();
+    G_SetupLightSwitches();
+    G_SetupSpecialWalls();
 }
 
 
@@ -1432,7 +1464,108 @@ end_vol4a:
     VM_OnEvent(EVENT_NEWGAME, g_player[screenpeek].ps->i, screenpeek);
 }
 
-static void resetpspritevars(int gameMode)
+static void G_CollectSpawnPoints(int gameMode)
+{
+    g_playerSpawnCnt = 0;
+    //    circ = 2048/ud.multimode;
+
+    for (int pindex = 0, pal = 9, nexti, SPRITES_OF_STAT_SAFE(STAT_PLAYER, i, nexti))
+    {
+        if (g_playerSpawnCnt == MAXPLAYERS)
+            G_GameExit("\nToo many player sprites (max 16.)");
+
+        auto &s     = sprite[i];
+        auto &spawn = g_playerSpawnPoints[g_playerSpawnCnt];
+
+        spawn.pos  = *(vec3_t *)&s.x;
+        spawn.ang  = s.ang;
+        spawn.sect = s.sectnum;
+
+        g_playerSpawnCnt++;
+
+        if (pindex >= MAXPLAYERS)
+        {
+            A_DeleteSprite(i);
+            i = nexti;
+            continue;
+        }
+
+        s.clipdist = 64;
+        s.owner    = i;
+        s.shade    = 0;
+        s.xoffset  = 0;
+        s.xrepeat  = 42;
+        s.yrepeat  = 36;
+
+        s.cstat
+        = (pindex < (!g_fakeMultiMode ? numplayers : ud.multimode)) ? CSTAT_SPRITE_BLOCK + CSTAT_SPRITE_BLOCK_HITSCAN : CSTAT_SPRITE_INVISIBLE;
+
+        auto &plr = g_player[pindex];
+        auto &p   = *plr.ps;
+
+        if ((gameMode & MODE_EOL) != MODE_EOL || p.last_extra == 0)
+        {
+            p.runspeed   = g_playerFriction;
+            p.last_extra = p.max_player_health;
+            s.extra      = p.max_player_health;
+        }
+        else
+            s.extra = p.last_extra;
+
+        s.yvel = pindex;
+
+        if (!plr.pcolor && (g_netServer || ud.multimode > 1) && !(g_gametypeFlags[ud.coop] & GAMETYPE_TDM))
+        {
+            if (s.pal == 0)
+            {
+                for (int TRAVERSE_CONNECT(k))
+                {
+                    if (pal == g_player[k].ps->palookup)
+                    {
+                        if (++pal > 16)
+                            pal = 9;
+                        k = 0;
+                    }
+                }
+
+                plr.pcolor = s.pal = p.palookup = pal++;
+
+                if (pal > 16)
+                    pal = 9;
+            }
+            else
+                plr.pcolor = p.palookup = s.pal;
+        }
+        else
+        {
+            int k = plr.pcolor;
+
+            if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
+            {
+                k      = G_GetTeamPalette(plr.pteam);
+                p.team = plr.pteam;
+            }
+
+            s.pal = p.palookup = k;
+        }
+
+        p.frag_ps = pindex;
+
+        actor[i].owner = p.i = i;
+        actor[i].bpos = p.opos = p.pos = *(vec3_t *)&s.x;
+        p.bobpos                       = *(vec2_t *)&s.x;
+
+        p.oq16ang = p.q16ang = fix16_from_int(s.ang);
+
+        updatesector(s.x, s.y, &p.cursectnum);
+
+        pindex++;
+
+        i = nexti;
+    }
+}
+
+static void G_ResetAllPlayers(void)
 {
     uint8_t aimmode[MAXPLAYERS], autoaim[MAXPLAYERS], wswitch[MAXPLAYERS];
     DukeStatus_t tsbar[MAXPLAYERS];
@@ -1466,12 +1599,16 @@ static void resetpspritevars(int gameMode)
         }
     }
 
-    P_ResetStatus(0);
+    P_ResetPlayer(0);
 
     for (int TRAVERSE_CONNECT(i))
     {
-        if (i)
-            Bmemcpy(g_player[i].ps, g_player[0].ps, sizeof(DukePlayer_t));
+        auto &plr = g_player[i];
+
+        Bmemset(plr.frags, 0, sizeof(plr.frags));
+
+        if (i != 0)
+            Bmemcpy(plr.ps, g_player[0].ps, sizeof(DukePlayer_t));
     }
 
     if (ud.recstat != 2)
@@ -1497,111 +1634,25 @@ static void resetpspritevars(int gameMode)
         }
     }
 
-    g_playerSpawnCnt = 0;
-//    circ = 2048/ud.multimode;
-
-    for (int pindex = 0, pal = 9, nexti, SPRITES_OF_STAT_SAFE(STAT_PLAYER, i, nexti))
-    {
-        if (g_playerSpawnCnt == MAXPLAYERS)
-            G_GameExit("\nToo many player sprites (max 16.)");
-
-        auto &s = sprite[i];
-        auto &spawn = g_playerSpawnPoints[g_playerSpawnCnt];
-
-        spawn.pos  = *(vec3_t *)&s.x;
-        spawn.ang  = s.ang;
-        spawn.sect = s.sectnum;
-
-        g_playerSpawnCnt++;
-
-        if (pindex >= MAXPLAYERS)
-        {
-            A_DeleteSprite(i);
-            i = nexti;
-            continue;
-        }
-
-        s.clipdist = 64;
-        s.owner    = i;
-        s.shade    = 0;
-        s.xoffset  = 0;
-        s.xrepeat  = 42;
-        s.yrepeat  = 36;
-
-        s.cstat = (pindex < (!g_fakeMultiMode ? numplayers : ud.multimode)) ?
-                    CSTAT_SPRITE_BLOCK+CSTAT_SPRITE_BLOCK_HITSCAN :
-                    CSTAT_SPRITE_INVISIBLE;
-
-        auto &plr = g_player[pindex];
-        auto &p   = *plr.ps;
-
-        if ((gameMode&MODE_EOL) != MODE_EOL || p.last_extra == 0)
-        {
-            p.runspeed   = g_playerFriction;
-            p.last_extra = p.max_player_health;
-            s.extra      = p.max_player_health;
-        }
-        else s.extra = p.last_extra;
-
-        s.yvel = pindex;
-
-        if (!plr.pcolor && (g_netServer || ud.multimode > 1) && !(g_gametypeFlags[ud.coop] & GAMETYPE_TDM))
-        {
-            if (s.pal == 0)
-            {
-                for (int TRAVERSE_CONNECT(k))
-                {
-                    if (pal == g_player[k].ps->palookup)
-                    {
-                        if (++pal > 16)
-                            pal = 9;
-                        k = 0;
-                    }
-                }
-
-                plr.pcolor = s.pal = p.palookup = pal++;
-
-                if (pal > 16)
-                    pal = 9;
-            }
-            else plr.pcolor = p.palookup = s.pal;
-        }
-        else
-        {
-            int k = plr.pcolor;
-
-            if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
-            {
-                k = G_GetTeamPalette(plr.pteam);
-                p.team = plr.pteam;
-            }
-
-            s.pal = p.palookup = k;
-        }
-
-        p.frag_ps = pindex;
-
-        actor[i].owner = p.i = i;
-        actor[i].bpos = p.opos = p.pos = *(vec3_t *)&s.x;
-        p.bobpos                       = *(vec2_t *)&s.x;
-
-        p.oq16ang = p.q16ang = fix16_from_int(s.ang);
-
-        updatesector(s.x, s.y, &p.cursectnum);
-
-        pindex++;
-
-        i = nexti;
-    }
-}
-
-static inline void clearfrags(void)
-{
+    // take away the pistol if the player spawns on any of these textures
     for (int TRAVERSE_CONNECT(i))
     {
-        auto &plr = g_player[i];
-        plr.ps->frag = plr.ps->fraggedself = 0;
-        Bmemset(plr.frags, 0, sizeof(plr.frags));
+        auto &p = *g_player[i].ps;
+        switch (DYNAMICTILEMAP(sector[sprite[p.i].sectnum].floorpicnum))
+        {
+            case HURTRAIL__STATIC:
+            case FLOORSLIME__STATIC:
+            case FLOORPLASMA__STATIC:
+                P_ResetWeapons(i);
+                P_ResetInventory(i);
+
+                p.ammo_amount[PISTOL_WEAPON] = 0;
+                p.gotweapon &= ~(1 << PISTOL_WEAPON);
+                p.curr_weapon  = KNEE_WEAPON;
+                p.kickback_pic = 0;
+
+                break;
+        }
     }
 }
 
@@ -1771,7 +1822,7 @@ int G_EnterLevel(int gameMode)
 
     if (Menu_HaveUserMap())
     {
-        Bcorrectfilename(boardfilename,0);
+        Bcorrectfilename(boardfilename, 0);
 
         int levelNum = G_FindLevelByFile(boardfilename);
 
@@ -1846,14 +1897,14 @@ int G_EnterLevel(int gameMode)
     Bstrcpy(tempbuf,apptitle);
     wm_setapptitle(tempbuf);
 
-    auto   &p = *g_player[0].ps;
+    auto   &p0 = *g_player[0].ps;
     int16_t playerAngle;
 
     char levelName[BMAX_PATH];
 
     if (!VOLUMEONE && Menu_HaveUserMap())
     {
-        if (engineLoadBoard(boardfilename, 0, &p.pos, &playerAngle, &p.cursectnum) < 0)
+        if (engineLoadBoard(boardfilename, 0, &p0.pos, &playerAngle, &p0.cursectnum) < 0)
         {
             OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", boardfilename);
             return 1;
@@ -1862,7 +1913,7 @@ int G_EnterLevel(int gameMode)
         G_LoadMapHack(levelName, boardfilename);
         G_SetupFilenameBasedMusic(levelName, boardfilename, ud.m_level_number);
     }
-    else if (engineLoadBoard(m.filename, VOLUMEONE, &p.pos, &playerAngle, &p.cursectnum) < 0)
+    else if (engineLoadBoard(m.filename, VOLUMEONE, &p0.pos, &playerAngle, &p0.cursectnum) < 0)
     {
         OSD_Printf(OSD_ERROR "Map \"%s\" not found or invalid map version!\n", m.filename);
         return 1;
@@ -1872,18 +1923,17 @@ int G_EnterLevel(int gameMode)
         G_LoadMapHack(levelName, m.filename);
     }
 
-    p.q16ang = fix16_from_int(playerAngle);
+    p0.q16ang = fix16_from_int(playerAngle);
 
     g_precacheCount = 0;
     Bmemset(gotpic, 0, sizeof(gotpic));
     Bmemset(precachehightile, 0, sizeof(precachehightile));
 
-    //clearbufbyte(Actor,sizeof(Actor),0l); // JBF 20040531: yes? no?
-
     prelevel(gameMode);
 
     G_AlignWarpElevators();
-    resetpspritevars(gameMode);
+    G_ResetAllPlayers();
+    G_CollectSpawnPoints(gameMode);
 
     ud.playerbest = CONFIG_GetMapBestTime(Menu_HaveUserMap() ? boardfilename : m.filename, g_loadedMapHack.md4);
 
@@ -1923,29 +1973,6 @@ int G_EnterLevel(int gameMode)
         P_DoQuote(QUOTE_F1HELP,g_player[myconnectindex].ps);
 #endif
 
-    // take away the pistol if the player spawns on any of these textures
-    for (int TRAVERSE_CONNECT(i))
-    {
-        auto &p = *g_player[i].ps;
-        switch (DYNAMICTILEMAP(sector[sprite[p.i].sectnum].floorpicnum))
-        {
-            case HURTRAIL__STATIC:
-            case FLOORSLIME__STATIC:
-            case FLOORPLASMA__STATIC:
-                P_ResetWeapons(i);
-                P_ResetInventory(i);
-
-                p.ammo_amount[PISTOL_WEAPON] = 0;
-                p.gotweapon &= ~(1 << PISTOL_WEAPON);
-                p.curr_weapon  = KNEE_WEAPON;
-                p.kickback_pic = 0;
-
-                break;
-        }
-    }
-
-    //PREMAP.C - replace near the my's at the end of the file
-
     Net_NotifyNewGame();
     Net_ResetPrediction();
 
@@ -1964,15 +1991,7 @@ int G_EnterLevel(int gameMode)
 
     for (int i=g_interpolationCnt-1; i>=0; i--) bakipos[i] = *curipos[i];
 
-    g_player[myconnectindex].ps->over_shoulder_on = 0;
-
-    clearfrags();
-
     G_ResetTimers(0);  // Here we go
-
-    //Bsprintf(g_szBuf,"G_EnterLevel L=%d V=%d",ud.level_number, ud.volume_number);
-    //AddLog(g_szBuf);
-    // variables are set by pointer...
 
     Bmemcpy(currentboardfilename, boardfilename, BMAX_PATH);
 
@@ -1983,14 +2002,9 @@ int G_EnterLevel(int gameMode)
     }
 
     if (G_HaveUserMap())
-    {
         OSD_Printf(OSDTEXT_YELLOW "User Map: %s\n", boardfilename);
-    }
     else
-    {
-        OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number+1, ud.level_number+1,
-                   m.name);
-    }
+        OSD_Printf(OSDTEXT_YELLOW "E%dL%d: %s\n", ud.volume_number + 1, ud.level_number + 1, m.name);
 
     g_restorePalette = -1;
 

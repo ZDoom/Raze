@@ -1119,11 +1119,11 @@ static int32_t VM_ResetPlayer(int const playerNum, int32_t vmFlags, int32_t cons
         }
 
         if (g_fakeMultiMode)
-            P_ResetPlayer(playerNum);
+            P_ResetMultiPlayer(playerNum);
 #ifndef NETCODE_DISABLE
         if (g_netServer)
         {
-            P_ResetPlayer(playerNum);
+            P_ResetMultiPlayer(playerNum);
             Net_SpawnPlayer(playerNum);
         }
 #endif
