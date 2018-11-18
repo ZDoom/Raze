@@ -278,7 +278,7 @@ void OSD_Puts(const char *str);
 void OSD_DispatchQueued(void);
 
 // executes a string
-int32_t OSD_Dispatch(const char *cmd);
+void OSD_Dispatch(const char *cmd);
 
 // registers a function
 //   name = name of the function

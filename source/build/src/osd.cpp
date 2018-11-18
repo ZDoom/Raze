@@ -63,7 +63,7 @@ static int32_t (*_getcolumnwidth)(int32_t) = _internal_getcolumnwidth;
 static int32_t (*_getrowheight)(int32_t) = _internal_getrowheight;
 
 static hashtable_t h_cvars      = { OSDMAXSYMBOLS<<1, NULL };
-int32_t m32_osd_tryscript=0;  // whether to try executing m32script on unkown command in the osd
+bool m32_osd_tryscript = false;  // whether to try executing m32script on unkown command in the osd
 
 void OSD_RegisterCvar(osdcvardata_t * const cvar, int32_t (*func)(osdfuncparm_t const * const))
 {
@@ -1711,8 +1711,7 @@ void OSD_DispatchQueued(void)
 //
 // OSD_Dispatch() -- Executes a command string
 //
-
-static char *strtoken(char *s, char **ptrptr, int32_t *restart)
+static char *osd_strtoken(char *s, char **ptrptr, int *restart)
 {
     *restart = 0;
     if (!ptrptr) return NULL;
@@ -1806,69 +1805,67 @@ static char *strtoken(char *s, char **ptrptr, int32_t *restart)
 }
 
 #define MAXPARMS 256
-int32_t OSD_Dispatch(const char *cmd)
+void OSD_Dispatch(const char *cmd)
 {
     char *workbuf, *wtp, *state;
-    char const *pszParam;
+    char const *token;
     int32_t restart = 0;
 
     workbuf = state = Xstrdup(cmd);
 
     do
     {
-        if ((pszParam = strtoken(state, &wtp, &restart)) == NULL)
+        if ((token = osd_strtoken(state, &wtp, &restart)) == NULL)
         {
             state = wtp;
             continue;
         }
 
         // cheap hack for comments in cfgs
-        if (pszParam[0] == '/' && pszParam[1] == '/')
+        if (token[0] == '/' && token[1] == '/')
         {
             Bfree(workbuf);
-            return -1;
+            return;
         }
 
-        osdsymbol_t const * const pSymbol = osd_findexactsymbol(pszParam);
+        auto const *symbol = osd_findexactsymbol(token);
 
-        if (pSymbol == NULL)
+        if (symbol == NULL)
         {
             static char const s_gamefunc_[]    = "gamefunc_";
-            size_t const      strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_) - 1;
-            size_t const      strlen_token     = Bstrlen(pszParam);
+            size_t constexpr  strlen_gamefunc_ = ARRAY_SIZE(s_gamefunc_) - 1;
+            size_t const      strlen_token     = Bstrlen(token);
 
-            if ((strlen_gamefunc_ >= strlen_token || Bstrncmp(pszParam, s_gamefunc_, strlen_gamefunc_)) && !m32_osd_tryscript)
-                OSD_Printf("%s\"%s\" is not a valid command or cvar\n", osd->draw.highlight, pszParam);
+            if ((strlen_gamefunc_ >= strlen_token || Bstrncmp(token, s_gamefunc_, strlen_gamefunc_)) && !m32_osd_tryscript)
+                OSD_Printf("%s\"%s\" is not a valid command or cvar\n", osd->draw.highlight, token);
             else if (m32_osd_tryscript)
                 M32RunScript(cmd);
 
             Bfree(workbuf);
-            return -1;
+            return;
         }
 
-        char const * const pszName  = pszParam;
-        char const *parms[MAXPARMS];
-
-        Bmemset(parms, 0, sizeof(parms));
-
-        int32_t numparms = 0;
+        auto *name = token;
+        char const *parms[MAXPARMS] = {};
+        int numparms = 0;
 
         while (wtp && !restart)
         {
-            pszParam = strtoken(NULL, &wtp, &restart);
-            if (pszParam && numparms < MAXPARMS) parms[numparms++] = pszParam;
+            token = osd_strtoken(NULL, &wtp, &restart);
+            if (token && numparms < MAXPARMS) parms[numparms++] = token;
         }
 
-        osdfuncparm_t const ofp ={ numparms, pszName, (const char **) parms, cmd };
+        osdfuncparm_t const ofp = { numparms, name, parms, cmd };
 
-        if (pSymbol->func == OSD_ALIAS)
-            OSD_Dispatch(pSymbol->help);
-        else if (pSymbol->func != OSD_UNALIASED)
+        if (symbol->func == OSD_ALIAS)
+            OSD_Dispatch(symbol->help);
+        else if (symbol->func != OSD_UNALIASED)
         {
-            switch (pSymbol->func(&ofp))
+            switch (symbol->func(&ofp))
             {
+                default:
                 case OSDCMD_OK: break;
-                case OSDCMD_SHOWHELP: OSD_Printf("%s\n", pSymbol->help); break;
+                case OSDCMD_SHOWHELP: OSD_Printf("%s\n", symbol->help); break;
             }
         }
 
@@ -1877,8 +1874,6 @@ int32_t OSD_Dispatch(const char *cmd)
     while (wtp && restart);
 
     Bfree(workbuf);
-
-    return 0;
 }
 
 

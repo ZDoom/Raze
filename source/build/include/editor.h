@@ -114,7 +114,7 @@ extern int32_t gridlock;
 extern int32_t g_maxCacheSize;
 
 extern int32_t g_lazy_tileselector;
-extern int32_t m32_osd_tryscript;
+extern bool m32_osd_tryscript;
 extern int32_t showheightindicators;
 extern int32_t showambiencesounds;
 
