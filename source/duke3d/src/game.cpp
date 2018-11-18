@@ -182,8 +182,10 @@ enum gametokens
 
 void G_HandleSpecialKeys(void)
 {
+    auto &myplayer = *g_player[myconnectindex].ps;
+
     // we need CONTROL_GetInput in order to pick up joystick button presses
-    if (CONTROL_Started && !(g_player[myconnectindex].ps->gm & MODE_GAME))
+    if (CONTROL_Started && !(myplayer.gm & MODE_GAME))
     {
         ControlInfo noshareinfo;
         CONTROL_GetInput(&noshareinfo);
@@ -216,11 +218,11 @@ void G_HandleSpecialKeys(void)
 #endif
         ,
         0);
-        P_DoQuote(QUOTE_SCREEN_SAVED, g_player[myconnectindex].ps);
+        P_DoQuote(QUOTE_SCREEN_SAVED, &myplayer);
     }
 
     // only dispatch commands here when not in a game
-    if (!(g_player[myconnectindex].ps->gm & MODE_GAME))
+    if ((myplayer.gm & MODE_GAME) != MODE_GAME)
         OSD_DispatchQueued();
 
     if (g_quickExit == 0 && KB_KeyPressed(sc_LeftControl) && KB_KeyPressed(sc_LeftAlt) && (KB_KeyPressed(sc_Delete)||KB_KeyPressed(sc_End)))
@@ -285,7 +287,7 @@ void G_GameExit(const char *msg)
     if (!g_quickExit)
     {
         if (VM_OnEventWithReturn(EVENT_EXITGAMESCREEN, g_player[myconnectindex].ps->i, myconnectindex, 0) == 0 &&
-           g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm&MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
+           g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm & MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
             videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail);
@@ -4483,6 +4485,7 @@ void G_PrintCurrentMusic(void)
 void G_HandleLocalKeys(void)
 {
 //    CONTROL_ProcessBinds();
+    auto &myplayer = *g_player[myconnectindex].ps;
 
     if (ud.recstat == 2)
     {
@@ -4501,7 +4504,7 @@ void G_HandleLocalKeys(void)
         }
     }
 
-    if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (g_player[myconnectindex].ps->gm & MODE_TYPE) == 0)
+    if (!ALT_IS_PRESSED && ud.overhead_on == 0 && (myplayer.gm & MODE_TYPE) == 0)
     {
         if (BUTTON(gamefunc_Enlarge_Screen))
         {
@@ -4557,7 +4560,7 @@ void G_HandleLocalKeys(void)
         }
     }
 
-    if (g_player[myconnectindex].ps->cheat_phase == 1 || (g_player[myconnectindex].ps->gm&(MODE_MENU|MODE_TYPE)))
+    if (myplayer.cheat_phase == 1 || (myplayer.gm & (MODE_MENU|MODE_TYPE)))
         return;
 
     if (BUTTON(gamefunc_See_Coop_View) && (GTFLAGS(GAMETYPE_COOPVIEW) || ud.recstat == 2))
@@ -4572,14 +4575,14 @@ void G_HandleLocalKeys(void)
     {
         CONTROL_ClearButton(gamefunc_Show_Opponents_Weapon);
         ud.config.ShowWeapons = ud.showweapons = 1-ud.showweapons;
-        P_DoQuote(QUOTE_WEAPON_MODE_OFF-ud.showweapons,g_player[screenpeek].ps);
+        P_DoQuote(QUOTE_WEAPON_MODE_OFF-ud.showweapons, &myplayer);
     }
 
     if (BUTTON(gamefunc_Toggle_Crosshair))
     {
         CONTROL_ClearButton(gamefunc_Toggle_Crosshair);
         ud.crosshair = !ud.crosshair;
-        P_DoQuote(QUOTE_CROSSHAIR_OFF-ud.crosshair,g_player[screenpeek].ps);
+        P_DoQuote(QUOTE_CROSSHAIR_OFF-ud.crosshair, &myplayer);
     }
 
     if (ud.overhead_on && BUTTON(gamefunc_Map_Follow_Mode))
@@ -4592,7 +4595,7 @@ void G_HandleLocalKeys(void)
             ud.foly = g_player[screenpeek].ps->opos.y;
             ud.fola = fix16_to_int(g_player[screenpeek].ps->oq16ang);
         }
-        P_DoQuote(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode,g_player[myconnectindex].ps);
+        P_DoQuote(QUOTE_MAP_FOLLOW_OFF+ud.scrollmode, &myplayer);
     }
 
     if (KB_UnBoundKeyPressed(sc_ScrollLock))
@@ -4680,7 +4683,7 @@ void G_HandleLocalKeys(void)
             g_demo_cnt = g_demo_goalCnt = ud.reccnt = ud.pause_on = ud.recstat = ud.m_recstat = 0;
             // XXX: probably redundant; this stuff needs an API anyway:
             kclose(g_demo_recFilePtr); g_demo_recFilePtr = -1;
-            g_player[myconnectindex].ps->gm = MODE_GAME;
+            myplayer.gm = MODE_GAME;
             ready2send=1;  // TODO: research this weird variable
             screenpeek=myconnectindex;
 //            g_demo_paused=0;
@@ -4705,7 +4708,7 @@ void G_HandleLocalKeys(void)
         {
             if (SHIFTS_IS_PRESSED)
             {
-                if (ridiculeNum == 5 && g_player[myconnectindex].ps->fta > 0 && g_player[myconnectindex].ps->ftq == QUOTE_MUSIC)
+                if (ridiculeNum == 5 && myplayer.fta > 0 && myplayer.ftq == QUOTE_MUSIC)
                 {
                     const unsigned int maxi = VOLUMEALL ? MUS_FIRST_SPECIAL : 6;
 
@@ -4776,7 +4779,7 @@ void G_HandleLocalKeys(void)
         {
             KB_FlushKeyboardQueue();
             CONTROL_ClearButton(gamefunc_SendMessage);
-            g_player[myconnectindex].ps->gm |= MODE_TYPE;
+            myplayer.gm |= MODE_TYPE;
             typebuf[0] = 0;
         }
 
@@ -4803,9 +4806,9 @@ void G_HandleLocalKeys(void)
                 KB_ClearKeyDown(sc_F2);
 
 FAKE_F2:
-                if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
+                if (sprite[myplayer.i].extra <= 0)
                 {
-                    P_DoQuote(QUOTE_SAVE_DEAD,g_player[myconnectindex].ps);
+                    P_DoQuote(QUOTE_SAVE_DEAD, &myplayer);
                     return;
                 }
 
@@ -4872,7 +4875,7 @@ FAKE_F3:
             P_DoQuote(QUOTE_MUSIC, g_player[myconnectindex].ps);
         }
 
-        if ((BUTTON(gamefunc_Quick_Save) || g_doQuickSave == 1) && (g_player[myconnectindex].ps->gm&MODE_GAME))
+        if ((BUTTON(gamefunc_Quick_Save) || g_doQuickSave == 1) && (myplayer.gm & MODE_GAME))
         {
             CONTROL_ClearButton(gamefunc_Quick_Save);
 
@@ -4883,9 +4886,9 @@ FAKE_F3:
 
             KB_FlushKeyboardQueue();
 
-            if (sprite[g_player[myconnectindex].ps->i].extra <= 0)
+            if (sprite[myplayer.i].extra <= 0)
             {
-                P_DoQuote(QUOTE_SAVE_DEAD,g_player[myconnectindex].ps);
+                P_DoQuote(QUOTE_SAVE_DEAD, &myplayer);
                 return;
             }
 
@@ -4913,12 +4916,12 @@ FAKE_F3:
         {
             KB_ClearKeyDown(sc_F7);
 
-            g_player[myconnectindex].ps->over_shoulder_on = !g_player[myconnectindex].ps->over_shoulder_on;
+            myplayer.over_shoulder_on = !myplayer.over_shoulder_on;
 
             CAMERADIST  = 0;
             CAMERACLOCK = totalclock;
 
-            P_DoQuote(QUOTE_VIEW_MODE_OFF + g_player[myconnectindex].ps->over_shoulder_on, g_player[myconnectindex].ps);
+            P_DoQuote(QUOTE_VIEW_MODE_OFF + myplayer.over_shoulder_on, &myplayer);
         }
 
         if (KB_UnBoundKeyPressed(sc_F8))
@@ -4927,11 +4930,11 @@ FAKE_F3:
 
             int const fta = !ud.fta_on;
             ud.fta_on     = 1;
-            P_DoQuote(fta ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, g_player[myconnectindex].ps);
+            P_DoQuote(fta ? QUOTE_MESSAGES_ON : QUOTE_MESSAGES_OFF, &myplayer);
             ud.fta_on     = fta;
         }
 
-        if ((BUTTON(gamefunc_Quick_Load) || g_doQuickSave == 2) && (g_player[myconnectindex].ps->gm&MODE_GAME))
+        if ((BUTTON(gamefunc_Quick_Load) || g_doQuickSave == 2) && (myplayer.gm & MODE_GAME))
         {
             CONTROL_ClearButton(gamefunc_Quick_Load);
 
@@ -4985,16 +4988,16 @@ FAKE_F3:
             nonsharedtimer += timerOffset;
 
             if (BUTTON(gamefunc_Enlarge_Screen))
-                g_player[myconnectindex].ps->zoom += mulscale6(timerOffset, max<int>(g_player[myconnectindex].ps->zoom, 256));
+                myplayer.zoom += mulscale6(timerOffset, max<int>(myplayer.zoom, 256));
 
             if (BUTTON(gamefunc_Shrink_Screen))
-                g_player[myconnectindex].ps->zoom -= mulscale6(timerOffset, max<int>(g_player[myconnectindex].ps->zoom, 256));
+                myplayer.zoom -= mulscale6(timerOffset, max<int>(myplayer.zoom, 256));
 
-            g_player[myconnectindex].ps->zoom = clamp(g_player[myconnectindex].ps->zoom, 48, 2048);
+            myplayer.zoom = clamp(myplayer.zoom, 48, 2048);
         }
     }
 
-    if (I_EscapeTrigger() && ud.overhead_on && g_player[myconnectindex].ps->newowner == -1)
+    if (I_EscapeTrigger() && ud.overhead_on && myplayer.newowner == -1)
     {
         I_EscapeTriggerClear();
         ud.last_overhead = ud.overhead_on;
@@ -5007,7 +5010,7 @@ FAKE_F3:
     {
         CONTROL_ClearButton(gamefunc_AutoRun);
         ud.auto_run = 1-ud.auto_run;
-        P_DoQuote(QUOTE_RUN_MODE_OFF+ud.auto_run,g_player[myconnectindex].ps);
+        P_DoQuote(QUOTE_RUN_MODE_OFF + ud.auto_run, &myplayer);
     }
 
     if (BUTTON(gamefunc_Map))
@@ -6098,7 +6101,7 @@ void app_crashhandler(void)
 // See FILENAME_CASE_CHECK in cache1d.c
 static int32_t check_filename_casing(void)
 {
-    return !(g_player[myconnectindex].ps->gm&MODE_GAME);
+    return !(g_player[myconnectindex].ps->gm & MODE_GAME);
 }
 #endif
 
@@ -6282,7 +6285,7 @@ int app_main(int argc, char const * const * argv)
                                  "Browse to http://www.eduke32.com now?"))
                     {
                         SHELLEXECUTEINFOA sinfo;
-                        char const *      p = "http://www.eduke32.com";
+                        char const *p = "http://www.eduke32.com";
 
                         Bmemset(&sinfo, 0, sizeof(sinfo));
                         sinfo.cbSize  = sizeof(sinfo);
@@ -6378,11 +6381,11 @@ int app_main(int argc, char const * const * argv)
     }
     else
     {
-        for (bssize_t i=0; i<ud.multimode-1; i++)
+        for (int i=0; i<ud.multimode-1; i++)
             connectpoint2[i] = i+1;
         connectpoint2[ud.multimode-1] = -1;
 
-        for (bssize_t i=1; i<ud.multimode; i++)
+        for (int i=1; i<ud.multimode; i++)
             g_player[i].playerquitflag = 1;
     }
 
@@ -6390,14 +6393,16 @@ int app_main(int argc, char const * const * argv)
 
     // NOTE: Allocating the DukePlayer_t structs has to be before compiling scripts,
     // because in Lunatic, the {pipe,trip}bomb* members are initialized.
-    for (bssize_t i=0; i<MAXPLAYERS; i++)
+    for (int i=0; i<MAXPLAYERS; i++)
         G_MaybeAllocPlayer(i);
 
     G_Startup(); // a bunch of stuff including compiling cons
 
     g_player[0].playerquitflag = 1;
 
-    g_player[myconnectindex].ps->palette = BASEPAL;
+    auto &myplayer = *g_player[myconnectindex].ps;
+
+    myplayer.palette = BASEPAL;
 
     for (int i=1, j=numplayers; j<ud.multimode; j++)
     {
@@ -6502,7 +6507,7 @@ int app_main(int argc, char const * const * argv)
 #endif
 
     char *const setupFileName = Xstrdup(g_setupFileName);
-    char *const p             = strtok(setupFileName, ".");
+    char *const p = strtok(setupFileName, ".");
 
     if (!p || !Bstrcmp(g_setupFileName, SETUPFILENAME))
         Bsprintf(tempbuf, "settings.cfg");
@@ -6554,7 +6559,7 @@ int app_main(int argc, char const * const * argv)
             ud.config.ScreenBPP    = bpp[bppIdx];
         }
 
-        videoSetPalette(ud.brightness>>2,g_player[myconnectindex].ps->palette,0);
+        videoSetPalette(ud.brightness>>2,myplayer.palette,0);
 
         S_MusicStartup();
         S_SoundStartup();
@@ -6580,7 +6585,7 @@ int app_main(int argc, char const * const * argv)
     if (/* havesavename */ && (!g_netServer && ud.multimode < 2))
     {
         clearview(0L);
-        //g_player[myconnectindex].ps->palette = palette;
+        //psmy.palette = palette;
         //G_FadePalette(0,0,0,0);
         P_SetGamePalette(g_player[myconnectindex].ps, BASEPAL, 0);    // JBF 20040308
         rotatesprite_fs(160<<16,100<<16,65536L,0,LOADSCREEN,0,0,2+8+64+BGSTRETCH);
@@ -6602,7 +6607,7 @@ MAIN_LOOP_RESTART:
     ototalclock = 0;
     lockclock = 0;
 
-    g_player[myconnectindex].ps->fta = 0;
+    myplayer.fta = 0;
     for (int & q : user_quote_time)
         q = 0;
 
@@ -6624,14 +6629,11 @@ MAIN_LOOP_RESTART:
     {
         if ((g_netServer || ud.multimode > 1) && boardfilename[0] != 0)
         {
-            ud.m_level_number = 7;
-            ud.m_volume_number = 0;
+            ud.m_level_number     = 7;
+            ud.m_volume_number    = 0;
+            ud.m_respawn_monsters = !!(ud.m_player_skill == 4);
 
-            if (ud.m_player_skill == 4)
-                ud.m_respawn_monsters = 1;
-            else ud.m_respawn_monsters = 0;
-
-            for (bssize_t TRAVERSE_CONNECT(i))
+            for (int TRAVERSE_CONNECT(i))
             {
                 P_ResetWeapons(i);
                 P_ResetInventory(i);
@@ -6664,11 +6666,11 @@ MAIN_LOOP_RESTART:
     g_player[myconnectindex].pteam = ud.team;
 
     if (g_gametypeFlags[ud.coop] & GAMETYPE_TDM)
-        g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = G_GetTeamPalette(g_player[myconnectindex].pteam);
+        myplayer.palookup = g_player[myconnectindex].pcolor = G_GetTeamPalette(g_player[myconnectindex].pteam);
     else
     {
-        if (ud.color) g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor = ud.color;
-        else g_player[myconnectindex].ps->palookup = g_player[myconnectindex].pcolor;
+        if (ud.color) myplayer.palookup = g_player[myconnectindex].pcolor = ud.color;
+        else myplayer.palookup = g_player[myconnectindex].pcolor;
     }
 
     ud.warp_on = 0;
@@ -6685,7 +6687,7 @@ MAIN_LOOP_RESTART:
         Net_GetPackets();
 
         // only allow binds to function if the player is actually in a game (not in a menu, typing, et cetera) or demo
-        CONTROL_BindsEnabled = !!(g_player[myconnectindex].ps->gm & (MODE_GAME|MODE_DEMO));
+        CONTROL_BindsEnabled = !!(myplayer.gm & (MODE_GAME|MODE_DEMO));
 
 #ifndef _WIN32
         // stdin -> OSD input for dedicated server
@@ -6723,7 +6725,7 @@ MAIN_LOOP_RESTART:
 
         char gameUpdate = false;
         uint32_t gameUpdateStartTime = timerGetTicks();
-        if (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME)
+        if (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU|MODE_DEMO)) == 0) && totalclock >= ototalclock+TICSPERFRAME)
         {
             if (g_networkMode != NET_DEDICATED_SERVER)
                 P_GetInput(myconnectindex);
@@ -6742,8 +6744,8 @@ MAIN_LOOP_RESTART:
 
                 int const moveClock = totalclock;
 
-                if (((ud.show_help == 0 && (g_player[myconnectindex].ps->gm&MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
-                        (g_player[myconnectindex].ps->gm&MODE_GAME))
+                if (((ud.show_help == 0 && (myplayer.gm & MODE_MENU) != MODE_MENU) || ud.recstat == 2 || (g_netServer || ud.multimode > 1)) &&
+                        (myplayer.gm & MODE_GAME))
                 {
                     G_MoveLoop();
 #ifdef __ANDROID__
@@ -6764,7 +6766,7 @@ MAIN_LOOP_RESTART:
                     break;
                 }
             }
-            while (((g_netClient || g_netServer) || !(g_player[myconnectindex].ps->gm & (MODE_MENU|MODE_DEMO))) && totalclock >= ototalclock+TICSPERFRAME);
+            while (((g_netClient || g_netServer) || (myplayer.gm & (MODE_MENU|MODE_DEMO)) == 0) && totalclock >= ototalclock+TICSPERFRAME);
 
             gameUpdate = true;
             g_gameUpdateTime = timerGetTicks()-gameUpdateStartTime;
@@ -6775,7 +6777,7 @@ MAIN_LOOP_RESTART:
 
         G_DoCheats();
 
-        if (g_player[myconnectindex].ps->gm & (MODE_EOL|MODE_RESTART))
+        if (myplayer.gm & (MODE_EOL|MODE_RESTART))
         {
             switch (G_EndOfLevel())
             {
@@ -6791,7 +6793,7 @@ MAIN_LOOP_RESTART:
         else if (G_FPSLimit() || g_saveRequested)
         {
             int const smoothRatio
-            = ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && !(g_player[myconnectindex].ps->gm & MODE_MENU))
+            = ((ud.show_help == 0 && (!g_netServer && ud.multimode < 2) && ((myplayer.gm & MODE_MENU) == 0))
                || (g_netServer || ud.multimode > 1)
                || ud.recstat == 2)
               ? calc_smoothratio(totalclock, ototalclock)
@@ -6826,7 +6828,7 @@ MAIN_LOOP_RESTART:
             g_saveRequested = false;
         }
 
-        if (g_player[myconnectindex].ps->gm&MODE_DEMO)
+        if (myplayer.gm & MODE_DEMO)
             goto MAIN_LOOP_RESTART;
     }
     while (1);
@@ -6884,7 +6886,7 @@ int G_DoMoveThings(void)
             if (g_player[i].ps->holoduke_on != -1)
                 sprite[g_player[i].ps->holoduke_on].cstat ^= 256;
 
-        if ((hitData.sprite >= 0) && !(g_player[myconnectindex].ps->gm & MODE_MENU) &&
+        if ((hitData.sprite >= 0) && (g_player[myconnectindex].ps->gm & MODE_MENU) == 0 &&
                 sprite[hitData.sprite].picnum == APLAYER)
         {
             int const playerNum = P_Get(hitData.sprite);
