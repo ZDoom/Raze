@@ -3420,7 +3420,7 @@ static void grouscan(int32_t dax1, int32_t dax2, int32_t sectnum, char dastat)
     i = (dax1-halfxdimen)*xdimenrecip;
     globalx2 = mulscale16(cosglobalang<<4,viewingrangerecip) - mulscale27(singlobalang,i);
     globaly2 = mulscale16(singlobalang<<4,viewingrangerecip) + mulscale27(cosglobalang,i);
-    globalzd = (xdimscale<<9);
+    globalzd = decltype(globalzd)(xdimscale)<<9;
     globalzx = -dmulscale17(wx,globaly2,-wy,globalx2) + mulscale10(1-globalhoriz,globalzd);
     globalz = -dmulscale25(wx,globaly,-wy,globalx);
 
@@ -3613,7 +3613,7 @@ static void parascan(char dastat, int32_t bunch)
     {
         globalshiftval = 32-globalshiftval;
         globalyscale = (8<<(globalshiftval-19));
-        globalzd = (((tsizy>>1)+dapyoffs)<<globalshiftval) + ((uint32_t)globalypanning<<24);
+        globalzd = (decltype(globalzd)((tsizy >> 1) + dapyoffs) << globalshiftval) + (decltype(globalzd)(globalypanning) << 24);
     }
     globalyscale = divscale16(globalyscale,daptileyscale);
 
@@ -3787,7 +3787,8 @@ static void setup_globals_wall2(const uwalltype *wal, uint8_t secvisibility, int
         globalzd = (((int64_t)(globalposz-topzref)*globalyscale)<<8);
     else  // bottom-aligned
         globalzd = (((int64_t)(globalposz-botzref)*globalyscale)<<8);
-    globalzd = (uint32_t)globalzd + (globalypanning<<24);
+
+    globalzd += decltype(globalzd)(globalypanning) << 24;
 
     if (globalorientation&256)  // y-flipped
         globalyscale = -globalyscale, globalzd = -(inthi_t)globalzd;
@@ -5078,11 +5079,11 @@ draw_as_face_sprite:
         int32_t hinc[4] = { idiv ? tabledivide32(hplc2-hplc, idiv) : 0 };
 
 #ifdef HIGH_PRECISION_SPRITE
-        const float cc = ((1<<19)*fxdimen*(float)yxaspect) * (1.f/320.f);
-        const float loopcc = ((cstat&8) ? -1 : 1)*((float)(1<<30)*(1<<24))
-            / (yspan*tspr->yrepeat);
-        float hplcf = cc/sy1;
-        float hincf[4] = {idiv ? (cc/sy2 - hplcf)/idiv : 0};
+        float const cc     = ((1<<19) * fxdimen * (float)yxaspect) * (1.f/320.f);
+        float const loopcc = ((cstat&8) ? -1.f : 1.f) * (float(1<<30) * float(1<<24)) / float(yspan * tspr->yrepeat);
+
+        float hplcf    = cc / sy1;
+        float hincf[4] = { idiv ? (cc / sy2 - hplcf) / idiv : 0 };
 
 #ifdef CLASSIC_SLICE_BY_4
         hincf[1] = hincf[0] * 2.f;
@@ -5326,7 +5327,7 @@ draw_as_face_sprite:
         //Calculate globals for hline texture mapping function
         globalxpanning = (rxi[z]<<12);
         globalypanning = (rzi[z]<<12);
-        globalzd = (ryi[z]<<12);
+        globalzd = decltype(globalzd)(ryi[z])<<12;
 
         rzi[0] = mulscale16(rzi[0],viewingrange);
         rzi[1] = mulscale16(rzi[1],viewingrange);
