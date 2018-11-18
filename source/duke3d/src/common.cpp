@@ -1120,58 +1120,47 @@ static int32_t S_TryExtensionReplacements(char * const testfn, char const search
 
 int32_t S_OpenAudio(const char *fn, char searchfirst, uint8_t const ismusic)
 {
-    int32_t const origfp = kopen4loadfrommod(fn, searchfirst);
-    char const * const origparent = origfp != -1 ? kfileparent(origfp) : NULL;
-    uint32_t const origparentlength = origparent != NULL ? Bstrlen(origparent) : 0;
+    int32_t const     origfp       = kopen4loadfrommod(fn, searchfirst);
+    char const *const origparent   = origfp != -1 ? kfileparent(origfp) : NULL;
+    uint32_t const    parentlength = origparent != NULL ? Bstrlen(origparent) : 0;
 
-    char * const testfn = (char *)Xmalloc(Bstrlen(fn) + 12 + origparentlength); // "music/" + overestimation of parent minus extension + ".flac" + '\0'
+    auto testfn = (char *)Xmalloc(Bstrlen(fn) + 12 + parentlength); // "music/" + overestimation of parent minus extension + ".flac" + '\0'
 
     // look in ./
     // ex: ./grabbag.mid
-    {
-        Bstrcpy(testfn, fn);
-        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-        if (fp >= 0)
-        {
-            Bfree(testfn);
-            kclose(origfp);
-            return fp;
-        }
-    }
+    Bstrcpy(testfn, fn);
+    int32_t fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+    if (fp >= 0)
+        goto success;
 
     // look in ./music/<file's parent GRP name>/
     // ex: ./music/duke3d/grabbag.mid
     // ex: ./music/nwinter/grabbag.mid
     if (origparent != NULL)
     {
-        char const * const origparentextension = Bstrrchr(origparent, '.');
-        uint32_t namelength = origparentextension != NULL ? (unsigned)(origparentextension - origparent) : origparentlength;
+        char const * const parentextension = Bstrrchr(origparent, '.');
+        uint32_t const namelength = parentextension != NULL ? (unsigned)(parentextension - origparent) : parentlength;
 
         Bsprintf(testfn, "music/%.*s/%s", namelength, origparent, fn);
-        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+        fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
         if (fp >= 0)
-        {
-            Bfree(testfn);
-            kclose(origfp);
-            return fp;
-        }
+            goto success;
     }
 
     // look in ./music/
     // ex: ./music/grabbag.mid
-    {
-        Bsprintf(testfn, "music/%s", fn);
-        int32_t const fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
-        if (fp >= 0)
-        {
-            Bfree(testfn);
-            kclose(origfp);
-            return fp;
-        }
-    }
+    Bsprintf(testfn, "music/%s", fn);
+    fp = S_TryExtensionReplacements(testfn, searchfirst, ismusic);
+    if (fp >= 0)
+        goto success;
 
+    fp = origfp;
+success:
     Bfree(testfn);
-    return origfp;
+    if (fp != origfp)
+        kclose(origfp);
+
+    return fp;
 }
 
 void Duke_CommonCleanup(void)
