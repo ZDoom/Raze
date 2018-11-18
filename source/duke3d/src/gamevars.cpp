@@ -91,7 +91,7 @@ int Gv_Free(void)
 
 // Calls Gv_Free() and in addition frees the labels of all game variables and
 // arrays.
-// Only call this function during initialization or at exit
+// Only call this function at exit
 void Gv_Clear(void)
 {
     Gv_Free();
@@ -102,6 +102,9 @@ void Gv_Clear(void)
 
     for (auto & gameArray : aGameArrays)
         DO_FREE_AND_NULL(gameArray.szLabel);
+
+    for (auto *i : struct_tables)
+        hash_free(i);
 }
 
 int Gv_ReadSave(int32_t kFile)
@@ -1353,8 +1356,6 @@ void Gv_Init(void)
     // already initialized
     if (aGameVars[0].flags)
         return;
-
-    Gv_Clear();
 #else
     static int32_t inited=0;
     if (inited)

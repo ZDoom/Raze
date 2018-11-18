@@ -163,6 +163,17 @@ extern const memberlabel_t TileDataLabels[];
 extern const memberlabel_t TsprLabels[];
 extern const memberlabel_t UserdefsLabels[];
 extern const memberlabel_t WallLabels[];
+
+extern hashtable_t h_actor;
+extern hashtable_t h_input;
+extern hashtable_t h_paldata;
+extern hashtable_t h_player;
+extern hashtable_t h_projectile;
+extern hashtable_t h_sector;
+extern hashtable_t h_tiledata;
+extern hashtable_t h_tsprite;
+extern hashtable_t h_userdef;
+extern hashtable_t h_wall;
 #endif
 
 typedef projectile_t defaultprojectile_t;
@@ -213,7 +224,7 @@ int32_t C_SetDefName(const char *name);
 void C_DefineProjectile(int32_t j, int32_t what, int32_t val);
 void C_SetCfgName(const char *cfgname);
 #else
-void C_ReportError(int32_t iError);
+void C_ReportError(int error);
 void C_Compile(const char *filenam);
 
 extern int32_t g_errorLineNum;

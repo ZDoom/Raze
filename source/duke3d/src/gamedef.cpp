@@ -49,7 +49,7 @@ static intptr_t *g_caseScriptPtr;
 static intptr_t previous_event;
 static int32_t g_numCases = 0, g_checkingCase = 0;
 static int32_t g_checkingSwitch = 0;
-static int32_t g_labelsOnly = 0, g_dynamicTileMapping = 0, g_dynamicSoundMapping = 0;
+static bool g_labelsOnly = 0, g_dynamicTileMapping = 0, g_dynamicSoundMapping = 0;
 static int32_t g_numBraces = 0;
 
 static bool C_ParseCommand(bool loop);
@@ -71,6 +71,7 @@ static char *textptr;
 #endif
 
 int32_t g_errorCnt,g_warningCnt;
+
 
 #if !defined LUNATIC
 static char *C_GetLabelType(int const type)
@@ -102,6 +103,23 @@ static char *C_GetLabelType(int const type)
 
     return Xstrdup(x);
 }
+
+static hashtable_t h_keywords   = { CON_END>>1, NULL };
+static hashtable_t h_iter       = { ITER_END>>1, NULL };
+
+static hashtable_t *const tables[] = {
+    &h_arrays,
+    &h_gamevars,
+    &h_iter,
+    &h_keywords,
+    &h_labels,
+};
+
+static hashtable_t *const tables_free[] = {
+    &h_iter,
+    &h_keywords,
+    &h_labels,
+};
 
 static tokenmap_t const vm_keywords[] =
 {
@@ -609,6 +627,27 @@ static tokenmap_t const vm_keywords[] =
     { "findnearspritez",        CON_FINDNEARSPRITEZVAR },
 };
 
+const tokenmap_t iter_tokens [] =
+{
+    { "allsprites",      ITER_ALLSPRITES },
+    { "allspritesbystat",ITER_ALLSPRITESBYSTAT },
+    { "allspritesbysect",ITER_ALLSPRITESBYSECT },
+    { "allsectors",      ITER_ALLSECTORS },
+    { "allwalls",        ITER_ALLWALLS },
+    { "activelights",    ITER_ACTIVELIGHTS },
+    { "drawnsprites",    ITER_DRAWNSPRITES },
+    { "spritesofsector", ITER_SPRITESOFSECTOR },
+    { "spritesofstatus", ITER_SPRITESOFSTATUS },
+    { "loopofwall",      ITER_LOOPOFWALL },
+    { "wallsofsector",   ITER_WALLSOFSECTOR },
+    { "range",           ITER_RANGE },
+    // vvv alternatives go here vvv
+    { "lights",          ITER_ACTIVELIGHTS },
+    { "sprofsec",        ITER_SPRITESOFSECTOR },
+    { "sprofstat",       ITER_SPRITESOFSTATUS },
+    { "walofsec",        ITER_WALLSOFSECTOR },
+};
+
 char const * VM_GetKeywordForID(int32_t id)
 {
     // could be better but this is only called for diagnostics, ayy lmao
@@ -778,614 +817,6 @@ const char *EventNames[MAXEVENTS] =
 #endif
 };
 
-#if !defined LUNATIC
-#define LABEL_SETUP_UNMATCHED(struct, memb, name, idx)                                                              \
-    {                                                                                                               \
-        name, idx, sizeof(struct[0].memb) | (is_unsigned<decltype(struct[0].memb)>::value ? LABEL_UNSIGNED : 0), 0, \
-        offsetof(std::remove_pointer<decltype(&struct[0])>::type, memb)                                             \
-    }
-
-#define LABEL_SETUP(struct, memb, idx) LABEL_SETUP_UNMATCHED(struct, memb, #memb, idx)
-
-const memberlabel_t SectorLabels[] = {
-    { "wallptr",                         SECTOR_WALLPTR, sizeof(sector[0].wallptr) | LABEL_WRITEFUNC, 0, offsetof(usectortype, wallptr) },
-    LABEL_SETUP(sector, wallnum,         SECTOR_WALLNUM),
-
-    LABEL_SETUP(sector, ceilingz,        SECTOR_CEILINGZ),
-    { "ceilingzgoal",                    SECTOR_CEILINGZGOAL, 0, 0, -1 },
-    { "ceilingzvel",                     SECTOR_CEILINGZVEL, 0, 0, -1 },
-
-    LABEL_SETUP(sector, floorz,          SECTOR_FLOORZ),
-    { "floorzgoal",                      SECTOR_FLOORZGOAL, 0, 0, -1 },
-    { "floorzvel",                       SECTOR_FLOORZVEL, 0, 0, -1 },
-
-    LABEL_SETUP(sector, ceilingstat,     SECTOR_CEILINGSTAT),
-    LABEL_SETUP(sector, floorstat,       SECTOR_FLOORSTAT),
-
-    LABEL_SETUP(sector, ceilingpicnum,   SECTOR_CEILINGPICNUM),
-    { "ceilingslope",                    SECTOR_CEILINGSLOPE, sizeof(sector[0].ceilingheinum), 0, offsetof(usectortype, ceilingheinum) },
-    LABEL_SETUP(sector, ceilingshade,    SECTOR_CEILINGSHADE),
-    LABEL_SETUP(sector, ceilingpal,      SECTOR_CEILINGPAL),
-    LABEL_SETUP(sector, ceilingxpanning, SECTOR_CEILINGXPANNING),
-    LABEL_SETUP(sector, ceilingypanning, SECTOR_CEILINGYPANNING),
-
-    LABEL_SETUP(sector, floorpicnum,     SECTOR_FLOORPICNUM),
-    { "floorslope",                      SECTOR_FLOORSLOPE, sizeof(sector[0].floorheinum), 0, offsetof(usectortype, floorheinum) },
-    LABEL_SETUP(sector, floorshade,      SECTOR_FLOORSHADE),
-    LABEL_SETUP(sector, floorpal,        SECTOR_FLOORPAL),
-    LABEL_SETUP(sector, floorxpanning,   SECTOR_FLOORXPANNING),
-    LABEL_SETUP(sector, floorypanning,   SECTOR_FLOORYPANNING),
-
-    LABEL_SETUP(sector, visibility,      SECTOR_VISIBILITY),
-    LABEL_SETUP(sector, fogpal,          SECTOR_FOGPAL),
-
-    LABEL_SETUP(sector, lotag,           SECTOR_LOTAG),
-    LABEL_SETUP(sector, hitag,           SECTOR_HITAG),
-    LABEL_SETUP(sector, extra,           SECTOR_EXTRA),
-
-    { "ceilingbunch",                    SECTOR_CEILINGBUNCH, 0, 0, -1 },
-    { "floorbunch",                      SECTOR_FLOORBUNCH, 0, 0, -1 },
-
-    { "ulotag",                          SECTOR_ULOTAG, sizeof(sector[0].lotag) | LABEL_UNSIGNED, 0, offsetof(usectortype, lotag) },
-    { "uhitag",                          SECTOR_UHITAG, sizeof(sector[0].hitag) | LABEL_UNSIGNED, 0, offsetof(usectortype, hitag) },
-
-};
-
-const memberlabel_t WallLabels[]=
-{
-    LABEL_SETUP(wall, x,          WALL_X),
-    LABEL_SETUP(wall, y,          WALL_Y),
-    LABEL_SETUP(wall, point2,     WALL_POINT2),
-    LABEL_SETUP(wall, nextwall,   WALL_NEXTWALL),
-    LABEL_SETUP(wall, nextsector, WALL_NEXTSECTOR),
-    LABEL_SETUP(wall, cstat,      WALL_CSTAT),
-    LABEL_SETUP(wall, picnum,     WALL_PICNUM),
-    LABEL_SETUP(wall, overpicnum, WALL_OVERPICNUM),
-    LABEL_SETUP(wall, shade,      WALL_SHADE),
-    LABEL_SETUP(wall, pal,        WALL_PAL),
-    LABEL_SETUP(wall, xrepeat,    WALL_XREPEAT),
-    LABEL_SETUP(wall, yrepeat,    WALL_YREPEAT),
-    LABEL_SETUP(wall, xpanning,   WALL_XPANNING),
-    LABEL_SETUP(wall, ypanning,   WALL_YPANNING),
-    LABEL_SETUP(wall, lotag,      WALL_LOTAG),
-    LABEL_SETUP(wall, hitag,      WALL_HITAG),
-    LABEL_SETUP(wall, extra,      WALL_EXTRA),
-
-    { "ulotag", WALL_ULOTAG, sizeof(wall[0].lotag) | LABEL_UNSIGNED, 0, offsetof(uwalltype, lotag) },
-    { "uhitag", WALL_UHITAG, sizeof(wall[0].hitag) | LABEL_UNSIGNED, 0, offsetof(uwalltype, hitag) },
-
-    { "blend", WALL_BLEND, 0, 0, -1 },
-};
-
-const memberlabel_t ActorLabels[]=
-{
-    LABEL_SETUP(sprite, x,        ACTOR_X),
-    LABEL_SETUP(sprite, y,        ACTOR_Y),
-    LABEL_SETUP(sprite, z,        ACTOR_Z),
-    LABEL_SETUP(sprite, cstat,    ACTOR_CSTAT),
-    LABEL_SETUP(sprite, picnum,   ACTOR_PICNUM),
-    LABEL_SETUP(sprite, shade,    ACTOR_SHADE),
-    LABEL_SETUP(sprite, pal,      ACTOR_PAL),
-    LABEL_SETUP(sprite, clipdist, ACTOR_CLIPDIST),
-    LABEL_SETUP(sprite, blend,    ACTOR_DETAIL),
-    LABEL_SETUP(sprite, xrepeat,  ACTOR_XREPEAT),
-    LABEL_SETUP(sprite, yrepeat,  ACTOR_YREPEAT),
-    LABEL_SETUP(sprite, xoffset,  ACTOR_XOFFSET),
-    LABEL_SETUP(sprite, yoffset,  ACTOR_YOFFSET),
-    { "sectnum", ACTOR_SECTNUM, sizeof(sprite[0].sectnum) | LABEL_WRITEFUNC, 0, offsetof(uspritetype, sectnum) },
-    { "statnum", ACTOR_STATNUM, sizeof(sprite[0].statnum) | LABEL_WRITEFUNC, 0, offsetof(uspritetype, statnum) },
-    LABEL_SETUP(sprite, ang,      ACTOR_ANG),
-    LABEL_SETUP(sprite, owner,    ACTOR_OWNER),
-    LABEL_SETUP(sprite, xvel,     ACTOR_XVEL),
-    LABEL_SETUP(sprite, yvel,     ACTOR_YVEL),
-    LABEL_SETUP(sprite, zvel,     ACTOR_ZVEL),
-    LABEL_SETUP(sprite, lotag,    ACTOR_LOTAG),
-    LABEL_SETUP(sprite, hitag,    ACTOR_HITAG),
-    LABEL_SETUP(sprite, extra,    ACTOR_EXTRA),
-
-    { "ulotag", ACTOR_ULOTAG, sizeof(sprite[0].lotag) | LABEL_UNSIGNED, 0, offsetof(uspritetype, lotag) },
-    { "uhitag", ACTOR_UHITAG, sizeof(sprite[0].hitag) | LABEL_UNSIGNED, 0, offsetof(uspritetype, hitag) },
-
-    // ActorExtra labels...
-    LABEL_SETUP_UNMATCHED(actor, cgg,         "htcgg",          ACTOR_HTCGG),
-    LABEL_SETUP_UNMATCHED(actor, picnum,      "htpicnum",       ACTOR_HTPICNUM),
-    LABEL_SETUP_UNMATCHED(actor, ang,         "htang",          ACTOR_HTANG),
-    LABEL_SETUP_UNMATCHED(actor, extra,       "htextra",        ACTOR_HTEXTRA),
-    LABEL_SETUP_UNMATCHED(actor, owner,       "htowner",        ACTOR_HTOWNER),
-    LABEL_SETUP_UNMATCHED(actor, movflag,     "htmovflag",      ACTOR_HTMOVFLAG),
-    LABEL_SETUP_UNMATCHED(actor, tempang,     "httempang",      ACTOR_HTTEMPANG),
-    LABEL_SETUP_UNMATCHED(actor, stayput,     "htactorstayput", ACTOR_HTSTAYPUT),
-    LABEL_SETUP_UNMATCHED(actor, dispicnum,   "htdispicnum",    ACTOR_HTDISPICNUM),
-    LABEL_SETUP_UNMATCHED(actor, timetosleep, "httimetosleep",  ACTOR_HTTIMETOSLEEP),
-    LABEL_SETUP_UNMATCHED(actor, floorz,      "htfloorz",       ACTOR_HTFLOORZ),
-    LABEL_SETUP_UNMATCHED(actor, ceilingz,    "htceilingz",     ACTOR_HTCEILINGZ),
-    LABEL_SETUP_UNMATCHED(actor, lastv.x,     "htlastvx",       ACTOR_HTLASTVX),
-    LABEL_SETUP_UNMATCHED(actor, lastv.y,     "htlastvy",       ACTOR_HTLASTVY),
-    LABEL_SETUP_UNMATCHED(actor, bpos.x,      "htbposx",        ACTOR_HTBPOSX),
-    LABEL_SETUP_UNMATCHED(actor, bpos.y,      "htbposy",        ACTOR_HTBPOSY),
-    LABEL_SETUP_UNMATCHED(actor, bpos.z,      "htbposz",        ACTOR_HTBPOSZ),
-
-    { "htg_t",          ACTOR_HTG_T,                  LABEL_HASPARM2, 10, -1 },
-    LABEL_SETUP_UNMATCHED(actor, flags,       "htflags",        ACTOR_HTFLAGS),
-
-    // model flags
-
-    LABEL_SETUP(spriteext, angoff, ACTOR_ANGOFF),
-    LABEL_SETUP(spriteext, pitch, ACTOR_PITCH),
-    LABEL_SETUP(spriteext, roll, ACTOR_ROLL),
-
-    LABEL_SETUP_UNMATCHED(spriteext, offset.x, "mdxoff",  ACTOR_MDXOFF),
-    LABEL_SETUP_UNMATCHED(spriteext, offset.y, "mdyoff",  ACTOR_MDYOFF),
-    LABEL_SETUP_UNMATCHED(spriteext, offset.z, "mdzoff",  ACTOR_MDZOFF),
-    LABEL_SETUP_UNMATCHED(spriteext, flags,    "mdflags", ACTOR_MDFLAGS),
-
-    LABEL_SETUP(spriteext, xpanning, ACTOR_XPANNING),
-    LABEL_SETUP(spriteext, ypanning, ACTOR_YPANNING),
-
-    { "alpha",          ACTOR_ALPHA,                  0, 0, -1 },
-
-    { "isvalid",        ACTOR_ISVALID,                0, 0, -1 },
-// aliases:
-    { "movflags",       ACTOR_HITAG,                  0, 0, -1 },
-    { "detail",         ACTOR_DETAIL,                 0, 0, -1 },  // deprecated name for 'blend'
-};
-
-const memberlabel_t TsprLabels[] =
-{
-    // tsprite access
-
-    LABEL_SETUP_UNMATCHED(sprite, x,        "tsprx",        ACTOR_X),
-    LABEL_SETUP_UNMATCHED(sprite, y,        "tspry",        ACTOR_Y),
-    LABEL_SETUP_UNMATCHED(sprite, z,        "tsprz",        ACTOR_Z),
-    LABEL_SETUP_UNMATCHED(sprite, cstat,    "tsprcstat",    ACTOR_CSTAT),
-    LABEL_SETUP_UNMATCHED(sprite, picnum,   "tsprpicnum",   ACTOR_PICNUM),
-    LABEL_SETUP_UNMATCHED(sprite, shade,    "tsprshade",    ACTOR_SHADE),
-    LABEL_SETUP_UNMATCHED(sprite, pal,      "tsprpal",      ACTOR_PAL),
-    LABEL_SETUP_UNMATCHED(sprite, clipdist, "tsprclipdist", ACTOR_CLIPDIST),
-    LABEL_SETUP_UNMATCHED(sprite, blend,    "tsprblend",    ACTOR_DETAIL),
-    LABEL_SETUP_UNMATCHED(sprite, xrepeat,  "tsprxrepeat",  ACTOR_XREPEAT),
-    LABEL_SETUP_UNMATCHED(sprite, yrepeat,  "tspryrepeat",  ACTOR_YREPEAT),
-    LABEL_SETUP_UNMATCHED(sprite, xoffset,  "tsprxoffset",  ACTOR_XOFFSET),
-    LABEL_SETUP_UNMATCHED(sprite, yoffset,  "tspryoffset",  ACTOR_YOFFSET),
-    LABEL_SETUP_UNMATCHED(sprite, sectnum,  "tsprsectnum",  ACTOR_SECTNUM),
-    LABEL_SETUP_UNMATCHED(sprite, statnum,  "tsprstatnum",  ACTOR_STATNUM),
-    LABEL_SETUP_UNMATCHED(sprite, ang,      "tsprang",      ACTOR_ANG),
-    LABEL_SETUP_UNMATCHED(sprite, owner,    "tsprowner",    ACTOR_OWNER),
-    LABEL_SETUP_UNMATCHED(sprite, xvel,     "tsprxvel",     ACTOR_XVEL),
-    LABEL_SETUP_UNMATCHED(sprite, yvel,     "tspryvel",     ACTOR_YVEL),
-    LABEL_SETUP_UNMATCHED(sprite, zvel,     "tsprzvel",     ACTOR_ZVEL),
-    LABEL_SETUP_UNMATCHED(sprite, lotag,    "tsprlotag",    ACTOR_LOTAG),
-    LABEL_SETUP_UNMATCHED(sprite, hitag,    "tsprhitag",    ACTOR_HITAG),
-    LABEL_SETUP_UNMATCHED(sprite, extra,    "tsprextra",    ACTOR_EXTRA),
-};
-
-const memberlabel_t PlayerLabels[]=
-{
-    { "zoom",                  PLAYER_ZOOM,                  0, 0, -1 },
-    { "loogiex",               PLAYER_LOOGIEX,               LABEL_HASPARM2, 64, -1 },
-    { "loogiey",               PLAYER_LOOGIEY,               LABEL_HASPARM2, 64, -1 },
-    { "numloogs",              PLAYER_NUMLOOGS,              0, 0, -1 },
-    { "loogcnt",               PLAYER_LOOGCNT,               0, 0, -1 },
-    { "posx",                  PLAYER_POSX,                  0, 0, -1 },
-    { "posy",                  PLAYER_POSY,                  0, 0, -1 },
-    { "posz",                  PLAYER_POSZ,                  0, 0, -1 },
-    { "horiz",                 PLAYER_HORIZ,                 0, 0, -1 },
-    { "ohoriz",                PLAYER_OHORIZ,                0, 0, -1 },
-    { "ohorizoff",             PLAYER_OHORIZOFF,             0, 0, -1 },
-    { "invdisptime",           PLAYER_INVDISPTIME,           0, 0, -1 },
-    { "bobposx",               PLAYER_BOBPOSX,               0, 0, -1 },
-    { "bobposy",               PLAYER_BOBPOSY,               0, 0, -1 },
-    { "oposx",                 PLAYER_OPOSX,                 0, 0, -1 },
-    { "oposy",                 PLAYER_OPOSY,                 0, 0, -1 },
-    { "oposz",                 PLAYER_OPOSZ,                 0, 0, -1 },
-    { "pyoff",                 PLAYER_PYOFF,                 0, 0, -1 },
-    { "opyoff",                PLAYER_OPYOFF,                0, 0, -1 },
-    { "posxv",                 PLAYER_POSXV,                 0, 0, -1 },
-    { "posyv",                 PLAYER_POSYV,                 0, 0, -1 },
-    { "poszv",                 PLAYER_POSZV,                 0, 0, -1 },
-    { "last_pissed_time",      PLAYER_LAST_PISSED_TIME,      0, 0, -1 },
-    { "truefz",                PLAYER_TRUEFZ,                0, 0, -1 },
-    { "truecz",                PLAYER_TRUECZ,                0, 0, -1 },
-    { "player_par",            PLAYER_PLAYER_PAR,            0, 0, -1 },
-    { "visibility",            PLAYER_VISIBILITY,            0, 0, -1 },
-    { "bobcounter",            PLAYER_BOBCOUNTER,            0, 0, -1 },
-    { "weapon_sway",           PLAYER_WEAPON_SWAY,           0, 0, -1 },
-    { "pals_time",             PLAYER_PALS_TIME,             0, 0, -1 },
-    { "crack_time",            PLAYER_CRACK_TIME,            0, 0, -1 },
-    { "aim_mode",              PLAYER_AIM_MODE,              0, 0, -1 },
-    { "ang",                   PLAYER_ANG,                   0, 0, -1 },
-    { "oang",                  PLAYER_OANG,                  0, 0, -1 },
-    { "angvel",                PLAYER_ANGVEL,                0, 0, -1 },
-    { "cursectnum",            PLAYER_CURSECTNUM,            0, 0, -1 },
-    { "look_ang",              PLAYER_LOOK_ANG,              0, 0, -1 },
-    { "last_extra",            PLAYER_LAST_EXTRA,            0, 0, -1 },
-    { "subweapon",             PLAYER_SUBWEAPON,             0, 0, -1 },
-    { "ammo_amount",           PLAYER_AMMO_AMOUNT,           LABEL_HASPARM2, MAX_WEAPONS, -1 },
-    { "wackedbyactor",         PLAYER_WACKEDBYACTOR,         0, 0, -1 },
-    { "frag",                  PLAYER_FRAG,                  0, 0, -1 },
-    { "fraggedself",           PLAYER_FRAGGEDSELF,           0, 0, -1 },
-    { "curr_weapon",           PLAYER_CURR_WEAPON,           0, 0, -1 },
-    { "last_weapon",           PLAYER_LAST_WEAPON,           0, 0, -1 },
-    { "tipincs",               PLAYER_TIPINCS,               0, 0, -1 },
-    { "horizoff",              PLAYER_HORIZOFF,              0, 0, -1 },
-    { "wantweaponfire",        PLAYER_WANTWEAPONFIRE,        0, 0, -1 },
-    { "holoduke_amount",       PLAYER_HOLODUKE_AMOUNT,       0, 0, -1 },
-    { "newowner",              PLAYER_NEWOWNER,              0, 0, -1 },
-    { "hurt_delay",            PLAYER_HURT_DELAY,            0, 0, -1 },
-    { "hbomb_hold_delay",      PLAYER_HBOMB_HOLD_DELAY,      0, 0, -1 },
-    { "jumping_counter",       PLAYER_JUMPING_COUNTER,       0, 0, -1 },
-    { "airleft",               PLAYER_AIRLEFT,               0, 0, -1 },
-    { "knee_incs",             PLAYER_KNEE_INCS,             0, 0, -1 },
-    { "access_incs",           PLAYER_ACCESS_INCS,           0, 0, -1 },
-    { "fta",                   PLAYER_FTA,                   0, 0, -1 },
-    { "ftq",                   PLAYER_FTQ,                   0, 0, -1 },
-    { "access_wallnum",        PLAYER_ACCESS_WALLNUM,        0, 0, -1 },
-    { "access_spritenum",      PLAYER_ACCESS_SPRITENUM,      0, 0, -1 },
-    { "kickback_pic",          PLAYER_KICKBACK_PIC,          0, 0, -1 },
-    { "got_access",            PLAYER_GOT_ACCESS,            0, 0, -1 },
-    { "weapon_ang",            PLAYER_WEAPON_ANG,            0, 0, -1 },
-    { "firstaid_amount",       PLAYER_FIRSTAID_AMOUNT,       0, 0, -1 },
-    { "somethingonplayer",     PLAYER_SOMETHINGONPLAYER,     0, 0, -1 },
-    { "on_crane",              PLAYER_ON_CRANE,              0, 0, -1 },
-    { "i",                     PLAYER_I,                     0, 0, -1 },
-    { "one_parallax_sectnum",  PLAYER_PARALLAX_SECTNUM,      0, 0, -1 },
-    { "over_shoulder_on",      PLAYER_OVER_SHOULDER_ON,      0, 0, -1 },
-    { "random_club_frame",     PLAYER_RANDOM_CLUB_FRAME,     0, 0, -1 },
-    { "fist_incs",             PLAYER_FIST_INCS,             0, 0, -1 },
-    { "one_eighty_count",      PLAYER_ONE_EIGHTY_COUNT,      0, 0, -1 },
-    { "cheat_phase",           PLAYER_CHEAT_PHASE,           0, 0, -1 },
-    { "dummyplayersprite",     PLAYER_DUMMYPLAYERSPRITE,     0, 0, -1 },
-    { "extra_extra8",          PLAYER_EXTRA_EXTRA8,          0, 0, -1 },
-    { "quick_kick",            PLAYER_QUICK_KICK,            0, 0, -1 },
-    { "heat_amount",           PLAYER_HEAT_AMOUNT,           0, 0, -1 },
-    { "actorsqu",              PLAYER_ACTORSQU,              0, 0, -1 },
-    { "timebeforeexit",        PLAYER_TIMEBEFOREEXIT,        0, 0, -1 },
-    { "customexitsound",       PLAYER_CUSTOMEXITSOUND,       0, 0, -1 },
-    { "weaprecs",              PLAYER_WEAPRECS,              LABEL_HASPARM2, MAX_WEAPONS, -1 },
-    { "weapreccnt",            PLAYER_WEAPRECCNT,            0, 0, -1 },
-    { "interface_toggle_flag", PLAYER_INTERFACE_TOGGLE,      0, 0, -1 },
-    { "rotscrnang",            PLAYER_ROTSCRNANG,            0, 0, -1 },
-    { "dead_flag",             PLAYER_DEAD_FLAG,             0, 0, -1 },
-    { "show_empty_weapon",     PLAYER_SHOW_EMPTY_WEAPON,     0, 0, -1 },
-    { "scuba_amount",          PLAYER_SCUBA_AMOUNT,          0, 0, -1 },
-    { "jetpack_amount",        PLAYER_JETPACK_AMOUNT,        0, 0, -1 },
-    { "steroids_amount",       PLAYER_STEROIDS_AMOUNT,       0, 0, -1 },
-    { "shield_amount",         PLAYER_SHIELD_AMOUNT,         0, 0, -1 },
-    { "holoduke_on",           PLAYER_HOLODUKE_ON,           0, 0, -1 },
-    { "pycount",               PLAYER_PYCOUNT,               0, 0, -1 },
-    { "weapon_pos",            PLAYER_WEAPON_POS,            0, 0, -1 },
-    { "frag_ps",               PLAYER_FRAG_PS,               0, 0, -1 },
-    { "transporter_hold",      PLAYER_TRANSPORTER_HOLD,      0, 0, -1 },
-    { "clipdist",              PLAYER_CLIPDIST,              0, 0, -1 },
-    { "last_full_weapon",      PLAYER_LAST_FULL_WEAPON,      0, 0, -1 },
-    { "footprintshade",        PLAYER_FOOTPRINTSHADE,        0, 0, -1 },
-    { "boot_amount",           PLAYER_BOOT_AMOUNT,           0, 0, -1 },
-    { "scream_voice",          PLAYER_SCREAM_VOICE,          0, 0, -1 },
-    { "gm",                    PLAYER_GM,                    0, 0, -1 },
-    { "on_warping_sector",     PLAYER_ON_WARPING_SECTOR,     0, 0, -1 },
-    { "footprintcount",        PLAYER_FOOTPRINTCOUNT,        0, 0, -1 },
-    { "hbomb_on",              PLAYER_HBOMB_ON,              0, 0, -1 },
-    { "jumping_toggle",        PLAYER_JUMPING_TOGGLE,        0, 0, -1 },
-    { "rapid_fire_hold",       PLAYER_RAPID_FIRE_HOLD,       0, 0, -1 },
-    { "on_ground",             PLAYER_ON_GROUND,             0, 0, -1 },
-    { "name",                  PLAYER_NAME,                  LABEL_ISSTRING, 32, -1 },
-    { "inven_icon",            PLAYER_INVEN_ICON,            0, 0, -1 },
-    { "buttonpalette",         PLAYER_BUTTONPALETTE,         0, 0, -1 },
-    { "jetpack_on",            PLAYER_JETPACK_ON,            0, 0, -1 },
-    { "spritebridge",          PLAYER_SPRITEBRIDGE,          0, 0, -1 },
-    { "scuba_on",              PLAYER_SCUBA_ON,              0, 0, -1 },
-    { "footprintpal",          PLAYER_FOOTPRINTPAL,          0, 0, -1 },
-    { "heat_on",               PLAYER_HEAT_ON,               0, 0, -1 },
-    { "holster_weapon",        PLAYER_HOLSTER_WEAPON,        0, 0, -1 },
-    { "falling_counter",       PLAYER_FALLING_COUNTER,       0, 0, -1 },
-    { "gotweapon",             PLAYER_GOTWEAPON,             LABEL_HASPARM2, MAX_WEAPONS, -1 },
-    { "palette",               PLAYER_PALETTE,               0, 0, -1 },
-    { "toggle_key_flag",       PLAYER_TOGGLE_KEY_FLAG,       0, 0, -1 },
-    { "knuckle_incs",          PLAYER_KNUCKLE_INCS,          0, 0, -1 },
-    { "walking_snd_toggle",    PLAYER_WALKING_SND_TOGGLE,    0, 0, -1 },
-    { "palookup",              PLAYER_PALOOKUP,              0, 0, -1 },
-    { "hard_landing",          PLAYER_HARD_LANDING,          0, 0, -1 },
-    { "max_secret_rooms",      PLAYER_MAX_SECRET_ROOMS,      0, 0, -1 },
-    { "secret_rooms",          PLAYER_SECRET_ROOMS,          0, 0, -1 },
-    { "pals",                  PLAYER_PALS,                  LABEL_HASPARM2, 3, -1 },
-    { "max_actors_killed",     PLAYER_MAX_ACTORS_KILLED,     0, 0, -1 },
-    { "actors_killed",         PLAYER_ACTORS_KILLED,         0, 0, -1 },
-    { "return_to_center",      PLAYER_RETURN_TO_CENTER,      0, 0, -1 },
-    { "runspeed",              PLAYER_RUNSPEED,              0, 0, -1 },
-    { "sbs",                   PLAYER_SBS,                   0, 0, -1 },
-    { "reloading",             PLAYER_RELOADING,             0, 0, -1 },
-    { "auto_aim",              PLAYER_AUTO_AIM,              0, 0, -1 },
-    { "movement_lock",         PLAYER_MOVEMENT_LOCK,         0, 0, -1 },
-    { "sound_pitch",           PLAYER_SOUND_PITCH,           0, 0, -1 },
-    { "weaponswitch",          PLAYER_WEAPONSWITCH,          0, 0, -1 },
-    { "team",                  PLAYER_TEAM,                  0, 0, -1 },
-    { "max_player_health",     PLAYER_MAX_PLAYER_HEALTH,     0, 0, -1 },
-    { "max_shield_amount",     PLAYER_MAX_SHIELD_AMOUNT,     0, 0, -1 },
-    { "max_ammo_amount",       PLAYER_MAX_AMMO_AMOUNT,       LABEL_HASPARM2, MAX_WEAPONS, -1 },
-    { "last_quick_kick",       PLAYER_LAST_QUICK_KICK,       0, 0, -1 },
-    { "autostep",              PLAYER_AUTOSTEP,              0, 0, -1 },
-    { "autostep_sbw",          PLAYER_AUTOSTEP_SBW,          0, 0, -1 },
-    { "hudpal",                PLAYER_HUDPAL,                0, 0, -1 },
-    { "index",                 PLAYER_INDEX,                 0, 0, -1 },
-    { "connected",             PLAYER_CONNECTED,             0, 0, -1 },
-    { "frags",                 PLAYER_FRAGS,                 LABEL_HASPARM2, MAXPLAYERS, -1 },
-    { "deaths",                PLAYER_DEATHS,                0, 0, -1 },
-    { "last_used_weapon",      PLAYER_LAST_USED_WEAPON,      0, 0, -1 },
-};
-
-const memberlabel_t ProjectileLabels[]=
-{
-    { "workslike",  PROJ_WORKSLIKE,   0, 0, -1 },
-    { "spawns",     PROJ_SPAWNS,      0, 0, -1 },
-    { "sxrepeat",   PROJ_SXREPEAT,    0, 0, -1 },
-    { "syrepeat",   PROJ_SYREPEAT,    0, 0, -1 },
-    { "sound",      PROJ_SOUND,       0, 0, -1 },
-    { "isound",     PROJ_ISOUND,      0, 0, -1 },
-    { "vel",        PROJ_VEL,         0, 0, -1 },
-    { "extra",      PROJ_EXTRA,       0, 0, -1 },
-    { "decal",      PROJ_DECAL,       0, 0, -1 },
-    { "trail",      PROJ_TRAIL,       0, 0, -1 },
-    { "txrepeat",   PROJ_TXREPEAT,    0, 0, -1 },
-    { "tyrepeat",   PROJ_TYREPEAT,    0, 0, -1 },
-    { "toffset",    PROJ_TOFFSET,     0, 0, -1 },
-    { "tnum",       PROJ_TNUM,        0, 0, -1 },
-    { "drop",       PROJ_DROP,        0, 0, -1 },
-    { "cstat",      PROJ_CSTAT,       0, 0, -1 },
-    { "clipdist",   PROJ_CLIPDIST,    0, 0, -1 },
-    { "shade",      PROJ_SHADE,       0, 0, -1 },
-    { "xrepeat",    PROJ_XREPEAT,     0, 0, -1 },
-    { "yrepeat",    PROJ_YREPEAT,     0, 0, -1 },
-    { "pal",        PROJ_PAL,         0, 0, -1 },
-    { "extra_rand", PROJ_EXTRA_RAND,  0, 0, -1 },
-    { "hitradius",  PROJ_HITRADIUS,   0, 0, -1 },
-    { "velmult",    PROJ_MOVECNT,     0, 0, -1 },
-    { "offset",     PROJ_OFFSET,      0, 0, -1 },
-    { "bounces",    PROJ_BOUNCES,     0, 0, -1 },
-    { "bsound",     PROJ_BSOUND,      0, 0, -1 },
-    { "range",      PROJ_RANGE,       0, 0, -1 },
-    { "flashcolor", PROJ_FLASH_COLOR, 0, 0, -1 },
-    { "userdata",   PROJ_USERDATA,    0, 0, -1 },
-};
-
-const memberlabel_t UserdefsLabels[]=
-{
-    { "god",                    USERDEFS_GOD,                    0, 0, -1 },
-    { "warp_on",                USERDEFS_WARP_ON,                0, 0, -1 },
-    { "cashman",                USERDEFS_CASHMAN,                0, 0, -1 },
-    { "eog",                    USERDEFS_EOG,                    0, 0, -1 },
-    { "showallmap",             USERDEFS_SHOWALLMAP,             0, 0, -1 },
-    { "show_help",              USERDEFS_SHOW_HELP,              0, 0, -1 },
-    { "scrollmode",             USERDEFS_SCROLLMODE,             0, 0, -1 },
-    { "clipping",               USERDEFS_CLIPPING,               0, 0, -1 },
-    { "user_name",              USERDEFS_USER_NAME,              LABEL_HASPARM2, MAXPLAYERS, -1 },
-    { "ridecule",               USERDEFS_RIDECULE,               LABEL_HASPARM2 | LABEL_ISSTRING, 10, -1 },
-    { "savegame",               USERDEFS_SAVEGAME,               LABEL_HASPARM2 | LABEL_ISSTRING, 10, -1 },
-    { "pwlockout",              USERDEFS_PWLOCKOUT,              LABEL_ISSTRING, 128, -1 },
-    { "rtsname;",               USERDEFS_RTSNAME,                LABEL_ISSTRING, 128, -1 },
-    { "overhead_on",            USERDEFS_OVERHEAD_ON,            0, 0, -1 },
-    { "last_overhead",          USERDEFS_LAST_OVERHEAD,          0, 0, -1 },
-    { "showweapons",            USERDEFS_SHOWWEAPONS,            0, 0, -1 },
-    { "pause_on",               USERDEFS_PAUSE_ON,               0, 0, -1 },
-    { "from_bonus",             USERDEFS_FROM_BONUS,             0, 0, -1 },
-    { "camerasprite",           USERDEFS_CAMERASPRITE,           0, 0, -1 },
-    { "last_camsprite",         USERDEFS_LAST_CAMSPRITE,         0, 0, -1 },
-    { "last_level",             USERDEFS_LAST_LEVEL,             0, 0, -1 },
-    { "secretlevel",            USERDEFS_SECRETLEVEL,            0, 0, -1 },
-    { "const_visibility",       USERDEFS_CONST_VISIBILITY,       0, 0, -1 },
-    { "uw_framerate",           USERDEFS_UW_FRAMERATE,           0, 0, -1 },
-    { "camera_time",            USERDEFS_CAMERA_TIME,            0, 0, -1 },
-    { "folfvel",                USERDEFS_FOLFVEL,                0, 0, -1 },
-    { "folavel",                USERDEFS_FOLAVEL,                0, 0, -1 },
-    { "folx",                   USERDEFS_FOLX,                   0, 0, -1 },
-    { "foly",                   USERDEFS_FOLY,                   0, 0, -1 },
-    { "fola",                   USERDEFS_FOLA,                   0, 0, -1 },
-    { "reccnt",                 USERDEFS_RECCNT,                 0, 0, -1 },
-    { "entered_name",           USERDEFS_ENTERED_NAME,           0, 0, -1 },
-    { "screen_tilting",         USERDEFS_SCREEN_TILTING,         0, 0, -1 },
-    { "shadows",                USERDEFS_SHADOWS,                0, 0, -1 },
-    { "fta_on",                 USERDEFS_FTA_ON,                 0, 0, -1 },
-    { "executions",             USERDEFS_EXECUTIONS,             0, 0, -1 },
-    { "auto_run",               USERDEFS_AUTO_RUN,               0, 0, -1 },
-    { "coords",                 USERDEFS_COORDS,                 0, 0, -1 },
-    { "tickrate",               USERDEFS_TICKRATE,               0, 0, -1 },
-    { "m_coop",                 USERDEFS_M_COOP,                 0, 0, -1 },
-    { "coop",                   USERDEFS_COOP,                   0, 0, -1 },
-    { "screen_size",            USERDEFS_SCREEN_SIZE,            0, 0, -1 },
-    { "lockout",                USERDEFS_LOCKOUT,                0, 0, -1 },
-    { "crosshair",              USERDEFS_CROSSHAIR,              0, 0, -1 },
-    { "playerai",               USERDEFS_PLAYERAI,               0, 0, -1 },
-    { "respawn_monsters",       USERDEFS_RESPAWN_MONSTERS,       0, 0, -1 },
-    { "respawn_items",          USERDEFS_RESPAWN_ITEMS,          0, 0, -1 },
-    { "respawn_inventory",      USERDEFS_RESPAWN_INVENTORY,      0, 0, -1 },
-    { "recstat",                USERDEFS_RECSTAT,                0, 0, -1 },
-    { "monsters_off",           USERDEFS_MONSTERS_OFF,           0, 0, -1 },
-    { "brightness",             USERDEFS_BRIGHTNESS,             0, 0, -1 },
-    { "m_respawn_items",        USERDEFS_M_RESPAWN_ITEMS,        0, 0, -1 },
-    { "m_respawn_monsters",     USERDEFS_M_RESPAWN_MONSTERS,     0, 0, -1 },
-    { "m_respawn_inventory",    USERDEFS_M_RESPAWN_INVENTORY,    0, 0, -1 },
-    { "m_recstat",              USERDEFS_M_RECSTAT,              0, 0, -1 },
-    { "m_monsters_off",         USERDEFS_M_MONSTERS_OFF,         0, 0, -1 },
-    { "detail",                 USERDEFS_DETAIL,                 0, 0, -1 },
-    { "m_ffire",                USERDEFS_M_FFIRE,                0, 0, -1 },
-    { "ffire",                  USERDEFS_FFIRE,                  0, 0, -1 },
-    { "m_player_skill",         USERDEFS_M_PLAYER_SKILL,         0, 0, -1 },
-    { "m_level_number",         USERDEFS_M_LEVEL_NUMBER,         0, 0, -1 },
-    { "m_volume_number",        USERDEFS_M_VOLUME_NUMBER,        0, 0, -1 },
-    { "multimode",              USERDEFS_MULTIMODE,              0, 0, -1 },
-    { "player_skill",           USERDEFS_PLAYER_SKILL,           0, 0, -1 },
-    { "level_number",           USERDEFS_LEVEL_NUMBER,           0, 0, -1 },
-    { "volume_number",          USERDEFS_VOLUME_NUMBER,          0, 0, -1 },
-    { "m_marker",               USERDEFS_M_MARKER,               0, 0, -1 },
-    { "marker",                 USERDEFS_MARKER,                 0, 0, -1 },
-    { "mouseflip",              USERDEFS_MOUSEFLIP,              0, 0, -1 },
-    { "statusbarscale",         USERDEFS_STATUSBARSCALE,         0, 0, -1 },
-    { "drawweapon",             USERDEFS_DRAWWEAPON,             0, 0, -1 },
-    { "mouseaiming",            USERDEFS_MOUSEAIMING,            0, 0, -1 },
-    { "weaponswitch",           USERDEFS_WEAPONSWITCH,           0, 0, -1 },
-    { "democams",               USERDEFS_DEMOCAMS,               0, 0, -1 },
-    { "color",                  USERDEFS_COLOR,                  0, 0, -1 },
-    { "msgdisptime",            USERDEFS_MSGDISPTIME,            0, 0, -1 },
-    { "statusbarmode",          USERDEFS_STATUSBARMODE,          0, 0, -1 },
-    { "m_noexits",              USERDEFS_M_NOEXITS,              0, 0, -1 },
-    { "noexits",                USERDEFS_NOEXITS,                0, 0, -1 },
-    { "autovote",               USERDEFS_AUTOVOTE,               0, 0, -1 },
-    { "automsg",                USERDEFS_AUTOMSG,                0, 0, -1 },
-    { "idplayers",              USERDEFS_IDPLAYERS,              0, 0, -1 },
-    { "team",                   USERDEFS_TEAM,                   0, 0, -1 },
-    { "viewbob",                USERDEFS_VIEWBOB,                0, 0, -1 },
-    { "weaponsway",             USERDEFS_WEAPONSWAY,             0, 0, -1 },
-    { "angleinterpolation",     USERDEFS_ANGLEINTERPOLATION,     0, 0, -1 },
-    { "obituaries",             USERDEFS_OBITUARIES,             0, 0, -1 },
-    { "levelstats",             USERDEFS_LEVELSTATS,             0, 0, -1 },
-    { "crosshairscale",         USERDEFS_CROSSHAIRSCALE,         0, 0, -1 },
-    { "althud",                 USERDEFS_ALTHUD,                 0, 0, -1 },
-    { "display_bonus_screen",   USERDEFS_DISPLAY_BONUS_SCREEN,   0, 0, -1 },
-    { "show_level_text",        USERDEFS_SHOW_LEVEL_TEXT,        0, 0, -1 },
-    { "weaponscale",            USERDEFS_WEAPONSCALE,            0, 0, -1 },
-    { "textscale",              USERDEFS_TEXTSCALE,              0, 0, -1 },
-    { "runkey_mode",            USERDEFS_RUNKEY_MODE,            0, 0, -1 },
-    { "m_origin_x",             USERDEFS_M_ORIGIN_X,             0, 0, -1 },
-    { "m_origin_y",             USERDEFS_M_ORIGIN_Y,             0, 0, -1 },
-    { "playerbest",             USERDEFS_PLAYERBEST,             0, 0, -1 },
-    { "musictoggle",            USERDEFS_MUSICTOGGLE,            0, 0, -1 },
-    { "usevoxels",              USERDEFS_USEVOXELS,              0, 0, -1 },
-    { "usehightile",            USERDEFS_USEHIGHTILE,            0, 0, -1 },
-    { "usemodels",              USERDEFS_USEMODELS,              0, 0, -1 },
-    { "gametypeflags",          USERDEFS_GAMETYPEFLAGS,          0, 0, -1 },
-    { "m_gametypeflags",        USERDEFS_M_GAMETYPEFLAGS,        0, 0, -1 },
-    { "globalflags",            USERDEFS_GLOBALFLAGS,            0, 0, -1 },
-    { "globalgameflags",        USERDEFS_GLOBALGAMEFLAGS,        0, 0, -1 },
-    { "vm_player",              USERDEFS_VM_PLAYER,              0, 0, -1 },
-    { "vm_sprite",              USERDEFS_VM_SPRITE,              0, 0, -1 },
-    { "vm_distance",            USERDEFS_VM_DISTANCE,            0, 0, -1 },
-    { "soundtoggle",            USERDEFS_SOUNDTOGGLE,            0, 0, -1 },
-    { "gametext_tracking",      USERDEFS_GAMETEXT_TRACKING,      0, 0, -1 },
-    { "mgametext_tracking",     USERDEFS_MGAMETEXT_TRACKING,     0, 0, -1 },
-    { "menutext_tracking",      USERDEFS_MENUTEXT_TRACKING,      0, 0, -1 },
-    { "maxspritesonscreen",     USERDEFS_MAXSPRITESONSCREEN,     0, 0, -1 },
-    { "screenarea_x1",          USERDEFS_SCREENAREA_X1,          0, 0, -1 },
-    { "screenarea_y1",          USERDEFS_SCREENAREA_Y1,          0, 0, -1 },
-    { "screenarea_x2",          USERDEFS_SCREENAREA_X2,          0, 0, -1 },
-    { "screenarea_y2",          USERDEFS_SCREENAREA_Y2,          0, 0, -1 },
-    { "screenfade",             USERDEFS_SCREENFADE,             0, 0, -1 },
-    { "menubackground",         USERDEFS_MENUBACKGROUND,         0, 0, -1 },
-    { "statusbarflags",         USERDEFS_STATUSBARFLAGS,         0, 0, -1 },
-    { "statusbarrange",         USERDEFS_STATUSBARRANGE,         0, 0, -1 },
-    { "statusbarcustom",        USERDEFS_STATUSBARCUSTOM,        0, 0, -1 },
-    { "hudontop",               USERDEFS_HUDONTOP,               0, 0, -1 },
-    { "menu_slidebarz",         USERDEFS_MENU_SLIDEBARZ,         0, 0, -1 },
-    { "menu_slidebarmargin",    USERDEFS_MENU_SLIDEBARMARGIN,    0, 0, -1 },
-    { "menu_slidecursorz",      USERDEFS_MENU_SLIDECURSORZ,      0, 0, -1 },
-    { "global_r",               USERDEFS_GLOBAL_R,               0, 0, -1 },
-    { "global_g",               USERDEFS_GLOBAL_G,               0, 0, -1 },
-    { "global_b",               USERDEFS_GLOBAL_B,               0, 0, -1 },
-    { "default_volume",         USERDEFS_DEFAULT_VOLUME,         0, 0, -1 },
-    { "default_skill",          USERDEFS_DEFAULT_SKILL,          0, 0, -1 },
-    { "menu_shadedeselected",   USERDEFS_MENU_SHADEDESELECTED,   0, 0, -1 },
-    { "menu_shadedisabled",     USERDEFS_MENU_SHADEDISABLED,     0, 0, -1 },
-    { "menutext_zoom",          USERDEFS_MENUTEXT_ZOOM,          0, 0, -1 },
-    { "menutext_xspace",        USERDEFS_MENUTEXT_XSPACE,        0, 0, -1 },
-    { "menutext_pal",           USERDEFS_MENUTEXT_PAL,           0, 0, -1 },
-    { "menutext_palselected",   USERDEFS_MENUTEXT_PALSELECTED,   0, 0, -1 },
-    { "menutext_paldeselected", USERDEFS_MENUTEXT_PALDESELECTED, 0, 0, -1 },
-    { "menutext_paldisabled",   USERDEFS_MENUTEXT_PALDISABLED,   0, 0, -1 },
-    { "menutext_palselected_right",   USERDEFS_MENUTEXT_PALSELECTED_RIGHT,   0, 0, -1 },
-    { "menutext_paldeselected_right", USERDEFS_MENUTEXT_PALDESELECTED_RIGHT, 0, 0, -1 },
-    { "menutext_paldisabled_right",   USERDEFS_MENUTEXT_PALDISABLED_RIGHT,   0, 0, -1 },
-    { "gametext_zoom",          USERDEFS_GAMETEXT_ZOOM,          0, 0, -1 },
-    { "gametext_xspace",        USERDEFS_GAMETEXT_XSPACE,        0, 0, -1 },
-    { "gametext_pal",           USERDEFS_GAMETEXT_PAL,           0, 0, -1 },
-    { "gametext_palselected",   USERDEFS_GAMETEXT_PALSELECTED,   0, 0, -1 },
-    { "gametext_paldeselected", USERDEFS_GAMETEXT_PALDESELECTED, 0, 0, -1 },
-    { "gametext_paldisabled",   USERDEFS_GAMETEXT_PALDISABLED,   0, 0, -1 },
-    { "gametext_palselected_right",   USERDEFS_GAMETEXT_PALSELECTED_RIGHT,   0, 0, -1 },
-    { "gametext_paldeselected_right", USERDEFS_GAMETEXT_PALDESELECTED_RIGHT, 0, 0, -1 },
-    { "gametext_paldisabled_right",   USERDEFS_GAMETEXT_PALDISABLED_RIGHT,   0, 0, -1 },
-    { "minitext_zoom",          USERDEFS_MINITEXT_ZOOM,          0, 0, -1 },
-    { "minitext_xspace",        USERDEFS_MINITEXT_XSPACE,        0, 0, -1 },
-    { "minitext_tracking",      USERDEFS_MINITEXT_TRACKING,      0, 0, -1 },
-    { "minitext_pal",           USERDEFS_MINITEXT_PAL,           0, 0, -1 },
-    { "minitext_palselected",   USERDEFS_MINITEXT_PALSELECTED,   0, 0, -1 },
-    { "minitext_paldeselected", USERDEFS_MINITEXT_PALDESELECTED, 0, 0, -1 },
-    { "minitext_paldisabled",   USERDEFS_MINITEXT_PALDISABLED,   0, 0, -1 },
-    { "minitext_palselected_right",   USERDEFS_MINITEXT_PALSELECTED_RIGHT,   0, 0, -1 },
-    { "minitext_paldeselected_right", USERDEFS_MINITEXT_PALDESELECTED_RIGHT, 0, 0, -1 },
-    { "minitext_paldisabled_right",   USERDEFS_MINITEXT_PALDISABLED_RIGHT,   0, 0, -1 },
-    { "menutitle_pal",          USERDEFS_MENUTITLE_PAL,          0, 0, -1 },
-    { "slidebar_palselected",   USERDEFS_SLIDEBAR_PALSELECTED,   0, 0, -1 },
-    { "slidebar_paldisabled",   USERDEFS_SLIDEBAR_PALDISABLED,   0, 0, -1 },
-    { "user_map",               USERDEFS_USER_MAP,               0, 0, -1 },
-    { "m_user_map",             USERDEFS_M_USER_MAP,             0, 0, -1 },
-    { "music_episode",          USERDEFS_MUSIC_EPISODE,          0, 0, -1 },
-    { "music_level",            USERDEFS_MUSIC_LEVEL,            0, 0, -1 },
-    { "shadow_pal",             USERDEFS_SHADOW_PAL,             0, 0, -1 },
-    { "menu_scrollbartilenum",  USERDEFS_MENU_SCROLLBARTILENUM,  0, 0, -1 },
-    { "menu_scrollbarz",        USERDEFS_MENU_SCROLLBARZ,        0, 0, -1 },
-    { "menu_scrollcursorz",     USERDEFS_MENU_SCROLLCURSORZ,     0, 0, -1 },
-    { "return",                 USERDEFS_RETURN,                 LABEL_HASPARM2, MAX_RETURN_VALUES, -1 },
-    { "userbyteversion",        USERDEFS_USERBYTEVERSION,        0, 0, -1 },
-    { "autosave",               USERDEFS_AUTOSAVE,               0, 0, -1 },
-};
-
-const memberlabel_t InputLabels[]=
-{
-    { "avel",    INPUT_AVEL,    0, 0, -1 },
-    { "q16avel", INPUT_Q16AVEL, 0, 0, -1 },
-    { "horz",    INPUT_HORZ,    0, 0, -1 },
-    { "q16horz", INPUT_Q16HORZ, 0, 0, -1 },
-    { "fvel",    INPUT_FVEL,    0, 0, -1 },
-    { "svel",    INPUT_SVEL,    0, 0, -1 },
-    { "bits",    INPUT_BITS,    0, 0, -1 },
-    { "extbits", INPUT_EXTBITS, 0, 0, -1 },
-};
-
-const memberlabel_t TileDataLabels[]=
-{
-    // tilesiz[]
-    { "xsize",      TILEDATA_XSIZE,      0, 0, -1 },
-    { "ysize",      TILEDATA_YSIZE,      0, 0, -1 },
-
-    // picanm[]
-    { "animframes", TILEDATA_ANIMFRAMES, 0, 0, -1 },
-    { "xoffset",    TILEDATA_XOFFSET,    0, 0, -1 },
-    { "yoffset",    TILEDATA_YOFFSET,    0, 0, -1 },
-    { "animspeed",  TILEDATA_ANIMSPEED,  0, 0, -1 },
-    { "animtype",   TILEDATA_ANIMTYPE,   0, 0, -1 },
-
-    // g_tile[]
-    { "gameflags",  TILEDATA_GAMEFLAGS,  0, 0, -1 },
-};
-
-const memberlabel_t PalDataLabels[]=
-{
-    // g_noFloorPal[]
-    { "nofloorpal", PALDATA_NOFLOORPAL, 0, 0, -1 },
-};
-
-const tokenmap_t iter_tokens [] =
-{
-    { "allsprites",      ITER_ALLSPRITES },
-    { "allspritesbystat",ITER_ALLSPRITESBYSTAT },
-    { "allspritesbysect",ITER_ALLSPRITESBYSECT },
-    { "allsectors",      ITER_ALLSECTORS },
-    { "allwalls",        ITER_ALLWALLS },
-    { "activelights",    ITER_ACTIVELIGHTS },
-    { "drawnsprites",    ITER_DRAWNSPRITES },
-    { "spritesofsector", ITER_SPRITESOFSECTOR },
-    { "spritesofstatus", ITER_SPRITESOFSTATUS },
-    { "loopofwall",      ITER_LOOPOFWALL },
-    { "wallsofsector",   ITER_WALLSOFSECTOR },
-    { "range",           ITER_RANGE },
-    // vvv alternatives go here vvv
-    { "lights",          ITER_ACTIVELIGHTS },
-    { "sprofsec",        ITER_SPRITESOFSECTOR },
-    { "sprofstat",       ITER_SPRITESOFSTATUS },
-    { "walofsec",        ITER_WALLSOFSECTOR },
-};
-#undef LABEL_SETUP
-#undef LABEL_SETUP_UNMATCHED
-#endif
-
 char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 
 #define BITPTR_SET(x) (bitptr[(x)>>3] |= (1<<((x)&7)))
@@ -1396,59 +827,6 @@ char *bitptr; // pointer to bitmap of which bytecode positions contain pointers
 hashtable_t h_arrays      = { MAXGAMEARRAYS>>1, NULL };
 hashtable_t h_gamevars    = { MAXGAMEVARS>>1, NULL };
 hashtable_t h_labels      = { 11264>>1, NULL };
-
-static hashtable_t h_actor      = { ACTOR_END>>1, NULL };
-static hashtable_t h_input      = { INPUT_END>>1, NULL };
-static hashtable_t h_iter       = { ITER_END>>1, NULL };
-static hashtable_t h_keywords   = { CON_END>>1, NULL };
-static hashtable_t h_paldata    = { PALDATA_END>>1, NULL };
-static hashtable_t h_player     = { PLAYER_END>>1, NULL };
-static hashtable_t h_projectile = { PROJ_END>>1, NULL };
-static hashtable_t h_sector     = { SECTOR_END>>1, NULL };
-static hashtable_t h_tiledata   = { TILEDATA_END>>1, NULL };
-static hashtable_t h_tsprite    = { ACTOR_END>>1, NULL };
-static hashtable_t h_userdef    = { USERDEFS_END>>1, NULL };
-static hashtable_t h_wall       = { WALL_END>>1, NULL };
-
-static hashtable_t *const tables[] = {
-    &h_actor,  &h_arrays,     &h_gamevars, &h_input,    &h_iter,    &h_keywords, &h_labels, &h_paldata,
-    &h_player, &h_projectile, &h_sector,   &h_tiledata, &h_tsprite, &h_userdef,  &h_wall,
-};
-
-static hashtable_t *const tables_free[] = {
-    &h_actor,  &h_input,      &h_iter,   &h_keywords, &h_labels,  &h_paldata,
-    &h_player, &h_projectile, &h_sector, &h_tiledata, &h_tsprite, &h_userdef, &h_wall,
-};
-
-#define STRUCT_HASH_SETUP(table, labels) do { for (int i=0; i < ARRAY_SSIZE(labels); i++) hash_add(&table, labels[i].name, i, 0); } while (0)
-
-static void C_InitHashes()
-{
-    for (auto table : tables)
-        hash_init(table);
-
-    inithashnames();
-    initsoundhashnames();
-
-    for (auto &keyword : vm_keywords)
-        hash_add(&h_keywords, keyword.token, keyword.val, 0);
-
-    STRUCT_HASH_SETUP(h_actor,      ActorLabels);
-    STRUCT_HASH_SETUP(h_input,      InputLabels);
-    STRUCT_HASH_SETUP(h_paldata,    PalDataLabels);
-    STRUCT_HASH_SETUP(h_player,     PlayerLabels);
-    STRUCT_HASH_SETUP(h_projectile, ProjectileLabels);
-    STRUCT_HASH_SETUP(h_sector,     SectorLabels);
-    STRUCT_HASH_SETUP(h_tiledata,   TileDataLabels);
-    STRUCT_HASH_SETUP(h_tsprite,    TsprLabels);
-    STRUCT_HASH_SETUP(h_userdef,    UserdefsLabels);
-    STRUCT_HASH_SETUP(h_wall,       WallLabels);
-
-    for (auto &iter_token : iter_tokens)
-        hash_add(&h_iter, iter_token.token, iter_token.val, 0);
-}
-
-#undef STRUCT_HASH_SETUP
 
 // "magic" number for { and }, overrides line number in compiled code for later detection
 #define IFELSE_MAGIC 31337
@@ -1608,8 +986,9 @@ static void C_SkipComments(void)
     while (1);
 }
 
-#define GetDefID(szGameLabel) hash_find(&h_gamevars,szGameLabel)
-#define GetADefID(szGameLabel) hash_find(&h_arrays,szGameLabel)
+static inline int GetDefID(char const *label) { return hash_find(&h_gamevars, label); }
+static inline int GetADefID(char const *label) { return hash_find(&h_arrays, label); }
+
 #define LAST_LABEL (label+(g_labelCnt<<6))
 static inline bool isaltok(const char c)
 {
@@ -2200,7 +1579,7 @@ static int32_t C_GetNextValue(int32_t type)
     return 0;   // literal value
 }
 
-static int32_t C_GetStructureIndexes(int32_t const labelsonly, hashtable_t const * const table)
+static int C_GetStructureIndexes(bool const labelsonly, hashtable_t const * const table)
 {
     C_SkipComments();
 
@@ -2739,7 +2118,7 @@ static void C_ReplaceQuoteSubstring(const size_t q, char const * const query, ch
 
 void C_InitQuotes(void)
 {
-    for (bssize_t i = 0; i < 128; i++) C_AllocQuote(i);
+    for (int i = 0; i < 128; i++) C_AllocQuote(i);
 
 #ifdef EDUKE32_TOUCH_DEVICES
     apStrings[QUOTE_DEAD] = 0;
@@ -6521,6 +5900,18 @@ void C_PrintStats(void)
     initprintf("\n");
 }
 
+void scriptInitTables()
+{
+    for (auto table : tables)
+        hash_init(table);
+
+    for (auto &keyword : vm_keywords)
+        hash_add(&h_keywords, keyword.token, keyword.val, 0);
+
+    for (auto &iter_token : iter_tokens)
+        hash_add(&h_iter, iter_token.token, iter_token.val, 0);
+}
+
 void C_Compile(const char *fileName)
 {
     Bmemset(apScriptEvents, 0, sizeof(apScriptEvents));
@@ -6532,7 +5923,9 @@ void C_Compile(const char *fileName)
     for (double & actorMinMs : g_actorMinMs)
         actorMinMs = 1e308;
 
-    C_InitHashes();
+    scriptInitTables();
+    scriptInitStructTables();
+
     Gv_Init();
     C_InitProjectiles();
 
@@ -6658,7 +6051,7 @@ void C_Compile(const char *fileName)
     C_InitQuotes();
 }
 
-void C_ReportError(int32_t iError)
+void C_ReportError(int error)
 {
     if (Bstrcmp(g_szCurrentBlockName,g_szLastBlockName))
     {
@@ -6667,7 +6060,7 @@ void C_ReportError(int32_t iError)
         else initprintf("%s: At top level:\n",g_scriptFileName);
         Bstrcpy(g_szLastBlockName,g_szCurrentBlockName);
     }
-    switch (iError)
+    switch (error)
     {
     case ERROR_NOTTOPLEVEL:
         initprintf("%s:%d: error: `%s' not at top level within script.\n",g_scriptFileName,g_lineNumber,tempbuf);

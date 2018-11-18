@@ -145,7 +145,7 @@ static FORCE_INLINE void A_ResetVars(int const spriteNum)
             gv.pValues[spriteNum] = gv.defaultValue;
     }
 }
-
+void scriptInitStructTables(void);
 void Gv_DumpValues(void);
 void Gv_InitWeaponPointers(void);
 void Gv_RefreshPointers(void);
