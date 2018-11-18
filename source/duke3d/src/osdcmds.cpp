@@ -424,9 +424,9 @@ int osdcmd_restartvid(osdcmdptr_t UNUSED(parm))
 {
     UNREFERENCED_CONST_PARAMETER(parm);
     videoResetMode();
-    if (videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail))
+    if (videoSetGameMode(ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail))
         G_GameExit("restartvid: Reset failed...\n");
-    onvideomodechange(ud.config.ScreenBPP>8);
+    onvideomodechange(ud.setup.bpp>8);
     G_UpdateScreenArea();
 
     return OSDCMD_OK;
@@ -444,8 +444,8 @@ int osdcmd_restartmap(osdcmdptr_t UNUSED(parm))
 
 static int osdcmd_vidmode(osdcmdptr_t parm)
 {
-    int32_t newbpp = ud.config.ScreenBPP, newwidth = ud.config.ScreenWidth,
-            newheight = ud.config.ScreenHeight, newfs = ud.config.ScreenMode;
+    int32_t newbpp = ud.setup.bpp, newwidth = ud.setup.xdim,
+            newheight = ud.setup.ydim, newfs = ud.setup.fullscreen;
     int32_t tmp;
 
     if (parm->numparms < 1 || parm->numparms > 4) return OSDCMD_SHOWHELP;
@@ -478,14 +478,14 @@ static int osdcmd_vidmode(osdcmdptr_t parm)
     if (videoSetGameMode(newfs,newwidth,newheight,newbpp,upscalefactor))
     {
         initprintf("vidmode: Mode change failed!\n");
-        if (videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP, upscalefactor))
+        if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, upscalefactor))
             G_GameExit("vidmode: Reset failed!\n");
     }
-    ud.config.ScreenBPP = newbpp;
-    ud.config.ScreenWidth = newwidth;
-    ud.config.ScreenHeight = newheight;
-    ud.config.ScreenMode = newfs;
-    onvideomodechange(ud.config.ScreenBPP>8);
+    ud.setup.bpp = newbpp;
+    ud.setup.xdim = newwidth;
+    ud.setup.ydim = newheight;
+    ud.setup.fullscreen = newfs;
+    onvideomodechange(ud.setup.bpp>8);
     G_UpdateScreenArea();
     return OSDCMD_OK;
 }
@@ -1397,11 +1397,11 @@ static int osdcmd_cvar_set_game(osdcmdptr_t parm)
     }
     else if (!Bstrcasecmp(parm->name, "in_mouse"))
     {
-        CONTROL_MouseEnabled = (ud.config.UseMouse && CONTROL_MousePresent);
+        CONTROL_MouseEnabled = (ud.setup.usemouse && CONTROL_MousePresent);
     }
     else if (!Bstrcasecmp(parm->name, "in_joystick"))
     {
-        CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
+        CONTROL_JoystickEnabled = (ud.setup.usejoystick && CONTROL_JoyPresent);
     }
     else if (!Bstrcasecmp(parm->name, "vid_gamma"))
     {
@@ -1576,8 +1576,8 @@ int32_t registerosdcommands(void)
         { "hud_hidestick", "hide the touch input stick", (void *)&droidinput.hideStick, CVAR_BOOL, 0, 1 },
 #endif
 
-        { "in_joystick","enables input from the joystick if it is present",(void *)&ud.config.UseJoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
-        { "in_mouse","enables input from the mouse if it is present",(void *)&ud.config.UseMouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "in_joystick","enables input from the joystick if it is present",(void *)&ud.setup.usejoystick, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
+        { "in_mouse","enables input from the mouse if it is present",(void *)&ud.setup.usemouse, CVAR_BOOL|CVAR_FUNCPTR, 0, 1 },
 
         { "in_aimmode", "0:toggle, 1:hold to aim", (void *)&ud.mouseaiming, CVAR_BOOL, 0, 1 },
         {

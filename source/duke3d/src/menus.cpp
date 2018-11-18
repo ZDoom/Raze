@@ -383,7 +383,7 @@ static MenuEntry_t ME_GAMESETUP_SAVESETUP = MAKE_MENUENTRY( "Save setup", &MF_Re
 #endif
 
 #if defined STARTUP_SETUP_WINDOW && !defined EDUKE32_SIMPLE_MENU
-static MenuOption_t MEO_GAMESETUP_STARTWIN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.config.ForceSetup );
+static MenuOption_t MEO_GAMESETUP_STARTWIN = MAKE_MENUOPTION( &MF_Redfont, &MEOS_OffOn, &ud.setup.forcesetup );
 static MenuEntry_t ME_GAMESETUP_STARTWIN = MAKE_MENUENTRY( "Startup window:", &MF_Redfont, &MEF_BigOptionsRt, &MEO_GAMESETUP_STARTWIN, Option );
 #endif
 
@@ -2038,7 +2038,7 @@ static void Menu_Pre(MenuID_t cm)
 
     case MENU_OPTIONS:
         MenuEntry_DisableOnCondition(&ME_OPTIONS_PLAYERSETUP, ud.recstat == 1);
-        MenuEntry_HideOnCondition(&ME_OPTIONS_JOYSTICKSETUP, !ud.config.UseJoystick || CONTROL_JoyPresent == 0);
+        MenuEntry_HideOnCondition(&ME_OPTIONS_JOYSTICKSETUP, !ud.setup.usejoystick || CONTROL_JoyPresent == 0);
         break;
 
     case MENU_COLCORR:
@@ -3050,10 +3050,10 @@ static void Menu_EntryLinkActivate(MenuEntry_t *entry)
         G_UpdateScreenArea();
         videoSetRenderMode(nrend);
         vsync = videoSetVsync(nvsync);
-        ud.config.ScreenMode = fullscreen;
-        ud.config.ScreenWidth = xres;
-        ud.config.ScreenHeight = yres;
-        ud.config.ScreenBPP = bpp;
+        ud.setup.fullscreen = fullscreen;
+        ud.setup.xdim = xres;
+        ud.setup.ydim = yres;
+        ud.setup.bpp = bpp;
     }
     else if (entry == &ME_SOUND_RESTART)
     {
@@ -3289,7 +3289,7 @@ static void Menu_EntryOptionDidModify(MenuEntry_t *entry)
         videoResetMode();
         if (videoSetGameMode(fullscreen, xres, yres, bpp, upscalefactor))
             OSD_Printf("restartvid: Reset failed...\n");
-        onvideomodechange(ud.config.ScreenBPP>8);
+        onvideomodechange(ud.setup.bpp>8);
         G_RefreshLights();
     }
 #endif

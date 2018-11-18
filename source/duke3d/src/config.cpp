@@ -170,8 +170,8 @@ void CONFIG_SetDefaults(void)
     droidinput.toggleCrouch = 1;
     droidinput.yaw_sens = 5.f;
 
-    ud.config.ScreenWidth = droidinfo.screen_width;
-    ud.config.ScreenHeight = droidinfo.screen_height;
+    ud.setup.xdim = droidinfo.screen_width;
+    ud.setup.ydim = droidinfo.screen_height;
 #else
 # if defined RENDERTYPESDL && SDL_MAJOR_VERSION > 1
     uint32_t inited = SDL_WasInit(SDL_INIT_VIDEO);
@@ -183,21 +183,21 @@ void CONFIG_SetDefaults(void)
     SDL_DisplayMode dm;
     if (SDL_GetDesktopDisplayMode(0, &dm) == 0)
     {
-        ud.config.ScreenWidth = dm.w;
-        ud.config.ScreenHeight = dm.h;
+        ud.setup.xdim = dm.w;
+        ud.setup.ydim = dm.h;
     }
     else
 # endif
     {
-        ud.config.ScreenWidth = 1024;
-        ud.config.ScreenHeight = 768;
+        ud.setup.xdim = 1024;
+        ud.setup.ydim = 768;
     }
 #endif
 
 #ifdef USE_OPENGL
-    ud.config.ScreenBPP = 32;
+    ud.setup.bpp = 32;
 #else
-    ud.config.ScreenBPP = 8;
+    ud.setup.bpp = 8;
 #endif
 
 #if defined(_WIN32)
@@ -217,13 +217,18 @@ void CONFIG_SetDefaults(void)
 #endif
 
 #ifdef GEKKO
-    ud.config.UseJoystick = 1;
+    ud.setup.usejoystick = 1;
 #else
-    ud.config.UseJoystick = 0;
+    ud.setup.usejoystick = 0;
 #endif
 
     g_myAimMode = 1;
     g_player[0].ps->aim_mode = 1;
+
+    ud.setup.forcesetup       = 1;
+    ud.setup.noautoload       = 1;
+    ud.setup.fullscreen       = 1;
+    ud.setup.usemouse         = 1;
 
     ud.althud                 = 1;
     ud.angleinterpolation     = 0;
@@ -239,20 +244,16 @@ void CONFIG_SetDefaults(void)
     ud.config.AutoAim         = 1;
     ud.config.CheckForUpdates = 1;
     ud.config.FXVolume        = 255;
-    ud.config.ForceSetup      = 1;
     ud.config.MouseBias       = 0;
     ud.config.MouseDeadZone   = 0;
     ud.config.MusicToggle     = 1;
     ud.config.MusicVolume     = 195;
-    ud.config.NoAutoLoad      = 1;
     ud.config.NumBits         = 16;
     ud.config.NumChannels     = 2;
     ud.config.ReverseStereo   = 0;
-    ud.config.ScreenMode      = 1;
     ud.config.ShowWeapons     = 0;
     ud.config.SmoothInput     = 1;
     ud.config.SoundToggle     = 1;
-    ud.config.UseMouse        = 1;
     ud.config.VoiceToggle     = 5;  // bitfield, 1 = local, 2 = dummy, 4 = other players in DM
     ud.config.useprecache     = 1;
     ud.configversion          = 0;
@@ -615,8 +616,8 @@ int CONFIG_ReadSetup(void)
     SCRIPT_GetString(ud.config.scripthandle, "Comm Setup","RTSName",&ud.rtsname[0]);
 
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ConfigVersion", &ud.configversion);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup", &ud.config.ForceSetup);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", &ud.config.NoAutoLoad);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "ForceSetup", &ud.setup.forcesetup);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", &ud.setup.noautoload);
 
     int32_t cachesize;
     SCRIPT_GetNumber(ud.config.scripthandle, "Setup", "CacheSize", &cachesize);
@@ -656,15 +657,15 @@ int CONFIG_ReadSetup(void)
     windowy = -1;
 
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "MaxRefreshFreq", (int32_t *)&maxrefreshfreq);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.config.ScreenBPP);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight", &ud.config.ScreenHeight);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode", &ud.config.ScreenMode);
-    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth", &ud.config.ScreenWidth);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", &ud.setup.bpp);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight", &ud.setup.ydim);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode", &ud.setup.fullscreen);
+    SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth", &ud.setup.xdim);
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosX", (int32_t *)&windowx);
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPosY", (int32_t *)&windowy);
     SCRIPT_GetNumber(ud.config.scripthandle, "Screen Setup", "WindowPositioning", (int32_t *)&windowpos);
 
-    if (ud.config.ScreenBPP < 8) ud.config.ScreenBPP = 32;
+    if (ud.setup.bpp < 8) ud.setup.bpp = 32;
 
 #ifdef POLYMER
     int32_t rendmode = 0;
@@ -742,17 +743,17 @@ void CONFIG_WriteSetup(uint32_t flags)
 
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "CacheSize", MAXCACHE1DSIZE, FALSE, FALSE);
     SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ConfigVersion", BYTEVERSION_EDUKE32, FALSE, FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup", ud.config.ForceSetup, FALSE, FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", ud.config.NoAutoLoad, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "ForceSetup", ud.setup.forcesetup, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Setup", "NoAutoLoad", ud.setup.noautoload, FALSE, FALSE);
 
 #ifdef POLYMER
     SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "Polymer", videoGetRenderMode() == REND_POLYMER, FALSE, FALSE);
 #endif
 
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", ud.config.ScreenBPP, FALSE, FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight", ud.config.ScreenHeight, FALSE, FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode", ud.config.ScreenMode, FALSE, FALSE);
-    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth", ud.config.ScreenWidth, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenBPP", ud.setup.bpp, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenHeight", ud.setup.ydim, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenMode", ud.setup.fullscreen, FALSE, FALSE);
+    SCRIPT_PutNumber(ud.config.scripthandle, "Screen Setup", "ScreenWidth", ud.setup.xdim, FALSE, FALSE);
 
     if (g_grpNamePtr && !g_addonNum)
         SCRIPT_PutString(ud.config.scripthandle, "Setup", "SelectedGRP", g_grpNamePtr);
@@ -785,7 +786,7 @@ void CONFIG_WriteSetup(uint32_t flags)
     SCRIPT_PutNumber(ud.config.scripthandle, "Updates", "LastUpdateCheck", ud.config.LastUpdateCheck, FALSE, FALSE);
 #endif
 
-    if (ud.config.UseMouse)
+    if (ud.setup.usemouse)
     {
         for (int i=0; i<MAXMOUSEBUTTONS; i++)
         {
@@ -832,7 +833,7 @@ void CONFIG_WriteSetup(uint32_t flags)
         }
     }
 
-    if (ud.config.UseJoystick)
+    if (ud.setup.usejoystick)
     {
         for (int dummy=0; dummy<MAXJOYBUTTONSANDHATS; dummy++)
         {

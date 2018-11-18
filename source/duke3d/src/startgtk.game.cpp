@@ -20,19 +20,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 //-------------------------------------------------------------------------
 
-#include "compat.h"
-
-#include "gtkpixdata.h"
-
-#include "dynamicgtk.h"
-
-#include "duke3d.h"
-#include "grpscan.h"
 #include "build.h"
-
-#include "game.h"
 #include "common.h"
 #include "common_game.h"
+#include "compat.h"
+#include "duke3d.h"
+#include "dynamicgtk.h"
+#include "game.h"
+#include "grpscan.h"
+#include "gtkpixdata.h"
 
 enum
 {
@@ -105,15 +101,9 @@ static struct
 static struct
 {
     grpfile_t const * grp;
-    int32_t fullscreen;
-#ifdef POLYMER
-    int32_t polymer;
-#endif
-    int32_t xdim3d, ydim3d, bpp3d;
-    int32_t forcesetup;
-    int32_t autoload;
-    int32_t usemouse, usejoy;
-    char *custommoddir;
+    char *gamedir;
+    ud_setup_t shared;
+    int polymer;
 } settings;
 
 static int32_t retval = -1, mode = TAB_MESSAGES;
@@ -133,14 +123,14 @@ static void on_vmode3dcombo_changed(GtkComboBox *combobox, gpointer user_data)
     if (!gtk_combo_box_get_active_iter(combobox, &iter)) return;
     if (!(data = gtk_combo_box_get_model(combobox))) return;
     gtk_tree_model_get(data, &iter, 1, &val, -1);
-    settings.xdim3d = validmode[val].xdim;
-    settings.ydim3d = validmode[val].ydim;
+    settings.shared.xdim = validmode[val].xdim;
+    settings.shared.ydim = validmode[val].ydim;
 }
 
 static void on_fullscreencheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
     UNREFERENCED_PARAMETER(user_data);
-    settings.fullscreen = gtk_toggle_button_get_active(togglebutton);
+    settings.shared.fullscreen = gtk_toggle_button_get_active(togglebutton);
     PopulateForm(POPULATE_VIDEO);
 }
 
@@ -152,9 +142,9 @@ static void on_polymercheck_toggled(GtkToggleButton *togglebutton, gpointer user
     {
         glrendmode = REND_POLYMER;
         settings.polymer = TRUE;
-        if (settings.bpp3d == 8)
+        if (settings.shared.bpp == 8)
         {
-            settings.bpp3d = 32;
+            settings.shared.bpp = 32;
             PopulateForm(POPULATE_VIDEO);
         }
     }
@@ -171,10 +161,10 @@ static void on_inputdevcombo_changed(GtkComboBox *combobox, gpointer user_data)
     UNREFERENCED_PARAMETER(user_data);
     switch (gtk_combo_box_get_active(combobox))
     {
-    case 0: settings.usemouse = 0; settings.usejoy = 0; break;
-    case 1:	settings.usemouse = 1; settings.usejoy = 0; break;
-    case 2:	settings.usemouse = 0; settings.usejoy = 1; break;
-    case 3:	settings.usemouse = 1; settings.usejoy = 1; break;
+    case 0: settings.shared.usemouse = 0; settings.shared.usejoystick = 0; break;
+    case 1:	settings.shared.usemouse = 1; settings.shared.usejoystick = 0; break;
+    case 2:	settings.shared.usemouse = 0; settings.shared.usejoystick = 1; break;
+    case 3:	settings.shared.usemouse = 1; settings.shared.usejoystick = 1; break;
     }
 }
 
@@ -193,21 +183,21 @@ static void on_custommodcombo_changed(GtkComboBox *combobox, gpointer user_data)
         path = gtk_tree_model_get_path(model, &iter);
 
         if (*gtk_tree_path_get_indices(path) == NONE)
-            settings.custommoddir = NULL;
-        else settings.custommoddir = value;
+            settings.gamedir = NULL;
+        else settings.gamedir = value;
     }
 }
 
 static void on_autoloadcheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
     UNREFERENCED_PARAMETER(user_data);
-    settings.autoload = gtk_toggle_button_get_active(togglebutton);
+    settings.shared.noautoload = !gtk_toggle_button_get_active(togglebutton);
 }
 
 static void on_alwaysshowcheck_toggled(GtkToggleButton *togglebutton, gpointer user_data)
 {
     UNREFERENCED_PARAMETER(user_data);
-    settings.forcesetup = gtk_toggle_button_get_active(togglebutton);
+    settings.shared.forcesetup = gtk_toggle_button_get_active(togglebutton);
 }
 
 static void on_cancelbutton_clicked(GtkButton *button, gpointer user_data)
@@ -316,17 +306,17 @@ static void PopulateForm(unsigned char pgs)
         GtkTreeIter iter;
         char buf[64];
 
-        mode3d = videoCheckMode(&settings.xdim3d, &settings.ydim3d, settings.bpp3d, settings.fullscreen, 1);
+        mode3d = videoCheckMode(&settings.shared.xdim, &settings.shared.ydim, settings.shared.bpp, settings.shared.fullscreen, 1);
         if (mode3d < 0)
         {
             int32_t i, cd[] = { 32, 24, 16, 15, 8, 0 };
 
-            for (i=0; cd[i];) { if (cd[i] >= settings.bpp3d) i++; else break; }
+            for (i=0; cd[i];) { if (cd[i] >= settings.shared.bpp) i++; else break; }
             for (; cd[i]; i++)
             {
-                mode3d = videoCheckMode(&settings.xdim3d, &settings.ydim3d, cd[i], settings.fullscreen, 1);
+                mode3d = videoCheckMode(&settings.shared.xdim, &settings.shared.ydim, cd[i], settings.shared.fullscreen, 1);
                 if (mode3d < 0) continue;
-                settings.bpp3d = cd[i];
+                settings.shared.bpp = cd[i];
                 break;
             }
         }
@@ -336,7 +326,7 @@ static void PopulateForm(unsigned char pgs)
 
         for (i=0; i<validmodecnt; i++)
         {
-            if (validmode[i].fs != settings.fullscreen) continue;
+            if (validmode[i].fs != settings.shared.fullscreen) continue;
 
             // all modes get added to the 3D mode list
             Bsprintf(buf, "%dx%d %s", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp == 8 ? "software" : "OpenGL");
@@ -375,14 +365,14 @@ static void PopulateForm(unsigned char pgs)
             gtk_list_store_append(devlist, &iter);
             gtk_list_store_set(devlist, &iter, 0,availabledev[i], -1);
         }
-        switch (settings.usemouse)
+        switch (settings.shared.usemouse)
         {
-        case 0: if (settings.usejoy)
+        case 0: if (settings.shared.usejoystick)
                 gtk_combo_box_set_active(GTK_COMBO_BOX(stwidgets.inputdevcombo), INPUT_JOYSTICK);
             else
                 gtk_combo_box_set_active(GTK_COMBO_BOX(stwidgets.inputdevcombo), INPUT_KB);
             break;
-        case 1:	if (settings.usejoy)
+        case 1:	if (settings.shared.usejoystick)
                 gtk_combo_box_set_active(GTK_COMBO_BOX(stwidgets.inputdevcombo), INPUT_ALL);
             else
                 gtk_combo_box_set_active(GTK_COMBO_BOX(stwidgets.inputdevcombo), INPUT_MOUSE);
@@ -403,14 +393,14 @@ static void PopulateForm(unsigned char pgs)
             gtk_tree_model_get_iter(GTK_TREE_MODEL(modsdir), &iter, path);
             gtk_tree_model_get(GTK_TREE_MODEL(modsdir), &iter, 0,&value, -1);
 
-            if (Bstrcmp(settings.custommoddir, "/") == 0)
+            if (Bstrcmp(settings.gamedir, "/") == 0)
             {
                 gtk_combo_box_set_active(GTK_COMBO_BOX(stwidgets.custommodcombo), NONE);
-                settings.custommoddir = NULL;
+                settings.gamedir = NULL;
 
                 break;
             }
-            if (Bstrcmp(settings.custommoddir, value) == 0)
+            if (Bstrcmp(settings.gamedir, value) == 0)
             {
                 gtk_combo_box_set_active_iter(GTK_COMBO_BOX(stwidgets.custommodcombo),
                                               &iter);
@@ -420,12 +410,12 @@ static void PopulateForm(unsigned char pgs)
         }
 
         // populate check buttons
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.fullscreencheck), settings.fullscreen);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.fullscreencheck), settings.shared.fullscreen);
 #ifdef POLYMER
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.polymercheck), settings.polymer);
 #endif
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.autoloadcheck), settings.autoload);
-        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.alwaysshowcheck), settings.forcesetup);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.autoloadcheck), !settings.shared.noautoload);
+        gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stwidgets.alwaysshowcheck), settings.shared.forcesetup);
     }
 
     if ((pgs == ALL) || (pgs == POPULATE_GAME))
@@ -867,23 +857,13 @@ int32_t startwin_run(void)
 
     SetPage(TAB_CONFIG);
 
-    settings.xdim3d = ud.config.ScreenWidth;
-    settings.ydim3d = ud.config.ScreenHeight;
-    settings.bpp3d = ud.config.ScreenBPP;
-    settings.fullscreen = ud.config.ScreenMode;
-    settings.usemouse = ud.config.UseMouse;
-    settings.usejoy = ud.config.UseJoystick;
-    settings.custommoddir = g_modDir;
-    settings.forcesetup = ud.config.ForceSetup;
+    settings.shared = ud.setup;
+    settings.gamedir = g_modDir;
     settings.grp = g_selectedGrp;
-    if (ud.config.NoAutoLoad) settings.autoload = FALSE;
-    else settings.autoload = TRUE;
 #ifdef POLYMER
-    if (glrendmode == REND_POLYMER)
-    {
-        if (settings.bpp3d == 8) settings.bpp3d = 32;
-        settings.polymer = TRUE;
-    }
+    settings.polymer = (glrendmode == REND_POLYMER);
+#else
+    settings.polymer = 0;
 #endif
     PopulateForm(ALL);
 
@@ -892,21 +872,11 @@ int32_t startwin_run(void)
     SetPage(TAB_MESSAGES);
     if (retval) // launch the game with these parameters
     {
-        ud.config.ScreenWidth = settings.xdim3d;
-        ud.config.ScreenHeight = settings.ydim3d;
-        ud.config.ScreenBPP = settings.bpp3d;
-        ud.config.ScreenMode = settings.fullscreen;
-        ud.config.UseMouse = settings.usemouse;
-        ud.config.UseJoystick = settings.usejoy;
-        ud.config.ForceSetup = settings.forcesetup;
+        ud.setup = settings.shared;
+        glrendmode = (settings.polymer) ? REND_POLYMER : REND_POLYMOST;
         g_selectedGrp = settings.grp;
 
-        if (settings.custommoddir != NULL)
-            Bstrcpy(g_modDir, settings.custommoddir);
-        else Bsprintf(g_modDir, "/");
-
-        if (settings.autoload) ud.config.NoAutoLoad = FALSE;
-        else ud.config.NoAutoLoad = TRUE;
+        Bstrcpy(g_modDir, (g_noSetup == 0 && settings.gamedir != NULL) ? settings.gamedir : "/");
     }
 
     return retval;

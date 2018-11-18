@@ -160,6 +160,17 @@ extern camera_t g_camera;
 
 // KEEPINSYNC lunatic/_defs_game.lua
 typedef struct {
+    int32_t usejoystick;
+    int32_t usemouse;
+    int32_t fullscreen;
+    int32_t xdim;
+    int32_t ydim;
+    int32_t bpp;
+    int32_t forcesetup;
+    int32_t noautoload;
+} ud_setup_t;
+
+typedef struct {
 #if !defined LUNATIC
     vec3_t camerapos;
 #endif
@@ -210,8 +221,6 @@ typedef struct {
     int8_t menutitle_pal, slidebar_palselected, slidebar_paldisabled;
 
     struct {
-        int32_t UseJoystick;
-        int32_t UseMouse;
         int32_t AutoAim;
         int32_t ShowWeapons;
         int32_t MouseDeadZone,MouseBias;
@@ -248,18 +257,6 @@ typedef struct {
 
         int32_t ReverseStereo;
 
-        //
-        // Screen variables
-        //
-
-        int32_t ScreenMode;
-
-        int32_t ScreenWidth;
-        int32_t ScreenHeight;
-        int32_t ScreenBPP;
-
-        int32_t ForceSetup;
-        int32_t NoAutoLoad;
 
         int32_t scripthandle;
         int32_t setupread;
@@ -268,6 +265,8 @@ typedef struct {
         int32_t LastUpdateCheck;
         int32_t useprecache;
     } config;
+
+    ud_setup_t setup;
 
     char overhead_on,last_overhead,showweapons;
     char god,warp_on,cashman,eog,showallmap;
@@ -517,15 +516,12 @@ enum
 };
 
 
-#define G_ModDirSnprintf(buf, size, basename, ...)                                                                          \
-    \
-(((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/" basename, g_modDir, ##__VA_ARGS__)                                      \
-                       : Bsnprintf(buf, size, basename, ##__VA_ARGS__)) >= ((int32_t)size) - 1\
-)
-#define G_ModDirSnprintfLite(buf, size, basename)                                                                          \
-    \
-((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/%s", g_modDir, basename)                                      \
-                      : Bsnprintf(buf, size, basename))
+#define G_ModDirSnprintf(buf, size, basename, ...)                                                                                          \
+    (((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/" basename, g_modDir, ##__VA_ARGS__) : Bsnprintf(buf, size, basename, ##__VA_ARGS__)) \
+     >= ((int32_t)size) - 1)
+
+#define G_ModDirSnprintfLite(buf, size, basename) \
+    ((g_modDir[0] != '/') ? Bsnprintf(buf, size, "%s/%s", g_modDir, basename) : Bsnprintf(buf, size, basename))
 
 static inline void G_NewGame_EnterLevel(void)
 {

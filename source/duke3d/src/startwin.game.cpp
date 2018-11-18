@@ -24,58 +24,47 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #error Only for Windows
 #endif
 
-#include "compat.h"
-
-#define NEED_WINDOWSX_H
-#define NEED_COMMCTRL_H
-#include "windows_inc.h"
-
 #include "renderlayer.h"
 
 #ifdef STARTUP_SETUP_WINDOW
 
+#define NEED_WINDOWSX_H
+#define NEED_COMMCTRL_H
+#define ONLY_USERDEFS
+
+#include "_control.h"
 #include "build.h"
 #include "cache1d.h"
-
-#include "grpscan.h"
-
-#include "startwin.game.h"
-
-// for ud
-#include "keyboard.h"
-#include "control.h"
-#include "_control.h"
-#include "function.h"
-#include "inv.h"
-#define ONLY_USERDEFS
-#include "game.h"
-
-#include "common_game.h"
 #include "cmdline.h"
+#include "common_game.h"
+#include "compat.h"
+#include "control.h"
+#include "function.h"
+#include "game.h"
+#include "grpscan.h"
+#include "inv.h"
+#include "keyboard.h"
+#include "startwin.game.h"
+#include "windows_inc.h"
 
 #define TAB_CONFIG 0
-// #define TAB_GAME 1
 #define TAB_MESSAGES 1
 
 static struct
 {
     struct grpfile_t const * grp;
-    int32_t flags; // bitfield
-    int32_t xdim, ydim, bpp;
-    int32_t forcesetup;
-    int32_t usemouse, usejoy;
     char *gamedir;
+    ud_setup_t shared;
+    int polymer;
 }
 settings;
 
-static HWND startupdlg = NULL;
-static HWND pages[3] =
-{
-    NULL, NULL, NULL
-};
-static int32_t done = -1, mode = TAB_CONFIG;
+static HWND startupdlg;
+static HWND pages[3];
+static int done = -1;
+static int mode = TAB_CONFIG;
 
-static CACHE1D_FIND_REC *finddirs=NULL;
+static CACHE1D_FIND_REC *finddirs;
 
 static inline void clearfilenames(void)
 {
@@ -83,11 +72,10 @@ static inline void clearfilenames(void)
     finddirs = NULL;
 }
 
-static inline int32_t getfilenames(char const *path)
+static inline void getfilenames(char const *path)
 {
     clearfilenames();
     finddirs = klistpath(path,"*",CACHE1D_FIND_DIR);
-    return 0;
 }
 
 #define POPULATE_VIDEO 1
@@ -108,22 +96,19 @@ const char *controlstrings[] = { "Keyboard only", "Keyboard and mouse", "Keyboar
 
 static void PopulateForm(int32_t pgs)
 {
-    HWND hwnd;
     char buf[512];
-    int32_t i,j;
 
     if (pgs & POPULATE_GAMEDIRS)
     {
-        CACHE1D_FIND_REC *dirs = NULL;
-
-        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR);
+        HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR);
 
         getfilenames("/");
         (void)ComboBox_ResetContent(hwnd);
-        j = ComboBox_AddString(hwnd, "None");
-        (void)ComboBox_SetItemData(hwnd, j, 0);
-        (void)ComboBox_SetCurSel(hwnd, j);
-        for (dirs=finddirs,i=1,j=1; dirs != NULL; dirs=dirs->next)
+        int const r = ComboBox_AddString(hwnd, "None");
+        (void)ComboBox_SetItemData(hwnd, r, 0);
+        (void)ComboBox_SetCurSel(hwnd, r);
+        auto dirs = finddirs;
+        for (int i=1, j=1; dirs != NULL; dirs=dirs->next)
         {
             if (Bstrcasecmp(dirs->name, "autoload") == 0)
             {
@@ -133,7 +118,7 @@ static void PopulateForm(int32_t pgs)
 
             (void)ComboBox_AddString(hwnd, dirs->name);
             (void)ComboBox_SetItemData(hwnd, i, j);
-            if (Bstrcasecmp(dirs->name,settings.gamedir) == 0)
+            if (Bstrcasecmp(dirs->name, settings.gamedir) == 0)
                 (void)ComboBox_SetCurSel(hwnd, i);
 
             i++;
@@ -143,41 +128,41 @@ static void PopulateForm(int32_t pgs)
 
     if (pgs & POPULATE_VIDEO)
     {
-        int32_t mode;
+        HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
+        int mode = videoCheckMode(&settings.shared.xdim, &settings.shared.ydim, settings.shared.bpp, settings.shared.fullscreen, 1);
 
-        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCVMODE);
-
-        mode = videoCheckMode(&settings.xdim, &settings.ydim, settings.bpp, settings.flags&1, 1);
-        if (mode < 0 || (settings.bpp < 15 && (settings.flags & 2)))
+        if (mode < 0 || (settings.shared.bpp < 15 && (settings.polymer)))
         {
-            int32_t cd[] = { 32, 24, 16, 15, 8, 0 };
+            int CONSTEXPR cd[] = { 32, 24, 16, 15, 8, 0 };
+            int i;
+
             for (i=0; cd[i];)
             {
-                if (cd[i] >= settings.bpp) i++;
+                if (cd[i] >= settings.shared.bpp) i++;
                 else break;
             }
             for (; cd[i]; i++)
             {
-                mode = videoCheckMode(&settings.xdim, &settings.ydim, cd[i], settings.flags&1, 1);
+                mode = videoCheckMode(&settings.shared.xdim, &settings.shared.ydim, cd[i], settings.shared.fullscreen, 1);
                 if (mode < 0) continue;
-                settings.bpp = cd[i];
+                settings.shared.bpp = cd[i];
                 break;
             }
         }
 
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), ((settings.flags&1) ? BST_CHECKED : BST_UNCHECKED));
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), ((settings.flags&2) ? BST_CHECKED : BST_UNCHECKED));
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), ((settings.shared.fullscreen) ? BST_CHECKED : BST_UNCHECKED));
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), ((settings.polymer) ? BST_CHECKED : BST_UNCHECKED));
 
         (void)ComboBox_ResetContent(hwnd);
 
-        for (i=0; i<validmodecnt; i++)
+        for (int i=0; i<validmodecnt; i++)
         {
-            if (validmode[i].fs != (settings.flags & 1)) continue;
-            if ((validmode[i].bpp < 15) && (settings.flags & 2)) continue;
+            if (validmode[i].fs != (settings.shared.fullscreen)) continue;
+            if ((validmode[i].bpp < 15) && (settings.polymer)) continue;
 
             // all modes get added to the 3D mode list
             Bsprintf(buf, "%dx%d %s", validmode[i].xdim, validmode[i].ydim, validmode[i].bpp == 8 ? "software" : "OpenGL");
-            j = ComboBox_AddString(hwnd, buf);
+            int const j = ComboBox_AddString(hwnd, buf);
             (void)ComboBox_SetItemData(hwnd, j, i);
             if (i == mode)(void)ComboBox_SetCurSel(hwnd, j);
         }
@@ -185,21 +170,21 @@ static void PopulateForm(int32_t pgs)
 
     if (pgs & POPULATE_CONFIG)
     {
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.forcesetup ? BST_CHECKED : BST_UNCHECKED));
-        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCAUTOLOAD), (!(settings.flags & 4) ? BST_CHECKED : BST_UNCHECKED));
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCALWAYSSHOW), (settings.shared.forcesetup ? BST_CHECKED : BST_UNCHECKED));
+        Button_SetCheck(GetDlgItem(pages[TAB_CONFIG], IDCAUTOLOAD), (!(settings.shared.noautoload) ? BST_CHECKED : BST_UNCHECKED));
 
-        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCINPUT);
+        HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDCINPUT);
 
         (void)ComboBox_ResetContent(hwnd);
         (void)ComboBox_SetCurSel(hwnd, 0);
 
-        j = 4;
+        int j = 4;
 
 #ifdef RENDERTYPEWIN
         if (di_disabled) j = 2;
 #endif
 
-        for (i=0; i<j; i++)
+        for (int i=0; i<j; i++)
         {
             (void)ComboBox_InsertString(hwnd, i, controlstrings[i]);
             (void)ComboBox_SetItemData(hwnd, i, i);
@@ -207,13 +192,13 @@ static void PopulateForm(int32_t pgs)
             switch (i)
             {
             case INPUT_MOUSE:
-                if (settings.usemouse && !settings.usejoy)(void)ComboBox_SetCurSel(hwnd, i);
+                if (settings.shared.usemouse && !settings.shared.usejoystick)(void)ComboBox_SetCurSel(hwnd, i);
                 break;
             case INPUT_JOYSTICK:
-                if (!settings.usemouse && settings.usejoy)(void)ComboBox_SetCurSel(hwnd, i);
+                if (!settings.shared.usemouse && settings.shared.usejoystick)(void)ComboBox_SetCurSel(hwnd, i);
                 break;
             case INPUT_ALL:
-                if (settings.usemouse && settings.usejoy)(void)ComboBox_SetCurSel(hwnd, i);
+                if (settings.shared.usemouse && settings.shared.usejoystick)(void)ComboBox_SetCurSel(hwnd, i);
                 break;
             }
         }
@@ -221,20 +206,15 @@ static void PopulateForm(int32_t pgs)
 
     if (pgs & POPULATE_GAME)
     {
-        int32_t j;
-        char buf[1024];
+        HWND hwnd = GetDlgItem(pages[TAB_CONFIG], IDCDATA);
 
-        hwnd = GetDlgItem(pages[TAB_CONFIG], IDCDATA);
-
-        for (grpfile_t const * fg = foundgrps; fg; fg=fg->next)
+        for (auto fg = foundgrps; fg; fg=fg->next)
         {
             Bsprintf(buf, "%s\t%s", fg->type->name, fg->filename);
-            j = ListBox_AddString(hwnd, buf);
+            int const j = ListBox_AddString(hwnd, buf);
             (void)ListBox_SetItemData(hwnd, j, (LPARAM)fg);
             if (settings.grp == fg)
-            {
                 (void)ListBox_SetCurSel(hwnd, j);
-            }
         }
     }
 }
@@ -247,61 +227,55 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         switch (LOWORD(wParam))
         {
         case IDCFULLSCREEN:
-            if (settings.flags & 1) settings.flags &= ~1;
-            else settings.flags |= 1;
+            settings.shared.fullscreen = !settings.shared.fullscreen;
             PopulateForm(POPULATE_VIDEO);
             return TRUE;
         case IDCPOLYMER:
-            if (settings.flags & 2) settings.flags &= ~2;
-            else settings.flags |= 2;
-            if (settings.bpp == 8) settings.bpp = 32;
+            settings.polymer = !settings.polymer;
+            if (settings.shared.bpp == 8) settings.shared.bpp = 32;
             PopulateForm(POPULATE_VIDEO);
             return TRUE;
         case IDCVMODE:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
-                int32_t i;
-                i = ComboBox_GetCurSel((HWND)lParam);
+                int i = ComboBox_GetCurSel((HWND)lParam);
                 if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
                 if (i != CB_ERR)
                 {
-                    settings.xdim = validmode[i].xdim;
-                    settings.ydim = validmode[i].ydim;
-                    settings.bpp  = validmode[i].bpp;
+                    settings.shared.xdim = validmode[i].xdim;
+                    settings.shared.ydim = validmode[i].ydim;
+                    settings.shared.bpp  = validmode[i].bpp;
                 }
             }
             return TRUE;
         case IDCALWAYSSHOW:
-            settings.forcesetup = IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED;
+            settings.shared.forcesetup = IsDlgButtonChecked(hwndDlg, IDCALWAYSSHOW) == BST_CHECKED;
             return TRUE;
         case IDCAUTOLOAD:
-            if (IsDlgButtonChecked(hwndDlg, IDCAUTOLOAD) == BST_CHECKED)
-                settings.flags &= ~4;
-            else settings.flags |= 4;
+            settings.shared.noautoload = (IsDlgButtonChecked(hwndDlg, IDCAUTOLOAD) != BST_CHECKED);
             return TRUE;
         case IDCINPUT:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
-                int32_t i;
-                i = ComboBox_GetCurSel((HWND)lParam);
+                int i = ComboBox_GetCurSel((HWND)lParam);
                 if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
                 if (i != CB_ERR)
                 {
                     switch (i)
                     {
                     case INPUT_KB:
-                        settings.usemouse = settings.usejoy = 0;
+                        settings.shared.usemouse = settings.shared.usejoystick = 0;
                         break;
                     case INPUT_MOUSE:
-                        settings.usemouse = 1;
-                        settings.usejoy = 0;
+                        settings.shared.usemouse = 1;
+                        settings.shared.usejoystick = 0;
                         break;
                     case INPUT_JOYSTICK:
-                        settings.usemouse = 0;
-                        settings.usejoy = 1;
+                        settings.shared.usemouse = 0;
+                        settings.shared.usejoystick = 1;
                         break;
                     case INPUT_ALL:
-                        settings.usemouse = settings.usejoy = 1;
+                        settings.shared.usemouse = settings.shared.usejoystick = 1;
                         break;
                     }
                 }
@@ -311,9 +285,7 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
         case IDCGAMEDIR:
             if (HIWORD(wParam) == CBN_SELCHANGE)
             {
-                int32_t i,j;
-                CACHE1D_FIND_REC *dir = NULL;
-                i = ComboBox_GetCurSel((HWND)lParam);
+                int i = ComboBox_GetCurSel((HWND)lParam);
                 if (i != CB_ERR) i = ComboBox_GetItemData((HWND)lParam, i);
                 if (i != CB_ERR)
                 {
@@ -321,21 +293,23 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
                         settings.gamedir = NULL;
                     else
                     {
-                        for (j=1,dir=finddirs; dir != NULL; dir=dir->next,j++)
+                        CACHE1D_FIND_REC *dir = finddirs;
+                        for (int j = 1; dir != NULL; dir = dir->next, j++)
+                        {
                             if (j == i)
                             {
                                 settings.gamedir = dir->name;
                                 break;
                             }
+                        }
                     }
                 }
             }
             return TRUE;
         case IDCDATA:
         {
-            intptr_t i;
             if (HIWORD(wParam) != LBN_SELCHANGE) break;
-            i = ListBox_GetCurSel((HWND)lParam);
+            intptr_t i = ListBox_GetCurSel((HWND)lParam);
             if (i != CB_ERR) i = ListBox_GetItemData((HWND)lParam, i);
             if (i != CB_ERR)
             {
@@ -354,53 +328,43 @@ static INT_PTR CALLBACK ConfigPageProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, L
 }
 
 
-static void SetPage(int32_t n)
+static void SetPage(int pageNum)
 {
-    HWND tab;
-    int32_t cur;
-    tab = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
-    cur = (int32_t)SendMessage(tab, TCM_GETCURSEL,0,0);
-    ShowWindow(pages[cur],SW_HIDE);
-    SendMessage(tab, TCM_SETCURSEL, n, 0);
-    ShowWindow(pages[n],SW_SHOW);
-    mode = n;
+    HWND tab = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
+    auto const cur = SendMessage(tab, TCM_GETCURSEL, 0, 0);
+    ShowWindow(pages[cur], SW_HIDE);
+    SendMessage(tab, TCM_SETCURSEL, pageNum, 0);
+    ShowWindow(pages[pageNum], SW_SHOW);
+    mode = pageNum;
 
     SetFocus(GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL));
 }
 
-static void EnableConfig(int32_t n)
+static void EnableConfig(bool n)
 {
     //EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_CANCEL), n);
     EnableWindow(GetDlgItem(startupdlg, WIN_STARTWIN_START), n);
+    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCDATA), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCFULLSCREEN), n);
+    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR), n);
+    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUT), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCPOLYMER), n);
     EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCVMODE), n);
-    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCINPUT), n);
-
-    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCDATA), n);
-    EnableWindow(GetDlgItem(pages[TAB_CONFIG], IDCGAMEDIR), n);
 }
 
 static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     static HBITMAP hbmp = NULL;
-    HDC hdc;
 
     switch (uMsg)
     {
     case WM_INITDIALOG:
     {
-        HWND hwnd;
-        RECT r, rdlg, chrome, rtab, rcancel, rstart;
-        int32_t xoffset = 0, yoffset = 0;
-
         // Fetch the positions (in screen coordinates) of all the windows we need to tweak
-        ZeroMemory(&chrome, sizeof(chrome));
+        RECT chrome = {};
         AdjustWindowRect(&chrome, GetWindowLong(hwndDlg, GWL_STYLE), FALSE);
+        RECT rdlg;
         GetWindowRect(hwndDlg, &rdlg);
-        GetWindowRect(GetDlgItem(hwndDlg, WIN_STARTWIN_TABCTL), &rtab);
-        GetWindowRect(GetDlgItem(hwndDlg, WIN_STARTWIN_CANCEL), &rcancel);
-        GetWindowRect(GetDlgItem(hwndDlg, WIN_STARTWIN_START), &rstart);
 
         // Knock off the non-client area of the main dialogue to give just the client area
         rdlg.left -= chrome.left;
@@ -408,16 +372,25 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         rdlg.right -= chrome.right;
         rdlg.bottom -= chrome.bottom;
 
+        RECT rtab;
+        GetWindowRect(GetDlgItem(hwndDlg, WIN_STARTWIN_TABCTL), &rtab);
+
         // Translate them to client-relative coordinates wrt the main dialogue window
         rtab.right -= rtab.left - 1;
         rtab.bottom -= rtab.top - 1;
         rtab.left  -= rdlg.left;
         rtab.top -= rdlg.top;
 
+        RECT rcancel;
+        GetWindowRect(GetDlgItem(hwndDlg, WIN_STARTWIN_CANCEL), &rcancel);
+
         rcancel.right -= rcancel.left - 1;
         rcancel.bottom -= rcancel.top - 1;
         rcancel.left -= rdlg.left;
         rcancel.top -= rdlg.top;
+
+        RECT rstart;
+        GetWindowRect(GetDlgItem(hwndDlg, WIN_STARTWIN_START), &rstart);
 
         rstart.right -= rstart.left - 1;
         rstart.bottom -= rstart.top - 1;
@@ -432,11 +405,15 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
         // Load the bitmap into the bitmap control and fetch its dimensions
         hbmp = LoadBitmap((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(RSRC_BMP));
-        hwnd = GetDlgItem(hwndDlg,WIN_STARTWIN_BITMAP);
+
+        HWND hwnd = GetDlgItem(hwndDlg, WIN_STARTWIN_BITMAP);
         SendMessage(hwnd, STM_SETIMAGE, IMAGE_BITMAP, (LPARAM)hbmp);
+
+        RECT r;
         GetClientRect(hwnd, &r);
-        xoffset = r.right;
-        yoffset = r.bottom - rdlg.bottom;
+
+        int const xoffset = r.right;
+        int const yoffset = r.bottom - rdlg.bottom;
 
         // Shift and resize the controls that require it
         rtab.left += xoffset;
@@ -454,7 +431,7 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
         MoveWindow(GetDlgItem(hwndDlg, WIN_STARTWIN_START), rstart.left, rstart.top, rstart.right, rstart.bottom, FALSE);
 
         // Move the main dialogue to the centre of the screen
-        hdc = GetDC(NULL);
+        HDC hdc = GetDC(NULL);
         rdlg.left = (GetDeviceCaps(hdc, HORZRES) - rdlg.right) / 2;
         rdlg.top = (GetDeviceCaps(hdc, VERTRES) - rdlg.bottom) / 2;
         ReleaseDC(NULL, hdc);
@@ -463,17 +440,16 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
         // Add tabs to the tab control
         {
-            TCITEM tab;
+            static char textSetup[] = TEXT("Setup");
+            static char textMessageLog[] = TEXT("Message Log");
 
             hwnd = GetDlgItem(hwndDlg, WIN_STARTWIN_TABCTL);
 
-            ZeroMemory(&tab, sizeof(tab));
+            TCITEM tab = {};
             tab.mask = TCIF_TEXT;
-            static char textSetup[] = TEXT("Setup");
             tab.pszText = textSetup;
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_CONFIG, (LPARAM)&tab);
             tab.mask = TCIF_TEXT;
-            static char textMessageLog[] = TEXT("Message Log");
             tab.pszText = textMessageLog;
             SendMessage(hwnd, TCM_INSERTITEM, (WPARAM)TAB_MESSAGES, (LPARAM)&tab);
 
@@ -487,14 +463,14 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
             r.left += rtab.left;
 
             // Create the pages and position them in the tab control, but hide them
-            pages[TAB_CONFIG] = CreateDialog((HINSTANCE)win_gethinstance(),
-                                             MAKEINTRESOURCE(WIN_STARTWINPAGE_CONFIG), hwndDlg, ConfigPageProc);
+            pages[TAB_CONFIG] = CreateDialog((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(WIN_STARTWINPAGE_CONFIG), hwndDlg, ConfigPageProc);
+            SetWindowPos(pages[TAB_CONFIG], hwnd, r.left, r.top, r.right, r.bottom, SWP_HIDEWINDOW);
+
             pages[TAB_MESSAGES] = GetDlgItem(hwndDlg, WIN_STARTWIN_MESSAGES);
-            SetWindowPos(pages[TAB_CONFIG], hwnd,r.left,r.top,r.right,r.bottom,SWP_HIDEWINDOW);
-            SetWindowPos(pages[TAB_MESSAGES], hwnd,r.left,r.top,r.right,r.bottom,SWP_HIDEWINDOW);
+            SetWindowPos(pages[TAB_MESSAGES], hwnd, r.left, r.top, r.right, r.bottom, SWP_HIDEWINDOW);
 
             // Tell the editfield acting as the console to exclude the width of the scrollbar
-            GetClientRect(pages[TAB_MESSAGES],&r);
+            GetClientRect(pages[TAB_MESSAGES], &r);
             r.right -= GetSystemMetrics(SM_CXVSCROLL)+4;
             r.left = r.top = 0;
             SendMessage(pages[TAB_MESSAGES], EM_SETRECTNP,0,(LPARAM)&r);
@@ -513,24 +489,17 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
     case WM_NOTIFY:
     {
-        LPNMHDR nmhdr = (LPNMHDR)lParam;
-        int32_t cur;
+        auto nmhdr = (LPNMHDR)lParam;
         if (nmhdr->idFrom != WIN_STARTWIN_TABCTL) break;
-        cur = (int32_t)SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
+        int const cur = SendMessage(nmhdr->hwndFrom, TCM_GETCURSEL,0,0);
         switch (nmhdr->code)
         {
-        case TCN_SELCHANGING:
-        {
-            if (cur < 0 || !pages[cur]) break;
-            ShowWindow(pages[cur],SW_HIDE);
-            return TRUE;
-        }
-        case TCN_SELCHANGE:
-        {
-            if (cur < 0 || !pages[cur]) break;
-            ShowWindow(pages[cur],SW_SHOW);
-            return TRUE;
-        }
+            case TCN_SELCHANGING:
+            case TCN_SELCHANGE:
+                if (cur < 0 || !pages[cur])
+                    break;
+                ShowWindow(pages[cur], nmhdr->code == TCN_SELCHANGING ? SW_HIDE : SW_SHOW);
+                return TRUE;
         }
         break;
     }
@@ -584,10 +553,8 @@ static INT_PTR CALLBACK startup_dlgproc(HWND hwndDlg, UINT uMsg, WPARAM wParam, 
 
 int32_t startwin_open(void)
 {
-    INITCOMMONCONTROLSEX icc;
     if (startupdlg) return 1;
-    icc.dwSize = sizeof(icc);
-    icc.dwICC = ICC_TAB_CLASSES;
+    INITCOMMONCONTROLSEX icc = { sizeof(icc), ICC_TAB_CLASSES };
     InitCommonControlsEx(&icc);
     startupdlg = CreateDialog((HINSTANCE)win_gethinstance(), MAKEINTRESOURCE(WIN_STARTWIN), NULL, startup_dlgproc);
     if (startupdlg)
@@ -609,43 +576,43 @@ int32_t startwin_close(void)
 
 int32_t startwin_puts(const char *buf)
 {
-    const char *p = NULL, *q = NULL;
-    static char workbuf[1024];
-    static int32_t newline = 0;
-    int32_t curlen, linesbefore, linesafter;
-    HWND edctl;
-    int32_t vis;
-    static HWND dactrl = NULL;
-
     if (!startupdlg) return 1;
 
-    edctl = pages[TAB_MESSAGES];
+    const HWND edctl = pages[TAB_MESSAGES];
+
     if (!edctl) return -1;
 
+    static HWND dactrl = NULL;
     if (!dactrl) dactrl = GetDlgItem(startupdlg, WIN_STARTWIN_TABCTL);
 
-    vis = ((int32_t)SendMessage(dactrl, TCM_GETCURSEL,0,0) == TAB_MESSAGES);
+    int const vis = ((int)SendMessage(dactrl, TCM_GETCURSEL,0,0) == TAB_MESSAGES);
 
-    if (vis) SendMessage(edctl, WM_SETREDRAW, FALSE,0);
-    curlen = SendMessage(edctl, WM_GETTEXTLENGTH, 0,0);
+    if (vis)
+        SendMessage(edctl, WM_SETREDRAW, FALSE, 0);
+
+    int const curlen = SendMessage(edctl, WM_GETTEXTLENGTH, 0,0);
     SendMessage(edctl, EM_SETSEL, (WPARAM)curlen, (LPARAM)curlen);
-    linesbefore = SendMessage(edctl, EM_GETLINECOUNT, 0,0);
-    p = buf;
+
+    int const   numlines = SendMessage(edctl, EM_GETLINECOUNT, 0, 0);
+    static bool newline  = false;
+    const char *p        = buf;
+
     while (*p)
     {
         if (newline)
         {
             SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)"\r\n");
-            newline = 0;
+            newline = false;
         }
-        q = p;
+        const char *q = p;
         while (*q && *q != '\n') q++;
+        static char workbuf[1024];
         Bmemcpy(workbuf, p, q-p);
         if (*q == '\n')
         {
             if (!q[1])
             {
-                newline = 1;
+                newline = true;
                 workbuf[q-p] = 0;
             }
             else
@@ -663,9 +630,13 @@ int32_t startwin_puts(const char *buf)
         }
         SendMessage(edctl, EM_REPLACESEL, 0, (LPARAM)workbuf);
     }
-    linesafter = SendMessage(edctl, EM_GETLINECOUNT, 0,0);
-    SendMessage(edctl, EM_LINESCROLL, 0, linesafter-linesbefore);
-    if (vis) SendMessage(edctl, WM_SETREDRAW, TRUE,0);
+
+    int const newnumlines = SendMessage(edctl, EM_GETLINECOUNT, 0, 0);
+    SendMessage(edctl, EM_LINESCROLL, 0, newnumlines - numlines);
+
+    if (vis)
+        SendMessage(edctl, WM_SETREDRAW, TRUE, 0);
+
     return 0;
 }
 
@@ -685,7 +656,6 @@ int32_t startwin_idle(void *v)
 
 int32_t startwin_run(void)
 {
-    MSG msg;
     if (!startupdlg) return 1;
 
     done = -1;
@@ -693,24 +663,22 @@ int32_t startwin_run(void)
     SetPage(TAB_CONFIG);
     EnableConfig(1);
 
-    settings.flags = 0;
-    if (ud.config.ScreenMode) settings.flags |= 1;
 #ifdef POLYMER
-    if (glrendmode == REND_POLYMER) settings.flags |= 2;
+    settings.polymer = (glrendmode == REND_POLYMER);
+#else
+    settings.polymer = 0;
 #endif
-    if (ud.config.NoAutoLoad) settings.flags |= 4;
-    settings.xdim = ud.config.ScreenWidth;
-    settings.ydim = ud.config.ScreenHeight;
-    settings.bpp = ud.config.ScreenBPP;
-    settings.forcesetup = ud.config.ForceSetup;
-    settings.usemouse = ud.config.UseMouse;
-    settings.usejoy = ud.config.UseJoystick;
+
+    settings.shared = ud.setup;
     settings.grp = g_selectedGrp;
     settings.gamedir = g_modDir;
+
     PopulateForm(-1);
 
-    while (done < 0)
+    do
     {
+        MSG msg;
+
         switch (GetMessage(&msg, NULL, 0,0))
         {
         case 0:
@@ -719,35 +687,24 @@ int32_t startwin_run(void)
         case -1:
             return -1;
         default:
-            if (IsWindow(startupdlg) && IsDialogMessage(startupdlg, &msg)) break;
+            if (IsWindow(startupdlg) && IsDialogMessage(startupdlg, &msg))
+                break;
             TranslateMessage(&msg);
             DispatchMessage(&msg);
             break;
         }
     }
+    while (done < 0);
 
     SetPage(TAB_MESSAGES);
     EnableConfig(0);
+
     if (done)
     {
-        ud.config.ScreenMode = (settings.flags&1);
-#ifdef POLYMER
-        if (settings.flags & 2) glrendmode = REND_POLYMER;
-        else glrendmode = REND_POLYMOST;
-#endif
-        if (settings.flags & 4) ud.config.NoAutoLoad = 1;
-        else ud.config.NoAutoLoad = 0;
-        ud.config.ScreenWidth = settings.xdim;
-        ud.config.ScreenHeight = settings.ydim;
-        ud.config.ScreenBPP = settings.bpp;
-        ud.config.ForceSetup = settings.forcesetup;
-        ud.config.UseMouse = settings.usemouse;
-        ud.config.UseJoystick = settings.usejoy;
+        ud.setup = settings.shared;
+        glrendmode = (settings.polymer) ? REND_POLYMER : REND_POLYMOST;
         g_selectedGrp = settings.grp;
-
-        if (g_noSetup == 0 && settings.gamedir != NULL)
-            Bstrcpy(g_modDir,settings.gamedir);
-        else Bsprintf(g_modDir,"/");
+        Bstrcpy(g_modDir, (g_noSetup == 0 && settings.gamedir != NULL) ? settings.gamedir : "/");
     }
 
     return done;

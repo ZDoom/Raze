@@ -195,13 +195,13 @@ void G_HandleSpecialKeys(void)
 
     if (g_networkMode != NET_DEDICATED_SERVER && ALT_IS_PRESSED && KB_KeyPressed(sc_Enter))
     {
-        if (videoSetGameMode(!ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail))
+        if (videoSetGameMode(!ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail))
         {
             OSD_Printf(OSD_ERROR "Failed setting fullscreen video mode.\n");
-            if (videoSetGameMode(ud.config.ScreenMode, ud.config.ScreenWidth, ud.config.ScreenHeight, ud.config.ScreenBPP, ud.detail))
+            if (videoSetGameMode(ud.setup.fullscreen, ud.setup.xdim, ud.setup.ydim, ud.setup.bpp, ud.detail))
                 G_GameExit("Failed to recover from failure to set fullscreen video mode.\n");
         }
-        else ud.config.ScreenMode = !ud.config.ScreenMode;
+        else ud.setup.fullscreen = !ud.setup.fullscreen;
         KB_ClearKeyDown(sc_Enter);
         g_restorePalette = 1;
         G_UpdateScreenArea();
@@ -290,7 +290,7 @@ void G_GameExit(const char *msg)
            g_mostConcurrentPlayers > 1 && g_player[myconnectindex].ps->gm & MODE_GAME && GTFLAGS(GAMETYPE_SCORESHEET) && *msg == ' ')
         {
             G_BonusScreen(1);
-            videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail);
+            videoSetGameMode(ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail);
         }
 
         // shareware and TEN screens
@@ -5288,7 +5288,7 @@ static int parsedefinitions_game(scriptfile *pScript, int firstPass)
                 else
                 {
                     initprintf("Using file \"%s\" as game data.\n", fileName);
-                    if (!g_noAutoLoad && !ud.config.NoAutoLoad)
+                    if (!g_noAutoLoad && !ud.setup.noautoload)
                         G_DoAutoload(fileName);
                 }
             }
@@ -6320,7 +6320,7 @@ int app_main(int argc, char const * const * argv)
     G_ScanGroups();
 
 #ifdef STARTUP_SETUP_WINDOW
-    if (readSetup < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_EDUKE32 || ud.config.ForceSetup)) || g_commandSetup)
+    if (readSetup < 0 || (!g_noSetup && (ud.configversion != BYTEVERSION_EDUKE32 || ud.setup.forcesetup)) || g_commandSetup)
     {
         if (quitevent || !startwin_run())
         {
@@ -6331,7 +6331,7 @@ int app_main(int argc, char const * const * argv)
 #endif
 
     g_logFlushWindow = 0;
-    G_LoadGroups(!g_noAutoLoad && !ud.config.NoAutoLoad);
+    G_LoadGroups(!g_noAutoLoad && !ud.setup.noautoload);
 //    flushlogwindow = 1;
 
     if (!g_useCwd)
@@ -6488,8 +6488,8 @@ int app_main(int argc, char const * const * argv)
         CONFIG_SetupMouse();
         CONFIG_SetupJoystick();
 
-        CONTROL_JoystickEnabled = (ud.config.UseJoystick && CONTROL_JoyPresent);
-        CONTROL_MouseEnabled    = (ud.config.UseMouse && CONTROL_MousePresent);
+        CONTROL_JoystickEnabled = (ud.setup.usejoystick && CONTROL_JoyPresent);
+        CONTROL_MouseEnabled    = (ud.setup.usemouse && CONTROL_MousePresent);
 
         // JBF 20040215: evil and nasty place to do this, but joysticks are evil and nasty too
         for (bssize_t i=0; i<joystick.numAxes; i++)
@@ -6525,10 +6525,10 @@ int app_main(int argc, char const * const * argv)
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
-        if (videoSetGameMode(ud.config.ScreenMode,ud.config.ScreenWidth,ud.config.ScreenHeight,ud.config.ScreenBPP,ud.detail) < 0)
+        if (videoSetGameMode(ud.setup.fullscreen,ud.setup.xdim,ud.setup.ydim,ud.setup.bpp,ud.detail) < 0)
         {
             vec2_t const res[] = {
-                { ud.config.ScreenWidth, ud.config.ScreenHeight }, { 800, 600 }, { 640, 480 }, { 320, 240 },
+                { ud.setup.xdim, ud.setup.ydim }, { 800, 600 }, { 640, 480 }, { 320, 240 },
             };
 
 #ifdef USE_OPENGL
@@ -6537,8 +6537,8 @@ int app_main(int argc, char const * const * argv)
             int const bpp[] = { 8 };
 #endif
 
-            initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n", ud.config.ScreenWidth, ud.config.ScreenHeight,
-                       ud.config.ScreenBPP, ud.config.ScreenMode ? "fullscreen" : "windowed");
+            initprintf("Failure setting video mode %dx%dx%d %s! Attempting safer mode...\n", ud.setup.xdim, ud.setup.ydim,
+                       ud.setup.bpp, ud.setup.fullscreen ? "fullscreen" : "windowed");
 
             int resIdx = 0;
             int bppIdx = 0;
@@ -6556,9 +6556,9 @@ int app_main(int argc, char const * const * argv)
                 }
             }
 
-            ud.config.ScreenWidth  = res[resIdx].x;
-            ud.config.ScreenHeight = res[resIdx].y;
-            ud.config.ScreenBPP    = bpp[bppIdx];
+            ud.setup.xdim  = res[resIdx].x;
+            ud.setup.ydim = res[resIdx].y;
+            ud.setup.bpp    = bpp[bppIdx];
         }
 
         videoSetPalette(ud.brightness>>2,myplayer.palette,0);

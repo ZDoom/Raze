@@ -5,9 +5,9 @@
 #ifndef build_interface_layer_
 #define build_interface_layer_ SDL
 
-#include "sdl_inc.h"
-#include "compat.h"
 #include "baselayer.h"
+#include "compat.h"
+#include "sdl_inc.h"
 
 #define EDUKE32_SDL_LINKED_PREREQ(x, a, b, c) ((x).major > (a) || ((x).major == (a) && ((x).minor > (b) || ((x).minor == (b) && (x).patch >= (c)))))
 
