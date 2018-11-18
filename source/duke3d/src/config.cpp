@@ -460,12 +460,6 @@ void CONFIG_SetupMouse(void)
         ud.config.MouseAnalogueScale[i] = scale;
     }
 
-    {
-        tempbuf[0] = 0;
-        SCRIPT_GetString(ud.config.scripthandle, "Controls","Mouse_Sensitivity",&tempbuf[0]);
-        if (tempbuf[0]) CONTROL_MouseSensitivity = atof(tempbuf);
-    }
-
     for (i=0; i<MAXMOUSEBUTTONS; i++)
     {
         CONTROL_MapButton(ud.config.MouseFunctions[i][0], i, 0, controldevice_mouse);
@@ -578,13 +572,6 @@ int32_t CONFIG_ReadSetup(void)
             i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
                 "Import configuration data from \"%s\"?", g_setupFileName, SETUPFILENAME);
             if (i) ud.config.scripthandle = SCRIPT_Load(SETUPFILENAME);
-        }
-        else if (SafeFileExists("duke3d.cfg"))
-        {
-            int32_t i;
-            i=wm_ynbox("Import Configuration Settings", "The configuration file \"%s\" was not found. "
-                "Import configuration data from \"duke3d.cfg\"?", g_setupFileName);
-            if (i) ud.config.scripthandle = SCRIPT_Load("duke3d.cfg");
         }
 #endif
     }
