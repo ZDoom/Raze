@@ -72,7 +72,7 @@ void S_SoundStartup(void)
         g_soundlocks[i] = 199;
     }
 
-    S_PrecacheSounds();
+    cacheAllSounds();
 
     FX_SetVolume(ud.config.FXVolume);
     S_MusicVolume(ud.config.MusicVolume);
@@ -454,7 +454,7 @@ int32_t S_LoadSound(int num)
     return l;
 }
 
-void S_PrecacheSounds(void)
+void cacheAllSounds(void)
 {
     for (int32_t i = 0, j = 0; i <= g_highestSoundIdx; ++i)
         if (g_sounds[i].ptr == 0)

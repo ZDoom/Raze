@@ -62,41 +62,39 @@ static void tloadtile(int tilenume, int type)
         flag_precache(firstTile, type);
 }
 
-static void G_CacheSpriteNum(int i)
+static void cacheTilesForSprite(int spriteNum)
 {
-    char maxc;
-    int32_t j;
+    if (ud.monsters_off && A_CheckEnemySprite(&sprite[spriteNum])) return;
 
-    if (ud.monsters_off && A_CheckEnemySprite(&sprite[i])) return;
+    int const picnum = sprite[spriteNum].picnum;
+    int extraTiles = 1;
 
-    maxc = 1;
-
-    for (j = PN(i); j <= g_tile[PN(i)].cacherange; j++)
-        tloadtile(j,1);
+    for (int j = picnum; j <= g_tile[picnum].cacherange; j++)
+        tloadtile(j, 1);
 
 #ifndef EDUKE32_STANDALONE
-    switch (DYNAMICTILEMAP(PN(i)))
+    switch (DYNAMICTILEMAP(picnum))
     {
     case HYDRENT__STATIC:
         tloadtile(BROKEFIREHYDRENT,1);
-        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+        for (int j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
         break;
     case TOILET__STATIC:
         tloadtile(TOILETBROKE,1);
-        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+        for (int j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
         break;
     case STALL__STATIC:
         tloadtile(STALLBROKE,1);
-        for (j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
+        for (int j = TOILETWATER; j < (TOILETWATER+4); j++) tloadtile(j,1);
         break;
     case RUBBERCAN__STATIC:
-        maxc = 2;
+        extraTiles = 2;
         break;
     case TOILETWATER__STATIC:
-        maxc = 4;
+        extraTiles = 4;
         break;
     case FEMPIC1__STATIC:
-        maxc = 44;
+        extraTiles = 44;
         break;
     case LIZTROOP__STATIC:
     case LIZTROOPRUNNING__STATIC:
@@ -104,105 +102,106 @@ static void G_CacheSpriteNum(int i)
     case LIZTROOPJETPACK__STATIC:
     case LIZTROOPONTOILET__STATIC:
     case LIZTROOPDUCKING__STATIC:
-        for (j = LIZTROOP; j < (LIZTROOP+72); j++) tloadtile(j,1);
-        for (j=HEADJIB1; j<LEGJIB1+3; j++) tloadtile(j,1);
-        maxc = 0;
+        for (int j = LIZTROOP; j < (LIZTROOP+72); j++) tloadtile(j,1);
+        for (int j=HEADJIB1; j<LEGJIB1+3; j++) tloadtile(j,1);
+        extraTiles = 0;
         break;
     case WOODENHORSE__STATIC:
-        maxc = 5;
-        for (j = HORSEONSIDE; j < (HORSEONSIDE+4); j++) tloadtile(j,1);
+        extraTiles = 5;
+        for (int j = HORSEONSIDE; j < (HORSEONSIDE+4); j++) tloadtile(j,1);
         break;
     case NEWBEAST__STATIC:
     case NEWBEASTSTAYPUT__STATIC:
-        maxc = 90;
+        extraTiles = 90;
         break;
     case BOSS1__STATIC:
     case BOSS2__STATIC:
     case BOSS3__STATIC:
-        maxc = 30;
+        extraTiles = 30;
         break;
     case OCTABRAIN__STATIC:
     case OCTABRAINSTAYPUT__STATIC:
     case COMMANDER__STATIC:
     case COMMANDERSTAYPUT__STATIC:
-        maxc = 38;
+        extraTiles = 38;
         break;
     case RECON__STATIC:
-        maxc = 13;
+        extraTiles = 13;
         break;
     case PIGCOP__STATIC:
     case PIGCOPDIVE__STATIC:
-        maxc = 61;
+        extraTiles = 61;
         break;
     case SHARK__STATIC:
-        maxc = 30;
+        extraTiles = 30;
         break;
     case LIZMAN__STATIC:
     case LIZMANSPITTING__STATIC:
     case LIZMANFEEDING__STATIC:
     case LIZMANJUMP__STATIC:
-        for (j=LIZMANHEAD1; j<LIZMANLEG1+3; j++) tloadtile(j,1);
-        maxc = 80;
+        for (int j=LIZMANHEAD1; j<LIZMANLEG1+3; j++) tloadtile(j,1);
+        extraTiles = 80;
         break;
     case APLAYER__STATIC:
-        maxc = 0;
+        extraTiles = 0;
         if ((g_netServer || ud.multimode > 1))
         {
-            maxc = 5;
-            for (j = 1420; j < 1420+106; j++) tloadtile(j,1);
+            extraTiles = 5;
+            for (int j = 1420; j < 1420+106; j++) tloadtile(j,1);
         }
         break;
     case ATOMICHEALTH__STATIC:
-        maxc = 14;
+        extraTiles = 14;
         break;
     case DRONE__STATIC:
-        maxc = 10;
+        extraTiles = 10;
         break;
     case EXPLODINGBARREL__STATIC:
     case SEENINE__STATIC:
     case OOZFILTER__STATIC:
-        maxc = 3;
+        extraTiles = 3;
         break;
     case NUKEBARREL__STATIC:
     case CAMERA1__STATIC:
-        maxc = 5;
+        extraTiles = 5;
         break;
         // caching of HUD sprites for weapons that may be in the level
     case CHAINGUNSPRITE__STATIC:
-        for (j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1);
+        for (int j=CHAINGUN; j<=CHAINGUN+7; j++) tloadtile(j,1);
         break;
     case RPGSPRITE__STATIC:
-        for (j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1);
+        for (int j=RPGGUN; j<=RPGGUN+2; j++) tloadtile(j,1);
         break;
     case FREEZESPRITE__STATIC:
-        for (j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1);
+        for (int j=FREEZE; j<=FREEZE+5; j++) tloadtile(j,1);
         break;
     case GROWSPRITEICON__STATIC:
     case SHRINKERSPRITE__STATIC:
-        for (j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1);
+        for (int j=SHRINKER-2; j<=SHRINKER+5; j++) tloadtile(j,1);
         break;
     case HBOMBAMMO__STATIC:
     case HEAVYHBOMB__STATIC:
-        for (j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1);
+        for (int j=HANDREMOTE; j<=HANDREMOTE+5; j++) tloadtile(j,1);
         break;
     case TRIPBOMBSPRITE__STATIC:
-        for (j=HANDHOLDINGLASER; j<=HANDHOLDINGLASER+4; j++) tloadtile(j,1);
+        for (int j=HANDHOLDINGLASER; j<=HANDHOLDINGLASER+4; j++) tloadtile(j,1);
         break;
     case SHOTGUNSPRITE__STATIC:
         tloadtile(SHOTGUNSHELL,1);
-        for (j=SHOTGUN; j<=SHOTGUN+6; j++) tloadtile(j,1);
+        for (int j=SHOTGUN; j<=SHOTGUN+6; j++) tloadtile(j,1);
         break;
     case DEVISTATORSPRITE__STATIC:
-        for (j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1);
+        for (int j=DEVISTATOR; j<=DEVISTATOR+1; j++) tloadtile(j,1);
         break;
     }
 #endif
 
-    for (j = PN(i); j < (PN(i)+maxc); j++) tloadtile(j,1);
+    for (int j = picnum; j < (picnum + extraTiles); j++)
+        tloadtile(j, 1);
 }
 
 #ifndef EDUKE32_STANDALONE
-static void CacheDukeSprites(void)
+static void cacheDukeTiles(void)
 {
     tloadtile(BOTTOMSTATUSBAR, 1);
 
@@ -289,7 +288,7 @@ static void CacheDukeSprites(void)
 }
 #endif
 
-static void G_PrecacheSprites(void)
+static void cacheFlaggedTiles(void)
 {
     for (int i = 0; i < MAXTILES; i++)
     {
@@ -302,7 +301,7 @@ static void G_PrecacheSprites(void)
     }
 
 #ifndef EDUKE32_STANDALONE
-    CacheDukeSprites();
+    cacheDukeTiles();
 #endif
 }
 
@@ -408,6 +407,49 @@ static void G_DoLoadScreen(const char *statustext, int percent)
     }
 }
 
+#ifdef USE_OPENGL
+static void cacheExtraTextureMaps(int tileNum)
+{
+    // PRECACHE
+    if (ud.config.useprecache && bpp > 8)
+    {
+        for (int type = 0; type < 2 && !KB_KeyPressed(sc_Space); type++)
+        {
+            if (precachehightile[type][tileNum >> 3] & pow2char[tileNum & 7])
+            {
+                for (int k = 0; k < MAXPALOOKUPS - RESERVEDPALS && !KB_KeyPressed(sc_Space); k++)
+                {
+                    // this is the CROSSHAIR_PAL, see screens.cpp
+                    if (k == MAXPALOOKUPS - RESERVEDPALS - 1)
+                        break;
+#ifdef POLYMER
+                    if (videoGetRenderMode() != REND_POLYMER || !polymer_havehighpalookup(0, k))
+#endif
+                        polymost_precache(tileNum, k, type);
+                }
+
+#ifdef USE_GLEXT
+                if (r_detailmapping)
+                    polymost_precache(tileNum, DETAILPAL, type);
+
+                if (r_glowmapping)
+                    polymost_precache(tileNum, GLOWPAL, type);
+#endif
+#ifdef POLYMER
+                if (videoGetRenderMode() == REND_POLYMER)
+                {
+                    if (pr_specularmapping)
+                        polymost_precache(tileNum, SPECULARPAL, type);
+
+                    if (pr_normalmapping)
+                        polymost_precache(tileNum, NORMALPAL, type);
+                }
+#endif
+            }
+        }
+    }
+}
+#endif
 
 void G_CacheMapData(void)
 {
@@ -420,10 +462,10 @@ void G_CacheMapData(void)
     polymost_glreset();
 #endif
 
-    uint32_t const starttime = timerGetTicks();
+    uint32_t const cacheStartTime = timerGetTicks();
 
-    S_PrecacheSounds();
-    G_PrecacheSprites();
+    cacheAllSounds();
+    cacheFlaggedTiles();
 
     for (int i=0; i<numwalls; i++)
     {
@@ -441,7 +483,7 @@ void G_CacheMapData(void)
         for (int SPRITES_OF_SECT(i, j))
         {
             if (sprite[j].xrepeat != 0 && sprite[j].yrepeat != 0 && (sprite[j].cstat & CSTAT_SPRITE_INVISIBLE) == 0)
-                G_CacheSpriteNum(j);
+                cacheTilesForSprite(j);
         }
     }
 
@@ -456,61 +498,22 @@ void G_CacheMapData(void)
             i+=7;
             continue;
         }
-        if (gotpic[i>>3] & pow2char[i&7])
-        {
-            if (waloff[i] == 0)
-                tileLoad((int16_t)i);
+        else if ((gotpic[i>>3] & pow2char[i&7]) != pow2char[i&7])
+            continue;
+
+        if (waloff[i] == 0)
+            tileLoad((int16_t)i);
 
 #ifdef USE_OPENGL
-// PRECACHE
-            if (ud.config.useprecache && bpp > 8)
-            {
-                for (int type = 0; type < 2 && !KB_KeyPressed(sc_Space); type++)
-                {
-                    if (precachehightile[type][i>>3] & pow2char[i&7])
-                    {
-                        for (int k=0; k < MAXPALOOKUPS-RESERVEDPALS && !KB_KeyPressed(sc_Space); k++)
-                        {
-                            // this is the CROSSHAIR_PAL, see comment in game.c
-                            if (k == MAXPALOOKUPS-RESERVEDPALS-1)
-                                break;
-#ifdef POLYMER
-                            if (videoGetRenderMode() != REND_POLYMER || !polymer_havehighpalookup(0, k))
+        cacheExtraTextureMaps(i);
 #endif
-                                polymost_precache(i, k, type);
-                        }
-
-#ifdef USE_GLEXT
-                        if (r_detailmapping)
-                            polymost_precache(i, DETAILPAL, type);
-
-                        if (r_glowmapping)
-                            polymost_precache(i, GLOWPAL, type);
-#endif
-#ifdef POLYMER
-                        if (videoGetRenderMode() == REND_POLYMER)
-                        {
-                            if (pr_specularmapping)
-                                polymost_precache(i, SPECULARPAL, type);
-
-                            if (pr_normalmapping)
-                                polymost_precache(i, NORMALPAL, type);
-                        }
-#endif
-                    }
-                }
-            }
-#endif
-            cnt++;
-        }
-        else continue;
 
         MUSIC_Update();
 
-        if ((cnt&7) == 0)
+        if ((++cnt & 7) == 0)
             G_HandleAsync();
 
-        if (bpp > 8 && totalclock - clock > TICRATE/4)
+        if (videoGetRenderMode() != REND_CLASSIC && totalclock - clock > (TICRATE>>2))
         {
             int const percentComplete = min(100, tabledivide32_noinline(100 * cnt, g_precacheCount));
 
@@ -534,7 +537,7 @@ void G_CacheMapData(void)
 
     Bmemset(gotpic, 0, sizeof(gotpic));
 
-    OSD_Printf("Cache time: %dms\n", timerGetTicks() - starttime);
+    OSD_Printf("Cache time: %dms\n", timerGetTicks() - cacheStartTime);
 }
 
 int fragbarheight(void)
@@ -600,7 +603,7 @@ void G_UpdateScreenArea(void)
     pus = NUMPAGES;
 }
 
-void P_RandomSpawnPoint(int playerNum)
+void P_MoveToRandomSpawnPoint(int playerNum)
 {
     auto &p = *g_player[playerNum].ps;
     int i = playerNum;
@@ -666,7 +669,7 @@ void P_ResetMultiPlayer(int playerNum)
 
     tmpvect.z += PHEIGHT;
 
-    P_RandomSpawnPoint(playerNum);
+    P_MoveToRandomSpawnPoint(playerNum);
 
     a.bpos = p.opos = p.pos;
     p.bobpos = *(vec2_t *)&p.pos;
@@ -1003,32 +1006,34 @@ static void G_SetupLightSwitches()
 {
     auto tagbitmap = (uint8_t *)Xcalloc(65536 >> 3, 1);
 
-    for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, i, nextSprite))
+    for (int nextSprite, SPRITES_OF_STAT_SAFE(STAT_DEFAULT, spriteNum, nextSprite))
     {
-        if (PN(i) <= 0)  // oob safety for switch below
+        auto &s = sprite[spriteNum];
+
+        if (s.picnum <= 0)  // oob safety for switch below
             continue;
 
-        for (int ii = 0; ii < 2; ii++)
+        for (int i = 0; i < 2; i++)
         {
-            switch (DYNAMICTILEMAP(PN(i) - 1 + ii))
+            switch (DYNAMICTILEMAP(s.picnum-1+i))
             {
                 case DIPSWITCH__STATIC:
                 case DIPSWITCH2__STATIC:
-                case PULLSWITCH__STATIC:
-                case HANDSWITCH__STATIC:
-                case SLOTDOOR__STATIC:
-                case LIGHTSWITCH__STATIC:
-                case SPACELIGHTSWITCH__STATIC:
-                case SPACEDOORSWITCH__STATIC:
                 case FRANKENSTINESWITCH__STATIC:
+                case HANDSWITCH__STATIC:
+                case LIGHTSWITCH__STATIC:
                 case LIGHTSWITCH2__STATIC:
-                case POWERSWITCH1__STATIC:
                 case LOCKSWITCH1__STATIC:
+                case POWERSWITCH1__STATIC:
                 case POWERSWITCH2__STATIC:
+                case PULLSWITCH__STATIC:
+                case SLOTDOOR__STATIC:
+                case SPACEDOORSWITCH__STATIC:
+                case SPACELIGHTSWITCH__STATIC:
                     // the lower code only for the 'on' state (*)
-                    if (ii == 0)
+                    if (i == 0)
                     {
-                        uint16_t const tag = sprite[i].lotag;
+                        uint16_t const tag = s.lotag;
                         tagbitmap[tag >> 3] |= 1 << (tag & 7);
                     }
 
@@ -1092,7 +1097,7 @@ static void G_SetupSpecialWalls(void)
         {
             case FANSHADOW__STATIC:
             case FANSPRITE__STATIC:
-                w.cstat |= 65;
+                // w.cstat |= 65;
                 aw.wallnum = i;
                 g_animWallCnt++;
                 break;
@@ -1124,11 +1129,6 @@ static void G_SetupSpecialWalls(void)
         switch (DYNAMICTILEMAP(w.picnum))
         {
 #ifndef EDUKE32_STANDALONE
-            case WATERTILE2__STATIC:
-                for (int j = 0; j < 3; j++)
-                    tloadtile(w.picnum + j, 0);
-                break;
-
             case FEMPIC1__STATIC:
             case FEMPIC2__STATIC:
             case FEMPIC3__STATIC:
@@ -1143,8 +1143,6 @@ static void G_SetupSpecialWalls(void)
                 break;
 #endif
 
-            case TECHLIGHT2__STATIC:
-            case TECHLIGHT4__STATIC: tloadtile(w.picnum, 0); break;
             case W_TECHWALL1__STATIC:
             case W_TECHWALL2__STATIC:
             case W_TECHWALL3__STATIC:
@@ -1207,6 +1205,17 @@ static void A_MaybeProcessEffector(int spriteNum)
 {
     switch (DYNAMICTILEMAP(PN(spriteNum)))
     {
+        case ACTIVATOR__STATIC:
+        case ACTIVATORLOCKED__STATIC:
+        case LOCATORS__STATIC:
+        case MASTERSWITCH__STATIC:
+        case MUSICANDSFX__STATIC:
+        case RESPAWN__STATIC:
+        case SECTOREFFECTOR__STATIC:
+        case TOUCHPLATE__STATIC:
+            sprite[spriteNum].cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ALIGNMENT_MASK);
+            break;
+
         case GPSPEED__STATIC:
             // DELETE_AFTER_LOADACTOR. Must not change statnum.
             sector[SECT(spriteNum)].extra = SLT(spriteNum);
@@ -1233,15 +1242,6 @@ static void A_MaybeProcessEffector(int spriteNum)
             g_cyclerCnt++;
             break;
         }
-
-        case SECTOREFFECTOR__STATIC:
-        case ACTIVATOR__STATIC:
-        case TOUCHPLATE__STATIC:
-        case ACTIVATORLOCKED__STATIC:
-        case MUSICANDSFX__STATIC:
-        case LOCATORS__STATIC:
-        case MASTERSWITCH__STATIC:
-        case RESPAWN__STATIC: sprite[spriteNum].cstat &= ~(CSTAT_SPRITE_BLOCK | CSTAT_SPRITE_BLOCK_HITSCAN | CSTAT_SPRITE_ALIGNMENT_MASK); break;
     }
 }
 
@@ -1310,15 +1310,6 @@ static void prelevel(int g)
 
         if (s.ceilingstat&1)
         {
-            if (waloff[s.ceilingpicnum] == 0)
-            {
-                if (s.ceilingpicnum == LA)
-                {
-                    for (int j = 0; j < 5; j++)
-                        tloadtile(s.ceilingpicnum + j, 0);
-                }
-            }
-
             if (s.ceilingpicnum == CLOUDYSKIES)
             {
                 if (g_cloudCnt < ARRAY_SSIZE(g_cloudSect))
@@ -1414,7 +1405,7 @@ void G_NewGame(int volumeNum, int levelNum, int skillNum)
 
     G_HandleAsync();
 
-    if (ud.skill_voice >= 0 && ud.config.SoundToggle)
+    if (ud.skill_voice > 0 && ud.config.SoundToggle)
     {
         while (FX_SoundActive(ud.skill_voice))
             G_HandleAsync();
@@ -1879,7 +1870,7 @@ int G_EnterLevel(int gameMode)
 
     int const mapidx = (ud.volume_number * MAXLEVELS) + ud.level_number;
 
-    Bassert((unsigned)mapidx < MAXLEVELS);
+    Bassert((unsigned)mapidx < ARRAY_SIZE(g_mapInfo));
 
     auto &m = g_mapInfo[mapidx];
 

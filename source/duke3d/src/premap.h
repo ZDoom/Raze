@@ -40,7 +40,7 @@ void G_ResetTimers(bool saveMoveCnt);
 void G_SetCrosshairColor(int32_t r,int32_t g,int32_t b);
 void G_UpdateScreenArea(void);
 void G_SetViewportShrink(int32_t dir);
-void P_RandomSpawnPoint(int playerNum);
+void P_MoveToRandomSpawnPoint(int playerNum);
 void P_ResetInventory(int playerNum);
 void P_ResetMultiPlayer(int playerNum);
 void P_ResetPlayer(int playerNum);

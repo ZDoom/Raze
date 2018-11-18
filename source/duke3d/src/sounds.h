@@ -71,7 +71,7 @@ bool S_CheckSoundPlaying(int spriteNum,int soundNum);
 void S_Cleanup(void);
 void S_ClearSoundLocks(void);
 int32_t S_LoadSound(uint32_t num);
-void S_PrecacheSounds(void);
+void cacheAllSounds(void);
 void S_MenuSound(void);
 void S_MusicShutdown(void);
 void S_MusicStartup(void);

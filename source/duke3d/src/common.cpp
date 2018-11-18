@@ -221,7 +221,7 @@ void G_SetupGlobalPsky(void)
 
     // NOTE: Loop must be running backwards for the same behavior as the game
     // (greatest sector index with matching parallaxed sky takes precedence).
-    for (bssize_t i = numsectors - 1; i >= 0; i--)
+    for (int i = numsectors - 1; i >= 0; i--)
     {
         if (sector[i].ceilingstat & 1)
         {
