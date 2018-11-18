@@ -1132,10 +1132,11 @@ void(*timerSetCallback(void(*callback)(void)))(void)
 //
 static int sortmodes(const void *a_, const void *b_)
 {
-    int32_t x;
 
-    const struct validmode_t *a = (const struct validmode_t *)a_;
-    const struct validmode_t *b = (const struct validmode_t *)b_;
+    auto a = (const struct validmode_t *)a_;
+    auto b = (const struct validmode_t *)b_;
+
+    int x;
 
     if ((x = a->fs   - b->fs)   != 0) return x;
     if ((x = a->bpp  - b->bpp)  != 0) return x;
@@ -2110,7 +2111,7 @@ int32_t handleevents_pollsdl(void)
             case SDL_KEYDOWN:
             case SDL_KEYUP:
             {
-                const SDL_Scancode sc = ev.key.keysym.scancode;
+                auto const &sc = ev.key.keysym.scancode;
                 code = keytranslation[sc];
 
                 // Modifiers that have to be held down to be effective
@@ -2227,13 +2228,17 @@ int32_t handleevents_pollsdl(void)
                 if ((j = OSD_HandleScanCode(code, (ev.key.type == SDL_KEYDOWN))) <= 0)
                 {
                     if (j == -1)  // osdkey
+                    {
                         for (j = 0; j < NUMKEYS; ++j)
+                        {
                             if (keyGetState(j))
                             {
                                 keySetState(j, 0);
                                 if (keypresscallback)
                                     keypresscallback(j, 0);
                             }
+                        }
+                    }
                     break;
                 }
 
