@@ -732,7 +732,7 @@ static int __fastcall Gv_GetArrayOrStruct(int gameVar, int spriteNum, int const 
     return returnValue;
 
 badindex:
-    CON_ERRPRINTF("Gv_GetVar(): invalid index %d for \"%s\"\n", spriteNum,
+    CON_ERRPRINTF("Gv_GetArrayOrStruct(): invalid index %d for \"%s\"\n", spriteNum,
                   (returnValue & GV_FLAG_ARRAY) ? aGameArrays[gameVar].szLabel : aGameVars[gameVar].szLabel);
     return -1;
 }
