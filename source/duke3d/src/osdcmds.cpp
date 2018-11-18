@@ -866,9 +866,14 @@ static int osdcmd_name(osdcmdptr_t parm)
 
 static int osdcmd_button(osdcmdptr_t parm)
 {
-    char const *p = parm->name+9;  // skip "gamefunc_"
+    static char const s_gamefunc_[] = "gamefunc_";
+    int constexpr strlen_gamefunc_  = ARRAY_SIZE(s_gamefunc_) - 1;
+
+    char const *p = parm->name + strlen_gamefunc_;
+
 //    if (g_player[myconnectindex].ps->gm == MODE_GAME) // only trigger these if in game
-    CONTROL_OSDInput[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
+    CONTROL_ButtonFlags[CONFIG_FunctionNameToNum(p)] = 1; // FIXME
+
     return OSDCMD_OK;
 }
 

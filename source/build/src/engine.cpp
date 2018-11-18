@@ -11530,8 +11530,8 @@ void rotatepoint(vec2_t const pivot, vec2_t p, int16_t daang, vec2_t *p2)
 
 void mouseGetValues(int32_t *mousx, int32_t *mousy, int32_t *bstatus)
 {
-    mouseReadPos(mousx,mousy);
-    mouseReadButtons(bstatus);
+    mouseReadPos(mousx, mousy);
+    *bstatus = mouseReadButtons();
 }
 
 

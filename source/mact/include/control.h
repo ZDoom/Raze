@@ -48,15 +48,12 @@ extern "C" {
 
 #define MAXGAMEBUTTONS      64
 
-#define BUTTON(x) ((CONTROL_ButtonState>> ((uint64_t)(x)) ) & 1)
-#define BUTTONHELD(x) ((CONTROL_ButtonHeldState>> ((uint64_t)(x)) ) & 1)
+#define BUTTON(x) ((CONTROL_ButtonState >> ((uint64_t)(x))) & 1)
+#define BUTTONHELD(x) ((CONTROL_ButtonHeldState >> ((uint64_t)(x))) & 1)
 
-#define BUTTONJUSTPRESSED(x) \
-    ( BUTTON( x ) && !BUTTONHELD( x ) )
-#define BUTTONRELEASED(x) \
-    ( !BUTTON( x ) && BUTTONHELD( x ) )
-#define BUTTONSTATECHANGED(x) \
-    ( BUTTON( x ) != BUTTONHELD( x ) )
+#define BUTTONJUSTPRESSED(x) (BUTTON(x) && !BUTTONHELD(x))
+#define BUTTONRELEASED(x) (!BUTTON(x) && BUTTONHELD(x))
+#define BUTTONSTATECHANGED(x) (BUTTON(x) != BUTTONHELD(x))
 
 
 //***************************************************************************
@@ -134,13 +131,14 @@ typedef enum
 //
 //***************************************************************************
 
-extern int32_t  CONTROL_Started;
-extern int32_t  CONTROL_MousePresent;
-extern int32_t  CONTROL_JoyPresent;
-extern int32_t  CONTROL_MouseEnabled;
-extern int32_t  CONTROL_JoystickEnabled;
-extern uint64_t   CONTROL_ButtonState;
-extern uint64_t   CONTROL_ButtonHeldState;
+extern bool CONTROL_Started;
+extern bool CONTROL_MousePresent;
+extern bool CONTROL_JoyPresent;
+extern bool CONTROL_MouseEnabled;
+extern bool CONTROL_JoystickEnabled;
+
+extern uint64_t CONTROL_ButtonState;
+extern uint64_t CONTROL_ButtonHeldState;
 
 
 //***************************************************************************
@@ -156,13 +154,10 @@ int CONTROL_FlagActive( int which );
 void CONTROL_ClearAssignments( void );
 // void CONTROL_GetFunctionInput( void );
 void CONTROL_GetInput( ControlInfo *info );
-void CONTROL_ClearButton( int32_t whichbutton );
+void CONTROL_ClearButton( int whichbutton );
 extern float CONTROL_MouseSensitivity;
-int32_t CONTROL_Startup(controltype which, int32_t ( *TimeFunction )( void ), int32_t ticspersecond);
+bool CONTROL_Startup(controltype which, int32_t ( *TimeFunction )( void ), int32_t ticspersecond);
 void CONTROL_Shutdown( void );
-
-void CONTROL_SetDoubleClickDelay(int32_t delay);
-int32_t CONTROL_GetDoubleClickDelay(void);
 
 void CONTROL_MapAnalogAxis(int whichaxis, int whichanalog, controldevice device);
 void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t direction, controldevice device);
@@ -178,16 +173,18 @@ void CONTROL_SetAnalogAxisScale(int32_t whichaxis, int32_t axisscale, controldev
 #define MAXBOUNDKEYS MAXKEYBOARDSCAN
 #define MAXMOUSEBUTTONS 10
 
-typedef struct binding {
-    const char *key;  // always set to const char *
-    char *cmdstr;  // alloc'd
+typedef struct
+{
+    const char *key;
+    char *cmdstr;
     char repeat;
     char laststate;
-} keybind;
+}
+consolekeybind_t;
 
 // Direct use DEPRECATED:
-extern keybind CONTROL_KeyBinds[MAXBOUNDKEYS+MAXMOUSEBUTTONS];
-extern int32_t CONTROL_BindsEnabled;
+extern consolekeybind_t CONTROL_KeyBinds[MAXBOUNDKEYS+MAXMOUSEBUTTONS];
+extern bool CONTROL_BindsEnabled;
 
 void CONTROL_ClearAllBinds(void);
 void CONTROL_BindKey(int i, char const * cmd, int repeat, char const * keyname);
@@ -195,9 +192,10 @@ void CONTROL_BindMouse(int i, char const * cmd, int repeat, char const * keyname
 void CONTROL_FreeKeyBind(int i);
 void CONTROL_FreeMouseBind(int i);
 
-static inline int32_t CONTROL_KeyIsBound(int32_t i)
+static inline int CONTROL_KeyIsBound(int const key)
 {
-    return (CONTROL_KeyBinds[i].cmdstr && CONTROL_KeyBinds[i].key);
+    auto &bind = CONTROL_KeyBinds[key];
+    return bind.cmdstr && bind.key;
 }
 
 void CONTROL_ProcessBinds(void);
@@ -205,8 +203,8 @@ void CONTROL_ProcessBinds(void);
 ////////////////////
 
 #define CONTROL_NUM_FLAGS   64
-extern int32_t CONTROL_OSDInput[CONTROL_NUM_FLAGS];
-extern int32_t CONTROL_SmoothMouse;
+extern int32_t CONTROL_ButtonFlags[CONTROL_NUM_FLAGS];
+extern bool CONTROL_SmoothMouse;
 
 #ifdef __cplusplus
 }

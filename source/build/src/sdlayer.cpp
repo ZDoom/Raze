@@ -898,11 +898,9 @@ const char *joyGetName(int32_t what, int32_t num)
 //
 // initmouse() -- init mouse input
 //
-int32_t mouseInit(void)
+void mouseInit(void)
 {
-    g_mouseEnabled=g_mouseLockedToWindow;
-    mouseGrabInput(g_mouseLockedToWindow); // FIXME - SA
-    return 0;
+    mouseGrabInput(g_mouseEnabled = g_mouseLockedToWindow);  // FIXME - SA
 }
 
 //

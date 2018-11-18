@@ -140,10 +140,8 @@ void CONFIG_SetDefaultKeys(const char (*keyptr)[MAXGAMEFUNCLEN])
 
 void CONFIG_SetDefaults(void)
 {
-    // JBF 20031211
-    int32_t i;
-
     ud.config.scripthandle = -1;
+
 #ifdef __ANDROID__
     droidinput.forward_sens = 5.f;
     droidinput.gameControlsAlpha = 0.5;
@@ -194,15 +192,9 @@ void CONFIG_SetDefaults(void)
 
 #if defined GEKKO || defined __OPENDINGUX__
     ud.config.NumVoices = 32;
+    ud.camera_time = 11;
 #else
     ud.config.NumVoices = 64;
-#endif
-
-#if defined GEKKO || defined __OPENDINGUX__
-    ud.camera_time = 11;
-#elif defined(__ANDROID__)
-    ud.camera_time        = 7;
-#else
     ud.camera_time    = 4;
 #endif
 
@@ -316,7 +308,7 @@ void CONFIG_SetDefaults(void)
 
     CONTROL_MouseSensitivity = DEFAULTMOUSESENSITIVITY;
 
-    for (i=0; i<MAXMOUSEBUTTONS; i++)
+    for (int i=0; i<MAXMOUSEBUTTONS; i++)
     {
         ud.config.MouseFunctions[i][0] = CONFIG_FunctionNameToNum(mousedefaults[i]);
         CONTROL_MapButton(ud.config.MouseFunctions[i][0], i, 0, controldevice_mouse);
@@ -325,7 +317,7 @@ void CONFIG_SetDefaults(void)
         CONTROL_MapButton(ud.config.MouseFunctions[i][1], i, 1, controldevice_mouse);
     }
 
-    for (i=0; i<MAXMOUSEAXES; i++)
+    for (int i=0; i<MAXMOUSEAXES; i++)
     {
         ud.config.MouseAnalogueScale[i] = DEFAULTMOUSEANALOGUESCALE;
         CONTROL_SetAnalogAxisScale(i, ud.config.MouseAnalogueScale[i], controldevice_mouse);
@@ -339,7 +331,7 @@ void CONFIG_SetDefaults(void)
         CONTROL_MapAnalogAxis(i, ud.config.MouseAnalogueAxes[i], controldevice_mouse);
     }
 
-    for (i=0; i<MAXJOYBUTTONSANDHATS; i++)
+    for (int i=0; i<MAXJOYBUTTONSANDHATS; i++)
     {
         ud.config.JoystickFunctions[i][0] = CONFIG_FunctionNameToNum(joystickdefaults[i]);
         ud.config.JoystickFunctions[i][1] = CONFIG_FunctionNameToNum(joystickclickeddefaults[i]);
@@ -347,7 +339,7 @@ void CONFIG_SetDefaults(void)
         CONTROL_MapButton(ud.config.JoystickFunctions[i][1], i, 1, controldevice_joystick);
     }
 
-    for (i=0; i<MAXJOYAXES; i++)
+    for (int i=0; i<MAXJOYAXES; i++)
     {
         ud.config.JoystickAnalogueScale[i] = DEFAULTJOYSTICKANALOGUESCALE;
         ud.config.JoystickAnalogueDead[i] = DEFAULTJOYSTICKANALOGUEDEAD;

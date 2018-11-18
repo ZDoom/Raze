@@ -234,12 +234,12 @@ static FORCE_INLINE void keyBufferInsert(char code)
 
 void keyFlushChars(void);
 
-int32_t mouseInit(void);
+void mouseInit(void);
 void mouseUninit(void);
 int32_t mouseReadAbs(vec2_t *pResult, vec2_t const *pInput);
 void mouseGrabInput(bool grab);
 void mouseLockToWindow(char a);
-void mouseReadButtons(int32_t *pResult);
+int32_t mouseReadButtons(void);
 void mouseReadPos(int32_t *x, int32_t *y);
 
 void joyReadButtons(int32_t *pResult);

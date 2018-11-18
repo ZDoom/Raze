@@ -22,10 +22,12 @@
 #include "android.h"
 #endif
 
-int32_t  CONTROL_JoyPresent      = FALSE;
-int32_t  CONTROL_JoystickEnabled = FALSE;
-int32_t  CONTROL_MousePresent    = FALSE;
-int32_t  CONTROL_MouseEnabled    = FALSE;
+bool CONTROL_Started         = false;
+bool CONTROL_JoyPresent      = false;
+bool CONTROL_JoystickEnabled = false;
+bool CONTROL_MousePresent    = false;
+bool CONTROL_MouseEnabled    = false;
+
 uint64_t CONTROL_ButtonState     = 0;
 uint64_t CONTROL_ButtonHeldState = 0;
 
@@ -52,7 +54,6 @@ static controlaxistype CONTROL_LastJoyAxes[MAXJOYAXES];
 static int32_t CONTROL_MouseAxesScale[MAXMOUSEAXES];
 static int32_t CONTROL_JoyAxesScale[MAXJOYAXES];
 
-#ifndef __ANDROID__
 static int32_t CONTROL_MouseButtonState[MAXMOUSEBUTTONS];
 static int32_t CONTROL_MouseButtonClickedTime[MAXMOUSEBUTTONS];
 static int32_t CONTROL_MouseButtonClickedState[MAXMOUSEBUTTONS];
@@ -64,27 +65,24 @@ static int32_t CONTROL_JoyButtonClickedTime[MAXJOYBUTTONS];
 static int32_t CONTROL_JoyButtonClickedState[MAXJOYBUTTONS];
 static int32_t CONTROL_JoyButtonClicked[MAXJOYBUTTONS];
 static uint8_t CONTROL_JoyButtonClickedCount[MAXJOYBUTTONS];
-#endif
 
 static int32_t(*ExtGetTime)(void);
-int32_t CONTROL_Started = FALSE;
 //static int32_t ticrate;
-static int32_t CONTROL_DoubleClickSpeed;
+static uint8_t CONTROL_DoubleClickSpeed;
 
-int32_t CONTROL_OSDInput[CONTROL_NUM_FLAGS];
-keybind CONTROL_KeyBinds[MAXBOUNDKEYS + MAXMOUSEBUTTONS];
-int32_t CONTROL_BindsEnabled = 0;
-int32_t CONTROL_SmoothMouse  = 0;
+int32_t CONTROL_ButtonFlags[CONTROL_NUM_FLAGS];
+consolekeybind_t CONTROL_KeyBinds[MAXBOUNDKEYS + MAXMOUSEBUTTONS];
+bool CONTROL_BindsEnabled = 0;
+bool CONTROL_SmoothMouse  = 0;
 
 #define CONTROL_CheckRange(which) ((unsigned)which >= (unsigned)CONTROL_NUM_FLAGS)
 #define BIND(x, s, r, k) do { Bfree(x.cmdstr); x.cmdstr = s; x.repeat = r; x.key = k; } while (0)
 
 void CONTROL_ClearAllBinds(void)
 {
-    int32_t i;
-    for (i=0; i<MAXBOUNDKEYS; i++)
+    for (int i=0; i<MAXBOUNDKEYS; i++)
         CONTROL_FreeKeyBind(i);
-    for (i=0; i<MAXMOUSEBUTTONS; i++)
+    for (int i=0; i<MAXMOUSEBUTTONS; i++)
         CONTROL_FreeMouseBind(i);
 }
 
@@ -108,7 +106,6 @@ void CONTROL_FreeMouseBind(int i)
     BIND(CONTROL_KeyBinds[MAXBOUNDKEYS + i], NULL, 0, NULL);
 }
 
-#ifndef __ANDROID__
 static void CONTROL_GetMouseDelta(void)
 {
     vec2_t input;
@@ -126,7 +123,6 @@ static void CONTROL_GetMouseDelta(void)
     CONTROL_MouseAxes[0].analog = Blrintf(finput.x * 4.f * CONTROL_MouseSensitivity);
     CONTROL_MouseAxes[1].analog = Blrintf(finput.y * 8.f * CONTROL_MouseSensitivity);
 }
-#endif
 
 static int32_t CONTROL_GetTime(void)
 {
@@ -135,8 +131,7 @@ static int32_t CONTROL_GetTime(void)
     return t;
 }
 
-#ifndef __ANDROID__
-static void CONTROL_SetFlag(int32_t which, int32_t active)
+static void CONTROL_SetFlag(int which, int active)
 {
     if (CONTROL_CheckRange(which)) return;
 
@@ -152,7 +147,6 @@ static void CONTROL_SetFlag(int32_t which, int32_t active)
         flags.active = (flags.active ? FALSE : TRUE);
     }
 }
-#endif
 
 #if 0
 int32_t CONTROL_KeyboardFunctionPressed(int32_t which)
@@ -193,10 +187,10 @@ void CONTROL_DefineFlag(int which, int toggle)
     controlflags &flags = CONTROL_Flags[which];
 
     flags.active     = FALSE;
-    flags.used       = TRUE;
-    flags.toggle     = toggle;
     flags.buttonheld = FALSE;
     flags.cleared    = 0;
+    flags.toggle     = toggle;
+    flags.used       = TRUE;
 }
 
 int CONTROL_FlagActive(int which)
@@ -426,24 +420,23 @@ void CONTROL_MapDigitalAxis(int32_t whichaxis, int32_t whichfunction, int32_t di
 
 void CONTROL_ClearAssignments(void)
 {
-    int32_t i;
-
-    memset(CONTROL_MouseButtonMapping,  BUTTONUNDEFINED, sizeof(CONTROL_MouseButtonMapping));
+    memset(CONTROL_JoyAxes,             0,               sizeof(CONTROL_JoyAxes));
+    memset(CONTROL_JoyAxesMap,          AXISUNDEFINED,   sizeof(CONTROL_JoyAxesMap));
     memset(CONTROL_JoyButtonMapping,    BUTTONUNDEFINED, sizeof(CONTROL_JoyButtonMapping));
 //    memset(CONTROL_KeyMapping,          KEYUNDEFINED,    sizeof(CONTROL_KeyMapping));
-    memset(CONTROL_MouseAxesMap,        AXISUNDEFINED,   sizeof(CONTROL_MouseAxesMap));
-    memset(CONTROL_JoyAxesMap,          AXISUNDEFINED,   sizeof(CONTROL_JoyAxesMap));
-    memset(CONTROL_MouseAxes,           0,               sizeof(CONTROL_MouseAxes));
-    memset(CONTROL_JoyAxes,             0,               sizeof(CONTROL_JoyAxes));
-    memset(CONTROL_LastMouseAxes,       0,               sizeof(CONTROL_LastMouseAxes));
     memset(CONTROL_LastJoyAxes,         0,               sizeof(CONTROL_LastJoyAxes));
-    for (i=0; i<MAXMOUSEAXES; i++)
-        CONTROL_MouseAxesScale[i] = NORMALAXISSCALE;
-    for (i=0; i<MAXJOYAXES; i++)
-        CONTROL_JoyAxesScale[i] = NORMALAXISSCALE;
+    memset(CONTROL_LastMouseAxes,       0,               sizeof(CONTROL_LastMouseAxes));
+    memset(CONTROL_MouseAxes,           0,               sizeof(CONTROL_MouseAxes));
+    memset(CONTROL_MouseAxesMap,        AXISUNDEFINED,   sizeof(CONTROL_MouseAxesMap));
+    memset(CONTROL_MouseButtonMapping,  BUTTONUNDEFINED, sizeof(CONTROL_MouseButtonMapping));
+
+    for (int & i : CONTROL_MouseAxesScale)
+        i = NORMALAXISSCALE;
+
+    for (int & i : CONTROL_JoyAxesScale)
+        i = NORMALAXISSCALE;
 }
 
-#ifndef __ANDROID__
 static void DoGetDeviceButtons(
     int32_t buttons, int32_t tm,
     int32_t NumButtons,
@@ -458,9 +451,9 @@ static void DoGetDeviceButtons(
 
     for (; i>=0; i--)
     {
-        int32_t bs = (buttons >> i) & 1;
+        int const bs = (buttons >> i) & 1;
 
-        DeviceButtonState[i] = bs;
+        DeviceButtonState[i]  = bs;
         ButtonClickedState[i] = FALSE;
 
         if (bs)
@@ -471,7 +464,7 @@ static void DoGetDeviceButtons(
 
                 if (ButtonClickedCount[i] == 0 || tm > ButtonClickedTime[i])
                 {
-                    ButtonClickedTime[i] = tm + CONTROL_DoubleClickSpeed;
+                    ButtonClickedTime[i]  = tm + CONTROL_DoubleClickSpeed;
                     ButtonClickedCount[i] = 1;
                 }
                 else if (tm < ButtonClickedTime[i])
@@ -498,7 +491,7 @@ static void DoGetDeviceButtons(
 
 static void CONTROL_GetDeviceButtons(void)
 {
-    int32_t t = ExtGetTime();
+    int32_t const t = ExtGetTime();
 
     if (CONTROL_MouseEnabled)
     {
@@ -527,7 +520,7 @@ static void CONTROL_GetDeviceButtons(void)
     }
 }
 
-static void CONTROL_DigitizeAxis(int32_t axis, controldevice device)
+static void CONTROL_DigitizeAxis(int axis, controldevice device)
 {
     controlaxistype *set, *lastset;
 
@@ -558,7 +551,7 @@ static void CONTROL_DigitizeAxis(int32_t axis, controldevice device)
     }
 }
 
-static void CONTROL_ScaleAxis(int32_t axis, controldevice device)
+static void CONTROL_ScaleAxis(int axis, controldevice device)
 {
     controlaxistype *set;
     int32_t *scale;
@@ -581,7 +574,7 @@ static void CONTROL_ScaleAxis(int32_t axis, controldevice device)
     set[axis].analog = mulscale16(set[axis].analog, scale[axis]);
 }
 
-static void CONTROL_ApplyAxis(int32_t axis, ControlInfo *info, controldevice device)
+static void CONTROL_ApplyAxis(int axis, ControlInfo *info, controldevice device)
 {
     controlaxistype *set;
     controlaxismaptype *map;
@@ -623,13 +616,11 @@ static void CONTROL_PollDevices(ControlInfo *info)
 
     if (CONTROL_MouseEnabled)
     {
-        int32_t i = MAXMOUSEAXES-1;
-
         Bmemcpy(CONTROL_LastMouseAxes, CONTROL_MouseAxes, sizeof(CONTROL_MouseAxes));
         memset(CONTROL_MouseAxes, 0, sizeof(CONTROL_MouseAxes));
 
         CONTROL_GetMouseDelta();
-        for (; i>=0; i--)
+        for (int i=MAXMOUSEAXES-1; i>=0; i--)
         {
             CONTROL_DigitizeAxis(i, controldevice_mouse);
             CONTROL_ScaleAxis(i, controldevice_mouse);
@@ -640,12 +631,10 @@ static void CONTROL_PollDevices(ControlInfo *info)
 
     if (CONTROL_JoystickEnabled)
     {
-        int32_t i = joystick.numAxes-1;
-
         Bmemcpy(CONTROL_LastJoyAxes,   CONTROL_JoyAxes,   sizeof(CONTROL_JoyAxes));
         memset(CONTROL_JoyAxes,   0, sizeof(CONTROL_JoyAxes));
 
-        for (; i>=0; i--)
+        for (int i=joystick.numAxes-1; i>=0; i--)
         {
             CONTROL_JoyAxes[i].analog = joystick.pAxis[i];
 
@@ -659,52 +648,37 @@ static void CONTROL_PollDevices(ControlInfo *info)
     CONTROL_GetDeviceButtons();
 }
 
+static void CONTROL_HandleAxisFunction(int32_t *p1, controlaxistype *axes, controlaxismaptype *axismap, int numAxes)
+{
+    int axis = numAxes - 1;
+
+    do
+    {
+        if (!axes[axis].digital)
+            continue;
+
+        int const j = (axes[axis].digital < 0) ? axismap[axis].minmap : axismap[axis].maxmap;
+
+        if (j != AXISUNDEFINED)
+            p1[j] = 1;
+    }
+    while (axis--);
+}
+
 static void CONTROL_AxisFunctionState(int32_t *p1)
 {
     if (CONTROL_NumMouseAxes)
-    {
-        int32_t j, i = CONTROL_NumMouseAxes-1;
-
-        do
-        {
-            if (!CONTROL_MouseAxes[i].digital) continue;
-
-            if (CONTROL_MouseAxes[i].digital < 0)
-                j = CONTROL_MouseAxesMap[i].minmap;
-            else
-                j = CONTROL_MouseAxesMap[i].maxmap;
-
-            if (j != AXISUNDEFINED)
-                p1[j] = 1;
-        }
-        while (i--);
-    }
+        CONTROL_HandleAxisFunction(p1, CONTROL_MouseAxes, CONTROL_MouseAxesMap, CONTROL_NumMouseAxes);
 
     if (CONTROL_NumJoyAxes)
-    {
-        int32_t j, i = CONTROL_NumJoyAxes-1;
-
-        do
-        {
-            if (!CONTROL_JoyAxes[i].digital) continue;
-
-            if (CONTROL_JoyAxes[i].digital < 0)
-                j = CONTROL_JoyAxesMap[i].minmap;
-            else
-                j = CONTROL_JoyAxesMap[i].maxmap;
-
-            if (j != AXISUNDEFINED)
-                p1[j] = 1;
-        }
-        while (i--);
-    }
+        CONTROL_HandleAxisFunction(p1, CONTROL_JoyAxes, CONTROL_JoyAxesMap, CONTROL_NumJoyAxes);
 }
 
 static void CONTROL_ButtonFunctionState(int32_t *p1)
 {
     if (CONTROL_NumMouseButtons)
     {
-        int32_t i = CONTROL_NumMouseButtons-1, j;
+        int i = CONTROL_NumMouseButtons-1, j;
 
         do
         {
@@ -734,7 +708,7 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
 
     if (CONTROL_NumJoyButtons)
     {
-        int32_t i=CONTROL_NumJoyButtons-1, j;
+        int i=CONTROL_NumJoyButtons-1, j;
 
         do
         {
@@ -749,9 +723,8 @@ static void CONTROL_ButtonFunctionState(int32_t *p1)
         while (i--);
     }
 }
-#endif
 
-void CONTROL_ClearButton(int32_t whichbutton)
+void CONTROL_ClearButton(int whichbutton)
 {
     if (CONTROL_CheckRange(whichbutton)) return;
 
@@ -765,10 +738,10 @@ void CONTROL_ClearButton(int32_t whichbutton)
 
 void CONTROL_ProcessBinds(void)
 {
-    int32_t i=MAXBOUNDKEYS-1;
-
     if (!CONTROL_BindsEnabled)
         return;
+
+    int i = MAXBOUNDKEYS-1;
 
     do
     {
@@ -783,89 +756,70 @@ void CONTROL_ProcessBinds(void)
     while (i--);
 }
 
-#ifndef __ANDROID__
 static void CONTROL_GetFunctionInput(void)
 {
-    int32_t periphs[CONTROL_NUM_FLAGS];
-    int32_t i = CONTROL_NUM_FLAGS-1;
-
-    memset(periphs, 0, sizeof(periphs));
-    CONTROL_ButtonFunctionState(periphs);
-    CONTROL_AxisFunctionState(periphs);
+    CONTROL_ButtonFunctionState(CONTROL_ButtonFlags);
+    CONTROL_AxisFunctionState(CONTROL_ButtonFlags);
 
     CONTROL_ButtonHeldState = CONTROL_ButtonState;
     CONTROL_ButtonState = 0;
 
+    int i = CONTROL_NUM_FLAGS-1;
+
     do
     {
-        CONTROL_SetFlag(i, /*CONTROL_KeyboardFunctionPressed(i) | */periphs[i] | CONTROL_OSDInput[i]);
+        CONTROL_SetFlag(i, /*CONTROL_KeyboardFunctionPressed(i) | */CONTROL_ButtonFlags[i]);
 
         if (CONTROL_Flags[i].cleared == FALSE) BUTTONSET(i, CONTROL_Flags[i].active);
         else if (CONTROL_Flags[i].active == FALSE) CONTROL_Flags[i].cleared = 0;
     }
     while (i--);
 
-    memset(CONTROL_OSDInput, 0, sizeof(CONTROL_OSDInput));
+    memset(CONTROL_ButtonFlags, 0, sizeof(CONTROL_ButtonFlags));
 }
-#endif
 
 void CONTROL_GetInput(ControlInfo *info)
 {
 #ifdef __ANDROID__
     CONTROL_Android_PollDevices(info);
-#else
+#endif
     CONTROL_PollDevices(info);
     CONTROL_GetFunctionInput();
     inputchecked = 1;
-#endif
 }
 
-int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ticspersecond)
+bool CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t ticspersecond)
 {
-    int32_t i;
-
     UNREFERENCED_PARAMETER(which);
 
-    if (CONTROL_Started) return FALSE;
+    if (CONTROL_Started) return false;
 
-    if (TimeFunction) ExtGetTime = TimeFunction;
-    else ExtGetTime = CONTROL_GetTime;
+    ExtGetTime = TimeFunction ? TimeFunction : CONTROL_GetTime;
 
-//    ticrate = ticspersecond;
+    // what the fuck???
+    CONTROL_DoubleClickSpeed = (ticspersecond * 57) / 100;
 
-    CONTROL_DoubleClickSpeed = (ticspersecond*57)/100;
     if (CONTROL_DoubleClickSpeed <= 0)
         CONTROL_DoubleClickSpeed = 1;
 
-    if (initinput()) return TRUE;
+    if (initinput())
+        return true;
 
-    CONTROL_MousePresent = CONTROL_MouseEnabled    = FALSE;
-    CONTROL_JoyPresent   = CONTROL_JoystickEnabled = FALSE;
-    CONTROL_NumMouseButtons = CONTROL_NumJoyButtons = 0;
-    CONTROL_NumMouseAxes    = CONTROL_NumJoyAxes    = 0;
     KB_Startup();
 
-    //switch (which) {
-    //	case controltype_keyboard:
-    //		break;
+    CONTROL_NumMouseAxes    = MAXMOUSEAXES;
+    CONTROL_NumMouseButtons = MAXMOUSEBUTTONS;
+    CONTROL_MousePresent    = Mouse_Init();
+    CONTROL_MouseEnabled    = CONTROL_MousePresent;
 
-    //	case controltype_keyboardandmouse:
-    CONTROL_NumMouseAxes      = MAXMOUSEAXES;
-    CONTROL_NumMouseButtons   = MAXMOUSEBUTTONS;
-    CONTROL_MousePresent      = Mouse_Init();
-    CONTROL_MouseEnabled      = CONTROL_MousePresent;
-    //		break;
-
-    //	case controltype_keyboardandjoystick:
-    CONTROL_NumJoyAxes    = min(MAXJOYAXES,joystick.numAxes);
-    CONTROL_NumJoyButtons = min(MAXJOYBUTTONS,joystick.numButtons + 4*(joystick.numHats>0));
-    CONTROL_JoystickEnabled = CONTROL_JoyPresent = (inputdevices&4)>>2;
-    //		break;
-    //}
+    CONTROL_NumJoyAxes      = min(MAXJOYAXES, joystick.numAxes);
+    CONTROL_NumJoyButtons   = min(MAXJOYBUTTONS, joystick.numButtons + 4 * (joystick.numHats > 0));
+    CONTROL_JoystickEnabled = CONTROL_JoyPresent = !!((inputdevices & 4) >> 2);
 
 #ifdef GEKKO
     if (CONTROL_MousePresent)
         initprintf("CONTROL_Startup: Mouse Present\n");
+
     if (CONTROL_JoyPresent)
         initprintf("CONTROL_Startup: Joystick Present\n");
 #endif
@@ -873,12 +827,12 @@ int32_t CONTROL_Startup(controltype which, int32_t(*TimeFunction)(void), int32_t
     CONTROL_ButtonState     = 0;
     CONTROL_ButtonHeldState = 0;
 
-    for (i=0; i<CONTROL_NUM_FLAGS; i++)
-        CONTROL_Flags[i].used = FALSE;
+    for (auto & CONTROL_Flag : CONTROL_Flags)
+        CONTROL_Flag.used = FALSE;
 
     CONTROL_Started = TRUE;
 
-    return FALSE;
+    return false;
 }
 
 void CONTROL_Shutdown(void)

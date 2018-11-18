@@ -121,9 +121,9 @@ int32_t mouseReadAbs(vec2_t * const pResult, vec2_t const * const pInput)
     return 1;
 }
 
-void mouseReadButtons(int32_t *pResult)
+int32_t mouseReadButtons(void)
 {
-    *pResult = (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || (osd && osd->flags & OSD_CAPTURE)) ? 0 : g_mouseBits;
+    return (!g_mouseEnabled || !appactive || !g_mouseInsideWindow || (osd && osd->flags & OSD_CAPTURE)) ? 0 : g_mouseBits;
 }
 
 controllerinput_t joystick;

@@ -10899,7 +10899,7 @@ void ExtCheckKeys(void)
     }
 
     lastbstatus = bstatus;
-    mouseReadButtons(&bstatus);
+    bstatus = mouseReadButtons();
 
     Keys2d3d();
 

@@ -279,11 +279,10 @@ void RI_PollDevices(BOOL loop)
     }
 }
 
-int32_t mouseInit(void)
+void mouseInit(void)
 {
-    if (g_mouseEnabled) return 0;
-    mouseGrabInput(g_mouseEnabled = g_mouseLockedToWindow);
-    return 0;
+    if (!g_mouseEnabled)
+        mouseGrabInput(g_mouseEnabled = g_mouseLockedToWindow);
 }
 
 void mouseUninit(void)

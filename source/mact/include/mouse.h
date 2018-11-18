@@ -46,29 +46,16 @@ extern "C" {
 
 #include "baselayer.h"
 
-static inline int32_t Mouse_Init(void)
+static inline bool Mouse_Init(void)
 {
     mouseInit();
     return ((inputdevices & 2) == 2);
 }
 
-
 static inline void MOUSE_Shutdown(void) { mouseUninit(); }
-
-#if 0
-static inline void MOUSE_ShowCursor(void) {}
-static inline void MOUSE_HideCursor(void) {}
-#endif
-
-static inline int32_t MOUSE_GetButtons(void)
-{
-    int32_t buttons;
-    mouseReadButtons(&buttons);
-    return buttons;
-}
-
-#define MOUSE_ClearButton(b) (g_mouseBits &= ~b)
-#define MOUSE_ClearAllButtons() g_mouseBits = 0
+static inline int32_t MOUSE_GetButtons(void) { return mouseReadButtons(); }
+static inline void MOUSE_ClearButton(int32_t b) { g_mouseBits &= ~b; }
+static inline void MOUSE_ClearAllButtons(void) { g_mouseBits = 0; }
 
 #ifdef __cplusplus
 }
