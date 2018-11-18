@@ -6141,8 +6141,8 @@ repeatcase:
             if (k > g_highestSoundIdx)
                 g_highestSoundIdx = k;
 
-            if (k >= 0 && k < MAXSOUNDS-1 && g_dynamicSoundMapping && j >= 0 && (labeltype[j] & LABEL_DEFINE))
-                G_ProcessDynamicSoundMapping(label+(j<<6),k);
+            if (g_dynamicSoundMapping && j >= 0 && (labeltype[j] & LABEL_DEFINE))
+                G_ProcessDynamicSoundMapping(label+(j<<6), k);
             continue;
 
         case CON_ENDEVENT:
