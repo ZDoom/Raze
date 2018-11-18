@@ -36,6 +36,10 @@ Prepared for public release: 03/21/2003 - Charlie Wiederhold, 3D Realms
 
 #ifndef control_private_h_
 #define control_private_h_
+
+#include "compat.h"
+#include "keyboard.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -85,21 +89,8 @@ extern "C" {
 
 #define BUTTONSET(x, value) (CONTROL_ButtonState |= ((uint64_t)value << ((uint64_t)(x))))
 #define BUTTONCLEAR(x) (CONTROL_ButtonState &= ~((uint64_t)1 << ((uint64_t)(x))))
-
 #define BUTTONHELDSET(x, value) (CONTROL_ButtonHeldState |= (uint64_t)(value << ((uint64_t)(x))))
-
-#define LIMITCONTROL(x)                                                                                                \
-    {                                                                                                                  \
-        if ((*x) > MAXCONTROLVALUE)                                                                                    \
-        {                                                                                                              \
-            (*x) = MAXCONTROLVALUE;                                                                                    \
-        }                                                                                                              \
-        if ((*x) < -MAXCONTROLVALUE)                                                                                   \
-        {                                                                                                              \
-            (*x) = -MAXCONTROLVALUE;                                                                                   \
-        }                                                                                                              \
-    }
-#define SGN(x) (((x) > 0) ? 1 : ((x) < 0) ? -1 : 0)
+#define LIMITCONTROL(x) (*x = clamp(*x, -MAXCONTROLVALUE, MAXCONTROLVALUE))
 
 //****************************************************************************
 //
