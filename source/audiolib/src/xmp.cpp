@@ -173,6 +173,7 @@ int32_t MV_PlayXMP(char *ptr, uint32_t length, int32_t loopstart, int32_t loopen
     voice->LoopSize    = loopstart >= 0 ? 1 : 0;
 
     xmp_start_player(xmpd->context, MV_MixRate, 0);
+    xmp_set_player(xmpd->context, XMP_PLAYER_INTERP, XMP_INTERP_SPLINE);
 
     // CODEDUP multivoc.c MV_SetVoicePitch
     voice->RateScale = (voice->SamplingRate * voice->PitchScale) / MV_MixRate;
