@@ -1618,11 +1618,11 @@ int lastUnusedTile = MAXUSERTILES-1;
 
 static inline int findUnusedTile(void)
 {
-    for (; lastUnusedTile > 0; --lastUnusedTile)
+    for (; lastUnusedTile >= 0; --lastUnusedTile)
         if (tilesiz[lastUnusedTile].x * tilesiz[lastUnusedTile].y == 0)
             return lastUnusedTile;
 
-    return MAXTILES;
+    return -1;
 }
 
 //
@@ -8003,10 +8003,10 @@ int32_t renderDrawRoomsQ16(int32_t daposx, int32_t daposy, int32_t daposz,
             auto &w    = wall[i];
             auto &tile = rottile[w.picnum+animateoffs(w.picnum)];
 
-            if (!tile.newtile && !tile.owner)
+            if (tile.newtile == -1 && tile.owner == -1)
             {
                 tile.newtile = findUnusedTile();
-                Bassert(tile.newtile != MAXTILES);
+                Bassert(tile.newtile != -1);
 
                 rottile[tile.newtile].owner = w.picnum+animateoffs(w.picnum);
 

@@ -2455,7 +2455,7 @@ int32_t AskIfSure(const char *text)
 static int32_t IsValidTile(int32_t idTile)
 {
     // this is MAXTILES-1 because TROR uses that tile and we don't need it showing up in the tile selector, etc
-    return (idTile>=0 && idTile<MAXTILES-1) && (tilesiz[idTile].x && tilesiz[idTile].y) && !rottile[idTile].owner;
+    return (idTile>=0 && idTile<MAXTILES-1) && (tilesiz[idTile].x && tilesiz[idTile].y) && rottile[idTile].owner == -1;
 }
 
 static int32_t SelectAllTiles(int32_t iCurrentTile)
@@ -3599,7 +3599,7 @@ restart:
             pRawPixels = GetTilePixels(idTile);
 
             // don't draw rotated tiles generated near MAXTILES
-            if (EDUKE32_PREDICT_FALSE(rottile[idTile].owner))
+            if (EDUKE32_PREDICT_FALSE(rottile[idTile].owner != -1))
                 pRawPixels = NULL;
 
             if (pRawPixels != NULL)

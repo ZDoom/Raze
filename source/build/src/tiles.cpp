@@ -640,7 +640,7 @@ void tileLoadData(int16_t tilenume, int32_t dasiz, char *buffer)
 {
     int const owner = rottile[tilenume].owner;
 
-    if (owner)
+    if (owner != -1)
     {
         if (!waloff[owner])
             tileLoad(owner);
