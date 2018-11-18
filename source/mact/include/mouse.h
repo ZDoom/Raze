@@ -69,7 +69,6 @@ static inline int32_t MOUSE_GetButtons(void)
 
 #define MOUSE_ClearButton(b) (g_mouseBits &= ~b)
 #define MOUSE_ClearAllButtons() g_mouseBits = 0
-#define MOUSE_GetDelta(x, y) mouseReadPos(x, y)
 
 #ifdef __cplusplus
 }
