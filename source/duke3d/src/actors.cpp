@@ -3534,14 +3534,14 @@ ACTOR_STATIC void G_MoveTransports(void)
                                     doWater = P_Submerge(sectSprite, playerNum, pPlayer, sectNum, sprite[OW(spriteNum)].sectnum);
                                 else if (sectLotag == ST_2_UNDERWATER)
                                     doWater = P_Emerge(sectSprite, playerNum, pPlayer, sectNum, sprite[OW(spriteNum)].sectnum);
-                            }
 
-                            if (doWater == 1)
-                            {
-                                pPlayer->pos.x += sprite[OW(spriteNum)].x - SX(spriteNum);
-                                pPlayer->pos.y += sprite[OW(spriteNum)].y - SY(spriteNum);
+                                if (doWater == 1)
+                                {
+                                    pPlayer->pos.x += sprite[OW(spriteNum)].x - SX(spriteNum);
+                                    pPlayer->pos.y += sprite[OW(spriteNum)].y - SY(spriteNum);
 
-                                P_FinishWaterChange(sectSprite, pPlayer, sectLotag, OW(spriteNum), sprite[OW(spriteNum)].sectnum);
+                                    P_FinishWaterChange(sectSprite, pPlayer, sectLotag, OW(spriteNum), sprite[OW(spriteNum)].sectnum);
+                                }
                             }
                         }
                         else if (!(sectLotag == ST_1_ABOVE_WATER && pPlayer->on_ground == 1))
