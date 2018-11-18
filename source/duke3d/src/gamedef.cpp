@@ -3035,12 +3035,7 @@ DO_DEFSTATE:
 
             if (EDUKE32_PREDICT_FALSE(g_numBraces > 0))
             {
-                C_ReportError(ERROR_OPENBRACKET);
-                g_errorCnt++;
-            }
-            else if (EDUKE32_PREDICT_FALSE(g_numBraces < 0))
-            {
-                C_ReportError(ERROR_CLOSEBRACKET);
+                C_ReportError(ERROR_NOTTOPLEVEL);
                 g_errorCnt++;
             }
 
@@ -6109,12 +6104,7 @@ repeatcase:
             }
             if (EDUKE32_PREDICT_FALSE(g_numBraces > 0))
             {
-                C_ReportError(ERROR_OPENBRACKET);
-                g_errorCnt++;
-            }
-            else if (EDUKE32_PREDICT_FALSE(g_numBraces < 0))
-            {
-                C_ReportError(ERROR_CLOSEBRACKET);
+                C_ReportError(ERROR_NOTTOPLEVEL);
                 g_errorCnt++;
             }
             // if event has already been declared then put a jump in instead
@@ -6159,9 +6149,9 @@ repeatcase:
                 g_errorCnt++;
                 g_parsingEventPtr = 0;
             }
-            if (EDUKE32_PREDICT_FALSE(g_numBraces != 0))
+            if (EDUKE32_PREDICT_FALSE(g_numBraces > 0))
             {
-                C_ReportError(g_numBraces > 0 ? ERROR_OPENBRACKET : ERROR_CLOSEBRACKET);
+                C_ReportError(ERROR_NOTTOPLEVEL);
                 g_errorCnt++;
             }
             g_parsingActorPtr = 0;
@@ -6702,8 +6692,8 @@ void C_ReportError(int32_t iError)
     }
     switch (iError)
     {
-    case ERROR_CLOSEBRACKET:
-        initprintf("%s:%d: error: found more `}' than `{' before `%s'.\n",g_scriptFileName,g_lineNumber,tempbuf);
+    case ERROR_NOTTOPLEVEL:
+        initprintf("%s:%d: error: `%s' not at top level within script.\n",g_scriptFileName,g_lineNumber,tempbuf);
         break;
     case ERROR_EVENTONLY:
         initprintf("%s:%d: error: keyword `%s' only available during events.\n",g_scriptFileName,g_lineNumber,tempbuf);
@@ -6740,9 +6730,6 @@ void C_ReportError(int32_t iError)
         break;
     case ERROR_INVALIDARRAYWRITE:
         initprintf("%s:%d: error: arrays can only be written to using `setarray'.\n",g_scriptFileName,g_lineNumber);
-        break;
-    case ERROR_OPENBRACKET:
-        initprintf("%s:%d: error: found more `{' than `}' before `%s'.\n",g_scriptFileName,g_lineNumber,tempbuf);
         break;
     case ERROR_PARAMUNDEFINED:
         initprintf("%s:%d: error: parameter `%s' is undefined.\n",g_scriptFileName,g_lineNumber,tempbuf);
