@@ -9199,7 +9199,15 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
     ////////// Read sectors //////////
 
     kread(fil,&numsectors,2); numsectors = B_LITTLE16(numsectors);
-    if ((unsigned)numsectors >= MYMAXSECTORS()+1) { kclose(fil); return -3; }
+    if ((unsigned)numsectors >= MYMAXSECTORS() + 1)
+    {
+    error:
+        numsectors = 0;
+        numwalls   = 0;
+        numsprites = 0;
+        kclose(fil);
+        return -3;
+    }
 
     kread(fil, sector, sizeof(sectortypev7)*numsectors);
 
@@ -9231,7 +9239,7 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
     ////////// Read walls //////////
 
     kread(fil,&numwalls,2); numwalls = B_LITTLE16(numwalls);
-    if ((unsigned)numwalls >= MYMAXWALLS()+1) { kclose(fil); return -3; }
+    if ((unsigned)numwalls >= MYMAXWALLS()+1) goto error;
 
     kread(fil, wall, sizeof(walltypev7)*numwalls);
 
@@ -9261,7 +9269,7 @@ int32_t engineLoadBoard(const char *filename, char flags, vec3_t *dapos, int16_t
     ////////// Read sprites //////////
 
     kread(fil,&numsprites,2); numsprites = B_LITTLE16(numsprites);
-    if ((unsigned)numsprites >= MYMAXSPRITES()+1) { kclose(fil); return -3; }
+    if ((unsigned)numsprites >= MYMAXSPRITES()+1) goto error;
 
     kread(fil, sprite, sizeof(spritetype)*numsprites);
 
