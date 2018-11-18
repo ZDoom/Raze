@@ -1405,7 +1405,7 @@ static int osdcmd_printtimes(osdcmdptr_t UNUSED(parm))
     for (auto & EventName : EventNames)
     {
         int const len = Bstrlen(EventName+strlen_event_);
-        Bassert(len < ARRAY_SIZE(buf));
+        Bassert(len < ARRAY_SSIZE(buf));
         maxlen = max(len, maxlen);
     }
 
