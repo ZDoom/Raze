@@ -164,41 +164,42 @@ int OSD_Exec(const char *szScript)
 {
     int err = 0;
     int32_t handle, len = 0;
-    char *buf = NULL;
 
     if ((handle = kopen4load(szScript, 0)) == -1)
         err = 1;
     else if ((len = kfilelength(handle)) <= 0)
         err = 2; // blank file
-    else if ((buf = (char *) Xmalloc(len + 1)) == NULL)
-        err = 3;
 
-    if (!err || err == 3)
+    if (!err)
         OSD_Printf("Executing \"%s\"\n", szScript);
+
+    auto buf = (char *) Xmalloc(len + 1);
 
     if (err || kread(handle, buf, len) != len)
     {
-        if (!err || err == 3) // no error message for blank file
+        if (err != 2) // no error message for blank file
             OSD_Printf("Error executing \"%s\"!\n", szScript);
-        if (handle != -1) kclose(handle);
+
+        if (handle != -1)
+            kclose(handle);
+
         Bfree(buf);
         return 1;
     }
 
     kclose(handle);
-
-    buf[len] = 0;
-    osd->execdepth++;
+    buf[len] = '\0';
 
     char const *cp = strtok(buf, "\r\n");
 
+    ++osd->execdepth;
     while (cp != NULL)
     {
         OSD_Dispatch(cp);
         cp = strtok(NULL, "\r\n");
     }
+    --osd->execdepth;
 
-    osd->execdepth--;
     Bfree(buf);
     return 0;
 }
@@ -251,12 +252,8 @@ static int osdfunc_exec(osdfuncparm_t const * const parm)
     if (parm->numparms != 1)
         return OSDCMD_SHOWHELP;
 
-    char fn[BMAX_PATH];
-
-    Bstrcpy(fn,parm->parms[0]);
-
-    if (OSD_Exec(fn))
-        OSD_Printf("%sexec: file \"%s\" not found.\n", osd->draw.errorfmt, fn);
+    if (OSD_Exec(parm->parms[0]))
+        OSD_Printf("%sexec: file \"%s\" not found.\n", osd->draw.errorfmt, parm->parms[0]);
 
     return OSDCMD_OK;
 }
